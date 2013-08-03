@@ -9,7 +9,12 @@ require_once("config.php");
 date_default_timezone_set('UTC');
 
 #Change time out to 5 seconds (default is 60)
-ini_set('default_socket_timeout', 5);
+ini_set('default_socket_timeout', 10);
+
+#Set script timeout to 6 seconds to give time for socket to timeout and return error
+set_time_limit(10);
+
+if (!isset($_SESSION["woeid"]) && isset($_REQUEST["os_ip"])) $_SESSION["woeid"] = get_woeid();
 
 #Get Base URL of Site
 if (isset($_SERVER['SERVER_NAME'])) $base_url = (($force_ssl) ? "https://" : "http://").$_SERVER['SERVER_NAME'].$_SERVER['PHP_SELF'];
@@ -17,13 +22,43 @@ if (isset($_SERVER['SERVER_NAME'])) $base_url = (($force_ssl) ? "https://" : "ht
 #Call action if requested and allowed
 if (isset($_REQUEST['action'])) {
 	if (is_callable($_REQUEST['action'])) {
-		if (($_REQUEST['action'] == "gettoken" || $_REQUEST['action'] == "checktoken" || $_REQUEST['action'] == "login" || $_REQUEST['action'] == "add_user") || is_auth()) {
+		if (in_array($_REQUEST["action"], array("current_status","submit_stations","make_stations_list","get_weather","runonce","send_en_mm","test_ip","make_settings_list","make_list_status","make_list_manual","fresh_program","make_all_programs","make_runonce","spoff","spon","mm_off","mm_on","en_on","en_off","rbt","rsn","raindelay","submit_options","delete_program","update_program","get_preview","import_config","export_config"))) {
 			call_user_func($_REQUEST['action']);
 		}
 		exit();
 	} else {
 		exit();
 	}
+}
+
+#Weather functions
+
+#Resolve location to WOEID
+function get_woeid() {
+    $options = get_options();
+    $data = file_get_contents("http://query.yahooapis.com/v1/public/yql?q=select%20woeid%20from%20geo.placefinder%20where%20text=%22".urlencode($options["loc"])."%22");
+    preg_match("/<woeid>(\d+)<\/woeid>/", $data, $woeid);
+    return intval($woeid[1]);
+}
+
+#Get the current weather code and temp
+function get_weather_data() {
+    $data = file_get_contents("http://weather.yahooapis.com/forecastrss?w=".$_SESSION["woeid"]);
+    if ($data === false) return array();
+    preg_match("/<yweather:condition\s+text=\"([\w|\s]+)\"\s+code=\"(\d+)\"\s+temp=\"(\d+)\"\s+date=\"(.*)\"/", $data, $newdata);
+    preg_match("/<title>Yahoo! Weather - (.*)<\/title>/",$data,$loc);
+    preg_match("/<yweather:location .*?country=\"(.*?)\"\/>/",$data,$region);
+    $region = $region[1];
+    if ($region == "United States" || $region == "Bermuda" || $region == "Palau") {
+        $temp = $newdata[3]."&#176;F";
+    } else {
+        $temp = intval(($newdata[3]-32)*(5/9))."&#176;C";
+    }
+    return array("text"=>$newdata[1],"code"=>$newdata[2],"temp"=>$temp,"date"=>$newdata[4],"location"=>$loc[1]);
+}
+
+function get_weather() {
+    echo json_encode(get_weather_data());
 }
 
 #Export/Import
@@ -40,7 +75,10 @@ function export_config() {
         $i++;
     }
     $newdata["options"] = get_options();
-    $newdata["stations"] = get_stations();
+
+    $vs = get_stations();
+    $newdata["stations"] = $vs["stations"];
+    $newdata["masop"] = $vs["masop"];
 
     echo json_encode($newdata);
 }
@@ -50,38 +88,49 @@ function import_config() {
     $data = json_decode($_REQUEST["data"],true);
     if (is_null($data)) echo 0;
     $cs = "/cs?pw="; $co = "/co?pw="; $cp_start = "/cp?pw="; $i = 0;
+    foreach ($data["options"] as $key => $value) {
+        if (is_array($value)) {
+            if (in_array($key, array(16,21,22,25)) && $value["val"] == 0) continue; 
+            $co .= "&o".$key."=".$value["val"];
+        } else if ($key == "loc") {
+            $co .= "&".$key."=".urlencode($value);
+        }
+    }
+    send_to_os($co);
     foreach ($data["stations"] as $station) {
         $cs .= "&s".$i."=".urlencode($station);
         $i++;
     }
-    send_to_os($cs);
     $i = 0;
+    foreach ($data["masop"] as $bit) {
+        $cs .= "&m".$i."=".urlencode($bit);
+        $i++;
+    }
+    send_to_os($cs);
+    send_to_os("/dp?pw=&pid=-1");
     foreach ($data["programs"] as $prog) {
-        send_to_os($cp_start."&pid=".$i."&v=".$prog);
+        send_to_os($cp_start."&pid=-1&v=".$prog);
     }
-    foreach ($data["options"] as $key => $data) {
-        if (is_array($data)) {
-            if (in_array($key, array(16,21,22,25)) && $data["val"] == 0) continue; 
-            $co .= "&o".$key."=".$data["val"];
-        } else if ($key == "loc") {
-            $co .= "&".$key."=".$data;
-        }
-    }
-    send_to_os($co);
 }
 
 #OpenSprinkler functions
 
 #Get station names
 function get_stations() {
-    $stations = get_from_os("/vs");
-    preg_match("/snames=\[(.*)\];/", $stations, $matches);
-    $stations = str_replace("'", "", $matches[1]);
-    $stations = explode(",", $stations);
+    $data = get_from_os("/vs");
+    preg_match("/snames=\[(.*)\];/", $data, $matches);
+    $data = str_getcsv($matches[1],",","'");
+    foreach ($data as $station) {
+        $station = preg_replace("/\\\u([0-9a-eA-E]{4})/", "&#x\\1;", $station);
+        $stations[] = $station;
+    }
+
+    preg_match("/masop=\[(.*?)\]/", $data, $masop);
+    $masop = explode(",",$masop[1]);
 
     #Pop the last element off the array which is always an extra empty string
     array_pop($stations);
-    return $stations;
+    return array("stations" => $stations,"masop" => $masop);
 }
 
 #Get program information
@@ -158,7 +207,8 @@ function process_programs($month,$day,$year) {
     $newdata = array();
 
     $newdata["settings"] = get_settings();
-    $newdata["stations"] = get_stations();
+    $vs = get_stations();
+    $newdata["stations"] = $vs["stations"];
 
     $data = get_from_os("/gp?d=".$day."&m=".$month."&y=".$year);
     preg_match_all("/(seq|mas|wl|sdt|mton|mtoff|devday|devmin|dd|mm|yy|nprogs|nboards|ipas|mnp)=[\w|\d|.\"]+/", $data, $opts);
@@ -168,6 +218,12 @@ function process_programs($month,$day,$year) {
         $tmp = str_replace('"','',explode("=", $variable));
         $newdata[$tmp[0]] = $tmp[1];
     }
+
+    #Fix for missing sequential option on RPi interval program
+    if (!isset($newdata["seq"])) $newdata["seq"] = 1;
+
+    preg_match("/masop=\[(.*?)\]/", $data, $masop);
+    $newdata["masop"] = explode(",",$masop[1]);
 
     preg_match("/pd=\[\];(.*);/", $data, $progs);
     $progs = explode(";", $progs[1]);
@@ -269,46 +325,25 @@ function run_sched($simseconds,$st_array,$pid_array,$et_array,$data,$simt) {
     if($pid_array[$sid]) {
       if($data["seq"]==1) {
         time_to_text($sid,$st_array[$sid],$pid_array[$sid],$et_array[$sid],$data,$simt);
-//        echo "Station: ".$sid.", Start Time: ".$st_array[$sid].", Program ID: ".$pid_array[$sid].", End Time: ".$et_array[$sid]."\n<br>";
         if(($data["mas"]>0)&&($data["mas"]!=$sid+1)&&($data["masop"][$sid>>3]&(1<<($sid%8))))
-            echo "Master Start: ".$st_array[$sid]+$data["mton"].", Master End: ".($et_array[$sid]+$data["mtoff"]-60)."\n<br>";
-            $endtime=$et_array[$sid];
+            echo "{'start': ".($st_array[$sid]+$data["mton"]).",'end': ".($et_array[$sid]+$data["mtoff"]).",'content':'','className':'master','group':'Master'},";
+        $endtime=$et_array[$sid];
       } else {
         time_to_text($sid,$simseconds,$pid_array[$sid],$et_array[$sid],$data,$simt);
-//        echo "Station: ".$sid.", Start Time: ".$simseconds.", Program ID: ".$pid_array[$sid].", End Time: ".$et_array[$sid]."\n<br>";
         if(($data["mas"]>0)&&($data["mas"]!=$sid+1)&&($data["masop"][$sid>>3]&(1<<($sid%8))))
           $endtime=($endtime>$et_array[$sid])?$endtime:$et_array[$sid];
       }
     }
   }
-  if($data["seq"]==0&&$data["mas"]>0) echo "Master Start: ".$simseconds.", Master End: ".$endtime."\n<br>";
+  if($data["seq"]==0&&$data["mas"]>0) echo "{'start': ".$simseconds.",'end': ".$endtime.",'content':'','className':'master','group':'Master'},";
   return $endtime;
 }
 
 function time_to_text($sid,$start,$pid,$end,$data,$simt) {
-    if (($data["settings"]["rd"]!=0)&&($simt+$start+($data["settings"]["tz"]-48)*900<=$data["settings"]["rdst"])) {
-        $rain_color="red";
-        $rain_skip="Skip";
-    } else {
-        $rain_color="black";
-        $rain_skip="";
-    }
-    echo $data["stations"][$sid]." ".getrunstr($start,$end)." P".$pid." ".(($end-$start)/60>>0)."minutes ".$rain_skip."\n<br><br>";
+    $class = "program-".(($pid+3)%4);
+    if (($data["settings"]["rd"]!=0)&&($simt+$start+($data["settings"]["tz"]-48)*900<=$data["settings"]["rdst"])) $class="delayed";
+    echo "{'start': ".$start.",'end': ".$end.",'className':'".$class."','content':'P".$pid."','group':'".$data["stations"][$sid]."'},";
 }
-
-function getrunstr($start,$end){
-    $h=$start/3600>>0;
-    $m=($start/60>>0)%60;
-    $s=$start%60;
-
-    $str=($h/10>>0).($h%10).":".($m/10>>0).($m%10).":".($s/10>>0).($s%10);
-
-    $h=$end/3600>>0;
-    $m=($end/60>>0)%60;
-    $s=$end%60;
-    $str = $str."->".($h/10>>0).($h%10).":".($m/10>>0).($m%10).":".($s/10>>0).($s%10);
-    return $str;
-} 
 
 #Get OpenSprinkler options
 function get_options() {
@@ -337,7 +372,14 @@ function get_settings() {
     preg_match_all("/(ver|devt|nbrd|tz|en|rd|rs|mm|rdst|mas|urs|wl|ipas)=[\w|\d|.\"]+/", $data, $matches);
     preg_match("/loc=\"(.*)\"/",$data,$loc);
     preg_match("/lrun=\[(.*)\]/", $data, $lrun);
-    $newdata = array("lrun" => explode(",", $lrun[1]), "loc" => $loc[1]);
+    preg_match("/ps=\[(.*)\];/",$data,$ps);
+    $ps = explode("],[",$ps[1]);
+    $i = 0;
+    foreach ($ps as $p) {
+        $ps[$i] = explode(",",str_replace(array("[","]"), "", $ps[$i]));
+        $i++;
+    }
+    $newdata = array("ps" => $ps, "lrun" => explode(",", $lrun[1]), "loc" => $loc[1]);
     foreach ($matches[0] as $variable) {
         if ($variable === "") continue;
         $tmp = str_replace('"','',explode("=", $variable));
@@ -351,30 +393,23 @@ function get_station_status() {
     return str_split($data[0]);
 }
 
-#Check if operation is enabled
-function is_en() {
+function send_en_mm() {
     $settings = get_settings();
-    if ($settings["en"] == 1) return "selected";
-}
-
-#Check if manual mode is enabled
-function is_mm() {
-    $settings = get_settings();
-    if ($settings["mm"] == 1) return "selected";
+    echo json_encode(array("en" => $settings["en"], "mm" => $settings["mm"]));
 }
 
 #Send command to OpenSprinkler
 function send_to_os($url) {
-    $url = str_replace("pw=", "pw=".$_SESSION["os_pw"], $url);
-    $result = file_get_contents("http://".$_SESSION["os_ip"].$url);
+    $url = str_replace("pw=", "pw=".$_REQUEST["os_pw"], $url);
+    $result = file_get_contents("http://".$_REQUEST["os_ip"].$url);
     if ($result === false) { echo 0; exit(); }
     echo 1;
 }
 
 #Get data from OpenSprinkler
 function get_from_os($url) {
-    $url = str_replace("pw=", "pw=".$_SESSION["os_pw"], $url);
-    return file_get_contents("http://".$_SESSION["os_ip"].$url);
+    $url = str_replace("pw=", "pw=".$_REQUEST["os_pw"], $url);
+    return file_get_contents("http://".$_REQUEST["os_ip"].$url);
 }
 
 #Updates a program
@@ -389,8 +424,14 @@ function delete_program() {
 
 #Submit updated options
 function submit_options() {
-    send_to_os("/cs?pw=&".http_build_query(json_decode($_REQUEST["names"])));
     send_to_os("/co?pw=&".http_build_query(json_decode($_REQUEST["options"])));
+    $_SESSION["woeid"] = get_woeid();
+}
+
+#Submit updated stations
+function submit_stations() {
+    $masop = (isset($_REQUEST["masop"])) ? "&".http_build_query(json_decode($_REQUEST["masop"])) : "";
+    send_to_os("/cs?pw=&".http_build_query(json_decode($_REQUEST["names"])).$masop);
 }
 
 #Submit run-once program
@@ -448,86 +489,44 @@ function spoff() {
 
 #Make run-once list
 function make_runonce() {
-    $list = "<p align='center'>Value is in minutes. Zero means the station will be excluded from the run-once program.</p><div data-role='fieldcontain'>";
+    $list = "<p style='text-align:center'>Value is in minutes. Zero means the station will be excluded from the run-once program.</p><div data-role='fieldcontain'>";
     $n = 0;
-    $stations = get_stations();
+    $data = get_programs();
+    $vs = get_stations();
+    $stations = $vs["stations"];
     foreach ($stations as $station) {
-        $list .= "<label for='zone-".$n."'>".$station.":</label><input type='number' data-highlight='true' data-type='range' name='zone-".$n."' min='0' max='30' id='zone-".$n."' value='0'>";
+        $list .= "<label for='zone-".$n."'>".$station.":</label><input type='number' data-highlight='true' data-type='range' name='zone-".$n."' min='0' max='50' id='zone-".$n."' value='0'>";
         $n++;
     }
-    echo $list."</div><button onclick='submit_runonce()'>Submit</button>";
+    $list .= "</div><a data-role='button' onclick='submit_runonce();'>Submit</a><a data-role='button' data-theme='a' onclick='reset_runonce();'>Reset</a>";
+    $progs = array();
+    if (count($data["programs"])) {
+        foreach ($data["programs"] as $program) {
+            $prog = array();
+            $set_stations = str_split($program["stations"]);
+            for ($i=0;$i<count($stations);$i++) { 
+                $prog[] = (isset($set_stations[$i]) && $set_stations[$i]) ? $program["duration"] : 0;
+            }
+            $progs[] = $prog;
+        }
+    }
+    echo json_encode(array("page"=>$list,"progs"=>$progs));
 }
 
 #Make the list of all programs
-function make_list_programs() {
+function make_all_programs() {
     $data = get_programs();
-    $stations = get_stations();
-    $list = "<p align='center'>Click any program below to expand/edit. Be sure to save changes by hitting submit below.</p><div data-role='collapsible-set' data-theme='c' data-content-theme='d'>";
-    $week = array("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday");
-    $n = 0;
     $total = count($data["programs"]);
     if ($total == 0) {
-        echo "<p align='center'>You have no programs currently added. Tap the Add button on the top right corner to get started.</p>";
+        echo "<p style='text-align:center'>You have no programs currently added. Tap the Add button on the top right corner to get started.</p>";
         return;
     }
+    $vs = get_stations();
+    $stations = $vs["stations"];
+    $n = 0;
+    $list = "<p style='text-align:center'>Click any program below to expand/edit. Be sure to save changes by hitting submit below.</p><div data-role='collapsible-set' data-theme='c' data-content-theme='d'>";
     foreach ($data["programs"] as $program) {
-        if (is_array($program["days"])) {
-            $days = $program["days"];
-        } else {
-            $days = str_split($program["days"]);
-        }
-        $set_stations = str_split($program["stations"]);
-        $list .= "<fieldset ".((!$n && $total == 1) ? "data-collapsed='false'" : "")." id='program-".$n."' data-role='collapsible' data-theme='b' data-content-theme='d'><legend>Program ".($n + 1)."</legend>";
-
-        $list .= "<input type='checkbox' ".(($program["en"]) ? "checked='checked'" : "")." name='en-".$n."' id='en-".$n."'><label for='en-".$n."'>Enabled</label>";
-        $list .= "<fieldset data-role='controlgroup' data-type='horizontal' style='text-align: center'>";
-        $list .= "<input type='radio' name='rad_days-".$n."' id='days_week-".$n."' value='days_week-".$n."' ".(($program["is_interval"]) ? "" : "checked='checked'")."><label for='days_week-".$n."'>Weekly</label>";
-        $list .= "<input type='radio' name='rad_days-".$n."' id='days_n-".$n."' value='days_n-".$n."' ".(($program["is_interval"]) ? "checked='checked'" : "")."><label for='days_n-".$n."'>Interval</label>";
-        $list .= "</fieldset><div id='input_days_week-".$n."' ".(($program["is_interval"]) ? "style='display:none'" : "").">";
-
-        $list .= "<fieldset data-role='controlgroup' data-type='horizontal' style='text-align: center'><p>Restrictions</p>";
-        $list .= "<input type='radio' name='rad_rst-".$n."' id='days_norst-".$n."' value='days_norst-".$n."' ".((!$program["is_even"] && !$program["is_odd"]) ? "checked='checked'" : "")."><label for='days_norst-".$n."'>None</label>";
-        $list .= "<input type='radio' name='rad_rst-".$n."' id='days_odd-".$n."' value='days_odd-".$n."' ".((!$program["is_even"] && $program["is_odd"]) ? "checked='checked'" : "")."><label for='days_odd-".$n."'>Odd</label>";
-        $list .= "<input type='radio' name='rad_rst-".$n."' id='days_even-".$n."' value='days_even-".$n."' ".((!$program["is_odd"] && $program["is_even"]) ? "checked='checked'" : "")."><label for='days_even-".$n."'>Even</label>";
-        $list .= "</fieldset>";
-
-        $list .= "<fieldset data-role='controlgroup'><legend>Days:</legend>";
-        $j = 0;            
-        foreach ($week as $day) {
-            $list .= "<input type='checkbox' ".((!$program["is_interval"] && $days[$j]) ? "checked='checked'" : "")." name='d".$j."-".$n."' id='d".$j."-".$n."'><label for='d".$j."-".$n."'>".$day."</label>";
-            $j++;
-        }
-        $list .= "</fieldset></div>";
-
-        $list .= "<div ".(($program["is_interval"]) ? "" : "style='display:none'")." id='input_days_n-".$n."' class='ui-grid-a'>";
-        $list .= "<div class='ui-block-a'><label for='every-".$n."'>Day Interval</label><input type='number' name='every-".$n."' pattern='[0-9]*' id='every-".$n."' value='".$days[0]."'></div>";
-        $list .= "<div class='ui-block-b'><label for='starting-".$n."'>Starting In</label><input type='number' name='starting-".$n."' pattern='[0-9]*' id='starting-".$n."' value='".$days[1]."'></div>";
-        $list .= "</div>";
-
-        $list .= "<fieldset data-role='controlgroup'><legend>Stations:</legend>";
-        $j = 0;
-        foreach ($stations as $station) {
-            $list .= "<input type='checkbox' ".(($set_stations[$j]) ? "checked='checked'" : "")." name='station_".$j."-".$n."' id='station_".$j."-".$n."'><label for='station_".$j."-".$n."'>".$station."</label>";
-            $j++;
-        }
-        $list .= "</fieldset>";
-
-        $list .= "<fieldset data-role='controlgroup' data-type='horizontal' style='text-align: center'>";
-        $list .= "<input type='reset' name='s_checkall-".$n."' id='s_checkall-".$n."' value='Check All' />";
-        $list .= "<input type='reset' name='s_uncheckall-".$n."' id='s_uncheckall-".$n."' value='Uncheck All' />";
-        $list .= "</fieldset>";
-
-        $list .= "<div class='ui-grid-a'>";
-        $list .= "<div class='ui-block-a'><label for='start-".$n."'>Start Time</label><input type='time' name='start-".$n."' id='start-".$n."' value='".gmdate("H:i", $program["start"]*60)."'></div>";
-        $list .= "<div class='ui-block-b'><label for='end-".$n."'>End Time</label><input type='time' name='end-".$n."' id='end-".$n."' value='".gmdate("H:i", $program["end"]*60)."'></div>";
-        $list .= "</div>";
-
-        $list .= "<label for='duration-".$n."'>Duration (minutes)</label><input type='number' data-highlight='true' data-type='range' name='duration-".$n."' min='0' max='30' id='duration-".$n."' value='".($program["duration"]/60)."'>";
-        $list .= "<label for='interval-".$n."'>Interval (minutes)</label><input type='number' data-highlight='true' data-type='range' name='interval-".$n."' min='0' max='1440' id='interval-".$n."' value='".($program["interval"])."'>";
-
-        $list .= "<input type='submit' name='submit-".$n."' id='submit-".$n."' value='Save Changes to Program ".($n + 1)."'>";
-        $list .= "<input data-theme='a' type='submit' name='delete-".$n."' id='delete-".$n."' value='Delete Program ".($n + 1)."'></fieldset>";
-
+        $list .= make_program($n,$total,$stations,$program);
         $n++;
     }
     echo $list."</div>";
@@ -535,123 +534,233 @@ function make_list_programs() {
 
 #Generate a new program view
 function fresh_program() {
-    $stations = get_stations();
-    $week = array("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday");
+    $vs = get_stations();
+    $stations = $vs["stations"];
+    echo make_program("new",1,$stations);
+}
 
-    $list = "<fieldset id='program-new' data-theme='b' data-content-theme='d'><input type='checkbox' name='en-new' id='en-new'><label for='en-new'>Enabled</label>";
+function make_program($n,$total,$stations,$program=array("en"=>0,"is_interval"=>0,"is_even"=>0,"is_odd"=>0,"duration"=>0,"interval"=>0,"start"=>0,"end"=>0)) {
+    $week = array("M", "T", "W", "R", "F", "Sa", "Su");
+    if (isset($program["days"])) {
+        if (is_array($program["days"])) {
+            $days = $program["days"];
+        } else {
+            $days = str_split($program["days"]);
+        }
+    } else {
+        $days = array(0,0,0,0,0,0,0);
+    }
+    if (isset($program["stations"])) $set_stations = str_split($program["stations"]);
+    $list = "<fieldset ".((!$n && $total == 1) ? "data-collapsed='false'" : "")." id='program-".$n."' ".(($n === "new") ? "" : "data-role='collapsible'")." data-theme='b' data-content-theme='d'>";
+    if ($n !== "new") $list .= "<legend>Program ".($n + 1)."</legend>";
+    $list .= "<input data-mini='true' type='checkbox' ".(($program["en"]) ? "checked='checked'" : "")." name='en-".$n."' id='en-".$n."'><label for='en-".$n."'>Enabled</label>";
     $list .= "<fieldset data-role='controlgroup' data-type='horizontal' style='text-align: center'>";
-    $list .= "<input type='radio' name='rad_days-new' id='days_week-new' value='days_week-new' checked='checked'><label for='days_week-new'>Weekly</label>";
-    $list .= "<input type='radio' name='rad_days-new' id='days_n-new' value='days_n-new'><label for='days_n-new'>Interval</label>";
-    $list .= "</fieldset><div id='input_days_week-new'>";
+    $list .= "<input data-mini='true' type='radio' name='rad_days-".$n."' id='days_week-".$n."' value='days_week-".$n."' ".(($program["is_interval"]) ? "" : "checked='checked'")."><label for='days_week-".$n."'>Weekly</label>";
+    $list .= "<input data-mini='true' type='radio' name='rad_days-".$n."' id='days_n-".$n."' value='days_n-".$n."' ".(($program["is_interval"]) ? "checked='checked'" : "")."><label for='days_n-".$n."'>Interval</label>";
+    $list .= "</fieldset><div id='input_days_week-".$n."' ".(($program["is_interval"]) ? "style='display:none'" : "").">";
 
-    $list .= "<fieldset data-role='controlgroup' data-type='horizontal' style='text-align: center'><p>Restrictions</p>";
-    $list .= "<input type='radio' name='rad_rst-new' id='days_norst-new' value='days_norst-new' checked='checked'><label for='days_norst-new'>None</label>";
-    $list .= "<input type='radio' name='rad_rst-new' id='days_odd-new' value='days_odd-new'><label for='days_odd-new'>Odd</label>";
-    $list .= "<input type='radio' name='rad_rst-new' id='days_even-new' value='days_even-new'><label for='days_even-new'>Even</label>";
+    $list .= "<fieldset data-role='controlgroup' data-type='horizontal' style='text-align: center'><p style='margin:0'>Restrictions</p>";
+    $list .= "<input data-mini='true' type='radio' name='rad_rst-".$n."' id='days_norst-".$n."' value='days_norst-".$n."' ".((!$program["is_even"] && !$program["is_odd"]) ? "checked='checked'" : "")."><label for='days_norst-".$n."'>None</label>";
+    $list .= "<input data-mini='true' type='radio' name='rad_rst-".$n."' id='days_odd-".$n."' value='days_odd-".$n."' ".((!$program["is_even"] && $program["is_odd"]) ? "checked='checked'" : "")."><label for='days_odd-".$n."'>Odd Days</label>";
+    $list .= "<input data-mini='true' type='radio' name='rad_rst-".$n."' id='days_even-".$n."' value='days_even-".$n."' ".((!$program["is_odd"] && $program["is_even"]) ? "checked='checked'" : "")."><label for='days_even-".$n."'>Even Days</label>";
     $list .= "</fieldset>";
 
-    $list .= "<fieldset data-role='controlgroup'><legend>Days:</legend>";
+    $list .= "<fieldset data-type='horizontal' data-role='controlgroup' style='text-align: center'><p style='margin:0'>Days of the Week</p>";
     $j = 0;            
     foreach ($week as $day) {
-        $list .= "<input type='checkbox' name='d".$j."-new' id='d".$j."-new'><label for='d".$j."-new'>".$day."</label>";
+        $list .= "<input data-mini='true' type='checkbox' ".((!$program["is_interval"] && $days[$j]) ? "checked='checked'" : "")." name='d".$j."-".$n."' id='d".$j."-".$n."'><label for='d".$j."-".$n."'>".$day."</label>";
         $j++;
     }
     $list .= "</fieldset></div>";
 
-    $list .= "<div style='display:none' id='input_days_n-new' class='ui-grid-a'>";
-    $list .= "<div class='ui-block-a'><label for='every-new'>Day Interval</label><input type='number' name='every-new' pattern='[0-9]*' id='every-new'></div>";
-    $list .= "<div class='ui-block-b'><label for='starting-new'>Starting In</label><input type='number' name='starting-new' pattern='[0-9]*' id='starting-new'></div>";
+    $list .= "<div ".(($program["is_interval"]) ? "" : "style='display:none'")." id='input_days_n-".$n."' class='ui-grid-a'>";
+    $list .= "<div class='ui-block-a'><label for='every-".$n."'>Interval (Days)</label><input data-mini='true' type='number' name='every-".$n."' pattern='[0-9]*' id='every-".$n."' value='".$days[0]."'></div>";
+    $list .= "<div class='ui-block-b'><label for='starting-".$n."'>Starting In</label><input data-mini='true' type='number' name='starting-".$n."' pattern='[0-9]*' id='starting-".$n."' value='".$days[1]."'></div>";
     $list .= "</div>";
+
     $list .= "<fieldset data-role='controlgroup'><legend>Stations:</legend>";
     $j = 0;
     foreach ($stations as $station) {
-        $list .= "<input type='checkbox' name='station_".$j."-new' id='station_".$j."-new'><label for='station_".$j."-new'>".$station."</label>";
+        $list .= "<input data-mini='true' type='checkbox' ".((isset($set_stations) && $set_stations[$j]) ? "checked='checked'" : "")." name='station_".$j."-".$n."' id='station_".$j."-".$n."'><label for='station_".$j."-".$n."'>".$station."</label>";
         $j++;
     }
     $list .= "</fieldset>";
 
     $list .= "<fieldset data-role='controlgroup' data-type='horizontal' style='text-align: center'>";
-    $list .= "<input type='reset' name='s_checkall-new' id='s_checkall-new' value='Check All' />";
-    $list .= "<input type='reset' name='s_uncheckall-new' id='s_uncheckall-new' value='Uncheck All' />";
+    $list .= "<input data-mini='true' type='reset' name='s_checkall-".$n."' id='s_checkall-".$n."' value='Check All' />";
+    $list .= "<input data-mini='true' type='reset' name='s_uncheckall-".$n."' id='s_uncheckall-".$n."' value='Uncheck All' />";
     $list .= "</fieldset>";
 
     $list .= "<div class='ui-grid-a'>";
-    $list .= "<div class='ui-block-a'><label for='start-new'>Start Time</label><input type='time' name='start-new' id='start-new'></div>";
-    $list .= "<div class='ui-block-b'><label for='end-new'>End Time</label><input type='time' name='end-new' id='end-new'></div>";
+    $list .= "<div class='ui-block-a'><label for='start-".$n."'>Start Time</label><input data-mini='true' type='time' name='start-".$n."' id='start-".$n."' value='".gmdate("H:i", $program["start"]*60)."'></div>";
+    $list .= "<div class='ui-block-b'><label for='end-".$n."'>End Time</label><input data-mini='true' type='time' name='end-".$n."' id='end-".$n."' value='".gmdate("H:i", $program["end"]*60)."'></div>";
     $list .= "</div>";
 
-    $list .= "<label for='duration-new'>Duration (minutes)</label><input type='number' data-highlight='true' data-type='range' name='duration-new' min='0' max='30' id='duration-new'>";
-    $list .= "<label for='interval-new'>Interval (minutes)</label><input type='number' data-highlight='true' data-type='range' name='interval-new' min='0' max='1440' id='interval-new'>";
-
-    $list .= "<input type='submit' name='submit-new' id='submit-new' value='Save New Program'>";
-    echo $list;
+    $list .= "<label for='duration-".$n."'>Duration (minutes)</label><input data-mini='true' type='number' data-highlight='true' data-type='range' name='duration-".$n."' min='0' max='300' id='duration-".$n."' value='".($program["duration"]/60)."'>";
+    $list .= "<label for='interval-".$n."'>Interval (minutes)</label><input data-mini='true' type='number' data-highlight='true' data-type='range' name='interval-".$n."' min='0' max='1439' id='interval-".$n."' value='".($program["interval"])."'>";
+    if ($n === "new") {
+        $list .= "<input data-mini='true' type='submit' name='submit-".$n."' id='submit-".$n."' value='Save New Program'></fieldset>";
+    } else {
+        $list .= "<input data-mini='true' type='submit' name='submit-".$n."' id='submit-".$n."' value='Save Changes to Program ".($n + 1)."'>";
+        $list .= "<input data-mini='true' data-theme='a' type='submit' name='delete-".$n."' id='delete-".$n."' value='Delete Program ".($n + 1)."'></fieldset>";
+    }
+    return $list;
 }
 
 #Make the manual list
 function make_list_manual() {
     $list = '<li data-role="list-divider">Sprinkler Stations</li>';
-    $stations = get_stations();
+    $vs = get_stations();
+    $stations = $vs["stations"];
     $status = get_station_status();
     $i = 0;
 
     foreach ($stations as $station) {
-        $list .= '<li><a '.(($status[$i]) ? 'class="green" ' : '').'href="javascript:toggle()">'.$station.'</a></li>';
+        $list .= '<li data-icon="false"><a style="text-align:center" '.(($status[$i]) ? 'class="green" ' : '').'href="#" onclick="toggle(this)">'.$station.'</a></li>';
         $i++;
     }
     echo $list;
+}
+
+function current_status() {
+    $settings = get_settings();
+    $vs = get_stations();
+    $stations = $vs["stations"];
+    $status = get_station_status();
+    $options = get_options();
+
+    if (!$settings["en"]) {
+        $line = "<p id='running-text' style='text-align:center'>System Disabled</p>";
+        echo json_encode(array("color" => "red","line" => $line,"seconds" => 0,"sdelay" => $options[17]["val"])); return;
+    }
+
+    if ($settings["rd"]) {
+        $line = "<p id='running-text' style='text-align:center'>Rain delay until ".gmdate("D, d M Y H:i:s",$settings["rdst"])."</p>";
+        echo json_encode(array("color" => "red","line" => $line,"seconds" => 0,"sdelay" => $options[17]["val"])); return;
+    }
+
+    if ($settings["urs"] && $settings["rs"]) {
+        $line = "<p id='running-text' style='text-align:center'>Rain detected</p>";
+        echo json_encode(array("color" => "red","line" => $line,"seconds" => 0,"sdelay" => $options[17]["val"])); return;
+    }
+
+    $open = array_keys($status,true);
+    if (count($open) >= 2) {
+        $ptotal = 0;
+        foreach ($open as $key => $value) {
+            $ptotal += $settings["ps"][$value][1];
+        }
+        $sample = $open[0];
+        $pname = pidname($settings["ps"][$sample][0]);
+        $line = "<img id='running-icon' width='11px' height='11px' src='img/running.png' /><p id='running-text'>";
+        $line .= $pname." is running on ".count($open)." stations ";
+        if ($pname != "Manual program") $line .= "<span id='countdown' class='nobr'>(".sec2hms($ptotal)." remaining)</span>";
+        $line .= "</p>";
+        echo json_encode(array("color" => "green","line" => $line,"seconds" => $ptotal,"sdelay" => $options[17]["val"]));
+        return;
+    }
+
+    $i = 0;
+    foreach ($stations as $station) {
+        $info = "";
+        if ($settings["ps"][$i][0] && $status[$i]) {
+            $pname = pidname($settings["ps"][$i][0]);
+            $line = "<img id='running-icon' width='11px' height='11px' src='img/running.png' /><p id='running-text'>";
+            $line .= $pname." is running on station <span class='nobr'>".$station."</span> ";
+            if ($pname != "Manual program") $line .= "<span id='countdown' class='nobr'>(".sec2hms($settings["ps"][$i][1])." remaining)</span>";
+            $line .= "</p>";
+            echo json_encode(array("color" => "green","line" => $line,"seconds" => $settings["ps"][$i][1],"sdelay" => $options[17]["val"]));
+            return;
+        }
+        $i++;
+    }
+
+    if ($settings["mm"]) {
+        $line = "<p id='running-text' style='text-align:center'>Manual mode enabled</p>";
+        echo json_encode(array("color" => "red","line" => $line,"seconds" => 0,"sdelay" => $options[17]["val"])); return;
+    }
 }
 
 #Generate status page
 function make_list_status() {
     $settings = get_settings();
-    $stations = get_stations();
+    $vs = get_stations();
+    $stations = $vs["stations"];
     $status = get_station_status();
+    $options = get_options();
 
-    $tz = $settings['tz']-48;
-    $tz = (($tz>=0) ? "+" : "-").(abs($tz)/4).":".((abs($tz)%4)*15/10).((abs($tz)%4)*15%10);
+    $runningTotal = array();
+    $allPnames = array();
 
-    $list = '<li data-role="list-divider">Device Time</li><li>'.gmdate("D, d M Y H:i:s",$settings["devt"]).'</li>';
-
-    $list .= '<li data-role="list-divider">Time Zone</li><li>GMT '.$tz.'</li>';
-
-    $ver = join(".",str_split($settings["ver"]));
+    $list = "";$tz = $settings['tz']-48;
+    $tz = (($tz>=0) ? "+" : "-").(abs($tz)/4>>0).":".((abs($tz)%4)*15/10>>0).((abs($tz)%4)*15%10);
     
-    $list .= '<li data-role="list-divider">Firmware Version</li><li>'.$ver.'</li>';
+    $header = "<span id='clock-s' class='nobr'>".gmdate("D, d M Y H:i:s",$settings["devt"])."</span> GMT ".$tz;
+    $runningTotal["c"] = $settings["devt"];
 
-    $list .= '<li data-role="list-divider">System Enabled</li><li>'.(($settings["en"]==1) ? "Yes" : "No").'</li>';
-
-    $list .= '<li data-role="list-divider">Rain Delay</li><li>'.(($settings["rd"]==0) ? "No" : "Until ".gmdate("D, d M Y H:i:s",$settings["rdst"])).'</li>';
-
-    $list .= '<li data-role="list-divider">Rain Sensor</li><li>'.($settings["urs"] ? ($settings["rs"] ? "Rain Detected" : "No Rain Detected" ) : "Not Enabled").'</li>';
-
-    $lrpid = $settings["lrun"][1]; $lrdur = $settings["lrun"][2];
-    $pname="from program ".$lrpid;
-    if($lrpid==255||$lrpid==99) $pname="from manual mode";
-    if($lrpid==254||$lrpid==98) $pname="from a run-once program";
-
-    if ($lrdur != 0) {
-        $list .= '<li data-role="list-divider">Last Run</li>';
-        $list .= '<li>'.$stations[$settings["lrun"][0]].' ran '.$pname.' for '.($lrdur/60>>0).'m '.($lrdur%60).'s on '.gmdate("D, d M Y H:i:s",$settings["lrun"][3]).'</li>';
-    }
-    $list .= '<li data-role="list-divider">Sprinkler Stations</li>';
     $i = 0;
     foreach ($stations as $station) {
+        $info = "";
+        if ($settings["ps"][$i][0]) {
+            $rem=$settings["ps"][$i][1];
+            $remm=$rem/60>>0;
+            $rems=$rem%60;
+            $pname = pidname($settings["ps"][$i][0]);
+            if ($status[$i] && $pname != "Manual program") $runningTotal[$i] = $rem;
+            $allPnames[$i] = $pname;
+            $info = "<p class='rem'>".(($status[$i]) ? "Running" : "Scheduled" )." ".$pname;
+            if ($pname != "Manual program") $info .= " <span id='countdown-".$i."' class='nobr'>(".($remm/10>>0).($remm%10).":".($rems/10>>0).($rems%10)." remaining)</span>";
+            $info .= "</p>";
+        }
+        if ($settings["mas"] == $i+1) $station .= " (Master)";
         if ($status[$i]) {
             $color = "green";
         } else {
             $color = "red";
         }
-        $list .= '<li class="'.$color.'">'.$station.'</li>';
+        $list .= "<li class='".$color."'><p class='sname'>".$station."</p>".$info."</li>";
         $i++;
     }
-    echo $list;
+
+    $footer = "";
+    $lrdur = $settings["lrun"][2];
+
+    if ($lrdur != 0) {
+        $lrpid = $settings["lrun"][1];
+        $pname=pidname($lrpid);
+        
+        $footer = '<p>'.$pname.' last ran station '.$stations[$settings["lrun"][0]].' for '.($lrdur/60>>0).'m '.($lrdur%60).'s on '.gmdate("D, d M Y H:i:s",$settings["lrun"][3]).'</p>';
+    }
+
+    $ptotal = 0;
+    foreach ($settings["ps"] as $valve) {
+        if ($valve[0]) $ptotal += $valve[1];
+    }
+
+    if ($ptotal) {
+        $open = count(array_keys($status,true));
+        $scheduled = count($allPnames);
+        if (!$open && $scheduled) $runningTotal["d"] = $options[17]["val"];
+        if ($open == 1) $ptotal += ($scheduled-1)*$options[17]["val"];
+        $allPnames = array_unique($allPnames);
+        $numProg = count($allPnames);
+        $allPnames = strrev(preg_replace(strrev("/, /"),strrev(" and "),strrev(implode(", ", $allPnames)),1));
+        $pinfo = $allPnames.(($numProg > 1) ? " are" : " is" )." running ";
+        $pinfo .= "<span id='countdown-p' class='nobr'>(".sec2hms($ptotal)." remaining)</span>";
+        $runningTotal["p"] = $ptotal;
+        $header .= "<br>".$pinfo;
+    }
+
+    echo json_encode(array("list" => $list,"header" => $header,"footer" => $footer, "sdelay" => $options[17]["val"], "totals" => json_encode($runningTotal)));
 }
 
 #Generate settings page
 function make_settings_list() {
     $options = get_options();
-    $stations = get_stations();
-    $list = "<ul data-role='listview' data-inset='true'><li data-role='list-divider'>Primary Settings</li><li><div data-role='fieldcontain'><fieldset>";
+    $settings = get_settings();
+    $vs = get_stations();
+    $stations = $vs["stations"];
+    $list = "<li><div data-role='fieldcontain'><fieldset>";
     foreach ($options as $key => $data) {
         if (!is_int($key)) continue;
         switch ($key) {
@@ -659,7 +768,7 @@ function make_settings_list() {
                 $timezones = array("-12:00","-11:30","-11:00","-10:00","-09:30","-09:00","-08:30","-08:00","-07:00","-06:00","-05:00","-04:30","-04:00","-03:30","-03:00","-02:30","-02:00","+00:00","+01:00","+02:00","+03:00","+03:30","+04:00","+04:30","+05:00","+05:30","+05:45","+06:00","+06:30","+07:00","+08:00","+08:45","+09:00","+09:30","+10:00","+10:30","+11:00","+11:30","+12:00","+12:45","+13:00","+13:45","+14:00");
                 $tz = $data["val"]-48;
                 $tz = (($tz>=0) ? "+" : "-").sprintf("%02d", strval(abs($tz)/4)).":".strval(((abs($tz)%4)*15/10).((abs($tz)%4)*15%10));
-                $list .= "<label for='o1' class='select'>Timezone</label><select id='o1'>";
+                $list .= "<label for='o1' class='select'>Timezone</label><select data-mini='true' id='o1'>";
                 foreach ($timezones as $timezone) {
                     $list .= "<option ".(($timezone == $tz) ? "selected" : "")." value='".$timezone."'>".$timezone."</option>";
                 }
@@ -667,281 +776,84 @@ function make_settings_list() {
                 continue 2;
             case 12:
 #                $http = $options[13]["val"]*256+$data["val"];
-#                $list .= "<label for='o12'>HTTP Port</label><input type='number' pattern='[0-9]*' id='o12' value='".$http."' />";
+#                $list .= "<label for='o12'>HTTP Port</label><input data-mini='true' type='number' pattern='[0-9]*' id='o12' value='".$http."' />";
                 continue 2;
             case 15:
-                $list .= "<label for='o15'>Extension Boards</label><input type='number' pattern='[0-9]*' data-type='range' min='0' max='3' id='o15' value='".$data["val"]."' />";
+                $list .= "<label for='o15'>Extension Boards</label><input data-mini='true' type='number' pattern='[0-9]*' data-type='range' min='0' max='5' id='o15' value='".$data["val"]."' />";
                 continue 2;
             case 16:
-                $list .= "<input id='o16' type='checkbox' ".(($data["val"] == "1") ? "checked='checked'" : "")." /><label for='o16'>Sequential</label>";
+                $list .= "<input data-mini='true' id='o16' type='checkbox' ".(($data["val"] == "1") ? "checked='checked'" : "")." /><label for='o16'>Sequential</label>";
                 continue 2;
             case 17:
-                $list .= "<label for='o17'>Station Delay (seconds)</label><input type='number' pattern='[0-9]*' data-type='range' min='0' max='240' id='o17' value='".$data["val"]."' />";
+                $list .= "<label for='o17'>Station Delay (seconds)</label><input data-mini='true' type='number' pattern='[0-9]*' data-type='range' min='0' max='240' id='o17' value='".$data["val"]."' />";
                 continue 2;
             case 18:
-                $list .= "<label for='o18' class='select'>Master Station</label><select id='o18'><option value='0'>None</option>";
+                $list .= "<label for='o18' class='select'>Master Station</label><select data-mini='true' id='o18'><option value='0'>None</option>";
                 $i = 1;
                 foreach ($stations as $station) {
                     $list .= "<option ".(($i == $data["val"]) ? "selected" : "")." value='".$i."'>".$station."</option>";
                     if ($i == 8) break;
                     $i++;
                 }
-                $list .= "</select><label for='loc'>Location</label><input type='text' id='loc' value='".$options["loc"]."' />";
+                $list .= "</select><label for='loc'>Location</label><input data-mini='true' type='text' id='loc' value='".$options["loc"]."' />";
                 continue 2;
             case 19:
-                $list .= "<label for='o19'>Master On Delay</label><input type='number' pattern='[0-9]*' data-type='range' min='0' max='60' id='o19' value='".$data["val"]."' />";
+                $list .= "<label for='o19'>Master On Delay</label><input data-mini='true' type='number' pattern='[0-9]*' data-type='range' min='0' max='60' id='o19' value='".$data["val"]."' />";
                 continue 2;
             case 20:
-                $list .= "<label for='o20'>Master Off Delay</label><input type='number' pattern='[0-9]*' data-type='range' min='-60' max='60' id='o20' value='".$data["val"]."' />";
+                $list .= "<label for='o20'>Master Off Delay</label><input data-mini='true' type='number' pattern='[0-9]*' data-type='range' min='-60' max='60' id='o20' value='".$data["val"]."' />";
                 continue 2;
             case 21:
-                $list .= "<input id='o21' type='checkbox' ".(($data["val"] == "1") ? "checked='checked'" : "")." /><label for='o21'>Use Rain Sensor</label>";
+                $list .= "<input data-mini='true' id='o21' type='checkbox' ".(($data["val"] == "1") ? "checked='checked'" : "")." /><label for='o21'>Use Rain Sensor</label>";
                 continue 2;
             case 22:
-                $list .= "<input id='o22' type='checkbox' ".(($data["val"] == "1") ? "checked='checked'" : "")." /><label for='o22'>Normally Open (Rain Sensor)</label>";
+                $list .= "<input data-mini='true' id='o22' type='checkbox' ".(($data["val"] == "1") ? "checked='checked'" : "")." /><label for='o22'>Normally Open (Rain Sensor)</label>";
                 continue 2;
             case 23:
-                $list .= "<label for='o23'>Water Level</label><input type='number' pattern='[0-9]*' data-type='range' min='0' max='250' id='o23' value='".$data["val"]."' />";
+                $list .= "<label for='o23'>Water Level</label><input data-mini='true' type='number' pattern='[0-9]*' data-type='range' min='0' max='250' id='o23' value='".$data["val"]."' />";
                 continue 2;
             case 25:
-                $list .= "<input id='o25' type='checkbox' ".(($data["val"] == "1") ? "checked='checked'" : "")." /><label for='o25'>Ignore Password</label>";
+                $list .= "<input data-mini='true' id='o25' type='checkbox' ".(($data["val"] == "1") ? "checked='checked'" : "")." /><label for='o25'>Ignore Password</label>";
                 continue 2;
         }
     }
-    $list .= "</fieldset></div></li></ul><ul data-role='listview' data-inset='true'><li data-role='list-divider'>Station Names</li><li><fieldset>";
+    $list .= "</fieldset></div></li>";
+    echo $list;
+}
+
+function make_stations_list() {
+    $settings = get_settings();
+    $vs = get_stations();
+    $stations = $vs["stations"];
+    $masop = $vs["masop"];
+    $list = "<li>";
+    if ($settings["mas"]) $list .= "<table><tr><th>Station Name</th><th>Activate Master?</th></tr>";
     $i = 0;
     foreach ($stations as $station) {
-        if ($station == "") continue;
-        $list .= "<input id='edit_station_".$i."' type='text' value='".$station."' />";
+        if ($settings["mas"]) $list .= "<tr><td>";
+        $list .= "<input data-mini='true' id='edit_station_".$i."' type='text' value='".$station."' />";
+        if ($settings["mas"]) {
+            if ($settings["mas"] == $i+1) {
+                $list .= "</td><td class='use_master'><p id='um_".$i."' style='text-align:center'>(Master)</p></td></tr>";
+            } else {
+                $list .= "</td><td class='use_master'><input id='um_".$i."' type='checkbox' ".(($masop[intval($i/8)]&(1<<($i%8))) ? "checked='checked'" : "")." /><label for='um_".$i."'></label></td></tr>";
+            }
+        }
         $i++;
     }
-    echo $list."</fieldset></li></ul>";
-}
-
-#Make slide panel
-function make_panel($page) {
-    $buttons = array(
-        "Settings" => array(
-            "icon" => "gear",
-            "url" => "javascript:show_settings()"
-        ),
-        "Export Configuration" => array(
-            "icon" => "forward",
-            "url" => "javascript:export_config()"
-        ),
-        "Import Configuration" => array(
-            "icon" => "back",
-            "url" => "javascript:import_config()"
-        ),
-        "Reboot OpenSprinkler" => array(
-            "icon" => "alert",
-            "url" => "javascript:rbt()"
-        ),
-        "Logout" => array(
-            "icon" => "delete",
-            "url" => "javascript:logout()"
-        )
-    );
-    $opts = '';
-    $panel = '<div data-role="panel" id="'.$page.'-settings" data-theme="a"'.$opts.'><ul data-role="listview" data-theme="a"><li>Logged in as: '.$_SESSION["username"].'</li><li><div class="ui-grid-a"><div class="ui-block-a"><br><label for="autologin">Auto Login</label></div><div class="ui-block-b"><select name="autologin" id="'.$page.'-autologin" data-role="slider"><option value="off">Off</option><option value="on">On</option></select></div></li>';
-    foreach ($buttons as $button => $data) {
-        if ($data["url"] == "close") {
-            $url = '#" data-rel="close';
-        } else {
-            $url = $data["url"];
-        }
-        $panel .= '<li data-icon="'.$data["icon"].'"><a href="'.$url.'">'.$button.'</a></li>';
-    }
-    $panel .= '</ul></div>';
-    return $panel;
-}
-
-#Authentication functions
-function http_authenticate($user,$pass){
-    if (!ctype_alnum($user)) return FALSE;
-    if (!ctype_alnum($pass)) return FALSE;
-
-    global $db_hostname,$db_username,$db_password,$db_database,$db_prefix;
-    $mysqli = new mysqli($db_hostname, $db_username, $db_password, $db_database);
-    if ($mysqli->connect_errno) return false;
-    if (!($stmt = $mysqli->prepare("SELECT user_pass FROM ".$db_prefix."users WHERE user_login=?"))) return false;
-    if (!$stmt->bind_param("s", $user)) return false;
-    if (!$stmt->execute()) return false;
-    if (!$stmt->bind_result($hashed_pass)) return false;
-    $stmt->fetch();
-    $stmt->close();
-
-    if (hash("sha256", $pass) == $hashed_pass) return true;
-    return false;
-}
-
-function add_user() {
-
-    #Define all the required variables for config.php
-    $needed = array("username","password","email", "os_ip","os_pw");
-
-    #Cycle through each needed key
-    foreach ($needed as $key) {
-
-        #If required variable is not submitted then fail
-        if (!isset($_REQUEST[$key])) { echo 0; exit(); }
-
-        #If processing OS IP then check if the IP is valid and if not, fail with error code 2
-        if ($key == "os_ip" && !isValidUrl("http://".$_REQUEST[$key])) { echo 2; exit(); }
-    }
-
-    if (!ctype_alnum($_REQUEST["username"])) { echo 3; exit(); }
-    if (!ctype_alnum($_REQUEST["password"])) { echo 3; exit(); }
-
-    global $db_hostname,$db_username,$db_password,$db_database,$db_prefix;
-    $mysqli = new mysqli($db_hostname, $db_username, $db_password, $db_database);
-    if ($mysqli->connect_errno) { echo 0; exit(); }
-    if (!($stmt = $mysqli->prepare("INSERT INTO ".$db_prefix."users(user_login, user_pass, user_email, os_ip, os_pw) VALUES (?,?,?,?,?)"))) { echo 0; exit(); }
-    $pass = hash("sha256", $_REQUEST["password"]);
-    if (!$stmt->bind_param("sssss", $_REQUEST["username"],$pass,$_REQUEST["email"],$_REQUEST["os_ip"],$_REQUEST["os_pw"])) { echo 0; exit(); }
-    if (!$stmt->execute()) { echo 0; exit(); }
-    $stmt->close();
-    echo 1;
-}
-
-#Sends the token to the app
-function gettoken() {
-    if (is_auth() && isset($_SESSION["token"])) {
-        echo $_SESSION["token"];
-        return;
-    }
-    login("token");
-}
-
-#Authenticate user
-function login($tosend = "sprinklers") {
-    global $webtitle, $db_hostname,$db_username,$db_password,$db_database,$db_prefix;
-
-    $starttime = explode(' ', microtime()); 
-    $starttime = $starttime[1] + $starttime[0]; 
-    
-    $auth = base64_encode(hash("sha256",$_SERVER['REMOTE_ADDR']).hash("sha256",$starttime).hash("sha256",$_POST['username']));
-    if (!http_authenticate($_POST['username'],$_POST['password'])) {
-        echo 0; 
-        exit();
-    } else {
-        if (isset($_POST['remember']) && $_POST['remember'] == "true") {
-            $mysqli = new mysqli($db_hostname, $db_username, $db_password, $db_database);
-            $stmt = $mysqli->prepare("INSERT INTO ".$db_prefix."cache(user_login, token, added_time) VALUES (?,?,?)");
-            $stmt->bind_param("ssi", $_POST["username"],$auth,$starttime);
-            $stmt->execute();
-            $stmt->close();
-            $mysqli->close();
-            $_SESSION['sendtoken'] = true;
-            $_SESSION['token'] = $auth;
-        }
-        $_SESSION['isauth'] = 1;
-        $_SESSION['username'] = $_POST['username'];
-
-        $mysqli = new mysqli($db_hostname, $db_username, $db_password, $db_database);
-        $stmt = $mysqli->prepare("SELECT os_ip,os_pw FROM ".$db_prefix."users WHERE user_login = ?");
-        $stmt->bind_param("s", $_SESSION['username']);
-
-        $stmt->execute();
-        $stmt->bind_result($_SESSION["os_ip"],$_SESSION["os_pw"]);
-        $stmt->fetch();
-        $stmt->close();
-
-        if ($tosend == "token") {
-            if (isset($_SESSION["token"])) echo $_SESSION["token"];
-        } else {
-           include_once("sprinklers.php");
-        }
-    }
-}
-
-#Remove token from cache
-function remove_token() {
-    global $db_hostname,$db_username,$db_password,$db_database,$db_prefix;
-
-    $mysqli = new mysqli($db_hostname, $db_username, $db_password, $db_database);
-    $stmt = $mysqli->prepare("DELETE FROM ".$db_prefix."cache WHERE token = ?");
-    $stmt->bind_param("s", $_SESSION["token"]);
-    $stmt->execute();
-    $stmt->close();
-
-    unset($_SESSION['token']);
-}
-
-#Logs out the user
-function logout() {
-    global $base_url;
-    remove_token();
-    $_SESSION = array();
-    session_destroy();
-    header('Location: '.$base_url);
-}
-
-#Check if token is valid
-function check_localstorage($token) {
-    global $db_hostname,$db_username,$db_password,$db_database,$db_prefix;
-
-    $mysqli = new mysqli($db_hostname, $db_username, $db_password, $db_database);
-    $stmt = $mysqli->prepare("SELECT user_login,added_time FROM ".$db_prefix."cache WHERE token = ?");
-    $stmt->bind_param("s", $token);
-
-    $stmt->execute();
-    $stmt->bind_result($user,$time);
-    $stmt->fetch();
-    $stmt->close();
-
-    $starttime = explode(' ', microtime()); 
-    $starttime = $starttime[1] + $starttime[0]; 
-    $endtime = $starttime - 2592000;
-    if (is_null($user)) {
-        return false;
-    } else {
-        $_SESSION['token'] = $token;
-        $_SESSION['isauth'] = 1;
-        $_SESSION['username'] = $user;
-
-        $stmt = $mysqli->prepare("SELECT os_ip,os_pw FROM ".$db_prefix."users WHERE user_login = ?");
-        $stmt->bind_param("s", $user);
-
-        $stmt->execute();
-        $stmt->bind_result($_SESSION["os_ip"],$_SESSION["os_pw"]);
-        $stmt->fetch();
-        $stmt->close();
-        return TRUE;
-    }
-}
-
-#Check if current user is authenticated
-function is_auth() {
-    is_ssl();
-    if (isset($_SESSION['isauth']) && $_SESSION['isauth'] === 1) { return TRUE; }
-    return FALSE;   
-}
-
-#Check if protocol is SSL and redirect if not
-function is_ssl() {
-    global $force_ssl;
-    if($force_ssl && empty($_SERVER['HTTPS'])) {
-        $newurl = 'https://'.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'];
-        header("Location: ".$newurl);
-        exit();
-    }
-    return TRUE;
-}
-
-#Check if token is valid and if not reject
-function checktoken() {
-    global $webtitle;
-
-    if (check_localstorage($_POST['token'])) {
-        include_once("sprinklers.php");
-    } else {
-        echo 0;
-    }
-    exit();
+    if ($settings["mas"]) $list .= "</table>";
+    echo $list."</li>";
 }
 
 #Supplemental functions
+
+#Convert program ID to name
+function pidname($pid) {
+    $pname = "Program ".$pid;
+    if($pid==255||$pid==99) $pname="Manual program";
+    if($pid==254||$pid==98) $pname="Run-once program";
+    return $pname;
+}
 
 #Rearrange array by move the keys in $keys array to the end of $array
 function move_keys($keys,$array) {
@@ -954,10 +866,35 @@ function move_keys($keys,$array) {
     return $array;    
 }
 
+function test_ip() {
+    if (isValidUrl("http://".$_REQUEST["os_ip"])) { 
+        if(isset($_SESSION)) session_destroy();
+        session_start(); 
+        echo 1;
+        exit();
+    }
+    echo 0;
+}
+
 #Check if URL is valid by grabbing headers and verifying reply is: 200 OK
 function isValidUrl($url) {
-    $header = get_headers($url, 1);
-    $pos = stripos($header[0], "200 OK");
-    if ($pos === false) return false;
+    $data = file_get_contents($url."/vs");
+    if ($data === false) return false;
+
+    preg_match("/<script>.*?snames=/",$data,$test);
+    if (empty($test)) return false;
+
     return true;
 }
+
+#Covert seconds to HH:MM:SS notation
+function sec2hms($diff) {
+    $str = "";
+    $hours = intval( $diff / 3600 ) % 24;
+    $minutes = intval( $diff / 60 ) % 60;
+    $seconds = $diff % 60;
+    if ($hours) $str .= ($hours < 10 ? "0".$hours : $hours).":";
+    return $str.($minutes < 10 ? "0".$minutes : $minutes).":".($seconds < 10 ? "0".$seconds : $seconds);
+}
+
+?>
