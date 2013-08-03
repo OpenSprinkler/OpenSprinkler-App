@@ -1,38 +1,185 @@
+#versions {
+    text-align: center;
+    margin: 0;
+}
+#status_list .ui-li {
+    padding-bottom: 4px;
+}
+#status_header,#status_footer {
+    margin:0;
+    text-align: center;
+    font-size: smaller;
+}
+.ui-collapsible-heading-toggle {
+    font-weight: bold !important;
+}
+.mini-load {
+    zoom: 0.5;
+}
+#weather-list .ui-li-divider {
+    padding: 0.5em 0;
+    text-align: center;
+}
+#weather-list {
+    display: none;
+    width:20%;
+    float:left;
+    margin-right:10px;
+    margin-left: -1000px;
+    overflow-y:hidden
+}
+#info-list {
+    overflow: hidden;
+}
+#program-control-list {
+    clear:both;
+}
+.nobr {
+    white-space:nowrap
+}
+#footer-running {
+    display: none;
+    padding: 2px 0;
+    font-size: medium;
+    margin: 0 -15px 0 -15px;
+    position: relative;
+}
+#running-icon {
+    margin:auto;
+    position:absolute;
+    top:0;bottom:0;
+    max-height:100%;
+    max-width:100%;
+    padding-left:4px;
+}
+#running-text {
+    margin:0;
+    padding-left: 20px;
+    text-shadow: none;
+    color: #ffffff;
+}
+.rain-desc {
+    word-wrap:normal;
+    white-space:normal;
+    overflow:visible;
+    text-align:center;
+}
+#preview div[data-role='content'] .ui-input-text {
+    display: inline-block;
+    width:80%;
+}
+.use_master .ui-btn-inner {
+    border-top: 0;
+}
+.use_master {
+    width: 5%;
+}
+.use_master .ui-checkbox {
+    width: 60%;
+    margin: 0 auto;
+}
+.timeline-event-content a {
+    text-decoration: none;
+}
+:not(input) {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+}
+#manual ul {
+    max-width: 800px;
+    margin: 16px auto;
+}
+#sprinklers div[data-role="header"] .ui-icon {
+    background-color: transparent;
+    box-shadow: none;
+}
+#programs_list, #newprogram {
+    margin-top: 28px;
+}
 #addprogram .ui-input-text, #programs .ui-input-text {
     margin: 0.1em !important;
 }
 
 @media (max-width: 480px) {
-    #logs_list .ui-li-aside {
-        width: 25% !important;
-        font-size: smaller;
+    #weather-list {
+        width:80px;
+    }
+    #weather-list li:not(.ui-li-divider) {
+        height: auto;
+    }
+    #weather .location {
+        font-size:8px;
+        font-weight: none;
+    }
+    div.timeline-frame {
+        counter-reset: station;
+    }
+    div.timeline-groups-text {
+        width: 22px;
+        overflow: hidden;
+        text-overflow: clip;
+    }
+    div.timeline-groups-text:not(.skip-numbering):before {
+        content: "S" counter(station) "     ";
+        white-space:pre;
+        counter-increment: station;
+    }
+    div.skip-numbering:before {
+        content: "M       ";
+        white-space:pre;
+    }    
+}
+@media (max-width: 940px) {
+    .wicon {
+        zoom: .5;
+        -moz-transform: scale(0.5);
+        -o-transform: scale(0.5);
     }
 }
-
 div.ui-slider-switch {
     position: absolute;
     right: 5px;
     top: 5px;
     width: 44%;
 }
+.master {
+    background-color: #DEAD5D !important;    
+}
+.program-0 {
+}
+.program-1 {
+    background-color: rgba(0,200,0,0.5) !important
+}
+.program-2 {
+    background-color: rgba(200,0,0,0.5) !important
+}
+.program-3 {
+    background-color: rgba(0,200,200,0.5) !important
+}
+.delayed {
+    background-color: #C96161 !important;
+    text-decoration: line-through;
+}
+.rem {
+    margin-bottom: 0;
+}
 .red {
     background-color: #C96161;
     background: #C96161;
     color: #FFFFFF;
     font-weight: normal;
+    text-shadow: none;
+    font-size: larger;
 }
 .green {
     background-color: #426746;
     background: #426746;
     color: #FFFFFF !important;
     font-weight: normal;
+    text-shadow: none;
+    font-size: larger;
 }
 .ui-header .ui-title { margin-left: 1em; margin-right: 1em; }
-/* Link to the Google webfont is in the head */
-.ui-title, .gridlist .ui-li-aside {
-    font-family: 'Open Sans', sans-serif;
-    font-weight: 600;
-}
 div[class*='ui-block-'] {
 	text-align: center
 }
@@ -40,54 +187,127 @@ div[class*='ui-block-'] {
     white-space: normal
 }
 body{
-   margin: 0;
-}
-div#container {
-    position: absolute;
-    width: 100%;
-    top: 0;
-    bottom: 0;
+    margin: 0;
     background-image: -webkit-linear-gradient( #444,#222 ) !important;
 }
-div[data-role="page"] div[data-role="header"] {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
+div.timeline-frame{border:1px solid #bebebe;overflow:hidden}div.timeline-axis{border-color:#bebebe;border-width:1px;border-top-style:solid}div.timeline-axis-grid{border-left-style:solid;border-width:1px}div.timeline-axis-grid-minor{border-color:#e5e5e5}div.timeline-axis-grid-major{border-color:#bfbfbf}div.timeline-axis-text{color:#4d4d4d;padding:3px;white-space:nowrap}div.timeline-event{color:#1a1a1a;border-color:#97b0f8;background-color:#d5ddf6;display:inline-block}div.timeline-event-selected{border-color:#ffc200;background-color:#fff785;z-index:999}div.timeline-event-cluster div.timeline-event-dot{border-color:#d5ddf6}div.timeline-event-box{text-align:center;border-style:solid;border-width:1px;border-radius:5px;-moz-border-radius:5px}div.timeline-event-dot{border-style:solid;border-width:5px;border-radius:5px;-moz-border-radius:5px}div.timeline-event-range{border-style:solid;border-width:1px;border-radius:2px;-moz-border-radius:2px}div.timeline-event-range-drag-left{cursor:w-resize;z-index:1000}div.timeline-event-range-drag-right{cursor:e-resize;z-index:1000}div.timeline-event-line{border-left-width:1px;border-left-style:solid}div.timeline-event-content{margin:5px;white-space:nowrap;overflow:hidden}div.timeline-groups-axis{border-color:#bebebe;border-width:1px}div.timeline-groups-text{color:#4d4d4d;padding-left:10px;padding-right:10px}div.timeline-currenttime{background-color:#ff7f6e;width:2px}div.timeline-customtime{background-color:#6e94ff;width:2px;cursor:move}
+div.timeline-navigation-zoom-in,  div.timeline-navigation-zoom-out,
+div.timeline-navigation-move-left, div.timeline-navigation-move-right {
+    cursor: pointer;
+    padding: 10px 10px;
+    float: left;
+    text-decoration: none;
+
+    width: 16px;
+    height: 16px;
 }
-div[data-role="page"] div[data-role="content"] {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    overflow-y: scroll;
-    -webkit-overflow-scrolling: touch;
+div.timeline-navigation-zoom-in {
+    background: url('../img/zoomin.png') no-repeat center;
 }
-div[data-role="page"] div[data-role="footer"] {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
+div.timeline-navigation-zoom-out {
+    background: url('../img/zoomout.png') no-repeat center;
 }
-.ui-li-thumb {
-    max-width: 95px;
+div.timeline-navigation-move-left {
+    background: url('../img/moveleft.png') no-repeat center;
 }
-.ui-li-has-thumb .ui-btn-inner a.ui-link-inherit {
-    min-height: 50px;
-    padding-left: 110px;
+div.timeline-navigation-move-right {
+    background: url('../img/moveright.png') no-repeat center;
 }
-#preview div[data-role="content"] {
-    top: 85px;
+div.timeline-frame {
+    border-color: #5D99C3;
+    border-radius: 5px;
+    -moz-border-radius: 5px; /* For Firefox 3.6 and older */
 }
-#os-settings div[data-role="content"], #status div[data-role="content"], #manual div[data-role="content"] {
-    top: 41px;
+div.timeline-axis {
+    border-color: #5D99C3;
+    background-color: #5D99C3;
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#5D99C3', endColorstr='#3A6DA0');
+    background: -webkit-gradient(linear, left top, left bottom, from(#5D99C3), to(#3A6DA0));
+    background: -moz-linear-gradient(top,  #5D99C3,  #3A6DA0);
 }
-#sprinklers div[data-role="content"], #runonce div[data-role="content"], #addprogram div[data-role="content"], #programs div[data-role="content"] {
-    top: 28px;
+div.timeline-axis-grid {
 }
-@media screen and (-webkit-min-device-pixel-ratio:0) {
-    #sprinklers div[data-role="content"] {
-        top: 0;
-    }
+div.timeline-groups-axis {
+    border-color: #5D99C3;
 }
+div.timeline-axis-text {
+    color: white;
+}
+div.timeline-groups-text {
+    color: #4D4D4D;
+}
+div.timeline-event {
+    color: white;
+    border-radius: 5px;
+}
+div.timeline-event-content {
+    padding: 5px;
+}
+
+#weather {
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.wicon {
+    vertical-align: middle;
+    display: inline-block;
+    margin: -40px -10px -25px -25px; 
+    width: 150px; height: 150px; 
+    background: url(../img/weather-icons-sprite.png);
+}
+/* Weather Icon Sprites 
+ * http://www.alistapart.com/articles/sprites
+ * http://developer.yahoo.com/weather/#codes
+ */
+
+.wicon.cond0  { background-position: -150px -150px; } /*  0   tornado                   */ 
+.wicon.cond1  { background-position: -150px -150px; } /*  1   tropical storm            */
+.wicon.cond2  { background-position: -150px -150px; } /*  2   hurricane                 */ 
+.wicon.cond3  { background-position: -300px -150px; } /*  3   severe thunderstorms      */ 
+.wicon.cond4  { background-position: -300px -150px; } /*  4   thunderstorms             */ 
+.wicon.cond5  { background-position:    0px -450px; } /*  5   mixed rain and snow       */ 
+.wicon.cond6  { background-position: -150px -450px; } /*  6   mixed rain and sleet      */ 
+.wicon.cond7  { background-position:    0px -600px; } /*  7   mixed snow and sleet      */ 
+.wicon.cond8  { background-position:    0px -600px; } /*  8   freezing drizzle          */ 
+.wicon.cond9  { background-position: -150px -300px; } /*  9   drizzle                   */ 
+.wicon.cond10 { background-position:    0px -450px; } /*  10  freezing rain             */ 
+.wicon.cond11 { background-position:    0px    0px; } /*  11  showers                   */ 
+.wicon.cond12 { background-position:    0px    0px; } /*  12  showers                   */ 
+.wicon.cond13 { background-position: -450px -150px; } /*  13  snow flurries             */ 
+.wicon.cond14 { background-position: -300px -300px; } /*  14  light snow showers        */ 
+.wicon.cond15 { background-position:    0px -150px; } /*  15  blowing snow              */ 
+.wicon.cond16 { background-position: -450px -150px; } /*  16  snow                      */ 
+.wicon.cond17 { background-position: -300px -450px; } /*  17  hail                      */ 
+.wicon.cond18 { background-position: -150px -450px; } /*  18  sleet                     */ 
+.wicon.cond19 { background-position: -150px -600px; } /*  19  dust                      */ 
+.wicon.cond20 { background-position: -150px -600px; } /*  20  foggy                     */ 
+.wicon.cond21 { background-position: -150px -600px; } /*  21  haze                      */ 
+.wicon.cond22 { background-position: -150px -600px; } /*  22  smoky                     */ 
+.wicon.cond23 { background-position: -450px -300px; } /*  23  blustery                  */ 
+.wicon.cond24 { background-position: -450px -300px; } /*  24  windy                     */ 
+.wicon.cond25 { background-position:    0px -150px; } /*  25  cold                      */ 
+.wicon.cond26 { background-position: -300px    0px; } /*  26  cloudy                    */ 
+.wicon.cond27 { background-position: -300px -600px; } /*  27  mostly cloudy (night)     */ 
+.wicon.cond28 { background-position:    0px -300px; } /*  28  mostly cloudy (day)       */ 
+.wicon.cond29 { background-position: -450px -600px; } /*  29  partly cloudy (night)     */ 
+.wicon.cond30 { background-position: -150px    0px; } /*  30  partly cloudy (day)       */ 
+.wicon.cond31 { background-position: -450px -450px; } /*  31  clear (night)             */ 
+.wicon.cond32 { background-position: -450px    0px; } /*  32  sunny                     */ 
+.wicon.cond33 { background-position: -450px -450px; } /*  33  fair (night)              */ 
+.wicon.cond34 { background-position: -450px    0px; } /*  34  fair (day)                */ 
+.wicon.cond35 { background-position: -300px -450px; } /*  35  mixed rain and hail       */ 
+.wicon.cond36 { background-position: -450px    0px; } /*  36  hot                       */ 
+.wicon.cond37 { background-position: -300px -150px; } /*  37  isolated thunderstorms    */ 
+.wicon.cond38 { background-position: -300px -150px; } /*  38  scattered thunderstorms   */ 
+.wicon.cond39 { background-position: -300px -150px; } /*  39  scattered thunderstorms   */ 
+.wicon.cond40 { background-position:    0px    0px; } /*  40  scattered showers         */ 
+.wicon.cond41 { background-position: -450px -150px; } /*  41  heavy snow                */ 
+.wicon.cond42 { background-position:    0px -450px; } /*  42  scattered snow showers    */ 
+.wicon.cond43 { background-position: -450px -150px; } /*  43  heavy snow                */ 
+.wicon.cond44 { background-position: -150px    0px; } /*  44  partly cloudy             */ 
+.wicon.cond45 { background-position: -300px -150px; } /*  45  thundershowers            */ 
+.wicon.cond46 { background-position:    0px -450px; } /*  46  snow showers              */ 
+.wicon.cond47 { background-position: -300px -150px; } /*  47  isolated thundershowers   */ 
+.wicon.cond3200 { background: none; display: none; } /* 3200  not available             */ 
