@@ -1,0 +1,93 @@
+#addprogram .ui-input-text, #programs .ui-input-text {
+    margin: 0.1em !important;
+}
+
+@media (max-width: 480px) {
+    #logs_list .ui-li-aside {
+        width: 25% !important;
+        font-size: smaller;
+    }
+}
+
+div.ui-slider-switch {
+    position: absolute;
+    right: 5px;
+    top: 5px;
+    width: 44%;
+}
+.red {
+    background-color: #C96161;
+    background: #C96161;
+    color: #FFFFFF;
+    font-weight: normal;
+}
+.green {
+    background-color: #426746;
+    background: #426746;
+    color: #FFFFFF !important;
+    font-weight: normal;
+}
+.ui-header .ui-title { margin-left: 1em; margin-right: 1em; }
+/* Link to the Google webfont is in the head */
+.ui-title, .gridlist .ui-li-aside {
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 600;
+}
+div[class*='ui-block-'] {
+	text-align: center
+}
+.panelhelp {
+    white-space: normal
+}
+body{
+   margin: 0;
+}
+div#container {
+    position: absolute;
+    width: 100%;
+    top: 0;
+    bottom: 0;
+    background-image: -webkit-linear-gradient( #444,#222 ) !important;
+}
+div[data-role="page"] div[data-role="header"] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+}
+div[data-role="page"] div[data-role="content"] {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
+}
+div[data-role="page"] div[data-role="footer"] {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+.ui-li-thumb {
+    max-width: 95px;
+}
+.ui-li-has-thumb .ui-btn-inner a.ui-link-inherit {
+    min-height: 50px;
+    padding-left: 110px;
+}
+#preview div[data-role="content"] {
+    top: 85px;
+}
+#os-settings div[data-role="content"], #status div[data-role="content"], #manual div[data-role="content"] {
+    top: 41px;
+}
+#sprinklers div[data-role="content"], #runonce div[data-role="content"], #addprogram div[data-role="content"], #programs div[data-role="content"] {
+    top: 28px;
+}
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+    #sprinklers div[data-role="content"] {
+        top: 0;
+    }
+}
