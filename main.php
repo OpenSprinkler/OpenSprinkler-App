@@ -119,17 +119,19 @@ function import_config() {
 function get_stations() {
     $data = get_from_os("/vs");
     preg_match("/snames=\[(.*)\];/", $data, $matches);
-    $data = str_getcsv($matches[1],",","'");
-    foreach ($data as $station) {
+    $rawstations = str_getcsv($matches[1],",","'");
+    preg_match("/nboards=(\d+)/", $data, $matches);
+    $total = $matches[1] * 8; $current = 1;
+    foreach ($rawstations as $station) {
+        if ($current > $total) break;
         $station = preg_replace("/\\\u([0-9a-eA-E]{4})/", "&#x\\1;", $station);
         $stations[] = $station;
+        $current++;
     }
 
     preg_match("/masop=\[(.*?)\]/", $data, $masop);
     $masop = explode(",",$masop[1]);
 
-    #Pop the last element off the array which is always an extra empty string
-    array_pop($stations);
     return array("stations" => $stations,"masop" => $masop);
 }
 
@@ -218,9 +220,6 @@ function process_programs($month,$day,$year) {
         $tmp = str_replace('"','',explode("=", $variable));
         $newdata[$tmp[0]] = $tmp[1];
     }
-
-    #Fix for missing sequential option on RPi interval program
-    if (!isset($newdata["seq"])) $newdata["seq"] = 1;
 
     preg_match("/masop=\[(.*?)\]/", $data, $masop);
     $newdata["masop"] = explode(",",$masop[1]);
