@@ -64,11 +64,20 @@
     overflow:visible;
     text-align:center;
 }
-#preview div[data-role='content'] .ui-input-text {
+#preview_header .ui-input-text {
     display: inline-block;
-    width:80%;
+    width:75%;
 }
-.use_master .ui-btn-inner {
+#preview_header {
+    margin: 0 -13px 0 -13px;
+    width:100%;
+    white-space:nowrap;
+    text-align:center
+}
+#preview_header a {
+    padding:10px;
+ }
+ .use_master .ui-btn-inner {
     border-top: 0;
 }
 .use_master {
@@ -172,8 +181,8 @@ div.ui-slider-switch {
     font-size: larger;
 }
 .green {
-    background-color: #426746;
-    background: #426746;
+    background-color: #16a085;
+    background: #16a085;
     color: #FFFFFF !important;
     font-weight: normal;
     text-shadow: none;
