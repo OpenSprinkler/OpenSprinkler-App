@@ -19,7 +19,7 @@ require_once "main.php";
         <meta name="apple-mobile-web-app-title" content="Sprinklers">
         <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     	<link rel="apple-touch-icon" href="img/icon.png">
-    	<link rel="stylesheet" href="css/jquery.mobile-1.3.1.min.css" />
+        <link rel="stylesheet" type="text/css" href="css/jquery.mobile.flatui.min.css" />
         <link rel="stylesheet" href="css/main.css" />
         <link rel="shortcut icon" href="img/favicon.ico">
         <script type="text/javascript">
@@ -155,7 +155,7 @@ require_once "main.php";
                                 <label for="delay">Duration (in hours):</label>
                                 <input type="number" name="delay" pattern="[0-9]*" id="delay" value="">
                             </div>
-                            <input type="submit" value="Submit" />
+                            <input type="submit" value="Submit" data-theme="a" />
                         </form>
                     </li>
                 </ul>
@@ -223,7 +223,7 @@ require_once "main.php";
                 <a href="#sprinklers" data-onclick="gohome();" data-icon="back">Back</a>
             </div>
             <div data-role="content">
-                <div style="white-space:nowrap;width:100%;text-align:center">
+                <div id="preview_header">
                     <a href="#" data-onclick="changeday(-1);"><img src="img/moveleft.png" /></a>
                     <input style="text-align:center" type="date" name="preview_date" id="preview_date" />
                     <a href="#" data-onclick="changeday(1);"><img src="img/moveright.png" /></a>
@@ -244,7 +244,7 @@ require_once "main.php";
                 <a href="#sprinklers" data-onclick="gohome();" data-icon="back">Back</a>
             </div>
             <div data-role="content">
-                <div data-role="collapsible-set" data-content-theme="d">
+                <div data-role="collapsible-set">
                     <div data-role="collapsible">
                         <h3>Background</h3>
                         <p>I, Samer Albahra, am a medical school graduate, currently doing a pathology residency at UTHSCSA. I enjoy making mobile applications in my spare time and was excited when I first discovered the OpenSprinkler, an open-source Internet based sprinkler system, which lacked a truly mobile interface.</p>
@@ -256,6 +256,7 @@ require_once "main.php";
                     </div>
                     <div data-role="collapsible">
                         <h3>Version History</h3>
+                            <p>Version 2.00</p><ul><li>Redesigned theme</li><li>Fixed bug with run-once quick program location</li><li>Added highlight to sliders in settings page</li><li>Fixed program preview next/previous icons</li></ul>
                             <p>Version 1.23</p><ul><li>Fixed bug with comma in station name</li><li>Fixed problem handling unicode encoding from interval program</li><li>Minified settings and edit stations pages</li><li>Removed settings and edit station redudant headers</li><li>Added shortcut to reset sliders on runonce page from dropdown by picking Quick Programs</li><li>Fixed dropdown on runonce page not refreshing after the first page load</li><li>Fixed bug with program preview where master station was 1 minute short</li><li>Programs are now selectable within run-once programs to launch an ad-hoc program</li><li>Minified edit program page</li></ul>
                             <p>Version 1.22</p><ul><li>Fixed broken timers when status page is opened during station delay</li><li>Added live clock to status page</li><li>Fixed bug with manual mode timer on status page</li><li>Added running program information to status page including remaining time</li></ul>
                             <p>Version 1.21</p><ul><li>Show station delay notification on status page</li><li>Some more imporvments to status page layout</li><li>Slight adjustment of staus icon/padding</li><li>Unhighlight stations when switching manual off</li><li>Show multiple station information in status bar</li><li>Running timers for status page</li><li>Increased AJAX timer</li></ul>
@@ -292,7 +293,7 @@ require_once "main.php";
                     </div>
                 </div>
                 <p id='versions'>
-                    Mobile Version: 1.23
+                    Mobile Version: 2.00
                 </p>
             </div>
         </div>
