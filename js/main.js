@@ -13,8 +13,8 @@
 
 //After jQuery mobile is loaded set intial configuration
 $(document).one("mobileinit", function(e){
-    $.mobile.defaultPageTransition = 'none';
-    $.mobile.defaultDialogTransition = 'none';
+    $.mobile.defaultPageTransition = 'fade';
+    $.mobile.defaultDialogTransition = 'fade';
     $.mobile.hashListeningEnabled = false;
 });
 
@@ -229,8 +229,6 @@ function sec2hms(diff) {
 
 $(document).on("pagebeforeshow",function(e,data){
     var newpage = e.target.id;
-
-    $.mobile.silentScroll(0);
 
     if (newpage == "sprinklers") {
         update_weather();

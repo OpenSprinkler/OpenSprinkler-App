@@ -552,7 +552,7 @@ function make_program($n,$total,$stations,$program=array("en"=>0,"is_interval"=>
     if (isset($program["stations"])) $set_stations = str_split($program["stations"]);
     $list = "<fieldset ".((!$n && $total == 1) ? "data-collapsed='false'" : "")." id='program-".$n."' ".(($n === "new") ? "" : "data-role='collapsible'").">";
     if ($n !== "new") $list .= "<legend>Program ".($n + 1)."</legend>";
-    $list .= "<input data-mini='true' type='checkbox' ".(($program["en"]) ? "checked='checked'" : "")." name='en-".$n."' id='en-".$n."'><label for='en-".$n."'>Enabled</label>";
+    $list .= "<input data-mini='true' type='checkbox' ".(($program["en"] || $n === "new") ? "checked='checked'" : "")." name='en-".$n."' id='en-".$n."'><label for='en-".$n."'>Enabled</label>";
     $list .= "<fieldset data-role='controlgroup' data-type='horizontal' style='text-align: center'>";
     $list .= "<input data-mini='true' type='radio' name='rad_days-".$n."' id='days_week-".$n."' value='days_week-".$n."' ".(($program["is_interval"]) ? "" : "checked='checked'")."><label for='days_week-".$n."'>Weekly</label>";
     $list .= "<input data-mini='true' type='radio' name='rad_days-".$n."' id='days_n-".$n."' value='days_n-".$n."' ".(($program["is_interval"]) ? "checked='checked'" : "")."><label for='days_n-".$n."'>Interval</label>";
@@ -596,7 +596,7 @@ function make_program($n,$total,$stations,$program=array("en"=>0,"is_interval"=>
     $list .= "</div>";
 
     $list .= "<label for='duration-".$n."'>Duration (minutes)</label><input data-mini='true' type='number' data-highlight='true' data-type='range' name='duration-".$n."' min='0' max='300' id='duration-".$n."' value='".($program["duration"]/60)."'>";
-    $list .= "<label for='interval-".$n."'>Interval (minutes)</label><input data-mini='true' type='number' data-highlight='true' data-type='range' name='interval-".$n."' min='0' max='1439' id='interval-".$n."' value='".($program["interval"])."'>";
+    $list .= "<label for='interval-".$n."'>Interval (minutes)</label><input data-mini='true' type='number' data-highlight='true' data-type='range' name='interval-".$n."' min='0' max='1439' id='interval-".$n."' value='".($program["interval"])."'><br>";
     if ($n === "new") {
         $list .= "<input data-mini='true' type='submit' name='submit-".$n."' id='submit-".$n."' value='Save New Program'></fieldset>";
     } else {
