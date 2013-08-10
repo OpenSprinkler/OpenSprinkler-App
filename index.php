@@ -19,6 +19,7 @@ require_once "main.php";
         <meta name="apple-mobile-web-app-title" content="Sprinklers">
         <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     	<link rel="apple-touch-icon" href="img/icon.png">
+        <link href='//fonts.googleapis.com/css?family=Lato:400,700,900,400italic' rel='stylesheet' type='text/css'>
         <link rel="stylesheet" type="text/css" href="css/jquery.mobile.flatui.min.css" />
         <link rel="stylesheet" href="css/main.css" />
         <link rel="shortcut icon" href="img/favicon.ico">
@@ -332,7 +333,7 @@ require_once "main.php";
         </div>
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
         <script src="js/main.js"></script>
-        <script src="js/jquery.mobile-1.3.1.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/jquery-mobile/1.3.1/jquery.mobile.min.js"></script>
         <script async type="text/javascript" src="js/timeline.js"></script>
     </body>
 </html>
