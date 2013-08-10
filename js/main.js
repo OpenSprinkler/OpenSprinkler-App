@@ -168,13 +168,13 @@ function update_timer(total,sdelay) {
         var diff = now - window.lastCheck;
         if (diff > 3000) {
             clearInterval(window.interval_id);
-            $("#footer-running").html("<p style='margin:0;text-align:center;opacity:0.18'><img src='css/images/ajax-loader.gif' class='mini-load' /></p>");
+            $("#footer-running").html("<p style='margin:0;text-align:center;opacity:0.18'><img src='img/ajax-loader.gif' class='mini-load' /></p>");
             check_status();
         }
         window.lastCheck = now;
         if (total <= 0) {
             clearInterval(window.interval_id);
-            $("#footer-running").slideUp().html("<p style='margin:0;text-align:center;opacity:0.18'><img src='css/images/ajax-loader.gif' class='mini-load' /></p>");
+            $("#footer-running").slideUp().html("<p style='margin:0;text-align:center;opacity:0.18'><img src='img/ajax-loader.gif' class='mini-load' /></p>");
             if (window.timeout_id !== undefined) clearTimeout(window.timeout_id);
             window.timeout_id = setTimeout(check_status,(sdelay*1000));
         }
@@ -232,7 +232,7 @@ $(document).on("pagebeforeshow",function(e,data){
 
     if (newpage == "sprinklers") {
         update_weather();
-        $("#footer-running").html("<p style='margin:0;text-align:center;opacity:0.18'><img src='css/images/ajax-loader.gif' class='mini-load' /></p>");
+        $("#footer-running").html("<p style='margin:0;text-align:center;opacity:0.18'><img src='img/ajax-loader.gif' class='mini-load' /></p>");
         setTimeout(check_status,1000);
     } else {
         clearInterval(window.interval_id);
@@ -268,7 +268,7 @@ function highlight(button) {
 
 function update_weather() {
     var $weather = $("#weather");
-    $weather.html("<p style='margin:0;text-align:center;opacity:0.18'><img src='css/images/ajax-loader.gif' class='mini-load' /></p>");
+    $weather.html("<p style='margin:0;text-align:center;opacity:0.18'><img src='img/ajax-loader.gif' class='mini-load' /></p>");
     $.get("index.php","os_ip="+localStorage.getItem("os_ip")+"&os_pw="+localStorage.getItem("os_pw")+"&action=get_weather",function(result){
         var weather = JSON.parse(result);
         if (weather["code"] == null) {
