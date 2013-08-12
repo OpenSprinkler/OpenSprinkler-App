@@ -40,6 +40,13 @@ $(document).ajaxError(function(x,t,m) {
 
 //On intial load check if a valid token exists, for auto login
 $("#start").one("pageinit",function(e){
+    var theme = localStorage.getItem("theme");
+    if (theme === null) {
+        theme = "flat";
+        localStorage.setItem("theme","flat")
+    }
+    $("#theme").attr("href",getThemeUrl(theme));
+    $("#s-theme-select").val(theme);
     $("body").show()
     if (!check_configured()) {
         $.mobile.changePage($("#addnew"),{transition:"none"});
@@ -97,6 +104,11 @@ $("select[data-role='slider']").change(function(){
     var pageid = slide.closest(".ui-page-active").attr("id");
     //Find out what the switch was changed to
     var changedTo = slide.val();
+    if (type == "theme-select") {
+        localStorage.setItem("theme",changedTo);
+        $("#theme").attr("href",getThemeUrl(changedTo));
+        return;
+    }
     if (changedTo=="on") {
         if (type === "en") {
             $.get("index.php","os_ip="+localStorage.getItem("os_ip")+"&os_pw="+localStorage.getItem("os_pw")+"&action=en_on",function(result){
@@ -230,12 +242,14 @@ function sec2hms(diff) {
 $(document).on("pagebeforeshow",function(e,data){
     var newpage = e.target.id;
 
+    if (window.interval_id !== undefined) clearInterval(window.interval_id);
+    if (window.timeout_id !== undefined) clearTimeout(window.timeout_id);
+
     if (newpage == "sprinklers") {
         update_weather();
         $("#footer-running").html("<p style='margin:0;text-align:center;opacity:0.18'><img src='img/ajax-loader.gif' class='mini-load' /></p>");
         setTimeout(check_status,1000);
     } else {
-        clearInterval(window.interval_id);
         var title = document.title;
         document.title = "OpenSprinkler: "+title;
     }    
@@ -436,7 +450,7 @@ function get_preview() {
                 var pid = parseInt($(content).html().substr(1)) - 1;
                 get_programs(pid);
             });
-            window.addEventListener("resize",timeline_redraw);
+            $(window).on("resize",timeline_redraw);
             timeline.draw(data, options);
             if ($(window).width() <= 480) {
                 var currRange = timeline.getVisibleChartRange();
@@ -887,4 +901,16 @@ function change_info() {
     $("#os_ip").val(localStorage.getItem("os_ip"));
     $("#os_pw").val(localStorage.getItem("os_pw"));
     $.mobile.changePage($("#addnew"));
+}
+
+function getThemeUrl(theme) {
+    switch (theme) {
+        case "default":
+            var url = "//cdnjs.cloudflare.com/ajax/libs/jquery-mobile/1.3.2/jquery.mobile.min.css";
+            break;
+        case "flat":
+            var url = "css/jquery.mobile.flatui.min.css";
+            break;
+    }
+    return url;
 }

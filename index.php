@@ -20,7 +20,7 @@ require_once "main.php";
         <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     	<link rel="apple-touch-icon" href="img/icon.png">
         <link href='//fonts.googleapis.com/css?family=Lato:400,700,900,400italic' rel='stylesheet' type='text/css'>
-        <link rel="stylesheet" type="text/css" href="css/jquery.mobile.flatui.min.css" />
+        <link rel="stylesheet" type="text/css" href="css/jquery.mobile.flatui.min.css" id="theme" />
         <link rel="stylesheet" href="css/main.css" />
         <link rel="shortcut icon" href="img/favicon.ico">
         <script type="text/javascript">
@@ -66,6 +66,19 @@ require_once "main.php";
             </div>
             <div data-role="panel" id="sprinklers-settings" data-position-fixed="true" data-theme="a">
                 <ul data-role="listview" data-theme="a">
+                    <li>
+                        <div class="ui-grid-a">
+                            <div class="ui-block-a"><br>
+                                <label for="theme-select">Theme</label>
+                            </div>
+                            <div class="ui-block-b">
+                                <select name="theme-select" id="s-theme-select" data-role="slider">
+                                    <option value="default">Default</option>
+                                    <option value="flat">Flat</option>
+                                </select>
+                            </div>
+                        </div>
+                    </li>
                     <li data-icon="gear"><a href="#" data-onclick="change_info();">Change OS IP/Password</a></li>
                     <li data-icon="delete"><a href="#" data-onclick="remove_info();">Remove OS IP/Password</a></li>
                     <li data-icon="forward"><a href="#" data-onclick="export_config();">Export Configuration</a></li>
@@ -257,6 +270,7 @@ require_once "main.php";
                     </div>
                     <div data-role="collapsible">
                         <h3>Version History</h3>
+                            <p>Version 2.01</p><ul><li>Added ability to change themes between the old one and newer, flat theme</li><li>Fixed bug loading Preview on IE8 and below</li><li>Fixed bug with timers after leaving the current status page which sent the user back to the current status page</li></ul>
                             <p>Version 2.00</p><ul><li>Redesigned theme</li><li>Fixed bug with run-once quick program location</li><li>Added highlight to sliders in settings page</li><li>Fixed program preview next/previous icons</li></ul>
                             <p>Version 1.23</p><ul><li>Fixed bug with comma in station name</li><li>Fixed problem handling unicode encoding from interval program</li><li>Minified settings and edit stations pages</li><li>Removed settings and edit station redudant headers</li><li>Added shortcut to reset sliders on runonce page from dropdown by picking Quick Programs</li><li>Fixed dropdown on runonce page not refreshing after the first page load</li><li>Fixed bug with program preview where master station was 1 minute short</li><li>Programs are now selectable within run-once programs to launch an ad-hoc program</li><li>Minified edit program page</li></ul>
                             <p>Version 1.22</p><ul><li>Fixed broken timers when status page is opened during station delay</li><li>Added live clock to status page</li><li>Fixed bug with manual mode timer on status page</li><li>Added running program information to status page including remaining time</li></ul>
@@ -294,7 +308,7 @@ require_once "main.php";
                     </div>
                 </div>
                 <p id='versions'>
-                    Mobile Version: 2.00
+                    Mobile Version: 2.01
                 </p>
             </div>
         </div>
