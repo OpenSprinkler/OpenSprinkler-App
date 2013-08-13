@@ -13,6 +13,13 @@
 
 //After jQuery mobile is loaded set intial configuration
 $(document).one("mobileinit", function(e){
+    var theme = localStorage.getItem("theme");
+    if (theme === null) {
+        theme = "flat";
+        localStorage.setItem("theme","flat")
+    }
+    $("#theme").attr("href",getThemeUrl(theme));
+    $("#s-theme-select").val(theme);
     $.mobile.defaultPageTransition = 'fade';
     $.mobile.defaultDialogTransition = 'fade';
     $.mobile.hashListeningEnabled = false;
@@ -40,13 +47,6 @@ $(document).ajaxError(function(x,t,m) {
 
 //On intial load check if a valid token exists, for auto login
 $("#start").one("pageinit",function(e){
-    var theme = localStorage.getItem("theme");
-    if (theme === null) {
-        theme = "flat";
-        localStorage.setItem("theme","flat")
-    }
-    $("#theme").attr("href",getThemeUrl(theme));
-    $("#s-theme-select").val(theme);
     $("body").show()
     if (!check_configured()) {
         $.mobile.changePage($("#addnew"),{transition:"none"});
@@ -905,11 +905,11 @@ function change_info() {
 
 function getThemeUrl(theme) {
     switch (theme) {
-        case "default":
-            var url = "//cdnjs.cloudflare.com/ajax/libs/jquery-mobile/1.3.2/jquery.mobile.min.css";
-            break;
         case "flat":
             var url = "css/jquery.mobile.flatui.min.css";
+            break;
+        default:
+            var url = "//cdnjs.cloudflare.com/ajax/libs/jquery-mobile/1.3.2/jquery.mobile.min.css";
             break;
     }
     return url;
