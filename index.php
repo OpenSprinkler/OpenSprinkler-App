@@ -167,7 +167,7 @@ require_once "main.php";
                         <form action="javascript:raindelay()">
                             <div data-role="fieldcontain">
                                 <label for="delay">Duration (in hours):</label>
-                                <input type="number" name="delay" pattern="[0-9]*" id="delay" value="">
+                                <input type="number" pattern="[0-9]*" data-highlight="true" data-type="range" min="0" max="96" id="delay" value="0" />
                             </div>
                             <input type="submit" value="Submit" data-theme="a" />
                         </form>
