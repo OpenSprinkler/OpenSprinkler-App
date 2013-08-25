@@ -647,7 +647,8 @@ function current_status() {
     if (count($open) >= 2) {
         $ptotal = 0;
         foreach ($open as $key => $value) {
-            $ptotal += $settings["ps"][$value][1];
+            $tmp = $settings["ps"][$value][1];
+            if ($tmp > $ptotal) $ptotal = $tmp;
         }
         $sample = $open[0];
         $pname = pidname($settings["ps"][$sample][0]);
@@ -731,13 +732,21 @@ function make_list_status() {
         $footer = '<p>'.$pname.' last ran station '.$stations[$settings["lrun"][0]].' for '.($lrdur/60>>0).'m '.($lrdur%60).'s on '.gmdate("D, d M Y H:i:s",$settings["lrun"][3]).'</p>';
     }
 
+    $open = count(array_keys($status,true));
+
     $ptotal = 0;
     foreach ($settings["ps"] as $valve) {
-        if ($valve[0]) $ptotal += $valve[1];
+        if ($valve[0]) {
+            if ($open > 1) {
+                $tmp = $valve[1];
+                if ($tmp > $ptotal) $ptotal = $tmp;            
+            } else {
+                $ptotal += $valve[1];
+            }
+        }
     }
 
     if ($ptotal) {
-        $open = count(array_keys($status,true));
         $scheduled = count($allPnames);
         if (!$open && $scheduled) $runningTotal["d"] = $options[17]["val"];
         if ($open == 1) $ptotal += ($scheduled-1)*$options[17]["val"];
