@@ -17,6 +17,7 @@ require_once "main.php";
         <meta name="viewport" content="initial-scale=1.0,user-scalable=no,maximum-scale=1" media="(device-height: 568px)" />
     	<meta content="yes" name="apple-mobile-web-app-capable">
         <meta name="apple-mobile-web-app-title" content="Sprinklers">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
         <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     	<link rel="apple-touch-icon" href="img/icon.png">
         <link href='//fonts.googleapis.com/css?family=Lato:400,700,900,400italic' rel='stylesheet' type='text/css'>
