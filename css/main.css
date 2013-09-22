@@ -60,9 +60,11 @@ a {
 }
 #running-text {
     margin:0;
-    padding-left: 20px;
     text-shadow: none;
     color: #ffffff;
+}
+#footer-running.green #running-text {
+    padding-left: 20px;    
 }
 .rain-desc {
     word-wrap:normal;
