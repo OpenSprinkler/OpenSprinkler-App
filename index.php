@@ -68,6 +68,9 @@ require_once "main.php";
             <div data-role="panel" id="sprinklers-settings" data-position-fixed="true" data-theme="a">
                 <ul data-role="listview" data-theme="a">
                     <li>
+                        <select data-mini="true" id="site-selector"></select>
+                    </li>
+                    <li>
                         <div class="ui-grid-a">
                             <div class="ui-block-a"><br>
                                 <label for="theme-select">Theme</label>
@@ -80,8 +83,7 @@ require_once "main.php";
                             </div>
                         </div>
                     </li>
-                    <li data-icon="gear"><a href="#" data-onclick="change_info();">Change OS IP/Password</a></li>
-                    <li data-icon="delete"><a href="#" data-onclick="remove_info();">Remove OS IP/Password</a></li>
+                    <li data-icon="gear"><a href="#" data-onclick="show_sites();">Manage Sites</a></li>
                     <li data-icon="forward"><a href="#" data-onclick="export_config();">Export Configuration</a></li>
                     <li data-icon="back"><a href="#" data-onclick="import_config();">Import Configuration</a></li>
                     <li data-icon="info"><a href="#about">About</a></li>
@@ -324,6 +326,22 @@ require_once "main.php";
             </div>
         </div>
 
+        <div data-role="dialog" id="site-select" data-title="Select Site">
+            <div data-role="content">
+                <ul id="site-select-list" data-role="listview">
+            </div>
+        </div>
+
+        <div data-role="page" id="site-control">
+            <div data-theme="a" data-role="header" data-position="fixed" data-tap-toggle="false">
+                <h3>Manage Sites</h3>
+                <a href="#sprinklers" data-icon="back">Back</a>
+                <a href="#addnew" data-icon="plus">Add</a>
+            </div>
+            <div data-role="content" id="site-control-list">
+            </div>
+        </div>
+
         <div data-role="page" id="addnew">
             <div data-role="header" data-position="fixed" data-tap-toggle="false">
                 <h1>New Device</h1>
@@ -331,11 +349,13 @@ require_once "main.php";
            </div>
             <div data-role="content" style="top:28px">
                 <form action="javascript:submit_newuser()" method="post" id="newuser">
-                    <p style="text-align:center">Note: OpenSprinkler IP can be either an IP or hostname. You can also specify a port by using IP:Port</p>
+                    <p style="text-align:center">Note: The name is used to identify the OpenSprinkler within the web app. This is used for multisite support. OpenSprinkler IP can be either an IP or hostname. You can also specify a port by using IP:Port</p>
                     <ul data-inset="true" data-role="listview">
                         <li data-role="list-divider">OpenSprinkler Configuration</li>
                         <li>
                             <div data-role="fieldcontain">
+                                <label for="os_name">Open Sprinkler Name:</label>
+                                <input type="text" name="os_name" id="os_name" placeholder="Home" />
                                 <label for="os_ip">Open Sprinkler IP:</label>
                                 <input type="text" name="os_ip" id="os_ip" placeholder="home.dyndns.org:8080" />
                                 <label for="os_pw">Open Sprinkler Password:</label>
