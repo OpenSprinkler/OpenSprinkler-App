@@ -50,14 +50,8 @@ $("#start").one("pageinit",function(e){
     $("body").show()
     if (!check_configured()) {
         $.mobile.changePage($("#addnew"),{transition:"none"});
-    } else {
-        $.get("index.php","os_ip="+localStorage.getItem("os_ip")+"&os_pw="+localStorage.getItem("os_pw")+"&action=send_en_mm",function(data){
-            data = JSON.parse(data)
-            if (data.en == "1") $("#en").val("on")
-            if (data.mm == "1") $("#mm,#mmm").val("on")
-            $.mobile.changePage($("#sprinklers"),{transition:"none"})
-        })
     }
+    if (window.curr_ip !== undefined) newload();
     var date = new Date();
     var y = date.getFullYear();
     var m = String(date.getMonth()+1);
@@ -80,26 +74,126 @@ $(document).on("pageshow",function(e,data){
     }
 });
 
+function newload() {
+    $.get("index.php","os_ip="+window.curr_ip+"&os_pw="+window.curr_pw+"&action=send_en_mm",function(data){
+        data = JSON.parse(data)
+        if (data.en == "1") $("#en").val("on")
+        if (data.mm == "1") $("#mm,#mmm").val("on")
+        $.mobile.changePage($("#sprinklers"),{transition:"none"})
+    })
+}
+
 function check_configured() {
-    if (localStorage.getItem("os_ip") === null || localStorage.getItem("os_pw") === null) return false
+    if (localStorage.getItem("os_ip") !== null && localStorage.getItem("os_pw") !== null) {
+        /* Migrate users to new multisite system */
+        sites = new Object();
+        sites["Migrated"] = new Object();
+        localStorage.setItem("current_site","Migrated");
+
+        sites["Migrated"]["os_ip"] = window.curr_ip = localStorage.getItem("os_ip");
+        sites["Migrated"]["os_pw"] = window.curr_pw = localStorage.getItem("os_pw");
+
+        localStorage.setItem("sites",JSON.stringify(sites));
+
+        localStorage.removeItem("os_ip");
+        localStorage.removeItem("os_pw");
+        return true;
+    }
+
+    var sites = getsites();
+    var current = localStorage.getItem("current_site");
+
+    if (sites === null) return false;
+
+    var names = Object.keys(sites);
+
+    if (!names.length) return false;
+
+    if (current === null || !current in sites) {
+        /* Present dialog to select site */
+        site_select(names);
+        return true;
+    }
+
+    update_site_list(names);
+
+    window.curr_name = current;
+    window.curr_ip = sites[current]["os_ip"];
+    window.curr_pw = sites[current]["os_pw"];
+
     return true
+}
+
+function site_select(names) {
+    var list = $("#site-select-list");
+    var newlist = "<li data-role='list-divider'>Select Site</li>";
+    $.each(names,function(a,b){
+        newlist += "<li><a href='javascript:update_site(\""+b+"\");'>"+b+"</a></li>"
+    })
+
+    list.html(newlist);
+    if (list.hasClass("ui-listview")) list.listview("refresh");
+    $.mobile.changePage("#site-select");
+}
+
+function update_site_list(names) {
+    list = "";
+    var current = localStorage.getItem("current_site");
+    $.each(names,function(a,b){
+        list += "<option "+(b==current ? "selected ":"")+"value='"+b+"'>"+b+"</option>";
+    })
+
+    $("#site-selector").html(list)
+    try {
+        $("#site-selector").selectmenu("refresh");
+    } catch (err) {
+    }
+}
+
+function update_site(newsite) {
+    var sites = getsites();
+    if (newsite in sites) {
+        localStorage.setItem("current_site",newsite);
+        check_configured();
+    }
+    newload();
+}
+
+function getsites() {
+    sites = JSON.parse(localStorage.getItem("sites"));
+    if (sites === null) sites = new Object();
+    return sites;
 }
 
 // show error message
 function showerror(msg) {
-        $.mobile.loading( 'show', {
+        $.mobile.loading("show",{
             text: msg,
             textVisible: true,
             textonly: true,
             theme: 'c'
-            });
+        });
     // hide after delay
     setTimeout( function(){$.mobile.loading('hide')}, 1500);
+}
+
+function refreshPage() {
+    $.mobile.changePage(window.location.href,{
+        allowSamePageTransition : true,
+        transition              : 'none',
+        showLoadMsg             : false,
+        reloadPage              : true
+    });
 }
 
 $("#preview_date").change(function(){
     var id = $(".ui-page-active").attr("id");
     if (id == "preview") get_preview()
+});
+
+$("#site-selector").change(function(){
+    update_site($(this).val());
+    refreshPage();
 });
 
 //Bind changes to the flip switches
@@ -116,7 +210,7 @@ $("select[data-role='slider']").change(function(){
     }
     if (changedTo=="on") {
         if (type === "en") {
-            $.get("index.php","os_ip="+localStorage.getItem("os_ip")+"&os_pw="+localStorage.getItem("os_pw")+"&action=en_on",function(result){
+            $.get("index.php","os_ip="+window.curr_ip+"&os_pw="+window.curr_pw+"&action=en_on",function(result){
                 //If switch failed then change the switch back and show error
                 if (result == 0) {
                     comm_error()
@@ -125,7 +219,7 @@ $("select[data-role='slider']").change(function(){
             });
         }
         if (type === "mm" || type === "mmm") {
-            $.get("index.php","os_ip="+localStorage.getItem("os_ip")+"&os_pw="+localStorage.getItem("os_pw")+"&action=mm_on",function(result){
+            $.get("index.php","os_ip="+window.curr_ip+"&os_pw="+window.curr_pw+"&action=mm_on",function(result){
                 if (result == 0) {
                     comm_error()
                     $("#mm,#mmm").val("off").slider("refresh")
@@ -137,7 +231,7 @@ $("select[data-role='slider']").change(function(){
         }
     } else {
         if (type === "en") {
-            $.get("index.php","os_ip="+localStorage.getItem("os_ip")+"&os_pw="+localStorage.getItem("os_pw")+"&action=en_off",function(result){
+            $.get("index.php","os_ip="+window.curr_ip+"&os_pw="+window.curr_pw+"&action=en_off",function(result){
                 if (result == 0) {
                     comm_error()
                     $("#en").val("on").slider("refresh")
@@ -145,7 +239,7 @@ $("select[data-role='slider']").change(function(){
             });
         }
         if (type === "mm" || type === "mmm") {
-            $.get("index.php","os_ip="+localStorage.getItem("os_ip")+"&os_pw="+localStorage.getItem("os_pw")+"&action=mm_off",function(result){
+            $.get("index.php","os_ip="+window.curr_ip+"&os_pw="+window.curr_pw+"&action=mm_off",function(result){
                 if (result == 0) {
                     comm_error()
                     $("#mm,#mmm").val("on").slider("refresh")
@@ -164,7 +258,7 @@ function comm_error() {
 
 function check_status() {
     //Check if a program is running
-    $.get("index.php","os_ip="+localStorage.getItem("os_ip")+"&os_pw="+localStorage.getItem("os_pw")+"&action=current_status",function(data){
+    $.get("index.php","os_ip="+window.curr_ip+"&os_pw="+window.curr_pw+"&action=current_status",function(data){
         var footer = $("#footer-running")
         if (data === "") {
             footer.slideUp();
@@ -288,7 +382,7 @@ function highlight(button) {
 function update_weather() {
     var $weather = $("#weather");
     $weather.html("<p style='margin:0;text-align:center;opacity:0.18'><img src='img/ajax-loader.gif' class='mini-load' /></p>");
-    $.get("index.php","os_ip="+localStorage.getItem("os_ip")+"&os_pw="+localStorage.getItem("os_pw")+"&action=get_weather",function(result){
+    $.get("index.php","os_ip="+window.curr_ip+"&os_pw="+window.curr_pw+"&action=get_weather",function(result){
         var weather = JSON.parse(result);
         if (weather["code"] == null) {
             $("#weather-list").animate({ 
@@ -311,7 +405,7 @@ function gohome() {
 
 function show_settings() {
     $.mobile.showPageLoadingMsg();
-    $.get("index.php","os_ip="+localStorage.getItem("os_ip")+"&os_pw="+localStorage.getItem("os_pw")+"&action=make_settings_list",function(items){
+    $.get("index.php","os_ip="+window.curr_ip+"&os_pw="+window.curr_pw+"&action=make_settings_list",function(items){
         var list = $("#os-settings-list");
         list.html(items).trigger("create");
         if (list.hasClass("ui-listview")) list.listview("refresh");
@@ -322,7 +416,7 @@ function show_settings() {
 
 function show_stations() {
     $.mobile.showPageLoadingMsg();
-    $.get("index.php","os_ip="+localStorage.getItem("os_ip")+"&os_pw="+localStorage.getItem("os_pw")+"&action=make_stations_list",function(items){
+    $.get("index.php","os_ip="+window.curr_ip+"&os_pw="+window.curr_pw+"&action=make_stations_list",function(items){
         var list = $("#os-stations-list");
         list.html(items).trigger("create");
         if (list.hasClass("ui-listview")) list.listview("refresh");
@@ -333,7 +427,7 @@ function show_stations() {
 
 function get_status() {
     $.mobile.showPageLoadingMsg();
-    $.get("index.php","os_ip="+localStorage.getItem("os_ip")+"&os_pw="+localStorage.getItem("os_pw")+"&action=make_list_status",function(items){
+    $.get("index.php","os_ip="+window.curr_ip+"&os_pw="+window.curr_pw+"&action=make_list_status",function(items){
         var list = $("#status_list");
         items = JSON.parse(items)
         list.html(items.list);
@@ -355,7 +449,7 @@ function get_status() {
 
 function get_manual() {
     $.mobile.showPageLoadingMsg();
-    $.get("index.php","os_ip="+localStorage.getItem("os_ip")+"&os_pw="+localStorage.getItem("os_pw")+"&action=make_list_manual",function(items){
+    $.get("index.php","os_ip="+window.curr_ip+"&os_pw="+window.curr_pw+"&action=make_list_manual",function(items){
         var list = $("#mm_list");
         list.html(items);
         if (list.hasClass("ui-listview")) list.listview("refresh");
@@ -366,7 +460,7 @@ function get_manual() {
 
 function get_runonce() {
     $.mobile.showPageLoadingMsg();
-    $.getJSON("index.php","os_ip="+localStorage.getItem("os_ip")+"&os_pw="+localStorage.getItem("os_pw")+"&action=make_runonce",function(items){
+    $.getJSON("index.php","os_ip="+window.curr_ip+"&os_pw="+window.curr_pw+"&action=make_runonce",function(items){
         window.rprogs = items.progs;
         var list = $("#runonce_list"), i=0;
         list.html(items.page);
@@ -415,7 +509,7 @@ function get_preview() {
     if (date === "") return;
     date = date.split("-");
     $.mobile.showPageLoadingMsg();
-    $.get("index.php","os_ip="+localStorage.getItem("os_ip")+"&os_pw="+localStorage.getItem("os_pw")+"&action=get_preview&d="+date[2]+"&m="+date[1]+"&y="+date[0],function(items){
+    $.get("index.php","os_ip="+window.curr_ip+"&os_pw="+window.curr_pw+"&action=get_preview&d="+date[2]+"&m="+date[1]+"&y="+date[0],function(items){
         var empty = true;
         if (items == "") {
             $("#timeline").html("<p align='center'>No stations set to run on this day.</p>")
@@ -489,7 +583,7 @@ function changeday(dir) {
 
 function get_programs(pid) {
     $.mobile.showPageLoadingMsg();
-    $.get("index.php","os_ip="+localStorage.getItem("os_ip")+"&os_pw="+localStorage.getItem("os_pw")+"&action=make_all_programs",function(items){
+    $.get("index.php","os_ip="+window.curr_ip+"&os_pw="+window.curr_pw+"&action=make_all_programs",function(items){
         var list = $("#programs_list");
         list.html(items);
         if (typeof pid !== 'undefined') {
@@ -548,7 +642,7 @@ function update_program_header() {
 
 function add_program() {
     $.mobile.showPageLoadingMsg();
-    $.get("index.php","os_ip="+localStorage.getItem("os_ip")+"&os_pw="+localStorage.getItem("os_pw")+"&action=fresh_program",function(items){
+    $.get("index.php","os_ip="+window.curr_ip+"&os_pw="+window.curr_pw+"&action=fresh_program",function(items){
         var list = $("#newprogram");
         list.html(items);
         $("#addprogram input[name^='rad_days']").change(function(){
@@ -580,7 +674,7 @@ function add_program() {
 function delete_program(id) {
     areYouSure("Are you sure you want to delete program "+(parseInt(id)+1)+"?", "", function() {
         $.mobile.showPageLoadingMsg();
-        $.get("index.php","os_ip="+localStorage.getItem("os_ip")+"&os_pw="+localStorage.getItem("os_pw")+"&action=delete_program&pid="+id,function(result){
+        $.get("index.php","os_ip="+window.curr_ip+"&os_pw="+window.curr_pw+"&action=delete_program&pid="+id,function(result){
             $.mobile.hidePageLoadingMsg();
             if (result == 0) {
                 comm_error()
@@ -642,7 +736,7 @@ function submit_program(id) {
     program = JSON.stringify(program.concat(stations))
     $.mobile.showPageLoadingMsg()
     if (id == "new") {
-        $.get("index.php","os_ip="+localStorage.getItem("os_ip")+"&os_pw="+localStorage.getItem("os_pw")+"&action=update_program&pid=-1&data="+program,function(result){
+        $.get("index.php","os_ip="+window.curr_ip+"&os_pw="+window.curr_pw+"&action=update_program&pid=-1&data="+program,function(result){
             $.mobile.hidePageLoadingMsg()
             get_programs()
             if (result == 0) {
@@ -652,7 +746,7 @@ function submit_program(id) {
             }
         });
     } else {
-        $.get("index.php","os_ip="+localStorage.getItem("os_ip")+"&os_pw="+localStorage.getItem("os_pw")+"&action=update_program&pid="+id+"&data="+program,function(result){
+        $.get("index.php","os_ip="+window.curr_ip+"&os_pw="+window.curr_pw+"&action=update_program&pid="+id+"&data="+program,function(result){
             $.mobile.hidePageLoadingMsg()
             if (result == 0) {
                 comm_error()
@@ -688,7 +782,7 @@ function submit_settings() {
     })
     if (invalid) return
     $.mobile.showPageLoadingMsg();
-    $.get("index.php","os_ip="+localStorage.getItem("os_ip")+"&os_pw="+localStorage.getItem("os_pw")+"&action=submit_options&options="+JSON.stringify(opt),function(result){
+    $.get("index.php","os_ip="+window.curr_ip+"&os_pw="+window.curr_pw+"&action=submit_options&options="+JSON.stringify(opt),function(result){
         $.mobile.hidePageLoadingMsg();
         gohome();
         if (result == 0) {
@@ -729,7 +823,7 @@ function submit_stations() {
     if ($("[id^='um_']").length) masop = "&masop="+JSON.stringify(m);
     if (invalid) return
     $.mobile.showPageLoadingMsg();
-    $.get("index.php","os_ip="+localStorage.getItem("os_ip")+"&os_pw="+localStorage.getItem("os_pw")+"&action=submit_stations&names="+JSON.stringify(names)+masop,function(result){
+    $.get("index.php","os_ip="+window.curr_ip+"&os_pw="+window.curr_pw+"&action=submit_stations&names="+JSON.stringify(names)+masop,function(result){
         $.mobile.hidePageLoadingMsg();
         gohome();
         if (result == 0) {
@@ -747,7 +841,7 @@ function submit_runonce() {
     })
     runonce.push(0)
     localStorage.setItem("runonce",JSON.stringify(runonce));
-    $.get("index.php","os_ip="+localStorage.getItem("os_ip")+"&os_pw="+localStorage.getItem("os_pw")+"&action=runonce&data="+JSON.stringify(runonce),function(result){
+    $.get("index.php","os_ip="+window.curr_ip+"&os_pw="+window.curr_pw+"&action=runonce&data="+JSON.stringify(runonce),function(result){
         if (result == 0) {
             comm_error()
         } else {
@@ -766,7 +860,7 @@ function toggle(anchor) {
     var currPos = $listitems.index($item) + 1;
     var total = $listitems.length;
     if ($anchor.hasClass("green")) {
-        $.get("index.php","os_ip="+localStorage.getItem("os_ip")+"&os_pw="+localStorage.getItem("os_pw")+"&action=spoff&zone="+currPos,function(result){
+        $.get("index.php","os_ip="+window.curr_ip+"&os_pw="+window.curr_pw+"&action=spoff&zone="+currPos,function(result){
             if (result == 0) {
                 $anchor.addClass("green");
                 comm_error()
@@ -774,7 +868,7 @@ function toggle(anchor) {
         })
         $anchor.removeClass("green");
     } else {
-        $.get("index.php","os_ip="+localStorage.getItem("os_ip")+"&os_pw="+localStorage.getItem("os_pw")+"&action=spon&zone="+currPos,function(result){
+        $.get("index.php","os_ip="+window.curr_ip+"&os_pw="+window.curr_pw+"&action=spon&zone="+currPos,function(result){
             if (result == 0) {
                 $anchor.removeClass("green");
                 comm_error()
@@ -786,7 +880,7 @@ function toggle(anchor) {
 
 function raindelay() {
     $.mobile.showPageLoadingMsg();
-    $.get("index.php","os_ip="+localStorage.getItem("os_ip")+"&os_pw="+localStorage.getItem("os_pw")+"&action=raindelay&delay="+$("#delay").val(),function(result){
+    $.get("index.php","os_ip="+window.curr_ip+"&os_pw="+window.curr_pw+"&action=raindelay&delay="+$("#delay").val(),function(result){
         $.mobile.hidePageLoadingMsg();
         gohome();
         if (result == 0) {
@@ -800,7 +894,7 @@ function raindelay() {
 function rbt() {
     areYouSure("Are you sure you want to reboot OpenSprinkler?", "", function() {
         $.mobile.showPageLoadingMsg()
-        $.get("index.php","os_ip="+localStorage.getItem("os_ip")+"&os_pw="+localStorage.getItem("os_pw")+"&action=rbt",function(result){
+        $.get("index.php","os_ip="+window.curr_ip+"&os_pw="+window.curr_pw+"&action=rbt",function(result){
             $.mobile.hidePageLoadingMsg()
             gohome();
             if (result == 0) {
@@ -815,7 +909,7 @@ function rbt() {
 function rsn() {
     areYouSure("Are you sure you want to stop all stations?", "", function() {
         $.mobile.showPageLoadingMsg()
-        $.get("index.php","os_ip="+localStorage.getItem("os_ip")+"&os_pw="+localStorage.getItem("os_pw")+"&action=rsn",function(result){
+        $.get("index.php","os_ip="+window.curr_ip+"&os_pw="+window.curr_pw+"&action=rsn",function(result){
             $.mobile.hidePageLoadingMsg()
             gohome();
             if (result == 0) {
@@ -829,7 +923,7 @@ function rsn() {
 
 function export_config() {
     $.mobile.showPageLoadingMsg();
-    $.get("index.php","os_ip="+localStorage.getItem("os_ip")+"&os_pw="+localStorage.getItem("os_pw")+"&action=export_config",function(data){
+    $.get("index.php","os_ip="+window.curr_ip+"&os_pw="+window.curr_pw+"&action=export_config",function(data){
         $.mobile.hidePageLoadingMsg();
         $("#sprinklers-settings").panel("close")
         if (data === "") {
@@ -849,7 +943,7 @@ function import_config() {
     }
     areYouSure("Are you sure you want to restore the configuration?", "", function() {
         $.mobile.showPageLoadingMsg();
-        $.get("index.php","os_ip="+localStorage.getItem("os_ip")+"&os_pw="+localStorage.getItem("os_pw")+"&action=import_config&data="+data,function(reply){
+        $.get("index.php","os_ip="+window.curr_ip+"&os_pw="+window.curr_pw+"&action=import_config&data="+data,function(reply){
             $.mobile.hidePageLoadingMsg();
             gohome();
             if (reply == 0) {
@@ -876,36 +970,72 @@ function areYouSure(text1, text2, callback, callback2) {
 function submit_newuser() {
     document.activeElement.blur();
     $.mobile.showPageLoadingMsg()
-    //Locally save information
-    localStorage.setItem("os_ip",$("#os_ip").val());
-    localStorage.setItem("os_pw",$("#os_pw").val());
+
+    var sites = getsites();
+
     //Submit form data to the server
-    $.get("index.php","os_ip="+localStorage.getItem("os_ip")+"&os_pw="+localStorage.getItem("os_pw")+"&action=test_ip&"+$("#os_ip").serialize(),function(data){
+    $.get("index.php","os_ip="+$("#os_ip").val()+"&os_pw="+$("#os_pw").val()+"&action=test_ip",function(data){
         $.mobile.hidePageLoadingMsg()
         if (data == 1) {
-            $.get("index.php","os_ip="+localStorage.getItem("os_ip")+"&os_pw="+localStorage.getItem("os_pw")+"&action=send_en_mm",function(data){
-                data = JSON.parse(data)
-                if (data.en == "1") $("#en").val("on")
-                if (data.mm == "1") $("#mm,#mmm").val("on")
-                $.mobile.changePage($("#sprinklers"))
-            })
+            var name = $("#os_name").val();
+            sites[name] = window.curr_name = new Object();
+            sites[name]["os_ip"] = window.curr_ip = $("#os_ip").val()
+            sites[name]["os_pw"] = window.curr_pw = $("#os_pw").val()
+            localStorage.setItem("sites",JSON.stringify(sites));
+            localStorage.setItem("current_site",name);
+            update_site_list(Object.keys(sites));
+            newload();
         } else {
             showerror("Check IP/Port and try again.")
         }
     })
 }
 
-function remove_info() {
-    localStorage.removeItem("os_ip");
-    localStorage.removeItem("os_pw");
-    $.mobile.changePage($("#addnew"));
+function show_sites() {
+    var list = "<div data-role='collapsible-set'>";
+    var sites = getsites();
+    $.each(sites,function(a,b){
+        list += "<fieldset id='site-"+a+"' data-role='collapsible'>";
+        list += "<legend>"+a+"</legend>";
+        list += "<label for='cip-"+a+"'>Change IP</label><input id='cip-"+a+"' type='text' value='"+b["os_ip"]+"' />";
+        list += "<label for='cpw-"+a+"'>Change Password</label><input id='cpw-"+a+"' type='password' />";
+        list += "<a data-role='button' onclick='change_site(\""+a+"\")'>Save Changes to "+a+"</a>";
+        list += "<a data-role='button' onclick='delete_site(\""+a+"\")' data-theme='a'>Delete "+a+"</a>";
+        list += "</fieldset>";
+    })
+
+    $("#site-control-list").html(list+"</div>").trigger("create");
+    $.mobile.changePage("#site-control");
 }
 
-function change_info() {
-    $("#addnew div[data-role='header']").append("<a data-role='button' class='ui-btn-left' href='javascript:gohome()'>Cancel</a>").trigger("create");
-    $("#os_ip").val(localStorage.getItem("os_ip"));
-    $("#os_pw").val(localStorage.getItem("os_pw"));
-    $.mobile.changePage($("#addnew"));
+function delete_site(site) {
+    var sites = getsites();
+    delete sites[site];
+    localStorage.setItem("sites",JSON.stringify(sites));
+    update_site_list(Object.keys(sites));
+    show_sites();
+    if ($.isEmptyObject(sites)) {
+        $.mobile.changePage($("#addnew"));
+        return;
+    }
+    if (site === localStorage.getItem("current_site")) site_select(Object.keys(sites));
+}
+
+function change_site(site) {
+    var sites = getsites();
+
+    var ip = $("#cip-"+site).val();
+    var pw = $("#cpw-"+site).val();
+
+    if (ip != "") sites[site]["os_ip"] = ip;
+    if (pw != "") sites[site]["os_pw"] = pw;
+
+    localStorage.setItem("sites",JSON.stringify(sites));
+
+    if (site === localStorage.getItem("current_site")) {
+        check_configured();
+        newload();
+    }
 }
 
 function getThemeUrl(theme) {
