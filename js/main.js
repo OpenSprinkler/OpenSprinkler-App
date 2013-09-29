@@ -65,6 +65,11 @@ $("#start").one("pageinit",function(e){
     var d = String(date.getDate());
     if (d.length == 1) d = "0"+d;
     $("#preview_date").val(y+"-"+m+"-"+d);
+    $.getJSON("https://api.github.com/repos/salbahra/OpenSprinkler-Hosted-Controller/git/refs/heads/master").done(function(data){
+        var newest = data.object.sha;
+        $("#versions").append(newest.slice(0,10));
+    })
+
 });
 
 $(document).on("pageshow",function(e,data){

@@ -271,6 +271,7 @@ require_once "main.php";
                     </div>
                     <div data-role="collapsible">
                         <h3>Version History</h3>
+                            <p>Change log now mantained on <a href="https://github.com/salbahra/OpenSprinkler-Hosted-Controller/commits/master" target="_blank">Github</a></p>
                             <p>Version 2.01</p><ul><li>Added ability to change themes between the old one and newer, flat theme</li><li>Fixed bug loading Preview on IE8 and below</li><li>Fixed bug with timers after leaving the current status page which sent the user back to the current status page</li></ul>
                             <p>Version 2.00</p><ul><li>Redesigned theme</li><li>Fixed bug with run-once quick program location</li><li>Added highlight to sliders in settings page</li><li>Fixed program preview next/previous icons</li></ul>
                             <p>Version 1.23</p><ul><li>Fixed bug with comma in station name</li><li>Fixed problem handling unicode encoding from interval program</li><li>Minified settings and edit stations pages</li><li>Removed settings and edit station redudant headers</li><li>Added shortcut to reset sliders on runonce page from dropdown by picking Quick Programs</li><li>Fixed dropdown on runonce page not refreshing after the first page load</li><li>Fixed bug with program preview where master station was 1 minute short</li><li>Programs are now selectable within run-once programs to launch an ad-hoc program</li><li>Minified edit program page</li></ul>
@@ -309,7 +310,7 @@ require_once "main.php";
                     </div>
                 </div>
                 <p id='versions'>
-                    Mobile Version: 2.01
+                    Hosted Version: 
                 </p>
             </div>
         </div>
