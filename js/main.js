@@ -95,6 +95,8 @@ function check_configured() {
 
         localStorage.setItem("sites",JSON.stringify(sites));
 
+        update_site_list(["Migrated"]);
+
         localStorage.removeItem("os_ip");
         localStorage.removeItem("os_pw");
         return true;
