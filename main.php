@@ -213,7 +213,7 @@ function process_programs($month,$day,$year) {
     $newdata["stations"] = $vs["stations"];
 
     $data = get_from_os("/gp?d=".$day."&m=".$month."&y=".$year);
-    preg_match_all("/(seq|mas|wl|sdt|mton|mtoff|devday|devmin|dd|mm|yy|nprogs|nboards|ipas|mnp)\s?[=|:]\s?([\w|\d|.\"])+/", $data, $opts);
+    preg_match_all("/(seq|mas|wl|sdt|mton|mtoff|devday|devmin|dd|mm|yy|nprogs|nboards|ipas|mnp)\s?[=|:]\s?([\w|\d|.\"]+)/", $data, $opts);
     $i = 0;
 
     foreach ($opts[1] as $variable) {
