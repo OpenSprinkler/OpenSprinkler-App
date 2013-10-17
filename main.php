@@ -120,7 +120,7 @@ function get_stations() {
     $data = get_from_os("/vs");
     preg_match("/snames=\[(.*)\];/", $data, $matches);
     $rawstations = str_getcsv($matches[1],",","'");
-    preg_match("/nboards=(\d+)/", $data, $matches);
+    preg_match("/(?:nboards|nbrd)\s?[=|:]\s?(\d+)/", $data, $matches);
     $total = $matches[1] * 8; $current = 1;
     foreach ($rawstations as $station) {
         if ($current > $total) break;
@@ -129,7 +129,7 @@ function get_stations() {
         $current++;
     }
 
-    preg_match("/masop=\[(.*?)\]/", $data, $masop);
+    preg_match("/(?:masop|mo)\s?[=|:]\s?\[(.*?)\]/", $data, $masop);
     $masop = explode(",",$masop[1]);
 
     return array("stations" => $stations,"masop" => $masop);
@@ -213,15 +213,16 @@ function process_programs($month,$day,$year) {
     $newdata["stations"] = $vs["stations"];
 
     $data = get_from_os("/gp?d=".$day."&m=".$month."&y=".$year);
-    preg_match_all("/(seq|mas|wl|sdt|mton|mtoff|devday|devmin|dd|mm|yy|nprogs|nboards|ipas|mnp)=[\w|\d|.\"]+/", $data, $opts);
+    preg_match_all("/(seq|mas|wl|sdt|mton|mtoff|devday|devmin|dd|mm|yy|nprogs|nboards|ipas|mnp)\s?[=|:]\s?([\w|\d|.\"])+/", $data, $opts);
+    $i = 0;
 
-    foreach ($opts[0] as $variable) {
+    foreach ($opts[1] as $variable) {
         if ($variable === "") continue;
-        $tmp = str_replace('"','',explode("=", $variable));
-        $newdata[$tmp[0]] = $tmp[1];
+        $newdata[$variable] = $opts[2][$i];
+        $i++;
     }
 
-    preg_match("/masop=\[(.*?)\]/", $data, $masop);
+    preg_match("/(?:masop|mo)\s?[=|:]\s?\[(.*?)\]/", $data, $masop);
     $newdata["masop"] = explode(",",$masop[1]);
 
     preg_match("/pd=\[\];(.*);/", $data, $progs);
@@ -348,11 +349,9 @@ function time_to_text($sid,$start,$pid,$end,$data,$simt) {
 function get_options() {
     $data = get_from_os("/vo");
     preg_match("/var opts=\[(.*)\];/", $data,$opts);
-    preg_match("/loc=\"(.*)\"/",$data,$loc);
-    preg_match("/nopts=(\d+)/", $data, $nopts);
+    preg_match("/loc\s?[=|:]\s?[\"|'](.*)[\"|']/",$data,$loc);
 
     $newdata["loc"] = $loc[1];
-    $newdata["nopts"] = $nopts[1];
 
     $data = explode(",", $opts[1]);
 
@@ -368,8 +367,8 @@ function get_options() {
 #Get OpenSprinkler settings
 function get_settings() {
     $data = get_from_os("");
-    preg_match_all("/(ver|devt|nbrd|tz|en|rd|rs|mm|rdst|mas|urs|wl|ipas)=[\w|\d|.\"]+/", $data, $matches);
-    preg_match("/loc=\"(.*)\"/",$data,$loc);
+    preg_match_all("/(ver|devt|nbrd|tz|en|rd|rs|mm|rdst|mas|urs|wl|ipas)\s?[=|:]\s?([\w|\d|.\"]+)/", $data, $matches);
+    preg_match("/loc(\s)?[=|:](\s)?[\"|'](.*)[\"|']/",$data,$loc);
     preg_match("/lrun=\[(.*)\]/", $data, $lrun);
     preg_match("/ps=\[(.*)\];/",$data,$ps);
     $ps = explode("],[",$ps[1]);
@@ -379,10 +378,11 @@ function get_settings() {
         $i++;
     }
     $newdata = array("ps" => $ps, "lrun" => explode(",", $lrun[1]), "loc" => $loc[1]);
-    foreach ($matches[0] as $variable) {
+    $i = 0;
+    foreach ($matches[1] as $variable) {
         if ($variable === "") continue;
-        $tmp = str_replace('"','',explode("=", $variable));
-        $newdata[$tmp[0]] = $tmp[1];
+        $newdata[$variable] = $matches[2][$i];
+        $i++;
     }
     return $newdata;
 }
