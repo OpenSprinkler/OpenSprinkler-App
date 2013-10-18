@@ -19,6 +19,9 @@ if (!isset($_SESSION["woeid"]) && isset($_REQUEST["os_ip"])) $_SESSION["woeid"] 
 #Get Base URL of Site
 if (isset($_SERVER['SERVER_NAME'])) $base_url = (($force_ssl) ? "https://" : "http://").$_SERVER['SERVER_NAME'].$_SERVER['PHP_SELF'];
 
+#Define key names for options
+$keyNames = array(1 => "otz",12 => "ohtp",13 => "ohtp2",15 => "onbrd",16 => "oseq",17 => "osdt",18 => "omas",19 => "omton",20 => "omtoff",21 => "ours",22 => "orst",23 => "owl",25 => "oipas");
+
 #Call action if requested and allowed
 if (isset($_REQUEST['action'])) {
 	if (is_callable($_REQUEST['action'])) {
@@ -84,6 +87,8 @@ function export_config() {
 }
 
 function import_config() {
+    global $keyNames;
+
     if (!isset($_REQUEST["data"])) echo 0;
     $data = json_decode($_REQUEST["data"],true);
     if (is_null($data)) echo 0;
@@ -91,7 +96,7 @@ function import_config() {
     foreach ($data["options"] as $key => $value) {
         if (is_array($value)) {
             if (in_array($key, array(16,21,22,25)) && $value["val"] == 0) continue; 
-            $co .= "&o".$key."=".$value["val"];
+            $co .= "&".(($_SESSION["OSPi"]) ? $keyNames[$key] : "o".$key)."=".$value["val"];
         } else if ($key == "loc") {
             $co .= "&".$key."=".urlencode($value);
         }
@@ -347,18 +352,35 @@ function time_to_text($sid,$start,$pid,$end,$data,$simt) {
 
 #Get OpenSprinkler options
 function get_options() {
+    global $keyNames;
+
     $data = get_from_os("/vo");
     preg_match("/var opts=\[(.*)\];/", $data,$opts);
     preg_match("/loc\s?[=|:]\s?[\"|'](.*)[\"|']/",$data,$loc);
 
     $newdata["loc"] = $loc[1];
 
-    $data = explode(",", $opts[1]);
-
-    for ($i=3; $i <= count($data); $i=$i+4) {
-        $o = intval($data[$i]);
-        if (in_array($o, array(1,12,13,15,16,17,18,19,20,21,22,23,25))) $newdata[$o] = array("en" => $data[$i-2],"val" => $data[$i-1]);
+    if (empty($opts)) {
+        $_SESSION["OSPi"] = true;
+        preg_match_all("/(tz|htp|htp2|nbrd|seq|sdt|mas|mton|mtoff|urs|rst|wl|ipas)\s?[=|:]\s?([\w|\d|.\"]+)/", $data, $opts);
+        $i = 0;
+        foreach ($opts[1] as $var) {
+            if ($var === "") continue;
+            $o = array_search("o".$var, $keyNames);
+            $val = ($var == "nbrd") ? $opts[2][$i] - 1 : $opts[2][$i];
+            $newdata[$o] = array("en" => 1,"val" => $val,"var" => $var); 
+            $i++;
+        } 
+    } else {
+        $data = explode(",", $opts[1]);
+        for ($i=3; $i <= count($data); $i=$i+4) {
+            $o = intval($data[$i]);
+            if (in_array($o, array(1,12,13,15,16,17,18,19,20,21,22,23,25))) {
+                $newdata[$o] = array("en" => $data[$i-2],"val" => $data[$i-1],"var" => $keyNames[$o]);
+            }
+        }
     }
+
     $newdata = move_keys(array(15,17,19,20,23),$newdata);
     $newdata = move_keys(array(16,21,22,25),$newdata);
     return $newdata;
@@ -423,7 +445,17 @@ function delete_program() {
 
 #Submit updated options
 function submit_options() {
-    send_to_os("/co?pw=&".http_build_query(json_decode($_REQUEST["options"])));
+    global $keyNames;
+
+    if (isset($_SESSION["OSPi"])) {
+        foreach (json_decode($_REQUEST["options"]) as $key => $value) {
+            $key = filter_var($key, FILTER_SANITIZE_NUMBER_INT);
+            $data[$keyNames[$key]] = $value;
+        }
+        send_to_os("/co?pw=&".http_build_query($data));
+    } else {
+        send_to_os("/co?pw=&".http_build_query(json_decode($_REQUEST["options"])));
+    }
     $_SESSION["woeid"] = get_woeid();
 }
 
