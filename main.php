@@ -98,7 +98,7 @@ function import_config() {
             if (in_array($key, array(16,21,22,25)) && $value["val"] == 0) continue; 
             $co .= "&".(($_SESSION["OSPi"]) ? $keyNames[$key] : "o".$key)."=".$value["val"];
         } else if ($key == "loc") {
-            $co .= "&".$key."=".urlencode($value);
+            $co .= "&".(($_SESSION["OSPi"]) ? "o".$key : $key)."=".urlencode($value);
         }
     }
     send_to_os($co);
@@ -449,8 +449,13 @@ function submit_options() {
 
     if (isset($_SESSION["OSPi"])) {
         foreach (json_decode($_REQUEST["options"]) as $key => $value) {
-            $key = filter_var($key, FILTER_SANITIZE_NUMBER_INT);
-            $data[$keyNames[$key]] = $value;
+            if ($key !== "loc") {
+                $key = filter_var($key, FILTER_SANITIZE_NUMBER_INT);
+                $data[$keyNames[$key]] = $value;
+            } else {
+                $key = "o".$key;
+                $data[$key] = $value;
+            }
         }
         send_to_os("/co?pw=&".http_build_query($data));
     } else {
