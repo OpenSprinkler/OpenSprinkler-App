@@ -20,7 +20,7 @@ if (!isset($_SESSION["woeid"]) && isset($_REQUEST["os_ip"])) $_SESSION["woeid"] 
 if (isset($_SERVER['SERVER_NAME'])) $base_url = (($force_ssl) ? "https://" : "http://").$_SERVER['SERVER_NAME'].$_SERVER['PHP_SELF'];
 
 #Define key names for options
-$keyNames = array(1 => "otz",12 => "ohtp",13 => "ohtp2",15 => "onbrd",16 => "oseq",17 => "osdt",18 => "omas",19 => "omton",20 => "omtoff",21 => "ours",22 => "orst",23 => "owl",25 => "oipas");
+$keyNames = array(1 => "otz",2 => "ntp",12 => "ohtp",13 => "ohtp2",14 => "ar",15 => "onbrd",16 => "oseq",17 => "osdt",18 => "omas",19 => "omton",20 => "omtoff",21 => "ours",22 => "orst",23 => "owl",25 => "oipas");
 
 #Call action if requested and allowed
 if (isset($_REQUEST['action'])) {
@@ -95,7 +95,7 @@ function import_config() {
     $cs = "/cs?pw="; $co = "/co?pw="; $cp_start = "/cp?pw="; $i = 0;
     foreach ($data["options"] as $key => $value) {
         if (is_array($value)) {
-            if (in_array($key, array(16,21,22,25)) && $value["val"] == 0) continue; 
+            if (in_array($key, array(2,14,16,21,22,25)) && $value["val"] == 0) continue; 
             $co .= "&".(($_SESSION["OSPi"]) ? $keyNames[$key] : "o".$key)."=".$value["val"];
         } else if ($key == "loc") {
             $co .= "&".(($_SESSION["OSPi"]) ? "o".$key : $key)."=".urlencode($value);
@@ -375,14 +375,14 @@ function get_options() {
         $data = explode(",", $opts[1]);
         for ($i=3; $i <= count($data); $i=$i+4) {
             $o = intval($data[$i]);
-            if (in_array($o, array(1,12,13,15,16,17,18,19,20,21,22,23,25))) {
+            if (in_array($o, array(1,2,12,13,14,15,16,17,18,19,20,21,22,23,25))) {
                 $newdata[$o] = array("en" => $data[$i-2],"val" => $data[$i-1],"var" => $keyNames[$o]);
             }
         }
     }
 
     $newdata = move_keys(array(15,17,19,20,23),$newdata);
-    $newdata = move_keys(array(16,21,22,25),$newdata);
+    $newdata = move_keys(array(2,14,16,21,22,25),$newdata);
     return $newdata;
 }
 
@@ -819,9 +819,15 @@ function make_settings_list() {
                 }
                 $list .= "</select>";
                 continue 2;
+            case 2:
+                $list .= "<input data-mini='true' id='o2' type='checkbox' ".(($data["val"] == "1") ? "checked='checked'" : "")." /><label for='o2'>NTP Sync</label>";
+                continue 2;
             case 12:
 #                $http = $options[13]["val"]*256+$data["val"];
 #                $list .= "<label for='o12'>HTTP Port</label><input data-mini='true' type='number' pattern='[0-9]*' id='o12' value='".$http."' />";
+                continue 2;
+            case 14:
+                $list .= "<input data-mini='true' id='o14' type='checkbox' ".(($data["val"] == "1") ? "checked='checked'" : "")." /><label for='o14'>Auto Reconnect</label>";
                 continue 2;
             case 15:
                 $list .= "<label for='o15'>Extension Boards</label><input data-highlight='true' data-mini='true' type='number' pattern='[0-9]*' data-type='range' min='0' max='5' id='o15' value='".$data["val"]."' />";

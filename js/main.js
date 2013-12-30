@@ -772,6 +772,8 @@ function submit_settings() {
                 tz[1]=(tz[1]/15>>0)/4.0;tz[0]=tz[0]+(tz[0]>=0?tz[1]:-tz[1]);
                 data = ((tz[0]+12)*4)>>0
                 break;
+            case "o2":
+            case "o14":
             case "o16":
             case "o21":
             case "o22":
