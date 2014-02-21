@@ -6,11 +6,10 @@ A mobile frontend for the OpenSprinkler irrigation device. Designed to allow man
 Overview:
 ---------
 
-+ This application interfaces with the interval program on the OpenSprinkler which is the default software available. The application has been tested on firmware version 2.0.0 but should be compatible with 1.8.x and newer.
++ This application interfaces with the interval program on the OpenSprinkler which is the default software available. The application has been tested and compatible with firmware version 2.0.3+.
+  + If you are using firmware 2.0.2 or lower please use the [2.0-master branch](https://github.com/salbahra/OpenSprinkler-Hosted-Controller/tree/2.0-master)
 
-+ The provided interface does not rely on the javascript files hosted by Ray therefore will work on a locally hosted server even without an internet connection (with the local asset option enabled, which is disabled by default). However an internet connection (with a properly configured web server and port forwarding) will allow you to access the application from anywhere.
-
-+ The application is written in Javascript and HTML/CSS.
++ The application is written in Javascript and HTML/CSS. The application runs 100% within the user's browser and communicates directly with the OpenSprinkler.
 
 + For current discussion about the project please refer to the [forum post](http://rayshobby.net/phpBB3/viewtopic.php?f=2&t=154). 
 
@@ -34,9 +33,10 @@ Install Instructions:
 git clone https://github.com/salbahra/OpenSprinkler-Hosted-Controller.git /var/www/sprinklers
 
 ```
-> If you don't have Git, you can download the [ZIP](https://github.com/salbahra/OpenSprinkler-Controller/archive/master.zip) file and extract to a local directory.
 
 + Now, visit the site using any browser (replacing IPAddr with the server IP): http://IPAddr/sprinklers
+
+> If you don't have Git, you can download the [ZIP](https://github.com/salbahra/OpenSprinkler-Controller/archive/master.zip) file and extract to a local directory.
 
 > The webapp can also be installed to the SD card of the OpenSprinkler and run directly from the device. For this you will need to grab the specially formatted version from the sdcard branch.
 
