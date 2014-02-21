@@ -41,9 +41,15 @@
 <a name="overview" class="anchor" href="#overview"><span class="octicon octicon-link"></span></a>Overview:</h2>
 
 <ul>
-<li><p>This application interfaces with the interval program on the OpenSprinkler which is the default software available. The application has been tested on firmware version 2.0.0 but should be compatible with 1.8.x and newer.</p></li>
-<li><p>The provided interface does not rely on the javascript files hosted by Ray therefore will work on a locally hosted server even without an internet connection (with the local asset option enabled, which is disabled by default). However an internet connection (with a properly configured web server and port forwarding) will allow you to access the application from anywhere.</p></li>
-<li><p>The application is written in Javascript and HTML/CSS.</p></li>
+<li>
+<p>This application interfaces with the interval program on the OpenSprinkler which is the default software available. The application has been tested and compatible with firmware version 2.0.3+.</p>
+
+<ul>
+<li>If you are using firmware 2.0.2 or lower please use the <a href="https://github.com/salbahra/OpenSprinkler-Hosted-Controller/tree/2.0-master">2.0-master branch</a>
+</li>
+</ul>
+</li>
+<li><p>The application is written in Javascript and HTML/CSS. The application runs 100% within the user's browser and communicates directly with the OpenSprinkler.</p></li>
 <li><p>For current discussion about the project please refer to the <a href="http://rayshobby.net/phpBB3/viewtopic.php?f=2&amp;t=154">forum post</a>. </p></li>
 </ul><h2>
 <a name="video-tutorial" class="anchor" href="#video-tutorial"><span class="octicon octicon-link"></span></a>Video Tutorial:</h2>
@@ -65,13 +71,11 @@ git clone https://github.com/salbahra/OpenSprinkler-Hosted-Controller.git /var/w
 
 </pre></div>
 
-<blockquote>
-<p>If you don't have Git, you can download the <a href="https://github.com/salbahra/OpenSprinkler-Controller/archive/master.zip">ZIP</a> file and extract to a local directory.</p>
-</blockquote>
-
 <ul>
 <li>Now, visit the site using any browser (replacing IPAddr with the server IP): http://IPAddr/sprinklers</li>
 </ul><blockquote>
+<p>If you don't have Git, you can download the <a href="https://github.com/salbahra/OpenSprinkler-Controller/archive/master.zip">ZIP</a> file and extract to a local directory.</p>
+
 <p>The webapp can also be installed to the SD card of the OpenSprinkler and run directly from the device. For this you will need to grab the specially formatted version from the sdcard branch.</p>
 </blockquote>
 
