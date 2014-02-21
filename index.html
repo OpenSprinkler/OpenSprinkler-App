@@ -35,16 +35,15 @@
 <a name="opensprinkler-hosted-controller" class="anchor" href="#opensprinkler-hosted-controller"><span class="octicon octicon-link"></span></a><a href="http://salbahra.github.io/OpenSprinkler-Hosted-Controller">OpenSprinkler Hosted Controller</a>
 </h1>
 
-<p>A mobile frontend for the OpenSprinkler irrigation device. Designed to allow manual control, program management (view, edit, delete and add), initiate a run-once program, view status, adjust rain delay, and change OpenSprinkler settings.</p>
-
-<p>This version is designed for multiple users and uses no central storage. This version does not have the logging feature and also lacks weather based rain delay. Please see the main version of this software <a href="https://github.com/salbahra/OpenSprinkler-Controller">here</a></p>
+<p>A mobile frontend for the OpenSprinkler irrigation device. Designed to allow manual control, program management (view, edit, delete and add), initiate a run-once program, view status, adjust rain delay, and change OpenSprinkler settings. Screenshots available below.</p>
 
 <h2>
 <a name="overview" class="anchor" href="#overview"><span class="octicon octicon-link"></span></a>Overview:</h2>
 
 <ul>
 <li><p>This application interfaces with the interval program on the OpenSprinkler which is the default software available. The application has been tested on firmware version 2.0.0 but should be compatible with 1.8.x and newer.</p></li>
-<li><p>This software requires direct access to your OpenSprinkler which may require port forwarding.</p></li>
+<li><p>The provided interface does not rely on the javascript files hosted by Ray therefore will work on a locally hosted server even without an internet connection (with the local asset option enabled, which is disabled by default). However an internet connection (with a properly configured web server and port forwarding) will allow you to access the application from anywhere.</p></li>
+<li><p>The application is written in Javascript and HTML/CSS.</p></li>
 <li><p>For current discussion about the project please refer to the <a href="http://rayshobby.net/phpBB3/viewtopic.php?f=2&amp;t=154">forum post</a>. </p></li>
 </ul><h2>
 <a name="video-tutorial" class="anchor" href="#video-tutorial"><span class="octicon octicon-link"></span></a>Video Tutorial:</h2>
@@ -56,75 +55,35 @@
 <h2>
 <a name="screenshots" class="anchor" href="#screenshots"><span class="octicon octicon-link"></span></a>Screenshots:</h2>
 
-<p><img src="http://albahra.com/journal/wp-content/uploads/2013/07/startup-iphone5-retina-175x300.png" alt="Splash Screen"><img src="http://albahra.com/journal/wp-content/uploads/2013/07/iOS-Simulator-Screen-shot-Jul-18-2013-6.36.32-PM-169x300.png" alt="Home Screen"><img src="http://albahra.com/journal/wp-content/uploads/2013/07/iOS-Simulator-Screen-shot-Jul-23-2013-6.24.41-PM-169x300.png" alt="Status Page"><img src="http://albahra.com/journal/wp-content/uploads/2013/07/iOS-Simulator-Screen-shot-Jul-2-2013-10.46.37-PM-169x300.png" alt="Program Preview"><img src="http://albahra.com/journal/wp-content/uploads/2013/07/iOS-Simulator-Screen-shot-Jul-27-2013-5.55.42-PM-169x300.png" alt="Program Editor"><img src="http://albahra.com/journal/wp-content/uploads/2013/07/iOS-Simulator-Screen-shot-Jul-2-2013-10.30.53-PM-169x300.png" alt="Manual Program"><img src="http://albahra.com/journal/wp-content/uploads/2013/07/iOS-Simulator-Screen-shot-Jul-2-2013-10.56.03-PM-169x300.png" alt="Rain Delay"><img src="http://albahra.com/journal/wp-content/uploads/2013/07/iOS-Simulator-Screen-shot-Jul-31-2013-8.40.23-PM-169x300.png" alt="Run Once"><img src="http://albahra.com/journal/wp-content/uploads/2013/08/iOS-Simulator-Screen-shot-Aug-1-2013-6.52.25-PM-169x300.png" alt="Settings"></p>
+<p><img src="http://albahra.com/journal/wp-content/uploads/2013/07/startup-iphone5-retina-175x300.png" alt="Splash Screen"><img src="http://albahra.com/journal/wp-content/uploads/2014/02/iOS-Simulator-Screen-shot-Jan-26-2014-7.15.37-PM-169x300.png" alt="Home Screen"><img src="http://albahra.com/journal/wp-content/uploads/2014/02/iOS-Simulator-Screen-shot-Jan-26-2014-7.15.45-PM-169x300.png" alt="Status Page"><img src="http://albahra.com/journal/wp-content/uploads/2014/02/iOS-Simulator-Screen-shot-Feb-9-2014-4.25.52-PM-169x300.png" alt="Program Preview"><img src="http://albahra.com/journal/wp-content/uploads/2014/02/iOS-Simulator-Screen-shot-Jan-26-2014-7.24.09-PM-169x300.png" alt="Program Editor"><img src="http://albahra.com/journal/wp-content/uploads/2014/02/iOS-Simulator-Screen-shot-Jan-26-2014-7.24.18-PM-169x300.png" alt="Manual Program"><img src="http://albahra.com/journal/wp-content/uploads/2014/02/iOS-Simulator-Screen-shot-Feb-9-2014-4.23.45-PM-169x300.png" alt="Rain Delay"><img src="http://albahra.com/journal/wp-content/uploads/2014/02/iOS-Simulator-Screen-shot-Jan-26-2014-7.24.54-PM-169x300.png" alt="Run Once"><img src="http://albahra.com/journal/wp-content/uploads/2014/02/iOS-Simulator-Screen-shot-Feb-9-2014-4.26.09-PM-169x300.png" alt="Settings"></p>
 
 <h2>
-<a name="raspberry-pi-users" class="anchor" href="#raspberry-pi-users"><span class="octicon octicon-link"></span></a>Raspberry Pi Users:</h2>
-
-<ul>
-<li>
-<p>The application should also operate on the OpenSprinkler for Raspberry Pi so long the Raspberry Pi has the interval program installed. More information is available on  <a href="http://rayshobby.net/?p=6339">Ray's Blog Post</a>.</p>
-
-<ul>
-<li> This is a seperate program that needs to be running on the Raspberry Pi.</li>
-<li>Please rememeber this is a front end for a hardware device. In the case of the OpenSprinkler Pi, the hardware happens to be the Pi combined with the interval program software.</li>
-</ul>
-</li>
-<li><p>In order for the interval program to be 100% compatibile with the web app you must be using an interval program built on or after June 22, 2013.</p></li>
-</ul><h2>
 <a name="install-instructions" class="anchor" href="#install-instructions"><span class="octicon octicon-link"></span></a>Install Instructions:</h2>
 
-<ul>
-<li>
-<p>You first need a working OpenSprinkler setup that you can access via a browser</p>
+<div class="highlight highlight-sh"><pre><span class="c">#install files</span>
+git clone https://github.com/salbahra/OpenSprinkler-Hosted-Controller.git /var/www/sprinklers
+
+</pre></div>
+
+<blockquote>
+<p>If you don't have Git, you can download the <a href="https://github.com/salbahra/OpenSprinkler-Controller/archive/master.zip">ZIP</a> file and extract to a local directory.</p>
+</blockquote>
 
 <ul>
-<li>For further information please refer to the OpenSprinkler online user manual available on <a href="http://rayshobby.net/?page_id=192">Ray's Website</a>
-</li>
-</ul>
-</li>
-<li>
-<p>Install prerequisites as needed (example for Debian using Apache web server)</p>
+<li>Now, visit the site using any browser (replacing IPAddr with the server IP): http://IPAddr/sprinklers</li>
+</ul><blockquote>
+<p>The webapp can also be installed to the SD card of the OpenSprinkler and run directly from the device. For this you will need to grab the specially formatted version from the sdcard branch.</p>
+</blockquote>
 
-<ul>
-<li>
-<code>apt-get install apache2 php5 libapache2-mod-php5 git</code> </li>
-</ul>
-</li>
-<li>
-<p>Create the directory you wish to place the files in (ex. /var/www/sprinklers for http://yourwebsite/sprinklers)</p>
-
-<ul>
-<li><code>mkdir -m 777 /var/www/sprinklers</code></li>
-</ul>
-</li>
-<li>
-<p>Download the files to your web directory using git</p>
-
-<ul>
-<li><code>git clone https://github.com/salbahra/OpenSprinkler-Hosted-Controller.git /var/www/sprinklers</code></li>
-</ul>
-</li>
-<li><p>From there you may attempt to access the front end which will guide you through the rest of the install process.</p></li>
-</ul><h2>
+<h2>
 <a name="update-instructions" class="anchor" href="#update-instructions"><span class="octicon octicon-link"></span></a>Update Instructions:</h2>
 
-<ul>
-<li>
-<p>Navigate to the web directory where the files are stored</p>
+<div class="highlight highlight-sh"><pre><span class="c">#change to the install directory</span>
+<span class="nb">cd</span> /var/www/sprinklers
 
-<ul>
-<li><code>cd /var/www/sprinklers</code></li>
-</ul>
-</li>
-<li>
-<p>Trigger a remote update using git</p>
-
-<ul>
-<li><code>git pull</code></li>
-</ul>
-</li>
-</ul>
+<span class="c">#perform update</span>
+git pull
+</pre></div>
         </section>
 
         <footer>
