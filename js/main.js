@@ -804,7 +804,7 @@ function show_settings() {
     list.loc = "<label for='loc'>Location</label><input data-mini='true' type='text' id='loc' value='"+window.device.settings.loc+"' />";
     list.end = "</fieldset></div></li>";
 
-    str = list.start + list.tz + list.mas + list.http + list.devid + list.loc + list.ext + list.sdt + list.mton + list.mtof + list.wl + list.ntp + list.ar + list.seq + list.urs + list.rso + list.ipas + list.end;
+    var str = list.start + list.tz + list.mas + list.http + list.devid + list.loc + list.ext + list.sdt + list.mton + list.mtof + list.wl + list.ntp + list.ar + list.seq + list.urs + list.rso + list.ipas + list.end;
     var settings = $("#os-settings-list");
     settings.html(str).enhanceWithin();
     if (settings.hasClass("ui-listview")) settings.listview("refresh");

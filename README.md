@@ -3,11 +3,20 @@
 
 A mobile frontend for the OpenSprinkler irrigation device. Designed to allow manual control, program management (view, edit, delete and add), initiate a run-once program, view status, adjust rain delay, and change OpenSprinkler settings. Screenshots available below.
 
+Warning:
+--------
+
++ Currently, this application is based on an unreleased firmware. Although the dependencies are available in firmware 2.0.2; certain bugs prevent the app from working. The most prominent is an HTTP header error that prevents cross-origin calls for the JSON data. Additionally, previous firmwares have bugs in the output. Please look for a firmware newer than 2.0.3 for use with this app.
+  + If you are using firmware 2.0.3 or lower please use the [2.0-master branch](https://github.com/salbahra/OpenSprinkler-Hosted-Controller/tree/2.0-master)
+
++ This app does not support OSPi for the above mentioned reasons plus the lack of JSON output.
+  + If you are using OSPi/OSBo device and wish to host this on a web server, please use the [2.0-master branch](https://github.com/salbahra/OpenSprinkler-Hosted-Controller/tree/2.0-master)
+
 Overview:
 ---------
 
-+ This application interfaces with the interval program on the OpenSprinkler which is the default software available. The application has been tested and compatible with firmware version 2.0.3+.
-  + If you are using firmware 2.0.2 or lower please use the [2.0-master branch](https://github.com/salbahra/OpenSprinkler-Hosted-Controller/tree/2.0-master)
++ This application interfaces with the interval program on the OpenSprinkler which is the default software available. The application has been tested and compatible with firmware 2.0.4+ however specifically does NOT support 1.8.3, 2.0.0, 2.0.1, 2.0.2, and 2.0.3.
+  + If you are using firmware 2.0.3 or lower please use the [2.0-master branch](https://github.com/salbahra/OpenSprinkler-Hosted-Controller/tree/2.0-master)
 
 + The application is written in Javascript and HTML/CSS. The application runs 100% within the user's browser and communicates directly with the OpenSprinkler.
 
