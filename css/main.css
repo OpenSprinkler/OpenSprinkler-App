@@ -219,7 +219,7 @@ div.ui-flipswitch {
     font-size: 0.71em !important;
 }
 .ui-header .ui-title { margin-left: 1em; margin-right: 1em; }
-div[class*='ui-block-'], #log_options, .center {
+div[class*='ui-block-'], .center {
 	text-align: center
 }
 .panelhelp {
