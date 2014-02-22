@@ -662,38 +662,61 @@ function highlight(button) {
     });
 }
 
+function convert_temp(temp,region) {
+    if (region == "United States" || region == "Bermuda" || region == "Palau") {
+        temp = temp+"&#176;F";
+    } else {
+        temp = parseInt(Math.round((temp-32)*(5/9)))+"&#176;C";
+    }
+    return temp;
+}
+
 function update_weather() {
     var $weather = $("#weather");
     $("#weather").unbind("click");
     $weather.html("<p class='ui-icon ui-icon-loading mini-load'></p>");
+    $.getJSON("//query.yahooapis.com/v1/public/yql?q=select%20woeid%20from%20geo.placefinder%20where%20text=%22"+escape(window.device.settings.loc)+"%22&format=json",function(woeid){
+        $.getJSON("//query.yahooapis.com/v1/public/yql?q=select%20item%2Ctitle%2Clocation%20from%20weather.forecast%20where%20woeid%3D%22"+woeid.query.results.Result.woeid+"%22&format=json",function(data){
+            // Hide the weather if no data is returned
+            if (data.query.results.channel.item.title == "City not found") {
+                $("#weather-list").animate({ 
+                    "margin-left": "-1000px"
+                },1000,function(){
+                    $(this).hide();
+                })
+                return;            
+            }
+            var now = data.query.results.channel.item.condition,
+                title = data.query.results.channel.title,
+                loc = /Yahoo! Weather - (.*)/.exec(title),
+                region = data.query.results.channel.location.country;
 
-    $.getJSON("//query.yahooapis.com/v1/public/yql?q=select%20item%20from%20weather.forecast%20where%20location%3D%22"+escape(window.device.settings.loc)+"%22&format=json&callback=?",function(data){
-        // Hide the weather if no data is returned
-        if (data.query.results.channel.item.title == "City not found") {
+            $weather.html("<div title='"+now.text+"' class='wicon cond"+now.code+"'></div><span>"+convert_temp(now.temp,region)+"</span><br><span class='location'>"+loc[1]+"</span>");
+            $("#weather").bind("click",show_forecast);
             $("#weather-list").animate({ 
-                "margin-left": "-1000px"
-            },1000,function(){
-                $(this).hide();
-            })
-            return;            
-        }
-        var now = data.query.results.channel.item.condition,
-            text = now.text,
-            code = now.code,
-            temp = now.temp,
-            date = now.date;
+                "margin-left": "0"
+            },1000).show()
 
-        var title = data.query.results.channel.item.title,
-            loc = /Conditions for (.*) at \d+:\d+ [a|p]m .*/.exec(title);
+            update_forecast(data.query.results.channel.item.forecast,loc[1],region,now);
+        });
+    });
+}
 
-        temp = temp+"&#176;F";
+function show_forecast() {
+    changePage("#forecast");
+}
 
-        $weather.html("<div title='"+text+"' class='wicon cond"+code+"'></div><span>"+temp+"</span><br><span class='location'>"+loc[1]+"</span>");
-        $("#weather").bind("click",get_forecast);
-        $("#weather-list").animate({ 
-            "margin-left": "0"
-        },1000).show()
-    })
+function update_forecast(data,loc,region,now) {
+    var list = "<li data-role='list-divider' data-theme='a' style='text-align:center'>"+loc+"</li>";
+    list += "<li data-icon='false' style='text-align:center'><div title='"+now.text+"' class='wicon cond"+now.code+"'></div><span>Now</span><br><span>"+convert_temp(now.temp,region)+"</span></li>";
+
+    $.each(data,function (x,item) {
+        list += "<li data-icon='false' style='text-align:center'><span>"+item.date+"</span><br><div title='"+item.text+"' class='wicon cond"+item.code+"'></div><span>"+item.day+"</span><br><span>Low: "+convert_temp(item.low,region)+"  High: "+convert_temp(item.high,region)+"</span></li>";
+    });
+
+    var forecast = $("#forecast_list");
+    forecast.html(list).enhanceWithin();
+    if (forecast.hasClass("ui-listview")) forecast.listview("refresh");
 }
 
 function gohome() {
@@ -840,19 +863,6 @@ function show_stations() {
     if (stations.hasClass("ui-listview")) stations.listview("refresh");
     $.mobile.loading("hide");
     changePage("#os-stations");
-}
-
-function get_forecast() {
-/*
-    $.mobile.loading("show");
-    $.get("",function(items){
-        var list = $("#forecast_list");
-        list.html(items).enhanceWithin();
-        if (list.hasClass("ui-listview")) list.listview("refresh");
-        $.mobile.loading("hide");
-        changePage("#forecast");
-    })    
-*/
 }
 
 function get_status() {
