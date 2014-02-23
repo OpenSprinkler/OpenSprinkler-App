@@ -2,21 +2,14 @@
 $(document).one("mobileinit", function(e){
     $.mobile.defaultPageTransition = 'fade';
     $.mobile.hashListeningEnabled = false;
-});
-
-//When the start page is intialized show the body (this prevents the flicker as jQuery mobile loads to process the page)
-$("#start").one("pagecreate",function(e){
     $("#addnew").enhanceWithin().popup();
     $("body").show();
 });
 
 //On intial load check if a valid token exists, for auto login
 $("#start").one("pageshow",function(){
-    if (!check_configured()) {
-        $("#addnew").popup("open");
-    }
+    if (!check_configured()) $("#addnew").popup("open");
     if (window.curr_ip !== undefined) newload();
-
 });
 
 //After main page is processed, hide loading message and change to the page
@@ -145,6 +138,8 @@ function show_new() {
 }
 
 function newload() {
+    $.mobile.loading("show");
+
     //Create object which will store device data
     window.device = new Object;
     update_device(
@@ -155,6 +150,7 @@ function newload() {
             changePage("#sprinklers");
         },
         function(){
+            $.mobile.loading("hide");
             if (Object.keys(getsites()).length) {
                 show_sites(false);
                 setTimeout(comm_error,500);
@@ -253,6 +249,9 @@ function submit_newuser() {
         } else {
             showerror("Check IP/Port and try again.")
         }
+    }).error(function(){
+        $.mobile.loading("hide");
+        showerror("Check IP/Port and try again.")
     })
 }
 
@@ -755,8 +754,6 @@ function open_popup(id) {
 }
 
 function show_settings() {
-    $.mobile.loading("show");
-
     var list = new Object
     list.start = "<li><div class='ui-field-contain'><fieldset>";
 
@@ -831,14 +828,10 @@ function show_settings() {
     var settings = $("#os-settings-list");
     settings.html(str).enhanceWithin();
     if (settings.hasClass("ui-listview")) settings.listview("refresh");
-    $.mobile.loading("hide");
     changePage("#os-settings");
 }
 
 function show_stations() {
-
-    $.mobile.loading("show");
-
     var list = "<li>",
         isMaster = window.device.settings.mas;
     if (isMaster) list += "<table><tr><th>Station Name</th><th>Activate Master?</th></tr>";
@@ -861,7 +854,6 @@ function show_stations() {
     var stations = $("#os-stations-list");
     stations.html(list).enhanceWithin();
     if (stations.hasClass("ui-listview")) stations.listview("refresh");
-    $.mobile.loading("hide");
     changePage("#os-stations");
 }
 
@@ -961,8 +953,6 @@ function get_status() {
 }
 
 function get_manual() {
-    $.mobile.loading("show");
-
     var list = "<li data-role='list-divider' data-theme='a'>Sprinkler Stations</li>",
         i = 0;
 
@@ -973,7 +963,6 @@ function get_manual() {
     var mm = $("#mm_list");
     mm.html(list);
     if (mm.hasClass("ui-listview")) mm.listview("refresh");
-    $.mobile.loading("hide");
     changePage("#manual");
 }
 
@@ -1619,12 +1608,12 @@ function toggle(anchor) {
 function raindelay() {
     $.mobile.loading("show");
     $.get("http://"+window.curr_ip+"/cv?pw="+window.curr_pw+"&rd="+$("#delay").val(),function(){
+        $.mobile.loading("hide");
         $("#raindelay").popup("close");
         $("#footer-running").html("<p class='ui-icon ui-icon-loading mini-load'></p>");
         update_device(check_status);
         showerror("Rain delay has been successfully set");
     }).error(comm_error);
-    $.mobile.loading("hide");
 }
 
 function clear_config() {
@@ -1641,7 +1630,7 @@ function rbt() {
         $.mobile.loading("show");
         $.get("http://"+window.curr_ip+"/cv?pw="+window.curr_pw+"&rbt=1",function(){
             $.mobile.loading("hide");
-                showerror("OpenSprinkler is rebooting now");
+            showerror("OpenSprinkler is rebooting now");
         }).error(comm_error);
     });
 }
