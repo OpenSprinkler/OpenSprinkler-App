@@ -540,7 +540,7 @@ function check_status() {
     }
 
     if (window.device.settings.rd) {
-        change_status(0,window.device.options.sdt,"red","<p id='running-text' style='text-align:center'>"+_("Rain delay until ")+(new Date(window.device.settings.rdst*1000).toUTCString().slice(0,-4))+"</p>");
+        change_status(0,window.device.options.sdt,"red","<p id='running-text' style='text-align:center'>"+_("Rain delay until")+" "+(new Date(window.device.settings.rdst*1000).toUTCString().slice(0,-4))+"</p>");
         return;
     }
 
