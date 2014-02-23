@@ -6,13 +6,13 @@ $(document).ready(function(){
 $(document).one("mobileinit", function(e){
     $.mobile.defaultPageTransition = 'fade';
     $.mobile.hashListeningEnabled = false;
-    $("#addnew").enhanceWithin().popup();
+    $("#addnew, #site-select").enhanceWithin().popup();
     $("body").show();
 });
 
 //On intial load check if a valid token exists, for auto login
 $("#start").one("pageshow",function(){
-    if (!check_configured()) $("#addnew").popup("open");
+    check_configured();
     if (window.curr_ip !== undefined) newload();
 });
 
@@ -145,6 +145,8 @@ function get_locale() {
 }
 
 function update_lang(lang) {
+    if (lang == "en") return set_lang();
+    
     window.language = new Object;
     $.getJSON("locale/"+lang+".json",function(store){
         window.language = store.messages;
@@ -165,13 +167,6 @@ function update_lang(lang) {
     }
 })()
 
-function show_new() {
-    $("#addnew").one("popupafterclose",function(){
-        $(this).popup("option","dismissible",false);
-    })
-    $("#addnew").popup("option","dismissible",true).popup("open");
-}
-
 function newload() {
     $.mobile.loading("show");
 
@@ -190,7 +185,7 @@ function newload() {
                 show_sites(false);
                 setTimeout(comm_error,500);
             } else {
-                $("#addnew").popup("open");
+                changePage("#start");
             }
         }
     );
@@ -319,7 +314,6 @@ function delete_site(site) {
     show_sites();
     if ($.isEmptyObject(sites)) {
         changePage("#start");
-        $("#addnew").popup("open");
         return;
     }
     if (site === localStorage.getItem("current_site")) site_select(Object.keys(sites));
@@ -344,14 +338,13 @@ function change_site(site) {
 
 function site_select(names) {
     var list = $("#site-select-list");
-    var newlist = "<li data-role='list-divider'>Select Site</li>";
+    var newlist = "";
     $.each(names,function(a,b){
-        newlist += "<li><a href='javascript:update_site(\""+b+"\");'>"+b+"</a></li>"
+        newlist += "<li><a class='ui-btn ui-btn-icon-right ui-icon-carat-r' href='javascript:update_site(\""+b+"\");'>"+b+"</a></li>"
     })
 
     list.html(newlist);
-    if (list.hasClass("ui-listview")) list.listview("refresh");
-    changePage("#site-select");
+    $("#site-select").popup("open");
 }
 
 function update_site_list(names) {
@@ -381,6 +374,10 @@ function getsites() {
     sites = JSON.parse(localStorage.getItem("sites"));
     if (sites === null) sites = new Object();
     return sites;
+}
+
+function start_scan() {
+    showerror("Coming soon...");
 }
 
 // show error message
@@ -1655,8 +1652,7 @@ function clear_config() {
     areYouSure(_("Are you sure you want to delete all settings and return to the default settings (this will delete the configuration file)?"), "", function() {
         localStorage.removeItem("sites");
         localStorage.removeItem("current_site");
-        showerror(_("Configuration has been deleted. Please wait while you are redirected to the installer."));
-        setTimeout(function(){location.reload()},2500);
+        changePage("#start");
     });    
 }
 

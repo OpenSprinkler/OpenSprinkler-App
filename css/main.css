@@ -1,3 +1,21 @@
+#start {
+    width: 100%;
+    background-color: #1C1C1C !important;
+}
+#welcome_list {
+    width:250px;
+    margin: 0 auto;
+    left:0;
+    right:0;
+    margin-left:auto;
+    margin-right:auto;
+    position: absolute;
+    top: 15%;
+}
+#welcome_logo {
+    display: block;
+    margin: 0 auto 20px auto;
+}
 #settings ul li {
     border: none;
 }
@@ -114,7 +132,7 @@ a {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
 }
-#raindelay, #sure, #addnew {
+#raindelay, #sure, #addnew, #site-select {
     width: 300px;
 }
 #manual ul, #forecast ul {
@@ -135,7 +153,7 @@ a {
     #weather-list li:not(.ui-li-divider) {
         height: auto;
     }
-    #raindelay, #sure, #addnew {
+    #raindelay, #sure, #addnew, #site-select {
         width: 250px;
     }
     div.timeline-frame {
