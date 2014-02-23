@@ -1,0 +1,402 @@
+msgid ""
+"Error communicating with OpenSprinkler. Please check your password is "
+"correct."
+msgstr ""
+
+msgid "Check IP/Port and try again."
+msgstr ""
+
+msgid "Connect Now"
+msgstr ""
+
+msgid "Save Changes to"
+msgstr ""
+
+msgid "Delete"
+msgstr ""
+
+msgid "Connection timed-out. Please try again."
+msgstr ""
+
+msgid "System Disabled"
+msgstr ""
+
+msgid "Rain delay until"
+msgstr ""
+
+msgid "Rain detected"
+msgstr ""
+
+msgid "is running on"
+msgstr ""
+
+msgid "stations"
+msgstr ""
+
+msgid "remaining"
+msgstr ""
+
+msgid "is running on station"
+msgstr ""
+
+msgid "Manual mode enabled"
+msgstr ""
+
+msgid "Manual program"
+msgstr ""
+
+msgid "Run-once program"
+msgstr ""
+
+msgid "Station delay"
+msgstr ""
+
+msgid "Timezone"
+msgstr ""
+
+msgid "NTP Sync"
+msgstr ""
+
+msgid "HTTP Port (restart required)"
+msgstr ""
+
+msgid "Device ID (restart required)"
+msgstr ""
+
+msgid "Auto Reconnect"
+msgstr ""
+
+msgid "Extension Boards"
+msgstr ""
+
+msgid "Sequential"
+msgstr ""
+
+msgid "Station Delay (seconds)"
+msgstr ""
+
+msgid "Master Station"
+msgstr ""
+
+msgid "Master On Delay"
+msgstr ""
+
+msgid "Master Off Delay"
+msgstr ""
+
+msgid "Use Rain Sensor"
+msgstr ""
+
+msgid "Normally Open (Rain Sensor)"
+msgstr ""
+
+msgid "% Watering"
+msgstr ""
+
+msgid "Ignore Password"
+msgstr ""
+
+msgid "Station Name"
+msgstr ""
+
+msgid "Activate Master?"
+msgstr ""
+
+msgid "Master"
+msgstr ""
+
+msgid "Running"
+msgstr ""
+
+msgid "Scheduled"
+msgstr ""
+
+msgid "last ran station"
+msgstr ""
+
+msgid "for"
+msgstr ""
+
+msgid "and"
+msgstr ""
+
+msgid "are"
+msgstr ""
+
+msgid "is"
+msgstr ""
+
+msgid "running"
+msgstr ""
+
+msgid "Sprinkler Stations"
+msgstr ""
+
+msgid ""
+"Value is in minutes. Zero means the station will be excluded from the run-"
+"once program."
+msgstr ""
+
+msgid "Submit"
+msgstr ""
+
+msgid "Reset"
+msgstr ""
+
+msgid "Quick Programs"
+msgstr ""
+
+msgid "Last Used Program"
+msgstr ""
+
+msgid "Program"
+msgstr ""
+
+msgid "No stations set to run on this day."
+msgstr ""
+
+msgid ""
+"You have no programs currently added. Tap the Add button on the top right "
+"corner to get started."
+msgstr ""
+
+msgid ""
+"Click any program below to expand/edit. Be sure to save changes by hitting "
+"submit below."
+msgstr ""
+
+msgid "M"
+msgstr ""
+
+msgid "T"
+msgstr ""
+
+msgid "W"
+msgstr ""
+
+msgid "R"
+msgstr ""
+
+msgid "F"
+msgstr ""
+
+msgid "Sa"
+msgstr ""
+
+msgid "Su"
+msgstr ""
+
+msgid "Enabled"
+msgstr ""
+
+msgid "Weekly"
+msgstr ""
+
+msgid "Interval"
+msgstr ""
+
+msgid "Restrictions"
+msgstr ""
+
+msgid "None"
+msgstr ""
+
+msgid "Odd Days"
+msgstr ""
+
+msgid "Even Days"
+msgstr ""
+
+msgid "Days of the Week"
+msgstr ""
+
+msgid "Interval (Days)"
+msgstr ""
+
+msgid "Starting In"
+msgstr ""
+
+msgid "Stations:"
+msgstr ""
+
+msgid "Check All"
+msgstr ""
+
+msgid "Uncheck All"
+msgstr ""
+
+msgid "Start Time"
+msgstr ""
+
+msgid "End Time"
+msgstr ""
+
+msgid "Duration (minutes)"
+msgstr ""
+
+msgid "Interval (minutes)"
+msgstr ""
+
+msgid "Save New Program"
+msgstr ""
+
+msgid "Save Changes to Program"
+msgstr ""
+
+msgid "Run Program"
+msgstr ""
+
+msgid "Delete Program"
+msgstr ""
+
+msgid "Are you sure you want to delete program"
+msgstr ""
+
+msgid "Error: Interval days must be between 2 and 128."
+msgstr ""
+
+msgid "Error: Starting in days wrong."
+msgstr ""
+
+msgid "Error: Start time must be prior to end time."
+msgstr ""
+
+msgid "Error: You have not selected any stations."
+msgstr ""
+
+msgid "Program added successfully"
+msgstr ""
+
+msgid "Program has been updated"
+msgstr ""
+
+msgid "Settings have been saved"
+msgstr ""
+
+msgid "Station name must be 16 characters or less"
+msgstr ""
+
+msgid "Stations have been updated"
+msgstr ""
+
+msgid "Run-once program has been scheduled"
+msgstr ""
+
+msgid "Rain delay has been successfully set"
+msgstr ""
+
+msgid ""
+"Are you sure you want to delete all settings and return to the default "
+"settings (this will delete the configuration file)?"
+msgstr ""
+
+msgid ""
+"Configuration has been deleted. Please wait while you are redirected to the "
+"installer."
+msgstr ""
+
+msgid "Are you sure you want to reboot OpenSprinkler?"
+msgstr ""
+
+msgid "OpenSprinkler is rebooting now"
+msgstr ""
+
+msgid "Are you sure you want to stop all stations?"
+msgstr ""
+
+msgid "All stations have been stopped"
+msgstr ""
+
+msgid "File API is not supported by your browser"
+msgstr ""
+
+msgid "Backup saved to your device"
+msgstr ""
+
+msgid "No backup available on this device"
+msgstr ""
+
+msgid "Are you sure you want to restore the configuration?"
+msgstr ""
+
+msgid "Backup restored to your device"
+msgstr ""
+
+msgid ""
+"Unable to read the configuration file. Please check the file and try again."
+msgstr ""
+
+msgid "New Device"
+msgstr ""
+
+msgid ""
+"Note: The name is used to identify the OpenSprinkler within the web app. "
+"This is used for multisite support. OpenSprinkler IP can be either an IP or "
+"hostname. You can also specify a port by using IP:Port"
+msgstr ""
+
+msgid "Open Sprinkler IP:"
+msgstr ""
+
+msgid "Open Sprinkler Password:"
+msgstr ""
+
+msgid "Settings"
+msgstr ""
+
+msgid "Preview Programs"
+msgstr ""
+
+msgid "Change Rain Delay"
+msgstr ""
+
+msgid "Edit Programs"
+msgstr ""
+
+msgid "Manual Control"
+msgstr ""
+
+msgid "Run-Once Program"
+msgstr ""
+
+msgid "Stop All Stations"
+msgstr ""
+
+msgid "Duration (in hours):"
+msgstr ""
+
+msgid "Manage Sites"
+msgstr ""
+
+msgid "Export Configuration"
+msgstr ""
+
+msgid "Forecast"
+msgstr ""
+
+msgid "Refresh"
+msgstr ""
+
+msgid "Back"
+msgstr ""
+
+msgid "Manual Mode"
+msgstr ""
+
+msgid "Device Settings"
+msgstr ""
+
+msgid "Operation"
+msgstr ""
+
+msgid "Mobile Application Settings"
+msgstr ""
+
+msgid "Edit Stations"
+msgstr ""
+
+msgid "Add"
+msgstr ""
+
+msgid "About"
+msgstr ""
