@@ -22,16 +22,14 @@
             </div>
             <div class="ui-content">
                 <form action="javascript:submit_newuser()" method="post">
-                    <p style="text-align:center">Note: The name is used to identify the OpenSprinkler within the web app. This is used for multisite support. OpenSprinkler IP can be either an IP or hostname. You can also specify a port by using IP:Port</p>
-                    <div data-role="fieldcontain">
-                        <label for="os_name">Open Sprinkler Name:</label>
-                        <input type="text" name="os_name" id="os_name" placeholder="Home" />
-                        <label for="os_ip">Open Sprinkler IP:</label>
-                        <input type="text" name="os_ip" id="os_ip" placeholder="home.dyndns.org:8080" />
-                        <label for="os_pw">Open Sprinkler Password:</label>
-                        <input type="password" name="os_pw" id="os_pw" value="" />
-                        <input type="submit" value="Submit" />
-                    </div>
+                    <p style="text-align:center;font-size:smaller;margin-top:0">Note: The name is used to identify the OpenSprinkler within the web app. This is used for multisite support. OpenSprinkler IP can be either an IP or hostname. You can also specify a port by using IP:Port</p>
+                    <label for="os_name">Open Sprinkler Name:</label>
+                    <input type="text" name="os_name" id="os_name" placeholder="Home" />
+                    <label for="os_ip">Open Sprinkler IP:</label>
+                    <input type="text" name="os_ip" id="os_ip" placeholder="home.dyndns.org:8080" />
+                    <label for="os_pw">Open Sprinkler Password:</label>
+                    <input type="password" name="os_pw" id="os_pw" value="" />
+                    <input type="submit" value="Submit" />
                 </form>
             </div>
         </div>
