@@ -1,7 +1,7 @@
 [OpenSprinkler Hosted Controller](http://salbahra.github.io/OpenSprinkler-Hosted-Controller)
 ========================
 
-A mobile frontend for the OpenSprinkler irrigation device. Designed to allow manual control, program management (view, edit, delete and add), initiate a run-once program, view status, adjust rain delay, and change OpenSprinkler settings. Screenshots available below.
+A mobile interface for the OpenSprinkler irrigation device. Designed to allow manual control, program management (view, edit, delete and add), initiation of a run-once program, viewing device status, adjusting rain delay, and changing of OpenSprinkler settings. Screenshots available below.
 
 Warning:
 --------
