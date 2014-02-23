@@ -19,6 +19,108 @@ $("#start").one("pageshow",function(){
 
 });
 
+//After main page is processed, hide loading message and change to the page
+$(document).one("pagecreate","#sprinklers", function(){
+    //Use the user's local time for preview
+    var now = new Date();
+    $("#preview_date").val(now.toISOString().slice(0,10));
+
+    //Open the main page
+    $("body").pagecontainer("change","#sprinklers",{transition:"none"});
+
+    //Indicate loading is complete
+    $.mobile.loading("hide");
+});
+
+//Update the preview page on date change
+$("#preview_date").change(function(){
+    var id = $(".ui-page-active").attr("id");
+    if (id == "preview") get_preview()
+});
+
+//Update site based on selector
+$("#site-selector").change(function(){
+    update_site($(this).val());
+    location.reload();
+});
+
+//Bind changes to the flip switches
+$("input[data-role='flipswitch']").change(function(){
+    var slide = $(this);
+    var type = this.name;
+    var pageid = $("body").pagecontainer("getActivePage").attr("id");
+
+    //Find out what the switch was changed to
+    var changedTo = slide.is(":checked");
+
+    //If changed to on
+    if (changedTo) {
+        //OpenSprinkler Operation
+        if (type === "en") {
+            $.get("http://"+window.curr_ip+"/cv?pw="+window.curr_pw+"&en=1");
+        }
+        //Manual mode, manual mode and settings page
+        if (type === "mm" || type === "mmm") {
+            $.get("http://"+window.curr_ip+"/cv?pw="+window.curr_pw+"&mm=1");
+            //If switched to off, unhighlight all of the zones highlighted in green since all will be disabled automatically
+            $("#manual a.green").removeClass("green");
+            $("#mm,#mmm").prop("checked",true).flipswitch("refresh");
+        }
+    } else {
+        if (type === "en") {
+            $.get("http://"+window.curr_ip+"/cv?pw="+window.curr_pw+"&en=0");
+        }
+        if (type === "mm" || type === "mmm") {
+            $.get("http://"+window.curr_ip+"/cv?pw="+window.curr_pw+"&mm=0");
+            //If switched to off, unhighlight all of the manual zones highlighted in green since all will be disabled automatically
+            $("#manual a.green").removeClass("green");
+            $("#mm,#mmm").prop("checked",false).flipswitch("refresh")
+        }
+    }
+});
+
+$(document).on("pageshow",function(e,data){
+    var newpage = "#"+e.target.id;
+
+    // Render graph after the page is shown otherwise graphing function will fail
+    if (newpage == "#preview") {
+        get_preview();
+    }
+
+    // Bind all data-onclick events on current page to their associated function (removes 300ms delay)
+    bind_links(newpage);
+});
+
+$(document).on("pagebeforeshow",function(e,data){
+    var newpage = e.target.id;
+
+    //Remove lingering tooltip from preview page
+    $("#tooltip").remove();
+
+    //Remove any status timers that may be running
+    if (window.interval_id !== undefined) clearInterval(window.interval_id);
+    if (window.timeout_id !== undefined) clearTimeout(window.timeout_id);
+
+    if (newpage == "sprinklers") {
+        //Reset status bar to loading while an update is done
+        $("#footer-running").html("<p class='ui-icon ui-icon-loading mini-load'></p>");
+        setTimeout(function(){
+            update_device(check_status,function(){
+                $("#footer-running").slideUp();
+                comm_error();
+            })
+        },500);
+    } else {
+        var title = document.title;
+        document.title = "OpenSprinkler: "+title;
+    }
+})
+
+// Generic communication error message
+function comm_error() {
+    showerror("Error communicating with OpenSprinkler. Please check your password is correct.")
+}
+
 //Define option names based on ID
 window.keyNames = {"tz":1,"ntp":2,"hp0":12,"hp1":13,"ar":14,"ext":15,"seq":16,"sdt":17,"mas":18,"mton":19,"mtof":20,"urs":21,"rso":22,"wl":23,"ipas":25,"devid":26};
 
@@ -319,108 +421,6 @@ $(document).ajaxError(function(x,t,m) {
         }
     }
 });
-
-//After main page is processed, hide loading message and change to the page
-$(document).one("pagecreate","#sprinklers", function(){
-    //Use the user's local time for preview
-    var now = new Date();
-    $("#preview_date").val(now.toISOString().slice(0,10));
-
-    //Open the main page
-    $("body").pagecontainer("change","#sprinklers",{transition:"none"});
-
-    //Indicate loading is complete
-    $.mobile.loading("hide");
-});
-
-//Update the preview page on date change
-$("#preview_date").change(function(){
-    var id = $(".ui-page-active").attr("id");
-    if (id == "preview") get_preview()
-});
-
-//Update site based on selector
-$("#site-selector").change(function(){
-    update_site($(this).val());
-    location.reload();
-});
-
-//Bind changes to the flip switches
-$("input[data-role='flipswitch']").change(function(){
-    var slide = $(this);
-    var type = this.name;
-    var pageid = $("body").pagecontainer("getActivePage").attr("id");
-
-    //Find out what the switch was changed to
-    var changedTo = slide.is(":checked");
-
-    //If changed to on
-    if (changedTo) {
-        //OpenSprinkler Operation
-        if (type === "en") {
-            $.get("http://"+window.curr_ip+"/cv?pw="+window.curr_pw+"&en=1");
-        }
-        //Manual mode, manual mode and settings page
-        if (type === "mm" || type === "mmm") {
-            $.get("http://"+window.curr_ip+"/cv?pw="+window.curr_pw+"&mm=1");
-            //If switched to off, unhighlight all of the zones highlighted in green since all will be disabled automatically
-            $("#manual a.green").removeClass("green");
-            $("#mm,#mmm").prop("checked",true).flipswitch("refresh");
-        }
-    } else {
-        if (type === "en") {
-            $.get("http://"+window.curr_ip+"/cv?pw="+window.curr_pw+"&en=0");
-        }
-        if (type === "mm" || type === "mmm") {
-            $.get("http://"+window.curr_ip+"/cv?pw="+window.curr_pw+"&mm=0");
-            //If switched to off, unhighlight all of the manual zones highlighted in green since all will be disabled automatically
-            $("#manual a.green").removeClass("green");
-            $("#mm,#mmm").prop("checked",false).flipswitch("refresh")
-        }
-    }
-});
-
-// Generic communication error message
-function comm_error() {
-    showerror("Error communicating with OpenSprinkler. Please check your password is correct.")
-}
-
-$(document).on("pageshow",function(e,data){
-    var newpage = "#"+e.target.id;
-
-    // Render graph after the page is shown otherwise graphing function will fail
-    if (newpage == "#preview") {
-        get_preview();
-    }
-
-    // Bind all data-onclick events on current page to their associated function (removes 300ms delay)
-    bind_links(newpage);
-});
-
-$(document).on("pagebeforeshow",function(e,data){
-    var newpage = e.target.id;
-
-    //Remove lingering tooltip from preview page
-    $("#tooltip").remove();
-
-    //Remove any status timers that may be running
-    if (window.interval_id !== undefined) clearInterval(window.interval_id);
-    if (window.timeout_id !== undefined) clearTimeout(window.timeout_id);
-
-    if (newpage == "sprinklers") {
-        //Reset status bar to loading while an update is done
-        $("#footer-running").html("<p class='ui-icon ui-icon-loading mini-load'></p>");
-        setTimeout(function(){
-            update_device(check_status,function(){
-                $("#footer-running").slideUp();
-                comm_error();
-            })
-        },500);
-    } else {
-        var title = document.title;
-        document.title = "OpenSprinkler: "+title;
-    }
-})
 
 //Converts data-onclick attributes on page to vclick bound functions. This removes the 300ms lag on mobile devices (iOS/Android)
 function bind_links(page) {
