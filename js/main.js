@@ -1,3 +1,7 @@
+$(document).ready(function(){
+    update_lang(get_locale());
+});
+
 //After jQuery mobile is loaded set intial configuration
 $(document).one("mobileinit", function(e){
     $.mobile.defaultPageTransition = 'fade';
@@ -111,11 +115,44 @@ $(document).on("pagebeforeshow",function(e,data){
 
 // Generic communication error message
 function comm_error() {
-    showerror("Error communicating with OpenSprinkler. Please check your password is correct.")
+    showerror(_("Error communicating with OpenSprinkler. Please check your password is correct."))
 }
 
 //Define option names based on ID
 window.keyNames = {"tz":1,"ntp":2,"hp0":12,"hp1":13,"ar":14,"ext":15,"seq":16,"sdt":17,"mas":18,"mton":19,"mtof":20,"urs":21,"rso":22,"wl":23,"ipas":25,"devid":26};
+
+//Localization functions
+function _(key) {
+    if (window.language !== "undefined" && window.language.hasOwnProperty(key)) {
+        return window.language[key];
+    } else {
+        return key;
+    }
+}
+
+function set_lang() {
+    $("[data-translate]").text(function () {
+        return _($(this).data("translate"));
+
+    });
+};
+
+function get_locale() {
+    var locale = "en";
+    locale = navigator.language || navigator.browserLanguage || navigator.systemLanguage || navigator.userLanguage;
+
+    return locale.substring(0,2);
+}
+
+function update_lang(lang) {
+    $.getJSON("locale/"+lang+".json",function(store){
+        window.language = store.messages;
+        set_lang();
+    }).fail(function(){
+        window.language = new Object;
+        set_lang();
+    });
+}
 
 //Insert the startup images for iOS
 (function(){
@@ -247,16 +284,16 @@ function submit_newuser() {
             update_site_list(Object.keys(sites));
             newload();
         } else {
-            showerror("Check IP/Port and try again.")
+            showerror(_("Check IP/Port and try again."))
         }
-    }).error(function(){
+    }).fail(function(){
         $.mobile.loading("hide");
-        showerror("Check IP/Port and try again.")
+        showerror(_("Check IP/Port and try again."))
     })
 }
 
 function show_sites(showBack) {
-    if (typeof showBack === "undefined") showBack = true;
+    if (showBack !== false) showBack = true;
     $("#manageBackButton").toggle(showBack);
 
     var list = "<div data-role='collapsible-set'>";
@@ -416,7 +453,7 @@ $(document).ajaxError(function(x,t,m) {
                 $(this).hide();
             })
         } else {
-            showerror("Connection timed-out. Please try again.")
+            showerror(_("Connection timed-out. Please try again."))
         }
     }
 });
@@ -500,17 +537,17 @@ function change_status(seconds,sdelay,color,line) {
 // Update status bar based on device status
 function check_status() {
     if (!window.device.settings.en) {
-        change_status(0,window.device.options.sdt,"red","<p id='running-text' style='text-align:center'>System Disabled</p>");
+        change_status(0,window.device.options.sdt,"red","<p id='running-text' style='text-align:center'>"+_("System Disabled")+"</p>");
         return;
     }
 
     if (window.device.settings.rd) {
-        change_status(0,window.device.options.sdt,"red","<p id='running-text' style='text-align:center'>Rain delay until "+(new Date(window.device.settings.rdst*1000).toUTCString().slice(0,-4))+"</p>");
+        change_status(0,window.device.options.sdt,"red","<p id='running-text' style='text-align:center'>"+_("Rain delay until ")+(new Date(window.device.settings.rdst*1000).toUTCString().slice(0,-4))+"</p>");
         return;
     }
 
     if (window.device.settings.urs && window.device.settings.rs) {
-        change_status(0,window.device.options.sdt,"red","<p id='running-text' style='text-align:center'>Rain detected</p>");
+        change_status(0,window.device.options.sdt,"red","<p id='running-text' style='text-align:center'>"+_("Rain detected")+"</p>");
         return;
     }
 
@@ -537,8 +574,8 @@ function check_status() {
             pname  = pidname(pid),
             line   = "<img id='running-icon' width='11px' height='11px' src='img/running.png' /><p id='running-text'>";
 
-        line += pname+" is running on "+Object.keys(open).length+" stations ";
-        if (pid!=255&&pid!=99) line += "<span id='countdown' class='nobr'>("+sec2hms(ptotal)+" remaining)</span>";
+        line += pname+" "+_("is running on")+" "+Object.keys(open).length+" "+_("stations")+" ";
+        if (pid!=255&&pid!=99) line += "<span id='countdown' class='nobr'>("+sec2hms(ptotal)+" "+_("remaining")+")</span>";
         line += "</p>";
         change_status(ptotal,window.device.options.sdt,"green",line);
         return;
@@ -554,8 +591,8 @@ function check_status() {
             var pid = window.device.settings.ps[i][0],
                 pname = pidname(pid),
                 line = "<img id='running-icon' width='11px' height='11px' src='img/running.png' /><p id='running-text'>";
-            line += pname+" is running on station <span class='nobr'>"+name+"</span> ";
-            if (pid!=255&&pid!=99) line += "<span id='countdown' class='nobr'>("+sec2hms(window.device.settings.ps[i][1])+" remaining)</span>";
+            line += pname+" "+_("is running on station")+" <span class='nobr'>"+name+"</span> ";
+            if (pid!=255&&pid!=99) line += "<span id='countdown' class='nobr'>("+sec2hms(window.device.settings.ps[i][1])+" "+_("remaining")+"</span>";
             line += "</p>";
             change_status(window.device.settings.ps[i][1],window.device.options.sdt,"green",line);
             return false;
@@ -566,7 +603,7 @@ function check_status() {
     if (match) return;
 
     if (window.device.settings.mm) {
-        change_status(0,window.device.options.sdt,"red","<p id='running-text' style='text-align:center'>Manual mode enabled</p>");
+        change_status(0,window.device.options.sdt,"red","<p id='running-text' style='text-align:center'>"+_("Manual mode enabled")+"</p>");
         return;
     }
 
@@ -576,8 +613,8 @@ function check_status() {
 // Translate program ID to it's name
 function pidname(pid) {
     pname = "Program "+pid;
-    if(pid==255||pid==99) pname="Manual program";
-    if(pid==254||pid==98) pname="Run-once program";
+    if(pid==255||pid==99) pname=_("Manual program");
+    if(pid==254||pid==98) pname=_("Run-once program");
     return pname;
 }
 
@@ -604,7 +641,7 @@ function update_timer(total,sdelay) {
         }
         else
             --total;
-            $("#countdown").text("(" + sec2hms(total) + " remaining)");
+            $("#countdown").text("(" + sec2hms(total) + " "+_("remaining")+")");
     },1000)
 }
 
@@ -627,7 +664,7 @@ function update_timers(sdelay) {
                 if (a == "p") {
                     get_status();
                 } else {
-                    $("#countdown-"+a).parent("p").text("Station delay").parent("li").removeClass("green").addClass("red");
+                    $("#countdown-"+a).parent("p").text(_("Station delay")).parent("li").removeClass("green").addClass("red");
                     window.timeout_id = setTimeout(get_status,(sdelay*1000));
                 }
             } else {
@@ -636,7 +673,7 @@ function update_timers(sdelay) {
                     $("#clock-s").text(new Date(window.totals[a]*1000).toUTCString().slice(0,-4));
                 } else {
                     --window.totals[a];
-                    $("#countdown-"+a).text("(" + sec2hms(window.totals[a]) + " remaining)");
+                    $("#countdown-"+a).text("(" + sec2hms(window.totals[a]) + " "+_("remaining")+")");
                 }
             }
         })
@@ -763,36 +800,36 @@ function show_settings() {
                 var timezones = ["-12:00","-11:30","-11:00","-10:00","-09:30","-09:00","-08:30","-08:00","-07:00","-06:00","-05:00","-04:30","-04:00","-03:30","-03:00","-02:30","-02:00","+00:00","+01:00","+02:00","+03:00","+03:30","+04:00","+04:30","+05:00","+05:30","+05:45","+06:00","+06:30","+07:00","+08:00","+08:45","+09:00","+09:30","+10:00","+10:30","+11:00","+11:30","+12:00","+12:45","+13:00","+13:45","+14:00"];
                 var tz = data-48;
                 tz = ((tz>=0)?"+":"-")+pad((Math.abs(tz)/4>>0))+":"+((Math.abs(tz)%4)*15/10>>0)+((Math.abs(tz)%4)*15%10);
-                list.tz = "<label for='o1' class='select'>Timezone</label><select data-mini='true' id='o1'>";
+                list.tz = "<label for='o1' class='select'>"+_("Timezone")+"</label><select data-mini='true' id='o1'>";
                 $.each(timezones, function(i, timezone) {
                     list.tz += "<option "+((timezone == tz) ? "selected" : "")+" value='"+timezone+"'>"+timezone+"</option>";
                 });
                 list.tz += "</select>";
                 return true;
             case "ntp":
-                list.ntp = "<input data-mini='true' id='o2' type='checkbox' "+((data == "1") ? "checked='checked'" : "")+" /><label for='o2'>NTP Sync</label>";
+                list.ntp = "<input data-mini='true' id='o2' type='checkbox' "+((data == "1") ? "checked='checked'" : "")+" /><label for='o2'>"+_("NTP Sync")+"</label>";
                 return true;
             case "hp0":
                 var http = window.device.options.hp1*256+data;
-                list.http = "<label for='o12'>HTTP Port (restart required)</label><input data-mini='true' type='number' pattern='[0-9]*' id='o12' value='"+http+"' />";
+                list.http = "<label for='o12'>"+_("HTTP Port (restart required)")+"</label><input data-mini='true' type='number' pattern='[0-9]*' id='o12' value='"+http+"' />";
                 return true;
             case "devid":
-                list.devid = "<label for='o26'>Device ID (restart required)</label><input data-mini='true' type='number' pattern='[0-9]*' max='255' id='o26' value='"+data+"' />";
+                list.devid = "<label for='o26'>"+_("Device ID (restart required)")+"</label><input data-mini='true' type='number' pattern='[0-9]*' max='255' id='o26' value='"+data+"' />";
                 return true;
             case "ar":
-                list.ar = "<input data-mini='true' id='o14' type='checkbox' "+((data == "1") ? "checked='checked'" : "")+" /><label for='o14'>Auto Reconnect</label>";
+                list.ar = "<input data-mini='true' id='o14' type='checkbox' "+((data == "1") ? "checked='checked'" : "")+" /><label for='o14'>"+_("Auto Reconnect")+"</label>";
                 return true;
             case "ext":
-                list.ext = "<label for='o15'>Extension Boards</label><input data-highlight='true' data-mini='true' type='number' pattern='[0-9]*' data-type='range' min='0' max='5' id='o15' value='"+data+"' />";
+                list.ext = "<label for='o15'>"+_("Extension Boards")+"</label><input data-highlight='true' data-mini='true' type='number' pattern='[0-9]*' data-type='range' min='0' max='5' id='o15' value='"+data+"' />";
                 return true;
             case "seq":
-                list.seq = "<input data-mini='true' id='o16' type='checkbox' "+((data == "1") ? "checked='checked'" : "")+" /><label for='o16'>Sequential</label>";
+                list.seq = "<input data-mini='true' id='o16' type='checkbox' "+((data == "1") ? "checked='checked'" : "")+" /><label for='o16'>"+_("Sequential")+"</label>";
                 return true;
             case "sdt":
-                list.sdt = "<label for='o17'>Station Delay (seconds)</label><input data-highlight='true' data-mini='true' type='number' pattern='[0-9]*' data-type='range' min='0' max='240' id='o17' value='"+data+"' />";
+                list.sdt = "<label for='o17'>"+_("Station Delay (seconds)")+"</label><input data-highlight='true' data-mini='true' type='number' pattern='[0-9]*' data-type='range' min='0' max='240' id='o17' value='"+data+"' />";
                 return true;
             case "mas":
-                list.mas = "<label for='o18' class='select'>Master Station</label><select data-mini='true' id='o18'><option value='0'>None</option>";
+                list.mas = "<label for='o18' class='select'>"+_("Master Station")+"</label><select data-mini='true' id='o18'><option value='0'>None</option>";
                 var i = 1;
                 $.each(window.device.stations,function(i, station) {
                     list.mas += "<option "+((i == data) ? "selected" : "")+" value='"+i+"'>"+station+"</option>";
@@ -802,22 +839,22 @@ function show_settings() {
                 list.mas += "</select>";
                 return true;
             case "mton":
-                list.mton = "<label for='o19'>Master On Delay</label><input data-highlight='true' data-mini='true' type='number' pattern='[0-9]*' data-type='range' min='0' max='60' id='o19' value='"+data+"' />";
+                list.mton = "<label for='o19'>"+_("Master On Delay")+"</label><input data-highlight='true' data-mini='true' type='number' pattern='[0-9]*' data-type='range' min='0' max='60' id='o19' value='"+data+"' />";
                 return true;
             case "mtof":
-                list.mtof = "<label for='o20'>Master Off Delay</label><input data-highlight='true' data-mini='true' type='number' pattern='[0-9]*' data-type='range' min='-60' max='60' id='o20' value='"+data+"' />";
+                list.mtof = "<label for='o20'>"+_("Master Off Delay")+"</label><input data-highlight='true' data-mini='true' type='number' pattern='[0-9]*' data-type='range' min='-60' max='60' id='o20' value='"+data+"' />";
                 return true;
             case "urs":
-                list.urs = "<input data-mini='true' id='o21' type='checkbox' "+((data == "1") ? "checked='checked'" : "")+" /><label for='o21'>Use Rain Sensor</label>";
+                list.urs = "<input data-mini='true' id='o21' type='checkbox' "+((data == "1") ? "checked='checked'" : "")+" /><label for='o21'>"+_("Use Rain Sensor")+"</label>";
                 return true;
             case "rso":
-                list.rso = "<input data-mini='true' id='o22' type='checkbox' "+((data == "1") ? "checked='checked'" : "")+" /><label for='o22'>Normally Open (Rain Sensor)</label>";
+                list.rso = "<input data-mini='true' id='o22' type='checkbox' "+((data == "1") ? "checked='checked'" : "")+" /><label for='o22'>"+_("Normally Open (Rain Sensor)")+"</label>";
                 return true;
             case "wl":
-                list.wl = "<label for='o23'>% Watering</label><input data-highlight='true' data-mini='true' type='number' pattern='[0-9]*' data-type='range' min='0' max='250' id='o23' value='"+data+"' />";
+                list.wl = "<label for='o23'>"+_("% Watering")+"</label><input data-highlight='true' data-mini='true' type='number' pattern='[0-9]*' data-type='range' min='0' max='250' id='o23' value='"+data+"' />";
                 return true;
             case "ipas":
-                list.ipas = "<input data-mini='true' id='o25' type='checkbox' "+((data == "1") ? "checked='checked'" : "")+" /><label for='o25'>Ignore Password</label>";
+                list.ipas = "<input data-mini='true' id='o25' type='checkbox' "+((data == "1") ? "checked='checked'" : "")+" /><label for='o25'>"+_("Ignore Password")+"</label>";
                 return true;
         }
     });
@@ -834,14 +871,14 @@ function show_settings() {
 function show_stations() {
     var list = "<li>",
         isMaster = window.device.settings.mas;
-    if (isMaster) list += "<table><tr><th>Station Name</th><th>Activate Master?</th></tr>";
+    if (isMaster) list += "<table><tr><th>"+_("Station Name")+"</th><th>"+_("Activate Master?")+"</th></tr>";
     $i = 0;
     $.each(window.device.stations.snames,function(i, station) {
         if (isMaster) list += "<tr><td>";
         list += "<input data-mini='true' id='edit_station_"+i+"' type='text' value='"+station+"' />";
         if (isMaster) {
             if (window.device.settings.mas == i+1) {
-                list += "</td><td class='use_master'><p id='um_"+i+"' style='text-align:center'>(Master)</p></td></tr>";
+                list += "</td><td class='use_master'><p id='um_"+i+"' style='text-align:center'>("+_("Master")+")</p></td></tr>";
             } else {
                 list += "</td><td data-role='controlgroup' data-type='horizontal' class='use_master'><input id='um_"+i+"' type='checkbox' "+((window.device.stations.masop[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+" /><label for='um_"+i+"'></label></td></tr>";
             }
@@ -885,7 +922,7 @@ function get_status() {
     $.each(window.device.stations.snames,function(i, station) {
         var info = "";
         if (master == i+1) {
-            station += " (Master)";
+            station += " ("+_("Master")+")";
         } else if (window.device.settings.ps[i][0]) {
             var rem=window.device.settings.ps[i][1];
             if (open > 1) {
@@ -899,8 +936,8 @@ function get_status() {
                 pname = pidname(pid);
             if (window.device.status[i] && (pid!=255&&pid!=99)) runningTotal[i] = rem;
             allPnames[i] = pname;
-            info = "<p class='rem'>"+((window.device.status[i]) ? "Running" : "Scheduled")+" "+pname;
-            if (pid!=255&&pid!=99) info += " <span id='countdown-"+i+"' class='nobr'>("+(remm/10>>0)+(remm%10)+":"+(rems/10>>0)+(rems%10)+" remaining)</span>";
+            info = "<p class='rem'>"+((window.device.status[i]) ? _("Running") : _("Scheduled"))+" "+pname;
+            if (pid!=255&&pid!=99) info += " <span id='countdown-"+i+"' class='nobr'>("+(remm/10>>0)+(remm%10)+":"+(rems/10>>0)+(rems%10)+" "+_("remaining")+")</span>";
             info += "</p>";
         }
         if (window.device.status[i]) {
@@ -919,7 +956,7 @@ function get_status() {
         var lrpid = window.device.settings.lrun[1];
         var pname= pidname(lrpid);
 
-        footer = '<p>'+pname+' last ran station '+window.device.stations.snames[window.device.settings.lrun[0]]+' for '+(lrdur/60>>0)+'m '+(lrdur%60)+'s on '+(new Date(window.device.settings.lrun[3]*1000).toUTCString().slice(0,-4))+'</p>';
+        footer = '<p>'+pname+' '+_('last ran station')+' '+window.device.stations.snames[window.device.settings.lrun[0]]+' '+_('for')+' '+(lrdur/60>>0)+'m '+(lrdur%60)+'s on '+(new Date(window.device.settings.lrun[3]*1000).toUTCString().slice(0,-4))+'</p>';
     }
 
     if (ptotal) {
@@ -928,8 +965,8 @@ function get_status() {
         if (open == 1) ptotal += (scheduled-1)*window.device.options["sdt"];
         allPnames = allPnames.getUnique();
         numProg = allPnames.length;
-        allPnames = allPnames.join(" and ");
-        var pinfo = allPnames+" "+((numProg > 1) ? "are" : "is")+" running ";
+        allPnames = allPnames.join(" "+_("and")+" ");
+        var pinfo = allPnames+" "+((numProg > 1) ? _("are") : _("is"))+" "+_("running")+" ";
         pinfo += "<br><span id='countdown-p' class='nobr'>("+sec2hms(ptotal)+" remaining)</span>";
         runningTotal.p = ptotal;
         header += "<br>"+pinfo;
@@ -953,7 +990,7 @@ function get_status() {
 }
 
 function get_manual() {
-    var list = "<li data-role='list-divider' data-theme='a'>Sprinkler Stations</li>",
+    var list = "<li data-role='list-divider' data-theme='a'>"+_("Sprinkler Stations")+"</li>",
         i = 0;
 
     $.each(window.device.stations.snames,function(i,station) {
@@ -967,13 +1004,13 @@ function get_manual() {
 }
 
 function get_runonce() {
-    var list = "<p style='text-align:center'>Value is in minutes. Zero means the station will be excluded from the run-once program.</p><div class='ui-field-contain'>",
+    var list = "<p style='text-align:center'>"+_("Value is in minutes. Zero means the station will be excluded from the run-once program.")+"</p><div class='ui-field-contain'>",
         n = 0;
     $.each(window.device.stations.snames,function(i, station) {
         list += "<label for='zone-"+n+"'>"+station+":</label><input type='number' data-highlight='true' data-type='range' name='zone-"+n+"' min='0' max='50' id='zone-"+n+"' value='0'>";
         n++;
     })
-    list += "</div><a class='ui-btn ui-corner-all ui-shadow' onclick='submit_runonce();'>Submit</a><a class='ui-btn ui-btn-b ui-corner-all ui-shadow' onclick='reset_runonce();'>Reset</a>";
+    list += "</div><a class='ui-btn ui-corner-all ui-shadow' onclick='submit_runonce();'>"+_("Submit")+"</a><a class='ui-btn ui-btn-b ui-corner-all ui-shadow' onclick='reset_runonce();'>"+_("Reset")+"</a>";
     var progs = new Array();
     if (window.device.programs.pd.length) {
         $.each(window.device.programs.pd,function(i, program) {
@@ -992,7 +1029,7 @@ function get_runonce() {
         i=0;
     runonce.html(list);
 
-    var quickPick = "<select data-mini='true' name='rprog' id='rprog'><option value='s'>Quick Programs</option>";
+    var quickPick = "<select data-mini='true' name='rprog' id='rprog'><option value='s'>"+_("Quick Programs")+"</option>";
     var data = JSON.parse(localStorage.getItem("runonce"));
     if (data !== null) {
         runonce.find(":input[data-type='range']").each(function(a,b){
@@ -1000,10 +1037,10 @@ function get_runonce() {
             i++;
         })
         window.rprogs["l"] = data;
-        quickPick += "<option value='l' selected='selected'>Last Used Program</option>";
+        quickPick += "<option value='l' selected='selected'>"+_("Last Used Program")+"</option>";
     }
     for (i=0; i<progs.length; i++) {
-        quickPick += "<option value='"+i+"'>Program "+(i+1)+"</option>";
+        quickPick += "<option value='"+i+"'>"+_("Program")+" "+(i+1)+"</option>";
     };
     quickPick += "</select>";
     $("#runonce_list p").after(quickPick);
@@ -1040,7 +1077,7 @@ function get_preview() {
 
     var empty = true;
     if (window.preview_data == "") {
-        $("#timeline").html("<p align='center'>No stations set to run on this day.</p>")
+        $("#timeline").html("<p align='center'>"+_("No stations set to run on this day.")+"</p>")
     } else {
         empty = false;
         var data = eval("["+window.preview_data.substring(0, window.preview_data.length - 1)+"]");
@@ -1298,10 +1335,10 @@ function update_program_header() {
 //Make the list of all programs
 function make_all_programs() {
     if (window.device.programs.nprogs == 0) {
-        return "<p style='text-align:center'>You have no programs currently added. Tap the Add button on the top right corner to get started.</p>";
+        return "<p style='text-align:center'>"+_("You have no programs currently added. Tap the Add button on the top right corner to get started.")+"</p>";
     }
     var n = 0;
-    var list = "<p style='text-align:center'>Click any program below to expand/edit. Be sure to save changes by hitting submit below.</p><div data-role='collapsible-set'>";
+    var list = "<p style='text-align:center'>"+_("Click any program below to expand/edit. Be sure to save changes by hitting submit below.")+"</p><div data-role='collapsible-set'>";
     $.each(window.device.programs.pd,function (i,program) {
         list += make_program(n,window.device.programs.nprogs,program);
         n++;
@@ -1320,7 +1357,7 @@ function make_program(n,total,program) {
     } else {
         program = {"en":0,"is_interval":0,"is_even":0,"is_odd":0,"duration":0,"interval":0,"start":0,"end":0};
     }
-    var week = ["M","T","W","R","F","Sa","Su"],
+    var week = [_("M"),_("T"),_("W"),_("R"),_("F"),_("Sa"),_("Su")],
         days;
 
     if (typeof program.days !== "undefined") {
@@ -1334,20 +1371,20 @@ function make_program(n,total,program) {
         for(var i=set_stations.length;i--;) set_stations[i] = set_stations[i]|0;
     }
     var list = "<fieldset "+((!n && total == 1) ? "data-collapsed='false'" : "")+" id='program-"+n+"' "+((n === "new") ? "" : "data-role='collapsible'")+">";
-    if (n !== "new") list += "<legend>Program "+(n + 1)+"</legend>";
-    list += "<input data-mini='true' type='checkbox' "+((program.en || n==="new") ? "checked='checked'" : "")+" name='en-"+n+"' id='en-"+n+"'><label for='en-"+n+"'>Enabled</label>";
+    if (n !== "new") list += "<legend>"+_("Program")+" "+(n + 1)+"</legend>";
+    list += "<input data-mini='true' type='checkbox' "+((program.en || n==="new") ? "checked='checked'" : "")+" name='en-"+n+"' id='en-"+n+"'><label for='en-"+n+"'>"+_("Enabled")+"</label>";
     list += "<fieldset data-role='controlgroup' data-type='horizontal' style='text-align: center'>";
-    list += "<input data-mini='true' type='radio' name='rad_days-"+n+"' id='days_week-"+n+"' value='days_week-"+n+"' "+((program.is_interval) ? "" : "checked='checked'")+"><label for='days_week-"+n+"'>Weekly</label>";
-    list += "<input data-mini='true' type='radio' name='rad_days-"+n+"' id='days_n-"+n+"' value='days_n-"+n+"' "+((program.is_interval) ? "checked='checked'" : "")+"><label for='days_n-"+n+"'>Interval</label>";
+    list += "<input data-mini='true' type='radio' name='rad_days-"+n+"' id='days_week-"+n+"' value='days_week-"+n+"' "+((program.is_interval) ? "" : "checked='checked'")+"><label for='days_week-"+n+"'>"+_("Weekly")+"</label>";
+    list += "<input data-mini='true' type='radio' name='rad_days-"+n+"' id='days_n-"+n+"' value='days_n-"+n+"' "+((program.is_interval) ? "checked='checked'" : "")+"><label for='days_n-"+n+"'>"+_("Interval")+"</label>";
     list += "</fieldset><div id='input_days_week-"+n+"' "+((program.is_interval) ? "style='display:none'" : "")+">";
 
-    list += "<fieldset data-role='controlgroup' data-type='horizontal' style='text-align: center'><p style='margin:0'>Restrictions</p>";
-    list += "<input data-mini='true' type='radio' name='rad_rst-"+n+"' id='days_norst-"+n+"' value='days_norst-"+n+"' "+((!program.is_even && !program.is_odd) ? "checked='checked'" : "")+"><label for='days_norst-"+n+"'>None</label>";
-    list += "<input data-mini='true' type='radio' name='rad_rst-"+n+"' id='days_odd-"+n+"' value='days_odd-"+n+"' "+((!program.is_even && program.is_odd) ? "checked='checked'" : "")+"><label for='days_odd-"+n+"'>Odd Days</label>";
-    list += "<input data-mini='true' type='radio' name='rad_rst-"+n+"' id='days_even-"+n+"' value='days_even-"+n+"' "+((!program.is_odd && program.is_even) ? "checked='checked'" : "")+"><label for='days_even-"+n+"'>Even Days</label>";
+    list += "<fieldset data-role='controlgroup' data-type='horizontal' style='text-align: center'><p style='margin:0'>"+_("Restrictions")+"</p>";
+    list += "<input data-mini='true' type='radio' name='rad_rst-"+n+"' id='days_norst-"+n+"' value='days_norst-"+n+"' "+((!program.is_even && !program.is_odd) ? "checked='checked'" : "")+"><label for='days_norst-"+n+"'>"+_("None")+"</label>";
+    list += "<input data-mini='true' type='radio' name='rad_rst-"+n+"' id='days_odd-"+n+"' value='days_odd-"+n+"' "+((!program.is_even && program.is_odd) ? "checked='checked'" : "")+"><label for='days_odd-"+n+"'>"+_("Odd Days")+"</label>";
+    list += "<input data-mini='true' type='radio' name='rad_rst-"+n+"' id='days_even-"+n+"' value='days_even-"+n+"' "+((!program.is_odd && program.is_even) ? "checked='checked'" : "")+"><label for='days_even-"+n+"'>"+_("Even Days")+"</label>";
     list += "</fieldset>";
 
-    list += "<fieldset data-type='horizontal' data-role='controlgroup' style='text-align: center'><p style='margin:0'>Days of the Week</p>";
+    list += "<fieldset data-type='horizontal' data-role='controlgroup' style='text-align: center'><p style='margin:0'>"+_("Days of the Week")+"</p>";
     var j = 0;
     $.each(week,function (i,day) {
         list += "<input data-mini='true' type='checkbox' "+((!program.is_interval && days[j]) ? "checked='checked'" : "")+" name='d"+j+"-"+n+"' id='d"+j+"-"+n+"'><label for='d"+j+"-"+n+"'>"+day+"</label>";
@@ -1356,11 +1393,11 @@ function make_program(n,total,program) {
     list += "</fieldset></div>";
 
     list += "<div "+((program.is_interval) ? "" : "style='display:none'")+" id='input_days_n-"+n+"' class='ui-grid-a'>";
-    list += "<div class='ui-block-a'><label for='every-"+n+"'>Interval (Days)</label><input data-mini='true' type='number' name='every-"+n+"' pattern='[0-9]*' id='every-"+n+"' value='"+days[0]+"'></div>";
-    list += "<div class='ui-block-b'><label for='starting-"+n+"'>Starting In</label><input data-mini='true' type='number' name='starting-"+n+"' pattern='[0-9]*' id='starting-"+n+"' value='"+days[1]+"'></div>";
+    list += "<div class='ui-block-a'><label for='every-"+n+"'>"+_("Interval (Days)")+"</label><input data-mini='true' type='number' name='every-"+n+"' pattern='[0-9]*' id='every-"+n+"' value='"+days[0]+"'></div>";
+    list += "<div class='ui-block-b'><label for='starting-"+n+"'>"+_("Starting In")+"</label><input data-mini='true' type='number' name='starting-"+n+"' pattern='[0-9]*' id='starting-"+n+"' value='"+days[1]+"'></div>";
     list += "</div>";
 
-    list += "<fieldset data-role='controlgroup'><legend>Stations:</legend>";
+    list += "<fieldset data-role='controlgroup'><legend>"+_("Stations:")+"</legend>";
     j = 0;
     $.each(window.device.stations.snames,function (i,station) {
         list += "<input data-mini='true' type='checkbox' "+(((typeof set_stations !== "undefined") && set_stations[j]) ? "checked='checked'" : "")+" name='station_"+j+"-"+n+"' id='station_"+j+"-"+n+"'><label for='station_"+j+"-"+n+"'>"+station+"</label>";
@@ -1369,23 +1406,23 @@ function make_program(n,total,program) {
     list += "</fieldset>";
 
     list += "<fieldset data-role='controlgroup' data-type='horizontal' style='text-align: center'>";
-    list += "<input data-mini='true' type='reset' name='s_checkall-"+n+"' id='s_checkall-"+n+"' value='Check All' />";
-    list += "<input data-mini='true' type='reset' name='s_uncheckall-"+n+"' id='s_uncheckall-"+n+"' value='Uncheck All' />";
+    list += "<input data-mini='true' type='reset' name='s_checkall-"+n+"' id='s_checkall-"+n+"' value='"+_("Check All")+"' />";
+    list += "<input data-mini='true' type='reset' name='s_uncheckall-"+n+"' id='s_uncheckall-"+n+"' value='"+_("Uncheck All")+"' />";
     list += "</fieldset>";
 
     list += "<div class='ui-grid-a'>";
-    list += "<div class='ui-block-a'><label for='start-"+n+"'>Start Time</label><input data-mini='true' type='time' name='start-"+n+"' id='start-"+n+"' value='"+pad(parseInt(program.start/60)%24)+":"+pad(program.start%60)+"'></div>";
-    list += "<div class='ui-block-b'><label for='end-"+n+"'>End Time</label><input data-mini='true' type='time' name='end-"+n+"' id='end-"+n+"' value='"+pad(parseInt(program.end/60)%24)+":"+pad(program.end%60)+"'></div>";
+    list += "<div class='ui-block-a'><label for='start-"+n+"'>"+_("Start Time")+"</label><input data-mini='true' type='time' name='start-"+n+"' id='start-"+n+"' value='"+pad(parseInt(program.start/60)%24)+":"+pad(program.start%60)+"'></div>";
+    list += "<div class='ui-block-b'><label for='end-"+n+"'>"+_("End Time")+"</label><input data-mini='true' type='time' name='end-"+n+"' id='end-"+n+"' value='"+pad(parseInt(program.end/60)%24)+":"+pad(program.end%60)+"'></div>";
     list += "</div>";
 
-    list += "<label for='duration-"+n+"'>Duration (minutes)</label><input data-mini='true' type='number' data-highlight='true' data-type='range' name='duration-"+n+"' min='0' max='300' id='duration-"+n+"' value='"+(program.duration/60)+"'>";
-    list += "<label for='interval-"+n+"'>Interval (minutes)</label><input data-mini='true' type='number' data-highlight='true' data-type='range' name='interval-"+n+"' min='0' max='1439' id='interval-"+n+"' value='"+(program.interval)+"'><br>";
+    list += "<label for='duration-"+n+"'>"+_("Duration (minutes)")+"</label><input data-mini='true' type='number' data-highlight='true' data-type='range' name='duration-"+n+"' min='0' max='300' id='duration-"+n+"' value='"+(program.duration/60)+"'>";
+    list += "<label for='interval-"+n+"'>"+_("Interval (minutes)")+"</label><input data-mini='true' type='number' data-highlight='true' data-type='range' name='interval-"+n+"' min='0' max='1439' id='interval-"+n+"' value='"+(program.interval)+"'><br>";
     if (n === "new") {
-        list += "<input data-mini='true' type='submit' name='submit-"+n+"' id='submit-"+n+"' value='Save New Program'></fieldset>";
+        list += "<input data-mini='true' type='submit' name='submit-"+n+"' id='submit-"+n+"' value='"+_("Save New Program")+"'></fieldset>";
     } else {
-        list += "<input data-mini='true' type='submit' name='submit-"+n+"' id='submit-"+n+"' value='Save Changes to Program "+(n + 1)+"'>";
-        list += "<input data-mini='true' type='submit' name='run-"+n+"' id='run-"+n+"' value='Run Program "+(n + 1)+"'>";
-        list += "<input data-mini='true' data-theme='b' type='submit' name='delete-"+n+"' id='delete-"+n+"' value='Delete Program "+(n + 1)+"'></fieldset>";
+        list += "<input data-mini='true' type='submit' name='submit-"+n+"' id='submit-"+n+"' value='"+_("Save Changes to Program")+" "+(n + 1)+"'>";
+        list += "<input data-mini='true' type='submit' name='run-"+n+"' id='run-"+n+"' value='"+_("Run Program")+" "+(n + 1)+"'>";
+        list += "<input data-mini='true' data-theme='b' type='submit' name='delete-"+n+"' id='delete-"+n+"' value='"+_("Delete Program")+" "+(n + 1)+"'></fieldset>";
     }
     return list;
 }
@@ -1418,14 +1455,14 @@ function add_program() {
 }
 
 function delete_program(id) {
-    areYouSure("Are you sure you want to delete program "+(parseInt(id)+1)+"?", "", function() {
+    areYouSure(_("Are you sure you want to delete program")+" "+(parseInt(id)+1)+"?", "", function() {
         $.mobile.loading("show");
         $.get("http://"+window.curr_ip+"/dp?pw="+window.curr_pw+"&pid="+id,function(){
             $.mobile.loading("hide");
             update_device(function(){
                 get_programs(false);
             });
-        }).error(comm_error);
+        }).fail(comm_error);
     })
 }
 
@@ -1443,9 +1480,9 @@ function submit_program(id) {
         else if($("#days_even-"+id).is(':checked')) {days[0]|=0x80; days[1]=0;}
     } else if($("#days_n-"+id).is(':checked')) {
         days[1]=parseInt($("#every-"+id).val(),10);
-        if(!(days[1]>=2&&days[1]<=128)) {showerror("Error: Interval days must be between 2 and 128.");return;}
+        if(!(days[1]>=2&&days[1]<=128)) {showerror(_("Error: Interval days must be between 2 and 128."));return;}
         days[0]=parseInt($("#starting-"+id).val(),10);
-        if(!(days[0]>=0&&days[0]<days[1])) {showerror("Error: Starting in days wrong.");return;}
+        if(!(days[0]>=0&&days[0]<days[1])) {showerror(_("Error: Starting in days wrong."));return;}
         days[0]|=0x80;
     }
     program[1] = days[0]
@@ -1456,7 +1493,7 @@ function submit_program(id) {
     var end = $("#end-"+id).val().split(":")
     program[4] = parseInt(end[0])*60+parseInt(end[1])
 
-    if(!(program[3]<program[4])) {showerror("Error: Start time must be prior to end time.");return;}
+    if(!(program[3]<program[4])) {showerror(_("Error: Start time must be prior to end time."));return;}
 
     program[5] = parseInt($("#interval-"+id).val())
     program[6] = $("#duration-"+id).val() * 60
@@ -1476,21 +1513,21 @@ function submit_program(id) {
             }
         }
     }
-    if(station_selected==0) {showerror("Error: You have not selected any stations.");return;}
+    if(station_selected==0) {showerror(_("Error: You have not selected any stations."));return;}
     program = JSON.stringify(program.concat(stations))
     $.mobile.loading("show");
     if (id == "new") {
         $.get("http://"+window.curr_ip+"/cp?pw="+window.curr_pw+"&pid=-1&v="+program,function(){
             $.mobile.loading("hide");
             update_device(get_programs);
-            showerror("Program added successfully");
-        }).error(comm_error);
+            showerror(_("Program added successfully"));
+        }).fail(comm_error);
     } else {
         $.get("http://"+window.curr_ip+"/cp?pw="+window.curr_pw+"&pid="+id+"&v="+program,function(){
             $.mobile.loading("hide");
             update_program_header();
-            showerror("Program has been updated")
-        }).error(comm_error);
+            showerror(_("Program has been updated"))
+        }).fail(comm_error);
     }
 }
 
@@ -1523,10 +1560,10 @@ function submit_settings() {
     $.get("http://"+window.curr_ip+"/co?pw="+window.curr_pw+"&"+$.param(opt),function(){
         $.mobile.loading("hide");
         changePage("#settings");
-        showerror("Settings have been saved");
+        showerror(_("Settings have been saved"));
         update_device();
         update_weather();
-    }).error(comm_error);
+    }).fail(comm_error);
 }
 
 function submit_stations() {
@@ -1539,7 +1576,7 @@ function submit_stations() {
                 if (data.length > 16) {
                     invalid = true
                     $item.focus()
-                    showerror("Station name must be 16 characters or less")
+                    showerror(_("Station name must be 16 characters or less"))
                     return false
                 }
                 names[id] = data
@@ -1562,9 +1599,9 @@ function submit_stations() {
     $.get("http://"+window.curr_ip+"/cs?pw="+window.curr_pw+"&"+$.param(names)+masop,function(){
         $.mobile.loading("hide");
         changePage("#settings");
-        showerror("Stations have been updated");
+        showerror(_("Stations have been updated"));
         update_device();
-    }).error(comm_error);
+    }).fail(comm_error);
 }
 
 function submit_runonce(runonce) {
@@ -1577,8 +1614,8 @@ function submit_runonce(runonce) {
     }
     localStorage.setItem("runonce",JSON.stringify(runonce));
     $.get("http://"+window.curr_ip+"/cr?pw="+window.curr_pw+"&t="+JSON.stringify(runonce),function(){
-        showerror("Run-once program has been scheduled");
-    }).error(comm_error);
+        showerror(_("Run-once program has been scheduled"));
+    }).fail(comm_error);
     changePage("#sprinklers");
 }
 
@@ -1591,13 +1628,13 @@ function toggle(anchor) {
     var currPos = $listitems.index($item) + 1;
     var total = $listitems.length;
     if ($anchor.hasClass("green")) {
-        $.get("http://"+window.curr_ip+"/sn"+currPos+"=0").error(function(){
+        $.get("http://"+window.curr_ip+"/sn"+currPos+"=0").fail(function(){
             $anchor.addClass("green");
             comm_error()
         })
         $anchor.removeClass("green");
     } else {
-        $.get("http://"+window.curr_ip+"/sn"+currPos+"=1&t=0").error(function(){
+        $.get("http://"+window.curr_ip+"/sn"+currPos+"=1&t=0").fail(function(){
             $anchor.removeClass("green");
             comm_error()
         })
@@ -1612,37 +1649,37 @@ function raindelay() {
         $("#raindelay").popup("close");
         $("#footer-running").html("<p class='ui-icon ui-icon-loading mini-load'></p>");
         update_device(check_status);
-        showerror("Rain delay has been successfully set");
-    }).error(comm_error);
+        showerror(_("Rain delay has been successfully set"));
+    }).fail(comm_error);
 }
 
 function clear_config() {
-    areYouSure("Are you sure you want to delete all settings and return to the default settings (this will delete the configuration file)?", "", function() {
+    areYouSure(_("Are you sure you want to delete all settings and return to the default settings (this will delete the configuration file)?"), "", function() {
         localStorage.removeItem("sites");
         localStorage.removeItem("current_site");
-        showerror("Configuration has been deleted. Please wait while you are redirected to the installer.");
+        showerror(_("Configuration has been deleted. Please wait while you are redirected to the installer."));
         setTimeout(function(){location.reload()},2500);
     });    
 }
 
 function rbt() {
-    areYouSure("Are you sure you want to reboot OpenSprinkler?", "", function() {
+    areYouSure(_("Are you sure you want to reboot OpenSprinkler?"), "", function() {
         $.mobile.loading("show");
         $.get("http://"+window.curr_ip+"/cv?pw="+window.curr_pw+"&rbt=1",function(){
             $.mobile.loading("hide");
-            showerror("OpenSprinkler is rebooting now");
-        }).error(comm_error);
+            showerror(_("OpenSprinkler is rebooting now"));
+        }).fail(comm_error);
     });
 }
 
 function rsn() {
-    areYouSure("Are you sure you want to stop all stations?", "", function() {
+    areYouSure(_("Are you sure you want to stop all stations?"), "", function() {
         $.mobile.loading("show");
         $.get("http://"+window.curr_ip+"/cv?pw="+window.curr_pw+"&rsn=1",function(){
             $.mobile.loading("hide");
             update_device(check_status);
-            showerror("All stations have been stopped");
-        }).error(comm_error);
+            showerror(_("All stations have been stopped"));
+        }).fail(comm_error);
     });
 }
 
@@ -1664,12 +1701,12 @@ function export_config(toFile) {
         if (!navigator.userAgent.match(/(iPad|iPhone|iPod)/g)) {
             document.location = 'data:Application/octet-stream,' + encodeURIComponent(JSON.stringify(newdata));
         } else {
-            showerror("File API is not supported by your browser")
+            showerror(_("File API is not supported by your browser"))
         }
         return;
     } else {
         localStorage.setItem("backup", JSON.stringify(newdata));
-        showerror("Backup saved to your device");
+        showerror(_("Backup saved to your device"));
     }
 }
 
@@ -1677,12 +1714,12 @@ function import_config(data) {
     if (typeof data === "undefined") {
         var data = localStorage.getItem("backup");
         if (data === null) {
-            showerror("No backup available on this device");
+            showerror(_("No backup available on this device"));
             return;
         }
     }
     data = JSON.parse(data);
-    areYouSure("Are you sure you want to restore the configuration?", "", function() {
+    areYouSure(_("Are you sure you want to restore the configuration?"), "", function() {
         $.mobile.loading("show");
 
         var cs = "/cs?pw="+window.curr_pw,
@@ -1708,22 +1745,22 @@ function import_config(data) {
             i++;
         })
         $.when(
-            $.get("http://"+window.curr_ip+co).error(comm_error),
-            $.get("http://"+window.curr_ip+cs).error(comm_error),
-            $.get("http://"+window.curr_ip+"/dp?pw="+window.curr_pw+"&pid=-1").error(comm_error),
+            $.get("http://"+window.curr_ip+co).fail(comm_error),
+            $.get("http://"+window.curr_ip+cs).fail(comm_error),
+            $.get("http://"+window.curr_ip+"/dp?pw="+window.curr_pw+"&pid=-1").fail(comm_error),
             $.each(data.programs,function (i,prog) {
-                $.get("http://"+window.curr_ip+cp_start+"&pid=-1&v="+((typeof prog === "object") ? JSON.stringify(prog) : prog)).error(comm_error);
+                $.get("http://"+window.curr_ip+cp_start+"&pid=-1&v="+((typeof prog === "object") ? JSON.stringify(prog) : prog)).fail(comm_error);
             })
         ).then(function(){
             $.mobile.loading("hide");
-            showerror("Backup restored to your device");
+            showerror(_("Backup restored to your device"));
         });
     });
 }
 
 function getConfigFile() {
     if (navigator.userAgent.match(/(iPad|iPhone|iPod)/g) || !window.FileReader) {
-        showerror("File API is not supported by your browser");
+        showerror(_("File API is not supported by your browser"));
         return;
     }
     $('#configInput').click();
@@ -1737,7 +1774,7 @@ function handleConfig(files) {
             var obj=JSON.parse($.trim(e.target.result));
             import_config(JSON.stringify(obj));
         }catch(e){
-            showerror("Unable to read the configuration file. Please check the file and try again.");
+            showerror(_("Unable to read the configuration file. Please check the file and try again."));
         }
     };
     reader.readAsText(config);

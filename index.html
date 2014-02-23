@@ -18,16 +18,16 @@
 
         <div data-role="popup" id="addnew" data-theme="a" data-dismissible="false">
             <div data-role="header" data-theme="b">
-                <h1>New Device</h1>
+                <h1 data-translate="New Device"></h1>
             </div>
             <div class="ui-content">
                 <form action="javascript:submit_newuser()" method="post">
-                    <p style="text-align:center;font-size:smaller;margin-top:0">Note: The name is used to identify the OpenSprinkler within the web app. This is used for multisite support. OpenSprinkler IP can be either an IP or hostname. You can also specify a port by using IP:Port</p>
-                    <label for="os_name">Open Sprinkler Name:</label>
+                    <p style="text-align:center;font-size:smaller;margin-top:0" data-translate="Note: The name is used to identify the OpenSprinkler within the web app. This is used for multisite support. OpenSprinkler IP can be either an IP or hostname. You can also specify a port by using IP:Port"></p>
+                    <label for="os_name" data-translate="Open Sprinkler Name:"></label>
                     <input type="text" name="os_name" id="os_name" placeholder="Home" />
-                    <label for="os_ip">Open Sprinkler IP:</label>
+                    <label for="os_ip" data-translate="Open Sprinkler IP:"></label>
                     <input type="text" name="os_ip" id="os_ip" placeholder="home.dyndns.org:8080" />
-                    <label for="os_pw">Open Sprinkler Password:</label>
+                    <label for="os_pw" data-translate="Open Sprinkler Password:"></label>
                     <input type="password" name="os_pw" id="os_pw" value="" />
                     <input type="submit" value="Submit" />
                 </form>
@@ -37,41 +37,38 @@
         <div data-role="page" id="sprinklers">
             <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false">
                 <a data-icon="bars" data-iconpos="notext" href="#sprinklers-settings"></a>
-                <a data-icon="gear" data-iconpos="notext" href="#settings">Settings</a>
+                <a data-icon="gear" data-iconpos="notext" href="#settings" data-translate="Settings"></a>
                 <h3 style="padding:0"><img height="40px" width="159px" src="img/logo.png" /></h3>
             </div>
             <div class="ui-content" role="main" style="padding-top:0px">
                 <div id="footer-running">
                 </div>
-                <div id="showupdate" class="red">
-                    <p style="margin:0;text-align:center">Update Available</p>
-                </div>
                 <ul data-role="listview" data-inset="true" id="weather-list">
-                    <li data-role="list-divider">Weather</li>
+                    <li data-role="list-divider" data-translate="Weather"></li>
                     <li><div id="weather"></div></li>
                 </ul>
                 <ul data-role="listview" data-inset="true" id="info-list">
-                    <li data-role="list-divider">Information</li>
-                    <li><a href="#status" data-onclick="get_status();">Current Status</a></li>
-                    <li><a href="#preview">Preview Programs</a></li>
+                    <li data-role="list-divider" data-translate="Information"></li>
+                    <li><a href="#status" data-onclick="get_status();" data-translate="Current Status"></a></li>
+                    <li><a href="#preview" data-translate="Preview Programs"></a></li>
                 </ul>
                 <ul data-role="listview" data-inset="true" id="program-control-list">
-                    <li data-role="list-divider">Program Control</li>
-                    <li><a href="#raindelay" data-onclick="open_popup('#raindelay');">Change Rain Delay</a></li>
-                    <li><a href="#programs" data-onclick="get_programs();">Edit Programs</a></li>
-                    <li><a href="#manual" data-onclick="get_manual();">Manual Control</a></li>
-                    <li><a href="#runonce" data-onclick="get_runonce();">Run-Once Program</a></li>
-                    <li><a href="#" data-onclick="rsn();">Stop All Stations</a></li>
+                    <li data-role="list-divider" data-translate="Program Control"></li>
+                    <li><a href="#raindelay" data-onclick="open_popup('#raindelay');" data-translate="Change Rain Delay"></a></li>
+                    <li><a href="#programs" data-onclick="get_programs();" data-translate="Edit Programs"></a></li>
+                    <li><a href="#manual" data-onclick="get_manual();" data-translate="Manual Control"></a></li>
+                    <li><a href="#runonce" data-onclick="get_runonce();" data-translate="Run-Once Program"></a></li>
+                    <li><a href="#" data-onclick="rsn();" data-translate="Stop All Stations"></a></li>
                 </ul>
             </div>
             <div data-role="popup" id="raindelay" data-overlay-theme="b">
                 <ul data-role="listview" data-inset="true">
-                    <li data-role="list-divider">Change Rain Delay</li>
+                    <li data-role="list-divider" data-translate="Change Rain Delay"></li>
                     <li>
-                        <p class="rain-desc">Enable manual rain delay by entering a value into the input below. To turn off a currently enabled rain delay use a value of 0.</p>
+                        <p class="rain-desc" data-translate="Enable manual rain delay by entering a value into the input below. To turn off a currently enabled rain delay use a value of 0."></p>
                         <form action="javascript:raindelay()">
                             <div class="ui-field-contain">
-                                <label for="delay">Duration (in hours):</label>
+                                <label for="delay" data-translate="Duration (in hours):"></label>
                                 <input type="number" pattern="[0-9]*" data-highlight="true" data-type="range" value="0" min="0" max="96" id="delay" />
                             </div>
                             <input type="submit" value="Submit" data-theme="b" />
@@ -84,10 +81,10 @@
                     <li>
                         <select data-mini="true" id="site-selector"></select>
                     </li>
-                    <li data-icon="gear"><a href="#" data-onclick="changeFromPanel(show_sites);">Manage Sites</a></li>
-                    <li data-icon="action"><a href="#" data-onclick="export_config();">Export Configuration</a><a href="#" data-onclick="export_config(1);"></a></li>
-                    <li data-icon="cloud"><a href="#" data-onclick="import_config();">Import Configuration</a></a><a href="#" data-onclick="getConfigFile()"></a></li>
-                    <li data-icon="info"><a href="#" data-onclick="changeFromPanel(show_about);">About</a></li>
+                    <li data-icon="gear"><a href="#" data-onclick="changeFromPanel(show_sites);" data-translate="Manage Sites"></a></li>
+                    <li data-icon="action"><a href="#" data-onclick="export_config();" data-translate="Export Configuration"></a><a href="#" data-onclick="export_config(1);"></a></li>
+                    <li data-icon="cloud"><a href="#" data-onclick="import_config();" data-translate="Import Configuration"></a></a><a href="#" data-onclick="getConfigFile()"></a></li>
+                    <li data-icon="info"><a href="#" data-onclick="changeFromPanel(show_about);" data-translate="About"></a></li>
                 </ul>
                 <input type="file" id="configInput" data-role="none" onchange="handleConfig(this.files)" style="visibility:hidden;position:absolute;top:-50;left:-50"/>
             </div>
@@ -95,9 +92,9 @@
 
         <div data-role="page" id="forecast">
             <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false">
-                <h3>Forecast</h3>
-                <a href="#sprinklers" data-onclick="gohome();" data-icon="back">Back</a>
-                <a href="#" data-onclick="update_weather();" data-icon="refresh">Refresh</a>
+                <h3 data-translate="Forecast"></h3>
+                <a href="#sprinklers" data-onclick="gohome();" data-icon="back" data-translate="Back"></a>
+                <a href="#" data-onclick="update_weather();" data-icon="refresh" data-translate="Refresh"></a>
             </div>
             <div class="ui-content" role="main">
                 <ul data-role="listview" data-inset="true" id="forecast_list">
@@ -107,9 +104,9 @@
 
         <div data-role="page" id="status">
             <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false">
-                <h3>Current Status</h3>
-                <a href="#sprinklers" data-onclick="gohome();" data-icon="back">Back</a>
-                <a href="#" data-onclick="get_status();" data-icon="refresh">Refresh</a>
+                <h3 data-translate="Current Status"></h3>
+                <a href="#sprinklers" data-onclick="gohome();" data-icon="back" data-translate="Back"></a>
+                <a href="#" data-onclick="get_status();" data-icon="refresh" data-translate="Refresh"></a>
             </div>
             <div class="ui-content" role="main">
                 <p id="status_header"></p>
@@ -121,14 +118,14 @@
 
         <div data-role="page" id="manual">
             <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false">
-                <h3>Manual Control</h3>
-                <a href="#" data-onclick="gohome();" data-icon="back">Back</a>
+                <h3 data-translate="Manual Control"></h3>
+                <a href="#" data-onclick="gohome();" data-icon="back" data-translate="Back"></a>
             </div>
             <div class="ui-content" role="main">
-                <p style="text-align:center">With manual mode turned on, tap a station to toggle it.</p>
+                <p style="text-align:center" data-translate="With manual mode turned on, tap a station to toggle it."></p>
                 <ul data-role="listview" data-inset="true">
                     <li class="ui-field-contain">
-                        <label for="mmm"><b>Manual Mode</b></label>
+                        <label for="mmm"><b data-translate="Manual Mode"></b></label>
                         <input type="checkbox" data-on-text="On" data-off-text="Off" data-role="flipswitch" name="mmm" id="mmm">
                     </li>
                 </ul>
@@ -139,9 +136,9 @@
 
         <div data-role="page" id="runonce">
             <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false">
-                <h3>Run-Once Program</h3>
-                <a href="#sprinklers" data-onclick="gohome();" data-icon="back">Back</a>
-                <a href="#" data-onclick="submit_runonce();">Submit</a>
+                <h3 data-translate="Run-Once Program"></h3>
+                <a href="#sprinklers" data-onclick="gohome();" data-icon="back" data-translate="Back"></a>
+                <a href="#" data-onclick="submit_runonce();" data-translate="Submit"></a>
             </div>
             <div class="ui-content" role="main" id="runonce_list">
             </div>
@@ -149,9 +146,9 @@
 
         <div data-role="page" id="programs">
             <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false">
-                <h3>Programs</h3>
-                <a href="#sprinklers" data-onclick="gohome();" data-icon="back">Back</a>
-                <a href="#addprogram" data-onclick="add_program();" data-icon="plus">Add</a>
+                <h3 data-translate="Programs"></h3>
+                <a href="#sprinklers" data-onclick="gohome();" data-icon="back" data-translate="Back"></a>
+                <a href="#addprogram" data-onclick="add_program();" data-icon="plus" data-translate="Add"></a>
             </div>
             <div class="ui-content" role="main" id="programs_list">
             </div>
@@ -159,9 +156,9 @@
 
         <div data-role="page" id="addprogram">
             <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false">
-                <h3>Add Program</h3>
-                <a href="#programs" data-icon="back">Back</a>
-                <a href="#" data-onclick="submit_program('new');">Submit</a>
+                <h3 data-translate="Add Program"></h3>
+                <a href="#programs" data-icon="back" data-translate="Back"></a>
+                <a href="#" data-onclick="submit_program('new');" data-translate="Submit"></a>
             </div>
             <div class="ui-content" role="main" id="newprogram">
             </div>
@@ -169,39 +166,47 @@
 
         <div data-role="page" id="settings">
             <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false">
-                <h3>Settings</h3>
-                <a href="#sprinklers" data-onclick="gohome();" data-icon="back">Back</a>
+                <h3 data-translate="Settings"></h3>
+                <a href="#sprinklers" data-onclick="gohome();" data-icon="back" data-translate="Back"></a>
             </div>
             <div class="ui-content" role="main">
                 <ul data-role="listview" data-inset="true">
-                    <li data-role="list-divider" data-theme="b">Device Settings</li>
+                    <li data-role="list-divider" data-theme="b" data-translate="Device Settings"></li>
                     <li class="ui-field-contain">
-                        <label for="mm"><b>Manual Mode</b></label>
+                        <label for="mm"><b data-translate="Manual Mode"></b></label>
                         <input type="checkbox" data-on-text="On" data-off-text="Off" data-role="flipswitch" name="mm" id="mm">
                     </li>
                     <li class="ui-field-contain">
-                        <label for="en"><b>Operation</b></label>
+                        <label for="en"><b data-translate="Operation"></b></label>
                         <input type="checkbox" data-on-text="On" data-off-text="Off" data-role="flipswitch" name="en" id="en">
                     </li>
-                    <li><a href="#" data-onclick="show_settings();">Device Options</a></li>
-                    <li><a href="#" data-onclick="show_stations();">Edit Stations</a></li>
-                    <li data-icon="alert"><a href="#" data-onclick="rbt();">Reboot OpenSprinkler</a></li>
+                    <li><a href="#" data-onclick="show_settings();" data-translate="Device Options"></a></li>
+                    <li><a href="#" data-onclick="show_stations();" data-translate="Edit Stations"></a></li>
+                    <li data-icon="alert"><a href="#" data-onclick="rbt();" data-translate="Reboot OpenSprinkler"></a></li>
                 </ul>
                 <ul data-role="listview" data-inset="true">
-                    <li data-role="list-divider" data-theme="b">Mobile Application Settings</li>
-                    <li data-icon="alert"><a href="#" data-onclick="clear_config();">Clear Configuration</a></li>
-                    <li data-icon="gear"><a href="#" data-onclick="show_sites();">Manage Sites</a></li>
+                    <li data-role="list-divider" data-theme="b" data-translate="Mobile Application Settings"></li>
+                    <li data-icon="alert"><a href="#" data-onclick="clear_config();" data-translate="Clear Configuration"></a></li>
+                    <li><a href="#" data-onclick="open_popup('#localization');" data-translate="Localization"></a></li>
+                    <li data-icon="gear"><a href="#" data-onclick="show_sites();" data-translate="Manage Sites"></a></li>
                 </ul>
             </div>
             <div data-role="popup" data-overlay-theme="b" id="localization">
+                    <ul data-inset='true' data-role='listview' id='lang'>
+                        <li data-role='list-divider' data-theme='b' data-translate="Localization"></li>
+                        <li><a href='#' data-onclick="update_lang('en');">English</a></li>
+                        <li><a href='#' data-onclick="update_lang('hu');">Hungarian</a></li>
+                        <li><a href='#' data-onclick="update_lang('it');">Italian</a></li>
+                        <li><a href='#' data-onclick="update_lang('es');">Spanish</a></li>
+                    </ul>
             </div>
         </div>
 
         <div data-role="page" id="os-settings">
             <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false">
-                <h3>OS Settings</h3>
-                <a href="#settings" data-icon="back">Back</a>
-                <a href="#" data-onclick="submit_settings();">Submit</a>
+                <h3 data-translate="OS Settings"></h3>
+                <a href="#settings" data-icon="back" data-translate="Back"></a>
+                <a href="#" data-onclick="submit_settings();" data-translate="Submit"></a>
             </div>
             <div class="ui-content" role="main">
                 <ul data-role="listview" data-inset="true" id="os-settings-list">
@@ -209,35 +214,11 @@
             </div>
         </div>
 
-        <div data-role="page" id="weather-settings">
-            <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false">
-                <h3>Weather Settings</h3>
-                <a href="#settings" data-icon="back">Back</a>
-            </div>
-            <div class="ui-content" role="main">
-                <ul data-role='listview' data-inset='true'>
-                    <li data-role='list-divider' data-theme='b'>Weather Provider</li>
-                    <li>
-                        <form action="javascript:submit_weather_settings()">
-                            <label for='weather_provider'>Weather Provider
-                                <select data-mini='true' id='weather_provider'>
-                                    <option value='yahoo'>Yahoo!</option>
-                                    <option value='wunderground'>Wunderground</option>
-                                </select>
-                            </label>
-                            <label for='wapikey'>Wunderground API Key<input data-mini='true' type='text' id='wapikey' /></label>
-                            <input type="submit" value="Submit" />
-                        </form>
-                    </li>
-                </ul>
-            </div>
-        </div>
-
         <div data-role="page" id="os-stations">
             <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false">
-                <h3>Edit Stations</h3>
-                <a href="#settings" data-icon="back">Back</a>
-                <a href="#" data-onclick="submit_stations();">Submit</a>
+                <h3 data-translate="Edit Stations"></h3>
+                <a href="#settings" data-icon="back" data-translate="Back"></a>
+                <a href="#" data-onclick="submit_stations();" data-translate="Submit"></a>
             </div>
             <div class="ui-content" role="main">
                 <ul data-role="listview" data-inset="true" id="os-stations-list">
@@ -247,8 +228,8 @@
 
         <div data-role="page" id="preview">
             <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false">
-                <h3>Program Preview</h3>
-                <a href="#sprinklers" data-onclick="gohome();" data-icon="back">Back</a>
+                <h3 data-translate="Program Preview"></h3>
+                <a href="#sprinklers" data-onclick="gohome();" data-icon="back" data-translate="Back"></a>
             </div>
             <div class="ui-content" role="main">
                 <div id="preview_header">
@@ -274,9 +255,9 @@
 
         <div data-role="page" id="site-control">
             <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false">
-                <h3>Manage Sites</h3>
-                <a href="#sprinklers" data-icon="back" id="manageBackButton">Back</a>
-                <a href="#" data-onclick="show_new();" data-icon="plus">Add</a>
+                <h3 data-translate="Manage Sites"></h3>
+                <a href="#sprinklers" data-icon="back" id="manageBackButton" data-translate="Back"></a>
+                <a href="#" data-onclick="show_new();" data-icon="plus" data-translate="Add"></a>
             </div>
             <div data-role="content" id="site-control-list">
             </div>
@@ -284,26 +265,29 @@
 
         <div data-role="page" id="about">
             <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false">
-                <h3>About</h3>
-                <a href="#sprinklers" data-onclick="gohome();" data-icon="back">Back</a>
+                <h3 data-translate="About"></h3>
+                <a href="#sprinklers" data-onclick="gohome();" data-icon="back" data-translate="Back"></a>
             </div>
             <div class="ui-content" role="main">
                 <div data-role="collapsible-set">
                     <div data-role="collapsible">
                         <h3>Background</h3>
-                        <p>I, Samer Albahra, am a medical school graduate, currently doing a pathology residency at UTHSCSA. I enjoy making mobile applications in my spare time and was excited when I first discovered the OpenSprinkler, an open-source Internet based sprinkler system, which lacked a truly mobile interface.</p>
-                        <p>I decided to add a mobile front-end using jQuery Mobile. There were a few things I wanted to accomplish:</p>
-                        <ul><li>Large on/off buttons in manual mode</li><li>Easy slider inputs for any duration input</li><li>Compatibility between many/all devices</li><li>Easy feedback of current status</li><li>Easy program input/modification</li></ul>
-                        <p>Fortunately, I had a lot of feedback on Ray's forums and now have an application that has been tested across many devices and installed in many unique environments.</p>
-                        <p>I fully support every feature of the OpenSprinkler and also the OpenSprinkler Pi (using the interval program).</p>
-                        <p>Changelog can be viewed on <a target="_blank" href="https://github.com/salbahra/OpenSprinkler-Controller/commits/master">Github</a>.</p>
+                        <p>OpenSprinkler is a wonderful irrigation device without a mobile friendly UI. Built using jQuery Mobile, this app's goal is to improve the user expierence, especially on mobile devices. There were a few goals:</p>
+                        <ul>
+                            <li>Large on/off buttons in manual mode</li>
+                            <li>Easy slider inputs for any duration input</li>
+                            <li>Compatibility between many/all devices</li>
+                            <li>Easy feedback of current status</li>
+                            <li>Add/change programs</li>
+                        </ul>
+                        <p>Fortunately, a lot of feedback has been given on Ray's forums and now have an application that has been tested across many devices and installed in many unique environments.</p>
+                        <p>Every feature of the OpenSprinkler is supported.</p>
+                        <p>Changelog can be viewed on <a onclick="javascript:window.open('https://github.com/salbahra/OpenSprinkler-Controller/commits/master','_blank'); return false;">Github</a>.</p>
                     </div>
                     <div data-role="collapsible" data-collapsed="false">
                         <h3>Donate</h3>
-                            <p style="text-align:center;overflow: visible;white-space: normal;">This web app has been developed by Samer Albahra. If you enjoy it please donate by clicking the button below.</p>
-                            <form style='text-align:center' action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank">
-                                <input type="hidden" name="cmd" value="_s-xclick">
-                                <input type="hidden" name="hosted_button_id" value="89M484QR2TCFJ">
+                            <p style="text-align:center;overflow: visible;white-space: normal;">This app has been developed by Samer Albahra. If you enjoy it please donate by clicking the button below.</p>
+                            <form style='text-align:center' action="javascript:window.open('https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=89M484QR2TCFJ','_blank')" method="post">
                                 <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
                                 <img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
                             </form>
