@@ -123,7 +123,7 @@ window.keyNames = {"tz":1,"ntp":2,"hp0":12,"hp1":13,"ar":14,"ext":15,"seq":16,"s
 
 //Localization functions
 function _(key) {
-    if (window.language !== "undefined" && window.language.hasOwnProperty(key)) {
+    if (typeof window.language === "object" && window.language.hasOwnProperty(key)) {
         return window.language[key];
     } else {
         return key;
@@ -145,13 +145,11 @@ function get_locale() {
 }
 
 function update_lang(lang) {
+    window.language = new Object;
     $.getJSON("locale/"+lang+".json",function(store){
         window.language = store.messages;
         set_lang();
-    }).fail(function(){
-        window.language = new Object;
-        set_lang();
-    });
+    }).fail(set_lang);
 }
 
 //Insert the startup images for iOS
@@ -301,11 +299,11 @@ function show_sites(showBack) {
     $.each(sites,function(a,b){
         list += "<fieldset id='site-"+a+"' data-role='collapsible'>";
         list += "<legend>"+a+"</legend>";
-        list += "<a data-role='button' onclick='update_site(\""+a+"\")'>Connect Now</a>";
+        list += "<a data-role='button' onclick='update_site(\""+a+"\")'>"+_("Connect Now")+"</a>";
         list += "<label for='cip-"+a+"'>Change IP</label><input id='cip-"+a+"' type='text' value='"+b["os_ip"]+"' />";
         list += "<label for='cpw-"+a+"'>Change Password</label><input id='cpw-"+a+"' type='password' />";
-        list += "<a data-role='button' onclick='change_site(\""+a+"\")'>Save Changes to "+a+"</a>";
-        list += "<a data-role='button' onclick='delete_site(\""+a+"\")' data-theme='b'>Delete "+a+"</a>";
+        list += "<a data-role='button' onclick='change_site(\""+a+"\")'>"+_("Save Changes to")+" "+a+"</a>";
+        list += "<a data-role='button' onclick='delete_site(\""+a+"\")' data-theme='b'>"+_("Delete")+" "+a+"</a>";
         list += "</fieldset>";
     })
 
