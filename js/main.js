@@ -1,7 +1,5 @@
 $(document).ready(function () {
     if (document.URL.indexOf("http://") === -1) {
-        update_lang(get_locale());
-    } else {
         $(document).one("deviceready", function() {
             var win = $(window);
             if (win.height() > win.width()) {
@@ -10,6 +8,8 @@ $(document).ready(function () {
             }
             update_lang(get_locale());
         });
+    } else {
+        update_lang(get_locale());
     }
 });
 
