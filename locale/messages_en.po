@@ -290,11 +290,6 @@ msgid ""
 "settings (this will delete the configuration file)?"
 msgstr ""
 
-msgid ""
-"Configuration has been deleted. Please wait while you are redirected to the "
-"installer."
-msgstr ""
-
 msgid "Are you sure you want to reboot OpenSprinkler?"
 msgstr ""
 
@@ -329,6 +324,21 @@ msgstr ""
 msgid "Sprinkler System"
 msgstr ""
 
+msgid ""
+"Welcome to the OpenSprinkler mobile application. Select automatic for "
+"network scanning and detection of OpenSprinkler on your local network. "
+"Otherwise, select manual if you know your device information."
+msgstr ""
+
+msgid "Automatic"
+msgstr ""
+
+msgid "Manual"
+msgstr ""
+
+msgid "Select Site"
+msgstr ""
+
 msgid "New Device"
 msgstr ""
 
@@ -336,6 +346,9 @@ msgid ""
 "Note: The name is used to identify the OpenSprinkler within the web app. "
 "This is used for multisite support. OpenSprinkler IP can be either an IP or "
 "hostname. You can also specify a port by using IP:Port"
+msgstr ""
+
+msgid "Open Sprinkler Name:"
 msgstr ""
 
 msgid "Open Sprinkler IP:"
@@ -347,7 +360,19 @@ msgstr ""
 msgid "Settings"
 msgstr ""
 
+msgid "Weather"
+msgstr ""
+
+msgid "Information"
+msgstr ""
+
+msgid "Current Status"
+msgstr ""
+
 msgid "Preview Programs"
+msgstr ""
+
+msgid "Program Control"
 msgstr ""
 
 msgid "Change Rain Delay"
@@ -365,6 +390,11 @@ msgstr ""
 msgid "Stop All Stations"
 msgstr ""
 
+msgid ""
+"Enable manual rain delay by entering a value into the input below. To turn "
+"off a currently enabled rain delay use a value of 0."
+msgstr ""
+
 msgid "Duration (in hours):"
 msgstr ""
 
@@ -374,16 +404,34 @@ msgstr ""
 msgid "Export Configuration"
 msgstr ""
 
-msgid "Forecast"
+msgid "Import Configuration"
 msgstr ""
 
-msgid "Refresh"
+msgid "About"
+msgstr ""
+
+msgid "Forecast"
 msgstr ""
 
 msgid "Back"
 msgstr ""
 
+msgid "Refresh"
+msgstr ""
+
+msgid "With manual mode turned on, tap a station to toggle it."
+msgstr ""
+
 msgid "Manual Mode"
+msgstr ""
+
+msgid "Programs"
+msgstr ""
+
+msgid "Add"
+msgstr ""
+
+msgid "Add Program"
 msgstr ""
 
 msgid "Device Settings"
@@ -392,14 +440,26 @@ msgstr ""
 msgid "Operation"
 msgstr ""
 
-msgid "Mobile Application Settings"
+msgid "Device Options"
 msgstr ""
 
 msgid "Edit Stations"
 msgstr ""
 
-msgid "Add"
+msgid "Reboot OpenSprinkler"
 msgstr ""
 
-msgid "About"
+msgid "Mobile Application Settings"
+msgstr ""
+
+msgid "Clear Configuration"
+msgstr ""
+
+msgid "Localization"
+msgstr ""
+
+msgid "OS Settings"
+msgstr ""
+
+msgid "Program Preview"
 msgstr ""
