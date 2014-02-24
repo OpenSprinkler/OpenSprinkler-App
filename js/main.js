@@ -37,10 +37,17 @@ $(document).one("mobileinit", function(e){
     $("body").show();
 });
 
-//On intial load check if a valid token exists, for auto login
-$("#start").one("pageshow",function(){
+$(document).one("pagebeforechange", function(event,data) {
+    // Let the framework know we're going to handle the load. 
+    event.preventDefault();
+ 
+    //On initial load check if a valid site exists for auto connect
     check_configured();
+
+    //If a site is found then load it
     if (window.curr_ip !== undefined) newload();
+    else changePage("#start");
+
 });
 
 //After main page is processed, hide loading message and change to the page
@@ -313,12 +320,13 @@ function show_sites(showBack) {
     var list = "<div data-role='collapsible-set'>";
     var sites = getsites();
     $.each(sites,function(a,b){
-        list += "<fieldset id='site-"+a+"' data-role='collapsible'>";
+        var c = a.replace(/ /g,"_");
+        list += "<fieldset id='site-"+c+"' data-role='collapsible'>";
         list += "<legend>"+a+"</legend>";
         list += "<a data-role='button' onclick='update_site(\""+a+"\")'>"+_("Connect Now")+"</a>";
-        list += "<label for='cip-"+a+"'>Change IP</label><input id='cip-"+a+"' type='text' value='"+b["os_ip"]+"' />";
-        list += "<label for='cpw-"+a+"'>Change Password</label><input id='cpw-"+a+"' type='password' />";
-        list += "<a data-role='button' onclick='change_site(\""+a+"\")'>"+_("Save Changes to")+" "+a+"</a>";
+        list += "<label for='cip-"+c+"'>Change IP</label><input id='cip-"+c+"' type='text' value='"+b["os_ip"]+"' />";
+        list += "<label for='cpw-"+c+"'>Change Password</label><input id='cpw-"+c+"' type='password' />";
+        list += "<a data-role='button' onclick='change_site(\""+c+"\")'>"+_("Save Changes to")+" "+a+"</a>";
         list += "<a data-role='button' onclick='delete_site(\""+a+"\")' data-theme='b'>"+_("Delete")+" "+a+"</a>";
         list += "</fieldset>";
     })
@@ -345,6 +353,8 @@ function change_site(site) {
 
     var ip = $("#cip-"+site).val();
     var pw = $("#cpw-"+site).val();
+
+    site = site.replace(/_/g," ")
 
     if (ip != "") sites[site]["os_ip"] = ip;
     if (pw != "") sites[site]["os_pw"] = pw;
