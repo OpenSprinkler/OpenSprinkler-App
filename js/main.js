@@ -1033,7 +1033,7 @@ function get_runonce() {
     var list = "<p style='text-align:center'>"+_("Value is in minutes. Zero means the station will be excluded from the run-once program.")+"</p><div class='ui-field-contain'>",
         n = 0;
     $.each(window.device.stations.snames,function(i, station) {
-        list += "<label for='zone-"+n+"'>"+station+":</label><input type='number' data-highlight='true' data-type='range' name='zone-"+n+"' min='0' max='50' id='zone-"+n+"' value='0'>";
+        list += "<label for='zone-"+n+"'>"+station+":</label><input type='number' data-highlight='true' data-type='range' name='zone-"+n+"' min='0' max='240' id='zone-"+n+"' value='0'>";
         n++;
     })
     list += "</div><a class='ui-btn ui-corner-all ui-shadow' onclick='submit_runonce();'>"+_("Submit")+"</a><a class='ui-btn ui-btn-b ui-corner-all ui-shadow' onclick='reset_runonce();'>"+_("Reset")+"</a>";
