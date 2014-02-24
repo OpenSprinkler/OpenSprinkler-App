@@ -326,6 +326,9 @@ msgid ""
 "Unable to read the configuration file. Please check the file and try again."
 msgstr ""
 
+msgid "Sprinkler System"
+msgstr ""
+
 msgid "New Device"
 msgstr ""
 
