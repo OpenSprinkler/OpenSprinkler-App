@@ -1770,16 +1770,22 @@ function import_config(data) {
             i++;
         })
         $.when(
-            $.get("http://"+window.curr_ip+co).fail(comm_error),
-            $.get("http://"+window.curr_ip+cs).fail(comm_error),
-            $.get("http://"+window.curr_ip+"/dp?pw="+window.curr_pw+"&pid=-1").fail(comm_error),
+            $.get("http://"+window.curr_ip+co),
+            $.get("http://"+window.curr_ip+cs),
+            $.get("http://"+window.curr_ip+"/dp?pw="+window.curr_pw+"&pid=-1"),
             $.each(data.programs,function (i,prog) {
-                $.get("http://"+window.curr_ip+cp_start+"&pid=-1&v="+((typeof prog === "object") ? JSON.stringify(prog) : prog)).fail(comm_error);
+                $.get("http://"+window.curr_ip+cp_start+"&pid=-1&v="+((typeof prog === "object") ? JSON.stringify(prog) : prog));
             })
-        ).then(function(){
-            $.mobile.loading("hide");
-            showerror(_("Backup restored to your device"));
-        });
+        ).then(
+            function(){
+                $.mobile.loading("hide");
+                showerror(_("Backup restored to your device"));
+            },
+            function(){
+                $.mobile.loading("hide");
+                showerror(_("Unable to import configuration. Check device password and try again."));
+            }
+        );
     });
 }
 
