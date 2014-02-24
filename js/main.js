@@ -152,7 +152,8 @@ window.keyNames = {"tz":1,"ntp":2,"hp0":12,"hp1":13,"ar":14,"ext":15,"seq":16,"s
 function _(key) {
     //Translate item (key) based on currently defined language
     if (typeof window.language === "object" && window.language.hasOwnProperty(key)) {
-        return window.language[key];
+        var trans = window.language[key];
+        return trans ? trans : key;
     } else {
         //If English
         return key;
