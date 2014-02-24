@@ -1,15 +1,31 @@
 $(document).ready(function () {
+    //Update the language on the page using the browser's locale
+    update_lang(get_locale());
+
+    //If the app is running from a file (meaning PhoneGap) than handle unique events
     if (document.URL.indexOf("http://") === -1 && document.URL.indexOf("https://") === -1) {
         $(document).one("deviceready", function() {
             var win = $(window);
+            //If portrait mode (checked since plugin has a bug in landscape)
             if (win.height() > win.width()) {
+                //Change the status bar to match the headers
                 StatusBar.styleLightContent();
                 StatusBar.backgroundColorByHexString("#1C1C1C");
             }
-            update_lang(get_locale());
         });
     } else {
-        update_lang(get_locale());
+        //Insert the startup images for iOS
+        (function(){
+            var p, l, r = window.devicePixelRatio, h = window.screen.height;
+            if (navigator.platform === "iPad") {
+                    p = r === 2 ? "img/startup-tablet-portrait-retina.png" : "img/startup-tablet-portrait.png";
+                    l = r === 2 ? "img/startup-tablet-landscape-retina.png" : "img/startup-tablet-landscape.png";
+                    document.write('<link rel="apple-touch-startup-image" href="'+l+'" media="screen and (orientation: landscape)"><link rel="apple-touch-startup-image" href="'+p+'" media="screen and (orientation: portrait)">');
+            } else {
+                    p = r === 2 ? (h === 568 ? "img/startup-iphone5-retina.png" : "img/startup-retina.png") : "img/startup.png";
+                    document.write('<link rel="apple-touch-startup-image" href="'+p+'">');
+            }
+        })()
     }
 });
 
@@ -134,14 +150,17 @@ window.keyNames = {"tz":1,"ntp":2,"hp0":12,"hp1":13,"ar":14,"ext":15,"seq":16,"s
 
 //Localization functions
 function _(key) {
+    //Translate item (key) based on currently defined language
     if (typeof window.language === "object" && window.language.hasOwnProperty(key)) {
         return window.language[key];
     } else {
+        //If English
         return key;
     }
 }
 
 function set_lang() {
+    //Update all static elements to the current language
     $("[data-translate]").text(function () {
         return _($(this).data("translate"));
 
@@ -149,6 +168,7 @@ function set_lang() {
 };
 
 function get_locale() {
+    //Identify the current browser's locale
     var locale = "en";
     locale = navigator.language || navigator.browserLanguage || navigator.systemLanguage || navigator.userLanguage;
 
@@ -156,6 +176,7 @@ function get_locale() {
 }
 
 function update_lang(lang) {
+    //Empty out the current language (English is provided as the key)
     window.language = new Object;
 
     if (lang == "en") return set_lang();
@@ -165,19 +186,6 @@ function update_lang(lang) {
         set_lang();
     }).fail(set_lang);
 }
-
-//Insert the startup images for iOS
-(function(){
-    var p, l, r = window.devicePixelRatio, h = window.screen.height;
-    if (navigator.platform === "iPad") {
-            p = r === 2 ? "img/startup-tablet-portrait-retina.png" : "img/startup-tablet-portrait.png";
-            l = r === 2 ? "img/startup-tablet-landscape-retina.png" : "img/startup-tablet-landscape.png";
-            document.write('<link rel="apple-touch-startup-image" href="'+l+'" media="screen and (orientation: landscape)"><link rel="apple-touch-startup-image" href="'+p+'" media="screen and (orientation: portrait)">');
-    } else {
-            p = r === 2 ? (h === 568 ? "img/startup-iphone5-retina.png" : "img/startup-retina.png") : "img/startup.png";
-            document.write('<link rel="apple-touch-startup-image" href="'+p+'">');
-    }
-})()
 
 function newload() {
     $.mobile.loading("show");
