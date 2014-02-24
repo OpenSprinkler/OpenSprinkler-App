@@ -1,5 +1,5 @@
 $(document).ready(function () {
-    if (document.URL.indexOf("http://") === -1) {
+    if (document.URL.indexOf("http://") === -1 && document.URL.indexOf("https://") === -1) {
         $(document).one("deviceready", function() {
             var win = $(window);
             if (win.height() > win.width()) {
@@ -156,9 +156,10 @@ function get_locale() {
 }
 
 function update_lang(lang) {
+    window.language = new Object;
+
     if (lang == "en") return set_lang();
     
-    window.language = new Object;
     $.getJSON("locale/"+lang+".json",function(store){
         window.language = store.messages;
         set_lang();
