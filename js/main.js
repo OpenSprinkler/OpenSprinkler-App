@@ -1,5 +1,16 @@
-$(document).ready(function(){
-    update_lang(get_locale());
+$(document).ready(function () {
+    if (document.URL.indexOf("http://") === -1) {
+        update_lang(get_locale());
+    } else {
+        $(document).one("deviceready", function() {
+            var win = $(window);
+            if (win.height() > win.width()) {
+                StatusBar.styleLightContent();
+                StatusBar.backgroundColorByHexString("#1C1C1C");
+            }
+            update_lang(get_locale());
+        });
+    }
 });
 
 //After jQuery mobile is loaded set intial configuration
@@ -28,6 +39,43 @@ $(document).one("pagecreate","#sprinklers", function(){
     //Indicate loading is complete
     $.mobile.loading("hide");
 });
+
+$(document).on("pageshow",function(e,data){
+    var newpage = "#"+e.target.id;
+
+    // Render graph after the page is shown otherwise graphing function will fail
+    if (newpage == "#preview") {
+        get_preview();
+    }
+
+    // Bind all data-onclick events on current page to their associated function (removes 300ms delay)
+    bind_links(newpage);
+});
+
+$(document).on("pagebeforeshow",function(e,data){
+    var newpage = e.target.id;
+
+    //Remove lingering tooltip from preview page
+    $("#tooltip").remove();
+
+    //Remove any status timers that may be running
+    if (window.interval_id !== undefined) clearInterval(window.interval_id);
+    if (window.timeout_id !== undefined) clearTimeout(window.timeout_id);
+
+    if (newpage == "sprinklers") {
+        //Reset status bar to loading while an update is done
+        $("#footer-running").html("<p class='ui-icon ui-icon-loading mini-load'></p>");
+        setTimeout(function(){
+            update_device(check_status,function(){
+                $("#footer-running").slideUp();
+                comm_error();
+            })
+        },500);
+    } else {
+        var title = document.title;
+        document.title = "OpenSprinkler: "+title;
+    }
+})
 
 //Update the preview page on date change
 $("#preview_date").change(function(){
@@ -75,43 +123,6 @@ $("input[data-role='flipswitch']").change(function(){
         }
     }
 });
-
-$(document).on("pageshow",function(e,data){
-    var newpage = "#"+e.target.id;
-
-    // Render graph after the page is shown otherwise graphing function will fail
-    if (newpage == "#preview") {
-        get_preview();
-    }
-
-    // Bind all data-onclick events on current page to their associated function (removes 300ms delay)
-    bind_links(newpage);
-});
-
-$(document).on("pagebeforeshow",function(e,data){
-    var newpage = e.target.id;
-
-    //Remove lingering tooltip from preview page
-    $("#tooltip").remove();
-
-    //Remove any status timers that may be running
-    if (window.interval_id !== undefined) clearInterval(window.interval_id);
-    if (window.timeout_id !== undefined) clearTimeout(window.timeout_id);
-
-    if (newpage == "sprinklers") {
-        //Reset status bar to loading while an update is done
-        $("#footer-running").html("<p class='ui-icon ui-icon-loading mini-load'></p>");
-        setTimeout(function(){
-            update_device(check_status,function(){
-                $("#footer-running").slideUp();
-                comm_error();
-            })
-        },500);
-    } else {
-        var title = document.title;
-        document.title = "OpenSprinkler: "+title;
-    }
-})
 
 // Generic communication error message
 function comm_error() {
@@ -706,8 +717,8 @@ function update_weather() {
     var $weather = $("#weather");
     $("#weather").unbind("click");
     $weather.html("<p class='ui-icon ui-icon-loading mini-load'></p>");
-    $.getJSON("//query.yahooapis.com/v1/public/yql?q=select%20woeid%20from%20geo.placefinder%20where%20text=%22"+escape(window.device.settings.loc)+"%22&format=json",function(woeid){
-        $.getJSON("//query.yahooapis.com/v1/public/yql?q=select%20item%2Ctitle%2Clocation%20from%20weather.forecast%20where%20woeid%3D%22"+woeid.query.results.Result.woeid+"%22&format=json",function(data){
+    $.getJSON("http://query.yahooapis.com/v1/public/yql?q=select%20woeid%20from%20geo.placefinder%20where%20text=%22"+escape(window.device.settings.loc)+"%22&format=json",function(woeid){
+        $.getJSON("http://query.yahooapis.com/v1/public/yql?q=select%20item%2Ctitle%2Clocation%20from%20weather.forecast%20where%20woeid%3D%22"+woeid.query.results.Result.woeid+"%22&format=json",function(data){
             // Hide the weather if no data is returned
             if (data.query.results.channel.item.title == "City not found") {
                 $("#weather-list").animate({ 
