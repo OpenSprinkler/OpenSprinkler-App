@@ -133,13 +133,12 @@ $("#mm,#mmm").change(function(){
         changedTo = $(this).is(":checked"),
         defer;
 
-    //Unhighlight all of the manual zones highlighted in green since all will be disabled automatically
-    $("#manual a.green").removeClass("green");
-
     if (changedTo) {
         defer = $.get("http://"+window.curr_ip+"/cv?pw="+window.curr_pw+"&mm=1");
     } else {
-        defer = $.get("http://"+window.curr_ip+"/cv?pw="+window.curr_pw+"&mm=0");
+        defer = $.get("http://"+window.curr_ip+"/cv?pw="+window.curr_pw+"&mm=0").done(function(){
+            $("#manual a.green").removeClass("green");
+        });
     }
 
     $.when(defer).fail(function(){
@@ -537,15 +536,15 @@ $.ajaxSetup({
 //Handle timeout
 $(document).ajaxError(function(x,t,m) {
     if(t.status==401) {
-        showerror(_("Check device password and try again."));
-    } else if (t.status==0) {
         // Check if a station is being changed but manual mode is off
         if (/https?:\/\/[\d|.]+\/sn\d.*/.exec(m.url)) {
-            showerror(_("Manual mode is not enabled. Please enable manual mode then try again."))
+            showerror(_("Manual mode is not enabled. Please enable manual mode then try again."));
         } else {
-            // Ajax fails typically because the password is wrong
             showerror(_("Check device password and try again."));
         }
+    } else if (t.status==0) {
+        // Ajax fails typically because the password is wrong
+        showerror(_("Check device password and try again."));
     }
     if(t.statusText==="timeout") {
         if (m.url.search("yahooapis.com")) {
@@ -671,8 +670,8 @@ function check_status() {
             if (tmp > ptotal) ptotal = tmp;
         });
 
-        var sample = open[0],
-            pid    = window.device.settings.ps[sample][0],
+        for (var sample in open) break;
+        var pid    = window.device.settings.ps[sample][0],
             pname  = pidname(pid),
             line   = "<img id='running-icon' width='11px' height='11px' src='img/running.png' /><p id='running-text'>";
 
