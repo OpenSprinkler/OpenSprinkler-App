@@ -45,7 +45,7 @@ $(document).ready(function () {
 $(document).one("mobileinit", function(e){
     $.mobile.defaultPageTransition = 'fade';
     $.mobile.hashListeningEnabled = false;
-    $("#addnew, #site-select, #scanresults").enhanceWithin().popup();
+    $("#addnew, #site-select").enhanceWithin().popup();
     $("body").show();
 });
 
@@ -400,7 +400,7 @@ function site_select(names) {
     })
 
     list.html(newlist);
-    $("#site-select").popup("open");
+    open_popup("#site-select");
 }
 
 function update_site_list(names) {
@@ -432,6 +432,7 @@ function getsites() {
     return sites;
 }
 
+// Automatic device detection functions
 function start_scan() {
     $.mobile.loading("show");
 
@@ -459,23 +460,23 @@ function start_scan() {
 
             $.mobile.loading("hide");
 
-            var list = $("#scanresults-list");
+            var list = $("#site-select-list");
             var newlist = "";
             $.each(window.devicesfound,function(a,b){
                 newlist += "<li><a class='ui-btn ui-btn-icon-right ui-icon-carat-r' href='javascript:add_found(\""+b[0]+"\");'>"+b[0]+"<p>"+_("Firmware")+": "+(b[1]/100>>0)+"."+((b[1]/10>>0)%10)+"."+(b[1]%10)+"</p></a></li>"
             })
 
             list.html(newlist);
-            $("#scanresults").popup("open");
+            open_popup("#site-select");
         });
-
     };
 }
 
 function add_found(ip) {
-    $("#scanresults").popup("close");
     $("#os_ip").val(ip);
-    $("#addnew").popup("open");
+    $("#site-select").one("popupafterclose", function(){
+        open_popup("#addnew");
+    }).popup("close");
 }
 
 // show error message
@@ -888,6 +889,7 @@ function open_popup(id) {
         $(this).popup("reposition", {
             "positionTo": "window"
         });
+        if (id == "#addnew") $("#os_name").focus();
     }).popup().enhanceWithin().popup("open");
 }
 
