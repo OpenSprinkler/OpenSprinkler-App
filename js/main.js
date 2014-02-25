@@ -9,6 +9,7 @@ $(document).ready(function () {
             //If portrait mode (checked since plugin has a bug in landscape)
             if (win.height() > win.width()) {
                 //Change the status bar to match the headers
+                StatusBar.overlaysWebView(false);
                 StatusBar.styleLightContent();
                 StatusBar.backgroundColorByHexString("#1C1C1C");
             }
@@ -321,6 +322,7 @@ function submit_newuser() {
         $.mobile.loading("hide");
         if (data.en !== undefined) {
             var name = $("#os_name").val();
+            if (name === "") name = "Site "+(Object.keys(sites).length+1)
             sites[name] = window.curr_name = new Object();
             sites[name]["os_ip"] = window.curr_ip = $("#os_ip").val()
             sites[name]["os_pw"] = window.curr_pw = $("#os_pw").val()
@@ -438,13 +440,16 @@ function start_scan() {
     var ip = window.deviceip.split("."),
         defer;
 
+    window.devicesfound = new Array;
+
     ip.pop();
     baseip = ip.join(".");
 
     // Start scan
     for (var i = 1; i<=244; i++) {
-        var ip = baseip+"."+i;
-        var url = "http://"+ip+"/jo";
+        var ip = baseip+"."+i,
+            url = "http://"+ip+"/jo",
+            started = false;
         $.ajax({
             url: url,
             type: "GET",
@@ -457,16 +462,17 @@ function start_scan() {
             
             window.devicesfound.push(device);
 
-            $.mobile.loading("hide");
-
             var list = $("#site-select-list");
-            var newlist = "";
-            $.each(window.devicesfound,function(a,b){
-                newlist += "<li><a class='ui-btn ui-btn-icon-right ui-icon-carat-r' href='javascript:add_found(\""+b[0]+"\");'>"+b[0]+"<p>"+_("Firmware")+": "+(b[1]/100>>0)+"."+((b[1]/10>>0)%10)+"."+(b[1]%10)+"</p></a></li>"
-            })
+            var item = "<li><a class='ui-btn ui-btn-icon-right ui-icon-carat-r' href='javascript:add_found(\""+ip+"\");'>"+ip+"<p>"+_("Firmware")+": "+(reply.fwv/100>>0)+"."+((reply.fwv/10>>0)%10)+"."+(reply.fwv%10)+"</p></a></li>"
 
-            list.html(newlist);
-            open_popup("#site-select");
+            if (!started) {
+                $.mobile.loading("hide");                
+                list.html(item);
+                open_popup("#site-select");
+                started = true;
+            } else {
+                list.append(item)
+            }
         });
     };
 }
