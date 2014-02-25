@@ -17,9 +17,9 @@
         <div data-role="page" id="start">
             <ul data-role="none" id="welcome_list" class="ui-listview ui-listview-inset ui-corner-all">
                 <img src="img/logo.png" id="welcome_logo" />
-                <li class="ui-li-static ui-body-inherit ui-first-child ui-last-child" style="margin-bottom: 10px"><p class="rain-desc" data-translate="Welcome to the OpenSprinkler mobile application. Select automatic for network scanning and detection of OpenSprinkler on your local network. Otherwise, select manual if you know your device information."></p></li>
-                <li class="ui-first-child"><a class="ui-btn ui-btn-icon-right ui-icon-carat-r" href="#" data-onclick="start_scan();" data-translate="Automatic"></a></li>
-                <li class="ui-last-child"><a class="ui-btn ui-btn-icon-right ui-icon-carat-r" href="#" data-onclick="open_popup('#addnew');" data-translate="Manual"></a></li>
+                <li class="ui-li-static ui-body-inherit ui-first-child ui-last-child" style="margin-bottom: 10px"><p class="rain-desc" data-translate="Welcome to the OpenSprinkler mobile application. This app only works with the OpenSprinkler controller which must be installed and setup on your home network."></p><a class="ui-btn ui-mini" style="text-align:center" href="#" data-onclick="window.open('http://rayshobby.net/cart/opensprinkler','_blank');" data-translate="Purchase OpenSprinkler"></a></li>
+                <li id="auto-scan" class="ui-first-child"><a class="ui-btn ui-btn-icon-right ui-icon-carat-r" href="#" data-onclick="start_scan();" data-translate="Automatic"></a></li>
+                <li class="ui-first-child ui-last-child"><a class="ui-btn ui-btn-icon-right ui-icon-carat-r" href="#" data-onclick="open_popup('#addnew');" data-translate="Add Controller"></a></li>
             </ul>
         </div>
 

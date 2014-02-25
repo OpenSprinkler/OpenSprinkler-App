@@ -12,6 +12,17 @@ $(document).ready(function () {
                 StatusBar.styleLightContent();
                 StatusBar.backgroundColorByHexString("#1C1C1C");
             }
+
+            networkinterface.getIPAddress(function(ip){
+                //Change main menu items to reflect ability to automatically scan
+                var auto = $("#auto-scan"),
+                    next = auto.next();
+
+                next.removeClass("ui-first-child").find("a.ui-btn").text(_("Manual"));
+                auto.show();
+
+                window.deviceip = ip;
+            })
         });
     } else {
         //Insert the startup images for iOS
