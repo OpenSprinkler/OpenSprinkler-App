@@ -22,6 +22,7 @@ $(document).ready(function () {
                 auto.show();
 
                 window.deviceip = ip;
+                window.devicesfound = new Array;
             })
         });
     } else {
@@ -419,7 +420,27 @@ function getsites() {
 }
 
 function start_scan() {
-    showerror("Coming soon...");
+    var ip = window.deviceip.split(".");
+    ip.pop();
+    ip = ip.join(".");
+
+    for (var i = 1; i<=244; i++) {
+        console.log(ip+"."+i)
+        probe_ip(ip+"."+i);
+    };
+}
+
+function probe_ip(ip) {
+    var url = "http://"+ip+"/jc";
+    $.ajax({
+        url: url,
+        type: "GET",
+        dataType: "json",
+        timeout: 1000,
+        success: function() {
+            window.devicesfound.push(ip);
+        }
+    })
 }
 
 // show error message
