@@ -124,40 +124,53 @@ $("#site-selector").change(function(){
     location.reload();
 });
 
-//Bind changes to the flip switches
-$("input[data-role='flipswitch']").change(function(){
-    var slide = $(this);
-    var type = this.name;
-    var pageid = $("body").pagecontainer("getActivePage").attr("id");
+var mmSwitching = false
+$("#mm,#mmm").change(function(){
+    if (mmSwitching) return;
 
     //Find out what the switch was changed to
-    var changedTo = slide.is(":checked");
+    var slide = $(this),
+        changedTo = $(this).is(":checked"),
+        defer;
 
-    //If changed to on
+    //Unhighlight all of the manual zones highlighted in green since all will be disabled automatically
+    $("#manual a.green").removeClass("green");
+
     if (changedTo) {
-        //OpenSprinkler Operation
-        if (type === "en") {
-            $.get("http://"+window.curr_ip+"/cv?pw="+window.curr_pw+"&en=1");
-        }
-        //Manual mode, manual mode and settings page
-        if (type === "mm" || type === "mmm") {
-            $.get("http://"+window.curr_ip+"/cv?pw="+window.curr_pw+"&mm=1");
-            //If switched to off, unhighlight all of the zones highlighted in green since all will be disabled automatically
-            $("#manual a.green").removeClass("green");
-            $("#mm,#mmm").prop("checked",true).flipswitch("refresh");
-        }
+        defer = $.get("http://"+window.curr_ip+"/cv?pw="+window.curr_pw+"&mm=1");
     } else {
-        if (type === "en") {
-            $.get("http://"+window.curr_ip+"/cv?pw="+window.curr_pw+"&en=0");
-        }
-        if (type === "mm" || type === "mmm") {
-            $.get("http://"+window.curr_ip+"/cv?pw="+window.curr_pw+"&mm=0");
-            //If switched to off, unhighlight all of the manual zones highlighted in green since all will be disabled automatically
-            $("#manual a.green").removeClass("green");
-            $("#mm,#mmm").prop("checked",false).flipswitch("refresh")
-        }
+        defer = $.get("http://"+window.curr_ip+"/cv?pw="+window.curr_pw+"&mm=0");
     }
-});
+
+    $.when(defer).fail(function(){
+        mmSwitching = true;
+        setTimeout(function(){
+            mmSwitching = false;
+        },200);
+        slide.prop("checked",!changedTo).flipswitch("refresh");
+    })    
+})
+
+var enSwitching = false;
+$("#en").change(function(){
+    if (enSwitching) return;
+    var changedTo = $(this).is(":checked"),
+        defer;
+
+    if (changedTo) {
+            defer = $.get("http://"+window.curr_ip+"/cv?pw="+window.curr_pw+"&en=1");
+    } else {
+            defer = $.get("http://"+window.curr_ip+"/cv?pw="+window.curr_pw+"&en=0");
+    }
+
+    $.when(defer).fail(function(){
+        enSwitching = true;
+        setTimeout(function(){
+            enSwitching = false;
+        },200);
+        $("#en").prop("checked",!changedTo).flipswitch("refresh");
+    })
+})
 
 // Generic communication error message
 function comm_error() {
@@ -423,7 +436,7 @@ function start_scan() {
     $.mobile.loading("show");
 
     var ip = window.deviceip.split("."),
-        defers = [], defer;
+        defer;
 
     ip.pop();
     baseip = ip.join(".");
@@ -432,35 +445,37 @@ function start_scan() {
     for (var i = 1; i<=244; i++) {
         var ip = baseip+"."+i;
         var url = "http://"+ip+"/jo";
-        defer = $.ajax({
+        $.ajax({
             url: url,
             type: "GET",
             dataType: "json",
             timeout: 1000,
-            success: function(reply) {
-                var ip = this.url.split("/")[2],
-                    device = [ip,reply.fmv];
-                window.devicesfound.push(device);
-            }
-        })
-        defers.push(defer);
+            global: false
+        }).done(function (reply) {
+            var ip = this.url.split("/")[2],
+                device = [ip,reply.fwv];
+            
+            window.devicesfound.push(device);
+
+            $.mobile.loading("hide");
+
+            var list = $("#scanresults-list");
+            var newlist = "";
+            $.each(window.devicesfound,function(a,b){
+                newlist += "<li><a class='ui-btn ui-btn-icon-right ui-icon-carat-r' href='javascript:add_found(\""+b[0]+"\");'>"+b[0]+"<p>"+_("Firmware")+": "+(b[1]/100>>0)+"."+((b[1]/10>>0)%10)+"."+(b[1]%10)+"</p></a></li>"
+            })
+
+            list.html(newlist);
+            $("#scanresults").popup("open");
+        });
+
     };
+}
 
-    $.when.apply(this, defers).always(function(){
-        // Scan complete
-        $.mobile.loading("hide");
-
-        var list = $("#scanresults-list");
-        var newlist = "";
-        $.each(window.devicesfound,function(a,device){
-            console.log(device)
-            newlist += "<li><a class='ui-btn ui-btn-icon-right ui-icon-carat-r' href='javascript:add_found(\""+b[0]+"\");'>"+b[0]+"</a><span class='ui-li-count'>FW: "+b[1]+"</span></li>"
-        })
-
-        list.html(newlist);
-        $("#scanresults").popup("open");
-
-    });
+function add_found(ip) {
+    $("#scanresults").popup("close");
+    $("#os_ip").val(ip);
+    $("#addnew").popup("open");
 }
 
 // show error message
@@ -521,7 +536,15 @@ $.ajaxSetup({
 //Handle timeout
 $(document).ajaxError(function(x,t,m) {
     if(t.status==401) {
-      //  location.reload();
+        showerror(_("Check device password and try again."));
+    } else if (t.status==0) {
+        // Check if a station is being changed but manual mode is off
+        if (/https?:\/\/[\d|.]+\/sn\d.*/.exec(m.url)) {
+            showerror(_("Manual mode is not enabled. Please enable manual mode then try again."))
+        } else {
+            // Ajax fails typically because the password is wrong
+            showerror(_("Check device password and try again."));
+        }
     }
     if(t.statusText==="timeout") {
         if (m.url.search("yahooapis.com")) {
