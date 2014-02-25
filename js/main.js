@@ -471,7 +471,8 @@ function start_scan() {
                 open_popup("#site-select");
                 started = true;
             } else {
-                list.append(item)
+                list.append(item);
+                $("#site-select").popup("reposition", {positionTo: 'window'});
             }
         });
     };
