@@ -45,7 +45,7 @@ $(document).ready(function () {
 $(document).one("mobileinit", function(e){
     $.mobile.defaultPageTransition = 'fade';
     $.mobile.hashListeningEnabled = false;
-    $("#addnew, #site-select").enhanceWithin().popup();
+    $("#addnew, #site-select, #scanresults").enhanceWithin().popup();
     $("body").show();
 });
 
@@ -420,27 +420,47 @@ function getsites() {
 }
 
 function start_scan() {
-    var ip = window.deviceip.split(".");
+    $.mobile.loading("show");
+
+    var ip = window.deviceip.split("."),
+        defers = [], defer;
+
     ip.pop();
-    ip = ip.join(".");
+    baseip = ip.join(".");
 
+    // Start scan
     for (var i = 1; i<=244; i++) {
-        console.log(ip+"."+i)
-        probe_ip(ip+"."+i);
+        var ip = baseip+"."+i;
+        var url = "http://"+ip+"/jo";
+        defer = $.ajax({
+            url: url,
+            type: "GET",
+            dataType: "json",
+            timeout: 1000,
+            success: function(reply) {
+                var ip = this.url.split("/")[2],
+                    device = [ip,reply.fmv];
+                window.devicesfound.push(device);
+            }
+        })
+        defers.push(defer);
     };
-}
 
-function probe_ip(ip) {
-    var url = "http://"+ip+"/jc";
-    $.ajax({
-        url: url,
-        type: "GET",
-        dataType: "json",
-        timeout: 1000,
-        success: function() {
-            window.devicesfound.push(ip);
-        }
-    })
+    $.when.apply(this, defers).always(function(){
+        // Scan complete
+        $.mobile.loading("hide");
+
+        var list = $("#scanresults-list");
+        var newlist = "";
+        $.each(window.devicesfound,function(a,device){
+            console.log(device)
+            newlist += "<li><a class='ui-btn ui-btn-icon-right ui-icon-carat-r' href='javascript:add_found(\""+b[0]+"\");'>"+b[0]+"</a><span class='ui-li-count'>FW: "+b[1]+"</span></li>"
+        })
+
+        list.html(newlist);
+        $("#scanresults").popup("open");
+
+    });
 }
 
 // show error message
@@ -501,7 +521,7 @@ $.ajaxSetup({
 //Handle timeout
 $(document).ajaxError(function(x,t,m) {
     if(t.status==401) {
-        location.reload();
+      //  location.reload();
     }
     if(t.statusText==="timeout") {
         if (m.url.search("yahooapis.com")) {
