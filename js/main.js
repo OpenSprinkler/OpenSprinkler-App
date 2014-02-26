@@ -24,6 +24,7 @@ $(document).ready(function () {
 
                 window.deviceip = ip;
                 window.devicesfound = new Array;
+                window.scanprogress = 1;
             })
         });
     } else {
@@ -440,6 +441,7 @@ function start_scan() {
     var ip = window.deviceip.split("."),
         defer;
 
+    window.scanprogress = 1;
     window.devicesfound = new Array;
 
     ip.pop();
@@ -454,9 +456,12 @@ function start_scan() {
             url: url,
             type: "GET",
             dataType: "json",
-            timeout: 1000,
+            timeout: 3000,
             global: false
+        }).fail(function(){
+            window.scanprogress++;
         }).done(function (reply) {
+            window.scanprogress++;
             var ip = this.url.split("/")[2],
                 device = [ip,reply.fwv];
             
@@ -476,6 +481,16 @@ function start_scan() {
             }
         });
     };
+    window.scanning = setInterval(check_scan_status,200);
+}
+
+function check_scan_status() {
+    if (window.scanprogress == 245) {
+        clearInterval(window.scanning);
+        if (!window.devicesfound.length) {
+            showerror(_("No devices were detected on your network."));
+        }
+    }
 }
 
 function add_found(ip) {
