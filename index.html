@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 	<head>
-    	<title data-translate="Sprinkler System"></title> 
+    	<title data-translate="Sprinkler System"></title>
     	<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
         <meta name="viewport" content="initial-scale=1.0,user-scalable=no,maximum-scale=1" media="(device-height: 568px)" />
     	<meta content="yes" name="apple-mobile-web-app-capable">
@@ -16,7 +16,7 @@
     <body style="display:none">
         <div data-role="page" id="start">
             <ul data-role="none" id="welcome_list" class="ui-listview ui-listview-inset ui-corner-all">
-                <img src="img/logo.png" id="welcome_logo" />
+                <li><img src="img/logo.png" id="welcome_logo" /></li>
                 <li class="ui-li-static ui-body-inherit ui-first-child ui-last-child" style="margin-bottom: 10px"><p class="rain-desc" data-translate="Welcome to the OpenSprinkler mobile application. This app only works with the OpenSprinkler controller which must be installed and setup on your home network."></p><a class="ui-btn ui-mini" style="text-align:center" href="#" data-onclick="window.open('http://rayshobby.net/cart/opensprinkler','_blank');" data-translate="Purchase OpenSprinkler"></a></li>
                 <li id="auto-scan" class="ui-first-child"><a class="ui-btn ui-btn-icon-right ui-icon-carat-r" href="#" data-onclick="start_scan();" data-translate="Automatic"></a></li>
                 <li class="ui-first-child ui-last-child"><a class="ui-btn ui-btn-icon-right ui-icon-carat-r" href="#" data-onclick="open_popup('#addnew');" data-translate="Add Controller"></a></li>
@@ -55,7 +55,7 @@
             <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false">
                 <a data-icon="bars" data-iconpos="notext" href="#sprinklers-settings"></a>
                 <a data-icon="gear" data-iconpos="notext" href="#settings" data-translate="Settings"></a>
-                <h3 style="padding:0"><img height="40px" width="159px" src="img/logo.png" /></h3>
+                <h3 style="padding:0"><img height="40" width="159" src="img/logo.png" /></h3>
             </div>
             <div class="ui-content" role="main" style="padding-top:0px">
                 <div id="footer-running">
@@ -100,7 +100,7 @@
                     </li>
                     <li data-icon="gear"><a href="#" data-onclick="changeFromPanel(show_sites);" data-translate="Manage Sites"></a></li>
                     <li data-icon="action"><a href="#" data-onclick="export_config();" data-translate="Export Configuration"></a><a href="#" data-onclick="export_config(1);"></a></li>
-                    <li data-icon="cloud"><a href="#" data-onclick="import_config();" data-translate="Import Configuration"></a></a><a href="#" data-onclick="getConfigFile()"></a></li>
+                    <li data-icon="cloud"><a href="#" data-onclick="import_config();" data-translate="Import Configuration"></a><a href="#" data-onclick="getConfigFile()"></a></li>
                     <li data-icon="info"><a href="#" data-onclick="changeFromPanel(show_about);" data-translate="About"></a></li>
                 </ul>
                 <input type="file" id="configInput" data-role="none" onchange="handleConfig(this.files)" style="visibility:hidden;position:absolute;top:-50;left:-50"/>
@@ -208,7 +208,7 @@
                     <li data-icon="gear"><a href="#" data-onclick="show_sites();" data-translate="Manage Sites"></a></li>
                 </ul>
             </div>
-            <div data-role="popup" data-overlay-theme="b" id="localization" data-overlay-theme="b">
+            <div data-role="popup" data-overlay-theme="b" id="localization">
                     <ul data-inset='true' data-role='listview' id='lang'>
                         <li data-role='list-divider' data-theme='b' data-translate="Localization"></li>
                         <li><a href='#' data-onclick="update_lang('en');">English</a></li>
@@ -298,7 +298,7 @@
                     <div data-role="collapsible" data-collapsed="false">
                         <h3>Donate</h3>
                             <p style="text-align:center;overflow: visible;white-space: normal;">This app has been developed by Samer Albahra. If you enjoy it please donate by clicking the button below.</p>
-                            <form style='text-align:center' action="javascript:window.open('https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=89M484QR2TCFJ','_blank')" method="post">
+                            <form style='text-align:center' action="javascript:window.open('https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&amp;hosted_button_id=89M484QR2TCFJ','_blank')" method="post">
                                 <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
                                 <img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
                             </form>
