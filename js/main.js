@@ -3,7 +3,7 @@ $(document).ready(function () {
     update_lang(get_locale());
 
     //If the app is running from a file (meaning PhoneGap) than handle unique events
-    if (document.URL.indexOf("http://") === -1 && document.URL.indexOf("https://") === -1) {
+    if (window.cordova) {
         $(document).one("deviceready", function() {
             var win = $(window);
             //If portrait mode (checked since plugin has a bug in landscape)
@@ -228,11 +228,11 @@ function newload() {
     $.mobile.loading("show");
 
     //Create object which will store device data
-    window.device = new Object;
+    window.controller = new Object;
     update_device(
         function(){
-            if (window.device.settings.en == "1") $("#en").prop("checked",true);
-            if (window.device.settings.mm == "1") $("#mm,#mmm").prop("checked",true);
+            if (window.controller.settings.en == "1") $("#en").prop("checked",true);
+            if (window.controller.settings.mm == "1") $("#mm,#mmm").prop("checked",true);
             update_weather();
             changePage("#sprinklers");
         },
@@ -255,19 +255,19 @@ function update_device(callback,fail) {
 
     $.when(
         $.getJSON("http://"+window.curr_ip+"/jp",function(programs){
-            window.device.programs = programs;
+            window.controller.programs = programs;
         }),
         $.getJSON("http://"+window.curr_ip+"/jn",function(stations){
-            window.device.stations = stations;
+            window.controller.stations = stations;
         }),
         $.getJSON("http://"+window.curr_ip+"/jo",function(options){
-            window.device.options = options;
+            window.controller.options = options;
         }),
         $.getJSON("http://"+window.curr_ip+"/js",function(status){
-            window.device.status = status.sn;
+            window.controller.status = status.sn;
         }),
         $.getJSON("http://"+window.curr_ip+"/jc",function(settings){
-            window.device.settings = settings;
+            window.controller.settings = settings;
         })
     ).then(callback,fail);
 }
@@ -527,7 +527,7 @@ function update_weather() {
     var $weather = $("#weather");
     $("#weather").unbind("click");
     $weather.html("<p class='ui-icon ui-icon-loading mini-load'></p>");
-    $.getJSON("http://query.yahooapis.com/v1/public/yql?q=select%20woeid%20from%20geo.placefinder%20where%20text=%22"+escape(window.device.settings.loc)+"%22&format=json",function(woeid){
+    $.getJSON("http://query.yahooapis.com/v1/public/yql?q=select%20woeid%20from%20geo.placefinder%20where%20text=%22"+escape(window.controller.settings.loc)+"%22&format=json",function(woeid){
         $.getJSON("http://query.yahooapis.com/v1/public/yql?q=select%20item%2Ctitle%2Clocation%20from%20weather.forecast%20where%20woeid%3D%22"+woeid.query.results.Result.woeid+"%22&format=json",function(data){
             // Hide the weather if no data is returned
             if (data.query.results.channel.item.title == "City not found") {
@@ -584,7 +584,7 @@ function show_settings() {
     var list = new Object
     list.start = "<li><div class='ui-field-contain'><fieldset>";
 
-    $.each(window.device.options,function(key,data) {
+    $.each(window.controller.options,function(key,data) {
         switch (key) {
             case "tz":
                 var timezones = ["-12:00","-11:30","-11:00","-10:00","-09:30","-09:00","-08:30","-08:00","-07:00","-06:00","-05:00","-04:30","-04:00","-03:30","-03:00","-02:30","-02:00","+00:00","+01:00","+02:00","+03:00","+03:30","+04:00","+04:30","+05:00","+05:30","+05:45","+06:00","+06:30","+07:00","+08:00","+08:45","+09:00","+09:30","+10:00","+10:30","+11:00","+11:30","+12:00","+12:45","+13:00","+13:45","+14:00"];
@@ -600,7 +600,7 @@ function show_settings() {
                 list.ntp = "<input data-mini='true' id='o2' type='checkbox' "+((data == "1") ? "checked='checked'" : "")+" /><label for='o2'>"+_("NTP Sync")+"</label>";
                 return true;
             case "hp0":
-                var http = window.device.options.hp1*256+data;
+                var http = window.controller.options.hp1*256+data;
                 list.http = "<label for='o12'>"+_("HTTP Port (restart required)")+"</label><input data-mini='true' type='number' pattern='[0-9]*' id='o12' value='"+http+"' />";
                 return true;
             case "devid":
@@ -621,7 +621,7 @@ function show_settings() {
             case "mas":
                 list.mas = "<label for='o18' class='select'>"+_("Master Station")+"</label><select data-mini='true' id='o18'><option value='0'>None</option>";
                 var i = 1;
-                $.each(window.device.stations,function(i, station) {
+                $.each(window.controller.stations,function(i, station) {
                     list.mas += "<option "+((i == data) ? "selected" : "")+" value='"+i+"'>"+station+"</option>";
                     if (i == 8) return false;
                     i++;
@@ -648,7 +648,7 @@ function show_settings() {
                 return true;
         }
     });
-    list.loc = "<label for='loc'>Location</label><input data-mini='true' type='text' id='loc' value='"+window.device.settings.loc+"' />";
+    list.loc = "<label for='loc'>Location</label><input data-mini='true' type='text' id='loc' value='"+window.controller.settings.loc+"' />";
     list.end = "</fieldset></div></li>";
 
     var str = list.start + list.tz + list.mas + list.http + list.devid + list.loc + list.ext + list.sdt + list.mton + list.mtof + list.wl + list.ntp + list.ar + list.seq + list.urs + list.rso + list.ipas + list.end;
@@ -696,17 +696,17 @@ function submit_settings() {
 // Station managament function
 function show_stations() {
     var list = "<li>",
-        isMaster = window.device.settings.mas;
+        isMaster = window.controller.settings.mas;
     if (isMaster) list += "<table><tr><th>"+_("Station Name")+"</th><th>"+_("Activate Master?")+"</th></tr>";
     $i = 0;
-    $.each(window.device.stations.snames,function(i, station) {
+    $.each(window.controller.stations.snames,function(i, station) {
         if (isMaster) list += "<tr><td>";
         list += "<input data-mini='true' id='edit_station_"+i+"' type='text' value='"+station+"' />";
         if (isMaster) {
-            if (window.device.settings.mas == i+1) {
+            if (window.controller.settings.mas == i+1) {
                 list += "</td><td class='use_master'><p id='um_"+i+"' style='text-align:center'>("+_("Master")+")</p></td></tr>";
             } else {
-                list += "</td><td data-role='controlgroup' data-type='horizontal' class='use_master'><input id='um_"+i+"' type='checkbox' "+((window.device.stations.masop[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+" /><label for='um_"+i+"'></label></td></tr>";
+                list += "</td><td data-role='controlgroup' data-type='horizontal' class='use_master'><input id='um_"+i+"' type='checkbox' "+((window.controller.stations.masop[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+" /><label for='um_"+i+"'></label></td></tr>";
             }
         }
         i++;
@@ -764,32 +764,32 @@ function get_status() {
         allPnames = new Array;
 
     var list = "",
-        tz = window.device.options.tz-48;
+        tz = window.controller.options.tz-48;
 
     tz = ((tz>=0)?"+":"-")+pad((Math.abs(tz)/4>>0))+":"+((Math.abs(tz)%4)*15/10>>0)+((Math.abs(tz)%4)*15%10);
     
-    var header = "<span id='clock-s' class='nobr'>"+(new Date(window.device.settings.devt*1000).toUTCString().slice(0,-4))+"</span> GMT "+tz;
+    var header = "<span id='clock-s' class='nobr'>"+(new Date(window.controller.settings.devt*1000).toUTCString().slice(0,-4))+"</span> GMT "+tz;
 
-    runningTotal.c = window.device.settings.devt;
+    runningTotal.c = window.controller.settings.devt;
 
-    var master = window.device.settings.mas,
+    var master = window.controller.settings.mas,
         i = 0,
         ptotal = 0;
 
     var open = new Object;
-    $.each(window.device.status, function (i, stn) {
+    $.each(window.controller.status, function (i, stn) {
         if (stn) open[i] = stn;
     });
     open = Object.keys(open).length;
 
-    if (master && window.device.status[master-1]) open--;
+    if (master && window.controller.status[master-1]) open--;
 
-    $.each(window.device.stations.snames,function(i, station) {
+    $.each(window.controller.stations.snames,function(i, station) {
         var info = "";
         if (master == i+1) {
             station += " ("+_("Master")+")";
-        } else if (window.device.settings.ps[i][0]) {
-            var rem=window.device.settings.ps[i][1];
+        } else if (window.controller.settings.ps[i][0]) {
+            var rem=window.controller.settings.ps[i][1];
             if (open > 1) {
                 if (rem > ptotal) ptotal = rem;
             } else {
@@ -797,15 +797,15 @@ function get_status() {
             }
             remm=rem/60>>0;
             rems=rem%60;
-            var pid = window.device.settings.ps[i][0],
+            var pid = window.controller.settings.ps[i][0],
                 pname = pidname(pid);
-            if (window.device.status[i] && (pid!=255&&pid!=99)) runningTotal[i] = rem;
+            if (window.controller.status[i] && (pid!=255&&pid!=99)) runningTotal[i] = rem;
             allPnames[i] = pname;
-            info = "<p class='rem'>"+((window.device.status[i]) ? _("Running") : _("Scheduled"))+" "+pname;
+            info = "<p class='rem'>"+((window.controller.status[i]) ? _("Running") : _("Scheduled"))+" "+pname;
             if (pid!=255&&pid!=99) info += " <span id='countdown-"+i+"' class='nobr'>("+(remm/10>>0)+(remm%10)+":"+(rems/10>>0)+(rems%10)+" "+_("remaining")+")</span>";
             info += "</p>";
         }
-        if (window.device.status[i]) {
+        if (window.controller.status[i]) {
             var color = "green";
         } else {
             var color = "red";
@@ -815,19 +815,19 @@ function get_status() {
     })
 
     var footer = "";
-    var lrdur = window.device.settings.lrun[2];
+    var lrdur = window.controller.settings.lrun[2];
 
     if (lrdur != 0) {
-        var lrpid = window.device.settings.lrun[1];
+        var lrpid = window.controller.settings.lrun[1];
         var pname= pidname(lrpid);
 
-        footer = '<p>'+pname+' '+_('last ran station')+' '+window.device.stations.snames[window.device.settings.lrun[0]]+' '+_('for')+' '+(lrdur/60>>0)+'m '+(lrdur%60)+'s on '+(new Date(window.device.settings.lrun[3]*1000).toUTCString().slice(0,-4))+'</p>';
+        footer = '<p>'+pname+' '+_('last ran station')+' '+window.controller.stations.snames[window.controller.settings.lrun[0]]+' '+_('for')+' '+(lrdur/60>>0)+'m '+(lrdur%60)+'s on '+(new Date(window.controller.settings.lrun[3]*1000).toUTCString().slice(0,-4))+'</p>';
     }
 
     if (ptotal) {
         scheduled = allPnames.length;
-        if (!open && scheduled) runningTotal.d = window.device.options["sdt"];
-        if (open == 1) ptotal += (scheduled-1)*window.device.options["sdt"];
+        if (!open && scheduled) runningTotal.d = window.controller.options["sdt"];
+        if (open == 1) ptotal += (scheduled-1)*window.controller.options["sdt"];
         allPnames = allPnames.getUnique();
         numProg = allPnames.length;
         allPnames = allPnames.join(" "+_("and")+" ");
@@ -851,7 +851,7 @@ function get_status() {
         delete window.totals.p;
         setTimeout(get_status,window.totals.d*1000);
     }
-    update_timers(window.device.options["sdt"]);
+    update_timers(window.controller.options["sdt"]);
 }
 
 // Actually change the status bar
@@ -865,65 +865,65 @@ function change_status(seconds,sdelay,color,line) {
 
 // Update status bar based on device status
 function check_status() {
-    if (!window.device.settings.en) {
-        change_status(0,window.device.options.sdt,"red","<p id='running-text' style='text-align:center'>"+_("System Disabled")+"</p>");
+    if (!window.controller.settings.en) {
+        change_status(0,window.controller.options.sdt,"red","<p id='running-text' style='text-align:center'>"+_("System Disabled")+"</p>");
         return;
     }
 
-    if (window.device.settings.rd) {
-        change_status(0,window.device.options.sdt,"red","<p id='running-text' style='text-align:center'>"+_("Rain delay until")+" "+(new Date(window.device.settings.rdst*1000).toUTCString().slice(0,-4))+"</p>");
+    if (window.controller.settings.rd) {
+        change_status(0,window.controller.options.sdt,"red","<p id='running-text' style='text-align:center'>"+_("Rain delay until")+" "+(new Date(window.controller.settings.rdst*1000).toUTCString().slice(0,-4))+"</p>");
         return;
     }
 
-    if (window.device.settings.urs && window.device.settings.rs) {
-        change_status(0,window.device.options.sdt,"red","<p id='running-text' style='text-align:center'>"+_("Rain detected")+"</p>");
+    if (window.controller.settings.urs && window.controller.settings.rs) {
+        change_status(0,window.controller.options.sdt,"red","<p id='running-text' style='text-align:center'>"+_("Rain detected")+"</p>");
         return;
     }
 
     // Handle open stations
     var open = new Object;
-    $.each(window.device.status, function (i, stn) {
+    $.each(window.controller.status, function (i, stn) {
         if (stn) open[i] = stn;
     });
 
-    if (window.device.settings.mas) {
-        open.splice(window.device.settings.mas-1,1);
+    if (window.controller.settings.mas) {
+        open.splice(window.controller.settings.mas-1,1);
     }
 
     // Handle more than 1 open station
     if (Object.keys(open).length >= 2) {
         var ptotal = 0;
         $.each(open,function (key, status){
-            var tmp = window.device.settings.ps[key][1];
+            var tmp = window.controller.settings.ps[key][1];
             if (tmp > ptotal) ptotal = tmp;
         });
 
         for (var sample in open) break;
-        var pid    = window.device.settings.ps[sample][0],
+        var pid    = window.controller.settings.ps[sample][0],
             pname  = pidname(pid),
             line   = "<img id='running-icon' width='11px' height='11px' src='img/running.png' /><p id='running-text'>";
 
         line += pname+" "+_("is running on")+" "+Object.keys(open).length+" "+_("stations")+" ";
         if (pid!=255&&pid!=99) line += "<span id='countdown' class='nobr'>("+sec2hms(ptotal)+" "+_("remaining")+")</span>";
         line += "</p>";
-        change_status(ptotal,window.device.options.sdt,"green",line);
+        change_status(ptotal,window.controller.options.sdt,"green",line);
         return;
     }
 
     // Handle a single station open
     var match = false,
         i = 0;
-    $.each(window.device.stations.snames,function (station,name){
+    $.each(window.controller.stations.snames,function (station,name){
         var info = "";
-        if (window.device.settings.ps[i][0] && window.device.status[i] && window.device.settings.mas != i+1) {
+        if (window.controller.settings.ps[i][0] && window.controller.status[i] && window.controller.settings.mas != i+1) {
             match = true
-            var pid = window.device.settings.ps[i][0],
+            var pid = window.controller.settings.ps[i][0],
                 pname = pidname(pid),
                 line = "<img id='running-icon' width='11px' height='11px' src='img/running.png' /><p id='running-text'>";
             line += pname+" "+_("is running on station")+" <span class='nobr'>"+name+"</span> ";
-            if (pid!=255&&pid!=99) line += "<span id='countdown' class='nobr'>("+sec2hms(window.device.settings.ps[i][1])+" "+_("remaining")+"</span>";
+            if (pid!=255&&pid!=99) line += "<span id='countdown' class='nobr'>("+sec2hms(window.controller.settings.ps[i][1])+" "+_("remaining")+")</span>";
             line += "</p>";
-            change_status(window.device.settings.ps[i][1],window.device.options.sdt,"green",line);
+            change_status(window.controller.settings.ps[i][1],window.controller.options.sdt,"green",line);
             return false;
         }
         i++;
@@ -931,8 +931,8 @@ function check_status() {
 
     if (match) return;
 
-    if (window.device.settings.mm) {
-        change_status(0,window.device.options.sdt,"red","<p id='running-text' style='text-align:center'>"+_("Manual mode enabled")+"</p>");
+    if (window.controller.settings.mm) {
+        change_status(0,window.controller.options.sdt,"red","<p id='running-text' style='text-align:center'>"+_("Manual mode enabled")+"</p>");
         return;
     }
 
@@ -1006,8 +1006,8 @@ function get_manual() {
     var list = "<li data-role='list-divider' data-theme='a'>"+_("Sprinkler Stations")+"</li>",
         i = 0;
 
-    $.each(window.device.stations.snames,function(i,station) {
-        list += '<li data-icon="false"><a style="text-align:center" '+((window.device.status[i]) ? 'class="green" ' : '')+'href="#" onclick="toggle(this);">'+station+'</a></li>';
+    $.each(window.controller.stations.snames,function(i,station) {
+        list += '<li data-icon="false"><a style="text-align:center" '+((window.controller.status[i]) ? 'class="green" ' : '')+'href="#" onclick="toggle(this);">'+station+'</a></li>';
         i++;
     })
     var mm = $("#mm_list");
@@ -1043,18 +1043,18 @@ function toggle(anchor) {
 function get_runonce() {
     var list = "<p style='text-align:center'>"+_("Value is in minutes. Zero means the station will be excluded from the run-once program.")+"</p><div class='ui-field-contain'>",
         n = 0;
-    $.each(window.device.stations.snames,function(i, station) {
+    $.each(window.controller.stations.snames,function(i, station) {
         list += "<label for='zone-"+n+"'>"+station+":</label><input type='number' data-highlight='true' data-type='range' name='zone-"+n+"' min='0' max='240' id='zone-"+n+"' value='0'>";
         n++;
     })
     list += "</div><a class='ui-btn ui-corner-all ui-shadow' onclick='submit_runonce();'>"+_("Submit")+"</a><a class='ui-btn ui-btn-b ui-corner-all ui-shadow' onclick='reset_runonce();'>"+_("Reset")+"</a>";
     var progs = new Array();
-    if (window.device.programs.pd.length) {
-        $.each(window.device.programs.pd,function(i, program) {
+    if (window.controller.programs.pd.length) {
+        $.each(window.controller.programs.pd,function(i, program) {
             program = read_program(program);
             var prog = new Array,
                 set_stations = program.stations.split("");
-            for (var i=0;i<window.device.stations.snames.length;i++) { 
+            for (var i=0;i<window.controller.stations.snames.length;i++) { 
                 prog.push(((typeof set_stations[i] !== undefined) && set_stations[i]) ? program.duration : 0);
             }
             progs.push(prog);
@@ -1192,32 +1192,32 @@ function get_preview() {
 function process_programs(month,day,year) {
     window.preview_data = "";
     var newdata = new Object,
-        devdateobj = new Date(window.device.settings.devt*1000),
-        devday = Math.floor(window.device.settings.devt/(60*60*24)),
+        devdateobj = new Date(window.controller.settings.devt*1000),
+        devday = Math.floor(window.controller.settings.devt/(60*60*24)),
         devmin = (devdateobj.getUTCHours()*60)+devdateobj.getUTCMinutes(),
         simminutes = 0,
         simt = Date.UTC(year,month-1,day,0,0,0,0),
         simday = (simt/3600/24)>>0,
         match = [0,0],
-        st_array = new Array(window.device.settings.nbrd*8),
-        pid_array = new Array(window.device.settings.nbrd*8);
-        et_array = new Array(window.device.settings.nbrd*8);
+        st_array = new Array(window.controller.settings.nbrd*8),
+        pid_array = new Array(window.controller.settings.nbrd*8);
+        et_array = new Array(window.controller.settings.nbrd*8);
 
-    for(var sid=0;sid<window.device.settings.nbrd;sid++) {
+    for(var sid=0;sid<window.controller.settings.nbrd;sid++) {
         st_array[sid]=0;pid_array[sid]=0;et_array[sid]=0;
     }
 
     do {
         busy=0;
         match_found=0;
-        for(var pid=0;pid<window.device.programs.nprogs;pid++) {
-          prog=window.device.programs.pd[pid];
+        for(var pid=0;pid<window.controller.programs.nprogs;pid++) {
+          prog=window.controller.programs.pd[pid];
           if(check_match(prog,simminutes,simt,simday,devday)) {
-            for(sid=0;sid<window.device.settings.nbrd*8;sid++) {
+            for(sid=0;sid<window.controller.settings.nbrd*8;sid++) {
               var bid=sid>>3;var s=sid%8;
-              if(window.device.options.mas==(sid+1)) continue; // skip master station
+              if(window.controller.options.mas==(sid+1)) continue; // skip master station
               if(prog[7+bid]&(1<<s)) {
-                et_array[sid]=prog[6]*window.device.options.wl/100>>0;pid_array[sid]=pid+1;
+                et_array[sid]=prog[6]*window.controller.options.wl/100>>0;pid_array[sid]=pid+1;
                 match_found=1;
               }
             }
@@ -1225,16 +1225,16 @@ function process_programs(month,day,year) {
         }
         if(match_found) {
           var acctime=simminutes*60;
-          if(window.device.options.seq) {
-            for(sid=0;sid<window.device.settings.nbrd*8;sid++) {
+          if(window.controller.options.seq) {
+            for(sid=0;sid<window.controller.settings.nbrd*8;sid++) {
               if(et_array[sid]) {
                 st_array[sid]=acctime;acctime+=et_array[sid];
-                et_array[sid]=acctime;acctime+=window.device.options.sdt;
+                et_array[sid]=acctime;acctime+=window.controller.options.sdt;
                 busy=1;
               }
             }
           } else {
-            for(sid=0;sid<window.device.settings.nbrd*8;sid++) {
+            for(sid=0;sid<window.controller.settings.nbrd*8;sid++) {
               if(et_array[sid]) {
                 st_array[sid]=simminutes*60;
                 et_array[sid]=simminutes*60+et_array[sid];
@@ -1245,9 +1245,9 @@ function process_programs(month,day,year) {
         }
         if (busy) {
           var endminutes=run_sched(simminutes*60,st_array,pid_array,et_array,simt)/60>>0;
-          if(window.device.options.seq&&simminutes!=endminutes) simminutes=endminutes;
+          if(window.controller.options.seq&&simminutes!=endminutes) simminutes=endminutes;
           else simminutes++;
-          for(sid=0;sid<window.device.settings.nbrd*8;sid++) {st_array[sid]=0;pid_array[sid]=0;et_array[sid]=0;}
+          for(sid=0;sid<window.controller.settings.nbrd*8;sid++) {st_array[sid]=0;pid_array[sid]=0;et_array[sid]=0;}
         } else {
           simminutes++;
         }
@@ -1282,28 +1282,28 @@ function check_match(prog,simminutes,simt,simday,devday) {
 
 function run_sched(simseconds,st_array,pid_array,et_array,simt) {
   var endtime=simseconds;
-  for(var sid=0;sid<window.device.settings.nbrd*8;sid++) {
+  for(var sid=0;sid<window.controller.settings.nbrd*8;sid++) {
     if(pid_array[sid]) {
-      if(window.device.options.seq==1) {
+      if(window.controller.options.seq==1) {
         time_to_text(sid,st_array[sid],pid_array[sid],et_array[sid],simt);
-        if((window.device.options.mas>0)&&(window.device.options.mas!=sid+1)&&(window.device.stations.masop[sid>>3]&(1<<(sid%8))))
-            window.preview_data += "{'start': "+(st_array[sid]+window.device.options.mton)+",'end': "+(et_array[sid]+window.device.options.mtoff)+",'content':'','className':'master','shortname':'M','group':'Master'},";
+        if((window.controller.options.mas>0)&&(window.controller.options.mas!=sid+1)&&(window.controller.stations.masop[sid>>3]&(1<<(sid%8))))
+            window.preview_data += "{'start': "+(st_array[sid]+window.controller.options.mton)+",'end': "+(et_array[sid]+window.controller.options.mtoff)+",'content':'','className':'master','shortname':'M','group':'Master'},";
         endtime=et_array[sid];
       } else {
         time_to_text(sid,simseconds,pid_array[sid],et_array[sid],simt);
-        if((window.device.options.mas>0)&&(window.device.options.mas!=sid+1)&&(window.device.stations.masop[sid>>3]&(1<<(sid%8))))
+        if((window.controller.options.mas>0)&&(window.controller.options.mas!=sid+1)&&(window.controller.stations.masop[sid>>3]&(1<<(sid%8))))
           endtime=(endtime>et_array[sid])?endtime:et_array[sid];
       }
     }
   }
-  if(window.device.options.seq==0&&window.device.options.mas>0) window.preview_data += "{'start': "+simseconds+",'end': "+endtime+",'content':'','className':'master','shortname':'M','group':'Master'},";
+  if(window.controller.options.seq==0&&window.controller.options.mas>0) window.preview_data += "{'start': "+simseconds+",'end': "+endtime+",'content':'','className':'master','shortname':'M','group':'Master'},";
   return endtime;
 }
 
 function time_to_text(sid,start,pid,end,simt) {
     var className = "program-"+((pid+3)%4);
-    if ((window.device.settings.rd!=0)&&(simt+start+(window.device.options.tz-48)*900<=window.device.settings.rdst)) className="delayed";
-    window.preview_data += "{'start': "+start+",'end': "+end+",'className':'"+className+"','content':'P"+pid+"','shortname':'S"+(sid+1)+"','group':'"+window.device.stations.snames[sid]+"'},";
+    if ((window.controller.settings.rd!=0)&&(simt+start+(window.controller.options.tz-48)*900<=window.controller.settings.rdst)) className="delayed";
+    window.preview_data += "{'start': "+start+",'end': "+end+",'className':'"+className+"','content':'P"+pid+"','shortname':'S"+(sid+1)+"','group':'"+window.controller.stations.snames[sid]+"'},";
 }
 
 function timeline_redraw() {
@@ -1394,7 +1394,7 @@ function read_program(program) {
     newdata.interval = program[5];
     newdata.duration = program[6];
 
-    for (var n=0; n < window.device.programs.nboards; n++) {
+    for (var n=0; n < window.controller.programs.nboards; n++) {
         var bits = program[7+n];
         for (var s=0; s < 8; s++) { 
             stations += (bits&(1<<s)) ? "1" : "0";
@@ -1451,13 +1451,13 @@ function update_program_header() {
 
 //Make the list of all programs
 function make_all_programs() {
-    if (window.device.programs.nprogs == 0) {
+    if (window.controller.programs.nprogs == 0) {
         return "<p style='text-align:center'>"+_("You have no programs currently added. Tap the Add button on the top right corner to get started.")+"</p>";
     }
     var n = 0;
     var list = "<p style='text-align:center'>"+_("Click any program below to expand/edit. Be sure to save changes by hitting submit below.")+"</p><div data-role='collapsible-set'>";
-    $.each(window.device.programs.pd,function (i,program) {
-        list += make_program(n,window.device.programs.nprogs,program);
+    $.each(window.controller.programs.pd,function (i,program) {
+        list += make_program(n,window.controller.programs.nprogs,program);
         n++;
     });
     return list+"</div>";
@@ -1516,7 +1516,7 @@ function make_program(n,total,program) {
 
     list += "<fieldset data-role='controlgroup'><legend>"+_("Stations:")+"</legend>";
     j = 0;
-    $.each(window.device.stations.snames,function (i,station) {
+    $.each(window.controller.stations.snames,function (i,station) {
         list += "<input data-mini='true' type='checkbox' "+(((typeof set_stations !== "undefined") && set_stations[j]) ? "checked='checked'" : "")+" name='station_"+j+"-"+n+"' id='station_"+j+"-"+n+"'><label for='station_"+j+"-"+n+"'>"+station+"</label>";
         j++;
     })
@@ -1689,16 +1689,16 @@ function clear_config() {
 function export_config(toFile) {
     var newdata = new Object;
 
-    newdata.programs = window.device.programs.pd;
+    newdata.programs = window.controller.programs.pd;
     newdata.options = new Object;
-    newdata.options.loc = window.device.settings.loc;   
-    $.each(window.device.options,function(opt,val){
+    newdata.options.loc = window.controller.settings.loc;   
+    $.each(window.controller.options,function(opt,val){
         if (opt in window.keyNames) {
             newdata.options[window.keyNames[opt]] = {"en":"0","val":val};
         }
     })
-    newdata.stations = window.device.stations.snames;
-    newdata.masop = window.device.stations.masop;
+    newdata.stations = window.controller.stations.snames;
+    newdata.masop = window.controller.stations.masop;
 
     if (toFile) {
         if (!navigator.userAgent.match(/(iPad|iPhone|iPod)/g)) {
