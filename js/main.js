@@ -2,7 +2,7 @@ $(document).ready(function () {
     //Update the language on the page using the browser's locale
     update_lang(get_locale());
 
-    //If the app is running from a file (meaning PhoneGap) than handle unique events
+    //If the app is running from PhoneGap than handle unique events
     if (window.cordova) {
         $(document).one("deviceready", function() {
             var win = $(window);
@@ -14,6 +14,7 @@ $(document).ready(function () {
                 StatusBar.backgroundColorByHexString("#1C1C1C");
             }
 
+            // Request the device's IP address
             networkinterface.getIPAddress(function(ip){
                 var chk = ip.split(".");
                 for(var i=0; i<chk.length; i++) {chk[i] = +chk[i];} 
@@ -34,7 +35,7 @@ $(document).ready(function () {
             })
         });
     } else {
-        //Insert the startup images for iOS
+        //Insert the startup images for iOS since we are in a web app
         (function(){
             var p, l, r = window.devicePixelRatio, h = window.screen.height;
             if (navigator.platform === "iPad") {
@@ -321,10 +322,16 @@ function submit_newuser() {
     document.activeElement.blur();
     $.mobile.loading("show");
 
-    var sites = getsites();
+    var sites = getsites(),
+        ip = $("#os_ip").val();
+
+    if (!ip) {
+        showerror(_("An IP address is required to continue."));
+        return;
+    }
 
     //Submit form data to the server
-    $.getJSON("http://"+$("#os_ip").val()+"/jc",function(data){
+    $.getJSON("http://"+ip+"/jc",function(data){
         $.mobile.loading("hide");
         if (data.en !== undefined) {
             var name = $("#os_name").val();
@@ -364,7 +371,7 @@ function show_sites(showBack) {
         list += "</fieldset>";
     })
 
-    $("#site-control-list").html(list+"</div>").trigger("create");
+    $("#site-control-list").html(list+"</div>").enhanceWithin();
     changePage("#site-control");
 }
 
@@ -507,9 +514,14 @@ function check_scan_status() {
 
 // Show popup for new device after populating device IP with selected result
 function add_found(ip) {
-    $("#os_ip").val(ip);
+    $("#os_ip").val(ip).parent().hide();
+    $("#addnew label[for='os_ip']").hide();
     $("#site-select").one("popupafterclose", function(){
         open_popup("#addnew");
+        $("#addnew").one("popupafterclose", function(){
+            $("#os_ip").parent().show();
+            $("#addnew label[for='os_ip']").show();
+        })
     }).popup("close");
 }
 
@@ -1843,20 +1855,20 @@ function areYouSure(text1, text2, callback) {
 
     $(".ui-page-active").append(popup);
 
-    $("#sure").on("popupafterclose", function(){
+    $("#sure").one("popupafterclose", function(){
         $(this).remove();
-    }).on("popupafteropen", function(){
+    }).one("popupafteropen", function(){
         $(this).popup("reposition", {
             "positionTo": "window"
         });
     }).popup().enhanceWithin().popup("open");
 
     //Bind buttons
-    $("#sure .sure-do").on("click.sure", function() {
+    $("#sure .sure-do").one("click.sure", function() {
         $("#sure").popup("close");
         callback();
     });
-    $("#sure .sure-dont").on("click.sure", function() {
+    $("#sure .sure-dont").one("click.sure", function() {
         $("#sure").popup("close");
     });
 }
@@ -1906,11 +1918,10 @@ function changeFromPanel(func) {
 function open_popup(id) {
     var popup = $(id);
 
-    popup.on("popupafteropen", function(){
+    popup.one("popupafteropen", function(){
         $(this).popup("reposition", {
             "positionTo": "window"
         });
-        if (id == "#addnew") $("#os_name").focus();
     }).popup().enhanceWithin().popup("open");
 }
 
