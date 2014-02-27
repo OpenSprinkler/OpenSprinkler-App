@@ -43,6 +43,42 @@ $(document).ready(function () {
     }
 });
 
+//Set AJAX timeout
+$.ajaxSetup({
+    timeout: 3000
+});
+
+//Handle timeout
+$(document).ajaxError(function(x,t,m) {
+    if(t.status==401) {
+        // Check if a station is being changed but manual mode is off
+        if (/https?:\/\/[\d|.]+\/sn\d.*/.exec(m.url)) {
+            showerror(_("Manual mode is not enabled. Please enable manual mode then try again."));
+        } else {
+            showerror(_("Check device password and try again."));
+        }
+    } else if (t.status==0) {
+        if (/https?:\/\/[\d|.]+\/j\w/.exec(m.url)) {
+            // Ajax fails typically because the password is wrong
+            showerror(_("Check that the device is connected to the network and try again."));
+        } else {
+            // Ajax fails typically because the password is wrong
+            showerror(_("Check device password and try again."));
+        }
+    }
+    if(t.statusText==="timeout") {
+        if (m.url.search("yahooapis.com")) {
+            $("#weather-list").animate({ 
+                "margin-left": "-1000px"
+            },1000,function(){
+                $(this).hide();
+            })
+        } else {
+            showerror(_("Connection timed-out. Please try again."))
+        }
+    }
+});
+
 //After jQuery mobile is loaded set intial configuration
 $(document).one("mobileinit", function(e){
     $.mobile.defaultPageTransition = 'fade';
@@ -181,46 +217,7 @@ function comm_error() {
 //Define option names based on ID
 window.keyNames = {"tz":1,"ntp":2,"hp0":12,"hp1":13,"ar":14,"ext":15,"seq":16,"sdt":17,"mas":18,"mton":19,"mtof":20,"urs":21,"rso":22,"wl":23,"ipas":25,"devid":26};
 
-//Localization functions
-function _(key) {
-    //Translate item (key) based on currently defined language
-    if (typeof window.language === "object" && window.language.hasOwnProperty(key)) {
-        var trans = window.language[key];
-        return trans ? trans : key;
-    } else {
-        //If English
-        return key;
-    }
-}
-
-function set_lang() {
-    //Update all static elements to the current language
-    $("[data-translate]").text(function () {
-        return _($(this).data("translate"));
-
-    });
-};
-
-function get_locale() {
-    //Identify the current browser's locale
-    var locale = "en";
-    locale = navigator.language || navigator.browserLanguage || navigator.systemLanguage || navigator.userLanguage;
-
-    return locale.substring(0,2);
-}
-
-function update_lang(lang) {
-    //Empty out the current language (English is provided as the key)
-    window.language = new Object;
-
-    if (lang == "en") return set_lang();
-    
-    $.getJSON("locale/"+lang+".json",function(store){
-        window.language = store.messages;
-        set_lang();
-    }).fail(set_lang);
-}
-
+// Gather new controller information and load home page
 function newload() {
     $.mobile.loading("show");
 
@@ -245,6 +242,7 @@ function newload() {
     );
 }
 
+// Update controller information
 function update_device(callback,fail) {
     callback = callback || function(){};
     fail = fail || function(){};
@@ -312,6 +310,7 @@ function check_configured() {
     return true
 }
 
+// Add a new site
 function submit_newuser() {
     document.activeElement.blur();
     $.mobile.loading("show");
@@ -340,6 +339,7 @@ function submit_newuser() {
     })
 }
 
+// Show manage site page
 function show_sites(showBack) {
     if (showBack !== false) showBack = true;
     $("#manageBackButton").toggle(showBack);
@@ -375,6 +375,7 @@ function delete_site(site) {
     if (site === localStorage.getItem("current_site")) site_select(Object.keys(sites));
 }
 
+// Modify site IP and/or password
 function change_site(site) {
     var sites = getsites();
 
@@ -394,6 +395,7 @@ function change_site(site) {
     }
 }
 
+// Display the site select popup
 function site_select(names) {
     var list = $("#site-select-list");
     var newlist = "";
@@ -405,6 +407,7 @@ function site_select(names) {
     open_popup("#site-select");
 }
 
+// Update the panel list of sites
 function update_site_list(names) {
     list = "";
     var current = localStorage.getItem("current_site");
@@ -419,6 +422,7 @@ function update_site_list(names) {
     }
 }
 
+// Change the current site
 function update_site(newsite) {
     var sites = getsites();
     if (newsite in sites) {
@@ -428,6 +432,7 @@ function update_site(newsite) {
     newload();
 }
 
+// Get the list of sites from the local storage
 function getsites() {
     sites = JSON.parse(localStorage.getItem("sites"));
     if (sites === null) sites = new Object();
@@ -484,6 +489,7 @@ function start_scan() {
     window.scanning = setInterval(check_scan_status,200);
 }
 
+// Check is scanning is complete
 function check_scan_status() {
     if (window.scanprogress == 245) {
         clearInterval(window.scanning);
@@ -493,6 +499,7 @@ function check_scan_status() {
     }
 }
 
+// Show popup for new device after populating device IP with selected result
 function add_found(ip) {
     $("#os_ip").val(ip);
     $("#site-select").one("popupafterclose", function(){
@@ -500,327 +507,7 @@ function add_found(ip) {
     }).popup("close");
 }
 
-// show error message
-function showerror(msg) {
-        $.mobile.loading( 'show', {
-            text: msg,
-            textVisible: true,
-            textonly: true,
-            theme: 'b'
-            });
-    // hide after delay
-    setTimeout( function(){$.mobile.loading('hide')}, 1500);
-}
-
-// pad a single digit with a leading zero
-function pad(number) {
-    var r = String(number);
-    if ( r.length === 1 ) {
-        r = '0' + r;
-    }
-    return r;
-}
-
-// Shim for older IE versions
-if (!Date.prototype.toISOString) {
-    (function() {
-        Date.prototype.toISOString = function() {
-            return this.getUTCFullYear()
-                + '-' + pad(this.getUTCMonth() + 1)
-                + '-' + pad(this.getUTCDate())
-                + 'T' + pad(this.getUTCHours())
-                + ':' + pad(this.getUTCMinutes())
-                + ':' + pad(this.getUTCSeconds())
-                + '.' + String((this.getUTCMilliseconds()/1000).toFixed(3)).slice(2,5)
-                + 'Z';
-        };
-    }());
-}
-
-// Add ability to unique sort arrays
-Array.prototype.getUnique = function(){
-   var u = {}, a = [];
-   for(var i = 0, l = this.length; i < l; ++i){
-      if(u.hasOwnProperty(this[i])) {
-         continue;
-      }
-      a.push(this[i]);
-      u[this[i]] = 1;
-   }
-   return a;
-}
-
-//Set AJAX timeout
-$.ajaxSetup({
-    timeout: 3000
-});
-
-//Handle timeout
-$(document).ajaxError(function(x,t,m) {
-    if(t.status==401) {
-        // Check if a station is being changed but manual mode is off
-        if (/https?:\/\/[\d|.]+\/sn\d.*/.exec(m.url)) {
-            showerror(_("Manual mode is not enabled. Please enable manual mode then try again."));
-        } else {
-            showerror(_("Check device password and try again."));
-        }
-    } else if (t.status==0) {
-        // Ajax fails typically because the password is wrong
-        showerror(_("Check device password and try again."));
-    }
-    if(t.statusText==="timeout") {
-        if (m.url.search("yahooapis.com")) {
-            $("#weather-list").animate({ 
-                "margin-left": "-1000px"
-            },1000,function(){
-                $(this).hide();
-            })
-        } else {
-            showerror(_("Connection timed-out. Please try again."))
-        }
-    }
-});
-
-//Converts data-onclick attributes on page to vclick bound functions. This removes the 300ms lag on mobile devices (iOS/Android)
-function bind_links(page) {
-    var currpage = $(page);
-
-    currpage.find("a[href='#"+currpage.attr('id')+"-settings']").unbind("vclick").on('vclick', function (e) {
-        e.preventDefault(); e.stopImmediatePropagation();
-        highlight(this);
-        $(".ui-page-active [id$=settings]").panel("open");
-    });
-    currpage.find("a[data-onclick]").unbind("vclick").on('vclick', function (e) {
-        e.preventDefault(); e.stopImmediatePropagation();
-        var func = $(this).data("onclick");
-        highlight(this);
-        eval(func);
-    });
-}
-
-// Translate program array into easier to use data
-function read_program(program) {
-    var days0 = program[1],
-        days1 = program[2],
-        even = false,
-        odd = false,
-        interval = false,
-        days = "",
-        stations = "",
-        newdata = new Object;
-
-    newdata.en = program[0];
-    newdata.start = program[3];
-    newdata.end = program[4];
-    newdata.interval = program[5];
-    newdata.duration = program[6];
-
-    for (var n=0; n < window.device.programs.nboards; n++) {
-        var bits = program[7+n];
-        for (var s=0; s < 8; s++) { 
-            stations += (bits&(1<<s)) ? "1" : "0";
-        }
-    }
-    newdata.stations = stations;
-
-    if((days0&0x80)&&(days1>1)){
-        //This is an interval program
-        days=[days1,days0&0x7f];
-        interval = true;
-    } else {
-        //This is a weekly program 
-        for(var d=0;d<7;d++) {
-            if (days0&(1<<d)) {
-                days += "1";
-            } else {
-                days += "0";
-            }
-        }
-        if((days0&0x80)&&(days1==0)) {even = true;}
-        if((days0&0x80)&&(days1==1)) {odd = true;}
-    }
-
-    newdata.days = days;
-    newdata.is_even = even;
-    newdata.is_odd = odd;
-    newdata.is_interval = interval;
-
-    return newdata;
-}
-
-// Actually change the status bar
-function change_status(seconds,sdelay,color,line) {
-    var footer = $("#footer-running")
-    if (window.interval_id !== undefined) clearInterval(window.interval_id);
-    if (window.timeout_id !== undefined) clearTimeout(window.timeout_id);
-    if (seconds > 1) update_timer(seconds,sdelay);
-    footer.removeClass().addClass(color).html(line).slideDown();
-}
-
-// Update status bar based on device status
-function check_status() {
-    if (!window.device.settings.en) {
-        change_status(0,window.device.options.sdt,"red","<p id='running-text' style='text-align:center'>"+_("System Disabled")+"</p>");
-        return;
-    }
-
-    if (window.device.settings.rd) {
-        change_status(0,window.device.options.sdt,"red","<p id='running-text' style='text-align:center'>"+_("Rain delay until")+" "+(new Date(window.device.settings.rdst*1000).toUTCString().slice(0,-4))+"</p>");
-        return;
-    }
-
-    if (window.device.settings.urs && window.device.settings.rs) {
-        change_status(0,window.device.options.sdt,"red","<p id='running-text' style='text-align:center'>"+_("Rain detected")+"</p>");
-        return;
-    }
-
-    // Handle open stations
-    var open = new Object;
-    $.each(window.device.status, function (i, stn) {
-        if (stn) open[i] = stn;
-    });
-
-    if (window.device.settings.mas) {
-        open.splice(window.device.settings.mas-1,1);
-    }
-
-    // Handle more than 1 open station
-    if (Object.keys(open).length >= 2) {
-        var ptotal = 0;
-        $.each(open,function (key, status){
-            var tmp = window.device.settings.ps[key][1];
-            if (tmp > ptotal) ptotal = tmp;
-        });
-
-        for (var sample in open) break;
-        var pid    = window.device.settings.ps[sample][0],
-            pname  = pidname(pid),
-            line   = "<img id='running-icon' width='11px' height='11px' src='img/running.png' /><p id='running-text'>";
-
-        line += pname+" "+_("is running on")+" "+Object.keys(open).length+" "+_("stations")+" ";
-        if (pid!=255&&pid!=99) line += "<span id='countdown' class='nobr'>("+sec2hms(ptotal)+" "+_("remaining")+")</span>";
-        line += "</p>";
-        change_status(ptotal,window.device.options.sdt,"green",line);
-        return;
-    }
-
-    // Handle a single station open
-    var match = false,
-        i = 0;
-    $.each(window.device.stations.snames,function (station,name){
-        var info = "";
-        if (window.device.settings.ps[i][0] && window.device.status[i] && window.device.settings.mas != i+1) {
-            match = true
-            var pid = window.device.settings.ps[i][0],
-                pname = pidname(pid),
-                line = "<img id='running-icon' width='11px' height='11px' src='img/running.png' /><p id='running-text'>";
-            line += pname+" "+_("is running on station")+" <span class='nobr'>"+name+"</span> ";
-            if (pid!=255&&pid!=99) line += "<span id='countdown' class='nobr'>("+sec2hms(window.device.settings.ps[i][1])+" "+_("remaining")+"</span>";
-            line += "</p>";
-            change_status(window.device.settings.ps[i][1],window.device.options.sdt,"green",line);
-            return false;
-        }
-        i++;
-    });
-
-    if (match) return;
-
-    if (window.device.settings.mm) {
-        change_status(0,window.device.options.sdt,"red","<p id='running-text' style='text-align:center'>"+_("Manual mode enabled")+"</p>");
-        return;
-    }
-
-    $("#footer-running").slideUp();
-}
-
-// Translate program ID to it's name
-function pidname(pid) {
-    pname = "Program "+pid;
-    if(pid==255||pid==99) pname=_("Manual program");
-    if(pid==254||pid==98) pname=_("Run-once program");
-    return pname;
-}
-
-// Handle timer update on the home page for the status bar
-function update_timer(total,sdelay) {
-    window.lastCheck = new Date().getTime();
-    window.interval_id = setInterval(function(){
-        var now = new Date().getTime();
-        var diff = now - window.lastCheck;
-        if (diff > 3000) {
-            clearInterval(window.interval_id);
-            $("#footer-running").html("<p class='ui-icon ui-icon-loading mini-load'></p>");
-            update_device(check_status);
-        }
-        window.lastCheck = now;
-
-        if (total <= 0) {
-            clearInterval(window.interval_id);
-            $("#footer-running").slideUp().html("<p class='ui-icon ui-icon-loading mini-load'></p>");
-            if (window.timeout_id !== undefined) clearTimeout(window.timeout_id);
-            window.timeout_id = setTimeout(function(){
-                update_device(check_status);
-            },(sdelay*1000));
-        }
-        else
-            --total;
-            $("#countdown").text("(" + sec2hms(total) + " "+_("remaining")+")");
-    },1000)
-}
-
-// Handle all timers on the current status page
-function update_timers(sdelay) {
-    if (window.interval_id !== undefined) clearInterval(window.interval_id);
-    if (window.timeout_id !== undefined) clearTimeout(window.timeout_id);
-    window.lastCheck = new Date().getTime();
-    window.interval_id = setInterval(function(){
-        var now = new Date().getTime();
-        var diff = now - window.lastCheck;
-        if (diff > 3000) {
-            clearInterval(window.interval_id);
-            get_status();
-        }
-        window.lastCheck = now;
-        $.each(window.totals,function(a,b){
-            if (b <= 0) {
-                delete window.totals[a];
-                if (a == "p") {
-                    get_status();
-                } else {
-                    $("#countdown-"+a).parent("p").text(_("Station delay")).parent("li").removeClass("green").addClass("red");
-                    window.timeout_id = setTimeout(get_status,(sdelay*1000));
-                }
-            } else {
-                if (a == "c") {
-                    ++window.totals[a];
-                    $("#clock-s").text(new Date(window.totals[a]*1000).toUTCString().slice(0,-4));
-                } else {
-                    --window.totals[a];
-                    $("#countdown-"+a).text("(" + sec2hms(window.totals[a]) + " "+_("remaining")+")");
-                }
-            }
-        })
-    },1000)
-}
-
-// Convert seconds into (HH:)MM:SS format. HH is only reported if greater than 0.
-function sec2hms(diff) {
-    var str = "";
-    var hours = parseInt( diff / 3600 ) % 24;
-    var minutes = parseInt( diff / 60 ) % 60;
-    var seconds = diff % 60;
-    if (hours) str += pad(hours)+":";
-    return str+pad(minutes)+":"+pad(seconds);
-}
-
-// Highlight the pressed button (handling events ourselves with bind_links)
-function highlight(button) {
-    $(button).addClass("ui-btn-active").delay(150).queue(function(next){
-        $(this).removeClass("ui-btn-active");
-        next();
-    });
-}
-
+// Weather functions
 function convert_temp(temp,region) {
     if (region == "United States" || region == "Bermuda" || region == "Palau") {
         temp = temp+"&#176;F";
@@ -882,38 +569,11 @@ function gohome() {
     $("body").pagecontainer("change","#sprinklers",{reverse: true});
 }
 
-function changePage(toPage) {
-    var curr = "#"+$("body").pagecontainer("getActivePage").attr("id");
-    // If the page is being updated then rebind the links
-    if (curr === toPage) {
-        bind_links(curr);
-    } else {
-        $("body").pagecontainer("change",toPage);
-    }
-}
-
-// Close the panel before page transition to avoid bug in jQM 1.4+
-function changeFromPanel(func) {
-    var $panel = $("#sprinklers-settings");
-    $panel.one("panelclose", func);
-    $panel.panel("close");
-}
-
 function show_about() {
     changePage("#about");
 }
 
-function open_popup(id) {
-    var popup = $(id);
-
-    popup.on("popupafteropen", function(){
-        $(this).popup("reposition", {
-            "positionTo": "window"
-        });
-        if (id == "#addnew") $("#os_name").focus();
-    }).popup().enhanceWithin().popup("open");
-}
-
+// Device setting management functions
 function show_settings() {
     var list = new Object
     list.start = "<li><div class='ui-field-contain'><fieldset>";
@@ -992,6 +652,42 @@ function show_settings() {
     changePage("#os-settings");
 }
 
+function submit_settings() {
+    var opt = {}, invalid = false;
+    $("#os-settings-list").find(":input").each(function(a,b){
+        var $item = $(b), id = $item.attr('id'), data = $item.val();
+        switch (id) {
+            case "o1":
+                var tz = data.split(":")
+                tz[0] = parseInt(tz[0],10);
+                tz[1] = parseInt(tz[1],10);
+                tz[1]=(tz[1]/15>>0)/4.0;tz[0]=tz[0]+(tz[0]>=0?tz[1]:-tz[1]);
+                data = ((tz[0]+12)*4)>>0
+                break;
+            case "o2":
+            case "o14":
+            case "o16":
+            case "o21":
+            case "o22":
+            case "o25":
+                data = $item.is(":checked") ? 1 : 0
+                if (!data) return true
+                break;
+        }
+        opt[id] = encodeURIComponent(data)
+    })
+    if (invalid) return
+    $.mobile.loading("show");
+    $.get("http://"+window.curr_ip+"/co?pw="+window.curr_pw+"&"+$.param(opt),function(){
+        $.mobile.loading("hide");
+        changePage("#settings");
+        showerror(_("Settings have been saved"));
+        update_device();
+        update_weather();
+    }).fail(comm_error);
+}
+
+// Station managament function
 function show_stations() {
     var list = "<li>",
         isMaster = window.device.settings.mas;
@@ -1018,6 +714,45 @@ function show_stations() {
     changePage("#os-stations");
 }
 
+function submit_stations() {
+    var names = {}, invalid = false,v="";bid=0,s=0,m={},masop="";
+    $("#os-stations-list").find(":input,p[id^='um_']").each(function(a,b){
+        var $item = $(b), id = $item.attr('id'), data = $item.val();
+        switch (id) {
+            case "edit_station_" + id.slice("edit_station_".length):
+                id = "s" + id.split("_")[2]
+                if (data.length > 16) {
+                    invalid = true
+                    $item.focus()
+                    showerror(_("Station name must be 16 characters or less"))
+                    return false
+                }
+                names[id] = data
+                return true;
+                break;
+            case "um_" + id.slice("um_".length):
+                v = ($item.is(":checked") || $item.prop("tagName") == "P") ? "1".concat(v) : "0".concat(v);
+                s++;
+                if (parseInt(s/8) > bid) {
+                    m["m"+bid]=parseInt(v,2); bid++; s=0; v="";
+                }
+                return true;
+                break;
+        }
+    })
+    m["m"+bid]=parseInt(v,2);
+    if ($("[id^='um_']").length) masop = "&"+$.param(m);
+    if (invalid) return
+    $.mobile.loading("show");
+    $.get("http://"+window.curr_ip+"/cs?pw="+window.curr_pw+"&"+$.param(names)+masop,function(){
+        $.mobile.loading("hide");
+        changePage("#settings");
+        showerror(_("Stations have been updated"));
+        update_device();
+    }).fail(comm_error);
+}
+
+// Current status related functions
 function get_status() {
     var runningTotal = new Object,
         allPnames = new Array;
@@ -1113,6 +848,154 @@ function get_status() {
     update_timers(window.device.options["sdt"]);
 }
 
+// Actually change the status bar
+function change_status(seconds,sdelay,color,line) {
+    var footer = $("#footer-running")
+    if (window.interval_id !== undefined) clearInterval(window.interval_id);
+    if (window.timeout_id !== undefined) clearTimeout(window.timeout_id);
+    if (seconds > 1) update_timer(seconds,sdelay);
+    footer.removeClass().addClass(color).html(line).slideDown();
+}
+
+// Update status bar based on device status
+function check_status() {
+    if (!window.device.settings.en) {
+        change_status(0,window.device.options.sdt,"red","<p id='running-text' style='text-align:center'>"+_("System Disabled")+"</p>");
+        return;
+    }
+
+    if (window.device.settings.rd) {
+        change_status(0,window.device.options.sdt,"red","<p id='running-text' style='text-align:center'>"+_("Rain delay until")+" "+(new Date(window.device.settings.rdst*1000).toUTCString().slice(0,-4))+"</p>");
+        return;
+    }
+
+    if (window.device.settings.urs && window.device.settings.rs) {
+        change_status(0,window.device.options.sdt,"red","<p id='running-text' style='text-align:center'>"+_("Rain detected")+"</p>");
+        return;
+    }
+
+    // Handle open stations
+    var open = new Object;
+    $.each(window.device.status, function (i, stn) {
+        if (stn) open[i] = stn;
+    });
+
+    if (window.device.settings.mas) {
+        open.splice(window.device.settings.mas-1,1);
+    }
+
+    // Handle more than 1 open station
+    if (Object.keys(open).length >= 2) {
+        var ptotal = 0;
+        $.each(open,function (key, status){
+            var tmp = window.device.settings.ps[key][1];
+            if (tmp > ptotal) ptotal = tmp;
+        });
+
+        for (var sample in open) break;
+        var pid    = window.device.settings.ps[sample][0],
+            pname  = pidname(pid),
+            line   = "<img id='running-icon' width='11px' height='11px' src='img/running.png' /><p id='running-text'>";
+
+        line += pname+" "+_("is running on")+" "+Object.keys(open).length+" "+_("stations")+" ";
+        if (pid!=255&&pid!=99) line += "<span id='countdown' class='nobr'>("+sec2hms(ptotal)+" "+_("remaining")+")</span>";
+        line += "</p>";
+        change_status(ptotal,window.device.options.sdt,"green",line);
+        return;
+    }
+
+    // Handle a single station open
+    var match = false,
+        i = 0;
+    $.each(window.device.stations.snames,function (station,name){
+        var info = "";
+        if (window.device.settings.ps[i][0] && window.device.status[i] && window.device.settings.mas != i+1) {
+            match = true
+            var pid = window.device.settings.ps[i][0],
+                pname = pidname(pid),
+                line = "<img id='running-icon' width='11px' height='11px' src='img/running.png' /><p id='running-text'>";
+            line += pname+" "+_("is running on station")+" <span class='nobr'>"+name+"</span> ";
+            if (pid!=255&&pid!=99) line += "<span id='countdown' class='nobr'>("+sec2hms(window.device.settings.ps[i][1])+" "+_("remaining")+"</span>";
+            line += "</p>";
+            change_status(window.device.settings.ps[i][1],window.device.options.sdt,"green",line);
+            return false;
+        }
+        i++;
+    });
+
+    if (match) return;
+
+    if (window.device.settings.mm) {
+        change_status(0,window.device.options.sdt,"red","<p id='running-text' style='text-align:center'>"+_("Manual mode enabled")+"</p>");
+        return;
+    }
+
+    $("#footer-running").slideUp();
+}
+
+// Handle timer update on the home page for the status bar
+function update_timer(total,sdelay) {
+    window.lastCheck = new Date().getTime();
+    window.interval_id = setInterval(function(){
+        var now = new Date().getTime();
+        var diff = now - window.lastCheck;
+        if (diff > 3000) {
+            clearInterval(window.interval_id);
+            $("#footer-running").html("<p class='ui-icon ui-icon-loading mini-load'></p>");
+            update_device(check_status);
+        }
+        window.lastCheck = now;
+
+        if (total <= 0) {
+            clearInterval(window.interval_id);
+            $("#footer-running").slideUp().html("<p class='ui-icon ui-icon-loading mini-load'></p>");
+            if (window.timeout_id !== undefined) clearTimeout(window.timeout_id);
+            window.timeout_id = setTimeout(function(){
+                update_device(check_status);
+            },(sdelay*1000));
+        }
+        else
+            --total;
+            $("#countdown").text("(" + sec2hms(total) + " "+_("remaining")+")");
+    },1000)
+}
+
+// Handle all timers on the current status page
+function update_timers(sdelay) {
+    if (window.interval_id !== undefined) clearInterval(window.interval_id);
+    if (window.timeout_id !== undefined) clearTimeout(window.timeout_id);
+    window.lastCheck = new Date().getTime();
+    window.interval_id = setInterval(function(){
+        var now = new Date().getTime();
+        var diff = now - window.lastCheck;
+        if (diff > 3000) {
+            clearInterval(window.interval_id);
+            get_status();
+        }
+        window.lastCheck = now;
+        $.each(window.totals,function(a,b){
+            if (b <= 0) {
+                delete window.totals[a];
+                if (a == "p") {
+                    get_status();
+                } else {
+                    $("#countdown-"+a).parent("p").text(_("Station delay")).parent("li").removeClass("green").addClass("red");
+                    window.timeout_id = setTimeout(get_status,(sdelay*1000));
+                }
+            } else {
+                if (a == "c") {
+                    ++window.totals[a];
+                    $("#clock-s").text(new Date(window.totals[a]*1000).toUTCString().slice(0,-4));
+                } else {
+                    --window.totals[a];
+                    $("#countdown-"+a).text("(" + sec2hms(window.totals[a]) + " "+_("remaining")+")");
+                }
+            }
+        })
+    },1000)
+}
+
+// Manual control functions
 function get_manual() {
     var list = "<li data-role='list-divider' data-theme='a'>"+_("Sprinkler Stations")+"</li>",
         i = 0;
@@ -1127,6 +1010,30 @@ function get_manual() {
     changePage("#manual");
 }
 
+function toggle(anchor) {
+    if ($("#mm").val() == "off") return;
+    var $list = $("#mm_list");
+    var $anchor = $(anchor);
+    var $listitems = $list.children("li:not(li.ui-li-divider)");
+    var $item = $anchor.closest("li:not(li.ui-li-divider)");
+    var currPos = $listitems.index($item) + 1;
+    var total = $listitems.length;
+    if ($anchor.hasClass("green")) {
+        $.get("http://"+window.curr_ip+"/sn"+currPos+"=0").fail(function(){
+            $anchor.addClass("green");
+            comm_error()
+        })
+        $anchor.removeClass("green");
+    } else {
+        $.get("http://"+window.curr_ip+"/sn"+currPos+"=1&t=0").fail(function(){
+            $anchor.removeClass("green");
+            comm_error()
+        })
+        $anchor.addClass("green");
+    }
+}
+
+// Runonce functions
 function get_runonce() {
     var list = "<p style='text-align:center'>"+_("Value is in minutes. Zero means the station will be excluded from the run-once program.")+"</p><div class='ui-field-contain'>",
         n = 0;
@@ -1182,6 +1089,10 @@ function get_runonce() {
     changePage("#runonce");
 }
 
+function reset_runonce() {
+    $("#runonce").find(":input[data-type='range']").val(0).slider("refresh")
+}
+
 function fill_runonce(list,data){
     var i=0;
     list.find(":input[data-type='range']").each(function(a,b){
@@ -1190,6 +1101,22 @@ function fill_runonce(list,data){
     })
 }
 
+function submit_runonce(runonce) {
+    if (typeof runonce === 'undefined') {
+        var runonce = []
+        $("#runonce").find(":input[data-type='range']").each(function(a,b){
+            runonce.push(parseInt($(b).val())*60)
+        })
+        runonce.push(0);
+    }
+    localStorage.setItem("runonce",JSON.stringify(runonce));
+    $.get("http://"+window.curr_ip+"/cr?pw="+window.curr_pw+"&t="+JSON.stringify(runonce),function(){
+        showerror(_("Run-once program has been scheduled"));
+    }).fail(comm_error);
+    changePage("#sprinklers");
+}
+
+// Preview functions
 function get_preview() {
     $("#timeline").html("");
     $("#timeline-navigation").hide()
@@ -1390,6 +1317,7 @@ function changeday(dir) {
     get_preview();
 }
 
+// Program management functions
 function get_programs(pid) {
     var list = $("#programs_list");
     list.html(make_all_programs());
@@ -1443,6 +1371,65 @@ function get_programs(pid) {
     update_program_header();
 }
 
+// Translate program array into easier to use data
+function read_program(program) {
+    var days0 = program[1],
+        days1 = program[2],
+        even = false,
+        odd = false,
+        interval = false,
+        days = "",
+        stations = "",
+        newdata = new Object;
+
+    newdata.en = program[0];
+    newdata.start = program[3];
+    newdata.end = program[4];
+    newdata.interval = program[5];
+    newdata.duration = program[6];
+
+    for (var n=0; n < window.device.programs.nboards; n++) {
+        var bits = program[7+n];
+        for (var s=0; s < 8; s++) { 
+            stations += (bits&(1<<s)) ? "1" : "0";
+        }
+    }
+    newdata.stations = stations;
+
+    if((days0&0x80)&&(days1>1)){
+        //This is an interval program
+        days=[days1,days0&0x7f];
+        interval = true;
+    } else {
+        //This is a weekly program 
+        for(var d=0;d<7;d++) {
+            if (days0&(1<<d)) {
+                days += "1";
+            } else {
+                days += "0";
+            }
+        }
+        if((days0&0x80)&&(days1==0)) {even = true;}
+        if((days0&0x80)&&(days1==1)) {odd = true;}
+    }
+
+    newdata.days = days;
+    newdata.is_even = even;
+    newdata.is_odd = odd;
+    newdata.is_interval = interval;
+
+    return newdata;
+}
+
+// Translate program ID to it's name
+function pidname(pid) {
+    pname = "Program "+pid;
+    if(pid==255||pid==99) pname=_("Manual program");
+    if(pid==254||pid==98) pname=_("Run-once program");
+    return pname;
+}
+
+// Check each program and change the background color to red if disabled
 function update_program_header() {
     $("#programs_list").find("[id^=program-]").each(function(a,b){
         var item = $(b)
@@ -1590,9 +1577,6 @@ function delete_program(id) {
     })
 }
 
-function reset_runonce() {
-    $("#runonce").find(":input[data-type='range']").val(0).slider("refresh")
-}
 
 function submit_program(id) {
     var program = [], days=[0,0]
@@ -1655,117 +1639,6 @@ function submit_program(id) {
     }
 }
 
-function submit_settings() {
-    var opt = {}, invalid = false;
-    $("#os-settings-list").find(":input").each(function(a,b){
-        var $item = $(b), id = $item.attr('id'), data = $item.val();
-        switch (id) {
-            case "o1":
-                var tz = data.split(":")
-                tz[0] = parseInt(tz[0],10);
-                tz[1] = parseInt(tz[1],10);
-                tz[1]=(tz[1]/15>>0)/4.0;tz[0]=tz[0]+(tz[0]>=0?tz[1]:-tz[1]);
-                data = ((tz[0]+12)*4)>>0
-                break;
-            case "o2":
-            case "o14":
-            case "o16":
-            case "o21":
-            case "o22":
-            case "o25":
-                data = $item.is(":checked") ? 1 : 0
-                if (!data) return true
-                break;
-        }
-        opt[id] = encodeURIComponent(data)
-    })
-    if (invalid) return
-    $.mobile.loading("show");
-    $.get("http://"+window.curr_ip+"/co?pw="+window.curr_pw+"&"+$.param(opt),function(){
-        $.mobile.loading("hide");
-        changePage("#settings");
-        showerror(_("Settings have been saved"));
-        update_device();
-        update_weather();
-    }).fail(comm_error);
-}
-
-function submit_stations() {
-    var names = {}, invalid = false,v="";bid=0,s=0,m={},masop="";
-    $("#os-stations-list").find(":input,p[id^='um_']").each(function(a,b){
-        var $item = $(b), id = $item.attr('id'), data = $item.val();
-        switch (id) {
-            case "edit_station_" + id.slice("edit_station_".length):
-                id = "s" + id.split("_")[2]
-                if (data.length > 16) {
-                    invalid = true
-                    $item.focus()
-                    showerror(_("Station name must be 16 characters or less"))
-                    return false
-                }
-                names[id] = data
-                return true;
-                break;
-            case "um_" + id.slice("um_".length):
-                v = ($item.is(":checked") || $item.prop("tagName") == "P") ? "1".concat(v) : "0".concat(v);
-                s++;
-                if (parseInt(s/8) > bid) {
-                    m["m"+bid]=parseInt(v,2); bid++; s=0; v="";
-                }
-                return true;
-                break;
-        }
-    })
-    m["m"+bid]=parseInt(v,2);
-    if ($("[id^='um_']").length) masop = "&"+$.param(m);
-    if (invalid) return
-    $.mobile.loading("show");
-    $.get("http://"+window.curr_ip+"/cs?pw="+window.curr_pw+"&"+$.param(names)+masop,function(){
-        $.mobile.loading("hide");
-        changePage("#settings");
-        showerror(_("Stations have been updated"));
-        update_device();
-    }).fail(comm_error);
-}
-
-function submit_runonce(runonce) {
-    if (typeof runonce === 'undefined') {
-        var runonce = []
-        $("#runonce").find(":input[data-type='range']").each(function(a,b){
-            runonce.push(parseInt($(b).val())*60)
-        })
-        runonce.push(0);
-    }
-    localStorage.setItem("runonce",JSON.stringify(runonce));
-    $.get("http://"+window.curr_ip+"/cr?pw="+window.curr_pw+"&t="+JSON.stringify(runonce),function(){
-        showerror(_("Run-once program has been scheduled"));
-    }).fail(comm_error);
-    changePage("#sprinklers");
-}
-
-function toggle(anchor) {
-    if ($("#mm").val() == "off") return;
-    var $list = $("#mm_list");
-    var $anchor = $(anchor);
-    var $listitems = $list.children("li:not(li.ui-li-divider)");
-    var $item = $anchor.closest("li:not(li.ui-li-divider)");
-    var currPos = $listitems.index($item) + 1;
-    var total = $listitems.length;
-    if ($anchor.hasClass("green")) {
-        $.get("http://"+window.curr_ip+"/sn"+currPos+"=0").fail(function(){
-            $anchor.addClass("green");
-            comm_error()
-        })
-        $anchor.removeClass("green");
-    } else {
-        $.get("http://"+window.curr_ip+"/sn"+currPos+"=1&t=0").fail(function(){
-            $anchor.removeClass("green");
-            comm_error()
-        })
-        $anchor.addClass("green");
-    }
-}
-
 function raindelay() {
     $.mobile.loading("show");
     $.get("http://"+window.curr_ip+"/cv?pw="+window.curr_pw+"&rd="+$("#delay").val(),function(){
@@ -1775,14 +1648,6 @@ function raindelay() {
         update_device(check_status);
         showerror(_("Rain delay has been successfully set"));
     }).fail(comm_error);
-}
-
-function clear_config() {
-    areYouSure(_("Are you sure you want to delete all settings and return to the default settings (this will delete the configuration file)?"), "", function() {
-        localStorage.removeItem("sites");
-        localStorage.removeItem("current_site");
-        changePage("#start");
-    });    
 }
 
 function rbt() {
@@ -1806,6 +1671,15 @@ function rsn() {
     });
 }
 
+function clear_config() {
+    areYouSure(_("Are you sure you want to delete all settings and return to the default settings (this will delete the configuration file)?"), "", function() {
+        localStorage.removeItem("sites");
+        localStorage.removeItem("current_site");
+        changePage("#start");
+    });    
+}
+
+// Export and Import functions
 function export_config(toFile) {
     var newdata = new Object;
 
@@ -1887,6 +1761,7 @@ function import_config(data) {
     });
 }
 
+// Hack to trigger file download from Javascript
 function getConfigFile() {
     if (navigator.userAgent.match(/(iPad|iPhone|iPod)/g) || !window.FileReader) {
         showerror(_("File API is not supported by your browser"));
@@ -1895,6 +1770,7 @@ function getConfigFile() {
     $('#configInput').click();
 }
 
+// Process file upload
 function handleConfig(files) {
     var config = files[0];
     var reader = new FileReader();
@@ -1909,6 +1785,47 @@ function handleConfig(files) {
     reader.readAsText(config);
 }
 
+//Localization functions
+function _(key) {
+    //Translate item (key) based on currently defined language
+    if (typeof window.language === "object" && window.language.hasOwnProperty(key)) {
+        var trans = window.language[key];
+        return trans ? trans : key;
+    } else {
+        //If English
+        return key;
+    }
+}
+
+function set_lang() {
+    //Update all static elements to the current language
+    $("[data-translate]").text(function () {
+        return _($(this).data("translate"));
+
+    });
+};
+
+function get_locale() {
+    //Identify the current browser's locale
+    var locale = "en";
+    locale = navigator.language || navigator.browserLanguage || navigator.systemLanguage || navigator.userLanguage;
+
+    return locale.substring(0,2);
+}
+
+function update_lang(lang) {
+    //Empty out the current language (English is provided as the key)
+    window.language = new Object;
+
+    if (lang == "en") return set_lang();
+    
+    $.getJSON("locale/"+lang+".json",function(store){
+        window.language = store.messages;
+        set_lang();
+    }).fail(set_lang);
+}
+
+// Accessory functions
 function areYouSure(text1, text2, callback) {
     var popup = $('\
     <div data-role="popup" class="ui-content" data-overlay-theme="b" id="sure">\
@@ -1936,4 +1853,117 @@ function areYouSure(text1, text2, callback) {
     $("#sure .sure-dont").on("click.sure", function() {
         $("#sure").popup("close");
     });
+}
+
+//Converts data-onclick attributes on page to vclick bound functions. This removes the 300ms lag on mobile devices (iOS/Android)
+function bind_links(page) {
+    var currpage = $(page);
+
+    currpage.find("a[href='#"+currpage.attr('id')+"-settings']").unbind("vclick").on('vclick', function (e) {
+        e.preventDefault(); e.stopImmediatePropagation();
+        highlight(this);
+        $(".ui-page-active [id$=settings]").panel("open");
+    });
+    currpage.find("a[data-onclick]").unbind("vclick").on('vclick', function (e) {
+        e.preventDefault(); e.stopImmediatePropagation();
+        var func = $(this).data("onclick");
+        highlight(this);
+        eval(func);
+    });
+}
+
+// Highlight the pressed button (handling events ourselves with bind_links)
+function highlight(button) {
+    $(button).addClass("ui-btn-active").delay(150).queue(function(next){
+        $(this).removeClass("ui-btn-active");
+        next();
+    });
+}
+
+function changePage(toPage) {
+    var curr = "#"+$("body").pagecontainer("getActivePage").attr("id");
+    // If the page is being updated then rebind the links
+    if (curr === toPage) {
+        bind_links(curr);
+    } else {
+        $("body").pagecontainer("change",toPage);
+    }
+}
+
+// Close the panel before page transition to avoid bug in jQM 1.4+
+function changeFromPanel(func) {
+    var $panel = $("#sprinklers-settings");
+    $panel.one("panelclose", func);
+    $panel.panel("close");
+}
+
+function open_popup(id) {
+    var popup = $(id);
+
+    popup.on("popupafteropen", function(){
+        $(this).popup("reposition", {
+            "positionTo": "window"
+        });
+        if (id == "#addnew") $("#os_name").focus();
+    }).popup().enhanceWithin().popup("open");
+}
+
+// Convert seconds into (HH:)MM:SS format. HH is only reported if greater than 0.
+function sec2hms(diff) {
+    var str = "";
+    var hours = parseInt( diff / 3600 ) % 24;
+    var minutes = parseInt( diff / 60 ) % 60;
+    var seconds = diff % 60;
+    if (hours) str += pad(hours)+":";
+    return str+pad(minutes)+":"+pad(seconds);
+}
+
+// Shim for older IE versions
+if (!Date.prototype.toISOString) {
+    (function() {
+        Date.prototype.toISOString = function() {
+            return this.getUTCFullYear()
+                + '-' + pad(this.getUTCMonth() + 1)
+                + '-' + pad(this.getUTCDate())
+                + 'T' + pad(this.getUTCHours())
+                + ':' + pad(this.getUTCMinutes())
+                + ':' + pad(this.getUTCSeconds())
+                + '.' + String((this.getUTCMilliseconds()/1000).toFixed(3)).slice(2,5)
+                + 'Z';
+        };
+    }());
+}
+
+// Add ability to unique sort arrays
+Array.prototype.getUnique = function(){
+   var u = {}, a = [];
+   for(var i = 0, l = this.length; i < l; ++i){
+      if(u.hasOwnProperty(this[i])) {
+         continue;
+      }
+      a.push(this[i]);
+      u[this[i]] = 1;
+   }
+   return a;
+}
+
+// show error message
+function showerror(msg) {
+        $.mobile.loading( 'show', {
+            text: msg,
+            textVisible: true,
+            textonly: true,
+            theme: 'b'
+            });
+    // hide after delay
+    setTimeout( function(){$.mobile.loading('hide')}, 1500);
+}
+
+// pad a single digit with a leading zero
+function pad(number) {
+    var r = String(number);
+    if ( r.length === 1 ) {
+        r = '0' + r;
+    }
+    return r;
 }
