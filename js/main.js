@@ -13,7 +13,7 @@ $(document).ready(function () {
                 StatusBar.styleLightContent();
                 StatusBar.backgroundColorByHexString("#1C1C1C");
             }
-
+            
             // Request the device's IP address
             networkinterface.getIPAddress(function(ip){
                 var chk = ip.split(".");
@@ -32,7 +32,7 @@ $(document).ready(function () {
                 window.deviceip = ip;
                 window.devicesfound = new Array;
                 window.scanprogress = 1;
-            })
+            });
         });
     } else {
         //Insert the startup images for iOS since we are in a web app
@@ -357,11 +357,13 @@ function show_sites(showBack) {
     if (showBack !== false) showBack = true;
     $("#manageBackButton").toggle(showBack);
 
-    var list = "<div data-role='collapsible-set'>";
-    var sites = getsites();
+    var list = "<div data-role='collapsible-set'>",
+        sites = getsites(),
+        total = Object.keys(sites).length;
+
     $.each(sites,function(a,b){
         var c = a.replace(/ /g,"_");
-        list += "<fieldset id='site-"+c+"' data-role='collapsible'>";
+        list += "<fieldset "+((total == 1) ? "data-collapsed='false'" : "")+" id='site-"+c+"' data-role='collapsible'>";
         list += "<legend>"+a+"</legend>";
         list += "<a data-role='button' onclick='update_site(\""+a+"\")'>"+_("Connect Now")+"</a>";
         list += "<label for='cip-"+c+"'>Change IP</label><input id='cip-"+c+"' type='text' value='"+b["os_ip"]+"' />";
@@ -519,7 +521,7 @@ function add_found(ip) {
     $("#site-select").one("popupafterclose", function(){
         open_popup("#addnew");
         $("#addnew").one("popupafterclose", function(){
-            $("#os_ip").parent().show();
+            $("#os_ip").val("").parent().show();
             $("#addnew label[for='os_ip']").show();
         })
     }).popup("close");
@@ -1922,6 +1924,7 @@ function open_popup(id) {
         $(this).popup("reposition", {
             "positionTo": "window"
         });
+        if (id == "#addnew") $("#os_name").focus();
     }).popup().enhanceWithin().popup("open");
 }
 
