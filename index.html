@@ -280,32 +280,22 @@
                 <a href="#sprinklers" data-onclick="gohome();" data-icon="back" data-translate="Back"></a>
             </div>
             <div class="ui-content" role="main">
-                <div data-role="collapsible-set">
-                    <div data-role="collapsible">
-                        <h3>Background</h3>
-                        <p>OpenSprinkler is a wonderful irrigation device without a mobile friendly UI. Built using jQuery Mobile, this app's goal is to improve the user expierence, especially on mobile devices. There were a few goals:</p>
-                        <ul>
-                            <li>Large on/off buttons in manual mode</li>
-                            <li>Easy slider inputs for any duration input</li>
-                            <li>Compatibility between many/all devices</li>
-                            <li>Easy feedback of current status</li>
-                            <li>Add/change programs</li>
-                        </ul>
-                        <p>Fortunately, a lot of feedback has been given on Ray's forums and now have an application that has been tested across many devices and installed in many unique environments.</p>
-                        <p>Every feature of the OpenSprinkler is supported.</p>
-                        <p>Changelog can be viewed on <a onclick="javascript:window.open('https://github.com/salbahra/OpenSprinkler-Controller/commits/master','_blank'); return false;">Github</a>.</p>
-                    </div>
-                    <div data-role="collapsible" data-collapsed="false">
-                        <h3>Donate</h3>
-                            <p style="text-align:center;overflow: visible;white-space: normal;">This app has been developed by Samer Albahra. If you enjoy it please donate by clicking the button below.</p>
-                            <form style='text-align:center' action="javascript:window.open('https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&amp;hosted_button_id=89M484QR2TCFJ','_blank')" method="post">
-                                <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
-                                <img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
-                            </form>
-                    </div>
-                </div>
-                <p id='versions'>
-                 </p>
+                <ul data-role="listview" data-inset="true" id="donate">
+                    <li>
+                        <p>This app has been developed by Samer Albahra. If you enjoy it please donate by clicking the button below.</p>
+                        <form style='text-align:center' action="javascript:window.open('https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&amp;hosted_button_id=89M484QR2TCFJ','_blank')" method="post">
+                            <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+                            <img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
+                        </form>
+                    </li>
+                </ul>
+                <ul data-role="listview" data-inset="true">
+                    <li>
+                        <p>This is open source software: source code and changelog for this application can be found at <a onclick="javascript:window.open('https://github.com/salbahra/OpenSprinkler-Hosted-Controller/','_blank'); return false;">https://github.com/salbahra/OpenSprinkler-Hosted-Controller/</a></p>
+
+                        <p>Version: 1.0.1</p>
+                    </li>
+                </ul>
             </div>
         </div>
 

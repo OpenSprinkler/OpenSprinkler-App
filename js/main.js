@@ -35,6 +35,9 @@ $(document).ready(function () {
             });
         });
     } else {
+        //Show donate text in the about page
+        $("#donate").show();
+
         //Insert the startup images for iOS since we are in a web app
         (function(){
             var p, l, r = window.devicePixelRatio, h = window.screen.height;

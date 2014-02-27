@@ -1,3 +1,14 @@
+#donate {
+    display: none;
+}
+#about p {
+    text-align:center;
+    overflow: visible;
+    white-space: normal;
+}
+.center {
+    text-align:center;    
+}
 #auto-scan {
     display: none;
 }
@@ -29,10 +40,6 @@ a {
     border: none;
     background: none !important;
     height: 25px;
-}
-#versions {
-    text-align: center;
-    margin: 0;
 }
 #status_list .ui-li {
     padding-bottom: 4px;
@@ -138,7 +145,7 @@ a {
 #raindelay, #sure, #addnew, #site-select {
     width: 300px;
 }
-#manual ul, #forecast ul {
+#manual ul, #forecast ul, #about ul {
     max-width: 800px;
     margin: 16px auto;
 }
