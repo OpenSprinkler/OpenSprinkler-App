@@ -52,7 +52,7 @@ $(document).ready(function () {
 
 //Set AJAX timeout
 $.ajaxSetup({
-    timeout: 3000
+    timeout: 6000
 });
 
 //Handle timeout
