@@ -37,5 +37,6 @@
 
         <gap:plugin name="org.apache.cordova.core.inappbrowser" />
         <gap:plugin name="com.phonegap.plugin.statusbar" />
+        <gap:plugin name="com.albahra.plugin.networkinterface" />
         
     </widget>
