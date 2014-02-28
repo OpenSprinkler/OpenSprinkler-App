@@ -43,6 +43,7 @@
         <icon src="img/icon.png" gap:platform="ios" width="144" height="144" />
 
         <gap:plugin name="org.apache.cordova.core.inappbrowser" />
+        <gap:plugin name="com.phonegap.plugin.statusbar" />
         <gap:plugin name="com.albahra.plugin.networkinterface" />
         
     </widget>
