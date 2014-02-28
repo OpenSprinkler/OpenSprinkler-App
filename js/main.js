@@ -8,10 +8,12 @@ $(document).ready(function () {
             var win = $(window);
             //If portrait mode (checked since plugin has a bug in landscape)
             if (win.height() > win.width()) {
-                //Change the status bar to match the headers
-                StatusBar.overlaysWebView(false);
-                StatusBar.styleLightContent();
-                StatusBar.backgroundColorByHexString("#1C1C1C");
+                try {
+                    //Change the status bar to match the headers
+                    StatusBar.overlaysWebView(false);
+                    StatusBar.styleLightContent();
+                    StatusBar.backgroundColorByHexString("#1C1C1C");
+                } catch (err) {}
             }
             
             // Request the device's IP address
