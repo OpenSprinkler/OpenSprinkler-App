@@ -280,24 +280,6 @@ function update_device(callback,fail) {
 
 // Multisite functions
 function check_configured() {
-    if (localStorage.getItem("os_ip") !== null && localStorage.getItem("os_pw") !== null) {
-        /* Migrate users to new multisite system */
-        sites = new Object();
-        sites["Migrated"] = new Object();
-        localStorage.setItem("current_site","Migrated");
-
-        sites["Migrated"]["os_ip"] = window.curr_ip = localStorage.getItem("os_ip");
-        sites["Migrated"]["os_pw"] = window.curr_pw = localStorage.getItem("os_pw");
-
-        localStorage.setItem("sites",JSON.stringify(sites));
-
-        update_site_list(["Migrated"]);
-
-        localStorage.removeItem("os_ip");
-        localStorage.removeItem("os_pw");
-        return true;
-    }
-
     var sites = getsites();
     var current = localStorage.getItem("current_site");
 
@@ -1880,16 +1862,16 @@ function areYouSure(text1, text2, callback) {
     });
 }
 
-//Converts data-onclick attributes on page to vclick bound functions. This removes the 300ms lag on mobile devices (iOS/Android)
+//Converts data-onclick attributes on page to click bound functions. This removes the 300ms lag on mobile devices (iOS/Android)
 function bind_links(page) {
     var currpage = $(page);
 
-    currpage.find("a[href='#"+currpage.attr('id')+"-settings']").unbind("vclick").on('vclick', function (e) {
+    currpage.find("a[href='#"+currpage.attr('id')+"-settings']").unbind("click").on('click', function (e) {
         e.preventDefault(); e.stopImmediatePropagation();
         highlight(this);
         $(".ui-page-active [id$=settings]").panel("open");
     });
-    currpage.find("a[data-onclick]").unbind("vclick").on('vclick', function (e) {
+    currpage.find("a[data-onclick]").unbind("click").on('click', function (e) {
         e.preventDefault(); e.stopImmediatePropagation();
         var func = $(this).data("onclick");
         highlight(this);
