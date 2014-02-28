@@ -1,12 +1,19 @@
  <?xml version="1.0" encoding="UTF-8" ?>
     <widget xmlns = "http://www.w3.org/ns/widgets"
-
+        xmlns:android   = "http://schemas.android.com/apk/res/android"
         xmlns:gap   = "http://phonegap.com/ns/1.0"
         id          = "com.albahra.opensprinkler"
         version     = "1.0.1"
         versionCode = "10" >
 
         <preference name="phonegap-version" value="3.3.0" />
+        <preference name="ios-statusbarstyle" value="black-opaque" />
+
+        <preference name="permissions" value="none" />
+        <gap:config-file platform="android" parent="/manifest">
+            <uses-permission android:name="android.permission.INTERNET" />
+            <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+        </gap:config-file>
 
         <name>Sprinklers</name>
 
@@ -14,7 +21,7 @@
         A mobile interface for the OpenSprinkler irrigation device. Designed to allow manual control, program management (view, edit, delete and add), initiation of a run-once program, viewing device status, adjusting rain delay, and changing of OpenSprinkler settings.
         </description>
 
-        <author href="http://albahra.com" email="salbahra@gmail.com">
+        <author href="http://albahra.com/sprinklers/" email="salbahra@gmail.com">
         Samer Albahra
         </author>
 
@@ -36,7 +43,6 @@
         <icon src="img/icon.png" gap:platform="ios" width="144" height="144" />
 
         <gap:plugin name="org.apache.cordova.core.inappbrowser" />
-        <gap:plugin name="com.phonegap.plugin.statusbar" />
         <gap:plugin name="com.albahra.plugin.networkinterface" />
         
     </widget>
