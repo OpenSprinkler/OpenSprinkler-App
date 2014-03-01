@@ -1,4 +1,4 @@
-msgid "Manual"
+msgid "Manually Add Device"
 msgstr ""
 
 msgid "Manual mode is not enabled. Please enable manual mode then try again."
@@ -354,7 +354,7 @@ msgid ""
 "network."
 msgstr ""
 
-msgid "Automatic"
+msgid "Scan For Device"
 msgstr ""
 
 msgid "Add Controller"
