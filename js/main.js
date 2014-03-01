@@ -1461,7 +1461,7 @@ function make_program(n,total,program) {
     if (typeof program !== "undefined") {
         program = read_program(program);
     } else {
-        program = {"en":0,"is_interval":0,"is_even":0,"is_odd":0,"duration":0,"interval":0,"start":0,"end":0};
+        program = {"en":0,"is_interval":0,"is_even":0,"is_odd":0,"duration":0,"interval":0,"start":0,"end":0,"days":[0,0]};
     }
     var week = [_("M"),_("T"),_("W"),_("R"),_("F"),_("Sa"),_("Su")],
         days;
