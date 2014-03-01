@@ -8,6 +8,8 @@
 
         <preference name="phonegap-version" value="3.3.0" />
         
+        <preference name="DisallowOverscroll" value="true"  />
+
         <preference name="permissions" value="none" />
         <gap:config-file platform="android" parent="/manifest">
             <uses-permission android:name="android.permission.INTERNET" />
