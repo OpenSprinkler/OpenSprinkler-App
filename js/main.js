@@ -28,7 +28,7 @@ $(document).ready(function () {
                 var auto = $("#auto-scan"),
                     next = auto.next();
 
-                next.removeClass("ui-first-child").find("a.ui-btn").text(_("Manual"));
+                next.removeClass("ui-first-child").find("a.ui-btn").text(_("Manually Add Device"));
                 auto.show();
 
                 window.deviceip = ip;
