@@ -1851,16 +1851,16 @@ function areYouSure(text1, text2, callback) {
     });
 }
 
-//Converts data-onclick attributes on page to click bound functions. This removes the 300ms lag on mobile devices (iOS/Android)
+//Converts data-onclick attributes on page to vclick bound functions. This removes the 300ms lag on mobile devices (iOS/Android)
 function bind_links(page) {
     var currpage = $(page);
 
-    currpage.find("a[href='#"+currpage.attr('id')+"-settings']").unbind("click").on('click', function (e) {
+    currpage.find("a[href='#"+currpage.attr('id')+"-settings']").unbind("vclick").on('vclick', function (e) {
         e.preventDefault(); e.stopImmediatePropagation();
         highlight(this);
         $(".ui-page-active [id$=settings]").panel("open");
     });
-    currpage.find("a[data-onclick]").unbind("click").on('click', function (e) {
+    currpage.find("a[data-onclick]").unbind("vclick").on('vclick', function (e) {
         e.preventDefault(); e.stopImmediatePropagation();
         var func = $(this).data("onclick");
         highlight(this);
