@@ -92,14 +92,14 @@ $(document).ajaxError(function(x,t,m) {
 });
 
 //After jQuery mobile is loaded set intial configuration
-$(document).one("mobileinit", function(e){
+$(document).one("mobileinit", function(){
     $.mobile.defaultPageTransition = 'fade';
     $.mobile.hashListeningEnabled = false;
     $("#addnew, #site-select").enhanceWithin().popup();
     $("body").show();
 });
 
-$(document).one("pagebeforechange", function(event,data) {
+$(document).one("pagebeforechange", function(event) {
     // Let the framework know we're going to handle the load. 
     event.preventDefault();
  
@@ -112,7 +112,7 @@ $(document).one("pagebeforechange", function(event,data) {
 
 });
 
-$(document).on("pageshow",function(e,data){
+$(document).on("pageshow",function(e){
     var newpage = "#"+e.target.id;
 
     // Render graph after the page is shown otherwise graphing function will fail
@@ -127,7 +127,7 @@ $(document).on("pageshow",function(e,data){
     bind_links(newpage);
 });
 
-$(document).on("pagebeforeshow",function(e,data){
+$(document).on("pagebeforeshow",function(e){
     var newpage = e.target.id;
 
     //Remove lingering tooltip from preview page
@@ -434,7 +434,7 @@ function start_scan() {
 
     var ip = window.deviceip.split("."),
         started = false,
-        defer, i, url;
+        i, url;
 
     window.scanprogress = 1;
     window.devicesfound = [];
@@ -765,7 +765,6 @@ function get_status() {
     runningTotal.c = window.controller.settings.devt;
 
     var master = window.controller.settings.mas,
-        i = 0,
         ptotal = 0;
 
     var open = {};
@@ -885,7 +884,7 @@ function check_status() {
     // Handle more than 1 open station
     if (Object.keys(open).length >= 2) {
         var ptotal = 0;
-        $.each(open,function (key, status){
+        $.each(open,function (key){
             var tmp = window.controller.settings.ps[key][1];
             if (tmp > ptotal) ptotal = tmp;
         });
@@ -906,7 +905,6 @@ function check_status() {
     var match = false,
         i = 0;
     $.each(window.controller.stations.snames,function (station,name){
-        var info = "";
         if (window.controller.settings.ps[i][0] && window.controller.status[i] && window.controller.settings.mas != i+1) {
             match = true;
             var pid = window.controller.settings.ps[i][0],
@@ -995,10 +993,9 @@ function update_timers(sdelay) {
 
 // Manual control functions
 function get_manual() {
-    var list = "<li data-role='list-divider' data-theme='a'>"+_("Sprinkler Stations")+"</li>",
-        i = 0;
+    var list = "<li data-role='list-divider' data-theme='a'>"+_("Sprinkler Stations")+"</li>";
 
-    $.each(window.controller.stations.snames,function(i,station) {
+    $.each(window.controller.stations.snames,function (i,station) {
         list += '<li data-icon="false"><a style="text-align:center" '+((window.controller.status[i]) ? 'class="green" ' : '')+'href="#" onclick="toggle(this);">'+station+'</a></li>';
         i++;
     });
@@ -1015,7 +1012,6 @@ function toggle(anchor) {
     var $listitems = $list.children("li:not(li.ui-li-divider)");
     var $item = $anchor.closest("li:not(li.ui-li-divider)");
     var currPos = $listitems.index($item) + 1;
-    var total = $listitems.length;
     if ($anchor.hasClass("green")) {
         $.get("http://"+window.curr_ip+"/sn"+currPos+"=0").fail(function(){
             $anchor.addClass("green");
@@ -1184,14 +1180,10 @@ function get_preview() {
 
 function process_programs(month,day,year) {
     window.preview_data = "";
-    var newdata = {},
-        devdateobj = new Date(window.controller.settings.devt*1000),
-        devday = Math.floor(window.controller.settings.devt/(60*60*24)),
-        devmin = (devdateobj.getUTCHours()*60)+devdateobj.getUTCMinutes(),
+    var devday = Math.floor(window.controller.settings.devt/(60*60*24)),
         simminutes = 0,
         simt = Date.UTC(year,month-1,day,0,0,0,0),
         simday = (simt/3600/24)>>0,
-        match = [0,0],
         st_array = new Array(window.controller.settings.nbrd*8),
         pid_array = new Array(window.controller.settings.nbrd*8),
         et_array = new Array(window.controller.settings.nbrd*8),
@@ -1727,8 +1719,7 @@ function import_config(data) {
 
         var cs = "/cs?pw="+window.curr_pw,
             co = "/co?pw="+window.curr_pw,
-            cp_start = "/cp?pw="+window.curr_pw,
-            i = 0;
+            cp_start = "/cp?pw="+window.curr_pw;
 
         $.each(data.options,function (key,value) {
             if (typeof value === "object") {
