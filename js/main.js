@@ -622,7 +622,7 @@ function show_settings() {
             case "mas":
                 list.mas = "<label for='o18' class='select'>"+_("Master Station")+"</label><select data-mini='true' id='o18'><option value='0'>None</option>";
                 var i = 1;
-                $.each(window.controller.stations,function(i, station) {
+                $.each(window.controller.stations.snames,function(z, station) {
                     list.mas += "<option "+((i == data) ? "selected" : "")+" value='"+i+"'>"+station+"</option>";
                     if (i == 8) return false;
                     i++;
@@ -1288,7 +1288,7 @@ function run_sched(simseconds,st_array,pid_array,et_array,simt) {
       if(window.controller.options.seq==1) {
         time_to_text(sid,st_array[sid],pid_array[sid],et_array[sid],simt);
         if((window.controller.options.mas>0)&&(window.controller.options.mas!=sid+1)&&(window.controller.stations.masop[sid>>3]&(1<<(sid%8))))
-            window.preview_data += "{'start': "+(st_array[sid]+window.controller.options.mton)+",'end': "+(et_array[sid]+window.controller.options.mtoff)+",'content':'','className':'master','shortname':'M','group':'Master'},";
+            window.preview_data += "{'start': "+(st_array[sid]+window.controller.options.mton)+",'end': "+(et_array[sid]+window.controller.options.mtof)+",'content':'','className':'master','shortname':'M','group':'Master'},";
         endtime=et_array[sid];
       } else {
         time_to_text(sid,simseconds,pid_array[sid],et_array[sid],simt);
@@ -1478,7 +1478,7 @@ function make_program(n,total,program) {
     var week = [_("M"),_("T"),_("W"),_("R"),_("F"),_("Sa"),_("Su")],
         days;
 
-    if (typeof program.days !== "undefined") {
+    if (typeof program.days === "string") {
         days = program.days.split("");
         for(var i=days.length;i--;) days[i] = days[i]|0;
     } else {
@@ -1511,8 +1511,8 @@ function make_program(n,total,program) {
     list += "</fieldset></div>";
 
     list += "<div "+((program.is_interval) ? "" : "style='display:none'")+" id='input_days_n-"+n+"' class='ui-grid-a'>";
-    list += "<div class='ui-block-a'><label for='every-"+n+"'>"+_("Interval (Days)")+"</label><input data-mini='true' type='number' name='every-"+n+"' pattern='[0-9]*' id='every-"+n+"' value='"+days[0]+"'></div>";
-    list += "<div class='ui-block-b'><label for='starting-"+n+"'>"+_("Starting In")+"</label><input data-mini='true' type='number' name='starting-"+n+"' pattern='[0-9]*' id='starting-"+n+"' value='"+days[1]+"'></div>";
+    list += "<div class='ui-block-a'><label for='every-"+n+"'>"+_("Interval (Days)")+"</label><input data-mini='true' type='number' name='every-"+n+"' pattern='[0-9]*' id='every-"+n+"' value='"+program.days[0]+"'></div>";
+    list += "<div class='ui-block-b'><label for='starting-"+n+"'>"+_("Starting In")+"</label><input data-mini='true' type='number' name='starting-"+n+"' pattern='[0-9]*' id='starting-"+n+"' value='"+program.days[1]+"'></div>";
     list += "</div>";
 
     list += "<fieldset data-role='controlgroup'><legend>"+_("Stations:")+"</legend>";
