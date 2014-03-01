@@ -127,8 +127,9 @@ $(document).on("pageshow",function(e){
     bind_links(newpage);
 });
 
-$(document).on("pagebeforeshow",function(e){
-    var newpage = e.target.id;
+$(document).on("pagebeforeshow",function(e,data){
+    var newpage = e.target.id,
+        fromStart = ($(".ui-page-active").attr("id") == "start") ? 1 : 0;
 
     //Remove lingering tooltip from preview page
     $("#tooltip").remove();
@@ -137,7 +138,7 @@ $(document).on("pagebeforeshow",function(e){
     if (window.interval_id !== undefined) clearInterval(window.interval_id);
     if (window.timeout_id !== undefined) clearTimeout(window.timeout_id);
 
-    if (newpage == "sprinklers") {
+    if (!fromStart && newpage == "sprinklers") {
         //Reset status bar to loading while an update is done
         $("#footer-running").html("<p class='ui-icon ui-icon-loading mini-load'></p>");
         setTimeout(function(){
@@ -340,7 +341,7 @@ function show_sites(showBack) {
         list += "<fieldset "+((total == 1) ? "data-collapsed='false'" : "")+" id='site-"+c+"' data-role='collapsible'>";
         list += "<legend>"+a+"</legend>";
         list += "<a data-role='button' onclick='update_site(\""+a+"\")'>"+_("Connect Now")+"</a>";
-        list += "<label for='cip-"+c+"'>Change IP</label><input id='cip-"+c+"' type='text' value='"+b["os_ip"]+"' />";
+        list += "<label for='cip-"+c+"'>Change IP</label><input id='cip-"+c+"' type='text' value='"+b.os_ip+"' />";
         list += "<label for='cpw-"+c+"'>Change Password</label><input id='cpw-"+c+"' type='password' />";
         list += "<a data-role='button' onclick='change_site(\""+c+"\")'>"+_("Save Changes to")+" "+a+"</a>";
         list += "<a data-role='button' onclick='delete_site(\""+a+"\")' data-theme='b'>"+_("Delete")+" "+a+"</a>";
