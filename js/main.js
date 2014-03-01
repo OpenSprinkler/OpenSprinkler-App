@@ -32,7 +32,7 @@ $(document).ready(function () {
                 auto.show();
 
                 window.deviceip = ip;
-                window.devicesfound = new Array;
+                window.devicesfound = [];
                 window.scanprogress = 1;
             });
         });
@@ -51,7 +51,7 @@ $(document).ready(function () {
                 p = r === 2 ? (h === 568 ? "img/startup-iphone5-retina.png" : "img/startup-retina.png") : "img/startup.png";
                 $('<link rel="apple-touch-startup-image" href="'+p+'">').appendTo("body");
             }
-        })()
+        })();
     }
 });
 
@@ -69,7 +69,7 @@ $(document).ajaxError(function(x,t,m) {
         } else {
             showerror(_("Check device password and try again."));
         }
-    } else if (t.status==0) {
+    } else if (t.status===0) {
         if (/https?:\/\/[\d|.]+\/j\w/.exec(m.url)) {
             // Ajax fails typically because the password is wrong
             showerror(_("Check that the device is connected to the network and try again."));
@@ -84,9 +84,9 @@ $(document).ajaxError(function(x,t,m) {
                 "margin-left": "-1000px"
             },1000,function(){
                 $(this).hide();
-            })
+            });
         } else {
-            showerror(_("Connection timed-out. Please try again."))
+            showerror(_("Connection timed-out. Please try again."));
         }
     }
 });
@@ -112,24 +112,14 @@ $(document).one("pagebeforechange", function(event,data) {
 
 });
 
-//After main page is processed, hide loading message and change to the page
-$(document).one("pagecreate","#sprinklers", function(){
-    //Use the user's local time for preview
-    var now = new Date();
-    $("#preview_date").val(now.toISOString().slice(0,10));
-
-    //Open the main page
-    $("body").pagecontainer("change","#sprinklers",{transition:"none"});
-
-    //Indicate loading is complete
-    $.mobile.loading("hide");
-});
-
 $(document).on("pageshow",function(e,data){
     var newpage = "#"+e.target.id;
 
     // Render graph after the page is shown otherwise graphing function will fail
     if (newpage == "#preview") {
+        //Use the user's local time for preview
+        var now = new Date();
+        $("#preview_date").val(now.toISOString().slice(0,10));
         get_preview();
     }
 
@@ -154,18 +144,15 @@ $(document).on("pagebeforeshow",function(e,data){
             update_device(check_status,function(){
                 $("#footer-running").slideUp();
                 comm_error();
-            })
+            });
         },500);
-    } else {
-        var title = document.title;
-        document.title = "OpenSprinkler: "+title;
     }
-})
+});
 
 //Update the preview page on date change
 $("#preview_date").change(function(){
     var id = $(".ui-page-active").attr("id");
-    if (id == "preview") get_preview()
+    if (id == "preview") get_preview();
 });
 
 //Update site based on selector
@@ -174,7 +161,7 @@ $("#site-selector").change(function(){
     location.reload();
 });
 
-var mmSwitching = false
+var mmSwitching = false;
 $("#mm,#mmm").change(function(){
     if (mmSwitching) return;
 
@@ -197,8 +184,8 @@ $("#mm,#mmm").change(function(){
             mmSwitching = false;
         },200);
         slide.prop("checked",!changedTo).flipswitch("refresh");
-    })    
-})
+    });
+});
 
 var enSwitching = false;
 $("#en").change(function(){
@@ -218,12 +205,12 @@ $("#en").change(function(){
             enSwitching = false;
         },200);
         $("#en").prop("checked",!changedTo).flipswitch("refresh");
-    })
-})
+    });
+});
 
 // Generic communication error message
 function comm_error() {
-    showerror(_("Error communicating with OpenSprinkler. Please check your password is correct."))
+    showerror(_("Error communicating with OpenSprinkler. Please check your password is correct."));
 }
 
 //Define option names based on ID
@@ -234,7 +221,7 @@ function newload() {
     $.mobile.loading("show");
 
     //Create object which will store device data
-    window.controller = new Object;
+    window.controller = {};
     update_device(
         function(){
             if (window.controller.settings.en == "1") $("#en").prop("checked",true);
@@ -289,7 +276,7 @@ function check_configured() {
 
     if (!names.length) return false;
 
-    if (current === null || !current in sites) {
+    if (current === null || !(current in sites)) {
         /* Present dialog to select site */
         site_select(names);
         return true;
@@ -301,7 +288,7 @@ function check_configured() {
     window.curr_ip = sites[current]["os_ip"];
     window.curr_pw = sites[current]["os_pw"];
 
-    return true
+    return true;
 }
 
 // Add a new site
@@ -322,21 +309,21 @@ function submit_newuser() {
         $.mobile.loading("hide");
         if (data.en !== undefined) {
             var name = $("#os_name").val();
-            if (name === "") name = "Site "+(Object.keys(sites).length+1)
-            sites[name] = window.curr_name = new Object();
-            sites[name]["os_ip"] = window.curr_ip = $("#os_ip").val()
-            sites[name]["os_pw"] = window.curr_pw = $("#os_pw").val()
+            if (name === "") name = "Site "+(Object.keys(sites).length+1);
+            sites[name] = window.curr_name = {};
+            sites[name]["os_ip"] = window.curr_ip = $("#os_ip").val();
+            sites[name]["os_pw"] = window.curr_pw = $("#os_pw").val();
             localStorage.setItem("sites",JSON.stringify(sites));
             localStorage.setItem("current_site",name);
             update_site_list(Object.keys(sites));
             newload();
         } else {
-            showerror(_("Check IP/Port and try again."))
+            showerror(_("Check IP/Port and try again."));
         }
     }).fail(function(){
         $.mobile.loading("hide");
-        showerror(_("Check IP/Port and try again."))
-    })
+        showerror(_("Check IP/Port and try again."));
+    });
 }
 
 // Show manage site page
@@ -358,7 +345,7 @@ function show_sites(showBack) {
         list += "<a data-role='button' onclick='change_site(\""+c+"\")'>"+_("Save Changes to")+" "+a+"</a>";
         list += "<a data-role='button' onclick='delete_site(\""+a+"\")' data-theme='b'>"+_("Delete")+" "+a+"</a>";
         list += "</fieldset>";
-    })
+    });
 
     $("#site-control-list").html(list+"</div>").enhanceWithin();
     changePage("#site-control");
@@ -384,10 +371,10 @@ function change_site(site) {
     var ip = $("#cip-"+site).val();
     var pw = $("#cpw-"+site).val();
 
-    site = site.replace(/_/g," ")
+    site = site.replace(/_/g," ");
 
-    if (ip != "") sites[site]["os_ip"] = ip;
-    if (pw != "") sites[site]["os_pw"] = pw;
+    if (ip !== "") sites[site]["os_ip"] = ip;
+    if (pw !== "") sites[site]["os_pw"] = pw;
 
     localStorage.setItem("sites",JSON.stringify(sites));
 
@@ -402,8 +389,8 @@ function site_select(names) {
     var list = $("#site-select-list");
     var newlist = "";
     $.each(names,function(a,b){
-        newlist += "<li><a class='ui-btn ui-btn-icon-right ui-icon-carat-r' href='javascript:update_site(\""+b+"\");'>"+b+"</a></li>"
-    })
+        newlist += "<li><a class='ui-btn ui-btn-icon-right ui-icon-carat-r' href='javascript:update_site(\""+b+"\");'>"+b+"</a></li>";
+    });
 
     list.html(newlist);
     open_popup("#site-select");
@@ -411,13 +398,13 @@ function site_select(names) {
 
 // Update the panel list of sites
 function update_site_list(names) {
-    list = "";
-    var current = localStorage.getItem("current_site");
+    var list = "",
+        current = localStorage.getItem("current_site");
     $.each(names,function(a,b){
         list += "<option "+(b==current ? "selected ":"")+"value='"+b+"'>"+b+"</option>";
-    })
+    });
 
-    $("#site-selector").html(list)
+    $("#site-selector").html(list);
     try {
         $("#site-selector").selectmenu("refresh");
     } catch (err) {
@@ -436,8 +423,8 @@ function update_site(newsite) {
 
 // Get the list of sites from the local storage
 function getsites() {
-    sites = JSON.parse(localStorage.getItem("sites"));
-    if (sites === null) sites = new Object();
+    var sites = JSON.parse(localStorage.getItem("sites"));
+    if (sites === null) sites = {};
     return sites;
 }
 
@@ -446,19 +433,19 @@ function start_scan() {
     $.mobile.loading("show");
 
     var ip = window.deviceip.split("."),
-        defer;
+        started = false,
+        defer, i, url;
 
     window.scanprogress = 1;
-    window.devicesfound = new Array;
+    window.devicesfound = [];
 
     ip.pop();
-    baseip = ip.join(".");
+    var baseip = ip.join(".");
 
     // Start scan
-    for (var i = 1; i<=244; i++) {
-        var ip = baseip+"."+i,
-            url = "http://"+ip+"/jo",
-            started = false;
+    for (i = 1; i<=244; i++) {
+        ip = baseip+"."+i;
+        url = "http://"+ip+"/jo";
         $.ajax({
             url: url,
             type: "GET",
@@ -475,7 +462,7 @@ function start_scan() {
             window.devicesfound.push(device);
 
             var list = $("#site-select-list");
-            var item = "<li><a class='ui-btn ui-btn-icon-right ui-icon-carat-r' href='javascript:add_found(\""+ip+"\");'>"+ip+"<p>"+_("Firmware")+": "+(reply.fwv/100>>0)+"."+((reply.fwv/10>>0)%10)+"."+(reply.fwv%10)+"</p></a></li>"
+            var item = "<li><a class='ui-btn ui-btn-icon-right ui-icon-carat-r' href='javascript:add_found(\""+ip+"\");'>"+ip+"<p>"+_("Firmware")+": "+(reply.fwv/100>>0)+"."+((reply.fwv/10>>0)%10)+"."+(reply.fwv%10)+"</p></a></li>";
 
             if (!started) {
                 $.mobile.loading("hide");                
@@ -487,7 +474,7 @@ function start_scan() {
                 $("#site-select").popup("reposition", {positionTo: 'window'});
             }
         });
-    };
+    }
     window.scanning = setInterval(check_scan_status,200);
 }
 
@@ -510,7 +497,7 @@ function add_found(ip) {
         $("#addnew").one("popupafterclose", function(){
             $("#os_ip").val("").parent().show();
             $("#addnew label[for='os_ip']").show();
-        })
+        });
     }).popup("close");
 }
 
@@ -536,7 +523,7 @@ function update_weather() {
                     "margin-left": "-1000px"
                 },1000,function(){
                     $(this).hide();
-                })
+                });
                 return;            
             }
             var now = data.query.results.channel.item.condition,
@@ -548,7 +535,7 @@ function update_weather() {
             $("#weather").bind("click",show_forecast);
             $("#weather-list").animate({ 
                 "margin-left": "0"
-            },1000).show()
+            },1000).show();
 
             update_forecast(data.query.results.channel.item.forecast,loc[1],region,now);
         });
@@ -582,7 +569,7 @@ function show_about() {
 
 // Device setting management functions
 function show_settings() {
-    var list = new Object
+    var list = {};
     list.start = "<li><div class='ui-field-contain'><fieldset>";
 
     $.each(window.controller.options,function(key,data) {
@@ -665,11 +652,11 @@ function submit_settings() {
         var $item = $(b), id = $item.attr('id'), data = $item.val();
         switch (id) {
             case "o1":
-                var tz = data.split(":")
+                var tz = data.split(":");
                 tz[0] = parseInt(tz[0],10);
                 tz[1] = parseInt(tz[1],10);
                 tz[1]=(tz[1]/15>>0)/4.0;tz[0]=tz[0]+(tz[0]>=0?tz[1]:-tz[1]);
-                data = ((tz[0]+12)*4)>>0
+                data = ((tz[0]+12)*4)>>0;
                 break;
             case "o2":
             case "o14":
@@ -677,13 +664,13 @@ function submit_settings() {
             case "o21":
             case "o22":
             case "o25":
-                data = $item.is(":checked") ? 1 : 0
-                if (!data) return true
+                data = $item.is(":checked") ? 1 : 0;
+                if (!data) return true;
                 break;
         }
-        opt[id] = encodeURIComponent(data)
-    })
-    if (invalid) return
+        opt[id] = encodeURIComponent(data);
+    });
+    if (invalid) return;
     $.mobile.loading("show");
     $.get("http://"+window.curr_ip+"/co?pw="+window.curr_pw+"&"+$.param(opt),function(){
         $.mobile.loading("hide");
@@ -699,7 +686,6 @@ function show_stations() {
     var list = "<li>",
         isMaster = window.controller.settings.mas;
     if (isMaster) list += "<table><tr><th>"+_("Station Name")+"</th><th>"+_("Activate Master?")+"</th></tr>";
-    $i = 0;
     $.each(window.controller.stations.snames,function(i, station) {
         if (isMaster) list += "<tr><td>";
         list += "<input data-mini='true' id='edit_station_"+i+"' type='text' value='"+station+"' />";
@@ -722,21 +708,27 @@ function show_stations() {
 }
 
 function submit_stations() {
-    var names = {}, invalid = false,v="";bid=0,s=0,m={},masop="";
+    var names = {},
+        invalid = false,
+        v="",
+        bid=0,
+        s=0,
+        m={},
+        masop="";
+
     $("#os-stations-list").find(":input,p[id^='um_']").each(function(a,b){
         var $item = $(b), id = $item.attr('id'), data = $item.val();
         switch (id) {
             case "edit_station_" + id.slice("edit_station_".length):
-                id = "s" + id.split("_")[2]
+                id = "s" + id.split("_")[2];
                 if (data.length > 16) {
-                    invalid = true
-                    $item.focus()
-                    showerror(_("Station name must be 16 characters or less"))
-                    return false
+                    invalid = true;
+                    $item.focus();
+                    showerror(_("Station name must be 16 characters or less"));
+                    return false;
                 }
-                names[id] = data
+                names[id] = data;
                 return true;
-                break;
             case "um_" + id.slice("um_".length):
                 v = ($item.is(":checked") || $item.prop("tagName") == "P") ? "1".concat(v) : "0".concat(v);
                 s++;
@@ -744,12 +736,11 @@ function submit_stations() {
                     m["m"+bid]=parseInt(v,2); bid++; s=0; v="";
                 }
                 return true;
-                break;
         }
-    })
+    });
     m["m"+bid]=parseInt(v,2);
     if ($("[id^='um_']").length) masop = "&"+$.param(m);
-    if (invalid) return
+    if (invalid) return;
     $.mobile.loading("show");
     $.get("http://"+window.curr_ip+"/cs?pw="+window.curr_pw+"&"+$.param(names)+masop,function(){
         $.mobile.loading("hide");
@@ -761,10 +752,10 @@ function submit_stations() {
 
 // Current status related functions
 function get_status() {
-    var runningTotal = new Object,
-        allPnames = new Array;
-
-    var list = "",
+    var runningTotal = {},
+        allPnames = [],
+        color = "",
+        list = "",
         tz = window.controller.options.tz-48;
 
     tz = ((tz>=0)?"+":"-")+pad((Math.abs(tz)/4>>0))+":"+((Math.abs(tz)%4)*15/10>>0)+((Math.abs(tz)%4)*15%10);
@@ -777,7 +768,7 @@ function get_status() {
         i = 0,
         ptotal = 0;
 
-    var open = new Object;
+    var open = {};
     $.each(window.controller.status, function (i, stn) {
         if (stn) open[i] = stn;
     });
@@ -796,9 +787,9 @@ function get_status() {
             } else {
                 ptotal+=rem;
             }
-            remm=rem/60>>0;
-            rems=rem%60;
-            var pid = window.controller.settings.ps[i][0],
+            var remm=rem/60>>0,
+                rems=rem%60,
+                pid = window.controller.settings.ps[i][0],
                 pname = pidname(pid);
             if (window.controller.status[i] && (pid!=255&&pid!=99)) runningTotal[i] = rem;
             allPnames[i] = pname;
@@ -807,18 +798,18 @@ function get_status() {
             info += "</p>";
         }
         if (window.controller.status[i]) {
-            var color = "green";
+            color = "green";
         } else {
-            var color = "red";
+            color = "red";
         }
         list += "<li class='"+color+"'><p class='sname'>"+station+"</p>"+info+"</li>";
         i++;
-    })
+    });
 
     var footer = "";
     var lrdur = window.controller.settings.lrun[2];
 
-    if (lrdur != 0) {
+    if (lrdur !== 0) {
         var lrpid = window.controller.settings.lrun[1];
         var pname= pidname(lrpid);
 
@@ -826,11 +817,11 @@ function get_status() {
     }
 
     if (ptotal) {
-        scheduled = allPnames.length;
-        if (!open && scheduled) runningTotal.d = window.controller.options["sdt"];
-        if (open == 1) ptotal += (scheduled-1)*window.controller.options["sdt"];
+        var scheduled = allPnames.length;
+        if (!open && scheduled) runningTotal.d = window.controller.options.sdt;
+        if (open == 1) ptotal += (scheduled-1)*window.controller.options.sdt;
         allPnames = allPnames.getUnique();
-        numProg = allPnames.length;
+        var numProg = allPnames.length;
         allPnames = allPnames.join(" "+_("and")+" ");
         var pinfo = allPnames+" "+((numProg > 1) ? _("are") : _("is"))+" "+_("running")+" ";
         pinfo += "<br><span id='countdown-p' class='nobr'>("+sec2hms(ptotal)+" remaining)</span>";
@@ -852,12 +843,12 @@ function get_status() {
         delete window.totals.p;
         setTimeout(get_status,window.totals.d*1000);
     }
-    update_timers(window.controller.options["sdt"]);
+    update_timers(window.controller.options.sdt);
 }
 
 // Actually change the status bar
 function change_status(seconds,sdelay,color,line) {
-    var footer = $("#footer-running")
+    var footer = $("#footer-running");
     if (window.interval_id !== undefined) clearInterval(window.interval_id);
     if (window.timeout_id !== undefined) clearTimeout(window.timeout_id);
     if (seconds > 1) update_timer(seconds,sdelay);
@@ -882,7 +873,7 @@ function check_status() {
     }
 
     // Handle open stations
-    var open = new Object;
+    var open = {};
     $.each(window.controller.status, function (i, stn) {
         if (stn) open[i] = stn;
     });
@@ -917,7 +908,7 @@ function check_status() {
     $.each(window.controller.stations.snames,function (station,name){
         var info = "";
         if (window.controller.settings.ps[i][0] && window.controller.status[i] && window.controller.settings.mas != i+1) {
-            match = true
+            match = true;
             var pid = window.controller.settings.ps[i][0],
                 pname = pidname(pid),
                 line = "<img id='running-icon' width='11px' height='11px' src='img/running.png' /><p id='running-text'>";
@@ -964,7 +955,7 @@ function update_timer(total,sdelay) {
         else
             --total;
             $("#countdown").text("(" + sec2hms(total) + " "+_("remaining")+")");
-    },1000)
+    },1000);
 }
 
 // Handle all timers on the current status page
@@ -998,8 +989,8 @@ function update_timers(sdelay) {
                     $("#countdown-"+a).text("(" + sec2hms(window.totals[a]) + " "+_("remaining")+")");
                 }
             }
-        })
-    },1000)
+        });
+    },1000);
 }
 
 // Manual control functions
@@ -1010,7 +1001,7 @@ function get_manual() {
     $.each(window.controller.stations.snames,function(i,station) {
         list += '<li data-icon="false"><a style="text-align:center" '+((window.controller.status[i]) ? 'class="green" ' : '')+'href="#" onclick="toggle(this);">'+station+'</a></li>';
         i++;
-    })
+    });
     var mm = $("#mm_list");
     mm.html(list);
     if (mm.hasClass("ui-listview")) mm.listview("refresh");
@@ -1028,14 +1019,14 @@ function toggle(anchor) {
     if ($anchor.hasClass("green")) {
         $.get("http://"+window.curr_ip+"/sn"+currPos+"=0").fail(function(){
             $anchor.addClass("green");
-            comm_error()
-        })
+            comm_error();
+        });
         $anchor.removeClass("green");
     } else {
         $.get("http://"+window.curr_ip+"/sn"+currPos+"=1&t=0").fail(function(){
             $anchor.removeClass("green");
-            comm_error()
-        })
+            comm_error();
+        });
         $anchor.addClass("green");
     }
 }
@@ -1047,19 +1038,19 @@ function get_runonce() {
     $.each(window.controller.stations.snames,function(i, station) {
         list += "<label for='zone-"+n+"'>"+station+":</label><input type='number' data-highlight='true' data-type='range' name='zone-"+n+"' min='0' max='240' id='zone-"+n+"' value='0'>";
         n++;
-    })
+    });
     list += "</div><a class='ui-btn ui-corner-all ui-shadow' onclick='submit_runonce();'>"+_("Submit")+"</a><a class='ui-btn ui-btn-b ui-corner-all ui-shadow' onclick='reset_runonce();'>"+_("Reset")+"</a>";
-    var progs = new Array();
+    var progs = [];
     if (window.controller.programs.pd.length) {
-        $.each(window.controller.programs.pd,function(i, program) {
+        $.each(window.controller.programs.pd,function(z, program) {
             program = read_program(program);
-            var prog = new Array,
+            var prog = [],
                 set_stations = program.stations.split("");
             for (var i=0;i<window.controller.stations.snames.length;i++) { 
                 prog.push(((typeof set_stations[i] !== undefined) && set_stations[i]) ? program.duration : 0);
             }
             progs.push(prog);
-        })
+        });
     }
 
     window.rprogs = progs;
@@ -1073,31 +1064,31 @@ function get_runonce() {
         runonce.find(":input[data-type='range']").each(function(a,b){
             $(b).val(data[i]/60);
             i++;
-        })
-        window.rprogs["l"] = data;
+        });
+        window.rprogs.l = data;
         quickPick += "<option value='l' selected='selected'>"+_("Last Used Program")+"</option>";
     }
     for (i=0; i<progs.length; i++) {
         quickPick += "<option value='"+i+"'>"+_("Program")+" "+(i+1)+"</option>";
-    };
+    }
     quickPick += "</select>";
     $("#runonce_list p").after(quickPick);
     $("#rprog").change(function(){
         var prog = $(this).val();
         if (prog == "s") {
-            reset_runonce()
+            reset_runonce();
             return;
         }
-        if (window.rprogs[prog] == undefined) return;
+        if (typeof window.rprogs[prog] === "undefined") return;
         fill_runonce(runonce,window.rprogs[prog]);
-    })
+    });
 
     runonce.enhanceWithin();
     changePage("#runonce");
 }
 
 function reset_runonce() {
-    $("#runonce").find(":input[data-type='range']").val(0).slider("refresh")
+    $("#runonce").find(":input[data-type='range']").val(0).slider("refresh");
 }
 
 function fill_runonce(list,data){
@@ -1105,28 +1096,28 @@ function fill_runonce(list,data){
     list.find(":input[data-type='range']").each(function(a,b){
         $(b).val(data[i]/60).slider("refresh");
         i++;
-    })
+    });
 }
 
 function submit_runonce(runonce) {
     if (typeof runonce === 'undefined') {
-        var runonce = []
+        runonce = [];
         $("#runonce").find(":input[data-type='range']").each(function(a,b){
-            runonce.push(parseInt($(b).val())*60)
-        })
+            runonce.push(parseInt($(b).val())*60);
+        });
         runonce.push(0);
     }
     localStorage.setItem("runonce",JSON.stringify(runonce));
     $.get("http://"+window.curr_ip+"/cr?pw="+window.curr_pw+"&t="+JSON.stringify(runonce),function(){
         showerror(_("Run-once program has been scheduled"));
     }).fail(comm_error);
-    changePage("#sprinklers");
+    gohome();
 }
 
 // Preview functions
 function get_preview() {
     $("#timeline").html("");
-    $("#timeline-navigation").hide()
+    $("#timeline-navigation").hide();
     var date = $("#preview_date").val();
     if (date === "") return;
     date = date.split("-");
@@ -1134,8 +1125,8 @@ function get_preview() {
     process_programs(date[1],date[2],date[0]);
 
     var empty = true;
-    if (window.preview_data == "") {
-        $("#timeline").html("<p align='center'>"+_("No stations set to run on this day.")+"</p>")
+    if (window.preview_data === "") {
+        $("#timeline").html("<p align='center'>"+_("No stations set to run on this day.")+"</p>");
     } else {
         empty = false;
         var data = eval("["+window.preview_data.substring(0, window.preview_data.length - 1)+"]");
@@ -1162,11 +1153,12 @@ function get_preview() {
         };
 
         window.timeline = new links.Timeline(document.getElementById('timeline'));
-        links.events.addListener(timeline, "select", function(){
-            var row = undefined;
-            var sel = timeline.getSelection();
+        links.events.addListener(window.timeline, "select", function(){
+            var row,
+                sel = window.timeline.getSelection();
+
             if (sel.length) {
-                if (sel[0].row != undefined) {
+                if (typeof sel[0].row !== "undefined") {
                     row = sel[0].row;
                 }
             }
@@ -1176,23 +1168,23 @@ function get_preview() {
             get_programs(pid);
         });
         $(window).on("resize",timeline_redraw);
-        timeline.draw(data, options);
+        window.timeline.draw(data, options);
         if ($(window).width() <= 480) {
-            var currRange = timeline.getVisibleChartRange();
-            if ((currRange.end.getTime() - currRange.start.getTime()) > 6000000) timeline.setVisibleChartRange(currRange.start,new Date(currRange.start.getTime()+6000000))
+            var currRange = window.timeline.getVisibleChartRange();
+            if ((currRange.end.getTime() - currRange.start.getTime()) > 6000000) window.timeline.setVisibleChartRange(currRange.start,new Date(currRange.start.getTime()+6000000));
         }
         $("#timeline .timeline-groups-text").each(function(a,b){
             var stn = $(b);
             var name = shortnames[stn.text()];
             stn.attr("data-shortname",name);
-        })
-        $("#timeline-navigation").show()
+        });
+        $("#timeline-navigation").show();
     }
 }
 
 function process_programs(month,day,year) {
     window.preview_data = "";
-    var newdata = new Object,
+    var newdata = {},
         devdateobj = new Date(window.controller.settings.devt*1000),
         devday = Math.floor(window.controller.settings.devt/(60*60*24)),
         devmin = (devdateobj.getUTCHours()*60)+devdateobj.getUTCMinutes(),
@@ -1201,8 +1193,9 @@ function process_programs(month,day,year) {
         simday = (simt/3600/24)>>0,
         match = [0,0],
         st_array = new Array(window.controller.settings.nbrd*8),
-        pid_array = new Array(window.controller.settings.nbrd*8);
-        et_array = new Array(window.controller.settings.nbrd*8);
+        pid_array = new Array(window.controller.settings.nbrd*8),
+        et_array = new Array(window.controller.settings.nbrd*8),
+        busy, match_found, prog;
 
     for(var sid=0;sid<window.controller.settings.nbrd;sid++) {
         st_array[sid]=0;pid_array[sid]=0;et_array[sid]=0;
@@ -1256,7 +1249,7 @@ function process_programs(month,day,year) {
 }
 
 function check_match(prog,simminutes,simt,simday,devday) {
-    if(prog[0]==0) return 0;
+    if(prog[0]===0) return 0;
     if ((prog[1]&0x80)&&(prog[2]>1)) {
         var dn=prog[2],
             drem=prog[1]&0x7f;
@@ -1264,9 +1257,9 @@ function check_match(prog,simminutes,simt,simday,devday) {
     } else {
         var date = new Date(simt);
         var wd=(date.getUTCDay()+6)%7;
-        if((prog[1]&(1<<wd))==0) return 0;
-        var dt=date.getUTCDate()
-        if((prog[1]&0x80)&&(prog[2]==0)) {if((dt%2)!=0) return 0;}
+        if((prog[1]&(1<<wd))===0) return 0;
+        var dt=date.getUTCDate();
+        if((prog[1]&0x80)&&(prog[2]===0)) {if((dt%2)!==0) return 0;}
         if((prog[1]&0x80)&&(prog[2]==1)) {
           if(dt==31) return 0;
           else if (dt==29 && date.getUTCMonth()==1) return 0;
@@ -1274,7 +1267,7 @@ function check_match(prog,simminutes,simt,simday,devday) {
         }
     }
     if(simminutes<prog[3] || simminutes>prog[4]) return 0;
-    if(prog[5]==0) return 0;
+    if(prog[5]===0) return 0;
     if(((simminutes-prog[3])/prog[5]>>0)*prog[5] == (simminutes-prog[3])) {
         return 1;
     }
@@ -1297,13 +1290,13 @@ function run_sched(simseconds,st_array,pid_array,et_array,simt) {
       }
     }
   }
-  if(window.controller.options.seq==0&&window.controller.options.mas>0) window.preview_data += "{'start': "+simseconds+",'end': "+endtime+",'content':'','className':'master','shortname':'M','group':'Master'},";
+  if(window.controller.options.seq===0&&window.controller.options.mas>0) window.preview_data += "{'start': "+simseconds+",'end': "+endtime+",'content':'','className':'master','shortname':'M','group':'Master'},";
   return endtime;
 }
 
 function time_to_text(sid,start,pid,end,simt) {
     var className = "program-"+((pid+3)%4);
-    if ((window.controller.settings.rd!=0)&&(simt+start+(window.controller.options.tz-48)*900<=window.controller.settings.rdst)) className="delayed";
+    if ((window.controller.settings.rd!==0)&&(simt+start+(window.controller.options.tz-48)*900<=window.controller.settings.rdst)) className="delayed";
     window.preview_data += "{'start': "+start+",'end': "+end+",'className':'"+className+"','content':'P"+pid+"','shortname':'S"+(sid+1)+"','group':'"+window.controller.stations.snames[sid]+"'},";
 }
 
@@ -1330,38 +1323,38 @@ function get_programs(pid) {
     list.html(make_all_programs());
     if (typeof pid === "number" || typeof pid === "boolean") {
         if (pid === false) {
-            $.mobile.silentScroll(0)
+            $.mobile.silentScroll(0);
         } else {
             $("#programs fieldset[data-collapsed='false']").attr("data-collapsed","true");
-            $("#program-"+pid).attr("data-collapsed","false")
+            $("#program-"+pid).attr("data-collapsed","false");
         }
     }
     $("#programs input[name^='rad_days']").change(function(){
         var progid = $(this).attr('id').split("-")[1], type = $(this).val().split("-")[0], old;
         type = type.split("_")[1];
         if (type == "n") {
-            old = "week"
+            old = "week";
         } else {
-            old = "n"
+            old = "n";
         }
-        $("#input_days_"+type+"-"+progid).show()
-        $("#input_days_"+old+"-"+progid).hide()
-    })
+        $("#input_days_"+type+"-"+progid).show();
+        $("#input_days_"+old+"-"+progid).hide();
+    });
 
     $("#programs [id^='submit-']").click(function(){
         submit_program($(this).attr("id").split("-")[1]);
-    })
+    });
     $("#programs [id^='s_checkall-']").click(function(){
-        var id = $(this).attr("id").split("-")[1]
+        var id = $(this).attr("id").split("-")[1];
         $("[id^='station_'][id$='-"+id+"']").prop("checked",true).checkboxradio("refresh");
-    })
+    });
     $("#programs [id^='s_uncheckall-']").click(function(){
-        var id = $(this).attr("id").split("-")[1]
+        var id = $(this).attr("id").split("-")[1];
         $("[id^='station_'][id$='-"+id+"']").prop("checked",false).checkboxradio("refresh");
-    })
+    });
     $("#programs [id^='delete-']").click(function(){
         delete_program($(this).attr("id").split("-")[1]);
-    })
+    });
     $("#programs [id^='run-']").click(function(){
         var id = $(this).attr("id").split("-")[1];
         var durr = parseInt($("#duration-"+id).val());
@@ -1372,7 +1365,7 @@ function get_programs(pid) {
         });
         runonce.push(0);
         submit_runonce(runonce);
-    })
+    });
     changePage("#programs");
     $("#programs").enhanceWithin();
     update_program_header();
@@ -1387,7 +1380,7 @@ function read_program(program) {
         interval = false,
         days = "",
         stations = "",
-        newdata = new Object;
+        newdata = {};
 
     newdata.en = program[0];
     newdata.start = program[3];
@@ -1416,7 +1409,7 @@ function read_program(program) {
                 days += "0";
             }
         }
-        if((days0&0x80)&&(days1==0)) {even = true;}
+        if((days0&0x80)&&(days1===0)) {even = true;}
         if((days0&0x80)&&(days1==1)) {odd = true;}
     }
 
@@ -1430,7 +1423,7 @@ function read_program(program) {
 
 // Translate program ID to it's name
 function pidname(pid) {
-    pname = "Program "+pid;
+    var pname = "Program "+pid;
     if(pid==255||pid==99) pname=_("Manual program");
     if(pid==254||pid==98) pname=_("Run-once program");
     return pname;
@@ -1439,20 +1432,21 @@ function pidname(pid) {
 // Check each program and change the background color to red if disabled
 function update_program_header() {
     $("#programs_list").find("[id^=program-]").each(function(a,b){
-        var item = $(b)
-        var id = item.attr('id').split("program-")[1]
-        var en = $("#en-"+id).is(":checked")
+        var item = $(b),
+            id = item.attr('id').split("program-")[1],
+            en = $("#en-"+id).is(":checked");
+
         if (en) {
-            item.find(".ui-collapsible-heading-toggle").removeClass("red")
+            item.find(".ui-collapsible-heading-toggle").removeClass("red");
         } else {
-            item.find(".ui-collapsible-heading-toggle").addClass("red")
+            item.find(".ui-collapsible-heading-toggle").addClass("red");
         }
-    })
+    });
 }
 
 //Make the list of all programs
 function make_all_programs() {
-    if (window.controller.programs.nprogs == 0) {
+    if (window.controller.programs.nprogs === 0) {
         return "<p style='text-align:center'>"+_("You have no programs currently added. Tap the Add button on the top right corner to get started.")+"</p>";
     }
     var n = 0;
@@ -1470,8 +1464,10 @@ function fresh_program() {
 }
 
 function make_program(n,total,program) {
+    var i, j;
+
     if (typeof program !== "undefined") {
-        program = read_program(program)
+        program = read_program(program);
     } else {
         program = {"en":0,"is_interval":0,"is_even":0,"is_odd":0,"duration":0,"interval":0,"start":0,"end":0};
     }
@@ -1480,13 +1476,13 @@ function make_program(n,total,program) {
 
     if (typeof program.days === "string") {
         days = program.days.split("");
-        for(var i=days.length;i--;) days[i] = days[i]|0;
+        for(i=days.length;i--;) days[i] = days[i]|0;
     } else {
         days = [0,0,0,0,0,0,0];
     }
     if (typeof program.stations !== "undefined") {
         var set_stations = program.stations.split("");
-        for(var i=set_stations.length;i--;) set_stations[i] = set_stations[i]|0;
+        for(i=set_stations.length;i--;) set_stations[i] = set_stations[i]|0;
     }
     var list = "<fieldset "+((!n && total == 1) ? "data-collapsed='false'" : "")+" id='program-"+n+"' "+((n === "new") ? "" : "data-role='collapsible'")+">";
     if (n !== "new") list += "<legend>"+_("Program")+" "+(n + 1)+"</legend>";
@@ -1503,11 +1499,11 @@ function make_program(n,total,program) {
     list += "</fieldset>";
 
     list += "<fieldset data-type='horizontal' data-role='controlgroup' style='text-align: center'><p style='margin:0'>"+_("Days of the Week")+"</p>";
-    var j = 0;
+    j = 0;
     $.each(week,function (i,day) {
         list += "<input data-mini='true' type='checkbox' "+((!program.is_interval && days[j]) ? "checked='checked'" : "")+" name='d"+j+"-"+n+"' id='d"+j+"-"+n+"'><label for='d"+j+"-"+n+"'>"+day+"</label>";
         j++;
-    })
+    });
     list += "</fieldset></div>";
 
     list += "<div "+((program.is_interval) ? "" : "style='display:none'")+" id='input_days_n-"+n+"' class='ui-grid-a'>";
@@ -1520,7 +1516,7 @@ function make_program(n,total,program) {
     $.each(window.controller.stations.snames,function (i,station) {
         list += "<input data-mini='true' type='checkbox' "+(((typeof set_stations !== "undefined") && set_stations[j]) ? "checked='checked'" : "")+" name='station_"+j+"-"+n+"' id='station_"+j+"-"+n+"'><label for='station_"+j+"-"+n+"'>"+station+"</label>";
         j++;
-    })
+    });
     list += "</fieldset>";
 
     list += "<fieldset data-role='controlgroup' data-type='horizontal' style='text-align: center'>";
@@ -1552,22 +1548,22 @@ function add_program() {
         var progid = "new", type = $(this).val().split("-")[0], old;
         type = type.split("_")[1];
         if (type == "n") {
-            old = "week"
+            old = "week";
         } else {
-            old = "n"
+            old = "n";
         }
-        $("#input_days_"+type+"-"+progid).show()
-        $("#input_days_"+old+"-"+progid).hide()
-    })
+        $("#input_days_"+type+"-"+progid).show();
+        $("#input_days_"+old+"-"+progid).hide();
+    });
     $("#addprogram [id^='s_checkall-']").click(function(){
         $("[id^='station_'][id$='-new']").prop("checked",true).checkboxradio("refresh");
-    })
+    });
     $("#addprogram [id^='s_uncheckall-']").click(function(){
         $("[id^='station_'][id$='-new']").prop("checked",false).checkboxradio("refresh");
-    })
+    });
     $("#addprogram [id^='submit-']").click(function(){
         submit_program("new");
-    })
+    });
     changePage("#addprogram");
     $("#addprogram").enhanceWithin();
 }
@@ -1581,13 +1577,16 @@ function delete_program(id) {
                 get_programs(false);
             });
         }).fail(comm_error);
-    })
+    });
 }
 
 
 function submit_program(id) {
-    var program = [], days=[0,0]
-    program[0] = ($("#en-"+id).is(':checked')) ? 1 : 0
+    var program = [],
+        days=[0,0],
+        i, s;
+
+    program[0] = ($("#en-"+id).is(':checked')) ? 1 : 0;
 
     if($("#days_week-"+id).is(':checked')) {
         for(i=0;i<7;i++) {if($("#d"+i+"-"+id).is(':checked')) {days[0] |= (1<<i); }}
@@ -1600,22 +1599,22 @@ function submit_program(id) {
         if(!(days[0]>=0&&days[0]<days[1])) {showerror(_("Error: Starting in days wrong."));return;}
         days[0]|=0x80;
     }
-    program[1] = days[0]
-    program[2] = days[1]
+    program[1] = days[0];
+    program[2] = days[1];
 
-    var start = $("#start-"+id).val().split(":")
-    program[3] = parseInt(start[0])*60+parseInt(start[1])
-    var end = $("#end-"+id).val().split(":")
-    program[4] = parseInt(end[0])*60+parseInt(end[1])
+    var start = $("#start-"+id).val().split(":");
+    program[3] = parseInt(start[0])*60+parseInt(start[1]);
+    var end = $("#end-"+id).val().split(":");
+    program[4] = parseInt(end[0])*60+parseInt(end[1]);
 
     if(!(program[3]<program[4])) {showerror(_("Error: Start time must be prior to end time."));return;}
 
-    program[5] = parseInt($("#interval-"+id).val())
-    program[6] = $("#duration-"+id).val() * 60
+    program[5] = parseInt($("#interval-"+id).val());
+    program[6] = $("#duration-"+id).val() * 60;
 
-    var sel = $("[id^=station_][id$=-"+id+"]")
-    var total = sel.length
-    var nboards = total / 8
+    var sel = $("[id^=station_][id$=-"+id+"]"),
+        total = sel.length,
+        nboards = total / 8;
 
 
     var stations=[0],station_selected=0,bid, sid;
@@ -1628,8 +1627,8 @@ function submit_program(id) {
             }
         }
     }
-    if(station_selected==0) {showerror(_("Error: You have not selected any stations."));return;}
-    program = JSON.stringify(program.concat(stations))
+    if(station_selected===0) {showerror(_("Error: You have not selected any stations."));return;}
+    program = JSON.stringify(program.concat(stations));
     $.mobile.loading("show");
     if (id == "new") {
         $.get("http://"+window.curr_ip+"/cp?pw="+window.curr_pw+"&pid=-1&v="+program,function(){
@@ -1641,7 +1640,7 @@ function submit_program(id) {
         $.get("http://"+window.curr_ip+"/cp?pw="+window.curr_pw+"&pid="+id+"&v="+program,function(){
             $.mobile.loading("hide");
             update_program_header();
-            showerror(_("Program has been updated"))
+            showerror(_("Program has been updated"));
         }).fail(comm_error);
     }
 }
@@ -1688,16 +1687,16 @@ function clear_config() {
 
 // Export and Import functions
 function export_config(toFile) {
-    var newdata = new Object;
+    var newdata = {};
 
     newdata.programs = window.controller.programs.pd;
-    newdata.options = new Object;
+    newdata.options = {};
     newdata.options.loc = window.controller.settings.loc;   
     $.each(window.controller.options,function(opt,val){
         if (opt in window.keyNames) {
             newdata.options[window.keyNames[opt]] = {"en":"0","val":val};
         }
-    })
+    });
     newdata.stations = window.controller.stations.snames;
     newdata.masop = window.controller.stations.masop;
 
@@ -1705,7 +1704,7 @@ function export_config(toFile) {
         if (!navigator.userAgent.match(/(iPad|iPhone|iPod)/g)) {
             document.location = 'data:Application/octet-stream,' + encodeURIComponent(JSON.stringify(newdata));
         } else {
-            showerror(_("File API is not supported by your browser"))
+            showerror(_("File API is not supported by your browser"));
         }
         return;
     } else {
@@ -1716,7 +1715,7 @@ function export_config(toFile) {
 
 function import_config(data) {
     if (typeof data === "undefined") {
-        var data = localStorage.getItem("backup");
+        data = localStorage.getItem("backup");
         if (data === null) {
             showerror(_("No backup available on this device"));
             return;
@@ -1733,21 +1732,20 @@ function import_config(data) {
 
         $.each(data.options,function (key,value) {
             if (typeof value === "object") {
-                if ($.inArray(key, [2,14,16,21,22,25]) && value.val == 0) return true; 
+                if ($.inArray(key, [2,14,16,21,22,25]) && value.val === 0) return true; 
                 co += "&o"+key+"="+value.val;
             } else if (key == "loc") {
                 co += "&"+key+"="+encodeURIComponent(value);
             }
-        })
+        });
         $.each(data.stations,function (i,station) {
             cs += "&s"+i+"="+encodeURIComponent(station);
             i++;
-        })
-        $i = 0;
+        });
         $.each(data.masop,function (i,bit) {
             cs += "&m"+i+"="+encodeURIComponent(bit);
             i++;
-        })
+        });
         $.when(
             $.get("http://"+window.curr_ip+co),
             $.get("http://"+window.curr_ip+cs),
@@ -1810,7 +1808,7 @@ function set_lang() {
         return _($(this).data("translate"));
 
     });
-};
+}
 
 function get_locale() {
     //Identify the current browser's locale
@@ -1822,7 +1820,7 @@ function get_locale() {
 
 function update_lang(lang) {
     //Empty out the current language (English is provided as the key)
-    window.language = new Object;
+    window.language = {};
 
     if (lang == "en") return set_lang();
     
@@ -1952,7 +1950,7 @@ Array.prototype.getUnique = function(){
       u[this[i]] = 1;
    }
    return a;
-}
+};
 
 // show error message
 function showerror(msg) {
@@ -1963,7 +1961,7 @@ function showerror(msg) {
             theme: 'b'
             });
     // hide after delay
-    setTimeout( function(){$.mobile.loading('hide')}, 1500);
+    setTimeout( function(){$.mobile.loading('hide');}, 1500);
 }
 
 // pad a single digit with a leading zero
