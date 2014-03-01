@@ -185,7 +185,7 @@ a {
 @media (max-width: 940px) {
     #weather .location {
         font-size:8px;
-        font-weight: none;
+        font-weight: inherit;
         white-space: normal !important;
     }
     .wicon {
