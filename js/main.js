@@ -424,8 +424,8 @@ function update_site(newsite) {
 
 // Get the list of sites from the local storage
 function getsites() {
-    var sites = JSON.parse(localStorage.getItem("sites"));
-    if (sites === null) sites = {};
+    var sites = localStorage.getItem("sites");
+    sites = (sites === null) ? {} : JSON.parse(sites);
     return sites;
 }
 
@@ -1056,8 +1056,9 @@ function get_runonce() {
     runonce.html(list);
 
     var quickPick = "<select data-mini='true' name='rprog' id='rprog'><option value='s'>"+_("Quick Programs")+"</option>";
-    var data = JSON.parse(localStorage.getItem("runonce"));
+    var data = localStorage.getItem("runonce");
     if (data !== null) {
+        data = JSON.parse(data);
         runonce.find(":input[data-type='range']").each(function(a,b){
             $(b).val(data[i]/60);
             i++;
