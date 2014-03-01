@@ -1,6 +1,24 @@
+msgid "Manual"
+msgstr ""
+
+msgid "Manual mode is not enabled. Please enable manual mode then try again."
+msgstr ""
+
+msgid "Check device password and try again."
+msgstr ""
+
+msgid "Check that the device is connected to the network and try again."
+msgstr ""
+
+msgid "Connection timed-out. Please try again."
+msgstr ""
+
 msgid ""
 "Error communicating with OpenSprinkler. Please check your password is "
 "correct."
+msgstr ""
+
+msgid "An IP address is required to continue."
 msgstr ""
 
 msgid "Check IP/Port and try again."
@@ -15,40 +33,10 @@ msgstr ""
 msgid "Delete"
 msgstr ""
 
-msgid "Connection timed-out. Please try again."
+msgid "Firmware"
 msgstr ""
 
-msgid "System Disabled"
-msgstr ""
-
-msgid "Rain delay until"
-msgstr ""
-
-msgid "Rain detected"
-msgstr ""
-
-msgid "is running on"
-msgstr ""
-
-msgid "stations"
-msgstr ""
-
-msgid "remaining"
-msgstr ""
-
-msgid "is running on station"
-msgstr ""
-
-msgid "Manual mode enabled"
-msgstr ""
-
-msgid "Manual program"
-msgstr ""
-
-msgid "Run-once program"
-msgstr ""
-
-msgid "Station delay"
+msgid "No devices were detected on your network."
 msgstr ""
 
 msgid "Timezone"
@@ -96,6 +84,9 @@ msgstr ""
 msgid "Ignore Password"
 msgstr ""
 
+msgid "Settings have been saved"
+msgstr ""
+
 msgid "Station Name"
 msgstr ""
 
@@ -105,10 +96,19 @@ msgstr ""
 msgid "Master"
 msgstr ""
 
+msgid "Station name must be 16 characters or less"
+msgstr ""
+
+msgid "Stations have been updated"
+msgstr ""
+
 msgid "Running"
 msgstr ""
 
 msgid "Scheduled"
+msgstr ""
+
+msgid "remaining"
 msgstr ""
 
 msgid "last ran station"
@@ -127,6 +127,30 @@ msgid "is"
 msgstr ""
 
 msgid "running"
+msgstr ""
+
+msgid "System Disabled"
+msgstr ""
+
+msgid "Rain delay until"
+msgstr ""
+
+msgid "Rain detected"
+msgstr ""
+
+msgid "is running on"
+msgstr ""
+
+msgid "stations"
+msgstr ""
+
+msgid "is running on station"
+msgstr ""
+
+msgid "Manual mode enabled"
+msgstr ""
+
+msgid "Station delay"
 msgstr ""
 
 msgid "Sprinkler Stations"
@@ -152,7 +176,16 @@ msgstr ""
 msgid "Program"
 msgstr ""
 
+msgid "Run-once program has been scheduled"
+msgstr ""
+
 msgid "No stations set to run on this day."
+msgstr ""
+
+msgid "Manual program"
+msgstr ""
+
+msgid "Run-once program"
 msgstr ""
 
 msgid ""
@@ -270,24 +303,7 @@ msgstr ""
 msgid "Program has been updated"
 msgstr ""
 
-msgid "Settings have been saved"
-msgstr ""
-
-msgid "Station name must be 16 characters or less"
-msgstr ""
-
-msgid "Stations have been updated"
-msgstr ""
-
-msgid "Run-once program has been scheduled"
-msgstr ""
-
 msgid "Rain delay has been successfully set"
-msgstr ""
-
-msgid ""
-"Are you sure you want to delete all settings and return to the default "
-"settings (this will delete the configuration file)?"
 msgstr ""
 
 msgid "Are you sure you want to reboot OpenSprinkler?"
@@ -300,6 +316,11 @@ msgid "Are you sure you want to stop all stations?"
 msgstr ""
 
 msgid "All stations have been stopped"
+msgstr ""
+
+msgid ""
+"Are you sure you want to delete all settings and return to the default "
+"settings (this will delete the configuration file)?"
 msgstr ""
 
 msgid "File API is not supported by your browser"
@@ -317,6 +338,9 @@ msgstr ""
 msgid "Backup restored to your device"
 msgstr ""
 
+msgid "Unable to import configuration. Check device password and try again."
+msgstr ""
+
 msgid ""
 "Unable to read the configuration file. Please check the file and try again."
 msgstr ""
@@ -325,15 +349,15 @@ msgid "Sprinkler System"
 msgstr ""
 
 msgid ""
-"Welcome to the OpenSprinkler mobile application. Select automatic for "
-"network scanning and detection of OpenSprinkler on your local network. "
-"Otherwise, select manual if you know your device information."
+"Welcome to the OpenSprinkler mobile application. This app only works with "
+"the OpenSprinkler controller which must be installed and setup on your home "
+"network."
 msgstr ""
 
 msgid "Automatic"
 msgstr ""
 
-msgid "Manual"
+msgid "Add Controller"
 msgstr ""
 
 msgid "Select Site"
@@ -343,9 +367,9 @@ msgid "New Device"
 msgstr ""
 
 msgid ""
-"Note: The name is used to identify the OpenSprinkler within the web app. "
-"This is used for multisite support. OpenSprinkler IP can be either an IP or "
-"hostname. You can also specify a port by using IP:Port"
+"Note: The name is used to identify the OpenSprinkler within the app. "
+"OpenSprinkler IP can be either an IP or hostname. You can also specify a "
+"port by using IP:Port"
 msgstr ""
 
 msgid "Open Sprinkler Name:"
