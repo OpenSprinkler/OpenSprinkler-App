@@ -63,12 +63,7 @@ $.ajaxSetup({
 //Handle timeout
 $(document).ajaxError(function(x,t,m) {
     if(t.status==401) {
-        // Check if a station is being changed but manual mode is off
-        if (/https?:\/\/[\d|.]+\/sn\d.*/.exec(m.url)) {
-            showerror(_("Manual mode is not enabled. Please enable manual mode then try again."));
-        } else {
-            showerror(_("Check device password and try again."));
-        }
+        showerror(_("Check device password and try again."));
     } else if (t.status===0) {
         if (/https?:\/\/[\d|.]+\/j\w/.exec(m.url)) {
             // Ajax fails typically because the password is wrong
@@ -234,7 +229,6 @@ function newload() {
             $.mobile.loading("hide");
             if (Object.keys(getsites()).length) {
                 show_sites(false);
-                setTimeout(comm_error,500);
             } else {
                 changePage("#start");
             }
@@ -514,7 +508,7 @@ function convert_temp(temp,region) {
 
 function update_weather() {
     var $weather = $("#weather");
-    $("#weather").unbind("click");
+    $("#weather").off("vclick");
     $weather.html("<p class='ui-icon ui-icon-loading mini-load'></p>");
     $.getJSON("http://query.yahooapis.com/v1/public/yql?q=select%20woeid%20from%20geo.placefinder%20where%20text=%22"+escape(window.controller.settings.loc)+"%22&format=json",function(woeid){
         $.getJSON("http://query.yahooapis.com/v1/public/yql?q=select%20item%2Ctitle%2Clocation%20from%20weather.forecast%20where%20woeid%3D%22"+woeid.query.results.Result.woeid+"%22&format=json",function(data){
@@ -533,7 +527,7 @@ function update_weather() {
                 region = data.query.results.channel.location.country;
 
             $weather.html("<div title='"+now.text+"' class='wicon cond"+now.code+"'></div><span>"+convert_temp(now.temp,region)+"</span><br><span class='location'>"+loc[1]+"</span>");
-            $("#weather").bind("click",show_forecast);
+            $("#weather").on("vclick",show_forecast);
             $("#weather-list").animate({ 
                 "margin-left": "0"
             },1000).show();
@@ -1007,24 +1001,29 @@ function get_manual() {
 }
 
 function toggle(anchor) {
-    if ($("#mm").val() == "off") return;
-    var $list = $("#mm_list");
-    var $anchor = $(anchor);
-    var $listitems = $list.children("li:not(li.ui-li-divider)");
-    var $item = $anchor.closest("li:not(li.ui-li-divider)");
-    var currPos = $listitems.index($item) + 1;
-    if ($anchor.hasClass("green")) {
+    if (!window.controller.settings.mm) {
+        showerror(_("Manual mode is not enabled. Please enable manual mode then try again."));
+        return;
+    }
+
+    var list = $("#mm_list"),
+        anchor = $(anchor),
+        listitems = list.children("li:not(li.ui-li-divider)"),
+        item = anchor.closest("li:not(li.ui-li-divider)"),
+        currPos = listitems.index(item) + 1;
+
+    if (anchor.hasClass("green")) {
         $.get("http://"+window.curr_ip+"/sn"+currPos+"=0").fail(function(){
-            $anchor.addClass("green");
+            anchor.addClass("green");
             comm_error();
         });
-        $anchor.removeClass("green");
+        anchor.removeClass("green");
     } else {
         $.get("http://"+window.curr_ip+"/sn"+currPos+"=1&t=0").fail(function(){
-            $anchor.removeClass("green");
+            anchor.removeClass("green");
             comm_error();
         });
-        $anchor.addClass("green");
+        anchor.addClass("green");
     }
 }
 
@@ -1857,12 +1856,12 @@ function areYouSure(text1, text2, callback) {
 function bind_links(page) {
     var currpage = $(page);
 
-    currpage.find("a[href='#"+currpage.attr('id')+"-settings']").unbind("vclick").on('vclick', function (e) {
+    currpage.find("a[href='#"+currpage.attr('id')+"-settings']").off("vclick").on('vclick', function (e) {
         e.preventDefault(); e.stopImmediatePropagation();
         highlight(this);
         $(".ui-page-active [id$=settings]").panel("open");
     });
-    currpage.find("a[data-onclick]").unbind("vclick").on('vclick', function (e) {
+    currpage.find("a[data-onclick]").off("vclick").on('vclick', function (e) {
         e.preventDefault(); e.stopImmediatePropagation();
         var func = $(this).data("onclick");
         highlight(this);
