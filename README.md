@@ -3,15 +3,6 @@
 
 A mobile interface for the OpenSprinkler irrigation device. Designed to allow manual control, program management (view, edit, delete and add), initiation of a run-once program, viewing device status, adjusting rain delay, and changing of OpenSprinkler settings. Screenshots available below.
 
-Warning:
---------
-
-+ This app requires firmware 2.0.4 or greater.
-  + If you are using firmware 2.0.3 or lower please use the [2.0-master branch](https://github.com/salbahra/OpenSprinkler-Hosted-Controller/tree/2.0-master)
-
-+ This app does not support OSPi for the above mentioned reasons plus the lack of JSON output.
-  + If you are using OSPi/OSBo device and wish to host this on a web server, please use the [2.0-master branch](https://github.com/salbahra/OpenSprinkler-Hosted-Controller/tree/2.0-master)
-
 Overview:
 ---------
 
