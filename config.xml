@@ -41,7 +41,7 @@
         <gap:splash src="img/startup-tablet-portrait.png" gap:platform="android" gap:density="hdpi" />
         <gap:splash src="img/startup-tablet-portrait-retina.png" gap:platform="android" gap:density="xdpi" />
 
-        <gap:splash src="img/splash.jpg" gap:platform="winphone" />
+        <gap:splash src="img/startup.jpg" gap:platform="winphone" />
 
         <icon src="img/icon-57.png" gap:platform="ios" width="57" height="57" />
         <icon src="img/icon-72.png" gap:platform="ios" width="72" height="72" />
