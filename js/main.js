@@ -679,13 +679,13 @@ function submit_settings() {
 // Station managament function
 function show_stations() {
     var list = "<li>",
-        isMaster = window.controller.settings.mas;
+        isMaster = window.controller.options.mas;
     if (isMaster) list += "<table><tr><th>"+_("Station Name")+"</th><th>"+_("Activate Master?")+"</th></tr>";
     $.each(window.controller.stations.snames,function(i, station) {
         if (isMaster) list += "<tr><td>";
         list += "<input data-mini='true' id='edit_station_"+i+"' type='text' value='"+station+"' />";
         if (isMaster) {
-            if (window.controller.settings.mas == i+1) {
+            if (window.controller.options.mas == i+1) {
                 list += "</td><td class='use_master'><p id='um_"+i+"' style='text-align:center'>("+_("Master")+")</p></td></tr>";
             } else {
                 list += "</td><td data-role='controlgroup' data-type='horizontal' class='use_master'><input id='um_"+i+"' type='checkbox' "+((window.controller.stations.masop[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+" /><label for='um_"+i+"'></label></td></tr>";
@@ -759,7 +759,7 @@ function get_status() {
 
     runningTotal.c = window.controller.settings.devt;
 
-    var master = window.controller.settings.mas,
+    var master = window.controller.options.mas,
         ptotal = 0;
 
     var open = {};
@@ -872,9 +872,7 @@ function check_status() {
         if (stn) open[i] = stn;
     });
 
-    if (window.controller.settings.mas) {
-        open.splice(window.controller.settings.mas-1,1);
-    }
+    if (window.controller.options.mas) delete open[window.controller.options.mas-1];
 
     // Handle more than 1 open station
     if (Object.keys(open).length >= 2) {
@@ -884,8 +882,8 @@ function check_status() {
             if (tmp > ptotal) ptotal = tmp;
         });
 
-        for (var sample in open) break;
-        var pid    = window.controller.settings.ps[sample][0],
+        var sample = Object.keys(open)[0],
+            pid    = window.controller.settings.ps[sample][0],
             pname  = pidname(pid),
             line   = "<img id='running-icon' width='11px' height='11px' src='img/running.png' /><p id='running-text'>";
 
@@ -900,7 +898,7 @@ function check_status() {
     var match = false,
         i = 0;
     $.each(window.controller.stations.snames,function (station,name){
-        if (window.controller.settings.ps[i][0] && window.controller.status[i] && window.controller.settings.mas != i+1) {
+        if (window.controller.settings.ps[i][0] && window.controller.status[i] && window.controller.options.mas != i+1) {
             match = true;
             var pid = window.controller.settings.ps[i][0],
                 pname = pidname(pid),
