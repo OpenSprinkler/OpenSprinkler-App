@@ -1897,6 +1897,8 @@ function changeFromPanel(func) {
 function open_popup(id) {
     var popup = $(id);
 
+    bind_links(id);
+
     popup.one("popupafteropen", function(){
         $(this).popup("reposition", {
             "positionTo": "window"

@@ -32,9 +32,10 @@
             </div>
         </div>
 
-        <div data-role="popup" id="addnew" data-theme="a">
+        <div data-role="popup" id="addnew" data-theme="a" data-dismissible="false">
             <div data-role="header" data-theme="b">
                 <h1 data-translate="New Device"></h1>
+                <a href="#" data-onclick="$('#addnew').popup('close');" class="ui-link ui-shadow ui-corner-all ui-btn ui-icon-delete ui-btn-icon-notext ui-btn-right"></a>
             </div>
             <div class="ui-content">
                 <form action="javascript:submit_newuser()" method="post">
