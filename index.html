@@ -99,8 +99,8 @@
                         <select data-mini="true" id="site-selector"></select>
                     </li>
                     <li data-icon="gear"><a href="#" data-onclick="changeFromPanel(show_sites);" data-translate="Manage Sites"></a></li>
-                    <li data-icon="action"><a href="#" data-onclick="export_config();" data-translate="Export Configuration"></a><a href="#" data-onclick="export_config(1);"></a></li>
-                    <li data-icon="cloud"><a href="#" data-onclick="import_config();" data-translate="Import Configuration"></a><a href="#" data-onclick="getConfigFile()"></a></li>
+                    <li data-icon="forward"><a href="#" data-onclick="export_config();" data-translate="Export Configuration"></a></li>
+                    <li data-icon="back"><a href="#" data-onclick="import_config();" data-translate="Import Configuration"></a></li>
                     <li data-icon="info"><a href="#" data-onclick="changeFromPanel(show_about);" data-translate="About"></a></li>
                 </ul>
                 <input type="file" id="configInput" data-role="none" onchange="handleConfig(this.files)" style="visibility:hidden;position:absolute;top:-50;left:-50"/>
