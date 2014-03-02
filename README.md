@@ -6,7 +6,7 @@ A mobile interface for the OpenSprinkler irrigation device. Designed to allow ma
 Warning:
 --------
 
-+ Currently, this application is based on an unreleased firmware. Although the dependencies are available in firmware 2.0.2; certain bugs prevent the app from working. The most prominent is an HTTP header error that prevents cross-origin calls for the JSON data. Additionally, previous firmwares have bugs in the output. Please look for a firmware newer than 2.0.3 for use with this app.
++ This app requires firmware 2.0.4 or greater.
   + If you are using firmware 2.0.3 or lower please use the [2.0-master branch](https://github.com/salbahra/OpenSprinkler-Hosted-Controller/tree/2.0-master)
 
 + This app does not support OSPi for the above mentioned reasons plus the lack of JSON output.
