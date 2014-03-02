@@ -959,14 +959,14 @@ function update_timers(sdelay) {
         var diff = now - window.lastCheck;
         if (diff > 3000) {
             clearInterval(window.interval_id);
-            get_status();
+            if ($(".ui-page-active").attr("id") == "#status") get_status();
         }
         window.lastCheck = now;
         $.each(window.totals,function(a,b){
             if (b <= 0) {
                 delete window.totals[a];
                 if (a == "p") {
-                    get_status();
+                    if ($(".ui-page-active").attr("id") == "#status") get_status();
                 } else {
                     $("#countdown-"+a).parent("p").text(_("Station delay")).parent("li").removeClass("green").addClass("red");
                     window.timeout_id = setTimeout(get_status,(sdelay*1000));
