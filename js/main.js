@@ -16,25 +16,27 @@ $(document).ready(function () {
                 } catch (err) {}
             }
             
-            // Request the device's IP address
-            networkinterface.getIPAddress(function(ip){
-                var chk = ip.split(".");
-                for(var i=0; i<chk.length; i++) {chk[i] = +chk[i];} 
+            try {
+                // Request the device's IP address
+                networkinterface.getIPAddress(function(ip){
+                    var chk = ip.split(".");
+                    for(var i=0; i<chk.length; i++) {chk[i] = +chk[i];} 
 
-                // Check if the IP is on a private network, if not don't enable automatic scanning
-                if (!(chk[0] == 10 || (chk[0] == 172 && chk[1] > 17 && chk[1] < 32) || (chk[0] == 192 && chk[1] == 168))) return;
+                    // Check if the IP is on a private network, if not don't enable automatic scanning
+                    if (!(chk[0] == 10 || (chk[0] == 172 && chk[1] > 17 && chk[1] < 32) || (chk[0] == 192 && chk[1] == 168))) return;
 
-                //Change main menu items to reflect ability to automatically scan
-                var auto = $("#auto-scan"),
-                    next = auto.next();
+                    //Change main menu items to reflect ability to automatically scan
+                    var auto = $("#auto-scan"),
+                        next = auto.next();
 
-                next.removeClass("ui-first-child").find("a.ui-btn").text(_("Manually Add Device"));
-                auto.show();
+                    next.removeClass("ui-first-child").find("a.ui-btn").text(_("Manually Add Device"));
+                    auto.show();
 
-                window.deviceip = ip;
-                window.devicesfound = [];
-                window.scanprogress = 1;
-            });
+                    window.deviceip = ip;
+                    window.devicesfound = [];
+                    window.scanprogress = 1;
+                });
+            } catch (err) {}
         });
     } else {
         //Show donate text in the about page
