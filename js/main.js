@@ -61,14 +61,6 @@ $(document).ready(function () {
                 if (window.interval_id !== undefined) clearInterval(window.interval_id);
                 if (window.timeout_id !== undefined) clearTimeout(window.timeout_id);
             });
-
-            $(document).on("offline",function(){
-                showerror(_("Network connection not detected. Please check your connection."),3000);
-            });
-
-            $(document).on("online",function(){
-                $.mobile.loading("hide");
-            });
         });
     } else {
         //Show donate text in the about page
