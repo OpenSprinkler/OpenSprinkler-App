@@ -523,6 +523,64 @@ function add_found(ip) {
 }
 
 // Weather functions
+function show_providers() {
+    $("#providers").remove();
+
+    var provider = localStorage.getItem("provider") || "yahoo";
+
+    var popup = $('\
+        <div data-role="popup" id="providers" data-theme="a" data-overlay-theme="b">\
+            <div class="ui-content">\
+                <form>\
+                    <label for="weather_provider">'+_("Weather Provider")+'\
+                        <select data-mini="true" id="weather_provider">\
+                            <option value="yahoo">'+_("Yahoo!")+'</option>\
+                            <option value="wunderground">'+_("Wunderground")+'</option>\
+                        </select>\
+                    </label>\
+                    <label for="wapikey">'+_("Wunderground API Key")+'<input data-mini="true" type="text" id="wapikey" /></label>\
+                    <input type="submit" value="'+_("Submit")+'" />\
+                </form>\
+            </div>\
+        </div>\
+    ');
+
+    if (provider == "yahoo") popup.find("#wapikey").closest("label").hide();
+
+    popup.find("form").on("submit",function(e){
+        e.preventDefault();
+
+        var wapikey = $("#wapikey").val(),
+            provider = $("#weather_provider").val();
+
+        if (provider == "wunderground" && wapikey == "") {
+            showerror(_("An API key must be provided for Weather Underground"));
+            return;
+        }
+
+        localStorage.setItem("wapikey",wapikey);
+        localStorage.setItem("provider",provider);
+
+        update_weather();
+
+        $("#providers").popup("close");
+    });
+
+    //Handle provider select change on weather settings
+    popup.on("change","#weather_provider",function(){
+        var val = $(this).val();
+        if (val === "wunderground") {
+            $("#wapikey").closest("label").show();
+        } else {
+            $("#wapikey").closest("label").hide();
+        }
+    });
+
+    popup.one("popupafterclose",function(){
+        this.remove();
+    }).popup().enhanceWithin().popup("open");
+}
+
 function convert_temp(temp,region) {
     if (region == "United States" || region == "Bermuda" || region == "Palau") {
         temp = temp+"&#176;F";
@@ -535,7 +593,14 @@ function convert_temp(temp,region) {
 function update_weather() {
     $("#weather").off("vclick").html("<p class='ui-icon ui-icon-loading mini-load'></p>");
 
-    update_yahoo_weather();
+    var provider = localStorage.getItem("provider"),
+        wapikey = localStorage.getItem("wapikey");
+
+    if (provider == "wunderground" && wapikey) {
+        update_wunderground_weather(wapikey);
+    } else {
+        update_yahoo_weather();
+    }
 }
 
 function update_yahoo_weather() {
@@ -581,11 +646,11 @@ function update_yahoo_forecast(data,loc,region,now) {
     if (forecast.hasClass("ui-listview")) forecast.listview("refresh");
 }
 
-function update_wunderground_weather() {
+function update_wunderground_weather(wapikey) {
     $.ajax({
         dataType: "jsonp",
         type: "GET",
-        url: "http://api.wunderground.com/api/"+window.wapikey+"/conditions/forecast/lang:EN/q/"+window.controller.settings.loc+".json",
+        url: "http://api.wunderground.com/api/"+wapikey+"/conditions/forecast/lang:EN/q/"+window.controller.settings.loc+".json",
         success: function(data) {
             var code, temp;
 
@@ -1907,8 +1972,10 @@ function set_lang() {
 
 function get_locale() {
     //Identify the current browser's locale
-    var locale = "en";
-    locale = navigator.language || navigator.browserLanguage || navigator.systemLanguage || navigator.userLanguage;
+    var locale = "en",
+        lang = localStorage.getItem("lang");
+
+    locale = lang || navigator.language || navigator.browserLanguage || navigator.systemLanguage || navigator.userLanguage || locale;
 
     return locale.substring(0,2);
 }
@@ -1921,6 +1988,7 @@ function update_lang(lang) {
 
     $.getJSON("locale/"+lang+".json",function(store){
         window.language = store.messages;
+        localStorage.setItem("lang",lang);
         set_lang();
     }).fail(set_lang);
 }
