@@ -37,6 +37,29 @@ $(document).ready(function () {
                     window.scanprogress = 1;
                 });
             } catch (err) {}
+
+            $(document).on("resume",function(){
+                if (window.curr_ip !== undefined) {
+                    update_device(check_status,function(){
+                        $("#footer-running").slideUp();
+                        comm_error();
+                    });
+                }
+            });
+
+            $(document).on("pause",function(){
+                //Remove any status timers that may be running
+                if (window.interval_id !== undefined) clearInterval(window.interval_id);
+                if (window.timeout_id !== undefined) clearTimeout(window.timeout_id);
+            });
+
+            $(document).on("offline",function(){
+                showerror(_("Network connection not detected. Please check your connection."),3000);
+            });
+
+            $(document).on("online",function(){
+                $.mobile.loading("hide");
+            });
         });
     } else {
         //Show donate text in the about page
@@ -1948,15 +1971,17 @@ Array.prototype.getUnique = function(){
 };
 
 // show error message
-function showerror(msg) {
-        $.mobile.loading( 'show', {
-            text: msg,
-            textVisible: true,
-            textonly: true,
-            theme: 'b'
-            });
+function showerror(msg,dur) {
+    dur = dur || 1500;
+
+    $.mobile.loading('show', {
+        text: msg,
+        textVisible: true,
+        textonly: true,
+        theme: 'b'
+    });
     // hide after delay
-    setTimeout( function(){$.mobile.loading('hide');}, 1500);
+    setTimeout( function(){$.mobile.loading('hide');},dur);
 }
 
 // pad a single digit with a leading zero
