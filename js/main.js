@@ -15,12 +15,12 @@ $(document).ready(function () {
                     StatusBar.backgroundColorByHexString("#1C1C1C");
                 } catch (err) {}
             }
-            
+
             try {
                 // Request the device's IP address
                 networkinterface.getIPAddress(function(ip){
                     var chk = ip.split(".");
-                    for(var i=0; i<chk.length; i++) {chk[i] = +chk[i];} 
+                    for(var i=0; i<chk.length; i++) {chk[i] = +chk[i];}
 
                     // Check if the IP is on a private network, if not don't enable automatic scanning
                     if (!(chk[0] == 10 || (chk[0] == 172 && chk[1] > 17 && chk[1] < 32) || (chk[0] == 192 && chk[1] == 168))) return;
@@ -77,7 +77,7 @@ $(document).ajaxError(function(x,t,m) {
     }
     if(t.statusText==="timeout") {
         if (m.url.search("yahooapis.com")) {
-            $("#weather-list").animate({ 
+            $("#weather-list").animate({
                 "margin-left": "-1000px"
             },1000,function(){
                 $(this).hide();
@@ -97,9 +97,9 @@ $(document).one("mobileinit", function(){
 });
 
 $(document).one("pagebeforechange", function(event) {
-    // Let the framework know we're going to handle the load. 
+    // Let the framework know we're going to handle the load.
     event.preventDefault();
- 
+
     //On initial load check if a valid site exists for auto connect
     check_configured();
 
@@ -455,14 +455,14 @@ function start_scan() {
             window.scanprogress++;
             var ip = this.url.split("/")[2],
                 device = [ip,reply.fwv];
-            
+
             window.devicesfound.push(device);
 
             var list = $("#site-select-list");
             var item = "<li><a class='ui-btn ui-btn-icon-right ui-icon-carat-r' href='javascript:add_found(\""+ip+"\");'>"+ip+"<p>"+_("Firmware")+": "+(reply.fwv/100>>0)+"."+((reply.fwv/10>>0)%10)+"."+(reply.fwv%10)+"</p></a></li>";
 
             if (!started) {
-                $.mobile.loading("hide");                
+                $.mobile.loading("hide");
                 list.html(item);
                 open_popup("#site-select");
                 started = true;
@@ -516,12 +516,12 @@ function update_weather() {
         $.getJSON("http://query.yahooapis.com/v1/public/yql?q=select%20item%2Ctitle%2Clocation%20from%20weather.forecast%20where%20woeid%3D%22"+woeid.query.results.Result.woeid+"%22&format=json",function(data){
             // Hide the weather if no data is returned
             if (data.query.results.channel.item.title == "City not found") {
-                $("#weather-list").animate({ 
+                $("#weather-list").animate({
                     "margin-left": "-1000px"
                 },1000,function(){
                     $(this).hide();
                 });
-                return;            
+                return;
             }
             var now = data.query.results.channel.item.condition,
                 title = data.query.results.channel.title,
@@ -530,7 +530,7 @@ function update_weather() {
 
             $weather.html("<div title='"+now.text+"' class='wicon cond"+now.code+"'></div><span>"+convert_temp(now.temp,region)+"</span><br><span class='location'>"+loc[1]+"</span>");
             $("#weather").on("vclick",show_forecast);
-            $("#weather-list").animate({ 
+            $("#weather-list").animate({
                 "margin-left": "0"
             },1000).show();
 
@@ -756,7 +756,7 @@ function get_status() {
         tz = window.controller.options.tz-48;
 
     tz = ((tz>=0)?"+":"-")+pad((Math.abs(tz)/4>>0))+":"+((Math.abs(tz)%4)*15/10>>0)+((Math.abs(tz)%4)*15%10);
-    
+
     var header = "<span id='clock-s' class='nobr'>"+(new Date(window.controller.settings.devt*1000).toUTCString().slice(0,-4))+"</span> GMT "+tz;
 
     runningTotal.c = window.controller.settings.devt;
@@ -1043,7 +1043,7 @@ function get_runonce() {
             program = read_program(program);
             var prog = [],
                 set_stations = program.stations.split("");
-            for (var i=0;i<window.controller.stations.snames.length;i++) { 
+            for (var i=0;i<window.controller.stations.snames.length;i++) {
                 prog.push(((typeof set_stations[i] !== undefined) && set_stations[i]) ? program.duration : 0);
             }
             progs.push(prog);
@@ -1384,7 +1384,7 @@ function read_program(program) {
 
     for (var n=0; n < window.controller.programs.nboards; n++) {
         var bits = program[7+n];
-        for (var s=0; s < 8; s++) { 
+        for (var s=0; s < 8; s++) {
             stations += (bits&(1<<s)) ? "1" : "0";
         }
     }
@@ -1395,7 +1395,7 @@ function read_program(program) {
         days=[days1,days0&0x7f];
         interval = true;
     } else {
-        //This is a weekly program 
+        //This is a weekly program
         for(var d=0;d<7;d++) {
             if (days0&(1<<d)) {
                 days += "1";
@@ -1676,7 +1676,7 @@ function clear_config() {
         localStorage.removeItem("sites");
         localStorage.removeItem("current_site");
         changePage("#start");
-    });    
+    });
 }
 
 // Export and Import functions
@@ -1685,7 +1685,7 @@ function export_config(toFile) {
 
     newdata.programs = window.controller.programs.pd;
     newdata.options = {};
-    newdata.options.loc = window.controller.settings.loc;   
+    newdata.options.loc = window.controller.settings.loc;
     $.each(window.controller.options,function(opt,val){
         if (opt in window.keyNames) {
             newdata.options[window.keyNames[opt]] = {"en":"0","val":val};
@@ -1725,7 +1725,7 @@ function import_config(data) {
 
         $.each(data.options,function (key,value) {
             if (typeof value === "object") {
-                if ($.inArray(key, [2,14,16,21,22,25]) && value.val === 0) return true; 
+                if ($.inArray(key, [2,14,16,21,22,25]) && value.val === 0) return true;
                 co += "&o"+key+"="+value.val;
             } else if (key == "loc") {
                 co += "&"+key+"="+encodeURIComponent(value);
@@ -1816,7 +1816,7 @@ function update_lang(lang) {
     window.language = {};
 
     if (lang == "en") return set_lang();
-    
+
     $.getJSON("locale/"+lang+".json",function(store){
         window.language = store.messages;
         set_lang();
