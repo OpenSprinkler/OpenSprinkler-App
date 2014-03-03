@@ -39,12 +39,21 @@ $(document).ready(function () {
             } catch (err) {}
 
             $(document).on("resume",function(){
-                if (window.curr_ip !== undefined) {
-                    update_device(check_status,function(){
-                        $("#footer-running").slideUp();
-                        comm_error();
-                    });
+                if (window.curr_ip === undefined) return;
+
+                var page = $(".ui-page-active").attr("id"),
+                    func = function(){};
+
+                if (page == "status") {
+                    func = get_status;
+                } else if (page == "sprinklers") {
+                    func = check_status;
                 }
+
+                update_device(func,function(){
+                    $("#footer-running").slideUp();
+                    comm_error();
+                });
             });
 
             $(document).on("pause",function(){
@@ -984,14 +993,14 @@ function update_timers(sdelay) {
         var diff = now - window.lastCheck;
         if (diff > 3000) {
             clearInterval(window.interval_id);
-            if ($(".ui-page-active").attr("id") == "#status") get_status();
+            if ($(".ui-page-active").attr("id") == "status") get_status();
         }
         window.lastCheck = now;
         $.each(window.totals,function(a,b){
             if (b <= 0) {
                 delete window.totals[a];
                 if (a == "p") {
-                    if ($(".ui-page-active").attr("id") == "#status") get_status();
+                    if ($(".ui-page-active").attr("id") == "status") get_status();
                 } else {
                     $("#countdown-"+a).parent("p").text(_("Station delay")).parent("li").removeClass("green").addClass("red");
                     window.timeout_id = setTimeout(get_status,(sdelay*1000));
