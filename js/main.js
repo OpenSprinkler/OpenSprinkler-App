@@ -568,11 +568,11 @@ function show_forecast() {
 }
 
 function update_forecast(data,loc,region,now) {
-    var list = "<li data-role='list-divider' data-theme='a' style='text-align:center'>"+loc+"</li>";
-    list += "<li data-icon='false' style='text-align:center'><div title='"+now.text+"' class='wicon cond"+now.code+"'></div><span>Now</span><br><span>"+convert_temp(now.temp,region)+"</span></li>";
+    var list = "<li data-role='list-divider' data-theme='a' class='center'>"+loc+"</li>";
+    list += "<li data-icon='false' class='center'><div title='"+now.text+"' class='wicon cond"+now.code+"'></div><span>Now</span><br><span>"+convert_temp(now.temp,region)+"</span></li>";
 
     $.each(data,function (x,item) {
-        list += "<li data-icon='false' style='text-align:center'><span>"+item.date+"</span><br><div title='"+item.text+"' class='wicon cond"+item.code+"'></div><span>"+item.day+"</span><br><span>Low: "+convert_temp(item.low,region)+"  High: "+convert_temp(item.high,region)+"</span></li>";
+        list += "<li data-icon='false' class='center'><span>"+item.date+"</span><br><div title='"+item.text+"' class='wicon cond"+item.code+"'></div><span>"+item.day+"</span><br><span>Low: "+convert_temp(item.low,region)+"  High: "+convert_temp(item.high,region)+"</span></li>";
     });
 
     var forecast = $("#forecast_list");
@@ -712,7 +712,7 @@ function show_stations() {
         list += "<input data-mini='true' id='edit_station_"+i+"' type='text' value='"+station+"' />";
         if (isMaster) {
             if (window.controller.options.mas == i+1) {
-                list += "</td><td class='use_master'><p id='um_"+i+"' style='text-align:center'>("+_("Master")+")</p></td></tr>";
+                list += "</td><td class='use_master'><p id='um_"+i+"' class='center'>("+_("Master")+")</p></td></tr>";
             } else {
                 list += "</td><td data-role='controlgroup' data-type='horizontal' class='use_master'><input id='um_"+i+"' type='checkbox' "+((window.controller.stations.masop[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+" /><label for='um_"+i+"'></label></td></tr>";
             }
@@ -878,17 +878,17 @@ function change_status(seconds,sdelay,color,line) {
 // Update status bar based on device status
 function check_status() {
     if (!window.controller.settings.en) {
-        change_status(0,window.controller.options.sdt,"red","<p id='running-text' style='text-align:center'>"+_("System Disabled")+"</p>");
+        change_status(0,window.controller.options.sdt,"red","<p id='running-text' class='center'>"+_("System Disabled")+"</p>");
         return;
     }
 
     if (window.controller.settings.rd) {
-        change_status(0,window.controller.options.sdt,"red","<p id='running-text' style='text-align:center'>"+_("Rain delay until")+" "+(new Date(window.controller.settings.rdst*1000).toUTCString().slice(0,-4))+"</p>");
+        change_status(0,window.controller.options.sdt,"red","<p id='running-text' class='center'>"+_("Rain delay until")+" "+(new Date(window.controller.settings.rdst*1000).toUTCString().slice(0,-4))+"</p>");
         return;
     }
 
     if (window.controller.settings.urs && window.controller.settings.rs) {
-        change_status(0,window.controller.options.sdt,"red","<p id='running-text' style='text-align:center'>"+_("Rain detected")+"</p>");
+        change_status(0,window.controller.options.sdt,"red","<p id='running-text' class='center'>"+_("Rain detected")+"</p>");
         return;
     }
 
@@ -941,7 +941,7 @@ function check_status() {
     if (match) return;
 
     if (window.controller.settings.mm) {
-        change_status(0,window.controller.options.sdt,"red","<p id='running-text' style='text-align:center'>"+_("Manual mode enabled")+"</p>");
+        change_status(0,window.controller.options.sdt,"red","<p id='running-text' class='center'>"+_("Manual mode enabled")+"</p>");
         return;
     }
 
@@ -1015,7 +1015,7 @@ function get_manual() {
     var list = "<li data-role='list-divider' data-theme='a'>"+_("Sprinkler Stations")+"</li>";
 
     $.each(window.controller.stations.snames,function (i,station) {
-        list += '<li data-icon="false"><a style="text-align:center" '+((window.controller.status[i]) ? 'class="green" ' : '')+'href="#" onclick="toggle(this);">'+station+'</a></li>';
+        list += '<li data-icon="false"><a class="center" '+((window.controller.status[i]) ? 'class="green" ' : '')+'href="#" onclick="toggle(this);">'+station+'</a></li>';
         i++;
     });
     var mm = $("#mm_list");
@@ -1054,7 +1054,7 @@ function toggle(anchor) {
 
 // Runonce functions
 function get_runonce() {
-    var list = "<p style='text-align:center'>"+_("Value is in minutes. Zero means the station will be excluded from the run-once program.")+"</p><div class='ui-field-contain'>",
+    var list = "<p class='center'>"+_("Value is in minutes. Zero means the station will be excluded from the run-once program.")+"</p><div class='ui-field-contain'>",
         n = 0;
     $.each(window.controller.stations.snames,function(i, station) {
         list += "<label for='zone-"+n+"'>"+station+":</label><input type='number' data-highlight='true' data-type='range' name='zone-"+n+"' min='0' max='240' id='zone-"+n+"' value='0'>";
@@ -1465,10 +1465,10 @@ function update_program_header() {
 //Make the list of all programs
 function make_all_programs() {
     if (window.controller.programs.nprogs === 0) {
-        return "<p style='text-align:center'>"+_("You have no programs currently added. Tap the Add button on the top right corner to get started.")+"</p>";
+        return "<p class='center'>"+_("You have no programs currently added. Tap the Add button on the top right corner to get started.")+"</p>";
     }
     var n = 0;
-    var list = "<p style='text-align:center'>"+_("Click any program below to expand/edit. Be sure to save changes by hitting submit below.")+"</p><div data-role='collapsible-set'>";
+    var list = "<p class='center'>"+_("Click any program below to expand/edit. Be sure to save changes by hitting submit below.")+"</p><div data-role='collapsible-set'>";
     $.each(window.controller.programs.pd,function (i,program) {
         list += make_program(n,window.controller.programs.nprogs,program);
         n++;
@@ -1505,18 +1505,18 @@ function make_program(n,total,program) {
     var list = "<fieldset "+((!n && total == 1) ? "data-collapsed='false'" : "")+" id='program-"+n+"' "+((n === "new") ? "" : "data-role='collapsible'")+">";
     if (n !== "new") list += "<legend>"+_("Program")+" "+(n + 1)+"</legend>";
     list += "<input data-mini='true' type='checkbox' "+((program.en || n==="new") ? "checked='checked'" : "")+" name='en-"+n+"' id='en-"+n+"'><label for='en-"+n+"'>"+_("Enabled")+"</label>";
-    list += "<fieldset data-role='controlgroup' data-type='horizontal' style='text-align: center'>";
+    list += "<fieldset data-role='controlgroup' data-type='horizontal' class='center'>";
     list += "<input data-mini='true' type='radio' name='rad_days-"+n+"' id='days_week-"+n+"' value='days_week-"+n+"' "+((program.is_interval) ? "" : "checked='checked'")+"><label for='days_week-"+n+"'>"+_("Weekly")+"</label>";
     list += "<input data-mini='true' type='radio' name='rad_days-"+n+"' id='days_n-"+n+"' value='days_n-"+n+"' "+((program.is_interval) ? "checked='checked'" : "")+"><label for='days_n-"+n+"'>"+_("Interval")+"</label>";
     list += "</fieldset><div id='input_days_week-"+n+"' "+((program.is_interval) ? "style='display:none'" : "")+">";
 
-    list += "<fieldset data-role='controlgroup' data-type='horizontal' style='text-align: center'><p style='margin:0'>"+_("Restrictions")+"</p>";
+    list += "<fieldset data-role='controlgroup' data-type='horizontal' class='center'><p style='margin:0'>"+_("Restrictions")+"</p>";
     list += "<input data-mini='true' type='radio' name='rad_rst-"+n+"' id='days_norst-"+n+"' value='days_norst-"+n+"' "+((!program.is_even && !program.is_odd) ? "checked='checked'" : "")+"><label for='days_norst-"+n+"'>"+_("None")+"</label>";
     list += "<input data-mini='true' type='radio' name='rad_rst-"+n+"' id='days_odd-"+n+"' value='days_odd-"+n+"' "+((!program.is_even && program.is_odd) ? "checked='checked'" : "")+"><label for='days_odd-"+n+"'>"+_("Odd Days")+"</label>";
     list += "<input data-mini='true' type='radio' name='rad_rst-"+n+"' id='days_even-"+n+"' value='days_even-"+n+"' "+((!program.is_odd && program.is_even) ? "checked='checked'" : "")+"><label for='days_even-"+n+"'>"+_("Even Days")+"</label>";
     list += "</fieldset>";
 
-    list += "<fieldset data-type='horizontal' data-role='controlgroup' style='text-align: center'><p style='margin:0'>"+_("Days of the Week")+"</p>";
+    list += "<fieldset data-type='horizontal' data-role='controlgroup' class='center'><p style='margin:0'>"+_("Days of the Week")+"</p>";
     j = 0;
     $.each(week,function (i,day) {
         list += "<input data-mini='true' type='checkbox' "+((!program.is_interval && days[j]) ? "checked='checked'" : "")+" name='d"+j+"-"+n+"' id='d"+j+"-"+n+"'><label for='d"+j+"-"+n+"'>"+day+"</label>";
@@ -1537,7 +1537,7 @@ function make_program(n,total,program) {
     });
     list += "</fieldset>";
 
-    list += "<fieldset data-role='controlgroup' data-type='horizontal' style='text-align: center'>";
+    list += "<fieldset data-role='controlgroup' data-type='horizontal' class='center'>";
     list += "<input data-mini='true' type='reset' name='s_checkall-"+n+"' id='s_checkall-"+n+"' value='"+_("Check All")+"' />";
     list += "<input data-mini='true' type='reset' name='s_uncheckall-"+n+"' id='s_uncheckall-"+n+"' value='"+_("Uncheck All")+"' />";
     list += "</fieldset>";
@@ -1851,8 +1851,8 @@ function update_lang(lang) {
 function areYouSure(text1, text2, callback) {
     var popup = $('\
     <div data-role="popup" class="ui-content" data-overlay-theme="b" id="sure">\
-        <h3 class="sure-1" style="text-align:center">'+text1+'</h3>\
-        <p class="sure-2" style="text-align:center">'+text2+'</p>\
+        <h3 class="sure-1 center">'+text1+'</h3>\
+        <p class="sure-2 center">'+text2+'</p>\
         <a class="sure-do ui-btn ui-btn-b ui-corner-all ui-shadow" href="#">Yes</a>\
         <a class="sure-dont ui-btn ui-corner-all ui-shadow" href="#">No</a>\
     </div>');
