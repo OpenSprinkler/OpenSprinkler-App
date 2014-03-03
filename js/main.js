@@ -1006,8 +1006,9 @@ function toggle(anchor) {
         return;
     }
 
+    anchor = $(anchor);
+
     var list = $("#mm_list"),
-        anchor = $(anchor),
         listitems = list.children("li:not(li.ui-li-divider)"),
         item = anchor.closest("li:not(li.ui-li-divider)"),
         currPos = listitems.index(item) + 1;
