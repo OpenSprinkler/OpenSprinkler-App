@@ -100,7 +100,7 @@ $(document).ajaxError(function(x,t,m) {
         }
     }
     if(t.statusText==="timeout") {
-        if (m.url.search("yahooapis.com")) {
+        if (m.url.search("yahooapis.com") || m.url.search("api.wunderground.com")) {
             $("#weather-list").animate({
                 "margin-left": "-1000px"
             },1000,function(){
@@ -529,7 +529,7 @@ function show_providers() {
     var provider = localStorage.getItem("provider") || "yahoo";
 
     var popup = $('\
-        <div data-role="popup" id="providers" data-theme="a" data-overlay-theme="b">\
+        <div data-role="popup" id="providers" data-theme="a" data-dismissible="false" data-overlay-theme="b">\
             <div class="ui-content">\
                 <form>\
                     <label for="weather_provider">'+_("Weather Provider")+'\
