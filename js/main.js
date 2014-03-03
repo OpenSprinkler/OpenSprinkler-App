@@ -533,9 +533,12 @@ function convert_temp(temp,region) {
 }
 
 function update_weather() {
-    var $weather = $("#weather");
-    $("#weather").off("vclick");
-    $weather.html("<p class='ui-icon ui-icon-loading mini-load'></p>");
+    $("#weather").off("vclick").html("<p class='ui-icon ui-icon-loading mini-load'></p>");
+
+    update_yahoo_weather();
+}
+
+function update_yahoo_weather() {
     $.getJSON("http://query.yahooapis.com/v1/public/yql?q=select%20woeid%20from%20geo.placefinder%20where%20text=%22"+escape(window.controller.settings.loc)+"%22&format=json",function(woeid){
         $.getJSON("http://query.yahooapis.com/v1/public/yql?q=select%20item%2Ctitle%2Clocation%20from%20weather.forecast%20where%20woeid%3D%22"+woeid.query.results.Result.woeid+"%22&format=json",function(data){
             // Hide the weather if no data is returned
@@ -552,22 +555,20 @@ function update_weather() {
                 loc = /Yahoo! Weather - (.*)/.exec(title),
                 region = data.query.results.channel.location.country;
 
-            $weather.html("<div title='"+now.text+"' class='wicon cond"+now.code+"'></div><span>"+convert_temp(now.temp,region)+"</span><br><span class='location'>"+loc[1]+"</span>");
-            $("#weather").on("vclick",show_forecast);
+            $("#weather")
+                .html("<div title='"+now.text+"' class='wicon cond"+now.code+"'></div><span>"+convert_temp(now.temp,region)+"</span><br><span class='location'>"+loc[1]+"</span>")
+                .on("vclick",show_forecast);
+
             $("#weather-list").animate({
                 "margin-left": "0"
             },1000).show();
 
-            update_forecast(data.query.results.channel.item.forecast,loc[1],region,now);
+            update_yahoo_forecast(data.query.results.channel.item.forecast,loc[1],region,now);
         });
     });
 }
 
-function show_forecast() {
-    changePage("#forecast");
-}
-
-function update_forecast(data,loc,region,now) {
+function update_yahoo_forecast(data,loc,region,now) {
     var list = "<li data-role='list-divider' data-theme='a' class='center'>"+loc+"</li>";
     list += "<li data-icon='false' class='center'><div title='"+now.text+"' class='wicon cond"+now.code+"'></div><span>Now</span><br><span>"+convert_temp(now.temp,region)+"</span></li>";
 
@@ -578,6 +579,83 @@ function update_forecast(data,loc,region,now) {
     var forecast = $("#forecast_list");
     forecast.html(list).enhanceWithin();
     if (forecast.hasClass("ui-listview")) forecast.listview("refresh");
+}
+
+function update_wunderground_weather() {
+    $.ajax({
+        dataType: "jsonp",
+        type: "GET",
+        url: "http://api.wunderground.com/api/"+window.wapikey+"/conditions/forecast/lang:EN/q/"+window.controller.settings.loc+".json",
+        success: function(data) {
+            var code, temp;
+
+            if (data.current_observation.icon_url.indexOf("nt_") !== -1) { code = "nt_"+data.current_observation.icon; }
+            else code = data.current_observation.icon;
+
+            var ww_forecast = {
+                "condition": {
+                    "text": data.current_observation.weather,
+                    "code": code,
+                    "temp_c": data.current_observation.temp_c,
+                    "temp_f": data.current_observation.temp_f,
+                    "date": data.current_observation.observation_time,
+                    "precip_today_in": data.current_observation.precip_today_in,
+                    "precip_today_metric": data.current_observation.precip_today_metric,
+                    "type": "wunderground"
+                },
+                "location": data.current_observation.display_location.full,
+                "region": data.current_observation.display_location.country_iso3166,
+                simpleforecast: {}
+            }
+
+            $.each(data.forecast.simpleforecast.forecastday,function(k,attr) {
+                 ww_forecast.simpleforecast[k] = attr;
+            });
+
+            if (ww_forecast.region == "US" || ww_forecast.region == "BM" || ww_forecast.region == "PW") temp = Math.round(ww_forecast.condition.temp_f)+"&#176;F"
+            else temp = ww_forecast.condition.temp_c+"&#176;C";
+
+            $("#weather")
+                .html("<div title='"+ww_forecast.condition.text+"' class='wicon cond"+code+"'></div><span>"+temp+"</span><br><span class='location'>"+ww_forecast.location+"</span>")
+                .on("vclick",show_forecast);
+
+            $("#weather-list").animate({
+                "margin-left": "0"
+            },1000).show();
+
+            update_wunderground_forecast(ww_forecast);
+        }
+    })
+}
+
+function update_wunderground_forecast(data) {
+    var temp, precip;
+
+    if (data.region == "US" || data.region == "BM" || data.region == "PW") {
+        temp = data.condition.temp_f+"&#176;F";
+        precip = data.condition.precip_today_in+" in";
+    } else {
+        temp = data.condition.temp_c+"&#176;C";
+        precip = data.condition.precip_today_metric+" mm";
+    }
+
+    var list = "<li data-role='list-divider' data-theme='a' class='center'>"+data.location+"</li>";
+    list += "<li data-icon='false' class='center'><div title='"+data.condition.text+"' class='wicon cond"+data.condition.code+"'></div><span>"+_("Now")+"</span><br><span>"+temp+"</span><br><span>"+_("Precip")+": "+precip+"</span></li>";
+    $.each(data.simpleforecast, function(k,attr) {
+        if (data.region == "US" || data.region == "BM" || data.region == "PW") {
+            list += "<li data-icon='false' class='center'><span>"+attr.date.monthname_short+" "+attr.date.day+"</span><br><div title='"+attr.conditions+"' class='wicon cond"+attr.icon+"'></div><span>"+attr.date.weekday_short+"</span><br><span>"+_("Low")+": "+attr.low.fahrenheit+"&#176;F  "+_("High")+": "+attr.high.fahrenheit+"&#176;F</span><br><span>"+_("Precip")+": "+attr.qpf_allday.in+" in</span></li>";
+        } else {
+            list += "<li data-icon='false' style='text-align:center'><span>"+attr.date.monthname_short+" "+attr.date.day+"</span><br><div title='"+attr.conditions+"' class='wicon cond"+attr.icon+"'></div><span>"+attr.date.weekday_short+"</span><br><span>"+_("Low")+": "+attr.low.celsius+"&#176;C  "+_("High")+": "+attr.high.celsius+"&#176;C</span><br><span>"+_("Precip")+": "+attr.qpf_allday.mm+" mm</span></li>";
+        }
+    });
+
+    var forecast = $("#forecast_list");
+    forecast.html(list).enhanceWithin();
+    if (forecast.hasClass("ui-listview")) forecast.listview("refresh");
+}
+
+function show_forecast() {
+    changePage("#forecast");
 }
 
 function gohome() {
