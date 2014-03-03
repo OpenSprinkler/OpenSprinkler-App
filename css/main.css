@@ -1,3 +1,11 @@
+html, #start {
+    width: 100%;
+    background-color: #1C1C1C !important;
+}
+body{
+    margin: 0;
+    display: none;
+}
 #donate {
     display: none;
 }
@@ -8,10 +16,6 @@
 }
 #auto-scan {
     display: none;
-}
-html, #start {
-    width: 100%;
-    background-color: #1C1C1C !important;
 }
 #welcome_list {
     width:250px;
@@ -207,8 +211,6 @@ div.ui-flipswitch {
 .master {
     background-color: #DEAD5D !important;
 }
-.program-0 {
-}
 .program-1 {
     background-color: rgba(0,200,0,0.5) !important
 }
@@ -249,9 +251,6 @@ div.ui-flipswitch {
 }
 .panelhelp {
     white-space: normal
-}
-body{
-    margin: 0;
 }
 #timeline-navigation {
     text-align: center;
@@ -313,7 +312,7 @@ div.timeline-event-content {
 .wicon.cond1  { background-position: -150px -150px; }				/*  1   tropical storm            */
 .wicon.cond2  { background-position: -150px -150px; }				/*  2   hurricane                 */
 .wicon.cond3, .wicon.condchancetstorms,
-.wicon.condnt_chancetstorms  { background-position: -300px -150px; }	/*  3   severe thunderstorms      */
+.wicon.condnt_chancetstorms  { background-position: -300px -150px; }/*  3   severe thunderstorms      */
 .wicon.cond4, .wicon.condtstorms,
 .wicon.condnt_tstorms  { background-position: -300px -150px; }		/*  4   thunderstorms             */
 .wicon.cond5  { background-position:    0px -450px; }				/*  5   mixed rain and snow       */
@@ -322,16 +321,16 @@ div.timeline-event-content {
 .wicon.cond7  { background-position:    0px -600px; }				/*  7   mixed snow and sleet      */
 .wicon.cond8  { background-position:    0px -600px; }				/*  8   freezing drizzle          */
 .wicon.cond9, .wicon.condchancerain,
-.wicon.condnt_chancerain { background-position: -150px -300px; }		/*  9   drizzle                   */
+.wicon.condnt_chancerain { background-position: -150px -300px; }	/*  9   drizzle                   */
 .wicon.cond10, .wicon.condsleet,
 .wicon.condnt_sleet { background-position:    0px -450px; }			/*  10  freezing rain             */
 .wicon.cond11, .wicon.condrain,
 .wicon.condnt_rain { background-position:    0px    0px; }			/*  11  showers                   */
 .wicon.cond12 { background-position:    0px    0px; }				/*  12  showers                   */
 .wicon.cond13, .wicon.condflurries, .wicon.condnt_flurries, .wicon.condchanceflurries,
-.wicon.condnt_chanceflurries { background-position: -450px -150px; }	/*  13  snow flurries             */
+.wicon.condnt_chanceflurries { background-position: -450px -150px; }/*  13  snow flurries             */
 .wicon.cond14, .wicon.condchancesnow,
-.wicon.condnt_chancesnow { background-position: -300px -300px; }		/*  14  light snow showers        */
+.wicon.condnt_chancesnow { background-position: -300px -300px; }	/*  14  light snow showers        */
 .wicon.cond15 { background-position:    0px -150px; }				/*  15  blowing snow              */
 .wicon.cond16, .wicon.condsnow,
 .wicon.condnt_snow { background-position: -450px -150px; }			/*  16  snow                      */
@@ -348,7 +347,7 @@ div.timeline-event-content {
 .wicon.cond24 { background-position: -450px -300px; }				/*  24  windy                     */
 .wicon.cond25 { background-position:    0px -150px; }				/*  25  cold                      */
 .wicon.cond26, .wicon.condcloudy,
-.wicon.condnt_cloudy { background-position: -300px    0px; }			/*  26  cloudy                    */
+.wicon.condnt_cloudy { background-position: -300px    0px; }		/*  26  cloudy                    */
 .wicon.cond27, .wicon.condnt_mostlycloudy,
 .wicon.condnt_partlysunny { background-position: -300px -600px; }	/*  27  mostly cloudy (night)     */
 .wicon.cond28, .wicon.condmostlycloudy,
