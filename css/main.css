@@ -6,9 +6,6 @@
     overflow: visible;
     white-space: normal;
 }
-.center {
-    text-align:center;
-}
 #auto-scan {
     display: none;
 }
@@ -247,8 +244,8 @@ div.ui-flipswitch {
     font-size: 0.71em !important;
 }
 .ui-header .ui-title { margin-left: 1em; margin-right: 1em; }
-div[class*='ui-block-'], .center {
-	text-align: center
+.center {
+	text-align: center !important
 }
 .panelhelp {
     white-space: normal
