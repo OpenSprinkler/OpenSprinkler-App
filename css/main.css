@@ -6,6 +6,14 @@ body{
     margin: 0;
     display: none;
 }
+.logo {
+    height: 40px;
+    width: 159px;
+    background: url(../img/logo.png);
+    background-size: 159px 40px;
+    background-repeat:no-repeat;
+    margin: 0 auto;
+}
 #donate {
     display: none;
 }
@@ -96,12 +104,14 @@ a {
     position: relative;
 }
 #running-icon {
-    margin:auto;
+    width: 11px;
+    height: 11px;
+    background: url(../img/running.png);
+    background-size: 11px 11px;
+    background-repeat:no-repeat;
+    margin:auto auto auto 4px;
     position:absolute;
     top:0;bottom:0;
-    max-height:100%;
-    max-width:100%;
-    padding-left:4px;
  }
 #running-text {
     margin:0;
