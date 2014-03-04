@@ -188,10 +188,14 @@ $("#mm,#mmm").change(function(){
     if (mmSwitching) return;
 
     //Find out what the switch was changed to
-    var changedTo = $(this).is(":checked"),
+    var flip = $(this),
+        id = flip.attr("id"),
+        other = ((id === "mm") ? $("#mmm") : $("#mm")),
+        changedTo = flip.is(":checked"),
         defer;
 
-    $("#mm,#mmm").prop("checked",changedTo).flipswitch("refresh");
+    other.prop("checked",changedTo);
+    if (other.hasClass("ui-flipswitch-input")) other.flipswitch("refresh");
 
     if (changedTo) {
         defer = $.get("http://"+window.curr_ip+"/cv?pw="+window.curr_pw+"&mm=1",function(){
@@ -210,7 +214,10 @@ $("#mm,#mmm").change(function(){
         setTimeout(function(){
             mmSwitching = false;
         },200);
-        $("#mm,#mmm").prop("checked",!changedTo).flipswitch("refresh");
+        $.each([flip,other],function(i,m){
+            m.prop("checked",!changedTo)
+            if (m.hasClass("ui-flipswitch-input")) flipswitch("refresh");
+        })
     });
 });
 
