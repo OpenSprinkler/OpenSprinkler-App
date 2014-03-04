@@ -2069,7 +2069,10 @@ function update_lang(lang) {
     //Empty out the current language (English is provided as the key)
     window.language = {};
 
-    if (lang == "en") return set_lang();
+    if (lang == "en") {
+        localStorage.setItem("lang","en");
+        return set_lang();
+    }
 
     $.getJSON("locale/"+lang+".json",function(store){
         window.language = store.messages;
