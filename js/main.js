@@ -1333,11 +1333,11 @@ function get_preview() {
     process_programs(date[1],date[2],date[0]);
 
     var empty = true;
-    if (window.preview_data === "") {
+    if (!window.preview_data.length) {
         $("#timeline").html("<p align='center'>"+_("No stations set to run on this day.")+"</p>");
     } else {
         empty = false;
-        var data = eval("["+window.preview_data.substring(0, window.preview_data.length - 1)+"]");
+        var data = window.preview_data;
         var shortnames = [];
         $.each(data, function(){
             this.start = new Date(date[0],date[1]-1,date[2],0,0,this.start);
@@ -1391,7 +1391,7 @@ function get_preview() {
 }
 
 function process_programs(month,day,year) {
-    window.preview_data = "";
+    window.preview_data = [];
     var devday = Math.floor(window.controller.settings.devt/(60*60*24)),
         simminutes = 0,
         simt = Date.UTC(year,month-1,day,0,0,0,0),
@@ -1479,29 +1479,50 @@ function check_match(prog,simminutes,simt,simday,devday) {
 }
 
 function run_sched(simseconds,st_array,pid_array,et_array,simt) {
-  var endtime=simseconds;
-  for(var sid=0;sid<window.controller.settings.nbrd*8;sid++) {
-    if(pid_array[sid]) {
-      if(window.controller.options.seq==1) {
-        time_to_text(sid,st_array[sid],pid_array[sid],et_array[sid],simt);
-        if((window.controller.options.mas>0)&&(window.controller.options.mas!=sid+1)&&(window.controller.stations.masop[sid>>3]&(1<<(sid%8))))
-            window.preview_data += "{'start': "+(st_array[sid]+window.controller.options.mton)+",'end': "+(et_array[sid]+window.controller.options.mtof)+",'content':'','className':'master','shortname':'M','group':'Master'},";
-        endtime=et_array[sid];
-      } else {
-        time_to_text(sid,simseconds,pid_array[sid],et_array[sid],simt);
-        if((window.controller.options.mas>0)&&(window.controller.options.mas!=sid+1)&&(window.controller.stations.masop[sid>>3]&(1<<(sid%8))))
-          endtime=(endtime>et_array[sid])?endtime:et_array[sid];
-      }
+    var endtime=simseconds;
+    for(var sid=0;sid<window.controller.settings.nbrd*8;sid++) {
+        if(pid_array[sid]) {
+            if(window.controller.options.seq==1) {
+                time_to_text(sid,st_array[sid],pid_array[sid],et_array[sid],simt);
+                if((window.controller.options.mas>0)&&(window.controller.options.mas!=sid+1)&&(window.controller.stations.masop[sid>>3]&(1<<(sid%8))))
+                window.preview_data.push({
+                    'start': (st_array[sid]+window.controller.options.mton),
+                    'end': (et_array[sid]+window.controller.options.mtof),
+                    'content':'',
+                    'className':'master',
+                    'shortname':'M',
+                    'group':'Master'
+                });
+                endtime=et_array[sid];
+            } else {
+                time_to_text(sid,simseconds,pid_array[sid],et_array[sid],simt);
+                if((window.controller.options.mas>0)&&(window.controller.options.mas!=sid+1)&&(window.controller.stations.masop[sid>>3]&(1<<(sid%8))))
+                endtime=(endtime>et_array[sid])?endtime:et_array[sid];
+            }
+        }
     }
-  }
-  if(window.controller.options.seq===0&&window.controller.options.mas>0) window.preview_data += "{'start': "+simseconds+",'end': "+endtime+",'content':'','className':'master','shortname':'M','group':'Master'},";
-  return endtime;
+    if(window.controller.options.seq===0&&window.controller.options.mas>0) window.preview_data.push({
+        'start': simseconds,
+        'end': endtime,
+        'content':'',
+        'className':'master',
+        'shortname':'M',
+        'group':'Master'
+    });
+    return endtime;
 }
 
 function time_to_text(sid,start,pid,end,simt) {
     var className = "program-"+((pid+3)%4);
     if ((window.controller.settings.rd!==0)&&(simt+start+(window.controller.options.tz-48)*900<=window.controller.settings.rdst)) className="delayed";
-    window.preview_data += "{'start': "+start+",'end': "+end+",'className':'"+className+"','content':'P"+pid+"','shortname':'S"+(sid+1)+"','group':'"+window.controller.stations.snames[sid]+"'},";
+    window.preview_data.push({
+        'start': start,
+        'end': end,
+        'className':className,
+        'content':'P'+pid,
+        'shortname':'S'+(sid+1),
+        'group': window.controller.stations.snames[sid]
+    });
 }
 
 function timeline_redraw() {
