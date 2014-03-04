@@ -12,7 +12,7 @@ body{
     background: url(../img/logo.png);
     background-size: 159px 40px;
     background-repeat:no-repeat;
-    margin: 0 auto;
+    margin: 1px auto;
 }
 #donate {
     display: none;
