@@ -50,7 +50,7 @@ $(document).ready(function () {
                     func = check_status;
                 }
 
-                update_device(func,function(){
+                update_controller(func,function(){
                     $("#footer-running").slideUp();
                     comm_error();
                 });
@@ -163,7 +163,7 @@ $(document).on("pagebeforeshow",function(e,data){
         //Reset status bar to loading while an update is done
         $("#footer-running").html("<p class='ui-icon ui-icon-loading mini-load'></p>");
         setTimeout(function(){
-            update_device(check_status,function(){
+            update_controller(check_status,function(){
                 $("#footer-running").slideUp();
                 comm_error();
             });
@@ -244,7 +244,7 @@ function newload() {
 
     //Create object which will store device data
     window.controller = {};
-    update_device(
+    update_controller(
         function(){
             if (window.controller.settings.en == "1") $("#en").prop("checked",true);
             if (window.controller.settings.mm == "1") $("#mm,#mmm").prop("checked",true);
@@ -263,27 +263,62 @@ function newload() {
 }
 
 // Update controller information
-function update_device(callback,fail) {
+function update_controller(callback,fail) {
     callback = callback || function(){};
     fail = fail || function(){};
 
     $.when(
-        $.getJSON("http://"+window.curr_ip+"/jp",function(programs){
-            window.controller.programs = programs;
-        }),
-        $.getJSON("http://"+window.curr_ip+"/jn",function(stations){
-            window.controller.stations = stations;
-        }),
-        $.getJSON("http://"+window.curr_ip+"/jo",function(options){
-            window.controller.options = options;
-        }),
-        $.getJSON("http://"+window.curr_ip+"/js",function(status){
-            window.controller.status = status.sn;
-        }),
-        $.getJSON("http://"+window.curr_ip+"/jc",function(settings){
-            window.controller.settings = settings;
-        })
+        update_controller_programs(),
+        update_controller_stations(),
+        update_controller_options(),
+        update_controller_status(),
+        update_controller_settings()
     ).then(callback,fail);
+}
+
+function update_controller_programs(callback) {
+    callback = callback || function(){};
+
+    return $.getJSON("http://"+window.curr_ip+"/jp",function(programs){
+        window.controller.programs = programs;
+        callback();
+    })
+}
+
+function update_controller_stations(callback) {
+    callback = callback || function(){};
+
+    return $.getJSON("http://"+window.curr_ip+"/jn",function(stations){
+        window.controller.stations = stations;
+        callback();
+    });
+}
+
+function update_controller_options(callback) {
+    callback = callback || function(){};
+
+    return $.getJSON("http://"+window.curr_ip+"/jo",function(options){
+        window.controller.options = options;
+        callback();
+    });
+}
+
+function update_controller_status(callback) {
+    callback = callback || function(){};
+
+    return $.getJSON("http://"+window.curr_ip+"/js",function(status){
+        window.controller.status = status.sn;
+        callback();
+    });
+}
+
+function update_controller_settings(callback) {
+    callback = callback || function(){};
+
+    return $.getJSON("http://"+window.curr_ip+"/jc",function(settings){
+        window.controller.settings = settings;
+        callback();
+    });
 }
 
 // Multisite functions
@@ -840,7 +875,7 @@ function submit_settings() {
         $.mobile.loading("hide");
         changePage("#settings");
         showerror(_("Settings have been saved"));
-        update_device();
+        update_controller();
         update_weather();
     }).fail(comm_error);
 }
@@ -910,7 +945,7 @@ function submit_stations() {
         $.mobile.loading("hide");
         changePage("#settings");
         showerror(_("Stations have been updated"));
-        update_device();
+        update_controller();
     }).fail(comm_error);
 }
 
@@ -1100,7 +1135,7 @@ function update_timer(total,sdelay) {
         if (diff > 3000) {
             clearInterval(window.interval_id);
             $("#footer-running").html("<p class='ui-icon ui-icon-loading mini-load'></p>");
-            update_device(check_status);
+            update_controller(check_status);
         }
         window.lastCheck = now;
 
@@ -1109,7 +1144,7 @@ function update_timer(total,sdelay) {
             $("#footer-running").slideUp().html("<p class='ui-icon ui-icon-loading mini-load'></p>");
             if (window.timeout_id !== undefined) clearTimeout(window.timeout_id);
             window.timeout_id = setTimeout(function(){
-                update_device(check_status);
+                update_controller(check_status);
             },(sdelay*1000));
         }
         else
@@ -1183,13 +1218,17 @@ function toggle(anchor) {
         currPos = listitems.index(item) + 1;
 
     if (anchor.hasClass("green")) {
-        $.get("http://"+window.curr_ip+"/sn"+currPos+"=0").fail(function(){
+        $.get("http://"+window.curr_ip+"/sn"+currPos+"=0",function(){
+            update_controller_status();
+        }).fail(function(){
             anchor.addClass("green");
             comm_error();
         });
         anchor.removeClass("green");
     } else {
-        $.get("http://"+window.curr_ip+"/sn"+currPos+"=1&t=0").fail(function(){
+        $.get("http://"+window.curr_ip+"/sn"+currPos+"=1&t=0",function(){
+            update_controller_status();
+        }).fail(function(){
             anchor.removeClass("green");
             comm_error();
         });
@@ -1276,6 +1315,8 @@ function submit_runonce(runonce) {
     }
     localStorage.setItem("runonce",JSON.stringify(runonce));
     $.get("http://"+window.curr_ip+"/cr?pw="+window.curr_pw+"&t="+JSON.stringify(runonce),function(){
+        update_controller_status();
+        update_controller_settings();
         showerror(_("Run-once program has been scheduled"));
     }).fail(comm_error);
     gohome();
@@ -1736,7 +1777,7 @@ function delete_program(id) {
         $.mobile.loading("show");
         $.get("http://"+window.curr_ip+"/dp?pw="+window.curr_pw+"&pid="+id,function(){
             $.mobile.loading("hide");
-            update_device(function(){
+            update_controller_programs(function(){
                 get_programs(false);
             });
         }).fail(comm_error);
@@ -1796,7 +1837,7 @@ function submit_program(id) {
     if (id == "new") {
         $.get("http://"+window.curr_ip+"/cp?pw="+window.curr_pw+"&pid=-1&v="+program,function(){
             $.mobile.loading("hide");
-            update_device(get_programs);
+            update_controller_programs(get_programs);
             showerror(_("Program added successfully"));
         }).fail(comm_error);
     } else {
@@ -1814,7 +1855,7 @@ function raindelay() {
         $.mobile.loading("hide");
         $("#raindelay").popup("close");
         $("#footer-running").html("<p class='ui-icon ui-icon-loading mini-load'></p>");
-        update_device(check_status);
+        update_controller_settings(check_status);
         showerror(_("Rain delay has been successfully set"));
     }).fail(comm_error);
 }
@@ -1834,7 +1875,10 @@ function rsn() {
         $.mobile.loading("show");
         $.get("http://"+window.curr_ip+"/cv?pw="+window.curr_pw+"&rsn=1",function(){
             $.mobile.loading("hide");
-            update_device(check_status);
+            $.when(
+                update_controller_settings(),
+                update_controller_status()
+            ).then(check_status);
             showerror(_("All stations have been stopped"));
         }).fail(comm_error);
     });
@@ -1917,8 +1961,10 @@ function import_config(data) {
             })
         ).then(
             function(){
-                $.mobile.loading("hide");
-                showerror(_("Backup restored to your device"));
+                update_controller(function(){
+                    $.mobile.loading("hide");
+                    showerror(_("Backup restored to your device"));
+                })
             },
             function(){
                 $.mobile.loading("hide");
