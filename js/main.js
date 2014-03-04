@@ -188,9 +188,10 @@ $("#mm,#mmm").change(function(){
     if (mmSwitching) return;
 
     //Find out what the switch was changed to
-    var slide = $(this),
-        changedTo = $(this).is(":checked"),
+    var changedTo = $(this).is(":checked"),
         defer;
+
+    $("#mm,#mmm").prop("checked",changedTo).flipswitch("refresh");
 
     if (changedTo) {
         defer = $.get("http://"+window.curr_ip+"/cv?pw="+window.curr_pw+"&mm=1",function(){
@@ -209,7 +210,7 @@ $("#mm,#mmm").change(function(){
         setTimeout(function(){
             mmSwitching = false;
         },200);
-        slide.prop("checked",!changedTo).flipswitch("refresh");
+        $("#mm,#mmm").prop("checked",!changedTo).flipswitch("refresh");
     });
 });
 
@@ -254,8 +255,8 @@ function newload() {
     window.controller = {};
     update_controller(
         function(){
-            if (window.controller.settings.en == "1") $("#en").prop("checked",true);
-            if (window.controller.settings.mm == "1") $("#mm,#mmm").prop("checked",true);
+            $("#en").prop("checked",window.controller.settings.en);
+            $("#mm,#mmm").prop("checked",window.controller.settings.mm);
             update_weather();
             changePage("#sprinklers");
         },
