@@ -1124,18 +1124,20 @@ function update_timers(sdelay) {
     if (window.timeout_id !== undefined) clearTimeout(window.timeout_id);
     window.lastCheck = new Date().getTime();
     window.interval_id = setInterval(function(){
-        var now = new Date().getTime();
-        var diff = now - window.lastCheck;
+        var now = new Date().getTime(),
+            page = $(".ui-page-active").attr("id"),
+            diff = now - window.lastCheck;
+
         if (diff > 3000) {
             clearInterval(window.interval_id);
-            if ($(".ui-page-active").attr("id") == "status") get_status();
+            if (page == "status") get_status();
         }
         window.lastCheck = now;
         $.each(window.totals,function(a,b){
             if (b <= 0) {
                 delete window.totals[a];
                 if (a == "p") {
-                    if ($(".ui-page-active").attr("id") == "status") get_status();
+                    if (page == "status") get_status();
                 } else {
                     $("#countdown-"+a).parent("p").text(_("Station delay")).parent("li").removeClass("green").addClass("red");
                     window.timeout_id = setTimeout(get_status,(sdelay*1000));
