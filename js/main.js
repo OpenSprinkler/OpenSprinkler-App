@@ -152,9 +152,6 @@ $(document).on("pagebeforeshow",function(e,data){
     var newpage = e.target.id,
         fromStart = ($(".ui-page-active").attr("id") == "start") ? 1 : 0;
 
-    //Remove lingering tooltip from preview page
-    $("#tooltip").remove();
-
     //Remove any status timers that may be running
     if (window.interval_id !== undefined) clearInterval(window.interval_id);
     if (window.timeout_id !== undefined) clearTimeout(window.timeout_id);
