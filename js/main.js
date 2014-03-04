@@ -618,6 +618,9 @@ function show_providers() {
         } else {
             $("#wapikey").closest("label").hide();
         }
+        popup.popup("reposition",{
+            "positionTo": "window"
+        })
     });
 
     popup.one("popupafterclose",function(){
