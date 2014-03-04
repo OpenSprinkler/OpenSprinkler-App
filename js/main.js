@@ -220,9 +220,13 @@ $("#en").change(function(){
         defer;
 
     if (changedTo) {
-            defer = $.get("http://"+window.curr_ip+"/cv?pw="+window.curr_pw+"&en=1");
+        defer = $.get("http://"+window.curr_ip+"/cv?pw="+window.curr_pw+"&en=1",function(){
+            update_controller_settings();
+        });
     } else {
-            defer = $.get("http://"+window.curr_ip+"/cv?pw="+window.curr_pw+"&en=0");
+        defer = $.get("http://"+window.curr_ip+"/cv?pw="+window.curr_pw+"&en=0",function(){
+            update_controller_settings();
+        });
     }
 
     $.when(defer).fail(function(){
