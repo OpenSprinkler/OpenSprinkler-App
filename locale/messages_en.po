@@ -1,9 +1,6 @@
 msgid "Manually Add Device"
 msgstr ""
 
-msgid "Manual mode is not enabled. Please enable manual mode then try again."
-msgstr ""
-
 msgid "Check device password and try again."
 msgstr ""
 
@@ -37,6 +34,36 @@ msgid "Firmware"
 msgstr ""
 
 msgid "No devices were detected on your network."
+msgstr ""
+
+msgid "Weather Provider"
+msgstr ""
+
+msgid "Yahoo!"
+msgstr ""
+
+msgid "Wunderground"
+msgstr ""
+
+msgid "Wunderground API Key"
+msgstr ""
+
+msgid "Submit"
+msgstr ""
+
+msgid "An API key must be provided for Weather Underground"
+msgstr ""
+
+msgid "Now"
+msgstr ""
+
+msgid "Precip"
+msgstr ""
+
+msgid "Low"
+msgstr ""
+
+msgid "High"
 msgstr ""
 
 msgid "Timezone"
@@ -156,12 +183,12 @@ msgstr ""
 msgid "Sprinkler Stations"
 msgstr ""
 
+msgid "Manual mode is not enabled. Please enable manual mode then try again."
+msgstr ""
+
 msgid ""
 "Value is in minutes. Zero means the station will be excluded from the run-"
 "once program."
-msgstr ""
-
-msgid "Submit"
 msgstr ""
 
 msgid "Reset"
