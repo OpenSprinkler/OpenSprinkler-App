@@ -361,9 +361,9 @@ function show_sites(showBack) {
         list += "<fieldset "+((total == 1) ? "data-collapsed='false'" : "")+" id='site-"+c+"' data-role='collapsible'>";
         list += "<legend>"+a+"</legend>";
         list += "<a data-role='button' onclick='update_site(\""+a+"\")'>"+_("Connect Now")+"</a>";
-        list += "<label for='cip-"+c+"'>Change IP</label><input id='cip-"+c+"' type='text' value='"+b.os_ip+"' />";
+        list += "<form action='javascript:change_site(\""+c+"\");'><label for='cip-"+c+"'>Change IP</label><input id='cip-"+c+"' type='text' value='"+b.os_ip+"' />";
         list += "<label for='cpw-"+c+"'>Change Password</label><input id='cpw-"+c+"' type='password' />";
-        list += "<a data-role='button' onclick='change_site(\""+c+"\")'>"+_("Save Changes to")+" "+a+"</a>";
+        list += "<input type='submit' value='"+_("Save Changes to")+" "+a+"' /></form>";
         list += "<a data-role='button' onclick='delete_site(\""+a+"\")' data-theme='b'>"+_("Delete")+" "+a+"</a>";
         list += "</fieldset>";
     });
