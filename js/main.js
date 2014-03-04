@@ -1054,7 +1054,7 @@ function check_status() {
         var sample = Object.keys(open)[0],
             pid    = window.controller.settings.ps[sample][0],
             pname  = pidname(pid),
-            line   = "<img id='running-icon' width='11px' height='11px' src='img/running.png' /><p id='running-text'>";
+            line   = "<div id='running-icon'></div><p id='running-text'>";
 
         line += pname+" "+_("is running on")+" "+Object.keys(open).length+" "+_("stations")+" ";
         if (pid!=255&&pid!=99) line += "<span id='countdown' class='nobr'>("+sec2hms(ptotal)+" "+_("remaining")+")</span>";
@@ -1071,7 +1071,7 @@ function check_status() {
             match = true;
             var pid = window.controller.settings.ps[i][0],
                 pname = pidname(pid),
-                line = "<img id='running-icon' width='11px' height='11px' src='img/running.png' /><p id='running-text'>";
+                line = "<div id='running-icon'></div><p id='running-text'>";
             line += pname+" "+_("is running on station")+" <span class='nobr'>"+name+"</span> ";
             if (pid!=255&&pid!=99) line += "<span id='countdown' class='nobr'>("+sec2hms(window.controller.settings.ps[i][1])+" "+_("remaining")+")</span>";
             line += "</p>";
