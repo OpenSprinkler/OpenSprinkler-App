@@ -569,7 +569,8 @@ function add_found(ip) {
 function show_providers() {
     $("#providers").remove();
 
-    var provider = localStorage.getItem("provider") || "yahoo";
+    var provider = localStorage.getItem("provider") || "yahoo",
+        wapikey = localStorage.getItem("wapikey");
 
     var popup = $('\
         <div data-role="popup" id="providers" data-theme="a" data-dismissible="false" data-overlay-theme="b">\
@@ -578,10 +579,10 @@ function show_providers() {
                     <label for="weather_provider">'+_("Weather Provider")+'\
                         <select data-mini="true" id="weather_provider">\
                             <option value="yahoo">'+_("Yahoo!")+'</option>\
-                            <option value="wunderground">'+_("Wunderground")+'</option>\
+                            <option '+((provider == "wunderground") ? 'selected ' : '')+'value="wunderground">'+_("Wunderground")+'</option>\
                         </select>\
                     </label>\
-                    <label for="wapikey">'+_("Wunderground API Key")+'<input data-mini="true" type="text" id="wapikey" /></label>\
+                    <label for="wapikey">'+_("Wunderground API Key")+'<input data-mini="true" type="text" id="wapikey" value="'+wapikey+'" /></label>\
                     <input type="submit" value="'+_("Submit")+'" />\
                 </form>\
             </div>\
