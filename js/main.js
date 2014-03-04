@@ -193,9 +193,13 @@ $("#mm,#mmm").change(function(){
         defer;
 
     if (changedTo) {
-        defer = $.get("http://"+window.curr_ip+"/cv?pw="+window.curr_pw+"&mm=1");
+        defer = $.get("http://"+window.curr_ip+"/cv?pw="+window.curr_pw+"&mm=1",function(){
+            update_controller_settings();
+        });
     } else {
-        defer = $.get("http://"+window.curr_ip+"/cv?pw="+window.curr_pw+"&mm=0").done(function(){
+        defer = $.get("http://"+window.curr_ip+"/cv?pw="+window.curr_pw+"&mm=0",function(){
+            update_controller_settings();
+        }).done(function(){
             $("#manual a.green").removeClass("green");
         });
     }
@@ -745,7 +749,7 @@ function update_wunderground_forecast(data) {
         if (data.region == "US" || data.region == "BM" || data.region == "PW") {
             list += "<li data-icon='false' class='center'><span>"+attr.date.monthname_short+" "+attr.date.day+"</span><br><div title='"+attr.conditions+"' class='wicon cond"+attr.icon+"'></div><span>"+attr.date.weekday_short+"</span><br><span>"+_("Low")+": "+attr.low.fahrenheit+"&#176;F  "+_("High")+": "+attr.high.fahrenheit+"&#176;F</span><br><span>"+_("Precip")+": "+attr.qpf_allday.in+" in</span></li>";
         } else {
-            list += "<li data-icon='false' style='text-align:center'><span>"+attr.date.monthname_short+" "+attr.date.day+"</span><br><div title='"+attr.conditions+"' class='wicon cond"+attr.icon+"'></div><span>"+attr.date.weekday_short+"</span><br><span>"+_("Low")+": "+attr.low.celsius+"&#176;C  "+_("High")+": "+attr.high.celsius+"&#176;C</span><br><span>"+_("Precip")+": "+attr.qpf_allday.mm+" mm</span></li>";
+            list += "<li data-icon='false' class='center'><span>"+attr.date.monthname_short+" "+attr.date.day+"</span><br><div title='"+attr.conditions+"' class='wicon cond"+attr.icon+"'></div><span>"+attr.date.weekday_short+"</span><br><span>"+_("Low")+": "+attr.low.celsius+"&#176;C  "+_("High")+": "+attr.high.celsius+"&#176;C</span><br><span>"+_("Precip")+": "+attr.qpf_allday.mm+" mm</span></li>";
         }
     });
 
@@ -1195,8 +1199,7 @@ function get_manual() {
     var list = "<li data-role='list-divider' data-theme='a'>"+_("Sprinkler Stations")+"</li>";
 
     $.each(window.controller.stations.snames,function (i,station) {
-        list += '<li data-icon="false"><a class="center" '+((window.controller.status[i]) ? 'class="green" ' : '')+'href="#" onclick="toggle(this);">'+station+'</a></li>';
-        i++;
+        list += '<li data-icon="false"><a class="center'+((window.controller.status[i]) ? ' green' : '')+'" href="#" onclick="toggle(this);">'+station+'</a></li>';
     });
     var mm = $("#mm_list");
     mm.html(list);
