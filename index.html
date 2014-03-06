@@ -110,7 +110,7 @@
         <div data-role="page" id="forecast">
             <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false">
                 <h3 data-translate="Forecast"></h3>
-                <a href="#sprinklers" data-onclick="gohome();" data-icon="back" data-translate="Back"></a>
+                <a href="#sprinklers" data-onclick="window.history.back();" data-icon="back" data-translate="Back"></a>
                 <a href="#" data-onclick="update_weather();" data-icon="refresh" data-translate="Refresh"></a>
             </div>
             <div class="ui-content" role="main">
@@ -122,7 +122,7 @@
         <div data-role="page" id="status">
             <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false">
                 <h3 data-translate="Current Status"></h3>
-                <a href="#sprinklers" data-onclick="gohome();" data-icon="back" data-translate="Back"></a>
+                <a href="#sprinklers" data-onclick="window.history.back();" data-icon="back" data-translate="Back"></a>
                 <a href="#" data-onclick="get_status();" data-icon="refresh" data-translate="Refresh"></a>
             </div>
             <div class="ui-content" role="main">
@@ -136,7 +136,7 @@
         <div data-role="page" id="manual">
             <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false">
                 <h3 data-translate="Manual Control"></h3>
-                <a href="#" data-onclick="gohome();" data-icon="back" data-translate="Back"></a>
+                <a href="#" data-onclick="window.history.back();" data-icon="back" data-translate="Back"></a>
             </div>
             <div class="ui-content" role="main">
                 <p class="center" data-translate="With manual mode turned on, tap a station to toggle it."></p>
@@ -154,7 +154,7 @@
         <div data-role="page" id="runonce">
             <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false">
                 <h3 data-translate="Run-Once Program"></h3>
-                <a href="#sprinklers" data-onclick="gohome();" data-icon="back" data-translate="Back"></a>
+                <a href="#sprinklers" data-onclick="window.history.back();" data-icon="back" data-translate="Back"></a>
                 <a href="#" data-onclick="submit_runonce();" data-translate="Submit"></a>
             </div>
             <div class="ui-content" role="main" id="runonce_list">
@@ -164,7 +164,7 @@
         <div data-role="page" id="programs">
             <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false">
                 <h3 data-translate="Programs"></h3>
-                <a href="#sprinklers" data-onclick="gohome();" data-icon="back" data-translate="Back"></a>
+                <a href="#sprinklers" data-onclick="window.history.back();" data-icon="back" data-translate="Back"></a>
                 <a href="#addprogram" data-onclick="add_program();" data-icon="plus" data-translate="Add"></a>
             </div>
             <div class="ui-content" role="main" id="programs_list">
@@ -174,7 +174,7 @@
         <div data-role="page" id="addprogram">
             <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false">
                 <h3 data-translate="Add Program"></h3>
-                <a href="#programs" data-icon="back" data-translate="Back"></a>
+                <a href="#programs" data-onclick="window.history.back();" data-icon="back" data-translate="Back"></a>
                 <a href="#" data-onclick="submit_program('new');" data-translate="Submit"></a>
             </div>
             <div class="ui-content" role="main" id="newprogram">
@@ -184,7 +184,7 @@
         <div data-role="page" id="settings">
             <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false">
                 <h3 data-translate="Settings"></h3>
-                <a href="#sprinklers" data-onclick="gohome();" data-icon="back" data-translate="Back"></a>
+                <a href="#sprinklers" data-onclick="window.history.back();" data-icon="back" data-translate="Back"></a>
             </div>
             <div class="ui-content" role="main">
                 <ul data-role="listview" data-inset="true">
@@ -224,7 +224,7 @@
         <div data-role="page" id="os-settings">
             <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false">
                 <h3 data-translate="OS Settings"></h3>
-                <a href="#settings" data-icon="back" data-translate="Back"></a>
+                <a href="#settings" data-onclick="window.history.back();" data-icon="back" data-translate="Back"></a>
                 <a href="#" data-onclick="submit_settings();" data-translate="Submit"></a>
             </div>
             <div class="ui-content" role="main">
@@ -236,7 +236,7 @@
         <div data-role="page" id="os-stations">
             <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false">
                 <h3 data-translate="Edit Stations"></h3>
-                <a href="#settings" data-icon="back" data-translate="Back"></a>
+                <a href="#settings" data-onclick="window.history.back();" data-icon="back" data-translate="Back"></a>
                 <a href="#" data-onclick="submit_stations();" data-translate="Submit"></a>
             </div>
             <div class="ui-content" role="main">
@@ -248,7 +248,7 @@
         <div data-role="page" id="preview">
             <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false">
                 <h3 data-translate="Program Preview"></h3>
-                <a href="#sprinklers" data-onclick="gohome();" data-icon="back" data-translate="Back"></a>
+                <a href="#sprinklers" data-onclick="window.history.back();" data-icon="back" data-translate="Back"></a>
             </div>
             <div class="ui-content" role="main">
                 <div id="preview_header">
@@ -269,7 +269,7 @@
         <div data-role="page" id="site-control">
             <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false">
                 <h3 data-translate="Manage Sites"></h3>
-                <a href="#sprinklers" data-icon="back" id="manageBackButton" data-translate="Back"></a>
+                <a id="manageBackButton" href="#sprinklers" data-onclick="window.history.back();" data-icon="back" data-translate="Back"></a>
                 <a href="#" data-onclick="open_popup('#addnew');" data-icon="plus" data-translate="Add"></a>
             </div>
             <div data-role="content" id="site-control-list">
@@ -279,7 +279,7 @@
         <div data-role="page" id="about">
             <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false">
                 <h3 data-translate="About"></h3>
-                <a href="#sprinklers" data-onclick="gohome();" data-icon="back" data-translate="Back"></a>
+                <a href="#sprinklers" data-onclick="window.history.back();" data-icon="back" data-translate="Back"></a>
             </div>
             <div class="ui-content" role="main">
                 <ul data-role="listview" data-inset="true" id="donate">

@@ -3,17 +3,18 @@
         xmlns:android   = "http://schemas.android.com/apk/res/android"
         xmlns:gap   = "http://phonegap.com/ns/1.0"
         id          = "com.albahra.sprinklers"
-        version     = "1.0.1"
-        versionCode = "10" >
+        version     = "1.0.2"
+        versionCode = "11" >
 
         <preference name="phonegap-version" value="3.3.0" />
-        
+
         <preference name="DisallowOverscroll" value="true"  />
 
         <preference name="permissions" value="none" />
         <gap:config-file platform="android" parent="/manifest">
             <uses-permission android:name="android.permission.INTERNET" />
             <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+            <uses-sdk android:minSdkVersion="11" android:targetSdkVersion="14" />
         </gap:config-file>
 
         <name>Sprinklers</name>
@@ -53,5 +54,5 @@
         <gap:plugin name="org.apache.cordova.core.inappbrowser" />
         <gap:plugin name="com.phonegap.plugin.statusbar" />
         <gap:plugin name="com.albahra.plugin.networkinterface" />
-        
+
     </widget>
