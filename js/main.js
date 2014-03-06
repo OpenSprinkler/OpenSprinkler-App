@@ -115,7 +115,6 @@ $(document).ajaxError(function(x,t,m) {
 //After jQuery mobile is loaded set intial configuration
 $(document).one("mobileinit", function(){
     $.mobile.defaultPageTransition = 'fade';
-    $.mobile.hashListeningEnabled = false;
     $("#addnew, #site-select").enhanceWithin().popup();
     $("body").show();
 });
@@ -409,7 +408,7 @@ function show_sites(showBack) {
         list += "<fieldset "+((total == 1) ? "data-collapsed='false'" : "")+" id='site-"+c+"' data-role='collapsible'>";
         list += "<legend>"+a+"</legend>";
         list += "<a data-role='button' onclick='update_site(\""+a+"\")'>"+_("Connect Now")+"</a>";
-        list += "<form action='javascript:change_site(\""+c+"\");'><label for='cip-"+c+"'>Change IP</label><input id='cip-"+c+"' type='text' value='"+b.os_ip+"' />";
+        list += "<form action='javascript:change_site(\""+c+"\");'><label for='cip-"+c+"'>Change IP</label><input id='cip-"+c+"' type='text' value='"+b.os_ip+"' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' />";
         list += "<label for='cpw-"+c+"'>Change Password</label><input id='cpw-"+c+"' type='password' />";
         list += "<input type='submit' value='"+_("Save Changes to")+" "+a+"' /></form>";
         list += "<a data-role='button' onclick='delete_site(\""+a+"\")' data-theme='b'>"+_("Delete")+" "+a+"</a>";
@@ -579,6 +578,7 @@ function show_providers() {
 
     var popup = $('\
         <div data-role="popup" id="providers" data-theme="a" data-dismissible="false" data-overlay-theme="b">\
+            <a href="#" data-rel="back" class="ui-btn ui-corner-all ui-shadow ui-btn-a ui-icon-delete ui-btn-icon-notext ui-btn-right">Close</a>\
             <div class="ui-content">\
                 <form>\
                     <label for="weather_provider">'+_("Weather Provider")+'\
@@ -587,7 +587,7 @@ function show_providers() {
                             <option '+((provider == "wunderground") ? 'selected ' : '')+'value="wunderground">'+_("Wunderground")+'</option>\
                         </select>\
                     </label>\
-                    <label for="wapikey">'+_("Wunderground API Key")+'<input data-mini="true" type="text" id="wapikey" value="'+wapikey+'" /></label>\
+                    <label for="wapikey">'+_("Wunderground API Key")+'<input data-mini="true" type="text" id="wapikey" value="'+((wapikey) ? wapikey : '')+'" /></label>\
                     <input type="submit" value="'+_("Submit")+'" />\
                 </form>\
             </div>\
@@ -629,6 +629,7 @@ function show_providers() {
     });
 
     popup.one("popupafterclose",function(){
+        $("#wapikey").blur();
         this.remove();
     }).popup().enhanceWithin().popup("open");
 }
