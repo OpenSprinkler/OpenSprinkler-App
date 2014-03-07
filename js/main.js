@@ -629,7 +629,7 @@ function show_providers() {
     });
 
     popup.one("popupafterclose",function(){
-        $("#wapikey").blur();
+        document.activeElement.blur();
         this.remove();
     }).popup().enhanceWithin().popup("open");
 }
