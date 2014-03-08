@@ -50,12 +50,14 @@ $(document).ready(function () {
                     func = check_status;
                 }
 
-                update_controller(func,function(){
+                update_controller(function(){
+                    func();
+                    update_weather();
+                },function(){
                     $("#footer-running").slideUp();
                     comm_error();
                 });
 
-                update_weather();
             });
 
             $(document).on("pause",function(){
