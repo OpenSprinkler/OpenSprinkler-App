@@ -54,6 +54,8 @@ $(document).ready(function () {
                     $("#footer-running").slideUp();
                     comm_error();
                 });
+
+                update_weather();
             });
 
             $(document).on("pause",function(){
