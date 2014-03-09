@@ -1,20 +1,16 @@
-$(document).ready(function () {
+$(document).ready(function() {
     //Update the language on the page using the browser's locale
     update_lang(get_locale());
 
     //If the app is running from PhoneGap than handle unique events
     if (window.cordova) {
         $(document).one("deviceready", function() {
-            var win = $(window);
-            //If portrait mode (checked since plugin has a bug in landscape)
-            if (win.height() > win.width()) {
-                try {
-                    //Change the status bar to match the headers
-                    StatusBar.overlaysWebView(false);
-                    StatusBar.styleLightContent();
-                    StatusBar.backgroundColorByHexString("#1C1C1C");
-                } catch (err) {}
-            }
+            try {
+                //Change the status bar to match the headers
+                StatusBar.overlaysWebView(false);
+                StatusBar.styleLightContent();
+                StatusBar.backgroundColorByHexString("#1C1C1C");
+            } catch (err) {}
 
             try {
                 // Request the device's IP address
