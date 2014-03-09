@@ -1036,7 +1036,7 @@ function get_status() {
         var scheduled = allPnames.length;
         if (!open && scheduled) runningTotal.d = window.controller.options.sdt;
         if (open == 1) ptotal += (scheduled-1)*window.controller.options.sdt;
-        allPnames = allPnames.getUnique();
+        allPnames = $.grep(allPnames,function(n){return(n)}).getUnique();
         var numProg = allPnames.length;
         allPnames = allPnames.join(" "+_("and")+" ");
         var pinfo = allPnames+" "+((numProg > 1) ? _("are") : _("is"))+" "+_("running")+" ";
@@ -1060,6 +1060,13 @@ function get_status() {
         setTimeout(get_status,window.totals.d*1000);
     }
     update_timers(window.controller.options.sdt);
+}
+
+function refresh_status() {
+    $.when(
+        update_controller_status(),
+        update_controller_settings()
+    ).then(get_status);
 }
 
 // Actually change the status bar
