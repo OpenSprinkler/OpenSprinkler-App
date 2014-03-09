@@ -707,7 +707,7 @@ function update_wunderground_weather(wapikey) {
     $.ajax({
         dataType: "jsonp",
         type: "GET",
-        url: "http://api.wunderground.com/api/"+wapikey+"/conditions/forecast/lang:EN/q/"+window.controller.settings.loc+".json",
+        url: "http://api.wunderground.com/api/"+wapikey+"/conditions/forecast/lang:EN/q/"+escape(window.controller.settings.loc)+".json",
         success: function(data) {
             var code, temp;
 
