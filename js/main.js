@@ -1262,13 +1262,13 @@ function toggle(anchor) {
 
 // Runonce functions
 function get_runonce() {
-    var list = "<p class='center'>"+_("Value is in minutes. Zero means the station will be excluded from the run-once program.")+"</p><div class='ui-field-contain'>",
+    var list = "<p class='center'>"+_("Value is in minutes. Zero means the station will be excluded from the run-once program.")+"</p><form>",
         n = 0;
     $.each(window.controller.stations.snames,function(i, station) {
-        list += "<label for='zone-"+n+"'>"+station+":</label><input type='number' data-highlight='true' data-type='range' name='zone-"+n+"' min='0' max='240' id='zone-"+n+"' value='0'>";
+        list += "<div class='ui-field-contain'><label for='zone-"+n+"'>"+station+":</label><input type='range' data-highlight='true' name='zone-"+n+"' min='0' max='240' id='zone-"+n+"' value='0'></div>";
         n++;
     });
-    list += "</div><a class='ui-btn ui-corner-all ui-shadow' onclick='submit_runonce();'>"+_("Submit")+"</a><a class='ui-btn ui-btn-b ui-corner-all ui-shadow' onclick='reset_runonce();'>"+_("Reset")+"</a>";
+    list += "</form><a class='ui-btn ui-corner-all ui-shadow' onclick='submit_runonce();'>"+_("Submit")+"</a><a class='ui-btn ui-btn-b ui-corner-all ui-shadow' onclick='reset_runonce();'>"+_("Reset")+"</a>";
     var progs = [];
     if (window.controller.programs.pd.length) {
         $.each(window.controller.programs.pd,function(z, program) {
