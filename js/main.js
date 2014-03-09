@@ -1036,7 +1036,7 @@ function get_status() {
         var scheduled = allPnames.length;
         if (!open && scheduled) runningTotal.d = window.controller.options.sdt;
         if (open == 1) ptotal += (scheduled-1)*window.controller.options.sdt;
-        allPnames = $.grep(allPnames,function(n){return(n)}).getUnique();
+        allPnames = getUnique($.grep(allPnames,function(n){return(n)}));
         var numProg = allPnames.length;
         allPnames = allPnames.join(" "+_("and")+" ");
         var pinfo = allPnames+" "+((numProg > 1) ? _("are") : _("is"))+" "+_("running")+" ";
@@ -2201,17 +2201,13 @@ if (!Date.prototype.toISOString) {
 }
 
 // Add ability to unique sort arrays
-Array.prototype.getUnique = function(){
-   var u = {}, a = [];
-   for(var i = 0, l = this.length; i < l; ++i){
-      if(u.hasOwnProperty(this[i])) {
-         continue;
-      }
-      a.push(this[i]);
-      u[this[i]] = 1;
-   }
-   return a;
-};
+function getUnique(inputArray) {
+    var outputArray = [];
+    for (var i = 0; i < inputArray.length; i++) {
+        if ((jQuery.inArray(inputArray[i], outputArray)) == -1) outputArray.push(inputArray[i]);
+    }
+    return outputArray;
+}
 
 // show error message
 function showerror(msg,dur) {
