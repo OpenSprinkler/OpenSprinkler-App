@@ -115,7 +115,7 @@ $(document).ajaxError(function(x,t,m) {
 //After jQuery mobile is loaded set intial configuration
 $(document).one("mobileinit", function(){
     $.mobile.defaultPageTransition = 'fade';
-    $("#addnew, #site-select").enhanceWithin().popup();
+    $("#addnew, #site-select").enhanceWithin().popup({history: false});
     $("body").show();
 });
 
@@ -2107,7 +2107,7 @@ function areYouSure(text1, text2, callback) {
         $(this).popup("reposition", {
             "positionTo": "window"
         });
-    }).popup().enhanceWithin().popup("open");
+    }).popup({history: false}).enhanceWithin().popup("open");
 
     //Bind buttons
     $("#sure .sure-do").one("click.sure", function() {
@@ -2171,7 +2171,7 @@ function open_popup(id) {
             "positionTo": "window"
         });
         if (id == "#addnew") $("#os_name").focus();
-    }).popup().enhanceWithin().popup("open");
+    }).popup({history: false}).enhanceWithin().popup("open");
 }
 
 // Convert seconds into (HH:)MM:SS format. HH is only reported if greater than 0.
