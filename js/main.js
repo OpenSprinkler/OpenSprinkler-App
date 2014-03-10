@@ -92,7 +92,6 @@ $(document).ajaxError(function(x,t,m) {
         showerror(_("Check device password and try again."));
     } else if (t.status===0) {
         if (/https?:\/\/[\d|.]+\/j\w/.exec(m.url)) {
-            // Ajax fails typically because the password is wrong
             showerror(_("Check that the device is connected to the network and try again."));
         } else {
             // Ajax fails typically because the password is wrong
@@ -212,7 +211,7 @@ $("#mm,#mmm").change(function(){
         },200);
         $.each([flip,other],function(i,m){
             m.prop("checked",!changedTo)
-            if (m.hasClass("ui-flipswitch-input")) flipswitch("refresh");
+            if (m.hasClass("ui-flipswitch-input")) m.flipswitch("refresh");
         })
     });
 });
