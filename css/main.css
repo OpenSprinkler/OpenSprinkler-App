@@ -6,10 +6,6 @@ body{
     margin: 0;
     display: none;
 }
-.ui-page {
-    -webkit-backface-visibility: hidden;
-    -ms-backface-visibility: hidden;
-}
 .logo {
     height: 40px;
     width: 159px;
