@@ -193,18 +193,16 @@ $("#mm,#mmm").change(function(){
     if (other.hasClass("ui-flipswitch-input")) other.flipswitch("refresh");
 
     if (changedTo) {
-        defer = $.get("http://"+window.curr_ip+"/cv?pw="+window.curr_pw+"&mm=1",function(){
-            update_controller_settings();
-        });
+        defer = $.get("http://"+window.curr_ip+"/cv?pw="+window.curr_pw+"&mm=1");
     } else {
-        defer = $.get("http://"+window.curr_ip+"/cv?pw="+window.curr_pw+"&mm=0",function(){
-            update_controller_settings();
-        }).done(function(){
-            $("#manual a.green").removeClass("green");
-        });
+        defer = $.get("http://"+window.curr_ip+"/cv?pw="+window.curr_pw+"&mm=0");
     }
 
-    $.when(defer).fail(function(){
+    $.when(defer).then(function(){
+        update_controller_settings();
+        $("#manual a.green").removeClass("green");
+    },
+    function(){
         mmSwitching = true;
         setTimeout(function(){
             mmSwitching = false;
