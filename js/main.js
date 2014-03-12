@@ -1826,7 +1826,6 @@ function delete_program(id) {
     });
 }
 
-
 function submit_program(id) {
     var program = [],
         days=[0,0],
