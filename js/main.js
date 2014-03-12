@@ -1930,6 +1930,10 @@ function clear_config() {
     areYouSure(_("Are you sure you want to delete all settings and return to the default settings (this will delete the configuration file)?"), "", function() {
         localStorage.removeItem("sites");
         localStorage.removeItem("current_site");
+        localStorage.removeItem("lang");
+        localStorage.removeItem("provider");
+        localStorage.removeItem("wapikey");
+        localStorage.removeItem("runonce");
         changePage("#start");
     });
 }
@@ -2040,53 +2044,7 @@ function handleConfig(files) {
     reader.readAsText(config);
 }
 
-//Localization functions
-function _(key) {
-    //Translate item (key) based on currently defined language
-    if (typeof window.language === "object" && window.language.hasOwnProperty(key)) {
-        var trans = window.language[key];
-        return trans ? trans : key;
-    } else {
-        //If English
-        return key;
-    }
-}
-
-function set_lang() {
-    //Update all static elements to the current language
-    $("[data-translate]").text(function () {
-        return _($(this).data("translate"));
-
-    });
-}
-
-function get_locale() {
-    //Identify the current browser's locale
-    var locale = "en",
-        lang = localStorage.getItem("lang");
-
-    locale = lang || navigator.language || navigator.browserLanguage || navigator.systemLanguage || navigator.userLanguage || locale;
-
-    return locale.substring(0,2);
-}
-
-function update_lang(lang) {
-    //Empty out the current language (English is provided as the key)
-    window.language = {};
-
-    if (lang == "en") {
-        localStorage.setItem("lang","en");
-        return set_lang();
-    }
-
-    $.getJSON("locale/"+lang+".json",function(store){
-        window.language = store.messages;
-        localStorage.setItem("lang",lang);
-        set_lang();
-    }).fail(set_lang);
-}
-
-// Accessory functions
+// Accessory functions for jQuery Mobile
 function areYouSure(text1, text2, callback) {
     var popup = $('\
     <div data-role="popup" class="ui-content" data-overlay-theme="b" id="sure">\
@@ -2158,6 +2116,20 @@ function changeFromPanel(func) {
     $panel.panel("close");
 }
 
+// show error message
+function showerror(msg,dur) {
+    dur = dur || 1500;
+
+    $.mobile.loading('show', {
+        text: msg,
+        textVisible: true,
+        textonly: true,
+        theme: 'b'
+    });
+    // hide after delay
+    setTimeout( function(){$.mobile.loading('hide');},dur);
+}
+
 function open_popup(id) {
     var popup = $(id);
 
@@ -2171,6 +2143,7 @@ function open_popup(id) {
     }).popup({history: false}).enhanceWithin().popup("open");
 }
 
+// Accessory functions
 // Convert seconds into (HH:)MM:SS format. HH is only reported if greater than 0.
 function sec2hms(diff) {
     var str = "";
@@ -2190,20 +2163,6 @@ function getUnique(inputArray) {
     return outputArray;
 }
 
-// show error message
-function showerror(msg,dur) {
-    dur = dur || 1500;
-
-    $.mobile.loading('show', {
-        text: msg,
-        textVisible: true,
-        textonly: true,
-        theme: 'b'
-    });
-    // hide after delay
-    setTimeout( function(){$.mobile.loading('hide');},dur);
-}
-
 // pad a single digit with a leading zero
 function pad(number) {
     var r = String(number);
@@ -2211,4 +2170,50 @@ function pad(number) {
         r = '0' + r;
     }
     return r;
+}
+
+//Localization functions
+function _(key) {
+    //Translate item (key) based on currently defined language
+    if (typeof window.language === "object" && window.language.hasOwnProperty(key)) {
+        var trans = window.language[key];
+        return trans ? trans : key;
+    } else {
+        //If English
+        return key;
+    }
+}
+
+function set_lang() {
+    //Update all static elements to the current language
+    $("[data-translate]").text(function () {
+        return _($(this).data("translate"));
+
+    });
+}
+
+function get_locale() {
+    //Identify the current browser's locale
+    var locale = "en",
+        lang = localStorage.getItem("lang");
+
+    locale = lang || navigator.language || navigator.browserLanguage || navigator.systemLanguage || navigator.userLanguage || locale;
+
+    return locale.substring(0,2);
+}
+
+function update_lang(lang) {
+    //Empty out the current language (English is provided as the key)
+    window.language = {};
+
+    if (lang == "en") {
+        localStorage.setItem("lang","en");
+        return set_lang();
+    }
+
+    $.getJSON("locale/"+lang+".json",function(store){
+        window.language = store.messages;
+        localStorage.setItem("lang",lang);
+        set_lang();
+    }).fail(set_lang);
 }
