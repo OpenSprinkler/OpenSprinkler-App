@@ -2181,22 +2181,6 @@ function sec2hms(diff) {
     return str+pad(minutes)+":"+pad(seconds);
 }
 
-// Shim for older IE versions
-if (!Date.prototype.toISOString) {
-    (function() {
-        Date.prototype.toISOString = function() {
-            return this.getUTCFullYear()
-                + '-' + pad(this.getUTCMonth() + 1)
-                + '-' + pad(this.getUTCDate())
-                + 'T' + pad(this.getUTCHours())
-                + ':' + pad(this.getUTCMinutes())
-                + ':' + pad(this.getUTCSeconds())
-                + '.' + String((this.getUTCMilliseconds()/1000).toFixed(3)).slice(2,5)
-                + 'Z';
-        };
-    }());
-}
-
 // Add ability to unique sort arrays
 function getUnique(inputArray) {
     var outputArray = [];
