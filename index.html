@@ -98,10 +98,10 @@
                     <li>
                         <select data-mini="true" id="site-selector"></select>
                     </li>
-                    <li data-icon="gear"><a href="#" data-onclick="changeFromPanel(show_sites);" data-translate="Manage Sites"></a></li>
+                    <li data-icon="gear"><a href="#site-control" data-onclick="changeFromPanel(show_sites);" data-translate="Manage Sites"></a></li>
                     <li data-icon="forward"><a href="#" data-onclick="export_config();" data-translate="Export Configuration"></a></li>
                     <li data-icon="back"><a href="#" data-onclick="import_config();" data-translate="Import Configuration"></a></li>
-                    <li data-icon="info"><a href="#" data-onclick="changeFromPanel(show_about);" data-translate="About"></a></li>
+                    <li data-icon="info"><a href="#about" data-onclick="changeFromPanel(show_about);" data-translate="About"></a></li>
                 </ul>
                 <input type="file" id="configInput" data-role="none" onchange="handleConfig(this.files)" style="visibility:hidden;position:absolute;top:-50;left:-50"/>
             </div>
@@ -190,15 +190,15 @@
                         <label for="en"><b data-translate="Operation"></b></label>
                         <input type="checkbox" data-on-text="On" data-off-text="Off" data-role="flipswitch" name="en" id="en">
                     </li>
-                    <li><a href="#" data-onclick="show_settings();" data-translate="Device Options"></a></li>
-                    <li><a href="#" data-onclick="show_stations();" data-translate="Edit Stations"></a></li>
+                    <li><a href="#os-settings" data-onclick="show_settings();" data-translate="Device Options"></a></li>
+                    <li><a href="#os-stations" data-onclick="show_stations();" data-translate="Edit Stations"></a></li>
                     <li data-icon="alert"><a href="#" data-onclick="rbt();" data-translate="Reboot OpenSprinkler"></a></li>
                 </ul>
                 <ul data-role="listview" data-inset="true">
                     <li data-role="list-divider" data-theme="b" data-translate="Mobile Application Settings"></li>
                     <li data-icon="alert"><a href="#" data-onclick="clear_config();" data-translate="Clear Configuration"></a></li>
                     <li><a href="#" data-onclick="open_popup('#localization');" data-translate="Localization"></a></li>
-                    <li data-icon="gear"><a href="#" data-onclick="show_sites();" data-translate="Manage Sites"></a></li>
+                    <li data-icon="gear"><a href="#site-control" data-onclick="show_sites();" data-translate="Manage Sites"></a></li>
                     <li data-icon="cloud"><a href="#" data-onclick="show_providers();" data-translate="Weather Provider"></a></li>
                 </ul>
             </div>
