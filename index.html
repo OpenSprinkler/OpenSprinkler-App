@@ -124,10 +124,6 @@
                 <a href="#" data-onclick="refresh_status();" data-icon="refresh" data-translate="Refresh" class="ui-btn-right"></a>
             </div>
             <div class="ui-content" role="main">
-                <p id="status_header"></p>
-                <ul data-role="listview" data-inset="true" id="status_list">
-                </ul>
-                <p id="status_footer"></p>
             </div>
         </div>
 
@@ -136,15 +132,6 @@
                 <h3 data-translate="Manual Control"></h3>
             </div>
             <div class="ui-content" role="main">
-                <p class="center" data-translate="With manual mode turned on, tap a station to toggle it."></p>
-                <ul data-role="listview" data-inset="true">
-                    <li class="ui-field-contain">
-                        <label for="mmm"><b data-translate="Manual Mode"></b></label>
-                        <input type="checkbox" data-on-text="On" data-off-text="Off" data-role="flipswitch" name="mmm" id="mmm">
-                    </li>
-                </ul>
-                <ul data-role="listview" data-inset="true" id="mm_list">
-                </ul>
             </div>
         </div>
 
@@ -220,8 +207,6 @@
                 <a href="#" data-onclick="submit_settings();" data-icon="check" data-translate="Submit" class="ui-btn-right"></a>
             </div>
             <div class="ui-content" role="main">
-                <ul data-role="listview" data-inset="true" id="os-settings-list">
-                </ul>
             </div>
         </div>
 
@@ -231,8 +216,6 @@
                 <a href="#" data-onclick="submit_stations();" data-icon="check" data-translate="Submit" class="ui-btn-right"></a>
             </div>
             <div class="ui-content" role="main">
-                <ul data-role="listview" data-inset="true" id="os-stations-list">
-                </ul>
             </div>
         </div>
 
@@ -261,7 +244,7 @@
                 <h3 data-translate="Manage Sites"></h3>
                 <a href="#" data-onclick="open_popup('#addnew');" data-icon="plus" data-translate="Add" class="ui-btn-right"></a>
             </div>
-            <div data-role="content" id="site-control-list">
+            <div class="ui-content" id="site-control-list">
             </div>
         </div>
 

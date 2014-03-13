@@ -136,10 +136,13 @@ $(document).on("pageshow",function(e){
 
     // Render graph after the page is shown otherwise graphing function will fail
     if (newpage == "#preview") {
-        //Use the user's local time for preview
-        var now = new Date();
-        $("#preview_date").val(now.toISOString().slice(0,10));
+        $("#preview_date").on("change",get_preview);
         get_preview();
+        //Update the preview page on date change
+        $(newpage).one("pagehide",function(){
+            $("#timeline").empty();
+            $("#preview_date").off("change");
+        })
     }
 
     // Bind all data-onclick events on current page to their associated function (removes 300ms delay)
@@ -163,14 +166,21 @@ $(document).on("pagebeforeshow",function(e,data){
                 comm_error();
             });
         },800);
+    } else if (newpage == "settings") {
+        $.each(["en","mm"],function(a,id){
+            var $id = $("#"+id);
+            $id.prop("checked",window.controller.settings[id]).on("change",flipSwitched);
+            if ($id.hasClass("ui-flipswitch-input")) $id.flipswitch("refresh");
+        });
+        $(newpage).one("pagehide",function(){
+            $("#en,#mm").off("change");
+        });
     }
 });
 
-//Update the preview page on date change
-$("#preview_date").change(function(){
-    var id = $(".ui-page-active").attr("id");
-    if (id == "preview") get_preview();
-});
+//Use the user's local time for preview
+var now = new Date();
+$("#preview_date").val(now.toISOString().slice(0,10))
 
 //Update site based on selector
 $("#site-selector").change(function(){
@@ -178,66 +188,35 @@ $("#site-selector").change(function(){
     location.reload();
 });
 
-var mmSwitching = false;
-$("#mm,#mmm").change(function(){
-    if (mmSwitching) return;
+var switching = false;
+function flipSwitched() {
+    if (switching) return;
 
     //Find out what the switch was changed to
     var flip = $(this),
         id = flip.attr("id"),
-        other = ((id === "mm") ? $("#mmm") : $("#mm")),
         changedTo = flip.is(":checked"),
+        method = (id == "mmm") ? "mm" : id,
         defer;
 
-    other.prop("checked",changedTo);
-    if (other.hasClass("ui-flipswitch-input")) other.flipswitch("refresh");
-
     if (changedTo) {
-        defer = $.get("http://"+window.curr_ip+"/cv?pw="+window.curr_pw+"&mm=1");
+        defer = $.get("http://"+window.curr_ip+"/cv?pw="+window.curr_pw+"&"+method+"=1");
     } else {
-        defer = $.get("http://"+window.curr_ip+"/cv?pw="+window.curr_pw+"&mm=0");
+        defer = $.get("http://"+window.curr_ip+"/cv?pw="+window.curr_pw+"&"+method+"=0");
     }
 
     $.when(defer).then(function(){
         update_controller_settings();
-        $("#manual a.green").removeClass("green");
+        if (id == "mm" || id == "mmm") $("#manual a.green").removeClass("green");
     },
     function(){
-        mmSwitching = true;
+        switching = true;
         setTimeout(function(){
-            mmSwitching = false;
+            switching = false;
         },200);
-        $.each([flip,other],function(i,m){
-            m.prop("checked",!changedTo)
-            if (m.hasClass("ui-flipswitch-input")) m.flipswitch("refresh");
-        })
+        flip.prop("checked",!changedTo).flipswitch("refresh");
     });
-});
-
-var enSwitching = false;
-$("#en").change(function(){
-    if (enSwitching) return;
-    var changedTo = $(this).is(":checked"),
-        defer;
-
-    if (changedTo) {
-        defer = $.get("http://"+window.curr_ip+"/cv?pw="+window.curr_pw+"&en=1",function(){
-            update_controller_settings();
-        });
-    } else {
-        defer = $.get("http://"+window.curr_ip+"/cv?pw="+window.curr_pw+"&en=0",function(){
-            update_controller_settings();
-        });
-    }
-
-    $.when(defer).fail(function(){
-        enSwitching = true;
-        setTimeout(function(){
-            enSwitching = false;
-        },200);
-        $("#en").prop("checked",!changedTo).flipswitch("refresh");
-    });
-});
+};
 
 // Generic communication error message
 function comm_error() {
@@ -255,8 +234,6 @@ function newload() {
     window.controller = {};
     update_controller(
         function(){
-            $("#en").prop("checked",window.controller.settings.en);
-            $("#mm,#mmm").prop("checked",window.controller.settings.mm);
             update_weather();
             changePage("#sprinklers");
         },
@@ -412,8 +389,13 @@ function show_sites(showBack) {
         list += "</fieldset>";
     });
 
-    $("#site-control-list").html(list+"</div>").enhanceWithin();
+    $("#site-control .ui-content").html($(list+"</div>").enhanceWithin());
+
     changePage("#site-control");
+
+    $("#site-control").one("pagehide",function(){
+        $(this).find(".ui-content").empty();
+    })
 }
 
 function delete_site(site) {
@@ -854,10 +836,14 @@ function show_settings() {
     list.end = "</fieldset></div></li>";
 
     var str = list.start + list.tz + list.mas + list.http + list.devid + list.loc + list.ext + list.sdt + list.mton + list.mtof + list.wl + list.ntp + list.ar + list.seq + list.urs + list.rso + list.ipas + list.end;
-    var settings = $("#os-settings-list");
-    settings.html(str).enhanceWithin();
-    if (settings.hasClass("ui-listview")) settings.listview("refresh");
+
+    $("#os-settings .ui-content").html($('<ul data-role="listview" data-inset="true" id="os-settings-list"></ul>').html(str).listview().enhanceWithin());
+
     changePage("#os-settings");
+
+    $("#os-settings").one("pagehide",function(){
+        $(this).find(".ui-content").empty();
+    })
 }
 
 function submit_settings() {
@@ -899,7 +885,9 @@ function submit_settings() {
 function show_stations() {
     var list = "<li>",
         isMaster = window.controller.options.mas;
+
     if (isMaster) list += "<table><tr><th>"+_("Station Name")+"</th><th>"+_("Activate Master?")+"</th></tr>";
+
     $.each(window.controller.stations.snames,function(i, station) {
         if (isMaster) list += "<tr><td>";
         list += "<input data-mini='true' id='edit_station_"+i+"' type='text' value='"+station+"' />";
@@ -912,13 +900,17 @@ function show_stations() {
         }
         i++;
     });
+
     if (isMaster) list += "</table>";
     list += "</li>";
 
-    var stations = $("#os-stations-list");
-    stations.html(list).enhanceWithin();
-    if (stations.hasClass("ui-listview")) stations.listview("refresh");
+    $("#os-stations .ui-content").html($('<ul data-role="listview" data-inset="true" id="os-stations-list"></ul>').html(list).listview().enhanceWithin());
+
     changePage("#os-stations");
+
+    $("#os-stations").one("pagehide",function(){
+        $(this).find(".ui-content").empty();
+    })
 }
 
 function submit_stations() {
@@ -1042,16 +1034,22 @@ function get_status() {
         header += "<br>"+pinfo;
     }
 
-    var status = $("#status_list");
-    status.html(list);
-    $("#status_header").html(header);
-    $("#status_footer").html(footer);
-    if (status.hasClass("ui-listview")) status.listview("refresh");
+    $("#status .ui-content").append(
+        $('<p id="status_header"></p>').html(header),
+        $('<ul data-role="listview" data-inset="true" id="status_list"></ul>').html(list).listview(),
+        $('<p id="status_footer"></p>').html(footer)
+    );
+
     window.totals = runningTotal;
     if (window.interval_id !== undefined) clearInterval(window.interval_id);
     if (window.timeout_id !== undefined) clearTimeout(window.timeout_id);
 
     changePage("#status");
+
+    $("#status").one("pagehide",function(){
+        $(this).find(".ui-content").empty();
+    });
+
     if (window.totals.d !== undefined) {
         delete window.totals.p;
         setTimeout(get_status,window.totals.d*1000);
@@ -1219,10 +1217,25 @@ function get_manual() {
     $.each(window.controller.stations.snames,function (i,station) {
         list += '<li data-icon="false"><a class="center'+((window.controller.status[i]) ? ' green' : '')+'" href="#" onclick="toggle(this);">'+station+'</a></li>';
     });
-    var mm = $("#mm_list");
-    mm.html(list);
-    if (mm.hasClass("ui-listview")) mm.listview("refresh");
+
+    $("#manual .ui-content").append(
+        '<p class="center">'+_('With manual mode turned on, tap a station to toggle it.')+'</p>',
+        $('<ul data-role="listview" data-inset="true">\
+                <li class="ui-field-contain">\
+                    <label for="mmm"><b>'+_('Manual Mode')+'</b></label>\
+                    <input type="checkbox" data-on-text="On" data-off-text="Off" data-role="flipswitch" name="mmm" id="mmm"'+(window.controller.settings.mm ? ' checked' : '')+'>\
+                </li>\
+            </ul>').listview(),
+        $('<ul data-role="listview" data-inset="true" id="mm_list"></ul>').html(list).listview()
+    );
+
+    $("#mmm").flipswitch().change(flipSwitched);
+
     changePage("#manual");
+
+    $("#manual").one("pagehide",function(){
+        $(this).find(".ui-content").empty();
+    });
 }
 
 function toggle(anchor) {
@@ -1261,10 +1274,12 @@ function toggle(anchor) {
 function get_runonce() {
     var list = "<p class='center'>"+_("Value is in minutes. Zero means the station will be excluded from the run-once program.")+"</p><form>",
         n = 0;
+
     $.each(window.controller.stations.snames,function(i, station) {
         list += "<div class='ui-field-contain'><label for='zone-"+n+"'>"+station+":</label><input type='range' data-highlight='true' name='zone-"+n+"' min='0' max='240' id='zone-"+n+"' value='0'></div>";
         n++;
     });
+
     list += "</form><a class='ui-btn ui-corner-all ui-shadow' onclick='submit_runonce();'>"+_("Submit")+"</a><a class='ui-btn ui-btn-b ui-corner-all ui-shadow' onclick='reset_runonce();'>"+_("Reset")+"</a>";
     var progs = [];
     if (window.controller.programs.pd.length) {
@@ -1312,6 +1327,10 @@ function get_runonce() {
 
     runonce.enhanceWithin();
     changePage("#runonce");
+
+    $("#runonce").one("pagehide",function(){
+        $(this).find(".ui-content").empty();
+    });
 }
 
 function reset_runonce() {
@@ -1345,7 +1364,6 @@ function submit_runonce(runonce) {
 
 // Preview functions
 function get_preview() {
-    $("#timeline").html("");
     $("#timeline-navigation").hide();
     var date = $("#preview_date").val();
     if (date === "") return;
@@ -1565,8 +1583,11 @@ function changeday(dir) {
 
 // Program management functions
 function get_programs(pid) {
-    var list = $("#programs_list");
-    list.html(make_all_programs());
+    var list = $("#programs .ui-content");
+
+    list.html($(make_all_programs()).enhanceWithin());
+    update_program_header();
+
     if (typeof pid === "number" || typeof pid === "boolean") {
         if (pid === false) {
             $.mobile.silentScroll(0);
@@ -1575,7 +1596,7 @@ function get_programs(pid) {
             $("#program-"+pid).attr("data-collapsed","false");
         }
     }
-    $("#programs input[name^='rad_days']").change(function(){
+    $("#programs input[name^='rad_days']").on("change",function(){
         var progid = $(this).attr('id').split("-")[1], type = $(this).val().split("-")[0], old;
         type = type.split("_")[1];
         if (type == "n") {
@@ -1587,21 +1608,25 @@ function get_programs(pid) {
         $("#input_days_"+old+"-"+progid).hide();
     });
 
-    $("#programs [id^='submit-']").click(function(){
+    $("#programs [id^='submit-']").on("click",function(){
         submit_program($(this).attr("id").split("-")[1]);
     });
-    $("#programs [id^='s_checkall-']").click(function(){
+
+    $("#programs [id^='s_checkall-']").on("click",function(){
         var id = $(this).attr("id").split("-")[1];
         $("[id^='station_'][id$='-"+id+"']").prop("checked",true).checkboxradio("refresh");
     });
-    $("#programs [id^='s_uncheckall-']").click(function(){
+
+    $("#programs [id^='s_uncheckall-']").on("click",function(){
         var id = $(this).attr("id").split("-")[1];
         $("[id^='station_'][id$='-"+id+"']").prop("checked",false).checkboxradio("refresh");
     });
-    $("#programs [id^='delete-']").click(function(){
+
+    $("#programs [id^='delete-']").on("click",function(){
         delete_program($(this).attr("id").split("-")[1]);
     });
-    $("#programs [id^='run-']").click(function(){
+
+    $("#programs [id^='run-']").on("click",function(){
         var id = $(this).attr("id").split("-")[1];
         var durr = parseInt($("#duration-"+id).val());
         var stations = $("[id^='station_'][id$='-"+id+"']");
@@ -1612,9 +1637,12 @@ function get_programs(pid) {
         runonce.push(0);
         submit_runonce(runonce);
     });
+
     changePage("#programs");
-    $("#programs").enhanceWithin();
-    update_program_header();
+
+    $("#programs").one("pagehide",function(){
+        $(this).find(".ui-content").empty();
+    })
 }
 
 // Translate program array into easier to use data
@@ -1788,9 +1816,11 @@ function make_program(n,total,program) {
 }
 
 function add_program() {
-    var list = $("#newprogram");
-    list.html(fresh_program());
-    $("#addprogram input[name^='rad_days']").change(function(){
+    var list = $("#addprogram .ui-content");
+
+    list.html($(fresh_program()).enhanceWithin());
+
+    $("#addprogram input[name^='rad_days']").on("change",function(){
         var progid = "new", type = $(this).val().split("-")[0], old;
         type = type.split("_")[1];
         if (type == "n") {
@@ -1801,17 +1831,32 @@ function add_program() {
         $("#input_days_"+type+"-"+progid).show();
         $("#input_days_"+old+"-"+progid).hide();
     });
-    $("#addprogram [id^='s_checkall-']").click(function(){
+
+    $("#addprogram [id^='s_checkall-']").on("click",function(){
         $("[id^='station_'][id$='-new']").prop("checked",true).checkboxradio("refresh");
     });
-    $("#addprogram [id^='s_uncheckall-']").click(function(){
+
+    $("#addprogram [id^='s_uncheckall-']").on("click",function(){
         $("[id^='station_'][id$='-new']").prop("checked",false).checkboxradio("refresh");
     });
-    $("#addprogram [id^='submit-']").click(function(){
+
+    $("#addprogram [id^='submit-']").on("click",function(){
         submit_program("new");
     });
+
+    $(window).one("navigate",function(e,data) {
+        var direction = data.state.direction;
+        if (direction == 'back') {
+            e.preventDefault();
+            get_programs();
+        }
+    });
+
     changePage("#addprogram");
-    $("#addprogram").enhanceWithin();
+
+    $("#addprogram").one("pagehide",function(){
+        $(this).find(".ui-content").empty();
+    })
 }
 
 function delete_program(id) {
