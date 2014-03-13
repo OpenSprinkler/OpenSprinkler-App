@@ -1366,20 +1366,155 @@ function submit_runonce(runonce) {
 // Preview functions
 function get_preview() {
     $("#timeline-navigation").hide();
-    var date = $("#preview_date").val();
+    var date = $("#preview_date").val(),
+        preview_data;
     if (date === "") return;
     date = date.split("-");
+
+    process_programs = function (month,day,year) {
+        preview_data = [];
+        var devday = Math.floor(window.controller.settings.devt/(60*60*24)),
+            simminutes = 0,
+            simt = Date.UTC(year,month-1,day,0,0,0,0),
+            simday = (simt/3600/24)>>0,
+            st_array = new Array(window.controller.settings.nbrd*8),
+            pid_array = new Array(window.controller.settings.nbrd*8),
+            et_array = new Array(window.controller.settings.nbrd*8),
+            busy, match_found, prog;
+
+        for(var sid=0;sid<window.controller.settings.nbrd;sid++) {
+            st_array[sid]=0;pid_array[sid]=0;et_array[sid]=0;
+        }
+
+        do {
+            busy=0;
+            match_found=0;
+            for(var pid=0;pid<window.controller.programs.nprogs;pid++) {
+              prog=window.controller.programs.pd[pid];
+              if(check_match(prog,simminutes,simt,simday,devday)) {
+                for(sid=0;sid<window.controller.settings.nbrd*8;sid++) {
+                  var bid=sid>>3;var s=sid%8;
+                  if(window.controller.options.mas==(sid+1)) continue; // skip master station
+                  if(prog[7+bid]&(1<<s)) {
+                    et_array[sid]=prog[6]*window.controller.options.wl/100>>0;pid_array[sid]=pid+1;
+                    match_found=1;
+                  }
+                }
+              }
+            }
+            if(match_found) {
+              var acctime=simminutes*60;
+              if(window.controller.options.seq) {
+                for(sid=0;sid<window.controller.settings.nbrd*8;sid++) {
+                  if(et_array[sid]) {
+                    st_array[sid]=acctime;acctime+=et_array[sid];
+                    et_array[sid]=acctime;acctime+=window.controller.options.sdt;
+                    busy=1;
+                  }
+                }
+              } else {
+                for(sid=0;sid<window.controller.settings.nbrd*8;sid++) {
+                  if(et_array[sid]) {
+                    st_array[sid]=simminutes*60;
+                    et_array[sid]=simminutes*60+et_array[sid];
+                    busy=1;
+                  }
+                }
+              }
+            }
+            if (busy) {
+              var endminutes=run_sched(simminutes*60,st_array,pid_array,et_array,simt)/60>>0;
+              if(window.controller.options.seq&&simminutes!=endminutes) simminutes=endminutes;
+              else simminutes++;
+              for(sid=0;sid<window.controller.settings.nbrd*8;sid++) {st_array[sid]=0;pid_array[sid]=0;et_array[sid]=0;}
+            } else {
+              simminutes++;
+            }
+        } while(simminutes<24*60);
+    }
+
+    check_match = function (prog,simminutes,simt,simday,devday) {
+        if(prog[0]===0) return 0;
+        if ((prog[1]&0x80)&&(prog[2]>1)) {
+            var dn=prog[2],
+                drem=prog[1]&0x7f;
+            if((simday%dn)!=((devday+drem)%dn)) return 0;
+        } else {
+            var date = new Date(simt);
+            var wd=(date.getUTCDay()+6)%7;
+            if((prog[1]&(1<<wd))===0) return 0;
+            var dt=date.getUTCDate();
+            if((prog[1]&0x80)&&(prog[2]===0)) {if((dt%2)!==0) return 0;}
+            if((prog[1]&0x80)&&(prog[2]==1)) {
+              if(dt==31) return 0;
+              else if (dt==29 && date.getUTCMonth()==1) return 0;
+              else if ((dt%2)!=1) return 0;
+            }
+        }
+        if(simminutes<prog[3] || simminutes>prog[4]) return 0;
+        if(prog[5]===0) return 0;
+        if(((simminutes-prog[3])/prog[5]>>0)*prog[5] == (simminutes-prog[3])) {
+            return 1;
+        }
+            return 0;
+    }
+
+    run_sched = function (simseconds,st_array,pid_array,et_array,simt) {
+        var endtime=simseconds;
+        for(var sid=0;sid<window.controller.settings.nbrd*8;sid++) {
+            if(pid_array[sid]) {
+                if(window.controller.options.seq==1) {
+                    time_to_text(sid,st_array[sid],pid_array[sid],et_array[sid],simt);
+                    if((window.controller.options.mas>0)&&(window.controller.options.mas!=sid+1)&&(window.controller.stations.masop[sid>>3]&(1<<(sid%8))))
+                    preview_data.push({
+                        'start': (st_array[sid]+window.controller.options.mton),
+                        'end': (et_array[sid]+window.controller.options.mtof),
+                        'content':'',
+                        'className':'master',
+                        'shortname':'M',
+                        'group':'Master'
+                    });
+                    endtime=et_array[sid];
+                } else {
+                    time_to_text(sid,simseconds,pid_array[sid],et_array[sid],simt);
+                    if((window.controller.options.mas>0)&&(window.controller.options.mas!=sid+1)&&(window.controller.stations.masop[sid>>3]&(1<<(sid%8))))
+                    endtime=(endtime>et_array[sid])?endtime:et_array[sid];
+                }
+            }
+        }
+        if(window.controller.options.seq===0&&window.controller.options.mas>0) preview_data.push({
+            'start': simseconds,
+            'end': endtime,
+            'content':'',
+            'className':'master',
+            'shortname':'M',
+            'group':'Master'
+        });
+        return endtime;
+    }
+
+    time_to_text = function (sid,start,pid,end,simt) {
+        var className = "program-"+((pid+3)%4);
+        if ((window.controller.settings.rd!==0)&&(simt+start+(window.controller.options.tz-48)*900<=window.controller.settings.rdst)) className="delayed";
+        preview_data.push({
+            'start': start,
+            'end': end,
+            'className':className,
+            'content':'P'+pid,
+            'shortname':'S'+(sid+1),
+            'group': window.controller.stations.snames[sid]
+        });
+    }
 
     process_programs(date[1],date[2],date[0]);
 
     var empty = true;
-    if (!window.preview_data.length) {
+    if (!preview_data.length) {
         $("#timeline").html("<p align='center'>"+_("No stations set to run on this day.")+"</p>");
     } else {
         empty = false;
-        var data = window.preview_data;
         var shortnames = [];
-        $.each(data, function(){
+        $.each(preview_data, function(){
             this.start = new Date(date[0],date[1]-1,date[2],0,0,this.start);
             this.end = new Date(date[0],date[1]-1,date[2],0,0,this.end);
             shortnames[this.group] = this.shortname;
@@ -1400,10 +1535,10 @@ function get_preview() {
             'showNavigation': false
         };
 
-        window.timeline = new links.Timeline(document.getElementById('timeline'));
-        links.events.addListener(window.timeline, "select", function(){
+        var timeline = new links.Timeline(document.getElementById('timeline'));
+        links.events.addListener(timeline, "select", function(){
             var row,
-                sel = window.timeline.getSelection();
+                sel = timeline.getSelection();
 
             if (sel.length) {
                 if (typeof sel[0].row !== "undefined") {
@@ -1415,11 +1550,13 @@ function get_preview() {
             var pid = parseInt($(content).html().substr(1)) - 1;
             get_programs(pid);
         });
-        $(window).on("resize",timeline_redraw);
-        window.timeline.draw(data, options);
+        $(window).on("resize",function(){
+            timeline.redraw();
+        });
+        timeline.draw(preview_data, options);
         if ($(window).width() <= 480) {
-            var currRange = window.timeline.getVisibleChartRange();
-            if ((currRange.end.getTime() - currRange.start.getTime()) > 6000000) window.timeline.setVisibleChartRange(currRange.start,new Date(currRange.start.getTime()+6000000));
+            var currRange = timeline.getVisibleChartRange();
+            if ((currRange.end.getTime() - currRange.start.getTime()) > 6000000) timeline.setVisibleChartRange(currRange.start,new Date(currRange.start.getTime()+6000000));
         }
         $("#timeline .timeline-groups-text").each(function(a,b){
             var stn = $(b);
@@ -1428,145 +1565,6 @@ function get_preview() {
         });
         $("#timeline-navigation").show();
     }
-}
-
-function process_programs(month,day,year) {
-    window.preview_data = [];
-    var devday = Math.floor(window.controller.settings.devt/(60*60*24)),
-        simminutes = 0,
-        simt = Date.UTC(year,month-1,day,0,0,0,0),
-        simday = (simt/3600/24)>>0,
-        st_array = new Array(window.controller.settings.nbrd*8),
-        pid_array = new Array(window.controller.settings.nbrd*8),
-        et_array = new Array(window.controller.settings.nbrd*8),
-        busy, match_found, prog;
-
-    for(var sid=0;sid<window.controller.settings.nbrd;sid++) {
-        st_array[sid]=0;pid_array[sid]=0;et_array[sid]=0;
-    }
-
-    do {
-        busy=0;
-        match_found=0;
-        for(var pid=0;pid<window.controller.programs.nprogs;pid++) {
-          prog=window.controller.programs.pd[pid];
-          if(check_match(prog,simminutes,simt,simday,devday)) {
-            for(sid=0;sid<window.controller.settings.nbrd*8;sid++) {
-              var bid=sid>>3;var s=sid%8;
-              if(window.controller.options.mas==(sid+1)) continue; // skip master station
-              if(prog[7+bid]&(1<<s)) {
-                et_array[sid]=prog[6]*window.controller.options.wl/100>>0;pid_array[sid]=pid+1;
-                match_found=1;
-              }
-            }
-          }
-        }
-        if(match_found) {
-          var acctime=simminutes*60;
-          if(window.controller.options.seq) {
-            for(sid=0;sid<window.controller.settings.nbrd*8;sid++) {
-              if(et_array[sid]) {
-                st_array[sid]=acctime;acctime+=et_array[sid];
-                et_array[sid]=acctime;acctime+=window.controller.options.sdt;
-                busy=1;
-              }
-            }
-          } else {
-            for(sid=0;sid<window.controller.settings.nbrd*8;sid++) {
-              if(et_array[sid]) {
-                st_array[sid]=simminutes*60;
-                et_array[sid]=simminutes*60+et_array[sid];
-                busy=1;
-              }
-            }
-          }
-        }
-        if (busy) {
-          var endminutes=run_sched(simminutes*60,st_array,pid_array,et_array,simt)/60>>0;
-          if(window.controller.options.seq&&simminutes!=endminutes) simminutes=endminutes;
-          else simminutes++;
-          for(sid=0;sid<window.controller.settings.nbrd*8;sid++) {st_array[sid]=0;pid_array[sid]=0;et_array[sid]=0;}
-        } else {
-          simminutes++;
-        }
-    } while(simminutes<24*60);
-}
-
-function check_match(prog,simminutes,simt,simday,devday) {
-    if(prog[0]===0) return 0;
-    if ((prog[1]&0x80)&&(prog[2]>1)) {
-        var dn=prog[2],
-            drem=prog[1]&0x7f;
-        if((simday%dn)!=((devday+drem)%dn)) return 0;
-    } else {
-        var date = new Date(simt);
-        var wd=(date.getUTCDay()+6)%7;
-        if((prog[1]&(1<<wd))===0) return 0;
-        var dt=date.getUTCDate();
-        if((prog[1]&0x80)&&(prog[2]===0)) {if((dt%2)!==0) return 0;}
-        if((prog[1]&0x80)&&(prog[2]==1)) {
-          if(dt==31) return 0;
-          else if (dt==29 && date.getUTCMonth()==1) return 0;
-          else if ((dt%2)!=1) return 0;
-        }
-    }
-    if(simminutes<prog[3] || simminutes>prog[4]) return 0;
-    if(prog[5]===0) return 0;
-    if(((simminutes-prog[3])/prog[5]>>0)*prog[5] == (simminutes-prog[3])) {
-        return 1;
-    }
-        return 0;
-}
-
-function run_sched(simseconds,st_array,pid_array,et_array,simt) {
-    var endtime=simseconds;
-    for(var sid=0;sid<window.controller.settings.nbrd*8;sid++) {
-        if(pid_array[sid]) {
-            if(window.controller.options.seq==1) {
-                time_to_text(sid,st_array[sid],pid_array[sid],et_array[sid],simt);
-                if((window.controller.options.mas>0)&&(window.controller.options.mas!=sid+1)&&(window.controller.stations.masop[sid>>3]&(1<<(sid%8))))
-                window.preview_data.push({
-                    'start': (st_array[sid]+window.controller.options.mton),
-                    'end': (et_array[sid]+window.controller.options.mtof),
-                    'content':'',
-                    'className':'master',
-                    'shortname':'M',
-                    'group':'Master'
-                });
-                endtime=et_array[sid];
-            } else {
-                time_to_text(sid,simseconds,pid_array[sid],et_array[sid],simt);
-                if((window.controller.options.mas>0)&&(window.controller.options.mas!=sid+1)&&(window.controller.stations.masop[sid>>3]&(1<<(sid%8))))
-                endtime=(endtime>et_array[sid])?endtime:et_array[sid];
-            }
-        }
-    }
-    if(window.controller.options.seq===0&&window.controller.options.mas>0) window.preview_data.push({
-        'start': simseconds,
-        'end': endtime,
-        'content':'',
-        'className':'master',
-        'shortname':'M',
-        'group':'Master'
-    });
-    return endtime;
-}
-
-function time_to_text(sid,start,pid,end,simt) {
-    var className = "program-"+((pid+3)%4);
-    if ((window.controller.settings.rd!==0)&&(simt+start+(window.controller.options.tz-48)*900<=window.controller.settings.rdst)) className="delayed";
-    window.preview_data.push({
-        'start': start,
-        'end': end,
-        'className':className,
-        'content':'P'+pid,
-        'shortname':'S'+(sid+1),
-        'group': window.controller.stations.snames[sid]
-    });
-}
-
-function timeline_redraw() {
-    window.timeline.redraw();
 }
 
 function changeday(dir) {
