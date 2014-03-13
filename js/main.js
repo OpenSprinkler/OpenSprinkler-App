@@ -30,7 +30,6 @@ $(document).ready(function() {
 
                     window.deviceip = ip;
                     window.devicesfound = [];
-                    window.scanprogress = 1;
                 });
             } catch (err) {}
 
@@ -142,7 +141,7 @@ $(document).on("pageshow",function(e){
         $(newpage).one("pagehide",function(){
             $("#timeline").empty();
             $("#preview_date").off("change");
-        })
+        });
     }
 
     // Bind all data-onclick events on current page to their associated function (removes 300ms delay)
@@ -181,7 +180,7 @@ $(document).on("pagebeforeshow",function(e,data){
 
 //Use the user's local time for preview
 var now = new Date();
-$("#preview_date").val(now.toISOString().slice(0,10))
+$("#preview_date").val(now.toISOString().slice(0,10));
 
 //Update site based on selector
 $("#site-selector").on("change",function(){
@@ -217,7 +216,7 @@ function flipSwitched() {
         },200);
         flip.prop("checked",!changedTo).flipswitch("refresh");
     });
-};
+}
 
 // Generic communication error message
 function comm_error() {
@@ -269,7 +268,7 @@ function update_controller_programs(callback) {
     return $.getJSON("http://"+window.curr_ip+"/jp",function(programs){
         window.controller.programs = programs;
         callback();
-    })
+    });
 }
 
 function update_controller_stations(callback) {
@@ -396,7 +395,7 @@ function show_sites(showBack) {
 
     $("#site-control").one("pagehide",function(){
         $(this).find(".ui-content").empty();
-    })
+    });
 }
 
 function delete_site(site) {
@@ -482,32 +481,20 @@ function start_scan() {
 
     var ip = window.deviceip.split("."),
         started = false,
-        i, url;
+        scanprogress = 1,
+        devicesfound = [],
+        i, url, notfound, found, baseip, check_scan_status, scanning;
 
-    window.scanprogress = 1;
-    window.devicesfound = [];
+    notfound = function(){
+        scanprogress++;
+    };
 
-    ip.pop();
-    var baseip = ip.join(".");
-
-    // Start scan
-    for (i = 1; i<=244; i++) {
-        ip = baseip+"."+i;
-        url = "http://"+ip+"/jo";
-        $.ajax({
-            url: url,
-            type: "GET",
-            dataType: "json",
-            timeout: 3000,
-            global: false
-        }).fail(function(){
-            window.scanprogress++;
-        }).done(function (reply) {
-            window.scanprogress++;
+    found = function (reply) {
+            scanprogress++;
             var ip = this.url.split("/")[2],
                 device = [ip,reply.fwv];
 
-            window.devicesfound.push(device);
+            devicesfound.push(device);
 
             var list = $("#site-select-list");
             var item = "<li><a class='ui-btn ui-btn-icon-right ui-icon-carat-r' href='javascript:add_found(\""+ip+"\");'>"+ip+"<p>"+_("Firmware")+": "+(reply.fwv/100>>0)+"."+((reply.fwv/10>>0)%10)+"."+(reply.fwv%10)+"</p></a></li>";
@@ -521,19 +508,36 @@ function start_scan() {
                 list.append(item);
                 $("#site-select").popup("reposition", {positionTo: 'window'});
             }
+    };
+
+    // Check is scanning is complete
+    check_scan_status = function() {
+        if (scanprogress == 245) {
+            clearInterval(scanning);
+            if (!devicesfound.length) {
+                showerror(_("No devices were detected on your network."));
+            }
+        }
+    };
+
+    ip.pop();
+    baseip = ip.join(".");
+
+    // Start scan
+    for (i = 1; i<=244; i++) {
+        ip = baseip+"."+i;
+        url = "http://"+ip+"/jo";
+        $.ajax({
+            url: url,
+            type: "GET",
+            dataType: "json",
+            timeout: 3000,
+            global: false,
+            error: notfound,
+            success: found
         });
     }
-    window.scanning = setInterval(check_scan_status,200);
-}
-
-// Check is scanning is complete
-function check_scan_status() {
-    if (window.scanprogress == 245) {
-        clearInterval(window.scanning);
-        if (!window.devicesfound.length) {
-            showerror(_("No devices were detected on your network."));
-        }
-    }
+    scanning = setInterval(check_scan_status,200);
 }
 
 // Show popup for new device after populating device IP with selected result
@@ -556,23 +560,23 @@ function show_providers() {
     var provider = localStorage.getItem("provider") || "yahoo",
         wapikey = localStorage.getItem("wapikey");
 
-    var popup = $('\
-        <div data-role="popup" id="providers" data-theme="a" data-dismissible="false" data-overlay-theme="b">\
-            <a href="#" data-rel="back" class="ui-btn ui-corner-all ui-shadow ui-btn-a ui-icon-delete ui-btn-icon-notext ui-btn-right">Close</a>\
-            <div class="ui-content">\
-                <form>\
-                    <label for="weather_provider">'+_("Weather Provider")+'\
-                        <select data-mini="true" id="weather_provider">\
-                            <option value="yahoo">'+_("Yahoo!")+'</option>\
-                            <option '+((provider == "wunderground") ? 'selected ' : '')+'value="wunderground">'+_("Wunderground")+'</option>\
-                        </select>\
-                    </label>\
-                    <label for="wapikey">'+_("Wunderground API Key")+'<input data-mini="true" type="text" id="wapikey" value="'+((wapikey) ? wapikey : '')+'" /></label>\
-                    <input type="submit" value="'+_("Submit")+'" />\
-                </form>\
-            </div>\
-        </div>\
-    ');
+    var popup = $(
+        '<div data-role="popup" id="providers" data-theme="a" data-dismissible="false" data-overlay-theme="b">'+
+            '<a href="#" data-rel="back" class="ui-btn ui-corner-all ui-shadow ui-btn-a ui-icon-delete ui-btn-icon-notext ui-btn-right">Close</a>'+
+            '<div class="ui-content">'+
+                '<form>'+
+                    '<label for="weather_provider">'+_("Weather Provider")+
+                        '<select data-mini="true" id="weather_provider">'+
+                            '<option value="yahoo">'+_("Yahoo!")+'</option>'+
+                            '<option '+((provider == "wunderground") ? 'selected ' : '')+'value="wunderground">'+_("Wunderground")+'</option>'+
+                        '</select>'+
+                    '</label>'+
+                    '<label for="wapikey">'+_("Wunderground API Key")+'<input data-mini="true" type="text" id="wapikey" value="'+((wapikey) ? wapikey : '')+'" /></label>'+
+                    '<input type="submit" value="'+_("Submit")+'" />'+
+                '</form>'+
+            '</div>'+
+        '</div>'
+    );
 
     if (provider == "yahoo") popup.find("#wapikey").closest("label").hide();
 
@@ -582,7 +586,7 @@ function show_providers() {
         var wapikey = $("#wapikey").val(),
             provider = $("#weather_provider").val();
 
-        if (provider == "wunderground" && wapikey == "") {
+        if (provider == "wunderground" && wapikey === "") {
             showerror(_("An API key must be provided for Weather Underground"));
             return;
         }
@@ -605,7 +609,7 @@ function show_providers() {
         }
         popup.popup("reposition",{
             "positionTo": "window"
-        })
+        });
     });
 
     popup.one("popupafterclose",function(){
@@ -704,13 +708,13 @@ function update_wunderground_weather(wapikey) {
                 "location": data.current_observation.display_location.full,
                 "region": data.current_observation.display_location.country_iso3166,
                 simpleforecast: {}
-            }
+            };
 
             $.each(data.forecast.simpleforecast.forecastday,function(k,attr) {
                  ww_forecast.simpleforecast[k] = attr;
             });
 
-            if (ww_forecast.region == "US" || ww_forecast.region == "BM" || ww_forecast.region == "PW") temp = Math.round(ww_forecast.condition.temp_f)+"&#176;F"
+            if (ww_forecast.region == "US" || ww_forecast.region == "BM" || ww_forecast.region == "PW") temp = Math.round(ww_forecast.condition.temp_f)+"&#176;F";
             else temp = ww_forecast.condition.temp_c+"&#176;C";
 
             $("#weather")
@@ -723,7 +727,7 @@ function update_wunderground_weather(wapikey) {
 
             update_wunderground_forecast(ww_forecast);
         }
-    })
+    });
 }
 
 function update_wunderground_forecast(data) {
@@ -844,7 +848,7 @@ function show_settings() {
 
     $("#os-settings").one("pagehide",function(){
         $(this).find(".ui-content").empty();
-    })
+    });
 }
 
 function submit_settings() {
@@ -911,7 +915,7 @@ function show_stations() {
 
     $("#os-stations").one("pagehide",function(){
         $(this).find(".ui-content").empty();
-    })
+    });
 }
 
 function submit_stations() {
@@ -1026,7 +1030,7 @@ function get_status() {
         var scheduled = allPnames.length;
         if (!open && scheduled) runningTotal.d = window.controller.options.sdt;
         if (open == 1) ptotal += (scheduled-1)*window.controller.options.sdt;
-        allPnames = getUnique($.grep(allPnames,function(n){return(n)}));
+        allPnames = getUnique($.grep(allPnames,function(n){return(n);}));
         var numProg = allPnames.length;
         allPnames = allPnames.join(" "+_("and")+" ");
         var pinfo = allPnames+" "+((numProg > 1) ? _("are") : _("is"))+" "+_("running")+" ";
@@ -1221,12 +1225,12 @@ function get_manual() {
 
     $("#manual .ui-content").append(
         '<p class="center">'+_('With manual mode turned on, tap a station to toggle it.')+'</p>',
-        $('<ul data-role="listview" data-inset="true">\
-                <li class="ui-field-contain">\
-                    <label for="mmm"><b>'+_('Manual Mode')+'</b></label>\
-                    <input type="checkbox" data-on-text="On" data-off-text="Off" data-role="flipswitch" name="mmm" id="mmm"'+(window.controller.settings.mm ? ' checked' : '')+'>\
-                </li>\
-            </ul>').listview(),
+        $('<ul data-role="listview" data-inset="true">'+
+                '<li class="ui-field-contain">'+
+                    '<label for="mmm"><b>'+_('Manual Mode')+'</b></label>'+
+                    '<input type="checkbox" data-on-text="On" data-off-text="Off" data-role="flipswitch" name="mmm" id="mmm"'+(window.controller.settings.mm ? ' checked' : '')+'>'+
+                '</li>'+
+            '</ul>').listview(),
         $('<ul data-role="listview" data-inset="true" id="mm_list"></ul>').html(list).listview()
     );
 
@@ -1367,7 +1371,7 @@ function submit_runonce(runonce) {
 function get_preview() {
     $("#timeline-navigation").hide();
     var date = $("#preview_date").val(),
-        preview_data;
+        preview_data, process_programs, check_match, run_sched, time_to_text;
     if (date === "") return;
     date = date.split("-");
 
@@ -1431,7 +1435,7 @@ function get_preview() {
               simminutes++;
             }
         } while(simminutes<24*60);
-    }
+    };
 
     check_match = function (prog,simminutes,simt,simday,devday) {
         if(prog[0]===0) return 0;
@@ -1457,7 +1461,7 @@ function get_preview() {
             return 1;
         }
             return 0;
-    }
+    };
 
     run_sched = function (simseconds,st_array,pid_array,et_array,simt) {
         var endtime=simseconds;
@@ -1491,7 +1495,7 @@ function get_preview() {
             'group':'Master'
         });
         return endtime;
-    }
+    };
 
     time_to_text = function (sid,start,pid,end,simt) {
         var className = "program-"+((pid+3)%4);
@@ -1504,7 +1508,7 @@ function get_preview() {
             'shortname':'S'+(sid+1),
             'group': window.controller.stations.snames[sid]
         });
-    }
+    };
 
     process_programs(date[1],date[2],date[0]);
 
@@ -1641,7 +1645,7 @@ function get_programs(pid) {
 
     $("#programs").one("pagehide",function(){
         $(this).find(".ui-content").empty();
-    })
+    });
 }
 
 // Translate program array into easier to use data
@@ -1855,7 +1859,7 @@ function add_program() {
 
     $("#addprogram").one("pagehide",function(){
         $(this).find(".ui-content").empty();
-    })
+    });
 }
 
 function delete_program(id) {
@@ -1896,7 +1900,7 @@ function submit_program(id) {
     var end = $("#end-"+id).val().split(":");
     program[4] = parseInt(end[0])*60+parseInt(end[1]);
 
-    if(!(program[3]<program[4])) {showerror(_("Error: Start time must be prior to end time."));return;}
+    if(program[3]>program[4]) {showerror(_("Error: Start time must be prior to end time."));return;}
 
     program[5] = parseInt($("#interval-"+id).val());
     program[6] = $("#duration-"+id).val() * 60;
@@ -2053,7 +2057,7 @@ function import_config(data) {
                 update_controller(function(){
                     $.mobile.loading("hide");
                     showerror(_("Backup restored to your device"));
-                })
+                });
             },
             function(){
                 $.mobile.loading("hide");
@@ -2080,7 +2084,7 @@ function handleConfig(files) {
         try{
             var obj=JSON.parse($.trim(e.target.result));
             import_config(JSON.stringify(obj));
-        }catch(e){
+        }catch(error){
             showerror(_("Unable to read the configuration file. Please check the file and try again."));
         }
     };
@@ -2089,13 +2093,14 @@ function handleConfig(files) {
 
 // Accessory functions for jQuery Mobile
 function areYouSure(text1, text2, callback) {
-    var popup = $('\
-    <div data-role="popup" class="ui-content" data-overlay-theme="b" id="sure">\
-        <h3 class="sure-1 center">'+text1+'</h3>\
-        <p class="sure-2 center">'+text2+'</p>\
-        <a class="sure-do ui-btn ui-btn-b ui-corner-all ui-shadow" href="#">Yes</a>\
-        <a class="sure-dont ui-btn ui-corner-all ui-shadow" href="#">No</a>\
-    </div>');
+    var popup = $(
+        '<div data-role="popup" class="ui-content" data-overlay-theme="b" id="sure">'+
+            '<h3 class="sure-1 center">'+text1+'</h3>'+
+            '<p class="sure-2 center">'+text2+'</p>'+
+            '<a class="sure-do ui-btn ui-btn-b ui-corner-all ui-shadow" href="#">Yes</a>'+
+            '<a class="sure-dont ui-btn ui-corner-all ui-shadow" href="#">No</a>'+
+        '</div>'
+    );
 
     $(".ui-page-active").append(popup);
 
