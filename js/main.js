@@ -1316,7 +1316,7 @@ function get_runonce() {
     }
     quickPick += "</select>";
     $("#runonce_list p").after(quickPick);
-    $("#rprog").on("change".function(){
+    $("#rprog").on("change",function(){
         var prog = $(this).val();
         if (prog == "s") {
             reset_runonce();
