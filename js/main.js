@@ -169,8 +169,9 @@ $(document).on("pagebeforeshow",function(e,data){
     } else if (newpage == "settings") {
         $.each(["en","mm"],function(a,id){
             var $id = $("#"+id);
-            $id.prop("checked",window.controller.settings[id]).on("change",flipSwitched);
+            $id.prop("checked",window.controller.settings[id]);
             if ($id.hasClass("ui-flipswitch-input")) $id.flipswitch("refresh");
+            $id.on("change",flipSwitched);
         });
         $(newpage).one("pagehide",function(){
             $("#en,#mm").off("change");
@@ -183,7 +184,7 @@ var now = new Date();
 $("#preview_date").val(now.toISOString().slice(0,10))
 
 //Update site based on selector
-$("#site-selector").change(function(){
+$("#site-selector").on("change",function(){
     update_site($(this).val());
     location.reload();
 });
@@ -1229,7 +1230,7 @@ function get_manual() {
         $('<ul data-role="listview" data-inset="true" id="mm_list"></ul>').html(list).listview()
     );
 
-    $("#mmm").flipswitch().change(flipSwitched);
+    $("#mmm").flipswitch().on("change",flipSwitched);
 
     changePage("#manual");
 
@@ -1315,7 +1316,7 @@ function get_runonce() {
     }
     quickPick += "</select>";
     $("#runonce_list p").after(quickPick);
-    $("#rprog").change(function(){
+    $("#rprog").on("change".function(){
         var prog = $(this).val();
         if (prog == "s") {
             reset_runonce();
