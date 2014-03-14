@@ -365,7 +365,7 @@ function submit_newuser() {
 
 // Show manage site page
 function show_sites(showBack) {
-    showPageLoading();
+    if ($("body").pagecontainer("getActivePage").attr("id") !== "site-control") showPageLoading();
 
     showBack = showBack || true;
     $("#manageBackButton").toggle(showBack);
@@ -1622,8 +1622,8 @@ function get_programs(pid) {
         if (pid === false) {
             $.mobile.silentScroll(0);
         } else {
-            $("#programs fieldset[data-collapsed='false']").attr("data-collapsed","true");
-            $("#program-"+pid).attr("data-collapsed","false");
+            $("#programs fieldset[data-collapsed='false']").collapsible("collapse");
+            $("#program-"+pid).collapsible("expand");
         }
     }
     $("#programs input[name^='rad_days']").on("change",function(){
