@@ -372,6 +372,8 @@ function submit_newuser() {
 
 // Show manage site page
 function show_sites(showBack) {
+    showPageLoading();
+
     showBack = showBack || true;
     $("#manageBackButton").toggle(showBack);
 
@@ -768,20 +770,26 @@ function update_wunderground_forecast(data) {
 }
 
 function show_forecast() {
+    showPageLoading();
     changePage("#forecast");
 }
 
 function gohome() {
+    showPageLoading();
     $("body").pagecontainer("change","#sprinklers",{reverse: true});
 }
 
 function show_about() {
+    showPageLoading();
     changePage("#about");
 }
 
 // Device setting management functions
 function show_settings() {
     var list = {};
+
+    showPageLoading();
+
     list.start = "<li><div class='ui-field-contain'><fieldset>";
 
     $.each(window.controller.options,function(key,data) {
@@ -902,6 +910,8 @@ function show_stations() {
     var list = "<li>",
         isMaster = window.controller.options.mas;
 
+    showPageLoading();
+
     if (isMaster) list += "<table><tr><th>"+_("Station Name")+"</th><th>"+_("Activate Master?")+"</th></tr>";
 
     $.each(window.controller.stations.snames,function(i, station) {
@@ -979,6 +989,8 @@ function get_status() {
         color = "",
         list = "",
         tz = window.controller.options.tz-48;
+
+    showPageLoading();
 
     tz = ((tz>=0)?"+":"-")+pad((Math.abs(tz)/4>>0))+":"+((Math.abs(tz)%4)*15/10>>0)+((Math.abs(tz)%4)*15%10);
 
@@ -1230,6 +1242,8 @@ function update_timers(sdelay) {
 function get_manual() {
     var list = "<li data-role='list-divider' data-theme='a'>"+_("Sprinkler Stations")+"</li>";
 
+    showPageLoading();
+
     $.each(window.controller.stations.snames,function (i,station) {
         list += '<li data-icon="false"><a class="center'+((window.controller.status[i]) ? ' green' : '')+'" href="#" onclick="toggle(this);">'+station+'</a></li>';
     });
@@ -1290,6 +1304,8 @@ function toggle(anchor) {
 function get_runonce() {
     var list = "<p class='center'>"+_("Value is in minutes. Zero means the station will be excluded from the run-once program.")+"</p><form>",
         n = 0;
+
+    showPageLoading();
 
     $.each(window.controller.stations.snames,function(i, station) {
         list += "<div class='ui-field-contain'><label for='zone-"+n+"'>"+station+":</label><input type='range' data-highlight='true' name='zone-"+n+"' min='0' max='240' id='zone-"+n+"' value='0'></div>";
@@ -1380,11 +1396,14 @@ function submit_runonce(runonce) {
 
 // Preview functions
 function get_preview() {
-    $("#timeline-navigation").hide();
     var date = $("#preview_date").val(),
         preview_data, process_programs, check_match, run_sched, time_to_text;
+
     if (date === "") return;
     date = date.split("-");
+
+    $.mobile.loading("show");
+    $("#timeline-navigation").hide();
 
     process_programs = function (month,day,year) {
         preview_data = [];
@@ -1580,6 +1599,7 @@ function get_preview() {
         });
         $("#timeline-navigation").show();
     }
+    $.mobile.loading("hide");
 }
 
 function changeday(dir) {
@@ -1599,6 +1619,7 @@ function changeday(dir) {
 function get_programs(pid) {
     var list = $("#programs .ui-content");
 
+    showPageLoading();
     list.html($(make_all_programs()).enhanceWithin());
     update_program_header();
 
@@ -2156,6 +2177,24 @@ function highlight(button) {
         $(this).removeClass("ui-btn-active");
         next();
     });
+}
+
+function showPageLoading() {
+    var curr = "#"+$("body").pagecontainer("getActivePage").attr("id"),
+        delay = 50,
+        interval = setInterval(
+            function(){
+                console.log("test");
+                var page = "#"+$("body").pagecontainer("getActivePage").attr("id");
+                if (page == curr) {
+                    if (!$("html").hasClass("ui-loading")) $.mobile.loading("show");
+                } else {
+                    clearInterval(interval);
+                    return;
+                }
+            },
+            delay
+        );
 }
 
 function changePage(toPage) {
