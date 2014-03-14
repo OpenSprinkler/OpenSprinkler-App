@@ -1302,18 +1302,14 @@ function toggle(anchor) {
 
 // Runonce functions
 function get_runonce() {
-    var list = "<p class='center'>"+_("Value is in minutes. Zero means the station will be excluded from the run-once program.")+"</p><form>",
-        n = 0;
+    var list = "<p class='center'>"+_("Value is in minutes. Zero means the station will be excluded from the run-once program.")+"</p>",
+        runonce = $("#runonce_list"),
+        i=n=0,
+        quickPick, data, progs, rprogs;
 
     showPageLoading();
 
-    $.each(window.controller.stations.snames,function(i, station) {
-        list += "<div class='ui-field-contain'><label for='zone-"+n+"'>"+station+":</label><input type='range' data-highlight='true' name='zone-"+n+"' min='0' max='240' id='zone-"+n+"' value='0'></div>";
-        n++;
-    });
-
-    list += "</form><a class='ui-btn ui-corner-all ui-shadow' onclick='submit_runonce();'>"+_("Submit")+"</a><a class='ui-btn ui-btn-b ui-corner-all ui-shadow' onclick='reset_runonce();'>"+_("Reset")+"</a>";
-    var progs = [];
+    progs = [];
     if (window.controller.programs.pd.length) {
         $.each(window.controller.programs.pd,function(z, program) {
             program = read_program(program);
@@ -1325,36 +1321,41 @@ function get_runonce() {
             progs.push(prog);
         });
     }
+    rprogs = progs;
 
-    window.rprogs = progs;
-    var runonce = $("#runonce_list"),
-        i=0;
-    runonce.html(list);
 
-    var quickPick = "<select data-mini='true' name='rprog' id='rprog'><option value='s'>"+_("Quick Programs")+"</option>";
-    var data = localStorage.getItem("runonce");
+    quickPick = "<select data-mini='true' name='rprog' id='rprog'><option value='s' selected='selected'>"+_("Quick Programs")+"</option>";
+    data = localStorage.getItem("runonce");
     if (data !== null) {
         data = JSON.parse(data);
         runonce.find(":input[data-type='range']").each(function(a,b){
             $(b).val(data[i]/60);
             i++;
         });
-        window.rprogs.l = data;
-        quickPick += "<option value='l' selected='selected'>"+_("Last Used Program")+"</option>";
+        rprogs.l = data;
+        quickPick += "<option value='l' >"+_("Last Used Program")+"</option>";
     }
     for (i=0; i<progs.length; i++) {
         quickPick += "<option value='"+i+"'>"+_("Program")+" "+(i+1)+"</option>";
     }
     quickPick += "</select>";
-    $("#runonce_list p").after(quickPick);
+    list += quickPick+"<form>";
+    $.each(window.controller.stations.snames,function(i, station) {
+        list += "<div class='ui-field-contain'><label for='zone-"+n+"'>"+station+":</label><input type='range' data-highlight='true' name='zone-"+n+"' min='0' max='240' id='zone-"+n+"' value='0'></div>";
+        n++;
+    });
+
+    list += "</form><a class='ui-btn ui-corner-all ui-shadow' onclick='submit_runonce();'>"+_("Submit")+"</a><a class='ui-btn ui-btn-b ui-corner-all ui-shadow' onclick='reset_runonce();'>"+_("Reset")+"</a>";
+
+    runonce.html(list);
     $("#rprog").on("change",function(){
         var prog = $(this).val();
         if (prog == "s") {
             reset_runonce();
             return;
         }
-        if (typeof window.rprogs[prog] === "undefined") return;
-        fill_runonce(runonce,window.rprogs[prog]);
+        if (typeof rprogs[prog] === "undefined") return;
+        fill_runonce(runonce,rprogs[prog]);
     });
 
     runonce.enhanceWithin();
@@ -2184,7 +2185,6 @@ function showPageLoading() {
         delay = 50,
         interval = setInterval(
             function(){
-                console.log("test");
                 var page = "#"+$("body").pagecontainer("getActivePage").attr("id");
                 if (page == curr) {
                     if (!$("html").hasClass("ui-loading")) $.mobile.loading("show");
