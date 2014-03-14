@@ -216,11 +216,6 @@ function flipSwitched() {
     });
 }
 
-// Generic communication error message
-function comm_error() {
-    showerror(_("Error communicating with OpenSprinkler. Please check your password is correct."));
-}
-
 //Define option names based on ID
 window.keyNames = {"tz":1,"ntp":2,"hp0":12,"hp1":13,"ar":14,"ext":15,"seq":16,"sdt":17,"mas":18,"mton":19,"mtof":20,"urs":21,"rso":22,"wl":23,"ipas":25,"devid":26};
 
@@ -898,7 +893,7 @@ function submit_settings() {
         showerror(_("Settings have been saved"));
         update_controller();
         update_weather();
-    }).fail(comm_error);
+    });
 }
 
 // Station managament function
@@ -975,7 +970,7 @@ function submit_stations() {
         changePage("#settings");
         showerror(_("Stations have been updated"));
         update_controller();
-    }).fail(comm_error);
+    });
 }
 
 // Current status related functions
@@ -1282,7 +1277,6 @@ function toggle(anchor) {
             update_controller_status();
         }).fail(function(){
             anchor.addClass("green");
-            comm_error();
         });
         anchor.removeClass("green");
     } else {
@@ -1290,7 +1284,6 @@ function toggle(anchor) {
             update_controller_status();
         }).fail(function(){
             anchor.removeClass("green");
-            comm_error();
         });
         anchor.addClass("green");
     }
@@ -1387,7 +1380,7 @@ function submit_runonce(runonce) {
         update_controller_status();
         update_controller_settings();
         showerror(_("Run-once program has been scheduled"));
-    }).fail(comm_error);
+    });
     gohome();
 }
 
@@ -1899,7 +1892,7 @@ function delete_program(id) {
             update_controller_programs(function(){
                 get_programs(false);
             });
-        }).fail(comm_error);
+        });
     });
 }
 
@@ -1957,13 +1950,13 @@ function submit_program(id) {
             $.mobile.loading("hide");
             update_controller_programs(get_programs);
             showerror(_("Program added successfully"));
-        }).fail(comm_error);
+        });
     } else {
         $.get("http://"+window.curr_ip+"/cp?pw="+window.curr_pw+"&pid="+id+"&v="+program,function(){
             $.mobile.loading("hide");
             update_program_header();
             showerror(_("Program has been updated"));
-        }).fail(comm_error);
+        });
     }
 }
 
@@ -1975,7 +1968,7 @@ function raindelay() {
         $("#footer-running").html("<p class='ui-icon ui-icon-loading mini-load'></p>");
         update_controller_settings(check_status);
         showerror(_("Rain delay has been successfully set"));
-    }).fail(comm_error);
+    });
 }
 
 function rbt() {
@@ -1984,7 +1977,7 @@ function rbt() {
         $.get("http://"+window.curr_ip+"/cv?pw="+window.curr_pw+"&rbt=1",function(){
             $.mobile.loading("hide");
             showerror(_("OpenSprinkler is rebooting now"));
-        }).fail(comm_error);
+        });
     });
 }
 
@@ -1998,7 +1991,7 @@ function rsn() {
                 update_controller_status()
             ).then(check_status);
             showerror(_("All stations have been stopped"));
-        }).fail(comm_error);
+        });
     });
 }
 
