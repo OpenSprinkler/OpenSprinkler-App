@@ -888,8 +888,7 @@ function submit_settings() {
     if (invalid) return;
     $.mobile.loading("show");
     $.get("http://"+window.curr_ip+"/co?pw="+window.curr_pw+"&"+$.param(opt),function(){
-        $.mobile.loading("hide");
-        changePage("#settings");
+        window.history.back();
         showerror(_("Settings have been saved"));
         update_controller();
         update_weather();
@@ -966,8 +965,7 @@ function submit_stations() {
     if (invalid) return;
     $.mobile.loading("show");
     $.get("http://"+window.curr_ip+"/cs?pw="+window.curr_pw+"&"+$.param(names)+masop,function(){
-        $.mobile.loading("hide");
-        changePage("#settings");
+        window.history.back();
         showerror(_("Stations have been updated"));
         update_controller();
     });
@@ -1869,15 +1867,12 @@ function add_program() {
         submit_program("new");
     });
 
-    $(window).one("navigate",function(e,data) {
-        var direction = data.state.direction;
-        if (direction == 'back') {
-            e.preventDefault();
-            get_programs();
-        }
-    });
-
     changePage("#addprogram");
+
+    $(document).one("pagebeforechange",function(e){
+        e.preventDefault();
+        get_programs();
+    });
 
     $("#addprogram").one("pagehide",function(){
         $(this).find(".ui-content").empty();
