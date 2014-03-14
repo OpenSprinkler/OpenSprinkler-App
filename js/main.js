@@ -979,7 +979,11 @@ function get_status() {
         list = "",
         tz = window.controller.options.tz-48;
 
-    showPageLoading();
+    if ($("body").pagecontainer("getActivePage").attr("id") === "status") {
+        $("#status .ui-content").empty();
+    } else {
+        showPageLoading();
+    }
 
     tz = ((tz>=0)?"+":"-")+pad((Math.abs(tz)/4>>0))+":"+((Math.abs(tz)%4)*15/10>>0)+((Math.abs(tz)%4)*15%10);
 
