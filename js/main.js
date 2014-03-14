@@ -140,6 +140,8 @@ $(document).on("pageshow",function(e){
             $("#timeline").empty();
             $("#preview_date").off("change");
         });
+    } else if (newpage == "#sprinklers") {
+        $.mobile.silentScroll(0);
     }
 
     // Bind all data-onclick events on current page to their associated function (removes 300ms delay)
@@ -1611,7 +1613,8 @@ function changeday(dir) {
 function get_programs(pid) {
     var list = $("#programs .ui-content");
 
-    showPageLoading();
+    if ($("body").pagecontainer("getActivePage").attr("id") !== "programs") showPageLoading();
+
     list.html($(make_all_programs()).enhanceWithin());
     update_program_header();
 
@@ -1871,9 +1874,9 @@ function add_program() {
         submit_program("new");
     });
 
-    changePage("#addprogram");
+    changePage("#addprogram",{changeHash: false});
 
-    $(document).one("pagebeforechange",function(e){
+    $("#addprogram .ui-btn-left").one("vclick",function(e){
         e.preventDefault();
         get_programs();
     });
@@ -2185,13 +2188,15 @@ function showPageLoading() {
         );
 }
 
-function changePage(toPage) {
+function changePage(toPage,opts) {
     var curr = "#"+$("body").pagecontainer("getActivePage").attr("id");
+    opts = opts || {};
+
     // If the page is being updated then rebind the links
     if (curr === toPage) {
         bind_links(curr);
     } else {
-        $("body").pagecontainer("change",toPage);
+        $("body").pagecontainer("change",toPage,opts);
     }
 }
 
