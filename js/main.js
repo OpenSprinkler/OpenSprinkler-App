@@ -92,10 +92,7 @@ $(document).ajaxError(function(x,t,m) {
         showerror(_("Check device password and try again."));
         return;
     } else if (t.status===0) {
-        if (/https?:\/\/[\d|.]+\/j\w/.exec(m.url)) {
-            showerror(_("Check that the device is connected to the network and try again."));
-            return;
-        } else if (/https?:\/\/[\d|.]+\/(?:cv|sn|cs|cr|cp|dp|co)/.exec(m.url)) {
+        if (/https?:\/\/[\d|.]+\/(?:cv|sn|cs|cr|cp|dp|co)/.exec(m.url)) {
             // Ajax fails typically because the password is wrong
             showerror(_("Check device password and try again."));
             return;
@@ -162,7 +159,7 @@ $(document).on("pagebeforeshow",function(e,data){
         $("#footer-running").html("<p class='ui-icon ui-icon-loading mini-load'></p>");
         setTimeout(function(){
             update_controller(check_status,function(){
-                $("#footer-running").slideUp();
+                change_status(0,0,"red","<p id='running-text' class='center'>"+_("Network Error")+"</p>");
                 hide_weather();
             });
         },800);
