@@ -2158,9 +2158,7 @@ function changePage(toPage) {
     if (curr === toPage) {
         bind_links(curr);
     } else {
-        $.when($("body").pagecontainer("load",toPage)).done(function(){
-            $("body").pagecontainer("change",toPage);
-        });
+        $("body").pagecontainer("change",toPage);
     }
 }
 
