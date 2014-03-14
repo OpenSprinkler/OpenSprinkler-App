@@ -90,24 +90,28 @@ $.ajaxSetup({
 $(document).ajaxError(function(x,t,m) {
     if(t.status==401 && /https?:\/\/[\d|.]+\/(?:cv|sn|cs|cr|cp|dp|co)/.exec(m.url)) {
         showerror(_("Check device password and try again."));
+        return;
     } else if (t.status===0) {
         if (/https?:\/\/[\d|.]+\/j\w/.exec(m.url)) {
             showerror(_("Check that the device is connected to the network and try again."));
+            return;
         } else if (/https?:\/\/[\d|.]+\/(?:cv|sn|cs|cr|cp|dp|co)/.exec(m.url)) {
             // Ajax fails typically because the password is wrong
             showerror(_("Check device password and try again."));
+            return;
         }
     }
+    if (m.url.search("yahooapis.com") || m.url.search("api.wunderground.com")) {
+        $("#weather-list").animate({
+            "margin-left": "-1000px"
+        },1000,function(){
+            $(this).hide();
+        });
+        return;
+    }
     if(t.statusText==="timeout") {
-        if (m.url.search("yahooapis.com") || m.url.search("api.wunderground.com")) {
-            $("#weather-list").animate({
-                "margin-left": "-1000px"
-            },1000,function(){
-                $(this).hide();
-            });
-        } else {
-            showerror(_("Connection timed-out. Please try again."));
-        }
+        showerror(_("Connection timed-out. Please try again."));
+        return;
     }
 });
 
