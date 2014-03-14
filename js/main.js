@@ -365,8 +365,6 @@ function submit_newuser() {
 
 // Show manage site page
 function show_sites(showBack) {
-    if ($("body").pagecontainer("getActivePage").attr("id") !== "site-control") showPageLoading();
-
     showBack = showBack || true;
     $("#manageBackButton").toggle(showBack);
 
@@ -763,25 +761,20 @@ function update_wunderground_forecast(data) {
 }
 
 function show_forecast() {
-    showPageLoading();
     changePage("#forecast");
 }
 
 function gohome() {
-    showPageLoading();
     $("body").pagecontainer("change","#sprinklers",{reverse: true});
 }
 
 function show_about() {
-    showPageLoading();
     changePage("#about");
 }
 
 // Device setting management functions
 function show_settings() {
     var list = {};
-
-    showPageLoading();
 
     list.start = "<li><div class='ui-field-contain'><fieldset>";
 
@@ -902,8 +895,6 @@ function show_stations() {
     var list = "<li>",
         isMaster = window.controller.options.mas;
 
-    showPageLoading();
-
     if (isMaster) list += "<table><tr><th>"+_("Station Name")+"</th><th>"+_("Activate Master?")+"</th></tr>";
 
     $.each(window.controller.stations.snames,function(i, station) {
@@ -983,8 +974,6 @@ function get_status() {
 
     if ($("body").pagecontainer("getActivePage").attr("id") === "status") {
         $("#status .ui-content").empty();
-    } else {
-        showPageLoading();
     }
 
     tz = ((tz>=0)?"+":"-")+pad((Math.abs(tz)/4>>0))+":"+((Math.abs(tz)%4)*15/10>>0)+((Math.abs(tz)%4)*15%10);
@@ -1237,8 +1226,6 @@ function update_timers(sdelay) {
 function get_manual() {
     var list = "<li data-role='list-divider' data-theme='a'>"+_("Sprinkler Stations")+"</li>";
 
-    showPageLoading();
-
     $.each(window.controller.stations.snames,function (i,station) {
         list += '<li data-icon="false"><a class="center'+((window.controller.status[i]) ? ' green' : '')+'" href="#" onclick="toggle(this);">'+station+'</a></li>';
     });
@@ -1299,8 +1286,6 @@ function get_runonce() {
         runonce = $("#runonce_list"),
         i=n=0,
         quickPick, data, progs, rprogs;
-
-    showPageLoading();
 
     progs = [];
     if (window.controller.programs.pd.length) {
@@ -1613,7 +1598,7 @@ function changeday(dir) {
 function get_programs(pid) {
     var list = $("#programs .ui-content");
 
-    if ($("body").pagecontainer("getActivePage").attr("id") !== "programs") showPageLoading();
+    $.mobile.loading("show");
 
     list.html($(make_all_programs()).enhanceWithin());
     update_program_header();
@@ -1667,6 +1652,8 @@ function get_programs(pid) {
         runonce.push(0);
         submit_runonce(runonce);
     });
+
+    $.mobile.loading("hide");
 
     changePage("#programs");
 
@@ -2169,23 +2156,6 @@ function highlight(button) {
         $(this).removeClass("ui-btn-active");
         next();
     });
-}
-
-function showPageLoading() {
-    var curr = "#"+$("body").pagecontainer("getActivePage").attr("id"),
-        delay = 50,
-        interval = setInterval(
-            function(){
-                var page = "#"+$("body").pagecontainer("getActivePage").attr("id");
-                if (page == curr) {
-                    if (!$("html").hasClass("ui-loading")) $.mobile.loading("show");
-                } else {
-                    clearInterval(interval);
-                    return;
-                }
-            },
-            delay
-        );
 }
 
 function changePage(toPage,opts) {
