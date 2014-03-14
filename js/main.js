@@ -51,9 +51,8 @@ $(document).ready(function() {
                     func();
                     update_weather();
                 },function(){
-                    $("#footer-running").slideUp();
+                    change_status(0,0,"red","<p id='running-text' class='center'>"+_("Network Error")+"</p>");
                     hide_weather();
-                    comm_error();
                 });
             });
 
@@ -164,7 +163,7 @@ $(document).on("pagebeforeshow",function(e,data){
         setTimeout(function(){
             update_controller(check_status,function(){
                 $("#footer-running").slideUp();
-                comm_error();
+                hide_weather();
             });
         },800);
     } else if (newpage == "settings") {
