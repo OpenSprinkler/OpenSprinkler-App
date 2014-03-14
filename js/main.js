@@ -52,6 +52,7 @@ $(document).ready(function() {
                     update_weather();
                 },function(){
                     $("#footer-running").slideUp();
+                    hide_weather();
                     comm_error();
                 });
             });
