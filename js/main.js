@@ -88,7 +88,7 @@ $.ajaxSetup({
 
 //Handle timeout
 $(document).ajaxError(function(x,t,m) {
-    if(t.status==401 && /https?:\/\/[\d|.]+\/(?:cv|sn|cs|cr|cp|dp|co)/.exec(m.url)) {
+    if (t.status==401 && /https?:\/\/[\d|.]+\/(?:cv|sn|cs|cr|cp|dp|co)/.exec(m.url)) {
         showerror(_("Check device password and try again."));
         return;
     } else if (t.status===0) {
@@ -102,14 +102,10 @@ $(document).ajaxError(function(x,t,m) {
         }
     }
     if (m.url.search("yahooapis.com") || m.url.search("api.wunderground.com")) {
-        $("#weather-list").animate({
-            "margin-left": "-1000px"
-        },1000,function(){
-            $(this).hide();
-        });
+        hide_weather();
         return;
     }
-    if(t.statusText==="timeout") {
+    if (t.statusText==="timeout") {
         showerror(_("Connection timed-out. Please try again."));
         return;
     }
@@ -632,6 +628,14 @@ function convert_temp(temp,region) {
     return temp;
 }
 
+function hide_weather() {
+    $("#weather-list").animate({
+        "margin-left": "-1000px"
+    },1000,function(){
+        $(this).hide();
+    });
+}
+
 function update_weather() {
     $("#weather").off("vclick").html("<p class='ui-icon ui-icon-loading mini-load'></p>");
 
@@ -647,14 +651,15 @@ function update_weather() {
 
 function update_yahoo_weather() {
     $.getJSON("http://query.yahooapis.com/v1/public/yql?q=select%20woeid%20from%20geo.placefinder%20where%20text=%22"+escape(window.controller.settings.loc)+"%22&format=json",function(woeid){
+        if (woeid.query.results === null) {
+            hide_weather();
+            return;
+        }
+
         $.getJSON("http://query.yahooapis.com/v1/public/yql?q=select%20item%2Ctitle%2Clocation%20from%20weather.forecast%20where%20woeid%3D%22"+woeid.query.results.Result.woeid+"%22&format=json",function(data){
             // Hide the weather if no data is returned
             if (data.query.results.channel.item.title == "City not found") {
-                $("#weather-list").animate({
-                    "margin-left": "-1000px"
-                },1000,function(){
-                    $(this).hide();
-                });
+                hide_weather();
                 return;
             }
             var now = data.query.results.channel.item.condition,
