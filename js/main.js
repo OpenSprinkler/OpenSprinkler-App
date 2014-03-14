@@ -372,7 +372,7 @@ function submit_newuser() {
 
 // Show manage site page
 function show_sites(showBack) {
-    if (showBack !== false) showBack = true;
+    showBack = showBack || true;
     $("#manageBackButton").toggle(showBack);
 
     var list = "<div data-role='collapsible-set'>",
