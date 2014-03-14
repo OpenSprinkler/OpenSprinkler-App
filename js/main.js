@@ -2167,7 +2167,7 @@ function changeFromPanel(func) {
 
 // show error message
 function showerror(msg,dur) {
-    dur = dur || 1500;
+    dur = dur || 2500;
 
     $.mobile.loading('show', {
         text: msg,
