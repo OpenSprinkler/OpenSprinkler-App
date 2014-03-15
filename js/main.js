@@ -146,6 +146,11 @@ $(document).on("pageshow",function(e){
         });
     } else if (newpage == "#sprinklers") {
         $.mobile.silentScroll(0);
+        $(newpage).off("swiperight").on("swiperight", function(e) {
+            if ($(".ui-page-active").jqmData("panel") !== "open") {
+                open_panel();
+            }
+        });
     }
 });
 
