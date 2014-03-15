@@ -358,6 +358,7 @@ function submit_newuser() {
             sites[name] = window.curr_name = {};
             sites[name]["os_ip"] = window.curr_ip = $("#os_ip").val();
             sites[name]["os_pw"] = window.curr_pw = $("#os_pw").val();
+            $("#os_name,#os_ip,#os_pw").val("");
             localStorage.setItem("sites",JSON.stringify(sites));
             localStorage.setItem("current_site",name);
             update_site_list(Object.keys(sites));
@@ -558,7 +559,7 @@ function add_found(ip) {
     $("#site-select").one("popupafterclose", function(){
         open_popup("#addnew");
         addnew.one("popupafterclose", function(){
-            $("#os_ip").val("").parent().show();
+            $("#os_ip").parent().show();
             osIpLabel.show();
             helpText.show();
         });
@@ -2205,7 +2206,7 @@ function showerror(msg,dur) {
         theme: 'b'
     });
     // hide after delay
-    setTimeout( function(){$.mobile.loading('hide');},dur);
+    setTimeout(function(){$.mobile.loading('hide');},dur);
 }
 
 function open_popup(id) {
