@@ -6,6 +6,9 @@ body{
     margin: 0;
     display: none;
 }
+.ui-btn {
+    text-overflow: clip !important;
+}
 .ui-page {
     padding-top: 44px !important;
 }
