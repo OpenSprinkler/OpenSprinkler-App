@@ -1636,7 +1636,8 @@ function changeday(dir) {
 
 // Program management functions
 function get_programs(pid) {
-    var list = $("#programs .ui-content");
+    var programs = $("#programs"),
+    list = programs.find(".ui-content");
 
     list.html($(make_all_programs()).enhanceWithin());
     update_program_header();
@@ -1649,7 +1650,7 @@ function get_programs(pid) {
             $("#program-"+pid).collapsible("expand");
         }
     }
-    $("#programs input[name^='rad_days']").on("change",function(){
+    programs.find("input[name^='rad_days']").on("change",function(){
         var progid = $(this).attr('id').split("-")[1], type = $(this).val().split("-")[0], old;
         type = type.split("_")[1];
         if (type == "n") {
@@ -1661,29 +1662,29 @@ function get_programs(pid) {
         $("#input_days_"+old+"-"+progid).hide();
     });
 
-    $("#programs [id^='submit-']").on("click",function(){
+    programs.find("[id^='submit-']").on("click",function(){
         submit_program($(this).attr("id").split("-")[1]);
         return false;
     });
 
-    $("#programs [id^='s_checkall-']").on("click",function(){
+    programs.find("[id^='s_checkall-']").on("click",function(){
         var id = $(this).attr("id").split("-")[1];
         $("[id^='station_'][id$='-"+id+"']").prop("checked",true).checkboxradio("refresh");
         return false;
     });
 
-    $("#programs [id^='s_uncheckall-']").on("click",function(){
+    programs.find("[id^='s_uncheckall-']").on("click",function(){
         var id = $(this).attr("id").split("-")[1];
         $("[id^='station_'][id$='-"+id+"']").prop("checked",false).checkboxradio("refresh");
         return false;
     });
 
-    $("#programs [id^='delete-']").on("click",function(){
+    programs.find("[id^='delete-']").on("click",function(){
         delete_program($(this).attr("id").split("-")[1]);
         return false;
     });
 
-    $("#programs [id^='run-']").on("click",function(){
+    programs.find("[id^='run-']").on("click",function(){
         var id = $(this).attr("id").split("-")[1];
         var durr = parseInt($("#duration-"+id).val());
         var stations = $("[id^='station_'][id$='-"+id+"']");
@@ -1868,7 +1869,8 @@ function make_program(n,total,program) {
 }
 
 function add_program() {
-    var list = $("#addprogram .ui-content");
+    var addprogram = $("#addprogram"),
+        list = addprogram.find(".ui-content");
 
     list.html($(fresh_program()).enhanceWithin());
 
@@ -1884,31 +1886,28 @@ function add_program() {
         $("#input_days_"+old+"-"+progid).hide();
     });
 
-    $("#addprogram [id^='s_checkall-']").on("click",function(){
+    addprogram.find("[id^='s_checkall-']").on("click",function(){
         $("[id^='station_'][id$='-new']").prop("checked",true).checkboxradio("refresh");
         return false;
     });
 
-    $("#addprogram [id^='s_uncheckall-']").on("click",function(){
+    addprogram.find("[id^='s_uncheckall-']").on("click",function(){
         $("[id^='station_'][id$='-new']").prop("checked",false).checkboxradio("refresh");
         return false;
     });
 
-    $("#addprogram [id^='submit-']").on("click",function(){
+    addprogram.find("[id^='submit-']").on("click",function(){
         submit_program("new");
         return false;
     });
 
-    changePage("#addprogram",{changeHash: false});
+    changePage("#addprogram");
 
-    $("#addprogram .ui-btn-left").one("click",function(e){
-        e.preventDefault();
-        get_programs();
-        return false;
-    });
-
-    $("#addprogram").one("pagehide",function(){
-        $(this).find(".ui-content").empty();
+    $("#addprogram").one({
+        pagebeforehide: get_programs,
+        pagehide: function() {
+            $(this).find(".ui-content").empty();
+        }
     });
 }
 
