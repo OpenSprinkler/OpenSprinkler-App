@@ -1232,7 +1232,9 @@ function update_timers(sdelay) {
                     if (page == "status") get_status();
                 } else {
                     $("#countdown-"+a).parent("p").text(_("Station delay")).parent("li").removeClass("green").addClass("red");
-                    window.timeout_id = setTimeout(get_status,(sdelay*1000));
+                    window.timeout_id = setTimeout(function(){
+                        if (page == "status") get_status();
+                    },(sdelay*1000));
                 }
             } else {
                 if (a == "c") {
