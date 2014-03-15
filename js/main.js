@@ -2186,11 +2186,26 @@ function showerror(msg,dur) {
 function open_popup(id) {
     var popup = $(id);
 
-    popup.one("popupafteropen", function(){
-        $(this).popup("reposition", {
-            "positionTo": "window"
-        });
-        if (id == "#addnew") $("#os_name").focus();
+    popup.one({
+        popupafteropen: function(){
+            $(this).popup("reposition", {
+                "positionTo": "window"
+            });
+            if (id == "#addnew") {
+                $("#os_name").focus();
+            } else if (id == "#raindelay") {
+                $("#sprinklers").off("swiperight");
+            }
+        },
+        popupafterclose: function(){
+            if (id == "#raindelay") {
+                $("#sprinklers").on("swiperight", function(e) {
+                    if ($(".ui-page-active").jqmData("panel") !== "open") {
+                        open_panel();
+                    }
+                });
+            }
+        }
     }).popup({history: false}).enhanceWithin().popup("open");
 }
 
