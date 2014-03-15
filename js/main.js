@@ -574,7 +574,8 @@ function show_providers() {
         wapikey = localStorage.getItem("wapikey");
 
     var popup = $(
-        '<div data-role="popup" id="providers" data-theme="a" data-overlay-theme="b">'+
+        '<div data-role="popup" id="providers" data-theme="a" data-dismissible="false" data-overlay-theme="b">'+
+            '<a data-rel="back" class="ui-btn ui-corner-all ui-shadow ui-btn-a ui-icon-delete ui-btn-icon-notext ui-btn-right">Close</a>'+
             '<div class="ui-content">'+
                 '<form>'+
                     '<label for="weather_provider">'+_("Weather Provider")+
