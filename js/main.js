@@ -769,6 +769,12 @@ function gohome() {
     $("body").pagecontainer("change","#sprinklers",{reverse: true});
 }
 
+function open_panel() {
+    var panel = $("#sprinklers-settings");
+    panel.panel("option","classes.modal","needsclick ui-panel-dismiss");
+    panel.panel('open');
+}
+
 function show_about() {
     changePage("#about");
 }
