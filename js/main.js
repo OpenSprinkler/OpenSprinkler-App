@@ -2,6 +2,10 @@ $(document).ready(function() {
     //Update the language on the page using the browser's locale
     update_lang(get_locale());
 
+    $(window).one("load", function(){
+        FastClick.attach(document.body);
+    });
+
     //If the app is running from PhoneGap than handle unique events
     if (window.cordova) {
         $(document).one("deviceready", function() {
@@ -143,9 +147,6 @@ $(document).on("pageshow",function(e){
     } else if (newpage == "#sprinklers") {
         $.mobile.silentScroll(0);
     }
-
-    // Bind all data-onclick events on current page to their associated function (removes 300ms delay)
-    bind_links(newpage);
 });
 
 $(document).on("pagebeforeshow",function(e,data){
@@ -2129,41 +2130,10 @@ function areYouSure(text1, text2, callback) {
     });
 }
 
-//Converts data-onclick attributes on page to vclick bound functions. This removes the 300ms lag on mobile devices (iOS/Android)
-function bind_links(page) {
-    var currpage = $(page);
-
-    currpage.find("a[href='#"+currpage.attr('id')+"-settings']").off("vclick").on('vclick', function (e) {
-        e.preventDefault(); e.stopImmediatePropagation();
-        highlight(this);
-        $(".ui-page-active [id$=settings]").panel("open");
-    });
-    currpage.find("a[data-onclick]").off("vclick").on('vclick', function (e) {
-        e.preventDefault(); e.stopImmediatePropagation();
-        var func = $(this).data("onclick");
-        highlight(this);
-        eval(func);
-    });
-}
-
-// Highlight the pressed button (handling events ourselves with bind_links)
-function highlight(button) {
-    $(button).addClass("ui-btn-active").delay(150).queue(function(next){
-        $(this).removeClass("ui-btn-active");
-        next();
-    });
-}
-
 function changePage(toPage,opts) {
-    var curr = "#"+$("body").pagecontainer("getActivePage").attr("id");
     opts = opts || {};
 
-    // If the page is being updated then rebind the links
-    if (curr === toPage) {
-        bind_links(curr);
-    } else {
-        $("body").pagecontainer("change",toPage,opts);
-    }
+    $("body").pagecontainer("change",toPage,opts);
 }
 
 // Close the panel before page transition to avoid bug in jQM 1.4+
@@ -2189,8 +2159,6 @@ function showerror(msg,dur) {
 
 function open_popup(id) {
     var popup = $(id);
-
-    bind_links(id);
 
     popup.one("popupafteropen", function(){
         $(this).popup("reposition", {
