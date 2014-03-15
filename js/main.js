@@ -144,6 +144,7 @@ $(document).on("pageshow",function(e){
             $("#timeline").empty();
             $("#preview_date").off("change");
             $(window).off("resize");
+            $("a","#timeline-navigation").off("click");
         });
     } else if (newpage == "#sprinklers") {
         $.mobile.silentScroll(0);
@@ -1402,7 +1403,6 @@ function get_preview() {
     date = date.split("-");
 
     $.mobile.loading("show");
-    $timeline.empty();
     $("#timeline-navigation").hide();
 
     process_programs = function (month,day,year) {
