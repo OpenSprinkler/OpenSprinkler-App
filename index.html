@@ -16,9 +16,9 @@
         <div data-role="page" id="start">
             <ul data-role="none" id="welcome_list" class="ui-listview ui-listview-inset ui-corner-all">
                 <li><div class="logo" id="welcome_logo"></div></li>
-                <li class="ui-li-static ui-body-inherit ui-first-child ui-last-child" style="margin-bottom: 10px"><p class="rain-desc" data-translate="Welcome to the OpenSprinkler mobile application. This app only works with the OpenSprinkler controller which must be installed and setup on your home network."></p><a class="ui-btn ui-mini center" href="#" data-onclick="window.open('http://rayshobby.net/cart/os','_blank','enableViewportScale=yes');" data-translate="Purchase OpenSprinkler"></a></li>
-                <li id="auto-scan" class="ui-first-child"><a class="ui-btn ui-btn-icon-right ui-icon-carat-r" href="#" data-onclick="start_scan();" data-translate="Scan For Device"></a></li>
-                <li class="ui-first-child ui-last-child"><a class="ui-btn ui-btn-icon-right ui-icon-carat-r" href="#" data-onclick="open_popup('#addnew');" data-translate="Add Controller"></a></li>
+                <li class="ui-li-static ui-body-inherit ui-first-child ui-last-child" style="margin-bottom: 10px"><p class="rain-desc" data-translate="Welcome to the OpenSprinkler mobile application. This app only works with the OpenSprinkler controller which must be installed and setup on your home network."></p><a class="ui-btn ui-mini center" onclick="window.open('http://rayshobby.net/cart/os','_blank','enableViewportScale=yes');" data-translate="Purchase OpenSprinkler"></a></li>
+                <li id="auto-scan" class="ui-first-child"><a class="ui-btn ui-btn-icon-right ui-icon-carat-r" onclick="start_scan();" data-translate="Scan For Device"></a></li>
+                <li class="ui-first-child ui-last-child"><a class="ui-btn ui-btn-icon-right ui-icon-carat-r" onclick="open_popup('#addnew');" data-translate="Add Controller"></a></li>
             </ul>
         </div>
 
@@ -35,7 +35,7 @@
         <div data-role="popup" id="addnew" data-theme="a" data-dismissible="false">
             <div data-role="header" data-theme="b">
                 <h1 data-translate="New Device"></h1>
-                <a href="#" data-onclick="$('#addnew').popup('close');" class="ui-link ui-shadow ui-corner-all ui-btn ui-icon-delete ui-btn-icon-notext ui-btn-right"></a>
+                <a onclick="$('#addnew').popup('close');" class="ui-link ui-shadow ui-corner-all ui-btn ui-icon-delete ui-btn-icon-notext ui-btn-right"></a>
             </div>
             <div class="ui-content">
                 <form action="javascript:submit_newuser()" method="post">
@@ -53,8 +53,8 @@
 
         <div data-role="page" id="sprinklers">
             <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false">
-                <a data-icon="bars" data-iconpos="notext" href="#sprinklers-settings"></a>
-                <a data-icon="gear" data-iconpos="notext" href="#settings" data-translate="Settings"></a>
+                <a data-icon="bars" data-iconpos="notext" onclick="$('#sprinklers-settings').panel('open');"></a>
+                <a data-icon="gear" data-iconpos="notext" onclick="changePage('#settings');" data-translate="Settings"></a>
                 <h3 style="padding:0"><div class="logo"></div></h3>
             </div>
             <div class="ui-content" role="main" style="padding-top:0px">
@@ -66,16 +66,16 @@
                 </ul>
                 <ul data-role="listview" data-inset="true" id="info-list">
                     <li data-role="list-divider" data-translate="Information"></li>
-                    <li><a href="#status" data-onclick="get_status();" data-translate="Current Status"></a></li>
-                    <li><a href="#preview" data-translate="Preview Programs"></a></li>
+                    <li><a onclick="get_status();" data-translate="Current Status"></a></li>
+                    <li><a onclick="changePage('#preview');" data-translate="Preview Programs"></a></li>
                 </ul>
                 <ul data-role="listview" data-inset="true" id="program-control-list">
                     <li data-role="list-divider" data-translate="Program Control"></li>
-                    <li><a href="#raindelay" data-onclick="open_popup('#raindelay');" data-translate="Change Rain Delay"></a></li>
-                    <li><a href="#programs" data-onclick="get_programs();" data-translate="Edit Programs"></a></li>
-                    <li><a href="#manual" data-onclick="get_manual();" data-translate="Manual Control"></a></li>
-                    <li><a href="#runonce" data-onclick="get_runonce();" data-translate="Run-Once Program"></a></li>
-                    <li><a href="#" data-onclick="rsn();" data-translate="Stop All Stations"></a></li>
+                    <li><a onclick="open_popup('#raindelay');" data-translate="Change Rain Delay"></a></li>
+                    <li><a onclick="get_programs();" data-translate="Edit Programs"></a></li>
+                    <li><a onclick="get_manual();" data-translate="Manual Control"></a></li>
+                    <li><a onclick="get_runonce();" data-translate="Run-Once Program"></a></li>
+                    <li><a onclick="rsn();" data-translate="Stop All Stations"></a></li>
                 </ul>
             </div>
             <div data-role="popup" id="raindelay" data-overlay-theme="b">
@@ -98,10 +98,10 @@
                     <li>
                         <select data-mini="true" id="site-selector"></select>
                     </li>
-                    <li data-icon="gear"><a href="#site-control" data-onclick="changeFromPanel(show_sites);" data-translate="Manage Sites"></a></li>
-                    <li data-icon="forward"><a href="#" data-onclick="export_config();" data-translate="Export Configuration"></a></li>
-                    <li data-icon="back"><a href="#" data-onclick="import_config();" data-translate="Import Configuration"></a></li>
-                    <li data-icon="info"><a href="#about" data-onclick="changeFromPanel(show_about);" data-translate="About"></a></li>
+                    <li data-icon="gear"><a onclick="changeFromPanel(show_sites);" data-translate="Manage Sites"></a></li>
+                    <li data-icon="forward"><a onclick="export_config();" data-translate="Export Configuration"></a></li>
+                    <li data-icon="back"><a onclick="import_config();" data-translate="Import Configuration"></a></li>
+                    <li data-icon="info"><a onclick="changeFromPanel(show_about);" data-translate="About"></a></li>
                 </ul>
                 <input type="file" id="configInput" data-role="none" onchange="handleConfig(this.files)" style="visibility:hidden;position:absolute;top:-50;left:-50"/>
             </div>
@@ -110,7 +110,7 @@
         <div data-role="page" id="forecast">
             <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false" data-add-back-btn="true">
                 <h3 data-translate="Forecast"></h3>
-                <a href="#" data-onclick="update_weather();" data-icon="refresh" data-translate="Refresh" class="ui-btn-right"></a>
+                <a onclick="update_weather();" data-icon="refresh" data-translate="Refresh" class="ui-btn-right"></a>
             </div>
             <div class="ui-content" role="main">
                 <ul data-role="listview" data-inset="true" id="forecast_list">
@@ -121,7 +121,7 @@
         <div data-role="page" id="status">
             <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false" data-add-back-btn="true">
                 <h3 data-translate="Current Status"></h3>
-                <a href="#" data-onclick="refresh_status();" data-icon="refresh" data-translate="Refresh" class="ui-btn-right"></a>
+                <a onclick="refresh_status();" data-icon="refresh" data-translate="Refresh" class="ui-btn-right"></a>
             </div>
             <div class="ui-content" role="main">
             </div>
@@ -138,7 +138,7 @@
         <div data-role="page" id="runonce">
             <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false" data-add-back-btn="true">
                 <h3 data-translate="Run-Once"></h3>
-                <a href="#" data-onclick="submit_runonce();" data-icon="check" data-translate="Submit" class="ui-btn-right"></a>
+                <a onclick="submit_runonce();" data-icon="check" data-translate="Submit" class="ui-btn-right"></a>
             </div>
             <div class="ui-content" role="main" id="runonce_list">
             </div>
@@ -147,7 +147,7 @@
         <div data-role="page" id="programs">
             <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false" data-add-back-btn="true">
                 <h3 data-translate="Programs"></h3>
-                <a href="#addprogram" data-onclick="add_program();" data-icon="plus" data-translate="Add" class="ui-btn-right"></a>
+                <a onclick="add_program();" data-icon="plus" data-translate="Add" class="ui-btn-right"></a>
             </div>
             <div class="ui-content" role="main" id="programs_list">
             </div>
@@ -155,9 +155,9 @@
 
         <div data-role="page" id="addprogram">
             <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false">
-                <a href="#" data-icon="carat-l">Back</a>
+                <a data-icon="carat-l">Back</a>
                 <h3 data-translate="Add Program"></h3>
-                <a href="#" data-onclick="submit_program('new');" data-icon="check" data-translate="Submit" class="ui-btn-right"></a>
+                <a onclick="submit_program('new');" data-icon="check" data-translate="Submit" class="ui-btn-right"></a>
             </div>
             <div class="ui-content" role="main" id="newprogram">
             </div>
@@ -178,26 +178,26 @@
                         <label for="en"><b data-translate="Operation"></b></label>
                         <input type="checkbox" data-on-text="On" data-off-text="Off" data-role="flipswitch" name="en" id="en">
                     </li>
-                    <li><a href="#os-settings" data-onclick="show_settings();" data-translate="Device Options"></a></li>
-                    <li><a href="#os-stations" data-onclick="show_stations();" data-translate="Edit Stations"></a></li>
-                    <li data-icon="alert"><a href="#" data-onclick="rbt();" data-translate="Reboot OpenSprinkler"></a></li>
+                    <li><a onclick="show_settings();" data-translate="Device Options"></a></li>
+                    <li><a onclick="show_stations();" data-translate="Edit Stations"></a></li>
+                    <li data-icon="alert"><a onclick="rbt();" data-translate="Reboot OpenSprinkler"></a></li>
                 </ul>
                 <ul data-role="listview" data-inset="true">
                     <li data-role="list-divider" data-theme="b" data-translate="Mobile Application Settings"></li>
-                    <li data-icon="alert"><a href="#" data-onclick="clear_config();" data-translate="Clear Configuration"></a></li>
-                    <li><a href="#" data-onclick="open_popup('#localization');" data-translate="Localization"></a></li>
-                    <li data-icon="gear"><a href="#site-control" data-onclick="show_sites();" data-translate="Manage Sites"></a></li>
-                    <li data-icon="cloud"><a href="#" data-onclick="show_providers();" data-translate="Weather Provider"></a></li>
+                    <li data-icon="alert"><a onclick="clear_config();" data-translate="Clear Configuration"></a></li>
+                    <li><a onclick="open_popup('#localization');" data-translate="Localization"></a></li>
+                    <li data-icon="gear"><a onclick="show_sites();" data-translate="Manage Sites"></a></li>
+                    <li data-icon="cloud"><a onclick="show_providers();" data-translate="Weather Provider"></a></li>
                 </ul>
             </div>
             <div data-role="popup" data-overlay-theme="b" id="localization">
                     <ul data-inset='true' data-role='listview' id='lang'>
                         <li data-role='list-divider' data-theme='b' data-translate="Localization"></li>
-                        <li><a href='#' data-onclick="update_lang('zh');">Chinese</a></li>
-                        <li><a href='#' data-onclick="update_lang('en');">English</a></li>
-                        <li><a href='#' data-onclick="update_lang('hu');">Hungarian</a></li>
-                        <li><a href='#' data-onclick="update_lang('it');">Italian</a></li>
-                        <li><a href='#' data-onclick="update_lang('es');">Spanish</a></li>
+                        <li><a onclick="update_lang('zh');">Chinese</a></li>
+                        <li><a onclick="update_lang('en');">English</a></li>
+                        <li><a onclick="update_lang('hu');">Hungarian</a></li>
+                        <li><a onclick="update_lang('it');">Italian</a></li>
+                        <li><a onclick="update_lang('es');">Spanish</a></li>
                     </ul>
             </div>
         </div>
@@ -205,7 +205,7 @@
         <div data-role="page" id="os-settings">
             <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false" data-add-back-btn="true">
                 <h3 data-translate="OS Settings"></h3>
-                <a href="#" data-onclick="submit_settings();" data-icon="check" data-translate="Submit" class="ui-btn-right"></a>
+                <a onclick="submit_settings();" data-icon="check" data-translate="Submit" class="ui-btn-right"></a>
             </div>
             <div class="ui-content" role="main">
             </div>
@@ -214,7 +214,7 @@
         <div data-role="page" id="os-stations">
             <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false" data-add-back-btn="true">
                 <h3 data-translate="Edit Stations"></h3>
-                <a href="#" data-onclick="submit_stations();" data-icon="check" data-translate="Submit" class="ui-btn-right"></a>
+                <a onclick="submit_stations();" data-icon="check" data-translate="Submit" class="ui-btn-right"></a>
             </div>
             <div class="ui-content" role="main">
             </div>
@@ -232,10 +232,10 @@
                 </div>
                 <div id="timeline"></div>
                 <div data-role="controlgroup" data-type="horizontal" id="timeline-navigation">
-                    <a href="#" onclick="timeline.zoom(0.4)" class="ui-btn ui-corner-all ui-icon-plus ui-btn-icon-notext btn-no-border" title="Zoom in"></a>
-                    <a href="#" onclick="timeline.zoom(-0.4)" class="ui-btn ui-corner-all ui-icon-minus ui-btn-icon-notext btn-no-border" title="Zoom out"></a>
-                    <a href="#" onclick="timeline.move(-0.2)" class="ui-btn ui-corner-all ui-icon-carat-l ui-btn-icon-notext btn-no-border" title="Move left"></a>
-                    <a href="#" onclick="timeline.move(0.2)" class="ui-btn ui-corner-all ui-icon-carat-r ui-btn-icon-notext btn-no-border" title="Move right"></a>
+                    <a onclick="timeline.zoom(0.4)" class="ui-btn ui-corner-all ui-icon-plus ui-btn-icon-notext btn-no-border" title="Zoom in"></a>
+                    <a onclick="timeline.zoom(-0.4)" class="ui-btn ui-corner-all ui-icon-minus ui-btn-icon-notext btn-no-border" title="Zoom out"></a>
+                    <a onclick="timeline.move(-0.2)" class="ui-btn ui-corner-all ui-icon-carat-l ui-btn-icon-notext btn-no-border" title="Move left"></a>
+                    <a onclick="timeline.move(0.2)" class="ui-btn ui-corner-all ui-icon-carat-r ui-btn-icon-notext btn-no-border" title="Move right"></a>
                 </div>
             </div>
         </div>
@@ -243,7 +243,7 @@
         <div data-role="page" id="site-control">
             <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false" data-add-back-btn="true">
                 <h3 data-translate="Manage Sites"></h3>
-                <a href="#" data-onclick="open_popup('#addnew');" data-icon="plus" data-translate="Add" class="ui-btn-right"></a>
+                <a onclick="open_popup('#addnew');" data-icon="plus" data-translate="Add" class="ui-btn-right"></a>
             </div>
             <div class="ui-content" id="site-control-list">
             </div>
@@ -258,13 +258,13 @@
                     <li>
                         <p>
                             This app has been developed by Samer Albahra. If you enjoy it please donate by clicking the button below.<br><br>
-                            <a href="#" data-onclick="window.open('https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&amp;hosted_button_id=89M484QR2TCFJ','_blank','enableViewportScale=yes')"><img width="147" height="47" src="img/btn_donateCC_LG.gif" alt="PayPal - The safer, easier way to pay online!"></a>
+                            <a onclick="window.open('https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&amp;hosted_button_id=89M484QR2TCFJ','_blank','enableViewportScale=yes')"><img width="147" height="47" src="img/btn_donateCC_LG.gif" alt="PayPal - The safer, easier way to pay online!"></a>
                         </p>
                     </li>
                 </ul>
                 <ul data-role="listview" data-inset="true">
                     <li>
-                        <p>This is open source software: source code and changelog for this application can be found at <a href="#" data-onclick="window.open('https://github.com/salbahra/OpenSprinkler-Hosted-Controller/','_blank','enableViewportScale=yes');">https://github.com/salbahra/OpenSprinkler-Hosted-Controller/</a></p>
+                        <p>This is open source software: source code and changelog for this application can be found at <a onclick="window.open('https://github.com/salbahra/OpenSprinkler-Hosted-Controller/','_blank','enableViewportScale=yes');">https://github.com/salbahra/OpenSprinkler-Hosted-Controller/</a></p>
                         <p>Version: 1.0.2</p>
                     </li>
                 </ul>
@@ -275,6 +275,6 @@
         <script src="cordova.js"></script>
         <script src="js/main.js"></script>
         <script src="js/jquery.mobile.min.js"></script>
-        <script async src="js/timeline.js"></script>
+        <script async src="js/async.js"></script>
     </body>
 </html>
