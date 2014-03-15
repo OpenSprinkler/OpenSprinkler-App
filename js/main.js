@@ -143,6 +143,7 @@ $(document).on("pageshow",function(e){
         $(newpage).one("pagehide",function(){
             $("#timeline").empty();
             $("#preview_date").off("change");
+            $(window).off("resize");
         });
     } else if (newpage == "#sprinklers") {
         $.mobile.silentScroll(0);
@@ -1394,12 +1395,14 @@ function submit_runonce(runonce) {
 // Preview functions
 function get_preview() {
     var date = $("#preview_date").val(),
+        $timeline = $("#timeline"),
         preview_data, process_programs, check_match, run_sched, time_to_text;
 
     if (date === "") return;
     date = date.split("-");
 
     $.mobile.loading("show");
+    $timeline.empty();
     $("#timeline-navigation").hide();
 
     process_programs = function (month,day,year) {
@@ -1541,7 +1544,7 @@ function get_preview() {
 
     var empty = true;
     if (!preview_data.length) {
-        $("#timeline").html("<p align='center'>"+_("No stations set to run on this day.")+"</p>");
+        $timeline.html("<p align='center'>"+_("No stations set to run on this day.")+"</p>");
     } else {
         empty = false;
         var shortnames = [];
@@ -1589,7 +1592,7 @@ function get_preview() {
             var currRange = timeline.getVisibleChartRange();
             if ((currRange.end.getTime() - currRange.start.getTime()) > 6000000) timeline.setVisibleChartRange(currRange.start,new Date(currRange.start.getTime()+6000000));
         }
-        $("#timeline .timeline-groups-text").each(function(a,b){
+        $timeline.find(".timeline-groups-text").each(function(a,b){
             var stn = $(b);
             var name = shortnames[stn.text()];
             stn.attr("data-shortname",name);
