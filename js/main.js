@@ -547,13 +547,20 @@ function start_scan() {
 
 // Show popup for new device after populating device IP with selected result
 function add_found(ip) {
+    var addnew = $("#addnew"),
+        osIpLabel = addnew.find("label[for='os_ip']"),
+        helpText = addnew.find("p");
+
     $("#os_ip").val(ip).parent().hide();
-    $("#addnew label[for='os_ip']").hide();
+    osIpLabel.hide();
+    helpText.hide();
+
     $("#site-select").one("popupafterclose", function(){
         open_popup("#addnew");
-        $("#addnew").one("popupafterclose", function(){
+        addnew.one("popupafterclose", function(){
             $("#os_ip").val("").parent().show();
-            $("#addnew label[for='os_ip']").show();
+            osIpLabel.show();
+            helpText.show();
         });
     }).popup("close");
 }
