@@ -407,9 +407,10 @@ function delete_site(site) {
     show_sites();
     if ($.isEmptyObject(sites)) {
         changePage("#start");
-        return;
+        return false;
     }
     if (site === localStorage.getItem("current_site")) site_select(Object.keys(sites));
+    return false;
 }
 
 // Modify site IP and/or password
@@ -467,6 +468,7 @@ function update_site(newsite) {
         check_configured();
     }
     newload();
+    return false;
 }
 
 // Get the list of sites from the local storage
@@ -637,7 +639,7 @@ function hide_weather() {
 }
 
 function update_weather() {
-    $("#weather").off("vclick").html("<p class='ui-icon ui-icon-loading mini-load'></p>");
+    $("#weather").off("click").html("<p class='ui-icon ui-icon-loading mini-load'></p>");
 
     var provider = localStorage.getItem("provider"),
         wapikey = localStorage.getItem("wapikey");
@@ -669,7 +671,7 @@ function update_yahoo_weather() {
 
             $("#weather")
                 .html("<div title='"+now.text+"' class='wicon cond"+now.code+"'></div><span>"+convert_temp(now.temp,region)+"</span><br><span class='location'>"+loc[1]+"</span>")
-                .on("vclick",show_forecast);
+                .on("click",show_forecast);
 
             $("#weather-list").animate({
                 "margin-left": "0"
@@ -729,7 +731,7 @@ function update_wunderground_weather(wapikey) {
 
             $("#weather")
                 .html("<div title='"+ww_forecast.condition.text+"' class='wicon cond"+code+"'></div><span>"+temp+"</span><br><span class='location'>"+ww_forecast.location+"</span>")
-                .on("vclick",show_forecast);
+                .on("click",show_forecast);
 
             $("#weather-list").animate({
                 "margin-left": "0"
@@ -768,6 +770,7 @@ function update_wunderground_forecast(data) {
 
 function show_forecast() {
     changePage("#forecast");
+    return false;
 }
 
 function gohome() {
@@ -1265,7 +1268,7 @@ function get_manual() {
 function toggle(anchor) {
     if (!window.controller.settings.mm) {
         showerror(_("Manual mode is not enabled. Please enable manual mode then try again."));
-        return;
+        return false;
     }
 
     anchor = $(anchor);
@@ -1290,13 +1293,14 @@ function toggle(anchor) {
         });
         anchor.addClass("green");
     }
+    return false;
 }
 
 // Runonce functions
 function get_runonce() {
     var list = "<p class='center'>"+_("Value is in minutes. Zero means the station will be excluded from the run-once program.")+"</p>",
         runonce = $("#runonce_list"),
-        i=n=0,
+        i=0, n=0,
         quickPick, data, progs, rprogs;
 
     progs = [];
@@ -1358,6 +1362,7 @@ function get_runonce() {
 
 function reset_runonce() {
     $("#runonce").find(":input[data-type='range']").val(0).slider("refresh");
+    return false;
 }
 
 function fill_runonce(list,data){
@@ -1383,6 +1388,7 @@ function submit_runonce(runonce) {
         showerror(_("Run-once program has been scheduled"));
     });
     gohome();
+    return false;
 }
 
 // Preview functions
@@ -1592,15 +1598,19 @@ function get_preview() {
             var navi = $("#timeline-navigation");
             navi.find(".ui-icon-plus").off("click").on("click",function(){
                 timeline.zoom(0.4);
+                return false;
             });
             navi.find(".ui-icon-minus").off("click").on("click",function(){
                 timeline.zoom(-0.4);
+                return false;
             });
             navi.find(".ui-icon-carat-l").off("click").on("click",function(){
                 timeline.move(-0.2);
+                return false;
             });
             navi.find(".ui-icon-carat-r").off("click").on("click",function(){
                 timeline.move(0.2);
+                return false;
             });
             navi.show();
         }
@@ -1650,20 +1660,24 @@ function get_programs(pid) {
 
     $("#programs [id^='submit-']").on("click",function(){
         submit_program($(this).attr("id").split("-")[1]);
+        return false;
     });
 
     $("#programs [id^='s_checkall-']").on("click",function(){
         var id = $(this).attr("id").split("-")[1];
         $("[id^='station_'][id$='-"+id+"']").prop("checked",true).checkboxradio("refresh");
+        return false;
     });
 
     $("#programs [id^='s_uncheckall-']").on("click",function(){
         var id = $(this).attr("id").split("-")[1];
         $("[id^='station_'][id$='-"+id+"']").prop("checked",false).checkboxradio("refresh");
+        return false;
     });
 
     $("#programs [id^='delete-']").on("click",function(){
         delete_program($(this).attr("id").split("-")[1]);
+        return false;
     });
 
     $("#programs [id^='run-']").on("click",function(){
@@ -1676,6 +1690,7 @@ function get_programs(pid) {
         });
         runonce.push(0);
         submit_runonce(runonce);
+        return false;
     });
 
     changePage("#programs");
@@ -1763,12 +1778,10 @@ function make_all_programs() {
     if (window.controller.programs.nprogs === 0) {
         return "<p class='center'>"+_("You have no programs currently added. Tap the Add button on the top right corner to get started.")+"</p>";
     }
-    var n = 0;
     var list = "<p class='center'>"+_("Click any program below to expand/edit. Be sure to save changes by hitting submit below.")+"</p><div data-role='collapsible-set'>";
-    $.each(window.controller.programs.pd,function (i,program) {
-        list += make_program(n,window.controller.programs.nprogs,program);
-        n++;
-    });
+    for (var i = 0; i < window.controller.programs.pd.length; i++) {
+        list += make_program(i,window.controller.programs.nprogs,window.controller.programs.pd[i]);
+    }
     return list+"</div>";
 }
 
@@ -1778,7 +1791,7 @@ function fresh_program() {
 }
 
 function make_program(n,total,program) {
-    var i, j;
+    var i, j, set_stations;
 
     if (typeof program !== "undefined") {
         program = read_program(program);
@@ -1795,7 +1808,7 @@ function make_program(n,total,program) {
         days = [0,0,0,0,0,0,0];
     }
     if (typeof program.stations !== "undefined") {
-        var set_stations = program.stations.split("");
+        set_stations = program.stations.split("");
         for(i=set_stations.length;i--;) set_stations[i] = set_stations[i]|0;
     }
     var list = "<fieldset "+((!n && total == 1) ? "data-collapsed='false'" : "")+" id='program-"+n+"' "+((n === "new") ? "" : "data-role='collapsible'")+">";
@@ -1813,11 +1826,9 @@ function make_program(n,total,program) {
     list += "</fieldset>";
 
     list += "<fieldset data-type='horizontal' data-role='controlgroup' class='center'><p style='margin:0'>"+_("Days of the Week")+"</p>";
-    j = 0;
-    $.each(week,function (i,day) {
-        list += "<input data-mini='true' type='checkbox' "+((!program.is_interval && days[j]) ? "checked='checked'" : "")+" name='d"+j+"-"+n+"' id='d"+j+"-"+n+"'><label for='d"+j+"-"+n+"'>"+day+"</label>";
-        j++;
-    });
+    for (j=0; j<week.length; j++) {
+        list += "<input data-mini='true' type='checkbox' "+((!program.is_interval && days[j]) ? "checked='checked'" : "")+" name='d"+j+"-"+n+"' id='d"+j+"-"+n+"'><label for='d"+j+"-"+n+"'>"+week[j]+"</label>";
+    }
     list += "</fieldset></div>";
 
     list += "<div "+((program.is_interval) ? "" : "style='display:none'")+" id='input_days_n-"+n+"' class='ui-grid-a'>";
@@ -1826,11 +1837,9 @@ function make_program(n,total,program) {
     list += "</div>";
 
     list += "<fieldset data-role='controlgroup'><legend>"+_("Stations:")+"</legend>";
-    j = 0;
-    $.each(window.controller.stations.snames,function (i,station) {
-        list += "<input data-mini='true' type='checkbox' "+(((typeof set_stations !== "undefined") && set_stations[j]) ? "checked='checked'" : "")+" name='station_"+j+"-"+n+"' id='station_"+j+"-"+n+"'><label for='station_"+j+"-"+n+"'>"+station+"</label>";
-        j++;
-    });
+    for (j=0; j<window.controller.stations.snames.length; j++) {
+        list += "<input data-mini='true' type='checkbox' "+(((typeof set_stations !== "undefined") && set_stations[j]) ? "checked='checked'" : "")+" name='station_"+j+"-"+n+"' id='station_"+j+"-"+n+"'><label for='station_"+j+"-"+n+"'>"+window.controller.stations.snames[j]+"</label>";
+    }
     list += "</fieldset>";
 
     list += "<fieldset data-role='controlgroup' data-type='horizontal' class='center'>";
@@ -1874,21 +1883,25 @@ function add_program() {
 
     $("#addprogram [id^='s_checkall-']").on("click",function(){
         $("[id^='station_'][id$='-new']").prop("checked",true).checkboxradio("refresh");
+        return false;
     });
 
     $("#addprogram [id^='s_uncheckall-']").on("click",function(){
         $("[id^='station_'][id$='-new']").prop("checked",false).checkboxradio("refresh");
+        return false;
     });
 
     $("#addprogram [id^='submit-']").on("click",function(){
         submit_program("new");
+        return false;
     });
 
     changePage("#addprogram",{changeHash: false});
 
-    $("#addprogram .ui-btn-left").one("vclick",function(e){
+    $("#addprogram .ui-btn-left").one("click",function(e){
         e.preventDefault();
         get_programs();
+        return false;
     });
 
     $("#addprogram").one("pagehide",function(){
@@ -2150,9 +2163,11 @@ function areYouSure(text1, text2, callback) {
     $("#sure .sure-do").one("click.sure", function() {
         $("#sure").popup("close");
         callback();
+        return false;
     });
     $("#sure .sure-dont").one("click.sure", function() {
         $("#sure").popup("close");
+        return false;
     });
 }
 
