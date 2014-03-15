@@ -152,6 +152,10 @@ a {
 :not(input) {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -o-user-select: none;
+    user-select: none;
 }
 #raindelay, #sure, #addnew, #site-select {
     width: 300px;
