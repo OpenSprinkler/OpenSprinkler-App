@@ -1598,8 +1598,6 @@ function changeday(dir) {
 function get_programs(pid) {
     var list = $("#programs .ui-content");
 
-    $.mobile.loading("show");
-
     list.html($(make_all_programs()).enhanceWithin());
     update_program_header();
 
@@ -1652,8 +1650,6 @@ function get_programs(pid) {
         runonce.push(0);
         submit_runonce(runonce);
     });
-
-    $.mobile.loading("hide");
 
     changePage("#programs");
 
