@@ -1577,20 +1577,22 @@ function get_preview() {
             var name = shortnames[stn.text()];
             stn.attr("data-shortname",name);
         });
-        var navi = $("#timeline-navigation");
-        navi.find(".ui-icon-plus").off("click").on("click",function(){
-            timeline.zoom(0.4);
-        });
-        navi.find(".ui-icon-minus").off("click").on("click",function(){
-            timeline.zoom(-0.4);
-        });
-        navi.find(".ui-icon-carat-l").off("click").on("click",function(){
-            timeline.move(-0.2);
-        });
-        navi.find(".ui-icon-carat-r").off("click").on("click",function(){
-            timeline.move(0.2);
-        });
-        navi.show();
+        if (navigator.userAgent.indexOf('Android') > 0) {
+            var navi = $("#timeline-navigation");
+            navi.find(".ui-icon-plus").off("click").on("click",function(){
+                timeline.zoom(0.4);
+            });
+            navi.find(".ui-icon-minus").off("click").on("click",function(){
+                timeline.zoom(-0.4);
+            });
+            navi.find(".ui-icon-carat-l").off("click").on("click",function(){
+                timeline.move(-0.2);
+            });
+            navi.find(".ui-icon-carat-r").off("click").on("click",function(){
+                timeline.move(0.2);
+            });
+            navi.show();
+        }
     }
     $.mobile.loading("hide");
 }
