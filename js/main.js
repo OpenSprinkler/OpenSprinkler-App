@@ -2175,6 +2175,7 @@ function areYouSure(text1, text2, callback) {
 
 function changePage(toPage,opts) {
     opts = opts || {};
+    if (toPage.indexOf("#") !== 0) toPage = "#"+toPage;
 
     $("body").pagecontainer("change",toPage,opts);
 }
@@ -2201,6 +2202,8 @@ function showerror(msg,dur) {
 }
 
 function open_popup(id) {
+    if (id.indexOf("#") !== 0) id = "#"+id;
+
     var popup = $(id);
 
     popup.one("popupafteropen", function(){

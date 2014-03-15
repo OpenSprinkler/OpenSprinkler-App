@@ -18,7 +18,7 @@
                 <li><div class="logo" id="welcome_logo"></div></li>
                 <li class="ui-li-static ui-body-inherit ui-first-child ui-last-child" style="margin-bottom: 10px"><p class="rain-desc" data-translate="Welcome to the OpenSprinkler mobile application. This app only works with the OpenSprinkler controller which must be installed and setup on your home network."></p><a class="ui-btn ui-mini center" href="javascript:window.open('http://rayshobby.net/cart/os','_blank','enableViewportScale=yes');" data-translate="Purchase OpenSprinkler"></a></li>
                 <li id="auto-scan" class="ui-first-child"><a class="ui-btn ui-btn-icon-right ui-icon-carat-r" href="javascript:start_scan();" data-translate="Scan For Device"></a></li>
-                <li class="ui-first-child ui-last-child"><a class="ui-btn ui-btn-icon-right ui-icon-carat-r" href="javascript:open_popup('#addnew');" data-translate="Add Controller"></a></li>
+                <li class="ui-first-child ui-last-child"><a class="ui-btn ui-btn-icon-right ui-icon-carat-r" href="javascript:open_popup('addnew');" data-translate="Add Controller"></a></li>
             </ul>
         </div>
 
@@ -35,7 +35,7 @@
         <div data-role="popup" id="addnew" data-theme="a" data-dismissible="false">
             <div data-role="header" data-theme="b">
                 <h1 data-translate="New Device"></h1>
-                <a href="javascript:$('#addnew').popup('close');" class="ui-link ui-shadow ui-corner-all ui-btn ui-icon-delete ui-btn-icon-notext ui-btn-right"></a>
+                <a data-rel="back" class="ui-link ui-shadow ui-corner-all ui-btn ui-icon-delete ui-btn-icon-notext ui-btn-right"></a>
             </div>
             <div class="ui-content">
                 <form action="javascript:submit_newuser()" method="post">
@@ -54,7 +54,7 @@
         <div data-role="page" id="sprinklers">
             <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false">
                 <a data-icon="bars" data-iconpos="notext" href="javascript:open_panel();"></a>
-                <a data-icon="gear" data-iconpos="notext" href="javascript:changePage('#settings');" data-translate="Settings"></a>
+                <a data-icon="gear" data-iconpos="notext" href="javascript:changePage('settings');"></a>
                 <h3 style="padding:0"><div class="logo"></div></h3>
             </div>
             <div class="ui-content" role="main" style="padding-top:0px">
@@ -67,11 +67,11 @@
                 <ul data-role="listview" data-inset="true" id="info-list">
                     <li data-role="list-divider" data-translate="Information"></li>
                     <li><a href="javascript:get_status();" data-translate="Current Status"></a></li>
-                    <li><a href="javascript:changePage('#preview');" data-translate="Preview Programs"></a></li>
+                    <li><a href="javascript:changePage('preview');" data-translate="Preview Programs"></a></li>
                 </ul>
                 <ul data-role="listview" data-inset="true" id="program-control-list">
                     <li data-role="list-divider" data-translate="Program Control"></li>
-                    <li><a href="javascript:open_popup('#raindelay');" data-translate="Change Rain Delay"></a></li>
+                    <li><a href="javascript:open_popup('raindelay');" data-translate="Change Rain Delay"></a></li>
                     <li><a href="javascript:get_programs();" data-translate="Edit Programs"></a></li>
                     <li><a href="javascript:get_manual();" data-translate="Manual Control"></a></li>
                     <li><a href="javascript:get_runonce();" data-translate="Run-Once Program"></a></li>
@@ -184,7 +184,7 @@
                 <ul data-role="listview" data-inset="true">
                     <li data-role="list-divider" data-theme="b" data-translate="Mobile Application Settings"></li>
                     <li data-icon="alert"><a href="javascript:clear_config();" data-translate="Clear Configuration"></a></li>
-                    <li><a href="javascript:open_popup('#localization');" data-translate="Localization"></a></li>
+                    <li><a href="javascript:open_popup('localization');" data-translate="Localization"></a></li>
                     <li data-icon="gear"><a href="javascript:show_sites();" data-translate="Manage Sites"></a></li>
                     <li data-icon="cloud"><a href="javascript:show_providers();" data-translate="Weather Provider"></a></li>
                 </ul>
@@ -242,7 +242,7 @@
         <div data-role="page" id="site-control">
             <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false" data-add-back-btn="true">
                 <h3 data-translate="Manage Sites"></h3>
-                <a href="javascript:open_popup('#addnew');" data-icon="plus" data-translate="Add" class="ui-btn-right"></a>
+                <a href="javascript:open_popup('addnew');" data-icon="plus" data-translate="Add" class="ui-btn-right"></a>
             </div>
             <div class="ui-content" id="site-control-list">
             </div>
