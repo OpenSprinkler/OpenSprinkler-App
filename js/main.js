@@ -400,11 +400,11 @@ function show_sites(showBack) {
         var c = a.replace(/ /g,"_");
         list += "<fieldset "+((total == 1) ? "data-collapsed='false'" : "")+" id='site-"+c+"' data-role='collapsible'>";
         list += "<legend>"+a+"</legend>";
-        list += "<a data-role='button' onclick='update_site(\""+a+"\")'>"+_("Connect Now")+"</a>";
+        list += "<a data-role='button' href='javascript:update_site(\""+a+"\")'>"+_("Connect Now")+"</a>";
         list += "<form action='javascript:change_site(\""+c+"\");'><label for='cip-"+c+"'>Change IP</label><input id='cip-"+c+"' type='text' value='"+b.os_ip+"' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' />";
         list += "<label for='cpw-"+c+"'>Change Password</label><input id='cpw-"+c+"' type='password' />";
         list += "<input type='submit' value='"+_("Save Changes to")+" "+a+"' /></form>";
-        list += "<a data-role='button' onclick='delete_site(\""+a+"\")' data-theme='b'>"+_("Delete")+" "+a+"</a>";
+        list += "<a data-role='button' href='javascript:delete_site(\""+a+"\")' data-theme='b'>"+_("Delete")+" "+a+"</a>";
         list += "</fieldset>";
     });
 
@@ -1295,7 +1295,7 @@ function get_manual() {
     var list = "<li data-role='list-divider' data-theme='a'>"+_("Sprinkler Stations")+"</li>";
 
     $.each(window.controller.stations.snames,function (i,station) {
-        list += '<li data-icon="false"><a class="center'+((window.controller.status[i]) ? ' green' : '')+'" href="#" onclick="toggle(this);">'+station+'</a></li>';
+        list += '<li data-icon="false"><a class="center'+((window.controller.status[i]) ? ' green' : '')+'" href="javascript:toggle(this);">'+station+'</a></li>';
     });
 
     $("#manual .ui-content").append(
@@ -1392,7 +1392,7 @@ function get_runonce() {
         n++;
     });
 
-    list += "</form><a class='ui-btn ui-corner-all ui-shadow' onclick='submit_runonce();'>"+_("Submit")+"</a><a class='ui-btn ui-btn-b ui-corner-all ui-shadow' onclick='reset_runonce();'>"+_("Reset")+"</a>";
+    list += "</form><a class='ui-btn ui-corner-all ui-shadow' href='javascript:submit_runonce();'>"+_("Submit")+"</a><a class='ui-btn ui-btn-b ui-corner-all ui-shadow' href='javascript:reset_runonce();'>"+_("Reset")+"</a>";
 
     runonce.html(list);
     $("#rprog").on("change",function(){
