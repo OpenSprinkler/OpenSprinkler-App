@@ -380,8 +380,7 @@ function submit_newuser() {
 
 // Show manage site page
 function show_sites(showBack) {
-    showBack = showBack || true;
-    $(".ui-toolbar-back-btn").toggle(showBack);
+    showBack = (showBack !== false) ? true : showBack;
 
     var list = "<div data-role='collapsible-set'>",
         sites = getsites(),
@@ -403,8 +402,13 @@ function show_sites(showBack) {
 
     changePage("#site-control");
 
-    $("#site-control").one("pagehide",function(){
-        $(this).find(".ui-content").empty();
+    $("#site-control").one({
+        pagehide: function(){
+            $(this).find(".ui-content").empty();
+        },
+        pageshow: function(){
+            $(".ui-toolbar-back-btn").toggle(showBack);
+        }
     });
 }
 
