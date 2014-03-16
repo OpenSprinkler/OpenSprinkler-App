@@ -156,7 +156,7 @@ $(document).on("pageshow",function(e){
     }
 });
 
-$(document).on("pagebeforeshow",function(e,data){
+$(document).on("pagebeforeshow",function(e){
     var newpage = e.target.id,
         fromStart = ($(".ui-page-active").attr("id") == "start") ? 1 : 0;
 
@@ -1129,6 +1129,8 @@ function change_status(seconds,sdelay,color,line) {
 
 // Update status bar based on device status
 function check_status() {
+    var open, ptotal, sample, pid, pname, line, match, tmp, i;
+
     if (!window.controller.settings.en) {
         change_status(0,window.controller.options.sdt,"red","<p id='running-text' class='center'>"+_("System Disabled")+"</p>");
         return;
@@ -1145,7 +1147,7 @@ function check_status() {
     }
 
     // Handle open stations
-    var open = {};
+    open = {};
     $.each(window.controller.status, function (i, stn) {
         if (stn) open[i] = stn;
     });
@@ -1154,16 +1156,16 @@ function check_status() {
 
     // Handle more than 1 open station
     if (Object.keys(open).length >= 2) {
-        var ptotal = 0;
-        $.each(open,function (key){
-            var tmp = window.controller.settings.ps[key][1];
+        ptotal = 0;
+        for (i=0; i<=open.length; i++) {
+            tmp = window.controller.settings.ps[open[i]][1];
             if (tmp > ptotal) ptotal = tmp;
-        });
+        }
 
-        var sample = Object.keys(open)[0],
-            pid    = window.controller.settings.ps[sample][0],
-            pname  = pidname(pid),
-            line   = "<div id='running-icon'></div><p id='running-text'>";
+        sample = Object.keys(open)[0];
+        pid    = window.controller.settings.ps[sample][0];
+        pname  = pidname(pid);
+        line   = "<div id='running-icon'></div><p id='running-text'>";
 
         line += pname+" "+_("is running on")+" "+Object.keys(open).length+" "+_("stations")+" ";
         if (pid!=255&&pid!=99) line += "<span id='countdown' class='nobr'>("+sec2hms(ptotal)+" "+_("remaining")+")</span>";
@@ -1173,22 +1175,20 @@ function check_status() {
     }
 
     // Handle a single station open
-    var match = false,
-        i = 0;
-    $.each(window.controller.stations.snames,function (station,name){
+    match = false;
+    for (i=0; i<window.controller.stations.snames.length; i++) {
         if (window.controller.settings.ps[i][0] && window.controller.status[i] && window.controller.options.mas != i+1) {
             match = true;
-            var pid = window.controller.settings.ps[i][0],
-                pname = pidname(pid),
-                line = "<div id='running-icon'></div><p id='running-text'>";
-            line += pname+" "+_("is running on station")+" <span class='nobr'>"+name+"</span> ";
+            pid = window.controller.settings.ps[i][0];
+            pname = pidname(pid);
+            line = "<div id='running-icon'></div><p id='running-text'>";
+            line += pname+" "+_("is running on station")+" <span class='nobr'>"+window.controller.stations.snames[i]+"</span> ";
             if (pid!=255&&pid!=99) line += "<span id='countdown' class='nobr'>("+sec2hms(window.controller.settings.ps[i][1])+" "+_("remaining")+")</span>";
             line += "</p>";
             change_status(window.controller.settings.ps[i][1],window.controller.options.sdt,"green",line);
             return false;
         }
-        i++;
-    });
+    }
 
     if (match) return;
 
