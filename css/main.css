@@ -154,6 +154,8 @@ a {
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
+    -ms-touch-select: none;
+    -ms-content-zooming: none;
     -o-user-select: none;
     user-select: none;
 }
