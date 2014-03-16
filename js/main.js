@@ -115,6 +115,7 @@ $(document).ajaxError(function(x,t,m) {
 //After jQuery mobile is loaded set intial configuration
 $(document).one("mobileinit", function(){
     $.mobile.defaultPageTransition = 'fade';
+    $.mobile.hoverDelay = 0;
     $("#addnew, #site-select").enhanceWithin().popup({history: false});
     $("body").show();
 });
@@ -133,14 +134,26 @@ $(document).one("pagebeforechange", function(event) {
 });
 
 $(document).on("pageshow",function(e){
-    var newpage = "#"+e.target.id;
+    var newpage = "#"+e.target.id,
+        $newpage = $(newpage);
+
+    // Handle Fast Click quirks
+    $newpage.find("input[type='checkbox']:not([data-role='flipswitch'])").addClass("needsclick");
+
+    $newpage.find(".ui-collapsible-heading-toggle").on("click",function(e){
+        var anchor = $(this);
+
+        setTimeout(function(){
+            anchor.removeClass("ui-btn-active");
+        },100);
+    })
 
     // Render graph after the page is shown otherwise graphing function will fail
     if (newpage == "#preview") {
         $("#preview_date").on("change",get_preview);
         get_preview();
         //Update the preview page on date change
-        $(newpage).one("pagehide",function(){
+        $newpage.one("pagehide",function(){
             $("#timeline").empty();
             $("#preview_date").off("change");
             $(window).off("resize");
@@ -148,7 +161,7 @@ $(document).on("pageshow",function(e){
         });
     } else if (newpage == "#sprinklers") {
         $.mobile.silentScroll(0);
-        $(newpage).off("swiperight").on("swiperight", function(e) {
+        $newpage.off("swiperight").on("swiperight", function(e) {
             if ($(".ui-page-active").jqmData("panel") !== "open" && !$(".ui-page-active .ui-popup-active").length) {
                 open_panel();
             }
@@ -826,7 +839,7 @@ function show_settings() {
                 list.tz += "</select>";
                 return true;
             case "ntp":
-                list.ntp = "<input data-mini='true' id='o2' class='needsclick' type='checkbox' "+((data == "1") ? "checked='checked'" : "")+" /><label for='o2'>"+_("NTP Sync")+"</label>";
+                list.ntp = "<label for='o2'><input data-mini='true' id='o2' type='checkbox' "+((data == "1") ? "checked='checked'" : "")+" />"+_("NTP Sync")+"</label>";
                 return true;
             case "hp0":
                 var http = window.controller.options.hp1*256+data;
@@ -836,13 +849,13 @@ function show_settings() {
                 list.devid = "<label for='o26'>"+_("Device ID (restart required)")+"</label><input data-mini='true' type='number' pattern='[0-9]*' max='255' id='o26' value='"+data+"' />";
                 return true;
             case "ar":
-                list.ar = "<input data-mini='true' id='o14' class='needsclick' type='checkbox' "+((data == "1") ? "checked='checked'" : "")+" /><label for='o14'>"+_("Auto Reconnect")+"</label>";
+                list.ar = "<label for='o14'><input data-mini='true' id='o14' type='checkbox' "+((data == "1") ? "checked='checked'" : "")+" />"+_("Auto Reconnect")+"</label>";
                 return true;
             case "ext":
                 list.ext = "<label for='o15'>"+_("Extension Boards")+"</label><input data-highlight='true' data-mini='true' type='number' pattern='[0-9]*' data-type='range' min='0' max='5' id='o15' value='"+data+"' />";
                 return true;
             case "seq":
-                list.seq = "<input data-mini='true' id='o16' class='needsclick' type='checkbox' "+((data == "1") ? "checked='checked'" : "")+" /><label for='o16'>"+_("Sequential")+"</label>";
+                list.seq = "<label for='o16'><input data-mini='true' id='o16' type='checkbox' "+((data == "1") ? "checked='checked'" : "")+" />"+_("Sequential")+"</label>";
                 return true;
             case "sdt":
                 list.sdt = "<label for='o17'>"+_("Station Delay (seconds)")+"</label><input data-highlight='true' data-mini='true' type='number' pattern='[0-9]*' data-type='range' min='0' max='240' id='o17' value='"+data+"' />";
@@ -864,16 +877,16 @@ function show_settings() {
                 list.mtof = "<label for='o20'>"+_("Master Off Delay")+"</label><input data-highlight='true' data-mini='true' type='number' pattern='[0-9]*' data-type='range' min='-60' max='60' id='o20' value='"+data+"' />";
                 return true;
             case "urs":
-                list.urs = "<input data-mini='true' id='o21' class='needsclick' type='checkbox' "+((data == "1") ? "checked='checked'" : "")+" /><label for='o21'>"+_("Use Rain Sensor")+"</label>";
+                list.urs = "<label for='o21'><input data-mini='true' id='o21' type='checkbox' "+((data == "1") ? "checked='checked'" : "")+" />"+_("Use Rain Sensor")+"</label>";
                 return true;
             case "rso":
-                list.rso = "<input data-mini='true' id='o22' class='needsclick' type='checkbox' "+((data == "1") ? "checked='checked'" : "")+" /><label for='o22'>"+_("Normally Open (Rain Sensor)")+"</label>";
+                list.rso = "<label for='o22'><input data-mini='true' id='o22' type='checkbox' "+((data == "1") ? "checked='checked'" : "")+" />"+_("Normally Open (Rain Sensor)")+"</label>";
                 return true;
             case "wl":
                 list.wl = "<label for='o23'>"+_("% Watering")+"</label><input data-highlight='true' data-mini='true' type='number' pattern='[0-9]*' data-type='range' min='0' max='250' id='o23' value='"+data+"' />";
                 return true;
             case "ipas":
-                list.ipas = "<input data-mini='true' id='o25' class='needsclick' type='checkbox' "+((data == "1") ? "checked='checked'" : "")+" /><label for='o25'>"+_("Ignore Password")+"</label>";
+                list.ipas = "<label for='o25'><input data-mini='true' id='o25' type='checkbox' "+((data == "1") ? "checked='checked'" : "")+" />"+_("Ignore Password")+"</label>";
                 return true;
         }
     });
@@ -939,7 +952,7 @@ function show_stations() {
             if (window.controller.options.mas == i+1) {
                 list += "</td><td class='use_master'><p id='um_"+i+"' class='center'>("+_("Master")+")</p></td></tr>";
             } else {
-                list += "</td><td data-role='controlgroup' data-type='horizontal' class='use_master'><input id='um_"+i+"' class='needsclick' type='checkbox' "+((window.controller.stations.masop[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+" /><label for='um_"+i+"'></label></td></tr>";
+                list += "</td><td data-role='controlgroup' data-type='horizontal' class='use_master'><label for='um_"+i+"'><input id='um_"+i+"' type='checkbox' "+((window.controller.stations.masop[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+" /></label></td></tr>";
             }
         }
         i++;
@@ -1857,7 +1870,7 @@ function make_program(n,total,program) {
     }
     var list = "<fieldset "+((!n && total == 1) ? "data-collapsed='false'" : "")+" id='program-"+n+"' "+((n === "new") ? "" : "data-role='collapsible'")+">";
     if (n !== "new") list += "<legend>"+_("Program")+" "+(n + 1)+"</legend>";
-    list += "<input data-mini='true' class='needsclick' type='checkbox' "+((program.en || n==="new") ? "checked='checked'" : "")+" name='en-"+n+"' id='en-"+n+"'><label for='en-"+n+"'>"+_("Enabled")+"</label>";
+    list += "<label for='en-"+n+"'><input data-mini='true' type='checkbox' "+((program.en || n==="new") ? "checked='checked'" : "")+" name='en-"+n+"' id='en-"+n+"'>"+_("Enabled")+"</label>";
     list += "<fieldset data-role='controlgroup' data-type='horizontal' class='center'>";
     list += "<input data-mini='true' type='radio' name='rad_days-"+n+"' id='days_week-"+n+"' value='days_week-"+n+"' "+((program.is_interval) ? "" : "checked='checked'")+"><label for='days_week-"+n+"'>"+_("Weekly")+"</label>";
     list += "<input data-mini='true' type='radio' name='rad_days-"+n+"' id='days_n-"+n+"' value='days_n-"+n+"' "+((program.is_interval) ? "checked='checked'" : "")+"><label for='days_n-"+n+"'>"+_("Interval")+"</label>";
@@ -1871,7 +1884,7 @@ function make_program(n,total,program) {
 
     list += "<fieldset data-type='horizontal' data-role='controlgroup' class='center'><p style='margin:0'>"+_("Days of the Week")+"</p>";
     for (j=0; j<week.length; j++) {
-        list += "<input data-mini='true' class='needsclick' type='checkbox' "+((!program.is_interval && days[j]) ? "checked='checked'" : "")+" name='d"+j+"-"+n+"' id='d"+j+"-"+n+"'><label for='d"+j+"-"+n+"'>"+week[j]+"</label>";
+        list += "<label for='d"+j+"-"+n+"'><input data-mini='true' type='checkbox' "+((!program.is_interval && days[j]) ? "checked='checked'" : "")+" name='d"+j+"-"+n+"' id='d"+j+"-"+n+"'>"+week[j]+"</label>";
     }
     list += "</fieldset></div>";
 
@@ -1882,7 +1895,7 @@ function make_program(n,total,program) {
 
     list += "<fieldset data-role='controlgroup'><legend>"+_("Stations:")+"</legend>";
     for (j=0; j<window.controller.stations.snames.length; j++) {
-        list += "<input data-mini='true' class='needsclick' type='checkbox' "+(((typeof set_stations !== "undefined") && set_stations[j]) ? "checked='checked'" : "")+" name='station_"+j+"-"+n+"' id='station_"+j+"-"+n+"'><label for='station_"+j+"-"+n+"'>"+window.controller.stations.snames[j]+"</label>";
+        list += "<label for='station_"+j+"-"+n+"'><input data-mini='true' type='checkbox' "+(((typeof set_stations !== "undefined") && set_stations[j]) ? "checked='checked'" : "")+" name='station_"+j+"-"+n+"' id='station_"+j+"-"+n+"'>"+window.controller.stations.snames[j]+"</label>";
     }
     list += "</fieldset>";
 
