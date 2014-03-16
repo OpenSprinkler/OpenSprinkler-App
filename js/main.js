@@ -1709,13 +1709,13 @@ function get_programs(pid) {
 
     programs.find("[id^='s_checkall-']").on("click",function(){
         var id = $(this).attr("id").split("-")[1];
-        $("[id^='station_'][id$='-"+id+"']").prop("checked",true).checkboxradio("refresh");
+        programs.find("[id^='station_'][id$='-"+id+"']").prop("checked",true).checkboxradio("refresh");
         return false;
     });
 
     programs.find("[id^='s_uncheckall-']").on("click",function(){
         var id = $(this).attr("id").split("-")[1];
-        $("[id^='station_'][id$='-"+id+"']").prop("checked",false).checkboxradio("refresh");
+        programs.find("[id^='station_'][id$='-"+id+"']").prop("checked",false).checkboxradio("refresh");
         return false;
     });
 
@@ -1887,8 +1887,8 @@ function make_program(n,total,program) {
     list += "</fieldset>";
 
     list += "<fieldset data-role='controlgroup' data-type='horizontal' class='center'>";
-    list += "<input data-mini='true' type='reset' name='s_checkall-"+n+"' id='s_checkall-"+n+"' value='"+_("Check All")+"' />";
-    list += "<input data-mini='true' type='reset' name='s_uncheckall-"+n+"' id='s_uncheckall-"+n+"' value='"+_("Uncheck All")+"' />";
+    list += "<a class='ui-btn ui-mini' name='s_checkall-"+n+"' id='s_checkall-"+n+"'>"+_("Check All")+"</a>";
+    list += "<a class='ui-btn ui-mini' name='s_uncheckall-"+n+"' id='s_uncheckall-"+n+"'>"+_("Uncheck All")+"</a>";
     list += "</fieldset>";
 
     list += "<div class='ui-grid-a'>";
@@ -1927,12 +1927,12 @@ function add_program() {
     });
 
     addprogram.find("[id^='s_checkall-']").on("click",function(){
-        $("[id^='station_'][id$='-new']").prop("checked",true).checkboxradio("refresh");
+        addprogram.find("[id^='station_'][id$='-new']").prop("checked",true).checkboxradio("refresh");
         return false;
     });
 
     addprogram.find("[id^='s_uncheckall-']").on("click",function(){
-        $("[id^='station_'][id$='-new']").prop("checked",false).checkboxradio("refresh");
+        addprogram.find("[id^='station_'][id$='-new']").prop("checked",false).checkboxradio("refresh");
         return false;
     });
 
