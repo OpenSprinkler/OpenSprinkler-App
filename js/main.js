@@ -2023,7 +2023,10 @@ function raindelay() {
         $.mobile.loading("hide");
         $("#raindelay").popup("close");
         $("#footer-running").html("<p class='ui-icon ui-icon-loading mini-load'></p>");
-        update_controller_settings(check_status);
+        $.when(
+            update_controller_settings(),
+            update_controller_status()
+        ).then(check_status);
         showerror(_("Rain delay has been successfully set"));
     });
 }
