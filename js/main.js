@@ -427,7 +427,11 @@ function delete_site(site) {
         changePage("#start");
         return false;
     }
-    if (site === localStorage.getItem("current_site")) site_select(Object.keys(sites));
+    if (site === localStorage.getItem("current_site")) {
+        $("#manageBackButton").toggle(false);
+        site_select(Object.keys(sites));
+    }
+    showerror(_("Site deleted successfully"));
     return false;
 }
 
@@ -444,6 +448,8 @@ function change_site(site) {
     if (pw !== "") sites[site]["os_pw"] = pw;
 
     localStorage.setItem("sites",JSON.stringify(sites));
+
+    showerror(_("Site updated successfully"));
 
     if (site === localStorage.getItem("current_site")) {
         check_configured();
