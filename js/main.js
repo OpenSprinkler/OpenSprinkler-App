@@ -298,6 +298,8 @@ function update_controller_status(callback) {
     return $.getJSON("http://"+window.curr_ip+"/js",function(status){
         window.controller.status = status.sn;
         callback();
+    }).fail(function(){
+        window.controller.status = [];
     });
 }
 
@@ -307,6 +309,14 @@ function update_controller_settings(callback) {
     return $.getJSON("http://"+window.curr_ip+"/jc",function(settings){
         window.controller.settings = settings;
         callback();
+    }).fail(function(){
+        if (window.controller.settings && window.controller.stations) {
+            var ps = [];
+            for (var i=0; i<window.controller.stations.maxlen; i--) {
+                ps.push([0,0]);
+            }
+            window.controller.settings.ps = ps;
+        }
     });
 }
 
@@ -1091,7 +1101,7 @@ function get_status() {
         delete window.totals.p;
         setTimeout(function(){
             if ($(".ui-page-active").attr("id") == "status") {
-                get_status();
+                refresh_status();
             } else {
                 if (window.interval_id !== undefined) clearInterval(window.interval_id);
                 return;
@@ -1231,7 +1241,7 @@ function update_timers(sdelay) {
 
         if (diff > 3000) {
             clearInterval(window.interval_id);
-            if (page == "status") get_status();
+            if (page == "status") refresh_status();
         }
         window.lastCheck = now;
         $.each(window.totals,function(a,b){
@@ -1239,7 +1249,7 @@ function update_timers(sdelay) {
                 delete window.totals[a];
                 if (a == "p") {
                     if (page == "status") {
-                        get_status();
+                        refresh_status();
                     } else {
                         clearInterval(window.interval_id);
                         return;
@@ -1248,7 +1258,7 @@ function update_timers(sdelay) {
                     $("#countdown-"+a).parent("p").text(_("Station delay")).parent("li").removeClass("green").addClass("red");
                     window.timeout_id = setTimeout(function(){
                         if ($(".ui-page-active").attr("id") == "status") {
-                            get_status();
+                            refresh_status();
                         } else {
                             clearInterval(window.interval_id);
                             clearTimeout(window.timeout_id);
