@@ -1044,7 +1044,8 @@ function get_status() {
         allPnames = [],
         color = "",
         list = "",
-        tz = window.controller.options.tz-48;
+        tz = window.controller.options.tz-48,
+        lastCheck;
 
     if ($("body").pagecontainer("getActivePage").attr("id") === "status") {
         $("#status .ui-content").empty();
@@ -1126,7 +1127,6 @@ function get_status() {
         $('<p id="status_footer"></p>').html(footer)
     );
 
-    window.totals = runningTotal;
     if (window.interval_id !== undefined) clearInterval(window.interval_id);
     if (window.timeout_id !== undefined) clearTimeout(window.timeout_id);
 
@@ -1136,8 +1136,8 @@ function get_status() {
         $(this).find(".ui-content").empty();
     });
 
-    if (window.totals.d !== undefined) {
-        delete window.totals.p;
+    if (runningTotal.d !== undefined) {
+        delete runningTotal.p;
         setTimeout(function(){
             if ($(".ui-page-active").attr("id") == "status") {
                 refresh_status();
@@ -1145,9 +1145,56 @@ function get_status() {
                 if (window.interval_id !== undefined) clearInterval(window.interval_id);
                 return;
             }
-        },window.totals.d*1000);
+        },runningTotal.d*1000);
     }
-    update_timers(window.controller.options.sdt);
+
+    if (window.interval_id !== undefined) clearInterval(window.interval_id);
+    if (window.timeout_id !== undefined) clearTimeout(window.timeout_id);
+
+    lastCheck = new Date().getTime();
+    window.interval_id = setInterval(function(){
+        var now = new Date().getTime(),
+            page = $(".ui-page-active").attr("id"),
+            diff = now - lastCheck;
+
+        if (diff > 3000) {
+            clearInterval(window.interval_id);
+            if (page == "status") refresh_status();
+        }
+        lastCheck = now;
+        $.each(runningTotal,function(a,b){
+            if (b <= 0) {
+                delete runningTotal[a];
+                if (a == "p") {
+                    if (page == "status") {
+                        refresh_status();
+                    } else {
+                        clearInterval(window.interval_id);
+                        return;
+                    }
+                } else {
+                    $("#countdown-"+a).parent("p").text(_("Station delay")).parent("li").removeClass("green").addClass("red");
+                    window.timeout_id = setTimeout(function(){
+                        if ($(".ui-page-active").attr("id") == "status") {
+                            refresh_status();
+                        } else {
+                            clearInterval(window.interval_id);
+                            clearTimeout(window.timeout_id);
+                            return;
+                        }
+                    },(window.controller.options.sdt*1000));
+                }
+            } else {
+                if (a == "c") {
+                    ++runningTotal[a];
+                    $("#clock-s").text(new Date(runningTotal[a]*1000).toUTCString().slice(0,-4));
+                } else {
+                    --runningTotal[a];
+                    $("#countdown-"+a).text("(" + sec2hms(runningTotal[a]) + " "+_("remaining")+")");
+                }
+            }
+        });
+    },1000);
 }
 
 function refresh_status() {
@@ -1265,56 +1312,6 @@ function update_timer(total,sdelay) {
         else
             --total;
             $("#countdown").text("(" + sec2hms(total) + " "+_("remaining")+")");
-    },1000);
-}
-
-// Handle all timers on the current status page
-function update_timers(sdelay) {
-    if (window.interval_id !== undefined) clearInterval(window.interval_id);
-    if (window.timeout_id !== undefined) clearTimeout(window.timeout_id);
-    window.lastCheck = new Date().getTime();
-    window.interval_id = setInterval(function(){
-        var now = new Date().getTime(),
-            page = $(".ui-page-active").attr("id"),
-            diff = now - window.lastCheck;
-
-        if (diff > 3000) {
-            clearInterval(window.interval_id);
-            if (page == "status") refresh_status();
-        }
-        window.lastCheck = now;
-        $.each(window.totals,function(a,b){
-            if (b <= 0) {
-                delete window.totals[a];
-                if (a == "p") {
-                    if (page == "status") {
-                        refresh_status();
-                    } else {
-                        clearInterval(window.interval_id);
-                        return;
-                    }
-                } else {
-                    $("#countdown-"+a).parent("p").text(_("Station delay")).parent("li").removeClass("green").addClass("red");
-                    window.timeout_id = setTimeout(function(){
-                        if ($(".ui-page-active").attr("id") == "status") {
-                            refresh_status();
-                        } else {
-                            clearInterval(window.interval_id);
-                            clearTimeout(window.timeout_id);
-                            return;
-                        }
-                    },(sdelay*1000));
-                }
-            } else {
-                if (a == "c") {
-                    ++window.totals[a];
-                    $("#clock-s").text(new Date(window.totals[a]*1000).toUTCString().slice(0,-4));
-                } else {
-                    --window.totals[a];
-                    $("#countdown-"+a).text("(" + sec2hms(window.totals[a]) + " "+_("remaining")+")");
-                }
-            }
-        });
     },1000);
 }
 
