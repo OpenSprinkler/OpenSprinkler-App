@@ -19,19 +19,27 @@ $(document).ready(function() {
             checkAutoScan();
 
             $(document).on("resume",function(){
-                if (window.curr_ip === undefined) return;
-
-                $("#weather,#footer-running").html("<p class='ui-icon ui-icon-loading mini-load'></p>");
-
                 var page = $(".ui-page-active").attr("id"),
                     func = function(){};
 
+                // If current page is the start page, update main menu
+                if (page == "start") {
+                    checkAutoScan();
+                    return;
+                }
+
+                // If we don't have a current device IP set, there is nothing else to update
+                if (window.curr_ip === undefined) return;
+
+                // Indicate the weather and device status are being updated
+                $("#weather,#footer-running").html("<p class='ui-icon ui-icon-loading mini-load'></p>");
+
                 if (page == "status") {
+                    // Update the status page
                     func = get_status;
                 } else if (page == "sprinklers") {
+                    // Update device status bar on main page
                     func = check_status;
-                } else if (page == "start") {
-                    func = checkAutoScan;
                 }
 
                 update_controller(function(){
