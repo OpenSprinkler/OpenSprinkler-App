@@ -138,15 +138,7 @@ $(document).on("pageshow",function(e){
         $newpage = $(newpage);
 
     // Handle Fast Click quirks
-    $newpage.find("input[type='checkbox']:not([data-role='flipswitch'])").addClass("needsclick");
-
-    $newpage.find(".ui-collapsible-heading-toggle").on("click",function(e){
-        var anchor = $(this);
-
-        setTimeout(function(){
-            anchor.removeClass("ui-btn-active");
-        },100);
-    })
+    $newpage.find("input[type='checkbox']:not([data-role='flipswitch']),.ui-collapsible-heading-toggle").addClass("needsclick");
 
     // Render graph after the page is shown otherwise graphing function will fail
     if (newpage == "#preview") {
