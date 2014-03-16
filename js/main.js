@@ -311,8 +311,8 @@ function update_controller_settings(callback) {
         callback();
     }).fail(function(){
         if (window.controller.settings && window.controller.stations) {
-            var ps = [];
-            for (var i=0; i<window.controller.stations.maxlen; i--) {
+            var ps = [], i;
+            for (i=0; i<window.controller.stations.maxlen; i++) {
                 ps.push([0,0]);
             }
             window.controller.settings.ps = ps;
