@@ -1871,7 +1871,7 @@ function make_program(n,total,program) {
 
     list += "<fieldset data-type='horizontal' data-role='controlgroup' class='center'><p style='margin:0'>"+_("Days of the Week")+"</p>";
     for (j=0; j<week.length; j++) {
-        list += "<input data-mini='true' type='checkbox' "+((!program.is_interval && days[j]) ? "checked='checked'" : "")+" name='d"+j+"-"+n+"' id='d"+j+"-"+n+"'><label for='d"+j+"-"+n+"'>"+week[j]+"</label>";
+        list += "<input data-mini='true' class='needsclick' type='checkbox' "+((!program.is_interval && days[j]) ? "checked='checked'" : "")+" name='d"+j+"-"+n+"' id='d"+j+"-"+n+"'><label for='d"+j+"-"+n+"'>"+week[j]+"</label>";
     }
     list += "</fieldset></div>";
 
@@ -1882,7 +1882,7 @@ function make_program(n,total,program) {
 
     list += "<fieldset data-role='controlgroup'><legend>"+_("Stations:")+"</legend>";
     for (j=0; j<window.controller.stations.snames.length; j++) {
-        list += "<input data-mini='true' type='checkbox' "+(((typeof set_stations !== "undefined") && set_stations[j]) ? "checked='checked'" : "")+" name='station_"+j+"-"+n+"' id='station_"+j+"-"+n+"'><label for='station_"+j+"-"+n+"'>"+window.controller.stations.snames[j]+"</label>";
+        list += "<input data-mini='true' class='needsclick' type='checkbox' "+(((typeof set_stations !== "undefined") && set_stations[j]) ? "checked='checked'" : "")+" name='station_"+j+"-"+n+"' id='station_"+j+"-"+n+"'><label for='station_"+j+"-"+n+"'>"+window.controller.stations.snames[j]+"</label>";
     }
     list += "</fieldset>";
 
