@@ -16,7 +16,7 @@
         <div data-role="page" id="start">
             <ul data-role="none" id="welcome_list" class="ui-listview ui-listview-inset ui-corner-all">
                 <li><div class="logo" id="welcome_logo"></div></li>
-                <li class="ui-li-static ui-body-inherit ui-first-child ui-last-child" style="margin-bottom: 10px"><p class="rain-desc" data-translate="Welcome to the OpenSprinkler mobile application. This app only works with the OpenSprinkler controller which must be installed and setup on your home network."></p><a class="ui-btn ui-mini center" href="javascript:window.open('http://rayshobby.net/cart/os','_blank','enableViewportScale=yes');" data-translate="Purchase OpenSprinkler"></a></li>
+                <li class="ui-li-static ui-body-inherit ui-first-child ui-last-child" style="margin-bottom: 10px"><p class="rain-desc" data-translate="Welcome to the OpenSprinkler mobile application. This app only works with the OpenSprinkler controller which must be installed and setup on your home network."></p><a class="ui-btn ui-mini center" href="javascript:iab('http://rayshobby.net/cart/os');" data-translate="Purchase OpenSprinkler"></a></li>
                 <li id="auto-scan" class="ui-first-child"><a class="ui-btn ui-btn-icon-right ui-icon-carat-r" href="javascript:start_scan();" data-translate="Scan For Device"></a></li>
                 <li class="ui-first-child ui-last-child"><a class="ui-btn ui-btn-icon-right ui-icon-carat-r" href="javascript:open_popup('addnew');" data-translate="Add Controller"></a></li>
             </ul>
@@ -256,13 +256,13 @@
                     <li>
                         <p>
                             This app has been developed by Samer Albahra. If you enjoy it please donate by clicking the button below.<br><br>
-                            <a href="javascript:window.open('https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&amp;hosted_button_id=89M484QR2TCFJ','_blank','enableViewportScale=yes')"><img width="147" height="47" src="img/btn_donateCC_LG.gif" alt="PayPal - The safer, easier way to pay online!"></a>
+                            <a href="javascript:iab('https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&amp;hosted_button_id=89M484QR2TCFJ');"><img width="147" height="47" src="img/btn_donateCC_LG.gif" alt="PayPal - The safer, easier way to pay online!"></a>
                         </p>
                     </li>
                 </ul>
                 <ul data-role="listview" data-inset="true">
                     <li>
-                        <p>This is open source software: source code and changelog for this application can be found at <a href="javascript:window.open('https://github.com/salbahra/OpenSprinkler-Hosted-Controller/','_blank','enableViewportScale=yes');">https://github.com/salbahra/OpenSprinkler-Hosted-Controller/</a></p>
+                        <p>This is open source software: source code and changelog for this application can be found at <a href="javascript:iab('https://github.com/salbahra/OpenSprinkler-Hosted-Controller/');">https://github.com/salbahra/OpenSprinkler-Hosted-Controller/</a></p>
                         <p>Version: 1.0.2</p>
                     </li>
                 </ul>

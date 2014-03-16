@@ -2296,6 +2296,15 @@ function open_popup(id) {
     }).popup({history: false}).enhanceWithin().popup("open");
 }
 
+function iab(url) {
+    var iOS = /iP(ad|hone|od)/.test(navigator.userAgent),
+        dest = "_blank";
+
+    if (iOS) dest = "_system";
+
+    return window.open(url,dest,'enableViewportScale=yes');
+}
+
 // Accessory functions
 // Convert seconds into (HH:)MM:SS format. HH is only reported if greater than 0.
 function sec2hms(diff) {
