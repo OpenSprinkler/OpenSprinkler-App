@@ -16,26 +16,7 @@ $(document).ready(function() {
                 StatusBar.backgroundColorByHexString("#1C1C1C");
             } catch (err) {}
 
-            try {
-                // Request the device's IP address
-                networkinterface.getIPAddress(function(ip){
-                    var chk = ip.split(".");
-                    for(var i=0; i<chk.length; i++) {chk[i] = +chk[i];}
-
-                    // Check if the IP is on a private network, if not don't enable automatic scanning
-                    if (!(chk[0] == 10 || (chk[0] == 172 && chk[1] > 17 && chk[1] < 32) || (chk[0] == 192 && chk[1] == 168))) return;
-
-                    //Change main menu items to reflect ability to automatically scan
-                    var auto = $("#auto-scan"),
-                        next = auto.next();
-
-                    next.removeClass("ui-first-child").find("a.ui-btn").text(_("Manually Add Device"));
-                    auto.show();
-
-                    window.deviceip = ip;
-                    window.devicesfound = [];
-                });
-            } catch (err) {}
+            checkAutoScan();
 
             $(document).on("resume",function(){
                 if (window.curr_ip === undefined) return;
@@ -49,6 +30,8 @@ $(document).ready(function() {
                     func = get_status;
                 } else if (page == "sprinklers") {
                     func = check_status;
+                } else if (page == "start") {
+                    func = checkAutoScan;
                 }
 
                 update_controller(function(){
@@ -149,7 +132,7 @@ $(document).on("pageshow",function(e){
             $("#timeline").empty();
             $("#preview_date").off("change");
             $(window).off("resize");
-            $("a","#timeline-navigation").off("click");
+            $("#timeline-navigation").find("a").off("click");
         });
     } else if (newpage == "#sprinklers") {
         $.mobile.silentScroll(0);
@@ -390,7 +373,7 @@ function submit_newuser() {
 // Show manage site page
 function show_sites(showBack) {
     showBack = showBack || true;
-    $("#manageBackButton").toggle(showBack);
+    $(".ui-toolbar-back-btn").toggle(showBack);
 
     var list = "<div data-role='collapsible-set'>",
         sites = getsites(),
@@ -428,7 +411,7 @@ function delete_site(site) {
         return false;
     }
     if (site === localStorage.getItem("current_site")) {
-        $("#manageBackButton").toggle(false);
+        $(".ui-toolbar-back-btn").toggle(false);
         site_select(Object.keys(sites));
     }
     showerror(_("Site deleted successfully"));
@@ -503,6 +486,43 @@ function getsites() {
 }
 
 // Automatic device detection functions
+function checkAutoScan() {
+    try {
+    // Request the device's IP address
+    networkinterface.getIPAddress(function(ip){
+        var chk = ip.split(".");
+        for(var i=0; i<chk.length; i++) {chk[i] = +chk[i];}
+
+        // Check if the IP is on a private network, if not don't enable automatic scanning
+        if (!(chk[0] == 10 || (chk[0] == 172 && chk[1] > 17 && chk[1] < 32) || (chk[0] == 192 && chk[1] == 168))) {
+            resetStartMenu();
+            return;
+        }
+
+        //Change main menu items to reflect ability to automatically scan
+        var auto = $("#auto-scan"),
+            next = auto.next();
+
+        next.removeClass("ui-first-child").find("a.ui-btn").text(_("Manually Add Device"));
+        auto.show();
+
+        window.deviceip = ip;
+        window.devicesfound = [];
+    });
+    } catch (err) {
+        resetStartMenu();
+    }
+}
+
+function resetStartMenu() {
+    // Change main menu to reflect manual controller entry
+    var auto = $("#auto-scan"),
+        next = auto.next();
+
+    next.addClass("ui-first-child").find("a.ui-btn").text(_("Add Controller"));
+    auto.hide();
+}
+
 function start_scan() {
     $.mobile.loading("show");
 
