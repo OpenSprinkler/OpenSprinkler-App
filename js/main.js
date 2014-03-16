@@ -138,7 +138,7 @@ $(document).on("pageshow",function(e){
         $newpage = $(newpage);
 
     // Handle Fast Click quirks
-    $newpage.find("input[type='checkbox']:not([data-role='flipswitch']),.ui-collapsible-heading-toggle").addClass("needsclick");
+    if (!FastClick.notNeeded(document.body)) $newpage.find("input[type='checkbox']:not([data-role='flipswitch']),.ui-collapsible-heading-toggle").addClass("needsclick");
 
     // Render graph after the page is shown otherwise graphing function will fail
     if (newpage == "#preview") {
