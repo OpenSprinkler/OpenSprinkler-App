@@ -1089,7 +1089,14 @@ function get_status() {
 
     if (window.totals.d !== undefined) {
         delete window.totals.p;
-        setTimeout(get_status,window.totals.d*1000);
+        setTimeout(function(){
+            if ($(".ui-page-active").attr("id") == "status") {
+                get_status();
+            } else {
+                if (window.interval_id !== undefined) clearInterval(window.interval_id);
+                return;
+            }
+        },window.totals.d*1000);
     }
     update_timers(window.controller.options.sdt);
 }
@@ -1185,6 +1192,8 @@ function check_status() {
 
 // Handle timer update on the home page for the status bar
 function update_timer(total,sdelay) {
+    if (window.interval_id !== undefined) clearInterval(window.interval_id);
+    if (window.timeout_id !== undefined) clearTimeout(window.timeout_id);
     window.lastCheck = new Date().getTime();
     window.interval_id = setInterval(function(){
         var now = new Date().getTime();
@@ -1229,11 +1238,22 @@ function update_timers(sdelay) {
             if (b <= 0) {
                 delete window.totals[a];
                 if (a == "p") {
-                    if (page == "status") get_status();
+                    if (page == "status") {
+                        get_status();
+                    } else {
+                        clearInterval(window.interval_id);
+                        return;
+                    }
                 } else {
                     $("#countdown-"+a).parent("p").text(_("Station delay")).parent("li").removeClass("green").addClass("red");
                     window.timeout_id = setTimeout(function(){
-                        if (page == "status") get_status();
+                        if ($(".ui-page-active").attr("id") == "status") {
+                            get_status();
+                        } else {
+                            clearInterval(window.interval_id);
+                            clearTimeout(window.timeout_id);
+                            return;
+                        }
                     },(sdelay*1000));
                 }
             } else {
