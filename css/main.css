@@ -15,7 +15,7 @@ body{
 .logo {
     height: 40px;
     width: 159px;
-    background: url(../img/logo.png);
+    background: url(../img/logo.svg);
     background-size: 159px 40px;
     background-repeat:no-repeat;
     margin: 1px auto;
