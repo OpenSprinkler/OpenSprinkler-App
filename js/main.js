@@ -119,7 +119,7 @@ $(document).one("pagebeforechange", function(event) {
     check_configured();
 
     //If a site is found then load it
-    if (window.curr_ip !== undefined) newload();
+    if (window.curr_ip !== undefined) newload(true);
     else changePage("#start");
 
 });
