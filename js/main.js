@@ -1142,14 +1142,7 @@ function get_status() {
 
     if (runningTotal.d !== undefined) {
         delete runningTotal.p;
-        setTimeout(function(){
-            if ($(".ui-page-active").attr("id") == "status") {
-                refresh_status();
-            } else {
-                if (window.interval_id !== undefined) clearInterval(window.interval_id);
-                return;
-            }
-        },runningTotal.d*1000);
+        setTimeout(refresh_status,runningTotal.d*1000);
     }
 
     if (window.interval_id !== undefined) clearInterval(window.interval_id);
@@ -1178,15 +1171,7 @@ function get_status() {
                     }
                 } else {
                     $("#countdown-"+a).parent("p").text(_("Station delay")).parent("li").removeClass("green").addClass("red");
-                    window.timeout_id = setTimeout(function(){
-                        if ($(".ui-page-active").attr("id") == "status") {
-                            refresh_status();
-                        } else {
-                            clearInterval(window.interval_id);
-                            clearTimeout(window.timeout_id);
-                            return;
-                        }
-                    },(window.controller.options.sdt*1000));
+                    window.timeout_id = setTimeout(refresh_status,window.controller.options.sdt*1000);
                 }
             } else {
                 if (a == "c") {
@@ -1205,7 +1190,15 @@ function refresh_status() {
     $.when(
         update_controller_status(),
         update_controller_settings()
-    ).then(get_status);
+    ).then(function(){
+        if ($(".ui-page-active").attr("id") == "status") {
+            get_status();
+        } else {
+            if (window.interval_id !== undefined) clearInterval(window.interval_id);
+            if (window.timeout_id !== undefined) clearInterval(window.timeout_id);
+            return;
+        }
+    });
 }
 
 // Actually change the status bar
