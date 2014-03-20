@@ -142,6 +142,9 @@ $(document)
             case "#os-stations":
                 show_stations();
                 break;
+            case "#site-control":
+                show_sites();
+                break;
         }
     });
 })
@@ -403,6 +406,15 @@ function submit_newuser() {
 }
 
 // Show manage site page
+function showSitesFromPanel() {
+    var $panel = $("#sprinklers-settings");
+    $panel.one("panelclose", function(){
+        changePage("#site-control");
+    });
+    $panel.panel("close");
+
+}
+
 function show_sites(showBack) {
     showBack = (showBack !== false) ? true : showBack;
 
@@ -423,8 +435,6 @@ function show_sites(showBack) {
     });
 
     $("#site-control .ui-content").html($(list+"</div>").enhanceWithin());
-
-    changePage("#site-control");
 
     $("#site-control").one({
         pagehide: function(){
