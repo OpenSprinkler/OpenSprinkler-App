@@ -1,4 +1,5 @@
-$(document).ready(function() {
+$(document)
+.ready(function() {
     //Update the language on the page using the browser's locale
     update_lang(get_locale());
 
@@ -74,15 +75,8 @@ $(document).ready(function() {
             }
         })();
     }
-});
-
-//Set AJAX timeout
-$.ajaxSetup({
-    timeout: 6000
-});
-
-//Handle timeout
-$(document).ajaxError(function(x,t,m) {
+})
+.ajaxError(function(x,t,m) {
     if (t.status==401 && /https?:\/\/[\d|.]+\/(?:cv|sn|cs|cr|cp|dp|co)/.exec(m.url)) {
         showerror(_("Check device password and try again."));
         return;
@@ -101,30 +95,57 @@ $(document).ajaxError(function(x,t,m) {
         showerror(_("Connection timed-out. Please try again."));
         return;
     }
-});
-
-//After jQuery mobile is loaded set intial configuration
-$(document).one("mobileinit", function(){
+})
+.one("mobileinit", function(){
+    //After jQuery mobile is loaded set intial configuration
     $.mobile.defaultPageTransition = 'fade';
     $.mobile.hoverDelay = 0;
     $("#addnew, #site-select").enhanceWithin().popup({history: false});
     $("body").show();
-});
-
-$(document).one("pagebeforechange", function(event) {
-    // Let the framework know we're going to handle the load.
+})
+.one("pagebeforechange", function(event) {
+    // Let the framework know we're going to handle the load
     event.preventDefault();
 
     //On initial load check if a valid site exists for auto connect
     check_configured();
 
     //If a site is found then load it
-    if (window.curr_ip !== undefined) newload(true);
+    if (window.curr_ip !== undefined) newload();
     else changePage("#start");
 
-});
+    $(document).on("pagebeforechange",function(e,data){
+        var page = data.toPage,
+            hash;
 
-$(document).on("pageshow",function(e){
+        hash = $.mobile.path.parseUrl(page).hash;
+
+        switch(hash) {
+            case "#programs":
+                get_programs();
+                break;
+            case "#addprogram":
+                add_program();
+                break;
+            case "#status":
+                get_status();
+                break;
+            case "#manual":
+                get_manual();
+                break;
+            case "#runonce":
+                get_runonce();
+                break;
+            case "#os-settings":
+                show_settings();
+                break;
+            case "#os-stations":
+                show_stations();
+                break;
+        }
+    });
+})
+.on("pageshow",function(e){
     var newpage = "#"+e.target.id,
         $newpage = $(newpage);
 
@@ -143,16 +164,14 @@ $(document).on("pageshow",function(e){
             $("#timeline-navigation").find("a").off("click");
         });
     } else if (newpage == "#sprinklers") {
-        $.mobile.silentScroll(0);
         $newpage.off("swiperight").on("swiperight", function(e) {
             if ($(".ui-page-active").jqmData("panel") !== "open" && !$(".ui-page-active .ui-popup-active").length) {
                 open_panel();
             }
         });
     }
-});
-
-$(document).on("pagebeforeshow",function(e){
+})
+.on("pagebeforeshow",function(e){
     var newpage = e.target.id,
         fromStart = ($(".ui-page-active").attr("id") == "start") ? 1 : 0;
 
@@ -180,6 +199,11 @@ $(document).on("pagebeforeshow",function(e){
             $("#en,#mm").off("change");
         });
     }
+});
+
+//Set AJAX timeout
+$.ajaxSetup({
+    timeout: 6000
 });
 
 //Use the user's local time for preview
@@ -927,8 +951,6 @@ function show_settings() {
 
     $("#os-settings .ui-content").html($('<ul data-role="listview" data-inset="true" id="os-settings-list"></ul>').html(str).listview().enhanceWithin());
 
-    changePage("#os-settings");
-
     $("#os-settings").one("pagehide",function(){
         $(this).find(".ui-content").empty();
     });
@@ -992,8 +1014,6 @@ function show_stations() {
     list += "</li>";
 
     $("#os-stations .ui-content").html($('<ul data-role="listview" data-inset="true" id="os-stations-list"></ul>').html(list).listview().enhanceWithin());
-
-    changePage("#os-stations");
 
     $("#os-stations").one("pagehide",function(){
         $(this).find(".ui-content").empty();
@@ -1133,8 +1153,6 @@ function get_status() {
 
     if (window.interval_id !== undefined) clearInterval(window.interval_id);
     if (window.timeout_id !== undefined) clearTimeout(window.timeout_id);
-
-    changePage("#status");
 
     $("#status").one("pagehide",function(){
         $(this).find(".ui-content").empty();
@@ -1333,8 +1351,6 @@ function get_manual() {
 
     $("#mmm").flipswitch().on("change",flipSwitched);
 
-    changePage("#manual");
-
     $("#manual").one("pagehide",function(){
         $(this).find(".ui-content").empty();
     });
@@ -1428,7 +1444,6 @@ function get_runonce() {
     });
 
     runonce.enhanceWithin();
-    changePage("#runonce");
 
     $("#runonce").one("pagehide",function(){
         $(this).find(".ui-content").empty();
@@ -1710,16 +1725,15 @@ function changeday(dir) {
 // Program management functions
 function get_programs(pid) {
     var programs = $("#programs"),
-    list = programs.find(".ui-content");
+        list = programs.find(".ui-content"),
+        page = $(".ui-page-active").attr("id");
 
     list.html($(make_all_programs()).enhanceWithin());
     update_program_header();
 
     if (typeof pid === "number" || typeof pid === "boolean") {
-        if (pid === false) {
-            $.mobile.silentScroll(0);
-        } else {
-            $("#programs fieldset[data-collapsed='false']").collapsible("collapse");
+        if (pid) {
+            programs.find("fieldset[data-collapsed='false']").collapsible("collapse");
             $("#program-"+pid).collapsible("expand");
         }
     }
@@ -1770,9 +1784,7 @@ function get_programs(pid) {
         return false;
     });
 
-    changePage("#programs");
-
-    $("#programs").one("pagehide",function(){
+    programs.one("pagehide",function(){
         $(this).find(".ui-content").empty();
     });
 }
@@ -1929,8 +1941,8 @@ function make_program(n,total,program) {
     list += "<div class='ui-block-b'><label for='end-"+n+"'>"+_("End Time")+"</label><input data-mini='true' type='time' name='end-"+n+"' id='end-"+n+"' value='"+pad(parseInt(program.end/60)%24)+":"+pad(program.end%60)+"'></div>";
     list += "</div>";
 
-    list += "<label for='duration-"+n+"'>"+_("Duration (minutes)")+"</label><input data-mini='true' type='number' data-highlight='true' data-type='range' name='duration-"+n+"' min='0' max='300' id='duration-"+n+"' value='"+(program.duration/60)+"'>";
-    list += "<label for='interval-"+n+"'>"+_("Interval (minutes)")+"</label><input data-mini='true' type='number' data-highlight='true' data-type='range' name='interval-"+n+"' min='0' max='1439' id='interval-"+n+"' value='"+(program.interval)+"'><br>";
+    list += "<label for='duration-"+n+"'>"+_("Duration (minutes)")+"</label><input type='number' data-highlight='true' data-type='range' name='duration-"+n+"' min='0' max='300' id='duration-"+n+"' value='"+(program.duration/60)+"'>";
+    list += "<label for='interval-"+n+"'>"+_("Interval (minutes)")+"</label><input type='number' data-highlight='true' data-type='range' name='interval-"+n+"' min='0' max='1439' id='interval-"+n+"' value='"+(program.interval)+"'><br>";
     if (n === "new") {
         list += "<input data-mini='true' type='submit' name='submit-"+n+"' id='submit-"+n+"' value='"+_("Save New Program")+"'></fieldset>";
     } else {
@@ -1947,7 +1959,7 @@ function add_program() {
 
     list.html($(fresh_program()).enhanceWithin());
 
-    $("#addprogram input[name^='rad_days']").on("change",function(){
+    addprogram.find("input[name^='rad_days']").on("change",function(){
         var progid = "new", type = $(this).val().split("-")[0], old;
         type = type.split("_")[1];
         if (type == "n") {
@@ -1974,10 +1986,7 @@ function add_program() {
         return false;
     });
 
-    changePage("#addprogram");
-
-    $("#addprogram").one({
-        pagebeforehide: get_programs,
+    addprogram.one({
         pagehide: function() {
             $(this).find(".ui-content").empty();
         }
@@ -2048,7 +2057,9 @@ function submit_program(id) {
     if (id == "new") {
         $.get("http://"+window.curr_ip+"/cp?pw="+window.curr_pw+"&pid=-1&v="+program,function(){
             $.mobile.loading("hide");
-            update_controller_programs(get_programs);
+            update_controller_programs(function(){
+                window.history.back();
+            });
             showerror(_("Program added successfully"));
         });
     } else {
