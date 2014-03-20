@@ -174,13 +174,10 @@ $(document)
         });
     }
 })
+.on("pagehide","#start",removeTimers)
 .on("pagebeforeshow",function(e){
     var newpage = e.target.id,
         fromStart = ($(".ui-page-active").attr("id") == "start") ? 1 : 0;
-
-    //Remove any status timers that may be running
-    if (window.interval_id !== undefined) clearInterval(window.interval_id);
-    if (window.timeout_id !== undefined) clearTimeout(window.timeout_id);
 
     if (!fromStart && newpage == "sprinklers") {
         //Reset status bar to loading while an update is done
@@ -1165,6 +1162,7 @@ function get_status() {
     if (window.timeout_id !== undefined) clearTimeout(window.timeout_id);
 
     $("#status").one("pagehide",function(){
+        removeTimers();
         $(this).find(".ui-content").empty();
     });
 
@@ -1227,6 +1225,12 @@ function refresh_status() {
             return;
         }
     });
+}
+
+function removeTimers() {
+    //Remove any status timers that may be running
+    if (window.interval_id !== undefined) clearInterval(window.interval_id);
+    if (window.timeout_id !== undefined) clearTimeout(window.timeout_id);
 }
 
 // Actually change the status bar
