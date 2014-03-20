@@ -53,7 +53,7 @@
         <div data-role="page" id="sprinklers">
             <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false">
                 <a data-icon="bars" data-iconpos="notext" href="javascript:open_panel();"></a>
-                <a data-icon="gear" data-iconpos="notext" href="javascript:changePage('settings');"></a>
+                <a data-icon="gear" data-iconpos="notext" href="#settings"></a>
                 <h3 style="padding:0"><div class="logo"></div></h3>
             </div>
             <div class="ui-content" role="main" style="padding-top:0px">
@@ -65,15 +65,15 @@
                 </ul>
                 <ul data-role="listview" data-inset="true" id="info-list">
                     <li data-role="list-divider" data-translate="Information"></li>
-                    <li><a href="javascript:get_status();" data-translate="Current Status"></a></li>
-                    <li><a href="javascript:changePage('preview');" data-translate="Preview Programs"></a></li>
+                    <li><a href="#status" data-translate="Current Status"></a></li>
+                    <li><a href="#preview" data-translate="Preview Programs"></a></li>
                 </ul>
                 <ul data-role="listview" data-inset="true" id="program-control-list">
                     <li data-role="list-divider" data-translate="Program Control"></li>
                     <li><a href="javascript:open_popup('raindelay');" data-translate="Change Rain Delay"></a></li>
-                    <li><a href="javascript:get_programs();" data-translate="Edit Programs"></a></li>
-                    <li><a href="javascript:get_manual();" data-translate="Manual Control"></a></li>
-                    <li><a href="javascript:get_runonce();" data-translate="Run-Once Program"></a></li>
+                    <li><a href="#programs" data-translate="Edit Programs"></a></li>
+                    <li><a href="#manual" data-translate="Manual Control"></a></li>
+                    <li><a href="#runonce" data-translate="Run-Once Program"></a></li>
                     <li><a href="javascript:rsn();" data-translate="Stop All Stations"></a></li>
                 </ul>
             </div>
@@ -82,7 +82,7 @@
                     <li data-role="list-divider" data-translate="Change Rain Delay"></li>
                     <li>
                         <p class="rain-desc" data-translate="Enable manual rain delay by entering a value into the input below. To turn off a currently enabled rain delay use a value of 0."></p>
-                        <form action="javascript:raindelay()">
+                        <form action="javascript:raindelay();">
                             <div class="ui-field-contain">
                                 <label for="delay" data-translate="Duration (in hours):"></label>
                                 <input type="number" pattern="[0-9]*" data-highlight="true" data-type="range" value="0" min="0" max="96" id="delay" />
@@ -146,7 +146,7 @@
         <div data-role="page" id="programs">
             <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false" data-add-back-btn="true">
                 <h3 data-translate="Programs"></h3>
-                <a href="javascript:add_program();" data-icon="plus" data-translate="Add" class="ui-btn-right"></a>
+                <a href="#addprogram" data-icon="plus" data-translate="Add" class="ui-btn-right"></a>
             </div>
             <div class="ui-content" role="main" id="programs_list">
             </div>
@@ -176,8 +176,8 @@
                         <label for="en"><b data-translate="Operation"></b></label>
                         <input type="checkbox" data-on-text="On" data-off-text="Off" data-role="flipswitch" name="en" id="en">
                     </li>
-                    <li><a href="javascript:show_settings();" data-translate="Device Options"></a></li>
-                    <li><a href="javascript:show_stations();" data-translate="Edit Stations"></a></li>
+                    <li><a href="#os-settings" data-translate="Device Options"></a></li>
+                    <li><a href="#os-stations" data-translate="Edit Stations"></a></li>
                     <li data-icon="alert"><a href="javascript:rbt();" data-translate="Reboot OpenSprinkler"></a></li>
                 </ul>
                 <ul data-role="listview" data-inset="true">
