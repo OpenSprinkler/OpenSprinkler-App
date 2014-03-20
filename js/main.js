@@ -2127,6 +2127,7 @@ function clear_config() {
         localStorage.removeItem("provider");
         localStorage.removeItem("wapikey");
         localStorage.removeItem("runonce");
+        update_lang(get_locale());
         changePage("#start");
     });
 }
