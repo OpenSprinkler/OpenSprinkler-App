@@ -97,7 +97,7 @@
                     <li>
                         <select data-mini="true" id="site-selector"></select>
                     </li>
-                    <li data-icon="gear"><a href="javascript:changeFromPanel(show_sites);" data-translate="Manage Sites"></a></li>
+                    <li data-icon="gear"><a href="javascript:showSitesFromPanel();" data-translate="Manage Sites"></a></li>
                     <li data-icon="forward"><a href="javascript:export_config();" data-translate="Export Configuration"></a></li>
                     <li data-icon="back"><a href="javascript:import_config();" data-translate="Import Configuration"></a></li>
                     <li data-icon="info"><a href="javascript:changeFromPanel(show_about);" data-translate="About"></a></li>
@@ -184,7 +184,7 @@
                     <li data-role="list-divider" data-theme="b" data-translate="Mobile Application Settings"></li>
                     <li data-icon="alert"><a href="javascript:clear_config();" data-translate="Clear Configuration"></a></li>
                     <li><a href="javascript:open_popup('localization');" data-translate="Localization"></a></li>
-                    <li data-icon="gear"><a href="javascript:show_sites();" data-translate="Manage Sites"></a></li>
+                    <li data-icon="gear"><a href="#site-control" data-translate="Manage Sites"></a></li>
                     <li data-icon="cloud"><a href="javascript:show_providers();" data-translate="Weather Provider"></a></li>
                 </ul>
             </div>
@@ -238,7 +238,7 @@
             </div>
         </div>
 
-        <div data-role="page" id="site-control">
+        <div data-role="page" id="site-control" data-theme="a">
             <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false" data-add-back-btn="true">
                 <h3 data-translate="Manage Sites"></h3>
                 <a href="javascript:open_popup('addnew');" data-icon="plus" data-translate="Add" class="ui-btn-right"></a>
