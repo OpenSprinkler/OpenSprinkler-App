@@ -417,7 +417,8 @@ function show_sites(showBack) {
 
     var list = "<div data-role='collapsible-set'>",
         sites = getsites(),
-        total = Object.keys(sites).length;
+        total = Object.keys(sites).length,
+        page = $("#site-control");
 
     $.each(sites,function(a,b){
         var c = a.replace(/ /g,"_");
@@ -431,9 +432,11 @@ function show_sites(showBack) {
         list += "</fieldset>";
     });
 
-    $("#site-control .ui-content").html($(list+"</div>").enhanceWithin());
+    page.find(".ui-content").html($(list+"</div>")).enhanceWithin();
 
-    $("#site-control").one({
+    page.find(".ui-collapsible-set").collapsibleset();
+
+    page.one({
         pagehide: function(){
             $(this).find(".ui-content").empty();
         },
@@ -1742,7 +1745,20 @@ function get_programs(pid) {
         list = programs.find(".ui-content"),
         page = $(".ui-page-active").attr("id");
 
-    list.html($(make_all_programs()).enhanceWithin());
+    list.html($(make_all_programs())).enhanceWithin();
+
+    programs.find(".ui-collapsible-set").collapsibleset().on({
+        collapsiblecollapse: function(e){
+            var program = $(this),
+                id = parseInt(e.target.id.split("-")[1]);
+
+            program.find(".ui-collapsible-content").empty();
+        },
+        collapsibleexpand: function(){
+            expandProgram($(this));
+        }
+    },".ui-collapsible");
+
     update_program_header();
 
     if (typeof pid === "number" || typeof pid === "boolean") {
@@ -1751,7 +1767,19 @@ function get_programs(pid) {
             $("#program-"+pid).collapsible("expand");
         }
     }
-    programs.find("input[name^='rad_days']").on("change",function(){
+
+    programs.one("pagehide",function(){
+        $(this).find(".ui-content").empty();
+    });
+}
+
+function expandProgram(program) {
+    var id = parseInt(program.attr("id").split("-")[1]),
+        html = $(make_program(id,window.controller.programs.nprogs,window.controller.programs.pd[id]));
+
+    program.find(".ui-collapsible-content").html(html).enhanceWithin();
+
+    program.find("input[name^='rad_days']").on("change",function(){
         var progid = $(this).attr('id').split("-")[1], type = $(this).val().split("-")[0], old;
         type = type.split("_")[1];
         if (type == "n") {
@@ -1763,29 +1791,29 @@ function get_programs(pid) {
         $("#input_days_"+old+"-"+progid).hide();
     });
 
-    programs.find("[id^='submit-']").on("click",function(){
+    program.find("[id^='submit-']").on("click",function(){
         submit_program($(this).attr("id").split("-")[1]);
         return false;
     });
 
-    programs.find("[id^='s_checkall-']").on("click",function(){
+    program.find("[id^='s_checkall-']").on("click",function(){
         var id = $(this).attr("id").split("-")[1];
-        programs.find("[id^='station_'][id$='-"+id+"']").prop("checked",true).checkboxradio("refresh");
+        program.find("[id^='station_'][id$='-"+id+"']").prop("checked",true).checkboxradio("refresh");
         return false;
     });
 
-    programs.find("[id^='s_uncheckall-']").on("click",function(){
+    program.find("[id^='s_uncheckall-']").on("click",function(){
         var id = $(this).attr("id").split("-")[1];
-        programs.find("[id^='station_'][id$='-"+id+"']").prop("checked",false).checkboxradio("refresh");
+        program.find("[id^='station_'][id$='-"+id+"']").prop("checked",false).checkboxradio("refresh");
         return false;
     });
 
-    programs.find("[id^='delete-']").on("click",function(){
+    program.find("[id^='delete-']").on("click",function(){
         delete_program($(this).attr("id").split("-")[1]);
         return false;
     });
 
-    programs.find("[id^='run-']").on("click",function(){
+    program.find("[id^='run-']").on("click",function(){
         var id = $(this).attr("id").split("-")[1];
         var durr = parseInt($("#duration-"+id).val());
         var stations = $("[id^='station_'][id$='-"+id+"']");
@@ -1798,9 +1826,6 @@ function get_programs(pid) {
         return false;
     });
 
-    programs.one("pagehide",function(){
-        $(this).find(".ui-content").empty();
-    });
 }
 
 // Translate program array into easier to use data
@@ -1866,7 +1891,7 @@ function update_program_header() {
     $("#programs_list").find("[id^=program-]").each(function(a,b){
         var item = $(b),
             id = item.attr('id').split("program-")[1],
-            en = $("#en-"+id).is(":checked");
+            en = window.controller.programs.pd[a][0];
 
         if (en) {
             item.find(".ui-collapsible-heading-toggle").removeClass("red");
@@ -1883,26 +1908,31 @@ function make_all_programs() {
     }
     var list = "<p class='center'>"+_("Click any program below to expand/edit. Be sure to save changes by hitting submit below.")+"</p><div data-role='collapsible-set'>";
     for (var i = 0; i < window.controller.programs.pd.length; i++) {
-        list += make_program(i,window.controller.programs.nprogs,window.controller.programs.pd[i]);
+        list += "<fieldset id='program-"+i+"' data-role='collapsible'><legend>"+_("Program")+" "+(i+1)+"</legend>";
+        list += "</fieldset>";
     }
     return list+"</div>";
 }
 
 //Generate a new program view
 function fresh_program() {
-    return make_program("new",1);
+    var list = "<fieldset id='program-new'>";
+    list +=make_program("new",1);
+    list += "</fieldset>";
+
+    return list;
 }
 
 function make_program(n,total,program) {
-    var i, j, set_stations;
+    var week = [_("M"),_("T"),_("W"),_("R"),_("F"),_("Sa"),_("Su")],
+        list = "",
+        days, i, j, set_stations;
 
     if (typeof program !== "undefined") {
         program = read_program(program);
     } else {
         program = {"en":0,"is_interval":0,"is_even":0,"is_odd":0,"duration":0,"interval":0,"start":0,"end":0,"days":[0,0]};
     }
-    var week = [_("M"),_("T"),_("W"),_("R"),_("F"),_("Sa"),_("Su")],
-        days;
 
     if (typeof program.days === "string") {
         days = program.days.split("");
@@ -1914,8 +1944,6 @@ function make_program(n,total,program) {
         set_stations = program.stations.split("");
         for(i=set_stations.length;i--;) set_stations[i] = set_stations[i]|0;
     }
-    var list = "<fieldset "+((!n && total == 1) ? "data-collapsed='false'" : "")+" id='program-"+n+"' "+((n === "new") ? "" : "data-role='collapsible'")+">";
-    if (n !== "new") list += "<legend>"+_("Program")+" "+(n + 1)+"</legend>";
     list += "<label for='en-"+n+"'><input data-mini='true' type='checkbox' "+((program.en || n==="new") ? "checked='checked'" : "")+" name='en-"+n+"' id='en-"+n+"'>"+_("Enabled")+"</label>";
     list += "<fieldset data-role='controlgroup' data-type='horizontal' class='center'>";
     list += "<input data-mini='true' type='radio' name='rad_days-"+n+"' id='days_week-"+n+"' value='days_week-"+n+"' "+((program.is_interval) ? "" : "checked='checked'")+"><label for='days_week-"+n+"'>"+_("Weekly")+"</label>";
@@ -1958,11 +1986,11 @@ function make_program(n,total,program) {
     list += "<label for='duration-"+n+"'>"+_("Duration (minutes)")+"</label><input type='number' data-highlight='true' data-type='range' name='duration-"+n+"' min='0' max='300' id='duration-"+n+"' value='"+(program.duration/60)+"'>";
     list += "<label for='interval-"+n+"'>"+_("Interval (minutes)")+"</label><input type='number' data-highlight='true' data-type='range' name='interval-"+n+"' min='0' max='1439' id='interval-"+n+"' value='"+(program.interval)+"'><br>";
     if (n === "new") {
-        list += "<input data-mini='true' type='submit' name='submit-"+n+"' id='submit-"+n+"' value='"+_("Save New Program")+"'></fieldset>";
+        list += "<input data-mini='true' type='submit' name='submit-"+n+"' id='submit-"+n+"' value='"+_("Save New Program")+"'>";
     } else {
         list += "<input data-mini='true' type='submit' name='submit-"+n+"' id='submit-"+n+"' value='"+_("Save Changes to Program")+" "+(n + 1)+"'>";
         list += "<input data-mini='true' type='submit' name='run-"+n+"' id='run-"+n+"' value='"+_("Run Program")+" "+(n + 1)+"'>";
-        list += "<input data-mini='true' data-theme='b' type='submit' name='delete-"+n+"' id='delete-"+n+"' value='"+_("Delete Program")+" "+(n + 1)+"'></fieldset>";
+        list += "<input data-mini='true' data-theme='b' type='submit' name='delete-"+n+"' id='delete-"+n+"' value='"+_("Delete Program")+" "+(n + 1)+"'>";
     }
     return list;
 }
@@ -1971,7 +1999,7 @@ function add_program() {
     var addprogram = $("#addprogram"),
         list = addprogram.find(".ui-content");
 
-    list.html($(fresh_program()).enhanceWithin());
+    list.html($(fresh_program())).enhanceWithin();
 
     addprogram.find("input[name^='rad_days']").on("change",function(){
         var progid = "new", type = $(this).val().split("-")[0], old;
@@ -2079,7 +2107,9 @@ function submit_program(id) {
     } else {
         $.get("http://"+window.curr_ip+"/cp?pw="+window.curr_pw+"&pid="+id+"&v="+program,function(){
             $.mobile.loading("hide");
-            update_program_header();
+            update_controller_programs(function(){
+                update_program_header();
+            });
             showerror(_("Program has been updated"));
         });
     }
