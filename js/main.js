@@ -153,7 +153,16 @@ $(document)
         $newpage = $(newpage);
 
     // Handle Fast Click quirks
-    if (!FastClick.notNeeded(document.body)) $newpage.find("input[type='checkbox']:not([data-role='flipswitch']),.ui-collapsible-heading-toggle").addClass("needsclick");
+    if (!FastClick.notNeeded(document.body)) {
+        $newpage.find("input[type='checkbox']:not([data-role='flipswitch'])").addClass("needsclick");
+        $newpage.find(".ui-collapsible-heading-toggle").on("click",function(){
+            var heading = $(this);
+
+            setTimeout(function(){
+                heading.removeClass("ui-btn-active")
+            },100);
+        });
+    }
 
     // Render graph after the page is shown otherwise graphing function will fail
     if (newpage == "#preview") {
@@ -1890,13 +1899,14 @@ function pidname(pid) {
 function update_program_header() {
     $("#programs_list").find("[id^=program-]").each(function(a,b){
         var item = $(b),
+            heading = item.find(".ui-collapsible-heading-toggle"),
             id = item.attr('id').split("program-")[1],
             en = window.controller.programs.pd[a][0];
 
         if (en) {
-            item.find(".ui-collapsible-heading-toggle").removeClass("red");
+            heading.removeClass("red");
         } else {
-            item.find(".ui-collapsible-heading-toggle").addClass("red");
+            heading.addClass("red");
         }
     });
 }
