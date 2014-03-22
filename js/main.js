@@ -159,7 +159,7 @@ $(document)
             var heading = $(this);
 
             setTimeout(function(){
-                heading.removeClass("ui-btn-active")
+                heading.removeClass("ui-btn-active");
             },100);
         });
     }
@@ -1426,8 +1426,9 @@ function get_runonce() {
             program = read_program(program);
             var prog = [],
                 set_stations = program.stations.split("");
-            for (var i=0;i<window.controller.stations.snames.length;i++) {
-                prog.push(((typeof set_stations[i] !== undefined) && set_stations[i]) ? program.duration : 0);
+
+            for (i=0;i<window.controller.stations.snames.length;i++) {
+                prog.push((parseInt(set_stations[i])) ? program.duration : 0);
             }
             progs.push(prog);
         });
