@@ -1358,13 +1358,14 @@ function update_timer(total,sdelay) {
 
 // Manual control functions
 function get_manual() {
-    var list = "<li data-role='list-divider' data-theme='a'>"+_("Sprinkler Stations")+"</li>";
+    var list = "<li data-role='list-divider' data-theme='a'>"+_("Sprinkler Stations")+"</li>",
+        page = $("#manual");
 
     $.each(window.controller.stations.snames,function (i,station) {
-        list += '<li data-icon="false"><a onclick="toggle(this)" class="center'+((window.controller.status[i]) ? ' green' : '')+'">'+station+'</a></li>';
+        list += '<li data-icon="false"><a class="mm_station center'+((window.controller.status[i]) ? ' green' : '')+'">'+station+'</a></li>';
     });
 
-    $("#manual .ui-content").append(
+    page.find(".ui-content").append(
         '<p class="center">'+_('With manual mode turned on, tap a station to toggle it.')+'</p>',
         $('<ul data-role="listview" data-inset="true">'+
                 '<li class="ui-field-contain">'+
@@ -1375,20 +1376,22 @@ function get_manual() {
         $('<ul data-role="listview" data-inset="true" id="mm_list"></ul>').html(list).listview()
     );
 
-    $("#mmm").flipswitch().on("change",flipSwitched);
+    page.find("#mm_list").find(".mm_station").on("click",toggle);
 
-    $("#manual").one("pagehide",function(){
-        $(this).find(".ui-content").empty();
+    page.find("#mmm").flipswitch().on("change",flipSwitched);
+
+    page.one("pagehide",function(){
+        page.find(".ui-content").empty();
     });
 }
 
-function toggle(anchor) {
+function toggle() {
     if (!window.controller.settings.mm) {
         showerror(_("Manual mode is not enabled. Please enable manual mode then try again."));
         return false;
     }
 
-    anchor = $(anchor);
+    anchor = $(this);
 
     var list = $("#mm_list"),
         listitems = list.children("li:not(li.ui-li-divider)"),
