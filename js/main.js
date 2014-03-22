@@ -186,9 +186,9 @@ $(document)
 .on("pagehide","#start",removeTimers)
 .on("pagebeforeshow",function(e){
     var newpage = e.target.id,
-        fromStart = ($(".ui-page-active").attr("id") == "start") ? 1 : 0;
+        fromStart = $(".ui-page-active").length;
 
-    if (!fromStart && newpage == "sprinklers") {
+    if (fromStart && newpage == "sprinklers") {
         //Reset status bar to loading while an update is done
         $("#footer-running").html("<p class='ui-icon ui-icon-loading mini-load'></p>");
         setTimeout(function(){
