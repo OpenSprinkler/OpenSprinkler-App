@@ -118,6 +118,8 @@ $(document)
         var page = data.toPage,
             hash;
 
+        if (typeof data.toPage !== "string") return;
+
         hash = $.mobile.path.parseUrl(page).hash;
 
         switch(hash) {
