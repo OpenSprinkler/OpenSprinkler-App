@@ -122,7 +122,7 @@ $(document)
 
         switch(hash) {
             case "#programs":
-                get_programs();
+                get_programs(data.options.programToExpand);
                 break;
             case "#addprogram":
                 add_program();
@@ -1697,7 +1697,9 @@ function get_preview() {
             if (row === undefined) return;
             var content = $(".timeline-event-content")[row];
             var pid = parseInt($(content).html().substr(1)) - 1;
-            get_programs(pid);
+            changePage("#programs",{
+                'programToExpand': pid
+            });
         });
         $(window).on("resize",function(){
             timeline.redraw();
@@ -1771,7 +1773,7 @@ function get_programs(pid) {
 
     update_program_header();
 
-    if (typeof pid === "number" || typeof pid === "boolean") {
+    if (typeof pid === "number") {
         if (pid) {
             programs.find("fieldset[data-collapsed='false']").collapsible("collapse");
             $("#program-"+pid).collapsible("expand");
