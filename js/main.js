@@ -156,17 +156,7 @@ $(document)
     var newpage = "#"+e.target.id,
         $newpage = $(newpage);
 
-    // Handle Fast Click quirks
-    if (!FastClick.notNeeded(document.body)) {
-        $newpage.find("input[type='checkbox']:not([data-role='flipswitch'])").addClass("needsclick");
-        $newpage.find(".ui-collapsible-heading-toggle").on("click",function(){
-            var heading = $(this);
-
-            setTimeout(function(){
-                heading.removeClass("ui-btn-active");
-            },100);
-        });
-    }
+    fixInputClick($newpage);
 
     // Render graph after the page is shown otherwise graphing function will fail
     if (newpage == "#preview") {
@@ -1849,6 +1839,8 @@ function expandProgram(program) {
         return false;
     });
 
+    fixInputClick(program);
+
 }
 
 // Translate program array into easier to use data
@@ -2380,6 +2372,20 @@ function iab(url) {
 }
 
 // Accessory functions
+function fixInputClick(page) {
+    // Handle Fast Click quirks
+    if (!FastClick.notNeeded(document.body)) {
+        page.find("input[type='checkbox']:not([data-role='flipswitch'])").addClass("needsclick");
+        page.find(".ui-collapsible-heading-toggle").on("click",function(){
+            var heading = $(this);
+
+            setTimeout(function(){
+                heading.removeClass("ui-btn-active");
+            },100);
+        });
+    }
+}
+
 // Convert seconds into (HH:)MM:SS format. HH is only reported if greater than 0.
 function sec2hms(diff) {
     var str = "";
