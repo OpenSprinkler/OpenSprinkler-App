@@ -1787,10 +1787,8 @@ function get_programs(pid) {
     update_program_header();
 
     if (typeof pid === "number") {
-        if (pid) {
-            programs.find("fieldset[data-collapsed='false']").collapsible("collapse");
-            $("#program-"+pid).collapsible("expand");
-        }
+        programs.find("fieldset[data-collapsed='false']").collapsible("collapse");
+        $("#program-"+pid).collapsible("expand");
     }
 
     programs.one("pagehide",function(){
