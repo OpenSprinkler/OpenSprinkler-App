@@ -1361,7 +1361,7 @@ function get_manual() {
     var list = "<li data-role='list-divider' data-theme='a'>"+_("Sprinkler Stations")+"</li>";
 
     $.each(window.controller.stations.snames,function (i,station) {
-        list += '<li data-icon="false"><a class="center'+((window.controller.status[i]) ? ' green' : '')+'" href="javascript:toggle(this);">'+station+'</a></li>';
+        list += '<li data-icon="false"><a onclick="toggle(this)" class="center'+((window.controller.status[i]) ? ' green' : '')+'">'+station+'</a></li>';
     });
 
     $("#manual .ui-content").append(
