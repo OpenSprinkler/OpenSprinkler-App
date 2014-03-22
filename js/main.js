@@ -188,15 +188,19 @@ $(document)
     var newpage = e.target.id,
         fromStart = $(".ui-page-active").length;
 
-    if (fromStart && newpage == "sprinklers") {
-        //Reset status bar to loading while an update is done
-        $("#footer-running").html("<p class='ui-icon ui-icon-loading mini-load'></p>");
-        setTimeout(function(){
-            update_controller(check_status,function(){
-                change_status(0,0,"red","<p id='running-text' class='center'>"+_("Network Error")+"</p>");
-                hide_weather();
-            });
-        },800);
+    if (newpage == "sprinklers") {
+        if (fromStart) {
+            //Reset status bar to loading while an update is done
+            $("#footer-running").html("<p class='ui-icon ui-icon-loading mini-load'></p>");
+            setTimeout(function(){
+                update_controller(check_status,function(){
+                    change_status(0,0,"red","<p id='running-text' class='center'>"+_("Network Error")+"</p>");
+                    hide_weather();
+                });
+            },800);
+        } else {
+            check_status();
+        }
     } else if (newpage == "settings") {
         $.each(["en","mm"],function(a,id){
             var $id = $("#"+id);
