@@ -147,7 +147,7 @@ $(document)
                 show_stations();
                 break;
             case "#site-control":
-                show_sites();
+                show_sites(data.options.showBack);
                 break;
         }
     });
@@ -280,7 +280,9 @@ function newload() {
         function(){
             $.mobile.loading("hide");
             if (Object.keys(getsites()).length) {
-                show_sites(false);
+                changePage("#site-control",{
+                    'showBack': false
+                });
             } else {
                 changePage("#start");
             }
@@ -430,7 +432,7 @@ function showSitesFromPanel() {
 }
 
 function show_sites(showBack) {
-    showBack = (showBack !== false) ? true : showBack;
+    showBack = (typeof showBack === "undefined") ? true : false;
 
     var list = "<div data-role='collapsible-set'>",
         sites = getsites(),
