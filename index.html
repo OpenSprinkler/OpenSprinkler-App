@@ -18,36 +18,8 @@
                 <li><div class="logo" id="welcome_logo"></div></li>
                 <li class="ui-li-static ui-body-inherit ui-first-child ui-last-child" style="margin-bottom: 10px"><p class="rain-desc" data-translate="Welcome to the OpenSprinkler mobile application. This app only works with the OpenSprinkler controller which must be installed and setup on your home network."></p><a class="ui-btn ui-mini center" href="javascript:iab('http://rayshobby.net/cart/os');" data-translate="Purchase OpenSprinkler"></a></li>
                 <li id="auto-scan" class="ui-first-child"><a class="ui-btn ui-btn-icon-right ui-icon-carat-r" href="javascript:start_scan();" data-translate="Scan For Device"></a></li>
-                <li class="ui-first-child ui-last-child"><a class="ui-btn ui-btn-icon-right ui-icon-carat-r" href="javascript:open_popup('addnew');" data-translate="Add Controller"></a></li>
+                <li class="ui-first-child ui-last-child"><a class="ui-btn ui-btn-icon-right ui-icon-carat-r" data-rel="popup" href="#addnew" data-translate="Add Controller"></a></li>
             </ul>
-        </div>
-
-        <div data-role="popup" id="site-select" data-theme="a" data-overlay-theme="b">
-            <div data-role="header" data-theme="b">
-                <h1 data-translate="Select Site"></h1>
-            </div>
-            <div class="ui-content">
-                <ul id="site-select-list" data-role="none" class="ui-listview ui-corner-all ui-shadow">
-                </ul>
-            </div>
-        </div>
-
-        <div data-role="popup" id="addnew" data-theme="a">
-            <div data-role="header" data-theme="b">
-                <h1 data-translate="New Device"></h1>
-            </div>
-            <div class="ui-content">
-                <form action="javascript:submit_newuser()" method="post">
-                    <p class="center" style="font-size:smaller;margin-top:0" data-translate="Note: The name is used to identify the OpenSprinkler within the app. OpenSprinkler IP can be either an IP or hostname. You can also specify a port by using IP:Port"></p>
-                    <label for="os_name" data-translate="Open Sprinkler Name:"></label>
-                    <input autocorrect="off" spellcheck="false" type="text" name="os_name" id="os_name" placeholder="Home" />
-                    <label for="os_ip" data-translate="Open Sprinkler IP:"></label>
-                    <input autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" type="text" name="os_ip" id="os_ip" placeholder="home.dyndns.org" />
-                    <label for="os_pw" data-translate="Open Sprinkler Password:"></label>
-                    <input type="password" name="os_pw" id="os_pw" value="" />
-                    <input type="submit" value="Submit" />
-                </form>
-            </div>
         </div>
 
         <div data-role="page" id="sprinklers">
@@ -106,6 +78,65 @@
             </div>
         </div>
 
+        <div data-role="page" id="settings">
+            <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false" data-add-back-btn="true">
+                <h3 data-translate="Settings"></h3>
+            </div>
+            <div class="ui-content" role="main">
+                <ul data-role="listview" data-inset="true">
+                    <li data-role="list-divider" data-theme="b" data-translate="Device Settings"></li>
+                    <li class="ui-field-contain">
+                        <label for="mm"><b data-translate="Manual Mode"></b></label>
+                        <input type="checkbox" data-on-text="On" data-off-text="Off" data-role="flipswitch" name="mm" id="mm">
+                    </li>
+                    <li class="ui-field-contain">
+                        <label for="en"><b data-translate="Operation"></b></label>
+                        <input type="checkbox" data-on-text="On" data-off-text="Off" data-role="flipswitch" name="en" id="en">
+                    </li>
+                    <li><a href="#os-settings" data-translate="Device Options"></a></li>
+                    <li><a href="#os-stations" data-translate="Edit Stations"></a></li>
+                    <li data-icon="alert"><a href="javascript:rbt();" data-translate="Reboot OpenSprinkler"></a></li>
+                </ul>
+                <ul data-role="listview" data-inset="true">
+                    <li data-role="list-divider" data-theme="b" data-translate="Mobile Application Settings"></li>
+                    <li data-icon="alert"><a href="javascript:clear_config();" data-translate="Clear Configuration"></a></li>
+                    <li><a href="javascript:open_popup('localization');" data-translate="Localization"></a></li>
+                    <li data-icon="gear"><a href="#site-control" data-translate="Manage Sites"></a></li>
+                    <li data-icon="cloud"><a href="javascript:show_providers();" data-translate="Weather Provider"></a></li>
+                </ul>
+            </div>
+            <div data-role="popup" data-overlay-theme="b" id="localization">
+                    <ul data-inset='true' data-role='listview' id='lang'>
+                        <li data-role='list-divider' data-theme='b' data-translate="Localization"></li>
+                        <li><a href="javascript:update_lang('zh');">Chinese</a></li>
+                        <li><a href="javascript:update_lang('en');">English</a></li>
+                        <li><a href="javascript:update_lang('hu');">Hungarian</a></li>
+                        <li><a href="javascript:update_lang('it');">Italian</a></li>
+                        <li><a href="javascript:update_lang('es');">Spanish</a></li>
+                    </ul>
+            </div>
+        </div>
+
+        <div data-role="page" id="preview">
+            <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false" data-add-back-btn="true">
+                <h3 data-translate="Program Preview"></h3>
+            </div>
+            <div class="ui-content" role="main">
+                <div id="preview_header">
+                    <a href="javascript:changeday(-1);" class="ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border"></a>
+                    <input class="center" type="date" name="preview_date" id="preview_date" />
+                    <a href="javascript:changeday(1);" class="ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border"></a>
+                </div>
+                <div id="timeline"></div>
+                <div data-role="controlgroup" data-type="horizontal" id="timeline-navigation">
+                    <a class="ui-btn ui-corner-all ui-icon-plus ui-btn-icon-notext btn-no-border" title="Zoom in"></a>
+                    <a class="ui-btn ui-corner-all ui-icon-minus ui-btn-icon-notext btn-no-border" title="Zoom out"></a>
+                    <a class="ui-btn ui-corner-all ui-icon-carat-l ui-btn-icon-notext btn-no-border" title="Move left"></a>
+                    <a class="ui-btn ui-corner-all ui-icon-carat-r ui-btn-icon-notext btn-no-border" title="Move right"></a>
+                </div>
+            </div>
+        </div>
+
         <div data-role="page" id="forecast">
             <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false" data-add-back-btn="true">
                 <h3 data-translate="Forecast"></h3>
@@ -161,45 +192,6 @@
             </div>
         </div>
 
-        <div data-role="page" id="settings">
-            <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false" data-add-back-btn="true">
-                <h3 data-translate="Settings"></h3>
-            </div>
-            <div class="ui-content" role="main">
-                <ul data-role="listview" data-inset="true">
-                    <li data-role="list-divider" data-theme="b" data-translate="Device Settings"></li>
-                    <li class="ui-field-contain">
-                        <label for="mm"><b data-translate="Manual Mode"></b></label>
-                        <input type="checkbox" data-on-text="On" data-off-text="Off" data-role="flipswitch" name="mm" id="mm">
-                    </li>
-                    <li class="ui-field-contain">
-                        <label for="en"><b data-translate="Operation"></b></label>
-                        <input type="checkbox" data-on-text="On" data-off-text="Off" data-role="flipswitch" name="en" id="en">
-                    </li>
-                    <li><a href="#os-settings" data-translate="Device Options"></a></li>
-                    <li><a href="#os-stations" data-translate="Edit Stations"></a></li>
-                    <li data-icon="alert"><a href="javascript:rbt();" data-translate="Reboot OpenSprinkler"></a></li>
-                </ul>
-                <ul data-role="listview" data-inset="true">
-                    <li data-role="list-divider" data-theme="b" data-translate="Mobile Application Settings"></li>
-                    <li data-icon="alert"><a href="javascript:clear_config();" data-translate="Clear Configuration"></a></li>
-                    <li><a href="javascript:open_popup('localization');" data-translate="Localization"></a></li>
-                    <li data-icon="gear"><a href="#site-control" data-translate="Manage Sites"></a></li>
-                    <li data-icon="cloud"><a href="javascript:show_providers();" data-translate="Weather Provider"></a></li>
-                </ul>
-            </div>
-            <div data-role="popup" data-overlay-theme="b" id="localization">
-                    <ul data-inset='true' data-role='listview' id='lang'>
-                        <li data-role='list-divider' data-theme='b' data-translate="Localization"></li>
-                        <li><a href="javascript:update_lang('zh');">Chinese</a></li>
-                        <li><a href="javascript:update_lang('en');">English</a></li>
-                        <li><a href="javascript:update_lang('hu');">Hungarian</a></li>
-                        <li><a href="javascript:update_lang('it');">Italian</a></li>
-                        <li><a href="javascript:update_lang('es');">Spanish</a></li>
-                    </ul>
-            </div>
-        </div>
-
         <div data-role="page" id="os-settings">
             <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false" data-add-back-btn="true">
                 <h3 data-translate="OS Settings"></h3>
@@ -218,30 +210,10 @@
             </div>
         </div>
 
-        <div data-role="page" id="preview">
-            <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false" data-add-back-btn="true">
-                <h3 data-translate="Program Preview"></h3>
-            </div>
-            <div class="ui-content" role="main">
-                <div id="preview_header">
-                    <a href="javascript:changeday(-1);" class="ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border"></a>
-                    <input class="center" type="date" name="preview_date" id="preview_date" />
-                    <a href="javascript:changeday(1);" class="ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border"></a>
-                </div>
-                <div id="timeline"></div>
-                <div data-role="controlgroup" data-type="horizontal" id="timeline-navigation">
-                    <a class="ui-btn ui-corner-all ui-icon-plus ui-btn-icon-notext btn-no-border" title="Zoom in"></a>
-                    <a class="ui-btn ui-corner-all ui-icon-minus ui-btn-icon-notext btn-no-border" title="Zoom out"></a>
-                    <a class="ui-btn ui-corner-all ui-icon-carat-l ui-btn-icon-notext btn-no-border" title="Move left"></a>
-                    <a class="ui-btn ui-corner-all ui-icon-carat-r ui-btn-icon-notext btn-no-border" title="Move right"></a>
-                </div>
-            </div>
-        </div>
-
         <div data-role="page" id="site-control" data-theme="a">
             <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false" data-add-back-btn="true">
                 <h3 data-translate="Manage Sites"></h3>
-                <a href="javascript:open_popup('addnew');" data-icon="plus" data-translate="Add" class="ui-btn-right"></a>
+                <a href="#addnew" data-rel="popup" data-icon="plus" data-translate="Add" class="ui-btn-right"></a>
             </div>
             <div class="ui-content" id="site-control-list">
             </div>
