@@ -100,7 +100,6 @@ $(document)
     //After jQuery mobile is loaded set intial configuration
     $.mobile.defaultPageTransition = 'fade';
     $.mobile.hoverDelay = 0;
-    $("#addnew, #site-select").enhanceWithin().popup({history: false});
     $("body").show();
 })
 .one("pagebeforechange", function(event) {
@@ -149,6 +148,12 @@ $(document)
             case "#site-control":
                 show_sites(data.options.showBack);
                 break;
+            case "#addnew":
+                show_addnew();
+                return false;
+            case "#site-select":
+                show_site_select();
+                return false;
         }
     });
 })
@@ -418,7 +423,62 @@ function showSitesFromPanel() {
         changePage("#site-control");
     });
     $panel.panel("close");
+}
 
+function show_site_select(list) {
+    var popup = $('<div data-role="popup" id="site-select" data-theme="a" data-overlay-theme="b">' +
+            '<div data-role="header" data-theme="b">' +
+                '<h1>'+_("Select Site")+'</h1>' +
+            '</div>' +
+            '<div class="ui-content">' +
+                '<ul data-role="none" class="ui-listview ui-corner-all ui-shadow">' +
+                    ((list) ? list : '') +
+                '</ul>' +
+            '</div>' +
+        '</div>');
+
+    popup.one({
+        popupafteropen: function(){
+            $(this).popup("reposition", {
+                "positionTo": "window"
+            });
+        },
+        popupafterclose: function(){
+            $(this).popup("destroy").remove();
+        }
+    }).popup({history: false}).enhanceWithin().popup("open");
+}
+
+function show_addnew(autoIP) {
+    var isAuto = (autoIP) ? true : false,
+        addnew = $('<div data-role="popup" id="addnew" data-theme="a">'+
+            '<div data-role="header" data-theme="b">'+
+                '<h1>'+_("New Device")+'</h1>' +
+            '</div>' +
+            '<div class="ui-content">' +
+                '<form action="javascript:submit_newuser()" method="post">' +
+                    ((isAuto) ? '' : '<p class="center" style="font-size:smaller;margin-top:0">'+_("Note: The name is used to identify the OpenSprinkler within the app. OpenSprinkler IP can be either an IP or hostname. You can also specify a port by using IP:Port")+'</p>') +
+                    '<label for="os_name">'+_("Open Sprinkler Name:")+'</label>' +
+                    '<input autocorrect="off" spellcheck="false" type="text" name="os_name" id="os_name" placeholder="Home" />' +
+                    ((isAuto) ? '' : '<label for="os_ip">'+_("Open Sprinkler IP:")+'</label>') +
+                    '<input '+((isAuto) ? 'data-role="none" style="display:none" ' : '')+'autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" type="text" name="os_ip" id="os_ip" value="'+((isAuto) ? autoIP : '')+'" placeholder="home.dyndns.org" />' +
+                    '<label for="os_pw">'+_("Open Sprinkler Password:")+'</label>' +
+                    '<input type="password" name="os_pw" id="os_pw" value="" />' +
+                    '<input type="submit" value="Submit" />' +
+                '</form>' +
+            '</div>' +
+        '</div>');
+
+    addnew.one({
+        popupafteropen: function(){
+            $(this).popup("reposition", {
+                "positionTo": "window"
+            });
+        },
+        popupafterclose: function(){
+            $(this).popup("destroy").remove();
+        }
+    }).popup({history: false}).enhanceWithin().popup("open");
 }
 
 function show_sites(showBack) {
@@ -497,14 +557,13 @@ function change_site(site) {
 
 // Display the site select popup
 function site_select(names) {
-    var list = $("#site-select-list");
     var newlist = "";
-    $.each(names,function(a,b){
-        newlist += "<li><a class='ui-btn ui-btn-icon-right ui-icon-carat-r' href='javascript:update_site(\""+b+"\");'>"+b+"</a></li>";
-    });
 
-    list.html(newlist);
-    open_popup("#site-select");
+    for (var i=0; i < names.length; i++) {
+        newlist += "<li><a class='ui-btn ui-btn-icon-right ui-icon-carat-r' href='javascript:update_site(\""+names[i]+"\");'>"+names[i]+"</a></li>";
+    };
+
+    show_site_select(newlist);
 }
 
 // Update the panel list of sites
@@ -585,6 +644,7 @@ function start_scan() {
         started = false,
         scanprogress = 1,
         devicesfound = [],
+        newlist = "",
         i, url, notfound, found, baseip, check_scan_status, scanning;
 
     notfound = function(){
@@ -598,18 +658,7 @@ function start_scan() {
 
             devicesfound.push(device);
 
-            var list = $("#site-select-list");
-            var item = "<li><a class='ui-btn ui-btn-icon-right ui-icon-carat-r' href='javascript:add_found(\""+ip+"\");'>"+ip+"<p>"+_("Firmware")+": "+(reply.fwv/100>>0)+"."+((reply.fwv/10>>0)%10)+"."+(reply.fwv%10)+"</p></a></li>";
-
-            if (!started) {
-                $.mobile.loading("hide");
-                list.html(item);
-                open_popup("#site-select");
-                started = true;
-            } else {
-                list.append(item);
-                $("#site-select").popup("reposition", {positionTo: 'window'});
-            }
+            newlist += "<li><a class='ui-btn ui-btn-icon-right ui-icon-carat-r' href='javascript:add_found(\""+ip+"\");'>"+ip+"<p>"+_("Firmware")+": "+(reply.fwv/100>>0)+"."+((reply.fwv/10>>0)%10)+"."+(reply.fwv%10)+"</p></a></li>";
     };
 
     // Check is scanning is complete
@@ -618,6 +667,9 @@ function start_scan() {
             clearInterval(scanning);
             if (!devicesfound.length) {
                 showerror(_("No devices were detected on your network."));
+            } else {
+                $.mobile.loading("hide");
+                show_site_select(newlist);
             }
         }
     };
@@ -644,21 +696,8 @@ function start_scan() {
 
 // Show popup for new device after populating device IP with selected result
 function add_found(ip) {
-    var addnew = $("#addnew"),
-        osIpLabel = addnew.find("label[for='os_ip']"),
-        helpText = addnew.find("p");
-
-    $("#os_ip").val(ip).parent().hide();
-    osIpLabel.hide();
-    helpText.hide();
-
     $("#site-select").one("popupafterclose", function(){
-        open_popup("#addnew");
-        addnew.one("popupafterclose", function(){
-            $("#os_ip").parent().show();
-            osIpLabel.show();
-            helpText.show();
-        });
+        show_addnew(ip);
     }).popup("close");
 }
 
@@ -2358,7 +2397,6 @@ function open_popup(id) {
         $(this).popup("reposition", {
             "positionTo": "window"
         });
-        if (id == "#addnew") $("#os_name").focus();
     }).popup({history: false}).enhanceWithin().popup("open");
 }
 
