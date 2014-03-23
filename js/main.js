@@ -175,7 +175,7 @@ $(document)
             $("#timeline-navigation").find("a").off("click");
         });
     } else if (newpage == "#sprinklers") {
-        $newpage.off("swiperight").on("swiperight", function(e) {
+        $newpage.off("swiperight").on("swiperight", function() {
             if ($(".ui-page-active").jqmData("panel") !== "open" && !$(".ui-page-active .ui-popup-active").length) {
                 open_panel();
             }
@@ -558,7 +558,7 @@ function site_select(names) {
 
     for (var i=0; i < names.length; i++) {
         newlist += "<li><a class='ui-btn ui-btn-icon-right ui-icon-carat-r' href='javascript:update_site(\""+names[i]+"\");'>"+names[i]+"</a></li>";
-    };
+    }
 
     show_site_select(newlist);
 }
@@ -638,7 +638,6 @@ function start_scan() {
     $.mobile.loading("show");
 
     var ip = window.deviceip.split("."),
-        started = false,
         scanprogress = 1,
         devicesfound = [],
         newlist = "",
@@ -825,12 +824,14 @@ function update_yahoo_weather() {
 }
 
 function update_yahoo_forecast(data,loc,region,now) {
-    var list = "<li data-role='list-divider' data-theme='a' class='center'>"+loc+"</li>";
+    var list = "<li data-role='list-divider' data-theme='a' class='center'>"+loc+"</li>",
+        i;
+
     list += "<li data-icon='false' class='center'><div title='"+now.text+"' class='wicon cond"+now.code+"'></div><span>Now</span><br><span>"+convert_temp(now.temp,region)+"</span></li>";
 
-    $.each(data,function (x,item) {
-        list += "<li data-icon='false' class='center'><span>"+item.date+"</span><br><div title='"+item.text+"' class='wicon cond"+item.code+"'></div><span>"+item.day+"</span><br><span>Low: "+convert_temp(item.low,region)+"  High: "+convert_temp(item.high,region)+"</span></li>";
-    });
+    for (i=0;i < data.length; i++) {
+        list += "<li data-icon='false' class='center'><span>"+data[i].date+"</span><br><div title='"+data[i].text+"' class='wicon cond"+data[i].code+"'></div><span>"+data[i].day+"</span><br><span>Low: "+convert_temp(data[i].low,region)+"  High: "+convert_temp(data[i].high,region)+"</span></li>";
+    }
 
     var forecast = $("#forecast_list");
     forecast.html(list).enhanceWithin();
@@ -936,15 +937,16 @@ function show_settings() {
     list.start = "<li><div class='ui-field-contain'><fieldset>";
 
     $.each(window.controller.options,function(key,data) {
+        var i;
         switch (key) {
             case "tz":
                 var timezones = ["-12:00","-11:30","-11:00","-10:00","-09:30","-09:00","-08:30","-08:00","-07:00","-06:00","-05:00","-04:30","-04:00","-03:30","-03:00","-02:30","-02:00","+00:00","+01:00","+02:00","+03:00","+03:30","+04:00","+04:30","+05:00","+05:30","+05:45","+06:00","+06:30","+07:00","+08:00","+08:45","+09:00","+09:30","+10:00","+10:30","+11:00","+11:30","+12:00","+12:45","+13:00","+13:45","+14:00"];
                 var tz = data-48;
                 tz = ((tz>=0)?"+":"-")+pad((Math.abs(tz)/4>>0))+":"+((Math.abs(tz)%4)*15/10>>0)+((Math.abs(tz)%4)*15%10);
                 list.tz = "<label for='o1' class='select'>"+_("Timezone")+"</label><select data-mini='true' id='o1'>";
-                $.each(timezones, function(i, timezone) {
-                    list.tz += "<option "+((timezone == tz) ? "selected" : "")+" value='"+timezone+"'>"+timezone+"</option>";
-                });
+                for (i=0; i<timezones.length; i++) {
+                    list.tz += "<option "+((timezones[i] == tz) ? "selected" : "")+" value='"+timezones[i]+"'>"+timezones[i]+"</option>";
+                }
                 list.tz += "</select>";
                 return true;
             case "ntp":
@@ -971,12 +973,10 @@ function show_settings() {
                 return true;
             case "mas":
                 list.mas = "<label for='o18' class='select'>"+_("Master Station")+"</label><select data-mini='true' id='o18'><option value='0'>None</option>";
-                var i = 1;
-                $.each(window.controller.stations.snames,function(z, station) {
-                    list.mas += "<option "+((i == data) ? "selected" : "")+" value='"+i+"'>"+station+"</option>";
-                    if (i == 8) return false;
-                    i++;
-                });
+                for (i=0; i < window.controller.stations.snames.length; i++) {
+                    list.mas += "<option "+((i == data) ? "selected" : "")+" value='"+i+"'>"+window.controller.stations.snames[i]+"</option>";
+                    if (i == 7) break;
+                }
                 list.mas += "</select>";
                 return true;
             case "mton":
@@ -1427,9 +1427,8 @@ function toggle() {
         return false;
     }
 
-    anchor = $(this);
-
-    var list = $("#mm_list"),
+    var anchor = $(this),
+        list = $("#mm_list"),
         listitems = list.children("li:not(li.ui-li-divider)"),
         item = anchor.closest("li:not(li.ui-li-divider)"),
         currPos = listitems.index(item) + 1;
@@ -1457,12 +1456,12 @@ function get_runonce() {
     var list = "<p class='center'>"+_("Value is in minutes. Zero means the station will be excluded from the run-once program.")+"</p>",
         runonce = $("#runonce_list"),
         i=0, n=0,
-        quickPick, data, progs, rprogs;
+        quickPick, data, progs, rprogs, z, program;
 
     progs = [];
     if (window.controller.programs.pd.length) {
-        $.each(window.controller.programs.pd,function(z, program) {
-            program = read_program(program);
+        for (z=0; z < window.controller.programs.pd.length; z++) {
+            program = read_program(window.controller.programs.pd[z]);
             var prog = [],
                 set_stations = program.stations.split("");
 
@@ -1470,7 +1469,7 @@ function get_runonce() {
                 prog.push((parseInt(set_stations[i])) ? program.duration : 0);
             }
             progs.push(prog);
-        });
+        }
     }
     rprogs = progs;
 
@@ -1793,17 +1792,13 @@ function changeday(dir) {
 // Program management functions
 function get_programs(pid) {
     var programs = $("#programs"),
-        list = programs.find(".ui-content"),
-        page = $(".ui-page-active").attr("id");
+        list = programs.find(".ui-content");
 
     list.html($(make_all_programs())).enhanceWithin();
 
     programs.find(".ui-collapsible-set").collapsibleset().on({
-        collapsiblecollapse: function(e){
-            var program = $(this),
-                id = parseInt(e.target.id.split("-")[1]);
-
-            program.find(".ui-collapsible-content").empty();
+        collapsiblecollapse: function(){
+            $(this).find(".ui-collapsible-content").empty();
         },
         collapsibleexpand: function(){
             expandProgram($(this));
@@ -1824,7 +1819,7 @@ function get_programs(pid) {
 
 function expandProgram(program) {
     var id = parseInt(program.attr("id").split("-")[1]),
-        html = $(make_program(id,window.controller.programs.nprogs,window.controller.programs.pd[id]));
+        html = $(make_program(id));
 
     program.find(".ui-collapsible-content").html(html).enhanceWithin();
 
@@ -1942,7 +1937,6 @@ function update_program_header() {
     $("#programs_list").find("[id^=program-]").each(function(a,b){
         var item = $(b),
             heading = item.find(".ui-collapsible-heading-toggle"),
-            id = item.attr('id').split("program-")[1],
             en = window.controller.programs.pd[a][0];
 
         if (en) {
@@ -1969,21 +1963,21 @@ function make_all_programs() {
 //Generate a new program view
 function fresh_program() {
     var list = "<fieldset id='program-new'>";
-    list +=make_program("new",1);
+    list +=make_program("new");
     list += "</fieldset>";
 
     return list;
 }
 
-function make_program(n,total,program) {
+function make_program(n) {
     var week = [_("M"),_("T"),_("W"),_("R"),_("F"),_("Sa"),_("Su")],
         list = "",
-        days, i, j, set_stations;
+        days, i, j, set_stations, program;
 
-    if (typeof program !== "undefined") {
-        program = read_program(program);
-    } else {
+    if (n === "new") {
         program = {"en":0,"is_interval":0,"is_even":0,"is_odd":0,"duration":0,"interval":0,"start":0,"end":0,"days":[0,0]};
+    } else {
+        program = read_program(window.controller.programs.pd[n]);
     }
 
     if (typeof program.days === "string") {
@@ -2383,18 +2377,6 @@ function showerror(msg,dur) {
     });
     // hide after delay
     setTimeout(function(){$.mobile.loading('hide');},dur);
-}
-
-function open_popup(id) {
-    if (id.indexOf("#") !== 0) id = "#"+id;
-
-    var popup = $(id);
-
-    popup.one("popupafteropen", function(){
-        $(this).popup("reposition", {
-            "positionTo": "window"
-        });
-    }).popup({history: false}).enhanceWithin().popup("open");
 }
 
 function iab(url) {
