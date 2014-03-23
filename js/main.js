@@ -461,7 +461,7 @@ function show_addnew(autoIP) {
                     '<label for="os_name">'+_("Open Sprinkler Name:")+'</label>' +
                     '<input autocorrect="off" spellcheck="false" type="text" name="os_name" id="os_name" placeholder="Home" />' +
                     ((isAuto) ? '' : '<label for="os_ip">'+_("Open Sprinkler IP:")+'</label>') +
-                    '<input '+((isAuto) ? 'data-role="none" style="display:none" ' : '')+'autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" type="text" name="os_ip" id="os_ip" value="'+((isAuto) ? autoIP : '')+'" placeholder="home.dyndns.org" />' +
+                    '<input '+((isAuto) ? 'data-role="none" style="display:none" ' : '')+'autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" type="url" name="os_ip" id="os_ip" value="'+((isAuto) ? autoIP : '')+'" placeholder="home.dyndns.org" />' +
                     '<label for="os_pw">'+_("Open Sprinkler Password:")+'</label>' +
                     '<input type="password" name="os_pw" id="os_pw" value="" />' +
                     '<input type="submit" value="Submit" />' +
@@ -494,7 +494,7 @@ function show_sites(showBack) {
         list += "<fieldset "+((total == 1) ? "data-collapsed='false'" : "")+" id='site-"+c+"' data-role='collapsible'>";
         list += "<legend>"+a+"</legend>";
         list += "<a data-role='button' href='javascript:update_site(\""+a+"\")'>"+_("Connect Now")+"</a>";
-        list += "<form action='javascript:change_site(\""+c+"\");'><label for='cip-"+c+"'>Change IP</label><input id='cip-"+c+"' type='text' value='"+b.os_ip+"' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' />";
+        list += "<form action='javascript:change_site(\""+c+"\");'><label for='cip-"+c+"'>Change IP</label><input id='cip-"+c+"' type='url' value='"+b.os_ip+"' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' />";
         list += "<label for='cpw-"+c+"'>Change Password</label><input id='cpw-"+c+"' type='password' />";
         list += "<input type='submit' value='"+_("Save Changes to")+" "+a+"' /></form>";
         list += "<a data-role='button' href='javascript:delete_site(\""+a+"\")' data-theme='b'>"+_("Delete")+" "+a+"</a>";
@@ -963,13 +963,13 @@ function show_settings() {
                 list.ar = "<label for='o14'><input data-mini='true' id='o14' type='checkbox' "+((data == "1") ? "checked='checked'" : "")+" />"+_("Auto Reconnect")+"</label>";
                 return true;
             case "ext":
-                list.ext = "<label for='o15'>"+_("Extension Boards")+"</label><input data-highlight='true' data-mini='true' type='number' pattern='[0-9]*' data-type='range' min='0' max='5' id='o15' value='"+data+"' />";
+                list.ext = "<label for='o15'>"+_("Extension Boards")+"</label><input data-highlight='true' type='number' pattern='[0-9]*' data-type='range' min='0' max='5' id='o15' value='"+data+"' />";
                 return true;
             case "seq":
                 list.seq = "<label for='o16'><input data-mini='true' id='o16' type='checkbox' "+((data == "1") ? "checked='checked'" : "")+" />"+_("Sequential")+"</label>";
                 return true;
             case "sdt":
-                list.sdt = "<label for='o17'>"+_("Station Delay (seconds)")+"</label><input data-highlight='true' data-mini='true' type='number' pattern='[0-9]*' data-type='range' min='0' max='240' id='o17' value='"+data+"' />";
+                list.sdt = "<label for='o17'>"+_("Station Delay (seconds)")+"</label><input data-highlight='true' type='number' pattern='[0-9]*' data-type='range' min='0' max='240' id='o17' value='"+data+"' />";
                 return true;
             case "mas":
                 list.mas = "<label for='o18' class='select'>"+_("Master Station")+"</label><select data-mini='true' id='o18'><option value='0'>None</option>";
@@ -980,10 +980,10 @@ function show_settings() {
                 list.mas += "</select>";
                 return true;
             case "mton":
-                list.mton = "<label for='o19'>"+_("Master On Delay")+"</label><input data-highlight='true' data-mini='true' type='number' pattern='[0-9]*' data-type='range' min='0' max='60' id='o19' value='"+data+"' />";
+                list.mton = "<label for='o19'>"+_("Master On Delay")+"</label><input data-highlight='true' type='number' pattern='[0-9]*' data-type='range' min='0' max='60' id='o19' value='"+data+"' />";
                 return true;
             case "mtof":
-                list.mtof = "<label for='o20'>"+_("Master Off Delay")+"</label><input data-highlight='true' data-mini='true' type='number' pattern='[0-9]*' data-type='range' min='-60' max='60' id='o20' value='"+data+"' />";
+                list.mtof = "<label for='o20'>"+_("Master Off Delay")+"</label><input data-highlight='true' type='number' pattern='[0-9]*' data-type='range' min='-60' max='60' id='o20' value='"+data+"' />";
                 return true;
             case "urs":
                 list.urs = "<label for='o21'><input data-mini='true' id='o21' type='checkbox' "+((data == "1") ? "checked='checked'" : "")+" />"+_("Use Rain Sensor")+"</label>";
@@ -992,7 +992,7 @@ function show_settings() {
                 list.rso = "<label for='o22'><input data-mini='true' id='o22' type='checkbox' "+((data == "1") ? "checked='checked'" : "")+" />"+_("Normally Open (Rain Sensor)")+"</label>";
                 return true;
             case "wl":
-                list.wl = "<label for='o23'>"+_("% Watering")+"</label><input data-highlight='true' data-mini='true' type='number' pattern='[0-9]*' data-type='range' min='0' max='250' id='o23' value='"+data+"' />";
+                list.wl = "<label for='o23'>"+_("% Watering")+"</label><input data-highlight='true' type='number' pattern='[0-9]*' data-type='range' min='0' max='250' id='o23' value='"+data+"' />";
                 return true;
             case "ipas":
                 list.ipas = "<label for='o25'><input data-mini='true' id='o25' type='checkbox' "+((data == "1") ? "checked='checked'" : "")+" />"+_("Ignore Password")+"</label>";
