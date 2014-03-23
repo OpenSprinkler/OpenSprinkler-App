@@ -510,7 +510,7 @@ function show_sites(showBack) {
             $(this).find(".ui-content").empty();
         },
         pageshow: function(){
-            $(".ui-toolbar-back-btn").toggle(showBack);
+            $(this).find("[data-role='header']").find("[data-rel='back']").toggle(showBack);
         }
     });
 }
@@ -525,7 +525,7 @@ function delete_site(site) {
         changePage("#start");
         return false;
     }
-    if (site === localStorage.getItem("current_site")) $(".ui-toolbar-back-btn").toggle(false);
+    if (site === localStorage.getItem("current_site")) $("#site-control").find("[data-role='header']").find("[data-rel='back']").toggle(false);
     showerror(_("Site deleted successfully"));
     return false;
 }
