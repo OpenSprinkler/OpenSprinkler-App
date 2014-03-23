@@ -509,8 +509,8 @@ function show_sites(showBack) {
         pagehide: function(){
             $(this).find(".ui-content").empty();
         },
-        pageshow: function(){
-            $(this).find("[data-role='header']").find("[data-rel='back']").toggle(showBack);
+        pagebeforeshow: function(){
+            $("#site-control-back-btn").toggle(showBack);
         }
     });
 }
@@ -525,7 +525,7 @@ function delete_site(site) {
         changePage("#start");
         return false;
     }
-    if (site === localStorage.getItem("current_site")) $("#site-control").find("[data-role='header']").find("[data-rel='back']").toggle(false);
+    if (site === localStorage.getItem("current_site")) $("#site-control-back-btn").toggle(false);
     showerror(_("Site deleted successfully"));
     return false;
 }
