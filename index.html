@@ -202,7 +202,8 @@
         </div>
 
         <div data-role="page" id="os-stations">
-            <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false" data-add-back-btn="true">
+            <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false">
+                <a role="button" href="javascript:window.history.back();" class="ui-btn ui-corner-all ui-shadow ui-btn-left ui-btn-b ui-toolbar-back-btn ui-icon-carat-l ui-btn-icon-left" data-rel="back">Back</a>
                 <h3 data-translate="Edit Stations"></h3>
                 <a href="javascript:submit_stations();" data-icon="check" data-translate="Submit" class="ui-btn-right"></a>
             </div>
@@ -210,7 +211,7 @@
             </div>
         </div>
 
-        <div data-role="page" id="site-control" data-theme="a">
+        <div data-role="page" id="site-control">
             <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false" data-add-back-btn="true">
                 <h3 data-translate="Manage Sites"></h3>
                 <a href="#addnew" data-rel="popup" data-icon="plus" data-translate="Add" class="ui-btn-right"></a>
