@@ -525,10 +525,7 @@ function delete_site(site) {
         changePage("#start");
         return false;
     }
-    if (site === localStorage.getItem("current_site")) {
-        $(".ui-toolbar-back-btn").toggle(false);
-        site_select(Object.keys(sites));
-    }
+    if (site === localStorage.getItem("current_site")) $(".ui-toolbar-back-btn").toggle(false);
     showerror(_("Site deleted successfully"));
     return false;
 }
