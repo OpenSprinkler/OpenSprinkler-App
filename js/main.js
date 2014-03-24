@@ -973,8 +973,8 @@ function show_settings() {
                 return true;
             case "mas":
                 list.mas = "<label for='o18' class='select'>"+_("Master Station")+"</label><select data-mini='true' id='o18'><option value='0'>None</option>";
-                for (i=0; i < window.controller.stations.snames.length; i++) {
-                    list.mas += "<option "+((i == data) ? "selected" : "")+" value='"+i+"'>"+window.controller.stations.snames[i]+"</option>";
+                for (i=0; i<window.controller.stations.snames.length; i++) {
+                    list.mas += "<option "+(((i+1) == data) ? "selected" : "")+" value='"+(i+1)+"'>"+window.controller.stations.snames[i]+"</option>";
                     if (i == 7) break;
                 }
                 list.mas += "</select>";
