@@ -469,16 +469,12 @@ function show_addnew(autoIP) {
             '</div>' +
         '</div>');
 
-    addnew.one({
-        popupafteropen: function(){
-            $(this).popup("reposition", {
-                "positionTo": "window"
-            });
-        },
-        popupafterclose: function(){
-            $(this).popup("destroy").remove();
-        }
-    }).popup({history: false}).enhanceWithin().popup("open");
+    addnew.one("popupafterclose",function(){
+        $(this).popup("destroy").remove();
+    }).popup({
+        history: false,
+        "positionTo": "window"
+    }).enhanceWithin().popup("open");
 }
 
 function show_sites(showBack) {
