@@ -437,16 +437,12 @@ function show_site_select(list) {
             '</div>' +
         '</div>');
 
-    popup.one({
-        popupafteropen: function(){
-            $(this).popup("reposition", {
-                "positionTo": "window"
-            });
-        },
-        popupafterclose: function(){
-            $(this).popup("destroy").remove();
-        }
-    }).popup({history: false}).enhanceWithin().popup("open");
+    popup.one("popupafterclose",function(){
+        $(this).popup("destroy").remove();
+    }).popup({
+        history: false,
+        "positionTo": "window"
+    }).enhanceWithin().popup("open");
 }
 
 function show_addnew(autoIP) {
