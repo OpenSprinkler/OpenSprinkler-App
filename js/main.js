@@ -119,8 +119,6 @@ $(document)
 
         if (typeof data.toPage !== "string") return;
 
-        $.mobile.silentScroll(0);
-
         hash = $.mobile.path.parseUrl(page).hash;
 
         switch(hash) {
