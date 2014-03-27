@@ -1582,7 +1582,7 @@ function get_preview() {
         do {
             busy=0;
             match_found=0;
-            for(var pid=0;pid<window.controller.programs.nprogs;pid++) {
+            for(var pid=0;pid<window.controller.programs.pd.length;pid++) {
               prog=window.controller.programs.pd[pid];
               if(check_match(prog,simminutes,simt,simday,devday)) {
                 for(sid=0;sid<window.controller.settings.nbrd*8;sid++) {
@@ -1955,7 +1955,7 @@ function update_program_header() {
 
 //Make the list of all programs
 function make_all_programs() {
-    if (window.controller.programs.nprogs === 0) {
+    if (window.controller.programs.pd.length === 0) {
         return "<p class='center'>"+_("You have no programs currently added. Tap the Add button on the top right corner to get started.")+"</p>";
     }
     var list = "<p class='center'>"+_("Click any program below to expand/edit. Be sure to save changes by hitting submit below.")+"</p><div data-role='collapsible-set'>";
