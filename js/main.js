@@ -772,10 +772,15 @@ function hide_weather() {
 }
 
 function update_weather() {
-    $("#weather").off("click").html("<p class='ui-icon ui-icon-loading mini-load'></p>");
-
     var provider = localStorage.getItem("provider"),
         wapikey = localStorage.getItem("wapikey");
+
+    if (window.controller.settings.loc === "") {
+        hide_weather();
+        return;
+    }
+
+    $("#weather").off("click").html("<p class='ui-icon ui-icon-loading mini-load'></p>");
 
     if (provider == "wunderground" && wapikey) {
         update_wunderground_weather(wapikey);
@@ -924,79 +929,88 @@ function show_about() {
 
 // Device setting management functions
 function show_settings() {
-    var list = {};
+    var list = "",
+        timezones, tz, i;
 
-    list.start = "<li><div class='ui-field-contain'><fieldset>";
+    list = "<li><div class='ui-field-contain'><fieldset>";
 
-    $.each(window.controller.options,function(key,data) {
-        var i;
-        switch (key) {
-            case "tz":
-                var timezones = ["-12:00","-11:30","-11:00","-10:00","-09:30","-09:00","-08:30","-08:00","-07:00","-06:00","-05:00","-04:30","-04:00","-03:30","-03:00","-02:30","-02:00","+00:00","+01:00","+02:00","+03:00","+03:30","+04:00","+04:30","+05:00","+05:30","+05:45","+06:00","+06:30","+07:00","+08:00","+08:45","+09:00","+09:30","+10:00","+10:30","+11:00","+11:30","+12:00","+12:45","+13:00","+13:45","+14:00"];
-                var tz = data-48;
-                tz = ((tz>=0)?"+":"-")+pad((Math.abs(tz)/4>>0))+":"+((Math.abs(tz)%4)*15/10>>0)+((Math.abs(tz)%4)*15%10);
-                list.tz = "<label for='o1' class='select'>"+_("Timezone")+"</label><select data-mini='true' id='o1'>";
-                for (i=0; i<timezones.length; i++) {
-                    list.tz += "<option "+((timezones[i] == tz) ? "selected" : "")+" value='"+timezones[i]+"'>"+timezones[i]+"</option>";
-                }
-                list.tz += "</select>";
-                return true;
-            case "ntp":
-                list.ntp = "<label for='o2'><input data-mini='true' id='o2' type='checkbox' "+((data == "1") ? "checked='checked'" : "")+" />"+_("NTP Sync")+"</label>";
-                return true;
-            case "hp0":
-                var http = window.controller.options.hp1*256+data;
-                list.http = "<label for='o12'>"+_("HTTP Port (restart required)")+"</label><input data-mini='true' type='number' pattern='[0-9]*' id='o12' value='"+http+"' />";
-                return true;
-            case "devid":
-                list.devid = "<label for='o26'>"+_("Device ID (restart required)")+"</label><input data-mini='true' type='number' pattern='[0-9]*' max='255' id='o26' value='"+data+"' />";
-                return true;
-            case "ar":
-                list.ar = "<label for='o14'><input data-mini='true' id='o14' type='checkbox' "+((data == "1") ? "checked='checked'" : "")+" />"+_("Auto Reconnect")+"</label>";
-                return true;
-            case "ext":
-                list.ext = "<label for='o15'>"+_("Extension Boards")+"</label><input data-highlight='true' type='number' pattern='[0-9]*' data-type='range' min='0' max='5' id='o15' value='"+data+"' />";
-                return true;
-            case "seq":
-                list.seq = "<label for='o16'><input data-mini='true' id='o16' type='checkbox' "+((data == "1") ? "checked='checked'" : "")+" />"+_("Sequential")+"</label>";
-                return true;
-            case "sdt":
-                list.sdt = "<label for='o17'>"+_("Station Delay (seconds)")+"</label><input data-highlight='true' type='number' pattern='[0-9]*' data-type='range' min='0' max='240' id='o17' value='"+data+"' />";
-                return true;
-            case "mas":
-                list.mas = "<label for='o18' class='select'>"+_("Master Station")+"</label><select data-mini='true' id='o18'><option value='0'>None</option>";
-                for (i=0; i<window.controller.stations.snames.length; i++) {
-                    list.mas += "<option "+(((i+1) == data) ? "selected" : "")+" value='"+(i+1)+"'>"+window.controller.stations.snames[i]+"</option>";
-                    if (i == 7) break;
-                }
-                list.mas += "</select>";
-                return true;
-            case "mton":
-                list.mton = "<label for='o19'>"+_("Master On Delay")+"</label><input data-highlight='true' type='number' pattern='[0-9]*' data-type='range' min='0' max='60' id='o19' value='"+data+"' />";
-                return true;
-            case "mtof":
-                list.mtof = "<label for='o20'>"+_("Master Off Delay")+"</label><input data-highlight='true' type='number' pattern='[0-9]*' data-type='range' min='-60' max='60' id='o20' value='"+data+"' />";
-                return true;
-            case "urs":
-                list.urs = "<label for='o21'><input data-mini='true' id='o21' type='checkbox' "+((data == "1") ? "checked='checked'" : "")+" />"+_("Use Rain Sensor")+"</label>";
-                return true;
-            case "rso":
-                list.rso = "<label for='o22'><input data-mini='true' id='o22' type='checkbox' "+((data == "1") ? "checked='checked'" : "")+" />"+_("Normally Open (Rain Sensor)")+"</label>";
-                return true;
-            case "wl":
-                list.wl = "<label for='o23'>"+_("% Watering")+"</label><input data-highlight='true' type='number' pattern='[0-9]*' data-type='range' min='0' max='250' id='o23' value='"+data+"' />";
-                return true;
-            case "ipas":
-                list.ipas = "<label for='o25'><input data-mini='true' id='o25' type='checkbox' "+((data == "1") ? "checked='checked'" : "")+" />"+_("Ignore Password")+"</label>";
-                return true;
+    if (typeof window.controller.options.tz !== "undefined") {
+        timezones = ["-12:00","-11:30","-11:00","-10:00","-09:30","-09:00","-08:30","-08:00","-07:00","-06:00","-05:00","-04:30","-04:00","-03:30","-03:00","-02:30","-02:00","+00:00","+01:00","+02:00","+03:00","+03:30","+04:00","+04:30","+05:00","+05:30","+05:45","+06:00","+06:30","+07:00","+08:00","+08:45","+09:00","+09:30","+10:00","+10:30","+11:00","+11:30","+12:00","+12:45","+13:00","+13:45","+14:00"];
+        tz = window.controller.options.tz-48;
+        tz = ((tz>=0)?"+":"-")+pad((Math.abs(tz)/4>>0))+":"+((Math.abs(tz)%4)*15/10>>0)+((Math.abs(tz)%4)*15%10);
+        list += "<label for='o1' class='select'>"+_("Timezone")+"</label><select data-mini='true' id='o1'>";
+        for (i=0; i<timezones.length; i++) {
+            list += "<option "+((timezones[i] == tz) ? "selected" : "")+" value='"+timezones[i]+"'>"+timezones[i]+"</option>";
         }
-    });
-    list.loc = "<label for='loc'>Location</label><input data-mini='true' type='text' id='loc' value='"+window.controller.settings.loc+"' />";
-    list.end = "</fieldset></div></li>";
+        list += "</select>";
+    }
 
-    var str = list.start + list.tz + list.mas + list.http + list.devid + list.loc + list.ext + list.sdt + list.mton + list.mtof + list.wl + list.ntp + list.ar + list.seq + list.urs + list.rso + list.ipas + list.end;
+    if (typeof window.controller.options.mas !== "undefined") {
+        list += "<label for='o18' class='select'>"+_("Master Station")+"</label><select data-mini='true' id='o18'><option value='0'>None</option>";
+        for (i=0; i<window.controller.stations.snames.length; i++) {
+            list += "<option "+(((i+1) == window.controller.options.mas) ? "selected" : "")+" value='"+(i+1)+"'>"+window.controller.stations.snames[i]+"</option>";
+            if (i == 7) break;
+        }
+        list += "</select>";
+    }
 
-    $("#os-settings .ui-content").html($('<ul data-role="listview" data-inset="true" id="os-settings-list"></ul>').html(str).listview().enhanceWithin());
+    if (typeof window.controller.options.hp0 !== "undefined") {
+        list += "<label for='o12'>"+_("HTTP Port (restart required)")+"</label><input data-mini='true' type='number' pattern='[0-9]*' id='o12' value='"+(window.controller.options.hp1*256+window.controller.options.hp0)+"' />";
+    }
+
+    if (typeof window.controller.options.devid !== "undefined") {
+        list += "<label for='o26'>"+_("Device ID (restart required)")+"</label><input data-mini='true' type='number' pattern='[0-9]*' max='255' id='o26' value='"+window.controller.options.devid+"' />";
+    }
+
+    list += "<label for='loc'>Location</label><input data-mini='true' type='text' id='loc' value='"+window.controller.settings.loc+"' />";
+
+    if (typeof window.controller.options.ext !== "undefined") {
+        list += "<label for='o15'>"+_("Extension Boards")+"</label><input data-highlight='true' type='number' pattern='[0-9]*' data-type='range' min='0' max='5' id='o15' value='"+window.controller.options.ext+"' />";
+    }
+
+    if (typeof window.controller.options.sdt !== "undefined") {
+        list += "<label for='o17'>"+_("Station Delay (seconds)")+"</label><input data-highlight='true' type='number' pattern='[0-9]*' data-type='range' min='0' max='240' id='o17' value='"+window.controller.options.sdt+"' />";
+    }
+
+    if (typeof window.controller.options.mton !== "undefined") {
+        list += "<label for='o19'>"+_("Master On Delay")+"</label><input data-highlight='true' type='number' pattern='[0-9]*' data-type='range' min='0' max='60' id='o19' value='"+window.controller.options.mton+"' />";
+    }
+
+    if (typeof window.controller.options.mtof !== "undefined") {
+        list += "<label for='o20'>"+_("Master Off Delay")+"</label><input data-highlight='true' type='number' pattern='[0-9]*' data-type='range' min='-60' max='60' id='o20' value='"+window.controller.options.mtof+"' />";
+    }
+
+    if (typeof window.controller.options.wl !== "undefined") {
+        list += "<label for='o23'>"+_("% Watering")+"</label><input data-highlight='true' type='number' pattern='[0-9]*' data-type='range' min='0' max='250' id='o23' value='"+window.controller.options.wl+"' />";
+    }
+
+    if (typeof window.controller.options.ntp !== "undefined") {
+        list += "<label for='o2'><input data-mini='true' id='o2' type='checkbox' "+((window.controller.options.ntp === 1) ? "checked='checked'" : "")+" />"+_("NTP Sync")+"</label>";
+    }
+
+    if (typeof window.controller.options.ar !== "undefined") {
+        list += "<label for='o14'><input data-mini='true' id='o14' type='checkbox' "+((window.controller.options.ar === 1) ? "checked='checked'" : "")+" />"+_("Auto Reconnect")+"</label>";
+    }
+
+    if (typeof window.controller.options.seq !== "undefined") {
+        list += "<label for='o16'><input data-mini='true' id='o16' type='checkbox' "+((window.controller.options.seq === 1) ? "checked='checked'" : "")+" />"+_("Sequential")+"</label>";
+    }
+
+    if (typeof window.controller.options.urs !== "undefined") {
+        list += "<label for='o21'><input data-mini='true' id='o21' type='checkbox' "+((window.controller.options.urs === 1) ? "checked='checked'" : "")+" />"+_("Use Rain Sensor")+"</label>";
+    }
+
+    if (typeof window.controller.options.rso !== "undefined") {
+        list += "<label for='o22'><input data-mini='true' id='o22' type='checkbox' "+((window.controller.options.rso === 1) ? "checked='checked'" : "")+" />"+_("Normally Open (Rain Sensor)")+"</label>";
+    }
+
+    if (typeof window.controller.options.ipas !== "undefined") {
+        list += "<label for='o25'><input data-mini='true' id='o25' type='checkbox' "+((window.controller.options.ipas === 1) ? "checked='checked'" : "")+" />"+_("Ignore Password")+"</label>";
+    }
+
+    list += "</fieldset></div></li>";
+
+    $("#os-settings .ui-content").html($('<ul data-role="listview" data-inset="true" id="os-settings-list"></ul>').html(list).listview().enhanceWithin());
 
     $("#os-settings").one("pagehide",function(){
         $(this).find(".ui-content").empty();
