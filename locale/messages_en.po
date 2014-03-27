@@ -1,24 +1,37 @@
-msgid "Manually Add Device"
+msgid "Network Error"
 msgstr ""
 
 msgid "Check device password and try again."
 msgstr ""
 
-msgid "Check that the device is connected to the network and try again."
-msgstr ""
-
 msgid "Connection timed-out. Please try again."
-msgstr ""
-
-msgid ""
-"Error communicating with OpenSprinkler. Please check your password is "
-"correct."
 msgstr ""
 
 msgid "An IP address is required to continue."
 msgstr ""
 
 msgid "Check IP/Port and try again."
+msgstr ""
+
+msgid "Select Site"
+msgstr ""
+
+msgid "New Device"
+msgstr ""
+
+msgid ""
+"Note: The name is used to identify the OpenSprinkler within the app. "
+"OpenSprinkler IP can be either an IP or hostname. You can also specify a "
+"port by using IP:Port"
+msgstr ""
+
+msgid "Open Sprinkler Name:"
+msgstr ""
+
+msgid "Open Sprinkler IP:"
+msgstr ""
+
+msgid "Open Sprinkler Password:"
 msgstr ""
 
 msgid "Connect Now"
@@ -28,6 +41,18 @@ msgid "Save Changes to"
 msgstr ""
 
 msgid "Delete"
+msgstr ""
+
+msgid "Site deleted successfully"
+msgstr ""
+
+msgid "Site updated successfully"
+msgstr ""
+
+msgid "Manually Add Device"
+msgstr ""
+
+msgid "Add Controller"
 msgstr ""
 
 msgid "Firmware"
@@ -156,6 +181,9 @@ msgstr ""
 msgid "running"
 msgstr ""
 
+msgid "Station delay"
+msgstr ""
+
 msgid "System Disabled"
 msgstr ""
 
@@ -177,10 +205,13 @@ msgstr ""
 msgid "Manual mode enabled"
 msgstr ""
 
-msgid "Station delay"
+msgid "Sprinkler Stations"
 msgstr ""
 
-msgid "Sprinkler Stations"
+msgid "With manual mode turned on, tap a station to toggle it."
+msgstr ""
+
+msgid "Manual Mode"
 msgstr ""
 
 msgid "Manual mode is not enabled. Please enable manual mode then try again."
@@ -191,9 +222,6 @@ msgid ""
 "once program."
 msgstr ""
 
-msgid "Reset"
-msgstr ""
-
 msgid "Quick Programs"
 msgstr ""
 
@@ -201,6 +229,9 @@ msgid "Last Used Program"
 msgstr ""
 
 msgid "Program"
+msgstr ""
+
+msgid "Reset"
 msgstr ""
 
 msgid "Run-once program has been scheduled"
@@ -384,33 +415,6 @@ msgstr ""
 msgid "Scan For Device"
 msgstr ""
 
-msgid "Add Controller"
-msgstr ""
-
-msgid "Select Site"
-msgstr ""
-
-msgid "New Device"
-msgstr ""
-
-msgid ""
-"Note: The name is used to identify the OpenSprinkler within the app. "
-"OpenSprinkler IP can be either an IP or hostname. You can also specify a "
-"port by using IP:Port"
-msgstr ""
-
-msgid "Open Sprinkler Name:"
-msgstr ""
-
-msgid "Open Sprinkler IP:"
-msgstr ""
-
-msgid "Open Sprinkler Password:"
-msgstr ""
-
-msgid "Settings"
-msgstr ""
-
 msgid "Weather"
 msgstr ""
 
@@ -461,28 +465,7 @@ msgstr ""
 msgid "About"
 msgstr ""
 
-msgid "Forecast"
-msgstr ""
-
-msgid "Back"
-msgstr ""
-
-msgid "Refresh"
-msgstr ""
-
-msgid "With manual mode turned on, tap a station to toggle it."
-msgstr ""
-
-msgid "Manual Mode"
-msgstr ""
-
-msgid "Programs"
-msgstr ""
-
-msgid "Add"
-msgstr ""
-
-msgid "Add Program"
+msgid "Settings"
 msgstr ""
 
 msgid "Device Settings"
@@ -509,8 +492,26 @@ msgstr ""
 msgid "Localization"
 msgstr ""
 
-msgid "OS Settings"
+msgid "Program Preview"
 msgstr ""
 
-msgid "Program Preview"
+msgid "Forecast"
+msgstr ""
+
+msgid "Refresh"
+msgstr ""
+
+msgid "Run-Once"
+msgstr ""
+
+msgid "Programs"
+msgstr ""
+
+msgid "Add"
+msgstr ""
+
+msgid "Add Program"
+msgstr ""
+
+msgid "OS Settings"
 msgstr ""
