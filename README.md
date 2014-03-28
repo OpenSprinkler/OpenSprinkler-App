@@ -6,6 +6,8 @@ A mobile interface for the OpenSprinkler irrigation device. Designed to allow ma
 Overview:
 ---------
 
++ This application is available for free from the [Apple App Store](https://itunes.apple.com/us/app/sprinklers/id830988967?ls=1&mt=8) and the [Google Play Store](https://play.google.com/store/apps/details?id=com.albahra.sprinklers)
+
 + This application interfaces with the interval program on the OpenSprinkler which is the default software available. The application has been tested and compatible with firmware 2.0.4+ however specifically does NOT support 1.8.3, 2.0.0, 2.0.1, 2.0.2, and 2.0.3.
   + If you are using firmware 2.0.3 or lower please use the [2.0-master branch](https://github.com/salbahra/Sprinklers/tree/2.0-master)
 
