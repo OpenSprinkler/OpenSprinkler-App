@@ -15,7 +15,7 @@ Overview:
 
 Video Tutorial:
 ---------------
-[![Video Tutorial](https://img.youtube.com/vi/5pYHsMZSj6w/0.jpg)](http://youtu.be/8SDlmIEdA40)
+[![Video Tutorial](https://img.youtube.com/vi/8SDlmIEdA40/hqdefault.jpg)](http://youtu.be/8SDlmIEdA40)
 
 This video goes through most of the Sprinklers app showcasing the various features.
 
