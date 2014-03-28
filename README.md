@@ -15,9 +15,9 @@ Overview:
 
 Video Tutorial:
 ---------------
-[![Video Tutorial](https://img.youtube.com/vi/5pYHsMZSj6w/0.jpg)](https://www.youtube.com/watch?v=5pYHsMZSj6w)
+[![Video Tutorial](https://img.youtube.com/vi/5pYHsMZSj6w/0.jpg)](http://youtu.be/8SDlmIEdA40)
 
-Very well put together by Ray, thanks!
+This video goes through most of the Sprinklers app showcasing the various features.
 
 Screenshots:
 ------------
@@ -36,7 +36,7 @@ git clone https://github.com/salbahra/Sprinklers.git /var/www/sprinklers
 
 + Now, visit the site using any browser (replacing IPAddr with the server IP): http://IPAddr/sprinklers
 
-> If you don't have Git, you can download the [ZIP](https://github.com/salbahra/OpenSprinkler-Controller/archive/master.zip) file and extract to a local directory.
+> If you don't have Git, you can download the [ZIP](https://github.com/salbahra/Sprinklers/archive/master.zip) file and extract to a local directory.
 
 > The webapp can also be installed to the SD card of the OpenSprinkler and run directly from the device. For this you will need to grab the specially formatted version from the sdcard branch.
 
