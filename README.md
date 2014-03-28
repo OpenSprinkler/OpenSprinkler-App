@@ -13,9 +13,9 @@ Overview:
 
 + For current discussion about the project please refer to the [forum post](http://rayshobby.net/phpBB3/viewtopic.php?f=2&t=154).
 
-Video Tutorial:
+Video:
 ---------------
-[![Video Tutorial](https://img.youtube.com/vi/8SDlmIEdA40/hqdefault.jpg)](http://youtu.be/8SDlmIEdA40)
+[![Video](https://img.youtube.com/vi/8SDlmIEdA40/hqdefault.jpg)](http://youtu.be/8SDlmIEdA40)
 
 This video goes through most of the Sprinklers app showcasing the various features.
 
