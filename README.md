@@ -1,4 +1,4 @@
-[OpenSprinkler Hosted Controller](http://salbahra.github.io/OpenSprinkler-Hosted-Controller)
+[Sprinklers](http://salbahra.github.io/Sprinklers)
 ========================
 
 A mobile interface for the OpenSprinkler irrigation device. Designed to allow manual control, program management (view, edit, delete and add), initiation of a run-once program, viewing device status, adjusting rain delay, and changing of OpenSprinkler settings. Screenshots available below.
@@ -7,11 +7,11 @@ Overview:
 ---------
 
 + This application interfaces with the interval program on the OpenSprinkler which is the default software available. The application has been tested and compatible with firmware 2.0.4+ however specifically does NOT support 1.8.3, 2.0.0, 2.0.1, 2.0.2, and 2.0.3.
-  + If you are using firmware 2.0.3 or lower please use the [2.0-master branch](https://github.com/salbahra/OpenSprinkler-Hosted-Controller/tree/2.0-master)
+  + If you are using firmware 2.0.3 or lower please use the [2.0-master branch](https://github.com/salbahra/Sprinklers/tree/2.0-master)
 
 + The application is written in Javascript and HTML/CSS. The application runs 100% within the user's browser and communicates directly with the OpenSprinkler.
 
-+ For current discussion about the project please refer to the [forum post](http://rayshobby.net/phpBB3/viewtopic.php?f=2&t=154). 
++ For current discussion about the project please refer to the [forum post](http://rayshobby.net/phpBB3/viewtopic.php?f=2&t=154).
 
 Video Tutorial:
 ---------------
@@ -30,7 +30,7 @@ Install Instructions:
 
 ```sh
 #install files
-git clone https://github.com/salbahra/OpenSprinkler-Hosted-Controller.git /var/www/sprinklers
+git clone https://github.com/salbahra/Sprinklers.git /var/www/sprinklers
 
 ```
 
