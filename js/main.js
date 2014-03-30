@@ -624,8 +624,6 @@ function resetStartMenu() {
 }
 
 function start_scan(port) {
-    $.mobile.loading("show");
-
     var ip = window.deviceip.split("."),
         scanprogress = 1,
         devicesfound = [],
@@ -649,6 +647,7 @@ function start_scan(port) {
     // Check is scanning is complete
     check_scan_status = function() {
         if (scanprogress == 245) {
+            $.mobile.loading("hide");
             clearInterval(scanning);
             if (!devicesfound.length) {
                 if (!port) {
@@ -657,7 +656,6 @@ function start_scan(port) {
                     showerror(_("No devices were detected on your network."));
                 }
             } else {
-                $.mobile.loading("hide");
                 show_site_select(newlist);
             }
         }
@@ -665,6 +663,22 @@ function start_scan(port) {
 
     ip.pop();
     baseip = ip.join(".");
+
+    if (port && port == "8080") {
+        $.mobile.loading('show', {
+                text: _("Scanning for OpenSprinkler Pi"),
+                textVisible: true,
+                textonly: true,
+                theme: 'b'
+        });
+    } else {
+        $.mobile.loading('show', {
+                text: _("Scanning for OpenSprinkler"),
+                textVisible: true,
+                textonly: true,
+                theme: 'b'
+        });
+    }
 
     // Start scan
     for (i = 1; i<=244; i++) {
