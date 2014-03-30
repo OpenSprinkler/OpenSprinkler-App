@@ -258,9 +258,6 @@ function flipSwitched() {
     });
 }
 
-//Define option names based on ID
-window.keyNames = {"tz":1,"ntp":2,"hp0":12,"hp1":13,"ar":14,"ext":15,"seq":16,"sdt":17,"mas":18,"mton":19,"mtof":20,"urs":21,"rso":22,"wl":23,"ipas":25,"devid":26};
-
 // Gather new controller information and load home page
 function newload() {
     $.mobile.loading("show");
@@ -452,7 +449,7 @@ function show_addnew(autoIP) {
                 '<h1>'+_("New Device")+'</h1>' +
             '</div>' +
             '<div class="ui-content">' +
-                '<form action="javascript:submit_newuser()" method="post">' +
+                '<form action="javascript:submit_newuser()" method="post" novalidate>' +
                     ((isAuto) ? '' : '<p class="center" style="font-size:smaller;margin-top:0">'+_("Note: The name is used to identify the OpenSprinkler within the app. OpenSprinkler IP can be either an IP or hostname. You can also specify a port by using IP:Port")+'</p>') +
                     '<label for="os_name">'+_("Open Sprinkler Name:")+'</label>' +
                     '<input autocorrect="off" spellcheck="false" type="text" name="os_name" id="os_name" placeholder="Home" />' +
@@ -486,7 +483,7 @@ function show_sites(showBack) {
         list += "<fieldset "+((total == 1) ? "data-collapsed='false'" : "")+" id='site-"+c+"' data-role='collapsible'>";
         list += "<legend>"+a+"</legend>";
         list += "<a data-role='button' href='javascript:update_site(\""+a+"\")'>"+_("Connect Now")+"</a>";
-        list += "<form action='javascript:change_site(\""+c+"\");'><label for='cip-"+c+"'>Change IP</label><input id='cip-"+c+"' type='url' value='"+b.os_ip+"' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' />";
+        list += "<form action='javascript:change_site(\""+c+"\");' novalidate><label for='cip-"+c+"'>Change IP</label><input id='cip-"+c+"' type='url' value='"+b.os_ip+"' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' />";
         list += "<label for='cpw-"+c+"'>Change Password</label><input id='cpw-"+c+"' type='password' />";
         list += "<input type='submit' value='"+_("Save Changes to")+" "+a+"' /></form>";
         list += "<a data-role='button' href='javascript:delete_site(\""+a+"\")' data-theme='b'>"+_("Delete")+" "+a+"</a>";
@@ -1018,9 +1015,17 @@ function show_settings() {
 }
 
 function submit_settings() {
-    var opt = {}, invalid = false;
+    var opt = {},
+        invalid = false,
+        isPi = isOSPi(),
+        keyNames = {1:"tz",2:"ntp",12:"htp",13:"htp2",14:"ar",15:"nbrd",16:"seq",17:"sdt",18:"mas",19:"mton",20:"mtoff",21:"urs",22:"rst",23:"wl",25:"ipas"},
+        key;
+
     $("#os-settings-list").find(":input").each(function(a,b){
-        var $item = $(b), id = $item.attr('id'), data = $item.val();
+        var $item = $(b),
+            id = $item.attr('id'),
+            data = $item.val();
+
         switch (id) {
             case "o1":
                 var tz = data.split(":");
@@ -1038,6 +1043,14 @@ function submit_settings() {
                 data = $item.is(":checked") ? 1 : 0;
                 if (!data) return true;
                 break;
+        }
+        if (isPi) {
+            if (id == "loc") {
+                id = "oloc";
+            } else {
+                key = /\d+/.exec(id);
+                id = "o"+keyNames[key];
+            }
         }
         opt[id] = encodeURIComponent(data);
     });
@@ -1162,7 +1175,7 @@ function get_status() {
             if (open > 1) {
                 if (rem > ptotal) ptotal = rem;
             } else {
-                ptotal+=rem;
+                if (window.controller.settings.ps[i][0] !== 99 && rem !== 1) ptotal+=rem;
             }
             var remm=rem/60>>0,
                 rems=rem%60,
@@ -1171,7 +1184,7 @@ function get_status() {
             if (window.controller.status[i] && (pid!=255&&pid!=99)) runningTotal[i] = rem;
             allPnames[i] = pname;
             info = "<p class='rem'>"+((window.controller.status[i]) ? _("Running") : _("Scheduled"))+" "+pname;
-            if (pid!=255&&pid!=99) info += " <span id='countdown-"+i+"' class='nobr'>("+(remm/10>>0)+(remm%10)+":"+(rems/10>>0)+(rems%10)+" "+_("remaining")+")</span>";
+            if (pid!=255&&pid!=99) info += " <span id='countdown-"+i+"' class='nobr'>(" + sec2hms(rem) + " "+_("remaining")+")</span>";
             info += "</p>";
         }
         if (window.controller.status[i]) {
@@ -1201,7 +1214,7 @@ function get_status() {
         var numProg = allPnames.length;
         allPnames = allPnames.join(" "+_("and")+" ");
         var pinfo = allPnames+" "+((numProg > 1) ? _("are") : _("is"))+" "+_("running")+" ";
-        pinfo += "<br><span id='countdown-p' class='nobr'>("+sec2hms(ptotal)+" remaining)</span>";
+        pinfo += "<br><span id='countdown-p' class='nobr'>("+sec2hms(ptotal)+" "+_("remaining")+")</span>";
         runningTotal.p = ptotal;
         header += "<br>"+pinfo;
     }
@@ -1317,17 +1330,18 @@ function check_status() {
 
     // Handle open stations
     open = {};
-    $.each(window.controller.status, function (i, stn) {
-        if (stn) open[i] = stn;
-    });
+    for (i=0; i<window.controller.status.length; i++) {
+        if (window.controller.status[i]) open[i] = window.controller.status[i];
+    };
 
     if (window.controller.options.mas) delete open[window.controller.options.mas-1];
 
     // Handle more than 1 open station
     if (Object.keys(open).length >= 2) {
         ptotal = 0;
-        for (i=0; i<=open.length; i++) {
-            tmp = window.controller.settings.ps[open[i]][1];
+
+        for (i in open) {
+            tmp = window.controller.settings.ps[i][1];
             if (tmp > ptotal) ptotal = tmp;
         }
 
@@ -2222,14 +2236,15 @@ function clear_config() {
 
 // Export and Import functions
 function export_config(toFile) {
-    var newdata = {};
+    var newdata = {},
+        keyNames = {"tz":1,"ntp":2,"hp0":12,"hp1":13,"ar":14,"ext":15,"seq":16,"sdt":17,"mas":18,"mton":19,"mtof":20,"urs":21,"rso":22,"wl":23,"ipas":25,"devid":26};
 
     newdata.programs = window.controller.programs.pd;
     newdata.options = {};
     newdata.options.loc = window.controller.settings.loc;
     $.each(window.controller.options,function(opt,val){
-        if (opt in window.keyNames) {
-            newdata.options[window.keyNames[opt]] = {"en":"0","val":val};
+        if (opt in keyNames) {
+            newdata.options[keyNames[opt]] = {"en":"0","val":val};
         }
     });
     newdata.stations = window.controller.stations.snames;
@@ -2324,6 +2339,12 @@ function handleConfig(files) {
         }
     };
     reader.readAsText(config);
+}
+
+// OSPi functions
+function isOSPi() {
+    if (window.controller && typeof window.controller.options.fwv == "string" && window.controller.options.fwv.search(/ospi/i)) return true;
+    return false;
 }
 
 // Accessory functions for jQuery Mobile
