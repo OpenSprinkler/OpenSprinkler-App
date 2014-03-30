@@ -643,7 +643,7 @@ function start_scan(port) {
 
             devicesfound.push(device);
 
-            newlist += "<li><a class='ui-btn ui-btn-icon-right ui-icon-carat-r' href='javascript:add_found(\""+ip+"\");'>"+ip+"<p>"+_("Firmware")+": "+(reply.fwv/100>>0)+"."+((reply.fwv/10>>0)%10)+"."+(reply.fwv%10)+"</p></a></li>";
+            newlist += "<li><a class='ui-btn ui-btn-icon-right ui-icon-carat-r' href='javascript:add_found(\""+ip+"\");'>"+ip+"<p>"+_("Firmware")+": "+getOSVersion(reply.fwv)+"</p></a></li>";
     };
 
     // Check is scanning is complete
@@ -2349,6 +2349,14 @@ function handleConfig(files) {
 function isOSPi() {
     if (window.controller && typeof window.controller.options.fwv == "string" && window.controller.options.fwv.search(/ospi/i)) return true;
     return false;
+}
+
+function getOSVersion(fwv) {
+    if (typeof fwv == "string" && fwv.search(/ospi/i)) {
+        return fwv;
+    } else {
+        return (reply.fwv/100>>0)+"."+((reply.fwv/10>>0)%10)+"."+(reply.fwv%10);
+    }
 }
 
 // Accessory functions for jQuery Mobile
