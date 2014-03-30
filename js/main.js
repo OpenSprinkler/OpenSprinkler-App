@@ -623,7 +623,7 @@ function resetStartMenu() {
     auto.hide();
 }
 
-function start_scan() {
+function start_scan(port) {
     $.mobile.loading("show");
 
     var ip = window.deviceip.split("."),
@@ -651,7 +651,11 @@ function start_scan() {
         if (scanprogress == 245) {
             clearInterval(scanning);
             if (!devicesfound.length) {
-                showerror(_("No devices were detected on your network."));
+                if (!port) {
+                    start_scan(8080);
+                } else {
+                    showerror(_("No devices were detected on your network."));
+                }
             } else {
                 $.mobile.loading("hide");
                 show_site_select(newlist);
@@ -665,7 +669,7 @@ function start_scan() {
     // Start scan
     for (i = 1; i<=244; i++) {
         ip = baseip+"."+i;
-        url = "http://"+ip+"/jo";
+        url = "http://"+ip+((port) ? ":"+port : "")+"/jo";
         $.ajax({
             url: url,
             type: "GET",
