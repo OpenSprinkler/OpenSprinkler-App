@@ -106,7 +106,7 @@ a {
 #running-icon {
     width: 11px;
     height: 11px;
-    background: url(../img/running.png);
+    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="11px" height="11px"><circle fill="%235ADC56" stroke="%23000000" stroke-width="0.1" stroke-miterlimit="10" cx="5.5" cy="5.5" r="5.5"/></svg>');
     background-size: 11px 11px;
     background-repeat:no-repeat;
     margin:auto auto auto 4px;
