@@ -61,6 +61,12 @@ msgstr ""
 msgid "No devices were detected on your network."
 msgstr ""
 
+msgid "Scanning for OpenSprinkler Pi"
+msgstr ""
+
+msgid "Scanning for OpenSprinkler"
+msgstr ""
+
 msgid "Weather Provider"
 msgstr ""
 
@@ -94,7 +100,7 @@ msgstr ""
 msgid "Timezone"
 msgstr ""
 
-msgid "NTP Sync"
+msgid "Master Station"
 msgstr ""
 
 msgid "HTTP Port (restart required)"
@@ -103,19 +109,10 @@ msgstr ""
 msgid "Device ID (restart required)"
 msgstr ""
 
-msgid "Auto Reconnect"
-msgstr ""
-
 msgid "Extension Boards"
 msgstr ""
 
-msgid "Sequential"
-msgstr ""
-
 msgid "Station Delay (seconds)"
-msgstr ""
-
-msgid "Master Station"
 msgstr ""
 
 msgid "Master On Delay"
@@ -124,13 +121,22 @@ msgstr ""
 msgid "Master Off Delay"
 msgstr ""
 
+msgid "% Watering"
+msgstr ""
+
+msgid "NTP Sync"
+msgstr ""
+
+msgid "Auto Reconnect"
+msgstr ""
+
+msgid "Sequential"
+msgstr ""
+
 msgid "Use Rain Sensor"
 msgstr ""
 
 msgid "Normally Open (Rain Sensor)"
-msgstr ""
-
-msgid "% Watering"
 msgstr ""
 
 msgid "Ignore Password"

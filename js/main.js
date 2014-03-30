@@ -668,14 +668,12 @@ function start_scan(port) {
         $.mobile.loading('show', {
                 text: _("Scanning for OpenSprinkler Pi"),
                 textVisible: true,
-                textonly: true,
                 theme: 'b'
         });
     } else {
         $.mobile.loading('show', {
                 text: _("Scanning for OpenSprinkler"),
                 textVisible: true,
-                textonly: true,
                 theme: 'b'
         });
     }
