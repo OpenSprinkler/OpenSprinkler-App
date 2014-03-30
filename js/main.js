@@ -48,7 +48,6 @@ $(document)
                     update_weather();
                 },function(){
                     change_status(0,0,"red","<p id='running-text' class='center'>"+_("Network Error")+"</p>");
-                    hide_weather();
                 });
             });
 
@@ -191,7 +190,6 @@ $(document)
             setTimeout(function(){
                 update_controller(check_status,function(){
                     change_status(0,0,"red","<p id='running-text' class='center'>"+_("Network Error")+"</p>");
-                    hide_weather();
                 });
             },800);
         } else {
