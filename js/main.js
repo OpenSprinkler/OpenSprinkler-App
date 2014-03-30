@@ -1070,10 +1070,11 @@ function submit_settings() {
     if (invalid) return;
     $.mobile.loading("show");
     $.get("http://"+window.curr_ip+"/co?pw="+window.curr_pw+"&"+$.param(opt),function(){
+        $(document).one("pageshow",function(){
+            showerror(_("Settings have been saved"));
+        });
         window.history.back();
-        showerror(_("Settings have been saved"));
-        update_controller();
-        update_weather();
+        update_controller(update_weather);
     });
 }
 
@@ -1143,8 +1144,10 @@ function submit_stations() {
     if (invalid) return;
     $.mobile.loading("show");
     $.get("http://"+window.curr_ip+"/cs?pw="+window.curr_pw+"&"+$.param(names)+masop,function(){
+        $(document).one("pageshow",function(){
+            showerror(_("Stations have been updated"));
+        });
         window.history.back();
-        showerror(_("Stations have been updated"));
         update_controller();
     });
 }
