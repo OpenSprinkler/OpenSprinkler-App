@@ -2184,9 +2184,11 @@ function submit_program(id) {
         $.get("http://"+window.curr_ip+"/cp?pw="+window.curr_pw+"&pid=-1&v="+program,function(){
             $.mobile.loading("hide");
             update_controller_programs(function(){
+                $(document).one("pageshow",function(){
+                    showerror(_("Program added successfully"));
+                });
                 window.history.back();
             });
-            showerror(_("Program added successfully"));
         });
     } else {
         $.get("http://"+window.curr_ip+"/cp?pw="+window.curr_pw+"&pid="+id+"&v="+program,function(){
