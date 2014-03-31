@@ -2367,7 +2367,7 @@ function getOSVersion(fwv) {
     if (typeof fwv == "string" && fwv.search(/ospi/i)) {
         return fwv;
     } else {
-        return (reply.fwv/100>>0)+"."+((reply.fwv/10>>0)%10)+"."+(reply.fwv%10);
+        return (fwv/100>>0)+"."+((fwv/10>>0)%10)+"."+(fwv%10);
     }
 }
 
