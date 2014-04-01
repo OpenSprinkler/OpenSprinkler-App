@@ -83,7 +83,7 @@ $(document)
             return;
         }
     }
-    if (m.url.search("yahooapis.com") || m.url.search("api.wunderground.com")) {
+    if (m.url.search("yahooapis.com") !== -1 || m.url.search("api.wunderground.com") !== -1) {
         hide_weather();
         return;
     }
@@ -2359,12 +2359,12 @@ function handleConfig(files) {
 
 // OSPi functions
 function isOSPi() {
-    if (window.controller && typeof window.controller.options.fwv == "string" && window.controller.options.fwv.search(/ospi/i)) return true;
+    if (window.controller && typeof window.controller.options.fwv == "string" && window.controller.options.fwv.search(/ospi/i) !== -1) return true;
     return false;
 }
 
 function getOSVersion(fwv) {
-    if (typeof fwv == "string" && fwv.search(/ospi/i)) {
+    if (typeof fwv == "string" && fwv.search(/ospi/i) !== -1) {
         return fwv;
     } else {
         return (fwv/100>>0)+"."+((fwv/10>>0)%10)+"."+(fwv%10);
