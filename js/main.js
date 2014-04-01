@@ -2438,7 +2438,7 @@ function iab(url) {
 
     if (iOS) dest = "_system";
 
-    return window.open(url,dest,'enableViewportScale=yes');
+    window.open(url,dest,'enableViewportScale=yes');
 }
 
 // Accessory functions
