@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html>
 	<head>
-    	<title data-translate="Sprinkler System"></title>
+    	<title data-translate="Sprinkler System">Sprinkler System</title>
     	<meta name="viewport" content="height=device-height,width=device-width,initial-scale=1.0,minimum-scale=1.0,user-scalable=no">
     	<meta content="yes" name="apple-mobile-web-app-capable">
         <meta name="apple-mobile-web-app-title" content="Sprinklers">
         <meta name="apple-mobile-web-app-status-bar-style" content="black">
-        <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
     	<link rel="apple-touch-icon" href="img/icon.png">
         <link rel="stylesheet" type="text/css" href="css/jquery.mobile.min.css" />
         <link rel="stylesheet" href="css/main.css" />
-        <link rel="shortcut icon" href="img/favicon.ico">
+        <link rel="shortcut icon" href="img/favicon.ico" />
         <script>(function(){if(navigator.userAgent.search("IEMobile") !== -1){var a=document.createElement("style");a.innerHTML="@media(max-width:940px){.wicon{margin:-10px -10px -15px -15px !important}#forecast .wicon{position:relative;left:37.5px;margin:0 auto !important}}";document.head.appendChild(a)}}());</script>
     </head>
     <body>
@@ -27,7 +27,7 @@
             <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false">
                 <a data-icon="bars" data-iconpos="notext" href="javascript:open_panel();"></a>
                 <a data-icon="gear" data-iconpos="notext" href="#settings"></a>
-                <h3 style="padding:0"><div class="logo"></div></h3>
+                <h3 class="logo"></h3>
             </div>
             <div class="ui-content" role="main" style="padding-top:0px">
                 <div id="footer-running">
@@ -75,7 +75,7 @@
                     <li data-icon="back"><a href="javascript:import_config();" data-translate="Import Configuration"></a></li>
                     <li data-icon="info"><a href="javascript:changeFromPanel(show_about);" data-translate="About"></a></li>
                 </ul>
-                <input type="file" id="configInput" data-role="none" onchange="handleConfig(this.files)" style="visibility:hidden;position:absolute;top:-50;left:-50"/>
+                <input type="file" id="configInput" data-role="none" onchange="handleConfig(this.files)" style="visibility:hidden;position:absolute;top:-50px;left:-50px"/>
             </div>
         </div>
 
