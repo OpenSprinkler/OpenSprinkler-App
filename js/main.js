@@ -96,7 +96,6 @@ $(document)
     //After jQuery mobile is loaded set intial configuration
     $.mobile.defaultPageTransition = 'fade';
     $.mobile.hoverDelay = 0;
-    $("body").show();
 })
 .one("pagebeforechange", function(event) {
     // Let the framework know we're going to handle the load

@@ -4,7 +4,6 @@ html, #start {
 }
 body{
     margin: 0;
-    display: none;
 }
 .ui-btn {
     text-overflow: clip !important;
