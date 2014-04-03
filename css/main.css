@@ -20,9 +20,6 @@ body{
     background-position:center;
     margin: 1px auto;
 }
-#donate {
-    display: none;
-}
 #about p {
     text-align:center;
     overflow: visible;
