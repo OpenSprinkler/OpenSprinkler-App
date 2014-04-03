@@ -105,7 +105,7 @@ a {
 #running-icon {
     width: 11px;
     height: 11px;
-    background: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMXB4IiBoZWlnaHQ9IjExcHgiPjxjaXJjbGUgZmlsbD0iIzVBREM1NiIgc3Ryb2tlPSIjMDAwMDAwIiBzdHJva2Utd2lkdGg9IjAuMSIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBjeD0iNS41IiBjeT0iNS41IiByPSI1LjUiLz48L3N2Zz4K");
+    background: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMXB4IiBoZWlnaHQ9IjExcHgiPjxjaXJjbGUgZmlsbD0iIzVBREM1NiIgY3g9IjUuNSIgY3k9IjUuNSIgcj0iNS41Ii8+PC9zdmc+");
     background-size: 11px 11px;
     background-repeat:no-repeat;
     margin:auto auto auto 4px;
