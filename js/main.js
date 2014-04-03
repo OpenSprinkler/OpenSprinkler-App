@@ -1156,7 +1156,9 @@ function get_status() {
         color = "",
         list = "",
         tz = window.controller.options.tz-48,
-        lastCheck;
+        block = 97,
+        lastCheck,
+        content;
 
     if ($("body").pagecontainer("getActivePage").attr("id") === "status") {
         $("#status .ui-content").empty();
@@ -1181,6 +1183,7 @@ function get_status() {
 
     $.each(window.controller.stations.snames,function(i, station) {
         var info = "";
+
         if (master == i+1) {
             station += " ("+_("Master")+")";
         } else if (window.controller.settings.ps[i][0]) {
@@ -1196,17 +1199,19 @@ function get_status() {
                 pname = pidname(pid);
             if (window.controller.status[i] && (pid!=255&&pid!=99)) runningTotal[i] = rem;
             allPnames[i] = pname;
-            info = "<p class='rem'>"+((window.controller.status[i]) ? _("Running") : _("Scheduled"))+" "+pname;
-            if (pid!=255&&pid!=99) info += " <span id='countdown-"+i+"' class='nobr'>(" + sec2hms(rem) + " "+_("remaining")+")</span>";
-            info += "</p>";
+            if (pid!=255&&pid!=99) info = "<span class='rem' id='countdown-"+i+"'>(" + sec2hms(rem) + " "+_("remaining")+")</span>";
         }
         if (window.controller.status[i]) {
             color = "green";
         } else {
             color = "red";
         }
-        list += "<li class='"+color+"'><p class='sname'>"+station+"</p>"+info+"</li>";
-        i++;
+        list += "<div class='ui-block-"+String.fromCharCode(block)+" "+color+"'><p class='center sname'>"+station+"</span>"+info+"</div>";
+        if (block >= 101) {
+            block = 97;
+        } else {
+            block++;
+        }
     });
 
     var footer = "";
@@ -1232,9 +1237,11 @@ function get_status() {
         header += "<br>"+pinfo;
     }
 
+    content = '<div class="ui-grid-d flowlist">'+list+'</div>';
+
     $("#status .ui-content").append(
         $('<p id="status_header"></p>').html(header),
-        $('<ul data-role="listview" data-inset="true" id="status_list"></ul>').html(list).listview(),
+        content,
         $('<p id="status_footer"></p>').html(footer)
     );
 
