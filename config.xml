@@ -49,7 +49,6 @@
         <icon src="img/android/icons/hdpi.png" gap:platform="android" gap:density="hdpi" />
         <icon src="img/android/icons/xhdpi.png" gap:platform="android" gap:density="xhdpi" />
         <icon src="img/android/icons/xxhdpi.png" gap:platform="android" gap:density="xxhdpi" />
-        <icon src="img/android/icons/xxhdpi.png" gap:platform="android" gap:density="xxhdpi" />
 
         <icon src="img/winphone/icons/icon-48.png" gap:platform="winphone" />
 
