@@ -27,27 +27,31 @@
 
         <access origin="*" />
 
-        <gap:splash src="img/startup.png"                           gap:platform="ios" width="320"  height="480"  />
-        <gap:splash src="img/startup-retina.png"                    gap:platform="ios" width="640"  height="960"  />
-        <gap:splash src="img/startup-iphone5-retina.png"            gap:platform="ios" width="640"  height="1136" />
-        <gap:splash src="img/startup-tablet-landscape.png"          gap:platform="ios" width="1024" height="748"  />
-        <gap:splash src="img/startup-tablet-portrait.png"           gap:platform="ios" width="768"  height="1004" />
-        <gap:splash src="img/startup-tablet-landscape-retina.png"   gap:platform="ios" width="2048" height="1496" />
-        <gap:splash src="img/startup-tablet-portrait-retina.png"    gap:platform="ios" width="1536" height="2008" />
+        <gap:splash src="img/ios/screens/startup.png"                           gap:platform="ios" width="320"  height="480"  />
+        <gap:splash src="img/ios/screens/startup-retina.png"                    gap:platform="ios" width="640"  height="960"  />
+        <gap:splash src="img/ios/screens/startup-iphone5-retina.png"            gap:platform="ios" width="640"  height="1136" />
+        <gap:splash src="img/ios/screens/startup-tablet-landscape.png"          gap:platform="ios" width="1024" height="748"  />
+        <gap:splash src="img/ios/screens/startup-tablet-portrait.png"           gap:platform="ios" width="768"  height="1004" />
+        <gap:splash src="img/ios/screens/startup-tablet-landscape-retina.png"   gap:platform="ios" width="2048" height="1496" />
+        <gap:splash src="img/ios/screens/startup-tablet-portrait-retina.png"    gap:platform="ios" width="1536" height="2008" />
 
-        <gap:splash src="img/startup.png" gap:platform="android" gap:density="ldpi" />
-        <gap:splash src="img/startup-retina.png" gap:platform="android" gap:density="mdpi" />
-        <gap:splash src="img/startup-tablet-portrait.png" gap:platform="android" gap:density="hdpi" />
-        <gap:splash src="img/startup-tablet-portrait-retina.png" gap:platform="android" gap:density="xdpi" />
+        <gap:splash src="img/winphone/screens/startup.jpg" gap:platform="winphone" />
 
-        <gap:splash src="img/startup.jpg" gap:platform="winphone" />
+        <icon src="img/ios/icons/icon-57.png" gap:platform="ios" width="57" height="57" />
+        <icon src="img/ios/icons/icon-60@2x.png" gap:platform="ios" width="120" height="120" />
+        <icon src="img/ios/icons/icon-72.png" gap:platform="ios" width="72" height="72" />
+        <icon src="img/ios/icons/icon-72@2x.png" gap:platform="ios" width="144" height="144" />
+        <icon src="img/ios/icons/icon-76.png" gap:platform="ios" width="76" height="76" />
+        <icon src="img/ios/icons/icon-76@2x.png" gap:platform="ios" width="152" height="152" />
 
-        <icon src="img/icon-57.png" gap:platform="ios" width="57" height="57" />
-        <icon src="img/icon-72.png" gap:platform="ios" width="72" height="72" />
-        <icon src="img/icon-76.png" gap:platform="ios" width="76" height="76" />
-        <icon src="img/icon-60@2x.png" gap:platform="ios" width="120" height="120" />
-        <icon src="img/icon.png" gap:platform="ios" width="144" height="144" />
-        <icon src="img/icon-76@2x.png" gap:platform="ios" width="152" height="152" />
+        <icon src="img/android/icons/ldpi.png" gap:platform="android" gap:density="ldpi" />
+        <icon src="img/android/icons/mdpi.png" gap:platform="android" gap:density="mdpi" />
+        <icon src="img/android/icons/hdpi.png" gap:platform="android" gap:density="hdpi" />
+        <icon src="img/android/icons/xhdpi.png" gap:platform="android" gap:density="xhdpi" />
+        <icon src="img/android/icons/xxhdpi.png" gap:platform="android" gap:density="xxhdpi" />
+        <icon src="img/android/icons/xxhdpi.png" gap:platform="android" gap:density="xxhdpi" />
+
+        <icon src="img/winphone/icons/icon-48.png" gap:platform="winphone" />
 
         <gap:plugin name="org.apache.cordova.core.inappbrowser" />
         <gap:plugin name="com.phonegap.plugin.statusbar" />
