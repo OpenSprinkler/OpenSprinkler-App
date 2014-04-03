@@ -118,37 +118,50 @@ $(document)
 
         hash = $.mobile.path.parseUrl(page).hash;
 
-        switch(hash) {
-            case "#programs":
-                get_programs(data.options.programToExpand);
-                break;
-            case "#addprogram":
-                add_program();
-                break;
-            case "#status":
-                get_status();
-                break;
-            case "#manual":
-                get_manual();
-                break;
-            case "#runonce":
-                get_runonce();
-                break;
-            case "#os-settings":
-                show_settings();
-                break;
-            case "#os-stations":
-                show_stations();
-                break;
-            case "#site-control":
-                show_sites(data.options.showBack);
-                break;
-            case "#addnew":
-                show_addnew();
-                return false;
-            case "#site-select":
-                show_site_select();
-                return false;
+        if (hash == "#programs") {
+            get_programs(data.options.programToExpand);
+        } else if (hash == "#addprogram") {
+            add_program();
+        } else if (hash =="#status") {
+            get_status();
+        } else if (hash == "#manual") {
+            get_manual();
+        } else if (hash == "#runonce") {
+            get_runonce();
+        } else if (hash == "#os-settings") {
+            show_settings();
+        } else if (hash == "#os-stations") {
+            show_stations();
+        } else if (hash == "#site-control") {
+            show_sites(data.options.showBack);
+        } else if (hash == "#addnew") {
+            show_addnew();
+            return false;
+        } else if (hash == "#site-select") {
+            show_site_select();
+            return false;
+        } else if (hash == "#sprinklers") {
+                if ($(".ui-page-active").length) {
+                    //Reset status bar to loading while an update is done
+                    $("#footer-running").html("<p class='ui-icon ui-icon-loading mini-load'></p>");
+                    setTimeout(function(){
+                        update_controller(check_status,function(){
+                            change_status(0,0,"red","<p id='running-text' class='center'>"+_("Network Error")+"</p>");
+                        });
+                    },800);
+                } else {
+                    check_status();
+                }
+        } else if (hash == "#settings") {
+            $.each(["en","mm"],function(a,id){
+                var $id = $("#"+id);
+                $id.prop("checked",window.controller.settings[id]);
+                if ($id.hasClass("ui-flipswitch-input")) $id.flipswitch("refresh");
+                $id.on("change",flipSwitched);
+            });
+            $(hash).one("pagehide",function(){
+                $("#en,#mm").off("change");
+            });
         }
     });
 })
@@ -177,35 +190,7 @@ $(document)
         });
     }
 })
-.on("pagehide","#start",removeTimers)
-.on("pagebeforeshow",function(e){
-    var newpage = e.target.id,
-        fromStart = $(".ui-page-active").length;
-
-    if (newpage == "sprinklers") {
-        if (fromStart) {
-            //Reset status bar to loading while an update is done
-            $("#footer-running").html("<p class='ui-icon ui-icon-loading mini-load'></p>");
-            setTimeout(function(){
-                update_controller(check_status,function(){
-                    change_status(0,0,"red","<p id='running-text' class='center'>"+_("Network Error")+"</p>");
-                });
-            },800);
-        } else {
-            check_status();
-        }
-    } else if (newpage == "settings") {
-        $.each(["en","mm"],function(a,id){
-            var $id = $("#"+id);
-            $id.prop("checked",window.controller.settings[id]);
-            if ($id.hasClass("ui-flipswitch-input")) $id.flipswitch("refresh");
-            $id.on("change",flipSwitched);
-        });
-        $(newpage).one("pagehide",function(){
-            $("#en,#mm").off("change");
-        });
-    }
-});
+.on("pagehide","#start",removeTimers);
 
 //Set AJAX timeout
 $.ajaxSetup({
@@ -1193,9 +1178,7 @@ function get_status() {
             } else {
                 if (window.controller.settings.ps[i][0] !== 99 && rem !== 1) ptotal+=rem;
             }
-            var remm=rem/60>>0,
-                rems=rem%60,
-                pid = window.controller.settings.ps[i][0],
+            var pid = window.controller.settings.ps[i][0],
                 pname = pidname(pid);
             if (window.controller.status[i] && (pid!=255&&pid!=99)) runningTotal[i] = rem;
             allPnames[i] = pname;
@@ -1352,7 +1335,7 @@ function check_status() {
     open = {};
     for (i=0; i<window.controller.status.length; i++) {
         if (window.controller.status[i]) open[i] = window.controller.status[i];
-    };
+    }
 
     if (window.controller.options.mas) delete open[window.controller.options.mas-1];
 
@@ -1361,8 +1344,10 @@ function check_status() {
         ptotal = 0;
 
         for (i in open) {
-            tmp = window.controller.settings.ps[i][1];
-            if (tmp > ptotal) ptotal = tmp;
+            if (open.hasOwnProperty(i)) {
+                tmp = window.controller.settings.ps[i][1];
+                if (tmp > ptotal) ptotal = tmp;
+            }
         }
 
         sample = Object.keys(open)[0];
