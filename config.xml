@@ -7,10 +7,9 @@
         versionCode = "17" >
 
         <preference name="phonegap-version" value="3.4.0" />
-
         <preference name="DisallowOverscroll" value="true"  />
-
         <preference name="permissions" value="none" />
+
         <gap:config-file platform="android" parent="/manifest">
             <uses-sdk android:minSdkVersion="10" android:targetSdkVersion="19" />
         </gap:config-file>
