@@ -194,14 +194,6 @@ a {
     .ui-mini {
         font-size: 12px;
     }
-    .flowlist .ui-block-a,
-    .flowlist .ui-block-b,
-    .flowlist .ui-block-c,
-    .flowlist .ui-block-d,
-    .flowlist .ui-block-e {
-        width: 100%;
-        float: none;
-    }
 }
 @media (max-width: 940px) {
     #weather .location {
@@ -219,11 +211,6 @@ a {
 @media (max-width: 940px) and (min-width: 480px) {
     .wicon {
        margin: 0 auto !important;
-    }
-}
-@media (min-width: 940px) {
-    .flowlist > div {
-        width: 19% !important;
     }
 }
 
@@ -270,21 +257,12 @@ div.ui-flipswitch {
 .panelhelp {
     white-space: normal
 }
-.flowlist > div {
-    height: 70px;
-    position: relative;
-    margin: 1px;
-}
 .sname {
-    margin:0;
-    padding-top: 3px;
+    margin: -.4em 0 !important;
 }
 .rem {
+    margin-bottom: 0 !important;
     font-size: 0.71em !important;
-    position: absolute;
-    right:0;
-    bottom:0;
-
 }
 #timeline-navigation {
     text-align: center;

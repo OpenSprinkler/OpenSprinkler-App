@@ -6,7 +6,7 @@
         version     = "1.0.7"
         versionCode = "17" >
 
-        <preference name="phonegap-version" value="3.3.0" />
+        <preference name="phonegap-version" value="3.4.0" />
 
         <preference name="DisallowOverscroll" value="true"  />
 
@@ -35,22 +35,27 @@
         <gap:splash src="img/ios/screens/startup-tablet-landscape-retina.png"   gap:platform="ios" width="2048" height="1536" />
         <gap:splash src="img/ios/screens/startup-tablet-portrait-retina.png"    gap:platform="ios" width="1536" height="2048" />
 
+        <gap:splash src="img/android/screens/ldpi.9.png"      gap:platform="android" gap:density="ldpi" />
+        <gap:splash src="img/android/screens/mdpi.9.png"      gap:platform="android" gap:density="mdpi" />
+        <gap:splash src="img/android/screens/hdpi.9.png"      gap:platform="android" gap:density="hdpi" />
+        <gap:splash src="img/android/screens/xhdpi.9.png"     gap:platform="android" gap:density="xhdpi" />
+
         <gap:splash src="img/winphone/screens/startup.jpg" gap:platform="winphone" />
 
-        <icon src="img/ios/icons/icon-57.png" gap:platform="ios" width="57" height="57" />
-        <icon src="img/ios/icons/icon-60@2x.png" gap:platform="ios" width="120" height="120" />
-        <icon src="img/ios/icons/icon-72.png" gap:platform="ios" width="72" height="72" />
-        <icon src="img/ios/icons/icon-72@2x.png" gap:platform="ios" width="144" height="144" />
-        <icon src="img/ios/icons/icon-76.png" gap:platform="ios" width="76" height="76" />
-        <icon src="img/ios/icons/icon-76@2x.png" gap:platform="ios" width="152" height="152" />
+        <icon src="img/ios/icons/icon-57.png"       gap:platform="ios" width="57" height="57" />
+        <icon src="img/ios/icons/icon-60@2x.png"    gap:platform="ios" width="120" height="120" />
+        <icon src="img/ios/icons/icon-72.png"       gap:platform="ios" width="72" height="72" />
+        <icon src="img/ios/icons/icon-72@2x.png"    gap:platform="ios" width="144" height="144" />
+        <icon src="img/ios/icons/icon-76.png"       gap:platform="ios" width="76" height="76" />
+        <icon src="img/ios/icons/icon-76@2x.png"    gap:platform="ios" width="152" height="152" />
 
-        <icon src="img/android/icons/ldpi.png" gap:platform="android" gap:density="ldpi" />
-        <icon src="img/android/icons/mdpi.png" gap:platform="android" gap:density="mdpi" />
-        <icon src="img/android/icons/hdpi.png" gap:platform="android" gap:density="hdpi" />
-        <icon src="img/android/icons/xhdpi.png" gap:platform="android" gap:density="xhdpi" />
-        <icon src="img/android/icons/xxhdpi.png" gap:platform="android" gap:density="xxhdpi" />
+        <icon src="img/android/icons/ldpi.png"      gap:platform="android" gap:density="ldpi" />
+        <icon src="img/android/icons/mdpi.png"      gap:platform="android" gap:density="mdpi" />
+        <icon src="img/android/icons/hdpi.png"      gap:platform="android" gap:density="hdpi" />
+        <icon src="img/android/icons/xhdpi.png"     gap:platform="android" gap:density="xhdpi" />
+        <icon src="img/android/icons/xxhdpi.png"    gap:platform="android" gap:density="xxhdpi" />
 
-        <icon src="img/winphone/icons/icon-48.png" gap:platform="winphone" />
+        <icon src="img/winphone/icons/icon-48.png"  gap:platform="winphone" />
 
         <gap:plugin name="org.apache.cordova.core.inappbrowser" />
         <gap:plugin name="com.phonegap.plugin.statusbar" />
