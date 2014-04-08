@@ -35,7 +35,6 @@
         <gap:splash src="img/ios/screens/startup-tablet-landscape-retina.png"   gap:platform="ios" width="2048" height="1536" />
         <gap:splash src="img/ios/screens/startup-tablet-portrait-retina.png"    gap:platform="ios" width="1536" height="2048" />
 
-        <gap:splash src="img/android/screens/ldpi.9.png"      gap:platform="android" gap:density="ldpi" />
         <gap:splash src="img/android/screens/mdpi.9.png"      gap:platform="android" gap:density="mdpi" />
         <gap:splash src="img/android/screens/hdpi.9.png"      gap:platform="android" gap:density="hdpi" />
         <gap:splash src="img/android/screens/xhdpi.9.png"     gap:platform="android" gap:density="xhdpi" />
