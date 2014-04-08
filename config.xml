@@ -37,6 +37,7 @@
         <gap:splash src="img/android/screens/mdpi.9.png"      gap:platform="android" gap:density="mdpi" />
         <gap:splash src="img/android/screens/hdpi.9.png"      gap:platform="android" gap:density="hdpi" />
         <gap:splash src="img/android/screens/xhdpi.9.png"     gap:platform="android" gap:density="xhdpi" />
+        <gap:splash src="img/android/screens/xxhdpi.9.png"     gap:platform="android" gap:density="xxhdpi" />
 
         <gap:splash src="img/winphone/screens/startup.jpg" gap:platform="winphone" />
 
