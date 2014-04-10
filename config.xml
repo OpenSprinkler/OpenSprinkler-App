@@ -10,6 +10,8 @@
         <preference name="DisallowOverscroll" value="true"  />
         <preference name="permissions" value="none" />
 
+        <feature name="http://api.phonegap.com/1.0/network"/>
+
         <gap:config-file platform="android" parent="/manifest">
             <uses-sdk android:minSdkVersion="10" android:targetSdkVersion="19" />
         </gap:config-file>
