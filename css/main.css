@@ -41,9 +41,6 @@ body{
 #welcome_logo {
     margin: 0 auto 20px auto;
 }
-#settings ul li {
-    border: none;
-}
 a {
     text-decoration: none;
 }
