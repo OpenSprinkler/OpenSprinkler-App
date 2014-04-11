@@ -954,7 +954,7 @@ function show_settings() {
         list += "<label for='o26'>"+_("Device ID (restart required)")+"</label><input data-mini='true' type='number' pattern='[0-9]*' max='255' id='o26' value='"+window.controller.options.devid+"' />";
     }
 
-    list += "<label for='loc'>Location</label><input data-mini='true' type='text' id='loc' value='"+window.controller.settings.loc+"' />";
+    list += "<label for='loc'>"+_("Location")+"</label><input data-mini='true' type='text' id='loc' value='"+window.controller.settings.loc+"' />";
 
     if (typeof window.controller.options.ext !== "undefined") {
         list += "<label for='o15'>"+_("Extension Boards")+"</label><input data-highlight='true' type='number' pattern='[0-9]*' data-type='range' min='0' max='5' id='o15' value='"+window.controller.options.ext+"' />";

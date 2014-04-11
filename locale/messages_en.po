@@ -109,6 +109,9 @@ msgstr ""
 msgid "Device ID (restart required)"
 msgstr ""
 
+msgid "Location"
+msgstr ""
+
 msgid "Extension Boards"
 msgstr ""
 
