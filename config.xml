@@ -40,8 +40,8 @@
         <gap:splash src="res/ios/screens/startup-tablet-landscape-retina.png"   gap:platform="ios" width="2048" height="1536" />
         <gap:splash src="res/ios/screens/startup-tablet-portrait-retina.png"    gap:platform="ios" width="1536" height="2048" />
 
-        <gap:splash src="res/android/screens/mdpi.9.png"      gap:qualifier="mdpi" />
-        <gap:splash src="res/android/screens/xhdpi.9.png"     gap:qualifier="xhdpi" />
+        <gap:splash src="res/android/screens/mdpi.9.png"      gap:platform="android" gap:density="mdpi" />
+        <gap:splash src="res/android/screens/xhdpi.9.png"     gap:platform="android" gap:density="xhdpi" />
 
         <gap:splash src="res/winphone/screens/startup.jpg" gap:platform="winphone" />
 
