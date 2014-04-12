@@ -9,6 +9,7 @@
         <preference name="phonegap-version" value="3.4.0" />
         <preference name="DisallowOverscroll" value="true"  />
         <preference name="permissions" value="none" />
+        <preference name="splash-screen-duration" value="2000"/>
 
         <feature name="http://api.phonegap.com/1.0/network"/>
 
