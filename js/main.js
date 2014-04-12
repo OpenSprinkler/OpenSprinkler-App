@@ -46,6 +46,7 @@ $(document)
         update_weather();
     },function(){
         change_status(0,0,"red","<p id='running-text' class='center'>"+_("Network Error")+"</p>");
+        hide_weather();
     });
 })
 .on("pause",function(){
@@ -128,6 +129,7 @@ $(document)
                     setTimeout(function(){
                         update_controller(check_status,function(){
                             change_status(0,0,"red","<p id='running-text' class='center'>"+_("Network Error")+"</p>");
+                            hide_weather();
                         });
                     },800);
                 } else {
@@ -448,7 +450,9 @@ function show_sites(showBack) {
         list += "<fieldset "+((total == 1) ? "data-collapsed='false'" : "")+" id='site-"+c+"' data-role='collapsible'>";
         list += "<legend>"+a+"</legend>";
         list += "<a data-role='button' href='javascript:update_site(\""+a+"\")'>"+_("Connect Now")+"</a>";
-        list += "<form action='javascript:change_site(\""+c+"\");' novalidate><label for='cip-"+c+"'>Change IP</label><input id='cip-"+c+"' type='url' value='"+b.os_ip+"' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' />";
+        list += "<form action='javascript:change_site(\""+c+"\");' novalidate>"
+        list += "<label for='cnm-"+c+"'>Change Name</label><input id='cnm-"+c+"' type='text' placeholder='"+a+"' />";
+        list += "<label for='cip-"+c+"'>Change IP</label><input id='cip-"+c+"' type='url' placeholder='"+b.os_ip+"' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' />";
         list += "<label for='cpw-"+c+"'>Change Password</label><input id='cpw-"+c+"' type='password' />";
         list += "<input type='submit' value='"+_("Save Changes to")+" "+a+"' /></form>";
         list += "<a data-role='button' href='javascript:delete_site(\""+a+"\")' data-theme='b'>"+_("Delete")+" "+a+"</a>";
@@ -486,23 +490,33 @@ function delete_site(site) {
 
 // Modify site IP and/or password
 function change_site(site) {
-    var sites = getsites();
-
-    var ip = $("#cip-"+site).val();
-    var pw = $("#cpw-"+site).val();
+    var sites = getsites(),
+        ip = $("#cip-"+site).val(),
+        pw = $("#cpw-"+site).val(),
+        nm = $("#cnm-"+site).val(),
+        rename;
 
     site = site.replace(/_/g," ");
+    rename = (nm !== "" && nm != site);
 
     if (ip !== "") sites[site]["os_ip"] = ip;
     if (pw !== "") sites[site]["os_pw"] = pw;
+    if (rename) {
+        sites[nm] = sites[site];
+        delete sites[site];
+        site = nm;
+        localStorage.setItem("current_site",site);
+    }
 
     localStorage.setItem("sites",JSON.stringify(sites));
 
     showerror(_("Site updated successfully"));
 
-    if (site === localStorage.getItem("current_site")) {
+    if (site === localStorage.getItem("current_site") && (ip !== "" || pw !== "")) {
         check_configured();
         newload();
+    } else if (rename) {
+        show_sites();
     }
 }
 
