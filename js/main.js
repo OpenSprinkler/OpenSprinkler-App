@@ -2236,34 +2236,14 @@ function clear_config() {
 
 // Export and Import functions
 function export_config(toFile) {
-    var newdata = {},
-        keyNames = {"tz":1,"ntp":2,"hp0":12,"hp1":13,"ar":14,"ext":15,"seq":16,"sdt":17,"mas":18,"mton":19,"mtof":20,"urs":21,"rso":22,"wl":23,"ipas":25,"devid":26};
-
-    newdata.programs = window.controller.programs.pd;
-    newdata.options = {};
-    newdata.options.loc = window.controller.settings.loc;
-    $.each(window.controller.options,function(opt,val){
-        if (opt in keyNames) {
-            newdata.options[keyNames[opt]] = {"en":"0","val":val};
-        }
-    });
-    newdata.stations = window.controller.stations.snames;
-    newdata.masop = window.controller.stations.masop;
-
-    if (toFile) {
-        if (!navigator.userAgent.match(/(iPad|iPhone|iPod)/g)) {
-            document.location = 'data:Application/octet-stream,' + encodeURIComponent(JSON.stringify(newdata));
-        } else {
-            showerror(_("File API is not supported by your browser"));
-        }
-        return;
-    } else {
-        localStorage.setItem("backup", JSON.stringify(newdata));
-        showerror(_("Backup saved to your device"));
-    }
+    localStorage.setItem("backup", JSON.stringify(window.controller));
+    showerror(_("Backup saved to your device"));
 }
 
 function import_config(data) {
+    var piNames = {1:"tz",2:"ntp",12:"htp",13:"htp2",14:"ar",15:"nbrd",16:"seq",17:"sdt",18:"mas",19:"mton",20:"mtoff",21:"urs",22:"rst",23:"wl",25:"ipas"},
+        keyIndex = {"tz":1,"ntp":2,"hp0":12,"hp1":13,"ar":14,"ext":15,"seq":16,"sdt":17,"mas":18,"mton":19,"mtof":20,"urs":21,"rso":22,"wl":23,"ipas":25,"devid":26};
+
     if (typeof data === "undefined") {
         data = localStorage.getItem("backup");
         if (data === null) {
@@ -2271,36 +2251,50 @@ function import_config(data) {
             return;
         }
     }
+
     data = JSON.parse(data);
+
+    if (!data.settings) {
+        showerror(_("No backup available on this device"));
+        return;
+    }
+
     areYouSure(_("Are you sure you want to restore the configuration?"), "", function() {
         $.mobile.loading("show");
 
         var cs = "/cs?pw="+window.curr_pw,
             co = "/co?pw="+window.curr_pw,
-            cp_start = "/cp?pw="+window.curr_pw;
+            cp_start = "/cp?pw="+window.curr_pw,
+            isPi = ((typeof data.options.fwv === "string") && data.options.fwv.search(/ospi/i));
 
-        $.each(data.options,function (key,value) {
-            if (typeof value === "object") {
-                if ($.inArray(key, [2,14,16,21,22,25]) && value.val === 0) return true;
-                co += "&o"+key+"="+value.val;
-            } else if (key == "loc") {
-                co += "&"+key+"="+encodeURIComponent(value);
+        for (i in data.options) {
+            if (data.options.hasOwnProperty(i) && keyIndex.hasOwnProperty(i)) {
+                key = keyIndex[i];
+                if ($.inArray(key, [2,14,16,21,22,25]) && data.options[i] === 0) continue;
+                if (isPi) {
+                    key = piNames[key];
+                } else {
+                    key = key;
+                }
+                co += "&o"+key+"="+data.options[i];
             }
-        });
-        $.each(data.stations,function (i,station) {
-            cs += "&s"+i+"="+encodeURIComponent(station);
-            i++;
-        });
-        $.each(data.masop,function (i,bit) {
-            cs += "&m"+i+"="+encodeURIComponent(bit);
-            i++;
-        });
+        }
+        co += "&loc="+data.settings.loc;
+
+        for (i=0; i<data.stations.snames.length; i++) {
+            cs += "&s"+i+"="+encodeURIComponent(data.stations.snames[i]);
+        }
+
+        for (i=0; i<data.stations.masop.length; i++) {
+            cs += "&m"+i+"="+encodeURIComponent(data.stations.masop[i]);
+        }
+
         $.when(
             $.get("http://"+window.curr_ip+co),
             $.get("http://"+window.curr_ip+cs),
             $.get("http://"+window.curr_ip+"/dp?pw="+window.curr_pw+"&pid=-1"),
-            $.each(data.programs,function (i,prog) {
-                $.get("http://"+window.curr_ip+cp_start+"&pid=-1&v="+((typeof prog === "object") ? JSON.stringify(prog) : prog));
+            $.each(data.programs.pd,function (i,prog) {
+                $.get("http://"+window.curr_ip+cp_start+"&pid=-1&v="+JSON.stringify(prog));
             })
         ).then(
             function(){
