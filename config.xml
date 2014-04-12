@@ -12,6 +12,10 @@
 
         <feature name="http://api.phonegap.com/1.0/network"/>
 
+        <gap:plugin name="org.apache.cordova.core.inappbrowser" />
+        <gap:plugin name="com.phonegap.plugin.statusbar" />
+        <gap:plugin name="com.albahra.plugin.networkinterface" />
+
         <gap:config-file platform="android" parent="/manifest">
             <uses-sdk android:minSdkVersion="10" android:targetSdkVersion="19" />
         </gap:config-file>
@@ -28,38 +32,32 @@
 
         <access origin="*" />
 
-        <gap:splash src="img/ios/screens/startup.png"                           gap:platform="ios" width="320"  height="480"  />
-        <gap:splash src="img/ios/screens/startup-retina.png"                    gap:platform="ios" width="640"  height="960"  />
-        <gap:splash src="img/ios/screens/startup-iphone5-retina.png"            gap:platform="ios" width="640"  height="1136" />
-        <gap:splash src="img/ios/screens/startup-tablet-landscape.png"          gap:platform="ios" width="1024" height="768"  />
-        <gap:splash src="img/ios/screens/startup-tablet-portrait.png"           gap:platform="ios" width="768"  height="1024" />
-        <gap:splash src="img/ios/screens/startup-tablet-landscape-retina.png"   gap:platform="ios" width="2048" height="1536" />
-        <gap:splash src="img/ios/screens/startup-tablet-portrait-retina.png"    gap:platform="ios" width="1536" height="2048" />
+        <gap:splash src="res/ios/screens/startup.png"                           gap:platform="ios" width="320"  height="480"  />
+        <gap:splash src="res/ios/screens/startup-retina.png"                    gap:platform="ios" width="640"  height="960"  />
+        <gap:splash src="res/ios/screens/startup-iphone5-retina.png"            gap:platform="ios" width="640"  height="1136" />
+        <gap:splash src="res/ios/screens/startup-tablet-landscape.png"          gap:platform="ios" width="1024" height="768"  />
+        <gap:splash src="res/ios/screens/startup-tablet-portrait.png"           gap:platform="ios" width="768"  height="1024" />
+        <gap:splash src="res/ios/screens/startup-tablet-landscape-retina.png"   gap:platform="ios" width="2048" height="1536" />
+        <gap:splash src="res/ios/screens/startup-tablet-portrait-retina.png"    gap:platform="ios" width="1536" height="2048" />
 
-        <gap:splash src="img/android/screens/mdpi.9.png"      gap:platform="android" gap:density="mdpi" />
-        <gap:splash src="img/android/screens/hdpi.9.png"      gap:platform="android" gap:density="hdpi" />
-        <gap:splash src="img/android/screens/xhdpi.9.png"     gap:platform="android" gap:density="xhdpi" />
-        <gap:splash src="img/android/screens/xxhdpi.9.png"     gap:platform="android" gap:density="xxhdpi" />
+        <gap:splash src="res/android/screens/mdpi.9.png"      gap:qualifier="mdpi" />
+        <gap:splash src="res/android/screens/xhdpi.9.png"     gap:qualifier="xhdpi" />
 
-        <gap:splash src="img/winphone/screens/startup.jpg" gap:platform="winphone" />
+        <gap:splash src="res/winphone/screens/startup.jpg" gap:platform="winphone" />
 
-        <icon src="img/ios/icons/icon-57.png"       gap:platform="ios" width="57" height="57" />
-        <icon src="img/ios/icons/icon-60@2x.png"    gap:platform="ios" width="120" height="120" />
-        <icon src="img/ios/icons/icon-72.png"       gap:platform="ios" width="72" height="72" />
-        <icon src="img/ios/icons/icon-72@2x.png"    gap:platform="ios" width="144" height="144" />
-        <icon src="img/ios/icons/icon-76.png"       gap:platform="ios" width="76" height="76" />
-        <icon src="img/ios/icons/icon-76@2x.png"    gap:platform="ios" width="152" height="152" />
+        <icon src="res/ios/icons/icon-57.png"       gap:platform="ios" width="57" height="57" />
+        <icon src="res/ios/icons/icon-60@2x.png"    gap:platform="ios" width="120" height="120" />
+        <icon src="res/ios/icons/icon-72.png"       gap:platform="ios" width="72" height="72" />
+        <icon src="res/ios/icons/icon-72@2x.png"    gap:platform="ios" width="144" height="144" />
+        <icon src="res/ios/icons/icon-76.png"       gap:platform="ios" width="76" height="76" />
+        <icon src="res/ios/icons/icon-76@2x.png"    gap:platform="ios" width="152" height="152" />
 
-        <icon src="img/android/icons/ldpi.png"      gap:platform="android" gap:density="ldpi" />
-        <icon src="img/android/icons/mdpi.png"      gap:platform="android" gap:density="mdpi" />
-        <icon src="img/android/icons/hdpi.png"      gap:platform="android" gap:density="hdpi" />
-        <icon src="img/android/icons/xhdpi.png"     gap:platform="android" gap:density="xhdpi" />
-        <icon src="img/android/icons/xxhdpi.png"    gap:platform="android" gap:density="xxhdpi" />
+        <icon src="res/android/icons/ldpi.png"      gap:platform="android" gap:density="ldpi" />
+        <icon src="res/android/icons/mdpi.png"      gap:platform="android" gap:density="mdpi" />
+        <icon src="res/android/icons/hdpi.png"      gap:platform="android" gap:density="hdpi" />
+        <icon src="res/android/icons/xhdpi.png"     gap:platform="android" gap:density="xhdpi" />
+        <icon src="res/android/icons/xxhdpi.png"    gap:platform="android" gap:density="xxhdpi" />
 
-        <icon src="img/winphone/icons/icon-48.png"  gap:platform="winphone" />
-
-        <gap:plugin name="org.apache.cordova.core.inappbrowser" />
-        <gap:plugin name="com.phonegap.plugin.statusbar" />
-        <gap:plugin name="com.albahra.plugin.networkinterface" />
+        <icon src="res/winphone/icons/icon-48.png"  gap:platform="winphone" />
 
     </widget>
