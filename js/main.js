@@ -7,53 +7,6 @@ $(document)
     //Update the language on the page using the browser's locale
     update_lang(get_locale());
 })
-.one("deviceready", function() {
-    try {
-        //Change the status bar to match the headers
-        StatusBar.overlaysWebView(false);
-        StatusBar.styleLightContent();
-        StatusBar.backgroundColorByHexString("#1C1C1C");
-    } catch (err) {}
-
-    checkAutoScan();
-})
-.on("resume",function(){
-    var page = $(".ui-page-active").attr("id"),
-        func = function(){};
-
-    // If current page is the start page, update main menu
-    if (page == "start") {
-        checkAutoScan();
-        return;
-    }
-
-    // If we don't have a current device IP set, there is nothing else to update
-    if (window.curr_ip === undefined) return;
-
-    // Indicate the weather and device status are being updated
-    $("#weather,#footer-running").html("<p class='ui-icon ui-icon-loading mini-load'></p>");
-
-    if (page == "status") {
-        // Update the status page
-        func = get_status;
-    } else if (page == "sprinklers") {
-        // Update device status bar on main page
-        func = check_status;
-    }
-
-    update_controller(function(){
-        func();
-        update_weather();
-    },function(){
-        change_status(0,0,"red","<p id='running-text' class='center'>"+_("Network Error")+"</p>");
-        hide_weather();
-    });
-})
-.on("pause",function(){
-    //Remove any status timers that may be running
-    if (window.interval_id !== undefined) clearInterval(window.interval_id);
-    if (window.timeout_id !== undefined) clearTimeout(window.timeout_id);
-})
 .ajaxError(function(x,t,m) {
     if (t.status==401 && /https?:\/\/[\d|.]+\/(?:cv|sn|cs|cr|cp|dp|co)/.exec(m.url)) {
         showerror(_("Check device password and try again."));
@@ -73,6 +26,16 @@ $(document)
         showerror(_("Connection timed-out. Please try again."));
         return;
     }
+})
+.one("deviceready", function() {
+    try {
+        //Change the status bar to match the headers
+        StatusBar.overlaysWebView(false);
+        StatusBar.styleLightContent();
+        StatusBar.backgroundColorByHexString("#1C1C1C");
+    } catch (err) {}
+
+    checkAutoScan();
 })
 .one("mobileinit", function(){
     //After jQuery mobile is loaded set intial configuration
@@ -147,6 +110,43 @@ $(document)
             });
         }
     });
+})
+.on("resume",function(){
+    var page = $(".ui-page-active").attr("id"),
+        func = function(){};
+
+    // If current page is the start page, update main menu
+    if (page == "start") {
+        checkAutoScan();
+        return;
+    }
+
+    // If we don't have a current device IP set, there is nothing else to update
+    if (window.curr_ip === undefined) return;
+
+    // Indicate the weather and device status are being updated
+    $("#weather,#footer-running").html("<p class='ui-icon ui-icon-loading mini-load'></p>");
+
+    if (page == "status") {
+        // Update the status page
+        func = get_status;
+    } else if (page == "sprinklers") {
+        // Update device status bar on main page
+        func = check_status;
+    }
+
+    update_controller(function(){
+        func();
+        update_weather();
+    },function(){
+        change_status(0,0,"red","<p id='running-text' class='center'>"+_("Network Error")+"</p>");
+        hide_weather();
+    });
+})
+.on("pause",function(){
+    //Remove any status timers that may be running
+    if (window.interval_id !== undefined) clearInterval(window.interval_id);
+    if (window.timeout_id !== undefined) clearTimeout(window.timeout_id);
 })
 .on("pageshow",function(e){
     var newpage = "#"+e.target.id,
