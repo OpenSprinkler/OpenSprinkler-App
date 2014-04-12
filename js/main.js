@@ -86,7 +86,7 @@ $(document)
     check_configured();
 
     //If a site is found then load it
-    if (window.curr_ip !== undefined) newload();
+    if (window.curr_ip !== undefined) newload(true);
     else changePage("#start");
 
     $(document).on("pagebeforechange",function(e,data){
@@ -219,15 +219,20 @@ function flipSwitched() {
 }
 
 // Gather new controller information and load home page
-function newload() {
+function newload(firstLoad) {
+    firstLoad = firstLoad || false;
     $.mobile.loading("show");
 
     //Create object which will store device data
     window.controller = {};
     update_controller(
         function(){
+            var opt = {};
             update_weather();
-            changePage("#sprinklers");
+            if (firstLoad === true) {
+                opt = {"transition":"none"};
+            }
+            changePage("#sprinklers",opt);
         },
         function(){
             $.mobile.loading("hide");
