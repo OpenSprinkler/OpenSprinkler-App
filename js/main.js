@@ -47,11 +47,16 @@ $(document)
     event.preventDefault();
 
     //On initial load check if a valid site exists for auto connect
-    check_configured();
+    var status = check_configured();
 
-    //If a site is found then load it
-    if (window.curr_ip !== undefined) newload(true);
-    else changePage("#start");
+    if (status === 1) {
+        newload(true);
+    } else if (status === 2) {
+        $.mobile.loading("hide");
+        site_select();
+    } else {
+        changePage("#start");
+    }
 
     $(document).on("pagebeforechange",function(e,data){
         var page = data.toPage,
@@ -323,17 +328,13 @@ function check_configured() {
     var sites = getsites();
     var current = localStorage.getItem("current_site");
 
-    if (sites === null) return false;
+    if (sites === null) return 0;
 
     var names = Object.keys(sites);
 
-    if (!names.length) return false;
+    if (!names.length) return 0;
 
-    if (current === null || !(current in sites)) {
-        /* Present dialog to select site */
-        site_select(names);
-        return true;
-    }
+    if (current === null || !(current in sites)) return 2;
 
     update_site_list(names);
 
@@ -341,7 +342,7 @@ function check_configured() {
     window.curr_ip = sites[current]["os_ip"];
     window.curr_pw = sites[current]["os_pw"];
 
-    return true;
+    return 1;
 }
 
 // Add a new site
@@ -512,7 +513,7 @@ function change_site(site) {
 
     showerror(_("Site updated successfully"));
 
-    if (site === localStorage.getItem("current_site") && (ip !== "" || pw !== "")) {
+    if (site === localStorage.getItem("current_site") && ip !== "") {
         check_configured();
         newload();
     } else if (rename) {
@@ -523,6 +524,8 @@ function change_site(site) {
 // Display the site select popup
 function site_select(names) {
     var newlist = "";
+
+    names = names || Object.keys(getsites());
 
     for (var i=0; i < names.length; i++) {
         newlist += "<li><a class='ui-btn ui-btn-icon-right ui-icon-carat-r' href='javascript:update_site(\""+names[i]+"\");'>"+names[i]+"</a></li>";
