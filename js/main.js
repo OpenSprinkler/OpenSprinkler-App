@@ -2268,7 +2268,7 @@ function import_config(data) {
         var cs = "/cs?pw="+window.curr_pw,
             co = "/co?pw="+window.curr_pw,
             cp_start = "/cp?pw="+window.curr_pw,
-            isPi = ((typeof data.options.fwv === "string") && data.options.fwv.search(/ospi/i));
+            isPi = isOSPi();
 
         for (i in data.options) {
             if (data.options.hasOwnProperty(i) && keyIndex.hasOwnProperty(i)) {
@@ -2276,13 +2276,14 @@ function import_config(data) {
                 if ($.inArray(key, [2,14,16,21,22,25]) !== -1 && data.options[i] === 0) continue;
                 if (isPi) {
                     key = piNames[key];
+                    if (key === undefined) continue;
                 } else {
                     key = key;
                 }
                 co += "&o"+key+"="+data.options[i];
             }
         }
-        co += "&loc="+data.settings.loc;
+        co += "&"+(isPi?"o":"")+"loc="+data.settings.loc;
 
         for (i=0; i<data.stations.snames.length; i++) {
             cs += "&s"+i+"="+encodeURIComponent(data.stations.snames[i]);
