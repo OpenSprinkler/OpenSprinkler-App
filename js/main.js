@@ -6,6 +6,16 @@ $(document)
 .ready(function() {
     //Update the language on the page using the browser's locale
     update_lang(get_locale());
+
+    //Use the user's local time for preview
+    var now = new Date();
+    $("#preview_date").val(now.toISOString().slice(0,10));
+
+    //Update site based on selector
+    $("#site-selector").on("change",function(){
+        update_site($(this).val());
+        location.reload();
+    });
 })
 .ajaxError(function(x,t,m) {
     if (t.status==401 && /https?:\/\/[\d|.]+\/(?:cv|sn|cs|cr|cp|dp|co)/.exec(m.url)) {
@@ -183,16 +193,6 @@ $(document)
 //Set AJAX timeout
 $.ajaxSetup({
     timeout: 6000
-});
-
-//Use the user's local time for preview
-var now = new Date();
-$("#preview_date").val(now.toISOString().slice(0,10));
-
-//Update site based on selector
-$("#site-selector").on("change",function(){
-    update_site($(this).val());
-    location.reload();
 });
 
 var switching = false;
