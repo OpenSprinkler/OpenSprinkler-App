@@ -2270,7 +2270,7 @@ function import_config(data) {
         for (i in data.options) {
             if (data.options.hasOwnProperty(i) && keyIndex.hasOwnProperty(i)) {
                 key = keyIndex[i];
-                if ($.inArray(key, [2,14,16,21,22,25]) && data.options[i] === 0) continue;
+                if ($.inArray(key, [2,14,16,21,22,25]) !== -1 && data.options[i] === 0) continue;
                 if (isPi) {
                     key = piNames[key];
                 } else {
