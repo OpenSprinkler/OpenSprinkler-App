@@ -51,6 +51,7 @@ $(document)
     //After jQuery mobile is loaded set intial configuration
     $.mobile.defaultPageTransition = 'fade';
     $.mobile.hoverDelay = 0;
+    $.mobile.toolbar.prototype.options.backBtnText = _("Back");
 })
 .one("pagebeforechange", function(event) {
     // Let the framework know we're going to handle the load
@@ -452,9 +453,9 @@ function show_sites(showBack) {
         list += "<legend>"+a+"</legend>";
         list += "<a data-role='button' href='javascript:update_site(\""+a+"\")'>"+_("Connect Now")+"</a>";
         list += "<form action='javascript:change_site(\""+c+"\");' novalidate>"
-        list += "<label for='cnm-"+c+"'>Change Name</label><input id='cnm-"+c+"' type='text' placeholder='"+a+"' />";
-        list += "<label for='cip-"+c+"'>Change IP</label><input id='cip-"+c+"' type='url' placeholder='"+b.os_ip+"' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' />";
-        list += "<label for='cpw-"+c+"'>Change Password</label><input id='cpw-"+c+"' type='password' />";
+        list += "<label for='cnm-"+c+"'>"+_("Change Name")+"</label><input id='cnm-"+c+"' type='text' placeholder='"+a+"' />";
+        list += "<label for='cip-"+c+"'>"+_("Change IP")+"</label><input id='cip-"+c+"' type='url' placeholder='"+b.os_ip+"' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' />";
+        list += "<label for='cpw-"+c+"'>"+_("Change Password")+"</label><input id='cpw-"+c+"' type='password' />";
         list += "<input type='submit' value='"+_("Save Changes to")+" "+a+"' /></form>";
         list += "<a data-role='button' href='javascript:delete_site(\""+a+"\")' data-theme='b'>"+_("Delete")+" "+a+"</a>";
         list += "</fieldset>";
@@ -1202,7 +1203,7 @@ function get_status() {
         var lrpid = window.controller.settings.lrun[1];
         var pname= pidname(lrpid);
 
-        footer = '<p>'+pname+' '+_('last ran station')+' '+window.controller.stations.snames[window.controller.settings.lrun[0]]+' '+_('for')+' '+(lrdur/60>>0)+'m '+(lrdur%60)+'s on '+(new Date(window.controller.settings.lrun[3]*1000).toUTCString().slice(0,-4))+'</p>';
+        footer = '<p>'+pname+' '+_('last ran station')+' '+window.controller.stations.snames[window.controller.settings.lrun[0]]+' '+_('for')+' '+(lrdur/60>>0)+'m '+(lrdur%60)+'s '+_('on')+' '+(new Date(window.controller.settings.lrun[3]*1000).toUTCString().slice(0,-4))+'</p>';
     }
 
     if (ptotal) {
