@@ -2525,6 +2525,6 @@ function dateToString(date) {
 function tzToString(prefix,tz,offset)
 {
     if (lang == "de") return "";
-		
-	return prefix+tz+" "+offset;	
+
+    return prefix+tz+" "+offset;	
 }
