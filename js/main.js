@@ -2360,8 +2360,8 @@ function areYouSure(text1, text2, callback) {
         '<div data-role="popup" class="ui-content" data-overlay-theme="b" id="sure">'+
             '<h3 class="sure-1 center">'+text1+'</h3>'+
             '<p class="sure-2 center">'+text2+'</p>'+
-            '<a class="sure-do ui-btn ui-btn-b ui-corner-all ui-shadow" href="#">Yes</a>'+
-            '<a class="sure-dont ui-btn ui-corner-all ui-shadow" href="#">No</a>'+
+            '<a class="sure-do ui-btn ui-btn-b ui-corner-all ui-shadow" href="#">'+_("Yes")+'</a>'+
+            '<a class="sure-dont ui-btn ui-corner-all ui-shadow" href="#">'+_("No")+'</a>'+
         '</div>'
     );
 
