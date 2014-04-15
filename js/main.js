@@ -452,7 +452,7 @@ function show_sites(showBack) {
         list += "<fieldset "+((total == 1) ? "data-collapsed='false'" : "")+" id='site-"+c+"' data-role='collapsible'>";
         list += "<legend>"+a+"</legend>";
         list += "<a data-role='button' href='javascript:update_site(\""+a+"\")'>"+_("Connect Now")+"</a>";
-        list += "<form action='javascript:change_site(\""+c+"\");' novalidate>"
+        list += "<form action='javascript:change_site(\""+c+"\");' novalidate>";
         list += "<label for='cnm-"+c+"'>"+_("Change Name")+"</label><input id='cnm-"+c+"' type='text' placeholder='"+a+"' />";
         list += "<label for='cip-"+c+"'>"+_("Change IP")+"</label><input id='cip-"+c+"' type='url' placeholder='"+b.os_ip+"' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' />";
         list += "<label for='cpw-"+c+"'>"+_("Change Password")+"</label><input id='cpw-"+c+"' type='password' />";
@@ -470,7 +470,7 @@ function show_sites(showBack) {
             $(this).find(".ui-content").empty();
         },
         pagebeforeshow: function(){
-            $("#site-control-back-btn").toggle(showBack);
+            $("#site-control").find(".ui-toolbar-back-btn").toggle(showBack);
         }
     });
 }
@@ -485,7 +485,7 @@ function delete_site(site) {
         changePage("#start");
         return false;
     }
-    if (site === localStorage.getItem("current_site")) $("#site-control-back-btn").toggle(false);
+    if (site === localStorage.getItem("current_site")) $("#site-control").find(".ui-toolbar-back-btn").toggle(false);
     showerror(_("Site deleted successfully"));
     return false;
 }
@@ -2239,7 +2239,7 @@ function clear_config() {
 }
 
 // Export and Import functions
-function export_config(toFile) {
+function export_config() {
     localStorage.setItem("backup", JSON.stringify(window.controller));
     showerror(_("Backup saved to your device"));
 }
@@ -2269,7 +2269,8 @@ function import_config(data) {
         var cs = "/cs?pw="+window.curr_pw,
             co = "/co?pw="+window.curr_pw,
             cp_start = "/cp?pw="+window.curr_pw,
-            isPi = isOSPi();
+            isPi = isOSPi(),
+            i, key;
 
         for (i in data.options) {
             if (data.options.hasOwnProperty(i) && keyIndex.hasOwnProperty(i)) {
@@ -2314,30 +2315,6 @@ function import_config(data) {
             }
         );
     });
-}
-
-// Hack to trigger file download from Javascript
-function getConfigFile() {
-    if (navigator.userAgent.match(/(iPad|iPhone|iPod)/g) || !window.FileReader) {
-        showerror(_("File API is not supported by your browser"));
-        return;
-    }
-    $('#configInput').click();
-}
-
-// Process file upload
-function handleConfig(files) {
-    var config = files[0];
-    var reader = new FileReader();
-    reader.onload = function(e){
-        try{
-            var obj=JSON.parse($.trim(e.target.result));
-            import_config(JSON.stringify(obj));
-        }catch(error){
-            showerror(_("Unable to read the configuration file. Please check the file and try again."));
-        }
-    };
-    reader.readAsText(config);
 }
 
 // OSPi functions
@@ -2514,17 +2491,20 @@ function update_lang(lang) {
 }
 
 function dateToString(date) {
+    var lang = localStorage.getItem("lang");
+
     if (lang == "de") {
         date.setMinutes(date.getMinutes()+date.getTimezoneOffset());
         return pad(date.getDate())+"."+pad(date.getMonth())+"."+date.getFullYear()+" "+pad(date.getHours())+":"+pad(date.getMinutes())+":"+pad(date.getSeconds());
     }
-    
-    return date.toUTCString().slice(0,-4);	
+
+    return date.toUTCString().slice(0,-4);
 }
 
-function tzToString(prefix,tz,offset)
-{
+function tzToString(prefix,tz,offset) {
+    var lang = localStorage.getItem("lang");
+
     if (lang == "de") return "";
 
-    return prefix+tz+" "+offset;	
+    return prefix+tz+" "+offset;
 }
