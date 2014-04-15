@@ -2394,9 +2394,10 @@ function showerror(msg,dur) {
 
 function iab(url) {
     var iOS = /iP(ad|hone|od)/.test(navigator.userAgent),
+        wp8 = /IEMobile/.test(navigator.userAgent),
         dest = "_blank";
 
-    if (iOS) dest = "_system";
+    if (iOS || wp8) dest = "_system";
 
     window.open(url,dest,'enableViewportScale=yes');
 }
