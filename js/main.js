@@ -942,7 +942,7 @@ function show_settings() {
     }
 
     if (typeof window.controller.options.mas !== "undefined") {
-        list += "<label for='o18' class='select'>"+_("Master Station")+"</label><select data-mini='true' id='o18'><option value='0'>"+_("n/a")+"</option>";
+        list += "<label for='o18' class='select'>"+_("Master Station")+"</label><select data-mini='true' id='o18'><option value='0'>"+_("None")+"</option>";
         for (i=0; i<window.controller.stations.snames.length; i++) {
             list += "<option "+(((i+1) == window.controller.options.mas) ? "selected" : "")+" value='"+(i+1)+"'>"+window.controller.stations.snames[i]+"</option>";
             if (i == 7) break;
@@ -2459,9 +2459,15 @@ function _(key) {
 
 function set_lang() {
     //Update all static elements to the current language
-    $("[data-translate]").text(function () {
-        return _($(this).data("translate"));
+    $("[data-translate]").text(function() {
+        var el = $(this),
+            txt = el.data("translate");
 
+        if (el.is("input[type='submit']")) {
+            el.val(_(txt));
+        } else {
+            return _(txt);
+        }
     });
 }
 
