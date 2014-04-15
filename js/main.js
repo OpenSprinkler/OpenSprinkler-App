@@ -51,6 +51,7 @@ $(document)
     //After jQuery mobile is loaded set intial configuration
     $.mobile.defaultPageTransition = 'fade';
     $.mobile.hoverDelay = 0;
+    $.mobile.toolbar.prototype.options.backBtnText = _("Back");
 })
 .one("pagebeforechange", function(event) {
     // Let the framework know we're going to handle the load
@@ -452,9 +453,9 @@ function show_sites(showBack) {
         list += "<legend>"+a+"</legend>";
         list += "<a data-role='button' href='javascript:update_site(\""+a+"\")'>"+_("Connect Now")+"</a>";
         list += "<form action='javascript:change_site(\""+c+"\");' novalidate>"
-        list += "<label for='cnm-"+c+"'>Change Name</label><input id='cnm-"+c+"' type='text' placeholder='"+a+"' />";
-        list += "<label for='cip-"+c+"'>Change IP</label><input id='cip-"+c+"' type='url' placeholder='"+b.os_ip+"' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' />";
-        list += "<label for='cpw-"+c+"'>Change Password</label><input id='cpw-"+c+"' type='password' />";
+        list += "<label for='cnm-"+c+"'>"+_("Change Name")+"</label><input id='cnm-"+c+"' type='text' placeholder='"+a+"' />";
+        list += "<label for='cip-"+c+"'>"+_("Change IP")+"</label><input id='cip-"+c+"' type='url' placeholder='"+b.os_ip+"' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' />";
+        list += "<label for='cpw-"+c+"'>"+_("Change Password")+"</label><input id='cpw-"+c+"' type='password' />";
         list += "<input type='submit' value='"+_("Save Changes to")+" "+a+"' /></form>";
         list += "<a data-role='button' href='javascript:delete_site(\""+a+"\")' data-theme='b'>"+_("Delete")+" "+a+"</a>";
         list += "</fieldset>";
@@ -1152,7 +1153,7 @@ function get_status() {
 
     tz = ((tz>=0)?"+":"-")+pad((Math.abs(tz)/4>>0))+":"+((Math.abs(tz)%4)*15/10>>0)+((Math.abs(tz)%4)*15%10);
 
-    var header = "<span id='clock-s' class='nobr'>"+(new Date(window.controller.settings.devt*1000).toUTCString().slice(0,-4))+"</span> GMT "+tz;
+    var header = "<span id='clock-s' class='nobr'>"+dateToString(new Date(window.controller.settings.devt*1000))+"</span>"+tzToString(" ","GMT",tz);
 
     runningTotal.c = window.controller.settings.devt;
 
@@ -1202,7 +1203,7 @@ function get_status() {
         var lrpid = window.controller.settings.lrun[1];
         var pname= pidname(lrpid);
 
-        footer = '<p>'+pname+' '+_('last ran station')+' '+window.controller.stations.snames[window.controller.settings.lrun[0]]+' '+_('for')+' '+(lrdur/60>>0)+'m '+(lrdur%60)+'s on '+(new Date(window.controller.settings.lrun[3]*1000).toUTCString().slice(0,-4))+'</p>';
+        footer = '<p>'+pname+' '+_('last ran station')+' '+window.controller.stations.snames[window.controller.settings.lrun[0]]+' '+_('for')+' '+(lrdur/60>>0)+'m '+(lrdur%60)+'s '+_('on')+' '+dateToString(new Date(window.controller.settings.lrun[3]*1000))+'</p>';
     }
 
     if (ptotal) {
@@ -1268,7 +1269,7 @@ function get_status() {
             } else {
                 if (a == "c") {
                     ++runningTotal[a];
-                    $("#clock-s").text(new Date(runningTotal[a]*1000).toUTCString().slice(0,-4));
+                    $("#clock-s").text(dateToString(new Date(runningTotal[a]*1000)));
                 } else {
                     --runningTotal[a];
                     $("#countdown-"+a).text("(" + sec2hms(runningTotal[a]) + " "+_("remaining")+")");
@@ -1318,7 +1319,7 @@ function check_status() {
     }
 
     if (window.controller.settings.rd) {
-        change_status(0,window.controller.options.sdt,"red","<p id='running-text' class='center'>"+_("Rain delay until")+" "+(new Date(window.controller.settings.rdst*1000).toUTCString().slice(0,-4))+"</p>");
+        change_status(0,window.controller.options.sdt,"red","<p id='running-text' class='center'>"+_("Rain delay until")+" "+dateToString(new Date(window.controller.settings.rdst*1000))+"</p>");
         return;
     }
 
@@ -2359,8 +2360,8 @@ function areYouSure(text1, text2, callback) {
         '<div data-role="popup" class="ui-content" data-overlay-theme="b" id="sure">'+
             '<h3 class="sure-1 center">'+text1+'</h3>'+
             '<p class="sure-2 center">'+text2+'</p>'+
-            '<a class="sure-do ui-btn ui-btn-b ui-corner-all ui-shadow" href="#">Yes</a>'+
-            '<a class="sure-dont ui-btn ui-corner-all ui-shadow" href="#">No</a>'+
+            '<a class="sure-do ui-btn ui-btn-b ui-corner-all ui-shadow" href="#">'+_("Yes")+'</a>'+
+            '<a class="sure-dont ui-btn ui-corner-all ui-shadow" href="#">'+_("No")+'</a>'+
         '</div>'
     );
 
@@ -2510,4 +2511,20 @@ function update_lang(lang) {
         localStorage.setItem("lang",lang);
         set_lang();
     }).fail(set_lang);
+}
+
+function dateToString(date) {
+    if (lang == "de") {
+        date.setMinutes(date.getMinutes()+date.getTimezoneOffset());
+        return pad(date.getDate())+"."+pad(date.getMonth())+"."+date.getFullYear()+" "+pad(date.getHours())+":"+pad(date.getMinutes())+":"+pad(date.getSeconds());
+    }
+    
+    return date.toUTCString().slice(0,-4);	
+}
+
+function tzToString(prefix,tz,offset)
+{
+    if (lang == "de") return "";
+
+    return prefix+tz+" "+offset;	
 }
