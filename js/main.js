@@ -426,7 +426,7 @@ function show_addnew(autoIP) {
                     '<input '+((isAuto) ? 'data-role="none" style="display:none" ' : '')+'autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" type="url" name="os_ip" id="os_ip" value="'+((isAuto) ? autoIP : '')+'" placeholder="home.dyndns.org" />' +
                     '<label for="os_pw">'+_("Open Sprinkler Password:")+'</label>' +
                     '<input type="password" name="os_pw" id="os_pw" value="" />' +
-                    '<input type="submit" value="Submit" />' +
+                    '<input type="submit" value="'+_("Submit")+'" />' +
                 '</form>' +
             '</div>' +
         '</div>');
@@ -942,7 +942,7 @@ function show_settings() {
     }
 
     if (typeof window.controller.options.mas !== "undefined") {
-        list += "<label for='o18' class='select'>"+_("Master Station")+"</label><select data-mini='true' id='o18'><option value='0'>None</option>";
+        list += "<label for='o18' class='select'>"+_("Master Station")+"</label><select data-mini='true' id='o18'><option value='0'>"+_("n/a")+"</option>";
         for (i=0; i<window.controller.stations.snames.length; i++) {
             list += "<option "+(((i+1) == window.controller.options.mas) ? "selected" : "")+" value='"+(i+1)+"'>"+window.controller.stations.snames[i]+"</option>";
             if (i == 7) break;
