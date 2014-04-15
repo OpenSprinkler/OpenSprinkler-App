@@ -37,6 +37,9 @@ msgstr ""
 msgid "Open Sprinkler Password:"
 msgstr ""
 
+msgid "Submit"
+msgstr ""
+
 msgid "Connect Now"
 msgstr ""
 
@@ -91,9 +94,6 @@ msgstr ""
 msgid "Wunderground API Key"
 msgstr ""
 
-msgid "Submit"
-msgstr ""
-
 msgid "An API key must be provided for Weather Underground"
 msgstr ""
 
@@ -113,6 +113,9 @@ msgid "Timezone"
 msgstr ""
 
 msgid "Master Station"
+msgstr ""
+
+msgid "None"
 msgstr ""
 
 msgid "HTTP Port (restart required)"
@@ -311,9 +314,6 @@ msgid "Interval"
 msgstr ""
 
 msgid "Restrictions"
-msgstr ""
-
-msgid "None"
 msgstr ""
 
 msgid "Odd Days"
