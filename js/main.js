@@ -283,14 +283,14 @@ function update_controller_programs(callback) {
                 newdata[tmp[0]] = parseInt(tmp[1]);
             }
 
-            newdata["pd"] = [];
+            newdata.pd = [];
             if (progs !== null) {
                 progs = progs[1].split(";");
                 for (i=0; i<progs.length; i++) {
                     prog = progs[i].split("=");
                     prog = prog[1].replace("[", "");
                     prog = prog.replace("]", "");
-                    newdata["pd"][i] = parseIntArray(prog.split(","));
+                    newdata.pd[i] = parseIntArray(prog.split(","));
                 }
             }
 
@@ -350,13 +350,7 @@ function update_controller_options(callback) {
                     name;
 
                 while ((tmp = varsRegex.exec(options)) !== null) {
-                    var mapObj = {
-                        nbrd:"ext",
-                        mtoff:"mtof"
-                    };
-                    name = tmp[1].replace(/nbrd|mtoff/gi, function(matched){
-                        return mapObj[matched];
-                    });
+                    name = tmp[1].replace("nbrd","ext").replace("mtoff","mtof");
                     vars[name] = +tmp[2];
                 }
                 vars.ext--;
@@ -368,7 +362,7 @@ function update_controller_options(callback) {
 
                 for (i=0; i<tmp.length-1; i=i+4) {
                     o = tmp[i+3];
-                    if ($.inArray(o,[1,2,12,13,14,15,16,17,18,19,20,21,22,23,25,26])) {
+                    if ($.inArray(o,[1,2,12,13,14,15,16,17,18,19,20,21,22,23,25,26]) !== -1) {
                         vars[keyIndex[o]] = +tmp[i+2];
                     }
                 }
@@ -475,9 +469,9 @@ function check_configured() {
     update_site_list(names);
 
     window.curr_name = current;
-    window.curr_ip = sites[current]["os_ip"];
-    window.curr_pw = sites[current]["os_pw"];
-    if (sites[current]["is183"]) window.curr_183 = true;
+    window.curr_ip = sites[current].os_ip;
+    window.curr_pw = sites[current].os_pw;
+    if (sites[current].is183) window.curr_183 = true;
 
     return 1;
 }
@@ -500,9 +494,9 @@ function submit_newuser() {
                 if (name === "") name = "Site "+(Object.keys(sites).length+1);
 
                 sites[name] = window.curr_name = {};
-                sites[name]["os_ip"] = window.curr_ip = $("#os_ip").val();
-                sites[name]["os_pw"] = window.curr_pw = $("#os_pw").val();
-                if (is183 === true) sites[name]["is183"] = window.curr_183 = "1";
+                sites[name].os_ip = window.curr_ip = $("#os_ip").val();
+                sites[name].os_pw = window.curr_pw = $("#os_pw").val();
+                if (is183 === true) sites[name].is183 = window.curr_183 = "1";
 
                 $("#os_name,#os_ip,#os_pw").val("");
                 localStorage.setItem("sites",JSON.stringify(sites));
@@ -647,8 +641,8 @@ function change_site(site) {
     site = site.replace(/_/g," ");
     rename = (nm !== "" && nm != site);
 
-    if (ip !== "") sites[site]["os_ip"] = ip;
-    if (pw !== "") sites[site]["os_pw"] = pw;
+    if (ip !== "") sites[site].os_ip = ip;
+    if (pw !== "") sites[site].os_pw = pw;
     if (rename) {
         sites[nm] = sites[site];
         delete sites[site];
@@ -759,9 +753,17 @@ function start_scan(port,type) {
         devicesfound = 0,
         newlist = "",
         suffix = "",
+        oldsites = getsites(),
+        oldips = [],
         i, url, notfound, found, baseip, check_scan_status, scanning, dtype;
 
     type = type || 0;
+
+    for (i in oldsites) {
+        if (oldsites.hasOwnProperty(i)) {
+            oldips.push(oldsites[i].os_ip);
+        }
+    }
 
     notfound = function(){
         scanprogress++;
@@ -771,6 +773,8 @@ function start_scan(port,type) {
         scanprogress++;
         var ip = $.mobile.path.parseUrl(this.url).authority,
             fwv, is183, tmp;
+
+        if ($.inArray(ip,oldips) !== -1) return;
 
         if (this.dataType === "text") {
             tmp = reply.match(/var\s*ver=(\d+)/);
@@ -846,7 +850,7 @@ function start_scan(port,type) {
         } else {
             dtype = "text";
         }
-        url = "http://"+ip+((port) ? ":"+port : "")+suffix;
+        url = "http://"+ip+((port && port != 80) ? ":"+port : "")+suffix;
         $.ajax({
             url: url,
             type: "GET",
