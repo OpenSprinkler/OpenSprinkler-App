@@ -755,7 +755,7 @@ function start_scan(port,type) {
         devicesfound = 0,
         newlist = "",
         suffix = "",
-        i, url, notfound, found, baseip, check_scan_status, scanning;
+        i, url, notfound, found, baseip, check_scan_status, scanning, dtype;
 
     type = type || 0;
 
@@ -766,7 +766,7 @@ function start_scan(port,type) {
     found = function (reply) {
         scanprogress++;
         var ip = this.url.split("/")[2],
-            fwv, is183;
+            fwv, is183, tmp;
 
         if (this.dataType === "text") {
             tmp = reply.match(/var\s*ver=(\d+)/);
@@ -824,9 +824,9 @@ function start_scan(port,type) {
         ip = baseip+"."+i;
         if (type < 2) {
             suffix = "/jo";
-            dtype = "json"
+            dtype = "json";
         } else {
-            dtype = "text"
+            dtype = "text";
         }
         url = "http://"+ip+((port) ? ":"+port : "")+suffix;
         $.ajax({
