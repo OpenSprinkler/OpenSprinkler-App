@@ -362,11 +362,15 @@ function update_controller_options(callback) {
                     vars[name] = +tmp[2];
                 }
             } else {
+                var keyIndex = {1:"tz",2:"ntp",12:"hp0",13:"hp1",14:"ar",15:"ext",16:"seq",17:"sdt",18:"mas",19:"mton",20:"mtof",21:"urs",22:"rso",23:"wl",25:"ipas",26:"devid"};
                 tmp = /var opts=\[(.*)\];/.exec(options);
                 tmp = tmp[1].replace(/"/g,"").split(",");
 
                 for (i=0; i<tmp.length-1; i=i+4) {
-                    vars[tmp[i]] = +tmp[i+2];
+                    o = tmp[i+3];
+                    if ($.inArray(o,[1,2,12,13,14,15,16,17,18,19,20,21,22,23,25,26])) {
+                        vars[keyIndex[o]] = +tmp[i+2];
+                    }
                 }
             }
             window.controller.options = vars;
@@ -472,6 +476,7 @@ function check_configured() {
     window.curr_name = current;
     window.curr_ip = sites[current]["os_ip"];
     window.curr_pw = sites[current]["os_pw"];
+    if (sites[current]["is183"]) window.curr_183 = true;
 
     return 1;
 }
