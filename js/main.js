@@ -51,7 +51,6 @@ $(document)
     //After jQuery mobile is loaded set intial configuration
     $.mobile.defaultPageTransition = 'fade';
     $.mobile.hoverDelay = 0;
-    $.mobile.toolbar.prototype.options.backBtnText = _("Back");
 })
 .one("pagebeforechange", function(event) {
     // Let the framework know we're going to handle the load
@@ -2657,6 +2656,8 @@ function set_lang() {
             return _(txt);
         }
     });
+    $(".ui-toolbar-back-btn").text(_("Back"));
+    $.mobile.toolbar.prototype.options.backBtnText = _("Back");
 }
 
 function get_locale() {
