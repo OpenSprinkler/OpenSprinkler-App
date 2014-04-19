@@ -662,11 +662,14 @@ function change_site(site) {
 
     showerror(_("Site updated successfully"));
 
-    if (site === localStorage.getItem("current_site") && ip !== "") {
-        check_configured();
-        newload();
-    } else if (rename) {
-        show_sites();
+    if (site === localStorage.getItem("current_site") {
+        if (pw !== "") window.curr_pw = pw;
+        if (ip !== "") {
+            check_configured();
+            newload();
+        }
+    }  else {
+        if (rename) show_sites();
     }
 }
 
