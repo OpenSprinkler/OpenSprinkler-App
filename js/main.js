@@ -353,15 +353,16 @@ function update_controller_options(callback) {
 
                 while ((tmp = varsRegex.exec(options)) !== null) {
                     var mapObj = {
-                        htp:"hp0",
                         nbrd:"ext",
                         mtoff:"mtof"
                     };
-                    name = tmp[1].replace(/htp|nbrd|mtoff/gi, function(matched){
+                    name = tmp[1].replace(/nbrd|mtoff/gi, function(matched){
                         return mapObj[matched];
                     });
                     vars[name] = +tmp[2];
                 }
+                vars.ext--;
+                vars.fwv = "1.8.3-ospi";
             } else {
                 var keyIndex = {1:"tz",2:"ntp",12:"hp0",13:"hp1",14:"ar",15:"ext",16:"seq",17:"sdt",18:"mas",19:"mton",20:"mtof",21:"urs",22:"rso",23:"wl",25:"ipas",26:"devid"};
                 tmp = /var opts=\[(.*)\];/.exec(options);
@@ -373,6 +374,7 @@ function update_controller_options(callback) {
                         vars[keyIndex[o]] = +tmp[i+2];
                     }
                 }
+                vars.fwv = 183;
             }
             window.controller.options = vars;
             callback();
@@ -493,7 +495,7 @@ function submit_newuser() {
             $.mobile.loading("hide");
             var is183;
 
-            if (typeof data === "string" && data.match(/var en=/)) is183 = true;
+            if (typeof data === "string" && data.match(/var (en|sd)\s*=/)) is183 = true;
 
             if (data.en !== undefined || is183 === true) {
                 var name = $("#os_name").val();
@@ -766,7 +768,7 @@ function start_scan(port,type) {
 
     found = function (reply) {
         scanprogress++;
-        var ip = this.url.split("/")[2],
+        var ip = $.mobile.path.parseUrl(this.url).authority,
             fwv, is183, tmp;
 
         if (this.dataType === "text") {
@@ -794,6 +796,8 @@ function start_scan(port,type) {
                     start_scan(8080,1);
                 } else if (type === 1) {
                     start_scan(80,2);
+                } else if (type === 2) {
+                    start_scan(8080,3);
                 } else {
                     showerror(_("No devices were detected on your network."));
                 }
@@ -806,7 +810,7 @@ function start_scan(port,type) {
     ip.pop();
     baseip = ip.join(".");
 
-    if (port && port == "8080") {
+    if (type === 1) {
         $.mobile.loading('show', {
                 text: _("Scanning for OpenSprinkler Pi"),
                 textVisible: true,
@@ -815,6 +819,12 @@ function start_scan(port,type) {
     } else if (type === 2) {
         $.mobile.loading('show', {
                 text: _("Scanning for OpenSprinkler (1.8.3)"),
+                textVisible: true,
+                theme: 'b'
+        });
+    } else if (type === 3) {
+        $.mobile.loading('show', {
+                text: _("Scanning for OpenSprinkler Pi (1.8.3)"),
                 textVisible: true,
                 theme: 'b'
         });
