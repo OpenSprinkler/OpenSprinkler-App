@@ -811,6 +811,12 @@ function start_scan(port,type) {
                 textVisible: true,
                 theme: 'b'
         });
+    } else if (type === 2) {
+        $.mobile.loading('show', {
+                text: _("Scanning for OpenSprinkler (1.8.3)"),
+                textVisible: true,
+                theme: 'b'
+        });
     } else {
         $.mobile.loading('show', {
                 text: _("Scanning for OpenSprinkler"),
