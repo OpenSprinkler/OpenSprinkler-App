@@ -272,56 +272,186 @@ function update_controller(callback,fail) {
 function update_controller_programs(callback) {
     callback = callback || function(){};
 
-    return $.getJSON("http://"+window.curr_ip+"/jp",function(programs){
-        window.controller.programs = programs;
-        callback();
-    });
+    if (window.curr_183) {
+        return $.get("http://"+window.curr_ip+"/gp?d=0",function(programs){
+            var vars = programs.match(/(nprogs|nboards|mnp)=[\w|\d|.\"]+/g),
+                progs = /pd=\[\];(.*);/.exec(programs),
+                newdata = {}, tmp, prog;
+
+            for (var i=0; i<vars.length; i++) {
+                if (vars[i] === "") continue;
+                tmp = vars[i].split("=");
+                newdata[tmp[0]] = parseInt(tmp[1]);
+            }
+
+            newdata["pd"] = [];
+            if (progs !== null) {
+                progs = progs[1].split(";");
+                for (i=0; i<progs.length; i++) {
+                    prog = progs[i].split("=");
+                    prog = prog[1].replace("[", "");
+                    prog = prog.replace("]", "");
+                    newdata["pd"][i] = parseIntArray(prog.split(","));
+                }
+            }
+
+            window.controller.programs = newdata;
+            callback();
+        });
+    } else {
+        return $.getJSON("http://"+window.curr_ip+"/jp",function(programs){
+            window.controller.programs = programs;
+            callback();
+        });
+    }
 }
 
 function update_controller_stations(callback) {
     callback = callback || function(){};
 
-    return $.getJSON("http://"+window.curr_ip+"/jn",function(stations){
-        window.controller.stations = stations;
-        callback();
-    });
+    if (window.curr_183) {
+        return $.get("http://"+window.curr_ip+"/vs",function(stations){
+            var names = /snames=\[(.*?)\];/.exec(stations),
+                masop = stations.match(/(?:masop|mo)\s?[=|:]\s?\[(.*?)\]/);
+
+            names = names[1].split(",");
+            names.pop();
+
+            for (var i=0; i<names.length; i++) {
+                names[i] = names[i].replace(/'/g,"");
+            }
+
+            masop = parseIntArray(masop[1].split(","));
+
+            window.controller.stations = {
+                "snames": names,
+                "masop": masop,
+                "maxlen": names.length
+            };
+            callback();
+        });
+    } else {
+        return $.getJSON("http://"+window.curr_ip+"/jn",function(stations){
+            window.controller.stations = stations;
+            callback();
+        });
+    }
 }
 
 function update_controller_options(callback) {
     callback = callback || function(){};
 
-    return $.getJSON("http://"+window.curr_ip+"/jo",function(options){
-        window.controller.options = options;
-        callback();
-    });
+    if (window.curr_183) {
+        return $.get("http://"+window.curr_ip+"/vo",function(options){
+            var isOSPi = options.match(/var sd\s*=/),
+                vars = {}, tmp, i, o;
+
+            if (isOSPi) {
+                var varsRegex = /(tz|htp|htp2|nbrd|seq|sdt|mas|mton|mtoff|urs|rst|wl|ipas)\s?[=|:]\s?([\w|\d|.\"]+)/gm,
+                    name;
+
+                while ((tmp = varsRegex.exec(options)) !== null) {
+                    var mapObj = {
+                        htp:"hp0",
+                        nbrd:"ext",
+                        mtoff:"mtof"
+                    };
+                    name = tmp[1].replace(/htp|nbrd|mtoff/gi, function(matched){
+                        return mapObj[matched];
+                    });
+                    vars[name] = +tmp[2];
+                }
+            } else {
+                tmp = /var opts=\[(.*)\];/.exec(options);
+                tmp = tmp[1].replace(/"/g,"").split(",");
+
+                for (i=0; i<tmp.length-1; i=i+4) {
+                    vars[tmp[i]] = +tmp[i+2];
+                }
+            }
+            window.controller.options = vars;
+            callback();
+        });
+    } else {
+        return $.getJSON("http://"+window.curr_ip+"/jo",function(options){
+            window.controller.options = options;
+            callback();
+        });
+    }
 }
 
 function update_controller_status(callback) {
     callback = callback || function(){};
 
-    return $.getJSON("http://"+window.curr_ip+"/js",function(status){
-        window.controller.status = status.sn;
-        callback();
-    }).fail(function(){
-        window.controller.status = [];
-    });
+    if (window.curr_183) {
+        return $.get("http://"+window.curr_ip+"/sn0",function(status){
+            var tmp = status.match(/\d+/);
+
+            tmp = parseIntArray(tmp[0].split(""));
+
+            window.controller.status = tmp;
+            callback();
+        }).fail(function(){
+            window.controller.status = [];
+        });
+    } else {
+        return $.getJSON("http://"+window.curr_ip+"/js",function(status){
+            window.controller.status = status.sn;
+            callback();
+        }).fail(function(){
+            window.controller.status = [];
+        });
+    }
 }
 
 function update_controller_settings(callback) {
     callback = callback || function(){};
 
-    return $.getJSON("http://"+window.curr_ip+"/jc",function(settings){
-        window.controller.settings = settings;
-        callback();
-    }).fail(function(){
-        if (window.controller.settings && window.controller.stations) {
-            var ps = [], i;
-            for (i=0; i<window.controller.stations.maxlen; i++) {
-                ps.push([0,0]);
+    if (window.curr_183) {
+        return $.get("http://"+window.curr_ip,function(settings){
+            var varsRegex = /(ver|devt|nbrd|tz|en|rd|rs|mm|rdst)\s?[=|:]\s?([\w|\d|.\"]+)/gm,
+                loc = settings.match(/loc\s?[=|:]\s?[\"|'](.*)[\"|']/),
+                lrun = settings.match(/lrun=\[(.*)\]/),
+                ps = settings.match(/ps=\[(.*)\];/),
+                vars = {}, tmp, i, z;
+
+            ps = ps[1].split("],[");
+            for (i = ps.length - 1; i >= 0; i--) {
+                ps[i] = parseIntArray(ps[i].replace(/\[|\]/g,"").split(","));
             }
-            window.controller.settings.ps = ps;
-        }
-    });
+
+            while ((tmp = varsRegex.exec(settings)) !== null) {
+                vars[tmp[1]] = +tmp[2];
+            }
+
+            vars.loc = loc[1];
+            vars.ps = ps;
+            vars.lrun = parseIntArray(lrun[1].split(","));
+
+            window.controller.settings = vars;
+        }).fail(function(){
+            if (window.controller.settings && window.controller.stations) {
+                var ps = [], i;
+                for (i=0; i<window.controller.stations.maxlen; i++) {
+                    ps.push([0,0]);
+                }
+                window.controller.settings.ps = ps;
+            }
+        });
+    } else {
+        return $.getJSON("http://"+window.curr_ip+"/jc",function(settings){
+            window.controller.settings = settings;
+            callback();
+        }).fail(function(){
+            if (window.controller.settings && window.controller.stations) {
+                var ps = [], i;
+                for (i=0; i<window.controller.stations.maxlen; i++) {
+                    ps.push([0,0]);
+                }
+                window.controller.settings.ps = ps;
+            }
+        });
+    }
 }
 
 // Multisite functions
@@ -352,7 +482,31 @@ function submit_newuser() {
     $.mobile.loading("show");
 
     var sites = getsites(),
-        ip = $("#os_ip").val();
+        ip = $("#os_ip").val(),
+        success = function(data){
+            $.mobile.loading("hide");
+            var is183;
+
+            if (typeof data === "string" && data.match(/var en=/)) is183 = true;
+
+            if (data.en !== undefined || is183 === true) {
+                var name = $("#os_name").val();
+                if (name === "") name = "Site "+(Object.keys(sites).length+1);
+
+                sites[name] = window.curr_name = {};
+                sites[name]["os_ip"] = window.curr_ip = $("#os_ip").val();
+                sites[name]["os_pw"] = window.curr_pw = $("#os_pw").val();
+                if (is183 === true) sites[name]["is183"] = window.curr_183 = "1";
+
+                $("#os_name,#os_ip,#os_pw").val("");
+                localStorage.setItem("sites",JSON.stringify(sites));
+                localStorage.setItem("current_site",name);
+                update_site_list(Object.keys(sites));
+                newload();
+            } else {
+                showerror(_("Check IP/Port and try again."));
+            }
+        };
 
     if (!ip) {
         showerror(_("An IP address is required to continue."));
@@ -360,25 +514,11 @@ function submit_newuser() {
     }
 
     //Submit form data to the server
-    $.getJSON("http://"+ip+"/jc",function(data){
-        $.mobile.loading("hide");
-        if (data.en !== undefined) {
-            var name = $("#os_name").val();
-            if (name === "") name = "Site "+(Object.keys(sites).length+1);
-            sites[name] = window.curr_name = {};
-            sites[name]["os_ip"] = window.curr_ip = $("#os_ip").val();
-            sites[name]["os_pw"] = window.curr_pw = $("#os_pw").val();
-            $("#os_name,#os_ip,#os_pw").val("");
-            localStorage.setItem("sites",JSON.stringify(sites));
-            localStorage.setItem("current_site",name);
-            update_site_list(Object.keys(sites));
-            newload();
-        } else {
+    $.getJSON("http://"+ip+"/jc",success).fail(function(){
+        $.get("http://"+ip,success).fail(function(){
+            $.mobile.loading("hide");
             showerror(_("Check IP/Port and try again."));
-        }
-    }).fail(function(){
-        $.mobile.loading("hide");
-        showerror(_("Check IP/Port and try again."));
+        });
     });
 }
 
@@ -573,8 +713,7 @@ function checkAutoScan() {
     try {
     // Request the device's IP address
     networkinterface.getIPAddress(function(ip){
-        var chk = ip.split(".");
-        for(var i=0; i<chk.length; i++) {chk[i] = +chk[i];}
+        var chk = parseIntArray(ip.split("."));
 
         // Check if the IP is on a private network, if not don't enable automatic scanning
         if (!(chk[0] == 10 || (chk[0] == 172 && chk[1] > 17 && chk[1] < 32) || (chk[0] == 192 && chk[1] == 168))) {
@@ -627,7 +766,7 @@ function start_scan(port) {
             newlist += "<li><a class='ui-btn ui-btn-icon-right ui-icon-carat-r' href='javascript:add_found(\""+ip+"\");'>"+ip+"<p>"+_("Firmware")+": "+getOSVersion(reply.fwv)+"</p></a></li>";
     };
 
-    // Check is scanning is complete
+    // Check if scanning is complete
     check_scan_status = function() {
         if (scanprogress == 245) {
             $.mobile.loading("hide");
@@ -2415,6 +2554,12 @@ function fixInputClick(page) {
             },100);
         });
     }
+}
+
+// Convert all elements in array to integer
+function parseIntArray(arr) {
+    for(var i=0; i<arr.length; i++) {arr[i] = +arr[i];}
+    return arr;
 }
 
 // Convert seconds into (HH:)MM:SS format. HH is only reported if greater than 0.
