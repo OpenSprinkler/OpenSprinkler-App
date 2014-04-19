@@ -193,7 +193,8 @@ $(document)
 
 //Set AJAX timeout
 $.ajaxSetup({
-    timeout: 6000
+    timeout: 6000,
+    cache: false
 });
 
 var switching = false;
