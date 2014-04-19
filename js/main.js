@@ -2482,7 +2482,6 @@ function import_config(data) {
         $.when(
             $.get("http://"+window.curr_ip+co),
             $.get("http://"+window.curr_ip+cs),
-            $.get("http://"+window.curr_ip+"/dp?pw="+window.curr_pw+"&pid=-1"),
             $.each(data.programs.pd,function (i,prog) {
                 $.get("http://"+window.curr_ip+cp_start+"&pid=-1&v="+JSON.stringify(prog));
             })
