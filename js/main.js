@@ -734,7 +734,6 @@ function checkAutoScan() {
         auto.show();
 
         window.deviceip = ip;
-        window.devicesfound = [];
     });
     } catch (err) {
         resetStartMenu();
@@ -750,25 +749,38 @@ function resetStartMenu() {
     auto.hide();
 }
 
-function start_scan(port) {
+function start_scan(port,type) {
     var ip = window.deviceip.split("."),
         scanprogress = 1,
-        devicesfound = [],
+        devicesfound = 0,
         newlist = "",
+        suffix = "",
         i, url, notfound, found, baseip, check_scan_status, scanning;
+
+    type = type || 0;
 
     notfound = function(){
         scanprogress++;
     };
 
     found = function (reply) {
-            scanprogress++;
-            var ip = this.url.split("/")[2],
-                device = [ip,reply.fwv];
+        scanprogress++;
+        var ip = this.url.split("/")[2],
+            fwv, is183;
 
-            devicesfound.push(device);
+        if (this.dataType === "text") {
+            tmp = reply.match(/var\s*ver=(\d+)/);
+            if (!tmp) return;
+            fwv = tmp[1];
+            is183 = true;
+        } else {
+            fwv = reply.fwv;
+            is183 = false;
+        }
 
-            newlist += "<li><a class='ui-btn ui-btn-icon-right ui-icon-carat-r' href='javascript:add_found(\""+ip+"\");'>"+ip+"<p>"+_("Firmware")+": "+getOSVersion(reply.fwv)+"</p></a></li>";
+        devicesfound++;
+
+        newlist += "<li><a class='ui-btn ui-btn-icon-right ui-icon-carat-r' href='javascript:add_found(\""+ip+"\");'>"+ip+"<p>"+_("Firmware")+": "+getOSVersion(fwv)+"</p></a></li>";
     };
 
     // Check if scanning is complete
@@ -776,9 +788,11 @@ function start_scan(port) {
         if (scanprogress == 245) {
             $.mobile.loading("hide");
             clearInterval(scanning);
-            if (!devicesfound.length) {
-                if (!port) {
-                    start_scan(8080);
+            if (!devicesfound) {
+                if (type === 0) {
+                    start_scan(8080,1);
+                } else if (type === 1) {
+                    start_scan(80,2);
                 } else {
                     showerror(_("No devices were detected on your network."));
                 }
@@ -808,11 +822,17 @@ function start_scan(port) {
     // Start scan
     for (i = 1; i<=244; i++) {
         ip = baseip+"."+i;
-        url = "http://"+ip+((port) ? ":"+port : "")+"/jo";
+        if (type < 2) {
+            suffix = "/jo";
+            dtype = "json"
+        } else {
+            dtype = "text"
+        }
+        url = "http://"+ip+((port) ? ":"+port : "")+suffix;
         $.ajax({
             url: url,
             type: "GET",
-            dataType: "json",
+            dataType: dtype,
             timeout: 3000,
             global: false,
             error: notfound,
