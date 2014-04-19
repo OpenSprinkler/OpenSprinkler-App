@@ -804,7 +804,7 @@ function start_scan(port,type) {
                 } else if (type === 2) {
                     start_scan(8080,3);
                 } else {
-                    showerror(_("No devices were detected on your network."));
+                    showerror(_("No new devices were detected on your network"));
                 }
             } else {
                 show_site_select(newlist);
@@ -2427,7 +2427,7 @@ function clear_config() {
 // Export and Import functions
 function export_config() {
     localStorage.setItem("backup", JSON.stringify(window.controller));
-    showerror(_("Backup saved to your device"));
+    showerror(_("Backup saved on this device"));
 }
 
 function import_config(data) {
@@ -2492,6 +2492,7 @@ function import_config(data) {
                 update_controller(function(){
                     $.mobile.loading("hide");
                     showerror(_("Backup restored to your device"));
+                    update_weather();
                 });
             },
             function(){

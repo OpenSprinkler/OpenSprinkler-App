@@ -4,9 +4,6 @@ msgstr ""
 msgid "Connection timed-out. Please try again."
 msgstr ""
 
-msgid "Back"
-msgstr ""
-
 msgid "Network Error"
 msgstr ""
 
@@ -73,7 +70,7 @@ msgstr ""
 msgid "Firmware"
 msgstr ""
 
-msgid "No devices were detected on your network."
+msgid "No new devices were detected on your network"
 msgstr ""
 
 msgid "Scanning for OpenSprinkler Pi"
@@ -411,7 +408,7 @@ msgid ""
 "settings (this will delete the configuration file)?"
 msgstr ""
 
-msgid "Backup saved to your device"
+msgid "Backup saved on this device"
 msgstr ""
 
 msgid "No backup available on this device"
@@ -430,6 +427,9 @@ msgid "Yes"
 msgstr ""
 
 msgid "No"
+msgstr ""
+
+msgid "Back"
 msgstr ""
 
 msgid "Sprinkler System"
