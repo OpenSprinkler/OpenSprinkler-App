@@ -10,10 +10,10 @@ msgstr ""
 msgid "Network Error"
 msgstr ""
 
-msgid "An IP address is required to continue."
+msgid "Check IP/Port and try again."
 msgstr ""
 
-msgid "Check IP/Port and try again."
+msgid "An IP address is required to continue."
 msgstr ""
 
 msgid "Select Site"
@@ -77,6 +77,12 @@ msgid "No devices were detected on your network."
 msgstr ""
 
 msgid "Scanning for OpenSprinkler Pi"
+msgstr ""
+
+msgid "Scanning for OpenSprinkler (1.8.3)"
+msgstr ""
+
+msgid "Scanning for OpenSprinkler Pi (1.8.3)"
 msgstr ""
 
 msgid "Scanning for OpenSprinkler"
