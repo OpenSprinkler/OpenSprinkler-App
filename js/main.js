@@ -101,18 +101,18 @@ $(document)
             show_site_select();
             return false;
         } else if (hash == "#sprinklers") {
-                if ($(".ui-page-active").length) {
-                    //Reset status bar to loading while an update is done
-                    $("#footer-running").html("<p class='ui-icon ui-icon-loading mini-load'></p>");
-                    setTimeout(function(){
-                        update_controller(check_status,function(){
-                            change_status(0,0,"red","<p id='running-text' class='center'>"+_("Network Error")+"</p>");
-                            hide_weather();
-                        });
-                    },800);
-                } else {
-                    check_status();
-                }
+            if (!data.options.firstLoad) {
+                //Reset status bar to loading while an update is done
+                $("#footer-running").html("<p class='ui-icon ui-icon-loading mini-load'></p>");
+                setTimeout(function(){
+                    update_controller(check_status,function(){
+                        change_status(0,0,"red","<p id='running-text' class='center'>"+_("Network Error")+"</p>");
+                        hide_weather();
+                    });
+                },800);
+            } else {
+                check_status();
+            }
         } else if (hash == "#settings") {
             $.each(["en","mm"],function(a,id){
                 var $id = $("#"+id);
@@ -237,7 +237,10 @@ function newload(firstLoad) {
             var opt = {};
             update_weather();
             if (firstLoad === true) {
-                opt = {"transition":"none"};
+                opt = {
+                    "transition":"none",
+                    "firstLoad": firstLoad
+                };
             }
             changePage("#sprinklers",opt);
         },
@@ -537,8 +540,8 @@ function submit_newuser(ssl) {
     }
 
     //Submit form data to the server
-    $.getJSON(prefix+ip+"/jc",success).fail(function(){
-        $.get(prefix+ip,success).fail(function(){
+    $.getJSON(prefix+ip+"/jc",success).fail(function(x,t,m){
+        $.get(prefix+ip,success).fail(function(x,t,m){
             if (ssl) {
                 $.mobile.loading("hide");
                 showerror(_("Check IP/Port and try again."));
