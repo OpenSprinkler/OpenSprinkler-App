@@ -524,6 +524,7 @@ function submit_newuser(ssl,useAuth) {
                 if (useAuth) {
                     sites[name].auth_user = $("#os_auth_user").val();
                     sites[name].auth_pw = $("#os_auth_pw").val();
+                    window.curr_prefix = window.curr_prefix + sites[name].auth_user + ":" + sites[name].auth_pw + "@";
                 }
 
                 $("#os_name,#os_ip,#os_pw,#os_auth_user,#os_auth_pw").val("");
