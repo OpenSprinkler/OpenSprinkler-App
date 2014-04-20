@@ -207,9 +207,9 @@ function flipSwitched() {
         defer;
 
     if (changedTo) {
-        defer = $.get("http://"+window.curr_ip+"/cv?pw="+window.curr_pw+"&"+method+"=1");
+        defer = $.get(window.curr_prefix+window.curr_ip+"/cv?pw="+window.curr_pw+"&"+method+"=1");
     } else {
-        defer = $.get("http://"+window.curr_ip+"/cv?pw="+window.curr_pw+"&"+method+"=0");
+        defer = $.get(window.curr_prefix+window.curr_ip+"/cv?pw="+window.curr_pw+"&"+method+"=0");
     }
 
     $.when(defer).then(function(){
@@ -272,7 +272,7 @@ function update_controller_programs(callback) {
     callback = callback || function(){};
 
     if (window.curr_183) {
-        return $.get("http://"+window.curr_ip+"/gp?d=0",function(programs){
+        return $.get(window.curr_prefix+window.curr_ip+"/gp?d=0",function(programs){
             var vars = programs.match(/(nprogs|nboards|mnp)=[\w|\d|.\"]+/g),
                 progs = /pd=\[\];(.*);/.exec(programs),
                 newdata = {}, tmp, prog;
@@ -298,7 +298,7 @@ function update_controller_programs(callback) {
             callback();
         });
     } else {
-        return $.getJSON("http://"+window.curr_ip+"/jp",function(programs){
+        return $.getJSON(window.curr_prefix+window.curr_ip+"/jp",function(programs){
             window.controller.programs = programs;
             callback();
         });
@@ -309,7 +309,7 @@ function update_controller_stations(callback) {
     callback = callback || function(){};
 
     if (window.curr_183) {
-        return $.get("http://"+window.curr_ip+"/vs",function(stations){
+        return $.get(window.curr_prefix+window.curr_ip+"/vs",function(stations){
             var names = /snames=\[(.*?)\];/.exec(stations),
                 masop = stations.match(/(?:masop|mo)\s?[=|:]\s?\[(.*?)\]/);
 
@@ -330,7 +330,7 @@ function update_controller_stations(callback) {
             callback();
         });
     } else {
-        return $.getJSON("http://"+window.curr_ip+"/jn",function(stations){
+        return $.getJSON(window.curr_prefix+window.curr_ip+"/jn",function(stations){
             window.controller.stations = stations;
             callback();
         });
@@ -341,7 +341,7 @@ function update_controller_options(callback) {
     callback = callback || function(){};
 
     if (window.curr_183) {
-        return $.get("http://"+window.curr_ip+"/vo",function(options){
+        return $.get(window.curr_prefix+window.curr_ip+"/vo",function(options){
             var isOSPi = options.match(/var sd\s*=/),
                 vars = {}, tmp, i, o;
 
@@ -372,7 +372,7 @@ function update_controller_options(callback) {
             callback();
         });
     } else {
-        return $.getJSON("http://"+window.curr_ip+"/jo",function(options){
+        return $.getJSON(window.curr_prefix+window.curr_ip+"/jo",function(options){
             window.controller.options = options;
             callback();
         });
@@ -383,7 +383,7 @@ function update_controller_status(callback) {
     callback = callback || function(){};
 
     if (window.curr_183) {
-        return $.get("http://"+window.curr_ip+"/sn0",function(status){
+        return $.get(window.curr_prefix+window.curr_ip+"/sn0",function(status){
             var tmp = status.match(/\d+/);
 
             tmp = parseIntArray(tmp[0].split(""));
@@ -394,7 +394,7 @@ function update_controller_status(callback) {
             window.controller.status = [];
         });
     } else {
-        return $.getJSON("http://"+window.curr_ip+"/js",function(status){
+        return $.getJSON(window.curr_prefix+window.curr_ip+"/js",function(status){
             window.controller.status = status.sn;
             callback();
         }).fail(function(){
@@ -407,7 +407,7 @@ function update_controller_settings(callback) {
     callback = callback || function(){};
 
     if (window.curr_183) {
-        return $.get("http://"+window.curr_ip,function(settings){
+        return $.get(window.curr_prefix+window.curr_ip,function(settings){
             var varsRegex = /(ver|devt|nbrd|tz|en|rd|rs|mm|rdst)\s?[=|:]\s?([\w|\d|.\"]+)/gm,
                 loc = settings.match(/loc\s?[=|:]\s?[\"|'](.*)[\"|']/),
                 lrun = settings.match(/lrun=\[(.*)\]/),
@@ -438,7 +438,7 @@ function update_controller_settings(callback) {
             }
         });
     } else {
-        return $.getJSON("http://"+window.curr_ip+"/jc",function(settings){
+        return $.getJSON(window.curr_prefix+window.curr_ip+"/jc",function(settings){
             window.controller.settings = settings;
             callback();
         }).fail(function(){
@@ -472,12 +472,17 @@ function check_configured() {
     window.curr_ip = sites[current].os_ip;
     window.curr_pw = sites[current].os_pw;
     if (sites[current].is183) window.curr_183 = true;
+    if (typeof sites[current].ssl !== "undefined" && sites[current].ssl === "1") {
+        window.curr_prefix = "https://";
+    } else {
+        window.curr_prefix = "http://";
+    }
 
     return 1;
 }
 
 // Add a new site
-function submit_newuser() {
+function submit_newuser(ssl) {
     document.activeElement.blur();
     $.mobile.loading("show");
 
@@ -496,7 +501,18 @@ function submit_newuser() {
                 sites[name] = window.curr_name = {};
                 sites[name].os_ip = window.curr_ip = $("#os_ip").val();
                 sites[name].os_pw = window.curr_pw = $("#os_pw").val();
-                if (is183 === true) sites[name].is183 = window.curr_183 = "1";
+
+                if (is183 === true) {
+                    sites[name].is183 = "1";
+                    window.curr_183 = true;
+                }
+
+                if (ssl) {
+                    sites[name].ssl = "1";
+                    window.curr_prefix = "https://";
+                } else {
+                    window.curr_prefix = "http://";
+                }
 
                 $("#os_name,#os_ip,#os_pw").val("");
                 localStorage.setItem("sites",JSON.stringify(sites));
@@ -506,18 +522,29 @@ function submit_newuser() {
             } else {
                 showerror(_("Check IP/Port and try again."));
             }
-        };
+        },
+        prefix;
 
     if (!ip) {
         showerror(_("An IP address is required to continue."));
         return;
     }
 
+    if (ssl) {
+        prefix = "https://";
+    } else {
+        prefix = "http://";
+    }
+
     //Submit form data to the server
-    $.getJSON("http://"+ip+"/jc",success).fail(function(){
-        $.get("http://"+ip,success).fail(function(){
-            $.mobile.loading("hide");
-            showerror(_("Check IP/Port and try again."));
+    $.getJSON(prefix+ip+"/jc",success).fail(function(){
+        $.get(prefix+ip,success).fail(function(){
+            if (ssl) {
+                $.mobile.loading("hide");
+                showerror(_("Check IP/Port and try again."));
+            } else {
+                submit_newuser(true);
+            }
         });
     });
 }
@@ -972,13 +999,13 @@ function update_weather() {
 }
 
 function update_yahoo_weather() {
-    $.getJSON("http://query.yahooapis.com/v1/public/yql?q=select%20woeid%20from%20geo.placefinder%20where%20text=%22"+escape(window.controller.settings.loc)+"%22&format=json",function(woeid){
+    $.getJSON("https://query.yahooapis.com/v1/public/yql?q=select%20woeid%20from%20geo.placefinder%20where%20text=%22"+escape(window.controller.settings.loc)+"%22&format=json",function(woeid){
         if (woeid.query.results === null) {
             hide_weather();
             return;
         }
 
-        $.getJSON("http://query.yahooapis.com/v1/public/yql?q=select%20item%2Ctitle%2Clocation%20from%20weather.forecast%20where%20woeid%3D%22"+woeid.query.results.Result.woeid+"%22&format=json",function(data){
+        $.getJSON("https://query.yahooapis.com/v1/public/yql?q=select%20item%2Ctitle%2Clocation%20from%20weather.forecast%20where%20woeid%3D%22"+woeid.query.results.Result.woeid+"%22&format=json",function(data){
             // Hide the weather if no data is returned
             if (data.query.results.channel.item.title == "City not found") {
                 hide_weather();
@@ -1021,7 +1048,7 @@ function update_wunderground_weather(wapikey) {
     $.ajax({
         dataType: "jsonp",
         type: "GET",
-        url: "http://api.wunderground.com/api/"+wapikey+"/conditions/forecast/lang:EN/q/"+escape(window.controller.settings.loc)+".json",
+        url: "https://api.wunderground.com/api/"+wapikey+"/conditions/forecast/lang:EN/q/"+escape(window.controller.settings.loc)+".json",
         success: function(data) {
             var code, temp;
 
@@ -1241,7 +1268,7 @@ function submit_settings() {
     });
     if (invalid) return;
     $.mobile.loading("show");
-    $.get("http://"+window.curr_ip+"/co?pw="+window.curr_pw+"&"+$.param(opt),function(){
+    $.get(window.curr_prefix+window.curr_ip+"/co?pw="+window.curr_pw+"&"+$.param(opt),function(){
         $(document).one("pageshow",function(){
             showerror(_("Settings have been saved"));
         });
@@ -1315,7 +1342,7 @@ function submit_stations() {
     if ($("[id^='um_']").length) masop = "&"+$.param(m);
     if (invalid) return;
     $.mobile.loading("show");
-    $.get("http://"+window.curr_ip+"/cs?pw="+window.curr_pw+"&"+$.param(names)+masop,function(){
+    $.get(window.curr_prefix+window.curr_ip+"/cs?pw="+window.curr_pw+"&"+$.param(names)+masop,function(){
         $(document).one("pageshow",function(){
             showerror(_("Stations have been updated"));
         });
@@ -1642,14 +1669,14 @@ function toggle() {
         currPos = listitems.index(item) + 1;
 
     if (anchor.hasClass("green")) {
-        $.get("http://"+window.curr_ip+"/sn"+currPos+"=0",function(){
+        $.get(window.curr_prefix+window.curr_ip+"/sn"+currPos+"=0",function(){
             update_controller_status();
         }).fail(function(){
             anchor.addClass("green");
         });
         anchor.removeClass("green");
     } else {
-        $.get("http://"+window.curr_ip+"/sn"+currPos+"=1&t=0",function(){
+        $.get(window.curr_prefix+window.curr_ip+"/sn"+currPos+"=1&t=0",function(){
             update_controller_status();
         }).fail(function(){
             anchor.removeClass("green");
@@ -1745,7 +1772,7 @@ function submit_runonce(runonce) {
         runonce.push(0);
     }
     localStorage.setItem("runonce",JSON.stringify(runonce));
-    $.get("http://"+window.curr_ip+"/cr?pw="+window.curr_pw+"&t="+JSON.stringify(runonce),function(){
+    $.get(window.curr_prefix+window.curr_ip+"/cr?pw="+window.curr_pw+"&t="+JSON.stringify(runonce),function(){
         update_controller_status();
         update_controller_settings();
         showerror(_("Run-once program has been scheduled"));
@@ -2294,7 +2321,7 @@ function add_program() {
 function delete_program(id) {
     areYouSure(_("Are you sure you want to delete program")+" "+(parseInt(id)+1)+"?", "", function() {
         $.mobile.loading("show");
-        $.get("http://"+window.curr_ip+"/dp?pw="+window.curr_pw+"&pid="+id,function(){
+        $.get(window.curr_prefix+window.curr_ip+"/dp?pw="+window.curr_pw+"&pid="+id,function(){
             $.mobile.loading("hide");
             update_controller_programs(function(){
                 get_programs(false);
@@ -2353,7 +2380,7 @@ function submit_program(id) {
     program = JSON.stringify(program.concat(stations));
     $.mobile.loading("show");
     if (id == "new") {
-        $.get("http://"+window.curr_ip+"/cp?pw="+window.curr_pw+"&pid=-1&v="+program,function(){
+        $.get(window.curr_prefix+window.curr_ip+"/cp?pw="+window.curr_pw+"&pid=-1&v="+program,function(){
             $.mobile.loading("hide");
             update_controller_programs(function(){
                 $(document).one("pageshow",function(){
@@ -2363,7 +2390,7 @@ function submit_program(id) {
             });
         });
     } else {
-        $.get("http://"+window.curr_ip+"/cp?pw="+window.curr_pw+"&pid="+id+"&v="+program,function(){
+        $.get(window.curr_prefix+window.curr_ip+"/cp?pw="+window.curr_pw+"&pid="+id+"&v="+program,function(){
             $.mobile.loading("hide");
             update_controller_programs(function(){
                 update_program_header();
@@ -2375,7 +2402,7 @@ function submit_program(id) {
 
 function raindelay() {
     $.mobile.loading("show");
-    $.get("http://"+window.curr_ip+"/cv?pw="+window.curr_pw+"&rd="+$("#delay").val(),function(){
+    $.get(window.curr_prefix+window.curr_ip+"/cv?pw="+window.curr_pw+"&rd="+$("#delay").val(),function(){
         $.mobile.loading("hide");
         $("#raindelay").popup("close");
         $("#footer-running").html("<p class='ui-icon ui-icon-loading mini-load'></p>");
@@ -2390,7 +2417,7 @@ function raindelay() {
 function rbt() {
     areYouSure(_("Are you sure you want to reboot OpenSprinkler?"), "", function() {
         $.mobile.loading("show");
-        $.get("http://"+window.curr_ip+"/cv?pw="+window.curr_pw+"&rbt=1",function(){
+        $.get(window.curr_prefix+window.curr_ip+"/cv?pw="+window.curr_pw+"&rbt=1",function(){
             $.mobile.loading("hide");
             showerror(_("OpenSprinkler is rebooting now"));
         });
@@ -2400,7 +2427,7 @@ function rbt() {
 function rsn() {
     areYouSure(_("Are you sure you want to stop all stations?"), "", function() {
         $.mobile.loading("show");
-        $.get("http://"+window.curr_ip+"/cv?pw="+window.curr_pw+"&rsn=1",function(){
+        $.get(window.curr_prefix+window.curr_ip+"/cv?pw="+window.curr_pw+"&rsn=1",function(){
             $.mobile.loading("hide");
             $.when(
                 update_controller_settings(),
@@ -2482,10 +2509,10 @@ function import_config(data) {
         }
 
         $.when(
-            $.get("http://"+window.curr_ip+co),
-            $.get("http://"+window.curr_ip+cs),
+            $.get(window.curr_prefix+window.curr_ip+co),
+            $.get(window.curr_prefix+window.curr_ip+cs),
             $.each(data.programs.pd,function (i,prog) {
-                $.get("http://"+window.curr_ip+cp_start+"&pid=-1&v="+JSON.stringify(prog));
+                $.get(window.curr_prefix+window.curr_ip+cp_start+"&pid=-1&v="+JSON.stringify(prog));
             })
         ).then(
             function(){
