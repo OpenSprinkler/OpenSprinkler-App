@@ -481,11 +481,14 @@ function check_configured() {
         window.curr_prefix = "http://";
     }
 
+    if (typeof sites[current].auth_user !== "undefined" && typeof sites[current].auth_pw !== "undefined") {
+        window.curr_prefix = window.curr_prefix + sites[current].auth_user + ":" + sites[current].auth_pw + "@";
+    }
     return 1;
 }
 
 // Add a new site
-function submit_newuser(ssl) {
+function submit_newuser(ssl,useAuth) {
     document.activeElement.blur();
     $.mobile.loading("show");
 
@@ -501,7 +504,8 @@ function submit_newuser(ssl) {
                 var name = $("#os_name").val();
                 if (name === "") name = "Site "+(Object.keys(sites).length+1);
 
-                sites[name] = window.curr_name = {};
+                sites[name] = {};
+                window.curr_name = name;
                 sites[name].os_ip = window.curr_ip = $("#os_ip").val();
                 sites[name].os_pw = window.curr_pw = $("#os_pw").val();
 
@@ -517,7 +521,12 @@ function submit_newuser(ssl) {
                     window.curr_prefix = "http://";
                 }
 
-                $("#os_name,#os_ip,#os_pw").val("");
+                if (useAuth) {
+                    sites[name].auth_user = $("#os_auth_user").val();
+                    sites[name].auth_pw = $("#os_auth_pw").val();
+                }
+
+                $("#os_name,#os_ip,#os_pw,#os_auth_user,#os_auth_pw").val("");
                 localStorage.setItem("sites",JSON.stringify(sites));
                 localStorage.setItem("current_site",name);
                 update_site_list(Object.keys(sites));
@@ -526,13 +535,33 @@ function submit_newuser(ssl) {
                 showerror(_("Check IP/Port and try again."));
             }
         },
-        fail = function (){
+        fail = function (x){
+            if (x.status === 401) {
+                getAuth();
+                return;
+            }
             if (ssl) {
                 $.mobile.loading("hide");
                 showerror(_("Check IP/Port and try again."));
             } else {
                 submit_newuser(true);
             }
+        },
+        getAuth = function(){
+            $.mobile.loading("hide");
+            var html = $('<div class="ui-content" id="addnew-auth">' +
+                    '<form action="javascript:submit_newuser('+ssl+',true)" method="post" novalidate>' +
+                        '<p class="center" style="font-size:smaller;margin-top:0">'+_("HTTP Authorization Required")+'</p>' +
+                        '<label for="os_auth_user">'+_("Username:")+'</label>' +
+                        '<input autocorrect="off" spellcheck="false" type="text" name="os_auth_user" id="os_auth_user" />' +
+                        '<label for="os_auth_pw">'+_("Password:")+'</label>' +
+                        '<input type="password" name="os_auth_pw" id="os_auth_pw" />' +
+                        '<input type="submit" value="'+_("Submit")+'" />' +
+                    '</form>' +
+                '</div>').enhanceWithin();
+
+            $("#addnew-content").hide();
+            $("#addnew").append(html).popup("reposition",{positionTo:"window"});
         },
         prefix;
 
@@ -547,6 +576,12 @@ function submit_newuser(ssl) {
         prefix = "http://";
     }
 
+    if (useAuth) {
+        prefix = prefix + $("#os_auth_user").val() + ":" + $("#os_auth_pw").val() + "@";
+        $("#addnew-auth").hide();
+        $("#addnew-content").show();
+    }
+
     //Submit form data to the server
     $.ajax({
         url: prefix+ip+"/jc",
@@ -554,7 +589,11 @@ function submit_newuser(ssl) {
         dataType: "json",
         timeout: 3000,
         global: false,
-        error: function(){
+        error: function(x){
+            if (x.status === 401) {
+                getAuth();
+                return;
+            }
             $.ajax({
                 url: prefix+ip,
                 type: "GET",
@@ -604,7 +643,7 @@ function show_addnew(autoIP) {
             '<div data-role="header" data-theme="b">'+
                 '<h1>'+_("New Device")+'</h1>' +
             '</div>' +
-            '<div class="ui-content">' +
+            '<div class="ui-content" id="addnew-content">' +
                 '<form action="javascript:submit_newuser()" method="post" novalidate>' +
                     ((isAuto) ? '' : '<p class="center" style="font-size:smaller;margin-top:0">'+_("Note: The name is used to identify the OpenSprinkler within the app. OpenSprinkler IP can be either an IP or hostname. You can also specify a port by using IP:Port")+'</p>') +
                     '<label for="os_name">'+_("Open Sprinkler Name:")+'</label>' +
