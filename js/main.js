@@ -526,6 +526,14 @@ function submit_newuser(ssl) {
                 showerror(_("Check IP/Port and try again."));
             }
         },
+        fail = function (){
+            if (ssl) {
+                $.mobile.loading("hide");
+                showerror(_("Check IP/Port and try again."));
+            } else {
+                submit_newuser(true);
+            }
+        },
         prefix;
 
     if (!ip) {
@@ -540,15 +548,24 @@ function submit_newuser(ssl) {
     }
 
     //Submit form data to the server
-    $.getJSON(prefix+ip+"/jc",success).fail(function(x,t,m){
-        $.get(prefix+ip,success).fail(function(x,t,m){
-            if (ssl) {
-                $.mobile.loading("hide");
-                showerror(_("Check IP/Port and try again."));
-            } else {
-                submit_newuser(true);
-            }
-        });
+    $.ajax({
+        url: prefix+ip+"/jc",
+        type: "GET",
+        dataType: "json",
+        timeout: 3000,
+        global: false,
+        error: function(){
+            $.ajax({
+                url: prefix+ip,
+                type: "GET",
+                dataType: "text",
+                timeout: 3000,
+                global: false,
+                success: success,
+                error: fail
+            });
+        },
+        success: success
     });
 }
 
