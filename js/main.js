@@ -2155,12 +2155,17 @@ function expandProgram(program) {
     });
 
     program.find("[id^='run-']").on("click",function(){
-        var id = $(this).attr("id").split("-")[1];
-        var durr = parseInt($("#duration-"+id).val());
-        var stations = $("[id^='station_'][id$='-"+id+"']");
-        var runonce = [];
+        var id = $(this).attr("id").split("-")[1],
+            durr = parseInt($("#duration-"+id).val()),
+            stations = $("[id^='station_'][id$='-"+id+"']"),
+            runonce = [];
+
         $.each(stations,function(a,b){
-            if ($(b).is(":checked")) runonce.push(durr*60);
+            if ($(b).is(":checked")) {
+                runonce.push(durr*60);
+            } else {
+                runonce.push(0);
+            }
         });
         runonce.push(0);
         submit_runonce(runonce);
