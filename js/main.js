@@ -501,12 +501,15 @@ function submit_newuser(ssl,useAuth) {
             if (typeof data === "string" && data.match(/var (en|sd)\s*=/)) is183 = true;
 
             if (data.en !== undefined || is183 === true) {
-                var name = $("#os_name").val();
+                var name = $("#os_name").val(),
+                    ip = $("#os_ip").val().replace(/^https?:\/\//,"");
+
                 if (name === "") name = "Site "+(Object.keys(sites).length+1);
 
                 sites[name] = {};
                 window.curr_name = name;
-                sites[name].os_ip = window.curr_ip = $("#os_ip").val();
+
+                sites[name].os_ip = window.curr_ip = ip;
                 sites[name].os_pw = window.curr_pw = $("#os_pw").val();
 
                 if (is183 === true) {
