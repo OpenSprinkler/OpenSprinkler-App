@@ -1,10 +1,10 @@
  <?xml version="1.0" encoding="UTF-8" ?>
     <widget xmlns = "http://www.w3.org/ns/widgets"
-        xmlns:android   = "http://schemas.android.com/apk/res/android"
-        xmlns:gap   = "http://phonegap.com/ns/1.0"
-        id          = "com.albahra.sprinklers"
-        version     = "1.0.10"
-        versionCode = "20" >
+            xmlns:android   = "http://schemas.android.com/apk/res/android"
+            xmlns:gap   = "http://phonegap.com/ns/1.0"
+            id          = "com.albahra.sprinklers"
+            version     = "1.0.10"
+            versionCode = "20" >
 
         <preference name="phonegap-version" value="3.4.0" />
         <preference name="DisallowOverscroll" value="true"  />
@@ -25,11 +25,11 @@
         <name>Sprinklers</name>
 
         <description>
-        A mobile interface for the OpenSprinkler irrigation device. Designed to allow manual control, program management (view, edit, delete and add), initiation of a run-once program, viewing device status, adjusting rain delay, and changing of OpenSprinkler settings.
+            A mobile interface for the OpenSprinkler irrigation device.
         </description>
 
         <author href="http://albahra.com/sprinklers/" email="salbahra@gmail.com">
-        Samer Albahra
+            Samer Albahra
         </author>
 
         <access origin="*" />
