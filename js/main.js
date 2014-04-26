@@ -366,7 +366,7 @@ function update_controller_options(callback) {
                 tmp = tmp[1].replace(/"/g,"").split(",");
 
                 for (i=0; i<tmp.length-1; i=i+4) {
-                    o = tmp[i+3];
+                    o = +tmp[i+3];
                     if ($.inArray(o,[1,2,12,13,14,15,16,17,18,19,20,21,22,23,25,26]) !== -1) {
                         vars[keyIndex[o]] = +tmp[i+2];
                     }
