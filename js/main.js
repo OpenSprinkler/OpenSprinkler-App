@@ -540,8 +540,12 @@ function submit_newuser(ssl,useAuth) {
             }
         },
         fail = function (x){
-            if (x.status === 401) {
-                getAuth();
+            if (!useAuth && (x.status === 401 || x.status === 0)) {
+                if ($("#addnew-auth").length) {
+                    submit_newuser(ssl,true);
+                } else {
+                    getAuth();
+                }
                 return;
             }
             if (ssl) {
@@ -584,6 +588,7 @@ function submit_newuser(ssl,useAuth) {
         prefix = prefix + $("#os_auth_user").val() + ":" + $("#os_auth_pw").val() + "@";
         $("#addnew-auth").hide();
         $("#addnew-content").show();
+        $("#addnew").popup("reposition",{positionTo:"window"});
     }
 
     //Submit form data to the server
@@ -594,8 +599,12 @@ function submit_newuser(ssl,useAuth) {
         timeout: 3000,
         global: false,
         error: function(x){
-            if (x.status === 401) {
-                getAuth();
+            if (!useAuth && (x.status === 401 || x.status === 0)) {
+                if ($("#addnew-auth").length) {
+                    submit_newuser(ssl,true);
+                } else {
+                    getAuth();
+                }
                 return;
             }
             $.ajax({
