@@ -476,7 +476,7 @@ function check_configured() {
     window.curr_name = current;
     window.curr_ip = sites[current].os_ip;
     window.curr_pw = sites[current].os_pw;
-    if (sites[current].is183) window.curr_183 = true;
+
     if (typeof sites[current].ssl !== "undefined" && sites[current].ssl === "1") {
         window.curr_prefix = "https://";
     } else {
@@ -486,6 +486,10 @@ function check_configured() {
     if (typeof sites[current].auth_user !== "undefined" && typeof sites[current].auth_pw !== "undefined") {
         window.curr_prefix = window.curr_prefix + sites[current].auth_user + ":" + sites[current].auth_pw + "@";
     }
+
+    if (sites[current].is183) window.curr_183 = true;
+    if (sites[current].is190) $.post(window.curr_prefix+window.curr_ip+"/login",{password:window.curr_pw});
+
     return 1;
 }
 
@@ -498,8 +502,9 @@ function submit_newuser(ssl,useAuth) {
         ip = $("#os_ip").val(),
         success = function(data){
             $.mobile.loading("hide");
-            var is183;
+            var is183, is190;
 
+            if (typeof data === "object" && data.fwv.match(/1\.9\.0/)) is190 = true;
             if (typeof data === "string" && data.match(/var (en|sd)\s*=/)) is183 = true;
 
             if (data.en !== undefined || is183 === true) {
@@ -514,11 +519,6 @@ function submit_newuser(ssl,useAuth) {
                 sites[name].os_ip = window.curr_ip = ip;
                 sites[name].os_pw = window.curr_pw = $("#os_pw").val();
 
-                if (is183 === true) {
-                    sites[name].is183 = "1";
-                    window.curr_183 = true;
-                }
-
                 if (ssl) {
                     sites[name].ssl = "1";
                     window.curr_prefix = "https://";
@@ -530,6 +530,14 @@ function submit_newuser(ssl,useAuth) {
                     sites[name].auth_user = $("#os_auth_user").val();
                     sites[name].auth_pw = $("#os_auth_pw").val();
                     window.curr_prefix = window.curr_prefix + sites[name].auth_user + ":" + sites[name].auth_pw + "@";
+                }
+
+                if (is183 === true) {
+                    sites[name].is183 = "1";
+                    window.curr_183 = true;
+                } else if (is190 === true) {
+                    sites[name].is190 = "1";
+                    $.post(window.curr_prefix+window.curr_ip+"/login",{password:window.curr_pw});
                 }
 
                 $("#os_name,#os_ip,#os_pw,#os_auth_user,#os_auth_pw").val("");
@@ -869,7 +877,7 @@ function start_scan(port,type) {
     found = function (reply) {
         scanprogress++;
         var ip = $.mobile.path.parseUrl(this.url).authority,
-            fwv, is183, tmp;
+            fwv, tmp;
 
         if ($.inArray(ip,oldips) !== -1) return;
 
@@ -877,10 +885,8 @@ function start_scan(port,type) {
             tmp = reply.match(/var\s*ver=(\d+)/);
             if (!tmp) return;
             fwv = tmp[1];
-            is183 = true;
         } else {
             fwv = reply.fwv;
-            is183 = false;
         }
 
         devicesfound++;
