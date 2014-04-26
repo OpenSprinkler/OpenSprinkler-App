@@ -93,7 +93,9 @@ $(document)
         } else if (hash == "#os-stations") {
             show_stations();
         } else if (hash == "#site-control") {
-            show_sites(data.options.showBack);
+            showBack =  (data.options.showBack === false) ? false : true;
+            $("#site-control").find(".ui-toolbar-back-btn").toggle(showBack);
+            show_sites();
         } else if (hash == "#addnew") {
             show_addnew();
             return false;
@@ -678,8 +680,7 @@ function show_addnew(autoIP) {
     }).enhanceWithin().popup("open");
 }
 
-function show_sites(showBack) {
-    showBack = (typeof showBack === "undefined") ? true : false;
+function show_sites() {
 
     var list = "<div data-role='collapsible-set'>",
         sites = getsites(),
@@ -707,9 +708,6 @@ function show_sites(showBack) {
     page.one({
         pagehide: function(){
             $(this).find(".ui-content").empty();
-        },
-        pagebeforeshow: function(){
-            $("#site-control").find(".ui-toolbar-back-btn").toggle(showBack);
         }
     });
 }
