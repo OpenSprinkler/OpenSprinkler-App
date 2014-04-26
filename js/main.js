@@ -550,7 +550,7 @@ function submit_newuser(ssl,useAuth) {
             }
         },
         fail = function (x){
-            if (!useAuth && x.status === 40)) {
+            if (!useAuth && x.status === 401) {
                 if ($("#addnew-auth").length) {
                     submit_newuser(ssl,true);
                 } else {
