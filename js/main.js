@@ -504,10 +504,10 @@ function submit_newuser(ssl,useAuth) {
             $.mobile.loading("hide");
             var is183, is190;
 
-            if (typeof data === "object" && data.fwv.match(/1\.9\.0/)) is190 = true;
+            if (typeof data === "object" && typeof data.fwv === "string" && data.fwv.match(/1\.9\.0/)) is190 = true;
             if (typeof data === "string" && data.match(/var (en|sd)\s*=/)) is183 = true;
 
-            if (data.en !== undefined || is183 === true) {
+            if (data.fwv !== undefined || is183 === true) {
                 var name = $("#os_name").val(),
                     ip = $("#os_ip").val().replace(/^https?:\/\//,"");
 
@@ -603,7 +603,7 @@ function submit_newuser(ssl,useAuth) {
 
     //Submit form data to the server
     $.ajax({
-        url: prefix+ip+"/jc",
+        url: prefix+ip+"/jo",
         type: "GET",
         dataType: "json",
         timeout: 3000,
