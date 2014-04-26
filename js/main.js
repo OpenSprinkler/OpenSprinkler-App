@@ -70,7 +70,7 @@ $(document)
 
     $(document).on("pagebeforechange",function(e,data){
         var page = data.toPage,
-            hash;
+            hash, showBack;
 
         if (typeof data.toPage !== "string") return;
 
@@ -550,7 +550,7 @@ function submit_newuser(ssl,useAuth) {
             }
         },
         fail = function (x){
-            if (!useAuth && (x.status === 401 || x.status === 0)) {
+            if (!useAuth && x.status === 40)) {
                 if ($("#addnew-auth").length) {
                     submit_newuser(ssl,true);
                 } else {
@@ -609,7 +609,7 @@ function submit_newuser(ssl,useAuth) {
         timeout: 3000,
         global: false,
         error: function(x){
-            if (!useAuth && (x.status === 401 || x.status === 0)) {
+            if (!useAuth && x.status === 401) {
                 if ($("#addnew-auth").length) {
                     submit_newuser(ssl,true);
                 } else {
