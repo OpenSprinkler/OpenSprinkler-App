@@ -191,16 +191,7 @@ $(document)
     }
 })
 .on("pagehide","#start",removeTimers)
-.on("popupbeforeposition","#localization",function(){
-    var curr_lang = localStorage.getItem("lang");
-
-    $(this).find("a").each(function(a,b){
-        var item = $(b);
-        if (item.attr("href").match(/'(\w+)'/)[1] == curr_lang) {
-            item.removeClass("ui-icon-carat-r").addClass("ui-icon-check");
-        }
-    });
-});
+.on("popupbeforeposition","#localization",check_curr_lang);
 
 //Set AJAX timeout
 $.ajaxSetup({
@@ -2853,14 +2844,30 @@ function update_lang(lang) {
 
     if (lang == "en") {
         localStorage.setItem("lang","en");
-        return set_lang();
+        set_lang();
+        check_curr_lang();
+        return;
     }
 
     $.getJSON("locale/"+lang+".json",function(store){
         window.language = store.messages;
         localStorage.setItem("lang",lang);
         set_lang();
+        check_curr_lang();
     }).fail(set_lang);
+}
+
+function check_curr_lang() {
+    var curr_lang = localStorage.getItem("lang");
+
+    $("#localization").find("a").each(function(a,b){
+        var item = $(b);
+        if (item.attr("href").match(/'(\w+)'/)[1] == curr_lang) {
+            item.removeClass("ui-icon-carat-r").addClass("ui-icon-check");
+        } else {
+            item.removeClass("ui-icon-check").addClass("ui-icon-carat-r");
+        }
+    });
 }
 
 function dateToString(date) {
