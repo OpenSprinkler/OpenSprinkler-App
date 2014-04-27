@@ -667,7 +667,23 @@ function show_site_select(list) {
     }).enhanceWithin().popup("open");
 }
 
-function show_addnew(autoIP) {
+function add_site() {
+    if (typeof window.deviceip === "undefined") {
+        show_addnew();
+    } else {
+        var popup = $("#addsite");
+
+        $("#site-add-scan").one("click",function(){
+            $(".ui-popup-active").children().first().popup("close");
+        });
+
+        popup.popup("open").popup("reposition",{
+            "positionTo": "#site-add"
+        });
+    }
+}
+
+function show_addnew(autoIP,closeOld) {
     var isAuto = (autoIP) ? true : false,
         addnew = $('<div data-role="popup" id="addnew" data-theme="a">'+
             '<div data-role="header" data-theme="b">'+
@@ -698,7 +714,15 @@ function show_addnew(autoIP) {
     }).popup({
         history: false,
         "positionTo": "window"
-    }).enhanceWithin().popup("open");
+    }).enhanceWithin()
+
+    if (closeOld === true) {
+        $(".ui-popup-active").children().first().one("popupafterclose",function(){
+            addnew.popup("open");
+        }).popup("close");
+    } else {
+        addnew.popup("open");
+    }
 
     fixInputClick(addnew);
 }
