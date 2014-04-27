@@ -1,6 +1,5 @@
 {
    "messages" : {
-      "Are you sure you want to delete site" : "",
       "Export Configuration" : "Beállítások exportálása",
       "Uncheck All" : "Kijelölések visszavonása",
       "Enable manual rain delay by entering a value into the input below. To turn off a currently enabled rain delay use a value of 0." : "Manuális esőzés késleltetéshez egy nullától különböző értéket kell megadni. Kikapcsoláshoz 0-ra kell állítani.",
@@ -40,6 +39,7 @@
       "Precip" : "Csapadék",
       "Password:" : "Jelszó:",
       "Save Changes to" : "Változtatások mentése",
+      "Are you sure you want to delete" : "Biztosan szeretnéd törölni",
       "Location" : "Hely",
       "Interval" : "Intervallum",
       "Wunderground API Key" : "Wunderground API Kulcs",
@@ -131,7 +131,7 @@
       "Edit Stations" : "Állomások szerkesztése",
       "Running" : "Fut",
       "No stations set to run on this day." : "Egyik állomás sem kapcsolódik be ezen a napon.",
-      "Are you sure you want to delete all settings and return to the default settings?" : "",
+      "Are you sure you want to delete all settings and return to the default settings?" : "Biztosan törölni szeretnéd az összes beállítást és az alapbeállításokat szeretnéd visszatölteni?",
       "Station Name" : "Állomás nevek",
       "Settings" : "Beállítások",
       "Change Name" : "Név változtatás",

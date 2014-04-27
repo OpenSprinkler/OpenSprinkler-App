@@ -1,6 +1,5 @@
 {
    "messages" : {
-      "Are you sure you want to delete site" : "Esta seguro que desea eliminar el sitio",
       "Export Configuration" : "Exportar Configuración",
       "Uncheck All" : "Desmarcar",
       "Enable manual rain delay by entering a value into the input below. To turn off a currently enabled rain delay use a value of 0." : "Active el retraso por lluvia introduciendo un valor en la entrada de abajo, para desactivar la demora por lluvia programada use un valor 0.",
@@ -40,6 +39,7 @@
       "Precip" : "Precipitaciones",
       "Password:" : "Contraseña:",
       "Save Changes to" : "Guardar cambios ",
+      "Are you sure you want to delete" : "Esta seguro que desea eliminar",
       "Location" : "Ubicación",
       "Interval" : "Intervalo",
       "Wunderground API Key" : "Wunderground API Key",
