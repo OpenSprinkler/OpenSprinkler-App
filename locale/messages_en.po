@@ -70,6 +70,9 @@ msgstr ""
 msgid "Delete"
 msgstr ""
 
+msgid "Are you sure you want to delete site"
+msgstr ""
+
 msgid "Site deleted successfully"
 msgstr ""
 
@@ -420,7 +423,7 @@ msgstr ""
 
 msgid ""
 "Are you sure you want to delete all settings and return to the default "
-"settings (this will delete the configuration file)?"
+"settings?"
 msgstr ""
 
 msgid "Backup saved on this device"
