@@ -276,7 +276,7 @@ function update_controller(callback,fail) {
 function update_controller_programs(callback) {
     callback = callback || function(){};
 
-    if (window.curr_183) {
+    if (window.curr_183 === true) {
         return $.get(window.curr_prefix+window.curr_ip+"/gp?d=0",function(programs){
             var vars = programs.match(/(nprogs|nboards|mnp)=[\w|\d|.\"]+/g),
                 progs = /pd=\[\];(.*);/.exec(programs),
@@ -313,7 +313,7 @@ function update_controller_programs(callback) {
 function update_controller_stations(callback) {
     callback = callback || function(){};
 
-    if (window.curr_183) {
+    if (window.curr_183 === true) {
         return $.get(window.curr_prefix+window.curr_ip+"/vs",function(stations){
             var names = /snames=\[(.*?)\];/.exec(stations),
                 masop = stations.match(/(?:masop|mo)\s?[=|:]\s?\[(.*?)\]/);
@@ -345,7 +345,7 @@ function update_controller_stations(callback) {
 function update_controller_options(callback) {
     callback = callback || function(){};
 
-    if (window.curr_183) {
+    if (window.curr_183 === true) {
         return $.get(window.curr_prefix+window.curr_ip+"/vo",function(options){
             var isOSPi = options.match(/var sd\s*=/),
                 vars = {}, tmp, i, o;
@@ -387,7 +387,7 @@ function update_controller_options(callback) {
 function update_controller_status(callback) {
     callback = callback || function(){};
 
-    if (window.curr_183) {
+    if (window.curr_183 === true) {
         return $.get(window.curr_prefix+window.curr_ip+"/sn0",function(status){
             var tmp = status.match(/\d+/);
 
@@ -411,7 +411,7 @@ function update_controller_status(callback) {
 function update_controller_settings(callback) {
     callback = callback || function(){};
 
-    if (window.curr_183) {
+    if (window.curr_183 === true) {
         return $.get(window.curr_prefix+window.curr_ip,function(settings){
             var varsRegex = /(ver|devt|nbrd|tz|en|rd|rs|mm|rdst)\s?[=|:]\s?([\w|\d|.\"]+)/gm,
                 loc = settings.match(/loc\s?[=|:]\s?[\"|'](.*)[\"|']/),
