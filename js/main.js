@@ -699,6 +699,8 @@ function show_addnew(autoIP) {
         history: false,
         "positionTo": "window"
     }).enhanceWithin().popup("open");
+
+    fixInputClick(addnew);
 }
 
 function show_sites() {
@@ -2202,7 +2204,6 @@ function expandProgram(program) {
     });
 
     fixInputClick(program);
-
 }
 
 // Translate program array into easier to use data
