@@ -725,6 +725,20 @@ function show_addnew(autoIP,closeOld) {
     }
 
     fixInputClick(addnew);
+
+    addnew.find(".ui-collapsible-heading-toggle").on("click",function(){
+        var open = $(this).parents(".ui-collapsible").hasClass("ui-collapsible-collapsed"),
+            page = $("body").pagecontainer("getActivePage"),
+            height = parseInt(page.css("min-height"));
+
+        if (open) {
+            page.css("min-height",height+65);
+        } else {
+            page.css("min-height",height-65);
+        }
+
+        addnew.popup("reposition",{positionTo:"window"});
+    });
 }
 
 function show_sites() {
