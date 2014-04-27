@@ -732,9 +732,9 @@ function show_addnew(autoIP,closeOld) {
             height = parseInt(page.css("min-height"));
 
         if (open) {
-            page.css("min-height",height+65);
+            page.css("min-height",(height+65)+"px");
         } else {
-            page.css("min-height",height-65);
+            page.css("min-height",(height-65)+"px");
         }
 
         addnew.popup("reposition",{positionTo:"window"});
