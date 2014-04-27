@@ -667,7 +667,7 @@ function show_site_select(list) {
     }).enhanceWithin().popup("open");
 }
 
-function add_site() {
+function show_addsite() {
     if (typeof window.deviceip === "undefined") {
         show_addnew();
     } else {
@@ -714,7 +714,7 @@ function show_addnew(autoIP,closeOld) {
     }).popup({
         history: false,
         "positionTo": "window"
-    }).enhanceWithin()
+    }).enhanceWithin();
 
     if (closeOld === true) {
         $(".ui-popup-active").children().first().one("popupafterclose",function(){
@@ -774,18 +774,20 @@ function show_sites() {
 }
 
 function delete_site(site) {
-    var sites = getsites();
-    delete sites[site];
-    localStorage.setItem("sites",JSON.stringify(sites));
-    update_site_list(Object.keys(sites));
-    show_sites();
-    if ($.isEmptyObject(sites)) {
-        changePage("#start");
+    areYouSure(_("Are you sure you want to delete site")+" "+site,"",function(){
+        var sites = getsites();
+        delete sites[site];
+        localStorage.setItem("sites",JSON.stringify(sites));
+        update_site_list(Object.keys(sites));
+        show_sites();
+        if ($.isEmptyObject(sites)) {
+            changePage("#start");
+            return false;
+        }
+        if (site === localStorage.getItem("current_site")) $("#site-control").find(".ui-toolbar-back-btn").toggle(false);
+        showerror(_("Site deleted successfully"));
         return false;
-    }
-    if (site === localStorage.getItem("current_site")) $("#site-control").find(".ui-toolbar-back-btn").toggle(false);
-    showerror(_("Site deleted successfully"));
-    return false;
+    });
 }
 
 // Modify site IP and/or password
@@ -2572,7 +2574,7 @@ function rsn() {
 }
 
 function clear_config() {
-    areYouSure(_("Are you sure you want to delete all settings and return to the default settings (this will delete the configuration file)?"), "", function() {
+    areYouSure(_("Are you sure you want to delete all settings and return to the default settings?"), "", function() {
         localStorage.removeItem("sites");
         localStorage.removeItem("current_site");
         localStorage.removeItem("lang");
