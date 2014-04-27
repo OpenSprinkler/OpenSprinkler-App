@@ -775,7 +775,7 @@ function show_sites() {
 }
 
 function delete_site(site) {
-    areYouSure(_("Are you sure you want to delete site")+" '"+site+"'?","",function(){
+    areYouSure(_("Are you sure you want to delete")+" '"+site+"'?","",function(){
         var sites = getsites();
         delete sites[site];
         localStorage.setItem("sites",JSON.stringify(sites));

@@ -70,7 +70,7 @@ msgstr ""
 msgid "Delete"
 msgstr ""
 
-msgid "Are you sure you want to delete site"
+msgid "Are you sure you want to delete"
 msgstr ""
 
 msgid "Site deleted successfully"
