@@ -572,7 +572,7 @@ function submit_newuser(ssl,useAuth) {
             $.mobile.loading("hide");
             var html = $('<div class="ui-content" id="addnew-auth">' +
                     '<form action="javascript:submit_newuser('+ssl+',true)" method="post" novalidate>' +
-                        '<p class="center" style="font-size:smaller;margin-top:0">'+_("HTTP Authorization Required")+'</p>' +
+                        '<p class="center" style="font-size:smaller;margin-top:0">'+_("Authorization Required")+'</p>' +
                         '<label for="os_auth_user">'+_("Username:")+'</label>' +
                         '<input autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" type="text" name="os_auth_user" id="os_auth_user" />' +
                         '<label for="os_auth_pw">'+_("Password:")+'</label>' +

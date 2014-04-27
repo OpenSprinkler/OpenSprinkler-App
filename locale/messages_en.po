@@ -10,6 +10,18 @@ msgstr ""
 msgid "Check IP/Port and try again."
 msgstr ""
 
+msgid "Authorization Required"
+msgstr ""
+
+msgid "Username:"
+msgstr ""
+
+msgid "Password:"
+msgstr ""
+
+msgid "Submit"
+msgstr ""
+
 msgid "An IP address is required to continue."
 msgstr ""
 
@@ -34,7 +46,10 @@ msgstr ""
 msgid "Open Sprinkler Password:"
 msgstr ""
 
-msgid "Submit"
+msgid "Use Auth"
+msgstr ""
+
+msgid "Use SSL"
 msgstr ""
 
 msgid "Connect Now"
