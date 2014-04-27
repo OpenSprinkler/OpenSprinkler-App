@@ -14,7 +14,6 @@ $(document)
     //Update site based on selector
     $("#site-selector").on("change",function(){
         update_site($(this).val());
-        location.reload();
     });
 })
 .ajaxError(function(x,t,m) {
@@ -237,6 +236,7 @@ function newload(firstLoad) {
     window.controller = {};
     update_controller(
         function(){
+        $.mobile.loading("hide");
             var opt = {};
             update_weather();
             if (firstLoad === true) {
@@ -245,7 +245,7 @@ function newload(firstLoad) {
                     "firstLoad": firstLoad
                 };
             }
-            changePage("#sprinklers",opt);
+            if ($("body").pagecontainer("getActivePage").attr("id") != "sprinklers") changePage("#sprinklers",opt);
         },
         function(){
             $.mobile.loading("hide");
@@ -862,7 +862,6 @@ function update_site(newsite) {
         check_configured();
     }
     newload();
-    return false;
 }
 
 // Get the list of sites from the local storage
