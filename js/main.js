@@ -544,18 +544,14 @@ function submit_newuser(ssl,useAuth) {
                 localStorage.setItem("sites",JSON.stringify(sites));
                 localStorage.setItem("current_site",name);
                 update_site_list(Object.keys(sites));
-                newload();
+                newload(true);
             } else {
                 showerror(_("Check IP/Port and try again."));
             }
         },
         fail = function (x){
             if (!useAuth && x.status === 401) {
-                if ($("#addnew-auth").length) {
-                    submit_newuser(ssl,true);
-                } else {
-                    getAuth();
-                }
+                getAuth();
                 return;
             }
             if (ssl) {
@@ -566,6 +562,13 @@ function submit_newuser(ssl,useAuth) {
             }
         },
         getAuth = function(){
+            if ($("#addnew-auth").length) {
+                submit_newuser(ssl,true);
+            } else {
+                showAuth();
+            }
+        },
+        showAuth = function(){
             $.mobile.loading("hide");
             var html = $('<div class="ui-content" id="addnew-auth">' +
                     '<form action="javascript:submit_newuser('+ssl+',true)" method="post" novalidate>' +
@@ -587,6 +590,14 @@ function submit_newuser(ssl,useAuth) {
         showerror(_("An IP address is required to continue."));
         return;
     }
+
+    if (useAuth !== true && $("#os_useauth").is(":checked")) {
+        getAuth();
+        return;
+    }
+
+    if ($("#os_usessl").is(":checked") === true) ssl = true;
+
 
     if (ssl) {
         prefix = "https://";
@@ -610,11 +621,7 @@ function submit_newuser(ssl,useAuth) {
         global: false,
         error: function(x){
             if (!useAuth && x.status === 401) {
-                if ($("#addnew-auth").length) {
-                    submit_newuser(ssl,true);
-                } else {
-                    getAuth();
-                }
+                getAuth();
                 return;
             }
             $.ajax({
@@ -675,7 +682,13 @@ function show_addnew(autoIP) {
                     '<input '+((isAuto) ? 'data-role="none" style="display:none" ' : '')+'autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" type="url" name="os_ip" id="os_ip" value="'+((isAuto) ? autoIP : '')+'" placeholder="home.dyndns.org" />' +
                     '<label for="os_pw">'+_("Open Sprinkler Password:")+'</label>' +
                     '<input type="password" name="os_pw" id="os_pw" value="" />' +
-                    '<input type="submit" value="'+_("Submit")+'" />' +
+                    ((isAuto) ? '' : '<div data-theme="a" data-mini="true" data-role="collapsible"><h4>Advanced</h4><fieldset data-role="controlgroup" data-type="horizontal" data-mini="true" class="center">' +
+                        '<input type="checkbox" name="os_useauth" id="os_useauth">' +
+                        '<label for="os_useauth">'+_("Use Auth")+'</label>' +
+                        '<input type="checkbox" name="os_usessl" id="os_usessl">' +
+                        '<label for="os_usessl">'+_("Use SSL")+'</label>' +
+                    '</fieldset></div>') +
+                    '<input type="submit" data-theme="b" value="'+_("Submit")+'" />' +
                 '</form>' +
             '</div>' +
         '</div>');
