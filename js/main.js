@@ -190,7 +190,17 @@ $(document)
         });
     }
 })
-.on("pagehide","#start",removeTimers);
+.on("pagehide","#start",removeTimers)
+.on("popupbeforeposition","#localization",function(){
+    var curr_lang = localStorage.getItem("lang");
+
+    $(this).find("a").each(function(a,b){
+        var item = $(b);
+        if (item.attr("href").match(/'(\w+)'/)[1] == curr_lang) {
+            item.removeClass("ui-icon-carat-r").addClass("ui-icon-check");
+        }
+    });
+});
 
 //Set AJAX timeout
 $.ajaxSetup({
