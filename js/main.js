@@ -649,6 +649,8 @@ function showSitesFromPanel() {
 }
 
 function show_site_select(list) {
+    $("#site-select").popup("destroy").remove();
+
     var popup = $('<div data-role="popup" id="site-select" data-theme="a" data-overlay-theme="b">' +
             '<div data-role="header" data-theme="b">' +
                 '<h1>'+_("Select Site")+'</h1>' +
@@ -685,6 +687,8 @@ function show_addsite() {
 }
 
 function show_addnew(autoIP,closeOld) {
+    $("#addnew").popup("destroy").remove();
+
     var isAuto = (autoIP) ? true : false,
         addnew = $('<div data-role="popup" id="addnew" data-theme="a">'+
             '<div data-role="header" data-theme="b">'+
