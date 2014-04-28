@@ -907,6 +907,8 @@ function resetStartMenu() {
     var auto = $("#auto-scan"),
         next = auto.next();
 
+    delete window.deviceip;
+
     next.addClass("ui-first-child").find("a.ui-btn").text(_("Add Controller"));
     auto.hide();
 }
