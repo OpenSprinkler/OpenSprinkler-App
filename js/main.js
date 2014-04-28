@@ -1037,7 +1037,7 @@ function add_found(ip) {
 
 // Weather functions
 function show_providers() {
-    $("#providers").remove();
+    $("#providers").popup("destroy").remove();
 
     var provider = localStorage.getItem("provider") || "yahoo",
         wapikey = localStorage.getItem("wapikey");
