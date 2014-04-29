@@ -1418,7 +1418,7 @@ function submit_settings() {
 // Station managament function
 function show_stations() {
     var list = "<li style='white-space:inherit'>",
-        isMaster = window.controller.options.mas,
+        isMaster = window.controller.options.mas ? true : false,
         hasIR = (typeof window.controller.stations.ignore_rain === "object") ? true : false,
         useTableView = (hasIR || isMaster);
 
@@ -1436,15 +1436,13 @@ function show_stations() {
             list += "</td>";
             if (isMaster) {
                 if (window.controller.options.mas == i+1) {
-                    list += "<td class='use_master'><p id='um_"+i+"' class='center'>("+_("Master")+")</p></td>";
+                    list += "<td colspan='"+(isMaster+hasIR)+"' class='use_master'><p class='um_"+i+" ir_"+i+"' class='center'>("+_("Master")+")</p></td>";
                 } else {
                     list += "<td data-role='controlgroup' data-type='horizontal' class='use_master'><label for='um_"+i+"'><input id='um_"+i+"' type='checkbox' "+((window.controller.stations.masop[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+" /></label></td>";
                 }
             }
             if (hasIR) {
-                if (window.controller.options.mas == i+1) {
-                    list += "<td class='use_master'><p id='ir_"+i+"' class='center'></p></td>";
-                } else {
+                if (window.controller.options.mas != i+1) {
                     list += "<td data-role='controlgroup' data-type='horizontal' class='use_master'><label for='ir_"+i+"'><input id='ir_"+i+"' type='checkbox' "+((window.controller.stations.ignore_rain[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+" /></label></td></tr>";
                 }
             }
