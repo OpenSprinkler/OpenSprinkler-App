@@ -190,6 +190,9 @@ msgstr ""
 msgid "Activate Master?"
 msgstr ""
 
+msgid "Ignore Rain?"
+msgstr ""
+
 msgid "Master"
 msgstr ""
 
