@@ -238,6 +238,7 @@ function newload(firstLoad) {
         function(){
         $.mobile.loading("hide");
             var opt = {};
+            check_status();
             update_weather();
             if (firstLoad === true) {
                 opt = {
