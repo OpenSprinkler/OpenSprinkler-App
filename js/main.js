@@ -1401,7 +1401,7 @@ function submit_settings() {
                 id = "o"+keyNames[key];
             }
         }
-        opt[id] = encodeURIComponent(data);
+        opt[id] = data;
     });
     if (invalid) return;
     $.mobile.loading("show");
@@ -1416,25 +1416,43 @@ function submit_settings() {
 
 // Station managament function
 function show_stations() {
-    var list = "<li>",
-        isMaster = window.controller.options.mas;
+    var list = "<li style='white-space:inherit'>",
+        isMaster = window.controller.options.mas,
+        hasIR = (typeof window.controller.stations.ignore_rain === "object") ? true : false,
+        useTableView = (hasIR || isMaster);
 
-    if (isMaster) list += "<table><tr><th>"+_("Station Name")+"</th><th>"+_("Activate Master?")+"</th></tr>";
+    if (useTableView) {
+        list += "<table><tr><th>"+_("Station Name")+"</th>";
+        if (isMaster) list += "<th>"+_("Activate Master?")+"</th>";
+        if (hasIR) list += "<th>"+_("Ignore Rain?")+"</th>";
+        list += "</tr>";
+    }
 
     $.each(window.controller.stations.snames,function(i, station) {
-        if (isMaster) list += "<tr><td>";
+        if (useTableView) list += "<tr><td>";
         list += "<input data-mini='true' id='edit_station_"+i+"' type='text' value='"+station+"' />";
-        if (isMaster) {
-            if (window.controller.options.mas == i+1) {
-                list += "</td><td class='use_master'><p id='um_"+i+"' class='center'>("+_("Master")+")</p></td></tr>";
-            } else {
-                list += "</td><td data-role='controlgroup' data-type='horizontal' class='use_master'><label for='um_"+i+"'><input id='um_"+i+"' type='checkbox' "+((window.controller.stations.masop[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+" /></label></td></tr>";
+        if (useTableView) {
+            list += "</td>";
+            if (isMaster) {
+                if (window.controller.options.mas == i+1) {
+                    list += "<td class='use_master'><p id='um_"+i+"' class='center'>("+_("Master")+")</p></td>";
+                } else {
+                    list += "<td data-role='controlgroup' data-type='horizontal' class='use_master'><label for='um_"+i+"'><input id='um_"+i+"' type='checkbox' "+((window.controller.stations.masop[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+" /></label></td>";
+                }
             }
+            if (hasIR) {
+                if (window.controller.options.mas == i+1) {
+                    list += "<td class='use_master'><p id='ir_"+i+"' class='center'></p></td>";
+                } else {
+                    list += "<td data-role='controlgroup' data-type='horizontal' class='use_master'><label for='ir_"+i+"'><input id='ir_"+i+"' type='checkbox' "+((window.controller.stations.ignore_rain[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+" /></label></td></tr>";
+                }
+            }
+            list += "</tr>";
         }
         i++;
     });
 
-    if (isMaster) list += "</table>";
+    if (useTableView) list += "</table>";
     list += "</li>";
 
     $("#os-stations .ui-content").html($('<ul data-role="listview" data-inset="true" id="os-stations-list"></ul>').html(list).listview().enhanceWithin());
@@ -1447,13 +1465,13 @@ function show_stations() {
 function submit_stations() {
     var names = {},
         invalid = false,
-        v="",
-        bid=0,
-        s=0,
-        m={},
-        masop="";
+        v=r="",
+        bid=bid2=0,
+        s=s2=0,
+        m=i={},
+        masop=ignore_rain="";
 
-    $("#os-stations-list").find(":input,p[id^='um_']").each(function(a,b){
+    $("#os-stations-list").find(":input,p[id^='um_'],p[id^='ir_']").each(function(a,b){
         var $item = $(b), id = $item.attr('id'), data = $item.val();
         switch (id) {
             case "edit_station_" + id.slice("edit_station_".length):
@@ -1473,13 +1491,22 @@ function submit_stations() {
                     m["m"+bid]=parseInt(v,2); bid++; s=0; v="";
                 }
                 return true;
+            case "ir_" + id.slice("ir_".length):
+                r = ($item.is(":checked") || $item.prop("tagName") == "P") ? "1".concat(r) : "0".concat(r);
+                s2++;
+                if (parseInt(s2/8) > bid2) {
+                    i["i"+bid2]=parseInt(r,2); bid2++; s2=0; r="";
+                }
+                return true;
         }
     });
     m["m"+bid]=parseInt(v,2);
+    i["i"+bid]=parseInt(r,2);
     if ($("[id^='um_']").length) masop = "&"+$.param(m);
+    if ($("[id^='ir_']").length) ignore_rain = "&"+$.param(i);
     if (invalid) return;
     $.mobile.loading("show");
-    $.get(window.curr_prefix+window.curr_ip+"/cs?pw="+window.curr_pw+"&"+$.param(names)+masop,function(){
+    $.get(window.curr_prefix+window.curr_ip+"/cs?pw="+window.curr_pw+"&"+$.param(names)+masop+ignore_rain,function(){
         $(document).one("pageshow",function(){
             showerror(_("Stations have been updated"));
         });
@@ -2054,6 +2081,7 @@ function get_preview() {
 
     time_to_text = function (sid,start,pid,end,simt) {
         var className = "program-"+((pid+3)%4);
+
         if ((window.controller.settings.rd!==0)&&(simt+start+(window.controller.options.tz-48)*900<=window.controller.settings.rdst)) className="delayed";
         preview_data.push({
             'start': start,
