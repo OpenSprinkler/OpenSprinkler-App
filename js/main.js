@@ -1423,9 +1423,9 @@ function show_stations() {
         useTableView = (hasIR || isMaster);
 
     if (useTableView) {
-        list += "<table><tr><th>"+_("Station Name")+"</th>";
-        if (isMaster) list += "<th>"+_("Activate Master?")+"</th>";
-        if (hasIR) list += "<th>"+_("Ignore Rain?")+"</th>";
+        list += "<table><tr><th class='center'>"+_("Station Name")+"</th>";
+        if (isMaster) list += "<th class='center'>"+_("Activate Master?")+"</th>";
+        if (hasIR) list += "<th class='center'>"+_("Ignore Rain?")+"</th>";
         list += "</tr>";
     }
 
