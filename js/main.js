@@ -2672,11 +2672,17 @@ function import_config(data) {
         co += "&"+(isPi?"o":"")+"loc="+data.settings.loc;
 
         for (i=0; i<data.stations.snames.length; i++) {
-            cs += "&s"+i+"="+encodeURIComponent(data.stations.snames[i]);
+            cs += "&s"+i+"="+data.stations.snames[i];
         }
 
         for (i=0; i<data.stations.masop.length; i++) {
-            cs += "&m"+i+"="+encodeURIComponent(data.stations.masop[i]);
+            cs += "&m"+i+"="+data.stations.masop[i];
+        }
+
+        if (typeof data.stations.ignore_rain === "object") {
+            for (i=0; i<data.stations.ignore_rain.length; i++) {
+                cs += "&i"+i+"="+data.stations.ignore_rain[i];
+            }
         }
 
         $.when(
