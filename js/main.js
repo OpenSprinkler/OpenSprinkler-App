@@ -1468,7 +1468,8 @@ function submit_stations() {
         v=r="",
         bid=bid2=0,
         s=s2=0,
-        m=i={},
+        m={},
+        i={},
         masop=ignore_rain="";
 
     $("#os-stations-list").find(":input,p[id^='um_'],p[id^='ir_']").each(function(a,b){
@@ -1501,7 +1502,7 @@ function submit_stations() {
         }
     });
     m["m"+bid]=parseInt(v,2);
-    i["i"+bid]=parseInt(r,2);
+    i["i"+bid2]=parseInt(r,2);
     if ($("[id^='um_']").length) masop = "&"+$.param(m);
     if ($("[id^='ir_']").length) ignore_rain = "&"+$.param(i);
     if (invalid) return;
