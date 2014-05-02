@@ -209,9 +209,9 @@ function flipSwitched() {
         defer;
 
     if (changedTo) {
-        defer = $.get(window.curr_prefix+window.curr_ip+"/cv?pw="+window.curr_pw+"&"+method+"=1");
+        defer = send_to_os("/cv?pw=&"+method+"=1");
     } else {
-        defer = $.get(window.curr_prefix+window.curr_ip+"/cv?pw="+window.curr_pw+"&"+method+"=0");
+        defer = send_to_os("/cv?pw=&"+method+"=0");
     }
 
     $.when(defer).then(function(){
@@ -224,6 +224,18 @@ function flipSwitched() {
             switching = false;
         },200);
         flip.prop("checked",!changedTo).flipswitch("refresh");
+    });
+}
+
+// Wrapper function to communicate with OpenSprinkler
+function send_to_os(dest,type) {
+    dest = dest.replace("pw=","pw="+window.curr_pw);
+    type = type || "text";
+
+    return $.ajax({
+        url: window.curr_prefix+window.curr_ip+dest,
+        type: "GET",
+        dataType: type
     });
 }
 
@@ -279,7 +291,7 @@ function update_controller_programs(callback) {
     callback = callback || function(){};
 
     if (window.curr_183 === true) {
-        return $.get(window.curr_prefix+window.curr_ip+"/gp?d=0",function(programs){
+        return send_to_os("/gp?d=0").done(function(programs){
             var vars = programs.match(/(nprogs|nboards|mnp)=[\w|\d|.\"]+/g),
                 progs = /pd=\[\];(.*);/.exec(programs),
                 newdata = {}, tmp, prog;
@@ -305,7 +317,7 @@ function update_controller_programs(callback) {
             callback();
         });
     } else {
-        return $.getJSON(window.curr_prefix+window.curr_ip+"/jp",function(programs){
+        return send_to_os("/jp","json").done(function(programs){
             window.controller.programs = programs;
             callback();
         });
@@ -316,7 +328,7 @@ function update_controller_stations(callback) {
     callback = callback || function(){};
 
     if (window.curr_183 === true) {
-        return $.get(window.curr_prefix+window.curr_ip+"/vs",function(stations){
+        return send_to_os("/vs").done(function(stations){
             var names = /snames=\[(.*?)\];/.exec(stations),
                 masop = stations.match(/(?:masop|mo)\s?[=|:]\s?\[(.*?)\]/);
 
@@ -337,7 +349,7 @@ function update_controller_stations(callback) {
             callback();
         });
     } else {
-        return $.getJSON(window.curr_prefix+window.curr_ip+"/jn",function(stations){
+        return send_to_os("/jn","json").done(function(stations){
             window.controller.stations = stations;
             callback();
         });
@@ -348,7 +360,7 @@ function update_controller_options(callback) {
     callback = callback || function(){};
 
     if (window.curr_183 === true) {
-        return $.get(window.curr_prefix+window.curr_ip+"/vo",function(options){
+        return send_to_os("/vo").done(function(options){
             var isOSPi = options.match(/var sd\s*=/),
                 vars = {}, tmp, i, o;
 
@@ -379,7 +391,7 @@ function update_controller_options(callback) {
             callback();
         });
     } else {
-        return $.getJSON(window.curr_prefix+window.curr_ip+"/jo",function(options){
+        return send_to_os("/jo","json").done(function(options){
             window.controller.options = options;
             callback();
         });
@@ -390,23 +402,27 @@ function update_controller_status(callback) {
     callback = callback || function(){};
 
     if (window.curr_183 === true) {
-        return $.get(window.curr_prefix+window.curr_ip+"/sn0",function(status){
-            var tmp = status.match(/\d+/);
+        return send_to_os("/sn0").then(
+            function(status){
+                var tmp = status.match(/\d+/);
 
-            tmp = parseIntArray(tmp[0].split(""));
+                tmp = parseIntArray(tmp[0].split(""));
 
-            window.controller.status = tmp;
-            callback();
-        }).fail(function(){
-            window.controller.status = [];
-        });
+                window.controller.status = tmp;
+                callback();
+            },
+            function(){
+                window.controller.status = [];
+            });
     } else {
-        return $.getJSON(window.curr_prefix+window.curr_ip+"/js",function(status){
-            window.controller.status = status.sn;
-            callback();
-        }).fail(function(){
-            window.controller.status = [];
-        });
+        return send_to_os("/js","json").then(
+            function(status){
+                window.controller.status = status.sn;
+                callback();
+            },
+            function(){
+                window.controller.status = [];
+            });
     }
 }
 
@@ -414,49 +430,53 @@ function update_controller_settings(callback) {
     callback = callback || function(){};
 
     if (window.curr_183 === true) {
-        return $.get(window.curr_prefix+window.curr_ip,function(settings){
-            var varsRegex = /(ver|devt|nbrd|tz|en|rd|rs|mm|rdst)\s?[=|:]\s?([\w|\d|.\"]+)/gm,
-                loc = settings.match(/loc\s?[=|:]\s?[\"|'](.*)[\"|']/),
-                lrun = settings.match(/lrun=\[(.*)\]/),
-                ps = settings.match(/ps=\[(.*)\];/),
-                vars = {}, tmp, i, z;
+        return send_to_os("").then(
+            function(settings){
+                var varsRegex = /(ver|devt|nbrd|tz|en|rd|rs|mm|rdst)\s?[=|:]\s?([\w|\d|.\"]+)/gm,
+                    loc = settings.match(/loc\s?[=|:]\s?[\"|'](.*)[\"|']/),
+                    lrun = settings.match(/lrun=\[(.*)\]/),
+                    ps = settings.match(/ps=\[(.*)\];/),
+                    vars = {}, tmp, i, z;
 
-            ps = ps[1].split("],[");
-            for (i = ps.length - 1; i >= 0; i--) {
-                ps[i] = parseIntArray(ps[i].replace(/\[|\]/g,"").split(","));
-            }
-
-            while ((tmp = varsRegex.exec(settings)) !== null) {
-                vars[tmp[1]] = +tmp[2];
-            }
-
-            vars.loc = loc[1];
-            vars.ps = ps;
-            vars.lrun = parseIntArray(lrun[1].split(","));
-
-            window.controller.settings = vars;
-        }).fail(function(){
-            if (window.controller.settings && window.controller.stations) {
-                var ps = [], i;
-                for (i=0; i<window.controller.stations.maxlen; i++) {
-                    ps.push([0,0]);
+                ps = ps[1].split("],[");
+                for (i = ps.length - 1; i >= 0; i--) {
+                    ps[i] = parseIntArray(ps[i].replace(/\[|\]/g,"").split(","));
                 }
-                window.controller.settings.ps = ps;
-            }
-        });
+
+                while ((tmp = varsRegex.exec(settings)) !== null) {
+                    vars[tmp[1]] = +tmp[2];
+                }
+
+                vars.loc = loc[1];
+                vars.ps = ps;
+                vars.lrun = parseIntArray(lrun[1].split(","));
+
+                window.controller.settings = vars;
+            },
+            function(){
+                if (window.controller.settings && window.controller.stations) {
+                    var ps = [], i;
+                    for (i=0; i<window.controller.stations.maxlen; i++) {
+                        ps.push([0,0]);
+                    }
+                    window.controller.settings.ps = ps;
+                }
+            });
     } else {
-        return $.getJSON(window.curr_prefix+window.curr_ip+"/jc",function(settings){
-            window.controller.settings = settings;
-            callback();
-        }).fail(function(){
-            if (window.controller.settings && window.controller.stations) {
-                var ps = [], i;
-                for (i=0; i<window.controller.stations.maxlen; i++) {
-                    ps.push([0,0]);
+        return send_to_os("/jc","json").then(
+            function(settings){
+                window.controller.settings = settings;
+                callback();
+            },
+            function(){
+                if (window.controller.settings && window.controller.stations) {
+                    var ps = [], i;
+                    for (i=0; i<window.controller.stations.maxlen; i++) {
+                        ps.push([0,0]);
+                    }
+                    window.controller.settings.ps = ps;
                 }
-                window.controller.settings.ps = ps;
-            }
-        });
+            });
     }
 }
 
@@ -489,7 +509,11 @@ function check_configured() {
         window.curr_prefix = window.curr_prefix + sites[current].auth_user + ":" + sites[current].auth_pw + "@";
     }
 
-    if (sites[current].is183) window.curr_183 = true;
+    if (sites[current].is183) {
+        window.curr_183 = true;
+    } else {
+        delete window.curr_183;
+    }
     if (sites[current].is190) $.post(window.curr_prefix+window.curr_ip+"/login",{password:window.curr_pw});
 
     return 1;
@@ -1406,7 +1430,7 @@ function submit_settings() {
     });
     if (invalid) return;
     $.mobile.loading("show");
-    $.get(window.curr_prefix+window.curr_ip+"/co?pw="+window.curr_pw+"&"+$.param(opt),function(){
+    send_to_os("/co?pw=&"+$.param(opt)).done(function(){
         $(document).one("pageshow",function(){
             showerror(_("Settings have been saved"));
         });
@@ -1506,7 +1530,7 @@ function submit_stations() {
     if ($("[id^='ir_']").length) ignore_rain = "&"+$.param(i);
     if (invalid) return;
     $.mobile.loading("show");
-    $.get(window.curr_prefix+window.curr_ip+"/cs?pw="+window.curr_pw+"&"+$.param(names)+masop+ignore_rain,function(){
+    send_to_os("/cs?pw=&"+$.param(names)+masop+ignore_rain).done(function(){
         $(document).one("pageshow",function(){
             showerror(_("Stations have been updated"));
         });
@@ -1833,18 +1857,24 @@ function toggle() {
         currPos = listitems.index(item) + 1;
 
     if (anchor.hasClass("green")) {
-        $.get(window.curr_prefix+window.curr_ip+"/sn"+currPos+"=0",function(){
-            update_controller_status();
-        }).fail(function(){
-            anchor.addClass("green");
-        });
+        send_to_os("/sn"+currPos+"=0").then(
+            function(){
+                update_controller_status();
+            },
+            function(){
+                anchor.addClass("green");
+            }
+        );
         anchor.removeClass("green");
     } else {
-        $.get(window.curr_prefix+window.curr_ip+"/sn"+currPos+"=1&t=0",function(){
-            update_controller_status();
-        }).fail(function(){
-            anchor.removeClass("green");
-        });
+        send_to_os("/sn"+currPos+"=1&t=0").then(
+            function(){
+                update_controller_status();
+            },
+            function(){
+                anchor.removeClass("green");
+            }
+        );
         anchor.addClass("green");
     }
     return false;
@@ -1936,7 +1966,7 @@ function submit_runonce(runonce) {
         runonce.push(0);
     }
     localStorage.setItem("runonce",JSON.stringify(runonce));
-    $.get(window.curr_prefix+window.curr_ip+"/cr?pw="+window.curr_pw+"&t="+JSON.stringify(runonce),function(){
+    send_to_os("/cr?pw=&t="+JSON.stringify(runonce)).done(function(){
         update_controller_status();
         update_controller_settings();
         showerror(_("Run-once program has been scheduled"));
@@ -2490,7 +2520,7 @@ function add_program() {
 function delete_program(id) {
     areYouSure(_("Are you sure you want to delete program")+" "+(parseInt(id)+1)+"?", "", function() {
         $.mobile.loading("show");
-        $.get(window.curr_prefix+window.curr_ip+"/dp?pw="+window.curr_pw+"&pid="+id,function(){
+        send_to_os("/dp?pw=&pid="+id).done(function(){
             $.mobile.loading("hide");
             update_controller_programs(function(){
                 get_programs(false);
@@ -2549,7 +2579,7 @@ function submit_program(id) {
     program = JSON.stringify(program.concat(stations));
     $.mobile.loading("show");
     if (id == "new") {
-        $.get(window.curr_prefix+window.curr_ip+"/cp?pw="+window.curr_pw+"&pid=-1&v="+program,function(){
+        send_to_os("/cp?pw=&pid=-1&v="+program).done(function(){
             $.mobile.loading("hide");
             update_controller_programs(function(){
                 $(document).one("pageshow",function(){
@@ -2559,7 +2589,7 @@ function submit_program(id) {
             });
         });
     } else {
-        $.get(window.curr_prefix+window.curr_ip+"/cp?pw="+window.curr_pw+"&pid="+id+"&v="+program,function(){
+        send_to_os("/cp?pw=&pid="+id+"&v="+program).done(function(){
             $.mobile.loading("hide");
             update_controller_programs(function(){
                 update_program_header();
@@ -2571,7 +2601,7 @@ function submit_program(id) {
 
 function raindelay() {
     $.mobile.loading("show");
-    $.get(window.curr_prefix+window.curr_ip+"/cv?pw="+window.curr_pw+"&rd="+$("#delay").val(),function(){
+    send_to_os("/cv?pw=&rd="+$("#delay").val()).done(function(){
         $.mobile.loading("hide");
         $("#raindelay").popup("close");
         $("#footer-running").html("<p class='ui-icon ui-icon-loading mini-load'></p>");
@@ -2586,7 +2616,7 @@ function raindelay() {
 function rbt() {
     areYouSure(_("Are you sure you want to reboot OpenSprinkler?"), "", function() {
         $.mobile.loading("show");
-        $.get(window.curr_prefix+window.curr_ip+"/cv?pw="+window.curr_pw+"&rbt=1",function(){
+        send_to_os("/cv?pw=&rbt=1").done(function(){
             $.mobile.loading("hide");
             showerror(_("OpenSprinkler is rebooting now"));
         });
@@ -2596,7 +2626,7 @@ function rbt() {
 function rsn() {
     areYouSure(_("Are you sure you want to stop all stations?"), "", function() {
         $.mobile.loading("show");
-        $.get(window.curr_prefix+window.curr_ip+"/cv?pw="+window.curr_pw+"&rsn=1",function(){
+        send_to_os("/cv?pw=&rsn=1").done(function(){
             $.mobile.loading("hide");
             $.when(
                 update_controller_settings(),
@@ -2648,9 +2678,9 @@ function import_config(data) {
     areYouSure(_("Are you sure you want to restore the configuration?"), "", function() {
         $.mobile.loading("show");
 
-        var cs = "/cs?pw="+window.curr_pw,
-            co = "/co?pw="+window.curr_pw,
-            cp_start = "/cp?pw="+window.curr_pw,
+        var cs = "/cs?pw=",
+            co = "/co?pw=",
+            cp_start = "/cp?pw=",
             isPi = isOSPi(),
             i, key;
 
@@ -2684,10 +2714,10 @@ function import_config(data) {
         }
 
         $.when(
-            $.get(window.curr_prefix+window.curr_ip+co),
-            $.get(window.curr_prefix+window.curr_ip+cs),
+            send_to_os(co),
+            send_to_os(cs),
             $.each(data.programs.pd,function (i,prog) {
-                $.get(window.curr_prefix+window.curr_ip+cp_start+"&pid=-1&v="+JSON.stringify(prog));
+                send_to_os(cp_start+"&pid=-1&v="+JSON.stringify(prog));
             })
         ).then(
             function(){
