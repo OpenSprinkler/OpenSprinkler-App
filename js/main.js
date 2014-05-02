@@ -231,12 +231,19 @@ function flipSwitched() {
 function send_to_os(dest,type) {
     dest = dest.replace("pw=","pw="+window.curr_pw);
     type = type || "text";
-
-    return $.ajax({
+    var obj = {
         url: window.curr_prefix+window.curr_ip+dest,
         type: "GET",
         dataType: type
-    });
+    };
+
+    if (window.curr_auth) {
+        $.extend(obj,{
+            beforeSend: function(xhr) { xhr.setRequestHeader("Authorization", "Basic " + btoa(window.curr_auth_user + ":" + window.curr_auth_pw)); }
+        });
+    }
+
+    return $.ajax(obj);
 }
 
 // Gather new controller information and load home page
@@ -495,7 +502,6 @@ function check_configured() {
 
     update_site_list(names);
 
-    window.curr_name = current;
     window.curr_ip = sites[current].os_ip;
     window.curr_pw = sites[current].os_pw;
 
@@ -506,7 +512,11 @@ function check_configured() {
     }
 
     if (typeof sites[current].auth_user !== "undefined" && typeof sites[current].auth_pw !== "undefined") {
-        window.curr_prefix = window.curr_prefix + sites[current].auth_user + ":" + sites[current].auth_pw + "@";
+        window.curr_auth = true;
+        window.curr_auth_user = sites[current].auth_user;
+        window.curr_auth_pw = sites[current].auth_pw;
+    } else {
+        delete window.curr_auth;
     }
 
     if (sites[current].is183) {
@@ -540,8 +550,6 @@ function submit_newuser(ssl,useAuth) {
                 if (name === "") name = "Site "+(Object.keys(sites).length+1);
 
                 sites[name] = {};
-                window.curr_name = name;
-
                 sites[name].os_ip = window.curr_ip = ip;
                 sites[name].os_pw = window.curr_pw = $("#os_pw").val();
 
@@ -555,7 +563,11 @@ function submit_newuser(ssl,useAuth) {
                 if (useAuth) {
                     sites[name].auth_user = $("#os_auth_user").val();
                     sites[name].auth_pw = $("#os_auth_pw").val();
-                    window.curr_prefix = window.curr_prefix + sites[name].auth_user + ":" + sites[name].auth_pw + "@";
+                    window.curr_auth = true;
+                    window.curr_auth_user = sites[current].auth_user;
+                    window.curr_auth_pw = sites[current].auth_pw;
+                } else {
+                    delete window.curr_auth;
                 }
 
                 if (is183 === true) {
@@ -890,7 +902,7 @@ function update_site(newsite) {
         localStorage.setItem("current_site",newsite);
         check_configured();
     }
-    newload();
+    newload(true);
 }
 
 // Get the list of sites from the local storage
