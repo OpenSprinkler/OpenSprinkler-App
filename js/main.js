@@ -854,6 +854,7 @@ function change_site(site) {
         delete sites[site];
         site = nm;
         localStorage.setItem("current_site",site);
+        update_site_list(Object.keys(sites));
     }
 
     localStorage.setItem("sites",JSON.stringify(sites));
