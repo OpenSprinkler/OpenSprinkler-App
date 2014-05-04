@@ -1628,7 +1628,7 @@ function get_status() {
         footer = '<p>'+pname+' '+_('last ran station')+' '+window.controller.stations.snames[window.controller.settings.lrun[0]]+' '+_('for')+' '+(lrdur/60>>0)+'m '+(lrdur%60)+'s '+_('on')+' '+dateToString(new Date(window.controller.settings.lrun[3]*1000))+'</p>';
     }
 
-    if (ptotal) {
+    if (ptotal > 1) {
         var scheduled = allPnames.length;
         if (!open && scheduled) runningTotal.d = window.controller.options.sdt;
         if (open == 1) ptotal += (scheduled-1)*window.controller.options.sdt;
@@ -1811,15 +1811,18 @@ function check_status() {
             line += pname+" "+_("is running on station")+" <span class='nobr'>"+window.controller.stations.snames[i]+"</span> ";
             if (pid!=255&&pid!=99) line += "<span id='countdown' class='nobr'>("+sec2hms(window.controller.settings.ps[i][1])+" "+_("remaining")+")</span>";
             line += "</p>";
-            change_status(window.controller.settings.ps[i][1],window.controller.options.sdt,"green",line,function(){
-                $("body").pagecontainer("change","#status");
-            });
-            return false;
+            break;
         }
     }
 
-    if (match) return;
+    if (match) {
+        change_status(window.controller.settings.ps[i][1],window.controller.options.sdt,"green",line,function(){
+            $("body").pagecontainer("change","#status");
+        });
+        return;
+    }
 
+    // Handle manual mode enabled
     if (window.controller.settings.mm) {
         change_status(0,window.controller.options.sdt,"red","<p id='running-text' class='center'>"+_("Manual mode enabled")+"</p>",function(){
             areYouSure(_("Do you want to turn off manual mode?"),"",function(){
