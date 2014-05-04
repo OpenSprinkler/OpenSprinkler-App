@@ -247,7 +247,6 @@ function network_fail(){
         $("#weather,#footer-running").html("<p class='ui-icon ui-icon-loading mini-load'></p>");
         newload(true);
     });
-    hide_weather();
 }
 
 // Gather new controller information and load home page
