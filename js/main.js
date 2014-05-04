@@ -1739,7 +1739,7 @@ function check_status() {
 
     if (!window.controller.settings.en) {
         change_status(0,window.controller.options.sdt,"red","<p id='running-text' class='center'>"+_("System Disabled")+"</p>",function(){
-            areYouSure("Do you want to re-enable system operation?","",function(){
+            areYouSure(_("Do you want to re-enable system operation?"),"",function(){
                 send_to_os("/cv?pw=&en=1").done(function(){
                     update_controller(check_status);
                 });
@@ -1750,7 +1750,7 @@ function check_status() {
 
     if (window.controller.settings.rd) {
         change_status(0,window.controller.options.sdt,"red","<p id='running-text' class='center'>"+_("Rain delay until")+" "+dateToString(new Date(window.controller.settings.rdst*1000))+"</p>",function(){
-            areYouSure("Do you want to turn off rain delay?","",function(){
+            areYouSure(_("Do you want to turn off rain delay?"),"",function(){
                 send_to_os("/cv?pw=&rd=0").done(function(){
                     update_controller(check_status);
                 });
@@ -1819,7 +1819,7 @@ function check_status() {
 
     if (window.controller.settings.mm) {
         change_status(0,window.controller.options.sdt,"red","<p id='running-text' class='center'>"+_("Manual mode enabled")+"</p>",function(){
-            areYouSure("Do you want to turn off manual mode?","",function(){
+            areYouSure(_("Do you want to turn off manual mode?"),"",function(){
                 send_to_os("/cv?pw=&mm=0").done(function(){
                     update_controller(check_status);
                 });
