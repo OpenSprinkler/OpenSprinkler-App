@@ -89,6 +89,8 @@ $(document)
             get_runonce();
         } else if (hash == "#os-settings") {
             show_settings();
+        } else if (hash == "#start") {
+            checkAutoScan();
         } else if (hash == "#os-stations") {
             show_stations();
         } else if (hash == "#site-control") {
@@ -865,9 +867,9 @@ function change_site(site) {
             check_configured();
             newload();
         }
-    }  else {
-        if (rename) show_sites();
     }
+
+    if (rename) show_sites();
 }
 
 // Display the site select popup
