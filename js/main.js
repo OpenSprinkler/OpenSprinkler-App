@@ -106,10 +106,7 @@ $(document)
                 //Reset status bar to loading while an update is done
                 $("#footer-running").html("<p class='ui-icon ui-icon-loading mini-load'></p>");
                 setTimeout(function(){
-                    update_controller(check_status,function(){
-                        change_status(0,0,"red","<p id='running-text' class='center'>"+_("Network Error")+"</p>");
-                        hide_weather();
-                    });
+                    update_controller(check_status,network_fail);
                 },800);
             } else {
                 check_status();
@@ -154,10 +151,7 @@ $(document)
     update_controller(function(){
         func();
         update_weather();
-    },function(){
-        change_status(0,0,"red","<p id='running-text' class='center'>"+_("Network Error")+"</p>");
-        hide_weather();
-    });
+    },network_fail);
 })
 .on("pause",function(){
     //Remove any status timers that may be running
@@ -244,6 +238,14 @@ function send_to_os(dest,type) {
     }
 
     return $.ajax(obj);
+}
+
+function network_fail(){
+    change_status(0,0,"red","<p id='running-text' class='center'>"+_("Network Error")+"</p>",function(){
+        $("#weather,#footer-running").html("<p class='ui-icon ui-icon-loading mini-load'></p>");
+        newload(true);
+    });
+    hide_weather();
 }
 
 // Gather new controller information and load home page
@@ -564,8 +566,8 @@ function submit_newuser(ssl,useAuth) {
                     sites[name].auth_user = $("#os_auth_user").val();
                     sites[name].auth_pw = $("#os_auth_pw").val();
                     window.curr_auth = true;
-                    window.curr_auth_user = sites[current].auth_user;
-                    window.curr_auth_pw = sites[current].auth_pw;
+                    window.curr_auth_user = sites[name].auth_user;
+                    window.curr_auth_pw = sites[name].auth_pw;
                 } else {
                     delete window.curr_auth;
                 }
@@ -1500,12 +1502,16 @@ function show_stations() {
 function submit_stations() {
     var names = {},
         invalid = false,
-        v=r="",
-        bid=bid2=0,
-        s=s2=0,
+        v="",
+        r="",
+        bid=0,
+        bid2=0,
+        s=0,
+        s2=0,
         m={},
         i={},
-        masop=ignore_rain="";
+        masop="",
+        ignore_rain="";
 
     $("#os-stations-list").find(":input,p[id^='um_'],p[id^='ir_']").each(function(a,b){
         var $item = $(b), id = $item.attr('id'), data = $item.val();
@@ -1714,12 +1720,17 @@ function removeTimers() {
 }
 
 // Actually change the status bar
-function change_status(seconds,sdelay,color,line) {
+function change_status(seconds,sdelay,color,line,onclick) {
     var footer = $("#footer-running");
+
+    onclick = onclick || function(){};
+
     if (window.interval_id !== undefined) clearInterval(window.interval_id);
     if (window.timeout_id !== undefined) clearTimeout(window.timeout_id);
+
     if (seconds > 1) update_timer(seconds,sdelay);
-    footer.removeClass().addClass(color).html(line).slideDown();
+
+    footer.removeClass().addClass(color).html(line).off("click").on("click",onclick).slideDown();
 }
 
 // Update status bar based on device status
@@ -1727,12 +1738,24 @@ function check_status() {
     var open, ptotal, sample, pid, pname, line, match, tmp, i;
 
     if (!window.controller.settings.en) {
-        change_status(0,window.controller.options.sdt,"red","<p id='running-text' class='center'>"+_("System Disabled")+"</p>");
+        change_status(0,window.controller.options.sdt,"red","<p id='running-text' class='center'>"+_("System Disabled")+"</p>",function(){
+            areYouSure("Do you want to re-enable system operation?","",function(){
+                send_to_os("/cv?pw=&en=1").done(function(){
+                    update_controller(check_status);
+                });
+            });
+        });
         return;
     }
 
     if (window.controller.settings.rd) {
-        change_status(0,window.controller.options.sdt,"red","<p id='running-text' class='center'>"+_("Rain delay until")+" "+dateToString(new Date(window.controller.settings.rdst*1000))+"</p>");
+        change_status(0,window.controller.options.sdt,"red","<p id='running-text' class='center'>"+_("Rain delay until")+" "+dateToString(new Date(window.controller.settings.rdst*1000))+"</p>",function(){
+            areYouSure("Do you want to turn off rain delay?","",function(){
+                send_to_os("/cv?pw=&rd=0").done(function(){
+                    update_controller(check_status);
+                });
+            });
+        });
         return;
     }
 
@@ -1768,7 +1791,9 @@ function check_status() {
         line += pname+" "+_("is running on")+" "+Object.keys(open).length+" "+_("stations")+" ";
         if (pid!=255&&pid!=99) line += "<span id='countdown' class='nobr'>("+sec2hms(ptotal)+" "+_("remaining")+")</span>";
         line += "</p>";
-        change_status(ptotal,window.controller.options.sdt,"green",line);
+        change_status(ptotal,window.controller.options.sdt,"green",line,function(){
+            $("body").pagecontainer("change","#status");
+        });
         return;
     }
 
@@ -1783,7 +1808,9 @@ function check_status() {
             line += pname+" "+_("is running on station")+" <span class='nobr'>"+window.controller.stations.snames[i]+"</span> ";
             if (pid!=255&&pid!=99) line += "<span id='countdown' class='nobr'>("+sec2hms(window.controller.settings.ps[i][1])+" "+_("remaining")+")</span>";
             line += "</p>";
-            change_status(window.controller.settings.ps[i][1],window.controller.options.sdt,"green",line);
+            change_status(window.controller.settings.ps[i][1],window.controller.options.sdt,"green",line,function(){
+                $("body").pagecontainer("change","#status");
+            });
             return false;
         }
     }
@@ -1791,7 +1818,13 @@ function check_status() {
     if (match) return;
 
     if (window.controller.settings.mm) {
-        change_status(0,window.controller.options.sdt,"red","<p id='running-text' class='center'>"+_("Manual mode enabled")+"</p>");
+        change_status(0,window.controller.options.sdt,"red","<p id='running-text' class='center'>"+_("Manual mode enabled")+"</p>",function(){
+            areYouSure("Do you want to turn off manual mode?","",function(){
+                send_to_os("/cv?pw=&mm=0").done(function(){
+                    update_controller(check_status);
+                });
+            });
+        });
         return;
     }
 
@@ -2772,26 +2805,24 @@ function areYouSure(text1, text2, callback) {
         '</div>'
     );
 
-    $(".ui-page-active").append(popup);
-
-    $("#sure").one("popupafterclose", function(){
-        $(this).remove();
-    }).one("popupafteropen", function(){
-        $(this).popup("reposition", {
-            "positionTo": "window"
-        });
-    }).popup({history: false}).enhanceWithin().popup("open");
-
     //Bind buttons
-    $("#sure .sure-do").one("click.sure", function() {
+    popup.find(".sure-do").one("click.sure", function() {
         $("#sure").popup("close");
         callback();
         return false;
     });
-    $("#sure .sure-dont").one("click.sure", function() {
+    popup.find(".sure-dont").one("click.sure", function() {
         $("#sure").popup("close");
         return false;
     });
+
+    popup.one("popupafterclose", function(){
+        $(this).popup("destroy").remove();
+    }).enhanceWithin();
+
+    $(".ui-page-active").append(popup);
+
+    $("#sure").popup({history: false, positionTo: "window"}).popup("open");
 }
 
 function changePage(toPage,opts) {
