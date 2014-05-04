@@ -106,7 +106,7 @@ $(document)
         } else if (hash == "#sprinklers") {
             if (!data.options.firstLoad) {
                 //Reset status bar to loading while an update is done
-                $("#footer-running").html("<p class='ui-icon ui-icon-loading mini-load'></p>");
+                showLoading("#footer-running");
                 setTimeout(function(){
                     update_controller(check_status,network_fail);
                 },800);
@@ -140,7 +140,7 @@ $(document)
     if (window.curr_ip === undefined) return;
 
     // Indicate the weather and device status are being updated
-    $("#weather,#footer-running").html("<p class='ui-icon ui-icon-loading mini-load'></p>");
+    showLoading("#weather,#footer-running");
 
     if (page == "status") {
         // Update the status page
@@ -244,7 +244,7 @@ function send_to_os(dest,type) {
 
 function network_fail(){
     change_status(0,0,"red","<p id='running-text' class='center'>"+_("Network Error")+"</p>",function(){
-        $("#weather,#footer-running").html("<p class='ui-icon ui-icon-loading mini-load'></p>");
+        showLoading("#weather,#footer-running");
         newload(true);
     });
     hide_weather();
@@ -1169,7 +1169,7 @@ function update_weather() {
         return;
     }
 
-    $("#weather").off("click").html("<p class='ui-icon ui-icon-loading mini-load'></p>");
+    showLoading("#weather");
 
     if (provider == "wunderground" && wapikey) {
         update_wunderground_weather(wapikey);
@@ -1848,14 +1848,14 @@ function update_timer(total,sdelay) {
         var diff = now - window.lastCheck;
         if (diff > 3000) {
             clearInterval(window.interval_id);
-            $("#footer-running").html("<p class='ui-icon ui-icon-loading mini-load'></p>");
+            showLoading("#footer-running");
             update_controller(check_status);
         }
         window.lastCheck = now;
 
         if (total <= 0) {
             clearInterval(window.interval_id);
-            $("#footer-running").slideUp().html("<p class='ui-icon ui-icon-loading mini-load'></p>");
+            showLoading("#footer-running");
             if (window.timeout_id !== undefined) clearTimeout(window.timeout_id);
             window.timeout_id = setTimeout(function(){
                 update_controller(check_status);
@@ -2656,7 +2656,7 @@ function raindelay() {
     send_to_os("/cv?pw=&rd="+$("#delay").val()).done(function(){
         $.mobile.loading("hide");
         $("#raindelay").popup("close");
-        $("#footer-running").html("<p class='ui-icon ui-icon-loading mini-load'></p>");
+        showLoading("#footer-running");
         $.when(
             update_controller_settings(),
             update_controller_status()
@@ -2844,6 +2844,11 @@ function changeFromPanel(func) {
     var $panel = $("#sprinklers-settings");
     $panel.one("panelclose", func);
     $panel.panel("close");
+}
+
+// Show loading indicator within element(s)
+function showLoading(ele) {
+    $(ele).off("click").html("<p class='ui-icon ui-icon-loading mini-load'></p>");
 }
 
 // show error message
