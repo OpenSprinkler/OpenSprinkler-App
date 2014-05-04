@@ -646,7 +646,6 @@ function submit_newuser(ssl,useAuth) {
     }
 
     if (useAuth) {
-        prefix = prefix + $("#os_auth_user").val() + ":" + $("#os_auth_pw").val() + "@";
         $("#addnew-auth").hide();
         $("#addnew-content").show();
         $("#addnew").popup("reposition",{positionTo:"window"});
@@ -659,6 +658,7 @@ function submit_newuser(ssl,useAuth) {
         dataType: "json",
         timeout: 3000,
         global: false,
+        beforeSend: function(xhr) { if (useAuth) xhr.setRequestHeader("Authorization", "Basic " + btoa($("#os_auth_user").val() + ":" + $("#os_auth_pw").val())); },
         error: function(x){
             if (!useAuth && x.status === 401) {
                 getAuth();
@@ -670,6 +670,7 @@ function submit_newuser(ssl,useAuth) {
                 dataType: "text",
                 timeout: 3000,
                 global: false,
+                beforeSend: function(xhr) { if (useAuth) xhr.setRequestHeader("Authorization", "Basic " + btoa($("#os_auth_user").val() + ":" + $("#os_auth_pw").val())); },
                 success: success,
                 error: fail
             });
