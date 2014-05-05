@@ -566,6 +566,9 @@ msgstr ""
 msgid "Italian"
 msgstr ""
 
+msgid "Slovenian"
+msgstr ""
+
 msgid "Spanish"
 msgstr ""
 
