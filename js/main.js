@@ -108,7 +108,7 @@ $(document)
                 //Reset status bar to loading while an update is done
                 showLoading("#footer-running");
                 setTimeout(function(){
-                    update_controller(check_status,network_fail);
+                    refresh_status();
                 },800);
             } else {
                 check_status();
@@ -245,7 +245,8 @@ function send_to_os(dest,type) {
 function network_fail(){
     change_status(0,0,"red","<p id='running-text' class='center'>"+_("Network Error")+"</p>",function(){
         showLoading("#weather,#footer-running");
-        newload();
+        refresh_status();
+        update_weather();
     });
     hide_weather();
 }
@@ -1705,14 +1706,18 @@ function refresh_status() {
         update_controller_status(),
         update_controller_settings()
     ).then(function(){
-        if ($(".ui-page-active").attr("id") == "status") {
+        var page = $(".ui-page-active").attr("id");
+
+        if (page == "status") {
             get_status();
-        } else {
-            if (window.interval_id !== undefined) clearInterval(window.interval_id);
-            if (window.timeout_id !== undefined) clearInterval(window.timeout_id);
-            return;
+        } else if (page == "sprinklers") {
+            check_status();
         }
-    });
+
+        if (window.interval_id !== undefined) clearInterval(window.interval_id);
+        if (window.timeout_id !== undefined) clearInterval(window.timeout_id);
+        return;
+    },network_fail);
 }
 
 function removeTimers() {
@@ -1871,7 +1876,11 @@ function get_manual() {
         page = $("#manual");
 
     $.each(window.controller.stations.snames,function (i,station) {
-        list += '<li data-icon="false"><a class="mm_station center'+((window.controller.status[i]) ? ' green' : '')+'">'+station+'</a></li>';
+        if (window.controller.options.mas == i+1) {
+            list += '<li data-icon="false" class="center">'+station+' ('+_('Master')+')</li>';
+        } else {
+            list += '<li data-icon="false"><a class="mm_station center'+((window.controller.status[i]) ? ' green' : '')+'">'+station+'</a></li>';
+        }
     });
 
     page.find(".ui-content").append(
