@@ -1744,9 +1744,11 @@ function change_status(seconds,sdelay,color,line,onclick) {
 function check_status() {
     var open, ptotal, sample, pid, pname, line, match, tmp, i;
 
+    // Handle operation disabled
     if (!window.controller.settings.en) {
         change_status(0,window.controller.options.sdt,"red","<p id='running-text' class='center'>"+_("System Disabled")+"</p>",function(){
             areYouSure(_("Do you want to re-enable system operation?"),"",function(){
+                showLoading("#footer-running");
                 send_to_os("/cv?pw=&en=1").done(function(){
                     update_controller(check_status);
                 });
@@ -1755,9 +1757,11 @@ function check_status() {
         return;
     }
 
+    // Handle rain delay enabled
     if (window.controller.settings.rd) {
         change_status(0,window.controller.options.sdt,"red","<p id='running-text' class='center'>"+_("Rain delay until")+" "+dateToString(new Date(window.controller.settings.rdst*1000))+"</p>",function(){
             areYouSure(_("Do you want to turn off rain delay?"),"",function(){
+                showLoading("#footer-running");
                 send_to_os("/cv?pw=&rd=0").done(function(){
                     update_controller(check_status);
                 });
@@ -1766,6 +1770,7 @@ function check_status() {
         return;
     }
 
+    // Handle rain sensor triggered
     if (window.controller.settings.urs && window.controller.settings.rs) {
         change_status(0,window.controller.options.sdt,"red","<p id='running-text' class='center'>"+_("Rain detected")+"</p>");
         return;
@@ -1830,6 +1835,7 @@ function check_status() {
     if (window.controller.settings.mm) {
         change_status(0,window.controller.options.sdt,"red","<p id='running-text' class='center'>"+_("Manual mode enabled")+"</p>",function(){
             areYouSure(_("Do you want to turn off manual mode?"),"",function(){
+                showLoading("#footer-running");
                 send_to_os("/cv?pw=&mm=0").done(function(){
                     update_controller(check_status);
                 });
