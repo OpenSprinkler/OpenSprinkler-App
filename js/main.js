@@ -59,7 +59,7 @@ $(document)
     var status = check_configured();
 
     if (status === 1) {
-        newload(true);
+        newload();
     } else if (status === 2) {
         $.mobile.loading("hide");
         site_select();
@@ -73,7 +73,7 @@ $(document)
 
         if (typeof data.toPage !== "string") return;
 
-        $.mobile.silentScroll(0);
+        if (data.options.role !== "popup") $.mobile.silentScroll(0);
 
         hash = $.mobile.path.parseUrl(page).hash;
 
@@ -245,14 +245,13 @@ function send_to_os(dest,type) {
 function network_fail(){
     change_status(0,0,"red","<p id='running-text' class='center'>"+_("Network Error")+"</p>",function(){
         showLoading("#weather,#footer-running");
-        newload(true);
+        newload();
     });
     hide_weather();
 }
 
 // Gather new controller information and load home page
-function newload(firstLoad) {
-    firstLoad = firstLoad || false;
+function newload() {
     $.mobile.loading("show");
 
     //Create object which will store device data
@@ -260,16 +259,15 @@ function newload(firstLoad) {
     update_controller(
         function(){
         $.mobile.loading("hide");
-            var opt = {};
             check_status();
             update_weather();
-            if (firstLoad === true) {
-                opt = {
+
+            if ($("body").pagecontainer("getActivePage").attr("id") != "sprinklers") {
+                changePage("#sprinklers",{
                     "transition":"none",
-                    "firstLoad": firstLoad
-                };
+                    "firstLoad": true
+                });
             }
-            if ($("body").pagecontainer("getActivePage").attr("id") != "sprinklers") changePage("#sprinklers",opt);
         },
         function(){
             $.mobile.loading("hide");
@@ -586,7 +584,7 @@ function submit_newuser(ssl,useAuth) {
                 localStorage.setItem("sites",JSON.stringify(sites));
                 localStorage.setItem("current_site",name);
                 update_site_list(Object.keys(sites));
-                newload(true);
+                newload();
             } else {
                 showerror(_("Check IP/Port and try again."));
             }
@@ -908,7 +906,7 @@ function update_site(newsite) {
         localStorage.setItem("current_site",newsite);
         check_configured();
     }
-    newload(true);
+    newload();
 }
 
 // Get the list of sites from the local storage
