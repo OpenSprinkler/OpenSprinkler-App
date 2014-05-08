@@ -1477,16 +1477,12 @@ function show_stations() {
             list += "</td>";
             if (isMaster) {
                 if (window.controller.options.mas == i+1) {
-                    list += "<td colspan='"+(isMaster+hasIR)+"' class='use_master'><p class='um_"+i+" ir_"+i+"' class='center'>("+_("Master")+")</p></td>";
+                    list += "<td class='use_master'><p class='um_"+i+" ir_"+i+"' class='center'>("+_("Master")+")</p></td>";
                 } else {
                     list += "<td data-role='controlgroup' data-type='horizontal' class='use_master'><label for='um_"+i+"'><input id='um_"+i+"' type='checkbox' "+((window.controller.stations.masop[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+" /></label></td>";
                 }
             }
-            if (hasIR) {
-                if (window.controller.options.mas != i+1) {
-                    list += "<td data-role='controlgroup' data-type='horizontal' class='use_master'><label for='ir_"+i+"'><input id='ir_"+i+"' type='checkbox' "+((window.controller.stations.ignore_rain[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+" /></label></td></tr>";
-                }
-            }
+            if (hasIR) list += "<td data-role='controlgroup' data-type='horizontal' class='use_master'><label for='ir_"+i+"'><input id='ir_"+i+"' type='checkbox' "+((window.controller.stations.ignore_rain[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+" /></label></td></tr>";
             list += "</tr>";
         }
         i++;
