@@ -130,11 +130,8 @@ $(document)
     var page = $(".ui-page-active").attr("id"),
         func = function(){};
 
-    // If current page is the start page, update main menu
-    if (page == "start") {
-        checkAutoScan();
-        return;
-    }
+    // Check if device is still on a local network
+    checkAutoScan();
 
     // If we don't have a current device IP set, there is nothing else to update
     if (window.curr_ip === undefined) return;
