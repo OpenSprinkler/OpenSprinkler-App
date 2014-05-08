@@ -677,15 +677,6 @@ function submit_newuser(ssl,useAuth) {
     });
 }
 
-// Show manage site page
-function showSitesFromPanel() {
-    var $panel = $("#sprinklers-settings");
-    $panel.one("panelclose", function(){
-        changePage("#site-control");
-    });
-    $panel.panel("close");
-}
-
 function show_site_select(list) {
     $("#site-select").popup("destroy").remove();
 
@@ -1306,10 +1297,6 @@ function open_panel() {
     var panel = $("#sprinklers-settings");
     panel.panel("option","classes.modal","needsclick ui-panel-dismiss");
     panel.panel('open');
-}
-
-function show_about() {
-    changePage("#about");
 }
 
 // Device setting management functions
@@ -2846,9 +2833,11 @@ function changePage(toPage,opts) {
 }
 
 // Close the panel before page transition to avoid bug in jQM 1.4+
-function changeFromPanel(func) {
+function changeFromPanel(page) {
     var $panel = $("#sprinklers-settings");
-    $panel.one("panelclose", func);
+    $panel.one("panelclose", function(){
+        changePage("#"+page);
+    });
     $panel.panel("close");
 }
 
