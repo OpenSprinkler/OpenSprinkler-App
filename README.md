@@ -6,19 +6,15 @@ A mobile interface for the OpenSprinkler irrigation device. Designed to allow ma
 Overview:
 ---------
 
-+ This application is available for free from the [Apple App Store](https://itunes.apple.com/us/app/sprinklers/id830988967?ls=1&mt=8), the [BlackBerry AppWorld](http://appworld.blackberry.com/webstore/content/53161895/), the [Google Play Store](https://play.google.com/store/apps/details?id=com.albahra.sprinklers) and the [Windows Phone Store](http://www.windowsphone.com/en-us/store/app/sprinklers/3dbc5da0-b33f-4ca8-9e54-e80febf0a0c5)
++ This application is available for free from the [Amazon Appstore](http://www.amazon.com/dp/B00JYFL8LW), [Apple App Store](https://itunes.apple.com/us/app/sprinklers/id830988967?ls=1&mt=8), [BlackBerry AppWorld](http://appworld.blackberry.com/webstore/content/53161895/), [Google Play Store](https://play.google.com/store/apps/details?id=com.albahra.sprinklers) and [Windows Phone Store](http://www.windowsphone.com/en-us/store/app/sprinklers/3dbc5da0-b33f-4ca8-9e54-e80febf0a0c5)
 
-+ This application interfaces with the interval program on the OpenSprinkler which is the default software available. The application has been tested and compatible with firmware 2.0.4+ however specifically does NOT support 1.8.3, 2.0.0, 2.0.1, 2.0.2, and 2.0.3.
++ This application interfaces with the interval program on the OpenSprinkler which is the default software available. The application has been tested and compatible with all firmwares. The application is also compatible with OSPi python interval program.
 
 + The application is written in Javascript and HTML/CSS. The application runs 100% within the user's browser and communicates directly with the OpenSprinkler.
 
++ For advanced users, the application supports authentication (HTTP Basic) and SSL for devices behind proxies. [Guide:](http://rayshobby.net/mediawiki/index.php?title=Secure_Remote_Access)
+
 + For current discussion about the project please refer to the [forum post](http://rayshobby.net/phpBB3/viewtopic.php?f=2&t=154).
-
-Video:
----------------
-[![Video](https://img.youtube.com/vi/8SDlmIEdA40/hqdefault.jpg)](http://youtu.be/8SDlmIEdA40)
-
-This video goes through most of the Sprinklers app showcasing the various features.
 
 Screenshots:
 ------------
