@@ -136,6 +136,9 @@ $(document)
     // If we don't have a current device IP set, there is nothing else to update
     if (window.curr_ip === undefined) return;
 
+    // Reconnect if using 1.9.0
+    if (window.curr_190) auth_190();
+
     // Indicate the weather and device status are being updated
     showLoading("#weather,#footer-running");
 
@@ -524,7 +527,10 @@ function check_configured() {
     } else {
         delete window.curr_183;
     }
-    if (sites[current].is190) $.post(window.curr_prefix+window.curr_ip+"/login",{password:window.curr_pw});
+    if (sites[current].is190) {
+        window.curr_190 = true;
+        auth_190();
+    }
 
     return 1;
 }
@@ -575,7 +581,8 @@ function submit_newuser(ssl,useAuth) {
                     window.curr_183 = true;
                 } else if (is190 === true) {
                     sites[name].is190 = "1";
-                    $.post(window.curr_prefix+window.curr_ip+"/login",{password:window.curr_pw});
+                    window.curr_190 = true;
+                    auth_190();
                 }
 
                 $("#os_name,#os_ip,#os_pw,#os_auth_user,#os_auth_pw").val("");
@@ -2784,6 +2791,22 @@ function import_config(data) {
 function isOSPi() {
     if (window.controller && typeof window.controller.options.fwv == "string" && window.controller.options.fwv.search(/ospi/i) !== -1) return true;
     return false;
+}
+
+function auth_190() {
+    var obj = {
+        url: window.curr_prefix+window.curr_ip+"/login",
+        type: "POST",
+        password:window.curr_pw,
+    };
+
+    if (window.curr_auth) {
+        $.extend(obj,{
+            beforeSend: function(xhr) { xhr.setRequestHeader("Authorization", "Basic " + btoa(window.curr_auth_user + ":" + window.curr_auth_pw)); }
+        });
+    }
+
+    return $.ajax(obj);
 }
 
 function getOSVersion(fwv) {
