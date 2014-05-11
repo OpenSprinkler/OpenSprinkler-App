@@ -188,7 +188,7 @@ a {
         white-space:pre;
     }
     .dayofweek:before {
-        content: "  " attr(data-shortname) "     ";
+        content: " " attr(data-shortname) "     ";
         white-space:pre;
     }
     .ui-mini {
