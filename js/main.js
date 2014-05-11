@@ -2031,10 +2031,11 @@ function submit_runonce(runonce) {
 function get_preview() {
     var date = $("#preview_date").val(),
         $timeline = $("#timeline"),
-        preview_data, process_programs, check_match, run_sched, time_to_text;
+        preview_data, process_programs, check_match, run_sched, time_to_text, day;
 
     if (date === "") return;
     date = date.split("-");
+    day = new Date(date[0],date[1]-1,date[2]);
 
     $.mobile.loading("show");
     $("#timeline-navigation").hide();
@@ -2234,7 +2235,7 @@ function get_preview() {
             var name = shortnames[stn.text()];
             stn.attr("data-shortname",name);
         });
-        $(".timeline-groups-axis").children().first().html("<div class='timeline-axis-text center'>"+getDayName(date[0],date[1]-1,date[2])+"</div>");
+        $(".timeline-groups-axis").children().first().html("<div class='timeline-axis-text center dayofweek' data-shortname='"+getDayName(day,"short")+"'>"+getDayName(day)+"</div>");
         if (navigator.userAgent.indexOf('Android') > 0) {
             var navi = $("#timeline-navigation");
             navi.find(".ui-icon-plus").off("click").on("click",function(){
@@ -2926,11 +2927,15 @@ function sec2hms(diff) {
 }
 
 // Return day of the week
-function getDayName(month,day,year) {
-    var weekday = [_("Sunday"),_("Monday"),_("Tuesday"),_("Wednesday"),_("Thursday"),_("Friday"),_("Saturday")],
-        date = new Date(month,day,year);
+function getDayName(date,type) {
+    var long = [_("Sunday"),_("Monday"),_("Tuesday"),_("Wednesday"),_("Thursday"),_("Friday"),_("Saturday")],
+        short = [_("Sun"),_("Mon"),_("Tue"),_("Wed"),_("Thu"),_("Fri"),_("Sat")];
 
-    return weekday[date.getDay()];
+    if (type == "short") {
+        return short[date.getDay()];
+    } else {
+        return long[date.getDay()];
+    }
 }
 
 // Add ability to unique sort arrays
