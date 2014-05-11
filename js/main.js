@@ -137,7 +137,7 @@ $(document)
     if (window.curr_ip === undefined) return;
 
     // Reconnect if using 1.9.0
-    if (window.curr_190) auth_190();
+    if (window.curr_190 === true) auth_190();
 
     // Indicate the weather and device status are being updated
     showLoading("#weather,#footer-running");
