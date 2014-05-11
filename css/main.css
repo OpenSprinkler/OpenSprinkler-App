@@ -187,6 +187,10 @@ a {
         content: attr(data-shortname) "     ";
         white-space:pre;
     }
+    .dayofweek:before {
+        content: "  " attr(data-shortname) "     ";
+        white-space:pre;
+    }
     .ui-mini {
         font-size: 12px;
     }
