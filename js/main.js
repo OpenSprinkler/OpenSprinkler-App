@@ -2234,6 +2234,7 @@ function get_preview() {
             var name = shortnames[stn.text()];
             stn.attr("data-shortname",name);
         });
+        $(".timeline-groups-axis").children().first().html("<div class='timeline-axis-text center'>"+getDayName(date[0],date[1]-1,date[2])+"</div>");
         if (navigator.userAgent.indexOf('Android') > 0) {
             var navi = $("#timeline-navigation");
             navi.find(".ui-icon-plus").off("click").on("click",function(){
@@ -2922,6 +2923,14 @@ function sec2hms(diff) {
     var seconds = diff % 60;
     if (hours) str += pad(hours)+":";
     return str+pad(minutes)+":"+pad(seconds);
+}
+
+// Return day of the week
+function getDayName(month,day,year) {
+    var weekday = [_("Sunday"),_("Monday"),_("Tuesday"),_("Wednesday"),_("Thursday"),_("Friday"),_("Saturday")],
+        date = new Date(month,day,year);
+
+    return weekday[date.getDay()];
 }
 
 // Add ability to unique sort arrays
