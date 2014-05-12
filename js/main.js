@@ -75,6 +75,8 @@ $(document)
 
         hash = $.mobile.path.parseUrl(page).hash;
 
+        if (data.options.role !== "popup" && !$(".ui-popup-active").length) $.mobile.silentScroll(0);
+
         if (hash == "#programs") {
             get_programs(data.options.programToExpand);
         } else if (hash == "#addprogram") {
