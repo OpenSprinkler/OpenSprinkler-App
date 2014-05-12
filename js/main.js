@@ -73,8 +73,6 @@ $(document)
 
         if (typeof data.toPage !== "string") return;
 
-        if (data.options.role !== "popup" && !$(".ui-popup-active").length) $.mobile.silentScroll(0);
-
         hash = $.mobile.path.parseUrl(page).hash;
 
         if (hash == "#programs") {
