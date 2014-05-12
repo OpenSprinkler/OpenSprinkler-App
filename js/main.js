@@ -1210,7 +1210,7 @@ function update_yahoo_forecast(data,loc,region,now) {
     list += "<li data-icon='false' class='center'><div title='"+now.text+"' class='wicon cond"+now.code+"'></div><span>Now</span><br><span>"+convert_temp(now.temp,region)+"</span></li>";
 
     for (i=0;i < data.length; i++) {
-        list += "<li data-icon='false' class='center'><span>"+data[i].date+"</span><br><div title='"+data[i].text+"' class='wicon cond"+data[i].code+"'></div><span>"+data[i].day+"</span><br><span>Low: "+convert_temp(data[i].low,region)+"  High: "+convert_temp(data[i].high,region)+"</span></li>";
+        list += "<li data-icon='false' class='center'><span>"+data[i].date+"</span><br><div title='"+data[i].text+"' class='wicon cond"+data[i].code+"'></div><span>"+_(data[i].day)+"</span><br><span>Low: "+convert_temp(data[i].low,region)+"  High: "+convert_temp(data[i].high,region)+"</span></li>";
     }
 
     var forecast = $("#forecast_list");
@@ -1279,10 +1279,16 @@ function update_wunderground_forecast(data) {
     var list = "<li data-role='list-divider' data-theme='a' class='center'>"+data.location+"</li>";
     list += "<li data-icon='false' class='center'><div title='"+data.condition.text+"' class='wicon cond"+data.condition.code+"'></div><span>"+_("Now")+"</span><br><span>"+temp+"</span><br><span>"+_("Precip")+": "+precip+"</span></li>";
     $.each(data.simpleforecast, function(k,attr) {
+        var precip;
+
         if (data.region == "US" || data.region == "BM" || data.region == "PW") {
-            list += "<li data-icon='false' class='center'><span>"+attr.date.monthname_short+" "+attr.date.day+"</span><br><div title='"+attr.conditions+"' class='wicon cond"+attr.icon+"'></div><span>"+attr.date.weekday_short+"</span><br><span>"+_("Low")+": "+attr.low.fahrenheit+"&#176;F  "+_("High")+": "+attr.high.fahrenheit+"&#176;F</span><br><span>"+_("Precip")+": "+attr.qpf_allday.in+" in</span></li>";
+            precip = attr.qpf_allday.in;
+            if (precip === null) precip = 0;
+            list += "<li data-icon='false' class='center'><span>"+attr.date.monthname_short+" "+attr.date.day+"</span><br><div title='"+attr.conditions+"' class='wicon cond"+attr.icon+"'></div><span>"+_(attr.date.weekday_short)+"</span><br><span>"+_("Low")+": "+attr.low.fahrenheit+"&#176;F  "+_("High")+": "+attr.high.fahrenheit+"&#176;F</span><br><span>"+_("Precip")+": "+precip+" in</span></li>";
         } else {
-            list += "<li data-icon='false' class='center'><span>"+attr.date.monthname_short+" "+attr.date.day+"</span><br><div title='"+attr.conditions+"' class='wicon cond"+attr.icon+"'></div><span>"+attr.date.weekday_short+"</span><br><span>"+_("Low")+": "+attr.low.celsius+"&#176;C  "+_("High")+": "+attr.high.celsius+"&#176;C</span><br><span>"+_("Precip")+": "+attr.qpf_allday.mm+" mm</span></li>";
+            precip = attr.qpf_allday.mm;
+            if (precip === null) precip = 0;
+            list += "<li data-icon='false' class='center'><span>"+attr.date.monthname_short+" "+attr.date.day+"</span><br><div title='"+attr.conditions+"' class='wicon cond"+attr.icon+"'></div><span>"+_(attr.date.weekday_short)+"</span><br><span>"+_("Low")+": "+attr.low.celsius+"&#176;C  "+_("High")+": "+attr.high.celsius+"&#176;C</span><br><span>"+_("Precip")+": "+precip+" mm</span></li>";
         }
     });
 
