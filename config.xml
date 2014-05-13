@@ -18,6 +18,7 @@
         <gap:plugin name="org.apache.cordova.core.inappbrowser" />
         <gap:plugin name="com.phonegap.plugin.statusbar" />
         <gap:plugin name="com.albahra.plugin.networkinterface" />
+        <gap:plugin name="org.apache.cordova.splashscreen" />
 
         <gap:config-file platform="android" parent="/manifest">
             <uses-sdk android:minSdkVersion="10" android:targetSdkVersion="19" />

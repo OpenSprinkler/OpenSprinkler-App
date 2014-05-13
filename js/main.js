@@ -45,9 +45,7 @@ $(document)
     } catch (err) {}
 
     // Hide the splash screen
-    setTimeout(function(){
-        navigator.splashscreen.hide();
-    },1500);
+    navigator.splashscreen.hide();
 
     // Check if device is on a local network
     checkAutoScan();
