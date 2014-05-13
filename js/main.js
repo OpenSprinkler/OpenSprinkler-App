@@ -44,6 +44,10 @@ $(document)
         StatusBar.backgroundColorByHexString("#1C1C1C");
     } catch (err) {}
 
+    // Hide the splash screen
+    navigator.splashscreen.hide();
+
+    // Check if device is on a local network
     checkAutoScan();
 })
 .one("mobileinit", function(){
