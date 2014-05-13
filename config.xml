@@ -10,7 +10,7 @@
         <preference name="DisallowOverscroll" value="true"  />
         <preference name="permissions" value="none" />
         <preference name="WebSecurity" value="disable"/>
-        <preference name="splash-screen-duration" value="1000"/>
+        <preference name="auto-hide-splash-screen" value="false" />
 
         <feature name="http://api.phonegap.com/1.0/network"/>
 
