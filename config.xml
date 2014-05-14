@@ -3,8 +3,8 @@
             xmlns:android   = "http://schemas.android.com/apk/res/android"
             xmlns:gap   = "http://phonegap.com/ns/1.0"
             id          = "com.albahra.sprinklers"
-            version     = "1.0.12"
-            versionCode = "22" >
+            version     = "1.0.13"
+            versionCode = "23" >
 
         <preference name="phonegap-version" value="3.4.0" />
         <preference name="DisallowOverscroll" value="true"  />
