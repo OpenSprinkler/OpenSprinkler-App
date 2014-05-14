@@ -170,8 +170,7 @@ $(document)
 })
 .on("pause",function(){
     //Remove any status timers that may be running
-    if (window.interval_id !== undefined) clearInterval(window.interval_id);
-    if (window.timeout_id !== undefined) clearTimeout(window.timeout_id);
+    removeTimers();
 })
 .on("pageshow",function(e){
     var newpage = "#"+e.target.id,
@@ -1653,8 +1652,7 @@ function get_status() {
         $('<p id="status_footer"></p>').html(footer)
     );
 
-    if (window.interval_id !== undefined) clearInterval(window.interval_id);
-    if (window.timeout_id !== undefined) clearTimeout(window.timeout_id);
+    removeTimers();
 
     $("#status").one("pagehide",function(){
         removeTimers();
@@ -1665,9 +1663,6 @@ function get_status() {
         delete runningTotal.p;
         setTimeout(refresh_status,runningTotal.d*1000);
     }
-
-    if (window.interval_id !== undefined) clearInterval(window.interval_id);
-    if (window.timeout_id !== undefined) clearTimeout(window.timeout_id);
 
     lastCheck = new Date().getTime();
     window.interval_id = setInterval(function(){
@@ -1717,11 +1712,10 @@ function refresh_status() {
         if (page == "status") {
             get_status();
         } else if (page == "sprinklers") {
+            removeTimers();
             check_status();
         }
 
-        if (window.interval_id !== undefined) clearInterval(window.interval_id);
-        if (window.timeout_id !== undefined) clearInterval(window.timeout_id);
         return;
     },network_fail);
 }
@@ -1738,8 +1732,7 @@ function change_status(seconds,sdelay,color,line,onclick) {
 
     onclick = onclick || function(){};
 
-    if (window.interval_id !== undefined) clearInterval(window.interval_id);
-    if (window.timeout_id !== undefined) clearTimeout(window.timeout_id);
+    removeTimers();
 
     if (seconds > 1) update_timer(seconds,sdelay);
 
@@ -1855,8 +1848,6 @@ function check_status() {
 
 // Handle timer update on the home page for the status bar
 function update_timer(total,sdelay) {
-    if (window.interval_id !== undefined) clearInterval(window.interval_id);
-    if (window.timeout_id !== undefined) clearTimeout(window.timeout_id);
     window.lastCheck = new Date().getTime();
     window.interval_id = setInterval(function(){
         var now = new Date().getTime();
