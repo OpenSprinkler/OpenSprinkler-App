@@ -15,6 +15,13 @@ $(document)
     $("#site-selector").on("change",function(){
         update_site($(this).val());
     });
+
+    var androidVersion = navigator.userAgent.match(/Android\s([0-9\.]*)/);
+    if (androidVersion && androidVersion[1].search("2.3") === 0) {
+        $(document).ajaxStart(function(){
+            navigator.app.clearCache();
+        });
+    }
 })
 .ajaxError(function(x,t,m) {
     if (t.status==401 && /https?:\/\/[\d|.]+\/(?:cv|sn|cs|cr|cp|dp|co)/.exec(m.url)) {
