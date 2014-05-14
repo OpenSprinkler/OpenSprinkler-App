@@ -107,7 +107,10 @@ a {
     margin:auto auto auto 4px;
     position:absolute;
     top:0;bottom:0;
- }
+}
+.ui-nosvg #running-icon {
+    background-image: url(../img/running.png);
+}
 #running-text {
     margin:0;
     text-shadow: none;
