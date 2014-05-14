@@ -2057,7 +2057,7 @@ function get_preview() {
         var devday = Math.floor(window.controller.settings.devt/(60*60*24)),
             simminutes = 0,
             simt = Date.UTC(year,month-1,day,0,0,0,0),
-            simday = (simt/3600/24)>>0,
+            simday = (simt/1000/3600/24)>>0,
             st_array = new Array(window.controller.settings.nbrd*8),
             pid_array = new Array(window.controller.settings.nbrd*8),
             et_array = new Array(window.controller.settings.nbrd*8),
