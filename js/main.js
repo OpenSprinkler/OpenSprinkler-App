@@ -1288,7 +1288,7 @@ function update_wunderground_forecast(data) {
         var precip;
 
         if (data.region == "US" || data.region == "BM" || data.region == "PW") {
-            precip = attr.qpf_allday.in;
+            precip = attr.qpf_allday["in"];
             if (precip === null) precip = 0;
             list += "<li data-icon='false' class='center'><span>"+attr.date.monthname_short+" "+attr.date.day+"</span><br><div title='"+attr.conditions+"' class='wicon cond"+attr.icon+"'></div><span>"+_(attr.date.weekday_short)+"</span><br><span>"+_("Low")+": "+attr.low.fahrenheit+"&#176;F  "+_("High")+": "+attr.high.fahrenheit+"&#176;F</span><br><span>"+_("Precip")+": "+precip+" in</span></li>";
         } else {
