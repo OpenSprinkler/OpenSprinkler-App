@@ -19,6 +19,9 @@ body{
     background-position:center;
     margin: 1px auto;
 }
+.ui-nosvg .logo {
+    background-image: url(../img/logo.png);
+}
 #about p {
     text-align:center;
     overflow: visible;
