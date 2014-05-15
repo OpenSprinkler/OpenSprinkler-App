@@ -396,3 +396,9 @@ div.timeline-event-content {
 .wicon.cond47 { background-position: -300px -150px; } 				/*  47  isolated thundershowers   */
 .wicon.cond3200, .wicon.condunknown,
 .wicon.condnt_unknown { background: none; display: none; } 			/* 3200  not available             */
+
+@-moz-document url-prefix() {
+    .wicon {
+        margin: -50px 0 -45px -50px !important;
+    }
+}
