@@ -28,7 +28,7 @@ $(document)
         showerror(_("Check device password and try again."));
         return;
     } else if (t.status===0) {
-        if (/https?:\/\/[\d|.]+\/(?:cv|sn|cs|cr|cp|dp|co)/.exec(m.url)) {
+        if (/https?:\/\/.+\/(?:cv|sn|cs|cr|cp|dp|co)/.exec(m.url)) {
             // Ajax fails typically because the password is wrong
             showerror(_("Check device password and try again."));
             return;
