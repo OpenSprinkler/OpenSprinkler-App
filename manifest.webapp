@@ -11,7 +11,10 @@
     "url": "http://albahra.com/sprinklers"
   },
   "permissions": {
-    "systemXHR": {}
+    "systemXHR": {
+      "description": "Required to access and modify the OpenSprinkler device"
+    }
   },
-  "default_locale": "en"
+  "default_locale": "en",
+  "version": "1.0.13"
 }
