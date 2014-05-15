@@ -10,5 +10,8 @@
     "name": "Samer Albahra",
     "url": "http://albahra.com/sprinklers"
   },
+  "permissions": {
+    "systemXHR": {}
+  },
   "default_locale": "en"
 }
