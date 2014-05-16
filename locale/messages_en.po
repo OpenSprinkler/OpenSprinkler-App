@@ -121,13 +121,13 @@ msgstr ""
 msgid "Now"
 msgstr ""
 
-msgid "Precip"
-msgstr ""
-
 msgid "Low"
 msgstr ""
 
 msgid "High"
+msgstr ""
+
+msgid "Precip"
 msgstr ""
 
 msgid "Timezone"
