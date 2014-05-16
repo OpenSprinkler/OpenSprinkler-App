@@ -1219,10 +1219,10 @@ function update_yahoo_forecast(data,loc,region,now) {
     var list = "<li data-role='list-divider' data-theme='a' class='center'>"+loc+"</li>",
         i;
 
-    list += "<li data-icon='false' class='center'><div title='"+now.text+"' class='wicon cond"+now.code+"'></div><span>Now</span><br><span>"+convert_temp(now.temp,region)+"</span></li>";
+    list += "<li data-icon='false' class='center'><div title='"+now.text+"' class='wicon cond"+now.code+"'></div><span>"+_("Now")+"</span><br><span>"+convert_temp(now.temp,region)+"</span></li>";
 
     for (i=0;i < data.length; i++) {
-        list += "<li data-icon='false' class='center'><span>"+data[i].date+"</span><br><div title='"+data[i].text+"' class='wicon cond"+data[i].code+"'></div><span>"+_(data[i].day)+"</span><br><span>Low: "+convert_temp(data[i].low,region)+"  High: "+convert_temp(data[i].high,region)+"</span></li>";
+        list += "<li data-icon='false' class='center'><span>"+data[i].date+"</span><br><div title='"+data[i].text+"' class='wicon cond"+data[i].code+"'></div><span>"+_(data[i].day)+"</span><br><span>"+_("Low")+": "+convert_temp(data[i].low,region)+"  "+_("High")+": "+convert_temp(data[i].high,region)+"</span></li>";
     }
 
     var forecast = $("#forecast_list");
