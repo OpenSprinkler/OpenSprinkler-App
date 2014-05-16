@@ -2986,6 +2986,8 @@ function set_lang() {
 
         if (el.is("input[type='submit']")) {
             el.val(_(txt));
+            // Update button for jQuery Mobile
+            if (el.parent("div.ui-btn").length > 0) el.button("refresh");
         } else {
             return _(txt);
         }
