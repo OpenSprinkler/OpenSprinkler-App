@@ -1219,10 +1219,10 @@ function update_yahoo_forecast(data,loc,region,now) {
     var list = "<li data-role='list-divider' data-theme='a' class='center'>"+loc+"</li>",
         i;
 
-    list += "<li data-icon='false' class='center'><div title='"+now.text+"' class='wicon cond"+now.code+"'></div><span>"+_("Now")+"</span><br><span>"+convert_temp(now.temp,region)+"</span></li>";
+    list += "<li data-icon='false' class='center'><div title='"+now.text+"' class='wicon cond"+now.code+"'></div><span data-translate='Now'>"+_("Now")+"</span><br><span>"+convert_temp(now.temp,region)+"</span></li>";
 
     for (i=0;i < data.length; i++) {
-        list += "<li data-icon='false' class='center'><span>"+data[i].date+"</span><br><div title='"+data[i].text+"' class='wicon cond"+data[i].code+"'></div><span>"+_(data[i].day)+"</span><br><span>"+_("Low")+": "+convert_temp(data[i].low,region)+"  "+_("High")+": "+convert_temp(data[i].high,region)+"</span></li>";
+        list += "<li data-icon='false' class='center'><span>"+data[i].date+"</span><br><div title='"+data[i].text+"' class='wicon cond"+data[i].code+"'></div><span data-translate='"+data[i].day+"'>"+_(data[i].day)+"</span><br><span data-translate='Low'>"+_("Low")+"</span><span>: "+convert_temp(data[i].low,region)+"  </span><span data-translate='High'>"+_("High")+"</span><span>: "+convert_temp(data[i].high,region)+"</span></li>";
     }
 
     var forecast = $("#forecast_list");
@@ -1289,18 +1289,18 @@ function update_wunderground_forecast(data) {
     }
 
     var list = "<li data-role='list-divider' data-theme='a' class='center'>"+data.location+"</li>";
-    list += "<li data-icon='false' class='center'><div title='"+data.condition.text+"' class='wicon cond"+data.condition.code+"'></div><span>"+_("Now")+"</span><br><span>"+temp+"</span><br><span>"+_("Precip")+": "+precip+"</span></li>";
+    list += "<li data-icon='false' class='center'><div title='"+data.condition.text+"' class='wicon cond"+data.condition.code+"'></div><span data-translate='Now'>"+_("Now")+"</span><br><span>"+temp+"</span><br><span data-translate='Precip'>"+_("Precip")+"</span><span>: "+precip+"</span></li>";
     $.each(data.simpleforecast, function(k,attr) {
         var precip;
 
         if (data.region == "US" || data.region == "BM" || data.region == "PW") {
             precip = attr.qpf_allday["in"];
             if (precip === null) precip = 0;
-            list += "<li data-icon='false' class='center'><span>"+attr.date.monthname_short+" "+attr.date.day+"</span><br><div title='"+attr.conditions+"' class='wicon cond"+attr.icon+"'></div><span>"+_(attr.date.weekday_short)+"</span><br><span>"+_("Low")+": "+attr.low.fahrenheit+"&#176;F  "+_("High")+": "+attr.high.fahrenheit+"&#176;F</span><br><span>"+_("Precip")+": "+precip+" in</span></li>";
+            list += "<li data-icon='false' class='center'><span>"+attr.date.monthname_short+" "+attr.date.day+"</span><br><div title='"+attr.conditions+"' class='wicon cond"+attr.icon+"'></div><span data-translate='"+attr.date.weekday_short+"'>"+_(attr.date.weekday_short)+"</span><br><span data-translate='Low'>"+_("Low")+"</span><span>: "+attr.low.fahrenheit+"&#176;F  </span><span data-translate='High'>"+_("High")+"</span><span>: "+attr.high.fahrenheit+"&#176;F</span><br><span data-translate='Precip'>"+_("Precip")+"</span><span>: "+precip+" in</span></li>";
         } else {
             precip = attr.qpf_allday.mm;
             if (precip === null) precip = 0;
-            list += "<li data-icon='false' class='center'><span>"+attr.date.monthname_short+" "+attr.date.day+"</span><br><div title='"+attr.conditions+"' class='wicon cond"+attr.icon+"'></div><span>"+_(attr.date.weekday_short)+"</span><br><span>"+_("Low")+": "+attr.low.celsius+"&#176;C  "+_("High")+": "+attr.high.celsius+"&#176;C</span><br><span>"+_("Precip")+": "+precip+" mm</span></li>";
+            list += "<li data-icon='false' class='center'><span>"+attr.date.monthname_short+" "+attr.date.day+"</span><br><div title='"+attr.conditions+"' class='wicon cond"+attr.icon+"'></div><span data-translate='"+attr.date.weekday_short+"'>"+_(attr.date.weekday_short)+"</span><br><span data-translate='Low'>"+_("Low")+"</span><span>: "+attr.low.celsius+"&#176;C  </span><span data-translate='High'>"+_("High")+"</span><span>: "+attr.high.celsius+"&#176;C</span><br><span data-translate='Precip'>"+_("Precip")+"</span><span>: "+precip+" mm</span></li>";
         }
     });
 
