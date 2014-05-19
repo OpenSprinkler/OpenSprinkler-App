@@ -1,3 +1,11 @@
+//Fix CSS for IE Mobile (Windows Phone 8)
+if (navigator.userAgent.search("IEMobile") !== -1) {
+    var a=document.createElement("style");
+    a.innerHTML="ul{list-style: none !important;}@media(max-width:940px){.wicon{margin:-10px -10px -15px -15px !important}#forecast .wicon{position:relative;left:37.5px;margin:0 auto !important}}";
+    document.head.appendChild(a)
+}
+
+//Attach FastClick handler
 $(window).one("load", function(){
     FastClick.attach(document.body);
 });
