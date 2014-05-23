@@ -24,8 +24,7 @@ $(document)
         update_site($(this).val());
     });
 
-    var androidVersion = navigator.userAgent.match(/Android\s([0-9\.]*)/);
-    if (androidVersion && androidVersion[1].search("2.3") === 0) {
+    if (navigator.userAgent.indexOf('Android') > 0) {
         $(document).ajaxStart(function(){
             navigator.app.clearCache();
         });
