@@ -26,7 +26,9 @@ $(document)
 
     if (navigator.userAgent.indexOf('Android') > 0) {
         $(document).ajaxStart(function(){
-            navigator.app.clearCache();
+            try {
+                navigator.app.clearCache();
+            } catch (err) {}
         });
     }
 })
