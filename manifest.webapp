@@ -16,5 +16,6 @@
     }
   },
   "default_locale": "en",
-  "version": "1.0.13"
+  "type": "privileged",
+  "version": "1.0.14"
 }
