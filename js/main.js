@@ -1763,25 +1763,6 @@ function check_status() {
         return;
     }
 
-    // Handle rain delay enabled
-    if (window.controller.settings.rd) {
-        change_status(0,window.controller.options.sdt,"red","<p id='running-text' class='center'>"+_("Rain delay until")+" "+dateToString(new Date(window.controller.settings.rdst*1000))+"</p>",function(){
-            areYouSure(_("Do you want to turn off rain delay?"),"",function(){
-                showLoading("#footer-running");
-                send_to_os("/cv?pw=&rd=0").done(function(){
-                    update_controller(check_status);
-                });
-            });
-        });
-        return;
-    }
-
-    // Handle rain sensor triggered
-    if (window.controller.settings.urs && window.controller.settings.rs) {
-        change_status(0,window.controller.options.sdt,"red","<p id='running-text' class='center'>"+_("Rain detected")+"</p>");
-        return;
-    }
-
     // Handle open stations
     open = {};
     for (i=0; i<window.controller.status.length; i++) {
@@ -1834,6 +1815,25 @@ function check_status() {
         change_status(window.controller.settings.ps[i][1],window.controller.options.sdt,"green",line,function(){
             $("body").pagecontainer("change","#status");
         });
+        return;
+    }
+
+    // Handle rain delay enabled
+    if (window.controller.settings.rd) {
+        change_status(0,window.controller.options.sdt,"red","<p id='running-text' class='center'>"+_("Rain delay until")+" "+dateToString(new Date(window.controller.settings.rdst*1000))+"</p>",function(){
+            areYouSure(_("Do you want to turn off rain delay?"),"",function(){
+                showLoading("#footer-running");
+                send_to_os("/cv?pw=&rd=0").done(function(){
+                    update_controller(check_status);
+                });
+            });
+        });
+        return;
+    }
+
+    // Handle rain sensor triggered
+    if (window.controller.settings.urs && window.controller.settings.rs) {
+        change_status(0,window.controller.options.sdt,"red","<p id='running-text' class='center'>"+_("Rain detected")+"</p>");
         return;
     }
 
