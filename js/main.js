@@ -2435,7 +2435,7 @@ function read_program(program) {
 
 // Translate program ID to it's name
 function pidname(pid) {
-    var pname = "Program "+pid;
+    var pname = _("Program")+" "+pid;
     if(pid==255||pid==99) pname=_("Manual program");
     if(pid==254||pid==98) pname=_("Run-once program");
     return pname;
