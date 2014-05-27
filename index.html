@@ -43,6 +43,7 @@
                     <li data-role="list-divider" data-translate="Information"></li>
                     <li><a href="#status" data-translate="Current Status"></a></li>
                     <li><a href="#preview" data-translate="Preview Programs"></a></li>
+                    <li><a href="#logs" data-translate="View Logs" id="log_button"></a></li>
                 </ul>
                 <ul data-role="listview" data-inset="true" id="program-control-list">
                     <li data-role="list-divider" data-translate="Program Control"></li>
@@ -103,6 +104,7 @@
                 <ul data-role="listview" data-inset="true">
                     <li data-role="list-divider" data-theme="b" data-translate="Mobile Application Settings"></li>
                     <li data-icon="alert"><a href="javascript:clear_config();" data-translate="Clear Configuration"></a></li>
+                    <li data-icon="alert"><a href="javascript:clear_logs();" data-translate="Clear Logs"></a></li>
                     <li><a href="#localization" data-rel="popup" data-position-to="window" data-translate="Localization"></a></li>
                     <li data-icon="gear"><a href="#site-control" data-translate="Manage Sites"></a></li>
                     <li data-icon="cloud"><a href="javascript:show_providers();" data-translate="Weather Provider"></a></li>
@@ -138,6 +140,46 @@
                     <a class="ui-btn ui-corner-all ui-icon-minus ui-btn-icon-notext btn-no-border" title="Zoom out"></a>
                     <a class="ui-btn ui-corner-all ui-icon-carat-l ui-btn-icon-notext btn-no-border" title="Move left"></a>
                     <a class="ui-btn ui-corner-all ui-icon-carat-r ui-btn-icon-notext btn-no-border" title="Move right"></a>
+                </div>
+            </div>
+        </div>
+
+        <div data-role="page" id="logs">
+            <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false" data-add-back-btn="true">
+                <h3 data-translate="Logs"></h3>
+                <a href="javascript:get_logs();" data-icon="refresh" data-translate="Refresh" class="ui-btn-right"></a>
+            </div>
+            <div class="ui-content" role="main">
+                <fieldset data-role="controlgroup" data-type="horizontal" data-mini="true" class="log_type">
+                    <input data-mini="true" type="radio" name="log_type" id="log_graph" value="graph" checked="checked" />
+                    <label for="log_graph" data-translate="Graph"></label>
+                    <input data-mini="true" type="radio" name="log_type" id="log_table" value="table" />
+                    <label for="log_table" data-translate="Table"></label>
+                </fieldset>
+                <div id="placeholder" style="display:none;width:100%;height:300px;"></div>
+                <div id="zones">
+                </div>
+                <fieldset data-role="collapsible" data-mini="true" id="log_options" class="center">
+                    <legend data-translate="Options"></legend>
+                    <fieldset data-role="controlgroup" data-type="horizontal" id="graph_sort" style="display:none;text-align:center">
+                      <p style="margin:0" data-translate="Grouping:"></p>
+                      <input data-mini="true" type="radio" name="g" id="radio-choice-d" value="n" checked="checked" />
+                      <label for="radio-choice-d" data-translate="None"></label>
+                      <input data-mini="true" type="radio" name="g" id="radio-choice-a" value="h" />
+                      <label for="radio-choice-a" data-translate="Hour"></label>
+                      <input data-mini="true" type="radio" name="g" id="radio-choice-b" value="d" />
+                      <label for="radio-choice-b" data-translate="DOW"></label>
+                      <input data-mini="true" type="radio" name="g" id="radio-choice-c" value="m" />
+                      <label for="radio-choice-c" data-translate="Month"></label>
+                    </fieldset>
+                    <div class="ui-field-contain">
+                        <label for="log_start" data-translate="Start:"></label>
+                        <input data-mini="true" type="date" id="log_start" />
+                        <label for="log_end" data-translate="End:"></label>
+                        <input data-mini="true" type="date" id="log_end" />
+                    </div>
+                </fieldset>
+                <div id="logs_list">
                 </div>
             </div>
         </div>

@@ -1,3 +1,49 @@
+#graphScrollLeft, #graphScrollRight {
+    position: absolute;
+    display:none;
+}
+.hideZone {
+    border: 5px solid rgba(255,255,255,0) !important;
+}
+.legend {
+    display:none;
+}
+#zones {
+    overflow-y: scroll;
+    display: none;
+}
+.log_type {
+    text-align: center;
+    padding-bottom:15px !important;
+}
+#logs_list table {
+    color: black;
+    text-align: center;
+    text-shadow: none;
+    background: #fff;
+    border: 1px solid #b4b4b4;
+    font: bold 14px helvetica;
+    padding: 0;
+    margin-top:10px;
+    width: 100%;
+    -webkit-border-radius: 8px;
+}
+#logs_list table th {
+    border-bottom: 1px solid #b4b4b4;
+}
+#logs_list table tr td {
+    color: #666;
+    border-bottom: 1px solid #b4b4b4;
+    border-right: 1px solid #b4b4b4;
+    padding: 5px 5px 5px 5px;
+}
+#logs_list table tr td:last-child {
+    border-right: none;
+}
+#logs_list table tr:last-child td {
+    border-bottom: none;
+}
+
 #start {
     background-color: #1C1C1C !important;
 }
@@ -172,6 +218,10 @@ a {
     margin: 0.1em !important;
 }
 @media (max-width: 480px) {
+    #logs_list .ui-li-aside {
+        width: 25% !important;
+        font-size: smaller;
+    }
     #weather-list {
         width:80px;
     }
