@@ -3115,6 +3115,9 @@ function auth_190() {
         url: window.curr_prefix+window.curr_ip+"/login",
         type: "POST",
         password:window.curr_pw,
+        success: function(data, status, xhr) {
+            console.log(data);
+        }
     };
 
     if (window.curr_auth) {
