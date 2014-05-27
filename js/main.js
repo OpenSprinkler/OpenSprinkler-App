@@ -34,11 +34,11 @@ $(document)
     }
 })
 .ajaxError(function(x,t,m) {
-    if (t.status==401 && /https?:\/\/[\d|.]+\/(?:cv|sn|cs|cr|cp|dp|co)/.exec(m.url)) {
+    if (t.status==401 && /https?:\/\/[\d|.]+\/(?:cv|sn|cs|cr|cp|dp|co|cl)/.exec(m.url)) {
         showerror(_("Check device password and try again."));
         return;
     } else if (t.status===0) {
-        if (/https?:\/\/.+\/(?:cv|sn|cs|cr|cp|dp|co)/.exec(m.url)) {
+        if (/https?:\/\/.+\/(?:cv|sn|cs|cr|cp|dp|co|cl)/.exec(m.url)) {
             // Ajax fails typically because the password is wrong
             showerror(_("Check device password and try again."));
             return;
@@ -231,6 +231,7 @@ $(document)
             $("#placeholder").off("plothover");
             $("#zones").off("scroll");
             $("#logs input:radio[name='log_type'],#graph_sort input[name='g'],#log_start,#log_end").off("change");
+            reset_logs_page();
         });
     } else if (newpage == "#sprinklers") {
         $newpage.off("swiperight").on("swiperight", function() {
@@ -2336,13 +2337,10 @@ function get_logs() {
         data = [],
         i;
 
-    send_to_os("/jl?"+parms,"json").done(function(items){
+    send_to_os("/jl?"+parms,"json").then(function(items){
         if (items.length < 1) {
             $.mobile.loading("hide");
-            $("#placeholder").empty().hide();
-            $("#log_options").collapsible("expand");
-            $("#zones, #graph_sort").hide();
-            $("#logs_list").show().html(_("No entries found in the selected date range"));
+            reset_logs_page();
             return;
         }
 
@@ -2473,7 +2471,17 @@ function get_logs() {
             list.html(html+"</div>").enhanceWithin();
             $.mobile.loading("hide");
         }
+    }, function(){
+        $.mobile.loading("hide");
+        reset_logs_page();
     });
+}
+
+function reset_logs_page() {
+    $("#placeholder").empty().hide();
+    $("#log_options").collapsible("expand");
+    $("#zones, #graph_sort").hide();
+    $("#logs_list").show().html(_("No entries found in the selected date range"));
 }
 
 function scrollZone(dir) {
