@@ -300,6 +300,24 @@ msgstr ""
 msgid "No stations set to run on this day."
 msgstr ""
 
+msgid "Runtime"
+msgstr ""
+
+msgid "Date/Time"
+msgstr ""
+
+msgid "run"
+msgstr ""
+
+msgid "runs"
+msgstr ""
+
+msgid "min"
+msgstr ""
+
+msgid "mins"
+msgstr ""
+
 msgid "No entries found in the selected date range"
 msgstr ""
 
