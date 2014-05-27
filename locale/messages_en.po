@@ -300,6 +300,66 @@ msgstr ""
 msgid "No stations set to run on this day."
 msgstr ""
 
+msgid "No entries found in the selected date range"
+msgstr ""
+
+msgid "Sun"
+msgstr ""
+
+msgid "Mon"
+msgstr ""
+
+msgid "Tue"
+msgstr ""
+
+msgid "Wed"
+msgstr ""
+
+msgid "Thr"
+msgstr ""
+
+msgid "Fri"
+msgstr ""
+
+msgid "Sat"
+msgstr ""
+
+msgid "Jan"
+msgstr ""
+
+msgid "Feb"
+msgstr ""
+
+msgid "Mar"
+msgstr ""
+
+msgid "Apr"
+msgstr ""
+
+msgid "May"
+msgstr ""
+
+msgid "Jun"
+msgstr ""
+
+msgid "Jul"
+msgstr ""
+
+msgid "Aug"
+msgstr ""
+
+msgid "Sep"
+msgstr ""
+
+msgid "Oct"
+msgstr ""
+
+msgid "Nov"
+msgstr ""
+
+msgid "Dec"
+msgstr ""
+
 msgid "Manual program"
 msgstr ""
 
@@ -433,6 +493,12 @@ msgstr ""
 msgid "All stations have been stopped"
 msgstr ""
 
+msgid "Are you sure you want to clear all your log data?"
+msgstr ""
+
+msgid "Logs have been cleared"
+msgstr ""
+
 msgid ""
 "Are you sure you want to delete all settings and return to the default "
 "settings?"
@@ -480,25 +546,7 @@ msgstr ""
 msgid "Saturday"
 msgstr ""
 
-msgid "Sun"
-msgstr ""
-
-msgid "Mon"
-msgstr ""
-
-msgid "Tue"
-msgstr ""
-
-msgid "Wed"
-msgstr ""
-
 msgid "Thu"
-msgstr ""
-
-msgid "Fri"
-msgstr ""
-
-msgid "Sat"
 msgstr ""
 
 msgid "Back"
@@ -526,6 +574,9 @@ msgid "Current Status"
 msgstr ""
 
 msgid "Preview Programs"
+msgstr ""
+
+msgid "View Logs"
 msgstr ""
 
 msgid "Program Control"
@@ -590,6 +641,9 @@ msgstr ""
 msgid "Clear Configuration"
 msgstr ""
 
+msgid "Clear Logs"
+msgstr ""
+
 msgid "Localization"
 msgstr ""
 
@@ -617,10 +671,40 @@ msgstr ""
 msgid "Program Preview"
 msgstr ""
 
-msgid "Forecast"
+msgid "Logs"
 msgstr ""
 
 msgid "Refresh"
+msgstr ""
+
+msgid "Graph"
+msgstr ""
+
+msgid "Table"
+msgstr ""
+
+msgid "Options"
+msgstr ""
+
+msgid "Grouping:"
+msgstr ""
+
+msgid "Hour"
+msgstr ""
+
+msgid "DOW"
+msgstr ""
+
+msgid "Month"
+msgstr ""
+
+msgid "Start:"
+msgstr ""
+
+msgid "End:"
+msgstr ""
+
+msgid "Forecast"
 msgstr ""
 
 msgid "Run-Once"
