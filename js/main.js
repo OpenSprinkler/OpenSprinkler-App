@@ -2408,10 +2408,9 @@ function get_logs() {
             zones.show();
             $("#graph_sort").show();
             if (!freshLoad) {
-                var output = '<div onclick="scrollZone(this);" class="ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border" id="graphScrollLeft"></div><div onclick="scrollZone(this);" class="ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border" id="graphScrollRight"></div><table style="font-size:smaller"><tbody><tr>', k=0;
+                var output = '<div onclick="scrollZone(this);" class="ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border" id="graphScrollLeft"></div><div onclick="scrollZone(this);" class="ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border" id="graphScrollRight"></div><table style="font-size:smaller"><tbody><tr>';
                 for (i=0; i<window.controller.stations.snames.length; i++) {
                     output += '<td onclick="javascript:toggleZone(this)" class="legendColorBox"><div style="border:1px solid #ccc;padding:1px"><div style="width:4px;height:0;overflow:hidden"></div></div></td><td onclick="javascript:toggleZone(this)" id="z'+i+'" zone_num='+i+' name="'+window.controller.stations.snames[i] + '" class="legendLabel">'+window.controller.stations.snames[i]+'</td>';
-                    k++;
                 }
                 output += '</tr></tbody></table>';
                 zones.empty().append(output).enhanceWithin();
@@ -2442,18 +2441,36 @@ function get_logs() {
 
         } else {
             $("#placeholder").empty().hide();
-            var list = $("#logs_list");
+            var list = $("#logs_list"),
+                table_header = "<table><thead><tr><th data-priority='1'>"+_("Runtime")+"</th><th data-priority='2'>"+_("Date/Time")+"</th></tr></thead><tbody>",
+                html = "<div data-role='collapsible-set' data-inset='true' data-theme='b' data-collapsed-icon='arrow-d' data-expanded-icon='arrow-u'>",
+                ct, k;
 
             $("#zones, #graph_sort").hide();
             list.show();
 
-            if (items === 0) {
-                $("#log_options").collapsible("expand");
-                list.html("<p class='center'>"+_("No entries found in the selected date range")+"</p>");
-            } else {
-                $("#log_options").collapsible("collapse");
-                list.html(items).enhanceWithin();
+            for (i=0; i<window.controller.stations.snames.length; i++) {
+                data[i] = [];
             }
+
+            $.each(items,function(a,b){
+                data[parseInt(b[1])].push([parseInt(b[3] * 1000),parseInt(b[2])]);
+            });
+
+            for (i=0; i<data.length; i++) {
+                ct=data[i].length;
+                if (ct === 0) continue;
+                html += "<div data-role='collapsible' data-collapsed='true'><h2><div class='ui-btn-up-c ui-btn-corner-all custom-count-pos'>"+ct+" "+((ct == 1) ? _("run") : _("runs"))+"</div>"+window.controller.stations.snames[i]+"</h2>"+table_header;
+                for (k=0; k<data[i].length; k++) {
+                    var mins = data[i][k][1];
+                    var date = new Date(data[i][k][0]);
+                    html += "<tr><td>"+mins+" "+((mins == 1) ? _("min") : _("mins"))+"</td><td>"+dateToString(date).slice(0,-3)+"</td></tr>";
+                }
+                html += "</tbody></table></div>";
+            }
+
+            $("#log_options").collapsible("collapse");
+            list.html(html+"</div>").enhanceWithin();
             $.mobile.loading("hide");
         }
     });
