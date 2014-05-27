@@ -12,9 +12,16 @@
     overflow-y: scroll;
     display: none;
 }
+#zones table {
+    margin: 0 auto;
+    padding: 5px 0 5px 0;
+}
 .log_type {
     text-align: center;
     padding-bottom:15px !important;
+}
+#logs_list {
+    padding-top: 10px;
 }
 #logs_list table {
     color: black;

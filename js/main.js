@@ -2332,20 +2332,21 @@ function get_logs() {
     $.mobile.loading("show");
     var parms = "start=" + (new Date($("#log_start").val()).getTime() / 1000) + "&end=" + ((new Date($("#log_end").val()).getTime() / 1000) + 86340);
 
-    if ($("#log_graph").prop("checked")) {
-        var grouping=$("input:radio[name='g']:checked").val(),
-            data = [],
-            i;
+    var grouping=$("input:radio[name='g']:checked").val(),
+        data = [],
+        i;
 
-        send_to_os("/jl?"+parms,"json").done(function(items){
-            if (items.length < 1) {
-                $("#placeholder").empty().hide();
-                $("#log_options").collapsible("expand");
-                $("#zones, #graph_sort").hide();
-                $("#logs_list").show().html(_("No entries found in the selected date range"));
-                return;
-            }
+    send_to_os("/jl?"+parms,"json").done(function(items){
+        if (items.length < 1) {
+            $.mobile.loading("hide");
+            $("#placeholder").empty().hide();
+            $("#log_options").collapsible("expand");
+            $("#zones, #graph_sort").hide();
+            $("#logs_list").show().html(_("No entries found in the selected date range"));
+            return;
+        }
 
+        if ($("#log_graph").prop("checked")) {
             switch (grouping) {
                 case "h":
                     for (i=0; i<window.controller.stations.snames.length; i++) {
@@ -2438,25 +2439,24 @@ function get_logs() {
                 showArrows();
             }
             $.mobile.loading("hide");
-        });
-        return;
-    }
 
-/*
-    $.get("index.php",parms,function(items){
-        $("#placeholder").empty().hide();
-        var list = $("#logs_list");
-        $("#zones, #graph_sort").hide(); list.show();
-        if (items == 0) {
-            $("#log_options").collapsible("expand");
-            list.html("<p class='center'><?php echo _('No entries found in the selected date range'); ?></p>");
         } else {
-            $("#log_options").collapsible("collapse");
-            list.html(items).enhanceWithin();
+            $("#placeholder").empty().hide();
+            var list = $("#logs_list");
+
+            $("#zones, #graph_sort").hide();
+            list.show();
+
+            if (items === 0) {
+                $("#log_options").collapsible("expand");
+                list.html("<p class='center'>"+_("No entries found in the selected date range")+"</p>");
+            } else {
+                $("#log_options").collapsible("collapse");
+                list.html(items).enhanceWithin();
+            }
+            $.mobile.loading("hide");
         }
-        $.mobile.loading("hide");
-    })
-*/
+    });
 }
 
 function scrollZone(dir) {
