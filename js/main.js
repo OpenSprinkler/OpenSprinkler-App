@@ -3112,11 +3112,14 @@ function isOSPi() {
 
 function auth_190() {
     var obj = {
-        url: window.curr_prefix+window.curr_ip+"/login",
+        url: window.curr_prefix+window.curr_ip+"/mlogin",
         type: "POST",
+        dataType: "json",
         password:window.curr_pw,
-        success: function(data, status, xhr) {
-            console.log(data);
+        success: function(data) {
+            $.ajaxSetup({
+                headers: {"webpy_session_id": data.id }
+            });
         }
     };
 
