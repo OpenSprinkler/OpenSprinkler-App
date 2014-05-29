@@ -671,6 +671,9 @@ msgstr ""
 msgid "English"
 msgstr ""
 
+msgid "French"
+msgstr ""
+
 msgid "German"
 msgstr ""
 
