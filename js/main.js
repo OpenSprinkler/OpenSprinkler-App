@@ -215,14 +215,6 @@ $(document)
             if (item) window.hovertimeout = setTimeout(function(){showTooltip(item.pageX, item.pageY, item.series.label, item.series.color);}, 100);
         });
 
-        //Update left/right arrows when zones are scrolled on log page
-        $("#zones").scroll(showArrows);
-
-        $(window).resize(function(){
-            showArrows();
-            seriesChange();
-        });
-
         $newpage.one("pagehide",function(){
             $(window).off("resize");
             $("#placeholder").off("plothover");
@@ -2325,150 +2317,242 @@ function changeday(dir) {
 function get_logs() {
     $("#logs input").blur();
     $.mobile.loading("show");
-    var parms = "start=" + (new Date($("#log_start").val()).getTime() / 1000) + "&end=" + ((new Date($("#log_end").val()).getTime() / 1000) + 86340);
 
-    var grouping=$("input:radio[name='g']:checked").val(),
+    var parms = "start=" + (new Date($("#log_start").val()).getTime() / 1000) + "&end=" + ((new Date($("#log_end").val()).getTime() / 1000) + 86340),
+        grouping=$("input:radio[name='g']:checked").val(),
         data = [],
-        i;
-
-    send_to_os("/jl?"+parms,"json").then(function(items){
-        if (items.length < 1) {
-            $.mobile.loading("hide");
-            reset_logs_page();
-            return;
-        }
-
-        if ($("#log_graph").prop("checked")) {
-            switch (grouping) {
-                case "h":
-                    for (i=0; i<window.controller.stations.snames.length; i++) {
-                        data[i] = [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0],[11,0],[12,0],[13,0],[14,0],[15,0],[16,0],[17,0],[18,0],[19,0],[20,0],[21,0],[22,0],[23,0]];
-                    }
-                    break;
-                case "m":
-                    for (i=0; i<window.controller.stations.snames.length; i++) {
-                        data[i] = [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0],[11,0]];
-                    }
-                    break;
-                case "d":
-                    for (i=0; i<window.controller.stations.snames.length; i++) {
-                        data[i] = [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0]];
-                    }
-                    break;
-                case "n":
-                    for (i=0; i<window.controller.stations.snames.length; i++) {
-                        data[i] = [];
-                    }
-                    break;
+        seriesChange = function() {
+            var pData = [];
+            $("td[zone_num]:not('.unchecked')").each(function () {
+                var key = $(this).attr("zone_num");
+                if (!data[key].length) data[key]=[[0,0]];
+                if (key && data[key]) {
+                    if ((grouping == 'h') || (grouping == 'm') || (grouping == 'd'))
+                        pData.push({
+                            data:data[key],
+                            label:$(this).attr("name"),
+                            color:parseInt(key),
+                            bars: { order:key, show: true, barWidth:0.08}
+                        });
+                    else if (grouping == 'n')
+                        pData.push({
+                            data:data[key],
+                            label:$(this).attr("name"),
+                            color:parseInt(key),
+                            lines: { show:true }
+                        });
+                }
+            });
+            if (grouping=='h')
+                $.plot($('#placeholder'), pData, {
+                    grid: { hoverable: true },
+                    yaxis: {min: 0, tickFormatter: function(val, axis) { return val < axis.max ? Math.round(val*100)/100 : "min";} },
+                    xaxis: { tickDecimals: 0, tickSize: 1 }
+                });
+            else if (grouping=='d')
+                $.plot($('#placeholder'), pData, {
+                    grid: { hoverable: true },
+                    yaxis: {min: 0, tickFormatter: function(val, axis) { return val < axis.max ? Math.round(val*100)/100 : "min";} },
+                    xaxis: { tickDecimals: 0, min: -0.4, max: 6.4,
+                    tickFormatter: function(v) { var dow=[_("Sun"),_("Mon"),_("Tue"),_("Wed"),_("Thr"),_("Fri"),_("Sat")]; return dow[v]; } }
+                });
+            else if (grouping=='m')
+                $.plot($('#placeholder'), pData, {
+                    grid: { hoverable: true },
+                    yaxis: {min: 0, tickFormatter: function(val, axis) { return val < axis.max ? Math.round(val*100)/100 : "min";} },
+                    xaxis: { tickDecimals: 0, min: 0.6, max: 12.4, tickSize: 1,
+                    tickFormatter: function(v) { var mon=["",_("Jan"),_("Feb"),_("Mar"),_("Apr"),_("May"),_("Jun"),_("Jul"),_("Aug"),_("Sep"),_("Oct"),_("Nov"),_("Dec")]; return mon[v]; } }
+                });
+            else if (grouping=='n') {
+                var minval = new Date($('#log_start').val()).getTime();
+                var maxval = new Date($('#log_end').val());
+                maxval.setDate(maxval.getDate() + 1);
+                $.plot($('#placeholder'), pData, {
+                    grid: { hoverable: true },
+                    yaxis: {min: 0, tickFormatter: function(val, axis) { return val < axis.max ? Math.round(val*100)/100 : "min";} },
+                    xaxis: { mode: "time", min:minval, max:maxval.getTime()}
+                });
+            }
+        },
+        toggleZone = function() {
+            zone = $(this);
+            if (zone.hasClass("legendColorBox")) {
+                zone.find("div div").toggleClass("hideZone");
+                zone.next().toggleClass("unchecked");
+            } else if (zone.hasClass("legendLabel")) {
+                zone.prev().find("div div").toggleClass("hideZone");
+                zone.toggleClass("unchecked");
+            }
+            seriesChange();
+        },
+        showArrows = function() {
+            var zones = $("#zones");
+            var height = zones.height(), sleft = zones.scrollLeft();
+            if (sleft > 13) {
+                $("#graphScrollLeft").show().css("margin-top",(height/2)-12.5);
+            } else {
+                $("#graphScrollLeft").hide();
+            }
+            var total = zones.find("table").width(), container = zones.width();
+            if ((total-container) > 0 && sleft < ((total-container) - 13)) {
+                $("#graphScrollRight").show().css({
+                    "margin-top":(height/2)-12.5,
+                    "left":container
+                });
+            } else {
+                $("#graphScrollRight").hide();
+            }
+        },
+        success = function(items){
+            if (items.length < 1) {
+                $.mobile.loading("hide");
+                reset_logs_page();
+                return;
             }
 
-            $.each(items,function(a,b){
-                var stamp = parseInt(b[3] * 1000),
-                    station = parseInt(b[1]),
-                    date = new Date(stamp),
-                    duration = parseInt(b[2]),
-                    key;
-
+            if ($("#log_graph").prop("checked")) {
                 switch (grouping) {
                     case "h":
-                        key = date.getHours();
+                        for (i=0; i<window.controller.stations.snames.length; i++) {
+                            data[i] = [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0],[11,0],[12,0],[13,0],[14,0],[15,0],[16,0],[17,0],[18,0],[19,0],[20,0],[21,0],[22,0],[23,0]];
+                        }
                         break;
                     case "m":
-                        key = date.getMonth() + 1;
+                        for (i=0; i<window.controller.stations.snames.length; i++) {
+                            data[i] = [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0],[11,0]];
+                        }
                         break;
                     case "d":
-                        key = date.getDay();
+                        for (i=0; i<window.controller.stations.snames.length; i++) {
+                            data[i] = [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0]];
+                        }
                         break;
                     case "n":
-                        data[station].push([stamp-1,0]);
-                        data[station].push([stamp,duration]);
-                        data[station].push([stamp+(duration*100*1000)+1,0]);
+                        for (i=0; i<window.controller.stations.snames.length; i++) {
+                            data[i] = [];
+                        }
                         break;
                 }
 
-                if (grouping != "n" && duration > 0) {
-                    data[station][key][1] += duration;
-                }
-            });
+                $.each(items,function(a,b){
+                    var stamp = parseInt(b[3] * 1000),
+                        station = parseInt(b[1]),
+                        date = new Date(stamp),
+                        duration = parseInt(b[2]),
+                        key;
 
-            $("#logs_list").empty().hide();
-            var state = ($(window).height() > 680) ? "expand" : "collapse";
-            setTimeout(function(){$("#log_options").collapsible(state);},100);
-            $("#placeholder").show();
-            var zones = $("#zones");
-            var freshLoad = zones.find("table").length;
-            zones.show();
-            $("#graph_sort").show();
-            if (!freshLoad) {
-                var output = '<div onclick="scrollZone(this);" class="ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border" id="graphScrollLeft"></div><div onclick="scrollZone(this);" class="ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border" id="graphScrollRight"></div><table style="font-size:smaller"><tbody><tr>';
-                for (i=0; i<window.controller.stations.snames.length; i++) {
-                    output += '<td onclick="javascript:toggleZone(this)" class="legendColorBox"><div style="border:1px solid #ccc;padding:1px"><div style="width:4px;height:0;overflow:hidden"></div></div></td><td onclick="javascript:toggleZone(this)" id="z'+i+'" zone_num='+i+' name="'+window.controller.stations.snames[i] + '" class="legendLabel">'+window.controller.stations.snames[i]+'</td>';
-                }
-                output += '</tr></tbody></table>';
-                zones.empty().append(output).enhanceWithin();
-            }
-            window.plotdata = data;
-            seriesChange();
-            i = 0;
-            if (!freshLoad) {
-                zones.find("td.legendColorBox div div").each(function(a,b){
-                    var border = $($("#placeholder .legendColorBox div div").get(i)).css("border");
-                    //Firefox and IE fix
-                    if (border === "") {
-                        border = $($("#placeholder .legendColorBox div div").get(i)).attr("style").split(";");
-                        $.each(border,function(a,b){
-                            var c = b.split(":");
-                            if (c[0] == "border") {
-                                border = c[1];
-                                return false;
-                            }
-                        });
+                    switch (grouping) {
+                        case "h":
+                            key = date.getHours();
+                            break;
+                        case "m":
+                            key = date.getMonth() + 1;
+                            break;
+                        case "d":
+                            key = date.getDay();
+                            break;
+                        case "n":
+                            data[station].push([stamp-1,0]);
+                            data[station].push([stamp,duration]);
+                            data[station].push([stamp+(duration*100*1000)+1,0]);
+                            break;
                     }
-                    $(b).css("border",border);
-                    i++;
+
+                    if (grouping != "n" && duration > 0) {
+                        data[station][key][1] += duration;
+                    }
                 });
-                showArrows();
-            }
-            $.mobile.loading("hide");
 
-        } else {
-            $("#placeholder").empty().hide();
-            var list = $("#logs_list"),
-                table_header = "<table><thead><tr><th data-priority='1'>"+_("Runtime")+"</th><th data-priority='2'>"+_("Date/Time")+"</th></tr></thead><tbody>",
-                html = "<div data-role='collapsible-set' data-inset='true' data-theme='b' data-collapsed-icon='arrow-d' data-expanded-icon='arrow-u'>",
-                ct, k;
-
-            $("#zones, #graph_sort").hide();
-            list.show();
-
-            for (i=0; i<window.controller.stations.snames.length; i++) {
-                data[i] = [];
-            }
-
-            $.each(items,function(a,b){
-                data[parseInt(b[1])].push([parseInt(b[3] * 1000),parseInt(b[2])]);
-            });
-
-            for (i=0; i<data.length; i++) {
-                ct=data[i].length;
-                if (ct === 0) continue;
-                html += "<div data-role='collapsible' data-collapsed='true'><h2><div class='ui-btn-up-c ui-btn-corner-all custom-count-pos'>"+ct+" "+((ct == 1) ? _("run") : _("runs"))+"</div>"+window.controller.stations.snames[i]+"</h2>"+table_header;
-                for (k=0; k<data[i].length; k++) {
-                    var mins = data[i][k][1];
-                    var date = new Date(data[i][k][0]);
-                    html += "<tr><td>"+mins+" "+((mins == 1) ? _("min") : _("mins"))+"</td><td>"+dateToString(date).slice(0,-3)+"</td></tr>";
+                $("#logs_list").empty().hide();
+                var state = ($(window).height() > 680) ? "expand" : "collapse";
+                setTimeout(function(){$("#log_options").collapsible(state);},100);
+                $("#placeholder").show();
+                var zones = $("#zones");
+                var freshLoad = zones.find("table").length;
+                zones.show();
+                $("#graph_sort").show();
+                if (!freshLoad) {
+                    var output = '<div onclick="scrollZone(this);" class="ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border" id="graphScrollLeft"></div><div onclick="scrollZone(this);" class="ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border" id="graphScrollRight"></div><table style="font-size:smaller"><tbody><tr>';
+                    for (i=0; i<window.controller.stations.snames.length; i++) {
+                        output += '<td class="legendColorBox"><div style="border:1px solid #ccc;padding:1px"><div style="width:4px;height:0;overflow:hidden"></div></div></td><td id="z'+i+'" zone_num='+i+' name="'+window.controller.stations.snames[i] + '" class="legendLabel">'+window.controller.stations.snames[i]+'</td>';
+                    }
+                    output += '</tr></tbody></table>';
+                    zones.empty().append(output).enhanceWithin();
+                    zones.find("td").on("click",toggleZone);
                 }
-                html += "</tbody></table></div>";
-            }
+                seriesChange();
+                i = 0;
+                if (!freshLoad) {
+                    zones.find("td.legendColorBox div div").each(function(a,b){
+                        var border = $($("#placeholder .legendColorBox div div").get(i)).css("border");
+                        //Firefox and IE fix
+                        if (border === "") {
+                            border = $($("#placeholder .legendColorBox div div").get(i)).attr("style").split(";");
+                            $.each(border,function(a,b){
+                                var c = b.split(":");
+                                if (c[0] == "border") {
+                                    border = c[1];
+                                    return false;
+                                }
+                            });
+                        }
+                        $(b).css("border",border);
+                        i++;
+                    });
+                    showArrows();
+                }
+                $.mobile.loading("hide");
 
-            $("#log_options").collapsible("collapse");
-            list.html(html+"</div>").enhanceWithin();
+            } else {
+                $("#placeholder").empty().hide();
+                var list = $("#logs_list"),
+                    table_header = "<table><thead><tr><th data-priority='1'>"+_("Runtime")+"</th><th data-priority='2'>"+_("Date/Time")+"</th></tr></thead><tbody>",
+                    html = "<div data-role='collapsible-set' data-inset='true' data-theme='b' data-collapsed-icon='arrow-d' data-expanded-icon='arrow-u'>",
+                    ct, k;
+
+                $("#zones, #graph_sort").hide();
+                list.show();
+
+                for (i=0; i<window.controller.stations.snames.length; i++) {
+                    data[i] = [];
+                }
+
+                $.each(items,function(a,b){
+                    data[parseInt(b[1])].push([parseInt(b[3] * 1000),parseInt(b[2])]);
+                });
+
+                for (i=0; i<data.length; i++) {
+                    ct=data[i].length;
+                    if (ct === 0) continue;
+                    html += "<div data-role='collapsible' data-collapsed='true'><h2><div class='ui-btn-up-c ui-btn-corner-all custom-count-pos'>"+ct+" "+((ct == 1) ? _("run") : _("runs"))+"</div>"+window.controller.stations.snames[i]+"</h2>"+table_header;
+                    for (k=0; k<data[i].length; k++) {
+                        var mins = data[i][k][1];
+                        var date = new Date(data[i][k][0]);
+                        html += "<tr><td>"+mins+" "+((mins == 1) ? _("min") : _("mins"))+"</td><td>"+dateToString(date).slice(0,-3)+"</td></tr>";
+                    }
+                    html += "</tbody></table></div>";
+                }
+
+                $("#log_options").collapsible("collapse");
+                list.html(html+"</div>").enhanceWithin();
+                $.mobile.loading("hide");
+            }
+        },
+        fail = function(){
             $.mobile.loading("hide");
-        }
-    }, function(){
-        $.mobile.loading("hide");
-        reset_logs_page();
+            reset_logs_page();
+        },
+        i;
+
+    //Update left/right arrows when zones are scrolled on log page
+    $("#zones").scroll(showArrows);
+
+    $(window).resize(function(){
+        showArrows();
+        seriesChange();
     });
+
+    send_to_os("/jl?"+parms,"json").then(success,fail);
 }
 
 function reset_logs_page() {
@@ -2484,93 +2568,6 @@ function scrollZone(dir) {
     var zones = $("#zones");
     var w = zones.width();
     zones.animate({scrollLeft: dir+w});
-}
-
-function toggleZone(zone) {
-    zone = $(zone);
-    if (zone.hasClass("legendColorBox")) {
-        zone.find("div div").toggleClass("hideZone");
-        zone.next().toggleClass("unchecked");
-    } else if (zone.hasClass("legendLabel")) {
-        zone.prev().find("div div").toggleClass("hideZone");
-        zone.toggleClass("unchecked");
-    }
-    seriesChange();
-}
-
-function showArrows() {
-    var zones = $("#zones");
-    var height = zones.height(), sleft = zones.scrollLeft();
-    if (sleft > 13) {
-        $("#graphScrollLeft").show().css("margin-top",(height/2)-12.5);
-    } else {
-        $("#graphScrollLeft").hide();
-    }
-    var total = zones.find("table").width(), container = zones.width();
-    if ((total-container) > 0 && sleft < ((total-container) - 13)) {
-        $("#graphScrollRight").show().css({
-            "margin-top":(height/2)-12.5,
-            "left":container
-        });
-    } else {
-        $("#graphScrollRight").hide();
-    }
-}
-
-function seriesChange() {
-//Originally written by Richard Zimmerman
-    var grouping=$("input:radio[name='g']:checked").val();
-    var pData = [];
-    $("td[zone_num]:not('.unchecked')").each(function () {
-        var key = $(this).attr("zone_num");
-        if (!window.plotdata[key].length) window.plotdata[key]=[[0,0]];
-        if (key && window.plotdata[key]) {
-            if ((grouping == 'h') || (grouping == 'm') || (grouping == 'd'))
-                pData.push({
-                    data:window.plotdata[key],
-                    label:$(this).attr("name"),
-                    color:parseInt(key),
-                    bars: { order:key, show: true, barWidth:0.08}
-                });
-            else if (grouping == 'n')
-                pData.push({
-                    data:window.plotdata[key],
-                    label:$(this).attr("name"),
-                    color:parseInt(key),
-                    lines: { show:true }
-                });
-        }
-    });
-    if (grouping=='h')
-        $.plot($('#placeholder'), pData, {
-            grid: { hoverable: true },
-            yaxis: {min: 0, tickFormatter: function(val, axis) { return val < axis.max ? Math.round(val*100)/100 : "min";} },
-            xaxis: { tickDecimals: 0, tickSize: 1 }
-        });
-    else if (grouping=='d')
-        $.plot($('#placeholder'), pData, {
-            grid: { hoverable: true },
-            yaxis: {min: 0, tickFormatter: function(val, axis) { return val < axis.max ? Math.round(val*100)/100 : "min";} },
-            xaxis: { tickDecimals: 0, min: -0.4, max: 6.4,
-            tickFormatter: function(v) { var dow=[_("Sun"),_("Mon"),_("Tue"),_("Wed"),_("Thr"),_("Fri"),_("Sat")]; return dow[v]; } }
-        });
-    else if (grouping=='m')
-        $.plot($('#placeholder'), pData, {
-            grid: { hoverable: true },
-            yaxis: {min: 0, tickFormatter: function(val, axis) { return val < axis.max ? Math.round(val*100)/100 : "min";} },
-            xaxis: { tickDecimals: 0, min: 0.6, max: 12.4, tickSize: 1,
-            tickFormatter: function(v) { var mon=["",_("Jan"),_("Feb"),_("Mar"),_("Apr"),_("May"),_("Jun"),_("Jul"),_("Aug"),_("Sep"),_("Oct"),_("Nov"),_("Dec")]; return mon[v]; } }
-        });
-    else if (grouping=='n') {
-        var minval = new Date($('#log_start').val()).getTime();
-        var maxval = new Date($('#log_end').val());
-        maxval.setDate(maxval.getDate() + 1);
-        $.plot($('#placeholder'), pData, {
-            grid: { hoverable: true },
-            yaxis: {min: 0, tickFormatter: function(val, axis) { return val < axis.max ? Math.round(val*100)/100 : "min";} },
-            xaxis: { mode: "time", min:minval, max:maxval.getTime()}
-        });
-    }
 }
 
 // Program management functions
