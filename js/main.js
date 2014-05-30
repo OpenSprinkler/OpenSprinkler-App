@@ -34,11 +34,12 @@ $(document)
     }
 })
 .ajaxError(function(x,t,m) {
-    if (t.status==401 && /https?:\/\/[\d|.]+\/(?:cv|sn|cs|cr|cp|dp|co|cl)/.exec(m.url)) {
+    console.log(m.url)
+    if (t.status==401 && /https?:\/\/.*?\/(?:cv|sn|cs|cr|cp|dp|co|cl)/.exec(m.url)) {
         showerror(_("Check device password and try again."));
         return;
     } else if (t.status===0) {
-        if (/https?:\/\/.+\/(?:cv|sn|cs|cr|cp|dp|co|cl)/.exec(m.url)) {
+        if (/https?:\/\/.*?\/(?:cv|sn|cs|cr|cp|dp|co|cl)/.exec(m.url)) {
             // Ajax fails typically because the password is wrong
             showerror(_("Check device password and try again."));
             return;
