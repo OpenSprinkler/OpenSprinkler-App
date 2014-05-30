@@ -2474,7 +2474,8 @@ function get_logs() {
 function reset_logs_page() {
     $("#placeholder").empty().hide();
     $("#log_options").collapsible("expand");
-    $("#zones, #graph_sort").hide();
+    $("#zones").empty().hide();
+    $("#graph_sort").hide();
     $("#logs_list").show().html(_("No entries found in the selected date range"));
 }
 
