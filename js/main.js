@@ -297,7 +297,7 @@ function send_to_os(dest,type) {
 
     if (typeof window.curr_session != "undefined") {
         $.extend(obj,{
-            beforeSend: function(xhr) { xhr.setRequestHeader("webpy_session_id", window.curr_session)); }
+            beforeSend: function(xhr) { xhr.setRequestHeader("webpy_session_id", window.curr_session); }
         });
     }
 
