@@ -295,6 +295,12 @@ function send_to_os(dest,type) {
         });
     }
 
+    if (typeof window.curr_session != "undefined") {
+        $.extend(obj,{
+            beforeSend: function(xhr) { xhr.setRequestHeader("webpy_session_id", window.curr_session)); }
+        });
+    }
+
     return $.ajax(obj);
 }
 
@@ -3112,9 +3118,15 @@ function isOSPi() {
 
 function auth_190() {
     var obj = {
-        url: window.curr_prefix+window.curr_ip+"/login",
+        url: window.curr_prefix+window.curr_ip+"/mlogin",
         type: "POST",
-        password:window.curr_pw
+        dataType: "json",
+        password:window.curr_pw,
+        success: function(data) {
+            if (typeof data.error != "undefined" && typeof data.id == "string") {
+                window.curr_session = data.id;
+            }
+        }
     };
 
     if (window.curr_auth) {
