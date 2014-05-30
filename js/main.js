@@ -159,9 +159,6 @@ $(document)
     // If we don't have a current device IP set, there is nothing else to update
     if (window.curr_ip === undefined) return;
 
-    // Reconnect if using 1.9.0
-    if (window.curr_190 === true) auth_190();
-
     // Indicate the weather and device status are being updated
     showLoading("#weather,#footer-running");
 
@@ -589,10 +586,6 @@ function check_configured() {
     } else {
         delete window.curr_183;
     }
-    if (sites[current].is190) {
-        window.curr_190 = true;
-        auth_190();
-    }
 
     return 1;
 }
@@ -606,9 +599,8 @@ function submit_newuser(ssl,useAuth) {
         ip = $("#os_ip").val(),
         success = function(data){
             $.mobile.loading("hide");
-            var is183, is190;
+            var is183;
 
-            if (typeof data === "object" && typeof data.fwv === "string" && data.fwv.match(/1\.9\.0/)) is190 = true;
             if (typeof data === "string" && data.match(/var (en|sd)\s*=/)) is183 = true;
 
             if (data.fwv !== undefined || is183 === true) {
@@ -641,10 +633,6 @@ function submit_newuser(ssl,useAuth) {
                 if (is183 === true) {
                     sites[name].is183 = "1";
                     window.curr_183 = true;
-                } else if (is190 === true) {
-                    sites[name].is190 = "1";
-                    window.curr_190 = true;
-                    auth_190();
                 }
 
                 $("#os_name,#os_ip,#os_pw,#os_auth_user,#os_auth_pw").val("");
@@ -3114,28 +3102,6 @@ function import_config(data) {
 function isOSPi() {
     if (window.controller && typeof window.controller.options.fwv == "string" && window.controller.options.fwv.search(/ospi/i) !== -1) return true;
     return false;
-}
-
-function auth_190() {
-    var obj = {
-        url: window.curr_prefix+window.curr_ip+"/mlogin",
-        type: "POST",
-        dataType: "json",
-        data: {password: window.curr_pw},
-        success: function(data) {
-            if (typeof data.error != "undefined" && typeof data.id == "string") {
-                window.curr_session = data.id;
-            }
-        }
-    };
-
-    if (window.curr_auth) {
-        $.extend(obj,{
-            beforeSend: function(xhr) { xhr.setRequestHeader("Authorization", "Basic " + btoa(window.curr_auth_user + ":" + window.curr_auth_pw)); }
-        });
-    }
-
-    return $.ajax(obj);
 }
 
 function getOSVersion(fwv) {
