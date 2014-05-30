@@ -34,7 +34,6 @@ $(document)
     }
 })
 .ajaxError(function(x,t,m) {
-    console.log(m.url)
     if (t.status==401 && /https?:\/\/.*?\/(?:cv|sn|cs|cr|cp|dp|co|cl)/.exec(m.url)) {
         showerror(_("Check device password and try again."));
         return;
@@ -3122,7 +3121,7 @@ function auth_190() {
         url: window.curr_prefix+window.curr_ip+"/mlogin",
         type: "POST",
         dataType: "json",
-        password:window.curr_pw,
+        data: {password: window.curr_pw},
         success: function(data) {
             if (typeof data.error != "undefined" && typeof data.id == "string") {
                 window.curr_session = data.id;
