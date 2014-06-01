@@ -314,6 +314,12 @@ function newload() {
             check_status();
             update_weather();
 
+            if ((typeof window.controller.options.fwv === "number" && window.controller.options.fwv < 206) || (typeof window.controller.options.fwv === "string" && window.controller.options.fwv.match(/1\.9\.0/)) === -1) {
+                $("#log_button").hide();
+            } else {
+                $("#log_button").show();
+            }
+
             if ($("body").pagecontainer("getActivePage").attr("id") != "sprinklers") {
                 changePage("#sprinklers",{
                     "transition":"none",
