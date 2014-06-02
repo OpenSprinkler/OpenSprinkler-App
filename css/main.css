@@ -18,6 +18,9 @@
     overflow-y: scroll;
     display: none;
 }
+#zones::-webkit-scrollbar {
+    display: none;
+}
 #zones table {
     margin: 0 auto;
     padding: 5px 0 5px 0;
