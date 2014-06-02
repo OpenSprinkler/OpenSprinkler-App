@@ -310,14 +310,16 @@ function newload() {
     window.controller = {};
     update_controller(
         function(){
-        $.mobile.loading("hide");
+            var button = $("#log_button");
+
+            $.mobile.loading("hide");
             check_status();
             update_weather();
 
             if ((typeof window.controller.options.fwv === "number" && window.controller.options.fwv < 206) || (typeof window.controller.options.fwv === "string" && window.controller.options.fwv.match(/1\.9\.0/)) === -1) {
-                $("#log_button").hide();
+                button.hide();
             } else {
-                $("#log_button").show();
+                button.css("display","");
             }
 
             if ($("body").pagecontainer("getActivePage").attr("id") != "sprinklers") {
