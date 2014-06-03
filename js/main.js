@@ -2358,7 +2358,7 @@ function get_logs() {
                 $.plot($('#placeholder'), pData, {
                     grid: { hoverable: true },
                     yaxis: {min: 0, tickFormatter: function(val, axis) { return val < axis.max ? Math.round(val*100)/100 : "min";} },
-                    xaxis: { tickDecimals: 0, tickSize: 1 }
+                    xaxis: { min: 0, max: 24, tickDecimals: 0, tickSize: 1 }
                 });
             else if (grouping=='d')
                 $.plot($('#placeholder'), pData, {
@@ -2375,8 +2375,8 @@ function get_logs() {
                     tickFormatter: function(v) { var mon=["",_("Jan"),_("Feb"),_("Mar"),_("Apr"),_("May"),_("Jun"),_("Jul"),_("Aug"),_("Sep"),_("Oct"),_("Nov"),_("Dec")]; return mon[v]; } }
                 });
             else if (grouping=='n') {
-                var minval = new Date($('#log_start').val()).getTime();
-                var maxval = new Date($('#log_end').val());
+                var minval = new Date(sDate[0],sDate[1]-1,sDate[2]).getTime();
+                var maxval = new Date(eDate[0],eDate[1]-1,eDate[2]);
                 maxval.setDate(maxval.getDate() + 1);
                 $.plot($('#placeholder'), pData, {
                     grid: { hoverable: true },
