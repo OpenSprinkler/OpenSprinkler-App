@@ -2326,7 +2326,9 @@ function get_logs() {
     $("#logs input").blur();
     $.mobile.loading("show");
 
-    var parms = "start=" + (new Date($("#log_start").val()).getTime() / 1000) + "&end=" + ((new Date($("#log_end").val()).getTime() / 1000) + 86340),
+    var sDate = $("#log_start").val().split("-"),
+        eDate = $("#log_end").val().split("-"),
+        parms = "start=" + (new Date(sDate[0],sDate[1]-1,sDate[2]).getTime() / 1000) + "&end=" + ((new Date(eDate[0],eDate[1]-1,eDate[2]).getTime() / 1000) + 86340),
         grouping=$("input:radio[name='g']:checked").val(),
         data = [],
         seriesChange = function() {
