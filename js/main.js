@@ -199,9 +199,6 @@ $(document)
     } else if (newpage == "#logs") {
         get_logs();
 
-        //Automatically update log viewer when switching graphing method
-        $("#logs input:radio[name='log_type'],#graph_sort input[name='g']").change(get_logs);
-
         //Automatically update the log viewer when changing the date range
         $("#log_start,#log_end").change(function(){
             clearTimeout(window.logtimeout);
@@ -2329,24 +2326,28 @@ function get_logs() {
     var sDate = $("#log_start").val().split("-"),
         eDate = $("#log_end").val().split("-"),
         parms = "start=" + (new Date(sDate[0],sDate[1]-1,sDate[2]).getTime() / 1000) + "&end=" + ((new Date(eDate[0],eDate[1]-1,eDate[2]).getTime() / 1000) + 86340),
-        grouping=$("input:radio[name='g']:checked").val(),
         data = [],
         seriesChange = function() {
-            var pData = [];
+            var grouping = $("input:radio[name='g']:checked").val(),
+                pData = [],
+                sortedData;
+
+            sortedData = sortData(grouping);
+
             $("td[zone_num]:not('.unchecked')").each(function () {
                 var key = $(this).attr("zone_num");
-                if (!data[key].length) data[key]=[[0,0]];
-                if (key && data[key]) {
+                if (!sortedData[key].length) sortedData[key]=[[0,0]];
+                if (key && sortedData[key]) {
                     if ((grouping == 'h') || (grouping == 'm') || (grouping == 'd'))
                         pData.push({
-                            data:data[key],
+                            data:sortedData[key],
                             label:$(this).attr("name"),
                             color:parseInt(key),
                             bars: { order:key, show: true, barWidth:0.08}
                         });
                     else if (grouping == 'n')
                         pData.push({
-                            data:data[key],
+                            data:sortedData[key],
                             label:$(this).attr("name"),
                             color:parseInt(key),
                             lines: { show:true }
@@ -2384,8 +2385,65 @@ function get_logs() {
                 });
             }
         },
+        sortData = function(grouping) {
+            var sortedData = [];
+
+            switch (grouping) {
+                    case "h":
+                        for (i=0; i<window.controller.stations.snames.length; i++) {
+                            sortedData[i] = [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0],[11,0],[12,0],[13,0],[14,0],[15,0],[16,0],[17,0],[18,0],[19,0],[20,0],[21,0],[22,0],[23,0]];
+                        }
+                        break;
+                    case "m":
+                        for (i=0; i<window.controller.stations.snames.length; i++) {
+                            sortedData[i] = [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0],[11,0]];
+                        }
+                        break;
+                    case "d":
+                        for (i=0; i<window.controller.stations.snames.length; i++) {
+                            sortedData[i] = [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0]];
+                        }
+                        break;
+                    case "n":
+                        for (i=0; i<window.controller.stations.snames.length; i++) {
+                            sortedData[i] = [];
+                        }
+                        break;
+            }
+
+            $.each(data,function(a,b){
+                var stamp = parseInt(b[3] * 1000),
+                    station = parseInt(b[1]),
+                    date = new Date(stamp),
+                    duration = parseInt(b[2]),
+                    key;
+
+                switch (grouping) {
+                    case "h":
+                        key = date.getHours();
+                        break;
+                    case "m":
+                        key = date.getMonth() + 1;
+                        break;
+                    case "d":
+                        key = date.getDay();
+                        break;
+                    case "n":
+                        sortedData[station].push([stamp-1,0]);
+                        sortedData[station].push([stamp,duration]);
+                        sortedData[station].push([stamp+(duration*100*1000)+1,0]);
+                        break;
+                }
+
+                if (grouping != "n" && duration > 0) {
+                    sortedData[station][key][1] += duration;
+                }
+            });
+
+            return sortedData;
+        },
         toggleZone = function() {
-            zone = $(this);
+            var zone = $(this);
             if (zone.hasClass("legendColorBox")) {
                 zone.find("div div").toggleClass("hideZone");
                 zone.next().toggleClass("unchecked");
@@ -2420,59 +2478,9 @@ function get_logs() {
                 return;
             }
 
+            data = items;
+
             if ($("#log_graph").prop("checked")) {
-                switch (grouping) {
-                    case "h":
-                        for (i=0; i<window.controller.stations.snames.length; i++) {
-                            data[i] = [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0],[11,0],[12,0],[13,0],[14,0],[15,0],[16,0],[17,0],[18,0],[19,0],[20,0],[21,0],[22,0],[23,0]];
-                        }
-                        break;
-                    case "m":
-                        for (i=0; i<window.controller.stations.snames.length; i++) {
-                            data[i] = [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0],[11,0]];
-                        }
-                        break;
-                    case "d":
-                        for (i=0; i<window.controller.stations.snames.length; i++) {
-                            data[i] = [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0]];
-                        }
-                        break;
-                    case "n":
-                        for (i=0; i<window.controller.stations.snames.length; i++) {
-                            data[i] = [];
-                        }
-                        break;
-                }
-
-                $.each(items,function(a,b){
-                    var stamp = parseInt(b[3] * 1000),
-                        station = parseInt(b[1]),
-                        date = new Date(stamp),
-                        duration = parseInt(b[2]),
-                        key;
-
-                    switch (grouping) {
-                        case "h":
-                            key = date.getHours();
-                            break;
-                        case "m":
-                            key = date.getMonth() + 1;
-                            break;
-                        case "d":
-                            key = date.getDay();
-                            break;
-                        case "n":
-                            data[station].push([stamp-1,0]);
-                            data[station].push([stamp,duration]);
-                            data[station].push([stamp+(duration*100*1000)+1,0]);
-                            break;
-                    }
-
-                    if (grouping != "n" && duration > 0) {
-                        data[station][key][1] += duration;
-                    }
-                });
-
                 $("#logs_list").empty().hide();
                 var state = ($(window).height() > 680) ? "expand" : "collapse";
                 setTimeout(function(){$("#log_options").collapsible(state);},100);
@@ -2518,26 +2526,27 @@ function get_logs() {
                 var list = $("#logs_list"),
                     table_header = "<table><thead><tr><th data-priority='1'>"+_("Runtime")+"</th><th data-priority='2'>"+_("Date/Time")+"</th></tr></thead><tbody>",
                     html = "<div data-role='collapsible-set' data-inset='true' data-theme='b' data-collapsed-icon='arrow-d' data-expanded-icon='arrow-u'>",
+                    sortedData = [],
                     ct, k;
 
                 $("#zones, #graph_sort").hide();
                 list.show();
 
                 for (i=0; i<window.controller.stations.snames.length; i++) {
-                    data[i] = [];
+                    sortedData[i] = [];
                 }
 
                 $.each(items,function(a,b){
-                    data[parseInt(b[1])].push([parseInt(b[3] * 1000),parseInt(b[2])]);
+                    sortedData[parseInt(b[1])].push([parseInt(b[3] * 1000),parseInt(b[2])]);
                 });
 
-                for (i=0; i<data.length; i++) {
-                    ct=data[i].length;
+                for (i=0; i<sortedData.length; i++) {
+                    ct=sortedData[i].length;
                     if (ct === 0) continue;
                     html += "<div data-role='collapsible' data-collapsed='true'><h2><div class='ui-btn-up-c ui-btn-corner-all custom-count-pos'>"+ct+" "+((ct == 1) ? _("run") : _("runs"))+"</div>"+window.controller.stations.snames[i]+"</h2>"+table_header;
-                    for (k=0; k<data[i].length; k++) {
-                        var mins = data[i][k][1];
-                        var date = new Date(data[i][k][0]);
+                    for (k=0; k<sortedData[i].length; k++) {
+                        var mins = sortedData[i][k][1];
+                        var date = new Date(sortedData[i][k][0]);
                         html += "<tr><td>"+mins+" "+((mins == 1) ? _("min") : _("mins"))+"</td><td>"+dateToString(date).slice(0,-3)+"</td></tr>";
                     }
                     html += "</tbody></table></div>";
@@ -2561,6 +2570,9 @@ function get_logs() {
         showArrows();
         seriesChange();
     });
+
+    //Automatically update log viewer when switching graphing method
+    $("#logs input:radio[name='log_type'],#graph_sort input[name='g']").change(seriesChange);
 
     send_to_os("/jl?"+parms,"json").then(success,fail);
 }
