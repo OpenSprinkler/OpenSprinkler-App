@@ -2479,83 +2479,90 @@ function get_logs() {
             }
 
             data = items;
+            updateView();
 
+            $.mobile.loading("hide");
+        },
+        updateView = function() {
             if ($("#log_graph").prop("checked")) {
-                $("#logs_list").empty().hide();
-                var state = ($(window).height() > 680) ? "expand" : "collapse";
-                setTimeout(function(){$("#log_options").collapsible(state);},100);
-                $("#placeholder").show();
-                var zones = $("#zones");
-                var freshLoad = zones.find("table").length;
-                zones.show();
-                $("#graph_sort").show();
-                if (!freshLoad) {
-                    var output = '<div onclick="scrollZone(this);" class="ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border" id="graphScrollLeft"></div><div onclick="scrollZone(this);" class="ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border" id="graphScrollRight"></div><table style="font-size:smaller"><tbody><tr>';
-                    for (i=0; i<window.controller.stations.snames.length; i++) {
-                        output += '<td class="legendColorBox"><div style="border:1px solid #ccc;padding:1px"><div style="width:4px;height:0;overflow:hidden"></div></div></td><td id="z'+i+'" zone_num='+i+' name="'+window.controller.stations.snames[i] + '" class="legendLabel">'+window.controller.stations.snames[i]+'</td>';
-                    }
-                    output += '</tr></tbody></table>';
-                    zones.empty().append(output).enhanceWithin();
-                    zones.find("td").on("click",toggleZone);
-                }
-                seriesChange();
-                i = 0;
-                if (!freshLoad) {
-                    zones.find("td.legendColorBox div div").each(function(a,b){
-                        var border = $($("#placeholder .legendColorBox div div").get(i)).css("border");
-                        //Firefox and IE fix
-                        if (border === "") {
-                            border = $($("#placeholder .legendColorBox div div").get(i)).attr("style").split(";");
-                            $.each(border,function(a,b){
-                                var c = b.split(":");
-                                if (c[0] == "border") {
-                                    border = c[1];
-                                    return false;
-                                }
-                            });
-                        }
-                        $(b).css("border",border);
-                        i++;
-                    });
-                    showArrows();
-                }
-                $.mobile.loading("hide");
-
+                prepGraph();
             } else {
-                $("#placeholder").empty().hide();
-                var list = $("#logs_list"),
-                    table_header = "<table><thead><tr><th data-priority='1'>"+_("Runtime")+"</th><th data-priority='2'>"+_("Date/Time")+"</th></tr></thead><tbody>",
-                    html = "<div data-role='collapsible-set' data-inset='true' data-theme='b' data-collapsed-icon='arrow-d' data-expanded-icon='arrow-u'>",
-                    sortedData = [],
-                    ct, k;
-
-                $("#zones, #graph_sort").hide();
-                list.show();
-
-                for (i=0; i<window.controller.stations.snames.length; i++) {
-                    sortedData[i] = [];
-                }
-
-                $.each(items,function(a,b){
-                    sortedData[parseInt(b[1])].push([parseInt(b[3] * 1000),parseInt(b[2])]);
-                });
-
-                for (i=0; i<sortedData.length; i++) {
-                    ct=sortedData[i].length;
-                    if (ct === 0) continue;
-                    html += "<div data-role='collapsible' data-collapsed='true'><h2><div class='ui-btn-up-c ui-btn-corner-all custom-count-pos'>"+ct+" "+((ct == 1) ? _("run") : _("runs"))+"</div>"+window.controller.stations.snames[i]+"</h2>"+table_header;
-                    for (k=0; k<sortedData[i].length; k++) {
-                        var mins = sortedData[i][k][1];
-                        var date = new Date(sortedData[i][k][0]);
-                        html += "<tr><td>"+mins+" "+((mins == 1) ? _("min") : _("mins"))+"</td><td>"+dateToString(date).slice(0,-3)+"</td></tr>";
-                    }
-                    html += "</tbody></table></div>";
-                }
-
-                $("#log_options").collapsible("collapse");
-                list.html(html+"</div>").enhanceWithin();
-                $.mobile.loading("hide");
+                prepTable();
             }
+        },
+        prepGraph = function() {
+            $("#logs_list").empty().hide();
+            var state = ($(window).height() > 680) ? "expand" : "collapse";
+            setTimeout(function(){$("#log_options").collapsible(state);},100);
+            $("#placeholder").show();
+            var zones = $("#zones");
+            var freshLoad = zones.find("table").length;
+            zones.show();
+            $("#graph_sort").show();
+            if (!freshLoad) {
+                var output = '<div onclick="scrollZone(this);" class="ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border" id="graphScrollLeft"></div><div onclick="scrollZone(this);" class="ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border" id="graphScrollRight"></div><table style="font-size:smaller"><tbody><tr>';
+                for (i=0; i<window.controller.stations.snames.length; i++) {
+                    output += '<td class="legendColorBox"><div style="border:1px solid #ccc;padding:1px"><div style="width:4px;height:0;overflow:hidden"></div></div></td><td id="z'+i+'" zone_num='+i+' name="'+window.controller.stations.snames[i] + '" class="legendLabel">'+window.controller.stations.snames[i]+'</td>';
+                }
+                output += '</tr></tbody></table>';
+                zones.empty().append(output).enhanceWithin();
+                zones.find("td").on("click",toggleZone);
+            }
+            seriesChange();
+            i = 0;
+            if (!freshLoad) {
+                zones.find("td.legendColorBox div div").each(function(a,b){
+                    var border = $($("#placeholder .legendColorBox div div").get(i)).css("border");
+                    //Firefox and IE fix
+                    if (border === "") {
+                        border = $($("#placeholder .legendColorBox div div").get(i)).attr("style").split(";");
+                        $.each(border,function(a,b){
+                            var c = b.split(":");
+                            if (c[0] == "border") {
+                                border = c[1];
+                                return false;
+                            }
+                        });
+                    }
+                    $(b).css("border",border);
+                    i++;
+                });
+                showArrows();
+            }
+        },
+        prepTable = function(){
+            $("#placeholder").empty().hide();
+            var list = $("#logs_list"),
+                table_header = "<table><thead><tr><th data-priority='1'>"+_("Runtime")+"</th><th data-priority='2'>"+_("Date/Time")+"</th></tr></thead><tbody>",
+                html = "<div data-role='collapsible-set' data-inset='true' data-theme='b' data-collapsed-icon='arrow-d' data-expanded-icon='arrow-u'>",
+                sortedData = [],
+                ct, k;
+
+            $("#zones, #graph_sort").hide();
+            list.show();
+
+            for (i=0; i<window.controller.stations.snames.length; i++) {
+                sortedData[i] = [];
+            }
+
+            $.each(data,function(a,b){
+                sortedData[parseInt(b[1])].push([parseInt(b[3] * 1000),parseInt(b[2])]);
+            });
+
+            for (i=0; i<sortedData.length; i++) {
+                ct=sortedData[i].length;
+                if (ct === 0) continue;
+                html += "<div data-role='collapsible' data-collapsed='true'><h2><div class='ui-btn-up-c ui-btn-corner-all custom-count-pos'>"+ct+" "+((ct == 1) ? _("run") : _("runs"))+"</div>"+window.controller.stations.snames[i]+"</h2>"+table_header;
+                for (k=0; k<sortedData[i].length; k++) {
+                    var mins = sortedData[i][k][1];
+                    var date = new Date(sortedData[i][k][0]);
+                    html += "<tr><td>"+mins+" "+((mins == 1) ? _("min") : _("mins"))+"</td><td>"+dateToString(date).slice(0,-3)+"</td></tr>";
+                }
+                html += "</tbody></table></div>";
+            }
+
+            $("#log_options").collapsible("collapse");
+            list.html(html+"</div>").enhanceWithin();
         },
         fail = function(){
             $.mobile.loading("hide");
@@ -2572,7 +2579,9 @@ function get_logs() {
     });
 
     //Automatically update log viewer when switching graphing method
-    $("#logs input:radio[name='log_type'],#graph_sort input[name='g']").change(seriesChange);
+    $("#graph_sort input[name='g']").change(seriesChange);
+
+    $("#logs input:radio[name='log_type']").change(updateView);
 
     send_to_os("/jl?"+parms,"json").then(success,fail);
 }
