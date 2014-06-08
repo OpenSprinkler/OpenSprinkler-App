@@ -1616,7 +1616,6 @@ function get_status() {
     tz = ((tz>=0)?"+":"-")+pad((Math.abs(tz)/4>>0))+":"+((Math.abs(tz)%4)*15/10>>0)+((Math.abs(tz)%4)*15%10);
 
     var header = "<span id='clock-s' class='nobr'>"+dateToString(new Date(window.controller.settings.devt*1000))+"</span>"+tzToString(" ","GMT",tz);
-    header += " <span id='temp'>"+window.controller.settings.ct+"&deg;"+window.controller.settings.tu+"</span>";
 
     if (typeof window.controller.settings.ct === "string" && typeof window.controller.settings.tu === "string") {
         header += " <span>"+window.controller.settings.ct+"&deg;"+window.controller.settings.tu+"</span>";
