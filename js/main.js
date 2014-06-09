@@ -2419,7 +2419,7 @@ function get_logs() {
                 var stamp = parseInt(b[3] * 1000),
                     station = parseInt(b[1]),
                     date = new Date(stamp),
-                    duration = parseInt(b[2]),
+                    duration = parseInt(b[2]/60),
                     key;
 
                 switch (grouping) {
