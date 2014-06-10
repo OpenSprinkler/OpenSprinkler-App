@@ -1958,7 +1958,7 @@ function toggle() {
         currPos = listitems.index(item) + 1;
 
     if (anchor.hasClass("green")) {
-        send_to_os("/sn"+currPos+"=0&pw=").then(
+        send_to_os("/sn"+currPos+"=0").then(
             function(){
                 update_controller_status();
             },
@@ -1968,7 +1968,7 @@ function toggle() {
         );
         anchor.removeClass("green");
     } else {
-        send_to_os("/sn"+currPos+"=1&t=0&pw=").then(
+        send_to_os("/sn"+currPos+"=1&t=0").then(
             function(){
                 update_controller_status();
             },
