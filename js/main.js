@@ -2495,6 +2495,11 @@ function get_logs() {
             }
         },
         prepGraph = function() {
+            if (data.length < 1) {
+                reset_logs_page();
+                return;
+            }
+
             $("#logs_list").empty().hide();
             var state = ($(window).height() > 680) ? "expand" : "collapse";
             setTimeout(function(){$("#log_options").collapsible(state);},100);
@@ -2535,6 +2540,11 @@ function get_logs() {
             }
         },
         prepTable = function(){
+            if (data.length < 1) {
+                reset_logs_page();
+                return;
+            }
+
             $("#placeholder").empty().hide();
             var list = $("#logs_list"),
                 table_header = "<table><thead><tr><th data-priority='1'>"+_("Runtime")+"</th><th data-priority='2'>"+_("Date/Time")+"</th></tr></thead><tbody>",
