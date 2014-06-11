@@ -2558,7 +2558,7 @@ function get_logs() {
                 if (ct === 0) continue;
                 html += "<div data-role='collapsible' data-collapsed='true'><h2><div class='ui-btn-up-c ui-btn-corner-all custom-count-pos'>"+ct+" "+((ct == 1) ? _("run") : _("runs"))+"</div>"+window.controller.stations.snames[i]+"</h2>"+table_header;
                 for (k=0; k<sortedData[i].length; k++) {
-                    var mins = sortedData[i][k][1];
+                    var mins = Math.round(sortedData[i][k][1]/60);
                     var date = new Date(sortedData[i][k][0]);
                     html += "<tr><td>"+mins+" "+((mins == 1) ? _("min") : _("mins"))+"</td><td>"+dateToString(date).slice(0,-3)+"</td></tr>";
                 }
