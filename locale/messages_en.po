@@ -300,27 +300,6 @@ msgstr ""
 msgid "No stations set to run on this day."
 msgstr ""
 
-msgid "Runtime"
-msgstr ""
-
-msgid "Date/Time"
-msgstr ""
-
-msgid "run"
-msgstr ""
-
-msgid "runs"
-msgstr ""
-
-msgid "min"
-msgstr ""
-
-msgid "mins"
-msgstr ""
-
-msgid "No entries found in the selected date range"
-msgstr ""
-
 msgid "Sun"
 msgstr ""
 
@@ -376,6 +355,27 @@ msgid "Nov"
 msgstr ""
 
 msgid "Dec"
+msgstr ""
+
+msgid "Runtime"
+msgstr ""
+
+msgid "Date/Time"
+msgstr ""
+
+msgid "run"
+msgstr ""
+
+msgid "runs"
+msgstr ""
+
+msgid "min"
+msgstr ""
+
+msgid "mins"
+msgstr ""
+
+msgid "No entries found in the selected date range"
 msgstr ""
 
 msgid "Manual program"
@@ -644,6 +644,9 @@ msgstr ""
 msgid "Operation"
 msgstr ""
 
+msgid "Clear Logs"
+msgstr ""
+
 msgid "Device Options"
 msgstr ""
 
@@ -659,13 +662,13 @@ msgstr ""
 msgid "Clear Configuration"
 msgstr ""
 
-msgid "Clear Logs"
-msgstr ""
-
 msgid "Localization"
 msgstr ""
 
 msgid "Chinese"
+msgstr ""
+
+msgid "Czech"
 msgstr ""
 
 msgid "English"
