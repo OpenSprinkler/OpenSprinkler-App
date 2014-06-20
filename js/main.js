@@ -1561,10 +1561,10 @@ function submit_stations() {
         switch (id) {
             case "edit_station_" + id.slice("edit_station_".length):
                 id = "s" + id.split("_")[2];
-                if (data.length > 16) {
+                if (data.length > 32) {
                     invalid = true;
                     $item.focus();
-                    showerror(_("Station name must be 16 characters or less"));
+                    showerror(_("Station name must be 32 characters or less"));
                     return false;
                 }
                 names[id] = data;
@@ -1864,7 +1864,7 @@ function check_status() {
     }
 
     // Handle rain sensor triggered
-    if (window.controller.settings.urs && window.controller.settings.rs) {
+    if (window.controller.options.urs && window.controller.settings.rs) {
         change_status(0,window.controller.options.sdt,"red","<p id='running-text' class='center'>"+_("Rain detected")+"</p>");
         return;
     }
