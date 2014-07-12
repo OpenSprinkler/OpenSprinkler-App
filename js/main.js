@@ -120,6 +120,9 @@ $(document)
             showBack =  (data.options.showBack === false) ? false : true;
             $("#site-control").find(".ui-toolbar-back-btn").toggle(showBack);
             show_sites();
+        } else if (hash == "#weather_settings") {
+            show_weather_settings();
+            return false;
         } else if (hash == "#addnew") {
             show_addnew();
             return false;
@@ -309,7 +312,6 @@ function newload() {
         function(){
             var log_button = $("#log_button"),
                 clear_logs = $(".clear_logs"),
-                weather_settings = $(".weather_settings"),
                 pi = isOSPi();
 
             $.mobile.loading("hide");
@@ -334,16 +336,7 @@ function newload() {
             objToEmail(".email_config",window.controller);
 
             // Check if automatic rain delay plugin is enabled on OSPi devices
-            window.curr_wa = [];
-            weather_settings.hide();
-            if (pi) {
-                send_to_os("/wj","json").done(function(results){
-                    if (typeof results.auto_delay === "string") {
-                        window.curr_wa = results;
-                        weather_settings.css("display","");
-                    }
-                });
-            }
+            checkWeatherPlugin();
 
             // Transition to home page after succesful load
             if ($("body").pagecontainer("getActivePage").attr("id") != "sprinklers") {
@@ -1147,6 +1140,73 @@ function add_found(ip) {
 }
 
 // Weather functions
+function show_weather_settings() {
+    var page = $('<div data-role="page" id="weather_settings">' +
+        '<div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false" data-add-back-btn="true">' +
+            '<h3>'+_("Weather Settings")+'</h3>' +
+            '<a href="javascript:submit_weather_settings();" class="ui-btn-right">'+_("Submit")+'</a>' +
+        '</div>' +
+        '<div class="ui-content" role="main">' +
+            '<ul data-role="listview" data-inset="true">' +
+                '<li>' +
+                    '<label for="weather_provider">'+_("Weather Provider")+'</label>' +
+                    '<select data-mini="true" id="weather_provider">' +
+                        '<option value="yahoo" '+(window.curr_wa.weather_provider == "yahoo" ? "selected" : "")+'>'+_("Yahoo!")+'</option>' +
+                        '<option value="wunderground" '+(window.curr_wa.weather_provider == "wunderground" ? "selected" : "")+'>'+_("Wunderground")+'</option>' +
+                    '</select>' +
+                    (window.curr_wa.weather_provider == "wunderground" ? '<label for="wapikey">'+_("Wunderground API Key")+'</label><input data-mini="true" type="text" id="wapikey" value="'+window.curr_wa.wapikey+'" />' : "") +
+                '</li>' +
+            '</ul>' +
+            '<ul data-role="listview" data-inset="true"> ' +
+                '<li>' +
+                    '<p class="rain-desc">'+_("When automatic rain delay is enabled, the weather will be checked for rain every hour. If the weather reports any condition suggesting rain, a rain delay is automatically issued using the below set delay duration.")+'</p>' +
+                        '<div data-role="fieldcontain">' +
+                            '<label for="auto_delay">'+_("Auto Rain Delay")+'</label>' +
+                            '<input type="checkbox" data-on-text="On" data-off-text="Off" data-role="flipswitch" name="auto_delay" id="auto_delay" '+(window.curr_wa.auto_delay == "on" ? "checked" : "")+'>' +
+                        '</div>' +
+                        '<label for="delay_duration">'+_("Delay Duration (hours)")+'</label>' +
+                        '<input type="number" pattern="[0-9]*" data-highlight="true" data-type="range" min="0" max="96" id="delay_duration" value="'+window.curr_wa.delay_duration+'" />' +
+                '</li>' +
+            '</ul>' +
+            '<a href="javascript:submit_weather_settings();" data-role="button" data-theme="b" type="submit">'+_("Submit")+'</a>' +
+        '</div>' +
+    '</div>');
+
+    //Handle provider select change on weather settings
+    page
+    .on("change","#weather_provider",function(){
+        var val = $(this).val();
+        if (val === "wunderground") {
+            $("#wapikey,label[for='wapikey']").show("fast");
+        } else {
+            $("#wapikey,label[for='wapikey']").hide("fast");
+        }
+    })
+    .one("pagehide",function(){
+        $(this).remove();
+    });
+
+    page.appendTo("body");
+    $("body").pagecontainer("change",page);
+}
+
+function submit_weather_settings() {
+    var url = "/uwa?auto_delay="+($("#auto_delay").is(":checked") ? "on" : "off")+"&delay_duration="+$("#delay_duration").val()+"&weather_provider="+$("#weather_provider").val()+"&wapikey="+$("#wapikey").val();
+
+    send_to_os(url).then(
+        function(result){
+            $(document).one("pageshow",function(){
+                showerror(_("Weather settings have been saved"));
+            });
+            window.history.back();
+            checkWeatherPlugin();
+        },
+        function(){
+            showerror(_("Weather settings were not saved. Please try again."));
+        }
+    );
+}
+
 function show_providers() {
     $("#providers").popup("destroy").remove();
 
@@ -3192,6 +3252,21 @@ function import_config(data) {
 function isOSPi() {
     if (window.controller && typeof window.controller.options.fwv == "string" && window.controller.options.fwv.search(/ospi/i) !== -1) return true;
     return false;
+}
+
+function checkWeatherPlugin() {
+    var weather_settings = $(".weather_settings");
+
+    window.curr_wa = [];
+    weather_settings.hide();
+    if (isOSPi()) {
+        send_to_os("/wj","json").done(function(results){
+            if (typeof results.auto_delay === "string") {
+                window.curr_wa = results;
+                weather_settings.css("display","");
+            }
+        });
+    }
 }
 
 function getOSVersion(fwv) {
