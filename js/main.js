@@ -309,34 +309,43 @@ function newload() {
         function(){
             var log_button = $("#log_button"),
                 clear_logs = $(".clear_logs"),
+                weather_settings = $(".weather_settings"),
                 pi = isOSPi();
 
             $.mobile.loading("hide");
             check_status();
             update_weather();
 
+            // Hide log viewer button on home page if not supported
             if ((typeof window.controller.options.fwv === "number" && window.controller.options.fwv < 206) || (typeof window.controller.options.fwv === "string" && window.controller.options.fwv.match(/1\.9\.0/)) === -1) {
                 log_button.hide();
             } else {
                 log_button.css("display","");
             }
 
+            // Hide clear logs button when using Arduino device (feature not enabled yet)
             if (!pi) {
                 clear_logs.hide();
             } else {
                 clear_logs.css("display","");
             }
 
+            // Update export to email button in side panel
             objToEmail(".email_config",window.controller);
 
             // Check if automatic rain delay plugin is enabled on OSPi devices
-            window.curr_wa = false;
+            window.curr_wa = [];
+            weather_settings.hide();
             if (pi) {
                 send_to_os("/wj","json").done(function(results){
-                    if (typeof results.auto_delay === "string") window.curr_wa = true;
+                    if (typeof results.auto_delay === "string") {
+                        window.curr_wa = results;
+                        weather_settings.css("display","");
+                    }
                 });
             }
 
+            // Transition to home page after succesful load
             if ($("body").pagecontainer("getActivePage").attr("id") != "sprinklers") {
                 changePage("#sprinklers",{
                     "transition":"none",
