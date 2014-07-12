@@ -326,6 +326,8 @@ function newload() {
                 clear_logs.css("display","");
             }
 
+            objToEmail(".email_config",window.controller);
+
             if ($("body").pagecontainer("getActivePage").attr("id") != "sprinklers") {
                 changePage("#sprinklers",{
                     "transition":"none",
@@ -2492,6 +2494,8 @@ function get_logs() {
             data = items;
             updateView();
 
+            objToEmail(".email_logs",data);
+
             $.mobile.loading("hide");
         },
         updateView = function() {
@@ -3299,10 +3303,10 @@ function sec2hms(diff) {
 }
 
 // Generate email link for JSON data export
-function objToEmail(obj,subject) {
+function objToEmail(ele,obj,subject) {
     subject = subject || "Sprinklers Data Export";
-    var body = "<pre>"+JSON.stringify(obj)+"</pre>";
-    return "<a href='mailto:?subject="+encodeURIComponent(subject)+"&body="+encodeURIComponent(body)+"'></a>";
+    var body = JSON.stringify(obj);
+    $(ele).attr("href","mailto:?subject="+encodeURIComponent(subject)+"&body="+encodeURIComponent(body));
 }
 
 // Return day of the week
