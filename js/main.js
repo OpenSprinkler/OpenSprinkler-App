@@ -1626,7 +1626,7 @@ function get_status() {
 
     var header = "<span id='clock-s' class='nobr'>"+dateToString(new Date(window.controller.settings.devt*1000))+"</span>"+tzToString(" ","GMT",tz);
 
-    if (typeof window.controller.settings.ct === "string" && typeof window.controller.settings.tu === "string") {
+    if (typeof window.controller.settings.ct === "string" && window.controller.settings.ct !== "0" && typeof window.controller.settings.tu === "string") {
         header += " <span>"+window.controller.settings.ct+"&deg;"+window.controller.settings.tu+"</span>";
     }
 
