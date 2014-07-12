@@ -3308,6 +3308,62 @@ function areYouSure(text1, text2, callback) {
     $("#sure").popup({history: false, positionTo: "window"}).popup("open");
 }
 
+function showDurationBox(seconds,callback,title) {
+    $("#durationBox").popup("destroy").remove();
+
+    title = title || "Duration";
+
+    var arr = sec2dhms(seconds);
+        popup = $('<div data-role="popup" id="durationBox" data-theme="a" data-overlay-theme="b">' +
+            '<div data-role="header" data-theme="b">' +
+                '<h1>'+title+'</h1>' +
+            '</div>' +
+            '<div class="ui-content">' +
+                '<span>' +
+                    '<fieldset class="ui-grid-c">' +
+                        '<div class="ui-block-a"><a href="#" data-role="button" data-mini="true" data-corners="true" data-icon="plus" data-iconpos="bottom"></a></div>' +
+                        '<div class="ui-block-b"><a href="#" data-role="button" data-mini="true" data-corners="true" data-icon="plus" data-iconpos="bottom"></a></div>' +
+                        '<div class="ui-block-c"><a href="#" data-role="button" data-mini="true" data-corners="true" data-icon="plus" data-iconpos="bottom"></a></div>' +
+                        '<div class="ui-block-d"><a href="#" data-role="button" data-mini="true" data-corners="true" data-icon="plus" data-iconpos="bottom"></a></div>' +
+                    '</fieldset>' +
+                    '<div class="ui-grid-c">' +
+                        '<div class="ui-block-a"><label>'+_("Days")+'</label><input class="days" type="number" pattern="[0-9]*" value="'+arr.days+'"></div>' +
+                        '<div class="ui-block-b"><label>'+_("Hours")+'</label><input class="hours" type="number" pattern="[0-9]*" value="'+arr.hours+'"></div>' +
+                        '<div class="ui-block-c"><label>'+_("Minutes")+'</label><input class="minutes" type="number" pattern="[0-9]*" value="'+arr.minutes+'"></div>' +
+                        '<div class="ui-block-d"><label>'+_("Seconds")+'</label><input class="seconds" type="number" pattern="[0-9]*" value="'+arr.seconds+'"></div>' +
+                    '</div>' +
+                    '<fieldset class="ui-grid-c">' +
+                        '<div class="ui-block-a"><a href="#" data-role="button" data-mini="true" data-corners="true" data-icon="minus" data-iconpos="bottom"></a></div>' +
+                        '<div class="ui-block-b"><a href="#" data-role="button" data-mini="true" data-corners="true" data-icon="minus" data-iconpos="bottom"></a></div>' +
+                        '<div class="ui-block-c"><a href="#" data-role="button" data-mini="true" data-corners="true" data-icon="minus" data-iconpos="bottom"></a></div>' +
+                        '<div class="ui-block-d"><a href="#" data-role="button" data-mini="true" data-corners="true" data-icon="minus" data-iconpos="bottom"></a></div>' +
+                    '</fieldset>' +
+                    '<a href="#" class="submit_duration" data-role="button" data-corners="true" data-shadow="true" data-iconshadow="true" data-mini="true" data-icon="check">'+_("Set Duration")+'</a>' +
+                '</span>' +
+            '</div>' +
+        '</div>');
+
+    popup
+    .css("max-width","350px")
+    .popup({
+        history: false,
+        "positionTo": "window"
+    })
+    .one("popupafterclose",function(){
+        $(this).popup("destroy").remove();
+    })
+    .on("click",".submit_duration",function(){
+        var seconds = dhms2sec({
+            "days": parseInt($(".days").val()),
+            "hours": parseInt($(".hours").val()),
+            "minutes": parseInt($(".minutes").val()),
+            "seconds": parseInt($(".seconds").val()),
+        });
+        callback(seconds);
+    })
+    .enhanceWithin().popup("open");
+}
+
 function changePage(toPage,opts) {
     opts = opts || {};
     if (toPage.indexOf("#") !== 0) toPage = "#"+toPage;
@@ -3395,6 +3451,21 @@ function sec2hms(diff) {
     var seconds = diff % 60;
     if (hours) str += pad(hours)+":";
     return str+pad(minutes)+":"+pad(seconds);
+}
+
+// Convert seconds into array of days, hours, minutes and seconds.
+function sec2dhms(diff) {
+    return {
+        "days": parseInt(diff / 86400),
+        "hours": parseInt(diff % 86400 / 3600),
+        "minutes": parseInt((diff % 86400) % 3600 / 60),
+        "seconds": parseInt((diff % 86400) % 3600 % 60)
+    }
+}
+
+// Convert days, hours, minutes and seconds array into seconds (int).
+function dhms2sec(arr) {
+    return (arr.days*86400)+(arr.hours*3600)+(arr.minutes*60)+arr.seconds;
 }
 
 // Generate email link for JSON data export
