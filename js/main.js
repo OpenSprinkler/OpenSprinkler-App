@@ -308,7 +308,8 @@ function newload() {
     update_controller(
         function(){
             var log_button = $("#log_button"),
-                clear_logs = $(".clear_logs");
+                clear_logs = $(".clear_logs"),
+                pi = isOSPi();
 
             $.mobile.loading("hide");
             check_status();
@@ -320,13 +321,21 @@ function newload() {
                 log_button.css("display","");
             }
 
-            if (!isOSPi()) {
+            if (!pi) {
                 clear_logs.hide();
             } else {
                 clear_logs.css("display","");
             }
 
             objToEmail(".email_config",window.controller);
+
+            // Check if automatic rain delay plugin is enabled on OSPi devices
+            window.curr_wa = false;
+            if (pi) {
+                send_to_os("/wj","json").done(function(results){
+                    if (typeof results.auto_delay === "string") window.curr_wa = true;
+                });
+            }
 
             if ($("body").pagecontainer("getActivePage").attr("id") != "sprinklers") {
                 changePage("#sprinklers",{
