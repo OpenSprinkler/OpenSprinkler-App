@@ -103,6 +103,9 @@ msgstr ""
 msgid "Scanning for OpenSprinkler"
 msgstr ""
 
+msgid "Weather Settings"
+msgstr ""
+
 msgid "Weather Provider"
 msgstr ""
 
@@ -113,6 +116,24 @@ msgid "Wunderground"
 msgstr ""
 
 msgid "Wunderground API Key"
+msgstr ""
+
+msgid ""
+"When automatic rain delay is enabled, the weather will be checked for rain "
+"every hour. If the weather reports any condition suggesting rain, a rain "
+"delay is automatically issued using the below set delay duration."
+msgstr ""
+
+msgid "Auto Rain Delay"
+msgstr ""
+
+msgid "Delay Duration (hours)"
+msgstr ""
+
+msgid "Weather settings have been saved"
+msgstr ""
+
+msgid "Weather settings were not saved. Please try again."
 msgstr ""
 
 msgid "An API key must be provided for Weather Underground"
@@ -733,6 +754,9 @@ msgid "Start:"
 msgstr ""
 
 msgid "End:"
+msgstr ""
+
+msgid "Export via Email"
 msgstr ""
 
 msgid "Forecast"
