@@ -2606,12 +2606,12 @@ function get_logs() {
 
     if ((new Date(eDate[0],eDate[1]-1,eDate[2]).getTime() / 1000) < (new Date(sDate[0],sDate[1]-1,sDate[2]).getTime() / 1000)) {
         fail();
-        showerror(_("Start time cannot be greater than end time."));
+        showerror(_("Start time cannot be greater than end time"));
         return;
     }
 
     if (!isOSPi() && (new Date(eDate[0],eDate[1]-1,eDate[2]).getTime() / 1000) - (new Date(sDate[0],sDate[1]-1,sDate[2]).getTime() / 1000) > 604800 ) {
-        showerror(_("The requested time span exceeds the maxiumum of 7 days and has been adjusted."));
+        showerror(_("The requested time span exceeds the maxiumum of 7 days and has been adjusted"));
         var nDate = new Date(sDate[0],sDate[1]-1,sDate[2]);
         nDate.setDate(nDate.getDate() + 7);
         var m = pad(nDate.getMonth()+1);
