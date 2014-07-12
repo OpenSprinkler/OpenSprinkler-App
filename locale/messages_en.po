@@ -196,7 +196,7 @@ msgstr ""
 msgid "Master"
 msgstr ""
 
-msgid "Station name must be 16 characters or less"
+msgid "Station name must be 32 characters or less"
 msgstr ""
 
 msgid "Stations have been updated"
@@ -373,6 +373,13 @@ msgid "min"
 msgstr ""
 
 msgid "mins"
+msgstr ""
+
+msgid "Start time cannot be greater than end time"
+msgstr ""
+
+msgid ""
+"The requested time span exceeds the maxiumum of 7 days and has been adjusted"
 msgstr ""
 
 msgid "No entries found in the selected date range"
