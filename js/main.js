@@ -3275,6 +3275,13 @@ function sec2hms(diff) {
     return str+pad(minutes)+":"+pad(seconds);
 }
 
+// Generate email link for JSON data export
+function objToEmail(obj,subject) {
+    subject = subject || "Sprinklers Data Export";
+    var body = "<pre>"+JSON.stringify(obj)+"</pre>";
+    return "<a href='mailto:?subject="+encodeURIComponent(subject)+"&body="+encodeURIComponent(body)+"'></a>";
+}
+
 // Return day of the week
 function getDayName(date,type) {
     var long = [_("Sunday"),_("Monday"),_("Tuesday"),_("Wednesday"),_("Thursday"),_("Friday"),_("Saturday")],
