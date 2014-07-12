@@ -307,16 +307,23 @@ function newload() {
     window.controller = {};
     update_controller(
         function(){
-            var button = $("#log_button");
+            var log_button = $("#log_button"),
+                clear_logs = $(".clear_logs");
 
             $.mobile.loading("hide");
             check_status();
             update_weather();
 
             if ((typeof window.controller.options.fwv === "number" && window.controller.options.fwv < 206) || (typeof window.controller.options.fwv === "string" && window.controller.options.fwv.match(/1\.9\.0/)) === -1) {
-                button.hide();
+                log_button.hide();
             } else {
-                button.css("display","");
+                log_button.css("display","");
+            }
+
+            if (!isOSPi()) {
+                clear_logs.hide();
+            } else {
+                clear_logs.css("display","");
             }
 
             if ($("body").pagecontainer("getActivePage").attr("id") != "sprinklers") {
