@@ -3368,6 +3368,8 @@ function showDurationBox(seconds,callback,title) {
             var input = $(popup.find(".inputs input")[pos]),
                 val = parseInt(input.val());
 
+            if (dir == -1 && val == 0) return;
+
             input.val(val+dir);
         };
 
