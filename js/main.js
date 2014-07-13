@@ -2159,7 +2159,7 @@ function fill_runonce(data){
 function submit_runonce(runonce) {
     if (typeof runonce === 'undefined') {
         runonce = [];
-        $("#runonce").find(":input[data-type='range']").each(function(a,b){
+        $("#runonce").find("[id^='zone-']").each(function(a,b){
             runonce.push(parseInt($(b).val()));
         });
         runonce.push(0);
