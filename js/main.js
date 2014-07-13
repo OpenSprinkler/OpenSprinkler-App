@@ -2131,6 +2131,11 @@ function get_runonce() {
         showDurationBox(ele.val(),function(result){
             ele.val(result);
             ele.text(dhms2str(sec2dhms(result)));
+            if (result > 0) {
+                ele.addClass("green");
+            } else {
+                ele.removeClass("green");
+            }
         });
 
         return false;
@@ -2151,7 +2156,13 @@ function reset_runonce() {
 function fill_runonce(data){
     var i=0;
     $("#runonce").find("[id^='zone-']").each(function(a,b){
-        $(b).val(data[i]).text(dhms2str(sec2dhms(data[i])));
+        var ele = $(b);
+        ele.val(data[i]).text(dhms2str(sec2dhms(data[i])));
+        if (data[i] > 0) {
+            ele.addClass("green");
+        } else {
+            ele.removeClass("green");
+        }
         i++;
     });
 }
