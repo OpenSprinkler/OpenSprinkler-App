@@ -3498,8 +3498,8 @@ function parseIntArray(arr) {
 // Convert seconds into (HH:)MM:SS format. HH is only reported if greater than 0.
 function sec2hms(diff) {
     var str = "";
-    var hours = parseInt( diff / 3600 ) % 24;
-    var minutes = parseInt( diff / 60 ) % 60;
+    var hours = Math.max(0, parseInt( diff / 3600 ) % 24);
+    var minutes = Math.max(0, parseInt( diff / 60 ) % 60);
     var seconds = diff % 60;
     if (hours) str += pad(hours)+":";
     return str+pad(minutes)+":"+pad(seconds);
@@ -3508,10 +3508,10 @@ function sec2hms(diff) {
 // Convert seconds into array of days, hours, minutes and seconds.
 function sec2dhms(diff) {
     return {
-        "days": parseInt(diff / 86400),
-        "hours": parseInt(diff % 86400 / 3600),
-        "minutes": parseInt((diff % 86400) % 3600 / 60),
-        "seconds": parseInt((diff % 86400) % 3600 % 60)
+        "days": Math.max(0, parseInt(diff / 86400)),
+        "hours": Math.max(0, parseInt(diff % 86400 / 3600)),
+        "minutes": Math.max(0, parseInt((diff % 86400) % 3600 / 60)),
+        "seconds": Math.max(0, parseInt((diff % 86400) % 3600 % 60))
     }
 }
 
