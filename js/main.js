@@ -2775,6 +2775,15 @@ function expandProgram(program) {
         return false;
     });
 
+    program.find("[id^='duration-'],[id^='interval-']").on("click",function(){
+        var dur = $(this);
+        showDurationBox(dur.val(),function(result){
+            dur.val(result);
+            dur.text(dhms2str(sec2dhms(result)));
+        });
+        return false;
+    });
+
     program.find("[id^='s_checkall-']").on("click",function(){
         var id = $(this).attr("id").split("-")[1];
         program.find("[id^='station_'][id$='-"+id+"']").prop("checked",true).checkboxradio("refresh");
@@ -2800,7 +2809,7 @@ function expandProgram(program) {
 
         $.each(stations,function(a,b){
             if ($(b).is(":checked")) {
-                runonce.push(durr*60);
+                runonce.push(durr);
             } else {
                 runonce.push(0);
             }
@@ -2968,8 +2977,11 @@ function make_program(n) {
     list += "<div class='ui-block-b'><label for='end-"+n+"'>"+_("End Time")+"</label><input data-mini='true' type='time' name='end-"+n+"' id='end-"+n+"' value='"+pad(parseInt(program.end/60)%24)+":"+pad(program.end%60)+"'></div>";
     list += "</div>";
 
-    list += "<label for='duration-"+n+"'>"+_("Duration (minutes)")+"</label><input type='number' data-highlight='true' data-type='range' name='duration-"+n+"' min='0' max='300' id='duration-"+n+"' value='"+(program.duration/60)+"'>";
-    list += "<label for='interval-"+n+"'>"+_("Interval (minutes)")+"</label><input type='number' data-highlight='true' data-type='range' name='interval-"+n+"' min='0' max='1439' id='interval-"+n+"' value='"+(program.interval)+"'><br>";
+    list += "<div class='ui-grid-a'>";
+    list += "<div class='ui-block-a'><label for='duration-"+n+"'>"+_("Station Duration")+"</label><button data-mini='true' name='duration-"+n+"' id='duration-"+n+"' value='"+program.duration+"'>"+dhms2str(sec2dhms(program.duration))+"</button></div>";
+    list += "<div class='ui-block-b'><label for='interval-"+n+"'>"+_("Program Interval")+"</label><button data-mini='true' name='interval-"+n+"' id='interval-"+n+"' value='"+program.interval+"'>"+dhms2str(sec2dhms(program.interval))+"</button></div>";
+    list += "</div>";
+
     if (n === "new") {
         list += "<input data-mini='true' type='submit' name='submit-"+n+"' id='submit-"+n+"' value='"+_("Save New Program")+"'>";
     } else {
@@ -3010,6 +3022,15 @@ function add_program() {
 
     addprogram.find("[id^='submit-']").on("click",function(){
         submit_program("new");
+        return false;
+    });
+
+    addprogram.find("[id^='duration-'],[id^='interval-']").on("click",function(){
+        var dur = $(this);
+        showDurationBox(dur.val(),function(result){
+            dur.val(result);
+            dur.text(dhms2str(sec2dhms(result)));
+        });
         return false;
     });
 
@@ -3061,7 +3082,7 @@ function submit_program(id) {
     if(program[3]>program[4]) {showerror(_("Error: Start time must be prior to end time."));return;}
 
     program[5] = parseInt($("#interval-"+id).val());
-    program[6] = $("#duration-"+id).val() * 60;
+    program[6] = $("#duration-"+id).val();
 
     var sel = $("[id^=station_][id$=-"+id+"]"),
         total = sel.length,
@@ -3481,6 +3502,16 @@ function sec2dhms(diff) {
     }
 }
 
+function dhms2str(arr) {
+    var str = "";
+    if (arr.days) str += arr.days+"d ";
+    if (arr.hours) str += arr.hours+"h ";
+    if (arr.minutes) str += arr.minutes+"m ";
+    if (arr.seconds) str += arr.seconds+"s ";
+    if (str == "") str = "0s";
+    return str.trim();
+}
+
 // Convert days, hours, minutes and seconds array into seconds (int).
 function dhms2sec(arr) {
     return (arr.days*86400)+(arr.hours*3600)+(arr.minutes*60)+arr.seconds;
@@ -3488,7 +3519,7 @@ function dhms2sec(arr) {
 
 // Generate email link for JSON data export
 function objToEmail(ele,obj,subject) {
-    subject = subject || "Sprinklers Data Export";
+    subject = subject || "Sprinklers Data Export on "+dateToString(new Date);
     var body = JSON.stringify(obj);
     $(ele).attr("href","mailto:?subject="+encodeURIComponent(subject)+"&body="+encodeURIComponent(body));
 }
