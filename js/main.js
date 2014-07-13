@@ -3517,11 +3517,11 @@ function sec2dhms(diff) {
 
 function dhms2str(arr) {
     var str = "";
-    if (arr.days) str += arr.days+"d ";
-    if (arr.hours) str += arr.hours+"h ";
-    if (arr.minutes) str += arr.minutes+"m ";
-    if (arr.seconds) str += arr.seconds+"s ";
-    if (str == "") str = "0s";
+    if (arr.days) str += arr.days+_("d")+" ";
+    if (arr.hours) str += arr.hours+_("h")+" ";
+    if (arr.minutes) str += arr.minutes+_("m")+" ";
+    if (arr.seconds) str += arr.seconds+_("s")+" ";
+    if (str == "") str = "0"+_("s");
     return str.trim();
 }
 

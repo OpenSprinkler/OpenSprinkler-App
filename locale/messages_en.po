@@ -298,9 +298,7 @@ msgstr ""
 msgid "Manual mode is not enabled. Please enable manual mode then try again."
 msgstr ""
 
-msgid ""
-"Value is in minutes. Zero means the station will be excluded from the run-"
-"once program."
+msgid "Zero value excludes the station from the run-once program."
 msgstr ""
 
 msgid "Quick Programs"
@@ -485,10 +483,10 @@ msgstr ""
 msgid "End Time"
 msgstr ""
 
-msgid "Duration (minutes)"
+msgid "Station Duration"
 msgstr ""
 
-msgid "Interval (minutes)"
+msgid "Program Interval"
 msgstr ""
 
 msgid "Save New Program"
@@ -569,6 +567,33 @@ msgid "Yes"
 msgstr ""
 
 msgid "No"
+msgstr ""
+
+msgid "Days"
+msgstr ""
+
+msgid "Hours"
+msgstr ""
+
+msgid "Minutes"
+msgstr ""
+
+msgid "Seconds"
+msgstr ""
+
+msgid "Set Duration"
+msgstr ""
+
+msgid "d"
+msgstr ""
+
+msgid "h"
+msgstr ""
+
+msgid "m"
+msgstr ""
+
+msgid "s"
 msgstr ""
 
 msgid "Sunday"
