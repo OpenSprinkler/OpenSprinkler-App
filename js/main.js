@@ -2979,7 +2979,7 @@ function make_program(n) {
 
     list += "<div class='ui-grid-a'>";
     list += "<div class='ui-block-a'><label for='duration-"+n+"'>"+_("Station Duration")+"</label><button data-mini='true' name='duration-"+n+"' id='duration-"+n+"' value='"+program.duration+"'>"+dhms2str(sec2dhms(program.duration))+"</button></div>";
-    list += "<div class='ui-block-b'><label for='interval-"+n+"'>"+_("Program Interval")+"</label><button data-mini='true' name='interval-"+n+"' id='interval-"+n+"' value='"+program.interval+"'>"+dhms2str(sec2dhms(program.interval))+"</button></div>";
+    list += "<div class='ui-block-b'><label for='interval-"+n+"'>"+_("Program Interval")+"</label><button data-mini='true' name='interval-"+n+"' id='interval-"+n+"' value='"+program.interval*60+"'>"+dhms2str(sec2dhms(program.interval*60))+"</button></div>";
     list += "</div>";
 
     if (n === "new") {
@@ -3081,7 +3081,7 @@ function submit_program(id) {
 
     if(program[3]>program[4]) {showerror(_("Error: Start time must be prior to end time."));return;}
 
-    program[5] = parseInt($("#interval-"+id).val());
+    program[5] = parseInt($("#interval-"+id).val()/60);
     program[6] = parseInt($("#duration-"+id).val());
 
     var sel = $("[id^=station_][id$=-"+id+"]"),
