@@ -1608,7 +1608,7 @@ function show_stations() {
             list += "</td>";
             if (isMaster) {
                 if (window.controller.options.mas == i+1) {
-                    list += "<td class='use_master'><p class='um_"+i+" ir_"+i+"' class='center'>("+_("Master")+")</p></td>";
+                    list += "<td class='use_master'><p id='um_"+i+"' class='center'>("+_("Master")+")</p></td>";
                 } else {
                     list += "<td data-role='controlgroup' data-type='horizontal' class='use_master'><label for='um_"+i+"'><input id='um_"+i+"' type='checkbox' "+((window.controller.stations.masop[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+" /></label></td>";
                 }
@@ -1643,7 +1643,7 @@ function submit_stations() {
         masop="",
         ignore_rain="";
 
-    $("#os-stations-list").find(":input,p[id^='um_'],p[id^='ir_']").each(function(a,b){
+    $("#os-stations-list").find(":input,p[id^='um_']").each(function(a,b){
         var $item = $(b), id = $item.attr('id'), data = $item.val();
         switch (id) {
             case "edit_station_" + id.slice("edit_station_".length):
@@ -1664,7 +1664,7 @@ function submit_stations() {
                 }
                 return true;
             case "ir_" + id.slice("ir_".length):
-                r = ($item.is(":checked") || $item.prop("tagName") == "P") ? "1".concat(r) : "0".concat(r);
+                r = ($item.is(":checked")) ? "1".concat(r) : "0".concat(r);
                 s2++;
                 if (parseInt(s2/8) > bid2) {
                     i["i"+bid2]=parseInt(r,2); bid2++; s2=0; r="";
