@@ -2070,7 +2070,7 @@ function toggle() {
 
 // Runonce functions
 function get_runonce() {
-    var list = "<p class='center'>"+_("Value is in minutes. Zero means the station will be excluded from the run-once program.")+"</p>",
+    var list = "<p class='center'>"+_("Zero value excludes the station from the run-once program.")+"</p>",
         runonce = $("#runonce_list"),
         i=0, n=0,
         quickPick, data, progs, rprogs, z, program;
@@ -2108,7 +2108,7 @@ function get_runonce() {
     quickPick += "</select>";
     list += quickPick+"<form>";
     $.each(window.controller.stations.snames,function(i, station) {
-        list += "<div class='ui-field-contain'><label for='zone-"+n+"'>"+station+":</label><input type='range' data-highlight='true' name='zone-"+n+"' min='0' max='240' id='zone-"+n+"' value='0'></div>";
+        list += "<div class='ui-field-contain'><label for='zone-"+n+"'>"+station+":</label><button data-mini='true' name='zone-"+n+"' id='zone-"+n+"' value='0'>0s</button></div>";
         n++;
     });
 
@@ -2122,7 +2122,18 @@ function get_runonce() {
             return;
         }
         if (typeof rprogs[prog] === "undefined") return;
-        fill_runonce(runonce,rprogs[prog]);
+        fill_runonce(rprogs[prog]);
+    });
+
+    runonce.find("[id^='zone-']").on("click",function(){
+        var ele = $(this);
+
+        showDurationBox(ele.val(),function(result){
+            ele.val(result);
+            ele.text(dhms2str(sec2dhms(result)));
+        });
+
+        return false;
     });
 
     runonce.enhanceWithin();
@@ -2133,14 +2144,14 @@ function get_runonce() {
 }
 
 function reset_runonce() {
-    $("#runonce").find(":input[data-type='range']").val(0).slider("refresh");
+    $("#runonce").find("[id^='zone-']").val(0).text("0s");
     return false;
 }
 
-function fill_runonce(list,data){
+function fill_runonce(data){
     var i=0;
-    list.find(":input[data-type='range']").each(function(a,b){
-        $(b).val(data[i]/60).slider("refresh");
+    $("#runonce").find("[id^='zone-']").each(function(a,b){
+        $(b).val(data[i]).text(dhms2str(sec2dhms(data[i])));
         i++;
     });
 }
@@ -2149,7 +2160,7 @@ function submit_runonce(runonce) {
     if (typeof runonce === 'undefined') {
         runonce = [];
         $("#runonce").find(":input[data-type='range']").each(function(a,b){
-            runonce.push(parseInt($(b).val())*60);
+            runonce.push(parseInt($(b).val()));
         });
         runonce.push(0);
     }
