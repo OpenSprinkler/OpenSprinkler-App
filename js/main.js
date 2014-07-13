@@ -2291,7 +2291,6 @@ function get_preview() {
         for(var sid=0;sid<window.controller.settings.nbrd*8;sid++) {
             if(pid_array[sid]) {
                 if(window.controller.options.seq==1) {
-                    time_to_text(sid,st_array[sid],pid_array[sid],et_array[sid],simt);
                     if((window.controller.options.mas>0)&&(window.controller.options.mas!=sid+1)&&(window.controller.stations.masop[sid>>3]&(1<<(sid%8))))
                     preview_data.push({
                         'start': (st_array[sid]+window.controller.options.mton),
@@ -2301,6 +2300,7 @@ function get_preview() {
                         'shortname':'M',
                         'group':'Master'
                     });
+                    time_to_text(sid,st_array[sid],pid_array[sid],et_array[sid],simt);
                     endtime=et_array[sid];
                 } else {
                     time_to_text(sid,simseconds,pid_array[sid],et_array[sid],simt);
@@ -2309,14 +2309,16 @@ function get_preview() {
                 }
             }
         }
-        if(window.controller.options.seq===0&&window.controller.options.mas>0) preview_data.push({
-            'start': simseconds,
-            'end': endtime,
-            'content':'',
-            'className':'master',
-            'shortname':'M',
-            'group':'Master'
-        });
+        if(window.controller.options.seq===0&&window.controller.options.mas>0) {
+            preview_data.push({
+                'start': simseconds,
+                'end': endtime,
+                'content':'',
+                'className':'master',
+                'shortname':'M',
+                'group':'Master'
+            });
+        }
         return endtime;
     };
 
