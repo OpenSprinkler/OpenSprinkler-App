@@ -3368,7 +3368,7 @@ function showDurationBox(seconds,callback,title) {
             var input = $(popup.find(".inputs input")[pos]),
                 val = parseInt(input.val());
 
-            input.val(val+1);
+            input.val(val+dir);
         };
 
     popup.find(".incr").children().on("click",function(){
