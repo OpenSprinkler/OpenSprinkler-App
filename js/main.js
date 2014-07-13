@@ -3312,6 +3312,7 @@ function showDurationBox(seconds,callback,title) {
     $("#durationBox").popup("destroy").remove();
 
     title = title || "Duration";
+    callback = callback || function(){};
 
     var arr = sec2dhms(seconds);
         popup = $('<div data-role="popup" id="durationBox" data-theme="a" data-overlay-theme="b">' +
@@ -3320,19 +3321,19 @@ function showDurationBox(seconds,callback,title) {
             '</div>' +
             '<div class="ui-content">' +
                 '<span>' +
-                    '<fieldset class="ui-grid-c">' +
+                    '<fieldset class="ui-grid-c incr">' +
                         '<div class="ui-block-a"><a href="#" data-role="button" data-mini="true" data-corners="true" data-icon="plus" data-iconpos="bottom"></a></div>' +
                         '<div class="ui-block-b"><a href="#" data-role="button" data-mini="true" data-corners="true" data-icon="plus" data-iconpos="bottom"></a></div>' +
                         '<div class="ui-block-c"><a href="#" data-role="button" data-mini="true" data-corners="true" data-icon="plus" data-iconpos="bottom"></a></div>' +
                         '<div class="ui-block-d"><a href="#" data-role="button" data-mini="true" data-corners="true" data-icon="plus" data-iconpos="bottom"></a></div>' +
                     '</fieldset>' +
-                    '<div class="ui-grid-c">' +
+                    '<div class="ui-grid-c inputs">' +
                         '<div class="ui-block-a"><label>'+_("Days")+'</label><input class="days" type="number" pattern="[0-9]*" value="'+arr.days+'"></div>' +
                         '<div class="ui-block-b"><label>'+_("Hours")+'</label><input class="hours" type="number" pattern="[0-9]*" value="'+arr.hours+'"></div>' +
                         '<div class="ui-block-c"><label>'+_("Minutes")+'</label><input class="minutes" type="number" pattern="[0-9]*" value="'+arr.minutes+'"></div>' +
                         '<div class="ui-block-d"><label>'+_("Seconds")+'</label><input class="seconds" type="number" pattern="[0-9]*" value="'+arr.seconds+'"></div>' +
                     '</div>' +
-                    '<fieldset class="ui-grid-c">' +
+                    '<fieldset class="ui-grid-c decr">' +
                         '<div class="ui-block-a"><a href="#" data-role="button" data-mini="true" data-corners="true" data-icon="minus" data-iconpos="bottom"></a></div>' +
                         '<div class="ui-block-b"><a href="#" data-role="button" data-mini="true" data-corners="true" data-icon="minus" data-iconpos="bottom"></a></div>' +
                         '<div class="ui-block-c"><a href="#" data-role="button" data-mini="true" data-corners="true" data-icon="minus" data-iconpos="bottom"></a></div>' +
@@ -3341,7 +3342,23 @@ function showDurationBox(seconds,callback,title) {
                     '<a href="#" class="submit_duration" data-role="button" data-corners="true" data-shadow="true" data-iconshadow="true" data-mini="true" data-icon="check">'+_("Set Duration")+'</a>' +
                 '</span>' +
             '</div>' +
-        '</div>');
+        '</div>'),
+        changeValue = function(pos,dir){
+            var input = $(popup.find(".inputs input")[pos]),
+                val = parseInt(input.val());
+
+            input.val(val+1);
+        };
+
+    popup.find(".incr").children().on("click",function(){
+        var pos = $(this).index();
+        changeValue(pos,1);
+    });
+
+    popup.find(".decr").children().on("click",function(){
+        var pos = $(this).index();
+        changeValue(pos,-1);
+    });
 
     popup
     .css("max-width","350px")
@@ -3360,6 +3377,7 @@ function showDurationBox(seconds,callback,title) {
             "seconds": parseInt($(".seconds").val()),
         });
         callback(seconds);
+        popup.popup("close");
     })
     .enhanceWithin().popup("open");
 }
