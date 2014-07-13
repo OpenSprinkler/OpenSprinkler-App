@@ -3082,7 +3082,7 @@ function submit_program(id) {
     if(program[3]>program[4]) {showerror(_("Error: Start time must be prior to end time."));return;}
 
     program[5] = parseInt($("#interval-"+id).val());
-    program[6] = $("#duration-"+id).val();
+    program[6] = parseInt($("#duration-"+id).val());
 
     var sel = $("[id^=station_][id$=-"+id+"]"),
         total = sel.length,
@@ -3514,7 +3514,7 @@ function dhms2str(arr) {
 
 // Convert days, hours, minutes and seconds array into seconds (int).
 function dhms2sec(arr) {
-    return (arr.days*86400)+(arr.hours*3600)+(arr.minutes*60)+arr.seconds;
+    return parseInt((arr.days*86400)+(arr.hours*3600)+(arr.minutes*60)+arr.seconds);
 }
 
 // Generate email link for JSON data export
