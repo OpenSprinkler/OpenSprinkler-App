@@ -2126,7 +2126,8 @@ function get_runonce() {
     });
 
     runonce.find("[id^='zone-']").on("click",function(){
-        var ele = $(this);
+        var ele = $(this),
+            name = runonce.find("label[for='"+ele.attr("id")+"']").text().slice(0,-1);
 
         showDurationBox(ele.val(),function(result){
             ele.val(result);
@@ -2136,7 +2137,7 @@ function get_runonce() {
             } else {
                 ele.removeClass("green");
             }
-        });
+        },name);
 
         return false;
     });
@@ -2800,11 +2801,13 @@ function expandProgram(program) {
     });
 
     program.find("[id^='duration-'],[id^='interval-']").on("click",function(){
-        var dur = $(this);
+        var dur = $(this),
+            name = program.find("label[for='"+dur.attr("id")+"']").text();
+
         showDurationBox(dur.val(),function(result){
             dur.val(result);
             dur.text(dhms2str(sec2dhms(result)));
-        });
+        },name);
         return false;
     });
 
@@ -3050,11 +3053,13 @@ function add_program() {
     });
 
     addprogram.find("[id^='duration-'],[id^='interval-']").on("click",function(){
-        var dur = $(this);
+        var dur = $(this),
+            name = addprogram.find("label[for='"+dur.attr("id")+"']").text();
+
         showDurationBox(dur.val(),function(result){
             dur.val(result);
             dur.text(dhms2str(sec2dhms(result)));
-        });
+        },name);
         return false;
     });
 
