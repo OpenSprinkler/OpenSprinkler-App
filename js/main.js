@@ -3453,10 +3453,10 @@ function showDurationBox(seconds,title,callback,maximum) {
         },
         getValue = function() {
             return dhms2sec({
-                "days": parseInt(popup.find(".days").val()),
-                "hours": parseInt(popup.find(".hours").val()),
-                "minutes": parseInt(popup.find(".minutes").val()),
-                "seconds": parseInt(popup.find(".seconds").val())
+                "days": parseInt(popup.find(".days").val()) || 0,
+                "hours": parseInt(popup.find(".hours").val()) || 0,
+                "minutes": parseInt(popup.find(".minutes").val()) || 0,
+                "seconds": parseInt(popup.find(".seconds").val()) || 0
             });
         };
 
