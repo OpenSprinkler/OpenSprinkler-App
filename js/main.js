@@ -3364,7 +3364,7 @@ function showDurationBox(seconds,callback,title) {
     title = title || "Duration";
     callback = callback || function(){};
 
-    var arr = sec2dhms(seconds);
+    var arr = sec2dhms(seconds),
         popup = $('<div data-role="popup" id="durationBox" data-theme="a" data-overlay-theme="b">' +
             '<div data-role="header" data-theme="b">' +
                 '<h1>'+title+'</h1>' +
@@ -3397,7 +3397,7 @@ function showDurationBox(seconds,callback,title) {
             var input = $(popup.find(".inputs input")[pos]),
                 val = parseInt(input.val());
 
-            if (dir == -1 && val == 0) return;
+            if (dir == -1 && val === 0) return;
 
             input.val(val+dir);
         };
@@ -3426,7 +3426,7 @@ function showDurationBox(seconds,callback,title) {
             "days": parseInt($(".days").val()),
             "hours": parseInt($(".hours").val()),
             "minutes": parseInt($(".minutes").val()),
-            "seconds": parseInt($(".seconds").val()),
+            "seconds": parseInt($(".seconds").val())
         });
         callback(seconds);
         popup.popup("close");
@@ -3530,7 +3530,7 @@ function sec2dhms(diff) {
         "hours": Math.max(0, parseInt(diff % 86400 / 3600)),
         "minutes": Math.max(0, parseInt((diff % 86400) % 3600 / 60)),
         "seconds": Math.max(0, parseInt((diff % 86400) % 3600 % 60))
-    }
+    };
 }
 
 function dhms2str(arr) {
@@ -3539,7 +3539,7 @@ function dhms2str(arr) {
     if (arr.hours) str += arr.hours+_("h")+" ";
     if (arr.minutes) str += arr.minutes+_("m")+" ";
     if (arr.seconds) str += arr.seconds+_("s")+" ";
-    if (str == "") str = "0"+_("s");
+    if (str === "") str = "0"+_("s");
     return str.trim();
 }
 
@@ -3550,20 +3550,20 @@ function dhms2sec(arr) {
 
 // Generate email link for JSON data export
 function objToEmail(ele,obj,subject) {
-    subject = subject || "Sprinklers Data Export on "+dateToString(new Date);
+    subject = subject || "Sprinklers Data Export on "+dateToString(new Date());
     var body = JSON.stringify(obj);
     $(ele).attr("href","mailto:?subject="+encodeURIComponent(subject)+"&body="+encodeURIComponent(body));
 }
 
 // Return day of the week
-function getDayName(date,type) {
-    var long = [_("Sunday"),_("Monday"),_("Tuesday"),_("Wednesday"),_("Thursday"),_("Friday"),_("Saturday")],
-        short = [_("Sun"),_("Mon"),_("Tue"),_("Wed"),_("Thu"),_("Fri"),_("Sat")];
+function getDayName(day,type) {
+    var ldays = [_("Sunday"),_("Monday"),_("Tuesday"),_("Wednesday"),_("Thursday"),_("Friday"),_("Saturday")],
+        sdays = [_("Sun"),_("Mon"),_("Tue"),_("Wed"),_("Thu"),_("Fri"),_("Sat")];
 
     if (type == "short") {
-        return short[date.getDay()];
+        return sdays[day.getDay()];
     } else {
-        return long[date.getDay()];
+        return ldays[day.getDay()];
     }
 }
 
