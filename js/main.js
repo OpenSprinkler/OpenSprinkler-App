@@ -2673,13 +2673,14 @@ function get_logs() {
             zones.show();
             $("#graph_sort").show();
             if (!freshLoad) {
-                var output = '<div onclick="scrollZone(this);" class="ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border" id="graphScrollLeft"></div><div onclick="scrollZone(this);" class="ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border" id="graphScrollRight"></div><table style="font-size:smaller"><tbody><tr>';
+                var output = '<div class="ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border" id="graphScrollLeft"></div><div class="ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border" id="graphScrollRight"></div><table style="font-size:smaller"><tbody><tr>';
                 for (i=0; i<window.controller.stations.snames.length; i++) {
                     output += '<td class="legendColorBox"><div style="border:1px solid #ccc;padding:1px"><div style="width:4px;height:0;overflow:hidden"></div></div></td><td id="z'+i+'" zone_num='+i+' name="'+window.controller.stations.snames[i] + '" class="legendLabel">'+window.controller.stations.snames[i]+'</td>';
                 }
                 output += '</tr></tbody></table>';
                 zones.empty().append(output).enhanceWithin();
                 zones.find("td").on("click",toggleZone);
+                zones.find("#graphScrollLeft,#graphScrollRight").on("click",scrollZone);
             }
             seriesChange();
             i = 0;
@@ -2788,8 +2789,8 @@ function reset_logs_page() {
     $("#logs_list").show().html(_("No entries found in the selected date range"));
 }
 
-function scrollZone(dir) {
-    dir = ($(dir).attr("id") == "graphScrollRight") ? "+=" : "-=";
+function scrollZone() {
+    var dir = ($(this).attr("id") == "graphScrollRight") ? "+=" : "-=";
     var zones = $("#zones");
     var w = zones.width();
     zones.animate({scrollLeft: dir+w});
