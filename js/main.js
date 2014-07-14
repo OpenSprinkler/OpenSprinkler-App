@@ -764,10 +764,11 @@ function show_site_select(list) {
             '</div>' +
             '<div class="ui-content">' +
                 '<ul data-role="none" class="ui-listview ui-corner-all ui-shadow">' +
-                    ((list) ? list : '') +
                 '</ul>' +
             '</div>' +
         '</div>');
+
+    if (list) popup.find("ul").html(list);
 
     popup.one("popupafterclose",function(){
         $(this).popup("destroy").remove();
@@ -947,8 +948,14 @@ function site_select(names) {
     names = names || Object.keys(getsites());
 
     for (var i=0; i < names.length; i++) {
-        newlist += "<li><a class='ui-btn ui-btn-icon-right ui-icon-carat-r' href='javascript:update_site(\""+names[i]+"\");'>"+names[i]+"</a></li>";
+        newlist += "<li><a class='ui-btn ui-btn-icon-right ui-icon-carat-r' href='#'>"+names[i]+"</a></li>";
     }
+
+    newlist = $(newlist);
+
+    newlist.find("a").on("click",function(){
+        update_site(this.innerHTML);
+    });
 
     show_site_select(newlist);
 }
@@ -1062,7 +1069,7 @@ function start_scan(port,type) {
 
         devicesfound++;
 
-        newlist += "<li><a class='ui-btn ui-btn-icon-right ui-icon-carat-r' href='javascript:add_found(\""+ip+"\");'>"+ip+"<p>"+_("Firmware")+": "+getOSVersion(fwv)+"</p></a></li>";
+        newlist += "<li><a class='ui-btn ui-btn-icon-right ui-icon-carat-r' href='#' data-ip='"+ip+"'>"+ip+"<p>"+_("Firmware")+": "+getOSVersion(fwv)+"</p></a></li>";
     };
 
     // Check if scanning is complete
@@ -1081,6 +1088,12 @@ function start_scan(port,type) {
                     showerror(_("No new devices were detected on your network"));
                 }
             } else {
+                newlist = $(newlist);
+
+                newlist.find("a").on("click",function(){
+                    add_found(this.dataset["ip"]);
+                });
+
                 show_site_select(newlist);
             }
         }
@@ -1150,7 +1163,7 @@ function show_weather_settings() {
     var page = $('<div data-role="page" id="weather_settings">' +
         '<div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false" data-add-back-btn="true">' +
             '<h3>'+_("Weather Settings")+'</h3>' +
-            '<a href="" class="ui-btn-right wsubmit">'+_("Submit")+'</a>' +
+            '<a href="#" class="ui-btn-right wsubmit">'+_("Submit")+'</a>' +
         '</div>' +
         '<div class="ui-content" role="main">' +
             '<ul data-role="listview" data-inset="true">' +
@@ -2119,7 +2132,7 @@ function get_runonce() {
         n++;
     });
 
-    list += "</form><a class='ui-btn ui-corner-all ui-shadow rsubmit' href=''>"+_("Submit")+"</a><a class='ui-btn ui-btn-b ui-corner-all ui-shadow rreset' href=''>"+_("Reset")+"</a>";
+    list += "</form><a class='ui-btn ui-corner-all ui-shadow rsubmit' href='#'>"+_("Submit")+"</a><a class='ui-btn ui-btn-b ui-corner-all ui-shadow rreset' href='#'>"+_("Reset")+"</a>";
 
     runonce.html(list);
     $("#rprog").on("change",function(){
