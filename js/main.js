@@ -3444,7 +3444,7 @@ function showDurationBox(seconds,title,callback,maximum,granularity) {
             '</div>' +
             '<div class="ui-content">' +
                 '<span>' +
-                    '<a href="#" class="submit_duration" data-role="button" data-corners="true" data-shadow="true" data-iconshadow="true" data-mini="true" data-icon="check">'+_("Set Duration")+'</a>' +
+                    '<a href="#" class="submit_duration" data-role="button" data-corners="true" data-shadow="true" data-mini="true">'+_("Set Duration")+'</a>' +
                 '</span>' +
             '</div>' +
         '</div>'),
