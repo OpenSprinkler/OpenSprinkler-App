@@ -695,6 +695,7 @@ function submit_newuser(ssl,useAuth) {
 
             html.on("submit","form",function(){
                 submit_newuser(ssl,true);
+                return false;
             });
 
             $("#addnew-content").hide();
@@ -822,7 +823,10 @@ function show_addnew(autoIP,closeOld) {
             '</div>' +
         '</div>');
 
-    addnew.on("submit","form",submit_newuser);
+    addnew.find("form").on("submit",function(){
+        submit_newuser();
+        return false;
+    });
 
     addnew.one("popupafterclose",function(){
         $(this).popup("destroy").remove();
@@ -867,17 +871,34 @@ function show_sites() {
         var c = a.replace(/ /g,"_");
         list += "<fieldset "+((total == 1) ? "data-collapsed='false'" : "")+" id='site-"+c+"' data-role='collapsible'>";
         list += "<legend>"+a+"</legend>";
-        list += "<a data-role='button' href='javascript:update_site(\""+a+"\")'>"+_("Connect Now")+"</a>";
-        list += "<form action='javascript:change_site(\""+c+"\");' novalidate>";
+        list += "<a data-role='button' class='connectnow' data-site='"+a+"' href='#'>"+_("Connect Now")+"</a>";
+        list += "<form data-site='"+c+"' novalidate>";
         list += "<label for='cnm-"+c+"'>"+_("Change Name")+"</label><input id='cnm-"+c+"' type='text' placeholder='"+a+"' />";
         list += "<label for='cip-"+c+"'>"+_("Change IP")+"</label><input id='cip-"+c+"' type='url' placeholder='"+b.os_ip+"' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' />";
         list += "<label for='cpw-"+c+"'>"+_("Change Password")+"</label><input id='cpw-"+c+"' type='password' />";
         list += "<input type='submit' value='"+_("Save Changes to")+" "+a+"' /></form>";
-        list += "<a data-role='button' href='javascript:delete_site(\""+a+"\")' data-theme='b'>"+_("Delete")+" "+a+"</a>";
+        list += "<a data-role='button' class='deletesite' data-site='"+a+"' href='#' data-theme='b'>"+_("Delete")+" "+a+"</a>";
         list += "</fieldset>";
     });
 
-    page.find(".ui-content").html($(list+"</div>")).enhanceWithin();
+    list = $(list+"</div>");
+
+    list.find(".connectnow").on("click",function(){
+        update_site(this.dataset["site"]);
+        return false;
+    });
+
+    list.find("form").on("submit",function(){
+        change_site(this.dataset["site"]);
+        return false;
+    });
+
+    list.find("deletesite").on("click",function(){
+        delete_site(this.dataset["site"]);
+        return false;
+    });
+
+    page.find(".ui-content").html(list).enhanceWithin();
 
     page.find(".ui-collapsible-set").collapsibleset();
 
@@ -955,6 +976,7 @@ function site_select(names) {
 
     newlist.find("a").on("click",function(){
         update_site(this.innerHTML);
+        return false;
     });
 
     show_site_select(newlist);
@@ -1092,6 +1114,7 @@ function start_scan(port,type) {
 
                 newlist.find("a").on("click",function(){
                     add_found(this.dataset["ip"]);
+                    return false;
                 });
 
                 show_site_select(newlist);
@@ -1204,7 +1227,10 @@ function show_weather_settings() {
     .one("pagehide",function(){
         $(this).remove();
     })
-    .find(".wsubmit").on("click",submit_weather_settings);
+    .find(".wsubmit").on("click",function(){
+        submit_weather_settings();
+        return false;
+    });
 
     page.appendTo("body");
     $("body").pagecontainer("change",page);
@@ -1270,6 +1296,8 @@ function show_providers() {
         update_weather();
 
         $("#providers").popup("close");
+
+        return false;
     });
 
     //Handle provider select change on weather settings
@@ -3427,11 +3455,13 @@ function showDurationBox(seconds,callback,title) {
     popup.find(".incr").children().on("click",function(){
         var pos = $(this).index();
         changeValue(pos,1);
+        return false;
     });
 
     popup.find(".decr").children().on("click",function(){
         var pos = $(this).index();
         changeValue(pos,-1);
+        return false;
     });
 
     popup
@@ -3452,6 +3482,7 @@ function showDurationBox(seconds,callback,title) {
         });
         callback(seconds);
         popup.popup("close");
+        return false;
     })
     .enhanceWithin().popup("open");
 }
