@@ -2187,7 +2187,7 @@ function get_runonce() {
             } else {
                 ele.removeClass("green");
             }
-        });
+        },32767);
 
         return false;
     });
@@ -2852,12 +2852,13 @@ function expandProgram(program) {
 
     program.find("[id^='duration-'],[id^='interval-']").on("click",function(){
         var dur = $(this),
+            granularity = dur.attr("id").match("interval") ? 1 : 0,
             name = program.find("label[for='"+dur.attr("id")+"']").text();
 
         showDurationBox(dur.val(),name,function(result){
             dur.val(result);
             dur.text(dhms2str(sec2dhms(result)));
-        });
+        },32767,granularity);
         return false;
     });
 
@@ -3104,12 +3105,13 @@ function add_program() {
 
     addprogram.find("[id^='duration-'],[id^='interval-']").on("click",function(){
         var dur = $(this),
+            granularity = dur.attr("id").match("interval") ? 1 : 0,
             name = addprogram.find("label[for='"+dur.attr("id")+"']").text();
 
         showDurationBox(dur.val(),name,function(result){
             dur.val(result);
             dur.text(dhms2str(sec2dhms(result)));
-        });
+        },32767,granularity);
         return false;
     });
 
@@ -3408,15 +3410,16 @@ function areYouSure(text1, text2, callback) {
     $("#sure").popup({history: false, positionTo: "window"}).popup("open");
 }
 
-function showDurationBox(seconds,title,callback,maximum) {
+function showDurationBox(seconds,title,callback,maximum,granularity) {
     $("#durationBox").popup("destroy").remove();
 
     title = title || "Duration";
     callback = callback || function(){};
+    granularity = granularity || 0;
 
     var types = ["Days","Hours","Minutes","Seconds"],
         conv = [86400,3600,60,1],
-        total = 4,
+        total = 4 - granularity,
         start = 0,
         arr = sec2dhms(seconds);
 
@@ -3424,7 +3427,7 @@ function showDurationBox(seconds,title,callback,maximum) {
         for (var i=conv.length-1; i>=0; i--) {
             if (maximum < conv[i]) {
                 start = i+1;
-                total = conv.length - start;
+                total = (conv.length - start) - granularity;
                 break;
             }
         }
@@ -3460,11 +3463,10 @@ function showDurationBox(seconds,title,callback,maximum) {
             });
         };
 
-    for (i=start; i<conv.length; i++) {
-        console.log(i)
-        incrbts += '<div class="ui-block-'+String.fromCharCode(97+i-start)+'"><a href="#" data-role="button" data-mini="true" data-corners="true" data-icon="plus" data-iconpos="bottom"></a></div>';
-        inputs += '<div class="ui-block-'+String.fromCharCode(97+i-start)+'"><label>'+_(types[i])+'</label><input class="'+types[i].toLowerCase()+'" type="number" pattern="[0-9]*" value="'+arr[types[i].toLowerCase()]+'"></div>';
-        decrbts += '<div class="ui-block-'+String.fromCharCode(97+i-start)+'"><a href="#" data-role="button" data-mini="true" data-corners="true" data-icon="minus" data-iconpos="bottom"></a></div>';
+    for (i=start; i<conv.length - granularity; i++) {
+        incrbts += '<div '+((total > 1) ? 'class="ui-block-'+String.fromCharCode(97+i-start)+'"' : '')+'><a href="#" data-role="button" data-mini="true" data-corners="true" data-icon="plus" data-iconpos="bottom"></a></div>';
+        inputs += '<div '+((total > 1) ? 'class="ui-block-'+String.fromCharCode(97+i-start)+'"' : '')+'><label>'+_(types[i])+'</label><input class="'+types[i].toLowerCase()+'" type="number" pattern="[0-9]*" value="'+arr[types[i].toLowerCase()]+'"></div>';
+        decrbts += '<div '+((total > 1) ? 'class="ui-block-'+String.fromCharCode(97+i-start)+'"' : '')+'><a href="#" data-role="button" data-mini="true" data-corners="true" data-icon="minus" data-iconpos="bottom"></a></div>';
     }
 
     incrbts += '</fieldset>';
