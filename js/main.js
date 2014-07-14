@@ -893,7 +893,7 @@ function show_sites() {
         return false;
     });
 
-    list.find("deletesite").on("click",function(){
+    list.find(".deletesite").on("click",function(){
         delete_site(this.dataset["site"]);
         return false;
     });
