@@ -3446,8 +3446,8 @@ function showDurationBox(seconds,title,callback,maximum) {
         changeValue = function(pos,dir){
             var input = $(popup.find(".inputs input")[pos]),
                 val = parseInt(input.val());
-//needs fixing
-            if ((dir == -1 && val === 0) || (dir == 1 && (getValue() + conv[pos]) > maximum)) return;
+
+            if ((dir == -1 && val === 0) || (dir == 1 && (getValue() + conv[pos+start]) > maximum)) return;
 
             input.val(val+dir);
         },
