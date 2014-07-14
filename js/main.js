@@ -3421,10 +3421,11 @@ function showDurationBox(seconds,title,callback,maximum,granularity) {
         conv = [86400,3600,60,1],
         total = 4 - granularity,
         start = 0,
-        arr = sec2dhms(seconds);
+        arr = sec2dhms(seconds),
+        i;
 
     if (maximum) {
-        for (var i=conv.length-1; i>=0; i--) {
+        for (i=conv.length-1; i>=0; i--) {
             if (maximum < conv[i]) {
                 start = i+1;
                 total = (conv.length - start) - granularity;
