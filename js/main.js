@@ -884,17 +884,17 @@ function show_sites() {
     list = $(list+"</div>");
 
     list.find(".connectnow").on("click",function(){
-        update_site(this.dataset["site"]);
+        update_site(this.dataset.site);
         return false;
     });
 
     list.find("form").on("submit",function(){
-        change_site(this.dataset["site"]);
+        change_site(this.dataset.site);
         return false;
     });
 
     list.find(".deletesite").on("click",function(){
-        delete_site(this.dataset["site"]);
+        delete_site(this.dataset.site);
         return false;
     });
 
@@ -1113,7 +1113,7 @@ function start_scan(port,type) {
                 newlist = $(newlist);
 
                 newlist.find("a").on("click",function(){
-                    add_found(this.dataset["ip"]);
+                    add_found(this.dataset.ip);
                     return false;
                 });
 
@@ -1240,7 +1240,7 @@ function submit_weather_settings() {
     var url = "/uwa?auto_delay="+($("#auto_delay").is(":checked") ? "on" : "off")+"&delay_duration="+$("#delay_duration").val()+"&weather_provider="+$("#weather_provider").val()+"&wapikey="+$("#wapikey").val();
 
     send_to_os(url).then(
-        function(result){
+        function(){
             $(document).one("pageshow",function(){
                 showerror(_("Weather settings have been saved"));
             });
