@@ -2179,7 +2179,7 @@ function get_runonce() {
         var ele = $(this),
             name = runonce.find("label[for='"+ele.attr("id")+"']").text().slice(0,-1);
 
-        showDurationBox(ele.val(),function(result){
+        showDurationBox(ele.val(),name,function(result){
             ele.val(result);
             ele.text(dhms2str(sec2dhms(result)));
             if (result > 0) {
@@ -2187,7 +2187,7 @@ function get_runonce() {
             } else {
                 ele.removeClass("green");
             }
-        },name);
+        });
 
         return false;
     });
@@ -2854,10 +2854,10 @@ function expandProgram(program) {
         var dur = $(this),
             name = program.find("label[for='"+dur.attr("id")+"']").text();
 
-        showDurationBox(dur.val(),function(result){
+        showDurationBox(dur.val(),name,function(result){
             dur.val(result);
             dur.text(dhms2str(sec2dhms(result)));
-        },name);
+        });
         return false;
     });
 
@@ -3106,10 +3106,10 @@ function add_program() {
         var dur = $(this),
             name = addprogram.find("label[for='"+dur.attr("id")+"']").text();
 
-        showDurationBox(dur.val(),function(result){
+        showDurationBox(dur.val(),name,function(result){
             dur.val(result);
             dur.text(dhms2str(sec2dhms(result)));
-        },name);
+        });
         return false;
     });
 
@@ -3408,37 +3408,37 @@ function areYouSure(text1, text2, callback) {
     $("#sure").popup({history: false, positionTo: "window"}).popup("open");
 }
 
-function showDurationBox(seconds,callback,title) {
+function showDurationBox(seconds,title,callback,maximum) {
     $("#durationBox").popup("destroy").remove();
 
     title = title || "Duration";
     callback = callback || function(){};
 
-    var arr = sec2dhms(seconds),
+    var types = ["Days","Hours","Minutes","Seconds"],
+        conv = [86400,3600,60,1],
+        total = 4,
+        start = 0,
+        arr = sec2dhms(seconds);
+
+    if (maximum) {
+        for (var i=conv.length-1; i>=0; i--) {
+            if (maximum < conv[i]) {
+                start = i+1;
+                total = conv.length - start;
+                break;
+            }
+        }
+    }
+
+    var incrbts = '<fieldset class="ui-grid-'+String.fromCharCode(95+(total))+' incr">',
+        inputs = '<div class="ui-grid-'+String.fromCharCode(95+(total))+' inputs">',
+        decrbts = '<fieldset class="ui-grid-'+String.fromCharCode(95+(total))+' decr">',
         popup = $('<div data-role="popup" id="durationBox" data-theme="a" data-overlay-theme="b">' +
             '<div data-role="header" data-theme="b">' +
                 '<h1>'+title+'</h1>' +
             '</div>' +
             '<div class="ui-content">' +
                 '<span>' +
-                    '<fieldset class="ui-grid-c incr">' +
-                        '<div class="ui-block-a"><a href="#" data-role="button" data-mini="true" data-corners="true" data-icon="plus" data-iconpos="bottom"></a></div>' +
-                        '<div class="ui-block-b"><a href="#" data-role="button" data-mini="true" data-corners="true" data-icon="plus" data-iconpos="bottom"></a></div>' +
-                        '<div class="ui-block-c"><a href="#" data-role="button" data-mini="true" data-corners="true" data-icon="plus" data-iconpos="bottom"></a></div>' +
-                        '<div class="ui-block-d"><a href="#" data-role="button" data-mini="true" data-corners="true" data-icon="plus" data-iconpos="bottom"></a></div>' +
-                    '</fieldset>' +
-                    '<div class="ui-grid-c inputs">' +
-                        '<div class="ui-block-a"><label>'+_("Days")+'</label><input class="days" type="number" pattern="[0-9]*" value="'+arr.days+'"></div>' +
-                        '<div class="ui-block-b"><label>'+_("Hours")+'</label><input class="hours" type="number" pattern="[0-9]*" value="'+arr.hours+'"></div>' +
-                        '<div class="ui-block-c"><label>'+_("Minutes")+'</label><input class="minutes" type="number" pattern="[0-9]*" value="'+arr.minutes+'"></div>' +
-                        '<div class="ui-block-d"><label>'+_("Seconds")+'</label><input class="seconds" type="number" pattern="[0-9]*" value="'+arr.seconds+'"></div>' +
-                    '</div>' +
-                    '<fieldset class="ui-grid-c decr">' +
-                        '<div class="ui-block-a"><a href="#" data-role="button" data-mini="true" data-corners="true" data-icon="minus" data-iconpos="bottom"></a></div>' +
-                        '<div class="ui-block-b"><a href="#" data-role="button" data-mini="true" data-corners="true" data-icon="minus" data-iconpos="bottom"></a></div>' +
-                        '<div class="ui-block-c"><a href="#" data-role="button" data-mini="true" data-corners="true" data-icon="minus" data-iconpos="bottom"></a></div>' +
-                        '<div class="ui-block-d"><a href="#" data-role="button" data-mini="true" data-corners="true" data-icon="minus" data-iconpos="bottom"></a></div>' +
-                    '</fieldset>' +
                     '<a href="#" class="submit_duration" data-role="button" data-corners="true" data-shadow="true" data-iconshadow="true" data-mini="true" data-icon="check">'+_("Set Duration")+'</a>' +
                 '</span>' +
             '</div>' +
@@ -3446,11 +3446,32 @@ function showDurationBox(seconds,callback,title) {
         changeValue = function(pos,dir){
             var input = $(popup.find(".inputs input")[pos]),
                 val = parseInt(input.val());
-
-            if (dir == -1 && val === 0) return;
+//needs fixing
+            if ((dir == -1 && val === 0) || (dir == 1 && (getValue() + conv[pos]) > maximum)) return;
 
             input.val(val+dir);
+        },
+        getValue = function() {
+            return dhms2sec({
+                "days": parseInt(popup.find(".days").val()),
+                "hours": parseInt(popup.find(".hours").val()),
+                "minutes": parseInt(popup.find(".minutes").val()),
+                "seconds": parseInt(popup.find(".seconds").val())
+            });
         };
+
+    for (i=start; i<conv.length; i++) {
+        console.log(i)
+        incrbts += '<div class="ui-block-'+String.fromCharCode(97+i-start)+'"><a href="#" data-role="button" data-mini="true" data-corners="true" data-icon="plus" data-iconpos="bottom"></a></div>';
+        inputs += '<div class="ui-block-'+String.fromCharCode(97+i-start)+'"><label>'+_(types[i])+'</label><input class="'+types[i].toLowerCase()+'" type="number" pattern="[0-9]*" value="'+arr[types[i].toLowerCase()]+'"></div>';
+        decrbts += '<div class="ui-block-'+String.fromCharCode(97+i-start)+'"><a href="#" data-role="button" data-mini="true" data-corners="true" data-icon="minus" data-iconpos="bottom"></a></div>';
+    }
+
+    incrbts += '</fieldset>';
+    inputs += '</div>';
+    decrbts += '</fieldset>';
+
+    popup.find("span").prepend(incrbts+inputs+decrbts);
 
     popup.find(".incr").children().on("click",function(){
         var pos = $(this).index();
@@ -3474,13 +3495,7 @@ function showDurationBox(seconds,callback,title) {
         $(this).popup("destroy").remove();
     })
     .on("click",".submit_duration",function(){
-        var seconds = dhms2sec({
-            "days": parseInt($(".days").val()),
-            "hours": parseInt($(".hours").val()),
-            "minutes": parseInt($(".minutes").val()),
-            "seconds": parseInt($(".seconds").val())
-        });
-        callback(seconds);
+        callback(getValue());
         popup.popup("close");
         return false;
     })
