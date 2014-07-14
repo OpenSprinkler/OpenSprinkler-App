@@ -683,7 +683,7 @@ function submit_newuser(ssl,useAuth) {
         showAuth = function(){
             $.mobile.loading("hide");
             var html = $('<div class="ui-content" id="addnew-auth">' +
-                    '<form action="javascript:submit_newuser('+ssl+',true)" method="post" novalidate>' +
+                    '<form method="post" novalidate>' +
                         '<p class="center" style="font-size:smaller;margin-top:0">'+_("Authorization Required")+'</p>' +
                         '<label for="os_auth_user">'+_("Username:")+'</label>' +
                         '<input autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" type="text" name="os_auth_user" id="os_auth_user" />' +
@@ -692,6 +692,10 @@ function submit_newuser(ssl,useAuth) {
                         '<input type="submit" value="'+_("Submit")+'" />' +
                     '</form>' +
                 '</div>').enhanceWithin();
+
+            html.on("submit","form",function(){
+                submit_newuser(ssl,true);
+            });
 
             $("#addnew-content").hide();
             $("#addnew").append(html).popup("reposition",{positionTo:"window"});
@@ -798,7 +802,7 @@ function show_addnew(autoIP,closeOld) {
                 '<h1>'+_("New Device")+'</h1>' +
             '</div>' +
             '<div class="ui-content" id="addnew-content">' +
-                '<form action="javascript:submit_newuser()" method="post" novalidate>' +
+                '<form method="post" novalidate>' +
                     ((isAuto) ? '' : '<p class="center" style="font-size:smaller;margin-top:0">'+_("Note: The name is used to identify the OpenSprinkler within the app. OpenSprinkler IP can be either an IP or hostname. You can also specify a port by using IP:Port")+'</p>') +
                     '<label for="os_name">'+_("Open Sprinkler Name:")+'</label>' +
                     '<input autocorrect="off" spellcheck="false" type="text" name="os_name" id="os_name" placeholder="Home" />' +
@@ -816,6 +820,8 @@ function show_addnew(autoIP,closeOld) {
                 '</form>' +
             '</div>' +
         '</div>');
+
+    addnew.on("submit","form",submit_newuser);
 
     addnew.one("popupafterclose",function(){
         $(this).popup("destroy").remove();
@@ -1144,7 +1150,7 @@ function show_weather_settings() {
     var page = $('<div data-role="page" id="weather_settings">' +
         '<div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false" data-add-back-btn="true">' +
             '<h3>'+_("Weather Settings")+'</h3>' +
-            '<a href="javascript:submit_weather_settings();" class="ui-btn-right">'+_("Submit")+'</a>' +
+            '<a href="" class="ui-btn-right wsubmit">'+_("Submit")+'</a>' +
         '</div>' +
         '<div class="ui-content" role="main">' +
             '<ul data-role="listview" data-inset="true">' +
@@ -1168,7 +1174,7 @@ function show_weather_settings() {
                         '<input type="number" pattern="[0-9]*" data-highlight="true" data-type="range" min="0" max="96" id="delay_duration" value="'+window.curr_wa.delay_duration+'" />' +
                 '</li>' +
             '</ul>' +
-            '<a href="javascript:submit_weather_settings();" data-role="button" data-theme="b" type="submit">'+_("Submit")+'</a>' +
+            '<a class="wsubmit" href="#" data-role="button" data-theme="b" type="submit">'+_("Submit")+'</a>' +
         '</div>' +
     '</div>');
 
@@ -1184,7 +1190,8 @@ function show_weather_settings() {
     })
     .one("pagehide",function(){
         $(this).remove();
-    });
+    })
+    .find(".wsubmit").on("click",submit_weather_settings);
 
     page.appendTo("body");
     $("body").pagecontainer("change",page);
@@ -2112,7 +2119,7 @@ function get_runonce() {
         n++;
     });
 
-    list += "</form><a class='ui-btn ui-corner-all ui-shadow' href='javascript:submit_runonce();'>"+_("Submit")+"</a><a class='ui-btn ui-btn-b ui-corner-all ui-shadow' href='javascript:reset_runonce();'>"+_("Reset")+"</a>";
+    list += "</form><a class='ui-btn ui-corner-all ui-shadow rsubmit' href=''>"+_("Submit")+"</a><a class='ui-btn ui-btn-b ui-corner-all ui-shadow rreset' href=''>"+_("Reset")+"</a>";
 
     runonce.html(list);
     $("#rprog").on("change",function(){
@@ -2124,6 +2131,8 @@ function get_runonce() {
         if (typeof rprogs[prog] === "undefined") return;
         fill_runonce(rprogs[prog]);
     });
+
+    runonce.on("click",".rsubmit",submit_runonce).on("click",".rreset",reset_runonce);
 
     runonce.find("[id^='zone-']").on("click",function(){
         var ele = $(this),
@@ -2150,7 +2159,7 @@ function get_runonce() {
 }
 
 function reset_runonce() {
-    $("#runonce").find("[id^='zone-']").val(0).text("0s");
+    $("#runonce").find("[id^='zone-']").val(0).text("0s").removeClass("green");
     return false;
 }
 
@@ -2169,7 +2178,7 @@ function fill_runonce(data){
 }
 
 function submit_runonce(runonce) {
-    if (typeof runonce === 'undefined') {
+    if (!(runonce instanceof Array)) {
         runonce = [];
         $("#runonce").find("[id^='zone-']").each(function(a,b){
             runonce.push(parseInt($(b).val()));
