@@ -32,6 +32,12 @@ $(document)
             } catch (err) {}
         });
     }
+
+    if (navigator.userAgent.search("IEMobile") !== -1) {
+        $.ajaxSetup({
+            "cache": false
+        });
+    }
 })
 .ajaxError(function(x,t,m) {
     if (t.status==401 && /https?:\/\/.*?\/(?:cv|sn|cs|cr|cp|dp|co|cl)/.exec(m.url)) {
@@ -1484,10 +1490,6 @@ function show_forecast() {
     return false;
 }
 
-function gohome() {
-    $("body").pagecontainer("change","#sprinklers",{reverse: true});
-}
-
 function open_panel() {
     var panel = $("#sprinklers-settings");
     panel.panel("option","classes.modal","needsclick ui-panel-dismiss");
@@ -2187,7 +2189,7 @@ function get_runonce() {
             } else {
                 ele.removeClass("green");
             }
-        },32767);
+        },65535);
 
         return false;
     });
@@ -2228,12 +2230,13 @@ function submit_runonce(runonce) {
     }
     localStorage.setItem("runonce",JSON.stringify(runonce));
     send_to_os("/cr?pw=&t="+JSON.stringify(runonce)).done(function(){
+        $(document).one("pageshow",function(){
+            showerror(_("Run-once program has been scheduled"));
+        });
         update_controller_status();
         update_controller_settings();
-        showerror(_("Run-once program has been scheduled"));
+        window.history.back();
     });
-    gohome();
-    return false;
 }
 
 // Preview functions
@@ -2859,7 +2862,7 @@ function expandProgram(program) {
         showDurationBox(dur.val(),name,function(result){
             dur.val(result);
             dur.text(dhms2str(sec2dhms(result)));
-        },32767,granularity);
+        },65535,granularity);
         return false;
     });
 
@@ -3112,7 +3115,7 @@ function add_program() {
         showDurationBox(dur.val(),name,function(result){
             dur.val(result);
             dur.text(dhms2str(sec2dhms(result)));
-        },32767,granularity);
+        },65535,granularity);
         return false;
     });
 
