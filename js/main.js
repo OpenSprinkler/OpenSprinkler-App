@@ -128,7 +128,6 @@ $(document)
             show_sites();
         } else if (hash == "#weather_settings") {
             show_weather_settings();
-            return false;
         } else if (hash == "#addnew") {
             show_addnew();
             return false;
@@ -1239,7 +1238,6 @@ function show_weather_settings() {
     });
 
     page.appendTo("body");
-    $("body").pagecontainer("change",page);
 }
 
 function submit_weather_settings() {
@@ -1960,7 +1958,7 @@ function check_status() {
         if (pid!=255&&pid!=99) line += "<span id='countdown' class='nobr'>("+sec2hms(ptotal)+" "+_("remaining")+")</span>";
         line += "</p>";
         change_status(ptotal,window.controller.options.sdt,"green",line,function(){
-            $("body").pagecontainer("change","#status");
+            changePage("#status");
         });
         return;
     }
@@ -1982,7 +1980,7 @@ function check_status() {
 
     if (match) {
         change_status(window.controller.settings.ps[i][1],window.controller.options.sdt,"green",line,function(){
-            $("body").pagecontainer("change","#status");
+            changePage("#status");
         });
         return;
     }
