@@ -35,8 +35,6 @@ git clone https://github.com/salbahra/Sprinklers.git /var/www/sprinklers
 
 > If you don't have Git, you can download the [ZIP](https://github.com/salbahra/Sprinklers/archive/master.zip) file and extract to a local directory.
 
-> The webapp can also be installed to the SD card of the OpenSprinkler and run directly from the device. For this you will need to grab the specially formatted version from the sdcard branch.
-
 Update Instructions:
 --------------------
 
