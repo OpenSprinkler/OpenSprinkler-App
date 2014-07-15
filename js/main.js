@@ -684,7 +684,7 @@ function submit_newuser(ssl,useAuth) {
             $.mobile.loading("hide");
             var html = $('<div class="ui-content" id="addnew-auth">' +
                     '<form method="post" novalidate>' +
-                        '<p class="center" style="font-size:smaller;margin-top:0">'+_("Authorization Required")+'</p>' +
+                        '<p class="center smaller">'+_("Authorization Required")+'</p>' +
                         '<label for="os_auth_user">'+_("Username:")+'</label>' +
                         '<input autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" type="text" name="os_auth_user" id="os_auth_user" />' +
                         '<label for="os_auth_pw">'+_("Password:")+'</label>' +
@@ -805,7 +805,7 @@ function show_addnew(autoIP,closeOld) {
             '</div>' +
             '<div class="ui-content" id="addnew-content">' +
                 '<form method="post" novalidate>' +
-                    ((isAuto) ? '' : '<p class="center" style="font-size:smaller;margin-top:0">'+_("Note: The name is used to identify the OpenSprinkler within the app. OpenSprinkler IP can be either an IP or hostname. You can also specify a port by using IP:Port")+'</p>') +
+                    ((isAuto) ? '' : '<p class="center smaller">'+_("Note: The name is used to identify the OpenSprinkler within the app. OpenSprinkler IP can be either an IP or hostname. You can also specify a port by using IP:Port")+'</p>') +
                     '<label for="os_name">'+_("Open Sprinkler Name:")+'</label>' +
                     '<input autocorrect="off" spellcheck="false" type="text" name="os_name" id="os_name" placeholder="Home" />' +
                     ((isAuto) ? '' : '<label for="os_ip">'+_("Open Sprinkler IP:")+'</label>') +
@@ -1637,7 +1637,7 @@ function submit_settings() {
 
 // Station managament function
 function show_stations() {
-    var list = "<li style='white-space:inherit'>",
+    var list = "<li class='wrap'>",
         isMaster = window.controller.options.mas ? true : false,
         hasIR = (typeof window.controller.stations.ignore_rain === "object") ? true : false,
         useTableView = (hasIR || isMaster);
@@ -1821,9 +1821,9 @@ function get_status() {
     }
 
     $("#status .ui-content").append(
-        $('<p id="status_header"></p>').html(header),
+        $('<p class="smaller center"></p>').html(header),
         $('<ul data-role="listview" data-inset="true" id="status_list"></ul>').html(list).listview(),
-        $('<p id="status_footer"></p>').html(footer)
+        $('<p class="smaller center"></p>').html(footer)
     );
 
     removeTimers();
@@ -2673,9 +2673,9 @@ function get_logs() {
             zones.show();
             $("#graph_sort").show();
             if (!freshLoad) {
-                var output = '<div class="ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border" id="graphScrollLeft"></div><div class="ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border" id="graphScrollRight"></div><table style="font-size:smaller"><tbody><tr>';
+                var output = '<div class="ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border" id="graphScrollLeft"></div><div class="ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border" id="graphScrollRight"></div><table class="smaller"><tbody><tr>';
                 for (i=0; i<window.controller.stations.snames.length; i++) {
-                    output += '<td class="legendColorBox"><div style="border:1px solid #ccc;padding:1px"><div style="width:4px;height:0;overflow:hidden"></div></div></td><td id="z'+i+'" zone_num='+i+' name="'+window.controller.stations.snames[i] + '" class="legendLabel">'+window.controller.stations.snames[i]+'</td>';
+                    output += '<td class="legendColorBox"><div><div></div></div></td><td id="z'+i+'" zone_num='+i+' name="'+window.controller.stations.snames[i] + '" class="legendLabel">'+window.controller.stations.snames[i]+'</td>';
                 }
                 output += '</tr></tbody></table>';
                 zones.empty().append(output).enhanceWithin();
@@ -3023,13 +3023,13 @@ function make_program(n) {
     list += "<input data-mini='true' type='radio' name='rad_days-"+n+"' id='days_n-"+n+"' value='days_n-"+n+"' "+((program.is_interval) ? "checked='checked'" : "")+"><label for='days_n-"+n+"'>"+_("Interval")+"</label>";
     list += "</fieldset><div id='input_days_week-"+n+"' "+((program.is_interval) ? "style='display:none'" : "")+">";
 
-    list += "<fieldset data-role='controlgroup' data-type='horizontal' class='center'><p style='margin:0'>"+_("Restrictions")+"</p>";
+    list += "<fieldset data-role='controlgroup' data-type='horizontal' class='center'><p class='tight'>"+_("Restrictions")+"</p>";
     list += "<input data-mini='true' type='radio' name='rad_rst-"+n+"' id='days_norst-"+n+"' value='days_norst-"+n+"' "+((!program.is_even && !program.is_odd) ? "checked='checked'" : "")+"><label for='days_norst-"+n+"'>"+_("None")+"</label>";
     list += "<input data-mini='true' type='radio' name='rad_rst-"+n+"' id='days_odd-"+n+"' value='days_odd-"+n+"' "+((!program.is_even && program.is_odd) ? "checked='checked'" : "")+"><label for='days_odd-"+n+"'>"+_("Odd Days")+"</label>";
     list += "<input data-mini='true' type='radio' name='rad_rst-"+n+"' id='days_even-"+n+"' value='days_even-"+n+"' "+((!program.is_odd && program.is_even) ? "checked='checked'" : "")+"><label for='days_even-"+n+"'>"+_("Even Days")+"</label>";
     list += "</fieldset>";
 
-    list += "<fieldset data-type='horizontal' data-role='controlgroup' class='center'><p style='margin:0'>"+_("Days of the Week")+"</p>";
+    list += "<fieldset data-type='horizontal' data-role='controlgroup' class='center'><p class='tight'>"+_("Days of the Week")+"</p>";
     for (j=0; j<week.length; j++) {
         list += "<label for='d"+j+"-"+n+"'><input data-mini='true' type='checkbox' "+((!program.is_interval && days[j]) ? "checked='checked'" : "")+" name='d"+j+"-"+n+"' id='d"+j+"-"+n+"'>"+week[j]+"</label>";
     }
