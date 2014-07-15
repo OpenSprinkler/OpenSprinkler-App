@@ -2819,7 +2819,7 @@ function get_programs(pid) {
     .one("pagehide",function(){
         $(this).find(".ui-content").empty();
     })
-    .one("pageshow",function(){
+    .one("pagebeforeshow",function(){
         if (typeof pid !== "number" && window.controller.programs.pd.length === 1) pid = 0;
 
         if (typeof pid === "number") {
