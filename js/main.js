@@ -26,7 +26,7 @@ $(document)
     });
 
     if (navigator.userAgent.indexOf('Android') > 0) {
-        $(document).ajaxStart(function(){
+        $(this).ajaxStart(function(){
             try {
                 navigator.app.clearCache();
             } catch (err) {}
@@ -96,7 +96,7 @@ $(document)
         changePage("#start");
     }
 
-    $(document).on("pagebeforechange",function(e,data){
+    $.mobile.document.on("pagebeforechange",function(e,data){
         var page = data.toPage,
             hash, showBack;
 
@@ -201,7 +201,7 @@ $(document)
         $newpage.one("pagehide",function(){
             $("#timeline").empty();
             $("#preview_date").off("change");
-            $(window).off("resize");
+            $.mobile.window.off("resize");
             $("#timeline-navigation").find("a").off("click");
         });
     } else if (newpage == "#logs") {
@@ -221,7 +221,7 @@ $(document)
         });
 
         $newpage.one("pagehide",function(){
-            $(window).off("resize");
+            $.mobile.window.off("resize");
             $("#placeholder").off("plothover");
             $("#zones").off("scroll");
             $("#logs input:radio[name='log_type'],#graph_sort input[name='g'],#log_start,#log_end").off("change");
@@ -1245,7 +1245,7 @@ function submit_weather_settings() {
 
     send_to_os(url).then(
         function(){
-            $(document).one("pageshow",function(){
+            $.mobile.document.one("pageshow",function(){
                 showerror(_("Weather settings have been saved"));
             });
             window.history.back();
@@ -1627,7 +1627,7 @@ function submit_settings() {
     if (invalid) return;
     $.mobile.loading("show");
     send_to_os("/co?pw=&"+$.param(opt)).done(function(){
-        $(document).one("pageshow",function(){
+        $.mobile.document.one("pageshow",function(){
             showerror(_("Settings have been saved"));
         });
         window.history.back();
@@ -1727,7 +1727,7 @@ function submit_stations() {
     if (invalid) return;
     $.mobile.loading("show");
     send_to_os("/cs?pw=&"+$.param(names)+masop+ignore_rain).done(function(){
-        $(document).one("pageshow",function(){
+        $.mobile.document.one("pageshow",function(){
             showerror(_("Stations have been updated"));
         });
         window.history.back();
@@ -2228,7 +2228,7 @@ function submit_runonce(runonce) {
     }
     localStorage.setItem("runonce",JSON.stringify(runonce));
     send_to_os("/cr?pw=&t="+JSON.stringify(runonce)).done(function(){
-        $(document).one("pageshow",function(){
+        $.mobile.document.one("pageshow",function(){
             showerror(_("Run-once program has been scheduled"));
         });
         update_controller_status();
@@ -2434,11 +2434,11 @@ function get_preview() {
                 'programToExpand': pid
             });
         });
-        $(window).on("resize",function(){
+        $.mobile.window.on("resize",function(){
             timeline.redraw();
         });
         timeline.draw(preview_data, options);
-        if ($(window).width() <= 480) {
+        if ($.mobile.window.width() <= 480) {
             var currRange = timeline.getVisibleChartRange();
             if ((currRange.end.getTime() - currRange.start.getTime()) > 6000000) timeline.setVisibleChartRange(currRange.start,new Date(currRange.start.getTime()+6000000));
         }
@@ -2666,7 +2666,7 @@ function get_logs() {
             }
 
             $("#logs_list").empty().hide();
-            var state = ($(window).height() > 680) ? "expand" : "collapse";
+            var state = ($.mobile.window.height() > 680) ? "expand" : "collapse";
             setTimeout(function(){$("#log_options").collapsible(state);},100);
             $("#placeholder").show();
             var zones = $("#zones");
@@ -2753,7 +2753,7 @@ function get_logs() {
     //Update left/right arrows when zones are scrolled on log page
     $("#zones").scroll(showArrows);
 
-    $(window).resize(function(){
+    $.mobile.window.resize(function(){
         showArrows();
         seriesChange();
     });
@@ -3189,7 +3189,7 @@ function submit_program(id) {
         send_to_os("/cp?pw=&pid=-1&v="+program).done(function(){
             $.mobile.loading("hide");
             update_controller_programs(function(){
-                $(document).one("pageshow",function(){
+                $.mobile.document.one("pageshow",function(){
                     showerror(_("Program added successfully"));
                 });
                 window.history.back();
