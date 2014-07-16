@@ -344,7 +344,7 @@ function newload() {
             checkWeatherPlugin();
 
             // Transition to home page after succesful load
-            if ($("body").pagecontainer("getActivePage").attr("id") != "sprinklers") {
+            if ($.mobile.pageContainer.pagecontainer("getActivePage").attr("id") != "sprinklers") {
                 changePage("#sprinklers",{
                     "transition":"none",
                     "firstLoad": true
@@ -852,7 +852,7 @@ function show_addnew(autoIP,closeOld) {
 
     addnew.find(".ui-collapsible-heading-toggle").on("click",function(){
         var open = $(this).parents(".ui-collapsible").hasClass("ui-collapsible-collapsed"),
-            page = $("body").pagecontainer("getActivePage"),
+            page = $.mobile.pageContainer.pagecontainer("getActivePage"),
             height = parseInt(page.css("min-height"));
 
         if (open) {
@@ -1744,7 +1744,7 @@ function get_status() {
         tz = window.controller.options.tz-48,
         lastCheck;
 
-    if ($("body").pagecontainer("getActivePage").attr("id") === "status") {
+    if ($.mobile.pageContainer.pagecontainer("getActivePage").attr("id") === "status") {
         $("#status .ui-content").empty();
     }
 
@@ -3511,7 +3511,7 @@ function changePage(toPage,opts) {
     opts = opts || {};
     if (toPage.indexOf("#") !== 0) toPage = "#"+toPage;
 
-    $("body").pagecontainer("change",toPage,opts);
+    $.mobile.pageContainer.pagecontainer("change",toPage,opts);
 }
 
 // Close the panel before page transition to avoid bug in jQM 1.4+
