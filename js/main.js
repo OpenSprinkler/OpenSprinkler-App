@@ -1212,7 +1212,7 @@ function show_weather_settings() {
                             '<input type="checkbox" data-on-text="On" data-off-text="Off" data-role="flipswitch" name="auto_delay" id="auto_delay" '+(window.curr_wa.auto_delay == "on" ? "checked" : "")+'>' +
                         '</div>' +
                         '<label for="delay_duration">'+_("Delay Duration (hours)")+'</label>' +
-                        '<input type="number" pattern="[0-9]*" data-highlight="true" data-type="range" min="0" max="96" id="delay_duration" value="'+window.curr_wa.delay_duration+'" />' +
+                        '<button id="delay_duration" data-mini="true" value="'+(window.curr_wa.delay_duration*3600)+'">'+dhms2str(sec2dhms(window.curr_wa.delay_duration*3600))+'</button>' +
                 '</li>' +
             '</ul>' +
             '<a class="wsubmit" href="#" data-role="button" data-theme="b" type="submit">'+_("Submit")+'</a>' +
@@ -1237,11 +1237,21 @@ function show_weather_settings() {
         return false;
     });
 
+    page.find("#delay_duration").on("click",function(){
+        var dur = $(this),
+            name = page.find("label[for='"+dur.attr("id")+"']").text().slice(0,-1);
+
+        showDurationBox(dur.val(),name,function(result){
+            dur.val(result);
+            dur.text(dhms2str(sec2dhms(result)));
+        },345600,2);
+    });
+
     page.appendTo("body");
 }
 
 function submit_weather_settings() {
-    var url = "/uwa?auto_delay="+($("#auto_delay").is(":checked") ? "on" : "off")+"&delay_duration="+$("#delay_duration").val()+"&weather_provider="+$("#weather_provider").val()+"&wapikey="+$("#wapikey").val();
+    var url = "/uwa?auto_delay="+($("#auto_delay").is(":checked") ? "on" : "off")+"&delay_duration="+parseInt($("#delay_duration").val()/3600)+"&weather_provider="+$("#weather_provider").val()+"&wapikey="+$("#wapikey").val();
 
     send_to_os(url).then(
         function(){
@@ -2176,16 +2186,16 @@ function get_runonce() {
     runonce.on("click",".rsubmit",submit_runonce).on("click",".rreset",reset_runonce);
 
     runonce.find("[id^='zone-']").on("click",function(){
-        var ele = $(this),
-            name = runonce.find("label[for='"+ele.attr("id")+"']").text().slice(0,-1);
+        var dur = $(this),
+            name = runonce.find("label[for='"+dur.attr("id")+"']").text().slice(0,-1);
 
-        showDurationBox(ele.val(),name,function(result){
-            ele.val(result);
-            ele.text(dhms2str(sec2dhms(result)));
+        showDurationBox(dur.val(),name,function(result){
+            dur.val(result);
+            dur.text(dhms2str(sec2dhms(result)));
             if (result > 0) {
-                ele.addClass("green");
+                dur.addClass("green");
             } else {
-                ele.removeClass("green");
+                dur.removeClass("green");
             }
         },65535);
 
