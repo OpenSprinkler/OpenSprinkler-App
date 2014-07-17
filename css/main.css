@@ -295,11 +295,11 @@ a {
     }
     .duration-input > label {
         float: left;
-        width: 40%;
+        width: 50%;
         margin: .5em 2% 0 0;
     }
     .duration-input > label~[class*=ui-] {
-        width: 58%;
+        width: 48%;
         box-sizing: border-box;
     }
 }
