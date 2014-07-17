@@ -2,8 +2,6 @@ var isIEMobile = /IEMobile/.test(navigator.userAgent),
     isAndroid = /Android|\bSilk\b/.test(navigator.userAgent),
     isiOS = /iP(ad|hone|od)/.test(navigator.userAgent);
 
-console.log(isIEMobile,isAndroid,isiOS);
-
 //Fix CSS for IE Mobile (Windows Phone 8)
 if (isIEMobile) {
     var a=document.createElement("style");
@@ -1213,12 +1211,14 @@ function show_weather_settings() {
             '<ul data-role="listview" data-inset="true"> ' +
                 '<li>' +
                     '<p class="rain-desc">'+_("When automatic rain delay is enabled, the weather will be checked for rain every hour. If the weather reports any condition suggesting rain, a rain delay is automatically issued using the below set delay duration.")+'</p>' +
-                        '<div data-role="fieldcontain">' +
+                        '<div class="ui-field-contain">' +
                             '<label for="auto_delay">'+_("Auto Rain Delay")+'</label>' +
                             '<input type="checkbox" data-on-text="On" data-off-text="Off" data-role="flipswitch" name="auto_delay" id="auto_delay" '+(window.curr_wa.auto_delay == "on" ? "checked" : "")+'>' +
                         '</div>' +
-                        '<label for="delay_duration">'+_("Delay Duration (hours)")+'</label>' +
-                        '<button id="delay_duration" data-mini="true" value="'+(window.curr_wa.delay_duration*3600)+'">'+dhms2str(sec2dhms(window.curr_wa.delay_duration*3600))+'</button>' +
+                        '<div class="ui-field-contain duration-input">' +
+                            '<label for="delay_duration">'+_("Delay Duration")+'</label>' +
+                            '<button id="delay_duration" data-mini="true" value="'+(window.curr_wa.delay_duration*3600)+'">'+dhms2str(sec2dhms(window.curr_wa.delay_duration*3600))+'</button>' +
+                        '</div>' +
                 '</li>' +
             '</ul>' +
             '<a class="wsubmit" href="#" data-role="button" data-theme="b" type="submit">'+_("Submit")+'</a>' +
@@ -1245,7 +1245,7 @@ function show_weather_settings() {
 
     page.find("#delay_duration").on("click",function(){
         var dur = $(this),
-            name = page.find("label[for='"+dur.attr("id")+"']").text().slice(0,-1);
+            name = page.find("label[for='"+dur.attr("id")+"']").text();
 
         showDurationBox(dur.val(),name,function(result){
             dur.val(result);
@@ -2172,7 +2172,7 @@ function get_runonce() {
     quickPick += "</select>";
     list += quickPick+"<form>";
     $.each(window.controller.stations.snames,function(i, station) {
-        list += "<div class='ui-field-contain'><label for='zone-"+n+"'>"+station+":</label><button data-mini='true' name='zone-"+n+"' id='zone-"+n+"' value='0'>0s</button></div>";
+        list += "<div class='ui-field-contain duration-input'><label for='zone-"+n+"'>"+station+":</label><button data-mini='true' name='zone-"+n+"' id='zone-"+n+"' value='0'>0s</button></div>";
         n++;
     });
 
