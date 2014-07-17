@@ -2430,10 +2430,11 @@ function get_preview() {
             'zoomMax': 1000 * 60 * 60 * 24,
             'zoomMin': 1000 * 60 * 60,
             'groupsChangeable': false,
-            'showNavigation': false
+            'showNavigation': false,
+            'groupsOrder': 'none'
         };
 
-        var timeline = new links.Timeline(document.getElementById('timeline'));
+        var timeline = new links.Timeline(document.getElementById('timeline'),options);
         links.events.addListener(timeline, "select", function(){
             var row,
                 sel = timeline.getSelection();
@@ -2453,7 +2454,7 @@ function get_preview() {
         $.mobile.window.on("resize",function(){
             timeline.redraw();
         });
-        timeline.draw(preview_data, options);
+        timeline.draw(preview_data);
         if ($.mobile.window.width() <= 480) {
             var currRange = timeline.getVisibleChartRange();
             if ((currRange.end.getTime() - currRange.start.getTime()) > 6000000) timeline.setVisibleChartRange(currRange.start,new Date(currRange.start.getTime()+6000000));
@@ -2538,20 +2539,20 @@ function get_logs() {
                 }
             });
             if (grouping=='h')
-                $.plot($('#placeholder'), pData, {
+                $.plot($("#placeholder"), pData, {
                     grid: { hoverable: true },
                     yaxis: {min: 0, tickFormatter: function(val, axis) { return val < axis.max ? Math.round(val*100)/100 : "min";} },
                     xaxis: { min: 0, max: 24, tickDecimals: 0, tickSize: 1 }
                 });
             else if (grouping=='d')
-                $.plot($('#placeholder'), pData, {
+                $.plot($("#placeholder"), pData, {
                     grid: { hoverable: true },
                     yaxis: {min: 0, tickFormatter: function(val, axis) { return val < axis.max ? Math.round(val*100)/100 : "min";} },
                     xaxis: { tickDecimals: 0, min: -0.4, max: 6.4,
                     tickFormatter: function(v) { var dow=[_("Sun"),_("Mon"),_("Tue"),_("Wed"),_("Thr"),_("Fri"),_("Sat")]; return dow[v]; } }
                 });
             else if (grouping=='m')
-                $.plot($('#placeholder'), pData, {
+                $.plot($("#placeholder"), pData, {
                     grid: { hoverable: true },
                     yaxis: {min: 0, tickFormatter: function(val, axis) { return val < axis.max ? Math.round(val*100)/100 : "min";} },
                     xaxis: { tickDecimals: 0, min: 0.6, max: 12.4, tickSize: 1,
@@ -2561,7 +2562,7 @@ function get_logs() {
                 var minval = new Date(sDate[0],sDate[1]-1,sDate[2]).getTime();
                 var maxval = new Date(eDate[0],eDate[1]-1,eDate[2]);
                 maxval.setDate(maxval.getDate() + 1);
-                $.plot($('#placeholder'), pData, {
+                $.plot($("#placeholder"), pData, {
                     grid: { hoverable: true },
                     yaxis: {min: 0, tickFormatter: function(val, axis) { return val < axis.max ? Math.round(val*100)/100 : "min";} },
                     xaxis: { mode: "time", min:minval, max:maxval.getTime()}
