@@ -2772,6 +2772,17 @@ function get_logs() {
         parms = function() {
             return "start=" + (dates().start.getTime() / 1000) + "&end=" + ((dates().end.getTime() / 1000) + 86340);
         },
+        requestData = function() {
+            if (!isOSPi() && (dates().end.getTime() / 1000) - (dates().start.getTime() / 1000) > 604800) {
+                showerror(_("The requested time span exceeds the maxiumum of 7 days and has been adjusted"));
+                var nDate = dates().start;
+                nDate.setDate(nDate.getDate() + 7);
+                var m = pad(nDate.getMonth()+1);
+                var d = pad(nDate.getDate());
+                $("#log_end").val(nDate.getFullYear() + "-" + m + "-" + d);
+            }
+            send_to_os("/jl?"+parms(),"json").then(success,fail);
+        },
         i;
 
     //Update left/right arrows when zones are scrolled on log page
@@ -2785,9 +2796,7 @@ function get_logs() {
     //Automatically update the log viewer when changing the date range
     $("#log_start,#log_end").change(function(){
         clearTimeout(window.logtimeout);
-        window.logtimeout = setTimeout(function(){
-            send_to_os("/jl?"+parms(),"json").then(success,fail);
-        },1000);
+        window.logtimeout = setTimeout(requestData,1000);
     });
 
     //Automatically update log viewer when switching graphing method
@@ -2801,16 +2810,7 @@ function get_logs() {
         return;
     }
 
-    if (!isOSPi() && (dates().end.getTime() / 1000) - (dates().start.getTime() / 1000) > 604800 ) {
-        showerror(_("The requested time span exceeds the maxiumum of 7 days and has been adjusted"));
-        var nDate = dates().start;
-        nDate.setDate(nDate.getDate() + 7);
-        var m = pad(nDate.getMonth()+1);
-        var d = pad(nDate.getDate());
-        $("#log_end").val(nDate.getFullYear() + "-" + m + "-" + d);
-    }
-
-    send_to_os("/jl?"+parms(),"json").then(success,fail);
+    requestData();
 }
 
 function reset_logs_page() {
