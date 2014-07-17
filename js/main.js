@@ -1,5 +1,11 @@
+var isIEMobile = /IEMobile/.test(navigator.userAgent),
+    isAndroid = /Android|\bSilk\b/.test(navigator.userAgent),
+    isiOS = /iP(ad|hone|od)/.test(navigator.userAgent);
+
+console.log(isIEMobile,isAndroid,isiOS);
+
 //Fix CSS for IE Mobile (Windows Phone 8)
-if (navigator.userAgent.search("IEMobile") !== -1) {
+if (isIEMobile) {
     var a=document.createElement("style");
     a.innerHTML="ul{list-style: none !important;}@media(max-width:940px){.wicon{margin:-10px -10px -15px -15px !important}#forecast .wicon{position:relative;left:37.5px;margin:0 auto !important}}";
     document.head.appendChild(a);
@@ -25,7 +31,7 @@ $(document)
         update_site($(this).val());
     });
 
-    if (navigator.userAgent.indexOf('Android') > 0) {
+    if (isAndroid) {
         $(this).ajaxStart(function(){
             try {
                 navigator.app.clearCache();
@@ -33,7 +39,7 @@ $(document)
         });
     }
 
-    if (navigator.userAgent.search("IEMobile") !== -1) {
+    if (isIEMobile) {
         $.ajaxSetup({
             "cache": false
         });
@@ -2458,7 +2464,7 @@ function get_preview() {
             stn.attr("data-shortname",name);
         });
         $(".timeline-groups-axis").children().first().html("<div class='timeline-axis-text center dayofweek' data-shortname='"+getDayName(day,"short")+"'>"+getDayName(day)+"</div>");
-        if (navigator.userAgent.indexOf('Android') > 0) {
+        if (isAndroid) {
             var navi = $("#timeline-navigation");
             navi.find(".ui-icon-plus").off("click").on("click",function(){
                 timeline.zoom(0.4);
@@ -3566,11 +3572,9 @@ function showerror(msg,dur) {
 }
 
 function iab(url) {
-    var iOS = /iP(ad|hone|od)/.test(navigator.userAgent),
-        wp8 = /IEMobile/.test(navigator.userAgent),
-        dest = "_blank";
+    var dest = "_blank";
 
-    if (iOS || wp8) dest = "_system";
+    if (isiOS || isIEMobile) dest = "_system";
 
     window.open(url,dest,'enableViewportScale=yes');
 }
