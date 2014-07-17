@@ -211,12 +211,6 @@ $(document)
     } else if (newpage == "#logs") {
         get_logs();
 
-        //Automatically update the log viewer when changing the date range
-        $("#log_start,#log_end").change(function(){
-            clearTimeout(window.logtimeout);
-            window.logtimeout = setTimeout(get_logs,500);
-        });
-
         //Show tooltip (station name) when point is clicked on the graph
         $("#placeholder").on("plothover", function(event, pos, item) {
             $("#tooltip").remove();
@@ -2508,10 +2502,7 @@ function get_logs() {
     $("#logs input").blur();
     $.mobile.loading("show");
 
-    var sDate = $("#log_start").val().split("-"),
-        eDate = $("#log_end").val().split("-"),
-        parms = "start=" + (new Date(sDate[0],sDate[1]-1,sDate[2]).getTime() / 1000) + "&end=" + ((new Date(eDate[0],eDate[1]-1,eDate[2]).getTime() / 1000) + 86340),
-        data = [],
+    var data = [],
         seriesChange = function() {
             var grouping = $("input:radio[name='g']:checked").val(),
                 pData = [],
@@ -2560,18 +2551,16 @@ function get_logs() {
                     tickFormatter: function(v) { var mon=["",_("Jan"),_("Feb"),_("Mar"),_("Apr"),_("May"),_("Jun"),_("Jul"),_("Aug"),_("Sep"),_("Oct"),_("Nov"),_("Dec")]; return mon[v]; } }
                 });
             else if (grouping=='n') {
-                var minval = new Date(sDate[0],sDate[1]-1,sDate[2]).getTime();
-                var maxval = new Date(eDate[0],eDate[1]-1,eDate[2]);
-                maxval.setDate(maxval.getDate() + 1);
                 $.plot($("#placeholder"), pData, {
                     grid: { hoverable: true },
                     yaxis: {min: 0, tickFormatter: function(val, axis) { return val < axis.max ? Math.round(val*100)/100 : "min";} },
-                    xaxis: { mode: "time", min:minval, max:maxval.getTime()}
+                    xaxis: { mode: "time", min:sortedData.min.getTime(), max:sortedData.max.getTime()}
                 });
             }
         },
         sortData = function(grouping) {
-            var sortedData = [];
+            var sortedData = [],
+                max, min;
 
             switch (grouping) {
                     case "h":
@@ -2605,13 +2594,13 @@ function get_logs() {
 
                 switch (grouping) {
                     case "h":
-                        key = date.getHours();
+                        key = date.getUTCHours();
                         break;
                     case "m":
-                        key = date.getMonth() + 1;
+                        key = date.getUTCMonth() + 1;
                         break;
                     case "d":
-                        key = date.getDay();
+                        key = date.getUTCDay();
                         break;
                     case "n":
                         sortedData[station].push([stamp-1,0]);
@@ -2623,8 +2612,12 @@ function get_logs() {
                 if (grouping != "n" && duration > 0) {
                     sortedData[station][key][1] += duration;
                 }
-            });
 
+                if (min === undefined || min > date) min = date;
+                if (max === undefined || max < date) max = new Date(date.getTime() + (duration*100*1000)+1);
+            });
+            sortedData.min = min;
+            sortedData.max = max;
             return sortedData;
         },
         toggleZone = function() {
@@ -2639,8 +2632,10 @@ function get_logs() {
             seriesChange();
         },
         showArrows = function() {
-            var zones = $("#zones");
-            var height = zones.height(), sleft = zones.scrollLeft();
+            var zones = $("#zones"),
+                height = zones.height(),
+                sleft = zones.scrollLeft();
+
             if (sleft > 13) {
                 $("#graphScrollLeft").show().css("margin-top",(height/2)-12.5);
             } else {
@@ -2766,6 +2761,17 @@ function get_logs() {
             $.mobile.loading("hide");
             reset_logs_page();
         },
+        dates = function() {
+            var sDate = $("#log_start").val().split("-"),
+                eDate = $("#log_end").val().split("-");
+            return {
+                start: new Date(sDate[0],sDate[1]-1,sDate[2]),
+                end: new Date(eDate[0],eDate[1]-1,eDate[2])
+            }
+        },
+        parms = function() {
+            return "start=" + (dates().start.getTime() / 1000) + "&end=" + ((dates().end.getTime() / 1000) + 86340);
+        },
         i;
 
     //Update left/right arrows when zones are scrolled on log page
@@ -2776,28 +2782,35 @@ function get_logs() {
         seriesChange();
     });
 
+    //Automatically update the log viewer when changing the date range
+    $("#log_start,#log_end").change(function(){
+        clearTimeout(window.logtimeout);
+        window.logtimeout = setTimeout(function(){
+            send_to_os("/jl?"+parms(),"json").then(success,fail);
+        },1000);
+    });
+
     //Automatically update log viewer when switching graphing method
     $("#graph_sort input[name='g']").change(seriesChange);
 
     $("#logs input:radio[name='log_type']").change(updateView);
 
-    if ((new Date(eDate[0],eDate[1]-1,eDate[2]).getTime() / 1000) < (new Date(sDate[0],sDate[1]-1,sDate[2]).getTime() / 1000)) {
+    if ((dates().end.getTime() / 1000) < (dates().start.getTime() / 1000)) {
         fail();
         showerror(_("Start time cannot be greater than end time"));
         return;
     }
 
-    if (!isOSPi() && (new Date(eDate[0],eDate[1]-1,eDate[2]).getTime() / 1000) - (new Date(sDate[0],sDate[1]-1,sDate[2]).getTime() / 1000) > 604800 ) {
+    if (!isOSPi() && (dates().end.getTime() / 1000) - (dates().start.getTime() / 1000) > 604800 ) {
         showerror(_("The requested time span exceeds the maxiumum of 7 days and has been adjusted"));
-        var nDate = new Date(sDate[0],sDate[1]-1,sDate[2]);
+        var nDate = dates().start;
         nDate.setDate(nDate.getDate() + 7);
         var m = pad(nDate.getMonth()+1);
         var d = pad(nDate.getDate());
         $("#log_end").val(nDate.getFullYear() + "-" + m + "-" + d);
-        parms = "start=" + (new Date(sDate[0],sDate[1]-1,sDate[2]).getTime() / 1000) + "&end=" + ((new Date(sDate[0],sDate[1]-1,sDate[2]).getTime() / 1000) + 604800);
     }
 
-    send_to_os("/jl?"+parms,"json").then(success,fail);
+    send_to_os("/jl?"+parms(),"json").then(success,fail);
 }
 
 function reset_logs_page() {
