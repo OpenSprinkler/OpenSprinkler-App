@@ -2431,7 +2431,8 @@ function get_preview() {
             'zoomMin': 1000 * 60 * 60,
             'groupsChangeable': false,
             'showNavigation': false,
-            'groupsOrder': 'none'
+            'groupsOrder': 'none',
+            'groupMinHeight': 20
         };
 
         var timeline = new links.Timeline(document.getElementById('timeline'),options);
