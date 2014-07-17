@@ -290,6 +290,18 @@ a {
     .ui-mini {
         font-size:12px
     }
+    .duration-input {
+        border-bottom-width: 0;
+    }
+    .duration-input > label {
+        float: left;
+        width: 40%;
+        margin: .5em 2% 0 0;
+    }
+    .duration-input > label~[class*=ui-] {
+        width: 58%;
+        box-sizing: border-box;
+    }
 }
 @media (max-width:940px) {
     #weather .location {
