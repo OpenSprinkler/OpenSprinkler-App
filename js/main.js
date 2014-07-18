@@ -2530,27 +2530,27 @@ function get_logs() {
                         });
                 }
             });
-            if (grouping=='h')
+            if (grouping=='h') {
                 $.plot($("#placeholder"), pData, {
                     grid: { hoverable: true },
                     yaxis: {min: 0, tickFormatter: function(val, axis) { return val < axis.max ? Math.round(val*100)/100 : "min";} },
                     xaxis: { min: 0, max: 24, tickDecimals: 0, tickSize: 1 }
                 });
-            else if (grouping=='d')
+            } else if (grouping=='d') {
                 $.plot($("#placeholder"), pData, {
                     grid: { hoverable: true },
                     yaxis: {min: 0, tickFormatter: function(val, axis) { return val < axis.max ? Math.round(val*100)/100 : "min";} },
                     xaxis: { tickDecimals: 0, min: -0.4, max: 6.4,
                     tickFormatter: function(v) { var dow=[_("Sun"),_("Mon"),_("Tue"),_("Wed"),_("Thr"),_("Fri"),_("Sat")]; return dow[v]; } }
                 });
-            else if (grouping=='m')
+            } else if (grouping=='m') {
                 $.plot($("#placeholder"), pData, {
                     grid: { hoverable: true },
                     yaxis: {min: 0, tickFormatter: function(val, axis) { return val < axis.max ? Math.round(val*100)/100 : "min";} },
                     xaxis: { tickDecimals: 0, min: 0.6, max: 12.4, tickSize: 1,
                     tickFormatter: function(v) { var mon=["",_("Jan"),_("Feb"),_("Mar"),_("Apr"),_("May"),_("Jun"),_("Jul"),_("Aug"),_("Sep"),_("Oct"),_("Nov"),_("Dec")]; return mon[v]; } }
                 });
-            else if (grouping=='n') {
+            } else if (grouping=='n') {
                 $.plot($("#placeholder"), pData, {
                     grid: { hoverable: true },
                     yaxis: {min: 0, tickFormatter: function(val, axis) { return val < axis.max ? Math.round(val*100)/100 : "min";} },
@@ -2773,8 +2773,9 @@ function get_logs() {
             return "start=" + (dates().start.getTime() / 1000) + "&end=" + ((dates().end.getTime() / 1000) + 86340);
         },
         requestData = function() {
+            $.mobile.loading("show");
             if (!isOSPi() && (dates().end.getTime() / 1000) - (dates().start.getTime() / 1000) > 604800) {
-                showerror(_("The requested time span exceeds the maxiumum of 7 days and has been adjusted"));
+                showerror(_("The requested time span exceeds the maxiumum of 7 days and has been adjusted"),3500);
                 var nDate = dates().start;
                 nDate.setDate(nDate.getDate() + 7);
                 var m = pad(nDate.getMonth()+1);
@@ -2794,10 +2795,14 @@ function get_logs() {
     });
 
     //Automatically update the log viewer when changing the date range
-    $("#log_start,#log_end").change(function(){
-        clearTimeout(window.logtimeout);
-        window.logtimeout = setTimeout(requestData,1000);
-    });
+    if (isiOS) {
+        $("#log_start,#log_end").on("blur",requestData);
+    } else {
+        $("#log_start,#log_end").change(function(){
+            clearTimeout(window.logtimeout);
+            window.logtimeout = setTimeout(requestData,1000);
+        });
+    }
 
     //Automatically update log viewer when switching graphing method
     $("#graph_sort input[name='g']").change(seriesChange);
