@@ -127,7 +127,7 @@ msgstr ""
 msgid "Auto Rain Delay"
 msgstr ""
 
-msgid "Delay Duration (hours)"
+msgid "Delay Duration"
 msgstr ""
 
 msgid "Weather settings have been saved"
@@ -394,14 +394,14 @@ msgstr ""
 msgid "mins"
 msgstr ""
 
-msgid "Start time cannot be greater than end time"
+msgid "No entries found in the selected date range"
 msgstr ""
 
 msgid ""
 "The requested time span exceeds the maxiumum of 7 days and has been adjusted"
 msgstr ""
 
-msgid "No entries found in the selected date range"
+msgid "Start time cannot be greater than end time"
 msgstr ""
 
 msgid "Manual program"

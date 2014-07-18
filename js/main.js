@@ -210,21 +210,6 @@ $(document)
         });
     } else if (newpage == "#logs") {
         get_logs();
-
-        //Show tooltip (station name) when point is clicked on the graph
-        $("#placeholder").on("plothover", function(event, pos, item) {
-            $("#tooltip").remove();
-            clearTimeout(window.hovertimeout);
-            if (item) window.hovertimeout = setTimeout(function(){showTooltip(item.pageX, item.pageY, item.series.label, item.series.color);}, 100);
-        });
-
-        $newpage.one("pagehide",function(){
-            $.mobile.window.off("resize");
-            $("#placeholder").off("plothover");
-            $("#zones").off("scroll");
-            $("#logs input:radio[name='log_type'],#graph_sort input[name='g'],#log_start,#log_end").off("change");
-            reset_logs_page();
-        });
     } else if (newpage == "#sprinklers") {
         $newpage.off("swiperight").on("swiperight", function() {
             if ($(".ui-page-active").jqmData("panel") !== "open" && !$(".ui-page-active .ui-popup-active").length) {
@@ -2499,18 +2484,21 @@ function changeday(dir) {
 
 // Logging functions
 function get_logs() {
-    $("#logs input").blur();
-    $.mobile.loading("show");
-
-    var data = [],
+    var logs = $("#logs"),
+        placeholder = $("#placeholder"),
+        logs_list = $("#logs_list"),
+        zones = $("#zones"),
+        graph_sort = $("#graph_sort"),
+        log_options = $("#log_options"),
+        data = [],
         seriesChange = function() {
-            var grouping = $("input:radio[name='g']:checked").val(),
+            var grouping = logs.find("input:radio[name='g']:checked").val(),
                 pData = [],
                 sortedData;
 
             sortedData = sortData(grouping);
 
-            $("td[zone_num]:not('.unchecked')").each(function () {
+            zones.find("td[zone_num]:not('.unchecked')").each(function() {
                 var key = $(this).attr("zone_num");
                 if (!sortedData[key].length) sortedData[key]=[[0,0]];
                 if (key && sortedData[key]) {
@@ -2531,27 +2519,27 @@ function get_logs() {
                 }
             });
             if (grouping=='h') {
-                $.plot($("#placeholder"), pData, {
+                $.plot(placeholder, pData, {
                     grid: { hoverable: true },
                     yaxis: {min: 0, tickFormatter: function(val, axis) { return val < axis.max ? Math.round(val*100)/100 : "min";} },
                     xaxis: { min: 0, max: 24, tickDecimals: 0, tickSize: 1 }
                 });
             } else if (grouping=='d') {
-                $.plot($("#placeholder"), pData, {
+                $.plot(placeholder, pData, {
                     grid: { hoverable: true },
                     yaxis: {min: 0, tickFormatter: function(val, axis) { return val < axis.max ? Math.round(val*100)/100 : "min";} },
                     xaxis: { tickDecimals: 0, min: -0.4, max: 6.4,
                     tickFormatter: function(v) { var dow=[_("Sun"),_("Mon"),_("Tue"),_("Wed"),_("Thr"),_("Fri"),_("Sat")]; return dow[v]; } }
                 });
             } else if (grouping=='m') {
-                $.plot($("#placeholder"), pData, {
+                $.plot(placeholder, pData, {
                     grid: { hoverable: true },
                     yaxis: {min: 0, tickFormatter: function(val, axis) { return val < axis.max ? Math.round(val*100)/100 : "min";} },
                     xaxis: { tickDecimals: 0, min: 0.6, max: 12.4, tickSize: 1,
                     tickFormatter: function(v) { var mon=["",_("Jan"),_("Feb"),_("Mar"),_("Apr"),_("May"),_("Jun"),_("Jul"),_("Aug"),_("Sep"),_("Oct"),_("Nov"),_("Dec")]; return mon[v]; } }
                 });
             } else if (grouping=='n') {
-                $.plot($("#placeholder"), pData, {
+                $.plot(placeholder, pData, {
                     grid: { hoverable: true },
                     yaxis: {min: 0, tickFormatter: function(val, axis) { return val < axis.max ? Math.round(val*100)/100 : "min";} },
                     xaxis: { mode: "time", min:sortedData.min.getTime(), max:sortedData.max.getTime()}
@@ -2632,23 +2620,24 @@ function get_logs() {
             seriesChange();
         },
         showArrows = function() {
-            var zones = $("#zones"),
-                height = zones.height(),
-                sleft = zones.scrollLeft();
+            var height = zones.height(),
+                sleft = zones.scrollLeft(),
+                right = $("#graphScrollRight"),
+                left = $("#graphScrollLeft");
 
             if (sleft > 13) {
-                $("#graphScrollLeft").show().css("margin-top",(height/2)-12.5);
+                left.show().css("margin-top",(height/2)-12.5);
             } else {
-                $("#graphScrollLeft").hide();
+                left.hide();
             }
             var total = zones.find("table").width(), container = zones.width();
             if ((total-container) > 0 && sleft < ((total-container) - 13)) {
-                $("#graphScrollRight").show().css({
+                right.show().css({
                     "margin-top":(height/2)-12.5,
                     "left":container
                 });
             } else {
-                $("#graphScrollRight").hide();
+                right.hide();
             }
         },
         success = function(items){
@@ -2678,14 +2667,14 @@ function get_logs() {
                 return;
             }
 
-            $("#logs_list").empty().hide();
+            logs_list.empty().hide();
             var state = ($.mobile.window.height() > 680) ? "expand" : "collapse";
-            setTimeout(function(){$("#log_options").collapsible(state);},100);
-            $("#placeholder").show();
+            setTimeout(function(){log_options.collapsible(state);},100);
+            placeholder.show();
             var zones = $("#zones");
             var freshLoad = zones.find("table").length;
             zones.show();
-            $("#graph_sort").show();
+            graph_sort.show();
             if (!freshLoad) {
                 var output = '<div class="ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border" id="graphScrollLeft"></div><div class="ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border" id="graphScrollRight"></div><table class="smaller"><tbody><tr>';
                 for (i=0; i<window.controller.stations.snames.length; i++) {
@@ -2700,10 +2689,10 @@ function get_logs() {
             i = 0;
             if (!freshLoad) {
                 zones.find("td.legendColorBox div div").each(function(a,b){
-                    var border = $($("#placeholder .legendColorBox div div").get(i)).css("border");
+                    var border = $(placeholder.find(".legendColorBox div div").get(i)).css("border");
                     //Firefox and IE fix
                     if (border === "") {
-                        border = $($("#placeholder .legendColorBox div div").get(i)).attr("style").split(";");
+                        border = $(placeholder.find(".legendColorBox div div").get(i)).attr("style").split(";");
                         $.each(border,function(a,b){
                             var c = b.split(":");
                             if (c[0] == "border") {
@@ -2724,15 +2713,15 @@ function get_logs() {
                 return;
             }
 
-            $("#placeholder").empty().hide();
-            var list = $("#logs_list"),
-                table_header = "<table><thead><tr><th data-priority='1'>"+_("Runtime")+"</th><th data-priority='2'>"+_("Date/Time")+"</th></tr></thead><tbody>",
+            placeholder.empty().hide();
+            var table_header = "<table><thead><tr><th data-priority='1'>"+_("Runtime")+"</th><th data-priority='2'>"+_("Date/Time")+"</th></tr></thead><tbody>",
                 html = "<div data-role='collapsible-set' data-inset='true' data-theme='b' data-collapsed-icon='arrow-d' data-expanded-icon='arrow-u'>",
                 sortedData = [],
                 ct, k;
 
-            $("#zones, #graph_sort").hide();
-            list.show();
+            zones.hide();
+            graph_sort.hide();
+            logs_list.show();
 
             for (i=0; i<window.controller.stations.snames.length; i++) {
                 sortedData[i] = [];
@@ -2754,8 +2743,15 @@ function get_logs() {
                 html += "</tbody></table></div>";
             }
 
-            $("#log_options").collapsible("collapse");
-            list.html(html+"</div>").enhanceWithin();
+            log_options.collapsible("collapse");
+            logs_list.html(html+"</div>").enhanceWithin();
+        },
+        reset_logs_page = function() {
+            placeholder.empty().hide();
+            log_options.collapsible("expand");
+            zones.empty().hide();
+            graph_sort.hide();
+            logs_list.show().html(_("No entries found in the selected date range"));
         },
         fail = function(){
             $.mobile.loading("hide");
@@ -2767,12 +2763,14 @@ function get_logs() {
             return {
                 start: new Date(sDate[0],sDate[1]-1,sDate[2]),
                 end: new Date(eDate[0],eDate[1]-1,eDate[2])
-            }
+            };
         },
         parms = function() {
             return "start=" + (dates().start.getTime() / 1000) + "&end=" + ((dates().end.getTime() / 1000) + 86340);
         },
         requestData = function() {
+            var delay = 0;
+
             $.mobile.loading("show");
             if (!isOSPi() && (dates().end.getTime() / 1000) - (dates().start.getTime() / 1000) > 604800) {
                 showerror(_("The requested time span exceeds the maxiumum of 7 days and has been adjusted"),3500);
@@ -2781,10 +2779,16 @@ function get_logs() {
                 var m = pad(nDate.getMonth()+1);
                 var d = pad(nDate.getDate());
                 $("#log_end").val(nDate.getFullYear() + "-" + m + "-" + d);
+                delay = 500;
             }
-            send_to_os("/jl?"+parms(),"json").then(success,fail);
+            setTimeout(function(){
+                send_to_os("/jl?"+parms(),"json").then(success,fail);
+            },delay);
         },
         i;
+
+    logs.find("input").blur();
+    $.mobile.loading("show");
 
     //Update left/right arrows when zones are scrolled on log page
     $("#zones").scroll(showArrows);
@@ -2805,9 +2809,32 @@ function get_logs() {
     }
 
     //Automatically update log viewer when switching graphing method
-    $("#graph_sort input[name='g']").change(seriesChange);
+    graph_sort.find("input[name='g']").change(seriesChange);
 
-    $("#logs input:radio[name='log_type']").change(updateView);
+    //Bind refresh button
+    logs.find(".ui-header > .ui-btn-right").on("click",updateView);
+
+    //Bind view change buttons
+    logs.find("input:radio[name='log_type']").change(updateView);
+
+    //Show tooltip (station name) when point is clicked on the graph
+    placeholder.on("plothover",function(event, pos, item) {
+        $("#tooltip").remove();
+        clearTimeout(window.hovertimeout);
+        if (item) window.hovertimeout = setTimeout(function(){showTooltip(item.pageX, item.pageY, item.series.label, item.series.color);}, 100);
+    });
+
+    logs.one("pagehide",function(){
+        $.mobile.window.off("resize");
+        placeholder.off("plothover");
+        zones.off("scroll");
+        logs.off("change");
+        $("#log_start,#log_end").off("change");
+        logs.find(".ui-header > .ui-btn-right").off("change");
+        logs.find("input:radio[name='log_type']").off("change");
+        graph_sort.find("input[name='g']").off("change");
+        reset_logs_page();
+    });
 
     if ((dates().end.getTime() / 1000) < (dates().start.getTime() / 1000)) {
         fail();
@@ -2816,14 +2843,6 @@ function get_logs() {
     }
 
     requestData();
-}
-
-function reset_logs_page() {
-    $("#placeholder").empty().hide();
-    $("#log_options").collapsible("expand");
-    $("#zones").empty().hide();
-    $("#graph_sort").hide();
-    $("#logs_list").show().html(_("No entries found in the selected date range"));
 }
 
 function scrollZone() {
