@@ -2821,7 +2821,7 @@ function get_logs() {
     graph_sort.find("input[name='g']").change(seriesChange);
 
     //Bind refresh button
-    logs.find(".ui-header > .ui-btn-right").on("click",updateView);
+    logs.find(".ui-header > .ui-btn-right").on("click",requestData);
 
     //Bind view change buttons
     logs.find("input:radio[name='log_type']").change(updateView);
