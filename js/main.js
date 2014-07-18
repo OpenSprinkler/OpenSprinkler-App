@@ -2769,10 +2769,19 @@ function get_logs() {
             return "start=" + (dates().start.getTime() / 1000) + "&end=" + ((dates().end.getTime() / 1000) + 86340);
         },
         requestData = function() {
-            var delay = 0;
+            var endtime = dates().end.getTime() / 1000,
+                starttime = dates().start.getTime() / 1000;
 
+            if (endtime < starttime) {
+                fail();
+                showerror(_("Start time cannot be greater than end time"));
+                return;
+            }
+
+            var delay = 0;
             $.mobile.loading("show");
-            if (!isOSPi() && (dates().end.getTime() / 1000) - (dates().start.getTime() / 1000) > 604800) {
+
+            if (!isOSPi() && (endtime - starttime) > 604800) {
                 showerror(_("The requested time span exceeds the maxiumum of 7 days and has been adjusted"),3500);
                 var nDate = dates().start;
                 nDate.setDate(nDate.getDate() + 7);
@@ -2835,12 +2844,6 @@ function get_logs() {
         graph_sort.find("input[name='g']").off("change");
         reset_logs_page();
     });
-
-    if ((dates().end.getTime() / 1000) < (dates().start.getTime() / 1000)) {
-        fail();
-        showerror(_("Start time cannot be greater than end time"));
-        return;
-    }
 
     requestData();
 }
