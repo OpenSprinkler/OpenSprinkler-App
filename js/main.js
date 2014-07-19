@@ -29,6 +29,30 @@ $(document)
         update_site($(this).val());
     });
 
+    //Bind start page buttons
+    $("#auto-scan").find("button").on("click",start_scan);
+
+    //Bind open panel button
+    $("#sprinklers").find("a[href='#sprinklers-settings']").on("click",function(){
+        open_panel();
+        return false;
+    });
+
+    //Bind stop all stations button
+    $("#stop-all").on("click",function(){
+        areYouSure(_("Are you sure you want to stop all stations?"), "", function() {
+            $.mobile.loading("show");
+            send_to_os("/cv?pw=&rsn=1").done(function(){
+                $.mobile.loading("hide");
+                $.when(
+                    update_controller_settings(),
+                    update_controller_status()
+                ).then(check_status);
+                showerror(_("All stations have been stopped"));
+            });
+        });
+    });
+
     if (isAndroid) {
         $(this).ajaxStart(function(){
             try {
@@ -115,6 +139,7 @@ $(document)
         } else if (hash == "#addprogram") {
             add_program();
         } else if (hash =="#status") {
+            $(hash).find("div[data-role='header'] > .ui-btn-right").on("click",refresh_status);
             get_status();
         } else if (hash == "#manual") {
             get_manual();
@@ -135,6 +160,8 @@ $(document)
         } else if (hash == "#addnew") {
             show_addnew();
             return false;
+        } else if (hash == "#raindelay") {
+            $(hash).find("form").on("submit",raindelay);
         } else if (hash == "#site-select") {
             show_site_select();
             return false;
@@ -155,8 +182,116 @@ $(document)
                 if ($id.hasClass("ui-flipswitch-input")) $id.flipswitch("refresh");
                 $id.on("change",flipSwitched);
             });
-            $(hash).one("pagehide",function(){
+            var settings = $(hash);
+            settings.find(".clear_logs > a").on("click",function(){
+                areYouSure(_("Are you sure you want to clear all your log data?"), "", function() {
+                    $.mobile.loading("show");
+                    send_to_os("/cl?pw=").done(function(){
+                        $.mobile.loading("hide");
+                        showerror(_("Logs have been cleared"));
+                    });
+                });
+                return false;
+            });
+            settings.find(".reboot-os").on("click",function(){
+                areYouSure(_("Are you sure you want to reboot OpenSprinkler?"), "", function() {
+                    $.mobile.loading("show");
+                    send_to_os("/cv?pw=&rbt=1").done(function(){
+                        $.mobile.loading("hide");
+                        showerror(_("OpenSprinkler is rebooting now"));
+                    });
+                });
+                return false;
+            });
+            settings.find(".clear-config").on("click",function(){
+                areYouSure(_("Are you sure you want to delete all settings and return to the default settings?"), "", function() {
+                    localStorage.removeItem("sites");
+                    localStorage.removeItem("current_site");
+                    localStorage.removeItem("lang");
+                    localStorage.removeItem("provider");
+                    localStorage.removeItem("wapikey");
+                    localStorage.removeItem("runonce");
+                    update_lang(get_locale());
+                    changePage("#start");
+                });
+                return false;
+            });
+            settings.find(".show-providers").on("click",function(){
+                $("#providers").popup("destroy").remove();
+
+                var provider = localStorage.getItem("provider") || "yahoo",
+                    wapikey = localStorage.getItem("wapikey");
+
+                var popup = $(
+                    '<div data-role="popup" id="providers" data-theme="a" data-dismissible="false" data-overlay-theme="b">'+
+                        '<a data-rel="back" class="ui-btn ui-corner-all ui-shadow ui-btn-a ui-icon-delete ui-btn-icon-notext ui-btn-right">Close</a>'+
+                        '<div class="ui-content">'+
+                            '<form>'+
+                                '<label for="weather_provider">'+_("Weather Provider")+
+                                    '<select data-mini="true" id="weather_provider">'+
+                                        '<option value="yahoo">'+_("Yahoo!")+'</option>'+
+                                        '<option '+((provider == "wunderground") ? 'selected ' : '')+'value="wunderground">'+_("Wunderground")+'</option>'+
+                                    '</select>'+
+                                '</label>'+
+                                '<label for="wapikey">'+_("Wunderground API Key")+'<input data-mini="true" type="text" id="wapikey" value="'+((wapikey) ? wapikey : '')+'" /></label>'+
+                                '<input type="submit" value="'+_("Submit")+'" />'+
+                            '</form>'+
+                        '</div>'+
+                    '</div>'
+                );
+
+                if (provider == "yahoo") popup.find("#wapikey").closest("label").hide();
+
+                popup.find("form").on("submit",function(e){
+                    e.preventDefault();
+
+                    var wapikey = $("#wapikey").val(),
+                        provider = $("#weather_provider").val();
+
+                    if (provider == "wunderground" && wapikey === "") {
+                        showerror(_("An API key must be provided for Weather Underground"));
+                        return;
+                    }
+
+                    localStorage.setItem("wapikey",wapikey);
+                    localStorage.setItem("provider",provider);
+
+                    update_weather();
+
+                    $("#providers").popup("close");
+
+                    return false;
+                });
+
+                //Handle provider select change on weather settings
+                popup.on("change","#weather_provider",function(){
+                    var val = $(this).val();
+                    if (val === "wunderground") {
+                        $("#wapikey").closest("label").show();
+                    } else {
+                        $("#wapikey").closest("label").hide();
+                    }
+                    popup.popup("reposition",{
+                        "positionTo": "window"
+                    });
+                });
+
+                popup.one("popupafterclose",function(){
+                    document.activeElement.blur();
+                    this.remove();
+                }).popup().enhanceWithin().popup("open");
+                return false;
+            });
+            $("#localization").find("a").on("click",function(){
+                var link = $(this),
+                    lang = link.data("lang-code");
+
+                update_lang(lang);
+            });
+            settings.one("pagehide",function(){
                 $("#en,#mm").off("change");
+                settings.find(".clear_logs > a,.reboot-os,.clear-config,.show-providers").off("click");
+                $("#localization").find("a").off("click");
             });
         }
     });
@@ -200,11 +335,17 @@ $(document)
     // Render graph after the page is shown otherwise graphing function will fail
     if (newpage == "#preview") {
         $("#preview_date").on("change",get_preview);
+        $newpage.find(".preview-minus").on("click",function(){
+            changeday(-1);
+        });
+        $newpage.find(".preview-plus").on("click",function(){
+            changeday(1);
+        });
         get_preview();
         //Update the preview page on date change
         $newpage.one("pagehide",function(){
             $("#timeline").empty();
-            $("#preview_date").off("change");
+            $("#preview_date,.preview-minus,.preview-plus").off("change");
             $.mobile.window.off("resize");
             $("#timeline-navigation").find("a").off("click");
         });
@@ -510,7 +651,7 @@ function update_controller_settings(callback) {
                     loc = settings.match(/loc\s?[=|:]\s?[\"|'](.*)[\"|']/),
                     lrun = settings.match(/lrun=\[(.*)\]/),
                     ps = settings.match(/ps=\[(.*)\];/),
-                    vars = {}, tmp, i, z;
+                    vars = {}, tmp, i;
 
                 ps = ps[1].split("],[");
                 for (i = ps.length - 1; i >= 0; i--) {
@@ -855,6 +996,12 @@ function show_sites() {
         total = Object.keys(sites).length,
         page = $("#site-control");
 
+    page.find("div[data-role='header'] > .ui-btn-right").on("click",show_addsite);
+    page.find("#site-add-scan").on("click",start_scan);
+    page.find("#site-add-manual").on("click",function(){
+        show_addnew(false,true);
+    });
+
     $.each(sites,function(a,b){
         var c = a.replace(/ /g,"_");
         list += "<fieldset "+((total == 1) ? "data-collapsed='false'" : "")+" id='site-"+c+"' data-role='collapsible'>";
@@ -890,10 +1037,9 @@ function show_sites() {
 
     page.find(".ui-collapsible-set").collapsibleset();
 
-    page.one({
-        pagehide: function(){
-            $(this).find(".ui-content").empty();
-        }
+    page.one("pagehide",function(){
+        page.find("div[data-role='header'] > .ui-btn-right,#site-add-manual,#site-add-scan").off("click");
+        page.find(".ui-content").empty();
     });
 }
 
@@ -1252,72 +1398,6 @@ function submit_weather_settings() {
     );
 }
 
-function show_providers() {
-    $("#providers").popup("destroy").remove();
-
-    var provider = localStorage.getItem("provider") || "yahoo",
-        wapikey = localStorage.getItem("wapikey");
-
-    var popup = $(
-        '<div data-role="popup" id="providers" data-theme="a" data-dismissible="false" data-overlay-theme="b">'+
-            '<a data-rel="back" class="ui-btn ui-corner-all ui-shadow ui-btn-a ui-icon-delete ui-btn-icon-notext ui-btn-right">Close</a>'+
-            '<div class="ui-content">'+
-                '<form>'+
-                    '<label for="weather_provider">'+_("Weather Provider")+
-                        '<select data-mini="true" id="weather_provider">'+
-                            '<option value="yahoo">'+_("Yahoo!")+'</option>'+
-                            '<option '+((provider == "wunderground") ? 'selected ' : '')+'value="wunderground">'+_("Wunderground")+'</option>'+
-                        '</select>'+
-                    '</label>'+
-                    '<label for="wapikey">'+_("Wunderground API Key")+'<input data-mini="true" type="text" id="wapikey" value="'+((wapikey) ? wapikey : '')+'" /></label>'+
-                    '<input type="submit" value="'+_("Submit")+'" />'+
-                '</form>'+
-            '</div>'+
-        '</div>'
-    );
-
-    if (provider == "yahoo") popup.find("#wapikey").closest("label").hide();
-
-    popup.find("form").on("submit",function(e){
-        e.preventDefault();
-
-        var wapikey = $("#wapikey").val(),
-            provider = $("#weather_provider").val();
-
-        if (provider == "wunderground" && wapikey === "") {
-            showerror(_("An API key must be provided for Weather Underground"));
-            return;
-        }
-
-        localStorage.setItem("wapikey",wapikey);
-        localStorage.setItem("provider",provider);
-
-        update_weather();
-
-        $("#providers").popup("close");
-
-        return false;
-    });
-
-    //Handle provider select change on weather settings
-    popup.on("change","#weather_provider",function(){
-        var val = $(this).val();
-        if (val === "wunderground") {
-            $("#wapikey").closest("label").show();
-        } else {
-            $("#wapikey").closest("label").hide();
-        }
-        popup.popup("reposition",{
-            "positionTo": "window"
-        });
-    });
-
-    popup.one("popupafterclose",function(){
-        document.activeElement.blur();
-        this.remove();
-    }).popup().enhanceWithin().popup("open");
-}
-
 function convert_temp(temp,region) {
     if (region == "United States" || region == "Bermuda" || region == "Palau") {
         temp = temp+"&#176;F";
@@ -1479,6 +1559,11 @@ function update_wunderground_forecast(data) {
 }
 
 function show_forecast() {
+    var page = $("#forecast");
+    page.find(".ui-header > .ui-btn-right").on("click",update_weather);
+    page.one("pagehide",function(){
+        page.find(".ui-header > .ui-btn-right").off("click");
+    });
     changePage("#forecast");
     return false;
 }
@@ -1486,13 +1571,35 @@ function show_forecast() {
 function open_panel() {
     var panel = $("#sprinklers-settings");
     panel.panel("option","classes.modal","needsclick ui-panel-dismiss");
+    panel.find("a[href='#site-control']").one("click",function(){
+        changeFromPanel("site-control");
+        return false;
+    });
+    panel.find("a[href='#about']").one("click",function(){
+        changeFromPanel("about");
+        return false;
+    });
+    panel.find(".export_config").on("click",function(){
+        export_config();
+        return false;
+    });
+    panel.find(".import_config").on("click",function(){
+        import_config();
+        return false;
+    });
+    panel.one("panelclose",function(){
+        panel.find(".export_config,.import_config").off("click");
+    });
     panel.panel('open');
 }
 
 // Device setting management functions
 function show_settings() {
     var list = "",
+        page = $("#os-settings"),
         timezones, tz, i;
+
+    page.find("div[data-role='header'] > .ui-btn-right").on("click",submit_settings);
 
     list = "<li><div class='ui-field-contain'><fieldset>";
 
@@ -1572,10 +1679,11 @@ function show_settings() {
 
     list += "</fieldset></div></li>";
 
-    $("#os-settings .ui-content").html($('<ul data-role="listview" data-inset="true" id="os-settings-list"></ul>').html(list).listview().enhanceWithin());
+    page.find(".ui-content").html($('<ul data-role="listview" data-inset="true" id="os-settings-list"></ul>').html(list).listview().enhanceWithin());
 
-    $("#os-settings").one("pagehide",function(){
-        $(this).find(".ui-content").empty();
+    page.one("pagehide",function(){
+        page.find(".ui-header > .ui-btn-right").off("click");
+        page.find(".ui-content").empty();
     });
 }
 
@@ -1633,9 +1741,12 @@ function submit_settings() {
 // Station managament function
 function show_stations() {
     var list = "<li class='wrap'>",
+        page = $("#os-stations"),
         isMaster = window.controller.options.mas ? true : false,
         hasIR = (typeof window.controller.stations.ignore_rain === "object") ? true : false,
         useTableView = (hasIR || isMaster);
+
+    page.find("div[data-role='header'] > .ui-btn-right").on("click",submit_stations);
 
     if (useTableView) {
         list += "<table><tr><th class='center'>"+_("Station Name")+"</th>";
@@ -1665,10 +1776,11 @@ function show_stations() {
     if (useTableView) list += "</table>";
     list += "</li>";
 
-    $("#os-stations .ui-content").html($('<ul data-role="listview" data-inset="true" id="os-stations-list"></ul>').html(list).listview().enhanceWithin());
+    page.find(".ui-content").html($('<ul data-role="listview" data-inset="true" id="os-stations-list"></ul>').html(list).listview().enhanceWithin());
 
-    $("#os-stations").one("pagehide",function(){
-        $(this).find(".ui-content").empty();
+    page.one("pagehide",function(){
+        page.find("div[data-role='header'] > .ui-btn-right").off("click");
+        page.find(".ui-content").empty();
     });
 }
 
@@ -1825,7 +1937,9 @@ function get_status() {
 
     $("#status").one("pagehide",function(){
         removeTimers();
-        $(this).find(".ui-content").empty();
+        var page = $(this);
+        page.find(".ui-header > .ui-btn-right").off("click");
+        page.find(".ui-content").empty();
     });
 
     if (runningTotal.d !== undefined) {
@@ -2115,8 +2229,11 @@ function toggle() {
 function get_runonce() {
     var list = "<p class='center'>"+_("Zero value excludes the station from the run-once program.")+"</p>",
         runonce = $("#runonce_list"),
+        page = $("#runonce"),
         i=0, n=0,
         quickPick, data, progs, rprogs, z, program;
+
+    page.find("div[data-role='header'] > .ui-btn-right").on("click",submit_runonce);
 
     progs = [];
     if (window.controller.programs.pd.length) {
@@ -2189,7 +2306,8 @@ function get_runonce() {
 
     runonce.enhanceWithin();
 
-    $("#runonce").one("pagehide",function(){
+    page.one("pagehide",function(){
+        page.find(".ui-header > .ui-btn-right").off("click");
         $(this).find(".ui-content").empty();
     });
 }
@@ -3136,6 +3254,10 @@ function add_program() {
 
     list.html($(fresh_program())).enhanceWithin();
 
+    addprogram.find("div[data-role='header'] > .ui-btn-right").on("click",function(){
+        submit_program("new");
+    });
+
     addprogram.find("input[name^='rad_days']").on("change",function(){
         var progid = "new", type = $(this).val().split("-")[0], old;
         type = type.split("_")[1];
@@ -3175,10 +3297,9 @@ function add_program() {
         return false;
     });
 
-    addprogram.one({
-        pagehide: function() {
-            $(this).find(".ui-content").empty();
-        }
+    addprogram.one("pagehide",function() {
+        addprogram.find(".ui-header > .ui-btn-right").off("click");
+        $(this).find(".ui-content").empty();
     });
 }
 
@@ -3267,8 +3388,10 @@ function submit_program(id) {
 function raindelay() {
     $.mobile.loading("show");
     send_to_os("/cv?pw=&rd="+$("#delay").val()).done(function(){
+        var popup = $("#raindelay");
+        popup.popup("close");
+        popup.find("form").off("submit");
         $.mobile.loading("hide");
-        $("#raindelay").popup("close");
         showLoading("#footer-running");
         $.when(
             update_controller_settings(),
@@ -3276,53 +3399,7 @@ function raindelay() {
         ).then(check_status);
         showerror(_("Rain delay has been successfully set"));
     });
-}
-
-function rbt() {
-    areYouSure(_("Are you sure you want to reboot OpenSprinkler?"), "", function() {
-        $.mobile.loading("show");
-        send_to_os("/cv?pw=&rbt=1").done(function(){
-            $.mobile.loading("hide");
-            showerror(_("OpenSprinkler is rebooting now"));
-        });
-    });
-}
-
-function rsn() {
-    areYouSure(_("Are you sure you want to stop all stations?"), "", function() {
-        $.mobile.loading("show");
-        send_to_os("/cv?pw=&rsn=1").done(function(){
-            $.mobile.loading("hide");
-            $.when(
-                update_controller_settings(),
-                update_controller_status()
-            ).then(check_status);
-            showerror(_("All stations have been stopped"));
-        });
-    });
-}
-
-function clear_logs() {
-    areYouSure(_("Are you sure you want to clear all your log data?"), "", function() {
-        $.mobile.loading("show");
-        send_to_os("/cl?pw=").done(function(){
-            $.mobile.loading("hide");
-            showerror(_("Logs have been cleared"));
-        });
-    });
-}
-
-function clear_config() {
-    areYouSure(_("Are you sure you want to delete all settings and return to the default settings?"), "", function() {
-        localStorage.removeItem("sites");
-        localStorage.removeItem("current_site");
-        localStorage.removeItem("lang");
-        localStorage.removeItem("provider");
-        localStorage.removeItem("wapikey");
-        localStorage.removeItem("runonce");
-        update_lang(get_locale());
-        changePage("#start");
-    });
+    return false;
 }
 
 // Export and Import functions
@@ -3442,7 +3519,7 @@ function getOSVersion(fwv) {
 // Accessory functions for jQuery Mobile
 function areYouSure(text1, text2, callback) {
     var popup = $(
-        '<div data-role="popup" class="ui-content" data-overlay-theme="b" id="sure">'+
+        '<div data-role="popup" data-overlay-theme="b" id="sure">'+
             '<h3 class="sure-1 center">'+text1+'</h3>'+
             '<p class="sure-2 center">'+text2+'</p>'+
             '<a class="sure-do ui-btn ui-btn-b ui-corner-all ui-shadow" href="#">'+_("Yes")+'</a>'+
@@ -3613,14 +3690,6 @@ function showerror(msg,dur) {
     setTimeout(function(){$.mobile.loading('hide');},dur);
 }
 
-function iab(url) {
-    var dest = "_blank";
-
-    if (isiOS || isIEMobile) dest = "_system";
-
-    window.open(url,dest,'enableViewportScale=yes');
-}
-
 // Accessory functions
 function fixInputClick(page) {
     // Handle Fast Click quirks
@@ -3778,7 +3847,7 @@ function check_curr_lang() {
 
     $("#localization").find("a").each(function(a,b){
         var item = $(b);
-        if (item.attr("href").match(/'(\w+)'/)[1] == curr_lang) {
+        if (item.data("lang-code") == curr_lang) {
             item.removeClass("ui-icon-carat-r").addClass("ui-icon-check");
         } else {
             item.removeClass("ui-icon-check").addClass("ui-icon-carat-r");

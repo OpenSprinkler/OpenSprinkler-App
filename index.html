@@ -20,15 +20,15 @@
         <div data-role="page" id="start">
             <ul data-role="none" id="welcome_list" class="ui-listview ui-listview-inset ui-corner-all">
                 <li><div class="logo" id="welcome_logo"></div></li>
-                <li class="ui-li-static ui-body-inherit ui-first-child ui-last-child ui-li-separate"><p class="rain-desc" data-translate="Welcome to the OpenSprinkler mobile application. This app only works with the OpenSprinkler controller which must be installed and setup on your home network."></p><a class="ui-btn ui-mini center" href="javascript:iab('https://rayshobby.net/cart/os');" data-translate="Purchase OpenSprinkler"></a></li>
-                <li id="auto-scan" class="ui-first-child"><a class="ui-btn ui-btn-icon-right ui-icon-carat-r" href="javascript:start_scan();" data-translate="Scan For Device"></a></li>
+                <li class="ui-li-static ui-body-inherit ui-first-child ui-last-child ui-li-separate"><p class="rain-desc" data-translate="Welcome to the OpenSprinkler mobile application. This app only works with the OpenSprinkler controller which must be installed and setup on your home network."></p><a class="ui-btn ui-mini center" target="_blank" href="https://rayshobby.net/cart/os" data-translate="Purchase OpenSprinkler"></a></li>
+                <li id="auto-scan" class="ui-first-child"><button class="ui-btn ui-btn-icon-right ui-icon-carat-r" data-translate="Scan For Device"></button></li>
                 <li class="ui-first-child ui-last-child"><a class="ui-btn ui-btn-icon-right ui-icon-carat-r" data-rel="popup" href="#addnew" data-translate="Add Controller"></a></li>
             </ul>
         </div>
 
         <div data-role="page" id="sprinklers">
             <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false">
-                <a data-icon="bars" data-iconpos="notext" href="javascript:open_panel();"></a>
+                <a data-icon="bars" data-iconpos="notext" href="#sprinklers-settings"></a>
                 <a data-icon="gear" data-iconpos="notext" href="#settings"></a>
                 <h3 class="logo"></h3>
             </div>
@@ -51,7 +51,7 @@
                     <li><a href="#programs" data-translate="Edit Programs"></a></li>
                     <li><a href="#manual" data-translate="Manual Control"></a></li>
                     <li><a href="#runonce" data-translate="Run-Once Program"></a></li>
-                    <li><a href="javascript:rsn();" data-translate="Stop All Stations"></a></li>
+                    <li><a href="#" id="stop-all" data-translate="Stop All Stations"></a></li>
                 </ul>
             </div>
             <div data-role="popup" id="raindelay" data-overlay-theme="b">
@@ -59,7 +59,7 @@
                     <li data-role="list-divider" data-translate="Change Rain Delay"></li>
                     <li>
                         <p class="rain-desc" data-translate="Enable manual rain delay by entering a value into the input below. To turn off a currently enabled rain delay use a value of 0."></p>
-                        <form action="javascript:raindelay();">
+                        <form>
                             <div class="ui-field-contain">
                                 <label for="delay" data-translate="Duration (in hours):"></label>
                                 <input type="number" pattern="[0-9]*" data-highlight="true" data-type="range" value="0" min="0" max="96" id="delay" />
@@ -74,10 +74,10 @@
                     <li>
                         <select data-mini="true" id="site-selector"></select>
                     </li>
-                    <li data-icon="gear"><a href="javascript:changeFromPanel('site-control');" data-translate="Manage Sites"></a></li>
-                    <li data-icon="action"><a href="javascript:export_config();" data-translate="Export Configuration"></a><a class="email_config" href="#"></a></li>
-                    <li data-icon="back"><a href="javascript:import_config();" data-translate="Import Configuration"></a></li>
-                    <li data-icon="info"><a href="javascript:changeFromPanel('about');" data-translate="About"></a></li>
+                    <li data-icon="gear"><a href="#site-control" data-translate="Manage Sites"></a></li>
+                    <li data-icon="action"><a href="#" class="export_config" data-translate="Export Configuration"></a><a class="email_config" href="#"></a></li>
+                    <li data-icon="back"><a href="#" class="import_config" data-translate="Import Configuration"></a></li>
+                    <li data-icon="info"><a href="#about" data-translate="About"></a></li>
                 </ul>
             </div>
         </div>
@@ -97,32 +97,32 @@
                         <label for="en"><b data-translate="Operation"></b></label>
                         <input type="checkbox" data-on-text="On" data-off-text="Off" data-role="flipswitch" name="en" id="en" />
                     </li>
-                    <li class="clear_logs" data-icon="alert"><a href="javascript:clear_logs();" data-translate="Clear Logs"></a></li>
+                    <li class="clear_logs" data-icon="alert"><a href="#" data-translate="Clear Logs"></a></li>
                     <li><a href="#os-settings" data-translate="Device Options"></a></li>
                     <li><a href="#os-stations" data-translate="Edit Stations"></a></li>
-                    <li data-icon="alert"><a href="javascript:rbt();" data-translate="Reboot OpenSprinkler"></a></li>
+                    <li data-icon="alert"><a href="#" class="reboot-os" data-translate="Reboot OpenSprinkler"></a></li>
                     <li class="weather_settings"><a href="#weather_settings" data-translate="Weather Settings"></a></li>
                 </ul>
                 <ul data-role="listview" data-inset="true">
                     <li data-role="list-divider" data-theme="b" data-translate="Mobile Application Settings"></li>
-                    <li data-icon="alert"><a href="javascript:clear_config();" data-translate="Clear Configuration"></a></li>
+                    <li data-icon="alert"><a href="#" class="clear-config" data-translate="Clear Configuration"></a></li>
                     <li><a href="#localization" data-rel="popup" data-position-to="window" data-translate="Localization"></a></li>
                     <li data-icon="gear"><a href="#site-control" data-translate="Manage Sites"></a></li>
-                    <li data-icon="cloud"><a href="javascript:show_providers();" data-translate="Weather Provider"></a></li>
+                    <li data-icon="cloud"><a href="#" class="show-providers" data-translate="Weather Provider"></a></li>
                 </ul>
             </div>
             <div data-role="popup" data-overlay-theme="b" id="localization">
                     <ul data-inset='true' data-role='listview' id='lang'>
                         <li data-role='list-divider' data-theme='b' data-translate="Localization"></li>
-                        <li><a href="javascript:update_lang('zh');" data-translate="Chinese"></a></li>
-                        <li><a href="javascript:update_lang('cs');" data-translate="Czech"></a></li>
-                        <li><a href="javascript:update_lang('en');" data-translate="English"></a></li>
-                        <li><a href="javascript:update_lang('fr');" data-translate="French"></a></li>
-                        <li><a href="javascript:update_lang('de');" data-translate="German"></a></li>
-                        <li><a href="javascript:update_lang('hu');" data-translate="Hungarian"></a></li>
-                        <li><a href="javascript:update_lang('it');" data-translate="Italian"></a></li>
-                        <li><a href="javascript:update_lang('sl');" data-translate="Slovenian"></a></li>
-                        <li><a href="javascript:update_lang('es');" data-translate="Spanish"></a></li>
+                        <li><a href="#" data-lang-code="zh" data-translate="Chinese"></a></li>
+                        <li><a href="#" data-lang-code="cs" data-translate="Czech"></a></li>
+                        <li><a href="#" data-lang-code="en" data-translate="English"></a></li>
+                        <li><a href="#" data-lang-code="fr" data-translate="French"></a></li>
+                        <li><a href="#" data-lang-code="de" data-translate="German"></a></li>
+                        <li><a href="#" data-lang-code="hu" data-translate="Hungarian"></a></li>
+                        <li><a href="#" data-lang-code="it" data-translate="Italian"></a></li>
+                        <li><a href="#" data-lang-code="sl" data-translate="Slovenian"></a></li>
+                        <li><a href="#" data-lang-code="es" data-translate="Spanish"></a></li>
                     </ul>
             </div>
         </div>
@@ -133,9 +133,9 @@
             </div>
             <div class="ui-content" role="main">
                 <div id="preview_header">
-                    <a href="javascript:changeday(-1);" class="ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border"></a>
+                    <button class="preview-minus ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border"></button>
                     <input class="center" type="date" name="preview_date" id="preview_date" />
-                    <a href="javascript:changeday(1);" class="ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border"></a>
+                    <button class="preview-plus ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border"></button>
                 </div>
                 <div id="timeline"></div>
                 <div data-role="controlgroup" data-type="horizontal" id="timeline-navigation">
@@ -191,7 +191,7 @@
         <div data-role="page" id="forecast">
             <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false" data-add-back-btn="true">
                 <h3 data-translate="Forecast"></h3>
-                <a href="javascript:update_weather();" data-icon="refresh" data-translate="Refresh" class="ui-btn-right"></a>
+                <button data-icon="refresh" data-translate="Refresh" class="ui-btn-right"></button>
             </div>
             <div class="ui-content" role="main">
                 <ul data-role="listview" data-inset="true" id="forecast_list">
@@ -202,7 +202,7 @@
         <div data-role="page" id="status">
             <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false" data-add-back-btn="true">
                 <h3 data-translate="Current Status"></h3>
-                <a href="javascript:refresh_status();" data-icon="refresh" data-translate="Refresh" class="ui-btn-right"></a>
+                <button data-icon="refresh" data-translate="Refresh" class="ui-btn-right"></button>
             </div>
             <div class="ui-content" role="main">
             </div>
@@ -219,7 +219,7 @@
         <div data-role="page" id="runonce">
             <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false" data-add-back-btn="true">
                 <h3 data-translate="Run-Once"></h3>
-                <a href="javascript:submit_runonce();" data-icon="check" data-translate="Submit" class="ui-btn-right"></a>
+                <button data-icon="check" data-translate="Submit" class="ui-btn-right"></button>
             </div>
             <div class="ui-content" role="main" id="runonce_list">
             </div>
@@ -237,7 +237,7 @@
         <div data-role="page" id="addprogram">
             <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false" data-add-back-btn="true">
                 <h3 data-translate="Add Program"></h3>
-                <a href="javascript:submit_program('new');" data-icon="check" data-translate="Submit" class="ui-btn-right"></a>
+                <button data-icon="check" data-translate="Submit" class="ui-btn-right"></button>
             </div>
             <div class="ui-content" role="main" id="newprogram">
             </div>
@@ -246,7 +246,7 @@
         <div data-role="page" id="os-settings">
             <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false" data-add-back-btn="true">
                 <h3 data-translate="OS Settings"></h3>
-                <a href="javascript:submit_settings();" data-icon="check" data-translate="Submit" class="ui-btn-right"></a>
+                <button data-icon="check" data-translate="Submit" class="ui-btn-right"></button>
             </div>
             <div class="ui-content" role="main">
             </div>
@@ -255,7 +255,7 @@
         <div data-role="page" id="os-stations">
             <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false" data-add-back-btn="true">
                 <h3 data-translate="Edit Stations"></h3>
-                <a href="javascript:submit_stations();" data-icon="check" data-translate="Submit" class="ui-btn-right"></a>
+                <button data-icon="check" data-translate="Submit" class="ui-btn-right"></button>
             </div>
             <div class="ui-content" role="main">
             </div>
@@ -264,14 +264,14 @@
         <div data-role="page" id="site-control">
             <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false" data-add-back-btn="true">
                 <h3 data-translate="Manage Sites"></h3>
-                <a href="javascript:show_addsite();" data-rel="popup" id="site-add" data-icon="plus" data-translate="Add" class="ui-btn-right"></a>
+                <button data-rel="popup" id="site-add" data-icon="plus" data-translate="Add" class="ui-btn-right"></button>
             </div>
             <div class="ui-content" id="site-control-list">
             </div>
             <div data-role="popup" id="addsite" data-theme="b">
                 <ul data-role="listview">
-                    <li data-icon="false"><a href="javascript:start_scan();" id="site-add-scan" data-translate="Scan For Device"></a></li>
-                    <li data-icon="false"><a href="javascript:show_addnew(false,true);" data-translate="Manually Add Device"></a></li>
+                    <li data-icon="false"><a href="#" id="site-add-scan" data-translate="Scan For Device"></a></li>
+                    <li data-icon="false"><a href="#" id="site-add-manual" data-translate="Manually Add Device"></a></li>
                 </ul>
             </div>
         </div>
@@ -283,8 +283,8 @@
             <div class="ui-content" role="main">
                 <ul data-role="listview" data-inset="true">
                     <li>
-                        <p>This is open source software: source code and changelog for this application can be found at <a href="javascript:iab('https://github.com/salbahra/Sprinklers/');">https://github.com/salbahra/Sprinklers/</a></p>
-                        <p>Language localization is crowdsourced using Get Localization available at <a href="javascript:iab('http://www.getlocalization.com/Sprinklers/');">http://www.getlocalization.com/Sprinklers/</a></p>
+                        <p>This is open source software: source code and changelog for this application can be found at <a target="_blank" href="https://github.com/salbahra/Sprinklers/">https://github.com/salbahra/Sprinklers/</a></p>
+                        <p>Language localization is crowdsourced using Get Localization available at <a target="_blank" href="http://www.getlocalization.com/Sprinklers/">http://www.getlocalization.com/Sprinklers/</a></p>
                         <p>Version: 1.1.3</p>
                     </li>
                 </ul>

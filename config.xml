@@ -15,7 +15,6 @@
 
         <feature name="http://api.phonegap.com/1.0/network"/>
 
-        <gap:plugin name="org.apache.cordova.core.inappbrowser" />
         <gap:plugin name="com.phonegap.plugin.statusbar" />
         <gap:plugin name="com.albahra.plugin.networkinterface" />
         <gap:plugin name="org.apache.cordova.splashscreen" />
