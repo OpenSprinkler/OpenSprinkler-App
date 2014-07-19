@@ -17,7 +17,7 @@ $(window).one("load", function(){
 $(document)
 .ready(function() {
     //Update the language on the page using the browser's locale
-    update_lang(get_locale());
+    update_lang();
 
     //Use the user's local time for preview
     var now = new Date();
@@ -200,14 +200,10 @@ $(document)
             });
             settings.find(".clear-config").off("click").on("click",function(){
                 areYouSure(_("Are you sure you want to delete all settings and return to the default settings?"), "", function() {
-                    localStorage.removeItem("sites");
-                    localStorage.removeItem("current_site");
-                    localStorage.removeItem("lang");
-                    localStorage.removeItem("provider");
-                    localStorage.removeItem("wapikey");
-                    localStorage.removeItem("runonce");
-                    update_lang(get_locale());
-                    changePage("#start");
+                    storage.remove(["sites","current_site","lang","provider","wapikey","runonce"],function(){
+                        update_lang();
+                        changePage("#start");
+                    });
                 });
                 return false;
             });
@@ -787,10 +783,13 @@ function submit_newuser(ssl,useAuth) {
                 }
 
                 $("#os_name,#os_ip,#os_pw,#os_auth_user,#os_auth_pw").val("");
-                localStorage.setItem("sites",JSON.stringify(sites));
-                localStorage.setItem("current_site",name);
-                update_site_list(Object.keys(sites));
-                newload();
+                storage.set({
+                    "sites": JSON.stringify(sites),
+                    "current_site": name
+                },function(){
+                    update_site_list(Object.keys(sites));
+                    newload();
+                });
             } else {
                 showerror(_("Check IP/Port and try again."));
             }
@@ -1082,18 +1081,20 @@ function change_site(site) {
         sites[nm] = sites[site];
         delete sites[site];
         site = nm;
-        localStorage.setItem("current_site",site);
+        storage.set({"current_site":site});
         update_site_list(Object.keys(sites));
     }
 
-    localStorage.setItem("sites",JSON.stringify(sites));
+    storage.set({"sites":JSON.stringify(sites)});
 
     showerror(_("Site updated successfully"));
 
-    if (site === localStorage.getItem("current_site")) {
-        if (pw !== "") window.curr_pw = pw;
-        if (ip !== "") check_configured();
-    }
+    storage.get("current_site",function(data){
+        if (site === data.current_site) {
+            if (pw !== "") window.curr_pw = pw;
+            if (ip !== "") check_configured();
+        }
+    });
 
     if (rename) show_sites();
 }
@@ -1121,25 +1122,22 @@ function site_select(names) {
 // Update the panel list of sites
 function update_site_list(names) {
     var list = "",
-        current = localStorage.getItem("current_site");
-    $.each(names,function(a,b){
-        list += "<option "+(b==current ? "selected ":"")+"value='"+b+"'>"+b+"</option>";
-    });
+        select = $("#site-selector");
 
-    $("#site-selector").html(list);
-    try {
-        $("#site-selector").selectmenu("refresh");
-    } catch (err) {
-    }
+    storage.get("current_site",function(data){
+        $.each(names,function(a,b){
+            list += "<option "+(b==data.current_site ? "selected ":"")+"value='"+b+"'>"+b+"</option>";
+        });
+
+        select.html(list);
+        if (select.parent().parent().hasClass("ui-select")) select.selectmenu("refresh");
+    });
 }
 
 // Change the current site
 function update_site(newsite) {
     var sites = getsites();
-    if (newsite in sites) {
-        localStorage.setItem("current_site",newsite);
-        check_configured();
-    }
+    if (newsite in sites) storage.set({"current_site":newsite},check_configured);
 }
 
 // Get the list of sites from the local storage
@@ -1417,21 +1415,20 @@ function hide_weather() {
 }
 
 function update_weather() {
-    var provider = localStorage.getItem("provider"),
-        wapikey = localStorage.getItem("wapikey");
+    storage.get(["provider","wapikey"],function(data){
+        if (window.controller.settings.loc === "") {
+            hide_weather();
+            return;
+        }
 
-    if (window.controller.settings.loc === "") {
-        hide_weather();
-        return;
-    }
+        showLoading("#weather");
 
-    showLoading("#weather");
-
-    if (provider == "wunderground" && wapikey) {
-        update_wunderground_weather(wapikey);
-    } else {
-        update_yahoo_weather();
-    }
+        if (data.provider == "wunderground" && data.wapikey) {
+            update_wunderground_weather(data.wapikey);
+        } else {
+            update_yahoo_weather();
+        }
+    });
 }
 
 function update_yahoo_weather() {
@@ -2344,7 +2341,7 @@ function submit_runonce(runonce) {
         });
         runonce.push(0);
     }
-    localStorage.setItem("runonce",JSON.stringify(runonce));
+    storage.set({"runonce":JSON.stringify(runonce)});
     send_to_os("/cr?pw=&t="+JSON.stringify(runonce)).done(function(){
         $.mobile.document.one("pageshow",function(){
             showerror(_("Run-once program has been scheduled"));
@@ -3409,8 +3406,9 @@ function raindelay() {
 
 // Export and Import functions
 function export_config() {
-    localStorage.setItem("backup", JSON.stringify(window.controller));
-    showerror(_("Backup saved on this device"));
+    storage.set({"backup":JSON.stringify(window.controller)},function(){
+        showerror(_("Backup saved on this device"));
+    });
 }
 
 function import_config(data) {
@@ -3418,11 +3416,16 @@ function import_config(data) {
         keyIndex = {"tz":1,"ntp":2,"hp0":12,"hp1":13,"ar":14,"ext":15,"seq":16,"sdt":17,"mas":18,"mton":19,"mtof":20,"urs":21,"rso":22,"wl":23,"ipas":25,"devid":26};
 
     if (typeof data === "undefined") {
-        data = localStorage.getItem("backup");
-        if (data === null) {
-            showerror(_("No backup available on this device"));
-            return;
-        }
+        storage.get("backup",function(newdata){
+            if (newdata.backup) {
+                import_config(newdata.backup);
+            } else {
+                showerror(_("No backup available on this device"));
+                return;
+            }
+        });
+
+        return;
     }
 
     data = JSON.parse(data);
@@ -3881,47 +3884,49 @@ function set_lang() {
     });
     $(".ui-toolbar-back-btn").text(_("Back"));
     $.mobile.toolbar.prototype.options.backBtnText = _("Back");
-}
 
-function get_locale() {
-    //Identify the current browser's locale
-    var locale = "en",
-        lang = localStorage.getItem("lang");
-
-    locale = lang || navigator.language || navigator.browserLanguage || navigator.systemLanguage || navigator.userLanguage || locale;
-
-    return locale.substring(0,2);
+    check_curr_lang();
 }
 
 function update_lang(lang) {
     //Empty out the current language (English is provided as the key)
     window.language = {};
 
+    if (typeof lang == "undefined") {
+        storage.get("lang",function(data){
+            //Identify the current browser's locale
+            var locale = "en";
+
+            locale = data.lang || navigator.language || navigator.browserLanguage || navigator.systemLanguage || navigator.userLanguage || locale;
+
+            update_lang(locale.substring(0,2));
+        });
+        return;
+    }
+
+    storage.set({"lang":lang});
+
     if (lang == "en") {
-        localStorage.setItem("lang","en");
         set_lang();
-        check_curr_lang();
         return;
     }
 
     $.getJSON("locale/"+lang+".json",function(store){
         window.language = store.messages;
-        localStorage.setItem("lang",lang);
         set_lang();
-        check_curr_lang();
     }).fail(set_lang);
 }
 
 function check_curr_lang() {
-    var curr_lang = localStorage.getItem("lang");
-
-    $("#localization").find("a").each(function(a,b){
-        var item = $(b);
-        if (item.data("lang-code") == curr_lang) {
-            item.removeClass("ui-icon-carat-r").addClass("ui-icon-check");
-        } else {
-            item.removeClass("ui-icon-check").addClass("ui-icon-carat-r");
-        }
+    storage.get("lang",function(data){
+        $("#localization").find("a").each(function(a,b){
+            var item = $(b);
+            if (item.data("lang-code") == data.lang) {
+                item.removeClass("ui-icon-carat-r").addClass("ui-icon-check");
+            } else {
+                item.removeClass("ui-icon-check").addClass("ui-icon-carat-r");
+            }
+        });
     });
 }
 
