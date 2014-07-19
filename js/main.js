@@ -702,7 +702,7 @@ function check_configured(firstLoad) {
 
     if (current === null || !(current in sites)) {
         $.mobile.loading("hide");
-        show_sites();
+        site_select();
         return;
     }
 
@@ -3746,6 +3746,71 @@ function objToEmail(ele,obj,subject) {
     var body = JSON.stringify(obj);
     $(ele).attr("href","mailto:?subject="+encodeURIComponent(subject)+"&body="+encodeURIComponent(body));
 }
+
+// Small wrapper to handle Chrome vs localStorage usage
+var storage = {
+    get: function(query,callback) {
+        callback = callback || function(){};
+
+        try {
+            var data = {},
+                i;
+
+            if (typeof query == "object") {
+                for (i in query) {
+                    if (query.hasOwnProperty(i)) {
+                        data[query[i]] = localStorage.getItem(query[i]);
+                    }
+                }
+            } else if (typeof query == "string") {
+                data[query] = localStorage.getItem(query);
+            }
+
+            callback(data);
+        } catch(e) {
+            chrome.storage.local.get(query,callback);
+        }
+    },
+    set: function(query,callback) {
+        callback = callback || function(){};
+
+        try {
+            var i;
+            if (typeof query == "object") {
+                for (i in query) {
+                    if (query.hasOwnProperty(i)) {
+                        localStorage.setItem(i,query[i]);
+                    }
+                }
+            }
+
+            callback(true);
+        } catch(e) {
+            chrome.storage.local.get(query,callback);
+        }
+    },
+    remove: function(query,callback) {
+        callback = callback || function(){};
+
+        try {
+            var i;
+
+            if (typeof query == "object") {
+                for (i in query) {
+                    if (query.hasOwnProperty(i)) {
+                        localStorage.removeItem(query[i]);
+                    }
+                }
+            } else if (typeof query == "string") {
+                localStorage.removeItem(query);
+            }
+
+            callback(true);
+        } catch(e) {
+            chrome.storage.local.get(query,callback);
+        }
+    }
+};
 
 // Return day of the week
 function getDayName(day,type) {
