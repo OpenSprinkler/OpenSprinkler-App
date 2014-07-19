@@ -174,7 +174,7 @@ $(document)
                 $id.on("change",flipSwitched);
             });
             var settings = $(hash);
-            settings.find(".clear_logs > a").on("click",function(){
+            settings.find(".clear_logs > a").off("click").on("click",function(){
                 areYouSure(_("Are you sure you want to clear all your log data?"), "", function() {
                     $.mobile.loading("show");
                     send_to_os("/cl?pw=").done(function(){
@@ -184,7 +184,7 @@ $(document)
                 });
                 return false;
             });
-            settings.find(".reboot-os").on("click",function(){
+            settings.find(".reboot-os").off("click").on("click",function(){
                 areYouSure(_("Are you sure you want to reboot OpenSprinkler?"), "", function() {
                     $.mobile.loading("show");
                     send_to_os("/cv?pw=&rbt=1").done(function(){
@@ -194,7 +194,7 @@ $(document)
                 });
                 return false;
             });
-            settings.find(".clear-config").on("click",function(){
+            settings.find(".clear-config").off("click").on("click",function(){
                 areYouSure(_("Are you sure you want to delete all settings and return to the default settings?"), "", function() {
                     localStorage.removeItem("sites");
                     localStorage.removeItem("current_site");
@@ -207,73 +207,76 @@ $(document)
                 });
                 return false;
             });
-            settings.find(".show-providers").on("click",function(){
+            settings.find(".show-providers").off("click").on("click",function(){
                 $("#providers").popup("destroy").remove();
 
-                var provider = localStorage.getItem("provider") || "yahoo",
-                    wapikey = localStorage.getItem("wapikey");
+                storage.get(["provider","wapikey"],function(data){
+                    data.provider = data.provider || "yahoo";
 
-                var popup = $(
-                    '<div data-role="popup" id="providers" data-theme="a" data-dismissible="false" data-overlay-theme="b">'+
-                        '<a data-rel="back" class="ui-btn ui-corner-all ui-shadow ui-btn-a ui-icon-delete ui-btn-icon-notext ui-btn-right">Close</a>'+
-                        '<div class="ui-content">'+
-                            '<form>'+
-                                '<label for="weather_provider">'+_("Weather Provider")+
-                                    '<select data-mini="true" id="weather_provider">'+
-                                        '<option value="yahoo">'+_("Yahoo!")+'</option>'+
-                                        '<option '+((provider == "wunderground") ? 'selected ' : '')+'value="wunderground">'+_("Wunderground")+'</option>'+
-                                    '</select>'+
-                                '</label>'+
-                                '<label for="wapikey">'+_("Wunderground API Key")+'<input data-mini="true" type="text" id="wapikey" value="'+((wapikey) ? wapikey : '')+'" /></label>'+
-                                '<input type="submit" value="'+_("Submit")+'" />'+
-                            '</form>'+
-                        '</div>'+
-                    '</div>'
-                );
+                    var popup = $(
+                        '<div data-role="popup" id="providers" data-theme="a" data-dismissible="false" data-overlay-theme="b">'+
+                            '<a data-rel="back" class="ui-btn ui-corner-all ui-shadow ui-btn-a ui-icon-delete ui-btn-icon-notext ui-btn-right">Close</a>'+
+                            '<div class="ui-content">'+
+                                '<form>'+
+                                    '<label for="weather_provider">'+_("Weather Provider")+
+                                        '<select data-mini="true" id="weather_provider">'+
+                                            '<option value="yahoo">'+_("Yahoo!")+'</option>'+
+                                            '<option '+((data.provider == "wunderground") ? 'selected ' : '')+'value="wunderground">'+_("Wunderground")+'</option>'+
+                                        '</select>'+
+                                    '</label>'+
+                                    '<label for="wapikey">'+_("Wunderground API Key")+'<input data-mini="true" type="text" id="wapikey" value="'+((data.wapikey) ? data.wapikey : '')+'" /></label>'+
+                                    '<input type="submit" value="'+_("Submit")+'" />'+
+                                '</form>'+
+                            '</div>'+
+                        '</div>'
+                    );
 
-                if (provider == "yahoo") popup.find("#wapikey").closest("label").hide();
+                    if (data.provider == "yahoo") popup.find("#wapikey").closest("label").hide();
 
-                popup.find("form").on("submit",function(e){
-                    e.preventDefault();
+                    popup.find("form").on("submit",function(e){
+                        e.preventDefault();
 
-                    var wapikey = $("#wapikey").val(),
-                        provider = $("#weather_provider").val();
+                        var wapikey = $("#wapikey").val(),
+                            provider = $("#weather_provider").val();
 
-                    if (provider == "wunderground" && wapikey === "") {
-                        showerror(_("An API key must be provided for Weather Underground"));
-                        return;
-                    }
+                        if (provider == "wunderground" && wapikey === "") {
+                            showerror(_("An API key must be provided for Weather Underground"));
+                            return;
+                        }
 
-                    localStorage.setItem("wapikey",wapikey);
-                    localStorage.setItem("provider",provider);
+                        storage.set({
+                            "wapikey": wapikey,
+                            "provider": provider
+                        });
 
-                    update_weather();
+                        update_weather();
 
-                    $("#providers").popup("close");
+                        $("#providers").popup("close");
 
+                        return false;
+                    });
+
+                    //Handle provider select change on weather settings
+                    popup.on("change","#weather_provider",function(){
+                        var val = $(this).val();
+                        if (val === "wunderground") {
+                            $("#wapikey").closest("label").show();
+                        } else {
+                            $("#wapikey").closest("label").hide();
+                        }
+                        popup.popup("reposition",{
+                            "positionTo": "window"
+                        });
+                    });
+
+                    popup.one("popupafterclose",function(){
+                        document.activeElement.blur();
+                        this.remove();
+                    }).popup().enhanceWithin().popup("open");
                     return false;
                 });
-
-                //Handle provider select change on weather settings
-                popup.on("change","#weather_provider",function(){
-                    var val = $(this).val();
-                    if (val === "wunderground") {
-                        $("#wapikey").closest("label").show();
-                    } else {
-                        $("#wapikey").closest("label").hide();
-                    }
-                    popup.popup("reposition",{
-                        "positionTo": "window"
-                    });
-                });
-
-                popup.one("popupafterclose",function(){
-                    document.activeElement.blur();
-                    this.remove();
-                }).popup().enhanceWithin().popup("open");
-                return false;
             });
-            $("#localization").find("a").on("click",function(){
+            $("#localization").find("a").off("click").on("click",function(){
                 var link = $(this),
                     lang = link.data("lang-code");
 
