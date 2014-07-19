@@ -68,7 +68,10 @@ $(document)
 
     //Use system browser for links on iOS and Windows Phone
     if (isiOS || isIEMobile) {
-        $(".iab").attr("target","_system");
+        $(".iab").on("click",function(){
+            window.open(this.href,"_system",'enableViewportScale=yes');
+            return false;
+        });
     }
 })
 .ajaxError(function(x,t,m) {
