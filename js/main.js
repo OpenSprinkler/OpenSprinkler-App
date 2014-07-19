@@ -336,8 +336,9 @@ $(document)
         //Update the preview page on date change
         $newpage.one("pagehide",function(){
             $("#timeline").empty();
-            $("#preview_date,.preview-minus,.preview-plus").off("change");
+            $("#preview_date").off("change");
             $.mobile.window.off("resize");
+            $(".preview-minus,.preview-plus").off("click");
             $("#timeline-navigation").find("a").off("click");
         });
     } else if (newpage == "#logs") {
