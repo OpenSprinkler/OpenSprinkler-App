@@ -711,7 +711,7 @@ function check_configured(firstLoad) {
 
         if (current === null || !(current in sites)) {
             $.mobile.loading("hide");
-            site_select();
+            changePage("#site-control");
             return;
         }
 
@@ -1104,26 +1104,6 @@ function change_site(site) {
     });
 
     if (rename) show_sites();
-}
-
-// Display the site select popup
-function site_select(names) {
-    var newlist = "";
-
-    names = names || Object.keys(getsites());
-
-    for (var i=0; i < names.length; i++) {
-        newlist += "<li><a class='ui-btn ui-btn-icon-right ui-icon-carat-r' href='#'>"+names[i]+"</a></li>";
-    }
-
-    newlist = $(newlist);
-
-    newlist.find("a").on("click",function(){
-        update_site(this.innerHTML);
-        return false;
-    });
-
-    show_site_select(newlist);
 }
 
 // Update the panel list of sites
