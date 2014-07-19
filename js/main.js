@@ -33,7 +33,7 @@ $(document)
     $("#auto-scan").find("button").on("click",start_scan);
 
     //Bind open panel button
-    $("#sprinklers").find("a[href='#sprinklers-settings']").on("click",function(){
+    $("#sprinklers").find("a[href='#sprinklers-settings']").off("click").on("click",function(){
         open_panel();
         return false;
     });
@@ -1568,19 +1568,19 @@ function show_forecast() {
 function open_panel() {
     var panel = $("#sprinklers-settings");
     panel.panel("option","classes.modal","needsclick ui-panel-dismiss");
-    panel.find("a[href='#site-control']").one("click",function(){
+    panel.find("a[href='#site-control']").off("click").one("click",function(){
         changeFromPanel("site-control");
         return false;
     });
-    panel.find("a[href='#about']").one("click",function(){
+    panel.find("a[href='#about']").off("click").one("click",function(){
         changeFromPanel("about");
         return false;
     });
-    panel.find(".export_config").on("click",function(){
+    panel.find(".export_config").off("click").on("click",function(){
         export_config();
         return false;
     });
-    panel.find(".import_config").on("click",function(){
+    panel.find(".import_config").off("click").on("click",function(){
         import_config();
         return false;
     });
