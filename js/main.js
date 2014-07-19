@@ -33,7 +33,7 @@ $(document)
     $("#auto-scan").find("button").on("click",start_scan);
 
     //Bind open panel button
-    $("#sprinklers").find("a[href='#sprinklers-settings']").off("click").on("click",function(){
+    $("#sprinklers").find("div[data-role='header'] > .ui-btn-left").off("click").on("click",function(){
         open_panel();
         return false;
     });
