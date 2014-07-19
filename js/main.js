@@ -53,18 +53,22 @@ $(document)
         });
     });
 
+    // Prevent caching of AJAX requests on Android and Windows Phone devices
     if (isAndroid) {
         $(this).ajaxStart(function(){
             try {
                 navigator.app.clearCache();
             } catch (err) {}
         });
-    }
-
-    if (isIEMobile) {
+    } else if (isIEMobile) {
         $.ajaxSetup({
             "cache": false
         });
+    }
+
+    //Use system browser for links on iOS and Windows Phone
+    if (isiOS || isIEMobile) {
+        $(".iab").attr("target","_system");
     }
 })
 .ajaxError(function(x,t,m) {
