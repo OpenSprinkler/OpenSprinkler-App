@@ -964,7 +964,7 @@ function show_addnew(autoIP,closeOld) {
         "positionTo": "window"
     }).enhanceWithin();
 
-    if (closeOld === true) {
+    if (closeOld) {
         $(".ui-popup-active").children().first().one("popupafterclose",function(){
             addnew.popup("open");
         }).popup("close");
@@ -996,9 +996,9 @@ function show_sites() {
         total = Object.keys(sites).length,
         page = $("#site-control");
 
-    page.find("div[data-role='header'] > .ui-btn-right").on("click",show_addsite);
-    page.find("#site-add-scan").on("click",start_scan);
-    page.find("#site-add-manual").on("click",function(){
+    page.find("div[data-role='header'] > .ui-btn-right").off("click").on("click",show_addsite);
+    page.find("#site-add-scan").off("click").on("click",start_scan);
+    page.find("#site-add-manual").off("click").on("click",function(){
         show_addnew(false,true);
     });
 
