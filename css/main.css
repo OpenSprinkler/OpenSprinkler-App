@@ -218,7 +218,7 @@ a {
     white-space:nowrap;
     text-align:center
 }
-#preview_header a {
+#preview_header button {
     padding-top:10px;
     display:inline-block;
     vertical-align:text-top
@@ -239,6 +239,9 @@ a {
     -ms-content-zooming:none;
     -o-user-select:none;
     user-select:none
+}
+#sure {
+    padding:0.5em;
 }
 #addnew, #raindelay, #site-select, #sure {
     width:300px
