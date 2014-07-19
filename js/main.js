@@ -30,10 +30,13 @@ $(document)
     });
 
     //Bind start page buttons
-    $("#auto-scan").find("button").on("click",start_scan);
+    $("#auto-scan").find("a").on("click",function(){
+        start_scan();
+        return false;
+    });
 
     //Bind open panel button
-    $("#sprinklers").find("div[data-role='header'] > .ui-btn-left").off("click").on("click",function(){
+    $("#sprinklers").find("div[data-role='header'] > .ui-btn-left").on("click",function(){
         open_panel();
         return false;
     });
