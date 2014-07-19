@@ -113,16 +113,7 @@ $(document)
     event.preventDefault();
 
     //On initial load check if a valid site exists for auto connect
-    var status = check_configured();
-
-    if (status === 1) {
-        newload();
-    } else if (status === 2) {
-        $.mobile.loading("hide");
-        site_select();
-    } else {
-        changePage("#start");
-    }
+    check_configured(true);
 
     $.mobile.document.on("pagebeforechange",function(e,data){
         var page = data.toPage,
@@ -696,17 +687,23 @@ function update_controller_settings(callback) {
 }
 
 // Multisite functions
-function check_configured() {
-    var sites = getsites();
-    var current = localStorage.getItem("current_site");
+function check_configured(firstLoad) {
+    var sites = getsites(),
+        current = localStorage.getItem("current_site"),
+        names = Object.keys(sites);
 
-    if (sites === null) return 0;
+    if (sites === null || !names.length) {
+        if (firstLoad) {
+            changePage("#start");
+        }
+        return;
+    }
 
-    var names = Object.keys(sites);
-
-    if (!names.length) return 0;
-
-    if (current === null || !(current in sites)) return 2;
+    if (current === null || !(current in sites)) {
+        $.mobile.loading("hide");
+        show_sites();
+        return;
+    }
 
     update_site_list(names);
 
@@ -733,7 +730,7 @@ function check_configured() {
         delete window.curr_183;
     }
 
-    return 1;
+    newload();
 }
 
 // Add a new site
@@ -1087,10 +1084,7 @@ function change_site(site) {
 
     if (site === localStorage.getItem("current_site")) {
         if (pw !== "") window.curr_pw = pw;
-        if (ip !== "") {
-            check_configured();
-            newload();
-        }
+        if (ip !== "") check_configured();
     }
 
     if (rename) show_sites();
@@ -1138,7 +1132,6 @@ function update_site(newsite) {
         localStorage.setItem("current_site",newsite);
         check_configured();
     }
-    newload();
 }
 
 // Get the list of sites from the local storage
