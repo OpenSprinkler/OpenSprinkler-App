@@ -1922,6 +1922,10 @@ function get_status() {
         pinfo += "<br><span id='countdown-p' class='nobr'>("+sec2hms(ptotal)+" "+_("remaining")+")</span>";
         runningTotal.p = ptotal;
         header += "<br>"+pinfo;
+    } else if (window.controller.settings.rd) {
+        header +="<br>"+_("Rain delay until")+" "+dateToString(new Date(window.controller.settings.rdst*1000));
+    } else if (window.controller.options.urs && window.controller.settings.rs) {
+        header +="<br>"+_("Rain detected");
     }
 
     $("#status .ui-content").append(
