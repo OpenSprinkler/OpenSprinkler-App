@@ -472,13 +472,15 @@ function newload() {
         },
         function(){
             $.mobile.loading("hide");
-            if (Object.keys(getsites()).length) {
-                changePage("#site-control",{
-                    'showBack': false
-                });
-            } else {
-                changePage("#start");
-            }
+            storage.get("sites",function(data){
+                if (data.sites === null) {
+                    changePage("#site-control",{
+                        'showBack': false
+                    });
+                } else {
+                    changePage("#start");
+                }
+            });
         }
     );
 }
@@ -692,49 +694,54 @@ function update_controller_settings(callback) {
 
 // Multisite functions
 function check_configured(firstLoad) {
-    var sites = getsites(),
-        current = localStorage.getItem("current_site"),
+    storage.get(["sites","current_site"],function(data){
+        var sites = data.sites,
+            current = data.current_site;
+
+        try {
+            sites = JSON.parse(sites);
+        } catch(e) {
+            if (firstLoad) {
+                changePage("#start");
+            }
+            return;
+        }
+
         names = Object.keys(sites);
 
-    if (sites === null || !names.length) {
-        if (firstLoad) {
-            changePage("#start");
+        if (current === null || !(current in sites)) {
+            $.mobile.loading("hide");
+            site_select();
+            return;
         }
-        return;
-    }
 
-    if (current === null || !(current in sites)) {
-        $.mobile.loading("hide");
-        site_select();
-        return;
-    }
+        update_site_list(names);
 
-    update_site_list(names);
+        window.curr_ip = sites[current].os_ip;
+        window.curr_pw = sites[current].os_pw;
 
-    window.curr_ip = sites[current].os_ip;
-    window.curr_pw = sites[current].os_pw;
+        if (typeof sites[current].ssl !== "undefined" && sites[current].ssl === "1") {
+            window.curr_prefix = "https://";
+        } else {
+            window.curr_prefix = "http://";
+        }
 
-    if (typeof sites[current].ssl !== "undefined" && sites[current].ssl === "1") {
-        window.curr_prefix = "https://";
-    } else {
-        window.curr_prefix = "http://";
-    }
+        if (typeof sites[current].auth_user !== "undefined" && typeof sites[current].auth_pw !== "undefined") {
+            window.curr_auth = true;
+            window.curr_auth_user = sites[current].auth_user;
+            window.curr_auth_pw = sites[current].auth_pw;
+        } else {
+            delete window.curr_auth;
+        }
 
-    if (typeof sites[current].auth_user !== "undefined" && typeof sites[current].auth_pw !== "undefined") {
-        window.curr_auth = true;
-        window.curr_auth_user = sites[current].auth_user;
-        window.curr_auth_pw = sites[current].auth_pw;
-    } else {
-        delete window.curr_auth;
-    }
+        if (sites[current].is183) {
+            window.curr_183 = true;
+        } else {
+            delete window.curr_183;
+        }
 
-    if (sites[current].is183) {
-        window.curr_183 = true;
-    } else {
-        delete window.curr_183;
-    }
-
-    newload();
+        newload();
+    });
 }
 
 // Add a new site
@@ -3766,7 +3773,9 @@ var storage = {
     get: function(query,callback) {
         callback = callback || function(){};
 
-        try {
+        if (typeof chrome == "object" && typeof chrome.storage == "object") {
+            chrome.storage.local.get(query,callback);
+        } else {
             var data = {},
                 i;
 
@@ -3781,14 +3790,14 @@ var storage = {
             }
 
             callback(data);
-        } catch(e) {
-            chrome.storage.local.get(query,callback);
         }
     },
     set: function(query,callback) {
         callback = callback || function(){};
 
-        try {
+        if (typeof chrome == "object" && typeof chrome.storage == "object") {
+            chrome.storage.local.get(query,callback);
+        } else {
             var i;
             if (typeof query == "object") {
                 for (i in query) {
@@ -3799,14 +3808,14 @@ var storage = {
             }
 
             callback(true);
-        } catch(e) {
-            chrome.storage.local.get(query,callback);
         }
     },
     remove: function(query,callback) {
         callback = callback || function(){};
 
-        try {
+        if (typeof chrome == "object" && typeof chrome.storage == "object") {
+            chrome.storage.local.get(query,callback);
+        } else {
             var i;
 
             if (typeof query == "object") {
@@ -3820,8 +3829,6 @@ var storage = {
             }
 
             callback(true);
-        } catch(e) {
-            chrome.storage.local.get(query,callback);
         }
     }
 };
