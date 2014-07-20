@@ -1,7 +1,48 @@
+msgid "Are you sure you want to stop all stations?"
+msgstr ""
+
+msgid "All stations have been stopped"
+msgstr ""
+
 msgid "Check device password and try again."
 msgstr ""
 
 msgid "Connection timed-out. Please try again."
+msgstr ""
+
+msgid "Are you sure you want to clear all your log data?"
+msgstr ""
+
+msgid "Logs have been cleared"
+msgstr ""
+
+msgid "Are you sure you want to reboot OpenSprinkler?"
+msgstr ""
+
+msgid "OpenSprinkler is rebooting now"
+msgstr ""
+
+msgid ""
+"Are you sure you want to delete all settings and return to the default "
+"settings?"
+msgstr ""
+
+msgid "Weather Provider"
+msgstr ""
+
+msgid "Yahoo!"
+msgstr ""
+
+msgid "Wunderground"
+msgstr ""
+
+msgid "Wunderground API Key"
+msgstr ""
+
+msgid "Submit"
+msgstr ""
+
+msgid "An API key must be provided for Weather Underground"
 msgstr ""
 
 msgid "Network Error"
@@ -17,9 +58,6 @@ msgid "Username:"
 msgstr ""
 
 msgid "Password:"
-msgstr ""
-
-msgid "Submit"
 msgstr ""
 
 msgid "An IP address is required to continue."
@@ -106,18 +144,6 @@ msgstr ""
 msgid "Weather Settings"
 msgstr ""
 
-msgid "Weather Provider"
-msgstr ""
-
-msgid "Yahoo!"
-msgstr ""
-
-msgid "Wunderground"
-msgstr ""
-
-msgid "Wunderground API Key"
-msgstr ""
-
 msgid ""
 "When automatic rain delay is enabled, the weather will be checked for rain "
 "every hour. If the weather reports any condition suggesting rain, a rain "
@@ -134,9 +160,6 @@ msgid "Weather settings have been saved"
 msgstr ""
 
 msgid "Weather settings were not saved. Please try again."
-msgstr ""
-
-msgid "An API key must be provided for Weather Underground"
 msgstr ""
 
 msgid "Now"
@@ -253,6 +276,12 @@ msgstr ""
 msgid "running"
 msgstr ""
 
+msgid "Rain delay until"
+msgstr ""
+
+msgid "Rain detected"
+msgstr ""
+
 msgid "Station delay"
 msgstr ""
 
@@ -271,13 +300,7 @@ msgstr ""
 msgid "is running on station"
 msgstr ""
 
-msgid "Rain delay until"
-msgstr ""
-
 msgid "Do you want to turn off rain delay?"
-msgstr ""
-
-msgid "Rain detected"
 msgstr ""
 
 msgid "Manual mode enabled"
@@ -397,11 +420,11 @@ msgstr ""
 msgid "No entries found in the selected date range"
 msgstr ""
 
-msgid ""
-"The requested time span exceeds the maxiumum of 7 days and has been adjusted"
+msgid "Start time cannot be greater than end time"
 msgstr ""
 
-msgid "Start time cannot be greater than end time"
+msgid ""
+"The requested time span exceeds the maxiumum of 7 days and has been adjusted"
 msgstr ""
 
 msgid "Manual program"
@@ -523,29 +546,6 @@ msgid "Program has been updated"
 msgstr ""
 
 msgid "Rain delay has been successfully set"
-msgstr ""
-
-msgid "Are you sure you want to reboot OpenSprinkler?"
-msgstr ""
-
-msgid "OpenSprinkler is rebooting now"
-msgstr ""
-
-msgid "Are you sure you want to stop all stations?"
-msgstr ""
-
-msgid "All stations have been stopped"
-msgstr ""
-
-msgid "Are you sure you want to clear all your log data?"
-msgstr ""
-
-msgid "Logs have been cleared"
-msgstr ""
-
-msgid ""
-"Are you sure you want to delete all settings and return to the default "
-"settings?"
 msgstr ""
 
 msgid "Backup saved on this device"
@@ -737,6 +737,9 @@ msgid "Hungarian"
 msgstr ""
 
 msgid "Italian"
+msgstr ""
+
+msgid "Polish"
 msgstr ""
 
 msgid "Slovenian"
