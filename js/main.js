@@ -1,6 +1,7 @@
 var isIEMobile = /IEMobile/.test(navigator.userAgent),
     isAndroid = /Android|\bSilk\b/.test(navigator.userAgent),
-    isiOS = /iP(ad|hone|od)/.test(navigator.userAgent);
+    isiOS = /iP(ad|hone|od)/.test(navigator.userAgent),
+    isFireFoxOS = /^.*?\Mobile\b.*?\Firefox\b.*?$/m.test(navigator.userAgent);
 
 //Fix CSS for IE Mobile (Windows Phone 8)
 if (isIEMobile) {
@@ -66,6 +67,12 @@ $(document)
     } else if (isIEMobile) {
         $.ajaxSetup({
             "cache": false
+        });
+    } else if (isFireFoxOS) {
+        $.ajaxSetup({
+          xhrFields: {
+            mozSystem: true
+          }
         });
     }
 
@@ -479,7 +486,7 @@ function newload() {
         function(){
             $.mobile.loading("hide");
             storage.get("sites",function(data){
-                if (data.sites === null) {
+                if (data.sites === undefined) {
                     changePage("#site-control",{
                         'showBack': false
                     });
@@ -707,6 +714,10 @@ function check_configured(firstLoad) {
         try {
             sites = JSON.parse(sites);
         } catch(e) {
+            sites = null;
+        }
+
+        if (sites === null) {
             if (firstLoad) {
                 changePage("#start");
             }
@@ -755,9 +766,8 @@ function submit_newuser(ssl,useAuth) {
     document.activeElement.blur();
     $.mobile.loading("show");
 
-    var sites = getsites(),
-        ip = $("#os_ip").val(),
-        success = function(data){
+    var ip = $("#os_ip").val(),
+        success = function(data,sites){
             $.mobile.loading("hide");
             var is183;
 
@@ -894,11 +904,21 @@ function submit_newuser(ssl,useAuth) {
                 timeout: 3000,
                 global: false,
                 beforeSend: function(xhr) { if (useAuth) xhr.setRequestHeader("Authorization", "Basic " + btoa($("#os_auth_user").val() + ":" + $("#os_auth_pw").val())); },
-                success: success,
+                success: function(reply){
+                    storage.get("sites",function(data){
+                        var sites = (data.sites === undefined) ? {} : JSON.parse(data.sites);
+                        success(reply,sites);
+                    });
+                },
                 error: fail
             });
         },
-        success: success
+        success: function(reply){
+            storage.get("sites",function(data){
+                var sites = (data.sites === undefined) ? {} : JSON.parse(data.sites);
+                success(reply,sites);
+            });
+        }
     });
 }
 
@@ -1006,10 +1026,18 @@ function show_addnew(autoIP,closeOld) {
     });
 }
 
-function show_sites() {
+function show_sites(sites) {
+
+    if (typeof sites == "undefined") {
+        storage.get("sites",function(data){
+            sites = (data.sites === undefined) ? {} : JSON.parse(data.sites);
+            show_sites(sites);
+        });
+
+        return;
+    }
 
     var list = "<div data-role='collapsible-set'>",
-        sites = getsites(),
         total = Object.keys(sites).length,
         page = $("#site-control");
 
@@ -1062,54 +1090,58 @@ function show_sites() {
 
 function delete_site(site) {
     areYouSure(_("Are you sure you want to delete")+" '"+site+"'?","",function(){
-        var sites = getsites();
-        delete sites[site];
-        localStorage.setItem("sites",JSON.stringify(sites));
-        update_site_list(Object.keys(sites));
-        show_sites();
-        if ($.isEmptyObject(sites)) {
-            changePage("#start");
-            return false;
-        }
-        if (site === localStorage.getItem("current_site")) $("#site-control").find(".ui-toolbar-back-btn").toggle(false);
-        showerror(_("Site deleted successfully"));
-        return false;
+        storage.get(["sites","current_site"],function(data){
+            var sites = (data.sites === undefined) ? {} : JSON.parse(data.sites);
+
+            delete sites[site];
+            storage.set({"sites":JSON.stringify(sites)},function(){
+                update_site_list(Object.keys(sites));
+                show_sites();
+                if ($.isEmptyObject(sites)) {
+                    changePage("#start");
+                    return false;
+                }
+                if (site === data.current_site) $("#site-control").find(".ui-toolbar-back-btn").toggle(false);
+                showerror(_("Site deleted successfully"));
+                return false;
+            });
+        });
     });
 }
 
 // Modify site IP and/or password
 function change_site(site) {
-    var sites = getsites(),
-        ip = $("#cip-"+site).val(),
-        pw = $("#cpw-"+site).val(),
-        nm = $("#cnm-"+site).val(),
-        rename;
+    storage.get(["sites","current_site"],function(data){
+        var sites = (data.sites === undefined) ? {} : JSON.parse(data.sites),
+            ip = $("#cip-"+site).val(),
+            pw = $("#cpw-"+site).val(),
+            nm = $("#cnm-"+site).val(),
+            rename;
 
-    site = site.replace(/_/g," ");
-    rename = (nm !== "" && nm != site);
+        site = site.replace(/_/g," ");
+        rename = (nm !== "" && nm != site);
 
-    if (ip !== "") sites[site].os_ip = ip;
-    if (pw !== "") sites[site].os_pw = pw;
-    if (rename) {
-        sites[nm] = sites[site];
-        delete sites[site];
-        site = nm;
-        storage.set({"current_site":site});
-        update_site_list(Object.keys(sites));
-    }
+        if (ip !== "") sites[site].os_ip = ip;
+        if (pw !== "") sites[site].os_pw = pw;
+        if (rename) {
+            sites[nm] = sites[site];
+            delete sites[site];
+            site = nm;
+            storage.set({"current_site":site});
+            update_site_list(Object.keys(sites));
+        }
 
-    storage.set({"sites":JSON.stringify(sites)});
+        storage.set({"sites":JSON.stringify(sites)});
 
-    showerror(_("Site updated successfully"));
+        showerror(_("Site updated successfully"));
 
-    storage.get("current_site",function(data){
         if (site === data.current_site) {
             if (pw !== "") window.curr_pw = pw;
             if (ip !== "") check_configured();
         }
-    });
 
-    if (rename) show_sites();
+        if (rename) show_sites();
+    });
 }
 
 // Update the panel list of sites
@@ -1129,15 +1161,10 @@ function update_site_list(names) {
 
 // Change the current site
 function update_site(newsite) {
-    var sites = getsites();
-    if (newsite in sites) storage.set({"current_site":newsite},check_configured);
-}
-
-// Get the list of sites from the local storage
-function getsites() {
-    var sites = localStorage.getItem("sites");
-    sites = (sites === null) ? {} : JSON.parse(sites);
-    return sites;
+    storage.get("sites",function(){
+        var sites = (data.sites === undefined) ? {} : JSON.parse(data.sites);
+        if (newsite in sites) storage.set({"current_site":newsite},check_configured);
+    });
 }
 
 // Automatic device detection functions
@@ -1184,17 +1211,21 @@ function start_scan(port,type) {
         devicesfound = 0,
         newlist = "",
         suffix = "",
-        oldsites = getsites(),
         oldips = [],
         i, url, notfound, found, baseip, check_scan_status, scanning, dtype;
 
     type = type || 0;
 
-    for (i in oldsites) {
-        if (oldsites.hasOwnProperty(i)) {
-            oldips.push(oldsites[i].os_ip);
+    storage.get("sites",function(data){
+        var oldsites = (data.sites === undefined) ? {} : JSON.parse(data.sites),
+            i;
+
+        for (i in oldsites) {
+            if (oldsites.hasOwnProperty(i)) {
+                oldips.push(oldsites[i].os_ip);
+            }
         }
-    }
+    });
 
     notfound = function(){
         scanprogress++;
@@ -2221,12 +2252,19 @@ function toggle() {
 }
 
 // Runonce functions
-function get_runonce() {
+function get_runonce(data) {
+    if (typeof data == "undefined") {
+        storage.get("runonce",function(data){
+            get_runonce(data.runonce);
+        });
+        return;
+    }
+
     var list = "<p class='center'>"+_("Zero value excludes the station from the run-once program.")+"</p>",
         runonce = $("#runonce_list"),
         page = $("#runonce"),
         i=0, n=0,
-        quickPick, data, progs, rprogs, z, program;
+        quickPick, progs, rprogs, z, program;
 
     page.find("div[data-role='header'] > .ui-btn-right").on("click",submit_runonce);
 
@@ -2247,7 +2285,6 @@ function get_runonce() {
 
 
     quickPick = "<select data-mini='true' name='rprog' id='rprog'><option value='s' selected='selected'>"+_("Quick Programs")+"</option>";
-    data = localStorage.getItem("runonce");
     if (data !== null) {
         data = JSON.parse(data);
         runonce.find(":input[data-type='range']").each(function(a,b){
