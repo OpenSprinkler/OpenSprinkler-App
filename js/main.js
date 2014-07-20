@@ -1,7 +1,8 @@
 var isIEMobile = /IEMobile/.test(navigator.userAgent),
     isAndroid = /Android|\bSilk\b/.test(navigator.userAgent),
     isiOS = /iP(ad|hone|od)/.test(navigator.userAgent),
-    isFireFoxOS = /^.*?\Mobile\b.*?\Firefox\b.*?$/m.test(navigator.userAgent);
+    isFireFoxOS = /^.*?\Mobile\b.*?\Firefox\b.*?$/m.test(navigator.userAgent),
+    isChromeApp = typeof chrome == "object" && typeof chrome.storage == "object";
 
 //Fix CSS for IE Mobile (Windows Phone 8)
 if (isIEMobile) {
@@ -73,6 +74,18 @@ $(document)
           xhrFields: {
             mozSystem: true
           }
+        });
+    }
+
+    //Change history method for Chrome Packaged Apps
+    if (isChromeApp) {
+        window.history.go = function(dir) {
+            if (dir === -1) goBack();
+        }
+
+        $.mobile.document.on("click",".ui-toolbar-back-btn",function(){
+            goBack();
+            return false;
         });
     }
 
@@ -1412,7 +1425,7 @@ function submit_weather_settings() {
             $.mobile.document.one("pageshow",function(){
                 showerror(_("Weather settings have been saved"));
             });
-            window.history.back();
+            goBack();
             checkWeatherPlugin();
         },
         function(){
@@ -1755,7 +1768,7 @@ function submit_settings() {
         $.mobile.document.one("pageshow",function(){
             showerror(_("Settings have been saved"));
         });
-        window.history.back();
+        goBack();
         update_controller(update_weather);
     });
 }
@@ -1859,7 +1872,7 @@ function submit_stations() {
         $.mobile.document.one("pageshow",function(){
             showerror(_("Stations have been updated"));
         });
-        window.history.back();
+        goBack();
         update_controller();
     });
 }
@@ -2378,7 +2391,7 @@ function submit_runonce(runonce) {
         });
         update_controller_status();
         update_controller_settings();
-        window.history.back();
+        goBack();
     });
 }
 
@@ -3403,7 +3416,7 @@ function submit_program(id) {
                 $.mobile.document.one("pageshow",function(){
                     showerror(_("Program added successfully"));
                 });
-                window.history.back();
+                goBack();
             });
         });
     } else {
@@ -3714,6 +3727,14 @@ function showLoading(ele) {
     $(ele).off("click").html("<p class='ui-icon ui-icon-loading mini-load'></p>");
 }
 
+function goBack() {
+    if (isChromeApp) {
+        changePage($.mobile.navigate.history.getPrev().hash);
+    } else {
+        window.history.back();
+    }
+}
+
 // show error message
 function showerror(msg,dur) {
     dur = dur || 2500;
@@ -3796,7 +3817,7 @@ var storage = {
     get: function(query,callback) {
         callback = callback || function(){};
 
-        if (typeof chrome == "object" && typeof chrome.storage == "object") {
+        if (isChromeApp) {
             chrome.storage.local.get(query,callback);
         } else {
             var data = {},
@@ -3818,8 +3839,8 @@ var storage = {
     set: function(query,callback) {
         callback = callback || function(){};
 
-        if (typeof chrome == "object" && typeof chrome.storage == "object") {
-            chrome.storage.local.get(query,callback);
+        if (isChromeApp) {
+            chrome.storage.local.set(query,callback);
         } else {
             var i;
             if (typeof query == "object") {
@@ -3836,8 +3857,8 @@ var storage = {
     remove: function(query,callback) {
         callback = callback || function(){};
 
-        if (typeof chrome == "object" && typeof chrome.storage == "object") {
-            chrome.storage.local.get(query,callback);
+        if (isChromeApp) {
+            chrome.storage.local.remove(query,callback);
         } else {
             var i;
 
@@ -3961,7 +3982,7 @@ function check_curr_lang() {
 }
 
 function dateToString(date) {
-    var lang = localStorage.getItem("lang");
+    var lang = $("#localization").find(".ui-icon-check").data("langCode");
 
     if (lang == "de") {
         date.setMinutes(date.getMinutes()+date.getTimezoneOffset());
@@ -3972,7 +3993,7 @@ function dateToString(date) {
 }
 
 function tzToString(prefix,tz,offset) {
-    var lang = localStorage.getItem("lang");
+    var lang = $("#localization").find(".ui-icon-check").data("langCode");
 
     if (lang == "de") return "";
 
