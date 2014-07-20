@@ -3730,6 +3730,9 @@ function showLoading(ele) {
 function goBack() {
     if (isChromeApp) {
         changePage($.mobile.navigate.history.getPrev().hash);
+        $.mobile.document.one("pagehide",function(){
+            $.mobile.navigate.history.activeIndex -= 2;
+        });
     } else {
         window.history.back();
     }
