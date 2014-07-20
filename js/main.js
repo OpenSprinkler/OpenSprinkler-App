@@ -1161,7 +1161,7 @@ function update_site_list(names) {
 
 // Change the current site
 function update_site(newsite) {
-    storage.get("sites",function(){
+    storage.get("sites",function(data){
         var sites = (data.sites === undefined) ? {} : JSON.parse(data.sites);
         if (newsite in sites) storage.set({"current_site":newsite},check_configured);
     });
