@@ -2266,13 +2266,6 @@ function toggle() {
 
 // Runonce functions
 function get_runonce(data) {
-    if (typeof data == "undefined") {
-        storage.get("runonce",function(data){
-            get_runonce(data.runonce);
-        });
-        return;
-    }
-
     var list = "<p class='center'>"+_("Zero value excludes the station from the run-once program.")+"</p>",
         runonce = $("#runonce_list"),
         page = $("#runonce"),
@@ -2296,17 +2289,7 @@ function get_runonce(data) {
     }
     rprogs = progs;
 
-
     quickPick = "<select data-mini='true' name='rprog' id='rprog'><option value='s' selected='selected'>"+_("Quick Programs")+"</option>";
-    if (data !== null) {
-        data = JSON.parse(data);
-        runonce.find(":input[data-type='range']").each(function(a,b){
-            $(b).val(data[i]/60);
-            i++;
-        });
-        rprogs.l = data;
-        quickPick += "<option value='l' >"+_("Last Used Program")+"</option>";
-    }
     for (i=0; i<progs.length; i++) {
         quickPick += "<option value='"+i+"'>"+_("Program")+" "+(i+1)+"</option>";
     }
@@ -2320,6 +2303,19 @@ function get_runonce(data) {
     list += "</form><a class='ui-btn ui-corner-all ui-shadow rsubmit' href='#'>"+_("Submit")+"</a><a class='ui-btn ui-btn-b ui-corner-all ui-shadow rreset' href='#'>"+_("Reset")+"</a>";
 
     runonce.html(list);
+    storage.get("runonce",function(data){
+        data = data.runonce;
+        if (data !== undefined) {
+            data = JSON.parse(data);
+            runonce.find(":input[data-type='range']").each(function(a,b){
+                $(b).val(data[i]/60);
+                i++;
+            });
+            rprogs.l = data;
+            $("#rprog").prepend("<option value='l' >"+_("Last Used Program")+"</option>");
+        }
+    });
+
     $("#rprog").on("change",function(){
         var prog = $(this).val();
         if (prog == "s") {
