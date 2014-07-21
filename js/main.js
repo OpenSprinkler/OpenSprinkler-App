@@ -497,14 +497,14 @@ function newload() {
             }
         },
         function(){
-            $.mobile.loading("hide");
             storage.get("sites",function(data){
+                $.mobile.loading("hide");
                 if (data.sites === undefined) {
+                    changePage("#start");
+                } else {
                     changePage("#site-control",{
                         'showBack': false
                     });
-                } else {
-                    changePage("#start");
                 }
             });
         }
