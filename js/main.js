@@ -2762,20 +2762,23 @@ function get_logs() {
                 var stamp = parseInt(b[3] * 1000),
                     station = parseInt(b[1]),
                     date = new Date(stamp),
+                    newdate = date,
                     duration = parseInt(b[2]/60),
                     key;
 
                 switch (grouping) {
                     case "h":
-                        key = date.getUTCHours();
+                        key = date.getHours();
                         break;
                     case "m":
-                        key = date.getUTCMonth() + 1;
+                        key = date.getMonth() + 1;
                         break;
                     case "d":
-                        key = date.getUTCDay();
+                        key = date.getDay();
                         break;
                     case "n":
+                        newdate.setMinutes(date.getMinutes()-date.getTimezoneOffset());
+                        stamp = newdate.getTime();
                         sortedData[station].push([stamp-1,0]);
                         sortedData[station].push([stamp,duration]);
                         sortedData[station].push([stamp+(duration*100*1000)+1,0]);
@@ -2923,7 +2926,7 @@ function get_logs() {
                 for (k=0; k<sortedData[i].length; k++) {
                     var mins = Math.round(sortedData[i][k][1]/60);
                     var date = new Date(sortedData[i][k][0]);
-                    html += "<tr><td>"+mins+" "+((mins == 1) ? _("min") : _("mins"))+"</td><td>"+dateToString(date).slice(0,-3)+"</td></tr>";
+                    html += "<tr><td>"+mins+" "+((mins == 1) ? _("min") : _("mins"))+"</td><td>"+date.toString().slice(0,-18)+"</td></tr>";
                 }
                 html += "</tbody></table></div>";
             }
