@@ -79,14 +79,14 @@ $(document)
 
     //Change history method for Chrome Packaged Apps
     if (isChromeApp) {
-        window.history.go = function(dir) {
-            if (dir === -1) goBack();
-        }
+
 
         $.mobile.document.on("click",".ui-toolbar-back-btn",function(){
             goBack();
             return false;
         });
+
+        checkAutoScan();
     }
 
     //Use system browser for links on iOS and Windows Phone
@@ -137,6 +137,7 @@ $(document)
     //After jQuery mobile is loaded set intial configuration
     $.mobile.defaultPageTransition = 'fade';
     $.mobile.hoverDelay = 0;
+    $.mobile.hashListeningEnabled = false;
 })
 .one("pagebeforechange", function(event) {
     // Let the framework know we're going to handle the load
@@ -725,19 +726,19 @@ function check_configured(firstLoad) {
             current = data.current_site;
 
         try {
-            sites = JSON.parse(sites);
+            sites = JSON.parse(sites) || {};
         } catch(e) {
-            sites = null;
+            sites = {};
         }
 
-        if (sites === null) {
+        names = Object.keys(sites);
+
+        if (!names.length) {
             if (firstLoad) {
                 changePage("#start");
             }
             return;
         }
-
-        names = Object.keys(sites);
 
         if (current === null || !(current in sites)) {
             $.mobile.loading("hide");
@@ -919,7 +920,7 @@ function submit_newuser(ssl,useAuth) {
                 beforeSend: function(xhr) { if (useAuth) xhr.setRequestHeader("Authorization", "Basic " + btoa($("#os_auth_user").val() + ":" + $("#os_auth_pw").val())); },
                 success: function(reply){
                     storage.get("sites",function(data){
-                        var sites = (data.sites === undefined) ? {} : JSON.parse(data.sites);
+                        var sites = (data.sites === undefined || data.sites === null) ? {} : JSON.parse(data.sites);
                         success(reply,sites);
                     });
                 },
@@ -928,7 +929,7 @@ function submit_newuser(ssl,useAuth) {
         },
         success: function(reply){
             storage.get("sites",function(data){
-                var sites = (data.sites === undefined) ? {} : JSON.parse(data.sites);
+                var sites = (data.sites === undefined || data.sites === null) ? {} : JSON.parse(data.sites);
                 success(reply,sites);
             });
         }
@@ -1104,7 +1105,7 @@ function show_sites(sites) {
 function delete_site(site) {
     areYouSure(_("Are you sure you want to delete")+" '"+site+"'?","",function(){
         storage.get(["sites","current_site"],function(data){
-            var sites = (data.sites === undefined) ? {} : JSON.parse(data.sites);
+            var sites = (data.sites === undefined || data.sites === null) ? {} : JSON.parse(data.sites);
 
             delete sites[site];
             storage.set({"sites":JSON.stringify(sites)},function(){
@@ -1125,7 +1126,7 @@ function delete_site(site) {
 // Modify site IP and/or password
 function change_site(site) {
     storage.get(["sites","current_site"],function(data){
-        var sites = (data.sites === undefined) ? {} : JSON.parse(data.sites),
+        var sites = (data.sites === undefined || data.sites === null) ? {} : JSON.parse(data.sites),
             ip = $("#cip-"+site).val(),
             pw = $("#cpw-"+site).val(),
             nm = $("#cnm-"+site).val(),
@@ -1175,16 +1176,19 @@ function update_site_list(names) {
 // Change the current site
 function update_site(newsite) {
     storage.get("sites",function(data){
-        var sites = (data.sites === undefined) ? {} : JSON.parse(data.sites);
+        var sites = (data.sites === undefined || data.sites === null) ? {} : JSON.parse(data.sites);
         if (newsite in sites) storage.set({"current_site":newsite},check_configured);
     });
 }
 
 // Automatic device detection functions
 function checkAutoScan() {
-    try {
-    // Request the device's IP address
-    networkinterface.getIPAddress(function(ip){
+    var finishScan = function(){
+        if (ip == undefined) {
+            resetStartMenu();
+            return;
+        }
+
         var chk = parseIntArray(ip.split("."));
 
         // Check if the IP is on a private network, if not don't enable automatic scanning
@@ -1201,9 +1205,31 @@ function checkAutoScan() {
         auto.show();
 
         window.deviceip = ip;
-    });
+    },
+    ip;
+
+    try {
+        if (isChromeApp) {
+            chrome.system.network.getNetworkInterfaces(function(data){
+                var i;
+                for (i in data) {
+                    if (data.hasOwnProperty(i)) {
+                        if (/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$/.test(data[i].address)) ip = data[i].address;
+                    }
+                }
+
+                finishScan();
+            });
+        } else {
+            // Request the device's IP address
+            networkinterface.getIPAddress(function(data){
+                ip = data;
+                finishScan();
+            });
+        }
     } catch (err) {
         resetStartMenu();
+        return;
     }
 }
 
@@ -3723,11 +3749,11 @@ function showLoading(ele) {
     $(ele).off("click").html("<p class='ui-icon ui-icon-loading mini-load'></p>");
 }
 
-function goBack() {
+function goBack(keepIndex) {
     if (isChromeApp) {
-        changePage($.mobile.navigate.history.getPrev().hash);
+        changePage($.mobile.navigate.history.getPrev().url);
         $.mobile.document.one("pagehide",function(){
-            $.mobile.navigate.history.activeIndex -= 2;
+            if (!keepIndex) $.mobile.navigate.history.activeIndex -= 2;
         });
     } else {
         window.history.back();

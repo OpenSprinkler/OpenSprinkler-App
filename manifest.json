@@ -9,7 +9,8 @@
     	}
   },
   "permissions": [
-    "storage"
+    "storage",
+    "system.network"
   ],
   "icons": { "16": "res/chrome/icons/icon-16.png", "128": "res/chrome/icons/icon-128.png" }
 }
