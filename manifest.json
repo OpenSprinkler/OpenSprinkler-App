@@ -1,7 +1,7 @@
 {
   "name": "Sprinklers",
-  "description": "Designed to allow intuitive program management (view, edit, delete and add), manual control, initiation of a run-once program, viewing device status, adjusting rain delay, viewing logs, and changing of OpenSprinkler settings.",
-  "version": "1.1.3",
+  "description": "Designed to allow intuitive control of the OpenSprinkler irrigation controller.",
+  "version": "1.1.4",
   "manifest_version": 2,
   "app": {
 	  "background": {
