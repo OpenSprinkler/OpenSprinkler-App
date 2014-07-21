@@ -80,7 +80,6 @@ $(document)
     //Change history method for Chrome Packaged Apps
     if (isChromeApp) {
 
-
         $.mobile.document.on("click",".ui-toolbar-back-btn",function(){
             goBack();
             return false;
@@ -137,7 +136,7 @@ $(document)
     //After jQuery mobile is loaded set intial configuration
     $.mobile.defaultPageTransition = 'fade';
     $.mobile.hoverDelay = 0;
-    $.mobile.hashListeningEnabled = false;
+    if (isChromeApp) $.mobile.hashListeningEnabled = false;
 })
 .one("pagebeforechange", function(event) {
     // Let the framework know we're going to handle the load
@@ -3753,10 +3752,14 @@ function showLoading(ele) {
 }
 
 function goBack(keepIndex) {
-    changePage($.mobile.navigate.history.getPrev().url);
-    $.mobile.document.one("pagehide",function(){
-        if (!keepIndex) $.mobile.navigate.history.activeIndex -= 2;
-    });
+    if (isChromeApp) {
+        changePage($.mobile.navigate.history.getPrev().url);
+        $.mobile.document.one("pagehide",function(){
+            if (!keepIndex) $.mobile.navigate.history.activeIndex -= 2;
+        });
+    } else {
+        window.history.back();
+    }
 }
 
 // show error message
