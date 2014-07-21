@@ -3753,14 +3753,10 @@ function showLoading(ele) {
 }
 
 function goBack(keepIndex) {
-    if (isChromeApp) {
-        changePage($.mobile.navigate.history.getPrev().url);
-        $.mobile.document.one("pagehide",function(){
-            if (!keepIndex) $.mobile.navigate.history.activeIndex -= 2;
-        });
-    } else {
-        window.history.back();
-    }
+    changePage($.mobile.navigate.history.getPrev().url);
+    $.mobile.document.one("pagehide",function(){
+        if (!keepIndex) $.mobile.navigate.history.activeIndex -= 2;
+    });
 }
 
 // show error message
