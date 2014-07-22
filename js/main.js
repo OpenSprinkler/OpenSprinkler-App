@@ -2012,7 +2012,7 @@ function get_status() {
         header += "<br>"+pinfo;
     } else if (window.controller.settings.rd) {
         header +="<br>"+_("Rain delay until")+" "+dateToString(new Date(window.controller.settings.rdst*1000));
-    } else if (window.controller.options.urs && window.controller.settings.rs) {
+    } else if (window.controller.options.urs === 1 && window.controller.settings.rs === 1) {
         header +="<br>"+_("Rain detected");
     }
 
@@ -2197,13 +2197,13 @@ function check_status() {
     }
 
     // Handle rain sensor triggered
-    if (window.controller.options.urs && window.controller.settings.rs) {
+    if (window.controller.options.urs === 1 && window.controller.settings.rs === 1) {
         change_status(0,window.controller.options.sdt,"red","<p id='running-text' class='center'>"+_("Rain detected")+"</p>");
         return;
     }
 
     // Handle manual mode enabled
-    if (window.controller.settings.mm) {
+    if (window.controller.settings.mm === 1) {
         change_status(0,window.controller.options.sdt,"red","<p id='running-text' class='center'>"+_("Manual mode enabled")+"</p>",function(){
             areYouSure(_("Do you want to turn off manual mode?"),"",function(){
                 showLoading("#footer-running");
@@ -3683,7 +3683,8 @@ function showDurationBox(seconds,title,callback,maximum,granularity) {
     callback = callback || function(){};
     granularity = granularity || 0;
 
-    var types = ["Days","Hours","Minutes","Seconds"],
+    var keys = ["days","hours","minutes","seconds"],
+        text = [_("Days"),_("Hours"),_("Minutes"),_("Seconds")],
         conv = [86400,3600,60,1],
         total = 4 - granularity,
         start = 0,
@@ -3732,7 +3733,7 @@ function showDurationBox(seconds,title,callback,maximum,granularity) {
 
     for (i=start; i<conv.length - granularity; i++) {
         incrbts += '<div '+((total > 1) ? 'class="ui-block-'+String.fromCharCode(97+i-start)+'"' : '')+'><a href="#" data-role="button" data-mini="true" data-corners="true" data-icon="plus" data-iconpos="bottom"></a></div>';
-        inputs += '<div '+((total > 1) ? 'class="ui-block-'+String.fromCharCode(97+i-start)+'"' : '')+'><label>'+_(types[i])+'</label><input class="'+types[i].toLowerCase()+'" type="number" pattern="[0-9]*" value="'+arr[types[i].toLowerCase()]+'"></div>';
+        inputs += '<div '+((total > 1) ? 'class="ui-block-'+String.fromCharCode(97+i-start)+'"' : '')+'><label>'+_(text[i])+'</label><input class="'+keys[i]+'" type="number" pattern="[0-9]*" value="'+arr[keys[i]]+'"></div>';
         decrbts += '<div '+((total > 1) ? 'class="ui-block-'+String.fromCharCode(97+i-start)+'"' : '')+'><a href="#" data-role="button" data-mini="true" data-corners="true" data-icon="minus" data-iconpos="bottom"></a></div>';
     }
 
