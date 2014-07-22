@@ -1427,7 +1427,7 @@ function show_weather_settings() {
         }
     })
     .one("pagehide",function(){
-        $(this).remove();
+        page.remove();
     })
     .find(".wsubmit").on("click",function(){
         submit_weather_settings();
@@ -2228,7 +2228,13 @@ function update_timer(total,sdelay) {
 // Manual control functions
 function get_manual() {
     var list = "<li data-role='list-divider' data-theme='a'>"+_("Sprinkler Stations")+"</li>",
-        page = $("#manual");
+        page = $('<div data-role="page" id="manual">' +
+                '<div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false" data-add-back-btn="true">' +
+                    '<h3>'+_("Manual Control")+'</h3>' +
+                '</div>' +
+                '<div class="ui-content" role="main">' +
+                '</div>' +
+            '</div>');
 
     $.each(window.controller.stations.snames,function (i,station) {
         if (window.controller.options.mas == i+1) {
@@ -2240,13 +2246,13 @@ function get_manual() {
 
     page.find(".ui-content").append(
         '<p class="center">'+_('With manual mode turned on, tap a station to toggle it.')+'</p>',
-        $('<ul data-role="listview" data-inset="true">'+
+        '<ul data-role="listview" data-inset="true">'+
                 '<li class="ui-field-contain">'+
                     '<label for="mmm"><b>'+_('Manual Mode')+'</b></label>'+
                     '<input type="checkbox" data-on-text="On" data-off-text="Off" data-role="flipswitch" name="mmm" id="mmm"'+(window.controller.settings.mm ? ' checked' : '')+'>'+
                 '</li>'+
-            '</ul>').listview(),
-        $('<ul data-role="listview" data-inset="true" id="mm_list"></ul>').html(list).listview()
+            '</ul>',
+        '<ul data-role="listview" data-inset="true" id="mm_list">'+list+'</ul>'
     );
 
     page.find("#mm_list").find(".mm_station").on("click",toggle);
@@ -2254,8 +2260,10 @@ function get_manual() {
     page.find("#mmm").flipswitch().on("change",flipSwitched);
 
     page.one("pagehide",function(){
-        page.find(".ui-content").empty();
+        page.remove();
     });
+
+    page.appendTo("body");
 }
 
 function toggle() {
@@ -3049,25 +3057,28 @@ function scrollZone() {
 
 // Program management functions
 function get_programs(pid) {
-    var programs = $("#programs"),
-        list = programs.find(".ui-content");
+    var programs = $('<div data-role="page" id="programs">' +
+                '<div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false" data-add-back-btn="true">' +
+                    '<h3>'+_("Programs")+'</h3>' +
+                    '<a href="#addprogram" data-icon="plus" class="ui-btn-right">'+_("Add")+'</a>' +
+                '</div>' +
+                '<div class="ui-content" role="main" id="programs_list">' +
+                    make_all_programs() +
+                '</div>' +
+            '</div>');
 
-    list.html($(make_all_programs())).enhanceWithin();
-
-    programs.find(".ui-collapsible-set").collapsibleset().on({
+    programs.find("[id^=program-]").on({
         collapsiblecollapse: function(){
             $(this).find(".ui-collapsible-content").empty();
         },
         collapsibleexpand: function(){
             expandProgram($(this));
         }
-    },".ui-collapsible");
-
-    update_program_header();
+    });
 
     programs
     .one("pagehide",function(){
-        $(this).find(".ui-content").empty();
+        programs.remove();
     })
     .one("pagebeforeshow",function(){
         if (typeof pid !== "number" && window.controller.programs.pd.length === 1) pid = 0;
@@ -3077,6 +3088,10 @@ function get_programs(pid) {
             $("#program-"+pid).collapsible("expand");
         }
     });
+
+    programs.appendTo("body");
+
+    update_program_header();
 }
 
 function expandProgram(program) {
@@ -3323,10 +3338,16 @@ function make_program(n) {
 }
 
 function add_program() {
-    var addprogram = $("#addprogram"),
-        list = addprogram.find(".ui-content");
-
-    list.html($(fresh_program()));
+    var addprogram = $('<div data-role="page" id="addprogram">' +
+                '<div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false">' +
+                    '<h3>'+_("Add Program")+'</h3>' +
+                    '<a href="javascript:void(0);" class="ui-btn ui-corner-all ui-shadow ui-btn-left ui-btn-b ui-toolbar-back-btn ui-icon-carat-l ui-btn-icon-left" data-rel="back">'+_("Back")+'</a>' +
+                    '<button data-icon="check" class="ui-btn-right">'+_("Submit")+'</button>' +
+                '</div>' +
+                '<div class="ui-content" role="main" id="newprogram">' +
+                    fresh_program() +
+                '</div>' +
+            '</div>');
 
     addprogram.find("div[data-role='header'] > .ui-btn-right").on("click",function(){
         submit_program("new");
@@ -3372,9 +3393,10 @@ function add_program() {
     });
 
     addprogram.one("pagehide",function() {
-        addprogram.find(".ui-header > .ui-btn-right").off("click");
-        $(this).find(".ui-content").empty();
+        addprogram.remove();
     });
+
+    addprogram.appendTo("body");
 }
 
 function delete_program(id) {
