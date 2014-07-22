@@ -1661,7 +1661,14 @@ function open_panel() {
 // Device setting management functions
 function show_settings() {
     var list = "",
-        page = $("#os-settings"),
+        page = $('<div data-role="page" id="os-settings">' +
+            '<div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false" data-add-back-btn="true">' +
+                '<h3>'+_("OS Settings")+'</h3>' +
+                '<button data-icon="check" class="ui-btn-right">'+_("Submit")+'</button>' +
+            '</div>' +
+            '<div class="ui-content" role="main">' +
+            '</div>' +
+        '</div>'),
         timezones, tz, i;
 
     page.find("div[data-role='header'] > .ui-btn-right").on("click",submit_settings);
@@ -1744,12 +1751,13 @@ function show_settings() {
 
     list += "</fieldset></div></li>";
 
-    page.find(".ui-content").html($('<ul data-role="listview" data-inset="true" id="os-settings-list"></ul>').html(list).listview().enhanceWithin());
+    page.find(".ui-content").html('<ul data-role="listview" data-inset="true" id="os-settings-list">'+list+'</ul>');
 
     page.one("pagehide",function(){
-        page.find(".ui-header > .ui-btn-right").off("click");
-        page.find(".ui-content").empty();
+        page.remove();
     });
+
+    page.appendTo("body");
 }
 
 function submit_settings() {
@@ -1806,7 +1814,14 @@ function submit_settings() {
 // Station managament function
 function show_stations() {
     var list = "<li class='wrap'>",
-        page = $("#os-stations"),
+        page = $('<div data-role="page" id="os-stations">' +
+            '<div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false" data-add-back-btn="true">' +
+                '<h3>'+_("Edit Stations")+'</h3>' +
+                '<button data-icon="check" class="ui-btn-right">'+_("Submit")+'</button>' +
+            '</div>' +
+            '<div class="ui-content" role="main">' +
+            '</div>' +
+        '</div>'),
         isMaster = window.controller.options.mas ? true : false,
         hasIR = (typeof window.controller.stations.ignore_rain === "object") ? true : false,
         useTableView = (hasIR || isMaster);
@@ -1841,12 +1856,13 @@ function show_stations() {
     if (useTableView) list += "</table>";
     list += "</li>";
 
-    page.find(".ui-content").html($('<ul data-role="listview" data-inset="true" id="os-stations-list"></ul>').html(list).listview().enhanceWithin());
+    page.find(".ui-content").html('<ul data-role="listview" data-inset="true" id="os-stations-list">'+list+'</ul>');
 
     page.one("pagehide",function(){
-        page.find("div[data-role='header'] > .ui-btn-right").off("click");
-        page.find(".ui-content").empty();
+        page.remove();
     });
+
+    page.appendTo("body");
 }
 
 function submit_stations() {
@@ -2305,12 +2321,18 @@ function toggle() {
 // Runonce functions
 function get_runonce(data) {
     var list = "<p class='center'>"+_("Zero value excludes the station from the run-once program.")+"</p>",
-        runonce = $("#runonce_list"),
-        page = $("#runonce"),
+        runonce = $('<div data-role="page" id="runonce">' +
+            '<div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false" data-add-back-btn="true">' +
+                '<h3>'+_("Run-Once")+'</h3>' +
+                '<button data-icon="check" class="ui-btn-right">'+_("Submit")+'</button>' +
+            '</div>' +
+            '<div class="ui-content" role="main" id="runonce_list">' +
+            '</div>' +
+        '</div>'),
         i=0, n=0,
         quickPick, progs, rprogs, z, program;
 
-    page.find("div[data-role='header'] > .ui-btn-right").on("click",submit_runonce);
+    runonce.find("div[data-role='header'] > .ui-btn-right").on("click",submit_runonce);
 
     progs = [];
     if (window.controller.programs.pd.length) {
@@ -2340,21 +2362,21 @@ function get_runonce(data) {
 
     list += "</form><a class='ui-btn ui-corner-all ui-shadow rsubmit' href='#'>"+_("Submit")+"</a><a class='ui-btn ui-btn-b ui-corner-all ui-shadow rreset' href='#'>"+_("Reset")+"</a>";
 
-    runonce.html(list);
+    runonce.find(".ui-content").html(list);
     storage.get("runonce",function(data){
         data = data.runonce;
         if (data !== undefined) {
             data = JSON.parse(data);
-            runonce.find(":input[data-type='range']").each(function(a,b){
+            runonce.find(".ui-content").find(":input[data-type='range']").each(function(a,b){
                 $(b).val(data[i]/60);
                 i++;
             });
             rprogs.l = data;
-            $("#rprog").prepend("<option value='l' >"+_("Last Used Program")+"</option>");
+            runonce.find("#rprog").prepend("<option value='l' >"+_("Last Used Program")+"</option>");
         }
     });
 
-    $("#rprog").on("change",function(){
+    runonce.find("#rprog").on("change",function(){
         var prog = $(this).val();
         if (prog == "s") {
             reset_runonce();
@@ -2383,12 +2405,11 @@ function get_runonce(data) {
         return false;
     });
 
-    runonce.enhanceWithin();
-
-    page.one("pagehide",function(){
-        page.find(".ui-header > .ui-btn-right").off("click");
-        $(this).find(".ui-content").empty();
+    runonce.one("pagehide",function(){
+        runonce.remove();
     });
+
+    runonce.appendTo("body");
 }
 
 function reset_runonce() {
