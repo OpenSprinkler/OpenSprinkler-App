@@ -178,8 +178,6 @@ $(document)
         } else if (hash == "#os-stations") {
             show_stations();
         } else if (hash == "#site-control") {
-            showBack =  (data.options.showBack === false) ? false : true;
-            $("#site-control").find(".ui-toolbar-back-btn").toggle(showBack);
             show_sites();
         } else if (hash == "#weather_settings") {
             show_weather_settings();
@@ -502,16 +500,7 @@ function newload() {
             }
         },
         function(){
-            storage.get("sites",function(data){
-                $.mobile.loading("hide");
-                if (data.sites === undefined || data.sites === null) {
-                    changePage("#start");
-                } else {
-                    changePage("#site-control",{
-                        "showBack": false
-                    });
-                }
-            });
+            changePage("#site-control")
         }
     );
 }
@@ -1048,8 +1037,11 @@ function show_sites(sites) {
 
     if (typeof sites == "undefined") {
         storage.get("sites",function(data){
-            sites = (data.sites === undefined || data.sites === null) ? {} : JSON.parse(data.sites);
-            show_sites(sites);
+            if (data.sites === undefined || data.sites === null) {
+                changePage("#start");
+            } else {
+                show_sites(JSON.parse(data.sites));
+            }
         });
 
         return;
@@ -1057,11 +1049,24 @@ function show_sites(sites) {
 
     var list = "<div data-role='collapsible-set'>",
         total = Object.keys(sites).length,
-        page = $("#site-control");
+        page = $('<div data-role="page" id="site-control">' +
+            '<div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false"'+(!sites.length ? ' data-add-back-btn="true"' : '')+'>' +
+                '<h3>'+_("Manage Sites")+'</h3>' +
+                '<button data-rel="popup" id="site-add" data-icon="plus" class="ui-btn-right">'+_("Add")+'</button>' +
+            '</div>' +
+            '<div class="ui-content">' +
+            '</div>' +
+            '<div data-role="popup" id="addsite" data-theme="b">' +
+                '<ul data-role="listview">' +
+                    '<li data-icon="false"><a href="#" id="site-add-scan">'+_("Scan For Device")+'</a></li>' +
+                    '<li data-icon="false"><a href="#" id="site-add-manual">'+_("Manually Add Device")+'</a></li>' +
+                '</ul>' +
+            '</div>' +
+        '</div>');
 
-    page.find("div[data-role='header'] > .ui-btn-right").off("click").on("click",show_addsite);
-    page.find("#site-add-scan").off("click").on("click",start_scan);
-    page.find("#site-add-manual").off("click").on("click",function(){
+    page.find("div[data-role='header'] > .ui-btn-right").on("click",show_addsite);
+    page.find("#site-add-scan").on("click",start_scan);
+    page.find("#site-add-manual").on("click",function(){
         show_addnew(false,true);
     });
 
@@ -1096,14 +1101,13 @@ function show_sites(sites) {
         return false;
     });
 
-    page.find(".ui-content").html(list).enhanceWithin();
-
-    page.find(".ui-collapsible-set").collapsibleset();
+    page.find(".ui-content").html(list);
 
     page.one("pagehide",function(){
-        page.find("div[data-role='header'] > .ui-btn-right,#site-add-manual,#site-add-scan").off("click");
-        page.find(".ui-content").empty();
+        page.remove();
     });
+
+    page.appendTo("body");
 }
 
 function delete_site(site) {
