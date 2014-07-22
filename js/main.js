@@ -131,12 +131,17 @@ $(document)
 
     // Check if device is on a local network
     checkAutoScan();
+
+    $.mobile.document.on("backbutton",function(){
+        goBack();
+        return false;
+    });
 })
 .one("mobileinit", function(){
     //After jQuery mobile is loaded set intial configuration
     $.mobile.defaultPageTransition = 'fade';
     $.mobile.hoverDelay = 0;
-    if (isChromeApp) $.mobile.hashListeningEnabled = false;
+    $.mobile.hashListeningEnabled = false;
 })
 .one("pagebeforechange", function(event) {
     // Let the framework know we're going to handle the load
@@ -499,11 +504,11 @@ function newload() {
         function(){
             storage.get("sites",function(data){
                 $.mobile.loading("hide");
-                if (data.sites === undefined) {
+                if (data.sites === undefined || data.sites === null) {
                     changePage("#start");
                 } else {
                     changePage("#site-control",{
-                        'showBack': false
+                        "showBack": false
                     });
                 }
             });
@@ -1043,7 +1048,7 @@ function show_sites(sites) {
 
     if (typeof sites == "undefined") {
         storage.get("sites",function(data){
-            sites = (data.sites === undefined) ? {} : JSON.parse(data.sites);
+            sites = (data.sites === undefined || data.sites === null) ? {} : JSON.parse(data.sites);
             show_sites(sites);
         });
 
@@ -1255,7 +1260,7 @@ function start_scan(port,type) {
     type = type || 0;
 
     storage.get("sites",function(data){
-        var oldsites = (data.sites === undefined) ? {} : JSON.parse(data.sites),
+        var oldsites = (data.sites === undefined || data.sites === null) ? {} : JSON.parse(data.sites),
             i;
 
         for (i in oldsites) {
@@ -3243,7 +3248,7 @@ function fresh_program() {
 }
 
 function make_program(n) {
-    var week = [_("M"),_("T"),_("W"),_("R"),_("F"),_("Sa"),_("Su")],
+    var week = [_("Monday"),_("Tuesday"),_("Wednesday"),_("Thursday"),_("Friday"),_("Saturday"),_("Sunday")],
         list = "",
         days, i, j, set_stations, program;
 
@@ -3275,11 +3280,11 @@ function make_program(n) {
     list += "<input data-mini='true' type='radio' name='rad_rst-"+n+"' id='days_even-"+n+"' value='days_even-"+n+"' "+((!program.is_odd && program.is_even) ? "checked='checked'" : "")+"><label for='days_even-"+n+"'>"+_("Even Days")+"</label>";
     list += "</fieldset>";
 
-    list += "<fieldset data-type='horizontal' data-role='controlgroup' class='center'><p class='tight'>"+_("Days of the Week")+"</p>";
+    list += "<p class='tight center'>"+_("Days of the Week")+"</p><select data-iconpos='left' data-mini='true' multiple='multiple' data-native-menu='false' class='center' id='d-"+n+"'><option>"+_("Choose day(s)")+"</option>";
     for (j=0; j<week.length; j++) {
-        list += "<label for='d"+j+"-"+n+"'><input data-mini='true' type='checkbox' "+((!program.is_interval && days[j]) ? "checked='checked'" : "")+" name='d"+j+"-"+n+"' id='d"+j+"-"+n+"'>"+week[j]+"</label>";
+        list += "<option "+((!program.is_interval && days[j]) ? "selected='selected'" : "")+" value='"+j+"'>"+week[j]+"</option>";
     }
-    list += "</fieldset></div>";
+    list += "</select></div>";
 
     list += "<div "+((program.is_interval) ? "" : "style='display:none'")+" id='input_days_n-"+n+"' class='ui-grid-a'>";
     list += "<div class='ui-block-a'><label for='every-"+n+"'>"+_("Interval (Days)")+"</label><input data-mini='true' type='number' name='every-"+n+"' pattern='[0-9]*' id='every-"+n+"' value='"+program.days[0]+"'></div>";
@@ -3321,7 +3326,7 @@ function add_program() {
     var addprogram = $("#addprogram"),
         list = addprogram.find(".ui-content");
 
-    list.html($(fresh_program())).enhanceWithin();
+    list.html($(fresh_program()));
 
     addprogram.find("div[data-role='header'] > .ui-btn-right").on("click",function(){
         submit_program("new");
@@ -3387,12 +3392,14 @@ function delete_program(id) {
 function submit_program(id) {
     var program = [],
         days=[0,0],
-        i, s;
+        daysin, i, s;
 
     program[0] = ($("#en-"+id).is(':checked')) ? 1 : 0;
 
     if($("#days_week-"+id).is(':checked')) {
-        for(i=0;i<7;i++) {if($("#d"+i+"-"+id).is(':checked')) {days[0] |= (1<<i); }}
+        daysin = $("#d-"+id).val();
+        daysin = (daysin === null) ? [] : parseIntArray(daysin);
+        for(i=0;i<7;i++) {if($.inArray(i,daysin) != -1) {days[0] |= (1<<i); }}
         if($("#days_odd-"+id).is(':checked')) {days[0]|=0x80; days[1]=1;}
         else if($("#days_even-"+id).is(':checked')) {days[0]|=0x80; days[1]=0;}
     } else if($("#days_n-"+id).is(':checked')) {
@@ -3752,14 +3759,10 @@ function showLoading(ele) {
 }
 
 function goBack(keepIndex) {
-    if (isChromeApp) {
-        changePage($.mobile.navigate.history.getPrev().url);
-        $.mobile.document.one("pagehide",function(){
-            if (!keepIndex) $.mobile.navigate.history.activeIndex -= 2;
-        });
-    } else {
-        window.history.back();
-    }
+    changePage($.mobile.navigate.history.getPrev().url);
+    $.mobile.document.one("pagehide",function(){
+        if (!keepIndex) $.mobile.navigate.history.activeIndex -= 2;
+    });
 }
 
 // show error message
