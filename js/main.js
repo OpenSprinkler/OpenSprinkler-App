@@ -3781,6 +3781,8 @@ function showerror(msg,dur) {
 
 // Accessory functions
 function fixInputClick(page) {
+    var selects, ids;
+
     // Handle Fast Click quirks
     if (!FastClick.notNeeded(document.body)) {
         page.find("input[type='checkbox']:not([data-role='flipswitch'])").addClass("needsclick");
@@ -3790,6 +3792,13 @@ function fixInputClick(page) {
             setTimeout(function(){
                 heading.removeClass("ui-btn-active");
             },100);
+        });
+        page.find(".ui-select > .ui-btn").each(function(a,b){
+            var ele = $(b),
+                id = ele.attr("id");
+
+            ele.attr("data-rel","popup");
+            ele.attr("href","#"+id.slice(0,-6)+"listbox");
         });
     }
 }
