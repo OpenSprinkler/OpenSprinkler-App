@@ -1,3 +1,4 @@
+/*global chrome, FastClick, StatusBar, networkinterface, links, escape */
 var isIEMobile = /IEMobile/.test(navigator.userAgent),
     isAndroid = /Android|\bSilk\b/.test(navigator.userAgent),
     isiOS = /iP(ad|hone|od)/.test(navigator.userAgent),
@@ -97,7 +98,7 @@ $(document)
     }
 })
 .ajaxError(function(x,t,m) {
-    if ((t.status==401 || t.status==0) && /https?:\/\/.*?\/(?:cv|sn|cs|cr|cp|dp|co|cl)/.exec(m.url)) {
+    if ((t.status==401 || t.status===0) && /https?:\/\/.*?\/(?:cv|sn|cs|cr|cp|dp|co|cl)/.exec(m.url)) {
         showerror(_("Check device password and try again."));
         return;
     }
@@ -141,16 +142,32 @@ $(document)
     // Let the framework know we're going to handle the load
     event.preventDefault();
 
-    //On initial load check if a valid site exists for auto connect
-    check_configured(true);
-
     $.mobile.document.on("pagebeforechange",function(e,data){
         var page = data.toPage,
-            hash, showBack;
+            currPage = $(".ui-page-active"),
+            hash;
 
         if (typeof data.toPage !== "string") return;
 
         hash = $.mobile.path.parseUrl(page).hash;
+
+        if (hash == "#"+currPage.attr("id") && (hash == "#programs" || hash == "#site-control")) {
+            // Cancel page load when navigating to the same page
+            e.preventDefault();
+
+            // Allow pages to navigate back by adjusting active index in history
+            $.mobile.navigate.history.activeIndex--;
+
+            // Remove the current page from the DOM
+            currPage.remove();
+
+            // Change to page without any animation or history change
+            changePage(hash,{
+                transition: "none",
+                showLoadMsg: false
+            });
+            return;
+        }
 
         if (data.options.role !== "popup" && !$(".ui-popup-active").length) $.mobile.silentScroll(0);
 
@@ -312,6 +329,9 @@ $(document)
             });
         }
     });
+
+    //On initial load check if a valid site exists for auto connect
+    check_configured(true);
 })
 .on("resume",function(){
     var page = $(".ui-page-active").attr("id"),
@@ -494,7 +514,7 @@ function newload() {
             }
         },
         function(){
-            changePage("#site-control")
+            changePage("#site-control");
         }
     );
 }
@@ -710,7 +730,8 @@ function update_controller_settings(callback) {
 function check_configured(firstLoad) {
     storage.get(["sites","current_site"],function(data){
         var sites = data.sites,
-            current = data.current_site;
+            current = data.current_site,
+            names;
 
         try {
             sites = JSON.parse(sites) || {};
@@ -1027,24 +1048,9 @@ function show_addnew(autoIP,closeOld) {
     });
 }
 
-function show_sites(sites) {
-
-    if (typeof sites == "undefined") {
-        storage.get("sites",function(data){
-            if (data.sites === undefined || data.sites === null) {
-                changePage("#start");
-            } else {
-                show_sites(JSON.parse(data.sites));
-            }
-        });
-
-        return;
-    }
-
-    var list = "<div data-role='collapsible-set'>",
-        total = Object.keys(sites).length,
-        page = $('<div data-role="page" id="site-control">' +
-            '<div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false"'+(!sites.length ? ' data-add-back-btn="true"' : '')+'>' +
+function show_sites() {
+    var page = $('<div data-role="page" id="site-control">' +
+            '<div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false" data-add-back-btn="true">' +
                 '<h3>'+_("Manage Sites")+'</h3>' +
                 '<button data-rel="popup" id="site-add" data-icon="plus" class="ui-btn-right">'+_("Add")+'</button>' +
             '</div>' +
@@ -1056,7 +1062,8 @@ function show_sites(sites) {
                     '<li data-icon="false"><a href="#" id="site-add-manual">'+_("Manually Add Device")+'</a></li>' +
                 '</ul>' +
             '</div>' +
-        '</div>');
+        '</div>'),
+        sites, total;
 
     page.find("div[data-role='header'] > .ui-btn-right").on("click",show_addsite);
     page.find("#site-add-scan").on("click",start_scan);
@@ -1064,41 +1071,56 @@ function show_sites(sites) {
         show_addnew(false,true);
     });
 
-    $.each(sites,function(a,b){
-        var c = a.replace(/ /g,"_");
-        list += "<fieldset "+((total == 1) ? "data-collapsed='false'" : "")+" id='site-"+c+"' data-role='collapsible'>";
-        list += "<legend>"+a+"</legend>";
-        list += "<a data-role='button' class='connectnow' data-site='"+a+"' href='#'>"+_("Connect Now")+"</a>";
-        list += "<form data-site='"+c+"' novalidate>";
-        list += "<label for='cnm-"+c+"'>"+_("Change Name")+"</label><input id='cnm-"+c+"' type='text' placeholder='"+a+"' />";
-        list += "<label for='cip-"+c+"'>"+_("Change IP")+"</label><input id='cip-"+c+"' type='url' placeholder='"+b.os_ip+"' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' />";
-        list += "<label for='cpw-"+c+"'>"+_("Change Password")+"</label><input id='cpw-"+c+"' type='password' />";
-        list += "<input type='submit' value='"+_("Save Changes to")+" "+a+"' /></form>";
-        list += "<a data-role='button' class='deletesite' data-site='"+a+"' href='#' data-theme='b'>"+_("Delete")+" "+a+"</a>";
-        list += "</fieldset>";
-    });
-
-    list = $(list+"</div>");
-
-    list.find(".connectnow").on("click",function(){
-        update_site(this.dataset.site);
-        return false;
-    });
-
-    list.find("form").on("submit",function(){
-        change_site(this.dataset.site);
-        return false;
-    });
-
-    list.find(".deletesite").on("click",function(){
-        delete_site(this.dataset.site);
-        return false;
-    });
-
-    page.find(".ui-content").html(list);
-
     page.one("pagehide",function(){
         page.remove();
+    });
+
+    storage.get("sites",function(data){
+        if (data.sites === undefined || data.sites === null) {
+            changePage("#start");
+        } else {
+            var list = "<div data-role='collapsible-set'>";
+
+            sites = JSON.parse(data.sites);
+            total = Object.keys(sites).length;
+
+            if (!sites.length) {
+                page.find("div[data-role='header'] > .ui-btn-right").off("click").hide();
+            }
+
+            $.each(sites,function(a,b){
+                var c = a.replace(/ /g,"_");
+                list += "<fieldset "+((total == 1) ? "data-collapsed='false'" : "")+" id='site-"+c+"' data-role='collapsible'>";
+                list += "<legend>"+a+"</legend>";
+                list += "<a data-role='button' class='connectnow' data-site='"+a+"' href='#'>"+_("Connect Now")+"</a>";
+                list += "<form data-site='"+c+"' novalidate>";
+                list += "<label for='cnm-"+c+"'>"+_("Change Name")+"</label><input id='cnm-"+c+"' type='text' placeholder='"+a+"' />";
+                list += "<label for='cip-"+c+"'>"+_("Change IP")+"</label><input id='cip-"+c+"' type='url' placeholder='"+b.os_ip+"' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' />";
+                list += "<label for='cpw-"+c+"'>"+_("Change Password")+"</label><input id='cpw-"+c+"' type='password' />";
+                list += "<input type='submit' value='"+_("Save Changes to")+" "+a+"' /></form>";
+                list += "<a data-role='button' class='deletesite' data-site='"+a+"' href='#' data-theme='b'>"+_("Delete")+" "+a+"</a>";
+                list += "</fieldset>";
+            });
+
+            list = $(list+"</div>");
+
+            list.find(".connectnow").on("click",function(){
+                update_site(this.dataset.site);
+                return false;
+            });
+
+            list.find("form").on("submit",function(){
+                change_site(this.dataset.site);
+                return false;
+            });
+
+            list.find(".deletesite").on("click",function(){
+                delete_site(this.dataset.site);
+                return false;
+            });
+
+            page.find(".ui-content").html(list);
+        }
     });
 
     page.appendTo("body");
@@ -1112,12 +1134,11 @@ function delete_site(site) {
             delete sites[site];
             storage.set({"sites":JSON.stringify(sites)},function(){
                 update_site_list(Object.keys(sites));
-                show_sites();
                 if ($.isEmptyObject(sites)) {
                     changePage("#start");
                     return false;
                 }
-                if (site === data.current_site) $("#site-control").find(".ui-toolbar-back-btn").toggle(false);
+                changePage("#site-control",{showLoadMsg: false});
                 showerror(_("Site deleted successfully"));
                 return false;
             });
@@ -1156,7 +1177,7 @@ function change_site(site) {
             if (ip !== "") check_configured();
         }
 
-        if (rename) show_sites();
+        if (rename) changePage("#site-control");
     });
 }
 
@@ -1185,8 +1206,8 @@ function update_site(newsite) {
 
 // Automatic device detection functions
 function checkAutoScan() {
-    var finishScan = function(){
-        if (ip == undefined) {
+    var finishCheck = function(){
+        if (ip === undefined) {
             resetStartMenu();
             return;
         }
@@ -1220,13 +1241,13 @@ function checkAutoScan() {
                     }
                 }
 
-                finishScan();
+                finishCheck();
             });
         } else {
             // Request the device's IP address
             networkinterface.getIPAddress(function(data){
                 ip = data;
-                finishScan();
+                finishCheck();
             });
         }
     } catch (err) {
@@ -2317,7 +2338,7 @@ function toggle() {
 }
 
 // Runonce functions
-function get_runonce(data) {
+function get_runonce() {
     var list = "<p class='center'>"+_("Zero value excludes the station from the run-once program.")+"</p>",
         runonce = $('<div data-role="page" id="runonce">' +
             '<div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false" data-add-back-btn="true">' +
@@ -3046,7 +3067,7 @@ function get_logs() {
     logs.find("input:radio[name='log_type']").change(updateView);
 
     //Show tooltip (station name) when point is clicked on the graph
-    placeholder.on("plothover",function(event, pos, item) {
+    placeholder.on("plothover",function(e,p,item) {
         $("#tooltip").remove();
         clearTimeout(window.hovertimeout);
         if (item) window.hovertimeout = setTimeout(function(){showTooltip(item.pageX, item.pageY, item.series.label, item.series.color);}, 100);
@@ -3424,7 +3445,8 @@ function delete_program(id) {
         send_to_os("/dp?pw=&pid="+id).done(function(){
             $.mobile.loading("hide");
             update_controller_programs(function(){
-                get_programs(false);
+                changePage("#programs",{showLoadMsg:false});
+                showerror(_("Program")+" "+(parseInt(id)+1)+" "+_("deleted"));
             });
         });
     });
@@ -3823,8 +3845,6 @@ function showerror(msg,dur) {
 
 // Accessory functions
 function fixInputClick(page) {
-    var selects, ids;
-
     // Handle Fast Click quirks
     if (!FastClick.notNeeded(document.body)) {
         page.find("input[type='checkbox']:not([data-role='flipswitch'])").addClass("needsclick");
