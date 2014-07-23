@@ -90,6 +90,18 @@ msgstr ""
 msgid "Use SSL"
 msgstr ""
 
+msgid "Manage Sites"
+msgstr ""
+
+msgid "Add"
+msgstr ""
+
+msgid "Scan For Device"
+msgstr ""
+
+msgid "Manually Add Device"
+msgstr ""
+
 msgid "Connect Now"
 msgstr ""
 
@@ -115,9 +127,6 @@ msgid "Site deleted successfully"
 msgstr ""
 
 msgid "Site updated successfully"
-msgstr ""
-
-msgid "Manually Add Device"
 msgstr ""
 
 msgid "Add Controller"
@@ -174,6 +183,9 @@ msgstr ""
 msgid "Precip"
 msgstr ""
 
+msgid "OS Settings"
+msgstr ""
+
 msgid "Timezone"
 msgstr ""
 
@@ -226,6 +238,9 @@ msgid "Ignore Password"
 msgstr ""
 
 msgid "Settings have been saved"
+msgstr ""
+
+msgid "Edit Stations"
 msgstr ""
 
 msgid "Station Name"
@@ -312,6 +327,9 @@ msgstr ""
 msgid "Sprinkler Stations"
 msgstr ""
 
+msgid "Manual Control"
+msgstr ""
+
 msgid "With manual mode turned on, tap a station to toggle it."
 msgstr ""
 
@@ -324,16 +342,19 @@ msgstr ""
 msgid "Zero value excludes the station from the run-once program."
 msgstr ""
 
-msgid "Quick Programs"
+msgid "Run-Once"
 msgstr ""
 
-msgid "Last Used Program"
+msgid "Quick Programs"
 msgstr ""
 
 msgid "Program"
 msgstr ""
 
 msgid "Reset"
+msgstr ""
+
+msgid "Last Used Program"
 msgstr ""
 
 msgid "Run-once program has been scheduled"
@@ -427,6 +448,9 @@ msgid ""
 "The requested time span exceeds the maxiumum of 7 days and has been adjusted"
 msgstr ""
 
+msgid "Programs"
+msgstr ""
+
 msgid "Manual program"
 msgstr ""
 
@@ -443,25 +467,25 @@ msgid ""
 "submit below."
 msgstr ""
 
-msgid "M"
+msgid "Monday"
 msgstr ""
 
-msgid "T"
+msgid "Tuesday"
 msgstr ""
 
-msgid "W"
+msgid "Wednesday"
 msgstr ""
 
-msgid "R"
+msgid "Thursday"
 msgstr ""
 
-msgid "F"
+msgid "Friday"
 msgstr ""
 
-msgid "Sa"
+msgid "Saturday"
 msgstr ""
 
-msgid "Su"
+msgid "Sunday"
 msgstr ""
 
 msgid "Enabled"
@@ -483,6 +507,9 @@ msgid "Even Days"
 msgstr ""
 
 msgid "Days of the Week"
+msgstr ""
+
+msgid "Choose day(s)"
 msgstr ""
 
 msgid "Interval (Days)"
@@ -524,7 +551,16 @@ msgstr ""
 msgid "Delete Program"
 msgstr ""
 
+msgid "Add Program"
+msgstr ""
+
+msgid "Back"
+msgstr ""
+
 msgid "Are you sure you want to delete program"
+msgstr ""
+
+msgid "deleted"
 msgstr ""
 
 msgid "Error: Interval days must be between 2 and 128."
@@ -596,31 +632,7 @@ msgstr ""
 msgid "s"
 msgstr ""
 
-msgid "Sunday"
-msgstr ""
-
-msgid "Monday"
-msgstr ""
-
-msgid "Tuesday"
-msgstr ""
-
-msgid "Wednesday"
-msgstr ""
-
-msgid "Thursday"
-msgstr ""
-
-msgid "Friday"
-msgstr ""
-
-msgid "Saturday"
-msgstr ""
-
 msgid "Thu"
-msgstr ""
-
-msgid "Back"
 msgstr ""
 
 msgid "Sprinkler System"
@@ -630,9 +642,6 @@ msgid ""
 "Welcome to the OpenSprinkler mobile application. This app only works with "
 "the OpenSprinkler controller which must be installed and setup on your home "
 "network."
-msgstr ""
-
-msgid "Scan For Device"
 msgstr ""
 
 msgid "Weather"
@@ -659,9 +668,6 @@ msgstr ""
 msgid "Edit Programs"
 msgstr ""
 
-msgid "Manual Control"
-msgstr ""
-
 msgid "Run-Once Program"
 msgstr ""
 
@@ -674,9 +680,6 @@ msgid ""
 msgstr ""
 
 msgid "Duration (in hours):"
-msgstr ""
-
-msgid "Manage Sites"
 msgstr ""
 
 msgid "Export Configuration"
@@ -701,9 +704,6 @@ msgid "Clear Logs"
 msgstr ""
 
 msgid "Device Options"
-msgstr ""
-
-msgid "Edit Stations"
 msgstr ""
 
 msgid "Reboot OpenSprinkler"
@@ -788,19 +788,4 @@ msgid "Export via Email"
 msgstr ""
 
 msgid "Forecast"
-msgstr ""
-
-msgid "Run-Once"
-msgstr ""
-
-msgid "Programs"
-msgstr ""
-
-msgid "Add"
-msgstr ""
-
-msgid "Add Program"
-msgstr ""
-
-msgid "OS Settings"
 msgstr ""
