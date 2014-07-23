@@ -3314,17 +3314,17 @@ function make_program(n) {
     list += "<input data-mini='true' type='radio' name='rad_days-"+n+"' id='days_n-"+n+"' value='days_n-"+n+"' "+((program.is_interval) ? "checked='checked'" : "")+"><label for='days_n-"+n+"'>"+_("Interval")+"</label>";
     list += "</fieldset><div id='input_days_week-"+n+"' "+((program.is_interval) ? "style='display:none'" : "")+">";
 
-    list += "<fieldset data-role='controlgroup' data-type='horizontal' class='center'><p class='tight'>"+_("Restrictions")+"</p>";
-    list += "<input data-mini='true' type='radio' name='rad_rst-"+n+"' id='days_norst-"+n+"' value='days_norst-"+n+"' "+((!program.is_even && !program.is_odd) ? "checked='checked'" : "")+"><label for='days_norst-"+n+"'>"+_("None")+"</label>";
-    list += "<input data-mini='true' type='radio' name='rad_rst-"+n+"' id='days_odd-"+n+"' value='days_odd-"+n+"' "+((!program.is_even && program.is_odd) ? "checked='checked'" : "")+"><label for='days_odd-"+n+"'>"+_("Odd Days")+"</label>";
-    list += "<input data-mini='true' type='radio' name='rad_rst-"+n+"' id='days_even-"+n+"' value='days_even-"+n+"' "+((!program.is_odd && program.is_even) ? "checked='checked'" : "")+"><label for='days_even-"+n+"'>"+_("Even Days")+"</label>";
-    list += "</fieldset>";
+    list += "<fieldset data-role='controlgroup' data-type='horizontal' class='center'><p class='tight'>"+_("Restrictions")+"</p><select data-iconpos='left' data-mini='true' data-native-menu='false' class='center' id='days_rst-"+n+"'>";
+    list += "<option value='none' "+((!program.is_even && !program.is_odd) ? "selected='selected'" : "")+">"+_("None")+"</option>";
+    list += "<option value='odd' "+((!program.is_even && program.is_odd) ? "selected='selected'" : "")+">"+_("Odd Days")+"</option>";
+    list += "<option value='even' "+((!program.is_odd && program.is_even) ? "selected='selected'" : "")+">"+_("Even Days")+"</option>";
+    list += "</select></fieldset>";
 
-    list += "<p class='tight center'>"+_("Days of the Week")+"</p><select data-iconpos='left' data-mini='true' multiple='multiple' data-native-menu='false' class='center' id='d-"+n+"'><option>"+_("Choose day(s)")+"</option>";
+    list += "<fieldset data-role='controlgroup' data-type='horizontal' class='center'><p class='tight'>"+_("Days of the Week")+"</p><select data-iconpos='left' data-mini='true' multiple='multiple' data-native-menu='false' class='center' id='d-"+n+"'><option>"+_("Choose day(s)")+"</option>";
     for (j=0; j<week.length; j++) {
         list += "<option "+((!program.is_interval && days[j]) ? "selected='selected'" : "")+" value='"+j+"'>"+week[j]+"</option>";
     }
-    list += "</select></div>";
+    list += "</select></fieldset></div>";
 
     list += "<div "+((program.is_interval) ? "" : "style='display:none'")+" id='input_days_n-"+n+"' class='ui-grid-a'>";
     list += "<div class='ui-block-a'><label for='every-"+n+"'>"+_("Interval (Days)")+"</label><input data-mini='true' type='number' name='every-"+n+"' pattern='[0-9]*' id='every-"+n+"' value='"+program.days[0]+"'></div>";
@@ -3447,8 +3447,8 @@ function submit_program(id) {
         daysin = $("#d-"+id).val();
         daysin = (daysin === null) ? [] : parseIntArray(daysin);
         for(i=0;i<7;i++) {if($.inArray(i,daysin) != -1) {days[0] |= (1<<i); }}
-        if($("#days_odd-"+id).is(':checked')) {days[0]|=0x80; days[1]=1;}
-        else if($("#days_even-"+id).is(':checked')) {days[0]|=0x80; days[1]=0;}
+        if($("#days_rst-"+id).val() === "odd") {days[0]|=0x80; days[1]=1;}
+        else if($("#days_rst-"+id).val() === "even") {days[0]|=0x80; days[1]=0;}
     } else if($("#days_n-"+id).is(':checked')) {
         days[1]=parseInt($("#every-"+id).val(),10);
         if(!(days[1]>=2&&days[1]<=128)) {showerror(_("Error: Interval days must be between 2 and 128."));return;}
