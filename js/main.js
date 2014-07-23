@@ -1119,7 +1119,7 @@ function show_sites() {
                 return false;
             });
 
-            page.find(".ui-content").html(list);
+            page.find(".ui-content").html(list.enhanceWithin());
         }
     });
 
