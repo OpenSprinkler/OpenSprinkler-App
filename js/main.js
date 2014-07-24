@@ -469,7 +469,11 @@ function network_fail(){
 
 // Gather new controller information and load home page
 function newload() {
-    $.mobile.loading("show");
+    $.mobile.loading("show", {
+        text: _("Connecting to")+" "+$("#site-selector").val(),
+        textVisible: true,
+        theme: "b"
+    });
 
     //Create object which will store device data
     controller = {};
