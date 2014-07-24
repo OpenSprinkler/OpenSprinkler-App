@@ -98,6 +98,7 @@
       "Scan For Device" : "Eszköz keresés",
       "Manually Add Device" : "Eszköz hozzáadása kézzel",
       "Station name must be 32 characters or less" : "Az állomás nevek 32 karakter hosszúak lehetnek maximálisan",
+      "Connecting to" : "Kapcsolódás ide:",
       "Auto Reconnect" : "Automatikus újracsatlakozás",
       "Reset" : "Újraindítás",
       "Options" : "Opciók",
