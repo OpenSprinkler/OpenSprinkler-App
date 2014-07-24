@@ -1084,7 +1084,7 @@ function show_sites() {
         page.remove();
     });
 
-    storage.get("sites",function(data){
+    storage.get(["sites","current_site"],function(data){
         if (data.sites === undefined || data.sites === null) {
             changePage("#start");
         } else {
@@ -1093,7 +1093,7 @@ function show_sites() {
             sites = JSON.parse(data.sites);
             total = Object.keys(sites).length;
 
-            if (!total || firstLoad) {
+            if (!total || firstLoad || !(data.current_site in sites)) {
                 page.find(".ui-btn-left").hide();
             }
 
