@@ -682,7 +682,7 @@ function update_controller_settings(callback) {
     if (window.curr_183 === true) {
         return send_to_os("").then(
             function(settings){
-                var varsRegex = /(ver|devt|nbrd|tz|en|rd|rs|mm|rdst)\s?[=|:]\s?([\w|\d|.\"]+)/gm,
+                var varsRegex = /(ver|devt|nbrd|tz|en|rd|rs|mm|rdst|urs)\s?[=|:]\s?([\w|\d|.\"]+)/gm,
                     loc = settings.match(/loc\s?[=|:]\s?[\"|'](.*)[\"|']/),
                     lrun = settings.match(/lrun=\[(.*)\]/),
                     ps = settings.match(/ps=\[(.*)\];/),
