@@ -100,22 +100,6 @@ $(document)
         });
     }
 })
-.ajaxError(function(x,t,m) {
-    if (typeof t.retry === "function") return;
-
-    if ((t.status==401 || t.status===0) && /https?:\/\/.*?\/(?:cv|sn|cs|cr|cp|dp|co|cl)/.exec(m.url)) {
-        showerror(_("Check device password and try again."));
-        return;
-    }
-    if (m.url.search("yahooapis.com") !== -1 || m.url.search("api.wunderground.com") !== -1) {
-        hide_weather();
-        return;
-    }
-    if (t.statusText==="timeout") {
-        showerror(_("Connection timed-out. Please try again."));
-        return;
-    }
-})
 .one("deviceready", function() {
     try {
         //Change the status bar to match the headers
@@ -462,7 +446,16 @@ function send_to_os(dest,type) {
         });
     }
 
-    return $.ajax(obj);
+    return $.ajax(obj).retry({times:retryCount, statusCodes: [0,408,500]}).fail(function(e){
+        if (e.statusText==="timeout") {
+            showerror(_("Connection timed-out. Please try again."));
+            return;
+        }
+        if (e.status==401 || e.status===0) {
+            showerror(_("Check device password and try again."));
+            return;
+        }
+    });
 }
 
 function network_fail(){
@@ -546,7 +539,7 @@ function update_controller_programs(callback) {
     callback = callback || function(){};
 
     if (curr_183 === true) {
-        return send_to_os("/gp?d=0").retry({times:retryCount, statusCodes: [0]}).done(function(programs){
+        return send_to_os("/gp?d=0").done(function(programs){
             var vars = programs.match(/(nprogs|nboards|mnp)=[\w|\d|.\"]+/g),
                 progs = /pd=\[\];(.*);/.exec(programs),
                 newdata = {}, tmp, prog;
@@ -572,7 +565,7 @@ function update_controller_programs(callback) {
             callback();
         });
     } else {
-        return send_to_os("/jp","json").retry({times:retryCount, statusCodes: [0]}).done(function(programs){
+        return send_to_os("/jp","json").done(function(programs){
             controller.programs = programs;
             callback();
         });
@@ -583,7 +576,7 @@ function update_controller_stations(callback) {
     callback = callback || function(){};
 
     if (curr_183 === true) {
-        return send_to_os("/vs").retry({times:retryCount, statusCodes: [0]}).done(function(stations){
+        return send_to_os("/vs").done(function(stations){
             var names = /snames=\[(.*?)\];/.exec(stations),
                 masop = stations.match(/(?:masop|mo)\s?[=|:]\s?\[(.*?)\]/);
 
@@ -604,7 +597,7 @@ function update_controller_stations(callback) {
             callback();
         });
     } else {
-        return send_to_os("/jn","json").retry({times:retryCount, statusCodes: [0]}).done(function(stations){
+        return send_to_os("/jn","json").done(function(stations){
             controller.stations = stations;
             callback();
         });
@@ -615,7 +608,7 @@ function update_controller_options(callback) {
     callback = callback || function(){};
 
     if (curr_183 === true) {
-        return send_to_os("/vo").retry({times:retryCount, statusCodes: [0]}).done(function(options){
+        return send_to_os("/vo").done(function(options){
             var isOSPi = options.match(/var sd\s*=/),
                 vars = {}, tmp, i, o;
 
@@ -646,7 +639,7 @@ function update_controller_options(callback) {
             callback();
         });
     } else {
-        return send_to_os("/jo","json").retry({times:retryCount, statusCodes: [0]}).done(function(options){
+        return send_to_os("/jo","json").done(function(options){
             controller.options = options;
             callback();
         });
@@ -657,7 +650,7 @@ function update_controller_status(callback) {
     callback = callback || function(){};
 
     if (curr_183 === true) {
-        return send_to_os("/sn0").retry({times:retryCount, statusCodes: [0]}).then(
+        return send_to_os("/sn0").then(
             function(status){
                 var tmp = status.match(/\d+/);
 
@@ -670,7 +663,7 @@ function update_controller_status(callback) {
                 controller.status = [];
             });
     } else {
-        return send_to_os("/js","json").retry({times:retryCount, statusCodes: [0]}).then(
+        return send_to_os("/js","json").then(
             function(status){
                 controller.status = status.sn;
                 callback();
@@ -685,7 +678,7 @@ function update_controller_settings(callback) {
     callback = callback || function(){};
 
     if (curr_183 === true) {
-        return send_to_os("").retry({times:retryCount, statusCodes: [0]}).then(
+        return send_to_os("").then(
             function(settings){
                 var varsRegex = /(ver|devt|nbrd|tz|en|rd|rs|mm|rdst|urs)\s?[=|:]\s?([\w|\d|.\"]+)/gm,
                     loc = settings.match(/loc\s?[=|:]\s?[\"|'](.*)[\"|']/),
@@ -718,7 +711,7 @@ function update_controller_settings(callback) {
                 }
             });
     } else {
-        return send_to_os("/jc","json").retry({times:retryCount, statusCodes: [0]}).then(
+        return send_to_os("/jc","json").then(
             function(settings){
                 controller.settings = settings;
                 callback();
@@ -1528,6 +1521,13 @@ function update_weather() {
     });
 }
 
+function weather_update_failed(x,t,m) {
+    if (m.url.search("yahooapis.com") !== -1 || m.url.search("api.wunderground.com") !== -1) {
+        hide_weather();
+        return;
+    }
+}
+
 function update_yahoo_weather() {
     $.getJSON("https://query.yahooapis.com/v1/public/yql?q=select%20woeid%20from%20geo.placefinder%20where%20text=%22"+escape(controller.settings.loc)+"%22&format=json",function(woeid){
         if (woeid.query.results === null) {
@@ -1555,8 +1555,8 @@ function update_yahoo_weather() {
             },1000).show();
 
             update_yahoo_forecast(data.query.results.channel.item.forecast,loc[1],region,now);
-        }).retry({times:retryCount, statusCodes: [0]});
-    }).retry({times:retryCount, statusCodes: [0]});
+        }).retry({times:retryCount, statusCodes: [0]}).fail(weather_update_failed);
+    }).retry({times:retryCount, statusCodes: [0]}).fail(weather_update_failed);
 }
 
 function update_yahoo_forecast(data,loc,region,now) {
@@ -1575,50 +1575,45 @@ function update_yahoo_forecast(data,loc,region,now) {
 }
 
 function update_wunderground_weather(wapikey) {
-    $.ajax({
-        dataType: "jsonp",
-        type: "GET",
-        url: "https://api.wunderground.com/api/"+wapikey+"/conditions/forecast/lang:EN/q/"+escape(controller.settings.loc)+".json",
-        success: function(data) {
-            var code, temp;
+    $.getJSON("https://api.wunderground.com/api/"+wapikey+"/conditions/forecast/lang:EN/q/"+escape(controller.settings.loc)+".json", function(data) {
+        var code, temp;
 
-            if (data.current_observation.icon_url.indexOf("nt_") !== -1) { code = "nt_"+data.current_observation.icon; }
-            else code = data.current_observation.icon;
+        if (data.current_observation.icon_url.indexOf("nt_") !== -1) { code = "nt_"+data.current_observation.icon; }
+        else code = data.current_observation.icon;
 
-            var ww_forecast = {
-                "condition": {
-                    "text": data.current_observation.weather,
-                    "code": code,
-                    "temp_c": data.current_observation.temp_c,
-                    "temp_f": data.current_observation.temp_f,
-                    "date": data.current_observation.observation_time,
-                    "precip_today_in": data.current_observation.precip_today_in,
-                    "precip_today_metric": data.current_observation.precip_today_metric,
-                    "type": "wunderground"
-                },
-                "location": data.current_observation.display_location.full,
-                "region": data.current_observation.display_location.country_iso3166,
-                simpleforecast: {}
-            };
+        var ww_forecast = {
+            "condition": {
+                "text": data.current_observation.weather,
+                "code": code,
+                "temp_c": data.current_observation.temp_c,
+                "temp_f": data.current_observation.temp_f,
+                "date": data.current_observation.observation_time,
+                "precip_today_in": data.current_observation.precip_today_in,
+                "precip_today_metric": data.current_observation.precip_today_metric,
+                "type": "wunderground"
+            },
+            "location": data.current_observation.display_location.full,
+            "region": data.current_observation.display_location.country_iso3166,
+            simpleforecast: {}
+        };
 
-            $.each(data.forecast.simpleforecast.forecastday,function(k,attr) {
-                 ww_forecast.simpleforecast[k] = attr;
-            });
+        $.each(data.forecast.simpleforecast.forecastday,function(k,attr) {
+             ww_forecast.simpleforecast[k] = attr;
+        });
 
-            if (ww_forecast.region == "US" || ww_forecast.region == "BM" || ww_forecast.region == "PW") temp = Math.round(ww_forecast.condition.temp_f)+"&#176;F";
-            else temp = ww_forecast.condition.temp_c+"&#176;C";
+        if (ww_forecast.region == "US" || ww_forecast.region == "BM" || ww_forecast.region == "PW") temp = Math.round(ww_forecast.condition.temp_f)+"&#176;F";
+        else temp = ww_forecast.condition.temp_c+"&#176;C";
 
-            $("#weather")
-                .html("<div title='"+ww_forecast.condition.text+"' class='wicon cond"+code+"'></div><span>"+temp+"</span><br><span class='location'>"+ww_forecast.location+"</span>")
-                .on("click",show_forecast);
+        $("#weather")
+            .html("<div title='"+ww_forecast.condition.text+"' class='wicon cond"+code+"'></div><span>"+temp+"</span><br><span class='location'>"+ww_forecast.location+"</span>")
+            .on("click",show_forecast);
 
-            $("#weather-list").animate({
-                "margin-left": "0"
-            },1000).show();
+        $("#weather-list").animate({
+            "margin-left": "0"
+        },1000).show();
 
-            update_wunderground_forecast(ww_forecast);
-        }
-    }).retry({times:retryCount, statusCodes: [0]});
+        update_wunderground_forecast(ww_forecast);
+    }).retry({times:retryCount, statusCodes: [0]}).fail(weather_update_failed);
 }
 
 function update_wunderground_forecast(data) {
