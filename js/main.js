@@ -3823,11 +3823,19 @@ function showTooltip(x, y, contents, color) {
         display: 'none',
         top: y + 5,
         left: x + 5,
-        border: '1px solid #fdd',
         padding: '2px',
+        'text-shadow': 'none',
         'background-color': color,
+        color: colorContrast(color),
         opacity: 0.80
     }).appendTo("body").fadeIn(200);
+}
+
+function colorContrast(c) {
+    var rgb = c.match(/rgb\((\d+),(\d+),(\d+)\)/),
+        o = Math.round(((parseInt(rgb[1]) * 299) + (parseInt(rgb[2]) * 587) + (parseInt(rgb[3]) * 114)) /1000);
+
+    return (o > 125) ? "black" : "white"; //http://www.w3.org/TR/AERT#color-contrast
 }
 
 // Show loading indicator within element(s)
