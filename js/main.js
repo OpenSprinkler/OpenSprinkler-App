@@ -541,7 +541,7 @@ function update_controller_programs(callback) {
     callback = callback || function(){};
 
     if (window.curr_183 === true) {
-        return send_to_os("/gp?d=0").done(function(programs){
+        return send_to_os("/gp?d=0").retry({times:3, statusCodes: [0]}).done(function(programs){
             var vars = programs.match(/(nprogs|nboards|mnp)=[\w|\d|.\"]+/g),
                 progs = /pd=\[\];(.*);/.exec(programs),
                 newdata = {}, tmp, prog;
@@ -567,7 +567,7 @@ function update_controller_programs(callback) {
             callback();
         });
     } else {
-        return send_to_os("/jp","json").done(function(programs){
+        return send_to_os("/jp","json").retry({times:3, statusCodes: [0]}).done(function(programs){
             window.controller.programs = programs;
             callback();
         });
@@ -578,7 +578,7 @@ function update_controller_stations(callback) {
     callback = callback || function(){};
 
     if (window.curr_183 === true) {
-        return send_to_os("/vs").done(function(stations){
+        return send_to_os("/vs").retry({times:3, statusCodes: [0]}).done(function(stations){
             var names = /snames=\[(.*?)\];/.exec(stations),
                 masop = stations.match(/(?:masop|mo)\s?[=|:]\s?\[(.*?)\]/);
 
@@ -599,7 +599,7 @@ function update_controller_stations(callback) {
             callback();
         });
     } else {
-        return send_to_os("/jn","json").done(function(stations){
+        return send_to_os("/jn","json").retry({times:3, statusCodes: [0]}).done(function(stations){
             window.controller.stations = stations;
             callback();
         });
@@ -610,7 +610,7 @@ function update_controller_options(callback) {
     callback = callback || function(){};
 
     if (window.curr_183 === true) {
-        return send_to_os("/vo").done(function(options){
+        return send_to_os("/vo").retry({times:3, statusCodes: [0]}).done(function(options){
             var isOSPi = options.match(/var sd\s*=/),
                 vars = {}, tmp, i, o;
 
@@ -641,7 +641,7 @@ function update_controller_options(callback) {
             callback();
         });
     } else {
-        return send_to_os("/jo","json").done(function(options){
+        return send_to_os("/jo","json").retry({times:3, statusCodes: [0]}).done(function(options){
             window.controller.options = options;
             callback();
         });
@@ -652,7 +652,7 @@ function update_controller_status(callback) {
     callback = callback || function(){};
 
     if (window.curr_183 === true) {
-        return send_to_os("/sn0").then(
+        return send_to_os("/sn0").retry({times:3, statusCodes: [0]}).then(
             function(status){
                 var tmp = status.match(/\d+/);
 
@@ -665,7 +665,7 @@ function update_controller_status(callback) {
                 window.controller.status = [];
             });
     } else {
-        return send_to_os("/js","json").then(
+        return send_to_os("/js","json").retry({times:3, statusCodes: [0]}).then(
             function(status){
                 window.controller.status = status.sn;
                 callback();
@@ -680,7 +680,7 @@ function update_controller_settings(callback) {
     callback = callback || function(){};
 
     if (window.curr_183 === true) {
-        return send_to_os("").then(
+        return send_to_os("").retry({times:3, statusCodes: [0]}).then(
             function(settings){
                 var varsRegex = /(ver|devt|nbrd|tz|en|rd|rs|mm|rdst|urs)\s?[=|:]\s?([\w|\d|.\"]+)/gm,
                     loc = settings.match(/loc\s?[=|:]\s?[\"|'](.*)[\"|']/),
@@ -713,7 +713,7 @@ function update_controller_settings(callback) {
                 }
             });
     } else {
-        return send_to_os("/jc","json").then(
+        return send_to_os("/jc","json").retry({times:3, statusCodes: [0]}).then(
             function(settings){
                 window.controller.settings = settings;
                 callback();
