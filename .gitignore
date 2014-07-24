@@ -1,3 +1,4 @@
 .DS_Store
 build/chrome/*
 build/firefoxos/*
+build/blackberry10/*
