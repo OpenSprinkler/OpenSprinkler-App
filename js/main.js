@@ -1054,7 +1054,8 @@ function show_addnew(autoIP,closeOld) {
 
 function show_sites() {
     var page = $('<div data-role="page" id="site-control">' +
-            '<div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false" data-add-back-btn="true">' +
+            '<div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false">' +
+                '<a role="button" href="javascript:void(0);" class="ui-btn ui-corner-all ui-shadow ui-btn-left ui-btn-b ui-toolbar-back-btn ui-icon-carat-l ui-btn-icon-left" data-rel="back">'+_("Back")+'</a>' +
                 '<h3>'+_("Manage Sites")+'</h3>' +
                 '<button data-rel="popup" id="site-add" data-icon="plus" class="ui-btn-right">'+_("Add")+'</button>' +
             '</div>' +
@@ -1069,7 +1070,7 @@ function show_sites() {
         '</div>'),
         sites, total;
 
-    page.find("div[data-role='header'] > .ui-btn-right").on("click",show_addsite);
+    page.find("#site-add").on("click",show_addsite);
     page.find("#site-add-scan").on("click",start_scan);
     page.find("#site-add-manual").on("click",function(){
         show_addnew(false,true);
@@ -1088,8 +1089,8 @@ function show_sites() {
             sites = JSON.parse(data.sites);
             total = Object.keys(sites).length;
 
-            if (!sites.length) {
-                page.find("div[data-role='header'] > .ui-btn-right").off("click").hide();
+            if (!total) {
+                page.find(".ui-btn-left").hide();
             }
 
             $.each(sites,function(a,b){
