@@ -507,6 +507,10 @@ function newload() {
 
             // Transition to home page after succesful load
             if ($.mobile.pageContainer.pagecontainer("getActivePage").attr("id") != "sprinklers") {
+                $.mobile.document.one("pageshow",function(){
+                    // Allow future transitions to properly animate
+                    delete $.mobile.navigate.history.stack[1].transition;
+                });
                 changePage("#sprinklers",{
                     "transition":"none",
                     "firstLoad": true
