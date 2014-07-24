@@ -27,7 +27,7 @@
         <name>Sprinklers</name>
 
         <description>
-            A mobile interface for the OpenSprinkler irrigation device.
+            Designed to allow intuitive control of the OpenSprinkler irrigation controller.
         </description>
 
         <author href="http://albahra.com/sprinklers/" email="salbahra@gmail.com">
