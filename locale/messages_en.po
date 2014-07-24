@@ -4,12 +4,6 @@ msgstr ""
 msgid "All stations have been stopped"
 msgstr ""
 
-msgid "Check device password and try again."
-msgstr ""
-
-msgid "Connection timed-out. Please try again."
-msgstr ""
-
 msgid "Are you sure you want to clear all your log data?"
 msgstr ""
 
@@ -45,7 +39,16 @@ msgstr ""
 msgid "An API key must be provided for Weather Underground"
 msgstr ""
 
+msgid "Connection timed-out. Please try again."
+msgstr ""
+
+msgid "Check device password and try again."
+msgstr ""
+
 msgid "Network Error"
+msgstr ""
+
+msgid "Connecting to"
 msgstr ""
 
 msgid "Check IP/Port and try again."
@@ -88,6 +91,9 @@ msgid "Use Auth"
 msgstr ""
 
 msgid "Use SSL"
+msgstr ""
+
+msgid "Back"
 msgstr ""
 
 msgid "Manage Sites"
@@ -552,9 +558,6 @@ msgid "Delete Program"
 msgstr ""
 
 msgid "Add Program"
-msgstr ""
-
-msgid "Back"
 msgstr ""
 
 msgid "Are you sure you want to delete program"
