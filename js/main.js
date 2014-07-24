@@ -3771,6 +3771,8 @@ function showDurationBox(seconds,title,callback,maximum,granularity) {
         return false;
     });
 
+    $(".ui-page-active").append(popup);
+
     popup
     .css("max-width","350px")
     .popup({
