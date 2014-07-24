@@ -1,4 +1,5 @@
-/*global chrome, FastClick, StatusBar, networkinterface, links, escape */
+/*jshint bitwise: false*/
+/*global $, chrome, FastClick, StatusBar, networkinterface, links, escape */
 var isIEMobile = /IEMobile/.test(navigator.userAgent),
     isAndroid = /Android|\bSilk\b/.test(navigator.userAgent),
     isiOS = /iP(ad|hone|od)/.test(navigator.userAgent),
@@ -6,7 +7,8 @@ var isIEMobile = /IEMobile/.test(navigator.userAgent),
     isChromeApp = typeof chrome == "object" && typeof chrome.storage == "object",
     retryCount = 3,
     controller = {},
-    curr_183, curr_ip, curr_prefix, curr_auth, curr_pw, curr_wa, curr_session, curr_auth_user, curr_auth_pw, language, deviceip;
+    switching = false,
+    curr_183, curr_ip, curr_prefix, curr_auth, curr_pw, curr_wa, curr_session, curr_auth_user, curr_auth_pw, language, deviceip, storage;
 
 //Fix CSS for IE Mobile (Windows Phone 8)
 if (isIEMobile) {
@@ -394,7 +396,6 @@ $.ajaxSetup({
     timeout: 6000
 });
 
-var switching = false;
 function flipSwitched() {
     if (switching) return;
 
@@ -2789,7 +2790,7 @@ function get_logs() {
                 $.plot(placeholder, pData, {
                     grid: { hoverable: true },
                     yaxis: {min: 0, tickFormatter: function(val, axis) { return val < axis.max ? Math.round(val*100)/100 : "min";} },
-                    xaxis: { mode: "time", min:sortedData.min.getTime(), max:sortedData.max.getTime()}
+                    xaxis: { mode: "time", timeformat: "%b %d %H:%M", min:sortedData.min.getTime(), max:sortedData.max.getTime()}
                 });
             }
         },
@@ -3926,7 +3927,7 @@ function objToEmail(ele,obj,subject) {
 }
 
 // Small wrapper to handle Chrome vs localStorage usage
-var storage = {
+storage = {
     get: function(query,callback) {
         callback = callback || function(){};
 
@@ -4006,7 +4007,7 @@ function getDayName(day,type) {
 function getUnique(inputArray) {
     var outputArray = [];
     for (var i = 0; i < inputArray.length; i++) {
-        if ((jQuery.inArray(inputArray[i], outputArray)) == -1) outputArray.push(inputArray[i]);
+        if (($.inArray(inputArray[i], outputArray)) == -1) outputArray.push(inputArray[i]);
     }
     return outputArray;
 }
