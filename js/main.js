@@ -3,7 +3,10 @@ var isIEMobile = /IEMobile/.test(navigator.userAgent),
     isAndroid = /Android|\bSilk\b/.test(navigator.userAgent),
     isiOS = /iP(ad|hone|od)/.test(navigator.userAgent),
     isFireFoxOS = /^.*?\Mobile\b.*?\Firefox\b.*?$/m.test(navigator.userAgent),
-    isChromeApp = typeof chrome == "object" && typeof chrome.storage == "object";
+    isChromeApp = typeof chrome == "object" && typeof chrome.storage == "object",
+    retryCount = 3,
+    controller = {},
+    curr_183, curr_ip, curr_prefix, curr_auth, curr_pw, curr_wa, curr_session, curr_auth_user, curr_auth_pw, language, deviceip;
 
 //Fix CSS for IE Mobile (Windows Phone 8)
 if (isIEMobile) {
@@ -98,6 +101,8 @@ $(document)
     }
 })
 .ajaxError(function(x,t,m) {
+    if (typeof t.retry === "function") return;
+
     if ((t.status==401 || t.status===0) && /https?:\/\/.*?\/(?:cv|sn|cs|cr|cp|dp|co|cl)/.exec(m.url)) {
         showerror(_("Check device password and try again."));
         return;
@@ -213,7 +218,7 @@ $(document)
         } else if (hash == "#settings") {
             $.each(["en","mm"],function(a,id){
                 var $id = $("#"+id);
-                $id.prop("checked",window.controller.settings[id]);
+                $id.prop("checked",controller.settings[id]);
                 if ($id.hasClass("ui-flipswitch-input")) $id.flipswitch("refresh");
                 $id.on("change",flipSwitched);
             });
@@ -341,7 +346,7 @@ $(document)
     checkAutoScan();
 
     // If we don't have a current device IP set, there is nothing else to update
-    if (window.curr_ip === undefined) return;
+    if (curr_ip === undefined) return;
 
     // Indicate the weather and device status are being updated
     showLoading("#weather,#footer-running");
@@ -437,23 +442,23 @@ function flipSwitched() {
 
 // Wrapper function to communicate with OpenSprinkler
 function send_to_os(dest,type) {
-    dest = dest.replace("pw=","pw="+window.curr_pw);
+    dest = dest.replace("pw=","pw="+curr_pw);
     type = type || "text";
     var obj = {
-        url: window.curr_prefix+window.curr_ip+dest,
+        url: curr_prefix+curr_ip+dest,
         type: "GET",
         dataType: type
     };
 
-    if (window.curr_auth) {
+    if (curr_auth) {
         $.extend(obj,{
-            beforeSend: function(xhr) { xhr.setRequestHeader("Authorization", "Basic " + btoa(window.curr_auth_user + ":" + window.curr_auth_pw)); }
+            beforeSend: function(xhr) { xhr.setRequestHeader("Authorization", "Basic " + btoa(curr_auth_user + ":" + curr_auth_pw)); }
         });
     }
 
-    if (typeof window.curr_session != "undefined") {
+    if (typeof curr_session != "undefined") {
         $.extend(obj,{
-            beforeSend: function(xhr) { xhr.setRequestHeader("webpy_session_id", window.curr_session); }
+            beforeSend: function(xhr) { xhr.setRequestHeader("webpy_session_id", curr_session); }
         });
     }
 
@@ -474,7 +479,7 @@ function newload() {
     $.mobile.loading("show");
 
     //Create object which will store device data
-    window.controller = {};
+    controller = {};
     update_controller(
         function(){
             var log_button = $("#log_button"),
@@ -486,7 +491,7 @@ function newload() {
             update_weather();
 
             // Hide log viewer button on home page if not supported
-            if ((typeof window.controller.options.fwv === "number" && window.controller.options.fwv < 206) || (typeof window.controller.options.fwv === "string" && window.controller.options.fwv.match(/1\.9\.0/)) === -1) {
+            if ((typeof controller.options.fwv === "number" && controller.options.fwv < 206) || (typeof controller.options.fwv === "string" && controller.options.fwv.match(/1\.9\.0/)) === -1) {
                 log_button.hide();
             } else {
                 log_button.css("display","");
@@ -500,7 +505,7 @@ function newload() {
             }
 
             // Update export to email button in side panel
-            objToEmail(".email_config",window.controller);
+            objToEmail(".email_config",controller);
 
             // Check if automatic rain delay plugin is enabled on OSPi devices
             checkWeatherPlugin();
@@ -509,7 +514,7 @@ function newload() {
             if ($.mobile.pageContainer.pagecontainer("getActivePage").attr("id") != "sprinklers") {
                 $.mobile.document.one("pageshow",function(){
                     // Allow future transitions to properly animate
-                    delete $.mobile.navigate.history.stack[1].transition;
+                    delete $.mobile.navigate.history.getActive().transition;
                 });
                 changePage("#sprinklers",{
                     "transition":"none",
@@ -540,8 +545,8 @@ function update_controller(callback,fail) {
 function update_controller_programs(callback) {
     callback = callback || function(){};
 
-    if (window.curr_183 === true) {
-        return send_to_os("/gp?d=0").retry({times:3, statusCodes: [0]}).done(function(programs){
+    if (curr_183 === true) {
+        return send_to_os("/gp?d=0").retry({times:retryCount, statusCodes: [0]}).done(function(programs){
             var vars = programs.match(/(nprogs|nboards|mnp)=[\w|\d|.\"]+/g),
                 progs = /pd=\[\];(.*);/.exec(programs),
                 newdata = {}, tmp, prog;
@@ -563,12 +568,12 @@ function update_controller_programs(callback) {
                 }
             }
 
-            window.controller.programs = newdata;
+            controller.programs = newdata;
             callback();
         });
     } else {
-        return send_to_os("/jp","json").retry({times:3, statusCodes: [0]}).done(function(programs){
-            window.controller.programs = programs;
+        return send_to_os("/jp","json").retry({times:retryCount, statusCodes: [0]}).done(function(programs){
+            controller.programs = programs;
             callback();
         });
     }
@@ -577,8 +582,8 @@ function update_controller_programs(callback) {
 function update_controller_stations(callback) {
     callback = callback || function(){};
 
-    if (window.curr_183 === true) {
-        return send_to_os("/vs").retry({times:3, statusCodes: [0]}).done(function(stations){
+    if (curr_183 === true) {
+        return send_to_os("/vs").retry({times:retryCount, statusCodes: [0]}).done(function(stations){
             var names = /snames=\[(.*?)\];/.exec(stations),
                 masop = stations.match(/(?:masop|mo)\s?[=|:]\s?\[(.*?)\]/);
 
@@ -591,7 +596,7 @@ function update_controller_stations(callback) {
 
             masop = parseIntArray(masop[1].split(","));
 
-            window.controller.stations = {
+            controller.stations = {
                 "snames": names,
                 "masop": masop,
                 "maxlen": names.length
@@ -599,8 +604,8 @@ function update_controller_stations(callback) {
             callback();
         });
     } else {
-        return send_to_os("/jn","json").retry({times:3, statusCodes: [0]}).done(function(stations){
-            window.controller.stations = stations;
+        return send_to_os("/jn","json").retry({times:retryCount, statusCodes: [0]}).done(function(stations){
+            controller.stations = stations;
             callback();
         });
     }
@@ -609,8 +614,8 @@ function update_controller_stations(callback) {
 function update_controller_options(callback) {
     callback = callback || function(){};
 
-    if (window.curr_183 === true) {
-        return send_to_os("/vo").retry({times:3, statusCodes: [0]}).done(function(options){
+    if (curr_183 === true) {
+        return send_to_os("/vo").retry({times:retryCount, statusCodes: [0]}).done(function(options){
             var isOSPi = options.match(/var sd\s*=/),
                 vars = {}, tmp, i, o;
 
@@ -637,12 +642,12 @@ function update_controller_options(callback) {
                 }
                 vars.fwv = 183;
             }
-            window.controller.options = vars;
+            controller.options = vars;
             callback();
         });
     } else {
-        return send_to_os("/jo","json").retry({times:3, statusCodes: [0]}).done(function(options){
-            window.controller.options = options;
+        return send_to_os("/jo","json").retry({times:retryCount, statusCodes: [0]}).done(function(options){
+            controller.options = options;
             callback();
         });
     }
@@ -651,27 +656,27 @@ function update_controller_options(callback) {
 function update_controller_status(callback) {
     callback = callback || function(){};
 
-    if (window.curr_183 === true) {
-        return send_to_os("/sn0").retry({times:3, statusCodes: [0]}).then(
+    if (curr_183 === true) {
+        return send_to_os("/sn0").retry({times:retryCount, statusCodes: [0]}).then(
             function(status){
                 var tmp = status.match(/\d+/);
 
                 tmp = parseIntArray(tmp[0].split(""));
 
-                window.controller.status = tmp;
+                controller.status = tmp;
                 callback();
             },
             function(){
-                window.controller.status = [];
+                controller.status = [];
             });
     } else {
-        return send_to_os("/js","json").retry({times:3, statusCodes: [0]}).then(
+        return send_to_os("/js","json").retry({times:retryCount, statusCodes: [0]}).then(
             function(status){
-                window.controller.status = status.sn;
+                controller.status = status.sn;
                 callback();
             },
             function(){
-                window.controller.status = [];
+                controller.status = [];
             });
     }
 }
@@ -679,8 +684,8 @@ function update_controller_status(callback) {
 function update_controller_settings(callback) {
     callback = callback || function(){};
 
-    if (window.curr_183 === true) {
-        return send_to_os("").retry({times:3, statusCodes: [0]}).then(
+    if (curr_183 === true) {
+        return send_to_os("").retry({times:retryCount, statusCodes: [0]}).then(
             function(settings){
                 var varsRegex = /(ver|devt|nbrd|tz|en|rd|rs|mm|rdst|urs)\s?[=|:]\s?([\w|\d|.\"]+)/gm,
                     loc = settings.match(/loc\s?[=|:]\s?[\"|'](.*)[\"|']/),
@@ -701,30 +706,30 @@ function update_controller_settings(callback) {
                 vars.ps = ps;
                 vars.lrun = parseIntArray(lrun[1].split(","));
 
-                window.controller.settings = vars;
+                controller.settings = vars;
             },
             function(){
-                if (window.controller.settings && window.controller.stations) {
+                if (controller.settings && controller.stations) {
                     var ps = [], i;
-                    for (i=0; i<window.controller.stations.maxlen; i++) {
+                    for (i=0; i<controller.stations.maxlen; i++) {
                         ps.push([0,0]);
                     }
-                    window.controller.settings.ps = ps;
+                    controller.settings.ps = ps;
                 }
             });
     } else {
-        return send_to_os("/jc","json").retry({times:3, statusCodes: [0]}).then(
+        return send_to_os("/jc","json").retry({times:retryCount, statusCodes: [0]}).then(
             function(settings){
-                window.controller.settings = settings;
+                controller.settings = settings;
                 callback();
             },
             function(){
-                if (window.controller.settings && window.controller.stations) {
+                if (controller.settings && controller.stations) {
                     var ps = [], i;
-                    for (i=0; i<window.controller.stations.maxlen; i++) {
+                    for (i=0; i<controller.stations.maxlen; i++) {
                         ps.push([0,0]);
                     }
-                    window.controller.settings.ps = ps;
+                    controller.settings.ps = ps;
                 }
             });
     }
@@ -760,27 +765,27 @@ function check_configured(firstLoad) {
 
         update_site_list(names);
 
-        window.curr_ip = sites[current].os_ip;
-        window.curr_pw = sites[current].os_pw;
+        curr_ip = sites[current].os_ip;
+        curr_pw = sites[current].os_pw;
 
         if (typeof sites[current].ssl !== "undefined" && sites[current].ssl === "1") {
-            window.curr_prefix = "https://";
+            curr_prefix = "https://";
         } else {
-            window.curr_prefix = "http://";
+            curr_prefix = "http://";
         }
 
         if (typeof sites[current].auth_user !== "undefined" && typeof sites[current].auth_pw !== "undefined") {
-            window.curr_auth = true;
-            window.curr_auth_user = sites[current].auth_user;
-            window.curr_auth_pw = sites[current].auth_pw;
+            curr_auth = true;
+            curr_auth_user = sites[current].auth_user;
+            curr_auth_pw = sites[current].auth_pw;
         } else {
-            delete window.curr_auth;
+            curr_auth = false;
         }
 
         if (sites[current].is183) {
-            window.curr_183 = true;
+            curr_183 = true;
         } else {
-            delete window.curr_183;
+            curr_183 = false;
         }
 
         newload();
@@ -806,29 +811,29 @@ function submit_newuser(ssl,useAuth) {
                 if (name === "") name = "Site "+(Object.keys(sites).length+1);
 
                 sites[name] = {};
-                sites[name].os_ip = window.curr_ip = ip;
-                sites[name].os_pw = window.curr_pw = $("#os_pw").val();
+                sites[name].os_ip = curr_ip = ip;
+                sites[name].os_pw = curr_pw = $("#os_pw").val();
 
                 if (ssl) {
                     sites[name].ssl = "1";
-                    window.curr_prefix = "https://";
+                    curr_prefix = "https://";
                 } else {
-                    window.curr_prefix = "http://";
+                    curr_prefix = "http://";
                 }
 
                 if (useAuth) {
                     sites[name].auth_user = $("#os_auth_user").val();
                     sites[name].auth_pw = $("#os_auth_pw").val();
-                    window.curr_auth = true;
-                    window.curr_auth_user = sites[name].auth_user;
-                    window.curr_auth_pw = sites[name].auth_pw;
+                    curr_auth = true;
+                    curr_auth_user = sites[name].auth_user;
+                    curr_auth_pw = sites[name].auth_pw;
                 } else {
-                    delete window.curr_auth;
+                    curr_auth = false;
                 }
 
                 if (is183 === true) {
                     sites[name].is183 = "1";
-                    window.curr_183 = true;
+                    curr_183 = true;
                 }
 
                 $("#os_name,#os_ip,#os_pw,#os_auth_user,#os_auth_pw").val("");
@@ -972,7 +977,7 @@ function show_site_select(list) {
 }
 
 function show_addsite() {
-    if (typeof window.deviceip === "undefined") {
+    if (typeof deviceip === "undefined") {
         show_addnew();
     } else {
         var popup = $("#addsite");
@@ -1068,6 +1073,7 @@ function show_sites() {
                 '</ul>' +
             '</div>' +
         '</div>'),
+        firstLoad = $.mobile.navigate.history.stack.length <= 1 ? 1 : 0,
         sites, total;
 
     page.find("#site-add").on("click",show_addsite);
@@ -1089,7 +1095,7 @@ function show_sites() {
             sites = JSON.parse(data.sites);
             total = Object.keys(sites).length;
 
-            if (!total) {
+            if (!total || firstLoad) {
                 page.find(".ui-btn-left").hide();
             }
 
@@ -1178,7 +1184,7 @@ function change_site(site) {
         showerror(_("Site updated successfully"));
 
         if (site === data.current_site) {
-            if (pw !== "") window.curr_pw = pw;
+            if (pw !== "") curr_pw = pw;
             if (ip !== "") check_configured();
         }
 
@@ -1232,7 +1238,7 @@ function checkAutoScan() {
         next.removeClass("ui-first-child").find("a.ui-btn").text(_("Manually Add Device"));
         auto.show();
 
-        window.deviceip = ip;
+        deviceip = ip;
     },
     ip;
 
@@ -1266,14 +1272,14 @@ function resetStartMenu() {
     var auto = $("#auto-scan"),
         next = auto.next();
 
-    delete window.deviceip;
+    deviceip = undefined;
 
     next.addClass("ui-first-child").find("a.ui-btn").text(_("Add Controller"));
     auto.hide();
 }
 
 function start_scan(port,type) {
-    var ip = window.deviceip.split("."),
+    var ip = deviceip.split("."),
         scanprogress = 1,
         devicesfound = 0,
         newlist = "",
@@ -1417,10 +1423,10 @@ function show_weather_settings() {
                 '<li>' +
                     '<label for="weather_provider">'+_("Weather Provider")+'</label>' +
                     '<select data-mini="true" id="weather_provider">' +
-                        '<option value="yahoo" '+(window.curr_wa.weather_provider == "yahoo" ? "selected" : "")+'>'+_("Yahoo!")+'</option>' +
-                        '<option value="wunderground" '+(window.curr_wa.weather_provider == "wunderground" ? "selected" : "")+'>'+_("Wunderground")+'</option>' +
+                        '<option value="yahoo" '+(curr_wa.weather_provider == "yahoo" ? "selected" : "")+'>'+_("Yahoo!")+'</option>' +
+                        '<option value="wunderground" '+(curr_wa.weather_provider == "wunderground" ? "selected" : "")+'>'+_("Wunderground")+'</option>' +
                     '</select>' +
-                    (window.curr_wa.weather_provider == "wunderground" ? '<label for="wapikey">'+_("Wunderground API Key")+'</label><input data-mini="true" type="text" id="wapikey" value="'+window.curr_wa.wapikey+'" />' : "") +
+                    (curr_wa.weather_provider == "wunderground" ? '<label for="wapikey">'+_("Wunderground API Key")+'</label><input data-mini="true" type="text" id="wapikey" value="'+curr_wa.wapikey+'" />' : "") +
                 '</li>' +
             '</ul>' +
             '<ul data-role="listview" data-inset="true"> ' +
@@ -1428,11 +1434,11 @@ function show_weather_settings() {
                     '<p class="rain-desc">'+_("When automatic rain delay is enabled, the weather will be checked for rain every hour. If the weather reports any condition suggesting rain, a rain delay is automatically issued using the below set delay duration.")+'</p>' +
                         '<div class="ui-field-contain">' +
                             '<label for="auto_delay">'+_("Auto Rain Delay")+'</label>' +
-                            '<input type="checkbox" data-on-text="On" data-off-text="Off" data-role="flipswitch" name="auto_delay" id="auto_delay" '+(window.curr_wa.auto_delay == "on" ? "checked" : "")+'>' +
+                            '<input type="checkbox" data-on-text="On" data-off-text="Off" data-role="flipswitch" name="auto_delay" id="auto_delay" '+(curr_wa.auto_delay == "on" ? "checked" : "")+'>' +
                         '</div>' +
                         '<div class="ui-field-contain duration-input">' +
                             '<label for="delay_duration">'+_("Delay Duration")+'</label>' +
-                            '<button id="delay_duration" data-mini="true" value="'+(window.curr_wa.delay_duration*3600)+'">'+dhms2str(sec2dhms(window.curr_wa.delay_duration*3600))+'</button>' +
+                            '<button id="delay_duration" data-mini="true" value="'+(curr_wa.delay_duration*3600)+'">'+dhms2str(sec2dhms(curr_wa.delay_duration*3600))+'</button>' +
                         '</div>' +
                 '</li>' +
             '</ul>' +
@@ -1507,7 +1513,7 @@ function hide_weather() {
 
 function update_weather() {
     storage.get(["provider","wapikey"],function(data){
-        if (window.controller.settings.loc === "") {
+        if (controller.settings.loc === "") {
             hide_weather();
             return;
         }
@@ -1523,7 +1529,7 @@ function update_weather() {
 }
 
 function update_yahoo_weather() {
-    $.getJSON("https://query.yahooapis.com/v1/public/yql?q=select%20woeid%20from%20geo.placefinder%20where%20text=%22"+escape(window.controller.settings.loc)+"%22&format=json",function(woeid){
+    $.getJSON("https://query.yahooapis.com/v1/public/yql?q=select%20woeid%20from%20geo.placefinder%20where%20text=%22"+escape(controller.settings.loc)+"%22&format=json",function(woeid){
         if (woeid.query.results === null) {
             hide_weather();
             return;
@@ -1549,8 +1555,8 @@ function update_yahoo_weather() {
             },1000).show();
 
             update_yahoo_forecast(data.query.results.channel.item.forecast,loc[1],region,now);
-        });
-    });
+        }).retry({times:retryCount, statusCodes: [0]});
+    }).retry({times:retryCount, statusCodes: [0]});
 }
 
 function update_yahoo_forecast(data,loc,region,now) {
@@ -1572,7 +1578,7 @@ function update_wunderground_weather(wapikey) {
     $.ajax({
         dataType: "jsonp",
         type: "GET",
-        url: "https://api.wunderground.com/api/"+wapikey+"/conditions/forecast/lang:EN/q/"+escape(window.controller.settings.loc)+".json",
+        url: "https://api.wunderground.com/api/"+wapikey+"/conditions/forecast/lang:EN/q/"+escape(controller.settings.loc)+".json",
         success: function(data) {
             var code, temp;
 
@@ -1612,7 +1618,7 @@ function update_wunderground_weather(wapikey) {
 
             update_wunderground_forecast(ww_forecast);
         }
-    });
+    }).retry({times:retryCount, statusCodes: [0]});
 }
 
 function update_wunderground_forecast(data) {
@@ -1699,9 +1705,9 @@ function show_settings() {
 
     list = "<li><div class='ui-field-contain'><fieldset>";
 
-    if (!isOSPi() && typeof window.controller.options.tz !== "undefined") {
+    if (!isOSPi() && typeof controller.options.tz !== "undefined") {
         timezones = ["-12:00","-11:30","-11:00","-10:00","-09:30","-09:00","-08:30","-08:00","-07:00","-06:00","-05:00","-04:30","-04:00","-03:30","-03:00","-02:30","-02:00","+00:00","+01:00","+02:00","+03:00","+03:30","+04:00","+04:30","+05:00","+05:30","+05:45","+06:00","+06:30","+07:00","+08:00","+08:45","+09:00","+09:30","+10:00","+10:30","+11:00","+11:30","+12:00","+12:45","+13:00","+13:45","+14:00"];
-        tz = window.controller.options.tz-48;
+        tz = controller.options.tz-48;
         tz = ((tz>=0)?"+":"-")+pad((Math.abs(tz)/4>>0))+":"+((Math.abs(tz)%4)*15/10>>0)+((Math.abs(tz)%4)*15%10);
         list += "<label for='o1' class='select'>"+_("Timezone")+"</label><select data-mini='true' id='o1'>";
         for (i=0; i<timezones.length; i++) {
@@ -1710,67 +1716,67 @@ function show_settings() {
         list += "</select>";
     }
 
-    if (typeof window.controller.options.mas !== "undefined") {
+    if (typeof controller.options.mas !== "undefined") {
         list += "<label for='o18' class='select'>"+_("Master Station")+"</label><select data-mini='true' id='o18'><option value='0'>"+_("None")+"</option>";
-        for (i=0; i<window.controller.stations.snames.length; i++) {
-            list += "<option "+(((i+1) == window.controller.options.mas) ? "selected" : "")+" value='"+(i+1)+"'>"+window.controller.stations.snames[i]+"</option>";
+        for (i=0; i<controller.stations.snames.length; i++) {
+            list += "<option "+(((i+1) == controller.options.mas) ? "selected" : "")+" value='"+(i+1)+"'>"+controller.stations.snames[i]+"</option>";
             if (i == 7) break;
         }
         list += "</select>";
     }
 
-    if (typeof window.controller.options.hp0 !== "undefined") {
-        list += "<label for='o12'>"+_("HTTP Port (restart required)")+"</label><input data-mini='true' type='number' pattern='[0-9]*' id='o12' value='"+(window.controller.options.hp1*256+window.controller.options.hp0)+"' />";
+    if (typeof controller.options.hp0 !== "undefined") {
+        list += "<label for='o12'>"+_("HTTP Port (restart required)")+"</label><input data-mini='true' type='number' pattern='[0-9]*' id='o12' value='"+(controller.options.hp1*256+controller.options.hp0)+"' />";
     }
 
-    if (typeof window.controller.options.devid !== "undefined") {
-        list += "<label for='o26'>"+_("Device ID (restart required)")+"</label><input data-mini='true' type='number' pattern='[0-9]*' max='255' id='o26' value='"+window.controller.options.devid+"' />";
+    if (typeof controller.options.devid !== "undefined") {
+        list += "<label for='o26'>"+_("Device ID (restart required)")+"</label><input data-mini='true' type='number' pattern='[0-9]*' max='255' id='o26' value='"+controller.options.devid+"' />";
     }
 
-    list += "<label for='loc'>"+_("Location")+"</label><input data-mini='true' type='text' id='loc' value='"+window.controller.settings.loc+"' />";
+    list += "<label for='loc'>"+_("Location")+"</label><input data-mini='true' type='text' id='loc' value='"+controller.settings.loc+"' />";
 
-    if (typeof window.controller.options.ext !== "undefined") {
-        list += "<label for='o15'>"+_("Extension Boards")+"</label><input data-highlight='true' type='number' pattern='[0-9]*' data-type='range' min='0' max='5' id='o15' value='"+window.controller.options.ext+"' />";
+    if (typeof controller.options.ext !== "undefined") {
+        list += "<label for='o15'>"+_("Extension Boards")+"</label><input data-highlight='true' type='number' pattern='[0-9]*' data-type='range' min='0' max='5' id='o15' value='"+controller.options.ext+"' />";
     }
 
-    if (typeof window.controller.options.sdt !== "undefined") {
-        list += "<label for='o17'>"+_("Station Delay (seconds)")+"</label><input data-highlight='true' type='number' pattern='[0-9]*' data-type='range' min='0' max='240' id='o17' value='"+window.controller.options.sdt+"' />";
+    if (typeof controller.options.sdt !== "undefined") {
+        list += "<label for='o17'>"+_("Station Delay (seconds)")+"</label><input data-highlight='true' type='number' pattern='[0-9]*' data-type='range' min='0' max='240' id='o17' value='"+controller.options.sdt+"' />";
     }
 
-    if (typeof window.controller.options.mton !== "undefined") {
-        list += "<label for='o19'>"+_("Master On Delay")+"</label><input data-highlight='true' type='number' pattern='[0-9]*' data-type='range' min='0' max='60' id='o19' value='"+window.controller.options.mton+"' />";
+    if (typeof controller.options.mton !== "undefined") {
+        list += "<label for='o19'>"+_("Master On Delay")+"</label><input data-highlight='true' type='number' pattern='[0-9]*' data-type='range' min='0' max='60' id='o19' value='"+controller.options.mton+"' />";
     }
 
-    if (typeof window.controller.options.mtof !== "undefined") {
-        list += "<label for='o20'>"+_("Master Off Delay")+"</label><input data-highlight='true' type='number' pattern='[0-9]*' data-type='range' min='-60' max='60' id='o20' value='"+window.controller.options.mtof+"' />";
+    if (typeof controller.options.mtof !== "undefined") {
+        list += "<label for='o20'>"+_("Master Off Delay")+"</label><input data-highlight='true' type='number' pattern='[0-9]*' data-type='range' min='-60' max='60' id='o20' value='"+controller.options.mtof+"' />";
     }
 
-    if (typeof window.controller.options.wl !== "undefined") {
-        list += "<label for='o23'>"+_("% Watering")+"</label><input data-highlight='true' type='number' pattern='[0-9]*' data-type='range' min='0' max='250' id='o23' value='"+window.controller.options.wl+"' />";
+    if (typeof controller.options.wl !== "undefined") {
+        list += "<label for='o23'>"+_("% Watering")+"</label><input data-highlight='true' type='number' pattern='[0-9]*' data-type='range' min='0' max='250' id='o23' value='"+controller.options.wl+"' />";
     }
 
-    if (typeof window.controller.options.ntp !== "undefined") {
-        list += "<label for='o2'><input data-mini='true' id='o2' type='checkbox' "+((window.controller.options.ntp === 1) ? "checked='checked'" : "")+" />"+_("NTP Sync")+"</label>";
+    if (typeof controller.options.ntp !== "undefined") {
+        list += "<label for='o2'><input data-mini='true' id='o2' type='checkbox' "+((controller.options.ntp === 1) ? "checked='checked'" : "")+" />"+_("NTP Sync")+"</label>";
     }
 
-    if (typeof window.controller.options.ar !== "undefined") {
-        list += "<label for='o14'><input data-mini='true' id='o14' type='checkbox' "+((window.controller.options.ar === 1) ? "checked='checked'" : "")+" />"+_("Auto Reconnect")+"</label>";
+    if (typeof controller.options.ar !== "undefined") {
+        list += "<label for='o14'><input data-mini='true' id='o14' type='checkbox' "+((controller.options.ar === 1) ? "checked='checked'" : "")+" />"+_("Auto Reconnect")+"</label>";
     }
 
-    if (typeof window.controller.options.seq !== "undefined") {
-        list += "<label for='o16'><input data-mini='true' id='o16' type='checkbox' "+((window.controller.options.seq === 1) ? "checked='checked'" : "")+" />"+_("Sequential")+"</label>";
+    if (typeof controller.options.seq !== "undefined") {
+        list += "<label for='o16'><input data-mini='true' id='o16' type='checkbox' "+((controller.options.seq === 1) ? "checked='checked'" : "")+" />"+_("Sequential")+"</label>";
     }
 
-    if (typeof window.controller.options.urs !== "undefined") {
-        list += "<label for='o21'><input data-mini='true' id='o21' type='checkbox' "+((window.controller.options.urs === 1) ? "checked='checked'" : "")+" />"+_("Use Rain Sensor")+"</label>";
+    if (typeof controller.options.urs !== "undefined") {
+        list += "<label for='o21'><input data-mini='true' id='o21' type='checkbox' "+((controller.options.urs === 1) ? "checked='checked'" : "")+" />"+_("Use Rain Sensor")+"</label>";
     }
 
-    if (typeof window.controller.options.rso !== "undefined") {
-        list += "<label for='o22'><input data-mini='true' id='o22' type='checkbox' "+((window.controller.options.rso === 1) ? "checked='checked'" : "")+" />"+_("Normally Open (Rain Sensor)")+"</label>";
+    if (typeof controller.options.rso !== "undefined") {
+        list += "<label for='o22'><input data-mini='true' id='o22' type='checkbox' "+((controller.options.rso === 1) ? "checked='checked'" : "")+" />"+_("Normally Open (Rain Sensor)")+"</label>";
     }
 
-    if (typeof window.controller.options.ipas !== "undefined") {
-        list += "<label for='o25'><input data-mini='true' id='o25' type='checkbox' "+((window.controller.options.ipas === 1) ? "checked='checked'" : "")+" />"+_("Ignore Password")+"</label>";
+    if (typeof controller.options.ipas !== "undefined") {
+        list += "<label for='o25'><input data-mini='true' id='o25' type='checkbox' "+((controller.options.ipas === 1) ? "checked='checked'" : "")+" />"+_("Ignore Password")+"</label>";
     }
 
     list += "</fieldset></div></li>";
@@ -1846,8 +1852,8 @@ function show_stations() {
             '<div class="ui-content" role="main">' +
             '</div>' +
         '</div>'),
-        isMaster = window.controller.options.mas ? true : false,
-        hasIR = (typeof window.controller.stations.ignore_rain === "object") ? true : false,
+        isMaster = controller.options.mas ? true : false,
+        hasIR = (typeof controller.stations.ignore_rain === "object") ? true : false,
         useTableView = (hasIR || isMaster);
 
     page.find("div[data-role='header'] > .ui-btn-right").on("click",submit_stations);
@@ -1859,19 +1865,19 @@ function show_stations() {
         list += "</tr>";
     }
 
-    $.each(window.controller.stations.snames,function(i, station) {
+    $.each(controller.stations.snames,function(i, station) {
         if (useTableView) list += "<tr><td>";
         list += "<input data-mini='true' id='edit_station_"+i+"' type='text' value='"+station+"' />";
         if (useTableView) {
             list += "</td>";
             if (isMaster) {
-                if (window.controller.options.mas == i+1) {
+                if (controller.options.mas == i+1) {
                     list += "<td class='use_master'><p id='um_"+i+"' class='center'>("+_("Master")+")</p></td>";
                 } else {
-                    list += "<td data-role='controlgroup' data-type='horizontal' class='use_master'><label for='um_"+i+"'><input id='um_"+i+"' type='checkbox' "+((window.controller.stations.masop[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+" /></label></td>";
+                    list += "<td data-role='controlgroup' data-type='horizontal' class='use_master'><label for='um_"+i+"'><input id='um_"+i+"' type='checkbox' "+((controller.stations.masop[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+" /></label></td>";
                 }
             }
-            if (hasIR) list += "<td data-role='controlgroup' data-type='horizontal' class='use_master'><label for='ir_"+i+"'><input id='ir_"+i+"' type='checkbox' "+((window.controller.stations.ignore_rain[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+" /></label></td></tr>";
+            if (hasIR) list += "<td data-role='controlgroup' data-type='horizontal' class='use_master'><label for='ir_"+i+"'><input id='ir_"+i+"' type='checkbox' "+((controller.stations.ignore_rain[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+" /></label></td></tr>";
             list += "</tr>";
         }
         i++;
@@ -1953,7 +1959,7 @@ function get_status() {
         allPnames = [],
         color = "",
         list = "",
-        tz = window.controller.options.tz-48,
+        tz = controller.options.tz-48,
         lastCheck;
 
     if ($.mobile.pageContainer.pagecontainer("getActivePage").attr("id") === "status") {
@@ -1962,46 +1968,46 @@ function get_status() {
 
     tz = ((tz>=0)?"+":"-")+pad((Math.abs(tz)/4>>0))+":"+((Math.abs(tz)%4)*15/10>>0)+((Math.abs(tz)%4)*15%10);
 
-    var header = "<span id='clock-s' class='nobr'>"+dateToString(new Date(window.controller.settings.devt*1000))+"</span>"+tzToString(" ","GMT",tz);
+    var header = "<span id='clock-s' class='nobr'>"+dateToString(new Date(controller.settings.devt*1000))+"</span>"+tzToString(" ","GMT",tz);
 
-    if (typeof window.controller.settings.ct === "string" && window.controller.settings.ct !== "0" && typeof window.controller.settings.tu === "string") {
-        header += " <span>"+window.controller.settings.ct+"&deg;"+window.controller.settings.tu+"</span>";
+    if (typeof controller.settings.ct === "string" && controller.settings.ct !== "0" && typeof controller.settings.tu === "string") {
+        header += " <span>"+controller.settings.ct+"&deg;"+controller.settings.tu+"</span>";
     }
 
-    runningTotal.c = window.controller.settings.devt;
+    runningTotal.c = controller.settings.devt;
 
-    var master = window.controller.options.mas,
+    var master = controller.options.mas,
         ptotal = 0;
 
     var open = {};
-    $.each(window.controller.status, function (i, stn) {
+    $.each(controller.status, function (i, stn) {
         if (stn) open[i] = stn;
     });
     open = Object.keys(open).length;
 
-    if (master && window.controller.status[master-1]) open--;
+    if (master && controller.status[master-1]) open--;
 
-    $.each(window.controller.stations.snames,function(i, station) {
+    $.each(controller.stations.snames,function(i, station) {
         var info = "";
 
         if (master == i+1) {
             station += " ("+_("Master")+")";
-        } else if (window.controller.settings.ps[i][0]) {
-            var rem=window.controller.settings.ps[i][1];
+        } else if (controller.settings.ps[i][0]) {
+            var rem=controller.settings.ps[i][1];
             if (open > 1) {
                 if (rem > ptotal) ptotal = rem;
             } else {
-                if (window.controller.settings.ps[i][0] !== 99 && rem !== 1) ptotal+=rem;
+                if (controller.settings.ps[i][0] !== 99 && rem !== 1) ptotal+=rem;
             }
-            var pid = window.controller.settings.ps[i][0],
+            var pid = controller.settings.ps[i][0],
                 pname = pidname(pid);
-            if (window.controller.status[i] && (pid!=255&&pid!=99)) runningTotal[i] = rem;
+            if (controller.status[i] && (pid!=255&&pid!=99)) runningTotal[i] = rem;
             allPnames[i] = pname;
-            info = "<p class='rem'>"+((window.controller.status[i]) ? _("Running") : _("Scheduled"))+" "+pname;
+            info = "<p class='rem'>"+((controller.status[i]) ? _("Running") : _("Scheduled"))+" "+pname;
             if (pid!=255&&pid!=99) info += " <span id='countdown-"+i+"' class='nobr'>(" + sec2hms(rem) + " "+_("remaining")+")</span>";
             info += "</p>";
          }
-        if (window.controller.status[i]) {
+        if (controller.status[i]) {
             color = "green";
         } else {
             color = "red";
@@ -2010,19 +2016,19 @@ function get_status() {
     });
 
     var footer = "";
-    var lrdur = window.controller.settings.lrun[2];
+    var lrdur = controller.settings.lrun[2];
 
     if (lrdur !== 0) {
-        var lrpid = window.controller.settings.lrun[1];
+        var lrpid = controller.settings.lrun[1];
         var pname= pidname(lrpid);
 
-        footer = '<p>'+pname+' '+_('last ran station')+' '+window.controller.stations.snames[window.controller.settings.lrun[0]]+' '+_('for')+' '+(lrdur/60>>0)+'m '+(lrdur%60)+'s '+_('on')+' '+dateToString(new Date(window.controller.settings.lrun[3]*1000))+'</p>';
+        footer = '<p>'+pname+' '+_('last ran station')+' '+controller.stations.snames[controller.settings.lrun[0]]+' '+_('for')+' '+(lrdur/60>>0)+'m '+(lrdur%60)+'s '+_('on')+' '+dateToString(new Date(controller.settings.lrun[3]*1000))+'</p>';
     }
 
     if (ptotal > 1) {
         var scheduled = allPnames.length;
-        if (!open && scheduled) runningTotal.d = window.controller.options.sdt;
-        if (open == 1) ptotal += (scheduled-1)*window.controller.options.sdt;
+        if (!open && scheduled) runningTotal.d = controller.options.sdt;
+        if (open == 1) ptotal += (scheduled-1)*controller.options.sdt;
         allPnames = getUnique($.grep(allPnames,function(n){return(n);}));
         var numProg = allPnames.length;
         allPnames = allPnames.join(" "+_("and")+" ");
@@ -2030,9 +2036,9 @@ function get_status() {
         pinfo += "<br><span id='countdown-p' class='nobr'>("+sec2hms(ptotal)+" "+_("remaining")+")</span>";
         runningTotal.p = ptotal;
         header += "<br>"+pinfo;
-    } else if (window.controller.settings.rd) {
-        header +="<br>"+_("Rain delay until")+" "+dateToString(new Date(window.controller.settings.rdst*1000));
-    } else if (window.controller.options.urs === 1 && window.controller.settings.rs === 1) {
+    } else if (controller.settings.rd) {
+        header +="<br>"+_("Rain delay until")+" "+dateToString(new Date(controller.settings.rdst*1000));
+    } else if (controller.options.urs === 1 && controller.settings.rs === 1) {
         header +="<br>"+_("Rain detected");
     }
 
@@ -2079,7 +2085,7 @@ function get_status() {
                     }
                 } else {
                     $("#countdown-"+a).parent("p").text(_("Station delay")).parent("li").removeClass("green").addClass("red");
-                    window.timeout_id = setTimeout(refresh_status,window.controller.options.sdt*1000);
+                    window.timeout_id = setTimeout(refresh_status,controller.options.sdt*1000);
                 }
             } else {
                 if (a == "c") {
@@ -2136,8 +2142,8 @@ function check_status() {
     var open, ptotal, sample, pid, pname, line, match, tmp, i;
 
     // Handle operation disabled
-    if (!window.controller.settings.en) {
-        change_status(0,window.controller.options.sdt,"red","<p id='running-text' class='center'>"+_("System Disabled")+"</p>",function(){
+    if (!controller.settings.en) {
+        change_status(0,controller.options.sdt,"red","<p id='running-text' class='center'>"+_("System Disabled")+"</p>",function(){
             areYouSure(_("Do you want to re-enable system operation?"),"",function(){
                 showLoading("#footer-running");
                 send_to_os("/cv?pw=&en=1").done(function(){
@@ -2150,11 +2156,11 @@ function check_status() {
 
     // Handle open stations
     open = {};
-    for (i=0; i<window.controller.status.length; i++) {
-        if (window.controller.status[i]) open[i] = window.controller.status[i];
+    for (i=0; i<controller.status.length; i++) {
+        if (controller.status[i]) open[i] = controller.status[i];
     }
 
-    if (window.controller.options.mas) delete open[window.controller.options.mas-1];
+    if (controller.options.mas) delete open[controller.options.mas-1];
 
     // Handle more than 1 open station
     if (Object.keys(open).length >= 2) {
@@ -2162,20 +2168,20 @@ function check_status() {
 
         for (i in open) {
             if (open.hasOwnProperty(i)) {
-                tmp = window.controller.settings.ps[i][1];
+                tmp = controller.settings.ps[i][1];
                 if (tmp > ptotal) ptotal = tmp;
             }
         }
 
         sample = Object.keys(open)[0];
-        pid    = window.controller.settings.ps[sample][0];
+        pid    = controller.settings.ps[sample][0];
         pname  = pidname(pid);
         line   = "<div id='running-icon'></div><p id='running-text'>";
 
         line += pname+" "+_("is running on")+" "+Object.keys(open).length+" "+_("stations")+" ";
         if (pid!=255&&pid!=99) line += "<span id='countdown' class='nobr'>("+sec2hms(ptotal)+" "+_("remaining")+")</span>";
         line += "</p>";
-        change_status(ptotal,window.controller.options.sdt,"green",line,function(){
+        change_status(ptotal,controller.options.sdt,"green",line,function(){
             changePage("#status");
         });
         return;
@@ -2183,29 +2189,29 @@ function check_status() {
 
     // Handle a single station open
     match = false;
-    for (i=0; i<window.controller.stations.snames.length; i++) {
-        if (window.controller.settings.ps[i][0] && window.controller.status[i] && window.controller.options.mas != i+1) {
+    for (i=0; i<controller.stations.snames.length; i++) {
+        if (controller.settings.ps[i][0] && controller.status[i] && controller.options.mas != i+1) {
             match = true;
-            pid = window.controller.settings.ps[i][0];
+            pid = controller.settings.ps[i][0];
             pname = pidname(pid);
             line = "<div id='running-icon'></div><p id='running-text'>";
-            line += pname+" "+_("is running on station")+" <span class='nobr'>"+window.controller.stations.snames[i]+"</span> ";
-            if (pid!=255&&pid!=99) line += "<span id='countdown' class='nobr'>("+sec2hms(window.controller.settings.ps[i][1])+" "+_("remaining")+")</span>";
+            line += pname+" "+_("is running on station")+" <span class='nobr'>"+controller.stations.snames[i]+"</span> ";
+            if (pid!=255&&pid!=99) line += "<span id='countdown' class='nobr'>("+sec2hms(controller.settings.ps[i][1])+" "+_("remaining")+")</span>";
             line += "</p>";
             break;
         }
     }
 
     if (match) {
-        change_status(window.controller.settings.ps[i][1],window.controller.options.sdt,"green",line,function(){
+        change_status(controller.settings.ps[i][1],controller.options.sdt,"green",line,function(){
             changePage("#status");
         });
         return;
     }
 
     // Handle rain delay enabled
-    if (window.controller.settings.rd) {
-        change_status(0,window.controller.options.sdt,"red","<p id='running-text' class='center'>"+_("Rain delay until")+" "+dateToString(new Date(window.controller.settings.rdst*1000))+"</p>",function(){
+    if (controller.settings.rd) {
+        change_status(0,controller.options.sdt,"red","<p id='running-text' class='center'>"+_("Rain delay until")+" "+dateToString(new Date(controller.settings.rdst*1000))+"</p>",function(){
             areYouSure(_("Do you want to turn off rain delay?"),"",function(){
                 showLoading("#footer-running");
                 send_to_os("/cv?pw=&rd=0").done(function(){
@@ -2217,14 +2223,14 @@ function check_status() {
     }
 
     // Handle rain sensor triggered
-    if (window.controller.options.urs === 1 && window.controller.settings.rs === 1) {
-        change_status(0,window.controller.options.sdt,"red","<p id='running-text' class='center'>"+_("Rain detected")+"</p>");
+    if (controller.options.urs === 1 && controller.settings.rs === 1) {
+        change_status(0,controller.options.sdt,"red","<p id='running-text' class='center'>"+_("Rain detected")+"</p>");
         return;
     }
 
     // Handle manual mode enabled
-    if (window.controller.settings.mm === 1) {
-        change_status(0,window.controller.options.sdt,"red","<p id='running-text' class='center'>"+_("Manual mode enabled")+"</p>",function(){
+    if (controller.settings.mm === 1) {
+        change_status(0,controller.options.sdt,"red","<p id='running-text' class='center'>"+_("Manual mode enabled")+"</p>",function(){
             areYouSure(_("Do you want to turn off manual mode?"),"",function(){
                 showLoading("#footer-running");
                 send_to_os("/cv?pw=&mm=0").done(function(){
@@ -2276,11 +2282,11 @@ function get_manual() {
                 '</div>' +
             '</div>');
 
-    $.each(window.controller.stations.snames,function (i,station) {
-        if (window.controller.options.mas == i+1) {
+    $.each(controller.stations.snames,function (i,station) {
+        if (controller.options.mas == i+1) {
             list += '<li data-icon="false" class="center">'+station+' ('+_('Master')+')</li>';
         } else {
-            list += '<li data-icon="false"><a class="mm_station center'+((window.controller.status[i]) ? ' green' : '')+'">'+station+'</a></li>';
+            list += '<li data-icon="false"><a class="mm_station center'+((controller.status[i]) ? ' green' : '')+'">'+station+'</a></li>';
         }
     });
 
@@ -2289,7 +2295,7 @@ function get_manual() {
         '<ul data-role="listview" data-inset="true">'+
                 '<li class="ui-field-contain">'+
                     '<label for="mmm"><b>'+_('Manual Mode')+'</b></label>'+
-                    '<input type="checkbox" data-on-text="On" data-off-text="Off" data-role="flipswitch" name="mmm" id="mmm"'+(window.controller.settings.mm ? ' checked' : '')+'>'+
+                    '<input type="checkbox" data-on-text="On" data-off-text="Off" data-role="flipswitch" name="mmm" id="mmm"'+(controller.settings.mm ? ' checked' : '')+'>'+
                 '</li>'+
             '</ul>',
         '<ul data-role="listview" data-inset="true" id="mm_list">'+list+'</ul>'
@@ -2307,7 +2313,7 @@ function get_manual() {
 }
 
 function toggle() {
-    if (!window.controller.settings.mm) {
+    if (!controller.settings.mm) {
         showerror(_("Manual mode is not enabled. Please enable manual mode then try again."));
         return false;
     }
@@ -2359,13 +2365,13 @@ function get_runonce() {
     runonce.find("div[data-role='header'] > .ui-btn-right").on("click",submit_runonce);
 
     progs = [];
-    if (window.controller.programs.pd.length) {
-        for (z=0; z < window.controller.programs.pd.length; z++) {
-            program = read_program(window.controller.programs.pd[z]);
+    if (controller.programs.pd.length) {
+        for (z=0; z < controller.programs.pd.length; z++) {
+            program = read_program(controller.programs.pd[z]);
             var prog = [],
                 set_stations = program.stations.split("");
 
-            for (i=0;i<window.controller.stations.snames.length;i++) {
+            for (i=0;i<controller.stations.snames.length;i++) {
                 prog.push((parseInt(set_stations[i])) ? program.duration : 0);
             }
             progs.push(prog);
@@ -2379,7 +2385,7 @@ function get_runonce() {
     }
     quickPick += "</select>";
     list += quickPick+"<form>";
-    $.each(window.controller.stations.snames,function(i, station) {
+    $.each(controller.stations.snames,function(i, station) {
         list += "<div class='ui-field-contain duration-input'><label for='zone-"+n+"'>"+station+":</label><button data-mini='true' name='zone-"+n+"' id='zone-"+n+"' value='0'>0s</button></div>";
         n++;
     });
@@ -2489,30 +2495,30 @@ function get_preview() {
 
     process_programs = function (month,day,year) {
         preview_data = [];
-        var devday = Math.floor(window.controller.settings.devt/(60*60*24)),
+        var devday = Math.floor(controller.settings.devt/(60*60*24)),
             simminutes = 0,
             simt = Date.UTC(year,month-1,day,0,0,0,0),
             simday = (simt/1000/3600/24)>>0,
-            st_array = new Array(window.controller.settings.nbrd*8),
-            pid_array = new Array(window.controller.settings.nbrd*8),
-            et_array = new Array(window.controller.settings.nbrd*8),
+            st_array = new Array(controller.settings.nbrd*8),
+            pid_array = new Array(controller.settings.nbrd*8),
+            et_array = new Array(controller.settings.nbrd*8),
             busy, match_found, prog;
 
-        for(var sid=0;sid<window.controller.settings.nbrd;sid++) {
+        for(var sid=0;sid<controller.settings.nbrd;sid++) {
             st_array[sid]=0;pid_array[sid]=0;et_array[sid]=0;
         }
 
         do {
             busy=0;
             match_found=0;
-            for(var pid=0;pid<window.controller.programs.pd.length;pid++) {
-              prog=window.controller.programs.pd[pid];
+            for(var pid=0;pid<controller.programs.pd.length;pid++) {
+              prog=controller.programs.pd[pid];
               if(check_match(prog,simminutes,simt,simday,devday)) {
-                for(sid=0;sid<window.controller.settings.nbrd*8;sid++) {
+                for(sid=0;sid<controller.settings.nbrd*8;sid++) {
                   var bid=sid>>3;var s=sid%8;
-                  if(window.controller.options.mas==(sid+1)) continue; // skip master station
+                  if(controller.options.mas==(sid+1)) continue; // skip master station
                   if(prog[7+bid]&(1<<s)) {
-                    et_array[sid]=prog[6]*window.controller.options.wl/100>>0;pid_array[sid]=pid+1;
+                    et_array[sid]=prog[6]*controller.options.wl/100>>0;pid_array[sid]=pid+1;
                     match_found=1;
                   }
                 }
@@ -2520,16 +2526,16 @@ function get_preview() {
             }
             if(match_found) {
               var acctime=simminutes*60;
-              if(window.controller.options.seq) {
-                for(sid=0;sid<window.controller.settings.nbrd*8;sid++) {
+              if(controller.options.seq) {
+                for(sid=0;sid<controller.settings.nbrd*8;sid++) {
                   if(et_array[sid]) {
                     st_array[sid]=acctime;acctime+=et_array[sid];
-                    et_array[sid]=acctime;acctime+=window.controller.options.sdt;
+                    et_array[sid]=acctime;acctime+=controller.options.sdt;
                     busy=1;
                   }
                 }
               } else {
-                for(sid=0;sid<window.controller.settings.nbrd*8;sid++) {
+                for(sid=0;sid<controller.settings.nbrd*8;sid++) {
                   if(et_array[sid]) {
                     st_array[sid]=simminutes*60;
                     et_array[sid]=simminutes*60+et_array[sid];
@@ -2540,9 +2546,9 @@ function get_preview() {
             }
             if (busy) {
               var endminutes=run_sched(simminutes*60,st_array,pid_array,et_array,simt)/60>>0;
-              if(window.controller.options.seq&&simminutes!=endminutes) simminutes=endminutes;
+              if(controller.options.seq&&simminutes!=endminutes) simminutes=endminutes;
               else simminutes++;
-              for(sid=0;sid<window.controller.settings.nbrd*8;sid++) {st_array[sid]=0;pid_array[sid]=0;et_array[sid]=0;}
+              for(sid=0;sid<controller.settings.nbrd*8;sid++) {st_array[sid]=0;pid_array[sid]=0;et_array[sid]=0;}
             } else {
               simminutes++;
             }
@@ -2577,13 +2583,13 @@ function get_preview() {
 
     run_sched = function (simseconds,st_array,pid_array,et_array,simt) {
         var endtime=simseconds;
-        for(var sid=0;sid<window.controller.settings.nbrd*8;sid++) {
+        for(var sid=0;sid<controller.settings.nbrd*8;sid++) {
             if(pid_array[sid]) {
-                if(window.controller.options.seq==1) {
-                    if((window.controller.options.mas>0)&&(window.controller.options.mas!=sid+1)&&(window.controller.stations.masop[sid>>3]&(1<<(sid%8))))
+                if(controller.options.seq==1) {
+                    if((controller.options.mas>0)&&(controller.options.mas!=sid+1)&&(controller.stations.masop[sid>>3]&(1<<(sid%8))))
                     preview_data.push({
-                        'start': (st_array[sid]+window.controller.options.mton),
-                        'end': (et_array[sid]+window.controller.options.mtof),
+                        'start': (st_array[sid]+controller.options.mton),
+                        'end': (et_array[sid]+controller.options.mtof),
                         'content':'',
                         'className':'master',
                         'shortname':'M',
@@ -2593,12 +2599,12 @@ function get_preview() {
                     endtime=et_array[sid];
                 } else {
                     time_to_text(sid,simseconds,pid_array[sid],et_array[sid],simt);
-                    if((window.controller.options.mas>0)&&(window.controller.options.mas!=sid+1)&&(window.controller.stations.masop[sid>>3]&(1<<(sid%8))))
+                    if((controller.options.mas>0)&&(controller.options.mas!=sid+1)&&(controller.stations.masop[sid>>3]&(1<<(sid%8))))
                     endtime=(endtime>et_array[sid])?endtime:et_array[sid];
                 }
             }
         }
-        if(window.controller.options.seq===0&&window.controller.options.mas>0) {
+        if(controller.options.seq===0&&controller.options.mas>0) {
             preview_data.push({
                 'start': simseconds,
                 'end': endtime,
@@ -2614,14 +2620,14 @@ function get_preview() {
     time_to_text = function (sid,start,pid,end,simt) {
         var className = "program-"+((pid+3)%4);
 
-        if ((window.controller.settings.rd!==0)&&(simt+start+(window.controller.options.tz-48)*900<=window.controller.settings.rdst)) className="delayed";
+        if ((controller.settings.rd!==0)&&(simt+start+(controller.options.tz-48)*900<=controller.settings.rdst)) className="delayed";
         preview_data.push({
             'start': start,
             'end': end,
             'className':className,
             'content':'P'+pid,
             'shortname':'S'+(sid+1),
-            'group': window.controller.stations.snames[sid]
+            'group': controller.stations.snames[sid]
         });
     };
 
@@ -2794,22 +2800,22 @@ function get_logs() {
 
             switch (grouping) {
                     case "h":
-                        for (i=0; i<window.controller.stations.snames.length; i++) {
+                        for (i=0; i<controller.stations.snames.length; i++) {
                             sortedData[i] = [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0],[11,0],[12,0],[13,0],[14,0],[15,0],[16,0],[17,0],[18,0],[19,0],[20,0],[21,0],[22,0],[23,0]];
                         }
                         break;
                     case "m":
-                        for (i=0; i<window.controller.stations.snames.length; i++) {
+                        for (i=0; i<controller.stations.snames.length; i++) {
                             sortedData[i] = [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0],[11,0]];
                         }
                         break;
                     case "d":
-                        for (i=0; i<window.controller.stations.snames.length; i++) {
+                        for (i=0; i<controller.stations.snames.length; i++) {
                             sortedData[i] = [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0]];
                         }
                         break;
                     case "n":
-                        for (i=0; i<window.controller.stations.snames.length; i++) {
+                        for (i=0; i<controller.stations.snames.length; i++) {
                             sortedData[i] = [];
                         }
                         break;
@@ -2922,8 +2928,8 @@ function get_logs() {
             graph_sort.show();
             if (!freshLoad) {
                 var output = '<div class="ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border" id="graphScrollLeft"></div><div class="ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border" id="graphScrollRight"></div><table class="smaller"><tbody><tr>';
-                for (i=0; i<window.controller.stations.snames.length; i++) {
-                    output += '<td class="legendColorBox"><div><div></div></div></td><td id="z'+i+'" zone_num='+i+' name="'+window.controller.stations.snames[i] + '" class="legendLabel">'+window.controller.stations.snames[i]+'</td>';
+                for (i=0; i<controller.stations.snames.length; i++) {
+                    output += '<td class="legendColorBox"><div><div></div></div></td><td id="z'+i+'" zone_num='+i+' name="'+controller.stations.snames[i] + '" class="legendLabel">'+controller.stations.snames[i]+'</td>';
                 }
                 output += '</tr></tbody></table>';
                 zones.empty().append(output).enhanceWithin();
@@ -2968,7 +2974,7 @@ function get_logs() {
             graph_sort.hide();
             logs_list.show();
 
-            for (i=0; i<window.controller.stations.snames.length; i++) {
+            for (i=0; i<controller.stations.snames.length; i++) {
                 sortedData[i] = [];
             }
 
@@ -2979,7 +2985,7 @@ function get_logs() {
             for (i=0; i<sortedData.length; i++) {
                 ct=sortedData[i].length;
                 if (ct === 0) continue;
-                html += "<div data-role='collapsible' data-collapsed='true'><h2><div class='ui-btn-up-c ui-btn-corner-all custom-count-pos'>"+ct+" "+((ct == 1) ? _("run") : _("runs"))+"</div>"+window.controller.stations.snames[i]+"</h2>"+table_header;
+                html += "<div data-role='collapsible' data-collapsed='true'><h2><div class='ui-btn-up-c ui-btn-corner-all custom-count-pos'>"+ct+" "+((ct == 1) ? _("run") : _("runs"))+"</div>"+controller.stations.snames[i]+"</h2>"+table_header;
                 for (k=0; k<sortedData[i].length; k++) {
                     var mins = Math.round(sortedData[i][k][1]/60);
                     var date = new Date(sortedData[i][k][0]);
@@ -3039,7 +3045,7 @@ function get_logs() {
                 send_to_os("/jl?"+parms(),"json").then(success,fail);
             },delay);
         },
-        i;
+        logtimeout, hovertimeout, i;
 
     logs.find("input").blur();
     $.mobile.loading("show");
@@ -3057,8 +3063,8 @@ function get_logs() {
         $("#log_start,#log_end").on("blur",requestData);
     } else {
         $("#log_start,#log_end").change(function(){
-            clearTimeout(window.logtimeout);
-            window.logtimeout = setTimeout(requestData,1000);
+            clearTimeout(logtimeout);
+            logtimeout = setTimeout(requestData,1000);
         });
     }
 
@@ -3074,8 +3080,8 @@ function get_logs() {
     //Show tooltip (station name) when point is clicked on the graph
     placeholder.on("plothover",function(e,p,item) {
         $("#tooltip").remove();
-        clearTimeout(window.hovertimeout);
-        if (item) window.hovertimeout = setTimeout(function(){showTooltip(item.pageX, item.pageY, item.series.label, item.series.color);}, 100);
+        clearTimeout(hovertimeout);
+        if (item) hovertimeout = setTimeout(function(){showTooltip(item.pageX, item.pageY, item.series.label, item.series.color);}, 100);
     });
 
     logs.one("pagehide",function(){
@@ -3126,7 +3132,7 @@ function get_programs(pid) {
         programs.remove();
     })
     .one("pagebeforeshow",function(){
-        if (typeof pid !== "number" && window.controller.programs.pd.length === 1) pid = 0;
+        if (typeof pid !== "number" && controller.programs.pd.length === 1) pid = 0;
 
         if (typeof pid === "number") {
             programs.find("fieldset[data-collapsed='false']").collapsible("collapse");
@@ -3229,7 +3235,7 @@ function read_program(program) {
     newdata.interval = program[5];
     newdata.duration = program[6];
 
-    for (var n=0; n < window.controller.programs.nboards; n++) {
+    for (var n=0; n < controller.programs.nboards; n++) {
         var bits = program[7+n];
         for (var s=0; s < 8; s++) {
             stations += (bits&(1<<s)) ? "1" : "0";
@@ -3275,7 +3281,7 @@ function update_program_header() {
     $("#programs_list").find("[id^=program-]").each(function(a,b){
         var item = $(b),
             heading = item.find(".ui-collapsible-heading-toggle"),
-            en = window.controller.programs.pd[a][0];
+            en = controller.programs.pd[a][0];
 
         if (en) {
             heading.removeClass("red");
@@ -3287,11 +3293,11 @@ function update_program_header() {
 
 //Make the list of all programs
 function make_all_programs() {
-    if (window.controller.programs.pd.length === 0) {
+    if (controller.programs.pd.length === 0) {
         return "<p class='center'>"+_("You have no programs currently added. Tap the Add button on the top right corner to get started.")+"</p>";
     }
     var list = "<p class='center'>"+_("Click any program below to expand/edit. Be sure to save changes by hitting submit below.")+"</p><div data-role='collapsible-set'>";
-    for (var i = 0; i < window.controller.programs.pd.length; i++) {
+    for (var i = 0; i < controller.programs.pd.length; i++) {
         list += "<fieldset id='program-"+i+"' data-role='collapsible'><legend>"+_("Program")+" "+(i+1)+"</legend>";
         list += "</fieldset>";
     }
@@ -3315,7 +3321,7 @@ function make_program(n) {
     if (n === "new") {
         program = {"en":0,"is_interval":0,"is_even":0,"is_odd":0,"duration":0,"interval":0,"start":0,"end":0,"days":[0,0]};
     } else {
-        program = read_program(window.controller.programs.pd[n]);
+        program = read_program(controller.programs.pd[n]);
     }
 
     if (typeof program.days === "string") {
@@ -3352,8 +3358,8 @@ function make_program(n) {
     list += "</div>";
 
     list += "<fieldset data-role='controlgroup'><legend>"+_("Stations:")+"</legend>";
-    for (j=0; j<window.controller.stations.snames.length; j++) {
-        list += "<label for='station_"+j+"-"+n+"'><input data-mini='true' type='checkbox' "+(((typeof set_stations !== "undefined") && set_stations[j]) ? "checked='checked'" : "")+" name='station_"+j+"-"+n+"' id='station_"+j+"-"+n+"'>"+window.controller.stations.snames[j]+"</label>";
+    for (j=0; j<controller.stations.snames.length; j++) {
+        list += "<label for='station_"+j+"-"+n+"'><input data-mini='true' type='checkbox' "+(((typeof set_stations !== "undefined") && set_stations[j]) ? "checked='checked'" : "")+" name='station_"+j+"-"+n+"' id='station_"+j+"-"+n+"'>"+controller.stations.snames[j]+"</label>";
     }
     list += "</fieldset>";
 
@@ -3548,7 +3554,7 @@ function raindelay() {
 
 // Export and Import functions
 function export_config() {
-    storage.set({"backup":JSON.stringify(window.controller)},function(){
+    storage.set({"backup":JSON.stringify(controller)},function(){
         showerror(_("Backup saved on this device"));
     });
 }
@@ -3639,19 +3645,19 @@ function import_config(data) {
 
 // OSPi functions
 function isOSPi() {
-    if (window.controller && typeof window.controller.options.fwv == "string" && window.controller.options.fwv.search(/ospi/i) !== -1) return true;
+    if (controller && typeof controller.options.fwv == "string" && controller.options.fwv.search(/ospi/i) !== -1) return true;
     return false;
 }
 
 function checkWeatherPlugin() {
     var weather_settings = $(".weather_settings");
 
-    window.curr_wa = [];
+    curr_wa = [];
     weather_settings.hide();
     if (isOSPi()) {
         send_to_os("/wj","json").done(function(results){
             if (typeof results.auto_delay === "string") {
-                window.curr_wa = results;
+                curr_wa = results;
                 weather_settings.css("display","");
             }
         });
@@ -4018,8 +4024,8 @@ function pad(number) {
 //Localization functions
 function _(key) {
     //Translate item (key) based on currently defined language
-    if (typeof window.language === "object" && window.language.hasOwnProperty(key)) {
-        var trans = window.language[key];
+    if (typeof language === "object" && language.hasOwnProperty(key)) {
+        var trans = language[key];
         return trans ? trans : key;
     } else {
         //If English
@@ -4049,7 +4055,7 @@ function set_lang() {
 
 function update_lang(lang) {
     //Empty out the current language (English is provided as the key)
-    window.language = {};
+    language = {};
 
     if (typeof lang == "undefined") {
         storage.get("lang",function(data){
@@ -4071,7 +4077,7 @@ function update_lang(lang) {
     }
 
     $.getJSON("locale/"+lang+".json",function(store){
-        window.language = store.messages;
+        language = store.messages;
         set_lang();
     }).fail(set_lang);
 }
