@@ -17,13 +17,11 @@ if (isIEMobile) {
     document.head.appendChild(a);
 }
 
-//Attach FastClick handler
-$(window).one("load", function(){
-    FastClick.attach(document.body);
-});
-
 $(document)
 .ready(function() {
+    //Attach FastClick handler
+    FastClick.attach(document.body);
+
     //Update the language on the page using the browser's locale
     update_lang();
 
@@ -1560,6 +1558,8 @@ function update_yahoo_weather() {
             },1000).show();
 
             update_yahoo_forecast(data.query.results.channel.item.forecast,loc[1],region,now);
+
+            $.mobile.document.trigger("weatherUpdateComplete");
         }).retry({times:retryCount, statusCodes: [0]}).fail(weather_update_failed);
     }).retry({times:retryCount, statusCodes: [0]}).fail(weather_update_failed);
 }
@@ -1618,6 +1618,8 @@ function update_wunderground_weather(wapikey) {
         },1000).show();
 
         update_wunderground_forecast(ww_forecast);
+
+        $.mobile.document.trigger("weatherUpdateComplete");
     }).retry({times:retryCount, statusCodes: [0]}).fail(weather_update_failed);
 }
 
@@ -1655,9 +1657,15 @@ function update_wunderground_forecast(data) {
 
 function show_forecast() {
     var page = $("#forecast");
-    page.find(".ui-header > .ui-btn-right").on("click",update_weather);
+    page.find("div[data-role='header'] > .ui-btn-right").on("click",function(){
+        $.mobile.loading("show");
+        $.mobile.document.one("weatherUpdateComplete",function(){
+            $.mobile.loading("hide");
+        });
+        update_weather();
+    });
     page.one("pagehide",function(){
-        page.find(".ui-header > .ui-btn-right").off("click");
+        page.find("div[data-role='header'] > .ui-btn-right").off("click");
     });
     changePage("#forecast");
     return false;
@@ -2101,14 +2109,17 @@ function get_status() {
 }
 
 function refresh_status() {
+    var page = $(".ui-page-active").attr("id");
+
+    if (page == "status") $.mobile.loading("show");
+
     $.when(
         update_controller_status(),
         update_controller_settings()
     ).then(function(){
-        var page = $(".ui-page-active").attr("id");
-
         if (page == "status") {
             get_status();
+            $.mobile.loading("hide");
         } else if (page == "sprinklers") {
             removeTimers();
             check_status();
