@@ -98,6 +98,7 @@
       "Scan For Device" : "Buscando Dispositivo",
       "Manually Add Device" : "Añadir Dispositivo Manualmente",
       "Station name must be 32 characters or less" : "El nombre de la estación debe tener 32 caracteres o menos.",
+      "Connecting to" : "Conectando con",
       "Auto Reconnect" : "Auto Reconectar",
       "Reset" : "Restablecer",
       "Options" : "Opciones",
