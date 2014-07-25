@@ -759,7 +759,7 @@ function check_configured(firstLoad) {
             return;
         }
 
-        update_site_list(names);
+        update_site_list(names,current);
 
         curr_ip = sites[current].os_ip;
         curr_pw = sites[current].os_pw;
@@ -837,7 +837,7 @@ function submit_newuser(ssl,useAuth) {
                     "sites": JSON.stringify(sites),
                     "current_site": name
                 },function(){
-                    update_site_list(Object.keys(sites));
+                    update_site_list(Object.keys(sites),name);
                     newload();
                 });
             } else {
@@ -1140,7 +1140,7 @@ function delete_site(site) {
 
             delete sites[site];
             storage.set({"sites":JSON.stringify(sites)},function(){
-                update_site_list(Object.keys(sites));
+                update_site_list(Object.keys(sites),data.current_site);
                 if ($.isEmptyObject(sites)) {
                     changePage("#start");
                     return false;
@@ -1172,7 +1172,7 @@ function change_site(site) {
             delete sites[site];
             site = nm;
             storage.set({"current_site":site});
-            update_site_list(Object.keys(sites));
+            update_site_list(Object.keys(sites),site);
         }
 
         storage.set({"sites":JSON.stringify(sites)});
@@ -1189,18 +1189,16 @@ function change_site(site) {
 }
 
 // Update the panel list of sites
-function update_site_list(names) {
+function update_site_list(names,current) {
     var list = "",
         select = $("#site-selector");
 
-    storage.get("current_site",function(data){
-        $.each(names,function(a,b){
-            list += "<option "+(b==data.current_site ? "selected ":"")+"value='"+b+"'>"+b+"</option>";
-        });
-
-        select.html(list);
-        if (select.parent().parent().hasClass("ui-select")) select.selectmenu("refresh");
+    $.each(names,function(a,b){
+        list += "<option "+(b==current ? "selected ":"")+"value='"+b+"'>"+b+"</option>";
     });
+
+    select.html(list);
+    if (select.parent().parent().hasClass("ui-select")) select.selectmenu("refresh");
 }
 
 // Change the current site
