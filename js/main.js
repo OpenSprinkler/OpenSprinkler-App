@@ -117,7 +117,14 @@ $(document)
     checkAutoScan();
 
     $.mobile.document.on("backbutton",function(){
-        goBack();
+        var page = $(".ui-page-active").atrr("id"),
+            managerStart = $("#site-control").find(".ui-btn-left").is(':visible');
+
+        if (page == "sprinklers" || page == "start" || managerStart) {
+            navigator.app.exitApp();
+        } else {
+            goBack();
+        }
         return false;
     });
 })
