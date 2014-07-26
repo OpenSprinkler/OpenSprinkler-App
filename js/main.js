@@ -3852,7 +3852,7 @@ function showLoading(ele) {
 }
 
 function goBack(keepIndex) {
-    var page = $(".ui-page-active").atrr("id"),
+    var page = $(".ui-page-active").attr("id"),
         managerStart = $("#site-control").find(".ui-btn-left").is(':visible');
 
     if (page == "sprinklers" || page == "start" || (page == "site-control" && !managerStart)) {
