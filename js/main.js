@@ -1,10 +1,10 @@
 /*jshint bitwise: false*/
-/*global $, chrome, FastClick, StatusBar, networkinterface, links, escape */
+/*global $, navigator, chrome, FastClick, StatusBar, networkinterface, links, escape */
 var isIEMobile = /IEMobile/.test(navigator.userAgent),
     isAndroid = /Android|\bSilk\b/.test(navigator.userAgent),
     isiOS = /iP(ad|hone|od)/.test(navigator.userAgent),
     isFireFoxOS = /^.*?\Mobile\b.*?\Firefox\b.*?$/m.test(navigator.userAgent),
-    isChromeApp = typeof chrome == "object" && typeof chrome.storage == "object",
+    isChromeApp = typeof chrome === "object" && typeof chrome.storage === "object",
     retryCount = 3,
     controller = {},
     switching = false,
