@@ -83,7 +83,6 @@ $(document)
 
     //Change history method for Chrome Packaged Apps
     if (isChromeApp) {
-
         $.mobile.document.on("click",".ui-toolbar-back-btn",function(){
             goBack();
             return false;

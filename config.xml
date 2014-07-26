@@ -12,6 +12,7 @@
         <preference name="WebSecurity" value="disable"/>
         <preference name="AutoHideSplashScreen" value="false" />
         <preference name="SplashScreenDelay" value="10000"/>
+        <preference name="ShowSplashScreenSpinner" value="false" />
 
         <feature name="http://api.phonegap.com/1.0/network"/>
 
