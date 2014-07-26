@@ -95,6 +95,11 @@ $(document)
             window.open(this.href,"_system",'enableViewportScale=yes');
             return false;
         });
+    } else if (isAndroid) {
+        $(".iab").on("click",function(){
+            window.open(this.href,"_blank","enableViewportScale=yes");
+            return false;
+        });
     }
 })
 .one("deviceready", function() {
