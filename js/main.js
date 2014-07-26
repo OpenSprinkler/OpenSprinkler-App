@@ -11,11 +11,9 @@ var isIEMobile = /IEMobile/.test(navigator.userAgent),
     curr_183, curr_ip, curr_prefix, curr_auth, curr_pw, curr_wa, curr_session, curr_auth_user, curr_auth_pw, language, deviceip, storage;
 
 //Fix CSS for IE Mobile (Windows Phone 8)
-if (isIEMobile) {
-    var a=document.createElement("style");
-    a.innerHTML="ul{list-style: none !important;}@media(max-width:940px){.wicon{margin:-10px -10px -15px -15px !important}#forecast .wicon{position:relative;left:37.5px;margin:0 auto !important}}";
-    document.head.appendChild(a);
-}
+if (isIEMobile) insertStyle("ul{list-style: none !important;}@media(max-width:940px){.wicon{margin:-10px -10px -15px -15px !important}#forecast .wicon{position:relative;left:37.5px;margin:0 auto !important}}");
+
+if (isChromeApp) insertStyle("html,body{overflow-y:scroll}");
 
 $(document)
 .ready(function() {
@@ -3853,9 +3851,9 @@ function showLoading(ele) {
 
 function goBack(keepIndex) {
     var page = $(".ui-page-active").attr("id"),
-        managerStart = $("#site-control").find(".ui-btn-left").is(':visible');
+        managerStart = (page == "site-control" && !$("#site-control").find(".ui-btn-left").is(':visible'));
 
-    if (page == "sprinklers" || page == "start" || (page == "site-control" && !managerStart)) {
+    if (page == "sprinklers" || page == "start" || managerStart) {
         navigator.app.exitApp();
     } else {
         changePage($.mobile.navigate.history.getPrev().url);
@@ -3899,6 +3897,13 @@ function fixInputClick(page) {
             ele.attr("href","#"+id.slice(0,-6)+"listbox");
         });
     }
+}
+
+// Insert style string into the DOM
+function insertStyle(style) {
+    var a=document.createElement("style");
+    a.innerHTML=style;
+    document.head.appendChild(a);
 }
 
 // Convert all elements in array to integer
