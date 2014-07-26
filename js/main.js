@@ -116,14 +116,7 @@ $(document)
     checkAutoScan();
 
     $.mobile.document.on("backbutton",function(){
-        var page = $(".ui-page-active").atrr("id"),
-            managerStart = $("#site-control").find(".ui-btn-left").is(':visible');
-
-        if (page == "sprinklers" || page == "start" || managerStart) {
-            navigator.app.exitApp();
-        } else {
-            goBack();
-        }
+        goBack();
         return false;
     });
 })
@@ -3859,10 +3852,17 @@ function showLoading(ele) {
 }
 
 function goBack(keepIndex) {
-    changePage($.mobile.navigate.history.getPrev().url);
-    $.mobile.document.one("pagehide",function(){
-        if (!keepIndex) $.mobile.navigate.history.activeIndex -= 2;
-    });
+    var page = $(".ui-page-active").atrr("id"),
+        managerStart = $("#site-control").find(".ui-btn-left").is(':visible');
+
+    if (page == "sprinklers" || page == "start" || (page == "site-control" && !managerStart)) {
+        navigator.app.exitApp();
+    } else {
+        changePage($.mobile.navigate.history.getPrev().url);
+        $.mobile.document.one("pagehide",function(){
+            if (!keepIndex) $.mobile.navigate.history.activeIndex -= 2;
+        });
+    }
 }
 
 // show error message
