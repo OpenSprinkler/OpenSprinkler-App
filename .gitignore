@@ -2,3 +2,5 @@
 build/chrome/*
 build/firefoxos/*
 build/blackberry10/*
+project.xcworkspace/
+xcuserdata/
