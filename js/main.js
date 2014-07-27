@@ -2836,26 +2836,23 @@ function get_logs() {
                 var stamp = parseInt(b[3] * 1000),
                     station = parseInt(b[1]),
                     date = new Date(stamp),
-                    newdate = date,
                     duration = parseInt(b[2]/60),
                     key;
 
                 switch (grouping) {
                     case "h":
-                        key = date.getHours();
+                        key = date.getUTCHours();
                         break;
                     case "m":
-                        key = date.getMonth() + 1;
+                        key = date.getUTCMonth() + 1;
                         break;
                     case "d":
-                        key = date.getDay();
+                        key = date.getUTCDay();
                         break;
                     case "n":
-                        newdate.setMinutes(date.getMinutes()-date.getTimezoneOffset());
-                        stamp = newdate.getTime();
-                        sortedData[station].push([stamp-1,0]);
+                        sortedData[station].push([stamp-1000,0]);
                         sortedData[station].push([stamp,duration]);
-                        sortedData[station].push([stamp+(duration*100*1000)+1,0]);
+                        sortedData[station].push([stamp+(duration*60*1000),0]);
                         break;
                 }
 
@@ -2990,7 +2987,10 @@ function get_logs() {
             }
 
             $.each(data,function(a,b){
-                sortedData[parseInt(b[1])].push([parseInt(b[3] * 1000),parseInt(b[2])]);
+                var date = new Date(parseInt(b[3] * 1000)),
+                    utc = new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(),  date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds());
+
+                sortedData[parseInt(b[1])].push([utc.getTime(),parseInt(b[2])]);
             });
 
             for (i=0; i<sortedData.length; i++) {
