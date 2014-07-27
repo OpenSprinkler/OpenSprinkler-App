@@ -1,7 +1,4 @@
-USER="sprinklers"
-read -s -p "Password for $USER: " PASS
-
-curl --user $USER:$PASS https://api.getlocalization.com/Sprinklers/api/translations/zip/ -o langs.zip
+curl --user $1:$2 https://api.getlocalization.com/Sprinklers/api/translations/zip/ -o langs.zip
 unzip langs.zip
 rm langs.zip
 find . -type f -maxdepth 1 -iname "messages_*.po" -print0 | while IFS= read -r -d $'\0' line; do
