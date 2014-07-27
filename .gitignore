@@ -1,4 +1,5 @@
 .DS_Store
+.secrets.json
 node_modules
 build/chrome/*
 build/firefoxos/*

@@ -3,12 +3,33 @@ module.exports = function(grunt) {
   // Load node-modules;
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-text-replace');
+  grunt.loadNpmTasks('grunt-shell');
 
   // Project configuration.
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
+    secrets: grunt.file.readJSON('.secrets.json'),
     jshint: {
-    	src: ["js/main.js"]
+    	main: ["<%= pkg.main %>"]
+    },
+    shell: {
+      updateLang: {
+          command: "tasks/updatelang.sh <%= secrets.getLocalization.username %> <%= secrets.getLocalization.password %>",
+          stdout: false
+      },
+      chrome: {
+          command: "tasks/chrome.sh",
+          stdout: false
+      },
+      firefox: {
+          command: "tasks/firefox.sh",
+          stdout: false,
+          stderr: false
+      },
+      blackberry10: {
+          command: "tasks/blackberry10.sh",
+          stdout: false
+      }
     },
     replace: {
       index: {
@@ -45,5 +66,7 @@ module.exports = function(grunt) {
 
   // Default task(s).
   grunt.registerTask('default',['jshint']);
+  grunt.registerTask('updateLang',['shell:updateLang']);
+  grunt.registerTask('build',['updateLang','jshint','shell:firefox','shell:chrome','shell:blackberry10']);
 
 };
