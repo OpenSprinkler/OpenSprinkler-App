@@ -5,6 +5,13 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-text-replace');
   grunt.loadNpmTasks('grunt-shell');
 
+  var bumpVersion = function(version,level) {
+    version = version.split(".") || [0,0,0];
+    level = level || 2;
+    version[level]++;
+    return version.join(".");
+  }
+
   // Project configuration.
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
@@ -14,21 +21,16 @@ module.exports = function(grunt) {
     },
     shell: {
       updateLang: {
-          command: "tasks/updatelang.sh <%= secrets.getLocalization.username %> <%= secrets.getLocalization.password %>",
-          stdout: false
+          command: "tasks/updatelang.sh <%= secrets.getLocalization.username %> <%= secrets.getLocalization.password %>"
       },
       chrome: {
-          command: "tasks/chrome.sh",
-          stdout: false
+          command: "tasks/chrome.sh"
       },
       firefox: {
-          command: "tasks/firefox.sh",
-          stdout: false,
-          stderr: false
+          command: "tasks/firefox.sh"
       },
       blackberry10: {
-          command: "tasks/blackberry10.sh",
-          stdout: false
+          command: "tasks/blackberry10.sh"
       }
     },
     replace: {
@@ -36,16 +38,20 @@ module.exports = function(grunt) {
         src: ['index.html'],
         overwrite: true,
         replacements: [{
-          from: /<p>Version: [\d|\.]+<\/p>/g,
-          to: "<p>Version: <%= pkg.version %></p>"
+          from: /<p>Version: ([\d|\.]+)<\/p>/g,
+          to: function(matchedWord, index, fullText, regexMatches){
+            return "<p>Version: "+bumpVersion(regexMatches[0])+"</p>";
+          }
         }]
       },
       phonegap: {
         src: ['config.xml'],
         overwrite: true,
         replacements: [{
-          from: /version     = "[\d|\.]+"/g,
-          to: "version     = \"<%= pkg.version %>\""
+          from: /version     = "([\d|\.]+)"/g,
+          to: function(matchedWord, index, fullText, regexMatches){
+            return "version     = \""+bumpVersion(regexMatches[0])+"\"";
+          }
         },{
           from: /versionCode = "(\d+)"/g,
           to: function(matchedWord, index, fullText, regexMatches) {
@@ -54,11 +60,13 @@ module.exports = function(grunt) {
         }]
       },
       manifests: {
-        src: ['manifest.json','manifest.webapp'],
+        src: ['manifest.json','manifest.webapp','package.json'],
         overwrite: true,
         replacements: [{
-          from: /"version": "[\d|\.]+"/g,
-          to: "\"version\": \"<%= pkg.version %>\""
+          from: /"version": "([\d|\.]+)"/g,
+          to: function(matchedWord, index, fullText, regexMatches){
+            return "\"version\": \""+bumpVersion(regexMatches[0])+"\"";
+          }
         }]
       }
     }
@@ -66,6 +74,7 @@ module.exports = function(grunt) {
 
   // Default task(s).
   grunt.registerTask('default',['jshint']);
+  grunt.registerTask('bump',['replace']);
   grunt.registerTask('updateLang',['shell:updateLang']);
   grunt.registerTask('build',['updateLang','jshint','shell:firefox','shell:chrome','shell:blackberry10']);
 
