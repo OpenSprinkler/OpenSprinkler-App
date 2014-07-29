@@ -188,7 +188,7 @@ $(document)
         } else if (hash === "#os-stations") {
             show_stations();
         } else if (hash === "#site-control") {
-            show_sites();
+            show_sites(data.options.showBack);
         } else if (hash === "#weather_settings") {
             show_weather_settings();
         } else if (hash === "#addnew") {
@@ -539,7 +539,7 @@ function newload() {
             }
         },
         function(){
-            changePage("#site-control");
+            changePage("#site-control",{"showBack": false});
         }
     );
 }
@@ -777,7 +777,7 @@ function check_configured(firstLoad) {
 
         if (current === null || !(current in sites)) {
             $.mobile.loading("hide");
-            changePage("#site-control");
+            changePage("#site-control",{"showBack": false});
             return;
         }
 
@@ -1090,7 +1090,7 @@ function show_addnew(autoIP,closeOld) {
     });
 }
 
-function show_sites() {
+function show_sites(showBack) {
     var page = $("<div data-role='page' id='site-control'>" +
             "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false'>" +
                 "<a role='button' href='javascript:void(0);' class='ui-btn ui-corner-all ui-shadow ui-btn-left ui-btn-b ui-toolbar-back-btn ui-icon-carat-l ui-btn-icon-left' data-rel='back'>"+_("Back")+"</a>" +
@@ -1106,7 +1106,6 @@ function show_sites() {
                 "</ul>" +
             "</div>" +
         "</div>"),
-        firstLoad = $.mobile.navigate.history.stack.length <= 1 ? 1 : 0,
         sites, total;
 
     page.find("#site-add").on("click",show_addsite);
@@ -1128,7 +1127,7 @@ function show_sites() {
             sites = JSON.parse(data.sites);
             total = Object.keys(sites).length;
 
-            if (!total || firstLoad || !(data.current_site in sites)) {
+            if (!total || showBack === false || !(data.current_site in sites)) {
                 page.find(".ui-btn-left").hide();
             }
 
