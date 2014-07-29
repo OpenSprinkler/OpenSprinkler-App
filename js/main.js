@@ -11,9 +11,13 @@ var isIEMobile = /IEMobile/.test(navigator.userAgent),
     curr_183, curr_ip, curr_prefix, curr_auth, curr_pw, curr_wa, curr_session, curr_auth_user, curr_auth_pw, language, deviceip, storage;
 
 //Fix CSS for IE Mobile (Windows Phone 8)
-if (isIEMobile) insertStyle("ul{list-style: none !important;}@media(max-width:940px){.wicon{margin:-10px -10px -15px -15px !important}#forecast .wicon{position:relative;left:37.5px;margin:0 auto !important}}");
+if (isIEMobile) {
+    insertStyle("ul{list-style: none !important;}@media(max-width:940px){.wicon{margin:-10px -10px -15px -15px !important}#forecast .wicon{position:relative;left:37.5px;margin:0 auto !important}}");
+}
 
-if (isChromeApp) insertStyle("html,body{overflow-y:scroll}");
+if (isChromeApp) {
+    insertStyle("html,body{overflow-y:scroll}");
+}
 
 $(document)
 .ready(function() {
@@ -92,7 +96,7 @@ $(document)
     //Use system browser for links on iOS and Windows Phone
     if (isiOS || isIEMobile) {
         $(".iab").on("click",function(){
-            window.open(this.href,"_system",'enableViewportScale=yes');
+            window.open(this.href,"_system","enableViewportScale=yes");
             return false;
         });
     } else if (isAndroid) {
@@ -125,7 +129,7 @@ $(document)
 })
 .one("mobileinit", function(){
     //After jQuery mobile is loaded set intial configuration
-    $.mobile.defaultPageTransition = 'fade';
+    $.mobile.defaultPageTransition = "fade";
     $.mobile.hoverDelay = 0;
     $.mobile.hashListeningEnabled = false;
 })
@@ -138,11 +142,13 @@ $(document)
             currPage = $(".ui-page-active"),
             hash;
 
-        if (typeof data.toPage !== "string") return;
+        if (typeof data.toPage !== "string") {
+            return;
+        }
 
         hash = $.mobile.path.parseUrl(page).hash;
 
-        if (hash == "#"+currPage.attr("id") && (hash == "#programs" || hash == "#site-control")) {
+        if (hash === "#"+currPage.attr("id") && (hash === "#programs" || hash === "#site-control")) {
             // Cancel page load when navigating to the same page
             e.preventDefault();
 
@@ -160,38 +166,40 @@ $(document)
             return;
         }
 
-        if (data.options.role !== "popup" && !$(".ui-popup-active").length) $.mobile.silentScroll(0);
+        if (data.options.role !== "popup" && !$(".ui-popup-active").length) {
+            $.mobile.silentScroll(0);
+        }
 
-        if (hash == "#programs") {
+        if (hash === "#programs") {
             get_programs(data.options.programToExpand);
-        } else if (hash == "#addprogram") {
+        } else if (hash === "#addprogram") {
             add_program();
-        } else if (hash =="#status") {
+        } else if (hash === "#status") {
             $(hash).find("div[data-role='header'] > .ui-btn-right").on("click",refresh_status);
             get_status();
-        } else if (hash == "#manual") {
+        } else if (hash === "#manual") {
             get_manual();
-        } else if (hash == "#runonce") {
+        } else if (hash === "#runonce") {
             get_runonce();
-        } else if (hash == "#os-settings") {
+        } else if (hash === "#os-settings") {
             show_settings();
-        } else if (hash == "#start") {
+        } else if (hash === "#start") {
             checkAutoScan();
-        } else if (hash == "#os-stations") {
+        } else if (hash === "#os-stations") {
             show_stations();
-        } else if (hash == "#site-control") {
+        } else if (hash === "#site-control") {
             show_sites();
-        } else if (hash == "#weather_settings") {
+        } else if (hash === "#weather_settings") {
             show_weather_settings();
-        } else if (hash == "#addnew") {
+        } else if (hash === "#addnew") {
             show_addnew();
             return false;
-        } else if (hash == "#raindelay") {
+        } else if (hash === "#raindelay") {
             $(hash).find("form").on("submit",raindelay);
-        } else if (hash == "#site-select") {
+        } else if (hash === "#site-select") {
             show_site_select();
             return false;
-        } else if (hash == "#sprinklers") {
+        } else if (hash === "#sprinklers") {
             if (!data.options.firstLoad) {
                 //Reset status bar to loading while an update is done
                 showLoading("#footer-running");
@@ -201,11 +209,13 @@ $(document)
             } else {
                 check_status();
             }
-        } else if (hash == "#settings") {
+        } else if (hash === "#settings") {
             $.each(["en","mm"],function(a,id){
                 var $id = $("#"+id);
                 $id.prop("checked",controller.settings[id]);
-                if ($id.hasClass("ui-flipswitch-input")) $id.flipswitch("refresh");
+                if ($id.hasClass("ui-flipswitch-input")) {
+                    $id.flipswitch("refresh");
+                }
                 $id.on("change",flipSwitched);
             });
             var settings = $(hash);
@@ -245,24 +255,26 @@ $(document)
                     data.provider = data.provider || "yahoo";
 
                     var popup = $(
-                        '<div data-role="popup" id="providers" data-theme="a" data-dismissible="false" data-overlay-theme="b">'+
-                            '<a data-rel="back" class="ui-btn ui-corner-all ui-shadow ui-btn-a ui-icon-delete ui-btn-icon-notext ui-btn-right">Close</a>'+
-                            '<div class="ui-content">'+
-                                '<form>'+
-                                    '<label for="weather_provider">'+_("Weather Provider")+
-                                        '<select data-mini="true" id="weather_provider">'+
-                                            '<option value="yahoo">'+_("Yahoo!")+'</option>'+
-                                            '<option '+((data.provider == "wunderground") ? 'selected ' : '')+'value="wunderground">'+_("Wunderground")+'</option>'+
-                                        '</select>'+
-                                    '</label>'+
-                                    '<label for="wapikey">'+_("Wunderground API Key")+'<input data-mini="true" type="text" id="wapikey" value="'+((data.wapikey) ? data.wapikey : '')+'" /></label>'+
-                                    '<input type="submit" value="'+_("Submit")+'" />'+
-                                '</form>'+
-                            '</div>'+
-                        '</div>'
+                        "<div data-role='popup' id='providers' data-theme='a' data-dismissible='false' data-overlay-theme='b'>"+
+                            "<a data-rel='back' class='ui-btn ui-corner-all ui-shadow ui-btn-a ui-icon-delete ui-btn-icon-notext ui-btn-right'>Close</a>"+
+                            "<div class='ui-content'>"+
+                                "<form>"+
+                                    "<label for='weather_provider'>"+_("Weather Provider")+
+                                        "<select data-mini='true' id='weather_provider'>"+
+                                            "<option value='yahoo'>"+_("Yahoo!")+"</option>"+
+                                            "<option "+((data.provider === "wunderground") ? "selected " : "")+"value='wunderground'>"+_("Wunderground")+"</option>"+
+                                        "</select>"+
+                                    "</label>"+
+                                    "<label for='wapikey'>"+_("Wunderground API Key")+"<input data-mini='true' type='text' id='wapikey' value='"+((data.wapikey) ? data.wapikey : "")+"' /></label>"+
+                                    "<input type='submit' value='"+_("Submit")+"' />"+
+                                "</form>"+
+                            "</div>"+
+                        "</div>"
                     );
 
-                    if (data.provider == "yahoo") popup.find("#wapikey").closest("label").hide();
+                    if (data.provider === "yahoo") {
+                        popup.find("#wapikey").closest("label").hide();
+                    }
 
                     popup.find("form").on("submit",function(e){
                         e.preventDefault();
@@ -270,7 +282,7 @@ $(document)
                         var wapikey = $("#wapikey").val(),
                             provider = $("#weather_provider").val();
 
-                        if (provider == "wunderground" && wapikey === "") {
+                        if (provider === "wunderground" && wapikey === "") {
                             showerror(_("An API key must be provided for Weather Underground"));
                             return;
                         }
@@ -332,15 +344,17 @@ $(document)
     checkAutoScan();
 
     // If we don't have a current device IP set, there is nothing else to update
-    if (curr_ip === undefined) return;
+    if (curr_ip === undefined) {
+        return;
+    }
 
     // Indicate the weather and device status are being updated
     showLoading("#weather,#footer-running");
 
-    if (page == "status") {
+    if (page === "status") {
         // Update the status page
         func = get_status;
-    } else if (page == "sprinklers") {
+    } else if (page === "sprinklers") {
         // Update device status bar on main page
         func = check_status;
     }
@@ -361,7 +375,7 @@ $(document)
     fixInputClick($newpage);
 
     // Render graph after the page is shown otherwise graphing function will fail
-    if (newpage == "#preview") {
+    if (newpage === "#preview") {
         $("#preview_date").on("change",get_preview);
         $newpage.find(".preview-minus").on("click",function(){
             changeday(-1);
@@ -378,9 +392,9 @@ $(document)
             $(".preview-minus,.preview-plus").off("click");
             $("#timeline-navigation").find("a").off("click");
         });
-    } else if (newpage == "#logs") {
+    } else if (newpage === "#logs") {
         get_logs();
-    } else if (newpage == "#sprinklers") {
+    } else if (newpage === "#sprinklers") {
         $newpage.off("swiperight").on("swiperight", function() {
             if ($(".ui-page-active").jqmData("panel") !== "open" && !$(".ui-page-active .ui-popup-active").length) {
                 open_panel();
@@ -397,13 +411,15 @@ $.ajaxSetup({
 });
 
 function flipSwitched() {
-    if (switching) return;
+    if (switching) {
+        return;
+    }
 
     //Find out what the switch was changed to
     var flip = $(this),
         id = flip.attr("id"),
         changedTo = flip.is(":checked"),
-        method = (id == "mmm") ? "mm" : id,
+        method = (id === "mmm") ? "mm" : id,
         defer;
 
     if (changedTo) {
@@ -414,7 +430,9 @@ function flipSwitched() {
 
     $.when(defer).then(function(){
         update_controller_settings();
-        if (id == "mm" || id == "mmm") $("#manual a.green").removeClass("green");
+        if (id === "mm" || id === "mmm") {
+            $("#manual a.green").removeClass("green");
+        }
     },
     function(){
         switching = true;
@@ -441,7 +459,7 @@ function send_to_os(dest,type) {
         });
     }
 
-    if (typeof curr_session != "undefined") {
+    if (typeof curr_session !== "undefined") {
         $.extend(obj,{
             beforeSend: function(xhr) { xhr.setRequestHeader("webpy_session_id", curr_session); }
         });
@@ -452,7 +470,7 @@ function send_to_os(dest,type) {
             showerror(_("Connection timed-out. Please try again."));
             return;
         }
-        if (e.status==401 || e.status===0) {
+        if (e.status===401 || e.status===0) {
             showerror(_("Check device password and try again."));
             return;
         }
@@ -509,7 +527,7 @@ function newload() {
             checkWeatherPlugin();
 
             // Transition to home page after succesful load
-            if ($.mobile.pageContainer.pagecontainer("getActivePage").attr("id") != "sprinklers") {
+            if ($.mobile.pageContainer.pagecontainer("getActivePage").attr("id") !== "sprinklers") {
                 $.mobile.document.one("pageshow",function(){
                     // Allow future transitions to properly animate
                     delete $.mobile.navigate.history.getActive().transition;
@@ -550,7 +568,9 @@ function update_controller_programs(callback) {
                 newdata = {}, tmp, prog;
 
             for (var i=0; i<vars.length; i++) {
-                if (vars[i] === "") continue;
+                if (vars[i] === "") {
+                    continue;
+                }
                 tmp = vars[i].split("=");
                 newdata[tmp[0]] = parseInt(tmp[1]);
             }
@@ -800,13 +820,17 @@ function submit_newuser(ssl,useAuth) {
             $.mobile.loading("hide");
             var is183;
 
-            if (typeof data === "string" && data.match(/var (en|sd)\s*=/)) is183 = true;
+            if (typeof data === "string" && data.match(/var (en|sd)\s*=/)) {
+                is183 = true;
+            }
 
             if (data.fwv !== undefined || is183 === true) {
                 var name = $("#os_name").val(),
                     ip = $("#os_ip").val().replace(/^https?:\/\//,"");
 
-                if (name === "") name = "Site "+(Object.keys(sites).length+1);
+                if (name === "") {
+                    name = "Site "+(Object.keys(sites).length+1);
+                }
 
                 sites[name] = {};
                 sites[name].os_ip = curr_ip = ip;
@@ -867,16 +891,16 @@ function submit_newuser(ssl,useAuth) {
         },
         showAuth = function(){
             $.mobile.loading("hide");
-            var html = $('<div class="ui-content" id="addnew-auth">' +
-                    '<form method="post" novalidate>' +
-                        '<p class="center smaller">'+_("Authorization Required")+'</p>' +
-                        '<label for="os_auth_user">'+_("Username:")+'</label>' +
-                        '<input autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" type="text" name="os_auth_user" id="os_auth_user" />' +
-                        '<label for="os_auth_pw">'+_("Password:")+'</label>' +
-                        '<input type="password" name="os_auth_pw" id="os_auth_pw" />' +
-                        '<input type="submit" value="'+_("Submit")+'" />' +
-                    '</form>' +
-                '</div>').enhanceWithin();
+            var html = $("<div class='ui-content' id='addnew-auth'>" +
+                    "<form method='post' novalidate>" +
+                        "<p class='center smaller'>"+_("Authorization Required")+"</p>" +
+                        "<label for='os_auth_user'>"+_("Username:")+"</label>" +
+                        "<input autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' type='text' name='os_auth_user' id='os_auth_user' />" +
+                        "<label for='os_auth_pw'>"+_("Password:")+"</label>" +
+                        "<input type='password' name='os_auth_pw' id='os_auth_pw' />" +
+                        "<input type='submit' value='"+_("Submit")+"' />" +
+                    "</form>" +
+                "</div>").enhanceWithin();
 
             html.on("submit","form",function(){
                 submit_newuser(ssl,true);
@@ -898,8 +922,9 @@ function submit_newuser(ssl,useAuth) {
         return;
     }
 
-    if ($("#os_usessl").is(":checked") === true) ssl = true;
-
+    if ($("#os_usessl").is(":checked") === true) {
+        ssl = true;
+    }
 
     if (ssl) {
         prefix = "https://";
@@ -920,7 +945,11 @@ function submit_newuser(ssl,useAuth) {
         dataType: "json",
         timeout: 3000,
         global: false,
-        beforeSend: function(xhr) { if (useAuth) xhr.setRequestHeader("Authorization", "Basic " + btoa($("#os_auth_user").val() + ":" + $("#os_auth_pw").val())); },
+        beforeSend: function(xhr) {
+            if (useAuth) {
+                xhr.setRequestHeader("Authorization", "Basic " + btoa($("#os_auth_user").val() + ":" + $("#os_auth_pw").val()));
+            }
+        },
         error: function(x){
             if (!useAuth && x.status === 401) {
                 getAuth();
@@ -932,7 +961,11 @@ function submit_newuser(ssl,useAuth) {
                 dataType: "text",
                 timeout: 3000,
                 global: false,
-                beforeSend: function(xhr) { if (useAuth) xhr.setRequestHeader("Authorization", "Basic " + btoa($("#os_auth_user").val() + ":" + $("#os_auth_pw").val())); },
+                beforeSend: function(xhr) {
+                    if (useAuth) {
+                        xhr.setRequestHeader("Authorization", "Basic " + btoa($("#os_auth_user").val() + ":" + $("#os_auth_pw").val()));
+                    }
+                },
                 success: function(reply){
                     storage.get("sites",function(data){
                         var sites = (data.sites === undefined || data.sites === null) ? {} : JSON.parse(data.sites);
@@ -954,17 +987,19 @@ function submit_newuser(ssl,useAuth) {
 function show_site_select(list) {
     $("#site-select").popup("destroy").remove();
 
-    var popup = $('<div data-role="popup" id="site-select" data-theme="a" data-overlay-theme="b">' +
-            '<div data-role="header" data-theme="b">' +
-                '<h1>'+_("Select Site")+'</h1>' +
-            '</div>' +
-            '<div class="ui-content">' +
-                '<ul data-role="none" class="ui-listview ui-corner-all ui-shadow">' +
-                '</ul>' +
-            '</div>' +
-        '</div>');
+    var popup = $("<div data-role='popup' id='site-select' data-theme='a' data-overlay-theme='b'>" +
+            "<div data-role='header' data-theme='b'>" +
+                "<h1>"+_("Select Site")+"</h1>" +
+            "</div>" +
+            "<div class='ui-content'>" +
+                "<ul data-role='none' class='ui-listview ui-corner-all ui-shadow'>" +
+                "</ul>" +
+            "</div>" +
+        "</div>");
 
-    if (list) popup.find("ul").html(list);
+    if (list) {
+        popup.find("ul").html(list);
+    }
 
     popup.one("popupafterclose",function(){
         $(this).popup("destroy").remove();
@@ -994,29 +1029,29 @@ function show_addnew(autoIP,closeOld) {
     $("#addnew").popup("destroy").remove();
 
     var isAuto = (autoIP) ? true : false,
-        addnew = $('<div data-role="popup" id="addnew" data-theme="a">'+
-            '<div data-role="header" data-theme="b">'+
-                '<h1>'+_("New Device")+'</h1>' +
-            '</div>' +
-            '<div class="ui-content" id="addnew-content">' +
-                '<form method="post" novalidate>' +
-                    ((isAuto) ? '' : '<p class="center smaller">'+_("Note: The name is used to identify the OpenSprinkler within the app. OpenSprinkler IP can be either an IP or hostname. You can also specify a port by using IP:Port")+'</p>') +
-                    '<label for="os_name">'+_("Open Sprinkler Name:")+'</label>' +
-                    '<input autocorrect="off" spellcheck="false" type="text" name="os_name" id="os_name" placeholder="Home" />' +
-                    ((isAuto) ? '' : '<label for="os_ip">'+_("Open Sprinkler IP:")+'</label>') +
-                    '<input '+((isAuto) ? 'data-role="none" style="display:none" ' : '')+'autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" type="url" name="os_ip" id="os_ip" value="'+((isAuto) ? autoIP : '')+'" placeholder="home.dyndns.org" />' +
-                    '<label for="os_pw">'+_("Open Sprinkler Password:")+'</label>' +
-                    '<input type="password" name="os_pw" id="os_pw" value="" />' +
-                    ((isAuto) ? '' : '<div data-theme="a" data-mini="true" data-role="collapsible"><h4>Advanced</h4><fieldset data-role="controlgroup" data-type="horizontal" data-mini="true" class="center">' +
-                        '<input type="checkbox" name="os_useauth" id="os_useauth">' +
-                        '<label for="os_useauth">'+_("Use Auth")+'</label>' +
-                        '<input type="checkbox" name="os_usessl" id="os_usessl">' +
-                        '<label for="os_usessl">'+_("Use SSL")+'</label>' +
-                    '</fieldset></div>') +
-                    '<input type="submit" data-theme="b" value="'+_("Submit")+'" />' +
-                '</form>' +
-            '</div>' +
-        '</div>');
+        addnew = $("<div data-role='popup' id='addnew' data-theme='a'>"+
+            "<div data-role='header' data-theme='b'>"+
+                "<h1>"+_("New Device")+"</h1>" +
+            "</div>" +
+            "<div class='ui-content' id='addnew-content'>" +
+                "<form method='post' novalidate>" +
+                    ((isAuto) ? "" : "<p class='center smaller'>"+_("Note: The name is used to identify the OpenSprinkler within the app. OpenSprinkler IP can be either an IP or hostname. You can also specify a port by using IP:Port")+"</p>") +
+                    "<label for='os_name'>"+_("Open Sprinkler Name:")+"</label>" +
+                    "<input autocorrect='off' spellcheck='false' type='text' name='os_name' id='os_name' placeholder='Home' />" +
+                    ((isAuto) ? "" : "<label for='os_ip'>"+_("Open Sprinkler IP:")+"</label>") +
+                    "<input "+((isAuto) ? "data-role='none' style='display:none' " : "")+"autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' type='url' name='os_ip' id='os_ip' value='"+((isAuto) ? autoIP : "")+"' placeholder='home.dyndns.org' />" +
+                    "<label for='os_pw'>"+_("Open Sprinkler Password:")+"</label>" +
+                    "<input type='password' name='os_pw' id='os_pw' value='' />" +
+                    ((isAuto) ? "" : "<div data-theme='a' data-mini='true' data-role='collapsible'><h4>Advanced</h4><fieldset data-role='controlgroup' data-type='horizontal' data-mini='true' class='center'>" +
+                        "<input type='checkbox' name='os_useauth' id='os_useauth'>" +
+                        "<label for='os_useauth'>"+_("Use Auth")+"</label>" +
+                        "<input type='checkbox' name='os_usessl' id='os_usessl'>" +
+                        "<label for='os_usessl'>"+_("Use SSL")+"</label>" +
+                    "</fieldset></div>") +
+                    "<input type='submit' data-theme='b' value='"+_("Submit")+"' />" +
+                "</form>" +
+            "</div>" +
+        "</div>");
 
     addnew.find("form").on("submit",function(){
         submit_newuser();
@@ -1056,21 +1091,21 @@ function show_addnew(autoIP,closeOld) {
 }
 
 function show_sites() {
-    var page = $('<div data-role="page" id="site-control">' +
-            '<div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false">' +
-                '<a role="button" href="javascript:void(0);" class="ui-btn ui-corner-all ui-shadow ui-btn-left ui-btn-b ui-toolbar-back-btn ui-icon-carat-l ui-btn-icon-left" data-rel="back">'+_("Back")+'</a>' +
-                '<h3>'+_("Manage Sites")+'</h3>' +
-                '<button data-rel="popup" id="site-add" data-icon="plus" class="ui-btn-right">'+_("Add")+'</button>' +
-            '</div>' +
-            '<div class="ui-content">' +
-            '</div>' +
-            '<div data-role="popup" id="addsite" data-theme="b">' +
-                '<ul data-role="listview">' +
-                    '<li data-icon="false"><a href="#" id="site-add-scan">'+_("Scan For Device")+'</a></li>' +
-                    '<li data-icon="false"><a href="#" id="site-add-manual">'+_("Manually Add Device")+'</a></li>' +
-                '</ul>' +
-            '</div>' +
-        '</div>'),
+    var page = $("<div data-role='page' id='site-control'>" +
+            "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false'>" +
+                "<a role='button' href='javascript:void(0);' class='ui-btn ui-corner-all ui-shadow ui-btn-left ui-btn-b ui-toolbar-back-btn ui-icon-carat-l ui-btn-icon-left' data-rel='back'>"+_("Back")+"</a>" +
+                "<h3>"+_("Manage Sites")+"</h3>" +
+                "<button data-rel='popup' id='site-add' data-icon='plus' class='ui-btn-right'>"+_("Add")+"</button>" +
+            "</div>" +
+            "<div class='ui-content'>" +
+            "</div>" +
+            "<div data-role='popup' id='addsite' data-theme='b'>" +
+                "<ul data-role='listview'>" +
+                    "<li data-icon='false'><a href='#' id='site-add-scan'>"+_("Scan For Device")+"</a></li>" +
+                    "<li data-icon='false'><a href='#' id='site-add-manual'>"+_("Manually Add Device")+"</a></li>" +
+                "</ul>" +
+            "</div>" +
+        "</div>"),
         firstLoad = $.mobile.navigate.history.stack.length <= 1 ? 1 : 0,
         sites, total;
 
@@ -1099,7 +1134,7 @@ function show_sites() {
 
             $.each(sites,function(a,b){
                 var c = a.replace(/ /g,"_");
-                list += "<fieldset "+((total == 1) ? "data-collapsed='false'" : "")+" id='site-"+c+"' data-role='collapsible'>";
+                list += "<fieldset "+((total === 1) ? "data-collapsed='false'" : "")+" id='site-"+c+"' data-role='collapsible'>";
                 list += "<legend>"+a+"</legend>";
                 list += "<a data-role='button' class='connectnow' data-site='"+a+"' href='#'>"+_("Connect Now")+"</a>";
                 list += "<form data-site='"+c+"' novalidate>";
@@ -1165,10 +1200,14 @@ function change_site(site) {
             rename;
 
         site = site.replace(/_/g," ");
-        rename = (nm !== "" && nm != site);
+        rename = (nm !== "" && nm !== site);
 
-        if (ip !== "") sites[site].os_ip = ip;
-        if (pw !== "") sites[site].os_pw = pw;
+        if (ip !== "") {
+            sites[site].os_ip = ip;
+        }
+        if (pw !== "") {
+            sites[site].os_pw = pw;
+        }
         if (rename) {
             sites[nm] = sites[site];
             delete sites[site];
@@ -1182,11 +1221,17 @@ function change_site(site) {
         showerror(_("Site updated successfully"));
 
         if (site === data.current_site) {
-            if (pw !== "") curr_pw = pw;
-            if (ip !== "") check_configured();
+            if (pw !== "") {
+                curr_pw = pw;
+            }
+            if (ip !== "") {
+                check_configured();
+            }
         }
 
-        if (rename) changePage("#site-control");
+        if (rename) {
+            changePage("#site-control");
+        }
     });
 }
 
@@ -1196,18 +1241,22 @@ function update_site_list(names,current) {
         select = $("#site-selector");
 
     $.each(names,function(a,b){
-        list += "<option "+(b==current ? "selected ":"")+"value='"+b+"'>"+b+"</option>";
+        list += "<option "+(b===current ? "selected ":"")+"value='"+b+"'>"+b+"</option>";
     });
 
     select.html(list);
-    if (select.parent().parent().hasClass("ui-select")) select.selectmenu("refresh");
+    if (select.parent().parent().hasClass("ui-select")) {
+        select.selectmenu("refresh");
+    }
 }
 
 // Change the current site
 function update_site(newsite) {
     storage.get("sites",function(data){
         var sites = (data.sites === undefined || data.sites === null) ? {} : JSON.parse(data.sites);
-        if (newsite in sites) storage.set({"current_site":newsite},check_configured);
+        if (newsite in sites) {
+            storage.set({"current_site":newsite},check_configured);
+        }
     });
 }
 
@@ -1222,7 +1271,7 @@ function checkAutoScan() {
         var chk = parseIntArray(ip.split("."));
 
         // Check if the IP is on a private network, if not don't enable automatic scanning
-        if (!(chk[0] == 10 || (chk[0] == 172 && chk[1] > 17 && chk[1] < 32) || (chk[0] == 192 && chk[1] == 168))) {
+        if (!(chk[0] === 10 || (chk[0] === 172 && chk[1] > 17 && chk[1] < 32) || (chk[0] === 192 && chk[1] === 168))) {
             resetStartMenu();
             return;
         }
@@ -1244,7 +1293,9 @@ function checkAutoScan() {
                 var i;
                 for (i in data) {
                     if (data.hasOwnProperty(i)) {
-                        if (/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$/.test(data[i].address)) ip = data[i].address;
+                        if (/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$/.test(data[i].address)) {
+                            ip = data[i].address;
+                        }
                     }
                 }
 
@@ -1305,11 +1356,15 @@ function start_scan(port,type) {
         var ip = $.mobile.path.parseUrl(this.url).authority,
             fwv, tmp;
 
-        if ($.inArray(ip,oldips) !== -1) return;
+        if ($.inArray(ip,oldips) !== -1) {
+            return;
+        }
 
         if (this.dataType === "text") {
             tmp = reply.match(/var\s*ver=(\d+)/);
-            if (!tmp) return;
+            if (!tmp) {
+                return;
+            }
             fwv = tmp[1];
         } else {
             fwv = reply.fwv;
@@ -1322,7 +1377,7 @@ function start_scan(port,type) {
 
     // Check if scanning is complete
     check_scan_status = function() {
-        if (scanprogress == 245) {
+        if (scanprogress === 245) {
             $.mobile.loading("hide");
             clearInterval(scanning);
             if (!devicesfound) {
@@ -1352,28 +1407,28 @@ function start_scan(port,type) {
     baseip = ip.join(".");
 
     if (type === 1) {
-        $.mobile.loading('show', {
+        $.mobile.loading("show", {
                 text: _("Scanning for OpenSprinkler Pi"),
                 textVisible: true,
-                theme: 'b'
+                theme: "b"
         });
     } else if (type === 2) {
-        $.mobile.loading('show', {
+        $.mobile.loading("show", {
                 text: _("Scanning for OpenSprinkler (1.8.3)"),
                 textVisible: true,
-                theme: 'b'
+                theme: "b"
         });
     } else if (type === 3) {
-        $.mobile.loading('show', {
+        $.mobile.loading("show", {
                 text: _("Scanning for OpenSprinkler Pi (1.8.3)"),
                 textVisible: true,
-                theme: 'b'
+                theme: "b"
         });
     } else {
-        $.mobile.loading('show', {
+        $.mobile.loading("show", {
                 text: _("Scanning for OpenSprinkler"),
                 textVisible: true,
-                theme: 'b'
+                theme: "b"
         });
     }
 
@@ -1386,7 +1441,7 @@ function start_scan(port,type) {
         } else {
             dtype = "text";
         }
-        url = "http://"+ip+((port && port != 80) ? ":"+port : "")+suffix;
+        url = "http://"+ip+((port && port !== 80) ? ":"+port : "")+suffix;
         $.ajax({
             url: url,
             type: "GET",
@@ -1409,38 +1464,38 @@ function add_found(ip) {
 
 // Weather functions
 function show_weather_settings() {
-    var page = $('<div data-role="page" id="weather_settings">' +
-        '<div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false" data-add-back-btn="true">' +
-            '<h3>'+_("Weather Settings")+'</h3>' +
-            '<a href="#" class="ui-btn-right wsubmit">'+_("Submit")+'</a>' +
-        '</div>' +
-        '<div class="ui-content" role="main">' +
-            '<ul data-role="listview" data-inset="true">' +
-                '<li>' +
-                    '<label for="weather_provider">'+_("Weather Provider")+'</label>' +
-                    '<select data-mini="true" id="weather_provider">' +
-                        '<option value="yahoo" '+(curr_wa.weather_provider == "yahoo" ? "selected" : "")+'>'+_("Yahoo!")+'</option>' +
-                        '<option value="wunderground" '+(curr_wa.weather_provider == "wunderground" ? "selected" : "")+'>'+_("Wunderground")+'</option>' +
-                    '</select>' +
-                    (curr_wa.weather_provider == "wunderground" ? '<label for="wapikey">'+_("Wunderground API Key")+'</label><input data-mini="true" type="text" id="wapikey" value="'+curr_wa.wapikey+'" />' : "") +
-                '</li>' +
-            '</ul>' +
-            '<ul data-role="listview" data-inset="true"> ' +
-                '<li>' +
-                    '<p class="rain-desc">'+_("When automatic rain delay is enabled, the weather will be checked for rain every hour. If the weather reports any condition suggesting rain, a rain delay is automatically issued using the below set delay duration.")+'</p>' +
-                        '<div class="ui-field-contain">' +
-                            '<label for="auto_delay">'+_("Auto Rain Delay")+'</label>' +
-                            '<input type="checkbox" data-on-text="On" data-off-text="Off" data-role="flipswitch" name="auto_delay" id="auto_delay" '+(curr_wa.auto_delay == "on" ? "checked" : "")+'>' +
-                        '</div>' +
-                        '<div class="ui-field-contain duration-input">' +
-                            '<label for="delay_duration">'+_("Delay Duration")+'</label>' +
-                            '<button id="delay_duration" data-mini="true" value="'+(curr_wa.delay_duration*3600)+'">'+dhms2str(sec2dhms(curr_wa.delay_duration*3600))+'</button>' +
-                        '</div>' +
-                '</li>' +
-            '</ul>' +
-            '<a class="wsubmit" href="#" data-role="button" data-theme="b" type="submit">'+_("Submit")+'</a>' +
-        '</div>' +
-    '</div>');
+    var page = $("<div data-role='page' id='weather_settings'>" +
+        "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false' data-add-back-btn='true'>" +
+            "<h3>"+_("Weather Settings")+"</h3>" +
+            "<a href='#' class='ui-btn-right wsubmit'>"+_("Submit")+"</a>" +
+        "</div>" +
+        "<div class='ui-content' role='main'>" +
+            "<ul data-role='listview' data-inset='true'>" +
+                "<li>" +
+                    "<label for='weather_provider'>"+_("Weather Provider")+"</label>" +
+                    "<select data-mini='true' id='weather_provider'>" +
+                        "<option value='yahoo' "+(curr_wa.weather_provider === "yahoo" ? "selected" : "")+">"+_("Yahoo!")+"</option>" +
+                        "<option value='wunderground' "+(curr_wa.weather_provider === "wunderground" ? "selected" : "")+">"+_("Wunderground")+"</option>" +
+                    "</select>" +
+                    (curr_wa.weather_provider === "wunderground" ? "<label for='wapikey'>"+_("Wunderground API Key")+"</label><input data-mini='true' type='text' id='wapikey' value='"+curr_wa.wapikey+"' />" : "") +
+                "</li>" +
+            "</ul>" +
+            "<ul data-role='listview' data-inset='true'> " +
+                "<li>" +
+                    "<p class='rain-desc'>"+_("When automatic rain delay is enabled, the weather will be checked for rain every hour. If the weather reports any condition suggesting rain, a rain delay is automatically issued using the below set delay duration.")+"</p>" +
+                        "<div class='ui-field-contain'>" +
+                            "<label for='auto_delay'>"+_("Auto Rain Delay")+"</label>" +
+                            "<input type='checkbox' data-on-text='On' data-off-text='Off' data-role='flipswitch' name='auto_delay' id='auto_delay' "+(curr_wa.auto_delay === "on" ? "checked" : "")+">" +
+                        "</div>" +
+                        "<div class='ui-field-contain duration-input'>" +
+                            "<label for='delay_duration'>"+_("Delay Duration")+"</label>" +
+                            "<button id='delay_duration' data-mini='true' value='"+(curr_wa.delay_duration*3600)+"'>"+dhms2str(sec2dhms(curr_wa.delay_duration*3600))+"</button>" +
+                        "</div>" +
+                "</li>" +
+            "</ul>" +
+            "<a class='wsubmit' href='#' data-role='button' data-theme='b' type='submit'>"+_("Submit")+"</a>" +
+        "</div>" +
+    "</div>");
 
     //Handle provider select change on weather settings
     page
@@ -1491,7 +1546,7 @@ function submit_weather_settings() {
 }
 
 function convert_temp(temp,region) {
-    if (region == "United States" || region == "Bermuda" || region == "Palau") {
+    if (region === "United States" || region === "Bermuda" || region === "Palau") {
         temp = temp+"&#176;F";
     } else {
         temp = parseInt(Math.round((temp-32)*(5/9)))+"&#176;C";
@@ -1516,7 +1571,7 @@ function update_weather() {
 
         showLoading("#weather");
 
-        if (data.provider == "wunderground" && data.wapikey) {
+        if (data.provider === "wunderground" && data.wapikey) {
             update_wunderground_weather(data.wapikey);
         } else {
             update_yahoo_weather();
@@ -1540,7 +1595,7 @@ function update_yahoo_weather() {
 
         $.getJSON("https://query.yahooapis.com/v1/public/yql?q=select%20item%2Ctitle%2Clocation%20from%20weather.forecast%20where%20woeid%3D%22"+woeid.query.results.Result.woeid+"%22&format=json",function(data){
             // Hide the weather if no data is returned
-            if (data.query.results.channel.item.title == "City not found") {
+            if (data.query.results.channel.item.title === "City not found") {
                 hide_weather();
                 return;
             }
@@ -1576,15 +1631,20 @@ function update_yahoo_forecast(data,loc,region,now) {
 
     var forecast = $("#forecast_list");
     forecast.html(list).enhanceWithin();
-    if (forecast.hasClass("ui-listview")) forecast.listview("refresh");
+    if (forecast.hasClass("ui-listview")) {
+        forecast.listview("refresh");
+    }
 }
 
 function update_wunderground_weather(wapikey) {
     $.getJSON("https://api.wunderground.com/api/"+wapikey+"/conditions/forecast/lang:EN/q/"+escape(controller.settings.loc)+".json", function(data) {
         var code, temp;
 
-        if (data.current_observation.icon_url.indexOf("nt_") !== -1) { code = "nt_"+data.current_observation.icon; }
-        else code = data.current_observation.icon;
+        if (data.current_observation.icon_url.indexOf("nt_") !== -1) {
+            code = "nt_"+data.current_observation.icon;
+        } else {
+            code = data.current_observation.icon;
+        }
 
         var ww_forecast = {
             "condition": {
@@ -1606,8 +1666,11 @@ function update_wunderground_weather(wapikey) {
              ww_forecast.simpleforecast[k] = attr;
         });
 
-        if (ww_forecast.region == "US" || ww_forecast.region == "BM" || ww_forecast.region == "PW") temp = Math.round(ww_forecast.condition.temp_f)+"&#176;F";
-        else temp = ww_forecast.condition.temp_c+"&#176;C";
+        if (ww_forecast.region === "US" || ww_forecast.region === "BM" || ww_forecast.region === "PW") {
+            temp = Math.round(ww_forecast.condition.temp_f)+"&#176;F";
+        } else {
+            temp = ww_forecast.condition.temp_c+"&#176;C";
+        }
 
         $("#weather")
             .html("<div title='"+ww_forecast.condition.text+"' class='wicon cond"+code+"'></div><span>"+temp+"</span><br><span class='location'>"+ww_forecast.location+"</span>")
@@ -1626,7 +1689,7 @@ function update_wunderground_weather(wapikey) {
 function update_wunderground_forecast(data) {
     var temp, precip;
 
-    if (data.region == "US" || data.region == "BM" || data.region == "PW") {
+    if (data.region === "US" || data.region === "BM" || data.region === "PW") {
         temp = data.condition.temp_f+"&#176;F";
         precip = data.condition.precip_today_in+" in";
     } else {
@@ -1639,20 +1702,26 @@ function update_wunderground_forecast(data) {
     $.each(data.simpleforecast, function(k,attr) {
         var precip;
 
-        if (data.region == "US" || data.region == "BM" || data.region == "PW") {
+        if (data.region === "US" || data.region === "BM" || data.region === "PW") {
             precip = attr.qpf_allday["in"];
-            if (precip === null) precip = 0;
+            if (precip === null) {
+                precip = 0;
+            }
             list += "<li data-icon='false' class='center'><span>"+attr.date.monthname_short+" "+attr.date.day+"</span><br><div title='"+attr.conditions+"' class='wicon cond"+attr.icon+"'></div><span data-translate='"+attr.date.weekday_short+"'>"+_(attr.date.weekday_short)+"</span><br><span data-translate='Low'>"+_("Low")+"</span><span>: "+attr.low.fahrenheit+"&#176;F  </span><span data-translate='High'>"+_("High")+"</span><span>: "+attr.high.fahrenheit+"&#176;F</span><br><span data-translate='Precip'>"+_("Precip")+"</span><span>: "+precip+" in</span></li>";
         } else {
             precip = attr.qpf_allday.mm;
-            if (precip === null) precip = 0;
+            if (precip === null) {
+                precip = 0;
+            }
             list += "<li data-icon='false' class='center'><span>"+attr.date.monthname_short+" "+attr.date.day+"</span><br><div title='"+attr.conditions+"' class='wicon cond"+attr.icon+"'></div><span data-translate='"+attr.date.weekday_short+"'>"+_(attr.date.weekday_short)+"</span><br><span data-translate='Low'>"+_("Low")+"</span><span>: "+attr.low.celsius+"&#176;C  </span><span data-translate='High'>"+_("High")+"</span><span>: "+attr.high.celsius+"&#176;C</span><br><span data-translate='Precip'>"+_("Precip")+"</span><span>: "+precip+" mm</span></li>";
         }
     });
 
     var forecast = $("#forecast_list");
     forecast.html(list).enhanceWithin();
-    if (forecast.hasClass("ui-listview")) forecast.listview("refresh");
+    if (forecast.hasClass("ui-listview")) {
+        forecast.listview("refresh");
+    }
 }
 
 function show_forecast() {
@@ -1693,20 +1762,20 @@ function open_panel() {
     panel.one("panelclose",function(){
         panel.find(".export_config,.import_config").off("click");
     });
-    panel.panel('open');
+    panel.panel("open");
 }
 
 // Device setting management functions
 function show_settings() {
     var list = "",
-        page = $('<div data-role="page" id="os-settings">' +
-            '<div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false" data-add-back-btn="true">' +
-                '<h3>'+_("OS Settings")+'</h3>' +
-                '<button data-icon="check" class="ui-btn-right">'+_("Submit")+'</button>' +
-            '</div>' +
-            '<div class="ui-content" role="main">' +
-            '</div>' +
-        '</div>'),
+        page = $("<div data-role='page' id='os-settings'>" +
+            "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false' data-add-back-btn='true'>" +
+                "<h3>"+_("OS Settings")+"</h3>" +
+                "<button data-icon='check' class='ui-btn-right'>"+_("Submit")+"</button>" +
+            "</div>" +
+            "<div class='ui-content' role='main'>" +
+            "</div>" +
+        "</div>"),
         timezones, tz, i;
 
     page.find("div[data-role='header'] > .ui-btn-right").on("click",submit_settings);
@@ -1719,7 +1788,7 @@ function show_settings() {
         tz = ((tz>=0)?"+":"-")+pad((Math.abs(tz)/4>>0))+":"+((Math.abs(tz)%4)*15/10>>0)+((Math.abs(tz)%4)*15%10);
         list += "<label for='o1' class='select'>"+_("Timezone")+"</label><select data-mini='true' id='o1'>";
         for (i=0; i<timezones.length; i++) {
-            list += "<option "+((timezones[i] == tz) ? "selected" : "")+" value='"+timezones[i]+"'>"+timezones[i]+"</option>";
+            list += "<option "+((timezones[i] === tz) ? "selected" : "")+" value='"+timezones[i]+"'>"+timezones[i]+"</option>";
         }
         list += "</select>";
     }
@@ -1727,8 +1796,10 @@ function show_settings() {
     if (typeof controller.options.mas !== "undefined") {
         list += "<label for='o18' class='select'>"+_("Master Station")+"</label><select data-mini='true' id='o18'><option value='0'>"+_("None")+"</option>";
         for (i=0; i<controller.stations.snames.length; i++) {
-            list += "<option "+(((i+1) == controller.options.mas) ? "selected" : "")+" value='"+(i+1)+"'>"+controller.stations.snames[i]+"</option>";
-            if (i == 7) break;
+            list += "<option "+(((i+1) === controller.options.mas) ? "selected" : "")+" value='"+(i+1)+"'>"+controller.stations.snames[i]+"</option>";
+            if (i === 7) {
+                break;
+            }
         }
         list += "</select>";
     }
@@ -1789,7 +1860,7 @@ function show_settings() {
 
     list += "</fieldset></div></li>";
 
-    page.find(".ui-content").html('<ul data-role="listview" data-inset="true" id="os-settings-list">'+list+'</ul>');
+    page.find(".ui-content").html("<ul data-role='listview' data-inset='true' id='os-settings-list'>"+list+"</ul>");
 
     page.one("pagehide",function(){
         page.remove();
@@ -1807,7 +1878,7 @@ function submit_settings() {
 
     $("#os-settings-list").find(":input").each(function(a,b){
         var $item = $(b),
-            id = $item.attr('id'),
+            id = $item.attr("id"),
             data = $item.val();
 
         switch (id) {
@@ -1825,11 +1896,13 @@ function submit_settings() {
             case "o22":
             case "o25":
                 data = $item.is(":checked") ? 1 : 0;
-                if (!data) return true;
+                if (!data) {
+                    return true;
+                }
                 break;
         }
         if (isPi) {
-            if (id == "loc") {
+            if (id === "loc") {
                 id = "oloc";
             } else {
                 key = /\d+/.exec(id);
@@ -1838,7 +1911,9 @@ function submit_settings() {
         }
         opt[id] = data;
     });
-    if (invalid) return;
+    if (invalid) {
+        return;
+    }
     $.mobile.loading("show");
     send_to_os("/co?pw=&"+$.param(opt)).done(function(){
         $.mobile.document.one("pageshow",function(){
@@ -1852,14 +1927,14 @@ function submit_settings() {
 // Station managament function
 function show_stations() {
     var list = "<li class='wrap'>",
-        page = $('<div data-role="page" id="os-stations">' +
-            '<div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false" data-add-back-btn="true">' +
-                '<h3>'+_("Edit Stations")+'</h3>' +
-                '<button data-icon="check" class="ui-btn-right">'+_("Submit")+'</button>' +
-            '</div>' +
-            '<div class="ui-content" role="main">' +
-            '</div>' +
-        '</div>'),
+        page = $("<div data-role='page' id='os-stations'>" +
+            "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false' data-add-back-btn='true'>" +
+                "<h3>"+_("Edit Stations")+"</h3>" +
+                "<button data-icon='check' class='ui-btn-right'>"+_("Submit")+"</button>" +
+            "</div>" +
+            "<div class='ui-content' role='main'>" +
+            "</div>" +
+        "</div>"),
         isMaster = controller.options.mas ? true : false,
         hasIR = (typeof controller.stations.ignore_rain === "object") ? true : false,
         useTableView = (hasIR || isMaster);
@@ -1868,33 +1943,43 @@ function show_stations() {
 
     if (useTableView) {
         list += "<table><tr><th class='center'>"+_("Station Name")+"</th>";
-        if (isMaster) list += "<th class='center'>"+_("Activate Master?")+"</th>";
-        if (hasIR) list += "<th class='center'>"+_("Ignore Rain?")+"</th>";
+        if (isMaster) {
+            list += "<th class='center'>"+_("Activate Master?")+"</th>";
+        }
+        if (hasIR) {
+            list += "<th class='center'>"+_("Ignore Rain?")+"</th>";
+        }
         list += "</tr>";
     }
 
     $.each(controller.stations.snames,function(i, station) {
-        if (useTableView) list += "<tr><td>";
+        if (useTableView) {
+            list += "<tr><td>";
+        }
         list += "<input data-mini='true' id='edit_station_"+i+"' type='text' value='"+station+"' />";
         if (useTableView) {
             list += "</td>";
             if (isMaster) {
-                if (controller.options.mas == i+1) {
+                if (controller.options.mas === i+1) {
                     list += "<td class='use_master'><p id='um_"+i+"' class='center'>("+_("Master")+")</p></td>";
                 } else {
                     list += "<td data-role='controlgroup' data-type='horizontal' class='use_master'><label for='um_"+i+"'><input id='um_"+i+"' type='checkbox' "+((controller.stations.masop[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+" /></label></td>";
                 }
             }
-            if (hasIR) list += "<td data-role='controlgroup' data-type='horizontal' class='use_master'><label for='ir_"+i+"'><input id='ir_"+i+"' type='checkbox' "+((controller.stations.ignore_rain[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+" /></label></td></tr>";
+            if (hasIR) {
+                list += "<td data-role='controlgroup' data-type='horizontal' class='use_master'><label for='ir_"+i+"'><input id='ir_"+i+"' type='checkbox' "+((controller.stations.ignore_rain[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+" /></label></td></tr>";
+            }
             list += "</tr>";
         }
         i++;
     });
 
-    if (useTableView) list += "</table>";
+    if (useTableView) {
+        list += "</table>";
+    }
     list += "</li>";
 
-    page.find(".ui-content").html('<ul data-role="listview" data-inset="true" id="os-stations-list">'+list+'</ul>');
+    page.find(".ui-content").html("<ul data-role='listview' data-inset='true' id='os-stations-list'>"+list+"</ul>");
 
     page.one("pagehide",function(){
         page.remove();
@@ -1918,7 +2003,7 @@ function submit_stations() {
         ignore_rain="";
 
     $("#os-stations-list").find(":input,p[id^='um_']").each(function(a,b){
-        var $item = $(b), id = $item.attr('id'), data = $item.val();
+        var $item = $(b), id = $item.attr("id"), data = $item.val();
         switch (id) {
             case "edit_station_" + id.slice("edit_station_".length):
                 id = "s" + id.split("_")[2];
@@ -1931,7 +2016,7 @@ function submit_stations() {
                 names[id] = data;
                 return true;
             case "um_" + id.slice("um_".length):
-                v = ($item.is(":checked") || $item.prop("tagName") == "P") ? "1".concat(v) : "0".concat(v);
+                v = ($item.is(":checked") || $item.prop("tagName") === "P") ? "1".concat(v) : "0".concat(v);
                 s++;
                 if (parseInt(s/8) > bid) {
                     m["m"+bid]=parseInt(v,2); bid++; s=0; v="";
@@ -1948,9 +2033,15 @@ function submit_stations() {
     });
     m["m"+bid]=parseInt(v,2);
     i["i"+bid2]=parseInt(r,2);
-    if ($("[id^='um_']").length) masop = "&"+$.param(m);
-    if ($("[id^='ir_']").length) ignore_rain = "&"+$.param(i);
-    if (invalid) return;
+    if ($("[id^='um_']").length) {
+        masop = "&"+$.param(m);
+    }
+    if ($("[id^='ir_']").length) {
+        ignore_rain = "&"+$.param(i);
+    }
+    if (invalid) {
+        return;
+    }
     $.mobile.loading("show");
     send_to_os("/cs?pw=&"+$.param(names)+masop+ignore_rain).done(function(){
         $.mobile.document.one("pageshow",function(){
@@ -1989,30 +2080,42 @@ function get_status() {
 
     var open = {};
     $.each(controller.status, function (i, stn) {
-        if (stn) open[i] = stn;
+        if (stn) {
+            open[i] = stn;
+        }
     });
     open = Object.keys(open).length;
 
-    if (master && controller.status[master-1]) open--;
+    if (master && controller.status[master-1]) {
+        open--;
+    }
 
     $.each(controller.stations.snames,function(i, station) {
         var info = "";
 
-        if (master == i+1) {
+        if (master === i+1) {
             station += " ("+_("Master")+")";
         } else if (controller.settings.ps[i][0]) {
             var rem=controller.settings.ps[i][1];
             if (open > 1) {
-                if (rem > ptotal) ptotal = rem;
+                if (rem > ptotal) {
+                    ptotal = rem;
+                }
             } else {
-                if (controller.settings.ps[i][0] !== 99 && rem !== 1) ptotal+=rem;
+                if (controller.settings.ps[i][0] !== 99 && rem !== 1) {
+                    ptotal+=rem;
+                }
             }
             var pid = controller.settings.ps[i][0],
                 pname = pidname(pid);
-            if (controller.status[i] && (pid!=255&&pid!=99)) runningTotal[i] = rem;
+            if (controller.status[i] && (pid!==255&&pid!==99)) {
+                runningTotal[i] = rem;
+            }
             allPnames[i] = pname;
             info = "<p class='rem'>"+((controller.status[i]) ? _("Running") : _("Scheduled"))+" "+pname;
-            if (pid!=255&&pid!=99) info += " <span id='countdown-"+i+"' class='nobr'>(" + sec2hms(rem) + " "+_("remaining")+")</span>";
+            if (pid!==255&&pid!==99) {
+                info += " <span id='countdown-"+i+"' class='nobr'>(" + sec2hms(rem) + " "+_("remaining")+")</span>";
+            }
             info += "</p>";
          }
         if (controller.status[i]) {
@@ -2030,13 +2133,17 @@ function get_status() {
         var lrpid = controller.settings.lrun[1];
         var pname= pidname(lrpid);
 
-        footer = '<p>'+pname+' '+_('last ran station')+' '+controller.stations.snames[controller.settings.lrun[0]]+' '+_('for')+' '+(lrdur/60>>0)+'m '+(lrdur%60)+'s '+_('on')+' '+dateToString(new Date(controller.settings.lrun[3]*1000))+'</p>';
+        footer = "<p>"+pname+" "+_("last ran station")+" "+controller.stations.snames[controller.settings.lrun[0]]+" "+_("for")+" "+(lrdur/60>>0)+"m "+(lrdur%60)+"s "+_("on")+" "+dateToString(new Date(controller.settings.lrun[3]*1000))+"</p>";
     }
 
     if (ptotal > 1) {
         var scheduled = allPnames.length;
-        if (!open && scheduled) runningTotal.d = controller.options.sdt;
-        if (open == 1) ptotal += (scheduled-1)*controller.options.sdt;
+        if (!open && scheduled) {
+            runningTotal.d = controller.options.sdt;
+        }
+        if (open === 1) {
+            ptotal += (scheduled-1)*controller.options.sdt;
+        }
         allPnames = getUnique($.grep(allPnames,function(n){return(n);}));
         var numProg = allPnames.length;
         allPnames = allPnames.join(" "+_("and")+" ");
@@ -2051,9 +2158,9 @@ function get_status() {
     }
 
     $("#status .ui-content").append(
-        $('<p class="smaller center"></p>').html(header),
-        $('<ul data-role="listview" data-inset="true" id="status_list"></ul>').html(list).listview(),
-        $('<p class="smaller center"></p>').html(footer)
+        $("<p class='smaller center'></p>").html(header),
+        $("<ul data-role='listview' data-inset='true' id='status_list'></ul>").html(list).listview(),
+        $("<p class='smaller center'></p>").html(footer)
     );
 
     removeTimers();
@@ -2078,14 +2185,16 @@ function get_status() {
 
         if (diff > 3000) {
             clearInterval(window.interval_id);
-            if (page == "status") refresh_status();
+            if (page === "status") {
+                refresh_status();
+            }
         }
         lastCheck = now;
         $.each(runningTotal,function(a,b){
             if (b <= 0) {
                 delete runningTotal[a];
-                if (a == "p") {
-                    if (page == "status") {
+                if (a === "p") {
+                    if (page === "status") {
                         refresh_status();
                     } else {
                         clearInterval(window.interval_id);
@@ -2096,7 +2205,7 @@ function get_status() {
                     window.timeout_id = setTimeout(refresh_status,controller.options.sdt*1000);
                 }
             } else {
-                if (a == "c") {
+                if (a === "c") {
                     ++runningTotal[a];
                     $("#clock-s").text(dateToString(new Date(runningTotal[a]*1000)));
                 } else {
@@ -2111,16 +2220,18 @@ function get_status() {
 function refresh_status() {
     var page = $(".ui-page-active").attr("id");
 
-    if (page == "status") $.mobile.loading("show");
+    if (page === "status") {
+        $.mobile.loading("show");
+    }
 
     $.when(
         update_controller_status(),
         update_controller_settings()
     ).then(function(){
-        if (page == "status") {
+        if (page === "status") {
             get_status();
             $.mobile.loading("hide");
-        } else if (page == "sprinklers") {
+        } else if (page === "sprinklers") {
             removeTimers();
             check_status();
         }
@@ -2131,8 +2242,12 @@ function refresh_status() {
 
 function removeTimers() {
     //Remove any status timers that may be running
-    if (window.interval_id !== undefined) clearInterval(window.interval_id);
-    if (window.timeout_id !== undefined) clearTimeout(window.timeout_id);
+    if (window.interval_id !== undefined) {
+        clearInterval(window.interval_id);
+    }
+    if (window.timeout_id !== undefined) {
+        clearTimeout(window.timeout_id);
+    }
 }
 
 // Actually change the status bar
@@ -2143,7 +2258,9 @@ function change_status(seconds,sdelay,color,line,onclick) {
 
     removeTimers();
 
-    if (seconds > 1) update_timer(seconds,sdelay);
+    if (seconds > 1) {
+        update_timer(seconds,sdelay);
+    }
 
     footer.removeClass().addClass(color).html(line).off("click").on("click",onclick).slideDown();
 }
@@ -2168,10 +2285,14 @@ function check_status() {
     // Handle open stations
     open = {};
     for (i=0; i<controller.status.length; i++) {
-        if (controller.status[i]) open[i] = controller.status[i];
+        if (controller.status[i]) {
+            open[i] = controller.status[i];
+        }
     }
 
-    if (controller.options.mas) delete open[controller.options.mas-1];
+    if (controller.options.mas) {
+        delete open[controller.options.mas-1];
+    }
 
     // Handle more than 1 open station
     if (Object.keys(open).length >= 2) {
@@ -2180,7 +2301,9 @@ function check_status() {
         for (i in open) {
             if (open.hasOwnProperty(i)) {
                 tmp = controller.settings.ps[i][1];
-                if (tmp > ptotal) ptotal = tmp;
+                if (tmp > ptotal) {
+                    ptotal = tmp;
+                }
             }
         }
 
@@ -2190,7 +2313,9 @@ function check_status() {
         line   = "<div id='running-icon'></div><p id='running-text'>";
 
         line += pname+" "+_("is running on")+" "+Object.keys(open).length+" "+_("stations")+" ";
-        if (pid!=255&&pid!=99) line += "<span id='countdown' class='nobr'>("+sec2hms(ptotal)+" "+_("remaining")+")</span>";
+        if (pid!==255&&pid!==99) {
+            line += "<span id='countdown' class='nobr'>("+sec2hms(ptotal)+" "+_("remaining")+")</span>";
+        }
         line += "</p>";
         change_status(ptotal,controller.options.sdt,"green",line,function(){
             changePage("#status");
@@ -2201,13 +2326,15 @@ function check_status() {
     // Handle a single station open
     match = false;
     for (i=0; i<controller.stations.snames.length; i++) {
-        if (controller.settings.ps[i][0] && controller.status[i] && controller.options.mas != i+1) {
+        if (controller.settings.ps[i][0] && controller.status[i] && controller.options.mas !== i+1) {
             match = true;
             pid = controller.settings.ps[i][0];
             pname = pidname(pid);
             line = "<div id='running-icon'></div><p id='running-text'>";
             line += pname+" "+_("is running on station")+" <span class='nobr'>"+controller.stations.snames[i]+"</span> ";
-            if (pid!=255&&pid!=99) line += "<span id='countdown' class='nobr'>("+sec2hms(controller.settings.ps[i][1])+" "+_("remaining")+")</span>";
+            if (pid!==255&&pid!==99) {
+                line += "<span id='countdown' class='nobr'>("+sec2hms(controller.settings.ps[i][1])+" "+_("remaining")+")</span>";
+            }
             line += "</p>";
             break;
         }
@@ -2271,45 +2398,47 @@ function update_timer(total,sdelay) {
         if (total <= 0) {
             clearInterval(window.interval_id);
             showLoading("#footer-running");
-            if (window.timeout_id !== undefined) clearTimeout(window.timeout_id);
+            if (window.timeout_id !== undefined) {
+                clearTimeout(window.timeout_id);
+            }
             window.timeout_id = setTimeout(function(){
                 update_controller(check_status);
             },(sdelay*1000));
-        }
-        else
+        } else {
             --total;
-            $("#countdown").text("(" + sec2hms(total) + " "+_("remaining")+")");
+        }
+        $("#countdown").text("(" + sec2hms(total) + " "+_("remaining")+")");
     },1000);
 }
 
 // Manual control functions
 function get_manual() {
     var list = "<li data-role='list-divider' data-theme='a'>"+_("Sprinkler Stations")+"</li>",
-        page = $('<div data-role="page" id="manual">' +
-                '<div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false" data-add-back-btn="true">' +
-                    '<h3>'+_("Manual Control")+'</h3>' +
-                '</div>' +
-                '<div class="ui-content" role="main">' +
-                '</div>' +
-            '</div>');
+        page = $("<div data-role='page' id='manual'>" +
+                "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false' data-add-back-btn='true'>" +
+                    "<h3>"+_("Manual Control")+"</h3>" +
+                "</div>" +
+                "<div class='ui-content' role='main'>" +
+                "</div>" +
+            "</div>");
 
     $.each(controller.stations.snames,function (i,station) {
-        if (controller.options.mas == i+1) {
-            list += '<li data-icon="false" class="center">'+station+' ('+_('Master')+')</li>';
+        if (controller.options.mas === i+1) {
+            list += "<li data-icon='false' class='center'>"+station+" ("+_("Master")+")</li>";
         } else {
-            list += '<li data-icon="false"><a class="mm_station center'+((controller.status[i]) ? ' green' : '')+'">'+station+'</a></li>';
+            list += "<li data-icon='false'><a class='mm_station center"+((controller.status[i]) ? " green" : "")+"'>"+station+"</a></li>";
         }
     });
 
     page.find(".ui-content").append(
-        '<p class="center">'+_('With manual mode turned on, tap a station to toggle it.')+'</p>',
-        '<ul data-role="listview" data-inset="true">'+
-                '<li class="ui-field-contain">'+
-                    '<label for="mmm"><b>'+_('Manual Mode')+'</b></label>'+
-                    '<input type="checkbox" data-on-text="On" data-off-text="Off" data-role="flipswitch" name="mmm" id="mmm"'+(controller.settings.mm ? ' checked' : '')+'>'+
-                '</li>'+
-            '</ul>',
-        '<ul data-role="listview" data-inset="true" id="mm_list">'+list+'</ul>'
+        "<p class='center'>"+_("With manual mode turned on, tap a station to toggle it.")+"</p>",
+        "<ul data-role='listview' data-inset='true'>"+
+                "<li class='ui-field-contain'>"+
+                    "<label for='mmm'><b>"+_("Manual Mode")+"</b></label>"+
+                    "<input type='checkbox' data-on-text='On' data-off-text='Off' data-role='flipswitch' name='mmm' id='mmm'"+(controller.settings.mm ? " checked" : "")+">"+
+                "</li>"+
+            "</ul>",
+        "<ul data-role='listview' data-inset='true' id='mm_list'>"+list+"</ul>"
     );
 
     page.find("#mm_list").find(".mm_station").on("click",toggle);
@@ -2362,14 +2491,14 @@ function toggle() {
 // Runonce functions
 function get_runonce() {
     var list = "<p class='center'>"+_("Zero value excludes the station from the run-once program.")+"</p>",
-        runonce = $('<div data-role="page" id="runonce">' +
-            '<div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false" data-add-back-btn="true">' +
-                '<h3>'+_("Run-Once")+'</h3>' +
-                '<button data-icon="check" class="ui-btn-right">'+_("Submit")+'</button>' +
-            '</div>' +
-            '<div class="ui-content" role="main" id="runonce_list">' +
-            '</div>' +
-        '</div>'),
+        runonce = $("<div data-role='page' id='runonce'>" +
+            "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false' data-add-back-btn='true'>" +
+                "<h3>"+_("Run-Once")+"</h3>" +
+                "<button data-icon='check' class='ui-btn-right'>"+_("Submit")+"</button>" +
+            "</div>" +
+            "<div class='ui-content' role='main' id='runonce_list'>" +
+            "</div>" +
+        "</div>"),
         i=0, n=0,
         quickPick, progs, rprogs, z, program;
 
@@ -2419,11 +2548,13 @@ function get_runonce() {
 
     runonce.find("#rprog").on("change",function(){
         var prog = $(this).val();
-        if (prog == "s") {
+        if (prog === "s") {
             reset_runonce();
             return;
         }
-        if (typeof rprogs[prog] === "undefined") return;
+        if (typeof rprogs[prog] === "undefined") {
+            return;
+        }
         fill_runonce(rprogs[prog]);
     });
 
@@ -2497,7 +2628,9 @@ function get_preview() {
         $timeline = $("#timeline"),
         preview_data, process_programs, check_match, run_sched, time_to_text, day;
 
-    if (date === "") return;
+    if (date === "") {
+        return;
+    }
     date = date.split("-");
     day = new Date(date[0],date[1]-1,date[2]);
 
@@ -2523,106 +2656,133 @@ function get_preview() {
             busy=0;
             match_found=0;
             for(var pid=0;pid<controller.programs.pd.length;pid++) {
-              prog=controller.programs.pd[pid];
-              if(check_match(prog,simminutes,simt,simday,devday)) {
-                for(sid=0;sid<controller.settings.nbrd*8;sid++) {
-                  var bid=sid>>3;var s=sid%8;
-                  if(controller.options.mas==(sid+1)) continue; // skip master station
-                  if(prog[7+bid]&(1<<s)) {
-                    et_array[sid]=prog[6]*controller.options.wl/100>>0;pid_array[sid]=pid+1;
-                    match_found=1;
-                  }
-                }
+                prog=controller.programs.pd[pid];
+                if(check_match(prog,simminutes,simt,simday,devday)) {
+                    for(sid=0;sid<controller.settings.nbrd*8;sid++) {
+                        var bid=sid>>3;var s=sid%8;
+                        if (controller.options.mas===(sid+1)) {
+                            continue; // skip master station
+                        }
+                        if(prog[7+bid]&(1<<s)) {
+                            et_array[sid]=prog[6]*controller.options.wl/100>>0;pid_array[sid]=pid+1;
+                            match_found=1;
+                        }
+                    }
               }
             }
             if(match_found) {
-              var acctime=simminutes*60;
-              if(controller.options.seq) {
-                for(sid=0;sid<controller.settings.nbrd*8;sid++) {
-                  if(et_array[sid]) {
-                    st_array[sid]=acctime;acctime+=et_array[sid];
-                    et_array[sid]=acctime;acctime+=controller.options.sdt;
-                    busy=1;
-                  }
+                var acctime=simminutes*60;
+                if(controller.options.seq) {
+                    for(sid=0;sid<controller.settings.nbrd*8;sid++) {
+                        if(et_array[sid]) {
+                            st_array[sid]=acctime;acctime+=et_array[sid];
+                            et_array[sid]=acctime;acctime+=controller.options.sdt;
+                            busy=1;
+                        }
+                    }
+                } else {
+                    for(sid=0;sid<controller.settings.nbrd*8;sid++) {
+                        if(et_array[sid]) {
+                            st_array[sid]=simminutes*60;
+                            et_array[sid]=simminutes*60+et_array[sid];
+                            busy=1;
+                        }
+                    }
                 }
-              } else {
-                for(sid=0;sid<controller.settings.nbrd*8;sid++) {
-                  if(et_array[sid]) {
-                    st_array[sid]=simminutes*60;
-                    et_array[sid]=simminutes*60+et_array[sid];
-                    busy=1;
-                  }
-                }
-              }
             }
             if (busy) {
-              var endminutes=run_sched(simminutes*60,st_array,pid_array,et_array,simt)/60>>0;
-              if(controller.options.seq&&simminutes!=endminutes) simminutes=endminutes;
-              else simminutes++;
-              for(sid=0;sid<controller.settings.nbrd*8;sid++) {st_array[sid]=0;pid_array[sid]=0;et_array[sid]=0;}
+                var endminutes=run_sched(simminutes*60,st_array,pid_array,et_array,simt)/60>>0;
+                if (controller.options.seq&&simminutes!==endminutes) {
+                    simminutes=endminutes;
+                } else {
+                    simminutes++;
+                }
+                for(sid=0;sid<controller.settings.nbrd*8;sid++) {
+                    st_array[sid]=0;pid_array[sid]=0;et_array[sid]=0;
+                }
             } else {
-              simminutes++;
+                simminutes++;
             }
         } while(simminutes<24*60);
     };
 
     check_match = function (prog,simminutes,simt,simday,devday) {
-        if(prog[0]===0) return 0;
+        if(prog[0]===0) {
+            return 0;
+        }
         if ((prog[1]&0x80)&&(prog[2]>1)) {
             var dn=prog[2],
                 drem=prog[1]&0x7f;
-            if((simday%dn)!=((devday+drem)%dn)) return 0;
+            if((simday%dn)!==((devday+drem)%dn)) {
+                return 0;
+            }
         } else {
             var date = new Date(simt);
             var wd=(date.getUTCDay()+6)%7;
-            if((prog[1]&(1<<wd))===0) return 0;
+            if((prog[1]&(1<<wd))===0) {
+                return 0;
+            }
             var dt=date.getUTCDate();
-            if((prog[1]&0x80)&&(prog[2]===0)) {if((dt%2)!==0) return 0;}
-            if((prog[1]&0x80)&&(prog[2]==1)) {
-              if(dt==31) return 0;
-              else if (dt==29 && date.getUTCMonth()==1) return 0;
-              else if ((dt%2)!=1) return 0;
+            if((prog[1]&0x80)&&(prog[2]===0)) {
+                if((dt%2)!==0) {
+                    return 0;
+                }
+            }
+            if((prog[1]&0x80)&&(prog[2]===1)) {
+                if(dt===31) {
+                    return 0;
+                }
+            } else if (dt===29 && date.getUTCMonth()===1) {
+                return 0;
+            } else if ((dt%2)!==1) {
+                return 0;
             }
         }
-        if(simminutes<prog[3] || simminutes>prog[4]) return 0;
-        if(prog[5]===0) return 0;
-        if(((simminutes-prog[3])/prog[5]>>0)*prog[5] == (simminutes-prog[3])) {
+        if(simminutes<prog[3] || simminutes>prog[4]) {
+            return 0;
+        }
+        if(prog[5]===0) {
+            return 0;
+        }
+        if(((simminutes-prog[3])/prog[5]>>0)*prog[5] === (simminutes-prog[3])) {
             return 1;
         }
-            return 0;
+        return 0;
     };
 
     run_sched = function (simseconds,st_array,pid_array,et_array,simt) {
         var endtime=simseconds;
         for(var sid=0;sid<controller.settings.nbrd*8;sid++) {
             if(pid_array[sid]) {
-                if(controller.options.seq==1) {
-                    if((controller.options.mas>0)&&(controller.options.mas!=sid+1)&&(controller.stations.masop[sid>>3]&(1<<(sid%8))))
-                    preview_data.push({
-                        'start': (st_array[sid]+controller.options.mton),
-                        'end': (et_array[sid]+controller.options.mtof),
-                        'content':'',
-                        'className':'master',
-                        'shortname':'M',
-                        'group':'Master'
-                    });
+                if(controller.options.seq===1) {
+                    if((controller.options.mas>0)&&(controller.options.mas!==sid+1)&&(controller.stations.masop[sid>>3]&(1<<(sid%8)))) {
+                        preview_data.push({
+                            "start": (st_array[sid]+controller.options.mton),
+                            "end": (et_array[sid]+controller.options.mtof),
+                            "content":"",
+                            "className":"master",
+                            "shortname":"M",
+                            "group":"Master"
+                        });
+                    }
                     time_to_text(sid,st_array[sid],pid_array[sid],et_array[sid],simt);
                     endtime=et_array[sid];
                 } else {
                     time_to_text(sid,simseconds,pid_array[sid],et_array[sid],simt);
-                    if((controller.options.mas>0)&&(controller.options.mas!=sid+1)&&(controller.stations.masop[sid>>3]&(1<<(sid%8))))
-                    endtime=(endtime>et_array[sid])?endtime:et_array[sid];
+                    if((controller.options.mas>0)&&(controller.options.mas!==sid+1)&&(controller.stations.masop[sid>>3]&(1<<(sid%8)))) {
+                        endtime=(endtime>et_array[sid])?endtime:et_array[sid];
+                    }
                 }
             }
         }
         if(controller.options.seq===0&&controller.options.mas>0) {
             preview_data.push({
-                'start': simseconds,
-                'end': endtime,
-                'content':'',
-                'className':'master',
-                'shortname':'M',
-                'group':'Master'
+                "start": simseconds,
+                "end": endtime,
+                "content":"",
+                "className":"master",
+                "shortname":"M",
+                "group":"Master"
             });
         }
         return endtime;
@@ -2631,14 +2791,16 @@ function get_preview() {
     time_to_text = function (sid,start,pid,end,simt) {
         var className = "program-"+((pid+3)%4);
 
-        if ((controller.settings.rd!==0)&&(simt+start+(controller.options.tz-48)*900<=controller.settings.rdst)) className="delayed";
+        if ((controller.settings.rd!==0)&&(simt+start+(controller.options.tz-48)*900<=controller.settings.rdst)) {
+            className="delayed";
+        }
         preview_data.push({
-            'start': start,
-            'end': end,
-            'className':className,
-            'content':'P'+pid,
-            'shortname':'S'+(sid+1),
-            'group': controller.stations.snames[sid]
+            "start": start,
+            "end": end,
+            "className":className,
+            "content":"P"+pid,
+            "shortname":"S"+(sid+1),
+            "group": controller.stations.snames[sid]
         });
     };
 
@@ -2656,24 +2818,24 @@ function get_preview() {
             shortnames[this.group] = this.shortname;
         });
         var options = {
-            'width':  '100%',
-            'editable': false,
-            'axisOnTop': true,
-            'eventMargin': 10,
-            'eventMarginAxis': 0,
-            'min': new Date(date[0],date[1]-1,date[2],0),
-            'max': new Date(date[0],date[1]-1,date[2],24),
-            'selectable': true,
-            'showMajorLabels': false,
-            'zoomMax': 1000 * 60 * 60 * 24,
-            'zoomMin': 1000 * 60 * 60,
-            'groupsChangeable': false,
-            'showNavigation': false,
-            'groupsOrder': 'none',
-            'groupMinHeight': 20
+            "width":  "100%",
+            "editable": false,
+            "axisOnTop": true,
+            "eventMargin": 10,
+            "eventMarginAxis": 0,
+            "min": new Date(date[0],date[1]-1,date[2],0),
+            "max": new Date(date[0],date[1]-1,date[2],24),
+            "selectable": true,
+            "showMajorLabels": false,
+            "zoomMax": 1000 * 60 * 60 * 24,
+            "zoomMin": 1000 * 60 * 60,
+            "groupsChangeable": false,
+            "showNavigation": false,
+            "groupsOrder": "none",
+            "groupMinHeight": 20
         };
 
-        var timeline = new links.Timeline(document.getElementById('timeline'),options);
+        var timeline = new links.Timeline(document.getElementById("timeline"),options);
         links.events.addListener(timeline, "select", function(){
             var row,
                 sel = timeline.getSelection();
@@ -2683,11 +2845,13 @@ function get_preview() {
                     row = sel[0].row;
                 }
             }
-            if (row === undefined) return;
+            if (row === undefined) {
+                return;
+            }
             var content = $(".timeline-event-content")[row];
             var pid = parseInt($(content).html().substr(1)) - 1;
             changePage("#programs",{
-                'programToExpand': pid
+                "programToExpand": pid
             });
         });
         $.mobile.window.on("resize",function(){
@@ -2696,7 +2860,9 @@ function get_preview() {
         timeline.draw(preview_data);
         if ($.mobile.window.width() <= 480) {
             var currRange = timeline.getVisibleChartRange();
-            if ((currRange.end.getTime() - currRange.start.getTime()) > 6000000) timeline.setVisibleChartRange(currRange.start,new Date(currRange.start.getTime()+6000000));
+            if ((currRange.end.getTime() - currRange.start.getTime()) > 6000000) {
+                timeline.setVisibleChartRange(currRange.start,new Date(currRange.start.getTime()+6000000));
+            }
         }
         $timeline.find(".timeline-groups-text").each(function(a,b){
             var stn = $(b);
@@ -2731,7 +2897,9 @@ function get_preview() {
 function changeday(dir) {
     var inputBox = $("#preview_date");
     var date = inputBox.val();
-    if (date === "") return;
+    if (date === "") {
+        return;
+    }
     date = date.split("-");
     var nDate = new Date(date[0],date[1]-1,date[2]);
     nDate.setDate(nDate.getDate() + dir);
@@ -2759,45 +2927,48 @@ function get_logs() {
 
             zones.find("td[zone_num]:not('.unchecked')").each(function() {
                 var key = $(this).attr("zone_num");
-                if (!sortedData[key].length) sortedData[key]=[[0,0]];
+                if (!sortedData[key].length) {
+                    sortedData[key]=[[0,0]];
+                }
                 if (key && sortedData[key]) {
-                    if ((grouping == 'h') || (grouping == 'm') || (grouping == 'd'))
+                    if ((grouping === "h") || (grouping === "m") || (grouping === "d")) {
                         pData.push({
                             data:sortedData[key],
                             label:$(this).attr("name"),
                             color:parseInt(key),
                             bars: { order:key, show: true, barWidth:0.08}
                         });
-                    else if (grouping == 'n')
+                    } else if (grouping === "n") {
                         pData.push({
                             data:sortedData[key],
                             label:$(this).attr("name"),
                             color:parseInt(key),
                             lines: { show:true }
                         });
+                    }
                 }
             });
-            if (grouping=='h') {
+            if (grouping==="h") {
                 $.plot(placeholder, pData, {
                     grid: { hoverable: true },
                     yaxis: {min: 0, tickFormatter: function(val, axis) { return val < axis.max ? Math.round(val*100)/100 : "min";} },
                     xaxis: { min: 0, max: 24, tickDecimals: 0, tickSize: 1 }
                 });
-            } else if (grouping=='d') {
+            } else if (grouping==="d") {
                 $.plot(placeholder, pData, {
                     grid: { hoverable: true },
                     yaxis: {min: 0, tickFormatter: function(val, axis) { return val < axis.max ? Math.round(val*100)/100 : "min";} },
                     xaxis: { tickDecimals: 0, min: -0.4, max: 6.4,
                     tickFormatter: function(v) { var dow=[_("Sun"),_("Mon"),_("Tue"),_("Wed"),_("Thr"),_("Fri"),_("Sat")]; return dow[v]; } }
                 });
-            } else if (grouping=='m') {
+            } else if (grouping==="m") {
                 $.plot(placeholder, pData, {
                     grid: { hoverable: true },
                     yaxis: {min: 0, tickFormatter: function(val, axis) { return val < axis.max ? Math.round(val*100)/100 : "min";} },
                     xaxis: { tickDecimals: 0, min: 0.6, max: 12.4, tickSize: 1,
                     tickFormatter: function(v) { var mon=["",_("Jan"),_("Feb"),_("Mar"),_("Apr"),_("May"),_("Jun"),_("Jul"),_("Aug"),_("Sep"),_("Oct"),_("Nov"),_("Dec")]; return mon[v]; } }
                 });
-            } else if (grouping=='n') {
+            } else if (grouping==="n") {
                 $.plot(placeholder, pData, {
                     grid: { hoverable: true },
                     yaxis: {min: 0, tickFormatter: function(val, axis) { return val < axis.max ? Math.round(val*100)/100 : "min";} },
@@ -2856,12 +3027,16 @@ function get_logs() {
                         break;
                 }
 
-                if (grouping != "n" && duration > 0) {
+                if (grouping !== "n" && duration > 0) {
                     sortedData[station][key][1] += duration;
                 }
 
-                if (min === undefined || min > date) min = date;
-                if (max === undefined || max < date) max = new Date(date.getTime() + (duration*100*1000)+1);
+                if (min === undefined || min > date) {
+                    min = date;
+                }
+                if (max === undefined || max < date) {
+                    max = new Date(date.getTime() + (duration*100*1000)+1);
+                }
             });
             sortedData.min = min;
             sortedData.max = max;
@@ -2935,11 +3110,11 @@ function get_logs() {
             zones.show();
             graph_sort.show();
             if (!freshLoad) {
-                var output = '<div class="ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border" id="graphScrollLeft"></div><div class="ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border" id="graphScrollRight"></div><table class="smaller"><tbody><tr>';
+                var output = "<div class='ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border' id='graphScrollLeft'></div><div class='ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border' id='graphScrollRight'></div><table class='smaller'><tbody><tr>";
                 for (i=0; i<controller.stations.snames.length; i++) {
-                    output += '<td class="legendColorBox"><div><div></div></div></td><td id="z'+i+'" zone_num='+i+' name="'+controller.stations.snames[i] + '" class="legendLabel">'+controller.stations.snames[i]+'</td>';
+                    output += "<td class='legendColorBox'><div><div></div></div></td><td id='z"+i+"' zone_num="+i+" name='"+controller.stations.snames[i] + "' class='legendLabel'>"+controller.stations.snames[i]+"</td>";
                 }
-                output += '</tr></tbody></table>';
+                output += "</tr></tbody></table>";
                 zones.empty().append(output).enhanceWithin();
                 zones.find("td").on("click",toggleZone);
                 zones.find("#graphScrollLeft,#graphScrollRight").on("click",scrollZone);
@@ -2954,7 +3129,7 @@ function get_logs() {
                         border = $(placeholder.find(".legendColorBox div div").get(i)).attr("style").split(";");
                         $.each(border,function(a,b){
                             var c = b.split(":");
-                            if (c[0] == "border") {
+                            if (c[0] === "border") {
                                 border = c[1];
                                 return false;
                             }
@@ -2995,12 +3170,14 @@ function get_logs() {
 
             for (i=0; i<sortedData.length; i++) {
                 ct=sortedData[i].length;
-                if (ct === 0) continue;
-                html += "<div data-role='collapsible' data-collapsed='true'><h2><div class='ui-btn-up-c ui-btn-corner-all custom-count-pos'>"+ct+" "+((ct == 1) ? _("run") : _("runs"))+"</div>"+controller.stations.snames[i]+"</h2>"+table_header;
+                if (ct === 0) {
+                    continue;
+                }
+                html += "<div data-role='collapsible' data-collapsed='true'><h2><div class='ui-btn-up-c ui-btn-corner-all custom-count-pos'>"+ct+" "+((ct === 1) ? _("run") : _("runs"))+"</div>"+controller.stations.snames[i]+"</h2>"+table_header;
                 for (k=0; k<sortedData[i].length; k++) {
                     var mins = Math.round(sortedData[i][k][1]/60);
                     var date = new Date(sortedData[i][k][0]);
-                    html += "<tr><td>"+mins+" "+((mins == 1) ? _("min") : _("mins"))+"</td><td>"+date.toString().slice(0,-18)+"</td></tr>";
+                    html += "<tr><td>"+mins+" "+((mins === 1) ? _("min") : _("mins"))+"</td><td>"+date.toString().slice(0,-18)+"</td></tr>";
                 }
                 html += "</tbody></table></div>";
             }
@@ -3092,7 +3269,9 @@ function get_logs() {
     placeholder.on("plothover",function(e,p,item) {
         $("#tooltip").remove();
         clearTimeout(hovertimeout);
-        if (item) hovertimeout = setTimeout(function(){showTooltip(item.pageX, item.pageY, item.series.label, item.series.color);}, 100);
+        if (item) {
+            hovertimeout = setTimeout(function(){showTooltip(item.pageX, item.pageY, item.series.label, item.series.color);}, 100);
+        }
     });
 
     logs.one("pagehide",function(){
@@ -3111,7 +3290,7 @@ function get_logs() {
 }
 
 function scrollZone() {
-    var dir = ($(this).attr("id") == "graphScrollRight") ? "+=" : "-=";
+    var dir = ($(this).attr("id") === "graphScrollRight") ? "+=" : "-=";
     var zones = $("#zones");
     var w = zones.width();
     zones.animate({scrollLeft: dir+w});
@@ -3119,15 +3298,15 @@ function scrollZone() {
 
 // Program management functions
 function get_programs(pid) {
-    var programs = $('<div data-role="page" id="programs">' +
-                '<div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false" data-add-back-btn="true">' +
-                    '<h3>'+_("Programs")+'</h3>' +
-                    '<a href="#addprogram" data-icon="plus" class="ui-btn-right">'+_("Add")+'</a>' +
-                '</div>' +
-                '<div class="ui-content" role="main" id="programs_list">' +
+    var programs = $("<div data-role='page' id='programs'>" +
+                "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false' data-add-back-btn='true'>" +
+                    "<h3>"+_("Programs")+"</h3>" +
+                    "<a href='#addprogram' data-icon='plus' class='ui-btn-right'>"+_("Add")+"</a>" +
+                "</div>" +
+                "<div class='ui-content' role='main' id='programs_list'>" +
                     make_all_programs() +
-                '</div>' +
-            '</div>');
+                "</div>" +
+            "</div>");
 
     programs.find("[id^=program-]").on({
         collapsiblecollapse: function(){
@@ -3143,7 +3322,9 @@ function get_programs(pid) {
         programs.remove();
     })
     .one("pagebeforeshow",function(){
-        if (typeof pid !== "number" && controller.programs.pd.length === 1) pid = 0;
+        if (typeof pid !== "number" && controller.programs.pd.length === 1) {
+            pid = 0;
+        }
 
         if (typeof pid === "number") {
             programs.find("fieldset[data-collapsed='false']").collapsible("collapse");
@@ -3163,9 +3344,9 @@ function expandProgram(program) {
     program.find(".ui-collapsible-content").html(html).enhanceWithin();
 
     program.find("input[name^='rad_days']").on("change",function(){
-        var progid = $(this).attr('id').split("-")[1], type = $(this).val().split("-")[0], old;
+        var progid = $(this).attr("id").split("-")[1], type = $(this).val().split("-")[0], old;
         type = type.split("_")[1];
-        if (type == "n") {
+        if (type === "n") {
             old = "week";
         } else {
             old = "n";
@@ -3268,7 +3449,7 @@ function read_program(program) {
             }
         }
         if((days0&0x80)&&(days1===0)) {even = true;}
-        if((days0&0x80)&&(days1==1)) {odd = true;}
+        if((days0&0x80)&&(days1===1)) {odd = true;}
     }
 
     newdata.days = days;
@@ -3282,8 +3463,12 @@ function read_program(program) {
 // Translate program ID to it's name
 function pidname(pid) {
     var pname = _("Program")+" "+pid;
-    if(pid==255||pid==99) pname=_("Manual program");
-    if(pid==254||pid==98) pname=_("Run-once program");
+    if(pid===255||pid===99) {
+        pname=_("Manual program");
+    }
+    if(pid===254||pid===98) {
+        pname=_("Run-once program");
+    }
     return pname;
 }
 
@@ -3337,13 +3522,17 @@ function make_program(n) {
 
     if (typeof program.days === "string") {
         days = program.days.split("");
-        for(i=days.length;i--;) days[i] = days[i]|0;
+        for(i=days.length;i--;) {
+            days[i] = days[i]|0;
+        }
     } else {
         days = [0,0,0,0,0,0,0];
     }
     if (typeof program.stations !== "undefined") {
         set_stations = program.stations.split("");
-        for(i=set_stations.length;i--;) set_stations[i] = set_stations[i]|0;
+        for(i=set_stations.length;i--;) {
+            set_stations[i] = set_stations[i]|0;
+        }
     }
     list += "<label for='en-"+n+"'><input data-mini='true' type='checkbox' "+((program.en || n==="new") ? "checked='checked'" : "")+" name='en-"+n+"' id='en-"+n+"'>"+_("Enabled")+"</label>";
     list += "<fieldset data-role='controlgroup' data-type='horizontal' class='center'>";
@@ -3400,16 +3589,16 @@ function make_program(n) {
 }
 
 function add_program() {
-    var addprogram = $('<div data-role="page" id="addprogram">' +
-                '<div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false">' +
-                    '<h3>'+_("Add Program")+'</h3>' +
-                    '<a href="javascript:void(0);" class="ui-btn ui-corner-all ui-shadow ui-btn-left ui-btn-b ui-toolbar-back-btn ui-icon-carat-l ui-btn-icon-left" data-rel="back">'+_("Back")+'</a>' +
-                    '<button data-icon="check" class="ui-btn-right">'+_("Submit")+'</button>' +
-                '</div>' +
-                '<div class="ui-content" role="main" id="newprogram">' +
+    var addprogram = $("<div data-role='page' id='addprogram'>" +
+                "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false'>" +
+                    "<h3>"+_("Add Program")+"</h3>" +
+                    "<a href='javascript:void(0);' class='ui-btn ui-corner-all ui-shadow ui-btn-left ui-btn-b ui-toolbar-back-btn ui-icon-carat-l ui-btn-icon-left' data-rel='back'>"+_("Back")+"</a>" +
+                    "<button data-icon='check' class='ui-btn-right'>"+_("Submit")+"</button>" +
+                "</div>" +
+                "<div class='ui-content' role='main' id='newprogram'>" +
                     fresh_program() +
-                '</div>' +
-            '</div>');
+                "</div>" +
+            "</div>");
 
     addprogram.find("div[data-role='header'] > .ui-btn-right").on("click",function(){
         submit_program("new");
@@ -3418,7 +3607,7 @@ function add_program() {
     addprogram.find("input[name^='rad_days']").on("change",function(){
         var progid = "new", type = $(this).val().split("-")[0], old;
         type = type.split("_")[1];
-        if (type == "n") {
+        if (type === "n") {
             old = "week";
         } else {
             old = "n";
@@ -3479,15 +3668,15 @@ function submit_program(id) {
         days=[0,0],
         daysin, i, s;
 
-    program[0] = ($("#en-"+id).is(':checked')) ? 1 : 0;
+    program[0] = ($("#en-"+id).is(":checked")) ? 1 : 0;
 
-    if($("#days_week-"+id).is(':checked')) {
+    if($("#days_week-"+id).is(":checked")) {
         daysin = $("#d-"+id).val();
         daysin = (daysin === null) ? [] : parseIntArray(daysin);
-        for(i=0;i<7;i++) {if($.inArray(i,daysin) != -1) {days[0] |= (1<<i); }}
+        for(i=0;i<7;i++) {if($.inArray(i,daysin) !== -1) {days[0] |= (1<<i); }}
         if($("#days_rst-"+id).val() === "odd") {days[0]|=0x80; days[1]=1;}
         else if($("#days_rst-"+id).val() === "even") {days[0]|=0x80; days[1]=0;}
-    } else if($("#days_n-"+id).is(':checked')) {
+    } else if($("#days_n-"+id).is(":checked")) {
         days[1]=parseInt($("#every-"+id).val(),10);
         if(!(days[1]>=2&&days[1]<=128)) {showerror(_("Error: Interval days must be between 2 and 128."));return;}
         days[0]=parseInt($("#starting-"+id).val(),10);
@@ -3525,7 +3714,7 @@ function submit_program(id) {
     if(station_selected===0) {showerror(_("Error: You have not selected any stations."));return;}
     program = JSON.stringify(program.concat(stations));
     $.mobile.loading("show");
-    if (id == "new") {
+    if (id === "new") {
         send_to_os("/cp?pw=&pid=-1&v="+program).done(function(){
             $.mobile.loading("hide");
             update_controller_programs(function(){
@@ -3606,10 +3795,14 @@ function import_config(data) {
         for (i in data.options) {
             if (data.options.hasOwnProperty(i) && keyIndex.hasOwnProperty(i)) {
                 key = keyIndex[i];
-                if ($.inArray(key, [2,14,16,21,22,25]) !== -1 && data.options[i] === 0) continue;
+                if ($.inArray(key, [2,14,16,21,22,25]) !== -1 && data.options[i] === 0) {
+                    continue;
+                }
                 if (isPi) {
                     key = piNames[key];
-                    if (key === undefined) continue;
+                    if (key === undefined) {
+                        continue;
+                    }
                 } else {
                     key = key;
                 }
@@ -3656,7 +3849,9 @@ function import_config(data) {
 
 // OSPi functions
 function isOSPi() {
-    if (controller && typeof controller.options.fwv == "string" && controller.options.fwv.search(/ospi/i) !== -1) return true;
+    if (controller && typeof controller.options.fwv === "string" && controller.options.fwv.search(/ospi/i) !== -1) {
+        return true;
+    }
     return false;
 }
 
@@ -3676,7 +3871,7 @@ function checkWeatherPlugin() {
 }
 
 function getOSVersion(fwv) {
-    if (typeof fwv == "string" && fwv.search(/ospi/i) !== -1) {
+    if (typeof fwv === "string" && fwv.search(/ospi/i) !== -1) {
         return fwv;
     } else {
         return (fwv/100>>0)+"."+((fwv/10>>0)%10)+"."+(fwv%10);
@@ -3686,12 +3881,12 @@ function getOSVersion(fwv) {
 // Accessory functions for jQuery Mobile
 function areYouSure(text1, text2, callback) {
     var popup = $(
-        '<div data-role="popup" data-overlay-theme="b" id="sure">'+
-            '<h3 class="sure-1 center">'+text1+'</h3>'+
-            '<p class="sure-2 center">'+text2+'</p>'+
-            '<a class="sure-do ui-btn ui-btn-b ui-corner-all ui-shadow" href="#">'+_("Yes")+'</a>'+
-            '<a class="sure-dont ui-btn ui-corner-all ui-shadow" href="#">'+_("No")+'</a>'+
-        '</div>'
+        "<div data-role='popup' data-overlay-theme='b' id='sure'>"+
+            "<h3 class='sure-1 center'>"+text1+"</h3>"+
+            "<p class='sure-2 center'>"+text2+"</p>"+
+            "<a class='sure-do ui-btn ui-btn-b ui-corner-all ui-shadow' href='#'>"+_("Yes")+"</a>"+
+            "<a class='sure-dont ui-btn ui-corner-all ui-shadow' href='#'>"+_("No")+"</a>"+
+        "</div>"
     );
 
     //Bind buttons
@@ -3739,24 +3934,26 @@ function showDurationBox(seconds,title,callback,maximum,granularity) {
         }
     }
 
-    var incrbts = '<fieldset class="ui-grid-'+String.fromCharCode(95+(total))+' incr">',
-        inputs = '<div class="ui-grid-'+String.fromCharCode(95+(total))+' inputs">',
-        decrbts = '<fieldset class="ui-grid-'+String.fromCharCode(95+(total))+' decr">',
-        popup = $('<div data-role="popup" id="durationBox" data-theme="a" data-overlay-theme="b">' +
-            '<div data-role="header" data-theme="b">' +
-                '<h1>'+title+'</h1>' +
-            '</div>' +
-            '<div class="ui-content">' +
-                '<span>' +
-                    '<a href="#" class="submit_duration" data-role="button" data-corners="true" data-shadow="true" data-mini="true">'+_("Set Duration")+'</a>' +
-                '</span>' +
-            '</div>' +
-        '</div>'),
+    var incrbts = "<fieldset class='ui-grid-"+String.fromCharCode(95+(total))+" incr'>",
+        inputs = "<div class='ui-grid-"+String.fromCharCode(95+(total))+" inputs'>",
+        decrbts = "<fieldset class='ui-grid-"+String.fromCharCode(95+(total))+" decr'>",
+        popup = $("<div data-role='popup' id='durationBox' data-theme='a' data-overlay-theme='b'>" +
+            "<div data-role='header' data-theme='b'>" +
+                "<h1>"+title+"</h1>" +
+            "</div>" +
+            "<div class='ui-content'>" +
+                "<span>" +
+                    "<a href='#' class='submit_duration' data-role='button' data-corners='true' data-shadow='true' data-mini='true'>"+_("Set Duration")+"</a>" +
+                "</span>" +
+            "</div>" +
+        "</div>"),
         changeValue = function(pos,dir){
             var input = $(popup.find(".inputs input")[pos]),
                 val = parseInt(input.val());
 
-            if ((dir == -1 && val === 0) || (dir == 1 && (getValue() + conv[pos+start]) > maximum)) return;
+            if ((dir === -1 && val === 0) || (dir === 1 && (getValue() + conv[pos+start]) > maximum)) {
+                return;
+            }
 
             input.val(val+dir);
         },
@@ -3770,14 +3967,14 @@ function showDurationBox(seconds,title,callback,maximum,granularity) {
         };
 
     for (i=start; i<conv.length - granularity; i++) {
-        incrbts += '<div '+((total > 1) ? 'class="ui-block-'+String.fromCharCode(97+i-start)+'"' : '')+'><a href="#" data-role="button" data-mini="true" data-corners="true" data-icon="plus" data-iconpos="bottom"></a></div>';
-        inputs += '<div '+((total > 1) ? 'class="ui-block-'+String.fromCharCode(97+i-start)+'"' : '')+'><label>'+_(text[i])+'</label><input class="'+keys[i]+'" type="number" pattern="[0-9]*" value="'+arr[keys[i]]+'"></div>';
-        decrbts += '<div '+((total > 1) ? 'class="ui-block-'+String.fromCharCode(97+i-start)+'"' : '')+'><a href="#" data-role="button" data-mini="true" data-corners="true" data-icon="minus" data-iconpos="bottom"></a></div>';
+        incrbts += "<div "+((total > 1) ? "class='ui-block-"+String.fromCharCode(97+i-start)+"'" : "")+"><a href='#'' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a></div>";
+        inputs += "<div "+((total > 1) ? "class='ui-block-"+String.fromCharCode(97+i-start)+"'" : "")+"><label>"+_(text[i])+"</label><input class='"+keys[i]+"' type='number' pattern='[0-9]*' value='"+arr[keys[i]]+"'></div>";
+        decrbts += "<div "+((total > 1) ? "class='ui-block-"+String.fromCharCode(97+i-start)+"'" : "")+"><a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='minus' data-iconpos='bottom'></a></div>";
     }
 
-    incrbts += '</fieldset>';
-    inputs += '</div>';
-    decrbts += '</fieldset>';
+    incrbts += "</fieldset>";
+    inputs += "</div>";
+    decrbts += "</fieldset>";
 
     popup.find("span").prepend(incrbts+inputs+decrbts);
 
@@ -3814,7 +4011,9 @@ function showDurationBox(seconds,title,callback,maximum,granularity) {
 
 function changePage(toPage,opts) {
     opts = opts || {};
-    if (toPage.indexOf("#") !== 0) toPage = "#"+toPage;
+    if (toPage.indexOf("#") !== 0) {
+        toPage = "#"+toPage;
+    }
 
     $.mobile.pageContainer.pagecontainer("change",toPage,opts);
 }
@@ -3829,14 +4028,14 @@ function changeFromPanel(page) {
 }
 
 function showTooltip(x, y, contents, color) {
-    $('<div id="tooltip">' + contents + '</div>').css( {
-        position: 'absolute',
-        display: 'none',
+    $("<div id='tooltip'>" + contents + "</div>").css( {
+        position: "absolute",
+        display: "none",
         top: y + 5,
         left: x + 5,
-        padding: '2px',
-        'text-shadow': 'none',
-        'background-color': color,
+        padding: "2px",
+        "text-shadow": "none",
+        "background-color": color,
         color: colorContrast(color),
         opacity: 0.80
     }).appendTo("body").fadeIn(200);
@@ -3856,14 +4055,16 @@ function showLoading(ele) {
 
 function goBack(keepIndex) {
     var page = $(".ui-page-active").attr("id"),
-        managerStart = (page == "site-control" && !$("#site-control").find(".ui-btn-left").is(':visible'));
+        managerStart = (page === "site-control" && !$("#site-control").find(".ui-btn-left").is(":visible"));
 
-    if (page == "sprinklers" || page == "start" || managerStart) {
+    if (page === "sprinklers" || page === "start" || managerStart) {
         navigator.app.exitApp();
     } else {
         changePage($.mobile.navigate.history.getPrev().url);
         $.mobile.document.one("pagehide",function(){
-            if (!keepIndex) $.mobile.navigate.history.activeIndex -= 2;
+            if (!keepIndex) {
+                $.mobile.navigate.history.activeIndex -= 2;
+            }
         });
     }
 }
@@ -3872,14 +4073,14 @@ function goBack(keepIndex) {
 function showerror(msg,dur) {
     dur = dur || 2500;
 
-    $.mobile.loading('show', {
+    $.mobile.loading("show", {
         text: msg,
         textVisible: true,
         textonly: true,
-        theme: 'b'
+        theme: "b"
     });
     // hide after delay
-    setTimeout(function(){$.mobile.loading('hide');},dur);
+    setTimeout(function(){$.mobile.loading("hide");},dur);
 }
 
 // Accessory functions
@@ -3923,7 +4124,9 @@ function sec2hms(diff) {
     var hours = Math.max(0, parseInt( diff / 3600 ) % 24);
     var minutes = Math.max(0, parseInt( diff / 60 ) % 60);
     var seconds = diff % 60;
-    if (hours) str += pad(hours)+":";
+    if (hours) {
+        str += pad(hours)+":";
+    }
     return str+pad(minutes)+":"+pad(seconds);
 }
 
@@ -3939,11 +4142,21 @@ function sec2dhms(diff) {
 
 function dhms2str(arr) {
     var str = "";
-    if (arr.days) str += arr.days+_("d")+" ";
-    if (arr.hours) str += arr.hours+_("h")+" ";
-    if (arr.minutes) str += arr.minutes+_("m")+" ";
-    if (arr.seconds) str += arr.seconds+_("s")+" ";
-    if (str === "") str = "0"+_("s");
+    if (arr.days) {
+        str += arr.days+_("d")+" ";
+    }
+    if (arr.hours) {
+        str += arr.hours+_("h")+" ";
+    }
+    if (arr.minutes) {
+        str += arr.minutes+_("m")+" ";
+    }
+    if (arr.seconds) {
+        str += arr.seconds+_("s")+" ";
+    }
+    if (str === "") {
+        str = "0"+_("s");
+    }
     return str.trim();
 }
 
@@ -3970,13 +4183,13 @@ storage = {
             var data = {},
                 i;
 
-            if (typeof query == "object") {
+            if (typeof query === "object") {
                 for (i in query) {
                     if (query.hasOwnProperty(i)) {
                         data[query[i]] = localStorage.getItem(query[i]);
                     }
                 }
-            } else if (typeof query == "string") {
+            } else if (typeof query === "string") {
                 data[query] = localStorage.getItem(query);
             }
 
@@ -3990,7 +4203,7 @@ storage = {
             chrome.storage.local.set(query,callback);
         } else {
             var i;
-            if (typeof query == "object") {
+            if (typeof query === "object") {
                 for (i in query) {
                     if (query.hasOwnProperty(i)) {
                         localStorage.setItem(i,query[i]);
@@ -4009,13 +4222,13 @@ storage = {
         } else {
             var i;
 
-            if (typeof query == "object") {
+            if (typeof query === "object") {
                 for (i in query) {
                     if (query.hasOwnProperty(i)) {
                         localStorage.removeItem(query[i]);
                     }
                 }
-            } else if (typeof query == "string") {
+            } else if (typeof query === "string") {
                 localStorage.removeItem(query);
             }
 
@@ -4029,7 +4242,7 @@ function getDayName(day,type) {
     var ldays = [_("Sunday"),_("Monday"),_("Tuesday"),_("Wednesday"),_("Thursday"),_("Friday"),_("Saturday")],
         sdays = [_("Sun"),_("Mon"),_("Tue"),_("Wed"),_("Thu"),_("Fri"),_("Sat")];
 
-    if (type == "short") {
+    if (type === "short") {
         return sdays[day.getDay()];
     } else {
         return ldays[day.getDay()];
@@ -4040,7 +4253,9 @@ function getDayName(day,type) {
 function getUnique(inputArray) {
     var outputArray = [];
     for (var i = 0; i < inputArray.length; i++) {
-        if (($.inArray(inputArray[i], outputArray)) == -1) outputArray.push(inputArray[i]);
+        if (($.inArray(inputArray[i], outputArray)) === -1) {
+            outputArray.push(inputArray[i]);
+        }
     }
     return outputArray;
 }
@@ -4049,7 +4264,7 @@ function getUnique(inputArray) {
 function pad(number) {
     var r = String(number);
     if ( r.length === 1 ) {
-        r = '0' + r;
+        r = "0" + r;
     }
     return r;
 }
@@ -4075,7 +4290,9 @@ function set_lang() {
         if (el.is("input[type='submit']")) {
             el.val(_(txt));
             // Update button for jQuery Mobile
-            if (el.parent("div.ui-btn").length > 0) el.button("refresh");
+            if (el.parent("div.ui-btn").length > 0) {
+                el.button("refresh");
+            }
         } else {
             return _(txt);
         }
@@ -4090,7 +4307,7 @@ function update_lang(lang) {
     //Empty out the current language (English is provided as the key)
     language = {};
 
-    if (typeof lang == "undefined") {
+    if (typeof lang === "undefined") {
         storage.get("lang",function(data){
             //Identify the current browser's locale
             var locale = "en";
@@ -4104,7 +4321,7 @@ function update_lang(lang) {
 
     storage.set({"lang":lang});
 
-    if (lang == "en") {
+    if (lang === "en") {
         set_lang();
         return;
     }
@@ -4119,7 +4336,7 @@ function check_curr_lang() {
     storage.get("lang",function(data){
         $("#localization").find("a").each(function(a,b){
             var item = $(b);
-            if (item.data("lang-code") == data.lang) {
+            if (item.data("lang-code") === data.lang) {
                 item.removeClass("ui-icon-carat-r").addClass("ui-icon-check");
             } else {
                 item.removeClass("ui-icon-check").addClass("ui-icon-carat-r");
@@ -4131,7 +4348,7 @@ function check_curr_lang() {
 function dateToString(date) {
     var lang = $("#localization").find(".ui-icon-check").data("langCode");
 
-    if (lang == "de") {
+    if (lang === "de") {
         date.setMinutes(date.getMinutes()+date.getTimezoneOffset());
         return pad(date.getDate())+"."+pad(date.getMonth())+"."+date.getFullYear()+" "+pad(date.getHours())+":"+pad(date.getMinutes())+":"+pad(date.getSeconds());
     }
@@ -4142,7 +4359,9 @@ function dateToString(date) {
 function tzToString(prefix,tz,offset) {
     var lang = $("#localization").find(".ui-icon-check").data("langCode");
 
-    if (lang == "de") return "";
+    if (lang === "de") {
+        return "";
+    }
 
     return prefix+tz+" "+offset;
 }
