@@ -12,5 +12,9 @@
 	"trailing": true,
 	"undef": true,
 	"unused": true,
-	"browser": true
+	"browser": true,
+	"sub": true,
+	"globals": {
+		"module": true
+	}
 }
