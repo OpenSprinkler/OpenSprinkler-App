@@ -17,7 +17,10 @@ module.exports = function(grunt) {
     pkg: grunt.file.readJSON('package.json'),
     secrets: grunt.file.readJSON('.secrets.json'),
     jshint: {
-    	main: ["<%= pkg.main %>"]
+    	main: ["<%= pkg.main %>"],
+      options: {
+        jshintrc: true
+      }
     },
     shell: {
       updateLang: {
