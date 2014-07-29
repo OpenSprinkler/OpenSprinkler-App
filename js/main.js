@@ -1,4 +1,3 @@
-/*jshint bitwise: false*/
 /*global $, navigator, chrome, FastClick, StatusBar, networkinterface, links, escape */
 var isIEMobile = /IEMobile/.test(navigator.userAgent),
     isAndroid = /Android|\bSilk\b/.test(navigator.userAgent),

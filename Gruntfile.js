@@ -1,23 +1,23 @@
 module.exports = function(grunt) {
 
   // Load node-modules;
-  grunt.loadNpmTasks('grunt-contrib-jshint');
-  grunt.loadNpmTasks('grunt-text-replace');
-  grunt.loadNpmTasks('grunt-shell');
+  grunt.loadNpmTasks("grunt-contrib-jshint");
+  grunt.loadNpmTasks("grunt-text-replace");
+  grunt.loadNpmTasks("grunt-shell");
 
   var bumpVersion = function(version,level) {
     version = version.split(".") || [0,0,0];
     level = level || 2;
     version[level]++;
     return version.join(".");
-  }
+  };
 
   // Project configuration.
   grunt.initConfig({
-    pkg: grunt.file.readJSON('package.json'),
-    secrets: grunt.file.readJSON('.secrets.json'),
+    pkg: grunt.file.readJSON("package.json"),
+    secrets: grunt.file.readJSON(".secrets.json"),
     jshint: {
-    	main: ["<%= pkg.main %>"],
+    	main: ["<%= pkg.main %>","Gruntfile.js"],
       options: {
         jshintrc: true
       }
@@ -38,7 +38,7 @@ module.exports = function(grunt) {
     },
     replace: {
       index: {
-        src: ['index.html'],
+        src: ["index.html"],
         overwrite: true,
         replacements: [{
           from: /<p>Version: ([\d|\.]+)<\/p>/g,
@@ -48,7 +48,7 @@ module.exports = function(grunt) {
         }]
       },
       phonegap: {
-        src: ['config.xml'],
+        src: ["config.xml"],
         overwrite: true,
         replacements: [{
           from: /version     = "([\d|\.]+)"/g,
@@ -63,7 +63,7 @@ module.exports = function(grunt) {
         }]
       },
       manifests: {
-        src: ['manifest.json','manifest.webapp','package.json'],
+        src: ["manifest.json","manifest.webapp","package.json"],
         overwrite: true,
         replacements: [{
           from: /"version": "([\d|\.]+)"/g,
@@ -76,9 +76,9 @@ module.exports = function(grunt) {
   });
 
   // Default task(s).
-  grunt.registerTask('default',['jshint']);
-  grunt.registerTask('bump',['replace']);
-  grunt.registerTask('updateLang',['shell:updateLang']);
-  grunt.registerTask('build',['updateLang','jshint','shell:firefox','shell:chrome','shell:blackberry10']);
+  grunt.registerTask("default",["jshint"]);
+  grunt.registerTask("bump",["replace"]);
+  grunt.registerTask("updateLang",["shell:updateLang"]);
+  grunt.registerTask("build",["updateLang","jshint","shell:firefox","shell:chrome","shell:blackberry10"]);
 
 };
