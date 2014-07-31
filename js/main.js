@@ -1469,7 +1469,7 @@ function update_weather() {
 }
 
 function weather_update_failed(x,t,m) {
-    if (m.url.search("yahooapis.com") !== -1 || m.url.search("api.wunderground.com") !== -1) {
+    if (m.url && (m.url.search("yahooapis.com") !== -1 || m.url.search("api.wunderground.com") !== -1)) {
         hide_weather();
         return;
     }
@@ -3869,16 +3869,35 @@ function isOSPi() {
 }
 
 function checkWeatherPlugin() {
-    var weather_settings = $(".weather_settings");
+    var weather_settings = $(".weather_settings"),
+        weather_provider = $(".show-providers");
 
     curr_wa = [];
     weather_settings.hide();
     if (isOSPi()) {
-        send_to_os("/wj","json").done(function(results){
-            if (typeof results.auto_delay === "string") {
-                curr_wa = results;
-                weather_settings.css("display","");
-            }
+        storage.get("provider",function(data){
+            send_to_os("/wj","json").done(function(results){
+                var provider = results.weather_provider;
+
+                // Check if the OSPi has valid weather provider data
+                if (typeof provider === "string" && (provider === "yahoo" || provider === "wunderground") && data.provider !== provider) {
+                    storage.set({
+                        "provider": provider,
+                        "wapikey": results.wapikey
+                    });
+
+                    // Hide the weather provider option when the OSPi provides it
+                    weather_provider.hide();
+
+                    // Update the weather based on this information
+                    update_weather();
+                }
+
+                if (typeof results.auto_delay === "string") {
+                    curr_wa = results;
+                    weather_settings.css("display","");
+                }
+            });
         });
     }
 }
