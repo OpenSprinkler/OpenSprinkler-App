@@ -7,7 +7,7 @@ var isIEMobile = /IEMobile/.test(navigator.userAgent),
     retryCount = 3,
     controller = {},
     switching = false,
-    curr_183, curr_ip, curr_prefix, curr_auth, curr_pw, curr_wa, curr_session, curr_auth_user, curr_auth_pw, language, deviceip, storage;
+    curr_183, curr_ip, curr_prefix, curr_auth, curr_pw, curr_wa, curr_session, curr_auth_user, curr_auth_pw, language, deviceip, storage, interval_id, timeout_id;
 
 //Fix CSS for IE Mobile (Windows Phone 8)
 if (isIEMobile) {
@@ -2176,13 +2176,13 @@ function get_status() {
     }
 
     lastCheck = new Date().getTime();
-    window.interval_id = setInterval(function(){
+    interval_id = setInterval(function(){
         var now = new Date().getTime(),
             page = $(".ui-page-active").attr("id"),
             diff = now - lastCheck;
 
         if (diff > 3000) {
-            clearInterval(window.interval_id);
+            clearInterval(interval_id);
             if (page === "status") {
                 refresh_status();
             }
@@ -2195,12 +2195,12 @@ function get_status() {
                     if (page === "status") {
                         refresh_status();
                     } else {
-                        clearInterval(window.interval_id);
+                        clearInterval(interval_id);
                         return;
                     }
                 } else {
                     $("#countdown-"+a).parent("p").text(_("Station delay")).parent("li").removeClass("green").addClass("red");
-                    window.timeout_id = setTimeout(refresh_status,controller.options.sdt*1000);
+                    timeout_id = setTimeout(refresh_status,controller.options.sdt*1000);
                 }
             } else {
                 if (a === "c") {
@@ -2240,11 +2240,11 @@ function refresh_status() {
 
 function removeTimers() {
     //Remove any status timers that may be running
-    if (window.interval_id !== undefined) {
-        clearInterval(window.interval_id);
+    if (interval_id !== undefined) {
+        clearInterval(interval_id);
     }
-    if (window.timeout_id !== undefined) {
-        clearTimeout(window.timeout_id);
+    if (timeout_id !== undefined) {
+        clearTimeout(timeout_id);
     }
 }
 
@@ -2382,24 +2382,24 @@ function check_status() {
 
 // Handle timer update on the home page for the status bar
 function update_timer(total,sdelay) {
-    window.lastCheck = new Date().getTime();
-    window.interval_id = setInterval(function(){
+    var lastCheck = new Date().getTime();
+    interval_id = setInterval(function(){
         var now = new Date().getTime();
-        var diff = now - window.lastCheck;
+        var diff = now - lastCheck;
         if (diff > 3000) {
-            clearInterval(window.interval_id);
+            clearInterval(interval_id);
             showLoading("#footer-running");
             update_controller(check_status);
         }
-        window.lastCheck = now;
+        lastCheck = now;
 
         if (total <= 0) {
-            clearInterval(window.interval_id);
+            clearInterval(interval_id);
             showLoading("#footer-running");
-            if (window.timeout_id !== undefined) {
-                clearTimeout(window.timeout_id);
+            if (timeout_id !== undefined) {
+                clearTimeout(timeout_id);
             }
-            window.timeout_id = setTimeout(function(){
+            timeout_id = setTimeout(function(){
                 update_controller(check_status);
             },(sdelay*1000));
         } else {
