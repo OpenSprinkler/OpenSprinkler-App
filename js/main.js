@@ -179,7 +179,6 @@ $(document)
         } else if (hash === "#addprogram") {
             add_program();
         } else if (hash === "#status") {
-            $(hash).find("div[data-role='header'] > .ui-btn-right").on("click",refresh_status);
             get_status();
         } else if (hash === "#manual") {
             get_manual();
@@ -2067,7 +2066,8 @@ function submit_stations() {
 
 // Current status related functions
 function get_status() {
-    var runningTotal = {},
+    var page = $("#status"),
+        runningTotal = {},
         allPnames = [],
         color = "",
         list = "",
@@ -2075,8 +2075,10 @@ function get_status() {
         lastCheck;
 
     if ($.mobile.pageContainer.pagecontainer("getActivePage").attr("id") === "status") {
-        $("#status .ui-content").empty();
+        page.find(".ui-content").empty();
     }
+
+    page.find("div[data-role='header'] > .ui-btn-right").on("click",refresh_status);
 
     tz = ((tz>=0)?"+":"-")+pad((Math.abs(tz)/4>>0))+":"+((Math.abs(tz)%4)*15/10>>0)+((Math.abs(tz)%4)*15%10);
 
@@ -2170,7 +2172,7 @@ function get_status() {
         header +="<br>"+_("Rain detected");
     }
 
-    $("#status .ui-content").append(
+    page.find(".ui-content").append(
         $("<p class='smaller center'></p>").html(header),
         $("<ul data-role='listview' data-inset='true' id='status_list'></ul>").html(list).listview(),
         $("<p class='smaller center'></p>").html(footer)
@@ -2178,9 +2180,8 @@ function get_status() {
 
     removeTimers();
 
-    $("#status").one("pagehide",function(){
+    page.one("pagehide",function(){
         removeTimers();
-        var page = $(this);
         page.find(".ui-header > .ui-btn-right").off("click");
         page.find(".ui-content").empty();
     });
@@ -2193,12 +2194,12 @@ function get_status() {
     lastCheck = new Date().getTime();
     interval_id = setInterval(function(){
         var now = new Date().getTime(),
-            page = $(".ui-page-active").attr("id"),
+            currPage = $(".ui-page-active").attr("id"),
             diff = now - lastCheck;
 
         if (diff > 3000) {
             clearInterval(interval_id);
-            if (page === "status") {
+            if (currPage === "status") {
                 refresh_status();
             }
         }
@@ -2207,7 +2208,7 @@ function get_status() {
             if (b <= 0) {
                 delete runningTotal[a];
                 if (a === "p") {
-                    if (page === "status") {
+                    if (currPage === "status") {
                         refresh_status();
                     } else {
                         clearInterval(interval_id);
@@ -3880,17 +3881,19 @@ function checkWeatherPlugin() {
                 var provider = results.weather_provider;
 
                 // Check if the OSPi has valid weather provider data
-                if (typeof provider === "string" && (provider === "yahoo" || provider === "wunderground") && data.provider !== provider) {
-                    storage.set({
-                        "provider": provider,
-                        "wapikey": results.wapikey
-                    });
+                if (typeof provider === "string" && (provider === "yahoo" || provider === "wunderground")) {
+                    if (data.provider !== provider) {
+                        storage.set({
+                            "provider": provider,
+                            "wapikey": results.wapikey
+                        });
+
+                        // Update the weather based on this information
+                        update_weather();
+                    }
 
                     // Hide the weather provider option when the OSPi provides it
                     weather_provider.hide();
-
-                    // Update the weather based on this information
-                    update_weather();
                 }
 
                 if (typeof results.auto_delay === "string") {
