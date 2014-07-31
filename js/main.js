@@ -26,7 +26,7 @@ $(document)
     //Update the language on the page using the browser's locale
     update_lang();
 
-    //Use the user's local time for preview
+    //Use the user's local time for preview and log time range
     var now = new Date();
     $("#log_start").val(new Date(now.getTime() - 604800000).toISOString().slice(0,10));
     $("#preview_date, #log_end").val(now.toISOString().slice(0,10));
@@ -121,6 +121,7 @@ $(document)
     // Check if device is on a local network
     checkAutoScan();
 
+    // For Android, Blackberry and Windows Phone devices catch the back button and redirect it
     $.mobile.document.on("backbutton",function(){
         goBack();
         return false;
@@ -133,14 +134,16 @@ $(document)
     $.mobile.hashListeningEnabled = false;
 })
 .one("pagebeforechange", function(event) {
-    // Let the framework know we're going to handle the load
+    // Let the framework know we're going to handle the first load
     event.preventDefault();
 
+    // Bind the event handler for subsequent pagebeforechange requests
     $.mobile.document.on("pagebeforechange",function(e,data){
         var page = data.toPage,
             currPage = $(".ui-page-active"),
             hash;
 
+        // Pagebeforechange event triggers twice (before and after) and this check ensures we get the before state
         if (typeof data.toPage !== "string") {
             return;
         }
@@ -165,10 +168,12 @@ $(document)
             return;
         }
 
+        // Animations are patchy if the page isn't scrolled to the top. This scrolls the page before the animation fires off
         if (data.options.role !== "popup" && !$(".ui-popup-active").length) {
             $.mobile.silentScroll(0);
         }
 
+        // Cycle through page possbilities and call their init functions
         if (hash === "#programs") {
             get_programs(data.options.programToExpand);
         } else if (hash === "#addprogram") {
@@ -180,8 +185,8 @@ $(document)
             get_manual();
         } else if (hash === "#runonce") {
             get_runonce();
-        } else if (hash === "#os-settings") {
-            show_settings();
+        } else if (hash === "#os-options") {
+            show_options();
         } else if (hash === "#start") {
             checkAutoScan();
         } else if (hash === "#os-stations") {
@@ -209,132 +214,14 @@ $(document)
                 check_status();
             }
         } else if (hash === "#settings") {
-            $.each(["en","mm"],function(a,id){
-                var $id = $("#"+id);
-                $id.prop("checked",controller.settings[id]);
-                if ($id.hasClass("ui-flipswitch-input")) {
-                    $id.flipswitch("refresh");
-                }
-                $id.on("change",flipSwitched);
-            });
-            var settings = $(hash);
-            settings.find(".clear_logs > a").off("click").on("click",function(){
-                areYouSure(_("Are you sure you want to clear all your log data?"), "", function() {
-                    $.mobile.loading("show");
-                    send_to_os("/cl?pw=").done(function(){
-                        $.mobile.loading("hide");
-                        showerror(_("Logs have been cleared"));
-                    });
-                });
-                return false;
-            });
-            settings.find(".reboot-os").off("click").on("click",function(){
-                areYouSure(_("Are you sure you want to reboot OpenSprinkler?"), "", function() {
-                    $.mobile.loading("show");
-                    send_to_os("/cv?pw=&rbt=1").done(function(){
-                        $.mobile.loading("hide");
-                        showerror(_("OpenSprinkler is rebooting now"));
-                    });
-                });
-                return false;
-            });
-            settings.find(".clear-config").off("click").on("click",function(){
-                areYouSure(_("Are you sure you want to delete all settings and return to the default settings?"), "", function() {
-                    storage.remove(["sites","current_site","lang","provider","wapikey","runonce"],function(){
-                        update_lang();
-                        changePage("#start");
-                    });
-                });
-                return false;
-            });
-            settings.find(".show-providers").off("click").on("click",function(){
-                $("#providers").popup("destroy").remove();
-
-                storage.get(["provider","wapikey"],function(data){
-                    data.provider = data.provider || "yahoo";
-
-                    var popup = $(
-                        "<div data-role='popup' id='providers' data-theme='a' data-dismissible='false' data-overlay-theme='b'>"+
-                            "<a data-rel='back' class='ui-btn ui-corner-all ui-shadow ui-btn-a ui-icon-delete ui-btn-icon-notext ui-btn-right'>Close</a>"+
-                            "<div class='ui-content'>"+
-                                "<form>"+
-                                    "<label for='weather_provider'>"+_("Weather Provider")+
-                                        "<select data-mini='true' id='weather_provider'>"+
-                                            "<option value='yahoo'>"+_("Yahoo!")+"</option>"+
-                                            "<option "+((data.provider === "wunderground") ? "selected " : "")+"value='wunderground'>"+_("Wunderground")+"</option>"+
-                                        "</select>"+
-                                    "</label>"+
-                                    "<label for='wapikey'>"+_("Wunderground API Key")+"<input data-mini='true' type='text' id='wapikey' value='"+((data.wapikey) ? data.wapikey : "")+"' /></label>"+
-                                    "<input type='submit' value='"+_("Submit")+"' />"+
-                                "</form>"+
-                            "</div>"+
-                        "</div>"
-                    );
-
-                    if (data.provider === "yahoo") {
-                        popup.find("#wapikey").closest("label").hide();
-                    }
-
-                    popup.find("form").on("submit",function(e){
-                        e.preventDefault();
-
-                        var wapikey = $("#wapikey").val(),
-                            provider = $("#weather_provider").val();
-
-                        if (provider === "wunderground" && wapikey === "") {
-                            showerror(_("An API key must be provided for Weather Underground"));
-                            return;
-                        }
-
-                        storage.set({
-                            "wapikey": wapikey,
-                            "provider": provider
-                        });
-
-                        update_weather();
-
-                        $("#providers").popup("close");
-
-                        return false;
-                    });
-
-                    //Handle provider select change on weather settings
-                    popup.on("change","#weather_provider",function(){
-                        var val = $(this).val();
-                        if (val === "wunderground") {
-                            $("#wapikey").closest("label").show();
-                        } else {
-                            $("#wapikey").closest("label").hide();
-                        }
-                        popup.popup("reposition",{
-                            "positionTo": "window"
-                        });
-                    });
-
-                    popup.one("popupafterclose",function(){
-                        document.activeElement.blur();
-                        this.remove();
-                    }).popup().enhanceWithin().popup("open");
-                    return false;
-                });
-            });
-            $("#localization").find("a").off("click").on("click",function(){
-                var link = $(this),
-                    lang = link.data("lang-code");
-
-                update_lang(lang);
-            });
-            settings.one("pagehide",function(){
-                $("#en,#mm").off("change");
-                settings.find(".clear_logs > a,.reboot-os,.clear-config,.show-providers").off("click");
-                $("#localization").find("a").off("click");
-            });
+            show_settings();
         }
     });
 
     //On initial load check if a valid site exists for auto connect
     check_configured(true);
 })
+// Handle OS resume event triggered by PhoneGap
 .on("resume",function(){
     var page = $(".ui-page-active").attr("id"),
         func = function(){};
@@ -371,6 +258,7 @@ $(document)
     var newpage = "#"+e.target.id,
         $newpage = $(newpage);
 
+    // Fix issues between jQuery Mobile and FastClick
     fixInputClick($newpage);
 
     // Render graph after the page is shown otherwise graphing function will fail
@@ -394,6 +282,7 @@ $(document)
     } else if (newpage === "#logs") {
         get_logs();
     } else if (newpage === "#sprinklers") {
+        // Bind event handler to open panel when swiping on the main page
         $newpage.off("swiperight").on("swiperight", function() {
             if ($(".ui-page-active").jqmData("panel") !== "open" && !$(".ui-page-active .ui-popup-active").length) {
                 open_panel();
@@ -409,6 +298,7 @@ $.ajaxSetup({
     timeout: 6000
 });
 
+// Handle main switches for manual mode and enable
 function flipSwitched() {
     if (switching) {
         return;
@@ -444,6 +334,7 @@ function flipSwitched() {
 
 // Wrapper function to communicate with OpenSprinkler
 function send_to_os(dest,type) {
+    // Inject password into the request
     dest = dest.replace("pw=","pw="+curr_pw);
     type = type || "text";
     var obj = {
@@ -493,7 +384,7 @@ function newload() {
         theme: "b"
     });
 
-    //Create object which will store device data
+    //Empty object which will store device data
     controller = {};
     update_controller(
         function(){
@@ -1763,10 +1654,134 @@ function open_panel() {
     panel.panel("open");
 }
 
-// Device setting management functions
+// Bind settings page event listeners
 function show_settings() {
+    $.each(["en","mm"],function(a,id){
+        var $id = $("#"+id);
+        $id.prop("checked",controller.settings[id]);
+        if ($id.hasClass("ui-flipswitch-input")) {
+            $id.flipswitch("refresh");
+        }
+        $id.on("change",flipSwitched);
+    });
+    var settings = $("#settings");
+    settings.find(".clear_logs > a").off("click").on("click",function(){
+        areYouSure(_("Are you sure you want to clear all your log data?"), "", function() {
+            $.mobile.loading("show");
+            send_to_os("/cl?pw=").done(function(){
+                $.mobile.loading("hide");
+                showerror(_("Logs have been cleared"));
+            });
+        });
+        return false;
+    });
+    settings.find(".reboot-os").off("click").on("click",function(){
+        areYouSure(_("Are you sure you want to reboot OpenSprinkler?"), "", function() {
+            $.mobile.loading("show");
+            send_to_os("/cv?pw=&rbt=1").done(function(){
+                $.mobile.loading("hide");
+                showerror(_("OpenSprinkler is rebooting now"));
+            });
+        });
+        return false;
+    });
+    settings.find(".clear-config").off("click").on("click",function(){
+        areYouSure(_("Are you sure you want to delete all settings and return to the default settings?"), "", function() {
+            storage.remove(["sites","current_site","lang","provider","wapikey","runonce"],function(){
+                update_lang();
+                changePage("#start");
+            });
+        });
+        return false;
+    });
+    settings.find(".show-providers").off("click").on("click",function(){
+        $("#providers").popup("destroy").remove();
+
+        storage.get(["provider","wapikey"],function(data){
+            data.provider = data.provider || "yahoo";
+
+            var popup = $(
+                "<div data-role='popup' id='providers' data-theme='a' data-dismissible='false' data-overlay-theme='b'>"+
+                    "<a data-rel='back' class='ui-btn ui-corner-all ui-shadow ui-btn-a ui-icon-delete ui-btn-icon-notext ui-btn-right'>Close</a>"+
+                    "<div class='ui-content'>"+
+                        "<form>"+
+                            "<label for='weather_provider'>"+_("Weather Provider")+
+                                "<select data-mini='true' id='weather_provider'>"+
+                                    "<option value='yahoo'>"+_("Yahoo!")+"</option>"+
+                                    "<option "+((data.provider === "wunderground") ? "selected " : "")+"value='wunderground'>"+_("Wunderground")+"</option>"+
+                                "</select>"+
+                            "</label>"+
+                            "<label for='wapikey'>"+_("Wunderground API Key")+"<input data-mini='true' type='text' id='wapikey' value='"+((data.wapikey) ? data.wapikey : "")+"' /></label>"+
+                            "<input type='submit' value='"+_("Submit")+"' />"+
+                        "</form>"+
+                    "</div>"+
+                "</div>"
+            );
+
+            if (data.provider === "yahoo") {
+                popup.find("#wapikey").closest("label").hide();
+            }
+
+            popup.find("form").on("submit",function(e){
+                e.preventDefault();
+
+                var wapikey = $("#wapikey").val(),
+                    provider = $("#weather_provider").val();
+
+                if (provider === "wunderground" && wapikey === "") {
+                    showerror(_("An API key must be provided for Weather Underground"));
+                    return;
+                }
+
+                storage.set({
+                    "wapikey": wapikey,
+                    "provider": provider
+                });
+
+                update_weather();
+
+                $("#providers").popup("close");
+
+                return false;
+            });
+
+            //Handle provider select change on weather settings
+            popup.on("change","#weather_provider",function(){
+                var val = $(this).val();
+                if (val === "wunderground") {
+                    $("#wapikey").closest("label").show();
+                } else {
+                    $("#wapikey").closest("label").hide();
+                }
+                popup.popup("reposition",{
+                    "positionTo": "window"
+                });
+            });
+
+            popup.one("popupafterclose",function(){
+                document.activeElement.blur();
+                this.remove();
+            }).popup().enhanceWithin().popup("open");
+            return false;
+        });
+    });
+    $("#localization").find("a").off("click").on("click",function(){
+        var link = $(this),
+            lang = link.data("lang-code");
+
+        update_lang(lang);
+    });
+    settings.one("pagehide",function(){
+        $("#en,#mm").off("change");
+        settings.find(".clear_logs > a,.reboot-os,.clear-config,.show-providers").off("click");
+        $("#localization").find("a").off("click");
+    });
+}
+
+// Device setting management functions
+function show_options() {
     var list = "",
-        page = $("<div data-role='page' id='os-settings'>" +
+        page = $("<div data-role='page' id='os-options'>" +
             "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false' data-add-back-btn='true'>" +
                 "<h3>"+_("OS Settings")+"</h3>" +
                 "<button data-icon='check' class='ui-btn-right'>"+_("Submit")+"</button>" +
@@ -1858,7 +1873,7 @@ function show_settings() {
 
     list += "</fieldset></div></li>";
 
-    page.find(".ui-content").html("<ul data-role='listview' data-inset='true' id='os-settings-list'>"+list+"</ul>");
+    page.find(".ui-content").html("<ul data-role='listview' data-inset='true' id='os-options-list'>"+list+"</ul>");
 
     page.one("pagehide",function(){
         page.remove();
@@ -1874,7 +1889,7 @@ function submit_settings() {
         keyNames = {1:"tz",2:"ntp",12:"htp",13:"htp2",14:"ar",15:"nbrd",16:"seq",17:"sdt",18:"mas",19:"mton",20:"mtoff",21:"urs",22:"rst",23:"wl",25:"ipas"},
         key;
 
-    $("#os-settings-list").find(":input").each(function(a,b){
+    $("#os-options-list").find(":input").each(function(a,b){
         var $item = $(b),
             id = $item.attr("id"),
             data = $item.val();
