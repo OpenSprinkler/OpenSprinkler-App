@@ -3936,6 +3936,8 @@ function checkWeatherPlugin() {
                 }
             });
         });
+    } else {
+       weather_provider.css("display","");
     }
 }
 
