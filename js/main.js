@@ -2859,25 +2859,22 @@ function get_preview() {
 
         var timeline = new links.Timeline(page.find("#timeline")[0],options);
         links.events.addListener(timeline, "select", function(){
-            var row,
-                sel = timeline.getSelection();
+            var sel = timeline.getSelection(),
+                content, pid;
 
             if (sel.length) {
                 if (typeof sel[0].row !== "undefined") {
-                    row = sel[0].row;
+                    content = page.find(".timeline-event-content")[sel[0].row];
+                    pid = parseInt(content.innerHTML.substr(1)) - 1;
+
+                    changePage("#programs",{
+                        "programToExpand": pid
+                    });
                 }
             }
-            if (row === undefined) {
-                return;
-            }
-            var content = page.find(".timeline-event-content")[row];
-            var pid = parseInt($(content).html().substr(1)) - 1;
-            changePage("#programs",{
-                "programToExpand": pid
-            });
         });
 
-        $.mobile.window.on("resize",function(){
+        $.mobile.window.off("resize").on("resize",function(){
             timeline.redraw();
         });
 
