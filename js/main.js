@@ -1781,7 +1781,7 @@ function show_options() {
     var list = "",
         page = $("<div data-role='page' id='os-options'>" +
             "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false' data-add-back-btn='true'>" +
-                "<h3>"+_("OS Settings")+"</h3>" +
+                "<h3>"+_("Change Options")+"</h3>" +
                 "<button data-icon='check' class='ui-btn-right'>"+_("Submit")+"</button>" +
             "</div>" +
             "<div class='ui-content' role='main'>" +
