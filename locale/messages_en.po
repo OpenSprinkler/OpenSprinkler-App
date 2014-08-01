@@ -189,7 +189,7 @@ msgstr ""
 msgid "An API key must be provided for Weather Underground"
 msgstr ""
 
-msgid "OS Settings"
+msgid "Change Options"
 msgstr ""
 
 msgid "Timezone"
@@ -740,9 +740,6 @@ msgid "Operation"
 msgstr ""
 
 msgid "Clear Logs"
-msgstr ""
-
-msgid "Device Options"
 msgstr ""
 
 msgid "Reboot OpenSprinkler"
