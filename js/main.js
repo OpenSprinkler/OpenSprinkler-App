@@ -2859,16 +2859,12 @@ function get_preview() {
 
         var timeline = new links.Timeline(page.find("#timeline")[0],options);
         links.events.addListener(timeline, "select", function(){
-            var sel = timeline.getSelection(),
-                content, pid;
+            var sel = timeline.getSelection();
 
             if (sel.length) {
                 if (typeof sel[0].row !== "undefined") {
-                    content = page.find(".timeline-event-content")[sel[0].row];
-                    pid = parseInt(content.innerHTML.substr(1)) - 1;
-
                     changePage("#programs",{
-                        "programToExpand": pid
+                        "programToExpand": parseInt(timeline.getItem(sel[0].row).content.substr(1)) - 1
                     });
                 }
             }
