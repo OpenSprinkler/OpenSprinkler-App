@@ -28,8 +28,7 @@ $(document)
 
     //Use the user's local time for preview and log time range
     var now = new Date();
-    $("#log_start").val(new Date(now.getTime() - 604800000).toISOString().slice(0,10));
-    $("#preview_date, #log_end").val(now.toISOString().slice(0,10));
+    $("#preview_date").val(now.toISOString().slice(0,10));
 
     //Update site based on selector
     $("#site-selector").on("change",function(){
@@ -186,6 +185,8 @@ $(document)
             get_runonce();
         } else if (hash === "#os-options") {
             show_options();
+        } else if (hash === "#logs") {
+            get_logs();
         } else if (hash === "#start") {
             checkAutoScan();
         } else if (hash === "#os-stations") {
@@ -278,8 +279,6 @@ $(document)
             $(".preview-minus,.preview-plus").off("click");
             $("#timeline-navigation").find("a").off("click");
         });
-    } else if (newpage === "#logs") {
-        get_logs();
     } else if (newpage === "#sprinklers") {
         // Bind event handler to open panel when swiping on the main page
         $newpage.off("swiperight").on("swiperight", function() {
@@ -2925,12 +2924,53 @@ function changeday(dir) {
 
 // Logging functions
 function get_logs() {
-    var logs = $("#logs"),
-        placeholder = $("#placeholder"),
-        logs_list = $("#logs_list"),
-        zones = $("#zones"),
-        graph_sort = $("#graph_sort"),
-        log_options = $("#log_options"),
+    var now = new Date(),
+        logs = $("<div data-role='page' id='logs'>" +
+            "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false'>" +
+                "<a href='javascript:void(0);' class='ui-btn ui-corner-all ui-shadow ui-btn-left ui-btn-b ui-toolbar-back-btn ui-icon-carat-l ui-btn-icon-left' data-rel='back'>"+_("Back")+"</a>" +
+                "<h3>"+_("Logs")+"</h3>" +
+                "<a href='#' data-icon='refresh' class='ui-btn-right'>"+_("Refresh")+"</a>" +
+            "</div>" +
+            "<div class='ui-content' role='main'>" +
+                "<fieldset data-role='controlgroup' data-type='horizontal' data-mini='true' class='log_type'>" +
+                    "<input data-mini='true' type='radio' name='log_type' id='log_graph' value='graph' checked='checked' />" +
+                    "<label for='log_graph'>"+_("Graph")+"</label>" +
+                    "<input data-mini='true' type='radio' name='log_type' id='log_table' value='table' />" +
+                    "<label for='log_table'>"+_("Table")+"</label>" +
+                "</fieldset>" +
+                "<div id='placeholder'></div>" +
+                "<div id='zones'>" +
+                "</div>" +
+                "<fieldset data-role='collapsible' data-mini='true' id='log_options' class='center'>" +
+                    "<legend>"+_("Options")+"</legend>" +
+                    "<fieldset data-role='controlgroup' data-type='horizontal' id='graph_sort'>" +
+                      "<p class='tight'>"+_("Grouping:")+"</p>" +
+                      "<input data-mini='true' type='radio' name='g' id='radio-choice-d' value='n' checked='checked' />" +
+                      "<label for='radio-choice-d'>"+_("None")+"</label>" +
+                      "<input data-mini='true' type='radio' name='g' id='radio-choice-a' value='h' />" +
+                      "<label for='radio-choice-a'>"+_("Hour")+"</label>" +
+                      "<input data-mini='true' type='radio' name='g' id='radio-choice-b' value='d' />" +
+                      "<label for='radio-choice-b'>"+_("DOW")+"</label>" +
+                      "<input data-mini='true' type='radio' name='g' id='radio-choice-c' value='m' />" +
+                      "<label for='radio-choice-c'>"+_("Month")+"</label>" +
+                    "</fieldset>" +
+                    "<div class='ui-field-contain'>" +
+                        "<label for='log_start'>"+_("Start:")+"</label>" +
+                        "<input data-mini='true' type='date' id='log_start' value='"+(new Date(now.getTime() - 604800000).toISOString().slice(0,10))+"' />" +
+                        "<label for='log_end'>"+_("End:")+"</label>" +
+                        "<input data-mini='true' type='date' id='log_end' value='"+(now.toISOString().slice(0,10))+"' />" +
+                    "</div>" +
+                    "<a data-role='button' class='email_logs' href='#' data-mini='true'>"+_("Export via Email")+"</a>" +
+                "</fieldset>" +
+                "<div id='logs_list' class='center'>" +
+                "</div>" +
+            "</div>" +
+        "</div>"),
+        placeholder = logs.find("#placeholder"),
+        logs_list = logs.find("#logs_list"),
+        zones = logs.find("#zones"),
+        graph_sort = logs.find("#graph_sort"),
+        log_options = logs.find("#log_options"),
         data = [],
         seriesChange = function() {
             var grouping = logs.find("input:radio[name='g']:checked").val(),
@@ -3131,7 +3171,12 @@ function get_logs() {
                 output += "</tr></tbody></table>";
                 zones.empty().append(output).enhanceWithin();
                 zones.find("td").on("click",toggleZone);
-                zones.find("#graphScrollLeft,#graphScrollRight").on("click",scrollZone);
+                zones.find("#graphScrollLeft,#graphScrollRight").on("click",function(){
+                    var dir = ($(this).attr("id") === "graphScrollRight") ? "+=" : "-=",
+                        zones = $("#zones"),
+                        w = zones.width();
+                    zones.animate({scrollLeft: dir+w});
+                });
             }
             seriesChange();
             i = 0;
@@ -3262,9 +3307,9 @@ function get_logs() {
 
     //Automatically update the log viewer when changing the date range
     if (isiOS) {
-        $("#log_start,#log_end").on("blur",requestData);
+        logs.find("#log_start,#log_end").on("blur",requestData);
     } else {
-        $("#log_start,#log_end").change(function(){
+        logs.find("#log_start,#log_end").change(function(){
             clearTimeout(logtimeout);
             logtimeout = setTimeout(requestData,1000);
         });
@@ -3274,7 +3319,7 @@ function get_logs() {
     graph_sort.find("input[name='g']").change(seriesChange);
 
     //Bind refresh button
-    logs.find(".ui-header > .ui-btn-right").on("click",requestData);
+    logs.find("div[data-role='header'] > .ui-btn-right").on("click",requestData);
 
     //Bind view change buttons
     logs.find("input:radio[name='log_type']").change(updateView);
@@ -3288,26 +3333,15 @@ function get_logs() {
         }
     });
 
-    logs.one("pagehide",function(){
-        $.mobile.window.off("resize");
-        placeholder.off("plothover");
-        zones.off("scroll");
-        logs.off("change");
-        $("#log_start,#log_end").off("change");
-        logs.find(".ui-header > .ui-btn-right").off("change");
-        logs.find("input:radio[name='log_type']").off("change");
-        graph_sort.find("input[name='g']").off("change");
-        reset_logs_page();
+    logs.one({
+        pagehide: function(){
+            $.mobile.window.off("resize");
+            logs.remove();
+        },
+        pageshow: requestData
     });
 
-    requestData();
-}
-
-function scrollZone() {
-    var dir = ($(this).attr("id") === "graphScrollRight") ? "+=" : "-=";
-    var zones = $("#zones");
-    var w = zones.width();
-    zones.animate({scrollLeft: dir+w});
+    logs.appendTo("body");
 }
 
 // Program management functions
