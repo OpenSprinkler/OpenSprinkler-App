@@ -26,10 +26,6 @@ $(document)
     //Update the language on the page using the browser's locale
     update_lang();
 
-    //Use the user's local time for preview and log time range
-    var now = new Date();
-    $("#preview_date").val(now.toISOString().slice(0,10));
-
     //Update site based on selector
     $("#site-selector").on("change",function(){
         update_site($(this).val());
@@ -185,6 +181,8 @@ $(document)
             get_runonce();
         } else if (hash === "#os-options") {
             show_options();
+        } else if (hash === "#preview") {
+            get_preview();
         } else if (hash === "#logs") {
             get_logs();
         } else if (hash === "#start") {
@@ -261,25 +259,7 @@ $(document)
     // Fix issues between jQuery Mobile and FastClick
     fixInputClick($newpage);
 
-    // Render graph after the page is shown otherwise graphing function will fail
-    if (newpage === "#preview") {
-        $("#preview_date").on("change",get_preview);
-        $newpage.find(".preview-minus").on("click",function(){
-            changeday(-1);
-        });
-        $newpage.find(".preview-plus").on("click",function(){
-            changeday(1);
-        });
-        get_preview();
-        //Update the preview page on date change
-        $newpage.one("pagehide",function(){
-            $("#timeline").empty();
-            $("#preview_date").off("change");
-            $.mobile.window.off("resize");
-            $(".preview-minus,.preview-plus").off("click");
-            $("#timeline-navigation").find("a").off("click");
-        });
-    } else if (newpage === "#sprinklers") {
+    if (newpage === "#sprinklers") {
         // Bind event handler to open panel when swiping on the main page
         $newpage.off("swiperight").on("swiperight", function() {
             if ($(".ui-page-active").jqmData("panel") !== "open" && !$(".ui-page-active .ui-popup-active").length) {
@@ -2637,18 +2617,35 @@ function submit_runonce(runonce) {
 
 // Preview functions
 function get_preview() {
-    var date = $("#preview_date").val(),
-        $timeline = $("#timeline"),
-        preview_data, process_programs, check_match, run_sched, time_to_text, day;
+    var now = new Date(),
+        date = now.toISOString().slice(0,10),
+        page = $("<div data-role='page' id='preview'>" +
+            "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false' data-add-back-btn='true'>" +
+                "<h3>"+_("Program Preview")+"</h3>" +
+            "</div>" +
+            "<div class='ui-content' role='main'>" +
+                "<div id='preview_header'>" +
+                    "<button class='preview-minus ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border'></button>" +
+                    "<input class='center' type='date' name='preview_date' id='preview_date' value='"+date+"' />" +
+                    "<button class='preview-plus ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border'></button>" +
+                "</div>" +
+                "<div id='timeline'></div>" +
+                "<div data-role='controlgroup' data-type='horizontal' id='timeline-navigation'>" +
+                    "<a class='ui-btn ui-corner-all ui-icon-plus ui-btn-icon-notext btn-no-border' title='"+_("Zoom in")+"'></a>" +
+                    "<a class='ui-btn ui-corner-all ui-icon-minus ui-btn-icon-notext btn-no-border' title='"+_("Zoom out")+"'></a>" +
+                    "<a class='ui-btn ui-corner-all ui-icon-carat-l ui-btn-icon-notext btn-no-border' title='"+_("Move left")+"'></a>" +
+                    "<a class='ui-btn ui-corner-all ui-icon-carat-r ui-btn-icon-notext btn-no-border' title='"+_("Move right")+"'></a>" +
+                "</div>" +
+            "</div>" +
+        "</div>"),
+        navi = page.find("#timeline-navigation"),
+        preview_data, process_programs, check_match, run_sched, time_to_text, changeday, render, day;
 
     if (date === "") {
         return;
     }
     date = date.split("-");
     day = new Date(date[0],date[1]-1,date[2]);
-
-    $.mobile.loading("show");
-    $("#timeline-navigation").hide();
 
     process_programs = function (month,day,year) {
         preview_data = [];
@@ -2817,13 +2814,25 @@ function get_preview() {
         });
     };
 
-    process_programs(date[1],date[2],date[0]);
+    changeday = function (dir) {
+        day.setDate(day.getDate() + dir);
 
-    var empty = true;
-    if (!preview_data.length) {
-        $timeline.html("<p align='center'>"+_("No stations set to run on this day.")+"</p>");
-    } else {
-        empty = false;
+        var m = pad(day.getMonth()+1),
+            d = pad(day.getDate()),
+            y = day.getFullYear();
+
+        date = [y,m,d];
+        page.find("#preview_date").val(date.join("-"));
+        render();
+    };
+
+    render = function() {
+        process_programs(date[1],date[2],date[0]);
+
+        if (!preview_data.length) {
+            page.find("#timeline").html("<p align='center'>"+_("No stations set to run on this day.")+"</p>");
+            return;
+        }
         var shortnames = [];
         $.each(preview_data, function(){
             this.start = new Date(date[0],date[1]-1,date[2],0,0,this.start);
@@ -2848,7 +2857,7 @@ function get_preview() {
             "groupMinHeight": 20
         };
 
-        var timeline = new links.Timeline(document.getElementById("timeline"),options);
+        var timeline = new links.Timeline(page.find("#timeline")[0],options);
         links.events.addListener(timeline, "select", function(){
             var row,
                 sel = timeline.getSelection();
@@ -2861,30 +2870,35 @@ function get_preview() {
             if (row === undefined) {
                 return;
             }
-            var content = $(".timeline-event-content")[row];
+            var content = page.find(".timeline-event-content")[row];
             var pid = parseInt($(content).html().substr(1)) - 1;
             changePage("#programs",{
                 "programToExpand": pid
             });
         });
+
         $.mobile.window.on("resize",function(){
             timeline.redraw();
         });
+
         timeline.draw(preview_data);
+
         if ($.mobile.window.width() <= 480) {
             var currRange = timeline.getVisibleChartRange();
             if ((currRange.end.getTime() - currRange.start.getTime()) > 6000000) {
                 timeline.setVisibleChartRange(currRange.start,new Date(currRange.start.getTime()+6000000));
             }
         }
-        $timeline.find(".timeline-groups-text").each(function(a,b){
+
+        page.find(".timeline-groups-text").each(function(a,b){
             var stn = $(b);
             var name = shortnames[stn.text()];
             stn.attr("data-shortname",name);
         });
-        $(".timeline-groups-axis").children().first().html("<div class='timeline-axis-text center dayofweek' data-shortname='"+getDayName(day,"short")+"'>"+getDayName(day)+"</div>");
+
+        page.find(".timeline-groups-axis").children().first().html("<div class='timeline-axis-text center dayofweek' data-shortname='"+getDayName(day,"short")+"'>"+getDayName(day)+"</div>");
+
         if (isAndroid) {
-            var navi = $("#timeline-navigation");
             navi.find(".ui-icon-plus").off("click").on("click",function(){
                 timeline.zoom(0.4);
                 return false;
@@ -2903,23 +2917,29 @@ function get_preview() {
             });
             navi.show();
         }
-    }
-    $.mobile.loading("hide");
-}
+    };
 
-function changeday(dir) {
-    var inputBox = $("#preview_date");
-    var date = inputBox.val();
-    if (date === "") {
-        return;
-    }
-    date = date.split("-");
-    var nDate = new Date(date[0],date[1]-1,date[2]);
-    nDate.setDate(nDate.getDate() + dir);
-    var m = pad(nDate.getMonth()+1);
-    var d = pad(nDate.getDate());
-    inputBox.val(nDate.getFullYear() + "-" + m + "-" + d);
-    get_preview();
+    page.find("#preview_date").on("change",function(){
+        date = this.value.split("-");
+        day = new Date(date[0],date[1]-1,date[2]);
+        render();
+    });
+    page.find(".preview-minus").on("click",function(){
+        changeday(-1);
+    });
+    page.find(".preview-plus").on("click",function(){
+        changeday(1);
+    });
+
+    page.one({
+        pagehide: function(){
+            $.mobile.window.off("resize");
+            page.remove();
+        },
+        pageshow: render
+    });
+
+    page.appendTo("body");
 }
 
 // Logging functions
