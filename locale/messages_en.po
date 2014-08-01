@@ -4,41 +4,6 @@ msgstr ""
 msgid "All stations have been stopped"
 msgstr ""
 
-msgid "Are you sure you want to clear all your log data?"
-msgstr ""
-
-msgid "Logs have been cleared"
-msgstr ""
-
-msgid "Are you sure you want to reboot OpenSprinkler?"
-msgstr ""
-
-msgid "OpenSprinkler is rebooting now"
-msgstr ""
-
-msgid ""
-"Are you sure you want to delete all settings and return to the default "
-"settings?"
-msgstr ""
-
-msgid "Weather Provider"
-msgstr ""
-
-msgid "Yahoo!"
-msgstr ""
-
-msgid "Wunderground"
-msgstr ""
-
-msgid "Wunderground API Key"
-msgstr ""
-
-msgid "Submit"
-msgstr ""
-
-msgid "An API key must be provided for Weather Underground"
-msgstr ""
-
 msgid "Connection timed-out. Please try again."
 msgstr ""
 
@@ -61,6 +26,9 @@ msgid "Username:"
 msgstr ""
 
 msgid "Password:"
+msgstr ""
+
+msgid "Submit"
 msgstr ""
 
 msgid "An IP address is required to continue."
@@ -159,6 +127,18 @@ msgstr ""
 msgid "Weather Settings"
 msgstr ""
 
+msgid "Weather Provider"
+msgstr ""
+
+msgid "Yahoo!"
+msgstr ""
+
+msgid "Wunderground"
+msgstr ""
+
+msgid "Wunderground API Key"
+msgstr ""
+
 msgid ""
 "When automatic rain delay is enabled, the weather will be checked for rain "
 "every hour. If the weather reports any condition suggesting rain, a rain "
@@ -187,6 +167,26 @@ msgid "High"
 msgstr ""
 
 msgid "Precip"
+msgstr ""
+
+msgid "Are you sure you want to clear all your log data?"
+msgstr ""
+
+msgid "Logs have been cleared"
+msgstr ""
+
+msgid "Are you sure you want to reboot OpenSprinkler?"
+msgstr ""
+
+msgid "OpenSprinkler is rebooting now"
+msgstr ""
+
+msgid ""
+"Are you sure you want to delete all settings and return to the default "
+"settings?"
+msgstr ""
+
+msgid "An API key must be provided for Weather Underground"
 msgstr ""
 
 msgid "OS Settings"
@@ -367,6 +367,42 @@ msgid "Run-once program has been scheduled"
 msgstr ""
 
 msgid "No stations set to run on this day."
+msgstr ""
+
+msgid "Logs"
+msgstr ""
+
+msgid "Refresh"
+msgstr ""
+
+msgid "Graph"
+msgstr ""
+
+msgid "Table"
+msgstr ""
+
+msgid "Options"
+msgstr ""
+
+msgid "Grouping:"
+msgstr ""
+
+msgid "Hour"
+msgstr ""
+
+msgid "DOW"
+msgstr ""
+
+msgid "Month"
+msgstr ""
+
+msgid "Start:"
+msgstr ""
+
+msgid "End:"
+msgstr ""
+
+msgid "Export via Email"
 msgstr ""
 
 msgid "Sun"
@@ -752,42 +788,6 @@ msgid "Spanish"
 msgstr ""
 
 msgid "Program Preview"
-msgstr ""
-
-msgid "Logs"
-msgstr ""
-
-msgid "Refresh"
-msgstr ""
-
-msgid "Graph"
-msgstr ""
-
-msgid "Table"
-msgstr ""
-
-msgid "Options"
-msgstr ""
-
-msgid "Grouping:"
-msgstr ""
-
-msgid "Hour"
-msgstr ""
-
-msgid "DOW"
-msgstr ""
-
-msgid "Month"
-msgstr ""
-
-msgid "Start:"
-msgstr ""
-
-msgid "End:"
-msgstr ""
-
-msgid "Export via Email"
 msgstr ""
 
 msgid "Forecast"
