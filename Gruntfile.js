@@ -23,6 +23,9 @@ module.exports = function(grunt) {
       }
     },
     shell: {
+      pushEng: {
+        command: "tasks/pusheng.sh"
+      },
       updateLang: {
           command: "tasks/updatelang.sh <%= secrets.getLocalization.username %> <%= secrets.getLocalization.password %>"
       },
@@ -79,6 +82,7 @@ module.exports = function(grunt) {
   grunt.registerTask("default",["jshint"]);
   grunt.registerTask("bump",["replace"]);
   grunt.registerTask("updateLang",["shell:updateLang"]);
+  grunt.registerTask("pushEng",["shell:pushEng"]);
   grunt.registerTask("build",["updateLang","jshint","shell:firefox","shell:chrome","shell:blackberry10"]);
 
 };
