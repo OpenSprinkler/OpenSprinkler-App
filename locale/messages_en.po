@@ -366,6 +366,21 @@ msgstr ""
 msgid "Run-once program has been scheduled"
 msgstr ""
 
+msgid "Program Preview"
+msgstr ""
+
+msgid "Zoom in"
+msgstr ""
+
+msgid "Zoom out"
+msgstr ""
+
+msgid "Move left"
+msgstr ""
+
+msgid "Move right"
+msgstr ""
+
 msgid "No stations set to run on this day."
 msgstr ""
 
@@ -782,9 +797,6 @@ msgid "Slovenian"
 msgstr ""
 
 msgid "Spanish"
-msgstr ""
-
-msgid "Program Preview"
 msgstr ""
 
 msgid "Forecast"
