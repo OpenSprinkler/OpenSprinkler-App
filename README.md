@@ -20,6 +20,6 @@ Overview:
 
 + The application is written in Javascript and HTML/CSS. The application runs completely within the user's browser (or webview) and communicates directly with the OpenSprinkler.
 
-+ For advanced users, the application supports authentication (HTTP Basic) and SSL for devices behind proxies. Guide available [here](http://rayshobby.net/mediawiki/index.php?title=Secure_Remote_Access)
++ For advanced users, the application supports authentication (HTTP Basic) and SSL for devices behind proxies. Guide available [here](http://rayshobby.net/mediawiki/index.php?title=Secure_Remote_Access).
 
 + For current discussion about the project please refer to the [forum post](http://rayshobby.net/phpBB3/viewtopic.php?f=2&t=154).
