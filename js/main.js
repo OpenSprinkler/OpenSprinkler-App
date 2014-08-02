@@ -2736,8 +2736,8 @@ function get_preview() {
                     return 0;
                 }
             }
-            if((prog[1]&0x80)&&(prog[2]==1)) {
-                if(dt==31 || (dt==29 && date.getUTCMonth()==1) || (dt%2)!=1) {
+            if((prog[1]&0x80)&&(prog[2]===1)) {
+                if(dt===31 || (dt===29 && date.getUTCMonth()===1) || (dt%2)!==1) {
                     return 0;
                 }
             }
