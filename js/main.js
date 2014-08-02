@@ -1460,7 +1460,15 @@ function update_yahoo_weather() {
             return;
         }
 
-        $.getJSON("https://query.yahooapis.com/v1/public/yql?q=select%20item%2Ctitle%2Clocation%20from%20weather.forecast%20where%20woeid%3D%22"+woeid.query.results.Result.woeid+"%22&format=json",function(data){
+        var wid;
+
+        if (typeof woeid.query.results.Result === "object") {
+            wid = woeid.query.results.Result[0].woeid;
+        } else {
+            wid = woeid.query.results.Result.woeid;
+        }
+
+        $.getJSON("https://query.yahooapis.com/v1/public/yql?q=select%20item%2Ctitle%2Clocation%20from%20weather.forecast%20where%20woeid%3D%22"+wid+"%22&format=json",function(data){
             // Hide the weather if no data is returned
             if (data.query.results.channel.item.title === "City not found") {
                 hide_weather();
