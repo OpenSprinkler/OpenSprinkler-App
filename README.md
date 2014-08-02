@@ -1,7 +1,7 @@
-<img align="left" height="128" src="http://albahra.com/sprinklers/icon.png">
 [Sprinklers](http://albahra.com/sprinklers)
+====
 
-A mobile interface for the OpenSprinkler irrigation device. Designed to allow manual control, program management (view, edit, delete and add), initiation of a run-once program, viewing device status, adjusting rain delay, and changing of OpenSprinkler settings. Screenshots available below.
+<img align="left" height="128" src="http://albahra.com/sprinklers/icon.png"> A mobile interface for the OpenSprinkler irrigation device. Designed to allow manual control, program management (view, edit, delete and add), initiation of a run-once program, viewing device status, adjusting rain delay, and changing of OpenSprinkler settings. Screenshots available below.
 
 Overview:
 ---------
