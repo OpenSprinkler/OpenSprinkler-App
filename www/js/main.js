@@ -1462,7 +1462,7 @@ function update_yahoo_weather() {
 
         var wid;
 
-        if (typeof woeid.query.results.Result === "object") {
+        if (typeof woeid.query.results.Result[0] === "object") {
             wid = woeid.query.results.Result[0].woeid;
         } else {
             wid = woeid.query.results.Result.woeid;
