@@ -2641,9 +2641,6 @@ function get_preview() {
         navi = page.find("#timeline-navigation"),
         preview_data, process_programs, check_match, run_sched, time_to_text, changeday, render, day;
 
-    if (date === "") {
-        return;
-    }
     date = date.split("-");
     day = new Date(date[0],date[1]-1,date[2]);
 
@@ -2674,7 +2671,8 @@ function get_preview() {
                             continue; // skip master station
                         }
                         if(prog[7+bid]&(1<<s)) {
-                            et_array[sid]=prog[6]*controller.options.wl/100>>0;pid_array[sid]=pid+1;
+                            et_array[sid]=prog[6]*controller.options.wl/100>>0;
+                            pid_array[sid]=pid+1;
                             match_found=1;
                         }
                     }
@@ -2738,14 +2736,10 @@ function get_preview() {
                     return 0;
                 }
             }
-            if((prog[1]&0x80)&&(prog[2]===1)) {
-                if(dt===31) {
+            if((prog[1]&0x80)&&(prog[2]==1)) {
+                if(dt==31 || (dt==29 && date.getUTCMonth()==1) || (dt%2)!=1) {
                     return 0;
                 }
-            } else if (dt===29 && date.getUTCMonth()===1) {
-                return 0;
-            } else if ((dt%2)!==1) {
-                return 0;
             }
         }
         if(simminutes<prog[3] || simminutes>prog[4]) {
@@ -2828,6 +2822,8 @@ function get_preview() {
 
     render = function() {
         process_programs(date[1],date[2],date[0]);
+
+        navi.hide();
 
         if (!preview_data.length) {
             page.find("#timeline").html("<p align='center'>"+_("No stations set to run on this day.")+"</p>");
