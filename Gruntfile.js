@@ -41,7 +41,7 @@ module.exports = function(grunt) {
     },
     replace: {
       index: {
-        src: ["index.html"],
+        src: ["www/index.html"],
         overwrite: true,
         replacements: [{
           from: /<p>Version: ([\d|\.]+)<\/p>/g,
@@ -51,7 +51,7 @@ module.exports = function(grunt) {
         }]
       },
       phonegap: {
-        src: ["config.xml"],
+        src: ["www/config.xml"],
         overwrite: true,
         replacements: [{
           from: /version     = "([\d|\.]+)"/g,
