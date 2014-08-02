@@ -1,1 +1,2 @@
-zip -r build/chrome/com.albahra.sprinklers.zip www/css www/img www/index.html www/js www/locale manifest.json www/res/chrome
+cd www
+zip -r ../build/chrome/com.albahra.sprinklers.zip css img index.html js locale ../manifest.json res/chrome
