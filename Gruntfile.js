@@ -83,6 +83,6 @@ module.exports = function(grunt) {
   grunt.registerTask("bump",["replace"]);
   grunt.registerTask("updateLang",["shell:updateLang"]);
   grunt.registerTask("pushEng",["shell:pushEng"]);
-  grunt.registerTask("build",["updateLang","jshint","shell:firefox","shell:chrome","shell:blackberry10"]);
+  grunt.registerTask("build",["jshint","shell:firefox","shell:chrome","shell:blackberry10"]);
 
 };
