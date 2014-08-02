@@ -1,101 +1,70 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
-    <meta charset='utf-8'>
+    <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <link href='https://fonts.googleapis.com/css?family=Chivo:900' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+    <title>Sprinklers by salbahra</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-    <title>Sprinklers by salbahra</title>
   </head>
-
   <body>
-    <div id="container">
-      <div class="inner">
+    <div class="wrapper">
+      <header>
+        <h1>Sprinklers</h1>
+        <p>A mobile interface for the OpenSprinkler irrigation device. Designed to allow manual control, program management (view, edit, delete and add), initiation of a run-once program, viewing device status, adjusting rain delay, and changing of OpenSprinkler settings.</p>
 
-        <header>
-          <h1>Sprinklers</h1>
-          <h2>A mobile frontend for the OpenSprinkler irrigation device. Designed to allow manual control, program management (view, edit, delete and add), initiate a run-once program, view status, adjust rain delay, and change OpenSprinkler settings. This version is designed for multiple users and uses no central storage.</h2>
-        </header>
+        <p class="view"><a href="https://github.com/salbahra/Sprinklers">View the Project on GitHub <small>salbahra/Sprinklers</small></a></p>
 
-        <section id="downloads" class="clearfix">
-          <a href="https://github.com/salbahra/Sprinklers/zipball/master" id="download-zip" class="button"><span>Download .zip</span></a>
-          <a href="https://github.com/salbahra/Sprinklers/tarball/master" id="download-tar-gz" class="button"><span>Download .tar.gz</span></a>
-          <a href="https://github.com/salbahra/Sprinklers" id="view-on-github" class="button"><span>View on GitHub</span></a>
-        </section>
 
-        <hr>
-
-        <section id="main_content">
-          <h1>
-<a name="sprinklers" class="anchor" href="#sprinklers"><span class="octicon octicon-link"></span></a><a href="http://salbahra.github.io/Sprinklers">Sprinklers</a>
+        <ul>
+          <li><a href="https://github.com/salbahra/Sprinklers/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/salbahra/Sprinklers/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/salbahra/Sprinklers">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>
+<a name="sprinklers" class="anchor" href="#sprinklers"><span class="octicon octicon-link"></span></a><a href="http://albahra.com/sprinklers">Sprinklers</a>
 </h1>
 
-<p>A mobile interface for the OpenSprinkler irrigation device. Designed to allow manual control, program management (view, edit, delete and add), initiation of a run-once program, viewing device status, adjusting rain delay, and changing of OpenSprinkler settings. Screenshots available below.</p>
+<p><img align="left" height="96" src="http://albahra.com/sprinklers/icon.png"> A mobile interface for the OpenSprinkler irrigation device. Designed to allow manual control, program management (view, edit, delete and add), initiation of a run-once program, viewing device status, adjusting rain delay, and changing of OpenSprinkler settings.</p>
 
 <h2>
 <a name="overview" class="anchor" href="#overview"><span class="octicon octicon-link"></span></a>Overview:</h2>
 
 <ul>
 <li>
-<p>This application interfaces with the interval program on the OpenSprinkler which is the default software available. The application has been tested and compatible with firmware 2.0.4+ however specifically does NOT support 1.8.3, 2.0.0, 2.0.1, 2.0.2, and 2.0.3.</p>
+<p>This application is available for free from the following app stores:</p>
 
 <ul>
-<li>If you are using firmware 2.0.3 or lower please use the <a href="https://github.com/salbahra/Sprinklers/tree/2.0-master">2.0-master branch</a>
-</li>
+<li><a href="http://www.amazon.com/dp/B00JYFL8LW">Amazon Appstore</a></li>
+<li><a href="https://itunes.apple.com/us/app/sprinklers/id830988967?ls=1&amp;mt=8">Apple App Store - iOS</a></li>
+<li><a href="https://itunes.apple.com/us/app/sprinklers/id903464532?ls=1&amp;mt=12">Apple App Store - OS X</a></li>
+<li><a href="http://appworld.blackberry.com/webstore/content/53161895/">BlackBerry AppWorld</a></li>
+<li><a href="https://marketplace.firefox.com/app/sprinklers/">Firefox Marketplace</a></li>
+<li><a href="https://play.google.com/store/apps/details?id=com.albahra.sprinklers">Google Play Store</a></li>
+<li><a href="https://chrome.google.com/webstore/detail/sprinklers/iegciplggbmhpihoeamfpjdedihblhhp">Goole Web Store</a></li>
+<li><a href="http://www.windowsphone.com/en-us/store/app/sprinklers/3dbc5da0-b33f-4ca8-9e54-e80febf0a0c5">Windows Phone Store</a></li>
 </ul>
 </li>
-<li><p>The application is written in Javascript and HTML/CSS. The application runs 100% within the user's browser and communicates directly with the OpenSprinkler.</p></li>
+<li><p>This application interfaces with the interval program on the OpenSprinkler which is the default software available. The application has been tested and compatible with all firmware versions of the interval program.</p></li>
+<li><p>The application is written in Javascript and HTML/CSS. The application runs completely within the user's browser (or webview) and communicates directly with the OpenSprinkler.</p></li>
+<li><p>For advanced users, the application supports authentication (HTTP Basic) and SSL for devices behind proxies. Guide available <a href="http://rayshobby.net/mediawiki/index.php?title=Secure_Remote_Access">here</a>.</p></li>
 <li><p>For current discussion about the project please refer to the <a href="http://rayshobby.net/phpBB3/viewtopic.php?f=2&amp;t=154">forum post</a>.</p></li>
-</ul><h2>
-<a name="video-tutorial" class="anchor" href="#video-tutorial"><span class="octicon octicon-link"></span></a>Video Tutorial:</h2>
-
-<p><a href="https://www.youtube.com/watch?v=5pYHsMZSj6w"><img src="https://img.youtube.com/vi/5pYHsMZSj6w/0.jpg" alt="Video Tutorial"></a></p>
-
-<p>Very well put together by Ray, thanks!</p>
-
-<h2>
-<a name="screenshots" class="anchor" href="#screenshots"><span class="octicon octicon-link"></span></a>Screenshots:</h2>
-
-<p><img src="http://albahra.com/journal/wp-content/uploads/2013/07/startup-iphone5-retina-175x300.png" alt="Splash Screen"><img src="http://albahra.com/journal/wp-content/uploads/2014/03/home-169x300.png" alt="Home Screen"><img src="http://albahra.com/journal/wp-content/uploads/2014/02/iOS-Simulator-Screen-shot-Jan-26-2014-7.15.45-PM-169x300.png" alt="Status Page"><img src="http://albahra.com/journal/wp-content/uploads/2014/03/preview-169x300.png" alt="Program Preview"><img src="http://albahra.com/journal/wp-content/uploads/2014/02/iOS-Simulator-Screen-shot-Jan-26-2014-7.24.09-PM-169x300.png" alt="Program Editor"><img src="http://albahra.com/journal/wp-content/uploads/2014/02/iOS-Simulator-Screen-shot-Jan-26-2014-7.24.18-PM-169x300.png" alt="Manual Program"><img src="http://albahra.com/journal/wp-content/uploads/2014/03/raindelay-169x300.png" alt="Rain Delay"><img src="http://albahra.com/journal/wp-content/uploads/2014/02/iOS-Simulator-Screen-shot-Jan-26-2014-7.24.54-PM-169x300.png" alt="Run Once"><img src="http://albahra.com/journal/wp-content/uploads/2014/03/settings-169x300.png" alt="Settings"></p>
-
-<h2>
-<a name="install-instructions" class="anchor" href="#install-instructions"><span class="octicon octicon-link"></span></a>Install Instructions:</h2>
-
-<div class="highlight highlight-sh"><pre><span class="c">#install files</span>
-git clone https://github.com/salbahra/Sprinklers.git /var/www/sprinklers
-
-</pre></div>
-
-<ul>
-<li>Now, visit the site using any browser (replacing IPAddr with the server IP): http://IPAddr/sprinklers</li>
-</ul><blockquote>
-<p>If you don't have Git, you can download the <a href="https://github.com/salbahra/OpenSprinkler-Controller/archive/master.zip">ZIP</a> file and extract to a local directory.</p>
-
-<p>The webapp can also be installed to the SD card of the OpenSprinkler and run directly from the device. For this you will need to grab the specially formatted version from the sdcard branch.</p>
-</blockquote>
-
-<h2>
-<a name="update-instructions" class="anchor" href="#update-instructions"><span class="octicon octicon-link"></span></a>Update Instructions:</h2>
-
-<div class="highlight highlight-sh"><pre><span class="c">#change to the install directory</span>
-<span class="nb">cd</span> /var/www/sprinklers
-
-<span class="c">#perform update</span>
-git pull
-</pre></div>
-        </section>
-
-        <footer>
-          Sprinklers is maintained by <a href="https://github.com/salbahra">salbahra</a><br>
-          This page was generated by <a href="http://pages.github.com">GitHub Pages</a>. Tactile theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.
-        </footer>
-
-                  <script type="text/javascript">
+</ul>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/salbahra">salbahra</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+              <script type="text/javascript">
             var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
             document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
           </script>
@@ -106,7 +75,5 @@ git pull
             } catch(err) {}
           </script>
 
-      </div>
-    </div>
   </body>
 </html>
