@@ -1,2 +1,3 @@
 cordova build --release
-zip build/blackberry10/com.albahra.sprinklers.zip platforms/blackberry10/build/device/bb10app.bar
+cd platforms/blackberry10/build/device
+zip ../../../../build/blackberry10/com.albahra.sprinklers.zip bb10app.bar
