@@ -1,1 +1,1 @@
-zip -r build/firefoxos/com.albahra.sprinklers.zip css img index.html js locale manifest.webapp res/firefoxos
+zip -r build/firefox/com.albahra.sprinklers.zip www/css www/img www/index.html www/js www/locale manifest.webapp www/res/firefoxos
