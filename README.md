@@ -1,3 +1,4 @@
+<img align="left" height="128" src="http://albahra.com/sprinklers/icon.png">
 [Sprinklers](http://albahra.com/sprinklers)
 ========================
 
@@ -12,11 +13,6 @@ Overview:
 
 + The application is written in Javascript and HTML/CSS. The application runs completely within the user's browser (or webview) and communicates directly with the OpenSprinkler.
 
-+ For advanced users, the application supports authentication (HTTP Basic) and SSL for devices behind proxies. [Guide:](http://rayshobby.net/mediawiki/index.php?title=Secure_Remote_Access)
++ For advanced users, the application supports authentication (HTTP Basic) and SSL for devices behind proxies. [Guide](http://rayshobby.net/mediawiki/index.php?title=Secure_Remote_Access)
 
 + For current discussion about the project please refer to the [forum post](http://rayshobby.net/phpBB3/viewtopic.php?f=2&t=154).
-
-Screenshots:
-------------
-
-![Splash Screen](http://albahra.com/journal/wp-content/uploads/2013/07/startup-iphone5-retina-175x300.png) ![Home Screen](http://albahra.com/journal/wp-content/uploads/2014/03/home-169x300.png) ![Status Page](http://albahra.com/journal/wp-content/uploads/2014/02/iOS-Simulator-Screen-shot-Jan-26-2014-7.15.45-PM-169x300.png) ![Program Preview](http://albahra.com/journal/wp-content/uploads/2014/03/preview-169x300.png) ![Program Editor](http://albahra.com/journal/wp-content/uploads/2014/02/iOS-Simulator-Screen-shot-Jan-26-2014-7.24.09-PM-169x300.png) ![Manual Program](http://albahra.com/journal/wp-content/uploads/2014/02/iOS-Simulator-Screen-shot-Jan-26-2014-7.24.18-PM-169x300.png) ![Rain Delay](http://albahra.com/journal/wp-content/uploads/2014/03/raindelay-169x300.png) ![Run Once](http://albahra.com/journal/wp-content/uploads/2014/02/iOS-Simulator-Screen-shot-Jan-26-2014-7.24.54-PM-169x300.png) ![Settings](http://albahra.com/journal/wp-content/uploads/2014/03/settings-169x300.png)
