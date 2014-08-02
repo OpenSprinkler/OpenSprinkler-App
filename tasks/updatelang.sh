@@ -13,3 +13,6 @@ find . -type f -maxdepth 1 -iname "messages_*.po" -print0 | while IFS= read -r -
 	po2json -p messages.po > "www/locale/$lang.json"
 	rm messages.po
 done
+git add www/locale/*
+git commit -m "Localization: Update languages from getlocalization.com"
+git push
