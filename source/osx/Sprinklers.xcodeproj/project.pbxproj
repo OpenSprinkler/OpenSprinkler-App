@@ -35,7 +35,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		F40530A6198326550046DC88 /* Sprinklers.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = Sprinklers.icns; path = ../../res/osx/icons/Sprinklers.icns; sourceTree = "<group>"; };
+		F40530A6198326550046DC88 /* Sprinklers.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = Sprinklers.icns; path = ../../www/res/osx/icons/Sprinklers.icns; sourceTree = "<group>"; };
 		F4D9F92A1982F35800405EF0 /* Sprinklers.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = Sprinklers.entitlements; sourceTree = "<group>"; };
 		F4F83F891981E481006B2617 /* Sprinklers.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Sprinklers.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F4F83F8C1981E481006B2617 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
@@ -53,11 +53,11 @@
 		F4F83FAA1981E481006B2617 /* SprinklersTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SprinklersTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F4F83FAB1981E481006B2617 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		F4F83FC01981E4AC006B2617 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
-		F4F83FC51981E523006B2617 /* css */ = {isa = PBXFileReference; lastKnownFileType = folder; name = css; path = ../../../css; sourceTree = "<group>"; };
-		F4F83FC61981E523006B2617 /* img */ = {isa = PBXFileReference; lastKnownFileType = folder; name = img; path = ../../../img; sourceTree = "<group>"; };
-		F4F83FC71981E523006B2617 /* index.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = index.html; path = ../../../index.html; sourceTree = "<group>"; };
-		F4F83FC81981E523006B2617 /* js */ = {isa = PBXFileReference; lastKnownFileType = folder; name = js; path = ../../../js; sourceTree = "<group>"; };
-		F4F83FC91981E523006B2617 /* locale */ = {isa = PBXFileReference; lastKnownFileType = folder; name = locale; path = ../../../locale; sourceTree = "<group>"; };
+		F4F83FC51981E523006B2617 /* css */ = {isa = PBXFileReference; lastKnownFileType = folder; name = css; path = ../../../www/css; sourceTree = "<group>"; };
+		F4F83FC61981E523006B2617 /* img */ = {isa = PBXFileReference; lastKnownFileType = folder; name = img; path = ../../../www/img; sourceTree = "<group>"; };
+		F4F83FC71981E523006B2617 /* index.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = index.html; path = ../../../www/index.html; sourceTree = "<group>"; };
+		F4F83FC81981E523006B2617 /* js */ = {isa = PBXFileReference; lastKnownFileType = folder; name = js; path = ../../../www/js; sourceTree = "<group>"; };
+		F4F83FC91981E523006B2617 /* locale */ = {isa = PBXFileReference; lastKnownFileType = folder; name = locale; path = ../../../www/locale; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
