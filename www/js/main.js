@@ -1372,7 +1372,7 @@ function show_weather_settings() {
         } else {
             $("#wapikey,label[for='wapikey']").hide("fast");
         }
-    })
+    });
 
     page.find(".wsubmit").on("click",function(){
         submit_weather_settings();
