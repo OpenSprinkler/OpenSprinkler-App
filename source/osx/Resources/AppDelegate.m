@@ -18,40 +18,71 @@
 }
 
 - (void)awakeFromNib {
+    // Enable localStorage in webView
     WebPreferences *prefs = [webView preferences];
     [prefs _setLocalStorageDatabasePath:@"~/Library/Sprinklers/LocalStorage"];
     [prefs setLocalStorageEnabled:YES];
+    
+    // Get notification when scripting environment becomes available
+    [webView setFrameLoadDelegate:self];
+    
+    // Handle authentication request
+    [webView setResourceLoadDelegate:self];
+    
+    // Get notification on navigation changes (AJAX)
+    [webView setPolicyDelegate:self];
+
+    // Load the index.html page
 	NSString *resourcesPath = [[NSBundle mainBundle] resourcePath];
 	NSString *htmlPath = [resourcesPath stringByAppendingString:@"/index.html"];
 	[[webView mainFrame] loadRequest:[NSURLRequest requestWithURL:[NSURL fileURLWithPath:htmlPath]]];
-    [self.window setContentView:self.webView];
-    [webView setPolicyDelegate:self];
 }
 
+// Close the application when the window closes
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)sender
 {
     return YES;
 }
 
--(void)webView:(WebView *)webView decidePolicyForNavigationAction:(NSDictionary *)actionInformation request:(NSURLRequest *)request frame:(WebFrame *)frame decisionListener:(id<WebPolicyDecisionListener>)listener
-{
-    if (WebNavigationTypeLinkClicked == [[actionInformation objectForKey:WebActionNavigationTypeKey] intValue])
-    {
-        [listener ignore];
-        [[NSWorkspace sharedWorkspace] openURL:[request URL]];
-        
-    }
-    [listener use];
-}
-
+// Allow AJAX requests to work
 -(void)webView:(WebView *)webView decidePolicyForNewWindowAction:(NSDictionary *)actionInformation request:(NSURLRequest *)request newFrameName:(NSString *)frameName decisionListener:(id <WebPolicyDecisionListener>)listener
 {
-    if (WebNavigationTypeLinkClicked == [[actionInformation objectForKey:WebActionNavigationTypeKey] intValue])
-    {
-        [listener ignore];
-        [[NSWorkspace sharedWorkspace] openURL:[request URL]];
-    }
+    [[NSWorkspace sharedWorkspace] openURL:[request URL]];
     [listener ignore];
+}
+
+// Function to return the current devices local IP address
+-(NSString *) getIPAddress {
+    NSArray *addresses = [[NSHost currentHost] addresses];
+    NSString *stringAddress = @"error";
+    
+    for (NSString *anAddress in addresses) {
+        if (![anAddress hasPrefix:@"127"] && [[anAddress componentsSeparatedByString:@"."] count] == 4) {
+            stringAddress = anAddress;
+            break;
+        }
+    }
+    return stringAddress;
+}
+
+// This is called as soon as the script environment is ready in the webview
+- (void)webView:(WebView *)sender didClearWindowObject:(WebScriptObject *)windowScriptObject forFrame:(WebFrame *)frame
+{
+    NSString *ip = [self getIPAddress];
+    NSString *networkinterface = [NSString stringWithFormat:@"networkinterface={};networkinterface.getIPAddress=function(callback){callback('%@');};", ip];
+    [webView stringByEvaluatingJavaScriptFromString:networkinterface];
+}
+
+// Prevent authentication dialog from being presented to the user
+- (void)webView:(WebView *)sender resource:(id)identifier didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge fromDataSource:(WebDataSource *)dataSource {
+    [[challenge sender] cancelAuthenticationChallenge:challenge];
+}
+
+// Prevent the main view from bouncing
+- (void)webView:(WebView *)sender didFinishLoadForFrame:(WebFrame *)frame {
+    NSScrollView *mainScrollView = sender.mainFrame.frameView.documentView.enclosingScrollView;
+    [mainScrollView setVerticalScrollElasticity:NSScrollElasticityNone];
+    [mainScrollView setHorizontalScrollElasticity:NSScrollElasticityNone];
 }
 
 @end
