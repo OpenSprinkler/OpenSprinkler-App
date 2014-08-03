@@ -61,6 +61,11 @@ module.exports = function(grunt) {
           to: function(matchedWord, index, fullText, regexMatches){
             return "<key>CFBundleShortVersionString</key>\n\t<string>"+bumpVersion(regexMatches[0])+"</string>";
           }
+        },{
+          from: /<key>CFBundleVersion<\/key>\n\t<string>(\d+)<\/string>/g,
+          to: function(matchedWord, index, fullText, regexMatches){
+            return "<key>CFBundleVersion<\/key>\n\t<string>"+(parseInt(regexMatches[0])+1)+"<\/string>";
+          }
         }]
       },
       phonegap: {
