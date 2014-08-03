@@ -2921,10 +2921,10 @@ function get_preview() {
         day = new Date(date[0],date[1]-1,date[2]);
         render();
     });
-    page.find(".preview-minus").on("click",function(){
+    page.find(".preview-minus").on("vclick",function(){
         changeday(-1);
     });
-    page.find(".preview-plus").on("click",function(){
+    page.find(".preview-plus").on("vclick",function(){
         changeday(1);
     });
 
