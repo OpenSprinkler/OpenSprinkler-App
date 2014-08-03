@@ -4,7 +4,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks("grunt-contrib-jshint");
   grunt.loadNpmTasks("grunt-text-replace");
   grunt.loadNpmTasks("grunt-shell");
-  grunt.loadNpmTasks('grunt-contrib-compress');
+  grunt.loadNpmTasks("grunt-contrib-compress");
 
   var bumpVersion = function(version,level) {
     version = version.split(".") || [0,0,0];
@@ -47,6 +47,16 @@ module.exports = function(grunt) {
         },{
           src: ["manifest.json"]
         }]
+      },
+      blackberry10: {
+        options: {
+          archive: "build/blackberry10/com.albahra.sprinklers.zip"
+        },
+        files: [{
+          src: ["bb10app.bar"],
+          cwd: "platforms/blackberry10/build/device/",
+          expand: true
+        }]
       }
     },
     shell: {
@@ -57,7 +67,7 @@ module.exports = function(grunt) {
           command: "tasks/updatelang.sh <%= secrets.getLocalization.username %> <%= secrets.getLocalization.password %>"
       },
       blackberry10: {
-          command: "tasks/blackberry10.sh"
+          command: "cordova build blackberry10 --release"
       },
       pushBump: {
           command: "tasks/pushbump.sh"
@@ -122,6 +132,6 @@ module.exports = function(grunt) {
   grunt.registerTask("bump",["replace","shell:pushBump"]);
   grunt.registerTask("updateLang",["shell:updateLang"]);
   grunt.registerTask("pushEng",["shell:pushEng"]);
-  grunt.registerTask("build",["jshint","compress","shell:blackberry10"]);
+  grunt.registerTask("build",["jshint","shell:blackberry10","compress"]);
 
 };
