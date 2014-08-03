@@ -4,6 +4,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks("grunt-contrib-jshint");
   grunt.loadNpmTasks("grunt-text-replace");
   grunt.loadNpmTasks("grunt-shell");
+  grunt.loadNpmTasks('grunt-contrib-compress');
 
   var bumpVersion = function(version,level) {
     version = version.split(".") || [0,0,0];
@@ -22,18 +23,38 @@ module.exports = function(grunt) {
         jshintrc: true
       }
     },
+    compress: {
+      firefox: {
+        options: {
+          archive: "build/firefox/com.albahra.sprinklers.zip"
+        },
+        files: [{
+          src: ["css/**","js/**","img/**","locale/**","index.html", "res/firefox/**"],
+          cwd: "www/",
+          expand: true
+        },{
+          src: ["manifest.webapp"]
+        }]
+      },
+      chrome: {
+        options: {
+          archive: "build/chrome/com.albahra.sprinklers.zip"
+        },
+        files: [{
+          src: ["css/**","js/**","img/**","locale/**","index.html", "res/chrome/**"],
+          cwd: "www/",
+          expand: true
+        },{
+          src: ["manifest.json"]
+        }]
+      }
+    },
     shell: {
       pushEng: {
         command: "tasks/pusheng.sh"
       },
       updateLang: {
           command: "tasks/updatelang.sh <%= secrets.getLocalization.username %> <%= secrets.getLocalization.password %>"
-      },
-      chrome: {
-          command: "tasks/chrome.sh"
-      },
-      firefox: {
-          command: "tasks/firefox.sh"
       },
       blackberry10: {
           command: "tasks/blackberry10.sh"
@@ -101,6 +122,6 @@ module.exports = function(grunt) {
   grunt.registerTask("bump",["replace","shell:pushBump"]);
   grunt.registerTask("updateLang",["shell:updateLang"]);
   grunt.registerTask("pushEng",["shell:pushEng"]);
-  grunt.registerTask("build",["jshint","shell:firefox","shell:chrome","shell:blackberry10"]);
+  grunt.registerTask("build",["jshint","compress","shell:blackberry10"]);
 
 };
