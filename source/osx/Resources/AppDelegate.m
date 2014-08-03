@@ -31,6 +31,9 @@
     
     // Get notification on navigation changes (AJAX)
     [webView setPolicyDelegate:self];
+    
+    // Make webView part of the window's contentView
+    [self.window setContentView:self.webView];
 
     // Load the index.html page
 	NSString *resourcesPath = [[NSBundle mainBundle] resourcePath];
