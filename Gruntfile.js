@@ -50,6 +50,16 @@ module.exports = function(grunt) {
           }
         }]
       },
+      osx: {
+        src: ["source/osx/Resources/Sprinklers-Info.plist"],
+        overwrite: true,
+        replacements: [{
+          from: /<key>CFBundleShortVersionString<\/key>\n\t<string>([\d|\.]+)<\/string>/g,
+          to: function(matchedWord, index, fullText, regexMatches){
+            return "<key>CFBundleShortVersionString</key>\n\t<string>"+bumpVersion(regexMatches[0])+"</string>";
+          }
+        }]
+      },
       phonegap: {
         src: ["www/config.xml"],
         overwrite: true,
