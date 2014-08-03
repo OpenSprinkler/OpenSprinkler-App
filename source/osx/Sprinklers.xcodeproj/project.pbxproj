@@ -13,8 +13,6 @@
 		F4F83F991981E481006B2617 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = F4F83F981981E481006B2617 /* main.m */; };
 		F4F83F9D1981E481006B2617 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = F4F83F9B1981E481006B2617 /* Credits.rtf */; };
 		F4F83FA01981E481006B2617 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = F4F83F9F1981E481006B2617 /* AppDelegate.m */; };
-		F4F83FAC1981E481006B2617 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4F83FAB1981E481006B2617 /* XCTest.framework */; };
-		F4F83FAD1981E481006B2617 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4F83F8C1981E481006B2617 /* Cocoa.framework */; };
 		F4F83FC11981E4AC006B2617 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4F83FC01981E4AC006B2617 /* WebKit.framework */; };
 		F4F83FCA1981E523006B2617 /* css in Resources */ = {isa = PBXBuildFile; fileRef = F4F83FC51981E523006B2617 /* css */; };
 		F4F83FCB1981E523006B2617 /* img in Resources */ = {isa = PBXBuildFile; fileRef = F4F83FC61981E523006B2617 /* img */; };
@@ -22,16 +20,6 @@
 		F4F83FCD1981E523006B2617 /* js in Resources */ = {isa = PBXBuildFile; fileRef = F4F83FC81981E523006B2617 /* js */; };
 		F4F83FCE1981E523006B2617 /* locale in Resources */ = {isa = PBXBuildFile; fileRef = F4F83FC91981E523006B2617 /* locale */; };
 /* End PBXBuildFile section */
-
-/* Begin PBXContainerItemProxy section */
-		F4F83FAE1981E481006B2617 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = F4F83F811981E481006B2617 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = F4F83F881981E481006B2617;
-			remoteInfo = Sprinklers;
-		};
-/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		F40530A6198326550046DC88 /* Sprinklers.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = Sprinklers.icns; path = ../../www/res/osx/icons/Sprinklers.icns; sourceTree = "<group>"; };
@@ -48,7 +36,6 @@
 		F4F83F9C1981E481006B2617 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = en; path = en.lproj/Credits.rtf; sourceTree = "<group>"; };
 		F4F83F9E1981E481006B2617 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		F4F83F9F1981E481006B2617 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		F4F83FAA1981E481006B2617 /* SprinklersTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SprinklersTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F4F83FAB1981E481006B2617 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		F4F83FC01981E4AC006B2617 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		F4F83FC51981E523006B2617 /* css */ = {isa = PBXFileReference; lastKnownFileType = folder; name = css; path = ../../../www/css; sourceTree = "<group>"; };
@@ -65,15 +52,6 @@
 			files = (
 				F4F83FC11981E4AC006B2617 /* WebKit.framework in Frameworks */,
 				F4F83F8D1981E481006B2617 /* Cocoa.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		F4F83FA71981E481006B2617 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				F4F83FAD1981E481006B2617 /* Cocoa.framework in Frameworks */,
-				F4F83FAC1981E481006B2617 /* XCTest.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -94,7 +72,6 @@
 			isa = PBXGroup;
 			children = (
 				F4F83F891981E481006B2617 /* Sprinklers.app */,
-				F4F83FAA1981E481006B2617 /* SprinklersTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -168,24 +145,6 @@
 			productReference = F4F83F891981E481006B2617 /* Sprinklers.app */;
 			productType = "com.apple.product-type.application";
 		};
-		F4F83FA91981E481006B2617 /* SprinklersTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = F4F83FBD1981E481006B2617 /* Build configuration list for PBXNativeTarget "SprinklersTests" */;
-			buildPhases = (
-				F4F83FA61981E481006B2617 /* Sources */,
-				F4F83FA71981E481006B2617 /* Frameworks */,
-				F4F83FA81981E481006B2617 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				F4F83FAF1981E481006B2617 /* PBXTargetDependency */,
-			);
-			name = SprinklersTests;
-			productName = SprinklersTests;
-			productReference = F4F83FAA1981E481006B2617 /* SprinklersTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -203,9 +162,6 @@
 							};
 						};
 					};
-					F4F83FA91981E481006B2617 = {
-						TestTargetID = F4F83F881981E481006B2617;
-					};
 				};
 			};
 			buildConfigurationList = F4F83F841981E481006B2617 /* Build configuration list for PBXProject "Sprinklers" */;
@@ -222,7 +178,6 @@
 			projectRoot = "";
 			targets = (
 				F4F83F881981E481006B2617 /* Sprinklers */,
-				F4F83FA91981E481006B2617 /* SprinklersTests */,
 			);
 		};
 /* End PBXProject section */
@@ -243,13 +198,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		F4F83FA81981E481006B2617 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -262,22 +210,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		F4F83FA61981E481006B2617 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		F4F83FAF1981E481006B2617 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = F4F83F881981E481006B2617 /* Sprinklers */;
-			targetProxy = F4F83FAE1981E481006B2617 /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		F4F83F951981E481006B2617 /* InfoPlist.strings */ = {
@@ -399,46 +332,6 @@
 			};
 			name = Release;
 		};
-		F4F83FBE1981E481006B2617 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/Sprinklers.app/Contents/MacOS/Sprinklers";
-				COMBINE_HIDPI_IMAGES = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-					"$(inherited)",
-				);
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "Sprinklers/Sprinklers-Prefix.pch";
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				INFOPLIST_FILE = "SprinklersTests/SprinklersTests-Info.plist";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUNDLE_LOADER)";
-				WRAPPER_EXTENSION = xctest;
-			};
-			name = Debug;
-		};
-		F4F83FBF1981E481006B2617 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/Sprinklers.app/Contents/MacOS/Sprinklers";
-				COMBINE_HIDPI_IMAGES = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-					"$(inherited)",
-				);
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "Sprinklers/Sprinklers-Prefix.pch";
-				INFOPLIST_FILE = "SprinklersTests/SprinklersTests-Info.plist";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUNDLE_LOADER)";
-				WRAPPER_EXTENSION = xctest;
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -456,15 +349,6 @@
 			buildConfigurations = (
 				F4F83FBB1981E481006B2617 /* Debug */,
 				F4F83FBC1981E481006B2617 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		F4F83FBD1981E481006B2617 /* Build configuration list for PBXNativeTarget "SprinklersTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				F4F83FBE1981E481006B2617 /* Debug */,
-				F4F83FBF1981E481006B2617 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
