@@ -1344,7 +1344,7 @@ function show_weather_settings() {
                         "<option value='yahoo' "+(curr_wa.weather_provider === "yahoo" ? "selected" : "")+">"+_("Yahoo!")+"</option>" +
                         "<option value='wunderground' "+(curr_wa.weather_provider === "wunderground" ? "selected" : "")+">"+_("Wunderground")+"</option>" +
                     "</select>" +
-                    (curr_wa.weather_provider === "wunderground" ? "<label for='wapikey'>"+_("Wunderground API Key")+"</label><input data-mini='true' type='text' id='wapikey' value='"+curr_wa.wapikey+"' />" : "") +
+                    "<label "+(curr_wa.weather_provider === "wunderground" ? "" : "style='display:none' ")+"for='wapikey'>"+_("Wunderground API Key")+"</label><input "+(curr_wa.weather_provider === "wunderground" ? "" : "style='display:none' ")+"data-mini='true' type='text' id='wapikey' value='"+curr_wa.wapikey+"' />" +
                 "</li>" +
             "</ul>" +
             "<ul data-role='listview' data-inset='true'> " +
@@ -1365,8 +1365,7 @@ function show_weather_settings() {
     "</div>");
 
     //Handle provider select change on weather settings
-    page
-    .on("change","#weather_provider",function(){
+    page.find("#weather_provider").on("change",function(){
         var val = $(this).val();
         if (val === "wunderground") {
             $("#wapikey,label[for='wapikey']").show("fast");
@@ -1374,10 +1373,8 @@ function show_weather_settings() {
             $("#wapikey,label[for='wapikey']").hide("fast");
         }
     })
-    .one("pagehide",function(){
-        page.remove();
-    })
-    .find(".wsubmit").on("click",function(){
+
+    page.find(".wsubmit").on("click",function(){
         submit_weather_settings();
         return false;
     });
@@ -1392,6 +1389,9 @@ function show_weather_settings() {
         },345600,2);
     });
 
+    page.one("pagehide",function(){
+        page.remove();
+    });
     page.appendTo("body");
 }
 
@@ -1461,7 +1461,7 @@ function update_yahoo_weather() {
         }
 
         var wid;
-              
+
         if (typeof woeid.query.results.Result.woeid === "string") {
             wid = woeid.query.results.Result.woeid;
         } else {
