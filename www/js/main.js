@@ -4066,13 +4066,13 @@ function showDurationBox(seconds,title,callback,maximum,granularity) {
 
     popup.find("span").prepend(incrbts+inputs+decrbts);
 
-    popup.find(".incr").children().on("click",function(){
+    popup.find(".incr").children().on("vclick",function(){
         var pos = $(this).index();
         changeValue(pos,1);
         return false;
     });
 
-    popup.find(".decr").children().on("click",function(){
+    popup.find(".decr").children().on("vclick",function(){
         var pos = $(this).index();
         changeValue(pos,-1);
         return false;
