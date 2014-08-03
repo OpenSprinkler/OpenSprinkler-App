@@ -8,10 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		F40530A7198326550046DC88 /* Sprinklers.icns in Resources */ = {isa = PBXBuildFile; fileRef = F40530A6198326550046DC88 /* Sprinklers.icns */; };
+		F464DC01198ED81E003492F2 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = F464DC00198ED81E003492F2 /* MainMenu.xib */; };
+		F464DC03198ED884003492F2 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = F464DC02198ED884003492F2 /* Credits.rtf */; };
 		F4F83F8D1981E481006B2617 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4F83F8C1981E481006B2617 /* Cocoa.framework */; };
-		F4F83F971981E481006B2617 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = F4F83F951981E481006B2617 /* InfoPlist.strings */; };
 		F4F83F991981E481006B2617 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = F4F83F981981E481006B2617 /* main.m */; };
-		F4F83F9D1981E481006B2617 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = F4F83F9B1981E481006B2617 /* Credits.rtf */; };
 		F4F83FA01981E481006B2617 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = F4F83F9F1981E481006B2617 /* AppDelegate.m */; };
 		F4F83FC11981E4AC006B2617 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4F83FC01981E4AC006B2617 /* WebKit.framework */; };
 		F4F83FCA1981E523006B2617 /* css in Resources */ = {isa = PBXBuildFile; fileRef = F4F83FC51981E523006B2617 /* css */; };
@@ -23,6 +23,8 @@
 
 /* Begin PBXFileReference section */
 		F40530A6198326550046DC88 /* Sprinklers.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = Sprinklers.icns; path = ../../www/res/osx/icons/Sprinklers.icns; sourceTree = "<group>"; };
+		F464DC00198ED81E003492F2 /* MainMenu.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MainMenu.xib; sourceTree = "<group>"; };
+		F464DC02198ED884003492F2 /* Credits.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = Credits.rtf; sourceTree = "<group>"; };
 		F4D9F92A1982F35800405EF0 /* Sprinklers.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = Sprinklers.entitlements; sourceTree = "<group>"; };
 		F4F83F891981E481006B2617 /* Sprinklers.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Sprinklers.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F4F83F8C1981E481006B2617 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
@@ -30,10 +32,8 @@
 		F4F83F901981E481006B2617 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		F4F83F911981E481006B2617 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		F4F83F941981E481006B2617 /* Sprinklers-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Sprinklers-Info.plist"; sourceTree = "<group>"; };
-		F4F83F961981E481006B2617 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		F4F83F981981E481006B2617 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		F4F83F9A1981E481006B2617 /* Sprinklers-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Sprinklers-Prefix.pch"; sourceTree = "<group>"; };
-		F4F83F9C1981E481006B2617 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = en; path = en.lproj/Credits.rtf; sourceTree = "<group>"; };
 		F4F83F9E1981E481006B2617 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		F4F83F9F1981E481006B2617 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		F4F83FAB1981E481006B2617 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
@@ -102,6 +102,7 @@
 			children = (
 				F4D9F92A1982F35800405EF0 /* Sprinklers.entitlements */,
 				F4F83F9E1981E481006B2617 /* AppDelegate.h */,
+				F464DC00198ED81E003492F2 /* MainMenu.xib */,
 				F4F83F9F1981E481006B2617 /* AppDelegate.m */,
 				F4F83F931981E481006B2617 /* Supporting Files */,
 			);
@@ -117,10 +118,9 @@
 				F4F83FC81981E523006B2617 /* js */,
 				F4F83FC91981E523006B2617 /* locale */,
 				F4F83F941981E481006B2617 /* Sprinklers-Info.plist */,
-				F4F83F951981E481006B2617 /* InfoPlist.strings */,
 				F4F83F981981E481006B2617 /* main.m */,
 				F4F83F9A1981E481006B2617 /* Sprinklers-Prefix.pch */,
-				F4F83F9B1981E481006B2617 /* Credits.rtf */,
+				F464DC02198ED884003492F2 /* Credits.rtf */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -190,11 +190,11 @@
 				F4F83FCE1981E523006B2617 /* locale in Resources */,
 				F4F83FCA1981E523006B2617 /* css in Resources */,
 				F4F83FCD1981E523006B2617 /* js in Resources */,
+				F464DC03198ED884003492F2 /* Credits.rtf in Resources */,
 				F40530A7198326550046DC88 /* Sprinklers.icns in Resources */,
 				F4F83FCB1981E523006B2617 /* img in Resources */,
-				F4F83F971981E481006B2617 /* InfoPlist.strings in Resources */,
 				F4F83FCC1981E523006B2617 /* index.html in Resources */,
-				F4F83F9D1981E481006B2617 /* Credits.rtf in Resources */,
+				F464DC01198ED81E003492F2 /* MainMenu.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -211,25 +211,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXVariantGroup section */
-		F4F83F951981E481006B2617 /* InfoPlist.strings */ = {
-			isa = PBXVariantGroup;
-			children = (
-				F4F83F961981E481006B2617 /* en */,
-			);
-			name = InfoPlist.strings;
-			sourceTree = "<group>";
-		};
-		F4F83F9B1981E481006B2617 /* Credits.rtf */ = {
-			isa = PBXVariantGroup;
-			children = (
-				F4F83F9C1981E481006B2617 /* en */,
-			);
-			name = Credits.rtf;
-			sourceTree = "<group>";
-		};
-/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		F4F83FB81981E481006B2617 /* Debug */ = {
