@@ -37,6 +37,9 @@ module.exports = function(grunt) {
       },
       blackberry10: {
           command: "tasks/blackberry10.sh"
+      },
+      pushBump: {
+          command: "tasks/pushbump.sh"
       }
     },
     replace: {
@@ -90,7 +93,7 @@ module.exports = function(grunt) {
 
   // Default task(s).
   grunt.registerTask("default",["jshint"]);
-  grunt.registerTask("bump",["replace"]);
+  grunt.registerTask("bump",["replace","shell:pushBump"]);
   grunt.registerTask("updateLang",["shell:updateLang"]);
   grunt.registerTask("pushEng",["shell:pushEng"]);
   grunt.registerTask("build",["jshint","shell:firefox","shell:chrome","shell:blackberry10"]);
