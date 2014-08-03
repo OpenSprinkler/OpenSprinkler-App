@@ -70,7 +70,11 @@ module.exports = function(grunt) {
           command: "cordova build blackberry10 --release"
       },
       pushBump: {
-          command: "tasks/pushbump.sh"
+          command: [
+            "git add www/index.html source/osx/Resources/Sprinklers-Info.plist www/config.xml manifest.json manifest.webapp package.json",
+            "git commit -m 'Base: Increment version number'",
+            "git push"
+          ].join("&&")
       }
     },
     replace: {
