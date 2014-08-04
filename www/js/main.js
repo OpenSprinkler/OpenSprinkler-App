@@ -1368,9 +1368,11 @@ function show_weather_settings() {
     page.find("#weather_provider").on("change",function(){
         var val = $(this).val();
         if (val === "wunderground") {
-            $("#wapikey,label[for='wapikey']").show("fast");
+            page.find("#wapikey,label[for='wapikey']").show("fast");
+            page.find("#wapikey").parent(".ui-input-text").css("border-style","solid");
         } else {
-            $("#wapikey,label[for='wapikey']").hide("fast");
+            page.find("#wapikey,label[for='wapikey']").hide("fast");
+            page.find("#wapikey").parent(".ui-input-text").css("border-style","none");
         }
     });
 
@@ -1389,8 +1391,15 @@ function show_weather_settings() {
         },345600,2);
     });
 
-    page.one("pagehide",function(){
-        page.remove();
+    page.one({
+        pagehide: function(){
+            page.remove();
+        },
+        pagebeforeshow: function() {
+            if (curr_wa.weather_provider !== "wunderground") {
+                page.find("#wapikey").parent(".ui-input-text").css("border-style","none");
+            }
+        }
     });
     page.appendTo("body");
 }
