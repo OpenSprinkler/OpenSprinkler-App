@@ -3271,6 +3271,7 @@ function get_logs() {
 
             log_options.collapsible("collapse");
             logs_list.html(html+"</div>").enhanceWithin();
+            fixInputClick(logs_list);
         },
         reset_logs_page = function() {
             placeholder.empty().hide();
