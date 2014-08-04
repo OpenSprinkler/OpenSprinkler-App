@@ -1,3 +1,5 @@
 language: objective-c
 script:
-  - xctool -project source/osx/Sprinklers.xcodeproj build
+  - xctool -project source/osx/Sprinklers.xcodeproj -scheme Sprinklers build
+notifications:
+  email: false
