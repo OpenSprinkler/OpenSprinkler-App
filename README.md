@@ -13,7 +13,7 @@ Overview:
   + [BlackBerry AppWorld](http://appworld.blackberry.com/webstore/content/53161895/)
   + [Firefox Marketplace](https://marketplace.firefox.com/app/sprinklers/)
   + [Google Play Store](https://play.google.com/store/apps/details?id=com.albahra.sprinklers)
-  + [Goole Web Store](https://chrome.google.com/webstore/detail/sprinklers/iegciplggbmhpihoeamfpjdedihblhhp)
+  + [Google Web Store](https://chrome.google.com/webstore/detail/sprinklers/iegciplggbmhpihoeamfpjdedihblhhp)
   + [Windows Phone Store](http://www.windowsphone.com/en-us/store/app/sprinklers/3dbc5da0-b33f-4ca8-9e54-e80febf0a0c5)
 
 + This application interfaces with the interval program on the OpenSprinkler which is the default software available. The application has been tested and compatible with all firmware versions of the interval program.
