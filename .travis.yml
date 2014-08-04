@@ -1,5 +1,5 @@
 language: objective-c
 script:
-  - xctool -project source/osx/Sprinklers.xcodeproj -scheme Sprinklers -sdk macosx10.9 build
+  - xctool -project source/osx/Sprinklers.xcodeproj -scheme Sprinklers -sdk macosx10.9 CODE_SIGN_IDENTITY="Mac Developer"
 notifications:
   email: false
