@@ -1,10 +1,10 @@
 ## Sprinklers
 
-[![Build Status](https://travis-ci.org/salbahra/Sprinklers.png)](https://travis-ci.org/salbahra/Sprinklers)  
+<img align="left" height="96" src="http://albahra.com/sprinklers/icon.png">[![Build Status](https://travis-ci.org/salbahra/Sprinklers.png)](https://travis-ci.org/salbahra/Sprinklers)  
 [Official Site][official] | [Support][help] | [Changelog][changelog]  
 &copy; 2013-2014 [Samer Albahra][salbahra] ([@salbahra](https://twitter.com/salbahra))  
 
-<img align="left" height="96" src="http://albahra.com/sprinklers/icon.png"> A mobile interface for the OpenSprinkler irrigation device. Designed to allow manual control, program management (view, edit, delete and add), initiation of a run-once program, viewing device status, adjusting rain delay, and changing of OpenSprinkler settings.
+A mobile interface for the OpenSprinkler irrigation device. Designed to allow manual control, program management (view, edit, delete and add), initiation of a run-once program, viewing device status, adjusting rain delay, and changing of OpenSprinkler settings.
   
 ---
 
