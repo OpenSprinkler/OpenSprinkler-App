@@ -1,10 +1,29 @@
-[Sprinklers](http://albahra.com/sprinklers)
-====
+## Sprinklers
+
+[![Build Status](https://travis-ci.org/salbahra/Sprinklers.png)](https://travis-ci.org/salbahra/Sprinklers)
+[Official Site][official] | [Support][help] | [Changelog][changelog]
+&copy; 2013-2014 [Samer Albahra][salbahra] ([@salbahra](https://twitter.com/salbahra))
 
 <img align="left" height="96" src="http://albahra.com/sprinklers/icon.png"> A mobile interface for the OpenSprinkler irrigation device. Designed to allow manual control, program management (view, edit, delete and add), initiation of a run-once program, viewing device status, adjusting rain delay, and changing of OpenSprinkler settings.
 
-Overview:
----------
+---
+
+[official]: http://albahra.com/sprinklers/
+[help]: http://rayshobby.net/phpBB3/viewforum.php?f=1
+[changelog]: https://github.com/salbahra/Sprinklers/releases
+[salbahra]: http://albahra.com/
+
+<a href="https://albahra.com/sprinklers/img/home.png"><img src="https://albahra.com/sprinklers/img/home.png" width="100"/></a>
+<a href="https://albahra.com/sprinklers/img/preview.png"><img src="https://albahra.com/sprinklers/img/preview.png" width="100"/></a>
+<a href="https://albahra.com/sprinklers/img/log_graph.png"><img src="https://albahra.com/sprinklers/img/log_graph.png" width="100"/></a>
+<a href="https://albahra.com/sprinklers/img/raindelay.png"><img src="https://albahra.com/sprinklers/img/raindelay.png" width="100"/></a>
+<a href="https://albahra.com/sprinklers/img/runonce.png"><img src="https://albahra.com/sprinklers/img/runonce.png" width="100"/></a>
+
+<i>Screenshots: iPhone 5S</i>
+
+---
+
+#### Overview
 
 + This application is available for free from the following app stores:
   + [Amazon Appstore](http://www.amazon.com/dp/B00JYFL8LW)
