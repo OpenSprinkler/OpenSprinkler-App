@@ -1,11 +1,11 @@
 ## Sprinklers
 
-[![Build Status](https://travis-ci.org/salbahra/Sprinklers.png)](https://travis-ci.org/salbahra/Sprinklers)
-[Official Site][official] | [Support][help] | [Changelog][changelog]
-&copy; 2013-2014 [Samer Albahra][salbahra] ([@salbahra](https://twitter.com/salbahra))
+[![Build Status](https://travis-ci.org/salbahra/Sprinklers.png)](https://travis-ci.org/salbahra/Sprinklers)  
+[Official Site][official] | [Support][help] | [Changelog][changelog]  
+&copy; 2013-2014 [Samer Albahra][salbahra] ([@salbahra](https://twitter.com/salbahra))  
 
 <img align="left" height="96" src="http://albahra.com/sprinklers/icon.png"> A mobile interface for the OpenSprinkler irrigation device. Designed to allow manual control, program management (view, edit, delete and add), initiation of a run-once program, viewing device status, adjusting rain delay, and changing of OpenSprinkler settings.
-
+  
 ---
 
 [official]: http://albahra.com/sprinklers/
@@ -16,6 +16,7 @@
 <a href="https://albahra.com/sprinklers/img/home.png"><img src="https://albahra.com/sprinklers/img/home.png" width="100"/></a>
 <a href="https://albahra.com/sprinklers/img/preview.png"><img src="https://albahra.com/sprinklers/img/preview.png" width="100"/></a>
 <a href="https://albahra.com/sprinklers/img/log_graph.png"><img src="https://albahra.com/sprinklers/img/log_graph.png" width="100"/></a>
+<a href="https://albahra.com/opensprinkler/img/program.png"><img src="https://albahra.com/opensprinkler/img/program.png" width="100"/></a>
 <a href="https://albahra.com/sprinklers/img/raindelay.png"><img src="https://albahra.com/sprinklers/img/raindelay.png" width="100"/></a>
 <a href="https://albahra.com/sprinklers/img/runonce.png"><img src="https://albahra.com/sprinklers/img/runonce.png" width="100"/></a>
 
