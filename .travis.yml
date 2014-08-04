@@ -1,2 +1,6 @@
 language: objective-c
-xcode_project: source/osx/Sprinklers.xcodeproj
+before_install:
+    - brew update
+    - brew install xctool
+script:
+  - xctool -project source/osx/Sprinklers.xcodeproj -scheme Sprinklers build
