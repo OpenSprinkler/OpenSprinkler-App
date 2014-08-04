@@ -1398,6 +1398,8 @@ function show_weather_settings() {
 function submit_weather_settings() {
     var url = "/uwa?auto_delay="+($("#auto_delay").is(":checked") ? "on" : "off")+"&delay_duration="+parseInt($("#delay_duration").val()/3600)+"&weather_provider="+$("#weather_provider").val()+"&wapikey="+$("#wapikey").val();
 
+    $.mobile.loading("show");
+
     send_to_os(url).then(
         function(){
             $.mobile.document.one("pageshow",function(){
