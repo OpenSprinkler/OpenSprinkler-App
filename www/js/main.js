@@ -1,8 +1,9 @@
-/*global $, navigator, chrome, FastClick, StatusBar, networkinterface, links, escape */
+/*global $, MSApp, navigator, chrome, FastClick, StatusBar, networkinterface, links, escape */
 var isIEMobile = /IEMobile/.test(navigator.userAgent),
     isAndroid = /Android|\bSilk\b/.test(navigator.userAgent),
     isiOS = /iP(ad|hone|od)/.test(navigator.userAgent),
     isFireFoxOS = /^.*?\Mobile\b.*?\Firefox\b.*?$/m.test(navigator.userAgent),
+    isWinApp = /MSAppHost/.test(navigator.userAgent),
     isChromeApp = typeof chrome === "object" && typeof chrome.storage === "object",
     retryCount = 3,
     controller = {},
@@ -65,7 +66,7 @@ $(document)
                 navigator.app.clearCache();
             } catch (err) {}
         });
-    } else if (isIEMobile) {
+    } else if (isIEMobile || isWinApp) {
         $.ajaxSetup({
             "cache": false
         });
@@ -75,6 +76,19 @@ $(document)
             mozSystem: true
           }
         });
+    }
+
+    // Redirect jQuery Mobile DOM manipulation to prevent error
+    if (isWinApp) {
+        // Cache the old domManip function.
+        $.fn.oldDomManIp = $.fn.domManip;
+        // Override the domManip function with a call to the cached domManip function wrapped in a MSapp.execUnsafeLocalFunction call.
+        $.fn.domManip = function (args, callback, allowIntersection) {
+            var that = this;
+            return MSApp.execUnsafeLocalFunction(function () {
+                return that.oldDomManIp(args, callback, allowIntersection);
+            });
+        };
     }
 
     //Change history method for Chrome Packaged Apps
@@ -110,7 +124,9 @@ $(document)
 
     // Hide the splash screen
     setTimeout(function(){
-        navigator.splashscreen.hide();
+        try {
+            navigator.splashscreen.hide();
+        } catch(err) {}
     },500);
 
     // Check if device is on a local network
