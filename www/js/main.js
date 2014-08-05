@@ -80,6 +80,17 @@ $(document)
 
     // Redirect jQuery Mobile DOM manipulation to prevent error
     if (isWinApp) {
+        // Add link to privacy statement
+        var settingsPane = Windows.UI.ApplicationSettings.SettingsPane.getForCurrentView();
+        function commandsRequested(eventArgs) {
+            var applicationCommands = eventArgs.request.applicationCommands;
+            var privacyCommand = new Windows.UI.ApplicationSettings.SettingsCommand("privacy", "Privacy Policy", function () {
+                window.open("http://albahra.com/journal/privacy-policy");
+            });
+            applicationCommands.append(privacyCommand);
+        }
+        settingsPane.addEventListener("commandsrequested", commandsRequested);
+
         // Cache the old domManip function.
         $.fn.oldDomManIp = $.fn.domManip;
         // Override the domManip function with a call to the cached domManip function wrapped in a MSapp.execUnsafeLocalFunction call.
