@@ -1,4 +1,4 @@
-/*global $, MSApp, navigator, chrome, FastClick, StatusBar, networkinterface, links, escape */
+/*global $, Windows, MSApp, navigator, chrome, FastClick, StatusBar, networkinterface, links, escape */
 var isIEMobile = /IEMobile/.test(navigator.userAgent),
     isAndroid = /Android|\bSilk\b/.test(navigator.userAgent),
     isiOS = /iP(ad|hone|od)/.test(navigator.userAgent),
@@ -10,13 +10,58 @@ var isIEMobile = /IEMobile/.test(navigator.userAgent),
     switching = false,
     curr_183, curr_ip, curr_prefix, curr_auth, curr_pw, curr_wa, curr_session, curr_auth_user, curr_auth_pw, language, deviceip, storage, interval_id, timeout_id;
 
-//Fix CSS for IE Mobile (Windows Phone 8)
+// Fix CSS for IE Mobile (Windows Phone 8)
 if (isIEMobile) {
     insertStyle("ul{list-style: none !important;}@media(max-width:940px){.wicon{margin:-10px -10px -15px -15px !important}#forecast .wicon{position:relative;left:37.5px;margin:0 auto !important}}");
 }
 
+// Fix CSS for Chrome Web Store apps
 if (isChromeApp) {
     insertStyle("html,body{overflow-y:scroll}");
+}
+
+// Prevent caching of AJAX requests on Android and Windows Phone devices
+if (isAndroid) {
+    $(this).ajaxStart(function(){
+        try {
+            navigator.app.clearCache();
+        } catch (err) {}
+    });
+} else if (isIEMobile || isWinApp) {
+    $.ajaxSetup({
+        "cache": false
+    });
+} else if (isFireFoxOS) {
+    // Allow cross domain AJAX requests in FireFox OS
+    $.ajaxSetup({
+      xhrFields: {
+        mozSystem: true
+      }
+    });
+}
+
+// Redirect jQuery Mobile DOM manipulation to prevent error
+if (isWinApp) {
+    // Add link to privacy statement
+    var settingsPane = Windows.UI.ApplicationSettings.SettingsPane.getForCurrentView();
+
+    settingsPane.addEventListener("commandsrequested", function(eventArgs) {
+        var applicationCommands = eventArgs.request.applicationCommands;
+        var privacyCommand = new Windows.UI.ApplicationSettings.SettingsCommand("privacy", "Privacy Policy", function(){
+            window.open("http://albahra.com/journal/privacy-policy");
+        });
+        applicationCommands.append(privacyCommand);
+    });
+
+    // Cache the old domManip function.
+    $.fn.oldDomManIp = $.fn.domManip;
+    // Override the domManip function with a call to the cached domManip function wrapped in a MSapp.execUnsafeLocalFunction call.
+    $.fn.domManip = function (args, callback, allowIntersection) {
+        var that = this;
+        return MSApp.execUnsafeLocalFunction(function () {
+            return that.oldDomManIp(args, callback, allowIntersection);
+        });
+    };
 }
 
 $(document)
@@ -59,49 +104,6 @@ $(document)
         });
     });
 
-    // Prevent caching of AJAX requests on Android and Windows Phone devices
-    if (isAndroid) {
-        $(this).ajaxStart(function(){
-            try {
-                navigator.app.clearCache();
-            } catch (err) {}
-        });
-    } else if (isIEMobile || isWinApp) {
-        $.ajaxSetup({
-            "cache": false
-        });
-    } else if (isFireFoxOS) {
-        $.ajaxSetup({
-          xhrFields: {
-            mozSystem: true
-          }
-        });
-    }
-
-    // Redirect jQuery Mobile DOM manipulation to prevent error
-    if (isWinApp) {
-        // Add link to privacy statement
-        var settingsPane = Windows.UI.ApplicationSettings.SettingsPane.getForCurrentView();
-        function commandsRequested(eventArgs) {
-            var applicationCommands = eventArgs.request.applicationCommands;
-            var privacyCommand = new Windows.UI.ApplicationSettings.SettingsCommand("privacy", "Privacy Policy", function () {
-                window.open("http://albahra.com/journal/privacy-policy");
-            });
-            applicationCommands.append(privacyCommand);
-        }
-        settingsPane.addEventListener("commandsrequested", commandsRequested);
-
-        // Cache the old domManip function.
-        $.fn.oldDomManIp = $.fn.domManip;
-        // Override the domManip function with a call to the cached domManip function wrapped in a MSapp.execUnsafeLocalFunction call.
-        $.fn.domManip = function (args, callback, allowIntersection) {
-            var that = this;
-            return MSApp.execUnsafeLocalFunction(function () {
-                return that.oldDomManIp(args, callback, allowIntersection);
-            });
-        };
-    }
-
     //Change history method for Chrome Packaged Apps
     if (isChromeApp) {
         $.mobile.document.on("click",".ui-toolbar-back-btn",function(){
@@ -114,12 +116,12 @@ $(document)
 
     //Use system browser for links on iOS and Windows Phone
     if (isiOS || isIEMobile) {
-        $(".iab").on("click",function(){
+        $.mobile.document.on("click",".iab",function(){
             window.open(this.href,"_system","enableViewportScale=yes");
             return false;
         });
     } else if (isAndroid) {
-        $(".iab").on("click",function(){
+        $.mobile.document.on("click",".iab",function(){
             window.open(this.href,"_blank","enableViewportScale=yes");
             return false;
         });
