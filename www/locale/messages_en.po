@@ -650,7 +650,7 @@ msgstr ""
 msgid "Backup restored to your device"
 msgstr ""
 
-msgid "Unable to import configuration. Check device password and try again."
+msgid "Unable to import configuration."
 msgstr ""
 
 msgid "Yes"
