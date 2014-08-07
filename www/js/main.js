@@ -329,9 +329,12 @@ function flipSwitched() {
     }
 
     $.when(defer).then(function(){
-        update_controller_settings();
-        if (id === "mm" || id === "mmm") {
-            $("#manual a.green").removeClass("green");
+        $.when(
+            update_controller_settings(),
+            update_controller_status()
+        );
+        if (id === "mmm") {
+            $("#mm_list .green").removeClass("green");
         }
     },
     function(){
@@ -2467,7 +2470,7 @@ function get_manual() {
 
     $.each(controller.stations.snames,function (i,station) {
         if (controller.options.mas === i+1) {
-            list += "<li data-icon='false' class='center'>"+station+" ("+_("Master")+")</li>";
+            list += "<li data-icon='false' class='center"+((controller.status[i]) ? " green" : "")+"'>"+station+" ("+_("Master")+")</li>";
         } else {
             list += "<li data-icon='false'><a class='mm_station center"+((controller.status[i]) ? " green" : "")+"'>"+station+"</a></li>";
         }
@@ -2505,29 +2508,39 @@ function toggle() {
         list = $("#mm_list"),
         listitems = list.children("li:not(li.ui-li-divider)"),
         item = anchor.closest("li:not(li.ui-li-divider)"),
-        currPos = listitems.index(item) + 1;
+        currPos = listitems.index(item) + 1,
+        promise,
+        check_toggle = function(){
+            update_controller_status().done(function(){
+                var item;
 
-    if (anchor.hasClass("green")) {
-        send_to_os("/sn"+currPos+"=0").then(
-            function(){
-                update_controller_status();
-            },
-            function(){
-                anchor.addClass("green");
-            }
-        );
+                for (var i=0; i<controller.status.length; i++) {
+                    item = listitems.eq(i);
+
+                    if (item.find("a").length) {
+                        item = item.find("a");
+                    }
+
+                    if (controller.status[i]) {
+                        item.addClass("green");
+                    } else {
+                        item.removeClass("green");
+                    }
+                }
+            });
+        };
+
+    if (controller.status[currPos-1]) {
+        promise = send_to_os("/sn"+currPos+"=0");
         anchor.removeClass("green");
     } else {
-        send_to_os("/sn"+currPos+"=1&t=0").then(
-            function(){
-                update_controller_status();
-            },
-            function(){
-                anchor.removeClass("green");
-            }
-        );
+        promise = send_to_os("/sn"+currPos+"=1&t=0");
         anchor.addClass("green");
     }
+    // The device usually replies before the station has actually toggled. Delay in order to wait for the station's to toggle.
+    promise.done(function(){
+        setTimeout(check_toggle,1000);
+    });
     return false;
 }
 
