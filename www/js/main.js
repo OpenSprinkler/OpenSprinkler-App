@@ -4,6 +4,7 @@ var isIEMobile = /IEMobile/.test(navigator.userAgent),
     isiOS = /iP(ad|hone|od)/.test(navigator.userAgent),
     isFireFoxOS = /^.*?\Mobile\b.*?\Firefox\b.*?$/m.test(navigator.userAgent),
     isWinApp = /MSAppHost/.test(navigator.userAgent),
+    isOSXApp = isOSXApp || false,
     isChromeApp = typeof chrome === "object" && typeof chrome.storage === "object",
     retryCount = 3,
     controller = {},
@@ -110,7 +111,10 @@ $(document)
             goBack();
             return false;
         });
+    }
 
+    //When app isn't using cordova.js, check network status now
+    if (isChromeApp || isOSXApp) {
         checkAutoScan();
     }
 

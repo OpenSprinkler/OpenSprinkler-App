@@ -72,7 +72,7 @@
 - (void)webView:(WebView *)sender didClearWindowObject:(WebScriptObject *)windowScriptObject forFrame:(WebFrame *)frame
 {
     NSString *ip = [self getIPAddress];
-    NSString *networkinterface = [NSString stringWithFormat:@"networkinterface={};networkinterface.getIPAddress=function(callback){callback('%@');};", ip];
+    NSString *networkinterface = [NSString stringWithFormat:@"isOSXApp=true;networkinterface={};networkinterface.getIPAddress=function(callback){callback('%@');};", ip];
     [webView stringByEvaluatingJavaScriptFromString:networkinterface];
 }
 
