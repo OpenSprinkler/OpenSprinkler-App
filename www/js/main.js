@@ -367,14 +367,12 @@ function send_to_os(dest,type) {
     }
 
     return $.ajax(obj).retry({times:retryCount, statusCodes: [0,408,500]}).fail(function(e){
-        if (e.statusText==="timeout") {
+        if (e.statusText==="timeout" || e.status===0) {
             showerror(_("Connection timed-out. Please try again."));
-            return;
-        }
-        if (e.status===401 || e.status===0) {
+        } else if (e.status===401 && /\/(?:cv|sn|cs|cr|cp|uwa|dp|co|cl)/.exec(dest)) {
             showerror(_("Check device password and try again."));
-            return;
         }
+        return;
     });
 }
 
@@ -3951,7 +3949,7 @@ function import_config(data) {
             },
             function(){
                 $.mobile.loading("hide");
-                showerror(_("Unable to import configuration. Check device password and try again."));
+                showerror(_("Unable to import configuration."));
             }
         );
     });
