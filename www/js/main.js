@@ -3069,7 +3069,10 @@ function get_logs() {
                             data:sortedData[key],
                             label:$(this).attr("name"),
                             color:parseInt(key),
-                            lines: { show:true }
+                            lines: {
+                                show: true,
+                                fill: true
+                            }
                         });
                     }
                 }
