@@ -2465,7 +2465,28 @@ function get_manual() {
                 "<div class='ui-content' role='main'>" +
                 "</div>" +
             "</div>"),
-        dest, list;
+        check_toggle = function(i){
+            update_controller_status().done(function(){
+                var item = listitems.eq(i).find("a");
+
+                if (controller.options.mas) {
+                    if (controller.status[controller.options.mas-1]) {
+                        listitems.eq(controller.options.mas-1).addClass("green");
+                    } else {
+                        listitems.eq(controller.options.mas-1).removeClass("green");
+                    }
+                }
+
+                item.text(controller.stations.snames[i]);
+
+                if (controller.status[i]) {
+                    item.removeClass("yellow").addClass("green");
+                } else {
+                    item.removeClass("green yellow");
+                }
+            });
+        },
+        dest, mmlist, listitems;
 
     $.each(controller.stations.snames,function (i,station) {
         if (controller.options.mas === i+1) {
@@ -2475,48 +2496,18 @@ function get_manual() {
         }
     });
 
-    page.find(".ui-content").append(
-        "<p class='center'>"+_("With manual mode turned on, tap a station to toggle it.")+"</p>",
-        "<ul data-role='listview' data-inset='true'>"+
-                "<li class='ui-field-contain'>"+
-                    "<label for='mmm'><b>"+_("Manual Mode")+"</b></label>"+
-                    "<input type='checkbox' data-on-text='On' data-off-text='Off' data-role='flipswitch' name='mmm' id='mmm'"+(controller.settings.mm ? " checked" : "")+">"+
-                "</li>"+
-            "</ul>",
-        "<ul data-role='listview' data-inset='true' id='mm_list'>"+list+"</ul>"
-    );
+    mmlist = $("<ul data-role='listview' data-inset='true' id='mm_list'>"+list+"</ul>"),
+    listitems = mmlist.children("li:not(li.ui-li-divider)");
 
-    list = page.find("#mm_list");
-
-    list.find(".mm_station").on("click",function(){
+    mmlist.find(".mm_station").on("vclick",function(){
         if (!controller.settings.mm) {
             showerror(_("Manual mode is not enabled. Please enable manual mode then try again."));
             return false;
         }
 
         var anchor = $(this),
-            listitems = list.children("li:not(li.ui-li-divider)"),
             item = anchor.closest("li:not(li.ui-li-divider)"),
-            currPos = listitems.index(item),
-            check_toggle = function(i){
-                update_controller_status().done(function(){
-                    var item = listitems.eq(i).find("a");
-
-                    if (controller.options.mas) {
-                        if (controller.status[controller.options.mas-1]) {
-                            listitems.eq(controller.options.mas-1).addClass("green");
-                        } else {
-                            listitems.eq(controller.options.mas-1).removeClass("green");
-                        }
-                    }
-
-                    if (controller.status[i]) {
-                        item.removeClass("yellow").addClass("green");
-                    } else {
-                        item.removeClass("green yellow");
-                    }
-                });
-            };
+            currPos = listitems.index(item);
 
         if (anchor.hasClass("yellow")) {
             return false;
@@ -2527,7 +2518,9 @@ function get_manual() {
         } else {
             dest = "/sn"+(currPos+1)+"=1&t=0";
         }
+
         anchor.removeClass("green").addClass("yellow");
+        anchor.html("<p class='ui-icon ui-icon-loading mini-load'></p>");
 
         send_to_os(dest).done(
             function(){
@@ -2538,6 +2531,18 @@ function get_manual() {
 
         return false;
     });
+
+
+    page.find(".ui-content").append(
+        "<p class='center'>"+_("With manual mode turned on, tap a station to toggle it.")+"</p>",
+        "<ul data-role='listview' data-inset='true'>"+
+                "<li class='ui-field-contain'>"+
+                    "<label for='mmm'><b>"+_("Manual Mode")+"</b></label>"+
+                    "<input type='checkbox' data-on-text='On' data-off-text='Off' data-role='flipswitch' name='mmm' id='mmm'"+(controller.settings.mm ? " checked" : "")+">"+
+                "</li>"+
+            "</ul>",
+        mmlist
+    );
 
     page.find("#mmm").flipswitch().on("change",flipSwitched);
 
@@ -4200,7 +4205,8 @@ function colorContrast(c) {
 
 // Show loading indicator within element(s)
 function showLoading(ele) {
-    $(ele).off("click").html("<p class='ui-icon ui-icon-loading mini-load'></p>");
+    ele = (typeof ele === "string") ? $(ele) : ele;
+    ele.off("click").html("<p class='ui-icon ui-icon-loading mini-load'></p>");
 }
 
 function goBack(keepIndex) {
