@@ -357,6 +357,12 @@ a {
     font-weight:400;
     text-shadow:none!important
 }
+.yellow {
+    background:#A6AD15!important;
+    color:#FFF!important;
+    font-weight:400;
+    text-shadow:none!important
+}
 .ui-header .ui-title {
     margin-left:1em;
     margin-right:1em
