@@ -2477,7 +2477,7 @@ function get_manual() {
                     }
                 }
 
-                item.text(controller.stations.snames[i]);
+                item.text(controller.stations.snames[i-1]);
 
                 if (controller.status[i]) {
                     item.removeClass("yellow").addClass("green");
