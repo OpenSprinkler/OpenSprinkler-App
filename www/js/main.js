@@ -2464,7 +2464,8 @@ function get_manual() {
                 "</div>" +
                 "<div class='ui-content' role='main'>" +
                 "</div>" +
-            "</div>");
+            "</div>"),
+        defer, list;
 
     $.each(controller.stations.snames,function (i,station) {
         if (controller.options.mas === i+1) {
@@ -2485,7 +2486,51 @@ function get_manual() {
         "<ul data-role='listview' data-inset='true' id='mm_list'>"+list+"</ul>"
     );
 
-    page.find("#mm_list").find(".mm_station").on("click",toggle);
+    list = page.find("#mm_list");
+
+    list.find(".mm_station").on("click",function(){
+        if (!controller.settings.mm) {
+            showerror(_("Manual mode is not enabled. Please enable manual mode then try again."));
+            return false;
+        }
+
+        var anchor = $(this),
+            listitems = list.children("li:not(li.ui-li-divider)"),
+            item = anchor.closest("li:not(li.ui-li-divider)"),
+            currPos = listitems.index(item),
+            check_toggle = function(i){
+                update_controller_status().done(function(){
+                    var item = listitems.eq(i);
+                    if (item.find("a").length) {
+                        item = item.find("a");
+                    }
+
+                    if (controller.status[i]) {
+                        item.removeClass("yellow").addClass("green");
+                    } else {
+                        item.removeClass("green yellow");
+                    }
+                });
+            };
+
+        if (anchor.hasClass("yellow")) {
+            return false;
+        }
+
+        if (controller.status[currPos]) {
+            defer = send_to_os("/sn"+(currPos+1)+"=0");
+        } else {
+            defer = send_to_os("/sn"+(currPos+1)+"=1&t=0");
+        }
+        anchor.removeClass("green").addClass("yellow");
+
+        // The device usually replies before the station has actually toggled. Delay in order to wait for the station's to toggle.
+        defer.done(function(){
+            setTimeout(check_toggle,1000,currPos);
+        });
+
+        return false;
+    });
 
     page.find("#mmm").flipswitch().on("change",flipSwitched);
 
@@ -2494,52 +2539,6 @@ function get_manual() {
     });
 
     page.appendTo("body");
-}
-
-function toggle() {
-    if (!controller.settings.mm) {
-        showerror(_("Manual mode is not enabled. Please enable manual mode then try again."));
-        return false;
-    }
-
-    var anchor = $(this),
-        list = $("#mm_list"),
-        listitems = list.children("li:not(li.ui-li-divider)"),
-        item = anchor.closest("li:not(li.ui-li-divider)"),
-        currPos = listitems.index(item) + 1,
-        promise,
-        check_toggle = function(){
-            update_controller_status().done(function(){
-                var item;
-
-                for (var i=0; i<controller.status.length; i++) {
-                    item = listitems.eq(i);
-
-                    if (item.find("a").length) {
-                        item = item.find("a");
-                    }
-
-                    if (controller.status[i]) {
-                        item.addClass("green");
-                    } else {
-                        item.removeClass("green");
-                    }
-                }
-            });
-        };
-
-    if (controller.status[currPos-1]) {
-        promise = send_to_os("/sn"+currPos+"=0");
-        anchor.removeClass("green");
-    } else {
-        promise = send_to_os("/sn"+currPos+"=1&t=0");
-        anchor.addClass("green");
-    }
-    // The device usually replies before the station has actually toggled. Delay in order to wait for the station's to toggle.
-    promise.done(function(){
-        setTimeout(check_toggle,1000);
-    });
-    return false;
 }
 
 // Runonce functions
