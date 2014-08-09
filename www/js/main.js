@@ -2857,8 +2857,7 @@ function get_preview() {
 
     time_to_text = function (sid,start,pid,end,simt) {
         var className = "program-"+((pid+3)%4);
-
-        if ((controller.settings.rd!==0)&&(simt+start+(controller.options.tz-48)*900<=controller.settings.rdst)) {
+        if ((controller.settings.rd!==0)&&(simt+start+(controller.options.tz-48)*900<=controller.settings.rdst*1000)) {
             className="delayed";
         }
         preview_data.push({
