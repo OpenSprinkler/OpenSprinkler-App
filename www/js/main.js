@@ -329,10 +329,8 @@ function flipSwitched() {
     }
 
     $.when(defer).then(function(){
-        $.when(
-            update_controller_settings(),
-            update_controller_status()
-        );
+        update_controller_settings();
+        update_controller_status();
         if (id === "mmm") {
             $("#mm_list .green").removeClass("green");
         }
