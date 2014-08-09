@@ -370,7 +370,7 @@ function send_to_os(dest,type) {
     return $.ajax(obj).retry({times:retryCount, statusCodes: [0,408,500]}).fail(function(e){
         if (e.statusText==="timeout" || e.status===0) {
             showerror(_("Connection timed-out. Please try again."));
-        } else if (e.status===401 && /\/(?:cv|sn|cs|cr|cp|uwa|dp|co|cl)/.exec(dest)) {
+        } else if (e.status===401 && /\/(?:cv|cs|cr|cp|uwa|dp|co|cl)/.exec(dest)) {
             showerror(_("Check device password and try again."));
         }
         return;
@@ -2465,7 +2465,7 @@ function get_manual() {
                 "<div class='ui-content' role='main'>" +
                 "</div>" +
             "</div>"),
-        defer, list;
+        dest, list;
 
     $.each(controller.stations.snames,function (i,station) {
         if (controller.options.mas === i+1) {
@@ -2500,9 +2500,14 @@ function get_manual() {
             currPos = listitems.index(item),
             check_toggle = function(i){
                 update_controller_status().done(function(){
-                    var item = listitems.eq(i);
-                    if (item.find("a").length) {
-                        item = item.find("a");
+                    var item = listitems.eq(i).find("a");
+
+                    if (controller.options.mas) {
+                        if (controller.status[controller.options.mas-1]) {
+                            listitems.eq(controller.options.mas-1).addClass("green");
+                        } else {
+                            listitems.eq(controller.options.mas-1).removeClass("green");
+                        }
                     }
 
                     if (controller.status[i]) {
@@ -2518,16 +2523,18 @@ function get_manual() {
         }
 
         if (controller.status[currPos]) {
-            defer = send_to_os("/sn"+(currPos+1)+"=0");
+            dest = "/sn"+(currPos+1)+"=0";
         } else {
-            defer = send_to_os("/sn"+(currPos+1)+"=1&t=0");
+            dest = "/sn"+(currPos+1)+"=1&t=0";
         }
         anchor.removeClass("green").addClass("yellow");
 
-        // The device usually replies before the station has actually toggled. Delay in order to wait for the station's to toggle.
-        defer.done(function(){
-            setTimeout(check_toggle,1000,currPos);
-        });
+        send_to_os(dest).done(
+            function(){
+                // The device usually replies before the station has actually toggled. Delay in order to wait for the station's to toggle.
+                setTimeout(check_toggle,1000,currPos);
+            }
+        );
 
         return false;
     });
