@@ -2472,7 +2472,7 @@ function get_manual() {
                             "<input type='checkbox' data-on-text='On' data-off-text='Off' data-role='flipswitch' name='mmm' id='mmm'"+(controller.settings.mm ? " checked" : "")+">" +
                         "</div>" +
                         "<p class='rain-desc smaller center'>"+_("Station timer prevents a station from running indefinitely and will automatically turn it off after the set duration (or when toggled off)")+"</p>" +
-                        "<div class='ui-field-contain'>" +
+                        "<div class='ui-field-contain duration-input'>" +
                             "<label for='auto-off'><b>"+_("Station Timer")+"</b></label><button data-mini='true' name='auto-off' id='auto-off' value='14400'>4h</button>" +
                         "</div>" +
                     "</fieldset>" +
