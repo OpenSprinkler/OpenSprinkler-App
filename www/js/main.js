@@ -2459,15 +2459,28 @@ function update_timer(total,sdelay) {
 function get_manual() {
     var list = "<li data-role='list-divider' data-theme='a'>"+_("Sprinkler Stations")+"</li>",
         page = $("<div data-role='page' id='manual'>" +
-                "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false' data-add-back-btn='true'>" +
+                "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false'>" +
+                    "<a href='javascript:void(0);' class='ui-btn ui-corner-all ui-shadow ui-btn-left ui-btn-b ui-toolbar-back-btn ui-icon-carat-l ui-btn-icon-left' data-rel='back'>"+_("Back")+"</a>" +
                     "<h3>"+_("Manual Control")+"</h3>" +
                 "</div>" +
                 "<div class='ui-content' role='main'>" +
+                    "<p class='center'>"+_("With manual mode turned on, tap a station to toggle it.")+"</p>" +
+                    "<fieldset data-role='collapsible' data-collapsed='false' data-mini='true'>" +
+                        "<legend>"+_("Options")+"</legend>" +
+                        "<div class='ui-field-contain'>" +
+                            "<label for='mmm'><b>"+_("Manual Mode")+"</b></label>" +
+                            "<input type='checkbox' data-on-text='On' data-off-text='Off' data-role='flipswitch' name='mmm' id='mmm'"+(controller.settings.mm ? " checked" : "")+">" +
+                        "</div>" +
+                        "<p class='rain-desc smaller center'>"+_("Station timer prevents a station from running indefinitely and will automatically turn it off after the set duration (or when toggled off)")+"</p>" +
+                        "<div class='ui-field-contain'>" +
+                            "<label for='auto-off'><b>"+_("Station Timer")+"</b></label><button data-mini='true' name='auto-off' id='auto-off' value='14400'>4h</button>" +
+                        "</div>" +
+                    "</fieldset>" +
                 "</div>" +
             "</div>"),
         check_toggle = function(currPos){
             update_controller_status().done(function(){
-                var item = listitems.eq(currPos+1).find("a");
+                var item = listitems.eq(currPos).find("a");
 
                 if (controller.options.mas) {
                     if (controller.status[controller.options.mas-1]) {
@@ -2493,8 +2506,8 @@ function get_manual() {
             }
 
             var anchor = $(this),
-                item = anchor.closest("li:not(li.ui-li-divider)"),
-                currPos = listitems.index(item) - 1;
+                item = anchor.closest("li"),
+                currPos = listitems.index(item);
 
             if (anchor.hasClass("yellow")) {
                 return false;
@@ -2503,7 +2516,7 @@ function get_manual() {
             if (controller.status[currPos]) {
                 dest = "/sn"+(currPos+1)+"=0";
             } else {
-                dest = "/sn"+(currPos+1)+"=1&t=0";
+                dest = "/sn"+(currPos+1)+"=1&t="+autoOff.val();
             }
 
             anchor.removeClass("green").addClass("yellow");
@@ -2518,6 +2531,7 @@ function get_manual() {
 
             return false;
         },
+        autoOff = page.find("#auto-off"),
         dest, mmlist, listitems;
 
     $.each(controller.stations.snames,function (i,station) {
@@ -2529,22 +2543,28 @@ function get_manual() {
     });
 
     mmlist = $("<ul data-role='listview' data-inset='true' id='mm_list'>"+list+"</ul>"),
-    listitems = mmlist.children("li:not(li.ui-li-divider)");
-
+    listitems = mmlist.children("li").slice(1);
     mmlist.find(".mm_station").on("vclick",toggle);
+    page.find(".ui-content").append(mmlist);
 
-    page.find(".ui-content").append(
-        "<p class='center'>"+_("With manual mode turned on, tap a station to toggle it.")+"</p>",
-        "<ul data-role='listview' data-inset='true'>"+
-                "<li class='ui-field-contain'>"+
-                    "<label for='mmm'><b>"+_("Manual Mode")+"</b></label>"+
-                    "<input type='checkbox' data-on-text='On' data-off-text='Off' data-role='flipswitch' name='mmm' id='mmm'"+(controller.settings.mm ? " checked" : "")+">"+
-                "</li>"+
-            "</ul>",
-        mmlist
-    );
+    autoOff.on("click",function(){
+        var dur = $(this),
+            name = page.find("label[for='"+dur.attr("id")+"']").text();
 
+        showDurationBox(dur.val(),name,function(result){
+            dur.val(result);
+            dur.text(dhms2str(sec2dhms(result)));
+            storage.set({"autoOff":result});
+        },32768);
+
+        return false;
+    });
     page.find("#mmm").flipswitch().on("change",flipSwitched);
+    storage.get("autoOff",function(data){
+        if (!data.autoOff) return;
+        autoOff.val(data.autoOff);
+        autoOff.text(dhms2str(sec2dhms(data.autoOff)));
+    });
 
     page.one("pagehide",function(){
         page.remove();

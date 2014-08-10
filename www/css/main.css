@@ -246,7 +246,7 @@ a {
 #addnew, #raindelay, #site-select, #sure {
     width:300px
 }
-#about ul, #forecast ul, #manual ul {
+#about ul, #forecast ul, #manual ul, #manual fieldset {
     max-width:800px;
     margin:16px auto
 }
