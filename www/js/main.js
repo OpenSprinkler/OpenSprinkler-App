@@ -2509,7 +2509,7 @@ function get_manual() {
             anchor.removeClass("green").addClass("yellow");
             anchor.html("<p class='ui-icon ui-icon-loading mini-load'></p>");
 
-            send_to_os(dest).done(
+            send_to_os(dest).always(
                 function(){
                     // The device usually replies before the station has actually toggled. Delay in order to wait for the station's to toggle.
                     setTimeout(check_toggle,1000,currPos);
