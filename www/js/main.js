@@ -2465,9 +2465,9 @@ function get_manual() {
                 "<div class='ui-content' role='main'>" +
                 "</div>" +
             "</div>"),
-        check_toggle = function(i){
+        check_toggle = function(currPos){
             update_controller_status().done(function(){
-                var item = listitems.eq(i).find("a");
+                var item = listitems.eq(currPos+1).find("a");
 
                 if (controller.options.mas) {
                     if (controller.status[controller.options.mas-1]) {
@@ -2477,14 +2477,46 @@ function get_manual() {
                     }
                 }
 
-                item.text(controller.stations.snames[i-1]);
+                item.text(controller.stations.snames[currPos]);
 
-                if (controller.status[i]) {
+                if (controller.status[currPos]) {
                     item.removeClass("yellow").addClass("green");
                 } else {
                     item.removeClass("green yellow");
                 }
             });
+        },
+        toggle = function(){
+            if (!controller.settings.mm) {
+                showerror(_("Manual mode is not enabled. Please enable manual mode then try again."));
+                return false;
+            }
+
+            var anchor = $(this),
+                item = anchor.closest("li:not(li.ui-li-divider)"),
+                currPos = listitems.index(item) - 1;
+
+            if (anchor.hasClass("yellow")) {
+                return false;
+            }
+
+            if (controller.status[currPos]) {
+                dest = "/sn"+(currPos+1)+"=0";
+            } else {
+                dest = "/sn"+(currPos+1)+"=1&t=0";
+            }
+
+            anchor.removeClass("green").addClass("yellow");
+            anchor.html("<p class='ui-icon ui-icon-loading mini-load'></p>");
+
+            send_to_os(dest).done(
+                function(){
+                    // The device usually replies before the station has actually toggled. Delay in order to wait for the station's to toggle.
+                    setTimeout(check_toggle,1000,currPos);
+                }
+            );
+
+            return false;
         },
         dest, mmlist, listitems;
 
@@ -2499,39 +2531,7 @@ function get_manual() {
     mmlist = $("<ul data-role='listview' data-inset='true' id='mm_list'>"+list+"</ul>"),
     listitems = mmlist.children("li:not(li.ui-li-divider)");
 
-    mmlist.find(".mm_station").on("vclick",function(){
-        if (!controller.settings.mm) {
-            showerror(_("Manual mode is not enabled. Please enable manual mode then try again."));
-            return false;
-        }
-
-        var anchor = $(this),
-            item = anchor.closest("li:not(li.ui-li-divider)"),
-            currPos = listitems.index(item);
-
-        if (anchor.hasClass("yellow")) {
-            return false;
-        }
-
-        if (controller.status[currPos]) {
-            dest = "/sn"+(currPos+1)+"=0";
-        } else {
-            dest = "/sn"+(currPos+1)+"=1&t=0";
-        }
-
-        anchor.removeClass("green").addClass("yellow");
-        anchor.html("<p class='ui-icon ui-icon-loading mini-load'></p>");
-
-        send_to_os(dest).done(
-            function(){
-                // The device usually replies before the station has actually toggled. Delay in order to wait for the station's to toggle.
-                setTimeout(check_toggle,1000,currPos);
-            }
-        );
-
-        return false;
-    });
-
+    mmlist.find(".mm_station").on("vclick",toggle);
 
     page.find(".ui-content").append(
         "<p class='center'>"+_("With manual mode turned on, tap a station to toggle it.")+"</p>",
