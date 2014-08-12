@@ -3098,7 +3098,7 @@ function get_logs() {
                 pData = [],
                 sortedData;
 
-            sortedData = sortData(grouping);
+            sortedData = sortData("graph",grouping);
 
             zones.find("td[zone_num]:not('.unchecked')").each(function() {
                 var key = $(this).attr("zone_num");
@@ -3154,37 +3154,44 @@ function get_logs() {
                 });
             }
         },
-        sortData = function(grouping) {
+        sortData = function(type,grouping) {
             var sortedData = [],
                 max, min;
 
-            switch (grouping) {
-                    case "h":
-                        for (i=0; i<stations.length; i++) {
-                            sortedData[i] = [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0],[11,0],[12,0],[13,0],[14,0],[15,0],[16,0],[17,0],[18,0],[19,0],[20,0],[21,0],[22,0],[23,0]];
-                        }
-                        break;
-                    case "m":
-                        for (i=0; i<stations.length; i++) {
-                            sortedData[i] = [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0],[11,0]];
-                        }
-                        break;
-                    case "d":
-                        for (i=0; i<stations.length; i++) {
-                            sortedData[i] = [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0]];
-                        }
-                        break;
-                    case "n":
-                        for (i=0; i<stations.length; i++) {
-                            sortedData[i] = [];
-                        }
-                        break;
+            if (type === "graph") {
+                switch (grouping) {
+                        case "h":
+                            for (i=0; i<stations.length; i++) {
+                                sortedData[i] = [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0],[11,0],[12,0],[13,0],[14,0],[15,0],[16,0],[17,0],[18,0],[19,0],[20,0],[21,0],[22,0],[23,0]];
+                            }
+                            break;
+                        case "m":
+                            for (i=0; i<stations.length; i++) {
+                                sortedData[i] = [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0],[11,0]];
+                            }
+                            break;
+                        case "d":
+                            for (i=0; i<stations.length; i++) {
+                                sortedData[i] = [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0]];
+                            }
+                            break;
+                        case "n":
+                            for (i=0; i<stations.length; i++) {
+                                sortedData[i] = [];
+                            }
+                            break;
+                }
+            } else {
+                for (i=0; i<stations.length; i++) {
+                    sortedData[i] = [];
+                }
             }
 
             $.each(data,function(a,b){
                 var stamp = parseInt(b[3] * 1000),
                     station = parseInt(b[1]),
                     date = new Date(stamp),
+                    utc = utc = new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(),  date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds()),
                     duration = parseInt(b[2]/60),
                     key;
 
@@ -3196,36 +3203,43 @@ function get_logs() {
                     }
                 }
 
-                switch (grouping) {
-                    case "h":
-                        key = date.getUTCHours();
-                        break;
-                    case "m":
-                        key = date.getUTCMonth() + 1;
-                        break;
-                    case "d":
-                        key = date.getUTCDay();
-                        break;
-                    case "n":
-                        sortedData[station].push([stamp-1000,0]);
-                        sortedData[station].push([stamp,duration]);
-                        sortedData[station].push([stamp+(duration*60*1000),0]);
-                        break;
-                }
+                if (type === "graph") {
+                    switch (grouping) {
+                        case "h":
+                            key = date.getUTCHours();
+                            break;
+                        case "m":
+                            key = date.getUTCMonth() + 1;
+                            break;
+                        case "d":
+                            key = date.getUTCDay();
+                            break;
+                        case "n":
+                            sortedData[station].push([stamp-1000,0]);
+                            sortedData[station].push([stamp,duration]);
+                            sortedData[station].push([stamp+(duration*60*1000),0]);
+                            break;
+                    }
 
-                if (grouping !== "n" && duration > 0) {
-                    sortedData[station][key][1] += duration;
-                }
+                    if (grouping !== "n" && duration > 0) {
+                        sortedData[station][key][1] += duration;
+                    }
 
-                if (min === undefined || min > date) {
-                    min = date;
-                }
-                if (max === undefined || max < date) {
-                    max = new Date(date.getTime() + (duration*100*1000)+1);
+                    if (min === undefined || min > date) {
+                        min = date;
+                    }
+                    if (max === undefined || max < date) {
+                        max = new Date(date.getTime() + (duration*100*1000)+1);
+                    }
+                } else {
+                    sortedData[station].push([utc.getTime(),dhms2str(sec2dhms(parseInt(b[2])))]);
                 }
             });
-            sortedData.min = min;
-            sortedData.max = max;
+            if (type === "graph") {
+                sortedData.min = min;
+                sortedData.max = max;
+            }
+
             return sortedData;
         },
         toggleZone = function() {
@@ -3341,32 +3355,12 @@ function get_logs() {
             placeholder.empty().hide();
             var table_header = "<table><thead><tr><th data-priority='1'>"+_("Runtime")+"</th><th data-priority='2'>"+_("Date/Time")+"</th></tr></thead><tbody>",
                 html = "<div data-role='collapsible-set' data-inset='true' data-theme='b' data-collapsed-icon='arrow-d' data-expanded-icon='arrow-u'>",
-                sortedData = [],
+                sortedData = sortedData = sortData("table"),
                 ct, k;
 
             zones.hide();
             graph_sort.hide();
             logs_list.show();
-
-            for (i=0; i<stations.length; i++) {
-                sortedData[i] = [];
-            }
-
-            $.each(data,function(a,b){
-                var date = new Date(parseInt(b[3] * 1000)),
-                    utc = new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(),  date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds()),
-                    station = parseInt(b[1]);
-
-                if (typeof station === "string") {
-                    if (station === "rs") {
-                        station = stations.length - 1;
-                    } else if (station === "rd") {
-                        station = stations.length;
-                    }
-                }
-
-                sortedData[station].push([utc.getTime(),parseInt(b[2])]);
-            });
 
             for (i=0; i<sortedData.length; i++) {
                 ct=sortedData[i].length;
@@ -3375,9 +3369,8 @@ function get_logs() {
                 }
                 html += "<div data-role='collapsible' data-collapsed='true'><h2><div class='ui-btn-up-c ui-btn-corner-all custom-count-pos'>"+ct+" "+((ct === 1) ? _("run") : _("runs"))+"</div>"+stations[i]+"</h2>"+table_header;
                 for (k=0; k<sortedData[i].length; k++) {
-                    var mins = Math.round(sortedData[i][k][1]/60);
                     var date = new Date(sortedData[i][k][0]);
-                    html += "<tr><td>"+mins+" "+((mins === 1) ? _("min") : _("mins"))+"</td><td>"+date.toString().slice(0,-18)+"</td></tr>";
+                    html += "<tr><td>"+sortedData[i][k][1]+"</td><td>"+date.toString().slice(0,-18)+"</td></tr>";
                 }
                 html += "</tbody></table></div>";
             }
