@@ -210,16 +210,16 @@ msgstr ""
 msgid "Location"
 msgstr ""
 
-msgid "Extension Boards"
-msgstr ""
-
-msgid "Station Delay (seconds)"
+msgid "Station Delay"
 msgstr ""
 
 msgid "Master On Delay"
 msgstr ""
 
 msgid "Master Off Delay"
+msgstr ""
+
+msgid "Extension Boards"
 msgstr ""
 
 msgid "% Watering"
@@ -339,7 +339,18 @@ msgstr ""
 msgid "With manual mode turned on, tap a station to toggle it."
 msgstr ""
 
+msgid "Options"
+msgstr ""
+
 msgid "Manual Mode"
+msgstr ""
+
+msgid ""
+"Station timer prevents a station from running indefinitely and will "
+"automatically turn it off after the set duration (or when toggled off)"
+msgstr ""
+
+msgid "Station Timer"
 msgstr ""
 
 msgid "Manual mode is not enabled. Please enable manual mode then try again."
@@ -396,9 +407,6 @@ msgstr ""
 msgid "Table"
 msgstr ""
 
-msgid "Options"
-msgstr ""
-
 msgid "Grouping:"
 msgstr ""
 
@@ -418,6 +426,12 @@ msgid "End:"
 msgstr ""
 
 msgid "Export via Email"
+msgstr ""
+
+msgid "Rain Sensor"
+msgstr ""
+
+msgid "Rain Delay"
 msgstr ""
 
 msgid "Sun"
@@ -487,12 +501,6 @@ msgid "run"
 msgstr ""
 
 msgid "runs"
-msgstr ""
-
-msgid "min"
-msgstr ""
-
-msgid "mins"
 msgstr ""
 
 msgid "No entries found in the selected date range"
