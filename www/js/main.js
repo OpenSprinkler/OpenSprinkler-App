@@ -3189,7 +3189,7 @@ function get_logs() {
 
             $.each(data,function(a,b){
                 var stamp = parseInt(b[3] * 1000),
-                    station = parseInt(b[1]),
+                    station = b[1],
                     date = new Date(stamp),
                     utc = new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(),  date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds()),
                     duration = parseInt(b[2]/60),
