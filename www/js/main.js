@@ -3092,7 +3092,7 @@ function get_logs() {
         graph_sort = logs.find("#graph_sort"),
         log_options = logs.find("#log_options"),
         data = [],
-        stations = $.merge(controller.stations.snames,[_("Rain Sensor"),_("Rain Delay")]),
+        stations = $.merge($.merge([],controller.stations.snames),[_("Rain Sensor"),_("Rain Delay")]),
         seriesChange = function() {
             var grouping = logs.find("input:radio[name='g']:checked").val(),
                 pData = [],
@@ -4517,9 +4517,7 @@ function update_lang(lang) {
     if (typeof lang === "undefined") {
         storage.get("lang",function(data){
             //Identify the current browser's locale
-            var locale = "en";
-
-            locale = data.lang || navigator.language || navigator.browserLanguage || navigator.systemLanguage || navigator.userLanguage || locale;
+            var locale = data.lang || navigator.language || navigator.browserLanguage || navigator.systemLanguage || navigator.userLanguage || "en";
 
             update_lang(locale.substring(0,2));
         });
