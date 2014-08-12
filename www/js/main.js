@@ -4539,7 +4539,9 @@ function update_lang(lang) {
 
 function check_curr_lang() {
     storage.get("lang",function(data){
-        $("#localization").find("a").each(function(a,b){
+        var popup = $("#localization");
+
+        popup.find("a").each(function(a,b){
             var item = $(b);
             if (item.data("lang-code") === data.lang) {
                 item.removeClass("ui-icon-carat-r").addClass("ui-icon-check");
@@ -4547,6 +4549,8 @@ function check_curr_lang() {
                 item.removeClass("ui-icon-check").addClass("ui-icon-carat-r");
             }
         });
+
+        popup.find("li.ui-last-child").removeClass("ui-last-child");
     });
 }
 

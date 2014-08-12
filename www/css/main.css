@@ -1,3 +1,10 @@
+#lang {
+    max-width: 500px
+}
+#lang > li:not(.ui-li-divider) {
+    float: left;
+    width: 50%
+}
 .ui-li-separate {
     margin-bottom:10px!important
 }
