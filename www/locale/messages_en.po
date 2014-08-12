@@ -222,6 +222,9 @@ msgstr ""
 msgid "Extension Boards"
 msgstr ""
 
+msgid "detected"
+msgstr ""
+
 msgid "% Watering"
 msgstr ""
 
