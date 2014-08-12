@@ -2579,7 +2579,9 @@ function get_manual() {
     });
     page.find("#mmm").flipswitch().on("change",flipSwitched);
     storage.get("autoOff",function(data){
-        if (!data.autoOff) return;
+        if (!data.autoOff) {
+            return;
+        }
         autoOff.val(data.autoOff);
         autoOff.text(dhms2str(sec2dhms(data.autoOff)));
     });
@@ -3090,6 +3092,7 @@ function get_logs() {
         graph_sort = logs.find("#graph_sort"),
         log_options = logs.find("#log_options"),
         data = [],
+        stations = $.extend([],[_("Rain Sensor"),_("Rain Delay")],controller.stations.snames),
         seriesChange = function() {
             var grouping = logs.find("input:radio[name='g']:checked").val(),
                 pData = [],
@@ -3157,22 +3160,22 @@ function get_logs() {
 
             switch (grouping) {
                     case "h":
-                        for (i=0; i<controller.stations.snames.length; i++) {
+                        for (i=0; i<stations.length; i++) {
                             sortedData[i] = [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0],[11,0],[12,0],[13,0],[14,0],[15,0],[16,0],[17,0],[18,0],[19,0],[20,0],[21,0],[22,0],[23,0]];
                         }
                         break;
                     case "m":
-                        for (i=0; i<controller.stations.snames.length; i++) {
+                        for (i=0; i<stations.length; i++) {
                             sortedData[i] = [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0],[11,0]];
                         }
                         break;
                     case "d":
-                        for (i=0; i<controller.stations.snames.length; i++) {
+                        for (i=0; i<stations.length; i++) {
                             sortedData[i] = [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0]];
                         }
                         break;
                     case "n":
-                        for (i=0; i<controller.stations.snames.length; i++) {
+                        for (i=0; i<stations.length; i++) {
                             sortedData[i] = [];
                         }
                         break;
@@ -3184,6 +3187,14 @@ function get_logs() {
                     date = new Date(stamp),
                     duration = parseInt(b[2]/60),
                     key;
+
+                if (typeof station === "string") {
+                    if (station === "rs") {
+                        station = stations.length - 1;
+                    } else if (station === "rd") {
+                        station = stations.length;
+                    }
+                }
 
                 switch (grouping) {
                     case "h":
@@ -3286,8 +3297,8 @@ function get_logs() {
             graph_sort.show();
             if (!freshLoad) {
                 var output = "<div class='ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border' id='graphScrollLeft'></div><div class='ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border' id='graphScrollRight'></div><table class='smaller'><tbody><tr>";
-                for (i=0; i<controller.stations.snames.length; i++) {
-                    output += "<td class='legendColorBox'><div><div></div></div></td><td id='z"+i+"' zone_num="+i+" name='"+controller.stations.snames[i] + "' class='legendLabel'>"+controller.stations.snames[i]+"</td>";
+                for (i=0; i<stations.length; i++) {
+                    output += "<td class='legendColorBox'><div><div></div></div></td><td id='z"+i+"' zone_num="+i+" name='"+stations[i] + "' class='legendLabel'>"+stations[i]+"</td>";
                 }
                 output += "</tr></tbody></table>";
                 zones.empty().append(output).enhanceWithin();
@@ -3337,15 +3348,24 @@ function get_logs() {
             graph_sort.hide();
             logs_list.show();
 
-            for (i=0; i<controller.stations.snames.length; i++) {
+            for (i=0; i<stations.length; i++) {
                 sortedData[i] = [];
             }
 
             $.each(data,function(a,b){
                 var date = new Date(parseInt(b[3] * 1000)),
-                    utc = new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(),  date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds());
+                    utc = new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(),  date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds()),
+                    station = parseInt(b[1]);
 
-                sortedData[parseInt(b[1])].push([utc.getTime(),parseInt(b[2])]);
+                if (typeof station === "string") {
+                    if (station === "rs") {
+                        station = stations.length - 1;
+                    } else if (station === "rd") {
+                        station = stations.length;
+                    }
+                }
+
+                sortedData[station].push([utc.getTime(),parseInt(b[2])]);
             });
 
             for (i=0; i<sortedData.length; i++) {
@@ -3353,7 +3373,7 @@ function get_logs() {
                 if (ct === 0) {
                     continue;
                 }
-                html += "<div data-role='collapsible' data-collapsed='true'><h2><div class='ui-btn-up-c ui-btn-corner-all custom-count-pos'>"+ct+" "+((ct === 1) ? _("run") : _("runs"))+"</div>"+controller.stations.snames[i]+"</h2>"+table_header;
+                html += "<div data-role='collapsible' data-collapsed='true'><h2><div class='ui-btn-up-c ui-btn-corner-all custom-count-pos'>"+ct+" "+((ct === 1) ? _("run") : _("runs"))+"</div>"+stations[i]+"</h2>"+table_header;
                 for (k=0; k<sortedData[i].length; k++) {
                     var mins = Math.round(sortedData[i][k][1]/60);
                     var date = new Date(sortedData[i][k][0]);
