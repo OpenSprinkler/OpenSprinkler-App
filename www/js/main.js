@@ -1869,7 +1869,7 @@ function show_options() {
     }
 
     if (typeof controller.options.ext !== "undefined") {
-        list += "<label for='o15'>"+_("Extension Boards")+"</label><input data-highlight='true' type='number' pattern='[0-9]*' data-type='range' min='0' max='5' id='o15' value='"+controller.options.ext+"' />";
+        list += "<label for='o15'>"+_("Extension Boards")+(controller.options.dexp ? " ("+controller.options.dexp+" "+_("detected")+")" : "")+"</label><input data-highlight='true' type='number' pattern='[0-9]*' data-type='range' min='0' max='"+(controller.options.mexp ? controller.options.mexp : "5")+"' id='o15' value='"+controller.options.ext+"' />";
     }
 
     if (typeof controller.options.wl !== "undefined") {
