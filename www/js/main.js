@@ -1820,7 +1820,7 @@ function show_options() {
         "</div>"),
         timezones, tz, i;
 
-    page.find("div[data-role='header'] > .ui-btn-right").on("click",submit_settings);
+    page.find("div[data-role='header'] > .ui-btn-right").on("click",submit_options);
 
     list = "<li><div class='ui-field-contain'><fieldset>";
 
@@ -1856,20 +1856,20 @@ function show_options() {
 
     list += "<label for='loc'>"+_("Location")+"</label><input data-mini='true' type='text' id='loc' value='"+controller.settings.loc+"' />";
 
-    if (typeof controller.options.ext !== "undefined") {
-        list += "<label for='o15'>"+_("Extension Boards")+"</label><input data-highlight='true' type='number' pattern='[0-9]*' data-type='range' min='0' max='5' id='o15' value='"+controller.options.ext+"' />";
-    }
-
     if (typeof controller.options.sdt !== "undefined") {
-        list += "<label for='o17'>"+_("Station Delay (seconds)")+"</label><input data-highlight='true' type='number' pattern='[0-9]*' data-type='range' min='0' max='240' id='o17' value='"+controller.options.sdt+"' />";
+        list += "<div class='ui-field-contain duration-input'><label for='o17'>"+_("Station Delay")+"</label><button data-mini='true' id='o17' value='"+controller.options.sdt+"'>"+dhms2str(sec2dhms(controller.options.sdt))+"</button></div>";
     }
 
     if (typeof controller.options.mton !== "undefined") {
-        list += "<label for='o19'>"+_("Master On Delay")+"</label><input data-highlight='true' type='number' pattern='[0-9]*' data-type='range' min='0' max='60' id='o19' value='"+controller.options.mton+"' />";
+        list += "<div class='ui-field-contain duration-input'><label for='o19'>"+_("Master On Delay")+"</label><button data-mini='true' id='o19' value='"+controller.options.mton+"'>"+dhms2str(sec2dhms(controller.options.mton))+"</button></div>";
     }
 
     if (typeof controller.options.mtof !== "undefined") {
         list += "<label for='o20'>"+_("Master Off Delay")+"</label><input data-highlight='true' type='number' pattern='[0-9]*' data-type='range' min='-60' max='60' id='o20' value='"+controller.options.mtof+"' />";
+    }
+
+    if (typeof controller.options.ext !== "undefined") {
+        list += "<label for='o15'>"+_("Extension Boards")+"</label><input data-highlight='true' type='number' pattern='[0-9]*' data-type='range' min='0' max='5' id='o15' value='"+controller.options.ext+"' />";
     }
 
     if (typeof controller.options.wl !== "undefined") {
@@ -1904,6 +1904,24 @@ function show_options() {
 
     page.find(".ui-content").html("<ul data-role='listview' data-inset='true' id='os-options-list'>"+list+"</ul>");
 
+    page.find(".duration-input button").on("click",function(){
+        var dur = $(this),
+            id = dur.attr("id"),
+            name = page.find("label[for='"+id+"']").text(),
+            max = 240;
+
+        if (id === "o19") {
+            max = 60;
+        }
+
+        showDurationBox(dur.val(),name,function(result){
+            dur.val(result);
+            dur.text(dhms2str(sec2dhms(result)));
+        },max);
+
+        return false;
+    });
+
     page.one("pagehide",function(){
         page.remove();
     });
@@ -1911,14 +1929,14 @@ function show_options() {
     page.appendTo("body");
 }
 
-function submit_settings() {
+function submit_options() {
     var opt = {},
         invalid = false,
         isPi = isOSPi(),
         keyNames = {1:"tz",2:"ntp",12:"htp",13:"htp2",14:"ar",15:"nbrd",16:"seq",17:"sdt",18:"mas",19:"mton",20:"mtoff",21:"urs",22:"rst",23:"wl",25:"ipas"},
         key;
 
-    $("#os-options-list").find(":input").each(function(a,b){
+    $("#os-options-list").find(":input,button").each(function(a,b){
         var $item = $(b),
             id = $item.attr("id"),
             data = $item.val();
