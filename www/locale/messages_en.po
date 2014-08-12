@@ -798,7 +798,13 @@ msgstr ""
 msgid "Italian"
 msgstr ""
 
+msgid "Mongolian"
+msgstr ""
+
 msgid "Polish"
+msgstr ""
+
+msgid "Slovak"
 msgstr ""
 
 msgid "Slovenian"
