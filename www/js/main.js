@@ -3191,7 +3191,7 @@ function get_logs() {
                 var stamp = parseInt(b[3] * 1000),
                     station = parseInt(b[1]),
                     date = new Date(stamp),
-                    utc = utc = new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(),  date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds()),
+                    utc = new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(),  date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds()),
                     duration = parseInt(b[2]/60),
                     key;
 
@@ -3355,7 +3355,7 @@ function get_logs() {
             placeholder.empty().hide();
             var table_header = "<table><thead><tr><th data-priority='1'>"+_("Runtime")+"</th><th data-priority='2'>"+_("Date/Time")+"</th></tr></thead><tbody>",
                 html = "<div data-role='collapsible-set' data-inset='true' data-theme='b' data-collapsed-icon='arrow-d' data-expanded-icon='arrow-u'>",
-                sortedData = sortedData = sortData("table"),
+                sortedData = sortData("table"),
                 ct, k;
 
             zones.hide();
