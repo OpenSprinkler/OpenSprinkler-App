@@ -3092,7 +3092,7 @@ function get_logs() {
         graph_sort = logs.find("#graph_sort"),
         log_options = logs.find("#log_options"),
         data = [],
-        stations = $.extend([],[_("Rain Sensor"),_("Rain Delay")],controller.stations.snames),
+        stations = $.merge(controller.stations.snames,[_("Rain Sensor"),_("Rain Delay")]),
         seriesChange = function() {
             var grouping = logs.find("input:radio[name='g']:checked").val(),
                 pData = [],
