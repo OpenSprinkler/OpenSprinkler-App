@@ -3307,7 +3307,6 @@ function get_logs() {
             var state = ($.mobile.window.height() > 680) ? "expand" : "collapse";
             setTimeout(function(){log_options.collapsible(state);},100);
             placeholder.show();
-            var zones = $("#zones");
             var freshLoad = zones.find("table").length;
             zones.show();
             graph_sort.show();
@@ -3321,7 +3320,6 @@ function get_logs() {
                 zones.find("td").on("click",toggleZone);
                 zones.find("#graphScrollLeft,#graphScrollRight").on("click",function(){
                     var dir = ($(this).attr("id") === "graphScrollRight") ? "+=" : "-=",
-                        zones = $("#zones"),
                         w = zones.width();
                     zones.animate({scrollLeft: dir+w});
                 });
@@ -3435,7 +3433,7 @@ function get_logs() {
     $.mobile.loading("show");
 
     //Update left/right arrows when zones are scrolled on log page
-    $("#zones").scroll(showArrows);
+    zones.scroll(showArrows);
 
     $.mobile.window.resize(function(){
         showArrows();
