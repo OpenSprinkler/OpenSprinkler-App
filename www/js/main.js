@@ -2491,7 +2491,7 @@ function get_manual() {
                         "</div>" +
                         "<p class='rain-desc smaller center' style='padding-top:5px'>"+_("Station timer prevents a station from running indefinitely and will automatically turn it off after the set duration (or when toggled off)")+"</p>" +
                         "<div class='ui-field-contain duration-input'>" +
-                            "<label for='auto-off'><b>"+_("Station Timer")+"</b></label><button data-mini='true' name='auto-off' id='auto-off' value='14400'>4h</button>" +
+                            "<label for='auto-off'><b>"+_("Station Timer")+"</b></label><button data-mini='true' name='auto-off' id='auto-off' value='3600'>1h</button>" +
                         "</div>" +
                     "</fieldset>" +
                 "</div>" +
