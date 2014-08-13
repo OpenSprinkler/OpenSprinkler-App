@@ -102,6 +102,9 @@ body {
 .ui-page {
     padding-top:44px!important
 }
+.ui-popup-screen {
+    height: 100%
+}
 .logo {
     height:42px;
     padding:0!important;
