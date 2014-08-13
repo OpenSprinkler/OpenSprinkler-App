@@ -3201,6 +3201,8 @@ function get_logs() {
                     } else if (station === "rd") {
                         station = stations.length;
                     }
+                } else if (typeof station === "number" && station>stations.length-2) {
+                    return;
                 }
 
                 if (type === "graph") {
