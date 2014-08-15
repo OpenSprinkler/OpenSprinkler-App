@@ -131,9 +131,6 @@ if (isWinApp) {
 
 $(document)
 .ready(function() {
-    //Attach FastClick handler
-    FastClick.attach(document.body);
-
     //Update the language on the page using the browser's locale
     update_lang();
 
@@ -315,6 +312,9 @@ $(document)
 
     //On initial load check if a valid site exists for auto connect
     check_configured(true);
+
+    //Attach FastClick handler
+    FastClick.attach($.mobile.document.body);
 })
 // Handle OS resume event triggered by PhoneGap
 .on("resume",function(){
