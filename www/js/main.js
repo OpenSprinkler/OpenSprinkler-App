@@ -4034,6 +4034,7 @@ function import_config(data) {
         $.when(
             send_to_os(co),
             send_to_os(cs),
+            send_to_os("/dp?pw=&pid=-1"),
             $.each(data.programs.pd,function (i,prog) {
                 send_to_os(cp_start+"&pid=-1&v="+JSON.stringify(prog));
             })
