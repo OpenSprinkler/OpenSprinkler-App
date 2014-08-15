@@ -231,6 +231,8 @@ $(document)
             get_status();
         } else if (hash === "#manual") {
             get_manual();
+        } else if (hash === "#about") {
+            show_about();
         } else if (hash === "#runonce") {
             get_runonce();
         } else if (hash === "#os-options") {
@@ -4123,6 +4125,39 @@ function import_config(data) {
     });
 }
 
+// About page
+function show_about() {
+    var page = $("<div data-role='page' id='about'>" +
+            "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false' data-add-back-btn='true'>" +
+                "<h3>"+_("About")+"</h3>" +
+            "</div>" +
+            "<div class='ui-content' role='main'>" +
+                "<ul data-role='listview' data-inset='true'>" +
+                    "<li>" +
+                        "<p>User manual for OpenSprinkler is available at: <a class='iab' target='_blank' href='http://rayshobby.net/?page_id=192'>http://rayshobby.net/?page_id=192</a></p>" +
+                    "</li>" +
+                "</ul>" +
+                "<ul data-role='listview' data-inset='true'>" +
+                    "<li>" +
+                        "<p>This is open source software: source code and changelog for this application can be found at <a class='iab' target='_blank' href='https://github.com/salbahra/Sprinklers/'>https://github.com/salbahra/Sprinklers/</a></p>" +
+                        "<p>Language localization is crowdsourced using Get Localization available at <a class='iab' target='_blank' href='http://www.getlocalization.com/Sprinklers/'>http://www.getlocalization.com/Sprinklers/</a></p>" +
+                    "</li>" +
+                "</ul>" +
+                "<p class='smaller'>" +
+                    "App Version: 1.1.6" +
+                    "<br>" +
+                    "Firmware: "+getOSVersion() +
+                "</p>" +
+            "</div>" +
+        "</div>");
+
+    page.one("pagehide",function(){
+        page.remove();
+    });
+
+    page.appendTo("body");
+}
+
 // OSPi functions
 function isOSPi() {
     if (controller && typeof controller.options.fwv === "string" && controller.options.fwv.search(/ospi/i) !== -1) {
@@ -4170,6 +4205,9 @@ function checkWeatherPlugin() {
 }
 
 function getOSVersion(fwv) {
+    if (!fwv && typeof controller.options === "object") {
+        fwv = controller.options.fwv;
+    }
     if (typeof fwv === "string" && fwv.search(/ospi/i) !== -1) {
         return fwv;
     } else {
