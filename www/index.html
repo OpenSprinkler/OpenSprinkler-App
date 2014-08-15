@@ -71,10 +71,10 @@
             </div>
             <div data-role="panel" id="sprinklers-settings" data-position-fixed="true" data-theme="b">
                 <ul data-role="listview" data-theme="b">
-                    <li>
+                    <li class="multiSite">
                         <select data-mini="true" id="site-selector"></select>
                     </li>
-                    <li data-icon="gear"><a href="#site-control" data-translate="Manage Sites"></a></li>
+                    <li class="multiSite" data-icon="gear"><a href="#site-control" data-translate="Manage Sites"></a></li>
                     <li data-icon="action"><a href="#" class="export_config" data-translate="Export Configuration"></a><a class="email_config" href="#"></a></li>
                     <li data-icon="back"><a href="#" class="import_config" data-translate="Import Configuration"></a></li>
                     <li data-icon="info"><a href="#about" data-translate="About"></a></li>
@@ -107,7 +107,7 @@
                     <li data-role="list-divider" data-theme="b" data-translate="Mobile Application Settings"></li>
                     <li data-icon="alert"><a href="#" class="clear-config" data-translate="Clear Configuration"></a></li>
                     <li><a href="#localization" data-rel="popup" data-position-to="window" data-translate="Localization"></a></li>
-                    <li data-icon="gear"><a href="#site-control" data-translate="Manage Sites"></a></li>
+                    <li class="multiSite" data-icon="gear"><a href="#site-control" data-translate="Manage Sites"></a></li>
                     <li data-icon="cloud"><a href="#" class="show-providers" data-translate="Weather Provider"></a></li>
                 </ul>
             </div>

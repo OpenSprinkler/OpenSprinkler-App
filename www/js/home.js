@@ -46,7 +46,10 @@
 
 		$.get("http://rawgit.com/salbahra/Sprinklers/master/www/index.html",function(data){
 			// Grab the pages from index.html (body content)
-			var pages = data.match(/<body>([.\s\S]*)<\/body>/)[1];
+			var pages = $(data.match(/<body>([.\s\S]*)<\/body>/)[1]);
+
+			// Hide multi site features since using local device
+			pages.find(".multiSite").hide();
 
 			// Inject pages into DOM
 			body.html(pages);
