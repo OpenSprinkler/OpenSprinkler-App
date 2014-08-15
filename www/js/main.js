@@ -1855,6 +1855,10 @@ function show_options() {
 
     list += "<label for='loc'>"+_("Location")+"</label><input data-mini='true' type='text' id='loc' value='"+controller.settings.loc+"' />";
 
+    if (typeof controller.options.rlp !== "undefined") {
+        list += "<div class='ui-field-contain duration-input'><label for='o30'>"+_("Relay Pulse")+"</label><button data-mini='true' id='o30' value='"+controller.options.rlp+"'>"+dhms2str(sec2dhms(controller.options.rlp))+"</button></div>";
+    }
+
     if (typeof controller.options.sdt !== "undefined") {
         list += "<div class='ui-field-contain duration-input'><label for='o17'>"+_("Station Delay")+"</label><button data-mini='true' id='o17' value='"+controller.options.sdt+"'>"+dhms2str(sec2dhms(controller.options.sdt))+"</button></div>";
     }
@@ -1868,7 +1872,7 @@ function show_options() {
     }
 
     if (typeof controller.options.ext !== "undefined") {
-        list += "<label for='o15'>"+_("Extension Boards")+(controller.options.dexp ? " ("+controller.options.dexp+" "+_("detected")+")" : "")+"</label><input data-highlight='true' type='number' pattern='[0-9]*' data-type='range' min='0' max='"+(controller.options.mexp ? controller.options.mexp : "5")+"' id='o15' value='"+controller.options.ext+"' />";
+        list += "<label for='o15'>"+_("Extension Boards")+(controller.options.dexp && controller.options.dexp < 255 ? " ("+controller.options.dexp+" "+_("detected")+")" : "")+"</label><input data-highlight='true' type='number' pattern='[0-9]*' data-type='range' min='0' max='"+(controller.options.mexp ? controller.options.mexp : "5")+"' id='o15' value='"+controller.options.ext+"' />";
     }
 
     if (typeof controller.options.wl !== "undefined") {
@@ -1911,6 +1915,8 @@ function show_options() {
 
         if (id === "o19") {
             max = 60;
+        } else if (id === "o30") {
+            max = 255;
         }
 
         showDurationBox(dur.val(),name,function(result){
@@ -1932,7 +1938,7 @@ function submit_options() {
     var opt = {},
         invalid = false,
         isPi = isOSPi(),
-        keyNames = {1:"tz",2:"ntp",12:"htp",13:"htp2",14:"ar",15:"nbrd",16:"seq",17:"sdt",18:"mas",19:"mton",20:"mtoff",21:"urs",22:"rst",23:"wl",25:"ipas"},
+        keyNames = {1:"tz",2:"ntp",12:"htp",13:"htp2",14:"ar",15:"nbrd",16:"seq",17:"sdt",18:"mas",19:"mton",20:"mtoff",21:"urs",22:"rst",23:"wl",25:"ipas",30:"rlp"},
         key;
 
     $("#os-options-list").find(":input,button").each(function(a,b){
@@ -1996,7 +2002,8 @@ function show_stations() {
         "</div>"),
         isMaster = controller.options.mas ? true : false,
         hasIR = (typeof controller.stations.ignore_rain === "object") ? true : false,
-        useTableView = (hasIR || isMaster);
+        hasAR = (typeof controller.stations.act_relay === "object") ? true : false,
+        useTableView = (hasIR || isMaster || hasAR);
 
     page.find("div[data-role='header'] > .ui-btn-right").on("click",submit_stations);
 
@@ -2004,6 +2011,9 @@ function show_stations() {
         list += "<table><tr><th class='center'>"+_("Station Name")+"</th>";
         if (isMaster) {
             list += "<th class='center'>"+_("Activate Master?")+"</th>";
+        }
+        if (hasAR) {
+            list += "<th class='center'>"+_("Activate Relay?")+"</th>";
         }
         if (hasIR) {
             list += "<th class='center'>"+_("Ignore Rain?")+"</th>";
@@ -2025,8 +2035,11 @@ function show_stations() {
                     list += "<td data-role='controlgroup' data-type='horizontal' class='use_master'><label for='um_"+i+"'><input id='um_"+i+"' type='checkbox' "+((controller.stations.masop[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+" /></label></td>";
                 }
             }
+            if (hasAR) {
+                list += "<td data-role='controlgroup' data-type='horizontal' class='use_master'><label for='ar_"+i+"'><input id='ar_"+i+"' type='checkbox' "+((controller.stations.act_relay[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+" /></label></td>";
+            }
             if (hasIR) {
-                list += "<td data-role='controlgroup' data-type='horizontal' class='use_master'><label for='ir_"+i+"'><input id='ir_"+i+"' type='checkbox' "+((controller.stations.ignore_rain[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+" /></label></td></tr>";
+                list += "<td data-role='controlgroup' data-type='horizontal' class='use_master'><label for='ir_"+i+"'><input id='ir_"+i+"' type='checkbox' "+((controller.stations.ignore_rain[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+" /></label></td>";
             }
             list += "</tr>";
         }
@@ -2050,16 +2063,15 @@ function show_stations() {
 function submit_stations() {
     var names = {},
         invalid = false,
-        v="",
-        r="",
-        bid=0,
-        bid2=0,
-        s=0,
-        s2=0,
-        m={},
-        i={},
-        masop="",
-        ignore_rain="";
+        master = {
+            boardStatus: "",
+            boardIndex: 0,
+            currentIndex: 0,
+            fullStatus: {},
+            param: ""
+        },
+        rain = $.extend(true, {},master),
+        relay = $.extend(true, {},master);
 
     $("#os-stations-list").find(":input,p[id^='um_']").each(function(a,b){
         var $item = $(b), id = $item.attr("id"), data = $item.val();
@@ -2075,34 +2087,46 @@ function submit_stations() {
                 names[id] = data;
                 return true;
             case "um_" + id.slice("um_".length):
-                v = ($item.is(":checked") || $item.prop("tagName") === "P") ? "1".concat(v) : "0".concat(v);
-                s++;
-                if (parseInt(s/8) > bid) {
-                    m["m"+bid]=parseInt(v,2); bid++; s=0; v="";
+                master.boardStatus = ($item.is(":checked") || $item.prop("tagName") === "P") ? "1".concat(master.boardStatus) : "0".concat(master.boardStatus);
+                master.currentIndex++;
+                if (parseInt(master.currentIndex/8) > master.boardIndex) {
+                    master.fullStatus["m"+master.boardIndex]=parseInt(master.boardStatus,2); master.boardIndex++; master.currentIndex=0; master.boardStatus="";
                 }
                 return true;
             case "ir_" + id.slice("ir_".length):
-                r = ($item.is(":checked")) ? "1".concat(r) : "0".concat(r);
-                s2++;
-                if (parseInt(s2/8) > bid2) {
-                    i["i"+bid2]=parseInt(r,2); bid2++; s2=0; r="";
+                rain.boardStatus = ($item.is(":checked")) ? "1".concat(rain.boardStatus) : "0".concat(rain.boardStatus);
+                rain.currentIndex++;
+                if (parseInt(rain.currentIndex/8) > rain.boardIndex) {
+                    rain.fullStatus["i"+rain.boardIndex]=parseInt(rain.boardStatus,2); rain.boardIndex++; rain.currentIndex=0; rain.boardStatus="";
+                }
+                return true;
+            case "ar_" + id.slice("ar_".length):
+                relay.boardStatus = ($item.is(":checked")) ? "1".concat(relay.boardStatus) : "0".concat(relay.boardStatus);
+                relay.currentIndex++;
+                if (parseInt(relay.currentIndex/8) > relay.boardIndex) {
+                    relay.fullStatus["a"+relay.boardIndex]=parseInt(relay.boardStatus,2); relay.boardIndex++; relay.currentIndex=0; relay.boardStatus="";
                 }
                 return true;
         }
     });
-    m["m"+bid]=parseInt(v,2);
-    i["i"+bid2]=parseInt(r,2);
+    master.fullStatus["m"+master.boardIndex]=parseInt(master.boardStatus,2);
+    rain.fullStatus["i"+rain.boardIndex]=parseInt(rain.boardStatus,2);
+    relay.fullStatus["a"+relay.boardIndex]=parseInt(relay.boardStatus,2);
+
     if ($("[id^='um_']").length) {
-        masop = "&"+$.param(m);
+        master.param = "&"+$.param(master.fullStatus);
     }
     if ($("[id^='ir_']").length) {
-        ignore_rain = "&"+$.param(i);
+        rain.param = "&"+$.param(rain.fullStatus);
+    }
+    if ($("[id^='ar_']").length) {
+        relay.param = "&"+$.param(relay.fullStatus);
     }
     if (invalid) {
         return;
     }
     $.mobile.loading("show");
-    send_to_os("/cs?pw=&"+$.param(names)+masop+ignore_rain).done(function(){
+    send_to_os("/cs?pw=&"+$.param(names)+master.param+rain.param+relay.param).done(function(){
         $.mobile.document.one("pageshow",function(){
             showerror(_("Stations have been updated"));
         });
