@@ -29,30 +29,30 @@ insertScript("http://rawgit.com/salbahra/Sprinklers/master/www/js/jquery.min.js"
 function init() {
 	var body = $("body");
 
-	body.hide();
+	// Change viewport
+	$("meta[name='viewport']").attr("content","width=device-width,initial-scale=1.0,minimum-scale=1.0,user-scalable=no");
 
 	$.get("http://rawgit.com/salbahra/Sprinklers/master/www/index.html",function(data){
-		var pages = data.match(/<body>([.\s\S]*)<\/body>/);
+		var pages = data.match(/<body>([.\s\S]*)<\/body>/)[1];
 
-		body.html(pages[1]);
+		// Inject pages into DOM
+		body.html(pages);
+
+		// Disables site selection menu
+		window.curr_local = true;
+
+		// Set current IP to the device IP
+		window.curr_ip = document.URL.match(/https?:\/\/(.*)\/.*?/)[1];
 
 		insertScript("http://rawgit.com/salbahra/Sprinklers/master/www/js/libs.js",function(){
 			insertScript("http://rawgit.com/salbahra/Sprinklers/master/www/js/main.js",function(){
-				insertScript("http://rawgit.com/salbahra/Sprinklers/master/www/js/jquery.mobile.min.js",function(){
-					body.show();
-				});
+				insertScript("http://rawgit.com/salbahra/Sprinklers/master/www/js/jquery.mobile.min.js");
 			});
 		});
 
-		// Set current IP to the device IP
-//			curr_ip = document.URL.match(/https?:\/\/(.*)\/.*?/)[1];
+		// Request device password
 
-		// Disables site selection menu
-//			curr_local = true;
-
-		// Request device password if unknown
-
-		// Trigger login (if device hasn't already)
+		// Trigger login
 
 	});
 }
