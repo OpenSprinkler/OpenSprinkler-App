@@ -74,29 +74,27 @@
 				// Load main application Javascript (loaded before jQM so binds trigger when jQM loads)
 				$.getScript("http://rawgit.com/salbahra/Sprinklers/master/www/js/main.js",function(){
 
-					// Load jQuery Mobile
-					$.getScript("http://rawgit.com/salbahra/Sprinklers/master/www/js/jquery.mobile.min.js",function(){
+					// Show the body when jQM attempts first page transition
+					$(document).one("mobileinit",function(){
 
-						// Show the body when jQM attempts first page transition
-						$.mobile.document.one("pagebeforechange",function(){
+						// Change title to reflect loading finished
+						document.title = "Sprinkler System";
 
-							// Change title to reflect loading finished
-							document.title = "Sprinkler System";
+						// Inject pages into DOM
+						body.html(pages);
 
-							// Inject pages into DOM
-							body.html(pages);
+						// Remove spinner code (no longer needed)
+						$("head").find("style").remove();
 
-							// Remove spinner code (no longer needed)
-							$("head").find("style").remove();
+						// Initialize environment (missed by main.js since body was added after)
+						initApp();
 
-							// Initialize environment (missed by main.js since body was added after)
-							initApp();
-
-							// Hide multi site features since using local device
-							body.find(".multiSite").hide();
-						});
-
+						// Hide multi site features since using local device
+						body.find(".multiSite").hide();
 					});
+
+					// Load jQuery Mobile
+					$.getScript("http://rawgit.com/salbahra/Sprinklers/master/www/js/jquery.mobile.min.js");
 
 				});
 
