@@ -1,4 +1,4 @@
-/*global $ */
+/*global $, initApp */
 (function(){
 	var assetLocation = "http://rawgit.com/salbahra/Sprinklers/master/www/";
 
