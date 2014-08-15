@@ -457,8 +457,9 @@ function newload() {
     var name = $("#site-selector").val();
 
     $.mobile.loading("show", {
-        text: name ? _("Connecting to")+" "+name : _("Connecting"),
+        text: name ? _("Connecting to")+" "+name : _("Loading"),
         textVisible: true,
+        textOnly: name ? false : true,
         theme: "b"
     });
 
