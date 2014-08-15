@@ -4528,7 +4528,6 @@ function set_lang() {
         }
     });
     $(".ui-toolbar-back-btn").text(_("Back"));
-    $.mobile.toolbar.prototype.options.backBtnText = _("Back");
 
     check_curr_lang();
 }
