@@ -16,6 +16,9 @@ msgstr ""
 msgid "Connecting to"
 msgstr ""
 
+msgid "Loading"
+msgstr ""
+
 msgid "Check IP/Port and try again."
 msgstr ""
 
@@ -670,6 +673,24 @@ msgstr ""
 msgid "Unable to import configuration."
 msgstr ""
 
+msgid "About"
+msgstr ""
+
+msgid "User manual for OpenSprinkler is available at"
+msgstr ""
+
+msgid ""
+"This is open source software: source code and changelog for this application "
+"can be found at"
+msgstr ""
+
+msgid ""
+"Language localization is crowdsourced using Get Localization available at"
+msgstr ""
+
+msgid "App Version"
+msgstr ""
+
 msgid "Yes"
 msgstr ""
 
@@ -757,9 +778,6 @@ msgid "Export Configuration"
 msgstr ""
 
 msgid "Import Configuration"
-msgstr ""
-
-msgid "About"
 msgstr ""
 
 msgid "Settings"
