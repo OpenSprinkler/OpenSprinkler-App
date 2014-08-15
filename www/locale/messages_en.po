@@ -210,6 +210,9 @@ msgstr ""
 msgid "Location"
 msgstr ""
 
+msgid "Relay Pulse"
+msgstr ""
+
 msgid "Station Delay"
 msgstr ""
 
@@ -259,6 +262,9 @@ msgid "Activate Master?"
 msgstr ""
 
 msgid "Ignore Rain?"
+msgstr ""
+
+msgid "Activate Relay?"
 msgstr ""
 
 msgid "Master"
