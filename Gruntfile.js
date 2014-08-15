@@ -82,7 +82,7 @@ module.exports = function(grunt) {
         src: ["www/js/main.js"],
         overwrite: true,
         replacements: [{
-          from: /"App Version: ([\d|\.]+)"/g,
+          from: /_\("App Version"\)\+": ([\d|\.]+)"/g,
           to: function(matchedWord, index, fullText, regexMatches){
             return "\"App Version: "+bumpVersion(regexMatches[0])+"\"";
           }
