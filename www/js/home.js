@@ -48,11 +48,11 @@
 			// Grab the pages from index.html (body content)
 			var pages = $(data.match(/<body>([.\s\S]*)<\/body>/)[1]);
 
-			// Hide multi site features since using local device
-			pages.find(".multiSite").hide();
-
 			// Inject pages into DOM
 			body.html(pages);
+
+			// Hide multi site features since using local device
+			$(".multiSite").hide();
 
 			// Disables site selection menu
 			window.curr_local = true;
