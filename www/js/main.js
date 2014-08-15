@@ -4134,19 +4134,19 @@ function show_about() {
             "<div class='ui-content' role='main'>" +
                 "<ul data-role='listview' data-inset='true'>" +
                     "<li>" +
-                        "<p>User manual for OpenSprinkler is available at: <a class='iab' target='_blank' href='http://rayshobby.net/?page_id=192'>http://rayshobby.net/?page_id=192</a></p>" +
+                        "<p>"+_("User manual for OpenSprinkler is available at")+": <a class='iab' target='_blank' href='http://rayshobby.net/?page_id=192'>http://rayshobby.net/?page_id=192</a></p>" +
                     "</li>" +
                 "</ul>" +
                 "<ul data-role='listview' data-inset='true'>" +
                     "<li>" +
-                        "<p>This is open source software: source code and changelog for this application can be found at <a class='iab' target='_blank' href='https://github.com/salbahra/Sprinklers/'>https://github.com/salbahra/Sprinklers/</a></p>" +
-                        "<p>Language localization is crowdsourced using Get Localization available at <a class='iab' target='_blank' href='http://www.getlocalization.com/Sprinklers/'>http://www.getlocalization.com/Sprinklers/</a></p>" +
+                        "<p>"+_("This is open source software: source code and changelog for this application can be found at")+" <a class='iab' target='_blank' href='https://github.com/salbahra/Sprinklers/'>https://github.com/salbahra/Sprinklers/</a></p>" +
+                        "<p>"+_("Language localization is crowdsourced using Get Localization available at")+" <a class='iab' target='_blank' href='http://www.getlocalization.com/Sprinklers/'>http://www.getlocalization.com/Sprinklers/</a></p>" +
                     "</li>" +
                 "</ul>" +
                 "<p class='smaller'>" +
-                    "App Version: 1.1.6" +
+                    _("App Version")+": 1.1.6" +
                     "<br>" +
-                    "Firmware: "+getOSVersion() +
+                    _("Firmware")+": "+getOSVersion() +
                 "</p>" +
             "</div>" +
         "</div>");
