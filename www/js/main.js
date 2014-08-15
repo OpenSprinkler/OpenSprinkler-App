@@ -166,30 +166,9 @@ $(document)
         });
     });
 
-    //Change history method for Chrome Packaged Apps
-    if (isChromeApp) {
-        $.mobile.document.on("click",".ui-toolbar-back-btn",function(){
-            goBack();
-            return false;
-        });
-    }
-
     //When app isn't using cordova.js, check network status now
     if (isChromeApp || isOSXApp) {
         checkAutoScan();
-    }
-
-    //Use system browser for links on iOS and Windows Phone
-    if (isiOS || isIEMobile) {
-        $.mobile.document.on("click",".iab",function(){
-            window.open(this.href,"_system","enableViewportScale=yes");
-            return false;
-        });
-    } else if (isAndroid) {
-        $.mobile.document.on("click",".iab",function(){
-            window.open(this.href,"_blank","enableViewportScale=yes");
-            return false;
-        });
     }
 })
 .one("deviceready", function() {
@@ -221,6 +200,27 @@ $(document)
     $.mobile.defaultPageTransition = "fade";
     $.mobile.hoverDelay = 0;
     $.mobile.hashListeningEnabled = false;
+
+    //Change history method for Chrome Packaged Apps
+    if (isChromeApp) {
+        $.mobile.document.on("click",".ui-toolbar-back-btn",function(){
+            goBack();
+            return false;
+        });
+    }
+
+    //Use system browser for links on iOS and Windows Phone
+    if (isiOS || isIEMobile) {
+        $.mobile.document.on("click",".iab",function(){
+            window.open(this.href,"_system","enableViewportScale=yes");
+            return false;
+        });
+    } else if (isAndroid) {
+        $.mobile.document.on("click",".iab",function(){
+            window.open(this.href,"_blank","enableViewportScale=yes");
+            return false;
+        });
+    }
 })
 .one("pagebeforechange", function(event) {
     // Let the framework know we're going to handle the first load
@@ -4533,6 +4533,8 @@ function set_lang() {
 }
 
 function update_lang(lang) {
+    var prefix = "";
+
     //Empty out the current language (English is provided as the key)
     language = {};
 
@@ -4553,7 +4555,11 @@ function update_lang(lang) {
         return;
     }
 
-    $.getJSON("locale/"+lang+".json",function(store){
+    if (curr_local) {
+        prefix = "http://rawgit.com/salbahra/Sprinklers/master/www/";
+    }
+
+    $.getJSON(prefix+"locale/"+lang+".json",function(store){
         language = store.messages;
         set_lang();
     }).fail(set_lang);
