@@ -314,7 +314,7 @@ $(document)
     check_configured(true);
 
     //Attach FastClick handler
-    FastClick.attach($.mobile.document.body);
+    FastClick.attach(document.body);
 })
 // Handle OS resume event triggered by PhoneGap
 .on("resume",function(){
