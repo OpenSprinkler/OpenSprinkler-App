@@ -78,13 +78,13 @@ module.exports = function(grunt) {
       }
     },
     replace: {
-      index: {
-        src: ["www/index.html"],
+      about: {
+        src: ["www/js/main.js"],
         overwrite: true,
         replacements: [{
-          from: /<p>Version: ([\d|\.]+)<\/p>/g,
+          from: /"App Version: ([\d|\.]+)"/g,
           to: function(matchedWord, index, fullText, regexMatches){
-            return "<p>Version: "+bumpVersion(regexMatches[0])+"</p>";
+            return "\"App Version: "+bumpVersion(regexMatches[0])+"\"";
           }
         }]
       },
