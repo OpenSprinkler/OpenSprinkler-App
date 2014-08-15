@@ -18,7 +18,7 @@ module.exports = function(grunt) {
     pkg: grunt.file.readJSON("package.json"),
     secrets: grunt.file.readJSON(".secrets.json"),
     jshint: {
-    	main: ["<%= pkg.main %>","Gruntfile.js"],
+    	main: ["<%= pkg.main %>","Gruntfile.js","www/js/home.js"],
       options: {
         jshintrc: true
       }

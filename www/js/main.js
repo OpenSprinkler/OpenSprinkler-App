@@ -73,7 +73,7 @@ var isIEMobile = /IEMobile/.test(navigator.userAgent),
     retryCount = 3,
     controller = {},
     switching = false,
-    curr_183, curr_ip, curr_prefix, curr_auth, curr_pw, curr_wa, curr_session, curr_auth_user, curr_auth_pw, language, deviceip, interval_id, timeout_id;
+    curr_183, curr_ip, curr_prefix, curr_auth, curr_pw, curr_wa, curr_session, curr_auth_user, curr_auth_pw, curr_local, language, deviceip, interval_id, timeout_id;
 
 // Fix CSS for IE Mobile (Windows Phone 8)
 if (isIEMobile) {
@@ -130,47 +130,7 @@ if (isWinApp) {
 }
 
 $(document)
-.ready(function() {
-    //Update the language on the page using the browser's locale
-    update_lang();
-
-    //Update site based on selector
-    $("#site-selector").on("change",function(){
-        update_site($(this).val());
-    });
-
-    //Bind start page buttons
-    $("#auto-scan").find("a").on("click",function(){
-        start_scan();
-        return false;
-    });
-
-    //Bind open panel button
-    $("#sprinklers").find("div[data-role='header'] > .ui-btn-left").on("click",function(){
-        open_panel();
-        return false;
-    });
-
-    //Bind stop all stations button
-    $("#stop-all").on("click",function(){
-        areYouSure(_("Are you sure you want to stop all stations?"), "", function() {
-            $.mobile.loading("show");
-            send_to_os("/cv?pw=&rsn=1").done(function(){
-                $.mobile.loading("hide");
-                $.when(
-                    update_controller_settings(),
-                    update_controller_status()
-                ).then(check_status);
-                showerror(_("All stations have been stopped"));
-            });
-        });
-    });
-
-    //When app isn't using cordova.js, check network status now
-    if (isChromeApp || isOSXApp) {
-        checkAutoScan();
-    }
-})
+.ready(initApp)
 .one("deviceready", function() {
     try {
         //Change the status bar to match the headers
@@ -373,6 +333,48 @@ $.ajaxSetup({
     timeout: 6000
 });
 
+function initApp() {
+    //Update the language on the page using the browser's locale
+    update_lang();
+
+    //Update site based on selector
+    $("#site-selector").on("change",function(){
+        update_site($(this).val());
+    });
+
+    //Bind start page buttons
+    $("#auto-scan").find("a").on("click",function(){
+        start_scan();
+        return false;
+    });
+
+    //Bind open panel button
+    $("#sprinklers").find("div[data-role='header'] > .ui-btn-left").on("click",function(){
+        open_panel();
+        return false;
+    });
+
+    //Bind stop all stations button
+    $("#stop-all").on("click",function(){
+        areYouSure(_("Are you sure you want to stop all stations?"), "", function() {
+            $.mobile.loading("show");
+            send_to_os("/cv?pw=&rsn=1").done(function(){
+                $.mobile.loading("hide");
+                $.when(
+                    update_controller_settings(),
+                    update_controller_status()
+                ).then(check_status);
+                showerror(_("All stations have been stopped"));
+            });
+        });
+    });
+
+    //When app isn't using cordova.js, check network status now
+    if (isChromeApp || isOSXApp) {
+        checkAutoScan();
+    }
+}
+
 // Handle main switches for manual mode and enable
 function flipSwitched() {
     if (switching) {
@@ -452,8 +454,10 @@ function network_fail(){
 
 // Gather new controller information and load home page
 function newload() {
+    var name = $("#site-selector").val();
+
     $.mobile.loading("show", {
-        text: _("Connecting to")+" "+$("#site-selector").val(),
+        text: name ? _("Connecting to")+" "+name : _("Connecting"),
         textVisible: true,
         theme: "b"
     });
