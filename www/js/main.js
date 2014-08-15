@@ -459,7 +459,7 @@ function newload() {
     $.mobile.loading("show", {
         text: name ? _("Connecting to")+" "+name : _("Loading"),
         textVisible: true,
-        textOnly: name ? false : true,
+        textonly: name ? false : true,
         theme: "b"
     });
 
