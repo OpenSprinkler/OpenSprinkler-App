@@ -3196,9 +3196,9 @@ function get_logs() {
 
                 if (typeof station === "string") {
                     if (station === "rs") {
-                        station = stations.length - 1;
+                        station = stations.length - 2;
                     } else if (station === "rd") {
-                        station = stations.length;
+                        station = stations.length - 1;
                     }
                 } else if (typeof station === "number" && station>stations.length-2) {
                     return;
