@@ -29,6 +29,8 @@ insertScript("http://rawgit.com/salbahra/Sprinklers/master/www/js/jquery.min.js"
 function init() {
 	var body = $("body");
 
+	body.hide();
+
 	// Change viewport
 	$("meta[name='viewport']").attr("content","width=device-width,initial-scale=1.0,minimum-scale=1.0,user-scalable=no");
 
@@ -44,9 +46,13 @@ function init() {
 		// Set current IP to the device IP
 		window.curr_ip = document.URL.match(/https?:\/\/(.*)\/.*?/)[1];
 
-		insertScript("http://rawgit.com/salbahra/Sprinklers/master/www/js/libs.js",function(){
-			insertScript("http://rawgit.com/salbahra/Sprinklers/master/www/js/main.js",function(){
-				insertScript("http://rawgit.com/salbahra/Sprinklers/master/www/js/jquery.mobile.min.js");
+		$.getScript("http://rawgit.com/salbahra/Sprinklers/master/www/js/libs.js",function(){
+			$.getScript("http://rawgit.com/salbahra/Sprinklers/master/www/js/main.js",function(){
+				$.getScript("http://rawgit.com/salbahra/Sprinklers/master/www/js/jquery.mobile.min.js",function(){
+					$.mobile.document.one("pagebeforechange",function(){
+						body.show();
+					});
+				});
 			});
 		});
 
