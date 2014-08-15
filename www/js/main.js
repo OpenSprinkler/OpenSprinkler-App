@@ -2076,11 +2076,11 @@ function show_stations() {
         if (isMaster) {
             list += "<th class='center'>"+_("Activate Master?")+"</th>";
         }
-        if (hasAR) {
-            list += "<th class='center'>"+_("Activate Relay?")+"</th>";
-        }
         if (hasIR) {
             list += "<th class='center'>"+_("Ignore Rain?")+"</th>";
+        }
+        if (hasAR) {
+            list += "<th class='center'>"+_("Activate Relay?")+"</th>";
         }
         list += "</tr>";
     }
@@ -2099,11 +2099,11 @@ function show_stations() {
                     list += "<td data-role='controlgroup' data-type='horizontal' class='use_master'><label for='um_"+i+"'><input id='um_"+i+"' type='checkbox' "+((controller.stations.masop[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+" /></label></td>";
                 }
             }
-            if (hasAR) {
-                list += "<td data-role='controlgroup' data-type='horizontal' class='use_master'><label for='ar_"+i+"'><input id='ar_"+i+"' type='checkbox' "+((controller.stations.act_relay[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+" /></label></td>";
-            }
             if (hasIR) {
                 list += "<td data-role='controlgroup' data-type='horizontal' class='use_master'><label for='ir_"+i+"'><input id='ir_"+i+"' type='checkbox' "+((controller.stations.ignore_rain[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+" /></label></td>";
+            }
+            if (hasAR) {
+                list += "<td data-role='controlgroup' data-type='horizontal' class='use_master'><label for='ar_"+i+"'><input id='ar_"+i+"' type='checkbox' "+((controller.stations.act_relay[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+" /></label></td>";
             }
             list += "</tr>";
         }
