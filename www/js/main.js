@@ -6,10 +6,74 @@ var isIEMobile = /IEMobile/.test(navigator.userAgent),
     isWinApp = /MSAppHost/.test(navigator.userAgent),
     isOSXApp = isOSXApp || false,
     isChromeApp = typeof chrome === "object" && typeof chrome.storage === "object",
+    // Small wrapper to handle Chrome vs localStorage usage
+    storage = {
+        get: function(query,callback) {
+            callback = callback || function(){};
+
+            if (isChromeApp) {
+                chrome.storage.local.get(query,callback);
+            } else {
+                var data = {},
+                    i;
+
+                if (typeof query === "object") {
+                    for (i in query) {
+                        if (query.hasOwnProperty(i)) {
+                            data[query[i]] = localStorage.getItem(query[i]);
+                        }
+                    }
+                } else if (typeof query === "string") {
+                    data[query] = localStorage.getItem(query);
+                }
+
+                callback(data);
+            }
+        },
+        set: function(query,callback) {
+            callback = callback || function(){};
+
+            if (isChromeApp) {
+                chrome.storage.local.set(query,callback);
+            } else {
+                var i;
+                if (typeof query === "object") {
+                    for (i in query) {
+                        if (query.hasOwnProperty(i)) {
+                            localStorage.setItem(i,query[i]);
+                        }
+                    }
+                }
+
+                callback(true);
+            }
+        },
+        remove: function(query,callback) {
+            callback = callback || function(){};
+
+            if (isChromeApp) {
+                chrome.storage.local.remove(query,callback);
+            } else {
+                var i;
+
+                if (typeof query === "object") {
+                    for (i in query) {
+                        if (query.hasOwnProperty(i)) {
+                            localStorage.removeItem(query[i]);
+                        }
+                    }
+                } else if (typeof query === "string") {
+                    localStorage.removeItem(query);
+                }
+
+                callback(true);
+            }
+        }
+    },
     retryCount = 3,
     controller = {},
     switching = false,
-    curr_183, curr_ip, curr_prefix, curr_auth, curr_pw, curr_wa, curr_session, curr_auth_user, curr_auth_pw, language, deviceip, storage, interval_id, timeout_id;
+    curr_183, curr_ip, curr_prefix, curr_auth, curr_pw, curr_wa, curr_session, curr_auth_user, curr_auth_pw, language, deviceip, interval_id, timeout_id;
 
 // Fix CSS for IE Mobile (Windows Phone 8)
 if (isIEMobile) {
@@ -4402,71 +4466,6 @@ function objToEmail(ele,obj,subject) {
     var body = JSON.stringify(obj);
     $(ele).attr("href","mailto:?subject="+encodeURIComponent(subject)+"&body="+encodeURIComponent(body));
 }
-
-// Small wrapper to handle Chrome vs localStorage usage
-storage = {
-    get: function(query,callback) {
-        callback = callback || function(){};
-
-        if (isChromeApp) {
-            chrome.storage.local.get(query,callback);
-        } else {
-            var data = {},
-                i;
-
-            if (typeof query === "object") {
-                for (i in query) {
-                    if (query.hasOwnProperty(i)) {
-                        data[query[i]] = localStorage.getItem(query[i]);
-                    }
-                }
-            } else if (typeof query === "string") {
-                data[query] = localStorage.getItem(query);
-            }
-
-            callback(data);
-        }
-    },
-    set: function(query,callback) {
-        callback = callback || function(){};
-
-        if (isChromeApp) {
-            chrome.storage.local.set(query,callback);
-        } else {
-            var i;
-            if (typeof query === "object") {
-                for (i in query) {
-                    if (query.hasOwnProperty(i)) {
-                        localStorage.setItem(i,query[i]);
-                    }
-                }
-            }
-
-            callback(true);
-        }
-    },
-    remove: function(query,callback) {
-        callback = callback || function(){};
-
-        if (isChromeApp) {
-            chrome.storage.local.remove(query,callback);
-        } else {
-            var i;
-
-            if (typeof query === "object") {
-                for (i in query) {
-                    if (query.hasOwnProperty(i)) {
-                        localStorage.removeItem(query[i]);
-                    }
-                }
-            } else if (typeof query === "string") {
-                localStorage.removeItem(query);
-            }
-
-            callback(true);
-        }
-    }
-};
 
 // Return day of the week
 function getDayName(day,type) {
