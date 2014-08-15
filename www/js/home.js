@@ -5,10 +5,10 @@ function insertScript(src) {
     document.head.appendChild(a);
 }
 
-insertScript("https://rawgithub.com/salbahra/Sprinklers/master/www/js/jquery.min.js");
-insertScript("https://rawgithub.com/salbahra/Sprinklers/master/www/js/main.js");
-insertScript("https://rawgithub.com/salbahra/Sprinklers/master/www/js/jquery.mobile.min.js");
-insertScript("https://rawgithub.com/salbahra/Sprinklers/master/www/js/libs.js");
+insertScript("https://rawgit.com/salbahra/Sprinklers/master/www/js/jquery.min.js");
+insertScript("https://rawgit.com/salbahra/Sprinklers/master/www/js/main.js");
+insertScript("https://rawgit.com/salbahra/Sprinklers/master/www/js/jquery.mobile.min.js");
+insertScript("https://rawgit.com/salbahra/Sprinklers/master/www/js/libs.js");
 
 // We now have jQuery since the above are synchronous. Let’s grab the body of the Sprinklers app and inject them into the pages body
 $.get("index.html",function(data){
