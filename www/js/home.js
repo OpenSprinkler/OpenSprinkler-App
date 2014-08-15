@@ -1,38 +1,58 @@
 // Insert script into the DOM
-function insertScript(src) {
-    var a=document.createElement("script");
-    a.src=src;
+function insertStyle(src) {
+    var a=document.createElement("link");
+    a.href=src;
+    a.rel="stylesheet";
     document.head.appendChild(a);
 }
 
-insertScript("https://rawgit.com/salbahra/Sprinklers/master/www/js/jquery.min.js");
-insertScript("https://rawgit.com/salbahra/Sprinklers/master/www/js/main.js");
-insertScript("https://rawgit.com/salbahra/Sprinklers/master/www/js/jquery.mobile.min.js");
-insertScript("https://rawgit.com/salbahra/Sprinklers/master/www/js/libs.js");
+// Insert script into the DOM
+function insertScript(src,callback) {
+	callback = callback || function(){};
 
-// We now have jQuery since the above are synchronous. Let’s grab the body of the Sprinklers app and inject them into the pages body
-$.get("index.html",function(data){
-	var pages = $(data).find("body"),
-		getPassword = function(){
-			var popup = $("<div data-role='popup'>" +
-					// This needs to be made still......
-				"</div>");
+    var a=document.createElement("script");
+    a.src=src;
+    document.head.appendChild(a);
 
-			// Set result as password
-			curr_pw = "";
-		};
+    var interval = setInterval(function(){
+		if (document.readyState === "complete") {
+			clearInterval(interval);
+			callback();
+		}
+	},2);
+}
 
-	$.mobile.loading("show");
-	$("body").html(pages);
+insertStyle("http://rawgit.com/salbahra/Sprinklers/master/www/css/jquery.mobile.min.css");
+insertStyle("http://rawgit.com/salbahra/Sprinklers/master/www/css/main.css");
+insertScript("http://rawgit.com/salbahra/Sprinklers/master/www/js/jquery.min.js",init);
 
-	// Set current IP to the device IP
-	curr_ip = document.URL.match(/https?:\/\/(.*)\/.*?/)[1];
+function init() {
+	var body = $("body");
 
-	// Disables site selection menu
-	curr_local = true;
+	body.hide();
 
-	// Update controller and load home page
-	update_controller().done(function(){
-		changePage("#sprinklers");
+	$.get("http://rawgit.com/salbahra/Sprinklers/master/www/index.html",function(data){
+		var pages = data.match(/<body>([.\s\S]*)<\/body>/);
+
+		body.html(pages[1]);
+
+		insertScript("http://rawgit.com/salbahra/Sprinklers/master/www/js/libs.js",function(){
+			insertScript("http://rawgit.com/salbahra/Sprinklers/master/www/js/main.js",function(){
+				insertScript("http://rawgit.com/salbahra/Sprinklers/master/www/js/jquery.mobile.min.js",function(){
+					body.show();
+				});
+			});
+		});
+
+		// Set current IP to the device IP
+//			curr_ip = document.URL.match(/https?:\/\/(.*)\/.*?/)[1];
+
+		// Disables site selection menu
+//			curr_local = true;
+
+		// Request device password if unknown
+
+		// Trigger login (if device hasn't already)
+
 	});
-});
+}
