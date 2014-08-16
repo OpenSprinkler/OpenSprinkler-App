@@ -459,7 +459,7 @@ function newload() {
     var name = $("#site-selector").val();
 
     $.mobile.loading("show", {
-        text: name ? _("Connecting to")+" "+name : _("Loading"),
+        text: curr_local ? _("Connecting to")+" "+name : _("Loading"),
         textVisible: true,
         textonly: curr_local ? true : false,
         theme: "b"
