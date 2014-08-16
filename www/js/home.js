@@ -55,11 +55,11 @@
 	insertStyleSheet(assetLocation+"css/jquery.mobile.min.css");
 
 	// Insert main application stylesheet
-	insertStyleSheet(assetLocation+"http://rawgit.com/salbahra/Sprinklers/master/www/css/main.css");
+	insertStyleSheet(assetLocation+"css/main.css");
 
 
 	// Insert jQuery and run init function on completion
-	insertScript(assetLocation+"http://rawgit.com/salbahra/Sprinklers/master/www/js/jquery.min.js",init);
+	insertScript(assetLocation+"js/jquery.min.js",init);
 
 	function init() {
 		var body = $("body"),
@@ -69,7 +69,7 @@
 					if (isReady) {
 						clearInterval(interval);
 						// Load jQuery Mobile
-						$.getScript("http://rawgit.com/salbahra/Sprinklers/master/www/js/jquery.mobile.min.js");
+						$.getScript(assetLocation+"js/jquery.mobile.min.js");
 					}
 				},1);
 			},
@@ -116,7 +116,7 @@
 		// Hide the body while we modify the DOM
 		body.html(loader);
 
-		$.get("http://rawgit.com/salbahra/Sprinklers/master/www/index.html",function(data){
+		$.get(assetLocation+"index.html",function(data){
 			// Grab the pages from index.html (body content)
 			var pages = data.match(/<body>([.\s\S]*)<\/body>/)[1];
 
@@ -124,10 +124,10 @@
 			window.curr_local = true;
 
 			// Load 3rd party libraries such as FastClick (loaded first to avoid conflicts)
-			$.getScript("http://rawgit.com/salbahra/Sprinklers/master/www/js/libs.js",function(){
+			$.getScript(assetLocation+"js/libs.js",function(){
 
 				// Load main application Javascript (loaded before jQM so binds trigger when jQM loads)
-				$.getScript("http://rawgit.com/salbahra/Sprinklers/master/www/js/main.js",function(){
+				$.getScript(assetLocation+"js/main.js",function(){
 
 					// Show the body when jQM attempts first page transition
 					$(document).one("mobileinit",function(){
