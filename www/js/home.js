@@ -78,7 +78,7 @@
 					"Local": {
 						"os_ip": document.URL.match(/https?:\/\/(.*)\/.*?/)[1],
 						// Still need to prompt for password
-						"os_pw": $("#os_pw").val(),
+						"os_pw": $("#os_pw").val()
 					}
 				},
 				current_site = "Local";
