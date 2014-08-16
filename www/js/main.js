@@ -1987,7 +1987,7 @@ function show_options() {
         if (id === "o19") {
             max = 60;
         } else if (id === "o30") {
-            max = 255;
+            max = 2;
         }
 
         showDurationBox(dur.val(),name,function(result){
