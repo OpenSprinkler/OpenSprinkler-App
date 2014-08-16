@@ -116,45 +116,52 @@
 		// Hide the body while we modify the DOM
 		body.html(loader);
 
-		$.get(assetLocation+"index.html",function(data){
-			// Grab the pages from index.html (body content)
-			var pages = data.match(/<body>([.\s\S]*)<\/body>/)[1];
+		$.ajax({
+			url: assetLocation+"index.html",
+			cache: false,
+			crossDomain: true,
+			type: "GET"
+		}).then(
+			function(data){
+				// Grab the pages from index.html (body content)
+				var pages = data.match(/<body>([.\s\S]*)<\/body>/)[1];
 
-			// Disables site selection menu
-			window.curr_local = true;
+				// Disables site selection menu
+				window.curr_local = true;
 
-			// Load 3rd party libraries such as FastClick (loaded first to avoid conflicts)
-			$.getScript(assetLocation+"js/libs.js",function(){
+				// Load 3rd party libraries such as FastClick (loaded first to avoid conflicts)
+				$.getScript(assetLocation+"js/libs.js",function(){
 
-				// Load main application Javascript (loaded before jQM so binds trigger when jQM loads)
-				$.getScript(assetLocation+"js/main.js",function(){
+					// Load main application Javascript (loaded before jQM so binds trigger when jQM loads)
+					$.getScript(assetLocation+"js/main.js",function(){
 
-					// Show the body when jQM attempts first page transition
-					$(document).one("mobileinit",function(){
+						// Show the body when jQM attempts first page transition
+						$(document).one("mobileinit",function(){
 
-						// Change title to reflect loading finished
-						document.title = "Sprinkler System";
+							// Change title to reflect loading finished
+							document.title = "Sprinkler System";
 
-						// Inject pages into DOM
-						body.html(pages);
+							// Inject pages into DOM
+							body.html(pages);
 
-						// Remove spinner code (no longer needed)
-						$("head").find("style").remove();
+							// Remove spinner code (no longer needed)
+							$("head").find("style").remove();
 
-						// Initialize environment (missed by main.js since body was added after)
-						initApp();
+							// Initialize environment (missed by main.js since body was added after)
+							initApp();
 
-						// Hide multi site features since using local device
-						body.find(".multiSite").hide();
+							// Hide multi site features since using local device
+							body.find(".multiSite").hide();
+						});
+
+						// Mark environment as loaded
+						isReady = true;
 					});
-
-					// Mark environment as loaded
-					isReady = true;
-
 				});
-
-			});
-
-		});
+			},
+			function(){
+				body.html("<div class='spinner'><h1>Unable to load UI</h1></div>");
+			}
+		);
 	}
 }(document));
