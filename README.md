@@ -44,3 +44,14 @@ A mobile interface for the OpenSprinkler irrigation device. Designed to allow ma
 + For advanced users, the application supports authentication (HTTP Basic) and SSL for devices behind proxies. Guide available [here](http://rayshobby.net/mediawiki/index.php?title=Secure_Remote_Access).
 
 + For current discussion about the project please refer to the [forum post](http://rayshobby.net/phpBB3/viewtopic.php?f=2&t=154).
+
+---
+
+#### OpenSprinkler Arduino
+
+Starting with firmware 2.0.3, an option has been added to change the Javascript URL path for the UI. Sprinklers now offers an injection method which takes over Ray's OpenSprinkler UI. Just follow the simple steps below to switch your UI:
+
+ 1. Navigate to http://x.x.x.x/su (replace x.x.x.x with your OpenSprinkler IP)
+ 2. For "Javascript URL" field use the following: https://rawgithub.com/salbahra/Sprinklers/master/www/js
+ 3. Enter your password in the field and push "Submit"
+ 4. Your page will reload and you will now see the Sprinklers application
