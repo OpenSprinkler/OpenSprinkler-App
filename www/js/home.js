@@ -60,13 +60,22 @@
 
 		$.get("http://rawgit.com/salbahra/Sprinklers/master/www/index.html",function(data){
 			// Grab the pages from index.html (body content)
-			var pages = data.match(/<body>([.\s\S]*)<\/body>/)[1];
+			var pages = data.match(/<body>([.\s\S]*)<\/body>/)[1],
+				sites = {
+					"Local": {
+						"os_ip": document.URL.match(/https?:\/\/(.*)\/.*?/)[1],
+						// Still need to prompt for password
+						"os_pw": "opendoor",
+					}
+				},
+				current_site = "Local";
+
+			// Inject site information to storage so Application loads current device
+			localStorage.setItem("sites",JSON.stringify(sites));
+			localStorage.setItem("current_site",current_site);
 
 			// Disables site selection menu
 			window.curr_local = true;
-
-			// Set current IP to the device IP
-			window.curr_ip = document.URL.match(/https?:\/\/(.*)\/.*?/)[1];
 
 			// Load 3rd party libraries such as FastClick (loaded first to avoid conflicts)
 			$.getScript("http://rawgit.com/salbahra/Sprinklers/master/www/js/libs.js",function(){
