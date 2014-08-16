@@ -1,21 +1,30 @@
 /*global $, initApp */
-(function(){
+(function(document){
 	var assetLocation = "http://rawgit.com/salbahra/Sprinklers/master/www/",
 		isReady = false;
 
-	// Insert style into the DOM
-	function insertStyle(style) {
-	    var a=document.createElement("style");
-	    a.innerHTML=style;
-	    document.head.appendChild(a);
+	function insertStyle(css) {
+		var head = document.head || document.getElementsByTagName("head")[0],
+		    style = document.createElement("style");
+
+		style.type = "text/css";
+		if (style.styleSheet){
+		  style.styleSheet.cssText = css;
+		} else {
+		  style.appendChild(document.createTextNode(css));
+		}
+
+		head.appendChild(style);
 	}
 
-	// Insert style sheet into the DOM
-	function insertStyleSheet(src) {
-	    var a=document.createElement("link");
-	    a.href=src;
-	    a.rel="stylesheet";
-	    document.head.appendChild(a);
+	function insertStyleSheet(href) {
+		var head = document.head || document.getElementsByTagName("head")[0],
+		    link = document.createElement("link");
+
+		link.rel = "stylesheet";
+		link.href = href;
+
+		head.appendChild(link);
 	}
 
 	// Insert script into the DOM
@@ -25,7 +34,7 @@
 
 	    var a=document.createElement("script");
 	    a.src=src;
-	    document.head.appendChild(a);
+	    document.getElementsByTagName("head")[0].appendChild(a);
 
 	    // Start checking for script load completion and callback when done
 	    var interval = setInterval(function(){
@@ -47,6 +56,7 @@
 
 	// Insert main application stylesheet
 	insertStyleSheet(assetLocation+"http://rawgit.com/salbahra/Sprinklers/master/www/css/main.css");
+
 
 	// Insert jQuery and run init function on completion
 	insertScript(assetLocation+"http://rawgit.com/salbahra/Sprinklers/master/www/js/jquery.min.js",init);
@@ -147,4 +157,4 @@
 
 		});
 	}
-}());
+}(document));
