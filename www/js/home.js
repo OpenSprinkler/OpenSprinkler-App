@@ -1,15 +1,16 @@
 /*global $, initApp */
 (function(){
-	var assetLocation = "http://rawgit.com/salbahra/Sprinklers/master/www/";
+	var assetLocation = "http://rawgit.com/salbahra/Sprinklers/master/www/",
+		isReady = false;
 
-	// Insert script into the DOM
+	// Insert style into the DOM
 	function insertStyle(style) {
 	    var a=document.createElement("style");
 	    a.innerHTML=style;
 	    document.head.appendChild(a);
 	}
 
-	// Insert script into the DOM
+	// Insert style sheet into the DOM
 	function insertStyleSheet(src) {
 	    var a=document.createElement("link");
 	    a.href=src;
@@ -26,18 +27,19 @@
 	    a.src=src;
 	    document.head.appendChild(a);
 
+	    // Start checking for script load completion and callback when done
 	    var interval = setInterval(function(){
 			if (document.readyState === "complete") {
 				clearInterval(interval);
 				callback();
 			}
-		},2);
+		},1);
 	}
 
 	// Insert loading icon
-	insertStyle(".spinner{display:block;padding:.9375em;margin-left:-7.1875em;width:12.5em;filter:Alpha(Opacity=88);opacity:.88;box-shadow:0 1px 1px -1px #fff;margin-top:-2.6875em;height:auto;z-index:9999999;position:fixed;top:50%;left:50%;border:0;background-color:#2a2a2a;border-color:#1d1d1d;color:#fff;text-shadow:0 1px 0 #111;-webkit-border-radius:.3125em;border-radius:.3125em;}.spinner h1{font-size: 1em;margin:0;text-align:center;}");
+	insertStyle(".spinner{display:block;padding:.9375em;margin-left:-7.1875em;width:12.5em;filter:Alpha(Opacity=88);opacity:.88;box-shadow:0 1px 1px -1px #fff;margin-top:-2.6875em;height:auto;z-index:9999999;position:fixed;top:50%;left:50%;border:0;background-color:#2a2a2a;border-color:#1d1d1d;color:#fff;text-shadow:0 1px 0 #111;-webkit-border-radius:.3125em;border-radius:.3125em;}.spinner h1{padding-bottom:.2em;font-size: 1em;margin:0;text-align:center;}.spinner form{margin-bottom:0}.spinner input[type='password']{border-radius:5px;padding:.3em;line-height:1.2em;display:block;width:100%;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;outline:0;}.spinner input[type=submit]{border-radius:5px;border: 0;font-family:Tahoma;background:#f4f4f4;margin-top:5px;width:100%;}");
 
-	// Change title to reflect loading state
+	// Change title to reflect current state
 	document.title = "Loading...";
 
 	// Insert jQM stylesheet
@@ -50,29 +52,63 @@
 	insertScript(assetLocation+"http://rawgit.com/salbahra/Sprinklers/master/www/js/jquery.min.js",init);
 
 	function init() {
-		var body = $("body");
+		var body = $("body"),
+			finishInit = function() {
+			    // Start checking for script load completion and callback when done
+			    var interval = setInterval(function(){
+					if (isReady) {
+						clearInterval(interval);
+						// Load jQuery Mobile
+						$.getScript("http://rawgit.com/salbahra/Sprinklers/master/www/js/jquery.mobile.min.js");
+					}
+				},1);
+			},
+			sites = JSON.parse(localStorage.getItem("sites")),
+			loader;
+
+		if (sites) {
+			// If device has been logged into before, use available settings
+			loader = $("<div class='spinner'><h1>Loading</h1></div>");
+			finishInit();
+		} else {
+			// If this is a new login, prompt for password
+			loader = $("<div class='spinner'><h1>Enter Device Password</h1><form><input type='password' id='os_pw' name='os_pw' value='' /><input type='submit' value='Submit' /></form></div>"),
+			loader.on("submit",function(){
+				var sites = {
+					"Local": {
+						"os_ip": document.URL.match(/https?:\/\/(.*)\/.*?/)[1],
+						// Still need to prompt for password
+						"os_pw": $("#os_pw").val(),
+					}
+				},
+				current_site = "Local";
+
+				// Show loading message and title
+				body.html("<div class='spinner'><h1>Loading</h1></div>");
+				document.title = "Loading...";
+
+				// Inject site information to storage so Application loads current device
+				localStorage.setItem("sites",JSON.stringify(sites));
+				localStorage.setItem("current_site",current_site);
+
+				finishInit();
+
+				return false;
+			});
+
+			// Change title to reflect current state
+			document.title = "OpenSprinkler: Login";
+		}
 
 		// Hide the body while we modify the DOM
-		body.html("<div class='spinner'><h1>Loading</h1></div>");
+		body.html(loader);
 
 		// Change viewport
 		$("meta[name='viewport']").attr("content","width=device-width,initial-scale=1.0,minimum-scale=1.0,user-scalable=no");
 
 		$.get("http://rawgit.com/salbahra/Sprinklers/master/www/index.html",function(data){
 			// Grab the pages from index.html (body content)
-			var pages = data.match(/<body>([.\s\S]*)<\/body>/)[1],
-				sites = {
-					"Local": {
-						"os_ip": document.URL.match(/https?:\/\/(.*)\/.*?/)[1],
-						// Still need to prompt for password
-						"os_pw": "opendoor",
-					}
-				},
-				current_site = "Local";
-
-			// Inject site information to storage so Application loads current device
-			localStorage.setItem("sites",JSON.stringify(sites));
-			localStorage.setItem("current_site",current_site);
+			var pages = data.match(/<body>([.\s\S]*)<\/body>/)[1];
 
 			// Disables site selection menu
 			window.curr_local = true;
@@ -102,8 +138,8 @@
 						body.find(".multiSite").hide();
 					});
 
-					// Load jQuery Mobile
-					$.getScript("http://rawgit.com/salbahra/Sprinklers/master/www/js/jquery.mobile.min.js");
+					// Mark environment as loaded
+					isReady = true;
 
 				});
 
