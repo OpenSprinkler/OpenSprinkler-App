@@ -37,7 +37,7 @@ A mobile interface for the OpenSprinkler irrigation device. Designed to allow ma
   + [Windows Store](http://apps.microsoft.com/windows/en-us/app/sprinklers/ebc0d2d1-9678-4e72-9a9d-6d60e946b8c0)
   + [Windows Phone Store](http://www.windowsphone.com/en-us/store/app/sprinklers/3dbc5da0-b33f-4ca8-9e54-e80febf0a0c5)
 
-+ This application interfaces with the interval program on the OpenSprinkler which is the default software available. The application has been tested and compatible with all firmware versions of the interval program.
++ This application interfaces with the interval program on the OpenSprinkler which is the default software available. The application has been tested and is compatible with all firmware versions of the interval program.
 
 + The application is written in Javascript and HTML/CSS. The application runs completely within the user's browser (or webview) and communicates directly with the OpenSprinkler.
 
