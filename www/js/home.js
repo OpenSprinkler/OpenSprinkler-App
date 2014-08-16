@@ -100,11 +100,11 @@
 			document.title = "OpenSprinkler: Login";
 		}
 
-		// Hide the body while we modify the DOM
-		body.html(loader);
-
 		// Change viewport
 		$("meta[name='viewport']").attr("content","width=device-width,initial-scale=1.0,minimum-scale=1.0,user-scalable=no");
+
+		// Hide the body while we modify the DOM
+		body.html(loader);
 
 		$.get("http://rawgit.com/salbahra/Sprinklers/master/www/index.html",function(data){
 			// Grab the pages from index.html (body content)
