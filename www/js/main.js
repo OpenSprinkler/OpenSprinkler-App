@@ -461,7 +461,7 @@ function newload() {
     $.mobile.loading("show", {
         text: name ? _("Connecting to")+" "+name : _("Loading"),
         textVisible: true,
-        textonly: name ? false : true,
+        textonly: curr_local ? true : false,
         theme: "b"
     });
 
