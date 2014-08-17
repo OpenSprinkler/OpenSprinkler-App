@@ -255,6 +255,24 @@ msgstr ""
 msgid "Settings have been saved"
 msgstr ""
 
+msgid "New Password"
+msgstr ""
+
+msgid "Confirm New Password"
+msgstr ""
+
+msgid "The passwords don't match. Please try again."
+msgstr ""
+
+msgid "Password cannot be empty."
+msgstr ""
+
+msgid "Unable to change password. Please try again."
+msgstr ""
+
+msgid "Password changed successfully"
+msgstr ""
+
 msgid "Edit Stations"
 msgstr ""
 
