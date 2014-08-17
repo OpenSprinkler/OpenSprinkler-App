@@ -253,6 +253,7 @@ $(document)
             show_addnew();
             return false;
         } else if (hash === "#changePassword") {
+            $(".change_password > a").removeClass("ui-btn-active");
             show_changePassword();
             return false;
         } else if (hash === "#raindelay") {
@@ -489,14 +490,14 @@ function newload() {
             }
 
             // Hide clear logs button when using Arduino device (feature not enabled yet)
-            if (!pi || (typeof controller.options.fwv === "number" && controller.options.fwv < 208)) {
+            if (typeof controller.options.fwv === "number" && controller.options.fwv < 208) {
                 clear_logs.hide();
             } else {
                 clear_logs.css("display","");
             }
 
             // Hide change password feature for unsupported devices
-            if (!pi || (typeof controller.options.fwv === "number" && controller.options.fwv < 208)) {
+            if (typeof controller.options.fwv === "number" && controller.options.fwv < 208) {
                 change_password.hide();
             } else {
                 change_password.css("display","");
