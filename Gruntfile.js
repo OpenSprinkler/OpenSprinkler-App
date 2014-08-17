@@ -24,6 +24,16 @@ module.exports = function(grunt) {
       }
     },
     compress: {
+      makeFW: {
+        options: {
+          archive: "build/firmware/UI.zip"
+        },
+        files: [{
+          src: ["css/**","js/**","img/**","locale/*.json","index.html"],
+          cwd: "www/",
+          expand: true
+        }]
+      },
       firefox: {
         options: {
           archive: "build/firefox/com.albahra.sprinklers.zip"
@@ -137,5 +147,6 @@ module.exports = function(grunt) {
   grunt.registerTask("updateLang",["shell:updateLang"]);
   grunt.registerTask("pushEng",["shell:pushEng"]);
   grunt.registerTask("build",["jshint","shell:blackberry10","compress"]);
+  grunt.registerTask("makeFW","compress:makeFW");
 
 };
