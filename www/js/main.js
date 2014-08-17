@@ -252,6 +252,9 @@ $(document)
         } else if (hash === "#addnew") {
             show_addnew();
             return false;
+        } else if (hash === "#changePassword") {
+            show_changePassword();
+            return false;
         } else if (hash === "#raindelay") {
             $(hash).find("form").on("submit",raindelay);
         } else if (hash === "#site-select") {
@@ -471,6 +474,7 @@ function newload() {
         function(){
             var log_button = $("#log_button"),
                 clear_logs = $(".clear_logs"),
+                change_password = $(".change_password"),
                 pi = isOSPi();
 
             $.mobile.loading("hide");
@@ -485,10 +489,17 @@ function newload() {
             }
 
             // Hide clear logs button when using Arduino device (feature not enabled yet)
-            if (!pi) {
+            if (!pi || (typeof controller.options.fwv === "number" && controller.options.fwv < 208)) {
                 clear_logs.hide();
             } else {
                 clear_logs.css("display","");
+            }
+
+            // Hide change password feature for unsupported devices
+            if (!pi || (typeof controller.options.fwv === "number" && controller.options.fwv < 208)) {
+                change_password.hide();
+            } else {
+                change_password.css("display","");
             }
 
             // Update export to email button in side panel
@@ -1768,8 +1779,9 @@ function show_settings() {
     var settings = $("#settings");
     settings.find(".clear_logs > a").off("click").on("click",function(){
         areYouSure(_("Are you sure you want to clear all your log data?"), "", function() {
+            var url = isOSPi() ? "/cl?pw=" : "/dl?pw=&day=all";
             $.mobile.loading("show");
-            send_to_os("/cl?pw=").done(function(){
+            send_to_os(url).done(function(){
                 $.mobile.loading("hide");
                 showerror(_("Logs have been cleared"));
             });
@@ -2060,6 +2072,61 @@ function submit_options() {
         goBack();
         update_controller(update_weather);
     });
+}
+
+// Device password management functions
+function show_changePassword() {
+    var popup = $("<div data-role='popup' id='changePassword' data-overlay-theme='b'>"+
+                "<ul data-role='listview' data-inset='true'>" +
+                    "<li data-role='list-divider'>"+_("Change Password")+"</li>" +
+                    "<li>" +
+                        "<form method='post' novalidate>" +
+                            "<label for='npw'>"+_("New Password")+":</label>" +
+                            "<input type='password' name='npw' id='npw' value='' />" +
+                            "<label for='cpw'>"+_("Confirm New Password")+":</label>" +
+                            "<input type='password' name='cpw' id='cpw' value='' />" +
+                            "<input type='submit' value='"+_("Submit")+"' />" +
+                        "</form>" +
+                    "</li>" +
+                "</ul>" +
+        "</div>");
+
+    popup.find("form").on("submit",function(){
+        var npw = popup.find("#npw").val(),
+            cpw = popup.find("#cpw").val(),
+            defer;
+
+        if (npw !== cpw) {
+            showerror(_("The passwords don't match. Please try again."));
+            return false;
+        }
+
+        if (npw === "") {
+            showerror(_("Password cannot be empty."));
+            return false;
+        }
+
+        $.mobile.loading("show");
+        send_to_os("/sp?pw=&npw="+npw+"&cpw="+cpw).done(function(data){
+            if (data.hasOwnProperty("error")) {
+                showerror(_("Unable to change password. Please try again."));
+            } else {
+                $.mobile.loading("hide");
+                popup.popup("close");
+                showerror(_("Password changed successfully"));
+            }
+        });
+
+        return false;
+    });
+
+    popup.one("popupafterclose", function(){
+        popup.popup("destroy").remove();
+    }).enhanceWithin();
+
+    $(".ui-page-active").append(popup);
+
+    popup.popup({history: false, positionTo: "window"}).popup("open");
 }
 
 // Station managament function
