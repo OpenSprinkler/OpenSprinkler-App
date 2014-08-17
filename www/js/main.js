@@ -4642,7 +4642,7 @@ Date.prototype.toString = function(toUTC) {
     }
 
     return dayNames[date.getDay()]+", "+pad(date.getDate())+" "+monthNames[date.getMonth()+1]+" "+date.getFullYear()+" "+pad(date.getHours())+":"+pad(date.getMinutes())+":"+pad(date.getSeconds());
-}
+};
 
 function tzToString(prefix,tz,offset) {
     var lang = $("#localization").find(".ui-icon-check").data("langCode");
