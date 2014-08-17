@@ -2224,7 +2224,7 @@ function get_status() {
 
     tz = ((tz>=0)?"+":"-")+pad((Math.abs(tz)/4>>0))+":"+((Math.abs(tz)%4)*15/10>>0)+((Math.abs(tz)%4)*15%10);
 
-    var header = "<span id='clock-s' class='nobr'>"+dateToString(new Date(controller.settings.devt*1000))+"</span>"+tzToString(" ","GMT",tz);
+    var header = "<span id='clock-s' class='nobr'>"+new Date(controller.settings.devt*1000).toString()+"</span>"+tzToString(" ","GMT",tz);
 
     if (typeof controller.settings.ct === "string" && controller.settings.ct !== "0" && typeof controller.settings.tu === "string") {
         header += " <span>"+controller.settings.ct+"&deg;"+controller.settings.tu+"</span>";
@@ -2290,7 +2290,7 @@ function get_status() {
         var lrpid = controller.settings.lrun[1];
         var pname= pidname(lrpid);
 
-        footer = "<p>"+pname+" "+_("last ran station")+" "+controller.stations.snames[controller.settings.lrun[0]]+" "+_("for")+" "+(lrdur/60>>0)+"m "+(lrdur%60)+"s "+_("on")+" "+dateToString(new Date(controller.settings.lrun[3]*1000))+"</p>";
+        footer = "<p>"+pname+" "+_("last ran station")+" "+controller.stations.snames[controller.settings.lrun[0]]+" "+_("for")+" "+(lrdur/60>>0)+"m "+(lrdur%60)+"s "+_("on")+" "+new Date(controller.settings.lrun[3]*1000).toString()+"</p>";
     }
 
     if (ptotal > 1) {
@@ -2309,7 +2309,7 @@ function get_status() {
         runningTotal.p = ptotal;
         header += "<br>"+pinfo;
     } else if (controller.settings.rd) {
-        header +="<br>"+_("Rain delay until")+" "+dateToString(new Date(controller.settings.rdst*1000));
+        header +="<br>"+_("Rain delay until")+" "+new Date(controller.settings.rdst*1000).toString();
     } else if (controller.options.urs === 1 && controller.settings.rs === 1) {
         header +="<br>"+_("Rain detected");
     }
@@ -2363,7 +2363,7 @@ function get_status() {
             } else {
                 if (a === "c") {
                     ++runningTotal[a];
-                    $("#clock-s").text(dateToString(new Date(runningTotal[a]*1000)));
+                    $("#clock-s").text(new Date(runningTotal[a]*1000).toString());
                 } else {
                     --runningTotal[a];
                     $("#countdown-"+a).text("(" + sec2hms(runningTotal[a]) + " "+_("remaining")+")");
@@ -2505,7 +2505,7 @@ function check_status() {
 
     // Handle rain delay enabled
     if (controller.settings.rd) {
-        change_status(0,controller.options.sdt,"red","<p id='running-text' class='center'>"+_("Rain delay until")+" "+dateToString(new Date(controller.settings.rdst*1000))+"</p>",function(){
+        change_status(0,controller.options.sdt,"red","<p id='running-text' class='center'>"+_("Rain delay until")+" "+new Date(controller.settings.rdst*1000).toString()+"</p>",function(){
             areYouSure(_("Do you want to turn off rain delay?"),"",function(){
                 showLoading("#footer-running");
                 send_to_os("/cv?pw=&rd=0").done(function(){
@@ -3464,7 +3464,7 @@ function get_logs() {
                 html += "<div data-role='collapsible' data-collapsed='true'><h2><div class='ui-btn-up-c ui-btn-corner-all custom-count-pos'>"+ct+" "+((ct === 1) ? _("run") : _("runs"))+"</div>"+stations[i]+"</h2>"+table_header;
                 for (k=0; k<sortedData[i].length; k++) {
                     var date = new Date(sortedData[i][k][0]);
-                    html += "<tr><td>"+sortedData[i][k][1]+"</td><td>"+date.toString().slice(0,-18)+"</td></tr>";
+                    html += "<tr><td>"+sortedData[i][k][1]+"</td><td>"+date.toString(false)+"</td></tr>";
                 }
                 html += "</tbody></table></div>";
             }
@@ -4505,7 +4505,7 @@ function dhms2sec(arr) {
 
 // Generate email link for JSON data export
 function objToEmail(ele,obj,subject) {
-    subject = subject || "Sprinklers Data Export on "+dateToString(new Date());
+    subject = subject || "Sprinklers Data Export on "+new Date().toString();
     var body = JSON.stringify(obj);
     $(ele).attr("href","mailto:?subject="+encodeURIComponent(subject)+"&body="+encodeURIComponent(body));
 }
@@ -4625,15 +4625,23 @@ function check_curr_lang() {
     });
 }
 
-function dateToString(date) {
-    var lang = $("#localization").find(".ui-icon-check").data("langCode");
+Date.prototype.toString = function(toUTC) {
+    var date = this,
+        lang = $("#localization").find(".ui-icon-check").data("langCode"),
+        dayNames = [_("Sun"),_("Mon"),_("Tue"),_("Wed"),_("Thr"),_("Fri"),_("Sat")],
+        monthNames = [_("Jan"),_("Feb"),_("Mar"),_("Apr"),_("May"),_("Jun"),_("Jul"),_("Aug"),_("Sep"),_("Oct"),_("Nov"),_("Dec")];
+
+    toUTC = (toUTC === false) ? false : true;
+
+    if (toUTC) {
+        date.setMinutes(date.getMinutes()+date.getTimezoneOffset());
+    }
 
     if (lang === "de") {
-        date.setMinutes(date.getMinutes()+date.getTimezoneOffset());
         return pad(date.getDate())+"."+pad(date.getMonth())+"."+date.getFullYear()+" "+pad(date.getHours())+":"+pad(date.getMinutes())+":"+pad(date.getSeconds());
     }
 
-    return date.toUTCString().slice(0,-4);
+    return dayNames[date.getDay()]+", "+pad(date.getDate())+" "+monthNames[date.getMonth()+1]+" "+date.getFullYear()+" "+pad(date.getHours())+":"+pad(date.getMinutes())+":"+pad(date.getSeconds());
 }
 
 function tzToString(prefix,tz,offset) {
