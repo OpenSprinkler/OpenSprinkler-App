@@ -2069,7 +2069,7 @@ function show_stations() {
             "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false'>" +
                 "<a href='javascript:void(0);' class='ui-btn ui-corner-all ui-shadow ui-btn-left ui-btn-b ui-toolbar-back-btn ui-icon-carat-l ui-btn-icon-left' data-rel='back'>"+_("Back")+"</a>" +
                 "<h3>"+_("Edit Stations")+"</h3>" +
-                "<button data-icon='check' class='ui-btn-right'>"+_("Submit")+"</button>" +
+                "<button data-icon='check' class='submit ui-btn-right'>"+_("Submit")+"</button>" +
             "</div>" +
             "<div class='ui-content' role='main'>" +
             "</div>" +
@@ -2078,8 +2078,6 @@ function show_stations() {
         hasIR = (typeof controller.stations.ignore_rain === "object") ? true : false,
         hasAR = (typeof controller.stations.act_relay === "object") ? true : false,
         useTableView = (hasIR || isMaster || hasAR);
-
-    page.find("div[data-role='header'] > .ui-btn-right").on("click",submit_stations);
 
     if (useTableView) {
         list += "<table><tr><th class='center'>"+_("Station Name")+"</th>";
@@ -2123,9 +2121,20 @@ function show_stations() {
     if (useTableView) {
         list += "</table>";
     }
-    list += "</li>";
+    list = $("<ul data-role='listview' data-inset='true' id='os-stations-list'>"+list+"</li></ul><button class='submit'>"+_("Submit")+"</button><button data-theme='b' class='reset'>"+_("Reset")+"</button>");
 
-    page.find(".ui-content").html("<ul data-role='listview' data-inset='true' id='os-stations-list'>"+list+"</ul>");
+    page.find(".ui-content").html(list);
+
+    page.find(".submit").on("click",submit_stations);
+
+    page.find(".reset").on("click",function(){
+        page.find("[id^='edit_station_']").each(function(a,b){
+            $(b).val("S"+pad(a+1));
+        });
+        page.find("input[type='checkbox']").each(function(a,b){
+            $(b).prop("checked",false).checkboxradio("refresh");
+        });
+    });
 
     page.one("pagehide",function(){
         page.remove();
