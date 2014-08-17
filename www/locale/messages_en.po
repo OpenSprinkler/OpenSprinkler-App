@@ -13,10 +13,10 @@ msgstr ""
 msgid "Network Error"
 msgstr ""
 
-msgid "Connecting to"
+msgid "Loading"
 msgstr ""
 
-msgid "Loading"
+msgid "Connecting to"
 msgstr ""
 
 msgid "Check IP/Port and try again."
