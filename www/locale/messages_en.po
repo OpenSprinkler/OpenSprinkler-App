@@ -273,6 +273,9 @@ msgstr ""
 msgid "Master"
 msgstr ""
 
+msgid "Reset"
+msgstr ""
+
 msgid "Station name must be 32 characters or less"
 msgstr ""
 
@@ -374,16 +377,13 @@ msgstr ""
 msgid "Run-Once"
 msgstr ""
 
+msgid "Last Used Program"
+msgstr ""
+
 msgid "Quick Programs"
 msgstr ""
 
 msgid "Program"
-msgstr ""
-
-msgid "Reset"
-msgstr ""
-
-msgid "Last Used Program"
 msgstr ""
 
 msgid "Run-once program has been scheduled"
@@ -731,8 +731,8 @@ msgid "Sprinkler System"
 msgstr ""
 
 msgid ""
-"Welcome to the OpenSprinkler mobile application. This app only works with "
-"the OpenSprinkler controller which must be installed and setup on your home "
+"Welcome to the OpenSprinkler application. This app only works with the "
+"OpenSprinkler controller which must be installed and setup on your home "
 "network."
 msgstr ""
 
@@ -795,7 +795,7 @@ msgstr ""
 msgid "Reboot OpenSprinkler"
 msgstr ""
 
-msgid "Mobile Application Settings"
+msgid "Application Settings"
 msgstr ""
 
 msgid "Clear Configuration"
