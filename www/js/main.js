@@ -2737,7 +2737,11 @@ function get_runonce() {
     quickPick += "</select>";
     list += quickPick+"<form>";
     $.each(controller.stations.snames,function(i, station) {
-        list += "<div class='ui-field-contain duration-input'><label for='zone-"+n+"'>"+station+":</label><button data-mini='true' name='zone-"+n+"' id='zone-"+n+"' value='0'>0s</button></div>";
+        if (controller.options.mas === i+1) {
+            list += "<div class='ui-field-contain duration-input'><label for='zone-"+n+"'>"+station+":</label><button disabled='true' data-mini='true' name='zone-"+n+"' id='zone-"+n+"' value='0'>Master</button></div>";
+        } else {
+            list += "<div class='ui-field-contain duration-input'><label for='zone-"+n+"'>"+station+":</label><button data-mini='true' name='zone-"+n+"' id='zone-"+n+"' value='0'>0s</button></div>";
+        }
         n++;
     });
 
@@ -2803,6 +2807,9 @@ function fill_runonce(data){
     var i=0;
     $("#runonce").find("[id^='zone-']").each(function(a,b){
         var ele = $(b);
+        if (controller.options.mas === i+1) {
+            return;
+        }
         ele.val(data[i]).text(dhms2str(sec2dhms(data[i])));
         if (data[i] > 0) {
             ele.addClass("green");
