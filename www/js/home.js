@@ -69,7 +69,7 @@
 					if (isReady) {
 						clearInterval(interval);
 						// Load jQuery Mobile
-//						$.getScript(assetLocation+"js/jquery.mobile.min.js");
+						$.getScript(assetLocation+"js/jquery.mobile.min.js");
 					}
 				},1);
 			},
