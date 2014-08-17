@@ -1435,7 +1435,8 @@ function add_found(ip) {
 // Weather functions
 function show_weather_settings() {
     var page = $("<div data-role='page' id='weather_settings'>" +
-        "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false' data-add-back-btn='true'>" +
+        "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false'>" +
+            "<a href='javascript:void(0);' class='ui-btn ui-corner-all ui-shadow ui-btn-left ui-btn-b ui-toolbar-back-btn ui-icon-carat-l ui-btn-icon-left' data-rel='back'>"+_("Back")+"</a>" +
             "<h3>"+_("Weather Settings")+"</h3>" +
             "<a href='#' class='ui-btn-right wsubmit'>"+_("Submit")+"</a>" +
         "</div>" +
@@ -1881,7 +1882,8 @@ function show_settings() {
 function show_options() {
     var list = "",
         page = $("<div data-role='page' id='os-options'>" +
-            "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false' data-add-back-btn='true'>" +
+            "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false'>" +
+                "<a href='javascript:void(0);' class='ui-btn ui-corner-all ui-shadow ui-btn-left ui-btn-b ui-toolbar-back-btn ui-icon-carat-l ui-btn-icon-left' data-rel='back'>"+_("Back")+"</a>" +
                 "<h3>"+_("Change Options")+"</h3>" +
                 "<button data-icon='check' class='ui-btn-right'>"+_("Submit")+"</button>" +
             "</div>" +
@@ -2064,7 +2066,8 @@ function submit_options() {
 function show_stations() {
     var list = "<li class='wrap'>",
         page = $("<div data-role='page' id='os-stations'>" +
-            "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false' data-add-back-btn='true'>" +
+            "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false'>" +
+                "<a href='javascript:void(0);' class='ui-btn ui-corner-all ui-shadow ui-btn-left ui-btn-b ui-toolbar-back-btn ui-icon-carat-l ui-btn-icon-left' data-rel='back'>"+_("Back")+"</a>" +
                 "<h3>"+_("Edit Stations")+"</h3>" +
                 "<button data-icon='check' class='ui-btn-right'>"+_("Submit")+"</button>" +
             "</div>" +
@@ -2691,13 +2694,22 @@ function get_manual() {
 function get_runonce() {
     var list = "<p class='center'>"+_("Zero value excludes the station from the run-once program.")+"</p>",
         runonce = $("<div data-role='page' id='runonce'>" +
-            "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false' data-add-back-btn='true'>" +
+            "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false'>" +
+                "<a href='javascript:void(0);' class='ui-btn ui-corner-all ui-shadow ui-btn-left ui-btn-b ui-toolbar-back-btn ui-icon-carat-l ui-btn-icon-left' data-rel='back'>"+_("Back")+"</a>" +
                 "<h3>"+_("Run-Once")+"</h3>" +
                 "<button data-icon='check' class='ui-btn-right'>"+_("Submit")+"</button>" +
             "</div>" +
             "<div class='ui-content' role='main' id='runonce_list'>" +
             "</div>" +
         "</div>"),
+        updateLastRun = function(data) {
+            runonce.find(".ui-content").find(":input[data-type='range']").each(function(a,b){
+                $(b).val(data[i]/60);
+                i++;
+            });
+            rprogs.l = data;
+            runonce.find("#rprog").prepend("<option value='l' >"+_("Last Used Program")+"</option>");
+        },
         i=0, n=0,
         quickPick, progs, rprogs, z, program;
 
@@ -2732,18 +2744,17 @@ function get_runonce() {
     list += "</form><a class='ui-btn ui-corner-all ui-shadow rsubmit' href='#'>"+_("Submit")+"</a><a class='ui-btn ui-btn-b ui-corner-all ui-shadow rreset' href='#'>"+_("Reset")+"</a>";
 
     runonce.find(".ui-content").html(list);
-    storage.get("runonce",function(data){
-        data = data.runonce;
-        if (data !== undefined) {
-            data = JSON.parse(data);
-            runonce.find(".ui-content").find(":input[data-type='range']").each(function(a,b){
-                $(b).val(data[i]/60);
-                i++;
-            });
-            rprogs.l = data;
-            runonce.find("#rprog").prepend("<option value='l' >"+_("Last Used Program")+"</option>");
-        }
-    });
+    if (typeof controller.settings.rodur === "object") {
+        updateLastRun(controller.settings.rodur);
+    } else {
+        storage.get("runonce",function(data){
+            data = data.runonce;
+            if (data !== undefined) {
+                data = JSON.parse(data);
+                updateLastRun(data);
+            }
+        });
+    }
 
     runonce.find("#rprog").on("change",function(){
         var prog = $(this).val();
@@ -2826,7 +2837,8 @@ function get_preview() {
     var now = new Date(),
         date = now.toISOString().slice(0,10),
         page = $("<div data-role='page' id='preview'>" +
-            "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false' data-add-back-btn='true'>" +
+            "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false'>" +
+                "<a href='javascript:void(0);' class='ui-btn ui-corner-all ui-shadow ui-btn-left ui-btn-b ui-toolbar-back-btn ui-icon-carat-l ui-btn-icon-left' data-rel='back'>"+_("Back")+"</a>" +
                 "<h3>"+_("Program Preview")+"</h3>" +
             "</div>" +
             "<div class='ui-content' role='main'>" +
@@ -3594,14 +3606,15 @@ function get_logs() {
 // Program management functions
 function get_programs(pid) {
     var programs = $("<div data-role='page' id='programs'>" +
-                "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false' data-add-back-btn='true'>" +
-                    "<h3>"+_("Programs")+"</h3>" +
-                    "<a href='#addprogram' data-icon='plus' class='ui-btn-right'>"+_("Add")+"</a>" +
-                "</div>" +
-                "<div class='ui-content' role='main' id='programs_list'>" +
-                    make_all_programs() +
-                "</div>" +
-            "</div>");
+            "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false'>" +
+                "<a href='javascript:void(0);' class='ui-btn ui-corner-all ui-shadow ui-btn-left ui-btn-b ui-toolbar-back-btn ui-icon-carat-l ui-btn-icon-left' data-rel='back'>"+_("Back")+"</a>" +
+                "<h3>"+_("Programs")+"</h3>" +
+                "<a href='#addprogram' data-icon='plus' class='ui-btn-right'>"+_("Add")+"</a>" +
+            "</div>" +
+            "<div class='ui-content' role='main' id='programs_list'>" +
+                make_all_programs() +
+            "</div>" +
+        "</div>");
 
     programs.find("[id^=program-]").on({
         collapsiblecollapse: function(){
@@ -4146,7 +4159,8 @@ function import_config(data) {
 // About page
 function show_about() {
     var page = $("<div data-role='page' id='about'>" +
-            "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false' data-add-back-btn='true'>" +
+            "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false'>" +
+                "<a href='javascript:void(0);' class='ui-btn ui-corner-all ui-shadow ui-btn-left ui-btn-b ui-toolbar-back-btn ui-icon-carat-l ui-btn-icon-left' data-rel='back'>"+_("Back")+"</a>" +
                 "<h3>"+_("About")+"</h3>" +
             "</div>" +
             "<div class='ui-content' role='main'>" +
