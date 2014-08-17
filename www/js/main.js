@@ -3559,7 +3559,11 @@ function get_logs() {
     }
 
     //Automatically update log viewer when switching graphing method
-    graph_sort.find("input[name='g']").change(seriesChange);
+    graph_sort.find("input[name='g']").change(function(){
+        placeholder.empty();
+        plot = undefined;
+        seriesChange();
+    });
 
     //Bind refresh button
     logs.find("div[data-role='header'] > .ui-btn-right").on("click",requestData);
