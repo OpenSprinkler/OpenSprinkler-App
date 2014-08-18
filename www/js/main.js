@@ -2784,15 +2784,30 @@ function get_runonce() {
             "</div>" +
         "</div>"),
         updateLastRun = function(data) {
-            runonce.find(".ui-content").find(":input[data-type='range']").each(function(a,b){
-                $(b).val(data[i]/60);
-                i++;
-            });
+            fill_runonce(data);
             rprogs.l = data;
             runonce.find("#rprog").prepend("<option value='l' >"+_("Last Used Program")+"</option>");
         },
-        i=0, n=0,
-        quickPick, progs, rprogs, z, program;
+        reset_runonce = function() {
+            runonce.find("[id^='zone-']").val(0).text("0s").removeClass("green");
+            return false;
+        },
+        fill_runonce = function(data) {
+            runonce.find("[id^='zone-']").each(function(a,b){
+                if (controller.options.mas === a+1) {
+                    return;
+                }
+
+                var ele = $(b);
+                ele.val(data[a]).text(dhms2str(sec2dhms(data[a])));
+                if (data[a] > 0) {
+                    ele.addClass("green");
+                } else {
+                    ele.removeClass("green");
+                }
+            });
+        },
+        i, quickPick, progs, rprogs, z, program;
 
     runonce.find("div[data-role='header'] > .ui-btn-right").on("click",submit_runonce);
 
@@ -2819,16 +2834,16 @@ function get_runonce() {
     list += quickPick+"<form>";
     $.each(controller.stations.snames,function(i, station) {
         if (controller.options.mas === i+1) {
-            list += "<div class='ui-field-contain duration-input'><label for='zone-"+n+"'>"+station+":</label><button disabled='true' data-mini='true' name='zone-"+n+"' id='zone-"+n+"' value='0'>Master</button></div>";
+            list += "<div class='ui-field-contain duration-input'><label for='zone-"+i+"'>"+station+":</label><button disabled='true' data-mini='true' name='zone-"+i+"' id='zone-"+i+"' value='0'>Master</button></div>";
         } else {
-            list += "<div class='ui-field-contain duration-input'><label for='zone-"+n+"'>"+station+":</label><button data-mini='true' name='zone-"+n+"' id='zone-"+n+"' value='0'>0s</button></div>";
+            list += "<div class='ui-field-contain duration-input'><label for='zone-"+i+"'>"+station+":</label><button data-mini='true' name='zone-"+i+"' id='zone-"+i+"' value='0'>0s</button></div>";
         }
-        n++;
     });
 
     list += "</form><a class='ui-btn ui-corner-all ui-shadow rsubmit' href='#'>"+_("Submit")+"</a><a class='ui-btn ui-btn-b ui-corner-all ui-shadow rreset' href='#'>"+_("Reset")+"</a>";
 
     runonce.find(".ui-content").html(list);
+
     if (typeof controller.settings.rodur === "object") {
         updateLastRun(controller.settings.rodur);
     } else {
@@ -2877,28 +2892,6 @@ function get_runonce() {
     });
 
     runonce.appendTo("body");
-}
-
-function reset_runonce() {
-    $("#runonce").find("[id^='zone-']").val(0).text("0s").removeClass("green");
-    return false;
-}
-
-function fill_runonce(data){
-    var i=0;
-    $("#runonce").find("[id^='zone-']").each(function(a,b){
-        var ele = $(b);
-        if (controller.options.mas === i+1) {
-            return;
-        }
-        ele.val(data[i]).text(dhms2str(sec2dhms(data[i])));
-        if (data[i] > 0) {
-            ele.addClass("green");
-        } else {
-            ele.removeClass("green");
-        }
-        i++;
-    });
 }
 
 function submit_runonce(runonce) {
