@@ -2103,15 +2103,28 @@ function show_changePassword() {
         }
 
         if (npw === "") {
-            showerror(_("Password cannot be empty."));
+            showerror(_("Password cannot be empty"));
             return false;
         }
 
         $.mobile.loading("show");
-        send_to_os("/sp?pw=&npw="+npw+"&cpw="+cpw).done(function(data){
-            if (data.hasOwnProperty("error")) {
-                showerror(_("Unable to change password. Please try again."));
+        send_to_os("/sp?pw=&npw="+npw+"&cpw="+cpw).done(function(info){
+            var result = JSON.parse(info).result;
+
+            if (!result || result > 1) {
+                if (result === 2) {
+                    showerror(_("Please check the current device password is correct then try again"));
+                } else {
+                    showerror(_("Unable to change password. Please try again."));
+                }
             } else {
+                storage.get(["sites","current_site"],function(data){
+                    var sites = JSON.parse(data.sites);
+
+                    sites[data.current_site].os_pw = npw;
+                    curr_pw = npw;
+                    storage.set({"sites":JSON.stringify(sites)});
+                });
                 $.mobile.loading("hide");
                 popup.popup("close");
                 showerror(_("Password changed successfully"));
