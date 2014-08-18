@@ -264,7 +264,10 @@ msgstr ""
 msgid "The passwords don't match. Please try again."
 msgstr ""
 
-msgid "Password cannot be empty."
+msgid "Password cannot be empty"
+msgstr ""
+
+msgid "Please check the current device password is correct then try again"
 msgstr ""
 
 msgid "Unable to change password. Please try again."
