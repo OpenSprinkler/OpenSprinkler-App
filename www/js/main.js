@@ -1906,7 +1906,7 @@ function show_settings() {
 
             $.mobile.loading("show");
             send_to_os("/sp?pw=&npw="+npw+"&cpw="+cpw,"json").done(function(info){
-                var result = JSON.parse(info).result;
+                var result = info.result;
 
                 if (!result || result > 1) {
                     if (result === 2) {
