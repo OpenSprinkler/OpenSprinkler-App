@@ -1937,7 +1937,15 @@ function show_settings() {
         }).popup().enhanceWithin().popup("open");
         return false;
     });
-    $("#localization").find("a").off("click").on("click",function(){
+    settings.find(".localSite > a").off("click").on("click",function(){
+        areYouSure(_("Are you sure you want to logout?"), "", function(){
+            storage.remove(["sites","current_site","lang","provider","wapikey","runonce"],function(){
+                location.reload();
+            });
+        });
+        return false;
+    });
+    settings.find("#localization").find("a").off("click").on("click",function(){
         var link = $(this),
             lang = link.data("lang-code");
 

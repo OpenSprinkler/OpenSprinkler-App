@@ -160,6 +160,9 @@
 
 							// Hide multi site features since using local device
 							body.find(".multiSite").hide();
+
+							// Show local site features
+							body.find(".localSite").removeClass(".localSite");
 						});
 
 						// Mark environment as loaded
