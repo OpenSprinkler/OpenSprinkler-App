@@ -485,7 +485,7 @@ function newload() {
             }
 
             // Hide clear logs button when using Arduino device (feature not enabled yet)
-            if (typeof controller.options.fwv === "number" && controller.options.fwv < 208) {
+            if (typeof controller.options.fwv === "number" && controller.options.fwv < 210) {
                 clear_logs.hide();
             } else {
                 clear_logs.css("display","");
@@ -1905,7 +1905,7 @@ function show_settings() {
             }
 
             $.mobile.loading("show");
-            send_to_os("/sp?pw=&npw="+npw+"&cpw="+cpw).done(function(info){
+            send_to_os("/sp?pw=&npw="+npw+"&cpw="+cpw,"json").done(function(info){
                 var result = JSON.parse(info).result;
 
                 if (!result || result > 1) {
