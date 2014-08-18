@@ -252,10 +252,6 @@ $(document)
         } else if (hash === "#addnew") {
             show_addnew();
             return false;
-        } else if (hash === "#changePassword") {
-            $(".change_password > a").removeClass("ui-btn-active");
-            show_changePassword();
-            return false;
         } else if (hash === "#raindelay") {
             $(hash).find("form").on("submit",raindelay);
         } else if (hash === "#site-select") {
@@ -475,8 +471,7 @@ function newload() {
         function(){
             var log_button = $("#log_button"),
                 clear_logs = $(".clear_logs"),
-                change_password = $(".change_password"),
-                pi = isOSPi();
+                change_password = $(".change_password");
 
             $.mobile.loading("hide");
             check_status();
@@ -1878,6 +1873,70 @@ function show_settings() {
             return false;
         });
     });
+    settings.find(".change_password > a").off("click").on("click",function(){
+    // Device password management functions
+        var popup = $("<div data-role='popup' id='changePassword' data-theme='a' data-overlay-theme='b'>"+
+                    "<ul data-role='listview' data-inset='true'>" +
+                        "<li data-role='list-divider'>"+_("Change Password")+"</li>" +
+                        "<li>" +
+                            "<form method='post' novalidate>" +
+                                "<label for='npw'>"+_("New Password")+":</label>" +
+                                "<input type='password' name='npw' id='npw' value='' />" +
+                                "<label for='cpw'>"+_("Confirm New Password")+":</label>" +
+                                "<input type='password' name='cpw' id='cpw' value='' />" +
+                                "<input type='submit' value='"+_("Submit")+"' />" +
+                            "</form>" +
+                        "</li>" +
+                    "</ul>" +
+            "</div>");
+
+        popup.find("form").on("submit",function(){
+            var npw = popup.find("#npw").val(),
+                cpw = popup.find("#cpw").val();
+
+            if (npw !== cpw) {
+                showerror(_("The passwords don't match. Please try again."));
+                return false;
+            }
+
+            if (npw === "") {
+                showerror(_("Password cannot be empty"));
+                return false;
+            }
+
+            $.mobile.loading("show");
+            send_to_os("/sp?pw=&npw="+npw+"&cpw="+cpw).done(function(info){
+                var result = JSON.parse(info).result;
+
+                if (!result || result > 1) {
+                    if (result === 2) {
+                        showerror(_("Please check the current device password is correct then try again"));
+                    } else {
+                        showerror(_("Unable to change password. Please try again."));
+                    }
+                } else {
+                    storage.get(["sites","current_site"],function(data){
+                        var sites = JSON.parse(data.sites);
+
+                        sites[data.current_site].os_pw = npw;
+                        curr_pw = npw;
+                        storage.set({"sites":JSON.stringify(sites)});
+                    });
+                    $.mobile.loading("hide");
+                    popup.popup("close");
+                    showerror(_("Password changed successfully"));
+                }
+            });
+
+            return false;
+        });
+
+        popup.one("popupafterclose",function(){
+            document.activeElement.blur();
+            popup.remove();
+        }).popup().enhanceWithin().popup("open");
+        return false;
+    });
     $("#localization").find("a").off("click").on("click",function(){
         var link = $(this),
             lang = link.data("lang-code");
@@ -2073,74 +2132,6 @@ function submit_options() {
         goBack();
         update_controller(update_weather);
     });
-}
-
-// Device password management functions
-function show_changePassword() {
-    var popup = $("<div data-role='popup' id='changePassword' data-overlay-theme='b'>"+
-                "<ul data-role='listview' data-inset='true'>" +
-                    "<li data-role='list-divider'>"+_("Change Password")+"</li>" +
-                    "<li>" +
-                        "<form method='post' novalidate>" +
-                            "<label for='npw'>"+_("New Password")+":</label>" +
-                            "<input type='password' name='npw' id='npw' value='' />" +
-                            "<label for='cpw'>"+_("Confirm New Password")+":</label>" +
-                            "<input type='password' name='cpw' id='cpw' value='' />" +
-                            "<input type='submit' value='"+_("Submit")+"' />" +
-                        "</form>" +
-                    "</li>" +
-                "</ul>" +
-        "</div>");
-
-    popup.find("form").on("submit",function(){
-        var npw = popup.find("#npw").val(),
-            cpw = popup.find("#cpw").val(),
-            defer;
-
-        if (npw !== cpw) {
-            showerror(_("The passwords don't match. Please try again."));
-            return false;
-        }
-
-        if (npw === "") {
-            showerror(_("Password cannot be empty"));
-            return false;
-        }
-
-        $.mobile.loading("show");
-        send_to_os("/sp?pw=&npw="+npw+"&cpw="+cpw).done(function(info){
-            var result = JSON.parse(info).result;
-
-            if (!result || result > 1) {
-                if (result === 2) {
-                    showerror(_("Please check the current device password is correct then try again"));
-                } else {
-                    showerror(_("Unable to change password. Please try again."));
-                }
-            } else {
-                storage.get(["sites","current_site"],function(data){
-                    var sites = JSON.parse(data.sites);
-
-                    sites[data.current_site].os_pw = npw;
-                    curr_pw = npw;
-                    storage.set({"sites":JSON.stringify(sites)});
-                });
-                $.mobile.loading("hide");
-                popup.popup("close");
-                showerror(_("Password changed successfully"));
-            }
-        });
-
-        return false;
-    });
-
-    popup.one("popupafterclose", function(){
-        popup.popup("destroy").remove();
-    }).enhanceWithin();
-
-    $(".ui-page-active").append(popup);
-
-    popup.popup({history: false, positionTo: "window"}).popup("open");
 }
 
 // Station managament function
