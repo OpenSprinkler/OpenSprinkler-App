@@ -1,3 +1,6 @@
+.localSite {
+    display: none!important
+}
 #lang {
     max-width: 500px
 }
