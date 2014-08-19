@@ -4437,7 +4437,6 @@ function showDurationBox(seconds,title,callback,maximum,granularity) {
             "</div>" +
             "<div class='ui-content'>" +
                 "<span>" +
-                    "<a href='#' class='submit_duration' data-role='button' data-corners='true' data-shadow='true' data-mini='true'>"+_("Set Duration")+"</a>" +
                 "</span>" +
             "</div>" +
         "</div>"),
@@ -4494,12 +4493,8 @@ function showDurationBox(seconds,title,callback,maximum,granularity) {
         "positionTo": "window"
     })
     .one("popupafterclose",function(){
-        $(this).popup("destroy").remove();
-    })
-    .on("click",".submit_duration",function(){
         callback(getValue());
-        popup.popup("close");
-        return false;
+        $(this).popup("destroy").remove();
     })
     .enhanceWithin().popup("open");
 }
