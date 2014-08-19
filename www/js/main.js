@@ -2013,7 +2013,7 @@ function show_options() {
     }
 
     if (typeof controller.options.rlp !== "undefined") {
-        list += "<div class='ui-field-contain duration-input'><label for='o30'>"+_("Relay Pulse")+"</label><button data-mini='true' id='o30' value='"+controller.options.rlp+"'>"+dhms2str(sec2dhms(controller.options.rlp))+"</button></div>";
+        list += "<div class='ui-field-contain duration-input'><label for='o30'>"+_("Relay Pulse")+"</label><button data-mini='true' id='o30' value='"+controller.options.rlp+"'>"+controller.options.rlp+"ms</button></div>";
     }
 
     if (typeof controller.options.sdt !== "undefined") {
@@ -2073,7 +2073,10 @@ function show_options() {
         if (id === "o19") {
             max = 60;
         } else if (id === "o30") {
-            max = 2;
+            showMillisecondRequest(dur.val(),name,function(result){
+                dur.val(result).text(result+"ms");
+            },2000);
+            return;
         }
 
         showDurationBox(dur.val(),name,function(result){
@@ -4456,7 +4459,7 @@ function showDurationBox(seconds,title,callback,maximum,granularity) {
         };
 
     for (i=start; i<conv.length - granularity; i++) {
-        incrbts += "<div "+((total > 1) ? "class='ui-block-"+String.fromCharCode(97+i-start)+"'" : "")+"><a href='#'' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a></div>";
+        incrbts += "<div "+((total > 1) ? "class='ui-block-"+String.fromCharCode(97+i-start)+"'" : "")+"><a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a></div>";
         inputs += "<div "+((total > 1) ? "class='ui-block-"+String.fromCharCode(97+i-start)+"'" : "")+"><label>"+_(text[i])+"</label><input class='"+keys[i]+"' type='number' pattern='[0-9]*' value='"+arr[keys[i]]+"'></div>";
         decrbts += "<div "+((total > 1) ? "class='ui-block-"+String.fromCharCode(97+i-start)+"'" : "")+"><a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='minus' data-iconpos='bottom'></a></div>";
     }
@@ -4494,6 +4497,59 @@ function showDurationBox(seconds,title,callback,maximum,granularity) {
         callback(getValue());
         popup.popup("close");
         return false;
+    })
+    .enhanceWithin().popup("open");
+}
+
+function showMillisecondRequest(milliseconds,title,callback,maximum) {
+    $("#msInput").popup("destroy").remove();
+
+    callback = callback || function(){};
+
+    var popup = $("<div data-role='popup' id='msInput' data-theme='a' data-overlay-theme='b'>" +
+            "<div data-role='header' data-theme='b'>" +
+                "<h1>"+title+"</h1>" +
+            "</div>" +
+            "<div class='ui-content'>" +
+                "<span>" +
+                    "<a class='incr' href='#' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a>" +
+                    "<label>"+_("Milliseconds")+"</label><input type='number' pattern='[0-9]*' value='"+milliseconds+"'>" +
+                    "<a class='decr' href='#' data-role='button' data-mini='true' data-corners='true' data-icon='minus' data-iconpos='bottom'></a>" +
+                "</span>" +
+            "</div>" +
+        "</div>"),
+        input = popup.find("input"),
+        changeValue = function(dir){
+            var val = parseInt(input.val());
+
+            if ((dir === -1 && val === 0) || (dir === 1 && (val + dir) > maximum)) {
+                return;
+            }
+
+            input.val(val+dir);
+        };
+
+    popup.find(".incr").on("vclick",function(){
+        changeValue(1);
+        return false;
+    });
+
+    popup.find(".decr").on("vclick",function(){
+        changeValue(-1);
+        return false;
+    });
+
+    $(".ui-page-active").append(popup);
+
+    popup
+    .css("max-width","150px")
+    .popup({
+        history: false,
+        "positionTo": "window"
+    })
+    .one("popupafterclose",function(){
+        callback(input.val());
+        $(this).popup("destroy").remove();
     })
     .enhanceWithin().popup("open");
 }
@@ -4544,7 +4600,7 @@ function showDateTimeInput(timestamp,callback) {
                     val = "<p class='center'>"+val+"</p>";
                 }
 
-                incrbts += "<div class='ui-block-"+String.fromCharCode(97+i)+"'><a href='#'' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a></div>";
+                incrbts += "<div class='ui-block-"+String.fromCharCode(97+i)+"'><a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a></div>";
                 inputs += "<div id='"+keys[i]+"' class='ui-block-"+String.fromCharCode(97+i)+"'>"+val+"</div>";
                 decrbts += "<div class='ui-block-"+String.fromCharCode(97+i)+"'><a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='minus' data-iconpos='bottom'></a></div>";
             }
