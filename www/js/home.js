@@ -75,6 +75,29 @@
 					}
 				},1);
 			},
+			submitPassword = function(pw){
+				var sites = {
+					"Local": {
+						"os_ip": document.URL.match(/https?:\/\/(.*)\/.*?/)[1],
+						// Still need to prompt for password
+						"os_pw": pw
+					}
+				},
+				current_site = "Local";
+
+				// Show loading message and title
+				body.html("<div class='spinner'><h1>Loading</h1></div>");
+				document.title = "Loading...";
+
+				// Inject site information to storage so Application loads current device
+				localStorage.setItem("sites",JSON.stringify(sites));
+				localStorage.setItem("current_site",current_site);
+
+				finishInit();
+			},
+			wrongPassword = function(){
+				$("#os_pw").val("");
+			},
 			sites = JSON.parse(localStorage.getItem("sites")),
 			loader;
 
@@ -95,24 +118,23 @@
 			// If this is a new login, prompt for password
 			loader = $("<div class='spinner'><h1>Enter Device Password</h1><form><input type='password' id='os_pw' name='os_pw' value='' /><input type='submit' value='Submit' /></form></div>"),
 			loader.on("submit",function(){
-				var sites = {
-					"Local": {
-						"os_ip": document.URL.match(/https?:\/\/(.*)\/.*?/)[1],
-						// Still need to prompt for password
-						"os_pw": $("#os_pw").val()
-					}
-				},
-				current_site = "Local";
+				$.ajax({
+					url: "/sp?pw="+$("#os_pw").val(),
+					cache: false,
+					crossDomain: true,
+					type: "GET"
+				}).then(
+					function(data){
+		                var result = data.result;
 
-				// Show loading message and title
-				body.html("<div class='spinner'><h1>Loading</h1></div>");
-				document.title = "Loading...";
-
-				// Inject site information to storage so Application loads current device
-				localStorage.setItem("sites",JSON.stringify(sites));
-				localStorage.setItem("current_site",current_site);
-
-				finishInit();
+		                if (!result || result > 1) {
+		                	wrongPassword();
+		                } else {
+		                	finishInit();
+		                }
+					},
+					wrongPassword
+				);
 
 				return false;
 			});
@@ -162,7 +184,7 @@
 							body.find(".multiSite").hide();
 
 							// Show local site features
-							body.find(".localSite").removeClass("localSite");
+							body.find(".localSite").removeClass("hidden");
 						});
 
 						// Mark environment as loaded
