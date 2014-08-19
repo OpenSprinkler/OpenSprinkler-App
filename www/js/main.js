@@ -4448,6 +4448,7 @@ function showDurationBox(seconds,title,callback,maximum,granularity) {
             }
 
             input.val(val+dir);
+            callback(getValue());
         },
         getValue = function() {
             return dhms2sec({
@@ -4527,6 +4528,7 @@ function showMillisecondRequest(milliseconds,title,callback,maximum) {
             }
 
             input.val(val+dir);
+            callback(val+dir);
         };
 
     popup.find(".incr").on("vclick",function(){
@@ -4575,10 +4577,8 @@ function showDateTimeInput(timestamp,callback) {
         "</div>"),
         changeValue = function(pos,dir){
             timestamp["setUTC"+pos](timestamp["getUTC"+pos]() + dir);
+            callback(new Date(timestamp.getTime()));
             updateContent();
-        },
-        getValue = function() {
-            return timestamp;
         },
         updateContent = function() {
             var incrbts = "<fieldset class='ui-grid-d incr'>",
@@ -4635,7 +4635,7 @@ function showDateTimeInput(timestamp,callback) {
         "positionTo": "window"
     })
     .one("popupafterclose",function(){
-        callback(getValue());
+        callback(timestamp);
         popup.popup("destroy").remove();
     })
     .enhanceWithin().popup("open");
