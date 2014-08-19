@@ -2008,6 +2008,10 @@ function show_options() {
 
     list += "<label for='loc'>"+_("Location")+"</label><input data-mini='true' type='text' id='loc' value='"+controller.settings.loc+"' />";
 
+    if (typeof controller.options.ntp !== "undefined") {
+        list += "<div class='ui-field-contain datetime-input'><label for='datetime'>"+_("Device Time")+"</label><button "+(controller.options.ntp ? "disabled " : "")+"data-mini='true' id='datetime' value='"+(controller.settings.devt + (new Date().getTimezoneOffset()*60))+"'>"+dateToString(new Date(controller.settings.devt*1000)).slice(0,-3)+"</button></div>";
+    }
+
     if (typeof controller.options.rlp !== "undefined") {
         list += "<div class='ui-field-contain duration-input'><label for='o30'>"+_("Relay Pulse")+"</label><button data-mini='true' id='o30' value='"+controller.options.rlp+"'>"+dhms2str(sec2dhms(controller.options.rlp))+"</button></div>";
     }
@@ -2080,6 +2084,21 @@ function show_options() {
         return false;
     });
 
+    page.find("#o2").on("change",function(){
+        // Switch state of device time input based on NTP status
+        page.find(".datetime-input button").prop("disabled",$(this).is(":checked"));
+    });
+
+    page.find(".datetime-input").on("click",function(){
+        var input = $(this).find("button");
+
+        // Show date time input popup
+        showDateTimeInput(input.val(),function(data){
+            input.text(dateToString(data).slice(0,-3)).val(Math.round(data.getTime()/1000));
+        });
+        return false;
+    });
+
     page.one("pagehide",function(){
         page.remove();
     });
@@ -2107,6 +2126,18 @@ function submit_options() {
                 tz[1]=(tz[1]/15>>0)/4.0;tz[0]=tz[0]+(tz[0]>=0?tz[1]:-tz[1]);
                 data = ((tz[0]+12)*4)>>0;
                 break;
+            case "datetime":
+                var dt = new Date(data*1000);
+                dt.setMinutes(dt.getMinutes()-dt.getTimezoneOffset());
+
+                opt.tyy = dt.getFullYear();
+                opt.tmm = dt.getMonth();
+                opt.tdd = dt.getDate();
+                opt.thh = dt.getHours();
+                opt.tmi = dt.getMinutes();
+                opt.ttt = Math.round(dt.getTime()/1000);
+
+                return true;
             case "o2":
             case "o14":
             case "o16":
@@ -2316,7 +2347,7 @@ function get_status() {
 
     tz = ((tz>=0)?"+":"-")+pad((Math.abs(tz)/4>>0))+":"+((Math.abs(tz)%4)*15/10>>0)+((Math.abs(tz)%4)*15%10);
 
-    var header = "<span id='clock-s' class='nobr'>"+new Date(controller.settings.devt*1000).toString()+"</span>"+tzToString(" ","GMT",tz);
+    var header = "<span id='clock-s' class='nobr'>"+dateToString(new Date(controller.settings.devt*1000))+"</span>"+tzToString(" ","GMT",tz);
 
     if (typeof controller.settings.ct === "string" && controller.settings.ct !== "0" && typeof controller.settings.tu === "string") {
         header += " <span>"+controller.settings.ct+"&deg;"+controller.settings.tu+"</span>";
@@ -2382,7 +2413,7 @@ function get_status() {
         var lrpid = controller.settings.lrun[1];
         var pname= pidname(lrpid);
 
-        footer = "<p>"+pname+" "+_("last ran station")+" "+controller.stations.snames[controller.settings.lrun[0]]+" "+_("for")+" "+(lrdur/60>>0)+"m "+(lrdur%60)+"s "+_("on")+" "+new Date(controller.settings.lrun[3]*1000).toString()+"</p>";
+        footer = "<p>"+pname+" "+_("last ran station")+" "+controller.stations.snames[controller.settings.lrun[0]]+" "+_("for")+" "+(lrdur/60>>0)+"m "+(lrdur%60)+"s "+_("on")+" "+dateToString(new Date(controller.settings.lrun[3]*1000))+"</p>";
     }
 
     if (ptotal > 1) {
@@ -2401,7 +2432,7 @@ function get_status() {
         runningTotal.p = ptotal;
         header += "<br>"+pinfo;
     } else if (controller.settings.rd) {
-        header +="<br>"+_("Rain delay until")+" "+new Date(controller.settings.rdst*1000).toString();
+        header +="<br>"+_("Rain delay until")+" "+dateToString(new Date(controller.settings.rdst*1000));
     } else if (controller.options.urs === 1 && controller.settings.rs === 1) {
         header +="<br>"+_("Rain detected");
     }
@@ -2455,7 +2486,7 @@ function get_status() {
             } else {
                 if (a === "c") {
                     ++runningTotal[a];
-                    $("#clock-s").text(new Date(runningTotal[a]*1000).toString());
+                    $("#clock-s").text(dateToString(new Date(runningTotal[a]*1000)));
                 } else {
                     --runningTotal[a];
                     $("#countdown-"+a).text("(" + sec2hms(runningTotal[a]) + " "+_("remaining")+")");
@@ -2597,7 +2628,7 @@ function check_status() {
 
     // Handle rain delay enabled
     if (controller.settings.rd) {
-        change_status(0,controller.options.sdt,"red","<p id='running-text' class='center'>"+_("Rain delay until")+" "+new Date(controller.settings.rdst*1000).toString()+"</p>",function(){
+        change_status(0,controller.options.sdt,"red","<p id='running-text' class='center'>"+_("Rain delay until")+" "+dateToString(new Date(controller.settings.rdst*1000))+"</p>",function(){
             areYouSure(_("Do you want to turn off rain delay?"),"",function(){
                 showLoading("#footer-running");
                 send_to_os("/cv?pw=&rd=0").done(function(){
@@ -3578,7 +3609,7 @@ function get_logs() {
                 html += "<div data-role='collapsible' data-collapsed='true'><h2><div class='ui-btn-up-c ui-btn-corner-all custom-count-pos'>"+ct+" "+((ct === 1) ? _("run") : _("runs"))+"</div>"+stations[i]+"</h2>"+table_header;
                 for (k=0; k<sortedData[i].length; k++) {
                     var date = new Date(sortedData[i][k][0]);
-                    html += "<tr><td>"+sortedData[i][k][1]+"</td><td>"+date.toString(false)+"</td></tr>";
+                    html += "<tr><td>"+sortedData[i][k][1]+"</td><td>"+dateToString(date,false)+"</td></tr>";
                 }
                 html += "</tbody></table></div>";
             }
@@ -4467,6 +4498,88 @@ function showDurationBox(seconds,title,callback,maximum,granularity) {
     .enhanceWithin().popup("open");
 }
 
+function showDateTimeInput(timestamp,callback) {
+    $("#datetimeInput").popup("destroy").remove();
+console.log(timestamp)
+    if (!(timestamp instanceof Date)) {
+        timestamp = new Date(timestamp*1000);
+        timestamp.setMinutes(timestamp.getMinutes()-timestamp.getTimezoneOffset());
+    }
+console.log(timestamp)
+
+    callback = callback || function(){};
+
+    var keys = ["Month","Date","FullYear","Hours","Minutes"],
+        label = [_("Month"),_("Day"),_("Year"),_("Hour"),_("Minute")],
+        monthNames = [_("Jan"),_("Feb"),_("Mar"),_("Apr"),_("May"),_("Jun"),_("Jul"),_("Aug"),_("Sep"),_("Oct"),_("Nov"),_("Dec")],
+        popup = $("<div data-role='popup' id='datetimeInput' data-theme='a' data-overlay-theme='b'>" +
+            "<div data-role='header' data-theme='b'>" +
+                "<h1>"+_("Enter Date/Time")+"</h1>" +
+            "</div>" +
+            "<div class='ui-content'>" +
+            "</div>" +
+        "</div>"),
+        changeValue = function(pos,dir){
+            timestamp["setUTC"+pos](timestamp["getUTC"+pos]() + dir);
+            updateContent();
+        },
+        getValue = function() {
+            return timestamp;
+        },
+        updateContent = function() {
+            var incrbts = "<fieldset class='ui-grid-d incr'>",
+                inputs = "<div class='ui-grid-d inputs'>",
+                decrbts = "<fieldset class='ui-grid-d decr'>",
+                val;
+
+            for (i=0; i<5; i++) {
+                val = timestamp["getUTC"+keys[i]]();
+
+                if (keys[i] === "Month") {
+                    val = monthNames[val];
+                }
+                incrbts += "<div class='ui-block-"+String.fromCharCode(97+i)+"'><a href='#'' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a></div>";
+                inputs += "<div id='"+keys[i]+"' class='ui-block-"+String.fromCharCode(97+i)+"'><p class='center'>"+val+"</p></div>";
+                decrbts += "<div class='ui-block-"+String.fromCharCode(97+i)+"'><a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='minus' data-iconpos='bottom'></a></div>";
+            }
+
+            incrbts += "</fieldset>";
+            inputs += "</div>";
+            decrbts += "</fieldset>";
+
+            popup.find(".ui-content").html("<span>"+incrbts+inputs+decrbts+"</span>").enhanceWithin();
+
+            popup.find(".incr").children().on("vclick",function(){
+                var pos = $(this).index();
+                changeValue(popup.find(".inputs").children().eq(pos).attr("id"),1);
+                return false;
+            });
+
+            popup.find(".decr").children().on("vclick",function(){
+                var pos = $(this).index();
+                changeValue(popup.find(".inputs").children().eq(pos).attr("id"),-1);
+                return false;
+            });
+    };
+
+    updateContent();
+
+    $(".ui-page-active").append(popup);
+
+    popup
+    .css("width","280px")
+    .popup({
+        history: false,
+        "positionTo": "window"
+    })
+    .one("popupafterclose",function(){
+        console.log(timestamp)
+        callback(getValue());
+        popup.popup("destroy").remove();
+    })
+    .enhanceWithin().popup("open");
+}
+
 function changePage(toPage,opts) {
     opts = opts || {};
     if (toPage.indexOf("#") !== 0) {
@@ -4626,7 +4739,7 @@ function dhms2sec(arr) {
 
 // Generate email link for JSON data export
 function objToEmail(ele,obj,subject) {
-    subject = subject || "Sprinklers Data Export on "+new Date().toString();
+    subject = subject || "Sprinklers Data Export on "+dateToString(new Date());
     var body = JSON.stringify(obj);
     $(ele).attr("href","mailto:?subject="+encodeURIComponent(subject)+"&body="+encodeURIComponent(body));
 }
@@ -4746,9 +4859,8 @@ function check_curr_lang() {
     });
 }
 
-Date.prototype.toString = function(toUTC) {
-    var date = this,
-        lang = $("#localization").find(".ui-icon-check").data("langCode"),
+function dateToString(date,toUTC) {
+    var lang = $("#localization").find(".ui-icon-check").data("langCode"),
         dayNames = [_("Sun"),_("Mon"),_("Tue"),_("Wed"),_("Thr"),_("Fri"),_("Sat")],
         monthNames = [_("Jan"),_("Feb"),_("Mar"),_("Apr"),_("May"),_("Jun"),_("Jul"),_("Aug"),_("Sep"),_("Oct"),_("Nov"),_("Dec")];
 
@@ -4762,7 +4874,7 @@ Date.prototype.toString = function(toUTC) {
         return pad(date.getDate())+"."+pad(date.getMonth())+"."+date.getFullYear()+" "+pad(date.getHours())+":"+pad(date.getMinutes())+":"+pad(date.getSeconds());
     }
 
-    return dayNames[date.getDay()]+", "+pad(date.getDate())+" "+monthNames[date.getMonth()+1]+" "+date.getFullYear()+" "+pad(date.getHours())+":"+pad(date.getMinutes())+":"+pad(date.getSeconds());
+    return dayNames[date.getDay()]+", "+pad(date.getDate())+" "+monthNames[date.getMonth()]+" "+date.getFullYear()+" "+pad(date.getHours())+":"+pad(date.getMinutes())+":"+pad(date.getSeconds());
 };
 
 function tzToString(prefix,tz,offset) {
