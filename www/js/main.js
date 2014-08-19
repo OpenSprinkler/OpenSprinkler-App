@@ -1937,7 +1937,6 @@ function show_settings() {
             document.activeElement.blur();
             popup.remove();
         }).popup().enhanceWithin().popup("open");
-        return false;
     });
     settings.find(".localSite > a").off("click").on("click",function(){
         areYouSure(_("Are you sure you want to logout?"), "", function(){
