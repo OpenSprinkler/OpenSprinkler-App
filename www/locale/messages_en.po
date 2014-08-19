@@ -237,6 +237,9 @@ msgstr ""
 msgid "Location"
 msgstr ""
 
+msgid "Device Time"
+msgstr ""
+
 msgid "Relay Pulse"
 msgstr ""
 
@@ -734,6 +737,12 @@ msgid "Seconds"
 msgstr ""
 
 msgid "Set Duration"
+msgstr ""
+
+msgid "Milliseconds"
+msgstr ""
+
+msgid "Enter Date/Time"
 msgstr ""
 
 msgid "d"
