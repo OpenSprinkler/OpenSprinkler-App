@@ -1106,7 +1106,9 @@ function show_sites(showBack) {
             total = Object.keys(sites).length;
 
             if (!total || showBack === false || !(data.current_site in sites)) {
-                page.find(".ui-btn-left").hide();
+                page.one("pageshow",function(){
+                    page.find(".ui-btn-left").hide();
+                });
             }
 
             $.each(sites,function(a,b){
