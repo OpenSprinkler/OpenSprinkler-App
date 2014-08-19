@@ -4500,17 +4500,15 @@ function showDurationBox(seconds,title,callback,maximum,granularity) {
 
 function showDateTimeInput(timestamp,callback) {
     $("#datetimeInput").popup("destroy").remove();
-console.log(timestamp)
+
     if (!(timestamp instanceof Date)) {
         timestamp = new Date(timestamp*1000);
         timestamp.setMinutes(timestamp.getMinutes()-timestamp.getTimezoneOffset());
     }
-console.log(timestamp)
 
     callback = callback || function(){};
 
     var keys = ["Month","Date","FullYear","Hours","Minutes"],
-        label = [_("Month"),_("Day"),_("Year"),_("Hour"),_("Minute")],
         monthNames = [_("Jan"),_("Feb"),_("Mar"),_("Apr"),_("May"),_("Jun"),_("Jul"),_("Aug"),_("Sep"),_("Oct"),_("Nov"),_("Dec")],
         popup = $("<div data-role='popup' id='datetimeInput' data-theme='a' data-overlay-theme='b'>" +
             "<div data-role='header' data-theme='b'>" +
@@ -4530,16 +4528,24 @@ console.log(timestamp)
             var incrbts = "<fieldset class='ui-grid-d incr'>",
                 inputs = "<div class='ui-grid-d inputs'>",
                 decrbts = "<fieldset class='ui-grid-d decr'>",
-                val;
+                val, mark, i;
 
             for (i=0; i<5; i++) {
                 val = timestamp["getUTC"+keys[i]]();
+                mark = "";
 
                 if (keys[i] === "Month") {
-                    val = monthNames[val];
+                    val = "<p class='center'>"+monthNames[val]+"</p>";
+                } else if (keys[i] === "Date") {
+                    val = "<p class='center'>"+val+",</p>";
+                } else if (keys[i] === "Hours") {
+                    val = "<p style='width:90%;display:inline-block' class='center'>"+val+"</p><p style='display:inline-block'>:</p>";
+                } else {
+                    val = "<p class='center'>"+val+"</p>";
                 }
+
                 incrbts += "<div class='ui-block-"+String.fromCharCode(97+i)+"'><a href='#'' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a></div>";
-                inputs += "<div id='"+keys[i]+"' class='ui-block-"+String.fromCharCode(97+i)+"'><p class='center'>"+val+"</p></div>";
+                inputs += "<div id='"+keys[i]+"' class='ui-block-"+String.fromCharCode(97+i)+"'>"+val+"</div>";
                 decrbts += "<div class='ui-block-"+String.fromCharCode(97+i)+"'><a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='minus' data-iconpos='bottom'></a></div>";
             }
 
@@ -4573,7 +4579,6 @@ console.log(timestamp)
         "positionTo": "window"
     })
     .one("popupafterclose",function(){
-        console.log(timestamp)
         callback(getValue());
         popup.popup("destroy").remove();
     })
@@ -4875,7 +4880,7 @@ function dateToString(date,toUTC) {
     }
 
     return dayNames[date.getDay()]+", "+pad(date.getDate())+" "+monthNames[date.getMonth()]+" "+date.getFullYear()+" "+pad(date.getHours())+":"+pad(date.getMinutes())+":"+pad(date.getSeconds());
-};
+}
 
 function tzToString(prefix,tz,offset) {
     var lang = $("#localization").find(".ui-icon-check").data("langCode");
