@@ -162,7 +162,7 @@
 							body.find(".multiSite").hide();
 
 							// Show local site features
-							body.find(".localSite").removeClass(".localSite");
+							body.find(".localSite").removeClass("localSite");
 						});
 
 						// Mark environment as loaded
