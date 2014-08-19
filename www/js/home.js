@@ -75,7 +75,7 @@
 					}
 				},1);
 			},
-			submitPassword = function(pw){
+			savePassword = function(pw){
 				var sites = {
 					"Local": {
 						"os_ip": document.URL.match(/https?:\/\/(.*)\/.*?/)[1],
@@ -92,8 +92,6 @@
 				// Inject site information to storage so Application loads current device
 				localStorage.setItem("sites",JSON.stringify(sites));
 				localStorage.setItem("current_site",current_site);
-
-				finishInit();
 			},
 			wrongPassword = function(){
 				$("#os_pw").val("");
@@ -118,8 +116,9 @@
 			// If this is a new login, prompt for password
 			loader = $("<div class='spinner'><h1>Enter Device Password</h1><form><input type='password' id='os_pw' name='os_pw' value='' /><input type='submit' value='Submit' /></form></div>"),
 			loader.on("submit",function(){
+				var pw = $("#os_pw").val();
 				$.ajax({
-					url: "/sp?pw="+$("#os_pw").val(),
+					url: "/sp?pw="+pw+"&npw="+pw+"&cpw="+pw,
 					cache: false,
 					crossDomain: true,
 					type: "GET"
@@ -130,6 +129,7 @@
 		                if (!result || result > 1) {
 		                	wrongPassword();
 		                } else {
+		                	savePassword();
 		                	finishInit();
 		                }
 					},
