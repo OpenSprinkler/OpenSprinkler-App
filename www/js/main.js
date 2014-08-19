@@ -212,7 +212,8 @@ $(document)
             // Change to page without any animation or history change
             changePage(hash,{
                 transition: "none",
-                showLoadMsg: false
+                showLoadMsg: false,
+                showBack: data.options.showBack
             });
             return;
         }
@@ -1106,7 +1107,7 @@ function show_sites(showBack) {
             total = Object.keys(sites).length;
 
             if (!total || showBack === false || !(data.current_site in sites)) {
-                page.one("pageshow",function(){
+                page.one("pagebeforeshow",function(){
                     page.find(".ui-btn-left").hide();
                 });
             }
