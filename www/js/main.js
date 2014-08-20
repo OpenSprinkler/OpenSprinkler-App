@@ -2006,9 +2006,11 @@ function show_options() {
 
     if (typeof controller.options.devid !== "undefined") {
         list += "<label for='o26'>"+_("Device ID (restart required)")+"</label><input data-mini='true' type='number' pattern='[0-9]*' max='255' id='o26' value='"+controller.options.devid+"' />";
+        list += "<p class='center rain-desc' style='width:80%; margin: 0 auto'>"+_("Device ID modifies the last byte of the MAC address")+"</p>";
     }
 
     list += "<label for='loc'>"+_("Location")+"</label><input data-mini='true' type='text' id='loc' value='"+controller.settings.loc+"' />";
+    list += "<p class='center rain-desc' style='width:80%; margin: 0 auto'>"+_("Location can be a zip code, city/state or a weatherunderground personal weather station using the format: pws:ID")+"</p>";
 
     if (typeof controller.options.ntp !== "undefined") {
         list += "<div class='ui-field-contain datetime-input'><label for='datetime'>"+_("Device Time")+"</label><button "+(controller.options.ntp ? "disabled " : "")+"data-mini='true' id='datetime' value='"+(controller.settings.devt + (new Date().getTimezoneOffset()*60))+"'>"+dateToString(new Date(controller.settings.devt*1000)).slice(0,-3)+"</button></div>";
@@ -2016,6 +2018,7 @@ function show_options() {
 
     if (typeof controller.options.rlp !== "undefined") {
         list += "<div class='ui-field-contain duration-input'><label for='o30'>"+_("Relay Pulse")+"</label><button data-mini='true' id='o30' value='"+controller.options.rlp+"'>"+controller.options.rlp+"ms</button></div>";
+        list += "<p class='center rain-desc' style='width:80%; margin: 0 auto'>"+_("Relay pulsing is used for special situations where rapid pulsing is needed in the output with a range from 1 to 2000 milliseconds. A zero value disables the pulsing option.")+"</p>";
     }
 
     if (typeof controller.options.sdt !== "undefined") {
@@ -2036,6 +2039,7 @@ function show_options() {
 
     if (typeof controller.options.wl !== "undefined") {
         list += "<label for='o23'>"+_("% Watering")+"</label><input data-highlight='true' type='number' pattern='[0-9]*' data-type='range' min='0' max='250' id='o23' value='"+controller.options.wl+"' />";
+        list += "<p class='center rain-desc' style='width:80%; margin: 0 auto'>"+_("The watering level modifies station run times by the percentage above")+"</p>";
     }
 
     if (typeof controller.options.ntp !== "undefined") {
@@ -2044,6 +2048,7 @@ function show_options() {
 
     if (typeof controller.options.ar !== "undefined") {
         list += "<label for='o14'><input data-mini='true' id='o14' type='checkbox' "+((controller.options.ar === 1) ? "checked='checked'" : "")+" />"+_("Auto Reconnect")+"</label>";
+        list += "<p class='center rain-desc' style='width:80%; margin: 0 auto'>"+_("Auto reconnect attempts to re-establish a network connection after an outage")+"</p>";
     }
 
     if (typeof controller.options.seq !== "undefined") {
