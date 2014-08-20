@@ -128,7 +128,7 @@
 		                if (!result || result > 1) {
 		                	wrongPassword();
 		                } else {
-		                	savePassword();
+		                	savePassword(pw);
 		                	finishInit();
 		                }
 					},
