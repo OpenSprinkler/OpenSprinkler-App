@@ -79,7 +79,6 @@
 				var sites = {
 					"Local": {
 						"os_ip": document.URL.match(/https?:\/\/(.*)\/.*?/)[1],
-						// Still need to prompt for password
 						"os_pw": pw
 					}
 				},
