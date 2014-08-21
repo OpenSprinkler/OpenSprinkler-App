@@ -12,6 +12,13 @@
     float: left;
     width: 50%
 }
+#lang > li:last-child:not(:nth-child(odd)) {
+    clear: both;
+    width: 100%
+}
+#lang > li:last-child:not(:nth-child(odd)) > a{
+    text-align: center
+}
 .ui-li-separate {
     margin-bottom:10px!important
 }
