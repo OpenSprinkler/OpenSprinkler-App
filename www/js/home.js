@@ -49,7 +49,7 @@
 	document.querySelector("meta[name='viewport']").content = "width=device-width,initial-scale=1.0,minimum-scale=1.0,user-scalable=no";
 
 	// Insert loading icon
-	insertStyle(".spinner{display:block;padding:.9375em;margin-left:-7.1875em;width:12.5em;filter:Alpha(Opacity=88);opacity:.88;box-shadow:0 1px 1px -1px #fff;margin-top:-2.6875em;height:auto;z-index:9999999;position:fixed;top:50%;left:50%;border:0;background-color:#2a2a2a;border-color:#1d1d1d;color:#fff;text-shadow:0 1px 0 #111;-webkit-border-radius:.3125em;border-radius:.3125em;}.spinner h1{font-size: 1em;margin:0;text-align:center;}.spinner form{margin-bottom:0}.spinner form{padding-top:.2em;}.spinner input[type='password']{border-radius:5px;padding:.3em;line-height:1.2em;display:block;width:100%;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;outline:0;}.spinner input[type=submit]{border-radius:5px;border: 0;font-family:Tahoma;background:#f4f4f4;margin-top:5px;width:100%;}");
+	insertStyle(".spinner{text-align:center;display:block;padding:.9375em;margin-left:-7.1875em;width:12.5em;filter:Alpha(Opacity=88);opacity:.88;box-shadow:0 1px 1px -1px #fff;margin-top:-2.6875em;height:auto;z-index:9999999;position:fixed;top:50%;left:50%;border:0;background-color:#2a2a2a;border-color:#1d1d1d;color:#fff;text-shadow:0 1px 0 #111;-webkit-border-radius:.3125em;border-radius:.3125em;}.spinner h1{font-size: 1em;margin:0;text-align:center;}.spinner form{margin-bottom:0}.spinner form{padding-top:.2em;}.spinner input[type='password']{border-radius:5px;padding:.3em;line-height:1.2em;display:block;width:100%;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;outline:0;}.spinner input[type=submit]{border-radius:5px;border: 0;font-family:Tahoma;background:#f4f4f4;margin-top:5px;width:100%;}.feedback{color:red}");
 
 	// Change title to reflect current state
 	document.title = "Loading...";
@@ -93,6 +93,13 @@
 				localStorage.setItem("current_site",current_site);
 			},
 			wrongPassword = function(){
+				var feedback = $(".feedback");
+
+				feedback.text("Invalid Password");
+				setTimeout(function(){
+					feedback.empty();
+				}, 2000);
+
 				$("#os_pw").val("");
 			},
 			sites = JSON.parse(localStorage.getItem("sites")),
@@ -113,7 +120,7 @@
 			finishInit();
 		} else {
 			// If this is a new login, prompt for password
-			loader = $("<div class='spinner'><h1>Enter Device Password</h1><form><input type='password' id='os_pw' name='os_pw' value='' /><input type='submit' value='Submit' /></form></div>"),
+			loader = $("<div class='spinner'><h1>Enter Device Password</h1><span class='feedback'></span><form><input type='password' id='os_pw' name='os_pw' value='' /><input type='submit' value='Submit' /></form></div>"),
 			loader.on("submit",function(){
 				var pw = $("#os_pw").val();
 				$.ajax({
@@ -125,7 +132,7 @@
 					function(data){
 		                var result = data.result;
 
-		                if (!result || result > 1) {
+		                if (ver >= 208 && (!result || result > 1)) {
 		                	wrongPassword();
 		                } else {
 		                	savePassword(pw);
