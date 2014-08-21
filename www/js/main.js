@@ -1071,7 +1071,7 @@ function show_addnew(autoIP,closeOld) {
 
 function show_sites(showBack) {
     var page = $("<div data-role='page' id='site-control'>" +
-            "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false'>" +
+            "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false' data-hide-during-focus=''>" +
                 "<a role='button' href='javascript:void(0);' class='ui-btn ui-corner-all ui-shadow ui-btn-left ui-btn-b ui-toolbar-back-btn ui-icon-carat-l ui-btn-icon-left' data-rel='back'>"+_("Back")+"</a>" +
                 "<h3>"+_("Manage Sites")+"</h3>" +
                 "<button data-rel='popup' id='site-add' data-icon='plus' class='ui-btn-right'>"+_("Add")+"</button>" +
@@ -1445,7 +1445,7 @@ function add_found(ip) {
 // Weather functions
 function show_weather_settings() {
     var page = $("<div data-role='page' id='weather_settings'>" +
-        "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false'>" +
+        "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false' data-hide-during-focus=''>" +
             "<a href='javascript:void(0);' class='ui-btn ui-corner-all ui-shadow ui-btn-left ui-btn-b ui-toolbar-back-btn ui-icon-carat-l ui-btn-icon-left' data-rel='back'>"+_("Back")+"</a>" +
             "<h3>"+_("Weather Settings")+"</h3>" +
             "<a href='#' class='ui-btn-right wsubmit'>"+_("Submit")+"</a>" +
@@ -1964,7 +1964,7 @@ function show_settings() {
 function show_options() {
     var list = "",
         page = $("<div data-role='page' id='os-options'>" +
-            "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false'>" +
+            "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false' data-hide-during-focus=''>" +
                 "<a href='javascript:void(0);' class='ui-btn ui-corner-all ui-shadow ui-btn-left ui-btn-b ui-toolbar-back-btn ui-icon-carat-l ui-btn-icon-left' data-rel='back'>"+_("Back")+"</a>" +
                 "<h3>"+_("Change Options")+"</h3>" +
                 "<button data-icon='check' class='ui-btn-right'>"+_("Submit")+"</button>" +
@@ -2116,6 +2116,10 @@ function show_options() {
     page.find(".datetime-input").on("click",function(){
         var input = $(this).find("button");
 
+        if (input.prop("disabled")) {
+            return;
+        }
+
         // Show date time input popup
         showDateTimeInput(input.val(),function(data){
             input.text(dateToString(data).slice(0,-3)).val(Math.round(data.getTime()/1000));
@@ -2201,7 +2205,7 @@ function submit_options() {
 function show_stations() {
     var list = "<li class='wrap'>",
         page = $("<div data-role='page' id='os-stations'>" +
-            "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false'>" +
+            "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false' data-hide-during-focus=''>" +
                 "<a href='javascript:void(0);' class='ui-btn ui-corner-all ui-shadow ui-btn-left ui-btn-b ui-toolbar-back-btn ui-icon-carat-l ui-btn-icon-left' data-rel='back'>"+_("Back")+"</a>" +
                 "<h3>"+_("Edit Stations")+"</h3>" +
                 "<button data-icon='check' class='submit ui-btn-right'>"+_("Submit")+"</button>" +
@@ -3750,7 +3754,7 @@ function get_logs() {
 // Program management functions
 function get_programs(pid) {
     var programs = $("<div data-role='page' id='programs'>" +
-            "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false'>" +
+            "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false' data-hide-during-focus=''>" +
                 "<a href='javascript:void(0);' class='ui-btn ui-corner-all ui-shadow ui-btn-left ui-btn-b ui-toolbar-back-btn ui-icon-carat-l ui-btn-icon-left' data-rel='back'>"+_("Back")+"</a>" +
                 "<h3>"+_("Programs")+"</h3>" +
                 "<a href='#addprogram' data-icon='plus' class='ui-btn-right'>"+_("Add")+"</a>" +
@@ -4042,7 +4046,7 @@ function make_program(n) {
 
 function add_program() {
     var addprogram = $("<div data-role='page' id='addprogram'>" +
-                "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false'>" +
+                "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false' data-hide-during-focus=''>" +
                     "<h3>"+_("Add Program")+"</h3>" +
                     "<a href='javascript:void(0);' class='ui-btn ui-corner-all ui-shadow ui-btn-left ui-btn-b ui-toolbar-back-btn ui-icon-carat-l ui-btn-icon-left' data-rel='back'>"+_("Back")+"</a>" +
                     "<button data-icon='check' class='ui-btn-right'>"+_("Submit")+"</button>" +
