@@ -882,6 +882,9 @@ msgstr ""
 msgid "Mongolian"
 msgstr ""
 
+msgid "Norwegian"
+msgstr ""
+
 msgid "Polish"
 msgstr ""
 
