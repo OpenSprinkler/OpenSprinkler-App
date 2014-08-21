@@ -2005,20 +2005,17 @@ function show_options() {
     }
 
     if (typeof controller.options.devid !== "undefined") {
-        list += "<label for='o26'>"+_("Device ID (restart required)")+"</label><input data-mini='true' type='number' pattern='[0-9]*' max='255' id='o26' value='"+controller.options.devid+"' />";
-        list += "<p class='center rain-desc' style='width:80%; margin: 0 auto'>"+_("Device ID modifies the last byte of the MAC address")+"</p>";
+        list += "<label for='o26'>"+_("Device ID (restart required)")+"<button data-helptext='"+_("Device ID modifies the last byte of the MAC address")+"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><input data-mini='true' type='number' pattern='[0-9]*' max='255' id='o26' value='"+controller.options.devid+"' />";
     }
 
-    list += "<label for='loc'>"+_("Location")+"</label><input data-mini='true' type='text' id='loc' value='"+controller.settings.loc+"' />";
-    list += "<p class='center rain-desc' style='width:80%; margin: 0 auto'>"+_("Location can be a zip code, city/state or a weatherunderground personal weather station using the format: pws:ID")+"</p>";
+    list += "<label for='loc'>"+_("Location")+"<button data-helptext='"+_("Location can be a zip code, city/state or a weatherunderground personal weather station using the format: pws:ID")+"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><input data-mini='true' type='text' id='loc' value='"+controller.settings.loc+"' />";
 
     if (typeof controller.options.ntp !== "undefined") {
         list += "<div class='ui-field-contain datetime-input'><label for='datetime'>"+_("Device Time")+"</label><button "+(controller.options.ntp ? "disabled " : "")+"data-mini='true' id='datetime' value='"+(controller.settings.devt + (new Date().getTimezoneOffset()*60))+"'>"+dateToString(new Date(controller.settings.devt*1000)).slice(0,-3)+"</button></div>";
     }
 
     if (typeof controller.options.rlp !== "undefined") {
-        list += "<div class='ui-field-contain duration-input'><label for='o30'>"+_("Relay Pulse")+"</label><button data-mini='true' id='o30' value='"+controller.options.rlp+"'>"+controller.options.rlp+"ms</button></div>";
-        list += "<p class='center rain-desc' style='width:80%; margin: 0 auto'>"+_("Relay pulsing is used for special situations where rapid pulsing is needed in the output with a range from 1 to 2000 milliseconds. A zero value disables the pulsing option.")+"</p>";
+        list += "<div class='ui-field-contain duration-input'><label for='o30'>"+_("Relay Pulse")+"<button data-helptext='"+_("Relay pulsing is used for special situations where rapid pulsing is needed in the output with a range from 1 to 2000 milliseconds. A zero value disables the pulsing option.")+"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><button data-mini='true' id='o30' value='"+controller.options.rlp+"'>"+controller.options.rlp+"ms</button></div>";
     }
 
     if (typeof controller.options.sdt !== "undefined") {
@@ -2038,8 +2035,7 @@ function show_options() {
     }
 
     if (typeof controller.options.wl !== "undefined") {
-        list += "<label for='o23'>"+_("% Watering")+"</label><input data-highlight='true' type='number' pattern='[0-9]*' data-type='range' min='0' max='250' id='o23' value='"+controller.options.wl+"' />";
-        list += "<p class='center rain-desc' style='width:80%; margin: 0 auto'>"+_("The watering level modifies station run times by the percentage above")+"</p>";
+        list += "<label for='o23'>"+_("% Watering")+"<button data-helptext='"+_("The watering level modifies station run times by the percentage above")+"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><input data-highlight='true' type='number' pattern='[0-9]*' data-type='range' min='0' max='250' id='o23' value='"+controller.options.wl+"' />";
     }
 
     if (typeof controller.options.ntp !== "undefined") {
@@ -2047,8 +2043,7 @@ function show_options() {
     }
 
     if (typeof controller.options.ar !== "undefined") {
-        list += "<label for='o14'><input data-mini='true' id='o14' type='checkbox' "+((controller.options.ar === 1) ? "checked='checked'" : "")+" />"+_("Auto Reconnect")+"</label>";
-        list += "<p class='center rain-desc' style='width:80%; margin: 0 auto'>"+_("Auto reconnect attempts to re-establish a network connection after an outage")+"</p>";
+        list += "<label for='o14'><input data-mini='true' id='o14' type='checkbox' "+((controller.options.ar === 1) ? "checked='checked'" : "")+" />"+_("Auto Reconnect")+"<button data-helptext='"+_("Auto reconnect attempts to re-establish a network connection after an outage")+"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label>";
     }
 
     if (typeof controller.options.seq !== "undefined") {
@@ -2070,6 +2065,24 @@ function show_options() {
     list += "</fieldset></div></li>";
 
     page.find(".ui-content").html("<ul data-role='listview' data-inset='true' id='os-options-list'>"+list+"</ul>");
+
+    page.find(".help-icon").on("click",function(e){
+        e.stopImmediatePropagation();
+
+        var button = $(this),
+            text = button.data("helptext"),
+            popup = $("<div data-role='popup'>" +
+                    "<p>"+text+"</p>" +
+                "</div>");
+
+        popup.one("popupafterclose", function(){
+            popup.popup("destroy").remove();
+        }).enhanceWithin();
+
+        $(".ui-page-active").append(popup);
+
+        popup.popup({history: false, positionTo: button}).popup("open");
+    });
 
     page.find(".duration-input button").on("click",function(){
         var dur = $(this),
