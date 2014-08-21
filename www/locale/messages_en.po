@@ -234,13 +234,27 @@ msgstr ""
 msgid "Device ID (restart required)"
 msgstr ""
 
+msgid "Device ID modifies the last byte of the MAC address"
+msgstr ""
+
 msgid "Location"
+msgstr ""
+
+msgid ""
+"Location can be a zip code, city/state or a weatherunderground personal "
+"weather station using the format: pws:ID"
 msgstr ""
 
 msgid "Device Time"
 msgstr ""
 
 msgid "Relay Pulse"
+msgstr ""
+
+msgid ""
+"Relay pulsing is used for special situations where rapid pulsing is needed "
+"in the output with a range from 1 to 2000 milliseconds. A zero value "
+"disables the pulsing option."
 msgstr ""
 
 msgid "Station Delay"
@@ -261,10 +275,17 @@ msgstr ""
 msgid "% Watering"
 msgstr ""
 
+msgid "The watering level modifies station run times by the percentage above"
+msgstr ""
+
 msgid "NTP Sync"
 msgstr ""
 
 msgid "Auto Reconnect"
+msgstr ""
+
+msgid ""
+"Auto reconnect attempts to re-establish a network connection after an outage"
 msgstr ""
 
 msgid "Sequential"
@@ -734,9 +755,6 @@ msgid "Minutes"
 msgstr ""
 
 msgid "Seconds"
-msgstr ""
-
-msgid "Set Duration"
 msgstr ""
 
 msgid "Milliseconds"
