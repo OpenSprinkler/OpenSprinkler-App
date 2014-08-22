@@ -2016,7 +2016,7 @@ function show_options() {
     }
 
     if (typeof controller.options.mton !== "undefined") {
-        list += "<div class='contain-field duration-input'><label for='o19'>"+_("Master On Delay")+"</label><button data-mini='true' id='o19' value='"+controller.options.mton+"'>"+dhms2str(sec2dhms(controller.options.mton))+"</button></div>";
+        list += "<div class='contain-field'><label for='o19'>"+_("Master On Delay")+"</label><button data-mini='true' id='o19' value='"+controller.options.mton+"'>"+dhms2str(sec2dhms(controller.options.mton))+"</button></div>";
     }
 
     if (typeof controller.options.mtof !== "undefined") {
@@ -2030,7 +2030,7 @@ function show_options() {
     }
 
     if (typeof controller.options.sdt !== "undefined") {
-        list += "<div class='contain-field duration-input'><label for='o17'>"+_("Station Delay")+"</label><button data-mini='true' id='o17' value='"+controller.options.sdt+"'>"+dhms2str(sec2dhms(controller.options.sdt))+"</button></div>";
+        list += "<div class='contain-field'><label for='o17'>"+_("Station Delay")+"</label><button data-mini='true' id='o17' value='"+controller.options.sdt+"'>"+dhms2str(sec2dhms(controller.options.sdt))+"</button></div>";
     }
 
     if (typeof controller.options.wl !== "undefined") {
@@ -2046,11 +2046,11 @@ function show_options() {
     }
 
     if (typeof controller.options.rlp !== "undefined") {
-        list += "<div class='contain-field duration-input'><label for='o30'>"+_("Relay Pulse")+"<button data-helptext='"+_("Relay pulsing is used for special situations where rapid pulsing is needed in the output with a range from 1 to 2000 milliseconds. A zero value disables the pulsing option.")+"' class='needsclick help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><button data-mini='true' id='o30' value='"+controller.options.rlp+"'>"+controller.options.rlp+"ms</button></div>";
+        list += "<div class='contain-field'><label for='o30'>"+_("Relay Pulse")+"<button data-helptext='"+_("Relay pulsing is used for special situations where rapid pulsing is needed in the output with a range from 1 to 2000 milliseconds. A zero value disables the pulsing option.")+"' class='needsclick help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><button data-mini='true' id='o30' value='"+controller.options.rlp+"'>"+controller.options.rlp+"ms</button></div>";
     }
 
     if (typeof controller.options.seq !== "undefined") {
-        list += "<label style='margin-top:20px' for='o16'><input data-mini='true' id='o16' type='checkbox' "+((controller.options.seq === 1) ? "checked='checked'" : "")+" />"+_("Sequential")+"</label>";
+        list += "<label for='o16'><input data-mini='true' id='o16' type='checkbox' "+((controller.options.seq === 1) ? "checked='checked'" : "")+" />"+_("Sequential")+"</label>";
     }
 
     if (typeof controller.options.urs !== "undefined") {
