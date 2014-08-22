@@ -1972,6 +1972,16 @@ function show_options() {
             "<div class='ui-content' role='main'>" +
             "</div>" +
         "</div>"),
+        fixContain = function() {
+            var width = $(window).width(),
+                ele = page.find(".contain-field");
+
+            if (width > 1100) {
+                ele.addClass("ui-field-contain");
+            } else {
+                ele.removeClass("ui-field-contain");
+            }
+        },
         timezones, tz, i;
 
     page.find("div[data-role='header'] > .ui-btn-right").on("click",submit_options);
@@ -1979,14 +1989,14 @@ function show_options() {
     list = "<li><fieldset>";
 
     if (typeof controller.options.ntp !== "undefined") {
-        list += "<div class='ui-field-contain datetime-input'><label for='datetime'>"+_("Device Time")+"</label><button "+(controller.options.ntp ? "disabled " : "")+"data-mini='true' id='datetime' value='"+(controller.settings.devt + (new Date().getTimezoneOffset()*60))+"'>"+dateToString(new Date(controller.settings.devt*1000)).slice(0,-3)+"</button></div>";
+        list += "<div class='contain-field datetime-input'><label for='datetime'>"+_("Device Time")+"</label><button "+(controller.options.ntp ? "disabled " : "")+"data-mini='true' id='datetime' value='"+(controller.settings.devt + (new Date().getTimezoneOffset()*60))+"'>"+dateToString(new Date(controller.settings.devt*1000)).slice(0,-3)+"</button></div>";
     }
 
     if (!isOSPi() && typeof controller.options.tz !== "undefined") {
         timezones = ["-12:00","-11:30","-11:00","-10:00","-09:30","-09:00","-08:30","-08:00","-07:00","-06:00","-05:00","-04:30","-04:00","-03:30","-03:00","-02:30","-02:00","+00:00","+01:00","+02:00","+03:00","+03:30","+04:00","+04:30","+05:00","+05:30","+05:45","+06:00","+06:30","+07:00","+08:00","+08:45","+09:00","+09:30","+10:00","+10:30","+11:00","+11:30","+12:00","+12:45","+13:00","+13:45","+14:00"];
         tz = controller.options.tz-48;
         tz = ((tz>=0)?"+":"-")+pad((Math.abs(tz)/4>>0))+":"+((Math.abs(tz)%4)*15/10>>0)+((Math.abs(tz)%4)*15%10);
-        list += "<div class='ui-field-contain'><label for='o1' class='select'>"+_("Timezone")+"</label><select data-mini='true' id='o1'>";
+        list += "<div class='contain-field'><label for='o1' class='select'>"+_("Timezone")+"</label><select data-mini='true' id='o1'>";
         for (i=0; i<timezones.length; i++) {
             list += "<option "+((timezones[i] === tz) ? "selected" : "")+" value='"+timezones[i]+"'>"+timezones[i]+"</option>";
         }
@@ -1995,7 +2005,7 @@ function show_options() {
 
 
     if (typeof controller.options.mas !== "undefined") {
-        list += "<div class='ui-field-contain'><label for='o18' class='select'>"+_("Master Station")+"</label><select data-native-menu='false' data-mini='true' id='o18'><option value='0'>"+_("None")+"</option>";
+        list += "<div class='contain-field'><label for='o18' class='select'>"+_("Master Station")+"</label><select data-native-menu='false' data-mini='true' id='o18'><option value='0'>"+_("None")+"</option>";
         for (i=0; i<controller.stations.snames.length; i++) {
             list += "<option "+(((i+1) === controller.options.mas) ? "selected" : "")+" value='"+(i+1)+"'>"+controller.stations.snames[i]+"</option>";
             if (i === 7) {
@@ -2006,37 +2016,37 @@ function show_options() {
     }
 
     if (typeof controller.options.mton !== "undefined") {
-        list += "<div class='ui-field-contain duration-input'><label for='o19'>"+_("Master On Delay")+"</label><button data-mini='true' id='o19' value='"+controller.options.mton+"'>"+dhms2str(sec2dhms(controller.options.mton))+"</button></div>";
+        list += "<div class='contain-field duration-input'><label for='o19'>"+_("Master On Delay")+"</label><button data-mini='true' id='o19' value='"+controller.options.mton+"'>"+dhms2str(sec2dhms(controller.options.mton))+"</button></div>";
     }
 
     if (typeof controller.options.mtof !== "undefined") {
-        list += "<div class='ui-field-contain'><label for='o20'>"+_("Master Off Delay")+"</label><input data-highlight='true' type='number' pattern='[0-9]*' data-type='range' min='-60' max='60' id='o20' value='"+controller.options.mtof+"' /></div>";
+        list += "<div class='contain-field'><label for='o20'>"+_("Master Off Delay")+"</label><input data-highlight='true' type='number' pattern='[0-9]*' data-type='range' min='-60' max='60' id='o20' value='"+controller.options.mtof+"' /></div>";
     }
 
-    list += "<div class='ui-field-contain'><label for='loc'>"+_("Location")+"<button data-helptext='"+_("Location can be a zip code, city/state or a weatherunderground personal weather station using the format: pws:ID")+"' class='needsclick help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><input data-mini='true' type='text' id='loc' value='"+controller.settings.loc+"' /></div>";
+    list += "<div class='contain-field'><label for='loc'>"+_("Location")+"<button data-helptext='"+_("Location can be a zip code, city/state or a weatherunderground personal weather station using the format: pws:ID")+"' class='needsclick help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><input data-mini='true' type='text' id='loc' value='"+controller.settings.loc+"' /></div>";
 
     if (typeof controller.options.ext !== "undefined") {
-        list += "<div class='ui-field-contain'><label for='o15'>"+_("Extension Boards")+(controller.options.dexp && controller.options.dexp < 255 ? " ("+controller.options.dexp+" "+_("detected")+")" : "")+"</label><input data-highlight='true' type='number' pattern='[0-9]*' data-type='range' min='0' max='"+(controller.options.mexp ? controller.options.mexp : "5")+"' id='o15' value='"+controller.options.ext+"' /></div>";
+        list += "<div class='contain-field'><label for='o15'>"+_("Extension Boards")+(controller.options.dexp && controller.options.dexp < 255 ? " ("+controller.options.dexp+" "+_("detected")+")" : "")+"</label><input data-highlight='true' type='number' pattern='[0-9]*' data-type='range' min='0' max='"+(controller.options.mexp ? controller.options.mexp : "5")+"' id='o15' value='"+controller.options.ext+"' /></div>";
     }
 
     if (typeof controller.options.sdt !== "undefined") {
-        list += "<div class='ui-field-contain duration-input'><label for='o17'>"+_("Station Delay")+"</label><button data-mini='true' id='o17' value='"+controller.options.sdt+"'>"+dhms2str(sec2dhms(controller.options.sdt))+"</button></div>";
+        list += "<div class='contain-field duration-input'><label for='o17'>"+_("Station Delay")+"</label><button data-mini='true' id='o17' value='"+controller.options.sdt+"'>"+dhms2str(sec2dhms(controller.options.sdt))+"</button></div>";
     }
 
     if (typeof controller.options.wl !== "undefined") {
-        list += "<div class='ui-field-contain'><label for='o23'>"+_("% Watering")+"<button data-helptext='"+_("The watering level modifies station run times by the percentage above")+"' class='needsclick help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><input data-highlight='true' type='number' pattern='[0-9]*' data-type='range' min='0' max='250' id='o23' value='"+controller.options.wl+"' /></div>";
+        list += "<div class='contain-field'><label for='o23'>"+_("% Watering")+"<button data-helptext='"+_("The watering level modifies station run times by the percentage above")+"' class='needsclick help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><input data-highlight='true' type='number' pattern='[0-9]*' data-type='range' min='0' max='250' id='o23' value='"+controller.options.wl+"' /></div>";
     }
 
     if (typeof controller.options.hp0 !== "undefined") {
-        list += "<div class='ui-field-contain'><label for='o12'>"+_("HTTP Port (restart required)")+"</label><input data-mini='true' type='number' pattern='[0-9]*' id='o12' value='"+(controller.options.hp1*256+controller.options.hp0)+"' /></div>";
+        list += "<div class='contain-field'><label for='o12'>"+_("HTTP Port (restart required)")+"</label><input data-mini='true' type='number' pattern='[0-9]*' id='o12' value='"+(controller.options.hp1*256+controller.options.hp0)+"' /></div>";
     }
 
     if (typeof controller.options.devid !== "undefined") {
-        list += "<div class='ui-field-contain'><label for='o26'>"+_("Device ID (restart required)")+"<button data-helptext='"+_("Device ID modifies the last byte of the MAC address")+"' class='needsclick help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><input data-mini='true' type='number' pattern='[0-9]*' max='255' id='o26' value='"+controller.options.devid+"' /></div>";
+        list += "<div class='contain-field'><label for='o26'>"+_("Device ID (restart required)")+"<button data-helptext='"+_("Device ID modifies the last byte of the MAC address")+"' class='needsclick help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><input data-mini='true' type='number' pattern='[0-9]*' max='255' id='o26' value='"+controller.options.devid+"' /></div>";
     }
 
     if (typeof controller.options.rlp !== "undefined") {
-        list += "<div class='ui-field-contain duration-input'><label for='o30'>"+_("Relay Pulse")+"<button data-helptext='"+_("Relay pulsing is used for special situations where rapid pulsing is needed in the output with a range from 1 to 2000 milliseconds. A zero value disables the pulsing option.")+"' class='needsclick help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><button data-mini='true' id='o30' value='"+controller.options.rlp+"'>"+controller.options.rlp+"ms</button></div>";
+        list += "<div class='contain-field duration-input'><label for='o30'>"+_("Relay Pulse")+"<button data-helptext='"+_("Relay pulsing is used for special situations where rapid pulsing is needed in the output with a range from 1 to 2000 milliseconds. A zero value disables the pulsing option.")+"' class='needsclick help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><button data-mini='true' id='o30' value='"+controller.options.rlp+"'>"+controller.options.rlp+"ms</button></div>";
     }
 
     if (typeof controller.options.seq !== "undefined") {
@@ -2086,6 +2096,10 @@ function show_options() {
         popup.popup({history: false, positionTo: button}).popup("open");
     });
 
+    fixContain();
+
+    $.mobile.window.on("resize",fixContain);
+
     page.find(".duration-input button").on("click",function(){
         var dur = $(this),
             id = dur.attr("id"),
@@ -2130,6 +2144,7 @@ function show_options() {
 
     page.one("pagehide",function(){
         page.remove();
+        $.mobile.window.off("resize");
     });
 
     page.appendTo("body");
