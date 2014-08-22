@@ -2050,7 +2050,7 @@ function show_options() {
     }
 
     if (typeof controller.options.seq !== "undefined") {
-        list += "<label for='o16'><input data-mini='true' id='o16' type='checkbox' "+((controller.options.seq === 1) ? "checked='checked'" : "")+" />"+_("Sequential")+"</label>";
+        list += "<label style='margin-top:15px' for='o16'><input data-mini='true' id='o16' type='checkbox' "+((controller.options.seq === 1) ? "checked='checked'" : "")+" />"+_("Sequential")+"</label>";
     }
 
     if (typeof controller.options.urs !== "undefined") {
@@ -2094,6 +2094,8 @@ function show_options() {
         $(".ui-page-active").append(popup);
 
         popup.popup({history: false, positionTo: button}).popup("open");
+
+        return false;
     });
 
     fixContain();
