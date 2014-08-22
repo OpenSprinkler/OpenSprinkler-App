@@ -2050,7 +2050,7 @@ function show_options() {
     }
 
     if (typeof controller.options.seq !== "undefined") {
-        list += "<label style='margin-top:15px' for='o16'><input data-mini='true' id='o16' type='checkbox' "+((controller.options.seq === 1) ? "checked='checked'" : "")+" />"+_("Sequential")+"</label>";
+        list += "<label style='margin-top:20px' for='o16'><input data-mini='true' id='o16' type='checkbox' "+((controller.options.seq === 1) ? "checked='checked'" : "")+" />"+_("Sequential")+"</label>";
     }
 
     if (typeof controller.options.urs !== "undefined") {
