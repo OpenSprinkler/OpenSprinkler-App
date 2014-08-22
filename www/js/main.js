@@ -2034,7 +2034,7 @@ function show_options() {
     }
 
     if (typeof controller.options.wl !== "undefined") {
-        list += "<div class='contain-field'><label for='o23'>"+_("% Watering")+"<button data-helptext='"+_("The watering level modifies station run times by the percentage above")+"' class='needsclick help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><input data-highlight='true' type='number' pattern='[0-9]*' data-type='range' min='0' max='250' id='o23' value='"+controller.options.wl+"' /></div>";
+        list += "<div class='contain-field'><label for='o23'>"+_("% Watering")+"<button data-helptext='"+_("The watering level modifies station run times by the set percentage")+"' class='needsclick help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><input data-highlight='true' type='number' pattern='[0-9]*' data-type='range' min='0' max='250' id='o23' value='"+controller.options.wl+"' /></div>";
     }
 
     if (typeof controller.options.hp0 !== "undefined") {
