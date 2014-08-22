@@ -1978,27 +1978,6 @@ function show_options() {
 
     list = "<li><fieldset>";
 
-    if (typeof controller.options.mas !== "undefined") {
-        list += "<div class='ui-field-contain'><label for='o18' class='select'>"+_("Master Station")+"</label><select data-native-menu='false' data-mini='true' id='o18'><option value='0'>"+_("None")+"</option>";
-        for (i=0; i<controller.stations.snames.length; i++) {
-            list += "<option "+(((i+1) === controller.options.mas) ? "selected" : "")+" value='"+(i+1)+"'>"+controller.stations.snames[i]+"</option>";
-            if (i === 7) {
-                break;
-            }
-        }
-        list += "</select></div>";
-    }
-
-    if (typeof controller.options.hp0 !== "undefined") {
-        list += "<div class='ui-field-contain'><label for='o12'>"+_("HTTP Port (restart required)")+"</label><input data-mini='true' type='number' pattern='[0-9]*' id='o12' value='"+(controller.options.hp1*256+controller.options.hp0)+"' /></div>";
-    }
-
-    if (typeof controller.options.devid !== "undefined") {
-        list += "<div class='ui-field-contain'><label for='o26'>"+_("Device ID (restart required)")+"<button data-helptext='"+_("Device ID modifies the last byte of the MAC address")+"' class='needsclick help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><input data-mini='true' type='number' pattern='[0-9]*' max='255' id='o26' value='"+controller.options.devid+"' /></div>";
-    }
-
-    list += "<div class='ui-field-contain'><label for='loc'>"+_("Location")+"<button data-helptext='"+_("Location can be a zip code, city/state or a weatherunderground personal weather station using the format: pws:ID")+"' class='needsclick help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><input data-mini='true' type='text' id='loc' value='"+controller.settings.loc+"' /></div>";
-
     if (typeof controller.options.ntp !== "undefined") {
         list += "<div class='ui-field-contain datetime-input'><label for='datetime'>"+_("Device Time")+"</label><button "+(controller.options.ntp ? "disabled " : "")+"data-mini='true' id='datetime' value='"+(controller.settings.devt + (new Date().getTimezoneOffset()*60))+"'>"+dateToString(new Date(controller.settings.devt*1000)).slice(0,-3)+"</button></div>";
     }
@@ -2014,12 +1993,16 @@ function show_options() {
         list += "</select></div>";
     }
 
-    if (typeof controller.options.rlp !== "undefined") {
-        list += "<div class='ui-field-contain duration-input'><label for='o30'>"+_("Relay Pulse")+"<button data-helptext='"+_("Relay pulsing is used for special situations where rapid pulsing is needed in the output with a range from 1 to 2000 milliseconds. A zero value disables the pulsing option.")+"' class='needsclick help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><button data-mini='true' id='o30' value='"+controller.options.rlp+"'>"+controller.options.rlp+"ms</button></div>";
-    }
 
-    if (typeof controller.options.sdt !== "undefined") {
-        list += "<div class='ui-field-contain duration-input'><label for='o17'>"+_("Station Delay")+"</label><button data-mini='true' id='o17' value='"+controller.options.sdt+"'>"+dhms2str(sec2dhms(controller.options.sdt))+"</button></div>";
+    if (typeof controller.options.mas !== "undefined") {
+        list += "<div class='ui-field-contain'><label for='o18' class='select'>"+_("Master Station")+"</label><select data-native-menu='false' data-mini='true' id='o18'><option value='0'>"+_("None")+"</option>";
+        for (i=0; i<controller.stations.snames.length; i++) {
+            list += "<option "+(((i+1) === controller.options.mas) ? "selected" : "")+" value='"+(i+1)+"'>"+controller.stations.snames[i]+"</option>";
+            if (i === 7) {
+                break;
+            }
+        }
+        list += "</select></div>";
     }
 
     if (typeof controller.options.mton !== "undefined") {
@@ -2030,21 +2013,30 @@ function show_options() {
         list += "<div class='ui-field-contain'><label for='o20'>"+_("Master Off Delay")+"</label><input data-highlight='true' type='number' pattern='[0-9]*' data-type='range' min='-60' max='60' id='o20' value='"+controller.options.mtof+"' /></div>";
     }
 
+    list += "<div class='ui-field-contain'><label for='loc'>"+_("Location")+"<button data-helptext='"+_("Location can be a zip code, city/state or a weatherunderground personal weather station using the format: pws:ID")+"' class='needsclick help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><input data-mini='true' type='text' id='loc' value='"+controller.settings.loc+"' /></div>";
+
     if (typeof controller.options.ext !== "undefined") {
         list += "<div class='ui-field-contain'><label for='o15'>"+_("Extension Boards")+(controller.options.dexp && controller.options.dexp < 255 ? " ("+controller.options.dexp+" "+_("detected")+")" : "")+"</label><input data-highlight='true' type='number' pattern='[0-9]*' data-type='range' min='0' max='"+(controller.options.mexp ? controller.options.mexp : "5")+"' id='o15' value='"+controller.options.ext+"' /></div>";
+    }
+
+    if (typeof controller.options.sdt !== "undefined") {
+        list += "<div class='ui-field-contain duration-input'><label for='o17'>"+_("Station Delay")+"</label><button data-mini='true' id='o17' value='"+controller.options.sdt+"'>"+dhms2str(sec2dhms(controller.options.sdt))+"</button></div>";
     }
 
     if (typeof controller.options.wl !== "undefined") {
         list += "<div class='ui-field-contain'><label for='o23'>"+_("% Watering")+"<button data-helptext='"+_("The watering level modifies station run times by the percentage above")+"' class='needsclick help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><input data-highlight='true' type='number' pattern='[0-9]*' data-type='range' min='0' max='250' id='o23' value='"+controller.options.wl+"' /></div>";
     }
 
-    if (typeof controller.options.ntp !== "undefined") {
-        list += "<label for='o2'><input data-mini='true' id='o2' type='checkbox' "+((controller.options.ntp === 1) ? "checked='checked'" : "")+" />"+_("NTP Sync")+"</label>";
+    if (typeof controller.options.hp0 !== "undefined") {
+        list += "<div class='ui-field-contain'><label for='o12'>"+_("HTTP Port (restart required)")+"</label><input data-mini='true' type='number' pattern='[0-9]*' id='o12' value='"+(controller.options.hp1*256+controller.options.hp0)+"' /></div>";
     }
 
-    if (typeof controller.options.ar !== "undefined") {
-        //"<button data-helptext='"+_("Auto reconnect attempts to re-establish a network connection after an outage")+"' class='needsclick help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>"
-        list += "<label for='o14'><input data-mini='true' id='o14' type='checkbox' "+((controller.options.ar === 1) ? "checked='checked'" : "")+" />"+_("Auto Reconnect")+"</label>";
+    if (typeof controller.options.devid !== "undefined") {
+        list += "<div class='ui-field-contain'><label for='o26'>"+_("Device ID (restart required)")+"<button data-helptext='"+_("Device ID modifies the last byte of the MAC address")+"' class='needsclick help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><input data-mini='true' type='number' pattern='[0-9]*' max='255' id='o26' value='"+controller.options.devid+"' /></div>";
+    }
+
+    if (typeof controller.options.rlp !== "undefined") {
+        list += "<div class='ui-field-contain duration-input'><label for='o30'>"+_("Relay Pulse")+"<button data-helptext='"+_("Relay pulsing is used for special situations where rapid pulsing is needed in the output with a range from 1 to 2000 milliseconds. A zero value disables the pulsing option.")+"' class='needsclick help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><button data-mini='true' id='o30' value='"+controller.options.rlp+"'>"+controller.options.rlp+"ms</button></div>";
     }
 
     if (typeof controller.options.seq !== "undefined") {
@@ -2057,6 +2049,15 @@ function show_options() {
 
     if (typeof controller.options.rso !== "undefined") {
         list += "<label for='o22'><input data-mini='true' id='o22' type='checkbox' "+((controller.options.rso === 1) ? "checked='checked'" : "")+" />"+_("Normally Open (Rain Sensor)")+"</label>";
+    }
+
+    if (typeof controller.options.ntp !== "undefined") {
+        list += "<label for='o2'><input data-mini='true' id='o2' type='checkbox' "+((controller.options.ntp === 1) ? "checked='checked'" : "")+" />"+_("NTP Sync")+"</label>";
+    }
+
+    if (typeof controller.options.ar !== "undefined") {
+        //"<button data-helptext='"+_("Auto reconnect attempts to re-establish a network connection after an outage")+"' class='needsclick help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>"
+        list += "<label for='o14'><input data-mini='true' id='o14' type='checkbox' "+((controller.options.ar === 1) ? "checked='checked'" : "")+" />"+_("Auto Reconnect")+"</label>";
     }
 
     if (typeof controller.options.ipas !== "undefined") {
