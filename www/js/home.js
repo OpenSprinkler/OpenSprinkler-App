@@ -1,4 +1,4 @@
-/*global ver, $, initApp, XDomainRequest, ActiveXObject */
+/*global $, initApp, XDomainRequest, ActiveXObject */
 (function(document){
 	var assetLocation = "http://rawgit.com/salbahra/Sprinklers/master/www/",
 		isReady = false;
@@ -123,6 +123,12 @@
 			loader = $("<div class='spinner'><h1>Enter Device Password</h1><span class='feedback'></span><form><input type='password' id='os_pw' name='os_pw' value='' /><input type='submit' value='Submit' /></form></div>"),
 			loader.on("submit",function(){
 				var pw = $("#os_pw").val();
+				if (ver < 208) {
+					savePassword(pw);
+					finishInit();
+					return false;
+				}
+
 				$.ajax({
 					url: "/sp?pw="+pw+"&npw="+pw+"&cpw="+pw,
 					cache: false,
@@ -132,7 +138,7 @@
 					function(data){
 		                var result = data.result;
 
-		                if (ver >= 208 && (!result || result > 1)) {
+		                if (!result || result > 1) {
 		                	wrongPassword();
 		                } else {
 		                	savePassword(pw);
