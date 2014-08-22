@@ -4726,7 +4726,13 @@ function showLoading(ele) {
 
 function goBack(keepIndex) {
     var page = $(".ui-page-active").attr("id"),
-        managerStart = (page === "site-control" && !$("#site-control").find(".ui-btn-left").is(":visible"));
+        managerStart = (page === "site-control" && !$("#site-control").find(".ui-btn-left").is(":visible")),
+        popup = $(".ui-popup-active");
+
+    if (popup.length) {
+        popup.find("[data-role='popup']").popup("close");
+        return;
+    }
 
     if (page === "sprinklers" || page === "start" || managerStart) {
         navigator.app.exitApp();
