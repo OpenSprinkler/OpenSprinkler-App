@@ -257,7 +257,7 @@ msgstr ""
 msgid "% Watering"
 msgstr ""
 
-msgid "The watering level modifies station run times by the percentage above"
+msgid "The watering level modifies station run times by the set percentage"
 msgstr ""
 
 msgid "HTTP Port (restart required)"
