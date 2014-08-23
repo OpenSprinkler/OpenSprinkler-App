@@ -77,7 +77,7 @@ var isIEMobile = /IEMobile/.test(navigator.userAgent),
 
 // Fix CSS for IE Mobile (Windows Phone 8)
 if (isIEMobile) {
-    insertStyle("ul{list-style: none !important;}@media(max-width:940px){.wicon{margin:-10px -10px -15px -15px !important}#forecast .wicon{position:relative;left:37.5px;margin:0 auto !important}}");
+    insertStyle(".ui-toolbar-back-btn{display:none!important}ul{list-style: none !important;}@media(max-width:940px){.wicon{margin:-10px -10px -15px -15px !important}#forecast .wicon{position:relative;left:37.5px;margin:0 auto !important}}");
 }
 
 // Fix CSS for Chrome Web Store apps
