@@ -3367,8 +3367,9 @@ function get_logs() {
         seriesChange = function() {
             var grouping = logs.find("input:radio[name='g']:checked").val(),
                 pData = [],
-                sortedData,
-                options;
+                sortedData, options, plot;
+
+            placeholder.empty();
 
             sortedData = sortData("graph",grouping);
 
@@ -3400,41 +3401,35 @@ function get_logs() {
             });
 
             // Plot the data
-            if (plot) {
-                plot.setData(pData);
-                plot.setupGrid();
-                plot.draw();
-            } else {
-                if (grouping==="h") {
-                    options = {
-                        grid: { hoverable: true },
-                        yaxis: {min: 0, tickFormatter: function(val, axis) { return val < axis.max ? Math.round(val*100)/100 : "min";} },
-                        xaxis: { min: 0, max: 24, tickDecimals: 0, tickSize: 1 }
-                    };
-                } else if (grouping==="d") {
-                    options = {
-                        grid: { hoverable: true },
-                        yaxis: {min: 0, tickFormatter: function(val, axis) { return val < axis.max ? Math.round(val*100)/100 : "min";} },
-                        xaxis: { tickDecimals: 0, min: -0.4, max: 6.4,
-                        tickFormatter: function(v) { var dow=[_("Sun"),_("Mon"),_("Tue"),_("Wed"),_("Thr"),_("Fri"),_("Sat")]; return dow[v]; } }
-                    };
-                } else if (grouping==="m") {
-                    options = {
-                        grid: { hoverable: true },
-                        yaxis: {min: 0, tickFormatter: function(val, axis) { return val < axis.max ? Math.round(val*100)/100 : "min";} },
-                        xaxis: { tickDecimals: 0, min: 0.6, max: 12.4, tickSize: 1,
-                        tickFormatter: function(v) { var mon=["",_("Jan"),_("Feb"),_("Mar"),_("Apr"),_("May"),_("Jun"),_("Jul"),_("Aug"),_("Sep"),_("Oct"),_("Nov"),_("Dec")]; return mon[v]; } }
-                    };
-                } else if (grouping==="n") {
-                    options = {
-                        grid: { hoverable: true },
-                        yaxis: {min: 0, tickFormatter: function(val, axis) { return val < axis.max ? Math.round(val*100)/100 : "min";} },
-                        xaxis: { mode: "time", timeformat: "%b %d %H:%M", min:sortedData.min.getTime(), max:sortedData.max.getTime()}
-                    };
-                }
-
-                plot = $.plot(placeholder, pData, options);
+            if (grouping==="h") {
+                options = {
+                    grid: { hoverable: true },
+                    yaxis: {min: 0, tickFormatter: function(val, axis) { return val < axis.max ? Math.round(val*100)/100 : "min";} },
+                    xaxis: { min: 0, max: 24, tickDecimals: 0, tickSize: 1 }
+                };
+            } else if (grouping==="d") {
+                options = {
+                    grid: { hoverable: true },
+                    yaxis: {min: 0, tickFormatter: function(val, axis) { return val < axis.max ? Math.round(val*100)/100 : "min";} },
+                    xaxis: { tickDecimals: 0, min: -0.4, max: 6.4,
+                    tickFormatter: function(v) { var dow=[_("Sun"),_("Mon"),_("Tue"),_("Wed"),_("Thr"),_("Fri"),_("Sat")]; return dow[v]; } }
+                };
+            } else if (grouping==="m") {
+                options = {
+                    grid: { hoverable: true },
+                    yaxis: {min: 0, tickFormatter: function(val, axis) { return val < axis.max ? Math.round(val*100)/100 : "min";} },
+                    xaxis: { tickDecimals: 0, min: 0.6, max: 12.4, tickSize: 1,
+                    tickFormatter: function(v) { var mon=["",_("Jan"),_("Feb"),_("Mar"),_("Apr"),_("May"),_("Jun"),_("Jul"),_("Aug"),_("Sep"),_("Oct"),_("Nov"),_("Dec")]; return mon[v]; } }
+                };
+            } else if (grouping==="n") {
+                options = {
+                    grid: { hoverable: true },
+                    yaxis: {min: 0, tickFormatter: function(val, axis) { return val < axis.max ? Math.round(val*100)/100 : "min";} },
+                    xaxis: { mode: "time", timeformat: "%b %d %H:%M", min:sortedData.min.getTime(), max:sortedData.max.getTime()}
+                };
             }
+
+            plot = $.plot(placeholder, pData, options);
         },
         sortData = function(type,grouping) {
             var sortedData = [],
@@ -3712,7 +3707,7 @@ function get_logs() {
                 send_to_os("/jl?"+parms(),"json").then(success,fail);
             },delay);
         },
-        plot, logtimeout, hovertimeout, i;
+        logtimeout, hovertimeout, i;
 
     logs.find("input").blur();
     $.mobile.loading("show");
@@ -3737,8 +3732,6 @@ function get_logs() {
 
     //Automatically update log viewer when switching graphing method
     graph_sort.find("input[name='g']").change(function(){
-        placeholder.empty();
-        plot = undefined;
         seriesChange();
     });
 
