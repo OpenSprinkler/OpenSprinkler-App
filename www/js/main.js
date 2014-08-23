@@ -136,7 +136,7 @@ $(document)
         //Change the status bar to match the headers
         StatusBar.overlaysWebView(false);
         StatusBar.styleLightContent();
-        StatusBar.backgroundColorByHexString("#1C1C1C");
+        StatusBar.backgroundColorByHexString("#1D1D1D");
     } catch (err) {}
 
     // Hide the splash screen
@@ -327,6 +327,18 @@ $(document)
             }
         });
     }
+})
+.on("popupafteropen",function(){
+    if ($(".ui-overlay-b:not(.ui-screen-hidden)").length) {
+        try {
+            StatusBar.backgroundColorByHexString("#202020");
+        } catch (err) {}
+    }
+})
+.on("popupafterclose",function(){
+    try {
+        StatusBar.backgroundColorByHexString("#1D1D1D");
+    } catch (err) {}
 })
 .on("pagehide","#start",removeTimers)
 .on("popupbeforeposition","#localization",check_curr_lang);
