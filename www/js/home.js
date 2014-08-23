@@ -1,4 +1,4 @@
-/*global $, initApp, XDomainRequest, ActiveXObject */
+/*global $, ver, initApp, XDomainRequest, ActiveXObject */
 (function(document){
 	var assetLocation = "http://rawgit.com/salbahra/Sprinklers/master/www/",
 		isReady = false;
