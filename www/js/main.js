@@ -2003,6 +2003,7 @@ function show_options() {
         list += "</select></div>";
     }
 
+    list += "<div class='contain-field'><label for='loc'>"+_("Location")+"<button data-helptext='"+_("Location can be a zip code, city/state or a weatherunderground personal weather station using the format: pws:ID")+"' class='needsclick help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><input data-mini='true' type='text' id='loc' value='"+controller.settings.loc+"' /></div>";
 
     if (typeof controller.options.mas !== "undefined") {
         list += "<div class='contain-field'><label for='o18' class='select'>"+_("Master Station")+"</label><select data-native-menu='false' data-mini='true' id='o18'><option value='0'>"+_("None")+"</option>";
@@ -2022,8 +2023,6 @@ function show_options() {
     if (typeof controller.options.mtof !== "undefined") {
         list += "<div class='contain-field'><label for='o20'>"+_("Master Off Delay")+"</label><input data-highlight='true' type='number' pattern='[0-9]*' data-type='range' min='-60' max='60' id='o20' value='"+controller.options.mtof+"' /></div>";
     }
-
-    list += "<div class='contain-field'><label for='loc'>"+_("Location")+"<button data-helptext='"+_("Location can be a zip code, city/state or a weatherunderground personal weather station using the format: pws:ID")+"' class='needsclick help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><input data-mini='true' type='text' id='loc' value='"+controller.settings.loc+"' /></div>";
 
     if (typeof controller.options.ext !== "undefined") {
         list += "<div class='contain-field'><label for='o15'>"+_("Extension Boards")+(controller.options.dexp && controller.options.dexp < 255 ? " ("+controller.options.dexp+" "+_("detected")+")" : "")+"</label><input data-highlight='true' type='number' pattern='[0-9]*' data-type='range' min='0' max='"+(controller.options.mexp ? controller.options.mexp : "5")+"' id='o15' value='"+controller.options.ext+"' /></div>";
