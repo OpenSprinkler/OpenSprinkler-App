@@ -1,4 +1,4 @@
-/*global $, Windows, MSApp, navigator, chrome, FastClick, StatusBar, networkinterface, links, escape */
+/*global $, Windows, MSApp, navigator, chrome, FastClick, StatusBar, networkinterface, links */
 var isIEMobile = /IEMobile/.test(navigator.userAgent),
     isAndroid = /Android|\bSilk\b/.test(navigator.userAgent),
     isiOS = /iP(ad|hone|od)/.test(navigator.userAgent),
@@ -1579,7 +1579,7 @@ function weather_update_failed(x,t,m) {
 }
 
 function update_yahoo_weather() {
-    $.getJSON("https://query.yahooapis.com/v1/public/yql?q=select%20woeid%20from%20geo.placefinder%20where%20text=%22"+escape(controller.settings.loc)+"%22&format=json",function(woeid){
+    $.getJSON("https://query.yahooapis.com/v1/public/yql?q=select%20woeid%20from%20geo.placefinder%20where%20text=%22"+encodeURIComponent(controller.settings.loc)+"%22&format=json",function(woeid){
         if (woeid.query.results === null) {
             hide_weather();
             return;
@@ -1637,7 +1637,7 @@ function update_yahoo_forecast(data,loc,region,now) {
 }
 
 function update_wunderground_weather(wapikey) {
-    $.getJSON("https://api.wunderground.com/api/"+wapikey+"/conditions/forecast/lang:EN/q/"+escape(controller.settings.loc)+".json", function(data) {
+    $.getJSON("https://api.wunderground.com/api/"+wapikey+"/conditions/forecast/lang:EN/q/"+encodeURIComponent(controller.settings.loc)+".json", function(data) {
         var code, temp;
 
         if (data.current_observation.icon_url.indexOf("nt_") !== -1) {
