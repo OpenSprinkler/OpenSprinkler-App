@@ -2868,7 +2868,6 @@ function get_runonce() {
             "</div>" +
         "</div>"),
         updateLastRun = function(data) {
-            fill_runonce(data);
             rprogs.l = data;
             runonce.find("#rprog").prepend("<option value='l' >"+_("Last Used Program")+"</option>");
         },
