@@ -3629,7 +3629,6 @@ function get_logs() {
             }
 
             placeholder.empty().hide();
-            plot = undefined;
 
             var table_header = "<table><thead><tr><th data-priority='1'>"+_("Runtime")+"</th><th data-priority='2'>"+_("Date/Time")+"</th></tr></thead><tbody>",
                 html = "<div data-role='collapsible-set' data-inset='true' data-theme='b' data-collapsed-icon='arrow-d' data-expanded-icon='arrow-u'>",
@@ -3659,7 +3658,6 @@ function get_logs() {
         },
         reset_logs_page = function() {
             placeholder.empty().hide();
-            plot = undefined;
             log_options.collapsible("expand");
             zones.empty().hide();
             graph_sort.hide();
