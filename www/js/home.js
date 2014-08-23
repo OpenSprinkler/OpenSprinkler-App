@@ -79,7 +79,8 @@
 				var sites = {
 					"Local": {
 						"os_ip": document.URL.match(/https?:\/\/(.*)\/.*?/)[1],
-						"os_pw": pw
+						"os_pw": pw,
+						"is183": (ver < 204) ? true : false
 					}
 				},
 				current_site = "Local";
