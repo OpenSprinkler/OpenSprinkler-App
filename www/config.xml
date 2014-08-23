@@ -21,6 +21,10 @@
         <gap:plugin name="org.apache.cordova.inappbrowser" />
         <gap:plugin name="org.apache.cordova.splashscreen" />
 
+        <gap:config-file platform="ios" parent="CFBundleShortVersionString">
+            <string>117</string>
+        </gap:config-file>
+
         <gap:config-file platform="android" parent="/manifest">
             <uses-sdk android:minSdkVersion="10" android:targetSdkVersion="19" />
         </gap:config-file>

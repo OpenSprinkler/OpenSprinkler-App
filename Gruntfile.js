@@ -7,10 +7,14 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks("grunt-contrib-compress");
 
   var bumpVersion = function(version,level) {
-    version = version.split(".") || [0,0,0];
+    var isString = (typeof version === "string");
+    version = version.split((isString) ? "." : "") || [0,0,0];
     level = level || 2;
     version[level]++;
-    return version.join(".");
+    if (isString) {
+      version = version.join(".");
+    }
+    return version;
   };
 
   // Project configuration.
@@ -125,6 +129,11 @@ module.exports = function(grunt) {
           from: /versionCode = "(\d+)"/g,
           to: function(matchedWord, index, fullText, regexMatches) {
             return "versionCode = \""+(parseInt(regexMatches[0])+1)+"\"";
+          }
+        },{
+          from: /<string>(\d+)<\/string>/g,
+          to: function(matchedWord, index, fullText, regexMatches) {
+            return "<string>"+bumpVersion(parseInt(regexMatches[0]))+"</string>";
           }
         }]
       },
