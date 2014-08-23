@@ -391,6 +391,11 @@ a {
     margin-left:1em;
     margin-right:1em
 }
+.ui-header .ui-btn, .ui-header .ui-btn:after {
+    background-color: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+}
 .center {
     text-align:center!important
 }
