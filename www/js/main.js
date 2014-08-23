@@ -416,7 +416,7 @@ function flipSwitched() {
 // Wrapper function to communicate with OpenSprinkler
 function send_to_os(dest,type) {
     // Inject password into the request
-    dest = dest.replace("pw=","pw="+curr_pw);
+    dest = dest.replace("pw=","pw="+encodeURIComponent(curr_pw));
     type = type || "text";
     var obj = {
         url: curr_prefix+curr_ip+dest,
@@ -1908,7 +1908,7 @@ function show_settings() {
             }
 
             $.mobile.loading("show");
-            send_to_os("/sp?pw=&npw="+npw+"&cpw="+cpw,"json").done(function(info){
+            send_to_os("/sp?pw=&npw="+encodeURIComponent(npw)+"&cpw="+encodeURIComponent(cpw),"json").done(function(info){
                 var result = info.result;
 
                 if (!result || result > 1) {
