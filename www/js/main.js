@@ -1129,17 +1129,17 @@ function show_sites(showBack) {
             list = $(list+"</div>");
 
             list.find(".connectnow").on("click",function(){
-                update_site(this.dataset.site);
+                update_site($(this).data("site"));
                 return false;
             });
 
             list.find("form").on("submit",function(){
-                change_site(this.dataset.site);
+                change_site($(this).data("site"));
                 return false;
             });
 
             list.find(".deletesite").on("click",function(){
-                delete_site(this.dataset.site);
+                delete_site($(this).data("site"));
                 return false;
             });
 
@@ -1374,7 +1374,7 @@ function start_scan(port,type) {
                 newlist = $(newlist);
 
                 newlist.find("a").on("click",function(){
-                    add_found(this.dataset.ip);
+                    add_found($(this).data("ip"));
                     return false;
                 });
 
