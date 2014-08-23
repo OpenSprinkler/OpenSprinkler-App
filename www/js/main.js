@@ -2859,7 +2859,7 @@ function get_manual() {
 function get_runonce() {
     var list = "<p class='center'>"+_("Zero value excludes the station from the run-once program.")+"</p>",
         runonce = $("<div data-role='page' id='runonce'>" +
-            "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false'>" +
+            "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false' data-hide-during-focus=''>" +
                 "<a href='javascript:void(0);' class='ui-btn ui-corner-all ui-shadow ui-btn-left ui-btn-b ui-toolbar-back-btn ui-icon-carat-l ui-btn-icon-left' data-rel='back'>"+_("Back")+"</a>" +
                 "<h3>"+_("Run-Once")+"</h3>" +
                 "<button data-icon='check' class='ui-btn-right'>"+_("Submit")+"</button>" +
@@ -3317,7 +3317,7 @@ function get_preview() {
 function get_logs() {
     var now = new Date(),
         logs = $("<div data-role='page' id='logs'>" +
-            "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false'>" +
+            "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false' data-hide-during-focus=''>" +
                 "<a href='javascript:void(0);' class='ui-btn ui-corner-all ui-shadow ui-btn-left ui-btn-b ui-toolbar-back-btn ui-icon-carat-l ui-btn-icon-left' data-rel='back'>"+_("Back")+"</a>" +
                 "<h3>"+_("Logs")+"</h3>" +
                 "<a href='#' data-icon='refresh' class='ui-btn-right'>"+_("Refresh")+"</a>" +
