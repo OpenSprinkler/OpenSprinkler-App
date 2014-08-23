@@ -7,14 +7,11 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks("grunt-contrib-compress");
 
   var bumpVersion = function(version,level) {
-    var isString = (typeof version === "string");
-    version = version.split((isString) ? "." : "") || [0,0,0];
+    var join = (typeof version === "string") ? "." : "";
+    version = version.split(join) || [0,0,0];
     level = level || 2;
     version[level]++;
-    if (isString) {
-      version = version.join(".");
-    }
-    return version;
+    return version.join(join);
   };
 
   // Project configuration.
@@ -120,22 +117,23 @@ module.exports = function(grunt) {
       phonegap: {
         src: ["www/config.xml"],
         overwrite: true,
-        replacements: [{
-          from: /version     = "([\d|\.]+)"/g,
-          to: function(matchedWord, index, fullText, regexMatches){
-            return "version     = \""+bumpVersion(regexMatches[0])+"\"";
-          }
-        },{
-          from: /versionCode = "(\d+)"/g,
-          to: function(matchedWord, index, fullText, regexMatches) {
-            return "versionCode = \""+(parseInt(regexMatches[0])+1)+"\"";
-          }
-        },{
-          from: /<string>(\d+)<\/string>/g,
-          to: function(matchedWord, index, fullText, regexMatches) {
-            return "<string>"+bumpVersion(parseInt(regexMatches[0]))+"</string>";
-          }
-        }]
+        replacements: [
+          {
+            from: /version     = "([\d|\.]+)"/g,
+            to: function(matchedWord, index, fullText, regexMatches){
+              return "version     = \""+bumpVersion(regexMatches[0])+"\"";
+            }
+          },{
+            from: /versionCode = "(\d+)"/g,
+            to: function(matchedWord, index, fullText, regexMatches) {
+              return "versionCode = \""+(parseInt(regexMatches[0])+1)+"\"";
+            }
+          },{
+            from: /<string>(\d+)<\/string>/g,
+            to: function(matchedWord, index, fullText, regexMatches) {
+              return "<string>"+bumpVersion(parseInt(regexMatches[0]))+"</string>";
+            }
+          }]
       },
       manifests: {
         src: ["manifest.json","manifest.webapp","package.json"],
