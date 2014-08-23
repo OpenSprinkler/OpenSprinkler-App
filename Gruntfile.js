@@ -7,7 +7,13 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks("grunt-contrib-compress");
 
   var bumpVersion = function(version,level) {
-    var join = (typeof version === "string") ? "." : "";
+    var join = ".";
+
+    if (typeof version === "number") {
+      join = "";
+      version = version.toString();
+    }
+
     version = version.split(join) || [0,0,0];
     level = level || 2;
     version[level]++;
