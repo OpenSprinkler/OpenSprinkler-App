@@ -1,5 +1,6 @@
 language: objective-c
 before_install: npm install -g grunt-cli
+install: npm install
 before_script: grunt mocha
 script:
   - xctool -project source/osx/Sprinklers.xcodeproj -scheme Sprinklers -sdk macosx10.9 CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGN_ENTITLEMENTS=""
