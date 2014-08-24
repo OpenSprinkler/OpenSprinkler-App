@@ -179,12 +179,7 @@ $(document)
             },100);
             return false;
         });
-    } else if (isIEMobile) {
-        $.mobile.document.on("click",".iab",function(){
-            window.open(this.href,"_system","enableViewportScale=yes");
-            return false;
-        });
-    } else if (isAndroid) {
+    } else if (isIEMobile || isAndroid) {
         $.mobile.document.on("click",".iab",function(){
             window.open(this.href,"_blank","enableViewportScale=yes");
             return false;
