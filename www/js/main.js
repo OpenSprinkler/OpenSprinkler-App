@@ -170,7 +170,16 @@ $(document)
     }
 
     //Use system browser for links on iOS and Windows Phone
-    if (isiOS || isIEMobile) {
+    if (isiOS) {
+        $.mobile.document.on("click",".iab",function(){
+            var button = $(this);
+            window.open(button.attr("href"),"_blank","location=no,enableViewportScale=yes,toolbarposition=top,closebuttoncaption="+_("Done"));
+            setTimeout(function(){
+                button.removeClass("ui-btn-active");
+            },100);
+            return false;
+        });
+    } else if (isIEMobile) {
         $.mobile.document.on("click",".iab",function(){
             window.open(this.href,"_system","enableViewportScale=yes");
             return false;
