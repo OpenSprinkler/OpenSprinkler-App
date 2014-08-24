@@ -213,6 +213,9 @@ msgstr ""
 msgid "Password changed successfully"
 msgstr ""
 
+msgid "Are you sure you want to downgrade the UI?"
+msgstr ""
+
 msgid "Are you sure you want to logout?"
 msgstr ""
 
@@ -225,6 +228,14 @@ msgstr ""
 msgid "Timezone"
 msgstr ""
 
+msgid "Location"
+msgstr ""
+
+msgid ""
+"Location can be a zip code, city/state or a weatherunderground personal "
+"weather station using the format: pws:ID"
+msgstr ""
+
 msgid "Master Station"
 msgstr ""
 
@@ -235,14 +246,6 @@ msgid "Master On Delay"
 msgstr ""
 
 msgid "Master Off Delay"
-msgstr ""
-
-msgid "Location"
-msgstr ""
-
-msgid ""
-"Location can be a zip code, city/state or a weatherunderground personal "
-"weather station using the format: pws:ID"
 msgstr ""
 
 msgid "Extension Boards"
@@ -850,6 +853,9 @@ msgid "Application Settings"
 msgstr ""
 
 msgid "Clear Configuration"
+msgstr ""
+
+msgid "Downgrade UI"
 msgstr ""
 
 msgid "Localization"
