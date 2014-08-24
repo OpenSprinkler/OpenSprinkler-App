@@ -17,14 +17,34 @@
 		head.appendChild(style);
 	}
 
-	function insertStyleSheet(href) {
+	function insertStyleSheet(href,rel,media) {
 		var head = document.head || document.getElementsByTagName("head")[0],
 		    link = document.createElement("link");
 
-		link.rel = "stylesheet";
+		rel = rel || "stylesheet";
+		media = media || "";
+
+		link.rel = rel;
 		link.href = href;
+		link.media = media;
 
 		head.appendChild(link);
+	}
+
+	function insertMeta(name,content) {
+		var head = document.head || document.getElementsByTagName("head")[0],
+		    meta = document.createElement("meta");
+
+		content = content || "";
+
+		if (name === "content-type") {
+			meta.httpEquiv = name;
+		} else {
+			meta.name = name;
+		}
+		meta.content = content;
+
+		head.appendChild(meta);
 	}
 
 	// Insert script into the DOM
@@ -48,6 +68,18 @@
 	// Change the viewport
 	document.querySelector("meta[name='viewport']").content = "width=device-width,initial-scale=1.0,minimum-scale=1.0,user-scalable=no";
 
+	// Allow app to run in full screen when launched from the home screen
+	insertMeta("apple-mobile-web-app-capable","yes");
+
+	// Fix status bar on iOS
+	insertMeta("apple-mobile-web-app-status-bar-style","black");
+
+	// Give the app a name to be used when added to home screen
+	insertMeta("apple-mobile-web-app-title","Sprinklers");
+
+	// Ensure browser knows the content-type of UTF-8
+	insertMeta("content-type","text/html; charset=utf-8");
+
 	// Insert loading icon
 	insertStyle(".spinner{text-align:center;display:block;padding:.9375em;margin-left:-7.1875em;width:12.5em;filter:Alpha(Opacity=88);opacity:.88;box-shadow:0 1px 1px -1px #fff;margin-top:-2.6875em;height:auto;z-index:9999999;position:fixed;top:50%;left:50%;border:0;background-color:#2a2a2a;border-color:#1d1d1d;color:#fff;text-shadow:0 1px 0 #111;-webkit-border-radius:.3125em;border-radius:.3125em;}.spinner h1{font-size: 1em;margin:0;text-align:center;}.spinner form{margin-bottom:0}.spinner form{padding-top:.2em;}.spinner input[type='password']{border-radius:5px;padding:.3em;line-height:1.2em;display:block;width:100%;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;outline:0;}.spinner input[type=submit]{border-radius:5px;border: 0;font-family:Tahoma;background:#f4f4f4;margin-top:5px;width:100%;}.feedback{color:red}");
 
@@ -62,6 +94,23 @@
 
 	// Insert jQuery and run init function on completion
 	insertScript(assetLocation+"js/jquery.min.js",init);
+
+	// Insert home page icon for iOS
+	insertStyleSheet(assetLocation+"res/ios/icons/icon-72@2x.png","apple-touch-icon");
+
+	//Insert the startup images for iOS
+	(function(){
+	    var p, l, r = window.devicePixelRatio, h = window.screen.height;
+	    if (navigator.platform === "iPad") {
+	            p = r === 2 ? "res/ios-web/screens/startup-tablet-portrait-retina.png" : "res/ios-web/screens/startup-tablet-portrait.png";
+	            l = r === 2 ? "res/ios-web/screens/startup-tablet-landscape-retina.png" : "res/ios-web/screens/startup-tablet-landscape.png";
+	            insertStyleSheet(assetLocation+l,"apple-touch-startup-image","screen and (orientation: landscape)");
+	            insertStyleSheet(assetLocation+p,"apple-touch-startup-image","screen and (orientation: portrait)");
+	    } else {
+	            p = r === 2 ? (h === 568 ? "res/ios-web/screens/startup-iphone5-retina.png" : "res/ios-web/screens/startup-retina.png") : "res/ios-web/screens/startup.png";
+	            insertStyleSheet(assetLocation+p,"apple-touch-startup-image");
+	    }
+	})();
 
 	function init() {
 		var body = $("body"),
@@ -131,7 +180,7 @@
 				}
 
 				$.ajax({
-					url: "/sp?pw="+pw+"&npw="+pw+"&cpw="+pw,
+					url: "/sp?pw="+encodeURIComponent(pw)+"&npw="+encodeURIComponent(pw)+"&cpw="+encodeURIComponent(pw),
 					cache: false,
 					crossDomain: true,
 					type: "GET"
