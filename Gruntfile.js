@@ -5,6 +5,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks("grunt-text-replace");
   grunt.loadNpmTasks("grunt-shell");
   grunt.loadNpmTasks("grunt-contrib-compress");
+  grunt.loadNpmTasks('grunt-mocha');
 
   var bumpVersion = function(version,level) {
     var join = ".";
@@ -28,6 +29,14 @@ module.exports = function(grunt) {
     	main: ["<%= pkg.main %>","Gruntfile.js","www/js/home.js","www/js/chrome.js"],
       options: {
         jshintrc: true
+      }
+    },
+    mocha: {
+      all: {
+        src: ['test/init.html'],
+      },
+      options: {
+        run: true
       }
     },
     compress: {
