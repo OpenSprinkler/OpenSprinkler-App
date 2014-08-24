@@ -5,26 +5,38 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks("grunt-text-replace");
   grunt.loadNpmTasks("grunt-shell");
   grunt.loadNpmTasks("grunt-contrib-compress");
-  grunt.loadNpmTasks('grunt-mocha');
+  grunt.loadNpmTasks("grunt-mocha");
 
   var bumpVersion = function(version,level) {
-    var join = ".";
+      var join = ".";
 
-    if (typeof version === "number") {
-      join = "";
-      version = version.toString();
+      if (typeof version === "number") {
+        join = "";
+        version = version.toString();
+      }
+
+      version = version.split(join) || [0,0,0];
+      level = level || 2;
+      version[level]++;
+      return version.join(join);
+    },
+    secrets;
+
+  if (grunt.file.exists(".secrets.json")) {
+    secrets = grunt.file.readJSON(".secrets.json");
+  } else {
+    secrets = {
+        "getLocalization": {
+            "username": "",
+            "password": ""
+        }
     }
-
-    version = version.split(join) || [0,0,0];
-    level = level || 2;
-    version[level]++;
-    return version.join(join);
-  };
+  }
 
   // Project configuration.
   grunt.initConfig({
     pkg: grunt.file.readJSON("package.json"),
-    secrets: grunt.file.readJSON(".secrets.json"),
+    secrets: secrets,
     jshint: {
     	main: ["<%= pkg.main %>","Gruntfile.js","www/js/home.js","www/js/chrome.js"],
       options: {
@@ -33,7 +45,7 @@ module.exports = function(grunt) {
     },
     mocha: {
       all: {
-        src: ['test/init.html'],
+        src: ["test/init.html"],
       },
       options: {
         run: true
