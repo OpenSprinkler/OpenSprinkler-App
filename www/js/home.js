@@ -246,10 +246,10 @@
 							body.find(".multiSite").hide();
 
 							// Show local site features
-							body.find(".localSite").removeClass("hidden");
+							body.find("#logout").removeClass("hidden");
 
-							if (ver > 207) {
-								body.find("#downgradeui").parent().addClass("hidden");
+							if (ver < 208) {
+								body.find("#downgradeui").parent().removeClass("hidden");
 							}
 						});
 
