@@ -30,7 +30,7 @@ module.exports = function(grunt) {
             "username": "",
             "password": ""
         }
-    }
+    };
   }
 
   // Project configuration.
@@ -38,7 +38,7 @@ module.exports = function(grunt) {
     pkg: grunt.file.readJSON("package.json"),
     secrets: secrets,
     jshint: {
-    	main: ["<%= pkg.main %>","Gruntfile.js","www/js/home.js","www/js/chrome.js"],
+    	main: ["<%= pkg.main %>","Gruntfile.js","www/js/home.js","www/js/chrome.js","test/init.js"],
       options: {
         jshintrc: true
       }
