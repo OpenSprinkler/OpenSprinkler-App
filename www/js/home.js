@@ -246,7 +246,7 @@
 							body.find(".multiSite").hide();
 
 							// Show local site features
-							body.find("#logout").removeClass("hidden");
+							body.find("#logout").parent().removeClass("hidden");
 
 							if (ver < 208) {
 								body.find("#downgradeui").parent().removeClass("hidden");
