@@ -2944,7 +2944,7 @@ function get_runonce() {
     } else {
         storage.get("runonce",function(data){
             data = data.runonce;
-            if (data !== undefined) {
+            if (data) {
                 data = JSON.parse(data);
                 updateLastRun(data);
             }
