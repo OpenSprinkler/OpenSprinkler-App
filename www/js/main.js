@@ -151,6 +151,9 @@ $(document)
 
     // For Android, Blackberry and Windows Phone devices catch the back button and redirect it
     $.mobile.document.on("backbutton",function(){
+        if (isIEMobile && $.mobile.document.data("iabOpen")) {
+            return false;
+        }
         goBack();
         return false;
     });
@@ -179,7 +182,17 @@ $(document)
             },100);
             return false;
         });
-    } else if (isIEMobile || isAndroid) {
+    } else if (isIEMobile) {
+        $.mobile.document.on("click",".iab",function(){
+            var iab = window.open(this.href,"_blank","enableViewportScale=yes");
+
+            $.mobile.document.data("iabOpen",true);
+            iab.addEventListener("exit",function(){
+                $.mobile.document.removeData("iabOpen");
+            });
+            return false;
+        });
+    } else if (isAndroid) {
         $.mobile.document.on("click",".iab",function(){
             window.open(this.href,"_blank","enableViewportScale=yes");
             return false;
