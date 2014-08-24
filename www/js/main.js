@@ -2940,7 +2940,15 @@ function get_runonce() {
     runonce.find(".ui-content").html(list);
 
     if (typeof controller.settings.rodur === "object") {
-        updateLastRun(controller.settings.rodur);
+        var total = 0;
+
+        for (i=0; i<controller.settings.rodur.length; i++) {
+            total += controller.settings.rodur[i];
+        }
+
+        if (total !== 0) {
+            updateLastRun(controller.settings.rodur);
+        }
     } else {
         storage.get("runonce",function(data){
             data = data.runonce;
