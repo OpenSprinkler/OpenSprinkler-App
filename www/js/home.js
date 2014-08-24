@@ -247,6 +247,10 @@
 
 							// Show local site features
 							body.find(".localSite").removeClass("hidden");
+
+							if (ver > 207) {
+								body.find("#downgradeui").parent().addClass("hidden");
+							}
 						});
 
 						// Mark environment as loaded
