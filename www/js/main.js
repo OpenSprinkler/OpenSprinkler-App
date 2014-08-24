@@ -1951,7 +1951,18 @@ function show_settings() {
             popup.remove();
         }).popup().enhanceWithin().popup("open");
     });
-    settings.find(".localSite > a").off("click").on("click",function(){
+    settings.find("#downgradeui").off("click").on("click",function(){
+        areYouSure(_("Are you sure you want to downgrade the UI?"), "", function(){
+            var url = "http://rayshobby.net/scripts/java/svc"+getOSVersion();
+
+            send_to_os("/cu?jsp="+encodeURIComponent(url)+"&pw=").done(function(){
+                storage.remove(["sites","current_site","lang","provider","wapikey","runonce"]);
+                location.reload();
+            });
+        });
+        return false;
+    });
+    settings.find("#logout").off("click").on("click",function(){
         areYouSure(_("Are you sure you want to logout?"), "", function(){
             storage.remove(["sites","current_site","lang","provider","wapikey","runonce"],function(){
                 location.reload();
