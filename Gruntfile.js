@@ -177,14 +177,14 @@ module.exports = function(grunt) {
         overwrite: true,
         replacements: [{
           from: /var assetLocation = "http:\/\/rawgit.com\/salbahra\/Sprinklers\/master\/www\/"/g,
-          to: "var assetLocation = \"http://rayshobby.net/scripts/java/sprinklers/\""
+          to: "var assetLocation = \"http://rayshobby.net/scripts/sprinklers/\""
         }]
       },
       toGithub: {
         src: ["www/js/home.js"],
         overwrite: true,
         replacements: [{
-          from: /var assetLocation = "http:\/\/rayshobby.net\/scripts\/java\/sprinklers\/"/g,
+          from: /var assetLocation = "http:\/\/rayshobby.net\/scripts\/sprinklers\/"/g,
           to: "var assetLocation = \"http://rawgit.com/salbahra/Sprinklers/master/www/\""
         }]
       }
