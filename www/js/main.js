@@ -2909,7 +2909,8 @@ function get_runonce() {
         "</div>"),
         updateLastRun = function(data) {
             rprogs.l = data;
-            runonce.find("#rprog").prepend("<option value='l' >"+_("Last Used Program")+"</option>");
+            runonce.find("#rprog").prepend("<option value='l' selected='selected'>"+_("Last Used Program")+"</option>");
+            fill_runonce(data);
         },
         reset_runonce = function() {
             runonce.find("[id^='zone-']").val(0).text("0s").removeClass("green");
