@@ -139,7 +139,7 @@
 				current_site = "Local";
 
 				// Show loading message and title
-				body.html("<div class='spinner'><div class='logo'></div></div>");
+				body.html("<div class='spinner'><h1>Loading</h1></div>");
 				document.title = "Loading...";
 
 				// Inject site information to storage so Application loads current device
