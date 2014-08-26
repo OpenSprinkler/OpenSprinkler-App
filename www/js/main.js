@@ -2203,6 +2203,10 @@ function submit_options() {
             id = $item.attr("id"),
             data = $item.val();
 
+        if (!id || !data) {
+            return true;
+        }
+
         switch (id) {
             case "o1":
                 var tz = data.split(":");
@@ -2222,6 +2226,12 @@ function submit_options() {
                 opt.tmi = dt.getMinutes();
                 opt.ttt = Math.round(dt.getTime()/1000);
 
+                return true;
+            case "o12":
+                if (!isPi) {
+                    opt.o12 = data&0xff;
+                    opt.o13 = (data>>8)&0xff;
+                }
                 return true;
             case "o2":
             case "o14":
