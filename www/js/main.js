@@ -3631,6 +3631,7 @@ function get_logs() {
             logs_list.empty().hide();
             var state = ($.mobile.window.height() > 680) ? "expand" : "collapse";
             setTimeout(function(){log_options.collapsible(state);},100);
+            placeholder.empty();
             placeholder.show();
             var freshLoad = zones.find("table").length;
             zones.show();
