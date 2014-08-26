@@ -204,7 +204,7 @@
       "Ignore Rain?" : "Ignorare la pioggia ?",
       "Welcome to the OpenSprinkler application. This app only works with the OpenSprinkler controller which must be installed and setup on your home network." : "Benvenuti nell'applicazione OpenSprinkler. Questa app funziona esclusivamente con una o piu' centraline OpenSprinkler che devono essere installate e configurate per la vostra rete ",
       "Oct" : "Ott",
-      "Program Interval" : "Intervallo prog.",
+      "Program Interval" : "Turno irriguo",
       "is running on" : "è acceso su",
       "Use Auth" : "Usa Auth",
       "Master Off Delay" : "Ritardo spegnimento Master",
