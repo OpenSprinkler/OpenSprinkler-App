@@ -1,3 +1,6 @@
+msgid "Done"
+msgstr ""
+
 msgid "Are you sure you want to stop all stations?"
 msgstr ""
 
@@ -868,6 +871,9 @@ msgid "Chinese"
 msgstr ""
 
 msgid "Czech"
+msgstr ""
+
+msgid "Dutch"
 msgstr ""
 
 msgid "English"
