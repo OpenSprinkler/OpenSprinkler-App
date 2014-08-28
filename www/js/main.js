@@ -2256,7 +2256,7 @@ function submit_options() {
 
         // Because the firmware has a bug regarding spaces, let us replace them out now with a compatible seperator
         if (controller.options.fwv === 208 && id === "loc") {
-            data = data.replace(" ","_");
+            data = data.replace(/\s/g,"_");
         }
 
         opt[id] = data;
@@ -2381,7 +2381,7 @@ function submit_stations() {
                 }
                 // Because the firmware has a bug regarding spaces, let us replace them out now with a compatible seperator
                 if (controller.options.fwv === 208) {
-                    data = data.replace(" ","_");
+                    data = data.replace(/\s/g,"_");
                 }
                 names[id] = data;
                 return true;
