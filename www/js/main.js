@@ -2253,6 +2253,12 @@ function submit_options() {
                 id = "o"+keyNames[key];
             }
         }
+
+        // Because the firmware has a bug regarding spaces, let us replace them out now with a compatible seperator
+        if (controller.options.fwv === 208 && id === "loc") {
+            data = data.replace(" ","_");
+        }
+
         opt[id] = data;
     });
     if (invalid) {
@@ -2373,6 +2379,10 @@ function submit_stations() {
                     showerror(_("Station name must be 32 characters or less"));
                     return false;
                 }
+                // Because the firmware has a bug regarding spaces, let us replace them out now with a compatible seperator
+                if (controller.options.fwv === 208) {
+                    data = data.replace(" ","_");
+                }
                 names[id] = data;
                 return true;
             case "um_" + id.slice("um_".length):
@@ -2398,9 +2408,16 @@ function submit_stations() {
                 return true;
         }
     });
-    master.fullStatus["m"+master.boardIndex]=parseInt(master.boardStatus,2);
-    rain.fullStatus["i"+rain.boardIndex]=parseInt(rain.boardStatus,2);
-    relay.fullStatus["a"+relay.boardIndex]=parseInt(relay.boardStatus,2);
+
+    if (!isNaN(parseInt(master.boardStatus,2))) {
+        master.fullStatus["m"+master.boardIndex]=parseInt(master.boardStatus,2);
+    }
+    if (!isNaN(parseInt(rain.boardStatus,2))) {
+        rain.fullStatus["i"+rain.boardIndex]=parseInt(rain.boardStatus,2);
+    }
+    if (!isNaN(parseInt(relay.boardStatus,2))) {
+        relay.fullStatus["a"+relay.boardIndex]=parseInt(relay.boardStatus,2);
+    }
 
     if ($("[id^='um_']").length) {
         master.param = "&"+$.param(master.fullStatus);
