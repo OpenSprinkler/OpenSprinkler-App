@@ -3862,6 +3862,8 @@ function get_programs(pid) {
         programs.remove();
     })
     .one("pagebeforeshow",function(){
+        update_program_header();
+
         if (typeof pid !== "number" && controller.programs.pd.length === 1) {
             pid = 0;
         }
@@ -3873,8 +3875,6 @@ function get_programs(pid) {
     });
 
     programs.appendTo("body");
-
-    update_program_header();
 }
 
 function expandProgram(program) {
