@@ -867,6 +867,9 @@ msgstr ""
 msgid "Logout"
 msgstr ""
 
+msgid "Afrikaans"
+msgstr ""
+
 msgid "Chinese"
 msgstr ""
 
