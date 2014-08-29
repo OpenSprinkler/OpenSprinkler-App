@@ -124,7 +124,11 @@
 					if (isReady) {
 						clearInterval(interval);
 						// Load jQuery Mobile
-						$.getScript(assetLocation+"js/jquery.mobile.min.js");
+						$.ajax({
+							url: assetLocation+"js/jquery.mobile.min.js",
+							dataType: "script",
+							cache: true
+						});
 					}
 				},1);
 			},
@@ -214,7 +218,6 @@
 
 		$.ajax({
 			url: assetLocation+"index.html",
-			cache: false,
 			crossDomain: true,
 			type: "GET"
 		}).then(
@@ -226,10 +229,18 @@
 				window.curr_local = true;
 
 				// Load 3rd party libraries such as FastClick (loaded first to avoid conflicts)
-				$.getScript(assetLocation+"js/libs.js",function(){
+				$.ajax({
+					url: assetLocation+"js/libs.js",
+					cache: true,
+					dataType: "script"
+				}).done(function(){
 
 					// Load main application Javascript (loaded before jQM so binds trigger when jQM loads)
-					$.getScript(assetLocation+"js/main.js",function(){
+					$.ajax({
+						url: assetLocation+"js/main.js",
+						cache: true,
+						dataType: "script"
+					}).done(function(){
 
 						// Show the body when jQM attempts first page transition
 						$(document).one("mobileinit",function(){
