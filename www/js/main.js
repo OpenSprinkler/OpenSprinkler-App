@@ -172,32 +172,29 @@ $(document)
         });
     }
 
+    var options = "enableViewportScale=yes";
+
     //Use system browser for links on iOS and Windows Phone
     if (isiOS) {
-        $.mobile.document.on("click",".iab",function(){
-            var button = $(this);
-            window.open(button.attr("href"),"_blank","location=no,enableViewportScale=yes,toolbarposition=top,closebuttoncaption="+_("Done"));
-            setTimeout(function(){
-                button.removeClass("ui-btn-active");
-            },100);
-            return false;
-        });
-    } else if (isIEMobile) {
-        $.mobile.document.on("click",".iab",function(){
-            var iab = window.open(this.href,"_blank","enableViewportScale=yes");
+        options = "location=no,enableViewportScale=yes,toolbarposition=top,closebuttoncaption="+_("Done");
+    }
 
+    $.mobile.document.on("click",".iab",function(){
+        var button = $(this),
+            iab = window.open(this.href,"_blank","location=no,enableViewportScale=yes,toolbarposition=top,closebuttoncaption="+_("Done"));
+
+        if (isIEMobile) {
             $.mobile.document.data("iabOpen",true);
             iab.addEventListener("exit",function(){
                 $.mobile.document.removeData("iabOpen");
             });
-            return false;
-        });
-    } else if (isAndroid) {
-        $.mobile.document.on("click",".iab",function(){
-            window.open(this.href,"_blank","enableViewportScale=yes");
-            return false;
-        });
-    }
+        }
+
+        setTimeout(function(){
+            button.removeClass("ui-btn-active");
+        },100);
+        return false;
+    });
 })
 .one("pagebeforechange", function(event) {
     // Let the framework know we're going to handle the first load
