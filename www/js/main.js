@@ -241,7 +241,7 @@ $(document)
         if (hash === "#programs") {
             get_programs(data.options.programToExpand);
         } else if (hash === "#addprogram") {
-            add_program();
+            add_program(data.options.copyID);
         } else if (hash === "#status") {
             get_status();
         } else if (hash === "#manual") {
@@ -3895,6 +3895,16 @@ function get_programs(pid) {
         }
     });
 
+    programs.find(".program-copy").on("click",function(){
+        var copyID = parseInt($(this).parents("fieldset").attr("id").split("-")[1]);
+
+        changePage("#addprogram",{
+            copyID: copyID
+        });
+
+        return false;
+    });
+
     programs
     .one("pagehide",function(){
         programs.remove();
@@ -4072,22 +4082,13 @@ function make_all_programs() {
     }
     var list = "<p class='center'>"+_("Click any program below to expand/edit. Be sure to save changes by hitting submit below.")+"</p><div data-role='collapsible-set'>";
     for (var i = 0; i < controller.programs.pd.length; i++) {
-        list += "<fieldset id='program-"+i+"' data-role='collapsible'><legend>"+_("Program")+" "+(i+1)+"</legend>";
+        list += "<fieldset id='program-"+i+"' data-role='collapsible'><h3><div class='ui-btn ui-btn-corner-all program-copy'>copy</div>"+_("Program")+" "+(i+1)+"</h3>";
         list += "</fieldset>";
     }
     return list+"</div>";
 }
 
-//Generate a new program view
-function fresh_program() {
-    var list = "<fieldset id='program-new'>";
-    list +=make_program("new");
-    list += "</fieldset>";
-
-    return list;
-}
-
-function make_program(n) {
+function make_program(n,isCopy) {
     var week = [_("Monday"),_("Tuesday"),_("Wednesday"),_("Thursday"),_("Friday"),_("Saturday"),_("Sunday")],
         list = "",
         days, i, j, set_stations, program;
@@ -4156,7 +4157,7 @@ function make_program(n) {
     list += "<div class='ui-block-b'><label for='interval-"+n+"'>"+_("Program Interval")+"</label><button data-mini='true' name='interval-"+n+"' id='interval-"+n+"' value='"+program.interval*60+"'>"+dhms2str(sec2dhms(program.interval*60))+"</button></div>";
     list += "</div>";
 
-    if (n === "new") {
+    if (isCopy === true || n === "new") {
         list += "<input data-mini='true' type='submit' name='submit-"+n+"' id='submit-"+n+"' value='"+_("Save New Program")+"'>";
     } else {
         list += "<input data-mini='true' type='submit' name='submit-"+n+"' id='submit-"+n+"' value='"+_("Save Changes to Program")+" "+(n + 1)+"'>";
@@ -4166,7 +4167,9 @@ function make_program(n) {
     return list;
 }
 
-function add_program() {
+function add_program(copyID) {
+    copyID = (copyID >= 0) ? copyID : "new";
+
     var addprogram = $("<div data-role='page' id='addprogram'>" +
                 "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false' data-hide-during-focus=''>" +
                     "<h3>"+_("Add Program")+"</h3>" +
@@ -4174,7 +4177,9 @@ function add_program() {
                     "<button data-icon='check' class='ui-btn-right'>"+_("Submit")+"</button>" +
                 "</div>" +
                 "<div class='ui-content' role='main' id='newprogram'>" +
-                    fresh_program() +
+                    "<fieldset id='program-new'>" +
+                        make_program(copyID,true) +
+                    "</fieldset>" +
                 "</div>" +
             "</div>");
 
