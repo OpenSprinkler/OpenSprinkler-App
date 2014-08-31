@@ -1,3 +1,9 @@
+.program-copy {
+    font-size: 11px;
+    font-weight: bold;
+    padding: 0.2em 0.5em;
+    float: right;
+}
 .help-icon {
     display: inline-block;
     vertical-align: middle
