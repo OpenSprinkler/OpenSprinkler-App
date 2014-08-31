@@ -4082,7 +4082,7 @@ function make_all_programs() {
     }
     var list = "<p class='center'>"+_("Click any program below to expand/edit. Be sure to save changes by hitting submit below.")+"</p><div data-role='collapsible-set'>";
     for (var i = 0; i < controller.programs.pd.length; i++) {
-        list += "<fieldset id='program-"+i+"' data-role='collapsible'><h3><div class='ui-btn ui-btn-corner-all program-copy'>copy</div>"+_("Program")+" "+(i+1)+"</h3>";
+        list += "<fieldset id='program-"+i+"' data-role='collapsible'><h3><div class='ui-btn ui-btn-corner-all program-copy'>"+_("copy")+"</div>"+_("Program")+" "+(i+1)+"</h3>";
         list += "</fieldset>";
     }
     return list+"</div>";
