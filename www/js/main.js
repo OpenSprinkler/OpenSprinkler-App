@@ -4656,7 +4656,7 @@ function showSingleDurationInput(opt) {
         title: _("Duration"),
         minimum: 0,
         callback: function(){}
-    }
+    };
 
     opt = $.extend({}, defaults, opt);
 
