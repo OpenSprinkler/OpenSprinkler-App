@@ -464,7 +464,7 @@ function send_to_os(dest,type) {
     }
 
     return $.ajax(obj).retry({times:retryCount, statusCodes: [0,408,500]}).fail(function(e){
-        if (e.statusText==="timeout" || e.status===0) {
+        if ((e.statusText==="timeout" || e.status===0) && /\/(?:cv|cs|cr|cp|uwa|dp|co|cl|cu)/.exec(dest)) {
             showerror(_("Connection timed-out. Please try again."));
         } else if (e.status===401 && /\/(?:cv|cs|cr|cp|uwa|dp|co|cl|cu)/.exec(dest)) {
             showerror(_("Check device password and try again."));
