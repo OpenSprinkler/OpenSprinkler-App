@@ -2059,11 +2059,11 @@ function show_options() {
     }
 
     if (typeof controller.options.mtof !== "undefined") {
-        list += "<div class='contain-field'><label for='o20'>"+_("Master Off Delay")+"</label><input data-highlight='true' type='number' pattern='[0-9]*' data-type='range' min='-60' max='60' id='o20' value='"+controller.options.mtof+"' /></div>";
+        list += "<div class='contain-field duration-field'><label for='o20'>"+_("Master Off Delay")+"</label><button data-mini='true' id='o20' value='"+controller.options.mtof+"'>"+controller.options.mtof+"s</button></div>";
     }
 
     if (typeof controller.options.ext !== "undefined") {
-        list += "<div class='contain-field'><label for='o15'>"+_("Extension Boards")+(controller.options.dexp && controller.options.dexp < 255 ? " ("+controller.options.dexp+" "+_("detected")+")" : "")+"</label><input data-highlight='true' type='number' pattern='[0-9]*' data-type='range' min='0' max='"+(controller.options.mexp ? controller.options.mexp : "5")+"' id='o15' value='"+controller.options.ext+"' /></div>";
+        list += "<div class='contain-field duration-field'><label for='o15'>"+_("Extension Boards")+(controller.options.dexp && controller.options.dexp < 255 ? " ("+controller.options.dexp+" "+_("detected")+")" : "")+"</label><button data-mini='true' id='o15' value='"+controller.options.ext+"'>"+controller.options.ext+" "+_("board(s)")+"</button></div>";
     }
 
     if (typeof controller.options.sdt !== "undefined") {
@@ -2071,7 +2071,7 @@ function show_options() {
     }
 
     if (typeof controller.options.wl !== "undefined") {
-        list += "<div class='contain-field'><label for='o23'>"+_("% Watering")+"<button data-helptext='"+_("The watering level modifies station run times by the set percentage")+"' class='needsclick help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><input data-highlight='true' type='number' pattern='[0-9]*' data-type='range' min='0' max='250' id='o23' value='"+controller.options.wl+"' /></div>";
+        list += "<div class='contain-field duration-field'><label for='o23'>"+_("% Watering")+"<button data-helptext='"+_("The watering level modifies station run times by the set percentage")+"' class='needsclick help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><button data-mini='true' id='o23' value='"+controller.options.wl+"'>"+controller.options.wl+"%</button></div>";
     }
 
     if (typeof controller.options.hp0 !== "undefined") {
@@ -2148,9 +2148,49 @@ function show_options() {
         if (id === "o19") {
             max = 60;
         } else if (id === "o30") {
-            showMillisecondRequest(dur.val(),name,function(result){
-                dur.val(result).text(result+"ms");
-            },2000);
+            showSingleDurationInput({
+                data: dur.val(),
+                title: name,
+                callback: function(result){
+                    dur.val(result).text(result+"ms");
+                },
+                label: _("Milliseconds"),
+                maximum: 2000
+            });
+            return;
+        } else if (id === "o20") {
+            showSingleDurationInput({
+                data: dur.val(),
+                title: name,
+                callback: function(result){
+                    dur.val(result).text(result+"s");
+                },
+                label: _("Seconds"),
+                maximum: 60,
+                minimum: -60
+            });
+            return;
+        } else if (id === "o15") {
+            showSingleDurationInput({
+                data: dur.val(),
+                title: name,
+                callback: function(result){
+                    dur.val(result).text(result+" board(s)");
+                },
+                label: _("Extension Boards"),
+                maximum: 5
+            });
+            return;
+        } else if (id === "o23") {
+            showSingleDurationInput({
+                data: dur.val(),
+                title: name,
+                callback: function(result){
+                    dur.val(result).text(result+"%");
+                },
+                label: _("% Watering"),
+                maximum: 250
+            });
             return;
         }
 
@@ -4511,7 +4551,7 @@ function areYouSure(text1, text2, callback) {
 function showDurationBox(seconds,title,callback,maximum,granularity) {
     $("#durationBox").popup("destroy").remove();
 
-    title = title || "Duration";
+    title = title || _("Duration");
     callback = callback || function(){};
     granularity = granularity || 0;
 
@@ -4604,19 +4644,26 @@ function showDurationBox(seconds,title,callback,maximum,granularity) {
     .enhanceWithin().popup("open");
 }
 
-function showMillisecondRequest(milliseconds,title,callback,maximum) {
-    $("#msInput").popup("destroy").remove();
+function showSingleDurationInput(opt) {
+    $("#singleDuration").popup("destroy").remove();
+    var defaults = {
+        data: 0,
+        title: _("Duration"),
+        minimum: 0,
+        callback: function(){}
+    }
 
-    callback = callback || function(){};
+    opt = $.extend({}, defaults, opt);
 
-    var popup = $("<div data-role='popup' id='msInput' data-theme='a' data-overlay-theme='b'>" +
+    var popup = $("<div data-role='popup' id='singleDuration' data-theme='a' data-overlay-theme='b'>" +
             "<div data-role='header' data-theme='b'>" +
-                "<h1>"+title+"</h1>" +
+                "<h1>"+opt.title+"</h1>" +
             "</div>" +
             "<div class='ui-content'>" +
+                (opt.helptext ? "<p class='rain-desc center'>"+opt.helptext+"</p>" : "") +
                 "<span>" +
                     "<a class='incr' href='#' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a>" +
-                    "<label>"+_("Milliseconds")+"</label><input type='number' pattern='[0-9]*' value='"+milliseconds+"'>" +
+                    "<label>"+opt.label+"</label><input type='number' pattern='[0-9]*' value='"+opt.data+"'>" +
                     "<a class='decr' href='#' data-role='button' data-mini='true' data-corners='true' data-icon='minus' data-iconpos='bottom'></a>" +
                 "</span>" +
             "</div>" +
@@ -4625,12 +4672,12 @@ function showMillisecondRequest(milliseconds,title,callback,maximum) {
         changeValue = function(dir){
             var val = parseInt(input.val());
 
-            if ((dir === -1 && val === 0) || (dir === 1 && (val + dir) > maximum)) {
+            if ((dir === -1 && val === opt.minimum) || (dir === 1 && val === opt.maximum)) {
                 return;
             }
 
             input.val(val+dir);
-            callback(val+dir);
+            opt.callback(val+dir);
         };
 
     popup.find(".incr").on("vclick",function(){
@@ -4646,13 +4693,12 @@ function showMillisecondRequest(milliseconds,title,callback,maximum) {
     $(".ui-page-active").append(popup);
 
     popup
-    .css("max-width","150px")
     .popup({
         history: false,
         "positionTo": "window"
     })
     .one("popupafterclose",function(){
-        callback(input.val());
+        opt.callback(input.val());
         $(this).popup("destroy").remove();
     })
     .enhanceWithin().popup("open");
