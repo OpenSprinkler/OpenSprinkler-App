@@ -268,7 +268,8 @@ $(document)
             show_addnew();
             return false;
         } else if (hash === "#raindelay") {
-            $(hash).find("form").on("submit",raindelay);
+            var newPage = $(hash);
+            newPage.find("form").on("submit",raindelay).find("#delay").val(0).slider("refresh");
         } else if (hash === "#site-select") {
             show_site_select();
             return false;
