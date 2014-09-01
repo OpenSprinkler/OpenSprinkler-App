@@ -478,7 +478,8 @@ function network_fail(){
 
 // Gather new controller information and load home page
 function newload() {
-    var name = $("#site-selector").val();
+    var name = $("#site-selector").val(),
+        isLoading = true;
 
     $.mobile.loading("show", {
         text: curr_local ? _("Loading") : _("Connecting to")+" "+name,
@@ -487,6 +488,20 @@ function newload() {
         theme: "b"
     });
 
+    setTimeout(function(){
+        if (isLoading === false) {
+            return;
+        }
+
+        var cancel = $("<p class='tight center'><span class='help-icon btn-no-border ui-btn ui-icon-delete ui-btn-icon-notext'></span>Cancel</p>");
+
+        cancel.one("click",function(){
+            changePage("#site-control",{"showBack": false});
+        });
+
+        $(".ui-loader").append(cancel);
+    },800);
+
     //Empty object which will store device data
     controller = {};
     update_controller(
@@ -494,6 +509,8 @@ function newload() {
             var log_button = $("#log_button"),
                 clear_logs = $(".clear_logs"),
                 change_password = $(".change_password");
+
+            isLoading = false;
 
             $.mobile.loading("hide");
             check_status();
@@ -539,6 +556,7 @@ function newload() {
             }
         },
         function(){
+            isLoading = false;
             changePage("#site-control",{"showBack": false});
         }
     );
