@@ -2092,6 +2092,10 @@ function show_options() {
         list += "<label for='o22'><input data-mini='true' id='o22' type='checkbox' "+((controller.options.rso === 1) ? "checked='checked'" : "")+" />"+_("Normally Open (Rain Sensor)")+"</label>";
     }
 
+    if (typeof controller.options.lg !== "undefined") {
+        list += "<label for='o31'><input data-mini='true' id='o31' type='checkbox' "+((controller.options.lg === 1) ? "checked='checked'" : "")+" />"+_("Enable Logging")+"</label>";
+    }
+
     if (typeof controller.options.ntp !== "undefined") {
         list += "<label for='o2'><input data-mini='true' id='o2' type='checkbox' "+((controller.options.ntp === 1) ? "checked='checked'" : "")+" />"+_("NTP Sync")+"</label>";
     }
@@ -2227,7 +2231,7 @@ function submit_options() {
     var opt = {},
         invalid = false,
         isPi = isOSPi(),
-        keyNames = {1:"tz",2:"ntp",12:"htp",13:"htp2",14:"ar",15:"nbrd",16:"seq",17:"sdt",18:"mas",19:"mton",20:"mtoff",21:"urs",22:"rst",23:"wl",25:"ipas",30:"rlp"},
+        keyNames = {1:"tz",2:"ntp",12:"htp",13:"htp2",14:"ar",15:"nbrd",16:"seq",17:"sdt",18:"mas",19:"mton",20:"mtoff",21:"urs",22:"rst",23:"wl",25:"ipas",30:"rlp",31:"lg"},
         key;
 
     $("#os-options-list").find(":input,button").each(function(a,b){
@@ -2271,6 +2275,8 @@ function submit_options() {
             case "o21":
             case "o22":
             case "o25":
+            case "o30":
+            case "o31":
                 data = $item.is(":checked") ? 1 : 0;
                 if (!data) {
                     return true;
@@ -4334,8 +4340,8 @@ function export_config() {
 }
 
 function import_config(data) {
-    var piNames = {1:"tz",2:"ntp",12:"htp",13:"htp2",14:"ar",15:"nbrd",16:"seq",17:"sdt",18:"mas",19:"mton",20:"mtoff",21:"urs",22:"rst",23:"wl",25:"ipas"},
-        keyIndex = {"tz":1,"ntp":2,"hp0":12,"hp1":13,"ar":14,"ext":15,"seq":16,"sdt":17,"mas":18,"mton":19,"mtof":20,"urs":21,"rso":22,"wl":23,"ipas":25,"devid":26};
+    var piNames = {1:"tz",2:"ntp",12:"htp",13:"htp2",14:"ar",15:"nbrd",16:"seq",17:"sdt",18:"mas",19:"mton",20:"mtoff",21:"urs",22:"rst",23:"wl",25:"ipas",30:"rlp",31:"lg"},
+        keyIndex = {"tz":1,"ntp":2,"hp0":12,"hp1":13,"ar":14,"ext":15,"seq":16,"sdt":17,"mas":18,"mton":19,"mtof":20,"urs":21,"rso":22,"wl":23,"ipas":25,"devid":26,"rlp":30,"lg":31};
 
     if (typeof data === "undefined") {
         storage.get("backup",function(newdata){
@@ -4369,7 +4375,7 @@ function import_config(data) {
         for (i in data.options) {
             if (data.options.hasOwnProperty(i) && keyIndex.hasOwnProperty(i)) {
                 key = keyIndex[i];
-                if ($.inArray(key, [2,14,16,21,22,25]) !== -1 && data.options[i] === 0) {
+                if ($.inArray(key, [2,14,16,21,22,25,31]) !== -1 && data.options[i] === 0) {
                     continue;
                 }
                 if (isPi) {
