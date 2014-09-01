@@ -2001,7 +2001,9 @@ function show_options() {
                 "<h3>"+_("Change Options")+"</h3>" +
                 "<button data-icon='check' class='ui-btn-right'>"+_("Submit")+"</button>" +
             "</div>" +
-            "<div class='ui-content' role='main' id='os-options-list'>" +
+            "<div class='ui-content' role='main'>" +
+                "<div data-role='collapsibleset' id='os-options-list'>" +
+                "</div>" +
             "</div>" +
         "</div>"),
         timezones, tz, i;
@@ -2110,7 +2112,7 @@ function show_options() {
     list += "</fieldset>";
 
     // Insert options and remove unused groups
-    page.find(".ui-content").html(list).find("fieldset").each(function(a,b){
+    page.find("#os-options-list").html(list).find("fieldset").each(function(a,b){
         var group = $(b);
 
         if (group.children().length === 1) {
