@@ -73,7 +73,7 @@ var isIEMobile = /IEMobile/.test(navigator.userAgent),
     retryCount = 3,
     controller = {},
     switching = false,
-    curr_183, curr_ip, curr_prefix, curr_auth, curr_pw, curr_wa, curr_session, curr_auth_user, curr_auth_pw, curr_local, language, deviceip, interval_id, timeout_id;
+    curr_183, curr_ip, curr_prefix, curr_auth, curr_pw, curr_wa, curr_auth_user, curr_auth_pw, curr_local, language, deviceip, interval_id, timeout_id;
 
 // Fix CSS for IE Mobile (Windows Phone 8)
 if (isIEMobile) {
@@ -454,12 +454,6 @@ function send_to_os(dest,type) {
     if (curr_auth) {
         $.extend(obj,{
             beforeSend: function(xhr) { xhr.setRequestHeader("Authorization", "Basic " + btoa(curr_auth_user + ":" + curr_auth_pw)); }
-        });
-    }
-
-    if (typeof curr_session !== "undefined") {
-        $.extend(obj,{
-            beforeSend: function(xhr) { xhr.setRequestHeader("webpy_session_id", curr_session); }
         });
     }
 
