@@ -2109,7 +2109,14 @@ function show_options() {
 
     list += "</fieldset>";
 
-    page.find(".ui-content").html(list);
+    // Insert options and remove unused groups
+    page.find(".ui-content").html(list).find("fieldset").each(function(a,b){
+        var group = $(b);
+
+        if (group.children().length === 1) {
+            group.remove();
+        }
+    });
 
     page.find(".help-icon").on("click",function(e){
         e.stopImmediatePropagation();
