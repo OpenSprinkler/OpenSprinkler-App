@@ -257,6 +257,9 @@ msgstr ""
 msgid "detected"
 msgstr ""
 
+msgid "board(s)"
+msgstr ""
+
 msgid "Station Delay"
 msgstr ""
 
@@ -304,6 +307,12 @@ msgid "Auto Reconnect"
 msgstr ""
 
 msgid "Ignore Password"
+msgstr ""
+
+msgid "Milliseconds"
+msgstr ""
+
+msgid "Seconds"
 msgstr ""
 
 msgid "Settings have been saved"
@@ -598,6 +607,9 @@ msgid ""
 "submit below."
 msgstr ""
 
+msgid "copy"
+msgstr ""
+
 msgid "Monday"
 msgstr ""
 
@@ -751,6 +763,9 @@ msgstr ""
 msgid "No"
 msgstr ""
 
+msgid "Duration"
+msgstr ""
+
 msgid "Days"
 msgstr ""
 
@@ -758,12 +773,6 @@ msgid "Hours"
 msgstr ""
 
 msgid "Minutes"
-msgstr ""
-
-msgid "Seconds"
-msgstr ""
-
-msgid "Milliseconds"
 msgstr ""
 
 msgid "Enter Date/Time"
