@@ -2001,7 +2001,7 @@ function show_options() {
                 "<h3>"+_("Change Options")+"</h3>" +
                 "<button data-icon='check' class='ui-btn-right'>"+_("Submit")+"</button>" +
             "</div>" +
-            "<div class='ui-content' role='main'>" +
+            "<div class='ui-content' role='main' id='os-options-list'>" +
             "</div>" +
         "</div>"),
         fixContain = function() {
@@ -2018,7 +2018,7 @@ function show_options() {
 
     page.find("div[data-role='header'] > .ui-btn-right").on("click",submit_options);
 
-    list = "<li><fieldset>";
+    list = "<fieldset data-role='collapsible' data-collapsed='false'><legend>"+_("System")+"</legend>";
 
     if (typeof controller.options.ntp !== "undefined") {
         list += "<div class='contain-field datetime-input'><label for='datetime'>"+_("Device Time")+"</label><button "+(controller.options.ntp ? "disabled " : "")+"data-mini='true' id='datetime' value='"+(controller.settings.devt + (new Date().getTimezoneOffset()*60))+"'>"+dateToString(new Date(controller.settings.devt*1000)).slice(0,-3)+"</button></div>";
@@ -2036,6 +2036,21 @@ function show_options() {
     }
 
     list += "<div class='contain-field'><label for='loc'>"+_("Location")+"<button data-helptext='"+_("Location can be a zip code, city/state or a weatherunderground personal weather station using the format: pws:ID")+"' class='needsclick help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><input data-mini='true' type='text' id='loc' value='"+controller.settings.loc+"' /></div>";
+
+    if (typeof controller.options.ntp !== "undefined") {
+        list += "<label for='o2'><input data-mini='true' id='o2' type='checkbox' "+((controller.options.ntp === 1) ? "checked='checked'" : "")+" />"+_("NTP Sync")+"</label>";
+    }
+
+    if (typeof controller.options.ar !== "undefined") {
+        //"<button data-helptext='"+_("Auto reconnect attempts to re-establish a network connection after an outage")+"' class='needsclick help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>"
+        list += "<label for='o14'><input data-mini='true' id='o14' type='checkbox' "+((controller.options.ar === 1) ? "checked='checked'" : "")+" />"+_("Auto Reconnect")+"</label>";
+    }
+
+    if (typeof controller.options.lg !== "undefined") {
+        list += "<label for='o31'><input data-mini='true' id='o31' type='checkbox' "+((controller.options.lg === 1) ? "checked='checked'" : "")+" />"+_("Enable Logging")+"</label>";
+    }
+
+    list += "</fieldset><fieldset data-role='collapsible'><legend>"+_("Configure Master")+"</legend>";
 
     if (typeof controller.options.mas !== "undefined") {
         list += "<div class='contain-field'><label for='o18' class='select'>"+_("Master Station")+"</label><select data-native-menu='false' data-mini='true' id='o18'><option value='0'>"+_("None")+"</option>";
@@ -2056,6 +2071,8 @@ function show_options() {
         list += "<div class='contain-field duration-field'><label for='o20'>"+_("Master Off Delay")+"</label><button data-mini='true' id='o20' value='"+controller.options.mtof+"'>"+controller.options.mtof+"s</button></div>";
     }
 
+    list += "</fieldset><fieldset data-role='collapsible'><legend>"+_("Station Handling")+"</legend>";
+
     if (typeof controller.options.ext !== "undefined") {
         list += "<div class='contain-field duration-field'><label for='o15'>"+_("Extension Boards")+(controller.options.dexp && controller.options.dexp < 255 ? " ("+controller.options.dexp+" "+_("detected")+")" : "")+"</label><button data-mini='true' id='o15' value='"+controller.options.ext+"'>"+controller.options.ext+" "+_("board(s)")+"</button></div>";
     }
@@ -2067,6 +2084,22 @@ function show_options() {
     if (typeof controller.options.wl !== "undefined") {
         list += "<div class='contain-field duration-field'><label for='o23'>"+_("% Watering")+"<button data-helptext='"+_("The watering level modifies station run times by the set percentage")+"' class='needsclick help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><button data-mini='true' id='o23' value='"+controller.options.wl+"'>"+controller.options.wl+"%</button></div>";
     }
+
+    if (typeof controller.options.seq !== "undefined") {
+        list += "<label for='o16'><input data-mini='true' id='o16' type='checkbox' "+((controller.options.seq === 1) ? "checked='checked'" : "")+" />"+_("Sequential")+"</label>";
+    }
+
+    list += "</fieldset><fieldset data-role='collapsible'><legend>"+_("Rain Sensor")+"</legend>";
+
+    if (typeof controller.options.urs !== "undefined") {
+        list += "<label for='o21'><input data-mini='true' id='o21' type='checkbox' "+((controller.options.urs === 1) ? "checked='checked'" : "")+" />"+_("Use Rain Sensor")+"</label>";
+    }
+
+    if (typeof controller.options.rso !== "undefined") {
+        list += "<label for='o22'><input data-mini='true' id='o22' type='checkbox' "+((controller.options.rso === 1) ? "checked='checked'" : "")+" />"+_("Normally Open (Rain Sensor)")+"</label>";
+    }
+
+    list += "</fieldset><fieldset data-role='collapsible' data-theme='b'><legend>"+_("Advanced")+"</legend>";
 
     if (typeof controller.options.hp0 !== "undefined") {
         list += "<div class='contain-field'><label for='o12'>"+_("HTTP Port (restart required)")+"</label><input data-mini='true' type='number' pattern='[0-9]*' id='o12' value='"+(controller.options.hp1*256+controller.options.hp0)+"' /></div>";
@@ -2080,38 +2113,13 @@ function show_options() {
         list += "<div class='contain-field duration-field'><label for='o30'>"+_("Relay Pulse")+"<button data-helptext='"+_("Relay pulsing is used for special situations where rapid pulsing is needed in the output with a range from 1 to 2000 milliseconds. A zero value disables the pulsing option.")+"' class='needsclick help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><button data-mini='true' id='o30' value='"+controller.options.rlp+"'>"+controller.options.rlp+"ms</button></div>";
     }
 
-    if (typeof controller.options.seq !== "undefined") {
-        list += "<label for='o16'><input data-mini='true' id='o16' type='checkbox' "+((controller.options.seq === 1) ? "checked='checked'" : "")+" />"+_("Sequential")+"</label>";
-    }
-
-    if (typeof controller.options.urs !== "undefined") {
-        list += "<label for='o21'><input data-mini='true' id='o21' type='checkbox' "+((controller.options.urs === 1) ? "checked='checked'" : "")+" />"+_("Use Rain Sensor")+"</label>";
-    }
-
-    if (typeof controller.options.rso !== "undefined") {
-        list += "<label for='o22'><input data-mini='true' id='o22' type='checkbox' "+((controller.options.rso === 1) ? "checked='checked'" : "")+" />"+_("Normally Open (Rain Sensor)")+"</label>";
-    }
-
-    if (typeof controller.options.lg !== "undefined") {
-        list += "<label for='o31'><input data-mini='true' id='o31' type='checkbox' "+((controller.options.lg === 1) ? "checked='checked'" : "")+" />"+_("Enable Logging")+"</label>";
-    }
-
-    if (typeof controller.options.ntp !== "undefined") {
-        list += "<label for='o2'><input data-mini='true' id='o2' type='checkbox' "+((controller.options.ntp === 1) ? "checked='checked'" : "")+" />"+_("NTP Sync")+"</label>";
-    }
-
-    if (typeof controller.options.ar !== "undefined") {
-        //"<button data-helptext='"+_("Auto reconnect attempts to re-establish a network connection after an outage")+"' class='needsclick help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>"
-        list += "<label for='o14'><input data-mini='true' id='o14' type='checkbox' "+((controller.options.ar === 1) ? "checked='checked'" : "")+" />"+_("Auto Reconnect")+"</label>";
-    }
-
     if (typeof controller.options.ipas !== "undefined") {
         list += "<label for='o25'><input data-mini='true' id='o25' type='checkbox' "+((controller.options.ipas === 1) ? "checked='checked'" : "")+" />"+_("Ignore Password")+"</label>";
     }
 
-    list += "</fieldset></li>";
+    list += "</fieldset>";
 
-    page.find(".ui-content").html("<ul data-role='listview' data-inset='true' id='os-options-list'>"+list+"</ul>");
+    page.find(".ui-content").html(list);
 
     page.find(".help-icon").on("click",function(e){
         e.stopImmediatePropagation();
