@@ -2480,7 +2480,6 @@ function get_status() {
         allPnames = [],
         color = "",
         list = "",
-        tz = controller.options.tz-48,
         lastCheck;
 
     if ($.mobile.pageContainer.pagecontainer("getActivePage").attr("id") === "status") {
@@ -2489,9 +2488,7 @@ function get_status() {
 
     page.find("div[data-role='header'] > .ui-btn-right").on("click",refresh_status);
 
-    tz = ((tz>=0)?"+":"-")+pad((Math.abs(tz)/4>>0))+":"+((Math.abs(tz)%4)*15/10>>0)+((Math.abs(tz)%4)*15%10);
-
-    var header = "<span id='clock-s' class='nobr'>"+dateToString(new Date(controller.settings.devt*1000))+"</span>"+tzToString(" ","GMT",tz);
+    var header = "<span id='clock-s' class='nobr'>"+dateToString(new Date(controller.settings.devt*1000))+"</span>";
 
     if (typeof controller.settings.ct === "string" && controller.settings.ct !== "0" && typeof controller.settings.tu === "string") {
         header += " <span>"+controller.settings.ct+"&deg;"+controller.settings.tu+"</span>";
@@ -5089,14 +5086,4 @@ function dateToString(date,toUTC) {
     }
 
     return dayNames[date.getDay()]+", "+pad(date.getDate())+" "+monthNames[date.getMonth()]+" "+date.getFullYear()+" "+pad(date.getHours())+":"+pad(date.getMinutes())+":"+pad(date.getSeconds());
-}
-
-function tzToString(prefix,tz,offset) {
-    var lang = $("#localization").find(".ui-icon-check").data("langCode");
-
-    if (lang === "de") {
-        return "";
-    }
-
-    return prefix+tz+" "+offset;
 }
