@@ -487,7 +487,10 @@ function newload() {
         theme: "b"
     });
 
-    $(".ui-loader").css("box-shadow","none").find(".cancel").one("click",function(){
+    $(".ui-loader").css({
+        "box-shadow": "none",
+        "margin-top": "-4em"
+    }).find(".cancel").one("click",function(){
         changePage("#site-control",{"showBack": false});
     });
 
