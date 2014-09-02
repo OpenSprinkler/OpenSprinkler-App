@@ -479,28 +479,17 @@ function network_fail(){
 // Gather new controller information and load home page
 function newload() {
     var name = $("#site-selector").val(),
-        isLoading = true;
+        loading = "<div class='logo'></div><h1 style='padding-top:5px'>"+_("Connecting to")+" "+name+"</h1><p class='tight center cancel'><span class='cancel-icon btn-no-border ui-btn ui-icon-delete ui-btn-icon-notext'></span>Cancel</p>";
 
     $.mobile.loading("show", {
-        text: curr_local ? _("Loading") : _("Connecting to")+" "+name,
+        html: curr_local ? "<h1>"+_("Loading")+"</h1>" : loading,
         textVisible: true,
-        textonly: curr_local ? true : false,
         theme: "b"
     });
 
-    setTimeout(function(){
-        if (isLoading === false) {
-            return;
-        }
-
-        var cancel = $("<p class='tight center'><span class='help-icon btn-no-border ui-btn ui-icon-delete ui-btn-icon-notext'></span>Cancel</p>");
-
-        cancel.one("click",function(){
-            changePage("#site-control",{"showBack": false});
-        });
-
-        $(".ui-loader").append(cancel);
-    },800);
+    $(".ui-loader").css("box-shadow","none").find(".cancel").one("click",function(){
+        changePage("#site-control",{"showBack": false});
+    });
 
     //Empty object which will store device data
     controller = {};
@@ -509,8 +498,6 @@ function newload() {
             var log_button = $("#log_button"),
                 clear_logs = $(".clear_logs"),
                 change_password = $(".change_password");
-
-            isLoading = false;
 
             $.mobile.loading("hide");
             check_status();
@@ -556,7 +543,6 @@ function newload() {
             }
         },
         function(){
-            isLoading = false;
             changePage("#site-control",{"showBack": false});
         }
     );
