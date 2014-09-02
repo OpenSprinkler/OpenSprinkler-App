@@ -4,9 +4,12 @@
     padding: 0.2em 0.5em;
     float: right;
 }
-.help-icon {
+.help-icon, .cancel > .ui-btn {
     display: inline-block;
     vertical-align: middle
+}
+.cancel > .ui-btn:after {
+    background-color: rgba(0,0,0,0) !important
 }
 .hidden {
     display: none!important
@@ -114,7 +117,8 @@
     background-color:#1C1C1C!important
 }
 body {
-    margin:0
+    margin:0;
+    background-color:#1C1C1C
 }
 .ui-btn {
     text-overflow:clip!important
