@@ -20,8 +20,9 @@
 - (void)awakeFromNib {
     // Enable localStorage in webView
     WebPreferences *prefs = [webView preferences];
-    [prefs _setLocalStorageDatabasePath:@"~/Library/Sprinklers/LocalStorage"];
+    [prefs _setLocalStorageDatabasePath:@"~/Library/Application Support/Sprinklers"];
     [prefs setLocalStorageEnabled:YES];
+    [webView setPreferences:prefs];
     
     // Get notification when scripting environment becomes available
     [webView setFrameLoadDelegate:self];
