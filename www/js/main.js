@@ -2147,10 +2147,11 @@ function show_options() {
         return false;
     });
 
-    page.find(".duration-field button").on("click",function(){
+    page.find(".duration-field button:not(.help-icon)").on("click",function(){
         var dur = $(this),
             id = dur.attr("id"),
             name = page.find("label[for='"+id+"']").text(),
+            helptext = dur.parent().find(".help-icon").data("helptext"),
             max = 240;
 
         if (id === "o19") {
@@ -2163,7 +2164,8 @@ function show_options() {
                     dur.val(result).text(result+"ms");
                 },
                 label: _("Milliseconds"),
-                maximum: 2000
+                maximum: 2000,
+                helptext: helptext
             });
             return;
         } else if (id === "o20") {
@@ -2175,7 +2177,8 @@ function show_options() {
                 },
                 label: _("Seconds"),
                 maximum: 60,
-                minimum: -60
+                minimum: -60,
+                helptext: helptext
             });
             return;
         } else if (id === "o15") {
@@ -2186,7 +2189,8 @@ function show_options() {
                     dur.val(result).text(result+" board(s)");
                 },
                 label: _("Extension Boards"),
-                maximum: 5
+                maximum: 5,
+                helptext: helptext
             });
             return;
         } else if (id === "o23") {
@@ -2197,7 +2201,8 @@ function show_options() {
                     dur.val(result).text(result+"%");
                 },
                 label: _("% Watering"),
-                maximum: 250
+                maximum: 250,
+                helptext: helptext
             });
             return;
         }
@@ -4671,7 +4676,7 @@ function showSingleDurationInput(opt) {
                 "<h1>"+opt.title+"</h1>" +
             "</div>" +
             "<div class='ui-content'>" +
-                (opt.helptext ? "<p class='rain-desc center'>"+opt.helptext+"</p>" : "") +
+                (opt.helptext ? "<p class='rain-desc center smaller'>"+opt.helptext+"</p>" : "") +
                 "<span>" +
                     "<a class='incr' href='#' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a>" +
                     "<label>"+opt.label+"</label><input type='number' pattern='[0-9]*' value='"+opt.data+"'>" +
