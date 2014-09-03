@@ -4386,7 +4386,7 @@ function import_config(data) {
             co = "/co?pw=",
             cp_start = "/cp?pw=",
             isPi = isOSPi(),
-            i, key;
+            i, key, option, station;
 
         for (i in data.options) {
             if (data.options.hasOwnProperty(i) && keyIndex.hasOwnProperty(i)) {
@@ -4402,13 +4402,23 @@ function import_config(data) {
                 } else {
                     key = key;
                 }
-                co += "&o"+key+"="+data.options[i];
+                if (controller.options.fwv === 208) {
+                    option = data.options[i].replace(/\s/g,"_");
+                } else {
+                    option = data.options[i];
+                }
+                co += "&o"+key+"="+option;
             }
         }
         co += "&"+(isPi?"o":"")+"loc="+data.settings.loc;
 
         for (i=0; i<data.stations.snames.length; i++) {
-            cs += "&s"+i+"="+data.stations.snames[i];
+            if (controller.options.fwv === 208) {
+                station = data.stations.snames[i].replace(/\s/g,"_");
+            } else {
+                station = data.stations.snames[i];
+            }
+            cs += "&s"+i+"="+station;
         }
 
         for (i=0; i<data.stations.masop.length; i++) {
