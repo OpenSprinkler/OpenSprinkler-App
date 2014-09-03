@@ -4725,17 +4725,23 @@ function showSingleDurationInput(opt) {
             changeValue(-1);
             return false;
         },
-        intervalId;
+        intervalId, timeoutId;
 
-    popup.find(".incr").on("vclick",incr).on("mousedown",function(){
-        intervalId = setInterval(incr, 20);
-    }).on("mouseup mouseleave",function(){
+    popup.find(".incr").on("vclick",incr).on("vmousedown",function(){
+        timeoutId = setTimeout(function(){
+            intervalId = setInterval(incr, 20);
+        },400);
+    }).on("vmouseup vmouseout",function(){
+        clearTimeout(timeoutId);
         clearInterval(intervalId);
     });
 
-    popup.find(".decr").on("vclick",decr).on("mousedown",function(){
-        intervalId = setInterval(decr, 20);
-    }).on("mouseup mouseleave",function(){
+    popup.find(".decr").on("vclick",decr).on("vmousedown",function(){
+        timeoutId = setTimeout(function(){
+            intervalId = setInterval(decr, 20);
+        },400);
+    }).on("vmouseup vmouseout",function(){
+        clearTimeout(timeoutId);
         clearInterval(intervalId);
     });
 
