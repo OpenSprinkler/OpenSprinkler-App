@@ -3317,7 +3317,7 @@ function get_preview() {
 
     time_to_text = function (sid,start,pid,end,simt) {
         var className = "program-"+((pid+3)%4);
-        if (((controller.settings.rd!==0)&&(simt+start+(controller.options.tz-48)*900<=controller.settings.rdst*1000) || controller.settings.rs) && (controller.stations.ignore_rain[parseInt(sid/8)]&(1<<(sid%8))) === 0) {
+        if (((controller.settings.rd!==0)&&(simt+start+(controller.options.tz-48)*900<=controller.settings.rdst*1000) || controller.options.urs === 1 && controller.settings.rs === 1) && (controller.stations.ignore_rain[parseInt(sid/8)]&(1<<(sid%8))) === 0) {
             className="delayed";
         }
         preview_data.push({
