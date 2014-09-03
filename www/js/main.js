@@ -5076,7 +5076,7 @@ function update_lang(lang) {
     }
 
     if (curr_local) {
-        prefix = $("head").find("script[src$='main.js']").eq(0).attr("src").slice(0,-10);
+        prefix = $("head").find("script[src$='jquery.min.js']").eq(0).attr("src").slice(0,-16);
     }
 
     $.getJSON(prefix+"locale/"+lang+".json",function(store){
