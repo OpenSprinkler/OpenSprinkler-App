@@ -280,7 +280,7 @@ a {
 #sure {
     padding:0.5em;
 }
-#addnew, #raindelay, #site-select, #sure {
+#addnew, #site-select, #sure, #singleDuration {
     width:300px
 }
 #about ul, #forecast ul, #manual ul, #manual fieldset {
