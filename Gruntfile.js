@@ -57,7 +57,7 @@ module.exports = function(grunt) {
           archive: "build/firmware/UI.zip"
         },
         files: [{
-          src: ["css/**","js/**","img/**","locale/*.json","index.htm","res/ios-web/**"],
+          src: ["css/**","js/**","img/**","locale/*.js","index.htm","res/ios-web/**"],
           cwd: "www/",
           expand: true
         }]
@@ -171,22 +171,6 @@ module.exports = function(grunt) {
             return "\"version\": \""+bumpVersion(regexMatches[0])+"\"";
           }
         }]
-      },
-      toRay: {
-        src: ["www/js/home.js"],
-        overwrite: true,
-        replacements: [{
-          from: /var assetLocation = "http:\/\/rawgit.com\/salbahra\/Sprinklers\/master\/www\/"/g,
-          to: "var assetLocation = \"http://rayshobby.net/scripts/sprinklers/\""
-        }]
-      },
-      toGithub: {
-        src: ["www/js/home.js"],
-        overwrite: true,
-        replacements: [{
-          from: /var assetLocation = "http:\/\/rayshobby.net\/scripts\/sprinklers\/"/g,
-          to: "var assetLocation = \"http://rawgit.com/salbahra/Sprinklers/master/www/\""
-        }]
       }
     }
   });
@@ -195,7 +179,7 @@ module.exports = function(grunt) {
   grunt.registerTask("default",["jshint"]);
   grunt.registerTask("updateLang",["shell:updateLang"]);
   grunt.registerTask("pushEng",["shell:pushEng"]);
-  grunt.registerTask("makeFW",["replace:toRay","compress:makeFW","replace:toGithub"]);
+  grunt.registerTask("makeFW",["compress:makeFW"]);
   grunt.registerTask("build",["jshint","shell:blackberry10","compress:firefox","compress:chrome","compress:blackberry10","makeFW"]);
   grunt.registerTask("bump",["replace:about","replace:osx","replace:phonegap","replace:manifests","shell:pushBump"]);
 
