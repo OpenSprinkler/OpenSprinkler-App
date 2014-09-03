@@ -83,7 +83,7 @@
     text-align:center;
     padding-bottom:15px!important
 }
-#logs_list {
+#logs_list, .pad-top {
     padding-top:10px
 }
 #logs_list table {
