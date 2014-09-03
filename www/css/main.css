@@ -14,7 +14,7 @@
 .hidden {
     display: none!important
 }
-#lang {
+#lang, #singleDuration {
     max-width: 500px
 }
 #lang > li:not(.ui-li-divider) {
@@ -280,7 +280,7 @@ a {
 #sure {
     padding:0.5em;
 }
-#addnew, #site-select, #sure, #singleDuration {
+#addnew, #site-select, #sure {
     width:300px
 }
 #about ul, #forecast ul, #manual ul, #manual fieldset {
