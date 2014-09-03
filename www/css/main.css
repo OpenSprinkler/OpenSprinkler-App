@@ -244,11 +244,12 @@ a {
 }
 .input_with_buttons .ui-input-text {
     display:inline-block;
-    width:75%;
-    vertical-align:text-top
+    width:65%;
+    vertical-align:text-top;
+    margin-top: 12px;
 }
 .input_with_buttons input {
-    text-align: center
+    text-align: center;
 }
 .input_with_buttons {
     width:100%;
@@ -256,9 +257,9 @@ a {
     text-align:center
 }
 .input_with_buttons button {
-    padding-top:10px;
     display:inline-block;
-    vertical-align:text-top
+    vertical-align:text-top;
+    zoom: 1.5;
 }
 .use_master {
     width:5%;
