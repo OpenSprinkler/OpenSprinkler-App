@@ -217,12 +217,12 @@
 		body.html(loader);
 
 		$.ajax({
-			url: assetLocation+"index.html",
+			url: assetLocation+"index.htm",
 			crossDomain: true,
 			type: "GET"
 		}).then(
 			function(data){
-				// Grab the pages from index.html (body content)
+				// Grab the pages from index.htm (body content)
 				var pages = data.match(/<body>([.\s\S]*)<\/body>/)[1];
 
 				// Disables site selection menu
