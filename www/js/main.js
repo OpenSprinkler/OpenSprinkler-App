@@ -5079,7 +5079,7 @@ function update_lang(lang) {
         prefix = $("head").find("script[src$='jquery.min.js']").eq(0).attr("src").slice(0,-16);
     }
 
-    $.getJSON(prefix+"locale/"+lang+".json",function(store){
+    $.getJSON(prefix+"locale/"+lang+".js",function(store){
         language = store.messages;
         set_lang();
     }).fail(set_lang);
