@@ -23,22 +23,22 @@
     [prefs _setLocalStorageDatabasePath:@"~/Library/Application Support/Sprinklers"];
     [prefs setLocalStorageEnabled:YES];
     [webView setPreferences:prefs];
-    
+
     // Get notification when scripting environment becomes available
     [webView setFrameLoadDelegate:self];
-    
+
     // Handle authentication request
     [webView setResourceLoadDelegate:self];
-    
+
     // Get notification on navigation changes (AJAX)
     [webView setPolicyDelegate:self];
-    
+
     // Make webView part of the window's contentView
     [self.window setContentView:self.webView];
 
-    // Load the index.html page
+    // Load the index.htm page
 	NSString *resourcesPath = [[NSBundle mainBundle] resourcePath];
-	NSString *htmlPath = [resourcesPath stringByAppendingString:@"/index.html"];
+	NSString *htmlPath = [resourcesPath stringByAppendingString:@"/index.htm"];
 	[[webView mainFrame] loadRequest:[NSURLRequest requestWithURL:[NSURL fileURLWithPath:htmlPath]]];
 }
 
@@ -59,7 +59,7 @@
 -(NSString *) getIPAddress {
     NSArray *addresses = [[NSHost currentHost] addresses];
     NSString *stringAddress = @"error";
-    
+
     for (NSString *anAddress in addresses) {
         if (![anAddress hasPrefix:@"127"] && [[anAddress componentsSeparatedByString:@"."] count] == 4) {
             stringAddress = anAddress;
