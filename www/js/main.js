@@ -3155,8 +3155,14 @@ function get_preview() {
                 "</div>" +
             "</div>" +
         "</div>"),
+        incr = function(){
+            changeday(1);
+        },
+        decr = function(){
+            changeday(-1);
+        },
         navi = page.find("#timeline-navigation"),
-        preview_data, process_programs, check_match, run_sched, time_to_text, changeday, render, day;
+        preview_data, process_programs, check_match, run_sched, time_to_text, changeday, render, day, timeoutId, intervalId;
 
     date = date.split("-");
     day = new Date(date[0],date[1]-1,date[2]);
@@ -3429,11 +3435,23 @@ function get_preview() {
         day = new Date(date[0],date[1]-1,date[2]);
         render();
     });
-    page.find(".preview-minus").on("vclick",function(){
-        changeday(-1);
+
+    page.find(".preview-plus").on("vclick",incr).on("vmousedown",function(){
+        timeoutId = setTimeout(function(){
+            intervalId = setInterval(incr, 20);
+        },400);
+    }).on("vmouseup vmouseout vmousecancel",function(){
+        clearTimeout(timeoutId);
+        clearInterval(intervalId);
     });
-    page.find(".preview-plus").on("vclick",function(){
-        changeday(1);
+
+    page.find(".preview-minus").on("vclick",decr).on("vmousedown",function(){
+        timeoutId = setTimeout(function(){
+            intervalId = setInterval(decr, 20);
+        },400);
+    }).on("vmouseup vmouseout vmousecancel",function(){
+        clearTimeout(timeoutId);
+        clearInterval(intervalId);
     });
 
     page.one({
