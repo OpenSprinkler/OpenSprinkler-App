@@ -359,9 +359,11 @@ $(document)
 .on("popupbeforeposition","#localization",check_curr_lang);
 
 //Set AJAX timeout
-$.ajaxSetup({
-    timeout: 6000
-});
+if (!curr_local) {
+    $.ajaxSetup({
+        timeout: 6000
+    });
+}
 
 function initApp() {
     //Update the language on the page using the browser's locale
