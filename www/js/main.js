@@ -4731,7 +4731,7 @@ function showSingleDurationInput(opt) {
         timeoutId = setTimeout(function(){
             intervalId = setInterval(incr, 20);
         },400);
-    }).on("vmouseup vmouseout",function(){
+    }).on("vmouseup vmouseout vmousecancel",function(){
         clearTimeout(timeoutId);
         clearInterval(intervalId);
     });
@@ -4740,7 +4740,7 @@ function showSingleDurationInput(opt) {
         timeoutId = setTimeout(function(){
             intervalId = setInterval(decr, 20);
         },400);
-    }).on("vmouseup vmouseout",function(){
+    }).on("vmouseup vmouseout vmousecancel",function(){
         clearTimeout(timeoutId);
         clearInterval(intervalId);
     });
