@@ -10,7 +10,7 @@ find . -type f -maxdepth 1 -iname "messages_*.po" -print0 | while IFS= read -r -
 	lang=${file[0]}
 
 	mv "$line" messages.po
-	po2json -p messages.po > "www/locale/$lang.json"
+	po2json -p messages.po > "www/locale/$lang.js"
 	rm messages.po
 done
 git add www/locale/*
