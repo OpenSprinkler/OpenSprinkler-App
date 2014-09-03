@@ -3155,14 +3155,8 @@ function get_preview() {
                 "</div>" +
             "</div>" +
         "</div>"),
-        incr = function(){
-            changeday(1);
-        },
-        decr = function(){
-            changeday(-1);
-        },
         navi = page.find("#timeline-navigation"),
-        preview_data, process_programs, check_match, run_sched, time_to_text, changeday, render, day, timeoutId, intervalId;
+        preview_data, process_programs, check_match, run_sched, time_to_text, changeday, render, day;
 
     date = date.split("-");
     day = new Date(date[0],date[1]-1,date[2]);
@@ -3436,22 +3430,11 @@ function get_preview() {
         render();
     });
 
-    page.find(".preview-plus").on("vclick",incr).on("vmousedown",function(){
-        timeoutId = setTimeout(function(){
-            intervalId = setInterval(incr, 20);
-        },400);
-    }).on("vmouseup vmouseout vmousecancel",function(){
-        clearTimeout(timeoutId);
-        clearInterval(intervalId);
+    holdButton(page.find(".preview-plus"),function(){
+        changeday(1);
     });
-
-    page.find(".preview-minus").on("vclick",decr).on("vmousedown",function(){
-        timeoutId = setTimeout(function(){
-            intervalId = setInterval(decr, 20);
-        },400);
-    }).on("vmouseup vmouseout vmousecancel",function(){
-        clearTimeout(timeoutId);
-        clearInterval(intervalId);
+    holdButton(page.find(".preview-minus"),function(){
+        changeday(-1);
     });
 
     page.one({
@@ -4734,33 +4717,15 @@ function showSingleDurationInput(opt) {
             if (opt.updateOnChange) {
                 opt.callback(val+dir);
             }
-        },
-        incr = function(){
-            changeValue(1);
-            return false;
-        },
-        decr = function(){
-            changeValue(-1);
-            return false;
-        },
-        intervalId, timeoutId;
+        };
 
-    popup.find(".incr").on("vclick",incr).on("vmousedown",function(){
-        timeoutId = setTimeout(function(){
-            intervalId = setInterval(incr, 20);
-        },400);
-    }).on("vmouseup vmouseout vmousecancel",function(){
-        clearTimeout(timeoutId);
-        clearInterval(intervalId);
+    holdButton(popup.find(".incr"),function(){
+        changeValue(1);
+        return false;
     });
-
-    popup.find(".decr").on("vclick",decr).on("vmousedown",function(){
-        timeoutId = setTimeout(function(){
-            intervalId = setInterval(decr, 20);
-        },400);
-    }).on("vmouseup vmouseout vmousecancel",function(){
-        clearTimeout(timeoutId);
-        clearInterval(intervalId);
+    holdButton(popup.find(".decr"),function(){
+        changeValue(-1);
+        return false;
     });
 
     popup.find("input[type='submit']").on("click",function(){
@@ -4970,6 +4935,20 @@ function fixInputClick(page) {
             ele.attr("href","#"+id.slice(0,-6)+"listbox");
         });
     }
+}
+
+// Bind buttons to allow push and hold effects
+function holdButton(target,callback) {
+    var timeoutId, intervalId;
+
+    target.on("vclick",callback).on("vmousedown",function(){
+        timeoutId = setTimeout(function(){
+            intervalId = setInterval(callback, 20);
+        },400);
+    }).on("vmouseup vmouseout vmousecancel",function(){
+        clearTimeout(timeoutId);
+        clearInterval(intervalId);
+    });
 }
 
 // Insert style string into the DOM
