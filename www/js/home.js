@@ -1,6 +1,6 @@
 /*global $, ver, initApp, XDomainRequest, ActiveXObject */
 (function(document){
-	var assetLocation = "http://rawgit.com/salbahra/Sprinklers/master/www/",
+	var assetLocation = document.body.querySelector("script[src]").src.slice(0,-10),
 		isReady = false;
 
 	function insertStyle(css) {
