@@ -3133,7 +3133,7 @@ function get_preview() {
                 "<h3>"+_("Program Preview")+"</h3>" +
             "</div>" +
             "<div class='ui-content' role='main'>" +
-                "<div id='preview_header'>" +
+                "<div id='preview_header' class='input_with_buttons'>" +
                     "<button class='preview-minus ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border'></button>" +
                     "<input class='center' type='date' name='preview_date' id='preview_date' value='"+date+"' />" +
                     "<button class='preview-plus ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border'></button>" +
@@ -4689,11 +4689,12 @@ function showSingleDurationInput(opt) {
             "</div>" +
             "<div class='ui-content'>" +
                 (opt.helptext ? "<p class='rain-desc center smaller'>"+opt.helptext+"</p>" : "") +
-                "<span>" +
-                    "<a class='incr' href='#' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a>" +
-                    "<label>"+opt.label+"</label><input type='number' pattern='[0-9]*' value='"+opt.data+"'>" +
-                    "<a class='decr' href='#' data-role='button' data-mini='true' data-corners='true' data-icon='minus' data-iconpos='bottom'></a>" +
-                "</span>" +
+                "<label class='center'>"+opt.label+"</label>" +
+                "<div class='input_with_buttons'>" +
+                    "<button class='decr ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border'></button>" +
+                    "<input type='number' pattern='[0-9]*' value='"+opt.data+"'>" +
+                    "<button class='incr ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border'></button>" +
+                "</div>" +
             "</div>" +
         "</div>"),
         input = popup.find("input"),
