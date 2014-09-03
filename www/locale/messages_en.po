@@ -1,6 +1,12 @@
 msgid "Done"
 msgstr ""
 
+msgid "Change Rain Delay"
+msgstr ""
+
+msgid "Duration (in hours)"
+msgstr ""
+
 msgid "Are you sure you want to stop all stations?"
 msgstr ""
 
@@ -16,10 +22,10 @@ msgstr ""
 msgid "Network Error"
 msgstr ""
 
-msgid "Loading"
+msgid "Connecting to"
 msgstr ""
 
-msgid "Connecting to"
+msgid "Loading"
 msgstr ""
 
 msgid "Check IP/Port and try again."
@@ -225,6 +231,9 @@ msgstr ""
 msgid "Change Options"
 msgstr ""
 
+msgid "System"
+msgstr ""
+
 msgid "Device Time"
 msgstr ""
 
@@ -239,6 +248,22 @@ msgid ""
 "weather station using the format: pws:ID"
 msgstr ""
 
+msgid "NTP Sync"
+msgstr ""
+
+msgid ""
+"Auto reconnect attempts to re-establish a network connection after an outage"
+msgstr ""
+
+msgid "Auto Reconnect"
+msgstr ""
+
+msgid "Enable Logging"
+msgstr ""
+
+msgid "Configure Master"
+msgstr ""
+
 msgid "Master Station"
 msgstr ""
 
@@ -249,6 +274,9 @@ msgid "Master On Delay"
 msgstr ""
 
 msgid "Master Off Delay"
+msgstr ""
+
+msgid "Station Handling"
 msgstr ""
 
 msgid "Extension Boards"
@@ -269,6 +297,21 @@ msgstr ""
 msgid "The watering level modifies station run times by the set percentage"
 msgstr ""
 
+msgid "Sequential"
+msgstr ""
+
+msgid "Rain Sensor"
+msgstr ""
+
+msgid "Use Rain Sensor"
+msgstr ""
+
+msgid "Normally Open (Rain Sensor)"
+msgstr ""
+
+msgid "Advanced"
+msgstr ""
+
 msgid "HTTP Port (restart required)"
 msgstr ""
 
@@ -285,25 +328,6 @@ msgid ""
 "Relay pulsing is used for special situations where rapid pulsing is needed "
 "in the output with a range from 1 to 2000 milliseconds. A zero value "
 "disables the pulsing option."
-msgstr ""
-
-msgid "Sequential"
-msgstr ""
-
-msgid "Use Rain Sensor"
-msgstr ""
-
-msgid "Normally Open (Rain Sensor)"
-msgstr ""
-
-msgid "NTP Sync"
-msgstr ""
-
-msgid ""
-"Auto reconnect attempts to re-establish a network connection after an outage"
-msgstr ""
-
-msgid "Auto Reconnect"
 msgstr ""
 
 msgid "Ignore Password"
@@ -501,9 +525,6 @@ msgid "End:"
 msgstr ""
 
 msgid "Export via Email"
-msgstr ""
-
-msgid "Rain Sensor"
 msgstr ""
 
 msgid "Rain Delay"
@@ -820,9 +841,6 @@ msgstr ""
 msgid "Program Control"
 msgstr ""
 
-msgid "Change Rain Delay"
-msgstr ""
-
 msgid "Edit Programs"
 msgstr ""
 
@@ -830,14 +848,6 @@ msgid "Run-Once Program"
 msgstr ""
 
 msgid "Stop All Stations"
-msgstr ""
-
-msgid ""
-"Enable manual rain delay by entering a value into the input below. To turn "
-"off a currently enabled rain delay use a value of 0."
-msgstr ""
-
-msgid "Duration (in hours):"
 msgstr ""
 
 msgid "Export Configuration"
