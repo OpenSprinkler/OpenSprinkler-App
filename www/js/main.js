@@ -4707,16 +4707,27 @@ function showSingleDurationInput(opt) {
 
             input.val(val+dir);
             opt.callback(val+dir);
-        };
+        },
+        incr = function(){
+            changeValue(1);
+            return false;
+        },
+        decr = function(){
+            changeValue(-1);
+            return false;
+        },
+        intervalId;
 
-    popup.find(".incr").on("vclick",function(){
-        changeValue(1);
-        return false;
+    popup.find(".incr").on("vclick",incr).on("mousedown",function(){
+        intervalId = setInterval(incr, 20);
+    }).on("mouseup mouseleave",function(){
+        clearInterval(intervalId);
     });
 
-    popup.find(".decr").on("vclick",function(){
-        changeValue(-1);
-        return false;
+    popup.find(".decr").on("vclick",decr).on("mousedown",function(){
+        intervalId = setInterval(decr, 20);
+    }).on("mouseup mouseleave",function(){
+        clearInterval(intervalId);
     });
 
     $(".ui-page-active").append(popup);
