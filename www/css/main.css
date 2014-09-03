@@ -242,17 +242,20 @@ a {
     overflow:visible!important;
     text-align:center
 }
-#preview_header .ui-input-text {
+.input_with_buttons .ui-input-text {
     display:inline-block;
     width:75%;
     vertical-align:text-top
 }
-#preview_header {
+.input_with_buttons input {
+    text-align: center
+}
+.input_with_buttons {
     width:100%;
     white-space:nowrap;
     text-align:center
 }
-#preview_header button {
+.input_with_buttons button {
     padding-top:10px;
     display:inline-block;
     vertical-align:text-top
