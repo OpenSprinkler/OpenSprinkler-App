@@ -268,8 +268,16 @@ $(document)
             show_addnew();
             return false;
         } else if (hash === "#raindelay") {
-            var newPage = $(hash);
-            newPage.find("form").on("submit",raindelay).find("#delay").val(0).slider("refresh");
+            showSingleDurationInput({
+                data: 0,
+                title: _("Change Rain Delay"),
+                callback: raindelay,
+                label: _("Duration (in hours)"),
+                maximum: 96,
+                updateOnChange: false,
+                helptext: "Enable manual rain delay by entering a value into the input below. To turn off a currently enabled rain delay use a value of 0."
+            });
+            return false;
         } else if (hash === "#site-select") {
             show_site_select();
             return false;
@@ -4331,12 +4339,9 @@ function submit_program(id) {
     }
 }
 
-function raindelay() {
+function raindelay(delay) {
     $.mobile.loading("show");
-    send_to_os("/cv?pw=&rd="+$("#delay").val()).done(function(){
-        var popup = $("#raindelay");
-        popup.popup("close");
-        popup.find("form").off("submit");
+    send_to_os("/cv?pw=&rd="+delay).done(function(){
         $.mobile.loading("hide");
         showLoading("#footer-running");
         $.when(
@@ -4678,6 +4683,7 @@ function showSingleDurationInput(opt) {
         data: 0,
         title: _("Duration"),
         minimum: 0,
+        updateOnChange: true,
         callback: function(){}
     };
 
@@ -4688,13 +4694,14 @@ function showSingleDurationInput(opt) {
                 "<h1>"+opt.title+"</h1>" +
             "</div>" +
             "<div class='ui-content'>" +
-                (opt.helptext ? "<p class='rain-desc center smaller'>"+opt.helptext+"</p>" : "") +
+                (opt.helptext ? "<p class='pad-top rain-desc center smaller'>"+opt.helptext+"</p>" : "") +
                 "<label class='center'>"+opt.label+"</label>" +
                 "<div class='input_with_buttons'>" +
                     "<button class='decr ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border'></button>" +
                     "<input type='number' pattern='[0-9]*' value='"+opt.data+"'>" +
                     "<button class='incr ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border'></button>" +
                 "</div>" +
+                (opt.updateOnChange ? "" : "<input type='submit' data-theme='b' value='"+_("Submit")+"'>") +
             "</div>" +
         "</div>"),
         input = popup.find("input"),
@@ -4706,7 +4713,9 @@ function showSingleDurationInput(opt) {
             }
 
             input.val(val+dir);
-            opt.callback(val+dir);
+            if (opt.updateOnChange) {
+                opt.callback(val+dir);
+            }
         },
         incr = function(){
             changeValue(1);
@@ -4730,6 +4739,11 @@ function showSingleDurationInput(opt) {
         clearInterval(intervalId);
     });
 
+    popup.find("input[type='submit']").on("click",function(){
+        opt.callback(input.val());
+        popup.popup("destroy").remove();
+    });
+
     $(".ui-page-active").append(popup);
 
     popup
@@ -4738,8 +4752,10 @@ function showSingleDurationInput(opt) {
         "positionTo": "window"
     })
     .one("popupafterclose",function(){
-        opt.callback(input.val());
-        $(this).popup("destroy").remove();
+        if (opt.updateOnChange) {
+            opt.callback(input.val());
+        }
+        popup.popup("destroy").remove();
     })
     .enhanceWithin().popup("open");
 }
