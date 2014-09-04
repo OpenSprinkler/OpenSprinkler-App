@@ -2076,7 +2076,7 @@ function show_options() {
     }
 
     if (typeof controller.options.mton !== "undefined") {
-        list += "<div class='ui-field-contain duration-field'><label for='o19'>"+_("Master On Delay")+"</label><button data-mini='true' id='o19' value='"+controller.options.mton+"'>"+dhms2str(sec2dhms(controller.options.mton))+"</button></div>";
+        list += "<div class='ui-field-contain duration-field'><label for='o19'>"+_("Master On Delay")+"</label><button data-mini='true' id='o19' value='"+controller.options.mton+"'>"+controller.options.mton+"s</button></div>";
     }
 
     if (typeof controller.options.mtof !== "undefined") {
@@ -2168,7 +2168,17 @@ function show_options() {
             max = 240;
 
         if (id === "o19") {
-            max = 60;
+            showSingleDurationInput({
+                data: dur.val(),
+                title: name,
+                callback: function(result){
+                    dur.val(result).text(result+"s");
+                },
+                label: _("Seconds"),
+                maximum: 60,
+                helptext: helptext
+            });
+            return;
         } else if (id === "o30") {
             showSingleDurationInput({
                 data: dur.val(),
@@ -4107,7 +4117,7 @@ function make_all_programs() {
     }
     var list = "<p class='center'>"+_("Click any program below to expand/edit. Be sure to save changes by hitting submit below.")+"</p><div data-role='collapsible-set'>";
     for (var i = 0; i < controller.programs.pd.length; i++) {
-        list += "<fieldset id='program-"+i+"' data-role='collapsible'><h3><div class='ui-btn ui-btn-corner-all program-copy'>"+_("copy")+"</div>"+_("Program")+" "+(i+1)+"</h3>";
+        list += "<fieldset id='program-"+i+"' data-role='collapsible'><h3><a class='ui-btn ui-btn-corner-all program-copy'>"+_("copy")+"</a>"+_("Program")+" "+(i+1)+"</h3>";
         list += "</fieldset>";
     }
     return list+"</div>";
