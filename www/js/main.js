@@ -400,10 +400,13 @@ function initApp() {
             $.mobile.loading("show");
             send_to_os("/cv?pw=&rsn=1").done(function(){
                 $.mobile.loading("hide");
-                $.when(
-                    update_controller_settings(),
-                    update_controller_status()
-                ).then(check_status);
+                showLoading("#footer-running");
+                setTimeout(function(){
+                    $.when(
+                        update_controller_settings(),
+                        update_controller_status()
+                    ).then(check_status);
+                }, 1000);
                 showerror(_("All stations have been stopped"));
             });
         });
