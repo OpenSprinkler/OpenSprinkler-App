@@ -333,10 +333,10 @@ msgstr ""
 msgid "Ignore Password"
 msgstr ""
 
-msgid "Milliseconds"
+msgid "Seconds"
 msgstr ""
 
-msgid "Seconds"
+msgid "Milliseconds"
 msgstr ""
 
 msgid "Settings have been saved"
@@ -920,6 +920,9 @@ msgid "Norwegian"
 msgstr ""
 
 msgid "Polish"
+msgstr ""
+
+msgid "Portuguese"
 msgstr ""
 
 msgid "Slovak"
