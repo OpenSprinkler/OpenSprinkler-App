@@ -1,7 +1,24 @@
 /*global $, ver, initApp, XDomainRequest, ActiveXObject */
 (function(document){
-	var assetLocation = document.body.querySelector("script[src]").src.slice(0,-10),
+	var assetLocation = getAssetLocation(),
 		isReady = false;
+
+	function getAssetLocation() {
+		var body = document.body || document.getElementsByTagName("body")[0],
+			mainScript = body.querySelector("script[src]")
+
+		if (!mainScript) {
+			return "http://rayshobby.net/scripts/sprinklers/";
+		}
+
+		mainScript = mainScript.src;
+
+		if (!mainScript) {
+			return "http://rayshobby.net/scripts/sprinklers/";
+		}
+
+		return mainScript.slice(0,-10);
+	}
 
 	function insertStyle(css) {
 		var head = document.head || document.getElementsByTagName("head")[0],
