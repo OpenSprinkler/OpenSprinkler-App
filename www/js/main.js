@@ -4960,7 +4960,7 @@ function holdButton(target,callback) {
 
     target.on("vclick",callback).on("vmousedown",function(){
         timeoutId = setTimeout(function(){
-            intervalId = setInterval(callback, 20);
+            intervalId = setInterval(callback, 80);
         },400);
     }).on("vmouseup vmouseout vmousecancel touchend",function(){
         clearTimeout(timeoutId);
