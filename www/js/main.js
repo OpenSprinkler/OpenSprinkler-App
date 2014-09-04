@@ -4961,7 +4961,7 @@ function holdButton(target,callback) {
         timeoutId = setTimeout(function(){
             intervalId = setInterval(callback, 20);
         },400);
-    }).on("vmouseup vmouseout vmousecancel",function(){
+    }).on("vmouseup vmouseout vmousecancel touchend",function(){
         clearTimeout(timeoutId);
         clearInterval(intervalId);
     });
