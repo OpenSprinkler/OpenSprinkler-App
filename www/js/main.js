@@ -4,6 +4,7 @@ var isIEMobile = /IEMobile/.test(navigator.userAgent),
     isiOS = /iP(ad|hone|od)/.test(navigator.userAgent),
     isFireFoxOS = /^.*?\Mobile\b.*?\Firefox\b.*?$/m.test(navigator.userAgent),
     isWinApp = /MSAppHost/.test(navigator.userAgent),
+    isIE = /MSIE \d+\.\d+;/.test(navigator.userAgent),
     isOSXApp = isOSXApp || false,
     isChromeApp = typeof chrome === "object" && typeof chrome.storage === "object",
     // Small wrapper to handle Chrome vs localStorage usage
@@ -92,7 +93,7 @@ if (isAndroid) {
             navigator.app.clearCache();
         } catch (err) {}
     });
-} else if (isIEMobile || isWinApp) {
+} else if (isIEMobile || isWinApp || isIE) {
     $.ajaxSetup({
         "cache": false
     });
@@ -4223,15 +4224,17 @@ function add_program(copyID) {
     });
 
     addprogram.find("input[name^='rad_days']").on("change",function(){
-        var progid = "new", type = $(this).val().split("-")[0], old;
+        var type = $(this).val().split("-")[0],
+            old;
+
         type = type.split("_")[1];
         if (type === "n") {
             old = "week";
         } else {
             old = "n";
         }
-        $("#input_days_"+type+"-"+progid).show();
-        $("#input_days_"+old+"-"+progid).hide();
+        $("#input_days_"+type+"-"+copyID).show();
+        $("#input_days_"+old+"-"+copyID).hide();
     });
 
     addprogram.find("[id^='s_checkall-']").on("click",function(){
