@@ -4496,7 +4496,7 @@ function show_about() {
                     "</li>" +
                 "</ul>" +
                 "<p class='smaller'>" +
-                    _("App Version")+": 1.1.8" +
+                    _("App Version")+": 1.1.9" +
                     "<br>" +
                     _("Firmware")+": "+getOSVersion() +
                 "</p>" +
