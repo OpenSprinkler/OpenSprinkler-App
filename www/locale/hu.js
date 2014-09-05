@@ -272,6 +272,7 @@
       "This is open source software: source code and changelog for this application can be found at" : "Ez egy nyílt forráskódú szoftver: forráskódja és a változások listája megtalálható itt",
       "Stations have been updated" : "Állomások frissítve",
       "Relay pulsing is used for special situations where rapid pulsing is needed in the output with a range from 1 to 2000 milliseconds. A zero value disables the pulsing option." : "Relé ki/bekapcsolási sorozatot különleges esetekben használják , amikor egy gyors ki/bekapcsolási sorozatra van szükség a 1-2000 ms intervallumban. A nulla érték letiltja a pulzáló opciót.",
+      "Portuguese" : "",
       "Open Sprinkler Password:" : "Open Sprinkler Jelszó:",
       "Import Configuration" : "Beállítások importálása",
       "Mon" : "Hé",

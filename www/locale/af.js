@@ -272,6 +272,7 @@
       "This is open source software: source code and changelog for this application can be found at" : "Hierdie is 'open source' sagteware. Bron-kode en veranderingslog vir hierdie program is beskikbaar by",
       "Stations have been updated" : "Stasies is opgedateer",
       "Relay pulsing is used for special situations where rapid pulsing is needed in the output with a range from 1 to 2000 milliseconds. A zero value disables the pulsing option." : "Skakelaar polsing word gebruik vir spesiale omstandighede waar vinnige polse benodig word tussen 1 en 2000 millisekondes. 'n Waarde van nul versper hierdie opsie.",
+      "Portuguese" : "",
       "Open Sprinkler Password:" : "Open Sprinkler Wagwoord:",
       "Import Configuration" : "Voer opset in",
       "Mon" : "Ma",

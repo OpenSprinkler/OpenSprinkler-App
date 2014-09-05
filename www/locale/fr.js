@@ -272,6 +272,7 @@
       "This is open source software: source code and changelog for this application can be found at" : "C'est un logiciel libre : le code source et les évolutions de ce programme sont disponible ici ",
       "Stations have been updated" : "Les stations ont été mises à jour",
       "Relay pulsing is used for special situations where rapid pulsing is needed in the output with a range from 1 to 2000 milliseconds. A zero value disables the pulsing option." : "",
+      "Portuguese" : "",
       "Open Sprinkler Password:" : "Mot de Passe OpenSprinkler :",
       "Import Configuration" : "Importer la Configuration",
       "Mon" : "Lun",

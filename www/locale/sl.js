@@ -272,6 +272,7 @@
       "This is open source software: source code and changelog for this application can be found at" : "",
       "Stations have been updated" : "Postaje so bile posodobljene",
       "Relay pulsing is used for special situations where rapid pulsing is needed in the output with a range from 1 to 2000 milliseconds. A zero value disables the pulsing option." : "",
+      "Portuguese" : "",
       "Open Sprinkler Password:" : "Geslo Namakalnega Sistema:",
       "Import Configuration" : "Uvoz Nastavitev",
       "Mon" : "Pon",

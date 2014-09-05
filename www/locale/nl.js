@@ -272,6 +272,7 @@
       "This is open source software: source code and changelog for this application can be found at" : "Dit is open broncode programmatuur:  broncode en wijzigingen log kan gevonden worden bij",
       "Stations have been updated" : "Stations zijn gewijzigd",
       "Relay pulsing is used for special situations where rapid pulsing is needed in the output with a range from 1 to 2000 milliseconds. A zero value disables the pulsing option." : "Relais impuls wordt gebruikt in speciale gevallen waar snelle impulsen worden gebruikt op de uitgang met een bereik van 1 tot 2000 milliseconden. Een nul waarde schakelt de impuls optie uit.",
+      "Portuguese" : "",
       "Open Sprinkler Password:" : "Open Sprinkler Wachtwoord:",
       "Import Configuration" : "Importeer Instellingen",
       "Mon" : "Maa",
