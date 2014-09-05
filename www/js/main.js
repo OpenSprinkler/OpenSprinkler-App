@@ -4956,15 +4956,14 @@ function fixInputClick(page) {
 
 // Bind buttons to allow push and hold effects
 function holdButton(target,callback) {
-    var timeoutId, intervalId;
+    var intervalId;
 
-    target.on("vclick",callback).on("vmousedown",function(){
-        timeoutId = setTimeout(function(){
-            intervalId = setInterval(callback, 80);
-        },400);
+    target.on("tap",callback).on("taphold",function(){
+        intervalId = setInterval(callback, 80);
     }).on("vmouseup vmouseout vmousecancel touchend",function(){
-        clearTimeout(timeoutId);
         clearInterval(intervalId);
+    }).on("touchmove",function(e){
+        e.preventDefault();
     });
 }
 
