@@ -5,16 +5,22 @@
 
 	function getAssetLocation() {
 		var body = document.body || document.getElementsByTagName("body")[0],
-			mainScript = body.querySelector("script[src]");
+			def = "http://rayshobby.net/scripts/sprinklers/";
+
+		if (!body) {
+			return def;
+		}
+
+		mainScript = body.querySelector("script[src]");
 
 		if (!mainScript) {
-			return "http://rayshobby.net/scripts/sprinklers/";
+			return def;
 		}
 
 		mainScript = mainScript.src;
 
 		if (!mainScript) {
-			return "http://rayshobby.net/scripts/sprinklers/";
+			return def;
 		}
 
 		return mainScript.slice(0,-10);
