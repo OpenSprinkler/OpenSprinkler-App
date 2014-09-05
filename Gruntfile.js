@@ -8,7 +8,8 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks("grunt-mocha");
 
   var bumpVersion = function(version) {
-      var join = ".";
+      var join = ".",
+          level = grunt.option("level") || 2;
 
       if (typeof version === "number") {
         join = "";
@@ -16,7 +17,6 @@ module.exports = function(grunt) {
       }
 
       version = version.split(join) || [0,0,0];
-      level = grunt.option("level") || 2;
       version[level]++;
       return version.join(join);
     },
