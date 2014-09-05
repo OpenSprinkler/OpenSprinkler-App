@@ -462,7 +462,8 @@ function send_to_os(dest,type) {
     var obj = {
         url: curr_prefix+curr_ip+dest,
         type: "GET",
-        dataType: type
+        dataType: type,
+        retry: {times: retryCount, statusCodes:[0,408,500]}
     };
 
     if (curr_auth) {
@@ -471,7 +472,7 @@ function send_to_os(dest,type) {
         });
     }
 
-    return $.ajax(obj).retry({times:retryCount, statusCodes: [0,408,500]}).fail(function(e){
+    return $.ajaxQueue(obj).fail(function(e){
         if ((e.statusText==="timeout" || e.status===0) && /\/(?:cv|cs|cr|cp|uwa|dp|co|cl|cu)/.exec(dest)) {
             showerror(_("Connection timed-out. Please try again."));
         } else if (e.status===401 && /\/(?:cv|cs|cr|cp|uwa|dp|co|cl|cu)/.exec(dest)) {
@@ -4425,7 +4426,7 @@ function import_config(data) {
                 } else {
                     key = key;
                 }
-                if (controller.options.fwv === 208) {
+                if (controller.options.fwv === 208 && typeof data.options[i] === "string") {
                     option = data.options[i].replace(/\s/g,"_");
                 } else {
                     option = data.options[i];
