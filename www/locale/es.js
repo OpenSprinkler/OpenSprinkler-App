@@ -272,7 +272,7 @@
       "This is open source software: source code and changelog for this application can be found at" : "Esto es software de código abierto: el código fuente y los cambios de esta aplicación están disponibles en",
       "Stations have been updated" : "Las estaciones han sido actualizadas",
       "Relay pulsing is used for special situations where rapid pulsing is needed in the output with a range from 1 to 2000 milliseconds. A zero value disables the pulsing option." : "El pulso de relé se utiliza para situaciones especiales donde se necesita pulsación rápida en la salida con un rango de 1 a 2000 milisegundos. Un valor de cero desactiva la opción de pulsación.",
-      "Portuguese" : "",
+      "Portuguese" : "Portugués",
       "Open Sprinkler Password:" : "Open Sprinkler Contraseña",
       "Import Configuration" : "Importar Configuración",
       "Mon" : "Lu",
