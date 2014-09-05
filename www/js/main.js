@@ -4959,7 +4959,7 @@ function holdButton(target,callback) {
     var intervalId;
 
     target.on("tap",callback).on("taphold",function(){
-        intervalId = setInterval(callback, 80);
+        intervalId = setInterval(callback, 100);
     }).on("vmouseup vmouseout vmousecancel touchend",function(){
         clearInterval(intervalId);
     }).on("touchmove",function(e){
