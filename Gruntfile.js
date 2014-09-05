@@ -7,7 +7,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks("grunt-contrib-compress");
   grunt.loadNpmTasks("grunt-mocha");
 
-  var bumpVersion = function(version,level) {
+  var bumpVersion = function(version) {
       var join = ".";
 
       if (typeof version === "number") {
@@ -16,7 +16,7 @@ module.exports = function(grunt) {
       }
 
       version = version.split(join) || [0,0,0];
-      level = level || 2;
+      level = grunt.option("level") || 2;
       version[level]++;
       return version.join(join);
     },
