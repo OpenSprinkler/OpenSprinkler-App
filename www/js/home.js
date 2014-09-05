@@ -5,7 +5,7 @@
 
 	function getAssetLocation() {
 		var body = document.body || document.getElementsByTagName("body")[0],
-			mainScript = body.querySelector("script[src]")
+			mainScript = body.querySelector("script[src]");
 
 		if (!mainScript) {
 			return "http://rayshobby.net/scripts/sprinklers/";
