@@ -272,6 +272,7 @@
       "This is open source software: source code and changelog for this application can be found at" : "Dette er open kildekode programvare. Kildekode og endringslogg for denne applikasjonen kan du finne på",
       "Stations have been updated" : "Stasjonene er oppdatert",
       "Relay pulsing is used for special situations where rapid pulsing is needed in the output with a range from 1 to 2000 milliseconds. A zero value disables the pulsing option." : "Relee pulsing er brukt i spesielle situasjoner hvor hurtig pulsing er nødvendig i utgangen med et område fra 1 til 20000 millisekunder. En null verdi deaktiverer pulsing.",
+      "Portuguese" : "",
       "Open Sprinkler Password:" : "Open Sprinkler Passord:",
       "Import Configuration" : "Importer konfigurasjon",
       "Mon" : "man",

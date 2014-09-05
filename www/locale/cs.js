@@ -272,6 +272,7 @@
       "This is open source software: source code and changelog for this application can be found at" : "Toto je open source program: zdrojový kód a změny pro tuto aplikaci lze nalézt na adrese",
       "Stations have been updated" : "Stanice byla aktualizována",
       "Relay pulsing is used for special situations where rapid pulsing is needed in the output with a range from 1 to 2000 milliseconds. A zero value disables the pulsing option." : "Pulsní relé se používá pro zvláštní situace, kdy je potřeba rychlý puls na výstupu s rozsahem 1 až 2000 milisekund. Nulová hodnota zakáže pulsování.",
+      "Portuguese" : "",
       "Open Sprinkler Password:" : "Open Sprinkler heslo:",
       "Import Configuration" : "Import nastavení",
       "Mon" : "Po",
