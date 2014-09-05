@@ -4702,6 +4702,7 @@ function showSingleDurationInput(opt) {
         title: _("Duration"),
         minimum: 0,
         updateOnChange: true,
+        showBack: true,
         callback: function(){}
     };
 
@@ -4719,7 +4720,7 @@ function showSingleDurationInput(opt) {
                     "<input type='number' pattern='[0-9]*' value='"+opt.data+"'>" +
                     "<button class='incr ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border'></button>" +
                 "</div>" +
-                (opt.updateOnChange ? "" : "<input type='submit' data-theme='b' value='"+_("Submit")+"'>") +
+                (opt.updateOnChange && !opt.showBack ? "" : "<input type='submit' data-theme='b' value='"+_("Submit")+"'>") +
             "</div>" +
         "</div>"),
         input = popup.find("input"),
