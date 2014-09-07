@@ -199,6 +199,8 @@
 			// If device has been logged into before, use available settings
 			loader = $("<div class='spinner'><h1>Loading</h1></div>");
 			finishInit();
+		} else if (ipas === 1) {
+			savePassword("");
 		} else {
 			// If this is a new login, prompt for password
 			loader = $("<div class='spinner'><div class='logo'></div><h1>Enter Device Password</h1><span class='feedback'></span><form><input type='password' id='os_pw' name='os_pw' value='' /><input type='submit' value='Submit' /></form></div>"),
