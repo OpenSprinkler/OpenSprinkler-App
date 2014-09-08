@@ -212,6 +212,8 @@
 					return false;
 				}
 
+				$.support.cors = true;
+
 				$.ajax({
 					url: "/sp?pw="+encodeURIComponent(pw)+"&npw="+encodeURIComponent(pw)+"&cpw="+encodeURIComponent(pw),
 					cache: false,
