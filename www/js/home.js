@@ -1,11 +1,12 @@
-/*global $, ver, initApp, XDomainRequest, ActiveXObject */
+/*global $, ver, ipas, initApp, XDomainRequest, ActiveXObject */
 (function(document){
 	var assetLocation = getAssetLocation(),
 		isReady = false;
 
 	function getAssetLocation() {
 		var body = document.body || document.getElementsByTagName("body")[0],
-			def = "http://rayshobby.net/scripts/sprinklers/";
+			def = "http://rayshobby.net/scripts/sprinklers/",
+			mainScript;
 
 		if (!body) {
 			return def;
