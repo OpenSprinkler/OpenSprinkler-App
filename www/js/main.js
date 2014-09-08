@@ -2928,16 +2928,26 @@ function get_manual() {
 
             var anchor = $(this),
                 item = anchor.closest("li"),
-                currPos = listitems.index(item);
+                currPos = listitems.index(item),
+                sid = currPos+1,
+                dur = autoOff.val();
 
             if (anchor.hasClass("yellow")) {
                 return false;
             }
 
             if (controller.status[currPos]) {
-                dest = "/sn"+(currPos+1)+"=0";
+                if (isOSPi() && getOSPiVersion() >= 204) {
+                    dest = "/sn?sid="+sid+"&set_to=0&pw=";
+                } else {
+                    dest = "/sn"+sid+"=0";
+                }
             } else {
-                dest = "/sn"+(currPos+1)+"=1&t="+autoOff.val();
+                if (isOSPi() && getOSPiVersion() >= 204) {
+                    dest = "/sn?sid="+sid+"&set_to=1&set_time="+dur+"&pw=";
+                } else {
+                    dest = "/sn"+sid+"=1&t="+dur;
+                }
             }
 
             anchor.removeClass("green").addClass("yellow");
@@ -4555,6 +4565,14 @@ function checkWeatherPlugin() {
         });
     } else {
        weather_provider.css("display","");
+    }
+}
+
+function getOSPiVersion() {
+    if (isOSPi()) {
+        return controller.options.fwv.split("-")[0].split(".").join("");
+    } else {
+        return false;
     }
 }
 
