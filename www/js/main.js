@@ -4806,6 +4806,14 @@ function showSingleDurationInput(opt) {
         return false;
     });
 
+    popup.find("input[type='number']").on("focus",function(){
+        this.value = "";
+    }).on("blur",function(){
+        if (this.value === "") {
+            this.value = "0";
+        }
+    });
+
     popup.find("input[type='submit']").on("click",function(){
         opt.callback(input.val());
         popup.popup("destroy").remove();
