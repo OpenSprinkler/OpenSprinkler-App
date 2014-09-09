@@ -4065,7 +4065,12 @@ function read_program(program) {
         stations = "",
         newdata = {};
 
-    newdata.en = program[0];
+    if (!isOSPi() && controller.options.fwv >= 210) {
+        newdata.en = (program[0]>>0)&1;
+        newdata.weather = (program[0]>>1)&1;
+    } else {
+        newdata.en = program[0];
+    }
     newdata.start = program[3];
     newdata.end = program[4];
     newdata.interval = program[5];
@@ -4479,6 +4484,33 @@ function import_config(data) {
             send_to_os(cs),
             send_to_os("/dp?pw=&pid=-1"),
             $.each(data.programs.pd,function (i,prog) {
+                if (!isPi && typeof data.options.fwv === "number" && data.options.fwv < 210 && controller.options.fwv >= 210) {
+                    var en = prog[0],
+                        dur = prog[6],
+                        total = (prog.length - 7),
+                        allDur = [],
+                        j=0,
+                        bits, n, s;
+
+                    // Set enable/disable bit for program
+                    j |= (en<<0);
+                    prog[0] = j;
+
+                    // Using the total number of stations, migrate the duration into each station
+                    for (n=0; n < total; n++) {
+                        bits = prog[7+n];
+                        for (s=0; s < 8; s++) {
+                            allDur.push((bits&(1<<s)) ? 0 : dur);
+                        }
+                    }
+
+                    // Change the duration from the previous int to the new array
+                    prog[6] = allDur;
+
+                    // Truncate the station enable/disable flags
+                    prog = prog.slice(0,7);
+                }
+
                 send_to_os(cp_start+"&pid=-1&v="+JSON.stringify(prog));
             })
         ).then(
