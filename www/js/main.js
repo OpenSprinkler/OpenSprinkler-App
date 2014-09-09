@@ -2028,7 +2028,7 @@ function show_options() {
                 "</div>" +
             "</div>" +
         "</div>"),
-        timezones, tz, i;
+        timezones, algorithm, tz, i;
 
     page.find("div[data-role='header'] > .ui-btn-right").on("click",submit_options);
 
@@ -2061,7 +2061,7 @@ function show_options() {
     }
 
     if (typeof controller.options.lg !== "undefined") {
-        list += "<label for='o31'><input data-mini='true' id='o31' type='checkbox' "+((controller.options.lg === 1) ? "checked='checked'" : "")+" />"+_("Enable Logging")+"</label>";
+        list += "<label for='lg'><input data-mini='true' id='lg' type='checkbox' "+((controller.options.lg === 1) ? "checked='checked'" : "")+" />"+_("Enable Logging")+"</label>";
     }
 
     list += "</fieldset><fieldset data-role='collapsible'><legend>"+_("Configure Master")+"</legend>";
@@ -2103,7 +2103,16 @@ function show_options() {
         list += "<label for='o16'><input data-mini='true' id='o16' type='checkbox' "+((controller.options.seq === 1) ? "checked='checked'" : "")+" />"+_("Sequential")+"</label>";
     }
 
-    list += "</fieldset><fieldset data-role='collapsible'><legend>"+_("Rain Sensor")+"</legend>";
+    list += "</fieldset><fieldset data-role='collapsible'><legend>"+_("Weather Control")+"</legend>";
+
+    if (typeof controller.options.uwt !== "undefined") {
+        algorithm = ["Disabled","Zimmerman"];
+        list += "<div class='ui-field-contain'><label for='o31' class='select'>"+_("Weather Algorithm")+"</label><select "+(controller.settings.wapikey && controller.settings.wapikey !== "" ? "disabled " : "")+"data-mini='true' id='o31'>";
+        for (i=0; i<algorithm.length; i++) {
+            list += "<option "+((i === controller.options.uwt) ? "selected" : "")+" value='"+i+"'>"+algorithm[i]+"</option>";
+        }
+        list += "</select></div>";
+    }
 
     if (typeof controller.options.urs !== "undefined") {
         list += "<label for='o21'><input data-mini='true' id='o21' type='checkbox' "+((controller.options.urs === 1) ? "checked='checked'" : "")+" />"+_("Use Rain Sensor")+"</label>";
@@ -2270,7 +2279,7 @@ function submit_options() {
     var opt = {},
         invalid = false,
         isPi = isOSPi(),
-        keyNames = {1:"tz",2:"ntp",12:"htp",13:"htp2",14:"ar",15:"nbrd",16:"seq",17:"sdt",18:"mas",19:"mton",20:"mtoff",21:"urs",22:"rst",23:"wl",25:"ipas",30:"rlp",31:"lg"},
+        keyNames = {1:"tz",2:"ntp",12:"htp",13:"htp2",14:"ar",15:"nbrd",16:"seq",17:"sdt",18:"mas",19:"mton",20:"mtoff",21:"urs",22:"rst",23:"wl",25:"ipas",30:"rlp","lg":"lg",31:"uwt"},
         key;
 
     $("#os-options-list").find(":input,button").each(function(a,b){
@@ -2315,7 +2324,7 @@ function submit_options() {
             case "o22":
             case "o25":
             case "o30":
-            case "o31":
+            case "lg":
                 data = $item.is(":checked") ? 1 : 0;
                 if (!data) {
                     return true;
@@ -2323,8 +2332,8 @@ function submit_options() {
                 break;
         }
         if (isPi) {
-            if (id === "loc") {
-                id = "oloc";
+            if (id === "loc" || id === "lg") {
+                id = "o"+id;
             } else {
                 key = /\d+/.exec(id);
                 id = "o"+keyNames[key];
@@ -4390,8 +4399,8 @@ function export_config() {
 }
 
 function import_config(data) {
-    var piNames = {1:"tz",2:"ntp",12:"htp",13:"htp2",14:"ar",15:"nbrd",16:"seq",17:"sdt",18:"mas",19:"mton",20:"mtoff",21:"urs",22:"rst",23:"wl",25:"ipas",30:"rlp",31:"lg"},
-        keyIndex = {"tz":1,"ntp":2,"hp0":12,"hp1":13,"ar":14,"ext":15,"seq":16,"sdt":17,"mas":18,"mton":19,"mtof":20,"urs":21,"rso":22,"wl":23,"ipas":25,"devid":26,"rlp":30,"lg":31};
+    var piNames = {1:"tz",2:"ntp",12:"htp",13:"htp2",14:"ar",15:"nbrd",16:"seq",17:"sdt",18:"mas",19:"mton",20:"mtoff",21:"urs",22:"rst",23:"wl",25:"ipas",30:"rlp","lg":"lg",31:"uwt"},
+        keyIndex = {"tz":1,"ntp":2,"hp0":12,"hp1":13,"ar":14,"ext":15,"seq":16,"sdt":17,"mas":18,"mton":19,"mtof":20,"urs":21,"rso":22,"wl":23,"ipas":25,"devid":26,"rlp":30,"lg":"lg","uwt":31};
 
     if (typeof data === "undefined") {
         storage.get("backup",function(newdata){
@@ -4425,7 +4434,7 @@ function import_config(data) {
         for (i in data.options) {
             if (data.options.hasOwnProperty(i) && keyIndex.hasOwnProperty(i)) {
                 key = keyIndex[i];
-                if ($.inArray(key, [2,14,16,21,22,25,31]) !== -1 && data.options[i] === 0) {
+                if ($.inArray(key, [2,14,16,21,22,25]) !== -1 && data.options[i] === 0) {
                     continue;
                 }
                 if (isPi) {
