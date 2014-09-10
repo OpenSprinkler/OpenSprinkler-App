@@ -4004,17 +4004,22 @@ function expandProgram(program) {
     });
 
     program.find("[id^='run-']").on("click",function(){
-        var durr = parseInt($("#duration-"+id).val()),
-            stations = $("[id^='station_'][id$='-"+id+"']"),
-            runonce = [];
+        var runonce = [];
 
-        $.each(stations,function(a,b){
-            if ($(b).is(":checked")) {
-                runonce.push(durr);
-            } else {
-                runonce.push(0);
-            }
-        });
+        if (!isOSPi() && controller.options.fwv >= 210) {
+            runonce = controller.programs.pd[id][4];
+        } else {
+            var durr = parseInt($("#duration-"+id).val()),
+                stations = $("[id^='station_'][id$='-"+id+"']");
+
+            $.each(stations,function(a,b){
+                if ($(b).is(":checked")) {
+                    runonce.push(durr);
+                } else {
+                    runonce.push(0);
+                }
+            });
+        }
         runonce.push(0);
         submit_runonce(runonce);
         return false;
