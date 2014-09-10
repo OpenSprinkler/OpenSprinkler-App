@@ -74,7 +74,7 @@ var isIEMobile = /IEMobile/.test(navigator.userAgent),
     retryCount = 3,
     controller = {},
     switching = false,
-    curr_183, curr_ip, curr_prefix, curr_auth, curr_pw, curr_wa, curr_auth_user, curr_auth_pw, curr_local, language, deviceip, interval_id, timeout_id;
+    curr_183, curr_ip, curr_prefix, curr_auth, curr_pw, curr_wa, curr_auth_user, curr_auth_pw, curr_local, language, deviceip, interval_id, timeout_id, errorTimeout;
 
 // Fix CSS for IE Mobile (Windows Phone 8)
 if (isIEMobile) {
@@ -4051,6 +4051,23 @@ function expandProgram(program) {
         return false;
     });
 
+    program.find("[id^=station_][id$=-"+id+"]").on("click",function(){
+        var dur = $(this),
+            name = controller.stations.snames[dur.attr("id").split("_")[1].split("-")[0]];
+
+        showDurationBox(dur.val(),name,function(result){
+            dur.val(result);
+            dur.text(dhms2str(sec2dhms(result)));
+            if (result > 0) {
+                dur.addClass("green");
+            } else {
+                dur.removeClass("green");
+            }
+        },65535);
+
+        return false;
+    });
+
     fixInputClick(program);
 }
 
@@ -4068,21 +4085,22 @@ function read_program(program) {
     if (!isOSPi() && controller.options.fwv >= 210) {
         newdata.en = (program[0]>>0)&1;
         newdata.weather = (program[0]>>1)&1;
+        newdata.stations = program[6];
     } else {
         newdata.en = program[0];
+        for (var n=0; n < controller.programs.nboards; n++) {
+            var bits = program[7+n];
+            for (var s=0; s < 8; s++) {
+                stations += (bits&(1<<s)) ? "1" : "0";
+            }
+        }
+        newdata.stations = stations;
+        newdata.duration = program[6];
     }
+
     newdata.start = program[3];
     newdata.end = program[4];
     newdata.interval = program[5];
-    newdata.duration = program[6];
-
-    for (var n=0; n < controller.programs.nboards; n++) {
-        var bits = program[7+n];
-        for (var s=0; s < 8; s++) {
-            stations += (bits&(1<<s)) ? "1" : "0";
-        }
-    }
-    newdata.stations = stations;
 
     if((days0&0x80)&&(days1>1)){
         //This is an interval program
@@ -4156,7 +4174,7 @@ function make_program(n,isCopy) {
         days, i, j, set_stations, program;
 
     if (n === "new") {
-        program = {"en":0,"is_interval":0,"is_even":0,"is_odd":0,"duration":0,"interval":0,"start":0,"end":0,"days":[0,0]};
+        program = {"en":0,"weather":0,"is_interval":0,"is_even":0,"is_odd":0,"duration":0,"interval":0,"start":0,"end":0,"days":[0,0]};
     } else {
         program = read_program(controller.programs.pd[n]);
     }
@@ -4169,13 +4187,16 @@ function make_program(n,isCopy) {
     } else {
         days = [0,0,0,0,0,0,0];
     }
-    if (typeof program.stations !== "undefined") {
+    if (typeof program.stations !== "undefined" && controller.options.fwv < 210) {
         set_stations = program.stations.split("");
-        for(i=set_stations.length;i--;) {
+        for(i=set_stations.length-1;i>=0;i--) {
             set_stations[i] = set_stations[i]|0;
         }
     }
     list += "<label for='en-"+id+"'><input data-mini='true' type='checkbox' "+((program.en || n==="new") ? "checked='checked'" : "")+" name='en-"+id+"' id='en-"+id+"'>"+_("Enabled")+"</label>";
+    if (!isOSPi() && controller.options.fwv >= 210) {
+        list += "<label for='uwt-"+id+"'><input data-mini='true' type='checkbox' "+((program.weather || n==="new") ? "checked='checked'" : "")+" name='uwt-"+id+"' id='uwt-"+id+"'>"+_("Use Weather Control")+"</label>";
+    }
     list += "<fieldset data-role='controlgroup' data-type='horizontal' class='center'>";
     list += "<input data-mini='true' type='radio' name='rad_days-"+id+"' id='days_week-"+id+"' value='days_week-"+id+"' "+((program.is_interval) ? "" : "checked='checked'")+"><label for='days_week-"+id+"'>"+_("Weekly")+"</label>";
     list += "<input data-mini='true' type='radio' name='rad_days-"+id+"' id='days_n-"+id+"' value='days_n-"+id+"' "+((program.is_interval) ? "checked='checked'" : "")+"><label for='days_n-"+id+"'>"+_("Interval")+"</label>";
@@ -4198,26 +4219,43 @@ function make_program(n,isCopy) {
     list += "<div class='ui-block-b'><label for='starting-"+id+"'>"+_("Starting In")+"</label><input data-mini='true' type='number' name='starting-"+id+"' pattern='[0-9]*' id='starting-"+id+"' value='"+program.days[1]+"'></div>";
     list += "</div>";
 
-    list += "<fieldset data-role='controlgroup'><legend>"+_("Stations:")+"</legend>";
-    for (j=0; j<controller.stations.snames.length; j++) {
-        list += "<label for='station_"+j+"-"+id+"'><input data-mini='true' type='checkbox' "+(((typeof set_stations !== "undefined") && set_stations[j]) ? "checked='checked'" : "")+" name='station_"+j+"-"+id+"' id='station_"+j+"-"+id+"'>"+controller.stations.snames[j]+"</label>";
+    if (isOSPi() || controller.options.fwv < 210) {
+        list += "<fieldset data-role='controlgroup'><legend>"+_("Stations:")+"</legend>";
     }
-    list += "</fieldset>";
 
-    list += "<fieldset data-role='controlgroup' data-type='horizontal' class='center'>";
-    list += "<a class='ui-btn ui-mini' name='s_checkall-"+id+"' id='s_checkall-"+id+"'>"+_("Check All")+"</a>";
-    list += "<a class='ui-btn ui-mini' name='s_uncheckall-"+id+"' id='s_uncheckall-"+id+"'>"+_("Uncheck All")+"</a>";
-    list += "</fieldset>";
+    for (j=0; j<controller.stations.snames.length; j++) {
+        if (!isOSPi() && controller.options.fwv >= 210) {
+            if (controller.options.mas === j+1) {
+                list += "<div class='ui-field-contain duration-input'><label for='station_"+j+"-"+id+"'>"+controller.stations.snames[j]+":</label><button disabled='true' data-mini='true' name='station_"+j+"-"+id+"' id='station_"+j+"-"+id+"' value='0'>Master</button></div>";
+            } else {
+                list += "<div class='ui-field-contain duration-input'><label for='station_"+j+"-"+id+"'>"+controller.stations.snames[j]+":</label><button data-mini='true' name='station_"+j+"-"+id+"' id='station_"+j+"-"+id+"' value='"+program.stations[j]+"'>"+program.stations[j]+"s</button></div>";
+            }
+        } else {
+            list += "<label for='station_"+j+"-"+id+"'><input data-mini='true' type='checkbox' "+(((typeof set_stations !== "undefined") && set_stations[j]) ? "checked='checked'" : "")+" name='station_"+j+"-"+id+"' id='station_"+j+"-"+id+"'>"+controller.stations.snames[j]+"</label>";
+        }
+    }
+
+    if (isOSPi() || controller.options.fwv < 210) {
+        list += "</fieldset>";
+        list += "<fieldset data-role='controlgroup' data-type='horizontal' class='center'>";
+        list += "<a class='ui-btn ui-mini' name='s_checkall-"+id+"' id='s_checkall-"+id+"'>"+_("Check All")+"</a>";
+        list += "<a class='ui-btn ui-mini' name='s_uncheckall-"+id+"' id='s_uncheckall-"+id+"'>"+_("Uncheck All")+"</a>";
+        list += "</fieldset>";
+    }
 
     list += "<div class='ui-grid-a'>";
     list += "<div class='ui-block-a'><label for='start-"+id+"'>"+_("Start Time")+"</label><input data-mini='true' type='time' name='start-"+id+"' id='start-"+id+"' value='"+pad(parseInt(program.start/60)%24)+":"+pad(program.start%60)+"'></div>";
     list += "<div class='ui-block-b'><label for='end-"+id+"'>"+_("End Time")+"</label><input data-mini='true' type='time' name='end-"+id+"' id='end-"+id+"' value='"+pad(parseInt(program.end/60)%24)+":"+pad(program.end%60)+"'></div>";
     list += "</div>";
 
-    list += "<div class='ui-grid-a'>";
-    list += "<div class='ui-block-a'><label for='duration-"+id+"'>"+_("Station Duration")+"</label><button data-mini='true' name='duration-"+id+"' id='duration-"+id+"' value='"+program.duration+"'>"+dhms2str(sec2dhms(program.duration))+"</button></div>";
-    list += "<div class='ui-block-b'><label for='interval-"+id+"'>"+_("Program Interval")+"</label><button data-mini='true' name='interval-"+id+"' id='interval-"+id+"' value='"+program.interval*60+"'>"+dhms2str(sec2dhms(program.interval*60))+"</button></div>";
-    list += "</div>";
+    if (isOSPi() || controller.options.fwv < 210) {
+        list += "<div class='ui-grid-a'>";
+        list += "<div class='ui-block-a'><label for='duration-"+id+"'>"+_("Station Duration")+"</label><button data-mini='true' name='duration-"+id+"' id='duration-"+id+"' value='"+program.duration+"'>"+dhms2str(sec2dhms(program.duration))+"</button></div>";
+        list += "<div class='ui-block-b'><label for='interval-"+id+"'>"+_("Program Interval")+"</label><button data-mini='true' name='interval-"+id+"' id='interval-"+id+"' value='"+program.interval*60+"'>"+dhms2str(sec2dhms(program.interval*60))+"</button></div>";
+        list += "</div>";
+    } else {
+        list += "<label for='interval-"+id+"'>"+_("Program Interval")+"</label><button data-mini='true' name='interval-"+id+"' id='interval-"+id+"' value='"+program.interval*60+"'>"+dhms2str(sec2dhms(program.interval*60))+"</button>";
+    }
 
     if (isCopy === true || n === "new") {
         list += "<input data-mini='true' type='submit' name='submit-"+id+"' id='submit-"+id+"' value='"+_("Save New Program")+"'>";
@@ -4290,6 +4328,23 @@ function add_program(copyID) {
         return false;
     });
 
+    addprogram.find("[id^=station_]").on("click",function(){
+        var dur = $(this),
+            name = controller.stations.snames[dur.attr("id").split("_")[1].split("-")[0]];
+
+        showDurationBox(dur.val(),name,function(result){
+            dur.val(result);
+            dur.text(dhms2str(sec2dhms(result)));
+            if (result > 0) {
+                dur.addClass("green");
+            } else {
+                dur.removeClass("green");
+            }
+        },65535);
+
+        return false;
+    });
+
     addprogram.one("pagehide",function() {
         addprogram.remove();
     });
@@ -4313,9 +4368,20 @@ function delete_program(id) {
 function submit_program(id) {
     var program = [],
         days=[0,0],
+        station_selected=0,
+        en = ($("#en-"+id).is(":checked")) ? 1 : 0,
+        weather = ($("#uwt-"+id).is(":checked")) ? 1 : 0,
+        j = 0,
         daysin, i, s;
 
-    program[0] = ($("#en-"+id).is(":checked")) ? 1 : 0;
+    if (!isOSPi() && controller.options.fwv >= 210) {
+        // Set enable/disable bit for program
+        j |= (en<<0);
+        j |= (weather<<1);
+        program[0] = j;
+    } else {
+        program[0] = en;
+    }
 
     if($("#days_week-"+id).is(":checked")) {
         daysin = $("#d-"+id).val();
@@ -4341,25 +4407,37 @@ function submit_program(id) {
     if(program[3]>program[4]) {showerror(_("Error: Start time must be prior to end time."));return;}
 
     program[5] = parseInt($("#interval-"+id).val()/60);
-    program[6] = parseInt($("#duration-"+id).val());
 
     var sel = $("[id^=station_][id$=-"+id+"]"),
         total = sel.length,
         nboards = total / 8;
 
-
-    var stations=[0],station_selected=0,bid, sid;
-    for(bid=0;bid<nboards;bid++) {
-        stations[bid]=0;
-        for(s=0;s<8;s++) {
-            sid=bid*8+s;
-            if($("#station_"+sid+"-"+id).is(":checked")) {
-                stations[bid] |= 1<<s; station_selected=1;
+    if (!isOSPi() && controller.options.fwv >= 210) {
+        var runTimes = [];
+        sel.each(function(a){
+            var dur = sel.find("#station_"+a+"-"+id).val();
+            if (parseInt(dur) > 0) {
+                station_selected = 1;
+            }
+            runTimes.push(dur);
+        });
+        program[6] = runTimes;
+    } else {
+        program[6] = parseInt($("#duration-"+id).val());
+        var stations=[0],bid, sid;
+        for(bid=0;bid<nboards;bid++) {
+            stations[bid]=0;
+            for(s=0;s<8;s++) {
+                sid=bid*8+s;
+                if($("#station_"+sid+"-"+id).is(":checked")) {
+                    stations[bid] |= 1<<s; station_selected=1;
+                }
             }
         }
+        program = JSON.stringify(program.concat(stations));
     }
+
     if(station_selected===0) {showerror(_("Error: You have not selected any stations."));return;}
-    program = JSON.stringify(program.concat(stations));
     $.mobile.loading("show");
     if (id === "new") {
         send_to_os("/cp?pw=&pid=-1&v="+program).done(function(){
@@ -4997,8 +5075,11 @@ function showerror(msg,dur) {
         textonly: true,
         theme: "b"
     });
+
+    clearTimeout(errorTimeout);
+
     // hide after delay
-    setTimeout(function(){$.mobile.loading("hide");},dur);
+    errorTimeout = setTimeout(function(){$.mobile.loading("hide");},dur);
 }
 
 // Accessory functions
