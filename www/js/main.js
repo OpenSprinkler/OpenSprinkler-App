@@ -4308,7 +4308,7 @@ function make_program21(n,isCopy) {
     if (n === "new") {
         program = {"en":0,"weather":0,"is_interval":0,"is_even":0,"is_odd":0,"duration":0,"interval":0,"start":0,"end":0,"days":[0,0]};
     } else {
-        program = read_program2(controller.programs.pd[n]);
+        program = read_program21(controller.programs.pd[n]);
     }
 
     if (typeof program.days === "string") {
