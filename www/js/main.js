@@ -4467,6 +4467,89 @@ function delete_program(id) {
 }
 
 function submit_program(id) {
+    if (!isOSPi() && controller.options.fwv >= 210) {
+        submit_program21(id);
+    } else {
+        submit_program183(id);
+    }
+}
+
+function submit_program183(id) {
+    var program = [],
+        days=[0,0],
+        station_selected=0,
+        en = ($("#en-"+id).is(":checked")) ? 1 : 0,
+        j = 0,
+        daysin, i, s;
+
+    program[0] = en;
+
+    if($("#days_week-"+id).is(":checked")) {
+        daysin = $("#d-"+id).val();
+        daysin = (daysin === null) ? [] : parseIntArray(daysin);
+        for(i=0;i<7;i++) {if($.inArray(i,daysin) !== -1) {days[0] |= (1<<i); }}
+        if($("#days_rst-"+id).val() === "odd") {days[0]|=0x80; days[1]=1;}
+        else if($("#days_rst-"+id).val() === "even") {days[0]|=0x80; days[1]=0;}
+    } else if($("#days_n-"+id).is(":checked")) {
+        days[1]=parseInt($("#every-"+id).val(),10);
+        if(!(days[1]>=2&&days[1]<=128)) {showerror(_("Error: Interval days must be between 2 and 128."));return;}
+        days[0]=parseInt($("#starting-"+id).val(),10);
+        if(!(days[0]>=0&&days[0]<days[1])) {showerror(_("Error: Starting in days wrong."));return;}
+        days[0]|=0x80;
+    }
+    program[1] = days[0];
+    program[2] = days[1];
+
+    var start = $("#start-"+id).val().split(":");
+    program[3] = parseInt(start[0])*60+parseInt(start[1]);
+    var end = $("#end-"+id).val().split(":");
+    program[4] = parseInt(end[0])*60+parseInt(end[1]);
+
+    if(program[3]>program[4]) {showerror(_("Error: Start time must be prior to end time."));return;}
+
+    program[5] = parseInt($("#interval-"+id).val()/60);
+
+    var sel = $("[id^=station_][id$=-"+id+"]"),
+        total = sel.length,
+        nboards = total / 8;
+
+    program[6] = parseInt($("#duration-"+id).val());
+    var stations=[0],bid, sid;
+    for(bid=0;bid<nboards;bid++) {
+        stations[bid]=0;
+        for(s=0;s<8;s++) {
+            sid=bid*8+s;
+            if($("#station_"+sid+"-"+id).is(":checked")) {
+                stations[bid] |= 1<<s; station_selected=1;
+            }
+        }
+    }
+    program = JSON.stringify(program.concat(stations));
+
+    if(station_selected===0) {showerror(_("Error: You have not selected any stations."));return;}
+    $.mobile.loading("show");
+    if (id === "new") {
+        send_to_os("/cp?pw=&pid=-1&v="+program).done(function(){
+            $.mobile.loading("hide");
+            update_controller_programs(function(){
+                $.mobile.document.one("pageshow",function(){
+                    showerror(_("Program added successfully"));
+                });
+                goBack();
+            });
+        });
+    } else {
+        send_to_os("/cp?pw=&pid="+id+"&v="+program).done(function(){
+            $.mobile.loading("hide");
+            update_controller_programs(function(){
+                update_program_header();
+            });
+            showerror(_("Program has been updated"));
+        });
+    }
+}
+
+function submit_program21(id) {
     var program = [],
         days=[0,0],
         station_selected=0,
@@ -4789,6 +4872,8 @@ function checkWeatherPlugin() {
 }
 
 function checkOSPiVersion(check) {
+    var ver;
+
     if (isOSPi()) {
         check = check.split(".");
         ver = controller.options.fwv.split("-")[0].split(".");
