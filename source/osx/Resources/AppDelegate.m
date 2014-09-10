@@ -6,6 +6,7 @@
 //  Copyright (c) 2014 Samer Albahra. All rights reserved.
 //
 
+#pragma GCC diagnostic ignored "-Wundeclared-selector"
 #import "AppDelegate.h"
 #import "WebKit/WebPolicyDelegate.h"
 
@@ -53,6 +54,16 @@
 {
     [[NSWorkspace sharedWorkspace] openURL:[request URL]];
     [listener ignore];
+}
+
+- (void)webView:(WebView *)sender frame:(WebFrame *)frame exceededDatabaseQuotaForSecurityOrigin:(id) origin database:(NSString *)databaseIdentifier
+{
+    static const unsigned long long defaultQuota = 5 * 1024 * 1024;
+    if ([origin respondsToSelector: @selector(setQuota:)]) {
+        [origin performSelector:@selector(setQuota:) withObject:[NSNumber numberWithLongLong: defaultQuota]];
+    } else {
+        NSLog(@"could not increase quota for %lld", defaultQuota);
+    }
 }
 
 // Function to return the current devices local IP address
