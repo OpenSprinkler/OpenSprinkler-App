@@ -4161,9 +4161,10 @@ function make_all_programs() {
         return "<p class='center'>"+_("You have no programs currently added. Tap the Add button on the top right corner to get started.")+"</p>";
     }
     var list = "<p class='center'>"+_("Click any program below to expand/edit. Be sure to save changes by hitting submit below.")+"</p><div data-role='collapsible-set'>",
-        name = _("Program")+" "+(i+1);
+        name;
 
     for (var i = 0; i < controller.programs.pd.length; i++) {
+        name = _("Program")+" "+(i+1);
         if (!isOSPi() && controller.options.fwv >= 210) {
             name = controller.programs.pd[i][5];
         }
@@ -4355,6 +4356,12 @@ function make_program21(n,isCopy) {
     list += "<div class='ui-block-b'><label for='starting-"+id+"'>"+_("Starting In")+"</label><input data-mini='true' type='number' name='starting-"+id+"' pattern='[0-9]*' id='starting-"+id+"' value='"+program.days[1]+"'></div>";
     list += "</div>";
 
+
+    list += "<label for='start-"+id+"'>"+_("Start Time")+"</label><input data-mini='true' type='time' name='start-"+id+"' id='start-"+id+"' value='"+pad(parseInt(program.start/60)%24)+":"+pad(program.start%60)+"'>";
+    list += "<label for='interval-"+id+"'>"+_("Program Interval")+"</label><button data-mini='true' name='interval-"+id+"' id='interval-"+id+"' value='"+program.interval*60+"'>"+dhms2str(sec2dhms(program.interval*60))+"</button>";
+
+
+
     for (j=0; j<controller.stations.snames.length; j++) {
         if (controller.options.mas === j+1) {
             list += "<div class='ui-field-contain duration-input'><label for='station_"+j+"-"+id+"'>"+controller.stations.snames[j]+":</label><button disabled='true' data-mini='true' name='station_"+j+"-"+id+"' id='station_"+j+"-"+id+"' value='0'>Master</button></div>";
@@ -4363,9 +4370,6 @@ function make_program21(n,isCopy) {
             list += "<div class='ui-field-contain duration-input'><label for='station_"+j+"-"+id+"'>"+controller.stations.snames[j]+":</label><button data-mini='true' name='station_"+j+"-"+id+"' id='station_"+j+"-"+id+"' value='"+time+"'>"+time+"s</button></div>";
         }
     }
-
-    list += "<label for='start-"+id+"'>"+_("Start Time")+"</label><input data-mini='true' type='time' name='start-"+id+"' id='start-"+id+"' value='"+pad(parseInt(program.start/60)%24)+":"+pad(program.start%60)+"'>";
-    list += "<label for='interval-"+id+"'>"+_("Program Interval")+"</label><button data-mini='true' name='interval-"+id+"' id='interval-"+id+"' value='"+program.interval*60+"'>"+dhms2str(sec2dhms(program.interval*60))+"</button>";
 
     if (isCopy === true || n === "new") {
         list += "<input data-mini='true' type='submit' name='submit-"+id+"' id='submit-"+id+"' value='"+_("Save New Program")+"'>";
@@ -4442,8 +4446,9 @@ function add_program(copyID) {
 
     addprogram.find("#program-new").html(make_program(copyID,true));
 
-    addprogram.find("div[data-role='header'] > .ui-btn-right").on("click",function(){
+    addprogram.find("div[data-role='header'] > .ui-btn-right, [id^='submit-']").on("click",function(){
         submit_program("new");
+        return false;
     });
 
     addprogram.one("pagehide",function() {
@@ -4767,7 +4772,7 @@ function import_config(data) {
                     }
 
                     // Change the duration from the previous int to the new array
-                    prog[6] = allDur;
+                    prog[4] = allDur;
 
                     // Truncate the station enable/disable flags
                     prog = prog.slice(0,7);
