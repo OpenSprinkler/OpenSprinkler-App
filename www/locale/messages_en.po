@@ -300,7 +300,10 @@ msgstr ""
 msgid "Sequential"
 msgstr ""
 
-msgid "Rain Sensor"
+msgid "Weather Control"
+msgstr ""
+
+msgid "Weather Algorithm"
 msgstr ""
 
 msgid "Use Rain Sensor"
@@ -527,6 +530,9 @@ msgstr ""
 msgid "Export via Email"
 msgstr ""
 
+msgid "Rain Sensor"
+msgstr ""
+
 msgid "Rain Delay"
 msgstr ""
 
@@ -713,6 +719,9 @@ msgid "Run Program"
 msgstr ""
 
 msgid "Delete Program"
+msgstr ""
+
+msgid "Use Weather Control"
 msgstr ""
 
 msgid "Add Program"
