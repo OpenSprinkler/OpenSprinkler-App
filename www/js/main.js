@@ -4755,15 +4755,33 @@ function import_config(data) {
             send_to_os("/dp?pw=&pid=-1"),
             $.each(data.programs.pd,function (i,prog) {
                 if (!isPi && typeof data.options.fwv === "number" && data.options.fwv < 210 && controller.options.fwv >= 210) {
-                    var en = prog[0],
-                        dur = prog[6],
-                        total = (prog.length - 7),
-                        allDur = [],
+                    var program = read_program183(prog),
                         j=0,
                         bits, n, s;
 
                     // Set enable/disable bit for program
-                    j |= (en<<0);
+                    j |= (program.en<<0);
+
+                    // Set program restrictions
+                    if (program.is_even) {
+                        j |= (2<<2);
+                    } else if (program.is_odd) {
+                        j |= (1<<2);
+                    } else {
+                        j |= (0<<2);
+                    }
+
+                    // Set program type
+                    if (program.is_interval) {
+                        j |= (3<<4);
+                    } else {
+                        j |= (0<<4);
+                    }
+
+                    // Set start time type (repeating)
+                    j |= (0<<6);
+
+                    // Save bits to program data
                     prog[0] = j;
 
                     // Using the total number of stations, migrate the duration into each station
@@ -4774,11 +4792,17 @@ function import_config(data) {
                         }
                     }
 
+                    // Set the start time, interval time, and repeat count
+                    prog[3] = [program.start,parseInt((program.end-program.start)/program.interval),program.interval];
+
                     // Change the duration from the previous int to the new array
                     prog[4] = allDur;
 
+                    // Give the program a generic name
+                    prog[5] = _("Program")+" "+i;
+
                     // Truncate the station enable/disable flags
-                    prog = prog.slice(0,7);
+                    prog = prog.slice(0,6);
                 }
 
                 send_to_os(cp_start+"&pid=-1&v="+JSON.stringify(prog));
