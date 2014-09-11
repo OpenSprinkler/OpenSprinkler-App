@@ -3200,7 +3200,8 @@ function get_preview() {
             "</div>" +
         "</div>"),
         navi = page.find("#timeline-navigation"),
-        preview_data, process_programs, check_match, run_sched, time_to_text, changeday, render, day;
+        is21 = (!isOSPi() && controller.options.fwv >= 210),
+        preview_data, process_programs, check_match, check_match183, check_match21, run_sched, time_to_text, changeday, render, day;
 
     date = date.split("-");
     day = new Date(date[0],date[1]-1,date[2]);
@@ -3231,10 +3232,18 @@ function get_preview() {
                         if (controller.options.mas===(sid+1)) {
                             continue; // skip master station
                         }
-                        if(prog[7+bid]&(1<<s)) {
-                            et_array[sid]=prog[6]*controller.options.wl/100>>0;
-                            pid_array[sid]=pid+1;
-                            match_found=1;
+                        if (is21) {
+                            if(prog[4][sid]) {
+                                et_array[sid]=prog[4][sid]*controller.options.wl/100>>0;
+                                pid_array[sid]=pid+1;
+                                match_found=1;
+                            }
+                        } else {
+                            if(prog[7+bid]&(1<<s)) {
+                                et_array[sid]=prog[6]*controller.options.wl/100>>0;
+                                pid_array[sid]=pid+1;
+                                match_found=1;
+                            }
                         }
                     }
               }
@@ -3275,7 +3284,15 @@ function get_preview() {
         } while(simminutes<24*60);
     };
 
-    check_match = function (prog,simminutes,simt,simday,devday) {
+    check_match = function(prog,simminutes,simt,simday,devday) {
+        if (is21) {
+            return check_match21(prog,simminutes,simt,simday,devday);
+        } else {
+            return check_match183(prog,simminutes,simt,simday,devday);
+        }
+    };
+
+    check_match183 = function(prog,simminutes,simt,simday,devday) {
         if(prog[0]===0) {
             return 0;
         }
@@ -3311,6 +3328,90 @@ function get_preview() {
         }
         if(((simminutes-prog[3])/prog[5]>>0)*prog[5] === (simminutes-prog[3])) {
             return 1;
+        }
+        return 0;
+    };
+
+    check_match21 = function(prog,simminutes,simt,simday,devday) {
+        var en = prog[0]&0x01,
+            oddeven = (prog[0]>>2)&0x03,
+            type = (prog[0]>>4)&0x03,
+            sttype = (prog[0]>>6)&0x01,
+            date = new Date(simt),
+            i;
+
+        if (!en) {
+            return 0;
+        }
+
+        if (type===3) {
+            // Interval program
+            var dn=prog[2],
+                drem=prog[1];
+
+            if((simday%dn)!==((devday+drem)%dn)) {
+                return 0;
+            }
+        } else if (type===0) {
+            // Weekly program
+            var wd=(date.getUTCDay()+6)%7;
+            if((prog[1]&(1<<wd))===0) {
+                return 0;
+            }
+        } else {
+            return 0;
+        }
+
+        // odd/even restrictions
+        if (oddeven) {
+            var dt=date.getUTCDate();
+            if(oddeven===2) {
+                // even restrict
+                if((dt%2)!==0) {
+                    return 0;
+                }
+            }
+            if(oddeven===1) { // odd restrict
+                if(dt===31 || (dt===29 && date.getUTCMonth()===1) || (dt%2)!==1) {
+                    return 0;
+                }
+            }
+        }
+
+        // Start time matching
+        if (sttype===0) {
+            // Repeating program
+            var start = prog[3][0],
+                repeat= prog[3][1],
+                cycle = prog[3][2];
+
+            if(simminutes<start) {
+                return 0;
+            }
+
+            if(!repeat) {
+                // Single run program
+                return (simminutes===start)?1:0;
+            }
+
+            if(!cycle) {
+                // if this is a multi-run, cycle time must be > 0
+                return 0;
+            }
+
+            var c = (simminutes-start)/cycle>>0;  // >>0 rounds to the nearest integer
+            if((c*cycle === (simminutes-start)) && (c<=repeat)) {
+                return 1;
+            }
+        } else {
+            // Set start time program
+            var sttimes = prog[3];
+            for(i=0;i<4;i++) {
+                // fixme: 4 should be using the mnst (max_start_times) JSON variable
+                if(simminutes === sttimes[i]) {
+                    return 1;
+                }
+            }
         }
         return 0;
     };
@@ -4328,7 +4429,7 @@ function make_program21(n,isCopy) {
     // Group basic settings visually
     list += "<div style='margin-top:5px' class='ui-corner-all'>";
     list += "<div class='ui-bar ui-bar-a'><h3>"+_("Basic Settings")+"</h3></div>";
-    list += "<div class='ui-body ui-body-a center'>"
+    list += "<div class='ui-body ui-body-a center'>";
 
     // Progran name
     list += "<div class='center'><input data-mini='true' type='text' name='name-"+id+"' id='name-"+id+"' placeholder='"+_("Program")+" "+(controller.programs.pd.length+1)+"' value='"+program.name+"'></div>";
@@ -4352,7 +4453,7 @@ function make_program21(n,isCopy) {
     // Group all program type options visually
     list += "<div style='margin-top:5px' class='ui-corner-all'>";
     list += "<div class='ui-bar ui-bar-a'><h3>"+_("Program Type")+"</h3></div>";
-    list += "<div class='ui-body ui-body-a'>"
+    list += "<div class='ui-body ui-body-a'>";
 
     // Controlgroup to handle program type (weekly/interval)
     list += "<fieldset data-role='controlgroup' data-type='horizontal' class='center'>";
@@ -4380,7 +4481,7 @@ function make_program21(n,isCopy) {
     // Group all start time options visually
     list += "<div style='margin-top:5px' class='ui-corner-all'>";
     list += "<div class='ui-bar ui-bar-a'><h3>"+_("Start Time Type")+"</h3></div>";
-    list += "<div class='ui-body ui-body-a'>"
+    list += "<div class='ui-body ui-body-a'>";
 
     // Controlgroup to handle start time type (repeating or set times)
     list += "<fieldset data-role='controlgroup' data-type='horizontal' class='center'>";
@@ -4401,7 +4502,7 @@ function make_program21(n,isCopy) {
     list += "<div class='ui-grid-a'>";
     list += "<div class='ui-block-a'><label class='center' for='start-1-"+id+"'>"+_("Start Time 1")+"</label><input data-mini='true' type='time' name='start-1-"+id+"' id='start-1-"+id+"' value='"+pad(parseInt(times[0]/60)%24)+":"+pad(times[0]%60)+"'></div>";
     list += "<div class='ui-block-b'><label class='center' for='start-2-"+id+"'>"+_("Start Time 2")+"</label><input data-mini='true' type='time' name='start-2-"+id+"' id='start-2-"+id+"' value='"+pad(parseInt(times[1]/60)%24)+":"+pad(times[1]%60)+"'></div>";
-    list += "</div><div class='ui-grid-a'>"
+    list += "</div><div class='ui-grid-a'>";
     list += "<div class='ui-block-a'><label class='center' for='start-3-"+id+"'>"+_("Start Time 3")+"</label><input data-mini='true' type='time' name='start-3-"+id+"' id='start-3-"+id+"' value='"+pad(parseInt(times[2]/60)%24)+":"+pad(times[2]%60)+"'></div>";
     list += "<div class='ui-block-b'><label class='center' for='start-4-"+id+"'>"+_("Start Time 4")+"</label><input data-mini='true' type='time' name='start-4-"+id+"' id='start-4-"+id+"' value='"+pad(parseInt(times[3]/60)%24)+":"+pad(times[3]%60)+"'></div>";
     list += "</div></div>";
@@ -4412,7 +4513,7 @@ function make_program21(n,isCopy) {
     // Group all stations visually
     list += "<div style='margin-top:5px' class='ui-corner-all'>";
     list += "<div class='ui-bar ui-bar-a'><h3>"+_("Stations")+"</h3></div>";
-    list += "<div class='ui-body ui-body-a'>"
+    list += "<div class='ui-body ui-body-a'>";
 
     // Show station duration inputs
     for (j=0; j<controller.stations.snames.length; j++) {
@@ -4554,7 +4655,6 @@ function submit_program183(id) {
         days=[0,0],
         station_selected=0,
         en = ($("#en-"+id).is(":checked")) ? 1 : 0,
-        j = 0,
         daysin, i, s;
 
     program[0] = en;
@@ -4823,6 +4923,8 @@ function import_config(data) {
             $.each(data.programs.pd,function (i,prog) {
                 if (!isPi && typeof data.options.fwv === "number" && data.options.fwv < 210 && controller.options.fwv >= 210) {
                     var program = read_program183(prog),
+                        total = (prog.length - 7),
+                        allDur = [],
                         j=0,
                         bits, n, s;
 
@@ -4855,7 +4957,7 @@ function import_config(data) {
                     for (n=0; n < total; n++) {
                         bits = prog[7+n];
                         for (s=0; s < 8; s++) {
-                            allDur.push((bits&(1<<s)) ? 0 : dur);
+                            allDur.push((bits&(1<<s)) ? 0 : program.duration);
                         }
                     }
 
