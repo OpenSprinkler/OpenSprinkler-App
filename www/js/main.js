@@ -4325,6 +4325,11 @@ function make_program21(n,isCopy) {
         times = [0,0,0,0];
     }
 
+    // Group basic settings visually
+    list += "<div style='margin-top:5px' class='ui-corner-all'>";
+    list += "<div class='ui-bar ui-bar-a'><h3>"+_("Basic Settings")+"</h3></div>";
+    list += "<div class='ui-body ui-body-a center'>"
+
     // Progran name
     list += "<div class='center'><input data-mini='true' type='text' name='name-"+id+"' id='name-"+id+"' placeholder='"+_("Program")+" "+(controller.programs.pd.length+1)+"' value='"+program.name+"'></div>";
 
@@ -4334,8 +4339,18 @@ function make_program21(n,isCopy) {
     // Program weather control flag
     list += "<label for='uwt-"+id+"'><input data-mini='true' type='checkbox' "+((program.weather) ? "checked='checked'" : "")+" name='uwt-"+id+"' id='uwt-"+id+"'>"+_("Use Weather Control")+"</label>";
 
+    // Show restriction options
+    list += "<div class='center'><p class='tight'>"+_("Restrictions")+"</p><select data-inline='true' data-iconpos='left' data-mini='true' data-native-menu='false' id='days_rst-"+id+"'>";
+    list += "<option value='none' "+((!program.is_even && !program.is_odd) ? "selected='selected'" : "")+">"+_("None")+"</option>";
+    list += "<option value='odd' "+((!program.is_even && program.is_odd) ? "selected='selected'" : "")+">"+_("Odd Days")+"</option>";
+    list += "<option value='even' "+((!program.is_odd && program.is_even) ? "selected='selected'" : "")+">"+_("Even Days")+"</option>";
+    list += "</select></div></div></div>";
+
+    // Close basic settings group
+    list += "</div></div>";
+
     // Group all program type options visually
-    list += "<div class='ui-corner-all'>";
+    list += "<div style='margin-top:5px' class='ui-corner-all'>";
     list += "<div class='ui-bar ui-bar-a'><h3>"+_("Program Type")+"</h3></div>";
     list += "<div class='ui-body ui-body-a'>"
 
@@ -4394,16 +4409,10 @@ function make_program21(n,isCopy) {
     // Close start time type group
     list += "</div></div>";
 
-    // Show restriction options
-    // Group all start time options visually
+    // Group all stations visually
     list += "<div style='margin-top:5px' class='ui-corner-all'>";
-    list += "<div class='ui-bar ui-bar-a'><h3>"+_("Restrictions")+"</h3></div>";
-    list += "<div class='ui-body ui-body-a center'>"
-    list += "<select data-inline='true' data-iconpos='left' data-mini='true' data-native-menu='false' id='days_rst-"+id+"'>";
-    list += "<option value='none' "+((!program.is_even && !program.is_odd) ? "selected='selected'" : "")+">"+_("None")+"</option>";
-    list += "<option value='odd' "+((!program.is_even && program.is_odd) ? "selected='selected'" : "")+">"+_("Odd Days")+"</option>";
-    list += "<option value='even' "+((!program.is_odd && program.is_even) ? "selected='selected'" : "")+">"+_("Even Days")+"</option>";
-    list += "</select></div></div>";
+    list += "<div class='ui-bar ui-bar-a'><h3>"+_("Stations")+"</h3></div>";
+    list += "<div class='ui-body ui-body-a'>"
 
     // Show station duration inputs
     for (j=0; j<controller.stations.snames.length; j++) {
@@ -4415,9 +4424,12 @@ function make_program21(n,isCopy) {
         }
     }
 
+    // Close station group
+    list += "</div></div>";
+
     // Show save, run and delete buttons
     if (isCopy === true || n === "new") {
-        list += "<input data-mini='true' type='submit' name='submit-"+id+"' id='submit-"+id+"' value='"+_("Save New Program")+"'>";
+        list += "<input data-mini='true' data-theme='b' type='submit' name='submit-"+id+"' id='submit-"+id+"' value='"+_("Save New Program")+"'>";
     } else {
         list += "<input data-mini='true' type='submit' name='submit-"+id+"' id='submit-"+id+"' value='"+_("Save Changes to Program")+" "+(n + 1)+"'>";
         list += "<input data-mini='true' type='submit' name='run-"+id+"' id='run-"+id+"' value='"+_("Run Program")+" "+(n + 1)+"'>";
