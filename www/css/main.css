@@ -287,9 +287,9 @@ a {
 #addnew, #site-select, #sure {
     width:300px
 }
-#about ul, #forecast ul, #manual ul, #manual fieldset {
-    max-width:800px;
-    margin:16px auto
+.ui-content {
+    max-width:1000px;
+    margin:0 auto
 }
 #sprinklers div[data-role=header] .ui-icon {
     background-color:transparent;
