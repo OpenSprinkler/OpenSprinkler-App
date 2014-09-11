@@ -9,6 +9,8 @@
 #pragma GCC diagnostic ignored "-Wundeclared-selector"
 #import "AppDelegate.h"
 #import "WebKit/WebPolicyDelegate.h"
+#include "WebStorageManagerPrivate.h"
+#include "WebPreferencesPrivate.h"
 
 @implementation AppDelegate
 
@@ -20,11 +22,36 @@
 
 - (void)awakeFromNib {
     // Enable localStorage in webView
-    WebPreferences *prefs = [webView preferences];
-    [prefs _setLocalStorageDatabasePath:@"~/Library/Application Support/Sprinklers"];
-    [prefs setLocalStorageEnabled:YES];
-    [webView setPreferences:prefs];
-
+    
+    NSString* dbPath = [WebStorageManager _storageDirectoryPath];
+    
+    WebPreferences* prefs = [self.webView preferences];
+    NSString* localDBPath = [prefs _localStorageDatabasePath];
+    
+    // PATHS MUST MATCH!!!!  otherwise localstorage file is erased when starting program
+    if( [localDBPath isEqualToString:dbPath] == NO) {
+        [prefs setAutosaves:YES];  //SET PREFS AUTOSAVE FIRST otherwise settings aren't saved.
+        // Define application cache quota
+        static const unsigned long long defaultTotalQuota = 10 * 1024 * 1024; // 10MB
+        static const unsigned long long defaultOriginQuota = 5 * 1024 * 1024; // 5MB
+        [prefs setApplicationCacheTotalQuota:defaultTotalQuota];
+        [prefs setApplicationCacheDefaultOriginQuota:defaultOriginQuota];
+        
+        [prefs setWebGLEnabled:YES];
+        [prefs setOfflineWebApplicationCacheEnabled:YES];
+        
+        [prefs setDatabasesEnabled:YES];
+        [prefs setDeveloperExtrasEnabled:[[NSUserDefaults standardUserDefaults] boolForKey: @"developer"]];
+        
+        #ifdef DEBUG
+        [prefs setDeveloperExtrasEnabled:YES];
+        #endif
+        [prefs _setLocalStorageDatabasePath:dbPath];
+        [prefs setLocalStorageEnabled:YES];
+        
+        [self.webView setPreferences:prefs];
+    }
+    
     // Get notification when scripting environment becomes available
     [webView setFrameLoadDelegate:self];
 
