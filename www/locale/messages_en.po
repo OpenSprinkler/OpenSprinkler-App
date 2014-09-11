@@ -7,6 +7,11 @@ msgstr ""
 msgid "Duration (in hours)"
 msgstr ""
 
+msgid ""
+"Enable manual rain delay by entering a value into the input below. To turn "
+"off a currently enabled rain delay use a value of 0."
+msgstr ""
+
 msgid "Are you sure you want to stop all stations?"
 msgstr ""
 
@@ -722,6 +727,27 @@ msgid "Delete Program"
 msgstr ""
 
 msgid "Use Weather Control"
+msgstr ""
+
+msgid "Repeating"
+msgstr ""
+
+msgid "Set Start Times"
+msgstr ""
+
+msgid "Repeat Count"
+msgstr ""
+
+msgid "Start Time 1"
+msgstr ""
+
+msgid "Start Time 2"
+msgstr ""
+
+msgid "Start Time 3"
+msgstr ""
+
+msgid "Start Time 4"
 msgstr ""
 
 msgid "Add Program"
