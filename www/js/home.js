@@ -6,7 +6,7 @@
 	function getAssetLocation() {
 		var body = document.body || document.getElementsByTagName("body")[0],
 			def = "http://rayshobby.net/scripts/sprinklers/",
-			mainScript;
+			mainScript, src;
 
 		if (!body) {
 			return def;
@@ -24,7 +24,11 @@
 			return def;
 		}
 
-		return mainScript.slice(0,-10);
+		src = mainScript.slice(0,-10);
+		if(src.substr(-1) === "/") {
+			src.substr(0, src.length - 1);
+		}
+		return src;
 	}
 
 	function insertStyle(css) {
