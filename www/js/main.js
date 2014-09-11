@@ -3872,17 +3872,8 @@ function get_logs() {
             var delay = 0;
             $.mobile.loading("show");
 
-            if (!isOSPi() && (endtime - starttime) > 604800) {
-                showerror(_("The requested time span exceeds the maxiumum of 7 days and has been adjusted"),3500);
-                var nDate = dates().start;
-                nDate.setDate(nDate.getDate() + 7);
-                var m = pad(nDate.getMonth()+1);
-                var d = pad(nDate.getDate());
-                $("#log_end").val(nDate.getFullYear() + "-" + m + "-" + d);
-                delay = 500;
-            }
             setTimeout(function(){
-                send_to_os("/jl?"+parms(),"json").then(success,fail);
+                send_to_os("/jl?pw=&"+parms(),"json").then(success,fail);
             },delay);
         },
         logtimeout, hovertimeout, i;
