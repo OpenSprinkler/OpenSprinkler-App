@@ -4334,12 +4334,10 @@ function make_program21(n,isCopy) {
     // Program weather control flag
     list += "<label for='uwt-"+id+"'><input data-mini='true' type='checkbox' "+((program.weather) ? "checked='checked'" : "")+" name='uwt-"+id+"' id='uwt-"+id+"'>"+_("Use Weather Control")+"</label>";
 
-    // Show restriction options
-    list += "<div class='center'><p class='tight'>"+_("Restrictions")+"</p><select data-inline='true' data-iconpos='left' data-mini='true' data-native-menu='false' id='days_rst-"+id+"'>";
-    list += "<option value='none' "+((!program.is_even && !program.is_odd) ? "selected='selected'" : "")+">"+_("None")+"</option>";
-    list += "<option value='odd' "+((!program.is_even && program.is_odd) ? "selected='selected'" : "")+">"+_("Odd Days")+"</option>";
-    list += "<option value='even' "+((!program.is_odd && program.is_even) ? "selected='selected'" : "")+">"+_("Even Days")+"</option>";
-    list += "</select></div>";
+    // Group all program type options visually
+    list += "<div class='ui-corner-all'>";
+    list += "<div class='ui-bar ui-bar-a'><h3>"+_("Program Type")+"</h3></div>";
+    list += "<div class='ui-body ui-body-a'>"
 
     // Controlgroup to handle program type (weekly/interval)
     list += "<fieldset data-role='controlgroup' data-type='horizontal' class='center'>";
@@ -4360,6 +4358,14 @@ function make_program21(n,isCopy) {
     list += "<div class='ui-block-a'><label for='every-"+id+"'>"+_("Interval (Days)")+"</label><input data-mini='true' type='number' name='every-"+id+"' pattern='[0-9]*' id='every-"+id+"' value='"+program.days[0]+"'></div>";
     list += "<div class='ui-block-b'><label for='starting-"+id+"'>"+_("Starting In")+"</label><input data-mini='true' type='number' name='starting-"+id+"' pattern='[0-9]*' id='starting-"+id+"' value='"+program.days[1]+"'></div>";
     list += "</div>";
+
+    // Close program type group
+    list += "</div></div>";
+
+    // Group all start time options visually
+    list += "<div style='margin-top:5px' class='ui-corner-all'>";
+    list += "<div class='ui-bar ui-bar-a'><h3>"+_("Start Time Type")+"</h3></div>";
+    list += "<div class='ui-body ui-body-a'>"
 
     // Controlgroup to handle start time type (repeating or set times)
     list += "<fieldset data-role='controlgroup' data-type='horizontal' class='center'>";
@@ -4384,6 +4390,20 @@ function make_program21(n,isCopy) {
     list += "<div class='ui-block-a'><label class='center' for='start-3-"+id+"'>"+_("Start Time 3")+"</label><input data-mini='true' type='time' name='start-3-"+id+"' id='start-3-"+id+"' value='"+pad(parseInt(times[2]/60)%24)+":"+pad(times[2]%60)+"'></div>";
     list += "<div class='ui-block-b'><label class='center' for='start-4-"+id+"'>"+_("Start Time 4")+"</label><input data-mini='true' type='time' name='start-4-"+id+"' id='start-4-"+id+"' value='"+pad(parseInt(times[3]/60)%24)+":"+pad(times[3]%60)+"'></div>";
     list += "</div></div>";
+
+    // Close start time type group
+    list += "</div></div>";
+
+    // Show restriction options
+    // Group all start time options visually
+    list += "<div style='margin-top:5px' class='ui-corner-all'>";
+    list += "<div class='ui-bar ui-bar-a'><h3>"+_("Restrictions")+"</h3></div>";
+    list += "<div class='ui-body ui-body-a center'>"
+    list += "<select data-inline='true' data-iconpos='left' data-mini='true' data-native-menu='false' id='days_rst-"+id+"'>";
+    list += "<option value='none' "+((!program.is_even && !program.is_odd) ? "selected='selected'" : "")+">"+_("None")+"</option>";
+    list += "<option value='odd' "+((!program.is_even && program.is_odd) ? "selected='selected'" : "")+">"+_("Odd Days")+"</option>";
+    list += "<option value='even' "+((!program.is_odd && program.is_even) ? "selected='selected'" : "")+">"+_("Even Days")+"</option>";
+    list += "</select></div></div>";
 
     // Show station duration inputs
     for (j=0; j<controller.stations.snames.length; j++) {
