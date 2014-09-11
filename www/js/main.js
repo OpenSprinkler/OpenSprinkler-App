@@ -276,7 +276,7 @@ $(document)
                 label: _("Duration (in hours)"),
                 maximum: 96,
                 updateOnChange: false,
-                helptext: "Enable manual rain delay by entering a value into the input below. To turn off a currently enabled rain delay use a value of 0."
+                helptext: _("Enable manual rain delay by entering a value into the input below. To turn off a currently enabled rain delay use a value of 0.")
             });
             return false;
         } else if (hash === "#site-select") {
@@ -4314,7 +4314,7 @@ function make_program21(n,isCopy) {
         days, i, j, program, page, times, time;
 
     if (n === "new") {
-        program = {"name":"New Program","en":0,"weather":0,"is_interval":0,"is_even":0,"is_odd":0,"interval":0,"start":0,"days":[0,0],"repeat":0,"stations":[]};
+        program = {"name":"","en":0,"weather":0,"is_interval":0,"is_even":0,"is_odd":0,"interval":0,"start":0,"days":[0,0],"repeat":0,"stations":[]};
     } else {
         program = read_program(controller.programs.pd[n]);
     }
@@ -4334,37 +4334,67 @@ function make_program21(n,isCopy) {
         times = [0,0,0,0];
     }
 
-    list += "<label for='name-"+id+"'>"+_("Program Name")+"</label><input data-mini='true' type='text' name='name-"+id+"' id='name-"+id+"' value='"+program.name+"'>";
-    list += "<label for='en-"+id+"'><input data-mini='true' type='checkbox' "+((program.en || n==="new") ? "checked='checked'" : "")+" name='en-"+id+"' id='en-"+id+"'>"+_("Enabled")+"</label>";
-    list += "<label for='uwt-"+id+"'><input data-mini='true' type='checkbox' "+((program.weather) ? "checked='checked'" : "")+" name='uwt-"+id+"' id='uwt-"+id+"'>"+_("Use Weather Control")+"</label>";
-    list += "<fieldset data-role='controlgroup' data-type='horizontal' class='center'>";
-    list += "<input data-mini='true' type='radio' name='rad_days-"+id+"' id='days_week-"+id+"' value='days_week-"+id+"' "+((program.is_interval) ? "" : "checked='checked'")+"><label for='days_week-"+id+"'>"+_("Weekly")+"</label>";
-    list += "<input data-mini='true' type='radio' name='rad_days-"+id+"' id='days_n-"+id+"' value='days_n-"+id+"' "+((program.is_interval) ? "checked='checked'" : "")+"><label for='days_n-"+id+"'>"+_("Interval")+"</label>";
-    list += "</fieldset><div id='input_days_week-"+id+"' "+((program.is_interval) ? "style='display:none'" : "")+">";
+    // Progran name
+    list += "<div class='center'><input data-mini='true' type='text' name='name-"+id+"' id='name-"+id+"' placeholder='"+_("Program")+" "+(controller.programs.pd.length+1)+"' value='"+program.name+"'></div>";
 
+    // Program enable/disable flag
+    list += "<label for='en-"+id+"'><input data-mini='true' type='checkbox' "+((program.en || n==="new") ? "checked='checked'" : "")+" name='en-"+id+"' id='en-"+id+"'>"+_("Enabled")+"</label>";
+
+    // Program weather control flag
+    list += "<label for='uwt-"+id+"'><input data-mini='true' type='checkbox' "+((program.weather) ? "checked='checked'" : "")+" name='uwt-"+id+"' id='uwt-"+id+"'>"+_("Use Weather Control")+"</label>";
+
+    // Show restriction options
     list += "<div class='center'><p class='tight'>"+_("Restrictions")+"</p><select data-inline='true' data-iconpos='left' data-mini='true' data-native-menu='false' id='days_rst-"+id+"'>";
     list += "<option value='none' "+((!program.is_even && !program.is_odd) ? "selected='selected'" : "")+">"+_("None")+"</option>";
     list += "<option value='odd' "+((!program.is_even && program.is_odd) ? "selected='selected'" : "")+">"+_("Odd Days")+"</option>";
     list += "<option value='even' "+((!program.is_odd && program.is_even) ? "selected='selected'" : "")+">"+_("Even Days")+"</option>";
     list += "</select></div>";
 
+    // Controlgroup to handle program type (weekly/interval)
+    list += "<fieldset data-role='controlgroup' data-type='horizontal' class='center'>";
+    list += "<input data-mini='true' type='radio' name='rad_days-"+id+"' id='days_week-"+id+"' value='days_week-"+id+"' "+((program.is_interval) ? "" : "checked='checked'")+"><label for='days_week-"+id+"'>"+_("Weekly")+"</label>";
+    list += "<input data-mini='true' type='radio' name='rad_days-"+id+"' id='days_n-"+id+"' value='days_n-"+id+"' "+((program.is_interval) ? "checked='checked'" : "")+"><label for='days_n-"+id+"'>"+_("Interval")+"</label>";
+    list += "</fieldset>";
+
+    // Show weekly program options
+    list += "<div id='input_days_week-"+id+"' "+((program.is_interval) ? "style='display:none'" : "")+">";
     list += "<div class='center'><p class='tight'>"+_("Days of the Week")+"</p><select "+($.mobile.window.width() > 560 ? "data-inline='true' " : "")+"data-iconpos='left' data-mini='true' multiple='multiple' data-native-menu='false' id='d-"+id+"'><option>"+_("Choose day(s)")+"</option>";
     for (j=0; j<week.length; j++) {
         list += "<option "+((!program.is_interval && days[j]) ? "selected='selected'" : "")+" value='"+j+"'>"+week[j]+"</option>";
     }
     list += "</select></div></div>";
 
+    // Show interval program options
     list += "<div "+((program.is_interval) ? "" : "style='display:none'")+" id='input_days_n-"+id+"' class='ui-grid-a'>";
     list += "<div class='ui-block-a'><label for='every-"+id+"'>"+_("Interval (Days)")+"</label><input data-mini='true' type='number' name='every-"+id+"' pattern='[0-9]*' id='every-"+id+"' value='"+program.days[0]+"'></div>";
     list += "<div class='ui-block-b'><label for='starting-"+id+"'>"+_("Starting In")+"</label><input data-mini='true' type='number' name='starting-"+id+"' pattern='[0-9]*' id='starting-"+id+"' value='"+program.days[1]+"'></div>";
     list += "</div>";
 
+    // Controlgroup to handle start time type (repeating or set times)
+    list += "<fieldset data-role='controlgroup' data-type='horizontal' class='center'>";
+    list += "<input data-mini='true' type='radio' name='stype-"+id+"' id='stype_repeat-"+id+"' value='stype_repeat-"+id+"' "+((typeof program.start === "object") ? "" : "checked='checked'")+"><label for='stype_repeat-"+id+"'>"+_("Repeating")+"</label>";
+    list += "<input data-mini='true' type='radio' name='stype-"+id+"' id='stype_set-"+id+"' value='stype_set-"+id+"' "+((typeof program.start === "object") ? "checked='checked'" : "")+"><label for='stype_set-"+id+"'>"+_("Set Start Times")+"</label>";
+    list += "</fieldset>";
 
-    list += "<label for='start-"+id+"'>"+_("Start Time")+"</label><input data-mini='true' type='time' name='start-"+id+"' id='start-"+id+"' value='"+pad(parseInt(program.start/60)%24)+":"+pad(program.start%60)+"'>";
-    list += "<label for='interval-"+id+"'>"+_("Program Interval")+"</label><button data-mini='true' name='interval-"+id+"' id='interval-"+id+"' value='"+program.interval*60+"'>"+dhms2str(sec2dhms(program.interval*60))+"</button>";
+    // Show repeating start time options
+    list += "<div "+((typeof program.start === "object") ? "style='display:none'" : "")+" id='input_stype_repeat-"+id+"'>";
+    list += "<label class='center' for='start-"+id+"'>"+_("Start Time")+"</label><input data-mini='true' type='time' name='start-"+id+"' id='start-"+id+"' value='"+pad(parseInt(program.start/60)%24)+":"+pad(program.start%60)+"'>";
+    list += "<div class='ui-grid-a'>";
+    list += "<div class='ui-block-a'><label class='center' for='repeat-"+id+"'>"+_("Repeat Count")+"</label><button data-mini='true' name='repeat-"+id+"' id='repeat-"+id+"' value='"+program.repeat+"'>"+program.repeat+"</button></div>";
+    list += "<div class='ui-block-b'><label class='center' for='interval-"+id+"'>"+_("Interval")+"</label><button data-mini='true' name='interval-"+id+"' id='interval-"+id+"' value='"+program.interval*60+"'>"+dhms2str(sec2dhms(program.interval*60))+"</button></div>";
+    list += "</div></div>";
 
+    // Show set times options
+    list += "<div "+((typeof program.start === "object") ? "" : "style='display:none'")+" id='input_stype_set-"+id+"'>";
+    list += "<div class='ui-grid-a'>";
+    list += "<div class='ui-block-a'><label class='center' for='start-1-"+id+"'>"+_("Start Time 1")+"</label><input data-mini='true' type='time' name='start-1-"+id+"' id='start-1-"+id+"' value='"+pad(parseInt(times[0]/60)%24)+":"+pad(times[0]%60)+"'></div>";
+    list += "<div class='ui-block-b'><label class='center' for='start-2-"+id+"'>"+_("Start Time 2")+"</label><input data-mini='true' type='time' name='start-2-"+id+"' id='start-2-"+id+"' value='"+pad(parseInt(times[1]/60)%24)+":"+pad(times[1]%60)+"'></div>";
+    list += "</div><div class='ui-grid-a'>"
+    list += "<div class='ui-block-a'><label class='center' for='start-3-"+id+"'>"+_("Start Time 3")+"</label><input data-mini='true' type='time' name='start-3-"+id+"' id='start-3-"+id+"' value='"+pad(parseInt(times[2]/60)%24)+":"+pad(times[2]%60)+"'></div>";
+    list += "<div class='ui-block-b'><label class='center' for='start-4-"+id+"'>"+_("Start Time 4")+"</label><input data-mini='true' type='time' name='start-4-"+id+"' id='start-4-"+id+"' value='"+pad(parseInt(times[3]/60)%24)+":"+pad(times[3]%60)+"'></div>";
+    list += "</div></div>";
 
-
+    // Show station duration inputs
     for (j=0; j<controller.stations.snames.length; j++) {
         if (controller.options.mas === j+1) {
             list += "<div class='ui-field-contain duration-input'><label for='station_"+j+"-"+id+"'>"+controller.stations.snames[j]+":</label><button disabled='true' data-mini='true' name='station_"+j+"-"+id+"' id='station_"+j+"-"+id+"' value='0'>Master</button></div>";
@@ -4374,6 +4404,7 @@ function make_program21(n,isCopy) {
         }
     }
 
+    // Show save, run and delete buttons
     if (isCopy === true || n === "new") {
         list += "<input data-mini='true' type='submit' name='submit-"+id+"' id='submit-"+id+"' value='"+_("Save New Program")+"'>";
     } else {
@@ -4382,34 +4413,47 @@ function make_program21(n,isCopy) {
         list += "<input data-mini='true' data-theme='b' type='submit' name='delete-"+id+"' id='delete-"+id+"' value='"+_("Delete Program")+" "+(n + 1)+"'>";
     }
 
+    // Take HTML string and convert to jQuery object
     page = $(list);
 
-    page.find("input[name^='rad_days']").on("change",function(){
-        var type = $(this).val().split("-")[0],
-            old;
+    // When controlgroup buttons are toggled change relevant options
+    page.find("input[name^='rad_days'],input[name^='stype']").on("change",function(){
+        var input = $(this).val().split("-")[0].split("_");
 
-        type = type.split("_")[1];
-        if (type === "n") {
-            old = "week";
-        } else {
-            old = "n";
-        }
-        $("#input_days_"+type+"-"+id).show();
-        $("#input_days_"+old+"-"+id).hide();
+        $("[id^='input_"+input[0]+"_']").hide();
+        $("#input_"+input[0]+"_"+input[1]+"-"+id).show();
     });
 
+    // Handle interval duration input
     page.find("[id^='interval-']").on("click",function(){
         var dur = $(this),
-            granularity = dur.attr("id").match("interval") ? 1 : 0,
             name = page.find("label[for='"+dur.attr("id")+"']").text();
 
         showDurationBox(dur.val(),name,function(result){
             dur.val(result);
             dur.text(dhms2str(sec2dhms(result)));
-        },65535,granularity);
+        },65535,1);
         return false;
     });
 
+    // Handle repeat count button
+    page.find("[id^='repeat-']").on("click",function(){
+        var dur = $(this),
+            name = page.find("label[for='"+dur.attr("id")+"']").text();
+
+        showSingleDurationInput({
+            data: dur.val(),
+            title: name,
+            callback: function(result){
+                dur.val(result).text(result);
+            },
+            maximum: 1440,
+        });
+
+        return false;
+    });
+
+    // Handle all station duration inputs
     page.find("[id^=station_]").on("click",function(){
         var dur = $(this),
             name = controller.stations.snames[dur.attr("id").split("_")[1].split("-")[0]];
@@ -5063,6 +5107,7 @@ function showSingleDurationInput(opt) {
         data: 0,
         title: _("Duration"),
         minimum: 0,
+        label: "",
         updateOnChange: true,
         showBack: true,
         callback: function(){}
