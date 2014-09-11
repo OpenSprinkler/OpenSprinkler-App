@@ -26,6 +26,8 @@
 		F464DC00198ED81E003492F2 /* MainMenu.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MainMenu.xib; sourceTree = "<group>"; };
 		F464DC02198ED884003492F2 /* Credits.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = Credits.rtf; sourceTree = "<group>"; };
 		F4D9F92A1982F35800405EF0 /* Sprinklers.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = Sprinklers.entitlements; sourceTree = "<group>"; };
+		F4EF8F9B19C15B1B00FF8AE0 /* WebStorageManagerPrivate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WebStorageManagerPrivate.h; sourceTree = "<group>"; };
+		F4EF8F9C19C15BB600FF8AE0 /* WebPreferencesPrivate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WebPreferencesPrivate.h; sourceTree = "<group>"; };
 		F4F83F891981E481006B2617 /* Sprinklers.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Sprinklers.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F4F83F8C1981E481006B2617 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		F4F83F8F1981E481006B2617 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -103,6 +105,8 @@
 				F4D9F92A1982F35800405EF0 /* Sprinklers.entitlements */,
 				F4F83F9E1981E481006B2617 /* AppDelegate.h */,
 				F464DC00198ED81E003492F2 /* MainMenu.xib */,
+				F4EF8F9C19C15BB600FF8AE0 /* WebPreferencesPrivate.h */,
+				F4EF8F9B19C15B1B00FF8AE0 /* WebStorageManagerPrivate.h */,
 				F4F83F9F1981E481006B2617 /* AppDelegate.m */,
 				F4F83F931981E481006B2617 /* Supporting Files */,
 			);
