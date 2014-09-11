@@ -4240,7 +4240,14 @@ function update_program_header() {
     $("#programs_list").find("[id^=program-]").each(function(a,b){
         var item = $(b),
             heading = item.find(".ui-collapsible-heading-toggle"),
+            en;
+
+        if (!isOSPi() && controller.options.fwv >= 210) {
+            en = (controller.programs.pd[a][0])&0x01;
+            heading.find(".program-name").text(controller.programs.pd[a][5]);
+        } else {
             en = controller.programs.pd[a][0];
+        }
 
         if (en) {
             heading.removeClass("red");
@@ -4263,7 +4270,7 @@ function make_all_programs() {
         if (!isOSPi() && controller.options.fwv >= 210) {
             name = controller.programs.pd[i][5];
         }
-        list += "<fieldset id='program-"+i+"' data-role='collapsible'><h3><a class='ui-btn ui-btn-corner-all program-copy'>"+_("copy")+"</a>"+name+"</h3>";
+        list += "<fieldset id='program-"+i+"' data-role='collapsible'><h3><a class='ui-btn ui-btn-corner-all program-copy'>"+_("copy")+"</a><span class='program-name'>"+name+"</span></h3>";
         list += "</fieldset>";
     }
     return list+"</div>";
@@ -4500,11 +4507,11 @@ function make_program21(n,isCopy) {
     // Show set times options
     list += "<div "+((typeof program.start === "object") ? "" : "style='display:none'")+" id='input_stype_set-"+id+"'>";
     list += "<div class='ui-grid-a'>";
-    list += "<div class='ui-block-a'><label class='center' for='start-1-"+id+"'>"+_("Start Time 1")+"</label><input data-mini='true' type='time' name='start-1-"+id+"' id='start-1-"+id+"' value='"+pad(parseInt(times[0]/60)%24)+":"+pad(times[0]%60)+"'></div>";
-    list += "<div class='ui-block-b'><label class='center' for='start-2-"+id+"'>"+_("Start Time 2")+"</label><input data-mini='true' type='time' name='start-2-"+id+"' id='start-2-"+id+"' value='"+pad(parseInt(times[1]/60)%24)+":"+pad(times[1]%60)+"'></div>";
+    list += "<div class='ui-block-a'><label class='center' for='start_1-"+id+"'>"+_("Start Time 1")+"</label><input data-mini='true' type='time' name='start_1-"+id+"' id='start_1-"+id+"' value='"+pad(parseInt(times[0]/60)%24)+":"+pad(times[0]%60)+"'></div>";
+    list += "<div class='ui-block-b'><label class='center' for='start_2-"+id+"'>"+_("Start Time 2")+"</label><input data-mini='true' type='time' name='start_2-"+id+"' id='start_2-"+id+"' value='"+pad(parseInt(times[1]/60)%24)+":"+pad(times[1]%60)+"'></div>";
     list += "</div><div class='ui-grid-a'>";
-    list += "<div class='ui-block-a'><label class='center' for='start-3-"+id+"'>"+_("Start Time 3")+"</label><input data-mini='true' type='time' name='start-3-"+id+"' id='start-3-"+id+"' value='"+pad(parseInt(times[2]/60)%24)+":"+pad(times[2]%60)+"'></div>";
-    list += "<div class='ui-block-b'><label class='center' for='start-4-"+id+"'>"+_("Start Time 4")+"</label><input data-mini='true' type='time' name='start-4-"+id+"' id='start-4-"+id+"' value='"+pad(parseInt(times[3]/60)%24)+":"+pad(times[3]%60)+"'></div>";
+    list += "<div class='ui-block-a'><label class='center' for='start_3-"+id+"'>"+_("Start Time 3")+"</label><input data-mini='true' type='time' name='start_3-"+id+"' id='start_3-"+id+"' value='"+pad(parseInt(times[2]/60)%24)+":"+pad(times[2]%60)+"'></div>";
+    list += "<div class='ui-block-b'><label class='center' for='start_4-"+id+"'>"+_("Start Time 4")+"</label><input data-mini='true' type='time' name='start_4-"+id+"' id='start_4-"+id+"' value='"+pad(parseInt(times[3]/60)%24)+":"+pad(times[3]%60)+"'></div>";
     list += "</div></div>";
 
     // Close start time type group
@@ -4727,79 +4734,90 @@ function submit_program183(id) {
 function submit_program21(id) {
     var program = [],
         days=[0,0],
+        start = [0,0,0,0],
         station_selected=0,
         en = ($("#en-"+id).is(":checked")) ? 1 : 0,
         weather = ($("#uwt-"+id).is(":checked")) ? 1 : 0,
         j = 0,
-        daysin, i, s;
+        daysin, i;
 
-    if (!isOSPi() && controller.options.fwv >= 210) {
-        // Set enable/disable bit for program
-        j |= (en<<0);
-        j |= (weather<<1);
-        program[0] = j;
-    } else {
-        program[0] = en;
+    // Set enable/disable bit for program
+    j |= (en<<0);
+
+    // Set use weather flag
+    j |= (weather<<1);
+
+    // Set restriction flag
+    if($("#days_rst-"+id).val() === "odd") {
+        j |= (1<<2);
+    } else if($("#days_rst-"+id).val() === "even") {
+        j |= (2<<2);
     }
 
-    if($("#days_week-"+id).is(":checked")) {
-        daysin = $("#d-"+id).val();
-        daysin = (daysin === null) ? [] : parseIntArray(daysin);
-        for(i=0;i<7;i++) {if($.inArray(i,daysin) !== -1) {days[0] |= (1<<i); }}
-        if($("#days_rst-"+id).val() === "odd") {days[0]|=0x80; days[1]=1;}
-        else if($("#days_rst-"+id).val() === "even") {days[0]|=0x80; days[1]=0;}
-    } else if($("#days_n-"+id).is(":checked")) {
+    // Set program type
+    if ($("#days_n-"+id).is(":checked")) {
+        j |= (3<<4);
         days[1]=parseInt($("#every-"+id).val(),10);
         if(!(days[1]>=2&&days[1]<=128)) {showerror(_("Error: Interval days must be between 2 and 128."));return;}
         days[0]=parseInt($("#starting-"+id).val(),10);
         if(!(days[0]>=0&&days[0]<days[1])) {showerror(_("Error: Starting in days wrong."));return;}
         days[0]|=0x80;
-    }
-    program[1] = days[0];
-    program[2] = days[1];
-
-    var start = $("#start-"+id).val().split(":");
-    program[3] = parseInt(start[0])*60+parseInt(start[1]);
-    var end = $("#end-"+id).val().split(":");
-    program[4] = parseInt(end[0])*60+parseInt(end[1]);
-
-    if(program[3]>program[4]) {showerror(_("Error: Start time must be prior to end time."));return;}
-
-    program[5] = parseInt($("#interval-"+id).val()/60);
-
-    var sel = $("[id^=station_][id$=-"+id+"]"),
-        total = sel.length,
-        nboards = total / 8;
-
-    if (!isOSPi() && controller.options.fwv >= 210) {
-        var runTimes = [];
-        sel.each(function(a){
-            var dur = sel.find("#station_"+a+"-"+id).val();
-            if (parseInt(dur) > 0) {
-                station_selected = 1;
-            }
-            runTimes.push(dur);
-        });
-        program[6] = runTimes;
-    } else {
-        program[6] = parseInt($("#duration-"+id).val());
-        var stations=[0],bid, sid;
-        for(bid=0;bid<nboards;bid++) {
-            stations[bid]=0;
-            for(s=0;s<8;s++) {
-                sid=bid*8+s;
-                if($("#station_"+sid+"-"+id).is(":checked")) {
-                    stations[bid] |= 1<<s; station_selected=1;
-                }
+    } else if ($("#days_week-"+id).is(":checked")) {
+        j |= (0<<4);
+        daysin = $("#d-"+id).val();
+        daysin = (daysin === null) ? [] : parseIntArray(daysin);
+        for(i=0;i<7;i++) {
+            if($.inArray(i,daysin) !== -1) {
+                days[0] |= (1<<i);
             }
         }
-        program = JSON.stringify(program.concat(stations));
     }
 
-    if(station_selected===0) {showerror(_("Error: You have not selected any stations."));return;}
+    // Set program start time type
+    if ($("#stype_repeat-"+id).is(":checked")) {
+        j |= (0<<6);
+
+        var time = $("#start-"+id).val().split(":");
+        start[0] = parseInt(time[0])*60+parseInt(time[1]);
+        start[1] = parseInt($("#repeat-"+id).val());
+        start[2] = parseInt($("#interval-"+id).val()/60);
+    } else if ($("#stype_set-"+id).is(":checked")) {
+        j |= (1<<6);
+        var times = $("[id^='start_'][id$='-"+id+"']");
+
+        times.each(function(a,b){
+            var time = b.value.split(":");
+            start[a] = parseInt(time[0])*60+parseInt(time[1]);
+        });
+    }
+
+    var sel = $("[id^=station_][id$=-"+id+"]"),
+        runTimes = [];
+
+    sel.each(function(a,b){
+        var dur = parseInt(b.value);
+        if (parseInt(dur) > 0) {
+            station_selected = 1;
+        }
+        runTimes.push(dur);
+    });
+
+    program[0] = j;
+    program[1] = days[0];
+    program[2] = days[1];
+    program[3] = start;
+    program[4] = runTimes;
+
+    var url = "&v="+JSON.stringify(program)+"&name="+encodeURIComponent($("#name-"+id).val());
+
+    if(station_selected===0) {
+        showerror(_("Error: You have not selected any stations."));
+        return;
+    }
+
     $.mobile.loading("show");
     if (id === "new") {
-        send_to_os("/cp?pw=&pid=-1&v="+program).done(function(){
+        send_to_os("/cp?pw=&pid=-1"+url).done(function(){
             $.mobile.loading("hide");
             update_controller_programs(function(){
                 $.mobile.document.one("pageshow",function(){
@@ -4809,7 +4827,7 @@ function submit_program21(id) {
             });
         });
     } else {
-        send_to_os("/cp?pw=&pid="+id+"&v="+program).done(function(){
+        send_to_os("/cp?pw=&pid="+id+url).done(function(result){
             $.mobile.loading("hide");
             update_controller_programs(function(){
                 update_program_header();
