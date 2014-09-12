@@ -304,8 +304,8 @@ a {
 #sprinklers .ui-content {
     padding-top:0
 }
-.pad_buttons {
-    width: 98% !important;
+.pad_buttons, #durationBox .ui-input-text {
+    width: 94% !important;
     margin: 0 auto
 }
 @media (max-width:480px) {

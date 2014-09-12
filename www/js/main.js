@@ -4605,8 +4605,8 @@ function make_program21(n,isCopy) {
     // Show repeating start time options
     list += "<div "+((typeof program.start === "object") ? "style='display:none'" : "")+" id='input_stype_repeat-"+id+"'>";
     list += "<div class='ui-grid-a'>";
-    list += "<div class='ui-block-a'><label class='center' for='interval-"+id+"'>"+_("Repeat Every")+"</label><button class='pad_buttons' data-mini='true' name='interval-"+id+"' id='interval-"+id+"' value='"+program.interval*60+"'>"+dhms2str(sec2dhms(program.interval*60))+"</button></div>";
-    list += "<div class='ui-block-b'><label class='center' for='repeat-"+id+"'>"+_("Repeat Count")+"</label><button class='pad_buttons' data-mini='true' name='repeat-"+id+"' id='repeat-"+id+"' value='"+program.repeat+"'>"+program.repeat+"</button></div>";
+    list += "<div class='ui-block-a'><label class='pad_buttons center' for='interval-"+id+"'>"+_("Repeat Every")+"</label><button class='pad_buttons' data-mini='true' name='interval-"+id+"' id='interval-"+id+"' value='"+program.interval*60+"'>"+dhms2str(sec2dhms(program.interval*60))+"</button></div>";
+    list += "<div class='ui-block-b'><label class='pad_buttons center' for='repeat-"+id+"'>"+_("Repeat Count")+"</label><button class='pad_buttons' data-mini='true' name='repeat-"+id+"' id='repeat-"+id+"' value='"+program.repeat+"'>"+program.repeat+"</button></div>";
     list += "</div></div>";
 
     // Show set times options
@@ -5278,6 +5278,7 @@ function showDurationBox(seconds,title,callback,maximum,granularity) {
         decrbts = "<fieldset class='ui-grid-"+String.fromCharCode(95+(total))+" decr'>",
         popup = $("<div data-role='popup' id='durationBox' data-theme='a' data-overlay-theme='b'>" +
             "<div data-role='header' data-theme='b'>" +
+                "<a href='#' data-rel='back' data-role='button' data-theme='b' data-icon='delete' data-iconpos='notext' class='ui-btn-left'>Close</a>" +
                 "<h1>"+title+"</h1>" +
             "</div>" +
             "<div class='ui-content'>" +
@@ -5360,6 +5361,7 @@ function showSingleDurationInput(opt) {
 
     var popup = $("<div data-role='popup' id='singleDuration' data-theme='a' data-overlay-theme='b'>" +
             "<div data-role='header' data-theme='b'>" +
+                "<a href='#' data-rel='back' data-role='button' data-theme='b' data-icon='delete' data-iconpos='notext' class='ui-btn-left'>Close</a>" +
                 "<h1>"+opt.title+"</h1>" +
             "</div>" +
             "<div class='ui-content'>" +
