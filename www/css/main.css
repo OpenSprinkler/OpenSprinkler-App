@@ -201,6 +201,9 @@ a {
 #info-list {
     overflow:hidden
 }
+#programs .ui-collapsible-content {
+    background-color: inherit;
+}
 #program-control-list {
     clear:both
 }

@@ -4191,8 +4191,8 @@ function read_program21(program) {
 
     newdata.en = (program[0]>>0)&1;
     newdata.weather = (program[0]>>1)&1;
-    newdata.is_even = (restrict === 1) ? true : false;
-    newdata.is_odd = (restrict === 2) ? true : false;
+    newdata.is_even = (restrict === 2) ? true : false;
+    newdata.is_odd = (restrict === 1) ? true : false;
     newdata.is_interval = (type === 3) ? true : false;
     newdata.stations = program[4];
     newdata.name = program[5];
