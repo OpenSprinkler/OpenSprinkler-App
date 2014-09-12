@@ -3094,7 +3094,7 @@ function get_runonce() {
                 }
             });
         },
-        i, quickPick, progs, rprogs, z, program;
+        i, quickPick, progs, rprogs, z, program, name;
 
     runonce.find("div[data-role='header'] > .ui-btn-right").on("click",submit_runonce);
 
@@ -3105,7 +3105,7 @@ function get_runonce() {
             var prog = [];
 
             if (!isOSPi() && controller.options.fwv >= 210) {
-                prog.push(program.stations);
+                prog = program.stations;
             } else {
                 var set_stations = program.stations.split("");
                 for (i=0;i<controller.stations.snames.length;i++) {
@@ -3118,9 +3118,16 @@ function get_runonce() {
     }
     rprogs = progs;
 
+    console.log(rprogs)
+
     quickPick = "<select data-mini='true' name='rprog' id='rprog'><option value='s' selected='selected'>"+_("Quick Programs")+"</option>";
     for (i=0; i<progs.length; i++) {
-        quickPick += "<option value='"+i+"'>"+_("Program")+" "+(i+1)+"</option>";
+        if (!isOSPi() || controller.options.fwv >= 210) {
+            name = controller.programs.pd[i][5];
+        } else {
+            name = _("Program")+" "+(i+1);
+        }
+        quickPick += "<option value='"+i+"'>"+name+"</option>";
     }
     quickPick += "</select>";
     list += quickPick+"<form>";
@@ -4464,7 +4471,7 @@ function make_program21(n,isCopy) {
     if (typeof program.start === "object") {
         times = program.start;
     } else {
-        times = [0,0,0,0];
+        times = [program.start,0,0,0];
     }
 
     // Group basic settings visually
@@ -4481,15 +4488,11 @@ function make_program21(n,isCopy) {
     // Program weather control flag
     list += "<label for='uwt-"+id+"'><input data-mini='true' type='checkbox' "+((program.weather) ? "checked='checked'" : "")+" name='uwt-"+id+"' id='uwt-"+id+"'>"+_("Use Weather Control")+"</label>";
 
-    // Show restriction options
-    list += "<div class='center'><p class='tight'>"+_("Restrictions")+"</p><select data-inline='true' data-iconpos='left' data-mini='true' data-native-menu='false' id='days_rst-"+id+"'>";
-    list += "<option value='none' "+((!program.is_even && !program.is_odd) ? "selected='selected'" : "")+">"+_("None")+"</option>";
-    list += "<option value='odd' "+((!program.is_even && program.is_odd) ? "selected='selected'" : "")+">"+_("Odd Days")+"</option>";
-    list += "<option value='even' "+((!program.is_odd && program.is_even) ? "selected='selected'" : "")+">"+_("Even Days")+"</option>";
-    list += "</select></div></div></div>";
+    // Show start time menu
+    list += "<label class='center' for='start_1-"+id+"'>"+_("Start Time")+"</label><input data-mini='true' type='time' name='start_1-"+id+"' id='start_1-"+id+"' value='"+pad(parseInt(times[0]/60)%24)+":"+pad(times[0]%60)+"'>";
 
     // Close basic settings group
-    list += "</div></div>";
+    list += "</div></div></div></div>";
 
     // Group all program type options visually
     list += "<div style='margin-top:10px' class='ui-corner-all'>";
@@ -4516,39 +4519,14 @@ function make_program21(n,isCopy) {
     list += "<div class='ui-block-b'><label class='center' for='starting-"+id+"'>"+_("Starting In")+"</label><input data-mini='true' type='number' name='starting-"+id+"' pattern='[0-9]*' id='starting-"+id+"' value='"+program.days[1]+"'></div>";
     list += "</div>";
 
+    // Show restriction options
+    list += "<div class='center'><p class='tight'>"+_("Restrictions")+"</p><select data-inline='true' data-iconpos='left' data-mini='true' data-native-menu='false' id='days_rst-"+id+"'>";
+    list += "<option value='none' "+((!program.is_even && !program.is_odd) ? "selected='selected'" : "")+">"+_("None")+"</option>";
+    list += "<option value='odd' "+((!program.is_even && program.is_odd) ? "selected='selected'" : "")+">"+_("Odd Days")+"</option>";
+    list += "<option value='even' "+((!program.is_odd && program.is_even) ? "selected='selected'" : "")+">"+_("Even Days")+"</option>";
+    list += "</select></div>";
+
     // Close program type group
-    list += "</div></div>";
-
-    // Group all start time options visually
-    list += "<div style='margin-top:10px' class='ui-corner-all'>";
-    list += "<div class='ui-bar ui-bar-a'><h3>"+_("Start Time Type")+"</h3></div>";
-    list += "<div class='ui-body ui-body-a'>";
-
-    // Controlgroup to handle start time type (repeating or set times)
-    list += "<fieldset data-role='controlgroup' data-type='horizontal' class='center'>";
-    list += "<input data-mini='true' type='radio' name='stype-"+id+"' id='stype_repeat-"+id+"' value='stype_repeat-"+id+"' "+((typeof program.start === "object") ? "" : "checked='checked'")+"><label for='stype_repeat-"+id+"'>"+_("Repeating")+"</label>";
-    list += "<input data-mini='true' type='radio' name='stype-"+id+"' id='stype_set-"+id+"' value='stype_set-"+id+"' "+((typeof program.start === "object") ? "checked='checked'" : "")+"><label for='stype_set-"+id+"'>"+_("Set Start Times")+"</label>";
-    list += "</fieldset>";
-
-    // Show repeating start time options
-    list += "<div "+((typeof program.start === "object") ? "style='display:none'" : "")+" id='input_stype_repeat-"+id+"'>";
-    list += "<label class='center' for='start-"+id+"'>"+_("Start Time")+"</label><input data-mini='true' type='time' name='start-"+id+"' id='start-"+id+"' value='"+pad(parseInt(program.start/60)%24)+":"+pad(program.start%60)+"'>";
-    list += "<div class='ui-grid-a'>";
-    list += "<div class='ui-block-a'><label class='center' for='repeat-"+id+"'>"+_("Repeat Count")+"</label><button data-mini='true' name='repeat-"+id+"' id='repeat-"+id+"' value='"+program.repeat+"'>"+program.repeat+"</button></div>";
-    list += "<div class='ui-block-b'><label class='center' for='interval-"+id+"'>"+_("Interval")+"</label><button data-mini='true' name='interval-"+id+"' id='interval-"+id+"' value='"+program.interval*60+"'>"+dhms2str(sec2dhms(program.interval*60))+"</button></div>";
-    list += "</div></div>";
-
-    // Show set times options
-    list += "<div "+((typeof program.start === "object") ? "" : "style='display:none'")+" id='input_stype_set-"+id+"'>";
-    list += "<div class='ui-grid-a'>";
-    list += "<div class='ui-block-a'><label class='center' for='start_1-"+id+"'>"+_("Start Time 1")+"</label><input data-mini='true' type='time' name='start_1-"+id+"' id='start_1-"+id+"' value='"+pad(parseInt(times[0]/60)%24)+":"+pad(times[0]%60)+"'></div>";
-    list += "<div class='ui-block-b'><label class='center' for='start_2-"+id+"'>"+_("Start Time 2")+"</label><input data-mini='true' type='time' name='start_2-"+id+"' id='start_2-"+id+"' value='"+pad(parseInt(times[1]/60)%24)+":"+pad(times[1]%60)+"'></div>";
-    list += "</div><div class='ui-grid-a'>";
-    list += "<div class='ui-block-a'><label class='center' for='start_3-"+id+"'>"+_("Start Time 3")+"</label><input data-mini='true' type='time' name='start_3-"+id+"' id='start_3-"+id+"' value='"+pad(parseInt(times[2]/60)%24)+":"+pad(times[2]%60)+"'></div>";
-    list += "<div class='ui-block-b'><label class='center' for='start_4-"+id+"'>"+_("Start Time 4")+"</label><input data-mini='true' type='time' name='start_4-"+id+"' id='start_4-"+id+"' value='"+pad(parseInt(times[3]/60)%24)+":"+pad(times[3]%60)+"'></div>";
-    list += "</div></div>";
-
-    // Close start time type group
     list += "</div></div>";
 
     // Group all stations visually
@@ -4567,6 +4545,34 @@ function make_program21(n,isCopy) {
     }
 
     // Close station group
+    list += "</div></div>";
+
+    // Group all start time options visually
+    list += "<div style='margin-top:10px' class='ui-corner-all'>";
+    list += "<div class='ui-bar ui-bar-a'><h3>"+_("Additional Start Times")+"</h3></div>";
+    list += "<div class='ui-body ui-body-a'>";
+
+    // Controlgroup to handle start time type (repeating or set times)
+    list += "<fieldset data-role='controlgroup' data-type='horizontal' class='center'>";
+    list += "<input data-mini='true' type='radio' name='stype-"+id+"' id='stype_repeat-"+id+"' value='stype_repeat-"+id+"' "+((typeof program.start === "object") ? "" : "checked='checked'")+"><label for='stype_repeat-"+id+"'>"+_("Repeating")+"</label>";
+    list += "<input data-mini='true' type='radio' name='stype-"+id+"' id='stype_set-"+id+"' value='stype_set-"+id+"' "+((typeof program.start === "object") ? "checked='checked'" : "")+"><label for='stype_set-"+id+"'>"+_("Fixed")+"</label>";
+    list += "</fieldset>";
+
+    // Show repeating start time options
+    list += "<div "+((typeof program.start === "object") ? "style='display:none'" : "")+" id='input_stype_repeat-"+id+"'>";
+    list += "<div class='ui-grid-a'>";
+    list += "<div class='ui-block-a'><label class='center' for='interval-"+id+"'>"+_("Repeat Every")+"</label><button data-mini='true' name='interval-"+id+"' id='interval-"+id+"' value='"+program.interval*60+"'>"+dhms2str(sec2dhms(program.interval*60))+"</button></div>";
+    list += "<div class='ui-block-b'><label class='center' for='repeat-"+id+"'>"+_("Repeat Count")+"</label><button data-mini='true' name='repeat-"+id+"' id='repeat-"+id+"' value='"+program.repeat+"'>"+program.repeat+"</button></div>";
+    list += "</div></div>";
+
+    // Show set times options
+    list += "<div "+((typeof program.start === "object") ? "" : "style='display:none'")+" id='input_stype_set-"+id+"'>";
+    list += "<label class='center' for='start_2-"+id+"'>"+_("Start Time 2")+"</label><input data-mini='true' type='time' name='start_2-"+id+"' id='start_2-"+id+"' value='"+pad(parseInt(times[1]/60)%24)+":"+pad(times[1]%60)+"'>";
+    list += "<label class='center' for='start_3-"+id+"'>"+_("Start Time 3")+"</label><input data-mini='true' type='time' name='start_3-"+id+"' id='start_3-"+id+"' value='"+pad(parseInt(times[2]/60)%24)+":"+pad(times[2]%60)+"'>";
+    list += "<label class='center' for='start_4-"+id+"'>"+_("Start Time 4")+"</label><input data-mini='true' type='time' name='start_4-"+id+"' id='start_4-"+id+"' value='"+pad(parseInt(times[3]/60)%24)+":"+pad(times[3]%60)+"'>";
+    list += "</div>";
+
+    // Close start time type group
     list += "</div></div>";
 
     // Show save, run and delete buttons
@@ -4810,7 +4816,7 @@ function submit_program21(id) {
     if ($("#stype_repeat-"+id).is(":checked")) {
         j |= (0<<6);
 
-        var time = $("#start-"+id).val().split(":");
+        var time = $("#start_1-"+id).val().split(":");
         start[0] = parseInt(time[0])*60+parseInt(time[1]);
         start[1] = parseInt($("#repeat-"+id).val());
         start[2] = parseInt($("#interval-"+id).val()/60);
