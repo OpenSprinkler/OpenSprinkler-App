@@ -458,11 +458,7 @@ function flipSwitched() {
 function send_to_os(dest,type) {
     // Inject password into the request
     dest = dest.replace("pw=","pw="+encodeURIComponent(curr_pw));
-    type = type || "text";
-
-    if (!isOSPi() && controller.options.fwv >= 210) {
-        type = "json";
-    }
+    type = type || "json";
 
     var obj = {
         url: curr_prefix+curr_ip+dest,
@@ -481,7 +477,11 @@ function send_to_os(dest,type) {
     defer = $.ajaxQueue(obj).then(
         function(data){
             // Don't need to handle this situation for OSPi or firmware below 2.1.0
-            if (typeof data !== "object" || typeof data.result !== "number" || isOSPi() || controller.options.fwv < 210) {
+            if (typeof data !== "object" || typeof data.result !== "number") {
+                return data;
+            }
+
+            if (isOSPi() || controller.options.fwv < 210) {
                 return data;
             }
 
