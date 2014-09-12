@@ -458,7 +458,7 @@ function flipSwitched() {
 function send_to_os(dest,type) {
     // Inject password into the request
     dest = dest.replace("pw=","pw="+encodeURIComponent(curr_pw));
-    type = type || "json";
+    type = type || "text";
 
     var obj = {
         url: curr_prefix+curr_ip+dest,
@@ -476,6 +476,13 @@ function send_to_os(dest,type) {
 
     defer = $.ajaxQueue(obj).then(
         function(data){
+
+            try {
+                data = $.parseJSON(data);
+            } catch(e) {
+                return data;
+            }
+
             // Don't need to handle this situation for OSPi or firmware below 2.1.0
             if (typeof data !== "object" || typeof data.result !== "number") {
                 return data;
@@ -5034,6 +5041,8 @@ function import_config(data) {
             send_to_os(cs),
             send_to_os("/dp?pw=&pid=-1"),
             $.each(data.programs.pd,function (i,prog) {
+                var name = "";
+
                 if (!isPi && typeof data.options.fwv === "number" && data.options.fwv < 210 && controller.options.fwv >= 210) {
                     var program = read_program183(prog),
                         total = (prog.length - 7),
@@ -5075,19 +5084,18 @@ function import_config(data) {
                     }
 
                     // Set the start time, interval time, and repeat count
-                    prog[3] = [program.start,parseInt((program.end-program.start)/program.interval),program.interval];
+                    prog[3] = [program.start,parseInt((program.end-program.start)/program.interval),program.interval,0];
 
                     // Change the duration from the previous int to the new array
                     prog[4] = allDur;
 
-                    // Give the program a generic name
-                    prog[5] = _("Program")+" "+i;
-
                     // Truncate the station enable/disable flags
-                    prog = prog.slice(0,6);
+                    prog = prog.slice(0,5);
+
+                    name = "&name="+_("Program")+" "+i;
                 }
 
-                send_to_os(cp_start+"&pid=-1&v="+JSON.stringify(prog));
+                send_to_os(cp_start+"&pid=-1&v="+JSON.stringify(prog)+name);
             })
         ).then(
             function(){
@@ -5097,7 +5105,7 @@ function import_config(data) {
                     update_weather();
                 });
             },
-            function(){
+            function(a){
                 $.mobile.loading("hide");
                 showerror(_("Unable to import configuration."));
             }
