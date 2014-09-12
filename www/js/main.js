@@ -4574,8 +4574,8 @@ function make_program21(n,isCopy) {
     // Show repeating start time options
     list += "<div "+((typeof program.start === "object") ? "style='display:none'" : "")+" id='input_stype_repeat-"+id+"'>";
     list += "<div class='ui-grid-a'>";
-    list += "<div class='ui-block-a'><label class='center' for='interval-"+id+"'>"+_("Repeat Every")+"</label><button data-mini='true' name='interval-"+id+"' id='interval-"+id+"' value='"+program.interval*60+"'>"+dhms2str(sec2dhms(program.interval*60))+"</button></div>";
-    list += "<div class='ui-block-b'><label class='center' for='repeat-"+id+"'>"+_("Repeat Count")+"</label><button data-mini='true' name='repeat-"+id+"' id='repeat-"+id+"' value='"+program.repeat+"'>"+program.repeat+"</button></div>";
+    list += "<div class='ui-block-a'><label class='center' for='interval-"+id+"'>"+_("Repeat Every")+"</label><button class='pad_buttons' data-mini='true' name='interval-"+id+"' id='interval-"+id+"' value='"+program.interval*60+"'>"+dhms2str(sec2dhms(program.interval*60))+"</button></div>";
+    list += "<div class='ui-block-b'><label class='center' for='repeat-"+id+"'>"+_("Repeat Count")+"</label><button class='pad_buttons' data-mini='true' name='repeat-"+id+"' id='repeat-"+id+"' value='"+program.repeat+"'>"+program.repeat+"</button></div>";
     list += "</div></div>";
 
     // Show set times options
@@ -4628,10 +4628,11 @@ function make_program21(n,isCopy) {
         showSingleDurationInput({
             data: dur.val(),
             title: name,
+            label: _("Repeat Count"),
             callback: function(result){
                 dur.val(result).text(result);
             },
-            maximum: 1440,
+            maximum: 1440
         });
 
         return false;

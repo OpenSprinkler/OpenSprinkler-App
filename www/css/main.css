@@ -304,8 +304,9 @@ a {
 #sprinklers .ui-content {
     padding-top:0
 }
-#addprogram .ui-input-text, #programs .ui-input-text {
-    margin:.1em!important
+.pad_buttons {
+    width: 98% !important;
+    margin: 0 auto
 }
 @media (max-width:480px) {
     #logs_list .ui-li-aside {
