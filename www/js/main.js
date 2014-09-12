@@ -4499,7 +4499,7 @@ function make_program21(n,isCopy) {
     if (typeof program.start === "object") {
         times = program.start;
     } else {
-        times = [program.start,0,0,0];
+        times = [program.start,-1,-1,-1];
     }
 
     // Group basic settings visually
@@ -4594,11 +4594,13 @@ function make_program21(n,isCopy) {
     list += "</div></div>";
 
     // Show set times options
-    list += "<div "+((typeof program.start === "object") ? "" : "style='display:none'")+" id='input_stype_set-"+id+"'>";
-    list += "<label class='center' for='start_2-"+id+"'>"+_("Start Time 2")+"</label><input data-mini='true' type='time' name='start_2-"+id+"' id='start_2-"+id+"' value='"+pad(parseInt(times[1]/60)%24)+":"+pad(times[1]%60)+"'>";
-    list += "<label class='center' for='start_3-"+id+"'>"+_("Start Time 3")+"</label><input data-mini='true' type='time' name='start_3-"+id+"' id='start_3-"+id+"' value='"+pad(parseInt(times[2]/60)%24)+":"+pad(times[2]%60)+"'>";
-    list += "<label class='center' for='start_4-"+id+"'>"+_("Start Time 4")+"</label><input data-mini='true' type='time' name='start_4-"+id+"' id='start_4-"+id+"' value='"+pad(parseInt(times[3]/60)%24)+":"+pad(times[3]%60)+"'>";
-    list += "</div>";
+    list +="<table style='width:100%;"+((typeof program.start === "object") ? "" : "display:none")+"' id='input_stype_set-"+id+"'><tr><th class='center'>"+_("Enable")+"</th><th>"+_("Start Time")+"</th></tr>";
+    for (j=1; j<4; j++) {
+        list += "<tr><td data-role='controlgroup' data-type='horizontal' class='use_master'><label for='ust_"+(j+1)+"'><input id='ust_"+(j+1)+"' type='checkbox' "+((times[j] === -1) ? "" : "checked='checked'")+" /></label></td>";
+        list += "<td><input data-mini='true' type='time' name='start_"+(j+1)+"-"+id+"' id='start_"+(j+1)+"-"+id+"' value='"+pad(parseInt(times[j]/60)%24)+":"+pad(times[j]%60)+"'></td></tr>";
+    }
+
+    list += "</table>";
 
     // Close start time type group
     list += "</div></div>";
@@ -4854,8 +4856,10 @@ function submit_program21(id) {
         var times = $("[id^='start_'][id$='-"+id+"']");
 
         times.each(function(a,b){
-            var time = b.value.split(":");
-            if (time === "") {
+            var time = b.value.split(":"),
+                tid = b.id.split("-")[0].split("_")[1];
+
+            if ((!parseInt(time[0]) || !parseInt(time[1])) || (id >1 && $("#ust_"+tid).is(":checked"))) {
                 time = -1;
             } else {
                 time = parseInt(time[0])*60+parseInt(time[1]);
