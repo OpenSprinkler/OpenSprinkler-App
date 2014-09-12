@@ -619,6 +619,10 @@ msgstr ""
 msgid "Start time cannot be greater than end time"
 msgstr ""
 
+msgid ""
+"The requested time span exceeds the maxiumum of 1 year and has been adjusted"
+msgstr ""
+
 msgid "Programs"
 msgstr ""
 
