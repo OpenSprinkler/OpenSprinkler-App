@@ -4187,7 +4187,10 @@ function read_program21(program) {
         type = ((program[0]>>4)&0x03),
         start_type = ((program[0]>>6)&0x01),
         days = "",
-        newdata = {};
+        newdata = {
+            repeat: 0,
+            interval: 0
+        };
 
     newdata.en = (program[0]>>0)&1;
     newdata.weather = (program[0]>>1)&1;
@@ -4240,14 +4243,7 @@ function update_program_header() {
     $("#programs_list").find("[id^=program-]").each(function(a,b){
         var item = $(b),
             heading = item.find(".ui-collapsible-heading-toggle"),
-            en;
-
-        if (!isOSPi() && controller.options.fwv >= 210) {
-            en = (controller.programs.pd[a][0])&0x01;
-            heading.find(".program-name").text(controller.programs.pd[a][5]);
-        } else {
-            en = controller.programs.pd[a][0];
-        }
+            en = (!isOSPi() && controller.options.fwv >= 210) ? (controller.programs.pd[a][0])&0x01 : controller.programs.pd[a][0];
 
         if (en) {
             heading.removeClass("red");
@@ -4262,7 +4258,7 @@ function make_all_programs() {
     if (controller.programs.pd.length === 0) {
         return "<p class='center'>"+_("You have no programs currently added. Tap the Add button on the top right corner to get started.")+"</p>";
     }
-    var list = "<p class='center'>"+_("Click any program below to expand/edit. Be sure to save changes by hitting submit below.")+"</p><div data-role='collapsible-set'>",
+    var list = "<p class='center'>"+_("Click any program below to expand/edit. Be sure to save changes.")+"</p><div data-role='collapsible-set'>",
         name;
 
     for (var i = 0; i < controller.programs.pd.length; i++) {
@@ -4439,7 +4435,7 @@ function make_program21(n,isCopy) {
     list += "<div class='ui-body ui-body-a center'>";
 
     // Progran name
-    list += "<div class='center'><input data-mini='true' type='text' name='name-"+id+"' id='name-"+id+"' placeholder='"+_("Program")+" "+(controller.programs.pd.length+1)+"' value='"+program.name+"'></div>";
+    list += "<label for='name-"+id+"'>"+_("Program Name")+"</label><input data-mini='true' type='text' name='name-"+id+"' id='name-"+id+"' placeholder='"+_("Program")+" "+(controller.programs.pd.length)+"' value='"+program.name+"'>";
 
     // Program enable/disable flag
     list += "<label for='en-"+id+"'><input data-mini='true' type='checkbox' "+((program.en || n==="new") ? "checked='checked'" : "")+" name='en-"+id+"' id='en-"+id+"'>"+_("Enabled")+"</label>";
@@ -4478,8 +4474,8 @@ function make_program21(n,isCopy) {
 
     // Show interval program options
     list += "<div "+((program.is_interval) ? "" : "style='display:none'")+" id='input_days_n-"+id+"' class='ui-grid-a'>";
-    list += "<div class='ui-block-a'><label for='every-"+id+"'>"+_("Interval (Days)")+"</label><input data-mini='true' type='number' name='every-"+id+"' pattern='[0-9]*' id='every-"+id+"' value='"+program.days[0]+"'></div>";
-    list += "<div class='ui-block-b'><label for='starting-"+id+"'>"+_("Starting In")+"</label><input data-mini='true' type='number' name='starting-"+id+"' pattern='[0-9]*' id='starting-"+id+"' value='"+program.days[1]+"'></div>";
+    list += "<div class='ui-block-a'><label class='center' for='every-"+id+"'>"+_("Interval (Days)")+"</label><input data-mini='true' type='number' name='every-"+id+"' pattern='[0-9]*' id='every-"+id+"' value='"+program.days[0]+"'></div>";
+    list += "<div class='ui-block-b'><label class='center' for='starting-"+id+"'>"+_("Starting In")+"</label><input data-mini='true' type='number' name='starting-"+id+"' pattern='[0-9]*' id='starting-"+id+"' value='"+program.days[1]+"'></div>";
     list += "</div>";
 
     // Close program type group
@@ -4537,11 +4533,11 @@ function make_program21(n,isCopy) {
 
     // Show save, run and delete buttons
     if (isCopy === true || n === "new") {
-        list += "<input data-mini='true' data-theme='b' type='submit' name='submit-"+id+"' id='submit-"+id+"' value='"+_("Save New Program")+"'>";
+        list += "<button data-mini='true' data-theme='b' id='submit-"+id+"'>"+_("Save New Program")+"</button>";
     } else {
-        list += "<input data-mini='true' type='submit' name='submit-"+id+"' id='submit-"+id+"' value='"+_("Save Changes to Program")+" "+(n + 1)+"'>";
-        list += "<input data-mini='true' type='submit' name='run-"+id+"' id='run-"+id+"' value='"+_("Run Program")+" "+(n + 1)+"'>";
-        list += "<input data-mini='true' data-theme='b' type='submit' name='delete-"+id+"' id='delete-"+id+"' value='"+_("Delete Program")+" "+(n + 1)+"'>";
+        list += "<button data-mini='true' id='submit-"+id+"'>"+_("Save Changes to")+" <span class='program-name'>"+program.name+"</span></button>";
+        list += "<button data-mini='true' id='run-"+id+"'>"+_("Run")+" <span class='program-name'>"+program.name+"</span></button>";
+        list += "<button data-mini='true' data-theme='b' id='delete-"+id+"'>"+_("Delete")+" <span class='program-name'>"+program.name+"</span></button>";
     }
 
     // Take HTML string and convert to jQuery object
@@ -4739,7 +4735,7 @@ function submit_program21(id) {
         en = ($("#en-"+id).is(":checked")) ? 1 : 0,
         weather = ($("#uwt-"+id).is(":checked")) ? 1 : 0,
         j = 0,
-        daysin, i;
+        daysin, i, name, url;
 
     // Set enable/disable bit for program
     j |= (en<<0);
@@ -4761,7 +4757,6 @@ function submit_program21(id) {
         if(!(days[1]>=2&&days[1]<=128)) {showerror(_("Error: Interval days must be between 2 and 128."));return;}
         days[0]=parseInt($("#starting-"+id).val(),10);
         if(!(days[0]>=0&&days[0]<days[1])) {showerror(_("Error: Starting in days wrong."));return;}
-        days[0]|=0x80;
     } else if ($("#days_week-"+id).is(":checked")) {
         j |= (0<<4);
         daysin = $("#d-"+id).val();
@@ -4787,7 +4782,12 @@ function submit_program21(id) {
 
         times.each(function(a,b){
             var time = b.value.split(":");
-            start[a] = parseInt(time[0])*60+parseInt(time[1]);
+            if (time === "") {
+                time = -1;
+            } else {
+                time = parseInt(time[0])*60+parseInt(time[1]);
+            }
+            start[a] = time;
         });
     }
 
@@ -4808,7 +4808,8 @@ function submit_program21(id) {
     program[3] = start;
     program[4] = runTimes;
 
-    var url = "&v="+JSON.stringify(program)+"&name="+encodeURIComponent($("#name-"+id).val());
+    name = $("#name-"+id).val();
+    url = "&v="+JSON.stringify(program)+"&name="+encodeURIComponent(name);
 
     if(station_selected===0) {
         showerror(_("Error: You have not selected any stations."));
@@ -4831,6 +4832,7 @@ function submit_program21(id) {
             $.mobile.loading("hide");
             update_controller_programs(function(){
                 update_program_header();
+                $("#program-"+id).find("span.program-name").text(name);
             });
             showerror(_("Program has been updated"));
         });
