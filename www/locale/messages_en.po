@@ -18,10 +18,16 @@ msgstr ""
 msgid "All stations have been stopped"
 msgstr ""
 
-msgid "Connection timed-out. Please try again."
+msgid "Check device password and try again."
 msgstr ""
 
-msgid "Check device password and try again."
+msgid "Manual mode is not enabled. Please enable manual mode then try again."
+msgstr ""
+
+msgid "Please check input and try again."
+msgstr ""
+
+msgid "Connection timed-out. Please try again."
 msgstr ""
 
 msgid "Network Error"
@@ -463,9 +469,6 @@ msgstr ""
 msgid "Station Timer"
 msgstr ""
 
-msgid "Manual mode is not enabled. Please enable manual mode then try again."
-msgstr ""
-
 msgid "Zero value excludes the station from the run-once program."
 msgstr ""
 
@@ -616,10 +619,6 @@ msgstr ""
 msgid "Start time cannot be greater than end time"
 msgstr ""
 
-msgid ""
-"The requested time span exceeds the maxiumum of 7 days and has been adjusted"
-msgstr ""
-
 msgid "Programs"
 msgstr ""
 
@@ -634,9 +633,7 @@ msgid ""
 "corner to get started."
 msgstr ""
 
-msgid ""
-"Click any program below to expand/edit. Be sure to save changes by hitting "
-"submit below."
+msgid "Click any program below to expand/edit. Be sure to save changes."
 msgstr ""
 
 msgid "copy"
@@ -726,19 +723,34 @@ msgstr ""
 msgid "Delete Program"
 msgstr ""
 
+msgid "Basic Settings"
+msgstr ""
+
+msgid "Program Name"
+msgstr ""
+
 msgid "Use Weather Control"
+msgstr ""
+
+msgid "Program Type"
+msgstr ""
+
+msgid "Stations"
+msgstr ""
+
+msgid "Additional Start Times"
 msgstr ""
 
 msgid "Repeating"
 msgstr ""
 
-msgid "Set Start Times"
+msgid "Fixed"
+msgstr ""
+
+msgid "Repeat Every"
 msgstr ""
 
 msgid "Repeat Count"
-msgstr ""
-
-msgid "Start Time 1"
 msgstr ""
 
 msgid "Start Time 2"
@@ -748,6 +760,9 @@ msgid "Start Time 3"
 msgstr ""
 
 msgid "Start Time 4"
+msgstr ""
+
+msgid "Run"
 msgstr ""
 
 msgid "Add Program"
