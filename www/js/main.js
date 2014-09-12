@@ -459,12 +459,18 @@ function send_to_os(dest,type) {
     // Inject password into the request
     dest = dest.replace("pw=","pw="+encodeURIComponent(curr_pw));
     type = type || "text";
+
+    if (!isOSPi() && controller.options.fwv >= 210) {
+        type = "json";
+    }
+
     var obj = {
         url: curr_prefix+curr_ip+dest,
         type: "GET",
         dataType: type,
         retry: {times: retryCount, statusCodes:[0,408,500]}
-    };
+    },
+    defer;
 
     if (curr_auth) {
         $.extend(obj,{
@@ -472,14 +478,46 @@ function send_to_os(dest,type) {
         });
     }
 
-    return $.ajaxQueue(obj).fail(function(e){
-        if ((e.statusText==="timeout" || e.status===0) && /\/(?:cv|cs|cr|cp|uwa|dp|co|cl|cu)/.exec(dest)) {
-            showerror(_("Connection timed-out. Please try again."));
-        } else if (e.status===401 && /\/(?:cv|cs|cr|cp|uwa|dp|co|cl|cu)/.exec(dest)) {
-            showerror(_("Check device password and try again."));
+    defer = $.ajaxQueue(obj).then(
+        function(data){
+            // Don't need to handle this situation for OSPi or firmware below 2.1.0
+            if (typeof data !== "object" || typeof data.result !== "number" || isOSPi() || controller.options.fwv < 210) {
+                return data;
+            }
+
+            // Return as succesful
+            if (data.result === 1) {
+                return data;
+            }
+
+            // Only show error messages on setting change requests
+            if (/\/(?:cv|cs|cr|cp|uwa|dp|co|cl|cu)/.exec(dest)) {
+                if (data.result === 2) {
+                    showerror(_("Check device password and try again."));
+                } else if (data.result === 48) {
+                    showerror(_("Manual mode is not enabled. Please enable manual mode then try again."));
+                } else {
+                    showerror(_("Please check input and try again."));
+                }
+
+                // Tell subsequent handlers this request has failed
+                return $.Deferred().reject(result);
+            }
+
+        },
+        function(e){
+            if ((e.statusText==="timeout" || e.status===0) && /\/(?:cv|cs|cr|cp|uwa|dp|co|cl|cu)/.exec(dest)) {
+                // Handle the connection timing out but only show error on setting change
+                showerror(_("Connection timed-out. Please try again."));
+            } else if (e.status===401 && /\/(?:cv|cs|cr|cp|uwa|dp|co|cl|cu)/.exec(dest)) {
+                //Handle unauthorized requests
+                showerror(_("Check device password and try again."));
+            }
+            return;
         }
-        return;
-    });
+    );
+
+    return defer;
 }
 
 function network_fail(){
@@ -4832,7 +4870,7 @@ function submit_program21(id) {
             $.mobile.loading("hide");
             update_controller_programs(function(){
                 update_program_header();
-                $("#program-"+id).find("span.program-name").text(name);
+                $("#program-"+id).find(".program-name").text(name);
             });
             showerror(_("Program has been updated"));
         });
