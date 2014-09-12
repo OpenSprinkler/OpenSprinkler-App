@@ -5043,9 +5043,15 @@ function import_config(data) {
             $.each(data.programs.pd,function (i,prog) {
                 var name = "";
 
+                // Handle data from firmware 2.1+ being imported to a firmware prior to 2.1
+                if (!isPi && typeof data.options.fwv === "number" && data.options.fwv >= 210 && controller.options.fwv < 210) {
+                    showerror(_("Program data is newer than the device firmware and cannot be imported"));
+                    return false;
+                }
+
                 // Handle data from firmware 2.1+ being imported to a 2.1+ device
                 // The firmware does not accept program name inside the program array and must be submitted seperately
-                if (!isPi && typeof data.options.fwv === "number" && data.options.fwv > 210 && controller.options.fwv >= 210) {
+                if (!isPi && typeof data.options.fwv === "number" && data.options.fwv >= 210 && controller.options.fwv >= 210) {
                     name = "&name="+prog[5];
 
                     // Truncate the program name off the array
