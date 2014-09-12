@@ -305,7 +305,9 @@ msgstr ""
 msgid "% Watering"
 msgstr ""
 
-msgid "The watering level modifies station run times by the set percentage"
+msgid ""
+"The watering level modifies station run times by the set percentage. When a "
+"weather algorithm is used the watering level is automatically adjusted."
 msgstr ""
 
 msgid "Sequential"
@@ -315,6 +317,17 @@ msgid "Weather Control"
 msgstr ""
 
 msgid "Weather Algorithm"
+msgstr ""
+
+msgid ""
+"Weather algorithm uses Weather Underground data in conjunction with the "
+"selected algorithm to adjust the watering level"
+msgstr ""
+
+msgid "Wunderground Key"
+msgstr ""
+
+msgid "Weather Underground requires an API Key which can be obtained from "
 msgstr ""
 
 msgid "Use Rain Sensor"
@@ -351,6 +364,9 @@ msgid "Seconds"
 msgstr ""
 
 msgid "Milliseconds"
+msgstr ""
+
+msgid "Weather Underground API key is required for weather-based control"
 msgstr ""
 
 msgid "Settings have been saved"
@@ -757,13 +773,7 @@ msgstr ""
 msgid "Repeat Count"
 msgstr ""
 
-msgid "Start Time 2"
-msgstr ""
-
-msgid "Start Time 3"
-msgstr ""
-
-msgid "Start Time 4"
+msgid "Enable"
 msgstr ""
 
 msgid "Run"
@@ -959,6 +969,9 @@ msgid "French"
 msgstr ""
 
 msgid "German"
+msgstr ""
+
+msgid "Hebrew"
 msgstr ""
 
 msgid "Hungarian"
