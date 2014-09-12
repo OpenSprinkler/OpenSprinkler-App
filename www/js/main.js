@@ -3118,8 +3118,6 @@ function get_runonce() {
     }
     rprogs = progs;
 
-    console.log(rprogs)
-
     quickPick = "<select data-mini='true' name='rprog' id='rprog'><option value='s' selected='selected'>"+_("Quick Programs")+"</option>";
     for (i=0; i<progs.length; i++) {
         if (!isOSPi() || controller.options.fwv >= 210) {
