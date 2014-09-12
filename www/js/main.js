@@ -4016,6 +4016,14 @@ function get_logs() {
             var delay = 0;
             $.mobile.loading("show");
 
+            if ((endtime - starttime) > 31540000) {
+                showerror(_("The requested time span exceeds the maxiumum of 1 year and has been adjusted"),3500);
+                var nDate = dates().start;
+                nDate.setFullYear(nDate.getFullYear() + 1);
+                $("#log_end").val(nDate.getFullYear() + "-" + pad(nDate.getMonth()+1) + "-" + pad(nDate.getDate()));
+                delay = 500;
+            }
+
             setTimeout(function(){
                 send_to_os("/jl?pw=&"+parms(),"json").then(success,fail);
             },delay);
