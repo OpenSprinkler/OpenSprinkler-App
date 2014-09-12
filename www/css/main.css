@@ -294,6 +294,9 @@ a {
     max-width:1000px;
     margin:0 auto
 }
+#addprogram .ui-content, #programs .ui-content, #runonce .ui-content, #manual .ui-content {
+    max-width: 600px;
+}
 #sprinklers div[data-role=header] .ui-icon {
     background-color:transparent;
     box-shadow:none
