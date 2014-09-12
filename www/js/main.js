@@ -3064,12 +3064,12 @@ function get_runonce() {
     if (controller.programs.pd.length) {
         for (z=0; z < controller.programs.pd.length; z++) {
             program = read_program(controller.programs.pd[z]);
-            var prog = [],
-                set_stations = program.stations.split("");
+            var prog = [];
 
             if (!isOSPi() && controller.options.fwv >= 210) {
                 prog.push(program.stations);
             } else {
+                var set_stations = program.stations.split("");
                 for (i=0;i<controller.stations.snames.length;i++) {
                     prog.push((parseInt(set_stations[i])) ? program.duration : 0);
                 }
@@ -4458,7 +4458,7 @@ function make_program21(n,isCopy) {
     list += "</div></div>";
 
     // Group all program type options visually
-    list += "<div style='margin-top:5px' class='ui-corner-all'>";
+    list += "<div style='margin-top:10px' class='ui-corner-all'>";
     list += "<div class='ui-bar ui-bar-a'><h3>"+_("Program Type")+"</h3></div>";
     list += "<div class='ui-body ui-body-a'>";
 
@@ -4486,7 +4486,7 @@ function make_program21(n,isCopy) {
     list += "</div></div>";
 
     // Group all start time options visually
-    list += "<div style='margin-top:5px' class='ui-corner-all'>";
+    list += "<div style='margin-top:10px' class='ui-corner-all'>";
     list += "<div class='ui-bar ui-bar-a'><h3>"+_("Start Time Type")+"</h3></div>";
     list += "<div class='ui-body ui-body-a'>";
 
@@ -4518,7 +4518,7 @@ function make_program21(n,isCopy) {
     list += "</div></div>";
 
     // Group all stations visually
-    list += "<div style='margin-top:5px' class='ui-corner-all'>";
+    list += "<div style='margin-top:10px' class='ui-corner-all'>";
     list += "<div class='ui-bar ui-bar-a'><h3>"+_("Stations")+"</h3></div>";
     list += "<div class='ui-body ui-body-a'>";
 
@@ -4528,7 +4528,7 @@ function make_program21(n,isCopy) {
             list += "<div class='ui-field-contain duration-input'><label for='station_"+j+"-"+id+"'>"+controller.stations.snames[j]+":</label><button disabled='true' data-mini='true' name='station_"+j+"-"+id+"' id='station_"+j+"-"+id+"' value='0'>Master</button></div>";
         } else {
             time = program.stations[j] || 0;
-            list += "<div class='ui-field-contain duration-input'><label for='station_"+j+"-"+id+"'>"+controller.stations.snames[j]+":</label><button data-mini='true' name='station_"+j+"-"+id+"' id='station_"+j+"-"+id+"' value='"+time+"'>"+time+"s</button></div>";
+            list += "<div class='ui-field-contain duration-input'><label for='station_"+j+"-"+id+"'>"+controller.stations.snames[j]+":</label><button "+(time>0 ? "class='green' " : "")+"data-mini='true' name='station_"+j+"-"+id+"' id='station_"+j+"-"+id+"' value='"+time+"'>"+dhms2str(sec2dhms(time))+"</button></div>";
         }
     }
 
