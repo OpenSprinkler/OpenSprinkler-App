@@ -501,7 +501,7 @@ function send_to_os(dest,type) {
                 }
 
                 // Tell subsequent handlers this request has failed
-                return $.Deferred().reject(result);
+                return $.Deferred().reject(data);
             }
 
         },
@@ -4866,7 +4866,7 @@ function submit_program21(id) {
             });
         });
     } else {
-        send_to_os("/cp?pw=&pid="+id+url).done(function(result){
+        send_to_os("/cp?pw=&pid="+id+url).done(function(){
             $.mobile.loading("hide");
             update_controller_programs(function(){
                 update_program_header();
