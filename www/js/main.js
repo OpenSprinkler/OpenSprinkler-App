@@ -1848,7 +1848,14 @@ function open_panel() {
     panel.one("panelclose",function(){
         panel.find(".export_config,.import_config").off("click");
     });
+
+    $("#footer-running").prependTo("#sprinklers .ui-content");
+
     panel.panel("open");
+
+    panel.one("panelclose",function(){
+        $("#footer-running").insertAfter("#sprinklers .ui-header");
+    });
 }
 
 // Bind settings page event listeners
