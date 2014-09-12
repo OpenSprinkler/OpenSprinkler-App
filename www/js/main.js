@@ -2151,7 +2151,7 @@ function show_options() {
     }
 
     if (typeof controller.options.wl !== "undefined") {
-        list += "<div class='ui-field-contain duration-field'><label for='o23'>"+_("% Watering")+"<button data-helptext='"+_("The watering level modifies station run times by the set percentage")+"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><button data-mini='true' id='o23' value='"+controller.options.wl+"'>"+controller.options.wl+"%</button></div>";
+        list += "<div class='ui-field-contain duration-field'><label for='o23'>"+_("% Watering")+"<button data-helptext='"+_("The watering level modifies station run times by the set percentage. When a weather algorithm is used the watering level is automatically adjusted.")+"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><button "+((controller.options.uwt && controller.options.uwt > 0) ? "disabled='disabled' " : "")+"data-mini='true' id='o23' value='"+controller.options.wl+"'>"+controller.options.wl+"%</button></div>";
     }
 
     if (typeof controller.options.seq !== "undefined") {
@@ -2162,7 +2162,7 @@ function show_options() {
 
     if (typeof controller.options.uwt !== "undefined") {
         algorithm = ["Disabled","Zimmerman"];
-        list += "<div class='ui-field-contain'><label for='o31' class='select'>"+_("Weather Algorithm")+"</label><select "+(controller.settings.wapikey && controller.settings.wapikey !== "" ? "disabled " : "")+"data-mini='true' id='o31'>";
+        list += "<div class='ui-field-contain'><label for='o31' class='select'>"+_("Weather Algorithm")+"<button data-helptext='"+_("Weather algorithm uses Weather Underground data in conjunction with the selected algorithm to adjust the watering level")+"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><select "+(controller.settings.wtkey && controller.settings.wtkey !== "" ? "" : "disabled='disabled' ")+"data-mini='true' id='o31'>";
         for (i=0; i<algorithm.length; i++) {
             list += "<option "+((i === controller.options.uwt) ? "selected" : "")+" value='"+i+"'>"+algorithm[i]+"</option>";
         }
@@ -2382,6 +2382,13 @@ function submit_options() {
                     opt.o13 = (data>>8)&0xff;
                 }
                 return true;
+            case "o31":
+                if (data > 0 && $("#wtkey").val() === "") {
+                    showerror(_("Weather Underground API key is required for weather-based control"));
+                    invalid = true;
+                    return false;
+                }
+                break;
             case "o2":
             case "o14":
             case "o16":
