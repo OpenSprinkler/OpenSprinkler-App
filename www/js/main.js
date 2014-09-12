@@ -1728,52 +1728,61 @@ function update_yahoo_forecast(data,loc,region,now) {
 }
 
 function update_wunderground_weather(wapikey) {
-    $.getJSON("https://api.wunderground.com/api/"+wapikey+"/conditions/forecast/lang:EN/q/"+encodeURIComponent(controller.settings.loc)+".json", function(data) {
-        var code, temp;
+    $.ajax({
+        url: "https://api.wunderground.com/api/"+wapikey+"/conditions/forecast/lang:EN/q/"+encodeURIComponent(controller.settings.loc)+".json",
+        dataType: "jsonp",
+        success: function(data) {
+            var code, temp;
 
-        if (data.current_observation.icon_url.indexOf("nt_") !== -1) {
-            code = "nt_"+data.current_observation.icon;
-        } else {
-            code = data.current_observation.icon;
+            if (typeof data.response.error === "object" && data.response.error.type === "keynotfound") {
+                update_yahoo_weather();
+                return;
+            }
+
+            if (data.current_observation.icon_url.indexOf("nt_") !== -1) {
+                code = "nt_"+data.current_observation.icon;
+            } else {
+                code = data.current_observation.icon;
+            }
+
+            var ww_forecast = {
+                "condition": {
+                    "text": data.current_observation.weather,
+                    "code": code,
+                    "temp_c": data.current_observation.temp_c,
+                    "temp_f": data.current_observation.temp_f,
+                    "date": data.current_observation.observation_time,
+                    "precip_today_in": data.current_observation.precip_today_in,
+                    "precip_today_metric": data.current_observation.precip_today_metric,
+                    "type": "wunderground"
+                },
+                "location": data.current_observation.display_location.full,
+                "region": data.current_observation.display_location.country_iso3166,
+                simpleforecast: {}
+            };
+
+            $.each(data.forecast.simpleforecast.forecastday,function(k,attr) {
+                 ww_forecast.simpleforecast[k] = attr;
+            });
+
+            if (ww_forecast.region === "US" || ww_forecast.region === "BM" || ww_forecast.region === "PW") {
+                temp = Math.round(ww_forecast.condition.temp_f)+"&#176;F";
+            } else {
+                temp = ww_forecast.condition.temp_c+"&#176;C";
+            }
+
+            $("#weather")
+                .html("<div title='"+ww_forecast.condition.text+"' class='wicon cond"+code+"'></div><span>"+temp+"</span><br><span class='location'>"+ww_forecast.location+"</span>")
+                .on("click",show_forecast);
+
+            $("#weather-list").animate({
+                "margin-left": "0"
+            },1000).show();
+
+            update_wunderground_forecast(ww_forecast);
+
+            $.mobile.document.trigger("weatherUpdateComplete");
         }
-
-        var ww_forecast = {
-            "condition": {
-                "text": data.current_observation.weather,
-                "code": code,
-                "temp_c": data.current_observation.temp_c,
-                "temp_f": data.current_observation.temp_f,
-                "date": data.current_observation.observation_time,
-                "precip_today_in": data.current_observation.precip_today_in,
-                "precip_today_metric": data.current_observation.precip_today_metric,
-                "type": "wunderground"
-            },
-            "location": data.current_observation.display_location.full,
-            "region": data.current_observation.display_location.country_iso3166,
-            simpleforecast: {}
-        };
-
-        $.each(data.forecast.simpleforecast.forecastday,function(k,attr) {
-             ww_forecast.simpleforecast[k] = attr;
-        });
-
-        if (ww_forecast.region === "US" || ww_forecast.region === "BM" || ww_forecast.region === "PW") {
-            temp = Math.round(ww_forecast.condition.temp_f)+"&#176;F";
-        } else {
-            temp = ww_forecast.condition.temp_c+"&#176;C";
-        }
-
-        $("#weather")
-            .html("<div title='"+ww_forecast.condition.text+"' class='wicon cond"+code+"'></div><span>"+temp+"</span><br><span class='location'>"+ww_forecast.location+"</span>")
-            .on("click",show_forecast);
-
-        $("#weather-list").animate({
-            "margin-left": "0"
-        },1000).show();
-
-        update_wunderground_forecast(ww_forecast);
-
-        $.mobile.document.trigger("weatherUpdateComplete");
     }).retry({times:retryCount, statusCodes: [0]}).fail(weather_update_failed);
 }
 
