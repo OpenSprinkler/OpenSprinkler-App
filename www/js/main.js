@@ -1641,6 +1641,11 @@ function hide_weather() {
 }
 
 function update_weather() {
+    if (typeof controller.settings.wtkey !== "undefined" && controller.settings.wtkey !== "") {
+        update_wunderground_weather(controller.settings.wtkey);
+        return;
+    }
+
     storage.get(["provider","wapikey"],function(data){
         if (controller.settings.loc === "") {
             hide_weather();
@@ -2164,6 +2169,10 @@ function show_options() {
         list += "</select></div>";
     }
 
+    if (typeof controller.settings.wtkey !== "undefined") {
+        list += "<div class='ui-field-contain'><label for='wtkey'>"+_("Wunderground Key")+"<button data-helptext='"+_("Weather Underground requires an API Key which can be obtained from ")+"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><input data-mini='true' type='text' id='wtkey' value='"+controller.settings.wtkey+"' /></div>";
+    }
+
     if (typeof controller.options.urs !== "undefined") {
         list += "<label for='o21'><input data-mini='true' id='o21' type='checkbox' "+((controller.options.urs === 1) ? "checked='checked'" : "")+" />"+_("Use Rain Sensor")+"</label>";
     }
@@ -2206,9 +2215,15 @@ function show_options() {
 
         var button = $(this),
             text = button.data("helptext"),
-            popup = $("<div data-role='popup'>" +
-                    "<p>"+text+"</p>" +
-                "</div>");
+            popup;
+
+        if (button.parent().attr("for") === "wtkey") {
+            text += "<a class='iab' target='_blank' href='http://www.wunderground.com/weather/api/d/login.html'>here</a>";
+        }
+
+        popup = $("<div data-role='popup'>" +
+            "<p>"+text+"</p>" +
+        "</div>");
 
         popup.one("popupafterclose", function(){
             popup.popup("destroy").remove();
@@ -2337,7 +2352,7 @@ function submit_options() {
             id = $item.attr("id"),
             data = $item.val();
 
-        if (!id || !data) {
+        if (!id || (!data && data!=="")) {
             return true;
         }
 
@@ -5146,7 +5161,12 @@ function checkWeatherPlugin() {
             });
         });
     } else {
-       weather_provider.css("display","");
+        if (controller.options.fwv >= 210) {
+            // Hide the weather provider option when the OSPi provides it
+            weather_provider.hide();
+        } else {
+            weather_provider.css("display","");
+        }
     }
 }
 
