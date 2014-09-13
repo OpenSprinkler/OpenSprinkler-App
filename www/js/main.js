@@ -7,6 +7,7 @@ var isIEMobile = /IEMobile/.test(navigator.userAgent),
     isIE = /MSIE \d+\.\d+;/.test(navigator.userAgent),
     isOSXApp = isOSXApp || false,
     isChromeApp = typeof chrome === "object" && typeof chrome.storage === "object",
+    isFileCapable = !isiOS && !isAndroid && !isIEMobile && !isOSXApp && window.FileReader,
     // Small wrapper to handle Chrome vs localStorage usage
     storage = {
         get: function(query,callback) {
@@ -283,15 +284,17 @@ $(document)
             show_site_select();
             return false;
         } else if (hash === "#sprinklers") {
-            if (!data.options.firstLoad) {
-                //Reset status bar to loading while an update is done
-                showLoading("#footer-running");
-                setTimeout(function(){
-                    refresh_status();
-                },800);
-            } else {
-                check_status();
-            }
+            $(hash).one("pagebeforeshow",function(){
+                if (!data.options.firstLoad) {
+                    //Reset status bar to loading while an update is done
+                    showLoading("#footer-running");
+                    setTimeout(function(){
+                        refresh_status();
+                    },800);
+                } else {
+                    check_status();
+                }
+            });
         } else if (hash === "#settings") {
             show_settings();
         }
@@ -364,6 +367,9 @@ $(document)
         StatusBar.backgroundColorByHexString("#1D1D1D");
     } catch (err) {}
 })
+.one("pagecreate","#sprinklers",function(){
+    $("<div id='footer-running'></div>").prependTo("#sprinklers .ui-panel-wrapper");
+})
 .on("pagehide","#start",removeTimers)
 .on("popupbeforeposition","#localization",check_curr_lang);
 
@@ -419,7 +425,7 @@ function initApp() {
     }
 
     // Check if File API is supported. If so, switch to using files for import/export.
-    if (!isiOS && window.FileReader) {
+    if (isFileCapable) {
         var input = $("<input type='file' id='configInput' data-role='none' style='visibility:hidden;position:absolute;top:-50px;left:-50px'/>").on("change",function(){
                 var config = this.files[0],
                     reader = new FileReader();
@@ -1896,13 +1902,7 @@ function open_panel() {
         panel.find(".export_config,.import_config").off("click");
     });
 
-    $("#footer-running").prependTo("#sprinklers .ui-content");
-
     panel.panel("open");
-
-    panel.one("panelclose",function(){
-        $("#footer-running").insertAfter("#sprinklers .ui-header");
-    });
 }
 
 // Bind settings page event listeners
@@ -5745,14 +5745,14 @@ function dhms2sec(arr) {
 function exportObj(ele,obj,subject) {
     obj = encodeURIComponent(JSON.stringify(obj));
 
-    if (isiOS || !window.FileReader) {
-        subject = subject || "Sprinklers Data Export on "+dateToString(new Date());
-        $(ele).attr("href","mailto:?subject="+encodeURIComponent(subject)+"&body="+obj);
-    } else {
+    if (isFileCapable) {
         $(ele).attr({
             href: "data:text/json;charset=utf-8," + obj,
             download: "backup.json"
         });
+    } else {
+        subject = subject || "Sprinklers Data Export on "+dateToString(new Date());
+        $(ele).attr("href","mailto:?subject="+encodeURIComponent(subject)+"&body="+obj);
     }
 }
 
