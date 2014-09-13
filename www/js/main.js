@@ -5735,10 +5735,11 @@ function showTooltip(x, y, contents, color) {
 }
 
 function colorContrast(c) {
+    //http://www.w3.org/TR/AERT#color-contrast
     var rgb = c.match(/rgb\((\d+),(\d+),(\d+)\)/),
         o = Math.round(((parseInt(rgb[1]) * 299) + (parseInt(rgb[2]) * 587) + (parseInt(rgb[3]) * 114)) /1000);
 
-    return (o > 125) ? "black" : "white"; //http://www.w3.org/TR/AERT#color-contrast
+    return (o > 125) ? "black" : "white";
 }
 
 // Show loading indicator within element(s)
