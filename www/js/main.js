@@ -3621,15 +3621,23 @@ function get_preview() {
     };
 
     time_to_text = function (sid,start,pid,end,simt) {
-        var className = "program-"+((pid+3)%4);
+        var className = "program-"+((pid+3)%4),
+            pname = "P"+pid;
+
         if (((controller.settings.rd!==0)&&(simt+start+(controller.options.tz-48)*900<=controller.settings.rdst*1000) || controller.options.urs === 1 && controller.settings.rs === 1) && (controller.stations.ignore_rain[parseInt(sid/8)]&(1<<(sid%8))) === 0) {
             className="delayed";
         }
+
+        if (!isOSPi() && controller.options.fwv >= 210) {
+            pname = controller.programs.pd[pid-1][5];
+        }
+
         preview_data.push({
             "start": start,
             "end": end,
             "className":className,
-            "content":"P"+pid,
+            "content":pname,
+            "pid": pid-1,
             "shortname":"S"+(sid+1),
             "group": controller.stations.snames[sid]
         });
@@ -3687,7 +3695,7 @@ function get_preview() {
             if (sel.length) {
                 if (typeof sel[0].row !== "undefined") {
                     changePage("#programs",{
-                        "programToExpand": parseInt(timeline.getItem(sel[0].row).content.substr(1)) - 1
+                        "programToExpand": parseInt(timeline.getItem(sel[0].row).pid)
                     });
                 }
             }
