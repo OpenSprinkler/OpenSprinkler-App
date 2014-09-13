@@ -2361,6 +2361,16 @@ function show_options() {
         page.find(".datetime-input button").prop("disabled",$(this).is(":checked"));
     });
 
+    page.find("#o31").on("change",function(){
+        // Switch state of water level input based on weather algorithm status
+        $("#o23").prop("disabled",(this.value > 0 ? true : false));
+    });
+
+    page.find("#wtkey").on("change",function(){
+        // Switch state of weather algorithm input based on API key status
+        $("#o31").selectmenu((this.value === "" ? "disable" : "enable"));
+    });
+
     page.find(".datetime-input").on("click",function(){
         var input = $(this).find("button");
 
