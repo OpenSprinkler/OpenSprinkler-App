@@ -29,7 +29,7 @@
             <uses-sdk android:minSdkVersion="10" android:targetSdkVersion="19" />
         </gap:config-file>
 
-        <name>Sprinklers</name>
+        <name>OpenSprinkler</name>
 
         <description>
             Designed to allow intuitive control of the OpenSprinkler irrigation controller.
