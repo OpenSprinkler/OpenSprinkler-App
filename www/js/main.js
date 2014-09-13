@@ -2335,7 +2335,6 @@ function show_options() {
                 maximum: 60,
                 helptext: helptext
             });
-            return;
         } else if (id === "o30") {
             showSingleDurationInput({
                 data: dur.val(),
@@ -2347,7 +2346,6 @@ function show_options() {
                 maximum: 2000,
                 helptext: helptext
             });
-            return;
         } else if (id === "o20") {
             showSingleDurationInput({
                 data: dur.val(),
@@ -2360,7 +2358,6 @@ function show_options() {
                 minimum: -60,
                 helptext: helptext
             });
-            return;
         } else if (id === "o15") {
             showSingleDurationInput({
                 data: dur.val(),
@@ -2372,7 +2369,6 @@ function show_options() {
                 maximum: 5,
                 helptext: helptext
             });
-            return;
         } else if (id === "o23") {
             showSingleDurationInput({
                 data: dur.val(),
@@ -2384,13 +2380,16 @@ function show_options() {
                 maximum: 250,
                 helptext: helptext
             });
-            return;
-        }
+        } else if (id === "o17") {
+            if (!isOSPi() && controller.options.fwv >= 210) {
+                max = 64800;
+            }
 
-        showDurationBox(dur.val(),name,function(result){
-            dur.val(result);
-            dur.text(dhms2str(sec2dhms(result)));
-        },max);
+            showDurationBox(dur.val(),name,function(result){
+                dur.val(result);
+                dur.text(dhms2str(sec2dhms(result)));
+            },max);
+        }
 
         return false;
     });
