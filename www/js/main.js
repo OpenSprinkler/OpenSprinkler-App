@@ -417,6 +417,32 @@ function initApp() {
     if (isChromeApp || isOSXApp) {
         checkAutoScan();
     }
+
+    // Check if File API is supported. If so, switch to using files for import/export.
+    if (!isiOS && window.FileReader) {
+        var input = $("<input type='file' id='configInput' data-role='none' style='visibility:hidden;position:absolute;top:-50px;left:-50px'/>").on("change",function(){
+                var config = this.files[0],
+                    reader = new FileReader();
+
+                reader.onload = function(e){
+                    try{
+                        var obj=JSON.parse($.trim(e.target.result));
+                        import_config(JSON.stringify(obj));
+                    }catch(err){
+                        showerror(_("Unable to read the configuration file. Please check the file and try again."));
+                    }
+                };
+
+                reader.readAsText(config);
+            }),
+            link = $("<a class='ui-btn ui-btn-icon-notext ui-icon-action' href='#'></a>").on("click",function(){
+                input.click();
+            }),
+            panel = $("#sprinklers-settings");
+
+        input.appendTo(panel);
+        link.insertAfter(panel.find(".import_config"));
+    }
 }
 
 // Handle main switches for manual mode and enable
@@ -588,7 +614,7 @@ function newload() {
             }
 
             // Update export to email button in side panel
-            objToEmail(".email_config",controller);
+            exportObj(".email_config",controller);
 
             // Check if automatic rain delay plugin is enabled on OSPi devices
             checkWeatherPlugin();
@@ -3931,7 +3957,7 @@ function get_logs() {
             data = items;
             updateView();
 
-            objToEmail(".email_logs",data);
+            exportObj(".email_logs",data);
 
             $.mobile.loading("hide");
         },
@@ -5121,7 +5147,7 @@ function import_config(data) {
                     update_weather();
                 });
             },
-            function(a){
+            function(){
                 $.mobile.loading("hide");
                 showerror(_("Unable to import configuration."));
             }
@@ -5179,7 +5205,7 @@ function checkWeatherPlugin() {
     weather_settings.hide();
     if (isOSPi()) {
         storage.get("provider",function(data){
-            send_to_os("/wj","json").done(function(results){
+            send_to_os("/wj?pw=","json").done(function(results){
                 var provider = results.weather_provider;
 
                 // Check if the OSPi has valid weather provider data
@@ -5715,11 +5741,19 @@ function dhms2sec(arr) {
     return parseInt((arr.days*86400)+(arr.hours*3600)+(arr.minutes*60)+arr.seconds);
 }
 
-// Generate email link for JSON data export
-function objToEmail(ele,obj,subject) {
-    subject = subject || "Sprinklers Data Export on "+dateToString(new Date());
-    var body = JSON.stringify(obj);
-    $(ele).attr("href","mailto:?subject="+encodeURIComponent(subject)+"&body="+encodeURIComponent(body));
+// Generate export link for JSON data
+function exportObj(ele,obj,subject) {
+    obj = encodeURIComponent(JSON.stringify(obj));
+
+    if (isiOS || !window.FileReader) {
+        subject = subject || "Sprinklers Data Export on "+dateToString(new Date());
+        $(ele).attr("href","mailto:?subject="+encodeURIComponent(subject)+"&body="+obj);
+    } else {
+        $(ele).attr({
+            href: "data:text/json;charset=utf-8," + obj,
+            download: "backup.json"
+        });
+    }
 }
 
 // Return day of the week
