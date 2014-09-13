@@ -1,3 +1,7 @@
+.textarea {
+    height: inherit !important;
+    overflow: auto !important;
+}
 .ui-selectmenu .ui-header .ui-icon-delete {
     display: none
 }

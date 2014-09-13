@@ -441,13 +441,52 @@ function initApp() {
 
                 reader.readAsText(config);
             }),
-            link = $("<a class='ui-btn ui-btn-icon-notext ui-icon-action' href='#'></a>").on("click",function(){
-                input.click();
-            }),
             panel = $("#sprinklers-settings");
 
+        $(".paste_config").on("click",function(){
+            input.click();
+            return false;
+        });
+
         input.appendTo(panel);
-        link.insertAfter(panel.find(".import_config"));
+    } else {
+        $(".paste_config").on("click",function(){
+            var popup = $(
+                "<div data-role='popup' data-overlay-theme='b' id='paste_config'>"+
+                    "<p class='ui-bar'>" +
+                        "<textarea class='textarea' rows='10' placeholder='"+_("Paste your backup here")+"'></textarea>" +
+                        "<button data-mini='true' data-theme='b'>"+_("Import")+"</button>" +
+                    "</p>" +
+                "</div>"
+            );
+
+            popup.find("button").on("click",function(){
+                var data = popup.find("textarea").val();
+
+                if (data === "") {
+                    return;
+                }
+
+                try{
+                    var data=JSON.parse($.trim(data));
+                    popup.popup("close");
+                    import_config(JSON.stringify(data));
+                }catch(err){
+                    popup.find("textarea").val("");
+                    showerror(_("Unable to read the configuration file. Please check the file and try again."));
+                }
+            });
+
+            popup.one("popupafterclose", function(){
+                popup.popup("destroy").remove();
+            }).enhanceWithin();
+
+            $(".ui-page-active").append(popup);
+
+            popup.popup({history: false, positionTo: "window"}).popup("open");
+
+            return false;
+        });
     }
 }
 
