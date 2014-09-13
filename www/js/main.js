@@ -5,9 +5,10 @@ var isIEMobile = /IEMobile/.test(navigator.userAgent),
     isFireFoxOS = /^.*?\Mobile\b.*?\Firefox\b.*?$/m.test(navigator.userAgent),
     isWinApp = /MSAppHost/.test(navigator.userAgent),
     isIE = /MSIE \d+\.\d+;/.test(navigator.userAgent),
+    isBB10 = /BB10/.test(navigator.userAgent),
     isOSXApp = isOSXApp || false,
     isChromeApp = typeof chrome === "object" && typeof chrome.storage === "object",
-    isFileCapable = !isiOS && !isAndroid && !isIEMobile && !isOSXApp && window.FileReader,
+    isFileCapable = !isiOS && !isAndroid && !isIEMobile && !isOSXApp && !isFireFoxOS  && !isWinApp && !isBB10 && window.FileReader,
     // Small wrapper to handle Chrome vs localStorage usage
     storage = {
         get: function(query,callback) {
