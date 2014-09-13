@@ -292,7 +292,7 @@ $(document)
                     showLoading("#footer-running");
                     setTimeout(function(){
                         refresh_status();
-                    },800);
+                    },1000);
                 } else {
                     check_status();
                 }
