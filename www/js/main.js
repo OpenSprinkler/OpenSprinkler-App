@@ -5326,6 +5326,10 @@ function showDurationBox(seconds,title,callback,maximum,granularity) {
         arr = sec2dhms(seconds),
         i;
 
+    if (!isOSPi() && controller.options.fwv >= 210 && maximum > 64800) {
+        maximum = 64800;
+    }
+
     if (maximum) {
         for (i=conv.length-1; i>=0; i--) {
             if (maximum < conv[i]) {
@@ -5352,12 +5356,35 @@ function showDurationBox(seconds,title,callback,maximum,granularity) {
             var input = $(popup.find(".inputs input")[pos]),
                 val = parseInt(input.val());
 
+            if (input.prop("disabled")) {
+                return;
+            }
+
             if ((dir === -1 && val === 0) || (dir === 1 && (getValue() + conv[pos+start]) > maximum)) {
                 return;
             }
 
             input.val(val+dir);
             callback(getValue());
+
+            if (!isOSPi() && controller.options.fwv >= 210) {
+                var state = (dir === 1) ? true : false;
+
+                if (dir === 1) {
+                    if (getValue() >= 60) {
+                        toggleInput("seconds",state);
+                    }
+                    if (getValue() >= 10800) {
+                        toggleInput("minutes",state);
+                    }
+                } else if (dir === -1) {
+                    if (getValue() < 60) {
+                        toggleInput("seconds",state);
+                    } else if (getValue() < 10800) {
+                        toggleInput("minutes",state);
+                    }
+                }
+            }
         },
         getValue = function() {
             return dhms2sec({
@@ -5366,6 +5393,21 @@ function showDurationBox(seconds,title,callback,maximum,granularity) {
                 "minutes": parseInt(popup.find(".minutes").val()) || 0,
                 "seconds": parseInt(popup.find(".seconds").val()) || 0
             });
+        },
+        toggleInput = function(field,state) {
+            if (typeof field !== "object") {
+                field = [field];
+            }
+
+            for(var i=0; i<field.length; i++) {
+                popup.find("."+field[i]).toggleClass("ui-state-disabled",state).prop("disabled",state).val(function(){
+                    if (state) {
+                        return 0;
+                    } else {
+                        return this.value;
+                    }
+                }).parent(".ui-input-text").toggleClass("ui-state-disabled",state);
+            }
         };
 
     for (i=start; i<conv.length - granularity; i++) {
@@ -5379,6 +5421,14 @@ function showDurationBox(seconds,title,callback,maximum,granularity) {
     decrbts += "</fieldset>";
 
     popup.find("span").prepend(incrbts+inputs+decrbts);
+
+    if (seconds >= 60) {
+        toggleInput("seconds",true);
+    }
+
+    if (seconds >= 10800) {
+        toggleInput("minutes",true);
+    }
 
     popup.find(".incr").children().on("vclick",function(){
         var pos = $(this).index();
