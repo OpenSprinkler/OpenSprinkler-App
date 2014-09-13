@@ -4429,12 +4429,15 @@ function read_program21(program) {
 // Translate program ID to it's name
 function pidname(pid) {
     var pname = _("Program")+" "+pid;
+
     if(pid===255||pid===99) {
         pname=_("Manual program");
-    }
-    if(pid===254||pid===98) {
+    } else if(pid===254||pid===98) {
         pname=_("Run-once program");
+    } else if (!isOSPi() && controller.options.fwv >= 210) {
+        pname = controller.programs.pd[pid][5];
     }
+
     return pname;
 }
 
@@ -4797,6 +4800,10 @@ function make_program21(n,isCopy) {
             }
         },65535);
 
+        return false;
+    });
+
+    page.on("mousewheel","input[type='time']",function(){
         return false;
     });
 
