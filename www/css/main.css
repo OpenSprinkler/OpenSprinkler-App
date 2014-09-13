@@ -230,7 +230,6 @@ a {
     display:none;
     padding:2px 0;
     font-size:medium;
-    margin:0 -16px;
     position:relative
 }
 #running-icon {
@@ -239,7 +238,10 @@ a {
     background:url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMXB4IiBoZWlnaHQ9IjExcHgiPjxjaXJjbGUgZmlsbD0iIzVBREM1NiIgY3g9IjUuNSIgY3k9IjUuNSIgcj0iNS41Ii8+PC9zdmc+) no-repeat;
     background-size:11px 11px;
     display: inline-block;
-    padding-right: 8px;
+    padding-right: 5px;
+    float: left;
+    margin-left: 5px;
+    margin-top: 4px;
 }
 .ui-nosvg #running-icon {
     background-image:url(../img/running.png)
@@ -247,10 +249,9 @@ a {
 #running-text {
     margin:0;
     text-shadow:none;
-    color:#fff
-}
-#footer-running.green #running-text {
-    padding-left:20px
+    color:#fff;
+    display: table-cell;
+
 }
 .rain-desc {
     word-wrap:normal;

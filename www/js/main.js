@@ -2950,13 +2950,13 @@ function check_status() {
         sample = Object.keys(open)[0];
         pid    = controller.settings.ps[sample][0];
         pname  = pidname(pid);
-        line   = "<div id='running-text'><div id='running-icon'></div>";
+        line   = "<div><div id='running-icon'></div><div id='running-text'>";
 
         line += pname+" "+_("is running on")+" "+Object.keys(open).length+" "+_("stations")+" ";
         if (pid!==255&&pid!==99) {
             line += "<span id='countdown' class='nobr'>("+sec2hms(ptotal)+" "+_("remaining")+")</span>";
         }
-        line += "</div>";
+        line += "</div></div>";
         change_status(ptotal,controller.options.sdt,"green",line,function(){
             changePage("#status");
         });
@@ -2970,12 +2970,12 @@ function check_status() {
             match = true;
             pid = controller.settings.ps[i][0];
             pname = pidname(pid);
-            line = "<div id='running-text'><div id='running-icon'></div>";
+            line = "<div><div id='running-icon'></div><div id='running-text'>";
             line += pname+" "+_("is running on station")+" <span class='nobr'>"+controller.stations.snames[i]+"</span> ";
             if (pid!==255&&pid!==99) {
                 line += "<span id='countdown' class='nobr'>("+sec2hms(controller.settings.ps[i][1])+" "+_("remaining")+")</span>";
             }
-            line += "</div>";
+            line += "</div></div>";
             break;
         }
     }
