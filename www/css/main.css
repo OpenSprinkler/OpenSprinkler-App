@@ -286,7 +286,7 @@ a {
 .timeline-event-content a {
     text-decoration:none
 }
-:not(input) {
+:not(input,textarea) {
     -webkit-touch-callout:none;
     -webkit-user-select:none;
     -moz-user-select:none;
