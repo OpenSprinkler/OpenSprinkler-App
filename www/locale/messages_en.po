@@ -18,6 +18,10 @@ msgstr ""
 msgid "All stations have been stopped"
 msgstr ""
 
+msgid ""
+"Unable to read the configuration file. Please check the file and try again."
+msgstr ""
+
 msgid "Check device password and try again."
 msgstr ""
 
@@ -551,7 +555,7 @@ msgstr ""
 msgid "End:"
 msgstr ""
 
-msgid "Export via Email"
+msgid "Export"
 msgstr ""
 
 msgid "Rain Sensor"
@@ -816,6 +820,9 @@ msgid "No backup available on this device"
 msgstr ""
 
 msgid "Are you sure you want to restore the configuration?"
+msgstr ""
+
+msgid "Program data is newer than the device firmware and cannot be imported"
 msgstr ""
 
 msgid "Backup restored to your device"
