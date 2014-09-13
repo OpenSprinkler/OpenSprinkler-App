@@ -5422,12 +5422,14 @@ function showDurationBox(seconds,title,callback,maximum,granularity) {
 
     popup.find("span").prepend(incrbts+inputs+decrbts);
 
-    if (seconds >= 60) {
-        toggleInput("seconds",true);
-    }
+    if (!isOSPi() && controller.options.fwv >= 210) {
+        if (seconds >= 60) {
+            toggleInput("seconds",true);
+        }
 
-    if (seconds >= 10800) {
-        toggleInput("minutes",true);
+        if (seconds >= 10800) {
+            toggleInput("minutes",true);
+        }
     }
 
     popup.find(".incr").children().on("vclick",function(){
