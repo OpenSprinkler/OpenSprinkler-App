@@ -570,7 +570,7 @@ function send_to_os(dest,type) {
             }
 
             // Only show error messages on setting change requests
-            if (/\/(?:cv|cs|cr|cp|uwa|dp|co|cl|cu)/.exec(dest)) {
+            if (/\/(?:cv|cs|cr|cp|uwa|dp|co|cl|cu|up)/.exec(dest)) {
                 if (data.result === 2) {
                     showerror(_("Check device password and try again."));
                 } else if (data.result === 48) {
