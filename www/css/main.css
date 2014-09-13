@@ -694,7 +694,9 @@ a {
     display:none
 }
 @-moz-document url-prefix() {
-    .wicon {
-        margin:-50px 0 -45px -50px!important
+    @media (max-width:700px) {
+        .wicon {
+            margin:-50px 0 -45px -50px!important
+        }
     }
 }
