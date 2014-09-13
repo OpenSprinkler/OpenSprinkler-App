@@ -1,5 +1,5 @@
 {
-  "name": "Sprinklers",
+  "name": "OpenSprinkler",
   "description": "Designed to allow intuitive program management (view, edit, delete and add), manual control, initiation of a run-once program, viewing device status, adjusting rain delay, viewing logs, and changing of OpenSprinkler settings.",
   "launch_path": "/index.htm",
   "icons": {
