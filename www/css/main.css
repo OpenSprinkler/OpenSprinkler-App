@@ -217,6 +217,9 @@ a {
 #programs .ui-collapsible-content {
     background-color: inherit;
 }
+#addprogram .ui-select > .ui-btn, #programs .ui-select > .ui-btn {
+    min-width: 110px;
+}
 #program-control-list {
     clear:both
 }
