@@ -233,7 +233,7 @@ a {
     font-size:medium;
     position:relative
 }
-#running-icon {
+.running-icon {
     width:11px;
     height:11px;
     background:url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMXB4IiBoZWlnaHQ9IjExcHgiPjxjaXJjbGUgZmlsbD0iIzVBREM1NiIgY3g9IjUuNSIgY3k9IjUuNSIgcj0iNS41Ii8+PC9zdmc+) no-repeat;
@@ -244,15 +244,16 @@ a {
     margin-left: 5px;
     margin-top: 4px;
 }
-.ui-nosvg #running-icon {
+.ui-nosvg .running-icon {
     background-image:url(../img/running.png)
 }
-#running-text {
+.running-text {
     margin:0;
     text-shadow:none;
     color:#fff;
+}
+div.running-text{
     display: table-cell;
-
 }
 .rain-desc {
     word-wrap:normal;
