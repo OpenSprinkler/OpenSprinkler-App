@@ -5,6 +5,16 @@
 .ui-selectmenu .ui-header .ui-icon-delete {
     display: none
 }
+.move-up {
+    border: none !important;
+    float: right;
+    padding-left:10px;
+    margin-right: -10px !important;
+}
+.move-up {
+    background-color: transparent !important;
+    bottom: 5px;
+}
 .program-copy {
     font-size: 11px;
     font-weight: bold;
