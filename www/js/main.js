@@ -2950,13 +2950,13 @@ function check_status() {
         sample = Object.keys(open)[0];
         pid    = controller.settings.ps[sample][0];
         pname  = pidname(pid);
-        line   = "<div id='running-icon'></div><p id='running-text'>";
+        line   = "<div id='running-text'><div id='running-icon'></div>";
 
         line += pname+" "+_("is running on")+" "+Object.keys(open).length+" "+_("stations")+" ";
         if (pid!==255&&pid!==99) {
             line += "<span id='countdown' class='nobr'>("+sec2hms(ptotal)+" "+_("remaining")+")</span>";
         }
-        line += "</p>";
+        line += "</div>";
         change_status(ptotal,controller.options.sdt,"green",line,function(){
             changePage("#status");
         });
@@ -2970,12 +2970,12 @@ function check_status() {
             match = true;
             pid = controller.settings.ps[i][0];
             pname = pidname(pid);
-            line = "<div id='running-icon'></div><p id='running-text'>";
+            line = "<div id='running-text'><div id='running-icon'></div>";
             line += pname+" "+_("is running on station")+" <span class='nobr'>"+controller.stations.snames[i]+"</span> ";
             if (pid!==255&&pid!==99) {
                 line += "<span id='countdown' class='nobr'>("+sec2hms(controller.settings.ps[i][1])+" "+_("remaining")+")</span>";
             }
-            line += "</p>";
+            line += "</div>";
             break;
         }
     }
@@ -3624,7 +3624,7 @@ function get_preview() {
         var className = "program-"+((pid+3)%4),
             pname = "P"+pid;
 
-        if (((controller.settings.rd!==0)&&(simt+start+(controller.options.tz-48)*900<=controller.settings.rdst*1000) || controller.options.urs === 1 && controller.settings.rs === 1) && (controller.stations.ignore_rain[parseInt(sid/8)]&(1<<(sid%8))) === 0) {
+        if (((controller.settings.rd!==0)&&(simt+start+(controller.options.tz-48)*900<=controller.settings.rdst*1000) || controller.options.urs === 1 && controller.settings.rs === 1) && (typeof controller.stations.ignore_rain === "object" && (controller.stations.ignore_rain[parseInt(sid/8)]&(1<<(sid%8))) === 0)) {
             className="delayed";
         }
 

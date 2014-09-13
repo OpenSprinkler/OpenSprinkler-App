@@ -238,10 +238,8 @@ a {
     height:11px;
     background:url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMXB4IiBoZWlnaHQ9IjExcHgiPjxjaXJjbGUgZmlsbD0iIzVBREM1NiIgY3g9IjUuNSIgY3k9IjUuNSIgcj0iNS41Ii8+PC9zdmc+) no-repeat;
     background-size:11px 11px;
-    margin:auto auto auto 4px;
-    position:absolute;
-    top:0;
-    bottom:0
+    display: inline-block;
+    padding-right: 8px;
 }
 .ui-nosvg #running-icon {
     background-image:url(../img/running.png)
