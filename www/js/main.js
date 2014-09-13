@@ -2640,21 +2640,21 @@ function submit_stations() {
             case "um_" + id.slice("um_".length):
                 master.boardStatus = ($item.is(":checked") || $item.prop("tagName") === "P") ? "1".concat(master.boardStatus) : "0".concat(master.boardStatus);
                 master.currentIndex++;
-                if (parseInt(master.currentIndex/8) > master.boardIndex) {
+                if (parseInt(master.currentIndex/8) === 1) {
                     master.fullStatus["m"+master.boardIndex]=parseInt(master.boardStatus,2); master.boardIndex++; master.currentIndex=0; master.boardStatus="";
                 }
                 return true;
             case "ir_" + id.slice("ir_".length):
                 rain.boardStatus = ($item.is(":checked")) ? "1".concat(rain.boardStatus) : "0".concat(rain.boardStatus);
                 rain.currentIndex++;
-                if (parseInt(rain.currentIndex/8) > rain.boardIndex) {
+                if (parseInt(rain.currentIndex/8) === 1) {
                     rain.fullStatus["i"+rain.boardIndex]=parseInt(rain.boardStatus,2); rain.boardIndex++; rain.currentIndex=0; rain.boardStatus="";
                 }
                 return true;
             case "ar_" + id.slice("ar_".length):
                 relay.boardStatus = ($item.is(":checked")) ? "1".concat(relay.boardStatus) : "0".concat(relay.boardStatus);
                 relay.currentIndex++;
-                if (parseInt(relay.currentIndex/8) > relay.boardIndex) {
+                if (parseInt(relay.currentIndex/8) === 1) {
                     relay.fullStatus["a"+relay.boardIndex]=parseInt(relay.boardStatus,2); relay.boardIndex++; relay.currentIndex=0; relay.boardStatus="";
                 }
                 return true;
