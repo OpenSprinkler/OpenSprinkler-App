@@ -2363,12 +2363,15 @@ function show_options() {
 
     page.find("#o31").on("change",function(){
         // Switch state of water level input based on weather algorithm status
-        $("#o23").prop("disabled",(this.value > 0 ? true : false));
+        $("#o23").prop("disabled",(this.value === 0 || $("#wtkey").val() === "" ? false : true));
     });
 
     page.find("#wtkey").on("change",function(){
         // Switch state of weather algorithm input based on API key status
         $("#o31").selectmenu((this.value === "" ? "disable" : "enable"));
+        if (this.value === "") {
+            $("#o23").prop("disabled",false);
+        }
     });
 
     page.find(".datetime-input").on("click",function(){
@@ -5338,7 +5341,6 @@ function showDurationBox(seconds,title,callback,maximum,granularity) {
         decrbts = "<fieldset class='ui-grid-"+String.fromCharCode(95+(total))+" decr'>",
         popup = $("<div data-role='popup' id='durationBox' data-theme='a' data-overlay-theme='b'>" +
             "<div data-role='header' data-theme='b'>" +
-                "<a href='#' data-rel='back' data-role='button' data-theme='b' data-icon='delete' data-iconpos='notext' class='ui-btn-left'>Close</a>" +
                 "<h1>"+title+"</h1>" +
             "</div>" +
             "<div class='ui-content'>" +
@@ -5421,7 +5423,6 @@ function showSingleDurationInput(opt) {
 
     var popup = $("<div data-role='popup' id='singleDuration' data-theme='a' data-overlay-theme='b'>" +
             "<div data-role='header' data-theme='b'>" +
-                "<a href='#' data-rel='back' data-role='button' data-theme='b' data-icon='delete' data-iconpos='notext' class='ui-btn-left'>Close</a>" +
                 "<h1>"+opt.title+"</h1>" +
             "</div>" +
             "<div class='ui-content'>" +
