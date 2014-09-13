@@ -4229,10 +4229,14 @@ function get_programs(pid) {
 
     if (!isOSPi() && controller.options.fwv >= 210) {
         programs.find(".move-up").removeClass("hidden").on("click",function(e){
-            var pid = parseInt($(this).parents("fieldset").attr("id").split("-")[1]);
+            var group = $(this).parents("fieldset"),
+                pid = parseInt(group.attr("id").split("-")[1]);
+
+            $.mobile.loading("show");
 
             send_to_os("/up?pw=&pid="+pid).done(function(){
                 update_controller_programs(function(){
+                    $.mobile.loading("hide");
                     changePage("#programs",{showLoadMsg:false});
                 });
             });
@@ -4454,7 +4458,7 @@ function make_all_programs() {
         if (!isOSPi() && controller.options.fwv >= 210) {
             name = controller.programs.pd[i][5];
         }
-        list += "<fieldset id='program-"+i+"' data-role='collapsible'><h3><a class='hidden ui-btn ui-btn-icon-notext ui-icon-arrow-u ui-btn-corner-all move-up'></a><a class='ui-btn ui-btn-corner-all program-copy'>"+_("copy")+"</a><span class='program-name'>"+name+"</span></h3>";
+        list += "<fieldset id='program-"+i+"' data-role='collapsible'><h3><a "+(i>0 ? "" : "style='visibility:hidden' ")+"class='hidden ui-btn ui-btn-icon-notext ui-icon-arrow-u ui-btn-corner-all move-up'></a><a class='ui-btn ui-btn-corner-all program-copy'>"+_("copy")+"</a><span class='program-name'>"+name+"</span></h3>";
         list += "</fieldset>";
     }
     return list+"</div>";
