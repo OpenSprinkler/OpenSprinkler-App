@@ -1,4 +1,4 @@
-## Sprinklers
+## OpenSprinkler
 
 <img align="left" height="96" src="http://albahra.com/sprinklers/icon.png">[![Build Status](https://travis-ci.org/salbahra/Sprinklers.png)](https://travis-ci.org/salbahra/Sprinklers)  
 [Official Site][official] | [Support][help] | [Changelog][changelog]  
@@ -49,11 +49,11 @@ A mobile interface for the OpenSprinkler irrigation device. Designed to allow ma
 
 #### OpenSprinkler Arduino
 
-Starting with firmware 2.0.3, an option has been added to change the Javascript URL path for the UI. Sprinklers now offers an injection method which takes over Ray's OpenSprinkler UI. Just follow the simple steps below to switch your UI:
+Starting with firmware 2.0.3, an option has been added to change the Javascript URL path for the UI. The application now offers an injection method which takes over Ray's OpenSprinkler UI. Just follow the simple steps below to switch your UI:
 
-    Please note this will load the development copy of Sprinklers.
+    Please note this will load the development copy of application.
 
  1. Navigate to http://x.x.x.x/su (replace x.x.x.x with your OpenSprinkler IP)
  2. For "Javascript URL" field use the following: https://rawgithub.com/salbahra/Sprinklers/master/www/js
  3. Enter your password in the field and push "Submit"
- 4. Your page will reload and you will now see the Sprinklers application
+ 4. Your page will reload and you will now see the application
