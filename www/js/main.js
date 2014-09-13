@@ -3243,7 +3243,7 @@ function get_runonce() {
 
     quickPick = "<select data-mini='true' name='rprog' id='rprog'><option value='s' selected='selected'>"+_("Quick Programs")+"</option>";
     for (i=0; i<progs.length; i++) {
-        if (!isOSPi() || controller.options.fwv >= 210) {
+        if (!isOSPi() && controller.options.fwv >= 210) {
             name = controller.programs.pd[i][5];
         } else {
             name = _("Program")+" "+(i+1);
@@ -3331,13 +3331,17 @@ function submit_runonce(runonce) {
         runonce.push(0);
     }
     storage.set({"runonce":JSON.stringify(runonce)});
-    send_to_os("/cr?pw=&t="+JSON.stringify(runonce)).done(function(){
-        $.mobile.document.one("pageshow",function(){
-            showerror(_("Run-once program has been scheduled"));
+    $.mobile.loading("show");
+    send_to_os("/cv?pw=&rsn=1").done(function(){
+        send_to_os("/cr?pw=&t="+JSON.stringify(runonce)).done(function(){
+            $.mobile.loading("hide");
+            $.mobile.document.one("pageshow",function(){
+                showerror(_("Run-once program has been scheduled"));
+            });
+            update_controller_status();
+            update_controller_settings();
+            goBack();
         });
-        update_controller_status();
-        update_controller_settings();
-        goBack();
     });
 }
 
