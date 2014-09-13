@@ -601,7 +601,7 @@ function send_to_os(dest,type) {
 }
 
 function network_fail(){
-    change_status(0,0,"red","<p id='running-text' class='center'>"+_("Network Error")+"</p>",function(){
+    change_status(0,0,"red","<p class='running-text center'>"+_("Network Error")+"</p>",function(){
         showLoading("#weather,#footer-running");
         refresh_status();
         update_weather();
@@ -2912,7 +2912,7 @@ function check_status() {
 
     // Handle operation disabled
     if (!controller.settings.en) {
-        change_status(0,controller.options.sdt,"red","<p id='running-text' class='center'>"+_("System Disabled")+"</p>",function(){
+        change_status(0,controller.options.sdt,"red","<p class='running-text center'>"+_("System Disabled")+"</p>",function(){
             areYouSure(_("Do you want to re-enable system operation?"),"",function(){
                 showLoading("#footer-running");
                 send_to_os("/cv?pw=&en=1").done(function(){
@@ -2951,7 +2951,7 @@ function check_status() {
         sample = Object.keys(open)[0];
         pid    = controller.settings.ps[sample][0];
         pname  = pidname(pid);
-        line   = "<div><div id='running-icon'></div><div id='running-text'>";
+        line   = "<div><div class='running-icon'></div><div class='running-text'>";
 
         line += pname+" "+_("is running on")+" "+Object.keys(open).length+" "+_("stations")+" ";
         if (pid!==255&&pid!==99) {
@@ -2971,7 +2971,7 @@ function check_status() {
             match = true;
             pid = controller.settings.ps[i][0];
             pname = pidname(pid);
-            line = "<div><div id='running-icon'></div><div id='running-text'>";
+            line = "<div><div class='running-icon'></div><div class='running-text'>";
             line += pname+" "+_("is running on station")+" <span class='nobr'>"+controller.stations.snames[i]+"</span> ";
             if (pid!==255&&pid!==99) {
                 line += "<span id='countdown' class='nobr'>("+sec2hms(controller.settings.ps[i][1])+" "+_("remaining")+")</span>";
@@ -2990,7 +2990,7 @@ function check_status() {
 
     // Handle rain delay enabled
     if (controller.settings.rd) {
-        change_status(0,controller.options.sdt,"red","<p id='running-text' class='center'>"+_("Rain delay until")+" "+dateToString(new Date(controller.settings.rdst*1000))+"</p>",function(){
+        change_status(0,controller.options.sdt,"red","<p class='running-text center'>"+_("Rain delay until")+" "+dateToString(new Date(controller.settings.rdst*1000))+"</p>",function(){
             areYouSure(_("Do you want to turn off rain delay?"),"",function(){
                 showLoading("#footer-running");
                 send_to_os("/cv?pw=&rd=0").done(function(){
@@ -3003,13 +3003,13 @@ function check_status() {
 
     // Handle rain sensor triggered
     if (controller.options.urs === 1 && controller.settings.rs === 1) {
-        change_status(0,controller.options.sdt,"red","<p id='running-text' class='center'>"+_("Rain detected")+"</p>");
+        change_status(0,controller.options.sdt,"red","<p class='running-text center'>"+_("Rain detected")+"</p>");
         return;
     }
 
     // Handle manual mode enabled
     if (controller.settings.mm === 1) {
-        change_status(0,controller.options.sdt,"red","<p id='running-text' class='center'>"+_("Manual mode enabled")+"</p>",function(){
+        change_status(0,controller.options.sdt,"red","<p class='running-text center'>"+_("Manual mode enabled")+"</p>",function(){
             areYouSure(_("Do you want to turn off manual mode?"),"",function(){
                 showLoading("#footer-running");
                 send_to_os("/cv?pw=&mm=0").done(function(){
