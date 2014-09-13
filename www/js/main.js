@@ -1137,7 +1137,7 @@ function show_addnew(autoIP,closeOld) {
                     "<label for='os_name'>"+_("Open Sprinkler Name:")+"</label>" +
                     "<input autocorrect='off' spellcheck='false' type='text' name='os_name' id='os_name' placeholder='Home' />" +
                     ((isAuto) ? "" : "<label for='os_ip'>"+_("Open Sprinkler IP:")+"</label>") +
-                    "<input "+((isAuto) ? "data-role='none' style='display:none' " : "")+"autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' type='url' name='os_ip' id='os_ip' value='"+((isAuto) ? autoIP : "")+"' placeholder='home.dyndns.org' />" +
+                    "<input "+((isAuto) ? "data-role='none' style='display:none' " : "")+"autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' type='url' pattern='' name='os_ip' id='os_ip' value='"+((isAuto) ? autoIP : "")+"' placeholder='home.dyndns.org' />" +
                     "<label for='os_pw'>"+_("Open Sprinkler Password:")+"</label>" +
                     "<input type='password' name='os_pw' id='os_pw' value='' />" +
                     ((isAuto) ? "" : "<div data-theme='a' data-mini='true' data-role='collapsible'><h4>Advanced</h4><fieldset data-role='controlgroup' data-type='horizontal' data-mini='true' class='center'>" +
@@ -1238,7 +1238,7 @@ function show_sites(showBack) {
                 list += "<a data-role='button' class='connectnow' data-site='"+a+"' href='#'>"+_("Connect Now")+"</a>";
                 list += "<form data-site='"+c+"' novalidate>";
                 list += "<label for='cnm-"+c+"'>"+_("Change Name")+"</label><input id='cnm-"+c+"' type='text' placeholder='"+a+"' />";
-                list += "<label for='cip-"+c+"'>"+_("Change IP")+"</label><input id='cip-"+c+"' type='url' placeholder='"+b.os_ip+"' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' />";
+                list += "<label for='cip-"+c+"'>"+_("Change IP")+"</label><input id='cip-"+c+"' type='url' placeholder='"+b.os_ip+"' autocomplete='off' autocorrect='off' autocapitalize='off' pattern='' spellcheck='false' />";
                 list += "<label for='cpw-"+c+"'>"+_("Change Password")+"</label><input id='cpw-"+c+"' type='password' />";
                 list += "<input type='submit' value='"+_("Save Changes to")+" "+a+"' /></form>";
                 list += "<a data-role='button' class='deletesite' data-site='"+a+"' href='#' data-theme='b'>"+_("Delete")+" "+a+"</a>";
