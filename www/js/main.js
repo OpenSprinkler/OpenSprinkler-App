@@ -2522,7 +2522,7 @@ function show_stations() {
         if (useTableView) {
             list += "<tr><td>";
         }
-        list += "<input data-mini='true' id='edit_station_"+i+"' type='text' value='"+station+"' />";
+        list += "<input data-mini='true' maxlength='"+controller.stations.maxlen+"' id='edit_station_"+i+"' type='text' value='"+station+"' />";
         if (useTableView) {
             list += "</td>";
             if (isMaster) {
@@ -4570,7 +4570,7 @@ function make_program21(n,isCopy) {
     list += "<div class='ui-body ui-body-a center'>";
 
     // Progran name
-    list += "<label for='name-"+id+"'>"+_("Program Name")+"</label><input data-mini='true' type='text' name='name-"+id+"' id='name-"+id+"' placeholder='"+_("Program")+" "+(controller.programs.pd.length)+"' value='"+program.name+"'>";
+    list += "<label for='name-"+id+"'>"+_("Program Name")+"</label><input data-mini='true' type='text' name='name-"+id+"' id='name-"+id+"' maxlength='"+controller.programs.pnsize+"' placeholder='"+_("Program")+" "+(controller.programs.pd.length)+"' value='"+program.name+"'>";
 
     // Program enable/disable flag
     list += "<label for='en-"+id+"'><input data-mini='true' type='checkbox' "+((program.en || n==="new") ? "checked='checked'" : "")+" name='en-"+id+"' id='en-"+id+"'>"+_("Enabled")+"</label>";
