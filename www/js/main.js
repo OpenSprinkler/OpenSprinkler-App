@@ -468,7 +468,7 @@ function initApp() {
                 }
 
                 try{
-                    var data=JSON.parse($.trim(data));
+                    data=JSON.parse($.trim(data));
                     popup.popup("close");
                     import_config(JSON.stringify(data));
                 }catch(err){
@@ -4236,7 +4236,7 @@ function get_programs(pid) {
     });
 
     if (!isOSPi() && controller.options.fwv >= 210) {
-        programs.find(".move-up").removeClass("hidden").on("click",function(e){
+        programs.find(".move-up").removeClass("hidden").on("click",function(){
             var group = $(this).parents("fieldset"),
                 pid = parseInt(group.attr("id").split("-")[1]);
 
@@ -5473,19 +5473,13 @@ function showDurationBox(seconds,title,callback,maximum,granularity) {
             });
         },
         toggleInput = function(field,state) {
-            if (typeof field !== "object") {
-                field = [field];
-            }
-
-            for(var i=0; i<field.length; i++) {
-                popup.find("."+field[i]).toggleClass("ui-state-disabled",state).prop("disabled",state).val(function(){
-                    if (state) {
-                        return 0;
-                    } else {
-                        return this.value;
-                    }
-                }).parent(".ui-input-text").toggleClass("ui-state-disabled",state);
-            }
+            popup.find("."+field).toggleClass("ui-state-disabled",state).prop("disabled",state).val(function(){
+                if (state) {
+                    return 0;
+                } else {
+                    return this.value;
+                }
+            }).parent(".ui-input-text").toggleClass("ui-state-disabled",state);
         };
 
     for (i=start; i<conv.length - granularity; i++) {
