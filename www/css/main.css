@@ -1,7 +1,7 @@
 /*
     jQuery Mobile modifiers
 */
-.activeButton.ui-checkbox-on, .ui-radio-on {
+.ui-selectmenu-list .activeButton, .activeButton.ui-checkbox-on, .ui-radio-on {
     background-color: #38c !important;
     border-color: #38c !important;
     color: #fff !important;
@@ -121,6 +121,18 @@ a {
     max-width: 300px;
     padding: 5px;
     display: inline-block;
+}
+.card-group .ui-checkbox {
+    float: none !important;
+    display: inline-block;
+    padding-right: 1px;
+}
+.card-group .ui-checkbox label {
+    border-radius: 0 !important;
+    border-width: 1px !important;
+    border-style: solid !important;
+    background-clip: initial !important;
+    -webkit-background-clip: initial !important;
 }
 .pad_buttons, #durationBox .ui-input-text {
     width: 94% !important;
@@ -419,10 +431,6 @@ div.running-text{
 
 /* Station editor page rules */
 
-.use_master {
-    width:5%;
-    text-align:center
-}
 
 /* Status page rules */
 
