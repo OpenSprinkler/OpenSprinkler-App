@@ -1,7 +1,7 @@
 /*
     jQuery Mobile modifiers
 */
-.ui-checkbox-on, .ui-radio-on {
+.activeButton.ui-checkbox-on, .ui-radio-on {
     background-color: #38c !important;
     border-color: #38c !important;
     color: #fff !important;
