@@ -6,6 +6,9 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks("grunt-shell");
   grunt.loadNpmTasks("grunt-contrib-compress");
   grunt.loadNpmTasks("grunt-mocha");
+  grunt.loadNpmTasks('grunt-contrib-concat');
+  grunt.loadNpmTasks('grunt-contrib-uglify');
+  grunt.loadNpmTasks('grunt-contrib-cssmin');
 
   var bumpVersion = function(version) {
       var join = ".",
@@ -37,12 +40,14 @@ module.exports = function(grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON("package.json"),
     secrets: secrets,
+
     jshint: {
-    	main: ["<%= pkg.main %>","Gruntfile.js","www/js/home.js","www/js/chrome.js","test/init.js"],
+    	main: ["<%= pkg.main %>","Gruntfile.js","www/js/home.js","www/chrome.js","test/init.js"],
       options: {
         jshintrc: true
       }
     },
+
     mocha: {
       all: {
         src: ["test/init.html"],
@@ -51,6 +56,7 @@ module.exports = function(grunt) {
         run: true
       }
     },
+
     compress: {
       makeFW: {
         options: {
@@ -79,7 +85,7 @@ module.exports = function(grunt) {
           archive: "build/chrome/com.albahra.sprinklers.zip"
         },
         files: [{
-          src: ["css/**","js/**","img/**","locale/**","index.htm", "res/chrome/**"],
+          src: ["css/**","js/**","img/**","locale/**","index.htm", "chrome.js", "res/chrome/**"],
           cwd: "www/",
           expand: true
         },{
@@ -97,6 +103,7 @@ module.exports = function(grunt) {
         }]
       }
     },
+
     shell: {
       pushEng: {
         command: "tasks/pusheng.sh"
@@ -115,6 +122,7 @@ module.exports = function(grunt) {
           ].join("&&")
       }
     },
+
     replace: {
       about: {
         src: ["www/js/main.js"],
@@ -171,6 +179,40 @@ module.exports = function(grunt) {
             return "\"version\": \""+bumpVersion(regexMatches[0])+"\"";
           }
         }]
+      }
+    },
+
+    concat: {
+      options: {
+        separator: ";"
+      },
+      js: {
+        src: [
+          "www/js/jquery.js",
+          "www/js/main.js",
+          "www/js/jqm.js",
+          "www/js/libs.js"
+        ],
+        // the location of the resulting JS file
+        dest: "www/js/app.js"
+      }
+    },
+
+    uglify: {
+      options: {
+        banner: ""
+      },
+      build: {
+        src: "www/js/app.js",
+        dest: "www/js/app.js"
+      }
+    },
+
+    cssmin: {
+      combine: {
+        files: {
+          "www/css/app.css": [ "www/css/jqm.css", "www/css/main.css"]
+        }
       }
     }
   });
