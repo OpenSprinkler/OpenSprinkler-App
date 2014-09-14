@@ -6,9 +6,9 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks("grunt-shell");
   grunt.loadNpmTasks("grunt-contrib-compress");
   grunt.loadNpmTasks("grunt-mocha");
-  grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-cssmin');
+  grunt.loadNpmTasks('grunt-contrib-clean');
 
   var bumpVersion = function(version) {
       var join = ".",
@@ -182,28 +182,13 @@ module.exports = function(grunt) {
       }
     },
 
-    concat: {
-      options: {
-        separator: ";"
-      },
-      js: {
-        src: [
-          "www/js/jquery.js",
-          "www/js/main.js",
-          "www/js/jqm.js",
-          "www/js/libs.js"
-        ],
-        // the location of the resulting JS file
-        dest: "www/js/app.js"
-      }
-    },
-
     uglify: {
       options: {
-        banner: ""
+        banner: "(function($,document,window){",
+        footer: "})(jQuery,document,window);"
       },
       build: {
-        src: "www/js/app.js",
+        src: "www/js/main.js",
         dest: "www/js/app.js"
       }
     },
@@ -214,14 +199,16 @@ module.exports = function(grunt) {
           "www/css/app.css": [ "www/css/jqm.css", "www/css/main.css"]
         }
       }
-    }
+    },
+
+    clean: ["www/js/app.js", "www/css/app.css"]
   });
 
   // Default task(s).
   grunt.registerTask("default",["jshint"]);
   grunt.registerTask("updateLang",["shell:updateLang"]);
   grunt.registerTask("pushEng",["shell:pushEng"]);
-  grunt.registerTask("makeFW",["compress:makeFW"]);
+  grunt.registerTask("makeFW",["uglify","cssmin","compress:makeFW","clean"]);
   grunt.registerTask("build",["jshint","shell:blackberry10","compress:firefox","compress:chrome","compress:blackberry10","makeFW"]);
   grunt.registerTask("bump",["replace:about","replace:osx","replace:phonegap","replace:manifests","shell:pushBump"]);
 
