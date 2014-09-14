@@ -223,6 +223,7 @@ module.exports = function(grunt) {
 
   // Default task(s).
   grunt.registerTask("default",["jshint"]);
+  grunt.registerTask("test",["mocha"]);
   grunt.registerTask("updateLang",["shell:updateLang"]);
   grunt.registerTask("pushEng",["shell:pushEng"]);
   grunt.registerTask("makeFW",["uglify","cssmin","compress:jsAsset","compress:cssAsset","compress:makeFW","clean"]);
