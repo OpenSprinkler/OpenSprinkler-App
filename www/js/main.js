@@ -2552,10 +2552,10 @@ function show_stations() {
         cards += "<input data-mini='true' maxlength='"+controller.stations.maxlen+"' id='edit_station_"+i+"' type='text' value='"+station+"'>";
 
         if (optCount > 0) {
-            cards += "<fieldset data-role='controlgroup' data-type='vertical' data-mini='true' class='center'>";
+            cards += "<fieldset data-role='controlgroup' data-type='horizontal' data-mini='true' class='center'>";
 
             if (isMaster) {
-                cards += "<input id='um_"+i+"' type='checkbox' "+((controller.stations.masop[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+((controller.options.mas === i+1) ? "disabled='disabled'" : "")+"><label for='um_"+i+"'>"+_("Master")+"</label>";
+                cards += "<input id='um_"+i+"' type='checkbox' "+((controller.stations.masop[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+((controller.options.mas === i+1) ? "disabled='disabled'" : "")+"><label for='um_"+i+"'>"+_("Activate Master")+"</label>";
             }
 
             if (hasIR) {
