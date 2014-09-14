@@ -431,6 +431,9 @@ div.running-text{
 
 /* Station editor page rules */
 
+#os-stations .ui-content {
+    max-width: none;
+}
 
 /* Status page rules */
 
