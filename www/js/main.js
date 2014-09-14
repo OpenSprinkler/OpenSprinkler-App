@@ -4439,8 +4439,8 @@ function pidname(pid) {
         pname=_("Manual program");
     } else if(pid===254||pid===98) {
         pname=_("Run-once program");
-    } else if (!isOSPi() && controller.options.fwv >= 210) {
-        pname = controller.programs.pd[pid][5];
+    } else if (!isOSPi() && controller.options.fwv >= 210 && pid <= controller.programs.pd.length) {
+        pname = controller.programs.pd[pid-1][5];
     }
 
     return pname;
