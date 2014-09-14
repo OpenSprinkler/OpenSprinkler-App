@@ -139,6 +139,12 @@ a {
     vertical-align:text-top;
     zoom: 1.5;
 }
+#sure {
+    padding:0.5em;
+}
+#addnew, #site-select, #sure {
+    width:300px
+}
 
 /*
     App Specific: General Rules
@@ -147,6 +153,17 @@ a {
 body {
     margin:0;
     background-color:#1C1C1C
+}
+:not(input):not(textarea) {
+    -webkit-touch-callout:none;
+    -webkit-user-select:none;
+    -moz-user-select:none;
+    -ms-user-select:none;
+    -ms-touch-select:none;
+    -ms-content-zooming:none;
+    -o-user-select:none;
+    user-select:none;
+    touch-callout: none;
 }
 .cancel > .ui-btn:after {
     background-color: rgba(0,0,0,0) !important
@@ -224,9 +241,6 @@ body {
     font-weight: bold;
     padding: 0.2em 0.5em;
     float: right;
-}
-#addnew, #site-select, #sure {
-    width:300px
 }
 #addprogram .ui-content, #programs .ui-content, #runonce .ui-content, #manual .ui-content {
     max-width: 600px;
@@ -402,19 +416,6 @@ div.running-text{
 .use_master {
     width:5%;
     text-align:center
-}
-:not(input,textarea) {
-    -webkit-touch-callout:none;
-    -webkit-user-select:none;
-    -moz-user-select:none;
-    -ms-user-select:none;
-    -ms-touch-select:none;
-    -ms-content-zooming:none;
-    -o-user-select:none;
-    user-select:none
-}
-#sure {
-    padding:0.5em;
 }
 
 /* Status page rules */
