@@ -5404,6 +5404,7 @@ function showDurationBox(seconds,title,callback,maximum,granularity) {
     var keys = ["days","hours","minutes","seconds"],
         text = [_("Days"),_("Hours"),_("Minutes"),_("Seconds")],
         conv = [86400,3600,60,1],
+        max = [0,23,59,59],
         total = 4 - granularity,
         start = 0,
         arr = sec2dhms(seconds),
@@ -5436,15 +5437,23 @@ function showDurationBox(seconds,title,callback,maximum,granularity) {
             "</div>" +
         "</div>"),
         changeValue = function(pos,dir){
-            var input = $(popup.find(".inputs input")[pos]),
+            var input = popup.find(".inputs input").eq(pos),
+                apos = pos+start,
                 val = parseInt(input.val());
 
             if (input.prop("disabled")) {
                 return;
             }
 
-            if ((dir === -1 && val === 0) || (dir === 1 && (getValue() + conv[pos+start]) > maximum)) {
+            if ((dir === -1 && val === 0) || (dir === 1 && (getValue() + conv[apos]) > maximum)) {
                 return;
+            }
+
+            // Increment next time field on current max
+            if (max[apos] !== 0 && pos !== 0 && val >= max[apos]) {
+                input.val(0);
+                input = popup.find(".inputs input").eq(pos-1);
+                val = parseInt(input.val());
             }
 
             input.val(val+dir);
@@ -5509,14 +5518,14 @@ function showDurationBox(seconds,title,callback,maximum,granularity) {
         }
     }
 
-    popup.find(".incr").children().on("vclick",function(){
-        var pos = $(this).index();
+    holdButton(popup.find(".incr").children(),function(e){
+        var pos = $(e.currentTarget).index();
         changeValue(pos,1);
         return false;
     });
 
-    popup.find(".decr").children().on("vclick",function(){
-        var pos = $(this).index();
+    holdButton(popup.find(".decr").children(),function(e){
+        var pos = $(e.currentTarget).index();
         changeValue(pos,-1);
         return false;
     });
@@ -5813,8 +5822,10 @@ function fixInputClick(page) {
 function holdButton(target,callback) {
     var intervalId;
 
-    target.on("tap",callback).on("taphold",function(){
-        intervalId = setInterval(callback, 100);
+    target.on("tap",callback).on("taphold",function(e){
+        intervalId = setInterval(function(){
+            callback(e);
+        }, 100);
     }).on("vmouseup vmouseout vmousecancel touchend",function(){
         clearInterval(intervalId);
     }).on("touchmove",function(e){
