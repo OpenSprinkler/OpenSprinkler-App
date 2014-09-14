@@ -561,7 +561,7 @@ function send_to_os(dest,type) {
                 return data;
             }
 
-            if (isOSPi() || controller.options.fwv < 210) {
+            if (isOSPi() || !checkOSVersion(210)) {
                 return data;
             }
 
@@ -640,24 +640,24 @@ function newload() {
             update_weather();
 
             // Hide log viewer button on home page if not supported
-            if ((typeof controller.options.fwv === "number" && controller.options.fwv < 206) || (typeof controller.options.fwv === "string" && controller.options.fwv.match(/1\.9\.0/)) === -1) {
-                log_button.hide();
-            } else {
+            if (checkOSVersion(206) || checkOSPiVersion("1.9")) {
                 log_button.css("display","");
+            } else {
+                log_button.hide();
             }
 
             // Hide clear logs button when using Arduino device (feature not enabled yet)
-            if (typeof controller.options.fwv === "number" && controller.options.fwv < 210) {
-                clear_logs.hide();
-            } else {
+            if (isOSPi() || checkOSVersion(210)) {
                 clear_logs.css("display","");
+            } else {
+                clear_logs.hide();
             }
 
             // Hide change password feature for unsupported devices
-            if (typeof controller.options.fwv === "number" && controller.options.fwv < 208) {
-                change_password.hide();
-            } else {
+            if (isOSPi() || checkOSVersion(208)) {
                 change_password.css("display","");
+            } else {
+                change_password.hide();
             }
 
             // Update export to email button in side panel
@@ -2383,7 +2383,7 @@ function show_options() {
                 helptext: helptext
             });
         } else if (id === "o17") {
-            if (!isOSPi() && controller.options.fwv >= 210) {
+            if (checkOSVersion(210)) {
                 max = 64800;
             }
 
@@ -2508,7 +2508,7 @@ function submit_options() {
         }
 
         // Because the firmware has a bug regarding spaces, let us replace them out now with a compatible seperator
-        if (controller.options.fwv === 208 && id === "loc") {
+        if (checkOSVersion(208) === true && id === "loc") {
             data = data.replace(/\s/g,"_");
         }
 
@@ -2617,7 +2617,7 @@ function submit_stations() {
             case "edit_station_" + id.slice("edit_station_".length):
                 id = "s" + id.split("_")[2];
                 // Because the firmware has a bug regarding spaces, let us replace them out now with a compatible seperator
-                if (controller.options.fwv === 208) {
+                if (checkOSVersion(208) === true) {
                     data = data.replace(/\s/g,"_");
                 }
                 names[id] = data;
@@ -3225,7 +3225,7 @@ function get_runonce() {
             program = read_program(controller.programs.pd[z]);
             var prog = [];
 
-            if (!isOSPi() && controller.options.fwv >= 210) {
+            if (checkOSVersion(210)) {
                 prog = program.stations;
             } else {
                 var set_stations = program.stations.split("");
@@ -3241,7 +3241,7 @@ function get_runonce() {
 
     quickPick = "<select data-mini='true' name='rprog' id='rprog'><option value='s' selected='selected'>"+_("Quick Programs")+"</option>";
     for (i=0; i<progs.length; i++) {
-        if (!isOSPi() && controller.options.fwv >= 210) {
+        if (checkOSVersion(210)) {
             name = controller.programs.pd[i][5];
         } else {
             name = _("Program")+" "+(i+1);
@@ -3368,7 +3368,7 @@ function get_preview() {
             "</div>" +
         "</div>"),
         navi = page.find("#timeline-navigation"),
-        is21 = (!isOSPi() && controller.options.fwv >= 210),
+        is21 = checkOSVersion(210),
         preview_data, process_programs, check_match, check_match183, check_match21, run_sched, time_to_text, changeday, render, day;
 
     date = date.split("-");
@@ -3630,7 +3630,7 @@ function get_preview() {
             className="delayed";
         }
 
-        if (!isOSPi() && controller.options.fwv >= 210) {
+        if (checkOSVersion(210)) {
             pname = controller.programs.pd[pid-1][5];
         }
 
@@ -4237,7 +4237,7 @@ function get_programs(pid) {
         }
     });
 
-    if (!isOSPi() && controller.options.fwv >= 210) {
+    if (checkOSVersion(210)) {
         programs.find(".move-up").removeClass("hidden").on("click",function(){
             var group = $(this).parents("fieldset"),
                 pid = parseInt(group.attr("id").split("-")[1]);
@@ -4303,7 +4303,7 @@ function expandProgram(program) {
     program.find("[id^='run-']").on("click",function(){
         var runonce = [];
 
-        if (!isOSPi() && controller.options.fwv >= 210) {
+        if (checkOSVersion(210)) {
             runonce = controller.programs.pd[id][4];
         } else {
             var durr = parseInt($("#duration-"+id).val()),
@@ -4325,7 +4325,7 @@ function expandProgram(program) {
 
 // Translate program array into easier to use data
 function read_program(program) {
-    if (!isOSPi() && controller.options.fwv >= 210) {
+    if (checkOSVersion(210)) {
         return read_program21(program);
     } else {
         return read_program183(program);
@@ -4436,7 +4436,7 @@ function pidname(pid) {
         pname=_("Manual program");
     } else if(pid===254||pid===98) {
         pname=_("Run-once program");
-    } else if (!isOSPi() && controller.options.fwv >= 210 && pid <= controller.programs.pd.length) {
+    } else if (checkOSVersion(210) && pid <= controller.programs.pd.length) {
         pname = controller.programs.pd[pid-1][5];
     }
 
@@ -4448,7 +4448,7 @@ function update_program_header() {
     $("#programs_list").find("[id^=program-]").each(function(a,b){
         var item = $(b),
             heading = item.find(".ui-collapsible-heading-toggle"),
-            en = (!isOSPi() && controller.options.fwv >= 210) ? (controller.programs.pd[a][0])&0x01 : controller.programs.pd[a][0];
+            en = checkOSVersion(210) ? (controller.programs.pd[a][0])&0x01 : controller.programs.pd[a][0];
 
         if (en) {
             heading.removeClass("red");
@@ -4468,7 +4468,7 @@ function make_all_programs() {
 
     for (var i = 0; i < controller.programs.pd.length; i++) {
         name = _("Program")+" "+(i+1);
-        if (!isOSPi() && controller.options.fwv >= 210) {
+        if (checkOSVersion(210)) {
             name = controller.programs.pd[i][5];
         }
         list += "<fieldset id='program-"+i+"' data-role='collapsible'><h3><a "+(i>0 ? "" : "style='visibility:hidden' ")+"class='hidden ui-btn ui-btn-icon-notext ui-icon-arrow-u ui-btn-corner-all move-up'></a><a class='ui-btn ui-btn-corner-all program-copy'>"+_("copy")+"</a><span class='program-name'>"+name+"</span></h3>";
@@ -4478,7 +4478,7 @@ function make_all_programs() {
 }
 
 function make_program(n,isCopy) {
-    if (!isOSPi() && controller.options.fwv >= 210) {
+    if (checkOSVersion(210)) {
         return make_program21(n,isCopy);
     } else {
         return make_program183(n,isCopy);
@@ -4505,7 +4505,7 @@ function make_program183(n,isCopy) {
     } else {
         days = [0,0,0,0,0,0,0];
     }
-    if (typeof program.stations !== "undefined" && controller.options.fwv < 210) {
+    if (typeof program.stations !== "undefined") {
         set_stations = program.stations.split("");
         for(i=set_stations.length-1;i>=0;i--) {
             set_stations[i] = set_stations[i]|0;
@@ -4857,7 +4857,7 @@ function delete_program(id) {
 }
 
 function submit_program(id) {
-    if (!isOSPi() && controller.options.fwv >= 210) {
+    if (checkOSVersion(210)) {
         submit_program21(id);
     } else {
         submit_program183(id);
@@ -5120,7 +5120,7 @@ function import_config(data) {
                 } else {
                     key = key;
                 }
-                if (controller.options.fwv === 208 && typeof data.options[i] === "string") {
+                if (checkOSVersion(208) === true && typeof data.options[i] === "string") {
                     option = data.options[i].replace(/\s/g,"_");
                 } else {
                     option = data.options[i];
@@ -5131,7 +5131,7 @@ function import_config(data) {
         co += "&"+(isPi?"o":"")+"loc="+data.settings.loc;
 
         for (i=0; i<data.stations.snames.length; i++) {
-            if (controller.options.fwv === 208) {
+            if (checkOSVersion(208) === true) {
                 station = data.stations.snames[i].replace(/\s/g,"_");
             } else {
                 station = data.stations.snames[i];
@@ -5163,14 +5163,14 @@ function import_config(data) {
                 }
 
                 // Handle data from firmware 2.1+ being imported to a firmware prior to 2.1
-                if (!isPi && typeof data.options.fwv === "number" && data.options.fwv >= 210 && controller.options.fwv < 210) {
+                if (!isPi && typeof data.options.fwv === "number" && data.options.fwv >= 210 && !checkOSVersion(210)) {
                     showerror(_("Program data is newer than the device firmware and cannot be imported"));
                     return false;
                 }
 
                 // Handle data from firmware 2.1+ being imported to a 2.1+ device
                 // The firmware does not accept program name inside the program array and must be submitted seperately
-                if (!isPi && typeof data.options.fwv === "number" && data.options.fwv >= 210 && controller.options.fwv >= 210) {
+                if (!isPi && typeof data.options.fwv === "number" && data.options.fwv >= 210 && checkOSVersion(210)) {
                     name = "&name="+prog[5];
 
                     // Truncate the program name off the array
@@ -5178,7 +5178,7 @@ function import_config(data) {
                 }
 
                 // Handle data from firmware prior to 2.1 being imported to a 2.1+ device
-                if (!isPi && typeof data.options.fwv === "number" && data.options.fwv < 210 && controller.options.fwv >= 210) {
+                if (!isPi && typeof data.options.fwv === "number" && data.options.fwv < 210 && checkOSVersion(210)) {
                     var program = read_program183(prog),
                         total = (prog.length - 7),
                         allDur = [],
@@ -5282,7 +5282,7 @@ function show_about() {
     page.appendTo("body");
 }
 
-// OSPi functions
+// OpenSprinkler feature detection functions
 function isOSPi() {
     if (controller && typeof controller.options.fwv === "string" && controller.options.fwv.search(/ospi/i) !== -1) {
         return true;
@@ -5324,7 +5324,7 @@ function checkWeatherPlugin() {
             });
         });
     } else {
-        if (controller.options.fwv >= 210) {
+        if (checkOSVersion(210)) {
             // Hide the weather provider option when the OSPi provides it
             weather_provider.hide();
         } else {
@@ -5337,16 +5337,57 @@ function checkOSPiVersion(check) {
     var ver;
 
     if (isOSPi()) {
-        check = check.split(".");
-        ver = controller.options.fwv.split("-")[0].split(".");
-        if (check[0] <= ver[0] && check[1] <= ver[1]) {
-            return true;
+        ver = controller.options.fwv.split("-")[0];
+        if (ver !== check) {
+            ver = ver.split(".");
+            check = check.split(".");
+            return versionCompare(ver,check);
         } else {
-            return false;
+            return true;
         }
     } else {
         return false;
     }
+}
+
+function checkOSVersion(check) {
+    if (isOSPi()) {
+        return false;
+    } else {
+        if (check === controller.options.fwv) {
+            return true;
+        } else {
+            return versionCompare(controller.options.fwv.toString().split(""),check.toString().split(""));
+        }
+    }
+}
+
+function versionCompare(ver,check) {
+    // Returns false when check < ver and 1 when check > ver
+
+    var max = Math.max(ver.length, check.length),
+        result;
+
+    while (ver.length < max) {
+        ver.push(0);
+    }
+
+    while (check.length < max) {
+        check.push(0);
+    }
+
+    for (var i=0; i<max; i++) {
+        result = Math.max(-1, Math.min(1, ver[i] - check[i]));
+        if (result !== 0) {
+            break;
+        }
+    }
+
+    if (result === -1) {
+        result = false;
+    }
+
+    return result;
 }
 
 function getOSVersion(fwv) {
@@ -5407,7 +5448,7 @@ function showDurationBox(seconds,title,callback,maximum,granularity) {
         arr = sec2dhms(seconds),
         i;
 
-    if (!isOSPi() && controller.options.fwv >= 210 && maximum > 64800) {
+    if (checkOSVersion(210) && maximum > 64800) {
         maximum = 64800;
     }
 
@@ -5456,7 +5497,7 @@ function showDurationBox(seconds,title,callback,maximum,granularity) {
             input.val(val+dir);
             callback(getValue());
 
-            if (!isOSPi() && controller.options.fwv >= 210) {
+            if (checkOSVersion(210)) {
                 var state = (dir === 1) ? true : false;
 
                 if (dir === 1) {
@@ -5505,7 +5546,7 @@ function showDurationBox(seconds,title,callback,maximum,granularity) {
 
     popup.find("span").prepend(incrbts+inputs+decrbts);
 
-    if (!isOSPi() && controller.options.fwv >= 210) {
+    if (checkOSVersion(210)) {
         if (seconds >= 60) {
             toggleInput("seconds",true);
         }
