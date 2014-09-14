@@ -114,11 +114,8 @@
 	// Change title to reflect current state
 	document.title = "Loading...";
 
-	// Insert jQM stylesheet
-	insertStyleSheet(assetLocation+"css/jqm.css");
-
 	// Insert main application stylesheet
-	insertStyleSheet(assetLocation+"css/main.css");
+	insertStyleSheet(assetLocation+"css/app.css");
 
 	// Insert jQuery and run init function on completion
 	insertScript(assetLocation+"js/jquery.js",init);
@@ -177,6 +174,7 @@
 				// Inject site information to storage so Application loads current device
 				localStorage.setItem("sites",JSON.stringify(sites));
 				localStorage.setItem("current_site",current_site);
+				finishInit();
 			},
 			wrongPassword = function(){
 				var feedback = $(".feedback");
@@ -187,6 +185,9 @@
 				}, 2000);
 
 				$("#os_pw").val("");
+			},
+			fail = function(){
+				body.html("<div class='spinner'><div class='logo'></div><span class='feedback'>Unable to load UI</span></div>");
 			},
 			sites = JSON.parse(localStorage.getItem("sites")),
 			loader;
@@ -213,7 +214,6 @@
 				var pw = $("#os_pw").val();
 				if (ver < 208) {
 					savePassword(pw);
-					finishInit();
 					return false;
 				}
 
@@ -232,7 +232,6 @@
 		                	wrongPassword();
 		                } else {
 		                	savePassword(pw);
-		                	finishInit();
 		                }
 					},
 					wrongPassword
@@ -265,49 +264,51 @@
 					url: assetLocation+"js/libs.js",
 					cache: true,
 					dataType: "script"
-				}).done(function(){
+				}).then(
+					function(){
+						// Load main application Javascript (loaded before jQM so binds trigger when jQM loads)
+						$.ajax({
+							url: assetLocation+"js/app.js",
+							cache: true,
+							dataType: "script"
+						}).then(
+							function(){
+								// Show the body when jQM attempts first page transition
+								$(document).one("mobileinit",function(){
 
-					// Load main application Javascript (loaded before jQM so binds trigger when jQM loads)
-					$.ajax({
-						url: assetLocation+"js/main.js",
-						cache: true,
-						dataType: "script"
-					}).done(function(){
+									// Change title to reflect loading finished
+									document.title = "Sprinkler System";
 
-						// Show the body when jQM attempts first page transition
-						$(document).one("mobileinit",function(){
+									// Inject pages into DOM
+									body.html(pages);
 
-							// Change title to reflect loading finished
-							document.title = "Sprinkler System";
+									// Remove spinner code (no longer needed)
+									$("head").find("style").remove();
 
-							// Inject pages into DOM
-							body.html(pages);
+									// Initialize environment (missed by main.js since body was added after)
+									initApp();
 
-							// Remove spinner code (no longer needed)
-							$("head").find("style").remove();
+									// Hide multi site features since using local device
+									body.find(".multiSite").hide();
 
-							// Initialize environment (missed by main.js since body was added after)
-							initApp();
+									// Show local site features
+									body.find("#logout").parent().removeClass("hidden");
 
-							// Hide multi site features since using local device
-							body.find(".multiSite").hide();
+									if (ver < 208) {
+										body.find("#downgradeui").parent().removeClass("hidden");
+									}
+								});
 
-							// Show local site features
-							body.find("#logout").parent().removeClass("hidden");
-
-							if (ver < 208) {
-								body.find("#downgradeui").parent().removeClass("hidden");
-							}
-						});
-
-						// Mark environment as loaded
-						isReady = true;
-					});
-				});
+								// Mark environment as loaded
+								isReady = true;
+							},
+							fail
+						);
+					},
+					fail
+				);
 			},
-			function(){
-				body.html("<div class='spinner'><div class='logo'></div><span class='feedback'>Unable to load UI</span></div>");
-			}
+			fail
 		);
 	}
 }(document));
