@@ -22,6 +22,12 @@ msgid ""
 "Unable to read the configuration file. Please check the file and try again."
 msgstr ""
 
+msgid "Paste your backup here"
+msgstr ""
+
+msgid "Import"
+msgstr ""
+
 msgid "Check device password and try again."
 msgstr ""
 
