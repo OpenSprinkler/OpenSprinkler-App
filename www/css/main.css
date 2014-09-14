@@ -165,9 +165,6 @@ body {
     user-select:none;
     touch-callout: none;
 }
-.cancel > .ui-btn:after {
-    background-color: rgba(0,0,0,0) !important
-}
 .logo {
     height:42px;
     padding:0!important;
@@ -217,6 +214,9 @@ body {
 }
 #welcome_logo {
     margin:0 auto 20px
+}
+.cancel > .ui-btn:after {
+    background-color: rgba(0,0,0,0) !important
 }
 
 /* Options page rules */
