@@ -51,9 +51,7 @@ A mobile interface for the OpenSprinkler irrigation device. Designed to allow ma
 
 Starting with firmware 2.0.3, an option has been added to change the Javascript URL path for the UI. The application now offers an injection method which takes over Ray's OpenSprinkler UI. Just follow the simple steps below to switch your UI:
 
-    Please note this will load the development copy of application.
-
  1. Navigate to http://x.x.x.x/su (replace x.x.x.x with your OpenSprinkler IP)
- 2. For "Javascript URL" field use the following: https://rawgithub.com/salbahra/Sprinklers/master/www/js
+ 2. For "Javascript URL" field use the following: http://ui.opensprinkler.com/js
  3. Enter your password in the field and push "Submit"
  4. Your page will reload and you will now see the application
