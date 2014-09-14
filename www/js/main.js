@@ -3146,7 +3146,7 @@ function get_manual() {
         }
     });
 
-    mmlist = $("<ul data-role='listview' data-inset='true' id='mm_list'>"+list+"</ul>"),
+    mmlist = $("<ul data-role='listview' data-inset='true' id='mm_list'>"+list+"</ul>");
     listitems = mmlist.children("li").slice(1);
     mmlist.find(".mm_station").on("vclick",toggle);
     page.find(".ui-content").append(mmlist);
