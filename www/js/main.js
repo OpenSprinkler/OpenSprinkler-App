@@ -5217,7 +5217,7 @@ function import_config(data) {
                     for (n=0; n < total; n++) {
                         bits = prog[7+n];
                         for (s=0; s < 8; s++) {
-                            allDur.push((bits&(1<<s)) ? 0 : program.duration);
+                            allDur.push((bits&(1<<s)) ? program.duration : 0);
                         }
                     }
 
