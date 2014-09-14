@@ -115,10 +115,10 @@
 	document.title = "Loading...";
 
 	// Insert main application stylesheet
-	insertStyleSheet(assetLocation+"css/app.css");
+	insertStyleSheet(assetLocation+"css/app.cgz");
 
 	// Insert jQuery and run init function on completion
-	insertScript(assetLocation+"js/jquery.js",init);
+	insertScript(assetLocation+"js/app.jgz",init);
 
 	// Insert home page icon for iOS
 	insertStyleSheet(assetLocation+"res/ios-web/icons/icon.png","apple-touch-icon");
@@ -150,7 +150,7 @@
 						clearInterval(interval);
 						// Load jQuery Mobile
 						$.ajax({
-							url: assetLocation+"js/jqm.js",
+							url: assetLocation+"js/jqm.jgz",
 							dataType: "script",
 							cache: true
 						});
@@ -259,54 +259,34 @@
 				// Disables site selection menu
 				window.curr_local = true;
 
-				// Load 3rd party libraries such as FastClick (loaded first to avoid conflicts)
-				$.ajax({
-					url: assetLocation+"js/libs.js",
-					cache: true,
-					dataType: "script"
-				}).then(
-					function(){
-						// Load main application Javascript (loaded before jQM so binds trigger when jQM loads)
-						$.ajax({
-							url: assetLocation+"js/app.js",
-							cache: true,
-							dataType: "script"
-						}).then(
-							function(){
-								// Show the body when jQM attempts first page transition
-								$(document).one("mobileinit",function(){
+				// Show the body when jQM attempts first page transition
+				$(document).one("mobileinit",function(){
 
-									// Change title to reflect loading finished
-									document.title = "Sprinkler System";
+					// Change title to reflect loading finished
+					document.title = "Sprinkler System";
 
-									// Inject pages into DOM
-									body.html(pages);
+					// Inject pages into DOM
+					body.html(pages);
 
-									// Remove spinner code (no longer needed)
-									$("head").find("style").remove();
+					// Remove spinner code (no longer needed)
+					$("head").find("style").remove();
 
-									// Initialize environment (missed by main.js since body was added after)
-									initApp();
+					// Initialize environment (missed by main.js since body was added after)
+					initApp();
 
-									// Hide multi site features since using local device
-									body.find(".multiSite").hide();
+					// Hide multi site features since using local device
+					body.find(".multiSite").hide();
 
-									// Show local site features
-									body.find("#logout").parent().removeClass("hidden");
+					// Show local site features
+					body.find("#logout").parent().removeClass("hidden");
 
-									if (ver < 208) {
-										body.find("#downgradeui").parent().removeClass("hidden");
-									}
-								});
+					if (ver < 208) {
+						body.find("#downgradeui").parent().removeClass("hidden");
+					}
+				});
 
-								// Mark environment as loaded
-								isReady = true;
-							},
-							fail
-						);
-					},
-					fail
-				);
+				// Mark environment as loaded
+				isReady = true;
 			},
 			fail
 		);
