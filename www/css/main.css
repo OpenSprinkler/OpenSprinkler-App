@@ -116,6 +116,12 @@ a {
     Custom widget rules
 */
 
+.card {
+    margin-top: 5px;
+    max-width: 300px;
+    padding: 5px;
+    display: inline-block;
+}
 .pad_buttons, #durationBox .ui-input-text {
     width: 94% !important;
     margin: 0 auto

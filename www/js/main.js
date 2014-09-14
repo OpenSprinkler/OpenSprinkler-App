@@ -2529,7 +2529,7 @@ function submit_options() {
 
 // Station managament function
 function show_stations() {
-    var list = "<li class='wrap'>",
+    var cards = "",
         page = $("<div data-role='page' id='os-stations'>" +
             "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false' data-hide-during-focus=''>" +
                 "<a href='javascript:void(0);' class='ui-btn ui-corner-all ui-shadow ui-btn-left ui-btn-b ui-toolbar-back-btn ui-icon-carat-l ui-btn-icon-left' data-rel='back'>"+_("Back")+"</a>" +
@@ -2542,53 +2542,42 @@ function show_stations() {
         isMaster = controller.options.mas ? true : false,
         hasIR = (typeof controller.stations.ignore_rain === "object") ? true : false,
         hasAR = (typeof controller.stations.act_relay === "object") ? true : false,
-        useTableView = (hasIR || isMaster || hasAR);
-
-    if (useTableView) {
-        list += "<table><tr><th class='center'>"+_("Station Name")+"</th>";
-        if (isMaster) {
-            list += "<th class='center'>"+_("Activate Master?")+"</th>";
-        }
-        if (hasIR) {
-            list += "<th class='center'>"+_("Ignore Rain?")+"</th>";
-        }
-        if (hasAR) {
-            list += "<th class='center'>"+_("Activate Relay?")+"</th>";
-        }
-        list += "</tr>";
-    }
+        hasSD = (typeof controller.stations.stn_dis === "object") ? true : false,
+        optCount = hasIR + isMaster + hasAR + hasSD;
 
     $.each(controller.stations.snames,function(i, station) {
-        if (useTableView) {
-            list += "<tr><td>";
-        }
-        list += "<input data-mini='true' maxlength='"+controller.stations.maxlen+"' id='edit_station_"+i+"' type='text' value='"+station+"'>";
-        if (useTableView) {
-            list += "</td>";
+        // Group card settings visually
+        cards += "<div class='ui-corner-all card'>";
+        cards += "<div class='ui-body ui-body-a center'>";
+        cards += "<input data-mini='true' maxlength='"+controller.stations.maxlen+"' id='edit_station_"+i+"' type='text' value='"+station+"'>";
+
+        if (optCount > 0) {
+            cards += "<fieldset data-role='controlgroup' data-type='vertical' data-mini='true' class='center'>";
+
             if (isMaster) {
-                if (controller.options.mas === i+1) {
-                    list += "<td class='use_master'><p id='um_"+i+"' class='center'>("+_("Master")+")</p></td>";
-                } else {
-                    list += "<td data-role='controlgroup' data-type='horizontal' class='use_master'><label for='um_"+i+"'><input id='um_"+i+"' type='checkbox' "+((controller.stations.masop[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+"></label></td>";
-                }
+                cards += "<input id='um_"+i+"' type='checkbox' "+((controller.stations.masop[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+((controller.options.mas === i+1) ? "disabled='disabled'" : "")+"><label for='um_"+i+"'>"+_("Master")+"</label>";
             }
+
             if (hasIR) {
-                list += "<td data-role='controlgroup' data-type='horizontal' class='use_master'><label for='ir_"+i+"'><input id='ir_"+i+"' type='checkbox' "+((controller.stations.ignore_rain[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+"></label></td>";
+                cards += "<input id='ir_"+i+"' type='checkbox' "+((controller.stations.ignore_rain[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+"><label for='ir_"+i+"'>"+_("Ignore Rain")+"</label>";
             }
+
             if (hasAR) {
-                list += "<td data-role='controlgroup' data-type='horizontal' class='use_master'><label for='ar_"+i+"'><input id='ar_"+i+"' type='checkbox' "+((controller.stations.act_relay[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+"></label></td>";
+                cards += "<input id='ar_"+i+"' type='checkbox' "+((controller.stations.act_relay[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+"><label for='ar_"+i+"'>"+_("Activate Relay")+"</label>";
             }
-            list += "</tr>";
+
+            if (hasSD) {
+                cards += "<input id='sd_"+i+"' type='checkbox' "+((controller.stations.stn_dis[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+"><label for='sd_"+i+"'>"+_("Disable Station")+"</label>";
+            }
+
+            cards += "</fieldset>";
         }
-        i++;
+
+        // Close current card group
+        cards += "</div></div>";
     });
 
-    if (useTableView) {
-        list += "</table>";
-    }
-    list = $("<ul data-role='listview' data-inset='true' id='os-stations-list'>"+list+"</li></ul><button class='submit'>"+_("Submit")+"</button><button data-theme='b' class='reset'>"+_("Reset")+"</button>");
-
-    page.find(".ui-content").html(list);
+    page.find(".ui-content").html("<div id='os-stations-list' class='card-group center'>"+cards+"</div><button class='submit'>"+_("Submit")+"</button><button data-theme='b' class='reset'>"+_("Reset")+"</button>");
 
     page.find(".submit").on("click",submit_stations);
 
@@ -2619,19 +2608,14 @@ function submit_stations() {
             param: ""
         },
         rain = $.extend(true, {},master),
-        relay = $.extend(true, {},master);
+        relay = $.extend(true, {},master),
+        disable = $.extend(true, {},master);
 
-    $("#os-stations-list").find(":input,p[id^='um_']").each(function(a,b){
+    $("#os-stations-list").find(":input").each(function(a,b){
         var $item = $(b), id = $item.attr("id"), data = $item.val();
         switch (id) {
             case "edit_station_" + id.slice("edit_station_".length):
                 id = "s" + id.split("_")[2];
-                if (data.length > 32) {
-                    invalid = true;
-                    $item.focus();
-                    showerror(_("Station name must be 32 characters or less"));
-                    return false;
-                }
                 // Because the firmware has a bug regarding spaces, let us replace them out now with a compatible seperator
                 if (controller.options.fwv === 208) {
                     data = data.replace(/\s/g,"_");
@@ -2659,6 +2643,13 @@ function submit_stations() {
                     relay.fullStatus["a"+relay.boardIndex]=parseInt(relay.boardStatus,2); relay.boardIndex++; relay.currentIndex=0; relay.boardStatus="";
                 }
                 return true;
+            case "sd_" + id.slice("sd_".length):
+                disable.boardStatus = ($item.is(":checked")) ? "1".concat(disable.boardStatus) : "0".concat(disable.boardStatus);
+                disable.currentIndex++;
+                if (parseInt(disable.currentIndex/8) === 1) {
+                    disable.fullStatus["d"+disable.boardIndex]=parseInt(disable.boardStatus,2); disable.boardIndex++; disable.currentIndex=0; disable.boardStatus="";
+                }
+                return true;
         }
     });
 
@@ -2671,6 +2662,9 @@ function submit_stations() {
     if (!isNaN(parseInt(relay.boardStatus,2))) {
         relay.fullStatus["a"+relay.boardIndex]=parseInt(relay.boardStatus,2);
     }
+    if (!isNaN(parseInt(disable.boardStatus,2))) {
+        disable.fullStatus["d"+disable.boardIndex]=parseInt(disable.boardStatus,2);
+    }
 
     if ($("[id^='um_']").length) {
         master.param = "&"+$.param(master.fullStatus);
@@ -2681,11 +2675,14 @@ function submit_stations() {
     if ($("[id^='ar_']").length) {
         relay.param = "&"+$.param(relay.fullStatus);
     }
+    if ($("[id^='sd_']").length) {
+        disable.param = "&"+$.param(disable.fullStatus);
+    }
     if (invalid) {
         return;
     }
     $.mobile.loading("show");
-    send_to_os("/cs?pw=&"+$.param(names)+master.param+rain.param+relay.param).done(function(){
+    send_to_os("/cs?pw=&"+$.param(names)+master.param+rain.param+relay.param+disable.param).done(function(){
         $.mobile.document.one("pageshow",function(){
             showerror(_("Stations have been updated"));
         });
