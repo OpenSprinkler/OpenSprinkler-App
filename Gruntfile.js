@@ -6,9 +6,9 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks("grunt-shell");
   grunt.loadNpmTasks("grunt-contrib-compress");
   grunt.loadNpmTasks("grunt-mocha");
-  grunt.loadNpmTasks('grunt-contrib-uglify');
-  grunt.loadNpmTasks('grunt-contrib-cssmin');
-  grunt.loadNpmTasks('grunt-contrib-clean');
+  grunt.loadNpmTasks("grunt-contrib-uglify");
+  grunt.loadNpmTasks("grunt-contrib-cssmin");
+  grunt.loadNpmTasks("grunt-contrib-clean");
 
   var bumpVersion = function(version) {
       var join = ".",
@@ -63,9 +63,29 @@ module.exports = function(grunt) {
           archive: "build/firmware/UI.zip"
         },
         files: [{
-          src: ["css/**","js/**","img/**","locale/*.js","index.htm","res/ios-web/**"],
+          src: ["css/images/**","css/app.cgz","js/app.jgz","js/jqm.jgz","js/home.js","img/**","locale/*.js","index.htm","res/ios-web/**"],
           cwd: "www/",
           expand: true
+        }]
+      },
+      jsAsset: {
+        options: {
+          mode: "gzip"
+        },
+        files: [{
+          expand: true,
+          src: ["www/js/app.js","www/js/jqm.js"],
+          ext: ".jgz"
+        }]
+      },
+      cssAsset: {
+        options: {
+          mode: "gzip"
+        },
+        files: [{
+          expand: true,
+          src: ["www/css/app.css"],
+          ext: ".cgz"
         }]
       },
       firefox: {
@@ -183,13 +203,10 @@ module.exports = function(grunt) {
     },
 
     uglify: {
-      options: {
-        banner: "(function($,document,window){",
-        footer: "})(jQuery,document,window);"
-      },
-      build: {
-        src: "www/js/main.js",
-        dest: "www/js/app.js"
+      makeFW: {
+        files: {
+          "www/js/app.js": ["www/js/jquery.js", "www/js/main.js", "www/js/libs.js"]
+        }
       }
     },
 
@@ -201,14 +218,14 @@ module.exports = function(grunt) {
       }
     },
 
-    clean: ["www/js/app.js", "www/css/app.css"]
+    clean: ["www/js/app.js", "www/css/app.css", "www/css/app.cgz", "www/js/*.jgz"]
   });
 
   // Default task(s).
   grunt.registerTask("default",["jshint"]);
   grunt.registerTask("updateLang",["shell:updateLang"]);
   grunt.registerTask("pushEng",["shell:pushEng"]);
-  grunt.registerTask("makeFW",["uglify","cssmin","compress:makeFW","clean"]);
+  grunt.registerTask("makeFW",["uglify","cssmin","compress:jsAsset","compress:cssAsset","compress:makeFW","clean"]);
   grunt.registerTask("build",["jshint","shell:blackberry10","compress:firefox","compress:chrome","compress:blackberry10","makeFW"]);
   grunt.registerTask("bump",["replace:about","replace:osx","replace:phonegap","replace:manifests","shell:pushBump"]);
 
