@@ -2623,7 +2623,7 @@ function submit_stations() {
                 names[id] = data;
                 return true;
             case "um_" + id.slice("um_".length):
-                master.boardStatus = ($item.is(":checked") || $item.prop("tagName") === "P") ? "1".concat(master.boardStatus) : "0".concat(master.boardStatus);
+                master.boardStatus = ($item.is(":checked")) ? "1".concat(master.boardStatus) : "0".concat(master.boardStatus);
                 master.currentIndex++;
                 if (parseInt(master.currentIndex/8) === 1) {
                     master.fullStatus["m"+master.boardIndex]=parseInt(master.boardStatus,2); master.boardIndex++; master.currentIndex=0; master.boardStatus="";
