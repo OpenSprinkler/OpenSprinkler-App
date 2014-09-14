@@ -126,6 +126,7 @@ a {
     float: none !important;
     display: inline-block;
     padding-right: 1px;
+    padding-top: 1px;
 }
 .card-group .ui-checkbox label {
     border-radius: 0 !important;
