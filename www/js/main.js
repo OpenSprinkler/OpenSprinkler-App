@@ -1040,10 +1040,10 @@ function submit_newuser(ssl,useAuth) {
                     "<form method='post' novalidate>" +
                         "<p class='center smaller'>"+_("Authorization Required")+"</p>" +
                         "<label for='os_auth_user'>"+_("Username:")+"</label>" +
-                        "<input autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' type='text' name='os_auth_user' id='os_auth_user' />" +
+                        "<input autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' type='text' name='os_auth_user' id='os_auth_user'>" +
                         "<label for='os_auth_pw'>"+_("Password:")+"</label>" +
-                        "<input type='password' name='os_auth_pw' id='os_auth_pw' />" +
-                        "<input type='submit' value='"+_("Submit")+"' />" +
+                        "<input type='password' name='os_auth_pw' id='os_auth_pw'>" +
+                        "<input type='submit' value='"+_("Submit")+"'>" +
                     "</form>" +
                 "</div>").enhanceWithin();
 
@@ -1182,18 +1182,18 @@ function show_addnew(autoIP,closeOld) {
                 "<form method='post' novalidate>" +
                     ((isAuto) ? "" : "<p class='center smaller'>"+_("Note: The name is used to identify the OpenSprinkler within the app. OpenSprinkler IP can be either an IP or hostname. You can also specify a port by using IP:Port")+"</p>") +
                     "<label for='os_name'>"+_("Open Sprinkler Name:")+"</label>" +
-                    "<input autocorrect='off' spellcheck='false' type='text' name='os_name' id='os_name' placeholder='Home' />" +
+                    "<input autocorrect='off' spellcheck='false' type='text' name='os_name' id='os_name' placeholder='Home'>" +
                     ((isAuto) ? "" : "<label for='os_ip'>"+_("Open Sprinkler IP:")+"</label>") +
-                    "<input "+((isAuto) ? "data-role='none' style='display:none' " : "")+"autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' type='url' pattern='' name='os_ip' id='os_ip' value='"+((isAuto) ? autoIP : "")+"' placeholder='home.dyndns.org' />" +
+                    "<input "+((isAuto) ? "data-role='none' style='display:none' " : "")+"autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' type='url' pattern='' name='os_ip' id='os_ip' value='"+((isAuto) ? autoIP : "")+"' placeholder='home.dyndns.org'>" +
                     "<label for='os_pw'>"+_("Open Sprinkler Password:")+"</label>" +
-                    "<input type='password' name='os_pw' id='os_pw' value='' />" +
+                    "<input type='password' name='os_pw' id='os_pw' value=''>" +
                     ((isAuto) ? "" : "<div data-theme='a' data-mini='true' data-role='collapsible'><h4>Advanced</h4><fieldset data-role='controlgroup' data-type='horizontal' data-mini='true' class='center'>" +
                         "<input type='checkbox' name='os_useauth' id='os_useauth'>" +
                         "<label for='os_useauth'>"+_("Use Auth")+"</label>" +
                         "<input type='checkbox' name='os_usessl' id='os_usessl'>" +
                         "<label for='os_usessl'>"+_("Use SSL")+"</label>" +
                     "</fieldset></div>") +
-                    "<input type='submit' data-theme='b' value='"+_("Submit")+"' />" +
+                    "<input type='submit' data-theme='b' value='"+_("Submit")+"'>" +
                 "</form>" +
             "</div>" +
         "</div>");
@@ -1284,10 +1284,10 @@ function show_sites(showBack) {
                 list += "<legend>"+a+"</legend>";
                 list += "<a data-role='button' class='connectnow' data-site='"+a+"' href='#'>"+_("Connect Now")+"</a>";
                 list += "<form data-site='"+c+"' novalidate>";
-                list += "<label for='cnm-"+c+"'>"+_("Change Name")+"</label><input id='cnm-"+c+"' type='text' placeholder='"+a+"' />";
-                list += "<label for='cip-"+c+"'>"+_("Change IP")+"</label><input id='cip-"+c+"' type='url' placeholder='"+b.os_ip+"' autocomplete='off' autocorrect='off' autocapitalize='off' pattern='' spellcheck='false' />";
-                list += "<label for='cpw-"+c+"'>"+_("Change Password")+"</label><input id='cpw-"+c+"' type='password' />";
-                list += "<input type='submit' value='"+_("Save Changes to")+" "+a+"' /></form>";
+                list += "<label for='cnm-"+c+"'>"+_("Change Name")+"</label><input id='cnm-"+c+"' type='text' placeholder='"+a+"'>";
+                list += "<label for='cip-"+c+"'>"+_("Change IP")+"</label><input id='cip-"+c+"' type='url' placeholder='"+b.os_ip+"' autocomplete='off' autocorrect='off' autocapitalize='off' pattern='' spellcheck='false'>";
+                list += "<label for='cpw-"+c+"'>"+_("Change Password")+"</label><input id='cpw-"+c+"' type='password'>";
+                list += "<input type='submit' value='"+_("Save Changes to")+" "+a+"'></form>";
                 list += "<a data-role='button' class='deletesite' data-site='"+a+"' href='#' data-theme='b'>"+_("Delete")+" "+a+"</a>";
                 list += "</fieldset>";
             });
@@ -1624,7 +1624,7 @@ function show_weather_settings() {
                         "<option value='yahoo' "+(curr_wa.weather_provider === "yahoo" ? "selected" : "")+">"+_("Yahoo!")+"</option>" +
                         "<option value='wunderground' "+(curr_wa.weather_provider === "wunderground" ? "selected" : "")+">"+_("Wunderground")+"</option>" +
                     "</select>" +
-                    "<label "+(curr_wa.weather_provider === "wunderground" ? "" : "style='display:none' ")+"for='wapikey'>"+_("Wunderground API Key")+"</label><input "+(curr_wa.weather_provider === "wunderground" ? "" : "style='display:none' ")+"data-mini='true' type='text' id='wapikey' value='"+curr_wa.wapikey+"' />" +
+                    "<label "+(curr_wa.weather_provider === "wunderground" ? "" : "style='display:none' ")+"for='wapikey'>"+_("Wunderground API Key")+"</label><input "+(curr_wa.weather_provider === "wunderground" ? "" : "style='display:none' ")+"data-mini='true' type='text' id='wapikey' value='"+curr_wa.wapikey+"'>" +
                 "</li>" +
             "</ul>" +
             "<ul data-role='listview' data-inset='true'> " +
@@ -2003,8 +2003,8 @@ function show_settings() {
                                     "<option "+((data.provider === "wunderground") ? "selected " : "")+"value='wunderground'>"+_("Wunderground")+"</option>"+
                                 "</select>"+
                             "</label>"+
-                            "<label for='wapikey'>"+_("Wunderground API Key")+"<input data-mini='true' type='text' id='wapikey' value='"+((data.wapikey) ? data.wapikey : "")+"' /></label>"+
-                            "<input type='submit' value='"+_("Submit")+"' />"+
+                            "<label for='wapikey'>"+_("Wunderground API Key")+"<input data-mini='true' type='text' id='wapikey' value='"+((data.wapikey) ? data.wapikey : "")+"'></label>"+
+                            "<input type='submit' value='"+_("Submit")+"'>"+
                         "</form>"+
                     "</div>"+
                 "</div>"
@@ -2065,10 +2065,10 @@ function show_settings() {
                         "<li>" +
                             "<form method='post' novalidate>" +
                                 "<label for='npw'>"+_("New Password")+":</label>" +
-                                "<input type='password' name='npw' id='npw' value='' />" +
+                                "<input type='password' name='npw' id='npw' value=''>" +
                                 "<label for='cpw'>"+_("Confirm New Password")+":</label>" +
-                                "<input type='password' name='cpw' id='cpw' value='' />" +
-                                "<input type='submit' value='"+_("Submit")+"' />" +
+                                "<input type='password' name='cpw' id='cpw' value=''>" +
+                                "<input type='submit' value='"+_("Submit")+"'>" +
                             "</form>" +
                         "</li>" +
                     "</ul>" +
@@ -2187,19 +2187,19 @@ function show_options() {
         list += "</select></div>";
     }
 
-    list += "<div class='ui-field-contain'><label for='loc'>"+_("Location")+"<button data-helptext='"+_("Location can be a zip code, city/state or a weatherunderground personal weather station using the format: pws:ID")+"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><input data-mini='true' type='text' id='loc' value='"+controller.settings.loc+"' /></div>";
+    list += "<div class='ui-field-contain'><label for='loc'>"+_("Location")+"<button data-helptext='"+_("Location can be a zip code, city/state or a weatherunderground personal weather station using the format: pws:ID")+"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><input data-mini='true' type='text' id='loc' value='"+controller.settings.loc+"'></div>";
 
     if (typeof controller.options.ntp !== "undefined") {
-        list += "<label for='o2'><input data-mini='true' id='o2' type='checkbox' "+((controller.options.ntp === 1) ? "checked='checked'" : "")+" />"+_("NTP Sync")+"</label>";
+        list += "<label for='o2'><input data-mini='true' id='o2' type='checkbox' "+((controller.options.ntp === 1) ? "checked='checked'" : "")+">"+_("NTP Sync")+"</label>";
     }
 
     if (typeof controller.options.ar !== "undefined") {
         //"<button data-helptext='"+_("Auto reconnect attempts to re-establish a network connection after an outage")+"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>"
-        list += "<label for='o14'><input data-mini='true' id='o14' type='checkbox' "+((controller.options.ar === 1) ? "checked='checked'" : "")+" />"+_("Auto Reconnect")+"</label>";
+        list += "<label for='o14'><input data-mini='true' id='o14' type='checkbox' "+((controller.options.ar === 1) ? "checked='checked'" : "")+">"+_("Auto Reconnect")+"</label>";
     }
 
     if (typeof controller.options.lg !== "undefined") {
-        list += "<label for='lg'><input data-mini='true' id='lg' type='checkbox' "+((controller.options.lg === 1) ? "checked='checked'" : "")+" />"+_("Enable Logging")+"</label>";
+        list += "<label for='lg'><input data-mini='true' id='lg' type='checkbox' "+((controller.options.lg === 1) ? "checked='checked'" : "")+">"+_("Enable Logging")+"</label>";
     }
 
     list += "</fieldset><fieldset data-role='collapsible'><legend>"+_("Configure Master")+"</legend>";
@@ -2238,7 +2238,7 @@ function show_options() {
     }
 
     if (typeof controller.options.seq !== "undefined") {
-        list += "<label for='o16'><input data-mini='true' id='o16' type='checkbox' "+((controller.options.seq === 1) ? "checked='checked'" : "")+" />"+_("Sequential")+"</label>";
+        list += "<label for='o16'><input data-mini='true' id='o16' type='checkbox' "+((controller.options.seq === 1) ? "checked='checked'" : "")+">"+_("Sequential")+"</label>";
     }
 
     list += "</fieldset><fieldset data-role='collapsible'><legend>"+_("Weather Control")+"</legend>";
@@ -2253,25 +2253,25 @@ function show_options() {
     }
 
     if (typeof controller.settings.wtkey !== "undefined") {
-        list += "<div class='ui-field-contain'><label for='wtkey'>"+_("Wunderground Key")+"<button data-helptext='"+_("Weather Underground requires an API Key which can be obtained from ")+"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><input data-mini='true' type='text' id='wtkey' value='"+controller.settings.wtkey+"' /></div>";
+        list += "<div class='ui-field-contain'><label for='wtkey'>"+_("Wunderground Key")+"<button data-helptext='"+_("Weather Underground requires an API Key which can be obtained from ")+"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><input data-mini='true' type='text' id='wtkey' value='"+controller.settings.wtkey+"'></div>";
     }
 
     if (typeof controller.options.urs !== "undefined") {
-        list += "<label for='o21'><input data-mini='true' id='o21' type='checkbox' "+((controller.options.urs === 1) ? "checked='checked'" : "")+" />"+_("Use Rain Sensor")+"</label>";
+        list += "<label for='o21'><input data-mini='true' id='o21' type='checkbox' "+((controller.options.urs === 1) ? "checked='checked'" : "")+">"+_("Use Rain Sensor")+"</label>";
     }
 
     if (typeof controller.options.rso !== "undefined") {
-        list += "<label for='o22'><input data-mini='true' id='o22' type='checkbox' "+((controller.options.rso === 1) ? "checked='checked'" : "")+" />"+_("Normally Open (Rain Sensor)")+"</label>";
+        list += "<label for='o22'><input data-mini='true' id='o22' type='checkbox' "+((controller.options.rso === 1) ? "checked='checked'" : "")+">"+_("Normally Open (Rain Sensor)")+"</label>";
     }
 
     list += "</fieldset><fieldset data-role='collapsible' data-theme='b'><legend>"+_("Advanced")+"</legend>";
 
     if (typeof controller.options.hp0 !== "undefined") {
-        list += "<div class='ui-field-contain'><label for='o12'>"+_("HTTP Port (restart required)")+"</label><input data-mini='true' type='number' pattern='[0-9]*' id='o12' value='"+(controller.options.hp1*256+controller.options.hp0)+"' /></div>";
+        list += "<div class='ui-field-contain'><label for='o12'>"+_("HTTP Port (restart required)")+"</label><input data-mini='true' type='number' pattern='[0-9]*' id='o12' value='"+(controller.options.hp1*256+controller.options.hp0)+"'></div>";
     }
 
     if (typeof controller.options.devid !== "undefined") {
-        list += "<div class='ui-field-contain'><label for='o26'>"+_("Device ID (restart required)")+"<button data-helptext='"+_("Device ID modifies the last byte of the MAC address")+"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><input data-mini='true' type='number' pattern='[0-9]*' max='255' id='o26' value='"+controller.options.devid+"' /></div>";
+        list += "<div class='ui-field-contain'><label for='o26'>"+_("Device ID (restart required)")+"<button data-helptext='"+_("Device ID modifies the last byte of the MAC address")+"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><input data-mini='true' type='number' pattern='[0-9]*' max='255' id='o26' value='"+controller.options.devid+"'></div>";
     }
 
     if (typeof controller.options.rlp !== "undefined") {
@@ -2279,7 +2279,7 @@ function show_options() {
     }
 
     if (typeof controller.options.ipas !== "undefined") {
-        list += "<label for='o25'><input data-mini='true' id='o25' type='checkbox' "+((controller.options.ipas === 1) ? "checked='checked'" : "")+" />"+_("Ignore Password")+"</label>";
+        list += "<label for='o25'><input data-mini='true' id='o25' type='checkbox' "+((controller.options.ipas === 1) ? "checked='checked'" : "")+">"+_("Ignore Password")+"</label>";
     }
 
     list += "</fieldset>";
@@ -2562,21 +2562,21 @@ function show_stations() {
         if (useTableView) {
             list += "<tr><td>";
         }
-        list += "<input data-mini='true' maxlength='"+controller.stations.maxlen+"' id='edit_station_"+i+"' type='text' value='"+station+"' />";
+        list += "<input data-mini='true' maxlength='"+controller.stations.maxlen+"' id='edit_station_"+i+"' type='text' value='"+station+"'>";
         if (useTableView) {
             list += "</td>";
             if (isMaster) {
                 if (controller.options.mas === i+1) {
                     list += "<td class='use_master'><p id='um_"+i+"' class='center'>("+_("Master")+")</p></td>";
                 } else {
-                    list += "<td data-role='controlgroup' data-type='horizontal' class='use_master'><label for='um_"+i+"'><input id='um_"+i+"' type='checkbox' "+((controller.stations.masop[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+" /></label></td>";
+                    list += "<td data-role='controlgroup' data-type='horizontal' class='use_master'><label for='um_"+i+"'><input id='um_"+i+"' type='checkbox' "+((controller.stations.masop[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+"></label></td>";
                 }
             }
             if (hasIR) {
-                list += "<td data-role='controlgroup' data-type='horizontal' class='use_master'><label for='ir_"+i+"'><input id='ir_"+i+"' type='checkbox' "+((controller.stations.ignore_rain[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+" /></label></td>";
+                list += "<td data-role='controlgroup' data-type='horizontal' class='use_master'><label for='ir_"+i+"'><input id='ir_"+i+"' type='checkbox' "+((controller.stations.ignore_rain[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+"></label></td>";
             }
             if (hasAR) {
-                list += "<td data-role='controlgroup' data-type='horizontal' class='use_master'><label for='ar_"+i+"'><input id='ar_"+i+"' type='checkbox' "+((controller.stations.act_relay[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+" /></label></td>";
+                list += "<td data-role='controlgroup' data-type='horizontal' class='use_master'><label for='ar_"+i+"'><input id='ar_"+i+"' type='checkbox' "+((controller.stations.act_relay[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+"></label></td>";
             }
             list += "</tr>";
         }
@@ -3358,7 +3358,7 @@ function get_preview() {
             "<div class='ui-content' role='main'>" +
                 "<div id='preview_header' class='input_with_buttons'>" +
                     "<button class='preview-minus ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border'></button>" +
-                    "<input class='center' type='date' name='preview_date' id='preview_date' value='"+date+"' />" +
+                    "<input class='center' type='date' name='preview_date' id='preview_date' value='"+date+"'>" +
                     "<button class='preview-plus ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border'></button>" +
                 "</div>" +
                 "<div id='timeline'></div>" +
@@ -3783,9 +3783,9 @@ function get_logs() {
             "</div>" +
             "<div class='ui-content' role='main'>" +
                 "<fieldset data-role='controlgroup' data-type='horizontal' data-mini='true' class='log_type'>" +
-                    "<input data-mini='true' type='radio' name='log_type' id='log_graph' value='graph' checked='checked' />" +
+                    "<input data-mini='true' type='radio' name='log_type' id='log_graph' value='graph' checked='checked'>" +
                     "<label for='log_graph'>"+_("Graph")+"</label>" +
-                    "<input data-mini='true' type='radio' name='log_type' id='log_table' value='table' />" +
+                    "<input data-mini='true' type='radio' name='log_type' id='log_table' value='table'>" +
                     "<label for='log_table'>"+_("Table")+"</label>" +
                 "</fieldset>" +
                 "<div id='placeholder'></div>" +
@@ -3795,20 +3795,20 @@ function get_logs() {
                     "<legend>"+_("Options")+"</legend>" +
                     "<fieldset data-role='controlgroup' data-type='horizontal' id='graph_sort'>" +
                       "<p class='tight'>"+_("Grouping:")+"</p>" +
-                      "<input data-mini='true' type='radio' name='g' id='radio-choice-d' value='n' checked='checked' />" +
+                      "<input data-mini='true' type='radio' name='g' id='radio-choice-d' value='n' checked='checked'>" +
                       "<label for='radio-choice-d'>"+_("None")+"</label>" +
-                      "<input data-mini='true' type='radio' name='g' id='radio-choice-a' value='h' />" +
+                      "<input data-mini='true' type='radio' name='g' id='radio-choice-a' value='h'>" +
                       "<label for='radio-choice-a'>"+_("Hour")+"</label>" +
-                      "<input data-mini='true' type='radio' name='g' id='radio-choice-b' value='d' />" +
+                      "<input data-mini='true' type='radio' name='g' id='radio-choice-b' value='d'>" +
                       "<label for='radio-choice-b'>"+_("DOW")+"</label>" +
-                      "<input data-mini='true' type='radio' name='g' id='radio-choice-c' value='m' />" +
+                      "<input data-mini='true' type='radio' name='g' id='radio-choice-c' value='m'>" +
                       "<label for='radio-choice-c'>"+_("Month")+"</label>" +
                     "</fieldset>" +
                     "<div class='ui-field-contain'>" +
                         "<label for='log_start'>"+_("Start:")+"</label>" +
-                        "<input data-mini='true' type='date' id='log_start' value='"+(new Date(now.getTime() - 604800000).toISOString().slice(0,10))+"' />" +
+                        "<input data-mini='true' type='date' id='log_start' value='"+(new Date(now.getTime() - 604800000).toISOString().slice(0,10))+"'>" +
                         "<label for='log_end'>"+_("End:")+"</label>" +
-                        "<input data-mini='true' type='date' id='log_end' value='"+(now.toISOString().slice(0,10))+"' />" +
+                        "<input data-mini='true' type='date' id='log_end' value='"+(now.toISOString().slice(0,10))+"'>" +
                     "</div>" +
                     "<a data-role='button' class='export_logs' href='#' data-mini='true'>"+_("Export")+"</a>" +
                 "</fieldset>" +
@@ -4731,7 +4731,7 @@ function make_program21(n,isCopy) {
     // Show set times options
     list +="<table style='width:100%;"+((typeof program.start === "object") ? "" : "display:none")+"' id='input_stype_set-"+id+"'><tr><th class='center'>"+_("Enable")+"</th><th>"+_("Start Time")+"</th></tr>";
     for (j=1; j<4; j++) {
-        list += "<tr><td data-role='controlgroup' data-type='horizontal' class='use_master'><label for='ust_"+(j+1)+"'><input id='ust_"+(j+1)+"' type='checkbox' "+((times[j] === -1) ? "" : "checked='checked'")+" /></label></td>";
+        list += "<tr><td data-role='controlgroup' data-type='horizontal' class='use_master'><label for='ust_"+(j+1)+"'><input id='ust_"+(j+1)+"' type='checkbox' "+((times[j] === -1) ? "" : "checked='checked'")+"></label></td>";
         list += "<td><input data-mini='true' type='time' name='start_"+(j+1)+"-"+id+"' id='start_"+(j+1)+"-"+id+"' value='"+pad(parseInt(times[j]/60)%24)+":"+pad(times[j]%60)+"'></td></tr>";
     }
 
