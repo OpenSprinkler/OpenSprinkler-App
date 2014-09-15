@@ -1,7 +1,7 @@
 /* jshint undef: false */
 var assert = chai.assert;
 
-describe("Intial Definition Check", function(){
+describe("Initial Definition Check", function(){
 	it("storage.set(object,callback) should accept an object of key/value pairs to be set into localStorage and respond with callback", function(done){
 		assert.doesNotThrow(function(){
 			storage.set({
