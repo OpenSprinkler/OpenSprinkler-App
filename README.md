@@ -8,10 +8,10 @@ A mobile interface for the OpenSprinkler irrigation device. Designed to allow ma
   
 ---
 
-[official]: http://albahra.com/sprinklers/
-[help]: http://rayshobby.net/phpBB3/viewforum.php?f=1
+[official]: http://opensprinkler.com
+[help]: http://support.opensprinkler.com
 [changelog]: https://github.com/salbahra/Sprinklers/releases
-[salbahra]: http://albahra.com/
+[salbahra]: http://albahra.com
 
 <a href="https://albahra.com/sprinklers/img/home.png"><img src="https://albahra.com/sprinklers/img/home.png" width="100"/></a>
 <a href="https://albahra.com/sprinklers/img/preview.png"><img src="https://albahra.com/sprinklers/img/preview.png" width="100"/></a>
@@ -37,13 +37,13 @@ A mobile interface for the OpenSprinkler irrigation device. Designed to allow ma
   + [Windows Store](http://apps.microsoft.com/windows/en-us/app/sprinklers/ebc0d2d1-9678-4e72-9a9d-6d60e946b8c0)
   + [Windows Phone Store](http://www.windowsphone.com/en-us/store/app/sprinklers/3dbc5da0-b33f-4ca8-9e54-e80febf0a0c5)
 
-+ This application interfaces with the interval program on the OpenSprinkler which is the default software available. The application has been tested and is compatible with all firmware versions of the interval program.
++ This application interfaces with the interval program on the OpenSprinkler which is the default software available. The application has been tested and is compatible with all firmware versions of the interval program, both Arduino and OSPi.
 
 + The application is written in Javascript and HTML/CSS. The application runs completely within the user's browser (or webview) and communicates directly with the OpenSprinkler.
 
 + For advanced users, the application supports authentication (HTTP Basic) and SSL for devices behind proxies. Guide available [here](http://rayshobby.net/mediawiki/index.php?title=Secure_Remote_Access).
 
-+ For current discussion about the project please refer to the [forum post](http://rayshobby.net/phpBB3/viewtopic.php?f=2&t=154).
++ For current discussion about the project please refer to the [forum post](http://rayshobby.net/phpBB3/viewforum.php?f=33).
 
 ---
 
