@@ -43,7 +43,7 @@ module.exports = function(grunt) {
     secrets: secrets,
 
     jshint: {
-    	main: ["<%= pkg.main %>","Gruntfile.js","www/js/home.js","www/chrome.js","test/init.js"],
+    	main: ["<%= pkg.main %>","Gruntfile.js","www/js/home.js","www/chrome.js","test/spec.js"],
       options: {
         jshintrc: true
       }
@@ -51,7 +51,7 @@ module.exports = function(grunt) {
 
     mocha: {
       all: {
-        src: ["test/init.html"],
+        src: ["test/index.html"],
       },
       options: {
         run: true

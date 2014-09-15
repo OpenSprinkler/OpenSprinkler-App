@@ -1,11 +1,44 @@
-/* global describe, it, chai, storage */
+/* jshint undef: false */
 var assert = chai.assert;
 
 describe("Intial Definition Check", function(){
-	it("Check storage function definition", function(){
-		assert.equal("function", typeof storage.get);
-		assert.equal("function", typeof storage.set);
-		assert.equal("function", typeof storage.remove);
+	it("storage.set(object,callback) should accept an object of key/value pairs to be set into localStorage and respond with callback", function(done){
+		assert.doesNotThrow(function(){
+			storage.set({
+				testkey: "helloworld"
+			},function(result){
+				if (result === true) {
+					done();
+				}
+			});
+		});
+	});
+
+	it("storage.get(object,callback) should accept an array of keys to be retrieved from localStorage and respond with callback", function(done){
+		assert.doesNotThrow(function(){
+			storage.get(["testkey"],function(result){
+				if (result.testkey === "helloworld") {
+					done();
+				}
+			});
+		});
+	});
+
+	it("storage.remove(object,callback) should accept an array of keys to be deleted from localStorage and respond with callback", function(done){
+		assert.doesNotThrow(function(){
+			storage.remove(["testkey"],function(result){
+				if (result === true) {
+					done();
+				}
+			});
+		});
+		assert.doesNotThrow(function(){
+			storage.remove("testkey",function(result){
+				if (result === true) {
+					done();
+				}
+			});
+		});
 	});
 });
 
@@ -21,19 +54,19 @@ describe("OpenSprinkler Firmware Version Functions",function(){
 			assert.equal(false,isOSPi());
 		});
 		it("versionCompare(device,compare) should check the given firmware (device) against the compare firmware where the input is an array",function(){
-			assert.equal(false,versionCompare([1],[1,5]));
-			assert.equal(0,versionCompare([1,5],[1,5]));
-			assert.equal(1,versionCompare([2,1],[1,5]));
+			assert.strictEqual(false,versionCompare([1],[1,5]));
+			assert.strictEqual(0,versionCompare([1,5],[1,5]));
+			assert.strictEqual(1,versionCompare([2,1],[1,5]));
 		});
 		it("checkOSVersion(compare) should compare the input firmware version against the Arduino firmware version.",function(){
-			assert.equal(false,checkOSVersion(211));
-			assert.equal(true,checkOSVersion(210));
-			assert.equal(1,checkOSVersion(208));
+			assert.strictEqual(false,checkOSVersion(211));
+			assert.strictEqual(true,checkOSVersion(210));
+			assert.strictEqual(1,checkOSVersion(208));
 		});
 		it("checkOSPiVersion(compare) should compare the input firmware version against the OSPi firmware version.",function(){
-			assert.equal(false,checkOSPiVersion("2.0"));
-			assert.equal(false,checkOSPiVersion("1.9"));
-			assert.equal(false,checkOSPiVersion("2.1"));
+			assert.strictEqual(false,checkOSPiVersion("2.0"));
+			assert.strictEqual(false,checkOSPiVersion("1.9"));
+			assert.strictEqual(false,checkOSPiVersion("2.1"));
 		});
 	});
 
@@ -47,20 +80,20 @@ describe("OpenSprinkler Firmware Version Functions",function(){
 			assert.equal(true,isOSPi());
 		});
 		it("versionCompare(device,compare) should check the given firmware (device) against the compare firmware where the input is an array",function(){
-			assert.equal(false,versionCompare([1],[1,5]));
-			assert.equal(0,versionCompare([1,5],[1,5]));
-			assert.equal(1,versionCompare([2,1],[1,5]));
+			assert.strictEqual(false,versionCompare([1],[1,5]));
+			assert.strictEqual(0,versionCompare([1,5],[1,5]));
+			assert.strictEqual(1,versionCompare([2,1],[1,5]));
 		});
 		it("checkOSVersion(compare) should compare the input firmware version against the Arduino firmware version.",function(){
-			assert.equal(false,checkOSVersion(211));
-			assert.equal(false,checkOSVersion(210));
-			assert.equal(false,checkOSVersion(208));
+			assert.strictEqual(false,checkOSVersion(211));
+			assert.strictEqual(false,checkOSVersion(210));
+			assert.strictEqual(false,checkOSVersion(208));
 		});
 		it("checkOSPiVersion(compare) should compare the input firmware version against the OSPi firmware version.",function(){
-			assert.equal(1,checkOSPiVersion("1.8"));
-			assert.equal(true,checkOSPiVersion("1.9.0"));
-			assert.equal(false,checkOSPiVersion("2.0"));
-			assert.equal(false,checkOSPiVersion("2.1"));
+			assert.strictEqual(1,checkOSPiVersion("1.8"));
+			assert.strictEqual(true,checkOSPiVersion("1.9.0"));
+			assert.strictEqual(false,checkOSPiVersion("2.0"));
+			assert.strictEqual(false,checkOSPiVersion("2.1"));
 		});
 	});
 
