@@ -1478,7 +1478,7 @@ function start_scan(port,type) {
         newlist = "",
         suffix = "",
         oldips = [],
-        i, url, notfound, found, baseip, check_scan_status, scanning, dtype;
+        i, url, notfound, found, baseip, check_scan_status, scanning, dtype, text;
 
     type = type || 0;
 
@@ -1528,11 +1528,13 @@ function start_scan(port,type) {
             clearInterval(scanning);
             if (!devicesfound) {
                 if (type === 0) {
-                    start_scan(8080,1);
+                    start_scan(80,1);
                 } else if (type === 1) {
-                    start_scan(80,2);
+                    start_scan(8080,2);
                 } else if (type === 2) {
-                    start_scan(8080,3);
+                    start_scan(80,3);
+                } else if (type === 3) {
+                    start_scan(8080,4);
                 } else {
                     showerror(_("No new devices were detected on your network"));
                 }
@@ -1552,37 +1554,27 @@ function start_scan(port,type) {
     ip.pop();
     baseip = ip.join(".");
 
-    if (type === 1) {
-        $.mobile.loading("show", {
-                text: _("Scanning for OpenSprinkler Pi"),
-                textVisible: true,
-                theme: "b"
-        });
+    if (type === 0 || type === 1) {
+        text = _("Scanning for OpenSprinkler");
     } else if (type === 2) {
-        $.mobile.loading("show", {
-                text: _("Scanning for OpenSprinkler (1.8.3)"),
-                textVisible: true,
-                theme: "b"
-        });
+        text = _("Scanning for OpenSprinkler Pi");
     } else if (type === 3) {
-        $.mobile.loading("show", {
-                text: _("Scanning for OpenSprinkler Pi (1.8.3)"),
-                textVisible: true,
-                theme: "b"
-        });
-    } else {
-        $.mobile.loading("show", {
-                text: _("Scanning for OpenSprinkler"),
-                textVisible: true,
-                theme: "b"
-        });
+        text = _("Scanning for OpenSprinkler (1.8.3)");
+    } else if (type === 4) {
+        text = _("Scanning for OpenSprinkler Pi (1.8.3)");
     }
+
+    $.mobile.loading("show", {
+            text: text,
+            textVisible: true,
+            theme: "b"
+    });
 
     // Start scan
     for (i = 1; i<=244; i++) {
         ip = baseip+"."+i;
-        if (type < 2) {
-            suffix = "/jo";
+        if (type < 3) {
+            suffix = (type === 0) ? "/jv" : "/jo";
             dtype = "json";
         } else {
             dtype = "text";
