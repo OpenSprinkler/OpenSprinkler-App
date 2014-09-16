@@ -2584,14 +2584,14 @@ function show_stations() {
         cards += "<p class='tight center inline-icon' id='station_"+i+"'>"+station+editButton+"</p>";
 
         if (is21) {
-            cards += "<div class='center'>"+_("Test Station")+"</div><fieldset data-role='controlgroup' data-type='horizontal' data-mini='true' class='center'>";
+            cards += "<div class='center smaller'>"+_("Test Station")+"</div><fieldset data-role='controlgroup' data-type='horizontal' data-mini='true' class='center'>";
             cards += "<select><option value='60'>1 min</option><option value='300'>5 mins</option><option value='600'>10 mins</option><option value='900'>15 mins</option><option value='1200'>20 mins</option></select>";
             cards += "<button id='run_station-"+i+"'>Start</button>";
             cards += "</fieldset>";
         }
 
         if (optCount > 0) {
-            cards += "<div class='center'>"+_("Options")+"</div><fieldset data-role='controlgroup' data-type='horizontal' data-mini='true' class='center seperate-btn'>";
+            cards += "<div class='center smaller'>"+_("Options")+"</div><fieldset data-role='controlgroup' data-type='horizontal' data-mini='true' class='center seperate-btn'>";
 
             if (isMaster) {
                 cards += "<input id='um_"+i+"' type='checkbox' "+((controller.stations.masop[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+((controller.options.mas === i+1) ? "disabled='disabled'" : "")+"><label for='um_"+i+"'>"+_("Use Master")+"</label>";
