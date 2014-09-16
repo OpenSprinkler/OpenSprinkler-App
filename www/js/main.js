@@ -3373,19 +3373,36 @@ function submit_runonce(runonce) {
         });
         runonce.push(0);
     }
-    storage.set({"runonce":JSON.stringify(runonce)});
-    $.mobile.loading("show");
-    send_to_os("/cv?pw=&rsn=1").done(function(){
-        send_to_os("/cr?pw=&t="+JSON.stringify(runonce)).done(function(){
-            $.mobile.loading("hide");
-            $.mobile.document.one("pageshow",function(){
-                showerror(_("Run-once program has been scheduled"));
+
+    var submit = function(){
+            storage.set({"runonce":JSON.stringify(runonce)});
+            $.mobile.loading("show");
+            send_to_os("/cv?pw=&rsn=1").done(function(){
+                send_to_os("/cr?pw=&t="+JSON.stringify(runonce)).done(function(){
+                    $.mobile.loading("hide");
+                    $.mobile.document.one("pageshow",function(){
+                        showerror(_("Run-once program has been scheduled"));
+                    });
+                    update_controller_status();
+                    update_controller_settings();
+                    goBack();
+                });
             });
-            update_controller_status();
-            update_controller_settings();
-            goBack();
-        });
-    });
+        },
+        isRunning = false;
+
+    for (var i=0; i<controller.status.length; i++) {
+        if (controller.status[i]) {
+            isRunning = true;
+            break;
+        }
+    }
+
+    if (isRunning) {
+        areYouSure(_("Do you want to stop the currently running program?"), pidname(controller.settings.ps[i][0])+" is currently running", submit);
+    } else {
+        submit();
+    }
 }
 
 // Preview functions
