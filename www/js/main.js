@@ -5834,14 +5834,14 @@ function goBack(keepIndex) {
 function showerror(msg,dur) {
     dur = dur || 2500;
 
+    clearTimeout(errorTimeout);
+
     $.mobile.loading("show", {
         text: msg,
         textVisible: true,
         textonly: true,
         theme: "b"
     });
-
-    clearTimeout(errorTimeout);
 
     // hide after delay
     errorTimeout = setTimeout(function(){$.mobile.loading("hide");},dur);
