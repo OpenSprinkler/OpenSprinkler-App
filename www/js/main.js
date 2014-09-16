@@ -2217,7 +2217,7 @@ function show_options() {
         list += "</select></div>";
     }
 
-    list += "<div class='ui-field-contain'><label for='loc'>"+_("Location")+"<button data-helptext='"+_("Location can be a zip code, city/state or a weatherunderground personal weather station using the format: pws:ID")+"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><input data-mini='true' type='text' id='loc' value='"+controller.settings.loc+"'></div>";
+    list += "<div class='ui-field-contain'><label for='loc'>"+_("Location")+"<button data-helptext='"+_("Location can be a zip code, city/state or a weatherunderground personal weather station using the format: pws:ID.")+"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><input data-mini='true' type='text' id='loc' value='"+controller.settings.loc+"'></div>";
 
     if (typeof controller.options.ntp !== "undefined") {
         list += "<label for='o2'><input data-mini='true' id='o2' type='checkbox' "+((controller.options.ntp === 1) ? "checked='checked'" : "")+">"+_("NTP Sync")+"</label>";
@@ -2263,10 +2263,6 @@ function show_options() {
         list += "<div class='ui-field-contain duration-field'><label for='o17'>"+_("Station Delay")+"</label><button data-mini='true' id='o17' value='"+controller.options.sdt+"'>"+dhms2str(sec2dhms(controller.options.sdt))+"</button></div>";
     }
 
-    if (typeof controller.options.wl !== "undefined") {
-        list += "<div class='ui-field-contain duration-field'><label for='o23'>"+_("% Watering")+"<button data-helptext='"+_("The watering level modifies station run times by the set percentage. When a weather algorithm is used the watering level is automatically adjusted.")+"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><button "+((controller.options.uwt && controller.options.uwt > 0) ? "disabled='disabled' " : "")+"data-mini='true' id='o23' value='"+controller.options.wl+"'>"+controller.options.wl+"%</button></div>";
-    }
-
     if (typeof controller.options.seq !== "undefined") {
         list += "<label for='o16'><input data-mini='true' id='o16' type='checkbox' "+((controller.options.seq === 1) ? "checked='checked'" : "")+">"+_("Sequential")+"</label>";
     }
@@ -2279,11 +2275,16 @@ function show_options() {
 
     if (typeof controller.options.uwt !== "undefined") {
         algorithm = ["Disabled","Zimmerman"];
-        list += "<div class='ui-field-contain'><label for='o31' class='select'>"+_("Weather Algorithm")+"<button data-helptext='"+_("Weather algorithm uses Weather Underground data in conjunction with the selected algorithm to adjust the watering level")+"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><select "+(controller.settings.wtkey && controller.settings.wtkey !== "" ? "" : "disabled='disabled' ")+"data-mini='true' id='o31'>";
+        list += "<div class='ui-field-contain'><label for='o31' class='select'>"+_("Weather Adjustment Method")+"<button data-helptext='"+_("Weather adjustment uses Weather Underground data in conjunction with the selected method to adjust the watering percentage.")+"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><select "+(controller.settings.wtkey && controller.settings.wtkey !== "" ? "" : "disabled='disabled' ")+"data-mini='true' id='o31'>";
         for (i=0; i<algorithm.length; i++) {
             list += "<option "+((i === controller.options.uwt) ? "selected" : "")+" value='"+i+"'>"+algorithm[i]+"</option>";
         }
         list += "</select></div>";
+    }
+
+    if (typeof controller.options.wl !== "undefined") {
+
+        list += "<div class='ui-field-contain duration-field'><label for='o23'>"+_("% Watering")+"<button data-helptext='"+_("The watering percentage scales station run times by the set value. When weather adjustment is used the watering percentage is automatically adjusted.")+"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><button "+((controller.options.uwt && controller.options.uwt > 0) ? "disabled='disabled' " : "")+"data-mini='true' id='o23' value='"+controller.options.wl+"'>"+controller.options.wl+"%</button></div>";
     }
 
     if (typeof controller.options.urs !== "undefined") {
@@ -2301,7 +2302,7 @@ function show_options() {
     }
 
     if (typeof controller.options.devid !== "undefined") {
-        list += "<div class='ui-field-contain'><label for='o26'>"+_("Device ID (restart required)")+"<button data-helptext='"+_("Device ID modifies the last byte of the MAC address")+"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><input data-mini='true' type='number' pattern='[0-9]*' max='255' id='o26' value='"+controller.options.devid+"'></div>";
+        list += "<div class='ui-field-contain'><label for='o26'>"+_("Device ID (restart required)")+"<button data-helptext='"+_("Device ID modifies the last byte of the MAC address.")+"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><input data-mini='true' type='number' pattern='[0-9]*' max='255' id='o26' value='"+controller.options.devid+"'></div>";
     }
 
     if (typeof controller.options.rlp !== "undefined") {
@@ -2331,7 +2332,7 @@ function show_options() {
             popup;
 
         if (button.parent().attr("for") === "wtkey") {
-            text += "<a class='iab' target='_blank' href='http://www.wunderground.com/weather/api/d/login.html'>here</a>";
+            text += "<a class='iab' target='_blank' href='http://www.wunderground.com/weather/api/d/login.html'>here</a>.";
         }
 
         popup = $("<div data-role='popup'>" +
@@ -2433,7 +2434,7 @@ function show_options() {
 
     page.find("#o31").on("change",function(){
         // Switch state of water level input based on weather algorithm status
-        $("#o23").prop("disabled",(this.value === 0 || $("#wtkey").val() === "" ? false : true));
+        $("#o23").prop("disabled",(parseInt(this.value) === 0 || $("#wtkey").val() === "" ? false : true));
     });
 
     page.find("#wtkey").on("change",function(){
@@ -4735,7 +4736,7 @@ function make_program21(n,isCopy) {
     list += "<label for='en-"+id+"'><input data-mini='true' type='checkbox' "+((program.en || n==="new") ? "checked='checked'" : "")+" name='en-"+id+"' id='en-"+id+"'>"+_("Enabled")+"</label>";
 
     // Program weather control flag
-    list += "<label for='uwt-"+id+"'><input data-mini='true' type='checkbox' "+((program.weather) ? "checked='checked'" : "")+" name='uwt-"+id+"' id='uwt-"+id+"'>"+_("Use Weather Control")+"</label>";
+    list += "<label for='uwt-"+id+"'><input data-mini='true' type='checkbox' "+((program.weather) ? "checked='checked'" : "")+" name='uwt-"+id+"' id='uwt-"+id+"'>"+_("Use Weather Adjustment")+"</label>";
 
     // Show start time menu
     list += "<label class='center' for='start_1-"+id+"'>"+_("Start Time")+"</label><input data-mini='true' type='time' name='start_1-"+id+"' id='start_1-"+id+"' value='"+pad(parseInt(times[0]/60)%24)+":"+pad(times[0]%60)+"'>";
@@ -4891,10 +4892,6 @@ function make_program21(n,isCopy) {
             }
         },65535);
 
-        return false;
-    });
-
-    page.on("mousewheel","input[type='time']",function(){
         return false;
     });
 
