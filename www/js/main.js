@@ -2577,7 +2577,7 @@ function show_stations() {
             cards += "<fieldset data-role='controlgroup' data-type='horizontal' data-mini='true' class='center'>";
 
             if (isMaster) {
-                cards += "<input id='um_"+i+"' type='checkbox' "+((controller.stations.masop[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+((controller.options.mas === i+1) ? "disabled='disabled'" : "")+"><label for='um_"+i+"'>"+_("Activate Master")+"</label>";
+                cards += "<input id='um_"+i+"' type='checkbox' "+((controller.stations.masop[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+((controller.options.mas === i+1) ? "disabled='disabled'" : "")+"><label for='um_"+i+"'>"+_("Use Master")+"</label>";
             }
 
             if (hasIR) {
@@ -2589,7 +2589,7 @@ function show_stations() {
             }
 
             if (hasSD) {
-                cards += "<input id='sd_"+i+"' type='checkbox' "+((controller.stations.stn_dis[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+"><label for='sd_"+i+"'>"+_("Disable Station")+"</label>";
+                cards += "<input id='sd_"+i+"' type='checkbox' "+((controller.stations.stn_dis[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+"><label for='sd_"+i+"'>"+_("Disable")+"</label>";
             }
 
             cards += "</fieldset>";
