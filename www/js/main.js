@@ -1097,7 +1097,7 @@ function submit_newuser(ssl,useAuth) {
 
     //Submit form data to the server
     $.ajax({
-        url: prefix+ip+"/jo",
+        url: prefix+ip+"/jo?pw="+$("#os_pw").val(),
         type: "GET",
         dataType: "json",
         timeout: 3000,
