@@ -3399,7 +3399,7 @@ function submit_runonce(runonce) {
     }
 
     if (isRunning) {
-        areYouSure(_("Do you want to stop the currently running program?"), pidname(controller.settings.ps[i][0])+" is currently running", submit);
+        areYouSure(_("Do you want to stop the currently running program?"), pidname(controller.settings.ps[i][0])+" "+_("is running"), submit);
     } else {
         submit();
     }
