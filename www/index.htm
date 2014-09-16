@@ -49,7 +49,7 @@
                     <li><a href="#programs" data-translate="Edit Programs"></a></li>
                     <li><a href="#runonce" data-translate="Run-Once Program"></a></li>
                     <li><a href="#" id="stop-all" data-translate="Stop All Stations"></a></li>
-                    <li><a href="#manual" data-translate="Manual Control"></a></li>
+                    <li><a href="#manual" class="manual_mode" data-translate="Manual Control"></a></li>
                 </ul>
             </div>
             <div data-role="panel" id="sprinklers-settings" data-position-fixed="true" data-theme="b">
@@ -73,7 +73,7 @@
             <div class="ui-content" role="main">
                 <ul data-role="listview" data-inset="true">
                     <li data-role="list-divider" data-theme="b" data-translate="Device Settings"></li>
-                    <li class="ui-field-contain">
+                    <li class="ui-field-contain manual_mode">
                         <label for="mm"><b data-translate="Manual Mode"></b></label>
                         <input type="checkbox" data-on-text="On" data-off-text="Off" data-role="flipswitch" name="mm" id="mm">
                     </li>
