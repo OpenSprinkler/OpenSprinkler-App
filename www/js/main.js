@@ -629,6 +629,10 @@ function newload() {
 
     //Empty object which will store device data
     controller = {};
+
+    //Clear the current queued AJAX requests (used for previous controller connection)
+    $.ajaxQueue.clear();
+
     update_controller(
         function(){
             var log_button = $("#log_button"),
