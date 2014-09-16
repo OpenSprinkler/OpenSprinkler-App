@@ -1484,6 +1484,13 @@ function resetStartMenu() {
 }
 
 function start_scan(port,type) {
+    // type represents the OpenSprinkler model as defined below
+    // 0 - OpenSprinkler using firmware 2.0+
+    // 1 - OpenSprinkler Pi using 2.1+
+    // 2 - OpenSprinkler Pi using 1.9 to 2.0
+    // 3 - OpenSprinkler using firmware 1.8.3
+    // 4 - OpenSprinkler Pi using 1.8.3
+
     var ip = deviceip.split("."),
         scanprogress = 1,
         devicesfound = 0,
@@ -1551,15 +1558,17 @@ function start_scan(port,type) {
             clearInterval(scanning);
             if (!devicesfound) {
                 if (type === 0) {
-                    start_scan(80,1);
+                    start_scan(8080,1);
+
                 } else if (type === 1) {
                     start_scan(8080,2);
+
                 } else if (type === 2) {
-                    start_scan(8080,3);
+                    start_scan(80,3);
+
                 } else if (type === 3) {
-                    start_scan(80,4);
-                } else if (type === 4) {
-                    start_scan(8080,5);
+                    start_scan(8080,4);
+
                 } else {
                     showerror(_("No new devices were detected on your network"));
                 }
@@ -1579,13 +1588,13 @@ function start_scan(port,type) {
     ip.pop();
     baseip = ip.join(".");
 
-    if (type === 0 || type === 1) {
+    if (type === 0) {
         text = _("Scanning for OpenSprinkler");
-    } else if (type === 2 || type === 3) {
+    } else if (type === 1 || type === 2) {
         text = _("Scanning for OpenSprinkler Pi");
-    } else if (type === 4) {
+    } else if (type === 3) {
         text = _("Scanning for OpenSprinkler (1.8.3)");
-    } else if (type === 5) {
+    } else if (type === 4) {
         text = _("Scanning for OpenSprinkler Pi (1.8.3)");
     }
 
@@ -1603,7 +1612,7 @@ function start_scan(port,type) {
     for (i = 1; i<=244; i++) {
         ip = baseip+"."+i;
         if (type < 4) {
-            suffix = (type === 0 || type === 2) ? "/jv" : "/jo";
+            suffix = (type === 1) ? "/jv" : "/jo";
             dtype = "json";
         } else {
             dtype = "text";
@@ -2565,7 +2574,8 @@ function show_stations() {
         hasIR = (typeof controller.stations.ignore_rain === "object") ? true : false,
         hasAR = (typeof controller.stations.act_relay === "object") ? true : false,
         hasSD = (typeof controller.stations.stn_dis === "object") ? true : false,
-        optCount = hasIR + isMaster + hasAR + hasSD;
+        optCount = hasIR + isMaster + hasAR + hasSD,
+        is21 = checkOSVersion(210);
 
     $.each(controller.stations.snames,function(i, station) {
         // Group card settings visually
@@ -2573,8 +2583,15 @@ function show_stations() {
         cards += "<div class='ui-body ui-body-a center'>";
         cards += "<p class='tight center inline-icon' id='station_"+i+"'>"+station+editButton+"</p>";
 
+        if (is21) {
+            cards += "<div class='center'>"+_("Test Station")+"</div><fieldset data-role='controlgroup' data-type='horizontal' data-mini='true' class='center'>";
+            cards += "<select><option value='60'>1 min</option><option value='300'>5 mins</option><option value='600'>10 mins</option><option value='900'>15 mins</option><option value='1200'>20 mins</option></select>"
+            cards += "<button id='run_station-"+i+"'>Start</button>"
+            cards += "</fieldset>";
+        }
+
         if (optCount > 0) {
-            cards += "<fieldset data-role='controlgroup' data-type='horizontal' data-mini='true' class='center'>";
+            cards += "<div class='center'>"+_("Options")+"</div><fieldset data-role='controlgroup' data-type='horizontal' data-mini='true' class='center seperate-btn'>";
 
             if (isMaster) {
                 cards += "<input id='um_"+i+"' type='checkbox' "+((controller.stations.masop[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+((controller.options.mas === i+1) ? "disabled='disabled'" : "")+"><label for='um_"+i+"'>"+_("Use Master")+"</label>";
@@ -2600,6 +2617,16 @@ function show_stations() {
     });
 
     page.find(".ui-content").html("<div id='os-stations-list' class='card-group center'>"+cards+"</div><button class='submit'>"+_("Submit")+"</button><button data-theme='b' class='reset'>"+_("Reset")+"</button>");
+
+    page.on("click","[id^='run_station-']",function(){
+        var button = $(this),
+            station = button.attr("id").split("-")[1],
+            duration = button.prev().find("select").val();
+
+        send_to_os("/cm?sid="+station+"&en=1&t="+duration+"&pw=").done(function(){
+            showerror(_("Station test currently running"));
+        });
+    });
 
     page.on("click","[id^='station_']",function(){
         var text = $(this),

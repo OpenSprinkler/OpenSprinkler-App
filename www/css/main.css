@@ -119,13 +119,13 @@ a {
     padding: 5px;
     margin: 0 auto;
 }
-.card-group .ui-checkbox {
+.seperate-btn .ui-checkbox {
     float: none !important;
     display: inline-block;
     padding-right: 1px;
     padding-top: 1px;
 }
-.card-group .ui-checkbox label {
+.seperate-btn .ui-checkbox label {
     border-radius: 0 !important;
     border-width: 1px !important;
     border-style: solid !important;
