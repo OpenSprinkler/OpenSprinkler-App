@@ -612,7 +612,7 @@ function network_fail(){
 // Gather new controller information and load home page
 function newload() {
     var name = $("#site-selector").val(),
-        loading = "<div class='logo'></div><h1 style='padding-top:5px'>"+_("Connecting to")+" "+name+"</h1><p class='tight center cancel'><span class='cancel-icon btn-no-border ui-btn ui-icon-delete ui-btn-icon-notext'></span>Cancel</p>";
+        loading = "<div class='logo'></div><h1 style='padding-top:5px'>"+_("Connecting to")+" "+name+"</h1><p class='tight center inline-icon'><span class='btn-no-border ui-btn ui-icon-delete ui-btn-icon-notext'></span>Cancel</p>";
 
     $.mobile.loading("show", {
         html: curr_local ? "<h1>"+_("Loading")+"</h1>" : loading,
@@ -1590,7 +1590,7 @@ function start_scan(port,type) {
     }
 
     $.mobile.loading("show", {
-        html: "<h1>"+text+"</h1><p class='tight center cancel'><span class='cancel-icon btn-no-border ui-btn ui-icon-delete ui-btn-icon-notext'></span>Cancel</p>",
+        html: "<h1>"+text+"</h1><p class='tight center inline-icon'><span class='btn-no-border ui-btn ui-icon-delete ui-btn-icon-notext'></span>Cancel</p>",
         textVisible: true,
         theme: "b"
     });
@@ -2560,6 +2560,7 @@ function show_stations() {
             "<div class='ui-content' role='main'>" +
             "</div>" +
         "</div>"),
+        editButton = "<span style='padding-left:10px' class='btn-no-border ui-btn ui-icon-edit ui-btn-icon-notext'></span>",
         isMaster = controller.options.mas ? true : false,
         hasIR = (typeof controller.stations.ignore_rain === "object") ? true : false,
         hasAR = (typeof controller.stations.act_relay === "object") ? true : false,
@@ -2570,7 +2571,7 @@ function show_stations() {
         // Group card settings visually
         cards += "<div class='ui-corner-all card'>";
         cards += "<div class='ui-body ui-body-a center'>";
-        cards += "<input data-mini='true' maxlength='"+controller.stations.maxlen+"' id='edit_station_"+i+"' type='text' value='"+station+"'>";
+        cards += "<p class='tight center inline-icon' id='station_"+i+"'>"+station+editButton+"</p>";
 
         if (optCount > 0) {
             cards += "<fieldset data-role='controlgroup' data-type='horizontal' data-mini='true' class='center'>";
@@ -2599,6 +2600,22 @@ function show_stations() {
     });
 
     page.find(".ui-content").html("<div id='os-stations-list' class='card-group center'>"+cards+"</div><button class='submit'>"+_("Submit")+"</button><button data-theme='b' class='reset'>"+_("Reset")+"</button>");
+
+    page.on("click","[id^='station_']",function(){
+        var text = $(this),
+            input = $("<input class='center' data-mini='true' maxlength='"+controller.stations.maxlen+"' id='edit_"+text.attr("id")+"' type='text' value='"+text.text()+"'>");
+
+        text.replaceWith(input);
+        input.on("blur keyup",function(e){
+            if (e.type === "keyup" && e.keyCode !== 13) {
+                return;
+            }
+            text.html(input.val()+editButton);
+            input.replaceWith(text);
+            input.remove();
+        });
+        input.focus();
+    });
 
     page.find(".submit").on("click",submit_stations);
 
@@ -2632,16 +2649,19 @@ function submit_stations() {
         relay = $.extend(true, {},master),
         disable = $.extend(true, {},master);
 
-    $("#os-stations-list").find(":input").each(function(a,b){
-        var $item = $(b), id = $item.attr("id"), data = $item.val();
+    $("#os-stations-list").find(":input,p[id^='station_']").each(function(a,b){
+        var $item = $(b),
+            id = $item.attr("id"),
+            data = $item.val();
+
         switch (id) {
-            case "edit_station_" + id.slice("edit_station_".length):
-                id = "s" + id.split("_")[2];
+            case "station_" + id.slice("station_".length):
+                id = "s" + id.split("_")[1];
                 // Because the firmware has a bug regarding spaces, let us replace them out now with a compatible seperator
                 if (checkOSVersion(208) === true) {
                     data = data.replace(/\s/g,"_");
                 }
-                names[id] = data;
+                names[id] = $item.text();
                 return true;
             case "um_" + id.slice("um_".length):
                 master.boardStatus = ($item.is(":checked")) ? "1".concat(master.boardStatus) : "0".concat(master.boardStatus);
