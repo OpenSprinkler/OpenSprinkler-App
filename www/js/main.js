@@ -1478,9 +1478,11 @@ function start_scan(port,type) {
         newlist = "",
         suffix = "",
         oldips = [],
+        isCanceled = false,
         i, url, notfound, found, baseip, check_scan_status, scanning, dtype, text;
 
     type = type || 0;
+    port = (typeof port === "number") ? port : 80;
 
     storage.get("sites",function(data){
         var oldsites = (data.sites === undefined || data.sites === null) ? {} : JSON.parse(data.sites),
@@ -1513,6 +1515,9 @@ function start_scan(port,type) {
             }
             fwv = tmp[1];
         } else {
+            if (!reply.hasOwnProperty("fwv")) {
+                return;
+            }
             fwv = reply.fwv;
         }
 
@@ -1523,6 +1528,12 @@ function start_scan(port,type) {
 
     // Check if scanning is complete
     check_scan_status = function() {
+        if (isCanceled === true) {
+            $.mobile.loading("hide");
+            clearInterval(scanning);
+            return false;
+        }
+
         if (scanprogress === 245) {
             $.mobile.loading("hide");
             clearInterval(scanning);
@@ -1532,9 +1543,11 @@ function start_scan(port,type) {
                 } else if (type === 1) {
                     start_scan(8080,2);
                 } else if (type === 2) {
-                    start_scan(80,3);
+                    start_scan(8080,3);
                 } else if (type === 3) {
-                    start_scan(8080,4);
+                    start_scan(80,4);
+                } else if (type === 4) {
+                    start_scan(8080,5);
                 } else {
                     showerror(_("No new devices were detected on your network"));
                 }
@@ -1556,25 +1569,29 @@ function start_scan(port,type) {
 
     if (type === 0 || type === 1) {
         text = _("Scanning for OpenSprinkler");
-    } else if (type === 2) {
+    } else if (type === 2 || type === 3) {
         text = _("Scanning for OpenSprinkler Pi");
-    } else if (type === 3) {
-        text = _("Scanning for OpenSprinkler (1.8.3)");
     } else if (type === 4) {
+        text = _("Scanning for OpenSprinkler (1.8.3)");
+    } else if (type === 5) {
         text = _("Scanning for OpenSprinkler Pi (1.8.3)");
     }
 
     $.mobile.loading("show", {
-            text: text,
-            textVisible: true,
-            theme: "b"
+        html: "<h1>"+text+"</h1><p class='tight center cancel'><span class='cancel-icon btn-no-border ui-btn ui-icon-delete ui-btn-icon-notext'></span>Cancel</p>",
+        textVisible: true,
+        theme: "b"
+    });
+
+    $(".ui-loader").find(".cancel").one("click",function(){
+        isCanceled = true;
     });
 
     // Start scan
     for (i = 1; i<=244; i++) {
         ip = baseip+"."+i;
-        if (type < 3) {
-            suffix = (type === 0) ? "/jv" : "/jo";
+        if (type < 4) {
+            suffix = (type === 0 || type === 2) ? "/jv" : "/jo";
             dtype = "json";
         } else {
             dtype = "text";
