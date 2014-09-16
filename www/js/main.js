@@ -637,11 +637,19 @@ function newload() {
         function(){
             var log_button = $("#log_button"),
                 clear_logs = $(".clear_logs"),
+                manual_mode = $(".manual_mode"),
                 change_password = $(".change_password");
 
             $.mobile.loading("hide");
             check_status();
             update_weather();
+
+            // Hide manual mode from the app for Arduino firmware 2.1.0+
+            if (checkOSVersion(210)) {
+                manual_mode.hide();
+            } else {
+                manual_mode.css("display","");
+            }
 
             // Hide log viewer button on home page if not supported
             if (checkOSVersion(206) || checkOSPiVersion("1.9")) {
