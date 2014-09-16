@@ -4895,6 +4895,12 @@ function make_program21(n,isCopy) {
         return false;
     });
 
+    page.on("mousewheel","input[type='time']",function(){
+        if ($(this).is(":focus")) {
+            return false;
+        }
+    });
+
     fixInputClick(page);
 
     return page;
