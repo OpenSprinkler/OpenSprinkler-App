@@ -115,9 +115,9 @@ a {
 
 .card {
     margin-top: 5px;
-    max-width: 300px;
+    max-width: 500px;
     padding: 5px;
-    display: inline-block;
+    margin: 0 auto;
 }
 .card-group .ui-checkbox {
     float: none !important;
@@ -237,7 +237,7 @@ body {
 
 /* Options page rules */
 
-.help-icon, .cancel > .ui-btn {
+.help-icon, .inline-icon > .ui-btn {
     display: inline-block;
     vertical-align: middle
 }
@@ -429,9 +429,6 @@ div.running-text{
 
 /* Station editor page rules */
 
-#os-stations .ui-content {
-    max-width: none;
-}
 
 /* Status page rules */
 
