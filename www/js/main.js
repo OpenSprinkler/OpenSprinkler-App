@@ -2585,8 +2585,8 @@ function show_stations() {
 
         if (is21) {
             cards += "<div class='center'>"+_("Test Station")+"</div><fieldset data-role='controlgroup' data-type='horizontal' data-mini='true' class='center'>";
-            cards += "<select><option value='60'>1 min</option><option value='300'>5 mins</option><option value='600'>10 mins</option><option value='900'>15 mins</option><option value='1200'>20 mins</option></select>"
-            cards += "<button id='run_station-"+i+"'>Start</button>"
+            cards += "<select><option value='60'>1 min</option><option value='300'>5 mins</option><option value='600'>10 mins</option><option value='900'>15 mins</option><option value='1200'>20 mins</option></select>";
+            cards += "<button id='run_station-"+i+"'>Start</button>";
             cards += "</fieldset>";
         }
 
