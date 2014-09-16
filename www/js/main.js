@@ -2273,6 +2273,10 @@ function show_options() {
 
     list += "</fieldset><fieldset data-role='collapsible'><legend>"+_("Weather Control")+"</legend>";
 
+    if (typeof controller.settings.wtkey !== "undefined") {
+        list += "<div class='ui-field-contain'><label for='wtkey'>"+_("Wunderground Key")+"<button data-helptext='"+_("Weather Underground requires an API Key which can be obtained from ")+"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><input data-mini='true' type='text' id='wtkey' value='"+controller.settings.wtkey+"'></div>";
+    }
+
     if (typeof controller.options.uwt !== "undefined") {
         algorithm = ["Disabled","Zimmerman"];
         list += "<div class='ui-field-contain'><label for='o31' class='select'>"+_("Weather Algorithm")+"<button data-helptext='"+_("Weather algorithm uses Weather Underground data in conjunction with the selected algorithm to adjust the watering level")+"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><select "+(controller.settings.wtkey && controller.settings.wtkey !== "" ? "" : "disabled='disabled' ")+"data-mini='true' id='o31'>";
@@ -2280,10 +2284,6 @@ function show_options() {
             list += "<option "+((i === controller.options.uwt) ? "selected" : "")+" value='"+i+"'>"+algorithm[i]+"</option>";
         }
         list += "</select></div>";
-    }
-
-    if (typeof controller.settings.wtkey !== "undefined") {
-        list += "<div class='ui-field-contain'><label for='wtkey'>"+_("Wunderground Key")+"<button data-helptext='"+_("Weather Underground requires an API Key which can be obtained from ")+"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><input data-mini='true' type='text' id='wtkey' value='"+controller.settings.wtkey+"'></div>";
     }
 
     if (typeof controller.options.urs !== "undefined") {
