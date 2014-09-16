@@ -33,6 +33,9 @@
 .ui-popup-screen {
     height: 100%
 }
+.ui-page {
+    padding-top:44px!important
+}
 .ui-content {
     max-width:1000px;
     margin:0 auto
