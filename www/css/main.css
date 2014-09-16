@@ -30,19 +30,8 @@
 .ui-collapsible-heading-toggle {
     font-weight:700!important
 }
-.ui-btn {
-    text-overflow:clip!important
-}
-.ui-page {
-    padding-top:44px!important
-}
 .ui-popup-screen {
     height: 100%
-}
-.btn-no-border {
-    border:none;
-    background:none!important;
-    height:25px
 }
 .ui-content {
     max-width:1000px;
@@ -79,6 +68,11 @@ a {
 }
 .wrap {
     white-space:inherit!important
+}
+.btn-no-border {
+    border:none;
+    background:none!important;
+    height:25px
 }
 .mini-load {
     zoom:.5;
