@@ -2628,7 +2628,7 @@ function show_stations() {
         cards += "</div></div>";
     });
 
-    page.find(".ui-content").html("<div id='os-stations-list' class='card-group center'>"+cards+"</div><button class='submit'>"+_("Submit")+"</button><button data-theme='b' class='reset'>"+_("Reset")+"</button>");
+    page.find(".ui-content").html("<div id='os-stations-list' class='card-group center'>"+cards+"<button class='submit'>"+_("Submit")+"</button><button data-theme='b' class='reset'>"+_("Reset")+"</button></div>");
 
     page.on("click","[id^='run_station-']",function(){
         var button = $(this),
@@ -2688,19 +2688,24 @@ function submit_stations() {
         relay = $.extend(true, {},master),
         disable = $.extend(true, {},master);
 
-    $("#os-stations-list").find(":input,p[id^='station_']").each(function(a,b){
+    $("#os-stations-list").find(":input:not(select):not(button),p[id^='station_']").each(function(a,b){
         var $item = $(b),
-            id = $item.attr("id"),
-            data = $item.val();
+            id = $item.attr("id");
+
+        if (!id) {
+            return true;
+        }
 
         switch (id) {
             case "station_" + id.slice("station_".length):
+                var data = $item.text();
+
                 id = "s" + id.split("_")[1];
                 // Because the firmware has a bug regarding spaces, let us replace them out now with a compatible seperator
                 if (checkOSVersion(208) === true) {
                     data = data.replace(/\s/g,"_");
                 }
-                names[id] = $item.text();
+                names[id] = data;
                 return true;
             case "um_" + id.slice("um_".length):
                 master.boardStatus = ($item.is(":checked")) ? "1".concat(master.boardStatus) : "0".concat(master.boardStatus);
