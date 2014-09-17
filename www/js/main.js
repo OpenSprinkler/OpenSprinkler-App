@@ -1695,10 +1695,16 @@ function show_weather_settings() {
         var dur = $(this),
             name = page.find("label[for='"+dur.attr("id")+"']").text();
 
-        showDurationBox(dur.val(),name,function(result){
-            dur.val(result);
-            dur.text(dhms2str(sec2dhms(result)));
-        },345600,2);
+        showDurationBox({
+            seconds: dur.val(),
+            title: name,
+            callback: function(result){
+                dur.val(result);
+                dur.text(dhms2str(sec2dhms(result)));
+            },
+            maximum: 345600,
+            granularity:2
+        });
     });
 
     page.one({
@@ -2418,10 +2424,15 @@ function show_options() {
                 max = 64800;
             }
 
-            showDurationBox(dur.val(),name,function(result){
-                dur.val(result);
-                dur.text(dhms2str(sec2dhms(result)));
-            },max);
+            showDurationBox({
+                seconds: dur.val(),
+                title: name,
+                callback: function(result){
+                    dur.val(result);
+                    dur.text(dhms2str(sec2dhms(result)));
+                },
+                maximum: max
+            });
         }
 
         return false;
@@ -3228,11 +3239,16 @@ function get_manual() {
         var dur = $(this),
             name = page.find("label[for='"+dur.attr("id")+"']").text();
 
-        showDurationBox(dur.val(),name,function(result){
-            dur.val(result);
-            dur.text(dhms2str(sec2dhms(result)));
-            storage.set({"autoOff":result});
-        },32768);
+        showDurationBox({
+            seconds: dur.val(),
+            title: name,
+            callback: function(result){
+                dur.val(result);
+                dur.text(dhms2str(sec2dhms(result)));
+                storage.set({"autoOff":result});
+            },
+            maximum: 32768
+        });
 
         return false;
     });
@@ -3373,15 +3389,20 @@ function get_runonce() {
         var dur = $(this),
             name = runonce.find("label[for='"+dur.attr("id")+"']").text().slice(0,-1);
 
-        showDurationBox(dur.val(),name,function(result){
-            dur.val(result);
-            dur.text(dhms2str(sec2dhms(result)));
-            if (result > 0) {
-                dur.addClass("green");
-            } else {
-                dur.removeClass("green");
-            }
-        },65535);
+        showDurationBox({
+            seconds: dur.val(),
+            title: name,
+            callback: function(result){
+                dur.val(result);
+                dur.text(dhms2str(sec2dhms(result)));
+                if (result > 0) {
+                    dur.addClass("green");
+                } else {
+                    dur.removeClass("green");
+                }
+            },
+            maximum: 65535
+        });
 
         return false;
     });
@@ -4675,10 +4696,16 @@ function make_program183(n,isCopy) {
             granularity = dur.attr("id").match("interval") ? 1 : 0,
             name = page.find("label[for='"+dur.attr("id")+"']").text();
 
-        showDurationBox(dur.val(),name,function(result){
-            dur.val(result);
-            dur.text(dhms2str(sec2dhms(result)));
-        },65535,granularity);
+        showDurationBox({
+            seconds: dur.val(),
+            title: name,
+            callback: function(result){
+                dur.val(result);
+                dur.text(dhms2str(sec2dhms(result)));
+            },
+            maximum: 65535,
+            granularity: granularity
+        });
         return false;
     });
 
@@ -4852,10 +4879,17 @@ function make_program21(n,isCopy) {
         var dur = $(this),
             name = page.find("label[for='"+dur.attr("id")+"']").text();
 
-        showDurationBox(dur.val(),name,function(result){
-            dur.val(result);
-            dur.text(dhms2str(sec2dhms(result)));
-        },65535,1);
+        showDurationBox({
+            seconds: dur.val(),
+            title: name,
+            callback: function(result){
+                dur.val(result);
+                dur.text(dhms2str(sec2dhms(result)));
+            },
+            maximum: 86340,
+            granularity: 1,
+            preventCompression: true
+        });
         return false;
     });
 
@@ -4882,15 +4916,20 @@ function make_program21(n,isCopy) {
         var dur = $(this),
             name = controller.stations.snames[dur.attr("id").split("_")[1].split("-")[0]];
 
-        showDurationBox(dur.val(),name,function(result){
-            dur.val(result);
-            dur.text(dhms2str(sec2dhms(result)));
-            if (result > 0) {
-                dur.addClass("green");
-            } else {
-                dur.removeClass("green");
-            }
-        },65535);
+        showDurationBox({
+            seconds: dur.val(),
+            title: name,
+            callback: function(result){
+                dur.val(result);
+                dur.text(dhms2str(sec2dhms(result)));
+                if (result > 0) {
+                    dur.addClass("green");
+                } else {
+                    dur.removeClass("green");
+                }
+            },
+            maximum: 65535
+        });
 
         return false;
     });
@@ -5524,31 +5563,39 @@ function areYouSure(text1, text2, callback) {
     $("#sure").popup({history: false, positionTo: "window"}).popup("open");
 }
 
-function showDurationBox(seconds,title,callback,maximum,granularity) {
-    $("#durationBox").popup("destroy").remove();
+function showDurationBox(opt) {
+    var defaults = {
+            seconds: 0,
+            title: _("Duration"),
+            granularity: 0,
+            preventCompression: false,
+            callback: function(){}
+        };
 
-    title = title || _("Duration");
-    callback = callback || function(){};
-    granularity = granularity || 0;
+    opt = $.extend({}, defaults, opt);
+
+    $("#durationBox").popup("destroy").remove();
 
     var keys = ["days","hours","minutes","seconds"],
         text = [_("Days"),_("Hours"),_("Minutes"),_("Seconds")],
         conv = [86400,3600,60,1],
         max = [0,23,59,59],
-        total = 4 - granularity,
+        total = 4 - opt.granularity,
         start = 0,
-        arr = sec2dhms(seconds),
+        arr = sec2dhms(opt.seconds),
         i;
 
-    if (checkOSVersion(210) && maximum > 64800) {
-        maximum = 64800;
+    opt.seconds = parseInt(opt.seconds);
+
+    if (!opt.preventCompression && (checkOSVersion(210) && opt.maximum > 64800)) {
+        opt.maximum = 64800;
     }
 
-    if (maximum) {
+    if (opt.maximum) {
         for (i=conv.length-1; i>=0; i--) {
-            if (maximum < conv[i]) {
+            if (opt.maximum < conv[i]) {
                 start = i+1;
-                total = (conv.length - start) - granularity;
+                total = (conv.length - start) - opt.granularity;
                 break;
             }
         }
@@ -5559,7 +5606,7 @@ function showDurationBox(seconds,title,callback,maximum,granularity) {
         decrbts = "<fieldset class='ui-grid-"+String.fromCharCode(95+(total))+" decr'>",
         popup = $("<div data-role='popup' id='durationBox' data-theme='a' data-overlay-theme='b'>" +
             "<div data-role='header' data-theme='b'>" +
-                "<h1>"+title+"</h1>" +
+                "<h1>"+opt.title+"</h1>" +
             "</div>" +
             "<div class='ui-content'>" +
                 "<span>" +
@@ -5575,21 +5622,21 @@ function showDurationBox(seconds,title,callback,maximum,granularity) {
                 return;
             }
 
-            if ((dir === -1 && val === 0) || (dir === 1 && (getValue() + conv[apos]) > maximum)) {
+            if ((dir === -1 && val === 0) || (dir === 1 && (getValue() + conv[apos]) > opt.maximum)) {
                 return;
             }
 
             // Increment next time field on current max
-            if (max[apos] !== 0 && pos !== 0 && val >= max[apos]) {
+            if (dir === 1 && (max[apos] !== 0 && pos !== 0 && val >= max[apos])) {
                 input.val(0);
                 input = popup.find(".inputs input").eq(pos-1);
                 val = parseInt(input.val());
             }
 
             input.val(val+dir);
-            callback(getValue());
+            opt.callback(getValue());
 
-            if (checkOSVersion(210)) {
+            if (!opt.preventCompression && checkOSVersion(210)) {
                 var state = (dir === 1) ? true : false;
 
                 if (dir === 1) {
@@ -5626,7 +5673,7 @@ function showDurationBox(seconds,title,callback,maximum,granularity) {
             }).parent(".ui-input-text").toggleClass("ui-state-disabled",state);
         };
 
-    for (i=start; i<conv.length - granularity; i++) {
+    for (i=start; i<conv.length - opt.granularity; i++) {
         incrbts += "<div "+((total > 1) ? "class='ui-block-"+String.fromCharCode(97+i-start)+"'" : "")+"><a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a></div>";
         inputs += "<div "+((total > 1) ? "class='ui-block-"+String.fromCharCode(97+i-start)+"'" : "")+"><label>"+_(text[i])+"</label><input class='"+keys[i]+"' type='number' pattern='[0-9]*' value='"+arr[keys[i]]+"'></div>";
         decrbts += "<div "+((total > 1) ? "class='ui-block-"+String.fromCharCode(97+i-start)+"'" : "")+"><a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='minus' data-iconpos='bottom'></a></div>";
@@ -5638,12 +5685,12 @@ function showDurationBox(seconds,title,callback,maximum,granularity) {
 
     popup.find("span").prepend(incrbts+inputs+decrbts);
 
-    if (checkOSVersion(210)) {
-        if (seconds >= 60) {
+    if (!opt.preventCompression && checkOSVersion(210)) {
+        if (opt.seconds >= 60) {
             toggleInput("seconds",true);
         }
 
-        if (seconds >= 10800) {
+        if (opt.seconds >= 10800) {
             toggleInput("minutes",true);
         }
     }
@@ -5669,7 +5716,7 @@ function showDurationBox(seconds,title,callback,maximum,granularity) {
         "positionTo": "window"
     })
     .one("popupafterclose",function(){
-        callback(getValue());
+        opt.callback(getValue());
         $(this).popup("destroy").remove();
     })
     .enhanceWithin().popup("open");
