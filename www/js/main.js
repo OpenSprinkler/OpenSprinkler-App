@@ -2281,7 +2281,7 @@ function show_options() {
     }
 
     if (typeof controller.options.uwt !== "undefined") {
-        algorithm = ["Disabled","Zimmerman"];
+        algorithm = [_("Manual"),"Zimmerman"];
         list += "<div class='ui-field-contain'><label for='o31' class='select'>"+_("Weather Adjustment Method")+"<button data-helptext='"+_("Weather adjustment uses Weather Underground data in conjunction with the selected method to adjust the watering percentage.")+"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><select "+(controller.settings.wtkey && controller.settings.wtkey !== "" ? "" : "disabled='disabled' ")+"data-mini='true' id='o31'>";
         for (i=0; i<algorithm.length; i++) {
             list += "<option "+((i === controller.options.uwt) ? "selected" : "")+" value='"+i+"'>"+algorithm[i]+"</option>";
