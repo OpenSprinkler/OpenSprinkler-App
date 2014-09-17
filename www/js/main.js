@@ -2636,7 +2636,7 @@ function show_stations() {
             duration = button.prev().find("select").val();
 
         send_to_os("/cm?sid="+station+"&en=1&t="+duration+"&pw=").done(function(){
-            showerror(_("Station test currently running"));
+            showerror(_("Station test activated"));
         });
     });
 
