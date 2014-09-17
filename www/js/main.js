@@ -624,6 +624,7 @@ function newload() {
         "box-shadow": "none",
         "margin-top": "-4em"
     }).find(".cancel").one("click",function(){
+        $.ajaxQueue.clear();
         changePage("#site-control",{"showBack": false});
     });
 
