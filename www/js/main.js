@@ -612,7 +612,7 @@ function network_fail(){
 // Gather new controller information and load home page
 function newload() {
     var name = $("#site-selector").val(),
-        loading = "<div class='logo'></div><h1 style='padding-top:5px'>"+_("Connecting to")+" "+name+"</h1><p class='tight center inline-icon'><span class='cancel btn-no-border ui-btn ui-icon-delete ui-btn-icon-notext'></span>Cancel</p>";
+        loading = "<div class='logo'></div><h1 style='padding-top:5px'>"+_("Connecting to")+" "+name+"</h1><p class='cancel tight center inline-icon'><span class='btn-no-border ui-btn ui-icon-delete ui-btn-icon-notext'></span>Cancel</p>";
 
     $.mobile.loading("show", {
         html: curr_local ? "<h1>"+_("Loading")+"</h1>" : loading,
@@ -1599,7 +1599,7 @@ function start_scan(port,type) {
     }
 
     $.mobile.loading("show", {
-        html: "<h1>"+text+"</h1><p class='tight center inline-icon'><span class='cancel btn-no-border ui-btn ui-icon-delete ui-btn-icon-notext'></span>Cancel</p>",
+        html: "<h1>"+text+"</h1><p class='cancel tight center inline-icon'><span class='btn-no-border ui-btn ui-icon-delete ui-btn-icon-notext'></span>Cancel</p>",
         textVisible: true,
         theme: "b"
     });
