@@ -45,6 +45,12 @@
     right:5px;
     top:5px
 }
+.duration-input > label {
+    width: 50%;
+}
+.duration-input > label~[class*=ui-] {
+    width: 48%;
+}
 a {
     text-decoration:none
 }
@@ -207,11 +213,9 @@ body {
     }
     .duration-input > label {
         float: left;
-        width: 50%;
         margin: .5em 2% 0 0;
     }
     .duration-input > label~[class*=ui-] {
-        width: 48%;
         box-sizing: border-box;
     }
 }
