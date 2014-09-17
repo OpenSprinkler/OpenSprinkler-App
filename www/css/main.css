@@ -119,6 +119,10 @@ a {
     padding: 5px;
     margin: 0 auto;
 }
+.card-group > button {
+    max-width: 500px;
+    margin: 8px auto;
+}
 .seperate-btn .ui-checkbox {
     float: none !important;
     display: inline-block;
@@ -428,7 +432,6 @@ div.running-text{
 }
 
 /* Station editor page rules */
-
 
 /* Status page rules */
 
