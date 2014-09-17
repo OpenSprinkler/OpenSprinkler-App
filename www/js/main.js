@@ -5571,6 +5571,7 @@ function showDurationBox(opt) {
             title: _("Duration"),
             granularity: 0,
             preventCompression: false,
+            showBack: true,
             callback: function(){}
         };
 
@@ -5613,6 +5614,7 @@ function showDurationBox(opt) {
             "<div class='ui-content'>" +
                 "<span>" +
                 "</span>" +
+                (opt.showBack ? "<button class='submit' data-theme='b'>"+_("Submit")+"</button>" : "") +
             "</div>" +
         "</div>"),
         changeValue = function(pos,dir){
@@ -5686,6 +5688,11 @@ function showDurationBox(opt) {
     decrbts += "</fieldset>";
 
     popup.find("span").prepend(incrbts+inputs+decrbts);
+
+    popup.find("button.submit").on("click",function(){
+        opt.callback(getValue());
+        popup.popup("destroy").remove();
+    });
 
     if (!opt.preventCompression && checkOSVersion(210)) {
         if (opt.seconds >= 60) {
