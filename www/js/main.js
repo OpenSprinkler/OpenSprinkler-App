@@ -1487,10 +1487,9 @@ function resetStartMenu() {
 function start_scan(port,type) {
     // type represents the OpenSprinkler model as defined below
     // 0 - OpenSprinkler using firmware 2.0+
-    // 1 - OpenSprinkler Pi using 2.1+
-    // 2 - OpenSprinkler Pi using 1.9 to 2.0
-    // 3 - OpenSprinkler using firmware 1.8.3
-    // 4 - OpenSprinkler Pi using 1.8.3
+    // 1 - OpenSprinkler Pi using 1.9+
+    // 2 - OpenSprinkler using firmware 1.8.3
+    // 3 - OpenSprinkler Pi using 1.8.3
 
     var ip = deviceip.split("."),
         scanprogress = 1,
@@ -1562,13 +1561,10 @@ function start_scan(port,type) {
                     start_scan(8080,1);
 
                 } else if (type === 1) {
-                    start_scan(8080,2);
+                    start_scan(80,2);
 
                 } else if (type === 2) {
-                    start_scan(80,3);
-
-                } else if (type === 3) {
-                    start_scan(8080,4);
+                    start_scan(8080,3);
 
                 } else {
                     showerror(_("No new devices were detected on your network"));
@@ -1591,11 +1587,11 @@ function start_scan(port,type) {
 
     if (type === 0) {
         text = _("Scanning for OpenSprinkler");
-    } else if (type === 1 || type === 2) {
+    } else if (type === 1) {
         text = _("Scanning for OpenSprinkler Pi");
-    } else if (type === 3) {
+    } else if (type === 2) {
         text = _("Scanning for OpenSprinkler (1.8.3)");
-    } else if (type === 4) {
+    } else if (type === 3) {
         text = _("Scanning for OpenSprinkler Pi (1.8.3)");
     }
 
@@ -1612,8 +1608,8 @@ function start_scan(port,type) {
     // Start scan
     for (i = 1; i<=244; i++) {
         ip = baseip+"."+i;
-        if (type < 4) {
-            suffix = (type === 1) ? "/jv" : "/jo";
+        if (type < 2) {
+            suffix = "/jo";
             dtype = "json";
         } else {
             dtype = "text";
