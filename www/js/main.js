@@ -4105,7 +4105,7 @@ function get_logs() {
             if ((total-container) > 0 && sleft < ((total-container) - 13)) {
                 right.show().css({
                     "margin-top":(height/2)-12.5,
-                    "left":container
+                    "left":container + ((logs.width() - container) / 2) - 18
                 });
             } else {
                 right.hide();
