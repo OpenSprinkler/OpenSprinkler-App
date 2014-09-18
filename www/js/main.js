@@ -2570,9 +2570,12 @@ function show_stations() {
         hasAR = (typeof controller.stations.act_relay === "object") ? true : false,
         hasSD = (typeof controller.stations.stn_dis === "object") ? true : false,
         optCount = hasIR + isMaster + hasAR + hasSD,
-        is21 = checkOSVersion(210);
+        is21 = checkOSVersion(210),
+        station, i;
 
-    $.each(controller.stations.snames,function(i, station) {
+    for (i=0; i<controller.stations.snames.length; i++) {
+        station = controller.stations.snames[i];
+
         // Group card settings visually
         cards += "<div class='ui-corner-all card'>";
         cards += "<div class='ui-body ui-body-a center'>";
@@ -2610,7 +2613,7 @@ function show_stations() {
 
         // Close current card group
         cards += "</div></div>";
-    });
+    }
 
     page.find(".ui-content").html("<div id='os-stations-list' class='card-group center'>"+cards+"<button class='submit'>"+_("Submit")+"</button><button data-theme='b' class='reset'>"+_("Reset")+"</button></div>");
 
