@@ -973,7 +973,7 @@ function submit_newuser(ssl,useAuth) {
     document.activeElement.blur();
     $.mobile.loading("show");
 
-    var ip = $("#os_ip").val(),
+    var ip = $.mobile.path.parseUrl($("#os_ip").val()).authority,
         success = function(data,sites){
             $.mobile.loading("hide");
             var is183;
@@ -983,8 +983,7 @@ function submit_newuser(ssl,useAuth) {
             }
 
             if (data.fwv !== undefined || is183 === true) {
-                var name = $("#os_name").val(),
-                    ip = $("#os_ip").val().replace(/^https?:\/\//,"");
+                var name = $("#os_name").val();
 
                 if (name === "") {
                     name = "Site "+(Object.keys(sites).length+1);
