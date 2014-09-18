@@ -549,11 +549,6 @@ function send_to_os(dest,type) {
 
     defer = $.ajaxQueue(obj).then(
         function(data){
-            // Don't need to handle this situation for OSPi or firmware below 2.1.0
-            if (typeof data !== "object" || typeof data.result !== "number") {
-                return data;
-            }
-
             // In case the data type was incorrect, attempt to fix. If fix not possible, return string
             if (typeof data === "string") {
                 try {
@@ -561,6 +556,11 @@ function send_to_os(dest,type) {
                 } catch(e) {
                     return data;
                 }
+            }
+
+            // Don't need to handle this situation for OSPi or firmware below 2.1.0
+            if (typeof data !== "object" || typeof data.result !== "number") {
+                return data;
             }
 
             // Return as successful
@@ -577,7 +577,7 @@ function send_to_os(dest,type) {
             }
 
             // Only show error messages on setting change requests
-            if (/\/(?:cv|cs|cr|cp|uwa|dp|co|cl|cu|up)/.exec(dest)) {
+            if (/\/(?:cv|cs|cr|cp|uwa|dp|co|cl|cu|up|cm)/.exec(dest)) {
                 if (data.result === 2) {
                     showerror(_("Check device password and try again."));
                 } else if (data.result === 48) {
@@ -592,7 +592,7 @@ function send_to_os(dest,type) {
 
         },
         function(e){
-            if ((e.statusText==="timeout" || e.status===0) && /\/(?:cv|cs|cr|cp|uwa|dp|co|cl|cu)/.exec(dest)) {
+            if ((e.statusText==="timeout" || e.status===0) && /\/(?:cv|cs|cr|cp|uwa|dp|co|cl|cu|cm)/.exec(dest)) {
                 // Handle the connection timing out but only show error on setting change
                 showerror(_("Connection timed-out. Please try again."));
             } else if (e.status===401) {
@@ -2578,7 +2578,7 @@ function show_stations() {
         cards += "<div class='ui-body ui-body-a center'>";
         cards += "<p class='tight center inline-icon station-name' id='station_"+i+"'>"+station+editButton+"</p>";
 
-        if (is21) {
+        if (is21 && controller.options.mas !== i+1) {
             cards += "<fieldset data-role='controlgroup' data-type='horizontal' data-mini='true' class='center'>";
             cards += "<legend>"+_("Test Station")+"</legend>";
             cards += "<select><option value='60'>1 min</option><option value='300'>5 mins</option><option value='600'>10 mins</option><option value='900'>15 mins</option><option value='1200'>20 mins</option></select>";
@@ -2586,11 +2586,11 @@ function show_stations() {
             cards += "</fieldset>";
         }
 
-        if (optCount > 0) {
+        if (optCount > 0 && controller.options.mas !== i+1) {
             cards += "<fieldset data-role='controlgroup' data-type='horizontal' data-mini='true' class='center seperate-btn'>";
 
             if (isMaster) {
-                cards += "<input id='um_"+i+"' type='checkbox' "+((controller.stations.masop[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+((controller.options.mas === i+1) ? "disabled='disabled'" : "")+"><label for='um_"+i+"'>"+_("Use Master")+"</label>";
+                cards += "<input id='um_"+i+"' type='checkbox' "+((controller.stations.masop[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+"><label for='um_"+i+"'>"+_("Use Master")+"</label>";
             }
 
             if (hasIR) {
@@ -2619,7 +2619,7 @@ function show_stations() {
             station = button.attr("id").split("-")[1],
             duration = button.prev().find("select").val();
 
-        send_to_os("/cm?sid="+station+"&en=1&t="+duration+"&pw=").done(function(){
+        send_to_os("/cm?sid="+station+"&en=1&t="+duration+"&pw=","json").done(function(){
             showerror(_("Station test activated"));
         });
     });
@@ -2820,12 +2820,12 @@ function get_status() {
             }
             var pid = controller.settings.ps[i][0],
                 pname = pidname(pid);
-            if (controller.status[i] && (pid!==255&&pid!==99)) {
+            if (controller.status[i] && rem > 0) {
                 runningTotal[i] = rem;
             }
             allPnames[i] = pname;
             info = "<p class='rem'>"+((controller.status[i]) ? _("Running") : _("Scheduled"))+" "+pname;
-            if (pid!==255&&pid!==99) {
+            if (rem>0) {
                 info += " <span id='countdown-"+i+"' class='nobr'>(" + sec2hms(rem) + " "+_("remaining")+")</span>";
             }
             info += "</p>";
@@ -3024,7 +3024,7 @@ function check_status() {
         line   = "<div><div class='running-icon'></div><div class='running-text'>";
 
         line += pname+" "+_("is running on")+" "+Object.keys(open).length+" "+_("stations")+" ";
-        if (pid!==255&&pid!==99) {
+        if (ptotal > 0) {
             line += "<span id='countdown' class='nobr'>("+sec2hms(ptotal)+" "+_("remaining")+")</span>";
         }
         line += "</div></div>";
@@ -3043,7 +3043,7 @@ function check_status() {
             pname = pidname(pid);
             line = "<div><div class='running-icon'></div><div class='running-text'>";
             line += pname+" "+_("is running on station")+" <span class='nobr'>"+controller.stations.snames[i]+"</span> ";
-            if (pid!==255&&pid!==99) {
+            if (controller.settings.ps[i][1] > 0) {
                 line += "<span id='countdown' class='nobr'>("+sec2hms(controller.settings.ps[i][1])+" "+_("remaining")+")</span>";
             }
             line += "</div></div>";
