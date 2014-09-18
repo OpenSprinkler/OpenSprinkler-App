@@ -6189,7 +6189,7 @@ function update_lang(lang) {
     }
 
     if (curr_local) {
-        prefix = $("head").find("script[src$='jquery.js']").eq(0).attr("src").slice(0,-12);
+        prefix = $("head").find("script[src$='app.jgz']").eq(0).attr("src").slice(0,-10);
     }
 
     $.getJSON(prefix+"locale/"+lang+".js",function(store){
