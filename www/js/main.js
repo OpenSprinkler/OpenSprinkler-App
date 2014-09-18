@@ -2777,6 +2777,19 @@ function get_status() {
         page.find(".ui-content").empty();
     }
 
+    page.off("click","li.green").on("click","li.green",function(){
+        var station = $(this).index();
+
+        if (checkOSVersion(210)) {
+            areYouSure(_("Do you want to stop the selected station?"),controller.stations.snames[station],function(){
+                send_to_os("/cm?sid="+station+"&en=0&pw=").done(function(){
+                    refresh_status();
+                    showerror(_("Station has been stopped"));
+                });
+            });
+        }
+    });
+
     page.find("div[data-role='header'] > .ui-btn-right").on("click",refresh_status);
 
     var header = "<span id='clock-s' class='nobr'>"+dateToString(new Date(controller.settings.devt*1000))+"</span>";
