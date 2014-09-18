@@ -3872,6 +3872,7 @@ function get_preview() {
 // Logging functions
 function get_logs() {
     var now = new Date(),
+        isNarrow = $.mobile.window.width() < 640 ? true : false,
         logs = $("<div data-role='page' id='logs'>" +
             "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false' data-hide-during-focus=''>" +
                 "<a href='javascript:void(0);' class='ui-btn ui-corner-all ui-shadow ui-btn-left ui-btn-b ui-toolbar-back-btn ui-icon-carat-l ui-btn-icon-left' data-rel='back'>"+_("Back")+"</a>" +
@@ -3880,9 +3881,9 @@ function get_logs() {
             "</div>" +
             "<div class='ui-content' role='main'>" +
                 "<fieldset data-role='controlgroup' data-type='horizontal' data-mini='true' class='log_type'>" +
-                    "<input data-mini='true' type='radio' name='log_type' id='log_graph' value='graph' checked='checked'>" +
+                    "<input data-mini='true' type='radio' name='log_type' id='log_graph' value='graph' "+(isNarrow ? "" : "checked='checked'")+">" +
                     "<label for='log_graph'>"+_("Graph")+"</label>" +
-                    "<input data-mini='true' type='radio' name='log_type' id='log_table' value='table'>" +
+                    "<input data-mini='true' type='radio' name='log_type' id='log_table' value='table' "+(!isNarrow ? "" : "checked='checked'")+">" +
                     "<label for='log_table'>"+_("Table")+"</label>" +
                 "</fieldset>" +
                 "<div id='placeholder'></div>" +
