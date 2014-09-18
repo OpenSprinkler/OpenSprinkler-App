@@ -142,9 +142,10 @@ a {
     background-clip: initial !important;
     -webkit-background-clip: initial !important;
 }
-.pad_buttons, #durationBox .ui-input-text {
+.pad_buttons {
     width: 94% !important;
-    margin: 0 auto
+    margin: 6.25px auto !important;
+    display: block;
 }
 .input_with_buttons .ui-input-text {
     display:inline-block;

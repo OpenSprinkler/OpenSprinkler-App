@@ -4660,13 +4660,13 @@ function make_program183(n,isCopy) {
     list += "</fieldset>";
 
     list += "<div class='ui-grid-a'>";
-    list += "<div class='ui-block-a'><label for='start-"+id+"'>"+_("Start Time")+"</label><input data-mini='true' type='time' name='start-"+id+"' id='start-"+id+"' value='"+pad(parseInt(program.start/60)%24)+":"+pad(program.start%60)+"'></div>";
-    list += "<div class='ui-block-b'><label for='end-"+id+"'>"+_("End Time")+"</label><input data-mini='true' type='time' name='end-"+id+"' id='end-"+id+"' value='"+pad(parseInt(program.end/60)%24)+":"+pad(program.end%60)+"'></div>";
+    list += "<div class='ui-block-a'><label class='center' for='start-"+id+"'>"+_("Start Time")+"</label><input data-wrapper-class='pad_buttons' data-mini='true' type='time' name='start-"+id+"' id='start-"+id+"' value='"+pad(parseInt(program.start/60)%24)+":"+pad(program.start%60)+"'></div>";
+    list += "<div class='ui-block-b'><label class='center' for='end-"+id+"'>"+_("End Time")+"</label><input data-wrapper-class='pad_buttons' data-mini='true' type='time' name='end-"+id+"' id='end-"+id+"' value='"+pad(parseInt(program.end/60)%24)+":"+pad(program.end%60)+"'></div>";
     list += "</div>";
 
     list += "<div class='ui-grid-a'>";
-    list += "<div class='ui-block-a'><label for='duration-"+id+"'>"+_("Station Duration")+"</label><button data-mini='true' name='duration-"+id+"' id='duration-"+id+"' value='"+program.duration+"'>"+dhms2str(sec2dhms(program.duration))+"</button></div>";
-    list += "<div class='ui-block-b'><label for='interval-"+id+"'>"+_("Program Interval")+"</label><button data-mini='true' name='interval-"+id+"' id='interval-"+id+"' value='"+program.interval*60+"'>"+dhms2str(sec2dhms(program.interval*60))+"</button></div>";
+    list += "<div class='ui-block-a'><label class='pad_buttons center' for='duration-"+id+"'>"+_("Station Duration")+"</label><button class='pad_buttons' data-mini='true' name='duration-"+id+"' id='duration-"+id+"' value='"+program.duration+"'>"+dhms2str(sec2dhms(program.duration))+"</button></div>";
+    list += "<div class='ui-block-b'><label class='pad_buttons center' for='interval-"+id+"'>"+_("Program Interval")+"</label><button class='pad_buttons' data-mini='true' name='interval-"+id+"' id='interval-"+id+"' value='"+program.interval*60+"'>"+dhms2str(sec2dhms(program.interval*60))+"</button></div>";
     list += "</div>";
 
     if (isCopy === true || n === "new") {
@@ -5679,7 +5679,7 @@ function showDurationBox(opt) {
 
     for (i=start; i<conv.length - opt.granularity; i++) {
         incrbts += "<div "+((total > 1) ? "class='ui-block-"+String.fromCharCode(97+i-start)+"'" : "")+"><a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a></div>";
-        inputs += "<div "+((total > 1) ? "class='ui-block-"+String.fromCharCode(97+i-start)+"'" : "")+"><label>"+_(text[i])+"</label><input class='"+keys[i]+"' type='number' pattern='[0-9]*' value='"+arr[keys[i]]+"'></div>";
+        inputs += "<div "+((total > 1) ? "class='ui-block-"+String.fromCharCode(97+i-start)+"'" : "")+"><label>"+_(text[i])+"</label><input data-wrapper-class='pad_buttons' class='"+keys[i]+"' type='number' pattern='[0-9]*' value='"+arr[keys[i]]+"'></div>";
         decrbts += "<div "+((total > 1) ? "class='ui-block-"+String.fromCharCode(97+i-start)+"'" : "")+"><a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='minus' data-iconpos='bottom'></a></div>";
     }
 
