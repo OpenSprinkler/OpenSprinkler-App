@@ -2565,6 +2565,29 @@ function show_stations() {
             "</div>" +
         "</div>"),
         editButton = "<span style='padding-left:10px' class='btn-no-border ui-btn ui-icon-edit ui-btn-icon-notext'></span>",
+        run_station = function(){
+            var button = $(this),
+                station = button.attr("id").split("-")[1],
+                duration = parseInt(button.prev().find("select").val()),
+                reset = function(){
+                    button.text(_("Start")).on("click",run_station);
+                };
+
+            send_to_os("/cm?sid="+station+"&en=1&t="+duration+"&pw=","json").done(function(){
+
+                // Notify user the station test was successful
+                showerror(_("Station test activated"));
+
+                // Change the start button to a stop button
+                button.text(_("Stop")).on("click",function(){
+                    send_to_os("/cm?sid="+station+"&en=0&pw=","json").done(reset);
+                    // Prevent start delegate function from being called
+                    return false;
+                });
+
+                setTimeout(reset,duration*1000);
+            });
+        },
         isMaster = controller.options.mas ? true : false,
         hasIR = (typeof controller.stations.ignore_rain === "object") ? true : false,
         hasAR = (typeof controller.stations.act_relay === "object") ? true : false,
@@ -2617,15 +2640,7 @@ function show_stations() {
 
     page.find(".ui-content").html("<div id='os-stations-list' class='card-group center'>"+cards+"<button class='submit'>"+_("Submit")+"</button><button data-theme='b' class='reset'>"+_("Reset")+"</button></div>");
 
-    page.on("click","[id^='run_station-']",function(){
-        var button = $(this),
-            station = button.attr("id").split("-")[1],
-            duration = button.prev().find("select").val();
-
-        send_to_os("/cm?sid="+station+"&en=1&t="+duration+"&pw=","json").done(function(){
-            showerror(_("Station test activated"));
-        });
-    });
+    page.on("click","[id^='run_station-']",run_station);
 
     page.on("click","[id^='station_']",function(){
         var text = $(this),
