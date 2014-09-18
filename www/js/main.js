@@ -2595,17 +2595,18 @@ function show_stations() {
         // Group card settings visually
         cards += "<div class='ui-corner-all card'>";
         cards += "<div class='ui-body ui-body-a center'>";
-        cards += "<p class='tight center inline-icon' id='station_"+i+"'>"+station+editButton+"</p>";
+        cards += "<p class='tight center inline-icon station-name' id='station_"+i+"'>"+station+editButton+"</p>";
 
         if (is21) {
-            cards += "<div class='center smaller'>"+_("Test Station")+"</div><fieldset data-role='controlgroup' data-type='horizontal' data-mini='true' class='center'>";
+            cards += "<fieldset data-role='controlgroup' data-type='horizontal' data-mini='true' class='center'>";
+            cards += "<legend>"+_("Test Station")+"</legend>";
             cards += "<select><option value='60'>1 min</option><option value='300'>5 mins</option><option value='600'>10 mins</option><option value='900'>15 mins</option><option value='1200'>20 mins</option></select>";
-            cards += "<button id='run_station-"+i+"'>Start</button>";
+            cards += "<button id='run_station-"+i+"'>"+_("Start")+"</button>";
             cards += "</fieldset>";
         }
 
         if (optCount > 0) {
-            cards += "<div class='center smaller'>"+_("Options")+"</div><fieldset data-role='controlgroup' data-type='horizontal' data-mini='true' class='center seperate-btn'>";
+            cards += "<fieldset data-role='controlgroup' data-type='horizontal' data-mini='true' class='center seperate-btn'>";
 
             if (isMaster) {
                 cards += "<input id='um_"+i+"' type='checkbox' "+((controller.stations.masop[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+((controller.options.mas === i+1) ? "disabled='disabled'" : "")+"><label for='um_"+i+"'>"+_("Use Master")+"</label>";
