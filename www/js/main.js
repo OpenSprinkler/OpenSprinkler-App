@@ -643,7 +643,6 @@ function newload() {
     update_controller(
         function(){
             var log_button = $("#log_button"),
-                clear_logs = $(".clear_logs"),
                 manual_mode = $(".manual_mode"),
                 change_password = $(".change_password");
 
@@ -663,13 +662,6 @@ function newload() {
                 log_button.css("display","");
             } else {
                 log_button.hide();
-            }
-
-            // Hide clear logs button when using Arduino device (feature not enabled yet)
-            if (isOSPi() || checkOSVersion(210)) {
-                clear_logs.css("display","");
-            } else {
-                clear_logs.hide();
             }
 
             // Hide change password feature for unsupported devices
@@ -1995,17 +1987,6 @@ function show_settings() {
         $id.on("change",flipSwitched);
     });
     var settings = $("#settings");
-    settings.find(".clear_logs > a").off("click").on("click",function(){
-        areYouSure(_("Are you sure you want to clear all your log data?"), "", function() {
-            var url = isOSPi() ? "/cl?pw=" : "/dl?pw=&day=all";
-            $.mobile.loading("show");
-            send_to_os(url).done(function(){
-                $.mobile.loading("hide");
-                showerror(_("Logs have been cleared"));
-            });
-        });
-        return false;
-    });
     settings.find(".reboot-os").off("click").on("click",function(){
         areYouSure(_("Are you sure you want to reboot OpenSprinkler?"), "", function() {
             $.mobile.loading("show");
@@ -2185,7 +2166,7 @@ function show_settings() {
     });
     settings.one("pagehide",function(){
         $("#en,#mm").off("change");
-        settings.find(".clear_logs > a,.reboot-os,.clear-config,.show-providers").off("click");
+        settings.find(".reboot-os,.clear-config,.show-providers").off("click");
         $("#localization").find("a").off("click");
     });
 }
@@ -2196,7 +2177,7 @@ function show_options() {
         page = $("<div data-role='page' id='os-options'>" +
             "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false' data-hide-during-focus=''>" +
                 "<a href='javascript:void(0);' class='ui-btn ui-corner-all ui-shadow ui-btn-left ui-btn-b ui-toolbar-back-btn ui-icon-carat-l ui-btn-icon-left' data-rel='back'>"+_("Back")+"</a>" +
-                "<h3>"+_("Change Options")+"</h3>" +
+                "<h3>"+_("Edit Options")+"</h3>" +
                 "<button data-icon='check' class='ui-btn-right'>"+_("Submit")+"</button>" +
             "</div>" +
             "<div class='ui-content' role='main'>" +
@@ -3927,6 +3908,7 @@ function get_logs() {
                         "<input data-mini='true' type='date' id='log_end' value='"+(now.toISOString().slice(0,10))+"'>" +
                     "</div>" +
                     "<a data-role='button' class='export_logs' href='#' data-mini='true'>"+_("Export")+"</a>" +
+                    (isOSPi() || checkOSVersion(210) ? "<a data-role='button' class='clear_logs' href='#' data-mini='true' data-icon='alert'>"+_("Clear Logs")+"</a>" : "") +
                 "</fieldset>" +
                 "<div id='logs_list' class='center'>" +
                 "</div>" +
@@ -4292,6 +4274,20 @@ function get_logs() {
         showArrows();
         seriesChange();
     });
+
+    // Bind clear logs button
+    logs.find(".clear_logs").on("click",function(){
+        areYouSure(_("Are you sure you want to clear all your log data?"), "", function() {
+            var url = isOSPi() ? "/cl?pw=" : "/dl?pw=&day=all";
+            $.mobile.loading("show");
+            send_to_os(url).done(function(){
+                requestData();
+                showerror(_("Logs have been cleared"));
+            });
+        });
+        return false;
+    });
+
 
     //Automatically update the log viewer when changing the date range
     if (isiOS) {
