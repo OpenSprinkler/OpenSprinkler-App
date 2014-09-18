@@ -4850,7 +4850,7 @@ function make_program21(n,isCopy) {
     // Show set times options
     list +="<table style='width:100%;"+((typeof program.start === "object") ? "" : "display:none")+"' id='input_stype_set-"+id+"'><tr><th class='center'>"+_("Enable")+"</th><th>"+_("Start Time")+"</th></tr>";
     for (j=1; j<4; j++) {
-        list += "<tr><td data-role='controlgroup' data-type='horizontal' class='use_master'><label for='ust_"+(j+1)+"'><input id='ust_"+(j+1)+"' type='checkbox' "+((times[j] === -1) ? "" : "checked='checked'")+"></label></td>";
+        list += "<tr><td data-role='controlgroup' data-type='horizontal' class='use_master center'><label for='ust_"+(j+1)+"'><input id='ust_"+(j+1)+"' type='checkbox' "+((times[j] === -1) ? "" : "checked='checked'")+"></label></td>";
         list += "<td><input data-mini='true' type='time' name='start_"+(j+1)+"-"+id+"' id='start_"+(j+1)+"-"+id+"' value='"+pad(parseInt(times[j]/60)%24)+":"+pad(times[j]%60)+"'></td></tr>";
     }
 
