@@ -549,25 +549,31 @@ function send_to_os(dest,type) {
 
     defer = $.ajaxQueue(obj).then(
         function(data){
-
-            try {
-                data = $.parseJSON(data);
-            } catch(e) {
-                return data;
-            }
-
             // Don't need to handle this situation for OSPi or firmware below 2.1.0
             if (typeof data !== "object" || typeof data.result !== "number") {
                 return data;
             }
 
-            if (isOSPi() || !checkOSVersion(210)) {
+            // In case the data type was incorrect, attempt to fix. If fix not possible, return string
+            if (typeof data === "string") {
+                try {
+                    data = $.parseJSON(data);
+                } catch(e) {
+                    return data;
+                }
+            }
+
+            // Return as successful
+            if (data.result === 1) {
                 return data;
             }
 
-            // Return as succesful
-            if (data.result === 1) {
-                return data;
+            // Handle incorrect password
+            if (data.result === 2) {
+                showerror(_("Check device password and try again."));
+
+                // Tell subsequent handlers this request has failed (use 401 to prevent retry)
+                return $.Deferred().reject({"status":401});
             }
 
             // Only show error messages on setting change requests
@@ -589,7 +595,7 @@ function send_to_os(dest,type) {
             if ((e.statusText==="timeout" || e.status===0) && /\/(?:cv|cs|cr|cp|uwa|dp|co|cl|cu)/.exec(dest)) {
                 // Handle the connection timing out but only show error on setting change
                 showerror(_("Connection timed-out. Please try again."));
-            } else if (e.status===401 && /\/(?:cv|cs|cr|cp|uwa|dp|co|cl|cu)/.exec(dest)) {
+            } else if (e.status===401) {
                 //Handle unauthorized requests
                 showerror(_("Check device password and try again."));
             }
