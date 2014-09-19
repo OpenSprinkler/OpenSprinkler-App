@@ -356,6 +356,14 @@ $(document)
             }
         });
     }
+
+    if (newpage === "#sprinklers" || newpage === "#status") {
+        // Update the page every 10 seconds
+        var refreshInterval = setInterval(refresh_status,10000);
+        $newpage.one("pagehide",function(){
+            clearInterval(refreshInterval);
+        });
+    }
 })
 .on("popupafteropen",function(){
     if ($(".ui-overlay-b:not(.ui-screen-hidden)").length) {
@@ -2962,17 +2970,12 @@ function get_status() {
 function refresh_status() {
     var page = $(".ui-page-active").attr("id");
 
-    if (page === "status") {
-        $.mobile.loading("show");
-    }
-
     $.when(
         update_controller_status(),
         update_controller_settings()
     ).then(function(){
         if (page === "status") {
             get_status();
-            $.mobile.loading("hide");
         } else if (page === "sprinklers") {
             removeTimers();
             check_status();
