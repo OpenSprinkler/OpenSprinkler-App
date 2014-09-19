@@ -589,7 +589,7 @@ function send_to_os(dest,type) {
                 if (data.result === 2) {
                     showerror(_("Check device password and try again."));
                 } else if (data.result === 48) {
-                    showerror(_("Manual mode is not enabled. Please enable manual mode then try again."));
+                    showerror(_("The selected station is already running or is scheduled to run."));
                 } else {
                     showerror(_("Please check input and try again."));
                 }
@@ -2577,24 +2577,34 @@ function show_stations() {
             var button = $(this),
                 station = button.attr("id").split("-")[1],
                 duration = parseInt(button.prev().find("select").val()),
+                submit = function(){
+                    stopStations(function(){
+                        send_to_os("/cm?sid="+station+"&en=1&t="+duration+"&pw=","json").done(function(){
+
+                            // Notify user the station test was successful
+                            showerror(_("Station test activated"));
+
+                            // Change the start button to a stop button
+                            button.toggleClass("red green").text(_("Stop")).on("click",function(){
+                                send_to_os("/cm?sid="+station+"&en=0&pw=","json").done(reset);
+                                // Prevent start delegate function from being called
+                                return false;
+                            });
+
+                            setTimeout(reset,duration*1000);
+                        });
+                    });
+                },
                 reset = function(){
-                    button.text(_("Start")).on("click",run_station);
-                };
+                    button.toggleClass("red green").text(_("Start")).on("click",run_station);
+                },
+                isOn = isRunning();
 
-            send_to_os("/cm?sid="+station+"&en=1&t="+duration+"&pw=","json").done(function(){
-
-                // Notify user the station test was successful
-                showerror(_("Station test activated"));
-
-                // Change the start button to a stop button
-                button.text(_("Stop")).on("click",function(){
-                    send_to_os("/cm?sid="+station+"&en=0&pw=","json").done(reset);
-                    // Prevent start delegate function from being called
-                    return false;
-                });
-
-                setTimeout(reset,duration*1000);
-            });
+            if (isOn !== -1) {
+                areYouSure(_("Do you want to stop the currently running program?"), pidname(controller.settings.ps[isOn][0]), submit);
+            } else {
+                submit();
+            }
         },
         isMaster = controller.options.mas ? true : false,
         hasIR = (typeof controller.stations.ignore_rain === "object") ? true : false,
@@ -2616,7 +2626,7 @@ function show_stations() {
             cards += "<fieldset data-role='controlgroup' data-type='horizontal' data-mini='true' class='center'>";
             cards += "<legend>"+_("Test Station")+"</legend>";
             cards += "<select><option value='60'>1 min</option><option value='300'>5 mins</option><option value='600'>10 mins</option><option value='900'>15 mins</option><option value='1200'>20 mins</option></select>";
-            cards += "<button id='run_station-"+i+"'>"+_("Start")+"</button>";
+            cards += "<button class='green' id='run_station-"+i+"'>"+_("Start")+"</button>";
             cards += "</fieldset>";
         }
 
@@ -2996,7 +3006,7 @@ function removeTimers() {
 }
 
 // Actually change the status bar
-function change_status(seconds,sdelay,color,line,onclick) {
+function change_status(seconds,color,line,onclick) {
     var footer = $("#footer-running");
 
     onclick = onclick || function(){};
@@ -3004,7 +3014,7 @@ function change_status(seconds,sdelay,color,line,onclick) {
     removeTimers();
 
     if (seconds > 1) {
-        update_timer(seconds,sdelay);
+        update_timer(seconds,controller.options.sdt);
     }
 
     footer.removeClass().addClass(color).html(line).off("click").on("click",onclick).slideDown();
@@ -3016,7 +3026,7 @@ function check_status() {
 
     // Handle operation disabled
     if (!controller.settings.en) {
-        change_status(0,controller.options.sdt,"red","<p class='running-text center'>"+_("System Disabled")+"</p>",function(){
+        change_status(0,"red","<p class='running-text center'>"+_("System Disabled")+"</p>",function(){
             areYouSure(_("Do you want to re-enable system operation?"),"",function(){
                 showLoading("#footer-running");
                 send_to_os("/cv?pw=&en=1").done(function(){
@@ -3062,7 +3072,7 @@ function check_status() {
             line += "<span id='countdown' class='nobr'>("+sec2hms(ptotal)+" "+_("remaining")+")</span>";
         }
         line += "</div></div>";
-        change_status(ptotal,controller.options.sdt,"green",line,function(){
+        change_status(ptotal,"green",line,function(){
             changePage("#status");
         });
         return;
@@ -3086,7 +3096,7 @@ function check_status() {
     }
 
     if (match) {
-        change_status(controller.settings.ps[i][1],controller.options.sdt,"green",line,function(){
+        change_status(controller.settings.ps[i][1],"green",line,function(){
             changePage("#status");
         });
         return;
@@ -3094,7 +3104,7 @@ function check_status() {
 
     // Handle rain delay enabled
     if (controller.settings.rd) {
-        change_status(0,controller.options.sdt,"red","<p class='running-text center'>"+_("Rain delay until")+" "+dateToString(new Date(controller.settings.rdst*1000))+"</p>",function(){
+        change_status(0,"red","<p class='running-text center'>"+_("Rain delay until")+" "+dateToString(new Date(controller.settings.rdst*1000))+"</p>",function(){
             areYouSure(_("Do you want to turn off rain delay?"),"",function(){
                 showLoading("#footer-running");
                 send_to_os("/cv?pw=&rd=0").done(function(){
@@ -3107,13 +3117,13 @@ function check_status() {
 
     // Handle rain sensor triggered
     if (controller.options.urs === 1 && controller.settings.rs === 1) {
-        change_status(0,controller.options.sdt,"red","<p class='running-text center'>"+_("Rain detected")+"</p>");
+        change_status(0,"red","<p class='running-text center'>"+_("Rain detected")+"</p>");
         return;
     }
 
     // Handle manual mode enabled
     if (controller.settings.mm === 1) {
-        change_status(0,controller.options.sdt,"red","<p class='running-text center'>"+_("Manual mode enabled")+"</p>",function(){
+        change_status(0,"red","<p class='running-text center'>"+_("Manual mode enabled")+"</p>",function(){
             areYouSure(_("Do you want to turn off manual mode?"),"",function(){
                 showLoading("#footer-running");
                 send_to_os("/cv?pw=&mm=0").done(function(){
@@ -3124,7 +3134,7 @@ function check_status() {
         return;
     }
 
-    $("#footer-running").slideUp();
+    change_status(0,"ui-bar ui-bar-a","<p class='tight center'>"+$("#site-selector").val()+"</p>");
 }
 
 // Handle timer update on the home page for the status bar
@@ -3449,7 +3459,7 @@ function submit_runonce(runonce) {
     var submit = function(){
             storage.set({"runonce":JSON.stringify(runonce)});
             $.mobile.loading("show");
-            send_to_os("/cv?pw=&rsn=1").done(function(){
+            stopStations(function(){
                 send_to_os("/cr?pw=&t="+JSON.stringify(runonce)).done(function(){
                     $.mobile.loading("hide");
                     $.mobile.document.one("pageshow",function(){
@@ -3461,17 +3471,10 @@ function submit_runonce(runonce) {
                 });
             });
         },
-        isRunning = false;
+        isOn = isRunning();
 
-    for (var i=0; i<controller.status.length; i++) {
-        if (controller.status[i]) {
-            isRunning = true;
-            break;
-        }
-    }
-
-    if (isRunning) {
-        areYouSure(_("Do you want to stop the currently running program?"), pidname(controller.settings.ps[i][0])+" "+_("is running"), submit);
+    if (isOn !== -1) {
+        areYouSure(_("Do you want to stop the currently running program?"), pidname(controller.settings.ps[isOn][0]), submit);
     } else {
         submit();
     }
@@ -3479,7 +3482,7 @@ function submit_runonce(runonce) {
 
 // Preview functions
 function get_preview() {
-    var now = new Date(),
+    var now = new Date(controller.settings.devt*1000),
         date = now.toISOString().slice(0,10),
         page = $("<div data-role='page' id='preview'>" +
             "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false'>" +
@@ -3905,7 +3908,7 @@ function get_preview() {
 
 // Logging functions
 function get_logs() {
-    var now = new Date(),
+    var now = new Date(controller.settings.devt),
         isNarrow = $.mobile.window.width() < 640 ? true : false,
         logs = $("<div data-role='page' id='logs'>" +
             "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false' data-hide-during-focus=''>" +
@@ -4312,7 +4315,7 @@ function get_logs() {
 
     // Bind clear logs button
     logs.find(".clear_logs").on("click",function(){
-        areYouSure(_("Are you sure you want to clear all your log data?"), "", function() {
+        areYouSure(_("Are you sure you want to clear ALL your log data?"), "", function() {
             var url = isOSPi() ? "/cl?pw=" : "/dl?pw=&day=all";
             $.mobile.loading("show");
             send_to_os(url).done(function(){
@@ -5450,6 +5453,24 @@ function show_about() {
     });
 
     page.appendTo("body");
+}
+
+// OpenSprinkler controller methods
+function isRunning() {
+    for (var i=0; i<controller.status.length; i++) {
+        if (controller.status[i] > 0) {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+function stopStations(callback){
+    // It can take up to a second before stations actually stop
+    send_to_os("/cv?pw=&rsn=1").done(function(){
+        setTimeout(callback,1000);
+    });
 }
 
 // OpenSprinkler feature detection functions
