@@ -2842,11 +2842,23 @@ function get_status() {
     }
 
     // Bind delegate handler to stop specific station (supported on firmware 2.1.0+ on Arduino)
-    page.off("click","li.green").on("click","li.green",function(){
-        var station = $(this).index();
+    page.off("click","li").on("click","li",function(){
+        var el = $(this),
+            station = el.index(),
+            currentStatus = controller.status[station],
+            question;
 
         if (checkOSVersion(210)) {
-            areYouSure(_("Do you want to stop the selected station?"),controller.stations.snames[station],function(){
+            if (currentStatus) {
+                question = _("Do you want to stop the selected station?");
+            } else {
+                if (el.find("span.nobr").length) {
+                    question = _("Do you want to unschedule the selected station?");
+                } else {
+                    return;
+                }
+            }
+            areYouSure(question,controller.stations.snames[station],function(){
                 send_to_os("/cm?sid="+station+"&en=0&pw=").done(function(){
                     refresh_status();
                     showerror(_("Station has been stopped"));
