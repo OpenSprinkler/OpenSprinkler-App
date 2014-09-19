@@ -3143,7 +3143,11 @@ function check_status() {
         return;
     }
 
-    change_status(0,"ui-bar ui-bar-a","<p class='tight center'>"+$("#site-selector").val()+"</p>");
+    if (curr_local) {
+        $("#footer-running").slideUp();
+    } else {
+        change_status(0,"ui-bar ui-bar-a","<p class='tight center'>"+$("#site-selector").val()+"</p>");
+    }
 }
 
 // Handle timer update on the home page for the status bar
