@@ -2586,7 +2586,7 @@ function show_stations() {
             var button = $(this),
                 station = button.attr("id").split("-")[1],
                 duration = parseInt(button.prev().find("select").val()),
-                submit = function(){
+                start = function(){
                     stopStations(function(){
                         send_to_os("/cm?sid="+station+"&en=1&t="+duration+"&pw=","json").done(function(){
 
@@ -2594,25 +2594,38 @@ function show_stations() {
                             showerror(_("Station test activated"));
 
                             // Change the start button to a stop button
-                            button.toggleClass("red green").text(_("Stop")).on("click",function(){
-                                send_to_os("/cm?sid="+station+"&en=0&pw=","json").done(reset);
-                                // Prevent start delegate function from being called
-                                return false;
-                            });
+                            button.removeClass("green").addClass("red").text(_("Stop")).on("click",stop);
 
+                            // Refresh controller status
+                            refresh_status();
+
+                            // Return button back to previous state
                             setTimeout(reset,duration*1000);
                         });
                     });
                 },
+                stop = function(){
+                    send_to_os("/cm?sid="+station+"&en=0&pw=","json").done(reset);
+
+                    // Refresh controller status
+                    refresh_status();
+
+                    // Prevent start delegate function from being called
+                    return false;
+                },
                 reset = function(){
-                    button.toggleClass("red green").text(_("Start")).on("click",run_station);
+                    button.removeClass("red").addClass("green").text(_("Start")).on("click",run_station);
                 },
                 isOn = isRunning();
 
-            if (isOn !== -1) {
-                areYouSure(_("Do you want to stop the currently running program?"), pidname(controller.settings.ps[isOn][0]), submit);
+            if (button.hasClass("green")) {
+                if (isOn !== -1) {
+                    areYouSure(_("Do you want to stop the currently running program?"), pidname(controller.settings.ps[isOn][0]), start);
+                } else {
+                    start();
+                }
             } else {
-                submit();
+                stop();
             }
         },
         isMaster = controller.options.mas ? true : false,
@@ -2635,7 +2648,7 @@ function show_stations() {
             cards += "<fieldset data-role='controlgroup' data-type='horizontal' data-mini='true' class='center'>";
             cards += "<legend>"+_("Test Station")+"</legend>";
             cards += "<select><option value='60'>1 min</option><option value='300'>5 mins</option><option value='600'>10 mins</option><option value='900'>15 mins</option><option value='1200'>20 mins</option></select>";
-            cards += "<button class='green' id='run_station-"+i+"'>"+_("Start")+"</button>";
+            cards += "<button class='"+(controller.status[i] ? "red" : "green")+"' id='run_station-"+i+"'>"+(controller.status[i] ? _("Stop") : _("Start"))+"</button>";
             cards += "</fieldset>";
         }
 
@@ -5480,9 +5493,14 @@ function isRunning() {
 }
 
 function stopStations(callback){
+    $.mobile.loading("show");
+
     // It can take up to a second before stations actually stop
     send_to_os("/cv?pw=&rsn=1").done(function(){
-        setTimeout(callback,1000);
+        setTimeout(function(){
+            $.mobile.loading("hide");
+            callback();
+        },1000);
     });
 }
 
