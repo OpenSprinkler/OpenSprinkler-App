@@ -2086,15 +2086,16 @@ function show_settings() {
     });
     settings.find(".change_password > a").off("click").on("click",function(){
     // Device password management functions
-        var popup = $("<div data-role='popup' id='changePassword' data-theme='a' data-overlay-theme='b'>"+
+        var isPi = isOSPi(),
+            popup = $("<div data-role='popup' id='changePassword' data-theme='a' data-overlay-theme='b'>"+
                     "<ul data-role='listview' data-inset='true'>" +
                         "<li data-role='list-divider'>"+_("Change Password")+"</li>" +
                         "<li>" +
                             "<form method='post' novalidate>" +
                                 "<label for='npw'>"+_("New Password")+":</label>" +
-                                "<input type='password' name='npw' id='npw' value=''>" +
+                                "<input type='password' name='npw' id='npw' value=''"+(isPi ? "" : " maxlength='24'")+">" +
                                 "<label for='cpw'>"+_("Confirm New Password")+":</label>" +
-                                "<input type='password' name='cpw' id='cpw' value=''>" +
+                                "<input type='password' name='cpw' id='cpw' value=''"+(isPi ? "" : " maxlength='24'")+">" +
                                 "<input type='submit' value='"+_("Submit")+"'>" +
                             "</form>" +
                         "</li>" +
@@ -2113,6 +2114,10 @@ function show_settings() {
             if (npw === "") {
                 showerror(_("Password cannot be empty"));
                 return false;
+            }
+
+            if (!isPi && npw.length > 24) {
+                showerror(_("Password cannot be longer than 24 characters"));
             }
 
             $.mobile.loading("show");
