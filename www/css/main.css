@@ -408,10 +408,13 @@ body {
 }
 #footer-running, #showupdate {
     font-weight:400;
-    display:none;
     padding:2px 0;
     font-size:medium;
     position:relative
+}
+#footer-running.ui-bar {
+    font-weight: 600;
+    font-size: 14px;
 }
 .running-icon {
     width:11px;
