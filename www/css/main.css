@@ -453,7 +453,7 @@ div.running-text{
 
 .station-name:before {
     counter-increment: station-id;
-    content: counter(station-id) " ";
+    content: counter(station-id) ": ";
 }
 
 #os-stations-list {
