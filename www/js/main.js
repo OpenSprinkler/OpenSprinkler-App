@@ -3029,7 +3029,10 @@ function get_status() {
                     }
                 } else {
                     $("#countdown-"+a).parent("p").text(_("Station delay")).parent("li").removeClass("green").addClass("red");
-                    timeout_id = setTimeout(refresh_status,controller.options.sdt*1000);
+                    if (timeout_id !== undefined) {
+                        clearTimeout(timeout_id);
+                    }
+                    timeout_id = setTimeout(refresh_status,(controller.options.sdt || 5)*1000);
                 }
             } else {
                 if (a === "c") {
