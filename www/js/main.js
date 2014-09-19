@@ -2866,14 +2866,16 @@ function get_status() {
         header += " <span>"+controller.settings.ct+"&deg;"+controller.settings.tu+"</span>";
     }
 
+    // Set the time for the header to the device time
     runningTotal.c = controller.settings.devt;
 
     var master = controller.options.mas,
         ptotal = 0;
 
+    // Determine total count of stations open excluding the master
     var open = {};
     $.each(controller.status, function (i, stn) {
-        if (stn) {
+        if (stn > 0) {
             open[i] = stn;
         }
     });
@@ -2886,42 +2888,59 @@ function get_status() {
     $.each(controller.stations.snames,function(i, station) {
         var info = "";
 
+        // Check if station is master
         if (master === i+1) {
             station += " ("+_("Master")+")";
         } else if (controller.settings.ps[i][0]) {
+            // If not, get the remaining time for the station
             var rem=controller.settings.ps[i][1];
             if (open > 1) {
+                // If concurrent stations, grab the largest time to be used as program time
                 if (rem > ptotal) {
                     ptotal = rem;
                 }
             } else {
+                // Otherwise, add all of the program times together except for a manual program with a time of 1s
                 if (controller.settings.ps[i][0] !== 99 && rem !== 1) {
                     ptotal+=rem;
                 }
             }
+
             var pid = controller.settings.ps[i][0],
                 pname = pidname(pid);
+
+            // If the station is running, add it's remaining time for updates
             if (controller.status[i] && rem > 0) {
                 runningTotal[i] = rem;
             }
+
+            // Save program name to list of all program names
             allPnames[i] = pname;
-            info = "<p class='rem'>"+((controller.status[i]) ? _("Running") : _("Scheduled"))+" "+pname;
+
+            // Generate status line for station
+            info = "<p class='rem center'>"+((controller.status[i] > 0) ? _("Running")+" "+pname : _("Scheduled")+" "+(checkOSVersion(210) ? _("for")+" "+dateToString(new Date(controller.settings.ps[i][2]*1000)) : pname));
             if (rem>0) {
+                // Show the remaining time if it's greater than 0
                 info += " <span id='countdown-"+i+"' class='nobr'>(" + sec2hms(rem) + " "+_("remaining")+")</span>";
             }
             info += "</p>";
-         }
-        if (controller.status[i]) {
+        }
+
+        // If the station is on, give it color green otherwise red
+        if (controller.status[i] > 0) {
             color = "green";
         } else {
             color = "red";
         }
-        list += "<li class='"+color+(isStationDisabled(i) ? " hidden" : "")+"'><p class='sname'>"+station+"</p>"+info+"</li>";
+
+        // Append the station to the list of stations
+        list += "<li class='"+color+(isStationDisabled(i) ? " hidden" : "")+"'><p class='sname center'>"+station+"</p>"+info+"</li>";
     });
 
     var footer = "";
     var lrdur = controller.settings.lrun[2];
 
+    // If last run duration is given, add it to the footer
     if (lrdur !== 0) {
         var lrpid = controller.settings.lrun[1];
         var pname= pidname(lrpid);
@@ -2929,7 +2948,9 @@ function get_status() {
         footer = "<p>"+pname+" "+_("last ran station")+" "+controller.stations.snames[controller.settings.lrun[0]]+" "+_("for")+" "+(lrdur/60>>0)+"m "+(lrdur%60)+"s "+_("on")+" "+dateToString(new Date(controller.settings.lrun[3]*1000))+"</p>";
     }
 
+    // Display header information
     if (ptotal > 1) {
+        // If a program is running, show which specific programs and their collective total
         var scheduled = allPnames.length;
         if (!open && scheduled) {
             runningTotal.d = controller.options.sdt;
@@ -2945,8 +2966,10 @@ function get_status() {
         runningTotal.p = ptotal;
         header += "<br>"+pinfo;
     } else if (controller.settings.rd) {
+        // Display a rain delay when active
         header +="<br>"+_("Rain delay until")+" "+dateToString(new Date(controller.settings.rdst*1000));
     } else if (controller.options.urs === 1 && controller.settings.rs === 1) {
+        // Show rain sensor status when triggered
         header +="<br>"+_("Rain detected");
     }
 
