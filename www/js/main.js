@@ -700,6 +700,10 @@ function newload() {
         function(){
             if (!curr_local) {
                 changePage("#site-control",{"showBack": false});
+            } else {
+                storage.remove(["sites"],function(){
+                    window.location.reload();
+                });
             }
         }
     );
