@@ -2930,7 +2930,7 @@ function get_status() {
             allPnames[i] = pname;
 
             // Generate status line for station
-            info = "<p class='rem center'>"+((controller.status[i] > 0) ? _("Running")+" "+pname : _("Scheduled")+" "+(checkOSVersion(210) ? _("for")+" "+dateToString(new Date(controller.settings.ps[i][2]*1000)) : pname));
+            info = "<p class='rem center'>"+((controller.status[i] > 0) ? _("Running")+" "+pname : _("Scheduled")+" "+(controller.settings.ps[i][2] ? _("for")+" "+dateToString(new Date(controller.settings.ps[i][2]*1000)) : pname));
             if (rem>0) {
                 // Show the remaining time if it's greater than 0
                 info += " <span id='countdown-"+i+"' class='nobr'>(" + sec2hms(rem) + " "+_("remaining")+")</span>";
