@@ -2836,10 +2836,12 @@ function get_status() {
         list = "",
         lastCheck;
 
+    // Clear page content on reload
     if ($.mobile.pageContainer.pagecontainer("getActivePage").attr("id") === "status") {
         page.find(".ui-content").empty();
     }
 
+    // Bind delegate handler to stop specific station (supported on firmware 2.1.0+ on Arduino)
     page.off("click","li.green").on("click","li.green",function(){
         var station = $(this).index();
 
@@ -2853,10 +2855,13 @@ function get_status() {
         }
     });
 
-    page.find("div[data-role='header'] > .ui-btn-right").on("click",refresh_status);
+    // Bind the refresh button
+    page.find("div[data-role='header'] > .ui-btn-right").off("click").on("click",refresh_status);
 
+    // Display the system time
     var header = "<span id='clock-s' class='nobr'>"+dateToString(new Date(controller.settings.devt*1000))+"</span>";
 
+    // For OSPi, show the current device temperature
     if (typeof controller.settings.ct === "string" && controller.settings.ct !== "0" && typeof controller.settings.tu === "string") {
         header += " <span>"+controller.settings.ct+"&deg;"+controller.settings.tu+"</span>";
     }
