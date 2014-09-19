@@ -471,11 +471,13 @@ div.running-text{
     padding-bottom:4px
 }
 .sname {
-    margin:-.4em 0!important
+    margin:-.4em 0!important;
+    font-size: 16px !important
 }
 .rem {
     margin-bottom:0!important;
-    font-size:.71em!important
+    font-size:.71em!important;
+    white-space: initial !important;
 }
 
 /* Program preview rules */
