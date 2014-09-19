@@ -102,11 +102,17 @@ a {
     font-weight:400;
     text-shadow:none!important
 }
+.red.ui-btn {
+    border-color:#C96161!important;
+}
 .green {
     background:#16a085!important;
     color:#FFF!important;
     font-weight:400;
     text-shadow:none!important
+}
+.green.ui-btn {
+    border-color:#16a085!important;
 }
 .yellow {
     background:#FFC82C!important;
@@ -442,6 +448,15 @@ div.running-text{
     font-weight: 700;
 }
 
+.station-name:before {
+    counter-increment: station-id;
+    content: counter(station-id) " ";
+}
+
+#os-stations-list {
+    counter-reset: station-id;
+}
+
 #os-stations .ui-controlgroup-label {
     display: inline-block;
     padding-right: 8px;
@@ -609,9 +624,6 @@ div.running-text{
     border-right: 1px solid #bebebe;
 }
 @media (max-width:480px) {
-    .timeline-frame {
-        counter-reset:station
-    }
     .timeline-groups-text {
         width:22px;
         overflow:hidden;
