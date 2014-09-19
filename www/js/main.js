@@ -3441,7 +3441,7 @@ function submit_runonce(runonce) {
     if (!(runonce instanceof Array)) {
         runonce = [];
         $("#runonce").find("[id^='zone-']").each(function(a,b){
-            runonce.push(parseInt($(b).val()));
+            runonce.push(parseInt($(b).val()) || 0);
         });
         runonce.push(0);
     }
