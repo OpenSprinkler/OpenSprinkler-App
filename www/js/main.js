@@ -3950,8 +3950,8 @@ function get_logs() {
                         "<label for='log_end'>"+_("End:")+"</label>" +
                         "<input data-mini='true' type='date' id='log_end' value='"+(now.toISOString().slice(0,10))+"'>" +
                     "</div>" +
-                    "<a data-role='button' class='export_logs' href='#' data-mini='true'>"+_("Export")+"</a>" +
-                    (isOSPi() || checkOSVersion(210) ? "<a data-role='button' class='clear_logs' href='#' data-mini='true' data-icon='alert'>"+_("Clear Logs")+"</a>" : "") +
+                    "<a data-role='button' data-icon='action' class='export_logs' href='#' data-mini='true'>"+_("Export")+"</a>" +
+                    (isOSPi() || checkOSVersion(210) ? "<a data-role='button' class='red clear_logs' href='#' data-mini='true' data-icon='alert'>"+_("Clear Logs")+"</a>" : "") +
                 "</fieldset>" +
                 "<div id='logs_list' class='center'>" +
                 "</div>" +
