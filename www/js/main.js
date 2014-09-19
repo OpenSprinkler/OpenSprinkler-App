@@ -2588,6 +2588,8 @@ function show_stations() {
                 duration = parseInt(button.prev().find("select").val()),
                 start = function(){
                     stopStations(function(){
+                        $.mobile.loading("show");
+
                         send_to_os("/cm?sid="+station+"&en=1&t="+duration+"&pw=","json").done(function(){
 
                             // Notify user the station test was successful
@@ -2605,7 +2607,10 @@ function show_stations() {
                     });
                 },
                 stop = function(){
+                    $.mobile.loading("show");
                     send_to_os("/cm?sid="+station+"&en=0&pw=","json").done(reset);
+
+                    $.mobile.loading("hide");
 
                     // Refresh controller status
                     refresh_status();
