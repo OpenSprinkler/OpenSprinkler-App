@@ -3939,7 +3939,7 @@ function get_preview() {
 
 // Logging functions
 function get_logs() {
-    var now = new Date(controller.settings.devt),
+    var now = new Date(controller.settings.devt*1000),
         isNarrow = $.mobile.window.width() < 640 ? true : false,
         logs = $("<div data-role='page' id='logs'>" +
             "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false' data-hide-during-focus=''>" +
