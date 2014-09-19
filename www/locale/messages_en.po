@@ -31,7 +31,7 @@ msgstr ""
 msgid "Check device password and try again."
 msgstr ""
 
-msgid "Manual mode is not enabled. Please enable manual mode then try again."
+msgid "The selected station is already running or is scheduled to run."
 msgstr ""
 
 msgid "Please check input and try again."
@@ -145,6 +145,9 @@ msgstr ""
 msgid "No new devices were detected on your network"
 msgstr ""
 
+msgid "Scanning for OpenSprinkler"
+msgstr ""
+
 msgid "Scanning for OpenSprinkler Pi"
 msgstr ""
 
@@ -152,9 +155,6 @@ msgid "Scanning for OpenSprinkler (1.8.3)"
 msgstr ""
 
 msgid "Scanning for OpenSprinkler Pi (1.8.3)"
-msgstr ""
-
-msgid "Scanning for OpenSprinkler"
 msgstr ""
 
 msgid "Weather Settings"
@@ -202,12 +202,6 @@ msgstr ""
 msgid "Precip"
 msgstr ""
 
-msgid "Are you sure you want to clear all your log data?"
-msgstr ""
-
-msgid "Logs have been cleared"
-msgstr ""
-
 msgid "Are you sure you want to reboot OpenSprinkler?"
 msgstr ""
 
@@ -234,6 +228,9 @@ msgstr ""
 msgid "Password cannot be empty"
 msgstr ""
 
+msgid "Password cannot be longer than 32 characters"
+msgstr ""
+
 msgid "Please check the current device password is correct then try again"
 msgstr ""
 
@@ -249,7 +246,7 @@ msgstr ""
 msgid "Are you sure you want to logout?"
 msgstr ""
 
-msgid "Change Options"
+msgid "Edit Options"
 msgstr ""
 
 msgid "System"
@@ -266,7 +263,7 @@ msgstr ""
 
 msgid ""
 "Location can be a zip code, city/state or a weatherunderground personal "
-"weather station using the format: pws:ID"
+"weather station using the format: pws:ID."
 msgstr ""
 
 msgid "NTP Sync"
@@ -312,32 +309,35 @@ msgstr ""
 msgid "Station Delay"
 msgstr ""
 
-msgid "% Watering"
-msgstr ""
-
-msgid ""
-"The watering level modifies station run times by the set percentage. When a "
-"weather algorithm is used the watering level is automatically adjusted."
-msgstr ""
-
 msgid "Sequential"
 msgstr ""
 
 msgid "Weather Control"
 msgstr ""
 
-msgid "Weather Algorithm"
-msgstr ""
-
-msgid ""
-"Weather algorithm uses Weather Underground data in conjunction with the "
-"selected algorithm to adjust the watering level"
-msgstr ""
-
 msgid "Wunderground Key"
 msgstr ""
 
 msgid "Weather Underground requires an API Key which can be obtained from "
+msgstr ""
+
+msgid "Manual"
+msgstr ""
+
+msgid "Weather Adjustment Method"
+msgstr ""
+
+msgid ""
+"Weather adjustment uses Weather Underground data in conjunction with the "
+"selected method to adjust the watering percentage."
+msgstr ""
+
+msgid "% Watering"
+msgstr ""
+
+msgid ""
+"The watering percentage scales station run times by the set value. When "
+"weather adjustment is used the watering percentage is automatically adjusted."
 msgstr ""
 
 msgid "Use Rain Sensor"
@@ -355,7 +355,7 @@ msgstr ""
 msgid "Device ID (restart required)"
 msgstr ""
 
-msgid "Device ID modifies the last byte of the MAC address"
+msgid "Device ID modifies the last byte of the MAC address."
 msgstr ""
 
 msgid "Relay Pulse"
@@ -385,28 +385,46 @@ msgstr ""
 msgid "Edit Stations"
 msgstr ""
 
-msgid "Station Name"
+msgid "Station test activated"
 msgstr ""
 
-msgid "Activate Master?"
+msgid "Stop"
 msgstr ""
 
-msgid "Ignore Rain?"
+msgid "Start"
 msgstr ""
 
-msgid "Activate Relay?"
+msgid "Do you want to stop the currently running program?"
 msgstr ""
 
-msgid "Master"
+msgid "Test Station"
+msgstr ""
+
+msgid "Use Master"
+msgstr ""
+
+msgid "Ignore Rain"
+msgstr ""
+
+msgid "Activate Relay"
+msgstr ""
+
+msgid "Disable"
 msgstr ""
 
 msgid "Reset"
 msgstr ""
 
-msgid "Station name must be 32 characters or less"
+msgid "Stations have been updated"
 msgstr ""
 
-msgid "Stations have been updated"
+msgid "Do you want to stop the selected station?"
+msgstr ""
+
+msgid "Station has been stopped"
+msgstr ""
+
+msgid "Master"
 msgstr ""
 
 msgid "Running"
@@ -495,6 +513,9 @@ msgstr ""
 msgid "Station Timer"
 msgstr ""
 
+msgid "Manual mode is not enabled. Please enable manual mode then try again."
+msgstr ""
+
 msgid "Zero value excludes the station from the run-once program."
 msgstr ""
 
@@ -562,6 +583,9 @@ msgid "End:"
 msgstr ""
 
 msgid "Export"
+msgstr ""
+
+msgid "Clear Logs"
 msgstr ""
 
 msgid "Rain Sensor"
@@ -647,6 +671,12 @@ msgstr ""
 
 msgid ""
 "The requested time span exceeds the maxiumum of 1 year and has been adjusted"
+msgstr ""
+
+msgid "Are you sure you want to clear ALL your log data?"
+msgstr ""
+
+msgid "Logs have been cleared"
 msgstr ""
 
 msgid "Programs"
@@ -759,7 +789,7 @@ msgstr ""
 msgid "Program Name"
 msgstr ""
 
-msgid "Use Weather Control"
+msgid "Use Weather Adjustment"
 msgstr ""
 
 msgid "Program Type"
@@ -915,13 +945,13 @@ msgstr ""
 msgid "View Logs"
 msgstr ""
 
-msgid "Program Control"
-msgstr ""
-
-msgid "Edit Programs"
+msgid "Programs and Settings"
 msgstr ""
 
 msgid "Run-Once Program"
+msgstr ""
+
+msgid "Edit Programs"
 msgstr ""
 
 msgid "Stop All Stations"
@@ -940,9 +970,6 @@ msgid "Device Settings"
 msgstr ""
 
 msgid "Operation"
-msgstr ""
-
-msgid "Clear Logs"
 msgstr ""
 
 msgid "Reboot OpenSprinkler"
