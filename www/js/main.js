@@ -2093,9 +2093,9 @@ function show_settings() {
                         "<li>" +
                             "<form method='post' novalidate>" +
                                 "<label for='npw'>"+_("New Password")+":</label>" +
-                                "<input type='password' name='npw' id='npw' value=''"+(isPi ? "" : " maxlength='24'")+">" +
+                                "<input type='password' name='npw' id='npw' value=''"+(isPi ? "" : " maxlength='32'")+">" +
                                 "<label for='cpw'>"+_("Confirm New Password")+":</label>" +
-                                "<input type='password' name='cpw' id='cpw' value=''"+(isPi ? "" : " maxlength='24'")+">" +
+                                "<input type='password' name='cpw' id='cpw' value=''"+(isPi ? "" : " maxlength='32'")+">" +
                                 "<input type='submit' value='"+_("Submit")+"'>" +
                             "</form>" +
                         "</li>" +
@@ -2116,8 +2116,8 @@ function show_settings() {
                 return false;
             }
 
-            if (!isPi && npw.length > 24) {
-                showerror(_("Password cannot be longer than 24 characters"));
+            if (!isPi && npw.length > 32) {
+                showerror(_("Password cannot be longer than 32 characters"));
             }
 
             $.mobile.loading("show");
