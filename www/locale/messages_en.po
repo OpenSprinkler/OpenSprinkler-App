@@ -421,6 +421,9 @@ msgstr ""
 msgid "Do you want to stop the selected station?"
 msgstr ""
 
+msgid "Do you want to unschedule the selected station?"
+msgstr ""
+
 msgid "Station has been stopped"
 msgstr ""
 
@@ -433,13 +436,13 @@ msgstr ""
 msgid "Scheduled"
 msgstr ""
 
+msgid "for"
+msgstr ""
+
 msgid "remaining"
 msgstr ""
 
 msgid "last ran station"
-msgstr ""
-
-msgid "for"
 msgstr ""
 
 msgid "on"
