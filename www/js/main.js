@@ -90,14 +90,13 @@ if (isChromeApp) {
 
 // Prevent caching of AJAX requests on Android and Windows Phone devices
 if (isAndroid) {
+    // Hide the back button for Android (all devices have back button)
+    insertStyle(".ui-toolbar-back-btn{display:none!important}");
+
     $(this).ajaxStart(function(){
         try {
             navigator.app.clearCache();
         } catch (err) {}
-    });
-} else if (isIEMobile || isWinApp || isIE) {
-    $.ajaxSetup({
-        "cache": false
     });
 } else if (isFireFoxOS) {
     // Allow cross domain AJAX requests in FireFox OS
@@ -105,6 +104,10 @@ if (isAndroid) {
       xhrFields: {
         mozSystem: true
       }
+    });
+} else {
+    $.ajaxSetup({
+        "cache": false
     });
 }
 
@@ -709,6 +712,9 @@ function newload() {
             }
         },
         function(){
+            $.ajaxQueue.clear();
+            controller = {};
+
             if (!curr_local) {
                 changePage("#site-control",{"showBack": false});
             } else {
@@ -2593,6 +2599,47 @@ function show_stations() {
             "</div>" +
         "</div>"),
         editButton = "<span style='padding-left:10px' class='btn-no-border ui-btn ui-icon-edit ui-btn-icon-notext'></span>",
+        addCard = function(i){
+            var station = controller.stations.snames[i];
+
+            // Group card settings visually
+            cards += "<div class='ui-corner-all card'>";
+            cards += "<div class='ui-body ui-body-a center'>";
+            cards += "<p class='tight center inline-icon station-name' id='station_"+i+"'>"+station+editButton+"</p>";
+
+            if (is21 && controller.options.mas !== i+1) {
+                cards += "<fieldset data-role='controlgroup' data-type='horizontal' data-mini='true' class='center'>";
+                cards += "<legend>"+_("Test Station")+"</legend>";
+                cards += "<select><option value='60'>1 min</option><option value='300'>5 mins</option><option value='600'>10 mins</option><option value='900'>15 mins</option><option value='1200'>20 mins</option></select>";
+                cards += "<button class='"+(controller.status[i] ? "red" : "green")+"' id='run_station-"+i+"'>"+(controller.status[i] ? _("Stop") : _("Start"))+"</button>";
+                cards += "</fieldset>";
+            }
+
+            if (optCount > 0 && controller.options.mas !== i+1) {
+                cards += "<fieldset data-role='controlgroup' data-type='horizontal' data-mini='true' class='center seperate-btn'>";
+
+                if (isMaster) {
+                    cards += "<input id='um_"+i+"' type='checkbox' "+((controller.stations.masop[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+"><label for='um_"+i+"'>"+_("Use Master")+"</label>";
+                }
+
+                if (hasIR) {
+                    cards += "<input id='ir_"+i+"' type='checkbox' "+((controller.stations.ignore_rain[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+"><label for='ir_"+i+"'>"+_("Ignore Rain")+"</label>";
+                }
+
+                if (hasAR) {
+                    cards += "<input id='ar_"+i+"' type='checkbox' "+((controller.stations.act_relay[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+"><label for='ar_"+i+"'>"+_("Activate Relay")+"</label>";
+                }
+
+                if (hasSD) {
+                    cards += "<input id='sd_"+i+"' type='checkbox' "+((controller.stations.stn_dis[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+"><label for='sd_"+i+"'>"+_("Disable")+"</label>";
+                }
+
+                cards += "</fieldset>";
+            }
+
+            // Close current card group
+            cards += "</div></div>";
+        },
         run_station = function(){
             var button = $(this),
                 station = button.attr("id").split("-")[1],
@@ -2650,51 +2697,13 @@ function show_stations() {
         hasSD = (typeof controller.stations.stn_dis === "object") ? true : false,
         optCount = hasIR + isMaster + hasAR + hasSD,
         is21 = checkOSVersion(210),
-        station, i;
+        i;
 
-    for (i=0; i<controller.stations.snames.length; i++) {
-        station = controller.stations.snames[i];
-
-        // Group card settings visually
-        cards += "<div class='ui-corner-all card'>";
-        cards += "<div class='ui-body ui-body-a center'>";
-        cards += "<p class='tight center inline-icon station-name' id='station_"+i+"'>"+station+editButton+"</p>";
-
-        if (is21 && controller.options.mas !== i+1) {
-            cards += "<fieldset data-role='controlgroup' data-type='horizontal' data-mini='true' class='center'>";
-            cards += "<legend>"+_("Test Station")+"</legend>";
-            cards += "<select><option value='60'>1 min</option><option value='300'>5 mins</option><option value='600'>10 mins</option><option value='900'>15 mins</option><option value='1200'>20 mins</option></select>";
-            cards += "<button class='"+(controller.status[i] ? "red" : "green")+"' id='run_station-"+i+"'>"+(controller.status[i] ? _("Stop") : _("Start"))+"</button>";
-            cards += "</fieldset>";
-        }
-
-        if (optCount > 0 && controller.options.mas !== i+1) {
-            cards += "<fieldset data-role='controlgroup' data-type='horizontal' data-mini='true' class='center seperate-btn'>";
-
-            if (isMaster) {
-                cards += "<input id='um_"+i+"' type='checkbox' "+((controller.stations.masop[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+"><label for='um_"+i+"'>"+_("Use Master")+"</label>";
-            }
-
-            if (hasIR) {
-                cards += "<input id='ir_"+i+"' type='checkbox' "+((controller.stations.ignore_rain[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+"><label for='ir_"+i+"'>"+_("Ignore Rain")+"</label>";
-            }
-
-            if (hasAR) {
-                cards += "<input id='ar_"+i+"' type='checkbox' "+((controller.stations.act_relay[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+"><label for='ar_"+i+"'>"+_("Activate Relay")+"</label>";
-            }
-
-            if (hasSD) {
-                cards += "<input id='sd_"+i+"' type='checkbox' "+((controller.stations.stn_dis[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+"><label for='sd_"+i+"'>"+_("Disable")+"</label>";
-            }
-
-            cards += "</fieldset>";
-        }
-
-        // Close current card group
-        cards += "</div></div>";
+    for (i=0; i<8; i++) {
+        addCard(i);
     }
 
-    page.find(".ui-content").html("<div id='os-stations-list' class='card-group center'>"+cards+"<button class='submit'>"+_("Submit")+"</button><button data-theme='b' class='reset'>"+_("Reset")+"</button></div>");
+    page.find(".ui-content").html("<div id='os-stations-list' class='card-group center'>"+cards+"</div><button class='submit'>"+_("Submit")+"</button><button data-theme='b' class='reset'>"+_("Reset")+"</button>");
 
     page.on("click","[id^='run_station-']",run_station);
 
@@ -2725,8 +2734,17 @@ function show_stations() {
         });
     });
 
-    page.one("pagehide",function(){
-        page.remove();
+    page.one({
+        pagehide: function(){
+            page.remove();
+        },
+        pageshow: function(){
+            cards = "";
+            for (i; i<controller.stations.snames.length; i++) {
+                addCard(i);
+            }
+            page.find("#os-stations-list").append(cards).enhanceWithin();
+        }
     });
 
     page.appendTo("body");
@@ -6107,7 +6125,7 @@ function showLoading(ele) {
 
 function goBack(keepIndex) {
     var page = $(".ui-page-active").attr("id"),
-        managerStart = (page === "site-control" && !$("#site-control").find(".ui-btn-left").is(":visible")),
+        managerStart = (page === "site-control" && $.isEmptyObject(controller)),
         popup = $(".ui-popup-active");
 
     if (popup.length) {
