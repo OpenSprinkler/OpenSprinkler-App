@@ -2881,7 +2881,7 @@ function get_status() {
     var header = "<span id='clock-s' class='nobr'>"+dateToString(new Date(controller.settings.devt*1000))+"</span>";
 
     // For OSPi, show the current device temperature
-    if (typeof controller.settings.ct === "string" && controller.settings.ct !== "0" && typeof controller.settings.tu === "string") {
+    if (typeof controller.settings.ct === "string" && controller.settings.ct !== "0.0" && typeof controller.settings.tu === "string") {
         header += " <span>"+controller.settings.ct+"&deg;"+controller.settings.tu+"</span>";
     }
 
