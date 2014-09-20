@@ -5,30 +5,27 @@
 
 	function getAssetLocation() {
 		var body = document.body || document.getElementsByTagName("body")[0],
-			def = "http://rayshobby.net/scripts/sprinklers/",
+			def = "http://ui.opensprinkler.com/",
 			mainScript, src;
 
 		if (!body) {
 			return def;
 		}
 
-		mainScript = body.querySelector("script[src]");
+		mainScript = body.querySelector("script");
 
 		if (!mainScript) {
 			return def;
 		}
 
-		mainScript = mainScript.src;
+		src = mainScript.src;
 
-		if (!mainScript) {
+		if (!src) {
 			return def;
 		}
 
-		src = mainScript.slice(0,-10);
-		if(src.substr(-1) === "/") {
-			src.substr(0, src.length - 1);
-		}
-		return src;
+		src = /^\s*(((([^:\/#\?]+:)?(?:(\/\/)((?:(([^:@\/#\?]+)(?:\:([^:@\/#\?]+))?)@)?(([^:\/#\?\]\[]+|\[[^\/\]@#?]+\])(?:\:([0-9]+))?))?)?)?((\/?(?:[^\/\?#]+\/+)*)([^\?#]*)))?(\?[^#]+)?)(#.*)?/.exec( src || "" ) || [];
+		return src[3] || def;
 	}
 
 	function insertStyle(css) {
