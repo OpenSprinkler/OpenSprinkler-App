@@ -126,6 +126,9 @@ module.exports = function(grunt) {
     },
 
     shell: {
+      updateUI: {
+        command: "tasks/updateui.sh <%= secrets.firmware.location %>"
+      },
       pushEng: {
         command: "tasks/pusheng.sh"
       },
@@ -231,16 +234,20 @@ module.exports = function(grunt) {
       }
     },
 
-    clean: ["www/js/app.js", "www/css/app.css", "www/css/app.cgz", "www/js/*.jgz"]
+    clean: {
+      makeFW: ["www/js/app.js", "www/css/app.css", "www/css/app.cgz", "www/js/*.jgz"],
+      pushFW: ["build/firmware/*"]
+    }
   });
 
   // Default task(s).
   grunt.registerTask("default",["jshint"]);
-  grunt.registerTask("test",["mocha"]);
+  grunt.registerTask("test",["jshint","mocha"]);
   grunt.registerTask("updateLang",["shell:updateLang"]);
   grunt.registerTask("pushEng",["shell:pushEng"]);
-  grunt.registerTask("makeFW",["uglify","cssmin","compress:jsAsset","compress:cssAsset","compress:makeFW","clean"]);
-  grunt.registerTask("build",["jshint","shell:blackberry10","compress:firefox","compress:chrome","compress:blackberry10","makeFW"]);
-  grunt.registerTask("bump",["replace:about","replace:osx","replace:phonegap","replace:manifests","shell:pushBump"]);
+  grunt.registerTask("makeFW",["jshint","uglify","cssmin","compress:jsAsset","compress:cssAsset","compress:makeFW","clean:makeFW"]);
+  grunt.registerTask("pushFW",["makeFW","shell:updateUI","clean:pushFW"]);
+  grunt.registerTask("build",["jshint","shell:blackberry10","compress:firefox","compress:chrome","compress:blackberry10","pushFW"]);
+  grunt.registerTask("bump",["jshint","replace:about","replace:osx","replace:phonegap","replace:manifests","shell:pushBump"]);
 
 };
