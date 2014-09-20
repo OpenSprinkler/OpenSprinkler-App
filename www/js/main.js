@@ -359,7 +359,7 @@ $(document)
         });
     }
 
-    if (newpage === "#sprinklers" || newpage === "#status") {
+    if (newpage === "#sprinklers" || newpage === "#status" || newpage === "#os-stations") {
         // Update the page every 10 seconds
         var refreshInterval = setInterval(refresh_status,10000);
         $newpage.one("pagehide",function(){
@@ -2644,23 +2644,21 @@ function show_stations() {
                 station = button.attr("id").split("-")[1],
                 duration = parseInt(button.prev().find("select").val()),
                 start = function(){
-                    stopStations(function(){
-                        $.mobile.loading("show");
+                    $.mobile.loading("show");
 
-                        send_to_os("/cm?sid="+station+"&en=1&t="+duration+"&pw=","json").done(function(){
+                    send_to_os("/cm?sid="+station+"&en=1&t="+duration+"&pw=","json").done(function(){
 
-                            // Notify user the station test was successful
-                            showerror(_("Station test activated"));
+                        // Notify user the station test was successful
+                        showerror(_("Station test activated"));
 
-                            // Change the start button to a stop button
-                            button.removeClass("green").addClass("red").text(_("Stop")).on("click",stop);
+                        // Change the start button to a stop button
+                        button.removeClass("green").addClass("red").text(_("Stop")).on("click",stop);
 
-                            // Refresh controller status
-                            refresh_status();
+                        // Refresh controller status
+                        refresh_status();
 
-                            // Return button back to previous state
-                            setTimeout(reset,duration*1000);
-                        });
+                        // Return button back to previous state
+                        setTimeout(reset,duration*1000);
                     });
                 },
                 stop = function(){
@@ -2676,16 +2674,11 @@ function show_stations() {
                     return false;
                 },
                 reset = function(){
-                    button.removeClass("red").addClass("green").text(_("Start")).on("click",run_station);
-                },
-                isOn = isRunning();
+                    button.removeClass("red").addClass("green").text(_("Start")).off("click");
+                };
 
             if (button.hasClass("green")) {
-                if (isOn !== -1) {
-                    areYouSure(_("Do you want to stop the currently running program?"), pidname(controller.settings.ps[isOn][0]), start);
-                } else {
-                    start();
-                }
+                start();
             } else {
                 stop();
             }
@@ -3086,15 +3079,19 @@ function get_status() {
 }
 
 function refresh_status() {
-    var page = $(".ui-page-active").attr("id");
+    var page = $(".ui-page-active"),
+        id = page.attr("id");
 
     $.when(
         update_controller_status(),
         update_controller_settings()
     ).then(function(){
-        if (page === "status") {
+        // Notify the current page that the data has refreshed
+        page.trigger("datarefresh");
+
+        if (id === "status") {
             get_status();
-        } else if (page === "sprinklers") {
+        } else if (id === "sprinklers") {
             removeTimers();
             check_status();
         }
