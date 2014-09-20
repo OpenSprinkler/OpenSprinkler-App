@@ -3630,12 +3630,12 @@ function get_preview() {
             st_array = new Array(controller.settings.nbrd*8),
             pid_array = new Array(controller.settings.nbrd*8),
             et_array = new Array(controller.settings.nbrd*8),
+            last_stop_time = 0,
             busy, match_found, prog;
 
         for(var sid=0;sid<controller.settings.nbrd;sid++) {
             st_array[sid]=0;pid_array[sid]=0;et_array[sid]=0;
         }
-        var last_stop_time = 0;
         do {
             busy=0;
             match_found=0;
@@ -3673,21 +3673,26 @@ function get_preview() {
               }
             }
             if(match_found) {
-                var acctime=simminutes*60;            
+                var acctime=simminutes*60;
                 if (is21 && controller.options.seq) {
-                  if (last_stop_time > acctime)
-                    acctime = last_stop_time + controller.options.sdt;
+                    if (last_stop_time > acctime) {
+                        acctime = last_stop_time + controller.options.sdt;
+                    }
                 }
                 if(controller.options.seq) {
                     for(sid=0;sid<controller.settings.nbrd*8;sid++) {
-                        if(!et_array[sid] || st_array[sid]) continue;
+                        if(!et_array[sid] || st_array[sid]) {
+                            continue;
+                        }
                         st_array[sid]=acctime;acctime+=et_array[sid];
                         et_array[sid]=acctime;acctime+=controller.options.sdt;
                         busy=1;
                     }
                 } else {
                     for(sid=0;sid<controller.settings.nbrd*8;sid++) {
-                        if(!et_array[sid] || st_array[sid]) continue;
+                        if(!et_array[sid] || st_array[sid]) {
+                            continue;
+                        }
                         st_array[sid]=acctime;
                         et_array[sid]=acctime+et_array[sid];
                         busy=1;
@@ -3778,7 +3783,6 @@ function get_preview() {
             "group": controller.stations.snames[sid]
         });
     };
-    
 
     check_match = function(prog,simminutes,simt,simday,devday) {
         if (is21) {
@@ -3787,7 +3791,7 @@ function get_preview() {
             return check_match183(prog,simminutes,simt,simday,devday);
         }
     };
-        
+
     check_match183 = function(prog,simminutes,simt,simday,devday) {
         if(prog[0]===0) {
             return 0;
