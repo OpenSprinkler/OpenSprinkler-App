@@ -49,6 +49,9 @@ msgstr ""
 msgid "Loading"
 msgstr ""
 
+msgid "Information"
+msgstr ""
+
 msgid "Check IP/Port and try again."
 msgstr ""
 
@@ -385,19 +388,13 @@ msgstr ""
 msgid "Edit Stations"
 msgstr ""
 
-msgid "Station test activated"
+msgid "Test Station"
 msgstr ""
 
 msgid "Stop"
 msgstr ""
 
 msgid "Start"
-msgstr ""
-
-msgid "Do you want to stop the currently running program?"
-msgstr ""
-
-msgid "Test Station"
 msgstr ""
 
 msgid "Use Master"
@@ -410,6 +407,12 @@ msgid "Activate Relay"
 msgstr ""
 
 msgid "Disable"
+msgstr ""
+
+msgid "Station test activated"
+msgstr ""
+
+msgid "Do you want to stop the currently running program?"
 msgstr ""
 
 msgid "Reset"
@@ -934,9 +937,6 @@ msgid ""
 msgstr ""
 
 msgid "Weather"
-msgstr ""
-
-msgid "Information"
 msgstr ""
 
 msgid "Current Status"
