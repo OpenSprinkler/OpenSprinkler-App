@@ -4873,7 +4873,7 @@ function make_program21(n,isCopy) {
     list += "<div class='ui-body ui-body-a center'>";
 
     // Progran name
-    list += "<label for='name-"+id+"'>"+_("Program Name")+"</label><input data-mini='true' type='text' name='name-"+id+"' id='name-"+id+"' maxlength='"+controller.programs.pnsize+"' placeholder='"+_("Program")+" "+(controller.programs.pd.length)+"' value='"+program.name+"'>";
+    list += "<label for='name-"+id+"'>"+_("Program Name")+"</label><input data-mini='true' type='text' name='name-"+id+"' id='name-"+id+"' maxlength='"+controller.programs.pnsize+"' placeholder='"+_("Program")+" "+(controller.programs.pd.length+1)+"' value='"+program.name+"'>";
 
     // Program enable/disable flag
     list += "<label for='en-"+id+"'><input data-mini='true' type='checkbox' "+((program.en || n==="new") ? "checked='checked'" : "")+" name='en-"+id+"' id='en-"+id+"'>"+_("Enabled")+"</label>";
