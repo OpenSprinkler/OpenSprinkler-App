@@ -679,6 +679,13 @@ function newload() {
                 change_password.hide();
             }
 
+            // Show site name instead of default Information bar
+            if (!curr_local) {
+                $("#info-list").find("li[data-role='list-divider']").text(name);
+            } else {
+                $("#info-list").find("li[data-role='list-divider']").text(_("Information"));
+            }
+
             // Update export to email button in side panel
             exportObj(".email_config",controller);
 
@@ -3204,11 +3211,7 @@ function check_status() {
         return;
     }
 
-    if (curr_local) {
-        $("#footer-running").slideUp();
-    } else {
-        change_status(0,"ui-bar ui-bar-a","<p class='tight center'>"+$("#site-selector").val()+"</p>");
-    }
+    $("#footer-running").slideUp();
 }
 
 // Handle timer update on the home page for the status bar

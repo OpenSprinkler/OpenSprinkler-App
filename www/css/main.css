@@ -409,6 +409,7 @@ body {
 #footer-running, #showupdate {
     font-weight:400;
     padding:2px 0;
+    display: none;
     font-size:medium;
     position:relative
 }
