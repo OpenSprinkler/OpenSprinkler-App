@@ -4047,6 +4047,13 @@ function get_logs() {
                       "<input data-mini='true' type='radio' name='g' id='radio-choice-c' value='m'>" +
                       "<label for='radio-choice-c'>"+_("Month")+"</label>" +
                     "</fieldset>" +
+                    "<fieldset data-role='controlgroup' data-type='horizontal' id='table_sort'>" +
+                      "<p class='tight'>"+_("Grouping:")+"</p>" +
+                      "<input data-mini='true' type='radio' name='table-group' id='table-sort-station' value='station' checked='checked'>" +
+                      "<label for='table-sort-station'>"+_("Station")+"</label>" +
+                      "<input data-mini='true' type='radio' name='table-group' id='table-sort-day' value='day'>" +
+                      "<label for='table-sort-day'>"+_("Day")+"</label>" +
+                    "</fieldset>" +
                     "<div class='ui-field-contain'>" +
                         "<label for='log_start'>"+_("Start:")+"</label>" +
                         "<input data-mini='true' type='date' id='log_start' value='"+(new Date(now.getTime() - 604800000).toISOString().slice(0,10))+"'>" +
@@ -4064,6 +4071,7 @@ function get_logs() {
         logs_list = logs.find("#logs_list"),
         zones = logs.find("#zones"),
         graph_sort = logs.find("#graph_sort"),
+        table_sort = logs.find("#table_sort"),
         log_options = logs.find("#log_options"),
         data = [],
         stations = $.merge($.merge([],controller.stations.snames),[_("Rain Sensor"),_("Rain Delay")]),
@@ -4140,30 +4148,34 @@ function get_logs() {
 
             if (type === "graph") {
                 switch (grouping) {
-                        case "h":
-                            for (i=0; i<stations.length; i++) {
-                                sortedData[i] = [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0],[11,0],[12,0],[13,0],[14,0],[15,0],[16,0],[17,0],[18,0],[19,0],[20,0],[21,0],[22,0],[23,0]];
-                            }
-                            break;
-                        case "m":
-                            for (i=0; i<stations.length; i++) {
-                                sortedData[i] = [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0],[11,0]];
-                            }
-                            break;
-                        case "d":
-                            for (i=0; i<stations.length; i++) {
-                                sortedData[i] = [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0]];
-                            }
-                            break;
-                        case "n":
-                            for (i=0; i<stations.length; i++) {
-                                sortedData[i] = [];
-                            }
-                            break;
+                    case "h":
+                        for (i=0; i<stations.length; i++) {
+                            sortedData[i] = [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0],[11,0],[12,0],[13,0],[14,0],[15,0],[16,0],[17,0],[18,0],[19,0],[20,0],[21,0],[22,0],[23,0]];
+                        }
+                        break;
+                    case "m":
+                        for (i=0; i<stations.length; i++) {
+                            sortedData[i] = [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0],[11,0]];
+                        }
+                        break;
+                    case "d":
+                        for (i=0; i<stations.length; i++) {
+                            sortedData[i] = [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0]];
+                        }
+                        break;
+                    case "n":
+                        for (i=0; i<stations.length; i++) {
+                            sortedData[i] = [];
+                        }
+                        break;
                 }
             } else {
-                for (i=0; i<stations.length; i++) {
-                    sortedData[i] = [];
+                switch (grouping) {
+                    case "station":
+                        for (i=0; i<stations.length; i++) {
+                            sortedData[i] = [];
+                        }
+                        break;
                 }
             }
 
@@ -4214,7 +4226,22 @@ function get_logs() {
                         max = new Date(date.getTime() + (duration*100*1000)+1);
                     }
                 } else {
-                    sortedData[station].push([utc.getTime(),dhms2str(sec2dhms(parseInt(b[2])))]);
+                    switch (grouping) {
+                        case "station":
+                            sortedData[station].push([utc.getTime(),dhms2str(sec2dhms(parseInt(b[2])))]);
+                            break;
+                        case "day":
+                            var day = Math.floor(utc.getTime() / 1000 / 60 / 60 / 24),
+                                item = [utc.getTime(),dhms2str(sec2dhms(parseInt(b[2]))),station];
+
+                            if (typeof sortedData[day] !== "object") {
+                                sortedData[day] = [item];
+                            } else {
+                                sortedData[day].push(item);
+                            }
+
+                            break;
+                    }
                 }
             });
             if (type === "graph") {
@@ -4291,6 +4318,7 @@ function get_logs() {
             var freshLoad = zones.find("table").length;
             zones.show();
             graph_sort.show();
+            table_sort.hide();
             if (!freshLoad) {
                 var output = "<div class='ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border' id='graphScrollLeft'></div><div class='ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border' id='graphScrollRight'></div><table class='smaller'><tbody><tr>";
                 for (i=0; i<stations.length; i++) {
@@ -4334,25 +4362,30 @@ function get_logs() {
             }
 
             placeholder.empty().hide();
-
-            var table_header = "<table><thead><tr><th data-priority='1'>"+_("Runtime")+"</th><th data-priority='2'>"+_("Date/Time")+"</th></tr></thead><tbody>",
-                html = "<div data-role='collapsible-set' data-inset='true' data-theme='b' data-collapsed-icon='arrow-d' data-expanded-icon='arrow-u'>",
-                sortedData = sortData("table"),
-                ct, k;
-
             zones.hide();
             graph_sort.hide();
+            table_sort.show();
             logs_list.show();
 
-            for (i=0; i<sortedData.length; i++) {
-                ct=sortedData[i].length;
+            var grouping = logs.find("input:radio[name='table-group']:checked").val(),
+                table_header = "<table><thead><tr><th data-priority='1'>"+_("Runtime")+"</th><th data-priority='2'>"+(grouping === "station" ? _("Date/Time") : _("Time")+"</th><th>"+_("Station"))+"</th></tr></thead><tbody>",
+                html = "<div data-role='collapsible-set' data-inset='true' data-theme='b' data-collapsed-icon='arrow-d' data-expanded-icon='arrow-u'>",
+                sortedData = sortData("table",grouping),
+                group, ct, k;
+
+            for (group in sortedData) {
+                if (!sortedData.hasOwnProperty(group)) {
+                    return;
+                }
+
+                ct=sortedData[group].length;
                 if (ct === 0) {
                     continue;
                 }
-                html += "<div data-role='collapsible' data-collapsed='true'><h2><div class='ui-btn-up-c ui-btn-corner-all custom-count-pos'>"+ct+" "+((ct === 1) ? _("run") : _("runs"))+"</div>"+stations[i]+"</h2>"+table_header;
-                for (k=0; k<sortedData[i].length; k++) {
-                    var date = new Date(sortedData[i][k][0]);
-                    html += "<tr><td>"+sortedData[i][k][1]+"</td><td>"+dateToString(date,false)+"</td></tr>";
+                html += "<div data-role='collapsible' data-collapsed='true'><h2><div class='ui-btn-up-c ui-btn-corner-all custom-count-pos'>"+ct+" "+((ct === 1) ? _("run") : _("runs"))+"</div>"+(grouping === "station" ? stations[group] : dateToString(new Date(group*1000*60*60*24)).slice(0,-9))+"</h2>"+table_header;
+                for (k=0; k<sortedData[group].length; k++) {
+                    var date = new Date(sortedData[group][k][0]);
+                    html += "<tr><td>"+sortedData[group][k][1]+"</td><td>"+(grouping === "station" ? dateToString(date,false) : pad(date.getHours())+":"+pad(date.getMinutes())+":"+pad(date.getSeconds())+"</td><td>"+stations[sortedData[group][k][2]])+"</td></tr>";
                 }
                 html += "</tbody></table></div>";
             }
@@ -4366,6 +4399,7 @@ function get_logs() {
             log_options.collapsible("expand");
             zones.empty().hide();
             graph_sort.hide();
+            table_sort.hide();
             logs_list.show().html(_("No entries found in the selected date range"));
         },
         fail = function(){
@@ -4448,6 +4482,11 @@ function get_logs() {
     //Automatically update log viewer when switching graphing method
     graph_sort.find("input[name='g']").change(function(){
         seriesChange();
+    });
+
+    //Automatically update log viewer when switching table sort
+    table_sort.find("input[name='table-group']").change(function(){
+        prepTable();
     });
 
     //Bind refresh button
