@@ -5841,6 +5841,14 @@ function showDurationBox(opt) {
         }
     }
 
+    popup.on("focus","input[type='number']",function(){
+        this.value = "";
+    }).on("blur","input[type='number']",function(){
+        if (this.value === "") {
+            this.value = "0";
+        }
+    });
+
     holdButton(popup.find(".incr").children(),function(e){
         var pos = $(e.currentTarget).index();
         changeValue(pos,1);
