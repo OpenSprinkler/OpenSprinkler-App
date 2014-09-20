@@ -2639,6 +2639,63 @@ function show_stations() {
             // Close current card group
             cards += "</div></div>";
         },
+        submit_stations = function() {
+            var is208 = (checkOSVersion(208) === true),
+                master = {},
+                rain = {},
+                relay = {},
+                disable = {},
+                names = {},
+                bid, sid, s;
+
+            for(bid=0;bid<controller.settings.nbrd;bid++) {
+                if (isMaster) {
+                    master["m"+bid] = 0;
+                }
+                if (hasIR) {
+                    rain["i"+bid] = 0;
+                }
+                if (hasAR) {
+                    relay["a"+bid] = 0;
+                }
+                if (hasSD) {
+                    disable["d"+bid] = 0;
+                }
+
+                for(s=0;s<8;s++) {
+                    sid=bid*8+s;
+
+                    if (isMaster) {
+                        master["m"+bid] = (master["m"+bid]<<1) + (page.find("#um_"+sid).is(":checked") ? 1 : 0);
+                    }
+                    if (hasIR) {
+                        rain["i"+bid] = (rain["i"+bid]<<1) + (page.find("#ir_"+sid).is(":checked") ? 1 : 0);
+                    }
+                    if (hasAR) {
+                        relay["a"+bid] = (relay["a"+bid]<<1) + (page.find("#ar_"+sid).is(":checked") ? 1 : 0);
+                    }
+                    if (hasSD) {
+                        disable["d"+bid] = (disable["d"+bid]<<1) + (page.find("#sd_"+sid).is(":checked") ? 1 : 0);
+                    }
+
+                    // Because the firmware has a bug regarding spaces, let us replace them out now with a compatible seperator
+                    if (is208) {
+                        names["s"+sid] = page.find("#station_"+sid).text().replace(/\s/g,"_");
+                    } else {
+                        names["s"+sid] = page.find("#station_"+sid).text();
+                    }
+                }
+            }
+
+            $.mobile.loading("show");
+            send_to_os("/cs?pw=&"+$.param(names)+(isMaster ? "&"+$.param(master) : "")+(hasIR ? "&"+$.param(rain) : "")+(hasAR ? "&"+$.param(relay) : "")+(hasSD ? "&"+$.param(disable) : "")).done(function(){
+                $.mobile.document.one("pageshow",function(){
+                    showerror(_("Stations have been updated"));
+                });
+                goBack();
+                update_controller();
+            });
+        },
         run_station = function(){
             var button = $(this),
                 station = button.attr("id").split("-")[1],
@@ -2745,108 +2802,6 @@ function show_stations() {
     });
 
     page.appendTo("body");
-}
-
-function submit_stations() {
-    var names = {},
-        invalid = false,
-        master = {
-            boardStatus: "",
-            boardIndex: 0,
-            currentIndex: 0,
-            fullStatus: {},
-            param: ""
-        },
-        rain = $.extend(true, {},master),
-        relay = $.extend(true, {},master),
-        disable = $.extend(true, {},master);
-
-    $("#os-stations-list").find(":input:not(select):not(button),p[id^='station_']").each(function(a,b){
-        var $item = $(b),
-            id = $item.attr("id");
-
-        if (!id) {
-            return true;
-        }
-
-        switch (id) {
-            case "station_" + id.slice("station_".length):
-                var data = $item.text();
-
-                id = "s" + id.split("_")[1];
-                // Because the firmware has a bug regarding spaces, let us replace them out now with a compatible seperator
-                if (checkOSVersion(208) === true) {
-                    data = data.replace(/\s/g,"_");
-                }
-                names[id] = data;
-                return true;
-            case "um_" + id.slice("um_".length):
-                master.boardStatus = ($item.is(":checked")) ? "1".concat(master.boardStatus) : "0".concat(master.boardStatus);
-                master.currentIndex++;
-                if (parseInt(master.currentIndex/8) === 1) {
-                    master.fullStatus["m"+master.boardIndex]=parseInt(master.boardStatus,2); master.boardIndex++; master.currentIndex=0; master.boardStatus="";
-                }
-                return true;
-            case "ir_" + id.slice("ir_".length):
-                rain.boardStatus = ($item.is(":checked")) ? "1".concat(rain.boardStatus) : "0".concat(rain.boardStatus);
-                rain.currentIndex++;
-                if (parseInt(rain.currentIndex/8) === 1) {
-                    rain.fullStatus["i"+rain.boardIndex]=parseInt(rain.boardStatus,2); rain.boardIndex++; rain.currentIndex=0; rain.boardStatus="";
-                }
-                return true;
-            case "ar_" + id.slice("ar_".length):
-                relay.boardStatus = ($item.is(":checked")) ? "1".concat(relay.boardStatus) : "0".concat(relay.boardStatus);
-                relay.currentIndex++;
-                if (parseInt(relay.currentIndex/8) === 1) {
-                    relay.fullStatus["a"+relay.boardIndex]=parseInt(relay.boardStatus,2); relay.boardIndex++; relay.currentIndex=0; relay.boardStatus="";
-                }
-                return true;
-            case "sd_" + id.slice("sd_".length):
-                disable.boardStatus = ($item.is(":checked")) ? "1".concat(disable.boardStatus) : "0".concat(disable.boardStatus);
-                disable.currentIndex++;
-                if (parseInt(disable.currentIndex/8) === 1) {
-                    disable.fullStatus["d"+disable.boardIndex]=parseInt(disable.boardStatus,2); disable.boardIndex++; disable.currentIndex=0; disable.boardStatus="";
-                }
-                return true;
-        }
-    });
-
-    if (!isNaN(parseInt(master.boardStatus,2))) {
-        master.fullStatus["m"+master.boardIndex]=parseInt(master.boardStatus,2);
-    }
-    if (!isNaN(parseInt(rain.boardStatus,2))) {
-        rain.fullStatus["i"+rain.boardIndex]=parseInt(rain.boardStatus,2);
-    }
-    if (!isNaN(parseInt(relay.boardStatus,2))) {
-        relay.fullStatus["a"+relay.boardIndex]=parseInt(relay.boardStatus,2);
-    }
-    if (!isNaN(parseInt(disable.boardStatus,2))) {
-        disable.fullStatus["d"+disable.boardIndex]=parseInt(disable.boardStatus,2);
-    }
-
-    if ($("[id^='um_']").length) {
-        master.param = "&"+$.param(master.fullStatus);
-    }
-    if ($("[id^='ir_']").length) {
-        rain.param = "&"+$.param(rain.fullStatus);
-    }
-    if ($("[id^='ar_']").length) {
-        relay.param = "&"+$.param(relay.fullStatus);
-    }
-    if ($("[id^='sd_']").length) {
-        disable.param = "&"+$.param(disable.fullStatus);
-    }
-    if (invalid) {
-        return;
-    }
-    $.mobile.loading("show");
-    send_to_os("/cs?pw=&"+$.param(names)+master.param+rain.param+relay.param+disable.param).done(function(){
-        $.mobile.document.one("pageshow",function(){
-            showerror(_("Stations have been updated"));
-        });
-        goBack();
-        update_controller();
-    });
 }
 
 function isStationDisabled(sid) {
