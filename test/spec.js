@@ -32,6 +32,9 @@ describe("Initial Definition Check", function(){
 				}
 			});
 		});
+	});
+
+	it("storage.remove(string,callback) should accept a key to be deleted from localStorage and respond with callback", function(done){
 		assert.doesNotThrow(function(){
 			storage.remove("fakekey",function(result){
 				if (result === true) {
