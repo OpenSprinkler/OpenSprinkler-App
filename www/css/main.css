@@ -480,6 +480,9 @@ div.running-text{
     font-size:.71em!important;
     white-space: initial !important;
 }
+.status-daily {
+    padding-top: 10px
+}
 
 /* Program preview rules */
 .master {

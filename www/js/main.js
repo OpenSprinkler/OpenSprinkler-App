@@ -2841,6 +2841,7 @@ function get_status() {
         allPnames = [],
         color = "",
         list = "",
+        weatherInfo = "",
         lastCheck;
 
     // Clear page content on reload
@@ -2992,8 +2993,17 @@ function get_status() {
         header +="<br>"+_("Rain detected");
     }
 
+    if (checkOSVersion(210)) {
+        weatherInfo = "<div class='ui-grid-b status-daily'>";
+        weatherInfo += "<div class='center ui-block-a'>"+controller.options.wl+"%<br>Water Level</div>";
+        weatherInfo += "<div class='center ui-block-b'>"+pad(parseInt(controller.settings.sunrise/60)%24)+":"+pad(controller.settings.sunrise%60)+"<br>Sunrise</div>";
+        weatherInfo += "<div class='center ui-block-c'>"+pad(parseInt(controller.settings.sunset/60)%24)+":"+pad(controller.settings.sunset%60)+"<br>Sunset</div>";
+        weatherInfo += "</div>";
+    }
+
     page.find(".ui-content").append(
         $("<p class='smaller center'></p>").html(header),
+        weatherInfo,
         $("<ul data-role='listview' data-inset='true' id='status_list'></ul>").html(list).listview(),
         $("<p class='smaller center'></p>").html(footer)
     );
