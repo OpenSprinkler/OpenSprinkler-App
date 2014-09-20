@@ -465,7 +465,7 @@ div.running-text{
     display: inline-block;
     padding-right: 8px;
 }
-#os-stations .submit, #os-stations .reset {
+#os-stations .ui-content .submit, #os-stations .reset {
     max-width: 500px;
     margin: 8px auto;
 }
