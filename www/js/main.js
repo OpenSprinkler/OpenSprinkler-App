@@ -2654,9 +2654,6 @@ function show_stations() {
                         // Change the start button to a stop button
                         button.removeClass("green").addClass("red").text(_("Stop")).on("click",stop);
 
-                        // Refresh controller status
-                        refresh_status();
-
                         // Return button back to previous state
                         setTimeout(reset,duration*1000);
                     });
@@ -2666,9 +2663,6 @@ function show_stations() {
                     send_to_os("/cm?sid="+station+"&en=0&pw=","json").done(reset);
 
                     $.mobile.loading("hide");
-
-                    // Refresh controller status
-                    refresh_status();
 
                     // Prevent start delegate function from being called
                     return false;
@@ -2696,6 +2690,17 @@ function show_stations() {
     }
 
     page.find(".ui-content").html("<div id='os-stations-list' class='card-group center'>"+cards+"</div><button class='submit'>"+_("Submit")+"</button><button data-theme='b' class='reset'>"+_("Reset")+"</button>");
+
+    // When data is refreshed, update the icon status
+    page.on("datarefresh",function(){
+        page.find("[id^='run_station-']").each(function(i){
+            if (controller.status[i] > 0) {
+                $(this).removeClass("green").addClass("red").text(_("Stop")).off("click");
+            } else {
+                $(this).removeClass("red").addClass("green").text(_("Start")).off("click");
+            }
+        });
+    });
 
     page.on("click","[id^='run_station-']",run_station);
 
