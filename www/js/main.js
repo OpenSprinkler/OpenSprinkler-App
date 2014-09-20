@@ -4231,7 +4231,7 @@ function get_logs() {
                             sortedData[station].push([utc.getTime(),dhms2str(sec2dhms(parseInt(b[2])))]);
                             break;
                         case "day":
-                            var day = Math.floor(utc.getTime() / 1000 / 60 / 60 / 24),
+                            var day = Math.floor(date.getTime() / 1000 / 60 / 60 / 24),
                                 item = [utc.getTime(),dhms2str(sec2dhms(parseInt(b[2]))),station];
 
                             if (typeof sortedData[day] !== "object") {
