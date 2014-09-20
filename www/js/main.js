@@ -2610,7 +2610,7 @@ function show_stations() {
                 cards += "<fieldset data-role='controlgroup' data-type='horizontal' data-mini='true' class='center'>";
                 cards += "<legend>"+_("Test Station")+"</legend>";
                 cards += "<select><option value='60'>1 min</option><option value='300'>5 mins</option><option value='600'>10 mins</option><option value='900'>15 mins</option><option value='1200'>20 mins</option></select>";
-                cards += "<button class='"+(controller.status[i] ? "red" : "green")+"' id='run_station-"+i+"'>"+(controller.status[i] ? _("Stop") : _("Start"))+"</button>";
+                cards += "<button class='"+(controller.status[i] > 0 || controller.settings.ps[i][0] > 0 ? "red" : "green")+"' id='run_station-"+i+"'>"+(controller.status[i] > 0 || controller.settings.ps[i][0] > 0 ? _("Stop") : _("Start"))+"</button>";
                 cards += "</fieldset>";
             }
 
@@ -2694,7 +2694,7 @@ function show_stations() {
     // When data is refreshed, update the icon status
     page.on("datarefresh",function(){
         page.find("[id^='run_station-']").each(function(i){
-            if (controller.status[i] > 0) {
+            if (controller.status[i] > 0 || controller.settings.ps[i][0] > 0) {
                 $(this).removeClass("green").addClass("red").text(_("Stop")).off("click");
             } else {
                 $(this).removeClass("red").addClass("green").text(_("Start")).off("click");
