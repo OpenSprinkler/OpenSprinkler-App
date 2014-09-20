@@ -32,6 +32,13 @@ describe("Initial Definition Check", function(){
 				}
 			});
 		});
+		assert.doesNotThrow(function(){
+			storage.remove("fakekey",function(result){
+				if (result === true) {
+					done();
+				}
+			});
+		});
 	});
 });
 
