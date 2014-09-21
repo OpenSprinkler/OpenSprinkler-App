@@ -250,6 +250,7 @@ $(document)
             add_program(data.options.copyID);
         } else if (hash === "#status") {
             get_status();
+            $(hash).one("pageshow",refresh_status);
         } else if (hash === "#manual") {
             get_manual();
         } else if (hash === "#about") {
@@ -361,7 +362,7 @@ $(document)
 
     if (newpage === "#sprinklers" || newpage === "#status" || newpage === "#os-stations") {
         // Update the page every 10 seconds
-        var refreshInterval = setInterval(refresh_status,10000);
+        var refreshInterval = setInterval(refresh_status,5000);
         $newpage.one("pagehide",function(){
             clearInterval(refreshInterval);
         });
