@@ -4811,8 +4811,8 @@ function make_program183(n,isCopy) {
     list += "</select></div></div>";
 
     list += "<div "+((program.is_interval) ? "" : "style='display:none'")+" id='input_days_n-"+id+"' class='ui-grid-a'>";
-    list += "<div class='ui-block-a'><label for='every-"+id+"'>"+_("Interval (Days)")+"</label><input data-mini='true' type='number' name='every-"+id+"' pattern='[0-9]*' id='every-"+id+"' value='"+program.days[0]+"'></div>";
-    list += "<div class='ui-block-b'><label for='starting-"+id+"'>"+_("Starting In")+"</label><input data-mini='true' type='number' name='starting-"+id+"' pattern='[0-9]*' id='starting-"+id+"' value='"+program.days[1]+"'></div>";
+    list += "<div class='ui-block-a'><label class='center' for='every-"+id+"'>"+_("Interval (Days)")+"</label><input data-wrapper-class='pad_buttons' data-mini='true' type='number' name='every-"+id+"' pattern='[0-9]*' id='every-"+id+"' value='"+program.days[0]+"'></div>";
+    list += "<div class='ui-block-b'><label class='center' for='starting-"+id+"'>"+_("Starting In")+"</label><input data-wrapper-class='pad_buttons' data-mini='true' type='number' name='starting-"+id+"' pattern='[0-9]*' id='starting-"+id+"' value='"+program.days[1]+"'></div>";
     list += "</div>";
 
     list += "<fieldset data-role='controlgroup'><legend>"+_("Stations:")+"</legend>";
@@ -4962,8 +4962,8 @@ function make_program21(n,isCopy) {
 
     // Show interval program options
     list += "<div "+((program.is_interval) ? "" : "style='display:none'")+" id='input_days_n-"+id+"' class='ui-grid-a'>";
-    list += "<div class='ui-block-a'><label class='center' for='every-"+id+"'>"+_("Interval (Days)")+"</label><input data-mini='true' type='number' name='every-"+id+"' pattern='[0-9]*' id='every-"+id+"' value='"+program.days[0]+"'></div>";
-    list += "<div class='ui-block-b'><label class='center' for='starting-"+id+"'>"+_("Starting In")+"</label><input data-mini='true' type='number' name='starting-"+id+"' pattern='[0-9]*' id='starting-"+id+"' value='"+program.days[1]+"'></div>";
+    list += "<div class='ui-block-a'><label class='center' for='every-"+id+"'>"+_("Interval (Days)")+"</label><input data-wrapper-class='pad_buttons' data-mini='true' type='number' name='every-"+id+"' pattern='[0-9]*' id='every-"+id+"' value='"+program.days[0]+"'></div>";
+    list += "<div class='ui-block-b'><label class='center' for='starting-"+id+"'>"+_("Starting In")+"</label><input data-wrapper-class='pad_buttons' data-mini='true' type='number' name='starting-"+id+"' pattern='[0-9]*' id='starting-"+id+"' value='"+program.days[1]+"'></div>";
     list += "</div>";
 
     // Show restriction options
