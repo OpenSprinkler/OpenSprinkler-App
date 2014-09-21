@@ -621,7 +621,7 @@ function send_to_os(dest,type) {
 }
 
 function network_fail(){
-    change_status(0,0,"red","<p class='running-text center'>"+_("Network Error")+"</p>",function(){
+    change_status(0,"red","<p class='running-text center'>"+_("Network Error")+"</p>",function(){
         showLoading("#weather,#footer-running");
         refresh_status();
         update_weather();
