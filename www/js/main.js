@@ -6379,10 +6379,10 @@ function update_lang(lang) {
     }
 
     if (curr_local) {
-        prefix = $.mobile.path.parseUrl($("head").find("script").eq(0).attr("src")).domain;
+        prefix = $.mobile.path.parseUrl($("head").find("script").eq(0).attr("src")).domain + "/";
     }
 
-    $.getJSON(prefix+"/locale/"+lang+".js",function(store){
+    $.getJSON(prefix+"locale/"+lang+".js",function(store){
         language = store.messages;
         set_lang();
     }).fail(set_lang);
