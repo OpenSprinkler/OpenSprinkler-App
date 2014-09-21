@@ -1982,6 +1982,80 @@ function show_forecast() {
     return false;
 }
 
+function resolveLocation(loc,callback) {
+    // Looks up the location and shows a list possible matches for selection
+    // Returns the selection to the callback
+
+    callback = callback || function(){};
+
+    if (!loc || loc === "") {
+        callback(false);
+        return;
+    }
+
+    $.ajax({
+        url: "http://autocomplete.wunderground.com/aq?format=json&h=0&query="+encodeURIComponent(loc),
+        dataType: "jsonp",
+        jsonp: "cb"
+    }).retry({times:retryCount, statusCodes: [0]}).done(function(data){
+        data = data.RESULTS;
+
+        if (data.length === 0) {
+            callback(false);
+            return;
+        } else if (data.length === 1) {
+            callback(data[0].name);
+            return;
+        }
+
+        var items = "";
+
+        for (var i=0; i<data.length; i++) {
+            if (data[i].type !== "city") {
+                continue;
+            }
+
+            items += "<li><a>"+data[i].name+"</a></li>";
+        }
+
+        var popup = $("<div data-role='popup' id='location-list' data-theme='a' data-overlay-theme='b'>" +
+                "<div data-role='header' data-theme='b'>" +
+                    "<h1>"+_("Select City")+"</h1>" +
+                "</div>" +
+                "<div class='ui-content'>" +
+                    "<ul data-role='listview'>" +
+                        items +
+                    "</ul>" +
+                "</div>" +
+            "</div>");
+
+        popup.on("click","a",function(){
+            popup.popup("close");
+            callback(this.textContent)
+        }).one("popupafterclose",function(){
+            popup.popup("destroy").remove();
+        }).popup({
+            history: false,
+            positionTo: "window"
+        }).enhanceWithin().popup("open");
+    });
+}
+
+function testAPIKey(key,callback) {
+    $.ajax({
+        url: "https://api.wunderground.com/api/"+key+"/conditions/forecast/lang:EN/q/75252.json",
+        dataType: "jsonp"
+    }).retry({times:retryCount, statusCodes: [0]}).done(function(data){
+        if (typeof data.response.error === "object" && data.response.error.type === "keynotfound") {
+            callback(false);
+            return;
+        }
+        callback(true);
+    }).fail(function(){
+        callback(false);
+    });
+}
+
 function open_panel() {
     var panel = $("#sprinklers-settings");
     panel.panel("option","classes.modal","needsclick ui-panel-dismiss");
