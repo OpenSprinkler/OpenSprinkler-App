@@ -75,7 +75,7 @@ var isIEMobile = /IEMobile/.test(navigator.userAgent),
     retryCount = 3,
     controller = {},
     switching = false,
-    curr_183, curr_ip, curr_prefix, curr_auth, curr_pw, curr_wa, curr_auth_user, curr_auth_pw, curr_local, language, deviceip, interval_id, timeout_id, errorTimeout;
+    curr_183, curr_ip, curr_prefix, curr_auth, curr_pw, curr_wa, curr_auth_user, curr_auth_pw, curr_local, language, deviceip, interval_id, timeout_id, errorTimeout, weatherKeyFail;
 
 // Fix CSS for IE Mobile (Windows Phone 8)
 if (isIEMobile) {
@@ -1874,8 +1874,11 @@ function update_wunderground_weather(wapikey) {
             var code, temp;
 
             if (typeof data.response.error === "object" && data.response.error.type === "keynotfound") {
+                weatherKeyFail = true;
                 update_yahoo_weather();
                 return;
+            } else {
+                weatherKeyFail = false;
             }
 
             if (data.current_observation.icon_url.indexOf("nt_") !== -1) {
@@ -2293,7 +2296,7 @@ function show_options() {
     list += "</fieldset><fieldset data-role='collapsible'><legend>"+_("Weather Control")+"</legend>";
 
     if (typeof controller.settings.wtkey !== "undefined") {
-        list += "<div class='ui-field-contain'><label for='wtkey'>"+_("Wunderground Key")+"<button data-helptext='"+_("Weather Underground requires an API Key which can be obtained from ")+"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><input data-mini='true' type='text' id='wtkey' value='"+controller.settings.wtkey+"'></div>";
+        list += "<div class='ui-field-contain wtkey'><label for='wtkey'>"+_("Wunderground Key")+"<button data-helptext='"+_("Weather Underground requires an API Key which can be obtained from ")+"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><div class='"+(weatherKeyFail === true ? "red " : "")+"ui-input-text ui-body-inherit ui-corner-all ui-mini ui-shadow-inset ui-input-has-clear'><input data-role='none' type='text' id='wtkey' value='"+controller.settings.wtkey+"'><a href='#' tabindex='-1' aria-hidden='true' data-helptext='"+_("An invalid API key has been detected.")+"' class='"+(weatherKeyFail === true ? "" : "hidden ")+"ui-input-clear ui-btn ui-icon-alert ui-btn-icon-notext ui-corner-all'></a></div></div>";
     }
 
     if (typeof controller.options.uwt !== "undefined") {
@@ -2347,7 +2350,7 @@ function show_options() {
         }
     });
 
-    page.find(".help-icon").on("click",function(e){
+    page.find(".help-icon,.wtkey .ui-icon-alert").on("click",function(e){
         e.stopImmediatePropagation();
 
         var button = $(this),
@@ -2466,6 +2469,12 @@ function show_options() {
     });
 
     page.find("#wtkey").on("change",function(){
+        // Hide the invalid key status after change
+        if (weatherKeyFail === true) {
+            page.find(".wtkey .ui-icon-alert").hide();
+            page.find(".wtkey .ui-input-text").removeClass("red");
+        }
+
         // Switch state of weather algorithm input based on API key status
         $("#o31").selectmenu((this.value === "" ? "disable" : "enable"));
         if (this.value === "") {
