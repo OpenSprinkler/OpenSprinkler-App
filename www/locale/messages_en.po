@@ -409,16 +409,13 @@ msgstr ""
 msgid "Disable"
 msgstr ""
 
+msgid "Stations have been updated"
+msgstr ""
+
 msgid "Station test activated"
 msgstr ""
 
-msgid "Do you want to stop the currently running program?"
-msgstr ""
-
 msgid "Reset"
-msgstr ""
-
-msgid "Stations have been updated"
 msgstr ""
 
 msgid "Do you want to stop the selected station?"
@@ -540,6 +537,9 @@ msgstr ""
 msgid "Run-once program has been scheduled"
 msgstr ""
 
+msgid "Do you want to stop the currently running program?"
+msgstr ""
+
 msgid "Program Preview"
 msgstr ""
 
@@ -580,6 +580,12 @@ msgid "DOW"
 msgstr ""
 
 msgid "Month"
+msgstr ""
+
+msgid "Day"
+msgstr ""
+
+msgid "Station"
 msgstr ""
 
 msgid "Start:"
@@ -661,6 +667,9 @@ msgid "Runtime"
 msgstr ""
 
 msgid "Date/Time"
+msgstr ""
+
+msgid "Time"
 msgstr ""
 
 msgid "run"
