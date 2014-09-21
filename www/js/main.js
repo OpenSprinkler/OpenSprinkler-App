@@ -2849,9 +2849,6 @@ function get_status() {
         }
     });
 
-    // Bind the refresh button
-    page.find("div[data-role='header'] > .ui-btn-right").off("click").on("click",refresh_status);
-
     // Display the system time
     var header = "<span id='clock-s' class='nobr'>"+dateToString(new Date(controller.settings.devt*1000))+"</span>";
 
@@ -4030,10 +4027,10 @@ function get_logs() {
                     "</fieldset>" +
                     "<fieldset data-role='controlgroup' data-type='horizontal' id='table_sort'>" +
                       "<p class='tight'>"+_("Grouping:")+"</p>" +
-                      "<input data-mini='true' type='radio' name='table-group' id='table-sort-station' value='station' checked='checked'>" +
-                      "<label for='table-sort-station'>"+_("Station")+"</label>" +
-                      "<input data-mini='true' type='radio' name='table-group' id='table-sort-day' value='day'>" +
+                      "<input data-mini='true' type='radio' name='table-group' id='table-sort-day' value='day' checked='checked'>" +
                       "<label for='table-sort-day'>"+_("Day")+"</label>" +
+                      "<input data-mini='true' type='radio' name='table-group' id='table-sort-station' value='station'>" +
+                      "<label for='table-sort-station'>"+_("Station")+"</label>" +
                     "</fieldset>" +
                     "<div class='ui-field-contain'>" +
                         "<label for='log_start'>"+_("Start:")+"</label>" +
