@@ -2966,8 +2966,8 @@ function get_status() {
 
     if (checkOSVersion(210)) {
         weatherInfo = "<div class='ui-grid-b status-daily'>";
-        weatherInfo += "<div class='center ui-block-a'>"+controller.options.wl+"%<br>Water Level</div>";
-        weatherInfo += "<div class='center ui-block-b'>"+pad(parseInt(controller.settings.sunrise/60)%24)+":"+pad(controller.settings.sunrise%60)+"<br>Sunrise</div>";
+        weatherInfo += "<div class='center ui-block-a'>"+pad(parseInt(controller.settings.sunrise/60)%24)+":"+pad(controller.settings.sunrise%60)+"<br>Sunrise</div>";
+        weatherInfo += "<div class='center ui-block-b'>"+controller.options.wl+"%<br>Water Level</div>";
         weatherInfo += "<div class='center ui-block-c'>"+pad(parseInt(controller.settings.sunset/60)%24)+":"+pad(controller.settings.sunset%60)+"<br>Sunset</div>";
         weatherInfo += "</div>";
     }
