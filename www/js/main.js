@@ -3520,24 +3520,25 @@ function submit_runonce(runonce) {
     }
 
     var submit = function(){
-            storage.set({"runonce":JSON.stringify(runonce)});
             $.mobile.loading("show");
-            stopStations(function(){
-                send_to_os("/cr?pw=&t="+JSON.stringify(runonce)).done(function(){
-                    $.mobile.loading("hide");
-                    $.mobile.document.one("pageshow",function(){
-                        showerror(_("Run-once program has been scheduled"));
-                    });
-                    update_controller_status();
-                    update_controller_settings();
-                    goBack();
+            storage.set({"runonce":JSON.stringify(runonce)});
+            send_to_os("/cr?pw=&t="+JSON.stringify(runonce)).done(function(){
+                $.mobile.loading("hide");
+                $.mobile.document.one("pageshow",function(){
+                    showerror(_("Run-once program has been scheduled"));
                 });
+                update_controller_status();
+                update_controller_settings();
+                goBack();
             });
         },
         isOn = isRunning();
 
     if (isOn !== -1) {
-        areYouSure(_("Do you want to stop the currently running program?"), pidname(controller.settings.ps[isOn][0]), submit);
+        areYouSure(_("Do you want to stop the currently running program?"), pidname(controller.settings.ps[isOn][0]), function(){
+            $.mobile.loading("show");
+            stopStations(submit);
+        });
     } else {
         submit();
     }
@@ -6151,9 +6152,17 @@ function goBack(keepIndex) {
     }
 
     if (page === "sprinklers" || page === "start" || managerStart) {
-        navigator.app.exitApp();
+        try {
+            navigator.app.exitApp();
+        } catch(err) {}
     } else {
-        changePage($.mobile.navigate.history.getPrev().url);
+        var url = $.mobile.navigate.history.getPrev().url;
+
+        if (url.slice(0,1) !== "#") {
+            return;
+        }
+
+        changePage(url);
         $.mobile.document.one("pagehide",function(){
             if (!keepIndex) {
                 $.mobile.navigate.history.activeIndex -= 2;
