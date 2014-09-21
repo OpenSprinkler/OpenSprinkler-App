@@ -2666,16 +2666,16 @@ function show_stations() {
                     sid=bid*8+s;
 
                     if (isMaster) {
-                        master["m"+bid] = (master["m"+bid]<<1) + (page.find("#um_"+sid).is(":checked") ? 1 : 0);
+                        master["m"+bid] = (master["m"+bid]) + ((page.find("#um_"+sid).is(":checked") ? 1 : 0) << s);
                     }
                     if (hasIR) {
-                        rain["i"+bid] = (rain["i"+bid]<<1) + (page.find("#ir_"+sid).is(":checked") ? 1 : 0);
+                        rain["i"+bid] = (rain["i"+bid]) + ((page.find("#ir_"+sid).is(":checked") ? 1 : 0) << s);
                     }
                     if (hasAR) {
-                        relay["a"+bid] = (relay["a"+bid]<<1) + (page.find("#ar_"+sid).is(":checked") ? 1 : 0);
+                        relay["a"+bid] = (relay["a"+bid]) + ((page.find("#ar_"+sid).is(":checked") ? 1 : 0) << s);
                     }
                     if (hasSD) {
-                        disable["d"+bid] = (disable["d"+bid]<<1) + (page.find("#sd_"+sid).is(":checked") ? 1 : 0);
+                        disable["d"+bid] = (disable["d"+bid]) + ((page.find("#sd_"+sid).is(":checked") ? 1 : 0) << s);
                     }
 
                     // Because the firmware has a bug regarding spaces, let us replace them out now with a compatible seperator
