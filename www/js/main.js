@@ -2438,6 +2438,7 @@ function show_options() {
                 showerror(_("Unable to locate using:")+" "+current+". "+_("Please use another value and try again."));
             } else {
                 selected = selected.replace(/^[0-9]{5}\s-\s/,"");
+                loc.parent().addClass("green");
                 loc.val(selected);
             }
         });
