@@ -2317,7 +2317,7 @@ function show_options() {
         list += "</select></div>";
     }
 
-    list += "<div class='ui-field-contain'><fieldset data-role='controlgroup' data-type='horizontal'><legend for='loc'>"+_("Location")+"<button data-helptext='"+_("Location can be a zip code, city/state or a weatherunderground personal weather station using the format: pws:ID.")+"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></legend><input data-wrapper-class='controlgroup-textinput ui-btn' data-mini='true' type='text' id='loc' value='"+controller.settings.loc+"'><button id='lookup-loc' data-mini='true'>"+_("Lookup")+"</button></fieldset></div>";
+    list += "<div class='ui-field-contain'><fieldset data-role='controlgroup' data-type='horizontal'><legend for='loc'>"+_("Location")+"<button data-helptext='"+_("Location can be a zip code, city/state or a weatherunderground personal weather station using the format: pws:ID.")+"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></legend><input data-wrapper-class='controlgroup-textinput ui-btn' data-mini='true' type='text' id='loc' value='"+controller.settings.loc+"'><button id='lookup-loc' data-mini='true' style='width:55px'>"+_("Lookup")+"</button></fieldset></div>";
 
     if (typeof controller.options.ntp !== "undefined") {
         list += "<label for='o2'><input data-mini='true' id='o2' type='checkbox' "+((controller.options.ntp === 1) ? "checked='checked'" : "")+">"+_("NTP Sync")+"</label>";
