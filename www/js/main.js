@@ -4197,24 +4197,16 @@ function get_logs() {
                     sortedData[key]=[[0,0]];
                 }
                 if (key && sortedData[key]) {
-                    if ((grouping === "h") || (grouping === "m") || (grouping === "d")) {
-                        pData.push({
-                            data:sortedData[key],
-                            label:$(this).attr("name"),
-                            color:parseInt(key),
-                            bars: { order:key, show: true, barWidth:0.08}
-                        });
-                    } else if (grouping === "n") {
-                        pData.push({
-                            data:sortedData[key],
-                            label:$(this).attr("name"),
-                            color:parseInt(key),
-                            lines: {
-                                show: true,
-                                fill: true
-                            }
-                        });
-                    }
+                    pData.push({
+                        data:sortedData[key],
+                        label:$(this).attr("name"),
+                        color:parseInt(key),
+                        bars: {
+                            order:key,
+                            show: true,
+                            barWidth: ((grouping === "h") || (grouping === "m") || (grouping === "d") ? 0.1 : 60*60*1000)
+                        }
+                    });
                 }
             });
 
@@ -4316,9 +4308,7 @@ function get_logs() {
                             key = date.getUTCDay();
                             break;
                         case "n":
-                            sortedData[station].push([stamp-1000,0]);
                             sortedData[station].push([stamp,duration]);
-                            sortedData[station].push([stamp+(duration*60*1000),0]);
                             break;
                     }
 
