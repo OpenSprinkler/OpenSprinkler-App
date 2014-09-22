@@ -205,6 +205,9 @@ msgstr ""
 msgid "Precip"
 msgstr ""
 
+msgid "Select City"
+msgstr ""
+
 msgid "Are you sure you want to reboot OpenSprinkler?"
 msgstr ""
 
@@ -269,6 +272,9 @@ msgid ""
 "weather station using the format: pws:ID."
 msgstr ""
 
+msgid "Lookup"
+msgstr ""
+
 msgid "NTP Sync"
 msgstr ""
 
@@ -324,6 +330,12 @@ msgstr ""
 msgid "Weather Underground requires an API Key which can be obtained from "
 msgstr ""
 
+msgid "An invalid API key has been detected."
+msgstr ""
+
+msgid "Verify"
+msgstr ""
+
 msgid "Manual"
 msgstr ""
 
@@ -371,6 +383,16 @@ msgid ""
 msgstr ""
 
 msgid "Ignore Password"
+msgstr ""
+
+msgid ""
+"When using a personal weather station the location lookup is unavailable."
+msgstr ""
+
+msgid "Unable to locate using:"
+msgstr ""
+
+msgid "Please use another value and try again."
 msgstr ""
 
 msgid "Seconds"
