@@ -2937,11 +2937,6 @@ function get_status() {
         weatherInfo = "",
         lastCheck;
 
-    // Clear page content on reload
-    if ($.mobile.pageContainer.pagecontainer("getActivePage").attr("id") === "status") {
-        page.find(".ui-content").empty();
-    }
-
     // Bind delegate handler to stop specific station (supported on firmware 2.1.0+ on Arduino)
     page.off("click","li").on("click","li",function(){
         var el = $(this),
@@ -3091,12 +3086,12 @@ function get_status() {
         weatherInfo += "</div>";
     }
 
-    page.find(".ui-content").append(
-        $("<p class='smaller center'></p>").html(header),
-        weatherInfo,
-        $("<ul data-role='listview' data-inset='true' id='status_list'></ul>").html(list).listview(),
-        $("<p class='smaller center'></p>").html(footer)
-    );
+    page.find(".ui-content").html(
+        "<p class='smaller center'>"+ header +"</p>" +
+        weatherInfo +
+        "<ul data-role='listview' data-inset='true' id='status_list'>"+ list +"</ul>" +
+        "<p class='smaller center'>"+ footer +"</p>"
+    ).enhanceWithin();
 
     removeTimers();
 
@@ -3160,7 +3155,8 @@ function refresh_status() {
 
     $.when(
         update_controller_status(),
-        update_controller_settings()
+        update_controller_settings(),
+        update_controller_options()
     ).then(function(){
         // Notify the current page that the data has refreshed
         page.trigger("datarefresh");
