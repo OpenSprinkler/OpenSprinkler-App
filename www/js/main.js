@@ -3492,7 +3492,7 @@ function get_runonce() {
         "</div>"),
         updateLastRun = function(data) {
             rprogs.l = data;
-            runonce.find("#rprog").prepend("<option value='l' selected='selected'>"+_("Last Used Program")+"</option>");
+            $("<option value='l' selected='selected'>"+_("Last Used Program")+"</option>").insertAfter(runonce.find("#rprog").find("option[value='t']"));
             fill_runonce(data);
         },
         reset_runonce = function() {
@@ -3538,7 +3538,7 @@ function get_runonce() {
     }
     rprogs = progs;
 
-    quickPick = "<select data-mini='true' name='rprog' id='rprog'><option value='s' selected='selected'>"+_("Quick Programs")+"</option>";
+    quickPick = "<select data-mini='true' name='rprog' id='rprog'><option value='t'>"+_("Test All Stations")+"</option><option value='s' selected='selected'>"+_("Quick Programs")+"</option>";
     for (i=0; i<progs.length; i++) {
         if (checkOSVersion(210)) {
             name = controller.programs.pd[i][5];
@@ -3585,6 +3585,9 @@ function get_runonce() {
         var prog = $(this).val();
         if (prog === "s") {
             reset_runonce();
+            return;
+        } else if (prog === "t") {
+            fill_runonce(Array.apply(null, Array(controller.stations.snames.length)).map(function(){return 60;}));
             return;
         }
         if (typeof rprogs[prog] === "undefined") {
