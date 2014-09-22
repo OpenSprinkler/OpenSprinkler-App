@@ -2465,7 +2465,7 @@ function show_options() {
             popup;
 
         if (button.parent().attr("for") === "wtkey") {
-            text += "<a class='iab' target='_blank' href='http://www.wunderground.com/weather/api/d/login.html'>here</a>.";
+            text += "<a class='iab' target='_blank' href='https://opensprinkler.freshdesk.com/support/solutions/articles/5000017485-getting-a-weather-api#article-show-5000017485'>here</a>.";
         }
 
         popup = $("<div data-role='popup'>" +
