@@ -2011,11 +2011,16 @@ function resolveLocation(loc,callback) {
         var items = "";
 
         for (var i=0; i<data.length; i++) {
-            if (data[i].type !== "city") {
+            if (data[i].type !== "city" || !data[i].tz) {
                 continue;
             }
 
             items += "<li><a>"+data[i].name+"</a></li>";
+        }
+
+        if (items === "") {
+            callback(false);
+            return;
         }
 
         var popup = $("<div data-role='popup' id='location-list' data-theme='a' data-overlay-theme='b'>" +
@@ -2306,11 +2311,11 @@ function show_options() {
         list += "<div class='ui-field-contain datetime-input'><label for='datetime'>"+_("Device Time")+"</label><button "+(controller.options.ntp ? "disabled " : "")+"data-mini='true' id='datetime' value='"+(controller.settings.devt + (new Date().getTimezoneOffset()*60))+"'>"+dateToString(new Date(controller.settings.devt*1000)).slice(0,-3)+"</button></div>";
     }
 
-    if (!isOSPi() && !checkOSVersion(210) && typeof controller.options.tz !== "undefined") {
+    if (!isOSPi() && typeof controller.options.tz !== "undefined") {
         timezones = ["-12:00","-11:30","-11:00","-10:00","-09:30","-09:00","-08:30","-08:00","-07:00","-06:00","-05:00","-04:30","-04:00","-03:30","-03:00","-02:30","-02:00","+00:00","+01:00","+02:00","+03:00","+03:30","+04:00","+04:30","+05:00","+05:30","+05:45","+06:00","+06:30","+07:00","+08:00","+08:45","+09:00","+09:30","+10:00","+10:30","+11:00","+11:30","+12:00","+12:45","+13:00","+13:45","+14:00"];
         tz = controller.options.tz-48;
         tz = ((tz>=0)?"+":"-")+pad((Math.abs(tz)/4>>0))+":"+((Math.abs(tz)%4)*15/10>>0)+((Math.abs(tz)%4)*15%10);
-        list += "<div class='ui-field-contain'><label for='o1' class='select'>"+_("Timezone")+"</label><select data-mini='true' id='o1'>";
+        list += "<div class='"+(checkOSVersion(210) ? "hidden " : "")+"ui-field-contain'><label for='o1' class='select'>"+_("Timezone")+"</label><select data-mini='true' id='o1'>";
         for (i=0; i<timezones.length; i++) {
             list += "<option "+((timezones[i] === tz) ? "selected" : "")+" value='"+timezones[i]+"'>"+timezones[i]+"</option>";
         }
@@ -2435,8 +2440,12 @@ function show_options() {
 
         resolveLocation(current,function(selected){
             if (selected === false) {
+                page.find("#o1").parents(".ui-field-contain").removeClass("hidden");
                 showerror(_("Unable to locate using:")+" "+current+". "+_("Please use another value and try again."));
             } else {
+                if (checkOSVersion(210)) {
+                    page.find("#o1").parents(".ui-field-contain").addClass("hidden");
+                }
                 selected = selected.replace(/^[0-9]{5}\s-\s/,"");
                 loc.parent().addClass("green");
                 loc.val(selected);
