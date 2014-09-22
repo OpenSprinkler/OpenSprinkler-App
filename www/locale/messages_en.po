@@ -550,6 +550,9 @@ msgstr ""
 msgid "Last Used Program"
 msgstr ""
 
+msgid "Test All Stations"
+msgstr ""
+
 msgid "Quick Programs"
 msgstr ""
 
