@@ -267,6 +267,13 @@ body {
     display: block !important;
 }
 
+@media (max-width: 480px) {
+    .controlgroup-textinput {
+        padding-top:0;
+        padding-bottom:.07em;
+    }
+}
+
 /* Program editor rules */
 .move-up {
     border: none !important;
