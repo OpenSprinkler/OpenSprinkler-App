@@ -253,6 +253,20 @@ body {
     vertical-align: middle
 }
 
+.controlgroup-textinput {
+    padding-top:.10em;
+    padding-bottom:.10em;
+    width: calc(100% - 112px);
+}
+
+.controlgroup-textinput .ui-input-clear {
+    top: 60% !important;
+}
+
+#os-options .ui-controlgroup {
+    display: block !important;
+}
+
 /* Program editor rules */
 .move-up {
     border: none !important;

@@ -2031,7 +2031,7 @@ function resolveLocation(loc,callback) {
 
         popup.on("click","a",function(){
             popup.popup("close");
-            callback(this.textContent)
+            callback(this.textContent);
         }).one("popupafterclose",function(){
             popup.popup("destroy").remove();
         }).popup({
@@ -2317,7 +2317,7 @@ function show_options() {
         list += "</select></div>";
     }
 
-    list += "<div class='ui-field-contain'><label for='loc'>"+_("Location")+"<button data-helptext='"+_("Location can be a zip code, city/state or a weatherunderground personal weather station using the format: pws:ID.")+"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><input data-mini='true' type='text' id='loc' value='"+controller.settings.loc+"'></div>";
+    list += "<div class='ui-field-contain'><fieldset data-role='controlgroup' data-type='horizontal'><legend for='loc'>"+_("Location")+"<button data-helptext='"+_("Location can be a zip code, city/state or a weatherunderground personal weather station using the format: pws:ID.")+"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></legend><input data-wrapper-class='controlgroup-textinput ui-btn' data-mini='true' type='text' id='loc' value='"+controller.settings.loc+"'><button id='lookup-loc' data-mini='true'>"+_("Lookup")+"</button></fieldset></div>";
 
     if (typeof controller.options.ntp !== "undefined") {
         list += "<label for='o2'><input data-mini='true' id='o2' type='checkbox' "+((controller.options.ntp === 1) ? "checked='checked'" : "")+">"+_("NTP Sync")+"</label>";
@@ -2370,7 +2370,7 @@ function show_options() {
     list += "</fieldset><fieldset data-role='collapsible'><legend>"+_("Weather Control")+"</legend>";
 
     if (typeof controller.settings.wtkey !== "undefined") {
-        list += "<div class='ui-field-contain wtkey'><label for='wtkey'>"+_("Wunderground Key")+"<button data-helptext='"+_("Weather Underground requires an API Key which can be obtained from ")+"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><div class='"+(weatherKeyFail === true ? "red " : "")+"ui-input-text ui-body-inherit ui-corner-all ui-mini ui-shadow-inset ui-input-has-clear'><input data-role='none' type='text' id='wtkey' value='"+controller.settings.wtkey+"'><a href='#' tabindex='-1' aria-hidden='true' data-helptext='"+_("An invalid API key has been detected.")+"' class='"+(weatherKeyFail === true ? "" : "hidden ")+"ui-input-clear ui-btn ui-icon-alert ui-btn-icon-notext ui-corner-all'></a></div></div>";
+        list += "<div class='ui-field-contain wtkey'><fieldset data-role='controlgroup' data-type='horizontal'><legend for='wtkey'>"+_("Wunderground Key")+"<button data-helptext='"+_("Weather Underground requires an API Key which can be obtained from ")+"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></legend><div class='"+(weatherKeyFail === true ? "red " : "")+"ui-input-text controlgroup-textinput ui-btn ui-body-inherit ui-corner-all ui-mini ui-shadow-inset ui-input-has-clear'><input data-role='none' type='text' id='wtkey' value='"+controller.settings.wtkey+"'><a href='#' tabindex='-1' aria-hidden='true' data-helptext='"+_("An invalid API key has been detected.")+"' class='"+(weatherKeyFail === true ? "" : "hidden ")+"ui-input-clear ui-btn ui-icon-alert ui-btn-icon-notext ui-corner-all'></a></div><button data-mini='true' id='verify-api'>"+_("Verify")+"</button></fieldset></div>";
     }
 
     if (typeof controller.options.uwt !== "undefined") {
@@ -2422,6 +2422,34 @@ function show_options() {
         if (group.children().length === 1) {
             group.remove();
         }
+    });
+
+    page.find("#lookup-loc").on("click",function(){
+        var loc = $("#loc");
+
+//        /^pws:/.test("pws:edsfsd")
+
+        resolveLocation(loc.val(),function(selected){
+            if (selected === false) {
+                showerror(_("Unable to locate using:")+" "+loc.val()+". "+_("Please use another value and try again."));
+            } else {
+                loc.val(selected);
+            }
+        });
+    });
+
+    page.find("#verify-api").on("click",function(){
+        var key = $("#wtkey");
+
+        testAPIKey(key.val(),function(result){
+            if (result === true) {
+                page.find(".wtkey .ui-icon-alert").hide();
+                page.find(".wtkey .ui-input-text").removeClass("red").addClass("green");
+            } else {
+                page.find(".wtkey .ui-icon-alert").removeClass("hidden").show();
+                page.find(".wtkey .ui-input-text").removeClass("green").addClass("red");
+            }
+        });
     });
 
     page.find(".help-icon,.wtkey .ui-icon-alert").on("click",function(e){
@@ -2550,9 +2578,11 @@ function show_options() {
         }
 
         // Switch state of weather algorithm input based on API key status
-        $("#o31").selectmenu((this.value === "" ? "disable" : "enable"));
         if (this.value === "") {
+            $("#o31").val("0").selectmenu("refresh").selectmenu("disable");
             $("#o23").prop("disabled",false);
+        } else {
+            $("#o31").selectmenu("enable");
         }
     });
 
