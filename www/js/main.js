@@ -2425,14 +2425,19 @@ function show_options() {
     });
 
     page.find("#lookup-loc").on("click",function(){
-        var loc = $("#loc");
+        var loc = $("#loc"),
+            current = loc.val();
 
-//        /^pws:/.test("pws:edsfsd")
+        if (/^pws:/.test(current)) {
+            showerror(_("When using a personal weather station the location lookup is unavailable."));
+            return;
+        }
 
-        resolveLocation(loc.val(),function(selected){
+        resolveLocation(current,function(selected){
             if (selected === false) {
-                showerror(_("Unable to locate using:")+" "+loc.val()+". "+_("Please use another value and try again."));
+                showerror(_("Unable to locate using:")+" "+current+". "+_("Please use another value and try again."));
             } else {
+                selected = selected.replace(/^[0-9]{5}\s-\s/,"");
                 loc.val(selected);
             }
         });
