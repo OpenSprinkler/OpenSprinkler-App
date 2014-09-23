@@ -256,7 +256,7 @@ body {
 .controlgroup-textinput {
     padding-top:.10em;
     padding-bottom:.10em;
-    width: calc(100% - 112px);
+    width: calc(100% - 115px);
 }
 
 .controlgroup-textinput .ui-input-clear {
