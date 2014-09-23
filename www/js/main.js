@@ -1811,43 +1811,53 @@ function weather_update_failed(x,t,m) {
 }
 
 function update_yahoo_weather() {
-    $.getJSON("https://query.yahooapis.com/v1/public/yql?q=select%20woeid%20from%20geo.placefinder%20where%20text=%22"+encodeURIComponent(controller.settings.loc)+"%22&format=json",function(woeid){
-        if (woeid.query.results === null) {
-            hide_weather();
-            return;
-        }
-
-        var wid;
-
-        if (typeof woeid.query.results.Result.woeid === "string") {
-            wid = woeid.query.results.Result.woeid;
-        } else {
-            wid = woeid.query.results.Result[0].woeid;
-        }
-
-        $.getJSON("https://query.yahooapis.com/v1/public/yql?q=select%20item%2Ctitle%2Clocation%20from%20weather.forecast%20where%20woeid%3D%22"+wid+"%22&format=json",function(data){
-            // Hide the weather if no data is returned
-            if (data.query.results.channel.item.title === "City not found") {
+    $.ajax({
+        url: "https://query.yahooapis.com/v1/public/yql?q=select%20woeid%20from%20geo.placefinder%20where%20text=%22"+encodeURIComponent(controller.settings.loc)+"%22&format=json",
+        dataType: "jsonp",
+        contentType: "application/json; charset=utf-8",
+        success: function(woeid){
+            if (woeid.query.results === null) {
                 hide_weather();
                 return;
             }
-            var now = data.query.results.channel.item.condition,
-                title = data.query.results.channel.title,
-                loc = /Yahoo! Weather - (.*)/.exec(title),
-                region = data.query.results.channel.location.country;
 
-            $("#weather")
-                .html("<div title='"+now.text+"' class='wicon cond"+now.code+"'></div><span>"+convert_temp(now.temp,region)+"</span><br><span class='location'>"+loc[1]+"</span>")
-                .on("click",show_forecast);
+            var wid;
 
-            $("#weather-list").animate({
-                "margin-left": "0"
-            },1000).show();
+            if (typeof woeid.query.results.Result.woeid === "string") {
+                wid = woeid.query.results.Result.woeid;
+            } else {
+                wid = woeid.query.results.Result[0].woeid;
+            }
 
-            update_yahoo_forecast(data.query.results.channel.item.forecast,loc[1],region,now);
+            $.ajax({
+                url: "https://query.yahooapis.com/v1/public/yql?q=select%20item%2Ctitle%2Clocation%20from%20weather.forecast%20where%20woeid%3D%22"+wid+"%22&format=json",
+                dataType: "jsonp",
+                contentType: "application/json; charset=utf-8",
+                success: function(data){
+                    // Hide the weather if no data is returned
+                    if (data.query.results.channel.item.title === "City not found") {
+                        hide_weather();
+                        return;
+                    }
+                    var now = data.query.results.channel.item.condition,
+                        title = data.query.results.channel.title,
+                        loc = /Yahoo! Weather - (.*)/.exec(title),
+                        region = data.query.results.channel.location.country;
 
-            $.mobile.document.trigger("weatherUpdateComplete");
-        }).retry({times:retryCount, statusCodes: [0]}).fail(weather_update_failed);
+                    $("#weather")
+                        .html("<div title='"+now.text+"' class='wicon cond"+now.code+"'></div><span>"+convert_temp(now.temp,region)+"</span><br><span class='location'>"+loc[1]+"</span>")
+                        .on("click",show_forecast);
+
+                    $("#weather-list").animate({
+                        "margin-left": "0"
+                    },1000).show();
+
+                    update_yahoo_forecast(data.query.results.channel.item.forecast,loc[1],region,now);
+
+                    $.mobile.document.trigger("weatherUpdateComplete");
+                }
+            }).retry({times:retryCount, statusCodes: [0]}).fail(weather_update_failed);
+        }
     }).retry({times:retryCount, statusCodes: [0]}).fail(weather_update_failed);
 }
 
@@ -1872,6 +1882,7 @@ function update_wunderground_weather(wapikey) {
     $.ajax({
         url: "https://api.wunderground.com/api/"+wapikey+"/conditions/forecast/lang:EN/q/"+encodeURIComponent(controller.settings.loc)+".json",
         dataType: "jsonp",
+        contentType: "application/json; charset=utf-8",
         success: function(data) {
             var code, temp;
 

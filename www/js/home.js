@@ -85,7 +85,7 @@
 	    var interval = setInterval(function(){
 			if (document.readyState === "complete") {
 				clearInterval(interval);
-				callback();
+				setTimeout(callback, 100);
 			}
 		},1);
 	}
@@ -247,6 +247,7 @@
 		$.ajax({
 			url: assetLocation+"index.htm",
 			crossDomain: true,
+			cache: true,
 			type: "GET"
 		}).then(
 			function(data){
