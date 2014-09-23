@@ -4402,6 +4402,7 @@ function get_logs() {
             $.mobile.loading("hide");
         },
         updateView = function() {
+            $("#tooltip").remove();
             if ($("#log_graph").prop("checked")) {
                 prepGraph();
             } else {
@@ -4610,6 +4611,7 @@ function get_logs() {
 
     logs.one({
         pagehide: function(){
+            $("#tooltip").remove();
             $.mobile.window.off("resize");
             logs.remove();
         },
