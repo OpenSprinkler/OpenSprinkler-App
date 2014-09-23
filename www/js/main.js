@@ -4267,7 +4267,7 @@ function get_logs() {
                 options = {
                     grid: { hoverable: true },
                     yaxis: {min: 0, tickFormatter: function(val, axis) { return val < axis.max ? Math.round(val*100)/100 : "min";} },
-                    xaxis: { mode: "time", timeformat: "%b %d %H:%M", min:sortedData.min.getTime(), max:sortedData.max.getTime()}
+                    xaxis: { mode: "time", timeformat: "%b %d %H:%M", min:sortedData.min.getTime()-43200000, max:sortedData.max.getTime()+43200000}
                 };
             }
 
