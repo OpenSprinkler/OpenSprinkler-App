@@ -2433,12 +2433,15 @@ function show_options() {
 
     page.find("#lookup-loc").on("click",function(){
         var loc = $("#loc"),
-            current = loc.val();
+            current = loc.val(),
+            button = $(this);
 
         if (/^pws:/.test(current)) {
             showerror(_("When using a personal weather station the location lookup is unavailable."));
             return;
         }
+
+        button.prop("disabled",true);
 
         resolveLocation(current,function(selected){
             if (selected === false) {
@@ -2452,11 +2455,15 @@ function show_options() {
                 loc.parent().addClass("green");
                 loc.val(selected);
             }
+            button.prop("disabled",false);
         });
     });
 
     page.find("#verify-api").on("click",function(){
-        var key = $("#wtkey");
+        var key = $("#wtkey"),
+            button = $(this);
+
+        button.prop("disabled",true);
 
         testAPIKey(key.val(),function(result){
             if (result === true) {
@@ -2466,6 +2473,7 @@ function show_options() {
                 page.find(".wtkey .ui-icon-alert").removeClass("hidden").show();
                 page.find(".wtkey .ui-input-text").removeClass("green").addClass("red");
             }
+            button.prop("disabled",false);
         });
     });
 
