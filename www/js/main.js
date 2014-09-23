@@ -1352,6 +1352,7 @@ function show_sites(showBack) {
         }
     });
 
+    $("#site-control").remove();
     page.appendTo("body");
 }
 
@@ -1740,6 +1741,7 @@ function show_weather_settings() {
             }
         }
     });
+    $("#weather_settings").remove();
     page.appendTo("body");
 }
 
@@ -2619,6 +2621,7 @@ function show_options() {
         page.remove();
     });
 
+    $("#os-options").remove();
     page.appendTo("body");
 }
 
@@ -2930,6 +2933,7 @@ function show_stations() {
         }
     });
 
+    $("#os-stations").remove();
     page.appendTo("body");
 }
 
@@ -3485,6 +3489,7 @@ function get_manual() {
         page.remove();
     });
 
+    $("#manual").remove();
     page.appendTo("body");
 }
 
@@ -3634,6 +3639,7 @@ function get_runonce() {
         runonce.remove();
     });
 
+    $("#runonce").remove();
     runonce.appendTo("body");
 }
 
@@ -4118,6 +4124,7 @@ function get_preview() {
         pageshow: render
     });
 
+    $("#preview").remove();
     page.appendTo("body");
 }
 
@@ -4609,6 +4616,7 @@ function get_logs() {
         pageshow: requestData
     });
 
+    $("#logs").remove();
     logs.appendTo("body");
 }
 
@@ -4679,6 +4687,7 @@ function get_programs(pid) {
         }
     });
 
+    $("#programs").remove();
     programs.appendTo("body");
 }
 
@@ -5257,6 +5266,7 @@ function add_program(copyID) {
         addprogram.remove();
     });
 
+    $("#addprogram").remove();
     addprogram.appendTo("body");
 }
 
@@ -5696,6 +5706,7 @@ function show_about() {
         page.remove();
     });
 
+    $("#about").remove();
     page.appendTo("body");
 }
 
@@ -6231,6 +6242,7 @@ function changeFromPanel(page) {
 }
 
 function showTooltip(x, y, contents, color) {
+    $("#tooltip").remove();
     $("<div id='tooltip'>" + contents + "</div>").css( {
         position: "absolute",
         display: "none",
