@@ -83,6 +83,18 @@
     [listener ignore];
 }
 
+/*
+- (void)webView:(WebView *)sender decidePolicyForNavigationAction:(NSDictionary *)actionInformation request:(NSURLRequest *)request frame:(WebFrame *)frame decisionListener:(id <WebPolicyDecisionListener>) listener
+{
+    if ([[[request URL] absoluteString] rangeOfString:@"file://"].location == NSNotFound) {
+        [listener ignore];
+        [[NSWorkspace sharedWorkspace] openURL:[request URL]];
+    } else {
+        [listener use];
+    }
+}
+*/
+
 // Function to return the current devices local IP address
 -(NSString *) getIPAddress {
     NSArray *addresses = [[NSHost currentHost] addresses];
