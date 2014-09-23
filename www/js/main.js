@@ -568,6 +568,12 @@ function send_to_os(dest,type) {
         });
     }
 
+    if (curr_183) {
+        $.extend(obj,{
+            cache: "true"
+        });
+    }
+
     defer = $.ajaxQueue(obj).then(
         function(data){
             // In case the data type was incorrect, attempt to fix. If fix not possible, return string
