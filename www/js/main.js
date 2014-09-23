@@ -5,6 +5,7 @@ var isIEMobile = /IEMobile/.test(navigator.userAgent),
     isFireFoxOS = /^.*?\Mobile\b.*?\Firefox\b.*?$/m.test(navigator.userAgent),
     isWinApp = /MSAppHost/.test(navigator.userAgent),
     isBB10 = /BB10/.test(navigator.userAgent),
+    isIE = /MSIE (\d+)\.\d+;/.exec(navigator.userAgent) || false,
     isOSXApp = isOSXApp || false,
     isChromeApp = typeof chrome === "object" && typeof chrome.storage === "object",
     isFileCapable = !isiOS && !isAndroid && !isIEMobile && !isOSXApp && !isFireFoxOS  && !isWinApp && !isBB10 && window.FileReader,
@@ -76,39 +77,6 @@ var isIEMobile = /IEMobile/.test(navigator.userAgent),
     controller = {},
     switching = false,
     curr_183, curr_ip, curr_prefix, curr_auth, curr_pw, curr_wa, curr_auth_user, curr_auth_pw, curr_local, language, deviceip, interval_id, timeout_id, errorTimeout, weatherKeyFail;
-
-// Fix CSS for IE Mobile (Windows Phone 8)
-if (isIEMobile) {
-    insertStyle(".ui-toolbar-back-btn{display:none!important}ul{list-style: none !important;}@media(max-width:940px){.wicon{margin:-10px -10px -15px -15px !important}#forecast .wicon{position:relative;left:37.5px;margin:0 auto !important}}");
-}
-
-// Fix CSS for Chrome Web Store apps
-if (isChromeApp) {
-    insertStyle("html,body{overflow-y:scroll}");
-}
-
-// Prevent caching of AJAX requests on Android and Windows Phone devices
-if (isAndroid) {
-    // Hide the back button for Android (all devices have back button)
-    insertStyle(".ui-toolbar-back-btn{display:none!important}");
-
-    $(this).ajaxStart(function(){
-        try {
-            navigator.app.clearCache();
-        } catch (err) {}
-    });
-} else if (isFireFoxOS) {
-    // Allow cross domain AJAX requests in FireFox OS
-    $.ajaxSetup({
-      xhrFields: {
-        mozSystem: true
-      }
-    });
-} else {
-    $.ajaxSetup({
-        "cache": false
-    });
-}
 
 // Redirect jQuery Mobile DOM manipulation to prevent error
 if (isWinApp) {
@@ -396,6 +364,44 @@ if (!curr_local) {
 function initApp() {
     //Update the language on the page using the browser's locale
     update_lang();
+
+    // Fix CSS for IE Mobile (Windows Phone 8)
+    if (isIEMobile) {
+        insertStyle(".ui-toolbar-back-btn{display:none!important}ul{list-style: none !important;}@media(max-width:940px){.wicon{margin:-10px -10px -15px -15px !important}#forecast .wicon{position:relative;left:37.5px;margin:0 auto !important}}");
+    }
+
+    // Fix style for IE 9
+    if (isIE && isIE[1] === "9") {
+        insertStyle(".input_with_buttons button{zoom:1!important}");
+    }
+
+    // Fix CSS for Chrome Web Store apps
+    if (isChromeApp) {
+        insertStyle("html,body{overflow-y:scroll}");
+    }
+
+    // Prevent caching of AJAX requests on Android and Windows Phone devices
+    if (isAndroid) {
+        // Hide the back button for Android (all devices have back button)
+        insertStyle(".ui-toolbar-back-btn{display:none!important}");
+
+        $(this).ajaxStart(function(){
+            try {
+                navigator.app.clearCache();
+            } catch (err) {}
+        });
+    } else if (isFireFoxOS) {
+        // Allow cross domain AJAX requests in FireFox OS
+        $.ajaxSetup({
+          xhrFields: {
+            mozSystem: true
+          }
+        });
+    } else {
+        $.ajaxSetup({
+            "cache": false
+        });
+    }
 
     //Update site based on selector
     $("#site-selector").on("change",function(){
@@ -3291,7 +3297,7 @@ function check_status() {
     // Handle a single station open
     match = false;
     for (i=0; i<controller.stations.snames.length; i++) {
-        if (controller.settings.ps[i][0] && controller.status[i] && controller.options.mas !== i+1) {
+        if (controller.settings.ps[i] && controller.settings.ps[i][0] && controller.status[i] && controller.options.mas !== i+1) {
             match = true;
             pid = controller.settings.ps[i][0];
             pname = pidname(pid);
