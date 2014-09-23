@@ -5688,11 +5688,17 @@ function import_config(data) {
             })
         ).then(
             function(){
-                update_controller(function(){
-                    $.mobile.loading("hide");
-                    showerror(_("Backup restored to your device"));
-                    update_weather();
-                });
+                update_controller(
+                    function(){
+                        $.mobile.loading("hide");
+                        showerror(_("Backup restored to your device"));
+                        update_weather();
+                    },
+                    function(){
+                        $.mobile.loading("hide");
+                        network_fail();
+                    }
+                );
             },
             function(){
                 $.mobile.loading("hide");
