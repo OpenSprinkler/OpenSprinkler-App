@@ -375,6 +375,18 @@ msgstr ""
 msgid "Ignore Password"
 msgstr ""
 
+msgid "Use DHCP (restart required)"
+msgstr ""
+
+msgid "IP Address"
+msgstr ""
+
+msgid "Gateway Address"
+msgstr ""
+
+msgid "NTP IP Address"
+msgstr ""
+
 msgid ""
 "When using a personal weather station the location lookup is unavailable."
 msgstr ""
@@ -947,6 +959,9 @@ msgid "Yes"
 msgstr ""
 
 msgid "No"
+msgstr ""
+
+msgid "Enter IP Address"
 msgstr ""
 
 msgid "Duration"
