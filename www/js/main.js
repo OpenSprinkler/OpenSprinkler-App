@@ -2912,11 +2912,14 @@ function show_stations() {
 
     // When data is refreshed, update the icon status
     page.on("datarefresh",function(){
-        page.find("[id^='run_station-']").each(function(i){
+        page.find("[id^='run_station-']").each(function(){
+            var button = $(this),
+                i = parseInt(button.attr("id").split("-")[1]);
+
             if (controller.status[i] > 0 || controller.settings.ps[i][0] > 0) {
-                $(this).removeClass("green").addClass("red").text(_("Stop")).off("click");
+                button.removeClass("green").addClass("red").text(_("Stop")).off("click");
             } else {
-                $(this).removeClass("red").addClass("green").text(_("Start")).off("click");
+                button.removeClass("red").addClass("green").text(_("Start")).off("click");
             }
         });
     });
@@ -5452,7 +5455,7 @@ function submit_program21(id) {
             var time = b.value.split(":"),
                 tid = b.id.split("-")[0].split("_")[1];
 
-            if ((!parseInt(time[0]) || !parseInt(time[1])) || (id >1 && $("#ust_"+tid).is(":checked"))) {
+            if ((time[0] === "" || time[1] === "") || (a > 1 && $("#ust_"+tid).is(":checked"))) {
                 time = -1;
             } else {
                 time = parseInt(time[0])*60+parseInt(time[1]);
