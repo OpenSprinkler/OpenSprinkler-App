@@ -2278,7 +2278,7 @@ function show_options() {
         list += "</select></div>";
     }
 
-    list += "<div class='ui-field-contain'><fieldset data-role='controlgroup' data-type='horizontal'><legend for='loc'>"+_("Location")+"<button data-helptext='"+_("Location can be a zip code, city/state or a weatherunderground personal weather station using the format: pws:ID.")+"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></legend><input data-wrapper-class='controlgroup-textinput ui-btn' data-mini='true' type='text' id='loc' value='"+controller.settings.loc+"'><button id='lookup-loc' data-mini='true' style='width:55px'>"+_("Lookup")+"</button></fieldset></div>";
+    list += "<div class='ui-field-contain'><fieldset data-role='controlgroup' data-type='horizontal'><legend for='loc'>"+_("Location")+"<button data-helptext='"+_("Location can be a zip code, city/state or a weatherunderground personal weather station using the format: pws:ID.")+"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></legend><input data-wrapper-class='controlgroup-textinput ui-btn' data-mini='true' type='text' id='loc' value='"+controller.settings.loc+"'><button class='noselect' id='lookup-loc' data-mini='true' style='width:55px'>"+_("Lookup")+"</button></fieldset></div>";
 
     if (typeof controller.options.ntp !== "undefined") {
         list += "<label for='o2'><input data-mini='true' id='o2' type='checkbox' "+((controller.options.ntp === 1) ? "checked='checked'" : "")+">"+_("NTP Sync")+"</label>";
@@ -2331,7 +2331,7 @@ function show_options() {
     list += "</fieldset><fieldset data-role='collapsible'><legend>"+_("Weather Control")+"</legend>";
 
     if (typeof controller.settings.wtkey !== "undefined") {
-        list += "<div class='ui-field-contain wtkey'><fieldset data-role='controlgroup' data-type='horizontal'><legend for='wtkey'>"+_("Wunderground Key").replace("Wunderground","Wunder&shy;ground")+"<button data-helptext='"+_("Weather Underground requires an API Key which can be obtained from ")+"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></legend><div class='"+(weatherKeyFail === true ? "red " : "")+"ui-input-text controlgroup-textinput ui-btn ui-body-inherit ui-corner-all ui-mini ui-shadow-inset ui-input-has-clear'><input data-role='none' type='text' id='wtkey' value='"+controller.settings.wtkey+"'><a href='#' tabindex='-1' aria-hidden='true' data-helptext='"+_("An invalid API key has been detected.")+"' class='"+(weatherKeyFail === true ? "" : "hidden ")+"ui-input-clear ui-btn ui-icon-alert ui-btn-icon-notext ui-corner-all'></a></div><button data-mini='true' id='verify-api'>"+_("Verify")+"</button></fieldset></div>";
+        list += "<div class='ui-field-contain wtkey'><fieldset data-role='controlgroup' data-type='horizontal'><legend for='wtkey'>"+_("Wunderground Key").replace("Wunderground","Wunder&shy;ground")+"<button data-helptext='"+_("Weather Underground requires an API Key which can be obtained from ")+"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></legend><div class='"+(weatherKeyFail === true ? "red " : "")+"ui-input-text controlgroup-textinput ui-btn ui-body-inherit ui-corner-all ui-mini ui-shadow-inset ui-input-has-clear'><input data-role='none' type='text' id='wtkey' value='"+controller.settings.wtkey+"'><a href='#' tabindex='-1' aria-hidden='true' data-helptext='"+_("An invalid API key has been detected.")+"' class='"+(weatherKeyFail === true ? "" : "hidden ")+"ui-input-clear ui-btn ui-icon-alert ui-btn-icon-notext ui-corner-all'></a></div><button class='noselect' data-mini='true' id='verify-api'>"+_("Verify")+"</button></fieldset></div>";
     }
 
     if (typeof controller.options.uwt !== "undefined") {
@@ -2374,6 +2374,20 @@ function show_options() {
         list += "<label for='o25'><input data-mini='true' id='o25' type='checkbox' "+((controller.options.ipas === 1) ? "checked='checked'" : "")+">"+_("Ignore Password")+"</label>";
     }
 
+    if (typeof controller.options.dhcp !== "undefined") {
+        var ip = [controller.options.ip1,controller.options.ip2,controller.options.ip3,controller.options.ip4].join("."),
+            gw = [controller.options.gw1,controller.options.gw2,controller.options.gw3,controller.options.gw4].join(".");
+
+        list += "<label for='o3'><input data-mini='true' id='o3' type='checkbox' "+((controller.options.dhcp === 1) ? "checked='checked'" : "")+">"+_("Use DHCP")+"</label>";
+        list += "<div class='"+((controller.options.dhcp === 1) ? "hidden " : "")+"ui-field-contain duration-field'><label for='ip_addr'>"+_("IP Address")+"</label><button data-mini='true' id='ip_addr' value='"+ip+"'>"+ip+"</button></div>";
+        list += "<div class='"+((controller.options.dhcp === 1) ? "hidden " : "")+"ui-field-contain duration-field'><label for='gateway'>"+_("Gateway Address")+"</label><button data-mini='true' id='gateway' value='"+gw+"'>"+gw+"</button></div>";
+    }
+
+    if (typeof controller.options.ntp !== "undefined") {
+        var ntpIP = [controller.options.ntp1,controller.options.ntp2,controller.options.ntp3,controller.options.ntp4].join(".");
+        list += "<div class='"+((controller.options.ntp === 1) ? "" : "hidden ")+"ui-field-contain duration-field'><label for='ntp_addr'>"+_("NTP IP Address")+"</label><button data-mini='true' id='ntp_addr' value='"+ntpIP+"'>"+ntpIP+"</button></div>";
+    }
+
     list += "</fieldset>";
 
     // Insert options and remove unused groups
@@ -2382,6 +2396,18 @@ function show_options() {
 
         if (group.children().length === 1) {
             group.remove();
+        }
+    });
+
+    page.find("#o3").on("change",function(){
+        var button = $(this),
+            checked = button.is(":checked"),
+            manualInputs = page.find("#ip_addr,#gateway").parents(".ui-field-contain");
+
+        if (checked) {
+            manualInputs.addClass("hidden");
+        } else {
+            manualInputs.removeClass("hidden");
         }
     });
 
@@ -2464,7 +2490,15 @@ function show_options() {
             helptext = dur.parent().find(".help-icon").data("helptext"),
             max = 240;
 
-        if (id === "o19") {
+        if (id === "ip_addr" || id === "gateway" || id === "ntp_addr") {
+            showIPRequest({
+                title: name,
+                ip: dur.val().split("."),
+                callback: function(ip) {
+                    dur.val(ip.join(".")).text(ip.join("."));
+                }
+            });
+        } else if (id === "o19") {
             showSingleDurationInput({
                 data: dur.val(),
                 title: name,
@@ -2540,8 +2574,13 @@ function show_options() {
     });
 
     page.find("#o2").on("change",function(){
+        var ntp = $(this).is(":checked");
+
         // Switch state of device time input based on NTP status
-        page.find(".datetime-input button").prop("disabled",$(this).is(":checked"));
+        page.find(".datetime-input button").prop("disabled",ntp);
+
+        // Switch the NTP IP address field when NTP is used
+        page.find("#ntp_addr").parents(".ui-field-contain").toggleClass("hidden",!ntp);
     });
 
     page.find("#o31").on("change",function(){
@@ -2594,10 +2633,11 @@ function submit_options() {
         keyNames = {1:"tz",2:"ntp",12:"htp",13:"htp2",14:"ar",15:"nbrd",16:"seq",17:"sdt",18:"mas",19:"mton",20:"mtoff",21:"urs",22:"rst",23:"wl",25:"ipas",30:"rlp","lg":"lg",31:"uwt"},
         key;
 
-    $("#os-options-list").find(":input,button").each(function(a,b){
+    $("#os-options-list").find(":input,button").filter(":not(.noselect)").each(function(a,b){
         var $item = $(b),
             id = $item.attr("id"),
-            data = $item.val();
+            data = $item.val(),
+            ip;
 
         if (!id || (!data && data!=="")) {
             return true;
@@ -2623,6 +2663,33 @@ function submit_options() {
                 opt.ttt = Math.round(dt.getTime()/1000);
 
                 return true;
+            case "ip_addr":
+                ip = data.split(".");
+
+                opt.o4 = ip[0];
+                opt.o5 = ip[1];
+                opt.o6 = ip[2];
+                opt.o7 = ip[3];
+
+                return true;
+            case "gateway":
+                ip = data.split(".");
+
+                opt.o8 = ip[0];
+                opt.o9 = ip[1];
+                opt.o10 = ip[2];
+                opt.o11 = ip[3];
+
+                return true;
+            case "ntp_addr":
+                ip = data.split(".");
+
+                opt.o32 = ip[0];
+                opt.o33 = ip[1];
+                opt.o34 = ip[2];
+                opt.o35 = ip[3];
+
+                return true;
             case "o12":
                 if (!isPi) {
                     opt.o12 = data&0xff;
@@ -2644,6 +2711,7 @@ function submit_options() {
             case "o25":
             case "o30":
             case "lg":
+            case "o3":
                 data = $item.is(":checked") ? 1 : 0;
                 if (!data) {
                     return true;
@@ -5609,7 +5677,7 @@ function getImportMethod(localData){
 
 function import_config(data) {
     var piNames = {1:"tz",2:"ntp",12:"htp",13:"htp2",14:"ar",15:"nbrd",16:"seq",17:"sdt",18:"mas",19:"mton",20:"mtoff",21:"urs",22:"rst",23:"wl",25:"ipas",30:"rlp","lg":"lg",31:"uwt"},
-        keyIndex = {"tz":1,"ntp":2,"hp0":12,"hp1":13,"ar":14,"ext":15,"seq":16,"sdt":17,"mas":18,"mton":19,"mtof":20,"urs":21,"rso":22,"wl":23,"ipas":25,"devid":26,"rlp":30,"lg":"lg","uwt":31};
+        keyIndex = {"tz":1,"ntp":2,"hp0":12,"hp1":13,"ar":14,"ext":15,"seq":16,"sdt":17,"mas":18,"mton":19,"mtof":20,"urs":21,"rso":22,"wl":23,"ipas":25,"devid":26,"rlp":30,"lg":"lg","uwt":31,"ntp1":32,"ntp2":33,"ntp3":34,"ntp4":35};
 
     if (typeof data !== "object" || !data.settings) {
         showerror(_("Invalid configuration"));
@@ -5981,6 +6049,101 @@ function areYouSure(text1, text2, callback) {
     $("#sure").popup({history: false, positionTo: "window"}).popup("open");
 }
 
+function showIPRequest(opt){
+    var defaults = {
+            title: _("Enter IP Address"),
+            ip: [0,0,0,0],
+            showBack: true,
+            callback: function(){}
+        };
+
+    opt = $.extend({}, defaults, opt);
+
+    $("#ipInput").popup("destroy").remove();
+
+    var popup = $("<div data-role='popup' id='ipInput' data-theme='a' data-overlay-theme='b'>" +
+            "<div data-role='header' data-theme='b'>" +
+                "<h1>"+opt.title+"</h1>" +
+            "</div>" +
+            "<div class='ui-content'>" +
+                "<span>" +
+                    "<fieldset class='ui-grid-c incr'>" +
+                        "<div class='ui-block-a'><a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a></div>" +
+                        "<div class='ui-block-b'><a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a></div>" +
+                        "<div class='ui-block-c'><a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a></div>" +
+                        "<div class='ui-block-d'><a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a></div>" +
+                    "</fieldset>" +
+                    "<div class='ui-grid-c inputs'>" +
+                        "<div class='ui-block-a'><input data-wrapper-class='pad_buttons' class='ip_addr' type='number' pattern='[0-9]*' max='255' value='"+opt.ip[0]+"'></div>" +
+                        "<div class='ui-block-b'><input data-wrapper-class='pad_buttons' class='ip_addr' type='number' pattern='[0-9]*' max='255' value='"+opt.ip[1]+"'></div>" +
+                        "<div class='ui-block-c'><input data-wrapper-class='pad_buttons' class='ip_addr' type='number' pattern='[0-9]*' max='255' value='"+opt.ip[2]+"'></div>" +
+                        "<div class='ui-block-d'><input data-wrapper-class='pad_buttons' class='ip_addr' type='number' pattern='[0-9]*' max='255' value='"+opt.ip[3]+"'></div>" +
+                    "</div>" +
+                    "<fieldset class='ui-grid-c decr'>" +
+                        "<div class='ui-block-a'><a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='minus' data-iconpos='bottom'></a></div>" +
+                        "<div class='ui-block-b'><a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='minus' data-iconpos='bottom'></a></div>" +
+                        "<div class='ui-block-c'><a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='minus' data-iconpos='bottom'></a></div>" +
+                        "<div class='ui-block-d'><a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='minus' data-iconpos='bottom'></a></div>" +
+                    "</fieldset>" +
+                "</span>" +
+                (opt.showBack ? "<button class='submit' data-theme='b'>"+_("Submit")+"</button>" : "") +
+            "</div>" +
+        "</div>"),
+        changeValue = function(pos,dir){
+            var input = popup.find(".inputs input").eq(pos),
+                val = parseInt(input.val());
+
+            if ((dir === -1 && val === 0) || (dir === 1 && val >= 255)) {
+                return;
+            }
+
+            input.val(val+dir);
+            opt.callback(getIP());
+        },
+        getIP = function(){
+            return $.makeArray(popup.find(".ip_addr").map(function(){return parseInt($(this).val());}));
+        };
+
+    popup.find("button.submit").on("click",function(){
+        opt.callback(getIP());
+        popup.popup("destroy").remove();
+    });
+
+    popup.on("focus","input[type='number']",function(){
+        this.value = "";
+    }).on("blur","input[type='number']",function(){
+        if (this.value === "") {
+            this.value = "0";
+        }
+    });
+
+    holdButton(popup.find(".incr").children(),function(e){
+        var pos = $(e.currentTarget).index();
+        changeValue(pos,1);
+        return false;
+    });
+
+    holdButton(popup.find(".decr").children(),function(e){
+        var pos = $(e.currentTarget).index();
+        changeValue(pos,-1);
+        return false;
+    });
+
+    $(".ui-page-active").append(popup);
+
+    popup
+    .css("max-width","350px")
+    .popup({
+        history: false,
+        "positionTo": "window"
+    })
+    .one("popupafterclose",function(){
+        opt.callback(getIP());
+        $(this).popup("destroy").remove();
+    })
+    .enhanceWithin().popup("open");
+}
+
 function showDurationBox(opt) {
     var defaults = {
             seconds: 0,
@@ -6095,7 +6258,7 @@ function showDurationBox(opt) {
 
     for (i=start; i<conv.length - opt.granularity; i++) {
         incrbts += "<div "+((total > 1) ? "class='ui-block-"+String.fromCharCode(97+i-start)+"'" : "")+"><a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a></div>";
-        inputs += "<div "+((total > 1) ? "class='ui-block-"+String.fromCharCode(97+i-start)+"'" : "")+"><label>"+_(text[i])+"</label><input data-wrapper-class='pad_buttons' class='"+keys[i]+"' type='number' pattern='[0-9]*' value='"+arr[keys[i]]+"'></div>";
+        inputs += "<div "+((total > 1) ? "class='ui-block-"+String.fromCharCode(97+i-start)+"'" : "")+"><label class='center'>"+_(text[i])+"</label><input data-wrapper-class='pad_buttons' class='"+keys[i]+"' type='number' pattern='[0-9]*' value='"+arr[keys[i]]+"'></div>";
         decrbts += "<div "+((total > 1) ? "class='ui-block-"+String.fromCharCode(97+i-start)+"'" : "")+"><a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='minus' data-iconpos='bottom'></a></div>";
     }
 
