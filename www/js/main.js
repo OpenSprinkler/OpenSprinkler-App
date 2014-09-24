@@ -2378,7 +2378,7 @@ function show_options() {
         var ip = [controller.options.ip1,controller.options.ip2,controller.options.ip3,controller.options.ip4].join("."),
             gw = [controller.options.gw1,controller.options.gw2,controller.options.gw3,controller.options.gw4].join(".");
 
-        list += "<label for='o3'><input data-mini='true' id='o3' type='checkbox' "+((controller.options.dhcp === 1) ? "checked='checked'" : "")+">"+_("Use DHCP")+"</label>";
+        list += "<label for='o3'><input data-mini='true' id='o3' type='checkbox' "+((controller.options.dhcp === 1) ? "checked='checked'" : "")+">"+_("Use DHCP (restart required)")+"</label>";
         list += "<div class='"+((controller.options.dhcp === 1) ? "hidden " : "")+"ui-field-contain duration-field'><label for='ip_addr'>"+_("IP Address")+"</label><button data-mini='true' id='ip_addr' value='"+ip+"'>"+ip+"</button></div>";
         list += "<div class='"+((controller.options.dhcp === 1) ? "hidden " : "")+"ui-field-contain duration-field'><label for='gateway'>"+_("Gateway Address")+"</label><button data-mini='true' id='gateway' value='"+gw+"'>"+gw+"</button></div>";
     }
@@ -4306,12 +4306,10 @@ function get_logs() {
                         break;
                 }
             } else {
-                switch (grouping) {
-                    case "station":
-                        for (i=0; i<stations.length; i++) {
-                            sortedData[i] = [];
-                        }
-                        break;
+                if (grouping === "station") {
+                    for (i=0; i<stations.length; i++) {
+                        sortedData[i] = [];
+                    }
                 }
             }
 
