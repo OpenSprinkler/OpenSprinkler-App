@@ -5452,10 +5452,9 @@ function submit_program21(id) {
         var times = $("[id^='start_'][id$='-"+id+"']");
 
         times.each(function(a,b){
-            var time = b.value.split(":"),
-                tid = b.id.split("-")[0].split("_")[1];
+            var time = b.value.split(":");
 
-            if ((time[0] === "" || time[1] === "") || (a > 1 && $("#ust_"+tid).is(":checked"))) {
+            if ((time[0] === "" || time[1] === "") || (a > 0 && !$("#ust_"+(a+1)).is(":checked"))) {
                 time = -1;
             } else {
                 time = parseInt(time[0])*60+parseInt(time[1]);
