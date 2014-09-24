@@ -442,75 +442,6 @@ function initApp() {
     if (isChromeApp || isOSXApp) {
         checkAutoScan();
     }
-
-    // Check if File API is supported. If so, switch to using files for import/export.
-    if (isFileCapable) {
-        var input = $("<input type='file' id='configInput' data-role='none' style='visibility:hidden;position:absolute;top:-50px;left:-50px'/>").on("change",function(){
-                var config = this.files[0],
-                    reader = new FileReader();
-
-                if (typeof config !== "object") {
-                    return;
-                }
-
-                reader.onload = function(e){
-                    try{
-                        var obj=JSON.parse($.trim(e.target.result));
-                        import_config(JSON.stringify(obj));
-                    }catch(err){
-                        showerror(_("Unable to read the configuration file. Please check the file and try again."));
-                    }
-                };
-
-                reader.readAsText(config);
-            }),
-            panel = $("#sprinklers-settings");
-
-        $(".paste_config").on("click",function(){
-            input.click();
-            return false;
-        });
-
-        input.appendTo(panel);
-    } else {
-        $(".paste_config").on("click",function(){
-            var popup = $(
-                "<div data-role='popup' data-overlay-theme='b' id='paste_config'>"+
-                    "<p class='ui-bar'>" +
-                        "<textarea class='textarea' rows='10' placeholder='"+_("Paste your backup here")+"'></textarea>" +
-                        "<button data-mini='true' data-theme='b'>"+_("Import")+"</button>" +
-                    "</p>" +
-                "</div>"
-            );
-
-            popup.find("button").on("click",function(){
-                var data = popup.find("textarea").val();
-
-                if (data === "") {
-                    return;
-                }
-
-                try{
-                    data=JSON.parse($.trim(data));
-                    popup.popup("close");
-                    import_config(JSON.stringify(data));
-                }catch(err){
-                    popup.find("textarea").val("");
-                    showerror(_("Unable to read the configuration file. Please check the file and try again."));
-                }
-            });
-
-            popup.one("popupafterclose", function(){
-                popup.popup("destroy").remove();
-            }).enhanceWithin();
-
-            $(".ui-page-active").append(popup);
-
-            popup.popup({history: false, positionTo: "window"}).popup("open");
-
-            return false;
-        });
-    }
 }
 
 // Handle main switches for manual mode and enable
@@ -704,9 +635,6 @@ function newload() {
             } else {
                 $("#info-list").find("li[data-role='list-divider']").text(_("Information"));
             }
-
-            // Update export to email button in side panel
-            exportObj(".email_config",controller);
 
             // Check if automatic rain delay plugin is enabled on OSPi devices
             checkWeatherPlugin();
@@ -2098,11 +2026,14 @@ function open_panel() {
         return false;
     });
     panel.find(".export_config").off("click").on("click",function(){
-        export_config();
+        getExportMethod();
         return false;
     });
     panel.find(".import_config").off("click").on("click",function(){
-        import_config();
+        storage.get("backup",function(newdata){
+            getImportMethod(newdata.backup);
+        });
+
         return false;
     });
     panel.one("panelclose",function(){
@@ -5527,33 +5458,161 @@ function raindelay(delay) {
 }
 
 // Export and Import functions
-function export_config() {
-    storage.set({"backup":JSON.stringify(controller)},function(){
-        showerror(_("Backup saved on this device"));
+function getExportMethod() {
+    var popup = $(
+        "<div data-role='popup'>"+
+            "<div class='ui-bar ui-bar-a'>"+_("Select Export Method")+"</div>" +
+            "<div data-role='controlgroup' class='tight'>" +
+                "<a class='ui-btn hidden fileMethod'>"+_("File")+"</a>" +
+                "<a class='ui-btn pasteMethod'>"+_("Email (copy/paste)")+"</a>" +
+                "<a class='ui-btn localMethod'>"+_("Internal (within app)")+"</a>" +
+            "</div>" +
+        "</div>"),
+        obj = encodeURIComponent(JSON.stringify(controller)),
+        subject = "Sprinklers Data Export on "+dateToString(new Date());
+
+    if (isFileCapable) {
+        popup.find(".fileMethod").removeClass("hidden").attr({
+            href: "data:text/json;charset=utf-8," + obj,
+            download: "backup.json"
+        }).on("click",function(){
+            popup.popup("close");
+        });
+    }
+
+    popup.find(".pasteMethod").attr("href","mailto:?subject="+encodeURIComponent(subject)+"&body="+obj).on("click",function(){
+        popup.popup("close");
     });
+
+    popup.find(".localMethod").on("click",function(){
+        popup.popup("close");
+        storage.set({"backup":JSON.stringify(controller)},function(){
+            showerror(_("Backup saved on this device"));
+        });
+    });
+
+    popup.one("popupafterclose", function(){
+        popup.popup("destroy").remove();
+    }).enhanceWithin();
+
+    $(".ui-page-active").append(popup);
+
+    popup.popup({history: false, positionTo: $("#sprinklers-settings").find(".export_config")}).popup("open");
+}
+
+function getImportMethod(localData){
+    var getPaste = function(){
+            var popup = $(
+                "<div data-role='popup' data-overlay-theme='b' id='paste_config'>"+
+                    "<p class='ui-bar'>" +
+                        "<textarea class='textarea' rows='10' placeholder='"+_("Paste your backup here")+"'></textarea>" +
+                        "<button data-mini='true' data-theme='b'>"+_("Import")+"</button>" +
+                    "</p>" +
+                "</div>"
+            );
+
+            popup.find("button").on("click",function(){
+                var data = popup.find("textarea").val();
+
+                if (data === "") {
+                    return;
+                }
+
+                try{
+                    data=JSON.parse($.trim(data));
+                    popup.popup("close");
+                    import_config(data);
+                }catch(err){
+                    popup.find("textarea").val("");
+                    showerror(_("Unable to read the configuration file. Please check the file and try again."));
+                }
+            });
+
+            popup.one("popupafterclose", function(){
+                popup.popup("destroy").remove();
+            }).enhanceWithin();
+
+            $(".ui-page-active").append(popup);
+
+            popup.popup({history: false, positionTo: "window"}).popup("open");
+
+            return false;
+        },
+        popup = $(
+            "<div data-role='popup'>"+
+                "<div class='ui-bar ui-bar-a'>"+_("Select Import Method")+"</div>" +
+                "<div data-role='controlgroup' class='tight'>" +
+                    "<button class='hidden fileMethod'>"+_("File")+"</button>" +
+                    "<button class='pasteMethod'>"+_("Email (copy/paste)")+"</button>" +
+                    "<button class='hidden localMethod'>"+_("Internal (within app)")+"</button>" +
+                "</div>" +
+            "</div>");
+
+    if (isFileCapable) {
+        popup.find(".fileMethod").removeClass("hidden").on("click",function(){
+            popup.popup("close");
+            var input = $("<input type='file' id='configInput' data-role='none' style='visibility:hidden;position:absolute;top:-50px;left:-50px'/>").on("change",function(){
+                    var config = this.files[0],
+                        reader = new FileReader();
+
+                    if (typeof config !== "object") {
+                        return;
+                    }
+
+                    reader.onload = function(e){
+                        try{
+                            var obj=JSON.parse($.trim(e.target.result));
+                            import_config(obj);
+                        }catch(err){
+                            showerror(_("Unable to read the configuration file. Please check the file and try again."));
+                        }
+                    };
+
+                    reader.readAsText(config);
+                });
+
+            input.appendTo("#sprinklers-settings");
+            input.click();
+            return false;
+        });
+    } else {
+        // Handle local storage being unavailable and present paste dialog immediately
+        if (!localData) {
+            popup.popup("close");
+            getPaste();
+            return;
+        }
+    }
+
+    popup.find(".pasteMethod").on("click",function(){
+        popup.popup("close");
+        getPaste();
+        return false;
+    });
+
+    if (localData) {
+        popup.find(".localMethod").removeClass("hidden").on("click",function(){
+            popup.popup("close");
+            import_config(JSON.parse(localData));
+            return false;
+        });
+    }
+
+    popup.one("popupafterclose", function(){
+        popup.popup("destroy").remove();
+    }).enhanceWithin();
+
+    $(".ui-page-active").append(popup);
+
+    popup.popup({history: false, positionTo: $("#sprinklers-settings").find(".import_config")}).popup("open");
 }
 
 function import_config(data) {
     var piNames = {1:"tz",2:"ntp",12:"htp",13:"htp2",14:"ar",15:"nbrd",16:"seq",17:"sdt",18:"mas",19:"mton",20:"mtoff",21:"urs",22:"rst",23:"wl",25:"ipas",30:"rlp","lg":"lg",31:"uwt"},
         keyIndex = {"tz":1,"ntp":2,"hp0":12,"hp1":13,"ar":14,"ext":15,"seq":16,"sdt":17,"mas":18,"mton":19,"mtof":20,"urs":21,"rso":22,"wl":23,"ipas":25,"devid":26,"rlp":30,"lg":"lg","uwt":31};
 
-    if (typeof data === "undefined") {
-        storage.get("backup",function(newdata){
-            if (newdata.backup) {
-                import_config(newdata.backup);
-            } else {
-                showerror(_("No backup available on this device"));
-                return;
-            }
-        });
-
-        return;
-    }
-
-    data = JSON.parse(data);
-
-    if (!data.settings) {
-        showerror(_("No backup available on this device"));
+    if (typeof data !== "object" || !data.settings) {
+        showerror(_("Invalid configuration"));
         return;
     }
 
