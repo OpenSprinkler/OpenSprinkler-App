@@ -5464,7 +5464,7 @@ function getExportMethod() {
             "<div class='ui-bar ui-bar-a'>"+_("Select Export Method")+"</div>" +
             "<div data-role='controlgroup' class='tight'>" +
                 "<a class='ui-btn hidden fileMethod'>"+_("File")+"</a>" +
-                "<a class='ui-btn pasteMethod'>"+_("Email (copy/paste)")+"</a>" +
+                "<a class='ui-btn pasteMethod'>"+_("Email")+"</a>" +
                 "<a class='ui-btn localMethod'>"+_("Internal (within app)")+"</a>" +
             "</div>" +
         "</div>"),
