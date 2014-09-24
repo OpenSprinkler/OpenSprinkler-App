@@ -18,16 +18,6 @@ msgstr ""
 msgid "All stations have been stopped"
 msgstr ""
 
-msgid ""
-"Unable to read the configuration file. Please check the file and try again."
-msgstr ""
-
-msgid "Paste your backup here"
-msgstr ""
-
-msgid "Import"
-msgstr ""
-
 msgid "Check device password and try again."
 msgstr ""
 
@@ -889,10 +879,38 @@ msgstr ""
 msgid "Rain delay has been successfully set"
 msgstr ""
 
+msgid "Select Export Method"
+msgstr ""
+
+msgid "File"
+msgstr ""
+
+msgid "Email"
+msgstr ""
+
+msgid "Internal (within app)"
+msgstr ""
+
 msgid "Backup saved on this device"
 msgstr ""
 
-msgid "No backup available on this device"
+msgid "Paste your backup here"
+msgstr ""
+
+msgid "Import"
+msgstr ""
+
+msgid ""
+"Unable to read the configuration file. Please check the file and try again."
+msgstr ""
+
+msgid "Select Import Method"
+msgstr ""
+
+msgid "Email (copy/paste)"
+msgstr ""
+
+msgid "Invalid configuration"
 msgstr ""
 
 msgid "Are you sure you want to restore the configuration?"
