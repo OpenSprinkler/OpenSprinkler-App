@@ -1,6 +1,6 @@
 {
   "name": "OpenSprinkler",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Designed to allow intuitive control of the OpenSprinkler irrigation controller.",
   "main": "www/js/main.js",
   "scripts": {
