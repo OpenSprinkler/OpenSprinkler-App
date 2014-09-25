@@ -79,15 +79,8 @@
 
 	    var a=document.createElement("script");
 	    a.src=src;
+	    a.addEventListener("load", callback, false);
 	    document.getElementsByTagName("head")[0].appendChild(a);
-
-	    // Start checking for script load completion and callback when done
-	    var interval = setInterval(function(){
-			if (document.readyState === "complete") {
-				clearInterval(interval);
-				setTimeout(callback, 100);
-			}
-		},1);
 	}
 
 	// Change the viewport

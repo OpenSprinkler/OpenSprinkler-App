@@ -135,7 +135,6 @@ $(document)
     //After jQuery mobile is loaded set intial configuration
     $.mobile.defaultPageTransition = "fade";
     $.mobile.hoverDelay = 0;
-    $.mobile.hashListeningEnabled = false;
     $.mobile.activeBtnClass = "activeButton";
 
     //Change history method for Chrome Packaged Apps
