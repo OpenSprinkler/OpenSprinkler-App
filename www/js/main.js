@@ -6530,7 +6530,7 @@ function showLoading(ele) {
     ele.off("click").html("<p class='ui-icon ui-icon-loading mini-load'></p>");
 }
 
-function goBack(keepIndex) {
+function goBack() {
     var page = $(".ui-page-active").attr("id"),
         managerStart = (page === "site-control" && $.isEmptyObject(controller)),
         popup = $(".ui-popup-active");
@@ -6545,18 +6545,7 @@ function goBack(keepIndex) {
             navigator.app.exitApp();
         } catch(err) {}
     } else {
-        var url = $.mobile.navigate.history.getPrev().url;
-
-        if (url.slice(0,1) !== "#") {
-            return;
-        }
-
-        changePage(url);
-        $.mobile.document.one("pagehide",function(){
-            if (!keepIndex) {
-                $.mobile.navigate.history.activeIndex -= 2;
-            }
-        });
+        $.mobile.back();
     }
 }
 
