@@ -86,7 +86,7 @@ if (isWinApp) {
     settingsPane.addEventListener("commandsrequested", function(eventArgs) {
         var applicationCommands = eventArgs.request.applicationCommands;
         var privacyCommand = new Windows.UI.ApplicationSettings.SettingsCommand("privacy", "Privacy Policy", function(){
-            window.open("http://albahra.com/journal/privacy-policy");
+            window.open("https://albahra.com/journal/privacy-policy");
         });
         applicationCommands.append(privacyCommand);
     });
@@ -1947,7 +1947,7 @@ function resolveLocation(loc,callback) {
     }
 
     $.ajax({
-        url: "http://autocomplete.wunderground.com/aq?format=json&h=0&query="+encodeURIComponent(loc),
+        url: "https://autocomplete.wunderground.com/aq?format=json&h=0&query="+encodeURIComponent(loc),
         dataType: "jsonp",
         jsonp: "cb"
     }).retry({times:retryCount, statusCodes: [0]}).done(function(data){

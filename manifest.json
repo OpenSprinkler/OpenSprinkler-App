@@ -3,6 +3,7 @@
   "description": "Designed to allow intuitive control of the OpenSprinkler irrigation controller.",
   "version": "1.2.1",
   "manifest_version": 2,
+  "content_security_policy": "script-src 'self' https://query.yahooapis.com https://*.wunderground.com; object-src 'self'",
   "app": {
 	  "background": {
 	      "scripts": ["chrome.js"]
