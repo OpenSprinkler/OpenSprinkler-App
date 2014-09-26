@@ -173,15 +173,6 @@ $(document)
             return false;
         });
     }
-
-    // Fix custom select menu popup creating history state
-    $.mobile.document.on("popupbeforeposition",".ui-selectmenu.ui-popup",function(){
-        var popup = $(this);
-        $(".ui-popup-screen").off("click").on("click",function(){
-            popup.popup("close");
-        });
-        popup.popup("option","history",false);
-    });
 })
 .one("pagebeforechange", function(event) {
     // Let the framework know we're going to handle the first load
@@ -201,6 +192,10 @@ $(document)
         hash = $.mobile.path.parseUrl(page).hash;
 
         if (hash === "#"+currPage.attr("id") && (hash === "#programs" || hash === "#site-control")) {
+            if (hash === "#programs" && !data.options.updatePrograms) {
+                return;
+            }
+
             // Cancel page load when navigating to the same page
             e.preventDefault();
 
@@ -4731,7 +4726,10 @@ function get_programs(pid) {
             send_to_os("/up?pw=&pid="+pid).done(function(){
                 update_controller_programs(function(){
                     $.mobile.loading("hide");
-                    changePage("#programs",{showLoadMsg:false});
+                    changePage("#programs",{
+                        updatePrograms:true,
+                        showLoadMsg:false
+                    });
                 });
             });
 
@@ -5355,7 +5353,10 @@ function delete_program(id) {
         send_to_os("/dp?pw=&pid="+id).done(function(){
             $.mobile.loading("hide");
             update_controller_programs(function(){
-                changePage("#programs",{showLoadMsg:false});
+                changePage("#programs",{
+                    updatePrograms: true,
+                    showLoadMsg:false
+                });
                 showerror(_("Program")+" "+(parseInt(id)+1)+" "+_("deleted"));
             });
         });
