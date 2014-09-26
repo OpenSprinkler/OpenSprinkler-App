@@ -136,6 +136,9 @@ $(document)
     $.mobile.defaultPageTransition = "fade";
     $.mobile.hoverDelay = 0;
     $.mobile.activeBtnClass = "activeButton";
+    if (isChromeApp) {
+        $.mobile.hashListeningEnabled = false;
+    }
 
     //Change history method for Chrome Packaged Apps
     if (isChromeApp) {
@@ -232,6 +235,12 @@ $(document)
             get_logs();
         } else if (hash === "#start") {
             checkAutoScan();
+            if (!data.options.showStart) {
+                if ($.isEmptyObject(controller)) {
+                    changePage("#site-control",{"showBack": false});
+                }
+                return false;
+            }
         } else if (hash === "#os-stations") {
             show_stations();
         } else if (hash === "#site-control") {
@@ -894,7 +903,9 @@ function check_configured(firstLoad) {
 
         if (!names.length) {
             if (firstLoad) {
-                changePage("#start");
+                changePage("#start",{
+                    showStart: true
+                });
             }
             return;
         }
@@ -1243,7 +1254,9 @@ function show_sites(showBack) {
 
     storage.get(["sites","current_site"],function(data){
         if (data.sites === undefined || data.sites === null) {
-            changePage("#start");
+            changePage("#start",{
+                showStart: true
+            });
         } else {
             var list = "<div data-role='collapsible-set'>";
 
@@ -1304,7 +1317,9 @@ function delete_site(site) {
             storage.set({"sites":JSON.stringify(sites)},function(){
                 update_site_list(Object.keys(sites),data.current_site);
                 if ($.isEmptyObject(sites)) {
-                    changePage("#start");
+                    changePage("#start",{
+                        showStart: true
+                    });
                     return false;
                 }
                 changePage("#site-control",{showLoadMsg: false});
@@ -1752,7 +1767,7 @@ function weather_update_failed(x,t,m) {
 function update_yahoo_weather() {
     $.ajax({
         url: "https://query.yahooapis.com/v1/public/yql?q=select%20woeid%20from%20geo.placefinder%20where%20text=%22"+encodeURIComponent(controller.settings.loc)+"%22&format=json",
-        dataType: "jsonp",
+        dataType: isChromeApp ? "json" : "jsonp",
         contentType: "application/json; charset=utf-8",
         success: function(woeid){
             if (woeid.query.results === null) {
@@ -1770,7 +1785,7 @@ function update_yahoo_weather() {
 
             $.ajax({
                 url: "https://query.yahooapis.com/v1/public/yql?q=select%20item%2Ctitle%2Clocation%20from%20weather.forecast%20where%20woeid%3D%22"+wid+"%22&format=json",
-                dataType: "jsonp",
+                dataType: isChromeApp ? "json" : "jsonp",
                 contentType: "application/json; charset=utf-8",
                 success: function(data){
                     // Hide the weather if no data is returned
@@ -1820,7 +1835,7 @@ function update_yahoo_forecast(data,loc,region,now) {
 function update_wunderground_weather(wapikey) {
     $.ajax({
         url: "https://api.wunderground.com/api/"+wapikey+"/conditions/forecast/lang:EN/q/"+encodeURIComponent(controller.settings.loc)+".json",
-        dataType: "jsonp",
+        dataType: isChromeApp ? "json" : "jsonp",
         contentType: "application/json; charset=utf-8",
         success: function(data) {
             var code, temp;
@@ -1947,7 +1962,7 @@ function resolveLocation(loc,callback) {
 
     $.ajax({
         url: "https://autocomplete.wunderground.com/aq?format=json&h=0&query="+encodeURIComponent(loc),
-        dataType: "jsonp",
+        dataType: isChromeApp ? "json" : "jsonp",
         jsonp: "cb"
     }).retry({times:retryCount, statusCodes: [0]}).done(function(data){
         data = data.RESULTS;
@@ -2001,7 +2016,7 @@ function resolveLocation(loc,callback) {
 function testAPIKey(key,callback) {
     $.ajax({
         url: "https://api.wunderground.com/api/"+key+"/conditions/forecast/lang:EN/q/75252.json",
-        dataType: "jsonp"
+        dataType: isChromeApp ? "json" : "jsonp"
     }).retry({times:retryCount, statusCodes: [0]}).done(function(data){
         if (typeof data.response.error === "object" && data.response.error.type === "keynotfound") {
             callback(false);
@@ -2067,7 +2082,9 @@ function show_settings() {
         areYouSure(_("Are you sure you want to delete all settings and return to the default settings?"), "", function() {
             storage.remove(["sites","current_site","lang","provider","wapikey","runonce"],function(){
                 update_lang();
-                changePage("#start");
+                changePage("#start",{
+                    showStart: true
+                });
             });
         });
         return false;
@@ -6564,7 +6581,20 @@ function goBack() {
             navigator.app.exitApp();
         } catch(err) {}
     } else {
-        $.mobile.back();
+        if (isChromeApp) {
+            var url = $.mobile.navigate.history.getPrev().url;
+
+            if (url.slice(0,1) !== "#") {
+                return;
+            }
+
+            changePage(url);
+            $.mobile.document.one("pagehide",function(){
+                $.mobile.navigate.history.activeIndex -= 2;
+            });
+        } else {
+            $.mobile.back();
+        }
     }
 }
 
