@@ -4517,6 +4517,8 @@ function get_logs() {
                 table_header = "<table><thead><tr><th data-priority='1'>"+_("Runtime")+"</th><th data-priority='2'>"+(grouping === "station" ? _("Date/Time") : _("Time")+"</th><th>"+_("Station"))+"</th></tr></thead><tbody>",
                 html = "<div data-role='collapsible-set' data-inset='true' data-theme='b' data-collapsed-icon='arrow-d' data-expanded-icon='arrow-u'>",
                 sortedData = sortData("table",grouping),
+                groupArray = [],
+                i = 0,
                 group, ct, k;
 
             for (group in sortedData) {
@@ -4528,16 +4530,22 @@ function get_logs() {
                 if (ct === 0) {
                     continue;
                 }
-                html += "<div data-role='collapsible' data-collapsed='true'><h2><div class='ui-btn-up-c ui-btn-corner-all custom-count-pos'>"+ct+" "+((ct === 1) ? _("run") : _("runs"))+"</div>"+(grouping === "station" ? stations[group] : dateToString(new Date(group*1000*60*60*24)).slice(0,-9))+"</h2>"+table_header;
+                groupArray[i] = "<div data-role='collapsible' data-collapsed='true'><h2><div class='ui-btn-up-c ui-btn-corner-all custom-count-pos'>"+ct+" "+((ct === 1) ? _("run") : _("runs"))+"</div>"+(grouping === "station" ? stations[group] : dateToString(new Date(group*1000*60*60*24)).slice(0,-9))+"</h2>"+table_header;
                 for (k=0; k<sortedData[group].length; k++) {
                     var date = new Date(sortedData[group][k][0]);
-                    html += "<tr><td>"+sortedData[group][k][1]+"</td><td>"+(grouping === "station" ? dateToString(date,false) : pad(date.getHours())+":"+pad(date.getMinutes())+":"+pad(date.getSeconds())+"</td><td>"+stations[sortedData[group][k][2]])+"</td></tr>";
+                    groupArray[i] += "<tr><td>"+sortedData[group][k][1]+"</td><td>"+(grouping === "station" ? dateToString(date,false) : pad(date.getHours())+":"+pad(date.getMinutes())+":"+pad(date.getSeconds())+"</td><td>"+stations[sortedData[group][k][2]])+"</td></tr>";
                 }
-                html += "</tbody></table></div>";
+                groupArray[i] += "</tbody></table></div>";
+
+                i++;
+            }
+
+            if (grouping === "day") {
+                groupArray.reverse();
             }
 
             log_options.collapsible("collapse");
-            logs_list.html(html+"</div>").enhanceWithin();
+            logs_list.html(html+groupArray.join("")+"</div>").enhanceWithin();
             fixInputClick(logs_list);
         },
         reset_logs_page = function() {
