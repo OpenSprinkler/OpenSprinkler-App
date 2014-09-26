@@ -173,6 +173,15 @@ $(document)
             return false;
         });
     }
+
+    // Fix custom select menu popup creating history state
+    $.mobile.document.on("popupbeforeposition",".ui-selectmenu.ui-popup",function(){
+        var popup = $(this);
+        $(".ui-popup-screen").off("click").on("click",function(){
+            popup.popup("close");
+        });
+        popup.popup("option","history",false);
+    });
 })
 .one("pagebeforechange", function(event) {
     // Let the framework know we're going to handle the first load
@@ -2314,7 +2323,7 @@ function show_options() {
     list += "</fieldset><fieldset data-role='collapsible'><legend>"+_("Configure Master")+"</legend>";
 
     if (typeof controller.options.mas !== "undefined") {
-        list += "<div class='ui-field-contain'><label for='o18' class='select'>"+_("Master Station")+"</label><select data-native-menu='false' data-mini='true' id='o18'><option value='0'>"+_("None")+"</option>";
+        list += "<div class='ui-field-contain'><label for='o18' class='select'>"+_("Master Station")+"</label><select data-mini='true' id='o18'><option value='0'>"+_("None")+"</option>";
         for (i=0; i<controller.stations.snames.length; i++) {
             list += "<option "+(((i+1) === controller.options.mas) ? "selected" : "")+" value='"+(i+1)+"'>"+controller.stations.snames[i]+"</option>";
             if (i === 7) {
