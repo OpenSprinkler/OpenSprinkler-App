@@ -155,22 +155,24 @@ $(document)
         options = "location=no,enableViewportScale=yes,toolbarposition=top,closebuttoncaption="+_("Done");
     }
 
-    $.mobile.document.on("click",".iab",function(){
-        var button = $(this),
-            iab = window.open(this.href,"_blank","location=no,enableViewportScale=yes,toolbarposition=top,closebuttoncaption="+_("Done"));
+    if (!isOSXApp) {
+        $.mobile.document.on("click",".iab",function(){
+            var button = $(this),
+                iab = window.open(this.href,"_blank","location=no,enableViewportScale=yes,toolbarposition=top,closebuttoncaption="+_("Done"));
 
-        if (isIEMobile) {
-            $.mobile.document.data("iabOpen",true);
-            iab.addEventListener("exit",function(){
-                $.mobile.document.removeData("iabOpen");
-            });
-        }
+            if (isIEMobile) {
+                $.mobile.document.data("iabOpen",true);
+                iab.addEventListener("exit",function(){
+                    $.mobile.document.removeData("iabOpen");
+                });
+            }
 
-        setTimeout(function(){
-            button.removeClass("ui-btn-active");
-        },100);
-        return false;
-    });
+            setTimeout(function(){
+                button.removeClass("ui-btn-active");
+            },100);
+            return false;
+        });
+    }
 })
 .one("pagebeforechange", function(event) {
     // Let the framework know we're going to handle the first load
