@@ -2352,7 +2352,7 @@ function show_options() {
     }
 
     if (typeof controller.options.rso !== "undefined") {
-        list += "<label for='o22'><input data-mini='true' id='o22' type='checkbox' "+((controller.options.rso === 1) ? "checked='checked'" : "")+">"+_("Normally Open (Rain Sensor)")+"</label>";
+        list += "<label for='o22'><input "+(controller.options.urs === 1 ? "" : "data-wrapper-class='hidden' ")+"data-mini='true' id='o22' type='checkbox' "+((controller.options.rso === 1) ? "checked='checked'" : "")+">"+_("Normally Open (Rain Sensor)")+"</label>";
     }
 
     list += "</fieldset><fieldset data-role='collapsible' data-theme='b'><legend>"+_("Advanced")+"</legend>";
@@ -2407,6 +2407,17 @@ function show_options() {
             manualInputs.addClass("hidden");
         } else {
             manualInputs.removeClass("hidden");
+        }
+    });
+
+    page.find("#o21").on("change",function(){
+        var button = $(this),
+            checked = button.is(":checked");
+
+        if (checked) {
+            page.find("#o22").parent().removeClass("hidden");
+        } else {
+            page.find("#o22").parent().addClass("hidden");
         }
     });
 
