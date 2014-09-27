@@ -105,10 +105,10 @@
 	document.title = "Loading...";
 
 	// Insert main application stylesheet
-	insertStyleSheet(assetLocation+"css/app.cgz");
+	insertStyleSheet(assetLocation+"css/app."+(ver<210 ? "css" : "cgz"));
 
 	// Insert jQuery and run init function on completion
-	insertScript(assetLocation+"js/app.jgz",init);
+	insertScript(assetLocation+"js/app."+(ver<210 ? "js" : "jgz"),init);
 
 	// Insert home page icon for iOS
 	insertStyleSheet(assetLocation+"res/ios-web/icons/icon.png","apple-touch-icon");
@@ -140,7 +140,7 @@
 						clearInterval(interval);
 						// Load jQuery Mobile
 						$.ajax({
-							url: assetLocation+"js/jqm.jgz",
+							url: assetLocation+"js/jqm."+(ver<210 ? "js" : "jgz"),
 							dataType: "script",
 							cache: true
 						});
