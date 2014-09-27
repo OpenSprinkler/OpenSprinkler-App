@@ -134,6 +134,13 @@ module.exports = function(grunt) {
 					"rsync -azp * <%= secrets.firmware.opensprinkler.location %>"
 				].join("&&")
 			},
+			updateBetaUI: {
+				command: [
+					"cd build/firmware",
+					"unzip UI.zip",
+					"rsync -azp * <%= secrets.firmware.betaui.location %>"
+				].join("&&")
+			},
 			pushEng: {
 				command: "tasks/pusheng.sh"
 			},
@@ -252,6 +259,7 @@ module.exports = function(grunt) {
 	grunt.registerTask("pushEng",["shell:pushEng"]);
 	grunt.registerTask("makeFW",["jshint","uglify","cssmin","compress:jsAsset","compress:cssAsset","compress:makeFW","clean:makeFW"]);
 	grunt.registerTask("pushFW",["makeFW","shell:updateUI","clean:pushFW"]);
+	grunt.registerTask("pushBetaFW",["makeFW","shell:updateBetaUI","clean:pushFW"]);
 	grunt.registerTask("build",["jshint","shell:blackberry10","compress:firefox","compress:chrome","compress:blackberry10","pushFW"]);
 	grunt.registerTask("bump",["jshint","replace:about","replace:osx","replace:phonegap","replace:manifests","shell:pushBump"]);
 
