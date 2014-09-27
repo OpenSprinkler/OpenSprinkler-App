@@ -127,7 +127,12 @@ module.exports = function(grunt) {
 
 		shell: {
 			updateUI: {
-				command: "tasks/updateui.sh <%= secrets.firmware.location %>"
+				command: [
+					"cd build/firmware",
+					"unzip UI.zip",
+					"rsync -azp * <%= secrets.firmware.rayshobby.location %>",
+					"rsync -azp * <%= secrets.firmware.opensprinkler.location %>"
+				].join("&&")
 			},
 			pushEng: {
 				command: "tasks/pusheng.sh"
@@ -139,11 +144,11 @@ module.exports = function(grunt) {
 					command: "cordova build blackberry10 --release"
 			},
 			pushBump: {
-					command: [
-						"git add www/js/main.js source/osx/Resources/Sprinklers-Info.plist www/config.xml manifest.json manifest.webapp package.json",
-						"git commit -m 'Base: Increment version number'",
-						"git push"
-					].join("&&")
+				command: [
+					"git add www/js/main.js source/osx/Resources/Sprinklers-Info.plist www/config.xml manifest.json manifest.webapp package.json",
+					"git commit -m 'Base: Increment version number'",
+					"git push"
+				].join("&&")
 			}
 		},
 
