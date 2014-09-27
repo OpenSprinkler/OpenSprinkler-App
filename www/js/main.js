@@ -1168,22 +1168,6 @@ function show_site_select(list) {
     }).enhanceWithin().popup("open");
 }
 
-function show_addsite() {
-    if (typeof deviceip === "undefined") {
-        show_addnew();
-    } else {
-        var popup = $("#addsite");
-
-        $("#site-add-scan").one("click",function(){
-            $(".ui-popup-active").children().first().popup("close");
-        });
-
-        popup.popup("open").popup("reposition",{
-            "positionTo": "#site-add"
-        });
-    }
-}
-
 function show_addnew(autoIP,closeOld) {
     $("#addnew").popup("destroy").remove();
 
@@ -1254,7 +1238,7 @@ function show_sites(showBack) {
             "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false' data-hide-during-focus=''>" +
                 "<a role='button' href='javascript:void(0);' class='ui-btn ui-corner-all ui-shadow ui-btn-left ui-btn-b ui-toolbar-back-btn ui-icon-carat-l ui-btn-icon-left' data-rel='back'>"+_("Back")+"</a>" +
                 "<h3>"+_("Manage Sites")+"</h3>" +
-                "<button data-rel='popup' id='site-add' data-icon='plus' class='ui-btn-right'>"+_("Add")+"</button>" +
+                "<button id='site-add' data-icon='plus' class='ui-btn-right'>"+_("Add")+"</button>" +
             "</div>" +
             "<div class='ui-content'>" +
             "</div>" +
@@ -1265,12 +1249,34 @@ function show_sites(showBack) {
                 "</ul>" +
             "</div>" +
         "</div>"),
+        popup = page.find("#addsite"),
+        addButton = page.find("#site-add"),
         sites, total;
 
-    page.find("#site-add").on("click",show_addsite);
-    page.find("#site-add-scan").on("click",start_scan);
-    page.find("#site-add-manual").on("click",function(){
+    popup.popup({
+        history: false,
+        positionTo: addButton
+    }).enhanceWithin();
+
+    addButton.on("click",function(){
+        if (typeof deviceip === "undefined") {
+            show_addnew();
+        } else {
+            popup.popup("open").popup("reposition",{
+                "positionTo": "#site-add"
+            });
+        }
+    });
+
+    popup.find("#site-add-scan").on("click",function(){
+        popup.popup("close");
+        start_scan();
+        return false;
+    });
+
+    popup.find("#site-add-manual").on("click",function(){
         show_addnew(false,true);
+        return false;
     });
 
     page.one("pagehide",function(){
