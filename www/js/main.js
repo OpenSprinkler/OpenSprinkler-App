@@ -173,6 +173,29 @@ $(document)
             return false;
         });
     }
+
+    // Correctly handle popup events and prevent history navigation on custom selectmenu popup
+    $.mobile.document.on("click",".ui-select .ui-btn",function(){
+        var button = $(this),
+            id = button.attr("id").replace("-button","-listbox"),
+            popup = $("#"+id),
+            screen = $("#"+id+"-screen");
+
+        popup.popup({
+            history: false,
+            "positionTo": button
+        }).popup("open");
+
+        button.off("click").on("click",function(){
+            popup.popup("open");
+        });
+
+        screen.off("click").on("click",function(){
+            popup.popup("close");
+        });
+
+        return false;
+    });
 })
 .one("pagebeforechange", function(event) {
     // Let the framework know we're going to handle the first load
@@ -192,10 +215,6 @@ $(document)
         hash = $.mobile.path.parseUrl(page).hash;
 
         if (hash === "#"+currPage.attr("id") && (hash === "#programs" || hash === "#site-control")) {
-            if (hash === "#programs" && !data.options.updatePrograms) {
-                return;
-            }
-
             // Cancel page load when navigating to the same page
             e.preventDefault();
 
