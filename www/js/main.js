@@ -5787,6 +5787,9 @@ function import_config(data) {
                 co += "&o"+key+"="+option;
             }
         }
+        if (checkOSVersion(210) && controller.options.dhcp === 1) {
+            co += "&o3=1";
+        }
         co += "&"+(isPi?"o":"")+"loc="+data.settings.loc;
 
         for (i=0; i<data.stations.snames.length; i++) {
