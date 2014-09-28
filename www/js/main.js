@@ -1120,6 +1120,7 @@ function submit_newuser(ssl,useAuth) {
                 dataType: "text",
                 timeout: 3000,
                 global: false,
+                cache: true,
                 beforeSend: function(xhr) {
                     if (useAuth) {
                         xhr.setRequestHeader("Authorization", "Basic " + btoa($("#os_auth_user").val() + ":" + $("#os_auth_pw").val()));
