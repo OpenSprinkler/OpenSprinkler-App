@@ -5718,7 +5718,6 @@ function getImportMethod(localData){
     } else {
         // Handle local storage being unavailable and present paste dialog immediately
         if (!localData) {
-            popup.popup("close");
             getPaste();
             return;
         }
