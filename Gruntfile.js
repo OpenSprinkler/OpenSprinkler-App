@@ -64,7 +64,7 @@ module.exports = function(grunt) {
 					archive: "build/firmware/UI.zip"
 				},
 				files: [{
-					src: ["css/images/**","css/app.css","css/app.cgz","js/app.js","js/app.jgz","js/jqm.js","js/jqm.jgz","js/home.js","img/**","locale/*.js","index.htm","res/ios-web/**"],
+					src: ["css/**","js/**","img/**","locale/*.js","index.htm","res/ios-web/**"],
 					cwd: "www/",
 					expand: true
 				}]
