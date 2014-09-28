@@ -980,7 +980,7 @@ function submit_newuser(ssl,useAuth) {
             $.mobile.loading("hide");
             var is183;
 
-            if (typeof data === "string" && data.match(/var (en|sd)\s*=/)) {
+            if ((typeof data === "string" && data.match(/var (en|sd)\s*=/)) || (typeof data.fwv === "number" && data.fwv === 203)) {
                 is183 = true;
             }
 
