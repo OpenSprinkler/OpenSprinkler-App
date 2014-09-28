@@ -5066,11 +5066,11 @@ function make_program183(n,isCopy) {
     list += "</div>";
 
     if (isCopy === true || n === "new") {
-        list += "<input data-mini='true' type='submit' name='submit-"+id+"' id='submit-"+id+"' value='"+_("Save New Program")+"'>";
+        list += "<input data-mini='true' data-icon='check' type='submit' data-theme='b' name='submit-"+id+"' id='submit-"+id+"' value='"+_("Save New Program")+"'>";
     } else {
-        list += "<button data-mini='true' name='submit-"+id+"' id='submit-"+id+"'>"+_("Save Changes to Program")+" "+(n + 1)+"</button>";
-        list += "<button data-mini='true' name='run-"+id+"' id='run-"+id+"'>"+_("Run Program")+" "+(n + 1)+"</button>";
-        list += "<button data-mini='true' data-theme='b' name='delete-"+id+"' id='delete-"+id+"'>"+_("Delete Program")+" "+(n + 1)+"</button>";
+        list += "<button data-mini='true' data-icon='check' data-theme='b' name='submit-"+id+"' id='submit-"+id+"'>"+_("Save Changes to Program")+" "+(n + 1)+"</button>";
+        list += "<button data-mini='true' data-icon='arrow-r' name='run-"+id+"' id='run-"+id+"'>"+_("Run Program")+" "+(n + 1)+"</button>";
+        list += "<button data-mini='true' data-icon='delete' class='red bold' data-theme='b' name='delete-"+id+"' id='delete-"+id+"'>"+_("Delete Program")+" "+(n + 1)+"</button>";
     }
 
     page = $(list);
@@ -5254,11 +5254,11 @@ function make_program21(n,isCopy) {
 
     // Show save, run and delete buttons
     if (isCopy === true || n === "new") {
-        list += "<button data-mini='true' data-theme='b' id='submit-"+id+"'>"+_("Save New Program")+"</button>";
+        list += "<button data-mini='true' data-icon='check' data-theme='b' id='submit-"+id+"'>"+_("Save New Program")+"</button>";
     } else {
-        list += "<button data-mini='true' id='submit-"+id+"'>"+_("Save Changes to")+" <span class='program-name'>"+program.name+"</span></button>";
-        list += "<button data-mini='true' id='run-"+id+"'>"+_("Run")+" <span class='program-name'>"+program.name+"</span></button>";
-        list += "<button data-mini='true' data-theme='b' id='delete-"+id+"'>"+_("Delete")+" <span class='program-name'>"+program.name+"</span></button>";
+        list += "<button data-mini='true' data-icon='check' data-theme='b' id='submit-"+id+"'>"+_("Save Changes to")+" <span class='program-name'>"+program.name+"</span></button>";
+        list += "<button data-mini='true' data-icon='arrow-r' id='run-"+id+"'>"+_("Run")+" <span class='program-name'>"+program.name+"</span></button>";
+        list += "<button data-mini='true' data-icon='delete' class='bold red' data-theme='b' id='delete-"+id+"'>"+_("Delete")+" <span class='program-name'>"+program.name+"</span></button>";
     }
 
     // Take HTML string and convert to jQuery object
@@ -5410,6 +5410,10 @@ function submit_program183(id) {
         daysin = $("#d-"+id).val();
         daysin = (daysin === null) ? [] : parseIntArray(daysin);
         for(i=0;i<7;i++) {if($.inArray(i,daysin) !== -1) {days[0] |= (1<<i); }}
+        if (days[0] === 0) {
+            showerror(_("Error: You have not selected any days of the week."));
+            return;
+        }
         if($("#days_rst-"+id).val() === "odd") {days[0]|=0x80; days[1]=1;}
         else if($("#days_rst-"+id).val() === "even") {days[0]|=0x80; days[1]=0;}
     } else if($("#days_n-"+id).is(":checked")) {
@@ -5509,6 +5513,10 @@ function submit_program21(id) {
             if($.inArray(i,daysin) !== -1) {
                 days[0] |= (1<<i);
             }
+        }
+        if (days[0] === 0) {
+            showerror(_("Error: You have not selected any days of the week."));
+            return;
         }
     }
 
