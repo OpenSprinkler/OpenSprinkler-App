@@ -47,11 +47,12 @@
 		    link = document.createElement("link");
 
 		rel = rel || "stylesheet";
-		media = media || "";
 
 		link.rel = rel;
 		link.href = href;
-		link.media = media;
+		if (media && media !== "") {
+			link.media = media;
+		}
 
 		head.appendChild(link);
 	}
@@ -106,6 +107,9 @@
 
 	// Insert main application stylesheet
 	insertStyleSheet(assetLocation+"css/app."+(ver<210 ? "css" : "cgz"));
+
+	// Insert favicon for web page
+	insertStyleSheet(assetLocation+"img/favicon.ico","shortcut icon");
 
 	// Insert jQuery and run init function on completion
 	insertScript(assetLocation+"js/app."+(ver<210 ? "js" : "jgz"),init);
