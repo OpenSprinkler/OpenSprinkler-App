@@ -27,7 +27,7 @@
     text-shadow: none !important;
     border: none !important;
 }
-.ui-collapsible-heading-toggle {
+.ui-collapsible-heading-toggle, .bold {
     font-weight:700!important
 }
 .ui-popup-screen {
