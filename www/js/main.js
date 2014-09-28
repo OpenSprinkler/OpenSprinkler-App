@@ -5025,7 +5025,7 @@ function make_program183(n,isCopy) {
     list += "<input data-mini='true' type='radio' name='rad_days-"+id+"' id='days_n-"+id+"' value='days_n-"+id+"' "+((program.is_interval) ? "checked='checked'" : "")+"><label for='days_n-"+id+"'>"+_("Interval")+"</label>";
     list += "</fieldset><div id='input_days_week-"+id+"' "+((program.is_interval) ? "style='display:none'" : "")+">";
 
-    list += "<div class='center'><p class='tight'>"+_("Restrictions")+"</p><select data-inline='true' data-iconpos='left' data-mini='true' data-native-menu='false' id='days_rst-"+id+"'>";
+    list += "<div class='center'><p class='tight'>"+_("Restrictions")+"</p><select data-inline='true' data-iconpos='left' data-mini='true' id='days_rst-"+id+"'>";
     list += "<option value='none' "+((!program.is_even && !program.is_odd) ? "selected='selected'" : "")+">"+_("None")+"</option>";
     list += "<option value='odd' "+((!program.is_even && program.is_odd) ? "selected='selected'" : "")+">"+_("Odd Days")+"</option>";
     list += "<option value='even' "+((!program.is_odd && program.is_even) ? "selected='selected'" : "")+">"+_("Even Days")+"</option>";
@@ -5090,7 +5090,7 @@ function make_program183(n,isCopy) {
 
     page.find("[id^='duration-'],[id^='interval-']").on("click",function(){
         var dur = $(this),
-            granularity = dur.attr("id").match("interval") ? 1 : 0,
+            isInterval = dur.attr("id").match("interval") ? 1 : 0,
             name = page.find("label[for='"+dur.attr("id")+"']").text();
 
         showDurationBox({
@@ -5100,8 +5100,8 @@ function make_program183(n,isCopy) {
                 dur.val(result);
                 dur.text(dhms2str(sec2dhms(result)));
             },
-            maximum: 65535,
-            granularity: granularity
+            maximum: isInterval ? 86340 : 65535,
+            granularity: isInterval
         });
         return false;
     });
@@ -5194,7 +5194,7 @@ function make_program21(n,isCopy) {
     list += "</div>";
 
     // Show restriction options
-    list += "<div class='center'><p class='tight'>"+_("Restrictions")+"</p><select data-inline='true' data-iconpos='left' data-mini='true' data-native-menu='false' id='days_rst-"+id+"'>";
+    list += "<div class='center'><p class='tight'>"+_("Restrictions")+"</p><select data-inline='true' data-iconpos='left' data-mini='true' id='days_rst-"+id+"'>";
     list += "<option value='none' "+((!program.is_even && !program.is_odd) ? "selected='selected'" : "")+">"+_("None")+"</option>";
     list += "<option value='odd' "+((!program.is_even && program.is_odd) ? "selected='selected'" : "")+">"+_("Odd Days")+"</option>";
     list += "<option value='even' "+((!program.is_odd && program.is_even) ? "selected='selected'" : "")+">"+_("Even Days")+"</option>";
