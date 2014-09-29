@@ -3039,7 +3039,7 @@ function isStationDisabled(sid) {
 function get_status() {
     var page = $("#status"),
         runningTotal = {},
-        lastCheck,
+        lastCheck = new Date().getTime(),
         currentDelay = 0,
         updateContent = function() {
             var allPnames = [],
@@ -3220,56 +3220,58 @@ function get_status() {
         }
     });
 
-    page.one("pagehide",function(){
-        removeTimers();
-        page.off("datarefresh");
-        page.find(".ui-header > .ui-btn-right").off("click");
-        page.find(".ui-content").empty();
-    });
+    page.one({
+        pagehide: function(){
+            removeTimers();
+            page.off("datarefresh");
+            page.find(".ui-header > .ui-btn-right").off("click");
+            page.find(".ui-content").empty();
+        },
+        pageshow: function(){
+            interval_id = setInterval(function(){
+                var now = new Date().getTime(),
+                    currPage = $(".ui-page-active").attr("id"),
+                    diff = now - lastCheck;
 
-    lastCheck = new Date().getTime();
-    interval_id = setInterval(function(){
-        var now = new Date().getTime(),
-            currPage = $(".ui-page-active").attr("id"),
-            diff = now - lastCheck;
-
-        if (diff > 3000) {
-            clearInterval(interval_id);
-            if (currPage === "status") {
-                refresh_status();
-            }
-        }
-
-        if (currentDelay <= 0) {
-            currentDelay = 0;
-        } else {
-            --currentDelay;
-        }
-
-        lastCheck = now;
-        $.each(runningTotal,function(a,b){
-            if (b <= 0) {
-                delete runningTotal[a];
-                if (a === "p") {
-                    if (currPage !== "status") {
-                        clearInterval(interval_id);
-                        return;
+                if (diff > 3000) {
+                    clearInterval(interval_id);
+                    if (currPage === "status") {
+                        refresh_status();
                     }
-                } else {
-                    currentDelay = controller.options.sdt;
-                    $("#countdown-"+a).parent("p").empty().parent("li").removeClass("green").addClass("red");
                 }
-            } else {
-                if (a === "c") {
-                    ++runningTotal[a];
-                    $("#clock-s").text(dateToString(new Date(runningTotal[a]*1000)));
+
+                if (currentDelay <= 0) {
+                    currentDelay = 0;
                 } else {
-                    --runningTotal[a];
-                    $("#countdown-"+a).text("(" + sec2hms(runningTotal[a]) + " "+_("remaining")+")");
+                    --currentDelay;
                 }
-            }
-        });
-    },1000);
+
+                lastCheck = now;
+                $.each(runningTotal,function(a,b){
+                    if (b <= 0) {
+                        delete runningTotal[a];
+                        if (a === "p") {
+                            if (currPage !== "status") {
+                                clearInterval(interval_id);
+                                return;
+                            }
+                        } else {
+                            currentDelay = controller.options.sdt - 1;
+                            $("#countdown-"+a).parent("p").empty().parent("li").removeClass("green").addClass("red");
+                        }
+                    } else {
+                        if (a === "c") {
+                            ++runningTotal[a];
+                            $("#clock-s").text(dateToString(new Date(runningTotal[a]*1000)));
+                        } else {
+                            --runningTotal[a];
+                            $("#countdown-"+a).text("(" + sec2hms(runningTotal[a]) + " "+_("remaining")+")");
+                        }
+                    }
+                });
+            },1000);
+        }
+    });
 }
 
 function refresh_status() {
