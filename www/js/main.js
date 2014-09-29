@@ -3084,7 +3084,9 @@ function get_status() {
         ptotal = 0;
 
     // Determine total count of stations open excluding the master
-    var open = {};
+    var open = {},
+        scheduled = 0;
+
     $.each(controller.status, function (i, stn) {
         if (stn > 0) {
             open[i] = stn;
@@ -3103,6 +3105,8 @@ function get_status() {
         if (master === i+1) {
             station += " ("+_("Master")+")";
         } else if (controller.settings.ps[i][0]) {
+            scheduled++;
+
             // If not, get the remaining time for the station
             var rem=controller.settings.ps[i][1];
             if (open > 1) {
@@ -3162,7 +3166,6 @@ function get_status() {
     // Display header information
     if (ptotal > 1) {
         // If a program is running, show which specific programs and their collective total
-        var scheduled = allPnames.length;
         if (!open && scheduled) {
             runningTotal.d = controller.options.sdt;
         }
