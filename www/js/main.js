@@ -330,7 +330,9 @@ $(document)
 
     if (page === "status") {
         // Update the status page
-        func = get_status;
+        func = function(){
+            page.trigger("datarefresh");
+        };
     } else if (page === "sprinklers") {
         // Update device status bar on main page
         func = check_status;
@@ -3037,11 +3039,160 @@ function isStationDisabled(sid) {
 function get_status() {
     var page = $("#status"),
         runningTotal = {},
-        allPnames = [],
-        color = "",
-        list = "",
-        weatherInfo = "",
-        lastCheck;
+        lastCheck,
+        currentDelay = 0,
+        updateContent = function() {
+            var allPnames = [],
+                color = "",
+                weatherInfo = "",
+                list = "";
+
+            // Display the system time
+            var header = "<span id='clock-s' class='nobr'>"+dateToString(new Date(controller.settings.devt*1000))+"</span>";
+
+            // For OSPi, show the current device temperature
+            if (typeof controller.settings.ct === "string" && controller.settings.ct !== "0.0" && typeof controller.settings.tu === "string") {
+                header += " <span>"+controller.settings.ct+"&deg;"+controller.settings.tu+"</span>";
+            }
+
+            // Set the time for the header to the device time
+            runningTotal.c = controller.settings.devt;
+
+            var master = controller.options.mas,
+                ptotal = 0;
+
+            // Determine total count of stations open excluding the master
+            var open = {},
+                scheduled = 0;
+
+            $.each(controller.status, function (i, stn) {
+                if (stn > 0) {
+                    open[i] = stn;
+                }
+            });
+            open = Object.keys(open).length;
+
+            if (master && controller.status[master-1]) {
+                open--;
+            }
+
+            $.each(controller.stations.snames,function(i, station) {
+                var info = "";
+
+                // Check if station is master
+                if (master === i+1) {
+                    station += " ("+_("Master")+")";
+                } else if (controller.settings.ps[i][0]) {
+                    scheduled++;
+
+                    // If not, get the remaining time for the station
+                    var rem=controller.settings.ps[i][1];
+                    if (open > 1) {
+                        // If concurrent stations, grab the largest time to be used as program time
+                        if (rem > ptotal) {
+                            ptotal = rem;
+                        }
+                    } else {
+                        // Otherwise, add all of the program times together except for a manual program with a time of 1s
+                        if (controller.settings.ps[i][0] !== 99 && rem !== 1) {
+                            ptotal+=rem;
+                        }
+                    }
+
+                    var pid = controller.settings.ps[i][0],
+                        pname = pidname(pid);
+
+                    // If the station is running, add it's remaining time for updates
+                    if (controller.status[i] && rem > 0) {
+                        runningTotal[i] = rem;
+                    }
+
+                    // Save program name to list of all program names
+                    allPnames[i] = pname;
+
+                    // Generate status line for station
+                    info = "<p class='rem center'>"+((controller.status[i] > 0) ? _("Running")+" "+pname : _("Scheduled")+" "+(controller.settings.ps[i][2] ? _("for")+" "+dateToString(new Date(controller.settings.ps[i][2]*1000)) : pname));
+                    if (rem>0) {
+                        // Show the remaining time if it's greater than 0
+                        info += " <span id='countdown-"+i+"' class='nobr'>(" + sec2hms(rem) + " "+_("remaining")+")</span>";
+                    }
+                    info += "</p>";
+                }
+
+                // If the station is on, give it color green otherwise red
+                if (controller.status[i] > 0) {
+                    color = "green";
+                } else {
+                    color = "red";
+                }
+
+                // Append the station to the list of stations
+                list += "<li class='"+color+(isStationDisabled(i) ? " hidden" : "")+"'><p class='sname center'>"+station+"</p>"+info+"</li>";
+            });
+
+            var footer = "";
+            var lrdur = controller.settings.lrun[2];
+
+            // If last run duration is given, add it to the footer
+            if (lrdur !== 0) {
+                var lrpid = controller.settings.lrun[1];
+                var pname= pidname(lrpid);
+
+                footer = "<p>"+pname+" "+_("last ran station")+" "+controller.stations.snames[controller.settings.lrun[0]]+" "+_("for")+" "+(lrdur/60>>0)+"m "+(lrdur%60)+"s "+_("on")+" "+dateToString(new Date(controller.settings.lrun[3]*1000))+"</p>";
+            }
+
+            // Display header information
+            if (ptotal > 1) {
+                // If a program is running, show which specific programs and their collective total
+                allPnames = getUnique($.grep(allPnames,function(n){return(n);}));
+                var numProg = allPnames.length;
+                allPnames = allPnames.join(" "+_("and")+" ");
+                var pinfo = allPnames+" "+((numProg > 1) ? _("are") : _("is"))+" "+_("running")+" ";
+
+                if (controller.options.seq === 1) {
+                    if (currentDelay > 0) {
+                        ptotal += (scheduled-1)*controller.options.sdt + currentDelay;
+                    } else {
+                        ptotal += (scheduled-1)*controller.options.sdt;
+                    }
+                }
+
+                if (open || (scheduled && currentDelay > 0)) {
+                    runningTotal.p = ptotal;
+                } else {
+                    delete runningTotal.p;
+                }
+
+                pinfo += "<br><span id='countdown-p' class='nobr'>("+sec2hms(ptotal)+" "+_("remaining")+")</span>";
+                header += "<br>"+pinfo;
+            } else if (controller.settings.rd) {
+                // Display a rain delay when active
+                header +="<br>"+_("Rain delay until")+" "+dateToString(new Date(controller.settings.rdst*1000));
+            } else if (controller.options.urs === 1 && controller.settings.rs === 1) {
+                // Show rain sensor status when triggered
+                header +="<br>"+_("Rain detected");
+            }
+
+            if (checkOSVersion(210)) {
+                weatherInfo = "<div class='ui-grid-b status-daily'>";
+                weatherInfo += "<div class='center ui-block-a'>"+pad(parseInt(controller.settings.sunrise/60)%24)+":"+pad(controller.settings.sunrise%60)+"<br>Sunrise</div>";
+                weatherInfo += "<div class='center ui-block-b'>"+controller.options.wl+"%<br>Water Level</div>";
+                weatherInfo += "<div class='center ui-block-c'>"+pad(parseInt(controller.settings.sunset/60)%24)+":"+pad(controller.settings.sunset%60)+"<br>Sunset</div>";
+                weatherInfo += "</div>";
+            }
+
+            page.find(".ui-content").html(
+                "<p class='smaller center'>"+ header +"</p>" +
+                weatherInfo +
+                "<ul data-role='listview' data-inset='true' id='status_list'>"+ list +"</ul>" +
+                "<p class='smaller center'>"+ footer +"</p>"
+            ).enhanceWithin();
+        };
+
+    page.on("datarefresh",updateContent);
+    updateContent();
+
+    removeTimers();
 
     // Bind delegate handler to stop specific station (supported on firmware 2.1.0+ on Arduino)
     page.off("click","li").on("click","li",function(){
@@ -3069,146 +3220,9 @@ function get_status() {
         }
     });
 
-    // Display the system time
-    var header = "<span id='clock-s' class='nobr'>"+dateToString(new Date(controller.settings.devt*1000))+"</span>";
-
-    // For OSPi, show the current device temperature
-    if (typeof controller.settings.ct === "string" && controller.settings.ct !== "0.0" && typeof controller.settings.tu === "string") {
-        header += " <span>"+controller.settings.ct+"&deg;"+controller.settings.tu+"</span>";
-    }
-
-    // Set the time for the header to the device time
-    runningTotal.c = controller.settings.devt;
-
-    var master = controller.options.mas,
-        ptotal = 0;
-
-    // Determine total count of stations open excluding the master
-    var open = {},
-        scheduled = 0;
-
-    $.each(controller.status, function (i, stn) {
-        if (stn > 0) {
-            open[i] = stn;
-        }
-    });
-    open = Object.keys(open).length;
-
-    if (master && controller.status[master-1]) {
-        open--;
-    }
-
-    $.each(controller.stations.snames,function(i, station) {
-        var info = "";
-
-        // Check if station is master
-        if (master === i+1) {
-            station += " ("+_("Master")+")";
-        } else if (controller.settings.ps[i][0]) {
-            scheduled++;
-
-            // If not, get the remaining time for the station
-            var rem=controller.settings.ps[i][1];
-            if (open > 1) {
-                // If concurrent stations, grab the largest time to be used as program time
-                if (rem > ptotal) {
-                    ptotal = rem;
-                }
-            } else {
-                // Otherwise, add all of the program times together except for a manual program with a time of 1s
-                if (controller.settings.ps[i][0] !== 99 && rem !== 1) {
-                    ptotal+=rem;
-                }
-            }
-
-            var pid = controller.settings.ps[i][0],
-                pname = pidname(pid);
-
-            // If the station is running, add it's remaining time for updates
-            if (controller.status[i] && rem > 0) {
-                runningTotal[i] = rem;
-            }
-
-            // Save program name to list of all program names
-            allPnames[i] = pname;
-
-            // Generate status line for station
-            info = "<p class='rem center'>"+((controller.status[i] > 0) ? _("Running")+" "+pname : _("Scheduled")+" "+(controller.settings.ps[i][2] ? _("for")+" "+dateToString(new Date(controller.settings.ps[i][2]*1000)) : pname));
-            if (rem>0) {
-                // Show the remaining time if it's greater than 0
-                info += " <span id='countdown-"+i+"' class='nobr'>(" + sec2hms(rem) + " "+_("remaining")+")</span>";
-            }
-            info += "</p>";
-        }
-
-        // If the station is on, give it color green otherwise red
-        if (controller.status[i] > 0) {
-            color = "green";
-        } else {
-            color = "red";
-        }
-
-        // Append the station to the list of stations
-        list += "<li class='"+color+(isStationDisabled(i) ? " hidden" : "")+"'><p class='sname center'>"+station+"</p>"+info+"</li>";
-    });
-
-    var footer = "";
-    var lrdur = controller.settings.lrun[2];
-
-    // If last run duration is given, add it to the footer
-    if (lrdur !== 0) {
-        var lrpid = controller.settings.lrun[1];
-        var pname= pidname(lrpid);
-
-        footer = "<p>"+pname+" "+_("last ran station")+" "+controller.stations.snames[controller.settings.lrun[0]]+" "+_("for")+" "+(lrdur/60>>0)+"m "+(lrdur%60)+"s "+_("on")+" "+dateToString(new Date(controller.settings.lrun[3]*1000))+"</p>";
-    }
-
-    // Display header information
-    if (ptotal > 1) {
-        // If a program is running, show which specific programs and their collective total
-        if (!open && scheduled) {
-            if (timeout_id !== undefined) {
-                clearTimeout(timeout_id);
-            }
-            timeout_id = setTimeout(refresh_status,(controller.options.sdt || 5)*1000);
-        }
-        if (open === 1) {
-            ptotal += (scheduled-1)*controller.options.sdt;
-        }
-        allPnames = getUnique($.grep(allPnames,function(n){return(n);}));
-        var numProg = allPnames.length;
-        allPnames = allPnames.join(" "+_("and")+" ");
-        var pinfo = allPnames+" "+((numProg > 1) ? _("are") : _("is"))+" "+_("running")+" ";
-        pinfo += "<br><span id='countdown-p' class='nobr'>("+sec2hms(ptotal)+" "+_("remaining")+")</span>";
-        runningTotal.p = ptotal;
-        header += "<br>"+pinfo;
-    } else if (controller.settings.rd) {
-        // Display a rain delay when active
-        header +="<br>"+_("Rain delay until")+" "+dateToString(new Date(controller.settings.rdst*1000));
-    } else if (controller.options.urs === 1 && controller.settings.rs === 1) {
-        // Show rain sensor status when triggered
-        header +="<br>"+_("Rain detected");
-    }
-
-    if (checkOSVersion(210)) {
-        weatherInfo = "<div class='ui-grid-b status-daily'>";
-        weatherInfo += "<div class='center ui-block-a'>"+pad(parseInt(controller.settings.sunrise/60)%24)+":"+pad(controller.settings.sunrise%60)+"<br>Sunrise</div>";
-        weatherInfo += "<div class='center ui-block-b'>"+controller.options.wl+"%<br>Water Level</div>";
-        weatherInfo += "<div class='center ui-block-c'>"+pad(parseInt(controller.settings.sunset/60)%24)+":"+pad(controller.settings.sunset%60)+"<br>Sunset</div>";
-        weatherInfo += "</div>";
-    }
-
-    page.find(".ui-content").html(
-        "<p class='smaller center'>"+ header +"</p>" +
-        weatherInfo +
-        "<ul data-role='listview' data-inset='true' id='status_list'>"+ list +"</ul>" +
-        "<p class='smaller center'>"+ footer +"</p>"
-    ).enhanceWithin();
-
-    removeTimers();
-
     page.one("pagehide",function(){
         removeTimers();
+        page.off("datarefresh");
         page.find(".ui-header > .ui-btn-right").off("click");
         page.find(".ui-content").empty();
     });
@@ -3225,23 +3239,25 @@ function get_status() {
                 refresh_status();
             }
         }
+
+        if (currentDelay <= 0) {
+            currentDelay = 0;
+        } else {
+            --currentDelay;
+        }
+
         lastCheck = now;
         $.each(runningTotal,function(a,b){
             if (b <= 0) {
                 delete runningTotal[a];
                 if (a === "p") {
-                    if (currPage === "status") {
-                        refresh_status();
-                    } else {
+                    if (currPage !== "status") {
                         clearInterval(interval_id);
                         return;
                     }
                 } else {
-                    $("#countdown-"+a).parent("p").text(_("Station delay")).parent("li").removeClass("green").addClass("red");
-                    if (timeout_id !== undefined) {
-                        clearTimeout(timeout_id);
-                    }
-                    timeout_id = setTimeout(refresh_status,(controller.options.sdt || 5)*1000);
+                    currentDelay = controller.options.sdt;
+                    $("#countdown-"+a).parent("p").empty().parent("li").removeClass("green").addClass("red");
                 }
             } else {
                 if (a === "c") {
@@ -3268,9 +3284,7 @@ function refresh_status() {
         // Notify the current page that the data has refreshed
         page.trigger("datarefresh");
 
-        if (id === "status") {
-            get_status();
-        } else if (id === "sprinklers") {
+        if (id === "sprinklers") {
             removeTimers();
             check_status();
         }
