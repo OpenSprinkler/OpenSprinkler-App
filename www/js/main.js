@@ -3167,7 +3167,10 @@ function get_status() {
     if (ptotal > 1) {
         // If a program is running, show which specific programs and their collective total
         if (!open && scheduled) {
-            runningTotal.d = controller.options.sdt;
+            if (timeout_id !== undefined) {
+                clearTimeout(timeout_id);
+            }
+            timeout_id = setTimeout(refresh_status,(controller.options.sdt || 5)*1000);
         }
         if (open === 1) {
             ptotal += (scheduled-1)*controller.options.sdt;
@@ -3209,11 +3212,6 @@ function get_status() {
         page.find(".ui-header > .ui-btn-right").off("click");
         page.find(".ui-content").empty();
     });
-
-    if (runningTotal.d !== undefined) {
-        delete runningTotal.p;
-        setTimeout(refresh_status,runningTotal.d*1000);
-    }
 
     lastCheck = new Date().getTime();
     interval_id = setInterval(function(){
