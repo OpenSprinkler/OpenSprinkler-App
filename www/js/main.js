@@ -4586,22 +4586,20 @@ function get_logs() {
                 group, ct, k;
 
             for (group in sortedData) {
-                if (!sortedData.hasOwnProperty(group)) {
-                    return;
-                }
+                if (sortedData.hasOwnProperty(group)) {
+                    ct=sortedData[group].length;
+                    if (ct === 0) {
+                        continue;
+                    }
+                    groupArray[i] = "<div data-role='collapsible' data-collapsed='true'><h2><div class='ui-btn-up-c ui-btn-corner-all custom-count-pos'>"+ct+" "+((ct === 1) ? _("run") : _("runs"))+"</div>"+(grouping === "station" ? stations[group] : dateToString(new Date(group*1000*60*60*24)).slice(0,-9))+"</h2>"+table_header;
+                    for (k=0; k<sortedData[group].length; k++) {
+                        var date = new Date(sortedData[group][k][0]);
+                        groupArray[i] += "<tr><td>"+sortedData[group][k][1]+"</td><td>"+(grouping === "station" ? dateToString(date,false) : pad(date.getHours())+":"+pad(date.getMinutes())+":"+pad(date.getSeconds())+"</td><td>"+stations[sortedData[group][k][2]])+"</td></tr>";
+                    }
+                    groupArray[i] += "</tbody></table></div>";
 
-                ct=sortedData[group].length;
-                if (ct === 0) {
-                    continue;
+                    i++;
                 }
-                groupArray[i] = "<div data-role='collapsible' data-collapsed='true'><h2><div class='ui-btn-up-c ui-btn-corner-all custom-count-pos'>"+ct+" "+((ct === 1) ? _("run") : _("runs"))+"</div>"+(grouping === "station" ? stations[group] : dateToString(new Date(group*1000*60*60*24)).slice(0,-9))+"</h2>"+table_header;
-                for (k=0; k<sortedData[group].length; k++) {
-                    var date = new Date(sortedData[group][k][0]);
-                    groupArray[i] += "<tr><td>"+sortedData[group][k][1]+"</td><td>"+(grouping === "station" ? dateToString(date,false) : pad(date.getHours())+":"+pad(date.getMinutes())+":"+pad(date.getSeconds())+"</td><td>"+stations[sortedData[group][k][2]])+"</td></tr>";
-                }
-                groupArray[i] += "</tbody></table></div>";
-
-                i++;
             }
 
             if (grouping === "day") {
