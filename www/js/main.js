@@ -3233,9 +3233,10 @@ function get_status() {
                     diff = now - lastCheck;
 
                 if (diff > 3000) {
-                    clearInterval(updateInterval);
                     if (currPage === "status") {
                         refresh_status();
+                    } else {
+                        clearInterval(updateInterval);
                     }
                 }
 
