@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		F40530A7198326550046DC88 /* Sprinklers.icns in Resources */ = {isa = PBXBuildFile; fileRef = F40530A6198326550046DC88 /* Sprinklers.icns */; };
+		F40530A7198326550046DC88 /* OpenSprinkler.icns in Resources */ = {isa = PBXBuildFile; fileRef = F40530A6198326550046DC88 /* OpenSprinkler.icns */; };
 		F464DC01198ED81E003492F2 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = F464DC00198ED81E003492F2 /* MainMenu.xib */; };
 		F464DC03198ED884003492F2 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = F464DC02198ED884003492F2 /* Credits.rtf */; };
 		F4F83F8D1981E481006B2617 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4F83F8C1981E481006B2617 /* Cocoa.framework */; };
@@ -22,20 +22,20 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		F40530A6198326550046DC88 /* Sprinklers.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = Sprinklers.icns; path = ../../www/res/osx/icons/Sprinklers.icns; sourceTree = "<group>"; };
+		F40530A6198326550046DC88 /* OpenSprinkler.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = OpenSprinkler.icns; path = ../../www/res/osx/icons/OpenSprinkler.icns; sourceTree = "<group>"; };
 		F464DC00198ED81E003492F2 /* MainMenu.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MainMenu.xib; sourceTree = "<group>"; };
 		F464DC02198ED884003492F2 /* Credits.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = Credits.rtf; sourceTree = "<group>"; };
-		F4D9F92A1982F35800405EF0 /* Sprinklers.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = Sprinklers.entitlements; sourceTree = "<group>"; };
+		F4D9F92A1982F35800405EF0 /* OpenSprinkler.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = OpenSprinkler.entitlements; sourceTree = "<group>"; };
 		F4EF8F9B19C15B1B00FF8AE0 /* WebStorageManagerPrivate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WebStorageManagerPrivate.h; sourceTree = "<group>"; };
 		F4EF8F9C19C15BB600FF8AE0 /* WebPreferencesPrivate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WebPreferencesPrivate.h; sourceTree = "<group>"; };
-		F4F83F891981E481006B2617 /* Sprinklers.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Sprinklers.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F4F83F891981E481006B2617 /* OpenSprinkler.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OpenSprinkler.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F4F83F8C1981E481006B2617 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		F4F83F8F1981E481006B2617 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		F4F83F901981E481006B2617 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		F4F83F911981E481006B2617 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
-		F4F83F941981E481006B2617 /* Sprinklers-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Sprinklers-Info.plist"; sourceTree = "<group>"; };
+		F4F83F941981E481006B2617 /* OpenSprinkler-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "OpenSprinkler-Info.plist"; sourceTree = "<group>"; };
 		F4F83F981981E481006B2617 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		F4F83F9A1981E481006B2617 /* Sprinklers-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Sprinklers-Prefix.pch"; sourceTree = "<group>"; };
+		F4F83F9A1981E481006B2617 /* OpenSprinkler-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "OpenSprinkler-Prefix.pch"; sourceTree = "<group>"; };
 		F4F83F9E1981E481006B2617 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		F4F83F9F1981E481006B2617 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		F4F83FAB1981E481006B2617 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
@@ -63,7 +63,7 @@
 		F4F83F801981E481006B2617 = {
 			isa = PBXGroup;
 			children = (
-				F40530A6198326550046DC88 /* Sprinklers.icns */,
+				F40530A6198326550046DC88 /* OpenSprinkler.icns */,
 				F4F83F921981E481006B2617 /* Resources */,
 				F4F83F8B1981E481006B2617 /* Frameworks */,
 				F4F83F8A1981E481006B2617 /* Products */,
@@ -73,7 +73,7 @@
 		F4F83F8A1981E481006B2617 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				F4F83F891981E481006B2617 /* Sprinklers.app */,
+				F4F83F891981E481006B2617 /* OpenSprinkler.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -102,7 +102,7 @@
 		F4F83F921981E481006B2617 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				F4D9F92A1982F35800405EF0 /* Sprinklers.entitlements */,
+				F4D9F92A1982F35800405EF0 /* OpenSprinkler.entitlements */,
 				F4F83F9E1981E481006B2617 /* AppDelegate.h */,
 				F464DC00198ED81E003492F2 /* MainMenu.xib */,
 				F4EF8F9C19C15BB600FF8AE0 /* WebPreferencesPrivate.h */,
@@ -121,9 +121,9 @@
 				F4F83FC71981E523006B2617 /* index.htm */,
 				F4F83FC81981E523006B2617 /* js */,
 				F4F83FC91981E523006B2617 /* locale */,
-				F4F83F941981E481006B2617 /* Sprinklers-Info.plist */,
+				F4F83F941981E481006B2617 /* OpenSprinkler-Info.plist */,
 				F4F83F981981E481006B2617 /* main.m */,
-				F4F83F9A1981E481006B2617 /* Sprinklers-Prefix.pch */,
+				F4F83F9A1981E481006B2617 /* OpenSprinkler-Prefix.pch */,
 				F464DC02198ED884003492F2 /* Credits.rtf */,
 			);
 			name = "Supporting Files";
@@ -132,9 +132,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		F4F83F881981E481006B2617 /* Sprinklers */ = {
+		F4F83F881981E481006B2617 /* OpenSprinkler */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = F4F83FBA1981E481006B2617 /* Build configuration list for PBXNativeTarget "Sprinklers" */;
+			buildConfigurationList = F4F83FBA1981E481006B2617 /* Build configuration list for PBXNativeTarget "OpenSprinkler" */;
 			buildPhases = (
 				F4F83F851981E481006B2617 /* Sources */,
 				F4F83F861981E481006B2617 /* Frameworks */,
@@ -144,9 +144,9 @@
 			);
 			dependencies = (
 			);
-			name = Sprinklers;
+			name = OpenSprinkler;
 			productName = Sprinklers;
-			productReference = F4F83F891981E481006B2617 /* Sprinklers.app */;
+			productReference = F4F83F891981E481006B2617 /* OpenSprinkler.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -168,7 +168,7 @@
 					};
 				};
 			};
-			buildConfigurationList = F4F83F841981E481006B2617 /* Build configuration list for PBXProject "Sprinklers" */;
+			buildConfigurationList = F4F83F841981E481006B2617 /* Build configuration list for PBXProject "OpenSprinkler" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -181,7 +181,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				F4F83F881981E481006B2617 /* Sprinklers */,
+				F4F83F881981E481006B2617 /* OpenSprinkler */,
 			);
 		};
 /* End PBXProject section */
@@ -195,7 +195,7 @@
 				F4F83FCA1981E523006B2617 /* css in Resources */,
 				F4F83FCD1981E523006B2617 /* js in Resources */,
 				F464DC03198ED884003492F2 /* Credits.rtf in Resources */,
-				F40530A7198326550046DC88 /* Sprinklers.icns in Resources */,
+				F40530A7198326550046DC88 /* OpenSprinkler.icns in Resources */,
 				F4F83FCB1981E523006B2617 /* img in Resources */,
 				F4F83FCC1981E523006B2617 /* index.htm in Resources */,
 				F464DC01198ED81E003492F2 /* MainMenu.xib in Resources */,
@@ -290,14 +290,14 @@
 		F4F83FBB1981E481006B2617 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = Resources/Sprinklers.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Resources/OpenSprinkler.entitlements;
 				CODE_SIGN_IDENTITY = "3rd Party Mac Developer Application: Samer Albahra (4CSK34Q82P)";
 				COMBINE_HIDPI_IMAGES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "Resources/Sprinklers-Prefix.pch";
-				INFOPLIST_FILE = "Resources/Sprinklers-Info.plist";
+				GCC_PREFIX_HEADER = "Resources/OpenSprinkler-Prefix.pch";
+				INFOPLIST_FILE = "Resources/OpenSprinkler-Info.plist";
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = OpenSprinkler;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -305,14 +305,14 @@
 		F4F83FBC1981E481006B2617 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = Resources/Sprinklers.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Resources/OpenSprinkler.entitlements;
 				CODE_SIGN_IDENTITY = "3rd Party Mac Developer Application: Samer Albahra (4CSK34Q82P)";
 				COMBINE_HIDPI_IMAGES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "Resources/Sprinklers-Prefix.pch";
-				INFOPLIST_FILE = "Resources/Sprinklers-Info.plist";
+				GCC_PREFIX_HEADER = "Resources/OpenSprinkler-Prefix.pch";
+				INFOPLIST_FILE = "Resources/OpenSprinkler-Info.plist";
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = OpenSprinkler;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
@@ -320,7 +320,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		F4F83F841981E481006B2617 /* Build configuration list for PBXProject "Sprinklers" */ = {
+		F4F83F841981E481006B2617 /* Build configuration list for PBXProject "OpenSprinkler" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				F4F83FB81981E481006B2617 /* Debug */,
@@ -329,7 +329,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		F4F83FBA1981E481006B2617 /* Build configuration list for PBXNativeTarget "Sprinklers" */ = {
+		F4F83FBA1981E481006B2617 /* Build configuration list for PBXNativeTarget "OpenSprinkler" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				F4F83FBB1981E481006B2617 /* Debug */,
