@@ -7,9 +7,9 @@
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
 	<key>CFBundleIconFile</key>
-	<string>Sprinklers</string>
+	<string>OpenSprinkler</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.albahra.${PRODUCT_NAME:rfc1034identifier}.osx</string>
+	<string>com.albahra.Sprinklers.osx</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
