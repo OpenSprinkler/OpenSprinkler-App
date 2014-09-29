@@ -258,7 +258,7 @@ module.exports = function(grunt) {
 	grunt.registerTask("updateLang",["shell:updateLang"]);
 	grunt.registerTask("pushEng",["shell:pushEng"]);
 	grunt.registerTask("makeFW",["jshint","uglify","cssmin","compress:jsAsset","compress:cssAsset","compress:makeFW","clean:makeFW"]);
-	grunt.registerTask("pushFW",["makeFW","shell:updateUI","clean:pushFW"]);
+	grunt.registerTask("pushFW",["makeFW","shell:updateUI","shell:updateBetaUI","clean:pushFW"]);
 	grunt.registerTask("pushBetaFW",["makeFW","shell:updateBetaUI","clean:pushFW"]);
 	grunt.registerTask("build",["jshint","shell:blackberry10","compress:firefox","compress:chrome","compress:blackberry10","pushFW"]);
 	grunt.registerTask("bump",["jshint","replace:about","replace:osx","replace:phonegap","replace:manifests","shell:pushBump"]);
