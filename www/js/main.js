@@ -3041,6 +3041,7 @@ function get_status() {
         runningTotal = {},
         lastCheck = new Date().getTime(),
         currentDelay = 0,
+        updateInterval,
         updateContent = function() {
             var allPnames = [],
                 color = "",
@@ -3192,8 +3193,6 @@ function get_status() {
     page.on("datarefresh",updateContent);
     updateContent();
 
-    removeTimers();
-
     // Bind delegate handler to stop specific station (supported on firmware 2.1.0+ on Arduino)
     page.off("click","li").on("click","li",function(){
         var el = $(this),
@@ -3222,19 +3221,19 @@ function get_status() {
 
     page.one({
         pagehide: function(){
-            removeTimers();
             page.off("datarefresh");
             page.find(".ui-header > .ui-btn-right").off("click");
             page.find(".ui-content").empty();
+            clearInterval(updateInterval);
         },
         pageshow: function(){
-            interval_id = setInterval(function(){
+            updateInterval = setInterval(function(){
                 var now = new Date().getTime(),
                     currPage = $(".ui-page-active").attr("id"),
                     diff = now - lastCheck;
 
                 if (diff > 3000) {
-                    clearInterval(interval_id);
+                    clearInterval(updateInterval);
                     if (currPage === "status") {
                         refresh_status();
                     }
@@ -3249,10 +3248,11 @@ function get_status() {
                 lastCheck = now;
                 $.each(runningTotal,function(a,b){
                     if (b <= 0) {
+                        refresh_status();
                         delete runningTotal[a];
                         if (a === "p") {
                             if (currPage !== "status") {
-                                clearInterval(interval_id);
+                                clearInterval(updateInterval);
                                 return;
                             }
                         } else {
