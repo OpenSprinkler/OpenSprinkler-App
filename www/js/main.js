@@ -6884,7 +6884,7 @@ function update_lang(lang) {
     }
 
     if (curr_local) {
-        prefix = $.mobile.path.parseUrl($("head").find("script").eq(0).attr("src")).domain + "/";
+        prefix = $.mobile.path.parseUrl($("head").find("script").eq(0).attr("src")).hrefNoHash.slice(0,-10);
     }
 
     $.getJSON(prefix+"locale/"+lang+".js",function(store){
