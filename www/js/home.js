@@ -4,28 +4,15 @@
 		isReady = false;
 
 	function getAssetLocation() {
-		var body = document.body || document.getElementsByTagName("body")[0],
-			def = "http://ui.opensprinkler.com/",
-			mainScript, src;
-
-		if (!body) {
-			return def;
-		}
-
-		mainScript = body.querySelector("script[src]");
+		var mainScript = document.querySelector("script[src$='home.js']").src,
+			def = "http://ui.opensprinkler.com/";
 
 		if (!mainScript) {
 			return def;
 		}
 
-		src = mainScript.src;
-
-		if (!src) {
-			return def;
-		}
-
-		src = /^\s*(((([^:\/#\?]+:)?(?:(\/\/)((?:(([^:@\/#\?]+)(?:\:([^:@\/#\?]+))?)@)?(([^:\/#\?\]\[]+|\[[^\/\]@#?]+\])(?:\:([0-9]+))?))?)?)?((\/?(?:[^\/\?#]+\/+)*)([^\?#]*)))?(\?[^#]+)?)(#.*)?/.exec( src || "" ) || [];
-		return src[3]+"/" || def;
+		mainScript = /^\s*(((([^:\/#\?]+:)?(?:(\/\/)((?:(([^:@\/#\?]+)(?:\:([^:@\/#\?]+))?)@)?(([^:\/#\?\]\[]+|\[[^\/\]@#?]+\])(?:\:([0-9]+))?))?)?)?((\/?(?:[^\/\?#]+\/+)*)([^\?#]*)))?(\?[^#]+)?)(#.*)?/.exec( mainScript || "" ) || [];
+		return mainScript[1].slice(0,-10) || def;
 	}
 
 	function insertStyle(css) {
