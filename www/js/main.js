@@ -5773,7 +5773,7 @@ function getImportMethod(localData){
 
 function import_config(data) {
     var piNames = {1:"tz",2:"ntp",12:"htp",13:"htp2",14:"ar",15:"nbrd",16:"seq",17:"sdt",18:"mas",19:"mton",20:"mtoff",21:"urs",22:"rst",23:"wl",25:"ipas",30:"rlp","lg":"lg",31:"uwt"},
-        keyIndex = {"tz":1,"ntp":2,"hp0":12,"hp1":13,"ar":14,"ext":15,"seq":16,"sdt":17,"mas":18,"mton":19,"mtof":20,"urs":21,"rso":22,"wl":23,"ipas":25,"devid":26,"rlp":30,"lg":"lg","uwt":31,"ntp1":32,"ntp2":33,"ntp3":34,"ntp4":35};
+        keyIndex = {"tz":1,"ntp":2,"dhcp":3,"hp0":12,"hp1":13,"ar":14,"ext":15,"seq":16,"sdt":17,"mas":18,"mton":19,"mtof":20,"urs":21,"rso":22,"wl":23,"ipas":25,"devid":26,"rlp":30,"lg":"lg","uwt":31,"ntp1":32,"ntp2":33,"ntp3":34,"ntp4":35};
 
     if (typeof data !== "object" || !data.settings) {
         showerror(_("Invalid configuration"));
@@ -5798,9 +5798,8 @@ function import_config(data) {
                 if (key === 3) {
                     if (checkOSVersion(210) && controller.options.dhcp === 1) {
                         co += "&o3=1";
-                    } else {
-                        continue;
                     }
+                    continue;
                 }
                 if (isPi) {
                     key = piNames[key];
