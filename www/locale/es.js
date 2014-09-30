@@ -52,7 +52,7 @@
       "Sprinkler Stations" : "Estaciones Sprinkler",
       "Rain delay until" : "Suspensión temporal por lluvia hasta",
       "Auto Rain Delay" : "Retraso por lluvia",
-      "When automatic rain delay is enabled, the weather will be checked for rain every hour. If the weather reports any condition suggesting rain, a rain delay is automatically issued using the below set delay duration." : "Cuando esta activado el retraso por lluvia automático, el tiempo se verificará cada hora. Si el tiempo reporta lluvia, el retraso por lluvia se activará automaticmaente.",
+      "When automatic rain delay is enabled, the weather will be checked for rain every hour. If the weather reports any condition suggesting rain, a rain delay is automatically issued using the below set delay duration." : "Cuando está activado el retraso por lluvia automático, el tiempo se verificará cada hora. Si el tiempo da lluvia, el retraso por lluvia se activará automáticamente.",
       "copy" : "copiar",
       "Please use another value and try again." : "Por favor use otro valor e inténtelo otra vez.",
       "Program has been updated" : "El programa ha sido actualizado",
