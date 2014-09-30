@@ -3283,8 +3283,7 @@ function get_status() {
 }
 
 function refresh_status() {
-    var page = $(".ui-page-active"),
-        id = page.attr("id");
+    var page = $(".ui-page-active");
 
     $.when(
         update_controller_status(),
@@ -3293,7 +3292,6 @@ function refresh_status() {
     ).then(function(){
         // Notify the current page that the data has refreshed
         page.trigger("datarefresh");
-
         return;
     },network_fail);
 }
