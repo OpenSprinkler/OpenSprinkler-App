@@ -99,7 +99,18 @@
 	insertStyleSheet(assetLocation+"img/favicon.ico","shortcut icon");
 
 	// Insert jQuery and run init function on completion
-	insertScript(assetLocation+"js/app."+(ver<210 ? "js" : "jgz"),init);
+	insertScript(assetLocation+"js/app."+(ver<210 ? "js" : "jgz"),function(){
+		try {
+			localStorage.setItem("testQuota","true");
+			localStorage.removeItem("testQuota");
+			init();
+		} catch (err) {
+			if (err.code === 22) {
+				document.body.innerHTML = "<div class='spinner'><div class='logo'></div><span class='feedback'>Local storage is not enabled on your device and is required by the application. You may be in private browsing mode.</span></div>";
+				return;
+			}
+		}
+	});
 
 	// Insert home page icon for iOS
 	insertStyleSheet(assetLocation+"res/ios-web/icons/icon.png","apple-touch-icon");
