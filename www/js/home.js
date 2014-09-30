@@ -12,7 +12,7 @@
 			return def;
 		}
 
-		mainScript = body.querySelector("script");
+		mainScript = body.querySelector("script[src]");
 
 		if (!mainScript) {
 			return def;
@@ -25,7 +25,7 @@
 		}
 
 		src = /^\s*(((([^:\/#\?]+:)?(?:(\/\/)((?:(([^:@\/#\?]+)(?:\:([^:@\/#\?]+))?)@)?(([^:\/#\?\]\[]+|\[[^\/\]@#?]+\])(?:\:([0-9]+))?))?)?)?((\/?(?:[^\/\?#]+\/+)*)([^\?#]*)))?(\?[^#]+)?)(#.*)?/.exec( src || "" ) || [];
-		return src[3] || def;
+		return src[3]+"/" || def;
 	}
 
 	function insertStyle(css) {
