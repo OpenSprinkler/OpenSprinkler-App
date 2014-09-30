@@ -450,7 +450,7 @@ function initApp() {
     });
 
     //Bind open panel button
-    $("#sprinklers").find("div[data-role='header'] > .ui-btn-left").on("click",function(){
+    $("#sprinklers").on("datarefresh",check_status).find("div[data-role='header'] > .ui-btn-left").on("click",function(){
         open_panel();
         return false;
     });
@@ -3037,7 +3037,14 @@ function isStationDisabled(sid) {
 
 // Current status related functions
 function get_status() {
-    var page = $("#status"),
+    var page = $("<div data-role='page' id='status'>" +
+            "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false'>" +
+                "<a role='button' href='javascript:void(0);' class='ui-btn ui-corner-all ui-shadow ui-btn-left ui-btn-b ui-toolbar-back-btn ui-icon-carat-l ui-btn-icon-left' data-rel='back'>"+_("Back")+"</a>" +
+                "<h3>"+_("Current Status")+"</h3>" +
+            "</div>" +
+            "<div class='ui-content' role='main'>" +
+            "</div>" +
+        "</div>"),
         runningTotal = {},
         lastCheck = new Date().getTime(),
         currentDelay = 0,
@@ -3221,10 +3228,8 @@ function get_status() {
 
     page.one({
         pagehide: function(){
-            page.off("datarefresh");
-            page.find(".ui-header > .ui-btn-right").off("click");
-            page.find(".ui-content").empty();
             clearInterval(updateInterval);
+            page.remove();
         },
         pageshow: function(){
             updateInterval = setInterval(function(){
@@ -3273,6 +3278,8 @@ function get_status() {
             },1000);
         }
     });
+
+    page.appendTo("body");
 }
 
 function refresh_status() {
@@ -3286,11 +3293,6 @@ function refresh_status() {
     ).then(function(){
         // Notify the current page that the data has refreshed
         page.trigger("datarefresh");
-
-        if (id === "sprinklers") {
-            removeTimers();
-            check_status();
-        }
 
         return;
     },network_fail);
