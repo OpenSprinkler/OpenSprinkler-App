@@ -3,6 +3,6 @@ before_install: npm install -g grunt-cli
 install: npm install
 before_script: grunt mocha
 script:
-  - xctool -project source/osx/OpenSprinkler.xcodeproj -scheme OpenSprinklers -sdk macosx10.9 CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGN_ENTITLEMENTS=""
+  - xctool -project source/osx/OpenSprinkler.xcodeproj -scheme OpenSprinkler -sdk macosx10.9 CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGN_ENTITLEMENTS=""
 notifications:
   email: false
