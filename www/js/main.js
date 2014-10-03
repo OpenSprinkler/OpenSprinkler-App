@@ -639,6 +639,8 @@ function newload() {
                 manual_mode = $(".manual_mode"),
                 change_password = $(".change_password");
 
+            document.title = "OpenSprinkler - "+name;
+
             $.mobile.loading("hide");
             check_status();
             update_weather();
@@ -1301,6 +1303,8 @@ function show_sites(showBack) {
                 page.one("pagebeforeshow",function(){
                     page.find(".ui-btn-left").hide();
                 });
+
+                document.title = "OpenSprinkler";
             }
 
             $.each(sites,function(a,b){
