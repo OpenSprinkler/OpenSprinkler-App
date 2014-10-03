@@ -26,7 +26,7 @@
             </ul>
         </div>
 
-        <div data-role="page" id="sprinklers">
+        <div data-role="page" id="sprinklers" class="ui-responsive-panel">
             <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false">
                 <a data-icon="bullets" data-iconpos="notext" class="ui-btn-left" href="#"></a>
                 <a data-icon="gear" data-iconpos="notext" href="#settings"></a>
@@ -52,17 +52,6 @@
                     <li><a href="#os-options" data-translate="Edit Options"></a></li>
                     <li><a href="#" id="stop-all" data-translate="Stop All Stations"></a></li>
                     <li><a href="#manual" class="manual_mode" data-translate="Manual Control"></a></li>
-                </ul>
-            </div>
-            <div data-role="panel" id="sprinklers-settings" data-position-fixed="true" data-theme="b">
-                <ul data-role="listview" data-theme="b">
-                    <li class="multiSite">
-                        <select data-mini="true" id="site-selector"></select>
-                    </li>
-                    <li class="multiSite" data-icon="gear"><a href="#site-control" data-translate="Manage Sites"></a></li>
-                    <li data-icon="action"><a href="#" class="export_config" data-translate="Export Configuration"></a></li>
-                    <li data-icon="back"><a href="#" class="import_config" data-translate="Import Configuration"></a></li>
-                    <li data-icon="info"><a href="#about" data-translate="About"></a></li>
                 </ul>
             </div>
         </div>
@@ -131,6 +120,18 @@
                 <ul data-role="listview" data-inset="true" id="forecast_list">
                 </ul>
             </div>
+        </div>
+
+        <div data-role="panel" id="sprinklers-settings" data-position-fixed="true" data-theme="b" class="hidden">
+            <ul data-role="listview" data-theme="b">
+                <li class="multiSite">
+                    <select data-mini="true" id="site-selector"></select>
+                </li>
+                <li class="multiSite" data-icon="gear"><a href="#site-control" data-translate="Manage Sites"></a></li>
+                <li data-icon="action"><a href="#" class="export_config" data-translate="Export Configuration"></a></li>
+                <li data-icon="back"><a href="#" class="import_config" data-translate="Import Configuration"></a></li>
+                <li data-icon="info"><a href="#about" data-translate="About"></a></li>
+            </ul>
         </div>
     </body>
 </html>

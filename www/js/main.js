@@ -196,6 +196,18 @@ $(document)
 
         return false;
     });
+
+    // Initialize external panel
+    setTimeout(function(){
+        $("#sprinklers-settings").enhanceWithin().panel().removeClass("hidden");
+    },0);
+
+    // Bind event handler to open panel when swiping right
+    $.mobile.document.on("swiperight",".ui-page",function() {
+        if ($(".ui-page-active").jqmData("panel") !== "open" && !$(".ui-page-active .ui-popup-active").length) {
+            open_panel();
+        }
+    });
 })
 .one("pagebeforechange", function(event) {
     // Let the framework know we're going to handle the first load
@@ -353,15 +365,6 @@ $(document)
 
     // Fix issues between jQuery Mobile and FastClick
     fixInputClick($newpage);
-
-    if (newpage === "#sprinklers") {
-        // Bind event handler to open panel when swiping on the main page
-        $newpage.off("swiperight").on("swiperight", function() {
-            if ($(".ui-page-active").jqmData("panel") !== "open" && !$(".ui-page-active .ui-popup-active").length) {
-                open_panel();
-            }
-        });
-    }
 
     if (newpage === "#sprinklers" || newpage === "#status" || newpage === "#os-stations") {
         // Update the page every 10 seconds
