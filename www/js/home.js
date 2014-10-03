@@ -256,7 +256,7 @@
 				$(document).one("mobileinit",function(){
 
 					// Change title to reflect loading finished
-					document.title = "Sprinkler System";
+					document.title = "OpenSprinkler";
 
 					// Inject pages into DOM
 					body.html(pages);

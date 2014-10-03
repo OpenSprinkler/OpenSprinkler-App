@@ -13,7 +13,7 @@ module.exports = function(grunt) {
 
 	var bumpVersion = function(version) {
 			var join = ".",
-					level = grunt.option("level") || 2;
+				level = grunt.option("level") || 2;
 
 			if (typeof version === "number") {
 				join = "";
@@ -130,15 +130,15 @@ module.exports = function(grunt) {
 				command: [
 					"cd build/firmware",
 					"unzip UI.zip",
-					"rsync -azp * <%= secrets.firmware.rayshobby.location %>",
-					"rsync -azp * <%= secrets.firmware.opensprinkler.location %>"
+					"rsync -azp --chmod=Du=rwx,Dg=rx,Do=rx,Fu=rw,Fg=r,Fo=r * <%= secrets.firmware.rayshobby.location %>",
+					"rsync -azp --chmod=Du=rwx,Dg=rx,Do=rx,Fu=rw,Fg=r,Fo=r * <%= secrets.firmware.opensprinkler.location %>"
 				].join("&&")
 			},
 			updateBetaUI: {
 				command: [
 					"cd build/firmware",
 					"unzip UI.zip",
-					"rsync -azp * <%= secrets.firmware.betaui.location %>"
+					"rsync -azp --chmod=Du=rwx,Dg=rx,Do=rx,Fu=rw,Fg=r,Fo=r * <%= secrets.firmware.betaui.location %>"
 				].join("&&")
 			},
 			pushEng: {
