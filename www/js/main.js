@@ -386,9 +386,6 @@ $(document)
         StatusBar.backgroundColorByHexString("#1D1D1D");
     } catch (err) {}
 })
-.one("pagecreate","#sprinklers",function(){
-    $("<div id='footer-running'></div>").prependTo("#sprinklers .ui-panel-wrapper");
-})
 .on("pagehide","#start",removeTimers)
 .on("popupbeforeposition","#localization",check_curr_lang);
 
@@ -3099,7 +3096,7 @@ function get_status() {
                         }
                     } else {
                         // Otherwise, add all of the program times together except for a manual program with a time of 1s
-                        if (controller.settings.ps[i][0] !== 99 && rem !== 1) {
+                        if (!(controller.settings.ps[i][0] === 99 && rem === 1)) {
                             ptotal+=rem;
                         }
                     }
