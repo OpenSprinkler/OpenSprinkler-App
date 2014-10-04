@@ -639,8 +639,6 @@ function newload() {
                 manual_mode = $(".manual_mode"),
                 change_password = $(".change_password");
 
-            document.title = "OpenSprinkler - "+name;
-
             $.mobile.loading("hide");
             check_status();
             update_weather();
@@ -669,6 +667,7 @@ function newload() {
             // Show site name instead of default Information bar
             if (!curr_local) {
                 $("#info-list").find("li[data-role='list-divider']").text(name);
+                document.title = "OpenSprinkler - "+name;
             } else {
                 $("#info-list").find("li[data-role='list-divider']").text(_("Information"));
             }
