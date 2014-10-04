@@ -491,6 +491,10 @@ div.running-text{
     margin: 8px auto;
 }
 
+#os-stations .ui-controlgroup {
+    display: block;
+}
+
 /* Status page rules */
 
 #status_list .ui-li {
