@@ -491,10 +491,6 @@ div.running-text{
     margin: 8px auto;
 }
 
-#os-stations .ui-controlgroup {
-    display: block;
-}
-
 /* Status page rules */
 
 #status_list .ui-li {
@@ -826,6 +822,9 @@ div.running-text{
         .wicon {
             margin:-50px 0 -45px -50px!important
         }
+    }
+    .ui-mobile fieldset {
+        display: block;
     }
 }
 @media (max-width:480px) {
