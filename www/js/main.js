@@ -6635,7 +6635,8 @@ function goHome() {
             delete $.mobile.navigate.history.getActive().transition;
         });
         changePage("#sprinklers",{
-            "firstLoad": true
+            "firstLoad": true,
+            "showLoading": false
         });
     }
 }
