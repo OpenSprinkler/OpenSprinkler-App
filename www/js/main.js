@@ -2417,22 +2417,22 @@ function show_options() {
         list += "<div class='ui-field-contain duration-field'><label for='o30'>"+_("Relay Pulse")+"<button data-helptext='"+_("Relay pulsing is used for special situations where rapid pulsing is needed in the output with a range from 1 to 2000 milliseconds. A zero value disables the pulsing option.")+"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><button data-mini='true' id='o30' value='"+controller.options.rlp+"'>"+controller.options.rlp+"ms</button></div>";
     }
 
-    if (typeof controller.options.ipas !== "undefined") {
-        list += "<label for='o25'><input data-mini='true' id='o25' type='checkbox' "+((controller.options.ipas === 1) ? "checked='checked'" : "")+">"+_("Ignore Password")+"</label>";
+    if (typeof controller.options.ntp !== "undefined" && checkOSVersion(210)) {
+        var ntpIP = [controller.options.ntp1,controller.options.ntp2,controller.options.ntp3,controller.options.ntp4].join(".");
+        list += "<div class='"+((controller.options.ntp === 1) ? "" : "hidden ")+"ui-field-contain duration-field'><label for='ntp_addr'>"+_("NTP IP Address")+"</label><button data-mini='true' id='ntp_addr' value='"+ntpIP+"'>"+ntpIP+"</button></div>";
     }
 
     if (typeof controller.options.dhcp !== "undefined" && checkOSVersion(210)) {
         var ip = [controller.options.ip1,controller.options.ip2,controller.options.ip3,controller.options.ip4].join("."),
             gw = [controller.options.gw1,controller.options.gw2,controller.options.gw3,controller.options.gw4].join(".");
 
-        list += "<label for='o3'><input data-mini='true' id='o3' type='checkbox' "+((controller.options.dhcp === 1) ? "checked='checked'" : "")+">"+_("Use DHCP (restart required)")+"</label>";
         list += "<div class='"+((controller.options.dhcp === 1) ? "hidden " : "")+"ui-field-contain duration-field'><label for='ip_addr'>"+_("IP Address")+"</label><button data-mini='true' id='ip_addr' value='"+ip+"'>"+ip+"</button></div>";
         list += "<div class='"+((controller.options.dhcp === 1) ? "hidden " : "")+"ui-field-contain duration-field'><label for='gateway'>"+_("Gateway Address")+"</label><button data-mini='true' id='gateway' value='"+gw+"'>"+gw+"</button></div>";
+        list += "<label for='o3'><input data-mini='true' id='o3' type='checkbox' "+((controller.options.dhcp === 1) ? "checked='checked'" : "")+">"+_("Use DHCP (restart required)")+"</label>";
     }
 
-    if (typeof controller.options.ntp !== "undefined" && checkOSVersion(210)) {
-        var ntpIP = [controller.options.ntp1,controller.options.ntp2,controller.options.ntp3,controller.options.ntp4].join(".");
-        list += "<div class='"+((controller.options.ntp === 1) ? "" : "hidden ")+"ui-field-contain duration-field'><label for='ntp_addr'>"+_("NTP IP Address")+"</label><button data-mini='true' id='ntp_addr' value='"+ntpIP+"'>"+ntpIP+"</button></div>";
+    if (typeof controller.options.ipas !== "undefined") {
+        list += "<label for='o25'><input data-mini='true' id='o25' type='checkbox' "+((controller.options.ipas === 1) ? "checked='checked'" : "")+">"+_("Ignore Password")+"</label>";
     }
 
     list += "</fieldset>";
