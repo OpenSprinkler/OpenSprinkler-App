@@ -679,17 +679,7 @@ function newload() {
             // Check if automatic rain delay plugin is enabled on OSPi devices
             checkWeatherPlugin();
 
-            // Transition to home page after succesful load
-            if ($.mobile.pageContainer.pagecontainer("getActivePage").attr("id") !== "sprinklers") {
-                $.mobile.document.one("pageshow",function(){
-                    // Allow future transitions to properly animate
-                    delete $.mobile.navigate.history.getActive().transition;
-                });
-                changePage("#sprinklers",{
-                    "transition":"none",
-                    "firstLoad": true
-                });
-            }
+            goHome();
         },
         function(){
             $.ajaxQueue.clear();
@@ -5935,6 +5925,7 @@ function import_config(data) {
                         $.mobile.loading("hide");
                         showerror(_("Backup restored to your device"));
                         update_weather();
+                        goHome();
                     },
                     function(){
                         $.mobile.loading("hide");
@@ -6638,6 +6629,19 @@ function colorContrast(c) {
 function showLoading(ele) {
     ele = (typeof ele === "string") ? $(ele) : ele;
     ele.off("click").html("<p class='ui-icon ui-icon-loading mini-load'></p>");
+}
+
+function goHome() {
+    // Transition to home page after succesful load
+    if ($.mobile.pageContainer.pagecontainer("getActivePage").attr("id") !== "sprinklers") {
+        $.mobile.document.one("pageshow",function(){
+            // Allow future transitions to properly animate
+            delete $.mobile.navigate.history.getActive().transition;
+        });
+        changePage("#sprinklers",{
+            "firstLoad": true
+        });
+    }
 }
 
 function goBack() {
