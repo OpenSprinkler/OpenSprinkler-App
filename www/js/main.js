@@ -559,13 +559,17 @@ function send_to_os(dest,type) {
             // Return as successful
             if (data.result === 1) {
                 return data;
-            }
 
             // Handle incorrect password
-            if (data.result === 2) {
+            } else if (data.result === 2) {
                 showerror(_("Check device password and try again."));
 
                 // Tell subsequent handlers this request has failed (use 401 to prevent retry)
+                return $.Deferred().reject({"status":401});
+
+            // Handle page not found by triggering fail
+            } else if (data.result === 32) {
+
                 return $.Deferred().reject({"status":401});
             }
 
@@ -4489,7 +4493,7 @@ function get_logs() {
             }
         },
         success = function(items){
-            if (items.length < 1) {
+            if (typeof items !== "object" || items.length < 1 || (items.result && items.result === 32)) {
                 $.mobile.loading("hide");
                 reset_logs_page();
                 return;
