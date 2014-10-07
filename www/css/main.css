@@ -693,6 +693,10 @@ div.running-text{
 #forecast .wicon {
     margin:0 auto!important
 }
+.debugWU tr td:first-child {
+    width: 150px;
+    font-weight: 700;
+}
 .wicon {
     vertical-align:middle;
     display:inline-block;

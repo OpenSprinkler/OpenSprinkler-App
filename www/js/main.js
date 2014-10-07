@@ -2067,7 +2067,29 @@ function debugWU() {
             return;
         }
 
-        console.log(data);
+        if (typeof data.history === "object" && typeof data.history.dailysummary) {
+            var summary = data.history.dailysummary[0],
+                current = data.current_observation,
+                popup = $("<div data-role='popup' class='ui-content' data-overlay-theme='b' data-theme='a'>"+
+                    "<table class='debugWU'>" +
+                        "<tr><td>"+_("Min Humidity")+"</td><td>"+summary.minhumidity+"%</td></tr>" +
+                        "<tr><td>"+_("Max Humidity")+"</td><td>"+summary.maxhumidity+"%</td></tr>" +
+                        "<tr><td>"+_("Mean Temp")+"</td><td>"+summary.meantempi+"&#176;F</td></tr>" +
+                        "<tr><td>"+_("Precip Yesterday")+"</td><td>"+summary.precipi+"\"</td></tr>" +
+                        "<tr><td>"+_("Precip Today")+"</td><td>"+current.precip_today_in+"\"</td></tr>" +
+                    "</table>" +
+                "</div>");
+
+            popup.appendTo("body").one("popupafterclose",function(){
+                popup.popup("destroy").remove();
+            }).popup({
+                history: false,
+                positionTo: "window"
+            }).enhanceWithin().popup("open");
+        } else {
+            showerror(_("Weather data cannot be found for your location"));
+            return;
+        }
     }).fail(function(){
         showerror(_("Connection timed-out. Please try again."));
     });
