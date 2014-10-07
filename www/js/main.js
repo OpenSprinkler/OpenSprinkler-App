@@ -2077,6 +2077,7 @@ function debugWU() {
                         "<tr><td>"+_("Mean Temp")+"</td><td>"+summary.meantempi+"&#176;F</td></tr>" +
                         "<tr><td>"+_("Precip Yesterday")+"</td><td>"+summary.precipi+"\"</td></tr>" +
                         "<tr><td>"+_("Precip Today")+"</td><td>"+current.precip_today_in+"\"</td></tr>" +
+                        "<tr><td>"+_("Current % Watering")+"</td><td>"+controller.options.wl+"%</td></tr>" +
                     "</table>" +
                 "</div>");
 
