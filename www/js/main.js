@@ -287,6 +287,12 @@ $(document)
         } else if (hash === "#addnew") {
             show_addnew();
             return false;
+        } else if (hash === "#localization") {
+            languageSelect();
+            return false;
+        } else if (hash === "#debugWU") {
+            debugWU();
+            return false;
         } else if (hash === "#raindelay") {
             showSingleDurationInput({
                 data: 0,
@@ -313,8 +319,6 @@ $(document)
                     check_status();
                 }
             });
-        } else if (hash === "#settings") {
-            show_settings();
         }
     });
 
@@ -504,6 +508,7 @@ function flipSwitched() {
         if (id === "mmm") {
             $("#mm_list .green").removeClass("green");
         }
+        check_status();
     },
     function(){
         switching = true;
@@ -641,6 +646,7 @@ function newload() {
         function(){
             var log_button = $("#log_button"),
                 manual_mode = $(".manual_mode"),
+                weatherAdjust = $(".weatherAdjust"),
                 change_password = $(".change_password");
 
             $.mobile.loading("hide");
@@ -650,8 +656,10 @@ function newload() {
             // Hide manual mode from the app for Arduino firmware 2.1.0+
             if (checkOSVersion(210)) {
                 manual_mode.hide();
+                weatherAdjust.css("display","");
             } else {
                 manual_mode.css("display","");
+                weatherAdjust.hide();
             }
 
             // Hide log viewer button on home page if not supported
@@ -2044,6 +2052,27 @@ function resolveLocation(loc,callback) {
     });
 }
 
+function debugWU() {
+    if (typeof controller.settings.wtkey !== "string" || controller.settings.wtkey === "") {
+        showerror(_("An API key must be provided for Weather Underground"));
+        return;
+    }
+
+    $.ajax({
+        url: "http://api.wunderground.com/api/"+controller.settings.wtkey+"/yesterday/conditions/q/"+controller.settings.loc+".json",
+        dataType: isChromeApp ? "json" : "jsonp"
+    }).retry({times:retryCount, statusCodes: [0]}).done(function(data){
+        if (typeof data.response.error === "object" && data.response.error.type === "keynotfound") {
+            showerror(_("An invalid API key has been detected"));
+            return;
+        }
+
+        console.log(data);
+    }).fail(function(){
+        showerror(_("Connection timed-out. Please try again."));
+    });
+}
+
 function testAPIKey(key,callback) {
     $.ajax({
         url: "https://api.wunderground.com/api/"+key+"/conditions/forecast/lang:EN/q/75252.json",
@@ -2061,19 +2090,24 @@ function testAPIKey(key,callback) {
 
 function open_panel() {
     var panel = $("#sprinklers-settings");
+
     panel.panel("option","classes.modal","needsclick ui-panel-dismiss");
+
     panel.find("a[href='#site-control']").off("click").one("click",function(){
         changeFromPanel("site-control");
         return false;
     });
+
     panel.find("a[href='#about']").off("click").one("click",function(){
         changeFromPanel("about");
         return false;
     });
+
     panel.find(".export_config").off("click").on("click",function(){
         getExportMethod();
         return false;
     });
+
     panel.find(".import_config").off("click").on("click",function(){
         storage.get("backup",function(newdata){
             getImportMethod(newdata.backup);
@@ -2081,25 +2115,15 @@ function open_panel() {
 
         return false;
     });
-    panel.one("panelclose",function(){
-        panel.find(".export_config,.import_config").off("click");
-    });
 
-    panel.panel("open");
-}
+    var en = $("#en");
+    en.prop("checked",controller.settings.en);
+    if (en.hasClass("ui-flipswitch-input")) {
+        en.flipswitch("refresh");
+    }
+    en.on("change",flipSwitched);
 
-// Bind settings page event listeners
-function show_settings() {
-    $.each(["en","mm"],function(a,id){
-        var $id = $("#"+id);
-        $id.prop("checked",controller.settings[id]);
-        if ($id.hasClass("ui-flipswitch-input")) {
-            $id.flipswitch("refresh");
-        }
-        $id.on("change",flipSwitched);
-    });
-    var settings = $("#settings");
-    settings.find(".reboot-os").off("click").on("click",function(){
+    panel.find(".reboot-os").off("click").on("click",function(){
         areYouSure(_("Are you sure you want to reboot OpenSprinkler?"), "", function() {
             $.mobile.loading("show");
             send_to_os("/cv?pw=&rbt=1").done(function(){
@@ -2109,7 +2133,8 @@ function show_settings() {
         });
         return false;
     });
-    settings.find(".clear-config").off("click").on("click",function(){
+
+    panel.find(".clear-config").off("click").on("click",function(){
         areYouSure(_("Are you sure you want to delete all settings and return to the default settings?"), "", function() {
             storage.remove(["sites","current_site","lang","provider","wapikey","runonce"],function(){
                 update_lang();
@@ -2120,7 +2145,8 @@ function show_settings() {
         });
         return false;
     });
-    settings.find(".show-providers").off("click").on("click",function(){
+
+    panel.find(".show-providers").off("click").on("click",function(){
         $("#providers").popup("destroy").remove();
 
         storage.get(["provider","wapikey"],function(data){
@@ -2190,7 +2216,8 @@ function show_settings() {
             return false;
         });
     });
-    settings.find(".change_password > a").off("click").on("click",function(){
+
+    panel.find(".change_password > a").off("click").on("click",function(){
     // Device password management functions
         var isPi = isOSPi(),
             popup = $("<div data-role='popup' id='changePassword' data-theme='a' data-overlay-theme='b'>"+
@@ -2258,7 +2285,8 @@ function show_settings() {
             popup.remove();
         }).popup().enhanceWithin().popup("open");
     });
-    settings.find("#downgradeui").off("click").on("click",function(){
+
+    panel.find("#downgradeui").off("click").on("click",function(){
         areYouSure(_("Are you sure you want to downgrade the UI?"), "", function(){
             var url = "http://rayshobby.net/scripts/java/svc"+getOSVersion();
 
@@ -2269,7 +2297,8 @@ function show_settings() {
         });
         return false;
     });
-    settings.find("#logout").off("click").on("click",function(){
+
+    panel.find("#logout").off("click").on("click",function(){
         areYouSure(_("Are you sure you want to logout?"), "", function(){
             storage.remove(["sites","current_site","lang","provider","wapikey","runonce"],function(){
                 location.reload();
@@ -2277,17 +2306,14 @@ function show_settings() {
         });
         return false;
     });
-    settings.find("#localization").find("a").off("click").on("click",function(){
-        var link = $(this),
-            lang = link.data("lang-code");
 
-        update_lang(lang);
+    panel.one("panelclose",function(){
+        panel.find(".export_config,.import_config").off("click");
+        $("#en").off("change");
+        panel.find(".reboot-os,.clear-config,.show-providers").off("click");
     });
-    settings.one("pagehide",function(){
-        $("#en,#mm").off("change");
-        settings.find(".reboot-os,.clear-config,.show-providers").off("click");
-        $("#localization").find("a").off("click");
-    });
+
+    panel.panel("open");
 }
 
 // Device setting management functions
@@ -6902,6 +6928,35 @@ function update_lang(lang) {
         language = store.messages;
         set_lang();
     }).fail(set_lang);
+}
+
+function languageSelect() {
+    $("#localization").remove();
+
+    var popup = "<div data-role='popup' data-overlay-theme='b' id='localization' data-corners='false'>" +
+                "<ul data-inset='true' data-role='listview' id='lang' data-corners='false'>" +
+                "<li data-role='list-divider' data-theme='b' class='center'>"+_("Localization")+"</li>",
+        codes = {af: _("Afrikaans"), zh: _("Chinese"), cs: _("Czech"), nl: _("Dutch"), en: _("English"), fr: _("French"), de: _("German"), he: _("Hebrew"), hu: _("Hungarian"), it: _("Italian"), mn: _("Mongolian"), no: _("Norwegian"), pl: _("Polish"), pt: _("Portuguese"), sk: _("Slovak"), sl: _("Slovenian"), es: _("Spanish")};
+
+    $.each(codes,function(key,name){
+        popup += "<li><a href='#' data-lang-code='"+key+"'>"+name+"</a></li>";
+    });
+
+    popup += "</ul></div>";
+
+    popup = $(popup);
+
+    $(".ui-page-active").append(popup);
+
+    popup
+    .popup({
+        history: false,
+        "positionTo": "window"
+    })
+    .one("popupafterclose",function(){
+        popup.popup("destroy").remove();
+    })
+    .enhanceWithin().popup("open");
 }
 
 function check_curr_lang() {
