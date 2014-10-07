@@ -29,7 +29,6 @@
         <div data-role="page" id="sprinklers">
             <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false">
                 <a data-icon="bullets" data-iconpos="notext" class="ui-btn-left" href="#"></a>
-                <a data-icon="gear" data-iconpos="notext" href="#settings"></a>
                 <h3 class="logo"></h3>
             </div>
             <div class="ui-panel-wrapper">
@@ -59,60 +58,6 @@
             </div>
         </div>
 
-        <div data-role="page" id="settings">
-            <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false">
-                <a role="button" href="javascript:void(0);" class="ui-btn ui-corner-all ui-shadow ui-btn-left ui-btn-b ui-toolbar-back-btn ui-icon-carat-l ui-btn-icon-left" data-rel="back" data-translate="Back"></a>
-                <h3 data-translate="Settings"></h3>
-            </div>
-            <div class="ui-content" role="main">
-                <ul data-role="listview" data-inset="true">
-                    <li data-role="list-divider" data-theme="b" data-translate="Device Settings"></li>
-                    <li class="ui-field-contain manual_mode">
-                        <label for="mm"><b data-translate="Manual Mode"></b></label>
-                        <input type="checkbox" data-on-text="On" data-off-text="Off" data-role="flipswitch" name="mm" id="mm">
-                    </li>
-                    <li class="ui-field-contain">
-                        <label for="en"><b data-translate="Operation"></b></label>
-                        <input type="checkbox" data-on-text="On" data-off-text="Off" data-role="flipswitch" name="en" id="en">
-                    </li>
-                    <li class="change_password"><a href="#" data-translate="Change Password"></a></li>
-                    <li data-icon="alert"><a href="#" class="reboot-os" data-translate="Reboot OpenSprinkler"></a></li>
-                    <li class="weather_settings"><a href="#weather_settings" data-translate="Weather Settings"></a></li>
-                </ul>
-                <ul data-role="listview" data-inset="true">
-                    <li data-role="list-divider" data-theme="b" data-translate="Application Settings"></li>
-                    <li class="multiSite" data-icon="alert"><a href="#" class="clear-config" data-translate="Clear Configuration"></a></li>
-                    <li class="localSite hidden" data-icon="alert"><a id="downgradeui" href="#" data-translate="Downgrade UI"></a></li>
-                    <li><a href="#localization" data-rel="popup" data-position-to="window" data-translate="Localization"></a></li>
-                    <li class="localSite hidden" data-icon="power"><a id="logout" href="#" data-translate="Logout"></a></li>
-                    <li class="multiSite" data-icon="gear"><a href="#site-control" data-translate="Manage Sites"></a></li>
-                    <li data-icon="cloud"><a href="#" class="show-providers" data-translate="Weather Provider"></a></li>
-                </ul>
-            </div>
-            <div data-role="popup" data-overlay-theme="b" id="localization" data-corners="false">
-                    <ul data-inset='true' data-role='listview' id='lang' data-corners="false">
-                        <li data-role='list-divider' data-theme='b' class="center" data-translate="Localization"></li>
-                        <li><a href="#" data-lang-code="af" data-translate="Afrikaans"></a></li>
-                        <li><a href="#" data-lang-code="zh" data-translate="Chinese"></a></li>
-                        <li><a href="#" data-lang-code="cs" data-translate="Czech"></a></li>
-                        <li><a href="#" data-lang-code="nl" data-translate="Dutch"></a></li>
-                        <li><a href="#" data-lang-code="en" data-translate="English"></a></li>
-                        <li><a href="#" data-lang-code="fr" data-translate="French"></a></li>
-                        <li><a href="#" data-lang-code="de" data-translate="German"></a></li>
-                        <li><a href="#" data-lang-code="he" data-translate="Hebrew"></a></li>
-                        <li><a href="#" data-lang-code="hu" data-translate="Hungarian"></a></li>
-                        <li><a href="#" data-lang-code="it" data-translate="Italian"></a></li>
-                        <li><a href="#" data-lang-code="mn" data-translate="Mongolian"></a></li>
-                        <li><a href="#" data-lang-code="no" data-translate="Norwegian"></a></li>
-                        <li><a href="#" data-lang-code="pl" data-translate="Polish"></a></li>
-                        <li><a href="#" data-lang-code="pt" data-translate="Portuguese"></a></li>
-                        <li><a href="#" data-lang-code="sk" data-translate="Slovak"></a></li>
-                        <li><a href="#" data-lang-code="sl" data-translate="Slovenian"></a></li>
-                        <li><a href="#" data-lang-code="es" data-translate="Spanish"></a></li>
-                    </ul>
-            </div>
-        </div>
-
         <div data-role="page" id="forecast">
             <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false">
                 <a role="button" href="javascript:void(0);" class="ui-btn ui-corner-all ui-shadow ui-btn-left ui-btn-b ui-toolbar-back-btn ui-icon-carat-l ui-btn-icon-left" data-rel="back" data-translate="Back"></a>
@@ -133,7 +78,21 @@
                 <li class="multiSite" data-icon="gear"><a href="#site-control" data-translate="Manage Sites"></a></li>
                 <li data-icon="action"><a href="#" class="export_config" data-translate="Export Configuration"></a></li>
                 <li data-icon="back"><a href="#" class="import_config" data-translate="Import Configuration"></a></li>
+                <li data-icon="cloud"><a href="#" class="show-providers" data-translate="Weather Provider"></a></li>
+                <li class="weather_settings"><a href="#weather_settings" data-translate="Weather Settings"></a></li>
                 <li data-icon="info"><a href="#about" data-translate="About"></a></li>
+                <li><a href="#localization" data-translate="Localization"></a></li>
+                <li class="localSite hidden" data-icon="power"><a id="logout" href="#" data-translate="Logout"></a></li>
+                <li data-role="list-divider" data-translate="Advanced"></li>
+                <li class="ui-field-contain">
+                    <label for="en"><b data-translate="Operation"></b></label>
+                    <input type="checkbox" data-on-text="On" data-off-text="Off" data-role="flipswitch" name="en" id="en">
+                </li>
+                <li class="change_password"><a href="#" data-translate="Change Password"></a></li>
+                <li class="multiSite" data-icon="alert"><a href="#" class="clear-config" data-translate="Clear Configuration"></a></li>
+                <li data-icon="alert"><a href="#" class="reboot-os" data-translate="Reboot OpenSprinkler"></a></li>
+                <li class="localSite hidden" data-icon="alert"><a id="downgradeui" href="#" data-translate="Downgrade UI"></a></li>
+                <li class="weatherAdjust"><a href="#debugWU" data-translate="WUnderground Diagnostics"></a></li>
             </ul>
         </div>
     </body>
