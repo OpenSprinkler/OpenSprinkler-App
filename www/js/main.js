@@ -2058,11 +2058,15 @@ function debugWU() {
         return;
     }
 
+    $.mobile.loading("show");
+
     $.ajax({
         url: "http://api.wunderground.com/api/"+controller.settings.wtkey+"/yesterday/conditions/q/"+controller.settings.loc+".json",
         dataType: isChromeApp ? "json" : "jsonp"
     }).retry({times:retryCount, statusCodes: [0]}).done(function(data){
-        if (typeof data.response.error === "object" && data.response.error.type === "keynotfound") {
+        $.mobile.loading("hide");
+
+        if (typeof data.response.error === "object") {
             showerror(_("An invalid API key has been detected"));
             return;
         }
@@ -2092,6 +2096,7 @@ function debugWU() {
             return;
         }
     }).fail(function(){
+        $.mobile.loading("hide");
         showerror(_("Connection timed-out. Please try again."));
     });
 }
@@ -2112,7 +2117,10 @@ function testAPIKey(key,callback) {
 }
 
 function open_panel() {
-    var panel = $("#sprinklers-settings");
+    var panel = $("#sprinklers-settings"),
+        operation = function(){
+            return controller.settings.en === 1 ? _("Disable") : _("Enable");
+        };
 
     panel.panel("option","classes.modal","needsclick ui-panel-dismiss");
 
@@ -2139,12 +2147,24 @@ function open_panel() {
         return false;
     });
 
-    var en = $("#en");
-    en.prop("checked",controller.settings.en);
-    if (en.hasClass("ui-flipswitch-input")) {
-        en.flipswitch("refresh");
-    }
-    en.on("change",flipSwitched);
+    panel.find(".toggleOperation").on("click",function(){
+        var self = $(this),
+            toValue = (1-controller.settings.en);
+
+        areYouSure(_("Are you sure you want to")+" "+operation().toLowerCase()+" "+_("operation?"),"",function(){
+            send_to_os("/cv?pw=&en="+toValue).done(function(){
+                $.when(
+                    update_controller_settings(),
+                    update_controller_status()
+                ).done(function(){
+                    check_status();
+                    self.find("span:first").html(operation());
+                });
+            });
+        });
+
+        return false;
+    }).find("span:first").html(operation());
 
     panel.find(".reboot-os").off("click").on("click",function(){
         areYouSure(_("Are you sure you want to reboot OpenSprinkler?"), "", function() {
