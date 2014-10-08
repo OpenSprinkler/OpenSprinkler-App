@@ -198,6 +198,45 @@ msgstr ""
 msgid "Select City"
 msgstr ""
 
+msgid "An API key must be provided for Weather Underground"
+msgstr ""
+
+msgid "An invalid API key has been detected"
+msgstr ""
+
+msgid "Min Humidity"
+msgstr ""
+
+msgid "Max Humidity"
+msgstr ""
+
+msgid "Mean Temp"
+msgstr ""
+
+msgid "Precip Yesterday"
+msgstr ""
+
+msgid "Precip Today"
+msgstr ""
+
+msgid "Current % Watering"
+msgstr ""
+
+msgid "Weather data cannot be found for your location"
+msgstr ""
+
+msgid "Disable"
+msgstr ""
+
+msgid "Enable"
+msgstr ""
+
+msgid "Are you sure you want to"
+msgstr ""
+
+msgid "operation?"
+msgstr ""
+
 msgid "Are you sure you want to reboot OpenSprinkler?"
 msgstr ""
 
@@ -207,9 +246,6 @@ msgstr ""
 msgid ""
 "Are you sure you want to delete all settings and return to the default "
 "settings?"
-msgstr ""
-
-msgid "An API key must be provided for Weather Underground"
 msgstr ""
 
 msgid "New Password"
@@ -372,10 +408,7 @@ msgid ""
 "disables the pulsing option."
 msgstr ""
 
-msgid "Ignore Password"
-msgstr ""
-
-msgid "Use DHCP (restart required)"
+msgid "NTP IP Address"
 msgstr ""
 
 msgid "IP Address"
@@ -384,7 +417,10 @@ msgstr ""
 msgid "Gateway Address"
 msgstr ""
 
-msgid "NTP IP Address"
+msgid "Use DHCP (restart required)"
+msgstr ""
+
+msgid "Ignore Password"
 msgstr ""
 
 msgid ""
@@ -430,9 +466,6 @@ msgstr ""
 msgid "Activate Relay"
 msgstr ""
 
-msgid "Disable"
-msgstr ""
-
 msgid "Stations have been updated"
 msgstr ""
 
@@ -440,6 +473,9 @@ msgid "Station test activated"
 msgstr ""
 
 msgid "Reset"
+msgstr ""
+
+msgid "Current Status"
 msgstr ""
 
 msgid "Master"
@@ -852,9 +888,6 @@ msgstr ""
 msgid "Repeat Count"
 msgstr ""
 
-msgid "Enable"
-msgstr ""
-
 msgid "Run"
 msgstr ""
 
@@ -994,70 +1027,7 @@ msgstr ""
 msgid "Thu"
 msgstr ""
 
-msgid "Sprinkler System"
-msgstr ""
-
-msgid ""
-"Welcome to the OpenSprinkler application. This app only works with the "
-"OpenSprinkler controller which must be installed and setup on your home "
-"network."
-msgstr ""
-
-msgid "Weather"
-msgstr ""
-
-msgid "Current Status"
-msgstr ""
-
-msgid "Preview Programs"
-msgstr ""
-
-msgid "View Logs"
-msgstr ""
-
-msgid "Programs and Settings"
-msgstr ""
-
-msgid "Run-Once Program"
-msgstr ""
-
-msgid "Edit Programs"
-msgstr ""
-
-msgid "Stop All Stations"
-msgstr ""
-
-msgid "Export Configuration"
-msgstr ""
-
-msgid "Import Configuration"
-msgstr ""
-
-msgid "Settings"
-msgstr ""
-
-msgid "Device Settings"
-msgstr ""
-
-msgid "Operation"
-msgstr ""
-
-msgid "Reboot OpenSprinkler"
-msgstr ""
-
-msgid "Application Settings"
-msgstr ""
-
-msgid "Clear Configuration"
-msgstr ""
-
-msgid "Downgrade UI"
-msgstr ""
-
 msgid "Localization"
-msgstr ""
-
-msgid "Logout"
 msgstr ""
 
 msgid "Afrikaans"
@@ -1111,5 +1081,56 @@ msgstr ""
 msgid "Spanish"
 msgstr ""
 
+msgid ""
+"Welcome to the OpenSprinkler application. This app only works with the "
+"OpenSprinkler controller which must be installed and setup on your home "
+"network."
+msgstr ""
+
+msgid "Weather"
+msgstr ""
+
+msgid "Preview Programs"
+msgstr ""
+
+msgid "View Logs"
+msgstr ""
+
+msgid "Programs and Settings"
+msgstr ""
+
+msgid "Run-Once Program"
+msgstr ""
+
+msgid "Edit Programs"
+msgstr ""
+
+msgid "Stop All Stations"
+msgstr ""
+
 msgid "Forecast"
+msgstr ""
+
+msgid "Export Configuration"
+msgstr ""
+
+msgid "Import Configuration"
+msgstr ""
+
+msgid "Logout"
+msgstr ""
+
+msgid "Operation"
+msgstr ""
+
+msgid "Clear Configuration"
+msgstr ""
+
+msgid "Reboot OpenSprinkler"
+msgstr ""
+
+msgid "Downgrade UI"
+msgstr ""
+
+msgid "WUnderground Diagnostics"
 msgstr ""
