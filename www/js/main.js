@@ -197,11 +197,6 @@ $(document)
         return false;
     });
 
-    // Initialize external panel
-    setTimeout(function(){
-        $("#sprinklers-settings").enhanceWithin().panel().removeClass("hidden");
-    },0);
-
     // Bind event handler to open panel when swiping right
     $.mobile.document.on("swiperight",".ui-page",function() {
         if ($(".ui-page-active").jqmData("panel") !== "open" && !$(".ui-page-active .ui-popup-active").length) {
@@ -327,6 +322,9 @@ $(document)
 
     //Attach FastClick handler
     FastClick.attach(document.body);
+
+    // Initialize external panel
+    $("#sprinklers-settings").enhanceWithin().panel().removeClass("hidden");
 })
 // Handle OS resume event triggered by PhoneGap
 .on("resume",function(){
@@ -6189,6 +6187,8 @@ function getOSVersion(fwv) {
 
 // Accessory functions for jQuery Mobile
 function areYouSure(text1, text2, callback) {
+    $("#sure").popup("destroy").remove();
+
     var popup = $(
         "<div data-role='popup' data-overlay-theme='b' id='sure'>"+
             "<h3 class='sure-1 center'>"+text1+"</h3>"+
@@ -6709,7 +6709,8 @@ function goHome() {
         });
         changePage("#sprinklers",{
             "firstLoad": true,
-            "showLoading": false
+            "showLoading": false,
+            "transition": "none"
         });
     }
 }
@@ -6982,7 +6983,7 @@ function languageSelect() {
         codes = {af: _("Afrikaans"), zh: _("Chinese"), cs: _("Czech"), nl: _("Dutch"), en: _("English"), fr: _("French"), de: _("German"), he: _("Hebrew"), hu: _("Hungarian"), it: _("Italian"), mn: _("Mongolian"), no: _("Norwegian"), pl: _("Polish"), pt: _("Portuguese"), sk: _("Slovak"), sl: _("Slovenian"), es: _("Spanish")};
 
     $.each(codes,function(key,name){
-        popup += "<li><a href='#' data-lang-code='"+key+"'>"+name+"</a></li>";
+        popup += "<li><a href='#' data-translate='"+name+"' data-lang-code='"+key+"'>"+name+"</a></li>";
     });
 
     popup += "</ul></div>";
