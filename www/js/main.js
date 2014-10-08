@@ -6969,6 +6969,13 @@ function languageSelect() {
 
     popup = $(popup);
 
+    popup.find("a").on("click",function(){
+        var link = $(this),
+            lang = link.data("lang-code");
+
+        update_lang(lang);
+    });
+
     $(".ui-page-active").append(popup);
 
     popup
