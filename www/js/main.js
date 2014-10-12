@@ -3247,9 +3247,9 @@ function get_status() {
 
             if (checkOSVersion(210)) {
                 weatherInfo = "<div class='ui-grid-b status-daily'>";
-                weatherInfo += "<div class='center ui-block-a'>"+pad(parseInt(controller.settings.sunrise/60)%24)+":"+pad(controller.settings.sunrise%60)+"<br>Sunrise</div>";
-                weatherInfo += "<div class='center ui-block-b'>"+controller.options.wl+"%<br>Water Level</div>";
-                weatherInfo += "<div class='center ui-block-c'>"+pad(parseInt(controller.settings.sunset/60)%24)+":"+pad(controller.settings.sunset%60)+"<br>Sunset</div>";
+                weatherInfo += "<div class='center ui-block-a'>"+pad(parseInt(controller.settings.sunrise/60)%24)+":"+pad(controller.settings.sunrise%60)+"<br>"+_("Sunrise")+"</div>";
+                weatherInfo += "<div class='center ui-block-b'>"+controller.options.wl+"%<br>"+_("Water Level")+"</div>";
+                weatherInfo += "<div class='center ui-block-c'>"+pad(parseInt(controller.settings.sunset/60)%24)+":"+pad(controller.settings.sunset%60)+"<br>"+_("Sunset")+"</div>";
                 weatherInfo += "</div>";
             }
 
@@ -3265,7 +3265,7 @@ function get_status() {
     updateContent();
 
     // Bind delegate handler to stop specific station (supported on firmware 2.1.0+ on Arduino)
-    page.off("click","li").on("click","li",function(){
+    page.on("click","li",function(){
         var el = $(this),
             station = el.index(),
             currentStatus = controller.status[station],
@@ -3289,6 +3289,24 @@ function get_status() {
             });
         }
     });
+
+    if (checkOSVersion(210)) {
+        page.on("click",".ui-block-b",function(){
+            popup = $("<div data-role='popup'>" +
+                "<p>"+_("The watering percentage scales station run times by the set value. When weather adjustment is used the watering percentage is automatically adjusted.")+"</p>" +
+            "</div>");
+
+            popup.one("popupafterclose", function(){
+                popup.popup("destroy").remove();
+            }).enhanceWithin();
+
+            $(".ui-page-active").append(popup);
+
+            popup.popup({history: false, positionTo: this}).popup("open");
+
+            return false;
+        });
+    }
 
     page.one({
         pagehide: function(){
