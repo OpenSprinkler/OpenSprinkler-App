@@ -517,6 +517,15 @@ msgstr ""
 msgid "Rain detected"
 msgstr ""
 
+msgid "Sunrise"
+msgstr ""
+
+msgid "Water Level"
+msgstr ""
+
+msgid "Sunset"
+msgstr ""
+
 msgid "Do you want to stop the selected station?"
 msgstr ""
 
