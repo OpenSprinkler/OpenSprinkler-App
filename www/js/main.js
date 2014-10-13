@@ -3292,7 +3292,7 @@ function get_status() {
 
     if (checkOSVersion(210)) {
         page.on("click",".ui-block-b",function(){
-            popup = $("<div data-role='popup'>" +
+            var popup = $("<div data-role='popup'>" +
                 "<p>"+_("The watering percentage scales station run times by the set value. When weather adjustment is used the watering percentage is automatically adjusted.")+"</p>" +
             "</div>");
 
