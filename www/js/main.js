@@ -3210,7 +3210,7 @@ function get_status() {
                 var lrpid = controller.settings.lrun[1];
                 var pname= pidname(lrpid);
 
-                footer = "<p>"+pname+" "+_("last ran station")+" "+controller.stations.snames[controller.settings.lrun[0]]+" "+_("for")+" "+(lrdur/60>>0)+"m "+(lrdur%60)+"s "+_("on")+" "+dateToString(new Date(controller.settings.lrun[3]*1000))+"</p>";
+                footer = pname+" "+_("last ran station")+" "+controller.stations.snames[controller.settings.lrun[0]]+" "+_("for")+" "+(lrdur/60>>0)+"m "+(lrdur%60)+"s "+_("on")+" "+dateToString(new Date(controller.settings.lrun[3]*1000));
             }
 
             // Display header information
