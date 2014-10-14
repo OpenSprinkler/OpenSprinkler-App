@@ -896,7 +896,7 @@ function update_controller_settings(callback) {
     } else {
         return send_to_os("/jc?pw=","json").then(
             function(settings){
-                if (typeof settings.lrdur === "undefined") {
+                if (typeof settings.lrun === "undefined") {
                     settings.lrun = [0,0,0,0];
                 }
                 controller.settings = settings;
