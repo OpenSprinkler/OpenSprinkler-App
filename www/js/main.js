@@ -4752,8 +4752,10 @@ function get_logs() {
     zones.scroll(showArrows);
 
     $.mobile.window.resize(function(){
-        showArrows();
-        seriesChange();
+        if (logs.find("#log_graph").is(":checked") && placeholder.is(":visible")) {
+            showArrows();
+            seriesChange();
+        }
     });
 
     // Bind clear logs button
