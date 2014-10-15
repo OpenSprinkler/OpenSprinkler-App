@@ -4746,7 +4746,6 @@ function get_logs() {
         logtimeout, hovertimeout, i;
 
     logs.find("input").blur();
-    $.mobile.loading("show");
 
     //Update left/right arrows when zones are scrolled on log page
     zones.scroll(showArrows);
