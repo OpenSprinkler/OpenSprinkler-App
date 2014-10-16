@@ -835,7 +835,7 @@ function update_controller_status(callback) {
     if (curr_183 === true) {
         return send_to_os("/sn0").then(
             function(status){
-                var tmp = status.match(/\d+/);
+                var tmp = status.toString().match(/\d+/);
 
                 tmp = parseIntArray(tmp[0].split(""));
 
