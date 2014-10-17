@@ -3932,7 +3932,9 @@ function get_preview() {
                             }
                             if(prog[4][sid] && !et_array[sid]) {  // skip if water time is zero, or station is already scheduled
                                 if(prog[0]&0x02) {  // use weather scaling bit on
-                                  et_array[sid]=prog[4][sid]*(simday === devday ? (controller.options.wl/100>>0) : 1);
+                                    if ((controller.options.uwt > 0 && simday === devday) || controller.options.uwt === 0) {
+                                        et_array[sid]=prog[4][sid] * controller.options.wl/100>>0;
+                                    }
                                 } else {
                                   et_array[sid]=prog[4][sid];
                                 }
@@ -3943,7 +3945,7 @@ function get_preview() {
                             }
                         } else {
                             if(prog[7+bid]&(1<<s)) {
-                                et_array[sid]=prog[6]*(simday === devday ? (controller.options.wl/100>>0) : 1);
+                                et_array[sid]=prog[6] * controller.options.wl/100>>0;
                                 pid_array[sid]=pid+1;
                                 match_found=1;
                             }
