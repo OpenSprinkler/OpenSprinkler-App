@@ -3931,10 +3931,8 @@ function get_preview() {
                                 continue; // skip disabled stations
                             }
                             if(prog[4][sid] && !et_array[sid]) {  // skip if water time is zero, or station is already scheduled
-                                if(prog[0]&0x02) {  // use weather scaling bit on
-                                    if ((controller.options.uwt > 0 && simday === devday) || controller.options.uwt === 0) {
-                                        et_array[sid]=prog[4][sid] * controller.options.wl/100>>0;
-                                    }
+                                if(prog[0]&0x02 && ((controller.options.uwt > 0 && simday === devday) || controller.options.uwt === 0)) {  // use weather scaling bit on
+                                    et_array[sid]=prog[4][sid] * controller.options.wl/100>>0;
                                 } else {
                                   et_array[sid]=prog[4][sid];
                                 }
