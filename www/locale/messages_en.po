@@ -332,7 +332,7 @@ msgstr ""
 msgid "Station Handling"
 msgstr ""
 
-msgid "Extension Boards"
+msgid "Expansion Boards"
 msgstr ""
 
 msgid "detected"
