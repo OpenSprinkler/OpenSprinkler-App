@@ -199,7 +199,7 @@ $(document)
 
     // Bind event handler to open panel when swiping right
     $.mobile.document.on("swiperight",".ui-page",function() {
-        if ($(".ui-page-active").jqmData("panel") !== "open" && !$(".ui-page-active .ui-popup-active").length) {
+        if ($(".ui-page-active").jqmData("panel") !== "open" && !$(".ui-page-active .ui-popup-active").length && $(".ui-page-active").attr("id") !== "preview") {
             open_panel();
         }
     });
