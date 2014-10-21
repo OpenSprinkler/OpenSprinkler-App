@@ -2431,7 +2431,7 @@ function show_options() {
     list += "</fieldset><fieldset data-role='collapsible'><legend>"+_("Station Handling")+"</legend>";
 
     if (typeof controller.options.ext !== "undefined") {
-        list += "<div class='ui-field-contain duration-field'><label for='o15'>"+_("Extension Boards")+(controller.options.dexp && controller.options.dexp < 255 ? " ("+controller.options.dexp+" "+_("detected")+")" : "")+"</label><button data-mini='true' id='o15' value='"+controller.options.ext+"'>"+controller.options.ext+" "+_("board(s)")+"</button></div>";
+        list += "<div class='ui-field-contain duration-field'><label for='o15'>"+_("Expansion Boards")+(controller.options.dexp && controller.options.dexp < 255 ? " ("+controller.options.dexp+" "+_("detected")+")" : "")+"</label><button data-mini='true' id='o15' value='"+controller.options.ext+"'>"+controller.options.ext+" "+_("board(s)")+"</button></div>";
     }
 
     if (typeof controller.options.sdt !== "undefined") {
@@ -2664,7 +2664,7 @@ function show_options() {
                 callback: function(result){
                     dur.val(result).text(result+" board(s)");
                 },
-                label: _("Extension Boards"),
+                label: _("Expansion Boards"),
                 maximum: 5,
                 helptext: helptext
             });
