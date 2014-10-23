@@ -221,22 +221,24 @@ $(document)
 
         hash = $.mobile.path.parseUrl(page).hash;
 
-        if (hash === "#"+currPage.attr("id") && (hash === "#programs" || hash === "#site-control")) {
-            // Cancel page load when navigating to the same page
-            e.preventDefault();
+        if (hash === "#"+currPage.attr("id")) {
+            if (hash === "#programs" || hash === "#site-control") {
+                // Cancel page load when navigating to the same page
+                e.preventDefault();
 
-            // Allow pages to navigate back by adjusting active index in history
-            $.mobile.navigate.history.activeIndex--;
+                // Allow pages to navigate back by adjusting active index in history
+                $.mobile.navigate.history.activeIndex--;
 
-            // Remove the current page from the DOM
-            currPage.remove();
+                // Remove the current page from the DOM
+                currPage.remove();
 
-            // Change to page without any animation or history change
-            changePage(hash,{
-                transition: "none",
-                showLoadMsg: false,
-                showBack: data.options.showBack
-            });
+                // Change to page without any animation or history change
+                changePage(hash,{
+                    transition: "none",
+                    showLoadMsg: false,
+                    showBack: data.options.showBack
+                });
+            }
             return;
         }
 
