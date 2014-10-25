@@ -6041,7 +6041,7 @@ function show_support_ticket() {
     var page = $("<div data-role='page' id='supportTicket'>" +
             "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false'>" +
                 "<a href='javascript:void(0);' class='ui-btn ui-corner-all ui-shadow ui-btn-left ui-btn-b ui-toolbar-back-btn ui-icon-carat-l ui-btn-icon-left' data-rel='back'>"+_("Back")+"</a>" +
-                "<h3>"+_("Help & Support")+"</h3>" +
+                "<h3>"+_("Help &amp; Support")+"</h3>" +
             "</div>" +
             "<div class='ui-content' role='main' style='visibility:hidden'>" +
                 "<iframe class='freshwidget-embedded-form' id='freshwidget-embedded-form' src='https://opensprinkler.freshdesk.com/widgets/feedback_widget/new?&widgetType=embedded&screenshot=no&formTitle=&nbsp;' scrolling='no' width='100%' frameborder='0'></iframe>" +
