@@ -6039,7 +6039,7 @@ function show_about() {
             "<div class='ui-content' role='main'>" +
                 "<ul data-role='listview' data-inset='true'>" +
                     "<li>" +
-                        "<p>"+_("User manual for OpenSprinkler is available at")+" <a class='iab' target='_blank' href='http://rayshobby.net/?page_id=192'>http://rayshobby.net/?page_id=192</a></p>" +
+                        "<p>"+_("User manual for OpenSprinkler is available at")+" <a class='iab' target='_blank' href='https://opensprinkler.com/wp-content/uploads/2014/10/os_fw210_manual.pdf'>https://opensprinkler.com/user-manual/</a></p>" +
                     "</li>" +
                 "</ul>" +
                 "<ul data-role='listview' data-inset='true'>" +
