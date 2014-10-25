@@ -979,6 +979,9 @@ msgstr ""
 msgid "Unable to import configuration."
 msgstr ""
 
+msgid "Help & Support"
+msgstr ""
+
 msgid "About"
 msgstr ""
 
@@ -1040,6 +1043,9 @@ msgid "Localization"
 msgstr ""
 
 msgid "Afrikaans"
+msgstr ""
+
+msgid "Amharic"
 msgstr ""
 
 msgid "Chinese"
@@ -1124,6 +1130,9 @@ msgid "Export Configuration"
 msgstr ""
 
 msgid "Import Configuration"
+msgstr ""
+
+msgid "Help &amp; Support"
 msgstr ""
 
 msgid "Logout"
