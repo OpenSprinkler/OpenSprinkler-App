@@ -259,6 +259,8 @@ $(document)
             get_manual();
         } else if (hash === "#about") {
             show_about();
+        } else if (hash === "#supportTicket") {
+            show_support_ticket();
         } else if (hash === "#runonce") {
             get_runonce();
         } else if (hash === "#os-options") {
@@ -2131,6 +2133,11 @@ function open_panel() {
 
     panel.find("a[href='#about']").off("click").one("click",function(){
         changeFromPanel("about");
+        return false;
+    });
+
+    panel.find("a[href='#supportTicket']").off("click").one("click",function(){
+        changeFromPanel("supportTicket");
         return false;
     });
 
@@ -6027,6 +6034,33 @@ function import_config(data) {
             }
         );
     });
+}
+
+// New ticket page
+function show_support_ticket() {
+    var page = $("<div data-role='page' id='supportTicket'>" +
+            "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false'>" +
+                "<a href='javascript:void(0);' class='ui-btn ui-corner-all ui-shadow ui-btn-left ui-btn-b ui-toolbar-back-btn ui-icon-carat-l ui-btn-icon-left' data-rel='back'>"+_("Back")+"</a>" +
+                "<h3>"+_("Help & Support")+"</h3>" +
+            "</div>" +
+            "<div class='ui-content' role='main' style='visibility:hidden'>" +
+                "<iframe class='freshwidget-embedded-form' id='freshwidget-embedded-form' src='https://opensprinkler.freshdesk.com/widgets/feedback_widget/new?&widgetType=embedded&screenshot=no&formTitle=&nbsp;' scrolling='no' width='100%' frameborder='0'></iframe>" +
+            "</div>" +
+        "</div>");
+
+    page.one({
+        pagehide: function(){
+            page.remove();
+        },
+        pageshow: function(){
+            setTimeout(function(){
+                page.find(".ui-content").css("visibility","visible");
+            }, 1);
+        }
+    });
+
+    $("#supportTicket").remove();
+    page.appendTo("body");
 }
 
 // About page
