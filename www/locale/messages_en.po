@@ -979,7 +979,7 @@ msgstr ""
 msgid "Unable to import configuration."
 msgstr ""
 
-msgid "Help & Support"
+msgid "Help &amp; Support"
 msgstr ""
 
 msgid "About"
@@ -1130,9 +1130,6 @@ msgid "Export Configuration"
 msgstr ""
 
 msgid "Import Configuration"
-msgstr ""
-
-msgid "Help &amp; Support"
 msgstr ""
 
 msgid "Logout"
