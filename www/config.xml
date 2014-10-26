@@ -20,6 +20,7 @@
         <gap:plugin name="com.albahra.plugin.networkinterface" />
         <gap:plugin name="org.apache.cordova.inappbrowser" />
         <gap:plugin name="org.apache.cordova.splashscreen" />
+        <gap:plugin name="org.apache.cordova.geolocation" />
 
         <gap:config-file platform="ios" parent="CFBundleShortVersionString">
             <string>123</string>
