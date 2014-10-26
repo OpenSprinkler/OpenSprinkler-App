@@ -2054,6 +2054,64 @@ function resolveLocation(loc,callback) {
     });
 }
 
+function nearbyPWS(lat,lon,callback) {
+    // Looks up the location and shows a list possible matches for selection
+    // Returns the selection to the callback
+
+    callback = callback || function(){};
+
+    if (!lat || !lon) {
+        callback(false);
+        return;
+    }
+
+    $.ajax({
+        url: "http://api.wunderground.com/api/"+controller.settings.wtkey+"/geolookup/q/"+encodeURIComponent(lat)+","+encodeURIComponent(lon)+".json",
+        dataType: isChromeApp ? "json" : "jsonp"
+    }).retry({times:retryCount, statusCodes: [0]}).done(function(data){
+        data = data.location.nearby_weather_stations.pws.station;
+
+        if (data.length === 0) {
+            callback(false);
+            return;
+        } else if (data.length === 1) {
+            callback(data[0].id);
+            return;
+        }
+
+        var items = "";
+        for (var i=0; i<data.length; i++) {
+            items += "<li><a data-pws='"+data[i].id+"'><h3>"+(data[i].city ? data[i].city+", " : "")+(data[i].state ? data[i].state+", " : "")+data[i].country+"</h3><p>"+data[i].neighborhood+"; "+data[i].distance_mi+" miles away</p></a></li>";
+        }
+
+        if (items === "") {
+            callback(false);
+            return;
+        }
+
+        var popup = $("<div data-role='popup' id='location-list' data-theme='a' data-overlay-theme='b'>" +
+                "<div data-role='header' data-theme='b'>" +
+                    "<h1>"+_("Select Weather Station")+"</h1>" +
+                "</div>" +
+                "<div class='ui-content'>" +
+                    "<ul data-role='listview'>" +
+                        items +
+                    "</ul>" +
+                "</div>" +
+            "</div>");
+
+        popup.on("click","a",function(){
+            popup.popup("close");
+            callback(this.dataset.pws);
+        }).one("popupafterclose",function(){
+            popup.popup("destroy").remove();
+        }).popup({
+            history: false,
+            positionTo: "window"
+        }).enhanceWithin().popup("open");
+    });
+}
+
 function debugWU() {
     if (typeof controller.settings.wtkey !== "string" || controller.settings.wtkey === "") {
         showerror(_("An API key must be provided for Weather Underground"));
@@ -2555,22 +2613,39 @@ function show_options() {
             return;
         }
 
-        button.prop("disabled",true);
-
-        resolveLocation(current,function(selected){
-            if (selected === false) {
-                page.find("#o1").parents(".ui-field-contain").removeClass("hidden");
-                showerror(_("Unable to locate using:")+" "+current+". "+_("Please use another value and try again."));
-            } else {
-                if (checkOSVersion(210)) {
-                    page.find("#o1").parents(".ui-field-contain").addClass("hidden");
-                }
-                selected = selected.replace(/^[0-9]{5}\s-\s/,"");
-                loc.parent().addClass("green");
-                loc.val(selected);
+        if (current === "") {
+            if (controller.settings.wtkey === "") {
+                return false;
             }
-            button.prop("disabled",false);
-        });
+            try {
+                navigator.geolocation.getCurrentPosition(function(position){
+                    button.prop("disabled",true);
+                    nearbyPWS(position.coords.latitude,position.coords.longitude,function(selected){
+                        if (selected !== false) {
+                            loc.parent().addClass("green");
+                            loc.val("pws:"+selected);
+                        }
+                        button.prop("disabled",false);
+                    });
+                });
+            } catch(err) {}
+        } else {
+            button.prop("disabled",true);
+            resolveLocation(current,function(selected){
+                if (selected === false) {
+                    page.find("#o1").parents(".ui-field-contain").removeClass("hidden");
+                    showerror(_("Unable to locate using:")+" "+current+". "+_("Please use another value and try again."));
+                } else {
+                    if (checkOSVersion(210)) {
+                        page.find("#o1").parents(".ui-field-contain").addClass("hidden");
+                    }
+                    selected = selected.replace(/^[0-9]{5}\s-\s/,"");
+                    loc.parent().addClass("green");
+                    loc.val(selected);
+                }
+                button.prop("disabled",false);
+            });
+        }
     });
 
     page.find("#verify-api").on("click",function(){
