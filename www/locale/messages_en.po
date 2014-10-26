@@ -198,6 +198,9 @@ msgstr ""
 msgid "Select City"
 msgstr ""
 
+msgid "Select Weather Station"
+msgstr ""
+
 msgid "An API key must be provided for Weather Underground"
 msgstr ""
 
