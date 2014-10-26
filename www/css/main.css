@@ -411,17 +411,6 @@ body {
     }
 }
 
-/* Help & Support rules */
-#freshwidget-embedded-form {
-    margin-top: -40px;
-    height: 540px;
-}
-@media (max-width: 752px) {
-    #freshwidget-embedded-form {
-        height: 1000px;
-    }
-}
-
 /* About page rules */
 
 #about p {
