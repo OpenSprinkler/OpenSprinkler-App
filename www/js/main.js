@@ -2592,31 +2592,35 @@ function show_options() {
     page.find("#lookup-loc").on("click",function(){
         var loc = $("#loc"),
             current = loc.val(),
-            button = $(this);
+            button = $(this),
+            exit = function(){
+                button.prop("disabled",false);
+                return false;
+            };
 
         if (/^pws:/.test(current)) {
             showerror(_("When using a personal weather station the location lookup is unavailable."));
             return;
         }
 
+        button.prop("disabled",true);
+
         if (current === "") {
             if (controller.settings.wtkey === "") {
-                return false;
+                exit();
             }
             try {
                 navigator.geolocation.getCurrentPosition(function(position){
-                    button.prop("disabled",true);
                     nearbyPWS(position.coords.latitude,position.coords.longitude,function(selected){
                         if (selected !== false) {
                             loc.parent().addClass("green");
                             loc.val("pws:"+selected);
                         }
-                        button.prop("disabled",false);
+                        exit();
                     });
                 });
             } catch(err) {}
         } else {
-            button.prop("disabled",true);
             resolveLocation(current,function(selected){
                 if (selected === false) {
                     page.find("#o1").parents(".ui-field-contain").removeClass("hidden");
@@ -2629,7 +2633,7 @@ function show_options() {
                     loc.parent().addClass("green");
                     loc.val(selected);
                 }
-                button.prop("disabled",false);
+                exit();
             });
         }
     });
