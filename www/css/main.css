@@ -414,7 +414,7 @@ body {
 /* Help & Support rules */
 #freshwidget-embedded-form {
     margin-top: -40px;
-    height: 500px;
+    height: 540px;
 }
 @media (max-width: 752px) {
     #freshwidget-embedded-form {
