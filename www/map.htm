@@ -4,12 +4,15 @@
     <meta charset="utf-8">
     <title>Weather Station Select</title>
     <script>
-        var map, infoWindow;
+        var map, infoWindow, start = [];
         document.addEventListener("click", function(e) {
             if (e.target.className.split(" ").indexOf("selectPWS") > -1) {
                 window.top.postMessage({"PWS": e.target.dataset.id},"*");
             }
         }, false);
+        window.onload = function(){
+            initialize(start[0],start[1]);
+        };
         function initialize(lat,lon) {
             var myLatlng = new google.maps.LatLng( lat, lon );
             var myOptions = {
@@ -23,7 +26,7 @@
         window.onmessage = function(e) {
             var data = e.data;
             if (data.type === "currentLocation") {
-                initialize(data.payload.lat,data.payload.lon);
+                start = [data.payload.lat,data.payload.lon];
                 plotMarker("orgin",{message: "Current Location"},data.payload.lat,data.payload.lon);
             } else if (data.type === "pwsData") {
                 data = JSON.parse(decodeURIComponent(data.payload));
