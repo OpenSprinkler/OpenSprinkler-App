@@ -278,19 +278,25 @@ body {
 
 #lookup-loc {
     height: 34px;
-    width: 55px;
+    width: 75px;
 }
 
 #nearbyPWS > button {
-    height: 34px;
+    height: 32px;
+    top: -1px;
     margin-left: -4px;
     border-bottom-right-radius: 3.90625px;
     border-top-right-radius: 3.90625px;
+    border-bottom-left-radius: 0;
+    border-top-left-radius: 0;
 }
 
 @media (max-width: 510px) {
     .controlgroup-textinput {
         height: 29px;
+    }
+    #nearbyPWS > button {
+        top: 0;
     }
 }
 
