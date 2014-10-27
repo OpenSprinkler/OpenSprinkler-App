@@ -2031,13 +2031,18 @@ function resolveLocation(loc,callback) {
                         items +
                     "</ul>" +
                 "</div>" +
-            "</div>");
+            "</div>"),
+            dataSent = false;
 
         popup.on("click","a",function(){
             popup.popup("close");
             callback(this.textContent);
+            dataSent = true;
         }).one("popupafterclose",function(){
             popup.popup("destroy").remove();
+            if (dataSent === false) {
+                callback(false);
+            }
         }).popup({
             history: false,
             positionTo: "window"
@@ -2089,13 +2094,18 @@ function nearbyPWS(lat,lon,callback) {
                         items +
                     "</ul>" +
                 "</div>" +
-            "</div>");
+            "</div>"),
+            dataSent = false;
 
         popup.on("click","a",function(){
             popup.popup("close");
             callback(this.dataset.pws);
+            dataSent = true;
         }).one("popupafterclose",function(){
             popup.popup("destroy").remove();
+            if (dataSent === false) {
+                callback(false);
+            }
         }).popup({
             history: false,
             positionTo: "window"
