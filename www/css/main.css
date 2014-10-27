@@ -256,6 +256,14 @@ body {
 .controlgroup-textinput {
     padding-top:.10em;
     padding-bottom:.10em;
+    height: 31px;
+    margin:0;
+    margin-right: -5px !important;
+    border-bottom-left-radius: 3.90625px !important;
+    border-top-left-radius: 3.90625px !important;
+}
+
+.wtkey .controlgroup-textinput {
     width: calc(100% - 120px);
 }
 
@@ -265,6 +273,17 @@ body {
 
 #os-options .ui-controlgroup-controls {
     display: block !important;
+}
+
+#lookup-loc {
+    height: 34px;
+}
+
+#nearbyPWS > button {
+    height: 34px;
+    margin-left: -4px;
+    border-bottom-right-radius: 3.90625px;
+    border-top-right-radius: 3.90625px;
 }
 
 @media (max-width: 480px) {
