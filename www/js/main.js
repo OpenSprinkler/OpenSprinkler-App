@@ -2445,7 +2445,7 @@ function show_options() {
         list += "</select></div>";
     }
 
-    list += "<div class='ui-field-contain'><fieldset data-role='controlgroup' data-type='horizontal'><legend for='loc'>"+_("Location")+"<button data-helptext='"+_("Location can be a zip code, city/state or a weatherunderground personal weather station using the format: pws:ID.")+"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></legend><input data-wrapper-class='controlgroup-textinput ui-btn' data-mini='true' type='text' id='loc' value='"+controller.settings.loc+"'><button class='noselect' id='lookup-loc' data-mini='true' style='width:55px'>"+_("Lookup")+"</button></fieldset></div>";
+    list += "<div class='ui-field-contain'><label for='loc'>"+_("Location")+"<button data-helptext='"+_("Location can be a zip code, city/state or a weatherunderground personal weather station using the format: pws:ID.")+"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><table><tr style='width:100%' class='ui-controlgroup-controls'><td style='width:100%'><input data-wrapper-class='controlgroup-textinput ui-btn' data-mini='true' type='text' id='loc' value='"+controller.settings.loc+"'></td><td style='width:55px'><button class='noselect' id='lookup-loc' data-mini='true'>"+_("Lookup")+"</button></td><td id='nearbyPWS'><button class='noselect' data-icon='location' data-iconpos='notext' data-mini='true'></button></td></tr></table></div>";
 
     if (typeof controller.options.ntp !== "undefined") {
         list += "<label for='o2'><input data-mini='true' id='o2' type='checkbox' "+((controller.options.ntp === 1) ? "checked='checked'" : "")+">"+_("NTP Sync")+"</label>";
@@ -2589,14 +2589,44 @@ function show_options() {
         }
     });
 
-    page.find("#lookup-loc").on("click",function(){
+    page.find("#nearbyPWS > button").on("click",function(){
         var loc = $("#loc"),
-            current = loc.val(),
             button = $(this),
             exit = function(){
                 button.prop("disabled",false);
                 return false;
             };
+
+        if (controller.settings.wtkey === "") {
+            exit();
+        }
+
+        button.prop("disabled",true);
+
+        try {
+            navigator.geolocation.getCurrentPosition(function(position){
+                nearbyPWS(position.coords.latitude,position.coords.longitude,function(selected){
+                    if (selected === false) {
+                        page.find("#o1").parents(".ui-field-contain").removeClass("hidden");
+                    } else {
+                        if (checkOSVersion(210)) {
+                            page.find("#o1").parents(".ui-field-contain").addClass("hidden");
+                        }
+                        loc.parent().addClass("green");
+                        loc.val("pws:"+selected);
+                    }
+                    exit();
+                });
+            },function(){
+                exit();
+            });
+        } catch(err) { exit(); }
+    });
+
+    page.find("#lookup-loc").on("click",function(){
+        var loc = $("#loc"),
+            current = loc.val(),
+            button = $(this);
 
         if (/^pws:/.test(current)) {
             showerror(_("When using a personal weather station the location lookup is unavailable."));
@@ -2605,37 +2635,20 @@ function show_options() {
 
         button.prop("disabled",true);
 
-        if (current === "") {
-            if (controller.settings.wtkey === "") {
-                exit();
-            }
-            try {
-                navigator.geolocation.getCurrentPosition(function(position){
-                    nearbyPWS(position.coords.latitude,position.coords.longitude,function(selected){
-                        if (selected !== false) {
-                            loc.parent().addClass("green");
-                            loc.val("pws:"+selected);
-                        }
-                        exit();
-                    });
-                });
-            } catch(err) {}
-        } else {
-            resolveLocation(current,function(selected){
-                if (selected === false) {
-                    page.find("#o1").parents(".ui-field-contain").removeClass("hidden");
-                    showerror(_("Unable to locate using:")+" "+current+". "+_("Please use another value and try again."));
-                } else {
-                    if (checkOSVersion(210)) {
-                        page.find("#o1").parents(".ui-field-contain").addClass("hidden");
-                    }
-                    selected = selected.replace(/^[0-9]{5}\s-\s/,"");
-                    loc.parent().addClass("green");
-                    loc.val(selected);
+        resolveLocation(current,function(selected){
+            if (selected === false) {
+                page.find("#o1").parents(".ui-field-contain").removeClass("hidden");
+                showerror(_("Unable to locate using:")+" "+current+". "+_("Please use another value and try again."));
+            } else {
+                if (checkOSVersion(210)) {
+                    page.find("#o1").parents(".ui-field-contain").addClass("hidden");
                 }
-                exit();
-            });
-        }
+                selected = selected.replace(/^[0-9]{5}\s-\s/,"");
+                loc.parent().addClass("green");
+                loc.val(selected);
+            }
+            button.prop("disabled",false);
+        });
     });
 
     page.find("#verify-api").on("click",function(){
