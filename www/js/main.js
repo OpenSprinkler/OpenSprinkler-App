@@ -397,6 +397,11 @@ function initApp() {
     //Update the language on the page using the browser's locale
     update_lang();
 
+    if (isiOS) {
+        var scale = window.screen.width === 414 ? "0.85" : (window.screen.width === 375 ? "0.925" : "1");
+        document.getElementById("viewport").setAttribute("content", "user-scalable=no, initial-scale="+scale+", minimum-scale="+scale+", maximum-scale="+scale+", width=device-width");
+    }
+
     // Fix CSS for IE Mobile (Windows Phone 8)
     if (isIEMobile) {
         insertStyle(".ui-toolbar-back-btn{display:none!important}ul{list-style: none !important;}@media(max-width:940px){.wicon{margin:-10px -10px -15px -15px !important}#forecast .wicon{position:relative;left:37.5px;margin:0 auto !important}}");
@@ -2075,40 +2080,55 @@ function nearbyPWS(lat,lon,callback) {
             return;
         }
 
-        var items = "";
-        for (var i=0; i<data.length; i++) {
-            items += "<li><a data-pws='"+data[i].id+"'><h3>"+(data[i].city ? data[i].city+", " : "")+(data[i].state ? data[i].state+", " : "")+data[i].country+"</h3><p>"+data[i].neighborhood+"; "+data[i].distance_mi+" miles away</p></a></li>";
-        }
-
-        if (items === "") {
-            callback(false);
-            return;
-        }
+        data = encodeURIComponent(JSON.stringify(data));
 
         var popup = $("<div data-role='popup' id='location-list' data-theme='a' data-overlay-theme='b'>" +
-                "<div data-role='header' data-theme='b'>" +
-                    "<h1>"+_("Select Weather Station")+"</h1>" +
-                "</div>" +
-                "<div class='ui-content'>" +
-                    "<ul data-role='listview'>" +
-                        items +
-                    "</ul>" +
-                "</div>" +
+                "<a href='#' data-rel='back' class='ui-btn ui-btn-b ui-corner-all ui-shadow ui-btn-a ui-icon-delete ui-btn-icon-notext ui-btn-right'>"+_("Close")+"</a>" +
+                    "<iframe style='border:none' src='map.htm' width='100%' height='100%' seamless=''></iframe>" +
             "</div>"),
+            iframe = popup.find("iframe"),
             dataSent = false;
 
-        popup.on("click","a",function(){
-            popup.popup("close");
-            callback(this.dataset.pws);
-            dataSent = true;
-        }).one("popupafterclose",function(){
+        // Wire in listener for communication from iframe
+        $(window).on("message onmessage", function(e) {
+            var data = e.originalEvent.data;
+            if (typeof data.PWS !== "undefined") {
+                callback(data.PWS);
+                dataSent = true;
+                popup.popup("close");
+            }
+        });
+
+        iframe.one("load",function(){
+            this.contentWindow.postMessage({
+                type: "currentLocation",
+                payload: {
+                    lat: lat,
+                    lon: lon
+                }
+            }, "*");
+
+            this.contentWindow.postMessage({
+                type: "pwsData",
+                payload: data
+            }, "*");
+        });
+
+        popup.one("popupafterclose",function(){
             popup.popup("destroy").remove();
             if (dataSent === false) {
                 callback(false);
             }
         }).popup({
             history: false,
-            positionTo: "window"
+            beforeposition: function(){
+                popup.css({
+                    width: window.innerWidth - 36,
+                    height: window.innerHeight - 28
+                });
+            },
+            x: 0,
+            y: 0
         }).enhanceWithin().popup("open");
     });
 }
