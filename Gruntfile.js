@@ -64,7 +64,7 @@ module.exports = function(grunt) {
 					archive: "build/firmware/UI.zip"
 				},
 				files: [{
-					src: ["css/**","js/**","img/**","locale/*.js","index.htm","res/ios-web/**"],
+					src: ["css/**","js/**","img/**","locale/*.js","*.htm","res/ios-web/**"],
 					cwd: "www/",
 					expand: true
 				}]
@@ -94,7 +94,7 @@ module.exports = function(grunt) {
 					archive: "build/firefox/com.albahra.sprinklers.zip"
 				},
 				files: [{
-					src: ["css/**","js/**","img/**","locale/**","index.htm", "res/firefox/**"],
+					src: ["css/**","js/**","img/**","locale/**","*.htm", "res/firefox/**"],
 					cwd: "www/",
 					expand: true
 				},{
@@ -106,7 +106,7 @@ module.exports = function(grunt) {
 					archive: "build/chrome/com.albahra.sprinklers.zip"
 				},
 				files: [{
-					src: ["css/**","js/**","img/**","locale/**","index.htm", "chrome.js", "res/chrome/**"],
+					src: ["css/**","js/**","img/**","locale/**","*.htm", "chrome.js", "res/chrome/**"],
 					cwd: "www/",
 					expand: true
 				},{

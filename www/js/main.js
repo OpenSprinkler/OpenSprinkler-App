@@ -397,11 +397,6 @@ function initApp() {
     //Update the language on the page using the browser's locale
     update_lang();
 
-    if (isiOS) {
-        var scale = window.screen.width === 414 ? "0.85" : (window.screen.width === 375 ? "0.925" : "1");
-        document.getElementById("viewport").setAttribute("content", "user-scalable=no, initial-scale="+scale+", minimum-scale="+scale+", maximum-scale="+scale+", width=device-width");
-    }
-
     // Fix CSS for IE Mobile (Windows Phone 8)
     if (isIEMobile) {
         insertStyle(".ui-toolbar-back-btn{display:none!important}ul{list-style: none !important;}@media(max-width:940px){.wicon{margin:-10px -10px -15px -15px !important}#forecast .wicon{position:relative;left:37.5px;margin:0 auto !important}}");
@@ -1989,6 +1984,7 @@ function show_forecast() {
 function resolveLocation(loc,callback) {
     // Looks up the location and shows a list possible matches for selection
     // Returns the selection to the callback
+    $("#location-list").popup("destroy").remove();
 
     callback = callback || function(){};
 
@@ -2039,7 +2035,7 @@ function resolveLocation(loc,callback) {
             "</div>"),
             dataSent = false;
 
-        popup.on("click","a",function(){
+        popup.appendTo("body").on("click","a",function(){
             popup.popup("close");
             callback(this.textContent);
             dataSent = true;
@@ -2058,6 +2054,7 @@ function resolveLocation(loc,callback) {
 function nearbyPWS(lat,lon,callback) {
     // Looks up the location and shows a list possible matches for selection
     // Returns the selection to the callback
+    $("#location-list").popup("destroy").remove();
 
     callback = callback || function(){};
 
@@ -2071,6 +2068,7 @@ function nearbyPWS(lat,lon,callback) {
         dataType: isChromeApp ? "json" : "jsonp"
     }).retry({times:retryCount, statusCodes: [0]}).done(function(data){
         data = data.location.nearby_weather_stations.pws.station;
+        var prefix = "";
 
         if (data.length === 0) {
             callback(false);
@@ -2082,9 +2080,13 @@ function nearbyPWS(lat,lon,callback) {
 
         data = encodeURIComponent(JSON.stringify(data));
 
+        if (curr_local) {
+            prefix = $.mobile.path.parseUrl($("head").find("script").eq(0).attr("src")).hrefNoHash.slice(0,-10);
+        }
+
         var popup = $("<div data-role='popup' id='location-list' data-theme='a' data-overlay-theme='b'>" +
                 "<a href='#' data-rel='back' class='ui-btn ui-btn-b ui-corner-all ui-shadow ui-btn-a ui-icon-delete ui-btn-icon-notext ui-btn-right'>"+_("Close")+"</a>" +
-                    "<iframe style='border:none' src='map.htm' width='100%' height='100%' seamless=''></iframe>" +
+                    "<iframe style='border:none' src='"+prefix+"map.htm' width='100%' height='100%' seamless=''></iframe>" +
             "</div>"),
             iframe = popup.find("iframe"),
             dataSent = false;
@@ -2114,7 +2116,7 @@ function nearbyPWS(lat,lon,callback) {
             }, "*");
         });
 
-        popup.one("popupafterclose",function(){
+        popup.appendTo("body").one("popupafterclose",function(){
             popup.popup("destroy").remove();
             if (dataSent === false) {
                 callback(false);
@@ -2475,7 +2477,7 @@ function show_options() {
         list += "</select></div>";
     }
 
-    list += "<div class='ui-field-contain'><label for='loc'>"+_("Location")+"<button data-helptext='"+_("Location can be a zip code, city/state or a weatherunderground personal weather station using the format: pws:ID.")+"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><table><tr style='width:100%' class='ui-controlgroup-controls'><td style='width:100%'><input data-wrapper-class='controlgroup-textinput ui-btn' data-mini='true' type='text' id='loc' value='"+controller.settings.loc+"'></td><td style='width:55px'><button class='noselect' id='lookup-loc' data-mini='true'>"+_("Lookup")+"</button></td><td id='nearbyPWS'><button class='noselect' data-icon='location' data-iconpos='notext' data-mini='true'></button></td></tr></table></div>";
+    list += "<div class='ui-field-contain'><label for='loc'>"+_("Location")+"<button data-helptext='"+_("Location can be a zip code, city/state or a weatherunderground personal weather station using the format: pws:ID.")+"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><table><tr style='width:100%' class='ui-controlgroup-controls'><td style='width:100%'><input data-wrapper-class='controlgroup-textinput ui-btn' data-mini='true' type='text' id='loc' value='"+controller.settings.loc+"'></td><td><button class='noselect' id='lookup-loc' data-mini='true'>"+_("Lookup")+"</button></td><td id='nearbyPWS'><button class='noselect' data-icon='location' data-iconpos='notext' data-mini='true'></button></td></tr></table></div>";
 
     if (typeof controller.options.ntp !== "undefined") {
         list += "<label for='o2'><input data-mini='true' id='o2' type='checkbox' "+((controller.options.ntp === 1) ? "checked='checked'" : "")+">"+_("NTP Sync")+"</label>";
