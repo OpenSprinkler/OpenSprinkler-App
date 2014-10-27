@@ -256,7 +256,7 @@ body {
 .controlgroup-textinput {
     padding-top:.10em;
     padding-bottom:.10em;
-    height: 31px;
+    height: 30px;
     margin:0;
     margin-right: -5px !important;
     border-bottom-left-radius: 3.90625px !important;
@@ -265,6 +265,7 @@ body {
 
 .wtkey .controlgroup-textinput {
     width: calc(100% - 120px);
+    height: 31px;
 }
 
 .controlgroup-textinput .ui-input-clear {
@@ -286,8 +287,15 @@ body {
     border-top-right-radius: 3.90625px;
 }
 
-@media (max-width: 480px) {
+@media (max-width: 510px) {
     .controlgroup-textinput {
+        height: 29px;
+    }
+}
+
+@media (max-width: 480px) {
+    .wtkey .controlgroup-textinput {
+        height: 30px;
         padding-top:0;
         padding-bottom:.07em;
     }
