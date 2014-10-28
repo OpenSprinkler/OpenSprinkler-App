@@ -4359,7 +4359,12 @@ function get_preview() {
             "groupMinHeight": 20
         };
 
-        var timeline = new links.Timeline(page.find("#timeline")[0],options);
+        var timeline = new links.Timeline(page.find("#timeline")[0],options),
+            currentTime = new Date(now);
+
+        currentTime.setMinutes(currentTime.getMinutes()+currentTime.getTimezoneOffset());
+
+        timeline.setCurrentTime(currentTime);
         links.events.addListener(timeline, "select", function(){
             var sel = timeline.getSelection();
 
