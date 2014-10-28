@@ -2640,13 +2640,17 @@ function show_options() {
     page.find("#nearbyPWS > button").on("click",function(){
         var loc = $("#loc"),
             button = $(this),
-            exit = function(){
+            exit = function(result){
                 $.mobile.loading("hide");
                 button.prop("disabled",false);
+                if (result !== true) {
+                    showerror(_("Unable to determine your location."));
+                }
                 return false;
             };
 
         if (controller.settings.wtkey === "") {
+            showerror(_("An API key must be provided for Weather Underground"));
             exit();
         }
 
@@ -2665,11 +2669,9 @@ function show_options() {
                         loc.parent().addClass("green");
                         loc.val("pws:"+selected);
                     }
-                    exit();
+                    exit(true);
                 });
-            },function(){
-                exit();
-            });
+            },exit);
         } catch(err) { exit(); }
     });
 
