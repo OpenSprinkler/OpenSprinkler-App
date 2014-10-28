@@ -2068,8 +2068,12 @@ function nearbyPWS(lat,lon,callback) {
         url: "http://api.wunderground.com/api/"+controller.settings.wtkey+"/geolookup/q/"+encodeURIComponent(lat)+","+encodeURIComponent(lon)+".json",
         dataType: isChromeApp ? "json" : "jsonp"
     }).retry({times:retryCount, statusCodes: [0]}).done(function(data){
-        data = data.location.nearby_weather_stations.pws.station;
-        var prefix = "";
+        try {
+            data = data.location.nearby_weather_stations.pws.station;
+        } catch(err) {
+            callback(false);
+            return;
+        }
 
         if (data.length === 0) {
             callback(false);
@@ -2079,6 +2083,7 @@ function nearbyPWS(lat,lon,callback) {
             return;
         }
 
+        var prefix = "";
         data = encodeURIComponent(JSON.stringify(data));
 
         if (curr_local) {
@@ -2486,7 +2491,7 @@ function show_options() {
             "<tr style='width:100%;vertical-align: top;'>" +
                 "<td style='width:100%'><input data-wrapper-class='controlgroup-textinput ui-btn' data-mini='true' type='text' id='loc' value='"+controller.settings.loc+"'></td>" +
                 "<td><button class='noselect' data-corners='false' id='lookup-loc' data-mini='true'>"+_("Lookup")+"</button></td>" +
-                "<td id='nearbyPWS'><button class='noselect' data-icon='location' data-iconpos='notext' data-mini='true'></button></td>" +
+                (checkOSVersion(210) ? "<td id='nearbyPWS'><button class='noselect' data-icon='location' data-iconpos='notext' data-mini='true'></button></td>" : "") +
             "</tr>" +
         "</table></div>";
 
