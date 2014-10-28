@@ -2636,6 +2636,7 @@ function show_options() {
         var loc = $("#loc"),
             button = $(this),
             exit = function(){
+                $.mobile.loading("hide");
                 button.prop("disabled",false);
                 return false;
             };
@@ -2644,6 +2645,7 @@ function show_options() {
             exit();
         }
 
+        $.mobile.loading("show");
         button.prop("disabled",true);
 
         try {
