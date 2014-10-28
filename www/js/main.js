@@ -2055,6 +2055,7 @@ function nearbyPWS(lat,lon,callback) {
     // Looks up the location and shows a list possible matches for selection
     // Returns the selection to the callback
     $("#location-list").popup("destroy").remove();
+    $.mobile.loading("show");
 
     callback = callback || function(){};
 
@@ -2092,12 +2093,14 @@ function nearbyPWS(lat,lon,callback) {
             dataSent = false;
 
         // Wire in listener for communication from iframe
-        $(window).on("message onmessage", function(e) {
+        $(window).off("message onmessage").on("message onmessage", function(e) {
             var data = e.originalEvent.data;
             if (typeof data.PWS !== "undefined") {
                 callback(data.PWS);
                 dataSent = true;
                 popup.popup("destroy").remove();
+            } else if (typeof data.loaded !== "undefined" && data.loaded === true) {
+                $.mobile.loading("hide");
             }
         });
 
