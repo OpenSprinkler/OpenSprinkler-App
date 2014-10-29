@@ -17,17 +17,16 @@
         // Load the map using the current location as the starting point
         function initialize() {
             if (typeof start === "object") {
-                var myLatlng = new google.maps.LatLng(start[0],start[1]);
                 var myOptions = {
-                    zoom: 15,
-                    center: myLatlng,
+                    zoom: 14,
+                    center: start,
                     streetViewControl: false,
                     mapTypeControl: false,
                     mapTypeId: google.maps.MapTypeId.ROADMAP
                 }
                 map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
                 infoWindow = new google.maps.InfoWindow;
-                plotMarker("orgin",{message: "Current Location"},start[0],start[1]);
+                plotMarker("orgin",{message: "Current Location"},start.lat(),start.lng());
                 plotAllMarkers();
                 google.maps.event.addListenerOnce(map, "tilesloaded", function(){
                     window.top.postMessage({"loaded":true},"*");
@@ -42,7 +41,7 @@
             var data = e.data;
             // Handle start point data
             if (data.type === "currentLocation") {
-                start = [data.payload.lat,data.payload.lon];
+                start = new google.maps.LatLng(data.payload.lat,data.payload.lon);
             // Handle stations data
             } else if (data.type === "pwsData") {
                 stations = JSON.parse(decodeURIComponent(data.payload));
@@ -53,14 +52,24 @@
         // Plot all stations on the map
         function plotAllMarkers() {
             if (typeof start === "object" && typeof stations === "object" && typeof map === "object") {
-                var bounds = new google.maps.LatLngBounds();
+                var bounds = new google.maps.LatLngBounds(),
+                    marker;
 
                 for (var i=0; i<stations.length; i++) {
-                    plotMarker("pws",stations[i],stations[i].lat,stations[i].lon);
+                    marker = plotMarker("pws",stations[i],stations[i].lat,stations[i].lon);
+                    if (i === 0) {
+                        new google.maps.event.trigger(marker,"click");
+                    }
                     bounds.extend(new google.maps.LatLng(stations[i].lat,stations[i].lon));
                 }
+                google.maps.event.addListenerOnce(map, "zoom_changed", function(){
+                    var zoom = map.getZoom();
+                    if (zoom < 13) {
+                        map.setZoom(13);
+                        map.setCenter(start);
+                    }
+                });
                 map.fitBounds(bounds);
-                map.panToBounds(bounds);
             } else {
                 setTimeout(plotAllMarkers,1);
             }
@@ -81,12 +90,14 @@
                     content: html
                 });
                 infoWindow.open(map, marker);
-            })
+            });
+
+            return marker;
         }
 
         // Create text for popup info window
         function createInfoWindow(data) {
-            return "<div style='min-height:80px;max-width:200px;text-align:center'><h3 style='padding:0;margin:0 0 4px 0'>"+(data.city ? data.city+", " : "")+(data.state ? data.state+", " : "")+data.country+"</h3><p>"+data.neighborhood+"<br>"+data.distance_mi+" miles away<br><button class='selectPWS' data-id='"+data.id+"'>Select</button></p></div>";
+            return "<div style='min-height:80px;max-width:200px;text-align:center;overflow:hidden!important'><h3 style='padding:0;margin:0 0 4px 0'>"+(data.city ? data.city+", " : "")+(data.state ? data.state+", " : "")+data.country+"</h3><p>"+data.neighborhood+"<br>"+data.distance_mi+" miles away<br><button class='selectPWS' data-id='"+data.id+"'>Select</button></p></div>";
         }
     </script>
     <style>
@@ -101,6 +112,10 @@
         }
         #map_canvas {
             height: 100%;
+        }
+        .gm-style-iw {
+            overflow: hidden !important;
+            line-height: 1.35;
         }
     </style>
 </head>
