@@ -192,7 +192,7 @@ $(document)
 
     // Bind event handler to open panel when swiping right
     $.mobile.document.on("swiperight",".ui-page",function() {
-        if ($(".ui-page-active").jqmData("panel") !== "open" && !$(".ui-page-active .ui-popup-active").length && $(".ui-page-active").attr("id") !== "preview") {
+        if ($(".ui-page-active").jqmData("panel") !== "open" && !$(".ui-page-active .ui-popup-active").length) {
             open_panel();
         }
     });
@@ -4032,6 +4032,7 @@ function get_preview() {
                 "</div>" +
             "</div>" +
         "</div>"),
+        placeholder = page.find("#timeline"),
         navi = page.find("#timeline-navigation"),
         is21 = checkOSVersion(210),
         preview_data, process_programs, check_match, check_match183, check_match21, run_sched, time_to_text, changeday, render, day;
@@ -4379,7 +4380,7 @@ function get_preview() {
             "groupMinHeight": 20
         };
 
-        var timeline = new links.Timeline(page.find("#timeline")[0],options),
+        var timeline = new links.Timeline(placeholder[0],options),
             currentTime = new Date(now);
 
         currentTime.setMinutes(currentTime.getMinutes()+currentTime.getTimezoneOffset());
@@ -4438,6 +4439,10 @@ function get_preview() {
             navi.show();
         }
     };
+
+    placeholder.on("swiperight",function(e){
+        e.stopImmediatePropagation();
+    });
 
     page.find("#preview_date").on("change",function(){
         date = this.value.split("-");
