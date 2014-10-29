@@ -31,6 +31,9 @@
                 google.maps.event.addListenerOnce(map, "tilesloaded", function(){
                     window.top.postMessage({"loaded":true},"*");
                 });
+                google.maps.event.addListener(map, "click", function(){
+                    infoWindow.close();
+                });
             } else {
                 setTimeout(initialize,1);
             }
@@ -51,28 +54,24 @@
 
         // Plot all stations on the map
         function plotAllMarkers() {
-            if (typeof start === "object" && typeof stations === "object" && typeof map === "object") {
-                var bounds = new google.maps.LatLngBounds(),
-                    marker;
+            var bounds = new google.maps.LatLngBounds(),
+                marker;
 
-                for (var i=0; i<stations.length; i++) {
-                    marker = plotMarker("pws",stations[i],stations[i].lat,stations[i].lon);
-                    if (i === 0) {
-                        new google.maps.event.trigger(marker,"click");
-                    }
-                    bounds.extend(new google.maps.LatLng(stations[i].lat,stations[i].lon));
+            for (var i=0; i<stations.length; i++) {
+                marker = plotMarker("pws",stations[i],stations[i].lat,stations[i].lon);
+                if (i === 0) {
+                    new google.maps.event.trigger(marker,"click");
                 }
-                google.maps.event.addListenerOnce(map, "zoom_changed", function(){
-                    var zoom = map.getZoom();
-                    if (zoom < 13) {
-                        map.setZoom(13);
-                        map.setCenter(start);
-                    }
-                });
-                map.fitBounds(bounds);
-            } else {
-                setTimeout(plotAllMarkers,1);
+                bounds.extend(new google.maps.LatLng(stations[i].lat,stations[i].lon));
             }
+            google.maps.event.addListenerOnce(map, "zoom_changed", function(){
+                var zoom = map.getZoom();
+                if (zoom < 11) {
+                    map.setZoom(11);
+                    map.setCenter(start);
+                }
+            });
+            map.fitBounds(bounds);
         }
 
         // Plot an individual station on the map
