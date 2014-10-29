@@ -5872,7 +5872,9 @@ function getExportMethod() {
         });
     }
 
-    popup.find(".pasteMethod").attr("href","mailto:?subject="+encodeURIComponent(subject)+"&body="+obj).on("click",function(){
+    var href = "mailto:?subject="+encodeURIComponent(subject)+"&body="+obj;
+    popup.find(".pasteMethod").attr("href",href).on("click",function(){
+        window.open(href);
         popup.popup("close");
     });
 
@@ -7035,7 +7037,11 @@ function exportObj(ele,obj,subject) {
         });
     } else {
         subject = subject || "Sprinklers Data Export on "+dateToString(new Date());
-        $(ele).attr("href","mailto:?subject="+encodeURIComponent(subject)+"&body="+obj);
+        var href = "mailto:?subject="+encodeURIComponent(subject)+"&body="+obj;
+        $(ele).attr("href",href).on("click",function(){
+            window.open(href);
+            return false;
+        });
     }
 }
 
