@@ -2090,7 +2090,7 @@ function nearbyPWS(lat,lon,callback) {
             prefix = $.mobile.path.parseUrl($("head").find("script").eq(0).attr("src")).hrefNoHash.slice(0,-10);
         }
 
-        var popup = $("<div data-role='popup' id='location-list' data-theme='a' data-overlay-theme='b'>" +
+        var popup = $("<div data-role='popup' id='location-list' data-theme='a' style='background-color:rgb(229, 227, 223);' data-overlay-theme='b'>" +
                 "<a href='#' data-rel='back' class='ui-btn ui-corner-all ui-shadow ui-btn-b ui-icon-delete ui-btn-icon-notext ui-btn-right'>"+_("Close")+"</a>" +
                     "<iframe style='border:none' src='"+prefix+"map.htm' width='100%' height='100%' seamless=''></iframe>" +
             "</div>"),
