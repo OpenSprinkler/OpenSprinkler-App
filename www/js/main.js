@@ -2091,7 +2091,7 @@ function nearbyPWS(lat,lon,callback) {
         }
 
         var popup = $("<div data-role='popup' id='location-list' data-theme='a' data-overlay-theme='b'>" +
-                "<a href='#' data-rel='back' class='ui-btn ui-btn-b ui-corner-all ui-shadow ui-btn-a ui-icon-delete ui-btn-icon-notext ui-btn-right'>"+_("Close")+"</a>" +
+                "<a href='#' data-rel='back' class='ui-btn ui-corner-all ui-shadow ui-btn-b ui-icon-delete ui-btn-icon-notext ui-btn-right'>"+_("Close")+"</a>" +
                     "<iframe style='border:none' src='"+prefix+"map.htm' width='100%' height='100%' seamless=''></iframe>" +
             "</div>"),
             iframe = popup.find("iframe"),
