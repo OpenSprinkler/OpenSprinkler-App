@@ -2216,12 +2216,12 @@ function open_panel() {
     panel.panel("option","classes.modal","needsclick ui-panel-dismiss");
 
     panel.find("a[href='#site-control']").off("click").one("click",function(){
-        changeFromPanel("site-control");
+        changeFromPanel("#site-control");
         return false;
     });
 
     panel.find("a[href='#about']").off("click").one("click",function(){
-        changeFromPanel("about");
+        changeFromPanel("#about");
         return false;
     });
 
@@ -6833,10 +6833,12 @@ function changePage(toPage,opts) {
 }
 
 // Close the panel before page transition to avoid bug in jQM 1.4+
-function changeFromPanel(page) {
+function changeFromPanel(page,opts) {
+    opts = opts || {};
+
     var $panel = $("#sprinklers-settings");
     $panel.one("panelclose", function(){
-        changePage("#"+page);
+        changePage(page,opts);
     });
     $panel.panel("close");
 }
@@ -6877,11 +6879,18 @@ function goHome() {
             // Allow future transitions to properly animate
             delete $.mobile.navigate.history.getActive().transition;
         });
-        changePage("#sprinklers",{
+
+        var opts = {
             "firstLoad": true,
             "showLoading": false,
             "transition": "none"
-        });
+        };
+
+        if ($("#sprinklers-settings").hasClass("ui-panel-open")) {
+            changeFromPanel("#sprinklers",opts);
+        } else {
+            changePage("#sprinklers",opts);
+        }
     }
 }
 
