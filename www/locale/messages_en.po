@@ -1,3 +1,6 @@
+msgid "Back"
+msgstr ""
+
 msgid "Done"
 msgstr ""
 
@@ -85,9 +88,6 @@ msgid "Use Auth"
 msgstr ""
 
 msgid "Use SSL"
-msgstr ""
-
-msgid "Back"
 msgstr ""
 
 msgid "Manage Sites"
@@ -198,7 +198,7 @@ msgstr ""
 msgid "Select City"
 msgstr ""
 
-msgid "Select Weather Station"
+msgid "Close"
 msgstr ""
 
 msgid "An API key must be provided for Weather Underground"
@@ -424,6 +424,9 @@ msgid "Use DHCP (restart required)"
 msgstr ""
 
 msgid "Ignore Password"
+msgstr ""
+
+msgid "Unable to determine your location."
 msgstr ""
 
 msgid ""
@@ -982,9 +985,6 @@ msgstr ""
 msgid "Unable to import configuration."
 msgstr ""
 
-msgid "Help &amp; Support"
-msgstr ""
-
 msgid "About"
 msgstr ""
 
@@ -1133,6 +1133,9 @@ msgid "Export Configuration"
 msgstr ""
 
 msgid "Import Configuration"
+msgstr ""
+
+msgid "Help &amp; Support"
 msgstr ""
 
 msgid "Logout"
