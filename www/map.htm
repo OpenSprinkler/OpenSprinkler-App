@@ -96,7 +96,7 @@
 
         // Create text for popup info window
         function createInfoWindow(data) {
-            return "<div style='min-height:90px;min-width:170px;text-align:center;'><h3 style='padding:0;margin:0 0 4px 0'>"+(data.city ? data.city+", " : "")+(data.state ? data.state+", " : "")+data.country+"</h3><p>"+data.neighborhood+"<br>"+data.distance_mi+" miles away<br><button class='selectPWS' data-id='"+data.id+"'>Select</button></p></div>";
+            return "<div style='min-height:90px;min-width:170px;text-align:center;'><h3 style='padding:0;margin:0 0 4px 0'>"+(data.city ? data.city+", " : "")+(data.state ? data.state+", " : "")+data.country+"</h3><span style='font-size:8px;margin:0;padding:0'>ID: "+data.id+"</span><br><p>"+data.neighborhood+"<br>"+data.distance_mi+" mile"+(data.distance_mi > 1 ? "s" : "")+" away<br><button class='selectPWS' data-id='"+data.id+"'>Select</button></p></div>";
         }
     </script>
     <style>
