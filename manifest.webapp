@@ -13,6 +13,9 @@
   "permissions": {
     "systemXHR": {
       "description": "Required to access and modify the OpenSprinkler device"
+    },
+    "geolocation": {
+      "description": "Uses your location to find the closest weather station"
     }
   },
   "default_locale": "en",
