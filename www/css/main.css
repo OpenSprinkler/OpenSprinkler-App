@@ -254,9 +254,8 @@ body {
 }
 
 .controlgroup-textinput {
-    padding-top:.10em;
-    padding-bottom:.10em;
-    height: 30px;
+    height: 32px;
+    padding:0;
     margin:0;
     margin-right: -5px !important;
     border-bottom-left-radius: 3.90625px !important;
@@ -267,8 +266,7 @@ body {
 }
 
 .wtkey .controlgroup-textinput {
-    width: calc(100% - 120px);
-    height: 31px;
+    width: calc(100% - 105px);
 }
 
 .controlgroup-textinput .ui-input-clear {
@@ -277,6 +275,11 @@ body {
 
 #os-options .ui-controlgroup-controls {
     display: block !important;
+}
+
+#verify-api {
+    height: 15px;
+    margin-left: 5px !important;
 }
 
 #lookup-loc {
@@ -288,26 +291,11 @@ body {
 #nearbyPWS > button {
     height: 32px;
     margin:0;
-    margin-left: -4px;
     border-bottom-right-radius: 3.90625px;
     border-top-right-radius: 3.90625px;
     border-bottom-left-radius: 0;
     border-top-left-radius: 0;
     border-left: none;
-}
-
-@media (max-width: 510px) {
-    .controlgroup-textinput {
-        height: 29px;
-    }
-}
-
-@media (max-width: 480px) {
-    .wtkey .controlgroup-textinput {
-        height: 30px;
-        padding-top:0;
-        padding-bottom:.07em;
-    }
 }
 
 /* Program editor rules */
