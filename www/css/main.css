@@ -706,7 +706,7 @@ div.running-text{
         text-overflow:clip
     }
     .timeline-groups-text:before {
-        content:attr(data-shortname)"     ";
+        content:attr(data-shortname)"      ";
         white-space:pre
     }
     .dayofweek:before {
