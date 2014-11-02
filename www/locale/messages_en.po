@@ -1135,7 +1135,7 @@ msgstr ""
 msgid "Import Configuration"
 msgstr ""
 
-msgid "Help &amp; Support"
+msgid "Help & Support"
 msgstr ""
 
 msgid "Logout"
