@@ -1042,9 +1042,6 @@ msgstr ""
 msgid "Thu"
 msgstr ""
 
-msgid "Localization"
-msgstr ""
-
 msgid "Afrikaans"
 msgstr ""
 
@@ -1097,6 +1094,9 @@ msgid "Slovenian"
 msgstr ""
 
 msgid "Spanish"
+msgstr ""
+
+msgid "Localization"
 msgstr ""
 
 msgid ""
