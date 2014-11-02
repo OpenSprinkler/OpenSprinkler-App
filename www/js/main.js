@@ -5901,13 +5901,14 @@ function getExportMethod() {
 function getImportMethod(localData){
     var getPaste = function(){
             var popup = $(
-                "<div data-role='popup' data-overlay-theme='b' id='paste_config'>"+
-                    "<p class='ui-bar'>" +
-                        "<textarea class='textarea' rows='10' placeholder='"+_("Paste your backup here")+"'></textarea>" +
-                        "<button data-mini='true' data-theme='b'>"+_("Import")+"</button>" +
-                    "</p>" +
-                "</div>"
-            );
+                    "<div data-role='popup' data-overlay-theme='b' id='paste_config'>"+
+                        "<p class='ui-bar'>" +
+                            "<textarea class='textarea' rows='10' placeholder='"+_("Paste your backup here")+"'></textarea>" +
+                            "<button data-mini='true' data-theme='b'>"+_("Import")+"</button>" +
+                        "</p>" +
+                    "</div>"
+                ),
+                width = $.mobile.window.width();
 
             popup.find("button").on("click",function(){
                 var data = popup.find("textarea").val();
@@ -5926,7 +5927,7 @@ function getImportMethod(localData){
                 }
             });
 
-            popup.one("popupafterclose", function(){
+            popup.css("width",(width > 600 ? width*0.4+"px" : "100%")).one("popupafterclose", function(){
                 popup.popup("destroy").remove();
             }).enhanceWithin();
 
