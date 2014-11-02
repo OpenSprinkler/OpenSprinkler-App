@@ -2165,13 +2165,15 @@ function debugWU() {
         if (typeof data.history === "object" && typeof data.history.dailysummary) {
             var summary = data.history.dailysummary[0],
                 current = data.current_observation,
+                country = current.display_location.country_iso3166,
+                isMetric = ((country === "US" || country === "BM" || country === "PW") ? false : true),
                 popup = $("<div data-role='popup' class='ui-content' data-overlay-theme='b' data-theme='a'>"+
                     "<table class='debugWU'>" +
                         "<tr><td>"+_("Min Humidity")+"</td><td>"+summary.minhumidity+"%</td></tr>" +
                         "<tr><td>"+_("Max Humidity")+"</td><td>"+summary.maxhumidity+"%</td></tr>" +
-                        "<tr><td>"+_("Mean Temp")+"</td><td>"+summary.meantempi+"&#176;F</td></tr>" +
-                        "<tr><td>"+_("Precip Yesterday")+"</td><td>"+summary.precipi+"\"</td></tr>" +
-                        "<tr><td>"+_("Precip Today")+"</td><td>"+current.precip_today_in+"\"</td></tr>" +
+                        "<tr><td>"+_("Mean Temp")+"</td><td>"+(isMetric ? summary.meantempm+"&#176;C" : summary.meantempi+"&#176;F")+"</td></tr>" +
+                        "<tr><td>"+_("Precip Yesterday")+"</td><td>"+(isMetric ? summary.precipm+"mm" : summary.precipi+"\"")+"</td></tr>" +
+                        "<tr><td>"+_("Precip Today")+"</td><td>"+(isMetric ? current.precip_today_metric+"mm" : current.precip_today_in+"\"")+"</td></tr>" +
                         "<tr><td>"+_("Current % Watering")+"</td><td>"+controller.options.wl+"%</td></tr>" +
                     "</table>" +
                 "</div>");
