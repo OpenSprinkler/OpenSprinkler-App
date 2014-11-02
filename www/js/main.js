@@ -151,7 +151,7 @@ $(document)
     if (!isOSXApp) {
         $.mobile.document.on("click",".iab",function(){
             var button = $(this),
-                iab = window.open(this.href,"_blank","location=no,enableViewportScale="+(button.hasClass("iabNoScale") ? "no" : "yes")+",toolbarposition=top,closebuttoncaption="+(button.hasClass("iabNoScale") ? _("Back") : _("Done")));
+                iab = window.open(this.href,"_blank","location="+(isAndroid ? "yes" : "no")+",enableViewportScale="+(button.hasClass("iabNoScale") ? "no" : "yes")+",toolbarposition=top,closebuttoncaption="+(button.hasClass("iabNoScale") ? _("Back") : _("Done")));
 
             if (isIEMobile) {
                 $.mobile.document.data("iabOpen",true);
