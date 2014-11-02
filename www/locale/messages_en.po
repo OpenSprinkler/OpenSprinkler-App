@@ -1105,6 +1105,9 @@ msgid ""
 "network."
 msgstr ""
 
+msgid "Purchase OpenSprinkler"
+msgstr ""
+
 msgid "Weather"
 msgstr ""
 
