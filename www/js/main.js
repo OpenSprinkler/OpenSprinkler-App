@@ -2692,7 +2692,7 @@ function show_options() {
             current = loc.val(),
             button = $(this);
 
-        if (/^pws:/.test(current)) {
+        if (/^pws:|^icao:/.test(current)) {
             showerror(_("When using a personal weather station the location lookup is unavailable."));
             return;
         }
