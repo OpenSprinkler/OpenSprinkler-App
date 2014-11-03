@@ -2068,7 +2068,10 @@ function nearbyPWS(lat,lon,callback) {
         url: "http://api.wunderground.com/api/"+controller.settings.wtkey+"/geolookup/q/"+encodeURIComponent(lat)+","+encodeURIComponent(lon)+".json",
         dataType: isChromeApp ? "json" : "jsonp"
     }).retry({times:retryCount, statusCodes: [0]}).done(function(data){
+        var airports;
+
         try {
+            airports = data.location.nearby_weather_stations.airport.station;
             data = data.location.nearby_weather_stations.pws.station;
         } catch(err) {
             callback(false);
@@ -2100,8 +2103,8 @@ function nearbyPWS(lat,lon,callback) {
         // Wire in listener for communication from iframe
         $(window).off("message onmessage").on("message onmessage", function(e) {
             var data = e.originalEvent.data;
-            if (typeof data.PWS !== "undefined") {
-                callback(data.PWS);
+            if (typeof data.WS !== "undefined") {
+                callback(data.WS);
                 dataSent = true;
                 popup.popup("destroy").remove();
             } else if (typeof data.loaded !== "undefined" && data.loaded === true) {
@@ -2122,6 +2125,14 @@ function nearbyPWS(lat,lon,callback) {
                 type: "pwsData",
                 payload: data
             }, "*");
+
+            if (airports.length > 0) {
+                airports = encodeURIComponent(JSON.stringify(airports));
+                this.contentWindow.postMessage({
+                    type: "airportData",
+                    payload: airports
+                }, "*");
+            }
         });
 
         popup.appendTo("body").one("popupafterclose",function(){
@@ -2668,7 +2679,7 @@ function show_options() {
                             page.find("#o1").parents(".ui-field-contain").addClass("hidden");
                         }
                         loc.parent().addClass("green");
-                        loc.val("pws:"+selected);
+                        loc.val(selected);
                     }
                     exit(true);
                 });
