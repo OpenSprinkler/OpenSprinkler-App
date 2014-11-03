@@ -5,12 +5,15 @@
     <title>Weather Station Select</title>
     <script data-cfasync="false" src="http://maps.google.com/maps/api/js?sensor=false"></script>
     <script>
-        var map, infoWindow, start, stations;
+        var map, infoWindow, start, stations, airports;
 
         // Handle select button for weather station selection
         document.addEventListener("click", function(e) {
-            if (e.target.className.split(" ").indexOf("selectPWS") > -1) {
-                window.top.postMessage({"PWS": e.target.dataset.id},"*");
+            var classes = e.target.className.split(" ");
+            if (classes.indexOf("selectPWS") > -1) {
+                window.top.postMessage({"WS": "pws:"+e.target.dataset.id},"*");
+            } else if (classes.indexOf("selectAirport") > -1) {
+                window.top.postMessage({"WS": "icao:"+e.target.dataset.id},"*");
             }
         }, false);
 
@@ -27,7 +30,7 @@
                 map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
                 infoWindow = new google.maps.InfoWindow;
                 plotMarker("orgin",{message: "Current Location"},start.lat(),start.lng());
-                plotAllMarkers();
+                plotAllMarkers(stations,true);
                 google.maps.event.addListenerOnce(map, "tilesloaded", function(){
                     window.top.postMessage({"loaded":true},"*");
                 });
@@ -49,20 +52,23 @@
             } else if (data.type === "pwsData") {
                 stations = JSON.parse(decodeURIComponent(data.payload));
                 initialize();
+            } else if (data.type === "airportData") {
+                airports = JSON.parse(decodeURIComponent(data.payload));
+                plotAllMarkers(airports);
             }
         }
 
         // Plot all stations on the map
-        function plotAllMarkers() {
+        function plotAllMarkers(markers,openFirst) {
             var bounds = new google.maps.LatLngBounds(),
                 marker;
 
-            for (var i=0; i<stations.length; i++) {
-                marker = plotMarker("pws",stations[i],stations[i].lat,stations[i].lon);
-                if (i === 0) {
+            for (var i=0; i<markers.length; i++) {
+                marker = plotMarker((openFirst ? "pws" : "airport"),markers[i],markers[i].lat,markers[i].lon);
+                if (i === 0 && openFirst === true) {
                     new google.maps.event.trigger(marker,"click");
                 }
-                bounds.extend(new google.maps.LatLng(stations[i].lat,stations[i].lon));
+                bounds.extend(new google.maps.LatLng(markers[i].lat,markers[i].lon));
             }
             google.maps.event.addListenerOnce(map, "zoom_changed", function(){
                 var zoom = map.getZoom();
@@ -79,12 +85,12 @@
             var marker = new google.maps.Marker({
                 position: new google.maps.LatLng(lat,lon),
                 map: map,
-                icon: (type === "orgin" ? "http://maps.google.com/mapfiles/ms/icons/red-dot.png" : "http://maps.google.com/mapfiles/ms/icons/blue-dot.png")
+                icon: (type === "orgin" ? "http://maps.google.com/mapfiles/ms/icons/red-dot.png" : (type ===  "pws" ? "http://maps.google.com/mapfiles/ms/icons/blue-dot.png" : "http://maps.google.com/mapfiles/ms/icons/orange-dot.png"))
             });
 
             google.maps.event.addListener(marker, "click", function(){
                 infoWindow.close();
-                html = (type === "orgin" ? "<div style='min-height:40px;text-align:center'>"+data.message+"</div>" : createInfoWindow(data));
+                html = (type === "orgin" ? "<div style='min-height:40px;text-align:center'>"+data.message+"</div>" : createInfoWindow(type,data));
                 infoWindow = new google.maps.InfoWindow({
                     content: html
                 });
@@ -95,8 +101,12 @@
         }
 
         // Create text for popup info window
-        function createInfoWindow(data) {
-            return "<div style='min-height:90px;min-width:170px;text-align:center;'><h3 style='padding:0;margin:0 0 4px 0'>"+(data.city ? data.city+", " : "")+(data.state ? data.state+", " : "")+data.country+"</h3><span style='font-size:8px;margin:0;padding:0;vertical-align: top'>ID: "+data.id+"</span><br><p style='margin:0'>"+data.neighborhood+"<br>"+data.distance_mi+" mile"+(data.distance_mi > 1 ? "s" : "")+" away<br><button class='selectPWS' data-id='"+data.id+"'>Select</button></p></div>";
+        function createInfoWindow(type,data) {
+            if (type === "pws") {
+                return "<div style='min-height:90px;min-width:170px;text-align:center;'><h3 style='padding:0;margin:0 0 4px 0'>"+(data.city ? data.city+", " : "")+(data.state ? data.state+", " : "")+data.country+"</h3><span style='font-size:8px;margin:0;padding:0;vertical-align: top'>ID: "+data.id+"</span><br><p style='margin:0'>"+data.neighborhood+"<br>"+data.distance_mi+" mile"+(data.distance_mi > 1 ? "s" : "")+" away<br><button class='selectPWS' data-id='"+data.id+"'>Select</button></p></div>";
+            } else {
+                return "<div style='min-height:70px;min-width:170px;text-align:center;'><h3 style='padding:0;margin:0 0 4px 0'>"+(data.city ? data.city+", " : "")+(data.state ? data.state+", " : "")+data.country+"</h3><span style='font-size:8px;margin:0;padding:0;vertical-align: top'>Airport ICAO: "+data.icao+"</span><br><button class='selectAirport' data-id='"+data.icao+"'>Select</button></div>";
+            }
         }
     </script>
     <style>
@@ -116,7 +126,7 @@
             overflow: hidden !important;
             line-height: 1.35;
         }
-        .selectPWS {
+        .selectPWS, .selectAirport {
             border-radius: 6px;
             margin-top: 2px;
         }
