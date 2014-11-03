@@ -284,12 +284,15 @@ $(document)
             debugWU();
             return false;
         } else if (hash === "#raindelay") {
-            showSingleDurationInput({
+            showDurationBox({
                 data: 0,
                 title: _("Change Rain Delay"),
                 callback: raindelay,
-                label: _("Duration (in hours)"),
-                maximum: 96,
+                label: _("Duration"),
+                maximum: 345600,
+                granularity: 2,
+                preventCompression: true,
+                incrementalUpdate: false,
                 updateOnChange: false,
                 helptext: _("Enable manual rain delay by entering a value into the input below. To turn off a currently enabled rain delay use a value of 0.")
             });
@@ -5854,7 +5857,7 @@ function submit_program21(id) {
 
 function raindelay(delay) {
     $.mobile.loading("show");
-    send_to_os("/cv?pw=&rd="+delay).done(function(){
+    send_to_os("/cv?pw=&rd="+(delay/3600)).done(function(){
         $.mobile.loading("hide");
         showLoading("#footer-running");
         $.when(
@@ -6502,6 +6505,7 @@ function showDurationBox(opt) {
             title: _("Duration"),
             granularity: 0,
             preventCompression: false,
+            incrementalUpdate: true,
             showBack: true,
             callback: function(){}
         };
@@ -6543,6 +6547,7 @@ function showDurationBox(opt) {
                 "<h1>"+opt.title+"</h1>" +
             "</div>" +
             "<div class='ui-content'>" +
+                (opt.helptext ? "<p class='pad-top rain-desc center smaller'>"+opt.helptext+"</p>" : "") +
                 "<span>" +
                 "</span>" +
                 (opt.showBack ? "<button class='submit' data-theme='b'>"+_("Submit")+"</button>" : "") +
@@ -6569,7 +6574,9 @@ function showDurationBox(opt) {
             }
 
             input.val(val+dir);
-            opt.callback(getValue());
+            if (opt.incrementalUpdate) {
+                opt.callback(getValue());
+            }
 
             if (!opt.preventCompression && checkOSVersion(210)) {
                 var state = (dir === 1) ? true : false;
@@ -6664,7 +6671,9 @@ function showDurationBox(opt) {
         "positionTo": "window"
     })
     .one("popupafterclose",function(){
-        opt.callback(getValue());
+        if (opt.incrementalUpdate) {
+            opt.callback(getValue());
+        }
         $(this).popup("destroy").remove();
     })
     .enhanceWithin().popup("open");
