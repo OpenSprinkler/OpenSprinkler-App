@@ -164,6 +164,9 @@ a {
     margin: 6.25px auto !important;
     display: block;
 }
+.pad_buttons > input {
+    text-align: center;
+}
 .input_with_buttons .ui-input-text {
     display:inline-block;
     width:65%;
