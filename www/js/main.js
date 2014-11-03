@@ -2505,7 +2505,7 @@ function show_options() {
         "<label for='loc'>"+_("Location")+"<button data-helptext='"+_("Location can be a zip code, city/state or a weatherunderground personal weather station using the format: pws:ID.")+"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label>" +
         "<table>" +
             "<tr style='width:100%;vertical-align: top;'>" +
-                "<td style='width:100%'><input data-wrapper-class='controlgroup-textinput ui-btn' data-mini='true' type='text' id='loc' value='"+controller.settings.loc+"'></td>" +
+                "<td style='width:100%'><input data-wrapper-class='"+($("#weather-list").is(":visible") ? "green " : "")+"controlgroup-textinput ui-btn' data-mini='true' type='text' id='loc' value='"+controller.settings.loc+"'></td>" +
                 (!isChromeApp && !isOSXApp && checkOSVersion(210) ? "<td id='nearbyPWS'><button class='noselect' data-icon='location' data-iconpos='notext' data-mini='true'></button></td>" : "<td><button class='noselect' data-corners='false' id='lookup-loc' data-mini='true'>"+_("Lookup")+"</button></td>") +
             "</tr>" +
         "</table></div>";
