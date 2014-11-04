@@ -2150,10 +2150,13 @@ function nearbyPWS(lat,lon,callback) {
     }
 
     $.ajax({
-        url: "http://api.wunderground.com/api/"+controller.settings.wtkey+"/geolookup/q/"+encodeURIComponent(lat)+","+encodeURIComponent(lon)+".json",
+        url: "http://api.wunderground.com/api/"+controller.settings.wtkey+"/geolookup/q/"+(lat === -999 || lon === -999 ? "autoip" : encodeURIComponent(lat)+","+encodeURIComponent(lon))+".json",
         dataType: isChromeApp ? "json" : "jsonp"
     }).retry({times:retryCount, statusCodes: [0]}).done(function(data){
         var airports;
+
+        lat = data.location.lat;
+        lon = data.location.lon;
 
         try {
             airports = data.location.nearby_weather_stations.airport.station;
@@ -2588,7 +2591,7 @@ function show_options() {
         "<table>" +
             "<tr style='width:100%;vertical-align: top;'>" +
                 "<td style='width:100%'><input data-wrapper-class='"+($("#weather-list").is(":visible") ? "green " : "")+"controlgroup-textinput ui-btn' data-mini='true' type='text' id='loc' value='"+controller.settings.loc+"'></td>" +
-                (!isChromeApp && !isOSXApp && checkOSVersion(210) ? "<td id='nearbyPWS'><button class='noselect' data-icon='location' data-iconpos='notext' data-mini='true'></button></td>" : "<td><button class='noselect' data-corners='false' id='lookup-loc' data-mini='true'>"+_("Lookup")+"</button></td>") +
+                (checkOSVersion(210) ? "<td id='nearbyPWS'><button class='noselect' data-icon='location' data-iconpos='notext' data-mini='true'></button></td>" : "<td><button class='noselect' data-corners='false' id='lookup-loc' data-mini='true'>"+_("Lookup")+"</button></td>") +
             "</tr>" +
         "</table></div>";
 
@@ -2738,12 +2741,11 @@ function show_options() {
         var loc = $("#loc"),
             button = $(this),
             exit = function(result){
+                if (result !== true) {
+                    nearbyPWS(-999,-999,finish);
+                }
                 $.mobile.loading("hide");
                 button.prop("disabled",false);
-                if (result !== true) {
-                    showerror(_("Unable to determine your location."));
-                }
-                return false;
             };
 
         if (controller.settings.wtkey === "") {
@@ -2754,20 +2756,22 @@ function show_options() {
         $.mobile.loading("show");
         button.prop("disabled",true);
 
+        var finish = function(selected){
+                if (selected === false) {
+                    page.find("#o1").parents(".ui-field-contain").removeClass("hidden");
+                } else {
+                    if (checkOSVersion(210)) {
+                        page.find("#o1").parents(".ui-field-contain").addClass("hidden");
+                    }
+                    loc.parent().addClass("green");
+                    loc.val(selected);
+                }
+                exit(true);
+            };
+
         try {
             navigator.geolocation.getCurrentPosition(function(position){
-                nearbyPWS(position.coords.latitude,position.coords.longitude,function(selected){
-                    if (selected === false) {
-                        page.find("#o1").parents(".ui-field-contain").removeClass("hidden");
-                    } else {
-                        if (checkOSVersion(210)) {
-                            page.find("#o1").parents(".ui-field-contain").addClass("hidden");
-                        }
-                        loc.parent().addClass("green");
-                        loc.val(selected);
-                    }
-                    exit(true);
-                });
+                nearbyPWS(position.coords.latitude,position.coords.longitude,finish);
             },exit);
         } catch(err) { exit(); }
     });
