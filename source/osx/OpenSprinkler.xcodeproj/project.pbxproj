@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		F40530A7198326550046DC88 /* OpenSprinkler.icns in Resources */ = {isa = PBXBuildFile; fileRef = F40530A6198326550046DC88 /* OpenSprinkler.icns */; };
+		F41864D81A089D9700C25906 /* map.htm in Resources */ = {isa = PBXBuildFile; fileRef = F41864D71A089D9700C25906 /* map.htm */; };
 		F464DC01198ED81E003492F2 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = F464DC00198ED81E003492F2 /* MainMenu.xib */; };
 		F464DC03198ED884003492F2 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = F464DC02198ED884003492F2 /* Credits.rtf */; };
 		F4F83F8D1981E481006B2617 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4F83F8C1981E481006B2617 /* Cocoa.framework */; };
@@ -23,6 +24,7 @@
 
 /* Begin PBXFileReference section */
 		F40530A6198326550046DC88 /* OpenSprinkler.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = OpenSprinkler.icns; path = ../../www/res/osx/icons/OpenSprinkler.icns; sourceTree = "<group>"; };
+		F41864D71A089D9700C25906 /* map.htm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = map.htm; path = ../../../www/map.htm; sourceTree = "<group>"; };
 		F464DC00198ED81E003492F2 /* MainMenu.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MainMenu.xib; sourceTree = "<group>"; };
 		F464DC02198ED884003492F2 /* Credits.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = Credits.rtf; sourceTree = "<group>"; };
 		F4D9F92A1982F35800405EF0 /* OpenSprinkler.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = OpenSprinkler.entitlements; sourceTree = "<group>"; };
@@ -114,6 +116,7 @@
 		F4F83F931981E481006B2617 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				F41864D71A089D9700C25906 /* map.htm */,
 				F4F83FC51981E523006B2617 /* css */,
 				F4F83FC61981E523006B2617 /* img */,
 				F4F83FC71981E523006B2617 /* index.htm */,
@@ -192,6 +195,7 @@
 				F4F83FCE1981E523006B2617 /* locale in Resources */,
 				F4F83FCA1981E523006B2617 /* css in Resources */,
 				F4F83FCD1981E523006B2617 /* js in Resources */,
+				F41864D81A089D9700C25906 /* map.htm in Resources */,
 				F464DC03198ED884003492F2 /* Credits.rtf in Resources */,
 				F40530A7198326550046DC88 /* OpenSprinkler.icns in Resources */,
 				F4F83FCB1981E523006B2617 /* img in Resources */,
