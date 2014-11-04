@@ -1443,10 +1443,8 @@ function checkAutoScan() {
             return;
         }
 
-        var chk = parseIntArray(ip.split("."));
-
         // Check if the IP is on a private network, if not don't enable automatic scanning
-        if (!(chk[0] === 10 || (chk[0] === 172 && chk[1] > 17 && chk[1] < 32) || (chk[0] === 192 && chk[1] === 168))) {
+        if (!isLocalIP(ip)) {
             resetStartMenu();
             return;
         }
@@ -1484,9 +1482,23 @@ function checkAutoScan() {
             });
         }
     } catch (err) {
-        resetStartMenu();
-        return;
+        find_router(function(status,data){
+            if (status === false) {
+                resetStartMenu();
+                return;
+            } else {
+                ip = data;
+                finishCheck();
+            }
+        });
     }
+}
+
+function isLocalIP(ip) {
+    var chk = parseIntArray(ip.split("."));
+
+    // Check if the IP is on a private network, if not don't enable automatic scanning
+    return (chk[0] === 10 || (chk[0] === 172 && chk[1] > 17 && chk[1] < 32) || (chk[0] === 192 && chk[1] === 168));
 }
 
 function resetStartMenu() {
@@ -1612,7 +1624,7 @@ function start_scan(port,type) {
     }
 
     $.mobile.loading("show", {
-        html: "<h1>"+text+"</h1><p class='cancel tight center inline-icon'><span class='btn-no-border ui-btn ui-icon-delete ui-btn-icon-notext'></span>Cancel</p>",
+        html: "<h1>"+text+"</h1><p class='cancel tight center inline-icon'><span class='btn-no-border ui-btn ui-icon-delete ui-btn-icon-notext'></span>"+_("Cancel")+"</p>",
         textVisible: true,
         theme: "b"
     });
@@ -1642,6 +1654,76 @@ function start_scan(port,type) {
         });
     }
     scanning = setInterval(check_scan_status,200);
+}
+
+function find_router(callback) {
+    callback = callback || function(){};
+
+    var routerIPs = ["192.168.1.1","10.0.1.1","192.168.1.220","192.168.2.1","10.1.1.1","192.168.11.1","192.168.0.1","192.168.0.30","192.168.0.50","192.168.10.1","192.168.20.1","192.168.30.1","192.168.62.1","192.168.102.1","192.168.1.254","192.168.0.227","10.0.0.138","192.168.123.254","192.168.4.1","10.0.0.2","10.0.2.1","10.0.3.1","10.0.4.1","10.0.5.1"],
+        total = routerIPs.length,
+        scanprogress = 0,
+        isCanceled = false,
+        reply = function(status,ip){
+            scanprogress++;
+            if (status === true) {
+                routerFound = ip;
+            }
+        },
+        check_scan_status = function() {
+            if (isCanceled === true) {
+                $.mobile.loading("hide");
+                clearInterval(scanning);
+                return false;
+            }
+
+            if (scanprogress === total || typeof routerFound === "string") {
+                $.mobile.loading("hide");
+                clearInterval(scanning);
+                if (typeof routerFound === "string") {
+                    callback(true,routerFound);
+                } else {
+                    callback(false);
+                }
+            }
+        },
+        scanning, routerFound, i;
+
+    $(".ui-loader").find(".cancel").one("click",function(){
+        isCanceled = true;
+    });
+
+    for (i=0;i<total;i++) {
+        if (typeof routerFound !== "string") {
+            ping(routerIPs[i],reply);
+        }
+    }
+    scanning = setInterval(check_scan_status,50);
+}
+
+function ping(ip,callback) {
+    callback = callback || function(){};
+
+    if (!ip || ip === "") {
+        callback(false);
+    }
+
+    $.ajax({
+        url: "http://"+ip,
+        type: "GET",
+        timeout: 3000,
+        global: false
+    }).then(
+        function(){
+            callback(true,ip);
+        },
+        function(e){
+            if (e.statusText === "timeout") {
+                callback(false);
+            } else {
+                callback(true,ip);
+            }
+        }
+    );
 }
 
 // Show popup for new device after populating device IP with selected result
