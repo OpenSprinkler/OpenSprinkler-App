@@ -7,7 +7,7 @@ msgstr ""
 msgid "Change Rain Delay"
 msgstr ""
 
-msgid "Duration (in hours)"
+msgid "Duration"
 msgstr ""
 
 msgid ""
@@ -148,6 +148,9 @@ msgid "Scanning for OpenSprinkler (1.8.3)"
 msgstr ""
 
 msgid "Scanning for OpenSprinkler Pi (1.8.3)"
+msgstr ""
+
+msgid "Cancel"
 msgstr ""
 
 msgid "Weather Settings"
@@ -424,9 +427,6 @@ msgid "Use DHCP (restart required)"
 msgstr ""
 
 msgid "Ignore Password"
-msgstr ""
-
-msgid "Unable to determine your location."
 msgstr ""
 
 msgid ""
@@ -1010,9 +1010,6 @@ msgid "No"
 msgstr ""
 
 msgid "Enter IP Address"
-msgstr ""
-
-msgid "Duration"
 msgstr ""
 
 msgid "Days"
