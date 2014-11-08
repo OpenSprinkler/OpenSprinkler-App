@@ -3168,23 +3168,23 @@ function show_stations() {
                 select += "<input class='bold center' data-wrapper-class='stn-name ui-btn' id='stn-name' type='text' value='"+name.text()+"'>";
 
                 if (hasMaster) {
-                    select += "<label for='um'><input data-iconpos='right' id='um' type='checkbox' "+((button.data("um") === 1) ? "checked='checked'" : "")+">"+_("Use Master")+"</label>";
+                    select += "<label for='um'><input class='needsclick' data-iconpos='right' id='um' type='checkbox' "+((button.data("um") === 1) ? "checked='checked'" : "")+">"+_("Use Master")+"</label>";
                 }
 
                 if (hasIR) {
-                    select += "<label for='ir'><input data-iconpos='right' id='ir' type='checkbox' "+((button.data("ir") === 1) ? "checked='checked'" : "")+">"+_("Ignore Rain")+"</label>";
+                    select += "<label for='ir'><input class='needsclick' data-iconpos='right' id='ir' type='checkbox' "+((button.data("ir") === 1) ? "checked='checked'" : "")+">"+_("Ignore Rain")+"</label>";
                 }
 
                 if (hasAR) {
-                    select += "<label for='ar'><input data-iconpos='right' id='ar' type='checkbox' "+((button.data("ar") === 1) ? "checked='checked'" : "")+">"+_("Activate Relay")+"</label>";
+                    select += "<label for='ar'><input class='needsclick' data-iconpos='right' id='ar' type='checkbox' "+((button.data("ar") === 1) ? "checked='checked'" : "")+">"+_("Activate Relay")+"</label>";
                 }
 
                 if (hasSD) {
-                    select += "<label for='sd'><input data-iconpos='right' id='sd' type='checkbox' "+((button.data("sd") === 1) ? "checked='checked'" : "")+">"+_("Disable")+"</label>";
+                    select += "<label for='sd'><input class='needsclick' data-iconpos='right' id='sd' type='checkbox' "+((button.data("sd") === 1) ? "checked='checked'" : "")+">"+_("Disable")+"</label>";
                 }
 
                 if (hasSequential) {
-                    select += "<label for='us'><input data-iconpos='right' id='us' type='checkbox' "+((button.data("us") === 1) ? "checked='checked'" : "")+">"+_("Sequential")+"</label>";
+                    select += "<label for='us'><input class='needsclick' data-iconpos='right' id='us' type='checkbox' "+((button.data("us") === 1) ? "checked='checked'" : "")+">"+_("Sequential")+"</label>";
                 }
 
             select += "</fieldset></div>";
