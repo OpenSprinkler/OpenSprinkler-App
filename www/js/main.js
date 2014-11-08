@@ -3163,9 +3163,9 @@ function show_stations() {
             var button = $(this),
                 id = button.data("station"),
                 name = page.find("#station_"+id),
-                select = "<div data-role='popup' id='stn_attrib'><fieldset style='margin:0' data-corners='false' data-role='controlgroup'>";
+                select = "<div data-overlay-theme='b' data-role='popup' id='stn_attrib'><fieldset style='margin:0' data-corners='false' data-role='controlgroup'>";
 
-                select += "<input class='center' data-wrapper-class='stn-name ui-btn' id='stn-name' type='text' value='"+name.text()+"'>";
+                select += "<input class='bold center' data-wrapper-class='stn-name ui-btn' id='stn-name' type='text' value='"+name.text()+"'>";
 
                 if (hasMaster) {
                     select += "<label for='um'><input data-iconpos='right' id='um' type='checkbox' "+((button.data("um") === 1) ? "checked='checked'" : "")+">"+_("Use Master")+"</label>";
