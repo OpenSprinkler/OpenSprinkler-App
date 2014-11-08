@@ -7103,7 +7103,7 @@ function showerror(msg,dur) {
 function fixInputClick(page) {
     // Handle Fast Click quirks
     if (!FastClick.notNeeded(document.body)) {
-        page.find("input[type='checkbox']:not([data-role='flipswitch']),select").addClass("needsclick");
+        page.find("input[type='checkbox']:not([data-role='flipswitch']),.ui-select > .ui-btn").addClass("needsclick");
         page.find(".ui-collapsible-heading-toggle").on("click",function(){
             var heading = $(this);
 
