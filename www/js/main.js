@@ -3154,6 +3154,10 @@ function show_stations() {
                     "></button>";
             }
 
+            if (controller.options.mas === i+1) {
+                cards += "<p class='tight center'>"+_("Master")+" "+_("Station")+"</p>";
+            }
+
             // Close current card group
             cards += "</div></div>";
         },
@@ -3358,11 +3362,17 @@ function show_stations() {
     page.find(".submit").on("click",submit_stations);
 
     page.find(".reset").on("click",function(){
-        page.find("[id^='edit_station_']").each(function(a,b){
-            $(b).val("S"+pad(a+1));
+        page.find("[id^='station_']").each(function(a,b){
+            $(b).html("S"+pad(a+1)+editButton);
         });
-        page.find("input[type='checkbox']").each(function(a,b){
-            $(b).prop("checked",false).checkboxradio("refresh");
+        page.find(".attrib").each(function(a,b){
+            $(b).data({
+                "um": 0,
+                "us": 0,
+                "ir": 0,
+                "ar": 0,
+                "sd": 0
+            });
         });
     });
 
