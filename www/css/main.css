@@ -523,6 +523,24 @@ div.running-text{
     content: counter(station-id) ": ";
 }
 
+.attrib {
+    position: absolute;
+    top: 0;
+    right: 0
+}
+
+.stn-name {
+    padding: 0;
+}
+
+#os-stations-list .ui-li-has-count.ui-btn {
+    padding-right: 12.5px!important;
+}
+
+#os-stations-list .ui-li-count {
+    display: none!important;
+}
+
 #os-stations-list {
     counter-reset: station-id;
 }
