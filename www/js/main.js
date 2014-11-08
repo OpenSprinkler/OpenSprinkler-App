@@ -2239,6 +2239,8 @@ function nearbyPWS(lat,lon,callback) {
             x: 0,
             y: 0
         }).enhanceWithin().popup("open");
+    }).fail(function(){
+        callback(false);
     });
 }
 
@@ -2743,6 +2745,7 @@ function show_options() {
             exit = function(result){
                 if (result !== true) {
                     nearbyPWS(-999,-999,finish);
+                    return;
                 }
                 $.mobile.loading("hide");
                 button.prop("disabled",false);
@@ -3142,42 +3145,80 @@ function show_stations() {
             }
 
             if (optCount > 0 && controller.options.mas !== i+1) {
-                cards += "<fieldset data-role='controlgroup' data-type='horizontal' data-mini='true' class='center seperate-btn'>";
-
-                if (isMaster) {
-                    cards += "<input id='um_"+i+"' type='checkbox' "+((controller.stations.masop[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+"><label for='um_"+i+"'>"+_("Use Master")+"</label>";
-                }
-
-                if (hasIR) {
-                    cards += "<input id='ir_"+i+"' type='checkbox' "+((controller.stations.ignore_rain[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+"><label for='ir_"+i+"'>"+_("Ignore Rain")+"</label>";
-                }
-
-                if (hasAR) {
-                    cards += "<input id='ar_"+i+"' type='checkbox' "+((controller.stations.act_relay[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+"><label for='ar_"+i+"'>"+_("Activate Relay")+"</label>";
-                }
-
-                if (hasSD) {
-                    cards += "<input id='sd_"+i+"' type='checkbox' "+((controller.stations.stn_dis[parseInt(i/8)]&(1<<(i%8))) ? "checked='checked'" : "")+"><label for='sd_"+i+"'>"+_("Disable")+"</label>";
-                }
-
-                cards += "</fieldset>";
+                cards += "<button data-mini='true' data-icon='gear' data-iconpos='notext' data-inline='true' data-station='"+i+"' id='attrib-"+i+"' class='attrib' " +
+                    (hasMaster ? ("data-um='"+((controller.stations.masop[parseInt(i/8)]&(1<<(i%8))) ? 1 : 0)+"' ") : "") +
+                    (hasIR ? ("data-ir='"+((controller.stations.ignore_rain[parseInt(i/8)]&(1<<(i%8))) ? 1 : 0)+"' ") : "") +
+                    (hasAR ? ("data-ar='"+((controller.stations.act_relay[parseInt(i/8)]&(1<<(i%8))) ? 1 : 0)+"' ") : "") +
+                    (hasSD ? ("data-sd='"+((controller.stations.stn_dis[parseInt(i/8)]&(1<<(i%8))) ? 1 : 0)+"' ") : "") +
+                    (hasSequential ? ("data-us='"+((controller.stations.stn_seq[parseInt(i/8)]&(1<<(i%8))) ? 1 : 0)+"' ") : "") +
+                    "></button>";
             }
 
             // Close current card group
             cards += "</div></div>";
         },
+        show_attributes = function() {
+            $("#stn_attrib").popup("destroy").remove();
+
+            var button = $(this),
+                id = button.data("station"),
+                name = page.find("#station_"+id),
+                select = "<div data-role='popup' id='stn_attrib'><fieldset style='margin:0' data-corners='false' data-role='controlgroup'>";
+
+                select += "<input class='center' data-wrapper-class='stn-name ui-btn' id='stn-name' type='text' value='"+name.text()+"'>";
+
+                if (hasMaster) {
+                    select += "<label for='um'><input data-iconpos='right' id='um' type='checkbox' "+((button.data("um") === 1) ? "checked='checked'" : "")+">"+_("Use Master")+"</label>";
+                }
+
+                if (hasIR) {
+                    select += "<label for='ir'><input data-iconpos='right' id='ir' type='checkbox' "+((button.data("ir") === 1) ? "checked='checked'" : "")+">"+_("Ignore Rain")+"</label>";
+                }
+
+                if (hasAR) {
+                    select += "<label for='ar'><input data-iconpos='right' id='ar' type='checkbox' "+((button.data("ar") === 1) ? "checked='checked'" : "")+">"+_("Activate Relay")+"</label>";
+                }
+
+                if (hasSD) {
+                    select += "<label for='sd'><input data-iconpos='right' id='sd' type='checkbox' "+((button.data("sd") === 1) ? "checked='checked'" : "")+">"+_("Disable")+"</label>";
+                }
+
+                if (hasSequential) {
+                    select += "<label for='us'><input data-iconpos='right' id='us' type='checkbox' "+((button.data("us") === 1) ? "checked='checked'" : "")+">"+_("Sequential")+"</label>";
+                }
+
+            select += "</fieldset></div>";
+            select = $(select);
+            select.one("popupafterclose", function(){
+                button.data("um", select.find("#um").is(":checked") ? 1 : 0 );
+                button.data("ir", select.find("#ir").is(":checked") ? 1 : 0 );
+                button.data("ar", select.find("#ar").is(":checked") ? 1 : 0 );
+                button.data("sd", select.find("#sd").is(":checked") ? 1 : 0 );
+                button.data("us", select.find("#us").is(":checked") ? 1 : 0 );
+                name.html( select.find("#stn-name").val() + editButton );
+                select.popup("destroy").remove();
+            }).enhanceWithin();
+
+            $(".ui-page-active").append(select);
+
+            select.popup({history: false, positionTo: button.parent()}).popup("open");
+        },
         submit_stations = function() {
             var is208 = (checkOSVersion(208) === true),
                 master = {},
+                sequential = {},
                 rain = {},
                 relay = {},
                 disable = {},
                 names = {},
-                bid, sid, s;
+                attrib, bid, sid, s;
 
             for(bid=0;bid<controller.settings.nbrd;bid++) {
-                if (isMaster) {
+                if (hasMaster) {
                     master["m"+bid] = 0;
+                }
+                if (hasSequential) {
+                    sequential["q"+bid] = 0;
                 }
                 if (hasIR) {
                     rain["i"+bid] = 0;
@@ -3191,18 +3232,22 @@ function show_stations() {
 
                 for(s=0;s<8;s++) {
                     sid=bid*8+s;
+                    attrib = page.find("#attrib-"+sid);
 
-                    if (isMaster) {
-                        master["m"+bid] = (master["m"+bid]) + ((page.find("#um_"+sid).is(":checked") ? 1 : 0) << s);
+                    if (hasMaster) {
+                        master["m"+bid] = (master["m"+bid]) + (attrib.data("um") << s);
+                    }
+                    if (hasSequential) {
+                        sequential["q"+bid] = (sequential["q"+bid]) + (attrib.data("us") << s);
                     }
                     if (hasIR) {
-                        rain["i"+bid] = (rain["i"+bid]) + ((page.find("#ir_"+sid).is(":checked") ? 1 : 0) << s);
+                        rain["i"+bid] = (rain["i"+bid]) + (attrib.data("ir") << s);
                     }
                     if (hasAR) {
-                        relay["a"+bid] = (relay["a"+bid]) + ((page.find("#ar_"+sid).is(":checked") ? 1 : 0) << s);
+                        relay["a"+bid] = (relay["a"+bid]) + (attrib.data("ar") << s);
                     }
                     if (hasSD) {
-                        disable["d"+bid] = (disable["d"+bid]) + ((page.find("#sd_"+sid).is(":checked") ? 1 : 0) << s);
+                        disable["d"+bid] = (disable["d"+bid]) + (attrib.data("sd") << s);
                     }
 
                     // Because the firmware has a bug regarding spaces, let us replace them out now with a compatible seperator
@@ -3215,7 +3260,7 @@ function show_stations() {
             }
 
             $.mobile.loading("show");
-            send_to_os("/cs?pw=&"+$.param(names)+(isMaster ? "&"+$.param(master) : "")+(hasIR ? "&"+$.param(rain) : "")+(hasAR ? "&"+$.param(relay) : "")+(hasSD ? "&"+$.param(disable) : "")).done(function(){
+            send_to_os("/cs?pw=&"+$.param(names)+(hasMaster ? "&"+$.param(master) : "")+(hasSequential ? "&"+$.param(sequential) : "")+(hasIR ? "&"+$.param(rain) : "")+(hasAR ? "&"+$.param(relay) : "")+(hasSD ? "&"+$.param(disable) : "")).done(function(){
                 $.mobile.document.one("pageshow",function(){
                     showerror(_("Stations have been updated"));
                 });
@@ -3261,11 +3306,12 @@ function show_stations() {
                 stop();
             }
         },
-        isMaster = controller.options.mas ? true : false,
+        hasMaster = controller.options.mas ? true : false,
         hasIR = (typeof controller.stations.ignore_rain === "object") ? true : false,
         hasAR = (typeof controller.stations.act_relay === "object") ? true : false,
         hasSD = (typeof controller.stations.stn_dis === "object") ? true : false,
-        optCount = hasIR + isMaster + hasAR + hasSD,
+        hasSequential = (typeof controller.stations.stn_seq === "object") ? true : false,
+        optCount = hasIR + hasMaster + hasAR + hasSD + hasSequential,
         is21 = checkOSVersion(210),
         i;
 
@@ -3290,6 +3336,8 @@ function show_stations() {
     });
 
     page.on("click","[id^='run_station-']",run_station);
+
+    page.on("click",".attrib",show_attributes);
 
     page.on("click","[id^='station_']",function(){
         var text = $(this),
@@ -7062,13 +7110,6 @@ function fixInputClick(page) {
             setTimeout(function(){
                 heading.removeClass("ui-btn-active");
             },100);
-        });
-        page.find(".ui-select > .ui-btn").each(function(a,b){
-            var ele = $(b),
-                id = ele.attr("id");
-
-            ele.attr("data-rel","popup");
-            ele.attr("href","#"+id.slice(0,-6)+"listbox");
         });
     }
 }
