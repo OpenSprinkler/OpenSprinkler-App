@@ -3127,9 +3127,11 @@ function show_stations() {
             "<div class='ui-content' role='main'>" +
             "</div>" +
         "</div>"),
+        durations = [],
         editButton = "<span style='padding-left:10px' class='btn-no-border ui-btn ui-icon-edit ui-btn-icon-notext'></span>",
         addCard = function(i){
-            var station = controller.stations.snames[i];
+            var station = controller.stations.snames[i],
+                isRunning = controller.status[i] > 0 || controller.settings.ps[i][0] > 0;
 
             // Group card settings visually
             cards += "<div class='ui-corner-all card'>";
@@ -3140,8 +3142,10 @@ function show_stations() {
                 cards += "<fieldset data-role='controlgroup' data-type='horizontal' data-mini='true' class='center'>";
                 cards += "<legend>"+_("Test Station")+"</legend>";
                 cards += "<select><option value='60'>1 min</option><option value='300'>5 mins</option><option value='600'>10 mins</option><option value='900'>15 mins</option><option value='1200'>20 mins</option></select>";
-                cards += "<button class='"+(controller.status[i] > 0 || controller.settings.ps[i][0] > 0 ? "red" : "green")+"' id='run_station-"+i+"'>"+(controller.status[i] > 0 || controller.settings.ps[i][0] > 0 ? _("Stop") : _("Start"))+"</button>";
+                cards += "<button class='"+(isRunning ? "red" : "green")+"' id='run_station-"+i+"'>"+(isRunning ? _("Stop") : _("Start"))+"</button>";
                 cards += "</fieldset>";
+
+                durations[i] = controller.settings.ps[i][1];
             }
 
             if (optCount > 0 && controller.options.mas !== i+1) {
@@ -3284,6 +3288,11 @@ function show_stations() {
                         // Notify user the station test was successful
                         showerror(_("Station test activated"));
 
+                        // Update local state until next device refresh occurs
+                        controller.settings.ps[station][0] = 99;
+                        controller.settings.ps[station][1] = duration;
+                        durations[station] = duration;
+
                         // Change the start button to a stop button
                         button.removeClass("green").addClass("red").text(_("Stop")).on("click",stop);
 
@@ -3296,6 +3305,12 @@ function show_stations() {
                     send_to_os("/cm?sid="+station+"&en=0&pw=","json").done(reset);
 
                     $.mobile.loading("hide");
+
+                    // Update local state until next device refresh occurs
+                    controller.settings.ps[station][0] = 0;
+                    controller.settings.ps[station][1] = 0;
+                    controller.status[station] = 0;
+                    durations[station] = 0;
 
                     // Prevent start delegate function from being called
                     return false;
@@ -3310,6 +3325,37 @@ function show_stations() {
                 stop();
             }
         },
+        updateContent = function(){
+            page.find("[id^='run_station-']").each(function(){
+                var button = $(this),
+                    select = button.siblings(".ui-select"),
+                    i = parseInt(button.attr("id").split("-")[1]),
+                    reset = function(){
+                        select.find(".ui-btn").addClass("ui-icon-carat-d ui-btn-icon-right");
+                        select.find("select").prop("disabled",false);
+                        select.find("span").text(select.find("select option:selected").text());
+                        button.removeClass("red").addClass("green").text(_("Start")).off("click");
+                    };
+
+                if (controller.status[i] > 0 || controller.settings.ps[i][0] > 0) {
+                    if (controller.status[i] > 0) {
+                        durations[i]--;
+                    }
+
+                    if (durations[i] <= 0) {
+                        reset();
+                        return true;
+                    }
+
+                    select.find(".ui-btn").removeClass("ui-icon-carat-d ui-btn-icon-right");
+                    select.find("select").prop("disabled",true);
+                    select.find("span").text(dhms2str(sec2dhms(durations[i])));
+                    button.removeClass("green").addClass("red").text(_("Stop")).off("click");
+                } else {
+                    reset();
+                }
+            });
+        },
         hasMaster = controller.options.mas ? true : false,
         hasIR = (typeof controller.stations.ignore_rain === "object") ? true : false,
         hasAR = (typeof controller.stations.act_relay === "object") ? true : false,
@@ -3317,7 +3363,8 @@ function show_stations() {
         hasSequential = (typeof controller.stations.stn_seq === "object") ? true : false,
         optCount = hasIR + hasMaster + hasAR + hasSD + hasSequential,
         is21 = checkOSVersion(210),
-        i;
+        lastCheck = new Date().getTime(),
+        updateInterval, i;
 
     for (i=0; i<8; i++) {
         addCard(i);
@@ -3327,16 +3374,10 @@ function show_stations() {
 
     // When data is refreshed, update the icon status
     page.on("datarefresh",function(){
-        page.find("[id^='run_station-']").each(function(){
-            var button = $(this),
-                i = parseInt(button.attr("id").split("-")[1]);
-
-            if (controller.status[i] > 0 || controller.settings.ps[i][0] > 0) {
-                button.removeClass("green").addClass("red").text(_("Stop")).off("click");
-            } else {
-                button.removeClass("red").addClass("green").text(_("Start")).off("click");
-            }
-        });
+        for (var i = controller.settings.ps.length - 1; i >= 0; i--) {
+            durations[i] = controller.settings.ps[i][1];
+        }
+        updateContent();
     });
 
     page.on("click","[id^='run_station-']",run_station);
@@ -3386,6 +3427,25 @@ function show_stations() {
                 addCard(i);
             }
             page.find("#os-stations-list").append(cards).enhanceWithin();
+        },
+        pagebeforeshow: function() {
+            updateContent();
+            updateInterval = setInterval(function(){
+                var now = new Date().getTime(),
+                    currPage = $(".ui-page-active").attr("id"),
+                    diff = now - lastCheck;
+
+                if (diff > 3000) {
+                    if (currPage === "os-stations") {
+                        refresh_status();
+                    } else {
+                        clearInterval(updateInterval);
+                    }
+                }
+
+                lastCheck = now;
+                updateContent();
+            },1000);
         }
     });
 
