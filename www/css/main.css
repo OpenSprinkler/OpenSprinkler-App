@@ -533,6 +533,10 @@ div.running-text{
     padding: 0;
 }
 
+#os-stations-list .ui-controlgroup-label {
+    vertical-align: bottom;
+}
+
 #os-stations-list .ui-li-has-count.ui-btn {
     padding-right: 12.5px!important;
 }
