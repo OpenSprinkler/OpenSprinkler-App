@@ -2743,13 +2743,15 @@ function show_options() {
         var loc = $("#loc"),
             button = $(this),
             exit = function(result){
+                clearTimeout(loadMsg);
                 $.mobile.loading("hide");
                 if (result !== true) {
                     nearbyPWS(-999,-999,finish);
                     return;
                 }
                 button.prop("disabled",false);
-            };
+            },
+            loadMsg;
 
         if (controller.settings.wtkey === "") {
             showerror(_("An API key must be provided for Weather Underground"));
@@ -2761,7 +2763,9 @@ function show_options() {
 
         var finish = function(selected){
                 if (selected === false) {
-                    page.find("#o1").selectmenu("enable");
+                    if (page.find("#loc").val() === "") {
+                        page.find("#o1").selectmenu("enable");
+                    }
                 } else {
                     if (checkOSVersion(210)) {
                         page.find("#o1").selectmenu("disable");
@@ -2773,12 +2777,15 @@ function show_options() {
             };
 
         try {
-            $.mobile.loading("show", {
-                html: "<div class='logo'></div><h1 style='padding-top:5px'>"+_("Attempting to retrieve your current location")+"</h1></p>",
-                textVisible: true,
-                theme: "b"
-            });
+            loadMsg = setTimeout(function(){
+                $.mobile.loading("show", {
+                    html: "<div class='logo'></div><h1 style='padding-top:5px'>"+_("Attempting to retrieve your current location")+"</h1></p>",
+                    textVisible: true,
+                    theme: "b"
+                });
+            },100);
             navigator.geolocation.getCurrentPosition(function(position){
+                clearTimeout(loadMsg);
                 nearbyPWS(position.coords.latitude,position.coords.longitude,finish);
             },exit);
         } catch(err) { exit(); }
@@ -2798,7 +2805,9 @@ function show_options() {
 
         resolveLocation(current,function(selected){
             if (selected === false) {
-                page.find("#o1").selectmenu("enable");
+                if (page.find("#loc").val() === "") {
+                    page.find("#o1").selectmenu("enable");
+                }
                 showerror(_("Unable to locate using:")+" "+current+". "+_("Please use another value and try again."));
             } else {
                 if (checkOSVersion(210)) {
