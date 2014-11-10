@@ -2597,10 +2597,6 @@ function show_options() {
             "</tr>" +
         "</table></div>";
 
-    if (typeof controller.options.ntp !== "undefined") {
-        list += "<label for='o2'><input data-mini='true' id='o2' type='checkbox' "+((controller.options.ntp === 1) ? "checked='checked'" : "")+">"+_("NTP Sync")+"</label>";
-    }
-
     if (typeof controller.options.ar !== "undefined") {
         //"<button data-helptext='"+_("Auto reconnect attempts to re-establish a network connection after an outage")+"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>"
         list += "<label for='o14'><input data-mini='true' id='o14' type='checkbox' "+((controller.options.ar === 1) ? "checked='checked'" : "")+">"+_("Auto Reconnect")+"</label>";
@@ -2699,6 +2695,10 @@ function show_options() {
         list += "<div class='"+((controller.options.dhcp === 1) ? "hidden " : "")+"ui-field-contain duration-field'><label for='ip_addr'>"+_("IP Address")+"</label><button data-mini='true' id='ip_addr' value='"+ip+"'>"+ip+"</button></div>";
         list += "<div class='"+((controller.options.dhcp === 1) ? "hidden " : "")+"ui-field-contain duration-field'><label for='gateway'>"+_("Gateway Address")+"</label><button data-mini='true' id='gateway' value='"+gw+"'>"+gw+"</button></div>";
         list += "<label for='o3'><input data-mini='true' id='o3' type='checkbox' "+((controller.options.dhcp === 1) ? "checked='checked'" : "")+">"+_("Use DHCP (restart required)")+"</label>";
+    }
+
+    if (typeof controller.options.ntp !== "undefined") {
+        list += "<label for='o2'><input data-mini='true' id='o2' type='checkbox' "+((controller.options.ntp === 1) ? "checked='checked'" : "")+">"+_("NTP Sync")+"</label>";
     }
 
     if (typeof controller.options.ipas !== "undefined") {
