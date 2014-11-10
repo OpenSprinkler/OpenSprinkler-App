@@ -2581,7 +2581,7 @@ function show_options() {
         timezones = ["-12:00","-11:30","-11:00","-10:00","-09:30","-09:00","-08:30","-08:00","-07:00","-06:00","-05:00","-04:30","-04:00","-03:30","-03:00","-02:30","-02:00","+00:00","+01:00","+02:00","+03:00","+03:30","+04:00","+04:30","+05:00","+05:30","+05:45","+06:00","+06:30","+07:00","+08:00","+08:45","+09:00","+09:30","+10:00","+10:30","+11:00","+11:30","+12:00","+12:45","+13:00","+13:45","+14:00"];
         tz = controller.options.tz-48;
         tz = ((tz>=0)?"+":"-")+pad((Math.abs(tz)/4>>0))+":"+((Math.abs(tz)%4)*15/10>>0)+((Math.abs(tz)%4)*15%10);
-        list += "<div class='"+(checkOSVersion(210) ? "hidden " : "")+"ui-field-contain'><label for='o1' class='select'>"+_("Timezone")+"</label><select data-mini='true' id='o1'>";
+        list += "<div class='ui-field-contain'><label for='o1' class='select'>"+_("Timezone")+"</label><select "+(checkOSVersion(210) ? "disabled='disabled' " : "")+"data-mini='true' id='o1'>";
         for (i=0; i<timezones.length; i++) {
             list += "<option "+((timezones[i] === tz) ? "selected" : "")+" value='"+timezones[i]+"'>"+timezones[i]+"</option>";
         }
@@ -2743,11 +2743,11 @@ function show_options() {
         var loc = $("#loc"),
             button = $(this),
             exit = function(result){
+                $.mobile.loading("hide");
                 if (result !== true) {
                     nearbyPWS(-999,-999,finish);
                     return;
                 }
-                $.mobile.loading("hide");
                 button.prop("disabled",false);
             };
 
@@ -2761,10 +2761,10 @@ function show_options() {
 
         var finish = function(selected){
                 if (selected === false) {
-                    page.find("#o1").parents(".ui-field-contain").removeClass("hidden");
+                    page.find("#o1").selectmenu("enable");
                 } else {
                     if (checkOSVersion(210)) {
-                        page.find("#o1").parents(".ui-field-contain").addClass("hidden");
+                        page.find("#o1").selectmenu("disable");
                     }
                     loc.parent().addClass("green");
                     loc.val(selected);
@@ -2773,6 +2773,11 @@ function show_options() {
             };
 
         try {
+            $.mobile.loading("show", {
+                html: "<div class='logo'></div><h1 style='padding-top:5px'>"+_("Attempting to retrieve your current location")+"</h1></p>",
+                textVisible: true,
+                theme: "b"
+            });
             navigator.geolocation.getCurrentPosition(function(position){
                 nearbyPWS(position.coords.latitude,position.coords.longitude,finish);
             },exit);
@@ -2793,11 +2798,11 @@ function show_options() {
 
         resolveLocation(current,function(selected){
             if (selected === false) {
-                page.find("#o1").parents(".ui-field-contain").removeClass("hidden");
+                page.find("#o1").selectmenu("enable");
                 showerror(_("Unable to locate using:")+" "+current+". "+_("Please use another value and try again."));
             } else {
                 if (checkOSVersion(210)) {
-                    page.find("#o1").parents(".ui-field-contain").addClass("hidden");
+                    page.find("#o1").selectmenu("disable");
                 }
                 selected = selected.replace(/^[0-9]{5}\s-\s/,"");
                 loc.parent().addClass("green");
