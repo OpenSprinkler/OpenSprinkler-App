@@ -2715,6 +2715,15 @@ function show_options() {
         }
     });
 
+    page.find("#loc").on("change",function(){
+        var loc = $(this);
+        
+        if (loc.val() === "") {
+            loc.parent().removeClass("green");
+            $("#o1").selectmenu("enable");
+        }
+    });
+    
     page.find("#o3").on("change",function(){
         var button = $(this),
             checked = button.is(":checked"),
