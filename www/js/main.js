@@ -1749,7 +1749,7 @@ function show_weather_settings() {
                         "<option value='yahoo' "+(curr_wa.weather_provider === "yahoo" ? "selected" : "")+">"+_("Yahoo!")+"</option>" +
                         "<option value='wunderground' "+(curr_wa.weather_provider === "wunderground" ? "selected" : "")+">"+_("Wunderground")+"</option>" +
                     "</select>" +
-                    "<label "+(curr_wa.weather_provider === "wunderground" ? "" : "style='display:none' ")+"for='wapikey'>"+_("Wunderground API Key")+"</label><input "+(curr_wa.weather_provider === "wunderground" ? "" : "style='display:none' ")+"data-mini='true' type='text' id='wapikey' value='"+curr_wa.wapikey+"'>" +
+                    "<label "+(curr_wa.weather_provider === "wunderground" ? "" : "style='display:none' ")+"for='wapikey'>"+_("Wunderground API Key")+"</label><input "+(curr_wa.weather_provider === "wunderground" ? "" : "style='display:none' ")+"data-mini='true' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' type='text' id='wapikey' value='"+curr_wa.wapikey+"'>" +
                 "</li>" +
             "</ul>" +
             "<ul data-role='listview' data-inset='true'> " +
@@ -2399,7 +2399,7 @@ function open_panel() {
                                     "<option "+((data.provider === "wunderground") ? "selected " : "")+"value='wunderground'>"+_("Wunderground")+"</option>"+
                                 "</select>"+
                             "</label>"+
-                            "<label for='wapikey'>"+_("Wunderground API Key")+"<input data-mini='true' type='text' id='wapikey' value='"+((data.wapikey) ? data.wapikey : "")+"'></label>"+
+                            "<label for='wapikey'>"+_("Wunderground API Key")+"<input data-mini='true' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' type='text' id='wapikey' value='"+((data.wapikey) ? data.wapikey : "")+"'></label>"+
                             "<input type='submit' value='"+_("Submit")+"'>"+
                         "</form>"+
                     "</div>"+
@@ -2592,7 +2592,7 @@ function show_options() {
         "<label for='loc'>"+_("Location")+"<button data-helptext='"+_("Location can be a zip code, city/state or a weatherunderground personal weather station using the format: pws:ID.")+"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label>" +
         "<table>" +
             "<tr style='width:100%;vertical-align: top;'>" +
-                "<td style='width:100%'><input data-wrapper-class='"+($("#weather-list").is(":visible") ? "green " : "")+"controlgroup-textinput ui-btn' data-mini='true' type='text' id='loc' value='"+controller.settings.loc+"'></td>" +
+                "<td style='width:100%'><input data-wrapper-class='"+($("#weather-list").is(":visible") ? "green " : "")+"controlgroup-textinput ui-btn' data-mini='true' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' type='text' id='loc' value='"+controller.settings.loc+"'></td>" +
                 (checkOSVersion(210) ? "<td id='nearbyPWS'><button class='noselect' data-icon='location' data-iconpos='notext' data-mini='true'></button></td>" : "<td><button class='noselect' data-corners='false' id='lookup-loc' data-mini='true'>"+_("Lookup")+"</button></td>") +
             "</tr>" +
         "</table></div>";
@@ -2639,7 +2639,7 @@ function show_options() {
     list += "</fieldset><fieldset data-role='collapsible'><legend>"+_("Weather Control")+"</legend>";
 
     if (typeof controller.settings.wtkey !== "undefined") {
-        list += "<div class='ui-field-contain wtkey'><fieldset data-role='controlgroup' data-type='horizontal'><legend for='wtkey'>"+_("Wunderground Key").replace("Wunderground","Wunder&shy;ground")+"<button data-helptext='"+_("Weather Underground requires an API Key which can be obtained from ")+"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></legend><div class='"+(weatherKeyFail === true ? "red " : ((controller.settings.wtkey && controller.settings.wtkey !== "") ? "green " : ""))+"ui-input-text controlgroup-textinput ui-btn ui-body-inherit ui-corner-all ui-mini ui-shadow-inset ui-input-has-clear'><input data-role='none' type='text' id='wtkey' value='"+controller.settings.wtkey+"'><a href='#' tabindex='-1' aria-hidden='true' data-helptext='"+_("An invalid API key has been detected.")+"' class='"+(weatherKeyFail === true ? "" : "hidden ")+"ui-input-clear ui-btn ui-icon-alert ui-btn-icon-notext ui-corner-all'></a></div><button class='noselect' data-mini='true' id='verify-api'>"+_("Verify")+"</button></fieldset></div>";
+        list += "<div class='ui-field-contain wtkey'><fieldset data-role='controlgroup' data-type='horizontal'><legend for='wtkey'>"+_("Wunderground Key").replace("Wunderground","Wunder&shy;ground")+"<button data-helptext='"+_("Weather Underground requires an API Key which can be obtained from ")+"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></legend><div class='"+(weatherKeyFail === true ? "red " : ((controller.settings.wtkey && controller.settings.wtkey !== "") ? "green " : ""))+"ui-input-text controlgroup-textinput ui-btn ui-body-inherit ui-corner-all ui-mini ui-shadow-inset ui-input-has-clear'><input data-role='none' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' type='text' id='wtkey' value='"+controller.settings.wtkey+"'><a href='#' tabindex='-1' aria-hidden='true' data-helptext='"+_("An invalid API key has been detected.")+"' class='"+(weatherKeyFail === true ? "" : "hidden ")+"ui-input-clear ui-btn ui-icon-alert ui-btn-icon-notext ui-corner-all'></a></div><button class='noselect' data-mini='true' id='verify-api'>"+_("Verify")+"</button></fieldset></div>";
     }
 
     if (typeof controller.options.uwt !== "undefined") {
