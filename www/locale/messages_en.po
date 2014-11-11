@@ -307,9 +307,6 @@ msgstr ""
 msgid "Lookup"
 msgstr ""
 
-msgid "NTP Sync"
-msgstr ""
-
 msgid ""
 "Auto reconnect attempts to re-establish a network connection after an outage"
 msgstr ""
@@ -426,7 +423,13 @@ msgstr ""
 msgid "Use DHCP (restart required)"
 msgstr ""
 
+msgid "NTP Sync"
+msgstr ""
+
 msgid "Ignore Password"
+msgstr ""
+
+msgid "Attempting to retrieve your current location"
 msgstr ""
 
 msgid ""
@@ -463,6 +466,12 @@ msgstr ""
 msgid "Start"
 msgstr ""
 
+msgid "Master"
+msgstr ""
+
+msgid "Station"
+msgstr ""
+
 msgid "Use Master"
 msgstr ""
 
@@ -482,9 +491,6 @@ msgid "Reset"
 msgstr ""
 
 msgid "Current Status"
-msgstr ""
-
-msgid "Master"
 msgstr ""
 
 msgid "Running"
@@ -658,9 +664,6 @@ msgid "Month"
 msgstr ""
 
 msgid "Day"
-msgstr ""
-
-msgid "Station"
 msgstr ""
 
 msgid "Start:"
@@ -1153,5 +1156,5 @@ msgstr ""
 msgid "Downgrade UI"
 msgstr ""
 
-msgid "WUnderground Diagnostics"
+msgid "Weather Diagnostics"
 msgstr ""
