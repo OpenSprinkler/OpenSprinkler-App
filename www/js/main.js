@@ -6306,6 +6306,29 @@ function import_config(data) {
             }
         }
 
+        if (typeof data.stations.stn_dis === "object") {
+            for (i=0; i<data.stations.stn_dis.length; i++) {
+                cs += "&d"+i+"="+data.stations.stn_dis[i];
+            }
+        }
+
+        if (typeof data.stations.stn_seq === "object") {
+            for (i=0; i<data.stations.stn_seq.length; i++) {
+                cs += "&q"+i+"="+data.stations.stn_seq[i];
+            }
+        } else if (!isPi && typeof data.options.fwv === "number" && data.options.fwv < 211 && !checkOSVersion(211)) {
+            var bid;
+            for(bid=0;bid<data.settings.nbrd;bid++) {
+                cs += "&q"+bid+"="+(data.options.seq === 1 ? 255 : 0);
+            }
+        }
+
+        if (typeof data.stations.act_relay === "object") {
+            for (i=0; i<data.stations.act_relay.length; i++) {
+                cs += "&a"+i+"="+data.stations.act_relay[i];
+            }
+        }
+
         $.when(
             send_to_os(co),
             send_to_os(cs),
