@@ -2597,11 +2597,6 @@ function show_options() {
             "</tr>" +
         "</table></div>";
 
-    if (typeof controller.options.ar !== "undefined") {
-        //"<button data-helptext='"+_("Auto reconnect attempts to re-establish a network connection after an outage")+"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>"
-        list += "<label for='o14'><input data-mini='true' id='o14' type='checkbox' "+((controller.options.ar === 1) ? "checked='checked'" : "")+">"+_("Auto Reconnect")+"</label>";
-    }
-
     if (typeof controller.options.lg !== "undefined") {
         list += "<label for='lg'><input data-mini='true' id='lg' type='checkbox' "+((controller.options.lg === 1) ? "checked='checked'" : "")+">"+_("Enable Logging")+"</label>";
     }
@@ -2699,6 +2694,10 @@ function show_options() {
 
     if (typeof controller.options.ntp !== "undefined") {
         list += "<label for='o2'><input data-mini='true' id='o2' type='checkbox' "+((controller.options.ntp === 1) ? "checked='checked'" : "")+">"+_("NTP Sync")+"</label>";
+    }
+
+    if (typeof controller.options.ar !== "undefined") {
+        list += "<label for='o14'><input data-mini='true' id='o14' type='checkbox' "+((controller.options.ar === 1) ? "checked='checked'" : "")+">"+_("Auto Reconnect")+"</label>";
     }
 
     if (typeof controller.options.ipas !== "undefined") {
