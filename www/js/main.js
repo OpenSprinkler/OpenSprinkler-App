@@ -2727,7 +2727,7 @@ function show_options() {
         }
     });
 
-    page.find("#loc").on("change",function(){
+    page.find("#loc").on("change keypress",function(){
         var loc = $(this);
 
         if (loc.val() === "") {
@@ -2842,7 +2842,7 @@ function show_options() {
     });
 
     page.find("#verify-api").on("click",function(){
-        var key = $("#wtkey"),
+        var key = page.find("#wtkey"),
             button = $(this);
 
         button.prop("disabled",true);
@@ -2867,7 +2867,7 @@ function show_options() {
         });
     });
 
-    page.find(".help-icon,.ui-icon-alert").on("click",function(e){
+    page.find(".help-icon").on("click",function(e){
         e.stopImmediatePropagation();
 
         var button = $(this),
@@ -3003,15 +3003,13 @@ function show_options() {
 
     page.find("#o31").on("change",function(){
         // Switch state of water level input based on weather algorithm status
-        $("#o23").prop("disabled",(parseInt(this.value) === 0 || $("#wtkey").val() === "" ? false : true));
+        $("#o23").prop("disabled",(parseInt(this.value) === 0 || page.find("#wtkey").val() === "" ? false : true));
     });
 
-    page.find("#wtkey").on("change",function(){
+    page.find("#wtkey").on("change keypress",function(){
         // Hide the invalid key status after change
-        if (weatherKeyFail === true) {
-            page.find(".wtkey .ui-icon-alert").hide();
-            page.find(".wtkey .ui-input-text").removeClass("red");
-        }
+        page.find("#wtkey").siblings(".help-icon").hide();
+        page.find("#wtkey").parent().removeClass("red green");
 
         // Switch state of weather algorithm input based on API key status
         if (this.value === "") {
