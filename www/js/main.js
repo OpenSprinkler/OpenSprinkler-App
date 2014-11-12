@@ -2727,7 +2727,7 @@ function show_options() {
         }
     });
 
-    page.find("#loc").on("change keypress",function(){
+    page.find("#loc").on("change input",function(){
         var loc = $(this);
 
         if (loc.val() === "") {
@@ -3006,7 +3006,7 @@ function show_options() {
         $("#o23").prop("disabled",(parseInt(this.value) === 0 || page.find("#wtkey").val() === "" ? false : true));
     });
 
-    page.find("#wtkey").on("change keypress",function(){
+    page.find("#wtkey").on("change input",function(){
         // Hide the invalid key status after change
         page.find("#wtkey").siblings(".help-icon").hide();
         page.find("#wtkey").parent().removeClass("red green");
