@@ -2965,8 +2965,15 @@ function show_options() {
                 helptext: helptext
             });
         } else if (id === "o17") {
+            var min = 0;
+
             if (checkOSVersion(210)) {
                 max = 64800;
+            }
+
+            if (checkOSVersion(211)) {
+                min = -3540;
+                max = 3540;
             }
 
             showDurationBox({
@@ -2976,7 +2983,8 @@ function show_options() {
                     dur.val(result);
                     dur.text(dhms2str(sec2dhms(result)));
                 },
-                maximum: max
+                maximum: max,
+                minimum: min
             });
         }
 
@@ -6776,6 +6784,7 @@ function showDurationBox(opt) {
             preventCompression: false,
             incrementalUpdate: true,
             showBack: true,
+            minimum: 0,
             callback: function(){}
         };
 
@@ -6831,12 +6840,12 @@ function showDurationBox(opt) {
                 return;
             }
 
-            if ((dir === -1 && val === 0) || (dir === 1 && (getValue() + conv[apos]) > opt.maximum)) {
+            if ((dir === -1 && getValue() <= opt.minimum) || (dir === 1 && (getValue() + conv[apos]) > opt.maximum)) {
                 return;
             }
 
             // Increment next time field on current max
-            if (dir === 1 && (max[apos] !== 0 && pos !== 0 && val >= max[apos])) {
+            if ((max[apos] !== 0 && pos !== 0 && Math.abs(val) >= max[apos])) {
                 input.val(0);
                 input = popup.find(".inputs input").eq(pos-1);
                 val = parseInt(input.val());
@@ -6858,7 +6867,11 @@ function showDurationBox(opt) {
                         toggleInput("minutes",state);
                     }
                 } else if (dir === -1) {
-                    if (getValue() < 60) {
+                    if (getValue() <= -60) {
+                        toggleInput("seconds",!state);
+                    } else if (getValue() <= -10800) {
+                        toggleInput("minutes",!state);
+                    } else if (getValue() < 60) {
                         toggleInput("seconds",state);
                     } else if (getValue() < 10800) {
                         toggleInput("minutes",state);
@@ -6902,6 +6915,14 @@ function showDurationBox(opt) {
     });
 
     if (!opt.preventCompression && checkOSVersion(210)) {
+        if (opt.seconds <= -60) {
+            toggleInput("seconds",true);
+        }
+
+        if (opt.seconds <= -10800) {
+            toggleInput("minutes",true);
+        }
+
         if (opt.seconds >= 60) {
             toggleInput("seconds",true);
         }
@@ -7291,11 +7312,13 @@ function sec2hms(diff) {
 
 // Convert seconds into array of days, hours, minutes and seconds.
 function sec2dhms(diff) {
+    var isNegative = (diff < 0) ? -1 : 1;
+    diff = Math.abs(diff);
     return {
-        "days": Math.max(0, parseInt(diff / 86400)),
-        "hours": Math.max(0, parseInt(diff % 86400 / 3600)),
-        "minutes": Math.max(0, parseInt((diff % 86400) % 3600 / 60)),
-        "seconds": Math.max(0, parseInt((diff % 86400) % 3600 % 60))
+        "days": Math.max(0, parseInt(diff / 86400)) * isNegative,
+        "hours": Math.max(0, parseInt(diff % 86400 / 3600)) * isNegative,
+        "minutes": Math.max(0, parseInt((diff % 86400) % 3600 / 60)) * isNegative,
+        "seconds": Math.max(0, parseInt((diff % 86400) % 3600 % 60)) * isNegative
     };
 }
 
