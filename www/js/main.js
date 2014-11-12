@@ -2593,7 +2593,8 @@ function show_options() {
         "<table>" +
             "<tr style='width:100%;vertical-align: top;'>" +
                 "<td style='width:100%'><input data-wrapper-class='"+($("#weather-list").is(":visible") ? "green " : "")+"controlgroup-textinput ui-btn' data-mini='true' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' type='text' id='loc' value='"+controller.settings.loc+"'></td>" +
-                (checkOSVersion(210) ? "<td id='nearbyPWS'><button class='noselect' data-icon='location' data-iconpos='notext' data-mini='true'></button></td>" : "<td><button class='noselect' data-corners='false' id='lookup-loc' data-mini='true'>"+_("Lookup")+"</button></td>") +
+                "<td "+(checkOSVersion(210) && controller.settings.wtkey !== "" && weatherKeyFail === false ? "" : "class='hidden' ")+"id='nearbyPWS'><button class='noselect' data-icon='location' data-iconpos='notext' data-mini='true'></button></td>" +
+                "<td "+(checkOSVersion(210) && controller.settings.wtkey !== "" && weatherKeyFail === false ? "class='hidden' " : "")+"id='lookup-loc'><button class='noselect' data-corners='false' data-mini='true'>"+_("Lookup")+"</button></td>" +
             "</tr>" +
         "</table></div>";
 
@@ -2639,7 +2640,18 @@ function show_options() {
     list += "</fieldset><fieldset data-role='collapsible'><legend>"+_("Weather Control")+"</legend>";
 
     if (typeof controller.settings.wtkey !== "undefined") {
-        list += "<div class='ui-field-contain wtkey'><fieldset data-role='controlgroup' data-type='horizontal'><legend for='wtkey'>"+_("Wunderground Key").replace("Wunderground","Wunder&shy;ground")+"<button data-helptext='"+_("Weather Underground requires an API Key which can be obtained from ")+"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></legend><div class='"+(weatherKeyFail === true ? "red " : ((controller.settings.wtkey && controller.settings.wtkey !== "") ? "green " : ""))+"ui-input-text controlgroup-textinput ui-btn ui-body-inherit ui-corner-all ui-mini ui-shadow-inset ui-input-has-clear'><input data-role='none' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' type='text' id='wtkey' value='"+controller.settings.wtkey+"'><a href='#' tabindex='-1' aria-hidden='true' data-helptext='"+_("An invalid API key has been detected.")+"' class='"+(weatherKeyFail === true ? "" : "hidden ")+"ui-input-clear ui-btn ui-icon-alert ui-btn-icon-notext ui-corner-all'></a></div><button class='noselect' data-mini='true' id='verify-api'>"+_("Verify")+"</button></fieldset></div>";
+        list += "<div class='ui-field-contain'><label for='wtkey'>"+_("Wunderground Key").replace("Wunderground","Wunder&shy;ground")+"<button data-helptext='"+_("Weather Underground requires an API Key which can be obtained from ")+"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label>" +
+        "<table>" +
+            "<tr style='width:100%;vertical-align: top;'>" +
+                "<td style='width:100%'>" +
+                    "<div class='"+(weatherKeyFail === true ? "red " : ((controller.settings.wtkey && controller.settings.wtkey !== "") ? "green " : ""))+"ui-input-text controlgroup-textinput ui-btn ui-body-inherit ui-corner-all ui-mini ui-shadow-inset ui-input-has-clear'>" +
+                        "<input data-role='none' data-mini='true' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' type='text' id='wtkey' value='"+controller.settings.wtkey+"'>" +
+                        "<a href='#' tabindex='-1' aria-hidden='true' data-helptext='"+_("An invalid API key has been detected.")+"' class='"+(weatherKeyFail === true ? "" : "hidden ")+"help-icon ui-input-clear ui-btn ui-icon-alert ui-btn-icon-notext ui-corner-all'></a>" +
+                    "</div>" +
+                "</td>" +
+                "<td><button class='noselect' data-mini='true' id='verify-api'>"+_("Verify")+"</button></td>" +
+            "</tr>" +
+        "</table></div>";
     }
 
     if (typeof controller.options.uwt !== "undefined") {
@@ -2717,13 +2729,13 @@ function show_options() {
 
     page.find("#loc").on("change",function(){
         var loc = $(this);
-        
+
         if (loc.val() === "") {
             loc.parent().removeClass("green");
             $("#o1").selectmenu("enable");
         }
     });
-    
+
     page.find("#o3").on("change",function(){
         var button = $(this),
             checked = button.is(":checked"),
@@ -2799,7 +2811,7 @@ function show_options() {
         } catch(err) { exit(); }
     });
 
-    page.find("#lookup-loc").on("click",function(){
+    page.find("#lookup-loc > button").on("click",function(){
         var loc = $("#loc"),
             current = loc.val(),
             button = $(this);
@@ -2837,17 +2849,25 @@ function show_options() {
 
         testAPIKey(key.val(),function(result){
             if (result === true) {
-                page.find(".wtkey .ui-icon-alert").hide();
-                page.find(".wtkey .ui-input-text").removeClass("red").addClass("green");
+                key.parent().find(".ui-icon-alert").hide();
+                key.parent().removeClass("red").addClass("green");
+                if (checkOSVersion(210)) {
+                    page.find("#lookup-loc").addClass("hidden");
+                    page.find("#nearbyPWS").removeClass("hidden");
+                }
             } else {
-                page.find(".wtkey .ui-icon-alert").removeClass("hidden").show();
-                page.find(".wtkey .ui-input-text").removeClass("green").addClass("red");
+                key.parent().find(".ui-icon-alert").removeClass("hidden").show();
+                key.parent().removeClass("green").addClass("red");
+                if (checkOSVersion(210)) {
+                    page.find("#lookup-loc").removeClass("hidden");
+                    page.find("#nearbyPWS").addClass("hidden");
+                }
             }
             button.prop("disabled",false);
         });
     });
 
-    page.find(".help-icon,.wtkey .ui-icon-alert").on("click",function(e){
+    page.find(".help-icon,.ui-icon-alert").on("click",function(e){
         e.stopImmediatePropagation();
 
         var button = $(this),
