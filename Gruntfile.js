@@ -171,7 +171,7 @@ module.exports = function(grunt) {
 				}]
 			},
 			osx: {
-				src: ["source/osx/Resources/Sprinklers-Info.plist"],
+				src: ["source/osx/Resources/OpenSprinkler-Info.plist"],
 				overwrite: true,
 				replacements: [{
 					from: /<key>CFBundleShortVersionString<\/key>\n\t<string>([\d|\.]+)<\/string>/g,
