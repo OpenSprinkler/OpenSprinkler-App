@@ -3,8 +3,8 @@
             xmlns:android   = "http://schemas.android.com/apk/res/android"
             xmlns:gap   = "http://phonegap.com/ns/1.0"
             id          = "com.albahra.sprinklers"
-            version     = "1.2.3"
-            versionCode = "39" >
+            version     = "1.2.4"
+            versionCode = "40" >
 
         <preference name="phonegap-version" value="3.6.3" />
         <preference name="DisallowOverscroll" value="true"  />
@@ -35,7 +35,7 @@
         </gap:config-file>
 
         <gap:config-file platform="ios" parent="CFBundleShortVersionString">
-            <string>123</string>
+            <string>124</string>
         </gap:config-file>
 
         <gap:config-file platform="android" parent="/manifest">
