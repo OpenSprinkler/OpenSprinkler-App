@@ -2352,13 +2352,13 @@ function open_panel() {
                     update_controller_status()
                 ).done(function(){
                     check_status();
-                    self.find("span:first").html(operation());
+                    self.find("span:first").html(operation()).attr("data-translate",operation());
                 });
             });
         });
 
         return false;
-    }).find("span:first").html(operation());
+    }).find("span:first").html(operation()).attr("data-translate",operation());
 
     panel.find(".reboot-os").off("click").on("click",function(){
         areYouSure(_("Are you sure you want to reboot OpenSprinkler?"), "", function() {
