@@ -2394,7 +2394,7 @@ function open_panel() {
                     "<div class='ui-content'>"+
                         "<form>"+
                             "<label for='weather_provider'>"+_("Weather Provider")+
-                                "<select data-mini='true' id='weather_provider'>"+
+                                "<select data-mini='true' id='weather_provider' class='needsclick'>"+
                                     "<option value='yahoo'>"+_("Yahoo!")+"</option>"+
                                     "<option "+((data.provider === "wunderground") ? "selected " : "")+"value='wunderground'>"+_("Wunderground")+"</option>"+
                                 "</select>"+
@@ -2560,7 +2560,7 @@ function show_options() {
             "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false' data-hide-during-focus=''>" +
                 "<a href='javascript:void(0);' class='ui-btn ui-corner-all ui-shadow ui-btn-left ui-btn-b ui-toolbar-back-btn ui-icon-carat-l ui-btn-icon-left' data-rel='back'>"+_("Back")+"</a>" +
                 "<h3>"+_("Edit Options")+"</h3>" +
-                "<button data-icon='check' class='ui-btn-right'>"+_("Submit")+"</button>" +
+                "<button disabled='disabled' data-icon='check' class='submit ui-btn-right'>"+_("Submit")+"</button>" +
             "</div>" +
             "<div class='ui-content' role='main'>" +
                 "<div data-role='collapsibleset' id='os-options-list'>" +
@@ -2719,13 +2719,18 @@ function show_options() {
     list += "</fieldset>";
 
     // Insert options and remove unused groups
-    page.find("#os-options-list").html(list).find("fieldset").each(function(a,b){
-        var group = $(b);
+    page.find("#os-options-list")
+        .html(list)
+        .one("change input",function(){
+            page.find(".submit").prop("disabled",false);
+        })
+        .find("fieldset").each(function(a,b){
+            var group = $(b);
 
-        if (group.children().length === 1) {
-            group.remove();
-        }
-    });
+            if (group.children().length === 1) {
+                group.remove();
+            }
+        });
 
     page.find("#loc").on("change input",function(){
         var loc = $(this);
@@ -3046,8 +3051,11 @@ function submit_options() {
     var opt = {},
         invalid = false,
         isPi = isOSPi(),
+        button = $("#os-options").find(".submit"),
         keyNames = {1:"tz",2:"ntp",12:"htp",13:"htp2",14:"ar",15:"nbrd",16:"seq",17:"sdt",18:"mas",19:"mton",20:"mtoff",21:"urs",22:"rst",23:"wl",25:"ipas",30:"rlp","lg":"lg",31:"uwt"},
         key;
+
+    button.prop("disabled",true);
 
     $("#os-options-list").find(":input,button").filter(":not(.noselect)").each(function(a,b){
         var $item = $(b),
@@ -3151,6 +3159,7 @@ function submit_options() {
         opt[id] = data;
     });
     if (invalid) {
+        button.prop("disabled",false);
         return;
     }
     $.mobile.loading("show");
@@ -3160,6 +3169,8 @@ function submit_options() {
         });
         goBack();
         update_controller(update_weather);
+    }).fail(function(){
+        button.prop("disabled",false);
     });
 }
 
@@ -3170,7 +3181,7 @@ function show_stations() {
             "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false' data-hide-during-focus=''>" +
                 "<a href='javascript:void(0);' class='ui-btn ui-corner-all ui-shadow ui-btn-left ui-btn-b ui-toolbar-back-btn ui-icon-carat-l ui-btn-icon-left' data-rel='back'>"+_("Back")+"</a>" +
                 "<h3>"+_("Edit Stations")+"</h3>" +
-                "<button data-icon='check' class='submit ui-btn-right'>"+_("Submit")+"</button>" +
+                "<button data-icon='check' disabled='disabled' class='submit ui-btn-right'>"+_("Submit")+"</button>" +
             "</div>" +
             "<div class='ui-content' role='main'>" +
             "</div>" +
@@ -3252,6 +3263,7 @@ function show_stations() {
                 button.data("sd", select.find("#sd").is(":checked") ? 1 : 0 );
                 button.data("us", select.find("#us").is(":checked") ? 1 : 0 );
                 name.html( select.find("#stn-name").val() + editButton );
+                page.find(".submit").prop("disabled",false);
                 select.popup("destroy").remove();
             }).enhanceWithin();
 
@@ -3260,6 +3272,8 @@ function show_stations() {
             select.popup({history: false, positionTo: button.parent()}).popup("open");
         },
         submit_stations = function() {
+            page.find(".submit").prop("disabled",true);
+
             var is208 = (checkOSVersion(208) === true),
                 master = {},
                 sequential = {},
@@ -3322,6 +3336,8 @@ function show_stations() {
                 });
                 goBack();
                 update_controller();
+            }).fail(function(){
+                page.find(".submit").prop("disabled",false);
             });
         },
         run_station = function(){
@@ -3420,6 +3436,10 @@ function show_stations() {
 
     page.find(".ui-content").html("<div id='os-stations-list' class='card-group center'>"+cards+"</div><button class='submit'>"+_("Submit")+"</button><button data-theme='b' class='reset'>"+_("Reset")+"</button>");
 
+    page.find("#os-stations-list").one("change input",function(){
+        page.find(".submit").prop("disabled",false);
+    });
+
     // When data is refreshed, update the icon status
     page.on("datarefresh",function(){
         for (var i = controller.settings.ps.length - 1; i >= 0; i--) {
@@ -3434,7 +3454,7 @@ function show_stations() {
 
     page.on("click","[id^='station_']",function(){
         var text = $(this),
-            input = $("<input class='center' data-mini='true' maxlength='"+controller.stations.maxlen+"' id='edit_"+text.attr("id")+"' type='text' value='"+text.text()+"'>");
+            input = $("<input class='center station-input' data-mini='true' maxlength='"+controller.stations.maxlen+"' id='edit_"+text.attr("id")+"' type='text' value='"+text.text()+"'>");
 
         text.replaceWith(input);
         input.on("blur keyup",function(e){
@@ -3445,7 +3465,17 @@ function show_stations() {
             input.replaceWith(text);
             input.remove();
         });
-        input.focus();
+
+        if (input.get(0).setSelectionRange) {
+            input.focus();
+            input.get(0).setSelectionRange(0, text.text().length);
+        } else if (input.get(0).createTextRange) {
+            var range = input.get(0).createTextRange();
+            range.collapse(true);
+            range.moveEnd("character", text.text().length);
+            range.moveStart("character", 0);
+            range.select();
+        }
     });
 
     page.find(".submit").on("click",submit_stations);
