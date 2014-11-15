@@ -196,6 +196,15 @@ $(document)
             open_panel();
         }
     });
+
+    // Extend collapsible widget with event before change
+    $.widget("mobile.collapsible", $.mobile.collapsible, {
+        _handleExpandCollapse: function(isCollapse) {
+            if (this._trigger("before" + (isCollapse ? "collapse" : "expand"))) {
+                this._superApply(arguments);
+            }
+        }
+    });
 })
 .one("pagebeforechange", function(event) {
     // Let the framework know we're going to handle the first load
@@ -5295,9 +5304,32 @@ function get_programs(pid) {
             "</div>" +
         "</div>");
 
+    programs.find(".ui-toolbar-back-btn").on("click",function(){
+        var program = $("#programs").find(".ui-collapsible.hasChanges");
+        if (program.length !== 0) {
+            areYouSure(_("Do you want to save your changes?"),"",function(){
+                submit_program(program.attr("id").split("-")[1]);
+                goBack();
+            },goBack);
+            return false;
+        }
+    });
+
     programs.find("[id^=program-]").on({
         collapsiblecollapse: function(){
             $(this).find(".ui-collapsible-content").empty();
+        },
+        collapsiblebeforecollapse: function(e) {
+            var program = $(this);
+            if (program.hasClass("hasChanges")) {
+                areYouSure(_("Do you want to save your changes?"),"",function(){
+                    submit_program(program.attr("id").split("-")[1]);
+                    program.removeClass("hasChanges").collapsible("collapse");
+                },function(){
+                    program.removeClass("hasChanges").collapsible("collapse");
+                });
+                e.preventDefault();
+            }
         },
         collapsibleexpand: function(){
             expandProgram($(this));
@@ -5359,7 +5391,9 @@ function get_programs(pid) {
 function expandProgram(program) {
     var id = parseInt(program.attr("id").split("-")[1]);
 
-    program.find(".ui-collapsible-content").html(make_program(id)).enhanceWithin();
+    program.find(".ui-collapsible-content").html(make_program(id)).enhanceWithin().one("change input",function(){
+        program.addClass("hasChanges");
+    });
 
     program.find("[id^='submit-']").on("click",function(){
         submit_program(id);
@@ -5962,6 +5996,8 @@ function delete_program(id) {
 }
 
 function submit_program(id) {
+    $("#program-"+id).removeClass("hasChanges");
+
     if (checkOSVersion(210)) {
         submit_program21(id);
     } else {
