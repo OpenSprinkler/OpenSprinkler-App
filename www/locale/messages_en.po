@@ -1146,6 +1146,9 @@ msgstr ""
 msgid "Logout"
 msgstr ""
 
+msgid "Operation"
+msgstr ""
+
 msgid "Clear Configuration"
 msgstr ""
 
