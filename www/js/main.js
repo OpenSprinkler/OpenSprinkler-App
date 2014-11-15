@@ -5912,19 +5912,29 @@ function add_program(copyID) {
                 "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false' data-hide-during-focus=''>" +
                     "<h3>"+_("Add Program")+"</h3>" +
                     "<a href='javascript:void(0);' class='ui-btn ui-corner-all ui-shadow ui-btn-left ui-btn-b ui-toolbar-back-btn ui-icon-carat-l ui-btn-icon-left' data-rel='back'>"+_("Back")+"</a>" +
-                    "<button data-icon='check' class='ui-btn-right'>"+_("Submit")+"</button>" +
+                    "<button data-icon='check' disabled='disabled' class='submit ui-btn-right'>"+_("Submit")+"</button>" +
                 "</div>" +
                 "<div class='ui-content' role='main' id='newprogram'>" +
                     "<fieldset id='program-new'>" +
                     "</fieldset>" +
                 "</div>" +
-            "</div>");
+            "</div>"),
+        submit = function(){
+            submit_program("new");
+            return false;
+        };
 
-    addprogram.find("#program-new").html(make_program(copyID,true));
+    addprogram.find("#program-new").html(make_program(copyID,true)).one("change input",function(){
+        addprogram.find(".submit").prop("disabled",false);
+    });
 
-    addprogram.find("div[data-role='header'] > .ui-btn-right, [id^='submit-']").on("click",function(){
-        submit_program("new");
-        return false;
+    addprogram.find(".submit, [id^='submit-']").on("click",submit);
+
+    addprogram.find(".ui-toolbar-back-btn").on("click",function(){
+        if (addprogram.find(".submit").prop("disabled") === false) {
+            areYouSure(_("Do you want to save your changes?"),"",submit,goBack);
+            return false;
+        }
     });
 
     addprogram.one("pagehide",function() {
