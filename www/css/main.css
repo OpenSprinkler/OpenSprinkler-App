@@ -510,6 +510,10 @@ div.running-text{
     font-weight: 700;
 }
 
+.station-input {
+    counter-increment: station-id;
+}
+
 .station-name:before {
     counter-increment: station-id;
     content: counter(station-id) ": ";
