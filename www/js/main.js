@@ -2569,7 +2569,13 @@ function show_options() {
         "</div>"),
         timezones, algorithm, tz, i;
 
-    page.find("div[data-role='header'] > .ui-btn-right").on("click",submit_options);
+    page.find(".submit").on("click",submit_options);
+    page.find(".ui-toolbar-back-btn").on("click",function(){
+        if (page.find(".submit").prop("disabled") === false) {
+            areYouSure(_("Do you want to save your changes?"),"",submit_options,goBack);
+            return false;
+        }
+    });
 
     list = "<fieldset data-role='collapsible' data-collapsed='false'><legend>"+_("System")+"</legend>";
 
@@ -2905,6 +2911,8 @@ function show_options() {
             helptext = dur.parent().find(".help-icon").data("helptext"),
             max = 240;
 
+        page.find(".submit").prop("disabled",false);
+
         if (id === "ip_addr" || id === "gateway" || id === "ntp_addr") {
             showIPRequest({
                 title: name,
@@ -3031,6 +3039,8 @@ function show_options() {
         if (input.prop("disabled")) {
             return;
         }
+
+        page.find(".submit").prop("disabled",false);
 
         // Show date time input popup
         showDateTimeInput(input.val(),function(data){
@@ -3435,6 +3445,13 @@ function show_stations() {
     }
 
     page.find(".ui-content").html("<div id='os-stations-list' class='card-group center'>"+cards+"</div><button class='submit'>"+_("Submit")+"</button><button data-theme='b' class='reset'>"+_("Reset")+"</button>");
+
+    page.find(".ui-toolbar-back-btn").on("click",function(){
+        if (page.find(".submit").prop("disabled") === false) {
+            areYouSure(_("Do you want to save your changes?"),"",submit_stations,goBack);
+            return false;
+        }
+    });
 
     page.find("#os-stations-list").one("change input",function(){
         page.find(".submit").prop("disabled",false);
@@ -6677,8 +6694,10 @@ function getOSVersion(fwv) {
 }
 
 // Accessory functions for jQuery Mobile
-function areYouSure(text1, text2, callback) {
+function areYouSure(text1, text2, success, fail) {
     $("#sure").popup("destroy").remove();
+    success = success || function(){};
+    fail = fail || function(){};
 
     var popup = $(
         "<div data-role='popup' data-overlay-theme='b' id='sure'>"+
@@ -6692,11 +6711,12 @@ function areYouSure(text1, text2, callback) {
     //Bind buttons
     popup.find(".sure-do").one("click.sure", function() {
         $("#sure").popup("close");
-        callback();
+        success();
         return false;
     });
     popup.find(".sure-dont").one("click.sure", function() {
         $("#sure").popup("close");
+        fail();
         return false;
     });
 
