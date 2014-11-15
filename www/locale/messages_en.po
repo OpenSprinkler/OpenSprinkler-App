@@ -287,6 +287,9 @@ msgstr ""
 msgid "Edit Options"
 msgstr ""
 
+msgid "Do you want to save your changes?"
+msgstr ""
+
 msgid "System"
 msgstr ""
 
@@ -305,13 +308,6 @@ msgid ""
 msgstr ""
 
 msgid "Lookup"
-msgstr ""
-
-msgid ""
-"Auto reconnect attempts to re-establish a network connection after an outage"
-msgstr ""
-
-msgid "Auto Reconnect"
 msgstr ""
 
 msgid "Enable Logging"
@@ -424,6 +420,9 @@ msgid "Use DHCP (restart required)"
 msgstr ""
 
 msgid "NTP Sync"
+msgstr ""
+
+msgid "Auto Reconnect"
 msgstr ""
 
 msgid "Ignore Password"
@@ -1006,6 +1005,9 @@ msgstr ""
 msgid "App Version"
 msgstr ""
 
+msgid "Device"
+msgstr ""
+
 msgid "Yes"
 msgstr ""
 
@@ -1142,9 +1144,6 @@ msgid "Help & Support"
 msgstr ""
 
 msgid "Logout"
-msgstr ""
-
-msgid "Operation"
 msgstr ""
 
 msgid "Clear Configuration"
