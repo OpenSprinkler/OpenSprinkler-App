@@ -1264,6 +1264,17 @@ function show_sites(showBack) {
         addButton = page.find("#site-add"),
         sites, total;
 
+    page.find(".ui-toolbar-back-btn").on("click",function(){
+        var changed = page.find(".ui-collapsible.hasChanges");
+        if (changed.length !== 0) {
+            areYouSure(_("Do you want to save your changes?"),"",function(){
+                changed.find("form").submit();
+                goBack();
+            },goBack);
+            return false;
+        }
+    });
+
     popup.popup({
         history: false,
         positionTo: addButton
@@ -1336,6 +1347,10 @@ function show_sites(showBack) {
 
             list = $(list+"</div>");
 
+            list.find("form").one("change input",function(){
+                $(this).parents(".ui-collapsible").addClass("hasChanges");
+            });
+
             list.find(".connectnow").on("click",function(){
                 update_site(siteNames[$(this).data("site")]);
                 return false;
@@ -1344,10 +1359,12 @@ function show_sites(showBack) {
             list.find("form").on("submit",function(){
                 var id = $(this).data("site"),
                     site = siteNames[id],
-                    ip = $("#cip-"+id).val(),
-                    pw = $("#cpw-"+id).val(),
-                    nm = $("#cnm-"+id).val(),
+                    ip = list.find("#cip-"+id).val(),
+                    pw = list.find("#cpw-"+id).val(),
+                    nm = list.find("#cnm-"+id).val(),
                     rename;
+
+                list.find("#site-"+id).removeClass("hasChanges");
 
                 rename = (nm !== "" && nm !== site);
 
@@ -5299,7 +5316,7 @@ function get_programs(pid) {
         "</div>");
 
     programs.find(".ui-toolbar-back-btn").on("click",function(){
-        var program = $("#programs").find(".ui-collapsible.hasChanges");
+        var program = programs.find(".ui-collapsible.hasChanges");
         if (program.length !== 0) {
             areYouSure(_("Do you want to save your changes?"),"",function(){
                 submit_program(program.attr("id").split("-")[1]);
