@@ -1300,7 +1300,9 @@ function show_sites(showBack) {
                 showStart: true
             });
         } else {
-            var list = "<div data-role='collapsible-set'>";
+            var list = "<div data-role='collapsible-set'>",
+                siteNames = [],
+                i = 0;
 
             sites = JSON.parse(data.sites);
             total = Object.keys(sites).length;
@@ -1314,33 +1316,92 @@ function show_sites(showBack) {
             }
 
             $.each(sites,function(a,b){
-                var c = a.replace(/ /g,"_");
-                list += "<fieldset "+((total === 1) ? "data-collapsed='false'" : "")+" id='site-"+c+"' data-role='collapsible'>";
+                siteNames.push(a);
+
+                a = htmlEscape(a);
+
+                list += "<fieldset "+((total === 1) ? "data-collapsed='false'" : "")+" id='site-"+i+"' data-role='collapsible'>";
                 list += "<legend>"+a+"</legend>";
-                list += "<a data-role='button' class='connectnow' data-site='"+a+"' href='#'>"+_("Connect Now")+"</a>";
-                list += "<form data-site='"+c+"' novalidate>";
-                list += "<label for='cnm-"+c+"'>"+_("Change Name")+"</label><input id='cnm-"+c+"' type='text' placeholder='"+a+"'>";
-                list += "<label for='cip-"+c+"'>"+_("Change IP")+"</label><input id='cip-"+c+"' type='url' placeholder='"+b.os_ip+"' autocomplete='off' autocorrect='off' autocapitalize='off' pattern='' spellcheck='false'>";
-                list += "<label for='cpw-"+c+"'>"+_("Change Password")+"</label><input id='cpw-"+c+"' type='password'>";
+                list += "<a data-role='button' class='connectnow' data-site='"+i+"' href='#'>"+_("Connect Now")+"</a>";
+                list += "<form data-site='"+i+"' novalidate>";
+                list += "<label for='cnm-"+i+"'>"+_("Change Name")+"</label><input id='cnm-"+i+"' type='text' placeholder='"+a+"'>";
+                list += "<label for='cip-"+i+"'>"+_("Change IP")+"</label><input id='cip-"+i+"' type='url' placeholder='"+b.os_ip+"' autocomplete='off' autocorrect='off' autocapitalize='off' pattern='' spellcheck='false'>";
+                list += "<label for='cpw-"+i+"'>"+_("Change Password")+"</label><input id='cpw-"+i+"' type='password'>";
                 list += "<input type='submit' value='"+_("Save Changes to")+" "+a+"'></form>";
-                list += "<a data-role='button' class='deletesite' data-site='"+a+"' href='#' data-theme='b'>"+_("Delete")+" "+a+"</a>";
+                list += "<a data-role='button' class='deletesite' data-site='"+i+"' href='#' data-theme='b'>"+_("Delete")+" "+a+"</a>";
                 list += "</fieldset>";
+
+                i++;
             });
 
             list = $(list+"</div>");
 
             list.find(".connectnow").on("click",function(){
-                update_site($(this).data("site"));
+                update_site(siteNames[$(this).data("site")]);
                 return false;
             });
 
             list.find("form").on("submit",function(){
-                change_site($(this).data("site"));
+                var id = $(this).data("site"),
+                    site = siteNames[id],
+                    ip = $("#cip-"+id).val(),
+                    pw = $("#cpw-"+id).val(),
+                    nm = $("#cnm-"+id).val(),
+                    rename;
+
+                rename = (nm !== "" && nm !== site);
+
+                if (ip !== "") {
+                    sites[site].os_ip = ip;
+                }
+                if (pw !== "") {
+                    sites[site].os_pw = pw;
+                }
+                if (rename) {
+                    sites[nm] = sites[site];
+                    delete sites[site];
+                    site = nm;
+                    storage.set({"current_site":site});
+                    update_site_list(Object.keys(sites),site);
+                }
+
+                storage.set({"sites":JSON.stringify(sites)});
+
+                showerror(_("Site updated successfully"));
+
+                if (site === data.current_site) {
+                    if (pw !== "") {
+                        curr_pw = pw;
+                    }
+                    if (ip !== "") {
+                        check_configured();
+                    }
+                }
+
+                if (rename) {
+                    changePage("#site-control");
+                }
+
                 return false;
             });
 
             list.find(".deletesite").on("click",function(){
-                delete_site($(this).data("site"));
+                site = siteNames[$(this).data("site")];
+
+                delete sites[site];
+                storage.set({"sites":JSON.stringify(sites)},function(){
+                    update_site_list(Object.keys(sites),data.current_site);
+                    if ($.isEmptyObject(sites)) {
+                        changePage("#start",{
+                            showStart: true
+                        });
+                        return false;
+                    }
+                    changePage("#site-control",{showLoadMsg: false});
+                    showerror(_("Site deleted successfully"));
+                    return false;
+                });
+
                 return false;
             });
 
@@ -1352,80 +1413,13 @@ function show_sites(showBack) {
     page.appendTo("body");
 }
 
-function delete_site(site) {
-    areYouSure(_("Are you sure you want to delete")+" '"+site+"'?","",function(){
-        storage.get(["sites","current_site"],function(data){
-            var sites = (data.sites === undefined || data.sites === null) ? {} : JSON.parse(data.sites);
-
-            delete sites[site];
-            storage.set({"sites":JSON.stringify(sites)},function(){
-                update_site_list(Object.keys(sites),data.current_site);
-                if ($.isEmptyObject(sites)) {
-                    changePage("#start",{
-                        showStart: true
-                    });
-                    return false;
-                }
-                changePage("#site-control",{showLoadMsg: false});
-                showerror(_("Site deleted successfully"));
-                return false;
-            });
-        });
-    });
-}
-
-// Modify site IP and/or password
-function change_site(site) {
-    storage.get(["sites","current_site"],function(data){
-        var sites = (data.sites === undefined || data.sites === null) ? {} : JSON.parse(data.sites),
-            ip = $("#cip-"+site).val(),
-            pw = $("#cpw-"+site).val(),
-            nm = $("#cnm-"+site).val(),
-            rename;
-
-        site = site.replace(/_/g," ");
-        rename = (nm !== "" && nm !== site);
-
-        if (ip !== "") {
-            sites[site].os_ip = ip;
-        }
-        if (pw !== "") {
-            sites[site].os_pw = pw;
-        }
-        if (rename) {
-            sites[nm] = sites[site];
-            delete sites[site];
-            site = nm;
-            storage.set({"current_site":site});
-            update_site_list(Object.keys(sites),site);
-        }
-
-        storage.set({"sites":JSON.stringify(sites)});
-
-        showerror(_("Site updated successfully"));
-
-        if (site === data.current_site) {
-            if (pw !== "") {
-                curr_pw = pw;
-            }
-            if (ip !== "") {
-                check_configured();
-            }
-        }
-
-        if (rename) {
-            changePage("#site-control");
-        }
-    });
-}
-
 // Update the panel list of sites
 function update_site_list(names,current) {
     var list = "",
         select = $("#site-selector");
 
     $.each(names,function(a,b){
-        list += "<option "+(b===current ? "selected ":"")+"value='"+b+"'>"+b+"</option>";
+        list += "<option "+(b===current ? "selected ":"")+"value='"+htmlEscape(b)+"'>"+b+"</option>";
     });
 
     select.html(list);
@@ -7490,6 +7484,16 @@ function pad(number) {
         r = "0" + r;
     }
     return r;
+}
+
+// Escape characters for HTML support
+function htmlEscape(str) {
+    return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
 }
 
 //Localization functions
