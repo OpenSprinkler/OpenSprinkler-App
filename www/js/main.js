@@ -4573,7 +4573,7 @@ function get_preview() {
                 }
             }
         }
-        if(simminutes<prog[3] || simminutes>prog[4]) {
+        if(simminutes<prog[3] || (simminutes>prog[4] || (isOSPi() && simminutes>=prog[4]))) {
             return 0;
         }
         if(prog[5]===0) {
