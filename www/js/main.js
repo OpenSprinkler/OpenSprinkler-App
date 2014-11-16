@@ -1386,7 +1386,7 @@ function show_sites(showBack) {
             });
 
             list.find(".deletesite").on("click",function(){
-                site = siteNames[$(this).data("site")];
+                var site = siteNames[$(this).data("site")];
 
                 delete sites[site];
                 storage.set({"sites":JSON.stringify(sites)},function(){
