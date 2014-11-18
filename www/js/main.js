@@ -136,12 +136,10 @@ $(document)
     $.mobile.defaultPageTransition = "fade";
     $.mobile.hoverDelay = 0;
     $.mobile.activeBtnClass = "activeButton";
-    if (isChromeApp) {
-        $.mobile.hashListeningEnabled = false;
-    }
 
     //Change history method for Chrome Packaged Apps
     if (isChromeApp) {
+        $.mobile.hashListeningEnabled = false;
         $.mobile.document.on("click",".ui-toolbar-back-btn",function(){
             goBack();
             return false;
