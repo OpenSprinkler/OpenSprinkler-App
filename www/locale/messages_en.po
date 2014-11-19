@@ -102,6 +102,9 @@ msgstr ""
 msgid "Manually Add Device"
 msgstr ""
 
+msgid "Do you want to save your changes?"
+msgstr ""
+
 msgid "Connect Now"
 msgstr ""
 
@@ -120,13 +123,10 @@ msgstr ""
 msgid "Delete"
 msgstr ""
 
-msgid "Are you sure you want to delete"
+msgid "Site updated successfully"
 msgstr ""
 
 msgid "Site deleted successfully"
-msgstr ""
-
-msgid "Site updated successfully"
 msgstr ""
 
 msgid "Add Controller"
@@ -285,9 +285,6 @@ msgid "Are you sure you want to logout?"
 msgstr ""
 
 msgid "Edit Options"
-msgstr ""
-
-msgid "Do you want to save your changes?"
 msgstr ""
 
 msgid "System"
