@@ -3225,16 +3225,6 @@ function show_stations() {
             cards += "<div class='ui-body ui-body-a center'>";
             cards += "<p class='tight center inline-icon station-name' id='station_"+i+"'>"+station+editButton+"</p>";
 
-            if (is21 && controller.options.mas !== i+1) {
-                cards += "<fieldset data-role='controlgroup' data-type='horizontal' data-mini='true' class='center'>";
-                cards += "<legend>"+_("Test Station")+"</legend>";
-                cards += "<select><option value='60'>1 min</option><option value='300'>5 mins</option><option value='600'>10 mins</option><option value='900'>15 mins</option><option value='1200'>20 mins</option></select>";
-                cards += "<button class='"+(isRunning ? "red" : "green")+"' id='run_station-"+i+"'>"+(isRunning ? _("Stop") : _("Start"))+"</button>";
-                cards += "</fieldset>";
-
-                durations[i] = controller.settings.ps[i][1];
-            }
-
             if (optCount > 0 && controller.options.mas !== i+1) {
                 cards += "<button data-mini='true' data-icon='gear' data-iconpos='notext' data-inline='true' data-station='"+i+"' id='attrib-"+i+"' class='attrib' " +
                     (hasMaster ? ("data-um='"+((controller.stations.masop[parseInt(i/8)]&(1<<(i%8))) ? 1 : 0)+"' ") : "") +
@@ -3243,6 +3233,22 @@ function show_stations() {
                     (hasSD ? ("data-sd='"+((controller.stations.stn_dis[parseInt(i/8)]&(1<<(i%8))) ? 1 : 0)+"' ") : "") +
                     (hasSequential ? ("data-us='"+((controller.stations.stn_seq[parseInt(i/8)]&(1<<(i%8))) ? 1 : 0)+"' ") : "") +
                     "></button>";
+
+                cards += (hasMaster ? "<span data-shortcode='um' class='stn-attrib-icon btn-no-border ui-btn ui-icon-master ui-btn-icon-notext"+(controller.stations.masop[parseInt(i/8)]&(1<<(i%8)) ? "" : " attrib-disabled")+"'></span>" : "") +
+                    (hasIR ? "<span data-shortcode='ir' class='stn-attrib-icon btn-no-border ui-btn ui-icon-norain ui-btn-icon-notext"+(controller.stations.ignore_rain[parseInt(i/8)]&(1<<(i%8)) ? "" : " attrib-disabled")+"'></span>" : "") +
+                    (hasAR ? "<span data-shortcode='ar' class='stn-attrib-icon btn-no-border ui-btn ui-icon-relay ui-btn-icon-notext"+(controller.stations.act_relay[parseInt(i/8)]&(1<<(i%8)) ? "" : " attrib-disabled")+"'></span>" : "") +
+                    (hasSD ? "<span data-shortcode='sd' class='stn-attrib-icon btn-no-border ui-btn ui-icon-forbidden ui-btn-icon-notext"+(controller.stations.stn_dis[parseInt(i/8)]&(1<<(i%8)) ? "" : " attrib-disabled")+"'></span>" : "") +
+                    (hasSequential ? "<span data-shortcode='us' class='stn-attrib-icon btn-no-border ui-btn ui-icon-serial ui-btn-icon-notext"+(controller.stations.stn_seq[parseInt(i/8)]&(1<<(i%8)) ? "" : " attrib-disabled")+"'></span>" : "");
+            }
+
+            if (is21 && controller.options.mas !== i+1) {
+                cards += "<fieldset data-role='controlgroup' data-type='horizontal' data-mini='true' class='center'>";
+                cards += "<legend>"+_("Test Station")+"</legend>";
+                cards += "<select><option value='60'>1 min</option><option value='300'>5 mins</option><option value='600'>10 mins</option><option value='900'>15 mins</option><option value='1200'>20 mins</option></select>";
+                cards += "<button class='"+(isRunning ? "red" : "green")+"' id='run_station-"+i+"'>"+(isRunning ? _("Stop") : _("Start"))+"</button>";
+                cards += "</fieldset>";
+
+                durations[i] = controller.settings.ps[i][1];
             }
 
             if (controller.options.mas === i+1) {
@@ -3486,6 +3492,23 @@ function show_stations() {
     page.on("click","[id^='run_station-']",run_station);
 
     page.on("click",".attrib",show_attributes);
+
+    page.on("click",".stn-attrib-icon",function(){
+        var icon = $(this),
+            status = icon.hasClass("attrib-disabled") ? 1 : 0,
+            code = icon.data("shortcode"),
+            settings = icon.siblings(".attrib");
+
+        settings.data(code, status);
+
+        if (status) {
+            icon.removeClass("attrib-disabled");
+        } else {
+            icon.addClass("attrib-disabled");
+        }
+
+        page.find(".submit").prop("disabled",false);
+    });
 
     page.on("click","[id^='station_']",function(){
         var text = $(this),
