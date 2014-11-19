@@ -6615,7 +6615,7 @@ function show_about() {
                 "</ul>" +
                 "<p class='smaller'>" +
                     _("App Version")+": 1.2.4" +
-                    (typeof controller.options.hwv !== "undefined" ? "<br>"+_("Device")+": "+controller.options.hwv.split(".") : "") +
+                    (typeof controller.options.hwv !== "undefined" ? "<br>"+_("Device")+": "+getHWVersion() : "") +
                     "<br>"+_("Firmware")+": "+getOSVersion() +
                 "</p>" +
             "</div>" +
@@ -6769,6 +6769,22 @@ function getOSVersion(fwv) {
     } else {
         return (fwv/100>>0)+"."+((fwv/10>>0)%10)+"."+(fwv%10);
     }
+}
+
+function getHWVersion(hwv) {
+	if (!hwv) {
+		if (typeof controller.options === "object" && typeof controller.options.hwv !== "undefined") {
+			hwv = controller.options.hwv;
+		} else {
+			return false;
+		}
+	}
+
+	if (typeof hwv === "string") {
+		return hwv;
+	} else {
+		return ((hwv/10>>0)%10)+"."+(hwv%10);
+	}
 }
 
 // Accessory functions for jQuery Mobile
