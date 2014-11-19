@@ -1002,7 +1002,7 @@ msgstr ""
 msgid "App Version"
 msgstr ""
 
-msgid "Device"
+msgid "Hardware Version"
 msgstr ""
 
 msgid "Yes"
