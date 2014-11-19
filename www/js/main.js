@@ -811,13 +811,13 @@ function update_controller_options(callback) {
                 vars.ext--;
                 vars.fwv = "1.8.3-ospi";
             } else {
-                var keyIndex = {1:"tz",2:"ntp",12:"hp0",13:"hp1",14:"ar",15:"ext",16:"seq",17:"sdt",18:"mas",19:"mton",20:"mtof",21:"urs",22:"rso",23:"wl",25:"ipas",26:"devid"};
+                var keyIndex = {1:"tz",2:"ntp",12:"hp0",13:"hp1",14:"ar",15:"ext",16:"seq",17:"sdt",18:"mas",19:"mton",20:"mtof",21:"urs",22:"rso",23:"wl",25:"ipas",26:"devid",36:"lg"};
                 tmp = /var opts=\[(.*)\];/.exec(options);
                 tmp = tmp[1].replace(/"/g,"").split(",");
 
                 for (i=0; i<tmp.length-1; i=i+4) {
                     o = +tmp[i+3];
-                    if ($.inArray(o,[1,2,12,13,14,15,16,17,18,19,20,21,22,23,25,26]) !== -1) {
+                    if ($.inArray(o,[1,2,12,13,14,15,16,17,18,19,20,21,22,23,25,26,36]) !== -1) {
                         vars[keyIndex[o]] = +tmp[i+2];
                     }
                 }
@@ -2623,7 +2623,7 @@ function show_options() {
         "</table></div>";
 
     if (typeof controller.options.lg !== "undefined") {
-        list += "<label for='lg'><input data-mini='true' id='lg' type='checkbox' "+((controller.options.lg === 1) ? "checked='checked'" : "")+">"+_("Enable Logging")+"</label>";
+        list += "<label for='o36'><input data-mini='true' id='o36' type='checkbox' "+((controller.options.lg === 1) ? "checked='checked'" : "")+">"+_("Enable Logging")+"</label>";
     }
 
     list += "</fieldset><fieldset data-role='collapsible'><legend>"+_("Configure Master")+"</legend>";
@@ -3080,7 +3080,7 @@ function submit_options() {
         invalid = false,
         isPi = isOSPi(),
         button = $("#os-options").find(".submit"),
-        keyNames = {1:"tz",2:"ntp",12:"htp",13:"htp2",14:"ar",15:"nbrd",16:"seq",17:"sdt",18:"mas",19:"mton",20:"mtoff",21:"urs",22:"rst",23:"wl",25:"ipas",30:"rlp","lg":"lg",31:"uwt"},
+        keyNames = {1:"tz",2:"ntp",12:"htp",13:"htp2",14:"ar",15:"nbrd",16:"seq",17:"sdt",18:"mas",19:"mton",20:"mtoff",21:"urs",22:"rst",23:"wl",25:"ipas",30:"rlp",36:"lg",31:"uwt"},
         key;
 
     button.prop("disabled",true);
@@ -3162,7 +3162,7 @@ function submit_options() {
             case "o22":
             case "o25":
             case "o30":
-            case "lg":
+            case "o36":
             case "o3":
                 data = $item.is(":checked") ? 1 : 0;
                 if (!data) {
@@ -6376,8 +6376,8 @@ function getImportMethod(localData){
 }
 
 function import_config(data) {
-    var piNames = {1:"tz",2:"ntp",12:"htp",13:"htp2",14:"ar",15:"nbrd",16:"seq",17:"sdt",18:"mas",19:"mton",20:"mtoff",21:"urs",22:"rst",23:"wl",25:"ipas",30:"rlp","lg":"lg",31:"uwt"},
-        keyIndex = {"tz":1,"ntp":2,"dhcp":3,"hp0":12,"hp1":13,"ar":14,"ext":15,"seq":16,"sdt":17,"mas":18,"mton":19,"mtof":20,"urs":21,"rso":22,"wl":23,"ipas":25,"devid":26,"rlp":30,"lg":"lg","uwt":31,"ntp1":32,"ntp2":33,"ntp3":34,"ntp4":35};
+    var piNames = {1:"tz",2:"ntp",12:"htp",13:"htp2",14:"ar",15:"nbrd",16:"seq",17:"sdt",18:"mas",19:"mton",20:"mtoff",21:"urs",22:"rst",23:"wl",25:"ipas",30:"rlp",36:"lg",31:"uwt"},
+        keyIndex = {"tz":1,"ntp":2,"dhcp":3,"hp0":12,"hp1":13,"ar":14,"ext":15,"seq":16,"sdt":17,"mas":18,"mton":19,"mtof":20,"urs":21,"rso":22,"wl":23,"ipas":25,"devid":26,"rlp":30,"lg":36,"uwt":31,"ntp1":32,"ntp2":33,"ntp3":34,"ntp4":35};
 
     if (typeof data !== "object" || !data.settings) {
         showerror(_("Invalid configuration"));
@@ -6396,7 +6396,7 @@ function import_config(data) {
         for (i in data.options) {
             if (data.options.hasOwnProperty(i) && keyIndex.hasOwnProperty(i)) {
                 key = keyIndex[i];
-                if ($.inArray(key, [2,14,16,21,22,25]) !== -1 && data.options[i] === 0) {
+                if ($.inArray(key, [2,14,16,21,22,25,36]) !== -1 && data.options[i] === 0) {
                     continue;
                 }
                 if (key === 3) {
