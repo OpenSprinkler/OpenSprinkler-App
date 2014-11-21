@@ -1,5 +1,9 @@
 language: objective-c
-before_install: npm install -g grunt-cli
+before_install:
+ - echo 'America/Chicago' | sudo tee /etc/timezone
+ - sudo dpkg-reconfigure --frontend noninteractive tzdata
+ - sudo ntpdate ntp.ubuntu.com
+ - npm install -g grunt-cli
 install: npm install
 before_script: grunt mocha
 script:
