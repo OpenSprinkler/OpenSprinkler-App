@@ -3121,7 +3121,7 @@ function submit_options() {
                     invalid = true;
                     return false;
                 }
-                
+
                 ip = data.split(".");
 
                 opt.o4 = ip[0];
@@ -3136,7 +3136,7 @@ function submit_options() {
                     invalid = true;
                     return false;
                 }
-                
+
                 ip = data.split(".");
 
                 opt.o8 = ip[0];
@@ -4402,6 +4402,7 @@ function get_preview() {
         placeholder = page.find("#timeline"),
         navi = page.find("#timeline-navigation"),
         is21 = checkOSVersion(210),
+        is211 = checkOSVersion(211),
         preview_data, process_programs, check_match, check_match183, check_match21, run_sched, time_to_text, changeday, render, day;
 
     date = date.split("-");
@@ -4417,6 +4418,7 @@ function get_preview() {
             pid_array = new Array(controller.settings.nbrd*8),
             et_array = new Array(controller.settings.nbrd*8),
             last_stop_time = 0,
+            last_seq_stop_time = 0,
             busy, match_found, prog;
 
         for(var sid=0;sid<controller.settings.nbrd;sid++) {
@@ -4458,35 +4460,65 @@ function get_preview() {
                     }
               }
             }
-            if(match_found) {
+            if (match_found) {
                 var acctime=simminutes*60;
-                if (is21 && controller.options.seq) {
-                    if (last_stop_time > acctime) {
-                        acctime = last_stop_time + controller.options.sdt;
+                var seq_acctime = acctime;
+                if (is211) {
+                    if(last_seq_stop_time > acctime) {
+                        seq_acctime = last_seq_stop_time + controller.options.sdt;
                     }
-                }
-                if(controller.options.seq) {
+                    var bid2, s2;
                     for(sid=0;sid<controller.settings.nbrd*8;sid++) {
-                        if(!et_array[sid] || st_array[sid]) {
+                        bid2 = sid>>3;
+                        s2 = sid&0x07;
+                        if (!et_array[sid] || st_array[sid]) {
                             continue;
                         }
-                        st_array[sid]=acctime;acctime+=et_array[sid];
-                        et_array[sid]=acctime;acctime+=controller.options.sdt;
+                        if (controller.stations.stn_seq[bid2]&(1<<s2)) {
+                            st_array[sid]=seq_acctime;seq_acctime+=et_array[sid];
+                            et_array[sid]=seq_acctime;seq_acctime+=controller.options.sdt;
+                        } else {
+                            st_array[sid]=acctime;
+                            et_array[sid]=acctime+et_array[sid];
+                        }
                         busy=1;
                     }
                 } else {
-                    for(sid=0;sid<controller.settings.nbrd*8;sid++) {
-                        if(!et_array[sid] || st_array[sid]) {
-                            continue;
+                    if (is21 && controller.options.seq) {
+                        if (last_stop_time > acctime) {
+                            acctime = last_stop_time + controller.options.sdt;
                         }
-                        st_array[sid]=acctime;
-                        et_array[sid]=acctime+et_array[sid];
-                        busy=1;
+                    }
+                    if(controller.options.seq) {
+                        for(sid=0;sid<controller.settings.nbrd*8;sid++) {
+                            if(!et_array[sid] || st_array[sid]) {
+                                continue;
+                            }
+                            st_array[sid]=acctime;acctime+=et_array[sid];
+                            et_array[sid]=acctime;acctime+=controller.options.sdt;
+                            busy=1;
+                        }
+                    } else {
+                        for(sid=0;sid<controller.settings.nbrd*8;sid++) {
+                            if (!et_array[sid] || st_array[sid]) {
+                                continue;
+                            }
+                            st_array[sid]=acctime;
+                            et_array[sid]=acctime+et_array[sid];
+                            busy=1;
+                        }
                     }
                 }
             }
             if (busy) {
-                if (is21) {
+                if (is211) {
+                    last_seq_stop_time=run_sched(simminutes*60,st_array,pid_array,et_array,simt);
+                    simminutes++;
+                    for(sid=0;sid<controller.settings.nbrd*8;sid++) {
+                        st_array[sid]=0;pid_array[sid]=0;et_array[sid]=0;
+                    }
+                }
+                else if (is21) {
                     last_stop_time=run_sched(simminutes*60,st_array,pid_array,et_array,simt);
                     simminutes++;
                     for(sid=0;sid<controller.settings.nbrd*8;sid++) {
@@ -4513,6 +4545,19 @@ function get_preview() {
         var endtime=simseconds;
         for(var sid=0;sid<controller.settings.nbrd*8;sid++) {
             if(pid_array[sid]) {
+              if (is211) {
+                    if((controller.options.mas>0)&&(controller.options.mas!==sid+1)&&(controller.stations.masop[sid>>3]&(1<<(sid%8)))) {
+                        preview_data.push({
+                            "start": (st_array[sid]+controller.options.mton),
+                            "end": (et_array[sid]+controller.options.mtof),
+                            "content":"",
+                            "className":"master",
+                            "shortname":"M",
+                            "group":"Master"
+                        });
+                    }
+                    time_to_text(sid,st_array[sid],pid_array[sid],et_array[sid],simt);
+              } else {
                 if(controller.options.seq===1) {
                     if((controller.options.mas>0)&&(controller.options.mas!==sid+1)&&(controller.stations.masop[sid>>3]&(1<<(sid%8)))) {
                         preview_data.push({
@@ -4532,17 +4577,20 @@ function get_preview() {
                         endtime=(endtime>et_array[sid])?endtime:et_array[sid];
                     }
                 }
+              }
             }
         }
-        if(controller.options.seq===0&&controller.options.mas>0) {
-            preview_data.push({
-                "start": simseconds,
-                "end": endtime,
-                "content":"",
-                "className":"master",
-                "shortname":"M",
-                "group":"Master"
-            });
+        if (!is211) {
+          if(controller.options.seq===0&&controller.options.mas>0) {
+              preview_data.push({
+                  "start": simseconds,
+                  "end": endtime,
+                  "content":"",
+                  "className":"master",
+                  "shortname":"M",
+                  "group":"Master"
+              });
+          }
         }
         return endtime;
     };
