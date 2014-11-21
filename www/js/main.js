@@ -3116,6 +3116,12 @@ function submit_options() {
 
                 return true;
             case "ip_addr":
+                if (ip === "0.0.0.0") {
+                    showerror(_("A valid IP address is required when DHCP is not used"));
+                    invalid = true;
+                    return false;
+                }
+                
                 ip = data.split(".");
 
                 opt.o4 = ip[0];
@@ -3125,6 +3131,12 @@ function submit_options() {
 
                 return true;
             case "gateway":
+                if (ip === "0.0.0.0") {
+                    showerror(_("A valid gateway address is required when DHCP is not used"));
+                    invalid = true;
+                    return false;
+                }
+                
                 ip = data.split(".");
 
                 opt.o8 = ip[0];
