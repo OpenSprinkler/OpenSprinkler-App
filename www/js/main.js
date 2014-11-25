@@ -7438,8 +7438,14 @@ function showTimeInput(opt) {
                     }
                     if (!isHour && val >= 59) {
                         val = -1;
-                        var hour = popup.find(".hour");
-                        hour.val(parseInt(hour.val()) + 1);
+                        var hour = popup.find(".hour"),
+                            hourFixed = parseInt(hour.val());
+
+                        if (hourFixed === 12) {
+                            hourFixed = 0;
+                        }
+
+                        hour.val(hourFixed+1);
                     }
                 } else if (isHour && val <= 1) {
                     val = 13;
