@@ -6126,10 +6126,8 @@ function submit_program183(id) {
     program[1] = days[0];
     program[2] = days[1];
 
-    var start = $("#start-"+id).val().split(":");
-    program[3] = parseInt(start[0])*60+parseInt(start[1]);
-    var end = $("#end-"+id).val().split(":");
-    program[4] = parseInt(end[0])*60+parseInt(end[1]);
+    program[3] = parseTime($("#start-"+id).val());
+    program[4] = parseTime($("#end-"+id).val());
 
     if(program[3]>program[4]) {showerror(_("Error: Start time must be prior to end time."));return;}
 
@@ -6224,8 +6222,7 @@ function submit_program21(id) {
     if ($("#stype_repeat-"+id).is(":checked")) {
         j |= (0<<6);
 
-        var time = $("#start_1-"+id).val().split(":");
-        start[0] = parseInt(time[0])*60+parseInt(time[1]);
+        start[0] = parseTime($("#start_1-"+id).val());
         start[1] = parseInt($("#repeat-"+id).val());
         start[2] = parseInt($("#interval-"+id).val()/60);
     } else if ($("#stype_set-"+id).is(":checked")) {
@@ -6233,13 +6230,12 @@ function submit_program21(id) {
         var times = $("[id^='start_'][id$='-"+id+"']");
 
         times.each(function(a,b){
-            var time = b.value.split(":");
+            var time = parseTime(b.value)
 
-            if ((time[0] === "" || time[1] === "") || (a > 0 && !$("#ust_"+(a+1)).is(":checked"))) {
+            if (!time || (a > 0 && !$("#ust_"+(a+1)).is(":checked"))) {
                 time = -1;
-            } else {
-                time = parseInt(time[0])*60+parseInt(time[1]);
             }
+
             start[a] = time;
         });
     }
@@ -7729,6 +7725,24 @@ function check_curr_lang() {
 
         popup.find("li.ui-last-child").removeClass("ui-last-child");
     });
+}
+
+function parseTime(input) {
+    var time = input.match(/(\d+)(?::(\d\d))?\s*(p?)/i);
+
+    if (!time || !time[1] || !time[2]) {
+        return false;
+    }
+
+    var hours = parseInt(time[1], 10);
+
+    if (hours == 12 && !time[3]) {
+        hours = 0;
+    } else {
+        hours += (hours < 12 && time[3]) ? 12 : 0;
+    }
+
+    return hours*60 + parseInt(time[2], 10);
 }
 
 function dateToString(date,toUTC) {
