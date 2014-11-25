@@ -2688,7 +2688,6 @@ function show_options() {
     }
 
     if (typeof controller.options.wl !== "undefined") {
-
         list += "<div class='ui-field-contain duration-field'><label for='o23'>"+_("% Watering")+"<button data-helptext='"+_("The watering percentage scales station run times by the set value. When weather adjustment is used the watering percentage is automatically adjusted.")+"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><button "+((controller.options.uwt && controller.options.uwt > 0) ? "disabled='disabled' " : "")+"data-mini='true' id='o23' value='"+controller.options.wl+"'>"+controller.options.wl+"%</button></div>";
     }
 
@@ -2821,6 +2820,7 @@ function show_options() {
                     }
                     loc.parent().addClass("green");
                     loc.val(selected);
+                    page.find(".submit").prop("disabled",false);
                 }
                 exit(true);
             };
@@ -2865,6 +2865,7 @@ function show_options() {
                 selected = selected.replace(/^[0-9]{5}\s-\s/,"");
                 loc.parent().addClass("green");
                 loc.val(selected);
+                page.find(".submit").prop("disabled",false);
             }
             button.prop("disabled",false);
         });
