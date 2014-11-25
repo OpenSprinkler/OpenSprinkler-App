@@ -5483,7 +5483,12 @@ function get_programs(pid) {
 function expandProgram(program) {
     var id = parseInt(program.attr("id").split("-")[1]);
 
-    program.find(".ui-collapsible-content").html(make_program(id)).enhanceWithin().one("change input",function(){
+    program.find(".ui-collapsible-content").html(make_program(id)).enhanceWithin().on("change input click",function(e){
+        if (e.type === "click" && e.target.tagName !== "BUTTON") {
+            return;
+        }
+
+        $(this).off("change input click");
         program.addClass("hasChanges");
     });
 
@@ -5739,8 +5744,8 @@ function make_program183(n,isCopy) {
 
     list += "</fieldset>";
     list += "<fieldset data-role='controlgroup' data-type='horizontal' class='center'>";
-    list += "<a class='ui-btn ui-mini' name='s_checkall-"+id+"' id='s_checkall-"+id+"'>"+_("Check All")+"</a>";
-    list += "<a class='ui-btn ui-mini' name='s_uncheckall-"+id+"' id='s_uncheckall-"+id+"'>"+_("Uncheck All")+"</a>";
+    list += "<button class='ui-btn ui-mini' name='s_checkall-"+id+"' id='s_checkall-"+id+"'>"+_("Check All")+"</button>";
+    list += "<button class='ui-btn ui-mini' name='s_uncheckall-"+id+"' id='s_uncheckall-"+id+"'>"+_("Uncheck All")+"</button>";
     list += "</fieldset>";
 
     list += "<div class='ui-grid-a'>";
@@ -5792,7 +5797,6 @@ function make_program183(n,isCopy) {
             maximum: isInterval ? 86340 : 65535,
             granularity: isInterval
         });
-        return false;
     });
 
     page.find(".timefield").on("click",function(){
@@ -5807,7 +5811,6 @@ function make_program183(n,isCopy) {
                 time.text(minutesToTime(result));
             }
         });
-        return false;
     });
 
     page.find("[id^='s_checkall-']").on("click",function(){
@@ -5992,7 +5995,6 @@ function make_program21(n,isCopy) {
             granularity: 1,
             preventCompression: true
         });
-        return false;
     });
 
     page.find(".timefield").on("click",function(){
@@ -6006,7 +6008,6 @@ function make_program21(n,isCopy) {
                 time.text(minutesToTime(result));
             }
         });
-        return false;
     });
 
     // Handle repeat count button
@@ -6023,8 +6024,6 @@ function make_program21(n,isCopy) {
             },
             maximum: 1440
         });
-
-        return false;
     });
 
     // Handle all station duration inputs
@@ -6046,14 +6045,6 @@ function make_program21(n,isCopy) {
             },
             maximum: 65535
         });
-
-        return false;
-    });
-
-    page.on("mousewheel","input[type='time']",function(){
-        if ($(this).is(":focus")) {
-            return false;
-        }
     });
 
     fixInputClick(page);
