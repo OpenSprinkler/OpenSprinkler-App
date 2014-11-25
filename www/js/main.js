@@ -5744,8 +5744,8 @@ function make_program183(n,isCopy) {
     list += "</fieldset>";
 
     list += "<div class='ui-grid-a'>";
-    list += "<div class='ui-block-a'><label class='center' for='start-"+id+"'>"+_("Start Time")+"</label><input data-wrapper-class='pad_buttons' data-mini='true' type='time' name='start-"+id+"' id='start-"+id+"' value='"+pad(parseInt(program.start/60)%24)+":"+pad(program.start%60)+"'></div>";
-    list += "<div class='ui-block-b'><label class='center' for='end-"+id+"'>"+_("End Time")+"</label><input data-wrapper-class='pad_buttons' data-mini='true' type='time' name='end-"+id+"' id='end-"+id+"' value='"+pad(parseInt(program.end/60)%24)+":"+pad(program.end%60)+"'></div>";
+    list += "<div class='ui-block-a'><label class='center' for='start-"+id+"'>"+_("Start Time")+"</label><button class='timefield pad_buttons' data-mini='true' id='start-"+id+"' value='"+program.start+"'>"+minutesToTime(program.start)+"</button></div>";
+    list += "<div class='ui-block-b'><label class='center' for='end-"+id+"'>"+_("End Time")+"</label><button class='timefield pad_buttons' data-mini='true' id='end-"+id+"' value='"+program.end+"'>"+minutesToTime(program.end)+"</button></div>";
     list += "</div>";
 
     list += "<div class='ui-grid-a'>";
@@ -5795,6 +5795,21 @@ function make_program183(n,isCopy) {
         return false;
     });
 
+    page.find(".timefield").on("click",function(){
+        var time = $(this),
+            name = page.find("label[for='"+time.attr("id")+"']").text();
+
+        showTimeInput({
+            minutes: time.val(),
+            title: name,
+            callback: function(result){
+                time.val(result);
+                time.text(minutesToTime(result));
+            }
+        });
+        return false;
+    });
+
     page.find("[id^='s_checkall-']").on("click",function(){
         page.find("[id^='station_'][id$='-"+id+"']").prop("checked",true).checkboxradio("refresh");
         return false;
@@ -5814,7 +5829,7 @@ function make_program21(n,isCopy) {
     var week = [_("Monday"),_("Tuesday"),_("Wednesday"),_("Thursday"),_("Friday"),_("Saturday"),_("Sunday")],
         list = "",
         id = isCopy ? "new" : n,
-        days, i, j, program, page, times, time;
+        days, i, j, program, page, times, time, unchecked;
 
     if (n === "new") {
         program = {"name":"","en":0,"weather":0,"is_interval":0,"is_even":0,"is_odd":0,"interval":0,"start":0,"days":[0,0],"repeat":0,"stations":[]};
@@ -5852,7 +5867,7 @@ function make_program21(n,isCopy) {
     list += "<label for='uwt-"+id+"'><input data-mini='true' type='checkbox' "+((program.weather) ? "checked='checked'" : "")+" name='uwt-"+id+"' id='uwt-"+id+"'>"+_("Use Weather Adjustment")+"</label>";
 
     // Show start time menu
-    list += "<label class='center' for='start_1-"+id+"'>"+_("Start Time")+"</label><input data-mini='true' type='time' name='start_1-"+id+"' id='start_1-"+id+"' value='"+pad(parseInt(times[0]/60)%24)+":"+pad(times[0]%60)+"'>";
+    list += "<label class='center' for='start_1-"+id+"'>"+_("Start Time")+"</label><button class='timefield' data-mini='true' id='start_1-"+id+"' value='"+times[0]+"'>"+minutesToTime(times[0])+"</button>";
 
     // Close basic settings group
     list += "</div></div></div></div>";
@@ -5931,8 +5946,9 @@ function make_program21(n,isCopy) {
     // Show set times options
     list +="<table style='width:100%;"+((typeof program.start === "object") ? "" : "display:none")+"' id='input_stype_set-"+id+"'><tr><th class='center'>"+_("Enable")+"</th><th>"+_("Start Time")+"</th></tr>";
     for (j=1; j<4; j++) {
-        list += "<tr><td data-role='controlgroup' data-type='horizontal' class='use_master center'><label for='ust_"+(j+1)+"'><input id='ust_"+(j+1)+"' type='checkbox' "+((times[j] === -1) ? "" : "checked='checked'")+"></label></td>";
-        list += "<td><input data-mini='true' type='time' name='start_"+(j+1)+"-"+id+"' id='start_"+(j+1)+"-"+id+"' value='"+pad(parseInt(times[j]/60)%24)+":"+pad(times[j]%60)+"'></td></tr>";
+        unchecked = (times[j] === -1);
+        list += "<tr><td data-role='controlgroup' data-type='horizontal' class='use_master center'><label for='ust_"+(j+1)+"'><input id='ust_"+(j+1)+"' type='checkbox' "+(unchecked ? "" : "checked='checked'")+"></label></td>";
+        list += "<td><button class='timefield' data-mini='true' type='time' id='start_"+(j+1)+"-"+id+"' value='"+(unchecked ? 0 : times[j])+"'>"+minutesToTime(unchecked ? 0 : times[j])+"</button></td></tr>";
     }
 
     list += "</table>";
@@ -5975,6 +5991,20 @@ function make_program21(n,isCopy) {
             maximum: 86340,
             granularity: 1,
             preventCompression: true
+        });
+        return false;
+    });
+
+    page.find(".timefield").on("click",function(){
+        var time = $(this);
+
+        showTimeInput({
+            minutes: time.val(),
+            title: _("Start Time"),
+            callback: function(result){
+                time.val(result);
+                time.text(minutesToTime(result));
+            }
         });
         return false;
     });
@@ -6126,8 +6156,8 @@ function submit_program183(id) {
     program[1] = days[0];
     program[2] = days[1];
 
-    program[3] = parseTime($("#start-"+id).val());
-    program[4] = parseTime($("#end-"+id).val());
+    program[3] = parseInt($("#start-"+id).val());
+    program[4] = parseInt($("#end-"+id).val());
 
     if(program[3]>program[4]) {showerror(_("Error: Start time must be prior to end time."));return;}
 
@@ -6222,7 +6252,7 @@ function submit_program21(id) {
     if ($("#stype_repeat-"+id).is(":checked")) {
         j |= (0<<6);
 
-        start[0] = parseTime($("#start_1-"+id).val());
+        start[0] = parseInt($("#start_1-"+id).val());
         start[1] = parseInt($("#repeat-"+id).val());
         start[2] = parseInt($("#interval-"+id).val()/60);
     } else if ($("#stype_set-"+id).is(":checked")) {
@@ -6230,7 +6260,7 @@ function submit_program21(id) {
         var times = $("[id^='start_'][id$='-"+id+"']");
 
         times.each(function(a,b){
-            var time = parseTime(b.value);
+            var time = parseInt(b.value);
 
             if (!time || (a > 0 && !$("#ust_"+(a+1)).is(":checked"))) {
                 time = -1;
@@ -7333,6 +7363,162 @@ function showDateTimeInput(timestamp,callback) {
     .enhanceWithin().popup("open");
 }
 
+function showTimeInput(opt) {
+    var defaults = {
+            minutes: 0,
+            title: _("Time"),
+            incrementalUpdate: true,
+            showBack: true,
+            callback: function(){}
+        };
+
+    opt = $.extend({}, defaults, opt);
+
+    $("#timeInput").popup("destroy").remove();
+
+    var isPM = (opt.minutes > 719 ? true : false),
+        getPeriod = function() {
+            return isPM ? _("PM") : _("AM");
+        },
+        popup = $("<div data-role='popup' id='timeInput' data-theme='a' data-overlay-theme='b'>" +
+            "<div data-role='header' data-theme='b'>" +
+                "<h1>"+opt.title+"</h1>" +
+            "</div>" +
+            "<div class='ui-content'>" +
+                (opt.helptext ? "<p class='pad-top rain-desc center smaller'>"+opt.helptext+"</p>" : "") +
+                "<span>" +
+                    "<fieldset class='ui-grid-b incr'>" +
+                        "<div class='ui-block-a'>" +
+                            "<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a>" +
+                        "</div>" +
+                        "<div class='ui-block-b'>" +
+                            "<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a>" +
+                        "</div>" +
+                        "<div class='ui-block-c'>" +
+                            "<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a>" +
+                        "</div>" +
+                    "</fieldset>" +
+                    "<div class='ui-grid-b inputs'>" +
+                        "<div class='ui-block-a'>" +
+                            "<input data-wrapper-class='pad_buttons' class='hour' type='number' pattern='[0-9]*' value='"+(parseInt(opt.minutes/60)%12 === 0 ? 12 : parseInt(opt.minutes/60)%12)+"'>" +
+                        "</div>" +
+                        "<div class='ui-block-b'>" +
+                            "<input data-wrapper-class='pad_buttons' class='minute' type='number' pattern='[0-9]*' value='"+pad(opt.minutes%60)+"'>" +
+                        "</div>" +
+                        "<div class='ui-block-c'>" +
+                            "<p class='center period'>"+getPeriod()+"</p>" +
+                        "</div>" +
+                    "</div>" +
+                    "<fieldset class='ui-grid-b decr'>" +
+                        "<div class='ui-block-a'>" +
+                            "<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='minus' data-iconpos='bottom'></a>" +
+                        "</div>" +
+                        "<div class='ui-block-b'>" +
+                            "<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='minus' data-iconpos='bottom'></a>" +
+                        "</div>" +
+                        "<div class='ui-block-c'>" +
+                            "<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='minus' data-iconpos='bottom'></a>" +
+                        "</div>" +
+                    "</fieldset>" +
+                "</span>" +
+                (opt.showBack ? "<button class='submit' data-theme='b'>"+_("Submit")+"</button>" : "") +
+            "</div>" +
+        "</div>"),
+        changeValue = function(pos,dir){
+            if (pos === 0 || pos === 1) {
+                var curr = getValue(),
+                    to = curr + ( dir * (pos === 0 ? 60 : 1) ),
+                    input = popup.find(".inputs input").eq(pos),
+                    isHour = input.hasClass("hour"),
+                    val = parseInt(input.val());
+
+                if (dir === 1) {
+                    if (isHour && val >= 12) {
+                        val = 0;
+                    }
+                    if (!isHour && val >= 59) {
+                        val = -1;
+                        var hour = popup.find(".hour");
+                        hour.val(parseInt(hour.val()) + 1);
+                    }
+                } else if (isHour && val <= 1) {
+                    val = 13;
+                } else if (!isHour && val <= 0) {
+                    return;
+                }
+
+                if ((!isPM && to>719) || (isPM && to<721)) {
+                    isPM = !isPM;
+                    popup.find(".period").text(getPeriod());
+                }
+
+                val = isHour ? val+dir : pad(val+dir);
+                input.val(val);
+            } else if (pos === 2) {
+                isPM = !isPM;
+                popup.find(".period").text(getPeriod());
+            }
+
+            if (opt.incrementalUpdate) {
+                opt.callback(getValue());
+            }
+        },
+        getValue = function() {
+            var hour = parseInt(popup.find(".hour").val());
+
+            if (isPM && hour !== 12) {
+                hour = hour + 12;
+            }
+
+            if (!isPM && hour === 12) {
+                hour = 0;
+            }
+
+            return (hour*60)+parseInt(popup.find(".minute").val());
+        };
+
+    popup.find("button.submit").on("click",function(){
+        opt.callback(getValue());
+        popup.popup("destroy").remove();
+    });
+
+    popup.on("focus","input[type='number']",function(){
+        this.value = "";
+    }).on("blur","input[type='number']",function(){
+        if (this.value === "") {
+            this.value = $(this).hasClass("hour") ? "0" : "00";
+        }
+    });
+
+    holdButton(popup.find(".incr").children(),function(e){
+        var pos = $(e.currentTarget).index();
+        changeValue(pos,1);
+        return false;
+    });
+
+    holdButton(popup.find(".decr").children(),function(e){
+        var pos = $(e.currentTarget).index();
+        changeValue(pos,-1);
+        return false;
+    });
+
+    $(".ui-page-active").append(popup);
+
+    popup
+    .css("max-width","350px")
+    .popup({
+        history: false,
+        "positionTo": "window"
+    })
+    .one("popupafterclose",function(){
+        if (opt.incrementalUpdate) {
+            opt.callback(getValue());
+        }
+        $(this).popup("destroy").remove();
+    })
+    .enhanceWithin().popup("open");
+}
+
 function changePage(toPage,opts) {
     opts = opts || {};
     if (toPage.indexOf("#") !== 0) {
@@ -7727,22 +7913,15 @@ function check_curr_lang() {
     });
 }
 
-function parseTime(input) {
-    var time = input.match(/(\d+)(?::(\d\d))?\s*(p?)/i);
+function minutesToTime(minutes) {
+    var period = minutes > 719 ? "PM" : "AM",
+        hour = parseInt(minutes/60)%12;
 
-    if (!time || !time[1] || !time[2]) {
-        return false;
+    if (hour === 0) {
+        hour = 12;
     }
 
-    var hours = parseInt(time[1], 10);
-
-    if (hours === 12 && !time[3]) {
-        hours = 0;
-    } else {
-        hours += (hours < 12 && time[3]) ? 12 : 0;
-    }
-
-    return hours*60 + parseInt(time[2], 10);
+    return hour+":"+pad(minutes%60)+" "+period;
 }
 
 function dateToString(date,toUTC) {
