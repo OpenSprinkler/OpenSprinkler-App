@@ -6230,7 +6230,7 @@ function submit_program21(id) {
         var times = $("[id^='start_'][id$='-"+id+"']");
 
         times.each(function(a,b){
-            var time = parseTime(b.value)
+            var time = parseTime(b.value);
 
             if (!time || (a > 0 && !$("#ust_"+(a+1)).is(":checked"))) {
                 time = -1;
@@ -7736,7 +7736,7 @@ function parseTime(input) {
 
     var hours = parseInt(time[1], 10);
 
-    if (hours == 12 && !time[3]) {
+    if (hours === 12 && !time[3]) {
         hours = 0;
     } else {
         hours += (hours < 12 && time[3]) ? 12 : 0;
