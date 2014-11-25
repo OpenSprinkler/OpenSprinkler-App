@@ -2139,9 +2139,9 @@ function resolveLocation(loc,callback) {
             dataSent = false;
 
         popup.appendTo("body").on("click","a",function(){
-            popup.popup("close");
             callback(this.textContent);
             dataSent = true;
+            popup.popup("close");
         }).one("popupafterclose",function(){
             popup.popup("destroy").remove();
             if (dataSent === false) {
