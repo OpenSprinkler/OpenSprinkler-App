@@ -7445,7 +7445,7 @@ function showTimeInput(opt) {
                     return;
                 }
 
-                if ((!isPM && to>719) || (isPM && to<721)) {
+                if ((!isPM && to>719) || (isPM && to<721) || (isPM && to>1439) || (!isPM && dir === -1 && to<0)) {
                     isPM = !isPM;
                     popup.find(".period").text(getPeriod());
                 }
