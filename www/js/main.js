@@ -7483,9 +7483,8 @@ function showTimeInput(opt) {
     popup.on("focus","input[type='number']",function(){
         this.value = "";
     }).on("blur","input[type='number']",function(){
-        if (this.value === "") {
-            this.value = $(this).hasClass("hour") ? "0" : "00";
-        }
+        var val = parseInt(this.value) || 0;
+        this.value = $(this).hasClass("hour") ? val : pad(val);
     });
 
     holdButton(popup.find(".incr").children(),function(e){
