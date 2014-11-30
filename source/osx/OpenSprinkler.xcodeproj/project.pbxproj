@@ -23,7 +23,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		F40530A6198326550046DC88 /* OpenSprinkler.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = OpenSprinkler.icns; path = ../../www/res/osx/icons/OpenSprinkler.icns; sourceTree = "<group>"; };
+		F40530A6198326550046DC88 /* OpenSprinkler.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = OpenSprinkler.icns; path = ../../res/osx/icons/OpenSprinkler.icns; sourceTree = "<group>"; };
 		F41864D71A089D9700C25906 /* map.htm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = map.htm; path = ../../../www/map.htm; sourceTree = "<group>"; };
 		F464DC00198ED81E003492F2 /* MainMenu.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MainMenu.xib; sourceTree = "<group>"; };
 		F464DC02198ED884003492F2 /* Credits.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = Credits.rtf; sourceTree = "<group>"; };
