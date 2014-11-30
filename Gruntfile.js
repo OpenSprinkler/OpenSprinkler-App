@@ -148,7 +148,11 @@ module.exports = function(grunt) {
 					command: "tasks/updatelang.sh <%= secrets.getLocalization.username %> <%= secrets.getLocalization.password %>"
 			},
 			blackberry10: {
-					command: "cordova build blackberry10 --release"
+					command: [
+						"cd www&&ln -s ../res res&&cd ..",
+						"cordova build blackberry10 --release",
+						"rm www/res"
+					].join("&&")
 			},
 			pushBump: {
 				command: [
