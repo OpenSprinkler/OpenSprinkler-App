@@ -94,7 +94,7 @@ module.exports = function(grunt) {
 					archive: "build/firefox/com.albahra.sprinklers.zip"
 				},
 				files: [{
-					src: ["css/**","js/**","img/**","locale/**","*.htm", "res/firefox/**"],
+					src: ["css/**","js/**","img/**","locale/**","*.htm", "../res/firefox/**"],
 					cwd: "www/",
 					expand: true
 				},{
@@ -106,7 +106,7 @@ module.exports = function(grunt) {
 					archive: "build/chrome/com.albahra.sprinklers.zip"
 				},
 				files: [{
-					src: ["css/**","js/**","img/**","locale/**","*.htm", "../chrome.js", "res/chrome/**"],
+					src: ["css/**","js/**","img/**","locale/**","*.htm", "../chrome.js", "../res/chrome/**"],
 					cwd: "www/",
 					expand: true
 				},{
@@ -145,14 +145,13 @@ module.exports = function(grunt) {
 				command: "tasks/pusheng.sh"
 			},
 			updateLang: {
-					command: "tasks/updatelang.sh <%= secrets.getLocalization.username %> <%= secrets.getLocalization.password %>"
+				command: "tasks/updatelang.sh <%= secrets.getLocalization.username %> <%= secrets.getLocalization.password %>"
+			},
+			symres: {
+				command: "cd www && ln -s ../res res && cd .."
 			},
 			blackberry10: {
-					command: [
-						"cd www&&ln -s ../res res&&cd ..",
-						"cordova build blackberry10 --release",
-						"rm www/res"
-					].join("&&")
+				command: "cordova build blackberry10 --release"
 			},
 			pushBump: {
 				command: [
@@ -252,7 +251,8 @@ module.exports = function(grunt) {
 
 		clean: {
 			makeFW: ["www/js/app.js", "www/css/app.css", "www/css/app.cgz", "www/js/*.jgz"],
-			pushFW: ["build/firmware/*"]
+			pushFW: ["build/firmware/*"],
+			symres: ["www/res"]
 		}
 	});
 
@@ -264,7 +264,7 @@ module.exports = function(grunt) {
 	grunt.registerTask("makeFW",["jshint","uglify","cssmin","compress:jsAsset","compress:cssAsset","compress:makeFW","clean:makeFW"]);
 	grunt.registerTask("pushFW",["makeFW","shell:updateUI","clean:pushFW"]);
 	grunt.registerTask("pushBetaFW",["makeFW","shell:updateBetaUI","clean:pushFW"]);
-	grunt.registerTask("build",["jshint","shell:blackberry10","compress:firefox","compress:chrome","compress:blackberry10","pushFW"]);
+	grunt.registerTask("build",["jshint","shell:symres","shell:blackberry10","compress:firefox","compress:chrome","compress:blackberry10","pushFW","clean:symres"]);
 	grunt.registerTask("bump",["jshint","replace:about","replace:osx","replace:phonegap","replace:manifests","shell:pushBump"]);
 
 };
