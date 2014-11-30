@@ -43,7 +43,7 @@ module.exports = function(grunt) {
 		secrets: secrets,
 
 		jshint: {
-			main: ["<%= pkg.main %>","Gruntfile.js","www/js/home.js","www/chrome.js","test/spec.js"],
+			main: ["<%= pkg.main %>","Gruntfile.js","www/js/home.js","chrome.js","test/spec.js"],
 			options: {
 				jshintrc: true
 			}
@@ -106,7 +106,7 @@ module.exports = function(grunt) {
 					archive: "build/chrome/com.albahra.sprinklers.zip"
 				},
 				files: [{
-					src: ["css/**","js/**","img/**","locale/**","*.htm", "chrome.js", "res/chrome/**"],
+					src: ["css/**","js/**","img/**","locale/**","*.htm", "../chrome.js", "res/chrome/**"],
 					cwd: "www/",
 					expand: true
 				},{
