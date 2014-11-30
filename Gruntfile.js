@@ -94,7 +94,7 @@ module.exports = function(grunt) {
 					archive: "build/firefox/com.albahra.sprinklers.zip"
 				},
 				files: [{
-					src: ["css/**","js/**","img/**","locale/**","*.htm", "../res/firefox/**"],
+					src: ["css/**","js/**","img/**","locale/**","*.htm", "res/firefox/**"],
 					cwd: "www/",
 					expand: true
 				},{
@@ -106,11 +106,11 @@ module.exports = function(grunt) {
 					archive: "build/chrome/com.albahra.sprinklers.zip"
 				},
 				files: [{
-					src: ["css/**","js/**","img/**","locale/**","*.htm", "../chrome.js", "../res/chrome/**"],
+					src: ["css/**","js/**","img/**","locale/**","*.htm", "res/chrome/**"],
 					cwd: "www/",
 					expand: true
 				},{
-					src: ["manifest.json"]
+					src: ["manifest.json", "chrome.js"]
 				}]
 			},
 			blackberry10: {
