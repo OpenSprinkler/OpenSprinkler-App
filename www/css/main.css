@@ -477,6 +477,9 @@ body, input, select, textarea, button, .ui-btn {
     max-width: 800px;
     margin: 0 auto;
 }
+#tooltip {
+    z-index: 999;
+}
 @media (max-width:480px) {
     #logs_list .ui-li-aside {
         width:25%!important;

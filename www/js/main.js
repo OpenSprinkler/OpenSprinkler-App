@@ -4945,6 +4945,7 @@ function get_logs() {
         table_sort = logs.find("#table_sort"),
         log_options = logs.find("#log_options"),
         data = [],
+        waterlog = [],
         stations = $.merge($.merge([],controller.stations.snames),[_("Rain Sensor"),_("Rain Delay")]),
         seriesChange = function() {
             var grouping = logs.find("input:radio[name='g']:checked").val(),
@@ -4974,6 +4975,29 @@ function get_logs() {
                 }
             });
 
+            if (grouping === "n" && !$.isEmptyObject(waterlog)) {
+                var wlSorted = [];
+
+                $.each(waterlog,function(key,data){
+                    wlSorted.push([data[3]*1000,data[2]]);
+                });
+
+                pData.push({
+                    data: wlSorted,
+                    label: _("Water Level"),
+                    yaxis: 2,
+                    lines: {
+                        show: true,
+                        fill: false
+                    },
+                    points: {
+                        show: true,
+                        fillColor: "rgb(51,136,204)"
+                    },
+                    color: "rgb(51,136,204)",
+                });
+            }
+
             // Plot the data
             if (grouping==="h") {
                 options = {
@@ -4998,8 +5022,11 @@ function get_logs() {
             } else if (grouping==="n") {
                 options = {
                     grid: { hoverable: true },
-                    yaxis: {min: 0, tickFormatter: function(val, axis) { return val < axis.max ? Math.round(val*100)/100 : "min";} },
-                    xaxis: { mode: "time", timeformat: "%b %d %H:%M", min:sortedData.min.getTime()-43200000, max:sortedData.max.getTime()+43200000}
+                    yaxes: [
+                        {min: 0, tickFormatter: function(val, axis) { return val < axis.max ? Math.round(val*100)/100 : "min";} },
+                        {min: 0, position: 1, tickFormatter: function(val) { return Math.round(val*100)/100+"%";}, alignTicksWithAxis: 1}
+                    ],
+                    xaxis: { tickLength: 0, mode: "time", timeformat: "%b %d %H:%M", min:sortedData.min.getTime()-43200000, max:sortedData.max.getTime()+43200000}
                 };
             }
 
@@ -5142,7 +5169,7 @@ function get_logs() {
                 right.hide();
             }
         },
-        success = function(items){
+        success = function(items,wl){
             if (typeof items !== "object" || items.length < 1 || (items.result && items.result === 32)) {
                 $.mobile.loading("hide");
                 reset_logs_page();
@@ -5150,6 +5177,8 @@ function get_logs() {
             }
 
             data = items;
+            waterlog = $.isEmptyObject(wl) ? [] : wl;
+
             updateView();
 
             exportObj(".export_logs",data);
@@ -5232,8 +5261,15 @@ function get_logs() {
                 html = "<div data-role='collapsible-set' data-inset='true' data-theme='b' data-collapsed-icon='arrow-d' data-expanded-icon='arrow-u'>",
                 sortedData = sortData("table",grouping),
                 groupArray = [],
+                wlSorted = [],
                 i = 0,
                 group, ct, k;
+
+            if (!$.isEmptyObject(waterlog)) {
+                $.each(waterlog,function(key,data){
+                    wlSorted[Math.floor(data[3] / 60 / 60 / 24)] = data[2];
+                });
+            }
 
             for (group in sortedData) {
                 if (sortedData.hasOwnProperty(group)) {
@@ -5241,7 +5277,14 @@ function get_logs() {
                     if (ct === 0) {
                         continue;
                     }
-                    groupArray[i] = "<div data-role='collapsible' data-collapsed='true'><h2><div class='ui-btn-up-c ui-btn-corner-all custom-count-pos'>"+ct+" "+((ct === 1) ? _("run") : _("runs"))+"</div>"+(grouping === "station" ? stations[group] : dateToString(new Date(group*1000*60*60*24)).slice(0,-9))+"</h2>"+table_header;
+                    groupArray[i] = "<div data-role='collapsible' data-collapsed='true'><h2><div class='ui-btn-up-c ui-btn-corner-all custom-count-pos'>"+ct+" "+((ct === 1) ? _("run") : _("runs"))+"</div>"+(grouping === "station" ? stations[group] : dateToString(new Date(group*1000*60*60*24)).slice(0,-9))+"</h2>";
+
+                    if (wlSorted[group]) {
+                        groupArray[i] += "<span>"+_("Average")+" "+_("Water Level")+": "+wlSorted[group]+"%</span>";
+                    }
+
+                    groupArray[i] += table_header;
+
                     for (k=0; k<sortedData[group].length; k++) {
                         var date = new Date(sortedData[group][k][0]);
                         groupArray[i] += "<tr><td>"+sortedData[group][k][1]+"</td><td>"+(grouping === "station" ? dateToString(date,false) : pad(date.getHours())+":"+pad(date.getMinutes())+":"+pad(date.getSeconds())+"</td><td>"+stations[sortedData[group][k][2]])+"</td></tr>";
@@ -5304,8 +5347,17 @@ function get_logs() {
                 delay = 500;
             }
 
+            var defer = $.Deferred().resolve();
+
+            if (checkOSVersion(211)) {
+                defer = send_to_os("/jl?pw=&type=wl&"+parms(),"json");
+            }
+
             setTimeout(function(){
-                send_to_os("/jl?pw=&"+parms(),"json").then(success,fail);
+                $.when(
+                    send_to_os("/jl?pw=&"+parms(),"json"),
+                    defer
+                ).then(success,fail);
             },delay);
         },
         logtimeout, hovertimeout, i;
