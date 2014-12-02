@@ -5280,7 +5280,7 @@ function get_logs() {
                     groupArray[i] = "<div data-role='collapsible' data-collapsed='true'><h2><div class='ui-btn-up-c ui-btn-corner-all custom-count-pos'>"+ct+" "+((ct === 1) ? _("run") : _("runs"))+"</div>"+(grouping === "station" ? stations[group] : dateToString(new Date(group*1000*60*60*24)).slice(0,-9))+"</h2>";
 
                     if (wlSorted[group]) {
-                        groupArray[i] += "<span>"+_("Average")+" "+_("Water Level")+": "+wlSorted[group]+"%</span>";
+                        groupArray[i] += "<span style='border:none' class='"+(wlSorted[group] !== 100 ? (wlSorted[group] < 100 ? "green " : "red ") : "")+"ui-body ui-body-a ui-corner-all'>"+_("Average")+" "+_("Water Level")+": "+wlSorted[group]+"%</span>";
                     }
 
                     groupArray[i] += table_header;
