@@ -102,9 +102,6 @@ msgstr ""
 msgid "Manually Add Device"
 msgstr ""
 
-msgid "Do you want to save your changes?"
-msgstr ""
-
 msgid "Connect Now"
 msgstr ""
 
@@ -444,6 +441,12 @@ msgstr ""
 msgid "Milliseconds"
 msgstr ""
 
+msgid "A valid IP address is required when DHCP is not used"
+msgstr ""
+
+msgid "A valid gateway address is required when DHCP is not used"
+msgstr ""
+
 msgid "Weather Underground API key is required for weather-based control"
 msgstr ""
 
@@ -752,6 +755,9 @@ msgstr ""
 msgid "runs"
 msgstr ""
 
+msgid "Average"
+msgstr ""
+
 msgid "No entries found in the selected date range"
 msgstr ""
 
@@ -769,6 +775,9 @@ msgid "Logs have been cleared"
 msgstr ""
 
 msgid "Programs"
+msgstr ""
+
+msgid "Do you want to save your changes?"
 msgstr ""
 
 msgid "Manual program"
@@ -1024,6 +1033,12 @@ msgid "Minutes"
 msgstr ""
 
 msgid "Enter Date/Time"
+msgstr ""
+
+msgid "PM"
+msgstr ""
+
+msgid "AM"
 msgstr ""
 
 msgid "d"
