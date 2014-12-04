@@ -127,7 +127,7 @@ $(document)
         if (isIEMobile && $.mobile.document.data("iabOpen")) {
             return false;
         }
-        goBack();
+        checkChangesBeforeBack();
         return false;
     });
 })
@@ -1262,16 +1262,7 @@ function show_sites(showBack) {
         addButton = page.find("#site-add"),
         sites, total;
 
-    page.find(".ui-toolbar-back-btn").on("click",function(){
-        var changed = page.find(".ui-collapsible.hasChanges");
-        if (changed.length !== 0) {
-            areYouSure(_("Do you want to save your changes?"),"",function(){
-                changed.find("form").submit();
-                goBack();
-            },goBack);
-            return false;
-        }
-    });
+    page.find(".ui-toolbar-back-btn").on("click",checkChangesBeforeBack);
 
     popup.popup({
         history: false,
@@ -1336,7 +1327,7 @@ function show_sites(showBack) {
                 list += "<label for='cnm-"+i+"'>"+_("Change Name")+"</label><input id='cnm-"+i+"' type='text' placeholder='"+a+"'>";
                 list += "<label for='cip-"+i+"'>"+_("Change IP")+"</label><input id='cip-"+i+"' type='url' placeholder='"+b.os_ip+"' autocomplete='off' autocorrect='off' autocapitalize='off' pattern='' spellcheck='false'>";
                 list += "<label for='cpw-"+i+"'>"+_("Change Password")+"</label><input id='cpw-"+i+"' type='password'>";
-                list += "<input type='submit' value='"+_("Save Changes to")+" "+a+"'></form>";
+                list += "<input class='submit' type='submit' value='"+_("Save Changes to")+" "+a+"'></form>";
                 list += "<a data-role='button' class='deletesite' data-site='"+i+"' href='#' data-theme='b'>"+_("Delete")+" "+a+"</a>";
                 list += "</fieldset>";
 
@@ -1346,7 +1337,7 @@ function show_sites(showBack) {
             list = $(list+"</div>");
 
             list.find("form").one("change input",function(){
-                $(this).parents(".ui-collapsible").addClass("hasChanges");
+                $(this).find(".submit").addClass("hasChanges");
             });
 
             list.find(".connectnow").on("click",function(){
@@ -1355,14 +1346,15 @@ function show_sites(showBack) {
             });
 
             list.find("form").on("submit",function(){
-                var id = $(this).data("site"),
+                var form = $(this),
+                    id = form.data("site"),
                     site = siteNames[id],
                     ip = list.find("#cip-"+id).val(),
                     pw = list.find("#cpw-"+id).val(),
                     nm = list.find("#cnm-"+id).val(),
                     rename;
 
-                list.find("#site-"+id).removeClass("hasChanges");
+                form.find(".submit").removeClass("hasChanges");
 
                 rename = (nm !== "" && nm !== site);
 
@@ -1375,9 +1367,6 @@ function show_sites(showBack) {
                 if (rename) {
                     sites[nm] = sites[site];
                     delete sites[site];
-                    site = nm;
-                    storage.set({"current_site":site});
-                    update_site_list(Object.keys(sites),site);
                 }
 
                 storage.set({"sites":JSON.stringify(sites)});
@@ -7668,6 +7657,19 @@ function goBack() {
         } else {
             $.mobile.back();
         }
+    }
+}
+
+function checkChangesBeforeBack() {
+    var page = $(".ui-page-active"),
+        changed = page.find(".hasChanges");
+
+    if (changed.length !== 0) {
+        areYouSure(_("Do you want to save your changes?"),"",function(){
+            changed.click();
+            goBack();
+        },goBack);
+        return false;
     }
 }
 
