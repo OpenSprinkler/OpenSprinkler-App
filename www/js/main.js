@@ -1352,11 +1352,10 @@ function show_sites(showBack) {
                     ip = list.find("#cip-"+id).val(),
                     pw = list.find("#cpw-"+id).val(),
                     nm = list.find("#cnm-"+id).val(),
-                    rename;
+                    isCurrent = (site === data.current_site),
+                    rename = (nm !== "" && nm !== site);
 
                 form.find(".submit").removeClass("hasChanges");
-
-                rename = (nm !== "" && nm !== site);
 
                 if (ip !== "") {
                     sites[site].os_ip = ip;
@@ -1367,6 +1366,12 @@ function show_sites(showBack) {
                 if (rename) {
                     sites[nm] = sites[site];
                     delete sites[site];
+                    site = nm;
+                    if (isCurrent) {
+                        storage.set({"current_site":site});
+                        data.current_site = site;
+                    }
+                    update_site_list(Object.keys(sites),data.current_site);
                 }
 
                 storage.set({"sites":JSON.stringify(sites)});
@@ -1425,6 +1430,8 @@ function update_site_list(names,current) {
     $.each(names,function(a,b){
         list += "<option "+(b===current ? "selected ":"")+"value='"+htmlEscape(b)+"'>"+b+"</option>";
     });
+
+    $("#info-list").find("li[data-role='list-divider']").text(current);
 
     select.html(list);
     if (select.parent().parent().hasClass("ui-select")) {
@@ -2577,12 +2584,7 @@ function show_options() {
         timezones, algorithm, tz, i;
 
     page.find(".submit").on("click",submit_options);
-    page.find(".ui-toolbar-back-btn").on("click",function(){
-        if (page.find(".submit").prop("disabled") === false) {
-            areYouSure(_("Do you want to save your changes?"),"",submit_options,goBack);
-            return false;
-        }
-    });
+    page.find(".ui-toolbar-back-btn").on("click",checkChangesBeforeBack);
 
     list = "<fieldset data-role='collapsible' data-collapsed='false'><legend>"+_("System")+"</legend>";
 
@@ -2734,7 +2736,7 @@ function show_options() {
     page.find("#os-options-list")
         .html(list)
         .one("change input",function(){
-            page.find(".submit").prop("disabled",false);
+            page.find(".submit").prop("disabled",false).addClass("hasChanges");
         })
         .find("fieldset").each(function(a,b){
             var group = $(b);
@@ -2809,7 +2811,7 @@ function show_options() {
                     }
                     loc.parent().addClass("green");
                     loc.val(selected);
-                    page.find(".submit").prop("disabled",false);
+                    page.find(".submit").prop("disabled",false).addClass("hasChanges");
                 }
                 exit(true);
             };
@@ -2854,7 +2856,7 @@ function show_options() {
                 selected = selected.replace(/^[0-9]{5}\s-\s/,"");
                 loc.parent().addClass("green");
                 loc.val(selected);
-                page.find(".submit").prop("disabled",false);
+                page.find(".submit").prop("disabled",false).addClass("hasChanges");
             }
             button.prop("disabled",false);
         });
@@ -2919,7 +2921,7 @@ function show_options() {
             helptext = dur.parent().find(".help-icon").data("helptext"),
             max = 240;
 
-        page.find(".submit").prop("disabled",false);
+        page.find(".submit").prop("disabled",false).addClass("hasChanges");
 
         if (id === "ip_addr" || id === "gateway" || id === "ntp_addr") {
             showIPRequest({
@@ -3048,7 +3050,7 @@ function show_options() {
             return;
         }
 
-        page.find(".submit").prop("disabled",false);
+        page.find(".submit").prop("disabled",false).addClass("hasChanges");
 
         // Show date time input popup
         showDateTimeInput(input.val(),function(data){
@@ -3073,7 +3075,7 @@ function submit_options() {
         keyNames = {1:"tz",2:"ntp",12:"htp",13:"htp2",14:"ar",15:"nbrd",16:"seq",17:"sdt",18:"mas",19:"mton",20:"mtoff",21:"urs",22:"rst",23:"wl",25:"ipas",30:"rlp",36:"lg",31:"uwt"},
         key;
 
-    button.prop("disabled",true);
+    button.prop("disabled",true).removeClass("hasChanges");
 
     $("#os-options-list").find(":input,button").filter(":not(.noselect)").each(function(a,b){
         var $item = $(b),
@@ -3189,7 +3191,7 @@ function submit_options() {
         opt[id] = data;
     });
     if (invalid) {
-        button.prop("disabled",false);
+        button.prop("disabled",false).addClass("hasChanges");
         return;
     }
     $.mobile.loading("show");
@@ -3200,7 +3202,7 @@ function submit_options() {
         goBack();
         update_controller(update_weather);
     }).fail(function(){
-        button.prop("disabled",false);
+        button.prop("disabled",false).addClass("hasChanges");
     });
 }
 
@@ -3472,15 +3474,10 @@ function show_stations() {
 
     page.find(".ui-content").html("<div id='os-stations-list' class='card-group center'>"+cards+"</div><button class='submit'>"+_("Submit")+"</button><button data-theme='b' class='reset'>"+_("Reset")+"</button>");
 
-    page.find(".ui-toolbar-back-btn").on("click",function(){
-        if (page.find(".submit").prop("disabled") === false) {
-            areYouSure(_("Do you want to save your changes?"),"",submit_stations,goBack);
-            return false;
-        }
-    });
+    page.find(".ui-toolbar-back-btn").on("click",checkChangesBeforeBack);
 
     page.find("#os-stations-list").one("change input",function(){
-        page.find(".submit").prop("disabled",false);
+        page.find(".submit").prop("disabled",false).addClass("hasChanges");
     });
 
     // When data is refreshed, update the icon status
@@ -3509,7 +3506,7 @@ function show_stations() {
             icon.addClass("attrib-disabled");
         }
 
-        page.find(".submit").prop("disabled",false);
+        page.find(".submit").prop("disabled",false).addClass("hasChanges");
     });
 
     page.on("click","[id^='station_']",function(){
@@ -5438,29 +5435,23 @@ function get_programs(pid) {
             "</div>" +
         "</div>");
 
-    programs.find(".ui-toolbar-back-btn").on("click",function(){
-        var program = programs.find(".ui-collapsible.hasChanges");
-        if (program.length !== 0) {
-            areYouSure(_("Do you want to save your changes?"),"",function(){
-                submit_program(program.attr("id").split("-")[1]);
-                goBack();
-            },goBack);
-            return false;
-        }
-    });
+    programs.find(".ui-toolbar-back-btn").on("click",checkChangesBeforeBack);
 
     programs.find("[id^=program-]").on({
         collapsiblecollapse: function(){
             $(this).find(".ui-collapsible-content").empty();
         },
         collapsiblebeforecollapse: function(e) {
-            var program = $(this);
-            if (program.hasClass("hasChanges")) {
+            var program = $(this),
+                changed = program.find(".hasChanges");
+
+            if (changed.length) {
                 areYouSure(_("Do you want to save your changes?"),"",function(){
-                    submit_program(program.attr("id").split("-")[1]);
-                    program.removeClass("hasChanges").collapsible("collapse");
+                    changed.removeClass("hasChanges").click();
+                    program.collapsible("collapse");
                 },function(){
-                    program.removeClass("hasChanges").collapsible("collapse");
+                    changed.removeClass("hasChanges")
+                    program.collapsible("collapse");
                 });
                 e.preventDefault();
             }
@@ -5531,7 +5522,7 @@ function expandProgram(program) {
         }
 
         $(this).off("change input click");
-        program.addClass("hasChanges");
+        program.find("[id^='submit-']").addClass("hasChanges");
     });
 
     program.find("[id^='submit-']").on("click",function(){
@@ -6114,17 +6105,11 @@ function add_program(copyID) {
         };
 
     addprogram.find("#program-new").html(make_program(copyID,true)).one("change input",function(){
-        addprogram.find(".submit").prop("disabled",false);
+        addprogram.find(".submit").prop("disabled",false).addClass("hasChanges");
     });
 
     addprogram.find(".submit, [id^='submit-']").on("click",submit);
-
-    addprogram.find(".ui-toolbar-back-btn").on("click",function(){
-        if (addprogram.find(".submit").prop("disabled") === false) {
-            areYouSure(_("Do you want to save your changes?"),"",submit,goBack);
-            return false;
-        }
-    });
+    addprogram.find(".ui-toolbar-back-btn").on("click",checkChangesBeforeBack);
 
     addprogram.one("pagehide",function() {
         addprogram.remove();
