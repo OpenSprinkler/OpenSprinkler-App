@@ -5450,7 +5450,7 @@ function get_programs(pid) {
                     changed.removeClass("hasChanges").click();
                     program.collapsible("collapse");
                 },function(){
-                    changed.removeClass("hasChanges")
+                    changed.removeClass("hasChanges");
                     program.collapsible("collapse");
                 });
                 e.preventDefault();
