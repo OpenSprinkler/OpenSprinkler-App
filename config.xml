@@ -23,15 +23,11 @@
         <gap:plugin name="org.apache.cordova.geolocation" />
 
         <gap:config-file platform="ios" parent="NSLocationAlwaysUsageDescription" overwrite="false">
-            <array>
-                <string>Your current location will be used to configure OpenSprinkler.</string>
-            </array>
+            <string>Your current location will be used to configure OpenSprinkler.</string>
         </gap:config-file>
 
         <gap:config-file platform="ios" parent="NSLocationWhenInUseUsageDescription" overwrite="false">
-            <array>
-                <string>Your current location will be used to configure OpenSprinkler.</string>
-            </array>
+            <string>Your current location will be used to configure OpenSprinkler.</string>
         </gap:config-file>
 
         <gap:config-file platform="ios" parent="CFBundleShortVersionString">
