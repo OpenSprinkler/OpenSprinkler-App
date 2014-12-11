@@ -3592,6 +3592,10 @@ function isStationDisabled(sid) {
     return (typeof controller.stations.stn_dis === "object" && (controller.stations.stn_dis[parseInt(sid/8)]&(1<<(sid%8))) > 0);
 }
 
+function isStationSequential(sid) {
+    return (typeof controller.stations.stn_seq === "object" && (controller.stations.stn_seq[parseInt(sid/8)]&(1<<(sid%8))) > 0);
+}
+
 // Current status related functions
 function get_status() {
     var page = $("<div data-role='page' id='status'>" +
@@ -3628,7 +3632,8 @@ function get_status() {
 
             // Determine total count of stations open excluding the master
             var open = {},
-                scheduled = 0;
+                scheduled = 0,
+                sequential = 0;
 
             $.each(controller.status, function (i, stn) {
                 if (stn > 0) {
@@ -3648,19 +3653,29 @@ function get_status() {
                 if (master === i+1) {
                     station += " ("+_("Master")+")";
                 } else if (controller.settings.ps[i][0]) {
-                    scheduled++;
-
                     // If not, get the remaining time for the station
                     var rem=controller.settings.ps[i][1];
-                    if (open > 1) {
-                        // If concurrent stations, grab the largest time to be used as program time
-                        if (rem > ptotal) {
-                            ptotal = rem;
+                    if (typeof controller.stations.stn_seq === "object") {
+                        if (isStationSequential(i)) {
+                            scheduled++;
+                            sequential += rem;
+                        } else {
+                            if (rem > ptotal) {
+                                ptotal = rem;
+                            }
                         }
                     } else {
-                        // Otherwise, add all of the program times together except for a manual program with a time of 1s
-                        if (!(controller.settings.ps[i][0] === 99 && rem === 1)) {
-                            ptotal+=rem;
+                        scheduled++;
+                        if (open > 1) {
+                            // If concurrent stations, grab the largest time to be used as program time
+                            if (rem > ptotal) {
+                                ptotal = rem;
+                            }
+                        } else {
+                            // Otherwise, add all of the program times together except for a manual program with a time of 1s
+                            if (!(controller.settings.ps[i][0] === 99 && rem === 1)) {
+                                ptotal+=rem;
+                            }
                         }
                     }
 
@@ -3714,12 +3729,11 @@ function get_status() {
                 allPnames = allPnames.join(" "+_("and")+" ");
                 var pinfo = allPnames+" "+((numProg > 1) ? _("are") : _("is"))+" "+_("running")+" ";
 
-                if (controller.options.seq === 1) {
-                    if (currentDelay > 0) {
-                        ptotal += (scheduled-1)*controller.options.sdt + currentDelay;
-                    } else {
-                        ptotal += (scheduled-1)*controller.options.sdt;
-                    }
+                if (typeof controller.stations.stn_seq === "object") {
+                    sequential += (scheduled-1)*controller.options.sdt + currentDelay;
+                    ptotal = Math.max(ptotal,sequential);
+                } else if (controller.options.seq === 1) {
+                    ptotal += (scheduled-1)*controller.options.sdt + currentDelay;
                 }
 
                 if (open || (scheduled && currentDelay > 0)) {
@@ -6548,6 +6562,13 @@ function import_config(data) {
                 co += "&o"+key+"="+option;
             }
         }
+
+        // Handle import from versions prior to 2.1.1 for enable logging flag
+        if (!isPi && typeof data.options.fwv === "number" && data.options.fwv < 211 && checkOSVersion(211)) {
+            // Enables logging since prior firmwares always had logging enabled
+            co += "&o36=1";
+        }
+
         co += "&"+(isPi?"o":"")+"loc="+data.settings.loc;
 
         for (i=0; i<data.stations.snames.length; i++) {
