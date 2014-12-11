@@ -3722,7 +3722,7 @@ function get_status() {
             }
 
             // Display header information
-            if (ptotal > 1) {
+            if (ptotal > 1 || sequential > 1) {
                 // If a program is running, show which specific programs and their collective total
                 allPnames = getUnique($.grep(allPnames,function(n){return(n);}));
                 var numProg = allPnames.length;
