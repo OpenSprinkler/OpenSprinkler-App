@@ -3771,32 +3771,6 @@ function get_status() {
     page.on("datarefresh",updateContent);
     updateContent();
 
-    // Bind delegate handler to stop specific station (supported on firmware 2.1.0+ on Arduino)
-    page.on("click","li",function(){
-        var el = $(this),
-            station = el.index(),
-            currentStatus = controller.status[station],
-            question;
-
-        if (checkOSVersion(210)) {
-            if (currentStatus) {
-                question = _("Do you want to stop the selected station?");
-            } else {
-                if (el.find("span.nobr").length) {
-                    question = _("Do you want to unschedule the selected station?");
-                } else {
-                    return;
-                }
-            }
-            areYouSure(question,controller.stations.snames[station],function(){
-                send_to_os("/cm?sid="+station+"&en=0&pw=").done(function(){
-                    refresh_status();
-                    showerror(_("Station has been stopped"));
-                });
-            });
-        }
-    });
-
     if (checkOSVersion(210)) {
         page.on("click",".ui-block-b",function(){
             var popup = $("<div data-role='popup'>" +
@@ -3812,6 +3786,28 @@ function get_status() {
             popup.popup({history: false, positionTo: this}).popup("open");
 
             return false;
+        }).on("click","li",function(){
+            // Bind delegate handler to stop specific station (supported on firmware 2.1.0+ on Arduino)
+            var el = $(this),
+                station = el.index(),
+                currentStatus = controller.status[station],
+                question;
+
+            if (currentStatus) {
+                question = _("Do you want to stop the selected station?");
+            } else {
+                if (el.find("span.nobr").length) {
+                    question = _("Do you want to unschedule the selected station?");
+                } else {
+                    return;
+                }
+            }
+            areYouSure(question,controller.stations.snames[station],function(){
+                send_to_os("/cm?sid="+station+"&en=0&pw=").done(function(){
+                    refresh_status();
+                    showerror(_("Station has been stopped"));
+                });
+            });
         });
     }
 
