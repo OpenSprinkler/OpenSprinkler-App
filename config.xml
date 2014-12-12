@@ -75,11 +75,11 @@
         <icon src="res/ios/icons/icon-76.png"       gap:platform="ios" width="76" height="76" />
         <icon src="res/ios/icons/icon-76@2x.png"    gap:platform="ios" width="152" height="152" />
 
-        <icon src="res/android/icons/ldpi.png"      gap:platform="android" gap:density="ldpi" />
-        <icon src="res/android/icons/mdpi.png"      gap:platform="android" gap:density="mdpi" />
-        <icon src="res/android/icons/hdpi.png"      gap:platform="android" gap:density="hdpi" />
-        <icon src="res/android/icons/xhdpi.png"     gap:platform="android" gap:density="xhdpi" />
-        <icon src="res/android/icons/xxhdpi.png"    gap:platform="android" gap:density="xxhdpi" />
+        <icon src="res/android/icons/ldpi.png"      gap:platform="android" gap:qualifier="ldpi" />
+        <icon src="res/android/icons/mdpi.png"      gap:platform="android" gap:qualifier="mdpi" />
+        <icon src="res/android/icons/hdpi.png"      gap:platform="android" gap:qualifier="hdpi" />
+        <icon src="res/android/icons/xhdpi.png"     gap:platform="android" gap:qualifier="xhdpi" />
+        <icon src="res/android/icons/xxhdpi.png"    gap:platform="android" gap:qualifier="xxhdpi" />
 
         <icon src="res/winphone/icons/icon-48.png"  gap:platform="winphone" />
 
