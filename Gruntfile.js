@@ -155,7 +155,7 @@ module.exports = function(grunt) {
 			},
 			pushBump: {
 				command: [
-					"git add www/js/main.js source/osx/Resources/OpenSprinkler-Info.plist www/config.xml manifest.json manifest.webapp package.json",
+					"git add www/js/main.js source/osx/Resources/OpenSprinkler-Info.plist config.xml manifest.json manifest.webapp package.json",
 					"git commit -m 'Base: Increment version number'",
 					"git push"
 				].join("&&")
@@ -189,7 +189,7 @@ module.exports = function(grunt) {
 				}]
 			},
 			phonegap: {
-				src: ["www/config.xml"],
+				src: ["config.xml"],
 				overwrite: true,
 				replacements: [
 					{
