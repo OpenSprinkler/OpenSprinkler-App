@@ -7672,6 +7672,8 @@ function checkChangesBeforeBack() {
             goBack();
         },goBack);
         return false;
+    } else {
+        goBack();
     }
 }
 
