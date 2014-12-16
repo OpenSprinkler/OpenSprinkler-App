@@ -7916,12 +7916,12 @@ function update_lang(lang) {
 function languageSelect() {
     $("#localization").popup("destroy").remove();
 
-//  {af: _("Afrikaans"), am: _("Amharic"), zh: _("Chinese"), cs: _("Czech"), nl: _("Dutch"), en: _("English"), fr: _("French"), de: _("German"), he: _("Hebrew"), hu: _("Hungarian"), it: _("Italian"), mn: _("Mongolian"), no: _("Norwegian"), pl: _("Polish"), pt: _("Portuguese"), sk: _("Slovak"), sl: _("Slovenian"), es: _("Spanish")}
+//  {af: _("Afrikaans"), am: _("Amharic"), zh: _("Chinese"), cs: _("Czech"), nl: _("Dutch"), en: _("English"), fr: _("French"), de: _("German"), he: _("Hebrew"), hu: _("Hungarian"), hr: _("Croatian"), it: _("Italian"), mn: _("Mongolian"), no: _("Norwegian"), pl: _("Polish"), pt: _("Portuguese"), sk: _("Slovak"), sl: _("Slovenian"), es: _("Spanish")}
 
     var popup = "<div data-role='popup' data-overlay-theme='b' id='localization' data-corners='false'>" +
                 "<ul data-inset='true' data-role='listview' id='lang' data-corners='false'>" +
                 "<li data-role='list-divider' data-theme='b' class='center' data-translate='Localization'>"+_("Localization")+"</li>",
-        codes = {af: "Afrikaans", am: "Amharic", zh: "Chinese", cs: "Czech", nl: "Dutch", en: "English", fr: "French", de: "German", he: "Hebrew", hu: "Hungarian", it: "Italian", mn: "Mongolian", no: "Norwegian", pl: "Polish", pt: "Portuguese", sk: "Slovak", sl: "Slovenian", es: "Spanish"};
+        codes = {af: "Afrikaans", am: "Amharic", zh: "Chinese", cs: "Czech", nl: "Dutch", en: "English", fr: "French", de: "German", he: "Hebrew", hu: "Hungarian", hr: "Croatian", it: "Italian", mn: "Mongolian", no: "Norwegian", pl: "Polish", pt: "Portuguese", sk: "Slovak", sl: "Slovenian", es: "Spanish"};
 
     $.each(codes,function(key,name){
         popup += "<li><a href='#' data-translate='"+name+"' data-lang-code='"+key+"'>"+_(name)+"</a></li>";
