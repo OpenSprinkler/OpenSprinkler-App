@@ -6146,7 +6146,7 @@ function delete_program(id) {
 }
 
 function submit_program(id) {
-    $("#program-"+id).removeClass("hasChanges");
+    $("#program-"+id).find(".hasChanges").removeClass("hasChanges");
 
     if (checkOSVersion(210)) {
         submit_program21(id);
