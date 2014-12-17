@@ -691,6 +691,8 @@ function newload() {
             checkWeatherPlugin();
 
             goHome();
+
+            checkFirmwareUpdate();
         },
         function(){
             $.ajaxQueue.clear();
@@ -6821,6 +6823,52 @@ function checkWeatherPlugin() {
         } else {
             weather_provider.css("display","");
         }
+    }
+}
+
+function checkFirmwareUpdate() {
+    var showupdate = $("#showupdate");
+    showupdate.hide();
+    if (!isOSPi()) {
+        $.getJSON("https://api.github.com/repos/opensprinkler/opensprinklergen2/releases").done(function(data){
+            if (controller.options.fwv < data[0]["tag_name"]) {
+                storage.get("updateDismiss",function(flag){
+                    if (!flag.updateDismiss || flag.updateDismiss < data[0]["tag_name"]) {
+                        showupdate.html("<p class='running-text inline-icon center'>"+_("Firmware update available")+"</p>").on("click",function(){
+                            var changelog = data[0].body.replace(/[\-|\*|\+]\s(.*)?(?:\r\n)?/g,"<li>$1</li>"),
+                                popup = $(
+                                    "<div data-role='popup' class='modal' data-overlay-theme='b'>" +
+                                        "<h3 class='center' style='margin-bottom:0'>"+_("Latest")+" "+_("Firmware")+": "+data[0].name+"</h3>" +
+                                        "<h5 class='center' style='margin:0'>"+_("This Controller")+": "+getOSVersion()+"</h5>" +
+                                        "<ul class='changelog'>"+changelog+"</ul>" +
+                                        "<a class='guide ui-btn ui-corner-all ui-shadow' style='width:80%;margin:5px auto;' href='#'>"+_("Upgrade Guide")+"</a>" +
+                                        "<a class='dismiss ui-btn ui-btn-b ui-corner-all ui-shadow' style='width:80%;margin:5px auto;' href='#'>"+_("Dismiss")+"</a>" +
+                                    "</div>"
+                                );
+
+                            popup.find(".guide").on("click", function() {
+                                $("<a class='hidden iab' href='https://opensprinkler.freshdesk.com/support/solutions/articles/5000381694-update-opensprinkler-firmware-with-downloads-'></a>").appendTo(popup).click();
+                            });
+
+                            popup.find(".dismiss").one("click", function() {
+                                storage.set({updateDismiss:data[0]["tag_name"]});
+                                popup.popup("close");
+                                showupdate.slideUp();
+                                return false;
+                            });
+
+                            popup.one("popupafterclose", function(){
+                                $(this).popup("destroy").remove();
+                            });
+
+                            $(".ui-page-active").append(popup);
+
+                            popup.popup({history: false, positionTo: "window"}).popup("open");
+                        }).slideDown();
+                    }
+                });
+            }
+        });
     }
 }
 

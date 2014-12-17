@@ -225,7 +225,7 @@ a {
 #sure {
     padding:0.5em;
 }
-#addnew, #site-select, #sure {
+#addnew, #site-select, #sure, .modal {
     width:300px
 }
 
@@ -509,6 +509,16 @@ body, input, select, textarea, button, .ui-btn {
     display: none;
     font-size:medium;
     position:relative
+}
+#showupdate {
+    padding-top: 5px
+}
+.changelog {
+    font-size: smaller;
+    margin: 10px;
+}
+.changelog li {
+    margin: 0.5em;
 }
 #footer-running.ui-bar {
     font-weight: 600;
