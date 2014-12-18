@@ -6827,14 +6827,23 @@ function checkWeatherPlugin() {
 }
 
 function checkFirmwareUpdate() {
+    // Cache show update div
     var showupdate = $("#showupdate");
+
+    // Hide it and only show if an update is available
     showupdate.hide();
+
+    // Update checks are only be available for Arduino firmwares
     if (!isOSPi()) {
+        // Github API to get releases for OpenSprinkler firmware
         $.getJSON("https://api.github.com/repos/opensprinkler/opensprinklergen2/releases").done(function(data){
             if (controller.options.fwv < data[0]["tag_name"]) {
+                // Grab a local storage variable which defines the firmware version for the last dismissed update
                 storage.get("updateDismiss",function(flag){
+                    // If the variable does not exist or is lower than the newest update, show the update notification
                     if (!flag.updateDismiss || flag.updateDismiss < data[0]["tag_name"]) {
                         showupdate.html("<p class='running-text inline-icon center'>"+_("Firmware update available")+"</p>").on("click",function(){
+                            // Modify the changelog by parsing markdown of lists to HTML
                             var changelog = data[0].body.replace(/[\-|\*|\+]\s(.*)?(?:\r\n)?/g,"<li>$1</li>"),
                                 popup = $(
                                     "<div data-role='popup' class='modal' data-overlay-theme='b'>" +
@@ -6847,10 +6856,12 @@ function checkFirmwareUpdate() {
                                 );
 
                             popup.find(".guide").on("click", function() {
+                                // Open the firmware upgrade guide in a child browser
                                 $("<a class='hidden iab' href='https://opensprinkler.freshdesk.com/support/solutions/articles/5000381694-update-opensprinkler-firmware-with-downloads-'></a>").appendTo(popup).click();
                             });
 
                             popup.find(".dismiss").one("click", function() {
+                                // Update the notification dismiss variable with the latest available version
                                 storage.set({updateDismiss:data[0]["tag_name"]});
                                 popup.popup("close");
                                 showupdate.slideUp();
