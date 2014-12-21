@@ -1247,7 +1247,7 @@ function show_addnew(autoIP,closeOld) {
 function show_sites(showBack) {
     var page = $("<div data-role='page' id='site-control'>" +
             "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false' data-hide-during-focus=''>" +
-                "<a role='button' href='javascript:void(0);' class='ui-btn ui-corner-all ui-shadow ui-btn-left ui-btn-b ui-toolbar-back-btn ui-icon-carat-l ui-btn-icon-left' data-rel='back'>"+_("Back")+"</a>" +
+                "<button class='ui-btn ui-corner-all ui-shadow ui-btn-left ui-btn-b ui-toolbar-back-btn ui-icon-carat-l ui-btn-icon-left'>"+_("Back")+"</button>" +
                 "<h3>"+_("Manage Sites")+"</h3>" +
                 "<button id='site-add' data-icon='plus' class='ui-btn-right'>"+_("Add")+"</button>" +
             "</div>" +
@@ -2574,7 +2574,7 @@ function show_options() {
     var list = "",
         page = $("<div data-role='page' id='os-options'>" +
             "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false' data-hide-during-focus=''>" +
-                "<a href='javascript:void(0);' class='ui-btn ui-corner-all ui-shadow ui-btn-left ui-btn-b ui-toolbar-back-btn ui-icon-carat-l ui-btn-icon-left' data-rel='back'>"+_("Back")+"</a>" +
+                "<button class='ui-btn ui-corner-all ui-shadow ui-btn-left ui-btn-b ui-toolbar-back-btn ui-icon-carat-l ui-btn-icon-left'>"+_("Back")+"</button>" +
                 "<h3>"+_("Edit Options")+"</h3>" +
                 "<button disabled='disabled' data-icon='check' class='submit ui-btn-right'>"+_("Submit")+"</button>" +
             "</div>" +
@@ -3213,7 +3213,7 @@ function show_stations() {
     var cards = "",
         page = $("<div data-role='page' id='os-stations'>" +
             "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false' data-hide-during-focus=''>" +
-                "<a href='javascript:void(0);' class='ui-btn ui-corner-all ui-shadow ui-btn-left ui-btn-b ui-toolbar-back-btn ui-icon-carat-l ui-btn-icon-left' data-rel='back'>"+_("Back")+"</a>" +
+                "<button class='ui-btn ui-corner-all ui-shadow ui-btn-left ui-btn-b ui-toolbar-back-btn ui-icon-carat-l ui-btn-icon-left'>"+_("Back")+"</button>" +
                 "<h3>"+_("Edit Stations")+"</h3>" +
                 "<button data-icon='check' disabled='disabled' class='submit ui-btn-right'>"+_("Submit")+"</button>" +
             "</div>" +
@@ -5438,7 +5438,7 @@ function get_logs() {
 function get_programs(pid) {
     var programs = $("<div data-role='page' id='programs'>" +
             "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false' data-hide-during-focus=''>" +
-                "<a href='javascript:void(0);' class='ui-btn ui-corner-all ui-shadow ui-btn-left ui-btn-b ui-toolbar-back-btn ui-icon-carat-l ui-btn-icon-left' data-rel='back'>"+_("Back")+"</a>" +
+                "<button class='ui-btn ui-corner-all ui-shadow ui-btn-left ui-btn-b ui-toolbar-back-btn ui-icon-carat-l ui-btn-icon-left'>"+_("Back")+"</button>" +
                 "<h3>"+_("Programs")+"</h3>" +
                 "<a href='#addprogram' data-icon='plus' class='ui-btn-right'>"+_("Add")+"</a>" +
             "</div>" +
@@ -6103,7 +6103,7 @@ function add_program(copyID) {
     var addprogram = $("<div data-role='page' id='addprogram'>" +
                 "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false' data-hide-during-focus=''>" +
                     "<h3>"+_("Add Program")+"</h3>" +
-                    "<a href='javascript:void(0);' class='ui-btn ui-corner-all ui-shadow ui-btn-left ui-btn-b ui-toolbar-back-btn ui-icon-carat-l ui-btn-icon-left' data-rel='back'>"+_("Back")+"</a>" +
+                    "<button class='ui-btn ui-corner-all ui-shadow ui-btn-left ui-btn-b ui-toolbar-back-btn ui-icon-carat-l ui-btn-icon-left'>"+_("Back")+"</button>" +
                     "<button data-icon='check' disabled='disabled' class='submit ui-btn-right'>"+_("Submit")+"</button>" +
                 "</div>" +
                 "<div class='ui-content' role='main' id='newprogram'>" +
