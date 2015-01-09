@@ -6562,6 +6562,11 @@ function import_config(data) {
             }
         }
 
+        // Import WUnderground API key, if available
+        if (data.settings.hasOwnProperty("wtkey") && data.settings.wtkey !== "" && checkOSVersion(210)) {
+            co += "&wtkey="+data.settings.wtkey;
+        }
+
         // Handle import from versions prior to 2.1.1 for enable logging flag
         if (!isPi && typeof data.options.fwv === "number" && data.options.fwv < 211 && checkOSVersion(211)) {
             // Enables logging since prior firmwares always had logging enabled
