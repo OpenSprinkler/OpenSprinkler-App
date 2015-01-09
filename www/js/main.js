@@ -3,12 +3,13 @@ var isIEMobile = /IEMobile/.test(navigator.userAgent),
     isAndroid = /Android|\bSilk\b/.test(navigator.userAgent),
     isiOS = /iP(ad|hone|od)/.test(navigator.userAgent),
     isFireFoxOS = /^.*?\Mobile\b.*?\Firefox\b.*?$/m.test(navigator.userAgent),
+    isFireFox = /Firefox/.test(navigator.userAgent),
     isWinApp = /MSAppHost/.test(navigator.userAgent),
     isBB10 = /BB10/.test(navigator.userAgent),
     isIE = /MSIE (\d+)\.\d+;/.exec(navigator.userAgent) || false,
     isOSXApp = isOSXApp || false,
     isChromeApp = typeof chrome === "object" && typeof chrome.storage === "object",
-    isFileCapable = !isiOS && !isAndroid && !isIEMobile && !isOSXApp && !isFireFoxOS  && !isWinApp && !isBB10 && window.FileReader,
+    isFileCapable = !isiOS && !isAndroid && !isIEMobile && !isOSXApp && !isFireFoxOS && !isWinApp && !isBB10 && window.FileReader,
     // Small wrapper to handle Chrome vs localStorage usage
     storage = {
         get: function(query,callback) {
@@ -432,12 +433,14 @@ function initApp() {
                 navigator.app.clearCache();
             } catch (err) {}
         });
-    } else if (isFireFoxOS) {
+    } else if (isFireFoxOS || isFireFox) {
         // Allow cross domain AJAX requests in FireFox OS
         $.ajaxSetup({
-          xhrFields: {
-            mozSystem: true
-          }
+            xhr: function() {
+                return new window.XMLHttpRequest({
+                    mozSystem: true
+                });
+            }
         });
     } else {
         $.ajaxSetup({
