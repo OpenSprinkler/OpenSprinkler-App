@@ -2292,6 +2292,8 @@ function debugWU() {
                         "<tr><td>"+_("Precip Yesterday")+"</td><td>"+(isMetric ? summary.precipm+"mm" : summary.precipi+"\"")+"</td></tr>" +
                         "<tr><td>"+_("Precip Today")+"</td><td>"+(isMetric ? current.precip_today_metric+"mm" : current.precip_today_in+"\"")+"</td></tr>" +
                         "<tr><td>"+_("Current % Watering")+"</td><td>"+controller.options.wl+"%</td></tr>" +
+                        (typeof controller.settings.lwc === "number" ? "<tr><td>"+_("Last Weather Call")+"</td><td>"+dateToString(new Date(controller.settings.lwc*1000))+"</td></tr>" : "") +
+                        (typeof controller.settings.lswc === "number" ? "<tr><td>"+_("Last Successful Weather Call")+"</td><td>"+dateToString(new Date(controller.settings.lswc*1000))+"</td></tr>" : "") +
                     "</table>" +
                 "</div>");
 
