@@ -296,7 +296,7 @@ $(document)
                 title: _("Change Rain Delay"),
                 callback: raindelay,
                 label: _("Duration"),
-                maximum: 345600,
+                maximum: 31536000,
                 granularity: 2,
                 preventCompression: true,
                 incrementalUpdate: false,
