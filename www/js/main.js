@@ -3552,6 +3552,7 @@ function show_stations() {
                 "sd": 0
             });
         });
+        page.find(".submit").prop("disabled",false).addClass("hasChanges");
     });
 
     page.one({
