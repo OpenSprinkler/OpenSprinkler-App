@@ -5250,7 +5250,8 @@ function get_logs() {
                     "groupsChangeable": false,
                     "showNavigation": false,
                     "groupsOrder": true,
-                    "groupMinHeight": 20
+                    "groupMinHeight": 20,
+                    "zoomMin": 1000 * 60
                 };
 
             logs_list.on("swiperight",function(e){
