@@ -5108,6 +5108,10 @@ function get_logs() {
                     }
 
                     if (grouping !== "n" && duration > 0) {
+                        if (typeof sortedData[station][key] !== "object") {
+                            sortedData[station][key] = [0];
+                        }
+
                         sortedData[station][key][1] += duration;
                     }
 
@@ -5227,6 +5231,7 @@ function get_logs() {
             placeholder.empty().hide();
             zones.hide();
             graph_sort.hide();
+            table_sort.hide();
             logs_list.show();
 
             log_options.collapsible("collapse");
@@ -5244,11 +5249,15 @@ function get_logs() {
                     "showMajorLabels": false,
                     "groupsChangeable": false,
                     "showNavigation": false,
-                    "groupsOrder": "none",
+                    "groupsOrder": true,
                     "groupMinHeight": 20
                 };
 
             logs_list.on("swiperight",function(e){
+                e.stopImmediatePropagation();
+            });
+
+            zones.on("swiperight",function(e){
                 e.stopImmediatePropagation();
             });
 
