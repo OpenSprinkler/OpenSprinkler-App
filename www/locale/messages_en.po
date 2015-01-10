@@ -225,6 +225,12 @@ msgstr ""
 msgid "Current % Watering"
 msgstr ""
 
+msgid "Last Weather Call"
+msgstr ""
+
+msgid "Last Successful Weather Call"
+msgstr ""
+
 msgid "Weather data cannot be found for your location"
 msgstr ""
 
@@ -648,6 +654,9 @@ msgid "Graph"
 msgstr ""
 
 msgid "Table"
+msgstr ""
+
+msgid "Timeline"
 msgstr ""
 
 msgid "Grouping:"
