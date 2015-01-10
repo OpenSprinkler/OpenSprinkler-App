@@ -4901,12 +4901,12 @@ function get_logs() {
             "</div>" +
             "<div class='ui-content' role='main'>" +
                 "<fieldset data-role='controlgroup' data-type='horizontal' data-mini='true' class='log_type'>" +
-                    "<input data-mini='true' type='radio' name='log_type' id='log_timeline' value='timeline'>" +
-                    "<label for='log_timeline'>"+_("Timeline")+"</label>" +
                     "<input data-mini='true' type='radio' name='log_type' id='log_graph' value='graph' "+(isNarrow ? "" : "checked='checked'")+">" +
                     "<label for='log_graph'>"+_("Graph")+"</label>" +
                     "<input data-mini='true' type='radio' name='log_type' id='log_table' value='table' "+(!isNarrow ? "" : "checked='checked'")+">" +
                     "<label for='log_table'>"+_("Table")+"</label>" +
+                    "<input data-mini='true' type='radio' name='log_type' id='log_timeline' value='timeline'>" +
+                    "<label for='log_timeline'>"+_("Timeline")+"</label>" +
                 "</fieldset>" +
                 "<div id='placeholder'></div>" +
                 "<div id='zones'>" +
@@ -5228,6 +5228,8 @@ function get_logs() {
             zones.hide();
             graph_sort.hide();
             logs_list.show();
+
+            log_options.collapsible("collapse");
 
             var sortedData = sortData("timeline"),
                 options = {
