@@ -4901,6 +4901,8 @@ function get_logs() {
             "</div>" +
             "<div class='ui-content' role='main'>" +
                 "<fieldset data-role='controlgroup' data-type='horizontal' data-mini='true' class='log_type'>" +
+                    "<input data-mini='true' type='radio' name='log_type' id='log_timeline' value='timeline'>" +
+                    "<label for='log_timeline'>"+_("Timeline")+"</label>" +
                     "<input data-mini='true' type='radio' name='log_type' id='log_graph' value='graph' "+(isNarrow ? "" : "checked='checked'")+">" +
                     "<label for='log_graph'>"+_("Graph")+"</label>" +
                     "<input data-mini='true' type='radio' name='log_type' id='log_table' value='table' "+(!isNarrow ? "" : "checked='checked'")+">" +
@@ -5063,7 +5065,7 @@ function get_logs() {
                         }
                         break;
                 }
-            } else {
+            } else if (type === "table") {
                 if (grouping === "station") {
                     for (i=0; i<stations.length; i++) {
                         sortedData[i] = [];
@@ -5115,7 +5117,7 @@ function get_logs() {
                     if (max === undefined || max < date) {
                         max = new Date(date.getTime() + (duration*100*1000)+1);
                     }
-                } else {
+                } else if (type === "table") {
                     switch (grouping) {
                         case "station":
                             sortedData[station].push([utc.getTime(),dhms2str(sec2dhms(parseInt(b[2])))]);
@@ -5132,6 +5134,23 @@ function get_logs() {
 
                             break;
                     }
+                } else if (type === "timeline") {
+                    var pid = parseInt(b[0]),
+                        className = "program-"+((pid+3)%4);
+
+                    if (pid === 0) {
+                        return;
+                    }
+
+                    sortedData.push({
+                        "start": date,
+                        "end": new Date(date.getTime() + parseInt(b[2] * 1000)),
+                        "className":className,
+                        "content":pidname(pid),
+                        "pid": pid-1,
+                        "shortname":"S"+(station+1),
+                        "group": controller.stations.snames[station]
+                    });
                 }
             });
             if (type === "graph") {
@@ -5191,11 +5210,46 @@ function get_logs() {
         },
         updateView = function() {
             $("#tooltip").remove();
-            if ($("#log_graph").prop("checked")) {
+            if (logs.find("#log_graph").prop("checked")) {
                 prepGraph();
-            } else {
+            } else if (logs.find("#log_table").prop("checked")) {
                 prepTable();
+            } else if (logs.find("#log_timeline").prop("checked")) {
+                prepTimeline();
             }
+        },
+        prepTimeline = function() {
+            if (data.length < 1) {
+                reset_logs_page();
+                return;
+            }
+
+            placeholder.empty().hide();
+            zones.hide();
+            graph_sort.hide();
+            logs_list.show();
+
+            var sortedData = sortData("timeline"),
+                options = {
+                    "width":  "100%",
+                    "editable": false,
+                    "axisOnTop": true,
+                    "eventMargin": 10,
+                    "eventMarginAxis": 0,
+                    "selectable": true,
+                    "showMajorLabels": false,
+                    "groupsChangeable": false,
+                    "showNavigation": false,
+                    "groupsOrder": "none",
+                    "groupMinHeight": 20
+                };
+
+            logs_list.on("swiperight",function(e){
+                e.stopImmediatePropagation();
+            });
+
+            var timeline = new links.Timeline(logs_list.get(0),options);
+            timeline.draw(sortedData);
         },
         prepGraph = function() {
             if (data.length < 1) {
