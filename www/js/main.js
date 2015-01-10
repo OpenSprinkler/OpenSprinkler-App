@@ -5236,6 +5236,8 @@ function get_logs() {
                     "axisOnTop": true,
                     "eventMargin": 10,
                     "eventMarginAxis": 0,
+                    "min": dates().start,
+                    "max": new Date(dates().end.getTime() + 86340000),
                     "selectable": true,
                     "showMajorLabels": false,
                     "groupsChangeable": false,
