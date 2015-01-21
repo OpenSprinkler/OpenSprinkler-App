@@ -323,6 +323,9 @@ $(document)
         }
     });
 
+    // Initialize the app header
+    $("#header").toolbar().hide();
+
     //On initial load check if a valid site exists for auto connect
     check_configured(true);
 
@@ -366,6 +369,16 @@ $(document)
 .on("pause",function(){
     //Remove any status timers that may be running
     removeTimers();
+})
+.on("pagebeforeshow",function(e){
+    var newpage = "#"+e.target.id,
+        $newpage = $(newpage);
+
+    if (newpage === "#start") {
+        $("#header").hide();
+    } else {
+        $("#header").show();
+    }
 })
 .on("pageshow",function(e){
     var newpage = "#"+e.target.id,
@@ -7715,6 +7728,41 @@ function changeFromPanel(page,opts) {
         changePage(page,opts);
     });
     $panel.panel("close");
+}
+
+// Change persistent header
+function changeHeader(opt) {
+    var defaults = {
+            title: "",
+            class: "",
+            leftBtn: {
+                icon: "bullets",
+                class: "",
+                text: ""
+            },
+            rightBtn: {
+                icon: "",
+                class: "",
+                text: ""
+            }
+        },
+        header = $(".ui-page-active .ui-header"),
+        leftBtn = header.find(".ui-btn-left"),
+        rightBtn = header.find(".ui-btn-right");
+
+    opt = $.extend({}, defaults, opt);
+
+    header.find("h3").fadeOut(function(){
+        $(this).text(opt.title).removeClass().addClass("ui-title "+opt.class);
+    }).fadeIn();
+
+    leftBtn.fadeOut(function(){
+        $(this).text(opt.leftBtn.text).buttonMarkup({icon: opt.leftBtn.icon, iconpos: (opt.leftBtn.text === "" ? "notext" : "left")});
+    }).fadeIn();
+
+    rightBtn.fadeOut(function(){
+        $(this).text(opt.rightBtn.text).buttonMarkup({icon: opt.rightBtn.icon, iconpos: (opt.leftBtn.text === "" ? "notext" : "left")});
+    }).fadeIn();
 }
 
 function showTooltip(x, y, contents, color) {

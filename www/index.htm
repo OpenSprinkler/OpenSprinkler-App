@@ -17,6 +17,12 @@
         <script src="js/libs.js"></script>
     </head>
     <body>
+        <div id="header" data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false">
+            <a data-icon="bullets" data-iconpos="notext" class="ui-btn-left" href="#"></a>
+            <h3 class="logo"></h3>
+            <a data-iconpos="notext" class="ui-btn-right" href="#"></a>
+        </div>
+
         <div data-role="page" id="start">
             <ul data-role="none" id="welcome_list" class="ui-listview ui-listview-inset ui-corner-all">
                 <li><div class="logo" id="welcome_logo"></div></li>
@@ -30,10 +36,6 @@
         </div>
 
         <div data-role="page" id="sprinklers">
-            <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false">
-                <a data-icon="bullets" data-iconpos="notext" class="ui-btn-left" href="#"></a>
-                <h3 class="logo"></h3>
-            </div>
             <div class="ui-panel-wrapper">
                 <div id="footer-running"></div>
                 <div id="showupdate" class="green"></div>
