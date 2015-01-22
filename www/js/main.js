@@ -7732,11 +7732,12 @@ function changeFromPanel(page,opts) {
 
 // Change persistent header
 function changeHeader(opt) {
+    // Declare function defaults
     var defaults = {
             title: "",
             class: "",
             leftBtn: {
-                icon: "bullets",
+                icon: "",
                 class: "",
                 text: ""
             },
@@ -7746,22 +7747,24 @@ function changeHeader(opt) {
                 text: ""
             }
         },
-        header = $(".ui-page-active .ui-header"),
-        leftBtn = header.find(".ui-btn-left"),
-        rightBtn = header.find(".ui-btn-right");
+        header = $("#header");
 
-    opt = $.extend({}, defaults, opt);
+    // Merge defaults with supplied options
+    opt = $.extend(true, {}, defaults, opt);
 
-    header.find("h3").fadeOut(function(){
-        $(this).text(opt.title).removeClass().addClass("ui-title "+opt.class);
-    }).fadeIn();
+    // Change default page title to the logo
+    if (opt.title === "" && opt.class === "") {
+        opt.class = "logo";
+    }
 
-    leftBtn.fadeOut(function(){
-        $(this).text(opt.leftBtn.text).buttonMarkup({icon: opt.leftBtn.icon, iconpos: (opt.leftBtn.text === "" ? "notext" : "left")});
-    }).fadeIn();
+    // Generate new header content
+    var newHeader = "<a data-icon='"+opt.leftBtn.icon+"' "+(opt.leftBtn.text === "" ? "data-iconpos='notext' " : "")+"class='ui-btn-left "+opt.leftBtn.class+"' href='#'>"+opt.leftBtn.text+"</a>" +
+        "<h3 class='"+opt.class+"'>"+opt.title+"</h3>" +
+        "<a data-icon='"+opt.rightBtn.icon+"' "+(opt.rightBtn.text === "" ? "data-iconpos='notext' " : "")+"class='ui-btn-right "+opt.rightBtn.class+"' href='#'>"+opt.rightBtn.text+"</a>";
 
-    rightBtn.fadeOut(function(){
-        $(this).text(opt.rightBtn.text).buttonMarkup({icon: opt.rightBtn.icon, iconpos: (opt.leftBtn.text === "" ? "notext" : "left")});
+    // Fade out the header content, replace it, and update the header
+    header.children().fadeOut(function(){
+        header.html(newHeader).toolbar("refresh");
     }).fadeIn();
 }
 
