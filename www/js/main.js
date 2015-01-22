@@ -77,7 +77,7 @@ var isIEMobile = /IEMobile/.test(navigator.userAgent),
     retryCount = 3,
     controller = {},
     switching = false,
-    curr_183, curr_ip, curr_prefix, curr_auth, curr_pw, curr_wa, curr_auth_user, curr_auth_pw, curr_local, language, deviceip, interval_id, timeout_id, errorTimeout, weatherKeyFail;
+    curr_183, curr_ip, curr_prefix, curr_auth, curr_pw, curr_wa, curr_auth_user, curr_auth_pw, curr_local, currLang, language, deviceip, interval_id, timeout_id, errorTimeout, weatherKeyFail;
 
 // Redirect jQuery Mobile DOM manipulation to prevent error
 if (isWinApp) {
@@ -320,6 +320,16 @@ $(document)
                     check_status();
                 }
             });
+            changeHeader({
+                class: "logo",
+                leftBtn: {
+                    icon: "bullets",
+                    on: function(){
+                        open_panel();
+                        return false;
+                    }
+                }
+            });
         }
     });
 
@@ -473,10 +483,7 @@ function initApp() {
     });
 
     //Bind open panel button
-    $("#sprinklers").on("datarefresh",check_status).find("div[data-role='header'] > .ui-btn-left").on("click",function(){
-        open_panel();
-        return false;
-    });
+    $("#sprinklers").on("datarefresh",check_status);
 
     //Bind stop all stations button
     $("#stop-all").on("click",function(){
@@ -7739,12 +7746,14 @@ function changeHeader(opt) {
             leftBtn: {
                 icon: "",
                 class: "",
-                text: ""
+                text: "",
+                on: function(){}
             },
             rightBtn: {
                 icon: "",
                 class: "",
-                text: ""
+                text: "",
+                on: function(){}
             }
         },
         header = $("#header");
@@ -7765,6 +7774,8 @@ function changeHeader(opt) {
     // Fade out the header content, replace it, and update the header
     header.children().fadeOut(function(){
         header.html(newHeader).toolbar("refresh");
+        header.find(".ui-btn-left").on("click",opt.leftBtn.on);
+        header.find(".ui-btn-right").on("click",opt.rightBtn.on);
     }).fadeIn();
 }
 
@@ -8086,6 +8097,7 @@ function update_lang(lang) {
     }
 
     storage.set({"lang":lang});
+    currLang = lang;
 
     if (lang === "en") {
         set_lang();
@@ -8169,15 +8181,14 @@ function minutesToTime(minutes) {
 }
 
 function dateToString(date,toUTC) {
-    var lang = $("#localization").find(".ui-icon-check").data("langCode"),
-        dayNames = [_("Sun"),_("Mon"),_("Tue"),_("Wed"),_("Thr"),_("Fri"),_("Sat")],
+    var dayNames = [_("Sun"),_("Mon"),_("Tue"),_("Wed"),_("Thr"),_("Fri"),_("Sat")],
         monthNames = [_("Jan"),_("Feb"),_("Mar"),_("Apr"),_("May"),_("Jun"),_("Jul"),_("Aug"),_("Sep"),_("Oct"),_("Nov"),_("Dec")];
 
     if (toUTC !== false) {
         date.setMinutes(date.getMinutes()+date.getTimezoneOffset());
     }
 
-    if (lang === "de") {
+    if (currLang === "de") {
         return pad(date.getDate())+"."+pad(date.getMonth())+"."+date.getFullYear()+" "+pad(date.getHours())+":"+pad(date.getMinutes())+":"+pad(date.getSeconds());
     } else {
         return dayNames[date.getDay()]+", "+pad(date.getDate())+" "+monthNames[date.getMonth()]+" "+date.getFullYear()+" "+pad(date.getHours())+":"+pad(date.getMinutes())+":"+pad(date.getSeconds());
