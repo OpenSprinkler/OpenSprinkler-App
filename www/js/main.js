@@ -382,8 +382,7 @@ $(document)
     removeTimers();
 })
 .on("pagebeforeshow",function(e){
-    var newpage = "#"+e.target.id,
-        $newpage = $(newpage);
+    var newpage = "#"+e.target.id;
 
     if (newpage === "#start") {
         $("#header").hide();
@@ -2095,8 +2094,6 @@ function update_wunderground_forecast(data) {
 }
 
 function show_forecast() {
-    var page = $("#forecast");
-
     changeHeader({
         title: _("Forecast"),
         leftBtn: {
