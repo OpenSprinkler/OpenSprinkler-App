@@ -430,7 +430,7 @@ body, input, select, textarea, button, .ui-btn {
 }
 #zones {
     overflow-y:scroll;
-    display:none
+    display:none;
 }
 #zones::-webkit-scrollbar {
     display:none
@@ -479,6 +479,19 @@ body, input, select, textarea, button, .ui-btn {
 }
 #tooltip {
     z-index: 999;
+}
+.tilt-axis .flot-x-axis {
+    top: 30px !important;
+    left: -25px !important;
+}
+.tilt-axis .flot-x-axis .flot-tick-label {
+  -o-transform:rotate(-45deg);
+  -moz-transform: rotate(-45deg);
+  -webkit-transform:rotate(-45deg);
+  transform: rotate(-45deg);
+}
+.tilt-axis #zones {
+    margin-top: 60px;
 }
 @media (max-width:480px) {
     #logs_list .ui-li-aside {

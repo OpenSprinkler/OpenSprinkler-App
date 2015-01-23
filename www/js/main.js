@@ -5005,6 +5005,8 @@ function get_logs() {
                 pData = [],
                 sortedData, options, plot;
 
+            logs.removeClass("tilt-axis");
+
             placeholder.empty();
 
             sortedData = sortData("graph",grouping);
@@ -5076,11 +5078,12 @@ function get_logs() {
                 options = {
                     grid: { hoverable: true },
                     yaxes: [
-                        {min: 0, tickFormatter: function(val, axis) { return val < axis.max ? Math.round(val*100)/100 : "min";} },
-                        {min: 0, position: 1, tickFormatter: function(val) { return Math.round(val*100)/100+"%";}, alignTicksWithAxis: 1}
+                        {min: 0, tickFormatter: function(val, axis) { return val < axis.max ? Math.round(val*100)/100 : _("min");} },
+                        {min: 0, position: 1, tickFormatter: function(val, axis) { return val < axis.max ? Math.round(val*100)/100+"%" : _("% Water");}, alignTicksWithAxis: 1}
                     ],
-                    xaxis: { tickLength: 0, mode: "time", timeformat: "%b %d %H:%M", min:sortedData.min.getTime()-43200000, max:sortedData.max.getTime()+43200000}
+                    xaxis: { tickLength: 0, labelWidth: 90, mode: "time", timeformat: "%b %d %H:%M", min:sortedData.min.getTime()-43200000, max:sortedData.max.getTime()+43200000}
                 };
+                logs.addClass("tilt-axis");
             }
 
             plot = $.plot(placeholder, pData, options);
@@ -5194,8 +5197,8 @@ function get_logs() {
                     }
 
                     sortedData.push({
-                        "start": date,
-                        "end": new Date(date.getTime() + parseInt(b[2] * 1000)),
+                        "start": utc,
+                        "end": new Date(utc.getTime() + parseInt(b[2] * 1000)),
                         "className":className,
                         "content":pidname(pid),
                         "pid": pid-1,
