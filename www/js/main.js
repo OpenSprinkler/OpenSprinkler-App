@@ -5330,6 +5330,9 @@ function get_logs() {
             if (!freshLoad) {
                 var output = "<div class='ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border' id='graphScrollLeft'></div><div class='ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border' id='graphScrollRight'></div><table class='smaller'><tbody><tr>";
                 for (i=0; i<stations.length; i++) {
+                    if (isStationDisabled(i)) {
+                        continue;
+                    }
                     output += "<td class='legendColorBox'><div><div></div></div></td><td id='z"+i+"' zone_num="+i+" name='"+stations[i] + "' class='legendLabel'>"+stations[i]+"</td>";
                 }
                 output += "</tr></tbody></table>";
