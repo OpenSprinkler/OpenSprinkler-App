@@ -16,12 +16,13 @@
         <script src="js/jqm.js"></script>
         <script src="js/libs.js"></script>
     </head>
-    <body>
-        <div id="header" data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false">
-            <a data-icon="bullets" data-iconpos="notext" class="ui-btn-left" href="#"></a>
-            <h3 class="logo"></h3>
-        </div>
 
+    <div id="header" data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false">
+        <a data-icon="bullets" data-iconpos="notext" class="ui-btn-left" href="#"></a>
+        <h3 class="logo"></h3>
+    </div>
+
+    <body>
         <div data-role="page" id="start">
             <ul data-role="none" id="welcome_list" class="ui-listview ui-listview-inset ui-corner-all">
                 <li><div class="logo" id="welcome_logo"></div></li>
@@ -64,11 +65,6 @@
         </div>
 
         <div data-role="page" id="forecast">
-            <div data-theme="b" data-role="header" data-position="fixed" data-tap-toggle="false">
-                <a role="button" href="javascript:void(0);" class="ui-btn ui-corner-all ui-shadow ui-btn-left ui-btn-b ui-toolbar-back-btn ui-icon-carat-l ui-btn-icon-left" data-rel="back" data-translate="Back"></a>
-                <h3 data-translate="Forecast"></h3>
-                <button data-icon="refresh" data-translate="Refresh" class="ui-btn-right"></button>
-            </div>
             <div class="ui-content" role="main">
                 <ul data-role="listview" data-inset="true" id="forecast_list">
                 </ul>

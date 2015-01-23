@@ -328,7 +328,8 @@ $(document)
                         open_panel();
                         return false;
                     }
-                }
+                },
+                animate: (data.options.firstLoad ? false : true)
             });
         }
     });
@@ -2091,16 +2092,28 @@ function update_wunderground_forecast(data) {
 
 function show_forecast() {
     var page = $("#forecast");
-    page.find("div[data-role='header'] > .ui-btn-right").on("click",function(){
-        $.mobile.loading("show");
-        $.mobile.document.one("weatherUpdateComplete",function(){
-            $.mobile.loading("hide");
-        });
-        update_weather();
+
+    changeHeader({
+        title: _("Forecast"),
+        leftBtn: {
+            icon: "carat-l",
+            text: _("Back"),
+            class: "ui-toolbar-back-btn",
+            on: goBack
+        },
+        rightBtn: {
+            icon: "refresh",
+            text: _("Refresh"),
+            on: function(){
+                $.mobile.loading("show");
+                $.mobile.document.one("weatherUpdateComplete",function(){
+                    $.mobile.loading("hide");
+                });
+                update_weather();
+            }
+        }
     });
-    page.one("pagehide",function(){
-        page.find("div[data-role='header'] > .ui-btn-right").off("click");
-    });
+
     changePage("#forecast");
     return false;
 }
@@ -3627,10 +3640,6 @@ function isStationSequential(sid) {
 // Current status related functions
 function get_status() {
     var page = $("<div data-role='page' id='status'>" +
-            "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false'>" +
-                "<a role='button' href='javascript:void(0);' class='ui-btn ui-corner-all ui-shadow ui-btn-left ui-btn-b ui-toolbar-back-btn ui-icon-carat-l ui-btn-icon-left' data-rel='back'>"+_("Back")+"</a>" +
-                "<h3>"+_("Current Status")+"</h3>" +
-            "</div>" +
             "<div class='ui-content' role='main'>" +
             "</div>" +
         "</div>"),
@@ -3796,6 +3805,15 @@ function get_status() {
             ).enhanceWithin();
         };
 
+    changeHeader({
+        title: _("Current Status"),
+        leftBtn: {
+            icon: "carat-l",
+            text: _("Back"),
+            class: "ui-toolbar-back-btn",
+            on: goBack
+        }
+    });
     page.on("datarefresh",updateContent);
     updateContent();
 
@@ -4220,11 +4238,6 @@ function get_manual() {
 function get_runonce() {
     var list = "<p class='center'>"+_("Zero value excludes the station from the run-once program.")+"</p>",
         runonce = $("<div data-role='page' id='runonce'>" +
-            "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false'>" +
-                "<a href='javascript:void(0);' class='ui-btn ui-corner-all ui-shadow ui-btn-left ui-btn-b ui-toolbar-back-btn ui-icon-carat-l ui-btn-icon-left' data-rel='back'>"+_("Back")+"</a>" +
-                "<h3>"+_("Run-Once")+"</h3>" +
-                "<button data-icon='check' class='ui-btn-right'>"+_("Submit")+"</button>" +
-            "</div>" +
             "<div class='ui-content' role='main' id='runonce_list'>" +
             "</div>" +
         "</div>"),
@@ -4253,8 +4266,6 @@ function get_runonce() {
             });
         },
         i, quickPick, progs, rprogs, z, program, name;
-
-    runonce.find("div[data-role='header'] > .ui-btn-right").on("click",submit_runonce);
 
     progs = [];
     if (controller.programs.pd.length) {
@@ -4362,6 +4373,21 @@ function get_runonce() {
         runonce.remove();
     });
 
+    changeHeader({
+        title: _("Run-Once"),
+        leftBtn: {
+            icon: "carat-l",
+            text: _("Back"),
+            class: "ui-toolbar-back-btn",
+            on: goBack
+        },
+        rightBtn: {
+            icon: "check",
+            text: _("Submit"),
+            on: submit_runonce
+        }
+    });
+
     $("#runonce").remove();
     runonce.appendTo("body");
 }
@@ -4405,10 +4431,6 @@ function get_preview() {
     var now = new Date(controller.settings.devt*1000),
         date = now.toISOString().slice(0,10),
         page = $("<div data-role='page' id='preview'>" +
-            "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false'>" +
-                "<a href='javascript:void(0);' class='ui-btn ui-corner-all ui-shadow ui-btn-left ui-btn-b ui-toolbar-back-btn ui-icon-carat-l ui-btn-icon-left' data-rel='back'>"+_("Back")+"</a>" +
-                "<h3>"+_("Program Preview")+"</h3>" +
-            "</div>" +
             "<div class='ui-content' role='main'>" +
                 "<div id='preview_header' class='input_with_buttons'>" +
                     "<button class='preview-minus ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border'></button>" +
@@ -4905,6 +4927,16 @@ function get_preview() {
         pageshow: render
     });
 
+    changeHeader({
+        title: _("Program Preview"),
+        leftBtn: {
+            icon: "carat-l",
+            text: _("Back"),
+            class: "ui-toolbar-back-btn",
+            on: goBack
+        }
+    });
+
     $("#preview").remove();
     page.appendTo("body");
 }
@@ -4914,11 +4946,6 @@ function get_logs() {
     var now = new Date(controller.settings.devt*1000),
         isNarrow = $.mobile.window.width() < 640 ? true : false,
         logs = $("<div data-role='page' id='logs'>" +
-            "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false' data-hide-during-focus=''>" +
-                "<a href='javascript:void(0);' class='ui-btn ui-corner-all ui-shadow ui-btn-left ui-btn-b ui-toolbar-back-btn ui-icon-carat-l ui-btn-icon-left' data-rel='back'>"+_("Back")+"</a>" +
-                "<h3>"+_("Logs")+"</h3>" +
-                "<a href='#' data-icon='refresh' class='ui-btn-right'>"+_("Refresh")+"</a>" +
-            "</div>" +
             "<div class='ui-content' role='main'>" +
                 "<fieldset data-role='controlgroup' data-type='horizontal' data-mini='true' class='log_type'>" +
                     "<input data-mini='true' type='radio' name='log_type' id='log_graph' value='graph' "+(isNarrow ? "" : "checked='checked'")+">" +
@@ -5479,7 +5506,6 @@ function get_logs() {
         return false;
     });
 
-
     //Automatically update the log viewer when changing the date range
     if (isiOS) {
         logs.find("#log_start,#log_end").on("blur",requestData);
@@ -5500,9 +5526,6 @@ function get_logs() {
         prepTable();
     });
 
-    //Bind refresh button
-    logs.find("div[data-role='header'] > .ui-btn-right").on("click",requestData);
-
     //Bind view change buttons
     logs.find("input:radio[name='log_type']").change(updateView);
 
@@ -5522,6 +5545,21 @@ function get_logs() {
             logs.remove();
         },
         pageshow: requestData
+    });
+
+    changeHeader({
+        title: _("Logs"),
+        leftBtn: {
+            icon: "carat-l",
+            text: _("Back"),
+            class: "ui-toolbar-back-btn",
+            on: goBack
+        },
+        rightBtn: {
+            icon: "refresh",
+            text: _("Refresh"),
+            on: requestData
+        }
     });
 
     $("#logs").remove();
@@ -6819,10 +6857,6 @@ function import_config(data) {
 // About page
 function show_about() {
     var page = $("<div data-role='page' id='about'>" +
-            "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false'>" +
-                "<a href='javascript:void(0);' class='ui-btn ui-corner-all ui-shadow ui-btn-left ui-btn-b ui-toolbar-back-btn ui-icon-carat-l ui-btn-icon-left' data-rel='back'>"+_("Back")+"</a>" +
-                "<h3>"+_("About")+"</h3>" +
-            "</div>" +
             "<div class='ui-content' role='main'>" +
                 "<ul data-role='listview' data-inset='true'>" +
                     "<li>" +
@@ -6845,6 +6879,16 @@ function show_about() {
 
     page.one("pagehide",function(){
         page.remove();
+    });
+
+    changeHeader({
+        title: _("About"),
+        leftBtn: {
+            icon: "carat-l",
+            text: _("Back"),
+            class: "ui-toolbar-back-btn",
+            on: goBack
+        }
     });
 
     $("#about").remove();
@@ -7743,6 +7787,7 @@ function changeHeader(opt) {
     var defaults = {
             title: "",
             class: "",
+            animate: true,
             leftBtn: {
                 icon: "",
                 class: "",
@@ -7768,15 +7813,16 @@ function changeHeader(opt) {
 
     // Generate new header content
     var newHeader = "<a data-icon='"+opt.leftBtn.icon+"' "+(opt.leftBtn.text === "" ? "data-iconpos='notext' " : "")+"class='ui-btn-left "+opt.leftBtn.class+"' href='#'>"+opt.leftBtn.text+"</a>" +
-        "<h3 class='"+opt.class+"'>"+opt.title+"</h3>" +
-        "<a data-icon='"+opt.rightBtn.icon+"' "+(opt.rightBtn.text === "" ? "data-iconpos='notext' " : "")+"class='ui-btn-right "+opt.rightBtn.class+"' href='#'>"+opt.rightBtn.text+"</a>";
+            "<h3 class='"+opt.class+"'>"+opt.title+"</h3>" +
+            "<a data-icon='"+opt.rightBtn.icon+"' "+(opt.rightBtn.text === "" ? "data-iconpos='notext' " : "")+"class='ui-btn-right "+opt.rightBtn.class+"' href='#'>"+opt.rightBtn.text+"</a>",
+        speed = opt.animate ? "fast" : 0;
 
     // Fade out the header content, replace it, and update the header
-    header.children().fadeOut(function(){
+    header.children().fadeOut(speed,function(){
         header.html(newHeader).toolbar("refresh");
         header.find(".ui-btn-left").on("click",opt.leftBtn.on);
         header.find(".ui-btn-right").on("click",opt.rightBtn.on);
-    }).fadeIn();
+    }).fadeIn(speed);
 }
 
 function showTooltip(x, y, contents, color) {
