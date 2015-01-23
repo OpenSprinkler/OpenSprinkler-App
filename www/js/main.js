@@ -1270,11 +1270,6 @@ function show_addnew(autoIP,closeOld) {
 
 function show_sites(showBack) {
     var page = $("<div data-role='page' id='site-control'>" +
-            "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false' data-hide-during-focus=''>" +
-                "<button class='ui-btn ui-corner-all ui-shadow ui-btn-left ui-btn-b ui-toolbar-back-btn ui-icon-carat-l ui-btn-icon-left'>"+_("Back")+"</button>" +
-                "<h3>"+_("Manage Sites")+"</h3>" +
-                "<button id='site-add' data-icon='plus' class='ui-btn-right'>"+_("Add")+"</button>" +
-            "</div>" +
             "<div class='ui-content'>" +
             "</div>" +
             "<div data-role='popup' id='addsite' data-theme='b'>" +
@@ -1284,26 +1279,35 @@ function show_sites(showBack) {
                 "</ul>" +
             "</div>" +
         "</div>"),
+        header = changeHeader({
+            title: _("Manage Sites"),
+            leftBtn: {
+                icon: "carat-l",
+                text: _("Back"),
+                class: "ui-toolbar-back-btn",
+                on: checkChangesBeforeBack
+            },
+            rightBtn: {
+                icon: "plus",
+                text: _("Add"),
+                on: function(){
+                    if (typeof deviceip === "undefined") {
+                        show_addnew();
+                    } else {
+                        popup.popup("open").popup("reposition",{
+                            "positionTo": header.eq(2)
+                        });
+                    }
+                }
+            }
+        }),
         popup = page.find("#addsite"),
-        addButton = page.find("#site-add"),
         sites, total;
-
-    page.find(".ui-toolbar-back-btn").on("click",checkChangesBeforeBack);
 
     popup.popup({
         history: false,
-        positionTo: addButton
+        positionTo: header.eq(2)
     }).enhanceWithin();
-
-    addButton.on("click",function(){
-        if (typeof deviceip === "undefined") {
-            show_addnew();
-        } else {
-            popup.popup("open").popup("reposition",{
-                "positionTo": "#site-add"
-            });
-        }
-    });
 
     popup.find("#site-add-scan").on("click",function(){
         popup.popup("close");
@@ -2611,20 +2615,28 @@ function open_panel() {
 function show_options() {
     var list = "",
         page = $("<div data-role='page' id='os-options'>" +
-            "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false' data-hide-during-focus=''>" +
-                "<button class='ui-btn ui-corner-all ui-shadow ui-btn-left ui-btn-b ui-toolbar-back-btn ui-icon-carat-l ui-btn-icon-left'>"+_("Back")+"</button>" +
-                "<h3>"+_("Edit Options")+"</h3>" +
-                "<button disabled='disabled' data-icon='check' class='submit ui-btn-right'>"+_("Submit")+"</button>" +
-            "</div>" +
             "<div class='ui-content' role='main'>" +
                 "<div data-role='collapsibleset' id='os-options-list'>" +
                 "</div>" +
             "</div>" +
         "</div>"),
-        timezones, algorithm, tz, i;
+        header = changeHeader({
+            title: _("Edit Options"),
+            leftBtn: {
+                icon: "carat-l",
+                text: _("Back"),
+                class: "ui-toolbar-back-btn",
+                on: checkChangesBeforeBack
+            },
+            rightBtn: {
+                icon: "check",
+                text: _("Submit"),
+                class: "submit",
+                on: submit_options
+            }
 
-    page.find(".submit").on("click",submit_options);
-    page.find(".ui-toolbar-back-btn").on("click",checkChangesBeforeBack);
+        }),
+        timezones, algorithm, tz, i;
 
     list = "<fieldset data-role='collapsible' data-collapsed='false'><legend>"+_("System")+"</legend>";
 
@@ -2776,7 +2788,7 @@ function show_options() {
     page.find("#os-options-list")
         .html(list)
         .one("change input",function(){
-            page.find(".submit").prop("disabled",false).addClass("hasChanges");
+            header.eq(2).prop("disabled",false).addClass("hasChanges");
         })
         .find("fieldset").each(function(a,b){
             var group = $(b);
@@ -2851,7 +2863,7 @@ function show_options() {
                     }
                     loc.parent().addClass("green");
                     loc.val(selected);
-                    page.find(".submit").prop("disabled",false).addClass("hasChanges");
+                    header.eq(2).prop("disabled",false).addClass("hasChanges");
                 }
                 exit(true);
             };
@@ -2896,7 +2908,7 @@ function show_options() {
                 selected = selected.replace(/^[0-9]{5}\s-\s/,"");
                 loc.parent().addClass("green");
                 loc.val(selected);
-                page.find(".submit").prop("disabled",false).addClass("hasChanges");
+                header.eq(2).prop("disabled",false).addClass("hasChanges");
             }
             button.prop("disabled",false);
         });
@@ -2961,7 +2973,7 @@ function show_options() {
             helptext = dur.parent().find(".help-icon").data("helptext"),
             max = 240;
 
-        page.find(".submit").prop("disabled",false).addClass("hasChanges");
+        header.eq(2).prop("disabled",false).addClass("hasChanges");
 
         if (id === "ip_addr" || id === "gateway" || id === "ntp_addr") {
             showIPRequest({
@@ -3090,7 +3102,7 @@ function show_options() {
             return;
         }
 
-        page.find(".submit").prop("disabled",false).addClass("hasChanges");
+        header.eq(2).prop("disabled",false).addClass("hasChanges");
 
         // Show date time input popup
         showDateTimeInput(input.val(),function(data){
@@ -3102,6 +3114,8 @@ function show_options() {
     page.one("pagehide",function(){
         page.remove();
     });
+
+    header.eq(2).prop("disabled",true);
 
     $("#os-options").remove();
     page.appendTo("body");
@@ -3250,11 +3264,6 @@ function submit_options() {
 function show_stations() {
     var cards = "",
         page = $("<div data-role='page' id='os-stations'>" +
-            "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false' data-hide-during-focus=''>" +
-                "<button class='ui-btn ui-corner-all ui-shadow ui-btn-left ui-btn-b ui-toolbar-back-btn ui-icon-carat-l ui-btn-icon-left'>"+_("Back")+"</button>" +
-                "<h3>"+_("Edit Stations")+"</h3>" +
-                "<button data-icon='check' disabled='disabled' class='submit ui-btn-right'>"+_("Submit")+"</button>" +
-            "</div>" +
             "<div class='ui-content' role='main'>" +
             "</div>" +
         "</div>"),
@@ -3341,7 +3350,7 @@ function show_stations() {
                 button.data("sd", select.find("#sd").is(":checked") ? 1 : 0 );
                 button.data("us", select.find("#us").is(":checked") ? 1 : 0 );
                 name.html( select.find("#stn-name").val() + editButton );
-                page.find(".submit").prop("disabled",false);
+                header.eq(2).prop("disabled",false);
                 select.popup("destroy").remove();
             }).enhanceWithin();
 
@@ -3350,7 +3359,7 @@ function show_stations() {
             select.popup({history: false, positionTo: button.parent()}).popup("open");
         },
         submit_stations = function() {
-            page.find(".submit").prop("disabled",true);
+            header.eq(2).prop("disabled",true);
 
             var is208 = (checkOSVersion(208) === true),
                 master = {},
@@ -3415,7 +3424,7 @@ function show_stations() {
                 goBack();
                 update_controller();
             }).fail(function(){
-                page.find(".submit").prop("disabled",false);
+                header.eq(2).prop("disabled",false);
             });
         },
         run_station = function(){
@@ -3498,6 +3507,21 @@ function show_stations() {
                 }
             });
         },
+        header = changeHeader({
+            title: _("Edit Stations"),
+            leftBtn: {
+                icon: "carat-l",
+                text: _("Back"),
+                class: "ui-toolbar-back-btn",
+                on: checkChangesBeforeBack
+            },
+            rightBtn: {
+                icon: "check",
+                text: _("Submit"),
+                class: "submit",
+                on: submit_stations
+            }
+        }),
         hasMaster = controller.options.mas ? true : false,
         hasIR = (typeof controller.stations.ignore_rain === "object") ? true : false,
         hasAR = (typeof controller.stations.act_relay === "object") ? true : false,
@@ -3514,10 +3538,8 @@ function show_stations() {
 
     page.find(".ui-content").html("<div id='os-stations-list' class='card-group center'>"+cards+"</div><button class='submit'>"+_("Submit")+"</button><button data-theme='b' class='reset'>"+_("Reset")+"</button>");
 
-    page.find(".ui-toolbar-back-btn").on("click",checkChangesBeforeBack);
-
     page.find("#os-stations-list").one("change input",function(){
-        page.find(".submit").prop("disabled",false).addClass("hasChanges");
+        header.eq(2).prop("disabled",false).addClass("hasChanges");
     });
 
     // When data is refreshed, update the icon status
@@ -3546,7 +3568,7 @@ function show_stations() {
             icon.addClass("attrib-disabled");
         }
 
-        page.find(".submit").prop("disabled",false).addClass("hasChanges");
+        header.eq(2).prop("disabled",false).addClass("hasChanges");
     });
 
     page.on("click","[id^='station_']",function(){
@@ -3575,8 +3597,6 @@ function show_stations() {
         }
     });
 
-    page.find(".submit").on("click",submit_stations);
-
     page.find(".reset").on("click",function(){
         page.find("[id^='station_']").each(function(a,b){
             $(b).html("S"+pad(a+1)+editButton);
@@ -3590,7 +3610,7 @@ function show_stations() {
                 "sd": 0
             });
         });
-        page.find(".submit").prop("disabled",false).addClass("hasChanges");
+        header.eq(2).prop("disabled",false).addClass("hasChanges");
     });
 
     page.one({
@@ -3624,6 +3644,8 @@ function show_stations() {
             },1000);
         }
     });
+
+    header.eq(2).prop("disabled",true);
 
     $("#os-stations").remove();
     page.appendTo("body");
@@ -5575,17 +5597,10 @@ function get_logs() {
 // Program management functions
 function get_programs(pid) {
     var programs = $("<div data-role='page' id='programs'>" +
-            "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false' data-hide-during-focus=''>" +
-                "<button class='ui-btn ui-corner-all ui-shadow ui-btn-left ui-btn-b ui-toolbar-back-btn ui-icon-carat-l ui-btn-icon-left'>"+_("Back")+"</button>" +
-                "<h3>"+_("Programs")+"</h3>" +
-                "<a href='#addprogram' data-icon='plus' class='ui-btn-right'>"+_("Add")+"</a>" +
-            "</div>" +
             "<div class='ui-content' role='main' id='programs_list'>" +
                 make_all_programs() +
             "</div>" +
         "</div>");
-
-    programs.find(".ui-toolbar-back-btn").on("click",checkChangesBeforeBack);
 
     programs.find("[id^=program-]").on({
         collapsiblecollapse: function(){
@@ -5657,6 +5672,24 @@ function get_programs(pid) {
             programs.find("fieldset[data-collapsed='false']").collapsible("collapse");
             $("#program-"+pid).collapsible("expand");
         }
+    });
+
+    changeHeader({
+        title: _("Programs"),
+        leftBtn: {
+            icon: "carat-l",
+            text: _("Back"),
+            class: "ui-toolbar-back-btn",
+            on: checkChangesBeforeBack
+        },
+        rightBtn: {
+            icon: "plus",
+            text: _("Add"),
+            on: function(){
+                changePage("#addprogram");
+            }
+        }
+
     });
 
     $("#programs").remove();
@@ -6239,11 +6272,6 @@ function add_program(copyID) {
     copyID = (copyID >= 0) ? copyID : "new";
 
     var addprogram = $("<div data-role='page' id='addprogram'>" +
-                "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false' data-hide-during-focus=''>" +
-                    "<h3>"+_("Add Program")+"</h3>" +
-                    "<button class='ui-btn ui-corner-all ui-shadow ui-btn-left ui-btn-b ui-toolbar-back-btn ui-icon-carat-l ui-btn-icon-left'>"+_("Back")+"</button>" +
-                    "<button data-icon='check' disabled='disabled' class='submit ui-btn-right'>"+_("Submit")+"</button>" +
-                "</div>" +
                 "<div class='ui-content' role='main' id='newprogram'>" +
                     "<fieldset id='program-new'>" +
                     "</fieldset>" +
@@ -6252,18 +6280,31 @@ function add_program(copyID) {
         submit = function(){
             submit_program("new");
             return false;
-        };
+        },
+        header = changeHeader({
+            title: _("Add Program"),
+            leftBtn: {
+                icon: "carat-l",
+                text: _("Back"),
+                class: "ui-toolbar-back-btn",
+                on: checkChangesBeforeBack
+            },
+            rightBtn: {
+                icon: "check",
+                text: _("Submit"),
+                on: submit
+            }
+        });
 
     addprogram.find("#program-new").html(make_program(copyID,true)).one("change input",function(){
-        addprogram.find(".submit").prop("disabled",false).addClass("hasChanges");
+        header.eq(2).prop("disabled",false).addClass("hasChanges");
     });
-
-    addprogram.find(".submit, [id^='submit-']").on("click",submit);
-    addprogram.find(".ui-toolbar-back-btn").on("click",checkChangesBeforeBack);
 
     addprogram.one("pagehide",function() {
         addprogram.remove();
     });
+
+    header.eq(2).prop("disabled",true);
 
     $("#addprogram").remove();
     addprogram.appendTo("body");
@@ -7818,9 +7859,9 @@ function changeHeader(opt) {
     }
 
     // Generate new header content
-    var newHeader = "<a data-icon='"+opt.leftBtn.icon+"' "+(opt.leftBtn.text === "" ? "data-iconpos='notext' " : "")+"class='ui-btn-left "+opt.leftBtn.class+"' href='#'>"+opt.leftBtn.text+"</a>" +
+    var newHeader = $("<button data-icon='"+opt.leftBtn.icon+"' "+(opt.leftBtn.text === "" ? "data-iconpos='notext' " : "")+"class='ui-btn-left "+opt.leftBtn.class+"'>"+opt.leftBtn.text+"</button>" +
             "<h3 class='"+opt.class+"'>"+opt.title+"</h3>" +
-            "<a data-icon='"+opt.rightBtn.icon+"' "+(opt.rightBtn.text === "" ? "data-iconpos='notext' " : "")+"class='ui-btn-right "+opt.rightBtn.class+"' href='#'>"+opt.rightBtn.text+"</a>",
+            "<button data-icon='"+opt.rightBtn.icon+"' "+(opt.rightBtn.text === "" ? "data-iconpos='notext' " : "")+"class='ui-btn-right "+opt.rightBtn.class+"'>"+opt.rightBtn.text+"</button>"),
         speed = opt.animate ? "fast" : 0;
 
     // Fade out the header content, replace it, and update the header
@@ -7829,6 +7870,8 @@ function changeHeader(opt) {
         header.find(".ui-btn-left").on("click",opt.leftBtn.on);
         header.find(".ui-btn-right").on("click",opt.rightBtn.on);
     }).fadeIn(speed);
+
+    return newHeader;
 }
 
 function showTooltip(x, y, contents, color) {
