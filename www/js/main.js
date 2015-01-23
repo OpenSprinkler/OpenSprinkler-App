@@ -5327,10 +5327,6 @@ function get_logs() {
                 e.stopImmediatePropagation();
             });
 
-            zones.on("swiperight",function(e){
-                e.stopImmediatePropagation();
-            });
-
             var timeline = new links.Timeline(logs_list.get(0),options);
             timeline.draw(sortedData);
         },
@@ -5346,7 +5342,9 @@ function get_logs() {
             placeholder.empty();
             placeholder.show();
             var freshLoad = zones.find("table").length;
-            zones.show();
+            zones.show().on("swiperight",function(e){
+                e.stopImmediatePropagation();
+            });
             graph_sort.show();
             table_sort.hide();
             if (!freshLoad) {
