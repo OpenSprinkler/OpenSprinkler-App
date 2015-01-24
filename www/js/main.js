@@ -1779,11 +1779,6 @@ function add_found(ip) {
 // Weather functions
 function show_weather_settings() {
     var page = $("<div data-role='page' id='weather_settings'>" +
-        "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false' data-hide-during-focus=''>" +
-            "<a href='javascript:void(0);' class='ui-btn ui-corner-all ui-shadow ui-btn-left ui-btn-b ui-toolbar-back-btn ui-icon-carat-l ui-btn-icon-left' data-rel='back'>"+_("Back")+"</a>" +
-            "<h3>"+_("Weather Settings")+"</h3>" +
-            "<a href='#' class='ui-btn-right wsubmit'>"+_("Submit")+"</a>" +
-        "</div>" +
         "<div class='ui-content' role='main'>" +
             "<ul data-role='listview' data-inset='true'>" +
                 "<li>" +
@@ -1810,7 +1805,27 @@ function show_weather_settings() {
             "</ul>" +
             "<a class='wsubmit' href='#' data-role='button' data-theme='b' type='submit'>"+_("Submit")+"</a>" +
         "</div>" +
-    "</div>");
+    "</div>"),
+    submit_weather_settings = function() {
+        var url = "/uwa?auto_delay="+($("#auto_delay").is(":checked") ? "on" : "off")+"&delay_duration="+parseInt($("#delay_duration").val()/3600)+"&weather_provider="+$("#weather_provider").val()+"&wapikey="+$("#wapikey").val();
+
+        $.mobile.loading("show");
+
+        send_to_os(url).then(
+            function(){
+                $.mobile.document.one("pageshow",function(){
+                    showerror(_("Weather settings have been saved"));
+                });
+                goBack();
+                checkWeatherPlugin();
+            },
+            function(){
+                showerror(_("Weather settings were not saved. Please try again."));
+            }
+        );
+
+        return false;
+    };
 
     //Handle provider select change on weather settings
     page.find("#weather_provider").on("change",function(){
@@ -1824,10 +1839,7 @@ function show_weather_settings() {
         }
     });
 
-    page.find(".wsubmit").on("click",function(){
-        submit_weather_settings();
-        return false;
-    });
+    page.find(".wsubmit").on("click",submit_weather_settings);
 
     page.find("#delay_duration").on("click",function(){
         var dur = $(this),
@@ -1855,28 +1867,27 @@ function show_weather_settings() {
             }
         }
     });
+
+    changeHeader({
+        title: _("Weather Settings"),
+        leftBtn: {
+            icon: "carat-l",
+            text: _("Back"),
+            class: "ui-toolbar-back-btn",
+            on: goBack
+        },
+        rightBtn: {
+            icon: "check",
+            text: _("Submit"),
+            on: submit_weather_settings
+        }
+    });
+
     $("#weather_settings").remove();
     page.appendTo("body");
 }
 
-function submit_weather_settings() {
-    var url = "/uwa?auto_delay="+($("#auto_delay").is(":checked") ? "on" : "off")+"&delay_duration="+parseInt($("#delay_duration").val()/3600)+"&weather_provider="+$("#weather_provider").val()+"&wapikey="+$("#wapikey").val();
 
-    $.mobile.loading("show");
-
-    send_to_os(url).then(
-        function(){
-            $.mobile.document.one("pageshow",function(){
-                showerror(_("Weather settings have been saved"));
-            });
-            goBack();
-            checkWeatherPlugin();
-        },
-        function(){
-            showerror(_("Weather settings were not saved. Please try again."));
-        }
-    );
-}
 
 function convert_temp(temp,region) {
     if (region === "United States" || region === "Bermuda" || region === "Palau") {
@@ -4120,10 +4131,6 @@ function update_timer(total,sdelay) {
 function get_manual() {
     var list = "<li data-role='list-divider' data-theme='a'>"+_("Sprinkler Stations")+"</li>",
         page = $("<div data-role='page' id='manual'>" +
-                "<div data-theme='b' data-role='header' data-position='fixed' data-tap-toggle='false'>" +
-                    "<a href='javascript:void(0);' class='ui-btn ui-corner-all ui-shadow ui-btn-left ui-btn-b ui-toolbar-back-btn ui-icon-carat-l ui-btn-icon-left' data-rel='back'>"+_("Back")+"</a>" +
-                    "<h3>"+_("Manual Control")+"</h3>" +
-                "</div>" +
                 "<div class='ui-content' role='main'>" +
                     "<p class='center'>"+_("With manual mode turned on, tap a station to toggle it.")+"</p>" +
                     "<fieldset data-role='collapsible' data-collapsed='false' data-mini='true'>" +
@@ -4246,6 +4253,16 @@ function get_manual() {
 
     page.one("pagehide",function(){
         page.remove();
+    });
+
+    changeHeader({
+        title: _("Manual Control"),
+        leftBtn: {
+            icon: "carat-l",
+            text: _("Back"),
+            class: "ui-toolbar-back-btn",
+            on: goBack
+        }
     });
 
     $("#manual").remove();
