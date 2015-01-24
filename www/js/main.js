@@ -5167,6 +5167,8 @@ function get_logs() {
                         station = stations.length - 2;
                     } else if (station === "rd") {
                         station = stations.length - 1;
+                    } else {
+                        return;
                     }
                 } else if (typeof station === "number" && station>stations.length-2) {
                     return;
