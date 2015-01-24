@@ -3122,7 +3122,7 @@ function submit_options() {
     var opt = {},
         invalid = false,
         isPi = isOSPi(),
-        button = $("#os-options").find(".submit"),
+        button = $("#header").find(".ui-btn-right"),
         keyNames = {1:"tz",2:"ntp",12:"htp",13:"htp2",14:"ar",15:"nbrd",16:"seq",17:"sdt",18:"mas",19:"mton",20:"mtoff",21:"urs",22:"rst",23:"wl",25:"ipas",30:"rlp",36:"lg",31:"uwt"},
         key;
 
