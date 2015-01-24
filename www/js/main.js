@@ -2617,6 +2617,144 @@ function show_options() {
                 "</div>" +
             "</div>" +
         "</div>"),
+        submit_options = function() {
+            var opt = {},
+                invalid = false,
+                isPi = isOSPi(),
+                button = header.eq(2),
+                keyNames = {1:"tz",2:"ntp",12:"htp",13:"htp2",14:"ar",15:"nbrd",16:"seq",17:"sdt",18:"mas",19:"mton",20:"mtoff",21:"urs",22:"rst",23:"wl",25:"ipas",30:"rlp",36:"lg",31:"uwt"},
+                key;
+
+            button.prop("disabled",true).removeClass("hasChanges");
+
+            $("#os-options-list").find(":input,button").filter(":not(.noselect)").each(function(a,b){
+                var $item = $(b),
+                    id = $item.attr("id"),
+                    data = $item.val(),
+                    ip;
+
+                if (!id || (!data && data!=="")) {
+                    return true;
+                }
+
+                switch (id) {
+                    case "o1":
+                        var tz = data.split(":");
+                        tz[0] = parseInt(tz[0],10);
+                        tz[1] = parseInt(tz[1],10);
+                        tz[1]=(tz[1]/15>>0)/4.0;tz[0]=tz[0]+(tz[0]>=0?tz[1]:-tz[1]);
+                        data = ((tz[0]+12)*4)>>0;
+                        break;
+                    case "datetime":
+                        var dt = new Date(data*1000);
+                        dt.setMinutes(dt.getMinutes()-dt.getTimezoneOffset());
+
+                        opt.tyy = dt.getFullYear();
+                        opt.tmm = dt.getMonth();
+                        opt.tdd = dt.getDate();
+                        opt.thh = dt.getHours();
+                        opt.tmi = dt.getMinutes();
+                        opt.ttt = Math.round(dt.getTime()/1000);
+
+                        return true;
+                    case "ip_addr":
+                        if (ip === "0.0.0.0") {
+                            showerror(_("A valid IP address is required when DHCP is not used"));
+                            invalid = true;
+                            return false;
+                        }
+
+                        ip = data.split(".");
+
+                        opt.o4 = ip[0];
+                        opt.o5 = ip[1];
+                        opt.o6 = ip[2];
+                        opt.o7 = ip[3];
+
+                        return true;
+                    case "gateway":
+                        if (ip === "0.0.0.0") {
+                            showerror(_("A valid gateway address is required when DHCP is not used"));
+                            invalid = true;
+                            return false;
+                        }
+
+                        ip = data.split(".");
+
+                        opt.o8 = ip[0];
+                        opt.o9 = ip[1];
+                        opt.o10 = ip[2];
+                        opt.o11 = ip[3];
+
+                        return true;
+                    case "ntp_addr":
+                        ip = data.split(".");
+
+                        opt.o32 = ip[0];
+                        opt.o33 = ip[1];
+                        opt.o34 = ip[2];
+                        opt.o35 = ip[3];
+
+                        return true;
+                    case "o12":
+                        if (!isPi) {
+                            opt.o12 = data&0xff;
+                            opt.o13 = (data>>8)&0xff;
+                        }
+                        return true;
+                    case "o31":
+                        if (data > 0 && $("#wtkey").val() === "") {
+                            showerror(_("Weather Underground API key is required for weather-based control"));
+                            invalid = true;
+                            return false;
+                        }
+                        break;
+                    case "o2":
+                    case "o14":
+                    case "o16":
+                    case "o21":
+                    case "o22":
+                    case "o25":
+                    case "o30":
+                    case "o36":
+                    case "o3":
+                        data = $item.is(":checked") ? 1 : 0;
+                        if (!data) {
+                            return true;
+                        }
+                        break;
+                }
+                if (isPi) {
+                    if (id === "loc" || id === "lg") {
+                        id = "o"+id;
+                    } else {
+                        key = /\d+/.exec(id);
+                        id = "o"+keyNames[key];
+                    }
+                }
+
+                // Because the firmware has a bug regarding spaces, let us replace them out now with a compatible seperator
+                if (checkOSVersion(208) === true && id === "loc") {
+                    data = data.replace(/\s/g,"_");
+                }
+
+                opt[id] = data;
+            });
+            if (invalid) {
+                button.prop("disabled",false).addClass("hasChanges");
+                return;
+            }
+            $.mobile.loading("show");
+            send_to_os("/co?pw=&"+$.param(opt)).done(function(){
+                $.mobile.document.one("pageshow",function(){
+                    showerror(_("Settings have been saved"));
+                });
+                goBack();
+                update_controller(update_weather);
+            }).fail(function(){
+                button.prop("disabled",false).addClass("hasChanges");
+            });
+        },
         header = changeHeader({
             title: _("Edit Options"),
             leftBtn: {
@@ -3116,145 +3254,6 @@ function show_options() {
 
     $("#os-options").remove();
     page.appendTo("body");
-}
-
-function submit_options() {
-    var opt = {},
-        invalid = false,
-        isPi = isOSPi(),
-        button = $("#header").find(".ui-btn-right"),
-        keyNames = {1:"tz",2:"ntp",12:"htp",13:"htp2",14:"ar",15:"nbrd",16:"seq",17:"sdt",18:"mas",19:"mton",20:"mtoff",21:"urs",22:"rst",23:"wl",25:"ipas",30:"rlp",36:"lg",31:"uwt"},
-        key;
-
-    button.prop("disabled",true).removeClass("hasChanges");
-
-    $("#os-options-list").find(":input,button").filter(":not(.noselect)").each(function(a,b){
-        var $item = $(b),
-            id = $item.attr("id"),
-            data = $item.val(),
-            ip;
-
-        if (!id || (!data && data!=="")) {
-            return true;
-        }
-
-        switch (id) {
-            case "o1":
-                var tz = data.split(":");
-                tz[0] = parseInt(tz[0],10);
-                tz[1] = parseInt(tz[1],10);
-                tz[1]=(tz[1]/15>>0)/4.0;tz[0]=tz[0]+(tz[0]>=0?tz[1]:-tz[1]);
-                data = ((tz[0]+12)*4)>>0;
-                break;
-            case "datetime":
-                var dt = new Date(data*1000);
-                dt.setMinutes(dt.getMinutes()-dt.getTimezoneOffset());
-
-                opt.tyy = dt.getFullYear();
-                opt.tmm = dt.getMonth();
-                opt.tdd = dt.getDate();
-                opt.thh = dt.getHours();
-                opt.tmi = dt.getMinutes();
-                opt.ttt = Math.round(dt.getTime()/1000);
-
-                return true;
-            case "ip_addr":
-                if (ip === "0.0.0.0") {
-                    showerror(_("A valid IP address is required when DHCP is not used"));
-                    invalid = true;
-                    return false;
-                }
-
-                ip = data.split(".");
-
-                opt.o4 = ip[0];
-                opt.o5 = ip[1];
-                opt.o6 = ip[2];
-                opt.o7 = ip[3];
-
-                return true;
-            case "gateway":
-                if (ip === "0.0.0.0") {
-                    showerror(_("A valid gateway address is required when DHCP is not used"));
-                    invalid = true;
-                    return false;
-                }
-
-                ip = data.split(".");
-
-                opt.o8 = ip[0];
-                opt.o9 = ip[1];
-                opt.o10 = ip[2];
-                opt.o11 = ip[3];
-
-                return true;
-            case "ntp_addr":
-                ip = data.split(".");
-
-                opt.o32 = ip[0];
-                opt.o33 = ip[1];
-                opt.o34 = ip[2];
-                opt.o35 = ip[3];
-
-                return true;
-            case "o12":
-                if (!isPi) {
-                    opt.o12 = data&0xff;
-                    opt.o13 = (data>>8)&0xff;
-                }
-                return true;
-            case "o31":
-                if (data > 0 && $("#wtkey").val() === "") {
-                    showerror(_("Weather Underground API key is required for weather-based control"));
-                    invalid = true;
-                    return false;
-                }
-                break;
-            case "o2":
-            case "o14":
-            case "o16":
-            case "o21":
-            case "o22":
-            case "o25":
-            case "o30":
-            case "o36":
-            case "o3":
-                data = $item.is(":checked") ? 1 : 0;
-                if (!data) {
-                    return true;
-                }
-                break;
-        }
-        if (isPi) {
-            if (id === "loc" || id === "lg") {
-                id = "o"+id;
-            } else {
-                key = /\d+/.exec(id);
-                id = "o"+keyNames[key];
-            }
-        }
-
-        // Because the firmware has a bug regarding spaces, let us replace them out now with a compatible seperator
-        if (checkOSVersion(208) === true && id === "loc") {
-            data = data.replace(/\s/g,"_");
-        }
-
-        opt[id] = data;
-    });
-    if (invalid) {
-        button.prop("disabled",false).addClass("hasChanges");
-        return;
-    }
-    $.mobile.loading("show");
-    send_to_os("/co?pw=&"+$.param(opt)).done(function(){
-        $.mobile.document.one("pageshow",function(){
-            showerror(_("Settings have been saved"));
-        });
-        goBack();
-        update_controller(update_weather);
-    }).fail(function(){
-        button.prop("disabled",false).addClass("hasChanges");
-    });
 }
 
 // Station managament function
