@@ -5223,20 +5223,35 @@ function get_logs() {
                     }
                 } else if (type === "timeline") {
                     var pid = parseInt(b[0]),
-                        className = "program-"+((pid+3)%4);
+                        className, name, group, shortname;
 
-                    if (pid === 0) {
+                    if (b[1] === "rs") {
+                        className = "delayed";
+                        name = _("Rain Sensor");
+                        group = name;
+                        shortname = _("RS");
+                    } else if (b[1] === "rd") {
+                        className = "delayed";
+                        name = _("Rain Delay");
+                        group = name;
+                        shortname = _("RD");
+                    } else if (pid === 0) {
                         return;
+                    } else {
+                        className = "program-"+((pid+3)%4);
+                        name = pidname(pid);
+                        group = controller.stations.snames[station];
+                        shortname = "S"+(pid+1);
                     }
 
                     sortedData.push({
                         "start": utc,
                         "end": new Date(utc.getTime() + parseInt(b[2] * 1000)),
-                        "className":className,
-                        "content":pidname(pid),
+                        "className": className,
+                        "content": name,
                         "pid": pid-1,
-                        "shortname":"S"+(station+1),
-                        "group": controller.stations.snames[station]
+                        "shortname": shortname,
+                        "group": group
                     });
                 }
             });
