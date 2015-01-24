@@ -134,7 +134,7 @@ $(document)
 })
 .one("mobileinit", function(){
     //After jQuery mobile is loaded set intial configuration
-    $.mobile.defaultPageTransition = "fade";
+    $.mobile.defaultPageTransition = "slide";
     $.mobile.hoverDelay = 0;
     $.mobile.activeBtnClass = "activeButton";
 
@@ -335,7 +335,7 @@ $(document)
     });
 
     // Initialize the app header
-    $("#header").toolbar().hide();
+    $("#header").toolbar();
 
     //On initial load check if a valid site exists for auto connect
     check_configured(true);
