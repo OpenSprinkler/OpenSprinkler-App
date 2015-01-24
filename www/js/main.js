@@ -134,17 +134,13 @@ $(document)
 })
 .one("mobileinit", function(){
     //After jQuery mobile is loaded set intial configuration
-    $.mobile.defaultPageTransition = "slide";
+    $.mobile.defaultPageTransition = (isAndroid || isIEMobile || isFireFoxOS || isBB10) ? "fade" : "slide";
     $.mobile.hoverDelay = 0;
     $.mobile.activeBtnClass = "activeButton";
 
     //Change history method for Chrome Packaged Apps
     if (isChromeApp) {
         $.mobile.hashListeningEnabled = false;
-        $.mobile.document.on("click",".ui-toolbar-back-btn",function(){
-            goBack();
-            return false;
-        });
     }
 
     if (!isOSXApp) {
