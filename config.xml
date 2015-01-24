@@ -36,6 +36,13 @@
 
         <gap:config-file platform="android" parent="/manifest">
             <uses-sdk android:minSdkVersion="10" android:targetSdkVersion="19" />
+            <supports-screens
+                android:xlargeScreens="true"
+                android:largeScreens="true"
+                android:smallScreens="true" />
+            <application android:theme="@android:style/Theme.Holo.Light.NoActionBar">
+                <activity android:theme="@android:style/Theme.Holo.Light.NoActionBar"></activity>
+            </application>
         </gap:config-file>
 
         <name>OpenSprinkler</name>
