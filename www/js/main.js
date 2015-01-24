@@ -5112,7 +5112,7 @@ function get_logs() {
                         {min: 0, tickFormatter: function(val, axis) { return val < axis.max ? Math.round(val*100)/100 : _("min");} },
                         {min: 0, position: 1, tickFormatter: function(val, axis) { return val < axis.max ? Math.round(val*100)/100+"%" : _("% Water");}, alignTicksWithAxis: 1}
                     ],
-                    xaxis: { tickLength: 0, labelWidth: 90, mode: "time", timeformat: "%b %d %H:%M", min:sortedData.min.getTime()-43200000, max:sortedData.max.getTime()+43200000}
+                    xaxis: { tickLength: 0, labelWidth: 90, mode: "time", timeformat: "%b %d %H:%M", min:sortedData.min, max:sortedData.max}
                 };
                 logs.addClass("tilt-axis");
             }
@@ -5200,7 +5200,7 @@ function get_logs() {
                         min = date;
                     }
                     if (max === undefined || max < date) {
-                        max = new Date(date.getTime() + (duration*100*1000)+1);
+                        max = date;
                     }
                 } else if (type === "table") {
                     switch (grouping) {
