@@ -251,6 +251,9 @@ body, input, select, textarea, button, .ui-btn {
     user-select:none;
     touch-callout: none;
 }
+#header {
+    display: none;
+}
 .logo {
     height:42px;
     padding:0!important;
@@ -509,10 +512,6 @@ body, input, select, textarea, button, .ui-btn {
 }
 
 /* Home page rules */
-#sprinklers div[data-role=header] .ui-icon {
-    background-color:transparent;
-    box-shadow:none
-}
 #sprinklers .ui-content {
     padding-top:0
 }
