@@ -5053,6 +5053,7 @@ function get_logs() {
                         label:$(this).attr("name"),
                         color:parseInt(key),
                         bars: {
+                            lineWidth: 0,
                             order:key,
                             show: true,
                             barWidth: ((grouping === "h") || (grouping === "m") || (grouping === "d") ? 0.1 : 60*60*1000)
