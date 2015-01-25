@@ -4499,12 +4499,13 @@ function get_preview() {
             st_array = new Array(controller.settings.nbrd*8),
             pid_array = new Array(controller.settings.nbrd*8),
             et_array = new Array(controller.settings.nbrd*8),
+            pl_array = new Array(controller.settings.nbrd*8),
             last_stop_time = 0,
             last_seq_stop_time = 0,
             busy, match_found, prog;
 
         for(var sid=0;sid<controller.settings.nbrd;sid++) {
-            st_array[sid]=0;pid_array[sid]=0;et_array[sid]=0;
+            st_array[sid]=0;pid_array[sid]=0;et_array[sid]=0;pl_array[sid]=0;
         }
         do {
             busy=0;
@@ -4559,9 +4560,11 @@ function get_preview() {
                         if (controller.stations.stn_seq[bid2]&(1<<s2)) {
                             st_array[sid]=seq_acctime;seq_acctime+=et_array[sid];
                             et_array[sid]=seq_acctime;seq_acctime+=controller.options.sdt;
+                            pl_array[sid]=1;
                         } else {
                             st_array[sid]=acctime;
                             et_array[sid]=acctime+et_array[sid];
+                            pl_array[sid]=1;
                         }
                         busy=1;
                     }
@@ -4594,20 +4597,22 @@ function get_preview() {
             }
             if (busy) {
                 if (is211) {
-                    last_seq_stop_time=run_sched(simminutes*60,st_array,pid_array,et_array,simt);
+                    last_seq_stop_time=run_sched(simminutes*60,st_array,pid_array,et_array,pl_array,simt);
                     simminutes++;
                     for(sid=0;sid<controller.settings.nbrd*8;sid++) {
-                        st_array[sid]=0;pid_array[sid]=0;et_array[sid]=0;
+                        if(st_array[sid] && simminutes*60>=et_array[sid]) {
+                            st_array[sid]=0;pid_array[sid]=0;et_array[sid]=0;pl_array[sid]=0;
+                        }
                     }
                 }
                 else if (is21) {
-                    last_stop_time=run_sched(simminutes*60,st_array,pid_array,et_array,simt);
+                    last_stop_time=run_sched(simminutes*60,st_array,pid_array,et_array,pl_array,simt);
                     simminutes++;
                     for(sid=0;sid<controller.settings.nbrd*8;sid++) {
                         st_array[sid]=0;pid_array[sid]=0;et_array[sid]=0;
                     }
                 } else {
-                    var endminutes=run_sched(simminutes*60,st_array,pid_array,et_array,simt)/60>>0;
+                    var endminutes=run_sched(simminutes*60,st_array,pid_array,et_array,pl_array,simt)/60>>0;
                     if (controller.options.seq&&simminutes!==endminutes) {
                         simminutes=endminutes;
                     } else {
@@ -4623,11 +4628,12 @@ function get_preview() {
         } while(simminutes<24*60);
     };
 
-    run_sched = function (simseconds,st_array,pid_array,et_array,simt) {
+    run_sched = function (simseconds,st_array,pid_array,et_array,pl_array,simt) {
         var endtime=simseconds;
         for(var sid=0;sid<controller.settings.nbrd*8;sid++) {
             if(pid_array[sid]) {
               if (is211) {
+                if(pl_array[sid]) {
                     if((controller.options.mas>0)&&(controller.options.mas!==sid+1)&&(controller.stations.masop[sid>>3]&(1<<(sid%8)))) {
                         preview_data.push({
                             "start": (st_array[sid]+controller.options.mton),
@@ -4639,6 +4645,11 @@ function get_preview() {
                         });
                     }
                     time_to_text(sid,st_array[sid],pid_array[sid],et_array[sid],simt);
+                    pl_array[sid] = 0;
+                    if(controller.stations.stn_seq[sid>>3]&(1<<(sid&0x07))) {
+                      endtime=(endtime>et_array[sid])?endtime:et_array[sid];
+                    }
+                }
               } else {
                 if(controller.options.seq===1) {
                     if((controller.options.mas>0)&&(controller.options.mas!==sid+1)&&(controller.stations.masop[sid>>3]&(1<<(sid%8)))) {
