@@ -340,7 +340,7 @@ $(document)
     FastClick.attach(document.body);
 
     // Initialize external panel
-    $("#sprinklers-settings").enhanceWithin().panel().removeClass("hidden");
+    bindPanel();
 })
 // Handle OS resume event triggered by PhoneGap
 .on("resume",function(){
@@ -1335,6 +1335,10 @@ function show_sites(showBack) {
             if (!total || showBack === false || !(data.current_site in sites)) {
                 page.one("pagebeforeshow",function(){
                     header.eq(0).hide();
+                });
+
+                page.on("swiperight",function(e){
+                    e.stopImmediatePropagation();
                 });
 
                 document.title = "OpenSprinkler";
@@ -2372,30 +2376,30 @@ function testAPIKey(key,callback) {
     });
 }
 
-function open_panel() {
+function bindPanel() {
     var panel = $("#sprinklers-settings"),
         operation = function(){
-            return controller.settings.en === 1 ? _("Disable") : _("Enable");
+            return (controller && controller.settings && controller.settings.en && controller.settings.en === 1) ? _("Disable") : _("Enable");
         };
 
-    panel.panel("option","classes.modal","needsclick ui-panel-dismiss");
+    panel.enhanceWithin().panel().removeClass("hidden").panel("option","classes.modal","needsclick ui-panel-dismiss");
 
-    panel.find("a[href='#site-control']").off("click").one("click",function(){
+    panel.find("a[href='#site-control']").one("click",function(){
         changeFromPanel("#site-control");
         return false;
     });
 
-    panel.find("a[href='#about']").off("click").one("click",function(){
+    panel.find("a[href='#about']").one("click",function(){
         changeFromPanel("#about");
         return false;
     });
 
-    panel.find(".export_config").off("click").on("click",function(){
+    panel.find(".export_config").on("click",function(){
         getExportMethod();
         return false;
     });
 
-    panel.find(".import_config").off("click").on("click",function(){
+    panel.find(".import_config").on("click",function(){
         storage.get("backup",function(newdata){
             getImportMethod(newdata.backup);
         });
@@ -2422,7 +2426,7 @@ function open_panel() {
         return false;
     }).find("span:first").html(operation()).attr("data-translate",operation());
 
-    panel.find(".reboot-os").off("click").on("click",function(){
+    panel.find(".reboot-os").on("click",function(){
         areYouSure(_("Are you sure you want to reboot OpenSprinkler?"), "", function() {
             $.mobile.loading("show");
             send_to_os("/cv?pw=&rbt=1").done(function(){
@@ -2433,7 +2437,7 @@ function open_panel() {
         return false;
     });
 
-    panel.find(".clear-config").off("click").on("click",function(){
+    panel.find(".clear-config").on("click",function(){
         areYouSure(_("Are you sure you want to delete all settings and return to the default settings?"), "", function() {
             storage.remove(["sites","current_site","lang","provider","wapikey","runonce"],function(){
                 update_lang();
@@ -2445,7 +2449,7 @@ function open_panel() {
         return false;
     });
 
-    panel.find(".show-providers").off("click").on("click",function(){
+    panel.find(".show-providers").on("click",function(){
         $("#providers").popup("destroy").remove();
 
         storage.get(["provider","wapikey"],function(data){
@@ -2516,7 +2520,7 @@ function open_panel() {
         });
     });
 
-    panel.find(".change_password > a").off("click").on("click",function(){
+    panel.find(".change_password > a").on("click",function(){
     // Device password management functions
         var isPi = isOSPi(),
             popup = $("<div data-role='popup' id='changePassword' data-theme='a' data-overlay-theme='b'>"+
@@ -2585,7 +2589,7 @@ function open_panel() {
         }).popup().enhanceWithin().popup("open");
     });
 
-    panel.find("#downgradeui").off("click").on("click",function(){
+    panel.find("#downgradeui").on("click",function(){
         areYouSure(_("Are you sure you want to downgrade the UI?"), "", function(){
             var url = "http://rayshobby.net/scripts/java/svc"+getOSVersion();
 
@@ -2597,7 +2601,7 @@ function open_panel() {
         return false;
     });
 
-    panel.find("#logout").off("click").on("click",function(){
+    panel.find("#logout").on("click",function(){
         areYouSure(_("Are you sure you want to logout?"), "", function(){
             storage.remove(["sites","current_site","lang","provider","wapikey","runonce"],function(){
                 location.reload();
@@ -2605,13 +2609,13 @@ function open_panel() {
         });
         return false;
     });
+}
 
-    panel.one("panelclose",function(){
-        panel.find(".export_config,.import_config").off("click");
-        $("#en").off("change");
-        panel.find(".reboot-os,.clear-config,.show-providers").off("click");
-    });
+function open_panel() {
+    var panel = $("#sprinklers-settings"),
+        operation = (controller && controller.settings && controller.settings.en && controller.settings.en === 1) ? _("Disable") : _("Enable");
 
+    panel.find(".toggleOperation span:first").html(operation).attr("data-translate",operation);
     panel.panel("open");
 }
 
