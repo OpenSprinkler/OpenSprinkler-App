@@ -770,6 +770,9 @@ msgstr ""
 msgid "Time"
 msgstr ""
 
+msgid "delete"
+msgstr ""
+
 msgid "run"
 msgstr ""
 
@@ -777,6 +780,12 @@ msgid "runs"
 msgstr ""
 
 msgid "Average"
+msgstr ""
+
+msgid "Are you sure you want to "
+msgstr ""
+
+msgid "deleted"
 msgstr ""
 
 msgid "No entries found in the selected date range"
@@ -942,9 +951,6 @@ msgid "Add Program"
 msgstr ""
 
 msgid "Are you sure you want to delete program"
-msgstr ""
-
-msgid "deleted"
 msgstr ""
 
 msgid "Error: You have not selected any days of the week."
