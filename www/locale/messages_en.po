@@ -90,16 +90,16 @@ msgstr ""
 msgid "Use SSL"
 msgstr ""
 
-msgid "Manage Sites"
-msgstr ""
-
-msgid "Add"
-msgstr ""
-
 msgid "Scan For Device"
 msgstr ""
 
 msgid "Manually Add Device"
+msgstr ""
+
+msgid "Manage Sites"
+msgstr ""
+
+msgid "Add"
 msgstr ""
 
 msgid "Connect Now"
@@ -150,9 +150,6 @@ msgstr ""
 msgid "Cancel"
 msgstr ""
 
-msgid "Weather Settings"
-msgstr ""
-
 msgid "Weather Provider"
 msgstr ""
 
@@ -183,6 +180,9 @@ msgstr ""
 msgid "Weather settings were not saved. Please try again."
 msgstr ""
 
+msgid "Weather Settings"
+msgstr ""
+
 msgid "Now"
 msgstr ""
 
@@ -193,6 +193,12 @@ msgid "High"
 msgstr ""
 
 msgid "Precip"
+msgstr ""
+
+msgid "Forecast"
+msgstr ""
+
+msgid "Refresh"
 msgstr ""
 
 msgid "Select City"
@@ -285,6 +291,18 @@ msgid "Are you sure you want to downgrade the UI?"
 msgstr ""
 
 msgid "Are you sure you want to logout?"
+msgstr ""
+
+msgid "A valid IP address is required when DHCP is not used"
+msgstr ""
+
+msgid "A valid gateway address is required when DHCP is not used"
+msgstr ""
+
+msgid "Weather Underground API key is required for weather-based control"
+msgstr ""
+
+msgid "Settings have been saved"
 msgstr ""
 
 msgid "Edit Options"
@@ -447,21 +465,6 @@ msgstr ""
 msgid "Milliseconds"
 msgstr ""
 
-msgid "A valid IP address is required when DHCP is not used"
-msgstr ""
-
-msgid "A valid gateway address is required when DHCP is not used"
-msgstr ""
-
-msgid "Weather Underground API key is required for weather-based control"
-msgstr ""
-
-msgid "Settings have been saved"
-msgstr ""
-
-msgid "Edit Stations"
-msgstr ""
-
 msgid "Test Station"
 msgstr ""
 
@@ -492,10 +495,10 @@ msgstr ""
 msgid "Station test activated"
 msgstr ""
 
-msgid "Reset"
+msgid "Edit Stations"
 msgstr ""
 
-msgid "Current Status"
+msgid "Reset"
 msgstr ""
 
 msgid "Running"
@@ -543,6 +546,9 @@ msgstr ""
 msgid "Sunset"
 msgstr ""
 
+msgid "Current Status"
+msgstr ""
+
 msgid "Do you want to stop the selected station?"
 msgstr ""
 
@@ -579,9 +585,6 @@ msgstr ""
 msgid "Sprinkler Stations"
 msgstr ""
 
-msgid "Manual Control"
-msgstr ""
-
 msgid "With manual mode turned on, tap a station to toggle it."
 msgstr ""
 
@@ -602,10 +605,10 @@ msgstr ""
 msgid "Manual mode is not enabled. Please enable manual mode then try again."
 msgstr ""
 
-msgid "Zero value excludes the station from the run-once program."
+msgid "Manual Control"
 msgstr ""
 
-msgid "Run-Once"
+msgid "Zero value excludes the station from the run-once program."
 msgstr ""
 
 msgid "Last Used Program"
@@ -620,13 +623,13 @@ msgstr ""
 msgid "Program"
 msgstr ""
 
+msgid "Run-Once"
+msgstr ""
+
 msgid "Run-once program has been scheduled"
 msgstr ""
 
 msgid "Do you want to stop the currently running program?"
-msgstr ""
-
-msgid "Program Preview"
 msgstr ""
 
 msgid "Zoom in"
@@ -644,10 +647,7 @@ msgstr ""
 msgid "No stations set to run on this day."
 msgstr ""
 
-msgid "Logs"
-msgstr ""
-
-msgid "Refresh"
+msgid "Program Preview"
 msgstr ""
 
 msgid "Graph"
@@ -749,6 +749,18 @@ msgstr ""
 msgid "Dec"
 msgstr ""
 
+msgid "min"
+msgstr ""
+
+msgid "% Water"
+msgstr ""
+
+msgid "RS"
+msgstr ""
+
+msgid "RD"
+msgstr ""
+
 msgid "Runtime"
 msgstr ""
 
@@ -783,10 +795,13 @@ msgstr ""
 msgid "Logs have been cleared"
 msgstr ""
 
-msgid "Programs"
+msgid "Logs"
 msgstr ""
 
 msgid "Do you want to save your changes?"
+msgstr ""
+
+msgid "Programs"
 msgstr ""
 
 msgid "Manual program"
@@ -1002,9 +1017,6 @@ msgstr ""
 msgid "Unable to import configuration."
 msgstr ""
 
-msgid "About"
-msgstr ""
-
 msgid "User manual for OpenSprinkler is available at"
 msgstr ""
 
@@ -1021,6 +1033,9 @@ msgid "App Version"
 msgstr ""
 
 msgid "Hardware Version"
+msgstr ""
+
+msgid "About"
 msgstr ""
 
 msgid "Firmware update available"
@@ -1107,6 +1122,9 @@ msgstr ""
 msgid "German"
 msgstr ""
 
+msgid "Greek"
+msgstr ""
+
 msgid "Hebrew"
 msgstr ""
 
@@ -1168,9 +1186,6 @@ msgid "Edit Programs"
 msgstr ""
 
 msgid "Stop All Stations"
-msgstr ""
-
-msgid "Forecast"
 msgstr ""
 
 msgid "Export Configuration"
