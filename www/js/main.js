@@ -1334,7 +1334,7 @@ function show_sites(showBack) {
 
             if (!total || showBack === false || !(data.current_site in sites)) {
                 page.one("pagebeforeshow",function(){
-                    page.find(".ui-btn-left").hide();
+                    header.eq(0).hide();
                 });
 
                 document.title = "OpenSprinkler";
