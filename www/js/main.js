@@ -5448,7 +5448,7 @@ function get_logs() {
                     if (ct === 0) {
                         continue;
                     }
-                    groupArray[i] = "<div data-role='collapsible' data-collapsed='true'><h2><div class='ui-btn-up-c ui-btn-corner-all custom-count-pos'>"+ct+" "+((ct === 1) ? _("run") : _("runs"))+"</div>"+(grouping === "station" ? stations[group] : dateToString(new Date(group*1000*60*60*24)).slice(0,-9))+"</h2>";
+                    groupArray[i] = "<div data-role='collapsible' data-collapsed='true'><h2>"+((checkOSVersion(210) && grouping === "day") ? "<a class='ui-btn ui-btn-a ui-btn-corner-all delete-day day-"+group+"'>"+_("delete")+"</a>" : "")+"<div class='ui-btn-up-c ui-btn-corner-all custom-count-pos'>"+ct+" "+((ct === 1) ? _("run") : _("runs"))+"</div>"+(grouping === "station" ? stations[group] : dateToString(new Date(group*1000*60*60*24)).slice(0,-9))+"</h2>";
 
                     if (wlSorted[group]) {
                         groupArray[i] += "<span style='border:none' class='"+(wlSorted[group] !== 100 ? (wlSorted[group] < 100 ? "green " : "red ") : "")+"ui-body ui-body-a ui-corner-all'>"+_("Average")+" "+_("Water Level")+": "+wlSorted[group]+"%</span>";
@@ -5472,6 +5472,30 @@ function get_logs() {
 
             log_options.collapsible("collapse");
             logs_list.html(html+groupArray.join("")+"</div>").enhanceWithin();
+
+            logs_list.find(".delete-day").on("click",function(){
+                var day, date;
+
+                $.each(this.className.split(" "),function(i,c){
+                    if (c.indexOf("day-") === 0) {
+                        day = c.split("day-")[1];
+                        return false;
+                    }
+                });
+
+                date = dateToString(new Date(day*1000*60*60*24)).slice(0,-9);
+
+                areYouSure(_("Are you sure you want to ")+_("Delete").toLowerCase()+" "+date+"?", "", function() {
+                    $.mobile.loading("show");
+                    send_to_os("/dl?pw=&day="+day).done(function(){
+                        requestData();
+                        showerror(date+" "+_("deleted"));
+                    });
+                });
+
+                return false;
+            });
+
             fixInputClick(logs_list);
         },
         reset_logs_page = function() {
@@ -8236,12 +8260,12 @@ function update_lang(lang) {
 function languageSelect() {
     $("#localization").popup("destroy").remove();
 
-//  {af: _("Afrikaans"), am: _("Amharic"), zh: _("Chinese"), hr: _("Croatian"), cs: _("Czech"), nl: _("Dutch"), en: _("English"), fr: _("French"), de: _("German"), he: _("Hebrew"), hu: _("Hungarian"), it: _("Italian"), mn: _("Mongolian"), no: _("Norwegian"), pl: _("Polish"), pt: _("Portuguese"), sk: _("Slovak"), sl: _("Slovenian"), es: _("Spanish")}
+//  {af: _("Afrikaans"), am: _("Amharic"), zh: _("Chinese"), hr: _("Croatian"), cs: _("Czech"), nl: _("Dutch"), en: _("English"), fr: _("French"), de: _("German"), el: _("Greek"), he: _("Hebrew"), hu: _("Hungarian"), it: _("Italian"), mn: _("Mongolian"), no: _("Norwegian"), pl: _("Polish"), pt: _("Portuguese"), sk: _("Slovak"), sl: _("Slovenian"), es: _("Spanish")}
 
     var popup = "<div data-role='popup' data-overlay-theme='b' id='localization' data-corners='false'>" +
                 "<ul data-inset='true' data-role='listview' id='lang' data-corners='false'>" +
                 "<li data-role='list-divider' data-theme='b' class='center' data-translate='Localization'>"+_("Localization")+"</li>",
-        codes = {af: "Afrikaans", am: "Amharic", zh: "Chinese", hr: "Croatian", cs: "Czech", nl: "Dutch", en: "English", fr: "French", de: "German", he: "Hebrew", hu: "Hungarian", it: "Italian", mn: "Mongolian", no: "Norwegian", pl: "Polish", pt: "Portuguese", sk: "Slovak", sl: "Slovenian", es: "Spanish"};
+        codes = {af: "Afrikaans", am: "Amharic", zh: "Chinese", hr: "Croatian", cs: "Czech", nl: "Dutch", en: "English", fr: "French", de: "German", el: "Greek", he: "Hebrew", hu: "Hungarian", it: "Italian", mn: "Mongolian", no: "Norwegian", pl: "Polish", pt: "Portuguese", sk: "Slovak", sl: "Slovenian", es: "Spanish"};
 
     $.each(codes,function(key,name){
         popup += "<li><a href='#' data-translate='"+name+"' data-lang-code='"+key+"'>"+_(name)+"</a></li>";
