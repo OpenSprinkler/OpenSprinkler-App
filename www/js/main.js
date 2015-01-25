@@ -2903,7 +2903,7 @@ function show_options() {
         list += "<div class='"+((controller.options.ntp === 1) ? "" : "hidden ")+"ui-field-contain duration-field'><label for='ntp_addr'>"+_("NTP IP Address")+"</label><button data-mini='true' id='ntp_addr' value='"+ntpIP+"'>"+ntpIP+"</button></div>";
     }
 
-    if (typeof controller.options.dhcp !== "undefined" && checkOSVersion(210) && !checkOSVersion(213)) {
+    if (typeof controller.options.dhcp !== "undefined" && checkOSVersion(210)) {
         var ip = [controller.options.ip1,controller.options.ip2,controller.options.ip3,controller.options.ip4].join("."),
             gw = [controller.options.gw1,controller.options.gw2,controller.options.gw3,controller.options.gw4].join(".");
 
