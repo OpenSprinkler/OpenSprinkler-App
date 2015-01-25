@@ -5448,7 +5448,7 @@ function get_logs() {
                     if (ct === 0) {
                         continue;
                     }
-                    groupArray[i] = "<div data-role='collapsible' data-collapsed='true'><h2>"+((checkOSVersion(210) && grouping === "day") ? "<a class='ui-btn ui-btn-a ui-btn-corner-all delete-day day-"+group+"'>"+_("delete")+"</a>" : "")+"<div class='ui-btn-up-c ui-btn-corner-all custom-count-pos'>"+ct+" "+((ct === 1) ? _("run") : _("runs"))+"</div>"+(grouping === "station" ? stations[group] : dateToString(new Date(group*1000*60*60*24)).slice(0,-9))+"</h2>";
+                    groupArray[i] = "<div data-role='collapsible' data-collapsed='true'><h2>"+((checkOSVersion(210) && grouping === "day") ? "<a class='ui-btn red ui-btn-corner-all delete-day day-"+group+"'>"+_("delete")+"</a>" : "")+"<div class='ui-btn-up-c ui-btn-corner-all custom-count-pos'>"+ct+" "+((ct === 1) ? _("run") : _("runs"))+"</div>"+(grouping === "station" ? stations[group] : dateToString(new Date(group*1000*60*60*24)).slice(0,-9))+"</h2>";
 
                     if (wlSorted[group]) {
                         groupArray[i] += "<span style='border:none' class='"+(wlSorted[group] !== 100 ? (wlSorted[group] < 100 ? "green " : "red ") : "")+"ui-body ui-body-a ui-corner-all'>"+_("Average")+" "+_("Water Level")+": "+wlSorted[group]+"%</span>";
@@ -5485,7 +5485,7 @@ function get_logs() {
 
                 date = dateToString(new Date(day*1000*60*60*24)).slice(0,-9);
 
-                areYouSure(_("Are you sure you want to ")+_("Delete").toLowerCase()+" "+date+"?", "", function() {
+                areYouSure(_("Are you sure you want to ")+_("delete")+" "+date+"?", "", function() {
                     $.mobile.loading("show");
                     send_to_os("/dl?pw=&day="+day).done(function(){
                         requestData();
