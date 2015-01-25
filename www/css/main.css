@@ -360,7 +360,7 @@ body, input, select, textarea, button, .ui-btn {
     bottom: 5px;
     height: 22px;
 }
-.program-copy {
+.delete-day, .program-copy {
     font-size: 11px;
     font-weight: bold;
     padding: 0.2em 0.5em;
