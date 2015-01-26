@@ -5257,7 +5257,7 @@ function get_logs() {
                         className = "program-"+((pid+3)%4);
                         name = pidname(pid);
                         group = controller.stations.snames[station];
-                        shortname = "S"+(pid+1);
+                        shortname = "S"+(station+1);
                     }
 
                     sortedData.push({
@@ -5366,14 +5366,23 @@ function get_logs() {
                     "groupsOrder": true,
                     "groupMinHeight": 20,
                     "zoomMin": 1000 * 60
-                };
+                },
+                shortnames = [];
 
             logs_list.on("swiperight",function(e){
                 e.stopImmediatePropagation();
             });
 
+            $.each(sortedData, function(){
+                shortnames[this.group] = this.shortname;
+            });
+
             var timeline = new links.Timeline(logs_list.get(0),options);
             timeline.draw(sortedData);
+
+            logs_list.find(".timeline-groups-text").each(function(){
+                this.setAttribute("data-shortname",shortnames[this.textContent]);
+            });
         },
         prepGraph = function() {
             if (data.length < 1) {

@@ -800,7 +800,7 @@ div.running-text{
         overflow:hidden;
         text-overflow:clip
     }
-    #preview .timeline-groups-text:before {
+    .timeline-groups-text:before {
         content:attr(data-shortname)"      ";
         white-space:pre
     }
