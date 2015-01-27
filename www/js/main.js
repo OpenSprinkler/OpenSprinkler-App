@@ -3663,7 +3663,11 @@ function isStationDisabled(sid) {
 }
 
 function isStationSequential(sid) {
-    return (typeof controller.stations.stn_seq === "object" && (controller.stations.stn_seq[parseInt(sid/8)]&(1<<(sid%8))) > 0);
+    if (typeof controller.stations.stn_seq === "object") {
+        return (controller.stations.stn_seq[parseInt(sid/8)]&(1<<(sid%8))) > 0;
+    } else {
+        return controller.options.seq;
+    }
 }
 
 // Current status related functions
@@ -4096,6 +4100,24 @@ function check_status() {
     }
 
     $("#footer-running").slideUp();
+}
+
+function calculateTotalRunningTime(runTimes) {
+    var sequential = 0,
+        parallel = 0;
+
+    $.each(controller.stations.snames,function(i) {
+        var run = runTimes[i];
+        if (isStationSequential(i)) {
+            sequential += run;
+        } else {
+            if (run > parallel) {
+                parallel = run;
+            }
+        }
+    });
+
+    return Math.max(sequential,parallel);
 }
 
 // Handle timer update on the home page for the status bar
@@ -6562,6 +6584,11 @@ function submit_program21(id) {
         }
         runTimes.push(dur);
     });
+
+    if ($("#stype_repeat-"+id).is(":checked") && calculateTotalRunningTime(runTimes) > start[2]*60) {
+        showerror(_("Error: The program duration is longer than the repeat interval."));
+        return;
+    }
 
     program[0] = j;
     program[1] = days[0];
