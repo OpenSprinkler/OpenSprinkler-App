@@ -6506,7 +6506,7 @@ function submit_program183(id) {
     }
 }
 
-function submit_program21(id) {
+function submit_program21(id,ignoreWarning) {
     var program = [],
         days=[0,0],
         start = [0,0,0,0],
@@ -6584,8 +6584,11 @@ function submit_program21(id) {
         runTimes.push(dur);
     });
 
-    if ($("#stype_repeat-"+id).is(":checked") && calculateTotalRunningTime(runTimes) > start[2]*60) {
-        showerror(_("Error: The program duration is longer than the repeat interval."));
+    if (!ignoreWarning && $("#stype_repeat-"+id).is(":checked") && start[1] > 0 && calculateTotalRunningTime(runTimes) > start[2]*60) {
+        areYouSure(_("Warning: The repeat interval is less than the program run time."),_("Do you want to continue?"),function(){
+            submit_program21(id,true);
+        });
+
         return;
     }
 
