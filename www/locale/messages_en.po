@@ -974,6 +974,12 @@ msgstr ""
 msgid "Program has been updated"
 msgstr ""
 
+msgid "Warning: The repeat interval is less than the program run time."
+msgstr ""
+
+msgid "Do you want to continue?"
+msgstr ""
+
 msgid "Rain delay has been successfully set"
 msgstr ""
 
