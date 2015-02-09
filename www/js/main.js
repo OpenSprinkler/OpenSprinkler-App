@@ -6394,6 +6394,11 @@ function add_program(copyID) {
         header.eq(2).prop("disabled",false).addClass("hasChanges");
     });
 
+    addprogram.find("[id^='submit-']").on("click",function(){
+        submit_program(copyID);
+        return false;
+    });
+
     addprogram.one("pagehide",function() {
         addprogram.remove();
     });
