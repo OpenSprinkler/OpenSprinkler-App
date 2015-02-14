@@ -1280,7 +1280,10 @@ function show_sites(showBack) {
                 icon: "carat-l",
                 text: _("Back"),
                 class: "ui-toolbar-back-btn",
-                on: checkChangesBeforeBack
+                on: function(){
+                    page.find(".hasChanges").addClass("preventUpdate");
+                    checkChangesBeforeBack();
+                }
             },
             rightBtn: {
                 icon: "plus",
@@ -1416,7 +1419,7 @@ function show_sites(showBack) {
                     }
                 }
 
-                if (rename) {
+                if (rename && !form.find(".submit").hasClass("preventUpdate")) {
                     changePage("#site-control");
                 }
 
@@ -2339,6 +2342,7 @@ function debugWU() {
                         "<tr><td>"+_("Mean Temp")+"</td><td>"+(isMetric ? summary.meantempm+"&#176;C" : summary.meantempi+"&#176;F")+"</td></tr>" +
                         "<tr><td>"+_("Precip Yesterday")+"</td><td>"+(isMetric ? summary.precipm+"mm" : summary.precipi+"\"")+"</td></tr>" +
                         "<tr><td>"+_("Precip Today")+"</td><td>"+(isMetric ? current.precip_today_metric+"mm" : current.precip_today_in+"\"")+"</td></tr>" +
+                        "<tr><td>"+_("Adjustment Method")+"</td><td>"+getAdjustmentName(controller.options.uwt)+"</td></tr>" +
                         "<tr><td>"+_("Current % Watering")+"</td><td>"+controller.options.wl+"%</td></tr>" +
                         (typeof controller.settings.lwc === "number" ? "<tr><td>"+_("Last Weather Call")+"</td><td>"+dateToString(new Date(controller.settings.lwc*1000))+"</td></tr>" : "") +
                         (typeof controller.settings.lswc === "number" ? "<tr><td>"+_("Last Successful Weather Call")+"</td><td>"+dateToString(new Date(controller.settings.lswc*1000))+"</td></tr>" : "") +
@@ -2359,6 +2363,10 @@ function debugWU() {
         $.mobile.loading("hide");
         showerror(_("Connection timed-out. Please try again."));
     });
+}
+
+function getAdjustmentName(id) {
+    return [_("Manual"),"Zimmerman"][id];
 }
 
 function testAPIKey(key,callback) {
@@ -2626,6 +2634,7 @@ function show_options() {
             "<div class='ui-content' role='main'>" +
                 "<div data-role='collapsibleset' id='os-options-list'>" +
                 "</div>" +
+                "<a class='submit preventBack' style='display:none'></a>" +
             "</div>" +
         "</div>"),
         submit_options = function() {
@@ -2636,7 +2645,8 @@ function show_options() {
                 keyNames = {1:"tz",2:"ntp",12:"htp",13:"htp2",14:"ar",15:"nbrd",16:"seq",17:"sdt",18:"mas",19:"mton",20:"mtoff",21:"urs",22:"rst",23:"wl",25:"ipas",30:"rlp",36:"lg",31:"uwt"},
                 key;
 
-            button.prop("disabled",true).removeClass("hasChanges");
+            button.prop("disabled",true);
+            page.find(".submit").removeClass("hasChanges");
 
             $("#os-options-list").find(":input,button").filter(":not(.noselect)").each(function(a,b){
                 var $item = $(b),
@@ -2752,7 +2762,8 @@ function show_options() {
                 opt[id] = data;
             });
             if (invalid) {
-                button.prop("disabled",false).addClass("hasChanges");
+                button.prop("disabled",false);
+                page.find(".submit").addClass("hasChanges");
                 return;
             }
             $.mobile.loading("show");
@@ -2763,7 +2774,8 @@ function show_options() {
                 goBack();
                 update_controller(update_weather);
             }).fail(function(){
-                button.prop("disabled",false).addClass("hasChanges");
+                button.prop("disabled",false);
+                page.find(".submit").addClass("hasChanges");
             });
         },
         header = changeHeader({
@@ -2782,7 +2794,9 @@ function show_options() {
             }
 
         }),
-        timezones, algorithm, tz, i;
+        timezones, tz, i;
+
+    page.find(".submit").on("click",submit_options);
 
     list = "<fieldset data-role='collapsible' data-collapsed='false'><legend>"+_("System")+"</legend>";
 
@@ -2868,10 +2882,9 @@ function show_options() {
     }
 
     if (typeof controller.options.uwt !== "undefined") {
-        algorithm = [_("Manual"),"Zimmerman"];
         list += "<div class='ui-field-contain'><label for='o31' class='select'>"+_("Weather Adjustment Method")+"<button data-helptext='"+_("Weather adjustment uses Weather Underground data in conjunction with the selected method to adjust the watering percentage.")+"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><select "+(controller.settings.wtkey && controller.settings.wtkey !== "" ? "" : "disabled='disabled' ")+"data-mini='true' id='o31'>";
-        for (i=0; i<algorithm.length; i++) {
-            list += "<option "+((i === controller.options.uwt) ? "selected" : "")+" value='"+i+"'>"+algorithm[i]+"</option>";
+        for (i=0; i<2; i++) {
+            list += "<option "+((i === controller.options.uwt) ? "selected" : "")+" value='"+i+"'>"+getAdjustmentName(i)+"</option>";
         }
         list += "</select></div>";
     }
@@ -2934,7 +2947,8 @@ function show_options() {
     page.find("#os-options-list")
         .html(list)
         .one("change input",function(){
-            header.eq(2).prop("disabled",false).addClass("hasChanges");
+            header.eq(2).prop("disabled",false);
+            page.find(".submit").addClass("hasChanges");
         })
         .find("fieldset").each(function(a,b){
             var group = $(b);
@@ -3009,7 +3023,8 @@ function show_options() {
                     }
                     loc.parent().addClass("green");
                     loc.val(selected);
-                    header.eq(2).prop("disabled",false).addClass("hasChanges");
+                    header.eq(2).prop("disabled",false);
+                    page.find(".submit").addClass("hasChanges");
                 }
                 exit(true);
             };
@@ -3054,7 +3069,8 @@ function show_options() {
                 selected = selected.replace(/^[0-9]{5}\s-\s/,"");
                 loc.parent().addClass("green");
                 loc.val(selected);
-                header.eq(2).prop("disabled",false).addClass("hasChanges");
+                header.eq(2).prop("disabled",false);
+                page.find(".submit").addClass("hasChanges");
             }
             button.prop("disabled",false);
         });
@@ -3119,7 +3135,8 @@ function show_options() {
             helptext = dur.parent().find(".help-icon").data("helptext"),
             max = 240;
 
-        header.eq(2).prop("disabled",false).addClass("hasChanges");
+        header.eq(2).prop("disabled",false);
+        page.find(".submit").addClass("hasChanges");
 
         if (id === "ip_addr" || id === "gateway" || id === "ntp_addr") {
             showIPRequest({
@@ -3248,7 +3265,8 @@ function show_options() {
             return;
         }
 
-        header.eq(2).prop("disabled",false).addClass("hasChanges");
+        header.eq(2).prop("disabled",false);
+        page.find(".submit").addClass("hasChanges");
 
         // Show date time input popup
         showDateTimeInput(input.val(),function(data){
@@ -3543,10 +3561,11 @@ function show_stations() {
         addCard(i);
     }
 
-    page.find(".ui-content").html("<div id='os-stations-list' class='card-group center'>"+cards+"</div><button class='submit'>"+_("Submit")+"</button><button data-theme='b' class='reset'>"+_("Reset")+"</button>");
+    page.find(".ui-content").html("<div id='os-stations-list' class='card-group center'>"+cards+"</div><button class='submit preventBack'>"+_("Submit")+"</button><button data-theme='b' class='reset'>"+_("Reset")+"</button>");
 
     page.find("#os-stations-list").one("change input",function(){
-        header.eq(2).prop("disabled",false).addClass("hasChanges");
+        header.eq(2).prop("disabled",false);
+        page.find(".submit").addClass("hasChanges");
     });
 
     // When data is refreshed, update the icon status
@@ -3575,7 +3594,8 @@ function show_stations() {
             icon.addClass("attrib-disabled");
         }
 
-        header.eq(2).prop("disabled",false).addClass("hasChanges");
+        header.eq(2).prop("disabled",false);
+        page.find(".submit").addClass("hasChanges");
     });
 
     page.on("click","[id^='station_']",function(){
@@ -3604,6 +3624,8 @@ function show_stations() {
         }
     });
 
+    page.find(".submit").on("click",submit_stations);
+
     page.find(".reset").on("click",function(){
         page.find("[id^='station_']").each(function(a,b){
             $(b).html("S"+pad(a+1)+editButton);
@@ -3617,7 +3639,8 @@ function show_stations() {
                 "sd": 0
             });
         });
-        header.eq(2).prop("disabled",false).addClass("hasChanges");
+        header.eq(2).prop("disabled",false);
+        page.find(".submit").addClass("hasChanges");
     });
 
     page.one({
@@ -8141,7 +8164,9 @@ function checkChangesBeforeBack() {
     if (changed.length !== 0) {
         areYouSure(_("Do you want to save your changes?"),"",function(){
             changed.click();
-            goBack();
+            if (!changed.hasClass("preventBack")) {
+                goBack();
+            }
         },goBack);
         return false;
     } else {
