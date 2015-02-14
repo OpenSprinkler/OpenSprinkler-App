@@ -4548,7 +4548,7 @@ function get_preview() {
             last_seq_stop_time = 0,
             busy, match_found, prog;
 
-        for(var sid=0;sid<controller.settings.nbrd;sid++) {
+        for(var sid=0;sid<controller.settings.nbrd*8;sid++) {
             st_array[sid]=0;pid_array[sid]=0;et_array[sid]=0;pl_array[sid]=0;
         }
         do {
@@ -4667,6 +4667,13 @@ function get_preview() {
                     }
                 }
             } else {
+                if (is211) {
+                  for(sid=0;sid<controller.settings.nbrd*8;sid++) {
+                      if(st_array[sid] && simminutes*60>=et_array[sid]) {
+                          st_array[sid]=0;pid_array[sid]=0;et_array[sid]=0;pl_array[sid]=0;
+                      }
+                  }
+                }
                 simminutes++;
             }
         } while(simminutes<24*60);
