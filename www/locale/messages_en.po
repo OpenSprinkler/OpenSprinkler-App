@@ -228,6 +228,9 @@ msgstr ""
 msgid "Precip Today"
 msgstr ""
 
+msgid "Adjustment Method"
+msgstr ""
+
 msgid "Current % Watering"
 msgstr ""
 
@@ -238,6 +241,9 @@ msgid "Last Successful Weather Call"
 msgstr ""
 
 msgid "Weather data cannot be found for your location"
+msgstr ""
+
+msgid "Manual"
 msgstr ""
 
 msgid "Disable"
@@ -377,9 +383,6 @@ msgid "An invalid API key has been detected."
 msgstr ""
 
 msgid "Verify"
-msgstr ""
-
-msgid "Manual"
 msgstr ""
 
 msgid "Weather Adjustment Method"
@@ -1090,6 +1093,15 @@ msgid "PM"
 msgstr ""
 
 msgid "AM"
+msgstr ""
+
+msgid "Use Sunrise"
+msgstr ""
+
+msgid "Use Sunset"
+msgstr ""
+
+msgid "Offset (minutes)"
 msgstr ""
 
 msgid "d"
