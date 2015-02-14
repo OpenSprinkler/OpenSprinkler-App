@@ -6338,8 +6338,13 @@ function make_program21(n,isCopy) {
             title: _("Start Time"),
             showSun: checkOSVersion(213) ? true : false,
             callback: function(result){
-                time.val(result);
-                time.text(minutesToTime(result));
+                if (typeof result === "number") {
+                    time.val(result);
+                    time.text(minutesToTime(result));
+                } else if (typeof result === "object") {
+                    var offset = (result[1] !== 0 ? (result[1] > 0 ? "+" : "") + dhms2str(sec2dhms(result[1]*60)) : "");
+                    time.text((result[0] === 0 ? _("Sunrise") : _("Sunset")) +  offset);
+                }
             }
         });
     });
