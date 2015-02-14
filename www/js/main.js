@@ -6331,19 +6331,17 @@ function make_program21(n,isCopy) {
     });
 
     page.find(".timefield").on("click",function(){
-        var time = $(this),
-            popup = showTimeInput({
-                minutes: time.val(),
-                title: _("Start Time"),
-                callback: function(result){
-                    time.val(result);
-                    time.text(minutesToTime(result));
-                }
-            });
+        var time = $(this);
 
-        if (checkOSVersion(213)) {
-            popup.find(".submit").before(makeSunButtons());
-        }
+        showTimeInput({
+            minutes: time.val(),
+            title: _("Start Time"),
+            showSun: checkOSVersion(213) ? true : false,
+            callback: function(result){
+                time.val(result);
+                time.text(minutesToTime(result));
+            }
+        });
     });
 
     // Handle repeat count button
@@ -7786,6 +7784,7 @@ function showTimeInput(opt) {
             title: _("Time"),
             incrementalUpdate: true,
             showBack: true,
+            showSun: false,
             callback: function(){}
         };
 
@@ -7838,6 +7837,22 @@ function showTimeInput(opt) {
                         "</div>" +
                     "</fieldset>" +
                 "</span>" +
+                (opt.showSun ? "<div class='ui-grid-a useSun'>" +
+                    "<div class='ui-block-a'>" +
+                        "<button class='ui-mini ui-btn rise'>"+_("Use Sunrise")+"</button>" +
+                    "</div>" +
+                    "<div class='ui-block-b'>" +
+                        "<button class='ui-mini ui-btn set'>"+_("Use Sunset")+"</button>" +
+                    "</div>" +
+                "</div>" +
+                "<div class='offsetInput' style='display: none;'>" +
+                    "<h5 class='center tight'>"+_("Offset (minutes)")+"</h5>" +
+                    "<div class='input_with_buttons'>" +
+                        "<button class='decr ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border'></button>" +
+                        "<input type='number' pattern='[0-9]*' value='0'>" +
+                        "<button class='incr ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border'></button>" +
+                    "</div>" +
+                "</div>" : "") +
                 (opt.showBack ? "<button class='submit' data-theme='b'>"+_("Submit")+"</button>" : "") +
             "</div>" +
         "</div>"),
@@ -7887,17 +7902,26 @@ function showTimeInput(opt) {
             }
         },
         getValue = function() {
-            var hour = parseInt(popup.find(".hour").val());
+            var useSun = popup.find(".useSun").find("button.ui-btn-active");
 
-            if (isPM && hour !== 12) {
-                hour = hour + 12;
+            if (useSun.length === 1) {
+                return [
+                    useSun.hasClass("rise") ? 0 : 1,
+                    parseInt(popup.find(".offsetInput input").val())
+                ];
+            } else {
+                var hour = parseInt(popup.find(".hour").val());
+
+                if (isPM && hour !== 12) {
+                    hour = hour + 12;
+                }
+
+                if (!isPM && hour === 12) {
+                    hour = 0;
+                }
+
+                return (hour*60)+parseInt(popup.find(".minute").val());
             }
-
-            if (!isPM && hour === 12) {
-                hour = 0;
-            }
-
-            return (hour*60)+parseInt(popup.find(".minute").val());
         };
 
     popup.find("button.submit").on("click",function(){
@@ -7913,16 +7937,76 @@ function showTimeInput(opt) {
     });
 
     holdButton(popup.find(".incr").children(),function(e){
-        var pos = $(e.currentTarget).index();
-        changeValue(pos,1);
+        var button = $(e.currentTarget),
+            pos = button.index();
+
+        if (button.find(".ui-disabled").length === 0) {
+            changeValue(pos,1);
+        }
+
         return false;
     });
 
     holdButton(popup.find(".decr").children(),function(e){
-        var pos = $(e.currentTarget).index();
-        changeValue(pos,-1);
+        var button = $(e.currentTarget),
+            pos = button.index();
+
+        if (button.find(".ui-disabled").length === 0) {
+            changeValue(pos,-1);
+        }
+
         return false;
     });
+
+    if (opt.showSun) {
+        popup.find(".useSun").on("click","button",function(){
+            var button = $(this),
+                contraButton = popup.find(".useSun").find("button").not(button),
+                offset = popup.find(".offsetInput"),
+                timeButtons = popup.find("span").find(".ui-btn,input,p");
+
+            contraButton.removeClass("ui-btn-active");
+            if (button.hasClass("ui-btn-active")) {
+                button.removeClass("ui-btn-active");
+                offset.slideUp();
+
+                timeButtons.prop("disabled", false).removeClass("ui-disabled");
+            } else {
+                button.addClass("ui-btn-active");
+                offset.slideDown();
+
+                timeButtons.prop("disabled", true).addClass("ui-disabled");
+            }
+
+            if (opt.incrementalUpdate) {
+                opt.callback(getValue());
+            }
+        });
+
+        var offsetInput = popup.find(".offsetInput").find("input"),
+            changeOffset = function(dir){
+                var val = parseInt(offsetInput.val());
+
+                if ((dir === -1 && val === -240) || (dir === 1 && val === 240)) {
+                    return;
+                }
+
+                offsetInput.val(val+dir);
+
+                if (opt.incrementalUpdate) {
+                    opt.callback(getValue());
+                }
+            };
+
+        holdButton(popup.find(".offsetInput").find(".incr"),function(){
+            changeOffset(1);
+            return false;
+        });
+        holdButton(popup.find(".offsetInput").find(".decr"),function(){
+            changeOffset(-1);
+            return false;
+        });
+    }
 
     $(".ui-page-active").append(popup);
 
@@ -7939,73 +8023,6 @@ function showTimeInput(opt) {
         $(this).popup("destroy").remove();
     })
     .enhanceWithin().popup("open");
-
-    return popup;
-}
-
-function makeSunButtons() {
-    var buttons = $(
-        "<div class='ui-grid-a'>" +
-            "<div class='ui-block-a'>" +
-                "<button class='ui-mini ui-btn rise'>"+_("Use Sunrise")+"</button>" +
-            "</div>" +
-            "<div class='ui-block-b'>" +
-                "<button class='ui-mini ui-btn set'>"+_("Use Sunset")+"</button>" +
-            "</div>" +
-        "</div>" +
-        "<div class='offsetInput' style='display: none;'>" +
-            "<h5 class='center tight'>"+_("Offset (minutes)")+"</h5>" +
-            "<div class='input_with_buttons'>" +
-                "<button class='decr ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border'></button>" +
-                "<div class='ui-input-text ui-body-inherit ui-corner-all ui-shadow-inset'>" +
-                    "<input type='number' pattern='[0-9]*' value='0'>" +
-                "</div>" +
-                "<button class='incr ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border'></button>" +
-            "</div>" +
-        "</div>"
-    );
-
-    buttons.eq(0).on("click","button",function(){
-        var button = $(this),
-            contraButton = buttons.eq(0).find("button").not(button),
-            offset = buttons.eq(1),
-            timeButtons = button.parents(".ui-content").children("span").find(".ui-btn,input,p");
-
-        contraButton.removeClass("ui-btn-active");
-        if (button.hasClass("ui-btn-active")) {
-            button.removeClass("ui-btn-active");
-            offset.slideUp();
-
-            timeButtons.prop("disabled", false).removeClass("ui-disabled");
-        } else {
-            button.addClass("ui-btn-active");
-            offset.slideDown();
-
-            timeButtons.prop("disabled", true).addClass("ui-disabled");
-        }
-    });
-
-    var input = buttons.eq(1).find("input"),
-        changeValue = function(dir){
-            var val = parseInt(input.val());
-
-            if ((dir === -1 && val === -240) || (dir === 1 && val === 240)) {
-                return;
-            }
-
-            input.val(val+dir);
-        };
-
-    holdButton(buttons.eq(1).find(".incr"),function(){
-        changeValue(1);
-        return false;
-    });
-    holdButton(buttons.eq(1).find(".decr"),function(){
-        changeValue(-1);
-        return false;
-    });
-
-    return buttons;
 }
 
 function changePage(toPage,opts) {
