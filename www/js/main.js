@@ -8003,6 +8003,18 @@ function showTimeInput(opt) {
                 }
             };
 
+        offsetInput.on("focus",function(){
+            this.value = "";
+        }).on("blur",function(){
+            if (this.value === "") {
+                this.value = "0";
+            } else if (this.value > 240) {
+                this.value = "240";
+            } else if (this.value < -240) {
+                this.value = "-240";
+            }
+        });
+
         holdButton(popup.find(".offsetInput").find(".incr"),function(){
             changeOffset(1);
             return false;
