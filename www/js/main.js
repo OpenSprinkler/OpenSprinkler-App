@@ -5971,7 +5971,7 @@ function read_program21(program) {
 }
 
 function readStartTime(time) {
-    var offset = time&0x7ff
+    var offset = time&0x7ff,
         type = _("Sunrise");
 
     if ((time>>12)&1) {
