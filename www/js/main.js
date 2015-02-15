@@ -1,4 +1,4 @@
-/*global $, Windows, MSApp, navigator, chrome, FastClick, StatusBar, networkinterface, links */
+/*global $, Windows, MSApp, navigator, chrome, FastClick, StatusBar, networkinterface, links, SunCalc */
 var isIEMobile = /IEMobile/.test(navigator.userAgent),
     isAndroid = /Android|\bSilk\b/.test(navigator.userAgent),
     isiOS = /iP(ad|hone|od)/.test(navigator.userAgent),
@@ -77,6 +77,7 @@ var isIEMobile = /IEMobile/.test(navigator.userAgent),
     retryCount = 3,
     controller = {},
     switching = false,
+    currentCoordinates = [0,0],
     curr_183, curr_ip, curr_prefix, curr_auth, curr_pw, curr_wa, curr_auth_user, curr_auth_pw, curr_local, currLang, language, deviceip, interval_id, timeout_id, errorTimeout, weatherKeyFail;
 
 // Redirect jQuery Mobile DOM manipulation to prevent error
@@ -1972,6 +1973,8 @@ function update_yahoo_weather() {
                         loc = /Yahoo! Weather - (.*)/.exec(title),
                         region = data.query.results.channel.location.country;
 
+                    currentCoordinates = [data.query.results.channel.item.lat,data.query.results.channel.item.long];
+
                     $("#weather")
                         .html("<div title='"+now.text+"' class='wicon cond"+now.code+"'></div><span>"+convert_temp(now.temp,region)+"</span><br><span class='location'>"+loc[1]+"</span>")
                         .on("click",show_forecast);
@@ -2043,6 +2046,8 @@ function update_wunderground_weather(wapikey) {
                 "region": data.current_observation.display_location.country_iso3166,
                 simpleforecast: {}
             };
+
+            currentCoordinates = [data.current_observation.display_location.latitude, data.current_observation.display_location.longitude];
 
             $.each(data.forecast.simpleforecast.forecastday,function(k,attr) {
                  ww_forecast.simpleforecast[k] = attr;
@@ -4859,7 +4864,7 @@ function get_preview() {
         // Start time matching
         if (sttype===0) {
             // Repeating program
-            var start = prog[3][0],
+            var start = getStartTime(prog[3][0]),
                 repeat= prog[3][1],
                 cycle = prog[3][2];
 
@@ -4886,7 +4891,7 @@ function get_preview() {
             var sttimes = prog[3];
             for(i=0;i<4;i++) {
                 // fixme: 4 should be using the mnst (max_start_times) JSON variable
-                if(simminutes === sttimes[i]) {
+                if(simminutes === getStartTime(sttimes[i])) {
                     return 1;
                 }
             }
@@ -5970,17 +5975,46 @@ function read_program21(program) {
     return newdata;
 }
 
-function readStartTime(time) {
+function getStartTime(time) {
     var offset = time&0x7ff,
-        type = _("Sunrise");
+        type = "sunrise";
+
+    if ((time>>13)&1) {
+        type = "sunset";
+    } else if (!(time>>14)&1) {
+        return time;
+    }
 
     if ((time>>12)&1) {
         offset = -offset;
     }
+
+    var times = SunCalc.getTimes(new Date(controller.settings.devt*1000), currentCoordinates[0], currentCoordinates[1]);
+
+    time = times[type];
+    time = (time.getHours() * 60 + time.getMinutes()) + offset;
+
+    if (time < 0) {
+        time = 0;
+    } else if (time > 1440) {
+        time = 1440;
+    }
+
+    return time;
+}
+
+function readStartTime(time) {
+    var offset = time&0x7ff,
+        type = _("Sunrise");
+
     if ((time>>13)&1) {
         type = _("Sunset");
     } else if (!(time>>14)&1) {
         return minutesToTime(time);
+    }
+
+    if ((time>>12)&1) {
+        offset = -offset;
     }
 
     return type + (offset !== 0 ? (offset > 0 ? "+" : "") + dhms2str(sec2dhms(offset*60)) : "");
