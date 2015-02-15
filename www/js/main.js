@@ -5970,6 +5970,22 @@ function read_program21(program) {
     return newdata;
 }
 
+function readStartTime(time) {
+    var offset = time&0x7ff
+        type = _("Sunrise");
+
+    if ((time>>12)&1) {
+        offset = -offset;
+    }
+    if ((time>>13)&1) {
+        type = _("Sunset");
+    } else if (!(time>>14)&1) {
+        return minutesToTime(time);
+    }
+
+    return type + (offset !== 0 ? (offset > 0 ? "+" : "") + dhms2str(sec2dhms(offset*60)) : "");
+}
+
 // Translate program ID to it's name
 function pidname(pid) {
     var pname = _("Program")+" "+pid;
@@ -6210,7 +6226,7 @@ function make_program21(n,isCopy) {
     list += "<label for='uwt-"+id+"'><input data-mini='true' type='checkbox' "+((program.weather) ? "checked='checked'" : "")+" name='uwt-"+id+"' id='uwt-"+id+"'>"+_("Use Weather Adjustment")+"</label>";
 
     // Show start time menu
-    list += "<label class='center' for='start_1-"+id+"'>"+_("Start Time")+"</label><button class='timefield' data-mini='true' id='start_1-"+id+"' value='"+times[0]+"'>"+minutesToTime(times[0])+"</button>";
+    list += "<label class='center' for='start_1-"+id+"'>"+_("Start Time")+"</label><button class='timefield' data-mini='true' id='start_1-"+id+"' value='"+times[0]+"'>"+readStartTime(times[0])+"</button>";
 
     // Close basic settings group
     list += "</div></div></div></div>";
@@ -6291,7 +6307,7 @@ function make_program21(n,isCopy) {
     for (j=1; j<4; j++) {
         unchecked = (times[j] === -1);
         list += "<tr><td data-role='controlgroup' data-type='horizontal' class='use_master center'><label for='ust_"+(j+1)+"'><input id='ust_"+(j+1)+"' type='checkbox' "+(unchecked ? "" : "checked='checked'")+"></label></td>";
-        list += "<td><button class='timefield' data-mini='true' type='time' id='start_"+(j+1)+"-"+id+"' value='"+(unchecked ? 0 : times[j])+"'>"+minutesToTime(unchecked ? 0 : times[j])+"</button></td></tr>";
+        list += "<td><button class='timefield' data-mini='true' type='time' id='start_"+(j+1)+"-"+id+"' value='"+(unchecked ? 0 : times[j])+"'>"+readStartTime(unchecked ? 0 : times[j])+"</button></td></tr>";
     }
 
     list += "</table>";
@@ -6345,13 +6361,8 @@ function make_program21(n,isCopy) {
             title: _("Start Time"),
             showSun: checkOSVersion(213) ? true : false,
             callback: function(result){
-                if (typeof result === "number") {
-                    time.val(result);
-                    time.text(minutesToTime(result));
-                } else if (typeof result === "object") {
-                    var offset = (result[1] !== 0 ? (result[1] > 0 ? "+" : "") + dhms2str(sec2dhms(result[1]*60)) : "");
-                    time.text((result[0] === 0 ? _("Sunrise") : _("Sunset")) +  offset);
-                }
+                time.val(result);
+                time.text(readStartTime(result));
             }
         });
     });
@@ -7804,6 +7815,18 @@ function showTimeInput(opt) {
 
     $("#timeInput").popup("destroy").remove();
 
+    var offset = opt.minutes&0x7ff,
+        type = 0;
+
+    if ((opt.minutes>>12)&1) {
+        offset = -offset;
+    }
+    if ((opt.minutes>>14)&1) {
+        type = 1;
+    } else if ((opt.minutes>>13)&1) {
+        type = 2;
+    }
+
     var isPM = (opt.minutes > 719 ? true : false),
         getPeriod = function() {
             return isPM ? _("PM") : _("AM");
@@ -7851,17 +7874,17 @@ function showTimeInput(opt) {
                 "</span>" +
                 (opt.showSun ? "<div class='ui-grid-a useSun'>" +
                     "<div class='ui-block-a'>" +
-                        "<button class='ui-mini ui-btn rise'>"+_("Use Sunrise")+"</button>" +
+                        "<button class='ui-mini ui-btn rise "+(type === 1 ? "ui-btn-active" : "")+"'>"+_("Use Sunrise")+"</button>" +
                     "</div>" +
                     "<div class='ui-block-b'>" +
-                        "<button class='ui-mini ui-btn set'>"+_("Use Sunset")+"</button>" +
+                        "<button class='ui-mini ui-btn set "+(type === 2 ? "ui-btn-active" : "")+"'>"+_("Use Sunset")+"</button>" +
                     "</div>" +
                 "</div>" +
-                "<div class='offsetInput' style='display: none;'>" +
+                "<div class='offsetInput'"+(type === 0 ? " style='display: none;'" : "")+">" +
                     "<h5 class='center tight'>"+_("Offset (minutes)")+"</h5>" +
                     "<div class='input_with_buttons'>" +
                         "<button class='decr ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border'></button>" +
-                        "<input type='number' pattern='[0-9]*' value='0'>" +
+                        "<input type='number' pattern='[0-9]*' value='"+offset+"'>" +
                         "<button class='incr ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border'></button>" +
                     "</div>" +
                 "</div>" : "") +
@@ -7917,10 +7940,27 @@ function showTimeInput(opt) {
             var useSun = popup.find(".useSun").find("button.ui-btn-active");
 
             if (useSun.length === 1) {
-                return [
-                    useSun.hasClass("rise") ? 0 : 1,
-                    parseInt(popup.find(".offsetInput input").val())
-                ];
+                var st = 0,
+                    offset = parseInt(popup.find(".offsetInput input").val());
+                if (useSun.hasClass("rise")) {
+                    if (offset >= 0) {
+                        st = offset;
+                    } else {
+                        st = -offset;
+                        st |= (1<<12);
+                    }
+                    st |= (1<<14);    // set the sunrise bit
+                } else {
+                    if (offset >= 0) {
+                        st = offset;
+                    } else {
+                        st = -offset;
+                        st |= (1<<12);  // set the sign bit
+                    }
+                    st |= (1<<13);  // set the sunset bit
+                }
+
+                return st;
             } else {
                 var hour = parseInt(popup.find(".hour").val());
 
@@ -8039,6 +8079,11 @@ function showTimeInput(opt) {
     .popup({
         history: false,
         "positionTo": "window"
+    })
+    .one("popupafteropen",function(){
+        if (type !== 0) {
+            popup.find("span").find(".ui-btn,input,p").prop("disabled", true).addClass("ui-disabled");
+        }
     })
     .one("popupafterclose",function(){
         if (opt.incrementalUpdate) {
