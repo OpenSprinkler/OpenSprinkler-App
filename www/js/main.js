@@ -720,22 +720,27 @@ function newload() {
 
             $.mobile.loading("hide");
 
+            var fail = function() {
+                if (!curr_local) {
+                    changePage("#site-control",{"showBack": false});
+                } else {
+                    storage.remove(["sites"],function(){
+                        window.location.reload();
+                    });
+                }
+            };
+
             if (error.status === 401) {
                 changePassword({
                     fixIncorrect: true,
                     name: name,
-                    callback: newload
+                    callback: newload,
+                    cancel: fail
                 });
                 return;
             }
 
-            if (!curr_local) {
-                changePage("#site-control",{"showBack": false});
-            } else {
-                storage.remove(["sites"],function(){
-                    window.location.reload();
-                });
-            }
+            fail();
         }
     );
 }
@@ -7113,12 +7118,14 @@ function changePassword(opt) {
     var defaults = {
             fixIncorrect: false,
             name: _("the current site"),
-            callback: function(){}
+            callback: function(){},
+            cancel: function(){}
         };
 
     opt = $.extend({}, defaults, opt);
 
     var isPi = isOSPi(),
+        didSubmit = false,
         popup = $("<div data-role='popup' class='modal' id='changePassword' data-theme='a' data-overlay-theme='b'>"+
                 "<ul data-role='listview' data-inset='true'>" +
                     "<li data-role='list-divider'>"+_("Change Password")+"</li>" +
@@ -7140,12 +7147,15 @@ function changePassword(opt) {
             cpw = popup.find("#cpw").val();
 
         if (opt.fixIncorrect === true) {
+            didSubmit = true;
+
             storage.get(["sites","current_site"],function(data){
                 var sites = JSON.parse(data.sites);
 
                 sites[data.current_site].os_pw = npw;
                 curr_pw = npw;
                 storage.set({"sites":JSON.stringify(sites)});
+                popup.popup("close");
                 opt.callback();
             });
 
@@ -7196,6 +7206,9 @@ function changePassword(opt) {
     popup.one("popupafterclose",function(){
         document.activeElement.blur();
         popup.remove();
+        if (opt.fixIncorrect && !didSubmit) {
+            opt.cancel();
+        }
     }).popup().enhanceWithin().popup("open");
 }
 
@@ -8223,7 +8236,7 @@ function changeHeader(opt) {
         speed = opt.animate ? "fast" : 0;
 
     // Fade out the header content, replace it, and update the header
-    header.children().fadeOut(speed,function(){
+    header.children().stop().fadeOut(speed,function(){
         header.html(newHeader).toolbar("refresh");
         header.find(".ui-btn-left").on("click",opt.leftBtn.on);
         header.find(".ui-btn-right").on("click",opt.rightBtn.on);
