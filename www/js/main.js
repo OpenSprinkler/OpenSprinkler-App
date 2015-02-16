@@ -590,7 +590,9 @@ function send_to_os(dest,type) {
 
             // Handle incorrect password
             } else if (data.result === 2) {
-                showerror(_("Check device password and try again."));
+                if (/\/(?:cv|cs|cr|cp|uwa|dp|co|cl|cu|up|cm)/.exec(dest)) {
+                    showerror(_("Check device password and try again."));
+                }
 
                 // Tell subsequent handlers this request has failed (use 401 to prevent retry)
                 return $.Deferred().reject({"status":401});
@@ -598,14 +600,12 @@ function send_to_os(dest,type) {
             // Handle page not found by triggering fail
             } else if (data.result === 32) {
 
-                return $.Deferred().reject({"status":401});
+                return $.Deferred().reject({"status":404});
             }
 
             // Only show error messages on setting change requests
             if (/\/(?:cv|cs|cr|cp|uwa|dp|co|cl|cu|up|cm)/.exec(dest)) {
-                if (data.result === 2) {
-                    showerror(_("Check device password and try again."));
-                } else if (data.result === 48) {
+                if (data.result === 48) {
                     showerror(_("The selected station is already running or is scheduled to run."));
                 } else {
                     showerror(_("Please check input and try again."));
@@ -714,9 +714,20 @@ function newload() {
 
             checkFirmwareUpdate();
         },
-        function(){
+        function(error){
             $.ajaxQueue.clear();
             controller = {};
+
+            $.mobile.loading("hide");
+
+            if (error.status === 401) {
+                changePassword({
+                    fixIncorrect: true,
+                    name: name,
+                    callback: newload
+                });
+                return;
+            }
 
             if (!curr_local) {
                 changePage("#site-control",{"showBack": false});
@@ -2533,74 +2544,7 @@ function bindPanel() {
         });
     });
 
-    panel.find(".change_password > a").on("click",function(){
-    // Device password management functions
-        var isPi = isOSPi(),
-            popup = $("<div data-role='popup' id='changePassword' data-theme='a' data-overlay-theme='b'>"+
-                    "<ul data-role='listview' data-inset='true'>" +
-                        "<li data-role='list-divider'>"+_("Change Password")+"</li>" +
-                        "<li>" +
-                            "<form method='post' novalidate>" +
-                                "<label for='npw'>"+_("New Password")+":</label>" +
-                                "<input type='password' name='npw' id='npw' value=''"+(isPi ? "" : " maxlength='32'")+">" +
-                                "<label for='cpw'>"+_("Confirm New Password")+":</label>" +
-                                "<input type='password' name='cpw' id='cpw' value=''"+(isPi ? "" : " maxlength='32'")+">" +
-                                "<input type='submit' value='"+_("Submit")+"'>" +
-                            "</form>" +
-                        "</li>" +
-                    "</ul>" +
-            "</div>");
-
-        popup.find("form").on("submit",function(){
-            var npw = popup.find("#npw").val(),
-                cpw = popup.find("#cpw").val();
-
-            if (npw !== cpw) {
-                showerror(_("The passwords don't match. Please try again."));
-                return false;
-            }
-
-            if (npw === "") {
-                showerror(_("Password cannot be empty"));
-                return false;
-            }
-
-            if (!isPi && npw.length > 32) {
-                showerror(_("Password cannot be longer than 32 characters"));
-            }
-
-            $.mobile.loading("show");
-            send_to_os("/sp?pw=&npw="+encodeURIComponent(npw)+"&cpw="+encodeURIComponent(cpw),"json").done(function(info){
-                var result = info.result;
-
-                if (!result || result > 1) {
-                    if (result === 2) {
-                        showerror(_("Please check the current device password is correct then try again"));
-                    } else {
-                        showerror(_("Unable to change password. Please try again."));
-                    }
-                } else {
-                    storage.get(["sites","current_site"],function(data){
-                        var sites = JSON.parse(data.sites);
-
-                        sites[data.current_site].os_pw = npw;
-                        curr_pw = npw;
-                        storage.set({"sites":JSON.stringify(sites)});
-                    });
-                    $.mobile.loading("hide");
-                    popup.popup("close");
-                    showerror(_("Password changed successfully"));
-                }
-            });
-
-            return false;
-        });
-
-        popup.one("popupafterclose",function(){
-            document.activeElement.blur();
-            popup.remove();
-        }).popup().enhanceWithin().popup("open");
-    });
+    panel.find(".change_password > a").on("click",changePassword);
 
     panel.find("#downgradeui").on("click",function(){
         areYouSure(_("Are you sure you want to downgrade the UI?"), "", function(){
@@ -7158,10 +7102,101 @@ function stopStations(callback){
 
 // OpenSprinkler feature detection functions
 function isOSPi() {
-    if (controller && typeof controller.options.fwv === "string" && controller.options.fwv.search(/ospi/i) !== -1) {
+    if (controller && typeof controller.options === "object" && typeof controller.options.fwv === "string" && controller.options.fwv.search(/ospi/i) !== -1) {
         return true;
     }
     return false;
+}
+
+// Device password management functions
+function changePassword(opt) {
+    var defaults = {
+            fixIncorrect: false,
+            name: _("the current site"),
+            callback: function(){}
+        };
+
+    opt = $.extend({}, defaults, opt);
+
+    var isPi = isOSPi(),
+        popup = $("<div data-role='popup' class='modal' id='changePassword' data-theme='a' data-overlay-theme='b'>"+
+                "<ul data-role='listview' data-inset='true'>" +
+                    "<li data-role='list-divider'>"+_("Change Password")+"</li>" +
+                    "<li>" +
+                        (opt.fixIncorrect === true ? "<p class='rain-desc red-text bold'>"+_("Incorrect password for ")+opt.name+". "+_("Please re-enter password to try again.")+"</p>" : "") +
+                        "<form method='post' novalidate>" +
+                            "<label for='npw'>"+(opt.fixIncorrect === true ? _("Password:") : _("New Password")+":")+"</label>" +
+                            "<input type='password' name='npw' id='npw' value=''"+(isPi ? "" : " maxlength='32'")+">" +
+                            (opt.fixIncorrect === true ? "" : "<label for='cpw'>"+_("Confirm New Password")+":</label>" +
+                            "<input type='password' name='cpw' id='cpw' value=''"+(isPi ? "" : " maxlength='32'")+">") +
+                            "<input type='submit' value='"+_("Submit")+"'>" +
+                        "</form>" +
+                    "</li>" +
+                "</ul>" +
+        "</div>");
+
+    popup.find("form").on("submit",function(){
+        var npw = popup.find("#npw").val(),
+            cpw = popup.find("#cpw").val();
+
+        if (opt.fixIncorrect === true) {
+            storage.get(["sites","current_site"],function(data){
+                var sites = JSON.parse(data.sites);
+
+                sites[data.current_site].os_pw = npw;
+                curr_pw = npw;
+                storage.set({"sites":JSON.stringify(sites)});
+                opt.callback();
+            });
+
+            return false;
+        }
+
+        if (npw !== cpw) {
+            showerror(_("The passwords don't match. Please try again."));
+            return false;
+        }
+
+        if (npw === "") {
+            showerror(_("Password cannot be empty"));
+            return false;
+        }
+
+        if (!isPi && npw.length > 32) {
+            showerror(_("Password cannot be longer than 32 characters"));
+        }
+
+        $.mobile.loading("show");
+        send_to_os("/sp?pw=&npw="+encodeURIComponent(npw)+"&cpw="+encodeURIComponent(cpw),"json").done(function(info){
+            var result = info.result;
+
+            if (!result || result > 1) {
+                if (result === 2) {
+                    showerror(_("Please check the current device password is correct then try again"));
+                } else {
+                    showerror(_("Unable to change password. Please try again."));
+                }
+            } else {
+                storage.get(["sites","current_site"],function(data){
+                    var sites = JSON.parse(data.sites);
+
+                    sites[data.current_site].os_pw = npw;
+                    curr_pw = npw;
+                    storage.set({"sites":JSON.stringify(sites)});
+                });
+                $.mobile.loading("hide");
+                popup.popup("close");
+                showerror(_("Password changed successfully"));
+            }
+        });
+
+        return false;
+    });
+
+    popup.one("popupafterclose",function(){
+        document.activeElement.blur();
+        popup.remove();
+    }).popup().enhanceWithin().popup("open");
 }
 
 function checkWeatherPlugin() {
