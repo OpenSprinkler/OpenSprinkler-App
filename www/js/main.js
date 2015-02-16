@@ -1036,6 +1036,7 @@ function fixPasswordHash(current) {
                     return false;
                 } else {
                     sites[current].os_pw = curr_pw = pw;
+                    sites[current].isHashed = true;
                     storage.set({"sites":JSON.stringify(sites)});
                 }
             });
