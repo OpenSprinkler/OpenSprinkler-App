@@ -2858,7 +2858,7 @@ function show_options() {
     list += "</fieldset><fieldset data-role='collapsible'><legend>"+_("Station Handling")+"</legend>";
 
     if (typeof controller.options.ext !== "undefined") {
-        list += "<div class='ui-field-contain'><label for='o15' class='select'>"+_("Number of Stations")+(typeof controller.options.dexp === "number" && controller.options.dexp < 255 && ((checkOSVersion(213) && controller.options.dexp >= 0) || controller.options.dexp > 0) ? " <span class='nobr'>("+(controller.options.dexp*8 + 8)+" "+_("available")+")" : "")+"</span></label><select data-mini='true' id='o15'>";
+        list += "<div class='ui-field-contain'><label for='o15' class='select'>"+_("Number of Stations")+(typeof controller.options.dexp === "number" && controller.options.dexp < 255 && controller.options.dexp >= 0 ? " <span class='nobr'>("+(controller.options.dexp*8 + 8)+" "+_("available")+")" : "")+"</span></label><select data-mini='true' id='o15'>";
         for (i=0; i<6; i++) {
             list += "<option "+((controller.options.ext === i) ? "selected" : "")+" value='"+i+"'>"+(i*8+8)+" "+_("stations")+"</option>";
         }
