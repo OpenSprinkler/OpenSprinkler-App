@@ -1,4 +1,4 @@
-/*global $, Windows, MSApp, navigator, chrome, FastClick, StatusBar, networkinterface, links, SunCalc */
+/*global $, Windows, MSApp, navigator, chrome, FastClick, StatusBar, networkinterface, links, SunCalc, md5 */
 var isIEMobile = /IEMobile/.test(navigator.userAgent),
     isAndroid = /Android|\bSilk\b/.test(navigator.userAgent),
     isiOS = /iP(ad|hone|od)/.test(navigator.userAgent),
@@ -712,7 +712,13 @@ function newload() {
 
             goHome();
 
+            // Check if a firmware update is available
             checkFirmwareUpdate();
+
+            // Check if password is plain text (older method) and hash the password, if needed
+            if (checkOSVersion(210)) {
+                fixPasswordHash(name);
+            }
         },
         function(error){
             $.ajaxQueue.clear();
@@ -1016,6 +1022,27 @@ function check_configured(firstLoad) {
     });
 }
 
+function fixPasswordHash(current) {
+    storage.get(["sites"],function(data){
+        var sites = (data.sites === undefined || data.sites === null) ? {} : JSON.parse(data.sites);
+
+        if (typeof sites[current].isHashed === "undefined") {
+            var pw = md5(sites[current].os_pw);
+
+            send_to_os("/sp?pw=&npw="+encodeURIComponent(pw)+"&cpw="+encodeURIComponent(pw),"json").done(function(info){
+                var result = info.result;
+
+                if (!result || result > 1) {
+                    return false;
+                } else {
+                    sites[current].os_pw = curr_pw = pw;
+                    storage.set({"sites":JSON.stringify(sites)});
+                }
+            });
+        }
+    });
+}
+
 // Add a new site
 function submit_newuser(ssl,useAuth) {
     document.activeElement.blur();
@@ -1031,7 +1058,8 @@ function submit_newuser(ssl,useAuth) {
             }
 
             if (data.fwv !== undefined || is183 === true) {
-                var name = $("#os_name").val();
+                var name = $("#os_name").val(),
+                    pw = $("#os_pw").val();
 
                 if (name === "") {
                     name = "Site "+(Object.keys(sites).length+1);
@@ -1039,7 +1067,15 @@ function submit_newuser(ssl,useAuth) {
 
                 sites[name] = {};
                 sites[name].os_ip = curr_ip = ip;
-                sites[name].os_pw = curr_pw = $("#os_pw").val();
+
+                if (typeof data.fwv === "number" && data.fwv >= 210) {
+                    if (typeof data.wl === "number") {
+                        pw = md5(pw);
+                        sites[name].isHashed = true;
+                    }
+                }
+
+                sites[name].os_pw = curr_pw = pw;
 
                 if (ssl) {
                     sites[name].ssl = "1";
@@ -1145,7 +1181,7 @@ function submit_newuser(ssl,useAuth) {
 
     //Submit form data to the server
     $.ajax({
-        url: prefix+ip+"/jo?pw="+$("#os_pw").val(),
+        url: prefix+ip+"/jo?pw="+md5($("#os_pw").val()),
         type: "GET",
         dataType: "json",
         timeout: 3000,
@@ -1410,6 +1446,9 @@ function show_sites(showBack) {
                     sites[site].os_ip = ip;
                 }
                 if (pw !== "") {
+                    if (sites[site].isHashed === true) {
+                        pw = md5(pw);
+                    }
                     sites[site].os_pw = pw;
                 }
                 if (rename) {
@@ -7117,7 +7156,7 @@ function isOSPi() {
 function changePassword(opt) {
     var defaults = {
             fixIncorrect: false,
-            name: _("the current site"),
+            name: "",
             callback: function(){},
             cancel: function(){}
         };
@@ -7149,10 +7188,14 @@ function changePassword(opt) {
         if (opt.fixIncorrect === true) {
             didSubmit = true;
 
-            storage.get(["sites","current_site"],function(data){
+            storage.get(["sites"],function(data){
                 var sites = JSON.parse(data.sites);
 
-                sites[data.current_site].os_pw = npw;
+                if (sites[opt.name].isHashed) {
+                    npw = md5(npw);
+                }
+
+                sites[opt.name].os_pw = npw;
                 curr_pw = npw;
                 storage.set({"sites":JSON.stringify(sites)});
                 popup.popup("close");
@@ -7176,6 +7219,11 @@ function changePassword(opt) {
             showerror(_("Password cannot be longer than 32 characters"));
         }
 
+        if (checkOSVersion(210)) {
+            npw = md5(npw);
+            cpw = md5(cpw);
+        }
+
         $.mobile.loading("show");
         send_to_os("/sp?pw=&npw="+encodeURIComponent(npw)+"&cpw="+encodeURIComponent(cpw),"json").done(function(info){
             var result = info.result;
@@ -7191,6 +7239,9 @@ function changePassword(opt) {
                     var sites = JSON.parse(data.sites);
 
                     sites[data.current_site].os_pw = npw;
+                    if (checkOSVersion(210)) {
+                        sites[data.current_site].isHashed = true;
+                    }
                     curr_pw = npw;
                     storage.set({"sites":JSON.stringify(sites)});
                 });
@@ -7209,7 +7260,40 @@ function changePassword(opt) {
         if (opt.fixIncorrect && !didSubmit) {
             opt.cancel();
         }
-    }).popup().enhanceWithin().popup("open");
+    }).popup().enhanceWithin();
+
+    if (opt.fixIncorrect) {
+        // hash password and try again, if failed then show the popup
+        storage.get(["sites","current_site"],function(data){
+            var sites = JSON.parse(data.sites),
+                current = data.current_site,
+                pw = md5(sites[current].os_pw);
+
+            if (typeof sites[current].isHashed === "undefined") {
+                $.ajax({
+                    url: curr_prefix+curr_ip+"/jc?pw="+pw,
+                    type: "GET",
+                    dataType: "json"
+                }).then(
+                    function(){
+                        sites[current].os_pw = curr_pw = pw;
+                        sites[current].isHashed = true;
+                        storage.set({"sites":JSON.stringify(sites)});
+                        opt.callback();
+                    },
+                    function(){
+                        sites[current].isHashed = false;
+                        storage.set({"sites":JSON.stringify(sites)});
+                        popup.popup("open");
+                    }
+                );
+            } else {
+                popup.popup("open");
+            }
+        });
+    } else {
+        popup.popup("open");
+    }
 }
 
 function checkWeatherPlugin() {
