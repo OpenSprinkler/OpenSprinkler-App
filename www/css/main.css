@@ -135,6 +135,9 @@ a {
     overflow:visible!important;
     text-align:center
 }
+.red-text {
+    color: #C96161;
+}
 .red {
     background:#C96161!important;
     color:#FFF!important;
@@ -265,7 +268,7 @@ body, input, select, textarea, button, .ui-btn {
     background-image:url(../img/logo.png)
 }
 @media (max-width:480px) {
-    #addnew, #raindelay, #site-select, #sure {
+    #addnew, #raindelay, #site-select, #sure, .modal {
         width:250px
     }
     .ui-mini {
