@@ -7167,7 +7167,7 @@ function changePassword(opt) {
         didSubmit = false,
         popup = $("<div data-role='popup' class='modal' id='changePassword' data-theme='a' data-overlay-theme='b'>"+
                 "<ul data-role='listview' data-inset='true'>" +
-                    "<li data-role='list-divider'>"+_("Change Password")+"</li>" +
+                    (opt.fixIncorrect === true ? "" : "<li data-role='list-divider'>"+_("Change Password")+"</li>") +
                     "<li>" +
                         (opt.fixIncorrect === true ? "<p class='rain-desc red-text bold'>"+_("Incorrect password for ")+opt.name+". "+_("Please re-enter password to try again.")+"</p>" : "") +
                         "<form method='post' novalidate>" +
