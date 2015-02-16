@@ -1,4 +1,4 @@
-/*global $, ver, ipas, initApp, XDomainRequest, ActiveXObject */
+/*global $, ver, ipas, initApp, XDomainRequest, ActiveXObject, md5 */
 (function(document){
 	var assetLocation = getAssetLocation(),
 		isReady = false;
@@ -149,11 +149,12 @@
 					}
 				},1);
 			},
-			savePassword = function(pw){
+			savePassword = function(pw,isHashed){
 				var sites = {
 					"Local": {
 						"os_ip": document.URL.match(/https?:\/\/(.*)\/.*?/)[1],
 						"os_pw": pw,
+						"isHashed": isHashed === true ? true : false,
 						"is183": (ver < 204) ? true : false
 					}
 				},
@@ -203,7 +204,29 @@
 			// If this is a new login, prompt for password
 			loader = $("<div class='spinner'><div class='logo'></div><h1>Enter Device Password</h1><span class='feedback'></span><form><input type='password' id='os_pw' name='os_pw' value='' /><input type='submit' value='Submit' /></form></div>"),
 			loader.on("submit",function(){
-				var pw = $("#os_pw").val();
+				var pw = $("#os_pw").val(),
+					checkPW = function(pass,callback){
+						$.ajax({
+							url: "/sp?pw="+encodeURIComponent(pass)+"&npw="+encodeURIComponent(pass)+"&cpw="+encodeURIComponent(pass),
+							cache: false,
+							crossDomain: true,
+							type: "GET"
+						}).then(
+							function(data){
+				                var result = data.result;
+
+				                if (!result || result > 1) {
+				                	callback(false);
+				                } else {
+				                	callback(true);
+				                }
+							},
+							function(){
+								callback(false);
+							}
+						);
+					};
+
 				if (ver < 208) {
 					savePassword(pw);
 					return false;
@@ -211,23 +234,19 @@
 
 				$.support.cors = true;
 
-				$.ajax({
-					url: "/sp?pw="+encodeURIComponent(pw)+"&npw="+encodeURIComponent(pw)+"&cpw="+encodeURIComponent(pw),
-					cache: false,
-					crossDomain: true,
-					type: "GET"
-				}).then(
-					function(data){
-		                var result = data.result;
-
-		                if (!result || result > 1) {
-		                	wrongPassword();
-		                } else {
-		                	savePassword(pw);
-		                }
-					},
-					wrongPassword
-				);
+				checkPW(md5(pw),function(result){
+					if (result === true) {
+						savePassword(pw,true);
+					} else {
+						checkPW(pw,function(clearResult){
+							if (clearResult === true) {
+								savePassword(pw);
+							} else {
+								wrongPassword();
+							}
+						});
+					}
+				});
 
 				return false;
 			});
