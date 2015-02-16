@@ -4864,7 +4864,7 @@ function get_preview() {
         // Start time matching
         if (sttype===0) {
             // Repeating program
-            var start = getStartTime(prog[3][0]),
+            var start = getStartTime(prog[3][0],date),
                 repeat= prog[3][1],
                 cycle = prog[3][2];
 
@@ -4891,7 +4891,7 @@ function get_preview() {
             var sttimes = prog[3];
             for(i=0;i<4;i++) {
                 // fixme: 4 should be using the mnst (max_start_times) JSON variable
-                if(simminutes === getStartTime(sttimes[i])) {
+                if(simminutes === getStartTime(sttimes[i],date)) {
                     return 1;
                 }
             }
@@ -5975,7 +5975,7 @@ function read_program21(program) {
     return newdata;
 }
 
-function getStartTime(time) {
+function getStartTime(time,date) {
     var offset = time&0x7ff,
         type = "sunrise";
 
@@ -5989,7 +5989,10 @@ function getStartTime(time) {
         offset = -offset;
     }
 
-    var times = SunCalc.getTimes(new Date(controller.settings.devt*1000), currentCoordinates[0], currentCoordinates[1]);
+    date = date || new Date(controller.settings.devt*1000);
+    date.setMinutes(date.getMinutes()+date.getTimezoneOffset());
+
+    var times = SunCalc.getTimes(date, currentCoordinates[0], currentCoordinates[1]);
 
     time = times[type];
     time = (time.getHours() * 60 + time.getMinutes()) + offset;
