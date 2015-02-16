@@ -2858,7 +2858,11 @@ function show_options() {
     list += "</fieldset><fieldset data-role='collapsible'><legend>"+_("Station Handling")+"</legend>";
 
     if (typeof controller.options.ext !== "undefined") {
-        list += "<div class='ui-field-contain duration-field'><label for='o15'>"+_("Expansion Boards")+(controller.options.dexp && controller.options.dexp < 255 ? " ("+controller.options.dexp+" "+_("detected")+")" : "")+"</label><button data-mini='true' id='o15' value='"+controller.options.ext+"'>"+controller.options.ext+" "+_("board(s)")+"</button></div>";
+        list += "<div class='ui-field-contain'><label for='o15' class='select'>"+_("Number of Stations")+(typeof controller.options.dexp === "number" && controller.options.dexp < 255 && ((checkOSVersion(213) && controller.options.dexp >= 0) || controller.options.dexp > 0) ? " <span class='nobr'>("+(controller.options.dexp*8 + 8)+" "+_("available")+")" : "")+"</span></label><select data-mini='true' id='o15'>";
+        for (i=0; i<6; i++) {
+            list += "<option "+((controller.options.ext === i) ? "selected" : "")+" value='"+i+"'>"+(i*8+8)+" "+_("stations")+"</option>";
+        }
+        list += "</select></div>";
     }
 
     if (typeof controller.options.sdt !== "undefined") {
@@ -3183,17 +3187,6 @@ function show_options() {
                 label: _("Seconds"),
                 maximum: 60,
                 minimum: -60,
-                helptext: helptext
-            });
-        } else if (id === "o15") {
-            showSingleDurationInput({
-                data: dur.val(),
-                title: name,
-                callback: function(result){
-                    dur.val(result).text(result+" board(s)");
-                },
-                label: _("Expansion Boards"),
-                maximum: 5,
                 helptext: helptext
             });
         } else if (id === "o23") {
@@ -5979,6 +5972,10 @@ function getStartTime(time,date) {
     var offset = time&0x7ff,
         type = "sunrise";
 
+    if (time < 0) {
+        return time;
+    }
+
     if ((time>>13)&1) {
         type = "sunset";
     } else if (!(time>>14)&1) {
@@ -5989,13 +5986,16 @@ function getStartTime(time,date) {
         offset = -offset;
     }
 
-    date = date || new Date(controller.settings.devt*1000);
-    date.setMinutes(date.getMinutes()+date.getTimezoneOffset());
+    var now = new Date(controller.settings.devt*1000),
+        control = SunCalc.getTimes(now, currentCoordinates[0], currentCoordinates[1]),
+        tzOffset = controller.settings.sunrise - (control.sunrise.getHours() * 60 + control.sunrise.getMinutes());
+
+    date = date || now;
 
     var times = SunCalc.getTimes(date, currentCoordinates[0], currentCoordinates[1]);
 
     time = times[type];
-    time = (time.getHours() * 60 + time.getMinutes()) + offset;
+    time = (time.getHours() * 60 + time.getMinutes()) + tzOffset + offset;
 
     if (time < 0) {
         time = 0;
