@@ -716,7 +716,7 @@ function newload() {
             checkFirmwareUpdate();
 
             // Check if password is plain text (older method) and hash the password, if needed
-            if (checkOSVersion(210)) {
+            if (checkOSVersion(213)) {
                 fixPasswordHash(name);
             }
         },
@@ -1069,7 +1069,7 @@ function submit_newuser(ssl,useAuth) {
                 sites[name] = {};
                 sites[name].os_ip = curr_ip = ip;
 
-                if (typeof data.fwv === "number" && data.fwv >= 210) {
+                if (typeof data.fwv === "number" && data.fwv >= 213) {
                     if (typeof data.wl === "number") {
                         pw = md5(pw);
                         sites[name].isHashed = true;
@@ -7153,6 +7153,29 @@ function isOSPi() {
     return false;
 }
 
+// Check if password is valid
+function checkPW(pass,callback){
+    $.ajax({
+        url: curr_prefix+curr_ip+"/sp?pw="+encodeURIComponent(pass)+"&npw="+encodeURIComponent(pass)+"&cpw="+encodeURIComponent(pass),
+        cache: false,
+        crossDomain: true,
+        type: "GET"
+    }).then(
+        function(data){
+            var result = data.result;
+
+            if (typeof result === "undefined" || result > 1) {
+                callback(false);
+            } else {
+                callback(true);
+            }
+        },
+        function(){
+            callback(false);
+        }
+    );
+}
+
 // Device password management functions
 function changePassword(opt) {
     var defaults = {
@@ -7190,17 +7213,21 @@ function changePassword(opt) {
             didSubmit = true;
 
             storage.get(["sites"],function(data){
-                var sites = JSON.parse(data.sites);
+                var sites = JSON.parse(data.sites),
+                    success = function(pass) {
+                        sites[opt.name].os_pw = curr_pw = pass;
+                        storage.set({"sites":JSON.stringify(sites)});
+                        popup.popup("close");
+                        opt.callback();
+                    };
 
-                if (sites[opt.name].isHashed) {
-                    npw = md5(npw);
-                }
-
-                sites[opt.name].os_pw = npw;
-                curr_pw = npw;
-                storage.set({"sites":JSON.stringify(sites)});
-                popup.popup("close");
-                opt.callback();
+                checkPW(md5(npw),function(result){
+                    if (result === true) {
+                        success(md5(npw));
+                    } else {
+                        success(npw);
+                    }
+                });
             });
 
             return false;
@@ -7220,7 +7247,7 @@ function changePassword(opt) {
             showerror(_("Password cannot be longer than 32 characters"));
         }
 
-        if (checkOSVersion(210)) {
+        if (checkOSVersion(213)) {
             npw = md5(npw);
             cpw = md5(cpw);
         }
