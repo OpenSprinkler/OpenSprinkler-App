@@ -154,7 +154,7 @@
 					"Local": {
 						"os_ip": document.URL.match(/https?:\/\/(.*)\/.*?/)[1],
 						"os_pw": pw,
-						"isHashed": isHashed === true ? true : false,
+						"isHashed": isHashed,
 						"is183": (ver < 204) ? true : false
 					}
 				},
@@ -215,7 +215,7 @@
 							function(data){
 				                var result = data.result;
 
-				                if (!result || result > 1) {
+				                if (typeof result === "undefined" || result > 1) {
 				                	callback(false);
 				                } else {
 				                	callback(true);
@@ -225,6 +225,15 @@
 								callback(false);
 							}
 						);
+					},
+					checkClear = function(){
+						checkPW(pw,function(clearResult){
+							if (clearResult === true) {
+								savePassword(pw);
+							} else {
+								wrongPassword();
+							}
+						});
 					};
 
 				if (ver < 208) {
@@ -234,19 +243,17 @@
 
 				$.support.cors = true;
 
-				checkPW(md5(pw),function(result){
-					if (result === true) {
-						savePassword(pw,true);
-					} else {
-						checkPW(pw,function(clearResult){
-							if (clearResult === true) {
-								savePassword(pw);
-							} else {
-								wrongPassword();
-							}
-						});
-					}
-				});
+				if (ver >= 213) {
+					checkPW(md5(pw),function(result){
+						if (result === true) {
+							savePassword(pw,true);
+						} else {
+							checkClear();
+						}
+					});
+				} else {
+					checkClear();
+				}
 
 				return false;
 			});
