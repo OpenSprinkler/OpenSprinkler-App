@@ -1026,7 +1026,7 @@ function fixPasswordHash(current) {
     storage.get(["sites"],function(data){
         var sites = (data.sites === undefined || data.sites === null) ? {} : JSON.parse(data.sites);
 
-        if (typeof sites[current].isHashed === "undefined") {
+        if (sites[current].isHashed !== true) {
             var pw = md5(sites[current].os_pw);
 
             send_to_os("/sp?pw=&npw="+encodeURIComponent(pw)+"&cpw="+encodeURIComponent(pw),"json").done(function(info){
@@ -7223,8 +7223,10 @@ function changePassword(opt) {
 
                 checkPW(md5(npw),function(result){
                     if (result === true) {
+                        sites[opt.name].isHashed = true;
                         success(md5(npw));
                     } else {
+                        sites[opt.name].isHashed = false;
                         success(npw);
                     }
                 });
