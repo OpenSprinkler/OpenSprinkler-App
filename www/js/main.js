@@ -568,7 +568,7 @@ function send_to_os(dest,type) {
         });
     }
 
-    defer = $.ajaxQueue(obj).then(
+    defer = $.ajaxq("default",obj).then(
         function(data){
             // In case the data type was incorrect, attempt to fix. If fix not possible, return string
             if (typeof data === "string") {
@@ -655,7 +655,7 @@ function newload() {
         "box-shadow": "none",
         "margin-top": "-4em"
     }).find(".cancel").one("click",function(){
-        $.ajaxQueue.clear();
+        $.ajaxq.abort("default");
         changePage("#site-control",{"showBack": false});
     });
 
@@ -663,7 +663,7 @@ function newload() {
     controller = {};
 
     //Clear the current queued AJAX requests (used for previous controller connection)
-    $.ajaxQueue.clear();
+    $.ajaxq.abort("default");
 
     update_controller(
         function(){
@@ -719,9 +719,11 @@ function newload() {
             if (checkOSVersion(213)) {
                 fixPasswordHash(name);
             }
+
+
         },
         function(error){
-            $.ajaxQueue.clear();
+            $.ajaxq.abort("default");
             controller = {};
 
             $.mobile.loading("hide");
