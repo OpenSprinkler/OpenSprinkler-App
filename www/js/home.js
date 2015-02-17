@@ -246,7 +246,7 @@
 				if (ver >= 213) {
 					checkPW(md5(pw),function(result){
 						if (result === true) {
-							savePassword(pw,true);
+							savePassword(md5(pw),true);
 						} else {
 							checkClear();
 						}
