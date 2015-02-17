@@ -269,30 +269,6 @@ msgid ""
 "settings?"
 msgstr ""
 
-msgid "New Password"
-msgstr ""
-
-msgid "Confirm New Password"
-msgstr ""
-
-msgid "The passwords don't match. Please try again."
-msgstr ""
-
-msgid "Password cannot be empty"
-msgstr ""
-
-msgid "Password cannot be longer than 32 characters"
-msgstr ""
-
-msgid "Please check the current device password is correct then try again"
-msgstr ""
-
-msgid "Unable to change password. Please try again."
-msgstr ""
-
-msgid "Password changed successfully"
-msgstr ""
-
 msgid "Are you sure you want to downgrade the UI?"
 msgstr ""
 
@@ -355,13 +331,13 @@ msgstr ""
 msgid "Station Handling"
 msgstr ""
 
-msgid "Expansion Boards"
+msgid "Number of Stations"
 msgstr ""
 
-msgid "detected"
+msgid "available"
 msgstr ""
 
-msgid "board(s)"
+msgid "stations"
 msgstr ""
 
 msgid "Station Delay"
@@ -568,9 +544,6 @@ msgid "Do you want to re-enable system operation?"
 msgstr ""
 
 msgid "is running on"
-msgstr ""
-
-msgid "stations"
 msgstr ""
 
 msgid "is running on station"
@@ -1051,6 +1024,36 @@ msgid "Hardware Version"
 msgstr ""
 
 msgid "About"
+msgstr ""
+
+msgid "Incorrect password for "
+msgstr ""
+
+msgid "Please re-enter password to try again."
+msgstr ""
+
+msgid "New Password"
+msgstr ""
+
+msgid "Confirm New Password"
+msgstr ""
+
+msgid "The passwords don't match. Please try again."
+msgstr ""
+
+msgid "Password cannot be empty"
+msgstr ""
+
+msgid "Password cannot be longer than 32 characters"
+msgstr ""
+
+msgid "Please check the current device password is correct then try again"
+msgstr ""
+
+msgid "Unable to change password. Please try again."
+msgstr ""
+
+msgid "Password changed successfully"
 msgstr ""
 
 msgid "Firmware update available"
