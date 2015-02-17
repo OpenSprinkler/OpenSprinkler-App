@@ -6,7 +6,7 @@
             version     = "1.2.8"
             versionCode = "44" >
 
-        <preference name="phonegap-version" value="3.6.3" />
+        <preference name="phonegap-version" value="3.7.0" />
         <preference name="DisallowOverscroll" value="true"  />
         <preference name="permissions" value="none" />
         <preference name="WebSecurity" value="disable"/>
