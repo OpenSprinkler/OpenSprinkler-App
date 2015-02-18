@@ -334,14 +334,16 @@ $(document)
     // Initialize the app header
     $("#header").toolbar();
 
-    //On initial load check if a valid site exists for auto connect
-    check_configured(true);
-
     //Attach FastClick handler
     FastClick.attach(document.body);
 
     // Initialize external panel
     bindPanel();
+
+    //On initial load check if a valid site exists for auto connect
+    setTimeout(function(){
+        check_configured(true);
+    },200);
 })
 // Handle OS resume event triggered by PhoneGap
 .on("resume",function(){
@@ -719,8 +721,6 @@ function newload() {
             if (checkOSVersion(213)) {
                 fixPasswordHash(name);
             }
-
-
         },
         function(error){
             $.ajaxq.abort("default");
@@ -745,10 +745,9 @@ function newload() {
                     callback: newload,
                     cancel: fail
                 });
-                return;
+            } else {
+                fail();
             }
-
-            fail();
         }
     );
 }
