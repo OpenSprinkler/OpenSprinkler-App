@@ -8433,7 +8433,9 @@ function goBack() {
                 return;
             }
 
-            changePage(url);
+            changePage(url,{
+                reverse: true
+            });
             $.mobile.document.one("pagehide",function(){
                 $.mobile.navigate.history.activeIndex -= 2;
             });
