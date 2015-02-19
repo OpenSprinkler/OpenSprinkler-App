@@ -1564,37 +1564,37 @@ function checkAutoScan() {
     },
     ip;
 
-    try {
-        if (isChromeApp) {
-            chrome.system.network.getNetworkInterfaces(function(data){
-                var i;
-                for (i in data) {
-                    if (data.hasOwnProperty(i)) {
-                        if (/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$/.test(data[i].address)) {
-                            ip = data[i].address;
-                        }
+    if (isChromeApp) {
+        chrome.system.network.getNetworkInterfaces(function(data){
+            var i;
+            for (i in data) {
+                if (data.hasOwnProperty(i)) {
+                    if (/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$/.test(data[i].address)) {
+                        ip = data[i].address;
                     }
                 }
+            }
 
-                finishCheck();
-            });
-        } else {
+            finishCheck();
+        });
+    } else {
+        try {
             // Request the device's IP address
             networkinterface.getIPAddress(function(data){
                 ip = data;
                 finishCheck();
             });
+        } catch (err) {
+            find_router(function(status,data){
+                if (status === false) {
+                    resetStartMenu();
+                    return;
+                } else {
+                    ip = data;
+                    finishCheck();
+                }
+            });
         }
-    } catch (err) {
-        find_router(function(status,data){
-            if (status === false) {
-                resetStartMenu();
-                return;
-            } else {
-                ip = data;
-                finishCheck();
-            }
-        });
     }
 }
 
