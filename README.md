@@ -34,7 +34,6 @@ A mobile interface for the OpenSprinkler irrigation device. Designed to allow ma
   + [Firefox Marketplace](https://marketplace.firefox.com/app/opensprinkler/)
   + [Google Play Store](https://play.google.com/store/apps/details?id=com.albahra.sprinklers)
   + [Google Web Store](https://chrome.google.com/webstore/detail/sprinklers/iegciplggbmhpihoeamfpjdedihblhhp)
-  + [Windows Store](http://apps.microsoft.com/windows/en-us/app/sprinklers/ebc0d2d1-9678-4e72-9a9d-6d60e946b8c0)
   + [Windows Phone Store](http://www.windowsphone.com/en-us/store/app/sprinklers/3dbc5da0-b33f-4ca8-9e54-e80febf0a0c5)
 
 + This application interfaces with the interval program on the OpenSprinkler which is the default software available. The application has been tested and is compatible with all firmware versions of the interval program, both Arduino and OSPi.
