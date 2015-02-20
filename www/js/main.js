@@ -738,7 +738,7 @@ function newload() {
                 }
             };
 
-            if (error.status === 401) {
+            if (typeof error === "object" && error.status === 401) {
                 changePassword({
                     fixIncorrect: true,
                     name: name,
