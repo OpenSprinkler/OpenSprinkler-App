@@ -982,7 +982,8 @@ function check_configured(firstLoad) {
         if (!names.length) {
             if (firstLoad) {
                 changePage("#start",{
-                    showStart: true
+                    showStart: true,
+                    transition: "none"
                 });
             }
             return;
@@ -5572,7 +5573,14 @@ function get_logs() {
         },
         fail = function(){
             $.mobile.loading("hide");
-            reset_logs_page();
+
+            placeholder.empty().hide();
+            zones.empty().hide();
+            graph_sort.hide();
+            table_sort.hide();
+            logs_list.empty().hide();
+
+            logs_list.show().html(_("Error retrieving log data. Please refresh to try again."));
         },
         dates = function() {
             var sDate = $("#log_start").val().split("-"),
@@ -5590,7 +5598,7 @@ function get_logs() {
                 starttime = dates().start.getTime() / 1000;
 
             if (endtime < starttime) {
-                fail();
+                reset_logs_page();
                 showerror(_("Start time cannot be greater than end time"));
                 return;
             }
