@@ -7716,13 +7716,14 @@ function showDurationBox(opt) {
         changeValue = function(pos,dir){
             var input = popup.find(".inputs input").eq(pos),
                 apos = pos+start,
-                val = parseInt(input.val());
+                val = parseInt(input.val()),
+                next = parseInt(popup.find(".inputs input").eq(pos-1).val());
 
             if (input.prop("disabled")) {
                 return;
             }
 
-            if ((dir === -1 && getValue() <= opt.minimum) || (dir === 1 && (getValue() + conv[apos]) > opt.maximum)) {
+            if ((dir === -1 && (getValue() <= opt.minimum || next > 0 && val <= 0)) || (dir === 1 && (getValue() + conv[apos]) > opt.maximum)) {
                 return;
             }
 
