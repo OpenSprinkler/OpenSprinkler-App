@@ -991,7 +991,10 @@ function check_configured(firstLoad) {
 
         if (current === null || !(current in sites)) {
             $.mobile.loading("hide");
-            changePage("#site-control",{"showBack": false});
+            changePage("#site-control",{
+                showBack: false,
+                transition: firstLoad ? "none" : undefined
+            });
             return;
         }
 
