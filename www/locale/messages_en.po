@@ -767,6 +767,9 @@ msgstr ""
 msgid "No entries found in the selected date range"
 msgstr ""
 
+msgid "Error retrieving log data. Please refresh to try again."
+msgstr ""
+
 msgid "Start time cannot be greater than end time"
 msgstr ""
 
@@ -993,6 +996,11 @@ msgstr ""
 msgid "Invalid configuration"
 msgstr ""
 
+msgid ""
+"Warning: Network changes will be made and the device may no longer be "
+"accessible from this address."
+msgstr ""
+
 msgid "Are you sure you want to restore the configuration?"
 msgstr ""
 
@@ -1143,6 +1151,9 @@ msgstr ""
 msgid "English"
 msgstr ""
 
+msgid "Farsi"
+msgstr ""
+
 msgid "French"
 msgstr ""
 
@@ -1156,6 +1167,9 @@ msgid "Hebrew"
 msgstr ""
 
 msgid "Hungarian"
+msgstr ""
+
+msgid "Icelandic"
 msgstr ""
 
 msgid "Italian"
