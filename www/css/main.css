@@ -648,6 +648,9 @@ div.running-text{
 .status-daily {
     padding-top: 10px
 }
+#status .rain-desc {
+    padding-top: 0;
+}
 
 /* Program preview rules */
 .master {
