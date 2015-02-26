@@ -3896,7 +3896,7 @@ function get_status() {
                         title: name,
                         incrementalUpdate: false,
                         maximum: 65535,
-                        helptext: _("Enter a duration below to manually run "+name),
+                        helptext: _("Enter a duration to manually run "+name),
                         callback: function(duration){
                             send_to_os("/cm?sid="+station+"&en=1&t="+duration+"&pw=","json").done(function(){
                                 refresh_status();
