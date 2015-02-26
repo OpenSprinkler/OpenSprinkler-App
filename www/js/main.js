@@ -720,6 +720,10 @@ function newload() {
             if (checkOSVersion(213)) {
                 fixPasswordHash(name);
             }
+
+            if (typeof controller.settings.eip === "number") {
+                checkPublicAccess(controller.settings.eip);
+            }
         },
         function(error){
             $.ajaxq.abort("default");
@@ -7395,6 +7399,49 @@ function checkWeatherPlugin() {
             weather_provider.css("display","");
         }
     }
+}
+
+function intToIP(eip) {
+    return ((eip >> 24) & 255) + "." + ((eip >> 16) & 255) + "." + ((eip >> 8) & 255) + "." + (eip & 255);
+}
+
+function checkPublicAccess(eip) {
+    // Check if the device is accessible from it's public IP
+
+    var ip = intToIP(eip),
+        port = curr_ip.match(/.*:(\d+)/);
+
+    if (ip === curr_ip || isLocalIP(ip) || !isLocalIP(curr_ip)) {
+        return;
+    }
+
+    port = (port ? parseInt(port[1]) : 80);
+
+    $.ajax({
+        url: curr_prefix+ip+":"+port+"/jo?pw="+curr_pw,
+        global: false,
+        dataType: "json",
+        type: "GET"
+    }).then(
+        function(data){
+            if (typeof data !== "object" || !data.hasOwnProperty("fwv")) {
+                return;
+            }
+
+            // Public IP worked, update device IP to use the public IP instead
+            storage.get(["sites","current_site"],function(data){
+                var sites = (data.sites === undefined || data.sites === null) ? {} : JSON.parse(data.sites),
+                    current = data.current_site;
+
+                sites[current].os_ip = ip+(port === 80 ? "" : port);
+
+                storage.set({"sites":JSON.stringify(sites)});
+            });
+        },
+        function(){
+            // Unable to access the device using it's public IP
+        }
+    );
 }
 
 function checkFirmwareUpdate() {
