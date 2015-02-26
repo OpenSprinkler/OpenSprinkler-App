@@ -534,6 +534,12 @@ msgstr ""
 msgid "Do you want to unschedule the selected station?"
 msgstr ""
 
+msgid "Enter a duration below to manually run "
+msgstr ""
+
+msgid "Station has been queued"
+msgstr ""
+
 msgid "Station has been stopped"
 msgstr ""
 
