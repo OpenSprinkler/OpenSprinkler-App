@@ -290,7 +290,6 @@ $(document)
             return false;
         } else if (hash === "#raindelay") {
             showDurationBox({
-                data: 0,
                 title: _("Change Rain Delay"),
                 callback: raindelay,
                 label: _("Duration"),
@@ -3688,7 +3687,7 @@ function isStationSequential(sid) {
 // Current status related functions
 function get_status() {
     var page = $("<div data-role='page' id='status'>" +
-            "<div class='ui-content' role='main'>" +
+            "<div class='ui-content status-page' role='main'>" +
             "</div>" +
         "</div>"),
         runningTotal = {},
@@ -3844,8 +3843,7 @@ function get_status() {
                 weatherInfo += "<div class='center ui-block-c'>"+pad(parseInt(controller.settings.sunset/60)%24)+":"+pad(controller.settings.sunset%60)+"<br>"+_("Sunset")+"</div>";
                 weatherInfo += "</div>";
             }
-
-            page.find(".ui-content").html(
+            page.find(".status-page").html(
                 "<p class='smaller center'>"+ header +"</p>" +
                 weatherInfo +
                 "<ul data-role='listview' data-inset='true' id='status_list'>"+ list +"</ul>" +
@@ -3885,6 +3883,7 @@ function get_status() {
             var el = $(this),
                 station = el.index(),
                 currentStatus = controller.status[station],
+                name = controller.stations.snames[station],
                 question;
 
             if (currentStatus) {
@@ -3893,6 +3892,18 @@ function get_status() {
                 if (el.find("span.nobr").length) {
                     question = _("Do you want to unschedule the selected station?");
                 } else {
+                    showDurationBox({
+                        title: name,
+                        incrementalUpdate: false,
+                        maximum: 65535,
+                        helptext: _("Enter a duration below to manually run "+name),
+                        callback: function(duration){
+                            send_to_os("/cm?sid="+station+"&en=1&t="+duration+"&pw=","json").done(function(){
+                                refresh_status();
+                                showerror(_("Station has been queued"));
+                            });
+                        }
+                    });
                     return;
                 }
             }
@@ -8515,7 +8526,7 @@ function fixInputClick(page) {
 function holdButton(target,callback) {
     var intervalId;
 
-    target.on("tap",callback).on("taphold",function(e){
+    target.on("tap click",callback).on("taphold",function(e){
         intervalId = setInterval(function(){
             callback(e);
         }, 100);
