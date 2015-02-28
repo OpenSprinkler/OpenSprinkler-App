@@ -286,6 +286,10 @@ body, input, select, textarea, button, .ui-btn {
     }
 }
 
+#notificationPanel li > p {
+    white-space: normal;
+}
+
 /* Start page rules */
 
 #start {
