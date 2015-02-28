@@ -286,7 +286,11 @@ body, input, select, textarea, button, .ui-btn {
     }
 }
 
-#notificationPanel li > p {
+#notificationPanel li h2 {
+    font-size: 0.9em;
+}
+
+#notificationPanel li p {
     white-space: normal;
 }
 
