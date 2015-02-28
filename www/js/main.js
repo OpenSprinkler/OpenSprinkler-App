@@ -2476,12 +2476,12 @@ function bindPanel() {
     panel.enhanceWithin().panel().removeClass("hidden").panel("option","classes.modal","needsclick ui-panel-dismiss");
 
     panel.find("a[href='#site-control']").one("click",function(){
-        changeFromPanel("#site-control");
+        changePage("#site-control");
         return false;
     });
 
     panel.find("a[href='#about']").one("click",function(){
-        changeFromPanel("#about");
+        changePage("#about");
         return false;
     });
 
@@ -7488,7 +7488,14 @@ function updateNotificationBadge() {
 }
 
 function createNotificationItem(item) {
-    return $("<li><h2>"+item.title+"</h2>"+(item.desc ? "<p>"+item.desc+"</p>" : "")+"</li>").on("click",item.on);
+    var listItem = $("<li><a class='primary' href='#'><h2>"+item.title+"</h2>"+(item.desc ? "<p>"+item.desc+"</p>" : "")+"</a><a class='ui-btn ui-btn-icon-notext ui-icon-delete'></a></li>");
+
+    listItem.find(".primary").on("click",item.on);
+    listItem.find(".ui-icon-delete").on("click",function(){
+        removeNotification($(this).parent());
+    });
+
+    return listItem;
 }
 
 function showNotifications() {
@@ -7508,6 +7515,16 @@ function showNotifications() {
     panel.panel("open");
 }
 
+function removeNotification(button) {
+    var panel = $("#notificationPanel");
+    notifications.remove(button.index() - 1);
+    button.remove();
+    updateNotificationBadge();
+    if (notifications.length === 0 && panel.hasClass("ui-panel-open")) {
+        panel.panel("close");
+    }
+}
+
 function checkFirmwareUpdate() {
     // Update checks are only be available for Arduino firmwares
     if (!isOSPi()) {
@@ -7522,7 +7539,8 @@ function checkFirmwareUpdate() {
                             title: _("Firmware update available"),
                             on: function(){
                                 // Modify the changelog by parsing markdown of lists to HTML
-                                var changelog = data[0].body.replace(/[\-|\*|\+]\s(.*)?(?:\r\n)?/g,"<li>$1</li>"),
+                                var button = $(this).parent(),
+                                    changelog = data[0].body.replace(/[\-|\*|\+]\s(.*)?(?:\r\n)?/g,"<li>$1</li>"),
                                     popup = $(
                                         "<div data-role='popup' class='modal' data-overlay-theme='b'>" +
                                             "<h3 class='center' style='margin-bottom:0'>"+_("Latest")+" "+_("Firmware")+": "+data[0].name+"</h3>" +
@@ -7542,7 +7560,7 @@ function checkFirmwareUpdate() {
                                     // Update the notification dismiss variable with the latest available version
                                     storage.set({updateDismiss:data[0]["tag_name"]});
                                     popup.popup("close");
-                                    showupdate.slideUp();
+                                    removeNotification(button);
                                     return false;
                                 });
 
@@ -8436,18 +8454,17 @@ function changePage(toPage,opts) {
         toPage = "#"+toPage;
     }
 
+    // Close the panel before page transition to avoid bug in jQM 1.4+
+    var panel = $(".ui-panel-open");
+    if (panel.length > 0) {
+        panel.one("panelclose", function(){
+            changePage(toPage,opts);
+        });
+        panel.panel("close");
+        return;
+    }
+
     $.mobile.pageContainer.pagecontainer("change",toPage,opts);
-}
-
-// Close the panel before page transition to avoid bug in jQM 1.4+
-function changeFromPanel(page,opts) {
-    opts = opts || {};
-
-    var $panel = $("#sprinklers-settings");
-    $panel.one("panelclose", function(){
-        changePage(page,opts);
-    });
-    $panel.panel("close");
 }
 
 // Change persistent header
@@ -8539,11 +8556,7 @@ function goHome() {
             "transition": "none"
         };
 
-        if ($("#sprinklers-settings").hasClass("ui-panel-open")) {
-            changeFromPanel("#sprinklers",opts);
-        } else {
-            changePage("#sprinklers",opts);
-        }
+        changePage("#sprinklers",opts);
     }
 }
 
