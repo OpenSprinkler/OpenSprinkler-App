@@ -330,7 +330,7 @@ $(document)
                 rightBtn: {
                     icon: "alert",
                     class: "notifications",
-                    text: "<span class='notificationCount'>"+notifications.length+"</span>",
+                    text: "<span class='notificationCount ui-li-count ui-btn-corner-all'>"+notifications.length+"</span>",
                     on: function(){
                         showNotifications();
                         return false;
@@ -565,12 +565,12 @@ function send_to_os(dest,type) {
     type = type || "text";
 
     var obj = {
-        url: curr_prefix+curr_ip+dest,
-        type: "GET",
-        dataType: type,
-        retry: {times: retryCount, statusCodes:[0,408,500]}
-    },
-    defer;
+            url: curr_prefix+curr_ip+dest,
+            type: "GET",
+            dataType: type,
+            retry: {times: retryCount, statusCodes:[0,408,500]}
+        },
+        defer;
 
     if (curr_auth) {
         $.extend(obj,{
@@ -7458,6 +7458,7 @@ function checkPublicAccess(eip) {
                 title: _("Remote access is not enabled"),
                 desc: _("Click here to troubleshoot remote access issues"),
                 on: function(){
+                    var button = $(this).parent();
                 }
             });
         }

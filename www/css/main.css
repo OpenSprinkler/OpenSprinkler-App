@@ -286,6 +286,19 @@ body, input, select, textarea, button, .ui-btn {
     }
 }
 
+.notifications {
+    height: 100%;
+}
+
+.notificationCount {
+    position: absolute;
+    top: 0;
+    background: #ed1d24;
+    color: #fff;
+    z-index: 999;
+    font-size: 0.8em;
+}
+
 #notificationPanel li h2 {
     font-size: 0.9em;
 }
