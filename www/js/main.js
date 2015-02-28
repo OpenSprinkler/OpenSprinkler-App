@@ -78,6 +78,7 @@ var isIEMobile = /IEMobile/.test(navigator.userAgent),
     controller = {},
     switching = false,
     currentCoordinates = [0,0],
+    notifications = [],
     curr_183, curr_ip, curr_prefix, curr_auth, curr_pw, curr_wa, curr_auth_user, curr_auth_pw, curr_local, currLang, language, deviceip, interval_id, timeout_id, errorTimeout, weatherKeyFail;
 
 // Redirect jQuery Mobile DOM manipulation to prevent error
@@ -316,7 +317,8 @@ $(document)
                     check_status();
                 }
             });
-            changeHeader({
+
+            var header = changeHeader({
                 class: "logo",
                 leftBtn: {
                     icon: "bullets",
@@ -325,8 +327,21 @@ $(document)
                         return false;
                     }
                 },
+                rightBtn: {
+                    icon: "alert",
+                    class: "notifications",
+                    text: "<span class='notificationCount'>"+notifications.length+"</span>",
+                    on: function(){
+                        showNotifications();
+                        return false;
+                    }
+                },
                 animate: (data.options.firstLoad ? false : true)
             });
+
+            if (notifications.length === 0) {
+                $(header[2]).hide();
+            }
         }
     });
 
@@ -638,7 +653,6 @@ function network_fail(){
         refresh_status();
         update_weather();
     });
-    hide_weather();
 }
 
 // Gather new controller information and load home page
@@ -7440,17 +7454,61 @@ function checkPublicAccess(eip) {
         },
         function(){
             // Unable to access the device using it's public IP
+            addNotification({
+                title: _("Remote access is not enabled"),
+                desc: _("Click here to troubleshoot remote access issues"),
+                on: function(){
+                }
+            });
         }
     );
 }
 
+function addNotification(item) {
+    notifications.push(item);
+    updateNotificationBadge();
+
+    var panel = $("#notificationPanel");
+
+    if (panel.hasClass("ui-panel-open")) {
+        panel.find("ul").append(createNotificationItem(item)).listview("refresh");
+    }
+}
+
+function updateNotificationBadge() {
+    var total = notifications.length,
+        header = $("#header");
+
+    if (total === 0) {
+        header.find(".notifications").hide();
+    } else {
+        header.find(".notifications").show();
+        header.find(".notificationCount").text(total);
+    }
+}
+
+function createNotificationItem(item) {
+    return $("<li><h2>"+item.title+"</h2>"+(item.desc ? "<p>"+item.desc+"</p>" : "")+"</li>").on("click",item.on);
+}
+
+function showNotifications() {
+    if (notifications.length === 0) {
+        return;
+    }
+
+    var panel = $("#notificationPanel"),
+        items = [$("<li data-role='list-divider'>"+_("Notifications")+"</li>")];
+
+    for (var i = notifications.length - 1; i >= 0; i--) {
+        items.push(createNotificationItem(notifications[i]));
+    }
+
+    panel.find("ul").replaceWith($("<ul/>").append(items).listview());
+    panel.panel().panel("option","classes.modal","needsclick ui-panel-dismiss");
+    panel.panel("open");
+}
+
 function checkFirmwareUpdate() {
-    // Cache show update div
-    var showupdate = $("#showupdate");
-
-    // Hide it and only show if an update is available
-    showupdate.hide();
-
     // Update checks are only be available for Arduino firmwares
     if (!isOSPi()) {
         // Github API to get releases for OpenSprinkler firmware
@@ -7460,40 +7518,43 @@ function checkFirmwareUpdate() {
                 storage.get("updateDismiss",function(flag){
                     // If the variable does not exist or is lower than the newest update, show the update notification
                     if (!flag.updateDismiss || flag.updateDismiss < data[0]["tag_name"]) {
-                        showupdate.html("<p class='running-text inline-icon center'>"+_("Firmware update available")+"</p>").on("click",function(){
-                            // Modify the changelog by parsing markdown of lists to HTML
-                            var changelog = data[0].body.replace(/[\-|\*|\+]\s(.*)?(?:\r\n)?/g,"<li>$1</li>"),
-                                popup = $(
-                                    "<div data-role='popup' class='modal' data-overlay-theme='b'>" +
-                                        "<h3 class='center' style='margin-bottom:0'>"+_("Latest")+" "+_("Firmware")+": "+data[0].name+"</h3>" +
-                                        "<h5 class='center' style='margin:0'>"+_("This Controller")+": "+getOSVersion()+"</h5>" +
-                                        "<ul class='changelog'>"+changelog+"</ul>" +
-                                        "<a class='guide ui-btn ui-corner-all ui-shadow' style='width:80%;margin:5px auto;' href='#'>"+_("Upgrade Guide")+"</a>" +
-                                        "<a class='dismiss ui-btn ui-btn-b ui-corner-all ui-shadow' style='width:80%;margin:5px auto;' href='#'>"+_("Dismiss")+"</a>" +
-                                    "</div>"
-                                );
+                        addNotification({
+                            title: _("Firmware update available"),
+                            on: function(){
+                                // Modify the changelog by parsing markdown of lists to HTML
+                                var changelog = data[0].body.replace(/[\-|\*|\+]\s(.*)?(?:\r\n)?/g,"<li>$1</li>"),
+                                    popup = $(
+                                        "<div data-role='popup' class='modal' data-overlay-theme='b'>" +
+                                            "<h3 class='center' style='margin-bottom:0'>"+_("Latest")+" "+_("Firmware")+": "+data[0].name+"</h3>" +
+                                            "<h5 class='center' style='margin:0'>"+_("This Controller")+": "+getOSVersion()+"</h5>" +
+                                            "<ul class='changelog'>"+changelog+"</ul>" +
+                                            "<a class='guide ui-btn ui-corner-all ui-shadow' style='width:80%;margin:5px auto;' href='#'>"+_("Upgrade Guide")+"</a>" +
+                                            "<a class='dismiss ui-btn ui-btn-b ui-corner-all ui-shadow' style='width:80%;margin:5px auto;' href='#'>"+_("Dismiss")+"</a>" +
+                                        "</div>"
+                                    );
 
-                            popup.find(".guide").on("click", function() {
-                                // Open the firmware upgrade guide in a child browser
-                                $("<a class='hidden iab' href='https://opensprinkler.freshdesk.com/support/solutions/articles/5000381694-update-opensprinkler-firmware-with-downloads-'></a>").appendTo(popup).click();
-                            });
+                                popup.find(".guide").on("click", function() {
+                                    // Open the firmware upgrade guide in a child browser
+                                    $("<a class='hidden iab' href='https://opensprinkler.freshdesk.com/support/solutions/articles/5000381694-update-opensprinkler-firmware-with-downloads-'></a>").appendTo(popup).click();
+                                });
 
-                            popup.find(".dismiss").one("click", function() {
-                                // Update the notification dismiss variable with the latest available version
-                                storage.set({updateDismiss:data[0]["tag_name"]});
-                                popup.popup("close");
-                                showupdate.slideUp();
-                                return false;
-                            });
+                                popup.find(".dismiss").one("click", function() {
+                                    // Update the notification dismiss variable with the latest available version
+                                    storage.set({updateDismiss:data[0]["tag_name"]});
+                                    popup.popup("close");
+                                    showupdate.slideUp();
+                                    return false;
+                                });
 
-                            popup.one("popupafterclose", function(){
-                                $(this).popup("destroy").remove();
-                            });
+                                popup.one("popupafterclose", function(){
+                                    $(this).popup("destroy").remove();
+                                });
 
-                            $(".ui-page-active").append(popup);
+                                $(".ui-page-active").append(popup);
 
-                            popup.popup({history: false, positionTo: "window"}).popup("open");
-                        }).slideDown();
+                                popup.popup({history: false, positionTo: "window"}).popup("open");
+                            }
+                        });
                     }
                 });
             }
