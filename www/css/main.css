@@ -307,6 +307,17 @@ body, input, select, textarea, button, .ui-btn {
     white-space: normal;
 }
 
+#notificationPanel .clear-all {
+    position: absolute;
+    right: 2px;
+    top: -5px;
+    font-size: smaller;
+}
+
+#notificationPanel .clear-all.clear {
+    width: 60px;
+}
+
 /* Start page rules */
 
 #start {

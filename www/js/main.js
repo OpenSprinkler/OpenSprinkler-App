@@ -7527,7 +7527,15 @@ function showNotifications() {
     }
 
     var panel = $("#notificationPanel"),
-        items = [$("<li data-role='list-divider'>"+_("Notifications")+"</li>")];
+        items = [$("<li data-role='list-divider'>"+_("Notifications")+"<button class='ui-btn ui-btn-icon-notext ui-icon-delete btn-no-border clear-all delete'></button></li>").on("click",".clear-all",function(){
+            var button = $(this);
+
+            if (button.hasClass("clear")) {
+                clearNotifications();
+            } else {
+                button.removeClass("delete ui-btn-icon-notext ui-icon-delete").addClass("clear").text(_("Clear"));
+            }
+        })];
 
     for (var i = notifications.length - 1; i >= 0; i--) {
         items.push(createNotificationItem(notifications[i]));
@@ -7542,6 +7550,7 @@ function clearNotifications() {
     var panel = $("#notificationPanel");
     notifications = [];
     updateNotificationBadge();
+    panel.find("ul").empty();
     if (panel.hasClass("ui-panel-open")) {
         panel.panel("close");
     }
@@ -8679,7 +8688,7 @@ function fixInputClick(page) {
 function holdButton(target,callback) {
     var intervalId;
 
-    target.on("tap click",callback).on("taphold",function(e){
+    target.on("tap",callback).on("taphold",function(e){
         intervalId = setInterval(function(){
             callback(e);
         }, 100);
