@@ -677,6 +677,9 @@ function newload() {
     //Empty object which will store device data
     controller = {};
 
+    //Empty notifications
+    notifications = [];
+
     //Clear the current queued AJAX requests (used for previous controller connection)
     $.ajaxq.abort("default");
 
