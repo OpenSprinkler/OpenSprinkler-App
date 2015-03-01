@@ -568,7 +568,7 @@ function send_to_os(dest,type) {
             url: curr_prefix+curr_ip+dest,
             type: "GET",
             dataType: type,
-            retry: {times: retryCount, statusCodes:[0,408,500]}
+            shouldRetry: retryCount
         },
         defer;
 
@@ -2022,6 +2022,7 @@ function update_yahoo_weather() {
         url: "https://query.yahooapis.com/v1/public/yql?q=select%20woeid%20from%20geo.placefinder%20where%20text=%22"+encodeURIComponent(controller.settings.loc)+"%22&format=json",
         dataType: isChromeApp ? "json" : "jsonp",
         contentType: "application/json; charset=utf-8",
+        shouldRetry: retryCount,
         success: function(woeid){
             if (woeid.query.results === null) {
                 hide_weather();
@@ -2040,6 +2041,7 @@ function update_yahoo_weather() {
                 url: "https://query.yahooapis.com/v1/public/yql?q=select%20item%2Ctitle%2Clocation%20from%20weather.forecast%20where%20woeid%3D%22"+wid+"%22&format=json",
                 dataType: isChromeApp ? "json" : "jsonp",
                 contentType: "application/json; charset=utf-8",
+                shouldRetry: retryCount,
                 success: function(data){
                     // Hide the weather if no data is returned
                     if (data.query.results.channel.item.title === "City not found") {
@@ -2065,9 +2067,9 @@ function update_yahoo_weather() {
 
                     $.mobile.document.trigger("weatherUpdateComplete");
                 }
-            }).retry({times:retryCount, statusCodes: [0]}).fail(weather_update_failed);
+            }).fail(weather_update_failed);
         }
-    }).retry({times:retryCount, statusCodes: [0]}).fail(weather_update_failed);
+    }).fail(weather_update_failed);
 }
 
 function update_yahoo_forecast(data,loc,region,now) {
@@ -2092,6 +2094,7 @@ function update_wunderground_weather(wapikey) {
         url: "https://api.wunderground.com/api/"+wapikey+"/conditions/forecast/lang:EN/q/"+encodeURIComponent(controller.settings.loc)+".json",
         dataType: isChromeApp ? "json" : "jsonp",
         contentType: "application/json; charset=utf-8",
+        shouldRetry: retryCount,
         success: function(data) {
             var code, temp;
 
@@ -2149,7 +2152,7 @@ function update_wunderground_weather(wapikey) {
 
             $.mobile.document.trigger("weatherUpdateComplete");
         }
-    }).retry({times:retryCount, statusCodes: [0]}).fail(weather_update_failed);
+    }).fail(weather_update_failed);
 }
 
 function update_wunderground_forecast(data) {
@@ -2231,8 +2234,9 @@ function resolveLocation(loc,callback) {
     $.ajax({
         url: "https://autocomplete.wunderground.com/aq?format=json&h=0&query="+encodeURIComponent(loc),
         dataType: isChromeApp ? "json" : "jsonp",
-        jsonp: "cb"
-    }).retry({times:retryCount, statusCodes: [0]}).done(function(data){
+        jsonp: "cb",
+        shouldRetry: retryCount
+    }).done(function(data){
         data = data.RESULTS;
 
         if (data.length === 0) {
@@ -2301,8 +2305,9 @@ function nearbyPWS(lat,lon,callback) {
 
     $.ajax({
         url: "http://api.wunderground.com/api/"+controller.settings.wtkey+"/geolookup/q/"+(lat === -999 || lon === -999 ? "autoip" : encodeURIComponent(lat)+","+encodeURIComponent(lon))+".json",
-        dataType: isChromeApp ? "json" : "jsonp"
-    }).retry({times:retryCount, statusCodes: [0]}).done(function(data){
+        dataType: isChromeApp ? "json" : "jsonp",
+        shouldRetry: retryCount
+    }).done(function(data){
         var airports;
 
         lat = data.location.lat;
@@ -2404,8 +2409,9 @@ function debugWU() {
 
     $.ajax({
         url: "http://api.wunderground.com/api/"+controller.settings.wtkey+"/yesterday/conditions/q/"+controller.settings.loc+".json",
-        dataType: isChromeApp ? "json" : "jsonp"
-    }).retry({times:retryCount, statusCodes: [0]}).done(function(data){
+        dataType: isChromeApp ? "json" : "jsonp",
+        shouldRetry: retryCount
+    }).done(function(data){
         $.mobile.loading("hide");
 
         if (typeof data.response.error === "object") {
@@ -2455,8 +2461,9 @@ function getAdjustmentName(id) {
 function testAPIKey(key,callback) {
     $.ajax({
         url: "https://api.wunderground.com/api/"+key+"/conditions/forecast/lang:EN/q/75252.json",
-        dataType: isChromeApp ? "json" : "jsonp"
-    }).retry({times:retryCount, statusCodes: [0]}).done(function(data){
+        dataType: isChromeApp ? "json" : "jsonp",
+        shouldRetry: retryCount
+    }).done(function(data){
         if (typeof data.response.error === "object" && data.response.error.type === "keynotfound") {
             callback(false);
             return;
