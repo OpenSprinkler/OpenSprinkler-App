@@ -45,6 +45,9 @@ msgstr ""
 msgid "Information"
 msgstr ""
 
+msgid "Unable to connect to"
+msgstr ""
+
 msgid "Check IP/Port and try again."
 msgstr ""
 
@@ -1068,6 +1071,15 @@ msgid "Unable to change password. Please try again."
 msgstr ""
 
 msgid "Password changed successfully"
+msgstr ""
+
+msgid "Remote access is not enabled"
+msgstr ""
+
+msgid "Click here to troubleshoot remote access issues"
+msgstr ""
+
+msgid "Notifications"
 msgstr ""
 
 msgid "Firmware update available"
