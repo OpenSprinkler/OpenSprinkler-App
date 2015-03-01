@@ -678,7 +678,7 @@ function newload() {
     controller = {};
 
     //Empty notifications
-    notifications = [];
+    clearNotifications();
 
     //Clear the current queued AJAX requests (used for previous controller connection)
     $.ajaxq.abort("default");
@@ -7536,6 +7536,15 @@ function showNotifications() {
     panel.find("ul").replaceWith($("<ul/>").append(items).listview());
     panel.panel().panel("option","classes.modal","needsclick ui-panel-dismiss");
     panel.panel("open");
+}
+
+function clearNotifications() {
+    var panel = $("#notificationPanel");
+    notifications = [];
+    updateNotificationBadge();
+    if (panel.hasClass("ui-panel-open")) {
+        panel.panel("close");
+    }
 }
 
 function removeNotification(button) {
