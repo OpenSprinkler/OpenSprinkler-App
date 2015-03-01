@@ -750,6 +750,9 @@ function newload() {
 
             var fail = function() {
                 if (!curr_local) {
+                    $.mobile.document.one("pageshow",function(){
+                        showerror(_("Unable to connect to")+" "+name,3500);
+                    });
                     changePage("#site-control",{"showBack": false});
                 } else {
                     storage.remove(["sites"],function(){
