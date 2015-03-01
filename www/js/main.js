@@ -1623,7 +1623,7 @@ function isLocalIP(ip) {
     var chk = parseIntArray(ip.split("."));
 
     // Check if the IP is on a private network, if not don't enable automatic scanning
-    return (chk[0] === 10 || (chk[0] === 172 && chk[1] > 17 && chk[1] < 32) || (chk[0] === 192 && chk[1] === 168));
+    return (chk[0] === 10 || chk[0] === 127 || (chk[0] === 172 && chk[1] > 17 && chk[1] < 32) || (chk[0] === 192 && chk[1] === 168));
 }
 
 function resetStartMenu() {
@@ -7465,7 +7465,16 @@ function checkPublicAccess(eip) {
                 title: _("Remote access is not enabled"),
                 desc: _("Click here to troubleshoot remote access issues"),
                 on: function(){
-                    var button = $(this).parent();
+                    var iab = window.open("https://opensprinkler.freshdesk.com/support/solutions/articles/5000569763","_blank","location="+(isAndroid ? "yes" : "no")+",enableViewportScale=yes,toolbarposition=top,closebuttoncaption="+_("Back"));
+
+                    if (isIEMobile) {
+                        $.mobile.document.data("iabOpen",true);
+                        iab.addEventListener("exit",function(){
+                            $.mobile.document.removeData("iabOpen");
+                        });
+                    }
+
+                    return false;
                 }
             });
         }
