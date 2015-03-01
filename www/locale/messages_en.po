@@ -1082,6 +1082,9 @@ msgstr ""
 msgid "Notifications"
 msgstr ""
 
+msgid "Clear"
+msgstr ""
+
 msgid "Firmware update available"
 msgstr ""
 
