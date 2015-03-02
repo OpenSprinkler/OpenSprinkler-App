@@ -3740,7 +3740,7 @@ function get_status() {
             }
 
             // Set the time for the header to the device time
-            runningTotal.c = new Date().getTime() - (controller.settings.devt * 1000);
+            runningTotal.c = controller.settings.devt;
 
             var master = controller.options.mas,
                 ptotal = 0;
@@ -3988,7 +3988,8 @@ function get_status() {
                         }
                     } else {
                         if (a === "c") {
-                            $("#clock-s").text(dateToString(new Date(now-runningTotal[a])));
+                            ++runningTotal[a];
+                            $("#clock-s").text(dateToString(new Date(runningTotal[a]*1000)));
                         } else {
                             --runningTotal[a];
                             $("#countdown-"+a).text("(" + sec2hms(runningTotal[a]) + " "+_("remaining")+")");
