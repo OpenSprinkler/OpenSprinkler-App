@@ -7535,6 +7535,11 @@ function showNotifications() {
                 clearNotifications();
             } else {
                 button.removeClass("delete ui-btn-icon-notext ui-icon-delete").addClass("clear").text(_("Clear"));
+                setTimeout(function(){
+                $.mobile.document.one("click",function(){
+                        button.removeClass("clear").addClass("delete ui-btn-icon-notext ui-icon-delete").text("");
+                    });
+                },1);
             }
         })];
 

@@ -309,13 +309,15 @@ body, input, select, textarea, button, .ui-btn {
 
 #notificationPanel .clear-all {
     position: absolute;
-    right: 2px;
-    top: -5px;
+    right: 5px;
+    top: -3px;
     font-size: smaller;
 }
 
 #notificationPanel .clear-all.clear {
     width: 60px;
+    right: 0;
+    top: -5px;
 }
 
 /* Start page rules */
