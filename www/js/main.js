@@ -10,6 +10,7 @@ var isIEMobile = /IEMobile/.test(navigator.userAgent),
     isOSXApp = isOSXApp || false,
     isChromeApp = typeof chrome === "object" && typeof chrome.storage === "object",
     isFileCapable = !isiOS && !isAndroid && !isIEMobile && !isOSXApp && !isFireFoxOS && !isWinApp && !isBB10 && window.FileReader,
+    isTouchCapable = "ontouchstart" in window || "onmsgesturechange" in window,
     // Small wrapper to handle Chrome vs localStorage usage
     storage = {
         get: function(query,callback) {
@@ -8694,7 +8695,7 @@ function fixInputClick(page) {
 function holdButton(target,callback) {
     var intervalId;
 
-    target.on("tap",callback).on("taphold",function(e){
+    target.on(isTouchCapable ? "tap" : "click",callback).on("taphold",function(e){
         intervalId = setInterval(function(){
             callback(e);
         }, 100);
