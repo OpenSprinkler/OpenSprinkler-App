@@ -2709,13 +2709,13 @@ function show_options() {
 
                         return true;
                     case "ip_addr":
+                        ip = data.split(".");
+
                         if (ip === "0.0.0.0") {
                             showerror(_("A valid IP address is required when DHCP is not used"));
                             invalid = true;
                             return false;
                         }
-
-                        ip = data.split(".");
 
                         opt.o4 = ip[0];
                         opt.o5 = ip[1];
@@ -2724,18 +2724,27 @@ function show_options() {
 
                         return true;
                     case "gateway":
+                        ip = data.split(".");
+
                         if (ip === "0.0.0.0") {
                             showerror(_("A valid gateway address is required when DHCP is not used"));
                             invalid = true;
                             return false;
                         }
 
-                        ip = data.split(".");
-
                         opt.o8 = ip[0];
                         opt.o9 = ip[1];
                         opt.o10 = ip[2];
                         opt.o11 = ip[3];
+
+                        return true;
+                    case "netmask":
+                        ip = data.split(".");
+
+                        opt.o36 = ip[0];
+                        opt.o37 = ip[1];
+                        opt.o38 = ip[2];
+                        opt.o39 = ip[3];
 
                         return true;
                     case "ntp_addr":
@@ -2956,10 +2965,14 @@ function show_options() {
 
     if (typeof controller.options.dhcp !== "undefined" && checkOSVersion(210)) {
         var ip = [controller.options.ip1,controller.options.ip2,controller.options.ip3,controller.options.ip4].join("."),
-            gw = [controller.options.gw1,controller.options.gw2,controller.options.gw3,controller.options.gw4].join(".");
+            gw = [controller.options.gw1,controller.options.gw2,controller.options.gw3,controller.options.gw4].join("."),
+            nm = [controller.options.nm1,controller.options.nm2,controller.options.nm3,controller.options.nm4].join(".");
 
         list += "<div class='"+((controller.options.dhcp === 1) ? "hidden " : "")+"ui-field-contain duration-field'><label for='ip_addr'>"+_("IP Address")+"</label><button data-mini='true' id='ip_addr' value='"+ip+"'>"+ip+"</button></div>";
         list += "<div class='"+((controller.options.dhcp === 1) ? "hidden " : "")+"ui-field-contain duration-field'><label for='gateway'>"+_("Gateway Address")+"</label><button data-mini='true' id='gateway' value='"+gw+"'>"+gw+"</button></div>";
+        if (nm !== "...") {
+            list += "<div class='"+((controller.options.dhcp === 1) ? "hidden " : "")+"ui-field-contain duration-field'><label for='netmask'>"+_("Subnet Mask")+"</label><button data-mini='true' id='netmask' value='"+nm+"'>"+nm+"</button></div>";
+        }
         list += "<label for='o3'><input data-mini='true' id='o3' type='checkbox' "+((controller.options.dhcp === 1) ? "checked='checked'" : "")+">"+_("Use DHCP (restart required)")+"</label>";
     }
 
@@ -3004,7 +3017,7 @@ function show_options() {
     page.find("#o3").on("change",function(){
         var button = $(this),
             checked = button.is(":checked"),
-            manualInputs = page.find("#ip_addr,#gateway").parents(".ui-field-contain");
+            manualInputs = page.find("#ip_addr,#gateway,#netmask").parents(".ui-field-contain");
 
         if (checked) {
             manualInputs.addClass("hidden");
@@ -3172,7 +3185,7 @@ function show_options() {
         header.eq(2).prop("disabled",false);
         page.find(".submit").addClass("hasChanges");
 
-        if (id === "ip_addr" || id === "gateway" || id === "ntp_addr") {
+        if (id === "ip_addr" || id === "gateway" || id === "netmask" || id === "ntp_addr") {
             showIPRequest({
                 title: name,
                 ip: dur.val().split("."),
