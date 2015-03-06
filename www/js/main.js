@@ -735,7 +735,7 @@ function newload() {
             checkFirmwareUpdate();
 
             // Check if password is plain text (older method) and hash the password, if needed
-            if (checkOSVersion(213)) {
+            if (checkOSVersion(213) && controller.options.hwv !== 176) {
                 fixPasswordHash(name);
             }
 
