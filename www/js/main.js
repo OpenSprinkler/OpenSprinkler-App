@@ -80,7 +80,7 @@ var isIEMobile = /IEMobile/.test(navigator.userAgent),
     switching = false,
     currentCoordinates = [0,0],
     notifications = [],
-    curr_183, curr_ip, curr_prefix, curr_auth, curr_pw, curr_wa, curr_auth_user, curr_auth_pw, curr_local, currLang, language, deviceip, interval_id, timeout_id, errorTimeout, weatherKeyFail;
+    curr_183, curr_ip, curr_prefix, curr_auth, curr_pw, curr_wa, curr_auth_user, curr_auth_pw, curr_local, currLang, language, deviceip, interval_id, timeout_id, errorTimeout, weather, weatherKeyFail;
 
 // Redirect jQuery Mobile DOM manipulation to prevent error
 if (isWinApp) {
@@ -1994,9 +1994,14 @@ function update_yahoo_weather() {
 
                     currentCoordinates = [data.query.results.channel.item.lat,data.query.results.channel.item.long];
 
-                    $("#weather")
-                        .html("<div title='"+now.text+"' class='wicon cond"+now.code+"'></div><span>"+convert_temp(now.temp,region)+"</span><br><span class='location'>"+loc[1]+"</span>")
-                        .on("click",show_forecast);
+                    weather = {
+                        title: now.text,
+                        code: now.code,
+                        temp: convert_temp(now.temp,region),
+                        location: loc[1]
+                    };
+
+                    updateWeatherBox();
 
                     update_yahoo_forecast(data.query.results.channel.item.forecast,loc[1],region,now);
 
@@ -2005,6 +2010,12 @@ function update_yahoo_weather() {
             }).fail(weather_update_failed);
         }
     }).fail(weather_update_failed);
+}
+
+function updateWeatherBox() {
+    $("#weather")
+        .html("<div title='"+weather.title+"' class='wicon cond"+weather.code+"'></div><span>"+weather.temp+"</span><br><span class='location'>"+weather.location+"</span>")
+        .off("click").on("click",show_forecast);
 }
 
 function update_yahoo_forecast(data,loc,region,now) {
@@ -2075,9 +2086,14 @@ function update_wunderground_weather(wapikey) {
                 temp = ww_forecast.condition.temp_c+"&#176;C";
             }
 
-            $("#weather")
-                .html("<div title='"+ww_forecast.condition.text+"' class='wicon cond"+code+"'></div><span>"+temp+"</span><br><span class='location'>"+ww_forecast.location+"</span>")
-                .on("click",show_forecast);
+            weather = {
+                title: ww_forecast.condition.text,
+                code: code,
+                temp: temp,
+                location: ww_forecast.location
+            };
+
+            updateWeatherBox();
 
             update_wunderground_forecast(ww_forecast);
 
@@ -3362,6 +3378,10 @@ function showHome(firstLoad) {
 
     $("#sprinklers").remove();
     page.appendTo("body");
+
+    if (!$.isEmptyObject(weather)) {
+        updateWeatherBox();
+    }
 }
 
 // Station managament function
