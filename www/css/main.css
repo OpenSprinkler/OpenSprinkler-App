@@ -147,6 +147,9 @@ a {
 .red.ui-btn {
     border-color:#C96161!important;
 }
+.transparent {
+    background:transparent;
+}
 .green {
     background:#16a085!important;
     color:#FFF!important;
@@ -558,22 +561,19 @@ body, input, select, textarea, button, .ui-btn {
     padding:2px 0;
     font-size:medium;
     position:relative;
-    width: 100%;
+    width: 94%;
 }
 #footer-menu {
     border: 0;
+    width: 24px;
+    float: right;
+    background: transparent;
     position: absolute;
-    bottom: 45px;
-    right: 5px;
-    z-index: 9999;
-    height: 44px;
-    width: 44px;
+    right: 0;
+    bottom: 0;
 }
 #footer-menu:after {
-    height: 44px;
-    width: 44px;
-    margin-top: -22px;
-    margin-left: -22px;
+    background-color: transparent;
 }
 .changelog {
     font-size: smaller;
