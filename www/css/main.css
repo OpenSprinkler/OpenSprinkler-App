@@ -1068,3 +1068,11 @@ div.running-text{
         padding-bottom: 0;
     }
 }
+@media (max-width: 320px) {
+    .wicon {
+        margin:-35px -10px -15px -30px;
+    }
+    .ui-icon-sprinkler {
+        padding-bottom: 15px;
+    }
+}
