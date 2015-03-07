@@ -104,7 +104,8 @@ a {
     background: none !important;
     height: 44px;
     width: 44px;
-    margin: 0 0 0 auto !important;
+    margin: auto !important;
+    padding-bottom: 15px;
 }
 
 .ui-icon-sprinkler:after {
@@ -638,6 +639,9 @@ body, input, select, textarea, button, .ui-btn {
 #clock-s {
     padding-top: 10%
 }
+.waterlevel {
+    text-align: center;
+}
 .running-text {
     margin:0;
     text-shadow:none;
@@ -897,7 +901,8 @@ div.running-text{
 /* Weather-related rules */
 #weather {
     overflow:hidden;
-    text-overflow:ellipsis
+    text-overflow:ellipsis;
+    text-align: center;
 }
 #forecast .wicon {
     margin:0 auto!important
@@ -1043,7 +1048,10 @@ div.running-text{
 @media (max-width:940px) {
     #weather .location {
         font-weight:inherit;
-        white-space:normal!important
+        white-space:normal!important;
+    }
+    #weather {
+        text-align: left;
     }
     .wicon {
         zoom:.5;
@@ -1052,6 +1060,11 @@ div.running-text{
         display:block!important
     }
     .waterlevel {
-        font-size: smaller !important
+        font-size: smaller !important;
+        text-align: right;
+    }
+    .ui-icon-sprinkler {
+        margin: 0 0 0 auto !important;
+        padding-bottom: 0;
     }
 }

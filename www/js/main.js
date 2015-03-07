@@ -3331,7 +3331,7 @@ function showHome(firstLoad) {
                         "<div class='ui-block-b center'>" +
                             "<div id='clock-s' class='nobr'>"+dateToString(new Date(controller.settings.devt*1000),null,"<br>")+"<br>"+name+"</div>" +
                         "</div>" +
-                        "<div class='ui-block-c right waterlevel'>" +
+                        "<div class='ui-block-c waterlevel'>" +
                             "<span class='ui-btn ui-icon-sprinkler ui-btn-icon-notext'></span>" + _("Water Level") + "<br>" + controller.options.wl + "%" +
                         "</div>" +
                 "</div>" +
