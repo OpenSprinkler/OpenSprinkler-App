@@ -91,6 +91,35 @@ a {
     background-image:url(../img/serial.png)
 }
 
+.ui-icon-bell:after {
+    background-image:url("data:image/svg+xml;charset=US-ASCII,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22utf-8%22%3F%3E%3C!DOCTYPE%20svg%20PUBLIC%20%22-%2F%2FW3C%2F%2FDTD%20SVG%201.1%20Tiny%2F%2FEN%22%20%22http%3A%2F%2Fwww.w3.org%2FGraphics%2FSVG%2F1.1%2FDTD%2Fsvg11-tiny.dtd%22%3E%3Csvg%20version%3D%221.1%22%20baseProfile%3D%22tiny%22%20id%3D%22Layer_1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20x%3D%220px%22%20y%3D%220px%22%20width%3D%2216px%22%20height%3D%2216px%22%20viewBox%3D%220%200%20500%20500%22%20xml%3Aspace%3D%22preserve%22%3E%3Cpath%20d%3D%22M236.607%20473.214q0-4.464-4.464-4.464-16.462%200-28.32-11.858t-11.858-28.32q0-4.464-4.464-4.464t-4.464%204.464q0%2020.368%2014.37%2034.738t34.738%2014.37q4.464%200%204.464-4.464zM464.286%20392.857q0%2014.509-10.603%2025.112t-25.112%2010.603h-125q0%2029.576-20.926%2050.502t-50.502%2020.926-50.502-20.926-20.926-50.502h-125q-14.509%200-25.112-10.603t-10.603-25.112q53.013-44.922%2080.078-110.91t27.065-139.090q0-46.038%2026.786-73.103t73.661-32.645q-2.232-5.022-2.232-10.324%200-11.161%207.813-18.973t18.973-7.813%2018.973%207.813%207.813%2018.973q0%205.301-2.232%2010.324%2046.875%205.581%2073.661%2032.645t26.786%2073.103q0%2073.103%2027.065%20139.090t80.078%20110.91z%22%20fill%3D%22%23ffffff%22%20%2F%3E%3C%2Fsvg%3E");
+}
+
+.ui-nosvg .ui-icon-bell:after {
+    background-image:url(../img/bell.png)
+}
+
+.ui-icon-sprinkler {
+    border: none !important;
+    background: none !important;
+    height: 50px;
+    width: 50px;
+    margin: 0 0 0 auto !important;
+}
+
+.ui-icon-sprinkler:after {
+    background-color: transparent;
+    background-image:url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2250%22%20height%3D%2250%22%20viewBox%3D%220%200%2050%2050%22%3E%3Cg%3E%3Cpath%20fill%3D%22%2344CFC0%22%20d%3D%22M26.623%2024.407c0%201.01-.811%201.824-1.821%201.824-1.011%200-1.824-.814-1.824-1.824%200-1.01.813-1.821%201.824-1.821%201.01%200%201.821.811%201.821%201.821%22%2F%3E%3Cpath%20fill%3D%22%2344CFC0%22%20d%3D%22M23.353%2019.897c0%201.01-.815%201.823-1.827%201.823-1.006%200-1.821-.813-1.821-1.823%200-1.004.815-1.823%201.821-1.823%201.013%200%201.828.819%201.828%201.823%22%2F%3E%3Cpath%20fill%3D%22%2344CFC0%22%20d%3D%22M18.992%2014.902c0%20.761-.617%201.38-1.38%201.38-.769%200-1.384-.619-1.384-1.38%200-.762.615-1.381%201.384-1.381.762%200%201.38.619%201.38%201.381%22%2F%3E%3Cpath%20fill%3D%22%2344CFC0%22%20d%3D%22M33.532%2014.902c0%20.761-.619%201.38-1.38%201.38-.766%200-1.385-.619-1.385-1.38%200-.762.619-1.381%201.385-1.381.762%200%201.38.619%201.38%201.381%22%2F%3E%3Cpath%20fill%3D%22%2344CFC0%22%20d%3D%22M26.191%2019.897c0%201.01.815%201.823%201.819%201.823%201.011%200%201.83-.813%201.83-1.823%200-1.004-.819-1.823-1.83-1.823-1.002%200-1.819.819-1.819%201.823%22%2F%3E%3Cpath%20fill%3D%22%2344CFC0%22%20d%3D%22M37.914%2011.657c0%20.666.541%201.208%201.209%201.208.666%200%201.208-.541%201.208-1.208%200-.667-.541-1.211-1.208-1.211-.667%200-1.209.544-1.209%201.211%22%2F%3E%3Cpath%20fill%3D%22%2344CFC0%22%20d%3D%22M44.957%2013.405c0%20.589.48%201.07%201.069%201.07s1.069-.481%201.069-1.07c0-.589-.48-1.069-1.069-1.069s-1.069.48-1.069%201.069%22%2F%3E%3Cpath%20fill%3D%22%2344CFC0%22%20d%3D%22M12.513%2011.657c0%20.666-.54%201.208-1.208%201.208-.667%200-1.209-.541-1.209-1.208%200-.667.542-1.211%201.209-1.211s1.208.544%201.208%201.211%22%2F%3E%3Cpath%20fill%3D%22%2344CFC0%22%20d%3D%22M5.471%2013.405c0%20.589-.48%201.07-1.073%201.07-.585%200-1.067-.481-1.067-1.07%200-.589.483-1.069%201.067-1.069.592%200%201.072.48%201.072%201.069%22%2F%3E%3Cpath%20d%3D%22M21.865%2031.547%22%2F%3E%3Cpath%20fill%3D%22%2344CFC0%22%20d%3D%22M26.707%2040.797h-3.775v-12.615h3.775v12.615z%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+    height: 50px;
+    width: 50px;
+    margin-left: -25px;
+    margin-top: -25px;
+}
+
+.ui-nosvg .ui-icon-sprinkler:after {
+    background-image: url(../img/sprinkler.png);
+}
+
 /*
     Usable classes
 */
@@ -110,6 +139,9 @@ a {
 }
 .center {
     text-align:center!important
+}
+.right {
+    text-align: right;
 }
 .nobr {
     white-space:nowrap
@@ -553,15 +585,12 @@ body, input, select, textarea, button, .ui-btn {
 }
 
 /* Home page rules */
-#sprinklers .ui-content {
-    padding-top:0
-}
 #footer-running {
     font-weight:400;
     padding:2px 0;
     font-size:medium;
     position:relative;
-    width: 94%;
+    width: 100%;
 }
 #footer-menu {
     border: 0;
@@ -571,9 +600,6 @@ body, input, select, textarea, button, .ui-btn {
     position: absolute;
     right: 0;
     bottom: 0;
-}
-#footer-menu:after {
-    background-color: transparent;
 }
 .changelog {
     font-size: smaller;
@@ -858,21 +884,8 @@ div.running-text{
 }
 /* Weather-related rules */
 #weather {
-    text-align:center;
     overflow:hidden;
     text-overflow:ellipsis
-}
-#weather-list .ui-li-divider {
-    padding:.5em 0;
-    text-align:center
-}
-#weather-list {
-    display:none;
-    width:20%;
-    float:left;
-    margin-right:10px;
-    margin-left:-1000px;
-    overflow-y:hidden
 }
 #forecast .wicon {
     margin:0 auto!important
@@ -1015,17 +1028,8 @@ div.running-text{
         display: block;
     }
 }
-@media (max-width:480px) {
-    #weather-list {
-        width:80px
-    }
-    #weather-list li:not(.ui-li-divider) {
-        height:auto
-    }
-}
 @media (max-width:940px) {
     #weather .location {
-        font-size:8px;
         font-weight:inherit;
         white-space:normal!important
     }
