@@ -105,7 +105,7 @@ a {
     height: 44px;
     width: 44px;
     margin: auto !important;
-    padding-bottom: 15px;
+    padding-bottom: 25px;
 }
 
 .ui-icon-sprinkler:after {
@@ -1057,7 +1057,7 @@ div.running-text{
         zoom:.5;
         -moz-transform:scale(0.5);
         -o-transform:scale(0.5);
-        display:block!important
+        margin:-35px -10px -5px -30px;
     }
     .waterlevel {
         font-size: smaller !important;

@@ -3262,7 +3262,7 @@ function show_options() {
 }
 
 function showHomeMenu(btn) {
-    btn = btn instanceof jQuery ? btn : $(btn);
+    btn = btn instanceof $ ? btn : $(btn);
 
     var popup = $("<div data-role='popup'>" +
             "<ul data-role='listview' data-inset='true'>" +
@@ -4238,7 +4238,7 @@ function check_status() {
     // If last run duration is given, add it to the footer
     if (lrdur !== 0) {
         var lrpid = controller.settings.lrun[1];
-        var pname = pidname(lrpid);
+        pname = pidname(lrpid);
 
         change_status(0,"transparent","<p class='running-text smaller center'>"+pname+" "+_("last ran station")+" "+controller.stations.snames[controller.settings.lrun[0]]+" "+_("for")+" "+(lrdur/60>>0)+"m "+(lrdur%60)+"s "+_("on")+" "+dateToString(new Date(controller.settings.lrun[3]*1000))+"</p>");
         return;
