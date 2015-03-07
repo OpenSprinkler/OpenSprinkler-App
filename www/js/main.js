@@ -1925,11 +1925,7 @@ function convert_temp(temp,region) {
 }
 
 function hide_weather() {
-    $("#weather-list").animate({
-        "margin-left": "-1000px"
-    },1000,function(){
-        $(this).hide();
-    });
+    $("#weather").empty();
 }
 
 function update_weather() {
@@ -2002,10 +1998,6 @@ function update_yahoo_weather() {
                     $("#weather")
                         .html("<div title='"+now.text+"' class='wicon cond"+now.code+"'></div><span>"+convert_temp(now.temp,region)+"</span><br><span class='location'>"+loc[1]+"</span>")
                         .on("click",show_forecast);
-
-                    $("#weather-list").animate({
-                        "margin-left": "0"
-                    },1000).show();
 
                     update_yahoo_forecast(data.query.results.channel.item.forecast,loc[1],region,now);
 
@@ -2087,10 +2079,6 @@ function update_wunderground_weather(wapikey) {
             $("#weather")
                 .html("<div title='"+ww_forecast.condition.text+"' class='wicon cond"+code+"'></div><span>"+temp+"</span><br><span class='location'>"+ww_forecast.location+"</span>")
                 .on("click",show_forecast);
-
-            $("#weather-list").animate({
-                "margin-left": "0"
-            },1000).show();
 
             update_wunderground_forecast(ww_forecast);
 
@@ -2795,7 +2783,7 @@ function show_options() {
         "<label for='loc'>"+_("Location")+"<button data-helptext='"+_("Location can be a zip code, city/state or a weatherunderground personal weather station using the format: pws:ID.")+"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label>" +
         "<table>" +
             "<tr style='width:100%;vertical-align: top;'>" +
-                "<td style='width:100%'><input data-wrapper-class='"+($("#weather-list").is(":visible") ? "green " : "")+"controlgroup-textinput ui-btn' data-mini='true' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' type='text' id='loc' value='"+controller.settings.loc+"'></td>" +
+                "<td style='width:100%'><input data-wrapper-class='"+($("#weather").is(":empty") ? "" : "green ")+"controlgroup-textinput ui-btn' data-mini='true' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' type='text' id='loc' value='"+controller.settings.loc+"'></td>" +
                 "<td "+(checkOSVersion(210) && controller.settings.wtkey !== "" && weatherKeyFail === false ? "" : "class='hidden' ")+"id='nearbyPWS'><button class='noselect' data-icon='location' data-iconpos='notext' data-mini='true'></button></td>" +
                 "<td "+(checkOSVersion(210) && controller.settings.wtkey !== "" && weatherKeyFail === false ? "class='hidden' " : "")+"id='lookup-loc'><button class='noselect' data-corners='false' data-mini='true'>"+_("Lookup")+"</button></td>" +
             "</tr>" +
@@ -3316,9 +3304,16 @@ function showHome(firstLoad) {
     var page = $("<div data-role='page' id='sprinklers'>" +
             "<div class='ui-panel-wrapper'>" +
                 "<div class='ui-content' role='main'>" +
-                    "<div id='weather-list'>" +
-                        "<div id='weather'></div>" +
-                    "</div>" +
+                    "<div class='ui-grid-b ui-body ui-body-a ui-corner-all'>" +
+                        "<div class='ui-block-a'>" +
+                            "<div id='weather'></div>" +
+                        "</div>" +
+                        "<div class='ui-block-b center'>" +
+                            "<div id='clock-s' class='nobr'>"+dateToString(new Date(controller.settings.devt*1000),null,"</div><div>")+"</div>" +
+                        "</div>" +
+                        "<div class='ui-block-c right smaller'>" +
+                            "<span class='ui-btn ui-icon-sprinkler ui-btn-icon-notext'></span>" + _("Water Level") + "<br>" + controller.options.wl + "%" +
+                        "</div>" +
                 "</div>" +
             "</div>" +
         "</div>");
@@ -3346,7 +3341,7 @@ function showHome(firstLoad) {
             }
         },
         rightBtn: {
-            icon: "alert",
+            icon: "bell",
             class: "notifications",
             text: "<span class='notificationCount ui-li-count ui-btn-corner-all'>"+notifications.length+"</span>",
             on: function(){
@@ -9030,7 +9025,7 @@ function minutesToTime(minutes) {
     return hour+":"+pad(minutes%60)+" "+period;
 }
 
-function dateToString(date,toUTC) {
+function dateToString(date,toUTC,seperator) {
     var dayNames = [_("Sun"),_("Mon"),_("Tue"),_("Wed"),_("Thr"),_("Fri"),_("Sat")],
         monthNames = [_("Jan"),_("Feb"),_("Mar"),_("Apr"),_("May"),_("Jun"),_("Jul"),_("Aug"),_("Sep"),_("Oct"),_("Nov"),_("Dec")];
 
@@ -9039,8 +9034,16 @@ function dateToString(date,toUTC) {
     }
 
     if (currLang === "de") {
-        return pad(date.getDate())+"."+pad(date.getMonth())+"."+date.getFullYear()+" "+pad(date.getHours())+":"+pad(date.getMinutes())+":"+pad(date.getSeconds());
+        if (seperator) {
+            return pad(date.getDate())+"."+pad(date.getMonth())+"."+date.getFullYear()+seperator+pad(date.getHours())+":"+pad(date.getMinutes())+":"+pad(date.getSeconds());
+        } else {
+            return pad(date.getDate())+"."+pad(date.getMonth())+"."+date.getFullYear()+" "+pad(date.getHours())+":"+pad(date.getMinutes())+":"+pad(date.getSeconds());
+        }
     } else {
-        return dayNames[date.getDay()]+", "+pad(date.getDate())+" "+monthNames[date.getMonth()]+" "+date.getFullYear()+" "+pad(date.getHours())+":"+pad(date.getMinutes())+":"+pad(date.getSeconds());
+        if (seperator) {
+            return monthNames[date.getMonth()]+" "+pad(date.getDate())+", "+date.getFullYear()+seperator+pad(date.getHours())+":"+pad(date.getMinutes())+":"+pad(date.getSeconds());
+        } else {
+            return dayNames[date.getDay()]+", "+pad(date.getDate())+" "+monthNames[date.getMonth()]+" "+date.getFullYear()+" "+pad(date.getHours())+":"+pad(date.getMinutes())+":"+pad(date.getSeconds());
+        }
     }
 }
