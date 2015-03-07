@@ -307,47 +307,12 @@ $(document)
             show_site_select();
             return false;
         } else if (hash === "#sprinklers") {
-            $(hash).one("pagebeforeshow",function(){
-                if (!data.options.firstLoad) {
-                    //Reset status bar to loading while an update is done
-                    showLoading("#footer-running");
-                    setTimeout(function(){
-                        refresh_status();
-                    },1000);
-                } else {
-                    check_status();
-                }
-            });
-
-            var header = changeHeader({
-                class: "logo",
-                leftBtn: {
-                    icon: "bullets",
-                    on: function(){
-                        open_panel();
-                        return false;
-                    }
-                },
-                rightBtn: {
-                    icon: "alert",
-                    class: "notifications",
-                    text: "<span class='notificationCount ui-li-count ui-btn-corner-all'>"+notifications.length+"</span>",
-                    on: function(){
-                        showNotifications();
-                        return false;
-                    }
-                },
-                animate: (data.options.firstLoad ? false : true)
-            });
-
-            if (notifications.length === 0) {
-                $(header[2]).hide();
-            }
+            showHome(data.options.firstLoad);
         }
     });
 
     // Initialize the app header
-    $("#header").toolbar();
+    $("#header,#footer").toolbar();
 
     //Attach FastClick handler
     FastClick.attach(document.body);
@@ -399,9 +364,9 @@ $(document)
     var newpage = "#"+e.target.id;
 
     if (newpage === "#start") {
-        $("#header").hide();
+        $("#header,#footer,#footer-menu").hide();
     } else {
-        $("#header").show();
+        $("#header,#footer-menu").show();
     }
 })
 .on("pageshow",function(e){
@@ -496,25 +461,9 @@ function initApp() {
         return false;
     });
 
-    //Bind open panel button
-    $("#sprinklers").on("datarefresh",check_status);
-
-    //Bind stop all stations button
-    $("#stop-all").on("click",function(){
-        areYouSure(_("Are you sure you want to stop all stations?"), "", function() {
-            $.mobile.loading("show");
-            send_to_os("/cv?pw=&rsn=1").done(function(){
-                $.mobile.loading("hide");
-                showLoading("#footer-running");
-                setTimeout(function(){
-                    $.when(
-                        update_controller_settings(),
-                        update_controller_status()
-                    ).then(check_status);
-                }, 1000);
-                showerror(_("All stations have been stopped"));
-            });
-        });
+    // Bind footer menu button
+    $("#footer-menu").on("click",function(){
+        showHomeMenu(this);
     });
 
     //When app isn't using cordova.js, check network status now
@@ -686,29 +635,17 @@ function newload() {
 
     update_controller(
         function(){
-            var log_button = $("#log_button"),
-                manual_mode = $(".manual_mode"),
-                weatherAdjust = $(".weatherAdjust"),
+            var weatherAdjust = $(".weatherAdjust"),
                 change_password = $(".change_password");
 
             $.mobile.loading("hide");
             check_status();
             update_weather();
 
-            // Hide manual mode from the app for Arduino firmware 2.1.0+
             if (checkOSVersion(210)) {
-                manual_mode.hide();
                 weatherAdjust.css("display","");
             } else {
-                manual_mode.css("display","");
                 weatherAdjust.hide();
-            }
-
-            // Hide log viewer button on home page if not supported
-            if (checkOSVersion(206) || checkOSPiVersion("1.9")) {
-                log_button.css("display","");
-            } else {
-                log_button.hide();
             }
 
             // Hide change password feature for unsupported devices
@@ -3321,6 +3258,119 @@ function show_options() {
     page.appendTo("body");
 }
 
+function showHomeMenu(btn) {
+    btn = btn instanceof jQuery ? btn : $(btn);
+
+    var popup = $("<div data-role='popup'>" +
+            "<ul data-role='listview' data-inset='true'>" +
+                "<li data-role='list-divider'>"+_("Information")+"</li>" +
+                "<li><a href='#preview' class='squeeze'>"+_("Preview Programs")+"</a></li>" +
+                (checkOSVersion(206) || checkOSPiVersion("1.9") ? "<li><a href='#logs'>"+_("View Logs")+"</a></li>" : "") +
+                "<li data-role='list-divider'>"+_("Programs and Settings")+"</li>" +
+                "<li><a href='#raindelay'>"+_("Change Rain Delay")+"</a></li>" +
+                "<li><a href='#runonce'>"+_("Run-Once Program")+"</a></li>" +
+                "<li><a href='#programs'>"+_("Edit Programs")+"</a></li>" +
+                "<li><a href='#os-options'>"+_("Edit Options")+"</a></li>" +
+                (checkOSVersion(210) ? "" : "<li><a href='#manual'>"+_("Manual Control")+"</a></li>") +
+                "<li><a href='#os-stations'>"+_("Edit Stations")+"</a></li>" +
+                "<li><a href='#stop-all'>"+_("Stop All Stations")+"</a></li>" +
+            "</ul>" +
+        "</div>");
+
+    popup.on("click","a",function(){
+        var clicked = $(this),
+            href = clicked.attr("href");
+
+        popup.popup("close");
+
+        if (href === "#stop-all") {
+            areYouSure(_("Are you sure you want to stop all stations?"), "", function() {
+                $.mobile.loading("show");
+                send_to_os("/cv?pw=&rsn=1").done(function(){
+                    $.mobile.loading("hide");
+                    showLoading("#footer-running");
+                    setTimeout(function(){
+                        $.when(
+                            update_controller_settings(),
+                            update_controller_status()
+                        ).then(check_status);
+                    }, 1000);
+                    showerror(_("All stations have been stopped"));
+                });
+            });
+        } else {
+            changePage(href);
+        }
+
+        return false;
+    });
+
+    popup.one("popupafterclose", function(){
+        popup.popup("destroy").remove();
+        btn.show();
+    }).enhanceWithin();
+
+    $(".ui-page-active").append(popup);
+
+    popup.popup({history: false, positionTo: btn}).popup("open");
+
+    btn.hide();
+}
+
+function showHome(firstLoad) {
+    var page = $("<div data-role='page' id='sprinklers'>" +
+            "<div class='ui-panel-wrapper'>" +
+                "<div class='ui-content' role='main'>" +
+                    "<ul data-role='listview' data-inset='true' id='weather-list'>" +
+                        "<li data-role='list-divider'>"+_("Weather")+"</li>" +
+                        "<li><div id='weather'></div></li>" +
+                    "</ul>" +
+                "</div>" +
+            "</div>" +
+        "</div>");
+
+    //Update home page status bar on data refresh
+    page.on("datarefresh",check_status);
+
+    page.one("pagebeforeshow",function(){
+        if (!firstLoad) {
+            setTimeout(function(){
+                refresh_status();
+            },1000);
+        } else {
+            check_status();
+        }
+    });
+
+    var header = changeHeader({
+        class: "logo",
+        leftBtn: {
+            icon: "bullets",
+            on: function(){
+                open_panel();
+                return false;
+            }
+        },
+        rightBtn: {
+            icon: "alert",
+            class: "notifications",
+            text: "<span class='notificationCount ui-li-count ui-btn-corner-all'>"+notifications.length+"</span>",
+            on: function(){
+                showNotifications();
+                return false;
+            }
+        },
+        animate: (firstLoad ? false : true)
+    });
+
+    if (notifications.length === 0) {
+        $(header[2]).hide();
+    }
+
+    $("#sprinklers").remove();
+    page.appendTo("body");
+}
+
 // Station managament function
 function show_stations() {
     var cards = "",
@@ -4053,7 +4103,9 @@ function change_status(seconds,color,line,onclick) {
         update_timer(seconds,controller.options.sdt);
     }
 
-    footer.removeClass().addClass(color).html(line).off("click").on("click",onclick).slideDown();
+    footer.removeClass().addClass(color).html(line).off("click").on("click",onclick);
+
+    $("#footer").show();
 }
 
 // Update status bar based on device status
@@ -4170,7 +4222,7 @@ function check_status() {
         return;
     }
 
-    $("#footer-running").slideUp();
+    $("#footer").hide();
 }
 
 function calculateTotalRunningTime(runTimes) {

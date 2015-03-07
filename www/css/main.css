@@ -254,8 +254,12 @@ body, input, select, textarea, button, .ui-btn {
     user-select:none;
     touch-callout: none;
 }
-#header {
+#header, #footer {
     display: none;
+}
+#footer {
+    min-height: 24px;
+    border: none !important;
 }
 .logo {
     height:42px;
@@ -412,9 +416,6 @@ body, input, select, textarea, button, .ui-btn {
 #addprogram .ui-select > .ui-btn, #programs .ui-select > .ui-btn {
     min-width: 110px;
 }
-#program-control-list {
-    clear:both
-}
 
 /* Language popup rules */
 
@@ -552,15 +553,27 @@ body, input, select, textarea, button, .ui-btn {
 #sprinklers .ui-content {
     padding-top:0
 }
-#footer-running, #showupdate {
+#footer-running {
     font-weight:400;
     padding:2px 0;
-    display: none;
     font-size:medium;
-    position:relative
+    position:relative;
+    width: 100%;
 }
-#showupdate {
-    padding-top: 5px
+#footer-menu {
+    border: 0;
+    position: absolute;
+    bottom: 45px;
+    right: 5px;
+    z-index: 9999;
+    height: 44px;
+    width: 44px;
+}
+#footer-menu:after {
+    height: 44px;
+    width: 44px;
+    margin-top: -22px;
+    margin-left: -22px;
 }
 .changelog {
     font-size: smaller;
@@ -594,12 +607,6 @@ body, input, select, textarea, button, .ui-btn {
 }
 div.running-text{
     display: table-cell;
-}
-
-/* Settings page rules */
-
-#info-list {
-    overflow:hidden
 }
 
 /* Station editor page rules */
