@@ -102,22 +102,37 @@ a {
 .ui-icon-sprinkler {
     border: none !important;
     background: none !important;
-    height: 50px;
-    width: 50px;
+    height: 44px;
+    width: 44px;
     margin: 0 0 0 auto !important;
 }
 
 .ui-icon-sprinkler:after {
     background-color: transparent;
     background-image:url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2250%22%20height%3D%2250%22%20viewBox%3D%220%200%2050%2050%22%3E%3Cg%3E%3Cpath%20fill%3D%22%2344CFC0%22%20d%3D%22M26.623%2024.407c0%201.01-.811%201.824-1.821%201.824-1.011%200-1.824-.814-1.824-1.824%200-1.01.813-1.821%201.824-1.821%201.01%200%201.821.811%201.821%201.821%22%2F%3E%3Cpath%20fill%3D%22%2344CFC0%22%20d%3D%22M23.353%2019.897c0%201.01-.815%201.823-1.827%201.823-1.006%200-1.821-.813-1.821-1.823%200-1.004.815-1.823%201.821-1.823%201.013%200%201.828.819%201.828%201.823%22%2F%3E%3Cpath%20fill%3D%22%2344CFC0%22%20d%3D%22M18.992%2014.902c0%20.761-.617%201.38-1.38%201.38-.769%200-1.384-.619-1.384-1.38%200-.762.615-1.381%201.384-1.381.762%200%201.38.619%201.38%201.381%22%2F%3E%3Cpath%20fill%3D%22%2344CFC0%22%20d%3D%22M33.532%2014.902c0%20.761-.619%201.38-1.38%201.38-.766%200-1.385-.619-1.385-1.38%200-.762.619-1.381%201.385-1.381.762%200%201.38.619%201.38%201.381%22%2F%3E%3Cpath%20fill%3D%22%2344CFC0%22%20d%3D%22M26.191%2019.897c0%201.01.815%201.823%201.819%201.823%201.011%200%201.83-.813%201.83-1.823%200-1.004-.819-1.823-1.83-1.823-1.002%200-1.819.819-1.819%201.823%22%2F%3E%3Cpath%20fill%3D%22%2344CFC0%22%20d%3D%22M37.914%2011.657c0%20.666.541%201.208%201.209%201.208.666%200%201.208-.541%201.208-1.208%200-.667-.541-1.211-1.208-1.211-.667%200-1.209.544-1.209%201.211%22%2F%3E%3Cpath%20fill%3D%22%2344CFC0%22%20d%3D%22M44.957%2013.405c0%20.589.48%201.07%201.069%201.07s1.069-.481%201.069-1.07c0-.589-.48-1.069-1.069-1.069s-1.069.48-1.069%201.069%22%2F%3E%3Cpath%20fill%3D%22%2344CFC0%22%20d%3D%22M12.513%2011.657c0%20.666-.54%201.208-1.208%201.208-.667%200-1.209-.541-1.209-1.208%200-.667.542-1.211%201.209-1.211s1.208.544%201.208%201.211%22%2F%3E%3Cpath%20fill%3D%22%2344CFC0%22%20d%3D%22M5.471%2013.405c0%20.589-.48%201.07-1.073%201.07-.585%200-1.067-.481-1.067-1.07%200-.589.483-1.069%201.067-1.069.592%200%201.072.48%201.072%201.069%22%2F%3E%3Cpath%20d%3D%22M21.865%2031.547%22%2F%3E%3Cpath%20fill%3D%22%2344CFC0%22%20d%3D%22M26.707%2040.797h-3.775v-12.615h3.775v12.615z%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
-    height: 50px;
-    width: 50px;
-    margin-left: -25px;
-    margin-top: -25px;
+    height: 44px;
+    width: 44px;
+    margin-left: -22px;
+    margin-top: -22px;
 }
 
 .ui-nosvg .ui-icon-sprinkler:after {
     background-image: url(../img/sprinkler.png);
+}
+
+.running-icon {
+    width:11px;
+    height:11px;
+    background:url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMXB4IiBoZWlnaHQ9IjExcHgiPjxjaXJjbGUgZmlsbD0iIzVBREM1NiIgY3g9IjUuNSIgY3k9IjUuNSIgcj0iNS41Ii8+PC9zdmc+) no-repeat;
+    background-size:11px 11px;
+    display: inline-block;
+    padding-right: 5px;
+    float: left;
+    margin-left: 5px;
+    margin-top: 4px;
+}
+.ui-nosvg .running-icon {
+    background-image:url(../img/running.png)
 }
 
 /*
@@ -594,12 +609,20 @@ body, input, select, textarea, button, .ui-btn {
 }
 #footer-menu {
     border: 0;
-    width: 24px;
-    float: right;
     background: transparent;
-    position: absolute;
-    right: 0;
-    bottom: 0;
+    position: fixed;
+    right: 5px;
+    bottom: 8%;
+    z-index: 9999;
+    height: 50px;
+    width: 50px;
+}
+#footer-menu:after{
+    height: 50px;
+    width: 50px;
+    margin-top: -25px;
+    margin-left: -25px;
+    zoom: 1.5;
 }
 .changelog {
     font-size: smaller;
@@ -612,19 +635,8 @@ body, input, select, textarea, button, .ui-btn {
     font-weight: 600;
     font-size: 14px;
 }
-.running-icon {
-    width:11px;
-    height:11px;
-    background:url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMXB4IiBoZWlnaHQ9IjExcHgiPjxjaXJjbGUgZmlsbD0iIzVBREM1NiIgY3g9IjUuNSIgY3k9IjUuNSIgcj0iNS41Ii8+PC9zdmc+) no-repeat;
-    background-size:11px 11px;
-    display: inline-block;
-    padding-right: 5px;
-    float: left;
-    margin-left: 5px;
-    margin-top: 4px;
-}
-.ui-nosvg .running-icon {
-    background-image:url(../img/running.png)
+#clock-s {
+    padding-top: 10%
 }
 .running-text {
     margin:0;
@@ -1039,9 +1051,7 @@ div.running-text{
         -o-transform:scale(0.5);
         display:block!important
     }
-}
-@media (max-width:940px) and (min-width:480px) {
-    .wicon {
-        margin:0 auto!important
+    .waterlevel {
+        font-size: smaller !important
     }
 }

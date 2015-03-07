@@ -364,9 +364,9 @@ $(document)
     var newpage = "#"+e.target.id;
 
     if (newpage === "#start") {
-        $("#header,#footer").hide();
+        $("#header,#footer,#footer-menu").hide();
     } else {
-        $("#header,#footer").show();
+        $("#header,#footer,#footer-menu").show();
     }
 })
 .on("pageshow",function(e){
@@ -1952,7 +1952,6 @@ function update_weather() {
 
 function weather_update_failed(x,t,m) {
     if (m.url && (m.url.search("yahooapis.com") !== -1 || m.url.search("api.wunderground.com") !== -1)) {
-        hide_weather();
         return;
     }
 }
@@ -3247,6 +3246,8 @@ function show_options() {
 }
 
 function showHomeMenu(btn) {
+    btn = btn instanceof jQuery ? btn : $(btn);
+
     var popup = $("<div data-role='popup'>" +
             "<ul data-role='listview' data-inset='true'>" +
                 "<li data-role='list-divider'>"+_("Information")+"</li>" +
@@ -3293,11 +3294,14 @@ function showHomeMenu(btn) {
 
     popup.one("popupafterclose", function(){
         popup.popup("destroy").remove();
+        btn.show();
     }).enhanceWithin();
 
     $(".ui-page-active").append(popup);
 
     popup.popup({history: false, positionTo: btn}).popup("open");
+
+    btn.hide();
 }
 
 function showHome(firstLoad) {
@@ -3309,9 +3313,9 @@ function showHome(firstLoad) {
                             "<div id='weather'></div>" +
                         "</div>" +
                         "<div class='ui-block-b center'>" +
-                            "<div id='clock-s' class='nobr'>"+dateToString(new Date(controller.settings.devt*1000),null,"</div><div>")+"</div>" +
+                            "<div id='clock-s' class='nobr'>"+dateToString(new Date(controller.settings.devt*1000),null,"<br>")+"<br>"+name+"</div>" +
                         "</div>" +
-                        "<div class='ui-block-c right smaller'>" +
+                        "<div class='ui-block-c right waterlevel'>" +
                             "<span class='ui-btn ui-icon-sprinkler ui-btn-icon-notext'></span>" + _("Water Level") + "<br>" + controller.options.wl + "%" +
                         "</div>" +
                 "</div>" +
