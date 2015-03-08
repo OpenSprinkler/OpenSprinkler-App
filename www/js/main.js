@@ -3541,6 +3541,10 @@ function show_attributes() {
         },
         select = "<div data-overlay-theme='b' data-role='popup' id='stn_attrib'><fieldset style='margin:0' data-corners='false' data-role='controlgroup'>";
 
+    if (!id) {
+        return false;
+    }
+
     select += "<input class='bold center' data-wrapper-class='stn-name ui-btn' id='stn-name' type='text' value='"+name.text()+"'>";
 
     if (hasMaster) {
