@@ -3342,6 +3342,8 @@ function show_options() {
 function showHomeMenu(btn) {
     btn = btn instanceof $ ? btn : $(btn);
 
+    $(".ui-popup-active").find("[data-role='popup']").popup("close");
+
     var page = $("#sprinklers"),
         showHidden = page.hasClass("show-hidden"),
         popup = $("<div data-role='popup' style='border:0'>" +
