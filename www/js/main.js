@@ -3534,6 +3534,10 @@ function showHome(firstLoad) {
                 name = controller.stations.snames[station],
                 question;
 
+            if (station === controller.options.mas - 1) {
+                return false;
+            }
+
             if (currentStatus) {
                 question = _("Do you want to stop the selected station?");
             } else {
