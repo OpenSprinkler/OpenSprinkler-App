@@ -2022,10 +2022,14 @@ function update_yahoo_forecast(data,loc,region,now) {
     var list = "<li data-role='list-divider' data-theme='a' class='center'>"+loc+"</li>",
         i;
 
-    list += "<li data-icon='false' class='center'><div title='"+now.text+"' class='wicon cond"+now.code+"'></div><span data-translate='Now'>"+_("Now")+"</span><br><span>"+convert_temp(now.temp,region)+"</span></li>";
+    list += "<li data-icon='false' class='center'><div title='"+now.text+"' class='wicon cond"+now.code+"'></div><span data-translate='Now'>"+_("Now")+"</span><br><span>"+convert_temp(now.temp,region)+"</span><br><span data-translate='Sunrise'>"+_("Sunrise")+"</span><span>: "+pad(parseInt(controller.settings.sunrise/60)%24)+":"+pad(controller.settings.sunrise%60)+"</span> <span data-translate='Sunrise'>"+_("Sunset")+"</span><span>: "+pad(parseInt(controller.settings.sunset/60)%24)+":"+pad(controller.settings.sunset%60)+"</span></li>";
 
     for (i=0;i < data.length; i++) {
-        list += "<li data-icon='false' class='center'><span>"+data[i].date+"</span><br><div title='"+data[i].text+"' class='wicon cond"+data[i].code+"'></div><span data-translate='"+data[i].day+"'>"+_(data[i].day)+"</span><br><span data-translate='Low'>"+_("Low")+"</span><span>: "+convert_temp(data[i].low,region)+"  </span><span data-translate='High'>"+_("High")+"</span><span>: "+convert_temp(data[i].high,region)+"</span></li>";
+        var times = getSunTimes(new Date(data[i].date)),
+            sunrise = times[0],
+            sunset = times[1];
+
+        list += "<li data-icon='false' class='center'><span>"+data[i].date+"</span><br><div title='"+data[i].text+"' class='wicon cond"+data[i].code+"'></div><span data-translate='"+data[i].day+"'>"+_(data[i].day)+"</span><br><span data-translate='Low'>"+_("Low")+"</span><span>: "+convert_temp(data[i].low,region)+"  </span><span data-translate='High'>"+_("High")+"</span><span>: "+convert_temp(data[i].high,region)+"</span><br><span data-translate='Sunrise'>"+_("Sunrise")+"</span><span>: "+pad(parseInt(sunrise/60)%24)+":"+pad(sunrise%60)+"</span> <span data-translate='Sunrise'>"+_("Sunset")+"</span><span>: "+pad(parseInt(sunset/60)%24)+":"+pad(sunset%60)+"</span></li>";
     }
 
     var forecast = $("#forecast_list");
@@ -2114,22 +2118,25 @@ function update_wunderground_forecast(data) {
     }
 
     var list = "<li data-role='list-divider' data-theme='a' class='center'>"+data.location+"</li>";
-    list += "<li data-icon='false' class='center'><div title='"+data.condition.text+"' class='wicon cond"+data.condition.code+"'></div><span data-translate='Now'>"+_("Now")+"</span><br><span>"+temp+"</span><br><span data-translate='Precip'>"+_("Precip")+"</span><span>: "+precip+"</span></li>";
+    list += "<li data-icon='false' class='center'><div title='"+data.condition.text+"' class='wicon cond"+data.condition.code+"'></div><span data-translate='Now'>"+_("Now")+"</span><br><span>"+temp+"</span><br><span data-translate='Sunrise'>"+_("Sunrise")+"</span><span>: "+pad(parseInt(controller.settings.sunrise/60)%24)+":"+pad(controller.settings.sunrise%60)+"</span> <span data-translate='Sunrise'>"+_("Sunset")+"</span><span>: "+pad(parseInt(controller.settings.sunset/60)%24)+":"+pad(controller.settings.sunset%60)+"</span><br><span data-translate='Precip'>"+_("Precip")+"</span><span>: "+precip+"</span></li>";
     $.each(data.simpleforecast, function(k,attr) {
-        var precip;
+        var times = getSunTimes(new Date(attr.date.epoch*1000)),
+            sunrise = times[0],
+            sunset = times[1],
+            precip;
 
         if (data.region === "US" || data.region === "BM" || data.region === "PW") {
             precip = attr.qpf_allday["in"];
             if (precip === null) {
                 precip = 0;
             }
-            list += "<li data-icon='false' class='center'><span>"+attr.date.monthname_short+" "+attr.date.day+"</span><br><div title='"+attr.conditions+"' class='wicon cond"+attr.icon+"'></div><span data-translate='"+attr.date.weekday_short+"'>"+_(attr.date.weekday_short)+"</span><br><span data-translate='Low'>"+_("Low")+"</span><span>: "+attr.low.fahrenheit+"&#176;F  </span><span data-translate='High'>"+_("High")+"</span><span>: "+attr.high.fahrenheit+"&#176;F</span><br><span data-translate='Precip'>"+_("Precip")+"</span><span>: "+precip+" in</span></li>";
+            list += "<li data-icon='false' class='center'><span>"+attr.date.monthname_short+" "+attr.date.day+"</span><br><div title='"+attr.conditions+"' class='wicon cond"+attr.icon+"'></div><span data-translate='"+attr.date.weekday_short+"'>"+_(attr.date.weekday_short)+"</span><br><span data-translate='Low'>"+_("Low")+"</span><span>: "+attr.low.fahrenheit+"&#176;F  </span><span data-translate='High'>"+_("High")+"</span><span>: "+attr.high.fahrenheit+"&#176;F</span><br><span data-translate='Sunrise'>"+_("Sunrise")+"</span><span>: "+pad(parseInt(sunrise/60)%24)+":"+pad(sunrise%60)+"</span> <span data-translate='Sunrise'>"+_("Sunset")+"</span><span>: "+pad(parseInt(sunset/60)%24)+":"+pad(sunset%60)+"</span><br><span data-translate='Precip'>"+_("Precip")+"</span><span>: "+precip+" in</span></li>";
         } else {
             precip = attr.qpf_allday.mm;
             if (precip === null) {
                 precip = 0;
             }
-            list += "<li data-icon='false' class='center'><span>"+attr.date.monthname_short+" "+attr.date.day+"</span><br><div title='"+attr.conditions+"' class='wicon cond"+attr.icon+"'></div><span data-translate='"+attr.date.weekday_short+"'>"+_(attr.date.weekday_short)+"</span><br><span data-translate='Low'>"+_("Low")+"</span><span>: "+attr.low.celsius+"&#176;C  </span><span data-translate='High'>"+_("High")+"</span><span>: "+attr.high.celsius+"&#176;C</span><br><span data-translate='Precip'>"+_("Precip")+"</span><span>: "+precip+" mm</span></li>";
+            list += "<li data-icon='false' class='center'><span>"+attr.date.monthname_short+" "+attr.date.day+"</span><br><div title='"+attr.conditions+"' class='wicon cond"+attr.icon+"'></div><span data-translate='"+attr.date.weekday_short+"'>"+_(attr.date.weekday_short)+"</span><br><span data-translate='Low'>"+_("Low")+"</span><span>: "+attr.low.celsius+"&#176;C  </span><span data-translate='High'>"+_("High")+"</span><span>: "+attr.high.celsius+"&#176;C</span><br><span data-translate='Sunrise'>"+_("Sunrise")+"</span><span>: "+pad(parseInt(sunrise/60)%24)+":"+pad(sunrise%60)+"</span> <span data-translate='Sunrise'>"+_("Sunset")+"</span><span>: "+pad(parseInt(sunset/60)%24)+":"+pad(controller.settings.sunset%60)+"</span><br><span data-translate='Precip'>"+_("Precip")+"</span><span>: "+precip+" mm</span></li>";
         }
     });
 
@@ -2138,6 +2145,23 @@ function update_wunderground_forecast(data) {
     if (forecast.hasClass("ui-listview")) {
         forecast.listview("refresh");
     }
+}
+
+function getSunTimes(date) {
+    var now = new Date(controller.settings.devt*1000),
+        control = SunCalc.getTimes(now, currentCoordinates[0], currentCoordinates[1]),
+        tzOffset = controller.settings.sunrise - (control.sunrise.getHours() * 60 + control.sunrise.getMinutes());
+
+    date = date || now;
+
+    var times = SunCalc.getTimes(date, currentCoordinates[0], currentCoordinates[1]),
+        sunrise = times["sunrise"],
+        sunset = times["sunset"];
+
+    sunrise = (sunrise.getHours() * 60 + sunrise.getMinutes()) + tzOffset;
+    sunset = (sunset.getHours() * 60 + sunset.getMinutes()) + tzOffset;
+
+    return [sunrise, sunset];
 }
 
 function show_forecast() {
@@ -3321,33 +3345,76 @@ function showHomeMenu(btn) {
 }
 
 function showHome(firstLoad) {
-    var page = $("<div data-role='page' id='sprinklers'>" +
+    var cards = "",
+        page = $("<div data-role='page' id='sprinklers'>" +
             "<div class='ui-panel-wrapper'>" +
                 "<div class='ui-content' role='main'>" +
-                    "<div class='ui-grid-b ui-body ui-body-a ui-corner-all'>" +
+                    "<div class='ui-grid-a ui-body ui-corner-all card info-card'>" +
                         "<div class='ui-block-a'>" +
                             "<div id='weather'></div>" +
                         "</div>" +
-                        "<div class='ui-block-b center'>" +
-                            "<div id='clock-s' class='nobr'>"+dateToString(new Date(controller.settings.devt*1000),null,"<br>")+"<br>"+name+"</div>" +
-                        "</div>" +
-                        "<div class='ui-block-c waterlevel'>" +
-                            "<span class='ui-btn ui-icon-sprinkler ui-btn-icon-notext'></span>" + _("Water Level") + "<br>" + controller.options.wl + "%" +
+                        "<div class='ui-block-b center home-info'>" +
+                            "<div id='clock-s' class='nobr'>"+dateToString(new Date(controller.settings.devt*1000),null,true)+"</div>" +
+                            _("Water Level") + ": " + controller.options.wl + "%" +
                         "</div>" +
                 "</div>" +
             "</div>" +
-        "</div>");
+        "</div>"),
+        addCard = function(i){
+            var station = controller.stations.snames[i],
+                isScheduled = controller.settings.ps[i][0] > 0,
+                isRunning = controller.status[i] > 0;
+
+            // Group card settings visually
+            cards += "<div class='ui-corner-all card'"+(isStationDisabled(i) ? " style='display:none'" : "")+">";
+            cards += "<div class='ui-body ui-body-a center'>";
+            cards += "<p class='tight center inline-icon' id='station_"+i+"'>"+station+"</p>";
+
+            cards += "<span class='btn-no-border ui-btn ui-btn-icon-notext ui-corner-all station-status "+(isScheduled ? (isRunning ? "on" : "wait") : "off")+"'></span>";
+
+            if (controller.options.mas === i+1) {
+                cards += "<span class='btn-no-border ui-btn ui-icon-master ui-btn-icon-notext station-settings'></span>";
+            } else {
+                cards += "<span class='btn-no-border ui-btn ui-icon-gear ui-btn-icon-notext station-settings' data-station='"+i+"' id='attrib-"+i+"' class='attrib' " +
+                    (hasMaster ? ("data-um='"+((controller.stations.masop[parseInt(i/8)]&(1<<(i%8))) ? 1 : 0)+"' ") : "") +
+                    (hasIR ? ("data-ir='"+((controller.stations.ignore_rain[parseInt(i/8)]&(1<<(i%8))) ? 1 : 0)+"' ") : "") +
+                    (hasAR ? ("data-ar='"+((controller.stations.act_relay[parseInt(i/8)]&(1<<(i%8))) ? 1 : 0)+"' ") : "") +
+                    (hasSD ? ("data-sd='"+((controller.stations.stn_dis[parseInt(i/8)]&(1<<(i%8))) ? 1 : 0)+"' ") : "") +
+                    (hasSequential ? ("data-us='"+((controller.stations.stn_seq[parseInt(i/8)]&(1<<(i%8))) ? 1 : 0)+"' ") : "") +
+                    "></span>";
+            }
+
+            // Close current card group
+            cards += "</div></div>";
+        },
+        hasMaster = controller.options.mas ? true : false,
+        hasIR = (typeof controller.stations.ignore_rain === "object") ? true : false,
+        hasAR = (typeof controller.stations.act_relay === "object") ? true : false,
+        hasSD = (typeof controller.stations.stn_dis === "object") ? true : false,
+        hasSequential = (typeof controller.stations.stn_seq === "object") ? true : false,
+        i;
+
+    for (i=0; i<controller.stations.snames.length; i++) {
+        addCard(i);
+    }
+
+    page.find(".ui-content").append("<div id='os-stations-list' class='card-group center'>"+cards+"</div>");
 
     //Update home page status bar on data refresh
     page.on("datarefresh",check_status);
 
-    page.one("pagebeforeshow",function(){
-        if (!firstLoad) {
-            setTimeout(function(){
-                refresh_status();
-            },1000);
-        } else {
-            check_status();
+    page.one({
+        pagehide: function(){
+            page.remove();
+        },
+        pagebeforeshow: function() {
+            if (!firstLoad) {
+                setTimeout(function(){
+                    refresh_status();
+                },1000);
+            } else {
+                check_status();
+            }
         }
     });
 
@@ -9049,7 +9116,7 @@ function minutesToTime(minutes) {
     return hour+":"+pad(minutes%60)+" "+period;
 }
 
-function dateToString(date,toUTC,seperator) {
+function dateToString(date,toUTC,shorten) {
     var dayNames = [_("Sun"),_("Mon"),_("Tue"),_("Wed"),_("Thr"),_("Fri"),_("Sat")],
         monthNames = [_("Jan"),_("Feb"),_("Mar"),_("Apr"),_("May"),_("Jun"),_("Jul"),_("Aug"),_("Sep"),_("Oct"),_("Nov"),_("Dec")];
 
@@ -9058,14 +9125,14 @@ function dateToString(date,toUTC,seperator) {
     }
 
     if (currLang === "de") {
-        if (seperator) {
-            return pad(date.getDate())+"."+pad(date.getMonth())+"."+date.getFullYear()+seperator+pad(date.getHours())+":"+pad(date.getMinutes())+":"+pad(date.getSeconds());
+        if (shorten) {
+            return pad(date.getDate())+"."+pad(date.getMonth())+"."+date.getFullYear()+" "+pad(date.getHours())+":"+pad(date.getMinutes())+":"+pad(date.getSeconds());
         } else {
             return pad(date.getDate())+"."+pad(date.getMonth())+"."+date.getFullYear()+" "+pad(date.getHours())+":"+pad(date.getMinutes())+":"+pad(date.getSeconds());
         }
     } else {
-        if (seperator) {
-            return monthNames[date.getMonth()]+" "+pad(date.getDate())+", "+date.getFullYear()+seperator+pad(date.getHours())+":"+pad(date.getMinutes())+":"+pad(date.getSeconds());
+        if (shorten) {
+            return monthNames[date.getMonth()]+" "+pad(date.getDate())+", "+date.getFullYear()+" "+pad(date.getHours())+":"+pad(date.getMinutes())+":"+pad(date.getSeconds());
         } else {
             return dayNames[date.getDay()]+", "+pad(date.getDate())+" "+monthNames[date.getMonth()]+" "+date.getFullYear()+" "+pad(date.getHours())+":"+pad(date.getMinutes())+":"+pad(date.getSeconds());
         }
