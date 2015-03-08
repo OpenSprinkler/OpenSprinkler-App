@@ -279,8 +279,6 @@ $(document)
                 }
                 return false;
             }
-        } else if (hash === "#os-stations") {
-            show_stations();
         } else if (hash === "#site-control") {
             show_sites(data.options.showBack);
         } else if (hash === "#weather_settings") {
