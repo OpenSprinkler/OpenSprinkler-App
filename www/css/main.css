@@ -608,6 +608,9 @@ body, input, select, textarea, button, .ui-btn {
     margin-left: -25px;
     zoom: 1.5;
 }
+#stn_attrib {
+    border: 0;
+}
 .changelog {
     font-size: smaller;
     margin: 10px;

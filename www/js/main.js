@@ -3292,8 +3292,10 @@ function show_options() {
 function showHomeMenu(btn) {
     btn = btn instanceof $ ? btn : $(btn);
 
-    var popup = $("<div data-role='popup'>" +
-            "<ul data-role='listview' data-inset='true'>" +
+    var page = $("#sprinklers"),
+        showHidden = page.hasClass("show-hidden"),
+        popup = $("<div data-role='popup' style='border:0'>" +
+            "<ul data-role='listview' data-inset='true' data-corners='false'>" +
                 "<li data-role='list-divider'>"+_("Information")+"</li>" +
                 "<li><a href='#preview' class='squeeze'>"+_("Preview Programs")+"</a></li>" +
                 (checkOSVersion(206) || checkOSPiVersion("1.9") ? "<li><a href='#logs'>"+_("View Logs")+"</a></li>" : "") +
@@ -3303,9 +3305,11 @@ function showHomeMenu(btn) {
                 "<li><a href='#programs'>"+_("Edit Programs")+"</a></li>" +
                 "<li><a href='#os-options'>"+_("Edit Options")+"</a></li>" +
                 (checkOSVersion(210) ? "" : "<li><a href='#manual'>"+_("Manual Control")+"</a></li>") +
-                "<li><a href='#os-stations'>"+_("Edit Stations")+"</a></li>" +
-                "<li><a href='#stop-all'>"+_("Stop All Stations")+"</a></li>" +
             "</ul>" +
+            "<div data-role='controlgroup' data-type='horizontal' data-corners='false' style='margin:0'>" +
+                "<a class='ui-btn' href='#show-hidden'>"+(showHidden ? _("Hide") : _("Show"))+" "+_("Hidden")+"</a>" +
+                "<a class='ui-btn' href='#stop-all'>"+_("Stop All Stations")+"</a>" +
+            "</div>" +
         "</div>");
 
     popup.on("click","a",function(){
@@ -3329,6 +3333,14 @@ function showHomeMenu(btn) {
                     showerror(_("All stations have been stopped"));
                 });
             });
+        } else if (href === "#show-hidden") {
+            if (showHidden) {
+                $(".station-hidden").hide();
+                page.removeClass("show-hidden");
+            } else {
+                $(".station-hidden").show();
+                page.addClass("show-hidden");
+            }
         } else {
             changePage(href);
         }
@@ -3372,7 +3384,7 @@ function showHome(firstLoad) {
                 rem = controller.settings.ps[i][1];
 
             // Group card settings visually
-            cards += "<div class='ui-corner-all card'"+(isStationDisabled(i) ? " style='display:none'" : "")+">";
+            cards += "<div class='ui-corner-all card"+(isStationDisabled(i) ? " station-hidden' style='display:none" : "")+"'>";
             cards += "<div class='ui-body ui-body-a center'>";
             cards += "<p class='tight center inline-icon' id='station_"+i+"'>"+station+"</p>";
 
@@ -3381,7 +3393,7 @@ function showHome(firstLoad) {
             if (controller.options.mas === i+1) {
                 cards += "<span class='btn-no-border ui-btn ui-icon-master ui-btn-icon-notext station-settings'></span>";
             } else {
-                cards += "<span class='btn-no-border ui-btn ui-icon-gear ui-btn-icon-notext station-settings' data-station='"+i+"' id='attrib-"+i+"' class='attrib' " +
+                cards += "<span class='btn-no-border ui-btn ui-icon-gear ui-btn-icon-notext station-settings' data-station='"+i+"' id='attrib-"+i+"' " +
                     (hasMaster ? ("data-um='"+((controller.stations.masop[parseInt(i/8)]&(1<<(i%8))) ? 1 : 0)+"' ") : "") +
                     (hasIR ? ("data-ir='"+((controller.stations.ignore_rain[parseInt(i/8)]&(1<<(i%8))) ? 1 : 0)+"' ") : "") +
                     (hasAR ? ("data-ar='"+((controller.stations.act_relay[parseInt(i/8)]&(1<<(i%8))) ? 1 : 0)+"' ") : "") +
@@ -3416,8 +3428,50 @@ function showHome(firstLoad) {
 
     page.find(".ui-content").append("<div id='os-stations-list' class='card-group center'>"+cards+"</div>");
 
+
+    page.on("click",".station-settings",show_attributes);
+
     //Update home page status bar on data refresh
     page.on("datarefresh",check_status);
+
+    if (checkOSVersion(210)) {
+        page.on("click",".card",function(){
+            // Bind delegate handler to stop specific station (supported on firmware 2.1.0+ on Arduino)
+            var el = $(this),
+                station = el.index(),
+                currentStatus = controller.status[station],
+                name = controller.stations.snames[station],
+                question;
+
+            if (currentStatus) {
+                question = _("Do you want to stop the selected station?");
+            } else {
+                if (el.find("span.nobr").length) {
+                    question = _("Do you want to unschedule the selected station?");
+                } else {
+                    showDurationBox({
+                        title: name,
+                        incrementalUpdate: false,
+                        maximum: 65535,
+                        helptext: _("Enter a duration to manually run "+name),
+                        callback: function(duration){
+                            send_to_os("/cm?sid="+station+"&en=1&t="+duration+"&pw=","json").done(function(){
+                                refresh_status();
+                                showerror(_("Station has been queued"));
+                            });
+                        }
+                    });
+                    return;
+                }
+            }
+            areYouSure(question,controller.stations.snames[station],function(){
+                send_to_os("/cm?sid="+station+"&en=0&pw=").done(function(){
+                    refresh_status();
+                    showerror(_("Station has been stopped"));
+                });
+            });
+        });
+    }
 
     page.one({
         pagehide: function(){
@@ -3467,400 +3521,133 @@ function showHome(firstLoad) {
     }
 }
 
-// Station managament function
-function show_stations() {
-    var cards = "",
-        page = $("<div data-role='page' id='os-stations'>" +
-            "<div class='ui-content' role='main'>" +
-            "</div>" +
-        "</div>"),
-        durations = [],
-        editButton = "<span style='padding-left:10px' class='btn-no-border ui-btn ui-icon-edit ui-btn-icon-notext'></span>",
-        addCard = function(i){
-            var station = controller.stations.snames[i],
-                isRunning = controller.status[i] > 0 || controller.settings.ps[i][0] > 0;
+function show_attributes() {
+    $("#stn_attrib").popup("destroy").remove();
 
-            // Group card settings visually
-            cards += "<div class='ui-corner-all card'>";
-            cards += "<div class='ui-body ui-body-a center'>";
-            cards += "<p class='tight center inline-icon station-name' id='station_"+i+"'>"+station+editButton+"</p>";
-
-            if (optCount > 0 && controller.options.mas !== i+1) {
-                cards += "<button data-mini='true' data-icon='gear' data-iconpos='notext' data-inline='true' data-station='"+i+"' id='attrib-"+i+"' class='attrib' " +
-                    (hasMaster ? ("data-um='"+((controller.stations.masop[parseInt(i/8)]&(1<<(i%8))) ? 1 : 0)+"' ") : "") +
-                    (hasIR ? ("data-ir='"+((controller.stations.ignore_rain[parseInt(i/8)]&(1<<(i%8))) ? 1 : 0)+"' ") : "") +
-                    (hasAR ? ("data-ar='"+((controller.stations.act_relay[parseInt(i/8)]&(1<<(i%8))) ? 1 : 0)+"' ") : "") +
-                    (hasSD ? ("data-sd='"+((controller.stations.stn_dis[parseInt(i/8)]&(1<<(i%8))) ? 1 : 0)+"' ") : "") +
-                    (hasSequential ? ("data-us='"+((controller.stations.stn_seq[parseInt(i/8)]&(1<<(i%8))) ? 1 : 0)+"' ") : "") +
-                    "></button>";
-
-                cards += (hasMaster ? "<span data-shortcode='um' class='stn-attrib-icon btn-no-border ui-btn ui-icon-master ui-btn-icon-notext"+(controller.stations.masop[parseInt(i/8)]&(1<<(i%8)) ? "" : " attrib-disabled")+"'></span>" : "") +
-                    (hasIR ? "<span data-shortcode='ir' class='stn-attrib-icon btn-no-border ui-btn ui-icon-norain ui-btn-icon-notext"+(controller.stations.ignore_rain[parseInt(i/8)]&(1<<(i%8)) ? "" : " attrib-disabled")+"'></span>" : "") +
-                    (hasAR ? "<span data-shortcode='ar' class='stn-attrib-icon btn-no-border ui-btn ui-icon-relay ui-btn-icon-notext"+(controller.stations.act_relay[parseInt(i/8)]&(1<<(i%8)) ? "" : " attrib-disabled")+"'></span>" : "") +
-                    (hasSD ? "<span data-shortcode='sd' class='stn-attrib-icon btn-no-border ui-btn ui-icon-forbidden ui-btn-icon-notext"+(controller.stations.stn_dis[parseInt(i/8)]&(1<<(i%8)) ? "" : " attrib-disabled")+"'></span>" : "") +
-                    (hasSequential ? "<span data-shortcode='us' class='stn-attrib-icon btn-no-border ui-btn ui-icon-serial ui-btn-icon-notext"+(controller.stations.stn_seq[parseInt(i/8)]&(1<<(i%8)) ? "" : " attrib-disabled")+"'></span>" : "");
-            }
-
-            if (is21 && controller.options.mas !== i+1) {
-                cards += "<fieldset data-role='controlgroup' data-type='horizontal' data-mini='true' class='center'>";
-                cards += "<legend>"+_("Test Station")+"</legend>";
-                cards += "<select><option value='60'>1 min</option><option value='300'>5 mins</option><option value='600'>10 mins</option><option value='900'>15 mins</option><option value='1200'>20 mins</option></select>";
-                cards += "<button class='"+(isRunning ? "red" : "green")+"' id='run_station-"+i+"'>"+(isRunning ? _("Stop") : _("Start"))+"</button>";
-                cards += "</fieldset>";
-
-                durations[i] = controller.settings.ps[i][1];
-            }
-
-            if (controller.options.mas === i+1) {
-                cards += "<p class='tight center'>"+_("Master")+" "+_("Station")+"</p>";
-            }
-
-            // Close current card group
-            cards += "</div></div>";
-        },
-        show_attributes = function() {
-            $("#stn_attrib").popup("destroy").remove();
-
-            var button = $(this),
-                id = button.data("station"),
-                name = page.find("#station_"+id),
-                select = "<div data-overlay-theme='b' data-role='popup' id='stn_attrib'><fieldset style='margin:0' data-corners='false' data-role='controlgroup'>";
-
-                select += "<input class='bold center' data-wrapper-class='stn-name ui-btn' id='stn-name' type='text' value='"+name.text()+"'>";
-
-                if (hasMaster) {
-                    select += "<label for='um'><input class='needsclick' data-iconpos='right' id='um' type='checkbox' "+((button.data("um") === 1) ? "checked='checked'" : "")+">"+_("Use Master")+"</label>";
-                }
-
-                if (hasIR) {
-                    select += "<label for='ir'><input class='needsclick' data-iconpos='right' id='ir' type='checkbox' "+((button.data("ir") === 1) ? "checked='checked'" : "")+">"+_("Ignore Rain")+"</label>";
-                }
-
-                if (hasAR) {
-                    select += "<label for='ar'><input class='needsclick' data-iconpos='right' id='ar' type='checkbox' "+((button.data("ar") === 1) ? "checked='checked'" : "")+">"+_("Activate Relay")+"</label>";
-                }
-
-                if (hasSD) {
-                    select += "<label for='sd'><input class='needsclick' data-iconpos='right' id='sd' type='checkbox' "+((button.data("sd") === 1) ? "checked='checked'" : "")+">"+_("Disable")+"</label>";
-                }
-
-                if (hasSequential) {
-                    select += "<label for='us'><input class='needsclick' data-iconpos='right' id='us' type='checkbox' "+((button.data("us") === 1) ? "checked='checked'" : "")+">"+_("Sequential")+"</label>";
-                }
-
-            select += "</fieldset></div>";
-            select = $(select);
-            select.one("popupafterclose", function(){
-                button.data("um", select.find("#um").is(":checked") ? 1 : 0 );
-                button.data("ir", select.find("#ir").is(":checked") ? 1 : 0 );
-                button.data("ar", select.find("#ar").is(":checked") ? 1 : 0 );
-                button.data("sd", select.find("#sd").is(":checked") ? 1 : 0 );
-                button.data("us", select.find("#us").is(":checked") ? 1 : 0 );
-                name.html( select.find("#stn-name").val() + editButton );
-                header.eq(2).prop("disabled",false);
-                select.popup("destroy").remove();
-            }).enhanceWithin();
-
-            $(".ui-page-active").append(select);
-
-            select.popup({history: false, positionTo: button.parent()}).popup("open");
-        },
-        submit_stations = function() {
-            header.eq(2).prop("disabled",true);
-
-            var is208 = (checkOSVersion(208) === true),
-                master = {},
-                sequential = {},
-                rain = {},
-                relay = {},
-                disable = {},
-                names = {},
-                attrib, bid, sid, s;
-
-            for(bid=0;bid<controller.settings.nbrd;bid++) {
-                if (hasMaster) {
-                    master["m"+bid] = 0;
-                }
-                if (hasSequential) {
-                    sequential["q"+bid] = 0;
-                }
-                if (hasIR) {
-                    rain["i"+bid] = 0;
-                }
-                if (hasAR) {
-                    relay["a"+bid] = 0;
-                }
-                if (hasSD) {
-                    disable["d"+bid] = 0;
-                }
-
-                for(s=0;s<8;s++) {
-                    sid=bid*8+s;
-                    attrib = page.find("#attrib-"+sid);
-
-                    if (hasMaster) {
-                        master["m"+bid] = (master["m"+bid]) + (attrib.data("um") << s);
-                    }
-                    if (hasSequential) {
-                        sequential["q"+bid] = (sequential["q"+bid]) + (attrib.data("us") << s);
-                    }
-                    if (hasIR) {
-                        rain["i"+bid] = (rain["i"+bid]) + (attrib.data("ir") << s);
-                    }
-                    if (hasAR) {
-                        relay["a"+bid] = (relay["a"+bid]) + (attrib.data("ar") << s);
-                    }
-                    if (hasSD) {
-                        disable["d"+bid] = (disable["d"+bid]) + (attrib.data("sd") << s);
-                    }
-
-                    // Because the firmware has a bug regarding spaces, let us replace them out now with a compatible seperator
-                    if (is208) {
-                        names["s"+sid] = page.find("#station_"+sid).text().replace(/\s/g,"_");
-                    } else {
-                        names["s"+sid] = page.find("#station_"+sid).text();
-                    }
-                }
-            }
-
-            $.mobile.loading("show");
-            send_to_os("/cs?pw=&"+$.param(names)+(hasMaster ? "&"+$.param(master) : "")+(hasSequential ? "&"+$.param(sequential) : "")+(hasIR ? "&"+$.param(rain) : "")+(hasAR ? "&"+$.param(relay) : "")+(hasSD ? "&"+$.param(disable) : "")).done(function(){
-                $.mobile.document.one("pageshow",function(){
-                    showerror(_("Stations have been updated"));
-                });
-                goBack();
-                update_controller();
-            }).fail(function(){
-                header.eq(2).prop("disabled",false);
-            });
-        },
-        run_station = function(){
-            var button = $(this),
-                station = button.attr("id").split("-")[1],
-                duration = parseInt(button.prev().find("select").val()),
-                start = function(){
-                    $.mobile.loading("show");
-
-                    send_to_os("/cm?sid="+station+"&en=1&t="+duration+"&pw=","json").done(function(){
-
-                        // Notify user the station test was successful
-                        showerror(_("Station test activated"));
-
-                        // Update local state until next device refresh occurs
-                        controller.settings.ps[station][0] = 99;
-                        controller.settings.ps[station][1] = duration;
-                        durations[station] = duration;
-
-                        // Change the start button to a stop button
-                        button.removeClass("green").addClass("red").text(_("Stop")).on("click",stop);
-
-                        // Return button back to previous state
-                        setTimeout(reset,duration*1000);
-                    });
-                },
-                stop = function(){
-                    $.mobile.loading("show");
-                    send_to_os("/cm?sid="+station+"&en=0&pw=","json").done(reset);
-
-                    $.mobile.loading("hide");
-
-                    // Update local state until next device refresh occurs
-                    controller.settings.ps[station][0] = 0;
-                    controller.settings.ps[station][1] = 0;
-                    controller.status[station] = 0;
-                    durations[station] = 0;
-
-                    // Prevent start delegate function from being called
-                    return false;
-                },
-                reset = function(){
-                    button.removeClass("red").addClass("green").text(_("Start")).off("click");
-                };
-
-            if (button.hasClass("green")) {
-                start();
-            } else {
-                stop();
-            }
-        },
-        updateContent = function(){
-            page.find("[id^='run_station-']").each(function(){
-                var button = $(this),
-                    select = button.siblings(".ui-select"),
-                    i = parseInt(button.attr("id").split("-")[1]),
-                    reset = function(){
-                        select.find(".ui-btn").addClass("ui-icon-carat-d ui-btn-icon-right");
-                        select.find("select").prop("disabled",false);
-                        select.find("span").text(select.find("select option:selected").text());
-                        button.removeClass("red").addClass("green").text(_("Start")).off("click");
-                    };
-
-                if (controller.status[i] > 0 || controller.settings.ps[i][0] > 0) {
-                    if (controller.status[i] > 0) {
-                        durations[i]--;
-                    }
-
-                    if (durations[i] <= 0) {
-                        reset();
-                        return true;
-                    }
-
-                    select.find(".ui-btn").removeClass("ui-icon-carat-d ui-btn-icon-right");
-                    select.find("select").prop("disabled",true);
-                    select.find("span").text(dhms2str(sec2dhms(durations[i])));
-                    button.removeClass("green").addClass("red").text(_("Stop")).off("click");
-                } else {
-                    reset();
-                }
-            });
-        },
-        header = changeHeader({
-            title: _("Edit Stations"),
-            leftBtn: {
-                icon: "carat-l",
-                text: _("Back"),
-                class: "ui-toolbar-back-btn",
-                on: checkChangesBeforeBack
-            },
-            rightBtn: {
-                icon: "check",
-                text: _("Submit"),
-                class: "submit",
-                on: submit_stations
-            }
-        }),
+    var button = $(this),
+        id = button.data("station"),
+        name = button.siblings("[id='station_"+id+"']"),
         hasMaster = controller.options.mas ? true : false,
         hasIR = (typeof controller.stations.ignore_rain === "object") ? true : false,
         hasAR = (typeof controller.stations.act_relay === "object") ? true : false,
         hasSD = (typeof controller.stations.stn_dis === "object") ? true : false,
         hasSequential = (typeof controller.stations.stn_seq === "object") ? true : false,
-        optCount = hasIR + hasMaster + hasAR + hasSD + hasSequential,
-        is21 = checkOSVersion(210),
-        lastCheck = new Date().getTime(),
-        updateInterval, i;
+        saveChanges = function(){
+            button.data("um", select.find("#um").is(":checked") ? 1 : 0 );
+            button.data("ir", select.find("#ir").is(":checked") ? 1 : 0 );
+            button.data("ar", select.find("#ar").is(":checked") ? 1 : 0 );
+            button.data("sd", select.find("#sd").is(":checked") ? 1 : 0 );
+            button.data("us", select.find("#us").is(":checked") ? 1 : 0 );
+            name.html( select.find("#stn-name").val() );
+            select.popup("destroy").remove();
+        },
+        select = "<div data-overlay-theme='b' data-role='popup' id='stn_attrib'><fieldset style='margin:0' data-corners='false' data-role='controlgroup'>";
 
-    for (i=0; i<8; i++) {
-        addCard(i);
+    select += "<input class='bold center' data-wrapper-class='stn-name ui-btn' id='stn-name' type='text' value='"+name.text()+"'>";
+
+    if (hasMaster) {
+        select += "<label for='um'><input class='needsclick' data-iconpos='right' id='um' type='checkbox' "+((button.data("um") === 1) ? "checked='checked'" : "")+">"+_("Use Master")+"</label>";
     }
 
-    page.find(".ui-content").html("<div id='os-stations-list' class='card-group center'>"+cards+"</div><button class='submit preventBack'>"+_("Submit")+"</button><button data-theme='b' class='reset'>"+_("Reset")+"</button>");
+    if (hasIR) {
+        select += "<label for='ir'><input class='needsclick' data-iconpos='right' id='ir' type='checkbox' "+((button.data("ir") === 1) ? "checked='checked'" : "")+">"+_("Ignore Rain")+"</label>";
+    }
 
-    page.find("#os-stations-list").one("change input",function(){
-        header.eq(2).prop("disabled",false);
-        page.find(".submit").addClass("hasChanges");
+    if (hasAR) {
+        select += "<label for='ar'><input class='needsclick' data-iconpos='right' id='ar' type='checkbox' "+((button.data("ar") === 1) ? "checked='checked'" : "")+">"+_("Activate Relay")+"</label>";
+    }
+
+    if (hasSD) {
+        select += "<label for='sd'><input class='needsclick' data-iconpos='right' id='sd' type='checkbox' "+((button.data("sd") === 1) ? "checked='checked'" : "")+">"+_("Disable")+"</label>";
+    }
+
+    if (hasSequential) {
+        select += "<label for='us'><input class='needsclick' data-iconpos='right' id='us' type='checkbox' "+((button.data("us") === 1) ? "checked='checked'" : "")+">"+_("Sequential")+"</label>";
+    }
+
+    select += "<button data-theme='b' class='submit'>Submit</button>";
+
+    select += "</fieldset></div>";
+    select = $(select);
+    select.on("click",".submit",function(){
+        saveChanges();
+        submit_stations();
+        select.popup("close");
     });
+    select.one("popupafterclose", saveChanges).enhanceWithin();
 
-    // When data is refreshed, update the icon status
-    page.on("datarefresh",function(){
-        for (var i = controller.settings.ps.length - 1; i >= 0; i--) {
-            durations[i] = controller.settings.ps[i][1];
+    $(".ui-page-active").append(select);
+
+    select.popup({history: false, positionTo: button.parent()}).popup("open");
+}
+
+function submit_stations() {
+    var is208 = (checkOSVersion(208) === true),
+        master = {},
+        sequential = {},
+        rain = {},
+        relay = {},
+        disable = {},
+        names = {},
+        page = $("#os-stations-list"),
+        hasMaster = controller.options.mas ? true : false,
+        hasIR = (typeof controller.stations.ignore_rain === "object") ? true : false,
+        hasAR = (typeof controller.stations.act_relay === "object") ? true : false,
+        hasSD = (typeof controller.stations.stn_dis === "object") ? true : false,
+        hasSequential = (typeof controller.stations.stn_seq === "object") ? true : false,
+        attrib, bid, sid, s;
+
+    for(bid=0;bid<controller.settings.nbrd;bid++) {
+        if (hasMaster) {
+            master["m"+bid] = 0;
         }
-        updateContent();
-    });
-
-    page.on("click","[id^='run_station-']",run_station);
-
-    page.on("click",".attrib",show_attributes);
-
-    page.on("click",".stn-attrib-icon",function(){
-        var icon = $(this),
-            status = icon.hasClass("attrib-disabled") ? 1 : 0,
-            code = icon.data("shortcode"),
-            settings = icon.siblings(".attrib");
-
-        settings.data(code, status);
-
-        if (status) {
-            icon.removeClass("attrib-disabled");
-        } else {
-            icon.addClass("attrib-disabled");
+        if (hasSequential) {
+            sequential["q"+bid] = 0;
+        }
+        if (hasIR) {
+            rain["i"+bid] = 0;
+        }
+        if (hasAR) {
+            relay["a"+bid] = 0;
+        }
+        if (hasSD) {
+            disable["d"+bid] = 0;
         }
 
-        header.eq(2).prop("disabled",false);
-        page.find(".submit").addClass("hasChanges");
-    });
+        for(s=0;s<8;s++) {
+            sid=bid*8+s;
+            attrib = page.find("#attrib-"+sid);
 
-    page.on("click","[id^='station_']",function(){
-        var text = $(this),
-            input = $("<input class='center station-input' data-mini='true' maxlength='"+controller.stations.maxlen+"' id='edit_"+text.attr("id")+"' type='text' value='"+text.text()+"'>");
-
-        text.replaceWith(input);
-        input.on("blur keyup",function(e){
-            if (e.type === "keyup" && e.keyCode !== 13) {
-                return;
+            if (hasMaster) {
+                master["m"+bid] = (master["m"+bid]) + (attrib.data("um") << s);
             }
-            text.html(input.val()+editButton);
-            input.replaceWith(text);
-            input.remove();
-        });
-
-        if (input.get(0).setSelectionRange) {
-            input.focus();
-            input.get(0).setSelectionRange(0, text.text().length);
-        } else if (input.get(0).createTextRange) {
-            var range = input.get(0).createTextRange();
-            range.collapse(true);
-            range.moveEnd("character", text.text().length);
-            range.moveStart("character", 0);
-            range.select();
-        }
-    });
-
-    page.find(".submit").on("click",submit_stations);
-
-    page.find(".reset").on("click",function(){
-        page.find("[id^='station_']").each(function(a,b){
-            $(b).html("S"+pad(a+1)+editButton);
-        });
-        page.find(".attrib").each(function(a,b){
-            $(b).data({
-                "um": 0,
-                "us": 0,
-                "ir": 0,
-                "ar": 0,
-                "sd": 0
-            });
-        });
-        header.eq(2).prop("disabled",false);
-        page.find(".submit").addClass("hasChanges");
-    });
-
-    page.one({
-        pagehide: function(){
-            page.remove();
-        },
-        pageshow: function(){
-            cards = "";
-            for (i; i<controller.stations.snames.length; i++) {
-                addCard(i);
+            if (hasSequential) {
+                sequential["q"+bid] = (sequential["q"+bid]) + (attrib.data("us") << s);
             }
-            page.find("#os-stations-list").append(cards).enhanceWithin();
-        },
-        pagebeforeshow: function() {
-            updateContent();
-            updateInterval = setInterval(function(){
-                var now = new Date().getTime(),
-                    currPage = $(".ui-page-active").attr("id"),
-                    diff = now - lastCheck;
+            if (hasIR) {
+                rain["i"+bid] = (rain["i"+bid]) + (attrib.data("ir") << s);
+            }
+            if (hasAR) {
+                relay["a"+bid] = (relay["a"+bid]) + (attrib.data("ar") << s);
+            }
+            if (hasSD) {
+                disable["d"+bid] = (disable["d"+bid]) + (attrib.data("sd") << s);
+            }
 
-                if (diff > 3000) {
-                    if (currPage === "os-stations") {
-                        refresh_status();
-                    } else {
-                        clearInterval(updateInterval);
-                    }
-                }
-
-                lastCheck = now;
-                updateContent();
-            },1000);
+            // Because the firmware has a bug regarding spaces, let us replace them out now with a compatible seperator
+            if (is208) {
+                names["s"+sid] = page.find("#station_"+sid).text().replace(/\s/g,"_");
+            } else {
+                names["s"+sid] = page.find("#station_"+sid).text();
+            }
         }
+    }
+
+    $.mobile.loading("show");
+    send_to_os("/cs?pw=&"+$.param(names)+(hasMaster ? "&"+$.param(master) : "")+(hasSequential ? "&"+$.param(sequential) : "")+(hasIR ? "&"+$.param(rain) : "")+(hasAR ? "&"+$.param(relay) : "")+(hasSD ? "&"+$.param(disable) : "")).done(function(){
+        showerror(_("Stations have been updated"));
+        update_controller();
     });
-
-    header.eq(2).prop("disabled",true);
-
-    $("#os-stations").remove();
-    page.appendTo("body");
 }
 
 function isStationDisabled(sid) {
