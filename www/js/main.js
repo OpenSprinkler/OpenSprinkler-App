@@ -2877,6 +2877,8 @@ function show_options() {
         list += "<label for='o16'><input data-mini='true' id='o16' type='checkbox' "+((controller.options.seq === 1) ? "checked='checked'" : "")+">"+_("Sequential")+"</label>";
     }
 
+    list += "<button data-mini='true' class='reset-stations'>"+_("Reset")+" "+_("Stations")+"</button>";
+
     list += "</fieldset><fieldset data-role='collapsible'><legend>"+_("Weather Control")+"</legend>";
 
     if (typeof controller.settings.wtkey !== "undefined") {
@@ -2982,6 +2984,52 @@ function show_options() {
             loc.parent().removeClass("green");
             $("#o1").selectmenu("enable");
         }
+    });
+
+    page.find(".reset-stations").on("click",function(){
+        var cs = "";
+
+        for (var i = 0; i < controller.stations.snames.length; i++) {
+            cs += "s"+i+"=S"+pad(i+1)+"&";
+        }
+
+        if (controller.options.mas) {
+            for (i=0; i<controller.settings.nbrd; i++) {
+                cs += "m"+i+"=0&";
+            }
+        }
+
+        if (typeof controller.stations.ignore_rain === "object") {
+            for (i=0; i<controller.settings.nbrd; i++) {
+                cs += "i"+i+"=0&";
+            }
+        }
+
+        if (typeof controller.stations.act_relay === "object") {
+            for (i=0; i<controller.settings.nbrd; i++) {
+                cs += "a"+i+"=0&";
+            }
+        }
+
+        if (typeof controller.stations.stn_dis === "object") {
+            for (i=0; i<controller.settings.nbrd; i++) {
+                cs += "d"+i+"=0&";
+            }
+        }
+
+        if (typeof controller.stations.stn_seq === "object") {
+            for (i=0; i<controller.settings.nbrd; i++) {
+                cs += "q"+i+"=0&";
+            }
+        }
+
+        areYouSure(_("Are you sure you want to reset all stations?"),_("This will reset all station names and attributes"),function(){
+            $.mobile.loading("show");
+            send_to_os("/cs?pw=&"+cs).done(function(){
+                showerror(_("Stations have been updated"));
+                update_controller();
+            });
+        });
     });
 
     page.find("#o3").on("change",function(){
