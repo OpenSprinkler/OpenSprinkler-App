@@ -80,7 +80,7 @@ var isIEMobile = /IEMobile/.test(navigator.userAgent),
     switching = false,
     currentCoordinates = [0,0],
     notifications = [],
-    curr_183, curr_ip, curr_prefix, curr_auth, curr_pw, curr_wa, curr_auth_user, curr_auth_pw, curr_local, currLang, language, deviceip, interval_id, timeout_id, errorTimeout, weatherKeyFail;
+    curr_183, curr_ip, curr_prefix, curr_auth, curr_pw, curr_wa, curr_auth_user, curr_auth_pw, curr_local, currLang, language, deviceip, interval_id, timeout_id, errorTimeout, weather, weatherKeyFail;
 
 // Redirect jQuery Mobile DOM manipulation to prevent error
 if (isWinApp) {
@@ -189,9 +189,13 @@ $(document)
     });
 
     // Bind event handler to open panel when swiping right
-    $.mobile.document.on("swiperight",".ui-page",function() {
+    $.mobile.document.on("swiperight swipeleft",".ui-page",function(e) {
         if ($(".ui-page-active").jqmData("panel") !== "open" && !$(".ui-page-active .ui-popup-active").length) {
-            open_panel();
+            if (e.type === "swiperight") {
+                open_panel();
+            } else {
+                showNotifications();
+            }
         }
     });
 
@@ -252,9 +256,6 @@ $(document)
             get_programs(data.options.programToExpand);
         } else if (hash === "#addprogram") {
             add_program(data.options.copyID);
-        } else if (hash === "#status") {
-            get_status();
-            $(hash).one("pageshow",refresh_status);
         } else if (hash === "#manual") {
             get_manual();
         } else if (hash === "#about") {
@@ -275,8 +276,6 @@ $(document)
                 }
                 return false;
             }
-        } else if (hash === "#os-stations") {
-            show_stations();
         } else if (hash === "#site-control") {
             show_sites(data.options.showBack);
         } else if (hash === "#weather_settings") {
@@ -307,47 +306,16 @@ $(document)
             show_site_select();
             return false;
         } else if (hash === "#sprinklers") {
-            $(hash).one("pagebeforeshow",function(){
-                if (!data.options.firstLoad) {
-                    //Reset status bar to loading while an update is done
-                    showLoading("#footer-running");
-                    setTimeout(function(){
-                        refresh_status();
-                    },1000);
-                } else {
-                    check_status();
-                }
-            });
-
-            var header = changeHeader({
-                class: "logo",
-                leftBtn: {
-                    icon: "bullets",
-                    on: function(){
-                        open_panel();
-                        return false;
-                    }
-                },
-                rightBtn: {
-                    icon: "alert",
-                    class: "notifications",
-                    text: "<span class='notificationCount ui-li-count ui-btn-corner-all'>"+notifications.length+"</span>",
-                    on: function(){
-                        showNotifications();
-                        return false;
-                    }
-                },
-                animate: (data.options.firstLoad ? false : true)
-            });
-
-            if (notifications.length === 0) {
-                $(header[2]).hide();
+            if ($(hash).length === 0) {
+                showHome(data.options.firstLoad);
+            } else {
+                $(hash).one("pageshow",refresh_status);
             }
         }
     });
 
     // Initialize the app header
-    $("#header").toolbar();
+    $("#header,#footer").toolbar();
 
     //Attach FastClick handler
     FastClick.attach(document.body);
@@ -362,9 +330,6 @@ $(document)
 })
 // Handle OS resume event triggered by PhoneGap
 .on("resume",function(){
-    var page = $(".ui-page-active").attr("id"),
-        func = function(){};
-
     // Check if device is still on a local network
     checkAutoScan();
 
@@ -376,18 +341,8 @@ $(document)
     // Indicate the weather and device status are being updated
     showLoading("#weather,#footer-running");
 
-    if (page === "status") {
-        // Update the status page
-        func = function(){
-            page.trigger("datarefresh");
-        };
-    } else if (page === "sprinklers") {
-        // Update device status bar on main page
-        func = check_status;
-    }
-
     update_controller(function(){
-        func();
+        check_status();
         update_weather();
     },network_fail);
 })
@@ -399,9 +354,9 @@ $(document)
     var newpage = "#"+e.target.id;
 
     if (newpage === "#start") {
-        $("#header").hide();
+        $("#header,#footer,#footer-menu").hide();
     } else {
-        $("#header").show();
+        $("#header,#footer,#footer-menu").show();
     }
 })
 .on("pageshow",function(e){
@@ -496,25 +451,9 @@ function initApp() {
         return false;
     });
 
-    //Bind open panel button
-    $("#sprinklers").on("datarefresh",check_status);
-
-    //Bind stop all stations button
-    $("#stop-all").on("click",function(){
-        areYouSure(_("Are you sure you want to stop all stations?"), "", function() {
-            $.mobile.loading("show");
-            send_to_os("/cv?pw=&rsn=1").done(function(){
-                $.mobile.loading("hide");
-                showLoading("#footer-running");
-                setTimeout(function(){
-                    $.when(
-                        update_controller_settings(),
-                        update_controller_status()
-                    ).then(check_status);
-                }, 1000);
-                showerror(_("All stations have been stopped"));
-            });
-        });
+    // Bind footer menu button
+    $("#footer-menu").on("click",function(){
+        showHomeMenu(this);
     });
 
     //When app isn't using cordova.js, check network status now
@@ -686,29 +625,17 @@ function newload() {
 
     update_controller(
         function(){
-            var log_button = $("#log_button"),
-                manual_mode = $(".manual_mode"),
-                weatherAdjust = $(".weatherAdjust"),
+            var weatherAdjust = $(".weatherAdjust"),
                 change_password = $(".change_password");
 
             $.mobile.loading("hide");
             check_status();
             update_weather();
 
-            // Hide manual mode from the app for Arduino firmware 2.1.0+
             if (checkOSVersion(210)) {
-                manual_mode.hide();
                 weatherAdjust.css("display","");
             } else {
-                manual_mode.css("display","");
                 weatherAdjust.hide();
-            }
-
-            // Hide log viewer button on home page if not supported
-            if (checkOSVersion(206) || checkOSPiVersion("1.9")) {
-                log_button.css("display","");
-            } else {
-                log_button.hide();
             }
 
             // Hide change password feature for unsupported devices
@@ -729,7 +656,7 @@ function newload() {
             // Check if automatic rain delay plugin is enabled on OSPi devices
             checkWeatherPlugin();
 
-            goHome();
+            goHome(true);
 
             // Check if a firmware update is available
             checkFirmwareUpdate();
@@ -1423,7 +1350,7 @@ function show_sites(showBack) {
                     header.eq(0).hide();
                 });
 
-                page.on("swiperight",function(e){
+                page.on("swiperight swipeleft",function(e){
                     e.stopImmediatePropagation();
                 });
 
@@ -1988,11 +1915,7 @@ function convert_temp(temp,region) {
 }
 
 function hide_weather() {
-    $("#weather-list").animate({
-        "margin-left": "-1000px"
-    },1000,function(){
-        $(this).hide();
-    });
+    $("#weather").empty();
 }
 
 function update_weather() {
@@ -2019,7 +1942,6 @@ function update_weather() {
 
 function weather_update_failed(x,t,m) {
     if (m.url && (m.url.search("yahooapis.com") !== -1 || m.url.search("api.wunderground.com") !== -1)) {
-        hide_weather();
         return;
     }
 }
@@ -2062,13 +1984,14 @@ function update_yahoo_weather() {
 
                     currentCoordinates = [data.query.results.channel.item.lat,data.query.results.channel.item.long];
 
-                    $("#weather")
-                        .html("<div title='"+now.text+"' class='wicon cond"+now.code+"'></div><span>"+convert_temp(now.temp,region)+"</span><br><span class='location'>"+loc[1]+"</span>")
-                        .on("click",show_forecast);
+                    weather = {
+                        title: now.text,
+                        code: now.code,
+                        temp: convert_temp(now.temp,region),
+                        location: loc[1]
+                    };
 
-                    $("#weather-list").animate({
-                        "margin-left": "0"
-                    },1000).show();
+                    updateWeatherBox();
 
                     update_yahoo_forecast(data.query.results.channel.item.forecast,loc[1],region,now);
 
@@ -2079,14 +2002,24 @@ function update_yahoo_weather() {
     }).fail(weather_update_failed);
 }
 
+function updateWeatherBox() {
+    $("#weather")
+        .html("<div title='"+weather.title+"' class='wicon cond"+weather.code+"'></div><span>"+weather.temp+"</span><br><span class='location'>"+weather.location+"</span>")
+        .off("click").on("click",show_forecast);
+}
+
 function update_yahoo_forecast(data,loc,region,now) {
     var list = "<li data-role='list-divider' data-theme='a' class='center'>"+loc+"</li>",
         i;
 
-    list += "<li data-icon='false' class='center'><div title='"+now.text+"' class='wicon cond"+now.code+"'></div><span data-translate='Now'>"+_("Now")+"</span><br><span>"+convert_temp(now.temp,region)+"</span></li>";
+    list += "<li data-icon='false' class='center'><div title='"+now.text+"' class='wicon cond"+now.code+"'></div><span data-translate='Now'>"+_("Now")+"</span><br><span>"+convert_temp(now.temp,region)+"</span><br><span data-translate='Sunrise'>"+_("Sunrise")+"</span><span>: "+pad(parseInt(controller.settings.sunrise/60)%24)+":"+pad(controller.settings.sunrise%60)+"</span> <span data-translate='Sunrise'>"+_("Sunset")+"</span><span>: "+pad(parseInt(controller.settings.sunset/60)%24)+":"+pad(controller.settings.sunset%60)+"</span></li>";
 
     for (i=0;i < data.length; i++) {
-        list += "<li data-icon='false' class='center'><span>"+data[i].date+"</span><br><div title='"+data[i].text+"' class='wicon cond"+data[i].code+"'></div><span data-translate='"+data[i].day+"'>"+_(data[i].day)+"</span><br><span data-translate='Low'>"+_("Low")+"</span><span>: "+convert_temp(data[i].low,region)+"  </span><span data-translate='High'>"+_("High")+"</span><span>: "+convert_temp(data[i].high,region)+"</span></li>";
+        var times = getSunTimes(new Date(data[i].date)),
+            sunrise = times[0],
+            sunset = times[1];
+
+        list += "<li data-icon='false' class='center'><span>"+data[i].date+"</span><br><div title='"+data[i].text+"' class='wicon cond"+data[i].code+"'></div><span data-translate='"+data[i].day+"'>"+_(data[i].day)+"</span><br><span data-translate='Low'>"+_("Low")+"</span><span>: "+convert_temp(data[i].low,region)+"  </span><span data-translate='High'>"+_("High")+"</span><span>: "+convert_temp(data[i].high,region)+"</span><br><span data-translate='Sunrise'>"+_("Sunrise")+"</span><span>: "+pad(parseInt(sunrise/60)%24)+":"+pad(sunrise%60)+"</span> <span data-translate='Sunrise'>"+_("Sunset")+"</span><span>: "+pad(parseInt(sunset/60)%24)+":"+pad(sunset%60)+"</span></li>";
     }
 
     var forecast = $("#forecast_list");
@@ -2147,13 +2080,14 @@ function update_wunderground_weather(wapikey) {
                 temp = ww_forecast.condition.temp_c+"&#176;C";
             }
 
-            $("#weather")
-                .html("<div title='"+ww_forecast.condition.text+"' class='wicon cond"+code+"'></div><span>"+temp+"</span><br><span class='location'>"+ww_forecast.location+"</span>")
-                .on("click",show_forecast);
+            weather = {
+                title: ww_forecast.condition.text,
+                code: code,
+                temp: temp,
+                location: ww_forecast.location
+            };
 
-            $("#weather-list").animate({
-                "margin-left": "0"
-            },1000).show();
+            updateWeatherBox();
 
             update_wunderground_forecast(ww_forecast);
 
@@ -2174,22 +2108,25 @@ function update_wunderground_forecast(data) {
     }
 
     var list = "<li data-role='list-divider' data-theme='a' class='center'>"+data.location+"</li>";
-    list += "<li data-icon='false' class='center'><div title='"+data.condition.text+"' class='wicon cond"+data.condition.code+"'></div><span data-translate='Now'>"+_("Now")+"</span><br><span>"+temp+"</span><br><span data-translate='Precip'>"+_("Precip")+"</span><span>: "+precip+"</span></li>";
+    list += "<li data-icon='false' class='center'><div title='"+data.condition.text+"' class='wicon cond"+data.condition.code+"'></div><span data-translate='Now'>"+_("Now")+"</span><br><span>"+temp+"</span><br><span data-translate='Sunrise'>"+_("Sunrise")+"</span><span>: "+pad(parseInt(controller.settings.sunrise/60)%24)+":"+pad(controller.settings.sunrise%60)+"</span> <span data-translate='Sunrise'>"+_("Sunset")+"</span><span>: "+pad(parseInt(controller.settings.sunset/60)%24)+":"+pad(controller.settings.sunset%60)+"</span><br><span data-translate='Precip'>"+_("Precip")+"</span><span>: "+precip+"</span></li>";
     $.each(data.simpleforecast, function(k,attr) {
-        var precip;
+        var times = getSunTimes(new Date(attr.date.epoch*1000)),
+            sunrise = times[0],
+            sunset = times[1],
+            precip;
 
         if (data.region === "US" || data.region === "BM" || data.region === "PW") {
             precip = attr.qpf_allday["in"];
             if (precip === null) {
                 precip = 0;
             }
-            list += "<li data-icon='false' class='center'><span>"+attr.date.monthname_short+" "+attr.date.day+"</span><br><div title='"+attr.conditions+"' class='wicon cond"+attr.icon+"'></div><span data-translate='"+attr.date.weekday_short+"'>"+_(attr.date.weekday_short)+"</span><br><span data-translate='Low'>"+_("Low")+"</span><span>: "+attr.low.fahrenheit+"&#176;F  </span><span data-translate='High'>"+_("High")+"</span><span>: "+attr.high.fahrenheit+"&#176;F</span><br><span data-translate='Precip'>"+_("Precip")+"</span><span>: "+precip+" in</span></li>";
+            list += "<li data-icon='false' class='center'><span>"+attr.date.monthname_short+" "+attr.date.day+"</span><br><div title='"+attr.conditions+"' class='wicon cond"+attr.icon+"'></div><span data-translate='"+attr.date.weekday_short+"'>"+_(attr.date.weekday_short)+"</span><br><span data-translate='Low'>"+_("Low")+"</span><span>: "+attr.low.fahrenheit+"&#176;F  </span><span data-translate='High'>"+_("High")+"</span><span>: "+attr.high.fahrenheit+"&#176;F</span><br><span data-translate='Sunrise'>"+_("Sunrise")+"</span><span>: "+pad(parseInt(sunrise/60)%24)+":"+pad(sunrise%60)+"</span> <span data-translate='Sunrise'>"+_("Sunset")+"</span><span>: "+pad(parseInt(sunset/60)%24)+":"+pad(sunset%60)+"</span><br><span data-translate='Precip'>"+_("Precip")+"</span><span>: "+precip+" in</span></li>";
         } else {
             precip = attr.qpf_allday.mm;
             if (precip === null) {
                 precip = 0;
             }
-            list += "<li data-icon='false' class='center'><span>"+attr.date.monthname_short+" "+attr.date.day+"</span><br><div title='"+attr.conditions+"' class='wicon cond"+attr.icon+"'></div><span data-translate='"+attr.date.weekday_short+"'>"+_(attr.date.weekday_short)+"</span><br><span data-translate='Low'>"+_("Low")+"</span><span>: "+attr.low.celsius+"&#176;C  </span><span data-translate='High'>"+_("High")+"</span><span>: "+attr.high.celsius+"&#176;C</span><br><span data-translate='Precip'>"+_("Precip")+"</span><span>: "+precip+" mm</span></li>";
+            list += "<li data-icon='false' class='center'><span>"+attr.date.monthname_short+" "+attr.date.day+"</span><br><div title='"+attr.conditions+"' class='wicon cond"+attr.icon+"'></div><span data-translate='"+attr.date.weekday_short+"'>"+_(attr.date.weekday_short)+"</span><br><span data-translate='Low'>"+_("Low")+"</span><span>: "+attr.low.celsius+"&#176;C  </span><span data-translate='High'>"+_("High")+"</span><span>: "+attr.high.celsius+"&#176;C</span><br><span data-translate='Sunrise'>"+_("Sunrise")+"</span><span>: "+pad(parseInt(sunrise/60)%24)+":"+pad(sunrise%60)+"</span> <span data-translate='Sunrise'>"+_("Sunset")+"</span><span>: "+pad(parseInt(sunset/60)%24)+":"+pad(controller.settings.sunset%60)+"</span><br><span data-translate='Precip'>"+_("Precip")+"</span><span>: "+precip+" mm</span></li>";
         }
     });
 
@@ -2198,6 +2135,23 @@ function update_wunderground_forecast(data) {
     if (forecast.hasClass("ui-listview")) {
         forecast.listview("refresh");
     }
+}
+
+function getSunTimes(date) {
+    var now = new Date(controller.settings.devt*1000),
+        control = SunCalc.getTimes(now, currentCoordinates[0], currentCoordinates[1]),
+        tzOffset = controller.settings.sunrise - (control.sunrise.getHours() * 60 + control.sunrise.getMinutes());
+
+    date = date || now;
+
+    var times = SunCalc.getTimes(date, currentCoordinates[0], currentCoordinates[1]),
+        sunrise = times["sunrise"],
+        sunset = times["sunset"];
+
+    sunrise = (sunrise.getHours() * 60 + sunrise.getMinutes()) + tzOffset;
+    sunset = (sunset.getHours() * 60 + sunset.getMinutes()) + tzOffset;
+
+    return [sunrise, sunset];
 }
 
 function show_forecast() {
@@ -2738,15 +2692,6 @@ function show_options() {
                         opt.o11 = ip[3];
 
                         return true;
-                    case "netmask":
-                        ip = data.split(".");
-
-                        opt.o36 = ip[0];
-                        opt.o37 = ip[1];
-                        opt.o38 = ip[2];
-                        opt.o39 = ip[3];
-
-                        return true;
                     case "ntp_addr":
                         ip = data.split(".");
 
@@ -2858,7 +2803,7 @@ function show_options() {
         "<label for='loc'>"+_("Location")+"<button data-helptext='"+_("Location can be a zip code, city/state or a weatherunderground personal weather station using the format: pws:ID.")+"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label>" +
         "<table>" +
             "<tr style='width:100%;vertical-align: top;'>" +
-                "<td style='width:100%'><input data-wrapper-class='"+($("#weather-list").is(":visible") ? "green " : "")+"controlgroup-textinput ui-btn' data-mini='true' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' type='text' id='loc' value='"+controller.settings.loc+"'></td>" +
+                "<td style='width:100%'><input data-wrapper-class='"+($("#weather").is(":empty") ? "" : "green ")+"controlgroup-textinput ui-btn' data-mini='true' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' type='text' id='loc' value='"+controller.settings.loc+"'></td>" +
                 "<td "+(checkOSVersion(210) && controller.settings.wtkey !== "" && weatherKeyFail === false ? "" : "class='hidden' ")+"id='nearbyPWS'><button class='noselect' data-icon='location' data-iconpos='notext' data-mini='true'></button></td>" +
                 "<td "+(checkOSVersion(210) && controller.settings.wtkey !== "" && weatherKeyFail === false ? "class='hidden' " : "")+"id='lookup-loc'><button class='noselect' data-corners='false' data-mini='true'>"+_("Lookup")+"</button></td>" +
             "</tr>" +
@@ -2906,6 +2851,8 @@ function show_options() {
     if (typeof controller.options.seq !== "undefined") {
         list += "<label for='o16'><input data-mini='true' id='o16' type='checkbox' "+((controller.options.seq === 1) ? "checked='checked'" : "")+">"+_("Sequential")+"</label>";
     }
+
+    list += "<button data-mini='true' class='reset-stations'>"+_("Reset")+" "+_("Stations")+"</button>";
 
     list += "</fieldset><fieldset data-role='collapsible'><legend>"+_("Weather Control")+"</legend>";
 
@@ -2965,14 +2912,10 @@ function show_options() {
 
     if (typeof controller.options.dhcp !== "undefined" && checkOSVersion(210)) {
         var ip = [controller.options.ip1,controller.options.ip2,controller.options.ip3,controller.options.ip4].join("."),
-            gw = [controller.options.gw1,controller.options.gw2,controller.options.gw3,controller.options.gw4].join("."),
-            nm = [controller.options.nm1,controller.options.nm2,controller.options.nm3,controller.options.nm4].join(".");
+            gw = [controller.options.gw1,controller.options.gw2,controller.options.gw3,controller.options.gw4].join(".");
 
         list += "<div class='"+((controller.options.dhcp === 1) ? "hidden " : "")+"ui-field-contain duration-field'><label for='ip_addr'>"+_("IP Address")+"</label><button data-mini='true' id='ip_addr' value='"+ip+"'>"+ip+"</button></div>";
         list += "<div class='"+((controller.options.dhcp === 1) ? "hidden " : "")+"ui-field-contain duration-field'><label for='gateway'>"+_("Gateway Address")+"</label><button data-mini='true' id='gateway' value='"+gw+"'>"+gw+"</button></div>";
-        if (nm !== "...") {
-            list += "<div class='"+((controller.options.dhcp === 1) ? "hidden " : "")+"ui-field-contain duration-field'><label for='netmask'>"+_("Subnet Mask")+"</label><button data-mini='true' id='netmask' value='"+nm+"'>"+nm+"</button></div>";
-        }
         list += "<label for='o3'><input data-mini='true' id='o3' type='checkbox' "+((controller.options.dhcp === 1) ? "checked='checked'" : "")+">"+_("Use DHCP (restart required)")+"</label>";
     }
 
@@ -3014,10 +2957,56 @@ function show_options() {
         }
     });
 
+    page.find(".reset-stations").on("click",function(){
+        var cs = "";
+
+        for (var i = 0; i < controller.stations.snames.length; i++) {
+            cs += "s"+i+"=S"+pad(i+1)+"&";
+        }
+
+        if (controller.options.mas) {
+            for (i=0; i<controller.settings.nbrd; i++) {
+                cs += "m"+i+"=0&";
+            }
+        }
+
+        if (typeof controller.stations.ignore_rain === "object") {
+            for (i=0; i<controller.settings.nbrd; i++) {
+                cs += "i"+i+"=0&";
+            }
+        }
+
+        if (typeof controller.stations.act_relay === "object") {
+            for (i=0; i<controller.settings.nbrd; i++) {
+                cs += "a"+i+"=0&";
+            }
+        }
+
+        if (typeof controller.stations.stn_dis === "object") {
+            for (i=0; i<controller.settings.nbrd; i++) {
+                cs += "d"+i+"=0&";
+            }
+        }
+
+        if (typeof controller.stations.stn_seq === "object") {
+            for (i=0; i<controller.settings.nbrd; i++) {
+                cs += "q"+i+"=0&";
+            }
+        }
+
+        areYouSure(_("Are you sure you want to reset all stations?"),_("This will reset all station names and attributes"),function(){
+            $.mobile.loading("show");
+            send_to_os("/cs?pw=&"+cs).done(function(){
+                showerror(_("Stations have been updated"));
+                update_controller();
+            });
+        });
+    });
+
     page.find("#o3").on("change",function(){
         var button = $(this),
             checked = button.is(":checked"),
-            manualInputs = page.find("#ip_addr,#gateway,#netmask").parents(".ui-field-contain");
+            manualInputs = page.find("#ip_addr,#gateway").parents(".ui-field-contain");
 
         if (checked) {
             manualInputs.addClass("hidden");
@@ -3185,7 +3174,7 @@ function show_options() {
         header.eq(2).prop("disabled",false);
         page.find(".submit").addClass("hasChanges");
 
-        if (id === "ip_addr" || id === "gateway" || id === "netmask" || id === "ntp_addr") {
+        if (id === "ip_addr" || id === "gateway" || id === "ntp_addr") {
             showIPRequest({
                 title: name,
                 ip: dur.val().split("."),
@@ -3321,609 +3310,223 @@ function show_options() {
     page.appendTo("body");
 }
 
-// Station managament function
-function show_stations() {
+function showHomeMenu(btn) {
+    btn = btn instanceof $ ? btn : $(btn);
+
+    $(".ui-popup-active").find("[data-role='popup']").popup("close");
+
+    var page = $("#sprinklers"),
+        showHidden = page.hasClass("show-hidden"),
+        popup = $("<div data-role='popup' style='border:0'>" +
+            "<ul data-role='listview' data-inset='true' data-corners='false'>" +
+                "<li data-role='list-divider'>"+_("Information")+"</li>" +
+                "<li><a href='#preview' class='squeeze'>"+_("Preview Programs")+"</a></li>" +
+                (checkOSVersion(206) || checkOSPiVersion("1.9") ? "<li><a href='#logs'>"+_("View Logs")+"</a></li>" : "") +
+                "<li data-role='list-divider'>"+_("Programs and Settings")+"</li>" +
+                "<li><a href='#raindelay'>"+_("Change Rain Delay")+"</a></li>" +
+                "<li><a href='#runonce'>"+_("Run-Once Program")+"</a></li>" +
+                "<li><a href='#programs'>"+_("Edit Programs")+"</a></li>" +
+                "<li><a href='#os-options'>"+_("Edit Options")+"</a></li>" +
+                (checkOSVersion(210) ? "" : "<li><a href='#manual'>"+_("Manual Control")+"</a></li>") +
+            "</ul>" +
+            (page.hasClass("ui-page-active") ?
+                "<div data-role='controlgroup' data-type='horizontal' data-corners='false' style='margin:0'>" +
+                    "<a class='ui-btn' href='#show-hidden'>"+(showHidden ? _("Hide") : _("Show"))+" "+_("Hidden")+"</a>" +
+                    "<a class='ui-btn' href='#stop-all'>"+_("Stop All Stations")+"</a>" +
+                "</div>"
+                : "") +
+        "</div>");
+
+    popup.on("click","a",function(){
+        var clicked = $(this),
+            href = clicked.attr("href");
+
+        popup.popup("close");
+
+        if (href === "#stop-all") {
+            areYouSure(_("Are you sure you want to stop all stations?"), "", function() {
+                $.mobile.loading("show");
+                send_to_os("/cv?pw=&rsn=1").done(function(){
+                    $.mobile.loading("hide");
+                    showLoading("#footer-running");
+                    setTimeout(function(){
+                        $.when(
+                            update_controller_settings(),
+                            update_controller_status()
+                        ).then(check_status);
+                    }, 1000);
+                    showerror(_("All stations have been stopped"));
+                });
+            });
+        } else if (href === "#show-hidden") {
+            if (showHidden) {
+                $(".station-hidden").hide();
+                page.removeClass("show-hidden");
+            } else {
+                $(".station-hidden").show();
+                page.addClass("show-hidden");
+            }
+        } else {
+            changePage(href);
+        }
+
+        return false;
+    });
+
+    popup.one("popupafterclose", function(){
+        popup.popup("destroy").remove();
+        btn.show();
+    }).enhanceWithin();
+
+    $(".ui-page-active").append(popup);
+
+    popup.popup({history: false, positionTo: btn}).popup("open");
+
+    btn.hide();
+}
+
+function showHome(firstLoad) {
     var cards = "",
-        page = $("<div data-role='page' id='os-stations'>" +
-            "<div class='ui-content' role='main'>" +
+        runningTotal = {
+            c: controller.settings.devt
+        },
+        currentDelay = 0,
+        lastCheck = new Date().getTime(),
+        page = $("<div data-role='page' id='sprinklers'>" +
+            "<div class='ui-panel-wrapper'>" +
+                "<div class='ui-content' role='main'>" +
+                    "<div class='ui-grid-a ui-body ui-corner-all info-card'>" +
+                        "<div class='ui-block-a'>" +
+                            "<div id='weather'></div>" +
+                        "</div>" +
+                        "<div class='ui-block-b center home-info'>" +
+                            "<div id='clock-s' class='nobr'>"+dateToString(new Date(controller.settings.devt*1000),null,true)+"</div>" +
+                            _("Water Level") + ": <span class='waterlevel'>" + controller.options.wl + "</span>%" +
+                        "</div>" +
+                "</div>" +
             "</div>" +
         "</div>"),
-        durations = [],
-        editButton = "<span style='padding-left:10px' class='btn-no-border ui-btn ui-icon-edit ui-btn-icon-notext'></span>",
         addCard = function(i){
             var station = controller.stations.snames[i],
-                isRunning = controller.status[i] > 0 || controller.settings.ps[i][0] > 0;
+                isScheduled = controller.settings.ps[i][0] > 0,
+                isRunning = controller.status[i] > 0,
+                pname = isScheduled ? pidname(controller.settings.ps[i][0]) : "",
+                rem = controller.settings.ps[i][1];
+
+
+            if (controller.status[i] && rem > 0) {
+                runningTotal[i] = rem;
+            }
 
             // Group card settings visually
-            cards += "<div class='ui-corner-all card'>";
+            cards += "<div class='ui-corner-all card"+(isStationDisabled(i) ? " station-hidden' style='display:none" : "")+"'>";
             cards += "<div class='ui-body ui-body-a center'>";
-            cards += "<p class='tight center inline-icon station-name' id='station_"+i+"'>"+station+editButton+"</p>";
+            cards += "<p class='tight center inline-icon' id='station_"+i+"'>"+station+"</p>";
 
-            if (optCount > 0 && controller.options.mas !== i+1) {
-                cards += "<button data-mini='true' data-icon='gear' data-iconpos='notext' data-inline='true' data-station='"+i+"' id='attrib-"+i+"' class='attrib' " +
+            cards += "<span class='btn-no-border ui-btn ui-btn-icon-notext ui-corner-all station-status "+(isRunning ? "on" : (isScheduled ? "wait" : "off"))+"'></span>";
+
+            if (controller.options.mas === i+1) {
+                cards += "<span class='btn-no-border ui-btn ui-icon-master ui-btn-icon-notext station-settings'></span>";
+            } else {
+                cards += "<span class='btn-no-border ui-btn ui-icon-gear ui-btn-icon-notext station-settings' data-station='"+i+"' id='attrib-"+i+"' " +
                     (hasMaster ? ("data-um='"+((controller.stations.masop[parseInt(i/8)]&(1<<(i%8))) ? 1 : 0)+"' ") : "") +
                     (hasIR ? ("data-ir='"+((controller.stations.ignore_rain[parseInt(i/8)]&(1<<(i%8))) ? 1 : 0)+"' ") : "") +
                     (hasAR ? ("data-ar='"+((controller.stations.act_relay[parseInt(i/8)]&(1<<(i%8))) ? 1 : 0)+"' ") : "") +
                     (hasSD ? ("data-sd='"+((controller.stations.stn_dis[parseInt(i/8)]&(1<<(i%8))) ? 1 : 0)+"' ") : "") +
                     (hasSequential ? ("data-us='"+((controller.stations.stn_seq[parseInt(i/8)]&(1<<(i%8))) ? 1 : 0)+"' ") : "") +
-                    "></button>";
+                    "></span>";
 
-                cards += (hasMaster ? "<span data-shortcode='um' class='stn-attrib-icon btn-no-border ui-btn ui-icon-master ui-btn-icon-notext"+(controller.stations.masop[parseInt(i/8)]&(1<<(i%8)) ? "" : " attrib-disabled")+"'></span>" : "") +
-                    (hasIR ? "<span data-shortcode='ir' class='stn-attrib-icon btn-no-border ui-btn ui-icon-norain ui-btn-icon-notext"+(controller.stations.ignore_rain[parseInt(i/8)]&(1<<(i%8)) ? "" : " attrib-disabled")+"'></span>" : "") +
-                    (hasAR ? "<span data-shortcode='ar' class='stn-attrib-icon btn-no-border ui-btn ui-icon-relay ui-btn-icon-notext"+(controller.stations.act_relay[parseInt(i/8)]&(1<<(i%8)) ? "" : " attrib-disabled")+"'></span>" : "") +
-                    (hasSD ? "<span data-shortcode='sd' class='stn-attrib-icon btn-no-border ui-btn ui-icon-forbidden ui-btn-icon-notext"+(controller.stations.stn_dis[parseInt(i/8)]&(1<<(i%8)) ? "" : " attrib-disabled")+"'></span>" : "") +
-                    (hasSequential ? "<span data-shortcode='us' class='stn-attrib-icon btn-no-border ui-btn ui-icon-serial ui-btn-icon-notext"+(controller.stations.stn_seq[parseInt(i/8)]&(1<<(i%8)) ? "" : " attrib-disabled")+"'></span>" : "");
-            }
-
-            if (is21 && controller.options.mas !== i+1) {
-                cards += "<fieldset data-role='controlgroup' data-type='horizontal' data-mini='true' class='center'>";
-                cards += "<legend>"+_("Test Station")+"</legend>";
-                cards += "<select><option value='60'>1 min</option><option value='300'>5 mins</option><option value='600'>10 mins</option><option value='900'>15 mins</option><option value='1200'>20 mins</option></select>";
-                cards += "<button class='"+(isRunning ? "red" : "green")+"' id='run_station-"+i+"'>"+(isRunning ? _("Stop") : _("Start"))+"</button>";
-                cards += "</fieldset>";
-
-                durations[i] = controller.settings.ps[i][1];
-            }
-
-            if (controller.options.mas === i+1) {
-                cards += "<p class='tight center'>"+_("Master")+" "+_("Station")+"</p>";
+                if (isScheduled || isRunning) {
+                    // Generate status line for station
+                    cards += "<p class='rem center'>"+((controller.status[i] > 0) ? _("Running")+" "+pname : _("Scheduled")+" "+(controller.settings.ps[i][2] ? _("for")+" "+dateToString(new Date(controller.settings.ps[i][2]*1000)) : pname));
+                    if (rem>0) {
+                        // Show the remaining time if it's greater than 0
+                        cards += " <span id='countdown-"+i+"' class='nobr'>(" + sec2hms(rem) + " "+_("remaining")+")</span>";
+                    }
+                    cards += "</p>";
+                }
             }
 
             // Close current card group
             cards += "</div></div>";
         },
-        show_attributes = function() {
-            $("#stn_attrib").popup("destroy").remove();
+        updateContent = function() {
+            var cardHolder = page.find("#os-stations-list"),
+                allCards = cardHolder.children(),
+                isScheduled, isRunning, pname, rem, card, line;
 
-            var button = $(this),
-                id = button.data("station"),
-                name = page.find("#station_"+id),
-                select = "<div data-overlay-theme='b' data-role='popup' id='stn_attrib'><fieldset style='margin:0' data-corners='false' data-role='controlgroup'>";
+            // Update the current time
+            runningTotal.c = controller.settings.devt;
 
-                select += "<input class='bold center' data-wrapper-class='stn-name ui-btn' id='stn-name' type='text' value='"+name.text()+"'>";
-
-                if (hasMaster) {
-                    select += "<label for='um'><input class='needsclick' data-iconpos='right' id='um' type='checkbox' "+((button.data("um") === 1) ? "checked='checked'" : "")+">"+_("Use Master")+"</label>";
-                }
-
-                if (hasIR) {
-                    select += "<label for='ir'><input class='needsclick' data-iconpos='right' id='ir' type='checkbox' "+((button.data("ir") === 1) ? "checked='checked'" : "")+">"+_("Ignore Rain")+"</label>";
-                }
-
-                if (hasAR) {
-                    select += "<label for='ar'><input class='needsclick' data-iconpos='right' id='ar' type='checkbox' "+((button.data("ar") === 1) ? "checked='checked'" : "")+">"+_("Activate Relay")+"</label>";
-                }
-
-                if (hasSD) {
-                    select += "<label for='sd'><input class='needsclick' data-iconpos='right' id='sd' type='checkbox' "+((button.data("sd") === 1) ? "checked='checked'" : "")+">"+_("Disable")+"</label>";
-                }
-
-                if (hasSequential) {
-                    select += "<label for='us'><input class='needsclick' data-iconpos='right' id='us' type='checkbox' "+((button.data("us") === 1) ? "checked='checked'" : "")+">"+_("Sequential")+"</label>";
-                }
-
-            select += "</fieldset></div>";
-            select = $(select);
-            select.one("popupafterclose", function(){
-                button.data("um", select.find("#um").is(":checked") ? 1 : 0 );
-                button.data("ir", select.find("#ir").is(":checked") ? 1 : 0 );
-                button.data("ar", select.find("#ar").is(":checked") ? 1 : 0 );
-                button.data("sd", select.find("#sd").is(":checked") ? 1 : 0 );
-                button.data("us", select.find("#us").is(":checked") ? 1 : 0 );
-                name.html( select.find("#stn-name").val() + editButton );
-                header.eq(2).prop("disabled",false);
-                select.popup("destroy").remove();
-            }).enhanceWithin();
-
-            $(".ui-page-active").append(select);
-
-            select.popup({history: false, positionTo: button.parent()}).popup("open");
-        },
-        submit_stations = function() {
-            header.eq(2).prop("disabled",true);
-
-            var is208 = (checkOSVersion(208) === true),
-                master = {},
-                sequential = {},
-                rain = {},
-                relay = {},
-                disable = {},
-                names = {},
-                attrib, bid, sid, s;
-
-            for(bid=0;bid<controller.settings.nbrd;bid++) {
-                if (hasMaster) {
-                    master["m"+bid] = 0;
-                }
-                if (hasSequential) {
-                    sequential["q"+bid] = 0;
-                }
-                if (hasIR) {
-                    rain["i"+bid] = 0;
-                }
-                if (hasAR) {
-                    relay["a"+bid] = 0;
-                }
-                if (hasSD) {
-                    disable["d"+bid] = 0;
-                }
-
-                for(s=0;s<8;s++) {
-                    sid=bid*8+s;
-                    attrib = page.find("#attrib-"+sid);
-
-                    if (hasMaster) {
-                        master["m"+bid] = (master["m"+bid]) + (attrib.data("um") << s);
-                    }
-                    if (hasSequential) {
-                        sequential["q"+bid] = (sequential["q"+bid]) + (attrib.data("us") << s);
-                    }
-                    if (hasIR) {
-                        rain["i"+bid] = (rain["i"+bid]) + (attrib.data("ir") << s);
-                    }
-                    if (hasAR) {
-                        relay["a"+bid] = (relay["a"+bid]) + (attrib.data("ar") << s);
-                    }
-                    if (hasSD) {
-                        disable["d"+bid] = (disable["d"+bid]) + (attrib.data("sd") << s);
-                    }
-
-                    // Because the firmware has a bug regarding spaces, let us replace them out now with a compatible seperator
-                    if (is208) {
-                        names["s"+sid] = page.find("#station_"+sid).text().replace(/\s/g,"_");
-                    } else {
-                        names["s"+sid] = page.find("#station_"+sid).text();
-                    }
-                }
+            if (allCards.length > controller.stations.snames.length) {
+                allCards.slice(controller.stations.snames.length,allCards.length).remove();
             }
 
-            $.mobile.loading("show");
-            send_to_os("/cs?pw=&"+$.param(names)+(hasMaster ? "&"+$.param(master) : "")+(hasSequential ? "&"+$.param(sequential) : "")+(hasIR ? "&"+$.param(rain) : "")+(hasAR ? "&"+$.param(relay) : "")+(hasSD ? "&"+$.param(disable) : "")).done(function(){
-                $.mobile.document.one("pageshow",function(){
-                    showerror(_("Stations have been updated"));
-                });
-                goBack();
-                update_controller();
-            }).fail(function(){
-                header.eq(2).prop("disabled",false);
-            });
-        },
-        run_station = function(){
-            var button = $(this),
-                station = button.attr("id").split("-")[1],
-                duration = parseInt(button.prev().find("select").val()),
-                start = function(){
-                    $.mobile.loading("show");
+            page.find(".waterlevel").text(controller.options.wl);
 
-                    send_to_os("/cm?sid="+station+"&en=1&t="+duration+"&pw=","json").done(function(){
+            for (var i = 0; i < controller.stations.snames.length; i++) {
+                isScheduled = controller.settings.ps[i][0] > 0;
+                isRunning = controller.status[i] > 0;
+                pname = isScheduled ? pidname(controller.settings.ps[i][0]) : "";
+                rem = controller.settings.ps[i][1];
 
-                        // Notify user the station test was successful
-                        showerror(_("Station test activated"));
+                if (controller.status[i] && rem > 0) {
+                    runningTotal[i] = rem;
+                }
 
-                        // Update local state until next device refresh occurs
-                        controller.settings.ps[station][0] = 99;
-                        controller.settings.ps[station][1] = duration;
-                        durations[station] = duration;
+                card = allCards.eq(i);
 
-                        // Change the start button to a stop button
-                        button.removeClass("green").addClass("red").text(_("Stop")).on("click",stop);
-
-                        // Return button back to previous state
-                        setTimeout(reset,duration*1000);
-                    });
-                },
-                stop = function(){
-                    $.mobile.loading("show");
-                    send_to_os("/cm?sid="+station+"&en=0&pw=","json").done(reset);
-
-                    $.mobile.loading("hide");
-
-                    // Update local state until next device refresh occurs
-                    controller.settings.ps[station][0] = 0;
-                    controller.settings.ps[station][1] = 0;
-                    controller.status[station] = 0;
-                    durations[station] = 0;
-
-                    // Prevent start delegate function from being called
-                    return false;
-                },
-                reset = function(){
-                    button.removeClass("red").addClass("green").text(_("Start")).off("click");
-                };
-
-            if (button.hasClass("green")) {
-                start();
-            } else {
-                stop();
-            }
-        },
-        updateContent = function(){
-            page.find("[id^='run_station-']").each(function(){
-                var button = $(this),
-                    select = button.siblings(".ui-select"),
-                    i = parseInt(button.attr("id").split("-")[1]),
-                    reset = function(){
-                        select.find(".ui-btn").addClass("ui-icon-carat-d ui-btn-icon-right");
-                        select.find("select").prop("disabled",false);
-                        select.find("span").text(select.find("select option:selected").text());
-                        button.removeClass("red").addClass("green").text(_("Start")).off("click");
-                    };
-
-                if (controller.status[i] > 0 || controller.settings.ps[i][0] > 0) {
-                    if (controller.status[i] > 0) {
-                        durations[i]--;
-                    }
-
-                    if (durations[i] <= 0) {
-                        reset();
-                        return true;
-                    }
-
-                    select.find(".ui-btn").removeClass("ui-icon-carat-d ui-btn-icon-right");
-                    select.find("select").prop("disabled",true);
-                    select.find("span").text(dhms2str(sec2dhms(durations[i])));
-                    button.removeClass("green").addClass("red").text(_("Stop")).off("click");
+                if (card.length === 0) {
+                    cards = "";
+                    addCard(i);
+                    $(cards).insertAfter(allCards.eq(i-1));
                 } else {
-                    reset();
+                    if (isStationDisabled(i)) {
+                        if (!page.hasClass("show-hidden")) {
+                            card.hide();
+                        }
+                        card.addClass("station-hidden");
+                    } else {
+                        card.show().removeClass("station-hidden");
+                    }
+
+                    card.find("#station_"+i).text(controller.stations.snames[i]);
+                    card.find(".station-status").removeClass("on off wait").addClass(isRunning ? "on" : (isScheduled ? "wait" : "off"));
+                    if (isScheduled || isRunning) {
+                        line = ((controller.status[i] > 0) ? _("Running")+" "+pname : _("Scheduled")+" "+(controller.settings.ps[i][2] ? _("for")+" "+dateToString(new Date(controller.settings.ps[i][2]*1000)) : pname));
+                        if (rem>0) {
+                            // Show the remaining time if it's greater than 0
+                            line += " <span id='countdown-"+i+"' class='nobr'>(" + sec2hms(rem) + " "+_("remaining")+")</span>";
+                        }
+                        if (card.find(".rem").length === 0) {
+                            card.find(".ui-body").append("<p class='rem center'>"+line+"</p>");
+                        } else {
+                            card.find(".rem").html(line);
+                        }
+                    } else {
+                        card.find(".rem").remove();
+                    }
+
                 }
-            });
-        },
-        header = changeHeader({
-            title: _("Edit Stations"),
-            leftBtn: {
-                icon: "carat-l",
-                text: _("Back"),
-                class: "ui-toolbar-back-btn",
-                on: checkChangesBeforeBack
-            },
-            rightBtn: {
-                icon: "check",
-                text: _("Submit"),
-                class: "submit",
-                on: submit_stations
             }
-        }),
+        },
         hasMaster = controller.options.mas ? true : false,
         hasIR = (typeof controller.stations.ignore_rain === "object") ? true : false,
         hasAR = (typeof controller.stations.act_relay === "object") ? true : false,
         hasSD = (typeof controller.stations.stn_dis === "object") ? true : false,
         hasSequential = (typeof controller.stations.stn_seq === "object") ? true : false,
-        optCount = hasIR + hasMaster + hasAR + hasSD + hasSequential,
-        is21 = checkOSVersion(210),
-        lastCheck = new Date().getTime(),
         updateInterval, i;
 
-    for (i=0; i<8; i++) {
+    for (i=0; i<controller.stations.snames.length; i++) {
         addCard(i);
     }
 
-    page.find(".ui-content").html("<div id='os-stations-list' class='card-group center'>"+cards+"</div><button class='submit preventBack'>"+_("Submit")+"</button><button data-theme='b' class='reset'>"+_("Reset")+"</button>");
-
-    page.find("#os-stations-list").one("change input",function(){
-        header.eq(2).prop("disabled",false);
-        page.find(".submit").addClass("hasChanges");
-    });
-
-    // When data is refreshed, update the icon status
-    page.on("datarefresh",function(){
-        for (var i = controller.settings.ps.length - 1; i >= 0; i--) {
-            durations[i] = controller.settings.ps[i][1];
-        }
-        updateContent();
-    });
-
-    page.on("click","[id^='run_station-']",run_station);
-
-    page.on("click",".attrib",show_attributes);
-
-    page.on("click",".stn-attrib-icon",function(){
-        var icon = $(this),
-            status = icon.hasClass("attrib-disabled") ? 1 : 0,
-            code = icon.data("shortcode"),
-            settings = icon.siblings(".attrib");
-
-        settings.data(code, status);
-
-        if (status) {
-            icon.removeClass("attrib-disabled");
-        } else {
-            icon.addClass("attrib-disabled");
-        }
-
-        header.eq(2).prop("disabled",false);
-        page.find(".submit").addClass("hasChanges");
-    });
-
-    page.on("click","[id^='station_']",function(){
-        var text = $(this),
-            input = $("<input class='center station-input' data-mini='true' maxlength='"+controller.stations.maxlen+"' id='edit_"+text.attr("id")+"' type='text' value='"+text.text()+"'>");
-
-        text.replaceWith(input);
-        input.on("blur keyup",function(e){
-            if (e.type === "keyup" && e.keyCode !== 13) {
-                return;
-            }
-            text.html(input.val()+editButton);
-            input.replaceWith(text);
-            input.remove();
-        });
-
-        if (input.get(0).setSelectionRange) {
-            input.focus();
-            input.get(0).setSelectionRange(0, text.text().length);
-        } else if (input.get(0).createTextRange) {
-            var range = input.get(0).createTextRange();
-            range.collapse(true);
-            range.moveEnd("character", text.text().length);
-            range.moveStart("character", 0);
-            range.select();
-        }
-    });
-
-    page.find(".submit").on("click",submit_stations);
-
-    page.find(".reset").on("click",function(){
-        page.find("[id^='station_']").each(function(a,b){
-            $(b).html("S"+pad(a+1)+editButton);
-        });
-        page.find(".attrib").each(function(a,b){
-            $(b).data({
-                "um": 0,
-                "us": 0,
-                "ir": 0,
-                "ar": 0,
-                "sd": 0
-            });
-        });
-        header.eq(2).prop("disabled",false);
-        page.find(".submit").addClass("hasChanges");
-    });
-
-    page.one({
-        pagehide: function(){
-            page.remove();
-        },
-        pageshow: function(){
-            cards = "";
-            for (i; i<controller.stations.snames.length; i++) {
-                addCard(i);
-            }
-            page.find("#os-stations-list").append(cards).enhanceWithin();
-        },
-        pagebeforeshow: function() {
-            updateContent();
-            updateInterval = setInterval(function(){
-                var now = new Date().getTime(),
-                    currPage = $(".ui-page-active").attr("id"),
-                    diff = now - lastCheck;
-
-                if (diff > 3000) {
-                    if (currPage === "os-stations") {
-                        refresh_status();
-                    } else {
-                        clearInterval(updateInterval);
-                    }
-                }
-
-                lastCheck = now;
-                updateContent();
-            },1000);
-        }
-    });
-
-    header.eq(2).prop("disabled",true);
-
-    $("#os-stations").remove();
-    page.appendTo("body");
-}
-
-function isStationDisabled(sid) {
-    return (typeof controller.stations.stn_dis === "object" && (controller.stations.stn_dis[parseInt(sid/8)]&(1<<(sid%8))) > 0);
-}
-
-function isStationSequential(sid) {
-    if (typeof controller.stations.stn_seq === "object") {
-        return (controller.stations.stn_seq[parseInt(sid/8)]&(1<<(sid%8))) > 0;
-    } else {
-        return controller.options.seq;
-    }
-}
-
-// Current status related functions
-function get_status() {
-    var page = $("<div data-role='page' id='status'>" +
-            "<div class='ui-content status-page' role='main'>" +
-            "</div>" +
-        "</div>"),
-        runningTotal = {},
-        lastCheck = new Date().getTime(),
-        currentDelay = 0,
-        updateInterval,
-        updateContent = function() {
-            var allPnames = [],
-                color = "",
-                weatherInfo = "",
-                list = "";
-
-            // Display the system time
-            var header = "<span id='clock-s' class='nobr'>"+dateToString(new Date(controller.settings.devt*1000))+"</span>";
-
-            // For OSPi, show the current device temperature
-            if (typeof controller.settings.ct === "string" && controller.settings.ct !== "0.0" && typeof controller.settings.tu === "string") {
-                header += " <span>"+controller.settings.ct+"&deg;"+controller.settings.tu+"</span>";
-            }
-
-            // Set the time for the header to the device time
-            runningTotal.c = controller.settings.devt;
-
-            var master = controller.options.mas,
-                ptotal = 0;
-
-            // Determine total count of stations open excluding the master
-            var open = {},
-                scheduled = 0,
-                sequential = 0;
-
-            $.each(controller.status, function (i, stn) {
-                if (stn > 0) {
-                    open[i] = stn;
-                }
-            });
-            open = Object.keys(open).length;
-
-            if (master && controller.status[master-1]) {
-                open--;
-            }
-
-            $.each(controller.stations.snames,function(i, station) {
-                var info = "";
-
-                // Check if station is master
-                if (master === i+1) {
-                    station += " ("+_("Master")+")";
-                } else if (controller.settings.ps[i][0]) {
-                    // If not, get the remaining time for the station
-                    var rem=controller.settings.ps[i][1];
-                    if (typeof controller.stations.stn_seq === "object") {
-                        if (isStationSequential(i)) {
-                            scheduled++;
-                            sequential += rem;
-                        } else {
-                            if (rem > ptotal) {
-                                ptotal = rem;
-                            }
-                        }
-                    } else {
-                        scheduled++;
-                        if (open > 1) {
-                            // If concurrent stations, grab the largest time to be used as program time
-                            if (rem > ptotal) {
-                                ptotal = rem;
-                            }
-                        } else {
-                            // Otherwise, add all of the program times together except for a manual program with a time of 1s
-                            if (!(controller.settings.ps[i][0] === 99 && rem === 1)) {
-                                ptotal+=rem;
-                            }
-                        }
-                    }
-
-                    var pid = controller.settings.ps[i][0],
-                        pname = pidname(pid);
-
-                    // If the station is running, add it's remaining time for updates
-                    if (controller.status[i] && rem > 0) {
-                        runningTotal[i] = rem;
-                    }
-
-                    // Save program name to list of all program names
-                    allPnames[i] = pname;
-
-                    // Generate status line for station
-                    info = "<p class='rem center'>"+((controller.status[i] > 0) ? _("Running")+" "+pname : _("Scheduled")+" "+(controller.settings.ps[i][2] ? _("for")+" "+dateToString(new Date(controller.settings.ps[i][2]*1000)) : pname));
-                    if (rem>0) {
-                        // Show the remaining time if it's greater than 0
-                        info += " <span id='countdown-"+i+"' class='nobr'>(" + sec2hms(rem) + " "+_("remaining")+")</span>";
-                    }
-                    info += "</p>";
-                }
-
-                // If the station is on, give it color green otherwise red
-                if (controller.status[i] > 0) {
-                    color = "green";
-                } else {
-                    color = "red";
-                }
-
-                // Append the station to the list of stations
-                list += "<li class='"+color+(isStationDisabled(i) ? " hidden" : "")+"'><p class='sname center'>"+station+"</p>"+info+"</li>";
-            });
-
-            var footer = "";
-            var lrdur = controller.settings.lrun[2];
-
-            // If last run duration is given, add it to the footer
-            if (lrdur !== 0) {
-                var lrpid = controller.settings.lrun[1];
-                var pname= pidname(lrpid);
-
-                footer = pname+" "+_("last ran station")+" "+controller.stations.snames[controller.settings.lrun[0]]+" "+_("for")+" "+(lrdur/60>>0)+"m "+(lrdur%60)+"s "+_("on")+" "+dateToString(new Date(controller.settings.lrun[3]*1000));
-            }
-
-            // Display header information
-            if (ptotal > 1 || sequential > 1) {
-                // If a program is running, show which specific programs and their collective total
-                allPnames = getUnique($.grep(allPnames,function(n){return(n);}));
-                var numProg = allPnames.length;
-                allPnames = allPnames.join(" "+_("and")+" ");
-                var pinfo = allPnames+" "+((numProg > 1) ? _("are") : _("is"))+" "+_("running")+" ";
-
-                if (typeof controller.stations.stn_seq === "object") {
-                    sequential += (scheduled-1)*controller.options.sdt + currentDelay;
-                    ptotal = Math.max(ptotal,sequential);
-                } else if (controller.options.seq === 1) {
-                    ptotal += (scheduled-1)*controller.options.sdt + currentDelay;
-                }
-
-                if (open || (scheduled && currentDelay > 0)) {
-                    runningTotal.p = ptotal;
-                } else {
-                    delete runningTotal.p;
-                }
-
-                pinfo += "<br><span id='countdown-p' class='nobr'>("+sec2hms(ptotal)+" "+_("remaining")+")</span>";
-                header += "<br>"+pinfo;
-            } else if (controller.settings.rd) {
-                // Display a rain delay when active
-                header +="<br>"+_("Rain delay until")+" "+dateToString(new Date(controller.settings.rdst*1000));
-            } else if (controller.options.urs === 1 && controller.settings.rs === 1) {
-                // Show rain sensor status when triggered
-                header +="<br>"+_("Rain detected");
-            }
-
-            if (checkOSVersion(210)) {
-                weatherInfo = "<div class='ui-grid-b status-daily'>";
-                weatherInfo += "<div class='center ui-block-a'>"+pad(parseInt(controller.settings.sunrise/60)%24)+":"+pad(controller.settings.sunrise%60)+"<br>"+_("Sunrise")+"</div>";
-                weatherInfo += "<div class='center ui-block-b'>"+controller.options.wl+"%<br>"+_("Water Level")+"</div>";
-                weatherInfo += "<div class='center ui-block-c'>"+pad(parseInt(controller.settings.sunset/60)%24)+":"+pad(controller.settings.sunset%60)+"<br>"+_("Sunset")+"</div>";
-                weatherInfo += "</div>";
-            }
-            page.find(".status-page").html(
-                "<p class='smaller center'>"+ header +"</p>" +
-                weatherInfo +
-                "<ul data-role='listview' data-inset='true' id='status_list'>"+ list +"</ul>" +
-                "<p class='smaller center'>"+ footer +"</p>"
-            ).enhanceWithin();
-        };
-
-    changeHeader({
-        title: _("Current Status"),
-        leftBtn: {
-            icon: "carat-l",
-            text: _("Back"),
-            class: "ui-toolbar-back-btn",
-            on: goBack
-        }
-    });
+    page.find(".ui-content").append("<div id='os-stations-list' class='card-group center'>"+cards+"</div>");
     page.on("datarefresh",updateContent);
-    updateContent();
+    page.on("click",".station-settings",show_attributes);
 
     if (checkOSVersion(210)) {
-        page.on("click",".ui-block-b",function(){
-            var popup = $("<div data-role='popup'>" +
-                "<p>"+_("The watering percentage scales station run times by the set value. When weather adjustment is used the watering percentage is automatically adjusted.")+"</p>" +
-            "</div>");
-
-            popup.one("popupafterclose", function(){
-                popup.popup("destroy").remove();
-            }).enhanceWithin();
-
-            $(".ui-page-active").append(popup);
-
-            popup.popup({history: false, positionTo: this}).popup("open");
-
-            return false;
-        }).on("click","li",function(){
+        page.on("click",".card",function(){
             // Bind delegate handler to stop specific station (supported on firmware 2.1.0+ on Arduino)
             var el = $(this),
                 station = el.index(),
@@ -3961,19 +3564,45 @@ function get_status() {
         });
     }
 
-    page.one({
+    page.on({
         pagehide: function(){
             clearInterval(updateInterval);
-            page.remove();
+        },
+        pagebeforeshow: function() {
+            var header = changeHeader({
+                class: "logo",
+                leftBtn: {
+                    icon: "bullets",
+                    on: function(){
+                        open_panel();
+                        return false;
+                    }
+                },
+                rightBtn: {
+                    icon: "bell",
+                    class: "notifications",
+                    text: "<span class='notificationCount ui-li-count ui-btn-corner-all'>"+notifications.length+"</span>",
+                    on: function(){
+                        showNotifications();
+                        return false;
+                    }
+                },
+                animate: (firstLoad ? false : true)
+            });
+
+            if (notifications.length === 0) {
+                $(header[2]).hide();
+            }
         },
         pageshow: function(){
+            clearInterval(updateInterval);
             updateInterval = setInterval(function(){
                 var now = new Date().getTime(),
                     currPage = $(".ui-page-active").attr("id"),
                     diff = now - lastCheck;
 
                 if (diff > 3000) {
-                    if (currPage === "status") {
+                    if (currPage === "sprinklers") {
                         refresh_status();
                     } else {
                         clearInterval(updateInterval);
@@ -3991,22 +3620,15 @@ function get_status() {
                     if (b <= 0) {
                         refresh_status();
                         delete runningTotal[a];
-                        if (a === "p") {
-                            if (currPage !== "status") {
-                                clearInterval(updateInterval);
-                                return;
-                            }
-                        } else {
-                            currentDelay = controller.options.sdt - 1;
-                            $("#countdown-"+a).parent("p").empty().parent("li").removeClass("green").addClass("red");
-                        }
+                        currentDelay = controller.options.sdt - 1;
+                        page.find("#countdown-"+a).parent("p").empty().siblings(".station-status").removeClass("on").addClass("off");
                     } else {
                         if (a === "c") {
                             ++runningTotal[a];
-                            $("#clock-s").text(dateToString(new Date(runningTotal[a]*1000)));
+                            page.find("#clock-s").text(dateToString(new Date(runningTotal[a]*1000),null,true));
                         } else {
                             --runningTotal[a];
-                            $("#countdown-"+a).text("(" + sec2hms(runningTotal[a]) + " "+_("remaining")+")");
+                            page.find("#countdown-"+a).text("(" + sec2hms(runningTotal[a]) + " "+_("remaining")+")");
                         }
                     }
                 });
@@ -4014,9 +3636,161 @@ function get_status() {
         }
     });
 
+    $("#sprinklers").remove();
     page.appendTo("body");
+
+    if (!$.isEmptyObject(weather)) {
+        updateWeatherBox();
+    }
 }
 
+function show_attributes() {
+    $("#stn_attrib").popup("destroy").remove();
+
+    var button = $(this),
+        id = button.data("station"),
+        name = button.siblings("[id='station_"+id+"']"),
+        hasMaster = controller.options.mas ? true : false,
+        hasIR = (typeof controller.stations.ignore_rain === "object") ? true : false,
+        hasAR = (typeof controller.stations.act_relay === "object") ? true : false,
+        hasSD = (typeof controller.stations.stn_dis === "object") ? true : false,
+        hasSequential = (typeof controller.stations.stn_seq === "object") ? true : false,
+        saveChanges = function(){
+            button.data("um", select.find("#um").is(":checked") ? 1 : 0 );
+            button.data("ir", select.find("#ir").is(":checked") ? 1 : 0 );
+            button.data("ar", select.find("#ar").is(":checked") ? 1 : 0 );
+            button.data("sd", select.find("#sd").is(":checked") ? 1 : 0 );
+            button.data("us", select.find("#us").is(":checked") ? 1 : 0 );
+            name.html( select.find("#stn-name").val() );
+            select.popup("destroy").remove();
+        },
+        select = "<div data-overlay-theme='b' data-role='popup' id='stn_attrib'><fieldset style='margin:0' data-corners='false' data-role='controlgroup'>";
+
+    if (typeof id !== "number") {
+        return false;
+    }
+
+    select += "<input class='bold center' data-wrapper-class='stn-name ui-btn' id='stn-name' type='text' value='"+name.text()+"'>";
+
+    if (hasMaster) {
+        select += "<label for='um'><input class='needsclick' data-iconpos='right' id='um' type='checkbox' "+((button.data("um") === 1) ? "checked='checked'" : "")+">"+_("Use Master")+"</label>";
+    }
+
+    if (hasIR) {
+        select += "<label for='ir'><input class='needsclick' data-iconpos='right' id='ir' type='checkbox' "+((button.data("ir") === 1) ? "checked='checked'" : "")+">"+_("Ignore Rain")+"</label>";
+    }
+
+    if (hasAR) {
+        select += "<label for='ar'><input class='needsclick' data-iconpos='right' id='ar' type='checkbox' "+((button.data("ar") === 1) ? "checked='checked'" : "")+">"+_("Activate Relay")+"</label>";
+    }
+
+    if (hasSD) {
+        select += "<label for='sd'><input class='needsclick' data-iconpos='right' id='sd' type='checkbox' "+((button.data("sd") === 1) ? "checked='checked'" : "")+">"+_("Disable")+"</label>";
+    }
+
+    if (hasSequential) {
+        select += "<label for='us'><input class='needsclick' data-iconpos='right' id='us' type='checkbox' "+((button.data("us") === 1) ? "checked='checked'" : "")+">"+_("Sequential")+"</label>";
+    }
+
+    select += "<button data-theme='b' class='submit'>Submit</button>";
+
+    select += "</fieldset></div>";
+    select = $(select);
+    select.on("click",".submit",function(){
+        saveChanges();
+        submit_stations();
+    });
+    select.one("popupafterclose", saveChanges).enhanceWithin();
+
+    $(".ui-page-active").append(select);
+
+    select.popup({history: false, positionTo: "window"}).popup("open");
+}
+
+function submit_stations() {
+    var is208 = (checkOSVersion(208) === true),
+        master = {},
+        sequential = {},
+        rain = {},
+        relay = {},
+        disable = {},
+        names = {},
+        page = $("#os-stations-list"),
+        hasMaster = controller.options.mas ? true : false,
+        hasIR = (typeof controller.stations.ignore_rain === "object") ? true : false,
+        hasAR = (typeof controller.stations.act_relay === "object") ? true : false,
+        hasSD = (typeof controller.stations.stn_dis === "object") ? true : false,
+        hasSequential = (typeof controller.stations.stn_seq === "object") ? true : false,
+        attrib, bid, sid, s;
+
+    for(bid=0;bid<controller.settings.nbrd;bid++) {
+        if (hasMaster) {
+            master["m"+bid] = 0;
+        }
+        if (hasSequential) {
+            sequential["q"+bid] = 0;
+        }
+        if (hasIR) {
+            rain["i"+bid] = 0;
+        }
+        if (hasAR) {
+            relay["a"+bid] = 0;
+        }
+        if (hasSD) {
+            disable["d"+bid] = 0;
+        }
+
+        for(s=0;s<8;s++) {
+            sid=bid*8+s;
+            attrib = page.find("#attrib-"+sid);
+
+            if (hasMaster) {
+                master["m"+bid] = (master["m"+bid]) + (attrib.data("um") << s);
+            }
+            if (hasSequential) {
+                sequential["q"+bid] = (sequential["q"+bid]) + (attrib.data("us") << s);
+            }
+            if (hasIR) {
+                rain["i"+bid] = (rain["i"+bid]) + (attrib.data("ir") << s);
+            }
+            if (hasAR) {
+                relay["a"+bid] = (relay["a"+bid]) + (attrib.data("ar") << s);
+            }
+            if (hasSD) {
+                disable["d"+bid] = (disable["d"+bid]) + (attrib.data("sd") << s);
+            }
+
+            // Because the firmware has a bug regarding spaces, let us replace them out now with a compatible seperator
+            if (is208) {
+                names["s"+sid] = page.find("#station_"+sid).text().replace(/\s/g,"_");
+            } else {
+                names["s"+sid] = page.find("#station_"+sid).text();
+            }
+        }
+    }
+
+    $.mobile.loading("show");
+    send_to_os("/cs?pw=&"+$.param(names)+(hasMaster ? "&"+$.param(master) : "")+(hasSequential ? "&"+$.param(sequential) : "")+(hasIR ? "&"+$.param(rain) : "")+(hasAR ? "&"+$.param(relay) : "")+(hasSD ? "&"+$.param(disable) : "")).done(function(){
+        showerror(_("Stations have been updated"));
+        update_controller(function(){
+            $(".ui-page-active").trigger("datarefresh");
+        });
+    });
+}
+
+function isStationDisabled(sid) {
+    return (typeof controller.stations.stn_dis === "object" && (controller.stations.stn_dis[parseInt(sid/8)]&(1<<(sid%8))) > 0);
+}
+
+function isStationSequential(sid) {
+    if (typeof controller.stations.stn_seq === "object") {
+        return (controller.stations.stn_seq[parseInt(sid/8)]&(1<<(sid%8))) > 0;
+    } else {
+        return controller.options.seq;
+    }
+}
+
+// Current status related functions
 function refresh_status() {
     var page = $(".ui-page-active");
 
@@ -4027,6 +3801,7 @@ function refresh_status() {
     ).then(function(){
         // Notify the current page that the data has refreshed
         page.trigger("datarefresh");
+        check_status();
         return;
     },network_fail);
 }
@@ -4053,7 +3828,7 @@ function change_status(seconds,color,line,onclick) {
         update_timer(seconds,controller.options.sdt);
     }
 
-    footer.removeClass().addClass(color).html(line).off("click").on("click",onclick).slideDown();
+    footer.removeClass().addClass(color).html(line).off("click").on("click",onclick);
 }
 
 // Update status bar based on device status
@@ -4108,9 +3883,7 @@ function check_status() {
             line += "<span id='countdown' class='nobr'>("+sec2hms(ptotal)+" "+_("remaining")+")</span>";
         }
         line += "</div></div>";
-        change_status(ptotal,"green",line,function(){
-            changePage("#status");
-        });
+        change_status(ptotal,"green",line,goHome);
         return;
     }
 
@@ -4132,9 +3905,7 @@ function check_status() {
     }
 
     if (match) {
-        change_status(controller.settings.ps[i][1],"green",line,function(){
-            changePage("#status");
-        });
+        change_status(controller.settings.ps[i][1],"green",line,goHome);
         return;
     }
 
@@ -4170,7 +3941,18 @@ function check_status() {
         return;
     }
 
-    $("#footer-running").slideUp();
+    var lrdur = controller.settings.lrun[2];
+
+    // If last run duration is given, add it to the footer
+    if (lrdur !== 0) {
+        var lrpid = controller.settings.lrun[1];
+        pname = pidname(lrpid);
+
+        change_status(0,"transparent","<p class='running-text smaller center'>"+pname+" "+_("last ran station")+" "+controller.stations.snames[controller.settings.lrun[0]]+" "+_("for")+" "+(lrdur/60>>0)+"m "+(lrdur%60)+"s "+_("on")+" "+dateToString(new Date(controller.settings.lrun[3]*1000))+"</p>",goHome);
+        return;
+    }
+
+    change_status(0,"transparent");
 }
 
 function calculateTotalRunningTime(runTimes) {
@@ -5048,7 +4830,7 @@ function get_preview() {
         }
     };
 
-    placeholder.on("swiperight",function(e){
+    placeholder.on("swiperight swipeleft",function(e){
         e.stopImmediatePropagation();
     });
 
@@ -5469,7 +5251,7 @@ function get_logs() {
                 },
                 shortnames = [];
 
-            logs_list.on("swiperight",function(e){
+            logs_list.on("swiperight swipeleft",function(e){
                 e.stopImmediatePropagation();
             });
 
@@ -5496,7 +5278,7 @@ function get_logs() {
             placeholder.empty();
             placeholder.show();
             var freshLoad = zones.find("table").length;
-            zones.show().on("swiperight",function(e){
+            zones.show().on("swiperight swipeleft",function(e){
                 e.stopImmediatePropagation();
             });
             graph_sort.show();
@@ -7139,7 +6921,7 @@ function import_config(data) {
                         $.mobile.loading("hide");
                         showerror(_("Backup restored to your device"));
                         update_weather();
-                        goHome();
+                        goHome(true);
                     },
                     function(){
                         $.mobile.loading("hide");
@@ -7450,6 +7232,10 @@ function intToIP(eip) {
 function checkPublicAccess(eip) {
     // Check if the device is accessible from it's public IP
 
+    if (eip === 0) {
+        return;
+    }
+
     var ip = intToIP(eip),
         port = curr_ip.match(/.*:(\d+)/);
 
@@ -7542,6 +7328,7 @@ function showNotifications() {
     }
 
     var panel = $("#notificationPanel"),
+        menu = $("#footer-menu"),
         items = [$("<li data-role='list-divider'>"+_("Notifications")+"<button class='ui-btn ui-btn-icon-notext ui-icon-delete btn-no-border clear-all delete'></button></li>").on("click",".clear-all",function(){
             var button = $(this);
 
@@ -7562,7 +7349,11 @@ function showNotifications() {
     }
 
     panel.find("ul").replaceWith($("<ul/>").append(items).listview());
+    panel.on("panelbeforeclose",function(){
+        menu.removeClass("moveLeft");
+    });
     panel.panel().panel("option","classes.modal","needsclick ui-panel-dismiss");
+    menu.addClass("moveLeft");
     panel.panel("open");
 }
 
@@ -8603,7 +8394,7 @@ function showLoading(ele) {
     ele.off("click").html("<p class='ui-icon ui-icon-loading mini-load'></p>");
 }
 
-function goHome() {
+function goHome(firstLoad) {
     // Transition to home page after succesful load
     if ($.mobile.pageContainer.pagecontainer("getActivePage").attr("id") !== "sprinklers") {
         $.mobile.document.one("pageshow",function(){
@@ -8612,10 +8403,16 @@ function goHome() {
         });
 
         var opts = {
-            "firstLoad": true,
-            "showLoading": false,
-            "transition": "none"
+            "reverse": true
         };
+
+        if (firstLoad === true) {
+            opts = {
+                "firstLoad": true,
+                "showLoading": false,
+                "transition": "none"
+            };
+        }
 
         changePage("#sprinklers",opts);
     }
@@ -8812,17 +8609,6 @@ function getDayName(day,type) {
     }
 }
 
-// Add ability to unique sort arrays
-function getUnique(inputArray) {
-    var outputArray = [];
-    for (var i = 0; i < inputArray.length; i++) {
-        if (($.inArray(inputArray[i], outputArray)) === -1) {
-            outputArray.push(inputArray[i]);
-        }
-    }
-    return outputArray;
-}
-
 // pad a single digit with a leading zero
 function pad(number) {
     var r = String(number);
@@ -8975,7 +8761,7 @@ function minutesToTime(minutes) {
     return hour+":"+pad(minutes%60)+" "+period;
 }
 
-function dateToString(date,toUTC) {
+function dateToString(date,toUTC,shorten) {
     var dayNames = [_("Sun"),_("Mon"),_("Tue"),_("Wed"),_("Thr"),_("Fri"),_("Sat")],
         monthNames = [_("Jan"),_("Feb"),_("Mar"),_("Apr"),_("May"),_("Jun"),_("Jul"),_("Aug"),_("Sep"),_("Oct"),_("Nov"),_("Dec")];
 
@@ -8984,8 +8770,16 @@ function dateToString(date,toUTC) {
     }
 
     if (currLang === "de") {
-        return pad(date.getDate())+"."+pad(date.getMonth())+"."+date.getFullYear()+" "+pad(date.getHours())+":"+pad(date.getMinutes())+":"+pad(date.getSeconds());
+        if (shorten) {
+            return pad(date.getDate())+"."+pad(date.getMonth())+"."+date.getFullYear()+" "+pad(date.getHours())+":"+pad(date.getMinutes())+":"+pad(date.getSeconds());
+        } else {
+            return pad(date.getDate())+"."+pad(date.getMonth())+"."+date.getFullYear()+" "+pad(date.getHours())+":"+pad(date.getMinutes())+":"+pad(date.getSeconds());
+        }
     } else {
-        return dayNames[date.getDay()]+", "+pad(date.getDate())+" "+monthNames[date.getMonth()]+" "+date.getFullYear()+" "+pad(date.getHours())+":"+pad(date.getMinutes())+":"+pad(date.getSeconds());
+        if (shorten) {
+            return monthNames[date.getMonth()]+" "+pad(date.getDate())+", "+date.getFullYear()+" "+pad(date.getHours())+":"+pad(date.getMinutes())+":"+pad(date.getSeconds());
+        } else {
+            return dayNames[date.getDay()]+", "+pad(date.getDate())+" "+monthNames[date.getMonth()]+" "+date.getFullYear()+" "+pad(date.getHours())+":"+pad(date.getMinutes())+":"+pad(date.getSeconds());
+        }
     }
 }
