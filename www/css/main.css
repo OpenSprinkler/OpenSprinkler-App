@@ -735,7 +735,7 @@ div.running-text{
     font-size: 16px !important
 }
 .rem {
-    margin-bottom:0!important;
+    margin:0;
     font-size:.71em!important;
     white-space: initial !important;
 }
