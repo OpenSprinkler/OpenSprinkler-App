@@ -256,9 +256,6 @@ $(document)
             get_programs(data.options.programToExpand);
         } else if (hash === "#addprogram") {
             add_program(data.options.copyID);
-        } else if (hash === "#status") {
-            get_status();
-            $(hash).one("pageshow",refresh_status);
         } else if (hash === "#manual") {
             get_manual();
         } else if (hash === "#about") {
@@ -312,7 +309,7 @@ $(document)
             if ($(hash).length === 0) {
                 showHome(data.options.firstLoad);
             } else {
-                refresh_status();
+                $(hash).one("pageshow",refresh_status);
             }
         }
     });
@@ -3630,7 +3627,6 @@ function show_attributes() {
     select.on("click",".submit",function(){
         saveChanges();
         submit_stations();
-        select.popup("close");
     });
     select.one("popupafterclose", saveChanges).enhanceWithin();
 
@@ -3721,293 +3717,6 @@ function isStationSequential(sid) {
 }
 
 // Current status related functions
-function get_status() {
-    var page = $("<div data-role='page' id='status'>" +
-            "<div class='ui-content status-page' role='main'>" +
-            "</div>" +
-        "</div>"),
-        runningTotal = {},
-        lastCheck = new Date().getTime(),
-        currentDelay = 0,
-        updateInterval,
-        updateContent = function() {
-            var allPnames = [],
-                color = "",
-                weatherInfo = "",
-                list = "";
-
-            // Display the system time
-            var header = "<span id='clock-s' class='nobr'>"+dateToString(new Date(controller.settings.devt*1000))+"</span>";
-
-            // For OSPi, show the current device temperature
-            if (typeof controller.settings.ct === "string" && controller.settings.ct !== "0.0" && typeof controller.settings.tu === "string") {
-                header += " <span>"+controller.settings.ct+"&deg;"+controller.settings.tu+"</span>";
-            }
-
-            // Set the time for the header to the device time
-            runningTotal.c = controller.settings.devt;
-
-            var master = controller.options.mas,
-                ptotal = 0;
-
-            // Determine total count of stations open excluding the master
-            var open = {},
-                scheduled = 0,
-                sequential = 0;
-
-            $.each(controller.status, function (i, stn) {
-                if (stn > 0) {
-                    open[i] = stn;
-                }
-            });
-            open = Object.keys(open).length;
-
-            if (master && controller.status[master-1]) {
-                open--;
-            }
-
-            $.each(controller.stations.snames,function(i, station) {
-                var info = "";
-
-                // Check if station is master
-                if (master === i+1) {
-                    station += " ("+_("Master")+")";
-                } else if (controller.settings.ps[i][0]) {
-                    // If not, get the remaining time for the station
-                    var rem=controller.settings.ps[i][1];
-                    if (typeof controller.stations.stn_seq === "object") {
-                        if (isStationSequential(i)) {
-                            scheduled++;
-                            sequential += rem;
-                        } else {
-                            if (rem > ptotal) {
-                                ptotal = rem;
-                            }
-                        }
-                    } else {
-                        scheduled++;
-                        if (open > 1) {
-                            // If concurrent stations, grab the largest time to be used as program time
-                            if (rem > ptotal) {
-                                ptotal = rem;
-                            }
-                        } else {
-                            // Otherwise, add all of the program times together except for a manual program with a time of 1s
-                            if (!(controller.settings.ps[i][0] === 99 && rem === 1)) {
-                                ptotal+=rem;
-                            }
-                        }
-                    }
-
-                    var pid = controller.settings.ps[i][0],
-                        pname = pidname(pid);
-
-                    // If the station is running, add it's remaining time for updates
-                    if (controller.status[i] && rem > 0) {
-                        runningTotal[i] = rem;
-                    }
-
-                    // Save program name to list of all program names
-                    allPnames[i] = pname;
-
-                    // Generate status line for station
-                    info = "<p class='rem center'>"+((controller.status[i] > 0) ? _("Running")+" "+pname : _("Scheduled")+" "+(controller.settings.ps[i][2] ? _("for")+" "+dateToString(new Date(controller.settings.ps[i][2]*1000)) : pname));
-                    if (rem>0) {
-                        // Show the remaining time if it's greater than 0
-                        info += " <span id='countdown-"+i+"' class='nobr'>(" + sec2hms(rem) + " "+_("remaining")+")</span>";
-                    }
-                    info += "</p>";
-                }
-
-                // If the station is on, give it color green otherwise red
-                if (controller.status[i] > 0) {
-                    color = "green";
-                } else {
-                    color = "red";
-                }
-
-                // Append the station to the list of stations
-                list += "<li class='"+color+(isStationDisabled(i) ? " hidden" : "")+"'><p class='sname center'>"+station+"</p>"+info+"</li>";
-            });
-
-            var footer = "";
-            var lrdur = controller.settings.lrun[2];
-
-            // If last run duration is given, add it to the footer
-            if (lrdur !== 0) {
-                var lrpid = controller.settings.lrun[1];
-                var pname= pidname(lrpid);
-
-                footer = pname+" "+_("last ran station")+" "+controller.stations.snames[controller.settings.lrun[0]]+" "+_("for")+" "+(lrdur/60>>0)+"m "+(lrdur%60)+"s "+_("on")+" "+dateToString(new Date(controller.settings.lrun[3]*1000));
-            }
-
-            // Display header information
-            if (ptotal > 1 || sequential > 1) {
-                // If a program is running, show which specific programs and their collective total
-                allPnames = getUnique($.grep(allPnames,function(n){return(n);}));
-                var numProg = allPnames.length;
-                allPnames = allPnames.join(" "+_("and")+" ");
-                var pinfo = allPnames+" "+((numProg > 1) ? _("are") : _("is"))+" "+_("running")+" ";
-
-                if (typeof controller.stations.stn_seq === "object") {
-                    sequential += (scheduled-1)*controller.options.sdt + currentDelay;
-                    ptotal = Math.max(ptotal,sequential);
-                } else if (controller.options.seq === 1) {
-                    ptotal += (scheduled-1)*controller.options.sdt + currentDelay;
-                }
-
-                if (open || (scheduled && currentDelay > 0)) {
-                    runningTotal.p = ptotal;
-                } else {
-                    delete runningTotal.p;
-                }
-
-                pinfo += "<br><span id='countdown-p' class='nobr'>("+sec2hms(ptotal)+" "+_("remaining")+")</span>";
-                header += "<br>"+pinfo;
-            } else if (controller.settings.rd) {
-                // Display a rain delay when active
-                header +="<br>"+_("Rain delay until")+" "+dateToString(new Date(controller.settings.rdst*1000));
-            } else if (controller.options.urs === 1 && controller.settings.rs === 1) {
-                // Show rain sensor status when triggered
-                header +="<br>"+_("Rain detected");
-            }
-
-            if (checkOSVersion(210)) {
-                weatherInfo = "<div class='ui-grid-b status-daily'>";
-                weatherInfo += "<div class='center ui-block-a'>"+pad(parseInt(controller.settings.sunrise/60)%24)+":"+pad(controller.settings.sunrise%60)+"<br>"+_("Sunrise")+"</div>";
-                weatherInfo += "<div class='center ui-block-b'>"+controller.options.wl+"%<br>"+_("Water Level")+"</div>";
-                weatherInfo += "<div class='center ui-block-c'>"+pad(parseInt(controller.settings.sunset/60)%24)+":"+pad(controller.settings.sunset%60)+"<br>"+_("Sunset")+"</div>";
-                weatherInfo += "</div>";
-            }
-            page.find(".status-page").html(
-                "<p class='smaller center'>"+ header +"</p>" +
-                weatherInfo +
-                "<ul data-role='listview' data-inset='true' id='status_list'>"+ list +"</ul>" +
-                "<p class='smaller center'>"+ footer +"</p>"
-            ).enhanceWithin();
-        };
-
-    changeHeader({
-        title: _("Current Status"),
-        leftBtn: {
-            icon: "carat-l",
-            text: _("Back"),
-            class: "ui-toolbar-back-btn",
-            on: goBack
-        }
-    });
-    page.on("datarefresh",updateContent);
-    updateContent();
-
-    if (checkOSVersion(210)) {
-        page.on("click",".ui-block-b",function(){
-            var popup = $("<div data-role='popup'>" +
-                "<p>"+_("The watering percentage scales station run times by the set value. When weather adjustment is used the watering percentage is automatically adjusted.")+"</p>" +
-            "</div>");
-
-            popup.one("popupafterclose", function(){
-                popup.popup("destroy").remove();
-            }).enhanceWithin();
-
-            $(".ui-page-active").append(popup);
-
-            popup.popup({history: false, positionTo: this}).popup("open");
-
-            return false;
-        }).on("click","li",function(){
-            // Bind delegate handler to stop specific station (supported on firmware 2.1.0+ on Arduino)
-            var el = $(this),
-                station = el.index(),
-                currentStatus = controller.status[station],
-                name = controller.stations.snames[station],
-                question;
-
-            if (currentStatus) {
-                question = _("Do you want to stop the selected station?");
-            } else {
-                if (el.find("span.nobr").length) {
-                    question = _("Do you want to unschedule the selected station?");
-                } else {
-                    showDurationBox({
-                        title: name,
-                        incrementalUpdate: false,
-                        maximum: 65535,
-                        helptext: _("Enter a duration to manually run "+name),
-                        callback: function(duration){
-                            send_to_os("/cm?sid="+station+"&en=1&t="+duration+"&pw=","json").done(function(){
-                                refresh_status();
-                                showerror(_("Station has been queued"));
-                            });
-                        }
-                    });
-                    return;
-                }
-            }
-            areYouSure(question,controller.stations.snames[station],function(){
-                send_to_os("/cm?sid="+station+"&en=0&pw=").done(function(){
-                    refresh_status();
-                    showerror(_("Station has been stopped"));
-                });
-            });
-        });
-    }
-
-    page.one({
-        pagehide: function(){
-            clearInterval(updateInterval);
-            page.remove();
-        },
-        pageshow: function(){
-            updateInterval = setInterval(function(){
-                var now = new Date().getTime(),
-                    currPage = $(".ui-page-active").attr("id"),
-                    diff = now - lastCheck;
-
-                if (diff > 3000) {
-                    if (currPage === "status") {
-                        refresh_status();
-                    } else {
-                        clearInterval(updateInterval);
-                    }
-                }
-
-                if (currentDelay <= 0) {
-                    currentDelay = 0;
-                } else {
-                    --currentDelay;
-                }
-
-                lastCheck = now;
-                $.each(runningTotal,function(a,b){
-                    if (b <= 0) {
-                        refresh_status();
-                        delete runningTotal[a];
-                        if (a === "p") {
-                            if (currPage !== "status") {
-                                clearInterval(updateInterval);
-                                return;
-                            }
-                        } else {
-                            currentDelay = controller.options.sdt - 1;
-                            $("#countdown-"+a).parent("p").empty().parent("li").removeClass("green").addClass("red");
-                        }
-                    } else {
-                        if (a === "c") {
-                            ++runningTotal[a];
-                            $("#clock-s").text(dateToString(new Date(runningTotal[a]*1000)));
-                        } else {
-                            --runningTotal[a];
-                            $("#countdown-"+a).text("(" + sec2hms(runningTotal[a]) + " "+_("remaining")+")");
-                        }
-                    }
-                });
-            },1000);
-        }
-    });
-
-    page.appendTo("body");
-}
-
 function refresh_status() {
     var page = $(".ui-page-active");
 
@@ -4168,7 +3877,7 @@ function check_status() {
         return;
     }
 
-    $("#footer-running").empty();
+    change_status(0,"transparent");
 }
 
 function calculateTotalRunningTime(runTimes) {
@@ -7448,6 +7157,10 @@ function intToIP(eip) {
 function checkPublicAccess(eip) {
     // Check if the device is accessible from it's public IP
 
+    if (eip === 0) {
+        return;
+    }
+
     var ip = intToIP(eip),
         port = curr_ip.match(/.*:(\d+)/);
 
@@ -8819,17 +8532,6 @@ function getDayName(day,type) {
     } else {
         return ldays[day.getDay()];
     }
-}
-
-// Add ability to unique sort arrays
-function getUnique(inputArray) {
-    var outputArray = [];
-    for (var i = 0; i < inputArray.length; i++) {
-        if (($.inArray(inputArray[i], outputArray)) === -1) {
-            outputArray.push(inputArray[i]);
-        }
-    }
-    return outputArray;
 }
 
 // pad a single digit with a leading zero
