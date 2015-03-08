@@ -330,9 +330,6 @@ $(document)
 })
 // Handle OS resume event triggered by PhoneGap
 .on("resume",function(){
-    var page = $(".ui-page-active").attr("id"),
-        func = function(){};
-
     // Check if device is still on a local network
     checkAutoScan();
 
@@ -344,18 +341,8 @@ $(document)
     // Indicate the weather and device status are being updated
     showLoading("#weather,#footer-running");
 
-    if (page === "status") {
-        // Update the status page
-        func = function(){
-            page.trigger("datarefresh");
-        };
-    } else if (page === "sprinklers") {
-        // Update device status bar on main page
-        func = check_status;
-    }
-
     update_controller(function(){
-        func();
+        check_status();
         update_weather();
     },network_fail);
 })
@@ -3413,6 +3400,11 @@ function showHomeMenu(btn) {
 
 function showHome(firstLoad) {
     var cards = "",
+        runningTotal = {
+            c: controller.settings.devt
+        },
+        currentDelay = 0,
+        lastCheck = new Date().getTime(),
         page = $("<div data-role='page' id='sprinklers'>" +
             "<div class='ui-panel-wrapper'>" +
                 "<div class='ui-content' role='main'>" +
@@ -3433,6 +3425,11 @@ function showHome(firstLoad) {
                 isRunning = controller.status[i] > 0,
                 pname = isScheduled ? pidname(controller.settings.ps[i][0]) : "",
                 rem = controller.settings.ps[i][1];
+
+
+            if (controller.status[i] && rem > 0) {
+                runningTotal[i] = rem;
+            }
 
             // Group card settings visually
             cards += "<div class='ui-corner-all card"+(isStationDisabled(i) ? " station-hidden' style='display:none" : "")+"'>";
@@ -3466,24 +3463,76 @@ function showHome(firstLoad) {
             // Close current card group
             cards += "</div></div>";
         },
+        updateContent = function() {
+            var cardHolder = page.find("#os-stations-list"),
+                allCards = cardHolder.children(),
+                isScheduled, isRunning, pname, rem, card, line;
+
+            // Update the current time
+            runningTotal.c = controller.settings.devt;
+
+            if (allCards.length > controller.stations.snames.length) {
+                allCards.slice(controller.stations.snames.length,allCards.length).remove();
+            }
+
+            for (var i = 0; i < controller.stations.snames.length; i++) {
+                isScheduled = controller.settings.ps[i][0] > 0;
+                isRunning = controller.status[i] > 0;
+                pname = isScheduled ? pidname(controller.settings.ps[i][0]) : "";
+                rem = controller.settings.ps[i][1];
+
+                if (controller.status[i] && rem > 0) {
+                    runningTotal[i] = rem;
+                }
+
+                card = allCards.eq(i);
+
+                if (card.length === 0) {
+                    cards = "";
+                    addCard(i);
+                    $(cards).insertAfter(allCards.eq(i-1));
+                } else {
+                    if (isStationDisabled(i)) {
+                        if (!page.hasClass("show-hidden")) {
+                            card.hide();
+                        }
+                        card.addClass("station-hidden");
+                    } else {
+                        card.show().removeClass("station-hidden");
+                    }
+
+                    card.find("#station_"+i).text(controller.stations.snames[i]);
+                    card.find(".station-status").removeClass("on off wait").addClass(isRunning ? "on" : (isScheduled ? "wait" : "off"));
+                    if (isScheduled || isRunning) {
+                        line = ((controller.status[i] > 0) ? _("Running")+" "+pname : _("Scheduled")+" "+(controller.settings.ps[i][2] ? _("for")+" "+dateToString(new Date(controller.settings.ps[i][2]*1000)) : pname));
+                        if (rem>0) {
+                            // Show the remaining time if it's greater than 0
+                            line += " <span id='countdown-"+i+"' class='nobr'>(" + sec2hms(rem) + " "+_("remaining")+")</span>";
+                        }
+                        if (card.find(".rem").length === 0) {
+                            card.find(".ui-body").append("<p class='rem center'>"+line+"</p>");
+                        } else {
+                            card.find(".rem").html(line);
+                        }
+                    }
+
+                }
+            }
+        },
         hasMaster = controller.options.mas ? true : false,
         hasIR = (typeof controller.stations.ignore_rain === "object") ? true : false,
         hasAR = (typeof controller.stations.act_relay === "object") ? true : false,
         hasSD = (typeof controller.stations.stn_dis === "object") ? true : false,
         hasSequential = (typeof controller.stations.stn_seq === "object") ? true : false,
-        i;
+        updateInterval, i;
 
     for (i=0; i<controller.stations.snames.length; i++) {
         addCard(i);
     }
 
     page.find(".ui-content").append("<div id='os-stations-list' class='card-group center'>"+cards+"</div>");
-
-
+    page.on("datarefresh",updateContent);
     page.on("click",".station-settings",show_attributes);
-
-    //Update home page status bar on data refresh
-    page.on("datarefresh",check_status);
 
     if (checkOSVersion(210)) {
         page.on("click",".card",function(){
@@ -3524,45 +3573,77 @@ function showHome(firstLoad) {
         });
     }
 
-    page.one({
+    page.on({
         pagehide: function(){
-            page.remove();
+            clearInterval(updateInterval);
         },
         pagebeforeshow: function() {
-            if (!firstLoad) {
-                setTimeout(function(){
-                    refresh_status();
-                },1000);
-            } else {
-                check_status();
+            var header = changeHeader({
+                class: "logo",
+                leftBtn: {
+                    icon: "bullets",
+                    on: function(){
+                        open_panel();
+                        return false;
+                    }
+                },
+                rightBtn: {
+                    icon: "bell",
+                    class: "notifications",
+                    text: "<span class='notificationCount ui-li-count ui-btn-corner-all'>"+notifications.length+"</span>",
+                    on: function(){
+                        showNotifications();
+                        return false;
+                    }
+                },
+                animate: (firstLoad ? false : true)
+            });
+
+            if (notifications.length === 0) {
+                $(header[2]).hide();
             }
+        },
+        pageshow: function(){
+            clearInterval(updateInterval);
+            updateInterval = setInterval(function(){
+                var now = new Date().getTime(),
+                    currPage = $(".ui-page-active").attr("id"),
+                    diff = now - lastCheck;
+
+                if (diff > 3000) {
+                    if (currPage === "sprinklers") {
+                        refresh_status();
+                    } else {
+                        clearInterval(updateInterval);
+                    }
+                }
+
+                if (currentDelay <= 0) {
+                    currentDelay = 0;
+                } else {
+                    --currentDelay;
+                }
+
+                lastCheck = now;
+                $.each(runningTotal,function(a,b){
+                    if (b <= 0) {
+                        refresh_status();
+                        delete runningTotal[a];
+                        currentDelay = controller.options.sdt - 1;
+                        page.find("#countdown-"+a).parent("p").empty().siblings(".station-status").removeClass("on").addClass("off");
+                    } else {
+                        if (a === "c") {
+                            ++runningTotal[a];
+                            page.find("#clock-s").text(dateToString(new Date(runningTotal[a]*1000),null,true));
+                        } else {
+                            --runningTotal[a];
+                            page.find("#countdown-"+a).text("(" + sec2hms(runningTotal[a]) + " "+_("remaining")+")");
+                        }
+                    }
+                });
+            },1000);
         }
     });
-
-    var header = changeHeader({
-        class: "logo",
-        leftBtn: {
-            icon: "bullets",
-            on: function(){
-                open_panel();
-                return false;
-            }
-        },
-        rightBtn: {
-            icon: "bell",
-            class: "notifications",
-            text: "<span class='notificationCount ui-li-count ui-btn-corner-all'>"+notifications.length+"</span>",
-            on: function(){
-                showNotifications();
-                return false;
-            }
-        },
-        animate: (firstLoad ? false : true)
-    });
-
-    if (notifications.length === 0) {
-        $(header[2]).hide();
-    }
 
     $("#sprinklers").remove();
     page.appendTo("body");
@@ -3700,7 +3781,9 @@ function submit_stations() {
     $.mobile.loading("show");
     send_to_os("/cs?pw=&"+$.param(names)+(hasMaster ? "&"+$.param(master) : "")+(hasSequential ? "&"+$.param(sequential) : "")+(hasIR ? "&"+$.param(rain) : "")+(hasAR ? "&"+$.param(relay) : "")+(hasSD ? "&"+$.param(disable) : "")).done(function(){
         showerror(_("Stations have been updated"));
-        update_controller();
+        update_controller(function(){
+            $(".ui-page-active").trigger("datarefresh");
+        });
     });
 }
 
@@ -3727,6 +3810,7 @@ function refresh_status() {
     ).then(function(){
         // Notify the current page that the data has refreshed
         page.trigger("datarefresh");
+        check_status();
         return;
     },network_fail);
 }
