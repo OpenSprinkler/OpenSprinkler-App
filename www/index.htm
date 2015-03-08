@@ -35,35 +35,6 @@
             </ul>
         </div>
 
-        <div data-role="page" id="sprinklers">
-            <div class="ui-panel-wrapper">
-                <div id="footer-running"></div>
-                <div id="showupdate" class="green"></div>
-                <div class="ui-content" role="main">
-                    <ul data-role="listview" data-inset="true" id="weather-list">
-                        <li data-role="list-divider" data-translate="Weather"></li>
-                        <li><div id="weather"></div></li>
-                    </ul>
-                    <ul data-role="listview" data-inset="true" id="info-list">
-                        <li data-role="list-divider" data-translate="Information"></li>
-                        <li><a href="#status" data-translate="Current Status"></a></li>
-                        <li><a href="#preview" class="squeeze" data-translate="Preview Programs"></a></li>
-                        <li><a href="#logs" data-translate="View Logs" id="log_button"></a></li>
-                    </ul>
-                    <ul data-role="listview" data-inset="true" id="program-control-list">
-                        <li data-role="list-divider" data-translate="Programs and Settings"></li>
-                        <li><a href="#raindelay" data-rel="popup" data-position-to="window" data-translate="Change Rain Delay"></a></li>
-                        <li><a href="#runonce" data-translate="Run-Once Program"></a></li>
-                        <li><a href="#os-stations" data-translate="Edit Stations"></a></li>
-                        <li><a href="#programs" data-translate="Edit Programs"></a></li>
-                        <li><a href="#os-options" data-translate="Edit Options"></a></li>
-                        <li><a href="#" id="stop-all" data-translate="Stop All Stations"></a></li>
-                        <li><a href="#manual" class="manual_mode" data-translate="Manual Control"></a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-
         <div data-role="page" id="forecast">
             <div class="ui-content" role="main">
                 <ul data-role="listview" data-inset="true" id="forecast_list">
@@ -101,6 +72,12 @@
 
         <div data-role="panel" id="notificationPanel" data-position="right" data-position-fixed="true" data-theme="b">
             <ul></ul>
+        </div>
+
+        <a id="footer-menu" style="display:none" class="ui-panel-animate tight ui-corner-all ui-btn ui-btn-icon-notext ui-btn-inline ui-icon-grid" href="#"></a>
+
+        <div id="footer" data-theme="b" data-role="footer" data-position="fixed" data-tap-toggle="false">
+            <div id="footer-running"></div>
         </div>
     </body>
 </html>
