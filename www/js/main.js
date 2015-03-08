@@ -309,7 +309,11 @@ $(document)
             show_site_select();
             return false;
         } else if (hash === "#sprinklers") {
-            showHome(data.options.firstLoad);
+            if ($(hash).length === 0) {
+                showHome(data.options.firstLoad);
+            } else {
+                refresh_status();
+            }
         }
     });
 
