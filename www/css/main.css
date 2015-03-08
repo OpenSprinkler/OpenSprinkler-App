@@ -596,6 +596,11 @@ body, input, select, textarea, button, .ui-btn {
     height: 50px;
     width: 50px;
 }
+.moveLeft {
+    transform: translate3d(-17em,0,0);
+    webkit-transform: translate3d(-17em,0,0);
+    -moz-transform: translate3d(-17em,0,0);
+}
 #footer-menu:after{
     height: 50px;
     width: 50px;
