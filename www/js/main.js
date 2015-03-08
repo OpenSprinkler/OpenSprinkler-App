@@ -3417,7 +3417,7 @@ function showHome(firstLoad) {
         page = $("<div data-role='page' id='sprinklers'>" +
             "<div class='ui-panel-wrapper'>" +
                 "<div class='ui-content' role='main'>" +
-                    "<div class='ui-grid-a ui-body ui-corner-all card info-card'>" +
+                    "<div class='ui-grid-a ui-body ui-corner-all info-card'>" +
                         "<div class='ui-block-a'>" +
                             "<div id='weather'></div>" +
                         "</div>" +
