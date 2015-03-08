@@ -176,11 +176,6 @@ describe("General Function Checks", function(){
 		assert.equal("Thu",getDayName(new Date(1410445528126),"short"));
 	});
 
-	it("getUnique(array) should take any array and remove duplicates",function(){
-		assert.deepEqual([0],getUnique([0,0]));
-		assert.deepEqual([9992,"hello"],getUnique([9992,9992,"hello"]));
-	});
-
 	it("pad(number) should succesfully prepend a 0 to a single digit",function(){
 		assert.equal("00", pad(0));
 		assert.equal("01", pad(1));
