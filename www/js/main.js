@@ -3576,7 +3576,7 @@ function show_attributes() {
 
     $(".ui-page-active").append(select);
 
-    select.popup({history: false, positionTo: button.parent()}).popup("open");
+    select.popup({history: false, positionTo: "window"}).popup("open");
 }
 
 function submit_stations() {

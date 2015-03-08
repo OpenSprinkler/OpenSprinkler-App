@@ -719,15 +719,6 @@ div.running-text{
     counter-reset: station-id;
 }
 
-#os-stations .ui-controlgroup-label {
-    display: inline-block;
-    padding-right: 8px;
-}
-#os-stations .ui-content .submit, #os-stations .reset {
-    max-width: 500px;
-    margin: 8px auto;
-}
-
 /* Status page rules */
 
 #status_list .ui-li {
