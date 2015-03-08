@@ -3367,14 +3367,16 @@ function showHome(firstLoad) {
         addCard = function(i){
             var station = controller.stations.snames[i],
                 isScheduled = controller.settings.ps[i][0] > 0,
-                isRunning = controller.status[i] > 0;
+                isRunning = controller.status[i] > 0,
+                pname = isScheduled ? pidname(controller.settings.ps[i][0]) : "",
+                rem = controller.settings.ps[i][1];
 
             // Group card settings visually
             cards += "<div class='ui-corner-all card'"+(isStationDisabled(i) ? " style='display:none'" : "")+">";
             cards += "<div class='ui-body ui-body-a center'>";
             cards += "<p class='tight center inline-icon' id='station_"+i+"'>"+station+"</p>";
 
-            cards += "<span class='btn-no-border ui-btn ui-btn-icon-notext ui-corner-all station-status "+(isScheduled ? (isRunning ? "on" : "wait") : "off")+"'></span>";
+            cards += "<span class='btn-no-border ui-btn ui-btn-icon-notext ui-corner-all station-status "+(isRunning ? "on" : (isScheduled ? "wait" : "off"))+"'></span>";
 
             if (controller.options.mas === i+1) {
                 cards += "<span class='btn-no-border ui-btn ui-icon-master ui-btn-icon-notext station-settings'></span>";
@@ -3386,6 +3388,16 @@ function showHome(firstLoad) {
                     (hasSD ? ("data-sd='"+((controller.stations.stn_dis[parseInt(i/8)]&(1<<(i%8))) ? 1 : 0)+"' ") : "") +
                     (hasSequential ? ("data-us='"+((controller.stations.stn_seq[parseInt(i/8)]&(1<<(i%8))) ? 1 : 0)+"' ") : "") +
                     "></span>";
+
+                if (isScheduled || isRunning) {
+                    // Generate status line for station
+                    cards += "<p class='rem center'>"+((controller.status[i] > 0) ? _("Running")+" "+pname : _("Scheduled")+" "+(controller.settings.ps[i][2] ? _("for")+" "+dateToString(new Date(controller.settings.ps[i][2]*1000)) : pname));
+                    if (rem>0) {
+                        // Show the remaining time if it's greater than 0
+                        cards += " <span id='countdown-"+i+"' class='nobr'>(" + sec2hms(rem) + " "+_("remaining")+")</span>";
+                    }
+                    cards += "</p>";
+                }
             }
 
             // Close current card group
@@ -4242,9 +4254,7 @@ function check_status() {
             line += "<span id='countdown' class='nobr'>("+sec2hms(ptotal)+" "+_("remaining")+")</span>";
         }
         line += "</div></div>";
-        change_status(ptotal,"green",line,function(){
-            changePage("#status");
-        });
+        change_status(ptotal,"green",line,goHome);
         return;
     }
 
@@ -4266,9 +4276,7 @@ function check_status() {
     }
 
     if (match) {
-        change_status(controller.settings.ps[i][1],"green",line,function(){
-            changePage("#status");
-        });
+        change_status(controller.settings.ps[i][1],"green",line,goHome);
         return;
     }
 
