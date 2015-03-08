@@ -189,9 +189,13 @@ $(document)
     });
 
     // Bind event handler to open panel when swiping right
-    $.mobile.document.on("swiperight",".ui-page",function() {
+    $.mobile.document.on("swiperight swipeleft",".ui-page",function(e) {
         if ($(".ui-page-active").jqmData("panel") !== "open" && !$(".ui-page-active .ui-popup-active").length) {
-            open_panel();
+            if (e.type === "swiperight") {
+                open_panel();
+            } else {
+                showNotifications();
+            }
         }
     });
 
@@ -1360,7 +1364,7 @@ function show_sites(showBack) {
                     header.eq(0).hide();
                 });
 
-                page.on("swiperight",function(e){
+                page.on("swiperight swipeleft",function(e){
                     e.stopImmediatePropagation();
                 });
 
@@ -5189,7 +5193,7 @@ function get_preview() {
         }
     };
 
-    placeholder.on("swiperight",function(e){
+    placeholder.on("swiperight swipeleft",function(e){
         e.stopImmediatePropagation();
     });
 
@@ -5610,7 +5614,7 @@ function get_logs() {
                 },
                 shortnames = [];
 
-            logs_list.on("swiperight",function(e){
+            logs_list.on("swiperight swipeleft",function(e){
                 e.stopImmediatePropagation();
             });
 
@@ -5637,7 +5641,7 @@ function get_logs() {
             placeholder.empty();
             placeholder.show();
             var freshLoad = zones.find("table").length;
-            zones.show().on("swiperight",function(e){
+            zones.show().on("swiperight swipeleft",function(e){
                 e.stopImmediatePropagation();
             });
             graph_sort.show();
@@ -7683,6 +7687,7 @@ function showNotifications() {
     }
 
     var panel = $("#notificationPanel"),
+        menu = $("#footer-menu"),
         items = [$("<li data-role='list-divider'>"+_("Notifications")+"<button class='ui-btn ui-btn-icon-notext ui-icon-delete btn-no-border clear-all delete'></button></li>").on("click",".clear-all",function(){
             var button = $(this);
 
@@ -7703,7 +7708,11 @@ function showNotifications() {
     }
 
     panel.find("ul").replaceWith($("<ul/>").append(items).listview());
+    panel.on("panelbeforeclose",function(){
+        menu.removeClass("moveLeft");
+    });
     panel.panel().panel("option","classes.modal","needsclick ui-panel-dismiss");
+    menu.addClass("moveLeft");
     panel.panel("open");
 }
 
