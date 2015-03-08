@@ -1065,7 +1065,18 @@ div.running-text{
         white-space:normal!important;
     }
 }
+@media (max-width: 640px) {
+    .card {
+        max-width: 260px;
+    }
+    .info-card {
+        max-width: 500px;
+    }
+}
 @media (max-width: 320px) {
+    .card {
+        max-width: 220px;
+    }
     .wicon {
         margin:-35px -10px -15px -30px;
     }
