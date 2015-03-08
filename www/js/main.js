@@ -3547,6 +3547,10 @@ function showHome(firstLoad) {
                         helptext: _("Enter a duration to manually run "+name),
                         callback: function(duration){
                             send_to_os("/cm?sid="+station+"&en=1&t="+duration+"&pw=","json").done(function(){
+                                // Update local state until next device refresh occurs
+                                controller.settings.ps[station][0] = 99;
+                                controller.settings.ps[station][1] = duration;
+
                                 refresh_status();
                                 showerror(_("Station has been queued"));
                             });
@@ -3557,6 +3561,11 @@ function showHome(firstLoad) {
             }
             areYouSure(question,controller.stations.snames[station],function(){
                 send_to_os("/cm?sid="+station+"&en=0&pw=").done(function(){
+                    // Update local state until next device refresh occurs
+                    controller.settings.ps[station][0] = 0;
+                    controller.settings.ps[station][1] = 0;
+                    controller.status[i] = 0;
+
                     refresh_status();
                     showerror(_("Station has been stopped"));
                 });
