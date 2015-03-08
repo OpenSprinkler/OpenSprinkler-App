@@ -668,7 +668,7 @@ function newload() {
             // Check if automatic rain delay plugin is enabled on OSPi devices
             checkWeatherPlugin();
 
-            goHome();
+            goHome(true);
 
             // Check if a firmware update is available
             checkFirmwareUpdate();
@@ -3304,10 +3304,12 @@ function showHomeMenu(btn) {
                 "<li><a href='#os-options'>"+_("Edit Options")+"</a></li>" +
                 (checkOSVersion(210) ? "" : "<li><a href='#manual'>"+_("Manual Control")+"</a></li>") +
             "</ul>" +
-            "<div data-role='controlgroup' data-type='horizontal' data-corners='false' style='margin:0'>" +
-                "<a class='ui-btn' href='#show-hidden'>"+(showHidden ? _("Hide") : _("Show"))+" "+_("Hidden")+"</a>" +
-                "<a class='ui-btn' href='#stop-all'>"+_("Stop All Stations")+"</a>" +
-            "</div>" +
+            (page.hasClass("ui-page-active") ?
+                "<div data-role='controlgroup' data-type='horizontal' data-corners='false' style='margin:0'>" +
+                    "<a class='ui-btn' href='#show-hidden'>"+(showHidden ? _("Hide") : _("Show"))+" "+_("Hidden")+"</a>" +
+                    "<a class='ui-btn' href='#stop-all'>"+_("Stop All Stations")+"</a>" +
+                "</div>"
+                : "") +
         "</div>");
 
     popup.on("click","a",function(){
@@ -3541,7 +3543,7 @@ function show_attributes() {
         },
         select = "<div data-overlay-theme='b' data-role='popup' id='stn_attrib'><fieldset style='margin:0' data-corners='false' data-role='controlgroup'>";
 
-    if (!id) {
+    if (typeof id !== "number") {
         return false;
     }
 
@@ -4108,7 +4110,7 @@ function check_status() {
         var lrpid = controller.settings.lrun[1];
         pname = pidname(lrpid);
 
-        change_status(0,"transparent","<p class='running-text smaller center'>"+pname+" "+_("last ran station")+" "+controller.stations.snames[controller.settings.lrun[0]]+" "+_("for")+" "+(lrdur/60>>0)+"m "+(lrdur%60)+"s "+_("on")+" "+dateToString(new Date(controller.settings.lrun[3]*1000))+"</p>");
+        change_status(0,"transparent","<p class='running-text smaller center'>"+pname+" "+_("last ran station")+" "+controller.stations.snames[controller.settings.lrun[0]]+" "+_("for")+" "+(lrdur/60>>0)+"m "+(lrdur%60)+"s "+_("on")+" "+dateToString(new Date(controller.settings.lrun[3]*1000))+"</p>",goHome);
         return;
     }
 
@@ -7081,7 +7083,7 @@ function import_config(data) {
                         $.mobile.loading("hide");
                         showerror(_("Backup restored to your device"));
                         update_weather();
-                        goHome();
+                        goHome(true);
                     },
                     function(){
                         $.mobile.loading("hide");
@@ -8550,7 +8552,7 @@ function showLoading(ele) {
     ele.off("click").html("<p class='ui-icon ui-icon-loading mini-load'></p>");
 }
 
-function goHome() {
+function goHome(firstLoad) {
     // Transition to home page after succesful load
     if ($.mobile.pageContainer.pagecontainer("getActivePage").attr("id") !== "sprinklers") {
         $.mobile.document.one("pageshow",function(){
@@ -8559,10 +8561,16 @@ function goHome() {
         });
 
         var opts = {
-            "firstLoad": true,
-            "showLoading": false,
-            "transition": "none"
+            "reverse": true
         };
+
+        if (firstLoad === true) {
+            opts = {
+                "firstLoad": true,
+                "showLoading": false,
+                "transition": "none"
+            };
+        }
 
         changePage("#sprinklers",opts);
     }
