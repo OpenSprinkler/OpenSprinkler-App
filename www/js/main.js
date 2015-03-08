@@ -2966,7 +2966,7 @@ function show_options() {
 
         if (controller.options.mas) {
             for (i=0; i<controller.settings.nbrd; i++) {
-                cs += "m"+i+"=0&";
+                cs += "m"+i+"=255&";
             }
         }
 
@@ -2990,7 +2990,7 @@ function show_options() {
 
         if (typeof controller.stations.stn_seq === "object") {
             for (i=0; i<controller.settings.nbrd; i++) {
-                cs += "q"+i+"=0&";
+                cs += "q"+i+"=255&";
             }
         }
 
@@ -3450,6 +3450,127 @@ function showHome(firstLoad) {
             // Close current card group
             cards += "</div></div>";
         },
+        show_attributes = function() {
+            $("#stn_attrib").popup("destroy").remove();
+
+            var button = $(this),
+                id = button.data("station"),
+                name = button.siblings("[id='station_"+id+"']"),
+                saveChanges = function(){
+                    button.data("um", select.find("#um").is(":checked") ? 1 : 0 );
+                    button.data("ir", select.find("#ir").is(":checked") ? 1 : 0 );
+                    button.data("ar", select.find("#ar").is(":checked") ? 1 : 0 );
+                    button.data("sd", select.find("#sd").is(":checked") ? 1 : 0 );
+                    button.data("us", select.find("#us").is(":checked") ? 1 : 0 );
+                    name.html( select.find("#stn-name").val() );
+                    select.popup("destroy").remove();
+                },
+                select = "<div data-overlay-theme='b' data-role='popup' id='stn_attrib'><fieldset style='margin:0' data-corners='false' data-role='controlgroup'>";
+
+            if (typeof id !== "number") {
+                return false;
+            }
+
+            select += "<input class='bold center' data-wrapper-class='stn-name ui-btn' id='stn-name' type='text' value='"+name.text()+"'>";
+
+            if (hasMaster) {
+                select += "<label for='um'><input class='needsclick' data-iconpos='right' id='um' type='checkbox' "+((button.data("um") === 1) ? "checked='checked'" : "")+">"+_("Use Master")+"</label>";
+            }
+
+            if (hasIR) {
+                select += "<label for='ir'><input class='needsclick' data-iconpos='right' id='ir' type='checkbox' "+((button.data("ir") === 1) ? "checked='checked'" : "")+">"+_("Ignore Rain")+"</label>";
+            }
+
+            if (hasAR) {
+                select += "<label for='ar'><input class='needsclick' data-iconpos='right' id='ar' type='checkbox' "+((button.data("ar") === 1) ? "checked='checked'" : "")+">"+_("Activate Relay")+"</label>";
+            }
+
+            if (hasSD) {
+                select += "<label for='sd'><input class='needsclick' data-iconpos='right' id='sd' type='checkbox' "+((button.data("sd") === 1) ? "checked='checked'" : "")+">"+_("Disable")+"</label>";
+            }
+
+            if (hasSequential) {
+                select += "<label for='us'><input class='needsclick' data-iconpos='right' id='us' type='checkbox' "+((button.data("us") === 1) ? "checked='checked'" : "")+">"+_("Sequential")+"</label>";
+            }
+
+            select += "<button data-theme='b' class='submit'>Submit</button>";
+
+            select += "</fieldset></div>";
+            select = $(select);
+            select.on("click",".submit",function(){
+                saveChanges();
+                submit_stations();
+            });
+            select.one("popupafterclose", saveChanges).enhanceWithin();
+
+            $(".ui-page-active").append(select);
+
+            select.popup({history: false, positionTo: "window"}).popup("open");
+        },
+        submit_stations = function() {
+            var is208 = (checkOSVersion(208) === true),
+                master = {},
+                sequential = {},
+                rain = {},
+                relay = {},
+                disable = {},
+                names = {},
+                attrib, bid, sid, s;
+
+            for(bid=0;bid<controller.settings.nbrd;bid++) {
+                if (hasMaster) {
+                    master["m"+bid] = 0;
+                }
+                if (hasSequential) {
+                    sequential["q"+bid] = 0;
+                }
+                if (hasIR) {
+                    rain["i"+bid] = 0;
+                }
+                if (hasAR) {
+                    relay["a"+bid] = 0;
+                }
+                if (hasSD) {
+                    disable["d"+bid] = 0;
+                }
+
+                for(s=0;s<8;s++) {
+                    sid=bid*8+s;
+                    attrib = page.find("#attrib-"+sid);
+
+                    if (hasMaster) {
+                        master["m"+bid] = (master["m"+bid]) + (attrib.data("um") << s);
+                    }
+                    if (hasSequential) {
+                        sequential["q"+bid] = (sequential["q"+bid]) + (attrib.data("us") << s);
+                    }
+                    if (hasIR) {
+                        rain["i"+bid] = (rain["i"+bid]) + (attrib.data("ir") << s);
+                    }
+                    if (hasAR) {
+                        relay["a"+bid] = (relay["a"+bid]) + (attrib.data("ar") << s);
+                    }
+                    if (hasSD) {
+                        disable["d"+bid] = (disable["d"+bid]) + (attrib.data("sd") << s);
+                    }
+
+                    // Because the firmware has a bug regarding spaces, let us replace them out now with a compatible seperator
+                    if (is208) {
+                        names["s"+sid] = page.find("#station_"+sid).text().replace(/\s/g,"_");
+                    } else {
+                        names["s"+sid] = page.find("#station_"+sid).text();
+                    }
+                }
+            }
+
+            $.mobile.loading("show");
+            send_to_os("/cs?pw=&"+$.param(names)+(hasMaster ? "&"+$.param(master) : "")+(hasSequential ? "&"+$.param(sequential) : "")+(hasIR ? "&"+$.param(rain) : "")+(hasAR ? "&"+$.param(relay) : "")+(hasSD ? "&"+$.param(disable) : "")).done(function(){
+                showerror(_("Stations have been updated"));
+                update_controller(function(){
+                    $(".ui-page-active").trigger("datarefresh");
+                });
+            });
+        },
         updateContent = function() {
             var cardHolder = page.find("#os-stations-list"),
                 allCards = cardHolder.children(),
@@ -3655,140 +3776,6 @@ function showHome(firstLoad) {
     if (!$.isEmptyObject(weather)) {
         updateWeatherBox();
     }
-}
-
-function show_attributes() {
-    $("#stn_attrib").popup("destroy").remove();
-
-    var button = $(this),
-        id = button.data("station"),
-        name = button.siblings("[id='station_"+id+"']"),
-        hasMaster = controller.options.mas ? true : false,
-        hasIR = (typeof controller.stations.ignore_rain === "object") ? true : false,
-        hasAR = (typeof controller.stations.act_relay === "object") ? true : false,
-        hasSD = (typeof controller.stations.stn_dis === "object") ? true : false,
-        hasSequential = (typeof controller.stations.stn_seq === "object") ? true : false,
-        saveChanges = function(){
-            button.data("um", select.find("#um").is(":checked") ? 1 : 0 );
-            button.data("ir", select.find("#ir").is(":checked") ? 1 : 0 );
-            button.data("ar", select.find("#ar").is(":checked") ? 1 : 0 );
-            button.data("sd", select.find("#sd").is(":checked") ? 1 : 0 );
-            button.data("us", select.find("#us").is(":checked") ? 1 : 0 );
-            name.html( select.find("#stn-name").val() );
-            select.popup("destroy").remove();
-        },
-        select = "<div data-overlay-theme='b' data-role='popup' id='stn_attrib'><fieldset style='margin:0' data-corners='false' data-role='controlgroup'>";
-
-    if (typeof id !== "number") {
-        return false;
-    }
-
-    select += "<input class='bold center' data-wrapper-class='stn-name ui-btn' id='stn-name' type='text' value='"+name.text()+"'>";
-
-    if (hasMaster) {
-        select += "<label for='um'><input class='needsclick' data-iconpos='right' id='um' type='checkbox' "+((button.data("um") === 1) ? "checked='checked'" : "")+">"+_("Use Master")+"</label>";
-    }
-
-    if (hasIR) {
-        select += "<label for='ir'><input class='needsclick' data-iconpos='right' id='ir' type='checkbox' "+((button.data("ir") === 1) ? "checked='checked'" : "")+">"+_("Ignore Rain")+"</label>";
-    }
-
-    if (hasAR) {
-        select += "<label for='ar'><input class='needsclick' data-iconpos='right' id='ar' type='checkbox' "+((button.data("ar") === 1) ? "checked='checked'" : "")+">"+_("Activate Relay")+"</label>";
-    }
-
-    if (hasSD) {
-        select += "<label for='sd'><input class='needsclick' data-iconpos='right' id='sd' type='checkbox' "+((button.data("sd") === 1) ? "checked='checked'" : "")+">"+_("Disable")+"</label>";
-    }
-
-    if (hasSequential) {
-        select += "<label for='us'><input class='needsclick' data-iconpos='right' id='us' type='checkbox' "+((button.data("us") === 1) ? "checked='checked'" : "")+">"+_("Sequential")+"</label>";
-    }
-
-    select += "<button data-theme='b' class='submit'>Submit</button>";
-
-    select += "</fieldset></div>";
-    select = $(select);
-    select.on("click",".submit",function(){
-        saveChanges();
-        submit_stations();
-    });
-    select.one("popupafterclose", saveChanges).enhanceWithin();
-
-    $(".ui-page-active").append(select);
-
-    select.popup({history: false, positionTo: "window"}).popup("open");
-}
-
-function submit_stations() {
-    var is208 = (checkOSVersion(208) === true),
-        master = {},
-        sequential = {},
-        rain = {},
-        relay = {},
-        disable = {},
-        names = {},
-        page = $("#os-stations-list"),
-        hasMaster = controller.options.mas ? true : false,
-        hasIR = (typeof controller.stations.ignore_rain === "object") ? true : false,
-        hasAR = (typeof controller.stations.act_relay === "object") ? true : false,
-        hasSD = (typeof controller.stations.stn_dis === "object") ? true : false,
-        hasSequential = (typeof controller.stations.stn_seq === "object") ? true : false,
-        attrib, bid, sid, s;
-
-    for(bid=0;bid<controller.settings.nbrd;bid++) {
-        if (hasMaster) {
-            master["m"+bid] = 0;
-        }
-        if (hasSequential) {
-            sequential["q"+bid] = 0;
-        }
-        if (hasIR) {
-            rain["i"+bid] = 0;
-        }
-        if (hasAR) {
-            relay["a"+bid] = 0;
-        }
-        if (hasSD) {
-            disable["d"+bid] = 0;
-        }
-
-        for(s=0;s<8;s++) {
-            sid=bid*8+s;
-            attrib = page.find("#attrib-"+sid);
-
-            if (hasMaster) {
-                master["m"+bid] = (master["m"+bid]) + (attrib.data("um") << s);
-            }
-            if (hasSequential) {
-                sequential["q"+bid] = (sequential["q"+bid]) + (attrib.data("us") << s);
-            }
-            if (hasIR) {
-                rain["i"+bid] = (rain["i"+bid]) + (attrib.data("ir") << s);
-            }
-            if (hasAR) {
-                relay["a"+bid] = (relay["a"+bid]) + (attrib.data("ar") << s);
-            }
-            if (hasSD) {
-                disable["d"+bid] = (disable["d"+bid]) + (attrib.data("sd") << s);
-            }
-
-            // Because the firmware has a bug regarding spaces, let us replace them out now with a compatible seperator
-            if (is208) {
-                names["s"+sid] = page.find("#station_"+sid).text().replace(/\s/g,"_");
-            } else {
-                names["s"+sid] = page.find("#station_"+sid).text();
-            }
-        }
-    }
-
-    $.mobile.loading("show");
-    send_to_os("/cs?pw=&"+$.param(names)+(hasMaster ? "&"+$.param(master) : "")+(hasSequential ? "&"+$.param(sequential) : "")+(hasIR ? "&"+$.param(rain) : "")+(hasAR ? "&"+$.param(relay) : "")+(hasSD ? "&"+$.param(disable) : "")).done(function(){
-        showerror(_("Stations have been updated"));
-        update_controller(function(){
-            $(".ui-page-active").trigger("datarefresh");
-        });
-    });
 }
 
 function isStationDisabled(sid) {
