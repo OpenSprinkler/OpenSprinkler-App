@@ -214,6 +214,9 @@ a {
     padding: 5px;
     margin: 0 auto;
 }
+.card > .ui-body {
+    min-height: 20px;
+}
 .seperate-btn .ui-checkbox {
     float: none !important;
     display: inline-block;

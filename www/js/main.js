@@ -263,7 +263,7 @@ $(document)
         } else if (hash === "#runonce") {
             get_runonce();
         } else if (hash === "#os-options") {
-            show_options();
+            show_options(data.options.expandItem);
         } else if (hash === "#preview") {
             get_preview();
         } else if (hash === "#logs") {
@@ -629,7 +629,6 @@ function newload() {
                 change_password = $(".change_password");
 
             $.mobile.loading("hide");
-            check_status();
             update_weather();
 
             if (checkOSVersion(210)) {
@@ -714,7 +713,11 @@ function update_controller(callback,fail) {
         update_controller_options(),
         update_controller_status(),
         update_controller_settings()
-    ).then(callback,fail);
+    ).then(function(){
+        $(".ui-page-active").trigger("datarefresh");
+        check_status();
+        callback();
+    },fail);
 }
 
 function update_controller_programs(callback) {
@@ -2010,14 +2013,17 @@ function updateWeatherBox() {
 
 function update_yahoo_forecast(data,loc,region,now) {
     var list = "<li data-role='list-divider' data-theme='a' class='center'>"+loc+"</li>",
+        sunrise = controller.settings.sunrise ? controller.settings.sunrise : getSunTimes()[0],
+        sunset = controller.settings.sunset ? controller.settings.sunset : getSunTimes()[1],
         i;
 
-    list += "<li data-icon='false' class='center'><div title='"+now.text+"' class='wicon cond"+now.code+"'></div><span data-translate='Now'>"+_("Now")+"</span><br><span>"+convert_temp(now.temp,region)+"</span><br><span data-translate='Sunrise'>"+_("Sunrise")+"</span><span>: "+pad(parseInt(controller.settings.sunrise/60)%24)+":"+pad(controller.settings.sunrise%60)+"</span> <span data-translate='Sunrise'>"+_("Sunset")+"</span><span>: "+pad(parseInt(controller.settings.sunset/60)%24)+":"+pad(controller.settings.sunset%60)+"</span></li>";
+    list += "<li data-icon='false' class='center'><div title='"+now.text+"' class='wicon cond"+now.code+"'></div><span data-translate='Now'>"+_("Now")+"</span><br><span>"+convert_temp(now.temp,region)+"</span><br><span data-translate='Sunrise'>"+_("Sunrise")+"</span><span>: "+pad(parseInt(sunrise/60)%24)+":"+pad(sunrise%60)+"</span> <span data-translate='Sunrise'>"+_("Sunset")+"</span><span>: "+pad(parseInt(sunset/60)%24)+":"+pad(sunset%60)+"</span></li>";
 
     for (i=0;i < data.length; i++) {
-        var times = getSunTimes(new Date(data[i].date)),
-            sunrise = times[0],
-            sunset = times[1];
+        var times = getSunTimes(new Date(data[i].date));
+
+        sunrise = times[0];
+        sunset = times[1];
 
         list += "<li data-icon='false' class='center'><span>"+data[i].date+"</span><br><div title='"+data[i].text+"' class='wicon cond"+data[i].code+"'></div><span data-translate='"+data[i].day+"'>"+_(data[i].day)+"</span><br><span data-translate='Low'>"+_("Low")+"</span><span>: "+convert_temp(data[i].low,region)+"  </span><span data-translate='High'>"+_("High")+"</span><span>: "+convert_temp(data[i].high,region)+"</span><br><span data-translate='Sunrise'>"+_("Sunrise")+"</span><span>: "+pad(parseInt(sunrise/60)%24)+":"+pad(sunrise%60)+"</span> <span data-translate='Sunrise'>"+_("Sunset")+"</span><span>: "+pad(parseInt(sunset/60)%24)+":"+pad(sunset%60)+"</span></li>";
     }
@@ -2140,7 +2146,7 @@ function update_wunderground_forecast(data) {
 function getSunTimes(date) {
     var now = new Date(controller.settings.devt*1000),
         control = SunCalc.getTimes(now, currentCoordinates[0], currentCoordinates[1]),
-        tzOffset = controller.settings.sunrise - (control.sunrise.getHours() * 60 + control.sunrise.getMinutes());
+        tzOffset = controller.settings.sunrise ? controller.settings.sunrise - (control.sunrise.getHours() * 60 + control.sunrise.getMinutes()) : 0;
 
     date = date || now;
 
@@ -2612,7 +2618,7 @@ function open_panel() {
 }
 
 // Device setting management functions
-function show_options() {
+function show_options(expandItem) {
     var list = "",
         page = $("<div data-role='page' id='os-options'>" +
             "<div class='ui-content' role='main'>" +
@@ -2782,7 +2788,7 @@ function show_options() {
 
     page.find(".submit").on("click",submit_options);
 
-    list = "<fieldset data-role='collapsible' data-collapsed='false'><legend>"+_("System")+"</legend>";
+    list = "<fieldset data-role='collapsible'"+(typeof expandItem !== "string" || expandItem === "system" ? " data-collapsed='false'" : "")+"><legend>"+_("System")+"</legend>";
 
     if (typeof controller.options.ntp !== "undefined") {
         list += "<div class='ui-field-contain datetime-input'><label for='datetime'>"+_("Device Time")+"</label><button "+(controller.options.ntp ? "disabled " : "")+"data-mini='true' id='datetime' value='"+(controller.settings.devt + (new Date(controller.settings.devt*1000).getTimezoneOffset()*60))+"'>"+dateToString(new Date(controller.settings.devt*1000)).slice(0,-3)+"</button></div>";
@@ -2813,7 +2819,7 @@ function show_options() {
         list += "<label for='o36'><input data-mini='true' id='o36' type='checkbox' "+((controller.options.lg === 1) ? "checked='checked'" : "")+">"+_("Enable Logging")+"</label>";
     }
 
-    list += "</fieldset><fieldset data-role='collapsible'><legend>"+_("Configure Master")+"</legend>";
+    list += "</fieldset><fieldset data-role='collapsible'"+(typeof expandItem === "string" && expandItem === "master" ? " data-collapsed='false'" : "")+"><legend>"+_("Configure Master")+"</legend>";
 
     if (typeof controller.options.mas !== "undefined") {
         list += "<div class='ui-field-contain'><label for='o18' class='select'>"+_("Master Station")+"</label><select data-mini='true' id='o18'><option value='0'>"+_("None")+"</option>";
@@ -2834,7 +2840,7 @@ function show_options() {
         list += "<div class='ui-field-contain duration-field'><label for='o20'>"+_("Master Off Delay")+"</label><button data-mini='true' id='o20' value='"+controller.options.mtof+"'>"+controller.options.mtof+"s</button></div>";
     }
 
-    list += "</fieldset><fieldset data-role='collapsible'><legend>"+_("Station Handling")+"</legend>";
+    list += "</fieldset><fieldset data-role='collapsible'"+(typeof expandItem === "string" && expandItem === "station" ? " data-collapsed='false'" : "")+"><legend>"+_("Station Handling")+"</legend>";
 
     if (typeof controller.options.ext !== "undefined") {
         list += "<div class='ui-field-contain'><label for='o15' class='select'>"+_("Number of Stations")+(typeof controller.options.dexp === "number" && controller.options.dexp < 255 && controller.options.dexp >= 0 ? " <span class='nobr'>("+(controller.options.dexp*8 + 8)+" "+_("available")+")" : "")+"</span></label><select data-mini='true' id='o15'>";
@@ -2854,7 +2860,7 @@ function show_options() {
 
     list += "<button data-mini='true' class='reset-stations'>"+_("Reset")+" "+_("Stations")+"</button>";
 
-    list += "</fieldset><fieldset data-role='collapsible'><legend>"+_("Weather Control")+"</legend>";
+    list += "</fieldset><fieldset data-role='collapsible'"+(typeof expandItem === "string" && expandItem === "weather" ? " data-collapsed='false'" : "")+"><legend>"+_("Weather Control")+"</legend>";
 
     if (typeof controller.settings.wtkey !== "undefined") {
         list += "<div class='ui-field-contain'><label for='wtkey'>"+_("Wunderground Key").replace("Wunderground","Wunder&shy;ground")+"<button data-helptext='"+_("Weather Underground requires an API Key which can be obtained from ")+"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label>" +
@@ -2891,7 +2897,7 @@ function show_options() {
         list += "<label for='o22'><input "+(controller.options.urs === 1 ? "" : "data-wrapper-class='hidden' ")+"data-mini='true' id='o22' type='checkbox' "+((controller.options.rso === 1) ? "checked='checked'" : "")+">"+_("Normally Open (Rain Sensor)")+"</label>";
     }
 
-    list += "</fieldset><fieldset data-role='collapsible' data-theme='b'><legend>"+_("Advanced")+"</legend>";
+    list += "</fieldset><fieldset data-role='collapsible' data-theme='b'"+(typeof expandItem === "string" && expandItem === "advanced" ? " data-collapsed='false'" : "")+"><legend>"+_("Advanced")+"</legend>";
 
     if (typeof controller.options.hp0 !== "undefined") {
         list += "<div class='ui-field-contain'><label for='o12'>"+_("HTTP Port (restart required)")+"</label><input data-mini='true' type='number' pattern='[0-9]*' id='o12' value='"+(controller.options.hp1*256+controller.options.hp0)+"'></div>";
@@ -3645,6 +3651,12 @@ function showHome(firstLoad) {
     page.find(".ui-content").append("<div id='os-stations-list' class='card-group center'>"+cards+"</div>");
     page.on("datarefresh",updateContent);
     page.on("click",".station-settings",show_attributes);
+    page.on("click",".home-info",function(){
+        changePage("#os-options",{
+            expandItem: "weather"
+        });
+        return false;
+    });
 
     if (checkOSVersion(210)) {
         page.on("click",".card",function(){
