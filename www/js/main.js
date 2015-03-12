@@ -272,7 +272,10 @@ $(document)
             checkAutoScan();
             if (!data.options.showStart) {
                 if ($.isEmptyObject(controller)) {
-                    changePage("#site-control",{"showBack": false});
+                    changePage("#site-control",{
+                        showBack: false,
+                        transition: "none"
+                    });
                 }
                 return false;
             }
@@ -355,6 +358,9 @@ $(document)
 
     if (newpage === "#start") {
         $("#header,#footer,#footer-menu").hide();
+    } else if (newpage === "#site-control") {
+        $("#footer,#footer-menu").hide();
+        $("#header").show();
     } else {
         $("#header,#footer,#footer-menu").show();
     }
@@ -611,7 +617,10 @@ function newload() {
         "margin-top": "-4em"
     }).find(".cancel").one("click",function(){
         $.ajaxq.abort("default");
-        changePage("#site-control",{"showBack": false});
+        changePage("#site-control",{
+            showBack: false,
+            transition: "none"
+        });
     });
 
     //Empty object which will store device data
@@ -680,7 +689,10 @@ function newload() {
                     $.mobile.document.one("pageshow",function(){
                         showerror(_("Unable to connect to")+" "+name,3500);
                     });
-                    changePage("#site-control",{"showBack": false});
+                    changePage("#site-control",{
+                        showBack: false,
+                        transition: "none"
+                    });
                 } else {
                     storage.remove(["sites"],function(){
                         window.location.reload();
@@ -1349,7 +1361,7 @@ function show_sites(showBack) {
             total = Object.keys(sites).length;
 
             if (!total || showBack === false || !(data.current_site in sites)) {
-                page.one("pagebeforeshow",function(){
+                page.one("pagebeforeshow", function(){
                     header.eq(0).hide();
                 });
 
@@ -1358,6 +1370,10 @@ function show_sites(showBack) {
                 });
 
                 document.title = "OpenSprinkler";
+            } else {
+                page.one("pagebeforeshow",function(){
+                    $("#footer, #footer-menu").show();
+                });
             }
 
             $.each(sites,function(a,b){
@@ -3619,7 +3635,7 @@ function showHome(firstLoad) {
 
                     card.find("#station_"+i).text(controller.stations.snames[i]);
                     card.find(".station-status").removeClass("on off wait").addClass(isRunning ? "on" : (isScheduled ? "wait" : "off"));
-                    if (isScheduled || isRunning) {
+                    if (controller.options.mas !== i+1 && (isScheduled || isRunning)) {
                         line = ((controller.status[i] > 0) ? _("Running")+" "+pname : _("Scheduled")+" "+(controller.settings.ps[i][2] ? _("for")+" "+dateToString(new Date(controller.settings.ps[i][2]*1000)) : pname));
                         if (rem>0) {
                             // Show the remaining time if it's greater than 0
@@ -3964,7 +3980,7 @@ function check_status() {
         return;
     }
 
-    change_status(0,"transparent");
+    change_status(0,"transparent","<p class='running-text smaller center'>"+_("System Idle")+"</p>");
 }
 
 function calculateTotalRunningTime(runTimes) {
