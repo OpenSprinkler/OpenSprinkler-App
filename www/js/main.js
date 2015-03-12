@@ -80,7 +80,8 @@ var isIEMobile = /IEMobile/.test(navigator.userAgent),
     switching = false,
     currentCoordinates = [0,0],
     notifications = [],
-    curr_183, curr_ip, curr_prefix, curr_auth, curr_pw, curr_wa, curr_auth_user, curr_auth_pw, curr_local, currLang, language, deviceip, interval_id, timeout_id, errorTimeout, weather, weatherKeyFail;
+    timers = {},
+    curr_183, curr_ip, curr_prefix, curr_auth, curr_pw, curr_wa, curr_auth_user, curr_auth_pw, curr_local, currLang, language, deviceip, errorTimeout, weather, weatherKeyFail;
 
 // Redirect jQuery Mobile DOM manipulation to prevent error
 if (isWinApp) {
@@ -350,8 +351,7 @@ $(document)
     },network_fail);
 })
 .on("pause",function(){
-    //Remove any status timers that may be running
-    removeTimers();
+    // Handle application being paused/closed
 })
 .on("pagebeforeshow",function(e){
     var newpage = "#"+e.target.id;
@@ -372,7 +372,7 @@ $(document)
     // Fix issues between jQuery Mobile and FastClick
     fixInputClick($newpage);
 
-    if (newpage === "#sprinklers" || newpage === "#status" || newpage === "#os-stations") {
+    if (!$.isEmptyObject(controller) && newpage !== "#site-control" && newpage !== "#start") {
         // Update the page every 10 seconds
         var refreshInterval = setInterval(refresh_status,5000);
         $newpage.one("pagehide",function(){
@@ -392,7 +392,6 @@ $(document)
         StatusBar.backgroundColorByHexString("#1D1D1D");
     } catch (err) {}
 })
-.on("pagehide","#start",removeTimers)
 .on("popupbeforeposition","#localization",check_curr_lang);
 
 //Set AJAX timeout
@@ -405,6 +404,9 @@ if (!curr_local) {
 function initApp() {
     //Update the language on the page using the browser's locale
     update_lang();
+
+    // Start interval loop which will update timers/clocks
+    updateTimers();
 
     // Fix CSS for IE Mobile (Windows Phone 8)
     if (isIEMobile) {
@@ -628,6 +630,9 @@ function newload() {
 
     //Empty notifications
     clearNotifications();
+
+    //Empty timers object
+    timers = {};
 
     //Clear the current queued AJAX requests (used for previous controller connection)
     $.ajaxq.abort("default");
@@ -1921,8 +1926,6 @@ function show_weather_settings() {
     $("#weather_settings").remove();
     page.appendTo("body");
 }
-
-
 
 function convert_temp(temp,region) {
     if (region === "United States" || region === "Bermuda" || region === "Palau") {
@@ -3409,11 +3412,6 @@ function showHomeMenu(btn) {
 
 function showHome(firstLoad) {
     var cards = "",
-        runningTotal = {
-            c: controller.settings.devt
-        },
-        currentDelay = 0,
-        lastCheck = new Date().getTime(),
         page = $("<div data-role='page' id='sprinklers'>" +
             "<div class='ui-panel-wrapper'>" +
                 "<div class='ui-content' role='main'>" +
@@ -3428,6 +3426,18 @@ function showHome(firstLoad) {
                 "</div>" +
             "</div>" +
         "</div>"),
+        addTimer = function(station,rem) {
+            timers["station-"+station] = {
+                val: rem,
+                station: station,
+                update: function(){
+                    page.find("#countdown-"+station).text("(" + sec2hms(this.val) + " "+_("remaining")+")");
+                },
+                done: function(){
+                    page.find("#countdown-"+station).parent("p").empty().siblings(".station-status").removeClass("on").addClass("off");
+                }
+            };
+        },
         addCard = function(i){
             var station = controller.stations.snames[i],
                 isScheduled = controller.settings.ps[i][0] > 0,
@@ -3437,7 +3447,7 @@ function showHome(firstLoad) {
 
 
             if (controller.status[i] && rem > 0) {
-                runningTotal[i] = rem;
+                addTimer(i, rem);
             }
 
             // Group card settings visually
@@ -3593,13 +3603,21 @@ function showHome(firstLoad) {
                 });
             });
         },
+        updateClock = function() {
+            // Update the current time
+            timers.clock = {
+                val: controller.settings.devt,
+                update: function(){
+                    page.find("#clock-s").text(dateToString(new Date(this.val*1000),null,true));
+                }
+            };
+        },
         updateContent = function() {
             var cardHolder = page.find("#os-stations-list"),
                 allCards = cardHolder.children(),
                 isScheduled, isRunning, pname, rem, card, line;
 
-            // Update the current time
-            runningTotal.c = controller.settings.devt;
+            updateClock();
 
             if (allCards.length > controller.stations.snames.length) {
                 allCards.slice(controller.stations.snames.length,allCards.length).remove();
@@ -3614,7 +3632,7 @@ function showHome(firstLoad) {
                 rem = controller.settings.ps[i][1];
 
                 if (controller.status[i] && rem > 0) {
-                    runningTotal[i] = rem;
+                    addTimer(i, rem);
                 }
 
                 card = allCards.eq(i);
@@ -3658,7 +3676,9 @@ function showHome(firstLoad) {
         hasAR = (typeof controller.stations.act_relay === "object") ? true : false,
         hasSD = (typeof controller.stations.stn_dis === "object") ? true : false,
         hasSequential = (typeof controller.stations.stn_seq === "object") ? true : false,
-        updateInterval, i;
+        i;
+
+    updateClock();
 
     for (i=0; i<controller.stations.snames.length; i++) {
         addCard(i);
@@ -3727,9 +3747,6 @@ function showHome(firstLoad) {
     }
 
     page.on({
-        pagehide: function(){
-            clearInterval(updateInterval);
-        },
         pagebeforeshow: function() {
             var header = changeHeader({
                 class: "logo",
@@ -3755,46 +3772,6 @@ function showHome(firstLoad) {
             if (notifications.length === 0) {
                 $(header[2]).hide();
             }
-        },
-        pageshow: function(){
-            clearInterval(updateInterval);
-            updateInterval = setInterval(function(){
-                var now = new Date().getTime(),
-                    currPage = $(".ui-page-active").attr("id"),
-                    diff = now - lastCheck;
-
-                if (diff > 3000) {
-                    if (currPage === "sprinklers") {
-                        refresh_status();
-                    } else {
-                        clearInterval(updateInterval);
-                    }
-                }
-
-                if (currentDelay <= 0) {
-                    currentDelay = 0;
-                } else {
-                    --currentDelay;
-                }
-
-                lastCheck = now;
-                $.each(runningTotal,function(a,b){
-                    if (b <= 0) {
-                        refresh_status();
-                        delete runningTotal[a];
-                        currentDelay = controller.options.sdt - 1;
-                        page.find("#countdown-"+a).parent("p").empty().siblings(".station-status").removeClass("on").addClass("off");
-                    } else {
-                        if (a === "c") {
-                            ++runningTotal[a];
-                            page.find("#clock-s").text(dateToString(new Date(runningTotal[a]*1000),null,true));
-                        } else {
-                            --runningTotal[a];
-                            page.find("#countdown-"+a).text("(" + sec2hms(runningTotal[a]) + " "+_("remaining")+")");
-                        }
-                    }
-                });
-            },1000);
         }
     });
 
@@ -3834,26 +3811,20 @@ function refresh_status() {
     },network_fail);
 }
 
-function removeTimers() {
-    //Remove any status timers that may be running
-    if (interval_id !== undefined) {
-        clearInterval(interval_id);
-    }
-    if (timeout_id !== undefined) {
-        clearTimeout(timeout_id);
-    }
-}
-
 // Actually change the status bar
 function change_status(seconds,color,line,onclick) {
     var footer = $("#footer-running");
 
     onclick = onclick || function(){};
 
-    removeTimers();
-
     if (seconds > 1) {
-        update_timer(seconds,controller.options.sdt);
+        timers.statusbar = {
+            val: seconds,
+            type: "statusbar",
+            update: function(){
+                $("#countdown").text("(" + sec2hms(this.val) + " "+_("remaining")+")");
+            }
+        };
     }
 
     footer.removeClass().addClass(color).html(line).off("click").on("click",onclick);
@@ -3869,7 +3840,7 @@ function check_status() {
             areYouSure(_("Do you want to re-enable system operation?"),"",function(){
                 showLoading("#footer-running");
                 send_to_os("/cv?pw=&en=1").done(function(){
-                    update_controller(check_status);
+                    update_controller();
                 });
             });
         });
@@ -3943,7 +3914,7 @@ function check_status() {
             areYouSure(_("Do you want to turn off rain delay?"),"",function(){
                 showLoading("#footer-running");
                 send_to_os("/cv?pw=&rd=0").done(function(){
-                    update_controller(check_status);
+                    update_controller();
                 });
             });
         });
@@ -3962,7 +3933,7 @@ function check_status() {
             areYouSure(_("Do you want to turn off manual mode?"),"",function(){
                 showLoading("#footer-running");
                 send_to_os("/cv?pw=&mm=0").done(function(){
-                    update_controller(check_status);
+                    update_controller();
                 });
             });
         });
@@ -4001,32 +3972,51 @@ function calculateTotalRunningTime(runTimes) {
     return Math.max(sequential,parallel);
 }
 
-// Handle timer update on the home page for the status bar
-function update_timer(total,sdelay) {
-    var lastCheck = new Date().getTime();
-    interval_id = setInterval(function(){
-        var now = new Date().getTime();
-        var diff = now - lastCheck;
-        if (diff > 3000) {
-            clearInterval(interval_id);
-            showLoading("#footer-running");
-            update_controller(check_status);
+// Handle timer update on the home page and status bar
+function updateTimers(){
+    var lastCheck = new Date().getTime(),
+        updateInterval;
+
+    updateInterval = setInterval(function(){
+        // Handle time drift
+        var now = new Date().getTime(),
+            diff = now - lastCheck;
+
+        if (diff > 2000) {
+            check_status();
+            refresh_status();
         }
+
         lastCheck = now;
 
-        if (total <= 0) {
-            clearInterval(interval_id);
-            showLoading("#footer-running");
-            if (timeout_id !== undefined) {
-                clearTimeout(timeout_id);
-            }
-            timeout_id = setTimeout(function(){
-                update_controller(check_status);
-            },(sdelay*1000));
-        } else {
-            --total;
+        // If no timers are defined then exit
+        if ($.isEmptyObject(timers)) {
+            return;
         }
-        $("#countdown").text("(" + sec2hms(total) + " "+_("remaining")+")");
+
+        for (var timer in timers) {
+            if (timers.hasOwnProperty(timer)) {
+                if (timers[timer].val <= 0) {
+                    if (timer === "statusbar") {
+                        check_status();
+                    }
+
+                    if (typeof timers[timer].done === "function") {
+                        timers[timer].done();
+                    }
+
+                    delete timers[timer];
+                } else {
+                    if (timer === "clock") {
+                        ++timers[timer].val;
+                        timers[timer].update();
+                    } else if (timer === "statusbar" || typeof timers[timer].station === "number") {
+                        --timers[timer].val;
+                        timers[timer].update();
+                    }
+                }
+            }
+        }
     },1000);
 }
 
