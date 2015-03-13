@@ -3653,6 +3653,14 @@ function showHome(firstLoad) {
 
                     card.find("#station_"+i).text(controller.stations.snames[i]);
                     card.find(".station-status").removeClass("on off wait").addClass(isRunning ? "on" : (isScheduled ? "wait" : "off"));
+                    card.find(".station-settings").data({
+                        um: hasMaster ? ((controller.stations.masop[parseInt(i/8)]&(1<<(i%8))) ? 1 : 0) : undefined,
+                        ir: hasIR ? ((controller.stations.ignore_rain[parseInt(i/8)]&(1<<(i%8))) ? 1 : 0) : undefined,
+                        ar: hasAR ? ((controller.stations.act_relay[parseInt(i/8)]&(1<<(i%8))) ? 1 : 0) : undefined,
+                        sd: hasSD ? ((controller.stations.stn_dis[parseInt(i/8)]&(1<<(i%8))) ? 1 : 0) : undefined,
+                        us: hasSequential ? ((controller.stations.stn_seq[parseInt(i/8)]&(1<<(i%8))) ? 1 : 0) : undefined
+                    });
+
                     if (controller.options.mas !== i+1 && (isScheduled || isRunning)) {
                         line = ((controller.status[i] > 0) ? _("Running")+" "+pname : _("Scheduled")+" "+(controller.settings.ps[i][2] ? _("for")+" "+dateToString(new Date(controller.settings.ps[i][2]*1000)) : pname));
                         if (rem>0) {
@@ -3974,10 +3982,9 @@ function calculateTotalRunningTime(runTimes) {
 
 // Handle timer update on the home page and status bar
 function updateTimers(){
-    var lastCheck = new Date().getTime(),
-        updateInterval;
+    var lastCheck = new Date().getTime();
 
-    updateInterval = setInterval(function(){
+    setInterval(function(){
         // Handle time drift
         var now = new Date().getTime(),
             diff = now - lastCheck;
@@ -3998,7 +4005,8 @@ function updateTimers(){
             if (timers.hasOwnProperty(timer)) {
                 if (timers[timer].val <= 0) {
                     if (timer === "statusbar") {
-                        check_status();
+                        showLoading("#footer-running");
+                        refresh_status();
                     }
 
                     if (typeof timers[timer].done === "function") {
