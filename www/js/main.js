@@ -3445,7 +3445,6 @@ function showHome(firstLoad) {
                 pname = isScheduled ? pidname(controller.settings.ps[i][0]) : "",
                 rem = controller.settings.ps[i][1];
 
-
             if (controller.status[i] && rem > 0) {
                 addTimer(i, rem);
             }
@@ -3631,16 +3630,12 @@ function showHome(firstLoad) {
                 pname = isScheduled ? pidname(controller.settings.ps[i][0]) : "";
                 rem = controller.settings.ps[i][1];
 
-                if (controller.status[i] && rem > 0) {
-                    addTimer(i, rem);
-                }
-
                 card = allCards.eq(i);
 
                 if (card.length === 0) {
                     cards = "";
                     addCard(i);
-                    $(cards).insertAfter(allCards.eq(i-1));
+                    cardHolder.append(cards);
                 } else {
                     if (isStationDisabled(i)) {
                         if (!page.hasClass("show-hidden")) {
@@ -3666,6 +3661,9 @@ function showHome(firstLoad) {
                         if (rem>0) {
                             // Show the remaining time if it's greater than 0
                             line += " <span id='countdown-"+i+"' class='nobr'>(" + sec2hms(rem) + " "+_("remaining")+")</span>";
+                            if (controller.status[i]) {
+                                addTimer(i, rem);
+                            }
                         }
                         if (card.find(".rem").length === 0) {
                             card.find(".ui-body").append("<p class='rem center'>"+line+"</p>");
