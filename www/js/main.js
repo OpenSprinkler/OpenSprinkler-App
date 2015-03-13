@@ -6758,7 +6758,7 @@ function import_config(data) {
         return;
     }
 
-    if (checkOSVersion(210) && typeof data.options === "object" && (data.options.hp0 !== controller.options.hp0 || data.options.hp1 !== controller.options.hp1) || (data.options.dhcp !== controller.options.dhcp)) {
+    if (checkOSVersion(210) && typeof data.options === "object" && (data.options.hp0 !== controller.options.hp0 || data.options.hp1 !== controller.options.hp1) || (data.options.dhcp !== controller.options.dhcp) || (data.options.devid !== controller.options.devid)) {
         warning = _("Warning: Network changes will be made and the device may no longer be accessible from this address.");
     }
 
