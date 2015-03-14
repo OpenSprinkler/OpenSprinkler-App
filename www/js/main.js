@@ -3722,57 +3722,59 @@ function showHome(firstLoad) {
         return false;
     });
 
-    if (checkOSVersion(210)) {
-        page.on("click",".card",function(){
-            // Bind delegate handler to stop specific station (supported on firmware 2.1.0+ on Arduino)
-            var el = $(this),
-                station = el.index(),
-                currentStatus = controller.status[station],
-                name = controller.stations.snames[station],
-                question;
+    page.on("click",".card",function(){
+        // Bind delegate handler to stop specific station (supported on firmware 2.1.0+ on Arduino)
+        if (checkOSVersion(210)) {
+            return false;
+        }
 
-            if (station === controller.options.mas - 1) {
-                return false;
-            }
+        var el = $(this),
+            station = el.index(),
+            currentStatus = controller.status[station],
+            name = controller.stations.snames[station],
+            question;
 
-            if (currentStatus) {
-                question = _("Do you want to stop the selected station?");
+        if (station === controller.options.mas - 1) {
+            return false;
+        }
+
+        if (currentStatus) {
+            question = _("Do you want to stop the selected station?");
+        } else {
+            if (el.find("span.nobr").length) {
+                question = _("Do you want to unschedule the selected station?");
             } else {
-                if (el.find("span.nobr").length) {
-                    question = _("Do you want to unschedule the selected station?");
-                } else {
-                    showDurationBox({
-                        title: name,
-                        incrementalUpdate: false,
-                        maximum: 65535,
-                        helptext: _("Enter a duration to manually run "+name),
-                        callback: function(duration){
-                            send_to_os("/cm?sid="+station+"&en=1&t="+duration+"&pw=","json").done(function(){
-                                // Update local state until next device refresh occurs
-                                controller.settings.ps[station][0] = 99;
-                                controller.settings.ps[station][1] = duration;
+                showDurationBox({
+                    title: name,
+                    incrementalUpdate: false,
+                    maximum: 65535,
+                    helptext: _("Enter a duration to manually run "+name),
+                    callback: function(duration){
+                        send_to_os("/cm?sid="+station+"&en=1&t="+duration+"&pw=","json").done(function(){
+                            // Update local state until next device refresh occurs
+                            controller.settings.ps[station][0] = 99;
+                            controller.settings.ps[station][1] = duration;
 
-                                refresh_status();
-                                showerror(_("Station has been queued"));
-                            });
-                        }
-                    });
-                    return;
-                }
-            }
-            areYouSure(question,controller.stations.snames[station],function(){
-                send_to_os("/cm?sid="+station+"&en=0&pw=").done(function(){
-                    // Update local state until next device refresh occurs
-                    controller.settings.ps[station][0] = 0;
-                    controller.settings.ps[station][1] = 0;
-                    controller.status[i] = 0;
-
-                    refresh_status();
-                    showerror(_("Station has been stopped"));
+                            refresh_status();
+                            showerror(_("Station has been queued"));
+                        });
+                    }
                 });
+                return;
+            }
+        }
+        areYouSure(question,controller.stations.snames[station],function(){
+            send_to_os("/cm?sid="+station+"&en=0&pw=").done(function(){
+                // Update local state until next device refresh occurs
+                controller.settings.ps[station][0] = 0;
+                controller.settings.ps[station][1] = 0;
+                controller.status[i] = 0;
+
+                refresh_status();
+                showerror(_("Station has been stopped"));
             });
         });
-    }
+    });
 
     page.on({
         pagebeforeshow: function() {
