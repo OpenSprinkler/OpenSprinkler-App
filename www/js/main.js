@@ -5055,6 +5055,7 @@ function get_logs() {
         },
         updateView = function() {
             if (logs.find("#log_table").prop("checked")) {
+                $.mobile.window.off("resize");
                 prepTable();
             } else if (logs.find("#log_timeline").prop("checked")) {
                 prepTimeline();
@@ -5099,6 +5100,9 @@ function get_logs() {
             });
 
             var timeline = new links.Timeline(logs_list.get(0),options);
+            $.mobile.window.off("resize").on("resize",function(){
+                timeline.redraw();
+            });
             timeline.draw(sortedData);
 
             logs_list.find(".timeline-groups-text").each(function(){
