@@ -423,6 +423,10 @@ body, input, select, textarea, button, .ui-btn {
     border-left: none;
 }
 
+.reset-stations {
+    margin: 0 auto;
+}
+
 /* Program editor rules */
 .move-up {
     border: none !important;
