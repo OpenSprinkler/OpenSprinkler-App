@@ -520,7 +520,7 @@ function send_to_os(dest,type) {
             dataType: type,
             shouldRetry: function(xhr,current) {
                 if (xhr.status === 0 && xhr.statusText === "abort" || retryCount < current) {
-                    return false
+                    return false;
                 }
                 return true;
             }
