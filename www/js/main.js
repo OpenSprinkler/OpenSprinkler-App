@@ -518,7 +518,12 @@ function send_to_os(dest,type) {
             url: curr_prefix+curr_ip+dest,
             type: "GET",
             dataType: type,
-            shouldRetry: retryCount
+            shouldRetry: function(xhr,current) {
+                if (xhr.status === 0 && xhr.statusText === "abort" || retryCount < current) {
+                    return false
+                }
+                return true;
+            }
         },
         defer;
 
