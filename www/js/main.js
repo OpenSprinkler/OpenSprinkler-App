@@ -3364,13 +3364,13 @@ function showHomeMenu(btn) {
                 "<li><a href='#programs'>"+_("Edit Programs")+"</a></li>" +
                 "<li><a href='#os-options'>"+_("Edit Options")+"</a></li>" +
                 (checkOSVersion(210) ? "" : "<li><a href='#manual'>"+_("Manual Control")+"</a></li>") +
-            "</ul>" +
             (page.hasClass("ui-page-active") ?
+                "</ul>" +
                 "<div data-role='controlgroup' data-type='horizontal' data-corners='false' style='margin:0'>" +
                     "<a class='ui-btn' href='#show-hidden'>"+(showHidden ? _("Hide") : _("Show"))+" "+_("Hidden")+"</a>" +
                     "<a class='ui-btn' href='#stop-all'>"+_("Stop All Stations")+"</a>" +
                 "</div>"
-                : "") +
+                : "<li><a class='ui-btn' href='#stop-all'>"+_("Stop All Stations")+"</a></li></ul>") +
         "</div>");
 
     popup.on("click","a",function(){
