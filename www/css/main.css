@@ -576,6 +576,12 @@ body, input, select, textarea, button, .ui-btn {
     margin: 0 auto;
     padding: 5px 0;
 }
+.info-card > div {
+    -webkit-transition: all 0.1s;
+    -moz-transition: all 0.1s;
+    -o-transition: all 0.1s;
+    transition: all 0.1s;
+}
 .home-info {
     margin-left: -10px;
 }
@@ -863,6 +869,16 @@ div.running-text{
     overflow:hidden;
     text-overflow:ellipsis;
     text-align: center;
+}
+.noweather > .ui-block-a {
+    width: 0;
+}
+.noweather > .ui-block-b {
+    width: 100%;
+    margin: 0 auto;
+}
+.noweather #clock-s {
+    padding-top:0;
 }
 #forecast .wicon {
     margin:0 auto!important

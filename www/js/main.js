@@ -1940,7 +1940,7 @@ function convert_temp(temp,region) {
 }
 
 function hide_weather() {
-    $("#weather").empty();
+    $("#weather").empty().parents(".info-card").addClass("noweather");
 }
 
 function update_weather() {
@@ -2034,7 +2034,8 @@ function updateWeatherBox() {
         .off("click").on("click",function(){
             changePage("#forecast");
             return false;
-        });
+        })
+        .parents(".info-card").removeClass("noweather");
 }
 
 function update_wunderground_weather(wapikey) {
@@ -3425,7 +3426,7 @@ function showHome(firstLoad) {
         page = $("<div data-role='page' id='sprinklers'>" +
             "<div class='ui-panel-wrapper'>" +
                 "<div class='ui-content' role='main'>" +
-                    "<div class='ui-grid-a ui-body ui-corner-all info-card'>" +
+                    "<div class='ui-grid-a ui-body ui-corner-all info-card noweather'>" +
                         "<div class='ui-block-a'>" +
                             "<div id='weather'></div>" +
                         "</div>" +
