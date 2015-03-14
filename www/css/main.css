@@ -647,6 +647,10 @@ div.running-text{
     right: 0
 }
 
+#stn_attrib .submit {
+    padding: 10px;
+}
+
 .stn-attrib-icon {
     display:inline-block;
     padding-left:10px

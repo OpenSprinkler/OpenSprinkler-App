@@ -7471,7 +7471,7 @@ function showDurationBox(opt) {
                 "<h1>"+opt.title+"</h1>" +
             "</div>" +
             "<div class='ui-content'>" +
-                (opt.helptext ? "<p class='pad-top rain-desc center smaller'>"+opt.helptext+"</p>" : "") +
+                (opt.helptext ? "<p class='rain-desc center smaller'>"+opt.helptext+"</p>" : "") +
                 "<span>" +
                 "</span>" +
                 (opt.showBack ? "<button class='submit' data-theme='b'>"+_("Submit")+"</button>" : "") +
@@ -7635,7 +7635,7 @@ function showSingleDurationInput(opt) {
                 "<h1>"+opt.title+"</h1>" +
             "</div>" +
             "<div class='ui-content'>" +
-                (opt.helptext ? "<p class='pad-top rain-desc center smaller'>"+opt.helptext+"</p>" : "") +
+                (opt.helptext ? "<p class='rain-desc center smaller'>"+opt.helptext+"</p>" : "") +
                 "<label class='center'>"+opt.label+"</label>" +
                 "<div class='input_with_buttons'>" +
                     "<button class='decr ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border'></button>" +
