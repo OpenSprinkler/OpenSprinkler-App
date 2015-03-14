@@ -4901,29 +4901,13 @@ function get_logs() {
         logs = $("<div data-role='page' id='logs'>" +
             "<div class='ui-content' role='main'>" +
                 "<fieldset data-role='controlgroup' data-type='horizontal' data-mini='true' class='log_type'>" +
-                    "<input data-mini='true' type='radio' name='log_type' id='log_graph' value='graph' "+(isNarrow ? "" : "checked='checked'")+">" +
-                    "<label for='log_graph'>"+_("Graph")+"</label>" +
-                    "<input data-mini='true' type='radio' name='log_type' id='log_table' value='table' "+(!isNarrow ? "" : "checked='checked'")+">" +
-                    "<label for='log_table'>"+_("Table")+"</label>" +
-                    "<input data-mini='true' type='radio' name='log_type' id='log_timeline' value='timeline'>" +
+                    "<input data-mini='true' type='radio' name='log_type' id='log_timeline' value='timeline'"+(isNarrow ? "" : " checked='checked'")+">" +
                     "<label for='log_timeline'>"+_("Timeline")+"</label>" +
+                    "<input data-mini='true' type='radio' name='log_type' id='log_table' value='table'"+(!isNarrow ? "" : " checked='checked'")+">" +
+                    "<label for='log_table'>"+_("Table")+"</label>" +
                 "</fieldset>" +
-                "<div id='placeholder'></div>" +
-                "<div id='zones'>" +
-                "</div>" +
                 "<fieldset data-role='collapsible' data-mini='true' id='log_options' class='center'>" +
                     "<legend>"+_("Options")+"</legend>" +
-                    "<fieldset data-role='controlgroup' data-type='horizontal' id='graph_sort'>" +
-                      "<p class='tight'>"+_("Grouping:")+"</p>" +
-                      "<input data-mini='true' type='radio' name='g' id='radio-choice-d' value='n' checked='checked'>" +
-                      "<label for='radio-choice-d'>"+_("None")+"</label>" +
-                      "<input data-mini='true' type='radio' name='g' id='radio-choice-a' value='h'>" +
-                      "<label for='radio-choice-a'>"+_("Hour")+"</label>" +
-                      "<input data-mini='true' type='radio' name='g' id='radio-choice-b' value='d'>" +
-                      "<label for='radio-choice-b'>"+_("DOW")+"</label>" +
-                      "<input data-mini='true' type='radio' name='g' id='radio-choice-c' value='m'>" +
-                      "<label for='radio-choice-c'>"+_("Month")+"</label>" +
-                    "</fieldset>" +
                     "<fieldset data-role='controlgroup' data-type='horizontal' id='table_sort'>" +
                       "<p class='tight'>"+_("Grouping:")+"</p>" +
                       "<input data-mini='true' type='radio' name='table-group' id='table-sort-day' value='day' checked='checked'>" +
@@ -4944,136 +4928,19 @@ function get_logs() {
                 "</div>" +
             "</div>" +
         "</div>"),
-        placeholder = logs.find("#placeholder"),
         logs_list = logs.find("#logs_list"),
-        zones = logs.find("#zones"),
-        graph_sort = logs.find("#graph_sort"),
         table_sort = logs.find("#table_sort"),
         log_options = logs.find("#log_options"),
         data = [],
         waterlog = [],
         stations = $.merge($.merge([],controller.stations.snames),[_("Rain Sensor"),_("Rain Delay")]),
-        seriesChange = function() {
-            var grouping = logs.find("input:radio[name='g']:checked").val(),
-                pData = [],
-                sortedData, options, plot;
-
-            logs.removeClass("tilt-axis");
-
-            placeholder.empty();
-
-            sortedData = sortData("graph",grouping);
-
-            zones.find("td[zone_num]:not('.unchecked')").each(function() {
-                var key = $(this).attr("zone_num");
-                if (!sortedData[key].length) {
-                    sortedData[key]=[[0,0]];
-                }
-                if (key && sortedData[key]) {
-                    pData.push({
-                        data:sortedData[key],
-                        label:$(this).attr("name"),
-                        color:parseInt(key),
-                        bars: {
-                            lineWidth: 0,
-                            order:key,
-                            show: true,
-                            barWidth: ((grouping === "h") || (grouping === "m") || (grouping === "d") ? 0.1 : 60*60*1000)
-                        }
-                    });
-                }
-            });
-
-            if (grouping === "n" && !$.isEmptyObject(waterlog)) {
-                var wlSorted = [];
-
-                $.each(waterlog,function(key,data){
-                    wlSorted.push([data[3]*1000,data[2]]);
-                });
-
-                pData.push({
-                    data: wlSorted,
-                    label: _("Water Level"),
-                    yaxis: 2,
-                    lines: {
-                        show: true,
-                        fill: false
-                    },
-                    points: {
-                        show: true,
-                        fillColor: "rgb(51,136,204)"
-                    },
-                    color: "rgb(51,136,204)",
-                });
-            }
-
-            // Plot the data
-            if (grouping==="h") {
-                options = {
-                    grid: { hoverable: true },
-                    yaxis: {min: 0, tickFormatter: function(val, axis) { return val < axis.max ? Math.round(val*100)/100 : "min";} },
-                    xaxis: { min: 0, max: 23, tickDecimals: 0, tickSize: 1 }
-                };
-            } else if (grouping==="d") {
-                options = {
-                    grid: { hoverable: true },
-                    yaxis: {min: 0, tickFormatter: function(val, axis) { return val < axis.max ? Math.round(val*100)/100 : "min";} },
-                    xaxis: { tickDecimals: 0, min: 0, max: 6,
-                    tickFormatter: function(v) { var dow=[_("Sun"),_("Mon"),_("Tue"),_("Wed"),_("Thr"),_("Fri"),_("Sat")]; return dow[v]; } }
-                };
-            } else if (grouping==="m") {
-                options = {
-                    grid: { hoverable: true },
-                    yaxis: {min: 0, tickFormatter: function(val, axis) { return val < axis.max ? Math.round(val*100)/100 : "min";} },
-                    xaxis: { tickDecimals: 0, min: 0, max: 11, tickSize: 1,
-                    tickFormatter: function(v) { var mon=[_("Jan"),_("Feb"),_("Mar"),_("Apr"),_("May"),_("Jun"),_("Jul"),_("Aug"),_("Sep"),_("Oct"),_("Nov"),_("Dec")]; return mon[v]; } }
-                };
-            } else if (grouping==="n") {
-                options = {
-                    grid: { hoverable: true },
-                    yaxes: [
-                        {min: 0, tickFormatter: function(val, axis) { return val < axis.max ? Math.round(val*100)/100 : _("min");} },
-                        {min: 0, position: 1, tickFormatter: function(val, axis) { return val < axis.max ? Math.round(val*100)/100+"%" : _("% Water");}, alignTicksWithAxis: 1}
-                    ],
-                    xaxis: { tickLength: 0, labelWidth: 90, mode: "time", timeformat: "%b %d %H:%M", min:sortedData.min, max:sortedData.max}
-                };
-                logs.addClass("tilt-axis");
-            }
-
-            plot = $.plot(placeholder, pData, options);
-        },
         sortData = function(type,grouping) {
             var sortedData = [],
                 max, min;
 
-            if (type === "graph") {
-                switch (grouping) {
-                    case "h":
-                        for (i=0; i<stations.length; i++) {
-                            sortedData[i] = [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0],[11,0],[12,0],[13,0],[14,0],[15,0],[16,0],[17,0],[18,0],[19,0],[20,0],[21,0],[22,0],[23,0]];
-                        }
-                        break;
-                    case "m":
-                        for (i=0; i<stations.length; i++) {
-                            sortedData[i] = [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0],[11,0]];
-                        }
-                        break;
-                    case "d":
-                        for (i=0; i<stations.length; i++) {
-                            sortedData[i] = [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0]];
-                        }
-                        break;
-                    case "n":
-                        for (i=0; i<stations.length; i++) {
-                            sortedData[i] = [];
-                        }
-                        break;
-                }
-            } else if (type === "table") {
-                if (grouping === "station") {
-                    for (i=0; i<stations.length; i++) {
-                        sortedData[i] = [];
-                    }
+            if (type === "table" && grouping === "station") {
+                for (i=0; i<stations.length; i++) {
+                    sortedData[i] = [];
                 }
             }
 
@@ -5097,37 +4964,7 @@ function get_logs() {
                     return;
                 }
 
-                if (type === "graph") {
-                    switch (grouping) {
-                        case "h":
-                            key = date.getUTCHours();
-                            break;
-                        case "m":
-                            key = date.getUTCMonth() + 1;
-                            break;
-                        case "d":
-                            key = date.getUTCDay();
-                            break;
-                        case "n":
-                            sortedData[station].push([stamp,duration]);
-                            break;
-                    }
-
-                    if (grouping !== "n" && duration > 0) {
-                        if (typeof sortedData[station][key] !== "object") {
-                            sortedData[station][key] = [0];
-                        }
-
-                        sortedData[station][key][1] += duration;
-                    }
-
-                    if (min === undefined || min > date) {
-                        min = date;
-                    }
-                    if (max === undefined || max < date) {
-                        max = date;
-                    }
-                } else if (type === "table") {
+                if (type === "table") {
                     switch (grouping) {
                         case "station":
                             sortedData[station].push([utc.getTime(),dhms2str(sec2dhms(parseInt(b[2])))]);
@@ -5178,44 +5015,8 @@ function get_logs() {
                     });
                 }
             });
-            if (type === "graph") {
-                sortedData.min = min;
-                sortedData.max = max;
-            }
 
             return sortedData;
-        },
-        toggleZone = function() {
-            var zone = $(this);
-            if (zone.hasClass("legendColorBox")) {
-                zone.find("div div").toggleClass("hideZone");
-                zone.next().toggleClass("unchecked");
-            } else if (zone.hasClass("legendLabel")) {
-                zone.prev().find("div div").toggleClass("hideZone");
-                zone.toggleClass("unchecked");
-            }
-            seriesChange();
-        },
-        showArrows = function() {
-            var height = zones.height(),
-                sleft = zones.scrollLeft(),
-                right = $("#graphScrollRight"),
-                left = $("#graphScrollLeft");
-
-            if (sleft > 13) {
-                left.show().css("margin-top",(height/2)-12.5);
-            } else {
-                left.hide();
-            }
-            var total = zones.find("table").width(), container = zones.width();
-            if ((total-container) > 0 && sleft < ((total-container) - 13)) {
-                right.show().css({
-                    "margin-top":(height/2)-12.5,
-                    "left":container + ((logs.width() - container) / 2) - 18
-                });
-            } else {
-                right.hide();
-            }
         },
         success = function(items,wl){
             if (typeof items !== "object" || items.length < 1 || (items.result && items.result === 32)) {
@@ -5234,10 +5035,7 @@ function get_logs() {
             $.mobile.loading("hide");
         },
         updateView = function() {
-            $("#tooltip").remove();
-            if (logs.find("#log_graph").prop("checked")) {
-                prepGraph();
-            } else if (logs.find("#log_table").prop("checked")) {
+            if (logs.find("#log_table").prop("checked")) {
                 prepTable();
             } else if (logs.find("#log_timeline").prop("checked")) {
                 prepTimeline();
@@ -5249,9 +5047,6 @@ function get_logs() {
                 return;
             }
 
-            placeholder.empty().hide();
-            zones.hide();
-            graph_sort.hide();
             table_sort.hide();
             logs_list.show();
 
@@ -5291,71 +5086,12 @@ function get_logs() {
                 this.setAttribute("data-shortname",shortnames[this.textContent]);
             });
         },
-        prepGraph = function() {
-            if (data.length < 1) {
-                reset_logs_page();
-                return;
-            }
-
-            logs_list.empty().hide();
-            var state = ($.mobile.window.height() > 680) ? "expand" : "collapse";
-            setTimeout(function(){log_options.collapsible(state);},100);
-            placeholder.empty();
-            placeholder.show();
-            var freshLoad = zones.find("table").length;
-            zones.show().on("swiperight swipeleft",function(e){
-                e.stopImmediatePropagation();
-            });
-            graph_sort.show();
-            table_sort.hide();
-            if (!freshLoad) {
-                var output = "<div class='ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border' id='graphScrollLeft'></div><div class='ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border' id='graphScrollRight'></div><table class='smaller'><tbody><tr>";
-                for (i=0; i<stations.length; i++) {
-                    if (isStationDisabled(i)) {
-                        continue;
-                    }
-                    output += "<td class='legendColorBox'><div><div></div></div></td><td id='z"+i+"' zone_num="+i+" name='"+stations[i] + "' class='legendLabel'>"+stations[i]+"</td>";
-                }
-                output += "</tr></tbody></table>";
-                zones.empty().append(output).enhanceWithin();
-                zones.find("td").on("click",toggleZone);
-                zones.find("#graphScrollLeft,#graphScrollRight").on("click",function(){
-                    var dir = ($(this).attr("id") === "graphScrollRight") ? "+=" : "-=",
-                        w = zones.width();
-                    zones.animate({scrollLeft: dir+w});
-                });
-            }
-            seriesChange();
-            i = 0;
-            if (!freshLoad) {
-                zones.find("td.legendColorBox div div").each(function(a,b){
-                    var border = $(placeholder.find(".legendColorBox div div").get(i)).css("border");
-                    //Firefox and IE fix
-                    if (border === "") {
-                        border = $(placeholder.find(".legendColorBox div div").get(i)).attr("style").split(";");
-                        $.each(border,function(a,b){
-                            var c = b.split(":");
-                            if (c[0] === "border") {
-                                border = c[1];
-                                return false;
-                            }
-                        });
-                    }
-                    $(b).css("border",border);
-                    i++;
-                });
-                showArrows();
-            }
-        },
         prepTable = function(){
             if (data.length < 1) {
                 reset_logs_page();
                 return;
             }
 
-            placeholder.empty().hide();
-            zones.hide();
-            graph_sort.hide();
             table_sort.show();
             logs_list.show();
 
@@ -5431,19 +5167,13 @@ function get_logs() {
             fixInputClick(logs_list);
         },
         reset_logs_page = function() {
-            placeholder.empty().hide();
             log_options.collapsible("expand");
-            zones.empty().hide();
-            graph_sort.hide();
             table_sort.hide();
             logs_list.show().html(_("No entries found in the selected date range"));
         },
         fail = function(){
             $.mobile.loading("hide");
 
-            placeholder.empty().hide();
-            zones.empty().hide();
-            graph_sort.hide();
             table_sort.hide();
             logs_list.empty().hide();
 
@@ -5498,16 +5228,6 @@ function get_logs() {
 
     logs.find("input").blur();
 
-    //Update left/right arrows when zones are scrolled on log page
-    zones.scroll(showArrows);
-
-    $.mobile.window.resize(function(){
-        if (logs.find("#log_graph").is(":checked") && placeholder.is(":visible")) {
-            showArrows();
-            seriesChange();
-        }
-    });
-
     // Bind clear logs button
     logs.find(".clear_logs").on("click",function(){
         areYouSure(_("Are you sure you want to clear ALL your log data?"), "", function() {
@@ -5531,11 +5251,6 @@ function get_logs() {
         });
     }
 
-    //Automatically update log viewer when switching graphing method
-    graph_sort.find("input[name='g']").change(function(){
-        seriesChange();
-    });
-
     //Automatically update log viewer when switching table sort
     table_sort.find("input[name='table-group']").change(function(){
         prepTable();
@@ -5544,18 +5259,8 @@ function get_logs() {
     //Bind view change buttons
     logs.find("input:radio[name='log_type']").change(updateView);
 
-    //Show tooltip (station name) when point is clicked on the graph
-    placeholder.on("plothover",function(e,p,item) {
-        $("#tooltip").remove();
-        clearTimeout(hovertimeout);
-        if (item) {
-            hovertimeout = setTimeout(function(){showTooltip(item.pageX, item.pageY, item.series.label, item.series.color);}, 100);
-        }
-    });
-
     logs.one({
         pagehide: function(){
-            $("#tooltip").remove();
             $.mobile.window.off("resize");
             logs.remove();
         },
@@ -8388,21 +8093,6 @@ function changeHeader(opt) {
     }).fadeIn(speed);
 
     return newHeader;
-}
-
-function showTooltip(x, y, contents, color) {
-    $("#tooltip").remove();
-    $("<div id='tooltip'>" + contents + "</div>").css( {
-        position: "absolute",
-        display: "none",
-        top: y + 5,
-        left: x + 5,
-        padding: "2px",
-        "text-shadow": "none",
-        "background-color": color,
-        color: colorContrast(color),
-        opacity: 0.80
-    }).appendTo("body").fadeIn(200);
 }
 
 function colorContrast(c) {
