@@ -4564,7 +4564,8 @@ function get_preview() {
                             "content":"",
                             "className":"master",
                             "shortname":"M",
-                            "group":"Master"
+                            "group":"Master",
+                            "station": sid
                         });
                     }
                     time_to_text(sid,st_array[sid],pid_array[sid],et_array[sid],simt);
@@ -4582,7 +4583,8 @@ function get_preview() {
                             "content":"",
                             "className":"master",
                             "shortname":"M",
-                            "group":"Master"
+                            "group":"Master",
+                            "station": sid
                         });
                     }
                     time_to_text(sid,st_array[sid],pid_array[sid],et_array[sid],simt);
@@ -4604,7 +4606,8 @@ function get_preview() {
                   "content":"",
                   "className":"master",
                   "shortname":"M",
-                  "group":"Master"
+                  "group":"Master",
+                  "station": sid
               });
           }
         }
@@ -4630,7 +4633,8 @@ function get_preview() {
             "content":pname,
             "pid": pid-1,
             "shortname":"S"+(sid+1),
-            "group": controller.stations.snames[sid]
+            "group": controller.stations.snames[sid],
+            "station": sid
         });
     };
 
@@ -4787,12 +4791,16 @@ function get_preview() {
             page.find("#timeline").html("<p align='center'>"+_("No stations set to run on this day.")+"</p>");
             return;
         }
+
+        preview_data.sort(sortByStation);
+
         var shortnames = [];
         $.each(preview_data, function(){
             this.start = new Date(date[0],date[1]-1,date[2],0,0,this.start);
             this.end = new Date(date[0],date[1]-1,date[2],0,0,this.end);
             shortnames[this.group] = this.shortname;
         });
+        console.log(preview_data)
         var options = {
             "width":  "100%",
             "editable": false,
@@ -5031,15 +5039,7 @@ function get_logs() {
             });
 
             if (type === "timeline") {
-                sortedData.sort(function(a,b) {
-                    if (a.station < b.station) {
-                        return -1;
-                    } else if (a.shortname > b.shortname) {
-                        return 1;
-                    } else {
-                        return 0;
-                    }
-                });
+                sortedData.sort(sortByStation);
             }
 
             return sortedData;
@@ -8495,6 +8495,16 @@ function check_curr_lang() {
 
         popup.find("li.ui-last-child").removeClass("ui-last-child");
     });
+}
+
+function sortByStation(a,b) {
+    if (a.station < b.station) {
+        return -1;
+    } else if (a.shortname > b.shortname) {
+        return 1;
+    } else {
+        return 0;
+    }
 }
 
 function minutesToTime(minutes) {
