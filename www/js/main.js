@@ -4431,15 +4431,15 @@ function get_preview() {
                             if (controller.stations.stn_dis[bid]&(1<<s)) {
                                 continue; // skip disabled stations
                             }
-                            if(prog[4][sid] && !et_array[sid]) {  // skip if water time is zero, or station is already scheduled
+                            if(prog[4][sid] && et_array[sid] === 0) {  // skip if water time is zero, or station is already scheduled
                                 if(prog[0]&0x02 && ((controller.options.uwt > 0 && simday === devday) || controller.options.uwt === 0)) {  // use weather scaling bit on
                                     et_array[sid]=prog[4][sid] * controller.options.wl/100>>0;
                                 } else {
-                                  et_array[sid]=prog[4][sid];
+                                    et_array[sid]=prog[4][sid];
                                 }
-                                if (et_array[sid]) {  // after weather scaling, we maybe getting 0 water time
-                                  pid_array[sid]=pid+1;
-                                  match_found=1;
+                                if (et_array[sid] > 0) {  // after weather scaling, we maybe getting 0 water time
+                                    pid_array[sid]=pid+1;
+                                    match_found=1;
                                 }
                             }
                         } else {
@@ -4683,7 +4683,7 @@ function get_preview() {
             date = new Date(simt),
             i;
 
-        if (!en) {
+        if (en === 0) {
             return 0;
         }
 
@@ -4732,17 +4732,17 @@ function get_preview() {
                 return 0;
             }
 
-            if(!repeat) {
+            if(repeat === 0) {
                 // Single run program
                 return (simminutes===start)?1:0;
             }
 
-            if(!cycle) {
+            if(cycle === 0) {
                 // if this is a multi-run, cycle time must be > 0
                 return 0;
             }
 
-            var c = (simminutes-start)/cycle>>0;  // >>0 rounds to the nearest integer
+            var c = Math.round((simminutes-start)/cycle);
             if((c*cycle === (simminutes-start)) && (c<=repeat)) {
                 return 1;
             }
@@ -4973,11 +4973,11 @@ function get_logs() {
                 if (type === "table") {
                     switch (grouping) {
                         case "station":
-                            sortedData[station].push([utc.getTime(),dhms2str(sec2dhms(parseInt(b[2])))]);
+                            sortedData[station].push([new Date(utc.getTime() - parseInt(b[2] * 1000)),dhms2str(sec2dhms(parseInt(b[2])))]);
                             break;
                         case "day":
                             var day = Math.floor(date.getTime() / 1000 / 60 / 60 / 24),
-                                item = [utc.getTime(),dhms2str(sec2dhms(parseInt(b[2]))),station];
+                                item = [new Date(utc.getTime() - parseInt(b[2] * 1000)),dhms2str(sec2dhms(parseInt(b[2]))),station];
 
                             if (typeof sortedData[day] !== "object") {
                                 sortedData[day] = [item];
@@ -5011,8 +5011,8 @@ function get_logs() {
                     }
 
                     sortedData.push({
-                        "start": utc,
-                        "end": new Date(utc.getTime() + parseInt(b[2] * 1000)),
+                        "start": new Date(utc.getTime() - parseInt(b[2] * 1000)),
+                        "end": utc,
                         "className": className,
                         "content": name,
                         "pid": pid-1,
