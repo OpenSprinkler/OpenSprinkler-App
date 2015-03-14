@@ -4800,7 +4800,7 @@ function get_preview() {
             this.end = new Date(date[0],date[1]-1,date[2],0,0,this.end);
             shortnames[this.group] = this.shortname;
         });
-        console.log(preview_data)
+
         var options = {
             "width":  "100%",
             "editable": false,
