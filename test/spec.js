@@ -139,11 +139,6 @@ describe("OpenSprinkler Firmware Version Functions",function(){
 });
 
 describe("General Function Checks", function(){
-	it("colorContrast(color) should take rgb(r,g,b) and return the appropriate color contrast for the input color",function(){
-		assert.equal("black",colorContrast("rgb(50,200,0)"));
-		assert.equal("white",colorContrast("rgb(0,0,0)"));
-	});
-
 	it("parseIntArray(array) should convert all members into integers",function(){
 		assert.deepEqual([9, 394, 29193, -1],parseIntArray(["9","394","29193","-1"]));
 	});

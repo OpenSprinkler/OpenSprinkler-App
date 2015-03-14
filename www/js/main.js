@@ -4935,8 +4935,7 @@ function get_logs() {
         waterlog = [],
         stations = $.merge($.merge([],controller.stations.snames),[_("Rain Sensor"),_("Rain Delay")]),
         sortData = function(type,grouping) {
-            var sortedData = [],
-                max, min;
+            var sortedData = [];
 
             if (type === "table" && grouping === "station") {
                 for (i=0; i<stations.length; i++) {
@@ -4948,9 +4947,7 @@ function get_logs() {
                 var stamp = parseInt(b[3] * 1000),
                     station = b[1],
                     date = new Date(stamp),
-                    utc = new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(),  date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds()),
-                    duration = parseInt(b[2]/60),
-                    key;
+                    utc = new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(),  date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds());
 
                 if (typeof station === "string") {
                     if (station === "rs") {
@@ -5224,7 +5221,7 @@ function get_logs() {
                 ).then(success,fail);
             },delay);
         },
-        logtimeout, hovertimeout, i;
+        logtimeout, i;
 
     logs.find("input").blur();
 
@@ -8093,14 +8090,6 @@ function changeHeader(opt) {
     }).fadeIn(speed);
 
     return newHeader;
-}
-
-function colorContrast(c) {
-    //http://www.w3.org/TR/AERT#color-contrast
-    var rgb = c.match(/rgb\((\d+),(\d+),(\d+)\)/),
-        o = Math.round(((parseInt(rgb[1]) * 299) + (parseInt(rgb[2]) * 587) + (parseInt(rgb[3]) * 114)) /1000);
-
-    return (o > 125) ? "black" : "white";
 }
 
 // Show loading indicator within element(s)
