@@ -5008,10 +5008,23 @@ function get_logs() {
                         "content": name,
                         "pid": pid-1,
                         "shortname": shortname,
-                        "group": group
+                        "group": group,
+                        "station": station
                     });
                 }
             });
+
+            if (type === "timeline") {
+                sortedData.sort(function(a,b) {
+                    if (a.station < b.station) {
+                        return -1;
+                    } else if (a.shortname > b.shortname) {
+                        return 1;
+                    } else {
+                        return 0;
+                    }
+                });
+            }
 
             return sortedData;
         },
@@ -5062,7 +5075,7 @@ function get_logs() {
                     "showMajorLabels": false,
                     "groupsChangeable": false,
                     "showNavigation": false,
-                    "groupsOrder": true,
+                    "groupsOrder": "none",
                     "groupMinHeight": 20,
                     "zoomMin": 1000 * 60
                 },
