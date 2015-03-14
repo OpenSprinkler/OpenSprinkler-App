@@ -7265,7 +7265,18 @@ function getHWVersion(hwv) {
 	if (typeof hwv === "string") {
 		return hwv;
 	} else {
-		return ((hwv/10>>0)%10)+"."+(hwv%10);
+        var ver = ((hwv/10>>0)%10)+"."+(hwv%10);
+
+        if (hwv === 64) {
+            ver += " (OSPi)";
+        } else if (hwv === 128) {
+            ver += " (OSBo)";
+        } else if (hwv === 192) {
+            ver += " (Linux)";
+        } else if (hwv === 255) {
+            ver += " (Demo)";
+        }
+		return ver;
 	}
 }
 
