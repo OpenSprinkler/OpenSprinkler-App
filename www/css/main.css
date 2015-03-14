@@ -585,6 +585,9 @@ body, input, select, textarea, button, .ui-btn {
 .home-info {
     margin-left: -10px;
 }
+.station-hidden {
+    opacity: 0.5;
+}
 .station-settings {
     position: absolute;
     top: -3px;
