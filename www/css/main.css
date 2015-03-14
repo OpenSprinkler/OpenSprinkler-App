@@ -550,7 +550,7 @@ body, input, select, textarea, button, .ui-btn {
 }
 .moveLeft {
     transform: translate3d(-17em,0,0);
-    webkit-transform: translate3d(-17em,0,0);
+    -webkit-transform: translate3d(-17em,0,0);
     -moz-transform: translate3d(-17em,0,0);
 }
 #footer-menu:after{
