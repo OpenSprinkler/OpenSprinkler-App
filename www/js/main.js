@@ -8505,7 +8505,7 @@ function check_curr_lang() {
 function sortByStation(a,b) {
     if (a.station < b.station) {
         return -1;
-    } else if (a.shortname > b.shortname) {
+    } else if (a.station > b.station) {
         return 1;
     } else {
         return 0;
