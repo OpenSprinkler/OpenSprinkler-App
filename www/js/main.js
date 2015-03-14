@@ -2887,7 +2887,7 @@ function show_options(expandItem) {
         list += "<label for='o16'><input data-mini='true' id='o16' type='checkbox' "+((controller.options.seq === 1) ? "checked='checked'" : "")+">"+_("Sequential")+"</label>";
     }
 
-    list += "<button data-mini='true' class='reset-stations'>"+_("Reset")+" "+_("Stations")+"</button>";
+    list += "<div class='ui-field-contain'><label>"+_("Reset")+" "+_("Stations")+"</label><button data-theme='b' data-mini='true' class='reset-stations'>"+_("Reset All Station Data")+"</button></div>";
 
     list += "</fieldset><fieldset data-role='collapsible'"+(typeof expandItem === "string" && expandItem === "weather" ? " data-collapsed='false'" : "")+"><legend>"+_("Weather Control")+"</legend>";
 
@@ -3352,7 +3352,7 @@ function showHomeMenu(btn) {
 
     var page = $("#sprinklers"),
         showHidden = page.hasClass("show-hidden"),
-        popup = $("<div data-role='popup' style='border:0'>" +
+        popup = $("<div data-role='popup' data-overlay-theme='b' style='border:0'>" +
             "<ul data-role='listview' data-inset='true' data-corners='false'>" +
                 "<li data-role='list-divider'>"+_("Information")+"</li>" +
                 "<li><a href='#preview' class='squeeze'>"+_("Preview Programs")+"</a></li>" +
