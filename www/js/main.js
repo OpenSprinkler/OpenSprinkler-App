@@ -3724,7 +3724,7 @@ function showHome(firstLoad) {
 
     page.on("click",".card",function(){
         // Bind delegate handler to stop specific station (supported on firmware 2.1.0+ on Arduino)
-        if (checkOSVersion(210)) {
+        if (!checkOSVersion(210)) {
             return false;
         }
 
