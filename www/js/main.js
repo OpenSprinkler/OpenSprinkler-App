@@ -3634,6 +3634,12 @@ function showHome(firstLoad) {
 
             page.find(".waterlevel").text(controller.options.wl);
 
+            hasMaster = controller.options.mas ? true : false,
+            hasIR = (typeof controller.stations.ignore_rain === "object") ? true : false;
+            hasAR = (typeof controller.stations.act_relay === "object") ? true : false;
+            hasSD = (typeof controller.stations.stn_dis === "object") ? true : false;
+            hasSequential = (typeof controller.stations.stn_seq === "object") ? true : false;
+
             for (var i = 0; i < controller.stations.snames.length; i++) {
                 isScheduled = controller.settings.ps[i][0] > 0;
                 isRunning = controller.status[i] > 0;
@@ -6707,7 +6713,7 @@ function show_about() {
                 "</ul>" +
                 "<p class='smaller'>" +
                     _("App Version")+": 1.3.0" +
-                    (typeof controller.options.hwv !== "undefined" ? "<br>"+_("Hardware Version")+": v"+getHWVersion() : "") +
+                    (typeof controller.options.hwv !== "undefined" ? "<br>"+_("Hardware Version")+": "+getHWVersion() : "") +
                     "<br>"+_("Firmware")+": "+getOSVersion() +
                 "</p>" +
             "</div>" +
@@ -7265,18 +7271,17 @@ function getHWVersion(hwv) {
 	if (typeof hwv === "string") {
 		return hwv;
 	} else {
-        var ver = ((hwv/10>>0)%10)+"."+(hwv%10);
-
         if (hwv === 64) {
-            ver += " (OSPi)";
+            return "OSPi";
         } else if (hwv === 128) {
-            ver += " (OSBo)";
+            return "OSBo";
         } else if (hwv === 192) {
-            ver += " (Linux)";
+            return "Linux";
         } else if (hwv === 255) {
-            ver += " (Demo)";
+            return "Demo";
+        } else {
+            return ((hwv/10>>0)%10)+"."+(hwv%10);
         }
-		return ver;
 	}
 }
 
