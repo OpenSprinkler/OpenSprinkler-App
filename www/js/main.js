@@ -269,6 +269,8 @@ $(document)
             get_preview();
         } else if (hash === "#logs") {
             get_logs();
+        } else if (hash === "#forecast") {
+            show_forecast();
         } else if (hash === "#start") {
             checkAutoScan();
             if (!data.options.showStart) {
@@ -2011,12 +2013,13 @@ function update_yahoo_weather() {
                         title: now.text,
                         code: now.code,
                         temp: convert_temp(now.temp,region),
-                        location: loc[1]
+                        location: loc[1],
+                        forecast: data.query.results.channel.item.forecast,
+                        region: region,
+                        source: "yahoo"
                     };
 
                     updateWeatherBox();
-
-                    update_yahoo_forecast(data.query.results.channel.item.forecast,loc[1],region,now);
 
                     $.mobile.document.trigger("weatherUpdateComplete");
                 }
@@ -2028,31 +2031,10 @@ function update_yahoo_weather() {
 function updateWeatherBox() {
     $("#weather")
         .html("<div title='"+weather.title+"' class='wicon cond"+weather.code+"'></div><span>"+weather.temp+"</span><br><span class='location'>"+weather.location+"</span>")
-        .off("click").on("click",show_forecast);
-}
-
-function update_yahoo_forecast(data,loc,region,now) {
-    var list = "<li data-role='list-divider' data-theme='a' class='center'>"+loc+"</li>",
-        sunrise = controller.settings.sunrise ? controller.settings.sunrise : getSunTimes()[0],
-        sunset = controller.settings.sunset ? controller.settings.sunset : getSunTimes()[1],
-        i;
-
-    list += "<li data-icon='false' class='center'><div title='"+now.text+"' class='wicon cond"+now.code+"'></div><span data-translate='Now'>"+_("Now")+"</span><br><span>"+convert_temp(now.temp,region)+"</span><br><span data-translate='Sunrise'>"+_("Sunrise")+"</span><span>: "+pad(parseInt(sunrise/60)%24)+":"+pad(sunrise%60)+"</span> <span data-translate='Sunrise'>"+_("Sunset")+"</span><span>: "+pad(parseInt(sunset/60)%24)+":"+pad(sunset%60)+"</span></li>";
-
-    for (i=0;i < data.length; i++) {
-        var times = getSunTimes(new Date(data[i].date));
-
-        sunrise = times[0];
-        sunset = times[1];
-
-        list += "<li data-icon='false' class='center'><span>"+data[i].date+"</span><br><div title='"+data[i].text+"' class='wicon cond"+data[i].code+"'></div><span data-translate='"+data[i].day+"'>"+_(data[i].day)+"</span><br><span data-translate='Low'>"+_("Low")+"</span><span>: "+convert_temp(data[i].low,region)+"  </span><span data-translate='High'>"+_("High")+"</span><span>: "+convert_temp(data[i].high,region)+"</span><br><span data-translate='Sunrise'>"+_("Sunrise")+"</span><span>: "+pad(parseInt(sunrise/60)%24)+":"+pad(sunrise%60)+"</span> <span data-translate='Sunrise'>"+_("Sunset")+"</span><span>: "+pad(parseInt(sunset/60)%24)+":"+pad(sunset%60)+"</span></li>";
-    }
-
-    var forecast = $("#forecast_list");
-    forecast.html(list).enhanceWithin();
-    if (forecast.hasClass("ui-listview")) {
-        forecast.listview("refresh");
-    }
+        .off("click").on("click",function(){
+            changePage("#forecast");
+            return false;
+        });
 }
 
 function update_wunderground_weather(wapikey) {
@@ -2086,8 +2068,7 @@ function update_wunderground_weather(wapikey) {
                     "temp_f": data.current_observation.temp_f,
                     "date": data.current_observation.observation_time,
                     "precip_today_in": data.current_observation.precip_today_in,
-                    "precip_today_metric": data.current_observation.precip_today_metric,
-                    "type": "wunderground"
+                    "precip_today_metric": data.current_observation.precip_today_metric
                 },
                 "location": data.current_observation.display_location.full,
                 "region": data.current_observation.display_location.country_iso3166,
@@ -2110,57 +2091,16 @@ function update_wunderground_weather(wapikey) {
                 title: ww_forecast.condition.text,
                 code: code,
                 temp: temp,
-                location: ww_forecast.location
+                location: ww_forecast.location,
+                forecast: ww_forecast,
+                source: "wunderground"
             };
 
             updateWeatherBox();
 
-            update_wunderground_forecast(ww_forecast);
-
             $.mobile.document.trigger("weatherUpdateComplete");
         }
     }).fail(weather_update_failed);
-}
-
-function update_wunderground_forecast(data) {
-    var temp, precip;
-
-    if (data.region === "US" || data.region === "BM" || data.region === "PW") {
-        temp = data.condition.temp_f+"&#176;F";
-        precip = data.condition.precip_today_in+" in";
-    } else {
-        temp = data.condition.temp_c+"&#176;C";
-        precip = data.condition.precip_today_metric+" mm";
-    }
-
-    var list = "<li data-role='list-divider' data-theme='a' class='center'>"+data.location+"</li>";
-    list += "<li data-icon='false' class='center'><div title='"+data.condition.text+"' class='wicon cond"+data.condition.code+"'></div><span data-translate='Now'>"+_("Now")+"</span><br><span>"+temp+"</span><br><span data-translate='Sunrise'>"+_("Sunrise")+"</span><span>: "+pad(parseInt(controller.settings.sunrise/60)%24)+":"+pad(controller.settings.sunrise%60)+"</span> <span data-translate='Sunrise'>"+_("Sunset")+"</span><span>: "+pad(parseInt(controller.settings.sunset/60)%24)+":"+pad(controller.settings.sunset%60)+"</span><br><span data-translate='Precip'>"+_("Precip")+"</span><span>: "+precip+"</span></li>";
-    $.each(data.simpleforecast, function(k,attr) {
-        var times = getSunTimes(new Date(attr.date.epoch*1000)),
-            sunrise = times[0],
-            sunset = times[1],
-            precip;
-
-        if (data.region === "US" || data.region === "BM" || data.region === "PW") {
-            precip = attr.qpf_allday["in"];
-            if (precip === null) {
-                precip = 0;
-            }
-            list += "<li data-icon='false' class='center'><span>"+attr.date.monthname_short+" "+attr.date.day+"</span><br><div title='"+attr.conditions+"' class='wicon cond"+attr.icon+"'></div><span data-translate='"+attr.date.weekday_short+"'>"+_(attr.date.weekday_short)+"</span><br><span data-translate='Low'>"+_("Low")+"</span><span>: "+attr.low.fahrenheit+"&#176;F  </span><span data-translate='High'>"+_("High")+"</span><span>: "+attr.high.fahrenheit+"&#176;F</span><br><span data-translate='Sunrise'>"+_("Sunrise")+"</span><span>: "+pad(parseInt(sunrise/60)%24)+":"+pad(sunrise%60)+"</span> <span data-translate='Sunrise'>"+_("Sunset")+"</span><span>: "+pad(parseInt(sunset/60)%24)+":"+pad(sunset%60)+"</span><br><span data-translate='Precip'>"+_("Precip")+"</span><span>: "+precip+" in</span></li>";
-        } else {
-            precip = attr.qpf_allday.mm;
-            if (precip === null) {
-                precip = 0;
-            }
-            list += "<li data-icon='false' class='center'><span>"+attr.date.monthname_short+" "+attr.date.day+"</span><br><div title='"+attr.conditions+"' class='wicon cond"+attr.icon+"'></div><span data-translate='"+attr.date.weekday_short+"'>"+_(attr.date.weekday_short)+"</span><br><span data-translate='Low'>"+_("Low")+"</span><span>: "+attr.low.celsius+"&#176;C  </span><span data-translate='High'>"+_("High")+"</span><span>: "+attr.high.celsius+"&#176;C</span><br><span data-translate='Sunrise'>"+_("Sunrise")+"</span><span>: "+pad(parseInt(sunrise/60)%24)+":"+pad(sunrise%60)+"</span> <span data-translate='Sunrise'>"+_("Sunset")+"</span><span>: "+pad(parseInt(sunset/60)%24)+":"+pad(controller.settings.sunset%60)+"</span><br><span data-translate='Precip'>"+_("Precip")+"</span><span>: "+precip+" mm</span></li>";
-        }
-    });
-
-    var forecast = $("#forecast_list");
-    forecast.html(list).enhanceWithin();
-    if (forecast.hasClass("ui-listview")) {
-        forecast.listview("refresh");
-    }
 }
 
 function getSunTimes(date) {
@@ -2181,6 +2121,14 @@ function getSunTimes(date) {
 }
 
 function show_forecast() {
+    var page = $("<div data-role='page' id='forecast'>" +
+            "<div class='ui-content' role='main'>" +
+                "<ul data-role='listview' data-inset='true'>" +
+                    (weather.source === "wunderground" ? make_wunderground_forecast() : make_yahoo_forecast()) +
+                "</ul>" +
+            "</div>" +
+        "</div>");
+
     changeHeader({
         title: _("Forecast"),
         leftBtn: {
@@ -2202,8 +2150,69 @@ function show_forecast() {
         }
     });
 
-    changePage("#forecast");
-    return false;
+    page.one("pagehide",function(){
+        page.remove();
+    });
+
+    $("#forecast").remove();
+    page.appendTo("body");
+}
+
+function make_wunderground_forecast() {
+    var temp, precip;
+
+    if (weather.forecast.region === "US" || weather.forecast.region === "BM" || weather.forecast.region === "PW") {
+        temp = weather.forecast.condition.temp_f+"&#176;F";
+        precip = weather.forecast.condition.precip_today_in+" in";
+    } else {
+        temp = weather.forecast.condition.temp_c+"&#176;C";
+        precip = weather.forecast.condition.precip_today_metric+" mm";
+    }
+
+    var list = "<li data-role='list-divider' data-theme='a' class='center'>"+weather.forecast.location+"</li>";
+    list += "<li data-icon='false' class='center'><div title='"+weather.forecast.condition.text+"' class='wicon cond"+weather.forecast.condition.code+"'></div><span data-translate='Now'>"+_("Now")+"</span><br><span>"+temp+"</span><br><span data-translate='Sunrise'>"+_("Sunrise")+"</span><span>: "+pad(parseInt(controller.settings.sunrise/60)%24)+":"+pad(controller.settings.sunrise%60)+"</span> <span data-translate='Sunrise'>"+_("Sunset")+"</span><span>: "+pad(parseInt(controller.settings.sunset/60)%24)+":"+pad(controller.settings.sunset%60)+"</span><br><span data-translate='Precip'>"+_("Precip")+"</span><span>: "+precip+"</span></li>";
+    $.each(weather.forecast.simpleforecast, function(k,attr) {
+        var times = getSunTimes(new Date(attr.date.epoch*1000)),
+            sunrise = times[0],
+            sunset = times[1],
+            precip;
+
+        if (weather.forecast.region === "US" || weather.forecast.region === "BM" || weather.forecast.region === "PW") {
+            precip = attr.qpf_allday["in"];
+            if (precip === null) {
+                precip = 0;
+            }
+            list += "<li data-icon='false' class='center'><span>"+attr.date.monthname_short+" "+attr.date.day+"</span><br><div title='"+attr.conditions+"' class='wicon cond"+attr.icon+"'></div><span data-translate='"+attr.date.weekday_short+"'>"+_(attr.date.weekday_short)+"</span><br><span data-translate='Low'>"+_("Low")+"</span><span>: "+attr.low.fahrenheit+"&#176;F  </span><span data-translate='High'>"+_("High")+"</span><span>: "+attr.high.fahrenheit+"&#176;F</span><br><span data-translate='Sunrise'>"+_("Sunrise")+"</span><span>: "+pad(parseInt(sunrise/60)%24)+":"+pad(sunrise%60)+"</span> <span data-translate='Sunrise'>"+_("Sunset")+"</span><span>: "+pad(parseInt(sunset/60)%24)+":"+pad(sunset%60)+"</span><br><span data-translate='Precip'>"+_("Precip")+"</span><span>: "+precip+" in</span></li>";
+        } else {
+            precip = attr.qpf_allday.mm;
+            if (precip === null) {
+                precip = 0;
+            }
+            list += "<li data-icon='false' class='center'><span>"+attr.date.monthname_short+" "+attr.date.day+"</span><br><div title='"+attr.conditions+"' class='wicon cond"+attr.icon+"'></div><span data-translate='"+attr.date.weekday_short+"'>"+_(attr.date.weekday_short)+"</span><br><span data-translate='Low'>"+_("Low")+"</span><span>: "+attr.low.celsius+"&#176;C  </span><span data-translate='High'>"+_("High")+"</span><span>: "+attr.high.celsius+"&#176;C</span><br><span data-translate='Sunrise'>"+_("Sunrise")+"</span><span>: "+pad(parseInt(sunrise/60)%24)+":"+pad(sunrise%60)+"</span> <span data-translate='Sunrise'>"+_("Sunset")+"</span><span>: "+pad(parseInt(sunset/60)%24)+":"+pad(controller.settings.sunset%60)+"</span><br><span data-translate='Precip'>"+_("Precip")+"</span><span>: "+precip+" mm</span></li>";
+        }
+    });
+
+    return list;
+}
+
+function make_yahoo_forecast() {
+    var list = "<li data-role='list-divider' data-theme='a' class='center'>"+weather.location+"</li>",
+        sunrise = controller.settings.sunrise ? controller.settings.sunrise : getSunTimes()[0],
+        sunset = controller.settings.sunset ? controller.settings.sunset : getSunTimes()[1],
+        i;
+
+    list += "<li data-icon='false' class='center'><div title='"+weather.title+"' class='wicon cond"+weather.code+"'></div><span data-translate='Now'>"+_("Now")+"</span><br><span>"+weather.temp+"</span><br><span data-translate='Sunrise'>"+_("Sunrise")+"</span><span>: "+pad(parseInt(sunrise/60)%24)+":"+pad(sunrise%60)+"</span> <span data-translate='Sunrise'>"+_("Sunset")+"</span><span>: "+pad(parseInt(sunset/60)%24)+":"+pad(sunset%60)+"</span></li>";
+
+    for (i=0;i < weather.forecast.length; i++) {
+        var times = getSunTimes(new Date(weather.forecast[i].date));
+
+        sunrise = times[0];
+        sunset = times[1];
+
+        list += "<li data-icon='false' class='center'><span>"+weather.forecast[i].date+"</span><br><div title='"+weather.forecast[i].text+"' class='wicon cond"+weather.forecast[i].code+"'></div><span data-translate='"+weather.forecast[i].day+"'>"+_(weather.forecast[i].day)+"</span><br><span data-translate='Low'>"+_("Low")+"</span><span>: "+convert_temp(weather.forecast[i].low,weather.region)+"  </span><span data-translate='High'>"+_("High")+"</span><span>: "+convert_temp(weather.forecast[i].high,weather.region)+"</span><br><span data-translate='Sunrise'>"+_("Sunrise")+"</span><span>: "+pad(parseInt(sunrise/60)%24)+":"+pad(sunrise%60)+"</span> <span data-translate='Sunrise'>"+_("Sunset")+"</span><span>: "+pad(parseInt(sunset/60)%24)+":"+pad(sunset%60)+"</span></li>";
+    }
+
+    return list;
 }
 
 function resolveLocation(loc,callback) {
