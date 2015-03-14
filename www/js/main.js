@@ -1306,6 +1306,7 @@ function show_sites(showBack) {
         "</div>"),
         header = changeHeader({
             title: _("Manage Sites"),
+            animate: showBack ? false : true,
             leftBtn: {
                 icon: "carat-l",
                 text: _("Back"),
@@ -5265,7 +5266,7 @@ function get_logs() {
                     "eventMarginAxis": 0,
                     "min": dates().start,
                     "max": new Date(dates().end.getTime() + 86340000),
-                    "selectable": true,
+                    "selectable": false,
                     "showMajorLabels": false,
                     "groupsChangeable": false,
                     "showNavigation": false,
