@@ -3361,7 +3361,7 @@ function showHomeMenu(btn) {
     var page = $(".ui-page-active"),
         id = page.attr("id"),
         showHidden = page.hasClass("show-hidden"),
-        popup = $("<div data-role='popup' data-overlay-theme='b' style='border:0'>" +
+        popup = $("<div data-role='popup' data-overlay-theme='b' data-theme='a' style='border:0'>" +
             "<ul data-role='listview' data-inset='true' data-corners='false'>" +
                 "<li data-role='list-divider'>"+_("Information")+"</li>" +
                 "<li><a href='#preview' class='squeeze'>"+_("Preview Programs")+"</a></li>" +
@@ -3422,7 +3422,7 @@ function showHomeMenu(btn) {
         btn.show();
     }).enhanceWithin();
 
-    $(".ui-page-active").append(popup);
+    $("body").append(popup);
 
     popup.popup({history: false, positionTo: btn}).popup("open");
 
