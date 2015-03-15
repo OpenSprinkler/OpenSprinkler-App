@@ -5,11 +5,11 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks("grunt-text-replace");
 	grunt.loadNpmTasks("grunt-shell");
 	grunt.loadNpmTasks("grunt-contrib-compress");
-	grunt.loadNpmTasks("grunt-mocha");
 	grunt.loadNpmTasks("grunt-contrib-uglify");
 	grunt.loadNpmTasks("grunt-contrib-cssmin");
 	grunt.loadNpmTasks("grunt-contrib-clean");
 	grunt.loadNpmTasks("grunt-http-server");
+	grunt.loadNpmTasks('grunt-blanket-mocha');
 
 	var bumpVersion = function(version) {
 			var join = ".",
@@ -49,12 +49,12 @@ module.exports = function(grunt) {
 			}
 		},
 
-		mocha: {
-			all: {
+		blanket_mocha: {
+			test: {
 				src: ["test/spec.html"],
-			},
-			options: {
-				run: true
+				options : {
+					threshold : 5
+				}
 			}
 		},
 
@@ -258,7 +258,7 @@ module.exports = function(grunt) {
 
 	// Default task(s).
 	grunt.registerTask("default",["jshint"]);
-	grunt.registerTask("test",["jshint","mocha"]);
+	grunt.registerTask("test",["jshint","blanket_mocha"]);
 	grunt.registerTask("updateLang",["shell:updateLang"]);
 	grunt.registerTask("pushEng",["shell:pushEng"]);
 	grunt.registerTask("makeFW",["jshint","uglify","cssmin","compress:jsAsset","compress:cssAsset","compress:makeFW","clean:makeFW"]);
