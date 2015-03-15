@@ -22,6 +22,7 @@
   },
   "homepage": "https://github.com/salbahra/Sprinklers",
   "devDependencies": {
+    "blanket": "^1.1.6",
     "chai": "^2.1.1",
     "grunt": "^0.4.5",
     "grunt-blanket-mocha": "^0.4.1",
