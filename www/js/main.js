@@ -472,6 +472,15 @@ function initApp() {
     }
 }
 
+function resetApp() {
+    storage.remove(["sites","current_site","lang","provider","wapikey","runonce"],function(){
+        update_lang();
+        changePage("#start",{
+            showStart: true
+        });
+    });
+}
+
 // Handle main switches for manual mode and enable
 function flipSwitched() {
     if (switching) {
@@ -2539,18 +2548,6 @@ function bindPanel() {
         return false;
     });
 
-    panel.find(".clear-config").on("click",function(){
-        areYouSure(_("Are you sure you want to delete all settings and return to the default settings?"), "", function() {
-            storage.remove(["sites","current_site","lang","provider","wapikey","runonce"],function(){
-                update_lang();
-                changePage("#start",{
-                    showStart: true
-                });
-            });
-        });
-        return false;
-    });
-
     panel.find(".show-providers").on("click",function(){
         $("#providers").popup("destroy").remove();
 
@@ -2895,8 +2892,6 @@ function show_options(expandItem) {
         list += "<label for='o16'><input data-mini='true' id='o16' type='checkbox' "+((controller.options.seq === 1) ? "checked='checked'" : "")+">"+_("Sequential")+"</label>";
     }
 
-    list += "<div class='ui-field-contain'><label>"+_("Reset")+" "+_("Stations")+"</label><button data-theme='b' data-mini='true' class='reset-stations'>"+_("Reset All Station Data")+"</button></div>";
-
     list += "</fieldset><fieldset data-role='collapsible'"+(typeof expandItem === "string" && expandItem === "weather" ? " data-collapsed='false'" : "")+"><legend>"+_("Weather Control")+"</legend>";
 
     if (typeof controller.settings.wtkey !== "undefined") {
@@ -2974,6 +2969,11 @@ function show_options(expandItem) {
         list += "<label for='o25'><input data-mini='true' id='o25' type='checkbox' "+((controller.options.ipas === 1) ? "checked='checked'" : "")+">"+_("Ignore Password")+"</label>";
     }
 
+    list += "</fieldset><fieldset data-role='collapsible' data-theme='b'"+(typeof expandItem === "string" && expandItem === "reset" ? " data-collapsed='false'" : "")+"><legend>"+_("Reset")+"</legend>";
+
+    list += "<button data-mini='true' class='center-div reset-options'>"+_("Reset All Options")+"</button>";
+    list += "<button data-mini='true' class='center-div reset-stations'>"+_("Reset All Station Data")+"</button>";
+
     list += "</fieldset>";
 
     // Insert options and remove unused groups
@@ -2998,6 +2998,23 @@ function show_options(expandItem) {
             loc.parent().removeClass("green");
             $("#o1").selectmenu("enable");
         }
+    });
+
+    page.find(".reset-options").on("click",function(){
+        areYouSure(_("Are you sure you want to delete all settings and return to the default settings?"), "", function() {
+            var co;
+
+            if (isOSPi()) {
+                co = "otz=32&ontp=1&onbrd=0&osdt=0&omas=0&omton=0&omtoff=0&orst=1&owl=100&orlp=0&ouwt=0&olg=1&oloc=Boston,MA";
+            } else {
+                co = "o1=32&o2=1&o3=1&o12=80&o13=0&o15=0&o17=0&o18=0&o19=0&o20=0&o22=1&o23=100&o26=0&o30=0&o31=0&o32=50&o33=97&o34=210&o35=169&o36=1&loc=Boston,MA";
+            }
+
+            send_to_os("/co?pw=&"+co).done(function(){
+                showerror(_("Settings have been saved"));
+                update_controller();
+            });
+        });
     });
 
     page.find(".reset-stations").on("click",function(){

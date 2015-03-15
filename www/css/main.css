@@ -134,6 +134,9 @@ a {
 .center {
     text-align:center!important
 }
+.center-div {
+    margin: inherit auto
+}
 .right {
     text-align: right;
 }
