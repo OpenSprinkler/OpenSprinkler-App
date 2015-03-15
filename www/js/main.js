@@ -5200,6 +5200,7 @@ function get_logs() {
             fixInputClick(logs_list);
         },
         reset_logs_page = function() {
+            data = [];
             log_options.collapsible("expand");
             table_sort.hide();
             logs_list.show().html(_("No entries found in the selected date range"));
@@ -5207,9 +5208,7 @@ function get_logs() {
         fail = function(){
             $.mobile.loading("hide");
 
-            table_sort.hide();
-            logs_list.empty().hide();
-
+            table_sort.empty().hide();
             logs_list.show().html(_("Error retrieving log data. Please refresh to try again."));
         },
         dates = function() {
