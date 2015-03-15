@@ -1396,7 +1396,9 @@ function show_sites(showBack) {
                 document.title = "OpenSprinkler";
             } else {
                 page.one("pagebeforeshow",function(){
-                    $("#footer, #footer-menu").show();
+                    setTimeout(function(){
+                        $("#footer, #footer-menu").show();
+                    },0);
                 });
             }
 
@@ -1405,16 +1407,24 @@ function show_sites(showBack) {
 
                 a = htmlEscape(a);
 
-                list += "<fieldset "+((total === 1) ? "data-collapsed='false'" : "")+" id='site-"+i+"' data-role='collapsible'>";
-                list += "<legend>"+a+"</legend>";
-                list += "<a data-role='button' class='connectnow' data-site='"+i+"' href='#'>"+_("Connect Now")+"</a>";
-                list += "<form data-site='"+i+"' novalidate>";
-                list += "<label for='cnm-"+i+"'>"+_("Change Name")+"</label><input id='cnm-"+i+"' type='text' placeholder='"+a+"'>";
-                list += "<label for='cip-"+i+"'>"+_("Change IP")+"</label><input id='cip-"+i+"' type='url' placeholder='"+b.os_ip+"' autocomplete='off' autocorrect='off' autocapitalize='off' pattern='' spellcheck='false'>";
-                list += "<label for='cpw-"+i+"'>"+_("Change Password")+"</label><input id='cpw-"+i+"' type='password'>";
-                list += "<input class='submit' type='submit' value='"+_("Save Changes to")+" "+a+"'></form>";
-                list += "<a data-role='button' class='deletesite' data-site='"+i+"' href='#' data-theme='b'>"+_("Delete")+" "+a+"</a>";
-                list += "</fieldset>";
+                list += "<fieldset "+((total === 1) ? "data-collapsed='false'" : "")+" id='site-"+i+"' data-role='collapsible'>" +
+                    "<h3><a class='ui-btn ui-btn-corner-all connectnow' data-site='"+i+"' href='#'>"+_("connect")+"</a>"+a+"</h3>" +
+                    "<form data-site='"+i+"' novalidate>" +
+                        "<div class='ui-field-contain'>" +
+                            "<label for='cnm-"+i+"'>"+_("Change Name")+"</label><input id='cnm-"+i+"' type='text' value='"+a+"'>" +
+                        "</div>" +
+                        "<div class='ui-field-contain'>" +
+                            "<label for='cip-"+i+"'>"+_("Change IP")+"</label><input id='cip-"+i+"' type='url' value='"+b.os_ip+"' autocomplete='off' autocorrect='off' autocapitalize='off' pattern='' spellcheck='false'>" +
+                        "</div>" +
+                        "<div class='ui-field-contain'>" +
+                            "<label for='cpw-"+i+"'>"+_("Change Password")+"</label><input id='cpw-"+i+"' type='password'>" +
+                        "</div>" +
+                        "<label for='useauth-"+i+"'><input class='useauth' data-mini='true' type='checkbox' id='useauth-"+i+"' name='useauth-"+i+"'"+(typeof b.auth_user !== "undefined" && typeof b.auth_pw !== "undefined" ? " checked='checked'" : "")+">"+_("Use Auth")+"</label>" +
+                        "<label for='usessl-"+i+"'><input data-mini='true' type='checkbox' id='usessl-"+i+"' name='usessl-"+i+"'"+(typeof b.ssl !== "undefined" && b.ssl === "1" ? " checked='checked'" : "")+">"+_("Use SSL")+"</label>" +
+                        "<input class='submit' type='submit' value='"+_("Save Changes to")+" "+a+"'>" +
+                        "<a data-role='button' class='deletesite' data-site='"+i+"' href='#' data-theme='b'>"+_("Delete")+" "+a+"</a>" +
+                    "</form>" +
+                "</fieldset>";
 
                 i++;
             });
@@ -1430,6 +1440,44 @@ function show_sites(showBack) {
                 return false;
             });
 
+            list.find(".useauth").on("change",function(){
+                var el = $(this);
+
+                if (el.is(":checked")) {
+                    var popup = $("<div data-role='popup' data-theme='a'>" +
+                        "<form method='post' class='ui-content' novalidate>" +
+                            "<label for='auth_user'>"+_("Username:")+"</label>" +
+                            "<input autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' type='text' name='auth_user' id='auth_user'>" +
+                            "<label for='auth_pw'>"+_("Password:")+"</label>" +
+                            "<input type='password' name='auth_pw' id='auth_pw'>" +
+                            "<input type='submit' class='submit' value='"+_("Submit")+"'>" +
+                        "</form>" +
+                        "</div>").enhanceWithin();
+
+                    popup.find(".submit").on("click",function(){
+                        el.data({
+                            user: popup.find("#auth_user").val(),
+                            pw: popup.find("#auth_pw").val()
+                        });
+
+                        popup.popup("close");
+                        return false;
+                    });
+
+                    popup.appendTo("body").one("popupafterclose",function(){
+                        popup.popup("destroy").remove();
+                    }).popup({
+                        history: false,
+                        positionTo: "window"
+                    }).enhanceWithin().popup("open");
+                } else {
+                    el.data({
+                        user: "",
+                        pw: ""
+                    });
+                }
+            });
+
             list.find("form").on("submit",function(){
                 var form = $(this),
                     id = form.data("site"),
@@ -1437,15 +1485,34 @@ function show_sites(showBack) {
                     ip = list.find("#cip-"+id).val(),
                     pw = list.find("#cpw-"+id).val(),
                     nm = list.find("#cnm-"+id).val(),
+                    useauth = list.find("#useauth-"+id).is(":checked"),
+                    usessl = list.find("#usessl-"+id).is(":checked"),
+                    auth_user = list.find("#useauth-"+id).data("user"),
+                    auth_pw = list.find("#useauth-"+id).data("pw"),
+                    needsReconnect = (ip !== "" && ip !== sites[site].os_ip) || usessl !== sites[site].ssl || auth_user !== sites[site].auth_user || auth_pw !== sites[site].auth_pw,
                     isCurrent = (site === data.current_site),
                     rename = (nm !== "" && nm !== site);
 
                 form.find(".submit").removeClass("hasChanges");
 
-                if (ip !== "") {
+                if (useauth) {
+                    sites[site].auth_user = auth_user;
+                    sites[site].auth_pw = auth_pw;
+                } else {
+                    delete sites[site].auth_user;
+                    delete sites[site].auth_pw;
+                }
+
+                if (usessl) {
+                    sites[site].ssl = "1";
+                } else {
+                    delete sites[site].ssl;
+                }
+
+                if (ip !== "" && ip !== sites[site].os_ip) {
                     sites[site].os_ip = ip;
                 }
-                if (pw !== "") {
+                if (pw !== "" && pw !== sites[site].os_pw) {
                     if (sites[site].isHashed === true) {
                         pw = md5(pw);
                     }
@@ -1470,7 +1537,7 @@ function show_sites(showBack) {
                     if (pw !== "") {
                         curr_pw = pw;
                     }
-                    if (ip !== "") {
+                    if (needsReconnect) {
                         check_configured();
                     }
                 }
@@ -3011,8 +3078,11 @@ function show_options(expandItem) {
             }
 
             send_to_os("/co?pw=&"+co).done(function(){
-                showerror(_("Settings have been saved"));
-                update_controller();
+                $.mobile.document.one("pageshow",function(){
+                    showerror(_("Settings have been saved"));
+                });
+                goBack();
+                update_controller(update_weather);
             });
         });
     });
