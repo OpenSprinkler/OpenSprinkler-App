@@ -472,15 +472,6 @@ function initApp() {
     }
 }
 
-function resetApp() {
-    storage.remove(["sites","current_site","lang","provider","wapikey","runonce"],function(){
-        update_lang();
-        changePage("#start",{
-            showStart: true
-        });
-    });
-}
-
 // Handle main switches for manual mode and enable
 function flipSwitched() {
     if (switching) {
