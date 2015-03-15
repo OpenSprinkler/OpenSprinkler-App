@@ -4853,13 +4853,6 @@ function get_preview() {
 
         timeline.draw(preview_data);
 
-        if ($.mobile.window.width() <= 480) {
-            var currRange = timeline.getVisibleChartRange();
-            if ((currRange.end.getTime() - currRange.start.getTime()) > 6000000) {
-                timeline.setVisibleChartRange(currRange.start,new Date(currRange.start.getTime()+6000000));
-            }
-        }
-
         page.find(".timeline-groups-text").each(function(a,b){
             var stn = $(b);
             var name = shortnames[stn.text()];
