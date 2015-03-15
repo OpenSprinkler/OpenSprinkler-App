@@ -3,6 +3,7 @@ npm-debug.log
 .secrets.json
 .cordova/
 node_modules
+coverage
 project.xcworkspace/
 xcuserdata/
 plugins/
