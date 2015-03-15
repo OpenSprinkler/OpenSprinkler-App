@@ -1477,7 +1477,7 @@ function show_sites(showBack) {
                     pw = list.find("#cpw-"+id).val(),
                     nm = list.find("#cnm-"+id).val(),
                     useauth = list.find("#useauth-"+id).is(":checked"),
-                    usessl = list.find("#usessl-"+id).is(":checked") ? "1" : "0",
+                    usessl = list.find("#usessl-"+id).is(":checked") ? "1" : undefined,
                     auth_user = list.find("#useauth-"+id).data("user"),
                     auth_pw = list.find("#useauth-"+id).data("pw"),
                     needsReconnect = (ip !== "" && ip !== sites[site].os_ip) || usessl !== sites[site].ssl || auth_user !== sites[site].auth_user || auth_pw !== sites[site].auth_pw,
