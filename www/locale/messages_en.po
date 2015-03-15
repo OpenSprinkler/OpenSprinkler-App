@@ -15,12 +15,6 @@ msgid ""
 "off a currently enabled rain delay use a value of 0."
 msgstr ""
 
-msgid "Are you sure you want to stop all stations?"
-msgstr ""
-
-msgid "All stations have been stopped"
-msgstr ""
-
 msgid "Check device password and try again."
 msgstr ""
 
@@ -186,22 +180,28 @@ msgstr ""
 msgid "Weather Settings"
 msgstr ""
 
+msgid "Forecast"
+msgstr ""
+
+msgid "Refresh"
+msgstr ""
+
 msgid "Now"
+msgstr ""
+
+msgid "Sunrise"
+msgstr ""
+
+msgid "Sunset"
+msgstr ""
+
+msgid "Precip"
 msgstr ""
 
 msgid "Low"
 msgstr ""
 
 msgid "High"
-msgstr ""
-
-msgid "Precip"
-msgstr ""
-
-msgid "Forecast"
-msgstr ""
-
-msgid "Refresh"
 msgstr ""
 
 msgid "Select City"
@@ -349,6 +349,15 @@ msgstr ""
 msgid "Sequential"
 msgstr ""
 
+msgid "Reset"
+msgstr ""
+
+msgid "Stations"
+msgstr ""
+
+msgid "Reset All Station Data"
+msgstr ""
+
 msgid "Weather Control"
 msgstr ""
 
@@ -428,6 +437,15 @@ msgstr ""
 msgid "Ignore Password"
 msgstr ""
 
+msgid "Are you sure you want to reset all stations?"
+msgstr ""
+
+msgid "This will reset all station names and attributes"
+msgstr ""
+
+msgid "Stations have been updated"
+msgstr ""
+
 msgid "Attempting to retrieve your current location"
 msgstr ""
 
@@ -447,40 +465,46 @@ msgstr ""
 msgid "Milliseconds"
 msgstr ""
 
-msgid "Test Station"
+msgid "Preview Programs"
 msgstr ""
 
-msgid "Stop"
+msgid "View Logs"
 msgstr ""
 
-msgid "Start"
+msgid "Programs and Settings"
 msgstr ""
 
-msgid "Master"
+msgid "Run-Once Program"
 msgstr ""
 
-msgid "Station"
+msgid "Edit Programs"
 msgstr ""
 
-msgid "Use Master"
+msgid "Manual Control"
 msgstr ""
 
-msgid "Ignore Rain"
+msgid "Hide"
 msgstr ""
 
-msgid "Activate Relay"
+msgid "Show"
 msgstr ""
 
-msgid "Stations have been updated"
+msgid "Hidden"
 msgstr ""
 
-msgid "Station test activated"
+msgid "Stop All Stations"
 msgstr ""
 
-msgid "Edit Stations"
+msgid "Are you sure you want to stop all stations?"
 msgstr ""
 
-msgid "Reset"
+msgid "All stations have been stopped"
+msgstr ""
+
+msgid "Water Level"
+msgstr ""
+
+msgid "remaining"
 msgstr ""
 
 msgid "Running"
@@ -492,43 +516,13 @@ msgstr ""
 msgid "for"
 msgstr ""
 
-msgid "remaining"
+msgid "Use Master"
 msgstr ""
 
-msgid "last ran station"
+msgid "Ignore Rain"
 msgstr ""
 
-msgid "on"
-msgstr ""
-
-msgid "and"
-msgstr ""
-
-msgid "are"
-msgstr ""
-
-msgid "is"
-msgstr ""
-
-msgid "running"
-msgstr ""
-
-msgid "Rain delay until"
-msgstr ""
-
-msgid "Rain detected"
-msgstr ""
-
-msgid "Sunrise"
-msgstr ""
-
-msgid "Water Level"
-msgstr ""
-
-msgid "Sunset"
-msgstr ""
-
-msgid "Current Status"
+msgid "Activate Relay"
 msgstr ""
 
 msgid "Do you want to stop the selected station?"
@@ -558,13 +552,28 @@ msgstr ""
 msgid "is running on station"
 msgstr ""
 
+msgid "Rain delay until"
+msgstr ""
+
 msgid "Do you want to turn off rain delay?"
+msgstr ""
+
+msgid "Rain detected"
 msgstr ""
 
 msgid "Manual mode enabled"
 msgstr ""
 
 msgid "Do you want to turn off manual mode?"
+msgstr ""
+
+msgid "last ran station"
+msgstr ""
+
+msgid "on"
+msgstr ""
+
+msgid "System Idle"
 msgstr ""
 
 msgid "Sprinkler Stations"
@@ -590,7 +599,7 @@ msgstr ""
 msgid "Manual mode is not enabled. Please enable manual mode then try again."
 msgstr ""
 
-msgid "Manual Control"
+msgid "Master"
 msgstr ""
 
 msgid "Zero value excludes the station from the run-once program."
@@ -635,28 +644,19 @@ msgstr ""
 msgid "Program Preview"
 msgstr ""
 
-msgid "Graph"
+msgid "Timeline"
 msgstr ""
 
 msgid "Table"
 msgstr ""
 
-msgid "Timeline"
-msgstr ""
-
 msgid "Grouping:"
 msgstr ""
 
-msgid "Hour"
-msgstr ""
-
-msgid "DOW"
-msgstr ""
-
-msgid "Month"
-msgstr ""
-
 msgid "Day"
+msgstr ""
+
+msgid "Station"
 msgstr ""
 
 msgid "Start:"
@@ -675,69 +675,6 @@ msgid "Rain Sensor"
 msgstr ""
 
 msgid "Rain Delay"
-msgstr ""
-
-msgid "Sun"
-msgstr ""
-
-msgid "Mon"
-msgstr ""
-
-msgid "Tue"
-msgstr ""
-
-msgid "Wed"
-msgstr ""
-
-msgid "Thr"
-msgstr ""
-
-msgid "Fri"
-msgstr ""
-
-msgid "Sat"
-msgstr ""
-
-msgid "Jan"
-msgstr ""
-
-msgid "Feb"
-msgstr ""
-
-msgid "Mar"
-msgstr ""
-
-msgid "Apr"
-msgstr ""
-
-msgid "May"
-msgstr ""
-
-msgid "Jun"
-msgstr ""
-
-msgid "Jul"
-msgstr ""
-
-msgid "Aug"
-msgstr ""
-
-msgid "Sep"
-msgstr ""
-
-msgid "Oct"
-msgstr ""
-
-msgid "Nov"
-msgstr ""
-
-msgid "Dec"
-msgstr ""
-
-msgid "min"
-msgstr ""
-
-msgid "% Water"
 msgstr ""
 
 msgid "RS"
@@ -912,9 +849,6 @@ msgid "Use Weather Adjustment"
 msgstr ""
 
 msgid "Program Type"
-msgstr ""
-
-msgid "Stations"
 msgstr ""
 
 msgid "Additional Start Times"
@@ -1118,6 +1052,42 @@ msgstr ""
 msgid "Minutes"
 msgstr ""
 
+msgid "Jan"
+msgstr ""
+
+msgid "Feb"
+msgstr ""
+
+msgid "Mar"
+msgstr ""
+
+msgid "Apr"
+msgstr ""
+
+msgid "May"
+msgstr ""
+
+msgid "Jun"
+msgstr ""
+
+msgid "Jul"
+msgstr ""
+
+msgid "Aug"
+msgstr ""
+
+msgid "Sep"
+msgstr ""
+
+msgid "Oct"
+msgstr ""
+
+msgid "Nov"
+msgstr ""
+
+msgid "Dec"
+msgstr ""
+
 msgid "Enter Date/Time"
 msgstr ""
 
@@ -1148,7 +1118,25 @@ msgstr ""
 msgid "s"
 msgstr ""
 
+msgid "Sun"
+msgstr ""
+
+msgid "Mon"
+msgstr ""
+
+msgid "Tue"
+msgstr ""
+
+msgid "Wed"
+msgstr ""
+
 msgid "Thu"
+msgstr ""
+
+msgid "Fri"
+msgstr ""
+
+msgid "Sat"
 msgstr ""
 
 msgid "Afrikaans"
@@ -1220,6 +1208,9 @@ msgstr ""
 msgid "Localization"
 msgstr ""
 
+msgid "Thr"
+msgstr ""
+
 msgid ""
 "Welcome to the OpenSprinkler application. This app only works with the "
 "OpenSprinkler controller which must be installed and setup on your home "
@@ -1227,27 +1218,6 @@ msgid ""
 msgstr ""
 
 msgid "Purchase OpenSprinkler"
-msgstr ""
-
-msgid "Weather"
-msgstr ""
-
-msgid "Preview Programs"
-msgstr ""
-
-msgid "View Logs"
-msgstr ""
-
-msgid "Programs and Settings"
-msgstr ""
-
-msgid "Run-Once Program"
-msgstr ""
-
-msgid "Edit Programs"
-msgstr ""
-
-msgid "Stop All Stations"
 msgstr ""
 
 msgid "Export Configuration"
