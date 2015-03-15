@@ -1399,7 +1399,7 @@ function show_sites(showBack) {
                 a = htmlEscape(a);
 
                 list += "<fieldset "+((total === 1) ? "data-collapsed='false'" : "")+" id='site-"+i+"' data-role='collapsible'>" +
-                    "<h3><a class='ui-btn ui-btn-corner-all connectnow yellow' data-site='"+i+"' href='#'>"+_("connect")+"</a>"+a+"</h3>" +
+                    "<h3><a class='ui-btn ui-btn-corner-all connectnow' data-site='"+i+"' href='#'>"+_("connect")+"</a>"+a+"</h3>" +
                     "<form data-site='"+i+"' novalidate>" +
                         "<div class='ui-field-contain'>" +
                             "<label for='cnm-"+i+"'>"+_("Change Name")+"</label><input id='cnm-"+i+"' type='text' value='"+a+"'>" +
@@ -1418,7 +1418,7 @@ function show_sites(showBack) {
                 "</fieldset>";
 
                 testSite(b,i,function(id,result){
-                    page.find("#site-"+id+" .connectnow").removeClass("yellow").addClass(result ? "green" : "red");
+                    page.find("#site-"+id+" .connectnow").addClass(result ? "green" : "red");
                 });
 
                 i++;
