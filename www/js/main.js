@@ -1410,7 +1410,7 @@ function show_sites(showBack) {
                         "<div class='ui-field-contain'>" +
                             "<label for='cpw-"+i+"'>"+_("Change Password")+"</label><input id='cpw-"+i+"' type='password'>" +
                         "</div>" +
-                        "<label for='useauth-"+i+"'><input class='useauth' data-mini='true' type='checkbox' id='useauth-"+i+"' name='useauth-"+i+"'"+(typeof b.auth_user !== "undefined" && typeof b.auth_pw !== "undefined" ? " checked='checked'" : "")+">"+_("Use Auth")+"</label>" +
+                        "<label for='useauth-"+i+"'><input class='useauth' data-user='"+b.auth_user+"' data-pw='"+b.auth_pw+"' data-mini='true' type='checkbox' id='useauth-"+i+"' name='useauth-"+i+"'"+(typeof b.auth_user !== "undefined" && typeof b.auth_pw !== "undefined" ? " checked='checked'" : "")+">"+_("Use Auth")+"</label>" +
                         "<label for='usessl-"+i+"'><input data-mini='true' type='checkbox' id='usessl-"+i+"' name='usessl-"+i+"'"+(typeof b.ssl !== "undefined" && b.ssl === "1" ? " checked='checked'" : "")+">"+_("Use SSL")+"</label>" +
                         "<input class='submit' type='submit' value='"+_("Save Changes to")+" "+a+"'>" +
                         "<a data-role='button' class='deletesite' data-site='"+i+"' href='#' data-theme='b'>"+_("Delete")+" "+a+"</a>" +
