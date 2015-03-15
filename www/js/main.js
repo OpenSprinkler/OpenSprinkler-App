@@ -3356,7 +3356,8 @@ function showHomeMenu(btn) {
 
     $(".ui-popup-active").find("[data-role='popup']").popup("close");
 
-    var page = $("#sprinklers"),
+    var page = $(".ui-page-active"),
+        id = page.attr("id"),
         showHidden = page.hasClass("show-hidden"),
         popup = $("<div data-role='popup' data-overlay-theme='b' style='border:0'>" +
             "<ul data-role='listview' data-inset='true' data-corners='false'>" +
@@ -3369,7 +3370,7 @@ function showHomeMenu(btn) {
                 "<li><a href='#programs'>"+_("Edit Programs")+"</a></li>" +
                 "<li><a href='#os-options'>"+_("Edit Options")+"</a></li>" +
                 (checkOSVersion(210) ? "" : "<li><a href='#manual'>"+_("Manual Control")+"</a></li>") +
-            (page.hasClass("ui-page-active") ?
+            (id === "sprinklers" || id === "runonce" || id === "programs" || id === "manual" ?
                 "</ul>" +
                 "<div data-role='controlgroup' data-type='horizontal' data-corners='false' style='margin:0'>" +
                     "<a class='ui-btn' href='#show-hidden'>"+(showHidden ? _("Hide") : _("Show"))+" "+_("Hidden")+"</a>" +
@@ -4137,9 +4138,9 @@ function get_manual() {
 
     $.each(controller.stations.snames,function (i,station) {
         if (controller.options.mas === i+1) {
-            list += "<li data-icon='false' class='center"+(isStationDisabled(i) ? " hidden" : "")+((controller.status[i]) ? " green" : "")+"'>"+station+" ("+_("Master")+")</li>";
+            list += "<li data-icon='false' class='center"+((controller.status[i]) ? " green" : "")+(isStationDisabled(i) ? " station-hidden' style='display:none" : "")+"'>"+station+" ("+_("Master")+")</li>";
         } else {
-            list += "<li data-icon='false'><a class='mm_station center"+(isStationDisabled(i) ? " hidden" : "")+((controller.status[i]) ? " green" : "")+"'>"+station+"</a></li>";
+            list += "<li data-icon='false'><a class='mm_station center"+((controller.status[i]) ? " green" : "")+(isStationDisabled(i) ? " station-hidden' style='display:none" : "")+"'>"+station+"</a></li>";
         }
     });
 
@@ -4258,9 +4259,9 @@ function get_runonce() {
     list += quickPick+"<form>";
     $.each(controller.stations.snames,function(i, station) {
         if (controller.options.mas === i+1) {
-            list += "<div class='ui-field-contain duration-input"+(isStationDisabled(i) ? " hidden" : "")+"'><label for='zone-"+i+"'>"+station+":</label><button disabled='true' data-mini='true' name='zone-"+i+"' id='zone-"+i+"' value='0'>Master</button></div>";
+            list += "<div class='ui-field-contain duration-input"+(isStationDisabled(i) ? " station-hidden' style='display:none" : "")+"'><label for='zone-"+i+"'>"+station+":</label><button disabled='true' data-mini='true' name='zone-"+i+"' id='zone-"+i+"' value='0'>Master</button></div>";
         } else {
-            list += "<div class='ui-field-contain duration-input"+(isStationDisabled(i) ? " hidden" : "")+"'><label for='zone-"+i+"'>"+station+":</label><button data-mini='true' name='zone-"+i+"' id='zone-"+i+"' value='0'>0s</button></div>";
+            list += "<div class='ui-field-contain duration-input"+(isStationDisabled(i) ? " station-hidden' style='display:none" : "")+"'><label for='zone-"+i+"'>"+station+":</label><button data-mini='true' name='zone-"+i+"' id='zone-"+i+"' value='0'>0s</button></div>";
         }
     });
 
@@ -5739,7 +5740,7 @@ function make_program183(n,isCopy) {
     list += "<fieldset data-role='controlgroup'><legend>"+_("Stations:")+"</legend>";
 
     for (j=0; j<controller.stations.snames.length; j++) {
-        list += "<label for='station_"+j+"-"+id+"'><input "+(isStationDisabled(j) ? "data-wrapper-class='hidden' " : "")+"data-mini='true' type='checkbox' "+(((typeof set_stations !== "undefined") && set_stations[j]) ? "checked='checked'" : "")+" name='station_"+j+"-"+id+"' id='station_"+j+"-"+id+"'>"+controller.stations.snames[j]+"</label>";
+        list += "<label for='station_"+j+"-"+id+"'><input "+(isStationDisabled(j) ? "data-wrapper-class='station-hidden hidden' " : "")+"data-mini='true' type='checkbox' "+(((typeof set_stations !== "undefined") && set_stations[j]) ? "checked='checked'" : "")+" name='station_"+j+"-"+id+"' id='station_"+j+"-"+id+"'>"+controller.stations.snames[j]+"</label>";
     }
 
     list += "</fieldset>";
@@ -5918,10 +5919,10 @@ function make_program21(n,isCopy) {
     // Show station duration inputs
     for (j=0; j<controller.stations.snames.length; j++) {
         if (controller.options.mas === j+1) {
-            list += "<div class='ui-field-contain duration-input"+(isStationDisabled(j) ? " hidden" : "")+"'><label for='station_"+j+"-"+id+"'>"+controller.stations.snames[j]+":</label><button disabled='true' data-mini='true' name='station_"+j+"-"+id+"' id='station_"+j+"-"+id+"' value='0'>Master</button></div>";
+            list += "<div class='ui-field-contain duration-input"+(isStationDisabled(j) ? " station-hidden' style='display:none" : "")+"'><label for='station_"+j+"-"+id+"'>"+controller.stations.snames[j]+":</label><button disabled='true' data-mini='true' name='station_"+j+"-"+id+"' id='station_"+j+"-"+id+"' value='0'>Master</button></div>";
         } else {
             time = program.stations[j] || 0;
-            list += "<div class='ui-field-contain duration-input"+(isStationDisabled(j) ? " hidden" : "")+"'><label for='station_"+j+"-"+id+"'>"+controller.stations.snames[j]+":</label><button "+(time>0 ? "class='green' " : "")+"data-mini='true' name='station_"+j+"-"+id+"' id='station_"+j+"-"+id+"' value='"+time+"'>"+dhms2str(sec2dhms(time))+"</button></div>";
+            list += "<div class='ui-field-contain duration-input"+(isStationDisabled(j) ? " station-hidden' style='display:none" : "")+"'><label for='station_"+j+"-"+id+"'>"+controller.stations.snames[j]+":</label><button "+(time>0 ? "class='green' " : "")+"data-mini='true' name='station_"+j+"-"+id+"' id='station_"+j+"-"+id+"' value='"+time+"'>"+dhms2str(sec2dhms(time))+"</button></div>";
         }
     }
 
