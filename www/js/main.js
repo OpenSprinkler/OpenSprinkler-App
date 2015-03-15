@@ -713,6 +713,8 @@ function newload() {
             };
 
             if (typeof error === "object" && error.status === 401) {
+                $(".ui-popup-active").find("[data-role='popup']").popup("close");
+
                 changePassword({
                     fixIncorrect: true,
                     name: name,
