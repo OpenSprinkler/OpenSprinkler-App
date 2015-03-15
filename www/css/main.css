@@ -437,7 +437,7 @@ body, input, select, textarea, button, .ui-btn {
     bottom: 5px;
     height: 22px;
 }
-.delete-day, .program-copy {
+.delete-day, .program-copy, .connectnow {
     font-size: 11px;
     font-weight: bold;
     padding: 0.2em 0.5em;
