@@ -118,6 +118,9 @@ a {
 .hidden {
     display: none!important
 }
+.pointer {
+    cursor: pointer;
+}
 .tight {
     margin:0
 }
@@ -210,6 +213,7 @@ a {
     max-width: 500px;
     padding: 5px;
     margin: 0 auto;
+    cursor: pointer;
 }
 .card > .ui-body {
     min-height: 20px;
