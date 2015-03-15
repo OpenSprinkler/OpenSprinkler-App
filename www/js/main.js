@@ -4431,7 +4431,7 @@ function get_preview() {
             busy, match_found, prog;
 
         for(var sid=0;sid<controller.settings.nbrd*8;sid++) {
-            st_array[sid]=0;pid_array[sid]=0;et_array[sid]=0;pl_array[sid]=0;
+            st_array[sid]=-1;pid_array[sid]=0;et_array[sid]=0;pl_array[sid]=0;
         }
         do {
             busy=0;
@@ -4480,7 +4480,7 @@ function get_preview() {
                     for(sid=0;sid<controller.settings.nbrd*8;sid++) {
                         bid2 = sid>>3;
                         s2 = sid&0x07;
-                        if (!et_array[sid] || st_array[sid]) {
+                        if (et_array[sid]==0 || st_array[sid]>=0) {
                             continue;
                         }
                         if (controller.stations.stn_seq[bid2]&(1<<s2)) {
@@ -4502,7 +4502,7 @@ function get_preview() {
                     }
                     if(controller.options.seq) {
                         for(sid=0;sid<controller.settings.nbrd*8;sid++) {
-                            if(!et_array[sid] || st_array[sid]) {
+                            if(et_array[sid]===0 || pid_array[sid]===0) {
                                 continue;
                             }
                             st_array[sid]=acctime;acctime+=et_array[sid];
@@ -4511,7 +4511,7 @@ function get_preview() {
                         }
                     } else {
                         for(sid=0;sid<controller.settings.nbrd*8;sid++) {
-                            if (!et_array[sid] || st_array[sid]) {
+                            if (et_array[sid]===0 || pid_array[sid]===0) {
                                 continue;
                             }
                             st_array[sid]=acctime;
@@ -4526,8 +4526,8 @@ function get_preview() {
                     last_seq_stop_time=run_sched(simminutes*60,st_array,pid_array,et_array,pl_array,simt);
                     simminutes++;
                     for(sid=0;sid<controller.settings.nbrd*8;sid++) {
-                        if(st_array[sid] && simminutes*60>=et_array[sid]) {
-                            st_array[sid]=0;pid_array[sid]=0;et_array[sid]=0;pl_array[sid]=0;
+                        if(pid_array[sid]>0 && simminutes*60>=et_array[sid]) {
+                            st_array[sid]=-1;pid_array[sid]=0;et_array[sid]=0;pl_array[sid]=0;
                         }
                     }
                 }
@@ -4535,7 +4535,7 @@ function get_preview() {
                     last_stop_time=run_sched(simminutes*60,st_array,pid_array,et_array,pl_array,simt);
                     simminutes++;
                     for(sid=0;sid<controller.settings.nbrd*8;sid++) {
-                        st_array[sid]=0;pid_array[sid]=0;et_array[sid]=0;
+                        st_array[sid]=-1;pid_array[sid]=0;et_array[sid]=0;
                     }
                 } else {
                     var endminutes=run_sched(simminutes*60,st_array,pid_array,et_array,pl_array,simt)/60>>0;
@@ -4545,18 +4545,18 @@ function get_preview() {
                         simminutes++;
                     }
                     for(sid=0;sid<controller.settings.nbrd*8;sid++) {
-                        st_array[sid]=0;pid_array[sid]=0;et_array[sid]=0;
+                        st_array[sid]=-1;pid_array[sid]=0;et_array[sid]=0;
                     }
                 }
             } else {
                 if (is211) {
+                  simminutes++;
                   for(sid=0;sid<controller.settings.nbrd*8;sid++) {
-                      if(st_array[sid] && simminutes*60>=et_array[sid]) {
-                          st_array[sid]=0;pid_array[sid]=0;et_array[sid]=0;pl_array[sid]=0;
+                      if(pid_array[sid]>0 && simminutes*60>=et_array[sid]) {
+                          st_array[sid]=-1;pid_array[sid]=0;et_array[sid]=0;pl_array[sid]=0;
                       }
                   }
                 }
-                simminutes++;
             }
         } while(simminutes<24*60);
     };
