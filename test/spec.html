@@ -8,13 +8,23 @@
     <script src="../node_modules/mocha/mocha.js"></script>
     <script src="../node_modules/chai/chai.js"></script>
     <script src="blanket.js"></script>
-    <script>mocha.setup('bdd')</script>
+    <script>
+      $(document).one("mobileinit",function(){
+        $.mobile.autoInitializePage = false;
+      });
+
+      mocha.setup('bdd');
+
+      if (window.PHANTOMJS) {
+        blanket.options("reporter", "../node_modules/grunt-blanket-mocha/support/grunt-reporter.js");
+      }
+    </script>
     <script src="jquery.mockjax.js"></script>
     <script src="spec.js"></script>
 
     <script src="../www/js/main.js" data-cover></script>
-    <script src="js/jqm.js"></script>
-    <script src="js/libs.js"></script>
+    <script src="../www/js/jqm.js"></script>
+    <script src="../www/js/libs.js"></script>
 
     <script>
       onload = function(){
