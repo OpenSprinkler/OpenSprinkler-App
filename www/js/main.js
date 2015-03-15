@@ -3436,9 +3436,9 @@ function showHome(firstLoad) {
                 "<div class='ui-content' role='main'>" +
                     "<div class='ui-grid-a ui-body ui-corner-all info-card noweather'>" +
                         "<div class='ui-block-a'>" +
-                            "<div id='weather'></div>" +
+                            "<div id='weather' class='pointer'></div>" +
                         "</div>" +
-                        "<div class='ui-block-b center home-info'>" +
+                        "<div class='ui-block-b center home-info pointer'>" +
                             "<div id='clock-s' class='nobr'>"+dateToString(new Date(controller.settings.devt*1000),null,true)+"</div>" +
                             _("Water Level") + ": <span class='waterlevel'>" + controller.options.wl + "</span>%" +
                         "</div>" +
@@ -3869,7 +3869,7 @@ function check_status() {
 
     // Handle operation disabled
     if (!controller.settings.en) {
-        change_status(0,"red","<p class='running-text center'>"+_("System Disabled")+"</p>",function(){
+        change_status(0,"red","<p class='running-text center pointer'>"+_("System Disabled")+"</p>",function(){
             areYouSure(_("Do you want to re-enable system operation?"),"",function(){
                 showLoading("#footer-running");
                 send_to_os("/cv?pw=&en=1").done(function(){
@@ -3908,7 +3908,7 @@ function check_status() {
         sample = Object.keys(open)[0];
         pid    = controller.settings.ps[sample][0];
         pname  = pidname(pid);
-        line   = "<div><div class='running-icon'></div><div class='running-text'>";
+        line   = "<div><div class='running-icon'></div><div class='running-text pointer'>";
 
         line += pname+" "+_("is running on")+" "+Object.keys(open).length+" "+_("stations")+" ";
         if (ptotal > 0) {
@@ -3926,7 +3926,7 @@ function check_status() {
             match = true;
             pid = controller.settings.ps[i][0];
             pname = pidname(pid);
-            line = "<div><div class='running-icon'></div><div class='running-text'>";
+            line = "<div><div class='running-icon'></div><div class='running-text pointer'>";
             line += pname+" "+_("is running on station")+" <span class='nobr'>"+controller.stations.snames[i]+"</span> ";
             if (controller.settings.ps[i][1] > 0) {
                 line += "<span id='countdown' class='nobr'>("+sec2hms(controller.settings.ps[i][1])+" "+_("remaining")+")</span>";
@@ -3943,7 +3943,7 @@ function check_status() {
 
     // Handle rain delay enabled
     if (controller.settings.rd) {
-        change_status(0,"red","<p class='running-text center'>"+_("Rain delay until")+" "+dateToString(new Date(controller.settings.rdst*1000))+"</p>",function(){
+        change_status(0,"red","<p class='running-text center pointer'>"+_("Rain delay until")+" "+dateToString(new Date(controller.settings.rdst*1000))+"</p>",function(){
             areYouSure(_("Do you want to turn off rain delay?"),"",function(){
                 showLoading("#footer-running");
                 send_to_os("/cv?pw=&rd=0").done(function(){
@@ -3962,7 +3962,7 @@ function check_status() {
 
     // Handle manual mode enabled
     if (controller.settings.mm === 1) {
-        change_status(0,"red","<p class='running-text center'>"+_("Manual mode enabled")+"</p>",function(){
+        change_status(0,"red","<p class='running-text center pointer'>"+_("Manual mode enabled")+"</p>",function(){
             areYouSure(_("Do you want to turn off manual mode?"),"",function(){
                 showLoading("#footer-running");
                 send_to_os("/cv?pw=&mm=0").done(function(){
@@ -3980,11 +3980,11 @@ function check_status() {
         var lrpid = controller.settings.lrun[1];
         pname = pidname(lrpid);
 
-        change_status(0,"transparent","<p class='running-text smaller center'>"+pname+" "+_("last ran station")+" "+controller.stations.snames[controller.settings.lrun[0]]+" "+_("for")+" "+(lrdur/60>>0)+"m "+(lrdur%60)+"s "+_("on")+" "+dateToString(new Date(controller.settings.lrun[3]*1000))+"</p>",goHome);
+        change_status(0,"transparent","<p class='running-text smaller center pointer'>"+pname+" "+_("last ran station")+" "+controller.stations.snames[controller.settings.lrun[0]]+" "+_("for")+" "+(lrdur/60>>0)+"m "+(lrdur%60)+"s "+_("on")+" "+dateToString(new Date(controller.settings.lrun[3]*1000))+"</p>",goHome);
         return;
     }
 
-    change_status(0,"transparent","<p class='running-text smaller center'>"+_("System Idle")+"</p>");
+    change_status(0,"transparent","<p class='running-text smaller center pointer'>"+_("System Idle")+"</p>",goHome);
 }
 
 function calculateTotalRunningTime(runTimes) {
