@@ -4480,7 +4480,7 @@ function get_preview() {
                     for(sid=0;sid<controller.settings.nbrd*8;sid++) {
                         bid2 = sid>>3;
                         s2 = sid&0x07;
-                        if (et_array[sid]==0 || st_array[sid]>=0) {
+                        if (et_array[sid]===0 || st_array[sid]>=0) {
                             continue;
                         }
                         if (controller.stations.stn_seq[bid2]&(1<<s2)) {
