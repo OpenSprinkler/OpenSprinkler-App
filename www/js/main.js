@@ -1315,7 +1315,7 @@ function show_sites(showBack) {
         "</div>"),
         header = changeHeader({
             title: _("Manage Sites"),
-            animate: showBack ? false : true,
+            animate: showBack ? true : false,
             leftBtn: {
                 icon: "carat-l",
                 text: _("Back"),
