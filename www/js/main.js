@@ -4566,8 +4566,8 @@ function get_preview() {
                     }
                 }
             } else {
+                simminutes++;
                 if (is211) {
-                  simminutes++;
                   for(sid=0;sid<controller.settings.nbrd*8;sid++) {
                       if(pid_array[sid]>0 && simminutes*60>=et_array[sid]) {
                           st_array[sid]=-1;pid_array[sid]=0;et_array[sid]=0;pl_array[sid]=0;
