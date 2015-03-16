@@ -1599,7 +1599,7 @@ function update_site_list(names,current) {
         select = $("#site-selector");
 
     $.each(names,function(){
-        list += "<option "+(this===current ? "selected ":"")+"value='"+htmlEscape(this)+"'>"+this+"</option>";
+        list += "<option "+(this.toString()===current ? "selected ":"")+"value='"+htmlEscape(this)+"'>"+this+"</option>";
     });
 
     $("#info-list").find("li[data-role='list-divider']").text(current);
