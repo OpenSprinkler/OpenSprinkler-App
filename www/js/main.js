@@ -1615,9 +1615,24 @@ function update_site(newsite) {
     storage.get("sites",function(data){
         var sites = (data.sites === undefined || data.sites === null) ? {} : JSON.parse(data.sites);
         if (newsite in sites) {
-            storage.set({"current_site":newsite},check_configured);
+            closePanel(function(){
+                storage.set({"current_site":newsite},check_configured);
+            });
         }
     });
+}
+
+function closePanel(callback) {
+    var panel = $(".ui-panel-open");
+    if (panel.length > 0) {
+        panel.one("panelclose", function(){
+            callback();
+        });
+        panel.panel("close");
+        return;
+    } else {
+        callback();
+    }
 }
 
 // Automatic device detection functions
@@ -3964,7 +3979,7 @@ function change_status(seconds,color,line,onclick) {
 function check_status() {
     var open, ptotal, sample, pid, pname, line, match, tmp, i;
 
-    if ($.isEmptyObject(controller)) {
+    if ($.isEmptyObject(controller) || !controller.hasOwnProperty("settings") || !controller.hasOwnProperty("status") || !controller.hasOwnProperty("options")) {
         change_status(0,"transparent","<p class='running-text smaller'></p>");
         return;
     }
@@ -8181,16 +8196,9 @@ function changePage(toPage,opts) {
     }
 
     // Close the panel before page transition to avoid bug in jQM 1.4+
-    var panel = $(".ui-panel-open");
-    if (panel.length > 0) {
-        panel.one("panelclose", function(){
-            changePage(toPage,opts);
-        });
-        panel.panel("close");
-        return;
-    }
-
-    $.mobile.pageContainer.pagecontainer("change",toPage,opts);
+    closePanel(function(){
+        $.mobile.pageContainer.pagecontainer("change",toPage,opts);
+    });
 }
 
 // Change persistent header
