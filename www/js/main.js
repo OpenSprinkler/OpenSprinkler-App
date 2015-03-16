@@ -520,6 +520,7 @@ function send_to_os(dest,type) {
             dataType: type,
             shouldRetry: function(xhr,current) {
                 if (xhr.status === 0 && xhr.statusText === "abort" || retryCount < current) {
+                    $.ajaxq.abort("default");
                     return false;
                 }
                 return true;
@@ -1597,8 +1598,8 @@ function update_site_list(names,current) {
     var list = "",
         select = $("#site-selector");
 
-    $.each(names,function(a,b){
-        list += "<option "+(b===current ? "selected ":"")+"value='"+htmlEscape(b)+"'>"+b+"</option>";
+    $.each(names,function(){
+        list += "<option "+(this===current ? "selected ":"")+"value='"+htmlEscape(this)+"'>"+this+"</option>";
     });
 
     $("#info-list").find("li[data-role='list-divider']").text(current);
@@ -2063,12 +2064,6 @@ function update_weather() {
     });
 }
 
-function weather_update_failed(x,t,m) {
-    if (m.url && (m.url.search("yahooapis.com") !== -1 || m.url.search("api.wunderground.com") !== -1)) {
-        return;
-    }
-}
-
 function update_yahoo_weather() {
     $.ajax({
         url: "https://query.yahooapis.com/v1/public/yql?q=select%20woeid%20from%20geo.placefinder%20where%20text=%22"+encodeURIComponent(controller.settings.loc)+"%22&format=json",
@@ -2121,9 +2116,9 @@ function update_yahoo_weather() {
 
                     $.mobile.document.trigger("weatherUpdateComplete");
                 }
-            }).fail(weather_update_failed);
+            });
         }
-    }).fail(weather_update_failed);
+    });
 }
 
 function updateWeatherBox() {
@@ -2199,7 +2194,7 @@ function update_wunderground_weather(wapikey) {
 
             $.mobile.document.trigger("weatherUpdateComplete");
         }
-    }).fail(weather_update_failed);
+    });
 }
 
 function getSunTimes(date) {
@@ -2210,8 +2205,8 @@ function getSunTimes(date) {
     date = date || now;
 
     var times = SunCalc.getTimes(date, currentCoordinates[0], currentCoordinates[1]),
-        sunrise = times["sunrise"],
-        sunset = times["sunset"];
+        sunrise = times.sunrise,
+        sunset = times.sunset;
 
     sunrise = (sunrise.getHours() * 60 + sunrise.getMinutes()) + tzOffset;
     sunset = (sunset.getHours() * 60 + sunset.getMinutes()) + tzOffset;
@@ -2270,24 +2265,24 @@ function make_wunderground_forecast() {
 
     var list = "<li data-role='list-divider' data-theme='a' class='center'>"+weather.forecast.location+"</li>";
     list += "<li data-icon='false' class='center'><div title='"+weather.forecast.condition.text+"' class='wicon cond"+weather.forecast.condition.code+"'></div><span>"+_("Now")+"</span><br><span>"+temp+"</span><br><span>"+_("Sunrise")+"</span><span>: "+pad(parseInt(controller.settings.sunrise/60)%24)+":"+pad(controller.settings.sunrise%60)+"</span> <span>"+_("Sunset")+"</span><span>: "+pad(parseInt(controller.settings.sunset/60)%24)+":"+pad(controller.settings.sunset%60)+"</span><br><span>"+_("Precip")+"</span><span>: "+precip+"</span></li>";
-    $.each(weather.forecast.simpleforecast, function(k,attr) {
-        var times = getSunTimes(new Date(attr.date.epoch*1000)),
+    $.each(weather.forecast.simpleforecast, function() {
+        var times = getSunTimes(new Date(this.date.epoch*1000)),
             sunrise = times[0],
             sunset = times[1],
             precip;
 
         if (weather.forecast.region === "US" || weather.forecast.region === "BM" || weather.forecast.region === "PW") {
-            precip = attr.qpf_allday["in"];
+            precip = this.qpf_allday["in"];
             if (precip === null) {
                 precip = 0;
             }
-            list += "<li data-icon='false' class='center'><span>"+attr.date.monthname_short+" "+attr.date.day+"</span><br><div title='"+attr.conditions+"' class='wicon cond"+attr.icon+"'></div><span>"+_(attr.date.weekday_short)+"</span><br><span>"+_("Low")+"</span><span>: "+attr.low.fahrenheit+"&#176;F  </span><span>"+_("High")+"</span><span>: "+attr.high.fahrenheit+"&#176;F</span><br><span>"+_("Sunrise")+"</span><span>: "+pad(parseInt(sunrise/60)%24)+":"+pad(sunrise%60)+"</span> <span>"+_("Sunset")+"</span><span>: "+pad(parseInt(sunset/60)%24)+":"+pad(sunset%60)+"</span><br><span>"+_("Precip")+"</span><span>: "+precip+" in</span></li>";
+            list += "<li data-icon='false' class='center'><span>"+this.date.monthname_short+" "+this.date.day+"</span><br><div title='"+this.conditions+"' class='wicon cond"+this.icon+"'></div><span>"+_(this.date.weekday_short)+"</span><br><span>"+_("Low")+"</span><span>: "+this.low.fahrenheit+"&#176;F  </span><span>"+_("High")+"</span><span>: "+this.high.fahrenheit+"&#176;F</span><br><span>"+_("Sunrise")+"</span><span>: "+pad(parseInt(sunrise/60)%24)+":"+pad(sunrise%60)+"</span> <span>"+_("Sunset")+"</span><span>: "+pad(parseInt(sunset/60)%24)+":"+pad(sunset%60)+"</span><br><span>"+_("Precip")+"</span><span>: "+precip+" in</span></li>";
         } else {
-            precip = attr.qpf_allday.mm;
+            precip = this.qpf_allday.mm;
             if (precip === null) {
                 precip = 0;
             }
-            list += "<li data-icon='false' class='center'><span>"+attr.date.monthname_short+" "+attr.date.day+"</span><br><div title='"+attr.conditions+"' class='wicon cond"+attr.icon+"'></div><span>"+_(attr.date.weekday_short)+"</span><br><span>"+_("Low")+"</span><span>: "+attr.low.celsius+"&#176;C  </span><span>"+_("High")+"</span><span>: "+attr.high.celsius+"&#176;C</span><br><span>"+_("Sunrise")+"</span><span>: "+pad(parseInt(sunrise/60)%24)+":"+pad(sunrise%60)+"</span> <span>"+_("Sunset")+"</span><span>: "+pad(parseInt(sunset/60)%24)+":"+pad(controller.settings.sunset%60)+"</span><br><span>"+_("Precip")+"</span><span>: "+precip+" mm</span></li>";
+            list += "<li data-icon='false' class='center'><span>"+this.date.monthname_short+" "+this.date.day+"</span><br><div title='"+this.conditions+"' class='wicon cond"+this.icon+"'></div><span>"+_(this.date.weekday_short)+"</span><br><span>"+_("Low")+"</span><span>: "+this.low.celsius+"&#176;C  </span><span>"+_("High")+"</span><span>: "+this.high.celsius+"&#176;C</span><br><span>"+_("Sunrise")+"</span><span>: "+pad(parseInt(sunrise/60)%24)+":"+pad(sunrise%60)+"</span> <span>"+_("Sunset")+"</span><span>: "+pad(parseInt(sunset/60)%24)+":"+pad(controller.settings.sunset%60)+"</span><br><span>"+_("Precip")+"</span><span>: "+precip+" mm</span></li>";
         }
     });
 
@@ -2754,8 +2749,8 @@ function show_options(expandItem) {
             button.prop("disabled",true);
             page.find(".submit").removeClass("hasChanges");
 
-            $("#os-options-list").find(":input,button").filter(":not(.noselect)").each(function(a,b){
-                var $item = $(b),
+            $("#os-options-list").find(":input,button").filter(":not(.noselect)").each(function(){
+                var $item = $(this),
                     id = $item.attr("id"),
                     data = $item.val(),
                     ip;
@@ -3065,8 +3060,8 @@ function show_options(expandItem) {
             header.eq(2).prop("disabled",false);
             page.find(".submit").addClass("hasChanges");
         })
-        .find("fieldset").each(function(a,b){
-            var group = $(b);
+        .find("fieldset").each(function(){
+            var group = $(this);
 
             if (group.children().length === 1) {
                 group.remove();
@@ -3745,7 +3740,7 @@ function showHome(firstLoad) {
 
             page.find(".waterlevel").text(controller.options.wl);
 
-            hasMaster = controller.options.mas ? true : false,
+            hasMaster = controller.options.mas ? true : false;
             hasIR = (typeof controller.stations.ignore_rain === "object") ? true : false;
             hasAR = (typeof controller.stations.act_relay === "object") ? true : false;
             hasSD = (typeof controller.stations.stn_dis === "object") ? true : false;
@@ -3968,6 +3963,11 @@ function change_status(seconds,color,line,onclick) {
 // Update status bar based on device status
 function check_status() {
     var open, ptotal, sample, pid, pname, line, match, tmp, i;
+
+    if ($.isEmptyObject(controller)) {
+        change_status(0,"transparent","<p class='running-text smaller'></p>");
+        return;
+    }
 
     // Handle operation disabled
     if (!controller.settings.en) {
@@ -4458,8 +4458,8 @@ function get_runonce() {
 function submit_runonce(runonce) {
     if (!(runonce instanceof Array)) {
         runonce = [];
-        $("#runonce").find("[id^='zone-']").each(function(a,b){
-            runonce.push(parseInt($(b).val()) || 0);
+        $("#runonce").find("[id^='zone-']").each(function(){
+            runonce.push(parseInt(this.value) || 0);
         });
         runonce.push(0);
     }
@@ -4955,8 +4955,8 @@ function get_preview() {
 
         timeline.draw(preview_data);
 
-        page.find(".timeline-groups-text").each(function(a,b){
-            var stn = $(b);
+        page.find(".timeline-groups-text").each(function(){
+            var stn = $(this);
             var name = shortnames[stn.text()];
             stn.attr("data-shortname",name);
         });
@@ -5072,9 +5072,9 @@ function get_logs() {
                 }
             }
 
-            $.each(data,function(a,b){
-                var stamp = parseInt(b[3] * 1000),
-                    station = b[1],
+            $.each(data,function(){
+                var stamp = parseInt(this[3] * 1000),
+                    station = this[1],
                     date = new Date(stamp),
                     utc = new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(),  date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds());
 
@@ -5093,11 +5093,11 @@ function get_logs() {
                 if (type === "table") {
                     switch (grouping) {
                         case "station":
-                            sortedData[station].push([new Date(utc.getTime() - parseInt(b[2] * 1000)),dhms2str(sec2dhms(parseInt(b[2])))]);
+                            sortedData[station].push([new Date(utc.getTime() - parseInt(this[2] * 1000)),dhms2str(sec2dhms(parseInt(this[2])))]);
                             break;
                         case "day":
                             var day = Math.floor(date.getTime() / 1000 / 60 / 60 / 24),
-                                item = [new Date(utc.getTime() - parseInt(b[2] * 1000)),dhms2str(sec2dhms(parseInt(b[2]))),station];
+                                item = [new Date(utc.getTime() - parseInt(this[2] * 1000)),dhms2str(sec2dhms(parseInt(this[2]))),station];
 
                             if (typeof sortedData[day] !== "object") {
                                 sortedData[day] = [item];
@@ -5108,15 +5108,15 @@ function get_logs() {
                             break;
                     }
                 } else if (type === "timeline") {
-                    var pid = parseInt(b[0]),
+                    var pid = parseInt(this[0]),
                         className, name, group, shortname;
 
-                    if (b[1] === "rs") {
+                    if (this[1] === "rs") {
                         className = "delayed";
                         name = _("Rain Sensor");
                         group = name;
                         shortname = _("RS");
-                    } else if (b[1] === "rd") {
+                    } else if (this[1] === "rd") {
                         className = "delayed";
                         name = _("Rain Delay");
                         group = name;
@@ -5131,7 +5131,7 @@ function get_logs() {
                     }
 
                     sortedData.push({
-                        "start": new Date(utc.getTime() - parseInt(b[2] * 1000)),
+                        "start": new Date(utc.getTime() - parseInt(this[2] * 1000)),
                         "end": utc,
                         "className": className,
                         "content": name,
@@ -5240,8 +5240,8 @@ function get_logs() {
                 group, ct, k;
 
             if (!$.isEmptyObject(waterlog)) {
-                $.each(waterlog,function(key,data){
-                    wlSorted[Math.floor(data[3] / 60 / 60 / 24)] = data[2];
+                $.each(waterlog,function(){
+                    wlSorted[Math.floor(this[3] / 60 / 60 / 24)] = this[2];
                 });
             }
 
@@ -5279,9 +5279,9 @@ function get_logs() {
             logs_list.find(".delete-day").on("click",function(){
                 var day, date;
 
-                $.each(this.className.split(" "),function(i,c){
-                    if (c.indexOf("day-") === 0) {
-                        day = c.split("day-")[1];
+                $.each(this.className.split(" "),function(){
+                    if (this.indexOf("day-") === 0) {
+                        day = this.split("day-")[1];
                         return false;
                     }
                 });
@@ -5553,8 +5553,8 @@ function expandProgram(program) {
             var durr = parseInt($("#duration-"+id).val()),
                 stations = $("[id^='station_'][id$='-"+id+"']");
 
-            $.each(stations,function(a,b){
-                if ($(b).is(":checked")) {
+            $.each(stations,function(){
+                if ($(this).is(":checked")) {
                     runonce.push(durr);
                 } else {
                     runonce.push(0);
@@ -6369,8 +6369,8 @@ function submit_program21(id,ignoreWarning) {
     var sel = $("[id^=station_][id$=-"+id+"]"),
         runTimes = [];
 
-    sel.each(function(a,b){
-        var dur = parseInt(b.value);
+    sel.each(function(){
+        var dur = parseInt(this.value);
         if (parseInt(dur) > 0) {
             station_selected = 1;
         }
@@ -7246,11 +7246,11 @@ function checkFirmwareUpdate() {
     if (!isOSPi()) {
         // Github API to get releases for OpenSprinkler firmware
         $.getJSON("https://api.github.com/repos/opensprinkler/opensprinklergen2/releases").done(function(data){
-            if (controller.options.fwv < data[0]["tag_name"]) {
+            if (controller.options.fwv < data[0].tag_name) {
                 // Grab a local storage variable which defines the firmware version for the last dismissed update
                 storage.get("updateDismiss",function(flag){
                     // If the variable does not exist or is lower than the newest update, show the update notification
-                    if (!flag.updateDismiss || flag.updateDismiss < data[0]["tag_name"]) {
+                    if (!flag.updateDismiss || flag.updateDismiss < data[0].tag_name) {
                         addNotification({
                             title: _("Firmware update available"),
                             on: function(){
@@ -7274,7 +7274,7 @@ function checkFirmwareUpdate() {
 
                                 popup.find(".dismiss").one("click", function() {
                                     // Update the notification dismiss variable with the latest available version
-                                    storage.set({updateDismiss:data[0]["tag_name"]});
+                                    storage.set({updateDismiss:data[0].tag_name});
                                     popup.popup("close");
                                     removeNotification(button);
                                     return false;
@@ -8588,8 +8588,8 @@ function check_curr_lang() {
     storage.get("lang",function(data){
         var popup = $("#localization");
 
-        popup.find("a").each(function(a,b){
-            var item = $(b);
+        popup.find("a").each(function(){
+            var item = $(this);
             if (item.data("lang-code") === data.lang) {
                 item.removeClass("ui-icon-carat-r").addClass("ui-icon-check");
             } else {
