@@ -1622,19 +1622,6 @@ function update_site(newsite) {
     });
 }
 
-function closePanel(callback) {
-    var panel = $(".ui-panel-open");
-    if (panel.length > 0) {
-        panel.one("panelclose", function(){
-            callback();
-        });
-        panel.panel("close");
-        return;
-    } else {
-        callback();
-    }
-}
-
 // Automatic device detection functions
 function checkAutoScan() {
     var finishCheck = function(){
@@ -8199,6 +8186,19 @@ function changePage(toPage,opts) {
     closePanel(function(){
         $.mobile.pageContainer.pagecontainer("change",toPage,opts);
     });
+}
+
+function closePanel(callback) {
+    var panel = $(".ui-panel-open");
+    if (panel.length > 0) {
+        panel.one("panelclose", function(){
+            callback();
+        });
+        panel.panel("close");
+        return;
+    } else {
+        callback();
+    }
 }
 
 // Change persistent header
