@@ -99,7 +99,7 @@ msgstr ""
 msgid "Add"
 msgstr ""
 
-msgid "Connect Now"
+msgid "connect"
 msgstr ""
 
 msgid "Change Name"
@@ -267,11 +267,6 @@ msgstr ""
 msgid "OpenSprinkler is rebooting now"
 msgstr ""
 
-msgid ""
-"Are you sure you want to delete all settings and return to the default "
-"settings?"
-msgstr ""
-
 msgid "Are you sure you want to downgrade the UI?"
 msgstr ""
 
@@ -347,15 +342,6 @@ msgid "Station Delay"
 msgstr ""
 
 msgid "Sequential"
-msgstr ""
-
-msgid "Reset"
-msgstr ""
-
-msgid "Stations"
-msgstr ""
-
-msgid "Reset All Station Data"
 msgstr ""
 
 msgid "Weather Control"
@@ -437,6 +423,20 @@ msgstr ""
 msgid "Ignore Password"
 msgstr ""
 
+msgid "Reset"
+msgstr ""
+
+msgid "Reset All Options"
+msgstr ""
+
+msgid "Reset All Station Data"
+msgstr ""
+
+msgid ""
+"Are you sure you want to delete all settings and return to the default "
+"settings?"
+msgstr ""
+
 msgid "Are you sure you want to reset all stations?"
 msgstr ""
 
@@ -489,7 +489,7 @@ msgstr ""
 msgid "Show"
 msgstr ""
 
-msgid "Hidden"
+msgid "Disabled"
 msgstr ""
 
 msgid "Stop All Stations"
@@ -849,6 +849,9 @@ msgid "Use Weather Adjustment"
 msgstr ""
 
 msgid "Program Type"
+msgstr ""
+
+msgid "Stations"
 msgstr ""
 
 msgid "Additional Start Times"
@@ -1233,9 +1236,6 @@ msgid "Logout"
 msgstr ""
 
 msgid "Operation"
-msgstr ""
-
-msgid "Clear Configuration"
 msgstr ""
 
 msgid "Reboot OpenSprinkler"
