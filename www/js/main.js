@@ -1448,7 +1448,8 @@ function show_sites(showBack) {
                             "<input type='password' name='auth_pw' id='auth_pw'>" +
                             "<input type='submit' class='submit' value='"+_("Submit")+"'>" +
                         "</form>" +
-                        "</div>").enhanceWithin();
+                        "</div>").enhanceWithin(),
+                        didSubmit = false;
 
                     popup.find(".submit").on("click",function(){
                         el.data({
@@ -1456,12 +1457,16 @@ function show_sites(showBack) {
                             pw: popup.find("#auth_pw").val()
                         });
 
+                        didSubmit = true;
                         popup.popup("close");
                         return false;
                     });
 
                     popup.appendTo("body").one("popupafterclose",function(){
                         popup.popup("destroy").remove();
+                        if (!didSubmit) {
+                            el.attr("checked", false).checkboxradio("refresh");
+                        }
                     }).popup({
                         history: false,
                         positionTo: "window"
@@ -3471,7 +3476,7 @@ function showHomeMenu(btn) {
                 "<li><a href='#programs'>"+_("Edit Programs")+"</a></li>" +
                 "<li><a href='#os-options'>"+_("Edit Options")+"</a></li>" +
                 (checkOSVersion(210) ? "" : "<li><a href='#manual'>"+_("Manual Control")+"</a></li>") +
-            (id === "sprinklers" || id === "runonce" || id === "programs" || id === "manual" ?
+            (id === "sprinklers" || id === "runonce" || id === "programs" || id === "manual" || id === "addprogram" ?
                 "</ul>" +
                 "<div data-role='controlgroup' data-mini='true' data-type='horizontal' data-corners='false' style='margin:0'>" +
                     "<a class='ui-btn' href='#show-hidden'>"+(showHidden ? _("Hide") : _("Show"))+" "+_("Hidden")+"</a>" +
