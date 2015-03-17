@@ -1255,11 +1255,11 @@ function show_addnew(autoIP,closeOld) {
                     "<input "+((isAuto) ? "data-role='none' style='display:none' " : "")+"autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' type='url' pattern='' name='os_ip' id='os_ip' value='"+((isAuto) ? autoIP : "")+"' placeholder='home.dyndns.org'>" +
                     "<label for='os_pw'>"+_("Open Sprinkler Password:")+"</label>" +
                     "<input type='password' name='os_pw' id='os_pw' value=''>" +
-                    ((isAuto) ? "" : "<div data-theme='a' data-mini='true' data-role='collapsible'><h4>Advanced</h4><fieldset data-role='controlgroup' data-type='horizontal' data-mini='true' class='center'>" +
-                        "<input type='checkbox' name='os_useauth' id='os_useauth'>" +
-                        "<label for='os_useauth'>"+_("Use Auth")+"</label>" +
+                    ((isAuto) ? "" : "<div data-theme='a' data-mini='true' data-role='collapsible'><h4>"+_("Advanced")+"</h4><fieldset data-role='controlgroup' data-type='horizontal' data-mini='true' class='center'>" +
                         "<input type='checkbox' name='os_usessl' id='os_usessl'>" +
                         "<label for='os_usessl'>"+_("Use SSL")+"</label>" +
+                        "<input type='checkbox' name='os_useauth' id='os_useauth'>" +
+                        "<label for='os_useauth'>"+_("Use Auth")+"</label>" +
                     "</fieldset></div>") +
                     "<input type='submit' data-theme='b' value='"+_("Submit")+"'>" +
                 "</form>" +
@@ -1411,8 +1411,11 @@ function show_sites(showBack) {
                         "<div class='ui-field-contain'>" +
                             "<label for='cpw-"+i+"'>"+_("Change Password")+"</label><input id='cpw-"+i+"' type='password'>" +
                         "</div>" +
-                        "<label for='useauth-"+i+"'><input class='useauth' data-user='"+b.auth_user+"' data-pw='"+b.auth_pw+"' data-mini='true' type='checkbox' id='useauth-"+i+"' name='useauth-"+i+"'"+(typeof b.auth_user !== "undefined" && typeof b.auth_pw !== "undefined" ? " checked='checked'" : "")+">"+_("Use Auth")+"</label>" +
-                        "<label for='usessl-"+i+"'><input data-mini='true' type='checkbox' id='usessl-"+i+"' name='usessl-"+i+"'"+(typeof b.ssl !== "undefined" && b.ssl === "1" ? " checked='checked'" : "")+">"+_("Use SSL")+"</label>" +
+                        "<fieldset class='titled-box'>" +
+                            "<legend>"+_("Advanced")+"<button data-helptext='"+_("These options are only for an OpenSprinkler behind a proxy capable of SSL and/or Basic Authentication.")+"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></legend>" +
+                            "<label for='usessl-"+i+"'><input data-mini='true' type='checkbox' id='usessl-"+i+"' name='usessl-"+i+"'"+(typeof b.ssl !== "undefined" && b.ssl === "1" ? " checked='checked'" : "")+">"+_("Use SSL")+"</label>" +
+                            "<label for='useauth-"+i+"'><input class='useauth' data-user='"+b.auth_user+"' data-pw='"+b.auth_pw+"' data-mini='true' type='checkbox' id='useauth-"+i+"' name='useauth-"+i+"'"+(typeof b.auth_user !== "undefined" && typeof b.auth_pw !== "undefined" ? " checked='checked'" : "")+">"+_("Use Auth")+"</label>" +
+                        "</fieldset>" +
                         "<input class='submit' type='submit' value='"+_("Save Changes to")+" "+a+"'>" +
                         "<a data-role='button' class='deletesite' data-site='"+i+"' href='#' data-theme='b'>"+_("Delete")+" "+a+"</a>" +
                     "</form>" +
@@ -1435,6 +1438,8 @@ function show_sites(showBack) {
                 update_site(siteNames[$(this).data("site")]);
                 return false;
             });
+
+            list.find(".help-icon").on("click",showHelpText);
 
             list.find(".useauth").on("change",function(){
                 var el = $(this);
@@ -3285,31 +3290,7 @@ function show_options(expandItem) {
         });
     });
 
-    page.find(".help-icon").on("click",function(e){
-        e.stopImmediatePropagation();
-
-        var button = $(this),
-            text = button.data("helptext"),
-            popup;
-
-        if (button.parent().attr("for") === "wtkey") {
-            text += "<a class='iab' target='_blank' href='https://opensprinkler.freshdesk.com/support/solutions/articles/5000017485-getting-a-weather-api#article-show-5000017485'>here</a>.";
-        }
-
-        popup = $("<div data-role='popup'>" +
-            "<p>"+text+"</p>" +
-        "</div>");
-
-        popup.one("popupafterclose", function(){
-            popup.popup("destroy").remove();
-        }).enhanceWithin();
-
-        $(".ui-page-active").append(popup);
-
-        popup.popup({history: false, positionTo: button}).popup("open");
-
-        return false;
-    });
+    page.find(".help-icon").on("click",showHelpText);
 
     page.find(".duration-field button:not(.help-icon)").on("click",function(){
         var dur = $(this),
@@ -8183,6 +8164,32 @@ function showTimeInput(opt) {
         $(this).popup("destroy").remove();
     })
     .enhanceWithin().popup("open");
+}
+
+function showHelpText(e){
+    e.stopImmediatePropagation();
+
+    var button = $(this),
+        text = button.data("helptext"),
+        popup;
+
+    if (button.parent().attr("for") === "wtkey") {
+        text += "<a class='iab' target='_blank' href='https://opensprinkler.freshdesk.com/support/solutions/articles/5000017485-getting-a-weather-api#article-show-5000017485'>here</a>.";
+    }
+
+    popup = $("<div data-role='popup'>" +
+        "<p>"+text+"</p>" +
+    "</div>");
+
+    popup.one("popupafterclose", function(){
+        popup.popup("destroy").remove();
+    }).enhanceWithin();
+
+    $(".ui-page-active").append(popup);
+
+    popup.popup({history: false, positionTo: button}).popup("open");
+
+    return false;
 }
 
 function changePage(toPage,opts) {

@@ -194,6 +194,15 @@ a {
     font-weight:400;
     text-shadow:none!important
 }
+.titled-box {
+    border: 1px #ddd solid !important;
+}
+
+.titled-box > legend {
+    margin: 0 auto;
+    padding: 0.2em 0.8em;
+}
+
 @media (min-width: 321px) {
     .squeeze {
         letter-spacing: -0.1px;
@@ -427,6 +436,12 @@ body, input, select, textarea, button, .ui-btn {
     border-left: none;
 }
 
+/* Site manager rules */
+
+#site-control form > .ui-field-contain:nth-child(3) {
+    border-bottom:0;
+}
+
 /* Program editor rules */
 .move-up {
     border: none !important;
@@ -632,84 +647,18 @@ body, input, select, textarea, button, .ui-btn {
 div.running-text{
     display: table-cell;
 }
-
-/* Station editor page rules */
-
-.station-name {
-    font-weight: 700;
-}
-
-.station-input {
-    counter-increment: station-id;
-}
-
-.station-name:before {
-    counter-increment: station-id;
-    content: counter(station-id) ": ";
-}
-
-.attrib {
-    position: absolute;
-    top: 0;
-    right: 0
-}
-
 #stn_attrib .submit {
     padding: 10px;
-}
-
-.stn-attrib-icon {
-    display:inline-block;
-    padding-left:10px
-}
-
-.stn-attrib-icon:not(.attrib-disabled):after {
-    background-color: #16a085 !important
-}
-
-.attrib-disabled {
-    opacity: 0.3;
 }
 
 .stn-name {
     padding: 0;
 }
 
-#os-stations-list .ui-controlgroup-label {
-    vertical-align: bottom;
-}
-
-#os-stations-list .ui-li-has-count.ui-btn {
-    padding-right: 12.5px!important;
-}
-
-#os-stations-list .ui-li-count {
-    display: none!important;
-}
-
-#os-stations-list {
-    counter-reset: station-id;
-}
-
-/* Status page rules */
-
-#status_list .ui-li {
-    padding-bottom:4px
-}
-.sname {
-    margin:-.4em 0!important;
-    font-size: 16px !important
-}
 .rem {
     margin:0;
     font-size:.71em!important;
     white-space: initial !important;
-}
-.status-daily {
-    padding-top: 10px
-}
-#status .rain-desc {
-    padding-top: 0;
 }
 
 /* Program preview rules */
