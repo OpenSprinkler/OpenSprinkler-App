@@ -81,10 +81,13 @@ msgstr ""
 msgid "Open Sprinkler Password:"
 msgstr ""
 
-msgid "Use Auth"
+msgid "Advanced"
 msgstr ""
 
 msgid "Use SSL"
+msgstr ""
+
+msgid "Use Auth"
 msgstr ""
 
 msgid "Scan For Device"
@@ -109,6 +112,11 @@ msgid "Change IP"
 msgstr ""
 
 msgid "Change Password"
+msgstr ""
+
+msgid ""
+"These options are only for an OpenSprinkler behind a proxy capable of SSL "
+"and/or Basic Authentication."
 msgstr ""
 
 msgid "Save Changes to"
@@ -379,9 +387,6 @@ msgid "Use Rain Sensor"
 msgstr ""
 
 msgid "Normally Open (Rain Sensor)"
-msgstr ""
-
-msgid "Advanced"
 msgstr ""
 
 msgid "HTTP Port (restart required)"
