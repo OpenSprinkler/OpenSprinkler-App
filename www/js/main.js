@@ -3515,7 +3515,9 @@ function showHomeMenu(btn) {
                 page.addClass("show-hidden");
             }
         } else {
-            changePage(href);
+            checkChanges(function(){
+                changePage(href);
+            });
         }
 
         return false;
@@ -5519,7 +5521,9 @@ function get_programs(pid) {
             icon: "plus",
             text: _("Add"),
             on: function(){
-                changePage("#addprogram");
+                checkChanges(function(){
+                    changePage("#addprogram");
+                });
             }
         }
 
@@ -8317,19 +8321,25 @@ function goBack() {
 }
 
 function checkChangesBeforeBack() {
+    checkChanges(goBack);
+}
+
+function checkChanges(callback) {
     var page = $(".ui-page-active"),
         changed = page.find(".hasChanges");
+
+    callback = callback || function(){};
 
     if (changed.length !== 0) {
         areYouSure(_("Do you want to save your changes?"),"",function(){
             changed.click();
             if (!changed.hasClass("preventBack")) {
-                goBack();
+                callback();
             }
-        },goBack);
+        },callback);
         return false;
     } else {
-        goBack();
+        callback();
     }
 }
 
