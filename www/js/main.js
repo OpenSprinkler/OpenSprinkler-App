@@ -3479,7 +3479,7 @@ function showHomeMenu(btn) {
             (id === "sprinklers" || id === "runonce" || id === "programs" || id === "manual" || id === "addprogram" ?
                 "</ul>" +
                 "<div data-role='controlgroup' data-mini='true' data-type='horizontal' data-corners='false' style='margin:0'>" +
-                    "<a class='ui-btn' href='#show-hidden'>"+(showHidden ? _("Hide") : _("Show"))+" "+_("Hidden")+"</a>" +
+                    "<a class='ui-btn' href='#show-hidden'>"+(showHidden ? _("Hide") : _("Show"))+" "+_("Disabled")+"</a>" +
                     "<a class='ui-btn red' href='#stop-all'>"+_("Stop All Stations")+"</a>" +
                 "</div>"
                 : "<li><a class='ui-btn red' href='#stop-all'>"+_("Stop All Stations")+"</a></li></ul>") +
