@@ -347,10 +347,7 @@ $(document)
     // Indicate the weather and device status are being updated
     showLoading("#weather,#footer-running");
 
-    update_controller(function(){
-        check_status();
-        update_weather();
-    },network_fail);
+    update_controller(update_weather,network_fail);
 })
 .on("pause",function(){
     // Handle application being paused/closed
