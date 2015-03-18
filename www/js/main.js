@@ -108,7 +108,6 @@ if (isWinApp) {
 }
 
 $(document)
-.ready(initApp)
 .one("deviceready", function() {
     try {
         //Change the status bar to match the headers
@@ -320,35 +319,7 @@ $(document)
         }
     });
 
-    // Initialize the app header
-    $("#header,#footer").toolbar();
-
-    //Attach FastClick handler
-    FastClick.attach(document.body);
-
-    // Handle keybinds
-    $.mobile.document.on("keydown",function(e){
-        if ($(e.target).closest("input")[0]) {
-            return;
-        }
-
-        if (e.keyCode === 77) {
-            var menu = $("#mainMenu");
-            if (menu.length > 0) {
-                $("#mainMenu").popup("close");
-            } else {
-                showHomeMenu();
-            }
-        }
-    });
-
-    // Initialize external panel
-    bindPanel();
-
-    //On initial load check if a valid site exists for auto connect
-    setTimeout(function(){
-        check_configured(true);
-    },200);
+    initApp();
 })
 // Handle OS resume event triggered by PhoneGap
 .on("resume",function(){
@@ -420,9 +391,6 @@ function initApp() {
     //Update the language on the page using the browser's locale
     update_lang();
 
-    // Start interval loop which will update timers/clocks
-    updateTimers();
-
     // Fix CSS for IE Mobile (Windows Phone 8)
     if (isIEMobile) {
         insertStyle(".ui-toolbar-back-btn{display:none!important}ul{list-style: none !important;}@media(max-width:940px){.wicon{margin:-10px -10px -15px -15px !important}#forecast .wicon{position:relative;left:37.5px;margin:0 auto !important}}");
@@ -483,6 +451,39 @@ function initApp() {
     $("#footer-menu").on("click",function(){
         showHomeMenu(this);
     });
+
+    // Initialize the app header
+    $("#header,#footer").toolbar();
+
+    //Attach FastClick handler
+    FastClick.attach(document.body);
+
+    // Start interval loop which will update timers/clocks
+    updateTimers();
+
+    // Handle keybinds
+    $.mobile.document.on("keydown",function(e){
+        if ($(e.target).closest("input")[0]) {
+            return;
+        }
+
+        if (e.keyCode === 77) {
+            var menu = $("#mainMenu");
+            if (menu.length > 0) {
+                $("#mainMenu").popup("close");
+            } else {
+                showHomeMenu();
+            }
+        }
+    });
+
+    // Initialize external panel
+    bindPanel();
+
+    //On initial load check if a valid site exists for auto connect
+    setTimeout(function(){
+        check_configured(true);
+    },200);
 }
 
 // Handle main switches for manual mode and enable

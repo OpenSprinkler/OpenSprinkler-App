@@ -1,4 +1,4 @@
-/*global $, ver, ipas, initApp, XDomainRequest, ActiveXObject, md5 */
+/*global $, ver, ipas, XDomainRequest, ActiveXObject, md5 */
 (function(document){
 	var assetLocation = getAssetLocation(),
 		isReady = false;
@@ -289,9 +289,6 @@
 
 					// Remove spinner code (no longer needed)
 					$("head").find("style").remove();
-
-					// Initialize environment (missed by main.js since body was added after)
-					initApp();
 
 					// Hide multi site features since using local device
 					body.find(".multiSite").hide();
