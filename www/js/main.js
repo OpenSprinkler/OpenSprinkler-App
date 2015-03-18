@@ -452,6 +452,11 @@ function initApp() {
         update_site($(this).val());
     });
 
+    //When app isn't using cordova.js, check network status now
+    if (isChromeApp || isOSXApp) {
+        checkAutoScan();
+    }
+
     //Bind start page buttons
     $("#auto-scan").find("a").on("click",function(){
         start_scan();
@@ -463,10 +468,20 @@ function initApp() {
         showHomeMenu(this);
     });
 
-    //When app isn't using cordova.js, check network status now
-    if (isChromeApp || isOSXApp) {
-        checkAutoScan();
-    }
+    $.mobile.document.on("keydown",function(e){
+        if ($(e.target).closest("input")[0]) {
+            return;
+        }
+
+        if (e.keyCode === 77) {
+            var menu = $("#mainMenu");
+            if (menu.length > 0) {
+                $("#mainMenu").popup("close");
+            } else {
+                showHomeMenu();
+            }
+        }
+    });
 }
 
 // Handle main switches for manual mode and enable
@@ -3443,7 +3458,7 @@ function showHomeMenu(btn) {
     var page = $(".ui-page-active"),
         id = page.attr("id"),
         showHidden = page.hasClass("show-hidden"),
-        popup = $("<div data-role='popup' data-overlay-theme='b' data-theme='a' class='mainMenu'>" +
+        popup = $("<div data-role='popup' data-overlay-theme='b' data-theme='a' id='mainMenu'>" +
             "<ul data-role='listview' data-inset='true' data-corners='false'>" +
                 "<li data-role='list-divider'>"+_("Information")+"</li>" +
                 "<li><a href='#preview' class='squeeze'>"+_("Preview Programs")+"</a></li>" +
@@ -3506,6 +3521,8 @@ function showHomeMenu(btn) {
         btn.show();
     }).enhanceWithin();
 
+
+    $("#mainMenu").remove();
     $("body").append(popup);
 
     popup.popup({history: false, positionTo: btn}).popup("open");

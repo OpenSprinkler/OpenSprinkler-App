@@ -369,11 +369,11 @@ body, input, select, textarea, button, .ui-btn {
     top: -5px;
 }
 
-.mainMenu {
+#mainMenu {
     border:0
 }
 
-.mainMenu > .ui-grid-a .ui-btn {
+#mainMenu > .ui-grid-a .ui-btn {
     text-overflow: clip !important;
 }
 
