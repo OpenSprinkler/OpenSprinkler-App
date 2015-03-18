@@ -505,8 +505,7 @@ function flipSwitched() {
     }
 
     $.when(defer).then(function(){
-        update_controller_settings();
-        update_controller_status();
+        refresh_status();
         if (id === "mmm") {
             $("#mm_list .green").removeClass("green");
         }
@@ -3490,13 +3489,7 @@ function showHomeMenu(btn) {
                 $.mobile.loading("show");
                 send_to_os("/cv?pw=&rsn=1").done(function(){
                     $.mobile.loading("hide");
-                    showLoading("#footer-running");
-                    setTimeout(function(){
-                        $.when(
-                            update_controller_settings(),
-                            update_controller_status()
-                        ).then(check_status);
-                    }, 1000);
+                    refresh_status();
                     showerror(_("All stations have been stopped"));
                 });
             });
@@ -3590,7 +3583,7 @@ function showHome(firstLoad) {
 
                 if (isScheduled || isRunning) {
                     // Generate status line for station
-                    cards += "<p class='rem center'>"+((controller.status[i] > 0) ? _("Running")+" "+pname : _("Scheduled")+" "+(controller.settings.ps[i][2] ? _("for")+" "+dateToString(new Date(controller.settings.ps[i][2]*1000)) : pname));
+                    cards += "<p class='rem center'>"+(isRunning ? _("Running")+" "+pname : _("Scheduled")+" "+(controller.settings.ps[i][2] ? _("for")+" "+dateToString(new Date(controller.settings.ps[i][2]*1000)) : pname));
                     if (rem>0) {
                         // Show the remaining time if it's greater than 0
                         cards += " <span id='countdown-"+i+"' class='nobr'>(" + sec2hms(rem) + " "+_("remaining")+")</span>";
@@ -3784,7 +3777,7 @@ function showHome(firstLoad) {
                     });
 
                     if (controller.options.mas !== i+1 && (isScheduled || isRunning)) {
-                        line = ((controller.status[i] > 0) ? _("Running")+" "+pname : _("Scheduled")+" "+(controller.settings.ps[i][2] ? _("for")+" "+dateToString(new Date(controller.settings.ps[i][2]*1000)) : pname));
+                        line = (isRunning ? _("Running")+" "+pname : _("Scheduled")+" "+(controller.settings.ps[i][2] ? _("for")+" "+dateToString(new Date(controller.settings.ps[i][2]*1000)) : pname));
                         if (rem>0) {
                             // Show the remaining time if it's greater than 0
                             line += " <span id='countdown-"+i+"' class='nobr'>(" + sec2hms(rem) + " "+_("remaining")+")</span>";
@@ -4477,8 +4470,7 @@ function submit_runonce(runonce) {
                 $.mobile.document.one("pageshow",function(){
                     showerror(_("Run-once program has been scheduled"));
                 });
-                update_controller_status();
-                update_controller_settings();
+                refresh_status();
                 goBack();
             });
         },
@@ -6434,10 +6426,7 @@ function raindelay(delay) {
     send_to_os("/cv?pw=&rd="+(delay/3600)).done(function(){
         $.mobile.loading("hide");
         showLoading("#footer-running");
-        $.when(
-            update_controller_settings(),
-            update_controller_status()
-        ).then(check_status);
+        refresh_status();
         showerror(_("Rain delay has been successfully set"));
     });
     return false;
