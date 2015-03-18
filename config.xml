@@ -3,7 +3,7 @@
             xmlns:android   = "http://schemas.android.com/apk/res/android"
             xmlns:gap   = "http://phonegap.com/ns/1.0"
             id          = "com.albahra.sprinklers"
-            version     = "1.3.1"
+            version     = "1.4.0"
             versionCode = "47" >
 
         <preference name="phonegap-version" value="3.7.0" />
@@ -31,7 +31,7 @@
         </gap:config-file>
 
         <gap:config-file platform="ios" parent="CFBundleShortVersionString">
-            <string>131</string>
+            <string>140</string>
         </gap:config-file>
 
         <gap:config-file platform="android" parent="/manifest">
