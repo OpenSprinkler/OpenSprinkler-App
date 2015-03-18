@@ -326,6 +326,22 @@ $(document)
     //Attach FastClick handler
     FastClick.attach(document.body);
 
+    // Handle keybinds
+    $.mobile.document.on("keydown",function(e){
+        if ($(e.target).closest("input")[0]) {
+            return;
+        }
+
+        if (e.keyCode === 77) {
+            var menu = $("#mainMenu");
+            if (menu.length > 0) {
+                $("#mainMenu").popup("close");
+            } else {
+                showHomeMenu();
+            }
+        }
+    });
+
     // Initialize external panel
     bindPanel();
 
@@ -466,21 +482,6 @@ function initApp() {
     // Bind footer menu button
     $("#footer-menu").on("click",function(){
         showHomeMenu(this);
-    });
-
-    $.mobile.document.on("keydown",function(e){
-        if ($(e.target).closest("input")[0]) {
-            return;
-        }
-
-        if (e.keyCode === 77) {
-            var menu = $("#mainMenu");
-            if (menu.length > 0) {
-                $("#mainMenu").popup("close");
-            } else {
-                showHomeMenu();
-            }
-        }
     });
 }
 
