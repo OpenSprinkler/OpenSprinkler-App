@@ -3443,7 +3443,7 @@ function showHomeMenu(btn) {
     var page = $(".ui-page-active"),
         id = page.attr("id"),
         showHidden = page.hasClass("show-hidden"),
-        popup = $("<div data-role='popup' data-overlay-theme='b' data-theme='a' style='border:0'>" +
+        popup = $("<div data-role='popup' data-overlay-theme='b' data-theme='a' class='mainMenu'>" +
             "<ul data-role='listview' data-inset='true' data-corners='false'>" +
                 "<li data-role='list-divider'>"+_("Information")+"</li>" +
                 "<li><a href='#preview' class='squeeze'>"+_("Preview Programs")+"</a></li>" +
@@ -3456,9 +3456,9 @@ function showHomeMenu(btn) {
                 (checkOSVersion(210) ? "" : "<li><a href='#manual'>"+_("Manual Control")+"</a></li>") +
             (id === "sprinklers" || id === "runonce" || id === "programs" || id === "manual" || id === "addprogram" ?
                 "</ul>" +
-                "<div data-role='controlgroup' data-mini='true' data-type='horizontal' data-corners='false' style='margin:0'>" +
-                    "<a class='ui-btn' href='#show-hidden'>"+(showHidden ? _("Hide") : _("Show"))+" "+_("Disabled")+"</a>" +
-                    "<a class='ui-btn red' href='#stop-all'>"+_("Stop All Stations")+"</a>" +
+                "<div class='ui-grid-a ui-mini tight'>" +
+                    "<div class='ui-block-a'><a class='ui-btn tight' href='#show-hidden'>"+(showHidden ? _("Hide") : _("Show"))+" "+_("Disabled")+"</a></div>" +
+                    "<div class='ui-block-b'><a class='ui-btn red tight' href='#stop-all'>"+_("Stop All Stations")+"</a></div>" +
                 "</div>"
                 : "<li><a class='ui-btn red' href='#stop-all'>"+_("Stop All Stations")+"</a></li></ul>") +
         "</div>");
