@@ -155,3 +155,73 @@ describe("General Function Checks", function(){
 		assert.equal("999", pad(999));
 	});
 });
+
+describe("Page Navigation Checks", function(){
+	it("Start jQuery Mobile Page Initialization",function(){
+		assert.doesNotThrow($.mobile.initializePage);
+	});
+
+	it("Change page to program preview",function(){
+		$.mobile.document.one("pageshow","#sprinklers",function(){
+			assert.doesNotThrow(function(){
+				changePage("#preview");
+			});
+		});
+	});
+
+	it("Change to logs page",function(){
+		$.mobile.document.one("pageshow","#preview",function(){
+			assert.doesNotThrow(function(){
+				changePage("#logs");
+			});
+		});
+	});
+
+	it("Change to runonce page",function(){
+		$.mobile.document.one("pageshow","#logs",function(){
+			assert.doesNotThrow(function(){
+				changePage("#runonce");
+			});
+		});
+	});
+
+	it("Change to edit programs page",function(){
+		$.mobile.document.one("pageshow","#runonce",function(){
+			assert.doesNotThrow(function(){
+				changePage("#programs");
+			});
+		});
+	});
+
+	it("Change to add new program page",function(){
+		$.mobile.document.one("pageshow","#programs",function(){
+			assert.doesNotThrow(function(){
+				changePage("#addprogram");
+			});
+		});
+	});
+
+	it("Change to options page",function(){
+		$.mobile.document.one("pageshow","#addprogram",function(){
+			assert.doesNotThrow(function(){
+				changePage("#os-options");
+			});
+		});
+	});
+
+	it("Change to site manager page",function(){
+		$.mobile.document.one("pageshow","#os-options",function(){
+			assert.doesNotThrow(function(){
+				changePage("#site-control");
+			});
+		});
+	});
+
+	it("Change to about page",function(){
+		$.mobile.document.one("pageshow","#site-control",function(){
+			assert.doesNotThrow(function(){
+				changePage("#about");
+			});
+		});
+	});
+});

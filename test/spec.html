@@ -26,7 +26,8 @@
           }).done(function(index){
             var body = index.match(/<body>([.\s\S]*)<\/body>/)[1];
             $("body").prepend(body);
-          })
+            mocha.run();
+          });
         });
 
         mocha.setup('bdd');
@@ -36,16 +37,10 @@
         }
       </script>
       <script type="text/javascript" src="../node_modules/grunt-blanket-mocha/support/mocha-blanket.js"></script>
-      <script src="spec.js"></script>
-
-      <script>
-        onload = function(){
-          var runner = mocha.run();
-        };
-      </script>
       <script src="../www/js/main.js" data-cover></script>
       <script src="../www/js/jqm.js"></script>
       <script src="../www/js/libs.js"></script>
+      <script src="spec.js"></script>
     </head>
 
     <body>
