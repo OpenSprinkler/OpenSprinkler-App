@@ -1,29 +1,6 @@
 /* jshint undef: false */
 var assert = chai.assert;
 
-// Set the default reply header to have contentType JSON
-$.mockjaxSettings.contentType = "text/json";
-
-// Intercept all fake OpenSprinkler calls and give the correct emulated reply
-$.mockjax({
-	url: "http://127.0.0.1/*",
-	responseTime: 750,
-	dataType: "json",
-	response: function(settings) {
-		var target = $.mobile.parseURL(settings);
-		console.log(target);
-		this.responseText = {};
-	}
-});
-/*
-describe("OpenSprinkler Interaction Checks",function(){
-	it("Test if send to OS properly sends request",function(done){
-		assert.doesNotThrow(function(){
-			send_to_os("http://127.0.0.1/jo").done(done);
-		});
-	});
-});
-*/
 describe("Initial Definition Check", function(){
 	it("storage.set(object,callback) should accept an object of key/value pairs to be set into localStorage and respond with callback", function(done){
 		assert.doesNotThrow(function(){
