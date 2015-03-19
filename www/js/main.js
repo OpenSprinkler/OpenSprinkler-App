@@ -6498,7 +6498,7 @@ function getImportMethod(localData){
                 }
 
                 try{
-                    data=JSON.parse($.trim(data));
+                    data=JSON.parse($.trim(data).replace(/“|”|″/g,"\""));
                     popup.popup("close");
                     import_config(data);
                 }catch(err){
