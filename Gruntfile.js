@@ -9,6 +9,7 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks("grunt-contrib-cssmin");
 	grunt.loadNpmTasks("grunt-contrib-clean");
 	grunt.loadNpmTasks("grunt-http-server");
+	grunt.loadNpmTasks("grunt-coveralls");
 	grunt.loadTasks("tasks");
 
 	var bumpVersion = function(version) {
@@ -46,6 +47,12 @@ module.exports = function(grunt) {
 			main: ["<%= pkg.main %>","Gruntfile.js","www/js/home.js","chrome.js","test/tests.js"],
 			options: {
 				jshintrc: true
+			}
+		},
+
+		coveralls: {
+			options: {
+				src: "coverage/results.lcov"
 			}
 		},
 
@@ -274,7 +281,7 @@ module.exports = function(grunt) {
 
 	// Default task(s).
 	grunt.registerTask("default",["jshint"]);
-	grunt.registerTask("test",["jshint","blanket_mocha"]);
+	grunt.registerTask("test",["jshint","blanket_mocha","coveralls"]);
 	grunt.registerTask("updateLang",["shell:updateLang"]);
 	grunt.registerTask("pushEng",["shell:pushEng"]);
 	grunt.registerTask("makeFW",["jshint","uglify","cssmin","compress:jsAsset","compress:cssAsset","compress:makeFW","clean:makeFW"]);
