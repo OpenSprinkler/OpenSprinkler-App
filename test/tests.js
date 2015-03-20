@@ -207,6 +207,15 @@ describe("Page Navigation Checks", function(){
 		});
 	});
 
+	it("Reload edit programs page",function(done){
+		$.mobile.document.one("pageshow","#programs",function(){
+			done();
+		});
+		assert.doesNotThrow(function(){
+			changePage("#programs");
+		});
+	});
+
 	it("Change to add new program page",function(done){
 		$.mobile.document.one("pageshow","#addprogram",function(){
 			done();
@@ -226,6 +235,15 @@ describe("Page Navigation Checks", function(){
 	});
 
 	it("Change to site manager page",function(done){
+		$.mobile.document.one("pageshow","#site-control",function(){
+			done();
+		});
+		assert.doesNotThrow(function(){
+			changePage("#site-control");
+		});
+	});
+
+	it("Reload site manager page",function(done){
 		$.mobile.document.one("pageshow","#site-control",function(){
 			done();
 		});
