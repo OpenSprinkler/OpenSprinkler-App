@@ -169,6 +169,7 @@ describe("Page Navigation Checks", function(){
 	});
 
 	it("Change page to program preview",function(done){
+		this.timeout(10000);
 		$.mobile.document.one("pageshow","#preview",function(){
 			done();
 		});
