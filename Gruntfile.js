@@ -9,7 +9,7 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks("grunt-contrib-cssmin");
 	grunt.loadNpmTasks("grunt-contrib-clean");
 	grunt.loadNpmTasks("grunt-http-server");
-	grunt.loadNpmTasks("grunt-blanket-mocha");
+	grunt.loadTasks("tasks");
 
 	var bumpVersion = function(version) {
 			var join = ".",
