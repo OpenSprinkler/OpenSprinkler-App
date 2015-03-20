@@ -1,6 +1,6 @@
 ## OpenSprinkler
 
-<img align="left" height="96" src="http://albahra.com/sprinklers/icon.png">[![Build Status](https://travis-ci.org/salbahra/Sprinklers.png)](https://travis-ci.org/salbahra/Sprinklers)  
+<img align="left" height="96" src="http://albahra.com/sprinklers/icon.png">[![Build Status](https://travis-ci.org/salbahra/Sprinklers.png)](https://travis-ci.org/salbahra/Sprinklers)[![Coverage Status](https://coveralls.io/repos/salbahra/Sprinklers/badge.svg?branch=master)](https://coveralls.io/r/salbahra/Sprinklers?branch=master)
 [Official Site][official] | [Support][help] | [Changelog][changelog]  
 &copy; 2013-2014 [Samer Albahra][salbahra] ([@salbahra](https://twitter.com/salbahra))  
 
