@@ -9,7 +9,6 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks("grunt-contrib-cssmin");
 	grunt.loadNpmTasks("grunt-contrib-clean");
 	grunt.loadNpmTasks("grunt-http-server");
-	grunt.loadNpmTasks("grunt-coveralls");
 	grunt.loadTasks("tasks");
 
 	var bumpVersion = function(version) {
@@ -47,12 +46,6 @@ module.exports = function(grunt) {
 			main: ["<%= pkg.main %>","Gruntfile.js","www/js/home.js","chrome.js","test/tests.js"],
 			options: {
 				jshintrc: true
-			}
-		},
-
-		coveralls: {
-			options: {
-				src: "coverage/results.lcov"
 			}
 		},
 
