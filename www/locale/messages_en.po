@@ -1,0 +1,62 @@
+msgid ""
+"Welcome to the OpenSprinkler application. This app only works with the "
+"OpenSprinkler controller which must be installed and setup on your home "
+"network."
+msgstr ""
+
+msgid "Purchase OpenSprinkler"
+msgstr ""
+
+msgid "Scan For Device"
+msgstr ""
+
+msgid "Add Controller"
+msgstr ""
+
+msgid "Manage Sites"
+msgstr ""
+
+msgid "Export Configuration"
+msgstr ""
+
+msgid "Import Configuration"
+msgstr ""
+
+msgid "Weather Provider"
+msgstr ""
+
+msgid "Weather Settings"
+msgstr ""
+
+msgid "Help & Support"
+msgstr ""
+
+msgid "About"
+msgstr ""
+
+msgid "Localization"
+msgstr ""
+
+msgid "Logout"
+msgstr ""
+
+msgid "Advanced"
+msgstr ""
+
+msgid "Disable"
+msgstr ""
+
+msgid "Operation"
+msgstr ""
+
+msgid "Change Password"
+msgstr ""
+
+msgid "Reboot OpenSprinkler"
+msgstr ""
+
+msgid "Downgrade UI"
+msgstr ""
+
+msgid "Weather Diagnostics"
+msgstr ""
