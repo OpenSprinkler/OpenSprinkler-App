@@ -5,7 +5,14 @@ describe("Initial Definition Check", function(){
 	it("storage.set(object,callback) should accept an object of key/value pairs to be set into localStorage and respond with callback", function(done){
 		assert.doesNotThrow(function(){
 			storage.set({
-				testkey: "helloworld"
+				"testkey": "helloworld",
+                "sites": JSON.stringify({
+                	"Test": {
+                		"os_ip": "demo.opensprinkler.com",
+                		"os_pw":"opendoor"
+                	}
+                }),
+                "current_site": "Test"
 			},function(result){
 				if (result === true) {
 					done();
@@ -161,7 +168,10 @@ describe("Page Navigation Checks", function(){
 		assert.doesNotThrow($.mobile.initializePage);
 	});
 
-	it("Change page to program preview",function(){
+	it("Change page to program preview",function(done){
+		$.mobile.document.one("pageshow","#preview",function(){
+			done();
+		});
 		$.mobile.document.one("pageshow","#sprinklers",function(){
 			assert.doesNotThrow(function(){
 				changePage("#preview");
@@ -169,59 +179,66 @@ describe("Page Navigation Checks", function(){
 		});
 	});
 
-	it("Change to logs page",function(){
-		$.mobile.document.one("pageshow","#preview",function(){
-			assert.doesNotThrow(function(){
-				changePage("#logs");
-			});
-		});
-	});
-
-	it("Change to runonce page",function(){
+	it("Change to logs page",function(done){
 		$.mobile.document.one("pageshow","#logs",function(){
-			assert.doesNotThrow(function(){
-				changePage("#runonce");
-			});
+			done();
+		});
+		assert.doesNotThrow(function(){
+			changePage("#logs");
 		});
 	});
 
-	it("Change to edit programs page",function(){
+	it("Change to runonce page",function(done){
 		$.mobile.document.one("pageshow","#runonce",function(){
-			assert.doesNotThrow(function(){
-				changePage("#programs");
-			});
+			done();
+		});
+		assert.doesNotThrow(function(){
+			changePage("#runonce");
 		});
 	});
 
-	it("Change to add new program page",function(){
+	it("Change to edit programs page",function(done){
 		$.mobile.document.one("pageshow","#programs",function(){
-			assert.doesNotThrow(function(){
-				changePage("#addprogram");
-			});
+			done();
+		});
+		assert.doesNotThrow(function(){
+			changePage("#programs");
 		});
 	});
 
-	it("Change to options page",function(){
+	it("Change to add new program page",function(done){
 		$.mobile.document.one("pageshow","#addprogram",function(){
-			assert.doesNotThrow(function(){
-				changePage("#os-options");
-			});
+			done();
+		});
+		assert.doesNotThrow(function(){
+			changePage("#addprogram");
 		});
 	});
 
-	it("Change to site manager page",function(){
+	it("Change to options page",function(done){
 		$.mobile.document.one("pageshow","#os-options",function(){
-			assert.doesNotThrow(function(){
-				changePage("#site-control");
-			});
+			done();
+		});
+		assert.doesNotThrow(function(){
+			changePage("#os-options");
 		});
 	});
 
-	it("Change to about page",function(){
+	it("Change to site manager page",function(done){
 		$.mobile.document.one("pageshow","#site-control",function(){
-			assert.doesNotThrow(function(){
-				changePage("#about");
-			});
+			done();
+		});
+		assert.doesNotThrow(function(){
+			changePage("#site-control");
+		});
+	});
+
+	it("Change to about page",function(done){
+		$.mobile.document.one("pageshow","#about",function(){
+			done();
+		});
+		assert.doesNotThrow(function(){
+			changePage("#about");
 		});
 	});
 });
