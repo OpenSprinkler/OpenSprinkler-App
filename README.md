@@ -16,7 +16,7 @@ A mobile interface for the OpenSprinkler irrigation device. Designed to allow ma
 
 <a href="https://albahra.com/sprinklers/img/home.png"><img src="https://albahra.com/sprinklers/img/home.png" width="100"/></a>
 <a href="https://albahra.com/sprinklers/img/preview.png"><img src="https://albahra.com/sprinklers/img/preview.png" width="100"/></a>
-<a href="https://albahra.com/sprinklers/img/log_graph.png"><img src="https://albahra.com/sprinklers/img/log_graph.png" width="100"/></a>
+<a href="https://albahra.com/sprinklers/img/logs_timeline.png"><img src="https://albahra.com/sprinklers/img/logs_timeline.png" width="100"/></a>
 <a href="https://albahra.com/opensprinkler/img/program.png"><img src="https://albahra.com/opensprinkler/img/program.png" width="100"/></a>
 <a href="https://albahra.com/sprinklers/img/raindelay.png"><img src="https://albahra.com/sprinklers/img/raindelay.png" width="100"/></a>
 <a href="https://albahra.com/sprinklers/img/runonce.png"><img src="https://albahra.com/sprinklers/img/runonce.png" width="100"/></a>
