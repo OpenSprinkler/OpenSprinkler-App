@@ -4,7 +4,9 @@ before_install:
  - npm install -g grunt-cli
 install: npm install
 before_script: grunt test
-after_success: cat coverage/results.lcov | ./node_modules/.bin/coveralls
+after_success:
+  - cat coverage/results.lcov | ./node_modules/.bin/coveralls
+  - cat coverage/results.lcov | ./node_modules/codecov.io/bin/codecov.io.js
 script:
   - xctool -project source/osx/OpenSprinkler.xcodeproj -scheme OpenSprinkler -sdk macosx10.9 CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGN_ENTITLEMENTS=""
 notifications:

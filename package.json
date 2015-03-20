@@ -39,6 +39,7 @@
     "mocha": "^1.21.4"
   },
   "dependencies": {
+    "codecov.io": "0.0.8",
     "coveralls": "^2.11.2"
   }
 }
