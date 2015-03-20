@@ -1,6 +1,7 @@
 npm-debug.log
 .DS_Store
 .secrets.json
+.coveralls.yml
 .cordova/
 node_modules
 coverage
