@@ -142,10 +142,23 @@ module.exports = function(grunt) {
 				].join("&&")
 			},
 			pushEng: {
-				command: "tasks/pusheng.sh"
+				command: [
+					"xgettext --keyword=_ --output=- www/js/main.js --omit-header --force-po --from-code=UTF-8 --language='Python' | sed '/^\#/d' > .msgjs",
+					"sed -E 's/data-translate=(\".*\")/_(\\1)/g' www/index.htm | xgettext --keyword=_ --output=- --language='Python' --omit-header --force-po - | sed '/^\#/d' > .msghtml",
+					"msgcat .msgjs .msghtml > www/locale/messages_en.po",
+					"rm .msgjs .msghtml",
+					"git add www/locale/messages_en.po",
+					"git commit -m 'Localization: Update English strings'",
+					"git push"
+				].join("&&")
 			},
 			updateLang: {
-				command: "tasks/updatelang.sh <%= secrets.getLocalization.username %> <%= secrets.getLocalization.password %>"
+				command: [
+					"curl --user <%= secrets.getLocalization.username %>:<%= secrets.getLocalization.password %> https://api.getlocalization.com/Sprinklers/api/translations/zip/ -o langs.zip",
+					"unzip langs.zip",
+					"rm langs.zip",
+					"find . -type f -maxdepth 1 -iname 'messages_*.po' -print0 | while IFS= read -r -d $'\\0' line; do file=(${line//_/ }); lang=${file[1]}; file=(${lang//-/ }); lang=${file[0]}; file=(${lang//./ }); lang=${file[0]}; mv '$line' messages.po; po2json -p messages.po > 'www/locale/$lang.js'; rm messages.po; done"
+				].join("&&")
 			},
 			symres: {
 				command: "cd www && ln -s ../res res && cd .."
