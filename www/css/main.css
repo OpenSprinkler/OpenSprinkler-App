@@ -644,8 +644,7 @@ body, input, select, textarea, button, .ui-btn {
     font-size: 14px;
 }
 #clock-s {
-    padding-top: 5%;
-    padding-bottom: 4px;
+    padding-top: 10px;
 }
 .running-text {
     margin:0;
