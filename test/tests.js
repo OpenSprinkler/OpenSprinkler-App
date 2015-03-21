@@ -169,7 +169,7 @@ describe("Page Navigation Checks", function(){
 	});
 
 	it("Change page to program preview",function(done){
-		this.timeout(10000);
+		this.timeout(30000);
 		$.mobile.document.one("pageshow","#preview",function(){
 			done();
 		});
@@ -345,6 +345,7 @@ describe("Popup Checks", function(){
 		});
 	});
 
+/*
 	it("Show location selection popup",function(done){
 		$.mobile.document.one("popupafteropen","#location-list",function(){
 			$("#location-list").find("ul").children().eq(0).find("a").click();
@@ -356,6 +357,7 @@ describe("Popup Checks", function(){
 			});
 		});
 	});
+*/
 
 	it("Show change rain delay popup",function(done){
 		$.mobile.document.one("popupafteropen","#durationBox",function(){
