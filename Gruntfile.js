@@ -8,7 +8,6 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks("grunt-contrib-uglify");
 	grunt.loadNpmTasks("grunt-contrib-cssmin");
 	grunt.loadNpmTasks("grunt-contrib-clean");
-	grunt.loadNpmTasks("grunt-http-server");
 	grunt.loadTasks("tasks");
 
 	var bumpVersion = function(version) {
@@ -234,18 +233,6 @@ module.exports = function(grunt) {
 						return "\"version\": \""+bumpVersion(regexMatches[0])+"\"";
 					}
 				}]
-			}
-		},
-
-		"http-server": {
-			dev: {
-				root: "",
-				port: 8282,
-				host: "127.0.0.1",
-				showDir : true,
-				autoIndex: true,
-				ext: "html",
-				runInBackground: false
 			}
 		},
 
