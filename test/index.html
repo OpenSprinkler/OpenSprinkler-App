@@ -33,10 +33,10 @@
         mocha.setup('bdd');
 
         if (window.PHANTOMJS) {
-          blanket.options("reporter", "grunt-reporter.js");
+          blanket.options("reporter", "support/grunt-reporter.js");
         }
       </script>
-      <script type="text/javascript" src="mocha-blanket.js"></script>
+      <script type="text/javascript" src="support/mocha-blanket.js"></script>
       <script src="../www/js/main.js" data-cover></script>
       <script src="../www/js/jqm.js"></script>
       <script src="../www/js/libs.js"></script>

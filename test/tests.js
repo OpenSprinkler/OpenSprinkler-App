@@ -8,7 +8,7 @@ describe("Initial Definition Check", function(){
 				"testkey": "helloworld",
                 "sites": JSON.stringify({
                 	"Test": {
-                		"os_ip": "demo.opensprinkler.com",
+                		"os_ip": "127.0.0.1:8080",
                 		"os_pw":"opendoor"
                 	}
                 }),
@@ -258,6 +258,28 @@ describe("Page Navigation Checks", function(){
 		});
 		assert.doesNotThrow(function(){
 			changePage("#about");
+		});
+	});
+});
+
+describe("Popup Checks", function(){
+	it("Show main menu popup using keybind",function(done){
+		$.mobile.document.one("popupafteropen","#mainMenu",function(){
+			$("#mainMenu").popup("close").remove();
+			done();
+		});
+		assert.doesNotThrow(function(){
+			showHomeMenu();
+		});
+	});
+
+	it("Show change rain delay popup",function(done){
+		$.mobile.document.one("popupafteropen","#raindelay",function(){
+			$("#raindelay").popup("close").remove();
+			done();
+		});
+		assert.doesNotThrow(function(){
+			changePage("#raindelay");
 		});
 	});
 });
