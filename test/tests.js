@@ -164,8 +164,11 @@ describe("General Function Checks", function(){
 });
 
 describe("Page Navigation Checks", function(){
-	it("Start jQuery Mobile Page Initialization",function(){
+	it("Start jQuery Mobile Page Initialization",function(done){
 		assert.doesNotThrow($.mobile.initializePage);
+		$.mobile.document.one("pageshow","#sprinklers",function(){
+			done();
+		});
 	});
 
 	it("Change page to program preview",function(done){
@@ -173,10 +176,8 @@ describe("Page Navigation Checks", function(){
 		$.mobile.document.one("pageshow","#preview",function(){
 			done();
 		});
-		$.mobile.document.one("pageshow","#sprinklers",function(){
-			assert.doesNotThrow(function(){
-				changePage("#preview");
-			});
+		assert.doesNotThrow(function(){
+			changePage("#preview");
 		});
 	});
 
