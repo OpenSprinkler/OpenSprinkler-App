@@ -3527,6 +3527,7 @@ function showHomeMenu(btn) {
 
 function showHome(firstLoad) {
     var cards = "",
+        site_select = $("#site-selector"),
         page = $("<div data-role='page' id='sprinklers'>" +
             "<div class='ui-panel-wrapper'>" +
                 "<div class='ui-content' role='main'>" +
@@ -3535,6 +3536,7 @@ function showHome(firstLoad) {
                             "<div id='weather' class='pointer'></div>" +
                         "</div>" +
                         "<div class='ui-block-b center home-info pointer'>" +
+                            "<span class='sitename bold'>"+site_select.val()+"</span>" +
                             "<div id='clock-s' class='nobr'>"+dateToString(new Date(controller.settings.devt*1000),null,true)+"</div>" +
                             _("Water Level") + ": <span class='waterlevel'>" + controller.options.wl + "</span>%" +
                         "</div>" +
@@ -3738,6 +3740,7 @@ function showHome(firstLoad) {
             }
 
             page.find(".waterlevel").text(controller.options.wl);
+            page.find(".sitename").text(site_select.val());
 
             hasMaster = controller.options.mas ? true : false;
             hasIR = (typeof controller.stations.ignore_rain === "object") ? true : false;
