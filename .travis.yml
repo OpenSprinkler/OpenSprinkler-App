@@ -4,7 +4,7 @@ before_install:
  - npm install -g grunt-cli
 install: npm install
 before_script:
- - launch_osdemo.sh
+ - test/launch_osdemo.sh
  - grunt test
 after_success:
  - cat coverage/results.lcov | ./node_modules/codecov.io/bin/codecov.io.js
