@@ -165,6 +165,7 @@ describe("General Function Checks", function(){
 
 describe("Page Navigation Checks", function(){
 	it("Start jQuery Mobile Page Initialization",function(done){
+		this.timeout(30000);
 		assert.doesNotThrow($.mobile.initializePage);
 		$.mobile.document.one("pageshow","#sprinklers",function(){
 			done();
@@ -172,7 +173,6 @@ describe("Page Navigation Checks", function(){
 	});
 
 	it("Change page to program preview",function(done){
-		this.timeout(30000);
 		$.mobile.document.one("pageshow","#preview",function(){
 			done();
 		});
