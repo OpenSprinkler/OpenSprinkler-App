@@ -6,44 +6,28 @@
             version     = "1.4.0"
             versionCode = "47" >
 
+        <!-- Declare PhoneGap Version -->
         <preference name="phonegap-version" value="3.7.0" />
+
+        <!-- Prevent bounce scroll effect on iOS -->
         <preference name="DisallowOverscroll" value="true"  />
+
+        <!-- Declare no permissions needed (default is everything) -->
         <preference name="permissions" value="none" />
+
+        <!-- Disable web security in Blackberry 10 allowing CORS -->
         <preference name="WebSecurity" value="disable"/>
+
+        <!-- Stop the app in the background -->
+        <preference name="KeepRunning" value="false"/>
+
+        <!-- Disable splash screen hiding automatically (instead JS removes it) -->
         <preference name="AutoHideSplashScreen" value="false" />
         <preference name="SplashScreenDelay" value="10000"/>
         <preference name="ShowSplashScreenSpinner" value="false" />
 
+        <!-- Declare network access is required -->
         <feature name="http://api.phonegap.com/1.0/network"/>
-
-        <gap:plugin name="com.phonegap.plugin.statusbar" />
-        <gap:plugin name="com.albahra.plugin.networkinterface" />
-        <gap:plugin name="org.apache.cordova.inappbrowser" />
-        <gap:plugin name="org.apache.cordova.splashscreen" />
-        <gap:plugin name="org.apache.cordova.geolocation" />
-
-        <gap:config-file platform="ios" parent="NSLocationAlwaysUsageDescription" overwrite="false">
-            <string>Your current location will be used to configure OpenSprinkler.</string>
-        </gap:config-file>
-
-        <gap:config-file platform="ios" parent="NSLocationWhenInUseUsageDescription" overwrite="false">
-            <string>Your current location will be used to configure OpenSprinkler.</string>
-        </gap:config-file>
-
-        <gap:config-file platform="ios" parent="CFBundleShortVersionString">
-            <string>140</string>
-        </gap:config-file>
-
-        <gap:config-file platform="android" parent="/manifest">
-            <uses-sdk android:minSdkVersion="10" android:targetSdkVersion="19" />
-            <supports-screens
-                android:xlargeScreens="true"
-                android:largeScreens="true"
-                android:smallScreens="true" />
-            <application android:theme="@android:style/Theme.Holo.Light.NoActionBar">
-                <activity android:theme="@android:style/Theme.Holo.Light.NoActionBar"></activity>
-            </application>
-        </gap:config-file>
 
         <name>OpenSprinkler</name>
 
@@ -55,8 +39,87 @@
             Samer Albahra
         </author>
 
+        <!-- Allow CORS requests -->
         <access origin="*" />
 
+        <!-- iOS Splash Screen for PhoneGap -->
+        <platform name="ios">
+            <splash src="res/ios/screens/startup.png"                           width="320"   height="480"  />
+            <splash src="res/ios/screens/startup-retina.png"                    width="640"   height="960"  />
+            <splash src="res/ios/screens/startup-iphone5-retina.png"            width="640"   height="1136" />
+            <splash src="res/ios/screens/startup-iphone6-portrait.png"          width="750"   height="1334" />
+            <splash src="res/ios/screens/startup-iphone6-landscape.png"         width="1334"  height="750"  />
+            <splash src="res/ios/screens/startup-iphone6plus-portrait.png"      width="1242"  height="2208" />
+            <splash src="res/ios/screens/startup-iphone6plus-landscape.png"     width="2208"  height="1242" />
+            <splash src="res/ios/screens/startup-tablet-landscape.png"          width="1024"  height="768"  />
+            <splash src="res/ios/screens/startup-tablet-portrait.png"           width="768"   height="1024" />
+            <splash src="res/ios/screens/startup-tablet-landscape-retina.png"   width="2048"  height="1536" />
+            <splash src="res/ios/screens/startup-tablet-portrait-retina.png"    width="1536"  height="2048" />
+        </platform>
+
+        <!-- iOS Icons for PhoneGap -->
+        <icon src="res/ios/icons/icon-57.png"       gap:platform="ios" width="57" height="57" />
+        <icon src="res/ios/icons/icon-60@2x.png"    gap:platform="ios" width="120" height="120" />
+        <icon src="res/ios/icons/icon-60@3x.png"    gap:platform="ios" width="180" height="180" />
+        <icon src="res/ios/icons/icon-72.png"       gap:platform="ios" width="72" height="72" />
+        <icon src="res/ios/icons/icon-72@2x.png"    gap:platform="ios" width="144" height="144" />
+        <icon src="res/ios/icons/icon-76.png"       gap:platform="ios" width="76" height="76" />
+        <icon src="res/ios/icons/icon-76@2x.png"    gap:platform="ios" width="152" height="152" />
+
+        <!-- Android Icons for PhoneGap -->
+        <icon src="res/android/icons/ldpi.png"      gap:platform="android" gap:qualifier="ldpi" />
+        <icon src="res/android/icons/mdpi.png"      gap:platform="android" gap:qualifier="mdpi" />
+        <icon src="res/android/icons/hdpi.png"      gap:platform="android" gap:qualifier="hdpi" />
+        <icon src="res/android/icons/xhdpi.png"     gap:platform="android" gap:qualifier="xhdpi" />
+        <icon src="res/android/icons/xxhdpi.png"    gap:platform="android" gap:qualifier="xxhdpi" />
+
+        <!-- Windows Phone Icons for PhoneGap -->
+        <icon src="res/winphone/icons/icon-48.png"  gap:platform="winphone" />
+
+        <!-- PhoneGap Build Specific Configuration -->
+
+        <!-- Declare required plugins -->
+        <gap:plugin name="com.phonegap.plugin.statusbar" />
+        <gap:plugin name="com.albahra.plugin.networkinterface" />
+        <gap:plugin name="org.apache.cordova.inappbrowser" />
+        <gap:plugin name="org.apache.cordova.splashscreen" />
+        <gap:plugin name="org.apache.cordova.geolocation" />
+
+        <!-- Add description for GPS usage -->
+        <gap:config-file platform="ios" parent="NSLocationAlwaysUsageDescription" overwrite="false">
+            <string>Your current location will be used to configure OpenSprinkler.</string>
+        </gap:config-file>
+
+        <!-- Add description for GPS usage -->
+        <gap:config-file platform="ios" parent="NSLocationWhenInUseUsageDescription" overwrite="false">
+            <string>Your current location will be used to configure OpenSprinkler.</string>
+        </gap:config-file>
+
+        <!-- Add required short version string to iOS configuration -->
+        <gap:config-file platform="ios" parent="CFBundleShortVersionString">
+            <string>140</string>
+        </gap:config-file>
+
+        <!-- Android specific Configuration -->
+        <gap:config-file platform="android" parent="/manifest">
+
+            <!-- Declare SDK -->
+            <uses-sdk android:minSdkVersion="10" android:targetSdkVersion="19" />
+
+            <!-- Declare supported screens -->
+            <supports-screens
+                android:xlargeScreens="true"
+                android:largeScreens="true"
+                android:smallScreens="true" />
+
+            <!-- Declare theme which fixes select menu background color -->
+            <application android:theme="@android:style/Theme.Holo.Light.NoActionBar">
+                <activity android:theme="@android:style/Theme.Holo.Light.NoActionBar"></activity>
+            </application>
+
+        </gap:config-file>
+
+        <!-- iOS Splash Screen for PhoneGap Build -->
         <gap:splash src="res/ios/screens/startup.png"                           gap:platform="ios" width="320"  height="480"  />
         <gap:splash src="res/ios/screens/startup-retina.png"                    gap:platform="ios" width="640"  height="960"  />
         <gap:splash src="res/ios/screens/startup-iphone5-retina.png"            gap:platform="ios" width="640"  height="1136" />
@@ -69,25 +132,11 @@
         <gap:splash src="res/ios/screens/startup-tablet-landscape-retina.png"   gap:platform="ios" width="2048" height="1536" />
         <gap:splash src="res/ios/screens/startup-tablet-portrait-retina.png"    gap:platform="ios" width="1536" height="2048" />
 
+        <!-- Android Splash Screen for PhoneGap Build -->
         <gap:splash src="res/android/screens/mdpi.9.png"      gap:platform="android" gap:density="mdpi" />
         <gap:splash src="res/android/screens/xhdpi.9.png"     gap:platform="android" gap:density="xhdpi" />
 
+        <!-- Windows Phone Splash Screen for PhoneGap Build -->
         <gap:splash src="res/winphone/screens/startup.jpg" gap:platform="winphone" />
-
-        <icon src="res/ios/icons/icon-57.png"       gap:platform="ios" width="57" height="57" />
-        <icon src="res/ios/icons/icon-60@2x.png"    gap:platform="ios" width="120" height="120" />
-        <icon src="res/ios/icons/icon-60@3x.png"    gap:platform="ios" width="180" height="180" />
-        <icon src="res/ios/icons/icon-72.png"       gap:platform="ios" width="72" height="72" />
-        <icon src="res/ios/icons/icon-72@2x.png"    gap:platform="ios" width="144" height="144" />
-        <icon src="res/ios/icons/icon-76.png"       gap:platform="ios" width="76" height="76" />
-        <icon src="res/ios/icons/icon-76@2x.png"    gap:platform="ios" width="152" height="152" />
-
-        <icon src="res/android/icons/ldpi.png"      gap:platform="android" gap:qualifier="ldpi" />
-        <icon src="res/android/icons/mdpi.png"      gap:platform="android" gap:qualifier="mdpi" />
-        <icon src="res/android/icons/hdpi.png"      gap:platform="android" gap:qualifier="hdpi" />
-        <icon src="res/android/icons/xhdpi.png"     gap:platform="android" gap:qualifier="xhdpi" />
-        <icon src="res/android/icons/xxhdpi.png"    gap:platform="android" gap:qualifier="xxhdpi" />
-
-        <icon src="res/winphone/icons/icon-48.png"  gap:platform="winphone" />
 
     </widget>
