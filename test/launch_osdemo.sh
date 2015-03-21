@@ -1,7 +1,7 @@
 #!/bin/bash
 
-cd build
-git clone -b fix-nonblock https://github.com/opensprinkler/opensprinklergen2
-cd opensprinklergen2
+cd build/firmware
+git clone -b fix-nonblock https://github.com/opensprinkler/opensprinklergen2 unified
+cd unified
 ./build_demo.sh
 ./OpenSprinkler &

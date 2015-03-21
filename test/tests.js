@@ -263,20 +263,106 @@ describe("Page Navigation Checks", function(){
 });
 
 describe("Popup Checks", function(){
-	it("Show main menu popup using keybind",function(done){
+	it("Show main menu popup",function(done){
 		$.mobile.document.one("popupafteropen","#mainMenu",function(){
+			$.mobile.document.one("popupafterclose","#mainMenu",function(){
+				done();
+			});
+
 			$("#mainMenu").popup("close").remove();
-			done();
 		});
 		assert.doesNotThrow(function(){
 			showHomeMenu();
 		});
 	});
 
+	it("Show add new site popup",function(done){
+		$.mobile.document.one("popupafteropen","#addnew",function(){
+			$.mobile.document.one("popupafterclose","#addnew",function(){
+				done();
+			});
+			$("#addnew").popup("close").remove();
+		});
+		assert.doesNotThrow(function(){
+			show_addnew();
+		});
+	});
+
+	it("Show site select popup",function(done){
+		$.mobile.document.one("popupafteropen","#site-select",function(){
+			$.mobile.document.one("popupafterclose","#site-select",function(){
+				done();
+			});
+			$("#site-select").popup("close").remove();
+		});
+		assert.doesNotThrow(function(){
+			show_site_select();
+		});
+	});
+
+	it("Show are you sure popup",function(done){
+		$.mobile.document.one("popupafteropen","#sure",function(){
+			$("#sure .sure-do").click();
+		});
+		assert.doesNotThrow(function(){
+			areYouSure(null,null,done);
+		});
+	});
+
+	it("Show IP Address input popup",function(done){
+		$.mobile.document.one("popupafteropen","#ipInput",function(){
+			$.mobile.document.one("popupafterclose","#ipInput",function(){
+				done();
+			});
+			$("#ipInput").popup("close").remove();
+		});
+		assert.doesNotThrow(function(){
+			showIPRequest();
+		});
+	});
+
+	it("Show single duration input popup",function(done){
+		$.mobile.document.one("popupafteropen","#singleDuration",function(){
+			$.mobile.document.one("popupafterclose","#singleDuration",function(){
+				done();
+			});
+			$("#singleDuration").popup("close").remove();
+		});
+		assert.doesNotThrow(function(){
+			showSingleDurationInput();
+		});
+	});
+
+	it("Show language selection popup",function(done){
+		$.mobile.document.one("popupafteropen","#localization",function(){
+			$.mobile.document.one("popupafterclose","#localization",function(){
+				done();
+			});
+			$("#localization").popup("close").remove();
+		});
+		assert.doesNotThrow(function(){
+			languageSelect();
+		});
+	});
+
+	it("Show location selection popup",function(done){
+		$.mobile.document.one("popupafteropen","#location-list",function(){
+			$("#location-list").find("ul").children().eq(0).find("a").click();
+		});
+		assert.doesNotThrow(function(){
+			resolveLocation("boston",function(location){
+				assert.notStrictEqual(false,location);
+				done();
+			});
+		});
+	});
+
 	it("Show change rain delay popup",function(done){
-		$.mobile.document.one("popupafteropen","#raindelay",function(){
-			$("#raindelay").popup("close").remove();
-			done();
+		$.mobile.document.one("popupafteropen","#durationBox",function(){
+			$.mobile.document.one("popupafterclose","#durationBox",function(){
+				done();
+			});
+			$("#durationBox").popup("close").remove();
 		});
 		assert.doesNotThrow(function(){
 			changePage("#raindelay");
