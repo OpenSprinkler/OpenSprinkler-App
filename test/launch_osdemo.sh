@@ -8,7 +8,9 @@ if [ $1 == "start" ]; then
 	./build_demo.sh
 	./OpenSprinkler >/dev/null 2>&1 &
 	echo $! > pid
+	sleep 5
 else
 	kill -9 `cat unified/pid`
 	rm unified/pid
+	sleep 5
 fi

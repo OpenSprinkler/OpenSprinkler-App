@@ -4,7 +4,12 @@ before_install:
  - npm install -g grunt-cli
 install: npm install
 before_script:
+ - grunt shell:startOSPi
  - grunt test
+ - grunt shell:stopOSPi
+ - grunt shell:startDemo
+ - grunt test
+ - grunt shell:stopDemo
 after_success:
  - cat coverage/results.lcov | ./node_modules/codecov.io/bin/codecov.io.js
  - cat coverage/results.lcov | ./node_modules/.bin/coveralls

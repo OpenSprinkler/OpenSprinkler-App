@@ -273,7 +273,7 @@ module.exports = function(grunt) {
 
 	// Default task(s).
 	grunt.registerTask("default",["jshint"]);
-	grunt.registerTask("test",["jshint","shell:startOSPi","blanket_mocha","shell:stopOSPi"]);
+	grunt.registerTask("test",["jshint","blanket_mocha"]);
 	grunt.registerTask("updateLang",["shell:updateLang"]);
 	grunt.registerTask("pushEng",["shell:pushEng"]);
 	grunt.registerTask("makeFW",["jshint","uglify","cssmin","compress:jsAsset","compress:cssAsset","compress:makeFW","clean:makeFW"]);
