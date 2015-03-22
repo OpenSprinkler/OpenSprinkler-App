@@ -107,7 +107,7 @@ module.exports = function(grunt) {
 
             var threshold = coverageThreshold;
 
-            grunt.file.write("coverage/results.lcov", lcov);
+            grunt.file.write("coverage/results-"+Math.floor(Math.random()*100000)+".lcov", lcov);
 
             // Check for a custom threshold
             var custom = _.find(customThreshold, function (o) {
