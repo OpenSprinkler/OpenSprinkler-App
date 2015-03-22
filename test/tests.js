@@ -372,3 +372,20 @@ describe("Popup Checks", function(){
 		});
 	});
 });
+
+describe("Logout / Clean up", function(){
+	it("Remove all variables",function(done){
+        storage.remove(["sites","current_site","lang","runonce"],function(){
+        	done();
+        });
+    });
+
+    it("Go to start page",function(done){
+		$.mobile.document.one("pageshow","#start",function(){
+			done();
+		});
+    	changePage("#start",{
+    		showStart: true
+    	});
+    });
+});
