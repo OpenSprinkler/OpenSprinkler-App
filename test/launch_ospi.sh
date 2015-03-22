@@ -7,7 +7,7 @@ if [ $1 == "start" ]; then
 		git clone https://github.com/dan-in-ca/ospi
 	fi
 	cd ospi
-	nohup python ospi.py &
+	nohup python ospi.py >/dev/null 2>&1 &
 	echo $! > pid
 else
 	kill -9 `cat ospi/pid`
