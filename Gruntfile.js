@@ -162,6 +162,18 @@ module.exports = function(grunt) {
 					"git push"
 				].join("&&")
 			},
+			startOSPi: {
+				command: "test/launch_ospi.sh start"
+			},
+			stopOSPi: {
+				command: "test/launch_ospi.sh stop"
+			},
+			startDemo: {
+				command: "test/launch_osdemo.sh start"
+			},
+			stopDemo: {
+				command: "test/launch_osdemo.sh stop"
+			},
 			symres: {
 				command: "cd www && ln -s ../res res && cd .."
 			},
@@ -261,7 +273,7 @@ module.exports = function(grunt) {
 
 	// Default task(s).
 	grunt.registerTask("default",["jshint"]);
-	grunt.registerTask("test",["jshint","blanket_mocha"]);
+	grunt.registerTask("test",["jshint","shell:startOSPi","blanket_mocha","shell:stopOSPi"]);
 	grunt.registerTask("updateLang",["shell:updateLang"]);
 	grunt.registerTask("pushEng",["shell:pushEng"]);
 	grunt.registerTask("makeFW",["jshint","uglify","cssmin","compress:jsAsset","compress:cssAsset","compress:makeFW","clean:makeFW"]);
