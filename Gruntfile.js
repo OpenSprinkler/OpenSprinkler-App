@@ -50,7 +50,7 @@ module.exports = function(grunt) {
 
 		blanket_mocha: {
 			test: {
-				src: ["test/index.html"],
+				src: ["test/tests.html"],
 				options : {
 					threshold : 5
 				}
