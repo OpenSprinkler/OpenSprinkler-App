@@ -11,6 +11,7 @@ before_script:
  - grunt test
  - grunt shell:stopDemo
 after_success:
+ - ./node_modules/.bin/lcov-result-merger 'coverage/results-*.lcov' 'coverage/results.lcov'
  - cat coverage/results.lcov | ./node_modules/codecov.io/bin/codecov.io.js
  - cat coverage/results.lcov | ./node_modules/.bin/coveralls
 script:
