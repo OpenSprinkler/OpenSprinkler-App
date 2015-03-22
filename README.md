@@ -1,5 +1,7 @@
 ## OpenSprinkler
 
+[![Join the chat at https://gitter.im/salbahra/Sprinklers](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/salbahra/Sprinklers?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 <img align="left" height="96" src="http://albahra.com/sprinklers/icon.png">[![Build Status](https://api.travis-ci.org/salbahra/Sprinklers.svg?branch=master)](https://travis-ci.org/salbahra/Sprinklers) [![Coverage Status](https://coveralls.io/repos/salbahra/Sprinklers/badge.svg?branch=master)](https://codecov.io/github/salbahra/Sprinklers?branch=master) [![devDependency Status](https://david-dm.org/salbahra/Sprinklers/dev-status.svg)](https://david-dm.org/salbahra/Sprinklers#info=devDependencies)
 
 [Official Site][official] | [Support][help] | [Changelog][changelog]  
