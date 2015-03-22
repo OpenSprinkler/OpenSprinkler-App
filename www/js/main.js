@@ -6811,7 +6811,7 @@ function show_about() {
                 "</ul>" +
                 "<ul data-role='listview' data-inset='true'>" +
                     "<li>" +
-                        "<p>"+_("This is open source software: source code and changelog for this application can be found at")+" <a class='iab squeeze' target='_blank' href='https://github.com/salbahra/Sprinklers/'>https://github.com/salbahra/Sprinklers/</a></p>" +
+                        "<p>"+_("This is open source software: source code and changelog for this application can be found at")+" <a class='iab squeeze' target='_blank' href='https://github.com/OpenSprinkler/OpenSprinkler-App/'>https://github.com/OpenSprinkler/OpenSprinkler-App/</a></p>" +
                         "<p>"+_("Language localization is crowdsourced using Get Localization available at")+" <a class='iab squeeze' target='_blank' href='http://www.getlocalization.com/Sprinklers/'>http://www.getlocalization.com/Sprinklers/</a></p>" +
                     "</li>" +
                 "</ul>" +

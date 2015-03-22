@@ -1,6 +1,6 @@
 ## OpenSprinkler
 
-<img align="left" height="96" src="http://albahra.com/sprinklers/icon.png">[![Build Status](https://api.travis-ci.org/salbahra/Sprinklers.svg?branch=master)](https://travis-ci.org/salbahra/Sprinklers) [![Coverage Status](https://coveralls.io/repos/salbahra/Sprinklers/badge.svg?branch=master)](https://codecov.io/github/salbahra/Sprinklers?branch=master) [![devDependency Status](https://david-dm.org/salbahra/Sprinklers/dev-status.svg)](https://david-dm.org/salbahra/Sprinklers#info=devDependencies)
+<img align="left" height="96" src="http://albahra.com/sprinklers/icon.png">[![Build Status](https://api.travis-ci.org/OpenSprinkler/OpenSprinkler-App.svg?branch=master)](https://travis-ci.org/) [![Coverage Status](https://coveralls.io/repos/OpenSprinkler/OpenSprinkler-App/badge.svg?branch=master)](https://codecov.io/github/OpenSprinkler/OpenSprinkler-App?branch=master) [![devDependency Status](https://david-dm.org/OpenSprinkler/OpenSprinkler-App/dev-status.svg)](https://david-dm.org/OpenSprinkler/OpenSprinkler-App#info=devDependencies)
 
 [Official Site][official] | [Support][help] | [Changelog][changelog]  
 &copy; 2013-2014 [Samer Albahra][salbahra] ([@salbahra](https://twitter.com/salbahra))  
@@ -11,7 +11,7 @@ A mobile interface for the OpenSprinkler irrigation device. Designed to allow ma
 
 [official]: https://opensprinkler.com
 [help]: http://support.opensprinkler.com
-[changelog]: https://github.com/salbahra/Sprinklers/releases
+[changelog]: https://github.com/OpenSprinkler/OpenSprinkler-App/releases
 [salbahra]: http://albahra.com
 
 <a href="https://albahra.com/sprinklers/img/home.png"><img src="https://albahra.com/sprinklers/img/home.png" width="100"/></a>

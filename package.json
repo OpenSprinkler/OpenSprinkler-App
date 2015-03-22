@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/salbahra/Sprinklers.git"
+    "url": "https://github.com/OpenSprinkler/OpenSprinkler-App.git"
   },
   "keywords": [
     "sprinklers",
@@ -18,9 +18,9 @@
   ],
   "author": "Samer Albahra",
   "bugs": {
-    "url": "https://github.com/salbahra/Sprinklers/issues"
+    "url": "https://github.com/OpenSprinkler/OpenSprinkler-App/issues"
   },
-  "homepage": "https://github.com/salbahra/Sprinklers",
+  "homepage": "https://github.com/OpenSprinkler/OpenSprinkler-App",
   "devDependencies": {
     "blanket": "^1.1.6",
     "chai": "^2.1.2",
