@@ -81,7 +81,7 @@
 	insertMeta("apple-mobile-web-app-status-bar-style","black");
 
 	// Give the app a name to be used when added to home screen
-	insertMeta("apple-mobile-web-app-title","Sprinklers");
+	insertMeta("apple-mobile-web-app-title","OpenSprinkler");
 
 	// Ensure browser knows the content-type of UTF-8
 	insertMeta("content-type","text/html; charset=utf-8");

@@ -146,7 +146,7 @@
 			dependencies = (
 			);
 			name = OpenSprinkler;
-			productName = Sprinklers;
+			productName = OpenSprinkler;
 			productReference = F4F83F891981E481006B2617 /* OpenSprinkler.app */;
 			productType = "com.apple.product-type.application";
 		};

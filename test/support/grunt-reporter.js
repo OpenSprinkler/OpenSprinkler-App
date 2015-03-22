@@ -75,7 +75,7 @@
 
     var lcov = function (filename,data) {
         var str="";
-        filename = filename.slice(filename.indexOf("/Sprinklers/") + 12)
+        filename = filename.slice(filename.indexOf("/OpenSprinkler-App/") + 19)
         str += "SF:" + filename + "\n";
 
         data.source.forEach(function(line, num) {

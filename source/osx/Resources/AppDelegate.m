@@ -1,6 +1,6 @@
 //
 //  AppDelegate.m
-//  Sprinklers
+//  OpenSprinkler
 //
 //  Created by Samer Albahra on 7/24/14.
 //  Copyright (c) 2014 Samer Albahra. All rights reserved.
@@ -22,12 +22,12 @@
 
 - (void)awakeFromNib {
     // Enable localStorage in webView
-    
+
     NSString* dbPath = [WebStorageManager _storageDirectoryPath];
-    
+
     WebPreferences* prefs = [self.webView preferences];
     NSString* localDBPath = [prefs _localStorageDatabasePath];
-    
+
     // PATHS MUST MATCH!!!!  otherwise localstorage file is erased when starting program
     if( [localDBPath isEqualToString:dbPath] == NO) {
         [prefs setAutosaves:YES];  //SET PREFS AUTOSAVE FIRST otherwise settings aren't saved.
@@ -36,22 +36,22 @@
         static const unsigned long long defaultOriginQuota = 5 * 1024 * 1024; // 5MB
         [prefs setApplicationCacheTotalQuota:defaultTotalQuota];
         [prefs setApplicationCacheDefaultOriginQuota:defaultOriginQuota];
-        
+
         [prefs setWebGLEnabled:YES];
         [prefs setOfflineWebApplicationCacheEnabled:YES];
-        
+
         [prefs setDatabasesEnabled:YES];
         [prefs setDeveloperExtrasEnabled:[[NSUserDefaults standardUserDefaults] boolForKey: @"developer"]];
-        
+
         #ifdef DEBUG
         [prefs setDeveloperExtrasEnabled:YES];
         #endif
         [prefs _setLocalStorageDatabasePath:dbPath];
         [prefs setLocalStorageEnabled:YES];
-        
+
         [self.webView setPreferences:prefs];
     }
-    
+
     // Get notification when scripting environment becomes available
     [webView setFrameLoadDelegate:self];
 
