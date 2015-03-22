@@ -1,6 +1,6 @@
 ## OpenSprinkler
 
-<img align="left" height="96" src="http://albahra.com/sprinklers/icon.png">[![Build Status](https://api.travis-ci.org/OpenSprinkler/OpenSprinkler-App.svg?branch=master)](https://travis-ci.org/) [![Coverage Status](https://coveralls.io/repos/OpenSprinkler/OpenSprinkler-App/badge.svg?branch=master)](https://codecov.io/github/OpenSprinkler/OpenSprinkler-App?branch=master) [![devDependency Status](https://david-dm.org/OpenSprinkler/OpenSprinkler-App/dev-status.svg)](https://david-dm.org/OpenSprinkler/OpenSprinkler-App#info=devDependencies)
+<img align="left" height="96" src="http://albahra.com/opensprinkler/icon.png">[![Build Status](https://api.travis-ci.org/OpenSprinkler/OpenSprinkler-App.svg?branch=master)](https://travis-ci.org/) [![Coverage Status](https://coveralls.io/repos/OpenSprinkler/OpenSprinkler-App/badge.svg?branch=master)](https://codecov.io/github/OpenSprinkler/OpenSprinkler-App?branch=master) [![devDependency Status](https://david-dm.org/OpenSprinkler/OpenSprinkler-App/dev-status.svg)](https://david-dm.org/OpenSprinkler/OpenSprinkler-App#info=devDependencies)
 
 [Official Site][official] | [Support][help] | [Changelog][changelog]  
 &copy; 2013-2014 [Samer Albahra][salbahra] ([@salbahra](https://twitter.com/salbahra))  
@@ -14,12 +14,12 @@ A mobile interface for the OpenSprinkler irrigation device. Designed to allow ma
 [changelog]: https://github.com/OpenSprinkler/OpenSprinkler-App/releases
 [salbahra]: http://albahra.com
 
-<a href="https://albahra.com/sprinklers/img/home.png"><img src="https://albahra.com/sprinklers/img/home.png" width="100"/></a>
-<a href="https://albahra.com/sprinklers/img/preview.png"><img src="https://albahra.com/sprinklers/img/preview.png" width="100"/></a>
-<a href="https://albahra.com/sprinklers/img/logs_timeline.png"><img src="https://albahra.com/sprinklers/img/logs_timeline.png" width="100"/></a>
+<a href="https://albahra.com/opensprinkler/img/home.png"><img src="https://albahra.com/opensprinkler/img/home.png" width="100"/></a>
+<a href="https://albahra.com/opensprinkler/img/preview.png"><img src="https://albahra.com/opensprinkler/img/preview.png" width="100"/></a>
+<a href="https://albahra.com/opensprinkler/img/logs_timeline.png"><img src="https://albahra.com/opensprinkler/img/logs_timeline.png" width="100"/></a>
 <a href="https://albahra.com/opensprinkler/img/program.png"><img src="https://albahra.com/opensprinkler/img/program.png" width="100"/></a>
-<a href="https://albahra.com/sprinklers/img/raindelay.png"><img src="https://albahra.com/sprinklers/img/raindelay.png" width="100"/></a>
-<a href="https://albahra.com/sprinklers/img/runonce.png"><img src="https://albahra.com/sprinklers/img/runonce.png" width="100"/></a>
+<a href="https://albahra.com/opensprinkler/img/raindelay.png"><img src="https://albahra.com/opensprinkler/img/raindelay.png" width="100"/></a>
+<a href="https://albahra.com/opensprinkler/img/runonce.png"><img src="https://albahra.com/opensprinkler/img/runonce.png" width="100"/></a>
 
 <i>Screenshots: iPhone 5S</i>
 
