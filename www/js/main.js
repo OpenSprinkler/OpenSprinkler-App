@@ -135,79 +135,6 @@ $(document)
         return false;
     });
 })
-.one("mobileinit", function(){
-    //After jQuery mobile is loaded set intial configuration
-    $.mobile.defaultPageTransition = (isAndroid || isIEMobile || isFireFoxOS || isBB10) ? "fade" : "slide";
-    $.mobile.hoverDelay = 0;
-    $.mobile.activeBtnClass = "activeButton";
-
-    //Change history method for Chrome Packaged Apps
-    if (isChromeApp) {
-        $.mobile.hashListeningEnabled = false;
-    }
-
-    if (!isOSXApp) {
-        $.mobile.document.on("click",".iab",function(){
-            var button = $(this),
-                iab = window.open(this.href,"_blank","location="+(isAndroid ? "yes" : "no")+",enableViewportScale="+(button.hasClass("iabNoScale") ? "no" : "yes")+",toolbarposition=top,closebuttoncaption="+(button.hasClass("iabNoScale") ? _("Back") : _("Done")));
-
-            if (isIEMobile) {
-                $.mobile.document.data("iabOpen",true);
-                iab.addEventListener("exit",function(){
-                    $.mobile.document.removeData("iabOpen");
-                });
-            }
-
-            setTimeout(function(){
-                button.removeClass("ui-btn-active");
-            },100);
-            return false;
-        });
-    }
-
-    // Correctly handle popup events and prevent history navigation on custom selectmenu popup
-    $.mobile.document.on("click",".ui-select .ui-btn",function(){
-        var button = $(this),
-            id = button.attr("id").replace("-button","-listbox"),
-            popup = $("#"+id),
-            screen = $("#"+id+"-screen");
-
-        popup.popup({
-            history: false,
-            "positionTo": button
-        }).popup("open");
-
-        button.off("click").on("click",function(){
-            popup.popup("open");
-        });
-
-        screen.off("click").on("click",function(){
-            popup.popup("close");
-        });
-
-        return false;
-    });
-
-    // Bind event handler to open panel when swiping right
-    $.mobile.document.on("swiperight swipeleft",".ui-page",function(e) {
-        if ($(".ui-page-active").jqmData("panel") !== "open" && !$(".ui-page-active .ui-popup-active").length) {
-            if (e.type === "swiperight") {
-                open_panel();
-            } else {
-                showNotifications();
-            }
-        }
-    });
-
-    // Extend collapsible widget with event before change
-    $.widget("mobile.collapsible", $.mobile.collapsible, {
-        _handleExpandCollapse: function(isCollapse) {
-            if (this._trigger("before" + (isCollapse ? "collapse" : "expand"))) {
-                this._superApply(arguments);
-            }
-        }
-    });
-})
 .one("pagebeforechange", function(event) {
     // Let the framework know we're going to handle the first load
     event.preventDefault();
@@ -430,6 +357,78 @@ function initApp() {
             "cache": false
         });
     }
+
+    //After jQuery mobile is loaded set intial configuration
+    $.mobile.defaultPageTransition = (isAndroid || isIEMobile || isFireFoxOS || isBB10) ? "fade" : "slide";
+    $.mobile.hoverDelay = 0;
+    $.mobile.activeBtnClass = "activeButton";
+
+    //Change history method for Chrome Packaged Apps
+    if (isChromeApp) {
+        $.mobile.hashListeningEnabled = false;
+    }
+
+    if (!isOSXApp) {
+        $.mobile.document.on("click",".iab",function(){
+            var button = $(this),
+                iab = window.open(this.href,"_blank","location="+(isAndroid ? "yes" : "no")+",enableViewportScale="+(button.hasClass("iabNoScale") ? "no" : "yes")+",toolbarposition=top,closebuttoncaption="+(button.hasClass("iabNoScale") ? _("Back") : _("Done")));
+
+            if (isIEMobile) {
+                $.mobile.document.data("iabOpen",true);
+                iab.addEventListener("exit",function(){
+                    $.mobile.document.removeData("iabOpen");
+                });
+            }
+
+            setTimeout(function(){
+                button.removeClass("ui-btn-active");
+            },100);
+            return false;
+        });
+    }
+
+    // Correctly handle popup events and prevent history navigation on custom selectmenu popup
+    $.mobile.document.on("click",".ui-select .ui-btn",function(){
+        var button = $(this),
+            id = button.attr("id").replace("-button","-listbox"),
+            popup = $("#"+id),
+            screen = $("#"+id+"-screen");
+
+        popup.popup({
+            history: false,
+            "positionTo": button
+        }).popup("open");
+
+        button.off("click").on("click",function(){
+            popup.popup("open");
+        });
+
+        screen.off("click").on("click",function(){
+            popup.popup("close");
+        });
+
+        return false;
+    });
+
+    // Bind event handler to open panel when swiping right
+    $.mobile.document.on("swiperight swipeleft",".ui-page",function(e) {
+        if ($(".ui-page-active").jqmData("panel") !== "open" && !$(".ui-page-active .ui-popup-active").length) {
+            if (e.type === "swiperight") {
+                open_panel();
+            } else {
+                showNotifications();
+            }
+        }
+    });
+
+    // Extend collapsible widget with event before change
+    $.widget("mobile.collapsible", $.mobile.collapsible, {
+        _handleExpandCollapse: function(isCollapse) {
+            if (this._trigger("before" + (isCollapse ? "collapse" : "expand"))) {
+                this._superApply(arguments);
+            }
+        }
+    });
 
     //Update site based on selector
     $("#site-selector").on("change",function(){
