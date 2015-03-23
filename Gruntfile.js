@@ -68,6 +68,15 @@ module.exports = function(grunt) {
 					expand: true
 				}]
 			},
+			makePGB: {
+				options: {
+					archive: "build/app.zip"
+				},
+				files: [{
+					src: ["config.xml","res/**","www/**"],
+					expand: true
+				}]
+			},
 			jsAsset: {
 				options: {
 					mode: "gzip"
@@ -140,6 +149,9 @@ module.exports = function(grunt) {
 					"rsync -azp --chmod=Du=rwx,Dg=rx,Do=rx,Fu=rw,Fg=r,Fo=r * <%= secrets.firmware.betaui.location %>"
 				].join("&&")
 			},
+			updatePGB: {
+				command: "curl -X PUT -F file=@build/app.zip https://build.phonegap.com/api/v1/apps/1371093?auth_token=<%= secrets.phonegap.token %> >/dev/null 2>&1"
+			},
 			pushEng: {
 				command: [
 					"xgettext --keyword=_ --output=- www/js/main.js --omit-header --force-po --from-code=UTF-8 --language='Python' | sed '/^\#/d' > .msgjs",
@@ -166,13 +178,19 @@ module.exports = function(grunt) {
 				command: "test/launch_ospi.sh start"
 			},
 			stopOSPi: {
-				command: "test/launch_ospi.sh stop"
+				command: [
+					"test/launch_ospi.sh stop",
+					"rm -r build/firmware/ospi"
+				].join("&&")
 			},
 			startDemo: {
 				command: "test/launch_osdemo.sh start"
 			},
 			stopDemo: {
-				command: "test/launch_osdemo.sh stop"
+				command: [
+					"test/launch_osdemo.sh stop",
+					"rm -r build/firmware/unified"
+				].join("&&")
 			},
 			symres: {
 				command: "cd www && ln -s ../res res && cd .."
@@ -266,7 +284,7 @@ module.exports = function(grunt) {
 
 		clean: {
 			makeFW: ["www/js/app.js", "www/css/app.css", "www/css/app.cgz", "www/js/*.jgz"],
-			pushFW: ["build/firmware/*"],
+			pushFW: ["build/firmware/*", "build/app.zip"],
 			symres: ["www/res"]
 		}
 	});
@@ -276,9 +294,9 @@ module.exports = function(grunt) {
 	grunt.registerTask("test",["jshint","blanket_mocha"]);
 	grunt.registerTask("updateLang",["shell:updateLang"]);
 	grunt.registerTask("pushEng",["shell:pushEng"]);
-	grunt.registerTask("makeFW",["jshint","uglify","cssmin","compress:jsAsset","compress:cssAsset","compress:makeFW","clean:makeFW"]);
-	grunt.registerTask("pushFW",["makeFW","shell:updateUI","clean:pushFW"]);
-	grunt.registerTask("pushBetaFW",["makeFW","shell:updateBetaUI","clean:pushFW"]);
+	grunt.registerTask("makeFW",["jshint","uglify","cssmin","compress:jsAsset","compress:cssAsset","compress:makeFW","compress:makePGB","clean:makeFW"]);
+	grunt.registerTask("pushFW",["makeFW","shell:updateUI","shell:updatePGB","clean:pushFW"]);
+	grunt.registerTask("pushBetaFW",["makeFW","shell:updateBetaUI","shell:updatePGB","clean:pushFW"]);
 	grunt.registerTask("build",["jshint","shell:symres","shell:blackberry10","compress:firefox","compress:chrome","compress:blackberry10","pushFW","clean:symres"]);
 	grunt.registerTask("bump",["jshint","replace:about","replace:osx","replace:phonegap","replace:manifests","shell:pushBump"]);
 
