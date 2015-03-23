@@ -150,7 +150,7 @@ module.exports = function(grunt) {
 				].join("&&")
 			},
 			updatePGB: {
-				command: "curl -X PUT -F file=@build/app.zip https://build.phonegap.com/api/v1/apps/1371093?auth_token=<%= secrets.phonegap.token %> >/dev/null 2>&1"
+				command: "curl -X PUT -F file=@build/app.zip https://build.phonegap.com/api/v1/apps/<%= pkg.phonegap.id %>?auth_token=<%= secrets.phonegap.token %> >/dev/null 2>&1"
 			},
 			pushEng: {
 				command: [
