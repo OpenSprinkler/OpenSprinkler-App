@@ -106,6 +106,10 @@
             <!-- Declare SDK -->
             <uses-sdk android:minSdkVersion="10" android:targetSdkVersion="19" />
 
+            <!-- Delcare GPS as optional -->
+            <uses-feature android:name="android.permission.ACCESS_COARSE_LOCATION" android:required="false" />
+            <uses-feature android:name="android.permission.ACCESS_FINE_LOCATION" android:required="false" />
+
             <!-- Declare supported screens -->
             <supports-screens
                 android:xlargeScreens="true"
