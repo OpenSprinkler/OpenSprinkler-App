@@ -295,9 +295,9 @@ module.exports = function(grunt) {
 	grunt.registerTask("test",["jshint","blanket_mocha"]);
 	grunt.registerTask("updateLang",["shell:updateLang"]);
 	grunt.registerTask("pushEng",["shell:pushEng"]);
-	grunt.registerTask("makeFW",["jshint","compress:makePGB","uglify","cssmin","compress:jsAsset","compress:cssAsset","compress:makeFW","clean:makeFW"]);
-	grunt.registerTask("pushFW",["makeFW","shell:updateUI","shell:updatePGB","clean:pushFW"]);
-	grunt.registerTask("pushBetaFW",["makeFW","shell:updateBetaUI","shell:updatePGB","clean:pushFW"]);
+	grunt.registerTask("makeFW",["jshint","uglify","cssmin","compress:jsAsset","compress:cssAsset","compress:makeFW","clean:makeFW"]);
+	grunt.registerTask("pushFW",["makeFW","shell:updateUI","clean:pushFW"]);
+	grunt.registerTask("pushBetaFW",["makeFW","shell:updateBetaUI","clean:pushFW"]);
 	grunt.registerTask("build",["jshint","shell:symres","shell:blackberry10","compress:firefox","compress:chrome","compress:blackberry10","pushFW","clean:symres"]);
 	grunt.registerTask("bump",["jshint","replace:about","replace:osx","replace:phonegap","replace:manifests","shell:pushBump"]);
 
