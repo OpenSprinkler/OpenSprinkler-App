@@ -3,7 +3,9 @@
 cd build/firmware
 
 if [ $1 == "start" ]; then
-	git clone https://github.com/opensprinkler/opensprinklergen2 unified
+	if [ ! -d "unified" ]; then
+		git clone https://github.com/opensprinkler/opensprinklergen2 unified
+	fi
 	cd unified
 	./build_demo.sh
 	./OpenSprinkler >/dev/null 2>&1 &
