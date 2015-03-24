@@ -2793,13 +2793,12 @@ function show_options(expandItem) {
                         break;
                     case "datetime":
                         var dt = new Date(data*1000);
-                        dt.setMinutes(dt.getMinutes()-dt.getTimezoneOffset());
 
-                        opt.tyy = dt.getFullYear();
-                        opt.tmm = dt.getMonth();
-                        opt.tdd = dt.getDate();
-                        opt.thh = dt.getHours();
-                        opt.tmi = dt.getMinutes();
+                        opt.tyy = dt.getUTCFullYear();
+                        opt.tmm = dt.getUTCMonth();
+                        opt.tdd = dt.getUTCDate();
+                        opt.thh = dt.getUTCHours();
+                        opt.tmi = dt.getUTCMinutes();
                         opt.ttt = Math.round(dt.getTime()/1000);
 
                         return true;
