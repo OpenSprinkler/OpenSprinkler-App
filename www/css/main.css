@@ -460,7 +460,7 @@ body, input, select, textarea, button, .ui-btn {
     bottom: 5px;
     height: 22px;
 }
-.delete-day, .program-copy, .connectnow {
+.delete-day, .program-copy, .connectnow, .collapsible-button-right {
     font-size: 11px;
     font-weight: bold;
     padding: 0.2em 0.5em;

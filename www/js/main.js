@@ -1423,8 +1423,8 @@ function show_sites(showBack) {
                         "<div class='ui-field-contain'>" +
                             "<label for='cpw-"+i+"'>"+_("Change Password")+"</label><input id='cpw-"+i+"' type='password'>" +
                         "</div>" +
-                        "<fieldset class='titled-box'>" +
-                            "<legend>"+_("Advanced")+"<button data-helptext='"+_("These options are only for an OpenSprinkler behind a proxy capable of SSL and/or Basic Authentication.")+"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></legend>" +
+                        "<fieldset data-mini='true' data-role='collapsible'>" +
+                            "<h3><span style='line-height:23px'>"+_("Advanced")+"</span><button data-helptext='"+_("These options are only for an OpenSprinkler behind a proxy capable of SSL and/or Basic Authentication.")+"' class='collapsible-button-right help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></h3>" +
                             "<label for='usessl-"+i+"'><input data-mini='true' type='checkbox' id='usessl-"+i+"' name='usessl-"+i+"'"+(typeof b.ssl !== "undefined" && b.ssl === "1" ? " checked='checked'" : "")+">"+_("Use SSL")+"</label>" +
                             "<label for='useauth-"+i+"'><input class='useauth' data-user='"+b.auth_user+"' data-pw='"+b.auth_pw+"' data-mini='true' type='checkbox' id='useauth-"+i+"' name='useauth-"+i+"'"+(typeof b.auth_user !== "undefined" && typeof b.auth_pw !== "undefined" ? " checked='checked'" : "")+">"+_("Use Auth")+"</label>" +
                         "</fieldset>" +
