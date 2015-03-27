@@ -3577,17 +3577,15 @@ function showHome(firstLoad) {
 
             cards += "<span class='btn-no-border ui-btn ui-btn-icon-notext ui-corner-all station-status "+(isRunning ? "on" : (isScheduled ? "wait" : "off"))+"'></span>";
 
-            if (controller.options.mas === i+1) {
-                cards += "<span class='btn-no-border ui-btn ui-icon-master ui-btn-icon-notext station-settings'></span>";
-            } else {
-                cards += "<span class='btn-no-border ui-btn ui-icon-gear ui-btn-icon-notext station-settings' data-station='"+i+"' id='attrib-"+i+"' " +
-                    (hasMaster ? ("data-um='"+((controller.stations.masop[parseInt(i/8)]&(1<<(i%8))) ? 1 : 0)+"' ") : "") +
-                    (hasIR ? ("data-ir='"+((controller.stations.ignore_rain[parseInt(i/8)]&(1<<(i%8))) ? 1 : 0)+"' ") : "") +
-                    (hasAR ? ("data-ar='"+((controller.stations.act_relay[parseInt(i/8)]&(1<<(i%8))) ? 1 : 0)+"' ") : "") +
-                    (hasSD ? ("data-sd='"+((controller.stations.stn_dis[parseInt(i/8)]&(1<<(i%8))) ? 1 : 0)+"' ") : "") +
-                    (hasSequential ? ("data-us='"+((controller.stations.stn_seq[parseInt(i/8)]&(1<<(i%8))) ? 1 : 0)+"' ") : "") +
-                    "></span>";
+            cards += "<span class='btn-no-border ui-btn "+((controller.options.mas === i+1) ? "ui-icon-master" : "ui-icon-gear")+" ui-btn-icon-notext station-settings' data-station='"+i+"' id='attrib-"+i+"' " +
+                (hasMaster ? ("data-um='"+((controller.stations.masop[parseInt(i/8)]&(1<<(i%8))) ? 1 : 0)+"' ") : "") +
+                (hasIR ? ("data-ir='"+((controller.stations.ignore_rain[parseInt(i/8)]&(1<<(i%8))) ? 1 : 0)+"' ") : "") +
+                (hasAR ? ("data-ar='"+((controller.stations.act_relay[parseInt(i/8)]&(1<<(i%8))) ? 1 : 0)+"' ") : "") +
+                (hasSD ? ("data-sd='"+((controller.stations.stn_dis[parseInt(i/8)]&(1<<(i%8))) ? 1 : 0)+"' ") : "") +
+                (hasSequential ? ("data-us='"+((controller.stations.stn_seq[parseInt(i/8)]&(1<<(i%8))) ? 1 : 0)+"' ") : "") +
+                "></span>";
 
+            if (controller.options.mas === i+1) {
                 if (isScheduled || isRunning) {
                     // Generate status line for station
                     cards += "<p class='rem center'>"+(isRunning ? _("Running")+" "+pname : _("Scheduled")+" "+(controller.settings.ps[i][2] ? _("for")+" "+dateToString(new Date(controller.settings.ps[i][2]*1000)) : pname));
@@ -3619,7 +3617,7 @@ function showHome(firstLoad) {
                 },
                 select = "<div data-overlay-theme='b' data-role='popup' id='stn_attrib'><fieldset style='margin:0' data-corners='false' data-role='controlgroup'>";
 
-            if (typeof id !== "number") {
+            if (typeof id !== "number" || id + 1 === controller.options.mas) {
                 return false;
             }
 
@@ -3816,6 +3814,11 @@ function showHome(firstLoad) {
 
                     card.find("#station_"+i).text(controller.stations.snames[i]);
                     card.find(".station-status").removeClass("on off wait").addClass(isRunning ? "on" : (isScheduled ? "wait" : "off"));
+                    if (i+1 === controller.options.mas) {
+                        card.find(".station-settings").removeClass("ui-icon-gear").addClass("ui-icon-master");
+                    } else {
+                        card.find(".station-settings").removeClass("ui-icon-master").addClass("ui-icon-gear");
+                    }
                     card.find(".station-settings").data({
                         um: hasMaster ? ((controller.stations.masop[parseInt(i/8)]&(1<<(i%8))) ? 1 : 0) : undefined,
                         ir: hasIR ? ((controller.stations.ignore_rain[parseInt(i/8)]&(1<<(i%8))) ? 1 : 0) : undefined,
