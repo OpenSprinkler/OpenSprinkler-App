@@ -2746,7 +2746,12 @@ function bindPanel() {
 
 function open_panel() {
     var panel = $("#sprinklers-settings"),
-        operation = (controller && controller.settings && controller.settings.en && controller.settings.en === 1) ? _("Disable") : _("Enable");
+        operation = (controller && controller.settings && controller.settings.en && controller.settings.en === 1) ? _("Disable") : _("Enable"),
+        page = $(".ui-page-active").attr("id");
+
+    if (page === "start" || $.isEmptyObject(controller)) {
+        return;
+    }
 
     panel.find(".toggleOperation span:first").html(operation).attr("data-translate",operation);
     panel.panel("open");
@@ -3647,7 +3652,9 @@ function showHome(firstLoad) {
                 saveChanges();
                 submit_stations();
             });
-            select.one("popupafterclose", saveChanges).enhanceWithin();
+            select.one("popupafteropen",function(){
+                select.find("#stn-name").focusInput();
+            }).enhanceWithin();
 
             $(".ui-page-active").append(select);
 
@@ -8197,6 +8204,21 @@ function showHelpText(e){
 
     return false;
 }
+
+$.fn.focusInput = function() {
+    if (this.get(0).setSelectionRange) {
+        this.focus();
+        this.get(0).setSelectionRange(0, this.val().length);
+    } else if (this.get(0).createTextRange) {
+        var range = this.get(0).createTextRange();
+        range.collapse(true);
+        range.moveEnd("character", this.val().length);
+        range.moveStart("character", 0);
+        range.select();
+    }
+
+    return this;
+};
 
 function changePage(toPage,opts) {
     opts = opts || {};
