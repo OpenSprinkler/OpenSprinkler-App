@@ -3543,6 +3543,7 @@ function showHome(firstLoad) {
                             "<div id='clock-s' class='nobr'>"+dateToString(new Date(controller.settings.devt*1000),null,true)+"</div>" +
                             _("Water Level") + ": <span class='waterlevel'>" + controller.options.wl + "</span>%" +
                         "</div>" +
+                    "</div>" +
                 "</div>" +
             "</div>" +
         "</div>"),
@@ -3570,7 +3571,7 @@ function showHome(firstLoad) {
             }
 
             // Group card settings visually
-            cards += "<div class='ui-corner-all card"+(isStationDisabled(i) ? " station-hidden' style='display:none" : "")+"'>";
+            cards += "<div data-station='"+i+"' class='ui-corner-all card"+(isStationDisabled(i) ? " station-hidden' style='display:none" : "")+"'>";
             cards += "<div class='ui-body ui-body-a center'>";
             cards += "<p class='tight center inline-icon' id='station_"+i+"'>"+station+"</p>";
 
@@ -3733,9 +3734,43 @@ function showHome(firstLoad) {
                 }
             };
         },
+        reorderCards = function() {
+            var cardHolder = page.find("#os-stations-list"),
+                runningCards = page.find("#os-running-stations"),
+                divider = page.find(".content-divider"),
+                compare = function(a,b) {
+                    a = $(a).data("station");
+                    b = $(b).data("station");
+                    if (a < b) {
+                        return -1;
+                    }
+                    if (a > b) {
+                        return 1;
+                    }
+                    return 0;
+                };
+
+            // Move running stations up
+            cardHolder.find(".station-status.on").parents(".card").appendTo(runningCards);
+
+            // Move stopped stations down
+            runningCards.find(".station-status.off").parents(".card").appendTo(cardHolder);
+
+            // Sort stations
+            cardHolder.children().sort(compare).detach().appendTo(cardHolder);
+            runningCards.children().sort(compare).detach().appendTo(runningCards);
+
+            // Hide divider if running group is empty
+            if (runningCards.children().length === 0) {
+                divider.hide();
+            } else {
+                divider.show();
+            }
+        },
         updateContent = function() {
             var cardHolder = page.find("#os-stations-list"),
                 allCards = cardHolder.children(),
+                runningCards = page.find("#os-running-stations").children(),
                 isScheduled, isRunning, pname, rem, card, line;
 
             updateClock();
@@ -3759,7 +3794,11 @@ function showHome(firstLoad) {
                 pname = isScheduled ? pidname(controller.settings.ps[i][0]) : "";
                 rem = controller.settings.ps[i][1];
 
-                card = allCards.eq(i);
+                card = allCards.filter("[data-station='"+i+"']");
+
+                if (card.length === 0) {
+                    card = runningCards.filter("[data-station='"+i+"']");
+                }
 
                 if (card.length === 0) {
                     cards = "";
@@ -3805,6 +3844,8 @@ function showHome(firstLoad) {
 
                 }
             }
+
+            reorderCards();
         },
         hasMaster = controller.options.mas ? true : false,
         hasIR = (typeof controller.stations.ignore_rain === "object") ? true : false,
@@ -3819,7 +3860,8 @@ function showHome(firstLoad) {
         addCard(i);
     }
 
-    page.find(".ui-content").append("<div id='os-stations-list' class='card-group center'>"+cards+"</div>");
+    page.find(".ui-content").append("<div id='os-running-stations'></div><hr style='display:none' class='content-divider'><div id='os-stations-list' class='card-group center'>"+cards+"</div>");
+    reorderCards();
     page.on("datarefresh",updateContent);
     page.on("click",".station-settings",show_attributes);
     page.on("click",".home-info",function(){
@@ -3836,7 +3878,7 @@ function showHome(firstLoad) {
         }
 
         var el = $(this),
-            station = el.index(),
+            station = el.data("station"),
             currentStatus = controller.status[station],
             name = controller.stations.snames[station],
             question;
