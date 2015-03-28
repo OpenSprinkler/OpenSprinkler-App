@@ -3539,7 +3539,7 @@ function showHome(firstLoad) {
                             "<div id='weather' class='pointer'></div>" +
                         "</div>" +
                         "<div class='ui-block-b center home-info pointer'>" +
-                            "<span class='sitename bold'>"+site_select.val()+"</span>" +
+                            "<span class='sitename bold"+(curr_local ? " hidden" : "")+"'>"+site_select.val()+"</span>" +
                             "<div id='clock-s' class='nobr'>"+dateToString(new Date(controller.settings.devt*1000),null,true)+"</div>" +
                             _("Water Level") + ": <span class='waterlevel'>" + controller.options.wl + "</span>%" +
                         "</div>" +
