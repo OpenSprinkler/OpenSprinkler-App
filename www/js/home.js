@@ -155,7 +155,8 @@
 						"os_ip": document.URL.match(/https?:\/\/(.*)\/.*?/)[1],
 						"os_pw": pw,
 						"isHashed": isHashed,
-						"is183": (ver < 204) ? true : false
+						"is183": (ver < 204) ? true : false,
+						"ssl": location.protocol === "https:" ? "1" : undefined
 					}
 				},
 				current_site = "Local";
@@ -207,7 +208,7 @@
 				var pw = $("#os_pw").val(),
 					checkPW = function(pass,callback){
 						$.ajax({
-							url: "/sp?pw="+encodeURIComponent(pass)+"&npw="+encodeURIComponent(pass)+"&cpw="+encodeURIComponent(pass),
+							url: document.URL.match(/(https?:\/\/.*)\/.*?/)[1]+"/sp?pw="+encodeURIComponent(pass)+"&npw="+encodeURIComponent(pass)+"&cpw="+encodeURIComponent(pass),
 							cache: false,
 							crossDomain: true,
 							type: "GET"
