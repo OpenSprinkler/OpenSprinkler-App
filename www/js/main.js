@@ -446,6 +446,27 @@ function initApp() {
         return false;
     });
 
+    $("#cloud-login").find("a").on("click",function(){
+        requestCloudAuth(function(result){
+            if (result === true) {
+                cloudGetSites(function(sites,error){
+                    var valid = checkToken(sites,error);
+
+                    if (valid === false) {
+                        return;
+                    }
+
+                    storage.set({"sites":JSON.stringify(sites)});
+                    changePage("#site-control",{
+                        showBack: false
+                    });
+                });
+            }
+        });
+
+        return false;
+    });
+
     // Bind footer menu button
     $("#footer-menu").on("click",function(){
         showHomeMenu(this);
@@ -959,7 +980,7 @@ function update_controller_settings(callback) {
 
 // Multisite functions
 function check_configured(firstLoad) {
-    storage.get(["sites","current_site"],function(data){
+    storage.get(["sites","current_site","cloudToken"],function(data){
         var sites = data.sites,
             current = data.current_site,
             names;
@@ -974,10 +995,17 @@ function check_configured(firstLoad) {
 
         if (!names.length) {
             if (firstLoad) {
-                changePage("#start",{
-                    showStart: true,
-                    transition: "none"
-                });
+                if (data.cloudToken === undefined || data.cloudToken === null) {
+                    changePage("#start",{
+                        showStart: true,
+                        transition: "none"
+                    });
+                } else {
+                    changePage("#site-control",{
+                        showBack: false,
+                        transition: "none"
+                    });
+                }
             }
             return;
         }
@@ -1352,6 +1380,17 @@ function show_sites(showBack) {
                 }
             }
         }),
+        makeStart = function(){
+            page.one("pagebeforeshow", function(){
+                header.eq(0).hide();
+            });
+
+            page.on("swiperight swipeleft",function(e){
+                e.stopImmediatePropagation();
+            });
+
+            document.title = "OpenSprinkler";
+        },
         popup = page.find("#addsite"),
         sites, total;
 
@@ -1375,11 +1414,18 @@ function show_sites(showBack) {
         page.remove();
     });
 
-    storage.get(["sites","current_site"],function(data){
+    storage.get(["sites","current_site","cloudToken"],function(data){
         if (data.sites === undefined || data.sites === null) {
-            changePage("#start",{
-                showStart: true
-            });
+            if (data.cloudToken === undefined || data.cloudToken === null) {
+                changePage("#start",{
+                    showStart: true
+                });
+
+                return;
+            } else {
+                makeStart();
+                page.find(".ui-content").html("<p class='center'>"+_("Please add a site by tapping the 'Add' button in the top right corner.")+"</p>");
+            }
         } else {
             var list = "<div data-role='collapsible-set'>",
                 siteNames = [],
@@ -1389,15 +1435,7 @@ function show_sites(showBack) {
             total = Object.keys(sites).length;
 
             if (!total || showBack === false || !(data.current_site in sites)) {
-                page.one("pagebeforeshow", function(){
-                    header.eq(0).hide();
-                });
-
-                page.on("swiperight swipeleft",function(e){
-                    e.stopImmediatePropagation();
-                });
-
-                document.title = "OpenSprinkler";
+                makeStart();
             } else {
                 page.one("pagebeforeshow",function(){
                     setTimeout(function(){
@@ -1573,7 +1611,7 @@ function show_sites(showBack) {
                 delete sites[site];
                 storage.set({"sites":JSON.stringify(sites)},function(){
                     update_site_list(Object.keys(sites),data.current_site);
-                    if ($.isEmptyObject(sites)) {
+                    if ($.isEmptyObject(sites) && (data.cloudToken === null || data.cloudToken === undefined)) {
                         changePage("#start",{
                             showStart: true
                         });
@@ -7093,6 +7131,139 @@ function changePassword(opt) {
         });
     } else {
         popup.popup("open");
+    }
+}
+
+function requestCloudAuth(callback) {
+    callback = callback || function(){};
+
+    var popup = $("<div data-role='popup' class='modal' id='requestCloudAuth' data-theme='a' data-overlay-theme='b'>"+
+                "<ul data-role='listview' data-inset='true'>" +
+                    "<li data-role='list-divider'>"+_("OpenSprinkler.com Login")+"</li>" +
+                    "<li>" +
+                        "<form method='post' novalidate>" +
+                            "<label for='cloudUser'>"+_("Username:")+"</label>" +
+                            "<input type='text' name='cloudUser' id='cloudUser'>" +
+                            "<label for='cloudPass'>"+_("Password:")+"</label>" +
+                            "<input type='password' name='cloudPass' id='cloudPass'>" +
+                            "<input type='submit' value='"+_("Submit")+"'>" +
+                        "</form>" +
+                    "</li>" +
+                "</ul>" +
+        "</div>"),
+        didSucceed = false;
+
+    popup.one("popupafterclose", function(){
+        callback(didSucceed);
+        $(this).popup("destroy").remove();
+    }).enhanceWithin();
+
+    popup.find("form").on("submit",function(){
+        $.mobile.loading("show");
+        cloudLogin(popup.find("#cloudUser").val(),popup.find("#cloudPass").val(),function(result){
+            if (result === false) {
+                showerror(_("Invalid username/password combination. Please try again."));
+                return;
+            } else {
+                $.mobile.loading("hide");
+                didSucceed = true;
+                popup.popup("close");
+            }
+        });
+        return false;
+    });
+
+    $(".ui-page-active").append(popup);
+
+    popup.popup({history: false, positionTo: "window"}).popup("open");
+}
+
+function cloudLogin(user,pass,callback) {
+    callback = callback || function(){};
+
+    $.ajax({
+        type: "POST",
+        dataType: "json",
+        url: "https://opensprinkler.com/wp-admin/admin-ajax.php",
+        data: {
+            action: "ajaxLogin",
+            username: user,
+            password: pass
+        },
+        success: function(data){
+            if (typeof data.token === "string") {
+                storage.set({"cloudToken":data.token});
+            }
+            callback(data.loggedin);
+        },
+        fail: function(){
+            callback(false);
+        }
+    });
+}
+
+function cloudSaveSites(callback) {
+    callback = callback || function(){};
+
+    storage.get(["cloudToken","sites"],function(data){
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            url: "https://opensprinkler.com/wp-admin/admin-ajax.php",
+            data: {
+                action: "saveSites",
+                token: data.cloudToken,
+                sites: encodeURIComponent(JSON.stringify(data.sites))
+            },
+            success: function(data){
+                if (data.success === false) {
+                    callback(false,data.message);
+                } else {
+                    callback(data.success);
+                }
+            },
+            fail: function(){
+                callback(false);
+            }
+        });
+    });
+}
+
+function cloudGetSites(callback) {
+    callback = callback || function(){};
+
+    storage.get("cloudToken",function(data){
+        if (data.cloudToken === undefined || data.cloudToken === null) {
+            return false;
+        }
+
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            url: "https://opensprinkler.com/wp-admin/admin-ajax.php",
+            data: {
+                action: "getSites",
+                token: data.cloudToken
+            },
+            success: function(data){
+                if (data.success === false || data.sites === "") {
+                    callback(false,data.message);
+                } else {
+                    callback(JSON.parse(data.sites));
+                }
+            },
+            fail: function(){
+                callback(false);
+            }
+        });
+    });
+}
+
+function checkToken(status,error) {
+    if (status === false && error === "BAD_TOKEN") {
+        return false;
+    } else {
+        return true;
     }
 }
 
