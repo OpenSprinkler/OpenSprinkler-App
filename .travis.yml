@@ -17,4 +17,4 @@ after_success:
 script:
  - xctool -project source/osx/OpenSprinkler.xcodeproj -scheme OpenSprinkler -sdk macosx10.9 CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGN_ENTITLEMENTS=""
 notifications:
-  email: false
+  on_failure: change
