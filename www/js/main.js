@@ -452,14 +452,7 @@ function initApp() {
 
         requestCloudAuth(function(result){
             if (result === true) {
-                cloudGetSites(function(sites,error){
-                    var valid = checkToken(sites,error);
-
-                    if (valid === false) {
-                        // handle bad token...
-                        return;
-                    }
-
+                cloudGetSites(function(sites){
                     if (page.attr("id") === "start") {
                         if (Object.keys(sites).length > 0) {
                             storage.set({"sites":JSON.stringify(sites)});
@@ -7304,6 +7297,9 @@ function cloudSaveSites(callback) {
             },
             success: function(data){
                 if (data.success === false) {
+                    if (data.message === "BAD_TOKEN") {
+                        handleExpiredLogin();
+                    }
                     callback(false,data.message);
                 } else {
                     callback(data.success);
@@ -7334,6 +7330,9 @@ function cloudGetSites(callback) {
             },
             success: function(data){
                 if (data.success === false || data.sites === "") {
+                    if (data.message === "BAD_TOKEN") {
+                        handleExpiredLogin();
+                    }
                     callback(false,data.message);
                 } else {
                     try {
@@ -7350,14 +7349,6 @@ function cloudGetSites(callback) {
     });
 }
 
-function checkToken(status,error) {
-    if (status === false && error === "BAD_TOKEN") {
-        return false;
-    } else {
-        return true;
-    }
-}
-
 function cloudSync() {
     storage.get(["cloudToken","current_site"],function(local){
         if (typeof local.cloudToken !== "string") {
@@ -7371,6 +7362,29 @@ function cloudSync() {
                 });
             }
         });
+    });
+}
+
+function handleExpiredLogin() {
+    storage.remove(["cloudToken","cloudDataToken"],updateLoginButtons);
+
+    addNotification({
+        title: _("OpenSprinkler.com Login Expired"),
+        desc: _("Click here to re-login to OpenSprinkler.com"),
+        on: function(){
+            var button = $(this).parent();
+
+            requestCloudAuth(function(result){
+                removeNotification(button);
+
+                if (result === true) {
+                    updateLoginButtons();
+                    cloudSync();
+                }
+            });
+
+            return false;
+        }
     });
 }
 
