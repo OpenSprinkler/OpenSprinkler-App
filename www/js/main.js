@@ -473,7 +473,9 @@ function initApp() {
                                 return;
                             }
 
-                            data.sites = JSON.parse(data.sites);
+                            try {
+                                data.sites = JSON.parse(data.sites) || {};
+                            } catch (err) { data.sites = {}; }
 
                             if (Object.keys(sites).length > 0) {
                                 // Handle how to merge when cloud is populated
@@ -7215,7 +7217,7 @@ function requestCloudAuth(callback) {
                     "<li>" +
                         "<form method='post' novalidate>" +
                             "<label for='cloudUser'>"+_("Username:")+"</label>" +
-                            "<input type='text' name='cloudUser' id='cloudUser'>" +
+                            "<input type='text' name='cloudUser' id='cloudUser' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'>" +
                             "<label for='cloudPass'>"+_("Password:")+"</label>" +
                             "<input type='password' name='cloudPass' id='cloudPass'>" +
                             "<input type='submit' value='"+_("Submit")+"'>" +
