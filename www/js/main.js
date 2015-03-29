@@ -447,11 +447,7 @@ function initApp() {
     });
 
     $(".cloud-login").on("click",function(){
-        var button = $(this),
-            page = button.parents(".ui-page");
-
         requestCloudAuth();
-
         return false;
     });
 
