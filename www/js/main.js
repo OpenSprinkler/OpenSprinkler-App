@@ -1486,7 +1486,7 @@ function show_sites(showBack) {
 
     storage.get(["sites","current_site","cloudToken"],function(data){
         if (data.sites === undefined || data.sites === null || $.isEmptyObject(JSON.parse(data.sites))) {
-            if (typeof data.cloudToken === "string") {
+            if (typeof data.cloudToken !== "string") {
                 changePage("#start",{
                     showStart: true
                 });
@@ -7300,7 +7300,7 @@ function cloudSaveSites(callback) {
             data: {
                 action: "saveSites",
                 token: data.cloudToken,
-                sites: encodeURIComponent(sjcl.encrypt(data.cloudDataToken,data.sites))
+                sites: encodeURIComponent(JSON.stringify(sjcl.encrypt(data.cloudDataToken,data.sites)))
             },
             success: function(data){
                 if (data.success === false) {
@@ -7319,8 +7319,8 @@ function cloudSaveSites(callback) {
 function cloudGetSites(callback) {
     callback = callback || function(){};
 
-    storage.get(["cloudToken","cloudDataToken"],function(data){
-        if (data.cloudToken === undefined || data.cloudToken === null) {
+    storage.get(["cloudToken","cloudDataToken"],function(local){
+        if (local.cloudToken === undefined || local.cloudToken === null) {
             return false;
         }
 
@@ -7330,14 +7330,14 @@ function cloudGetSites(callback) {
             url: "https://opensprinkler.com/wp-admin/admin-ajax.php",
             data: {
                 action: "getSites",
-                token: data.cloudToken
+                token: local.cloudToken
             },
             success: function(data){
                 if (data.success === false || data.sites === "") {
                     callback(false,data.message);
                 } else {
                     try {
-                        callback(JSON.parse(sjcl.decrypt(data.cloudDataToken,data.sites)));
+                        callback(JSON.parse(sjcl.decrypt(local.cloudDataToken,data.sites)));
                     } catch (err) {
                         callback(false);
                     }
