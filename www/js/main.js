@@ -7366,7 +7366,7 @@ function cloudSync() {
 }
 
 function handleExpiredLogin() {
-    storage.remove(["cloudToken","cloudDataToken"],updateLoginButtons);
+    storage.remove(["cloudToken"],updateLoginButtons);
 
     addNotification({
         title: _("OpenSprinkler.com Login Expired"),
