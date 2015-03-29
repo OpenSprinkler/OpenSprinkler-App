@@ -457,6 +457,19 @@ body, input, select, textarea, button, .ui-btn {
     border-bottom:0;
 }
 
+.logged-in-alert {
+    padding:0
+}
+
+.logged-in-alert .ui-icon-recycle:after{
+    background-color: #16a085;
+}
+
+.logged-in-alert .syncStatus {
+    line-height:40px;
+    vertical-align:top;
+}
+
 /* Program editor rules */
 .move-up {
     border: none !important;

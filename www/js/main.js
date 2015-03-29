@@ -1624,7 +1624,7 @@ function show_sites(showBack) {
         }
 
         if (typeof data.cloudToken === "string") {
-            page.find(".ui-content").prepend("<h4 class='ui-bar ui-bar-a ui-corner-all logged-in-alert' style='padding:0'><span style='padding-left:15px;line-height:35px'>"+_("OpenSprinkler.com Login")+": "+getTokenUser(data.cloudToken)+"</span><span class='ui-btn ui-mini logout' style='float:right;padding:4px'>"+_("Logout")+"</span></h4>");
+            page.find(".ui-content").prepend("<h5 class='ui-bar ui-bar-a ui-corner-all logged-in-alert inline-icon'><span class='ui-btn ui-icon-recycle btn-no-border ui-btn-icon-notext ui-mini'></span><span class='syncStatus'>"+_("Synced with OpenSprinkler.com (")+getTokenUser(data.cloudToken)+")</span><span class='ui-btn ui-icon-delete btn-no-border ui-btn-icon-notext ui-mini logout' style='float:right'></span></h5>");
             page.find(".logout").on("click",function(){
                 logout(function(){
                     $(".logged-in-alert").remove();
