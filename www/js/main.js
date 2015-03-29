@@ -460,16 +460,17 @@ function initApp() {
 
                     if (page.attr("id") === "start") {
                         storage.set({"sites":JSON.stringify(sites)});
+                        changePage("#site-control",{
+                            showBack: false
+                        });
                     } else {
+                        updateLoginButtons();
                         storage.get("sites",function(data){
-                            sites = $.extend({}, data.sites, sites);
+                            sites = $.extend({}, JSON.parse(data.sites), sites);
+                            console.log(sites)
                             storage.set({"sites":JSON.stringify(sites)},cloudSaveSites);
                         });
                     }
-
-                    changePage("#site-control",{
-                        showBack: false
-                    });
                 });
             }
         });
@@ -730,8 +731,14 @@ function newload() {
                 fixPasswordHash(name);
             }
 
+            // Check if the OpenSprinkler can be accessed from the public IP
             if (typeof controller.settings.eip === "number") {
                 checkPublicAccess(controller.settings.eip);
+            }
+
+            // Check if a cloud token is available and if so show logout button otherwise show login
+            if (!curr_local) {
+                updateLoginButtons();
             }
         },
         function(error){
@@ -2786,9 +2793,13 @@ function bindPanel() {
 
     panel.find("#logout").on("click",function(){
         areYouSure(_("Are you sure you want to logout?"), "", function(){
-            storage.remove(["sites","current_site","lang","provider","wapikey","runonce"],function(){
-                location.reload();
-            });
+            if (curr_local) {
+                storage.remove(["sites","current_site","lang","provider","wapikey","runonce"],function(){
+                    location.reload();
+                });
+            } else {
+                storage.remove(["cloudToken"],updateLoginButtons);
+            }
         });
         return false;
     });
@@ -7268,7 +7279,11 @@ function cloudGetSites(callback) {
                 if (data.success === false || data.sites === "") {
                     callback(false,data.message);
                 } else {
-                    callback(JSON.parse(data.sites));
+                    try {
+                        callback(JSON.parse(data.sites));
+                    } catch (err) {
+                        callback(false);
+                    }
                 }
             },
             fail: function(){
@@ -7390,6 +7405,18 @@ function checkPublicAccess(eip) {
             });
         }
     );
+}
+
+function updateLoginButtons() {
+    storage.get("cloudToken",function(data){
+        if (data.cloudToken === null || data.cloudToken === undefined) {
+            $(".login-button").removeClass("hidden");
+            $(".logout-button").addClass("hidden");
+        } else {
+            $(".logout-button").removeClass("hidden");
+            $(".login-button").addClass("hidden");
+        }
+    });
 }
 
 function addNotification(item) {
