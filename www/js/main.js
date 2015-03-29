@@ -1,4 +1,4 @@
-/*global $, Windows, MSApp, navigator, chrome, FastClick, StatusBar, networkinterface, links, SunCalc, md5 */
+/*global $, Windows, MSApp, navigator, chrome, FastClick, StatusBar, networkinterface, links, SunCalc, md5, sjcl */
 var isIEMobile = /IEMobile/.test(navigator.userAgent),
     isAndroid = /Android|\bSilk\b/.test(navigator.userAgent),
     isiOS = /iP(ad|hone|od)/.test(navigator.userAgent),
@@ -7269,7 +7269,10 @@ function cloudLogin(user,pass,callback) {
         },
         success: function(data){
             if (typeof data.token === "string") {
-                storage.set({"cloudToken":data.token});
+                storage.set({
+                    "cloudToken": data.token,
+                    "cloudDataToken": sjcl.codec.hex.fromBits(sjcl.hash.sha256.hash(pass))
+                });
             }
             callback(data.loggedin);
         },
@@ -7284,7 +7287,7 @@ function cloudSaveSites(callback) {
         callback = function(){};
     }
 
-    storage.get(["cloudToken","sites"],function(data){
+    storage.get(["cloudToken","cloudDataToken","sites"],function(data){
         if (data.cloudToken === null || data.cloudToken === undefined) {
             callback(false);
             return;
@@ -7297,7 +7300,7 @@ function cloudSaveSites(callback) {
             data: {
                 action: "saveSites",
                 token: data.cloudToken,
-                sites: encodeURIComponent(data.sites)
+                sites: encodeURIComponent(sjcl.encrypt(data.cloudDataToken,data.sites))
             },
             success: function(data){
                 if (data.success === false) {
@@ -7316,7 +7319,7 @@ function cloudSaveSites(callback) {
 function cloudGetSites(callback) {
     callback = callback || function(){};
 
-    storage.get("cloudToken",function(data){
+    storage.get(["cloudToken","cloudDataToken"],function(data){
         if (data.cloudToken === undefined || data.cloudToken === null) {
             return false;
         }
@@ -7334,7 +7337,7 @@ function cloudGetSites(callback) {
                     callback(false,data.message);
                 } else {
                     try {
-                        callback(JSON.parse(data.sites));
+                        callback(JSON.parse(sjcl.decrypt(data.cloudDataToken,data.sites)));
                     } catch (err) {
                         callback(false);
                     }
