@@ -781,6 +781,9 @@ function newload() {
                 checkPublicAccess(controller.settings.eip);
             }
 
+            // If cloud token is available then sync sites
+            cloudSync();
+
             // Check if a cloud token is available and if so show logout button otherwise show login
             if (!curr_local) {
                 updateLoginButtons();
@@ -1041,23 +1044,11 @@ function update_controller_settings(callback) {
 }
 
 // Multisite functions
-function check_configured(firstLoad,didCloudSync) {
+function check_configured(firstLoad) {
     storage.get(["sites","current_site","cloudToken"],function(data){
         var sites = data.sites,
             current = data.current_site,
             names;
-
-        if (typeof data.cloudToken === "string" && didCloudSync !== true) {
-            cloudGetSites(function(data){
-                if (data !== false) {
-                    storage.set({"sites":JSON.stringify(data)},cloudSaveSites);
-                }
-
-                check_configured(firstLoad,true);
-            });
-
-            return;
-        }
 
         try {
             sites = JSON.parse(sites) || {};
@@ -7220,6 +7211,7 @@ function requestCloudAuth(callback) {
     var popup = $("<div data-role='popup' class='modal' id='requestCloudAuth' data-theme='a' data-overlay-theme='b'>"+
                 "<ul data-role='listview' data-inset='true'>" +
                     "<li data-role='list-divider'>"+_("OpenSprinkler.com Login")+"</li>" +
+                    "<li><p class='rain-desc'>"+_("Use your OpenSprinkler.com login and password to login and securely sync sites and settings between devices and browsers")+"</p></li>" +
                     "<li>" +
                         "<form method='post' novalidate>" +
                             "<label for='cloudUser'>"+_("Username:")+"</label>" +
@@ -7300,7 +7292,7 @@ function cloudSaveSites(callback) {
             data: {
                 action: "saveSites",
                 token: data.cloudToken,
-                sites: encodeURIComponent(JSON.stringify(data.sites))
+                sites: encodeURIComponent(data.sites)
             },
             success: function(data){
                 if (data.success === false) {
@@ -7356,6 +7348,20 @@ function checkToken(status,error) {
     } else {
         return true;
     }
+}
+
+function cloudSync() {
+    storage.get(["cloudToken"],function(data){
+        if (typeof data.cloudToken !== "string") {
+            return;
+        }
+
+        cloudGetSites(function(data){
+            if (data !== false) {
+                storage.set({"sites":JSON.stringify(data)});
+            }
+        });
+    });
 }
 
 function checkWeatherPlugin() {
