@@ -446,7 +446,9 @@ function initApp() {
         return false;
     });
 
-    $("#cloud-login").find("a").on("click",function(){
+    $(".cloud-login").on("click",function(){
+        var page = $(this).parents(".ui-page");
+
         requestCloudAuth(function(result){
             if (result === true) {
                 cloudGetSites(function(sites,error){
@@ -456,7 +458,15 @@ function initApp() {
                         return;
                     }
 
-                    storage.set({"sites":JSON.stringify(sites)});
+                    if (page.attr("id") === "start") {
+                        storage.set({"sites":JSON.stringify(sites)});
+                    } else {
+                        storage.get("sites",function(data){
+                            sites = $.extend({}, data.sites, sites);
+                            storage.set({"sites":JSON.stringify(sites)},cloudSaveSites);
+                        });
+                    }
+
                     changePage("#site-control",{
                         showBack: false
                     });
@@ -1063,7 +1073,7 @@ function fixPasswordHash(current) {
                 } else {
                     sites[current].os_pw = curr_pw = pw;
                     sites[current].isHashed = true;
-                    storage.set({"sites":JSON.stringify(sites)});
+                    storage.set({"sites":JSON.stringify(sites)},cloudSaveSites);
                 }
             });
         }
@@ -1131,6 +1141,7 @@ function submit_newuser(ssl,useAuth) {
                     "sites": JSON.stringify(sites),
                     "current_site": name
                 },function(){
+                    cloudSaveSites();
                     update_site_list(Object.keys(sites),name);
                     newload();
                 });
@@ -1415,7 +1426,7 @@ function show_sites(showBack) {
     });
 
     storage.get(["sites","current_site","cloudToken"],function(data){
-        if (data.sites === undefined || data.sites === null) {
+        if (data.sites === undefined || data.sites === null || $.isEmptyObject(JSON.parse(data.sites))) {
             if (data.cloudToken === undefined || data.cloudToken === null) {
                 changePage("#start",{
                     showStart: true
@@ -1585,7 +1596,7 @@ function show_sites(showBack) {
                     update_site_list(Object.keys(sites),data.current_site);
                 }
 
-                storage.set({"sites":JSON.stringify(sites)});
+                storage.set({"sites":JSON.stringify(sites)},cloudSaveSites);
 
                 showerror(_("Site updated successfully"));
 
@@ -1610,6 +1621,7 @@ function show_sites(showBack) {
 
                 delete sites[site];
                 storage.set({"sites":JSON.stringify(sites)},function(){
+                    cloudSaveSites();
                     update_site_list(Object.keys(sites),data.current_site);
                     if ($.isEmptyObject(sites) && (data.cloudToken === null || data.cloudToken === undefined)) {
                         changePage("#start",{
@@ -7024,7 +7036,7 @@ function changePassword(opt) {
                 var sites = JSON.parse(data.sites),
                     success = function(pass) {
                         sites[opt.name].os_pw = curr_pw = pass;
-                        storage.set({"sites":JSON.stringify(sites)});
+                        storage.set({"sites":JSON.stringify(sites)},cloudSaveSites);
                         popup.popup("close");
                         opt.callback();
                     };
@@ -7081,7 +7093,7 @@ function changePassword(opt) {
                         sites[data.current_site].isHashed = true;
                     }
                     curr_pw = npw;
-                    storage.set({"sites":JSON.stringify(sites)});
+                    storage.set({"sites":JSON.stringify(sites)},cloudSaveSites);
                 });
                 $.mobile.loading("hide");
                 popup.popup("close");
@@ -7116,12 +7128,12 @@ function changePassword(opt) {
                     function(){
                         sites[current].os_pw = curr_pw = pw;
                         sites[current].isHashed = true;
-                        storage.set({"sites":JSON.stringify(sites)});
+                        storage.set({"sites":JSON.stringify(sites)},cloudSaveSites);
                         opt.callback();
                     },
                     function(){
                         sites[current].isHashed = false;
-                        storage.set({"sites":JSON.stringify(sites)});
+                        storage.set({"sites":JSON.stringify(sites)},cloudSaveSites);
                         popup.popup("open");
                     }
                 );
@@ -7203,9 +7215,16 @@ function cloudLogin(user,pass,callback) {
 }
 
 function cloudSaveSites(callback) {
-    callback = callback || function(){};
+    if (typeof callback !== "function") {
+        callback = function(){};
+    }
 
     storage.get(["cloudToken","sites"],function(data){
+        if (data.cloudToken === null || data.cloudToken === undefined) {
+            callback(false);
+            return;
+        }
+
         $.ajax({
             type: "POST",
             dataType: "json",
@@ -7348,7 +7367,7 @@ function checkPublicAccess(eip) {
 
                 sites[current].os_ip = ip+(port === 80 ? "" : port);
 
-                storage.set({"sites":JSON.stringify(sites)});
+                storage.set({"sites":JSON.stringify(sites)},cloudSaveSites);
             });
         },
         function(){
