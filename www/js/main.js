@@ -1484,7 +1484,7 @@ function show_sites(showBack) {
 
     storage.get(["sites","current_site","cloudToken"],function(data){
         if (data.sites === undefined || data.sites === null || $.isEmptyObject(JSON.parse(data.sites))) {
-            if (data.cloudToken === undefined || data.cloudToken === null) {
+            if (typeof data.cloudToken === "string") {
                 changePage("#start",{
                     showStart: true
                 });
@@ -1695,6 +1695,15 @@ function show_sites(showBack) {
             });
 
             page.find(".ui-content").html(list.enhanceWithin());
+        }
+
+        if (typeof data.cloudToken === "string") {
+            page.find(".ui-content").prepend("<h4 class='ui-bar ui-bar-a ui-corner-all logged-in-alert' style='padding:0'><span style='padding-left:15px;line-height:35px'>"+_("OpenSprinkler.com Login")+": "+getTokenUser(data.cloudToken)+"</span><span class='ui-btn ui-mini logout' style='float:right;padding:4px'>"+_("Logout")+"</span></h4>");
+            page.find(".logout").on("click",function(){
+                logout(function(){
+                    $(".logged-in-alert").remove();
+                });
+            });
         }
     });
 
@@ -2842,15 +2851,7 @@ function bindPanel() {
     });
 
     panel.find("#logout").on("click",function(){
-        areYouSure(_("Are you sure you want to logout?"), "", function(){
-            if (curr_local) {
-                storage.remove(["sites","current_site","lang","provider","wapikey","runonce"],function(){
-                    location.reload();
-                });
-            } else {
-                storage.remove(["cloudToken"],updateLoginButtons);
-            }
-        });
+        logout();
         return false;
     });
 }
@@ -7366,6 +7367,10 @@ function cloudSync() {
     });
 }
 
+function getTokenUser(token) {
+    return atob(token).split("|")[0];
+}
+
 function checkWeatherPlugin() {
     var weather_settings = $(".weather_settings"),
         weather_provider = $(".show-providers");
@@ -7470,6 +7475,23 @@ function checkPublicAccess(eip) {
             });
         }
     );
+}
+
+function logout(success) {
+    success = success || function(){};
+
+    areYouSure(_("Are you sure you want to logout?"), "", function(){
+        if (curr_local) {
+            storage.remove(["sites","current_site","lang","provider","wapikey","runonce"],function(){
+                location.reload();
+            });
+        } else {
+            storage.remove(["cloudToken"],function(){
+                updateLoginButtons();
+                success();
+            });
+        }
+    });
 }
 
 function updateLoginButtons() {

@@ -989,11 +989,6 @@ div.running-text{
 }
 /* Mozilla specific weather icon adjustments */
 @-moz-document url-prefix() {
-    @media (max-width:700px) {
-        .wicon {
-            margin:-50px 0 -45px -50px!important
-        }
-    }
     .ui-mobile fieldset {
         display: block;
     }
