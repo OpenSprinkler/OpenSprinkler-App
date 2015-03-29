@@ -7302,6 +7302,7 @@ function cloudSaveSites(callback) {
                     }
                     callback(false,data.message);
                 } else {
+                    storage.set({"cloudToken":data.token});
                     callback(data.success);
                 }
             },
@@ -7335,6 +7336,7 @@ function cloudGetSites(callback) {
                     }
                     callback(false,data.message);
                 } else {
+                    storage.set({"cloudToken":data.token});
                     try {
                         callback(JSON.parse(sjcl.decrypt(local.cloudDataToken,data.sites)));
                     } catch (err) {
