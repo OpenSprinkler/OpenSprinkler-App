@@ -461,7 +461,9 @@ function initApp() {
                     }
 
                     if (page.attr("id") === "start") {
-                        storage.set({"sites":JSON.stringify(sites)});
+                        if (Object.keys(sites).length > 0) {
+                            storage.set({"sites":JSON.stringify(sites)});
+                        }
                         changePage("#site-control",{
                             showBack: false
                         });
@@ -7354,14 +7356,16 @@ function checkToken(status,error) {
 }
 
 function cloudSync() {
-    storage.get(["cloudToken"],function(data){
-        if (typeof data.cloudToken !== "string") {
+    storage.get(["cloudToken","current_site"],function(local){
+        if (typeof local.cloudToken !== "string") {
             return;
         }
 
         cloudGetSites(function(data){
             if (data !== false) {
-                storage.set({"sites":JSON.stringify(data)});
+                storage.set({"sites":JSON.stringify(data)},function(){
+                    update_site_list(Object.keys(data),local.current_site);
+                });
             }
         });
     });
