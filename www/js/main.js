@@ -467,7 +467,6 @@ function initApp() {
                         updateLoginButtons();
                         storage.get("sites",function(data){
                             sites = $.extend({}, JSON.parse(data.sites), sites);
-                            console.log(sites)
                             storage.set({"sites":JSON.stringify(sites)},cloudSaveSites);
                         });
                     }
