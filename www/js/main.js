@@ -1041,11 +1041,23 @@ function update_controller_settings(callback) {
 }
 
 // Multisite functions
-function check_configured(firstLoad) {
+function check_configured(firstLoad,didCloudSync) {
     storage.get(["sites","current_site","cloudToken"],function(data){
         var sites = data.sites,
             current = data.current_site,
             names;
+
+        if (typeof data.cloudToken === "string" && didCloudSync !== true) {
+            cloudGetSites(function(data){
+                if (data !== false) {
+                    storage.set({"sites":JSON.stringify(data)},cloudSaveSites);
+                }
+
+                check_configured(firstLoad,true);
+            });
+
+            return;
+        }
 
         try {
             sites = JSON.parse(sites) || {};
