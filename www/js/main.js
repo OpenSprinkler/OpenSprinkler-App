@@ -450,72 +450,7 @@ function initApp() {
         var button = $(this),
             page = button.parents(".ui-page");
 
-        requestCloudAuth(function(result){
-            if (result === true) {
-                cloudGetSites(function(sites){
-                    if (page.attr("id") === "start") {
-                        if (Object.keys(sites).length > 0) {
-                            storage.set({"sites":JSON.stringify(sites)});
-                        }
-                        changePage("#site-control",{
-                            showBack: false
-                        });
-                    } else {
-                        updateLoginButtons();
-
-                        storage.get("sites",function(data){
-                            if (JSON.stringify(sites) === data.sites) {
-                                return;
-                            }
-
-                            try {
-                                data.sites = JSON.parse(data.sites) || {};
-                            } catch (err) { data.sites = {}; }
-
-                            if (Object.keys(sites).length > 0) {
-                                // Handle how to merge when cloud is populated
-                                var popup = $(
-                                    "<div data-role='popup' data-theme='a' data-overlay-theme='b'>"+
-                                        "<div class='ui-bar ui-bar-a'>"+_("Select Merge Method")+"</div>" +
-                                        "<div data-role='controlgroup' class='tight'>" +
-                                            "<button class='merge'>"+_("Merge")+"</button>" +
-                                            "<button class='replaceLocal'>"+_("Replace local with cloud")+"</button>" +
-                                            "<button class='replaceCloud'>"+_("Replace cloud with local")+"</button>" +
-                                        "</div>" +
-                                    "</div>"),
-                                    finish = function(){
-                                        storage.set({"sites":JSON.stringify(sites)},cloudSaveSites);
-                                        popup.popup("close");
-                                    };
-
-                                popup.find(".merge").on("click",function(){
-                                    sites = $.extend({}, data.sites, sites);
-                                    finish();
-                                });
-
-                                popup.find(".replaceLocal").on("click",function(){
-                                    finish();
-                                });
-
-                                popup.find(".replaceCloud").on("click",function(){
-                                    sites = data.sites;
-                                    finish();
-                                });
-
-                                popup.one("popupafterclose",function(){
-                                    popup.popup("destroy").remove();
-                                }).popup({
-                                    history: false,
-                                    "positionTo": "window"
-                                }).enhanceWithin().popup("open");
-                            } else {
-                                cloudSaveSites();
-                            }
-                        });
-                    }
-                });
-            }
-        });
+        requestCloudAuth();
 
         return false;
     });
@@ -7226,6 +7161,7 @@ function requestCloudAuth(callback) {
     popup.one("popupafterclose", function(){
         callback(didSucceed);
         $(this).popup("destroy").remove();
+        cloudSyncStart();
     }).enhanceWithin();
 
     popup.find("form").on("submit",function(){
@@ -7348,6 +7284,71 @@ function cloudGetSites(callback) {
                 callback(false);
             }
         });
+    });
+}
+
+function cloudSyncStart() {
+    cloudGetSites(function(sites){
+        if ($(".ui-page-active").attr("id") === "start") {
+            if (Object.keys(sites).length > 0) {
+                storage.set({"sites":JSON.stringify(sites)});
+            }
+            changePage("#site-control",{
+                showBack: false
+            });
+        } else {
+            updateLoginButtons();
+
+            storage.get("sites",function(data){
+                if (JSON.stringify(sites) === data.sites) {
+                    return;
+                }
+
+                try {
+                    data.sites = JSON.parse(data.sites) || {};
+                } catch (err) { data.sites = {}; }
+
+                if (Object.keys(sites).length > 0) {
+                    // Handle how to merge when cloud is populated
+                    var popup = $(
+                        "<div data-role='popup' data-theme='a' data-overlay-theme='b'>"+
+                            "<div class='ui-bar ui-bar-a'>"+_("Select Merge Method")+"</div>" +
+                            "<div data-role='controlgroup' class='tight'>" +
+                                "<button class='merge'>"+_("Merge")+"</button>" +
+                                "<button class='replaceLocal'>"+_("Replace local with cloud")+"</button>" +
+                                "<button class='replaceCloud'>"+_("Replace cloud with local")+"</button>" +
+                            "</div>" +
+                        "</div>"),
+                        finish = function(){
+                            storage.set({"sites":JSON.stringify(sites)},cloudSaveSites);
+                            popup.popup("close");
+                        };
+
+                    popup.find(".merge").on("click",function(){
+                        sites = $.extend({}, data.sites, sites);
+                        finish();
+                    });
+
+                    popup.find(".replaceLocal").on("click",function(){
+                        finish();
+                    });
+
+                    popup.find(".replaceCloud").on("click",function(){
+                        sites = data.sites;
+                        finish();
+                    });
+
+                    popup.one("popupafterclose",function(){
+                        popup.popup("destroy").remove();
+                    }).popup({
+                        history: false,
+                        "positionTo": "window"
+                    }).enhanceWithin().popup("open");
+                } else {
+                    cloudSaveSites();
+                }
+            });
+        }
     });
 }
 
