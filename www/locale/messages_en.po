@@ -134,7 +134,7 @@ msgstr ""
 msgid "Site deleted successfully"
 msgstr ""
 
-msgid "Synced with OpenSprinkler.com ("
+msgid "Synced with OpenSprinkler.com"
 msgstr ""
 
 msgid "Add Controller"
