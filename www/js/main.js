@@ -7535,7 +7535,7 @@ function updateLoginButtons() {
                 page.find(".logged-in-alert").remove();
             }
         } else {
-            $(".logout-button").removeClass("hidden");
+            $(".logout-button").removeClass("hidden").find("a").text(_("Logout")+" ("+getTokenUser(data.cloudToken)+")");
             $(".login-button").addClass("hidden");
 
             if (page.attr("id") === "site-control" && page.find(".logged-in-alert").length === 0) {
