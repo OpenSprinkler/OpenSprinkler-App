@@ -5036,10 +5036,12 @@ function get_preview() {
             "showNavigation": false,
             "groupsOrder": "none",
             "groupMinHeight": 20
-        };
-
-        var timeline = new links.Timeline(placeholder[0],options),
-            currentTime = new Date(now);
+        },
+        resize = function(){
+            timeline.redraw();
+        },
+        timeline = new links.Timeline(placeholder[0],options),
+        currentTime = new Date(now);
 
         currentTime.setMinutes(currentTime.getMinutes()+currentTime.getTimezoneOffset());
 
@@ -5056,8 +5058,10 @@ function get_preview() {
             }
         });
 
-        $.mobile.window.off("resize").on("resize",function(){
-            timeline.redraw();
+        $.mobile.window.on("resize",resize);
+
+        page.one("pagehide",function(){
+            $.mobile.window.off("resize",resize);
         });
 
         timeline.draw(preview_data);
@@ -5110,7 +5114,6 @@ function get_preview() {
 
     page.one({
         pagehide: function(){
-            $.mobile.window.off("resize");
             page.remove();
         },
         pageshow: render
@@ -5274,7 +5277,6 @@ function get_logs() {
         },
         updateView = function() {
             if (logs.find("#log_table").prop("checked")) {
-                $.mobile.window.off("resize");
                 prepTable();
             } else if (logs.find("#log_timeline").prop("checked")) {
                 prepTimeline();
@@ -5308,6 +5310,12 @@ function get_logs() {
                     "groupMinHeight": 20,
                     "zoomMin": 1000 * 60
                 },
+                resize = function(){
+                    timeline.redraw();
+                },
+                reset = function(){
+                    $.mobile.window.off("resize",resize);
+                },
                 shortnames = [];
 
             logs_list.on("swiperight swipeleft",function(e){
@@ -5319,9 +5327,11 @@ function get_logs() {
             });
 
             var timeline = new links.Timeline(logs_list.get(0),options);
-            $.mobile.window.off("resize").on("resize",function(){
-                timeline.redraw();
-            });
+
+            $.mobile.window.on("resize",resize);
+            logs.one("pagehide",reset);
+            logs.find("input:radio[name='log_type']").one("change",reset);
+
             timeline.draw(sortedData);
 
             logs_list.find(".timeline-groups-text").each(function(){
@@ -5502,7 +5512,6 @@ function get_logs() {
 
     logs.one({
         pagehide: function(){
-            $.mobile.window.off("resize");
             logs.remove();
         },
         pageshow: requestData
