@@ -258,6 +258,9 @@ $(document)
         return;
     }
 
+    // If cloud token is available then sync sites
+    cloudSync();
+
     // Indicate the weather and device status are being updated
     showLoading("#weather,#footer-running");
 
@@ -484,6 +487,9 @@ function initApp() {
     // Initialize external panel
     bindPanel();
 
+    // If cloud token is available then sync sites
+    cloudSync();
+
     //On initial load check if a valid site exists for auto connect
     setTimeout(function(){
         check_configured(true);
@@ -666,9 +672,6 @@ function newload() {
         function(){
             var weatherAdjust = $(".weatherAdjust"),
                 change_password = $(".change_password");
-
-            // If cloud token is available then sync sites
-            cloudSync();
 
             $.mobile.loading("hide");
             update_weather();
