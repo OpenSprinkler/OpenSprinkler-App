@@ -461,13 +461,33 @@ body, input, select, textarea, button, .ui-btn {
     padding:0
 }
 
+.logged-in-alert > div {
+    display: inline-block;
+}
+
 .logged-in-alert .ui-icon-recycle:after{
     background-color: #16a085;
 }
 
 .logged-in-alert .syncStatus {
-    line-height:40px;
-    vertical-align:top;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: scroll;
+    width: -moz-calc(100% - 90px);
+    width: -webkit-calc(100% - 90px);
+    width: calc(100% - 90px);
+    position: absolute;
+    top: 25%;
+}
+
+.logged-in-alert .logout {
+    float:right;
+}
+
+@media (max-width: 375px) {
+    .logged-in-alert .syncStatus {
+        font-size: 11px;
+    }
 }
 
 /* Program editor rules */

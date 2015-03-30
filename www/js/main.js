@@ -1624,17 +1624,24 @@ function show_sites(showBack) {
         }
 
         if (typeof data.cloudToken === "string") {
-            page.find(".ui-content").prepend("<h5 class='ui-bar ui-bar-a ui-corner-all logged-in-alert inline-icon'><span class='ui-btn ui-icon-recycle btn-no-border ui-btn-icon-notext ui-mini'></span><span class='syncStatus'>"+_("Synced with OpenSprinkler.com (")+getTokenUser(data.cloudToken)+")</span><span class='ui-btn ui-icon-delete btn-no-border ui-btn-icon-notext ui-mini logout' style='float:right'></span></h5>");
-            page.find(".logout").on("click",function(){
-                logout(function(){
-                    $(".logged-in-alert").remove();
-                });
-            });
+            page.find(".ui-content").prepend(addSyncStatus(data.cloudToken));
+
         }
     });
 
     $("#site-control").remove();
     page.appendTo("body");
+}
+
+function addSyncStatus(token) {
+    var ele = $("<div class='ui-bar smaller ui-bar-a ui-corner-all logged-in-alert'>" +
+            "<div class='ui-btn ui-icon-recycle btn-no-border ui-btn-icon-notext ui-mini'></div>" +
+            "<div class='syncStatus'>"+_("Synced with OpenSprinkler.com (")+getTokenUser(token)+")</div>" +
+            "<div class='ui-btn ui-icon-delete btn-no-border ui-btn-icon-notext ui-mini logout'></div>" +
+        "</div>");
+
+    ele.find(".logout").on("click",logout);
+    return ele;
 }
 
 function testSite(site,id,callback) {
@@ -7498,7 +7505,9 @@ function checkPublicAccess(eip) {
 }
 
 function logout(success) {
-    success = success || function(){};
+    if (typeof success !== "function") {
+        success = function(){};
+    }
 
     areYouSure(_("Are you sure you want to logout?"), "", function(){
         if (curr_local) {
@@ -7515,13 +7524,23 @@ function logout(success) {
 }
 
 function updateLoginButtons() {
+    var page = $(".ui-page-active");
+
     storage.get("cloudToken",function(data){
         if (data.cloudToken === null || data.cloudToken === undefined) {
             $(".login-button").removeClass("hidden");
             $(".logout-button").addClass("hidden");
+
+            if (page.attr("id") === "site-control") {
+                page.find(".logged-in-alert").remove();
+            }
         } else {
             $(".logout-button").removeClass("hidden");
             $(".login-button").addClass("hidden");
+
+            if (page.attr("id") === "site-control" && page.find(".logged-in-alert").length === 0) {
+                page.find(".ui-content").prepend(addSyncStatus(data.cloudToken));
+            }
         }
     });
 }
