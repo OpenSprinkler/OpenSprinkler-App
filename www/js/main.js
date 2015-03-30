@@ -7558,7 +7558,7 @@ function checkPublicAccess(eip) {
                 var sites = (data.sites === undefined || data.sites === null) ? {} : JSON.parse(data.sites),
                     current = data.current_site;
 
-                sites[current].os_ip = ip+(port === 80 ? "" : port);
+                sites[current].os_ip = ip+(port === 80 ? "" : ":" + port);
 
                 storage.set({"sites":JSON.stringify(sites)},cloudSaveSites);
             });
