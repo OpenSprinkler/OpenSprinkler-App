@@ -1,9 +1,3 @@
-msgid "Back"
-msgstr ""
-
-msgid "Done"
-msgstr ""
-
 msgid "Change Rain Delay"
 msgstr ""
 
@@ -13,6 +7,12 @@ msgstr ""
 msgid ""
 "Enable manual rain delay by entering a value into the input below. To turn "
 "off a currently enabled rain delay use a value of 0."
+msgstr ""
+
+msgid "Back"
+msgstr ""
+
+msgid "Done"
 msgstr ""
 
 msgid "Check device password and try again."
@@ -102,6 +102,9 @@ msgstr ""
 msgid "Add"
 msgstr ""
 
+msgid "Please add a site by tapping the 'Add' button in the top right corner."
+msgstr ""
+
 msgid "connect"
 msgstr ""
 
@@ -129,6 +132,9 @@ msgid "Site updated successfully"
 msgstr ""
 
 msgid "Site deleted successfully"
+msgstr ""
+
+msgid "Synced with OpenSprinkler.com ("
 msgstr ""
 
 msgid "Add Controller"
@@ -276,9 +282,6 @@ msgid "OpenSprinkler is rebooting now"
 msgstr ""
 
 msgid "Are you sure you want to downgrade the UI?"
-msgstr ""
-
-msgid "Are you sure you want to logout?"
 msgstr ""
 
 msgid "A valid IP address is required when DHCP is not used"
@@ -1015,10 +1018,66 @@ msgstr ""
 msgid "Password changed successfully"
 msgstr ""
 
+msgid "OpenSprinkler.com Login"
+msgstr ""
+
+msgid ""
+"Use your OpenSprinkler.com login and password to securely sync sites between "
+"all your devices."
+msgstr ""
+
+msgid "Don't have an account?"
+msgstr ""
+
+msgid "Register here"
+msgstr ""
+
+msgid "Invalid username/password combination. Please try again."
+msgstr ""
+
+msgid "Select Merge Method"
+msgstr ""
+
+msgid "Merge"
+msgstr ""
+
+msgid "Replace local with cloud"
+msgstr ""
+
+msgid "Replace cloud with local"
+msgstr ""
+
+msgid "OpenSprinkler.com Login Expired"
+msgstr ""
+
+msgid "Click here to re-login to OpenSprinkler.com"
+msgstr ""
+
+msgid "Unable to read cloud data"
+msgstr ""
+
+msgid "Click here to enter a valid password to decrypt the data"
+msgstr ""
+
+msgid ""
+"Please enter your OpenSprinkler.com password. If you have recently changed "
+"your password, you may need to enter your previous password to decrypt the "
+"contents."
+msgstr ""
+
+msgid "Password"
+msgstr ""
+
 msgid "Remote access is not enabled"
 msgstr ""
 
 msgid "Click here to troubleshoot remote access issues"
+msgstr ""
+
+msgid "Are you sure you want to logout?"
+msgstr ""
+
+msgid "Logout"
 msgstr ""
 
 msgid "Notifications"
@@ -1235,9 +1294,6 @@ msgid "Import Configuration"
 msgstr ""
 
 msgid "Help & Support"
-msgstr ""
-
-msgid "Logout"
 msgstr ""
 
 msgid "Operation"
