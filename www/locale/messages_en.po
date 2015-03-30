@@ -1062,7 +1062,7 @@ msgstr ""
 msgid ""
 "Please enter your OpenSprinkler.com password. If you have recently changed "
 "your password, you may need to enter your previous password to decrypt the "
-"contents."
+"data."
 msgstr ""
 
 msgid "Password"
