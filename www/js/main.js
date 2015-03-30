@@ -7261,7 +7261,14 @@ function cloudGetSites(callback) {
 
     storage.get(["cloudToken","cloudDataToken"],function(local){
         if (local.cloudToken === undefined || local.cloudToken === null) {
-            return false;
+            callback(false);
+            return;
+        }
+
+        if (local.cloudDataToken === undefined || local.cloudDataToken === null) {
+            handleInvalidDataToken();
+            callback(false);
+            return;
         }
 
         $.ajax({
@@ -7280,8 +7287,19 @@ function cloudGetSites(callback) {
                     callback(false,data.message);
                 } else {
                     storage.set({"cloudToken":data.token});
+                    var sites;
+
                     try {
-                        callback(JSON.parse(sjcl.decrypt(local.cloudDataToken,data.sites)));
+                        sites = sjcl.decrypt(local.cloudDataToken,data.sites);
+                    } catch (err) {
+                        if (err.message === "ccm: tag doesn't match") {
+                            handleInvalidDataToken();
+                        }
+                        callback(false);
+                    }
+
+                    try {
+                        callback(JSON.parse(sites));
                     } catch (err) {
                         callback(false);
                     }
@@ -7393,6 +7411,52 @@ function handleExpiredLogin() {
                 }
             });
 
+            return false;
+        }
+    });
+}
+
+function handleInvalidDataToken() {
+    storage.remove(["cloudDataToken"]);
+
+    addNotification({
+        title: _("Unable to read cloud data"),
+        desc: _("Click here to enter a valid password to decrypt the data"),
+        on: function(){
+            var button = $(this).parent(),
+                popup = $(
+                    "<div data-role='popup' data-theme='a' data-overlay-theme='b' class='modal ui-content' id='dataPassword'>"+
+                        "<p class='tight rain-desc'>"+_("Please enter your OpenSprinkler.com password. If you have recently changed your password, you may need to enter your previous password to decrypt the contents.")+"</p>"+
+                        "<form>" +
+                            "<input type='password' id='dataPasswordInput' name='dataPasswordInput' placeholder='"+_("Password")+"' />" +
+                            "<input type='submit' data-theme='b' value='"+_("Submit")+"' />" +
+                        "</form>" +
+                    "</div>"
+                ),
+                didSubmit = false;
+
+            //Bind submit
+            popup.find("form").on("submit",function(){
+                removeNotification(button);
+                didSubmit = true;
+                storage.set({
+                    "cloudDataToken": sjcl.codec.hex.fromBits(sjcl.hash.sha256.hash(popup.find("#dataPasswordInput").val()))
+                },function(){
+                    popup.popup("close");
+                });
+
+                return false;
+            });
+
+            popup.one("popupafterclose", function(){
+                popup.popup("destroy").remove();
+                if (didSubmit === true) {
+                    cloudSync();
+                }
+            }).enhanceWithin();
+
+            $(".ui-page-active").append(popup);
+            popup.popup({history: false, positionTo: "window"}).popup("open");
             return false;
         }
     });
