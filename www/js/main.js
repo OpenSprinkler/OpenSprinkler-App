@@ -667,6 +667,9 @@ function newload() {
             var weatherAdjust = $(".weatherAdjust"),
                 change_password = $(".change_password");
 
+            // If cloud token is available then sync sites
+            cloudSync();
+
             $.mobile.loading("hide");
             update_weather();
 
@@ -708,9 +711,6 @@ function newload() {
             if (typeof controller.settings.eip === "number") {
                 checkPublicAccess(controller.settings.eip);
             }
-
-            // If cloud token is available then sync sites
-            cloudSync();
 
             // Check if a cloud token is available and if so show logout button otherwise show login
             if (!curr_local) {
