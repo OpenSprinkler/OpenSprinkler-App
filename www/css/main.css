@@ -472,7 +472,7 @@ body, input, select, textarea, button, .ui-btn {
 .logged-in-alert .syncStatus {
     white-space: nowrap;
     text-overflow: ellipsis;
-    overflow: scroll;
+    overflow: hidden;
     width: -moz-calc(100% - 90px);
     width: -webkit-calc(100% - 90px);
     width: calc(100% - 90px);
