@@ -7147,7 +7147,11 @@ function requestCloudAuth(callback) {
     var popup = $("<div data-role='popup' class='modal' id='requestCloudAuth' data-theme='a' data-overlay-theme='b'>"+
                 "<ul data-role='listview' data-inset='true'>" +
                     "<li data-role='list-divider'>"+_("OpenSprinkler.com Login")+"</li>" +
-                    "<li><p class='rain-desc'>"+_("Use your OpenSprinkler.com login and password to login and securely sync sites and settings between devices and browsers")+"</p></li>" +
+                    "<li><p class='rain-desc tight'>"+
+                        _("Use your OpenSprinkler.com login and password to securely sync sites between all your devices.") +
+                        "<br><br>" +
+                        _("Don't have an account?")+" <a href='https://opensprinkler.com/wp-login.php?action=register' class='iab'>"+_("Register here")+"</a>" +
+                    "</p></li>" +
                     "<li>" +
                         "<form method='post' novalidate>" +
                             "<label for='cloudUser'>"+_("Username:")+"</label>" +
