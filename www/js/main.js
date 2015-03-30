@@ -1641,6 +1641,14 @@ function addSyncStatus(token) {
         "</div>");
 
     ele.find(".logout").on("click",logout);
+    ele.find(".ui-icon-recycle").on("click",function(){
+        var btn = $(this);
+
+        btn.addClass("spin");
+        cloudSync(function(){
+            btn.removeClass("spin");
+        });
+    });
     return ele;
 }
 
@@ -7377,7 +7385,11 @@ function cloudSyncStart() {
     });
 }
 
-function cloudSync() {
+function cloudSync(callback) {
+    if (typeof callback !== "function") {
+        callback = function(){};
+    }
+
     storage.get(["cloudToken","current_site"],function(local){
         if (typeof local.cloudToken !== "string") {
             return;
@@ -7387,6 +7399,7 @@ function cloudSync() {
             if (data !== false) {
                 storage.set({"sites":JSON.stringify(data)},function(){
                     update_site_list(Object.keys(data),local.current_site);
+                    callback();
                 });
             }
         });
