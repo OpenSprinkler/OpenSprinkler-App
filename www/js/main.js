@@ -1639,7 +1639,7 @@ function show_sites(showBack) {
 function addSyncStatus(token) {
     var ele = $("<div class='ui-bar smaller ui-bar-a ui-corner-all logged-in-alert'>" +
             "<div class='ui-btn ui-icon-recycle btn-no-border ui-btn-icon-notext ui-mini'></div>" +
-            "<div class='syncStatus'>"+_("Synced with OpenSprinkler.com (")+getTokenUser(token)+")</div>" +
+            "<div class='syncStatus'>"+_("Synced with OpenSprinkler.com")+" ("+getTokenUser(token)+")</div>" +
             "<div class='ui-btn ui-icon-delete btn-no-border ui-btn-icon-notext ui-mini logout'></div>" +
         "</div>");
 
@@ -2518,7 +2518,7 @@ function nearbyPWS(lat,lon,callback) {
             dataSent = false;
 
         // Wire in listener for communication from iframe
-        $(window).off("message onmessage").on("message onmessage", function(e) {
+        $.mobile.window.off("message onmessage").on("message onmessage", function(e) {
             var data = e.originalEvent.data;
             if (typeof data.WS !== "undefined") {
                 callback(data.WS);
@@ -7442,7 +7442,7 @@ function handleInvalidDataToken() {
             var button = $(this).parent(),
                 popup = $(
                     "<div data-role='popup' data-theme='a' data-overlay-theme='b' class='modal ui-content' id='dataPassword'>"+
-                        "<p class='tight rain-desc'>"+_("Please enter your OpenSprinkler.com password. If you have recently changed your password, you may need to enter your previous password to decrypt the contents.")+"</p>"+
+                        "<p class='tight rain-desc'>"+_("Please enter your OpenSprinkler.com password. If you have recently changed your password, you may need to enter your previous password to decrypt the data.")+"</p>"+
                         "<form>" +
                             "<input type='password' id='dataPasswordInput' name='dataPasswordInput' placeholder='"+_("Password")+"' />" +
                             "<input type='submit' data-theme='b' value='"+_("Submit")+"' />" +
