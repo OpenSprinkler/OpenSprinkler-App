@@ -162,6 +162,7 @@ a {
     width: 55%;
 }
 .mini-load {
+    -o-transform: scale(0.5);
     -moz-transform: scale(0.5);
     -webkit-transform: scale(0.5);
     transform: scale(0.5);
@@ -311,6 +312,7 @@ a {
 .input_with_buttons button {
     display:inline-block;
     vertical-align:text-top;
+    -o-transform: scale(1.5);
     -moz-transform: scale(1.5);
     -webkit-transform: scale(1.5);
     transform: scale(1.5);
@@ -650,15 +652,17 @@ body, input, select, textarea, button, .ui-btn {
     width: 50px;
 }
 .moveLeft {
-    transform: translate3d(-17em,0,0);
     -webkit-transform: translate3d(-17em,0,0);
+    -o-transform: translate3d(-17em,0,0);
     -moz-transform: translate3d(-17em,0,0);
+    transform: translate3d(-17em,0,0);
 }
 #footer-menu:after{
     height: 50px;
     width: 50px;
     margin-top: -25px;
     margin-left: -25px;
+    -o-transform: scale(1.5);
     -moz-transform: scale(1.5);
     -webkit-transform: scale(1.5);
     transform: scale(1.5);
@@ -936,9 +940,10 @@ div.running-text{
     width:150px;
     height:150px;
     background:url(../img/weather.png);
-    transform: scale(0.5);
-    -moz-transform:scale(0.5);
     -o-transform:scale(0.5);
+    -moz-transform:scale(0.5);
+    -webkit-transform:scale(0.5);
+    transform: scale(0.5);
     margin:-55px -10px -45px -30px;
 }
 .wicon.cond0, .wicon.cond1, .wicon.cond2 {
