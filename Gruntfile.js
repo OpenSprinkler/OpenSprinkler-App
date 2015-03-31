@@ -160,7 +160,7 @@ module.exports = function(grunt) {
 					"msgcat .msgjs .msghtml > www/locale/messages_en.po",
 					"rm .msgjs .msghtml",
 					"git add www/locale/messages_en.po",
-					"git commit -m 'Localization: Update English strings'",
+					"git diff-index --quiet HEAD || git commit -m 'Localization: Update English strings'",
 					"git push"
 				].join("&&")
 			},
@@ -171,7 +171,7 @@ module.exports = function(grunt) {
 					"rm langs.zip",
 					"find . -type f -maxdepth 1 -iname 'messages_*.po' -print0 | while IFS= read -r -d $'\\0' line; do file=(${line//_/ }); lang=${file[1]}; file=(${lang//-/ }); lang=${file[0]}; file=(${lang//./ }); lang=${file[0]}; mv \"$line\" messages.po; po2json -p messages.po > \"www/locale/$lang.js\"; rm messages.po; done",
 					"git add www/locale",
-					"git commit -m 'Localization: Update languages from getlocalization.com'",
+					"git diff-index --quiet HEAD || git commit -m 'Localization: Update languages from getlocalization.com'",
 					"git push"
 				].join("&&")
 			},
