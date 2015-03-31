@@ -6,7 +6,6 @@ var isIEMobile = /IEMobile/.test(navigator.userAgent),
     isFireFox = /Firefox/.test(navigator.userAgent),
     isWinApp = /MSAppHost/.test(navigator.userAgent),
     isBB10 = /BB10/.test(navigator.userAgent),
-    isIE = /MSIE (\d+)\.\d+;/.exec(navigator.userAgent) || false,
     isOSXApp = isOSXApp || false,
     isChromeApp = typeof chrome === "object" && typeof chrome.storage === "object",
     isFileCapable = !isiOS && !isAndroid && !isIEMobile && !isOSXApp && !isFireFoxOS && !isWinApp && !isBB10 && window.FileReader,
@@ -323,12 +322,7 @@ function initApp() {
 
     // Fix CSS for IE Mobile (Windows Phone 8)
     if (isIEMobile) {
-        insertStyle(".ui-toolbar-back-btn{display:none!important}ul{list-style: none !important;}@media(max-width:940px){.wicon{margin:-10px -10px -15px -15px !important}#forecast .wicon{position:relative;left:37.5px;margin:0 auto !important}}");
-    }
-
-    // Fix style for IE 9
-    if (isIE && isIE[1] === "9") {
-        insertStyle(".input_with_buttons button{zoom:1!important}");
+        insertStyle(".ui-toolbar-back-btn{display:none!important}ul{list-style: none !important;}");
     }
 
     // Fix CSS for Chrome Web Store apps
@@ -1640,9 +1634,9 @@ function show_sites(showBack) {
 
 function addSyncStatus(token) {
     var ele = $("<div class='ui-bar smaller ui-bar-a ui-corner-all logged-in-alert'>" +
-            "<div class='ui-btn ui-icon-recycle btn-no-border ui-btn-icon-notext ui-mini'></div>" +
-            "<div class='syncStatus'>"+_("Synced with OpenSprinkler.com")+" ("+getTokenUser(token)+")</div>" +
-            "<div class='ui-btn ui-icon-delete btn-no-border ui-btn-icon-notext ui-mini logout'></div>" +
+            "<div class='inline ui-btn ui-icon-recycle btn-no-border ui-btn-icon-notext ui-mini'></div>" +
+            "<div class='inline syncStatus'>"+_("Synced with OpenSprinkler.com")+" ("+getTokenUser(token)+")</div>" +
+            "<div class='inline ui-btn ui-icon-delete btn-no-border ui-btn-icon-notext ui-mini logout'></div>" +
         "</div>");
 
     ele.find(".logout").on("click",logout);
@@ -2209,7 +2203,7 @@ function update_yahoo_weather() {
 
 function updateWeatherBox() {
     $("#weather")
-        .html("<div title='"+weather.title+"' class='wicon cond"+weather.code+"'></div><span>"+weather.temp+"</span><br><span class='location'>"+weather.location+"</span>")
+        .html("<div title='"+weather.title+"' class='wicon cond"+weather.code+"'></div><div class='inline tight'>"+weather.temp+"</div><br><div class='inline location tight'>"+weather.location+"</div>")
         .off("click").on("click",function(){
             changePage("#forecast");
             return false;

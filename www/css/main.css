@@ -143,6 +143,9 @@ a {
 .nobr {
     white-space:nowrap
 }
+.inline {
+    display: inline-block;
+}
 .wrap {
     white-space:inherit!important
 }
@@ -159,7 +162,9 @@ a {
     width: 55%;
 }
 .mini-load {
-    zoom:.5;
+    -moz-transform: scale(0.5);
+    -webkit-transform: scale(0.5);
+    transform: scale(0.5);
     height:2.875em;
     width:2.875em;
     margin:0 auto!important;
@@ -293,7 +298,7 @@ a {
     display:inline-block;
     width:65%;
     vertical-align:text-top;
-    margin-top: 12px;
+    margin: 2px 5px;
 }
 .input_with_buttons input {
     text-align: center;
@@ -306,7 +311,9 @@ a {
 .input_with_buttons button {
     display:inline-block;
     vertical-align:text-top;
-    zoom: 1.5;
+    -moz-transform: scale(1.5);
+    -webkit-transform: scale(1.5);
+    transform: scale(1.5);
 }
 #sure {
     padding:0.5em;
@@ -492,10 +499,6 @@ body, input, select, textarea, button, .ui-btn {
     padding:0
 }
 
-.logged-in-alert > div {
-    display: inline-block;
-}
-
 .logged-in-alert .ui-icon-recycle:after{
     background-color: #16a085;
 }
@@ -656,7 +659,9 @@ body, input, select, textarea, button, .ui-btn {
     width: 50px;
     margin-top: -25px;
     margin-left: -25px;
-    zoom: 1.5;
+    -moz-transform: scale(1.5);
+    -webkit-transform: scale(1.5);
+    transform: scale(1.5);
 }
 #stn_attrib {
     border: 0;
@@ -931,10 +936,10 @@ div.running-text{
     width:150px;
     height:150px;
     background:url(../img/weather.png);
-    zoom:.5;
+    transform: scale(0.5);
     -moz-transform:scale(0.5);
     -o-transform:scale(0.5);
-    margin:-35px -10px -15px -30px;
+    margin:-55px -10px -45px -30px;
 }
 .wicon.cond0, .wicon.cond1, .wicon.cond2 {
     background-position:-150px -150px
@@ -1076,11 +1081,15 @@ div.running-text{
         max-width: 220px;
     }
     .wicon {
-        margin:-35px -10px -15px -30px;
+        margin:-50px -40px -45px -40px;
     }
     #weather {
         text-align: left;
         margin-left: 5px;
+    }
+    #weather > .location {
+        display: block;
+        width: 80%;
     }
     .home-info {
         margin-left: -25px;
