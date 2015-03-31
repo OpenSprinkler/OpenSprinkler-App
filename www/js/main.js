@@ -3673,7 +3673,7 @@ function showHome(firstLoad) {
                 return false;
             }
 
-            select += "<input class='bold center' data-wrapper-class='stn-name ui-btn' id='stn-name' type='text' value='"+name.text()+"'>";
+            select += "<div class='ui-bar-a ui-bar'>"+_("Station Name")+":</div><input class='bold center' data-corners='false' data-wrapper-class='tight stn-name ui-btn' id='stn-name' type='text' value='"+name.text()+"'>";
 
             if (hasMaster) {
                 select += "<label for='um'><input class='needsclick' data-iconpos='right' id='um' type='checkbox' "+((button.data("um") === 1) ? "checked='checked'" : "")+">"+_("Use Master")+"</label>";
@@ -3704,7 +3704,9 @@ function showHome(firstLoad) {
                 submit_stations();
             });
             select.one("popupafteropen",function(){
-                select.find("#stn-name").focusInput();
+                if (!isiOS) {
+                    select.find("#stn-name").focusInput();
+                }
             }).enhanceWithin();
 
             $(".ui-page-active").append(select);

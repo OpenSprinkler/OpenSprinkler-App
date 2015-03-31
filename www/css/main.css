@@ -741,6 +741,9 @@ div.running-text{
 .stn-name {
     padding: 0;
 }
+.stn-name > input {
+    background-color: #fff;
+}
 
 .rem {
     margin:0;
@@ -944,7 +947,7 @@ div.running-text{
     -moz-transform:scale(0.5);
     -webkit-transform:scale(0.5);
     transform: scale(0.5);
-    margin:-55px -10px -45px -30px;
+    margin:-55px -20px -45px -60px;
 }
 .wicon.cond0, .wicon.cond1, .wicon.cond2 {
     background-position:-150px -150px
