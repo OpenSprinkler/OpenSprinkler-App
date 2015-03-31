@@ -1441,6 +1441,8 @@ function show_sites(showBack) {
                 });
             }
 
+            sites = sortObj(sites);
+
             $.each(sites,function(a,b){
                 siteNames.push(a);
 
@@ -7334,7 +7336,9 @@ function cloudGetSites(callback) {
 
 function cloudSyncStart() {
     cloudGetSites(function(sites){
-        if ($(".ui-page-active").attr("id") === "start") {
+        var page = $(".ui-page-active").attr("id");
+
+        if (page === "start") {
             if (Object.keys(sites).length > 0) {
                 storage.set({"sites":JSON.stringify(sites)});
             }
@@ -7367,6 +7371,10 @@ function cloudSyncStart() {
                         finish = function(){
                             storage.set({"sites":JSON.stringify(sites)},cloudSaveSites);
                             popup.popup("close");
+
+                            if (page === "site-control") {
+                                changePage("#site-control");
+                            }
                         };
 
                     popup.find(".merge").on("click",function(){
@@ -8985,6 +8993,36 @@ function exportObj(ele,obj,subject) {
             return false;
         });
     }
+}
+
+function sortObj(obj, type) {
+    var temp_array = [];
+
+    for (var key in obj) {
+        if (obj.hasOwnProperty(key)) {
+            temp_array.push(key);
+        }
+    }
+
+    if (typeof type === "function") {
+        temp_array.sort(type);
+    } else if (type === "value") {
+        temp_array.sort(function(a,b) {
+            var x = obj[a];
+            var y = obj[b];
+            return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+        });
+    } else {
+        temp_array.sort();
+    }
+
+    var temp_obj = {};
+
+    for (var i=0; i<temp_array.length; i++) {
+        temp_obj[temp_array[i]] = obj[temp_array[i]];
+    }
+
+    return temp_obj;
 }
 
 // Return day of the week
