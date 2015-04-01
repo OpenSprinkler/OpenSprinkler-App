@@ -220,7 +220,6 @@ a {
     -ms-animation-duration: 4000ms;
     -ms-animation-iteration-count: infinite;
     -ms-animation-timing-function: linear;
-
     animation-name: spin;
     animation-duration: 4000ms;
     animation-iteration-count: infinite;
@@ -285,7 +284,6 @@ a {
     border-width: 1px !important;
     border-style: solid !important;
     background-clip: initial !important;
-    -webkit-background-clip: initial !important;
 }
 .pad_buttons {
     width: 94% !important;
@@ -509,8 +507,6 @@ body, input, select, textarea, button, .ui-btn {
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
-    width: -moz-calc(100% - 90px);
-    width: -webkit-calc(100% - 90px);
     width: calc(100% - 90px);
     position: absolute;
     top: 25%;
@@ -706,9 +702,6 @@ body, input, select, textarea, button, .ui-btn {
     top: -3px;
     left: 1%;
     border: none;
-}
-.station-status:after {
-
 }
 .station-status.on:after {
     background-color:#16a085;
