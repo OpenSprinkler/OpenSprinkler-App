@@ -3708,9 +3708,7 @@ function showHome(firstLoad) {
                 submit_stations();
             });
             select.one("popupafteropen",function(){
-                if (!isiOS) {
-                    select.find("#stn-name").focusInput();
-                }
+                select.find("#stn-name").focusInput();
             }).enhanceWithin();
 
             $(".ui-page-active").append(select);
