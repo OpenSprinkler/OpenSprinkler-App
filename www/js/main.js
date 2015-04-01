@@ -2344,8 +2344,12 @@ function make_wunderground_forecast() {
     }
 
     var list = "<li data-role='list-divider' data-theme='a' class='center'>"+weather.forecast.location+"</li>";
-    list += "<li data-icon='false' class='center'><div title='"+weather.forecast.condition.text+"' class='wicon cond"+weather.forecast.condition.code+"'></div><span>"+_("Now")+"</span><br><span>"+temp+"</span><br><span>"+_("Sunrise")+"</span><span>: "+pad(parseInt(controller.settings.sunrise/60)%24)+":"+pad(controller.settings.sunrise%60)+"</span> <span>"+_("Sunset")+"</span><span>: "+pad(parseInt(controller.settings.sunset/60)%24)+":"+pad(controller.settings.sunset%60)+"</span><br><span>"+_("Precip")+"</span><span>: "+precip+"</span></li>";
-    $.each(weather.forecast.simpleforecast, function() {
+    list += "<li data-icon='false' class='center'><div>"+_("Now")+"</div><br><div title='"+weather.forecast.condition.text+"' class='wicon cond"+weather.forecast.condition.code+"'></div><span>"+temp+"</span><br><span>"+_("Sunrise")+"</span><span>: "+pad(parseInt(controller.settings.sunrise/60)%24)+":"+pad(controller.settings.sunrise%60)+"</span> <span>"+_("Sunset")+"</span><span>: "+pad(parseInt(controller.settings.sunset/60)%24)+":"+pad(controller.settings.sunset%60)+"</span><br><span>"+_("Precip")+"</span><span>: "+precip+"</span></li>";
+    $.each(weather.forecast.simpleforecast, function(i) {
+        if (i === "0") {
+            return;
+        }
+
         var times = getSunTimes(new Date(this.date.epoch*1000)),
             sunrise = times[0],
             sunset = times[1],
@@ -2356,13 +2360,13 @@ function make_wunderground_forecast() {
             if (precip === null) {
                 precip = 0;
             }
-            list += "<li data-icon='false' class='center'><span>"+this.date.monthname_short+" "+this.date.day+"</span><br><div title='"+this.conditions+"' class='wicon cond"+this.icon+"'></div><span>"+_(this.date.weekday_short)+"</span><br><span>"+_("Low")+"</span><span>: "+this.low.fahrenheit+"&#176;F  </span><span>"+_("High")+"</span><span>: "+this.high.fahrenheit+"&#176;F</span><br><span>"+_("Sunrise")+"</span><span>: "+pad(parseInt(sunrise/60)%24)+":"+pad(sunrise%60)+"</span> <span>"+_("Sunset")+"</span><span>: "+pad(parseInt(sunset/60)%24)+":"+pad(sunset%60)+"</span><br><span>"+_("Precip")+"</span><span>: "+precip+" in</span></li>";
+            list += "<li data-icon='false' class='center'><div>"+this.date.monthname_short+" "+this.date.day+"</div><br><div title='"+this.conditions+"' class='wicon cond"+this.icon+"'></div><span>"+_(this.date.weekday_short)+"</span><br><span>"+_("Low")+"</span><span>: "+this.low.fahrenheit+"&#176;F  </span><span>"+_("High")+"</span><span>: "+this.high.fahrenheit+"&#176;F</span><br><span>"+_("Sunrise")+"</span><span>: "+pad(parseInt(sunrise/60)%24)+":"+pad(sunrise%60)+"</span> <span>"+_("Sunset")+"</span><span>: "+pad(parseInt(sunset/60)%24)+":"+pad(sunset%60)+"</span><br><span>"+_("Precip")+"</span><span>: "+precip+" in</span></li>";
         } else {
             precip = this.qpf_allday.mm;
             if (precip === null) {
                 precip = 0;
             }
-            list += "<li data-icon='false' class='center'><span>"+this.date.monthname_short+" "+this.date.day+"</span><br><div title='"+this.conditions+"' class='wicon cond"+this.icon+"'></div><span>"+_(this.date.weekday_short)+"</span><br><span>"+_("Low")+"</span><span>: "+this.low.celsius+"&#176;C  </span><span>"+_("High")+"</span><span>: "+this.high.celsius+"&#176;C</span><br><span>"+_("Sunrise")+"</span><span>: "+pad(parseInt(sunrise/60)%24)+":"+pad(sunrise%60)+"</span> <span>"+_("Sunset")+"</span><span>: "+pad(parseInt(sunset/60)%24)+":"+pad(controller.settings.sunset%60)+"</span><br><span>"+_("Precip")+"</span><span>: "+precip+" mm</span></li>";
+            list += "<li data-icon='false' class='center'><div>"+this.date.monthname_short+" "+this.date.day+"</div><br><div title='"+this.conditions+"' class='wicon cond"+this.icon+"'></div><span>"+_(this.date.weekday_short)+"</span><br><span>"+_("Low")+"</span><span>: "+this.low.celsius+"&#176;C  </span><span>"+_("High")+"</span><span>: "+this.high.celsius+"&#176;C</span><br><span>"+_("Sunrise")+"</span><span>: "+pad(parseInt(sunrise/60)%24)+":"+pad(sunrise%60)+"</span> <span>"+_("Sunset")+"</span><span>: "+pad(parseInt(sunset/60)%24)+":"+pad(controller.settings.sunset%60)+"</span><br><span>"+_("Precip")+"</span><span>: "+precip+" mm</span></li>";
         }
     });
 
@@ -2375,15 +2379,15 @@ function make_yahoo_forecast() {
         sunset = controller.settings.sunset ? controller.settings.sunset : getSunTimes()[1],
         i;
 
-    list += "<li data-icon='false' class='center'><div title='"+weather.title+"' class='wicon cond"+weather.code+"'></div><span>"+_("Now")+"</span><br><span>"+weather.temp+"</span><br><span>"+_("Sunrise")+"</span><span>: "+pad(parseInt(sunrise/60)%24)+":"+pad(sunrise%60)+"</span> <span>"+_("Sunset")+"</span><span>: "+pad(parseInt(sunset/60)%24)+":"+pad(sunset%60)+"</span></li>";
+    list += "<li data-icon='false' class='center'><div>"+_("Now")+"</div><br><div title='"+weather.title+"' class='wicon cond"+weather.code+"'></div><span>"+weather.temp+"</span><br><span>"+_("Sunrise")+"</span><span>: "+pad(parseInt(sunrise/60)%24)+":"+pad(sunrise%60)+"</span> <span>"+_("Sunset")+"</span><span>: "+pad(parseInt(sunset/60)%24)+":"+pad(sunset%60)+"</span></li>";
 
-    for (i=0;i < weather.forecast.length; i++) {
+    for (i=1;i < weather.forecast.length; i++) {
         var times = getSunTimes(new Date(weather.forecast[i].date));
 
         sunrise = times[0];
         sunset = times[1];
 
-        list += "<li data-icon='false' class='center'><span>"+weather.forecast[i].date+"</span><br><div title='"+weather.forecast[i].text+"' class='wicon cond"+weather.forecast[i].code+"'></div><span>"+_(weather.forecast[i].day)+"</span><br><span>"+_("Low")+"</span><span>: "+convert_temp(weather.forecast[i].low,weather.region)+"  </span><span>"+_("High")+"</span><span>: "+convert_temp(weather.forecast[i].high,weather.region)+"</span><br><span>"+_("Sunrise")+"</span><span>: "+pad(parseInt(sunrise/60)%24)+":"+pad(sunrise%60)+"</span> <span>"+_("Sunset")+"</span><span>: "+pad(parseInt(sunset/60)%24)+":"+pad(sunset%60)+"</span></li>";
+        list += "<li data-icon='false' class='center'><div>"+weather.forecast[i].date+"</div><br><div title='"+weather.forecast[i].text+"' class='wicon cond"+weather.forecast[i].code+"'></div><span>"+_(weather.forecast[i].day)+"</span><br><span>"+_("Low")+"</span><span>: "+convert_temp(weather.forecast[i].low,weather.region)+"  </span><span>"+_("High")+"</span><span>: "+convert_temp(weather.forecast[i].high,weather.region)+"</span><br><span>"+_("Sunrise")+"</span><span>: "+pad(parseInt(sunrise/60)%24)+":"+pad(sunrise%60)+"</span> <span>"+_("Sunset")+"</span><span>: "+pad(parseInt(sunset/60)%24)+":"+pad(sunset%60)+"</span></li>";
     }
 
     return list;

@@ -542,7 +542,7 @@ body, input, select, textarea, button, .ui-btn {
     padding: 0.2em 0.5em;
     float: right;
 }
-#addprogram .ui-content, #programs .ui-content, #runonce .ui-content, #manual .ui-content {
+#forecast .ui-content, #addprogram .ui-content, #programs .ui-content, #runonce .ui-content, #manual .ui-content {
     max-width: 600px;
 }
 #programs .ui-collapsible-content {
@@ -929,9 +929,6 @@ div.running-text{
 }
 .noweather #clock-s {
     padding-top:0;
-}
-#forecast .wicon {
-    margin:0 auto!important
 }
 .debugWU tr td:first-child {
     width: 160px;
