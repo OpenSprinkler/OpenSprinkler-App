@@ -3019,7 +3019,7 @@ function show_options(expandItem) {
     if (typeof controller.options.mas !== "undefined") {
         list += "<div class='ui-field-contain'><label for='o18' class='select'>"+_("Master Station")+"</label><select data-mini='true' id='o18'><option value='0'>"+_("None")+"</option>";
         for (i=0; i<controller.stations.snames.length; i++) {
-            list += "<option "+(((i+1) === controller.options.mas) ? "selected" : "")+" value='"+(i+1)+"'>"+controller.stations.snames[i]+"</option>";
+            list += "<option "+((isStationMaster(i)) ? "selected" : "")+" value='"+(i+1)+"'>"+controller.stations.snames[i]+"</option>";
             if (i === 7) {
                 break;
             }
@@ -3633,7 +3633,7 @@ function showHome(firstLoad) {
 
             cards += "<span class='btn-no-border ui-btn ui-btn-icon-notext ui-corner-all station-status "+(isRunning ? "on" : (isScheduled ? "wait" : "off"))+"'></span>";
 
-            cards += "<span class='btn-no-border ui-btn "+((controller.options.mas === i+1) ? "ui-icon-master" : "ui-icon-gear")+" ui-btn-icon-notext station-settings' data-station='"+i+"' id='attrib-"+i+"' " +
+            cards += "<span class='btn-no-border ui-btn "+((isStationMaster(i)) ? "ui-icon-master" : "ui-icon-gear")+" ui-btn-icon-notext station-settings' data-station='"+i+"' id='attrib-"+i+"' " +
                 (hasMaster ? ("data-um='"+((controller.stations.masop[parseInt(i/8)]&(1<<(i%8))) ? 1 : 0)+"' ") : "") +
                 (hasIR ? ("data-ir='"+((controller.stations.ignore_rain[parseInt(i/8)]&(1<<(i%8))) ? 1 : 0)+"' ") : "") +
                 (hasAR ? ("data-ar='"+((controller.stations.act_relay[parseInt(i/8)]&(1<<(i%8))) ? 1 : 0)+"' ") : "") +
@@ -3641,7 +3641,7 @@ function showHome(firstLoad) {
                 (hasSequential ? ("data-us='"+((controller.stations.stn_seq[parseInt(i/8)]&(1<<(i%8))) ? 1 : 0)+"' ") : "") +
                 "></span>";
 
-            if (controller.options.mas === i+1) {
+            if (isStationMaster(i)) {
                 if (isScheduled || isRunning) {
                     // Generate status line for station
                     cards += "<p class='rem center'>"+(isRunning ? _("Running")+" "+pname : _("Scheduled")+" "+(controller.settings.ps[i][2] ? _("for")+" "+dateToString(new Date(controller.settings.ps[i][2]*1000)) : pname));
@@ -3673,7 +3673,7 @@ function showHome(firstLoad) {
                 },
                 select = "<div data-overlay-theme='b' data-role='popup' id='stn_attrib'><fieldset style='margin:0' data-corners='false' data-role='controlgroup'><form>";
 
-            if (typeof id !== "number" || id + 1 === controller.options.mas) {
+            if (typeof id !== "number" || isStationMaster(id)) {
                 return false;
             }
 
@@ -3870,7 +3870,7 @@ function showHome(firstLoad) {
 
                     card.find("#station_"+i).text(controller.stations.snames[i]);
                     card.find(".station-status").removeClass("on off wait").addClass(isRunning ? "on" : (isScheduled ? "wait" : "off"));
-                    if (i+1 === controller.options.mas) {
+                    if (isStationMaster(i)) {
                         card.find(".station-settings").removeClass("ui-icon-gear").addClass("ui-icon-master");
                     } else {
                         card.find(".station-settings").removeClass("ui-icon-master").addClass("ui-icon-gear");
@@ -3883,7 +3883,7 @@ function showHome(firstLoad) {
                         us: hasSequential ? ((controller.stations.stn_seq[parseInt(i/8)]&(1<<(i%8))) ? 1 : 0) : undefined
                     });
 
-                    if (controller.options.mas !== i+1 && (isScheduled || isRunning)) {
+                    if (!isStationMaster(i) && (isScheduled || isRunning)) {
                         line = (isRunning ? _("Running")+" "+pname : _("Scheduled")+" "+(controller.settings.ps[i][2] ? _("for")+" "+dateToString(new Date(controller.settings.ps[i][2]*1000)) : pname));
                         if (rem>0) {
                             // Show the remaining time if it's greater than 0
@@ -3942,7 +3942,7 @@ function showHome(firstLoad) {
             name = controller.stations.snames[station],
             question;
 
-        if (station === controller.options.mas - 1) {
+        if (isStationMaster(station)) {
             return false;
         }
 
@@ -4021,6 +4021,10 @@ function showHome(firstLoad) {
     }
 }
 
+function isStationMaster(sid) {
+    return (typeof controller.options.mas === "number" && controller.options.mas - 1 === sid);
+}
+
 function isStationDisabled(sid) {
     return (typeof controller.stations.stn_dis === "object" && (controller.stations.stn_dis[parseInt(sid/8)]&(1<<(sid%8))) > 0);
 }
@@ -4093,13 +4097,9 @@ function check_status() {
     // Handle open stations
     open = {};
     for (i=0; i<controller.status.length; i++) {
-        if (controller.status[i]) {
+        if (controller.status[i] && !isStationMaster(i)) {
             open[i] = controller.status[i];
         }
-    }
-
-    if (controller.options.mas) {
-        delete open[controller.options.mas-1];
     }
 
     // Handle more than 1 open station
@@ -4132,7 +4132,7 @@ function check_status() {
     // Handle a single station open
     match = false;
     for (i=0; i<controller.stations.snames.length; i++) {
-        if (controller.settings.ps[i] && controller.settings.ps[i][0] && controller.status[i] && controller.options.mas !== i+1) {
+        if (controller.settings.ps[i] && controller.settings.ps[i][0] && controller.status[i] && !isStationMaster(i)) {
             match = true;
             pid = controller.settings.ps[i][0];
             pname = pidname(pid);
@@ -4349,7 +4349,7 @@ function get_manual() {
         dest, mmlist, listitems;
 
     $.each(controller.stations.snames,function (i,station) {
-        if (controller.options.mas === i+1) {
+        if (isStationMaster(i)) {
             list += "<li data-icon='false' class='center"+((controller.status[i]) ? " green" : "")+(isStationDisabled(i) ? " station-hidden' style='display:none" : "")+"'>"+station+" ("+_("Master")+")</li>";
         } else {
             list += "<li data-icon='false'><a class='mm_station center"+((controller.status[i]) ? " green" : "")+(isStationDisabled(i) ? " station-hidden' style='display:none" : "")+"'>"+station+"</a></li>";
@@ -4423,7 +4423,7 @@ function get_runonce() {
         },
         fill_runonce = function(data) {
             runonce.find("[id^='zone-']").each(function(a,b){
-                if (controller.options.mas === a+1) {
+                if (isStationMaster(a)) {
                     return;
                 }
 
@@ -4470,7 +4470,7 @@ function get_runonce() {
     quickPick += "</select>";
     list += quickPick+"<form>";
     $.each(controller.stations.snames,function(i, station) {
-        if (controller.options.mas === i+1) {
+        if (isStationMaster(i)) {
             list += "<div class='ui-field-contain duration-input"+(isStationDisabled(i) ? " station-hidden' style='display:none" : "")+"'><label for='zone-"+i+"'>"+station+":</label><button disabled='true' data-mini='true' name='zone-"+i+"' id='zone-"+i+"' value='0'>Master</button></div>";
         } else {
             list += "<div class='ui-field-contain duration-input"+(isStationDisabled(i) ? " station-hidden' style='display:none" : "")+"'><label for='zone-"+i+"'>"+station+":</label><button data-mini='true' name='zone-"+i+"' id='zone-"+i+"' value='0'>0s</button></div>";
@@ -4650,7 +4650,7 @@ function get_preview() {
                 if(check_match(prog,simminutes,simt,simday,devday)) {
                     for(sid=0;sid<controller.settings.nbrd*8;sid++) {
                         var bid=sid>>3;var s=sid%8;
-                        if (controller.options.mas===(sid+1)) {
+                        if (isStationMaster(sid)) {
                             continue; // skip master station
                         }
                         if (is21) {
@@ -4776,7 +4776,7 @@ function get_preview() {
             if(pid_array[sid]) {
               if (is211) {
                 if(pl_array[sid]) {
-                    if((controller.options.mas>0)&&(controller.options.mas!==sid+1)&&(controller.stations.masop[sid>>3]&(1<<(sid%8)))) {
+                    if (isStationMaster(sid) && (controller.stations.masop[sid>>3]&(1<<(sid%8)))) {
                         preview_data.push({
                             "start": (st_array[sid]+controller.options.mton),
                             "end": (et_array[sid]+controller.options.mtof),
@@ -4795,7 +4795,7 @@ function get_preview() {
                 }
               } else {
                 if(controller.options.seq===1) {
-                    if((controller.options.mas>0)&&(controller.options.mas!==sid+1)&&(controller.stations.masop[sid>>3]&(1<<(sid%8)))) {
+                    if (isStationMaster(sid) && (controller.stations.masop[sid>>3]&(1<<(sid%8)))) {
                         preview_data.push({
                             "start": (st_array[sid]+controller.options.mton),
                             "end": (et_array[sid]+controller.options.mtof),
@@ -4810,7 +4810,7 @@ function get_preview() {
                     endtime=et_array[sid];
                 } else {
                     time_to_text(sid,simseconds,pid_array[sid],et_array[sid],simt);
-                    if((controller.options.mas>0)&&(controller.options.mas!==sid+1)&&(controller.stations.masop[sid>>3]&(1<<(sid%8)))) {
+                    if(isStationMaster(sid)&&(controller.stations.masop[sid>>3]&(1<<(sid%8)))) {
                         endtime=(endtime>et_array[sid])?endtime:et_array[sid];
                     }
                 }
@@ -6132,7 +6132,7 @@ function make_program21(n,isCopy) {
 
     // Show station duration inputs
     for (j=0; j<controller.stations.snames.length; j++) {
-        if (controller.options.mas === j+1) {
+        if (isStationMaster(j)) {
             list += "<div class='ui-field-contain duration-input"+(isStationDisabled(j) ? " station-hidden' style='display:none" : "")+"'><label for='station_"+j+"-"+id+"'>"+controller.stations.snames[j]+":</label><button disabled='true' data-mini='true' name='station_"+j+"-"+id+"' id='station_"+j+"-"+id+"' value='0'>Master</button></div>";
         } else {
             time = program.stations[j] || 0;
