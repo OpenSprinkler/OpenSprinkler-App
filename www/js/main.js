@@ -3641,7 +3641,7 @@ function showHome(firstLoad) {
                 (hasSequential ? ("data-us='"+((controller.stations.stn_seq[parseInt(i/8)]&(1<<(i%8))) ? 1 : 0)+"' ") : "") +
                 "></span>";
 
-            if (isStationMaster(i)) {
+            if (!isStationMaster(i)) {
                 if (isScheduled || isRunning) {
                     // Generate status line for station
                     cards += "<p class='rem center'>"+(isRunning ? _("Running")+" "+pname : _("Scheduled")+" "+(controller.settings.ps[i][2] ? _("for")+" "+dateToString(new Date(controller.settings.ps[i][2]*1000)) : pname));
