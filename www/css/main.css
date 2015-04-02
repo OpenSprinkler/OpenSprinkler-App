@@ -727,17 +727,15 @@ body, input, select, textarea, button, .ui-btn {
 div.running-text{
     display: table-cell;
 }
-#stn_attrib .submit {
-    padding: 10px;
-}
-
 .stn-name {
     padding: 0;
 }
 .stn-name > input {
     background-color: #fff;
 }
-
+.attrib-submit {
+    border: 0;
+}
 .rem {
     margin:0;
     font-size:.71em!important;

@@ -3699,9 +3699,7 @@ function showHome(firstLoad) {
                 select += "<label for='us'><input class='needsclick' data-iconpos='right' id='us' type='checkbox' "+((button.data("us") === 1) ? "checked='checked'" : "")+">"+_("Sequential")+"</label>";
             }
 
-            select += "<input data-theme='b' type='submit' value='"+_("Submit")+" />";
-
-            select += "</form></fieldset></div>";
+            select += "<input data-wrapper-class='attrib-submit' data-theme='b' type='submit' value='"+_("Submit")+"' /></form></fieldset></div>";
             select = $(select);
             select.on("submit","form",function(){
                 saveChanges();
