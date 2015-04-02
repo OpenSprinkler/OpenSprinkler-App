@@ -3671,7 +3671,7 @@ function showHome(firstLoad) {
                     name.html( select.find("#stn-name").val() );
                     select.popup("destroy").remove();
                 },
-                select = "<div data-overlay-theme='b' data-role='popup' id='stn_attrib'><fieldset style='margin:0' data-corners='false' data-role='controlgroup'>";
+                select = "<div data-overlay-theme='b' data-role='popup' id='stn_attrib'><fieldset style='margin:0' data-corners='false' data-role='controlgroup'><form>";
 
             if (typeof id !== "number" || id + 1 === controller.options.mas) {
                 return false;
@@ -3699,13 +3699,15 @@ function showHome(firstLoad) {
                 select += "<label for='us'><input class='needsclick' data-iconpos='right' id='us' type='checkbox' "+((button.data("us") === 1) ? "checked='checked'" : "")+">"+_("Sequential")+"</label>";
             }
 
-            select += "<button data-theme='b' class='submit'>Submit</button>";
+            select += "<input data-theme='b' type='submit' value='"+_("Submit")+" />";
 
-            select += "</fieldset></div>";
+            select += "</form></fieldset></div>";
             select = $(select);
-            select.on("click",".submit",function(){
+            select.on("submit","form",function(){
                 saveChanges();
                 submit_stations();
+
+                return false;
             });
             select.one("popupafteropen",function(){
                 select.find("#stn-name").focusInput();
