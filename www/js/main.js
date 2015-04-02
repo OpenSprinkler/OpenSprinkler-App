@@ -2656,12 +2656,12 @@ function bindPanel() {
 
     panel.enhanceWithin().panel().removeClass("hidden").panel("option","classes.modal","needsclick ui-panel-dismiss");
 
-    panel.find("a[href='#site-control']").one("click",function(){
+    panel.find("a[href='#site-control']").on("click",function(){
         changePage("#site-control");
         return false;
     });
 
-    panel.find("a[href='#about']").one("click",function(){
+    panel.find("a[href='#about']").on("click",function(){
         changePage("#about");
         return false;
     });
@@ -7418,6 +7418,10 @@ function cloudSync(callback) {
                 storage.set({"sites":JSON.stringify(data)},function(){
                     update_site_list(Object.keys(data),local.current_site);
                     callback();
+
+                    if ($(".ui-page-active").attr("id") === "site-control") {
+                        changePage("#site-control");
+                    }
                 });
             }
         });
