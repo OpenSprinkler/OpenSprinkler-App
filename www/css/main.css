@@ -30,6 +30,9 @@
 .ui-collapsible-heading-toggle, .bold {
     font-weight:700!important
 }
+.ui-page {
+    position: absolute !important
+}
 .ui-popup-screen {
     height: 100%
 }
