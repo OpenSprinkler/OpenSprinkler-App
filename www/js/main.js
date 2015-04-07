@@ -409,7 +409,9 @@ function initApp() {
 
     // Bind event handler to open panel when swiping right
     $.mobile.document.on("swiperight swipeleft",".ui-page",function(e) {
-        if ($(".ui-page-active").jqmData("panel") !== "open" && !$(".ui-page-active .ui-popup-active").length) {
+        var page = $(".ui-page-active");
+
+        if (page.jqmData("panel") !== "open" && !page.find(".ui-popup-active").length) {
             if (e.type === "swiperight") {
                 open_panel();
             } else {
@@ -1510,7 +1512,7 @@ function show_sites(showBack) {
                         return false;
                     });
 
-                    popup.appendTo("body").one("popupafterclose",function(){
+                    popup.one("popupafterclose",function(){
                         popup.popup("destroy").remove();
                         if (!didSubmit) {
                             el.attr("checked", false).checkboxradio("refresh");
@@ -1518,7 +1520,11 @@ function show_sites(showBack) {
                     }).popup({
                         history: false,
                         positionTo: "window"
-                    }).enhanceWithin().popup("open");
+                    }).enhanceWithin();
+
+                    $.mobile.pageContainer.append(popup);
+
+                    popup.popup("open");
                 } else {
                     el.data({
                         user: "",
@@ -1629,7 +1635,7 @@ function show_sites(showBack) {
     });
 
     $("#site-control").remove();
-    page.appendTo("body");
+    $.mobile.pageContainer.append(page);
 }
 
 function addSyncStatus(token) {
@@ -2106,7 +2112,7 @@ function show_weather_settings() {
     });
 
     $("#weather_settings").remove();
-    page.appendTo("body");
+    $.mobile.pageContainer.append(page);
 }
 
 function convert_temp(temp,region) {
@@ -2329,7 +2335,7 @@ function show_forecast() {
     });
 
     $("#forecast").remove();
-    page.appendTo("body");
+    $.mobile.pageContainer.append(page);
 }
 
 function make_wunderground_forecast() {
@@ -2448,7 +2454,7 @@ function resolveLocation(loc,callback) {
             "</div>"),
             dataSent = false;
 
-        popup.appendTo("body").on("click","a",function(){
+        popup.on("click","a",function(){
             callback(this.textContent);
             dataSent = true;
             popup.popup("close");
@@ -2460,7 +2466,11 @@ function resolveLocation(loc,callback) {
         }).popup({
             history: false,
             positionTo: "window"
-        }).enhanceWithin().popup("open");
+        }).enhanceWithin();
+
+        $.mobile.pageContainer.append(popup);
+
+        popup.popup("open");
     });
 }
 
@@ -2552,7 +2562,7 @@ function nearbyPWS(lat,lon,callback) {
             }
         });
 
-        popup.appendTo("body").one("popupafterclose",function(){
+        popup.one("popupafterclose",function(){
             popup.popup("destroy").remove();
             if (dataSent === false) {
                 callback(false);
@@ -2567,7 +2577,11 @@ function nearbyPWS(lat,lon,callback) {
             },
             x: 0,
             y: 0
-        }).enhanceWithin().popup("open");
+        }).enhanceWithin();
+
+        $.mobile.pageContainer.append(popup);
+
+        popup.popup("open");
     }).fail(function(){
         callback(false);
     });
@@ -2612,12 +2626,16 @@ function debugWU() {
                     "</table>" +
                 "</div>");
 
-            popup.appendTo("body").one("popupafterclose",function(){
+            popup.one("popupafterclose",function(){
                 popup.popup("destroy").remove();
             }).popup({
                 history: false,
                 positionTo: "window"
-            }).enhanceWithin().popup("open");
+            }).enhanceWithin();
+
+            $.mobile.pageContainer.append(popup);
+
+            popup.popup("open");
         } else {
             showerror(_("Weather data cannot be found for your location"));
             return;
@@ -3507,7 +3525,7 @@ function show_options(expandItem) {
     header.eq(2).prop("disabled",true);
 
     $("#os-options").remove();
-    page.appendTo("body");
+    $.mobile.pageContainer.append(page);
 }
 
 function showHomeMenu(btn) {
@@ -3577,7 +3595,7 @@ function showHomeMenu(btn) {
 
 
     $("#mainMenu").remove();
-    $("body").append(popup);
+    $.mobile.pageContainer.append(popup);
 
     popup.popup({history: false, positionTo: btn}).popup("open");
 
@@ -3671,7 +3689,7 @@ function showHome(firstLoad) {
                     name.html( select.find("#stn-name").val() );
                     select.popup("destroy").remove();
                 },
-                select = "<div data-overlay-theme='b' data-role='popup' id='stn_attrib'><fieldset style='margin:0' data-corners='false' data-role='controlgroup'><form>";
+                select = "<div data-overlay-theme='b' data-role='popup' data-theme='a' id='stn_attrib'><fieldset style='margin:0' data-corners='false' data-role='controlgroup'><form>";
 
             if (typeof id !== "number" || isStationMaster(id)) {
                 return false;
@@ -3711,7 +3729,7 @@ function showHome(firstLoad) {
                 select.find("#stn-name").focusInput();
             }).enhanceWithin();
 
-            $(".ui-page-active").append(select);
+            $.mobile.pageContainer.append(select);
 
             select.popup({history: false, positionTo: isiOS ? $("#header") : "window"}).popup("open");
         },
@@ -4014,7 +4032,7 @@ function showHome(firstLoad) {
     });
 
     $("#sprinklers").remove();
-    page.appendTo("body");
+    $.mobile.pageContainer.append(page);
 
     if (!$.isEmptyObject(weather)) {
         updateWeatherBox();
@@ -4402,27 +4420,27 @@ function get_manual() {
     });
 
     $("#manual").remove();
-    page.appendTo("body");
+    $.mobile.pageContainer.append(page);
 }
 
 // Runonce functions
 function get_runonce() {
     var list = "<p class='center'>"+_("Zero value excludes the station from the run-once program.")+"</p>",
-        runonce = $("<div data-role='page' id='runonce'>" +
+        page = $("<div data-role='page' id='runonce'>" +
             "<div class='ui-content' role='main' id='runonce_list'>" +
             "</div>" +
         "</div>"),
         updateLastRun = function(data) {
             rprogs.l = data;
-            $("<option value='l' selected='selected'>"+_("Last Used Program")+"</option>").insertAfter(runonce.find("#rprog").find("option[value='t']"));
+            $("<option value='l' selected='selected'>"+_("Last Used Program")+"</option>").insertAfter(page.find("#rprog").find("option[value='t']"));
             fill_runonce(data);
         },
         reset_runonce = function() {
-            runonce.find("[id^='zone-']").val(0).text("0s").removeClass("green");
+            page.find("[id^='zone-']").val(0).text("0s").removeClass("green");
             return false;
         },
         fill_runonce = function(data) {
-            runonce.find("[id^='zone-']").each(function(a,b){
+            page.find("[id^='zone-']").each(function(a,b){
                 if (isStationMaster(a)) {
                     return;
                 }
@@ -4479,7 +4497,7 @@ function get_runonce() {
 
     list += "</form><a class='ui-btn ui-corner-all ui-shadow rsubmit' href='#'>"+_("Submit")+"</a><a class='ui-btn ui-btn-b ui-corner-all ui-shadow rreset' href='#'>"+_("Reset")+"</a>";
 
-    runonce.find(".ui-content").html(list);
+    page.find(".ui-content").html(list);
 
     if (typeof controller.settings.rodur === "object") {
         var total = 0;
@@ -4501,7 +4519,7 @@ function get_runonce() {
         });
     }
 
-    runonce.find("#rprog").on("change",function(){
+    page.find("#rprog").on("change",function(){
         var prog = $(this).val();
         if (prog === "s") {
             reset_runonce();
@@ -4516,11 +4534,11 @@ function get_runonce() {
         fill_runonce(rprogs[prog]);
     });
 
-    runonce.on("click",".rsubmit",submit_runonce).on("click",".rreset",reset_runonce);
+    page.on("click",".rsubmit",submit_runonce).on("click",".rreset",reset_runonce);
 
-    runonce.find("[id^='zone-']").on("click",function(){
+    page.find("[id^='zone-']").on("click",function(){
         var dur = $(this),
-            name = runonce.find("label[for='"+dur.attr("id")+"']").text().slice(0,-1);
+            name = page.find("label[for='"+dur.attr("id")+"']").text().slice(0,-1);
 
         showDurationBox({
             seconds: dur.val(),
@@ -4540,8 +4558,8 @@ function get_runonce() {
         return false;
     });
 
-    runonce.one("pagehide",function(){
-        runonce.remove();
+    page.one("pagehide",function(){
+        page.remove();
     });
 
     changeHeader({
@@ -4560,7 +4578,7 @@ function get_runonce() {
     });
 
     $("#runonce").remove();
-    runonce.appendTo("body");
+    $.mobile.pageContainer.append(page);
 }
 
 function submit_runonce(runonce) {
@@ -5130,14 +5148,14 @@ function get_preview() {
     });
 
     $("#preview").remove();
-    page.appendTo("body");
+    $.mobile.pageContainer.append(page);
 }
 
 // Logging functions
 function get_logs() {
     var now = new Date(controller.settings.devt*1000),
         isNarrow = $.mobile.window.width() < 640 ? true : false,
-        logs = $("<div data-role='page' id='logs'>" +
+        page = $("<div data-role='page' id='logs'>" +
             "<div class='ui-content' role='main'>" +
                 "<fieldset data-role='controlgroup' data-type='horizontal' data-mini='true' class='log_type'>" +
                     "<input data-mini='true' type='radio' name='log_type' id='log_timeline' value='timeline'"+(isNarrow ? "" : " checked='checked'")+">" +
@@ -5167,9 +5185,9 @@ function get_logs() {
                 "</div>" +
             "</div>" +
         "</div>"),
-        logs_list = logs.find("#logs_list"),
-        table_sort = logs.find("#table_sort"),
-        log_options = logs.find("#log_options"),
+        logs_list = page.find("#logs_list"),
+        table_sort = page.find("#table_sort"),
+        log_options = page.find("#log_options"),
         data = [],
         waterlog = [],
         stations = $.merge($.merge([],controller.stations.snames),[_("Rain Sensor"),_("Rain Delay")]),
@@ -5276,9 +5294,9 @@ function get_logs() {
             $.mobile.loading("hide");
         },
         updateView = function() {
-            if (logs.find("#log_table").prop("checked")) {
+            if (page.find("#log_table").prop("checked")) {
                 prepTable();
-            } else if (logs.find("#log_timeline").prop("checked")) {
+            } else if (page.find("#log_timeline").prop("checked")) {
                 prepTimeline();
             }
         },
@@ -5329,8 +5347,8 @@ function get_logs() {
             var timeline = new links.Timeline(logs_list.get(0),options);
 
             $.mobile.window.on("resize",resize);
-            logs.one("pagehide",reset);
-            logs.find("input:radio[name='log_type']").one("change",reset);
+            page.one("pagehide",reset);
+            page.find("input:radio[name='log_type']").one("change",reset);
 
             timeline.draw(sortedData);
 
@@ -5347,7 +5365,7 @@ function get_logs() {
             table_sort.show();
             logs_list.show();
 
-            var grouping = logs.find("input:radio[name='table-group']:checked").val(),
+            var grouping = page.find("input:radio[name='table-group']:checked").val(),
                 table_header = "<table><thead><tr><th data-priority='1'>"+_("Runtime")+"</th><th data-priority='2'>"+(grouping === "station" ? _("Date/Time") : _("Time")+"</th><th>"+_("Station"))+"</th></tr></thead><tbody>",
                 html = "<div data-role='collapsible-set' data-inset='true' data-theme='b' data-collapsed-icon='arrow-d' data-expanded-icon='arrow-u'>",
                 sortedData = sortData("table",grouping),
@@ -5477,10 +5495,10 @@ function get_logs() {
         },
         logtimeout, i;
 
-    logs.find("input").blur();
+    page.find("input").blur();
 
     // Bind clear logs button
-    logs.find(".clear_logs").on("click",function(){
+    page.find(".clear_logs").on("click",function(){
         areYouSure(_("Are you sure you want to clear ALL your log data?"), "", function() {
             var url = isOSPi() ? "/cl?pw=" : "/dl?pw=&day=all";
             $.mobile.loading("show");
@@ -5494,9 +5512,9 @@ function get_logs() {
 
     //Automatically update the log viewer when changing the date range
     if (isiOS) {
-        logs.find("#log_start,#log_end").on("blur",requestData);
+        page.find("#log_start,#log_end").on("blur",requestData);
     } else {
-        logs.find("#log_start,#log_end").change(function(){
+        page.find("#log_start,#log_end").change(function(){
             clearTimeout(logtimeout);
             logtimeout = setTimeout(requestData,1000);
         });
@@ -5508,11 +5526,11 @@ function get_logs() {
     });
 
     //Bind view change buttons
-    logs.find("input:radio[name='log_type']").change(updateView);
+    page.find("input:radio[name='log_type']").change(updateView);
 
-    logs.one({
+    page.one({
         pagehide: function(){
-            logs.remove();
+            page.remove();
         },
         pageshow: requestData
     });
@@ -5533,18 +5551,18 @@ function get_logs() {
     });
 
     $("#logs").remove();
-    logs.appendTo("body");
+    $.mobile.pageContainer.append(page);
 }
 
 // Program management functions
 function get_programs(pid) {
-    var programs = $("<div data-role='page' id='programs'>" +
+    var page = $("<div data-role='page' id='programs'>" +
             "<div class='ui-content' role='main' id='programs_list'>" +
                 make_all_programs() +
             "</div>" +
         "</div>");
 
-    programs.find("[id^=program-]").on({
+    page.find("[id^=program-]").on({
         collapsiblecollapse: function(){
             $(this).find(".ui-collapsible-content").empty();
         },
@@ -5569,7 +5587,7 @@ function get_programs(pid) {
     });
 
     if (checkOSVersion(210)) {
-        programs.find(".move-up").removeClass("hidden").on("click",function(){
+        page.find(".move-up").removeClass("hidden").on("click",function(){
             var group = $(this).parents("fieldset"),
                 pid = parseInt(group.attr("id").split("-")[1]);
 
@@ -5589,7 +5607,7 @@ function get_programs(pid) {
         });
     }
 
-    programs.find(".program-copy").on("click",function(){
+    page.find(".program-copy").on("click",function(){
         var copyID = parseInt($(this).parents("fieldset").attr("id").split("-")[1]);
 
         changePage("#addprogram",{
@@ -5599,9 +5617,9 @@ function get_programs(pid) {
         return false;
     });
 
-    programs
+    page
     .one("pagehide",function(){
-        programs.remove();
+        page.remove();
     })
     .one("pagebeforeshow",function(){
         update_program_header();
@@ -5611,7 +5629,7 @@ function get_programs(pid) {
         }
 
         if (typeof pid === "number") {
-            programs.find("fieldset[data-collapsed='false']").collapsible("collapse");
+            page.find("fieldset[data-collapsed='false']").collapsible("collapse");
             $("#program-"+pid).collapsible("expand");
         }
     });
@@ -5637,7 +5655,7 @@ function get_programs(pid) {
     });
 
     $("#programs").remove();
-    programs.appendTo("body");
+    $.mobile.pageContainer.append(page);
 }
 
 function expandProgram(program) {
@@ -6271,7 +6289,7 @@ function make_program21(n,isCopy) {
 function add_program(copyID) {
     copyID = (copyID >= 0) ? copyID : "new";
 
-    var addprogram = $("<div data-role='page' id='addprogram'>" +
+    var page = $("<div data-role='page' id='addprogram'>" +
                 "<div class='ui-content' role='main' id='newprogram'>" +
                     "<fieldset id='program-new'>" +
                     "</fieldset>" +
@@ -6296,23 +6314,23 @@ function add_program(copyID) {
             }
         });
 
-    addprogram.find("#program-new").html(make_program(copyID,true)).one("change input",function(){
+    page.find("#program-new").html(make_program(copyID,true)).one("change input",function(){
         header.eq(2).prop("disabled",false).addClass("hasChanges");
     });
 
-    addprogram.find("[id^='submit-']").on("click",function(){
+    page.find("[id^='submit-']").on("click",function(){
         submit_program(copyID);
         return false;
     });
 
-    addprogram.one("pagehide",function() {
-        addprogram.remove();
+    page.one("pagehide",function() {
+        page.remove();
     });
 
     header.eq(2).prop("disabled",true);
 
     $("#addprogram").remove();
-    addprogram.appendTo("body");
+    $.mobile.pageContainer.append(page);
 }
 
 function delete_program(id) {
@@ -6591,7 +6609,7 @@ function getExportMethod() {
         popup.popup("destroy").remove();
     }).enhanceWithin();
 
-    $("body").append(popup);
+    $.mobile.pageContainer.append(popup);
 
     popup.popup({history: false, positionTo: $("#sprinklers-settings").find(".export_config")}).popup("open");
 }
@@ -6629,7 +6647,7 @@ function getImportMethod(localData){
                 popup.popup("destroy").remove();
             }).enhanceWithin();
 
-            $("body").append(popup);
+            $.mobile.pageContainer.append(popup);
 
             popup.popup({history: false, positionTo: "window"}).popup("open");
 
@@ -6698,7 +6716,7 @@ function getImportMethod(localData){
         popup.popup("destroy").remove();
     }).enhanceWithin();
 
-    $("body").append(popup);
+    $.mobile.pageContainer.append(popup);
 
     popup.popup({history: false, positionTo: $("#sprinklers-settings").find(".import_config")}).popup("open");
 }
@@ -6954,7 +6972,7 @@ function show_about() {
     });
 
     $("#about").remove();
-    page.appendTo("body");
+    $.mobile.pageContainer.append(page);
 }
 
 // OpenSprinkler controller methods
@@ -7206,7 +7224,7 @@ function requestCloudAuth(callback) {
         return false;
     });
 
-    $("body").append(popup);
+    $.mobile.pageContainer.append(popup);
 
     popup.popup({history: false, positionTo: "window"}).popup("open");
 }
@@ -7490,7 +7508,7 @@ function handleInvalidDataToken() {
                 }
             }).enhanceWithin();
 
-            $("body").append(popup);
+            $.mobile.pageContainer.append(popup);
             popup.popup({history: false, positionTo: "window"}).popup("open");
             return false;
         }
@@ -7796,7 +7814,7 @@ function checkFirmwareUpdate() {
                                     $(this).popup("destroy").remove();
                                 });
 
-                                $("body").append(popup);
+                                $.mobile.pageContainer.append(popup);
 
                                 popup.popup({history: false, positionTo: "window"}).popup("open");
                             }
@@ -7933,7 +7951,7 @@ function areYouSure(text1, text2, success, fail) {
         popup.popup("destroy").remove();
     }).enhanceWithin();
 
-    $("body").append(popup);
+    $.mobile.pageContainer.append(popup);
 
     popup.popup({history: false, positionTo: "window"}).popup("open");
 }
@@ -8018,7 +8036,7 @@ function showIPRequest(opt){
         return false;
     });
 
-    $("body").append(popup);
+    $.mobile.pageContainer.append(popup);
 
     popup
     .css("max-width","350px")
@@ -8210,7 +8228,7 @@ function showDurationBox(opt) {
         return false;
     });
 
-    $("body").append(popup);
+    $.mobile.pageContainer.append(popup);
 
     popup
     .css("max-width","350px")
@@ -8292,7 +8310,7 @@ function showSingleDurationInput(opt) {
         popup.popup("destroy").remove();
     });
 
-    $("body").append(popup);
+    $.mobile.pageContainer.append(popup);
 
     popup
     .popup({
@@ -8378,7 +8396,7 @@ function showDateTimeInput(timestamp,callback) {
 
     updateContent();
 
-    $("body").append(popup);
+    $.mobile.pageContainer.append(popup);
 
     popup
     .css("width","280px")
@@ -8664,7 +8682,7 @@ function showTimeInput(opt) {
         });
     }
 
-    $("body").append(popup);
+    $.mobile.pageContainer.append(popup);
 
     popup
     .css("max-width","350px")
@@ -8705,7 +8723,7 @@ function showHelpText(e){
         popup.popup("destroy").remove();
     }).enhanceWithin();
 
-    $("body").append(popup);
+    $.mobile.pageContainer.append(popup);
 
     popup.popup({history: false, positionTo: button}).popup("open");
 
@@ -9166,7 +9184,7 @@ function languageSelect() {
         update_lang(lang);
     });
 
-    $("body").append(popup);
+    $.mobile.pageContainer.append(popup);
 
     popup
     .popup({
