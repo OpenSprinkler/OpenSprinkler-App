@@ -63,9 +63,11 @@ module.exports = function(grunt) {
 					archive: "build/firmware/UI.zip"
 				},
 				files: [{
-					src: ["css/**","js/**","img/**","locale/*.js","*.htm","res/ios-web/**"],
+					src: ["css/**","js/**","img/**","locale/*.js","*.htm"],
 					cwd: "www/",
 					expand: true
+				},{
+					src: "res/ios-web/**"
 				}]
 			},
 			makePGB: {
@@ -103,11 +105,11 @@ module.exports = function(grunt) {
 					archive: "build/firefox/com.albahra.sprinklers.zip"
 				},
 				files: [{
-					src: ["css/**","js/**","img/**","locale/**","*.htm", "res/firefox/**"],
+					src: ["css/**","js/**","img/**","locale/**","*.htm"],
 					cwd: "www/",
 					expand: true
 				},{
-					src: ["manifest.webapp"]
+					src: ["manifest.webapp", "res/firefox/**"]
 				}]
 			},
 			chrome: {
@@ -115,11 +117,11 @@ module.exports = function(grunt) {
 					archive: "build/chrome/com.albahra.sprinklers.zip"
 				},
 				files: [{
-					src: ["css/**","js/**","img/**","locale/**","*.htm", "res/chrome/**"],
+					src: ["css/**","js/**","img/**","locale/**","*.htm"],
 					cwd: "www/",
 					expand: true
 				},{
-					src: ["manifest.json", "chrome.js"]
+					src: ["manifest.json", "chrome.js", "res/chrome/**"]
 				}]
 			},
 			blackberry10: {
