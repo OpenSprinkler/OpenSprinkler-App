@@ -163,6 +163,7 @@ a {
 }
 .mini-load {
     -o-transform: scale(0.5);
+    -ms-transform: scale(0.5);
     -moz-transform: scale(0.5);
     -webkit-transform: scale(0.5);
     transform: scale(0.5);
@@ -311,6 +312,7 @@ a {
     display:inline-block;
     vertical-align:text-top;
     -o-transform: scale(1.5);
+    -ms-transform: scale(1.5);
     -moz-transform: scale(1.5);
     -webkit-transform: scale(1.5);
     transform: scale(1.5);
@@ -650,6 +652,7 @@ body, input, select, textarea, button, .ui-btn {
 .moveLeft {
     -webkit-transform: translate3d(-17em,0,0);
     -o-transform: translate3d(-17em,0,0);
+    -ms-transform: translate3d(-17em,0,0);
     -moz-transform: translate3d(-17em,0,0);
     transform: translate3d(-17em,0,0);
 }
@@ -659,6 +662,7 @@ body, input, select, textarea, button, .ui-btn {
     margin-top: -25px;
     margin-left: -25px;
     -o-transform: scale(1.5);
+    -ms-transform: scale(1.5);
     -moz-transform: scale(1.5);
     -webkit-transform: scale(1.5);
     transform: scale(1.5);
@@ -683,6 +687,7 @@ body, input, select, textarea, button, .ui-btn {
 .info-card > div {
     -webkit-transition: all 0.1s;
     -moz-transition: all 0.1s;
+    -ms-transition: all 0.1s;
     -o-transition: all 0.1s;
     transition: all 0.1s;
 }
@@ -933,6 +938,7 @@ div.running-text{
     height:150px;
     background:url(../img/weather.png);
     -o-transform:scale(0.5);
+    -ms-transform:scale(0.5);
     -moz-transform:scale(0.5);
     -webkit-transform:scale(0.5);
     transform: scale(0.5);
