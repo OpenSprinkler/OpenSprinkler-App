@@ -6591,7 +6591,7 @@ function getExportMethod() {
         popup.popup("destroy").remove();
     }).enhanceWithin();
 
-    $(".ui-page-active").append(popup);
+    $("body").append(popup);
 
     popup.popup({history: false, positionTo: $("#sprinklers-settings").find(".export_config")}).popup("open");
 }
@@ -6629,7 +6629,7 @@ function getImportMethod(localData){
                 popup.popup("destroy").remove();
             }).enhanceWithin();
 
-            $(".ui-page-active").append(popup);
+            $("body").append(popup);
 
             popup.popup({history: false, positionTo: "window"}).popup("open");
 
@@ -6698,7 +6698,7 @@ function getImportMethod(localData){
         popup.popup("destroy").remove();
     }).enhanceWithin();
 
-    $(".ui-page-active").append(popup);
+    $("body").append(popup);
 
     popup.popup({history: false, positionTo: $("#sprinklers-settings").find(".import_config")}).popup("open");
 }
@@ -7206,7 +7206,7 @@ function requestCloudAuth(callback) {
         return false;
     });
 
-    $(".ui-page-active").append(popup);
+    $("body").append(popup);
 
     popup.popup({history: false, positionTo: "window"}).popup("open");
 }
@@ -7490,7 +7490,7 @@ function handleInvalidDataToken() {
                 }
             }).enhanceWithin();
 
-            $(".ui-page-active").append(popup);
+            $("body").append(popup);
             popup.popup({history: false, positionTo: "window"}).popup("open");
             return false;
         }
@@ -7796,7 +7796,7 @@ function checkFirmwareUpdate() {
                                     $(this).popup("destroy").remove();
                                 });
 
-                                $(".ui-page-active").append(popup);
+                                $("body").append(popup);
 
                                 popup.popup({history: false, positionTo: "window"}).popup("open");
                             }
@@ -7933,7 +7933,7 @@ function areYouSure(text1, text2, success, fail) {
         $(this).popup("destroy").remove();
     }).enhanceWithin();
 
-    $(".ui-page-active").append(popup);
+    $("body").append(popup);
 
     $("#sure").popup({history: false, positionTo: "window"}).popup("open");
 }
@@ -8018,7 +8018,7 @@ function showIPRequest(opt){
         return false;
     });
 
-    $(".ui-page-active").append(popup);
+    $("body").append(popup);
 
     popup
     .css("max-width","350px")
@@ -8210,7 +8210,7 @@ function showDurationBox(opt) {
         return false;
     });
 
-    $(".ui-page-active").append(popup);
+    $("body").append(popup);
 
     popup
     .css("max-width","350px")
@@ -8292,7 +8292,7 @@ function showSingleDurationInput(opt) {
         popup.popup("destroy").remove();
     });
 
-    $(".ui-page-active").append(popup);
+    $("body").append(popup);
 
     popup
     .popup({
@@ -8378,7 +8378,7 @@ function showDateTimeInput(timestamp,callback) {
 
     updateContent();
 
-    $(".ui-page-active").append(popup);
+    $("body").append(popup);
 
     popup
     .css("width","280px")
@@ -8664,7 +8664,7 @@ function showTimeInput(opt) {
         });
     }
 
-    $(".ui-page-active").append(popup);
+    $("body").append(popup);
 
     popup
     .css("max-width","350px")
@@ -8705,7 +8705,7 @@ function showHelpText(e){
         popup.popup("destroy").remove();
     }).enhanceWithin();
 
-    $(".ui-page-active").append(popup);
+    $("body").append(popup);
 
     popup.popup({history: false, positionTo: button}).popup("open");
 
@@ -9166,7 +9166,7 @@ function languageSelect() {
         update_lang(lang);
     });
 
-    $(".ui-page-active").append(popup);
+    $("body").append(popup);
 
     popup
     .popup({
