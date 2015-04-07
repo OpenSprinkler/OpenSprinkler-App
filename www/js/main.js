@@ -7586,21 +7586,29 @@ function checkPublicAccess(eip) {
             });
         },
         function(){
-            // Unable to access the device using it's public IP
-            addNotification({
-                title: _("Remote access is not enabled"),
-                desc: _("Click here to troubleshoot remote access issues"),
-                on: function(){
-                    var iab = window.open("https://opensprinkler.freshdesk.com/support/solutions/articles/5000569763","_blank","location="+(isAndroid ? "yes" : "no")+",enableViewportScale=yes,toolbarposition=top,closebuttoncaption="+_("Back"));
+            storage.get("ignoreRemoteFailed",function(data){
+                if (data.ignoreRemoteFailed !== "1") {
+                    // Unable to access the device using it's public IP
+                    addNotification({
+                        title: _("Remote access is not enabled"),
+                        desc: _("Click here to troubleshoot remote access issues"),
+                        on: function(){
+                            var iab = window.open("https://opensprinkler.freshdesk.com/support/solutions/articles/5000569763","_blank","location="+(isAndroid ? "yes" : "no")+",enableViewportScale=yes,toolbarposition=top,closebuttoncaption="+_("Back"));
 
-                    if (isIEMobile) {
-                        $.mobile.document.data("iabOpen",true);
-                        iab.addEventListener("exit",function(){
-                            $.mobile.document.removeData("iabOpen");
-                        });
-                    }
+                            if (isIEMobile) {
+                                $.mobile.document.data("iabOpen",true);
+                                iab.addEventListener("exit",function(){
+                                    $.mobile.document.removeData("iabOpen");
+                                });
+                            }
 
-                    return false;
+                            return false;
+                        },
+                        off: function(){
+                            storage.set({"ignoreRemoteFailed": "1"});
+                            return true;
+                        }
+                    });
                 }
             });
         }
@@ -7728,7 +7736,15 @@ function clearNotifications() {
 }
 
 function removeNotification(button) {
-    var panel = $("#notificationPanel");
+    var panel = $("#notificationPanel"),
+        off = notifications[button.index() - 1].off;
+
+    if (typeof off === "function") {
+        if (!off()) {
+            return;
+        }
+    }
+
     notifications.remove(button.index() - 1);
     button.remove();
     updateNotificationBadge();
