@@ -3713,7 +3713,7 @@ function showHome(firstLoad) {
 
             $(".ui-page-active").append(select);
 
-            select.popup({history: false, positionTo: "window"}).popup("open");
+            select.popup({history: false, positionTo: isiOS ? $("#header") : "window"}).popup("open");
         },
         submit_stations = function() {
             var is208 = (checkOSVersion(208) === true),
