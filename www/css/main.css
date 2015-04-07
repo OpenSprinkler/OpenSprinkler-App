@@ -678,6 +678,7 @@ body, input, select, textarea, button, .ui-btn {
     max-width: 500px;
     margin: 0 auto;
     padding: 5px 0;
+    min-height: 70px;
 }
 .info-card > div {
     -webkit-transition: all 0.1s;
@@ -1077,7 +1078,7 @@ div.running-text{
         max-width: 220px;
     }
     .wicon {
-        margin:-50px -40px -45px -40px;
+        margin:-55px -40px -45px -40px;
     }
     #weather {
         text-align: left;
