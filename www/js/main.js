@@ -6554,7 +6554,7 @@ function raindelay(delay) {
 // Export and Import functions
 function getExportMethod() {
     var popup = $(
-        "<div data-role='popup'>"+
+        "<div data-role='popup' data-theme='a'>"+
             "<div class='ui-bar ui-bar-a'>"+_("Select Export Method")+"</div>" +
             "<div data-role='controlgroup' class='tight'>" +
                 "<a class='ui-btn hidden fileMethod'>"+_("File")+"</a>" +
@@ -6599,7 +6599,7 @@ function getExportMethod() {
 function getImportMethod(localData){
     var getPaste = function(){
             var popup = $(
-                    "<div data-role='popup' data-overlay-theme='b' id='paste_config'>"+
+                    "<div data-role='popup' data-overlay-theme='b' data-theme='a' id='paste_config'>"+
                         "<p class='ui-bar'>" +
                             "<textarea class='textarea' rows='10' placeholder='"+_("Paste your backup here")+"'></textarea>" +
                             "<button data-mini='true' data-theme='b'>"+_("Import")+"</button>" +
@@ -6636,7 +6636,7 @@ function getImportMethod(localData){
             return false;
         },
         popup = $(
-            "<div data-role='popup'>"+
+            "<div data-role='popup' data-theme='a'>"+
                 "<div class='ui-bar ui-bar-a'>"+_("Select Import Method")+"</div>" +
                 "<div data-role='controlgroup' class='tight'>" +
                     "<button class='hidden fileMethod'>"+_("File")+"</button>" +
@@ -7770,7 +7770,7 @@ function checkFirmwareUpdate() {
                                 var button = $(this).parent(),
                                     changelog = data[0].body.replace(/[\-|\*|\+]\s(.*)?(?:\r\n)?/g,"<li>$1</li>"),
                                     popup = $(
-                                        "<div data-role='popup' class='modal' data-overlay-theme='b'>" +
+                                        "<div data-role='popup' class='modal' data-theme='a' data-overlay-theme='b'>" +
                                             "<h3 class='center' style='margin-bottom:0'>"+_("Latest")+" "+_("Firmware")+": "+data[0].name+"</h3>" +
                                             "<h5 class='center' style='margin:0'>"+_("This Controller")+": "+getOSVersion()+"</h5>" +
                                             "<ul class='changelog'>"+changelog+"</ul>" +
@@ -7909,7 +7909,7 @@ function areYouSure(text1, text2, success, fail) {
     fail = fail || function(){};
 
     var popup = $(
-        "<div data-role='popup' data-overlay-theme='b' id='sure'>"+
+        "<div data-role='popup' data-theme='a' data-overlay-theme='b' id='sure'>"+
             "<h3 class='sure-1 center'>"+text1+"</h3>"+
             "<p class='sure-2 center'>"+text2+"</p>"+
             "<a class='sure-do ui-btn ui-btn-b ui-corner-all ui-shadow' href='#'>"+_("Yes")+"</a>"+
@@ -7919,23 +7919,23 @@ function areYouSure(text1, text2, success, fail) {
 
     //Bind buttons
     popup.find(".sure-do").one("click.sure", function() {
-        $("#sure").popup("close");
+        popup.popup("close");
         success();
         return false;
     });
     popup.find(".sure-dont").one("click.sure", function() {
-        $("#sure").popup("close");
+        popup.popup("close");
         fail();
         return false;
     });
 
     popup.one("popupafterclose", function(){
-        $(this).popup("destroy").remove();
+        popup.popup("destroy").remove();
     }).enhanceWithin();
 
     $("body").append(popup);
 
-    $("#sure").popup({history: false, positionTo: "window"}).popup("open");
+    popup.popup({history: false, positionTo: "window"}).popup("open");
 }
 
 function showIPRequest(opt){
@@ -8697,7 +8697,7 @@ function showHelpText(e){
         text += "<a class='iab' target='_blank' href='https://opensprinkler.freshdesk.com/support/solutions/articles/5000017485-getting-a-weather-api#article-show-5000017485'>here</a>.";
     }
 
-    popup = $("<div data-role='popup'>" +
+    popup = $("<div data-role='popup' data-theme='a'>" +
         "<p>"+text+"</p>" +
     "</div>");
 
@@ -9146,7 +9146,7 @@ function languageSelect() {
 
 //  {af: _("Afrikaans"), am: _("Amharic"), zh: _("Chinese"), hr: _("Croatian"), cs: _("Czech"), nl: _("Dutch"), en: _("English"), pes: _("Farsi"), fr: _("French"), de: _("German"), el: _("Greek"), he: _("Hebrew"), hu: _("Hungarian"), is: _("Icelandic"), it: _("Italian"), mn: _("Mongolian"), no: _("Norwegian"), pl: _("Polish"), pt: _("Portuguese"), sk: _("Slovak"), sl: _("Slovenian"), es: _("Spanish")}
 
-    var popup = "<div data-role='popup' data-overlay-theme='b' id='localization' data-corners='false'>" +
+    var popup = "<div data-role='popup' data-overlay-theme='b' data-theme='a' id='localization' data-corners='false'>" +
                 "<ul data-inset='true' data-role='listview' id='lang' data-corners='false'>" +
                 "<li data-role='list-divider' data-theme='b' class='center' data-translate='Localization'>"+_("Localization")+"</li>",
         codes = {af: "Afrikaans", am: "Amharic", zh: "Chinese", hr: "Croatian", cs: "Czech", nl: "Dutch", en: "English", pes: "Farsi", fr: "French", de: "German", el: "Greek", he: "Hebrew", hu: "Hungarian", is: "Icelandic", it: "Italian", mn: "Mongolian", no: "Norwegian", pl: "Polish", pt: "Portuguese", sk: "Slovak", sl: "Slovenian", es: "Spanish"};
