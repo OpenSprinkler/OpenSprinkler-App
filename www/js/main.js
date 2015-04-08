@@ -1513,18 +1513,12 @@ function show_sites(showBack) {
                     });
 
                     popup.one("popupafterclose",function(){
-                        popup.popup("destroy").remove();
                         if (!didSubmit) {
                             el.attr("checked", false).checkboxradio("refresh");
                         }
-                    }).popup({
-                        history: false,
-                        positionTo: "window"
-                    }).enhanceWithin();
+                    });
 
-                    $.mobile.pageContainer.append(popup);
-
-                    popup.popup("open");
+                    openPopup(popup);
                 } else {
                     el.data({
                         user: "",
@@ -2459,18 +2453,12 @@ function resolveLocation(loc,callback) {
             dataSent = true;
             popup.popup("close");
         }).one("popupafterclose",function(){
-            popup.popup("destroy").remove();
             if (dataSent === false) {
                 callback(false);
             }
-        }).popup({
-            history: false,
-            positionTo: "window"
-        }).enhanceWithin();
+        });
 
-        $.mobile.pageContainer.append(popup);
-
-        popup.popup("open");
+        openPopup(popup);
     });
 }
 
@@ -2563,12 +2551,12 @@ function nearbyPWS(lat,lon,callback) {
         });
 
         popup.one("popupafterclose",function(){
-            popup.popup("destroy").remove();
             if (dataSent === false) {
                 callback(false);
             }
-        }).popup({
-            history: false,
+        });
+
+        openPopup(popup,{
             beforeposition: function(){
                 popup.css({
                     width: window.innerWidth - 36,
@@ -2577,11 +2565,7 @@ function nearbyPWS(lat,lon,callback) {
             },
             x: 0,
             y: 0
-        }).enhanceWithin();
-
-        $.mobile.pageContainer.append(popup);
-
-        popup.popup("open");
+        });
     }).fail(function(){
         callback(false);
     });
@@ -2612,7 +2596,7 @@ function debugWU() {
                 current = data.current_observation,
                 country = current.display_location.country_iso3166,
                 isMetric = ((country === "US" || country === "BM" || country === "PW") ? false : true),
-                popup = $("<div data-role='popup' class='ui-content' data-overlay-theme='b' data-theme='a'>"+
+                popup = $("<div data-role='popup' id='debugWU' class='ui-content' data-overlay-theme='b' data-theme='a'>"+
                     "<table class='debugWU'>" +
                         "<tr><td>"+_("Min Humidity")+"</td><td>"+summary.minhumidity+"%</td></tr>" +
                         "<tr><td>"+_("Max Humidity")+"</td><td>"+summary.maxhumidity+"%</td></tr>" +
@@ -2626,16 +2610,7 @@ function debugWU() {
                     "</table>" +
                 "</div>");
 
-            popup.one("popupafterclose",function(){
-                popup.popup("destroy").remove();
-            }).popup({
-                history: false,
-                positionTo: "window"
-            }).enhanceWithin();
-
-            $.mobile.pageContainer.append(popup);
-
-            popup.popup("open");
+            openPopup(popup);
         } else {
             showerror(_("Weather data cannot be found for your location"));
             return;
@@ -3588,16 +3563,13 @@ function showHomeMenu(btn) {
         return false;
     });
 
-    popup.one("popupafterclose", function(){
-        popup.popup("destroy").remove();
-        btn.show();
-    }).enhanceWithin();
-
-
     $("#mainMenu").remove();
-    $.mobile.pageContainer.append(popup);
 
-    popup.popup({history: false, positionTo: btn}).popup("open");
+    popup.one("popupafterclose", function(){
+        btn.show();
+    });
+
+    openPopup(popup,{positionTo: btn});
 
     btn.hide();
 }
@@ -6605,13 +6577,8 @@ function getExportMethod() {
         });
     });
 
-    popup.one("popupafterclose", function(){
-        popup.popup("destroy").remove();
-    }).enhanceWithin();
 
-    $.mobile.pageContainer.append(popup);
-
-    popup.popup({history: false, positionTo: $("#sprinklers-settings").find(".export_config")}).popup("open");
+    openPopup(popup,{positionTo: $("#sprinklers-settings").find(".export_config")});
 }
 
 function getImportMethod(localData){
@@ -6643,14 +6610,8 @@ function getImportMethod(localData){
                 }
             });
 
-            popup.css("width",(width > 600 ? width*0.4+"px" : "100%")).one("popupafterclose", function(){
-                popup.popup("destroy").remove();
-            }).enhanceWithin();
-
-            $.mobile.pageContainer.append(popup);
-
-            popup.popup({history: false, positionTo: "window"}).popup("open");
-
+            popup.css("width",(width > 600 ? width*0.4+"px" : "100%"));
+            openPopup(popup);
             return false;
         },
         popup = $(
@@ -6712,13 +6673,7 @@ function getImportMethod(localData){
         });
     }
 
-    popup.one("popupafterclose", function(){
-        popup.popup("destroy").remove();
-    }).enhanceWithin();
-
-    $.mobile.pageContainer.append(popup);
-
-    popup.popup({history: false, positionTo: $("#sprinklers-settings").find(".import_config")}).popup("open");
+    openPopup(popup,{positionTo: $("#sprinklers-settings").find(".import_config")});
 }
 
 function import_config(data) {
@@ -7203,12 +7158,6 @@ function requestCloudAuth(callback) {
         "</div>"),
         didSucceed = false;
 
-    popup.one("popupafterclose", function(){
-        callback(didSucceed);
-        $(this).popup("destroy").remove();
-        cloudSyncStart();
-    }).enhanceWithin();
-
     popup.find("form").on("submit",function(){
         $.mobile.loading("show");
         cloudLogin(popup.find("#cloudUser").val(),popup.find("#cloudPass").val(),function(result){
@@ -7224,9 +7173,12 @@ function requestCloudAuth(callback) {
         return false;
     });
 
-    $.mobile.pageContainer.append(popup);
+    popup.one("popupafterclose", function(){
+        callback(didSucceed);
+        cloudSyncStart();
+    });
 
-    popup.popup({history: false, positionTo: "window"}).popup("open");
+    openPopup(popup);
 }
 
 function cloudLogin(user,pass,callback) {
@@ -7502,14 +7454,12 @@ function handleInvalidDataToken() {
             });
 
             popup.one("popupafterclose", function(){
-                popup.popup("destroy").remove();
                 if (didSubmit === true) {
                     cloudSync();
                 }
-            }).enhanceWithin();
+            });
 
-            $.mobile.pageContainer.append(popup);
-            popup.popup({history: false, positionTo: "window"}).popup("open");
+            openPopup(popup);
             return false;
         }
     });
@@ -7810,13 +7760,7 @@ function checkFirmwareUpdate() {
                                     return false;
                                 });
 
-                                popup.one("popupafterclose", function(){
-                                    $(this).popup("destroy").remove();
-                                });
-
-                                $.mobile.pageContainer.append(popup);
-
-                                popup.popup({history: false, positionTo: "window"}).popup("open");
+                                openPopup(popup);
                             }
                         });
                     }
@@ -7947,13 +7891,7 @@ function areYouSure(text1, text2, success, fail) {
         return false;
     });
 
-    popup.one("popupafterclose", function(){
-        popup.popup("destroy").remove();
-    }).enhanceWithin();
-
-    $.mobile.pageContainer.append(popup);
-
-    popup.popup({history: false, positionTo: "window"}).popup("open");
+    openPopup(popup);
 }
 
 function showIPRequest(opt){
@@ -8036,19 +7974,13 @@ function showIPRequest(opt){
         return false;
     });
 
-    $.mobile.pageContainer.append(popup);
-
     popup
     .css("max-width","350px")
-    .popup({
-        history: false,
-        "positionTo": "window"
-    })
     .one("popupafterclose",function(){
         opt.callback(getIP());
-        $(this).popup("destroy").remove();
-    })
-    .enhanceWithin().popup("open");
+    });
+
+    openPopup(popup);
 }
 
 function showDurationBox(opt) {
@@ -8228,21 +8160,15 @@ function showDurationBox(opt) {
         return false;
     });
 
-    $.mobile.pageContainer.append(popup);
-
     popup
     .css("max-width","350px")
-    .popup({
-        history: false,
-        "positionTo": "window"
-    })
     .one("popupafterclose",function(){
         if (opt.incrementalUpdate) {
             opt.callback(getValue());
         }
-        $(this).popup("destroy").remove();
-    })
-    .enhanceWithin().popup("open");
+    });
+
+    openPopup(popup);
 }
 
 function showSingleDurationInput(opt) {
@@ -8310,20 +8236,14 @@ function showSingleDurationInput(opt) {
         popup.popup("destroy").remove();
     });
 
-    $.mobile.pageContainer.append(popup);
-
     popup
-    .popup({
-        history: false,
-        "positionTo": "window"
-    })
     .one("popupafterclose",function(){
         if (opt.updateOnChange) {
             opt.callback(input.val());
         }
-        popup.popup("destroy").remove();
-    })
-    .enhanceWithin().popup("open");
+    });
+
+    openPopup(popup);
 }
 
 function showDateTimeInput(timestamp,callback) {
@@ -8396,19 +8316,13 @@ function showDateTimeInput(timestamp,callback) {
 
     updateContent();
 
-    $.mobile.pageContainer.append(popup);
-
     popup
     .css("width","280px")
-    .popup({
-        history: false,
-        "positionTo": "window"
-    })
     .one("popupafterclose",function(){
         callback(timestamp);
-        popup.popup("destroy").remove();
-    })
-    .enhanceWithin().popup("open");
+    });
+
+    openPopup(popup);
 }
 
 function showTimeInput(opt) {
@@ -8682,14 +8596,8 @@ function showTimeInput(opt) {
         });
     }
 
-    $.mobile.pageContainer.append(popup);
-
     popup
     .css("max-width","350px")
-    .popup({
-        history: false,
-        "positionTo": "window"
-    })
     .one("popupafteropen",function(){
         if (type !== 0) {
             popup.find("span").find(".ui-btn,input,p").prop("disabled", true).addClass("ui-disabled");
@@ -8699,9 +8607,9 @@ function showTimeInput(opt) {
         if (opt.incrementalUpdate) {
             opt.callback(getValue());
         }
-        $(this).popup("destroy").remove();
-    })
-    .enhanceWithin().popup("open");
+    });
+
+    openPopup(popup);
 }
 
 function showHelpText(e){
@@ -8719,13 +8627,7 @@ function showHelpText(e){
         "<p>"+text+"</p>" +
     "</div>");
 
-    popup.one("popupafterclose", function(){
-        popup.popup("destroy").remove();
-    }).enhanceWithin();
-
-    $.mobile.pageContainer.append(popup);
-
-    popup.popup({history: false, positionTo: button}).popup("open");
+    openPopup(popup,{positionTo: button});
 
     return false;
 }
@@ -8755,6 +8657,21 @@ function changePage(toPage,opts) {
     closePanel(function(){
         $.mobile.pageContainer.pagecontainer("change",toPage,opts);
     });
+}
+
+function openPopup(popup,args) {
+    args = $.extend({}, {
+        history: false,
+        positionTo: "window"
+    }, args);
+
+    $.mobile.pageContainer.append(popup);
+
+    popup.one("popupafterclose",function(){
+        popup.popup("destroy").remove();
+    }).popup(args).enhanceWithin();
+
+    popup.popup("open");
 }
 
 function closePanel(callback) {
@@ -9189,17 +9106,7 @@ function languageSelect() {
         update_lang(lang);
     });
 
-    $.mobile.pageContainer.append(popup);
-
-    popup
-    .popup({
-        history: false,
-        "positionTo": "window"
-    })
-    .one("popupafterclose",function(){
-        popup.popup("destroy").remove();
-    })
-    .enhanceWithin().popup("open");
+    openPopup(popup);
 }
 
 function check_curr_lang() {
