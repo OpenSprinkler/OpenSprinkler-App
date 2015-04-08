@@ -738,6 +738,7 @@ div.running-text{
 }
 .stn-name {
     padding: 0;
+    border: 0;
 }
 .stn-name > input {
     background-color: #fff;
