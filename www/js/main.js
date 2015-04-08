@@ -8820,6 +8820,11 @@ function changeHeader(opt) {
 function showLoading(ele) {
     ele = (typeof ele === "string") ? $(ele) : ele;
     ele.off("click").html("<p class='ui-icon ui-icon-loading mini-load'></p>");
+
+    var footer = ele.filter("#footer-running");
+    if (footer.length === 1) {
+        footer.find(".mini-load").addClass("bottom");
+    }
 }
 
 function goHome(firstLoad) {

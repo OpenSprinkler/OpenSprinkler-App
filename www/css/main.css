@@ -175,6 +175,10 @@ a {
     margin:0 auto!important;
     opacity:.18
 }
+.mini-load.bottom {
+    transform-origin: center bottom;
+    margin:-1.438em auto!important;
+}
 .rain-desc {
     word-wrap:normal;
     white-space:normal!important;
