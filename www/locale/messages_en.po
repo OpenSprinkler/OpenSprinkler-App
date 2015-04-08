@@ -1266,6 +1266,9 @@ msgstr ""
 msgid "Portuguese"
 msgstr ""
 
+msgid "Russian"
+msgstr ""
+
 msgid "Slovak"
 msgstr ""
 
