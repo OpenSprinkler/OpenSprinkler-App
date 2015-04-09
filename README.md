@@ -1,4 +1,4 @@
-## OpenSprinkler
+## OpenSprinkler <sup>![Version Badge](http://vb.teelaun.ch/OpenSprinkler/OpenSprinkler-App.svg)</sup>
 
 <img align="left" height="96" src="http://albahra.com/opensprinkler/icon.png">[![Build Status](https://api.travis-ci.org/OpenSprinkler/OpenSprinkler-App.svg?branch=master)](https://travis-ci.org/) [![Coverage Status](https://coveralls.io/repos/OpenSprinkler/OpenSprinkler-App/badge.svg?branch=master)](https://codecov.io/github/OpenSprinkler/OpenSprinkler-App?branch=master) [![devDependency Status](https://david-dm.org/OpenSprinkler/OpenSprinkler-App/dev-status.svg)](https://david-dm.org/OpenSprinkler/OpenSprinkler-App#info=devDependencies)
 
