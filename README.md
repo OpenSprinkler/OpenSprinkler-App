@@ -1,10 +1,8 @@
-## OpenSprinkler <sup>![Version Badge](http://vb.teelaun.ch/OpenSprinkler/OpenSprinkler-App.svg)</sup>
-
-<img align="left" height="96" src="http://albahra.com/opensprinkler/icon.png">[![Build Status](https://api.travis-ci.org/OpenSprinkler/OpenSprinkler-App.svg?branch=master)](https://travis-ci.org/) [![Coverage Status](https://coveralls.io/repos/OpenSprinkler/OpenSprinkler-App/badge.svg?branch=master)](https://codecov.io/github/OpenSprinkler/OpenSprinkler-App?branch=master) [![devDependency Status](https://david-dm.org/OpenSprinkler/OpenSprinkler-App/dev-status.svg)](https://david-dm.org/OpenSprinkler/OpenSprinkler-App#info=devDependencies)
-
-[Official Site][official] | [Support][help] | [Changelog][changelog]  
-&copy; 2013-2014 [Samer Albahra][salbahra] ([@salbahra](https://twitter.com/salbahra))  
-
+<img align="left" height="150" src="http://albahra.com/opensprinkler/icon-new.png"><h3>&nbsp;OpenSprinkler <sup><img src="http://vb.teelaun.ch/OpenSprinkler/OpenSprinkler-App.svg"></sup></h3>
+&nbsp;[![Build Status](https://api.travis-ci.org/OpenSprinkler/OpenSprinkler-App.svg?branch=master)](https://travis-ci.org/) [![Coverage Status](https://coveralls.io/repos/OpenSprinkler/OpenSprinkler-App/badge.svg?branch=master)](https://codecov.io/github/OpenSprinkler/OpenSprinkler-App?branch=master) [![devDependency Status](https://david-dm.org/OpenSprinkler/OpenSprinkler-App/dev-status.svg)](https://david-dm.org/OpenSprinkler/OpenSprinkler-App#info=devDependencies)  
+&nbsp;[Official Site][official] | [Support][help] | [Changelog][changelog]  
+&nbsp;&copy; 2013-2014 [Samer Albahra][salbahra] ([@salbahra](https://twitter.com/salbahra))  
+<br>
 A mobile interface for the OpenSprinkler irrigation device. Designed to allow manual control, program management (view, edit, delete and add), initiation of a run-once program, viewing device status, adjusting rain delay, and changing of OpenSprinkler settings.
   
 ---
