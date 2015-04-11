@@ -2244,7 +2244,7 @@ function update_wunderground_weather(wapikey) {
                     "precip_today_in": data.current_observation.precip_today_in,
                     "precip_today_metric": data.current_observation.precip_today_metric
                 },
-                "location": data.current_observation.display_location.full,
+                "location": data.current_observation.observation_location.full,
                 "region": data.current_observation.display_location.country_iso3166,
                 simpleforecast: {}
             };

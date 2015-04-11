@@ -7,7 +7,7 @@ if [ $1 == "start" ]; then
 		git clone https://github.com/opensprinkler/opensprinklergen2 unified
 	fi
 	cd unified
-	./build_demo.sh
+	./build.sh demo
 	./OpenSprinkler >/dev/null 2>&1 &
 	echo $! > pid
 	sleep 5
