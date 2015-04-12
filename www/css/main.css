@@ -928,7 +928,7 @@ div.running-text{
 .noweather > .ui-block-a {
     width: 0;
 }
-.noweather > .ui-block-b {
+.noweather > .ui-block-b, .save_pw {
     width: 100%;
     margin: 0 auto;
 }

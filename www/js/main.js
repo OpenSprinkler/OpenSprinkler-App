@@ -1078,7 +1078,8 @@ function submit_newuser(ssl,useAuth) {
 
             if (data.fwv !== undefined || is183 === true) {
                 var name = $("#os_name").val(),
-                    pw = $("#os_pw").val();
+                    pw = $("#os_pw").val(),
+                    savePW = $("#save_pw").is(":checked");
 
                 if (name === "") {
                     name = "Site "+(Object.keys(sites).length+1);
@@ -1094,7 +1095,8 @@ function submit_newuser(ssl,useAuth) {
                     }
                 }
 
-                sites[name].os_pw = curr_pw = pw;
+                sites[name].os_pw = savePW ? pw : "";
+                curr_pw = pw;
 
                 if (ssl) {
                     sites[name].ssl = "1";
@@ -1275,7 +1277,7 @@ function show_addnew(autoIP,closeOld) {
     $("#addnew").popup("destroy").remove();
 
     var isAuto = (autoIP) ? true : false,
-        addnew = $("<div data-role='popup' id='addnew' data-theme='a'>"+
+        addnew = $("<div data-role='popup' id='addnew' data-theme='a' data-overlay-theme='b'>"+
             "<div data-role='header' data-theme='b'>"+
                 "<h1>"+_("New Device")+"</h1>" +
             "</div>" +
@@ -1288,6 +1290,8 @@ function show_addnew(autoIP,closeOld) {
                     "<input "+((isAuto) ? "data-role='none' style='display:none' " : "")+"autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' type='url' pattern='' name='os_ip' id='os_ip' value='"+((isAuto) ? autoIP : "")+"' placeholder='home.dyndns.org'>" +
                     "<label for='os_pw'>"+_("Open Sprinkler Password:")+"</label>" +
                     "<input type='password' name='os_pw' id='os_pw' value=''>" +
+                    "<label for='save_pw'>"+_("Save Password")+"</label>" +
+                    "<input type='checkbox' data-wrapper-class='save_pw' name='save_pw' id='save_pw' data-mini='true' checked='checked'>" +
                     ((isAuto) ? "" : "<div data-theme='a' data-mini='true' data-role='collapsible'><h4>"+_("Advanced")+"</h4><fieldset data-role='controlgroup' data-type='horizontal' data-mini='true' class='center'>" +
                         "<input type='checkbox' name='os_usessl' id='os_usessl'>" +
                         "<label for='os_usessl'>"+_("Use SSL")+"</label>" +
@@ -3575,6 +3579,10 @@ function showHomeMenu(btn) {
 }
 
 function showHome(firstLoad) {
+    if ($.isEmptyObject(controller)) {
+        return false;
+    }
+
     var cards = "",
         site_select = $("#site-selector"),
         page = $("<div data-role='page' id='sprinklers'>" +
@@ -7010,6 +7018,8 @@ function changePassword(opt) {
                             "<input type='password' name='npw' id='npw' value=''"+(isPi ? "" : " maxlength='32'")+">" +
                             (opt.fixIncorrect === true ? "" : "<label for='cpw'>"+_("Confirm New Password")+":</label>" +
                             "<input type='password' name='cpw' id='cpw' value=''"+(isPi ? "" : " maxlength='32'")+">") +
+                            (opt.fixIncorrect === true ? "<label for='save_pw'>"+_("Save Password")+"</label>" +
+                            "<input type='checkbox' data-wrapper-class='save_pw' name='save_pw' id='save_pw' data-mini='true'>" : "") +
                             "<input type='submit' value='"+_("Submit")+"'>" +
                         "</form>" +
                     "</li>" +
@@ -7026,7 +7036,8 @@ function changePassword(opt) {
             storage.get(["sites"],function(data){
                 var sites = JSON.parse(data.sites),
                     success = function(pass) {
-                        sites[opt.name].os_pw = curr_pw = pass;
+                        curr_pw = pass;
+                        sites[opt.name].os_pw = popup.find("#save_pw").is(":checked") ? pass : "";
                         storage.set({"sites":JSON.stringify(sites)},cloudSaveSites);
                         popup.popup("close");
                         opt.callback();
