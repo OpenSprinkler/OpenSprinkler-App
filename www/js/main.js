@@ -7178,7 +7178,9 @@ function requestCloudAuth(callback) {
 
     popup.one("popupafterclose", function(){
         callback(didSucceed);
-        cloudSyncStart();
+        if (didSucceed) {
+            cloudSyncStart();
+        }
     });
 
     openPopup(popup);
