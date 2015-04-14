@@ -309,16 +309,16 @@ $(document)
 })
 .on("popupbeforeposition","#localization",check_curr_lang);
 
-//Set AJAX timeout
-if (!curr_local) {
-    $.ajaxSetup({
-        timeout: 6000
-    });
-}
-
 function initApp() {
     //Update the language on the page using the browser's locale
     update_lang();
+
+    //Set AJAX timeout
+    if (!curr_local) {
+        $.ajaxSetup({
+            timeout: 6000
+        });
+    }
 
     // Fix CSS for IE Mobile (Windows Phone 8)
     if (isIEMobile) {
