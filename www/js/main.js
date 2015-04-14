@@ -2629,6 +2629,31 @@ function getAdjustmentName(id) {
     return [_("Manual"),"Zimmerman"][id];
 }
 
+function getAdjustmentMethod() {
+    return controller.options.uwt & ~(1 << 7);
+}
+
+function getRestriction(id) {
+    return [{
+                isCurrent: 0,
+                name: _("None")
+            },
+            {
+                isCurrent: ((controller.options.uwt >> 7) & 1) ? true : false,
+                name: _("California Restriction")
+            }][id];
+}
+
+function setRestriction(id,uwt) {
+    uwt = uwt || controller.options.uwt & ~(1 << 7);
+
+    if (id === 1) {
+        uwt |= (1<<7);
+    }
+
+    return uwt;
+}
+
 function testAPIKey(key,callback) {
     $.ajax({
         url: "https://api.wunderground.com/api/"+key+"/conditions/forecast/lang:EN/q/75252.json",
@@ -2911,6 +2936,11 @@ function show_options(expandItem) {
                             invalid = true;
                             return false;
                         }
+
+                        var restrict = page.find("#weatherRestriction");
+                        if (restrict.length) {
+                            data = setRestriction(parseInt(restrict.val()),data);
+                        }
                         break;
                     case "o2":
                     case "o14":
@@ -3070,9 +3100,18 @@ function show_options(expandItem) {
     if (typeof controller.options.uwt !== "undefined") {
         list += "<div class='ui-field-contain'><label for='o31' class='select'>"+_("Weather Adjustment Method")+"<button data-helptext='"+_("Weather adjustment uses Weather Underground data in conjunction with the selected method to adjust the watering percentage.")+"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><select "+(controller.settings.wtkey && controller.settings.wtkey !== "" ? "" : "disabled='disabled' ")+"data-mini='true' id='o31'>";
         for (i=0; i<2; i++) {
-            list += "<option "+((i === controller.options.uwt) ? "selected" : "")+" value='"+i+"'>"+getAdjustmentName(i)+"</option>";
+            list += "<option "+((i === getAdjustmentMethod()) ? "selected" : "")+" value='"+i+"'>"+getAdjustmentName(i)+"</option>";
         }
         list += "</select></div>";
+
+        if (checkOSVersion(214)) {
+            list += "<div class='ui-field-contain'><label for='weatherRestriction' class='select'>"+_("Weather-Based Restrictions")+"<button data-helptext='"+_("Prevents watering when the selected restriction is met.")+"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><select "+(controller.settings.wtkey && controller.settings.wtkey !== "" ? "" : "disabled='disabled' ")+"data-mini='true' class='noselect' id='weatherRestriction'>";
+            for (i=0; i<2; i++) {
+                var restrict = getRestriction(i);
+                list += "<option "+(restrict.isCurrent === true ? "selected" : "")+" value='"+i+"'>"+restrict.name+"</option>";
+            }
+            list += "</select></div>";
+        }
     }
 
     if (typeof controller.options.wl !== "undefined") {
