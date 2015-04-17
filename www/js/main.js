@@ -533,13 +533,14 @@ function send_to_os(dest,type) {
     dest = dest.replace("pw=","pw="+encodeURIComponent(curr_pw));
     type = type || "text";
 
-    var obj = {
+    var queue = /\/(?:cv|cs|cr|cp|uwa|dp|co|cl|cu|up|cm)/.exec(dest) ? "change" : "default",
+        obj = {
             url: curr_prefix+curr_ip+dest,
             type: "GET",
             dataType: type,
             shouldRetry: function(xhr,current) {
                 if (xhr.status === 0 && xhr.statusText === "abort" || retryCount < current) {
-                    $.ajaxq.abort("default");
+                    $.ajaxq.abort(queue);
                     return false;
                 }
                 return true;
@@ -559,7 +560,7 @@ function send_to_os(dest,type) {
         });
     }
 
-    defer = $.ajaxq("default",obj).then(
+    defer = $.ajaxq(queue,obj).then(
         function(data){
             // In case the data type was incorrect, attempt to fix. If fix not possible, return string
             if (typeof data === "string") {
