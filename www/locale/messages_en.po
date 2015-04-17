@@ -81,6 +81,9 @@ msgstr ""
 msgid "Open Sprinkler Password:"
 msgstr ""
 
+msgid "Save Password"
+msgstr ""
+
 msgid "Advanced"
 msgstr ""
 
@@ -263,6 +266,12 @@ msgstr ""
 msgid "Manual"
 msgstr ""
 
+msgid "None"
+msgstr ""
+
+msgid "California Restriction"
+msgstr ""
+
 msgid "Disable"
 msgstr ""
 
@@ -328,9 +337,6 @@ msgstr ""
 msgid "Master Station"
 msgstr ""
 
-msgid "None"
-msgstr ""
-
 msgid "Master On Delay"
 msgstr ""
 
@@ -376,6 +382,12 @@ msgstr ""
 msgid ""
 "Weather adjustment uses Weather Underground data in conjunction with the "
 "selected method to adjust the watering percentage."
+msgstr ""
+
+msgid "Weather-Based Restrictions"
+msgstr ""
+
+msgid "Prevents watering when the selected restriction is met."
 msgstr ""
 
 msgid "% Watering"
@@ -980,6 +992,9 @@ msgstr ""
 
 msgid ""
 "Language localization is crowdsourced using Get Localization available at"
+msgstr ""
+
+msgid "Open source attributions"
 msgstr ""
 
 msgid "App Version"
