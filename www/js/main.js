@@ -6291,15 +6291,21 @@ function make_program21(n,isCopy) {
             seconds: dur.val(),
             title: name,
             callback: function(result){
-                dur.val(result);
-                dur.text(dhms2str(sec2dhms(result)));
-                if (result > 0) {
-                    dur.addClass("green");
+                dur.val(result).addClass("green");
+
+                if (result === -1) {
+                    dur.text(_("Sunset to Sunrise"));
+                } else if (result === -2) {
+                    dur.text(_("Sunrise to Sunset"));
                 } else {
-                    dur.removeClass("green");
+                    if (result === 0) {
+                        dur.removeClass("green");
+                    }
+                    dur.text(dhms2str(sec2dhms(result)));
                 }
             },
-            maximum: 65535
+            maximum: 65535,
+            showSun: checkOSVersion(214) ? true : false
         });
     });
 
@@ -8047,13 +8053,25 @@ function showDurationBox(opt) {
             preventCompression: false,
             incrementalUpdate: true,
             showBack: true,
+            showSun: false,
             minimum: 0,
             callback: function(){}
-        };
+        },
+        type = 0;
 
     opt = $.extend({}, defaults, opt);
 
     $("#durationBox").popup("destroy").remove();
+
+    opt.seconds = parseInt(opt.seconds);
+
+    if (opt.seconds === -1) {
+        type = 1;
+        opt.seconds = 0;
+    } else if (opt.seconds === -2) {
+        type = 2;
+        opt.seconds = 0;
+    }
 
     var keys = ["days","hours","minutes","seconds"],
         text = [_("Days"),_("Hours"),_("Minutes"),_("Seconds")],
@@ -8063,8 +8081,6 @@ function showDurationBox(opt) {
         start = 0,
         arr = sec2dhms(opt.seconds),
         i;
-
-    opt.seconds = parseInt(opt.seconds);
 
     if (!opt.preventCompression && (checkOSVersion(210) && opt.maximum > 64800)) {
         opt.maximum = 64800;
@@ -8091,6 +8107,14 @@ function showDurationBox(opt) {
                 (opt.helptext ? "<p class='rain-desc center smaller'>"+opt.helptext+"</p>" : "") +
                 "<span>" +
                 "</span>" +
+                (opt.showSun ? "<div class='ui-grid-a useSun'>" +
+                    "<div class='ui-block-a'>" +
+                        "<button value='-2' class='ui-mini ui-btn rise "+(type === 2 ? "ui-btn-active" : "")+"'>"+_("Sunrise to Sunset")+"</button>" +
+                    "</div>" +
+                    "<div class='ui-block-b'>" +
+                        "<button value='-1' class='ui-mini ui-btn set "+(type === 1 ? "ui-btn-active" : "")+"'>"+_("Sunset to Sunrise")+"</button>" +
+                    "</div>" +
+                "</div>" : "") +
                 (opt.showBack ? "<button class='submit' data-theme='b'>"+_("Submit")+"</button>" : "") +
             "</div>" +
         "</div>"),
@@ -8144,12 +8168,18 @@ function showDurationBox(opt) {
             }
         },
         getValue = function() {
-            return dhms2sec({
-                "days": parseInt(popup.find(".days").val()) || 0,
-                "hours": parseInt(popup.find(".hours").val()) || 0,
-                "minutes": parseInt(popup.find(".minutes").val()) || 0,
-                "seconds": parseInt(popup.find(".seconds").val()) || 0
-            });
+            var useSun = popup.find(".useSun").find("button.ui-btn-active");
+
+            if (useSun.length === 1) {
+                return parseInt(useSun.val());
+            } else {
+                return dhms2sec({
+                    "days": parseInt(popup.find(".days").val()) || 0,
+                    "hours": parseInt(popup.find(".hours").val()) || 0,
+                    "minutes": parseInt(popup.find(".minutes").val()) || 0,
+                    "seconds": parseInt(popup.find(".seconds").val()) || 0
+                });
+            }
         },
         toggleInput = function(field,state) {
             popup.find("."+field).toggleClass("ui-state-disabled",state).prop("disabled",state).val(function(){
@@ -8216,8 +8246,34 @@ function showDurationBox(opt) {
         return false;
     });
 
+    if (opt.showSun) {
+        popup.find(".useSun").on("click","button",function(){
+            var button = $(this),
+                contraButton = popup.find(".useSun").find("button").not(button),
+                timeButtons = popup.find("span").find(".ui-btn,input");
+
+            contraButton.removeClass("ui-btn-active");
+            if (button.hasClass("ui-btn-active")) {
+                button.removeClass("ui-btn-active");
+                timeButtons.prop("disabled", false).removeClass("ui-disabled");
+            } else {
+                button.addClass("ui-btn-active");
+                timeButtons.prop("disabled", true).addClass("ui-disabled");
+            }
+
+            if (opt.incrementalUpdate) {
+                opt.callback(getValue());
+            }
+        });
+    }
+
     popup
     .css("max-width","350px")
+    .one("popupafteropen",function(){
+        if (type !== 0) {
+            popup.find("span").find(".ui-btn,input").prop("disabled", true).addClass("ui-disabled");
+        }
+    })
     .one("popupafterclose",function(){
         if (opt.incrementalUpdate) {
             opt.callback(getValue());
