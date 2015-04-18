@@ -2249,12 +2249,12 @@ function update_wunderground_weather(wapikey) {
                     "precip_today_in": data.current_observation.precip_today_in,
                     "precip_today_metric": data.current_observation.precip_today_metric
                 },
-                "location": data.current_observation.observation_location.full,
+                "location": data.current_observation.display_location.full,
                 "region": data.current_observation.display_location.country_iso3166,
                 simpleforecast: {}
             };
 
-            currentCoordinates = [data.current_observation.display_location.latitude, data.current_observation.display_location.longitude];
+            currentCoordinates = [data.current_observation.observation_location.latitude, data.current_observation.observation_location.longitude];
 
             $.each(data.forecast.simpleforecast.forecastday,function(k,attr) {
                  ww_forecast.simpleforecast[k] = attr;
@@ -2270,15 +2270,54 @@ function update_wunderground_weather(wapikey) {
                 title: ww_forecast.condition.text,
                 code: code,
                 temp: temp,
-                location: ww_forecast.location,
                 forecast: ww_forecast,
                 source: "wunderground"
             };
 
-            updateWeatherBox();
+            coordsToLocation(currentCoordinates[0],currentCoordinates[1],function(result){
+                weather.location = result;
+                updateWeatherBox();
+            },ww_forecast.location);
 
             $.mobile.document.trigger("weatherUpdateComplete");
         }
+    });
+}
+
+function coordsToLocation(lat,lon,callback,fallback) {
+    $.getJSON("https://maps.googleapis.com/maps/api/geocode/json?latlng="+lat+","+lon,function(data){
+        if (data.results.length === 0) {
+            callback(fallback);
+        }
+
+        data = data.results[0].address_components;
+
+        var location = "",
+            country = "",
+            hasEnd = false;
+
+        for (var item in data) {
+            if (data.hasOwnProperty(item) && !hasEnd) {
+                if ($.inArray("locality",data[item].types) > -1) {
+                    location = data[item].long_name + ", " + location;
+                }
+
+                if ($.inArray("administrative_area_level_1",data[item].types) > -1) {
+                    location += data[item].long_name;
+                    hasEnd = true;
+                }
+
+                if ($.inArray("country",data[item].types) > -1) {
+                    country = data[item].long_name;
+                }
+            }
+        }
+
+        if (!hasEnd) {
+            location += country;
+        }
+
+        callback(location);
     });
 }
 
