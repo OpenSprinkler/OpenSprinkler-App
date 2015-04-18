@@ -895,6 +895,12 @@ msgstr ""
 msgid "Run"
 msgstr ""
 
+msgid "Sunset to Sunrise"
+msgstr ""
+
+msgid "Sunrise to Sunset"
+msgstr ""
+
 msgid "Add Program"
 msgstr ""
 
