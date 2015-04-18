@@ -3513,10 +3513,10 @@ function show_options(expandItem) {
 
         // Switch state of weather algorithm input based on API key status
         if (this.value === "") {
-            $("#o31").val("0").selectmenu("refresh").selectmenu("disable");
+            $("#o31,#weatherRestriction").val("0").selectmenu("refresh").selectmenu("disable");
             $("#o23").prop("disabled",false);
         } else {
-            $("#o31").selectmenu("enable");
+            $("#o31,#weatherRestriction").selectmenu("enable");
         }
     });
 
