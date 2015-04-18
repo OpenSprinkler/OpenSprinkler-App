@@ -708,7 +708,7 @@ function newload() {
             }
 
             // Check if the OpenSprinkler can be accessed from the public IP
-            if (typeof controller.settings.eip === "number") {
+            if (!curr_local && typeof controller.settings.eip === "number") {
                 checkPublicAccess(controller.settings.eip);
             }
 
