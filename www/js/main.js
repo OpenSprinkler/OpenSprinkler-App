@@ -2387,7 +2387,7 @@ function make_wunderground_forecast() {
         precip = weather.forecast.condition.precip_today_metric+" mm";
     }
 
-    var list = "<li data-role='list-divider' data-theme='a' class='center'>"+weather.forecast.location+"</li>";
+    var list = "<li data-role='list-divider' data-theme='a' class='center'>"+weather.location+"</li>";
     list += "<li data-icon='false' class='center'><div>"+_("Now")+"</div><br><div title='"+weather.forecast.condition.text+"' class='wicon cond"+weather.forecast.condition.code+"'></div><span>"+temp+"</span><br><span>"+_("Sunrise")+"</span><span>: "+pad(parseInt(controller.settings.sunrise/60)%24)+":"+pad(controller.settings.sunrise%60)+"</span> <span>"+_("Sunset")+"</span><span>: "+pad(parseInt(controller.settings.sunset/60)%24)+":"+pad(controller.settings.sunset%60)+"</span><br><span>"+_("Precip")+"</span><span>: "+precip+"</span></li>";
     $.each(weather.forecast.simpleforecast, function(i) {
         if (i === "0") {
