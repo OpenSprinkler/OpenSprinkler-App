@@ -4507,7 +4507,7 @@ function get_runonce() {
                 }
 
                 var ele = $(b);
-                ele.val(data[a]).text(dhms2str(sec2dhms(data[a])));
+                ele.val(data[a]).text(getDurationText(data[a]));
                 if (data[a] > 0) {
                     ele.addClass("green");
                 } else {
@@ -4606,14 +4606,15 @@ function get_runonce() {
             title: name,
             callback: function(result){
                 dur.val(result);
-                dur.text(dhms2str(sec2dhms(result)));
+                dur.text(getDurationText(result));
                 if (result > 0) {
                     dur.addClass("green");
                 } else {
                     dur.removeClass("green");
                 }
             },
-            maximum: 65535
+            maximum: 65535,
+            showSun: checkOSVersion(214) ? true : false
         });
 
         return false;
@@ -6215,7 +6216,7 @@ function make_program21(n,isCopy) {
             list += "<div class='ui-field-contain duration-input"+(isStationDisabled(j) ? " station-hidden' style='display:none" : "")+"'><label for='station_"+j+"-"+id+"'>"+controller.stations.snames[j]+":</label><button disabled='true' data-mini='true' name='station_"+j+"-"+id+"' id='station_"+j+"-"+id+"' value='0'>Master</button></div>";
         } else {
             time = program.stations[j] || 0;
-            list += "<div class='ui-field-contain duration-input"+(isStationDisabled(j) ? " station-hidden' style='display:none" : "")+"'><label for='station_"+j+"-"+id+"'>"+controller.stations.snames[j]+":</label><button "+(time>0 ? "class='green' " : "")+"data-mini='true' name='station_"+j+"-"+id+"' id='station_"+j+"-"+id+"' value='"+time+"'>"+dhms2str(sec2dhms(time))+"</button></div>";
+            list += "<div class='ui-field-contain duration-input"+(isStationDisabled(j) ? " station-hidden' style='display:none" : "")+"'><label for='station_"+j+"-"+id+"'>"+controller.stations.snames[j]+":</label><button "+(time>0 ? "class='green' " : "")+"data-mini='true' name='station_"+j+"-"+id+"' id='station_"+j+"-"+id+"' value='"+time+"'>"+getDurationText(time)+"</button></div>";
         }
     }
 
@@ -6331,16 +6332,10 @@ function make_program21(n,isCopy) {
             title: name,
             callback: function(result){
                 dur.val(result).addClass("green");
+                dur.text(getDurationText(result));
 
-                if (result === -1) {
-                    dur.text(_("Sunset to Sunrise"));
-                } else if (result === -2) {
-                    dur.text(_("Sunrise to Sunset"));
-                } else {
-                    if (result === 0) {
-                        dur.removeClass("green");
-                    }
-                    dur.text(dhms2str(sec2dhms(result)));
+                if (result === 0) {
+                    dur.removeClass("green");
                 }
             },
             maximum: 65535,
@@ -6386,7 +6381,7 @@ function add_program(copyID) {
     });
 
     page.find("[id^='submit-']").on("click",function(){
-        submit_program(copyID);
+        submit_program("new");
         return false;
     });
 
@@ -6394,7 +6389,9 @@ function add_program(copyID) {
         page.remove();
     });
 
-    header.eq(2).prop("disabled",true);
+    if (typeof copyID === "string") {
+        header.eq(2).prop("disabled",true);
+    }
 
     $("#addprogram").remove();
     $.mobile.pageContainer.append(page);
@@ -8104,10 +8101,10 @@ function showDurationBox(opt) {
 
     opt.seconds = parseInt(opt.seconds);
 
-    if (opt.seconds === -1) {
+    if (opt.seconds === 65535) {
         type = 1;
         opt.seconds = 0;
-    } else if (opt.seconds === -2) {
+    } else if (opt.seconds === 65534) {
         type = 2;
         opt.seconds = 0;
     }
@@ -8148,10 +8145,10 @@ function showDurationBox(opt) {
                 "</span>" +
                 (opt.showSun ? "<div class='ui-grid-a useSun'>" +
                     "<div class='ui-block-a'>" +
-                        "<button value='-2' class='ui-mini ui-btn rise "+(type === 2 ? "ui-btn-active" : "")+"'>"+_("Sunrise to Sunset")+"</button>" +
+                        "<button value='65534' class='ui-mini ui-btn rise "+(type === 2 ? "ui-btn-active" : "")+"'>"+_("Sunrise to Sunset")+"</button>" +
                     "</div>" +
                     "<div class='ui-block-b'>" +
-                        "<button value='-1' class='ui-mini ui-btn set "+(type === 1 ? "ui-btn-active" : "")+"'>"+_("Sunset to Sunrise")+"</button>" +
+                        "<button value='65535' class='ui-mini ui-btn set "+(type === 1 ? "ui-btn-active" : "")+"'>"+_("Sunset to Sunrise")+"</button>" +
                     "</div>" +
                 "</div>" : "") +
                 (opt.showBack ? "<button class='submit' data-theme='b'>"+_("Submit")+"</button>" : "") +
@@ -9034,6 +9031,16 @@ function insertStyle(style) {
 function parseIntArray(arr) {
     for(var i=0; i<arr.length; i++) {arr[i] = +arr[i];}
     return arr;
+}
+
+function getDurationText(time) {
+    if (time === 65535) {
+        return _("Sunset to Sunrise");
+    } else if (time === 65534) {
+        return _("Sunrise to Sunset");
+    } else {
+        return dhms2str(sec2dhms(time));
+    }
 }
 
 // Convert seconds into (HH:)MM:SS format. HH is only reported if greater than 0.
