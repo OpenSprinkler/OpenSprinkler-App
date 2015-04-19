@@ -2290,15 +2290,37 @@ function coordsToLocation(lat,lon,callback,fallback) {
             callback(fallback);
         }
 
-        data = data.results[0].address_components;
+        data = data.results;
 
-        var location = "",
-            country = "",
-            hasEnd = false;
+        var hasEnd = false;
 
         for (var item in data) {
+            if (data.hasOwnProperty(item)) {
+                if ($.inArray("locality",data[item].types) > -1 || $.inArray("sublocality",data[item].types) > -1) {
+                    hasEnd = true;
+                    break;
+                }
+            }
+        }
+
+        if (hasEnd === false) {
+            callback(fallback);
+        }
+
+        data = data[item].address_components;
+
+        var location = "",
+            country = "";
+
+        hasEnd = false;
+
+        for (item in data) {
             if (data.hasOwnProperty(item) && !hasEnd) {
-                if ($.inArray("locality",data[item].types) > -1) {
+                if (location === "" && $.inArray("locality",data[item].types) > -1) {
+                    location = data[item].long_name + ", " + location;
+                }
+
+                if (location === "" && $.inArray("sublocality",data[item].types) > -1) {
                     location = data[item].long_name + ", " + location;
                 }
 
