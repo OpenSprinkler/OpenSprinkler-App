@@ -863,13 +863,13 @@ function update_controller_options(callback) {
                 vars.ext--;
                 vars.fwv = "1.8.3-ospi";
             } else {
-                var keyIndex = {1:"tz",2:"ntp",12:"hp0",13:"hp1",14:"ar",15:"ext",16:"seq",17:"sdt",18:"mas",19:"mton",20:"mtof",21:"urs",22:"rso",23:"wl",25:"ipas",26:"devid",36:"lg"};
+                var keyIndex = {1:"tz",2:"ntp",12:"hp0",13:"hp1",14:"ar",15:"ext",16:"seq",17:"sdt",18:"mas",19:"mton",20:"mtof",21:"urs",22:"rso",23:"wl",25:"ipas",26:"devid"};
                 tmp = /var opts=\[(.*)\];/.exec(options);
                 tmp = tmp[1].replace(/"/g,"").split(",");
 
                 for (i=0; i<tmp.length-1; i=i+4) {
                     o = +tmp[i+3];
-                    if ($.inArray(o,[1,2,12,13,14,15,16,17,18,19,20,21,22,23,25,26,36]) !== -1) {
+                    if ($.inArray(o,[1,2,12,13,14,15,16,17,18,19,20,21,22,23,25,26]) !== -1) {
                         vars[keyIndex[o]] = +tmp[i+2];
                     }
                 }
@@ -2912,7 +2912,7 @@ function show_options(expandItem) {
                 invalid = false,
                 isPi = isOSPi(),
                 button = header.eq(2),
-                keyNames = {1:"tz",2:"ntp",12:"htp",13:"htp2",14:"ar",15:"nbrd",16:"seq",17:"sdt",18:"mas",19:"mton",20:"mtoff",21:"urs",22:"rst",23:"wl",25:"ipas",30:"rlp",36:"lg",31:"uwt"},
+                keyNames = {1:"tz",2:"ntp",12:"htp",13:"htp2",14:"ar",15:"nbrd",16:"seq",17:"sdt",18:"mas",19:"mton",20:"mtoff",21:"urs",22:"rst",23:"wl",25:"ipas",30:"rlp",36:"lg",31:"uwt",37:"mas2",38:"mton2",39:"mtof2"},
                 key;
 
             button.prop("disabled",true);
@@ -3108,20 +3108,39 @@ function show_options(expandItem) {
     if (typeof controller.options.mas !== "undefined") {
         list += "<div class='ui-field-contain'><label for='o18' class='select'>"+_("Master Station")+"</label><select data-mini='true' id='o18'><option value='0'>"+_("None")+"</option>";
         for (i=0; i<controller.stations.snames.length; i++) {
-            list += "<option "+((isStationMaster(i)) ? "selected" : "")+" value='"+(i+1)+"'>"+controller.stations.snames[i]+"</option>";
+            list += "<option "+((isStationMaster(i) === 1) ? "selected" : "")+" value='"+(i+1)+"'>"+controller.stations.snames[i]+"</option>";
             if (i === 7) {
                 break;
             }
         }
         list += "</select></div>";
+
+        if (typeof controller.options.mton !== "undefined") {
+            list += "<div "+(controller.options.mas === 0 ? "style='display:none' ": "")+"class='ui-field-contain duration-field'><label for='o19'>"+_("Master On Delay")+"</label><button data-mini='true' id='o19' value='"+controller.options.mton+"'>"+controller.options.mton+"s</button></div>";
+        }
+
+        if (typeof controller.options.mtof !== "undefined") {
+            list += "<div "+(controller.options.mas === 0 ? "style='display:none' ": "")+"class='ui-field-contain duration-field'><label for='o20'>"+_("Master Off Delay")+"</label><button data-mini='true' id='o20' value='"+controller.options.mtof+"'>"+controller.options.mtof+"s</button></div>";
+        }
     }
 
-    if (typeof controller.options.mton !== "undefined") {
-        list += "<div class='ui-field-contain duration-field'><label for='o19'>"+_("Master On Delay")+"</label><button data-mini='true' id='o19' value='"+controller.options.mton+"'>"+controller.options.mton+"s</button></div>";
-    }
+    if (typeof controller.options.mas2 !== "undefined") {
+        list += "<div "+(controller.options.mas === 0 ? "style='display:none' ": "")+"class='ui-field-contain'><label for='o37' class='select'>"+_("Master Station")+" 2</label><select data-mini='true' id='o37'><option value='0'>"+_("None")+"</option>";
+        for (i=0; i<controller.stations.snames.length; i++) {
+            list += "<option "+((isStationMaster(i) === 2) ? "selected" : "")+" value='"+(i+1)+"'>"+controller.stations.snames[i]+"</option>";
+            if (i === 7) {
+                break;
+            }
+        }
+        list += "</select></div>";
 
-    if (typeof controller.options.mtof !== "undefined") {
-        list += "<div class='ui-field-contain duration-field'><label for='o20'>"+_("Master Off Delay")+"</label><button data-mini='true' id='o20' value='"+controller.options.mtof+"'>"+controller.options.mtof+"s</button></div>";
+        if (typeof controller.options.mton2 !== "undefined") {
+            list += "<div "+(controller.options.mas2 === 0 ? "style='display:none' ": "")+"class='ui-field-contain duration-field'><label for='o38'>"+_("Master On Delay")+"</label><button data-mini='true' id='o38' value='"+controller.options.mton2+"'>"+controller.options.mton2+"s</button></div>";
+        }
+
+        if (typeof controller.options.mtof2 !== "undefined") {
+            list += "<div "+(controller.options.mas2 === 0 ? "style='display:none' ": "")+"class='ui-field-contain duration-field'><label for='o39'>"+_("Master Off Delay")+"</label><button data-mini='true' id='o39' value='"+controller.options.mtof2+"'>"+controller.options.mtof2+"s</button></div>";
+        }
     }
 
     list += "</fieldset><fieldset data-role='collapsible'"+(typeof expandItem === "string" && expandItem === "station" ? " data-collapsed='false'" : "")+"><legend>"+_("Station Handling")+"</legend>";
@@ -3255,7 +3274,7 @@ function show_options(expandItem) {
 
         if (loc.val() === "") {
             loc.parent().removeClass("green");
-            $("#o1").selectmenu("enable");
+            page.find("#o1").selectmenu("enable");
         }
     });
 
@@ -3266,7 +3285,7 @@ function show_options(expandItem) {
             if (isOSPi()) {
                 co = "otz=32&ontp=1&onbrd=0&osdt=0&omas=0&omton=0&omtoff=0&orst=1&owl=100&orlp=0&ouwt=0&olg=1&oloc=Boston,MA";
             } else {
-                co = "o1=32&o2=1&o3=1&o12=80&o13=0&o15=0&o17=0&o18=0&o19=0&o20=0&o22=1&o23=100&o26=0&o30=0&o31=0&o32=50&o33=97&o34=210&o35=169&o36=1&loc=Boston,MA";
+                co = "o1=32&o2=1&o3=1&o12=80&o13=0&o15=0&o17=0&o18=0&o19=0&o20=0&o22=1&o23=100&o26=0&o30=0&o31=0&o32=50&o33=97&o34=210&o35=169&o36=1&o37=0&038=0&o39=0&loc=Boston,MA";
             }
 
             send_to_os("/co?pw=&"+co).done(function(){
@@ -3403,7 +3422,7 @@ function show_options(expandItem) {
     });
 
     page.find("#lookup-loc > button").on("click",function(){
-        var loc = $("#loc"),
+        var loc = page.find("#loc"),
             current = loc.val(),
             button = $(this);
 
@@ -3480,7 +3499,7 @@ function show_options(expandItem) {
                     dur.val(ip.join(".")).text(ip.join("."));
                 }
             });
-        } else if (id === "o19") {
+        } else if (id === "o19" || id === "o38") {
             showSingleDurationInput({
                 data: dur.val(),
                 title: name,
@@ -3502,7 +3521,7 @@ function show_options(expandItem) {
                 maximum: 2000,
                 helptext: helptext
             });
-        } else if (id === "o20") {
+        } else if (id === "o20" || id === "o39") {
             showSingleDurationInput({
                 data: dur.val(),
                 title: name,
@@ -3562,9 +3581,16 @@ function show_options(expandItem) {
         page.find("#ntp_addr").parents(".ui-field-contain").toggleClass("hidden",!ntp);
     });
 
+    page.find("#o18").on("change",function(){
+        var status = parseInt(this.value);
+
+        page.find("#o19,#o20,#o37").parents(".ui-field-contain").toggle(status === 0 ? false : true);
+        page.find("#o38,#o39").parents(".ui-field-contain").toggle((status === 0 || typeof controller.options.mas2 === "undefined" || controller.options.mas2 === 0) ? false : true);
+    });
+
     page.find("#o31").on("change",function(){
         // Switch state of water level input based on weather algorithm status
-        $("#o23").prop("disabled",(parseInt(this.value) === 0 || page.find("#wtkey").val() === "" ? false : true));
+        page.find("#o23").prop("disabled",(parseInt(this.value) === 0 || page.find("#wtkey").val() === "" ? false : true));
     });
 
     page.find("#wtkey").on("change input",function(){
@@ -3574,10 +3600,10 @@ function show_options(expandItem) {
 
         // Switch state of weather algorithm input based on API key status
         if (this.value === "") {
-            $("#o31,#weatherRestriction").val("0").selectmenu("refresh").selectmenu("disable");
-            $("#o23").prop("disabled",false);
+            page.find("#o31,#weatherRestriction").val("0").selectmenu("refresh").selectmenu("disable");
+            page.find("#o23").prop("disabled",false);
         } else {
-            $("#o31,#weatherRestriction").selectmenu("enable");
+            page.find("#o31,#weatherRestriction").selectmenu("enable");
         }
     });
 
@@ -3734,6 +3760,7 @@ function showHome(firstLoad) {
 
             cards += "<span class='btn-no-border ui-btn "+((isStationMaster(i)) ? "ui-icon-master" : "ui-icon-gear")+" ui-btn-icon-notext station-settings' data-station='"+i+"' id='attrib-"+i+"' " +
                 (hasMaster ? ("data-um='"+((controller.stations.masop[parseInt(i/8)]&(1<<(i%8))) ? 1 : 0)+"' ") : "") +
+                (hasMaster2 ? ("data-um2='"+((controller.stations.masop2[parseInt(i/8)]&(1<<(i%8))) ? 1 : 0)+"' ") : "") +
                 (hasIR ? ("data-ir='"+((controller.stations.ignore_rain[parseInt(i/8)]&(1<<(i%8))) ? 1 : 0)+"' ") : "") +
                 (hasAR ? ("data-ar='"+((controller.stations.act_relay[parseInt(i/8)]&(1<<(i%8))) ? 1 : 0)+"' ") : "") +
                 (hasSD ? ("data-sd='"+((controller.stations.stn_dis[parseInt(i/8)]&(1<<(i%8))) ? 1 : 0)+"' ") : "") +
@@ -3783,6 +3810,10 @@ function showHome(firstLoad) {
                     select += "<label for='um'><input class='needsclick' data-iconpos='right' id='um' type='checkbox' "+((button.data("um") === 1) ? "checked='checked'" : "")+">"+_("Use Master")+"</label>";
                 }
 
+                if (hasMaster2) {
+                    select += "<label for='um2'><input class='needsclick' data-iconpos='right' id='um2' type='checkbox' "+((button.data("um2") === 1) ? "checked='checked'" : "")+">"+_("Use Master")+" 2</label>";
+                }
+
                 if (hasIR) {
                     select += "<label for='ir'><input class='needsclick' data-iconpos='right' id='ir' type='checkbox' "+((button.data("ir") === 1) ? "checked='checked'" : "")+">"+_("Ignore Rain")+"</label>";
                 }
@@ -3819,6 +3850,7 @@ function showHome(firstLoad) {
         submit_stations = function() {
             var is208 = (checkOSVersion(208) === true),
                 master = {},
+                master2 = {},
                 sequential = {},
                 rain = {},
                 relay = {},
@@ -3829,6 +3861,9 @@ function showHome(firstLoad) {
             for(bid=0;bid<controller.settings.nbrd;bid++) {
                 if (hasMaster) {
                     master["m"+bid] = 0;
+                }
+                if (hasMaster2) {
+                    master2["n"+bid] = 0;
                 }
                 if (hasSequential) {
                     sequential["q"+bid] = 0;
@@ -3849,6 +3884,9 @@ function showHome(firstLoad) {
 
                     if (hasMaster) {
                         master["m"+bid] = (master["m"+bid]) + (attrib.data("um") << s);
+                    }
+                    if (hasMaster2) {
+                        master2["n"+bid] = (master2["n"+bid]) + (attrib.data("um2") << s);
                     }
                     if (hasSequential) {
                         sequential["q"+bid] = (sequential["q"+bid]) + (attrib.data("us") << s);
@@ -3873,7 +3911,7 @@ function showHome(firstLoad) {
             }
 
             $.mobile.loading("show");
-            send_to_os("/cs?pw=&"+$.param(names)+(hasMaster ? "&"+$.param(master) : "")+(hasSequential ? "&"+$.param(sequential) : "")+(hasIR ? "&"+$.param(rain) : "")+(hasAR ? "&"+$.param(relay) : "")+(hasSD ? "&"+$.param(disable) : "")).done(function(){
+            send_to_os("/cs?pw=&"+$.param(names)+(hasMaster ? "&"+$.param(master) : "")+(hasMaster2 ? "&"+$.param(master2) : "")+(hasSequential ? "&"+$.param(sequential) : "")+(hasIR ? "&"+$.param(rain) : "")+(hasAR ? "&"+$.param(relay) : "")+(hasSD ? "&"+$.param(disable) : "")).done(function(){
                 showerror(_("Stations have been updated"));
                 update_controller(function(){
                     $(".ui-page-active").trigger("datarefresh");
@@ -3938,6 +3976,7 @@ function showHome(firstLoad) {
             page.find(".sitename").text(site_select.val());
 
             hasMaster = controller.options.mas ? true : false;
+            hasMaster2 = controller.options.mas2 ? true : false;
             hasIR = (typeof controller.stations.ignore_rain === "object") ? true : false;
             hasAR = (typeof controller.stations.act_relay === "object") ? true : false;
             hasSD = (typeof controller.stations.stn_dis === "object") ? true : false;
@@ -3978,6 +4017,7 @@ function showHome(firstLoad) {
                     }
                     card.find(".station-settings").data({
                         um: hasMaster ? ((controller.stations.masop[parseInt(i/8)]&(1<<(i%8))) ? 1 : 0) : undefined,
+                        um2: hasMaster2 ? ((controller.stations.masop2[parseInt(i/8)]&(1<<(i%8))) ? 1 : 0) : undefined,
                         ir: hasIR ? ((controller.stations.ignore_rain[parseInt(i/8)]&(1<<(i%8))) ? 1 : 0) : undefined,
                         ar: hasAR ? ((controller.stations.act_relay[parseInt(i/8)]&(1<<(i%8))) ? 1 : 0) : undefined,
                         sd: hasSD ? ((controller.stations.stn_dis[parseInt(i/8)]&(1<<(i%8))) ? 1 : 0) : undefined,
@@ -4008,6 +4048,7 @@ function showHome(firstLoad) {
             reorderCards();
         },
         hasMaster = controller.options.mas ? true : false,
+        hasMaster2 = controller.options.mas2 ? true : false,
         hasIR = (typeof controller.stations.ignore_rain === "object") ? true : false,
         hasAR = (typeof controller.stations.act_relay === "object") ? true : false,
         hasSD = (typeof controller.stations.stn_dis === "object") ? true : false,
@@ -4123,7 +4164,18 @@ function showHome(firstLoad) {
 }
 
 function isStationMaster(sid) {
-    return (typeof controller.options.mas === "number" && controller.options.mas - 1 === sid);
+    var m1 = typeof controller.options.mas === "number" ? controller.options.mas : 0,
+        m2 = typeof controller.options.mas2 === "number" ? controller.options.mas2 : 0;
+
+    sid++;
+
+    if (m1 === sid) {
+        return 1;
+    } else if (m2 === sid) {
+        return 2;
+    } else {
+        return 0;
+    }
 }
 
 function isStationDisabled(sid) {
@@ -6791,8 +6843,8 @@ function getImportMethod(localData){
 }
 
 function import_config(data) {
-    var piNames = {1:"tz",2:"ntp",12:"htp",13:"htp2",14:"ar",15:"nbrd",16:"seq",17:"sdt",18:"mas",19:"mton",20:"mtoff",21:"urs",22:"rst",23:"wl",25:"ipas",30:"rlp",36:"lg",31:"uwt"},
-        keyIndex = {"tz":1,"ntp":2,"dhcp":3,"hp0":12,"hp1":13,"ar":14,"ext":15,"seq":16,"sdt":17,"mas":18,"mton":19,"mtof":20,"urs":21,"rso":22,"wl":23,"ipas":25,"devid":26,"rlp":30,"lg":36,"uwt":31,"ntp1":32,"ntp2":33,"ntp3":34,"ntp4":35},
+    var piNames = {1:"tz",2:"ntp",12:"htp",13:"htp2",14:"ar",15:"nbrd",16:"seq",17:"sdt",18:"mas",19:"mton",20:"mtoff",21:"urs",22:"rst",23:"wl",25:"ipas",30:"rlp",36:"lg"},
+        keyIndex = {"tz":1,"ntp":2,"dhcp":3,"hp0":12,"hp1":13,"ar":14,"ext":15,"seq":16,"sdt":17,"mas":18,"mton":19,"mtof":20,"urs":21,"rso":22,"wl":23,"ipas":25,"devid":26,"rlp":30,"lg":36,"uwt":31,"ntp1":32,"ntp2":33,"ntp3":34,"ntp4":35,"mas2":37,"mton2":38,"mtof2":39},
         warning = "";
 
     if (typeof data !== "object" || !data.settings) {
@@ -6866,6 +6918,10 @@ function import_config(data) {
 
         for (i=0; i<data.stations.masop.length; i++) {
             cs += "&m"+i+"="+data.stations.masop[i];
+        }
+
+        for (i=0; i<data.stations.masop2.length; i++) {
+            cs += "&n"+i+"="+data.stations.masop2[i];
         }
 
         if (typeof data.stations.ignore_rain === "object") {
