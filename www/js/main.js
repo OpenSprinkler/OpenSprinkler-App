@@ -3581,11 +3581,11 @@ function show_options(expandItem) {
         page.find("#ntp_addr").parents(".ui-field-contain").toggleClass("hidden",!ntp);
     });
 
-    page.find("#o18").on("change",function(){
+    page.find("#o18,#o37").on("change",function(){
         var status = parseInt(this.value);
 
         page.find("#o19,#o20,#o37").parents(".ui-field-contain").toggle(status === 0 ? false : true);
-        page.find("#o38,#o39").parents(".ui-field-contain").toggle((status === 0 || typeof controller.options.mas2 === "undefined" || controller.options.mas2 === 0) ? false : true);
+        page.find("#o38,#o39").parents(".ui-field-contain").toggle((status === 0 || typeof controller.options.mas2 === "undefined" || parseInt(page.find("#o37").val()) === 0) ? false : true);
     });
 
     page.find("#o31").on("change",function(){
@@ -3790,6 +3790,7 @@ function showHome(firstLoad) {
                 name = button.siblings("[id='station_"+id+"']"),
                 saveChanges = function(){
                     button.data("um", select.find("#um").is(":checked") ? 1 : 0 );
+                    button.data("um2", select.find("#um2").is(":checked") ? 1 : 0 );
                     button.data("ir", select.find("#ir").is(":checked") ? 1 : 0 );
                     button.data("ar", select.find("#ar").is(":checked") ? 1 : 0 );
                     button.data("sd", select.find("#sd").is(":checked") ? 1 : 0 );
