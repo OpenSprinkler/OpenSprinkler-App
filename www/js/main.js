@@ -3106,7 +3106,7 @@ function show_options(expandItem) {
     list += "</fieldset><fieldset data-role='collapsible'"+(typeof expandItem === "string" && expandItem === "master" ? " data-collapsed='false'" : "")+"><legend>"+_("Configure Master")+"</legend>";
 
     if (typeof controller.options.mas !== "undefined") {
-        list += "<div class='ui-field-contain'><label for='o18' class='select'>"+_("Master Station")+"</label><select data-mini='true' id='o18'><option value='0'>"+_("None")+"</option>";
+        list += "<div class='ui-field-contain'><label for='o18' class='select'>"+_("Master Station")+" "+(typeof controller.options.mas2 !== "undefined" ? "1" : "")+"</label><select data-mini='true' id='o18'><option value='0'>"+_("None")+"</option>";
         for (i=0; i<controller.stations.snames.length; i++) {
             list += "<option "+((isStationMaster(i) === 1) ? "selected" : "")+" value='"+(i+1)+"'>"+controller.stations.snames[i]+"</option>";
             if (i === 7) {
@@ -3125,7 +3125,9 @@ function show_options(expandItem) {
     }
 
     if (typeof controller.options.mas2 !== "undefined") {
-        list += "<div "+(controller.options.mas === 0 ? "style='display:none' ": "")+"class='ui-field-contain'><label for='o37' class='select'>"+_("Master Station")+" 2</label><select data-mini='true' id='o37'><option value='0'>"+_("None")+"</option>";
+        list += "<hr style='width:95%' class='content-divider'>";
+
+        list += "<div class='ui-field-contain'><label for='o37' class='select'>"+_("Master Station")+" 2</label><select data-mini='true' id='o37'><option value='0'>"+_("None")+"</option>";
         for (i=0; i<controller.stations.snames.length; i++) {
             list += "<option "+((isStationMaster(i) === 2) ? "selected" : "")+" value='"+(i+1)+"'>"+controller.stations.snames[i]+"</option>";
             if (i === 7) {
@@ -3582,10 +3584,10 @@ function show_options(expandItem) {
     });
 
     page.find("#o18,#o37").on("change",function(){
-        var status = parseInt(this.value);
-
-        page.find("#o19,#o20,#o37").parents(".ui-field-contain").toggle(status === 0 ? false : true);
-        page.find("#o38,#o39").parents(".ui-field-contain").toggle((status === 0 || typeof controller.options.mas2 === "undefined" || parseInt(page.find("#o37").val()) === 0) ? false : true);
+        page.find("#o19,#o20").parents(".ui-field-contain").toggle(parseInt(page.find("#o18").val()) === 0 ? false : true);
+        if (typeof controller.options.mas2 !== "undefined") {
+            page.find("#o38,#o39").parents(".ui-field-contain").toggle(parseInt(page.find("#o37").val()) === 0 ? false : true);
+        }
     });
 
     page.find("#o31").on("change",function(){
@@ -3808,7 +3810,7 @@ function showHome(firstLoad) {
 
             if (!isStationMaster(id)) {
                 if (hasMaster) {
-                    select += "<label for='um'><input class='needsclick' data-iconpos='right' id='um' type='checkbox' "+((button.data("um") === 1) ? "checked='checked'" : "")+">"+_("Use Master")+"</label>";
+                    select += "<label for='um'><input class='needsclick' data-iconpos='right' id='um' type='checkbox' "+((button.data("um") === 1) ? "checked='checked'" : "")+">"+_("Use Master")+" "+(hasMaster2 ? "1" : "")+"</label>";
                 }
 
                 if (hasMaster2) {
