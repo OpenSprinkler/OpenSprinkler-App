@@ -4933,17 +4933,36 @@ function get_preview() {
             if(pid_array[sid]) {
               if (is211) {
                 if(pl_array[sid]) {
-                    if (isStationMaster(sid) && (controller.stations.masop[sid>>3]&(1<<(sid%8)))) {
-                        preview_data.push({
-                            "start": (st_array[sid]+controller.options.mton),
-                            "end": (et_array[sid]+controller.options.mtof),
-                            "content":"",
-                            "className":"master",
-                            "shortname":"M",
-                            "group":"Master",
-                            "station": sid
-                        });
+                    var mas2 = typeof controller.options.mas2 !== "undefined" ? true : false,
+                        useMas1 = controller.stations.masop[sid>>3]&(1<<(sid%8)),
+                        useMas2 = controller.stations.masop2[sid>>3]&(1<<(sid%8));
+
+                    if (!isStationMaster(sid)) {
+                        if (controller.options.mas>0 && useMas1) {
+                            preview_data.push({
+                                "start": (st_array[sid]+controller.options.mton),
+                                "end": (et_array[sid]+controller.options.mtof),
+                                "content":"",
+                                "className":"master",
+                                "shortname":"M" + (mas2 ? "1" : ""),
+                                "group":"Master",
+                                "station": sid
+                            });
+                        }
+
+                        if (mas2 && controller.options.mas2>0 && useMas2) {
+                            preview_data.push({
+                                "start": (st_array[sid]+controller.options.mton),
+                                "end": (et_array[sid]+controller.options.mtof),
+                                "content":"",
+                                "className":"master",
+                                "shortname":"M2",
+                                "group":"Master 2",
+                                "station": sid
+                            });
+                        }
                     }
+
                     time_to_text(sid,st_array[sid],pid_array[sid],et_array[sid],simt);
                     pl_array[sid] = 0;
                     if(controller.stations.stn_seq[sid>>3]&(1<<(sid&0x07))) {
