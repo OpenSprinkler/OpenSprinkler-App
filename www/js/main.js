@@ -2918,7 +2918,7 @@ function show_options(expandItem) {
             button.prop("disabled",true);
             page.find(".submit").removeClass("hasChanges");
 
-            $("#os-options-list").find(":input,button").filter(":not(.noselect)").each(function(){
+            page.find("#os-options-list").find(":input,button").filter(":not(.noselect)").each(function(){
                 var $item = $(this),
                     id = $item.attr("id"),
                     data = $item.val(),
@@ -3003,6 +3003,13 @@ function show_options(expandItem) {
                         if (restrict.length) {
                             data = setRestriction(parseInt(restrict.val()),data);
                         }
+                        break;
+                    case "o18":
+                    case "o37":
+                        if (parseInt(data) > (parseInt(page.find("#o15").val())+1) * 8) {
+                            data = 0;
+                        }
+
                         break;
                     case "o2":
                     case "o14":
