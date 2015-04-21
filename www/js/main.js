@@ -4952,8 +4952,8 @@ function get_preview() {
 
                         if (mas2 && controller.options.mas2>0 && useMas2) {
                             preview_data.push({
-                                "start": (st_array[sid]+controller.options.mton),
-                                "end": (et_array[sid]+controller.options.mtof),
+                                "start": (st_array[sid]+controller.options.mton2),
+                                "end": (et_array[sid]+controller.options.mtof2),
                                 "content":"",
                                 "className":"master",
                                 "shortname":"M2",
