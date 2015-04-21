@@ -4935,7 +4935,7 @@ function get_preview() {
                 if(pl_array[sid]) {
                     var mas2 = typeof controller.options.mas2 !== "undefined" ? true : false,
                         useMas1 = controller.stations.masop[sid>>3]&(1<<(sid%8)),
-                        useMas2 = controller.stations.masop2[sid>>3]&(1<<(sid%8));
+                        useMas2 = mas2 ? controller.stations.masop2[sid>>3]&(1<<(sid%8)) : false;
 
                     if (!isStationMaster(sid)) {
                         if (controller.options.mas>0 && useMas1) {
