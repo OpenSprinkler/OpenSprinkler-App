@@ -4823,9 +4823,9 @@ function get_preview() {
                             }
                             if(prog[4][sid] && et_array[sid] === 0) {  // skip if water time is zero, or station is already scheduled
                                 if(prog[0]&0x02 && ((controller.options.uwt > 0 && simday === devday) || controller.options.uwt === 0)) {  // use weather scaling bit on
-                                    et_array[sid]=prog[4][sid] * controller.options.wl/100>>0;
+                                    et_array[sid]=getStationDuration(prog[4][sid],simt) * controller.options.wl/100>>0;
                                 } else {
-                                    et_array[sid]=prog[4][sid];
+                                    et_array[sid]=getStationDuration(prog[4][sid],simt);
                                 }
                                 if (et_array[sid] > 0) {  // after weather scaling, we maybe getting 0 water time
                                     pid_array[sid]=pid+1;
@@ -5314,6 +5314,17 @@ function get_preview() {
 
     $("#preview").remove();
     $.mobile.pageContainer.append(page);
+}
+
+function getStationDuration(duration,date) {
+    var sunTimes = getSunTimes(date);
+
+    if (duration === 65535) {
+        duration = (sunTimes[1] - sunTimes[0]) * 60;
+    } else if (duration === 65534) {
+        duration = ((sunTimes[0] + 1440) - sunTimes[1]) * 60;
+    }
+    return duration;
 }
 
 // Logging functions
