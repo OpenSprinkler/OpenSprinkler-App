@@ -3109,7 +3109,7 @@ function show_options(expandItem) {
         list += "<div class='ui-field-contain'><label for='o18' class='select'>"+_("Master Station")+" "+(typeof controller.options.mas2 !== "undefined" ? "1" : "")+"</label><select data-mini='true' id='o18'><option value='0'>"+_("None")+"</option>";
         for (i=0; i<controller.stations.snames.length; i++) {
             list += "<option "+((isStationMaster(i) === 1) ? "selected" : "")+" value='"+(i+1)+"'>"+controller.stations.snames[i]+"</option>";
-            if (i === 7) {
+            if (!checkOSVersion(214) && i === 7) {
                 break;
             }
         }
@@ -3130,7 +3130,7 @@ function show_options(expandItem) {
         list += "<div class='ui-field-contain'><label for='o37' class='select'>"+_("Master Station")+" 2</label><select data-mini='true' id='o37'><option value='0'>"+_("None")+"</option>";
         for (i=0; i<controller.stations.snames.length; i++) {
             list += "<option "+((isStationMaster(i) === 2) ? "selected" : "")+" value='"+(i+1)+"'>"+controller.stations.snames[i]+"</option>";
-            if (i === 7) {
+            if (!checkOSVersion(214) && i === 7) {
                 break;
             }
         }
