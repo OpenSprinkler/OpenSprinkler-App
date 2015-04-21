@@ -5317,13 +5317,16 @@ function get_preview() {
 }
 
 function getStationDuration(duration,date) {
-    var sunTimes = getSunTimes(date);
+    if (checkOSVersion(214)) {
+        var sunTimes = getSunTimes(date);
 
-    if (duration === 65535) {
-        duration = (sunTimes[1] - sunTimes[0]) * 60;
-    } else if (duration === 65534) {
-        duration = ((sunTimes[0] + 1440) - sunTimes[1]) * 60;
+        if (duration === 65535) {
+            duration = (sunTimes[1] - sunTimes[0]) * 60;
+        } else if (duration === 65534) {
+            duration = ((sunTimes[0] + 1440) - sunTimes[1]) * 60;
+        }
     }
+
     return duration;
 }
 
