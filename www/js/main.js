@@ -5196,10 +5196,22 @@ function get_preview() {
 
         preview_data.sort(sortByStation);
 
-        var shortnames = [];
+        var shortnames = [],
+            max = new Date(date[0],date[1]-1,date[2],24);
+
         $.each(preview_data, function(){
+            var total = this.start + this.end;
+
             this.start = new Date(date[0],date[1]-1,date[2],0,0,this.start);
-            this.end = new Date(date[0],date[1]-1,date[2],0,0,this.end);
+            if (total > 86400) {
+                var extraDays = Math.floor(this.end / 86400);
+
+                this.end = new Date(date[0],date[1]-1,parseInt(date[2])+extraDays,0,0,this.end % 86400);
+                max = max > this.end ? max : this.end;
+
+            } else {
+                this.end = new Date(date[0],date[1]-1,date[2],0,0,this.end);
+            }
             shortnames[this.group] = this.shortname;
         });
 
@@ -5210,7 +5222,7 @@ function get_preview() {
             "eventMargin": 10,
             "eventMarginAxis": 0,
             "min": new Date(date[0],date[1]-1,date[2],0),
-            "max": new Date(date[0],date[1]-1,date[2],24),
+            "max": max,
             "selectable": true,
             "showMajorLabels": false,
             "zoomMax": 1000 * 60 * 60 * 24,
