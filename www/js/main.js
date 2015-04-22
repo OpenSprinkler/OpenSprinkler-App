@@ -3113,7 +3113,7 @@ function show_options(expandItem) {
     list += "</fieldset><fieldset data-role='collapsible'"+(typeof expandItem === "string" && expandItem === "master" ? " data-collapsed='false'" : "")+"><legend>"+_("Configure Master")+"</legend>";
 
     if (typeof controller.options.mas !== "undefined") {
-        list += "<div class='ui-field-contain'><label for='o18' class='select'>"+_("Master Station")+" "+(typeof controller.options.mas2 !== "undefined" ? "1" : "")+"</label><select data-mini='true' id='o18'><option value='0'>"+_("None")+"</option>";
+        list += "<div class='ui-field-contain ui-field-no-border'><label for='o18' class='select'>"+_("Master Station")+" "+(typeof controller.options.mas2 !== "undefined" ? "1" : "")+"</label><select data-mini='true' id='o18'><option value='0'>"+_("None")+"</option>";
         for (i=0; i<controller.stations.snames.length; i++) {
             list += "<option "+((isStationMaster(i) === 1) ? "selected" : "")+" value='"+(i+1)+"'>"+controller.stations.snames[i]+"</option>";
             if (!checkOSVersion(214) && i === 7) {
@@ -3123,18 +3123,18 @@ function show_options(expandItem) {
         list += "</select></div>";
 
         if (typeof controller.options.mton !== "undefined") {
-            list += "<div "+(controller.options.mas === 0 ? "style='display:none' ": "")+"class='ui-field-contain duration-field'><label for='o19'>"+_("Master On Delay")+"</label><button data-mini='true' id='o19' value='"+controller.options.mton+"'>"+controller.options.mton+"s</button></div>";
+            list += "<div "+(controller.options.mas === 0 ? "style='display:none' ": "")+"class='ui-field-no-border ui-field-contain duration-field'><label for='o19'>"+_("Master On Delay")+"</label><button data-mini='true' id='o19' value='"+controller.options.mton+"'>"+controller.options.mton+"s</button></div>";
         }
 
         if (typeof controller.options.mtof !== "undefined") {
-            list += "<div "+(controller.options.mas === 0 ? "style='display:none' ": "")+"class='ui-field-contain duration-field'><label for='o20'>"+_("Master Off Delay")+"</label><button data-mini='true' id='o20' value='"+controller.options.mtof+"'>"+controller.options.mtof+"s</button></div>";
+            list += "<div "+(controller.options.mas === 0 ? "style='display:none' ": "")+"class='ui-field-no-border ui-field-contain duration-field'><label for='o20'>"+_("Master Off Delay")+"</label><button data-mini='true' id='o20' value='"+controller.options.mtof+"'>"+controller.options.mtof+"s</button></div>";
         }
     }
 
     if (typeof controller.options.mas2 !== "undefined") {
         list += "<hr style='width:95%' class='content-divider'>";
 
-        list += "<div class='ui-field-contain'><label for='o37' class='select'>"+_("Master Station")+" 2</label><select data-mini='true' id='o37'><option value='0'>"+_("None")+"</option>";
+        list += "<div class='ui-field-contain ui-field-no-border'><label for='o37' class='select'>"+_("Master Station")+" 2</label><select data-mini='true' id='o37'><option value='0'>"+_("None")+"</option>";
         for (i=0; i<controller.stations.snames.length; i++) {
             list += "<option "+((isStationMaster(i) === 2) ? "selected" : "")+" value='"+(i+1)+"'>"+controller.stations.snames[i]+"</option>";
             if (!checkOSVersion(214) && i === 7) {
@@ -3144,11 +3144,11 @@ function show_options(expandItem) {
         list += "</select></div>";
 
         if (typeof controller.options.mton2 !== "undefined") {
-            list += "<div "+(controller.options.mas2 === 0 ? "style='display:none' ": "")+"class='ui-field-contain duration-field'><label for='o38'>"+_("Master On Delay")+"</label><button data-mini='true' id='o38' value='"+controller.options.mton2+"'>"+controller.options.mton2+"s</button></div>";
+            list += "<div "+(controller.options.mas2 === 0 ? "style='display:none' ": "")+"class='ui-field-no-border ui-field-contain duration-field'><label for='o38'>"+_("Master On Delay")+"</label><button data-mini='true' id='o38' value='"+controller.options.mton2+"'>"+controller.options.mton2+"s</button></div>";
         }
 
         if (typeof controller.options.mtof2 !== "undefined") {
-            list += "<div "+(controller.options.mas2 === 0 ? "style='display:none' ": "")+"class='ui-field-contain duration-field'><label for='o39'>"+_("Master Off Delay")+"</label><button data-mini='true' id='o39' value='"+controller.options.mtof2+"'>"+controller.options.mtof2+"s</button></div>";
+            list += "<div "+(controller.options.mas2 === 0 ? "style='display:none' ": "")+"class='ui-field-no-border ui-field-contain duration-field'><label for='o39'>"+_("Master Off Delay")+"</label><button data-mini='true' id='o39' value='"+controller.options.mtof2+"'>"+controller.options.mtof2+"s</button></div>";
         }
     }
 

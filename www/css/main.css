@@ -500,7 +500,7 @@ body, input, select, textarea, button, .ui-btn {
 
 /* Site manager rules */
 
-#site-control form > .ui-field-contain:nth-child(3) {
+#site-control form > .ui-field-contain:nth-child(3), .ui-field-no-border {
     border-bottom:0;
 }
 
