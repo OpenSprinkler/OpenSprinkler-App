@@ -4,10 +4,10 @@
 var form = document.forms[0];
 if (form.addEventListener) {
 	// Handle modern browsers
-    form.addEventListener("submit", beforeSubmit, false);
+	form.addEventListener("submit", beforeSubmit, false);
 } else if (form.attachEvent) {
 	// Handle old IE
-    form.attachEvent("onsubmit", beforeSubmit);
+	form.attachEvent("onsubmit", beforeSubmit);
 }
 
 // Hash password on form submission
