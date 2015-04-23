@@ -2542,7 +2542,7 @@ function nearbyPWS(lat,lon,callback) {
     }
 
     $.ajax({
-        url: "http://api.wunderground.com/api/"+controller.settings.wtkey+"/geolookup/q/"+(lat === -999 || lon === -999 ? "autoip" : encodeURIComponent(lat)+","+encodeURIComponent(lon))+".json",
+        url: "https://api.wunderground.com/api/"+controller.settings.wtkey+"/geolookup/q/"+(lat === -999 || lon === -999 ? "autoip" : encodeURIComponent(lat)+","+encodeURIComponent(lon))+".json",
         dataType: isChromeApp ? "json" : "jsonp",
         shouldRetry: retryCount
     }).done(function(data){
@@ -2646,7 +2646,7 @@ function debugWU() {
     $.mobile.loading("show");
 
     $.ajax({
-        url: "http://api.wunderground.com/api/"+controller.settings.wtkey+"/yesterday/conditions/q/"+controller.settings.loc+".json",
+        url: "https://api.wunderground.com/api/"+controller.settings.wtkey+"/yesterday/conditions/q/"+controller.settings.loc+".json",
         dataType: isChromeApp ? "json" : "jsonp",
         shouldRetry: retryCount
     }).done(function(data){
