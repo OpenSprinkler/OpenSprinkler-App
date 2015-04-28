@@ -3555,7 +3555,7 @@ function show_options(expandItem) {
             var min = 0;
 
             if (checkOSVersion(210)) {
-                max = 64800;
+                max = checkOSVersion(214) ? 57600 : 64800;
             }
 
             if (checkOSVersion(211)) {
@@ -8244,7 +8244,7 @@ function showDurationBox(opt) {
         i;
 
     if (!opt.preventCompression && (checkOSVersion(210) && opt.maximum > 64800)) {
-        opt.maximum = 64800;
+        opt.maximum = checkOSVersion(214) ? 57600 : 64800;
     }
 
     if (opt.maximum) {
