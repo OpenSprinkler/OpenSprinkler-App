@@ -1045,8 +1045,8 @@ function fixPasswordHash(current) {
     storage.get(["sites"],function(data){
         var sites = (data.sites === undefined || data.sites === null) ? {} : JSON.parse(data.sites);
 
-        if (sites[current].isHashed !== true) {
-            var pw = md5(sites[current].os_pw);
+        if (!isMD5(curr_pw)) {
+            var pw = md5(curr_pw);
 
             send_to_os("/sp?pw=&npw="+encodeURIComponent(pw)+"&cpw="+encodeURIComponent(pw),"json").done(function(info){
                 var result = info.result;
@@ -1055,7 +1055,6 @@ function fixPasswordHash(current) {
                     return false;
                 } else {
                     sites[current].os_pw = curr_pw = pw;
-                    sites[current].isHashed = true;
                     storage.set({"sites":JSON.stringify(sites)},cloudSaveSites);
                 }
             });
@@ -1092,7 +1091,6 @@ function submit_newuser(ssl,useAuth) {
                 if (typeof data.fwv === "number" && data.fwv >= 213) {
                     if (typeof data.wl === "number") {
                         pw = md5(pw);
-                        sites[name].isHashed = true;
                     }
                 }
 
@@ -1567,7 +1565,7 @@ function show_sites(showBack) {
                     sites[site].os_ip = ip;
                 }
                 if (pw !== "" && pw !== sites[site].os_pw) {
-                    if (sites[site].isHashed === true) {
+                    if (isMD5(sites[site].os_pw)) {
                         pw = md5(pw);
                     }
                     sites[site].os_pw = pw;
@@ -6975,8 +6973,10 @@ function import_config(data) {
             cs += "&m"+i+"="+data.stations.masop[i];
         }
 
-        for (i=0; i<data.stations.masop2.length; i++) {
-            cs += "&n"+i+"="+data.stations.masop2[i];
+        if (typeof data.stations.masop2 === "object") {
+            for (i=0; i<data.stations.masop2.length; i++) {
+                cs += "&n"+i+"="+data.stations.masop2[i];
+            }
         }
 
         if (typeof data.stations.ignore_rain === "object") {
@@ -7260,10 +7260,8 @@ function changePassword(opt) {
 
                 checkPW(md5(npw),function(result){
                     if (result === true) {
-                        sites[opt.name].isHashed = true;
                         success(md5(npw));
                     } else {
-                        sites[opt.name].isHashed = false;
                         success(npw);
                     }
                 });
@@ -7306,9 +7304,6 @@ function changePassword(opt) {
                     var sites = JSON.parse(data.sites);
 
                     sites[data.current_site].os_pw = npw;
-                    if (checkOSVersion(210)) {
-                        sites[data.current_site].isHashed = true;
-                    }
                     curr_pw = npw;
                     storage.set({"sites":JSON.stringify(sites)},cloudSaveSites);
                 });
@@ -7336,7 +7331,7 @@ function changePassword(opt) {
                 current = data.current_site,
                 pw = md5(sites[current].os_pw);
 
-            if (typeof sites[current].isHashed === "undefined") {
+            if (!isMD5(sites[current].os_pw)) {
                 $.ajax({
                     url: curr_prefix+curr_ip+"/jc?pw="+pw,
                     type: "GET",
@@ -7344,13 +7339,10 @@ function changePassword(opt) {
                 }).then(
                     function(){
                         sites[current].os_pw = curr_pw = pw;
-                        sites[current].isHashed = true;
                         storage.set({"sites":JSON.stringify(sites)},cloudSaveSites);
                         opt.callback();
                     },
                     function(){
-                        sites[current].isHashed = false;
-                        storage.set({"sites":JSON.stringify(sites)},cloudSaveSites);
                         popup.popup("open");
                     }
                 );
@@ -9415,6 +9407,10 @@ function check_curr_lang() {
 
         popup.find("li.ui-last-child").removeClass("ui-last-child");
     });
+}
+
+function isMD5(pass) {
+    return /^[a-f0-9]{32}$/i.test(pass);
 }
 
 function sortByStation(a,b) {
