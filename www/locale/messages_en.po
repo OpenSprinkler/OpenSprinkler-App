@@ -895,12 +895,6 @@ msgstr ""
 msgid "Run"
 msgstr ""
 
-msgid "Sunset to Sunrise"
-msgstr ""
-
-msgid "Sunrise to Sunset"
-msgstr ""
-
 msgid "Add Program"
 msgstr ""
 
@@ -1143,6 +1137,12 @@ msgstr ""
 msgid "Minutes"
 msgstr ""
 
+msgid "Sunrise to Sunset"
+msgstr ""
+
+msgid "Sunset to Sunrise"
+msgstr ""
+
 msgid "Jan"
 msgstr ""
 
@@ -1297,6 +1297,9 @@ msgid "Slovenian"
 msgstr ""
 
 msgid "Spanish"
+msgstr ""
+
+msgid "Thai"
 msgstr ""
 
 msgid "Localization"
