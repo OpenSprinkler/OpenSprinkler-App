@@ -101,7 +101,7 @@
         </gap:config-file>
 
         <!-- Android specific Configuration -->
-        <gap:config-file platform="android" parent="/manifest">
+        <gap:config-file platform="android" parent="/manifest" mode="merge">
 
             <!-- Declare SDK -->
             <uses-sdk android:minSdkVersion="10" android:targetSdkVersion="19" />
