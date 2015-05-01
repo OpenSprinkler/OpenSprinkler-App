@@ -1,32 +1,33 @@
-module.exports = function(grunt) {
+module.exports = function( grunt ) {
 
 	// Load node-modules;
-	grunt.loadNpmTasks("grunt-contrib-jshint");
-	grunt.loadNpmTasks("grunt-text-replace");
-	grunt.loadNpmTasks("grunt-shell");
-	grunt.loadNpmTasks("grunt-contrib-compress");
-	grunt.loadNpmTasks("grunt-contrib-uglify");
-	grunt.loadNpmTasks("grunt-contrib-cssmin");
-	grunt.loadNpmTasks("grunt-contrib-clean");
-	grunt.loadTasks("tasks");
+	grunt.loadNpmTasks( "grunt-contrib-jshint" );
+	grunt.loadNpmTasks( "grunt-text-replace" );
+	grunt.loadNpmTasks( "grunt-shell" );
+	grunt.loadNpmTasks( "grunt-contrib-compress" );
+	grunt.loadNpmTasks( "grunt-contrib-uglify" );
+	grunt.loadNpmTasks( "grunt-contrib-cssmin" );
+	grunt.loadNpmTasks( "grunt-contrib-clean" );
+	grunt.loadNpmTasks( "grunt-jscs" );
+	grunt.loadTasks( "tasks" );
 
-	var bumpVersion = function(version) {
+	var bumpVersion = function( version ) {
 			var join = ".",
-				level = grunt.option("level") || 2;
+				level = grunt.option( "level" ) || 2;
 
-			if (typeof version === "number") {
+			if ( typeof version === "number" ) {
 				join = "";
 				version = version.toString();
 			}
 
-			version = version.split(join) || [0,0,0];
+			version = version.split( join ) || [ 0, 0, 0 ];
 			version[level]++;
-			return version.join(join);
+			return version.join( join );
 		},
 		secrets;
 
-	if (grunt.file.exists(".secrets.json")) {
-		secrets = grunt.file.readJSON(".secrets.json");
+	if ( grunt.file.exists( ".secrets.json" ) ) {
+		secrets = grunt.file.readJSON( ".secrets.json" );
 	} else {
 		secrets = {
 				"getLocalization": {
@@ -37,22 +38,30 @@ module.exports = function(grunt) {
 	}
 
 	// Project configuration.
-	grunt.initConfig({
-		pkg: grunt.file.readJSON("package.json"),
+	grunt.initConfig( {
+		pkg: grunt.file.readJSON( "package.json" ),
 		secrets: secrets,
 
 		jshint: {
-			main: ["<%= pkg.main %>","Gruntfile.js","www/js/home.js","chrome.js","test/tests.js"],
+			main: [ "<%= pkg.main %>", "Gruntfile.js", "www/js/home.js", "chrome.js", "test/tests.js" ],
 			options: {
 				jshintrc: true
 			}
 		},
 
+		jscs: {
+			main: [ "<%= pkg.main %>", "Gruntfile.js", "www/js/home.js", "chrome.js", "test/tests.js" ],
+			options: {
+				config: true,
+				fix: true
+			}
+		},
+
 		blanket_mocha: {
 			test: {
-				src: ["test/tests.html"],
-				options : {
-					threshold : 5
+				src: [ "test/tests.html" ],
+				options: {
+					threshold: 5
 				}
 			}
 		},
@@ -62,77 +71,77 @@ module.exports = function(grunt) {
 				options: {
 					archive: "build/firmware/UI.zip"
 				},
-				files: [{
-					src: ["css/**","js/**","img/**","locale/*.js","*.htm"],
+				files: [ {
+					src: [ "css/**", "js/**", "img/**", "locale/*.js", "*.htm" ],
 					cwd: "www/",
 					expand: true
-				},{
+				}, {
 					src: "res/ios-web/**"
-				}]
+				} ]
 			},
 			makePGB: {
 				options: {
 					archive: "build/app.zip"
 				},
-				files: [{
-					src: ["config.xml","res/**","www/**"],
+				files: [ {
+					src: [ "config.xml", "res/**", "www/**" ],
 					dot: true,
 					expand: true
-				}]
+				} ]
 			},
 			jsAsset: {
 				options: {
 					mode: "gzip"
 				},
-				files: [{
+				files: [ {
 					expand: true,
-					src: ["www/js/app.js","www/js/jqm.js"],
+					src: [ "www/js/app.js", "www/js/jqm.js" ],
 					ext: ".jgz"
-				}]
+				} ]
 			},
 			cssAsset: {
 				options: {
 					mode: "gzip"
 				},
-				files: [{
+				files: [ {
 					expand: true,
-					src: ["www/css/app.css"],
+					src: [ "www/css/app.css" ],
 					ext: ".cgz"
-				}]
+				} ]
 			},
 			firefox: {
 				options: {
 					archive: "build/firefox/com.albahra.sprinklers.zip"
 				},
-				files: [{
-					src: ["css/**","js/**","img/**","locale/**","*.htm"],
+				files: [ {
+					src: [ "css/**", "js/**", "img/**", "locale/**", "*.htm" ],
 					cwd: "www/",
 					expand: true
-				},{
-					src: ["manifest.webapp", "res/firefox/**"]
-				}]
+				}, {
+					src: [ "manifest.webapp", "res/firefox/**" ]
+				} ]
 			},
 			chrome: {
 				options: {
 					archive: "build/chrome/com.albahra.sprinklers.zip"
 				},
-				files: [{
-					src: ["css/**","js/**","img/**","locale/**","*.htm"],
+				files: [ {
+					src: [ "css/**", "js/**", "img/**", "locale/**", "*.htm" ],
 					cwd: "www/",
 					expand: true
-				},{
-					src: ["manifest.json", "chrome.js", "res/chrome/**"]
-				}]
+				}, {
+					src: [ "manifest.json", "chrome.js", "res/chrome/**" ]
+				} ]
 			},
 			blackberry10: {
 				options: {
 					archive: "build/blackberry10/com.albahra.sprinklers.zip"
 				},
-				files: [{
-					src: ["bb10app.bar"],
+				files: [ {
+					src: [ "bb10app.bar" ],
 					cwd: "platforms/blackberry10/build/device/",
 					expand: true
-				}]
+				} ]
 			}
 		},
 
@@ -143,14 +152,14 @@ module.exports = function(grunt) {
 					"unzip UI.zip",
 					"rsync -azp --chmod=Du=rwx,Dg=rx,Do=rx,Fu=rw,Fg=r,Fo=r * <%= secrets.firmware.rayshobby.location %>",
 					"rsync -azp --chmod=Du=rwx,Dg=rx,Do=rx,Fu=rw,Fg=r,Fo=r * <%= secrets.firmware.opensprinkler.location %>"
-				].join("&&")
+				].join( "&&" )
 			},
 			updateBetaUI: {
 				command: [
 					"cd build/firmware",
 					"unzip UI.zip",
 					"rsync -azp --chmod=Du=rwx,Dg=rx,Do=rx,Fu=rw,Fg=r,Fo=r * <%= secrets.firmware.betaui.location %>"
-				].join("&&")
+				].join( "&&" )
 			},
 			updatePGB: {
 				command: "curl -X PUT -F file=@build/app.zip https://build.phonegap.com/api/v1/apps/<%= pkg.phonegap.id %>?auth_token=<%= secrets.phonegap.token %> >/dev/null 2>&1"
@@ -164,7 +173,7 @@ module.exports = function(grunt) {
 					"git add www/locale/messages_en.po",
 					"git diff-index --quiet HEAD || git commit -m 'Localization: Update English strings'",
 					"git push"
-				].join("&&")
+				].join( "&&" )
 			},
 			updateLang: {
 				command: [
@@ -175,7 +184,7 @@ module.exports = function(grunt) {
 					"git add www/locale",
 					"git diff-index --quiet HEAD || git commit -m 'Localization: Update languages from getlocalization.com'",
 					"git push"
-				].join("&&")
+				].join( "&&" )
 			},
 			startOSPi: {
 				command: "test/launch_ospi.sh start"
@@ -184,7 +193,7 @@ module.exports = function(grunt) {
 				command: [
 					"test/launch_ospi.sh stop",
 					"rm -r build/firmware/ospi"
-				].join("&&")
+				].join( "&&" )
 			},
 			startDemo: {
 				command: "test/launch_osdemo.sh start"
@@ -193,7 +202,7 @@ module.exports = function(grunt) {
 				command: [
 					"test/launch_osdemo.sh stop",
 					"rm -r build/firmware/unified"
-				].join("&&")
+				].join( "&&" )
 			},
 			symres: {
 				command: "cd www && ln -s ../res res && cd .."
@@ -206,73 +215,73 @@ module.exports = function(grunt) {
 					"git add www/js/main.js source/osx/Resources/OpenSprinkler-Info.plist config.xml manifest.json manifest.webapp package.json",
 					"git commit -m 'Base: Increment version number'",
 					"git push"
-				].join("&&")
+				].join( "&&" )
 			}
 		},
 
 		replace: {
 			about: {
-				src: ["www/js/main.js"],
+				src: [ "www/js/main.js" ],
 				overwrite: true,
-				replacements: [{
+				replacements: [ {
 					from: /_\("App Version"\)\+": ([\d|\.]+)"/g,
-					to: function(matchedWord, index, fullText, regexMatches){
-						return "_(\"App Version\")+\": "+bumpVersion(regexMatches[0])+"\"";
+					to: function( matchedWord, index, fullText, regexMatches ) {
+						return "_(\"App Version\")+\": " + bumpVersion( regexMatches[0] ) + "\"";
 					}
-				}]
+				} ]
 			},
 			osx: {
-				src: ["source/osx/Resources/OpenSprinkler-Info.plist"],
+				src: [ "source/osx/Resources/OpenSprinkler-Info.plist" ],
 				overwrite: true,
-				replacements: [{
+				replacements: [ {
 					from: /<key>CFBundleShortVersionString<\/key>\n\t<string>([\d|\.]+)<\/string>/g,
-					to: function(matchedWord, index, fullText, regexMatches){
-						return "<key>CFBundleShortVersionString</key>\n\t<string>"+bumpVersion(regexMatches[0])+"</string>";
+					to: function( matchedWord, index, fullText, regexMatches ) {
+						return "<key>CFBundleShortVersionString</key>\n\t<string>" + bumpVersion( regexMatches[0] ) + "</string>";
 					}
-				},{
+				}, {
 					from: /<key>CFBundleVersion<\/key>\n\t<string>(\d+)<\/string>/g,
-					to: function(matchedWord, index, fullText, regexMatches){
-						return "<key>CFBundleVersion<\/key>\n\t<string>"+(parseInt(regexMatches[0])+1)+"<\/string>";
+					to: function( matchedWord, index, fullText, regexMatches ) {
+						return "<key>CFBundleVersion<\/key>\n\t<string>" + ( parseInt( regexMatches[0] ) + 1 ) + "<\/string>";
 					}
-				}]
+				} ]
 			},
 			phonegap: {
-				src: ["config.xml"],
+				src: [ "config.xml" ],
 				overwrite: true,
 				replacements: [
 					{
 						from: /version     = "([\d|\.]+)"/g,
-						to: function(matchedWord, index, fullText, regexMatches){
-							return "version     = \""+bumpVersion(regexMatches[0])+"\"";
+						to: function( matchedWord, index, fullText, regexMatches ) {
+							return "version     = \"" + bumpVersion( regexMatches[0] ) + "\"";
 						}
-					},{
+					}, {
 						from: /versionCode = "(\d+)"/g,
-						to: function(matchedWord, index, fullText, regexMatches) {
-							return "versionCode = \""+(parseInt(regexMatches[0])+1)+"\"";
+						to: function( matchedWord, index, fullText, regexMatches ) {
+							return "versionCode = \"" + ( parseInt( regexMatches[0] ) + 1 ) + "\"";
 						}
-					},{
+					}, {
 						from: /<string>(\d+)<\/string>/g,
-						to: function(matchedWord, index, fullText, regexMatches) {
-							return "<string>"+bumpVersion(parseInt(regexMatches[0]))+"</string>";
+						to: function( matchedWord, index, fullText, regexMatches ) {
+							return "<string>" + bumpVersion( parseInt( regexMatches[0] ) ) + "</string>";
 						}
-					}]
+					} ]
 			},
 			manifests: {
-				src: ["manifest.json","manifest.webapp","package.json"],
+				src: [ "manifest.json", "manifest.webapp", "package.json" ],
 				overwrite: true,
-				replacements: [{
+				replacements: [ {
 					from: /"version": "([\d|\.]+)"/g,
-					to: function(matchedWord, index, fullText, regexMatches){
-						return "\"version\": \""+bumpVersion(regexMatches[0])+"\"";
+					to: function( matchedWord, index, fullText, regexMatches ) {
+						return "\"version\": \"" + bumpVersion( regexMatches[0] ) + "\"";
 					}
-				}]
+				} ]
 			}
 		},
 
 		uglify: {
 			makeFW: {
 				files: {
-					"www/js/app.js": ["www/js/jquery.js", "www/js/main.js", "www/js/libs.js"]
+					"www/js/app.js": [ "www/js/jquery.js", "www/js/main.js", "www/js/libs.js" ]
 				}
 			}
 		},
@@ -280,27 +289,27 @@ module.exports = function(grunt) {
 		cssmin: {
 			combine: {
 				files: {
-					"www/css/app.css": [ "www/css/jqm.css", "www/css/main.css"]
+					"www/css/app.css": [ "www/css/jqm.css", "www/css/main.css" ]
 				}
 			}
 		},
 
 		clean: {
-			makeFW: ["www/js/app.js", "www/css/app.css", "www/css/app.cgz", "www/js/*.jgz"],
-			pushFW: ["build/firmware/*", "build/app.zip"],
-			symres: ["www/res"]
+			makeFW: [ "www/js/app.js", "www/css/app.css", "www/css/app.cgz", "www/js/*.jgz" ],
+			pushFW: [ "build/firmware/*", "build/app.zip" ],
+			symres: [ "www/res" ]
 		}
-	});
+	} );
 
 	// Default task(s).
-	grunt.registerTask("default",["jshint"]);
-	grunt.registerTask("test",["jshint","blanket_mocha"]);
-	grunt.registerTask("updateLang",["shell:updateLang"]);
-	grunt.registerTask("pushEng",["shell:pushEng"]);
-	grunt.registerTask("makeFW",["jshint","uglify","cssmin","compress:jsAsset","compress:cssAsset","compress:makeFW","clean:makeFW"]);
-	grunt.registerTask("pushFW",["makeFW","shell:updateUI","clean:pushFW"]);
-	grunt.registerTask("pushBetaFW",["makeFW","shell:updateBetaUI","clean:pushFW"]);
-	grunt.registerTask("build",["jshint","shell:symres","shell:blackberry10","compress:firefox","compress:chrome","compress:blackberry10","pushFW","clean:symres"]);
-	grunt.registerTask("bump",["jshint","replace:about","replace:osx","replace:phonegap","replace:manifests","shell:pushBump"]);
+	grunt.registerTask( "default", [ "jshint" ] );
+	grunt.registerTask( "test", [ "jshint", "blanket_mocha" ] );
+	grunt.registerTask( "updateLang", [ "shell:updateLang" ] );
+	grunt.registerTask( "pushEng", [ "shell:pushEng" ] );
+	grunt.registerTask( "makeFW", [ "jshint", "uglify", "cssmin", "compress:jsAsset", "compress:cssAsset", "compress:makeFW", "clean:makeFW" ] );
+	grunt.registerTask( "pushFW", [ "makeFW", "shell:updateUI", "clean:pushFW" ] );
+	grunt.registerTask( "pushBetaFW", [ "makeFW", "shell:updateBetaUI", "clean:pushFW" ] );
+	grunt.registerTask( "build", [ "jshint", "shell:symres", "shell:blackberry10", "compress:firefox", "compress:chrome", "compress:blackberry10", "pushFW", "clean:symres" ] );
+	grunt.registerTask( "bump", [ "jshint", "replace:about", "replace:osx", "replace:phonegap", "replace:manifests", "shell:pushBump" ] );
 
 };
