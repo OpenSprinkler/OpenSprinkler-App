@@ -1,4 +1,5 @@
-/*global $, Windows, MSApp, navigator, chrome, FastClick, StatusBar, networkinterface, links, SunCalc, md5, sjcl */
+/* global $, Windows, MSApp, navigator, chrome, FastClick */
+/* global StatusBar, networkinterface, links, SunCalc, md5, sjcl */
 var isIEMobile = /IEMobile/.test( navigator.userAgent ),
     isAndroid = /Android|\bSilk\b/.test( navigator.userAgent ),
     isiOS = /iP(ad|hone|od)/.test( navigator.userAgent ),
@@ -8,7 +9,8 @@ var isIEMobile = /IEMobile/.test( navigator.userAgent ),
     isBB10 = /BB10/.test( navigator.userAgent ),
     isOSXApp = isOSXApp || false,
     isChromeApp = typeof chrome === "object" && typeof chrome.storage === "object",
-    isFileCapable = !isiOS && !isAndroid && !isIEMobile && !isOSXApp && !isFireFoxOS && !isWinApp && !isBB10 && window.FileReader,
+    isFileCapable = !isiOS && !isAndroid && !isIEMobile && !isOSXApp && !isFireFoxOS &&
+                    !isWinApp && !isBB10 && window.FileReader,
     isTouchCapable = "ontouchstart" in window || "onmsgesturechange" in window,
 
     // Small wrapper to handle Chrome vs localStorage usage
@@ -3237,6 +3239,20 @@ function show_options( expandItem ) {
         list += "<label for='o22'><input " + ( controller.options.urs === 1 ? "" : "data-wrapper-class='hidden' " ) + "data-mini='true' id='o22' type='checkbox' " + ( ( controller.options.rso === 1 ) ? "checked='checked'" : "" ) + ">" + _( "Normally Open (Rain Sensor)" ) + "</label>";
     }
 
+    list += "</fieldset><fieldset class='full-width-slider' data-role='collapsible'" + ( typeof expandItem === "string" && expandItem === "lcd" ? " data-collapsed='false'" : "" ) + "><legend>" + _( "LCD Options" ) + "</legend>";
+
+    if ( typeof controller.options.con !== "undefined" ) {
+        list += "<div class='ui-field-contain'><label for='o27'>" + _( "Contrast" ) + "</label><input type='range' id='o27' min='0' max='255' step='10' value='" + ( controller.options.con ) + "'></div>";
+    }
+
+    if ( typeof controller.options.lit !== "undefined" ) {
+        list += "<div class='ui-field-contain'><label for='o28'>" + _( "Brightness" ) + "</label><input type='range' id='o28' min='0' max='255' step='10' value='" + ( controller.options.lit ) + "'></div>";
+    }
+
+    if ( typeof controller.options.dim !== "undefined" ) {
+        list += "<div class='ui-field-contain'><label for='o29'>" + _( "Idle Brightness" ) + "</label><input type='range' id='o29' min='0' max='255' step='10' value='" + ( controller.options.dim ) + "'></div>";
+    }
+
     list += "</fieldset><fieldset data-role='collapsible' data-theme='b'" + ( typeof expandItem === "string" && expandItem === "advanced" ? " data-collapsed='false'" : "" ) + "><legend>" + _( "Advanced" ) + "</legend>";
 
     if ( typeof controller.options.hp0 !== "undefined" ) {
@@ -3315,7 +3331,7 @@ function show_options( expandItem ) {
             if ( isOSPi() ) {
                 co = "otz=32&ontp=1&onbrd=0&osdt=0&omas=0&omton=0&omtoff=0&orst=1&owl=100&orlp=0&ouwt=0&olg=1&oloc=Boston,MA";
             } else {
-                co = "o1=32&o2=1&o3=1&o12=80&o13=0&o15=0&o17=0&o18=0&o19=0&o20=0&o22=1&o23=100&o26=0&o30=0&o31=0&o32=50&o33=97&o34=210&o35=169&o36=1&o37=0&038=0&o39=0&loc=Boston,MA";
+                co = "o1=32&o2=1&o3=1&o12=80&o13=0&o15=0&o17=0&o18=0&o19=0&o20=0&o22=1&o23=100&o26=0&o27=110&o28=100&o29=15&o30=0&o31=0&o32=50&o33=97&o34=210&o35=169&o36=1&o37=0&038=0&o39=0&loc=Boston,MA";
             }
 
             send_to_os( "/co?pw=&" + co ).done( function() {
@@ -6942,7 +6958,7 @@ function getImportMethod( localData ) {
 
 function import_config( data ) {
     var piNames = { 1:"tz", 2:"ntp", 12:"htp", 13:"htp2", 14:"ar", 15:"nbrd", 16:"seq", 17:"sdt", 18:"mas", 19:"mton", 20:"mtoff", 21:"urs", 22:"rst", 23:"wl", 25:"ipas", 30:"rlp", 36:"lg" },
-        keyIndex = { "tz":1, "ntp":2, "dhcp":3, "hp0":12, "hp1":13, "ar":14, "ext":15, "seq":16, "sdt":17, "mas":18, "mton":19, "mtof":20, "urs":21, "rso":22, "wl":23, "ipas":25, "devid":26, "rlp":30, "lg":36, "uwt":31, "ntp1":32, "ntp2":33, "ntp3":34, "ntp4":35, "mas2":37, "mton2":38, "mtof2":39 },
+        keyIndex = { "tz":1, "ntp":2, "dhcp":3, "hp0":12, "hp1":13, "ar":14, "ext":15, "seq":16, "sdt":17, "mas":18, "mton":19, "mtof":20, "urs":21, "rso":22, "wl":23, "ipas":25, "devid":26, "con": 27, "lit": 28, "dim": 29, "rlp":30, "lg":36, "uwt":31, "ntp1":32, "ntp2":33, "ntp3":34, "ntp4":35, "mas2":37, "mton2":38, "mtof2":39 },
         warning = "";
 
     if ( typeof data !== "object" || !data.settings ) {

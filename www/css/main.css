@@ -215,6 +215,12 @@ a {
     font-weight:400;
     text-shadow:none!important
 }
+.full-width-slider input {
+    display: none;
+}
+.full-width-slider .ui-slider-track {
+    margin-left: 15px;
+}
 .spin {
     -webkit-animation-name: spin;
     -webkit-animation-duration: 4000ms;
