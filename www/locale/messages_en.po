@@ -404,6 +404,18 @@ msgstr ""
 msgid "Normally Open (Rain Sensor)"
 msgstr ""
 
+msgid "LCD Screen"
+msgstr ""
+
+msgid "Contrast"
+msgstr ""
+
+msgid "Brightness"
+msgstr ""
+
+msgid "Idle Brightness"
+msgstr ""
+
 msgid "HTTP Port (restart required)"
 msgstr ""
 
