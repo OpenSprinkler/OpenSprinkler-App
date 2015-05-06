@@ -3239,7 +3239,7 @@ function show_options( expandItem ) {
         list += "<label for='o22'><input " + ( controller.options.urs === 1 ? "" : "data-wrapper-class='hidden' " ) + "data-mini='true' id='o22' type='checkbox' " + ( ( controller.options.rso === 1 ) ? "checked='checked'" : "" ) + ">" + _( "Normally Open (Rain Sensor)" ) + "</label>";
     }
 
-    list += "</fieldset><fieldset class='full-width-slider' data-role='collapsible'" + ( typeof expandItem === "string" && expandItem === "lcd" ? " data-collapsed='false'" : "" ) + "><legend>" + _( "LCD Options" ) + "</legend>";
+    list += "</fieldset><fieldset class='full-width-slider' data-role='collapsible'" + ( typeof expandItem === "string" && expandItem === "lcd" ? " data-collapsed='false'" : "" ) + "><legend>" + _( "LCD Screen" ) + "</legend>";
 
     if ( typeof controller.options.con !== "undefined" ) {
         list += "<div class='ui-field-contain'><label for='o27'>" + _( "Contrast" ) + "</label><input type='range' id='o27' min='0' max='255' step='10' value='" + ( controller.options.con ) + "'></div>";
