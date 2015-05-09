@@ -83,7 +83,8 @@ var isIEMobile = /IEMobile/.test( navigator.userAgent ),
     currentCoordinates = [ 0, 0 ],
     notifications = [],
     timers = {},
-    curr_183, curr_ip, curr_prefix, curr_auth, curr_pw, curr_wa, curr_auth_user, curr_auth_pw, curr_local, currLang, language, deviceip, errorTimeout, weather, weatherKeyFail;
+    curr183, currIp, currPrefix, currAuth, currPass, currPiWeather, currAuthUser,
+    currAuthPass, currLocal, currLang, language, deviceip, errorTimeout, weather, weatherKeyFail;
 
 // Redirect jQuery Mobile DOM manipulation to prevent error
 if ( isWinApp ) {
@@ -93,16 +94,19 @@ if ( isWinApp ) {
 
     settingsPane.addEventListener( "commandsrequested", function( eventArgs ) {
         var applicationCommands = eventArgs.request.applicationCommands;
-        var privacyCommand = new Windows.UI.ApplicationSettings.SettingsCommand( "privacy", "Privacy Policy", function() {
-            window.open( "https://albahra.com/journal/privacy-policy" );
-        } );
+        var privacyCommand = new Windows.UI.ApplicationSettings.SettingsCommand(
+			"privacy", "Privacy Policy", function() {
+				window.open( "https://albahra.com/journal/privacy-policy" );
+			}
+        );
         applicationCommands.append( privacyCommand );
     } );
 
     // Cache the old domManip function.
     $.fn.oldDomManIp = $.fn.domManip;
 
-    // Override the domManip function with a call to the cached domManip function wrapped in a MSapp.execUnsafeLocalFunction call.
+    // Override the domManip function with a call to the cached
+    // domManip function wrapped in a MSapp.execUnsafeLocalFunction call.
     $.fn.domManip = function( args, callback, allowIntersection ) {
         var that = this;
         return MSApp.execUnsafeLocalFunction( function() {
@@ -151,7 +155,8 @@ $( document )
             currPage = $( ".ui-page-active" ),
             hash;
 
-        // Pagebeforechange event triggers twice (before and after) and this check ensures we get the before state
+        // Pagebeforechange event triggers twice (before and after)
+        // and this check ensures we get the before state
         if ( typeof data.toPage !== "string" ) {
             return;
         }
@@ -180,30 +185,31 @@ $( document )
             return;
         }
 
-        // Animations are patchy if the page isn't scrolled to the top. This scrolls the page before the animation fires off
+        // Animations are patchy if the page isn't scrolled to the top.
+        // This scrolls the page before the animation fires off.
         if ( data.options.role !== "popup" && !$( ".ui-popup-active" ).length ) {
             $.mobile.silentScroll( 0 );
         }
 
         // Cycle through page possbilities and call their init functions
         if ( hash === "#programs" ) {
-            get_programs( data.options.programToExpand );
+            getPrograms( data.options.programToExpand );
         } else if ( hash === "#addprogram" ) {
-            add_program( data.options.copyID );
+            addProgram( data.options.copyID );
         } else if ( hash === "#manual" ) {
-            get_manual();
+            getManual();
         } else if ( hash === "#about" ) {
-            show_about();
+            showAbout();
         } else if ( hash === "#runonce" ) {
-            get_runonce();
+            getRunonce();
         } else if ( hash === "#os-options" ) {
-            show_options( data.options.expandItem );
+            showOptions( data.options.expandItem );
         } else if ( hash === "#preview" ) {
-            get_preview();
+            getPreview();
         } else if ( hash === "#logs" ) {
-            get_logs();
+            getLogs();
         } else if ( hash === "#forecast" ) {
-            show_forecast();
+            showForecast();
         } else if ( hash === "#start" ) {
             checkAutoScan();
             if ( !data.options.showStart ) {
@@ -216,11 +222,11 @@ $( document )
                 return false;
             }
         } else if ( hash === "#site-control" ) {
-            show_sites( data.options.showBack );
+            showSites( data.options.showBack );
         } else if ( hash === "#weather_settings" ) {
-            show_weather_settings();
+            showWeatherSettings();
         } else if ( hash === "#addnew" ) {
-            show_addnew();
+            showAddNew();
             return false;
         } else if ( hash === "#localization" ) {
             languageSelect();
@@ -238,17 +244,18 @@ $( document )
                 preventCompression: true,
                 incrementalUpdate: false,
                 updateOnChange: false,
-                helptext: _( "Enable manual rain delay by entering a value into the input below. To turn off a currently enabled rain delay use a value of 0." )
+                helptext: _( "Enable manual rain delay by entering a value into the input below." +
+					"To turn off a currently enabled rain delay use a value of 0." )
             } );
             return false;
         } else if ( hash === "#site-select" ) {
-            show_site_select();
+            showSiteSelect();
             return false;
         } else if ( hash === "#sprinklers" ) {
             if ( $( hash ).length === 0 ) {
                 showHome( data.options.firstLoad );
             } else {
-                $( hash ).one( "pageshow", refresh_status );
+                $( hash ).one( "pageshow", refreshStatus );
             }
         }
     } );
@@ -263,7 +270,7 @@ $( document )
     checkAutoScan();
 
     // If we don't have a current device IP set, there is nothing else to update
-    if ( curr_ip === undefined ) {
+    if ( currIp === undefined ) {
         return;
     }
 
@@ -273,7 +280,7 @@ $( document )
     // Indicate the weather and device status are being updated
     showLoading( "#weather,#footer-running" );
 
-    update_controller( update_weather, network_fail );
+    updateController( updateWeather, networkFail );
 } )
 .on( "pause", function() {
 
@@ -301,7 +308,7 @@ $( document )
     if ( !$.isEmptyObject( controller ) && newpage !== "#site-control" && newpage !== "#start" ) {
 
         // Update the page every 10 seconds
-        var refreshInterval = setInterval( refresh_status, 5000 );
+        var refreshInterval = setInterval( refreshStatus, 5000 );
         $newpage.one( "pagehide", function() {
             clearInterval( refreshInterval );
         } );
@@ -319,15 +326,15 @@ $( document )
         StatusBar.backgroundColorByHexString( "#1D1D1D" );
     } catch ( err ) {}
 } )
-.on( "popupbeforeposition", "#localization", check_curr_lang );
+.on( "popupbeforeposition", "#localization", checkCurrLang );
 
 function initApp() {
 
     //Update the language on the page using the browser's locale
-    update_lang();
+    updateLang();
 
     //Set AJAX timeout
-    if ( !curr_local ) {
+    if ( !currLocal ) {
         $.ajaxSetup( {
             timeout: 6000
         } );
@@ -335,7 +342,7 @@ function initApp() {
 
     // Fix CSS for IE Mobile (Windows Phone 8)
     if ( isIEMobile ) {
-        insertStyle( ".ui-toolbar-back-btn{display:none!important}ul{list-style: none !important;}" );
+        insertStyle( ".ui-toolbar-back-btn{display:none!important}ul{list-style:none!important;}" );
     }
 
     // Fix CSS for Chrome Web Store apps
@@ -371,7 +378,8 @@ function initApp() {
     }
 
     //After jQuery mobile is loaded set intial configuration
-    $.mobile.defaultPageTransition = ( isAndroid || isIEMobile || isFireFoxOS || isBB10 ) ? "fade" : "slide";
+    $.mobile.defaultPageTransition =
+		( isAndroid || isIEMobile || isFireFoxOS || isBB10 ) ? "fade" : "slide";
     $.mobile.hoverDelay = 0;
     $.mobile.activeBtnClass = "activeButton";
 
@@ -383,7 +391,12 @@ function initApp() {
     if ( !isOSXApp ) {
         $.mobile.document.on( "click", ".iab", function() {
             var button = $( this ),
-                iab = window.open( this.href, "_blank", "location=" + ( isAndroid ? "yes" : "no" ) + ",enableViewportScale=" + ( button.hasClass( "iabNoScale" ) ? "no" : "yes" ) + ",toolbarposition=top,closebuttoncaption=" + ( button.hasClass( "iabNoScale" ) ? _( "Back" ) : _( "Done" ) ) );
+                iab = window.open( this.href, "_blank", "location=" + ( isAndroid ? "yes" : "no" ) +
+					",enableViewportScale=" + ( button.hasClass( "iabNoScale" ) ? "no" : "yes" ) +
+					",toolbarposition=top" +
+					",closebuttoncaption=" +
+						( button.hasClass( "iabNoScale" ) ? _( "Back" ) : _( "Done" ) )
+				);
 
             if ( isIEMobile ) {
                 $.mobile.document.data( "iabOpen", true );
@@ -428,7 +441,7 @@ function initApp() {
 
         if ( page.jqmData( "panel" ) !== "open" && !page.find( ".ui-popup-active" ).length ) {
             if ( e.type === "swiperight" ) {
-                open_panel();
+                openPanel();
             } else {
                 showNotifications();
             }
@@ -446,7 +459,7 @@ function initApp() {
 
     //Update site based on selector
     $( "#site-selector" ).on( "change", function() {
-        update_site( $( this ).val() );
+        updateSite( $( this ).val() );
     } );
 
     //When app isn't using cordova.js, check network status now
@@ -456,7 +469,7 @@ function initApp() {
 
     //Bind start page buttons
     $( "#auto-scan" ).find( "a" ).on( "click", function() {
-        start_scan();
+        startScan();
         return false;
     } );
 
@@ -503,7 +516,7 @@ function initApp() {
 
     //On initial load check if a valid site exists for auto connect
     setTimeout( function() {
-        check_configured( true );
+        checkConfigured( true );
     }, 200 );
 }
 
@@ -521,17 +534,17 @@ function flipSwitched() {
         defer;
 
     if ( changedTo ) {
-        defer = send_to_os( "/cv?pw=&" + method + "=1" );
+        defer = sendToOS( "/cv?pw=&" + method + "=1" );
     } else {
-        defer = send_to_os( "/cv?pw=&" + method + "=0" );
+        defer = sendToOS( "/cv?pw=&" + method + "=0" );
     }
 
     $.when( defer ).then( function() {
-        refresh_status();
+        refreshStatus();
         if ( id === "mmm" ) {
             $( "#mm_list .green" ).removeClass( "green" );
         }
-        check_status();
+        checkStatus();
     },
     function() {
         switching = true;
@@ -543,15 +556,15 @@ function flipSwitched() {
 }
 
 // Wrapper function to communicate with OpenSprinkler
-function send_to_os( dest, type ) {
+function sendToOS( dest, type ) {
 
     // Inject password into the request
-    dest = dest.replace( "pw=", "pw=" + encodeURIComponent( curr_pw ) );
+    dest = dest.replace( "pw=", "pw=" + encodeURIComponent( currPass ) );
     type = type || "text";
 
     var queue = /\/(?:cv|cs|cr|cp|uwa|dp|co|cl|cu|up|cm)/.exec( dest ) ? "change" : "default",
         obj = {
-            url: curr_prefix + curr_ip + dest,
+            url: currPrefix + currIp + dest,
             type: "GET",
             dataType: type,
             shouldRetry: function( xhr, current ) {
@@ -564,13 +577,17 @@ function send_to_os( dest, type ) {
         },
         defer;
 
-    if ( curr_auth ) {
+    if ( currAuth ) {
         $.extend( obj, {
-            beforeSend: function( xhr ) { xhr.setRequestHeader( "Authorization", "Basic " + btoa( curr_auth_user + ":" + curr_auth_pw ) ); }
+            beforeSend: function( xhr ) {
+				xhr.setRequestHeader(
+					"Authorization", "Basic " + btoa( currAuthUser + ":" + currAuthPass )
+				);
+            }
         } );
     }
 
-    if ( curr_183 ) {
+    if ( curr183 ) {
         $.extend( obj, {
             cache: "true"
         } );
@@ -579,7 +596,8 @@ function send_to_os( dest, type ) {
     defer = $.ajaxq( queue, obj ).then(
         function( data ) {
 
-            // In case the data type was incorrect, attempt to fix. If fix not possible, return string
+            // In case the data type was incorrect, attempt to fix.
+            // If fix not possible, return string
             if ( typeof data === "string" ) {
                 try {
                     data = $.parseJSON( data );
@@ -615,7 +633,9 @@ function send_to_os( dest, type ) {
             // Only show error messages on setting change requests
             if ( /\/(?:cv|cs|cr|cp|uwa|dp|co|cl|cu|up|cm)/.exec( dest ) ) {
                 if ( data.result === 48 ) {
-                    showerror( _( "The selected station is already running or is scheduled to run." ) );
+                    showerror(
+						_( "The selected station is already running or is scheduled to run." )
+                    );
                 } else {
                     showerror( _( "Please check input and try again." ) );
                 }
@@ -642,21 +662,28 @@ function send_to_os( dest, type ) {
     return defer;
 }
 
-function network_fail() {
-    change_status( 0, "red", "<p class='running-text center'>" + _( "Network Error" ) + "</p>", function() {
-        showLoading( "#weather,#footer-running" );
-        refresh_status();
-        update_weather();
-    } );
+function networkFail() {
+    changeStatus( 0, "red", "<p class='running-text center'>" + _( "Network Error" ) + "</p>",
+		function() {
+			showLoading( "#weather,#footer-running" );
+			refreshStatus();
+			updateWeather();
+		}
+	);
 }
 
 // Gather new controller information and load home page
 function newload() {
     var name = $( "#site-selector" ).val(),
-        loading = "<div class='logo'></div><h1 style='padding-top:5px'>" + _( "Connecting to" ) + " " + name + "</h1><p class='cancel tight center inline-icon'><span class='btn-no-border ui-btn ui-icon-delete ui-btn-icon-notext'></span>Cancel</p>";
+        loading = "<div class='logo'></div>" +
+			"<h1 style='padding-top:5px'>" + _( "Connecting to" ) + " " + name + "</h1>" +
+			"<p class='cancel tight center inline-icon'>" +
+				"<span class='btn-no-border ui-btn ui-icon-delete ui-btn-icon-notext'></span>" +
+				"Cancel" +
+			"</p>";
 
     $.mobile.loading( "show", {
-        html: curr_local ? "<h1>" + _( "Loading" ) + "</h1>" : loading,
+        html: currLocal ? "<h1>" + _( "Loading" ) + "</h1>" : loading,
         textVisible: true,
         theme: "b"
     } );
@@ -684,13 +711,13 @@ function newload() {
     //Clear the current queued AJAX requests (used for previous controller connection)
     $.ajaxq.abort( "default" );
 
-    update_controller(
+    updateController(
         function() {
             var weatherAdjust = $( ".weatherAdjust" ),
-                change_password = $( ".change_password" );
+                changePassword = $( ".changePassword" );
 
             $.mobile.loading( "hide" );
-            update_weather();
+            updateWeather();
 
             if ( checkOSVersion( 210 ) ) {
                 weatherAdjust.css( "display", "" );
@@ -700,13 +727,13 @@ function newload() {
 
             // Hide change password feature for unsupported devices
             if ( isOSPi() || checkOSVersion( 208 ) ) {
-                change_password.css( "display", "" );
+                changePassword.css( "display", "" );
             } else {
-                change_password.hide();
+                changePassword.hide();
             }
 
             // Show site name instead of default Information bar
-            if ( !curr_local ) {
+            if ( !currLocal ) {
                 $( "#info-list" ).find( "li[data-role='list-divider']" ).text( name );
                 document.title = "OpenSprinkler - " + name;
             } else {
@@ -727,12 +754,12 @@ function newload() {
             }
 
             // Check if the OpenSprinkler can be accessed from the public IP
-            if ( !curr_local && typeof controller.settings.eip === "number" ) {
+            if ( !currLocal && typeof controller.settings.eip === "number" ) {
                 checkPublicAccess( controller.settings.eip );
             }
 
             // Check if a cloud token is available and if so show logout button otherwise show login
-            if ( !curr_local ) {
+            if ( !currLocal ) {
                 updateLoginButtons();
             }
         },
@@ -743,7 +770,7 @@ function newload() {
             $.mobile.loading( "hide" );
 
             var fail = function() {
-                if ( !curr_local ) {
+                if ( !currLocal ) {
                     $.mobile.document.one( "pageshow", function() {
                         showerror( _( "Unable to connect to" ) + " " + name, 3500 );
                     } );
@@ -775,28 +802,28 @@ function newload() {
 }
 
 // Update controller information
-function update_controller( callback, fail ) {
+function updateController( callback, fail ) {
     callback = callback || function() {};
     fail = fail || function() {};
 
     $.when(
-        update_controller_programs(),
-        update_controller_stations(),
-        update_controller_options(),
-        update_controller_status(),
-        update_controller_settings()
+        updateControllerPrograms(),
+        updateControllerStations(),
+        updateControllerOptions(),
+        updateControllerStatus(),
+        updateControllerSettings()
     ).then( function() {
         $( ".ui-page-active" ).trigger( "datarefresh" );
-        check_status();
+        checkStatus();
         callback();
     }, fail );
 }
 
-function update_controller_programs( callback ) {
+function updateControllerPrograms( callback ) {
     callback = callback || function() {};
 
-    if ( curr_183 === true ) {
-        return send_to_os( "/gp?d=0" ).done( function( programs ) {
+    if ( curr183 === true ) {
+        return sendToOS( "/gp?d=0" ).done( function( programs ) {
             var vars = programs.match( /(nprogs|nboards|mnp)=[\w|\d|.\"]+/g ),
                 progs = /pd=\[\];(.*);/.exec( programs ),
                 newdata = {}, tmp, prog;
@@ -824,18 +851,18 @@ function update_controller_programs( callback ) {
             callback();
         } );
     } else {
-        return send_to_os( "/jp?pw=", "json" ).done( function( programs ) {
+        return sendToOS( "/jp?pw=", "json" ).done( function( programs ) {
             controller.programs = programs;
             callback();
         } );
     }
 }
 
-function update_controller_stations( callback ) {
+function updateControllerStations( callback ) {
     callback = callback || function() {};
 
-    if ( curr_183 === true ) {
-        return send_to_os( "/vs" ).done( function( stations ) {
+    if ( curr183 === true ) {
+        return sendToOS( "/vs" ).done( function( stations ) {
             var names = /snames=\[(.*?)\];/.exec( stations ),
                 masop = stations.match( /(?:masop|mo)\s?[=|:]\s?\[(.*?)\]/ );
 
@@ -856,18 +883,18 @@ function update_controller_stations( callback ) {
             callback();
         } );
     } else {
-        return send_to_os( "/jn?pw=", "json" ).done( function( stations ) {
+        return sendToOS( "/jn?pw=", "json" ).done( function( stations ) {
             controller.stations = stations;
             callback();
         } );
     }
 }
 
-function update_controller_options( callback ) {
+function updateControllerOptions( callback ) {
     callback = callback || function() {};
 
-    if ( curr_183 === true ) {
-        return send_to_os( "/vo" ).done( function( options ) {
+    if ( curr183 === true ) {
+        return sendToOS( "/vo" ).done( function( options ) {
             var isOSPi = options.match( /var sd\s*=/ ),
                 vars = {}, tmp, i, o;
 
@@ -882,13 +909,18 @@ function update_controller_options( callback ) {
                 vars.ext--;
                 vars.fwv = "1.8.3-ospi";
             } else {
-                var keyIndex = { 1:"tz", 2:"ntp", 12:"hp0", 13:"hp1", 14:"ar", 15:"ext", 16:"seq", 17:"sdt", 18:"mas", 19:"mton", 20:"mtof", 21:"urs", 22:"rso", 23:"wl", 25:"ipas", 26:"devid" };
+                var keyIndex = {
+					1:"tz", 2:"ntp", 12:"hp0", 13:"hp1", 14:"ar", 15:"ext", 16:"seq", 17:"sdt",
+					18:"mas", 19:"mton", 20:"mtof", 21:"urs", 22:"rso", 23:"wl", 25:"ipas",
+					26:"devid"
+				},
+				valid = [ 1, 2, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 25, 26 ];
                 tmp = /var opts=\[(.*)\];/.exec( options );
                 tmp = tmp[1].replace( /"/g, "" ).split( "," );
 
                 for ( i = 0; i < tmp.length - 1; i = i + 4 ) {
                     o = +tmp[i + 3];
-                    if ( $.inArray( o, [ 1, 2, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 25, 26 ] ) !== -1 ) {
+                    if ( $.inArray( o, valid ) !== -1 ) {
                         vars[keyIndex[o]] = +tmp[i + 2];
                     }
                 }
@@ -898,18 +930,18 @@ function update_controller_options( callback ) {
             callback();
         } );
     } else {
-        return send_to_os( "/jo?pw=", "json" ).done( function( options ) {
+        return sendToOS( "/jo?pw=", "json" ).done( function( options ) {
             controller.options = options;
             callback();
         } );
     }
 }
 
-function update_controller_status( callback ) {
+function updateControllerStatus( callback ) {
     callback = callback || function() {};
 
-    if ( curr_183 === true ) {
-        return send_to_os( "/sn0" ).then(
+    if ( curr183 === true ) {
+        return sendToOS( "/sn0" ).then(
             function( status ) {
                 var tmp = status.toString().match( /\d+/ );
 
@@ -922,7 +954,7 @@ function update_controller_status( callback ) {
                 controller.status = [];
             } );
     } else {
-        return send_to_os( "/js?pw=", "json" ).then(
+        return sendToOS( "/js?pw=", "json" ).then(
             function( status ) {
                 controller.status = status.sn;
                 callback();
@@ -933,11 +965,11 @@ function update_controller_status( callback ) {
     }
 }
 
-function update_controller_settings( callback ) {
+function updateControllerSettings( callback ) {
     callback = callback || function() {};
 
-    if ( curr_183 === true ) {
-        return send_to_os( "" ).then(
+    if ( curr183 === true ) {
+        return sendToOS( "" ).then(
             function( settings ) {
                 var varsRegex = /(ver|devt|nbrd|tz|en|rd|rs|mm|rdst|urs)\s?[=|:]\s?([\w|\d|.\"]+)/gm,
                     loc = settings.match( /loc\s?[=|:]\s?[\"|'](.*)[\"|']/ ),
@@ -970,7 +1002,7 @@ function update_controller_settings( callback ) {
                 }
             } );
     } else {
-        return send_to_os( "/jc?pw=", "json" ).then(
+        return sendToOS( "/jc?pw=", "json" ).then(
             function( settings ) {
                 if ( typeof settings.lrun === "undefined" ) {
                     settings.lrun = [ 0, 0, 0, 0 ];
@@ -991,7 +1023,7 @@ function update_controller_settings( callback ) {
 }
 
 // Multisite functions
-function check_configured( firstLoad ) {
+function checkConfigured( firstLoad ) {
     storage.get( [ "sites", "current_site", "cloudToken" ], function( data ) {
         var sites = data.sites,
             current = data.current_site,
@@ -1031,29 +1063,31 @@ function check_configured( firstLoad ) {
             return;
         }
 
-        update_site_list( names, current );
+        updateSiteList( names, current );
 
-        curr_ip = sites[current].os_ip;
-        curr_pw = sites[current].os_pw;
+        currIp = sites[current].os_ip;
+        currPass = sites[current].os_pw;
 
         if ( typeof sites[current].ssl !== "undefined" && sites[current].ssl === "1" ) {
-            curr_prefix = "https://";
+            currPrefix = "https://";
         } else {
-            curr_prefix = "http://";
+            currPrefix = "http://";
         }
 
-        if ( typeof sites[current].auth_user !== "undefined" && typeof sites[current].auth_pw !== "undefined" ) {
-            curr_auth = true;
-            curr_auth_user = sites[current].auth_user;
-            curr_auth_pw = sites[current].auth_pw;
+        if ( typeof sites[current].auth_user !== "undefined" &&
+			typeof sites[current].auth_pw !== "undefined" ) {
+
+            currAuth = true;
+            currAuthUser = sites[current].auth_user;
+            currAuthPass = sites[current].auth_pw;
         } else {
-            curr_auth = false;
+            currAuth = false;
         }
 
         if ( sites[current].is183 ) {
-            curr_183 = true;
+            curr183 = true;
         } else {
-            curr_183 = false;
+            curr183 = false;
         }
 
         newload();
@@ -1062,18 +1096,21 @@ function check_configured( firstLoad ) {
 
 function fixPasswordHash( current ) {
     storage.get( [ "sites" ], function( data ) {
-        var sites = ( data.sites === undefined || data.sites === null ) ? {} : JSON.parse( data.sites );
+        var sites = parseSites( data.sites );
 
-        if ( !isMD5( curr_pw ) ) {
-            var pw = md5( curr_pw );
+        if ( !isMD5( currPass ) ) {
+            var pw = md5( currPass );
 
-            send_to_os( "/sp?pw=&npw=" + encodeURIComponent( pw ) + "&cpw=" + encodeURIComponent( pw ), "json" ).done( function( info ) {
+            sendToOS(
+				"/sp?pw=&npw=" + encodeURIComponent( pw ) +
+				"&cpw=" + encodeURIComponent( pw ), "json"
+            ).done( function( info ) {
                 var result = info.result;
 
                 if ( !result || result > 1 ) {
                     return false;
                 } else {
-                    sites[current].os_pw = curr_pw = pw;
+                    sites[current].os_pw = currPass = pw;
                     storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
                 }
             } );
@@ -1082,7 +1119,7 @@ function fixPasswordHash( current ) {
 }
 
 // Add a new site
-function submit_newuser( ssl, useAuth ) {
+function submitNewUser( ssl, useAuth ) {
     document.activeElement.blur();
     $.mobile.loading( "show" );
 
@@ -1105,7 +1142,7 @@ function submit_newuser( ssl, useAuth ) {
                 }
 
                 sites[name] = {};
-                sites[name].os_ip = curr_ip = ip;
+                sites[name].os_ip = currIp = ip;
 
                 if ( typeof data.fwv === "number" && data.fwv >= 213 ) {
                     if ( typeof data.wl === "number" ) {
@@ -1114,28 +1151,28 @@ function submit_newuser( ssl, useAuth ) {
                 }
 
                 sites[name].os_pw = savePW ? pw : "";
-                curr_pw = pw;
+                currPass = pw;
 
                 if ( ssl ) {
                     sites[name].ssl = "1";
-                    curr_prefix = "https://";
+                    currPrefix = "https://";
                 } else {
-                    curr_prefix = "http://";
+                    currPrefix = "http://";
                 }
 
                 if ( useAuth ) {
                     sites[name].auth_user = $( "#os_auth_user" ).val();
                     sites[name].auth_pw = $( "#os_auth_pw" ).val();
-                    curr_auth = true;
-                    curr_auth_user = sites[name].auth_user;
-                    curr_auth_pw = sites[name].auth_pw;
+                    currAuth = true;
+                    currAuthUser = sites[name].auth_user;
+                    currAuthPass = sites[name].auth_pw;
                 } else {
-                    curr_auth = false;
+                    currAuth = false;
                 }
 
                 if ( is183 === true ) {
                     sites[name].is183 = "1";
-                    curr_183 = true;
+                    curr183 = true;
                 }
 
                 $( "#os_name,#os_ip,#os_pw,#os_auth_user,#os_auth_pw" ).val( "" );
@@ -1144,7 +1181,7 @@ function submit_newuser( ssl, useAuth ) {
                     "current_site": name
                 }, function() {
                     cloudSaveSites();
-                    update_site_list( Object.keys( sites ), name );
+                    updateSiteList( Object.keys( sites ), name );
                     newload();
                 } );
             } else {
@@ -1160,15 +1197,18 @@ function submit_newuser( ssl, useAuth ) {
                 $.mobile.loading( "hide" );
                 showerror( _( "Check IP/Port and try again." ) );
             } else {
-                submit_newuser( true );
+                submitNewUser( true );
             }
         },
         getAuth = function() {
             if ( $( "#addnew-auth" ).length ) {
-                submit_newuser( ssl, true );
+                submitNewUser( ssl, true );
             } else {
                 showAuth();
             }
+        },
+        getAuthInfo = function() {
+			return btoa( $( "#os_auth_user" ).val() + ":" + $( "#os_auth_pw" ).val() );
         },
         showAuth = function() {
             $.mobile.loading( "hide" );
@@ -1176,7 +1216,9 @@ function submit_newuser( ssl, useAuth ) {
                     "<form method='post' novalidate>" +
                         "<p class='center smaller'>" + _( "Authorization Required" ) + "</p>" +
                         "<label for='os_auth_user'>" + _( "Username:" ) + "</label>" +
-                        "<input autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' type='text' name='os_auth_user' id='os_auth_user'>" +
+                        "<input autocomplete='off' autocorrect='off' autocapitalize='off' " +
+							"spellcheck='false' type='text' " +
+							"name='os_auth_user' id='os_auth_user'>" +
                         "<label for='os_auth_pw'>" + _( "Password:" ) + "</label>" +
                         "<input type='password' name='os_auth_pw' id='os_auth_pw'>" +
                         "<input type='submit' value='" + _( "Submit" ) + "'>" +
@@ -1184,7 +1226,7 @@ function submit_newuser( ssl, useAuth ) {
                 "</div>" ).enhanceWithin();
 
             html.on( "submit", "form", function() {
-                submit_newuser( ssl, true );
+                submitNewUser( ssl, true );
                 return false;
             } );
 
@@ -1228,7 +1270,10 @@ function submit_newuser( ssl, useAuth ) {
         global: false,
         beforeSend: function( xhr ) {
             if ( useAuth ) {
-                xhr.setRequestHeader( "Authorization", "Basic " + btoa( $( "#os_auth_user" ).val() + ":" + $( "#os_auth_pw" ).val() ) );
+                xhr.setRequestHeader(
+					"Authorization",
+					"Basic " + getAuthInfo()
+				);
             }
         },
         error: function( x ) {
@@ -1245,12 +1290,15 @@ function submit_newuser( ssl, useAuth ) {
                 cache: true,
                 beforeSend: function( xhr ) {
                     if ( useAuth ) {
-                        xhr.setRequestHeader( "Authorization", "Basic " + btoa( $( "#os_auth_user" ).val() + ":" + $( "#os_auth_pw" ).val() ) );
+                        xhr.setRequestHeader(
+							"Authorization",
+							"Basic " + getAuthInfo()
+						);
                     }
                 },
                 success: function( reply ) {
                     storage.get( "sites", function( data ) {
-                        var sites = ( data.sites === undefined || data.sites === null ) ? {} : JSON.parse( data.sites );
+                        var sites = parseSites( data.sites );
                         success( reply, sites );
                     } );
                 },
@@ -1259,17 +1307,22 @@ function submit_newuser( ssl, useAuth ) {
         },
         success: function( reply ) {
             storage.get( "sites", function( data ) {
-                var sites = ( data.sites === undefined || data.sites === null ) ? {} : JSON.parse( data.sites );
+                var sites = parseSites( data.sites );
                 success( reply, sites );
             } );
         }
     } );
 }
 
-function show_site_select( list ) {
+function parseSites( sites ) {
+	return ( sites === undefined || sites === null ) ? {} : JSON.parse( sites );
+}
+
+function showSiteSelect( list ) {
     $( "#site-select" ).popup( "destroy" ).remove();
 
-    var popup = $( "<div data-role='popup' id='site-select' data-theme='a' data-overlay-theme='b'>" +
+    var popup = $(
+		"<div data-role='popup' id='site-select' data-theme='a' data-overlay-theme='b'>" +
             "<div data-role='header' data-theme='b'>" +
                 "<h1>" + _( "Select Site" ) + "</h1>" +
             "</div>" +
@@ -1291,7 +1344,7 @@ function show_site_select( list ) {
     } ).enhanceWithin().popup( "open" );
 }
 
-function show_addnew( autoIP, closeOld ) {
+function showAddNew( autoIP, closeOld ) {
     $( "#addnew" ).popup( "destroy" ).remove();
 
     var isAuto = ( autoIP ) ? true : false,
@@ -1322,7 +1375,7 @@ function show_addnew( autoIP, closeOld ) {
         "</div>" );
 
     addnew.find( "form" ).on( "submit", function() {
-        submit_newuser();
+        submitNewUser();
         return false;
     } );
 
@@ -1358,7 +1411,7 @@ function show_addnew( autoIP, closeOld ) {
     } );
 }
 
-function show_sites( showBack ) {
+function showSites( showBack ) {
     var page = $( "<div data-role='page' id='site-control'>" +
             "<div class='ui-content'>" +
             "</div>" +
@@ -1386,7 +1439,7 @@ function show_sites( showBack ) {
                 text: _( "Add" ),
                 on: function() {
                     if ( typeof deviceip === "undefined" ) {
-                        show_addnew();
+                        showAddNew();
                     } else {
                         popup.popup( "open" ).popup( "reposition", {
                             "positionTo": header.eq( 2 )
@@ -1416,12 +1469,12 @@ function show_sites( showBack ) {
 
     popup.find( "#site-add-scan" ).on( "click", function() {
         popup.popup( "close" );
-        start_scan();
+        startScan();
         return false;
     } );
 
     popup.find( "#site-add-manual" ).on( "click", function() {
-        show_addnew( false, true );
+        showAddNew( false, true );
         return false;
     } );
 
@@ -1502,7 +1555,7 @@ function show_sites( showBack ) {
             } );
 
             list.find( ".connectnow" ).on( "click", function() {
-                update_site( siteNames[$( this ).data( "site" )] );
+                updateSite( siteNames[$( this ).data( "site" )] );
                 return false;
             } );
 
@@ -1597,7 +1650,7 @@ function show_sites( showBack ) {
                         storage.set( { "current_site":site } );
                         data.current_site = site;
                     }
-                    update_site_list( Object.keys( sites ), data.current_site );
+                    updateSiteList( Object.keys( sites ), data.current_site );
                 }
 
                 storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
@@ -1606,10 +1659,10 @@ function show_sites( showBack ) {
 
                 if ( site === data.current_site ) {
                     if ( pw !== "" ) {
-                        curr_pw = pw;
+                        currPass = pw;
                     }
                     if ( needsReconnect ) {
-                        check_configured();
+                        checkConfigured();
                     }
                 }
 
@@ -1626,7 +1679,7 @@ function show_sites( showBack ) {
                 delete sites[site];
                 storage.set( { "sites":JSON.stringify( sites ) }, function() {
                     cloudSaveSites();
-                    update_site_list( Object.keys( sites ), data.current_site );
+                    updateSiteList( Object.keys( sites ), data.current_site );
                     if ( $.isEmptyObject( sites ) && ( data.cloudToken === null || data.cloudToken === undefined ) ) {
                         changePage( "#start", {
                             showStart: true
@@ -1694,7 +1747,7 @@ function testSite( site, id, callback ) {
 }
 
 // Update the panel list of sites
-function update_site_list( names, current ) {
+function updateSiteList( names, current ) {
     var list = "",
         select = $( "#site-selector" );
 
@@ -1711,12 +1764,12 @@ function update_site_list( names, current ) {
 }
 
 // Change the current site
-function update_site( newsite ) {
+function updateSite( newsite ) {
     storage.get( "sites", function( data ) {
         var sites = ( data.sites === undefined || data.sites === null ) ? {} : JSON.parse( data.sites );
         if ( newsite in sites ) {
             closePanel( function() {
-                storage.set( { "current_site":newsite }, check_configured );
+                storage.set( { "current_site":newsite }, checkConfigured );
             } );
         }
     } );
@@ -1801,7 +1854,7 @@ function resetStartMenu() {
     auto.hide();
 }
 
-function start_scan( port, type ) {
+function startScan( port, type ) {
 
     // type represents the OpenSprinkler model as defined below
     // 0 - OpenSprinkler using firmware 2.0+
@@ -1876,13 +1929,13 @@ function start_scan( port, type ) {
             clearInterval( scanning );
             if ( !devicesfound ) {
                 if ( type === 0 ) {
-                    start_scan( 8080, 1 );
+                    startScan( 8080, 1 );
 
                 } else if ( type === 1 ) {
-                    start_scan( 80, 2 );
+                    startScan( 80, 2 );
 
                 } else if ( type === 2 ) {
-                    start_scan( 8080, 3 );
+                    startScan( 8080, 3 );
 
                 } else {
                     showerror( _( "No new devices were detected on your network" ) );
@@ -1895,7 +1948,7 @@ function start_scan( port, type ) {
                     return false;
                 } );
 
-                show_site_select( newlist );
+                showSiteSelect( newlist );
             }
         }
     };
@@ -2019,22 +2072,22 @@ function ping( ip, callback ) {
 // Show popup for new device after populating device IP with selected result
 function add_found( ip ) {
     $( "#site-select" ).one( "popupafterclose", function() {
-        show_addnew( ip );
+        showAddNew( ip );
     } ).popup( "close" );
 }
 
 // Weather functions
-function show_weather_settings() {
+function showWeatherSettings() {
     var page = $( "<div data-role='page' id='weather_settings'>" +
         "<div class='ui-content' role='main'>" +
             "<ul data-role='listview' data-inset='true'>" +
                 "<li>" +
                     "<label for='weather_provider'>" + _( "Weather Provider" ) + "</label>" +
                     "<select data-mini='true' id='weather_provider'>" +
-                        "<option value='yahoo' " + ( curr_wa.weather_provider === "yahoo" ? "selected" : "" ) + ">" + _( "Yahoo!" ) + "</option>" +
-                        "<option value='wunderground' " + ( curr_wa.weather_provider === "wunderground" ? "selected" : "" ) + ">" + _( "Wunderground" ) + "</option>" +
+                        "<option value='yahoo' " + ( currPiWeather.weather_provider === "yahoo" ? "selected" : "" ) + ">" + _( "Yahoo!" ) + "</option>" +
+                        "<option value='wunderground' " + ( currPiWeather.weather_provider === "wunderground" ? "selected" : "" ) + ">" + _( "Wunderground" ) + "</option>" +
                     "</select>" +
-                    "<label " + ( curr_wa.weather_provider === "wunderground" ? "" : "style='display:none' " ) + "for='wapikey'>" + _( "Wunderground API Key" ) + "</label><input " + ( curr_wa.weather_provider === "wunderground" ? "" : "style='display:none' " ) + "data-mini='true' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' type='text' id='wapikey' value='" + curr_wa.wapikey + "'>" +
+                    "<label " + ( currPiWeather.weather_provider === "wunderground" ? "" : "style='display:none' " ) + "for='wapikey'>" + _( "Wunderground API Key" ) + "</label><input " + ( currPiWeather.weather_provider === "wunderground" ? "" : "style='display:none' " ) + "data-mini='true' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' type='text' id='wapikey' value='" + currPiWeather.wapikey + "'>" +
                 "</li>" +
             "</ul>" +
             "<ul data-role='listview' data-inset='true'> " +
@@ -2042,11 +2095,11 @@ function show_weather_settings() {
                     "<p class='rain-desc'>" + _( "When automatic rain delay is enabled, the weather will be checked for rain every hour. If the weather reports any condition suggesting rain, a rain delay is automatically issued using the below set delay duration." ) + "</p>" +
                         "<div class='ui-field-contain'>" +
                             "<label for='auto_delay'>" + _( "Auto Rain Delay" ) + "</label>" +
-                            "<input type='checkbox' data-on-text='On' data-off-text='Off' data-role='flipswitch' name='auto_delay' id='auto_delay' " + ( curr_wa.auto_delay === "on" ? "checked" : "" ) + ">" +
+                            "<input type='checkbox' data-on-text='On' data-off-text='Off' data-role='flipswitch' name='auto_delay' id='auto_delay' " + ( currPiWeather.auto_delay === "on" ? "checked" : "" ) + ">" +
                         "</div>" +
                         "<div class='ui-field-contain duration-input'>" +
                             "<label for='delay_duration'>" + _( "Delay Duration" ) + "</label>" +
-                            "<button id='delay_duration' data-mini='true' value='" + ( curr_wa.delay_duration * 3600 ) + "'>" + dhms2str( sec2dhms( curr_wa.delay_duration * 3600 ) ) + "</button>" +
+                            "<button id='delay_duration' data-mini='true' value='" + ( currPiWeather.delay_duration * 3600 ) + "'>" + dhms2str( sec2dhms( currPiWeather.delay_duration * 3600 ) ) + "</button>" +
                         "</div>" +
                 "</li>" +
             "</ul>" +
@@ -2058,7 +2111,7 @@ function show_weather_settings() {
 
         $.mobile.loading( "show" );
 
-        send_to_os( url ).then(
+        sendToOS( url ).then(
             function() {
                 $.mobile.document.one( "pageshow", function() {
                     showerror( _( "Weather settings have been saved" ) );
@@ -2109,7 +2162,7 @@ function show_weather_settings() {
             page.remove();
         },
         pagebeforeshow: function() {
-            if ( curr_wa.weather_provider !== "wunderground" ) {
+            if ( currPiWeather.weather_provider !== "wunderground" ) {
                 page.find( "#wapikey" ).parent( ".ui-input-text" ).css( "border-style", "none" );
             }
         }
@@ -2147,7 +2200,7 @@ function hide_weather() {
     $( "#weather" ).empty().parents( ".info-card" ).addClass( "noweather" );
 }
 
-function update_weather() {
+function updateWeather() {
     if ( typeof controller.settings.wtkey !== "undefined" && controller.settings.wtkey !== "" ) {
         update_wunderground_weather( controller.settings.wtkey );
         return;
@@ -2381,7 +2434,7 @@ function getSunTimes( date ) {
     return [ sunrise, sunset ];
 }
 
-function show_forecast() {
+function showForecast() {
     var page = $( "<div data-role='page' id='forecast'>" +
             "<div class='ui-content' role='main'>" +
                 "<ul data-role='listview' data-inset='true'>" +
@@ -2406,7 +2459,7 @@ function show_forecast() {
                 $.mobile.document.one( "weatherUpdateComplete", function() {
                     $.mobile.loading( "hide" );
                 } );
-                update_weather();
+                updateWeather();
             }
         }
     } );
@@ -2593,7 +2646,7 @@ function nearbyPWS( lat, lon, callback ) {
         var prefix = "";
         data = encodeURIComponent( JSON.stringify( data ) );
 
-        if ( curr_local ) {
+        if ( currLocal ) {
             prefix = $.mobile.path.parseUrl( $( "head" ).find( "script" ).eq( 0 ).attr( "src" ) ).hrefNoHash.slice( 0, -10 );
         }
 
@@ -2791,12 +2844,12 @@ function bindPanel() {
             toValue = ( 1 - controller.settings.en );
 
         areYouSure( _( "Are you sure you want to" ) + " " + operation().toLowerCase() + " " + _( "operation?" ), "", function() {
-            send_to_os( "/cv?pw=&en=" + toValue ).done( function() {
+            sendToOS( "/cv?pw=&en=" + toValue ).done( function() {
                 $.when(
-                    update_controller_settings(),
-                    update_controller_status()
+                    updateControllerSettings(),
+                    updateControllerStatus()
                 ).done( function() {
-                    check_status();
+                    checkStatus();
                     self.find( "span:first" ).html( operation() ).attr( "data-translate", operation() );
                 } );
             } );
@@ -2808,7 +2861,7 @@ function bindPanel() {
     panel.find( ".reboot-os" ).on( "click", function() {
         areYouSure( _( "Are you sure you want to reboot OpenSprinkler?" ), "", function() {
             $.mobile.loading( "show" );
-            send_to_os( "/cv?pw=&rbt=1" ).done( function() {
+            sendToOS( "/cv?pw=&rbt=1" ).done( function() {
                 $.mobile.loading( "hide" );
                 showerror( _( "OpenSprinkler is rebooting now" ) );
             } );
@@ -2859,7 +2912,7 @@ function bindPanel() {
                     "provider": provider
                 } );
 
-                update_weather();
+                updateWeather();
 
                 $( "#providers" ).popup( "close" );
 
@@ -2887,13 +2940,13 @@ function bindPanel() {
         } );
     } );
 
-    panel.find( ".change_password > a" ).on( "click", changePassword );
+    panel.find( ".changePassword > a" ).on( "click", changePassword );
 
     panel.find( "#downgradeui" ).on( "click", function() {
         areYouSure( _( "Are you sure you want to downgrade the UI?" ), "", function() {
             var url = "http://rayshobby.net/scripts/java/svc" + getOSVersion();
 
-            send_to_os( "/cu?jsp=" + encodeURIComponent( url ) + "&pw=" ).done( function() {
+            sendToOS( "/cu?jsp=" + encodeURIComponent( url ) + "&pw=" ).done( function() {
                 storage.remove( [ "sites", "current_site", "lang", "provider", "wapikey", "runonce" ] );
                 location.reload();
             } );
@@ -2907,7 +2960,7 @@ function bindPanel() {
     } );
 }
 
-function open_panel() {
+function openPanel() {
     var panel = $( "#sprinklers-settings" ),
         operation = ( controller && controller.settings && controller.settings.en && controller.settings.en === 1 ) ? _( "Disable" ) : _( "Enable" ),
         page = $( ".ui-page-active" ).attr( "id" );
@@ -2921,7 +2974,7 @@ function open_panel() {
 }
 
 // Device setting management functions
-function show_options( expandItem ) {
+function showOptions( expandItem ) {
     var list = "",
         page = $( "<div data-role='page' id='os-options'>" +
             "<div class='ui-content' role='main'>" +
@@ -3071,12 +3124,12 @@ function show_options( expandItem ) {
                 return;
             }
             $.mobile.loading( "show" );
-            send_to_os( "/co?pw=&" + $.param( opt ) ).done( function() {
+            sendToOS( "/co?pw=&" + $.param( opt ) ).done( function() {
                 $.mobile.document.one( "pageshow", function() {
                     showerror( _( "Settings have been saved" ) );
                 } );
                 goBack();
-                update_controller( update_weather );
+                updateController( updateWeather );
             } ).fail( function() {
                 button.prop( "disabled", false );
                 page.find( ".submit" ).addClass( "hasChanges" );
@@ -3334,12 +3387,12 @@ function show_options( expandItem ) {
                 co = "o1=32&o2=1&o3=1&o12=80&o13=0&o15=0&o17=0&o18=0&o19=0&o20=0&o22=1&o23=100&o26=0&o27=110&o28=100&o29=15&o30=0&o31=0&o32=50&o33=97&o34=210&o35=169&o36=1&o37=0&038=0&o39=0&loc=Boston,MA";
             }
 
-            send_to_os( "/co?pw=&" + co ).done( function() {
+            sendToOS( "/co?pw=&" + co ).done( function() {
                 $.mobile.document.one( "pageshow", function() {
                     showerror( _( "Settings have been saved" ) );
                 } );
                 goBack();
-                update_controller( update_weather );
+                updateController( updateWeather );
             } );
         } );
     } );
@@ -3383,9 +3436,9 @@ function show_options( expandItem ) {
 
         areYouSure( _( "Are you sure you want to reset all stations?" ), _( "This will reset all station names and attributes" ), function() {
             $.mobile.loading( "show" );
-            send_to_os( "/cs?pw=&" + cs ).done( function() {
+            sendToOS( "/cs?pw=&" + cs ).done( function() {
                 showerror( _( "Stations have been updated" ) );
-                update_controller();
+                updateController();
             } );
         } );
     } );
@@ -3719,9 +3772,9 @@ function showHomeMenu( btn ) {
         if ( href === "#stop-all" ) {
             areYouSure( _( "Are you sure you want to stop all stations?" ), "", function() {
                 $.mobile.loading( "show" );
-                send_to_os( "/cv?pw=&rsn=1" ).done( function() {
+                sendToOS( "/cv?pw=&rsn=1" ).done( function() {
                     $.mobile.loading( "hide" );
-                    refresh_status();
+                    refreshStatus();
                     showerror( _( "All stations have been stopped" ) );
                 } );
             } );
@@ -3768,7 +3821,7 @@ function showHome( firstLoad ) {
                             "<div id='weather' class='pointer'></div>" +
                         "</div>" +
                         "<div class='ui-block-b center home-info pointer'>" +
-                            "<span class='sitename bold" + ( curr_local ? " hidden" : "" ) + "'>" + site_select.val() + "</span>" +
+                            "<span class='sitename bold" + ( currLocal ? " hidden" : "" ) + "'>" + site_select.val() + "</span>" +
                             "<div id='clock-s' class='nobr'>" + dateToString( new Date( controller.settings.devt * 1000 ), null, true ) + "</div>" +
                             _( "Water Level" ) + ": <span class='waterlevel'>" + controller.options.wl + "</span>%" +
                         "</div>" +
@@ -3962,9 +4015,9 @@ function showHome( firstLoad ) {
             }
 
             $.mobile.loading( "show" );
-            send_to_os( "/cs?pw=&" + $.param( names ) + ( hasMaster ? "&" + $.param( master ) : "" ) + ( hasMaster2 ? "&" + $.param( master2 ) : "" ) + ( hasSequential ? "&" + $.param( sequential ) : "" ) + ( hasIR ? "&" + $.param( rain ) : "" ) + ( hasAR ? "&" + $.param( relay ) : "" ) + ( hasSD ? "&" + $.param( disable ) : "" ) ).done( function() {
+            sendToOS( "/cs?pw=&" + $.param( names ) + ( hasMaster ? "&" + $.param( master ) : "" ) + ( hasMaster2 ? "&" + $.param( master2 ) : "" ) + ( hasSequential ? "&" + $.param( sequential ) : "" ) + ( hasIR ? "&" + $.param( rain ) : "" ) + ( hasAR ? "&" + $.param( relay ) : "" ) + ( hasSD ? "&" + $.param( disable ) : "" ) ).done( function() {
                 showerror( _( "Stations have been updated" ) );
-                update_controller( function() {
+                updateController( function() {
                     $( ".ui-page-active" ).trigger( "datarefresh" );
                 } );
             } );
@@ -4154,13 +4207,13 @@ function showHome( firstLoad ) {
                     maximum: 65535,
                     helptext: _( "Enter a duration to manually run " + name ),
                     callback: function( duration ) {
-                        send_to_os( "/cm?sid=" + station + "&en=1&t=" + duration + "&pw=", "json" ).done( function() {
+                        sendToOS( "/cm?sid=" + station + "&en=1&t=" + duration + "&pw=", "json" ).done( function() {
 
                             // Update local state until next device refresh occurs
                             controller.settings.ps[station][0] = 99;
                             controller.settings.ps[station][1] = duration;
 
-                            refresh_status();
+                            refreshStatus();
                             showerror( _( "Station has been queued" ) );
                         } );
                     }
@@ -4169,14 +4222,14 @@ function showHome( firstLoad ) {
             }
         }
         areYouSure( question, controller.stations.snames[station], function() {
-            send_to_os( "/cm?sid=" + station + "&en=0&pw=" ).done( function() {
+            sendToOS( "/cm?sid=" + station + "&en=0&pw=" ).done( function() {
 
                 // Update local state until next device refresh occurs
                 controller.settings.ps[station][0] = 0;
                 controller.settings.ps[station][1] = 0;
                 controller.status[i] = 0;
 
-                refresh_status();
+                refreshStatus();
                 showerror( _( "Station has been stopped" ) );
             } );
         } );
@@ -4189,7 +4242,7 @@ function showHome( firstLoad ) {
                 leftBtn: {
                     icon: "bullets",
                     on: function() {
-                        open_panel();
+                        openPanel();
                         return false;
                     }
                 },
@@ -4247,24 +4300,24 @@ function isStationSequential( sid ) {
 }
 
 // Current status related functions
-function refresh_status() {
+function refreshStatus() {
     var page = $( ".ui-page-active" );
 
     $.when(
-        update_controller_status(),
-        update_controller_settings(),
-        update_controller_options()
+        updateControllerStatus(),
+        updateControllerSettings(),
+        updateControllerOptions()
     ).then( function() {
 
         // Notify the current page that the data has refreshed
         page.trigger( "datarefresh" );
-        check_status();
+        checkStatus();
         return;
-    }, network_fail );
+    }, networkFail );
 }
 
 // Actually change the status bar
-function change_status( seconds, color, line, onclick ) {
+function changeStatus( seconds, color, line, onclick ) {
     var footer = $( "#footer-running" );
 
     onclick = onclick || function() {};
@@ -4283,21 +4336,21 @@ function change_status( seconds, color, line, onclick ) {
 }
 
 // Update status bar based on device status
-function check_status() {
+function checkStatus() {
     var open, ptotal, sample, pid, pname, line, match, tmp, i;
 
     if ( $.isEmptyObject( controller ) || !controller.hasOwnProperty( "settings" ) || !controller.hasOwnProperty( "status" ) || !controller.hasOwnProperty( "options" ) ) {
-        change_status( 0, "transparent", "<p class='running-text smaller'></p>" );
+        changeStatus( 0, "transparent", "<p class='running-text smaller'></p>" );
         return;
     }
 
     // Handle operation disabled
     if ( !controller.settings.en ) {
-        change_status( 0, "red", "<p class='running-text center pointer'>" + _( "System Disabled" ) + "</p>", function() {
+        changeStatus( 0, "red", "<p class='running-text center pointer'>" + _( "System Disabled" ) + "</p>", function() {
             areYouSure( _( "Do you want to re-enable system operation?" ), "", function() {
                 showLoading( "#footer-running" );
-                send_to_os( "/cv?pw=&en=1" ).done( function() {
-                    update_controller();
+                sendToOS( "/cv?pw=&en=1" ).done( function() {
+                    updateController();
                 } );
             } );
         } );
@@ -4335,7 +4388,7 @@ function check_status() {
             line += "<span id='countdown' class='nobr'>(" + sec2hms( ptotal ) + " " + _( "remaining" ) + ")</span>";
         }
         line += "</div></div>";
-        change_status( ptotal, "green", line, goHome );
+        changeStatus( ptotal, "green", line, goHome );
         return;
     }
 
@@ -4357,17 +4410,17 @@ function check_status() {
     }
 
     if ( match ) {
-        change_status( controller.settings.ps[i][1], "green", line, goHome );
+        changeStatus( controller.settings.ps[i][1], "green", line, goHome );
         return;
     }
 
     // Handle rain delay enabled
     if ( controller.settings.rd ) {
-        change_status( 0, "red", "<p class='running-text center pointer'>" + _( "Rain delay until" ) + " " + dateToString( new Date( controller.settings.rdst * 1000 ) ) + "</p>", function() {
+        changeStatus( 0, "red", "<p class='running-text center pointer'>" + _( "Rain delay until" ) + " " + dateToString( new Date( controller.settings.rdst * 1000 ) ) + "</p>", function() {
             areYouSure( _( "Do you want to turn off rain delay?" ), "", function() {
                 showLoading( "#footer-running" );
-                send_to_os( "/cv?pw=&rd=0" ).done( function() {
-                    update_controller();
+                sendToOS( "/cv?pw=&rd=0" ).done( function() {
+                    updateController();
                 } );
             } );
         } );
@@ -4376,17 +4429,17 @@ function check_status() {
 
     // Handle rain sensor triggered
     if ( controller.options.urs === 1 && controller.settings.rs === 1 ) {
-        change_status( 0, "red", "<p class='running-text center'>" + _( "Rain detected" ) + "</p>" );
+        changeStatus( 0, "red", "<p class='running-text center'>" + _( "Rain detected" ) + "</p>" );
         return;
     }
 
     // Handle manual mode enabled
     if ( controller.settings.mm === 1 ) {
-        change_status( 0, "red", "<p class='running-text center pointer'>" + _( "Manual mode enabled" ) + "</p>", function() {
+        changeStatus( 0, "red", "<p class='running-text center pointer'>" + _( "Manual mode enabled" ) + "</p>", function() {
             areYouSure( _( "Do you want to turn off manual mode?" ), "", function() {
                 showLoading( "#footer-running" );
-                send_to_os( "/cv?pw=&mm=0" ).done( function() {
-                    update_controller();
+                sendToOS( "/cv?pw=&mm=0" ).done( function() {
+                    updateController();
                 } );
             } );
         } );
@@ -4400,11 +4453,11 @@ function check_status() {
         var lrpid = controller.settings.lrun[1];
         pname = pidname( lrpid );
 
-        change_status( 0, "transparent", "<p class='running-text smaller center pointer'>" + pname + " " + _( "last ran station" ) + " " + controller.stations.snames[controller.settings.lrun[0]] + " " + _( "for" ) + " " + ( lrdur / 60 >> 0 ) + "m " + ( lrdur % 60 ) + "s " + _( "on" ) + " " + dateToString( new Date( controller.settings.lrun[3] * 1000 ) ) + "</p>", goHome );
+        changeStatus( 0, "transparent", "<p class='running-text smaller center pointer'>" + pname + " " + _( "last ran station" ) + " " + controller.stations.snames[controller.settings.lrun[0]] + " " + _( "for" ) + " " + ( lrdur / 60 >> 0 ) + "m " + ( lrdur % 60 ) + "s " + _( "on" ) + " " + dateToString( new Date( controller.settings.lrun[3] * 1000 ) ) + "</p>", goHome );
         return;
     }
 
-    change_status( 0, "transparent", "<p class='running-text smaller center pointer'>" + _( "System Idle" ) + "</p>", goHome );
+    changeStatus( 0, "transparent", "<p class='running-text smaller center pointer'>" + _( "System Idle" ) + "</p>", goHome );
 }
 
 function calculateTotalRunningTime( runTimes ) {
@@ -4436,8 +4489,8 @@ function updateTimers() {
             diff = now - lastCheck;
 
         if ( diff > 2000 ) {
-            check_status();
-            refresh_status();
+            checkStatus();
+            refreshStatus();
         }
 
         lastCheck = now;
@@ -4452,7 +4505,7 @@ function updateTimers() {
                 if ( timers[timer].val <= 0 ) {
                     if ( timer === "statusbar" ) {
                         showLoading( "#footer-running" );
-                        refresh_status();
+                        refreshStatus();
                     }
 
                     if ( typeof timers[timer].done === "function" ) {
@@ -4475,7 +4528,7 @@ function updateTimers() {
 }
 
 // Manual control functions
-function get_manual() {
+function getManual() {
     var list = "<li data-role='list-divider' data-theme='a'>" + _( "Sprinkler Stations" ) + "</li>",
         page = $( "<div data-role='page' id='manual'>" +
                 "<div class='ui-content' role='main'>" +
@@ -4494,7 +4547,7 @@ function get_manual() {
                 "</div>" +
             "</div>" ),
         check_toggle = function( currPos ) {
-            update_controller_status().done( function() {
+            updateControllerStatus().done( function() {
                 var item = listitems.eq( currPos ).find( "a" );
 
                 if ( controller.options.mas ) {
@@ -4547,7 +4600,7 @@ function get_manual() {
             anchor.removeClass( "green" ).addClass( "yellow" );
             anchor.html( "<p class='ui-icon ui-icon-loading mini-load'></p>" );
 
-            send_to_os( dest ).always(
+            sendToOS( dest ).always(
                 function() {
 
                     // The device usually replies before the station has actually toggled. Delay in order to wait for the station's to toggle.
@@ -4618,7 +4671,7 @@ function get_manual() {
 }
 
 // Runonce functions
-function get_runonce() {
+function getRunonce() {
     var list = "<p class='center'>" + _( "Zero value excludes the station from the run-once program." ) + "</p>",
         page = $( "<div data-role='page' id='runonce'>" +
             "<div class='ui-content' role='main' id='runonce_list'>" +
@@ -4788,12 +4841,12 @@ function submit_runonce( runonce ) {
     var submit = function() {
             $.mobile.loading( "show" );
             storage.set( { "runonce":JSON.stringify( runonce ) } );
-            send_to_os( "/cr?pw=&t=" + JSON.stringify( runonce ) ).done( function() {
+            sendToOS( "/cr?pw=&t=" + JSON.stringify( runonce ) ).done( function() {
                 $.mobile.loading( "hide" );
                 $.mobile.document.one( "pageshow", function() {
                     showerror( _( "Run-once program has been scheduled" ) );
                 } );
-                refresh_status();
+                refreshStatus();
                 goBack();
             } );
         },
@@ -4810,7 +4863,7 @@ function submit_runonce( runonce ) {
 }
 
 // Preview functions
-function get_preview() {
+function getPreview() {
     var now = new Date( controller.settings.devt * 1000 ),
         date = now.toISOString().slice( 0, 10 ),
         page = $( "<div data-role='page' id='preview'>" +
@@ -5399,7 +5452,7 @@ function getStationDuration( duration, date ) {
 }
 
 // Logging functions
-function get_logs() {
+function getLogs() {
     var now = new Date( controller.settings.devt * 1000 ),
         isNarrow = $.mobile.window.width() < 640 ? true : false,
         page = $( "<div data-role='page' id='logs'>" +
@@ -5672,7 +5725,7 @@ function get_logs() {
 
                 areYouSure( _( "Are you sure you want to " ) + _( "delete" ) + " " + date + "?", "", function() {
                     $.mobile.loading( "show" );
-                    send_to_os( "/dl?pw=&day=" + day ).done( function() {
+                    sendToOS( "/dl?pw=&day=" + day ).done( function() {
                         requestData();
                         showerror( date + " " + _( "deleted" ) );
                     } );
@@ -5730,12 +5783,12 @@ function get_logs() {
             var defer = $.Deferred().resolve();
 
             if ( checkOSVersion( 211 ) ) {
-                defer = send_to_os( "/jl?pw=&type=wl&" + parms(), "json" );
+                defer = sendToOS( "/jl?pw=&type=wl&" + parms(), "json" );
             }
 
             setTimeout( function() {
                 $.when(
-                    send_to_os( "/jl?pw=&" + parms(), "json" ),
+                    sendToOS( "/jl?pw=&" + parms(), "json" ),
                     defer
                 ).then( success, fail );
             }, delay );
@@ -5749,7 +5802,7 @@ function get_logs() {
         areYouSure( _( "Are you sure you want to clear ALL your log data?" ), "", function() {
             var url = isOSPi() ? "/cl?pw=" : "/dl?pw=&day=all";
             $.mobile.loading( "show" );
-            send_to_os( url ).done( function() {
+            sendToOS( url ).done( function() {
                 requestData();
                 showerror( _( "Logs have been cleared" ) );
             } );
@@ -5802,7 +5855,7 @@ function get_logs() {
 }
 
 // Program management functions
-function get_programs( pid ) {
+function getPrograms( pid ) {
     var page = $( "<div data-role='page' id='programs'>" +
             "<div class='ui-content' role='main' id='programs_list'>" +
                 make_all_programs() +
@@ -5840,8 +5893,8 @@ function get_programs( pid ) {
 
             $.mobile.loading( "show" );
 
-            send_to_os( "/up?pw=&pid=" + pid ).done( function() {
-                update_controller_programs( function() {
+            sendToOS( "/up?pw=&pid=" + pid ).done( function() {
+                updateControllerPrograms( function() {
                     $.mobile.loading( "hide" );
                     changePage( "#programs", {
                         updatePrograms:true,
@@ -6537,7 +6590,7 @@ function make_program21( n, isCopy ) {
     return page;
 }
 
-function add_program( copyID ) {
+function addProgram( copyID ) {
     copyID = ( copyID >= 0 ) ? copyID : "new";
 
     var page = $( "<div data-role='page' id='addprogram'>" +
@@ -6589,9 +6642,9 @@ function add_program( copyID ) {
 function delete_program( id ) {
     areYouSure( _( "Are you sure you want to delete program" ) + " " + ( parseInt( id ) + 1 ) + "?", "", function() {
         $.mobile.loading( "show" );
-        send_to_os( "/dp?pw=&pid=" + id ).done( function() {
+        sendToOS( "/dp?pw=&pid=" + id ).done( function() {
             $.mobile.loading( "hide" );
-            update_controller_programs( function() {
+            updateControllerPrograms( function() {
                 changePage( "#programs", {
                     updatePrograms: true,
                     showLoadMsg:false
@@ -6667,9 +6720,9 @@ function submit_program183( id ) {
     if ( station_selected === 0 ) {showerror( _( "Error: You have not selected any stations." ) );return;}
     $.mobile.loading( "show" );
     if ( id === "new" ) {
-        send_to_os( "/cp?pw=&pid=-1&v=" + program ).done( function() {
+        sendToOS( "/cp?pw=&pid=-1&v=" + program ).done( function() {
             $.mobile.loading( "hide" );
-            update_controller_programs( function() {
+            updateControllerPrograms( function() {
                 $.mobile.document.one( "pageshow", function() {
                     showerror( _( "Program added successfully" ) );
                 } );
@@ -6677,9 +6730,9 @@ function submit_program183( id ) {
             } );
         } );
     } else {
-        send_to_os( "/cp?pw=&pid=" + id + "&v=" + program ).done( function() {
+        sendToOS( "/cp?pw=&pid=" + id + "&v=" + program ).done( function() {
             $.mobile.loading( "hide" );
-            update_controller_programs( function() {
+            updateControllerPrograms( function() {
                 update_program_header();
             } );
             showerror( _( "Program has been updated" ) );
@@ -6789,9 +6842,9 @@ function submit_program21( id, ignoreWarning ) {
 
     $.mobile.loading( "show" );
     if ( id === "new" ) {
-        send_to_os( "/cp?pw=&pid=-1" + url ).done( function() {
+        sendToOS( "/cp?pw=&pid=-1" + url ).done( function() {
             $.mobile.loading( "hide" );
-            update_controller_programs( function() {
+            updateControllerPrograms( function() {
                 $.mobile.document.one( "pageshow", function() {
                     showerror( _( "Program added successfully" ) );
                 } );
@@ -6799,9 +6852,9 @@ function submit_program21( id, ignoreWarning ) {
             } );
         } );
     } else {
-        send_to_os( "/cp?pw=&pid=" + id + url ).done( function() {
+        sendToOS( "/cp?pw=&pid=" + id + url ).done( function() {
             $.mobile.loading( "hide" );
-            update_controller_programs( function() {
+            updateControllerPrograms( function() {
                 update_program_header();
                 $( "#program-" + id ).find( ".program-name" ).text( name );
             } );
@@ -6812,10 +6865,10 @@ function submit_program21( id, ignoreWarning ) {
 
 function raindelay( delay ) {
     $.mobile.loading( "show" );
-    send_to_os( "/cv?pw=&rd=" + ( delay / 3600 ) ).done( function() {
+    sendToOS( "/cv?pw=&rd=" + ( delay / 3600 ) ).done( function() {
         $.mobile.loading( "hide" );
         showLoading( "#footer-running" );
-        refresh_status();
+        refreshStatus();
         showerror( _( "Rain delay has been successfully set" ) );
     } );
     return false;
@@ -7071,9 +7124,9 @@ function import_config( data ) {
         }
 
         $.when(
-            send_to_os( co ),
-            send_to_os( cs ),
-            send_to_os( "/dp?pw=&pid=-1" ),
+            sendToOS( co ),
+            sendToOS( cs ),
+            sendToOS( "/dp?pw=&pid=-1" ),
             $.each( data.programs.pd, function( i, prog ) {
                 var name = "";
 
@@ -7151,20 +7204,20 @@ function import_config( data ) {
                     name = "&name=" + _( "Program" ) + " " + ( i + 1 );
                 }
 
-                send_to_os( cp_start + "&pid=-1&v=" + JSON.stringify( prog ) + name );
+                sendToOS( cp_start + "&pid=-1&v=" + JSON.stringify( prog ) + name );
             } )
         ).then(
             function() {
-                update_controller(
+                updateController(
                     function() {
                         $.mobile.loading( "hide" );
                         showerror( _( "Backup restored to your device" ) );
-                        update_weather();
+                        updateWeather();
                         goHome( true );
                     },
                     function() {
                         $.mobile.loading( "hide" );
-                        network_fail();
+                        networkFail();
                     }
                 );
             },
@@ -7177,7 +7230,7 @@ function import_config( data ) {
 }
 
 // About page
-function show_about() {
+function showAbout() {
     var page = $( "<div data-role='page' id='about'>" +
             "<div class='ui-content' role='main'>" +
                 "<ul data-role='listview' data-inset='true'>" +
@@ -7233,7 +7286,7 @@ function stopStations( callback ) {
     $.mobile.loading( "show" );
 
     // It can take up to a second before stations actually stop
-    send_to_os( "/cv?pw=&rsn=1" ).done( function() {
+    sendToOS( "/cv?pw=&rsn=1" ).done( function() {
         setTimeout( function() {
             $.mobile.loading( "hide" );
             callback();
@@ -7252,7 +7305,7 @@ function isOSPi() {
 // Check if password is valid
 function checkPW( pass, callback ) {
     $.ajax( {
-        url: curr_prefix + curr_ip + "/sp?pw=" + encodeURIComponent( pass ) + "&npw=" + encodeURIComponent( pass ) + "&cpw=" + encodeURIComponent( pass ),
+        url: currPrefix + currIp + "/sp?pw=" + encodeURIComponent( pass ) + "&npw=" + encodeURIComponent( pass ) + "&cpw=" + encodeURIComponent( pass ),
         cache: false,
         crossDomain: true,
         type: "GET"
@@ -7313,7 +7366,7 @@ function changePassword( opt ) {
             storage.get( [ "sites" ], function( data ) {
                 var sites = JSON.parse( data.sites ),
                     success = function( pass ) {
-                        curr_pw = pass;
+                        currPass = pass;
                         sites[opt.name].os_pw = popup.find( "#save_pw" ).is( ":checked" ) ? pass : "";
                         storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
                         popup.popup( "close" );
@@ -7352,7 +7405,7 @@ function changePassword( opt ) {
         }
 
         $.mobile.loading( "show" );
-        send_to_os( "/sp?pw=&npw=" + encodeURIComponent( npw ) + "&cpw=" + encodeURIComponent( cpw ), "json" ).done( function( info ) {
+        sendToOS( "/sp?pw=&npw=" + encodeURIComponent( npw ) + "&cpw=" + encodeURIComponent( cpw ), "json" ).done( function( info ) {
             var result = info.result;
 
             if ( !result || result > 1 ) {
@@ -7366,7 +7419,7 @@ function changePassword( opt ) {
                     var sites = JSON.parse( data.sites );
 
                     sites[data.current_site].os_pw = npw;
-                    curr_pw = npw;
+                    currPass = npw;
                     storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
                 } );
                 $.mobile.loading( "hide" );
@@ -7396,12 +7449,12 @@ function changePassword( opt ) {
 
             if ( !isMD5( sites[current].os_pw ) ) {
                 $.ajax( {
-                    url: curr_prefix + curr_ip + "/jc?pw=" + pw,
+                    url: currPrefix + currIp + "/jc?pw=" + pw,
                     type: "GET",
                     dataType: "json"
                 } ).then(
                     function() {
-                        sites[current].os_pw = curr_pw = pw;
+                        sites[current].os_pw = currPass = pw;
                         storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
                         opt.callback();
                     },
@@ -7673,7 +7726,7 @@ function cloudSync( callback ) {
         cloudGetSites( function( data ) {
             if ( data !== false ) {
                 storage.set( { "sites":JSON.stringify( data ) }, function() {
-                    update_site_list( Object.keys( data ), local.current_site );
+                    updateSiteList( Object.keys( data ), local.current_site );
                     callback();
 
                     if ( $( ".ui-page-active" ).attr( "id" ) === "site-control" ) {
@@ -7760,11 +7813,11 @@ function checkWeatherPlugin() {
     var weather_settings = $( ".weather_settings" ),
         weather_provider = $( ".show-providers" );
 
-    curr_wa = [];
+    currPiWeather = [];
     weather_settings.hide();
     if ( isOSPi() ) {
         storage.get( "provider", function( data ) {
-            send_to_os( "/wj?pw=", "json" ).done( function( results ) {
+            sendToOS( "/wj?pw=", "json" ).done( function( results ) {
                 var provider = results.weather_provider;
 
                 // Check if the OSPi has valid weather provider data
@@ -7776,7 +7829,7 @@ function checkWeatherPlugin() {
                         } );
 
                         // Update the weather based on this information
-                        update_weather();
+                        updateWeather();
                     }
 
                     // Hide the weather provider option when the OSPi provides it
@@ -7784,7 +7837,7 @@ function checkWeatherPlugin() {
                 }
 
                 if ( typeof results.auto_delay === "string" ) {
-                    curr_wa = results;
+                    currPiWeather = results;
                     weather_settings.css( "display", "" );
                 }
             } );
@@ -7813,16 +7866,16 @@ function checkPublicAccess( eip ) {
     }
 
     var ip = intToIP( eip ),
-        port = curr_ip.match( /.*:(\d+)/ );
+        port = currIp.match( /.*:(\d+)/ );
 
-    if ( ip === curr_ip || isLocalIP( ip ) || !isLocalIP( curr_ip ) ) {
+    if ( ip === currIp || isLocalIP( ip ) || !isLocalIP( currIp ) ) {
         return;
     }
 
     port = ( port ? parseInt( port[1] ) : 80 );
 
     $.ajax( {
-        url: curr_prefix + ip + ":" + port + "/jo?pw=" + curr_pw,
+        url: currPrefix + ip + ":" + port + "/jo?pw=" + currPass,
         global: false,
         dataType: "json",
         type: "GET"
@@ -7879,7 +7932,7 @@ function logout( success ) {
     }
 
     areYouSure( _( "Are you sure you want to logout?" ), "", function() {
-        if ( curr_local ) {
+        if ( currLocal ) {
             storage.remove( [ "sites", "current_site", "lang", "provider", "wapikey", "runonce" ], function() {
                 location.reload();
             } );
@@ -9410,10 +9463,10 @@ function set_lang() {
     } );
     $( ".ui-toolbar-back-btn" ).text( _( "Back" ) );
 
-    check_curr_lang();
+    checkCurrLang();
 }
 
-function update_lang( lang ) {
+function updateLang( lang ) {
     var prefix = "";
 
     //Empty out the current language (English is provided as the key)
@@ -9425,7 +9478,7 @@ function update_lang( lang ) {
             //Identify the current browser's locale
             var locale = data.lang || navigator.language || navigator.browserLanguage || navigator.systemLanguage || navigator.userLanguage || "en";
 
-            update_lang( locale.substring( 0, 2 ) );
+            updateLang( locale.substring( 0, 2 ) );
         } );
         return;
     }
@@ -9438,7 +9491,7 @@ function update_lang( lang ) {
         return;
     }
 
-    if ( curr_local ) {
+    if ( currLocal ) {
         prefix = $.mobile.path.parseUrl( $( "head" ).find( "script" ).eq( 0 ).attr( "src" ) ).hrefNoHash.slice( 0, -10 );
     }
 
@@ -9470,13 +9523,13 @@ function languageSelect() {
         var link = $( this ),
             lang = link.data( "lang-code" );
 
-        update_lang( lang );
+        updateLang( lang );
     } );
 
     openPopup( popup );
 }
 
-function check_curr_lang() {
+function checkCurrLang() {
     storage.get( "lang", function( data ) {
         var popup = $( "#localization" );
 
@@ -9519,24 +9572,29 @@ function minutesToTime( minutes ) {
 }
 
 function dateToString( date, toUTC, shorten ) {
-    var dayNames = [ _( "Sun" ), _( "Mon" ), _( "Tue" ), _( "Wed" ), _( "Thr" ), _( "Fri" ), _( "Sat" ) ],
-        monthNames = [ _( "Jan" ), _( "Feb" ), _( "Mar" ), _( "Apr" ), _( "May" ), _( "Jun" ), _( "Jul" ), _( "Aug" ), _( "Sep" ), _( "Oct" ), _( "Nov" ), _( "Dec" ) ];
+    var dayNames = [ _( "Sun" ), _( "Mon" ), _( "Tue" ),
+					_( "Wed" ), _( "Thr" ), _( "Fri" ), _( "Sat" ) ],
+        monthNames = [ _( "Jan" ), _( "Feb" ), _( "Mar" ), _( "Apr" ), _( "May" ), _( "Jun" ),
+					_( "Jul" ), _( "Aug" ), _( "Sep" ), _( "Oct" ), _( "Nov" ), _( "Dec" ) ];
 
     if ( toUTC !== false ) {
         date.setMinutes( date.getMinutes() + date.getTimezoneOffset() );
     }
 
     if ( currLang === "de" ) {
-        if ( shorten ) {
-            return pad( date.getDate() ) + "." + pad( date.getMonth() + 1 ) + "." + date.getFullYear() + " " + pad( date.getHours() ) + ":" + pad( date.getMinutes() ) + ":" + pad( date.getSeconds() );
-        } else {
-            return pad( date.getDate() ) + "." + pad( date.getMonth() + 1 ) + "." + date.getFullYear() + " " + pad( date.getHours() ) + ":" + pad( date.getMinutes() ) + ":" + pad( date.getSeconds() );
-        }
+        return pad( date.getDate() ) + "." + pad( date.getMonth() + 1 ) + "." +
+				date.getFullYear() + " " + pad( date.getHours() ) + ":" +
+				pad( date.getMinutes() ) + ":" + pad( date.getSeconds() );
     } else {
         if ( shorten ) {
-            return monthNames[date.getMonth()] + " " + pad( date.getDate() ) + ", " + date.getFullYear() + " " + pad( date.getHours() ) + ":" + pad( date.getMinutes() ) + ":" + pad( date.getSeconds() );
+            return monthNames[date.getMonth()] + " " + pad( date.getDate() ) + ", " +
+					date.getFullYear() + " " + pad( date.getHours() ) + ":" +
+					pad( date.getMinutes() ) + ":" + pad( date.getSeconds() );
         } else {
-            return dayNames[date.getDay()] + ", " + pad( date.getDate() ) + " " + monthNames[date.getMonth()] + " " + date.getFullYear() + " " + pad( date.getHours() ) + ":" + pad( date.getMinutes() ) + ":" + pad( date.getSeconds() );
+            return dayNames[date.getDay()] + ", " + pad( date.getDate() ) + " " +
+					monthNames[date.getMonth()] + " " + date.getFullYear() + " " +
+					pad( date.getHours() ) + ":" + pad( date.getMinutes() ) + ":" +
+					pad( date.getSeconds() );
         }
     }
 }
