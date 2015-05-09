@@ -1029,11 +1029,7 @@ function checkConfigured( firstLoad ) {
             current = data.current_site,
             names;
 
-        try {
-            sites = JSON.parse( sites ) || {};
-        } catch ( e ) {
-            sites = {};
-        }
+        sites = parseSites( sites );
 
         names = Object.keys( sites );
 
@@ -1354,21 +1350,32 @@ function showAddNew( autoIP, closeOld ) {
             "</div>" +
             "<div class='ui-content' id='addnew-content'>" +
                 "<form method='post' novalidate>" +
-                    ( ( isAuto ) ? "" : "<p class='center smaller'>" + _( "Note: The name is used to identify the OpenSprinkler within the app. OpenSprinkler IP can be either an IP or hostname. You can also specify a port by using IP:Port" ) + "</p>" ) +
+                    ( isAuto ? "" : "<p class='center smaller'>" + _( "Note: The name is used to identify the OpenSprinkler within the app. OpenSprinkler IP can be either an IP or hostname. You can also specify a port by using IP:Port" ) + "</p>" ) +
                     "<label for='os_name'>" + _( "Open Sprinkler Name:" ) + "</label>" +
-                    "<input autocorrect='off' spellcheck='false' type='text' name='os_name' id='os_name' placeholder='Home'>" +
-                    ( ( isAuto ) ? "" : "<label for='os_ip'>" + _( "Open Sprinkler IP:" ) + "</label>" ) +
-                    "<input " + ( ( isAuto ) ? "data-role='none' style='display:none' " : "" ) + "autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' type='url' pattern='' name='os_ip' id='os_ip' value='" + ( ( isAuto ) ? autoIP : "" ) + "' placeholder='home.dyndns.org'>" +
+                    "<input autocorrect='off' spellcheck='false' type='text' name='os_name' " +
+						"id='os_name' placeholder='Home'>" +
+                    ( isAuto ? "" :
+						"<label for='os_ip'>" + _( "Open Sprinkler IP:" ) + "</label>" ) +
+                    "<input " + ( isAuto ? "data-role='none' style='display:none' " : "" ) +
+						"autocomplete='off' autocorrect='off' autocapitalize='off' " +
+						"spellcheck='false' type='url' pattern='' name='os_ip' id='os_ip' " +
+						"value='" + ( isAuto ? autoIP : "" ) + "' placeholder='home.dyndns.org'>" +
                     "<label for='os_pw'>" + _( "Open Sprinkler Password:" ) + "</label>" +
                     "<input type='password' name='os_pw' id='os_pw' value=''>" +
                     "<label for='save_pw'>" + _( "Save Password" ) + "</label>" +
-                    "<input type='checkbox' data-wrapper-class='save_pw' name='save_pw' id='save_pw' data-mini='true' checked='checked'>" +
-                    ( ( isAuto ) ? "" : "<div data-theme='a' data-mini='true' data-role='collapsible'><h4>" + _( "Advanced" ) + "</h4><fieldset data-role='controlgroup' data-type='horizontal' data-mini='true' class='center'>" +
-                        "<input type='checkbox' name='os_usessl' id='os_usessl'>" +
-                        "<label for='os_usessl'>" + _( "Use SSL" ) + "</label>" +
-                        "<input type='checkbox' name='os_useauth' id='os_useauth'>" +
-                        "<label for='os_useauth'>" + _( "Use Auth" ) + "</label>" +
-                    "</fieldset></div>" ) +
+                    "<input type='checkbox' data-wrapper-class='save_pw' name='save_pw' " +
+						"id='save_pw' data-mini='true' checked='checked'>" +
+                    ( isAuto ? "" :
+						"<div data-theme='a' data-mini='true' data-role='collapsible'>" +
+							"<h4>" + _( "Advanced" ) + "</h4>" +
+							"<fieldset data-role='controlgroup' data-type='horizontal' " +
+								"data-mini='true' class='center'>" +
+							"<input type='checkbox' name='os_usessl' id='os_usessl'>" +
+							"<label for='os_usessl'>" + _( "Use SSL" ) + "</label>" +
+							"<input type='checkbox' name='os_useauth' id='os_useauth'>" +
+							"<label for='os_useauth'>" + _( "Use Auth" ) + "</label>" +
+							"</fieldset>" +
+						"</div>" ) +
                     "<input type='submit' data-theme='b' value='" + _( "Submit" ) + "'>" +
                 "</form>" +
             "</div>" +
@@ -1417,8 +1424,12 @@ function showSites( showBack ) {
             "</div>" +
             "<div data-role='popup' id='addsite' data-theme='b'>" +
                 "<ul data-role='listview'>" +
-                    "<li data-icon='false'><a href='#' id='site-add-scan'>" + _( "Scan For Device" ) + "</a></li>" +
-                    "<li data-icon='false'><a href='#' id='site-add-manual'>" + _( "Manually Add Device" ) + "</a></li>" +
+                    "<li data-icon='false'>" +
+						"<a href='#' id='site-add-scan'>" + _( "Scan For Device" ) + "</a>" +
+                    "</li>" +
+                    "<li data-icon='false'>" +
+						"<a href='#' id='site-add-manual'>" + _( "Manually Add Device" ) + "</a>" +
+                    "</li>" +
                 "</ul>" +
             "</div>" +
         "</div>" ),
@@ -1483,7 +1494,9 @@ function showSites( showBack ) {
     } );
 
     storage.get( [ "sites", "current_site", "cloudToken" ], function( data ) {
-        if ( data.sites === undefined || data.sites === null || $.isEmptyObject( JSON.parse( data.sites ) ) ) {
+		sites = parseSites( data.sites );
+
+        if ( $.isEmptyObject( sites ) ) {
             if ( typeof data.cloudToken !== "string" ) {
                 changePage( "#start", {
                     showStart: true
@@ -1492,14 +1505,15 @@ function showSites( showBack ) {
                 return;
             } else {
                 makeStart();
-                page.find( ".ui-content" ).html( "<p class='center'>" + _( "Please add a site by tapping the 'Add' button in the top right corner." ) + "</p>" );
+                page.find( ".ui-content" ).html( "<p class='center'>" +
+					_( "Please add a site by tapping the 'Add' button in the top right corner." ) +
+				"</p>" );
             }
         } else {
             var list = "<div data-role='collapsible-set'>",
                 siteNames = [],
                 i = 0;
 
-            sites = JSON.parse( data.sites );
             total = Object.keys( sites ).length;
 
             if ( !total || showBack === false || !( data.current_site in sites ) ) {
@@ -1542,7 +1556,9 @@ function showSites( showBack ) {
                 "</fieldset>";
 
                 testSite( b, i, function( id, result ) {
-                    page.find( "#site-" + id + " .connectnow" ).removeClass( "yellow" ).addClass( result ? "green" : "red" );
+                    page.find( "#site-" + id + " .connectnow" )
+						.removeClass( "yellow" )
+						.addClass( result ? "green" : "red" );
                 } );
 
                 i++;
@@ -1568,7 +1584,8 @@ function showSites( showBack ) {
                     var popup = $( "<div data-role='popup' data-theme='a'>" +
                         "<form method='post' class='ui-content' novalidate>" +
                             "<label for='auth_user'>" + _( "Username:" ) + "</label>" +
-                            "<input autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' type='text' name='auth_user' id='auth_user'>" +
+                            "<input autocomplete='off' autocorrect='off' autocapitalize='off' " +
+								"spellcheck='false' type='text' name='auth_user' id='auth_user'>" +
                             "<label for='auth_pw'>" + _( "Password:" ) + "</label>" +
                             "<input type='password' name='auth_pw' id='auth_pw'>" +
                             "<input type='submit' class='submit' value='" + _( "Submit" ) + "'>" +
@@ -1611,17 +1628,20 @@ function showSites( showBack ) {
                     nm = list.find( "#cnm-" + id ).val(),
                     useauth = list.find( "#useauth-" + id ).is( ":checked" ),
                     usessl = list.find( "#usessl-" + id ).is( ":checked" ) ? "1" : undefined,
-                    auth_user = list.find( "#useauth-" + id ).data( "user" ),
-                    auth_pw = list.find( "#useauth-" + id ).data( "pw" ),
-                    needsReconnect = ( ip !== "" && ip !== sites[site].os_ip ) || usessl !== sites[site].ssl || auth_user !== sites[site].auth_user || auth_pw !== sites[site].auth_pw,
+                    authUser = list.find( "#useauth-" + id ).data( "user" ),
+                    authPass = list.find( "#useauth-" + id ).data( "pw" ),
+                    needsReconnect = ( ip !== "" && ip !== sites[site].os_ip ) ||
+										usessl !== sites[site].ssl ||
+										authUser !== sites[site].auth_user ||
+										authPass !== sites[site].auth_pw,
                     isCurrent = ( site === data.current_site ),
                     rename = ( nm !== "" && nm !== site );
 
                 form.find( ".submit" ).removeClass( "hasChanges" );
 
                 if ( useauth ) {
-                    sites[site].auth_user = auth_user;
-                    sites[site].auth_pw = auth_pw;
+                    sites[site].auth_user = authUser;
+                    sites[site].auth_pw = authPass;
                 } else {
                     delete sites[site].auth_user;
                     delete sites[site].auth_pw;
@@ -1680,7 +1700,8 @@ function showSites( showBack ) {
                 storage.set( { "sites":JSON.stringify( sites ) }, function() {
                     cloudSaveSites();
                     updateSiteList( Object.keys( sites ), data.current_site );
-                    if ( $.isEmptyObject( sites ) && ( data.cloudToken === null || data.cloudToken === undefined ) ) {
+                    if ( $.isEmptyObject( sites ) &&
+						( data.cloudToken === null || data.cloudToken === undefined ) ) {
                         changePage( "#start", {
                             showStart: true
                         } );
@@ -1766,7 +1787,7 @@ function updateSiteList( names, current ) {
 // Change the current site
 function updateSite( newsite ) {
     storage.get( "sites", function( data ) {
-        var sites = ( data.sites === undefined || data.sites === null ) ? {} : JSON.parse( data.sites );
+        var sites = parseSites( data.sites );
         if ( newsite in sites ) {
             closePanel( function() {
                 storage.set( { "current_site":newsite }, checkConfigured );
@@ -1822,7 +1843,7 @@ function checkAutoScan() {
                 finishCheck();
             } );
         } catch ( err ) {
-            find_router( function( status, data ) {
+            findRouter( function( status, data ) {
                 if ( status === false ) {
                     resetStartMenu();
                     return;
@@ -1869,13 +1890,13 @@ function startScan( port, type ) {
         suffix = "",
         oldips = [],
         isCanceled = false,
-        i, url, notfound, found, baseip, check_scan_status, scanning, dtype, text;
+        i, url, notfound, found, baseip, checkScanStatus, scanning, dtype, text;
 
     type = type || 0;
     port = ( typeof port === "number" ) ? port : 80;
 
     storage.get( "sites", function( data ) {
-        var oldsites = ( data.sites === undefined || data.sites === null ) ? {} : JSON.parse( data.sites ),
+        var oldsites = parseSites( data.sites ),
             i;
 
         for ( i in oldsites ) {
@@ -1917,7 +1938,7 @@ function startScan( port, type ) {
     };
 
     // Check if scanning is complete
-    check_scan_status = function() {
+    checkScanStatus = function() {
         if ( isCanceled === true ) {
             $.mobile.loading( "hide" );
             clearInterval( scanning );
@@ -1944,7 +1965,7 @@ function startScan( port, type ) {
                 newlist = $( newlist );
 
                 newlist.find( "a" ).on( "click", function() {
-                    add_found( $( this ).data( "ip" ) );
+                    addFound( $( this ).data( "ip" ) );
                     return false;
                 } );
 
@@ -1996,10 +2017,10 @@ function startScan( port, type ) {
             success: found
         } );
     }
-    scanning = setInterval( check_scan_status, 200 );
+    scanning = setInterval( checkScanStatus, 200 );
 }
 
-function find_router( callback ) {
+function findRouter( callback ) {
     callback = callback || function() {};
 
     var routerIPs = [ "192.168.1.1", "10.0.1.1", "192.168.1.220", "192.168.2.1", "10.1.1.1", "192.168.11.1", "192.168.0.1", "192.168.0.30", "192.168.0.50", "192.168.10.1", "192.168.20.1", "192.168.30.1", "192.168.62.1", "192.168.102.1", "192.168.1.254", "192.168.0.227", "10.0.0.138", "192.168.123.254", "192.168.4.1", "10.0.0.2", "10.0.2.1", "10.0.3.1", "10.0.4.1", "10.0.5.1" ],
@@ -2012,7 +2033,7 @@ function find_router( callback ) {
                 routerFound = ip;
             }
         },
-        check_scan_status = function() {
+        checkScanStatus = function() {
             if ( isCanceled === true ) {
                 $.mobile.loading( "hide" );
                 clearInterval( scanning );
@@ -2040,7 +2061,7 @@ function find_router( callback ) {
             ping( routerIPs[i], reply );
         }
     }
-    scanning = setInterval( check_scan_status, 50 );
+    scanning = setInterval( checkScanStatus, 50 );
 }
 
 function ping( ip, callback ) {
@@ -2070,7 +2091,7 @@ function ping( ip, callback ) {
 }
 
 // Show popup for new device after populating device IP with selected result
-function add_found( ip ) {
+function addFound( ip ) {
     $( "#site-select" ).one( "popupafterclose", function() {
         showAddNew( ip );
     } ).popup( "close" );
@@ -2106,7 +2127,7 @@ function showWeatherSettings() {
             "<a class='wsubmit' href='#' data-role='button' data-theme='b' type='submit'>" + _( "Submit" ) + "</a>" +
         "</div>" +
     "</div>" ),
-    submit_weather_settings = function() {
+    submitWeatherSettings = function() {
         var url = "/uwa?auto_delay=" + ( $( "#auto_delay" ).is( ":checked" ) ? "on" : "off" ) + "&delay_duration=" + parseInt( $( "#delay_duration" ).val() / 3600 ) + "&weather_provider=" + $( "#weather_provider" ).val() + "&wapikey=" + $( "#wapikey" ).val();
 
         $.mobile.loading( "show" );
@@ -2139,7 +2160,7 @@ function showWeatherSettings() {
         }
     } );
 
-    page.find( ".wsubmit" ).on( "click", submit_weather_settings );
+    page.find( ".wsubmit" ).on( "click", submitWeatherSettings );
 
     page.find( "#delay_duration" ).on( "click", function() {
         var dur = $( this ),
@@ -2179,7 +2200,7 @@ function showWeatherSettings() {
         rightBtn: {
             icon: "check",
             text: _( "Submit" ),
-            on: submit_weather_settings
+            on: submitWeatherSettings
         }
     } );
 
@@ -2187,7 +2208,7 @@ function showWeatherSettings() {
     $.mobile.pageContainer.append( page );
 }
 
-function convert_temp( temp, region ) {
+function convertTemp( temp, region ) {
     if ( region === "United States" || region === "Bermuda" || region === "Palau" ) {
         temp = temp + "&#176;F";
     } else {
@@ -2196,33 +2217,33 @@ function convert_temp( temp, region ) {
     return temp;
 }
 
-function hide_weather() {
+function hideWeather() {
     $( "#weather" ).empty().parents( ".info-card" ).addClass( "noweather" );
 }
 
 function updateWeather() {
     if ( typeof controller.settings.wtkey !== "undefined" && controller.settings.wtkey !== "" ) {
-        update_wunderground_weather( controller.settings.wtkey );
+        updateWundergroundWeather( controller.settings.wtkey );
         return;
     }
 
     storage.get( [ "provider", "wapikey" ], function( data ) {
         if ( controller.settings.loc === "" ) {
-            hide_weather();
+            hideWeather();
             return;
         }
 
         showLoading( "#weather" );
 
         if ( data.provider === "wunderground" && data.wapikey ) {
-            update_wunderground_weather( data.wapikey );
+            updateWundergroundWeather( data.wapikey );
         } else {
-            update_yahoo_weather();
+            updateYahooWeather();
         }
     } );
 }
 
-function update_yahoo_weather() {
+function updateYahooWeather() {
     $.ajax( {
         url: "https://query.yahooapis.com/v1/public/yql?q=select%20woeid%20from%20geo.placefinder%20where%20text=%22" + encodeURIComponent( controller.settings.loc ) + "%22&format=json",
         dataType: isChromeApp ? "json" : "jsonp",
@@ -2230,7 +2251,7 @@ function update_yahoo_weather() {
         shouldRetry: retryCount,
         success: function( woeid ) {
             if ( woeid.query.results === null ) {
-                hide_weather();
+                hideWeather();
                 return;
             }
 
@@ -2251,7 +2272,7 @@ function update_yahoo_weather() {
 
                     // Hide the weather if no data is returned
                     if ( data.query.results.channel.item.title === "City not found" ) {
-                        hide_weather();
+                        hideWeather();
                         return;
                     }
                     var now = data.query.results.channel.item.condition,
@@ -2264,7 +2285,7 @@ function update_yahoo_weather() {
                     weather = {
                         title: now.text,
                         code: now.code,
-                        temp: convert_temp( now.temp, region ),
+                        temp: convertTemp( now.temp, region ),
                         location: loc[1],
                         forecast: data.query.results.channel.item.forecast,
                         region: region,
@@ -2290,7 +2311,7 @@ function updateWeatherBox() {
         .parents( ".info-card" ).removeClass( "noweather" );
 }
 
-function update_wunderground_weather( wapikey ) {
+function updateWundergroundWeather( wapikey ) {
     $.ajax( {
         url: "https://api.wunderground.com/api/" + wapikey + "/conditions/forecast/lang:EN/q/" + encodeURIComponent( controller.settings.loc ) + ".json",
         dataType: isChromeApp ? "json" : "jsonp",
@@ -2301,7 +2322,7 @@ function update_wunderground_weather( wapikey ) {
 
             if ( typeof data.response.error === "object" && data.response.error.type === "keynotfound" ) {
                 weatherKeyFail = true;
-                update_yahoo_weather();
+                updateYahooWeather();
                 return;
             } else {
                 weatherKeyFail = false;
@@ -2313,7 +2334,7 @@ function update_wunderground_weather( wapikey ) {
                 code = data.current_observation.icon;
             }
 
-            var ww_forecast = {
+            var wwForecast = {
                 "condition": {
                     "text": data.current_observation.weather,
                     "code": code,
@@ -2331,27 +2352,27 @@ function update_wunderground_weather( wapikey ) {
             currentCoordinates = [ data.current_observation.observation_location.latitude, data.current_observation.observation_location.longitude ];
 
             $.each( data.forecast.simpleforecast.forecastday, function( k, attr ) {
-                 ww_forecast.simpleforecast[k] = attr;
+                 wwForecast.simpleforecast[k] = attr;
             } );
 
-            if ( ww_forecast.region === "US" || ww_forecast.region === "BM" || ww_forecast.region === "PW" ) {
-                temp = Math.round( ww_forecast.condition.temp_f ) + "&#176;F";
+            if ( wwForecast.region === "US" || wwForecast.region === "BM" || wwForecast.region === "PW" ) {
+                temp = Math.round( wwForecast.condition.temp_f ) + "&#176;F";
             } else {
-                temp = ww_forecast.condition.temp_c + "&#176;C";
+                temp = wwForecast.condition.temp_c + "&#176;C";
             }
 
             weather = {
-                title: ww_forecast.condition.text,
+                title: wwForecast.condition.text,
                 code: code,
                 temp: temp,
-                forecast: ww_forecast,
+                forecast: wwForecast,
                 source: "wunderground"
             };
 
             coordsToLocation( currentCoordinates[0], currentCoordinates[1], function( result ) {
                 weather.location = result;
                 updateWeatherBox();
-            }, ww_forecast.location );
+            }, wwForecast.location );
 
             $.mobile.document.trigger( "weatherUpdateComplete" );
         }
@@ -2438,7 +2459,7 @@ function showForecast() {
     var page = $( "<div data-role='page' id='forecast'>" +
             "<div class='ui-content' role='main'>" +
                 "<ul data-role='listview' data-inset='true'>" +
-                    ( weather.source === "wunderground" ? make_wunderground_forecast() : make_yahoo_forecast() ) +
+                    ( weather.source === "wunderground" ? makeWundergroundForecast() : makeYahooForecast() ) +
                 "</ul>" +
             "</div>" +
         "</div>" );
@@ -2472,7 +2493,7 @@ function showForecast() {
     $.mobile.pageContainer.append( page );
 }
 
-function make_wunderground_forecast() {
+function makeWundergroundForecast() {
     var temp, precip;
 
     if ( weather.forecast.region === "US" || weather.forecast.region === "BM" || weather.forecast.region === "PW" ) {
@@ -2513,7 +2534,7 @@ function make_wunderground_forecast() {
     return list;
 }
 
-function make_yahoo_forecast() {
+function makeYahooForecast() {
     var list = "<li data-role='list-divider' data-theme='a' class='center'>" + weather.location + "</li>",
         sunrise = controller.settings.sunrise ? controller.settings.sunrise : getSunTimes()[0],
         sunset = controller.settings.sunset ? controller.settings.sunset : getSunTimes()[1],
@@ -2527,7 +2548,7 @@ function make_yahoo_forecast() {
         sunrise = times[0];
         sunset = times[1];
 
-        list += "<li data-icon='false' class='center'><div>" + weather.forecast[i].date + "</div><br><div title='" + weather.forecast[i].text + "' class='wicon cond" + weather.forecast[i].code + "'></div><span>" + _( weather.forecast[i].day ) + "</span><br><span>" + _( "Low" ) + "</span><span>: " + convert_temp( weather.forecast[i].low, weather.region ) + "  </span><span>" + _( "High" ) + "</span><span>: " + convert_temp( weather.forecast[i].high, weather.region ) + "</span><br><span>" + _( "Sunrise" ) + "</span><span>: " + pad( parseInt( sunrise / 60 ) % 24 ) + ":" + pad( sunrise % 60 ) + "</span> <span>" + _( "Sunset" ) + "</span><span>: " + pad( parseInt( sunset / 60 ) % 24 ) + ":" + pad( sunset % 60 ) + "</span></li>";
+        list += "<li data-icon='false' class='center'><div>" + weather.forecast[i].date + "</div><br><div title='" + weather.forecast[i].text + "' class='wicon cond" + weather.forecast[i].code + "'></div><span>" + _( weather.forecast[i].day ) + "</span><br><span>" + _( "Low" ) + "</span><span>: " + convertTemp( weather.forecast[i].low, weather.region ) + "  </span><span>" + _( "High" ) + "</span><span>: " + convertTemp( weather.forecast[i].high, weather.region ) + "</span><br><span>" + _( "Sunrise" ) + "</span><span>: " + pad( parseInt( sunrise / 60 ) % 24 ) + ":" + pad( sunrise % 60 ) + "</span> <span>" + _( "Sunset" ) + "</span><span>: " + pad( parseInt( sunset / 60 ) % 24 ) + ":" + pad( sunset % 60 ) + "</span></li>";
     }
 
     return list;
@@ -2983,7 +3004,7 @@ function showOptions( expandItem ) {
                 "<a class='submit preventBack' style='display:none'></a>" +
             "</div>" +
         "</div>" ),
-        submit_options = function() {
+        submitOptions = function() {
             var opt = {},
                 invalid = false,
                 isPi = isOSPi(),
@@ -3147,13 +3168,13 @@ function showOptions( expandItem ) {
                 icon: "check",
                 text: _( "Submit" ),
                 class: "submit",
-                on: submit_options
+                on: submitOptions
             }
 
         } ),
         timezones, tz, i;
 
-    page.find( ".submit" ).on( "click", submit_options );
+    page.find( ".submit" ).on( "click", submitOptions );
 
     list = "<fieldset data-role='collapsible'" + ( typeof expandItem !== "string" || expandItem === "system" ? " data-collapsed='false'" : "" ) + "><legend>" + _( "System" ) + "</legend>";
 
@@ -3812,7 +3833,7 @@ function showHome( firstLoad ) {
     }
 
     var cards = "",
-        site_select = $( "#site-selector" ),
+        siteSelect = $( "#site-selector" ),
         page = $( "<div data-role='page' id='sprinklers'>" +
             "<div class='ui-panel-wrapper'>" +
                 "<div class='ui-content' role='main'>" +
@@ -3821,7 +3842,7 @@ function showHome( firstLoad ) {
                             "<div id='weather' class='pointer'></div>" +
                         "</div>" +
                         "<div class='ui-block-b center home-info pointer'>" +
-                            "<span class='sitename bold" + ( currLocal ? " hidden" : "" ) + "'>" + site_select.val() + "</span>" +
+                            "<span class='sitename bold" + ( currLocal ? " hidden" : "" ) + "'>" + siteSelect.val() + "</span>" +
                             "<div id='clock-s' class='nobr'>" + dateToString( new Date( controller.settings.devt * 1000 ), null, true ) + "</div>" +
                             _( "Water Level" ) + ": <span class='waterlevel'>" + controller.options.wl + "</span>%" +
                         "</div>" +
@@ -3885,7 +3906,7 @@ function showHome( firstLoad ) {
             // Close current card group
             cards += "</div></div>";
         },
-        show_attributes = function() {
+        showAttributes = function() {
             $( "#stn_attrib" ).popup( "destroy" ).remove();
 
             var button = $( this ),
@@ -3939,7 +3960,7 @@ function showHome( firstLoad ) {
             select = $( select );
             select.on( "submit", "form", function() {
                 saveChanges();
-                submit_stations();
+                submitStations();
 
                 return false;
             } );
@@ -3951,7 +3972,7 @@ function showHome( firstLoad ) {
 
             select.popup( { history: false, positionTo: isiOS ? $( "#header" ) : "window" } ).popup( "open" );
         },
-        submit_stations = function() {
+        submitStations = function() {
             var is208 = ( checkOSVersion( 208 ) === true ),
                 master = {},
                 master2 = {},
@@ -4078,7 +4099,7 @@ function showHome( firstLoad ) {
             }
 
             page.find( ".waterlevel" ).text( controller.options.wl );
-            page.find( ".sitename" ).text( site_select.val() );
+            page.find( ".sitename" ).text( siteSelect.val() );
 
             hasMaster = controller.options.mas ? true : false;
             hasMaster2 = controller.options.mas2 ? true : false;
@@ -4170,7 +4191,7 @@ function showHome( firstLoad ) {
     page.find( ".ui-content" ).append( "<div id='os-running-stations'></div><hr style='display:none' class='content-divider'><div id='os-stations-list' class='card-group center'>" + cards + "</div>" );
     reorderCards();
     page.on( "datarefresh", updateContent );
-    page.on( "click", ".station-settings", show_attributes );
+    page.on( "click", ".station-settings", showAttributes );
     page.on( "click", ".home-info", function() {
         changePage( "#os-options", {
             expandItem: "weather"
@@ -4546,7 +4567,7 @@ function getManual() {
                     "</fieldset>" +
                 "</div>" +
             "</div>" ),
-        check_toggle = function( currPos ) {
+        checkToggle = function( currPos ) {
             updateControllerStatus().done( function() {
                 var item = listitems.eq( currPos ).find( "a" );
 
@@ -4604,7 +4625,7 @@ function getManual() {
                 function() {
 
                     // The device usually replies before the station has actually toggled. Delay in order to wait for the station's to toggle.
-                    setTimeout( check_toggle, 1000, currPos );
+                    setTimeout( checkToggle, 1000, currPos );
                 }
             );
 
@@ -4680,13 +4701,13 @@ function getRunonce() {
         updateLastRun = function( data ) {
             rprogs.l = data;
             $( "<option value='l' selected='selected'>" + _( "Last Used Program" ) + "</option>" ).insertAfter( page.find( "#rprog" ).find( "option[value='t']" ) );
-            fill_runonce( data );
+            fillRunonce( data );
         },
-        reset_runonce = function() {
+        resetRunonce = function() {
             page.find( "[id^='zone-']" ).val( 0 ).text( "0s" ).removeClass( "green" );
             return false;
         },
-        fill_runonce = function( data ) {
+        fillRunonce = function( data ) {
             page.find( "[id^='zone-']" ).each( function( a, b ) {
                 if ( isStationMaster( a ) ) {
                     return;
@@ -4706,15 +4727,15 @@ function getRunonce() {
     progs = [];
     if ( controller.programs.pd.length ) {
         for ( z = 0; z < controller.programs.pd.length; z++ ) {
-            program = read_program( controller.programs.pd[z] );
+            program = readProgram( controller.programs.pd[z] );
             var prog = [];
 
             if ( checkOSVersion( 210 ) ) {
                 prog = program.stations;
             } else {
-                var set_stations = program.stations.split( "" );
+                var setStations = program.stations.split( "" );
                 for ( i = 0; i < controller.stations.snames.length; i++ ) {
-                    prog.push( ( parseInt( set_stations[i] ) ) ? program.duration : 0 );
+                    prog.push( ( parseInt( setStations[i] ) ) ? program.duration : 0 );
                 }
             }
 
@@ -4769,19 +4790,19 @@ function getRunonce() {
     page.find( "#rprog" ).on( "change", function() {
         var prog = $( this ).val();
         if ( prog === "s" ) {
-            reset_runonce();
+            resetRunonce();
             return;
         } else if ( prog === "t" ) {
-            fill_runonce( Array.apply( null, Array( controller.stations.snames.length ) ).map( function() {return 60;} ) );
+            fillRunonce( Array.apply( null, Array( controller.stations.snames.length ) ).map( function() {return 60;} ) );
             return;
         }
         if ( typeof rprogs[prog] === "undefined" ) {
             return;
         }
-        fill_runonce( rprogs[prog] );
+        fillRunonce( rprogs[prog] );
     } );
 
-    page.on( "click", ".rsubmit", submit_runonce ).on( "click", ".rreset", reset_runonce );
+    page.on( "click", ".rsubmit", submitRunonce ).on( "click", ".rreset", resetRunonce );
 
     page.find( "[id^='zone-']" ).on( "click", function() {
         var dur = $( this ),
@@ -4821,7 +4842,7 @@ function getRunonce() {
         rightBtn: {
             icon: "check",
             text: _( "Submit" ),
-            on: submit_runonce
+            on: submitRunonce
         }
     } );
 
@@ -4829,7 +4850,7 @@ function getRunonce() {
     $.mobile.pageContainer.append( page );
 }
 
-function submit_runonce( runonce ) {
+function submitRunonce( runonce ) {
     if ( !( runonce instanceof Array ) ) {
         runonce = [];
         $( "#runonce" ).find( "[id^='zone-']" ).each( function() {
@@ -4886,34 +4907,34 @@ function getPreview() {
         navi = page.find( "#timeline-navigation" ),
         is21 = checkOSVersion( 210 ),
         is211 = checkOSVersion( 211 ),
-        preview_data, process_programs, check_match, check_match183, check_match21, run_sched, time_to_text, changeday, render, day;
+        previewData, processPrograms, checkMatch, checkMatch183, checkMatch21, runSched, timeToText, changeday, render, day;
 
     date = date.split( "-" );
     day = new Date( date[0], date[1] - 1, date[2] );
 
-    process_programs = function( month, day, year ) {
-        preview_data = [];
+    processPrograms = function( month, day, year ) {
+        previewData = [];
         var devday = Math.floor( controller.settings.devt / ( 60 * 60 * 24 ) ),
             simminutes = 0,
             simt = Date.UTC( year, month - 1, day, 0, 0, 0, 0 ),
             simday = ( simt / 1000 / 3600 / 24 ) >> 0,
-            st_array = new Array( controller.settings.nbrd * 8 ),
-            pid_array = new Array( controller.settings.nbrd * 8 ),
-            et_array = new Array( controller.settings.nbrd * 8 ),
-            pl_array = new Array( controller.settings.nbrd * 8 ),
-            last_stop_time = 0,
-            last_seq_stop_time = 0,
-            busy, match_found, prog;
+            startArray = new Array( controller.settings.nbrd * 8 ),
+            programArray = new Array( controller.settings.nbrd * 8 ),
+            endArray = new Array( controller.settings.nbrd * 8 ),
+            plArray = new Array( controller.settings.nbrd * 8 ),
+            lastStopTime = 0,
+            lastSeqStopTime = 0,
+            busy, matchFound, prog;
 
         for ( var sid = 0; sid < controller.settings.nbrd * 8; sid++ ) {
-            st_array[sid] = -1;pid_array[sid] = 0;et_array[sid] = 0;pl_array[sid] = 0;
+            startArray[sid] = -1;programArray[sid] = 0;endArray[sid] = 0;plArray[sid] = 0;
         }
         do {
             busy = 0;
-            match_found = 0;
+            matchFound = 0;
             for ( var pid = 0; pid < controller.programs.pd.length; pid++ ) {
                 prog = controller.programs.pd[pid];
-                if ( check_match( prog, simminutes, simt, simday, devday ) ) {
+                if ( checkMatch( prog, simminutes, simt, simday, devday ) ) {
                     for ( sid = 0; sid < controller.settings.nbrd * 8; sid++ ) {
                         var bid = sid >> 3;var s = sid % 8;
                         if ( isStationMaster( sid ) ) {
@@ -4923,74 +4944,74 @@ function getPreview() {
                             if ( controller.stations.stn_dis[bid] & ( 1 << s ) ) {
                                 continue; // skip disabled stations
                             }
-                            if ( prog[4][sid] && et_array[sid] === 0 ) {  // skip if water time is zero, or station is already scheduled
+                            if ( prog[4][sid] && endArray[sid] === 0 ) {  // skip if water time is zero, or station is already scheduled
                                 if ( prog[0] & 0x02 && ( ( controller.options.uwt > 0 && simday === devday ) || controller.options.uwt === 0 ) ) {  // use weather scaling bit on
-                                    et_array[sid] = getStationDuration( prog[4][sid], simt ) * controller.options.wl / 100 >> 0;
+                                    endArray[sid] = getStationDuration( prog[4][sid], simt ) * controller.options.wl / 100 >> 0;
                                 } else {
-                                    et_array[sid] = getStationDuration( prog[4][sid], simt );
+                                    endArray[sid] = getStationDuration( prog[4][sid], simt );
                                 }
-                                if ( et_array[sid] > 0 ) {  // after weather scaling, we maybe getting 0 water time
-                                    pid_array[sid] = pid + 1;
-                                    match_found = 1;
+                                if ( endArray[sid] > 0 ) {  // after weather scaling, we maybe getting 0 water time
+                                    programArray[sid] = pid + 1;
+                                    matchFound = 1;
                                 }
                             }
                         } else {
                             if ( prog[7 + bid] & ( 1 << s ) ) {
-                                et_array[sid] = prog[6] * controller.options.wl / 100 >> 0;
-                                pid_array[sid] = pid + 1;
-                                match_found = 1;
+                                endArray[sid] = prog[6] * controller.options.wl / 100 >> 0;
+                                programArray[sid] = pid + 1;
+                                matchFound = 1;
                             }
                         }
                     }
               }
             }
-            if ( match_found ) {
+            if ( matchFound ) {
                 var acctime = simminutes * 60;
-                var seq_acctime = acctime;
+                var seqAcctime = acctime;
                 if ( is211 ) {
-                    if ( last_seq_stop_time > acctime ) {
-                        seq_acctime = last_seq_stop_time + controller.options.sdt;
+                    if ( lastSeqStopTime > acctime ) {
+                        seqAcctime = lastSeqStopTime + controller.options.sdt;
                     }
                     var bid2, s2;
                     for ( sid = 0; sid < controller.settings.nbrd * 8; sid++ ) {
                         bid2 = sid >> 3;
                         s2 = sid & 0x07;
-                        if ( et_array[sid] === 0 || st_array[sid] >= 0 ) {
+                        if ( endArray[sid] === 0 || startArray[sid] >= 0 ) {
                             continue;
                         }
                         if ( controller.stations.stn_seq[bid2] & ( 1 << s2 ) ) {
-                            st_array[sid] = seq_acctime;seq_acctime += et_array[sid];
-                            et_array[sid] = seq_acctime;seq_acctime += controller.options.sdt;
-                            pl_array[sid] = 1;
+                            startArray[sid] = seqAcctime;seqAcctime += endArray[sid];
+                            endArray[sid] = seqAcctime;seqAcctime += controller.options.sdt;
+                            plArray[sid] = 1;
                         } else {
-                            st_array[sid] = acctime;
-                            et_array[sid] = acctime + et_array[sid];
-                            pl_array[sid] = 1;
+                            startArray[sid] = acctime;
+                            endArray[sid] = acctime + endArray[sid];
+                            plArray[sid] = 1;
                         }
                         busy = 1;
                     }
                 } else {
                     if ( is21 && controller.options.seq ) {
-                        if ( last_stop_time > acctime ) {
-                            acctime = last_stop_time + controller.options.sdt;
+                        if ( lastStopTime > acctime ) {
+                            acctime = lastStopTime + controller.options.sdt;
                         }
                     }
                     if ( controller.options.seq ) {
                         for ( sid = 0; sid < controller.settings.nbrd * 8; sid++ ) {
-                            if ( et_array[sid] === 0 || pid_array[sid] === 0 ) {
+                            if ( endArray[sid] === 0 || programArray[sid] === 0 ) {
                                 continue;
                             }
-                            st_array[sid] = acctime;acctime += et_array[sid];
-                            et_array[sid] = acctime;acctime += controller.options.sdt;
+                            startArray[sid] = acctime;acctime += endArray[sid];
+                            endArray[sid] = acctime;acctime += controller.options.sdt;
                             busy = 1;
                         }
                     } else {
                         for ( sid = 0; sid < controller.settings.nbrd * 8; sid++ ) {
-                            if ( et_array[sid] === 0 || pid_array[sid] === 0 ) {
+                            if ( endArray[sid] === 0 || programArray[sid] === 0 ) {
                                 continue;
                             }
-                            st_array[sid] = acctime;
-                            et_array[sid] = acctime + et_array[sid];
+                            startArray[sid] = acctime;
+                            endArray[sid] = acctime + endArray[sid];
                             busy = 1;
                         }
                     }
@@ -4998,36 +5019,36 @@ function getPreview() {
             }
             if ( busy ) {
                 if ( is211 ) {
-                    last_seq_stop_time = run_sched( simminutes * 60, st_array, pid_array, et_array, pl_array, simt );
+                    lastSeqStopTime = runSched( simminutes * 60, startArray, programArray, endArray, plArray, simt );
                     simminutes++;
                     for ( sid = 0; sid < controller.settings.nbrd * 8; sid++ ) {
-                        if ( pid_array[sid] > 0 && simminutes * 60 >= et_array[sid] ) {
-                            st_array[sid] = -1;pid_array[sid] = 0;et_array[sid] = 0;pl_array[sid] = 0;
+                        if ( programArray[sid] > 0 && simminutes * 60 >= endArray[sid] ) {
+                            startArray[sid] = -1;programArray[sid] = 0;endArray[sid] = 0;plArray[sid] = 0;
                         }
                     }
                 } else if ( is21 ) {
-                    last_stop_time = run_sched( simminutes * 60, st_array, pid_array, et_array, pl_array, simt );
+                    lastStopTime = runSched( simminutes * 60, startArray, programArray, endArray, plArray, simt );
                     simminutes++;
                     for ( sid = 0; sid < controller.settings.nbrd * 8; sid++ ) {
-                        st_array[sid] = -1;pid_array[sid] = 0;et_array[sid] = 0;
+                        startArray[sid] = -1;programArray[sid] = 0;endArray[sid] = 0;
                     }
                 } else {
-                    var endminutes = run_sched( simminutes * 60, st_array, pid_array, et_array, pl_array, simt ) / 60 >> 0;
+                    var endminutes = runSched( simminutes * 60, startArray, programArray, endArray, plArray, simt ) / 60 >> 0;
                     if ( controller.options.seq && simminutes !== endminutes ) {
                         simminutes = endminutes;
                     } else {
                         simminutes++;
                     }
                     for ( sid = 0; sid < controller.settings.nbrd * 8; sid++ ) {
-                        st_array[sid] = -1;pid_array[sid] = 0;et_array[sid] = 0;
+                        startArray[sid] = -1;programArray[sid] = 0;endArray[sid] = 0;
                     }
                 }
             } else {
                 simminutes++;
                 if ( is211 ) {
                   for ( sid = 0; sid < controller.settings.nbrd * 8; sid++ ) {
-                      if ( pid_array[sid] > 0 && simminutes * 60 >= et_array[sid] ) {
-                          st_array[sid] = -1;pid_array[sid] = 0;et_array[sid] = 0;pl_array[sid] = 0;
+                      if ( programArray[sid] > 0 && simminutes * 60 >= endArray[sid] ) {
+                          startArray[sid] = -1;programArray[sid] = 0;endArray[sid] = 0;plArray[sid] = 0;
                       }
                   }
                 }
@@ -5035,21 +5056,21 @@ function getPreview() {
         } while ( simminutes < 24 * 60 );
     };
 
-    run_sched = function( simseconds, st_array, pid_array, et_array, pl_array, simt ) {
+    runSched = function( simseconds, startArray, programArray, endArray, plArray, simt ) {
         var endtime = simseconds;
         for ( var sid = 0; sid < controller.settings.nbrd * 8; sid++ ) {
-            if ( pid_array[sid] ) {
+            if ( programArray[sid] ) {
               if ( is211 ) {
-                if ( pl_array[sid] ) {
+                if ( plArray[sid] ) {
                     var mas2 = typeof controller.options.mas2 !== "undefined" ? true : false,
                         useMas1 = controller.stations.masop[sid >> 3] & ( 1 << ( sid % 8 ) ),
                         useMas2 = mas2 ? controller.stations.masop2[sid >> 3] & ( 1 << ( sid % 8 ) ) : false;
 
                     if ( !isStationMaster( sid ) ) {
                         if ( controller.options.mas > 0 && useMas1 ) {
-                            preview_data.push( {
-                                "start": ( st_array[sid] + controller.options.mton ),
-                                "end": ( et_array[sid] + controller.options.mtof ),
+                            previewData.push( {
+                                "start": ( startArray[sid] + controller.options.mton ),
+                                "end": ( endArray[sid] + controller.options.mtof ),
                                 "content":"",
                                 "className":"master",
                                 "shortname":"M" + ( mas2 ? "1" : "" ),
@@ -5059,9 +5080,9 @@ function getPreview() {
                         }
 
                         if ( mas2 && controller.options.mas2 > 0 && useMas2 ) {
-                            preview_data.push( {
-                                "start": ( st_array[sid] + controller.options.mton2 ),
-                                "end": ( et_array[sid] + controller.options.mtof2 ),
+                            previewData.push( {
+                                "start": ( startArray[sid] + controller.options.mton2 ),
+                                "end": ( endArray[sid] + controller.options.mtof2 ),
                                 "content":"",
                                 "className":"master",
                                 "shortname":"M2",
@@ -5071,18 +5092,18 @@ function getPreview() {
                         }
                     }
 
-                    time_to_text( sid, st_array[sid], pid_array[sid], et_array[sid], simt );
-                    pl_array[sid] = 0;
+                    timeToText( sid, startArray[sid], programArray[sid], endArray[sid], simt );
+                    plArray[sid] = 0;
                     if ( controller.stations.stn_seq[sid >> 3] & ( 1 << ( sid & 0x07 ) ) ) {
-                      endtime = ( endtime > et_array[sid] ) ? endtime : et_array[sid];
+                      endtime = ( endtime > endArray[sid] ) ? endtime : endArray[sid];
                     }
                 }
               } else {
                 if ( controller.options.seq === 1 ) {
                     if ( isStationMaster( sid ) && ( controller.stations.masop[sid >> 3] & ( 1 << ( sid % 8 ) ) ) ) {
-                        preview_data.push( {
-                            "start": ( st_array[sid] + controller.options.mton ),
-                            "end": ( et_array[sid] + controller.options.mtof ),
+                        previewData.push( {
+                            "start": ( startArray[sid] + controller.options.mton ),
+                            "end": ( endArray[sid] + controller.options.mtof ),
                             "content":"",
                             "className":"master",
                             "shortname":"M",
@@ -5090,12 +5111,12 @@ function getPreview() {
                             "station": sid
                         } );
                     }
-                    time_to_text( sid, st_array[sid], pid_array[sid], et_array[sid], simt );
-                    endtime = et_array[sid];
+                    timeToText( sid, startArray[sid], programArray[sid], endArray[sid], simt );
+                    endtime = endArray[sid];
                 } else {
-                    time_to_text( sid, simseconds, pid_array[sid], et_array[sid], simt );
+                    timeToText( sid, simseconds, programArray[sid], endArray[sid], simt );
                     if ( isStationMaster( sid ) && ( controller.stations.masop[sid >> 3] & ( 1 << ( sid % 8 ) ) ) ) {
-                        endtime = ( endtime > et_array[sid] ) ? endtime : et_array[sid];
+                        endtime = ( endtime > endArray[sid] ) ? endtime : endArray[sid];
                     }
                 }
               }
@@ -5103,7 +5124,7 @@ function getPreview() {
         }
         if ( !is211 ) {
           if ( controller.options.seq === 0 && controller.options.mas > 0 ) {
-              preview_data.push( {
+              previewData.push( {
                   "start": simseconds,
                   "end": endtime,
                   "content":"",
@@ -5117,7 +5138,7 @@ function getPreview() {
         return endtime;
     };
 
-    time_to_text = function( sid, start, pid, end, simt ) {
+    timeToText = function( sid, start, pid, end, simt ) {
         var className = "program-" + ( ( pid + 3 ) % 4 ),
             pname = "P" + pid;
 
@@ -5129,7 +5150,7 @@ function getPreview() {
             pname = controller.programs.pd[pid - 1][5];
         }
 
-        preview_data.push( {
+        previewData.push( {
             "start": start,
             "end": end,
             "className":className,
@@ -5141,15 +5162,15 @@ function getPreview() {
         } );
     };
 
-    check_match = function( prog, simminutes, simt, simday, devday ) {
+    checkMatch = function( prog, simminutes, simt, simday, devday ) {
         if ( is21 ) {
-            return check_match21( prog, simminutes, simt, simday, devday );
+            return checkMatch21( prog, simminutes, simt, simday, devday );
         } else {
-            return check_match183( prog, simminutes, simt, simday, devday );
+            return checkMatch183( prog, simminutes, simt, simday, devday );
         }
     };
 
-    check_match183 = function( prog, simminutes, simt, simday, devday ) {
+    checkMatch183 = function( prog, simminutes, simt, simday, devday ) {
         if ( prog[0] === 0 ) {
             return 0;
         }
@@ -5189,7 +5210,7 @@ function getPreview() {
         return 0;
     };
 
-    check_match21 = function( prog, simminutes, simt, simday, devday ) {
+    checkMatch21 = function( prog, simminutes, simt, simday, devday ) {
         var en = prog[0] & 0x01,
             oddeven = ( prog[0] >> 2 ) & 0x03,
             type = ( prog[0] >> 4 ) & 0x03,
@@ -5294,21 +5315,21 @@ function getPreview() {
     };
 
     render = function() {
-        process_programs( date[1], date[2], date[0] );
+        processPrograms( date[1], date[2], date[0] );
 
         navi.hide();
 
-        if ( !preview_data.length ) {
+        if ( !previewData.length ) {
             page.find( "#timeline" ).html( "<p align='center'>" + _( "No stations set to run on this day." ) + "</p>" );
             return;
         }
 
-        preview_data.sort( sortByStation );
+        previewData.sort( sortByStation );
 
         var shortnames = [],
             max = new Date( date[0], date[1] - 1, date[2], 24 );
 
-        $.each( preview_data, function() {
+        $.each( previewData, function() {
             var total = this.start + this.end;
 
             this.start = new Date( date[0], date[1] - 1, date[2], 0, 0, this.start );
@@ -5368,7 +5389,7 @@ function getPreview() {
             $.mobile.window.off( "resize", resize );
         } );
 
-        timeline.draw( preview_data );
+        timeline.draw( previewData );
 
         page.find( ".timeline-groups-text" ).each( function() {
             var stn = $( this );
@@ -5485,9 +5506,9 @@ function getLogs() {
                 "</div>" +
             "</div>" +
         "</div>" ),
-        logs_list = page.find( "#logs_list" ),
-        table_sort = page.find( "#table_sort" ),
-        log_options = page.find( "#log_options" ),
+        logsList = page.find( "#logs_list" ),
+        tableSort = page.find( "#table_sort" ),
+        logOptions = page.find( "#log_options" ),
         data = [],
         waterlog = [],
         stations = $.merge( $.merge( [], controller.stations.snames ), [ _( "Rain Sensor" ), _( "Rain Delay" ) ] ),
@@ -5580,7 +5601,7 @@ function getLogs() {
         success = function( items, wl ) {
             if ( typeof items !== "object" || items.length < 1 || ( items.result && items.result === 32 ) ) {
                 $.mobile.loading( "hide" );
-                reset_logs_page();
+                resetLogsPage();
                 return;
             }
 
@@ -5602,14 +5623,14 @@ function getLogs() {
         },
         prepTimeline = function() {
             if ( data.length < 1 ) {
-                reset_logs_page();
+                resetLogsPage();
                 return;
             }
 
-            table_sort.hide();
-            logs_list.show();
+            tableSort.hide();
+            logsList.show();
 
-            log_options.collapsible( "collapse" );
+            logOptions.collapsible( "collapse" );
 
             var sortedData = sortData( "timeline" ),
                 options = {
@@ -5636,7 +5657,7 @@ function getLogs() {
                 },
                 shortnames = [];
 
-            logs_list.on( "swiperight swipeleft", function( e ) {
+            logsList.on( "swiperight swipeleft", function( e ) {
                 e.stopImmediatePropagation();
             } );
 
@@ -5644,7 +5665,7 @@ function getLogs() {
                 shortnames[this.group] = this.shortname;
             } );
 
-            var timeline = new links.Timeline( logs_list.get( 0 ), options );
+            var timeline = new links.Timeline( logsList.get( 0 ), options );
 
             $.mobile.window.on( "resize", resize );
             page.one( "pagehide", reset );
@@ -5652,21 +5673,21 @@ function getLogs() {
 
             timeline.draw( sortedData );
 
-            logs_list.find( ".timeline-groups-text" ).each( function() {
+            logsList.find( ".timeline-groups-text" ).each( function() {
                 this.setAttribute( "data-shortname", shortnames[this.textContent] );
             } );
         },
         prepTable = function() {
             if ( data.length < 1 ) {
-                reset_logs_page();
+                resetLogsPage();
                 return;
             }
 
-            table_sort.show();
-            logs_list.show();
+            tableSort.show();
+            logsList.show();
 
             var grouping = page.find( "input:radio[name='table-group']:checked" ).val(),
-                table_header = "<table><thead><tr><th data-priority='1'>" + _( "Runtime" ) + "</th><th data-priority='2'>" + ( grouping === "station" ? _( "Date/Time" ) : _( "Time" ) + "</th><th>" + _( "Station" ) ) + "</th></tr></thead><tbody>",
+                tableHeader = "<table><thead><tr><th data-priority='1'>" + _( "Runtime" ) + "</th><th data-priority='2'>" + ( grouping === "station" ? _( "Date/Time" ) : _( "Time" ) + "</th><th>" + _( "Station" ) ) + "</th></tr></thead><tbody>",
                 html = "<div data-role='collapsible-set' data-inset='true' data-theme='b' data-collapsed-icon='arrow-d' data-expanded-icon='arrow-u'>",
                 sortedData = sortData( "table", grouping ),
                 groupArray = [],
@@ -5692,7 +5713,7 @@ function getLogs() {
                         groupArray[i] += "<span style='border:none' class='" + ( wlSorted[group] !== 100 ? ( wlSorted[group] < 100 ? "green " : "red " ) : "" ) + "ui-body ui-body-a ui-corner-all'>" + _( "Average" ) + " " + _( "Water Level" ) + ": " + wlSorted[group] + "%</span>";
                     }
 
-                    groupArray[i] += table_header;
+                    groupArray[i] += tableHeader;
 
                     for ( k = 0; k < sortedData[group].length; k++ ) {
                         var date = new Date( sortedData[group][k][0] );
@@ -5708,10 +5729,10 @@ function getLogs() {
                 groupArray.reverse();
             }
 
-            log_options.collapsible( "collapse" );
-            logs_list.html( html + groupArray.join( "" ) + "</div>" ).enhanceWithin();
+            logOptions.collapsible( "collapse" );
+            logsList.html( html + groupArray.join( "" ) + "</div>" ).enhanceWithin();
 
-            logs_list.find( ".delete-day" ).on( "click", function() {
+            logsList.find( ".delete-day" ).on( "click", function() {
                 var day, date;
 
                 $.each( this.className.split( " " ), function() {
@@ -5734,19 +5755,19 @@ function getLogs() {
                 return false;
             } );
 
-            fixInputClick( logs_list );
+            fixInputClick( logsList );
         },
-        reset_logs_page = function() {
+        resetLogsPage = function() {
             data = [];
-            log_options.collapsible( "expand" );
-            table_sort.hide();
-            logs_list.show().html( _( "No entries found in the selected date range" ) );
+            logOptions.collapsible( "expand" );
+            tableSort.hide();
+            logsList.show().html( _( "No entries found in the selected date range" ) );
         },
         fail = function() {
             $.mobile.loading( "hide" );
 
-            table_sort.empty().hide();
-            logs_list.show().html( _( "Error retrieving log data. Please refresh to try again." ) );
+            tableSort.empty().hide();
+            logsList.show().html( _( "Error retrieving log data. Please refresh to try again." ) );
         },
         dates = function() {
             var sDate = $( "#log_start" ).val().split( "-" ),
@@ -5764,7 +5785,7 @@ function getLogs() {
                 starttime = dates().start.getTime() / 1000;
 
             if ( endtime < starttime ) {
-                reset_logs_page();
+                resetLogsPage();
                 showerror( _( "Start time cannot be greater than end time" ) );
                 return;
             }
@@ -5821,7 +5842,7 @@ function getLogs() {
     }
 
     //Automatically update log viewer when switching table sort
-    table_sort.find( "input[name='table-group']" ).change( function() {
+    tableSort.find( "input[name='table-group']" ).change( function() {
         prepTable();
     } );
 
@@ -5858,7 +5879,7 @@ function getLogs() {
 function getPrograms( pid ) {
     var page = $( "<div data-role='page' id='programs'>" +
             "<div class='ui-content' role='main' id='programs_list'>" +
-                make_all_programs() +
+                makeAllPrograms() +
             "</div>" +
         "</div>" );
 
@@ -5922,7 +5943,7 @@ function getPrograms( pid ) {
         page.remove();
     } )
     .one( "pagebeforeshow", function() {
-        update_program_header();
+        updateProgramHeader();
 
         if ( typeof pid !== "number" && controller.programs.pd.length === 1 ) {
             pid = 0;
@@ -5961,7 +5982,7 @@ function getPrograms( pid ) {
 function expandProgram( program ) {
     var id = parseInt( program.attr( "id" ).split( "-" )[1] );
 
-    program.find( ".ui-collapsible-content" ).html( make_program( id ) ).enhanceWithin().on( "change input click", function( e ) {
+    program.find( ".ui-collapsible-content" ).html( makeProgram( id ) ).enhanceWithin().on( "change input click", function( e ) {
         if ( e.type === "click" && e.target.tagName !== "BUTTON" ) {
             return;
         }
@@ -5971,12 +5992,12 @@ function expandProgram( program ) {
     } );
 
     program.find( "[id^='submit-']" ).on( "click", function() {
-        submit_program( id );
+        submitProgram( id );
         return false;
     } );
 
     program.find( "[id^='delete-']" ).on( "click", function() {
-        delete_program( id );
+        deleteProgram( id );
         return false;
     } );
 
@@ -5998,21 +6019,21 @@ function expandProgram( program ) {
             } );
         }
         runonce.push( 0 );
-        submit_runonce( runonce );
+        submitRunonce( runonce );
         return false;
     } );
 }
 
 // Translate program array into easier to use data
-function read_program( program ) {
+function readProgram( program ) {
     if ( checkOSVersion( 210 ) ) {
-        return read_program21( program );
+        return readProgram21( program );
     } else {
-        return read_program183( program );
+        return readProgram183( program );
     }
 }
 
-function read_program183( program ) {
+function readProgram183( program ) {
     var days0 = program[1],
         days1 = program[2],
         even = false,
@@ -6064,12 +6085,12 @@ function read_program183( program ) {
 }
 
 // Read program for OpenSprinkler 2.1+
-function read_program21( program ) {
+function readProgram21( program ) {
     var days0 = program[1],
         days1 = program[2],
         restrict = ( ( program[0] >> 2 ) & 0x03 ),
         type = ( ( program[0] >> 4 ) & 0x03 ),
-        start_type = ( ( program[0] >> 6 ) & 0x01 ),
+        startType = ( ( program[0] >> 6 ) & 0x01 ),
         days = "",
         newdata = {
             repeat: 0,
@@ -6084,11 +6105,11 @@ function read_program21( program ) {
     newdata.stations = program[4];
     newdata.name = program[5];
 
-    if ( start_type === 0 ) {
+    if ( startType === 0 ) {
         newdata.start = program[3][0];
         newdata.repeat = program[3][1];
         newdata.interval = program[3][2];
-    } else if ( start_type === 1 ) {
+    } else if ( startType === 1 ) {
         newdata.start = program[3];
     }
 
@@ -6183,7 +6204,7 @@ function pidname( pid ) {
 }
 
 // Check each program and change the background color to red if disabled
-function update_program_header() {
+function updateProgramHeader() {
     $( "#programs_list" ).find( "[id^=program-]" ).each( function( a, b ) {
         var item = $( b ),
             heading = item.find( ".ui-collapsible-heading-toggle" ),
@@ -6198,7 +6219,7 @@ function update_program_header() {
 }
 
 //Make the list of all programs
-function make_all_programs() {
+function makeAllPrograms() {
     if ( controller.programs.pd.length === 0 ) {
         return "<p class='center'>" + _( "You have no programs currently added. Tap the Add button on the top right corner to get started." ) + "</p>";
     }
@@ -6216,24 +6237,24 @@ function make_all_programs() {
     return list + "</div>";
 }
 
-function make_program( n, isCopy ) {
+function makeProgram( n, isCopy ) {
     if ( checkOSVersion( 210 ) ) {
-        return make_program21( n, isCopy );
+        return makeProgram21( n, isCopy );
     } else {
-        return make_program183( n, isCopy );
+        return makeProgram183( n, isCopy );
     }
 }
 
-function make_program183( n, isCopy ) {
+function makeProgram183( n, isCopy ) {
     var week = [ _( "Monday" ), _( "Tuesday" ), _( "Wednesday" ), _( "Thursday" ), _( "Friday" ), _( "Saturday" ), _( "Sunday" ) ],
         list = "",
         id = isCopy ? "new" : n,
-        days, i, j, set_stations, program, page;
+        days, i, j, setStations, program, page;
 
     if ( n === "new" ) {
         program = { "en":0, "weather":0, "is_interval":0, "is_even":0, "is_odd":0, "duration":0, "interval":0, "start":0, "end":0, "days":[ 0, 0 ] };
     } else {
-        program = read_program( controller.programs.pd[n] );
+        program = readProgram( controller.programs.pd[n] );
     }
 
     if ( typeof program.days === "string" ) {
@@ -6245,9 +6266,9 @@ function make_program183( n, isCopy ) {
         days = [ 0, 0, 0, 0, 0, 0, 0 ];
     }
     if ( typeof program.stations !== "undefined" ) {
-        set_stations = program.stations.split( "" );
-        for ( i = set_stations.length - 1; i >= 0; i-- ) {
-            set_stations[i] = set_stations[i] | 0;
+        setStations = program.stations.split( "" );
+        for ( i = setStations.length - 1; i >= 0; i-- ) {
+            setStations[i] = setStations[i] | 0;
         }
     }
     list += "<label for='en-" + id + "'><input data-mini='true' type='checkbox' " + ( ( program.en || n === "new" ) ? "checked='checked'" : "" ) + " name='en-" + id + "' id='en-" + id + "'>" + _( "Enabled" ) + "</label>";
@@ -6276,7 +6297,7 @@ function make_program183( n, isCopy ) {
     list += "<fieldset data-role='controlgroup'><legend>" + _( "Stations:" ) + "</legend>";
 
     for ( j = 0; j < controller.stations.snames.length; j++ ) {
-        list += "<label for='station_" + j + "-" + id + "'><input " + ( isStationDisabled( j ) ? "data-wrapper-class='station-hidden hidden' " : "" ) + "data-mini='true' type='checkbox' " + ( ( ( typeof set_stations !== "undefined" ) && set_stations[j] ) ? "checked='checked'" : "" ) + " name='station_" + j + "-" + id + "' id='station_" + j + "-" + id + "'>" + controller.stations.snames[j] + "</label>";
+        list += "<label for='station_" + j + "-" + id + "'><input " + ( isStationDisabled( j ) ? "data-wrapper-class='station-hidden hidden' " : "" ) + "data-mini='true' type='checkbox' " + ( ( ( typeof setStations !== "undefined" ) && setStations[j] ) ? "checked='checked'" : "" ) + " name='station_" + j + "-" + id + "' id='station_" + j + "-" + id + "'>" + controller.stations.snames[j] + "</label>";
     }
 
     list += "</fieldset>";
@@ -6365,7 +6386,7 @@ function make_program183( n, isCopy ) {
     return page;
 }
 
-function make_program21( n, isCopy ) {
+function makeProgram21( n, isCopy ) {
     var week = [ _( "Monday" ), _( "Tuesday" ), _( "Wednesday" ), _( "Thursday" ), _( "Friday" ), _( "Saturday" ), _( "Sunday" ) ],
         list = "",
         id = isCopy ? "new" : n,
@@ -6374,7 +6395,7 @@ function make_program21( n, isCopy ) {
     if ( n === "new" ) {
         program = { "name":"", "en":0, "weather":0, "is_interval":0, "is_even":0, "is_odd":0, "interval":0, "start":0, "days":[ 0, 0 ], "repeat":0, "stations":[] };
     } else {
-        program = read_program( controller.programs.pd[n] );
+        program = readProgram( controller.programs.pd[n] );
     }
 
     if ( typeof program.days === "string" ) {
@@ -6600,7 +6621,7 @@ function addProgram( copyID ) {
                 "</div>" +
             "</div>" ),
         submit = function() {
-            submit_program( "new" );
+            submitProgram( "new" );
             return false;
         },
         header = changeHeader( {
@@ -6618,12 +6639,12 @@ function addProgram( copyID ) {
             }
         } );
 
-    page.find( "#program-new" ).html( make_program( copyID, true ) ).one( "change input", function() {
+    page.find( "#program-new" ).html( makeProgram( copyID, true ) ).one( "change input", function() {
         header.eq( 2 ).prop( "disabled", false ).addClass( "hasChanges" );
     } );
 
     page.find( "[id^='submit-']" ).on( "click", function() {
-        submit_program( "new" );
+        submitProgram( "new" );
         return false;
     } );
 
@@ -6639,7 +6660,7 @@ function addProgram( copyID ) {
     $.mobile.pageContainer.append( page );
 }
 
-function delete_program( id ) {
+function deleteProgram( id ) {
     areYouSure( _( "Are you sure you want to delete program" ) + " " + ( parseInt( id ) + 1 ) + "?", "", function() {
         $.mobile.loading( "show" );
         sendToOS( "/dp?pw=&pid=" + id ).done( function() {
@@ -6655,20 +6676,20 @@ function delete_program( id ) {
     } );
 }
 
-function submit_program( id ) {
+function submitProgram( id ) {
     $( "#program-" + id ).find( ".hasChanges" ).removeClass( "hasChanges" );
 
     if ( checkOSVersion( 210 ) ) {
-        submit_program21( id );
+        submitProgram21( id );
     } else {
-        submit_program183( id );
+        submitProgram183( id );
     }
 }
 
-function submit_program183( id ) {
+function submitProgram183( id ) {
     var program = [],
         days = [ 0, 0 ],
-        station_selected = 0,
+        stationSelected = 0,
         en = ( $( "#en-" + id ).is( ":checked" ) ) ? 1 : 0,
         daysin, i, s;
 
@@ -6711,13 +6732,13 @@ function submit_program183( id ) {
         for ( s = 0; s < 8; s++ ) {
             sid = bid * 8 + s;
             if ( $( "#station_" + sid + "-" + id ).is( ":checked" ) ) {
-                stations[bid] |= 1 << s; station_selected = 1;
+                stations[bid] |= 1 << s; stationSelected = 1;
             }
         }
     }
     program = JSON.stringify( program.concat( stations ) );
 
-    if ( station_selected === 0 ) {showerror( _( "Error: You have not selected any stations." ) );return;}
+    if ( stationSelected === 0 ) {showerror( _( "Error: You have not selected any stations." ) );return;}
     $.mobile.loading( "show" );
     if ( id === "new" ) {
         sendToOS( "/cp?pw=&pid=-1&v=" + program ).done( function() {
@@ -6733,18 +6754,18 @@ function submit_program183( id ) {
         sendToOS( "/cp?pw=&pid=" + id + "&v=" + program ).done( function() {
             $.mobile.loading( "hide" );
             updateControllerPrograms( function() {
-                update_program_header();
+                updateProgramHeader();
             } );
             showerror( _( "Program has been updated" ) );
         } );
     }
 }
 
-function submit_program21( id, ignoreWarning ) {
+function submitProgram21( id, ignoreWarning ) {
     var program = [],
         days = [ 0, 0 ],
         start = [ 0, 0, 0, 0 ],
-        station_selected = 0,
+        stationSelected = 0,
         en = ( $( "#en-" + id ).is( ":checked" ) ) ? 1 : 0,
         weather = ( $( "#uwt-" + id ).is( ":checked" ) ) ? 1 : 0,
         j = 0,
@@ -6813,14 +6834,14 @@ function submit_program21( id, ignoreWarning ) {
     sel.each( function() {
         var dur = parseInt( this.value );
         if ( parseInt( dur ) > 0 ) {
-            station_selected = 1;
+            stationSelected = 1;
         }
         runTimes.push( dur );
     } );
 
     if ( !ignoreWarning && $( "#stype_repeat-" + id ).is( ":checked" ) && start[1] > 0 && calculateTotalRunningTime( runTimes ) > start[2] * 60 ) {
         areYouSure( _( "Warning: The repeat interval is less than the program run time." ), _( "Do you want to continue?" ), function() {
-            submit_program21( id, true );
+            submitProgram21( id, true );
         } );
 
         return;
@@ -6835,7 +6856,7 @@ function submit_program21( id, ignoreWarning ) {
     name = $( "#name-" + id ).val();
     url = "&v=" + JSON.stringify( program ) + "&name=" + encodeURIComponent( name );
 
-    if ( station_selected === 0 ) {
+    if ( stationSelected === 0 ) {
         showerror( _( "Error: You have not selected any stations." ) );
         return;
     }
@@ -6855,7 +6876,7 @@ function submit_program21( id, ignoreWarning ) {
         sendToOS( "/cp?pw=&pid=" + id + url ).done( function() {
             $.mobile.loading( "hide" );
             updateControllerPrograms( function() {
-                update_program_header();
+                updateProgramHeader();
                 $( "#program-" + id ).find( ".program-name" ).text( name );
             } );
             showerror( _( "Program has been updated" ) );
@@ -6935,7 +6956,7 @@ function getImportMethod( localData ) {
                 try {
                     data = JSON.parse( $.trim( data ).replace( /“|”|″/g, "\"" ) );
                     popup.popup( "close" );
-                    import_config( data );
+                    importConfig( data );
                 }catch ( err ) {
                     popup.find( "textarea" ).val( "" );
                     showerror( _( "Unable to read the configuration file. Please check the file and try again." ) );
@@ -6970,7 +6991,7 @@ function getImportMethod( localData ) {
                     reader.onload = function( e ) {
                         try {
                             var obj = JSON.parse( $.trim( e.target.result ) );
-                            import_config( obj );
+                            importConfig( obj );
                         }catch ( err ) {
                             showerror( _( "Unable to read the configuration file. Please check the file and try again." ) );
                         }
@@ -7001,7 +7022,7 @@ function getImportMethod( localData ) {
     if ( localData ) {
         popup.find( ".localMethod" ).removeClass( "hidden" ).on( "click", function() {
             popup.popup( "close" );
-            import_config( JSON.parse( localData ) );
+            importConfig( JSON.parse( localData ) );
             return false;
         } );
     }
@@ -7009,7 +7030,7 @@ function getImportMethod( localData ) {
     openPopup( popup, { positionTo: $( "#sprinklers-settings" ).find( ".import_config" ) } );
 }
 
-function import_config( data ) {
+function importConfig( data ) {
     var piNames = { 1:"tz", 2:"ntp", 12:"htp", 13:"htp2", 14:"ar", 15:"nbrd", 16:"seq", 17:"sdt", 18:"mas", 19:"mton", 20:"mtoff", 21:"urs", 22:"rst", 23:"wl", 25:"ipas", 30:"rlp", 36:"lg" },
         keyIndex = { "tz":1, "ntp":2, "dhcp":3, "hp0":12, "hp1":13, "ar":14, "ext":15, "seq":16, "sdt":17, "mas":18, "mton":19, "mtof":20, "urs":21, "rso":22, "wl":23, "ipas":25, "devid":26, "con": 27, "lit": 28, "dim": 29, "rlp":30, "lg":36, "uwt":31, "ntp1":32, "ntp2":33, "ntp3":34, "ntp4":35, "mas2":37, "mton2":38, "mtof2":39 },
         warning = "";
@@ -7028,7 +7049,7 @@ function import_config( data ) {
 
         var cs = "/cs?pw=",
             co = "/co?pw=",
-            cp_start = "/cp?pw=",
+            cpStart = "/cp?pw=",
             isPi = isOSPi(),
             i, key, option, station;
 
@@ -7153,7 +7174,7 @@ function import_config( data ) {
 
                 // Handle data from firmware prior to 2.1 being imported to a 2.1+ device
                 if ( !isPi && typeof data.options.fwv === "number" && data.options.fwv < 210 && checkOSVersion( 210 ) ) {
-                    var program = read_program183( prog ),
+                    var program = readProgram183( prog ),
                         total = ( prog.length - 7 ),
                         allDur = [],
                         j = 0,
@@ -7204,7 +7225,7 @@ function import_config( data ) {
                     name = "&name=" + _( "Program" ) + " " + ( i + 1 );
                 }
 
-                sendToOS( cp_start + "&pid=-1&v=" + JSON.stringify( prog ) + name );
+                sendToOS( cpStart + "&pid=-1&v=" + JSON.stringify( prog ) + name );
             } )
         ).then(
             function() {
@@ -7364,7 +7385,7 @@ function changePassword( opt ) {
             didSubmit = true;
 
             storage.get( [ "sites" ], function( data ) {
-                var sites = JSON.parse( data.sites ),
+                var sites = parseSites( data.sites ),
                     success = function( pass ) {
                         currPass = pass;
                         sites[opt.name].os_pw = popup.find( "#save_pw" ).is( ":checked" ) ? pass : "";
@@ -7416,7 +7437,7 @@ function changePassword( opt ) {
                 }
             } else {
                 storage.get( [ "sites", "current_site" ], function( data ) {
-                    var sites = JSON.parse( data.sites );
+                    var sites = parseSites( data.sites );
 
                     sites[data.current_site].os_pw = npw;
                     currPass = npw;
@@ -7443,7 +7464,7 @@ function changePassword( opt ) {
 
         // hash password and try again, if failed then show the popup
         storage.get( [ "sites", "current_site" ], function( data ) {
-            var sites = JSON.parse( data.sites ),
+            var sites = parseSites( data.sites ),
                 current = data.current_site,
                 pw = md5( sites[current].os_pw );
 
@@ -7660,9 +7681,7 @@ function cloudSyncStart() {
                     return;
                 }
 
-                try {
-                    data.sites = JSON.parse( data.sites ) || {};
-                } catch ( err ) { data.sites = {}; }
+                data.sites = parseSites( data.sites );
 
                 if ( Object.keys( sites ).length > 0 ) {
 
@@ -7810,11 +7829,11 @@ function getTokenUser( token ) {
 }
 
 function checkWeatherPlugin() {
-    var weather_settings = $( ".weather_settings" ),
-        weather_provider = $( ".show-providers" );
+    var weatherSettings = $( ".weather_settings" ),
+        weatherProvider = $( ".show-providers" );
 
     currPiWeather = [];
-    weather_settings.hide();
+    weatherSettings.hide();
     if ( isOSPi() ) {
         storage.get( "provider", function( data ) {
             sendToOS( "/wj?pw=", "json" ).done( function( results ) {
@@ -7833,12 +7852,12 @@ function checkWeatherPlugin() {
                     }
 
                     // Hide the weather provider option when the OSPi provides it
-                    weather_provider.hide();
+                    weatherProvider.hide();
                 }
 
                 if ( typeof results.auto_delay === "string" ) {
                     currPiWeather = results;
-                    weather_settings.css( "display", "" );
+                    weatherSettings.css( "display", "" );
                 }
             } );
         } );
@@ -7846,9 +7865,9 @@ function checkWeatherPlugin() {
         if ( checkOSVersion( 210 ) ) {
 
             // Hide the weather provider option when the OSPi provides it
-            weather_provider.hide();
+            weatherProvider.hide();
         } else {
-            weather_provider.css( "display", "" );
+            weatherProvider.css( "display", "" );
         }
     }
 }
@@ -7887,7 +7906,7 @@ function checkPublicAccess( eip ) {
 
             // Public IP worked, update device IP to use the public IP instead
             storage.get( [ "sites", "current_site" ], function( data ) {
-                var sites = ( data.sites === undefined || data.sites === null ) ? {} : JSON.parse( data.sites ),
+                var sites = parseSites( data.sites ),
                     current = data.current_site;
 
                 sites[current].os_ip = ip + ( port === 80 ? "" : ":" + port );
@@ -9369,33 +9388,33 @@ function exportObj( ele, obj, subject ) {
 }
 
 function sortObj( obj, type ) {
-    var temp_array = [];
+    var tempArray = [];
 
     for ( var key in obj ) {
         if ( obj.hasOwnProperty( key ) ) {
-            temp_array.push( key );
+            tempArray.push( key );
         }
     }
 
     if ( typeof type === "function" ) {
-        temp_array.sort( type );
+        tempArray.sort( type );
     } else if ( type === "value" ) {
-        temp_array.sort( function( a, b ) {
+        tempArray.sort( function( a, b ) {
             var x = obj[a];
             var y = obj[b];
             return ( ( x < y ) ? -1 : ( ( x > y ) ? 1 : 0 ) );
         } );
     } else {
-        temp_array.sort();
+        tempArray.sort();
     }
 
-    var temp_obj = {};
+    var tempObj = {};
 
-    for ( var i = 0; i < temp_array.length; i++ ) {
-        temp_obj[temp_array[i]] = obj[temp_array[i]];
+    for ( var i = 0; i < tempArray.length; i++ ) {
+        tempObj[tempArray[i]] = obj[tempArray[i]];
     }
 
-    return temp_obj;
+    return tempObj;
 }
 
 // Return day of the week
@@ -9443,7 +9462,7 @@ function _( key ) {
     }
 }
 
-function set_lang() {
+function setLang() {
 
     //Update all static elements to the current language
     $( "[data-translate]" ).text( function() {
@@ -9487,7 +9506,7 @@ function updateLang( lang ) {
     currLang = lang;
 
     if ( lang === "en" ) {
-        set_lang();
+        setLang();
         return;
     }
 
@@ -9497,8 +9516,8 @@ function updateLang( lang ) {
 
     $.getJSON( prefix + "locale/" + lang + ".js", function( store ) {
         language = store.messages;
-        set_lang();
-    } ).fail( set_lang );
+        setLang();
+    } ).fail( setLang );
 }
 
 function languageSelect() {

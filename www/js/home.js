@@ -73,7 +73,8 @@
 	}
 
 	// Change the viewport
-	document.querySelector( "meta[name='viewport']" ).content = "width=device-width,initial-scale=1.0,minimum-scale=1.0,user-scalable=no";
+	document.querySelector( "meta[name='viewport']" ).content =
+		"width=device-width,initial-scale=1.0,minimum-scale=1.0,user-scalable=no";
 
 	// Allow app to run in full screen when launched from the home screen
 	insertMeta( "apple-mobile-web-app-capable", "yes" );
@@ -88,7 +89,18 @@
 	insertMeta( "content-type", "text/html; charset=utf-8" );
 
 	// Insert loading icon
-	insertStyle( ".logo{margin-top: -10px!important;margin-bottom: 10px!important}body{background-color:#1d1d1d}.spinner{text-align:center;display:block;padding:.9375em;margin-left:-7.1875em;width:12.5em;filter:Alpha(Opacity=88);opacity:.88;margin-top:-2.6875em;height:auto;z-index:9999999;position:fixed;top:50%;left:50%;border:0;background-color:#2a2a2a;border-color:#1d1d1d;color:#fff;text-shadow:0 1px 0 #111;-webkit-border-radius:.3125em;border-radius:.3125em;}.spinner h1{font-size: 1em;margin:0;text-align:center;}.spinner form{margin-bottom:0}.spinner form{padding-top:.2em;}.spinner input[type='password']{border-radius:5px;padding:.3em;line-height:1.2em;display:block;width:100%;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;outline:0;}.spinner input[type=submit]{border-radius:5px;border: 0;font-family:Tahoma;background:#f4f4f4;margin-top:5px;width:100%;}.feedback{color:red}" );
+	insertStyle( ".logo{margin-top:-10px!important;margin-bottom:10px!important}" +
+		"body{background-color:#1d1d1d}.spinner{text-align:center;display:block;padding:.9375em;" +
+		"margin-left:-7.1875em;width:12.5em;filter:Alpha(Opacity=88);opacity:.88;" +
+		"margin-top:-2.6875em;height:auto;z-index:9999999;position:fixed;top:50%;left:50%;" +
+		"border:0;background-color:#2a2a2a;border-color:#1d1d1d;color:#fff;" +
+		"text-shadow:0 1px 0 #111;-webkit-border-radius:.3125em;border-radius:.3125em;}" +
+		".spinner h1{font-size: 1em;margin:0;text-align:center;}.spinner form{margin-bottom:0}" +
+		".spinner form{padding-top:.2em;}.spinner input[type='password']{border-radius:5px;" +
+		"padding:.3em;line-height:1.2em;display:block;width:100%;-webkit-box-sizing:border-box;" +
+		"-moz-box-sizing:border-box;box-sizing:border-box;outline:0;}.spinner input[type=submit]" +
+		"{border-radius:5px;border: 0;font-family:Tahoma;background:#f4f4f4;margin-top:5px;" +
+		"width:100%;}.feedback{color:red}" );
 
 	// Change title to reflect current state
 	document.title = "Loading...";
@@ -107,7 +119,10 @@
 			init();
 		} catch ( err ) {
 			if ( err.code === 22 ) {
-				document.body.innerHTML = "<div class='spinner'><div class='logo'></div><span class='feedback'>Local storage is not enabled on your device and is required by the application. You may be in private browsing mode.</span></div>";
+				document.body.innerHTML = "<div class='spinner'><div class='logo'></div>" +
+					"<span class='feedback'>Local storage is not " +
+					"enabled on your device and is required by the application. " +
+					"You may be in private browsing mode.</span></div>";
 				return;
 			}
 		}
@@ -120,17 +135,25 @@
 	( function() {
 	    var p, l, r = window.devicePixelRatio, h = window.screen.height;
 	    if ( navigator.platform === "iPad" ) {
-	            p = r === 2 ? "res/ios-web/screens/startup-tablet-portrait-retina.png" : "res/ios-web/screens/startup-tablet-portrait.png";
-	            l = r === 2 ? "res/ios-web/screens/startup-tablet-landscape-retina.png" : "res/ios-web/screens/startup-tablet-landscape.png";
-	            insertStyleSheet( assetLocation + l, "apple-touch-startup-image", "screen and (orientation: landscape)" );
-	            insertStyleSheet( assetLocation + p, "apple-touch-startup-image", "screen and (orientation: portrait)" );
+	            p = r === 2 ? "res/ios-web/screens/startup-tablet-portrait-retina.png" :
+					"res/ios-web/screens/startup-tablet-portrait.png";
+	            l = r === 2 ? "res/ios-web/screens/startup-tablet-landscape-retina.png" :
+					"res/ios-web/screens/startup-tablet-landscape.png";
+	            insertStyleSheet( assetLocation + l, "apple-touch-startup-image",
+					"screen and (orientation: landscape)" );
+	            insertStyleSheet( assetLocation + p, "apple-touch-startup-image",
+					"screen and (orientation: portrait)" );
 	    } else {
-	            p = r === 2 ? ( h === 568 ? "res/ios-web/screens/startup-iphone5-retina.png" : "res/ios-web/screens/startup-retina.png" ) : "res/ios-web/screens/startup.png";
+	            p = r === 2 ?
+					( h === 568 ? "res/ios-web/screens/startup-iphone5-retina.png" :
+						"res/ios-web/screens/startup-retina.png" ) :
+					"res/ios-web/screens/startup.png";
 	            insertStyleSheet( assetLocation + p, "apple-touch-startup-image" );
 	    }
 	} )();
 
-	if ( !document.createElementNS || !document.createElementNS( "http://www.w3.org/2000/svg", "svg" ).createSVGRect ) {
+	if ( !document.createElementNS ||
+		!document.createElementNS( "http://www.w3.org/2000/svg", "svg" ).createSVGRect ) {
 		$( "html" ).addClas( "ui-nosvg" );
 	}
 
@@ -162,7 +185,7 @@
 						"ssl": location.protocol === "https:" ? "1" : undefined
 					}
 				},
-				current_site = "Local";
+				currentSite = "Local";
 
 				// Show loading message and title
 				body.html( "<div class='spinner'><h1>Loading</h1></div>" );
@@ -170,7 +193,7 @@
 
 				// Inject site information to storage so Application loads current device
 				localStorage.setItem( "sites", JSON.stringify( sites ) );
-				localStorage.setItem( "current_site", current_site );
+				localStorage.setItem( "current_site", currentSite );
 				finishInit();
 			},
 			wrongPassword = function() {
@@ -184,7 +207,9 @@
 				$( "#os_pw" ).val( "" );
 			},
 			fail = function() {
-				body.html( "<div class='spinner'><div class='logo'></div><span class='feedback'>Unable to load UI</span></div>" );
+				body.html( "<div class='spinner'>" +
+						"<div class='logo'></div><span class='feedback'>Unable to load UI</span>" +
+					"</div>" );
 			},
 			sites = JSON.parse( localStorage.getItem( "sites" ) ),
 			loader;
@@ -208,7 +233,18 @@
 		} else {
 
 			// If this is a new login, prompt for password
-			loader = $( "<div class='spinner'><div class='logo'></div><h1>Enter Device Password</h1><span class='feedback'></span><form><input type='password' id='os_pw' name='os_pw' value='' /><input type='submit' value='Submit' /></form></div>" ),
+			loader = $(
+				"<div class='spinner'>" +
+					"<div class='logo'></div>" +
+					"<h1>Enter Device Password</h1>" +
+					"<span class='feedback'></span>" +
+					"<form>" +
+						"<input type='password' id='os_pw' name='os_pw' value='' />" +
+						"<input type='submit' value='Submit' />" +
+					"</form>" +
+				"</div>"
+			);
+
 			loader.on( "submit", function() {
 				var pw = $( "#os_pw" ).val(),
 					checkPW = function( pass, callback ) {
@@ -222,9 +258,9 @@
 				                var result = data.result;
 
 				                if ( typeof result === "undefined" || result > 1 ) {
-				                	callback( false );
+									callback( false );
 				                } else {
-				                	callback( true );
+									callback( true );
 				                }
 							},
 							function() {

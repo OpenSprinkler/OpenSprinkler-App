@@ -50,7 +50,7 @@ module.exports = function( grunt ) {
 		},
 
 		jscs: {
-			main: [ "<%= pkg.main %>", "Gruntfile.js", "www/js/home.js", "chrome.js", "test/tests.js" ],
+			main: [ "<%= pkg.main %>", "www/js/home.js", "chrome.js" ],
 			options: {
 				config: true,
 				fix: true
@@ -302,14 +302,14 @@ module.exports = function( grunt ) {
 	} );
 
 	// Default task(s).
-	grunt.registerTask( "default", [ "jshint" ] );
-	grunt.registerTask( "test", [ "jshint", "blanket_mocha" ] );
+	grunt.registerTask( "default", [ "jshint", "jscs" ] );
+	grunt.registerTask( "test", [ "default", "blanket_mocha" ] );
 	grunt.registerTask( "updateLang", [ "shell:updateLang" ] );
 	grunt.registerTask( "pushEng", [ "shell:pushEng" ] );
-	grunt.registerTask( "makeFW", [ "jshint", "uglify", "cssmin", "compress:jsAsset", "compress:cssAsset", "compress:makeFW", "clean:makeFW" ] );
+	grunt.registerTask( "makeFW", [ "default", "uglify", "cssmin", "compress:jsAsset", "compress:cssAsset", "compress:makeFW", "clean:makeFW" ] );
 	grunt.registerTask( "pushFW", [ "makeFW", "shell:updateUI", "clean:pushFW" ] );
 	grunt.registerTask( "pushBetaFW", [ "makeFW", "shell:updateBetaUI", "clean:pushFW" ] );
-	grunt.registerTask( "build", [ "jshint", "shell:symres", "shell:blackberry10", "compress:firefox", "compress:chrome", "compress:blackberry10", "pushFW", "clean:symres" ] );
-	grunt.registerTask( "bump", [ "jshint", "replace:about", "replace:osx", "replace:phonegap", "replace:manifests", "shell:pushBump" ] );
+	grunt.registerTask( "build", [ "default", "shell:symres", "shell:blackberry10", "compress:firefox", "compress:chrome", "compress:blackberry10", "pushFW", "clean:symres" ] );
+	grunt.registerTask( "bump", [ "default", "replace:about", "replace:osx", "replace:phonegap", "replace:manifests", "shell:pushBump" ] );
 
 };
