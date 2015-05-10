@@ -4,7 +4,9 @@ msgstr ""
 msgid "Duration"
 msgstr ""
 
-msgid "Enable manual rain delay by entering a value into the input below."
+msgid ""
+"Enable manual rain delay by entering a value into the input below. To turn "
+"off a currently enabled rain delay use a value of 0."
 msgstr ""
 
 msgid "Back"
