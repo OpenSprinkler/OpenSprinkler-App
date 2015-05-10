@@ -244,7 +244,8 @@ $( document )
                 preventCompression: true,
                 incrementalUpdate: false,
                 updateOnChange: false,
-                helptext: _( "Enable manual rain delay by entering a value into the input below. To turn off a currently enabled rain delay use a value of 0." )
+                helptext:
+					_( "Enable manual rain delay by entering a value into the input below. To turn off a currently enabled rain delay use a value of 0." )
             } );
             return false;
         } else if ( hash === "#site-select" ) {
@@ -1349,7 +1350,9 @@ function showAddNew( autoIP, closeOld ) {
             "</div>" +
             "<div class='ui-content' id='addnew-content'>" +
                 "<form method='post' novalidate>" +
-                    ( isAuto ? "" : "<p class='center smaller'>" + _( "Note: The name is used to identify the OpenSprinkler within the app. OpenSprinkler IP can be either an IP or hostname. You can also specify a port by using IP:Port" ) + "</p>" ) +
+                    ( isAuto ? "" : "<p class='center smaller'>" +
+						_( "Note: The name is used to identify the OpenSprinkler within the app. OpenSprinkler IP can be either an IP or hostname. You can also specify a port by using IP:Port" ) +
+					"</p>" ) +
                     "<label for='os_name'>" + _( "Open Sprinkler Name:" ) + "</label>" +
                     "<input autocorrect='off' spellcheck='false' type='text' name='os_name' " +
 						"id='os_name' placeholder='Home'>" +
@@ -1533,13 +1536,18 @@ function showSites( showBack ) {
                 a = htmlEscape( a );
 
                 list += "<fieldset " + ( ( total === 1 ) ? "data-collapsed='false'" : "" ) + " id='site-" + i + "' data-role='collapsible'>" +
-                    "<h3><a class='ui-btn ui-btn-corner-all connectnow yellow' data-site='" + i + "' href='#'>" + _( "connect" ) + "</a>" + a + "</h3>" +
+                    "<h3>" +
+						"<a class='ui-btn ui-btn-corner-all connectnow yellow' data-site='" + i + "' href='#'>" +
+							_( "connect" ) +
+						"</a>" +
+					a + "</h3>" +
                     "<form data-site='" + i + "' novalidate>" +
                         "<div class='ui-field-contain'>" +
                             "<label for='cnm-" + i + "'>" + _( "Change Name" ) + "</label><input id='cnm-" + i + "' type='text' value='" + a + "'>" +
                         "</div>" +
                         "<div class='ui-field-contain'>" +
-                            "<label for='cip-" + i + "'>" + _( "Change IP" ) + "</label><input id='cip-" + i + "' type='url' value='" + b.os_ip + "' autocomplete='off' autocorrect='off' autocapitalize='off' pattern='' spellcheck='false'>" +
+                            "<label for='cip-" + i + "'>" + _( "Change IP" ) + "</label><input id='cip-" + i + "' type='url' value='" + b.os_ip +
+								"' autocomplete='off' autocorrect='off' autocapitalize='off' pattern='' spellcheck='false'>" +
                         "</div>" +
                         "<div class='ui-field-contain'>" +
                             "<label for='cpw-" + i + "'>" + _( "Change Password" ) + "</label><input id='cpw-" + i + "' type='password'>" +
@@ -1547,15 +1555,20 @@ function showSites( showBack ) {
                         "<fieldset data-mini='true' data-role='collapsible'>" +
                             "<h3>" +
 								"<span style='line-height:23px'>" + _( "Advanced" ) + "</span>" +
-								"<button data-helptext='" + _( "These options are only for an OpenSprinkler behind a proxy capable of SSL and/or Basic Authentication." ) +
+								"<button data-helptext='" +
+									_( "These options are only for an OpenSprinkler behind a proxy capable of SSL and/or Basic Authentication." ) +
 									"' class='collapsible-button-right help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
 							"</h3>" +
                             "<label for='usessl-" + i + "'>" +
-								"<input data-mini='true' type='checkbox' id='usessl-" + i + "' name='usessl-" + i + "'" + ( typeof b.ssl !== "undefined" && b.ssl === "1" ? " checked='checked'" : "" ) + ">" + _( "Use SSL" ) +
+								"<input data-mini='true' type='checkbox' id='usessl-" + i + "' name='usessl-" + i + "'" +
+									( typeof b.ssl !== "undefined" && b.ssl === "1" ? " checked='checked'" : "" ) + ">" +
+								_( "Use SSL" ) +
 							"</label>" +
                             "<label for='useauth-" + i + "'>" +
-								"<input class='useauth' data-user='" + b.auth_user + "' data-pw='" + b.auth_pw + "' data-mini='true' type='checkbox' id='useauth-" + i + "' name='useauth-" + i + "'" +
-									( typeof b.auth_user !== "undefined" && typeof b.auth_pw !== "undefined" ? " checked='checked'" : "" ) + ">" + _( "Use Auth" ) +
+								"<input class='useauth' data-user='" + b.auth_user + "' data-pw='" + b.auth_pw +
+									"' data-mini='true' type='checkbox' id='useauth-" + i + "' name='useauth-" + i + "'" +
+									( typeof b.auth_user !== "undefined" && typeof b.auth_pw !== "undefined" ? " checked='checked'" : "" ) + ">" +
+								_( "Use Auth" ) +
 							"</label>" +
                         "</fieldset>" +
                         "<input class='submit' type='submit' value='" + _( "Save Changes to" ) + " " + a + "'>" +
@@ -1942,7 +1955,9 @@ function startScan( port, type ) {
 
         devicesfound++;
 
-        newlist += "<li><a class='ui-btn ui-btn-icon-right ui-icon-carat-r' href='#' data-ip='" + ip + "'>" + ip + "<p>" + _( "Firmware" ) + ": " + getOSVersion( fwv ) + "</p></a></li>";
+        newlist += "<li><a class='ui-btn ui-btn-icon-right ui-icon-carat-r' href='#' data-ip='" + ip + "'>" + ip +
+				"<p>" + _( "Firmware" ) + ": " + getOSVersion( fwv ) + "</p>" +
+			"</a></li>";
     };
 
     // Check if scanning is complete
@@ -1996,7 +2011,8 @@ function startScan( port, type ) {
     }
 
     $.mobile.loading( "show", {
-        html: "<h1>" + text + "</h1><p class='cancel tight center inline-icon'><span class='btn-no-border ui-btn ui-icon-delete ui-btn-icon-notext'></span>" + _( "Cancel" ) + "</p>",
+        html: "<h1>" + text + "</h1><p class='cancel tight center inline-icon'>" +
+			"<span class='btn-no-border ui-btn ui-icon-delete ui-btn-icon-notext'></span>" + _( "Cancel" ) + "</p>",
         textVisible: true,
         theme: "b"
     } );
@@ -2117,29 +2133,43 @@ function showWeatherSettings() {
                     "<label for='weather_provider'>" + _( "Weather Provider" ) + "</label>" +
                     "<select data-mini='true' id='weather_provider'>" +
                         "<option value='yahoo' " + ( currPiWeather.weather_provider === "yahoo" ? "selected" : "" ) + ">" + _( "Yahoo!" ) + "</option>" +
-                        "<option value='wunderground' " + ( currPiWeather.weather_provider === "wunderground" ? "selected" : "" ) + ">" + _( "Wunderground" ) + "</option>" +
+                        "<option value='wunderground' " + ( currPiWeather.weather_provider === "wunderground" ? "selected" : "" ) + ">" +
+							_( "Wunderground" ) +
+						"</option>" +
                     "</select>" +
-                    "<label " + ( currPiWeather.weather_provider === "wunderground" ? "" : "style='display:none' " ) + "for='wapikey'>" + _( "Wunderground API Key" ) + "</label><input " + ( currPiWeather.weather_provider === "wunderground" ? "" : "style='display:none' " ) + "data-mini='true' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' type='text' id='wapikey' value='" + currPiWeather.wapikey + "'>" +
+                    "<label " + ( currPiWeather.weather_provider === "wunderground" ? "" : "style='display:none' " ) + "for='wapikey'>" +
+						_( "Wunderground API Key" ) +
+					"</label>" +
+					"<input " + ( currPiWeather.weather_provider === "wunderground" ? "" : "style='display:none' " ) + "data-mini='true' " +
+						"autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' type='text' " +
+						"id='wapikey' value='" + currPiWeather.wapikey + "'>" +
                 "</li>" +
             "</ul>" +
             "<ul data-role='listview' data-inset='true'> " +
                 "<li>" +
-                    "<p class='rain-desc'>" + _( "When automatic rain delay is enabled, the weather will be checked for rain every hour. If the weather reports any condition suggesting rain, a rain delay is automatically issued using the below set delay duration." ) + "</p>" +
-                        "<div class='ui-field-contain'>" +
-                            "<label for='auto_delay'>" + _( "Auto Rain Delay" ) + "</label>" +
-                            "<input type='checkbox' data-on-text='On' data-off-text='Off' data-role='flipswitch' name='auto_delay' id='auto_delay' " + ( currPiWeather.auto_delay === "on" ? "checked" : "" ) + ">" +
-                        "</div>" +
-                        "<div class='ui-field-contain duration-input'>" +
-                            "<label for='delay_duration'>" + _( "Delay Duration" ) + "</label>" +
-                            "<button id='delay_duration' data-mini='true' value='" + ( currPiWeather.delay_duration * 3600 ) + "'>" + dhms2str( sec2dhms( currPiWeather.delay_duration * 3600 ) ) + "</button>" +
-                        "</div>" +
+                    "<p class='rain-desc'>" +
+						_( "When automatic rain delay is enabled, the weather will be checked for rain every hour. If the weather reports any condition suggesting rain, a rain delay is automatically issued using the below set delay duration." ) +
+					"</p>" +
+                    "<div class='ui-field-contain'>" +
+                        "<label for='auto_delay'>" + _( "Auto Rain Delay" ) + "</label>" +
+                        "<input type='checkbox' data-on-text='On' data-off-text='Off' data-role='flipswitch' " +
+							"name='auto_delay' id='auto_delay' " + ( currPiWeather.auto_delay === "on" ? "checked" : "" ) + ">" +
+                    "</div>" +
+                    "<div class='ui-field-contain duration-input'>" +
+                        "<label for='delay_duration'>" + _( "Delay Duration" ) + "</label>" +
+                        "<button id='delay_duration' data-mini='true' value='" + ( currPiWeather.delay_duration * 3600 ) + "'>" +
+							dhms2str( sec2dhms( currPiWeather.delay_duration * 3600 ) ) +
+						"</button>" +
+                    "</div>" +
                 "</li>" +
             "</ul>" +
             "<a class='wsubmit' href='#' data-role='button' data-theme='b' type='submit'>" + _( "Submit" ) + "</a>" +
         "</div>" +
     "</div>" ),
     submitWeatherSettings = function() {
-        var url = "/uwa?auto_delay=" + ( $( "#auto_delay" ).is( ":checked" ) ? "on" : "off" ) + "&delay_duration=" + parseInt( $( "#delay_duration" ).val() / 3600 ) + "&weather_provider=" + $( "#weather_provider" ).val() + "&wapikey=" + $( "#wapikey" ).val();
+        var url = "/uwa?auto_delay=" +
+			( $( "#auto_delay" ).is( ":checked" ) ? "on" : "off" ) + "&delay_duration=" + parseInt( $( "#delay_duration" ).val() / 3600 ) +
+			"&weather_provider=" + $( "#weather_provider" ).val() + "&wapikey=" + $( "#wapikey" ).val();
 
         $.mobile.loading( "show" );
 
@@ -2256,7 +2286,8 @@ function updateWeather() {
 
 function updateYahooWeather() {
     $.ajax( {
-        url: "https://query.yahooapis.com/v1/public/yql?q=select%20woeid%20from%20geo.placefinder%20where%20text=%22" + encodeURIComponent( controller.settings.loc ) + "%22&format=json",
+        url: "https://query.yahooapis.com/v1/public/yql?q=select%20woeid%20from%20geo.placefinder%20where%20text=%22" +
+			encodeURIComponent( controller.settings.loc ) + "%22&format=json",
         dataType: isChromeApp ? "json" : "jsonp",
         contentType: "application/json; charset=utf-8",
         shouldRetry: retryCount,
@@ -2275,7 +2306,8 @@ function updateYahooWeather() {
             }
 
             $.ajax( {
-                url: "https://query.yahooapis.com/v1/public/yql?q=select%20item%2Ctitle%2Clocation%20from%20weather.forecast%20where%20woeid%3D%22" + wid + "%22&format=json",
+                url: "https://query.yahooapis.com/v1/public/yql?q=select%20item%2Ctitle%2Clocation%20from%20weather.forecast%20where%20woeid%3D%22" +
+					wid + "%22&format=json",
                 dataType: isChromeApp ? "json" : "jsonp",
                 contentType: "application/json; charset=utf-8",
                 shouldRetry: retryCount,
@@ -2314,7 +2346,8 @@ function updateYahooWeather() {
 
 function updateWeatherBox() {
     $( "#weather" )
-        .html( "<div title='" + weather.title + "' class='wicon cond" + weather.code + "'></div><div class='inline tight'>" + weather.temp + "</div><br><div class='inline location tight'>" + weather.location + "</div>" )
+        .html( "<div title='" + weather.title + "' class='wicon cond" + weather.code + "'></div>" +
+			"<div class='inline tight'>" + weather.temp + "</div><br><div class='inline location tight'>" + weather.location + "</div>" )
         .off( "click" ).on( "click", function() {
             changePage( "#forecast" );
             return false;
@@ -2690,7 +2723,8 @@ function nearbyPWS( lat, lon, callback ) {
     }
 
     $.ajax( {
-        url: "https://api.wunderground.com/api/" + controller.settings.wtkey + "/geolookup/q/" + ( lat === -999 || lon === -999 ? "autoip" : encodeURIComponent( lat ) + "," + encodeURIComponent( lon ) ) + ".json",
+        url: "https://api.wunderground.com/api/" + controller.settings.wtkey + "/geolookup/q/" +
+			( lat === -999 || lon === -999 ? "autoip" : encodeURIComponent( lat ) + "," + encodeURIComponent( lon ) ) + ".json",
         dataType: isChromeApp ? "json" : "jsonp",
         shouldRetry: retryCount
     } ).done( function( data ) {
@@ -2957,7 +2991,10 @@ function bindPanel() {
                                     "<option " + ( ( data.provider === "wunderground" ) ? "selected " : "" ) + "value='wunderground'>" + _( "Wunderground" ) + "</option>" +
                                 "</select>" +
                             "</label>" +
-                            "<label for='wapikey'>" + _( "Wunderground API Key" ) + "<input data-mini='true' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' type='text' id='wapikey' value='" + ( ( data.wapikey ) ? data.wapikey : "" ) + "'></label>" +
+                            "<label for='wapikey'>" + _( "Wunderground API Key" ) +
+								"<input data-mini='true' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' " +
+									"type='text' id='wapikey' value='" + ( ( data.wapikey ) ? data.wapikey : "" ) + "'>" +
+							"</label>" +
                             "<input type='submit' value='" + _( "Submit" ) + "'>" +
                         "</form>" +
                     "</div>" +
@@ -3060,7 +3097,8 @@ function showOptions( expandItem ) {
                 invalid = false,
                 isPi = isOSPi(),
                 button = header.eq( 2 ),
-                keyNames = { 1:"tz", 2:"ntp", 12:"htp", 13:"htp2", 14:"ar", 15:"nbrd", 16:"seq", 17:"sdt", 18:"mas", 19:"mton", 20:"mtoff", 21:"urs", 22:"rst", 23:"wl", 25:"ipas", 30:"rlp", 36:"lg", 31:"uwt", 37:"mas2", 38:"mton2", 39:"mtof2" },
+                keyNames = { 1:"tz", 2:"ntp", 12:"htp", 13:"htp2", 14:"ar", 15:"nbrd", 16:"seq", 17:"sdt", 18:"mas", 19:"mton", 20:"mtoff",
+					21:"urs", 22:"rst", 23:"wl", 25:"ipas", 30:"rlp", 36:"lg", 31:"uwt", 37:"mas2", 38:"mton2", 39:"mtof2" },
                 key;
 
             button.prop( "disabled", true );
@@ -3227,17 +3265,27 @@ function showOptions( expandItem ) {
 
     page.find( ".submit" ).on( "click", submitOptions );
 
-    list = "<fieldset data-role='collapsible'" + ( typeof expandItem !== "string" || expandItem === "system" ? " data-collapsed='false'" : "" ) + "><legend>" + _( "System" ) + "</legend>";
+    list = "<fieldset data-role='collapsible'" + ( typeof expandItem !== "string" || expandItem === "system" ? " data-collapsed='false'" : "" ) + ">" +
+		"<legend>" + _( "System" ) + "</legend>";
 
     if ( typeof controller.options.ntp !== "undefined" ) {
-        list += "<div class='ui-field-contain datetime-input'><label for='datetime'>" + _( "Device Time" ) + "</label><button " + ( controller.options.ntp ? "disabled " : "" ) + "data-mini='true' id='datetime' value='" + ( controller.settings.devt + ( new Date( controller.settings.devt * 1000 ).getTimezoneOffset() * 60 ) ) + "'>" + dateToString( new Date( controller.settings.devt * 1000 ) ).slice( 0, -3 ) + "</button></div>";
+        list += "<div class='ui-field-contain datetime-input'><label for='datetime'>" + _( "Device Time" ) + "</label>" +
+			"<button " + ( controller.options.ntp ? "disabled " : "" ) + "data-mini='true' id='datetime' " +
+				"value='" + ( controller.settings.devt + ( new Date( controller.settings.devt * 1000 ).getTimezoneOffset() * 60 ) ) + "'>" +
+			dateToString( new Date( controller.settings.devt * 1000 ) ).slice( 0, -3 ) + "</button></div>";
     }
 
     if ( !isOSPi() && typeof controller.options.tz !== "undefined" ) {
-        timezones = [ "-12:00", "-11:30", "-11:00", "-10:00", "-09:30", "-09:00", "-08:30", "-08:00", "-07:00", "-06:00", "-05:00", "-04:30", "-04:00", "-03:30", "-03:00", "-02:30", "-02:00", "+00:00", "+01:00", "+02:00", "+03:00", "+03:30", "+04:00", "+04:30", "+05:00", "+05:30", "+05:45", "+06:00", "+06:30", "+07:00", "+08:00", "+08:45", "+09:00", "+09:30", "+10:00", "+10:30", "+11:00", "+11:30", "+12:00", "+12:45", "+13:00", "+13:45", "+14:00" ];
+        timezones = [ "-12:00", "-11:30", "-11:00", "-10:00", "-09:30", "-09:00", "-08:30", "-08:00", "-07:00", "-06:00",
+			"-05:00", "-04:30", "-04:00", "-03:30", "-03:00", "-02:30", "-02:00", "+00:00", "+01:00", "+02:00", "+03:00",
+			"+03:30", "+04:00", "+04:30", "+05:00", "+05:30", "+05:45", "+06:00", "+06:30", "+07:00", "+08:00", "+08:45",
+			"+09:00", "+09:30", "+10:00", "+10:30", "+11:00", "+11:30", "+12:00", "+12:45", "+13:00", "+13:45", "+14:00" ];
+
         tz = controller.options.tz - 48;
         tz = ( ( tz >= 0 ) ? "+" : "-" ) + pad( ( Math.abs( tz ) / 4 >> 0 ) ) + ":" + ( ( Math.abs( tz ) % 4 ) * 15 / 10 >> 0 ) + ( ( Math.abs( tz ) % 4 ) * 15 % 10 );
-        list += "<div class='ui-field-contain'><label for='o1' class='select'>" + _( "Timezone" ) + "</label><select " + ( checkOSVersion( 210 ) ? "disabled='disabled' " : "" ) + "data-mini='true' id='o1'>";
+        list += "<div class='ui-field-contain'><label for='o1' class='select'>" + _( "Timezone" ) + "</label>" +
+			"<select " + ( checkOSVersion( 210 ) ? "disabled='disabled' " : "" ) + "data-mini='true' id='o1'>";
+
         for ( i = 0; i < timezones.length; i++ ) {
             list += "<option " + ( ( timezones[i] === tz ) ? "selected" : "" ) + " value='" + timezones[i] + "'>" + timezones[i] + "</option>";
         }
@@ -3245,25 +3293,45 @@ function showOptions( expandItem ) {
     }
 
     list += "<div class='ui-field-contain'>" +
-        "<label for='loc'>" + _( "Location" ) + "<button data-helptext='" + _( "Location can be a zip code, city/state or a weatherunderground personal weather station using the format: pws:ID." ) + "' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label>" +
+        "<label for='loc'>" + _( "Location" ) +
+			"<button data-helptext='" +
+				_( "Location can be a zip code, city/state or a weatherunderground personal weather station using the format: pws:ID." ) +
+				"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
+		"</label>" +
         "<table>" +
             "<tr style='width:100%;vertical-align: top;'>" +
-                "<td style='width:100%'><input data-wrapper-class='" + ( $( "#weather" ).is( ":empty" ) ? "" : "green " ) + "controlgroup-textinput ui-btn' data-mini='true' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' type='text' id='loc' value='" + controller.settings.loc + "'></td>" +
-                "<td " + ( checkOSVersion( 210 ) && controller.settings.wtkey !== "" && weatherKeyFail === false ? "" : "class='hidden' " ) + "id='nearbyPWS'><button class='noselect' data-icon='location' data-iconpos='notext' data-mini='true'></button></td>" +
-                "<td " + ( checkOSVersion( 210 ) && controller.settings.wtkey !== "" && weatherKeyFail === false ? "class='hidden' " : "" ) + "id='lookup-loc'><button class='noselect' data-corners='false' data-mini='true'>" + _( "Lookup" ) + "</button></td>" +
+                "<td style='width:100%'>" +
+					"<input data-wrapper-class='" + ( $( "#weather" ).is( ":empty" ) ? "" : "green " ) +
+						"controlgroup-textinput ui-btn' data-mini='true' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' " +
+						"type='text' id='loc' value='" + controller.settings.loc + "'>" +
+				"</td>" +
+                "<td " + ( checkOSVersion( 210 ) && controller.settings.wtkey !== "" && weatherKeyFail === false ? "" : "class='hidden' " ) + "id='nearbyPWS'>" +
+					"<button class='noselect' data-icon='location' data-iconpos='notext' data-mini='true'></button>" +
+				"</td>" +
+                "<td " + ( checkOSVersion( 210 ) && controller.settings.wtkey !== "" && weatherKeyFail === false ? "class='hidden' " : "" ) + "id='lookup-loc'>" +
+					"<button class='noselect' data-corners='false' data-mini='true'>" + _( "Lookup" ) + "</button>" +
+				"</td>" +
             "</tr>" +
         "</table></div>";
 
     if ( typeof controller.options.lg !== "undefined" ) {
-        list += "<label for='o36'><input data-mini='true' id='o36' type='checkbox' " + ( ( controller.options.lg === 1 ) ? "checked='checked'" : "" ) + ">" + _( "Enable Logging" ) + "</label>";
+        list += "<label for='o36'><input data-mini='true' id='o36' type='checkbox' " + ( ( controller.options.lg === 1 ) ? "checked='checked'" : "" ) + ">" +
+			_( "Enable Logging" ) + "</label>";
     }
 
-    list += "</fieldset><fieldset data-role='collapsible'" + ( typeof expandItem === "string" && expandItem === "master" ? " data-collapsed='false'" : "" ) + "><legend>" + _( "Configure Master" ) + "</legend>";
+    list += "</fieldset><fieldset data-role='collapsible'" +
+		( typeof expandItem === "string" && expandItem === "master" ? " data-collapsed='false'" : "" ) + ">" +
+		"<legend>" + _( "Configure Master" ) + "</legend>";
 
     if ( typeof controller.options.mas !== "undefined" ) {
-        list += "<div class='ui-field-contain ui-field-no-border'><label for='o18' class='select'>" + _( "Master Station" ) + " " + ( typeof controller.options.mas2 !== "undefined" ? "1" : "" ) + "</label><select data-mini='true' id='o18'><option value='0'>" + _( "None" ) + "</option>";
+        list += "<div class='ui-field-contain ui-field-no-border'><label for='o18' class='select'>" +
+				_( "Master Station" ) + " " + ( typeof controller.options.mas2 !== "undefined" ? "1" : "" ) +
+			"</label><select data-mini='true' id='o18'><option value='0'>" + _( "None" ) + "</option>";
+
         for ( i = 0; i < controller.stations.snames.length; i++ ) {
-            list += "<option " + ( ( isStationMaster( i ) === 1 ) ? "selected" : "" ) + " value='" + ( i + 1 ) + "'>" + controller.stations.snames[i] + "</option>";
+            list += "<option " + ( ( isStationMaster( i ) === 1 ) ? "selected" : "" ) + " value='" + ( i + 1 ) + "'>" +
+				controller.stations.snames[i] + "</option>";
+
             if ( !checkOSVersion( 214 ) && i === 7 ) {
                 break;
             }
@@ -3271,63 +3339,105 @@ function showOptions( expandItem ) {
         list += "</select></div>";
 
         if ( typeof controller.options.mton !== "undefined" ) {
-            list += "<div " + ( controller.options.mas === 0 ? "style='display:none' " : "" ) + "class='ui-field-no-border ui-field-contain duration-field'><label for='o19'>" + _( "Master On Delay" ) + "</label><button data-mini='true' id='o19' value='" + controller.options.mton + "'>" + controller.options.mton + "s</button></div>";
+            list += "<div " + ( controller.options.mas === 0 ? "style='display:none' " : "" ) +
+				"class='ui-field-no-border ui-field-contain duration-field'><label for='o19'>" +
+					_( "Master On Delay" ) +
+				"</label><button data-mini='true' id='o19' value='" + controller.options.mton + "'>" + controller.options.mton + "s</button></div>";
         }
 
         if ( typeof controller.options.mtof !== "undefined" ) {
-            list += "<div " + ( controller.options.mas === 0 ? "style='display:none' " : "" ) + "class='ui-field-no-border ui-field-contain duration-field'><label for='o20'>" + _( "Master Off Delay" ) + "</label><button data-mini='true' id='o20' value='" + controller.options.mtof + "'>" + controller.options.mtof + "s</button></div>";
+            list += "<div " + ( controller.options.mas === 0 ? "style='display:none' " : "" ) +
+				"class='ui-field-no-border ui-field-contain duration-field'><label for='o20'>" +
+					_( "Master Off Delay" ) +
+				"</label><button data-mini='true' id='o20' value='" + controller.options.mtof + "'>" + controller.options.mtof + "s</button></div>";
         }
     }
 
     if ( typeof controller.options.mas2 !== "undefined" ) {
         list += "<hr style='width:95%' class='content-divider'>";
 
-        list += "<div class='ui-field-contain ui-field-no-border'><label for='o37' class='select'>" + _( "Master Station" ) + " 2</label><select data-mini='true' id='o37'><option value='0'>" + _( "None" ) + "</option>";
+        list += "<div class='ui-field-contain ui-field-no-border'><label for='o37' class='select'>" +
+				_( "Master Station" ) + " 2" +
+			"</label><select data-mini='true' id='o37'><option value='0'>" + _( "None" ) + "</option>";
+
         for ( i = 0; i < controller.stations.snames.length; i++ ) {
-            list += "<option " + ( ( isStationMaster( i ) === 2 ) ? "selected" : "" ) + " value='" + ( i + 1 ) + "'>" + controller.stations.snames[i] + "</option>";
+            list += "<option " + ( ( isStationMaster( i ) === 2 ) ? "selected" : "" ) + " value='" + ( i + 1 ) + "'>" + controller.stations.snames[i] +
+				"</option>";
+
             if ( !checkOSVersion( 214 ) && i === 7 ) {
                 break;
             }
         }
+
         list += "</select></div>";
 
         if ( typeof controller.options.mton2 !== "undefined" ) {
-            list += "<div " + ( controller.options.mas2 === 0 ? "style='display:none' " : "" ) + "class='ui-field-no-border ui-field-contain duration-field'><label for='o38'>" + _( "Master On Delay" ) + "</label><button data-mini='true' id='o38' value='" + controller.options.mton2 + "'>" + controller.options.mton2 + "s</button></div>";
+            list += "<div " + ( controller.options.mas2 === 0 ? "style='display:none' " : "" ) +
+				"class='ui-field-no-border ui-field-contain duration-field'><label for='o38'>" +
+					_( "Master On Delay" ) +
+				"</label><button data-mini='true' id='o38' value='" + controller.options.mton2 + "'>" + controller.options.mton2 + "s</button></div>";
         }
 
         if ( typeof controller.options.mtof2 !== "undefined" ) {
-            list += "<div " + ( controller.options.mas2 === 0 ? "style='display:none' " : "" ) + "class='ui-field-no-border ui-field-contain duration-field'><label for='o39'>" + _( "Master Off Delay" ) + "</label><button data-mini='true' id='o39' value='" + controller.options.mtof2 + "'>" + controller.options.mtof2 + "s</button></div>";
+            list += "<div " + ( controller.options.mas2 === 0 ? "style='display:none' " : "" ) +
+				"class='ui-field-no-border ui-field-contain duration-field'><label for='o39'>" +
+					_( "Master Off Delay" ) +
+				"</label><button data-mini='true' id='o39' value='" + controller.options.mtof2 + "'>" + controller.options.mtof2 + "s</button></div>";
         }
     }
 
-    list += "</fieldset><fieldset data-role='collapsible'" + ( typeof expandItem === "string" && expandItem === "station" ? " data-collapsed='false'" : "" ) + "><legend>" + _( "Station Handling" ) + "</legend>";
+    list += "</fieldset><fieldset data-role='collapsible'" +
+		( typeof expandItem === "string" && expandItem === "station" ? " data-collapsed='false'" : "" ) + "><legend>" +
+		_( "Station Handling" ) + "</legend>";
 
     if ( typeof controller.options.ext !== "undefined" ) {
-        list += "<div class='ui-field-contain'><label for='o15' class='select'>" + _( "Number of Stations" ) + ( typeof controller.options.dexp === "number" && controller.options.dexp < 255 && controller.options.dexp >= 0 ? " <span class='nobr'>(" + ( controller.options.dexp * 8 + 8 ) + " " + _( "available" ) + ")" : "" ) + "</span></label><select data-mini='true' id='o15'>";
+        list += "<div class='ui-field-contain'><label for='o15' class='select'>" +
+			_( "Number of Stations" ) +
+			( typeof controller.options.dexp === "number" && controller.options.dexp < 255 && controller.options.dexp >= 0 ? " <span class='nobr'>(" +
+				( controller.options.dexp * 8 + 8 ) + " " + _( "available" ) + ")</span>" : "" ) +
+			"</label><select data-mini='true' id='o15'>";
         for ( i = 0; i < 6; i++ ) {
-            list += "<option " + ( ( controller.options.ext === i ) ? "selected" : "" ) + " value='" + i + "'>" + ( i * 8 + 8 ) + " " + _( "stations" ) + "</option>";
+            list += "<option " + ( ( controller.options.ext === i ) ? "selected" : "" ) + " value='" + i + "'>" + ( i * 8 + 8 ) + " " + _( "stations" ) +
+				"</option>";
         }
         list += "</select></div>";
     }
 
     if ( typeof controller.options.sdt !== "undefined" ) {
-        list += "<div class='ui-field-contain duration-field'><label for='o17'>" + _( "Station Delay" ) + "</label><button data-mini='true' id='o17' value='" + controller.options.sdt + "'>" + dhms2str( sec2dhms( controller.options.sdt ) ) + "</button></div>";
+        list += "<div class='ui-field-contain duration-field'><label for='o17'>" + _( "Station Delay" ) + "</label>" +
+			"<button data-mini='true' id='o17' value='" + controller.options.sdt + "'>" +
+				dhms2str( sec2dhms( controller.options.sdt ) ) +
+			"</button></div>";
     }
 
     if ( typeof controller.options.seq !== "undefined" ) {
-        list += "<label for='o16'><input data-mini='true' id='o16' type='checkbox' " + ( ( controller.options.seq === 1 ) ? "checked='checked'" : "" ) + ">" + _( "Sequential" ) + "</label>";
+        list += "<label for='o16'><input data-mini='true' id='o16' type='checkbox' " +
+				( ( controller.options.seq === 1 ) ? "checked='checked'" : "" ) + ">" +
+			_( "Sequential" ) + "</label>";
     }
 
-    list += "</fieldset><fieldset data-role='collapsible'" + ( typeof expandItem === "string" && expandItem === "weather" ? " data-collapsed='false'" : "" ) + "><legend>" + _( "Weather Control" ) + "</legend>";
+    list += "</fieldset><fieldset data-role='collapsible'" +
+		( typeof expandItem === "string" && expandItem === "weather" ? " data-collapsed='false'" : "" ) + ">" +
+		"<legend>" + _( "Weather Control" ) + "</legend>";
 
     if ( typeof controller.settings.wtkey !== "undefined" ) {
-        list += "<div class='ui-field-contain'><label for='wtkey'>" + _( "Wunderground Key" ).replace( "Wunderground", "Wunder&shy;ground" ) + "<button data-helptext='" + _( "Weather Underground requires an API Key which can be obtained from " ) + "' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label>" +
+        list += "<div class='ui-field-contain'><label for='wtkey'>" + _( "Wunderground Key" ).replace( "Wunderground", "Wunder&shy;ground" ) +
+	        "<button data-helptext='" +
+				_( "Weather Underground requires an API Key which can be obtained from " ) +
+				"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
+		"</label>" +
         "<table>" +
             "<tr style='width:100%;vertical-align: top;'>" +
                 "<td style='width:100%'>" +
-                    "<div class='" + ( weatherKeyFail === true ? "red " : ( ( controller.settings.wtkey && controller.settings.wtkey !== "" ) ? "green " : "" ) ) + "ui-input-text controlgroup-textinput ui-btn ui-body-inherit ui-corner-all ui-mini ui-shadow-inset ui-input-has-clear'>" +
-                        "<input data-role='none' data-mini='true' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' type='text' id='wtkey' value='" + controller.settings.wtkey + "'>" +
-                        "<a href='#' tabindex='-1' aria-hidden='true' data-helptext='" + _( "An invalid API key has been detected." ) + "' class='" + ( weatherKeyFail === true ? "" : "hidden " ) + "help-icon ui-input-clear ui-btn ui-icon-alert ui-btn-icon-notext ui-corner-all'></a>" +
+                    "<div class='" +
+						( weatherKeyFail === true ? "red " : ( ( controller.settings.wtkey && controller.settings.wtkey !== "" ) ? "green " : "" ) ) +
+						"ui-input-text controlgroup-textinput ui-btn ui-body-inherit ui-corner-all ui-mini ui-shadow-inset ui-input-has-clear'>" +
+							"<input data-role='none' data-mini='true' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' " +
+								"type='text' id='wtkey' value='" + controller.settings.wtkey + "'>" +
+							"<a href='#' tabindex='-1' aria-hidden='true' data-helptext='" + _( "An invalid API key has been detected." ) +
+								"' class='" + ( weatherKeyFail === true ? "" : "hidden " ) +
+								"help-icon ui-input-clear ui-btn ui-icon-alert ui-btn-icon-notext ui-corner-all'>" +
+							"</a>" +
                     "</div>" +
                 "</td>" +
                 "<td><button class='noselect' data-mini='true' id='verify-api'>" + _( "Verify" ) + "</button></td>" +
@@ -3337,15 +3447,24 @@ function showOptions( expandItem ) {
 
     if ( typeof controller.options.uwt !== "undefined" ) {
         list += "<div class='ui-field-contain'><label for='o31' class='select'>" + _( "Weather Adjustment Method" ) +
-				"<button data-helptext='" + _( "Weather adjustment uses Weather Underground data in conjunction with the selected method to adjust the watering percentage." ) + "' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
-			"</label><select " + ( controller.settings.wtkey && controller.settings.wtkey !== "" ? "" : "disabled='disabled' " ) + "data-mini='true' id='o31'>";
+				"<button data-helptext='" +
+					_( "Weather adjustment uses Weather Underground data in conjunction with the selected method to adjust the watering percentage." ) +
+					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
+			"</label><select " + ( controller.settings.wtkey && controller.settings.wtkey !== "" ? "" : "disabled='disabled' " ) +
+				"data-mini='true' id='o31'>";
         for ( i = 0; i < 2; i++ ) {
             list += "<option " + ( ( i === getAdjustmentMethod() ) ? "selected" : "" ) + " value='" + i + "'>" + getAdjustmentName( i ) + "</option>";
         }
         list += "</select></div>";
 
         if ( checkOSVersion( 214 ) ) {
-            list += "<div class='ui-field-contain'><label for='weatherRestriction' class='select'>" + _( "Weather-Based Restrictions" ) + "<button data-helptext='" + _( "Prevents watering when the selected restriction is met." ) + "' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><select " + ( controller.settings.wtkey && controller.settings.wtkey !== "" ? "" : "disabled='disabled' " ) + "data-mini='true' class='noselect' id='weatherRestriction'>";
+            list += "<div class='ui-field-contain'><label for='weatherRestriction' class='select'>" + _( "Weather-Based Restrictions" ) +
+					"<button data-helptext='" + _( "Prevents watering when the selected restriction is met." ) +
+						"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
+				"</label>" +
+				"<select " + ( controller.settings.wtkey && controller.settings.wtkey !== "" ? "" : "disabled='disabled' " ) +
+					"data-mini='true' class='noselect' id='weatherRestriction'>";
+
             for ( i = 0; i < 2; i++ ) {
                 var restrict = getRestriction( i );
                 list += "<option " + ( restrict.isCurrent === true ? "selected" : "" ) + " value='" + i + "'>" + restrict.name + "</option>";
@@ -3356,76 +3475,107 @@ function showOptions( expandItem ) {
 
     if ( typeof controller.options.wl !== "undefined" ) {
         list += "<div class='ui-field-contain duration-field'><label for='o23'>" + _( "% Watering" ) +
-				"<button data-helptext='" + _( "The watering percentage scales station run times by the set value. When weather adjustment is used the watering percentage is automatically adjusted." ) + "' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
-			"</label><button " + ( ( controller.options.uwt && controller.options.uwt > 0 ) ? "disabled='disabled' " : "" ) + "data-mini='true' id='o23' value='" + controller.options.wl + "'>" + controller.options.wl + "%</button></div>";
+				"<button data-helptext='" +
+					_( "The watering percentage scales station run times by the set value. When weather adjustment is used the watering percentage is automatically adjusted." ) +
+					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
+			"</label><button " + ( ( controller.options.uwt && controller.options.uwt > 0 ) ? "disabled='disabled' " : "" ) +
+				"data-mini='true' id='o23' value='" + controller.options.wl + "'>" + controller.options.wl + "%</button></div>";
     }
 
     if ( typeof controller.options.urs !== "undefined" ) {
-        list += "<label for='o21'><input data-mini='true' id='o21' type='checkbox' " + ( ( controller.options.urs === 1 ) ? "checked='checked'" : "" ) + ">" + _( "Use Rain Sensor" ) + "</label>";
+        list += "<label for='o21'>" +
+			"<input data-mini='true' id='o21' type='checkbox' " + ( ( controller.options.urs === 1 ) ? "checked='checked'" : "" ) + ">" +
+			_( "Use Rain Sensor" ) + "</label>";
     }
 
     if ( typeof controller.options.rso !== "undefined" ) {
-        list += "<label for='o22'><input " + ( controller.options.urs === 1 ? "" : "data-wrapper-class='hidden' " ) + "data-mini='true' id='o22' type='checkbox' " + ( ( controller.options.rso === 1 ) ? "checked='checked'" : "" ) + ">" + _( "Normally Open (Rain Sensor)" ) + "</label>";
+        list += "<label for='o22'><input " + ( controller.options.urs === 1 ? "" : "data-wrapper-class='hidden' " ) +
+			"data-mini='true' id='o22' type='checkbox' " + ( ( controller.options.rso === 1 ) ? "checked='checked'" : "" ) + ">" +
+			_( "Normally Open (Rain Sensor)" ) + "</label>";
     }
 
-    list += "</fieldset><fieldset class='full-width-slider' data-role='collapsible'" + ( typeof expandItem === "string" && expandItem === "lcd" ? " data-collapsed='false'" : "" ) + "><legend>" + _( "LCD Screen" ) + "</legend>";
+    list += "</fieldset><fieldset class='full-width-slider' data-role='collapsible'" +
+		( typeof expandItem === "string" && expandItem === "lcd" ? " data-collapsed='false'" : "" ) + ">" +
+		"<legend>" + _( "LCD Screen" ) + "</legend>";
 
     if ( typeof controller.options.con !== "undefined" ) {
-        list += "<div class='ui-field-contain'><label for='o27'>" + _( "Contrast" ) + "</label><input type='range' id='o27' min='0' max='255' step='10' value='" + ( controller.options.con ) + "'></div>";
+        list += "<div class='ui-field-contain'><label for='o27'>" + _( "Contrast" ) + "</label>" +
+			"<input type='range' id='o27' min='0' max='255' step='10' value='" + ( controller.options.con ) + "'></div>";
     }
 
     if ( typeof controller.options.lit !== "undefined" ) {
-        list += "<div class='ui-field-contain'><label for='o28'>" + _( "Brightness" ) + "</label><input type='range' id='o28' min='0' max='255' step='10' value='" + ( controller.options.lit ) + "'></div>";
+        list += "<div class='ui-field-contain'><label for='o28'>" + _( "Brightness" ) + "</label>" +
+			"<input type='range' id='o28' min='0' max='255' step='10' value='" + ( controller.options.lit ) + "'></div>";
     }
 
     if ( typeof controller.options.dim !== "undefined" ) {
-        list += "<div class='ui-field-contain'><label for='o29'>" + _( "Idle Brightness" ) + "</label><input type='range' id='o29' min='0' max='255' step='10' value='" + ( controller.options.dim ) + "'></div>";
+        list += "<div class='ui-field-contain'><label for='o29'>" + _( "Idle Brightness" ) + "</label>" +
+        "<input type='range' id='o29' min='0' max='255' step='10' value='" + ( controller.options.dim ) + "'></div>";
     }
 
-    list += "</fieldset><fieldset data-role='collapsible' data-theme='b'" + ( typeof expandItem === "string" && expandItem === "advanced" ? " data-collapsed='false'" : "" ) + "><legend>" + _( "Advanced" ) + "</legend>";
+    list += "</fieldset><fieldset data-role='collapsible' data-theme='b'" +
+		( typeof expandItem === "string" && expandItem === "advanced" ? " data-collapsed='false'" : "" ) + ">" +
+		"<legend>" + _( "Advanced" ) + "</legend>";
 
     if ( typeof controller.options.hp0 !== "undefined" ) {
-        list += "<div class='ui-field-contain'><label for='o12'>" + _( "HTTP Port (restart required)" ) + "</label><input data-mini='true' type='number' pattern='[0-9]*' id='o12' value='" + ( controller.options.hp1 * 256 + controller.options.hp0 ) + "'></div>";
+        list += "<div class='ui-field-contain'><label for='o12'>" + _( "HTTP Port (restart required)" ) + "</label>" +
+			"<input data-mini='true' type='number' pattern='[0-9]*' id='o12' value='" + ( controller.options.hp1 * 256 + controller.options.hp0 ) + "'>" +
+			"</div>";
     }
 
     if ( typeof controller.options.devid !== "undefined" ) {
-        list += "<div class='ui-field-contain'><label for='o26'>" + _( "Device ID (restart required)" ) + "<button data-helptext='" + _( "Device ID modifies the last byte of the MAC address." ) + "' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><input data-mini='true' type='number' pattern='[0-9]*' max='255' id='o26' value='" + controller.options.devid + "'></div>";
+        list += "<div class='ui-field-contain'><label for='o26'>" + _( "Device ID (restart required)" ) +
+			"<button data-helptext='" +
+				_( "Device ID modifies the last byte of the MAC address." ) +
+			"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label>" +
+			"<input data-mini='true' type='number' pattern='[0-9]*' max='255' id='o26' value='" + controller.options.devid + "'></div>";
     }
 
     if ( typeof controller.options.rlp !== "undefined" ) {
         list += "<div class='ui-field-contain duration-field'>" +
 			"<label for='o30'>" + _( "Relay Pulse" ) +
-				"<button data-helptext='" + _( "Relay pulsing is used for special situations where rapid pulsing is needed in the output with a range from 1 to 2000 milliseconds. A zero value disables the pulsing option." ) + "' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
+				"<button data-helptext='" +
+					_( "Relay pulsing is used for special situations where rapid pulsing is needed in the output with a range from 1 to 2000 milliseconds. A zero value disables the pulsing option." ) +
+					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
 			"</label><button data-mini='true' id='o30' value='" + controller.options.rlp + "'>" + controller.options.rlp + "ms</button></div>";
     }
 
     if ( typeof controller.options.ntp !== "undefined" && checkOSVersion( 210 ) ) {
         var ntpIP = [ controller.options.ntp1, controller.options.ntp2, controller.options.ntp3, controller.options.ntp4 ].join( "." );
-        list += "<div class='" + ( ( controller.options.ntp === 1 ) ? "" : "hidden " ) + "ui-field-contain duration-field'><label for='ntp_addr'>" + _( "NTP IP Address" ) + "</label><button data-mini='true' id='ntp_addr' value='" + ntpIP + "'>" + ntpIP + "</button></div>";
+        list += "<div class='" + ( ( controller.options.ntp === 1 ) ? "" : "hidden " ) + "ui-field-contain duration-field'><label for='ntp_addr'>" +
+			_( "NTP IP Address" ) + "</label><button data-mini='true' id='ntp_addr' value='" + ntpIP + "'>" + ntpIP + "</button></div>";
     }
 
     if ( typeof controller.options.dhcp !== "undefined" && checkOSVersion( 210 ) ) {
         var ip = [ controller.options.ip1, controller.options.ip2, controller.options.ip3, controller.options.ip4 ].join( "." ),
             gw = [ controller.options.gw1, controller.options.gw2, controller.options.gw3, controller.options.gw4 ].join( "." );
 
-        list += "<div class='" + ( ( controller.options.dhcp === 1 ) ? "hidden " : "" ) + "ui-field-contain duration-field'><label for='ip_addr'>" + _( "IP Address" ) + "</label><button data-mini='true' id='ip_addr' value='" + ip + "'>" + ip + "</button></div>";
-        list += "<div class='" + ( ( controller.options.dhcp === 1 ) ? "hidden " : "" ) + "ui-field-contain duration-field'><label for='gateway'>" + _( "Gateway Address" ) + "</label><button data-mini='true' id='gateway' value='" + gw + "'>" + gw + "</button></div>";
-        list += "<label for='o3'><input data-mini='true' id='o3' type='checkbox' " + ( ( controller.options.dhcp === 1 ) ? "checked='checked'" : "" ) + ">" + _( "Use DHCP (restart required)" ) + "</label>";
+        list += "<div class='" + ( ( controller.options.dhcp === 1 ) ? "hidden " : "" ) + "ui-field-contain duration-field'><label for='ip_addr'>" +
+			_( "IP Address" ) + "</label><button data-mini='true' id='ip_addr' value='" + ip + "'>" + ip + "</button></div>";
+        list += "<div class='" + ( ( controller.options.dhcp === 1 ) ? "hidden " : "" ) + "ui-field-contain duration-field'><label for='gateway'>" +
+			_( "Gateway Address" ) + "</label><button data-mini='true' id='gateway' value='" + gw + "'>" + gw + "</button></div>";
+        list += "<label for='o3'><input data-mini='true' id='o3' type='checkbox' " + ( ( controller.options.dhcp === 1 ) ? "checked='checked'" : "" ) + ">" +
+			_( "Use DHCP (restart required)" ) + "</label>";
     }
 
     if ( typeof controller.options.ntp !== "undefined" ) {
-        list += "<label for='o2'><input data-mini='true' id='o2' type='checkbox' " + ( ( controller.options.ntp === 1 ) ? "checked='checked'" : "" ) + ">" + _( "NTP Sync" ) + "</label>";
+        list += "<label for='o2'><input data-mini='true' id='o2' type='checkbox' " + ( ( controller.options.ntp === 1 ) ? "checked='checked'" : "" ) + ">" +
+			_( "NTP Sync" ) + "</label>";
     }
 
     if ( typeof controller.options.ar !== "undefined" ) {
-        list += "<label for='o14'><input data-mini='true' id='o14' type='checkbox' " + ( ( controller.options.ar === 1 ) ? "checked='checked'" : "" ) + ">" + _( "Auto Reconnect" ) + "</label>";
+        list += "<label for='o14'><input data-mini='true' id='o14' type='checkbox' " + ( ( controller.options.ar === 1 ) ? "checked='checked'" : "" ) + ">" +
+			_( "Auto Reconnect" ) + "</label>";
     }
 
     if ( typeof controller.options.ipas !== "undefined" ) {
-        list += "<label for='o25'><input data-mini='true' id='o25' type='checkbox' " + ( ( controller.options.ipas === 1 ) ? "checked='checked'" : "" ) + ">" + _( "Ignore Password" ) + "</label>";
+        list += "<label for='o25'><input data-mini='true' id='o25' type='checkbox' " + ( ( controller.options.ipas === 1 ) ? "checked='checked'" : "" ) + ">" +
+			_( "Ignore Password" ) + "</label>";
     }
 
-    list += "</fieldset><fieldset data-role='collapsible' data-theme='b'" + ( typeof expandItem === "string" && expandItem === "reset" ? " data-collapsed='false'" : "" ) + "><legend>" + _( "Reset" ) + "</legend>";
+    list += "</fieldset><fieldset data-role='collapsible' data-theme='b'" +
+		( typeof expandItem === "string" && expandItem === "reset" ? " data-collapsed='false'" : "" ) + ">" +
+		"<legend>" + _( "Reset" ) + "</legend>";
 
     list += "<button data-mini='true' class='center-div reset-options'>" + _( "Reset All Options" ) + "</button>";
     list += "<button data-mini='true' class='center-div reset-stations'>" + _( "Reset All Station Data" ) + "</button>";
@@ -3463,7 +3613,8 @@ function showOptions( expandItem ) {
             if ( isOSPi() ) {
                 co = "otz=32&ontp=1&onbrd=0&osdt=0&omas=0&omton=0&omtoff=0&orst=1&owl=100&orlp=0&ouwt=0&olg=1&oloc=Boston,MA";
             } else {
-                co = "o1=32&o2=1&o3=1&o12=80&o13=0&o15=0&o17=0&o18=0&o19=0&o20=0&o22=1&o23=100&o26=0&o27=110&o28=100&o29=15&o30=0&o31=0&o32=50&o33=97&o34=210&o35=169&o36=1&o37=0&038=0&o39=0&loc=Boston,MA";
+                co = "o1=32&o2=1&o3=1&o12=80&o13=0&o15=0&o17=0&o18=0&o19=0&o20=0&o22=1&o23=100&o26=0&o27=110&o28=100&o29=15&" +
+					"o30=0&o31=0&o32=50&o33=97&o34=210&o35=169&o36=1&o37=0&038=0&o39=0&loc=Boston,MA";
             }
 
             sendToOS( "/co?pw=&" + co ).done( function() {
@@ -3836,7 +3987,9 @@ function showHomeMenu( btn ) {
             ( id === "sprinklers" || id === "runonce" || id === "programs" || id === "manual" || id === "addprogram" ?
                 "</ul>" +
                 "<div class='ui-grid-a ui-mini tight'>" +
-                    "<div class='ui-block-a'><a class='ui-btn tight' href='#show-hidden'>" + ( showHidden ? _( "Hide" ) : _( "Show" ) ) + " " + _( "Disabled" ) + "</a></div>" +
+                    "<div class='ui-block-a'><a class='ui-btn tight' href='#show-hidden'>" +
+						( showHidden ? _( "Hide" ) : _( "Show" ) ) + " " + _( "Disabled" ) +
+					"</a></div>" +
                     "<div class='ui-block-b'><a class='ui-btn red tight' href='#stop-all'>" + _( "Stop All Stations" ) + "</a></div>" +
                 "</div>"
                 : "<li><a class='ui-btn red' href='#stop-all'>" + _( "Stop All Stations" ) + "</a></li></ul>" ) +
@@ -3932,13 +4085,16 @@ function showHome( firstLoad ) {
             }
 
             // Group card settings visually
-            cards += "<div data-station='" + i + "' class='ui-corner-all card" + ( isStationDisabled( i ) ? " station-hidden' style='display:none" : "" ) + "'>";
+            cards += "<div data-station='" + i + "' class='ui-corner-all card" +
+				( isStationDisabled( i ) ? " station-hidden' style='display:none" : "" ) + "'>";
             cards += "<div class='ui-body ui-body-a center'>";
             cards += "<p class='tight center inline-icon' id='station_" + i + "'>" + station + "</p>";
 
-            cards += "<span class='btn-no-border ui-btn ui-btn-icon-notext ui-corner-all station-status " + ( isRunning ? "on" : ( isScheduled ? "wait" : "off" ) ) + "'></span>";
+            cards += "<span class='btn-no-border ui-btn ui-btn-icon-notext ui-corner-all station-status " +
+				( isRunning ? "on" : ( isScheduled ? "wait" : "off" ) ) + "'></span>";
 
-            cards += "<span class='btn-no-border ui-btn " + ( ( isStationMaster( i ) ) ? "ui-icon-master" : "ui-icon-gear" ) + " ui-btn-icon-notext station-settings' data-station='" + i + "' id='attrib-" + i + "' " +
+            cards += "<span class='btn-no-border ui-btn " + ( ( isStationMaster( i ) ) ? "ui-icon-master" : "ui-icon-gear" ) +
+				" ui-btn-icon-notext station-settings' data-station='" + i + "' id='attrib-" + i + "' " +
                 ( hasMaster ? ( "data-um='" + ( ( controller.stations.masop[parseInt( i / 8 )] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) + "' " ) : "" ) +
                 ( hasMaster2 ? ( "data-um2='" + ( ( controller.stations.masop2[parseInt( i / 8 )] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) + "' " ) : "" ) +
                 ( hasIR ? ( "data-ir='" + ( ( controller.stations.ignore_rain[parseInt( i / 8 )] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) + "' " ) : "" ) +
@@ -3951,7 +4107,8 @@ function showHome( firstLoad ) {
                 if ( isScheduled || isRunning ) {
 
                     // Generate status line for station
-                    cards += "<p class='rem center'>" + ( isRunning ? _( "Running" ) + " " + pname : _( "Scheduled" ) + " " + ( controller.settings.ps[i][2] ? _( "for" ) + " " + dateToString( new Date( controller.settings.ps[i][2] * 1000 ) ) : pname ) );
+                    cards += "<p class='rem center'>" + ( isRunning ? _( "Running" ) + " " + pname : _( "Scheduled" ) + " " +
+						( controller.settings.ps[i][2] ? _( "for" ) + " " + dateToString( new Date( controller.settings.ps[i][2] * 1000 ) ) : pname ) );
                     if ( rem > 0 ) {
 
                         // Show the remaining time if it's greater than 0
@@ -3980,37 +4137,52 @@ function showHome( firstLoad ) {
                     name.html( select.find( "#stn-name" ).val() );
                     select.popup( "destroy" ).remove();
                 },
-                select = "<div data-overlay-theme='b' data-role='popup' data-theme='a' id='stn_attrib'><fieldset style='margin:0' data-corners='false' data-role='controlgroup'><form>";
+                select = "<div data-overlay-theme='b' data-role='popup' data-theme='a' id='stn_attrib'>" +
+					"<fieldset style='margin:0' data-corners='false' data-role='controlgroup'><form>";
 
             if ( typeof id !== "number" ) {
                 return false;
             }
 
-            select += "<div class='ui-bar-a ui-bar'>" + _( "Station Name" ) + ":</div><input class='bold center' data-corners='false' data-wrapper-class='tight stn-name ui-btn' id='stn-name' type='text' value='" + name.text() + "'>";
+            select += "<div class='ui-bar-a ui-bar'>" + _( "Station Name" ) + ":</div>" +
+				"<input class='bold center' data-corners='false' data-wrapper-class='tight stn-name ui-btn' id='stn-name' type='text' value='" +
+					name.text() + "'>";
 
             if ( !isStationMaster( id ) ) {
                 if ( hasMaster ) {
-                    select += "<label for='um'><input class='needsclick' data-iconpos='right' id='um' type='checkbox' " + ( ( button.data( "um" ) === 1 ) ? "checked='checked'" : "" ) + ">" + _( "Use Master" ) + " " + ( hasMaster2 ? "1" : "" ) + "</label>";
+                    select += "<label for='um'><input class='needsclick' data-iconpos='right' id='um' type='checkbox' " +
+							( ( button.data( "um" ) === 1 ) ? "checked='checked'" : "" ) + ">" + _( "Use Master" ) + " " + ( hasMaster2 ? "1" : "" ) +
+						"</label>";
                 }
 
                 if ( hasMaster2 ) {
-                    select += "<label for='um2'><input class='needsclick' data-iconpos='right' id='um2' type='checkbox' " + ( ( button.data( "um2" ) === 1 ) ? "checked='checked'" : "" ) + ">" + _( "Use Master" ) + " 2</label>";
+                    select += "<label for='um2'><input class='needsclick' data-iconpos='right' id='um2' type='checkbox' " +
+							( ( button.data( "um2" ) === 1 ) ? "checked='checked'" : "" ) + ">" + _( "Use Master" ) + " 2" +
+						"</label>";
                 }
 
                 if ( hasIR ) {
-                    select += "<label for='ir'><input class='needsclick' data-iconpos='right' id='ir' type='checkbox' " + ( ( button.data( "ir" ) === 1 ) ? "checked='checked'" : "" ) + ">" + _( "Ignore Rain" ) + "</label>";
+                    select += "<label for='ir'><input class='needsclick' data-iconpos='right' id='ir' type='checkbox' " +
+							( ( button.data( "ir" ) === 1 ) ? "checked='checked'" : "" ) + ">" + _( "Ignore Rain" ) +
+						"</label>";
                 }
 
                 if ( hasAR ) {
-                    select += "<label for='ar'><input class='needsclick' data-iconpos='right' id='ar' type='checkbox' " + ( ( button.data( "ar" ) === 1 ) ? "checked='checked'" : "" ) + ">" + _( "Activate Relay" ) + "</label>";
+                    select += "<label for='ar'><input class='needsclick' data-iconpos='right' id='ar' type='checkbox' " +
+							( ( button.data( "ar" ) === 1 ) ? "checked='checked'" : "" ) + ">" + _( "Activate Relay" ) +
+						"</label>";
                 }
 
                 if ( hasSD ) {
-                    select += "<label for='sd'><input class='needsclick' data-iconpos='right' id='sd' type='checkbox' " + ( ( button.data( "sd" ) === 1 ) ? "checked='checked'" : "" ) + ">" + _( "Disable" ) + "</label>";
+                    select += "<label for='sd'><input class='needsclick' data-iconpos='right' id='sd' type='checkbox' " +
+							( ( button.data( "sd" ) === 1 ) ? "checked='checked'" : "" ) + ">" + _( "Disable" ) +
+						"</label>";
                 }
 
                 if ( hasSequential ) {
-                    select += "<label for='us'><input class='needsclick' data-iconpos='right' id='us' type='checkbox' " + ( ( button.data( "us" ) === 1 ) ? "checked='checked'" : "" ) + ">" + _( "Sequential" ) + "</label>";
+                    select += "<label for='us'><input class='needsclick' data-iconpos='right' id='us' type='checkbox' " +
+							( ( button.data( "us" ) === 1 ) ? "checked='checked'" : "" ) + ">" + _( "Sequential" ) +
+						"</label>";
                 }
             }
 
@@ -4094,7 +4266,14 @@ function showHome( firstLoad ) {
             }
 
             $.mobile.loading( "show" );
-            sendToOS( "/cs?pw=&" + $.param( names ) + ( hasMaster ? "&" + $.param( master ) : "" ) + ( hasMaster2 ? "&" + $.param( master2 ) : "" ) + ( hasSequential ? "&" + $.param( sequential ) : "" ) + ( hasIR ? "&" + $.param( rain ) : "" ) + ( hasAR ? "&" + $.param( relay ) : "" ) + ( hasSD ? "&" + $.param( disable ) : "" ) ).done( function() {
+            sendToOS( "/cs?pw=&" + $.param( names ) +
+				( hasMaster ? "&" + $.param( master ) : "" ) +
+				( hasMaster2 ? "&" + $.param( master2 ) : "" ) +
+				( hasSequential ? "&" + $.param( sequential ) : "" ) +
+				( hasIR ? "&" + $.param( rain ) : "" ) +
+				( hasAR ? "&" + $.param( relay ) : "" ) +
+				( hasSD ? "&" + $.param( disable ) : "" )
+			).done( function() {
                 showerror( _( "Stations have been updated" ) );
                 updateController( function() {
                     $( ".ui-page-active" ).trigger( "datarefresh" );
@@ -4209,7 +4388,8 @@ function showHome( firstLoad ) {
                     } );
 
                     if ( !isStationMaster( i ) && ( isScheduled || isRunning ) ) {
-                        line = ( isRunning ? _( "Running" ) + " " + pname : _( "Scheduled" ) + " " + ( controller.settings.ps[i][2] ? _( "for" ) + " " + dateToString( new Date( controller.settings.ps[i][2] * 1000 ) ) : pname ) );
+                        line = ( isRunning ? _( "Running" ) + " " + pname : _( "Scheduled" ) + " " +
+							( controller.settings.ps[i][2] ? _( "for" ) + " " + dateToString( new Date( controller.settings.ps[i][2] * 1000 ) ) : pname ) );
                         if ( rem > 0 ) {
 
                             // Show the remaining time if it's greater than 0
@@ -4246,7 +4426,8 @@ function showHome( firstLoad ) {
         addCard( i );
     }
 
-    page.find( ".ui-content" ).append( "<div id='os-running-stations'></div><hr style='display:none' class='content-divider'><div id='os-stations-list' class='card-group center'>" + cards + "</div>" );
+    page.find( ".ui-content" ).append( "<div id='os-running-stations'></div><hr style='display:none' class='content-divider'>" +
+		"<div id='os-stations-list' class='card-group center'>" + cards + "</div>" );
     reorderCards();
     page.on( "datarefresh", updateContent );
     page.on( "click", ".station-settings", showAttributes );
@@ -4418,7 +4599,11 @@ function changeStatus( seconds, color, line, onclick ) {
 function checkStatus() {
     var open, ptotal, sample, pid, pname, line, match, tmp, i;
 
-    if ( $.isEmptyObject( controller ) || !controller.hasOwnProperty( "settings" ) || !controller.hasOwnProperty( "status" ) || !controller.hasOwnProperty( "options" ) ) {
+    if ( $.isEmptyObject( controller ) ||
+		!controller.hasOwnProperty( "settings" ) ||
+		!controller.hasOwnProperty( "status" ) ||
+		!controller.hasOwnProperty( "options" ) ) {
+
         changeStatus( 0, "transparent", "<p class='running-text smaller'></p>" );
         return;
     }
@@ -4495,14 +4680,17 @@ function checkStatus() {
 
     // Handle rain delay enabled
     if ( controller.settings.rd ) {
-        changeStatus( 0, "red", "<p class='running-text center pointer'>" + _( "Rain delay until" ) + " " + dateToString( new Date( controller.settings.rdst * 1000 ) ) + "</p>", function() {
-            areYouSure( _( "Do you want to turn off rain delay?" ), "", function() {
-                showLoading( "#footer-running" );
-                sendToOS( "/cv?pw=&rd=0" ).done( function() {
-                    updateController();
-                } );
-            } );
-        } );
+        changeStatus( 0, "red", "<p class='running-text center pointer'>" +
+			_( "Rain delay until" ) + " " + dateToString( new Date( controller.settings.rdst * 1000 ) ) + "</p>",
+			function() {
+	            areYouSure( _( "Do you want to turn off rain delay?" ), "", function() {
+	                showLoading( "#footer-running" );
+	                sendToOS( "/cv?pw=&rd=0" ).done( function() {
+	                    updateController();
+	                } );
+				} );
+			}
+        );
         return;
     }
 
@@ -4532,7 +4720,9 @@ function checkStatus() {
         var lrpid = controller.settings.lrun[1];
         pname = pidname( lrpid );
 
-        changeStatus( 0, "transparent", "<p class='running-text smaller center pointer'>" + pname + " " + _( "last ran station" ) + " " + controller.stations.snames[controller.settings.lrun[0]] + " " + _( "for" ) + " " + ( lrdur / 60 >> 0 ) + "m " + ( lrdur % 60 ) + "s " + _( "on" ) + " " + dateToString( new Date( controller.settings.lrun[3] * 1000 ) ) + "</p>", goHome );
+        changeStatus( 0, "transparent", "<p class='running-text smaller center pointer'>" + pname + " " + _( "last ran station" ) + " " +
+			controller.stations.snames[controller.settings.lrun[0]] + " " + _( "for" ) + " " + ( lrdur / 60 >> 0 ) + "m " + ( lrdur % 60 ) + "s " +
+			_( "on" ) + " " + dateToString( new Date( controller.settings.lrun[3] * 1000 ) ) + "</p>", goHome );
         return;
     }
 
@@ -4616,11 +4806,15 @@ function getManual() {
                         "<legend>" + _( "Options" ) + "</legend>" +
                         "<div class='ui-field-contain'>" +
                             "<label for='mmm'><b>" + _( "Manual Mode" ) + "</b></label>" +
-                            "<input type='checkbox' data-on-text='On' data-off-text='Off' data-role='flipswitch' name='mmm' id='mmm'" + ( controller.settings.mm ? " checked" : "" ) + ">" +
+                            "<input type='checkbox' data-on-text='On' data-off-text='Off' data-role='flipswitch' name='mmm' id='mmm'" +
+								( controller.settings.mm ? " checked" : "" ) + ">" +
                         "</div>" +
-                        "<p class='rain-desc smaller center' style='padding-top:5px'>" + _( "Station timer prevents a station from running indefinitely and will automatically turn it off after the set duration (or when toggled off)" ) + "</p>" +
+                        "<p class='rain-desc smaller center' style='padding-top:5px'>" +
+							_( "Station timer prevents a station from running indefinitely and will automatically turn it off after the set duration (or when toggled off)" ) +
+						"</p>" +
                         "<div class='ui-field-contain duration-input'>" +
-                            "<label for='auto-off'><b>" + _( "Station Timer" ) + "</b></label><button data-mini='true' name='auto-off' id='auto-off' value='3600'>1h</button>" +
+                            "<label for='auto-off'><b>" + _( "Station Timer" ) + "</b></label>" +
+                            "<button data-mini='true' name='auto-off' id='auto-off' value='3600'>1h</button>" +
                         "</div>" +
                     "</fieldset>" +
                 "</div>" +
@@ -4694,9 +4888,11 @@ function getManual() {
 
     $.each( controller.stations.snames, function( i, station ) {
         if ( isStationMaster( i ) ) {
-            list += "<li data-icon='false' class='center" + ( ( controller.status[i] ) ? " green" : "" ) + ( isStationDisabled( i ) ? " station-hidden' style='display:none" : "" ) + "'>" + station + " (" + _( "Master" ) + ")</li>";
+            list += "<li data-icon='false' class='center" + ( ( controller.status[i] ) ? " green" : "" ) +
+				( isStationDisabled( i ) ? " station-hidden' style='display:none" : "" ) + "'>" + station + " (" + _( "Master" ) + ")</li>";
         } else {
-            list += "<li data-icon='false'><a class='mm_station center" + ( ( controller.status[i] ) ? " green" : "" ) + ( isStationDisabled( i ) ? " station-hidden' style='display:none" : "" ) + "'>" + station + "</a></li>";
+            list += "<li data-icon='false'><a class='mm_station center" + ( ( controller.status[i] ) ? " green" : "" ) +
+				( isStationDisabled( i ) ? " station-hidden' style='display:none" : "" ) + "'>" + station + "</a></li>";
         }
     } );
 
@@ -4758,7 +4954,8 @@ function getRunonce() {
         "</div>" ),
         updateLastRun = function( data ) {
             rprogs.l = data;
-            $( "<option value='l' selected='selected'>" + _( "Last Used Program" ) + "</option>" ).insertAfter( page.find( "#rprog" ).find( "option[value='t']" ) );
+            $( "<option value='l' selected='selected'>" + _( "Last Used Program" ) + "</option>" )
+				.insertAfter( page.find( "#rprog" ).find( "option[value='t']" ) );
             fillRunonce( data );
         },
         resetRunonce = function() {
@@ -4802,7 +4999,9 @@ function getRunonce() {
     }
     rprogs = progs;
 
-    quickPick = "<select data-mini='true' name='rprog' id='rprog'><option value='t'>" + _( "Test All Stations" ) + "</option><option value='s' selected='selected'>" + _( "Quick Programs" ) + "</option>";
+    quickPick = "<select data-mini='true' name='rprog' id='rprog'>" +
+		"<option value='t'>" + _( "Test All Stations" ) + "</option><option value='s' selected='selected'>" + _( "Quick Programs" ) + "</option>";
+
     for ( i = 0; i < progs.length; i++ ) {
         if ( checkOSVersion( 210 ) ) {
             name = controller.programs.pd[i][5];
@@ -4815,13 +5014,18 @@ function getRunonce() {
     list += quickPick + "<form>";
     $.each( controller.stations.snames, function( i, station ) {
         if ( isStationMaster( i ) ) {
-            list += "<div class='ui-field-contain duration-input" + ( isStationDisabled( i ) ? " station-hidden' style='display:none" : "" ) + "'><label for='zone-" + i + "'>" + station + ":</label><button disabled='true' data-mini='true' name='zone-" + i + "' id='zone-" + i + "' value='0'>Master</button></div>";
+            list += "<div class='ui-field-contain duration-input" + ( isStationDisabled( i ) ? " station-hidden' style='display:none" : "" ) + "'>" +
+				"<label for='zone-" + i + "'>" + station + ":</label>" +
+				"<button disabled='true' data-mini='true' name='zone-" + i + "' id='zone-" + i + "' value='0'>Master</button></div>";
         } else {
-            list += "<div class='ui-field-contain duration-input" + ( isStationDisabled( i ) ? " station-hidden' style='display:none" : "" ) + "'><label for='zone-" + i + "'>" + station + ":</label><button data-mini='true' name='zone-" + i + "' id='zone-" + i + "' value='0'>0s</button></div>";
+            list += "<div class='ui-field-contain duration-input" + ( isStationDisabled( i ) ? " station-hidden' style='display:none" : "" ) + "'>" +
+				"<label for='zone-" + i + "'>" + station + ":</label>" +
+				"<button data-mini='true' name='zone-" + i + "' id='zone-" + i + "' value='0'>0s</button></div>";
         }
     } );
 
-    list += "</form><a class='ui-btn ui-corner-all ui-shadow rsubmit' href='#'>" + _( "Submit" ) + "</a><a class='ui-btn ui-btn-b ui-corner-all ui-shadow rreset' href='#'>" + _( "Reset" ) + "</a>";
+    list += "</form><a class='ui-btn ui-corner-all ui-shadow rsubmit' href='#'>" + _( "Submit" ) + "</a>" +
+		"<a class='ui-btn ui-btn-b ui-corner-all ui-shadow rreset' href='#'>" + _( "Reset" ) + "</a>";
 
     page.find( ".ui-content" ).html( list );
 
@@ -4995,20 +5199,31 @@ function getPreview() {
                 if ( checkMatch( prog, simminutes, simt, simday, devday ) ) {
                     for ( sid = 0; sid < controller.settings.nbrd * 8; sid++ ) {
                         var bid = sid >> 3;var s = sid % 8;
+
+						// Skip master station
                         if ( isStationMaster( sid ) ) {
-                            continue; // skip master station
+                            continue;
                         }
+
                         if ( is21 ) {
+
+							// Skip disabled stations
                             if ( controller.stations.stn_dis[bid] & ( 1 << s ) ) {
-                                continue; // skip disabled stations
+                                continue;
                             }
-                            if ( prog[4][sid] && endArray[sid] === 0 ) {  // skip if water time is zero, or station is already scheduled
-                                if ( prog[0] & 0x02 && ( ( controller.options.uwt > 0 && simday === devday ) || controller.options.uwt === 0 ) ) {  // use weather scaling bit on
+
+							// Skip if water time is zero, or station is already scheduled
+                            if ( prog[4][sid] && endArray[sid] === 0 ) {
+
+								// Use weather scaling bit on
+                                if ( prog[0] & 0x02 && ( ( controller.options.uwt > 0 && simday === devday ) || controller.options.uwt === 0 ) ) {
                                     endArray[sid] = getStationDuration( prog[4][sid], simt ) * controller.options.wl / 100 >> 0;
                                 } else {
                                     endArray[sid] = getStationDuration( prog[4][sid], simt );
                                 }
-                                if ( endArray[sid] > 0 ) {  // after weather scaling, we maybe getting 0 water time
+
+								// After weather scaling, we maybe getting 0 water time
+                                if ( endArray[sid] > 0 ) {
                                     programArray[sid] = pid + 1;
                                     matchFound = 1;
                                 }
@@ -5200,7 +5415,12 @@ function getPreview() {
         var className = "program-" + ( ( pid + 3 ) % 4 ),
             pname = "P" + pid;
 
-        if ( ( ( controller.settings.rd !== 0 ) && ( simt + start + ( controller.options.tz - 48 ) * 900 <= controller.settings.rdst * 1000 ) || controller.options.urs === 1 && controller.settings.rs === 1 ) && ( typeof controller.stations.ignore_rain === "object" && ( controller.stations.ignore_rain[parseInt( sid / 8 )] & ( 1 << ( sid % 8 ) ) ) === 0 ) ) {
+        if ( ( ( controller.settings.rd !== 0 ) &&
+			( simt + start + ( controller.options.tz - 48 ) * 900 <= controller.settings.rdst * 1000 ) ||
+			controller.options.urs === 1 && controller.settings.rs === 1 ) &&
+			( typeof controller.stations.ignore_rain === "object" &&
+				( controller.stations.ignore_rain[parseInt( sid / 8 )] & ( 1 << ( sid % 8 ) ) ) === 0 ) ) {
+
             className = "delayed";
         }
 
@@ -5455,7 +5675,8 @@ function getPreview() {
             stn.attr( "data-shortname", name );
         } );
 
-        page.find( ".timeline-groups-axis" ).children().first().html( "<div class='timeline-axis-text center dayofweek' data-shortname='" + getDayName( day, "short" ) + "'>" + getDayName( day ) + "</div>" );
+        page.find( ".timeline-groups-axis" ).children().first().html( "<div class='timeline-axis-text center dayofweek' data-shortname='" +
+			getDayName( day, "short" ) + "'>" + getDayName( day ) + "</div>" );
 
         if ( isAndroid ) {
             navi.find( ".ui-icon-plus" ).off( "click" ).on( "click", function() {
@@ -5537,9 +5758,11 @@ function getLogs() {
         page = $( "<div data-role='page' id='logs'>" +
             "<div class='ui-content' role='main'>" +
                 "<fieldset data-role='controlgroup' data-type='horizontal' data-mini='true' class='log_type'>" +
-                    "<input data-mini='true' type='radio' name='log_type' id='log_timeline' value='timeline'" + ( isNarrow ? "" : " checked='checked'" ) + ">" +
+                    "<input data-mini='true' type='radio' name='log_type' id='log_timeline' value='timeline'" +
+						( isNarrow ? "" : " checked='checked'" ) + ">" +
                     "<label for='log_timeline'>" + _( "Timeline" ) + "</label>" +
-                    "<input data-mini='true' type='radio' name='log_type' id='log_table' value='table'" + ( !isNarrow ? "" : " checked='checked'" ) + ">" +
+                    "<input data-mini='true' type='radio' name='log_type' id='log_table' value='table'" +
+						( !isNarrow ? "" : " checked='checked'" ) + ">" +
                     "<label for='log_table'>" + _( "Table" ) + "</label>" +
                 "</fieldset>" +
                 "<fieldset data-role='collapsible' data-mini='true' id='log_options' class='center'>" +
@@ -5553,12 +5776,14 @@ function getLogs() {
                     "</fieldset>" +
                     "<div class='ui-field-contain'>" +
                         "<label for='log_start'>" + _( "Start:" ) + "</label>" +
-                        "<input data-mini='true' type='date' id='log_start' value='" + ( new Date( now.getTime() - 604800000 ).toISOString().slice( 0, 10 ) ) + "'>" +
+                        "<input data-mini='true' type='date' id='log_start' value='" +
+							( new Date( now.getTime() - 604800000 ).toISOString().slice( 0, 10 ) ) + "'>" +
                         "<label for='log_end'>" + _( "End:" ) + "</label>" +
                         "<input data-mini='true' type='date' id='log_end' value='" + ( now.toISOString().slice( 0, 10 ) ) + "'>" +
                     "</div>" +
                     "<a data-role='button' data-icon='action' class='export_logs' href='#' data-mini='true'>" + _( "Export" ) + "</a>" +
-                    ( isOSPi() || checkOSVersion( 210 ) ? "<a data-role='button' class='red clear_logs' href='#' data-mini='true' data-icon='alert'>" + _( "Clear Logs" ) + "</a>" : "" ) +
+                    ( isOSPi() || checkOSVersion( 210 ) ? "<a data-role='button' class='red clear_logs' href='#' data-mini='true' data-icon='alert'>" +
+						_( "Clear Logs" ) + "</a>" : "" ) +
                 "</fieldset>" +
                 "<div id='logs_list' class='center'>" +
                 "</div>" +
@@ -5583,7 +5808,8 @@ function getLogs() {
                 var stamp = parseInt( this[3] * 1000 ),
                     station = this[1],
                     date = new Date( stamp ),
-                    utc = new Date( date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(),  date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds() );
+                    utc = new Date( date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(),  date.getUTCHours(),
+						date.getUTCMinutes(), date.getUTCSeconds() );
 
                 if ( typeof station === "string" ) {
                     if ( station === "rs" ) {
@@ -5600,7 +5826,8 @@ function getLogs() {
                 if ( type === "table" ) {
                     switch ( grouping ) {
                         case "station":
-                            sortedData[station].push( [ new Date( utc.getTime() - parseInt( this[2] * 1000 ) ), dhms2str( sec2dhms( parseInt( this[2] ) ) ) ] );
+                            sortedData[station].push( [ new Date( utc.getTime() - parseInt( this[2] * 1000 ) ),
+								dhms2str( sec2dhms( parseInt( this[2] ) ) ) ] );
                             break;
                         case "day":
                             var day = Math.floor( date.getTime() / 1000 / 60 / 60 / 24 ),
@@ -5745,7 +5972,9 @@ function getLogs() {
             logsList.show();
 
             var grouping = page.find( "input:radio[name='table-group']:checked" ).val(),
-                tableHeader = "<table><thead><tr><th data-priority='1'>" + _( "Runtime" ) + "</th><th data-priority='2'>" + ( grouping === "station" ? _( "Date/Time" ) : _( "Time" ) + "</th><th>" + _( "Station" ) ) + "</th></tr></thead><tbody>",
+                tableHeader = "<table><thead><tr><th data-priority='1'>" + _( "Runtime" ) + "</th>" +
+					"<th data-priority='2'>" + ( grouping === "station" ? _( "Date/Time" ) : _( "Time" ) + "</th><th>" + _( "Station" ) ) + "</th>" +
+					"</tr></thead><tbody>",
                 html = "<div data-role='collapsible-set' data-inset='true' data-theme='b' data-collapsed-icon='arrow-d' data-expanded-icon='arrow-u'>",
                 sortedData = sortData( "table", grouping ),
                 groupArray = [],
@@ -5766,21 +5995,29 @@ function getLogs() {
                         continue;
                     }
                     groupArray[i] = "<div data-role='collapsible' data-collapsed='true'><h2>" +
-							( ( checkOSVersion( 210 ) && grouping === "day" ) ? "<a class='ui-btn red ui-btn-corner-all delete-day day-" + group + "'>" + _( "delete" ) + "</a>" : "" ) +
+							( ( checkOSVersion( 210 ) && grouping === "day" ) ? "<a class='ui-btn red ui-btn-corner-all delete-day day-" +
+								group + "'>" + _( "delete" ) + "</a>" : "" ) +
 							"<div class='ui-btn-up-c ui-btn-corner-all custom-count-pos'>" +
 								ct + " " + ( ( ct === 1 ) ? _( "run" ) : _( "runs" ) ) +
-							"</div>" + ( grouping === "station" ? stations[group] : dateToString( new Date( group * 1000 * 60 * 60 * 24 ) ).slice( 0, -9 ) ) +
+							"</div>" + ( grouping === "station" ? stations[group] : dateToString(
+								new Date( group * 1000 * 60 * 60 * 24 )
+							).slice( 0, -9 ) ) +
 						"</h2>";
 
                     if ( wlSorted[group] ) {
-                        groupArray[i] += "<span style='border:none' class='" + ( wlSorted[group] !== 100 ? ( wlSorted[group] < 100 ? "green " : "red " ) : "" ) + "ui-body ui-body-a ui-corner-all'>" + _( "Average" ) + " " + _( "Water Level" ) + ": " + wlSorted[group] + "%</span>";
+                        groupArray[i] += "<span style='border:none' class='" +
+							( wlSorted[group] !== 100 ? ( wlSorted[group] < 100 ? "green " : "red " ) : "" ) +
+							"ui-body ui-body-a ui-corner-all'>" + _( "Average" ) + " " + _( "Water Level" ) + ": " + wlSorted[group] + "%</span>";
                     }
 
                     groupArray[i] += tableHeader;
 
                     for ( k = 0; k < sortedData[group].length; k++ ) {
                         var date = new Date( sortedData[group][k][0] );
-                        groupArray[i] += "<tr><td>" + sortedData[group][k][1] + "</td><td>" + ( grouping === "station" ? dateToString( date, false ) : pad( date.getHours() ) + ":" + pad( date.getMinutes() ) + ":" + pad( date.getSeconds() ) + "</td><td>" + stations[sortedData[group][k][2]] ) + "</td></tr>";
+                        groupArray[i] += "<tr><td>" + sortedData[group][k][1] + "</td><td>" +
+							( grouping === "station" ? dateToString( date, false ) : pad( date.getHours() ) + ":" +
+								pad( date.getMinutes() ) + ":" + pad( date.getSeconds() ) + "</td><td>" + stations[sortedData[group][k][2]] ) +
+							"</td></tr>";
                     }
                     groupArray[i] += "</tbody></table></div>";
 
@@ -6294,7 +6531,9 @@ function makeAllPrograms() {
         if ( checkOSVersion( 210 ) ) {
             name = controller.programs.pd[i][5];
         }
-        list += "<fieldset id='program-" + i + "' data-role='collapsible'><h3><a " + ( i > 0 ? "" : "style='visibility:hidden' " ) + "class='hidden ui-btn ui-btn-icon-notext ui-icon-arrow-u ui-btn-corner-all move-up'></a><a class='ui-btn ui-btn-corner-all program-copy'>" + _( "copy" ) + "</a><span class='program-name'>" + name + "</span></h3>";
+        list += "<fieldset id='program-" + i + "' data-role='collapsible'><h3><a " + ( i > 0 ? "" : "style='visibility:hidden' " ) +
+				"class='hidden ui-btn ui-btn-icon-notext ui-icon-arrow-u ui-btn-corner-all move-up'></a><a class='ui-btn ui-btn-corner-all program-copy'>" +
+			_( "copy" ) + "</a><span class='program-name'>" + name + "</span></h3>";
         list += "</fieldset>";
     }
     return list + "</div>";
@@ -6336,31 +6575,46 @@ function makeProgram183( n, isCopy ) {
     }
     list += "<label for='en-" + id + "'><input data-mini='true' type='checkbox' " + ( ( program.en || n === "new" ) ? "checked='checked'" : "" ) + " name='en-" + id + "' id='en-" + id + "'>" + _( "Enabled" ) + "</label>";
     list += "<fieldset data-role='controlgroup' data-type='horizontal' class='center'>";
-    list += "<input data-mini='true' type='radio' name='rad_days-" + id + "' id='days_week-" + id + "' value='days_week-" + id + "' " + ( ( program.is_interval ) ? "" : "checked='checked'" ) + "><label for='days_week-" + id + "'>" + _( "Weekly" ) + "</label>";
-    list += "<input data-mini='true' type='radio' name='rad_days-" + id + "' id='days_n-" + id + "' value='days_n-" + id + "' " + ( ( program.is_interval ) ? "checked='checked'" : "" ) + "><label for='days_n-" + id + "'>" + _( "Interval" ) + "</label>";
+    list += "<input data-mini='true' type='radio' name='rad_days-" + id + "' id='days_week-" + id + "' " +
+			"value='days_week-" + id + "' " + ( ( program.is_interval ) ? "" : "checked='checked'" ) + ">" +
+		"<label for='days_week-" + id + "'>" + _( "Weekly" ) + "</label>";
+    list += "<input data-mini='true' type='radio' name='rad_days-" + id + "' id='days_n-" + id + "' " +
+			"value='days_n-" + id + "' " + ( ( program.is_interval ) ? "checked='checked'" : "" ) + ">" +
+		"<label for='days_n-" + id + "'>" + _( "Interval" ) + "</label>";
     list += "</fieldset><div id='input_days_week-" + id + "' " + ( ( program.is_interval ) ? "style='display:none'" : "" ) + ">";
 
-    list += "<div class='center'><p class='tight'>" + _( "Restrictions" ) + "</p><select data-inline='true' data-iconpos='left' data-mini='true' id='days_rst-" + id + "'>";
+    list += "<div class='center'><p class='tight'>" + _( "Restrictions" ) + "</p>" +
+		"<select data-inline='true' data-iconpos='left' data-mini='true' id='days_rst-" + id + "'>";
     list += "<option value='none' " + ( ( !program.is_even && !program.is_odd ) ? "selected='selected'" : "" ) + ">" + _( "None" ) + "</option>";
     list += "<option value='odd' " + ( ( !program.is_even && program.is_odd ) ? "selected='selected'" : "" ) + ">" + _( "Odd Days" ) + "</option>";
     list += "<option value='even' " + ( ( !program.is_odd && program.is_even ) ? "selected='selected'" : "" ) + ">" + _( "Even Days" ) + "</option>";
     list += "</select></div>";
 
-    list += "<div class='center'><p class='tight'>" + _( "Days of the Week" ) + "</p><select " + ( $.mobile.window.width() > 560 ? "data-inline='true' " : "" ) + "data-iconpos='left' data-mini='true' multiple='multiple' data-native-menu='false' id='d-" + id + "'><option>" + _( "Choose day(s)" ) + "</option>";
+    list += "<div class='center'><p class='tight'>" + _( "Days of the Week" ) + "</p>" +
+		"<select " + ( $.mobile.window.width() > 560 ? "data-inline='true' " : "" ) + "data-iconpos='left' data-mini='true' " +
+			"multiple='multiple' data-native-menu='false' id='d-" + id + "'><option>" + _( "Choose day(s)" ) + "</option>";
+
     for ( j = 0; j < week.length; j++ ) {
         list += "<option " + ( ( !program.is_interval && days[j] ) ? "selected='selected'" : "" ) + " value='" + j + "'>" + week[j] + "</option>";
     }
     list += "</select></div></div>";
 
     list += "<div " + ( ( program.is_interval ) ? "" : "style='display:none'" ) + " id='input_days_n-" + id + "' class='ui-grid-a'>";
-    list += "<div class='ui-block-a'><label class='center' for='every-" + id + "'>" + _( "Interval (Days)" ) + "</label><input data-wrapper-class='pad_buttons' data-mini='true' type='number' name='every-" + id + "' pattern='[0-9]*' id='every-" + id + "' value='" + program.days[0] + "'></div>";
-    list += "<div class='ui-block-b'><label class='center' for='starting-" + id + "'>" + _( "Starting In" ) + "</label><input data-wrapper-class='pad_buttons' data-mini='true' type='number' name='starting-" + id + "' pattern='[0-9]*' id='starting-" + id + "' value='" + program.days[1] + "'></div>";
+    list += "<div class='ui-block-a'><label class='center' for='every-" + id + "'>" + _( "Interval (Days)" ) + "</label>" +
+		"<input data-wrapper-class='pad_buttons' data-mini='true' type='number' name='every-" + id + "' pattern='[0-9]*' id='every-" + id + "' " +
+			"value='" + program.days[0] + "'></div>";
+    list += "<div class='ui-block-b'><label class='center' for='starting-" + id + "'>" + _( "Starting In" ) + "</label>" +
+		"<input data-wrapper-class='pad_buttons' data-mini='true' type='number' name='starting-" + id + "' pattern='[0-9]*' " +
+			"id='starting-" + id + "' value='" + program.days[1] + "'></div>";
     list += "</div>";
 
     list += "<fieldset data-role='controlgroup'><legend>" + _( "Stations:" ) + "</legend>";
 
     for ( j = 0; j < controller.stations.snames.length; j++ ) {
-        list += "<label for='station_" + j + "-" + id + "'><input " + ( isStationDisabled( j ) ? "data-wrapper-class='station-hidden hidden' " : "" ) + "data-mini='true' type='checkbox' " + ( ( ( typeof setStations !== "undefined" ) && setStations[j] ) ? "checked='checked'" : "" ) + " name='station_" + j + "-" + id + "' id='station_" + j + "-" + id + "'>" + controller.stations.snames[j] + "</label>";
+        list += "<label for='station_" + j + "-" + id + "'><input " +
+			( isStationDisabled( j ) ? "data-wrapper-class='station-hidden hidden' " : "" ) +
+			"data-mini='true' type='checkbox' " + ( ( ( typeof setStations !== "undefined" ) && setStations[j] ) ? "checked='checked'" : "" ) +
+			" name='station_" + j + "-" + id + "' id='station_" + j + "-" + id + "'>" + controller.stations.snames[j] + "</label>";
     }
 
     list += "</fieldset>";
@@ -6370,21 +6624,33 @@ function makeProgram183( n, isCopy ) {
     list += "</fieldset>";
 
     list += "<div class='ui-grid-a'>";
-    list += "<div class='ui-block-a'><label class='center' for='start-" + id + "'>" + _( "Start Time" ) + "</label><button class='timefield pad_buttons' data-mini='true' id='start-" + id + "' value='" + program.start + "'>" + minutesToTime( program.start ) + "</button></div>";
-    list += "<div class='ui-block-b'><label class='center' for='end-" + id + "'>" + _( "End Time" ) + "</label><button class='timefield pad_buttons' data-mini='true' id='end-" + id + "' value='" + program.end + "'>" + minutesToTime( program.end ) + "</button></div>";
+    list += "<div class='ui-block-a'><label class='center' for='start-" + id + "'>" + _( "Start Time" ) + "</label>" +
+		"<button class='timefield pad_buttons' data-mini='true' id='start-" + id + "' value='" + program.start + "'>" +
+		minutesToTime( program.start ) + "</button></div>";
+    list += "<div class='ui-block-b'><label class='center' for='end-" + id + "'>" + _( "End Time" ) + "</label>" +
+		"<button class='timefield pad_buttons' data-mini='true' id='end-" + id + "' value='" + program.end + "'>" +
+		minutesToTime( program.end ) + "</button></div>";
     list += "</div>";
 
     list += "<div class='ui-grid-a'>";
-    list += "<div class='ui-block-a'><label class='pad_buttons center' for='duration-" + id + "'>" + _( "Station Duration" ) + "</label><button class='pad_buttons' data-mini='true' name='duration-" + id + "' id='duration-" + id + "' value='" + program.duration + "'>" + dhms2str( sec2dhms( program.duration ) ) + "</button></div>";
-    list += "<div class='ui-block-b'><label class='pad_buttons center' for='interval-" + id + "'>" + _( "Program Interval" ) + "</label><button class='pad_buttons' data-mini='true' name='interval-" + id + "' id='interval-" + id + "' value='" + program.interval * 60 + "'>" + dhms2str( sec2dhms( program.interval * 60 ) ) + "</button></div>";
+    list += "<div class='ui-block-a'><label class='pad_buttons center' for='duration-" + id + "'>" + _( "Station Duration" ) + "</label>" +
+		"<button class='pad_buttons' data-mini='true' name='duration-" + id + "' id='duration-" + id + "' value='" + program.duration + "'>" +
+		dhms2str( sec2dhms( program.duration ) ) + "</button></div>";
+    list += "<div class='ui-block-b'><label class='pad_buttons center' for='interval-" + id + "'>" + _( "Program Interval" ) + "</label>" +
+		"<button class='pad_buttons' data-mini='true' name='interval-" + id + "' id='interval-" + id + "' value='" + program.interval * 60 + "'>" +
+		dhms2str( sec2dhms( program.interval * 60 ) ) + "</button></div>";
     list += "</div>";
 
     if ( isCopy === true || n === "new" ) {
-        list += "<input data-mini='true' data-icon='check' type='submit' data-theme='b' name='submit-" + id + "' id='submit-" + id + "' value='" + _( "Save New Program" ) + "'>";
+        list += "<input data-mini='true' data-icon='check' type='submit' data-theme='b' name='submit-" + id + "' id='submit-" + id + "' " +
+			"value='" + _( "Save New Program" ) + "'>";
     } else {
-        list += "<button data-mini='true' data-icon='check' data-theme='b' name='submit-" + id + "' id='submit-" + id + "'>" + _( "Save Changes to Program" ) + " " + ( n + 1 ) + "</button>";
-        list += "<button data-mini='true' data-icon='arrow-r' name='run-" + id + "' id='run-" + id + "'>" + _( "Run Program" ) + " " + ( n + 1 ) + "</button>";
-        list += "<button data-mini='true' data-icon='delete' class='red bold' data-theme='b' name='delete-" + id + "' id='delete-" + id + "'>" + _( "Delete Program" ) + " " + ( n + 1 ) + "</button>";
+        list += "<button data-mini='true' data-icon='check' data-theme='b' name='submit-" + id + "' id='submit-" + id + "'>" +
+			_( "Save Changes to Program" ) + " " + ( n + 1 ) + "</button>";
+        list += "<button data-mini='true' data-icon='arrow-r' name='run-" + id + "' id='run-" + id + "'>" +
+			_( "Run Program" ) + " " + ( n + 1 ) + "</button>";
+        list += "<button data-mini='true' data-icon='delete' class='red bold' data-theme='b' name='delete-" + id + "' id='delete-" + id + "'>" +
+			_( "Delete Program" ) + " " + ( n + 1 ) + "</button>";
     }
 
     page = $( list );
@@ -6482,13 +6748,17 @@ function makeProgram21( n, isCopy ) {
     list += "<div class='ui-body ui-body-a center'>";
 
     // Progran name
-    list += "<label for='name-" + id + "'>" + _( "Program Name" ) + "</label><input data-mini='true' type='text' name='name-" + id + "' id='name-" + id + "' maxlength='" + controller.programs.pnsize + "' placeholder='" + _( "Program" ) + " " + ( controller.programs.pd.length + 1 ) + "' value='" + program.name + "'>";
+    list += "<label for='name-" + id + "'>" + _( "Program Name" ) + "</label>" +
+		"<input data-mini='true' type='text' name='name-" + id + "' id='name-" + id + "' maxlength='" + controller.programs.pnsize + "' " +
+		"placeholder='" + _( "Program" ) + " " + ( controller.programs.pd.length + 1 ) + "' value='" + program.name + "'>";
 
     // Program enable/disable flag
-    list += "<label for='en-" + id + "'><input data-mini='true' type='checkbox' " + ( ( program.en || n === "new" ) ? "checked='checked'" : "" ) + " name='en-" + id + "' id='en-" + id + "'>" + _( "Enabled" ) + "</label>";
+    list += "<label for='en-" + id + "'><input data-mini='true' type='checkbox' " +
+		( ( program.en || n === "new" ) ? "checked='checked'" : "" ) + " name='en-" + id + "' id='en-" + id + "'>" + _( "Enabled" ) + "</label>";
 
     // Program weather control flag
-    list += "<label for='uwt-" + id + "'><input data-mini='true' type='checkbox' " + ( ( program.weather ) ? "checked='checked'" : "" ) + " name='uwt-" + id + "' id='uwt-" + id + "'>" + _( "Use Weather Adjustment" ) + "</label>";
+    list += "<label for='uwt-" + id + "'><input data-mini='true' type='checkbox' " +
+		( ( program.weather ) ? "checked='checked'" : "" ) + " name='uwt-" + id + "' id='uwt-" + id + "'>" + _( "Use Weather Adjustment" ) + "</label>";
 
     // Show start time menu
     list += "<label class='center' for='start_1-" + id + "'>" + _( "Start Time" ) + "</label><button class='timefield' data-mini='true' id='start_1-" + id + "' value='" + times[0] + "'>" + readStartTime( times[0] ) + "</button>";
@@ -6503,13 +6773,20 @@ function makeProgram21( n, isCopy ) {
 
     // Controlgroup to handle program type (weekly/interval)
     list += "<fieldset data-role='controlgroup' data-type='horizontal' class='center'>";
-    list += "<input data-mini='true' type='radio' name='rad_days-" + id + "' id='days_week-" + id + "' value='days_week-" + id + "' " + ( ( program.is_interval ) ? "" : "checked='checked'" ) + "><label for='days_week-" + id + "'>" + _( "Weekly" ) + "</label>";
-    list += "<input data-mini='true' type='radio' name='rad_days-" + id + "' id='days_n-" + id + "' value='days_n-" + id + "' " + ( ( program.is_interval ) ? "checked='checked'" : "" ) + "><label for='days_n-" + id + "'>" + _( "Interval" ) + "</label>";
+    list += "<input data-mini='true' type='radio' name='rad_days-" + id + "' id='days_week-" + id + "' " +
+		"value='days_week-" + id + "' " + ( ( program.is_interval ) ? "" : "checked='checked'" ) + ">" +
+		"<label for='days_week-" + id + "'>" + _( "Weekly" ) + "</label>";
+    list += "<input data-mini='true' type='radio' name='rad_days-" + id + "' id='days_n-" + id + "' " +
+		"value='days_n-" + id + "' " + ( ( program.is_interval ) ? "checked='checked'" : "" ) + ">" +
+		"<label for='days_n-" + id + "'>" + _( "Interval" ) + "</label>";
     list += "</fieldset>";
 
     // Show weekly program options
     list += "<div id='input_days_week-" + id + "' " + ( ( program.is_interval ) ? "style='display:none'" : "" ) + ">";
-    list += "<div class='center'><p class='tight'>" + _( "Days of the Week" ) + "</p><select " + ( $.mobile.window.width() > 560 ? "data-inline='true' " : "" ) + "data-iconpos='left' data-mini='true' multiple='multiple' data-native-menu='false' id='d-" + id + "'><option>" + _( "Choose day(s)" ) + "</option>";
+    list += "<div class='center'><p class='tight'>" + _( "Days of the Week" ) + "</p>" +
+		"<select " + ( $.mobile.window.width() > 560 ? "data-inline='true' " : "" ) + "data-iconpos='left' data-mini='true' " +
+			"multiple='multiple' data-native-menu='false' id='d-" + id + "'>" +
+		"<option>" + _( "Choose day(s)" ) + "</option>";
     for ( j = 0; j < week.length; j++ ) {
         list += "<option " + ( ( !program.is_interval && days[j] ) ? "selected='selected'" : "" ) + " value='" + j + "'>" + week[j] + "</option>";
     }
@@ -6517,8 +6794,12 @@ function makeProgram21( n, isCopy ) {
 
     // Show interval program options
     list += "<div " + ( ( program.is_interval ) ? "" : "style='display:none'" ) + " id='input_days_n-" + id + "' class='ui-grid-a'>";
-    list += "<div class='ui-block-a'><label class='center' for='every-" + id + "'>" + _( "Interval (Days)" ) + "</label><input data-wrapper-class='pad_buttons' data-mini='true' type='number' name='every-" + id + "' pattern='[0-9]*' id='every-" + id + "' value='" + program.days[0] + "'></div>";
-    list += "<div class='ui-block-b'><label class='center' for='starting-" + id + "'>" + _( "Starting In" ) + "</label><input data-wrapper-class='pad_buttons' data-mini='true' type='number' name='starting-" + id + "' pattern='[0-9]*' id='starting-" + id + "' value='" + program.days[1] + "'></div>";
+    list += "<div class='ui-block-a'><label class='center' for='every-" + id + "'>" + _( "Interval (Days)" ) + "</label>" +
+		"<input data-wrapper-class='pad_buttons' data-mini='true' type='number' name='every-" + id + "' pattern='[0-9]*' " +
+			"id='every-" + id + "' value='" + program.days[0] + "'></div>";
+    list += "<div class='ui-block-b'><label class='center' for='starting-" + id + "'>" + _( "Starting In" ) + "</label>" +
+		"<input data-wrapper-class='pad_buttons' data-mini='true' type='number' name='starting-" + id + "' pattern='[0-9]*' " +
+			"id='starting-" + id + "' value='" + program.days[1] + "'></div>";
     list += "</div>";
 
     // Show restriction options
@@ -6539,10 +6820,16 @@ function makeProgram21( n, isCopy ) {
     // Show station duration inputs
     for ( j = 0; j < controller.stations.snames.length; j++ ) {
         if ( isStationMaster( j ) ) {
-            list += "<div class='ui-field-contain duration-input" + ( isStationDisabled( j ) ? " station-hidden' style='display:none" : "" ) + "'><label for='station_" + j + "-" + id + "'>" + controller.stations.snames[j] + ":</label><button disabled='true' data-mini='true' name='station_" + j + "-" + id + "' id='station_" + j + "-" + id + "' value='0'>Master</button></div>";
+            list += "<div class='ui-field-contain duration-input" + ( isStationDisabled( j ) ? " station-hidden' style='display:none" : "" ) + "'>" +
+				"<label for='station_" + j + "-" + id + "'>" + controller.stations.snames[j] + ":</label>" +
+				"<button disabled='true' data-mini='true' name='station_" + j + "-" + id + "' id='station_" + j + "-" + id + "' value='0'>" +
+				_( "Master" ) + "</button></div>";
         } else {
             time = program.stations[j] || 0;
-            list += "<div class='ui-field-contain duration-input" + ( isStationDisabled( j ) ? " station-hidden' style='display:none" : "" ) + "'><label for='station_" + j + "-" + id + "'>" + controller.stations.snames[j] + ":</label><button " + ( time > 0 ? "class='green' " : "" ) + "data-mini='true' name='station_" + j + "-" + id + "' id='station_" + j + "-" + id + "' value='" + time + "'>" + getDurationText( time ) + "</button></div>";
+            list += "<div class='ui-field-contain duration-input" + ( isStationDisabled( j ) ? " station-hidden' style='display:none" : "" ) + "'>" +
+				"<label for='station_" + j + "-" + id + "'>" + controller.stations.snames[j] + ":</label>" +
+				"<button " + ( time > 0 ? "class='green' " : "" ) + "data-mini='true' name='station_" + j + "-" + id + "' " +
+					"id='station_" + j + "-" + id + "' value='" + time + "'>" + getDurationText( time ) + "</button></div>";
         }
     }
 
@@ -6556,15 +6843,23 @@ function makeProgram21( n, isCopy ) {
 
     // Controlgroup to handle start time type (repeating or set times)
     list += "<fieldset data-role='controlgroup' data-type='horizontal' class='center'>";
-    list += "<input data-mini='true' type='radio' name='stype-" + id + "' id='stype_repeat-" + id + "' value='stype_repeat-" + id + "' " + ( ( typeof program.start === "object" ) ? "" : "checked='checked'" ) + "><label for='stype_repeat-" + id + "'>" + _( "Repeating" ) + "</label>";
-    list += "<input data-mini='true' type='radio' name='stype-" + id + "' id='stype_set-" + id + "' value='stype_set-" + id + "' " + ( ( typeof program.start === "object" ) ? "checked='checked'" : "" ) + "><label for='stype_set-" + id + "'>" + _( "Fixed" ) + "</label>";
+    list += "<input data-mini='true' type='radio' name='stype-" + id + "' id='stype_repeat-" + id + "' value='stype_repeat-" + id + "' " +
+			( ( typeof program.start === "object" ) ? "" : "checked='checked'" ) + ">" +
+		"<label for='stype_repeat-" + id + "'>" + _( "Repeating" ) + "</label>";
+    list += "<input data-mini='true' type='radio' name='stype-" + id + "' id='stype_set-" + id + "' value='stype_set-" + id + "' " +
+			( ( typeof program.start === "object" ) ? "checked='checked'" : "" ) + ">" +
+		"<label for='stype_set-" + id + "'>" + _( "Fixed" ) + "</label>";
     list += "</fieldset>";
 
     // Show repeating start time options
     list += "<div " + ( ( typeof program.start === "object" ) ? "style='display:none'" : "" ) + " id='input_stype_repeat-" + id + "'>";
     list += "<div class='ui-grid-a'>";
-    list += "<div class='ui-block-a'><label class='pad_buttons center' for='interval-" + id + "'>" + _( "Repeat Every" ) + "</label><button class='pad_buttons' data-mini='true' name='interval-" + id + "' id='interval-" + id + "' value='" + program.interval * 60 + "'>" + dhms2str( sec2dhms( program.interval * 60 ) ) + "</button></div>";
-    list += "<div class='ui-block-b'><label class='pad_buttons center' for='repeat-" + id + "'>" + _( "Repeat Count" ) + "</label><button class='pad_buttons' data-mini='true' name='repeat-" + id + "' id='repeat-" + id + "' value='" + program.repeat + "'>" + program.repeat + "</button></div>";
+    list += "<div class='ui-block-a'><label class='pad_buttons center' for='interval-" + id + "'>" + _( "Repeat Every" ) + "</label>" +
+		"<button class='pad_buttons' data-mini='true' name='interval-" + id + "' id='interval-" + id + "' " +
+			"value='" + program.interval * 60 + "'>" + dhms2str( sec2dhms( program.interval * 60 ) ) + "</button></div>";
+    list += "<div class='ui-block-b'><label class='pad_buttons center' for='repeat-" + id + "'>" + _( "Repeat Count" ) + "</label>" +
+		"<button class='pad_buttons' data-mini='true' name='repeat-" + id + "' id='repeat-" + id + "' value='" + program.repeat + "'>" +
+			program.repeat + "</button></div>";
     list += "</div></div>";
 
     // Show set times options
@@ -6766,7 +7061,11 @@ function submitProgram183( id ) {
             showerror( _( "Error: You have not selected any days of the week." ) );
             return;
         }
-        if ( $( "#days_rst-" + id ).val() === "odd" ) {days[0] |= 0x80; days[1] = 1;} else if ( $( "#days_rst-" + id ).val() === "even" ) {days[0] |= 0x80; days[1] = 0;}
+        if ( $( "#days_rst-" + id ).val() === "odd" ) {
+			days[0] |= 0x80; days[1] = 1;
+        } else if ( $( "#days_rst-" + id ).val() === "even" ) {
+			days[0] |= 0x80; days[1] = 0;
+        }
     } else if ( $( "#days_n-" + id ).is( ":checked" ) ) {
         days[1] = parseInt( $( "#every-" + id ).val(), 10 );
         if ( !( days[1] >= 2 && days[1] <= 128 ) ) {showerror( _( "Error: Interval days must be between 2 and 128." ) );return;}
@@ -7043,7 +7342,8 @@ function getImportMethod( localData ) {
     if ( isFileCapable ) {
         popup.find( ".fileMethod" ).removeClass( "hidden" ).on( "click", function() {
             popup.popup( "close" );
-            var input = $( "<input type='file' id='configInput' data-role='none' style='visibility:hidden;position:absolute;top:-50px;left:-50px'/>" ).on( "change", function() {
+            var input = $( "<input type='file' id='configInput' data-role='none' style='visibility:hidden;position:absolute;top:-50px;left:-50px'/>" )
+				.on( "change", function() {
                     var config = this.files[0],
                         reader = new FileReader();
 
@@ -7094,8 +7394,11 @@ function getImportMethod( localData ) {
 }
 
 function importConfig( data ) {
-    var piNames = { 1:"tz", 2:"ntp", 12:"htp", 13:"htp2", 14:"ar", 15:"nbrd", 16:"seq", 17:"sdt", 18:"mas", 19:"mton", 20:"mtoff", 21:"urs", 22:"rst", 23:"wl", 25:"ipas", 30:"rlp", 36:"lg" },
-        keyIndex = { "tz":1, "ntp":2, "dhcp":3, "hp0":12, "hp1":13, "ar":14, "ext":15, "seq":16, "sdt":17, "mas":18, "mton":19, "mtof":20, "urs":21, "rso":22, "wl":23, "ipas":25, "devid":26, "con": 27, "lit": 28, "dim": 29, "rlp":30, "lg":36, "uwt":31, "ntp1":32, "ntp2":33, "ntp3":34, "ntp4":35, "mas2":37, "mton2":38, "mtof2":39 },
+    var piNames = { 1:"tz", 2:"ntp", 12:"htp", 13:"htp2", 14:"ar", 15:"nbrd", 16:"seq", 17:"sdt", 18:"mas", 19:"mton", 20:"mtoff",
+			21:"urs", 22:"rst", 23:"wl", 25:"ipas", 30:"rlp", 36:"lg" },
+        keyIndex = { "tz":1, "ntp":2, "dhcp":3, "hp0":12, "hp1":13, "ar":14, "ext":15, "seq":16, "sdt":17, "mas":18, "mton":19,
+			"mtof":20, "urs":21, "rso":22, "wl":23, "ipas":25, "devid":26, "con": 27, "lit": 28, "dim": 29, "rlp":30, "lg":36,
+			"uwt":31, "ntp1":32, "ntp2":33, "ntp3":34, "ntp4":35, "mas2":37, "mton2":38, "mtof2":39 },
         warning = "";
 
     if ( typeof data !== "object" || !data.settings ) {
@@ -7322,14 +7625,31 @@ function showAbout() {
             "<div class='ui-content' role='main'>" +
                 "<ul data-role='listview' data-inset='true'>" +
                     "<li>" +
-                        "<p>" + _( "User manual for OpenSprinkler is available at" ) + " <a class='iab' target='_blank' href='https://opensprinkler.freshdesk.com/support/solutions/folders/5000147083'>https://support.opensprinkler.com</a></p>" +
+                        "<p>" + _( "User manual for OpenSprinkler is available at" ) +
+							" <a class='iab' target='_blank' href='https://opensprinkler.freshdesk.com/support/solutions/folders/5000147083'>" +
+								"https://support.opensprinkler.com" +
+							"</a>" +
+						"</p>" +
                     "</li>" +
                 "</ul>" +
                 "<ul data-role='listview' data-inset='true'>" +
                     "<li>" +
-                        "<p>" + _( "This is open source software: source code and changelog for this application can be found at" ) + " <a class='iab squeeze' target='_blank' href='https://github.com/OpenSprinkler/OpenSprinkler-App/'>https://github.com/OpenSprinkler/OpenSprinkler-App/</a></p>" +
-                        "<p>" + _( "Language localization is crowdsourced using Get Localization available at" ) + " <a class='iab squeeze' target='_blank' href='http://www.getlocalization.com/OpenSprinkler/'>http://www.getlocalization.com/OpenSprinkler/</a></p>" +
-                        "<p>" + _( "Open source attributions" ) + ": <a class='iab iabNoScale squeeze' target='_blank' href='https://github.com/OpenSprinkler/OpenSprinkler-App/wiki/List-of-Integrated-Libraries'>https://github.com/OpenSprinkler/OpenSprinkler-App/wiki/List-of-Integrated-Libraries</a></p>" +
+                        "<p>" + _( "This is open source software: source code and changelog for this application can be found at" ) + " " +
+							"<a class='iab squeeze' target='_blank' href='https://github.com/OpenSprinkler/OpenSprinkler-App/'>" +
+								"https://github.com/OpenSprinkler/OpenSprinkler-App/" +
+							"</a>" +
+						"</p>" +
+                        "<p>" + _( "Language localization is crowdsourced using Get Localization available at" ) + " " +
+							"<a class='iab squeeze' target='_blank' href='http://www.getlocalization.com/OpenSprinkler/'>" +
+								"http://www.getlocalization.com/OpenSprinkler/" +
+							"</a>" +
+						"</p>" +
+                        "<p>" + _( "Open source attributions" ) + ": " +
+							"<a class='iab iabNoScale squeeze' target='_blank' " +
+								"href='https://github.com/OpenSprinkler/OpenSprinkler-App/wiki/List-of-Integrated-Libraries'>" +
+									"https://github.com/OpenSprinkler/OpenSprinkler-App/wiki/List-of-Integrated-Libraries" +
+							"</a>" +
+						"</p>" +
                     "</li>" +
                 "</ul>" +
                 "<p class='smaller'>" +
@@ -7383,7 +7703,11 @@ function stopStations( callback ) {
 
 // OpenSprinkler feature detection functions
 function isOSPi() {
-    if ( controller && typeof controller.options === "object" && typeof controller.options.fwv === "string" && controller.options.fwv.search( /ospi/i ) !== -1 ) {
+    if ( controller &&
+		typeof controller.options === "object" &&
+		typeof controller.options.fwv === "string" &&
+		controller.options.fwv.search( /ospi/i ) !== -1 ) {
+
         return true;
     }
     return false;
@@ -7429,7 +7753,8 @@ function changePassword( opt ) {
                 "<ul data-role='listview' data-inset='true'>" +
                     ( opt.fixIncorrect === true ? "" : "<li data-role='list-divider'>" + _( "Change Password" ) + "</li>" ) +
                     "<li>" +
-                        ( opt.fixIncorrect === true ? "<p class='rain-desc red-text bold'>" + _( "Incorrect password for " ) + opt.name + ". " + _( "Please re-enter password to try again." ) + "</p>" : "" ) +
+                        ( opt.fixIncorrect === true ? "<p class='rain-desc red-text bold'>" + _( "Incorrect password for " ) +
+							opt.name + ". " + _( "Please re-enter password to try again." ) + "</p>" : "" ) +
                         "<form method='post' novalidate>" +
                             "<label for='npw'>" + ( opt.fixIncorrect === true ? _( "Password:" ) : _( "New Password" ) + ":" ) + "</label>" +
                             "<input type='password' name='npw' id='npw' value=''" + ( isPi ? "" : " maxlength='32'" ) + ">" +
@@ -7567,12 +7892,14 @@ function requestCloudAuth( callback ) {
                     "<li><p class='rain-desc tight'>" +
                         _( "Use your OpenSprinkler.com login and password to securely sync sites between all your devices." ) +
                         "<br><br>" +
-                        _( "Don't have an account?" ) + " <a href='https://opensprinkler.com/wp-login.php?action=register' class='iab'>" + _( "Register here" ) + "</a>" +
+                        _( "Don't have an account?" ) + " <a href='https://opensprinkler.com/wp-login.php?action=register' class='iab'>" +
+						_( "Register here" ) + "</a>" +
                     "</p></li>" +
                     "<li>" +
                         "<form method='post' novalidate>" +
                             "<label for='cloudUser'>" + _( "Username:" ) + "</label>" +
-                            "<input type='text' name='cloudUser' id='cloudUser' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'>" +
+                            "<input type='text' name='cloudUser' id='cloudUser' autocomplete='off' autocorrect='off' autocapitalize='off' " +
+								"spellcheck='false'>" +
                             "<label for='cloudPass'>" + _( "Password:" ) + "</label>" +
                             "<input type='password' name='cloudPass' id='cloudPass'>" +
                             "<input type='submit' value='" + _( "Submit" ) + "'>" +
@@ -7856,7 +8183,9 @@ function handleInvalidDataToken() {
             var button = $( this ).parent(),
                 popup = $(
                     "<div data-role='popup' data-theme='a' data-overlay-theme='b' class='modal ui-content' id='dataPassword'>" +
-                        "<p class='tight rain-desc'>" + _( "Please enter your OpenSprinkler.com password. If you have recently changed your password, you may need to enter your previous password to decrypt the data." ) + "</p>" +
+                        "<p class='tight rain-desc'>" +
+							_( "Please enter your OpenSprinkler.com password. If you have recently changed your password, you may need to enter your previous password to decrypt the data." ) +
+						"</p>" +
                         "<form>" +
                             "<input type='password' id='dataPasswordInput' name='dataPasswordInput' placeholder='" + _( "Password" ) + "' />" +
                             "<input type='submit' data-theme='b' value='" + _( "Submit" ) + "' />" +
@@ -7990,7 +8319,8 @@ function checkPublicAccess( eip ) {
                         desc: _( "Click here to troubleshoot remote access issues" ),
                         on: function() {
                             var iab = window.open( "https://opensprinkler.freshdesk.com/support/solutions/articles/5000569763",
-								"_blank", "location=" + ( isAndroid ? "yes" : "no" ) + ",enableViewportScale=yes,toolbarposition=top,closebuttoncaption=" + _( "Back" ) );
+								"_blank", "location=" + ( isAndroid ? "yes" : "no" ) +
+								",enableViewportScale=yes,toolbarposition=top,closebuttoncaption=" + _( "Back" ) );
 
                             if ( isIEMobile ) {
                                 $.mobile.document.data( "iabOpen", true );
@@ -8077,7 +8407,8 @@ function updateNotificationBadge() {
 }
 
 function createNotificationItem( item ) {
-    var listItem = $( "<li><a class='primary' href='#'><h2>" + item.title + "</h2>" + ( item.desc ? "<p>" + item.desc + "</p>" : "" ) + "</a><a class='ui-btn ui-btn-icon-notext ui-icon-delete'></a></li>" );
+    var listItem = $( "<li><a class='primary' href='#'><h2>" + item.title + "</h2>" + ( item.desc ? "<p>" + item.desc + "</p>" : "" ) +
+		"</a><a class='ui-btn ui-btn-icon-notext ui-icon-delete'></a></li>" );
 
     listItem.find( ".primary" ).on( "click", item.on );
     listItem.find( ".ui-icon-delete" ).on( "click", function() {
@@ -8094,7 +8425,9 @@ function showNotifications() {
 
     var panel = $( "#notificationPanel" ),
         menu = $( "#footer-menu" ),
-        items = [ $( "<li data-role='list-divider'>" + _( "Notifications" ) + "<button class='ui-btn ui-btn-icon-notext ui-icon-delete btn-no-border clear-all delete'></button></li>" ).on( "click", ".clear-all", function() {
+        items = [ $( "<li data-role='list-divider'>" + _( "Notifications" ) +
+			"<button class='ui-btn ui-btn-icon-notext ui-icon-delete btn-no-border clear-all delete'></button></li>" )
+		.on( "click", ".clear-all", function() {
             var button = $( this );
 
             if ( button.hasClass( "clear" ) ) {
@@ -8173,18 +8506,25 @@ function checkFirmwareUpdate() {
                                     changelog = data[0].body.replace( /[\-|\*|\+]\s(.*)?(?:\r\n)?/g, "<li>$1</li>" ),
                                     popup = $(
                                         "<div data-role='popup' class='modal' data-theme='a' data-overlay-theme='b'>" +
-                                            "<h3 class='center' style='margin-bottom:0'>" + _( "Latest" ) + " " + _( "Firmware" ) + ": " + data[0].name + "</h3>" +
+                                            "<h3 class='center' style='margin-bottom:0'>" +
+												_( "Latest" ) + " " + _( "Firmware" ) + ": " + data[0].name +
+											"</h3>" +
                                             "<h5 class='center' style='margin:0'>" + _( "This Controller" ) + ": " + getOSVersion() + "</h5>" +
                                             "<ul class='changelog'>" + changelog + "</ul>" +
-                                            "<a class='guide ui-btn ui-corner-all ui-shadow' style='width:80%;margin:5px auto;' href='#'>" + _( "Upgrade Guide" ) + "</a>" +
-                                            "<a class='dismiss ui-btn ui-btn-b ui-corner-all ui-shadow' style='width:80%;margin:5px auto;' href='#'>" + _( "Dismiss" ) + "</a>" +
+                                            "<a class='guide ui-btn ui-corner-all ui-shadow' style='width:80%;margin:5px auto;' href='#'>" +
+												_( "Upgrade Guide" ) +
+											"</a>" +
+                                            "<a class='dismiss ui-btn ui-btn-b ui-corner-all ui-shadow' style='width:80%;margin:5px auto;' href='#'>" +
+												_( "Dismiss" ) +
+											"</a>" +
                                         "</div>"
                                     );
 
                                 popup.find( ".guide" ).on( "click", function() {
 
                                     // Open the firmware upgrade guide in a child browser
-                                    $( "<a class='hidden iab' href='https://opensprinkler.freshdesk.com/support/solutions/articles/5000381694-update-opensprinkler-firmware-with-downloads-'></a>" ).appendTo( popup ).click();
+                                    $( "<a class='hidden iab' href='https://opensprinkler.freshdesk.com/support/solutions/articles/5000381694-update-opensprinkler-firmware-with-downloads-'></a>" )
+										.appendTo( popup ).click();
                                 } );
 
                                 popup.find( ".dismiss" ).one( "click", function() {
@@ -8567,9 +8907,13 @@ function showDurationBox( opt ) {
         };
 
     for ( i = start; i < conv.length - opt.granularity; i++ ) {
-        incrbts += "<div " + ( ( total > 1 ) ? "class='ui-block-" + String.fromCharCode( 97 + i - start ) + "'" : "" ) + "><a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a></div>";
-        inputs += "<div " + ( ( total > 1 ) ? "class='ui-block-" + String.fromCharCode( 97 + i - start ) + "'" : "" ) + "><label class='center'>" + _( text[i] ) + "</label><input data-wrapper-class='pad_buttons' class='" + keys[i] + "' type='number' pattern='[0-9]*' value='" + arr[keys[i]] + "'></div>";
-        decrbts += "<div " + ( ( total > 1 ) ? "class='ui-block-" + String.fromCharCode( 97 + i - start ) + "'" : "" ) + "><a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='minus' data-iconpos='bottom'></a></div>";
+        incrbts += "<div " + ( ( total > 1 ) ? "class='ui-block-" + String.fromCharCode( 97 + i - start ) + "'" : "" ) + ">" +
+			"<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a></div>";
+        inputs += "<div " + ( ( total > 1 ) ? "class='ui-block-" + String.fromCharCode( 97 + i - start ) + "'" : "" ) + "><label class='center'>" +
+			_( text[i] ) + "</label><input data-wrapper-class='pad_buttons' class='" + keys[i] + "' type='number' pattern='[0-9]*' value='" +
+			arr[keys[i]] + "'></div>";
+        decrbts += "<div " + ( ( total > 1 ) ? "class='ui-block-" + String.fromCharCode( 97 + i - start ) + "'" : "" ) +
+			"><a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='minus' data-iconpos='bottom'></a></div>";
     }
 
     incrbts += "</fieldset>";
@@ -8744,7 +9088,8 @@ function showDateTimeInput( timestamp, callback ) {
     callback = callback || function() {};
 
     var keys = [ "Month", "Date", "FullYear", "Hours", "Minutes" ],
-        monthNames = [ _( "Jan" ), _( "Feb" ), _( "Mar" ), _( "Apr" ), _( "May" ), _( "Jun" ), _( "Jul" ), _( "Aug" ), _( "Sep" ), _( "Oct" ), _( "Nov" ), _( "Dec" ) ],
+        monthNames = [ _( "Jan" ), _( "Feb" ), _( "Mar" ), _( "Apr" ), _( "May" ), _( "Jun" ), _( "Jul" ),
+			_( "Aug" ), _( "Sep" ), _( "Oct" ), _( "Nov" ), _( "Dec" ) ],
         popup = $( "<div data-role='popup' id='datetimeInput' data-theme='a' data-overlay-theme='b'>" +
             "<div data-role='header' data-theme='b'>" +
                 "<h1>" + _( "Enter Date/Time" ) + "</h1>" +
@@ -8862,10 +9207,12 @@ function showTimeInput( opt ) {
                     "</fieldset>" +
                     "<div class='ui-grid-b inputs'>" +
                         "<div class='ui-block-a'>" +
-                            "<input data-wrapper-class='pad_buttons' class='hour' type='number' pattern='[0-9]*' value='" + ( parseInt( opt.minutes / 60 ) % 12 === 0 ? 12 : parseInt( opt.minutes / 60 ) % 12 ) + "'>" +
+                            "<input data-wrapper-class='pad_buttons' class='hour' type='number' pattern='[0-9]*' value='" +
+								( parseInt( opt.minutes / 60 ) % 12 === 0 ? 12 : parseInt( opt.minutes / 60 ) % 12 ) + "'>" +
                         "</div>" +
                         "<div class='ui-block-b'>" +
-                            "<input data-wrapper-class='pad_buttons' class='minute' type='number' pattern='[0-9]*' value='" + pad( opt.minutes % 60 ) + "'>" +
+                            "<input data-wrapper-class='pad_buttons' class='minute' type='number' pattern='[0-9]*' value='" +
+								pad( opt.minutes % 60 ) + "'>" +
                         "</div>" +
                         "<div class='ui-block-c'>" +
                             "<p class='center period'>" + getPeriod() + "</p>" +
@@ -9206,9 +9553,11 @@ function changeHeader( opt ) {
     }
 
     // Generate new header content
-    var newHeader = $( "<button data-icon='" + opt.leftBtn.icon + "' " + ( opt.leftBtn.text === "" ? "data-iconpos='notext' " : "" ) + "class='ui-btn-left " + opt.leftBtn.class + "'>" + opt.leftBtn.text + "</button>" +
+    var newHeader = $( "<button data-icon='" + opt.leftBtn.icon + "' " + ( opt.leftBtn.text === "" ? "data-iconpos='notext' " : "" ) +
+				"class='ui-btn-left " + opt.leftBtn.class + "'>" + opt.leftBtn.text + "</button>" +
             "<h3 class='" + opt.class + "'>" + opt.title + "</h3>" +
-            "<button data-icon='" + opt.rightBtn.icon + "' " + ( opt.rightBtn.text === "" ? "data-iconpos='notext' " : "" ) + "class='ui-btn-right " + opt.rightBtn.class + "'>" + opt.rightBtn.text + "</button>" ),
+            "<button data-icon='" + opt.rightBtn.icon + "' " + ( opt.rightBtn.text === "" ? "data-iconpos='notext' " : "" ) +
+				"class='ui-btn-right " + opt.rightBtn.class + "'>" + opt.rightBtn.text + "</button>" ),
         speed = opt.animate ? "fast" : 0;
 
     // Fade out the header content, replace it, and update the header

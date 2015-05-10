@@ -1,5 +1,5 @@
 {
 	"preset": "jquery",
 	"requireCamelCaseOrUpperCaseIdentifiers": "ignoreProperties",
-	"maximumLineLength": 500
+	"maximumLineLength": 250
 }
