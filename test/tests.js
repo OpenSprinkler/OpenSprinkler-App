@@ -285,7 +285,7 @@ describe( "Popup Checks", function() {
 			$( "#addnew" ).popup( "close" ).remove();
 		} );
 		assert.doesNotThrow( function() {
-			show_addnew();
+			changePage( "#addnew" );
 		} );
 	} );
 
@@ -297,7 +297,7 @@ describe( "Popup Checks", function() {
 			$( "#site-select" ).popup( "close" ).remove();
 		} );
 		assert.doesNotThrow( function() {
-			show_site_select();
+			changePage( "#site-select" );
 		} );
 	} );
 
