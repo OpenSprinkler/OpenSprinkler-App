@@ -7,10 +7,10 @@ describe( "Initial Definition Check", function() {
 			storage.set( {
 				"testkey": "helloworld",
                 "sites": JSON.stringify( {
-                	"Test": {
-                		"os_ip": "127.0.0.1:8080",
-                		"os_pw":"opendoor"
-                	}
+					"Test": {
+						"os_ip": "127.0.0.1:8080",
+						"os_pw":"opendoor"
+					}
                 } ),
                 "current_site": "Test"
 			}, function( result ) {
@@ -285,7 +285,7 @@ describe( "Popup Checks", function() {
 			$( "#addnew" ).popup( "close" ).remove();
 		} );
 		assert.doesNotThrow( function() {
-			changePage( "#addnew" );
+			showAddNew();
 		} );
 	} );
 
@@ -297,7 +297,7 @@ describe( "Popup Checks", function() {
 			$( "#site-select" ).popup( "close" ).remove();
 		} );
 		assert.doesNotThrow( function() {
-			changePage( "#site-select" );
+			showSiteSelect();
 		} );
 	} );
 
@@ -376,7 +376,7 @@ describe( "Popup Checks", function() {
 describe( "Logout / Clean up", function() {
 	it( "Remove all variables", function( done ) {
         storage.remove( [ "sites", "current_site", "lang", "runonce" ], function() {
-        	done();
+			done();
         } );
     } );
 
@@ -384,8 +384,8 @@ describe( "Logout / Clean up", function() {
 		$.mobile.document.one( "pageshow", "#start", function() {
 			done();
 		} );
-    	changePage( "#start", {
-    		showStart: true
-    	} );
+		changePage( "#start", {
+			showStart: true
+		} );
     } );
 } );
