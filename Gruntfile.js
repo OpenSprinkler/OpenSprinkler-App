@@ -50,7 +50,7 @@ module.exports = function( grunt ) {
 		},
 
 		jscs: {
-			main: [ "<%= pkg.main %>", "www/js/home.js", "www/js/hasher.js", "chrome.js" ],
+			main: [ "<%= pkg.main %>", "Gruntfile.js", "www/js/hasher.js", "www/js/home.js", "chrome.js", "test/tests.js" ],
 			options: {
 				config: true,
 				fix: true
