@@ -244,8 +244,7 @@ $( document )
                 preventCompression: true,
                 incrementalUpdate: false,
                 updateOnChange: false,
-                helptext: _( "Enable manual rain delay by entering a value into the input below." +
-					"To turn off a currently enabled rain delay use a value of 0." )
+                helptext: _( "Enable manual rain delay by entering a value into the input below. To turn off a currently enabled rain delay use a value of 0." )
             } );
             return false;
         } else if ( hash === "#site-select" ) {
@@ -1546,9 +1545,18 @@ function showSites( showBack ) {
                             "<label for='cpw-" + i + "'>" + _( "Change Password" ) + "</label><input id='cpw-" + i + "' type='password'>" +
                         "</div>" +
                         "<fieldset data-mini='true' data-role='collapsible'>" +
-                            "<h3><span style='line-height:23px'>" + _( "Advanced" ) + "</span><button data-helptext='" + _( "These options are only for an OpenSprinkler behind a proxy capable of SSL and/or Basic Authentication." ) + "' class='collapsible-button-right help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></h3>" +
-                            "<label for='usessl-" + i + "'><input data-mini='true' type='checkbox' id='usessl-" + i + "' name='usessl-" + i + "'" + ( typeof b.ssl !== "undefined" && b.ssl === "1" ? " checked='checked'" : "" ) + ">" + _( "Use SSL" ) + "</label>" +
-                            "<label for='useauth-" + i + "'><input class='useauth' data-user='" + b.auth_user + "' data-pw='" + b.auth_pw + "' data-mini='true' type='checkbox' id='useauth-" + i + "' name='useauth-" + i + "'" + ( typeof b.auth_user !== "undefined" && typeof b.auth_pw !== "undefined" ? " checked='checked'" : "" ) + ">" + _( "Use Auth" ) + "</label>" +
+                            "<h3>" +
+								"<span style='line-height:23px'>" + _( "Advanced" ) + "</span>" +
+								"<button data-helptext='" + _( "These options are only for an OpenSprinkler behind a proxy capable of SSL and/or Basic Authentication." ) +
+									"' class='collapsible-button-right help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
+							"</h3>" +
+                            "<label for='usessl-" + i + "'>" +
+								"<input data-mini='true' type='checkbox' id='usessl-" + i + "' name='usessl-" + i + "'" + ( typeof b.ssl !== "undefined" && b.ssl === "1" ? " checked='checked'" : "" ) + ">" + _( "Use SSL" ) +
+							"</label>" +
+                            "<label for='useauth-" + i + "'>" +
+								"<input class='useauth' data-user='" + b.auth_user + "' data-pw='" + b.auth_pw + "' data-mini='true' type='checkbox' id='useauth-" + i + "' name='useauth-" + i + "'" +
+									( typeof b.auth_user !== "undefined" && typeof b.auth_pw !== "undefined" ? " checked='checked'" : "" ) + ">" + _( "Use Auth" ) +
+							"</label>" +
                         "</fieldset>" +
                         "<input class='submit' type='submit' value='" + _( "Save Changes to" ) + " " + a + "'>" +
                         "<a data-role='button' class='deletesite' data-site='" + i + "' href='#' data-theme='b'>" + _( "Delete" ) + " " + a + "</a>" +
@@ -2023,7 +2031,10 @@ function startScan( port, type ) {
 function findRouter( callback ) {
     callback = callback || function() {};
 
-    var routerIPs = [ "192.168.1.1", "10.0.1.1", "192.168.1.220", "192.168.2.1", "10.1.1.1", "192.168.11.1", "192.168.0.1", "192.168.0.30", "192.168.0.50", "192.168.10.1", "192.168.20.1", "192.168.30.1", "192.168.62.1", "192.168.102.1", "192.168.1.254", "192.168.0.227", "10.0.0.138", "192.168.123.254", "192.168.4.1", "10.0.0.2", "10.0.2.1", "10.0.3.1", "10.0.4.1", "10.0.5.1" ],
+    var routerIPs = [ "192.168.1.1", "10.0.1.1", "192.168.1.220", "192.168.2.1", "10.1.1.1", "192.168.11.1", "192.168.0.1",
+					"192.168.0.30", "192.168.0.50", "192.168.10.1", "192.168.20.1", "192.168.30.1", "192.168.62.1", "192.168.102.1",
+					"192.168.1.254", "192.168.0.227", "10.0.0.138", "192.168.123.254", "192.168.4.1", "10.0.0.2", "10.0.2.1",
+					"10.0.3.1", "10.0.4.1", "10.0.5.1" ],
         total = routerIPs.length,
         scanprogress = 0,
         isCanceled = false,
@@ -2505,7 +2516,15 @@ function makeWundergroundForecast() {
     }
 
     var list = "<li data-role='list-divider' data-theme='a' class='center'>" + weather.location + "</li>";
-    list += "<li data-icon='false' class='center'><div>" + _( "Now" ) + "</div><br><div title='" + weather.forecast.condition.text + "' class='wicon cond" + weather.forecast.condition.code + "'></div><span>" + temp + "</span><br><span>" + _( "Sunrise" ) + "</span><span>: " + pad( parseInt( controller.settings.sunrise / 60 ) % 24 ) + ":" + pad( controller.settings.sunrise % 60 ) + "</span> <span>" + _( "Sunset" ) + "</span><span>: " + pad( parseInt( controller.settings.sunset / 60 ) % 24 ) + ":" + pad( controller.settings.sunset % 60 ) + "</span><br><span>" + _( "Precip" ) + "</span><span>: " + precip + "</span></li>";
+    list += "<li data-icon='false' class='center'>" +
+			"<div>" + _( "Now" ) + "</div><br>" +
+			"<div title='" + weather.forecast.condition.text + "' class='wicon cond" + weather.forecast.condition.code + "'></div>" +
+			"<span>" + temp + "</span><br>" +
+			"<span>" + _( "Sunrise" ) + "</span><span>: " + pad( parseInt( controller.settings.sunrise / 60 ) % 24 ) + ":" + pad( controller.settings.sunrise % 60 ) + "</span> " +
+			"<span>" + _( "Sunset" ) + "</span><span>: " + pad( parseInt( controller.settings.sunset / 60 ) % 24 ) + ":" + pad( controller.settings.sunset % 60 ) + "</span><br>" +
+			"<span>" + _( "Precip" ) + "</span><span>: " + precip + "</span>" +
+		"</li>";
+
     $.each( weather.forecast.simpleforecast, function( i ) {
         if ( i === "0" ) {
             return;
@@ -2521,13 +2540,31 @@ function makeWundergroundForecast() {
             if ( precip === null ) {
                 precip = 0;
             }
-            list += "<li data-icon='false' class='center'><div>" + this.date.monthname_short + " " + this.date.day + "</div><br><div title='" + this.conditions + "' class='wicon cond" + this.icon + "'></div><span>" + _( this.date.weekday_short ) + "</span><br><span>" + _( "Low" ) + "</span><span>: " + this.low.fahrenheit + "&#176;F  </span><span>" + _( "High" ) + "</span><span>: " + this.high.fahrenheit + "&#176;F</span><br><span>" + _( "Sunrise" ) + "</span><span>: " + pad( parseInt( sunrise / 60 ) % 24 ) + ":" + pad( sunrise % 60 ) + "</span> <span>" + _( "Sunset" ) + "</span><span>: " + pad( parseInt( sunset / 60 ) % 24 ) + ":" + pad( sunset % 60 ) + "</span><br><span>" + _( "Precip" ) + "</span><span>: " + precip + " in</span></li>";
+            list += "<li data-icon='false' class='center'>" +
+					"<div>" + this.date.monthname_short + " " + this.date.day + "</div><br>" +
+					"<div title='" + this.conditions + "' class='wicon cond" + this.icon + "'></div>" +
+					"<span>" + _( this.date.weekday_short ) + "</span><br>" +
+					"<span>" + _( "Low" ) + "</span><span>: " + this.low.fahrenheit + "&#176;F  </span>" +
+					"<span>" + _( "High" ) + "</span><span>: " + this.high.fahrenheit + "&#176;F</span><br>" +
+					"<span>" + _( "Sunrise" ) + "</span><span>: " + pad( parseInt( sunrise / 60 ) % 24 ) + ":" + pad( sunrise % 60 ) + "</span> " +
+					"<span>" + _( "Sunset" ) + "</span><span>: " + pad( parseInt( sunset / 60 ) % 24 ) + ":" + pad( sunset % 60 ) + "</span><br>" +
+					"<span>" + _( "Precip" ) + "</span><span>: " + precip + " in</span>" +
+				"</li>";
         } else {
             precip = this.qpf_allday.mm;
             if ( precip === null ) {
                 precip = 0;
             }
-            list += "<li data-icon='false' class='center'><div>" + this.date.monthname_short + " " + this.date.day + "</div><br><div title='" + this.conditions + "' class='wicon cond" + this.icon + "'></div><span>" + _( this.date.weekday_short ) + "</span><br><span>" + _( "Low" ) + "</span><span>: " + this.low.celsius + "&#176;C  </span><span>" + _( "High" ) + "</span><span>: " + this.high.celsius + "&#176;C</span><br><span>" + _( "Sunrise" ) + "</span><span>: " + pad( parseInt( sunrise / 60 ) % 24 ) + ":" + pad( sunrise % 60 ) + "</span> <span>" + _( "Sunset" ) + "</span><span>: " + pad( parseInt( sunset / 60 ) % 24 ) + ":" + pad( controller.settings.sunset % 60 ) + "</span><br><span>" + _( "Precip" ) + "</span><span>: " + precip + " mm</span></li>";
+            list += "<li data-icon='false' class='center'>" +
+					"<div>" + this.date.monthname_short + " " + this.date.day + "</div><br>" +
+					"<div title='" + this.conditions + "' class='wicon cond" + this.icon + "'></div>" +
+					"<span>" + _( this.date.weekday_short ) + "</span><br>" +
+					"<span>" + _( "Low" ) + "</span><span>: " + this.low.celsius + "&#176;C  </span>" +
+					"<span>" + _( "High" ) + "</span><span>: " + this.high.celsius + "&#176;C</span><br>" +
+					"<span>" + _( "Sunrise" ) + "</span><span>: " + pad( parseInt( sunrise / 60 ) % 24 ) + ":" + pad( sunrise % 60 ) + "</span> " +
+					"<span>" + _( "Sunset" ) + "</span><span>: " + pad( parseInt( sunset / 60 ) % 24 ) + ":" + pad( controller.settings.sunset % 60 ) + "</span><br>" +
+					"<span>" + _( "Precip" ) + "</span><span>: " + precip + " mm</span>" +
+				"</li>";
         }
     } );
 
@@ -2540,7 +2577,13 @@ function makeYahooForecast() {
         sunset = controller.settings.sunset ? controller.settings.sunset : getSunTimes()[1],
         i;
 
-    list += "<li data-icon='false' class='center'><div>" + _( "Now" ) + "</div><br><div title='" + weather.title + "' class='wicon cond" + weather.code + "'></div><span>" + weather.temp + "</span><br><span>" + _( "Sunrise" ) + "</span><span>: " + pad( parseInt( sunrise / 60 ) % 24 ) + ":" + pad( sunrise % 60 ) + "</span> <span>" + _( "Sunset" ) + "</span><span>: " + pad( parseInt( sunset / 60 ) % 24 ) + ":" + pad( sunset % 60 ) + "</span></li>";
+    list += "<li data-icon='false' class='center'>" +
+			"<div>" + _( "Now" ) + "</div><br>" +
+			"<div title='" + weather.title + "' class='wicon cond" + weather.code + "'></div>" +
+			"<span>" + weather.temp + "</span><br>" +
+			"<span>" + _( "Sunrise" ) + "</span><span>: " + pad( parseInt( sunrise / 60 ) % 24 ) + ":" + pad( sunrise % 60 ) + "</span> " +
+			"<span>" + _( "Sunset" ) + "</span><span>: " + pad( parseInt( sunset / 60 ) % 24 ) + ":" + pad( sunset % 60 ) + "</span>" +
+		"</li>";
 
     for ( i = 1; i < weather.forecast.length; i++ ) {
         var times = getSunTimes( new Date( weather.forecast[i].date ) );
@@ -2548,7 +2591,15 @@ function makeYahooForecast() {
         sunrise = times[0];
         sunset = times[1];
 
-        list += "<li data-icon='false' class='center'><div>" + weather.forecast[i].date + "</div><br><div title='" + weather.forecast[i].text + "' class='wicon cond" + weather.forecast[i].code + "'></div><span>" + _( weather.forecast[i].day ) + "</span><br><span>" + _( "Low" ) + "</span><span>: " + convertTemp( weather.forecast[i].low, weather.region ) + "  </span><span>" + _( "High" ) + "</span><span>: " + convertTemp( weather.forecast[i].high, weather.region ) + "</span><br><span>" + _( "Sunrise" ) + "</span><span>: " + pad( parseInt( sunrise / 60 ) % 24 ) + ":" + pad( sunrise % 60 ) + "</span> <span>" + _( "Sunset" ) + "</span><span>: " + pad( parseInt( sunset / 60 ) % 24 ) + ":" + pad( sunset % 60 ) + "</span></li>";
+        list += "<li data-icon='false' class='center'>" +
+				"<div>" + weather.forecast[i].date + "</div><br>" +
+				"<div title='" + weather.forecast[i].text + "' class='wicon cond" + weather.forecast[i].code + "'></div>" +
+				"<span>" + _( weather.forecast[i].day ) + "</span><br>" +
+				"<span>" + _( "Low" ) + "</span><span>: " + convertTemp( weather.forecast[i].low, weather.region ) + "  </span>" +
+				"<span>" + _( "High" ) + "</span><span>: " + convertTemp( weather.forecast[i].high, weather.region ) + "</span><br>" +
+				"<span>" + _( "Sunrise" ) + "</span><span>: " + pad( parseInt( sunrise / 60 ) % 24 ) + ":" + pad( sunrise % 60 ) + "</span> " +
+				"<span>" + _( "Sunset" ) + "</span><span>: " + pad( parseInt( sunset / 60 ) % 24 ) + ":" + pad( sunset % 60 ) + "</span>" +
+			"</li>";
     }
 
     return list;
@@ -3285,7 +3336,9 @@ function showOptions( expandItem ) {
     }
 
     if ( typeof controller.options.uwt !== "undefined" ) {
-        list += "<div class='ui-field-contain'><label for='o31' class='select'>" + _( "Weather Adjustment Method" ) + "<button data-helptext='" + _( "Weather adjustment uses Weather Underground data in conjunction with the selected method to adjust the watering percentage." ) + "' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><select " + ( controller.settings.wtkey && controller.settings.wtkey !== "" ? "" : "disabled='disabled' " ) + "data-mini='true' id='o31'>";
+        list += "<div class='ui-field-contain'><label for='o31' class='select'>" + _( "Weather Adjustment Method" ) +
+				"<button data-helptext='" + _( "Weather adjustment uses Weather Underground data in conjunction with the selected method to adjust the watering percentage." ) + "' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
+			"</label><select " + ( controller.settings.wtkey && controller.settings.wtkey !== "" ? "" : "disabled='disabled' " ) + "data-mini='true' id='o31'>";
         for ( i = 0; i < 2; i++ ) {
             list += "<option " + ( ( i === getAdjustmentMethod() ) ? "selected" : "" ) + " value='" + i + "'>" + getAdjustmentName( i ) + "</option>";
         }
@@ -3302,7 +3355,9 @@ function showOptions( expandItem ) {
     }
 
     if ( typeof controller.options.wl !== "undefined" ) {
-        list += "<div class='ui-field-contain duration-field'><label for='o23'>" + _( "% Watering" ) + "<button data-helptext='" + _( "The watering percentage scales station run times by the set value. When weather adjustment is used the watering percentage is automatically adjusted." ) + "' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><button " + ( ( controller.options.uwt && controller.options.uwt > 0 ) ? "disabled='disabled' " : "" ) + "data-mini='true' id='o23' value='" + controller.options.wl + "'>" + controller.options.wl + "%</button></div>";
+        list += "<div class='ui-field-contain duration-field'><label for='o23'>" + _( "% Watering" ) +
+				"<button data-helptext='" + _( "The watering percentage scales station run times by the set value. When weather adjustment is used the watering percentage is automatically adjusted." ) + "' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
+			"</label><button " + ( ( controller.options.uwt && controller.options.uwt > 0 ) ? "disabled='disabled' " : "" ) + "data-mini='true' id='o23' value='" + controller.options.wl + "'>" + controller.options.wl + "%</button></div>";
     }
 
     if ( typeof controller.options.urs !== "undefined" ) {
@@ -3338,7 +3393,10 @@ function showOptions( expandItem ) {
     }
 
     if ( typeof controller.options.rlp !== "undefined" ) {
-        list += "<div class='ui-field-contain duration-field'><label for='o30'>" + _( "Relay Pulse" ) + "<button data-helptext='" + _( "Relay pulsing is used for special situations where rapid pulsing is needed in the output with a range from 1 to 2000 milliseconds. A zero value disables the pulsing option." ) + "' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label><button data-mini='true' id='o30' value='" + controller.options.rlp + "'>" + controller.options.rlp + "ms</button></div>";
+        list += "<div class='ui-field-contain duration-field'>" +
+			"<label for='o30'>" + _( "Relay Pulse" ) +
+				"<button data-helptext='" + _( "Relay pulsing is used for special situations where rapid pulsing is needed in the output with a range from 1 to 2000 milliseconds. A zero value disables the pulsing option." ) + "' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
+			"</label><button data-mini='true' id='o30' value='" + controller.options.rlp + "'>" + controller.options.rlp + "ms</button></div>";
     }
 
     if ( typeof controller.options.ntp !== "undefined" && checkOSVersion( 210 ) ) {
@@ -5707,7 +5765,12 @@ function getLogs() {
                     if ( ct === 0 ) {
                         continue;
                     }
-                    groupArray[i] = "<div data-role='collapsible' data-collapsed='true'><h2>" + ( ( checkOSVersion( 210 ) && grouping === "day" ) ? "<a class='ui-btn red ui-btn-corner-all delete-day day-" + group + "'>" + _( "delete" ) + "</a>" : "" ) + "<div class='ui-btn-up-c ui-btn-corner-all custom-count-pos'>" + ct + " " + ( ( ct === 1 ) ? _( "run" ) : _( "runs" ) ) + "</div>" + ( grouping === "station" ? stations[group] : dateToString( new Date( group * 1000 * 60 * 60 * 24 ) ).slice( 0, -9 ) ) + "</h2>";
+                    groupArray[i] = "<div data-role='collapsible' data-collapsed='true'><h2>" +
+							( ( checkOSVersion( 210 ) && grouping === "day" ) ? "<a class='ui-btn red ui-btn-corner-all delete-day day-" + group + "'>" + _( "delete" ) + "</a>" : "" ) +
+							"<div class='ui-btn-up-c ui-btn-corner-all custom-count-pos'>" +
+								ct + " " + ( ( ct === 1 ) ? _( "run" ) : _( "runs" ) ) +
+							"</div>" + ( grouping === "station" ? stations[group] : dateToString( new Date( group * 1000 * 60 * 60 * 24 ) ).slice( 0, -9 ) ) +
+						"</h2>";
 
                     if ( wlSorted[group] ) {
                         groupArray[i] += "<span style='border:none' class='" + ( wlSorted[group] !== 100 ? ( wlSorted[group] < 100 ? "green " : "red " ) : "" ) + "ui-body ui-body-a ui-corner-all'>" + _( "Average" ) + " " + _( "Water Level" ) + ": " + wlSorted[group] + "%</span>";
@@ -7040,7 +7103,10 @@ function importConfig( data ) {
         return;
     }
 
-    if ( checkOSVersion( 210 ) && typeof data.options === "object" && ( data.options.hp0 !== controller.options.hp0 || data.options.hp1 !== controller.options.hp1 ) || ( data.options.dhcp !== controller.options.dhcp ) || ( data.options.devid !== controller.options.devid ) ) {
+    if ( checkOSVersion( 210 ) && typeof data.options === "object" &&
+		( data.options.hp0 !== controller.options.hp0 || data.options.hp1 !== controller.options.hp1 ) ||
+		( data.options.dhcp !== controller.options.dhcp ) || ( data.options.devid !== controller.options.devid ) ) {
+
         warning = _( "Warning: Network changes will be made and the device may no longer be accessible from this address." );
     }
 
@@ -7923,7 +7989,8 @@ function checkPublicAccess( eip ) {
                         title: _( "Remote access is not enabled" ),
                         desc: _( "Click here to troubleshoot remote access issues" ),
                         on: function() {
-                            var iab = window.open( "https://opensprinkler.freshdesk.com/support/solutions/articles/5000569763", "_blank", "location=" + ( isAndroid ? "yes" : "no" ) + ",enableViewportScale=yes,toolbarposition=top,closebuttoncaption=" + _( "Back" ) );
+                            var iab = window.open( "https://opensprinkler.freshdesk.com/support/solutions/articles/5000569763",
+								"_blank", "location=" + ( isAndroid ? "yes" : "no" ) + ",enableViewportScale=yes,toolbarposition=top,closebuttoncaption=" + _( "Back" ) );
 
                             if ( isIEMobile ) {
                                 $.mobile.document.data( "iabOpen", true );
@@ -9523,12 +9590,20 @@ function updateLang( lang ) {
 function languageSelect() {
     $( "#localization" ).popup( "destroy" ).remove();
 
-//  {af: _("Afrikaans"), am: _("Amharic"), zh: _("Chinese"), hr: _("Croatian"), cs: _("Czech"), nl: _("Dutch"), en: _("English"), pes: _("Farsi"), fr: _("French"), de: _("German"), el: _("Greek"), he: _("Hebrew"), hu: _("Hungarian"), is: _("Icelandic"), it: _("Italian"), mn: _("Mongolian"), no: _("Norwegian"), pl: _("Polish"), pt: _("Portuguese"), ru: _("Russian"), sk: _("Slovak"), sl: _("Slovenian"), es: _("Spanish"), th: _("Thai")}
+	//  {af: _("Afrikaans"), am: _("Amharic"), zh: _("Chinese"), hr: _("Croatian"), cs: _("Czech"),
+	//	nl: _("Dutch"), en: _("English"), pes: _("Farsi"), fr: _("French"), de: _("German"),
+	//	el: _("Greek"), he: _("Hebrew"), hu: _("Hungarian"), is: _("Icelandic"), it: _("Italian"),
+	//	mn: _("Mongolian"), no: _("Norwegian"), pl: _("Polish"), pt: _("Portuguese"), ru: _("Russian"),
+	//	sk: _("Slovak"), sl: _("Slovenian"), es: _("Spanish"), th: _("Thai")}
 
     var popup = "<div data-role='popup' data-overlay-theme='b' data-theme='a' id='localization' data-corners='false'>" +
                 "<ul data-inset='true' data-role='listview' id='lang' data-corners='false'>" +
                 "<li data-role='list-divider' data-theme='b' class='center' data-translate='Localization'>" + _( "Localization" ) + "</li>",
-        codes = { af: "Afrikaans", am: "Amharic", zh: "Chinese", hr: "Croatian", cs: "Czech", nl: "Dutch", en: "English", pes: "Farsi", fr: "French", de: "German", el: "Greek", he: "Hebrew", hu: "Hungarian", is: "Icelandic", it: "Italian", mn: "Mongolian", no: "Norwegian", pl: "Polish", pt: "Portuguese", ru: "Russian", sk: "Slovak", sl: "Slovenian", es: "Spanish", th: "Thai" };
+
+        codes = { af: "Afrikaans", am: "Amharic", zh: "Chinese", hr: "Croatian", cs: "Czech", nl: "Dutch",
+				en: "English", pes: "Farsi", fr: "French", de: "German", el: "Greek", he: "Hebrew", hu: "Hungarian",
+				is: "Icelandic", it: "Italian", mn: "Mongolian", no: "Norwegian", pl: "Polish", pt: "Portuguese",
+				ru: "Russian", sk: "Slovak", sl: "Slovenian", es: "Spanish", th: "Thai" };
 
     $.each( codes, function( key, name ) {
         popup += "<li><a href='#' data-translate='" + name + "' data-lang-code='" + key + "'>" + _( name ) + "</a></li>";
