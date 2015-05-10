@@ -16,6 +16,6 @@ after_success:
  - cat coverage/results.lcov | ./node_modules/codecov.io/bin/codecov.io.js
  - cat coverage/results.lcov | ./node_modules/.bin/coveralls
 script:
- - xctool -project source/osx/OpenSprinkler.xcodeproj -scheme OpenSprinkler -sdk macosx10.9 CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGN_ENTITLEMENTS=""
+ - xcodebuild build -project source/osx/OpenSprinkler.xcodeproj -scheme OpenSprinkler CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGN_ENTITLEMENTS=""
 notifications:
   on_failure: change
