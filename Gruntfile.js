@@ -177,7 +177,7 @@ module.exports = function( grunt ) {
 			},
 			updateLang: {
 				command: [
-					"curl --user <%= secrets.getLocalization.username %>:<%= secrets.getLocalization.password %> https://api.getlocalization.com/OpenSprinkler/api/translations/zip/ -o langs.zip",
+					"curl --user <%= secrets.getLocalization.username %>:<%= secrets.getLocalization.password %> https://api.getlocalization.com/Sprinklers/api/translations/zip/ -o langs.zip",
 					"unzip langs.zip",
 					"rm langs.zip",
 					"find . -type f -maxdepth 1 -iname 'messages_*.po' -print0 | while IFS= read -r -d $'\\0' line; do file=(${line//_/ }); lang=${file[1]}; file=(${lang//-/ }); " +

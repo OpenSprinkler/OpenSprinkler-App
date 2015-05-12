@@ -6302,10 +6302,24 @@ function expandProgram( program ) {
     } );
 
     program.find( "[id^='run-']" ).on( "click", function() {
-        var runonce = [];
+        var runonce = [],
+			finish = function() {
+		        runonce.push( 0 );
+		        submitRunonce( runonce );
+			};
 
         if ( checkOSVersion( 210 ) ) {
-            runonce = controller.programs.pd[id][4];
+			runonce = controller.programs.pd[id][4];
+
+			if ( ( controller.programs.pd[id][0] >> 1 ) & 1 ) {
+				areYouSure( _( "Do you wish to apply the current watering level?" ), "", function() {
+					for ( var i = runonce.length - 1; i >= 0; i-- ) {
+						runonce[i] *= controller.options.wl / 100;
+					}
+					finish();
+				}, finish );
+				return false;
+			}
         } else {
             var durr = parseInt( $( "#duration-" + id ).val() ),
                 stations = $( "[id^='station_'][id$='-" + id + "']" );
@@ -6318,8 +6332,7 @@ function expandProgram( program ) {
                 }
             } );
         }
-        runonce.push( 0 );
-        submitRunonce( runonce );
+        finish();
         return false;
     } );
 }
