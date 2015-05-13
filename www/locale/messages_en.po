@@ -1,14 +1,3 @@
-msgid "Change Rain Delay"
-msgstr ""
-
-msgid "Duration"
-msgstr ""
-
-msgid ""
-"Enable manual rain delay by entering a value into the input below. To turn "
-"off a currently enabled rain delay use a value of 0."
-msgstr ""
-
 msgid "Back"
 msgstr ""
 
@@ -506,6 +495,9 @@ msgstr ""
 msgid "Programs and Settings"
 msgstr ""
 
+msgid "Change Rain Delay"
+msgstr ""
+
 msgid "Run-Once Program"
 msgstr ""
 
@@ -531,6 +523,14 @@ msgid "Are you sure you want to stop all stations?"
 msgstr ""
 
 msgid "All stations have been stopped"
+msgstr ""
+
+msgid "Duration"
+msgstr ""
+
+msgid ""
+"Enable manual rain delay by entering a value into the input below. To turn "
+"off a currently enabled rain delay use a value of 0."
 msgstr ""
 
 msgid "Water Level"
@@ -771,6 +771,9 @@ msgid "Do you want to save your changes?"
 msgstr ""
 
 msgid "Programs"
+msgstr ""
+
+msgid "Do you wish to apply the current watering level?"
 msgstr ""
 
 msgid "Manual program"
