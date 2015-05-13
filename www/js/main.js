@@ -4200,7 +4200,18 @@ function showHome( firstLoad ) {
 
             $.mobile.pageContainer.append( select );
 
-            select.popup( { history: false, positionTo: isiOS ? $( "#header" ) : "window" } ).popup( "open" );
+            var opts = { history: false };
+
+            if ( isiOS ) {
+				var pageTop = getPageTop();
+
+				opts.x = pageTop.x;
+				opts.y = pageTop.y;
+            } else {
+				opts.positionTo = "window";
+            }
+
+            select.popup( opts ).popup( "open" );
         },
         submitStations = function() {
             var is208 = ( checkOSVersion( 208 ) === true ),
@@ -9581,6 +9592,15 @@ function changeHeader( opt ) {
     } ).fadeIn( speed );
 
     return newHeader;
+}
+
+function getPageTop() {
+	var theWindow = $.mobile.window;
+
+	return {
+		x: ( theWindow[ 0 ].innerWidth || theWindow.width() ) / 2 + theWindow.scrollLeft(),
+		y: theWindow.scrollTop() + 22.5
+	};
 }
 
 // Show loading indicator within element(s)
