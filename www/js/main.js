@@ -234,20 +234,6 @@ $( document )
         } else if ( hash === "#debugWU" ) {
             debugWU();
             return false;
-        } else if ( hash === "#raindelay" ) {
-            showDurationBox( {
-                title: _( "Change Rain Delay" ),
-                callback: raindelay,
-                label: _( "Duration" ),
-                maximum: 31536000,
-                granularity: 2,
-                preventCompression: true,
-                incrementalUpdate: false,
-                updateOnChange: false,
-                helptext:
-					_( "Enable manual rain delay by entering a value into the input below. To turn off a currently enabled rain delay use a value of 0." )
-            } );
-            return false;
         } else if ( hash === "#site-select" ) {
             showSiteSelect();
             return false;
@@ -4018,6 +4004,19 @@ function showHomeMenu( btn ) {
                 $( ".station-hidden" ).show();
                 page.addClass( "show-hidden" );
             }
+        } else if ( href === "#raindelay" ) {
+            showDurationBox( {
+                title: _( "Change Rain Delay" ),
+                callback: raindelay,
+                label: _( "Duration" ),
+                maximum: 31536000,
+                granularity: 2,
+                preventCompression: true,
+                incrementalUpdate: false,
+                updateOnChange: false,
+                helptext:
+					_( "Enable manual rain delay by entering a value into the input below. To turn off a currently enabled rain delay use a value of 0." )
+            } );
         } else {
             checkChanges( function() {
                 changePage( href );
