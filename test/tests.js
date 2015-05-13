@@ -266,14 +266,22 @@ describe( "Page Navigation Checks", function() {
 describe( "Popup Checks", function() {
 	it( "Show main menu popup", function( done ) {
 		$.mobile.document.one( "popupafteropen", "#mainMenu", function() {
-			$.mobile.document.one( "popupafterclose", "#mainMenu", function() {
-				done();
-			} );
-
-			$( "#mainMenu" ).popup( "close" ).remove();
+			done();
 		} );
 		assert.doesNotThrow( function() {
 			showHomeMenu();
+		} );
+	} );
+
+	it( "Show change rain delay popup", function( done ) {
+		$.mobile.document.one( "popupafteropen", "#durationBox", function() {
+			$.mobile.document.one( "popupafterclose", "#durationBox", function() {
+				done();
+			} );
+			$( "#durationBox" ).popup( "close" ).remove();
+		} );
+		assert.doesNotThrow( function() {
+			$( "#mainMenu" ).find( "a[href='#raindelay']" ).click();
 		} );
 	} );
 
@@ -360,17 +368,6 @@ describe( "Popup Checks", function() {
 	});
 */
 
-	it( "Show change rain delay popup", function( done ) {
-		$.mobile.document.one( "popupafteropen", "#durationBox", function() {
-			$.mobile.document.one( "popupafterclose", "#durationBox", function() {
-				done();
-			} );
-			$( "#durationBox" ).popup( "close" ).remove();
-		} );
-		assert.doesNotThrow( function() {
-			changePage( "#raindelay" );
-		} );
-	} );
 } );
 
 describe( "Logout / Clean up", function() {

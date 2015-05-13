@@ -293,10 +293,13 @@ $( document )
 
     if ( !$.isEmptyObject( controller ) && newpage !== "#site-control" && newpage !== "#start" ) {
 
-        // Update the page every 10 seconds
-        var refreshInterval = setInterval( refreshStatus, 5000 );
+        // Update the controller status every 5 seconds and the program and station data every 30 seconds
+        var refreshStatusInterval = setInterval( refreshStatus, 5000 ),
+			refreshDataInterval = setInterval( refreshData, 30000 );
+
         $newpage.one( "pagehide", function() {
-            clearInterval( refreshInterval );
+            clearInterval( refreshStatusInterval );
+            clearInterval( refreshDataInterval );
         } );
     }
 } )
@@ -4584,6 +4587,13 @@ function refreshStatus() {
         checkStatus();
         return;
     }, networkFail );
+}
+
+function refreshData() {
+    $.when(
+        updateControllerPrograms(),
+        updateControllerStations()
+    ).fail( networkFail );
 }
 
 // Actually change the status bar
