@@ -3489,17 +3489,17 @@ function showOptions( expandItem ) {
 
     if ( typeof controller.options.con !== "undefined" ) {
         list += "<div class='ui-field-contain'><label for='o27'>" + _( "Contrast" ) + "</label>" +
-			"<input type='range' id='o27' min='0' max='255' step='10' value='" + ( controller.options.con ) + "'></div>";
+			"<input type='range' id='o27' min='0' max='255' step='10' data-highlight='true' value='" + ( controller.options.con ) + "'></div>";
     }
 
     if ( typeof controller.options.lit !== "undefined" ) {
         list += "<div class='ui-field-contain'><label for='o28'>" + _( "Brightness" ) + "</label>" +
-			"<input type='range' id='o28' min='0' max='255' step='10' value='" + ( controller.options.lit ) + "'></div>";
+			"<input type='range' id='o28' min='0' max='255' step='10' data-highlight='true' value='" + ( controller.options.lit ) + "'></div>";
     }
 
     if ( typeof controller.options.dim !== "undefined" ) {
         list += "<div class='ui-field-contain'><label for='o29'>" + _( "Idle Brightness" ) + "</label>" +
-        "<input type='range' id='o29' min='0' max='255' step='10' value='" + ( controller.options.dim ) + "'></div>";
+        "<input type='range' id='o29' min='0' max='255' step='10' data-highlight='true' value='" + ( controller.options.dim ) + "'></div>";
     }
 
     list += "</fieldset><fieldset data-role='collapsible' data-theme='b'" +

@@ -1,7 +1,7 @@
 /*
     jQuery Mobile modifiers
 */
-.ui-selectmenu-list .activeButton, .activeButton.ui-checkbox-on, .ui-radio-on, .ui-btn.ui-checkbox-on:after, button.ui-btn-active {
+.ui-selectmenu-list .activeButton, .activeButton.ui-slider-bg, .activeButton.ui-checkbox-on, .ui-radio-on, .ui-btn.ui-checkbox-on:after, button.ui-btn-active {
     background-color: #5D99C3 !important;
     border-color: #5D99C3 !important;
     color: #fff !important;
