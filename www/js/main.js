@@ -163,7 +163,7 @@ $( document )
 
         hash = $.mobile.path.parseUrl( page ).hash;
 
-        if ( hash === "#" + currPage.attr( "id" ) ) {
+        if ( currPage.length > 0 && hash === "#" + currPage.attr( "id" ) ) {
             if ( hash === "#programs" || hash === "#site-control" ) {
 
                 // Cancel page load when navigating to the same page
@@ -1396,7 +1396,7 @@ function showAddNew( autoIP, closeOld ) {
 
     addnew.find( ".ui-collapsible-heading-toggle" ).on( "click", function() {
         var open = $( this ).parents( ".ui-collapsible" ).hasClass( "ui-collapsible-collapsed" ),
-            page = $.mobile.pageContainer.pagecontainer( "getActivePage" ),
+            page = $( ".ui-page-active" ),
             height = parseInt( page.css( "min-height" ) );
 
         if ( open ) {
@@ -2859,7 +2859,7 @@ function debugWU() {
 }
 
 function getAdjustmentName( id ) {
-    return [ _( "Manual" ), "Zimmerman" ][id];
+    return [ _( "Manual" ), "Zimmerman" ][getAdjustmentMethod( id )];
 }
 
 function getAdjustmentMethod() {
@@ -9626,7 +9626,7 @@ function showLoading( ele ) {
 function goHome( firstLoad ) {
 
     // Transition to home page after succesful load
-    if ( $.mobile.pageContainer.pagecontainer( "getActivePage" ).attr( "id" ) !== "sprinklers" ) {
+    if ( $( ".ui-page-active" ).attr( "id" ) !== "sprinklers" ) {
         $.mobile.document.one( "pageshow", function() {
 
             // Allow future transitions to properly animate
