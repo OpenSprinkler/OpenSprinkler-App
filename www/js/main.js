@@ -4773,6 +4773,10 @@ function updateTimers() {
 
     setInterval( function() {
 
+		if ( !isDeviceConnected() ) {
+			return false;
+		}
+
         // Handle time drift
         var now = new Date().getTime(),
             diff = now - lastCheck;
@@ -9824,6 +9828,21 @@ function dhms2str( arr ) {
 // Convert days, hours, minutes and seconds array into seconds (int).
 function dhms2sec( arr ) {
     return parseInt( ( arr.days * 86400 ) + ( arr.hours * 3600 ) + ( arr.minutes * 60 ) + arr.seconds );
+}
+
+function isDeviceConnected() {
+	if ( currIp === "" ||
+		$.isEmptyObject( controller ) ||
+		$.isEmptyObject( controller.options ) ||
+		$.isEmptyObject( controller.programs ) ||
+		$.isEmptyObject( controller.status ) ||
+		$.isEmptyObject( controller.status ) ||
+		$.isEmptyObject( controller.stations ) ) {
+
+			return false;
+	}
+
+	return true;
 }
 
 // Generate export link for JSON data
