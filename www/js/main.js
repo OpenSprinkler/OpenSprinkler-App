@@ -1,5 +1,7 @@
 /* global $, Windows, MSApp, navigator, chrome, FastClick */
 /* global StatusBar, networkinterface, links, SunCalc, md5, sjcl */
+
+// Initialize global variables
 var isIEMobile = /IEMobile/.test( navigator.userAgent ),
     isAndroid = /Android|\bSilk\b/.test( navigator.userAgent ),
     isiOS = /iP(ad|hone|od)/.test( navigator.userAgent ),
@@ -77,10 +79,16 @@ var isIEMobile = /IEMobile/.test( navigator.userAgent ),
             }
         }
     },
+
+    // Define the amount of times the app will retry an HTTP request before marking it failed
     retryCount = 3,
+
+    // Initialize controller array which will store JSON data
     controller = {},
     switching = false,
     currentCoordinates = [ 0, 0 ],
+
+    // Array to hold all notifications currently displayed within the app
     notifications = [],
     timers = {},
     curr183, currIp, currPrefix, currAuth, currPass, currPiWeather, currAuthUser,
@@ -92,6 +100,7 @@ if ( isWinApp ) {
     // Add link to privacy statement
     var settingsPane = Windows.UI.ApplicationSettings.SettingsPane.getForCurrentView();
 
+    // Bind the privacy policy to the settings panel
     settingsPane.addEventListener( "commandsrequested", function( eventArgs ) {
         var applicationCommands = eventArgs.request.applicationCommands;
         var privacyCommand = new Windows.UI.ApplicationSettings.SettingsCommand(
@@ -161,6 +170,7 @@ $( document )
             return;
         }
 
+        // Grabs the new page hash
         hash = $.mobile.path.parseUrl( page ).hash;
 
         if ( currPage.length > 0 && hash === "#" + currPage.attr( "id" ) ) {
@@ -191,7 +201,7 @@ $( document )
             $.mobile.silentScroll( 0 );
         }
 
-        // Cycle through page possbilities and call their init functions
+        // Cycle through page possibilities and call their init functions
         if ( hash === "#programs" ) {
             getPrograms( data.options.programToExpand );
         } else if ( hash === "#addprogram" ) {
@@ -225,18 +235,6 @@ $( document )
             showSites( data.options.showBack );
         } else if ( hash === "#weather_settings" ) {
             showWeatherSettings();
-        } else if ( hash === "#addnew" ) {
-            showAddNew();
-            return false;
-        } else if ( hash === "#localization" ) {
-            languageSelect();
-            return false;
-        } else if ( hash === "#debugWU" ) {
-            debugWU();
-            return false;
-        } else if ( hash === "#site-select" ) {
-            showSiteSelect();
-            return false;
         } else if ( hash === "#sprinklers" ) {
             if ( $( hash ).length === 0 ) {
                 showHome( data.options.firstLoad );
@@ -246,6 +244,7 @@ $( document )
         }
     } );
 
+	// Initialize remainder of application
     initApp();
 } )
 
@@ -275,12 +274,19 @@ $( document )
 .on( "pagebeforeshow", function( e ) {
     var newpage = "#" + e.target.id;
 
+    // Modify the header and footer visibility before page show event
     if ( newpage === "#start" ) {
+
+		// Hide the header, footer and menu button on the start page
         $( "#header,#footer,#footer-menu" ).hide();
     } else if ( newpage === "#site-control" ) {
+
+		// Hide the footer and footer-menu on the site manager page but show menu button
         $( "#footer,#footer-menu" ).hide();
         $( "#header" ).show();
     } else {
+
+		// Show header, footer and menu button on all other pages
         $( "#header,#footer,#footer-menu" ).show();
     }
 } )
@@ -304,6 +310,8 @@ $( document )
     }
 } )
 .on( "popupafteropen", function() {
+
+	// When a popup opens that has an overlay, update the status bar background color to match
     if ( $( ".ui-overlay-b:not(.ui-screen-hidden)" ).length ) {
         try {
             StatusBar.backgroundColorByHexString( "#202020" );
@@ -311,6 +319,8 @@ $( document )
     }
 } )
 .on( "popupafterclose", function() {
+
+	// When a popup is closed, change the header back to the default color
     try {
         StatusBar.backgroundColorByHexString( "#1D1D1D" );
     } catch ( err ) {}
@@ -366,7 +376,7 @@ function initApp() {
         } );
     }
 
-    //After jQuery mobile is loaded set intial configuration
+    //After jQuery mobile is loaded set initial configuration
     $.mobile.defaultPageTransition =
 		( isAndroid || isIEMobile || isFireFoxOS || isBB10 ) ? "fade" : "slide";
     $.mobile.hoverDelay = 0;
@@ -378,6 +388,8 @@ function initApp() {
     }
 
     if ( !isOSXApp ) {
+
+		// Handle In-App browser requests (marked with iab class)
         $.mobile.document.on( "click", ".iab", function() {
             var button = $( this ),
                 iab = window.open( this.href, "_blank", "location=" + ( isAndroid ? "yes" : "no" ) +
@@ -388,6 +400,8 @@ function initApp() {
 				);
 
             if ( isIEMobile ) {
+
+				// For Windows Mobile, save state of In-App browser to allow back button to close it
                 $.mobile.document.data( "iabOpen", true );
                 iab.addEventListener( "exit", function() {
                     $.mobile.document.removeData( "iabOpen" );
@@ -462,6 +476,8 @@ function initApp() {
         return false;
     } );
 
+    $( "#start" ).find( "a[href='#addnew']" ).on( "click", showAddNew );
+
     $( ".cloud-login" ).on( "click", function() {
         requestCloudAuth();
         return false;
@@ -509,7 +525,7 @@ function initApp() {
     }, 200 );
 }
 
-// Handle main switches for manual mode and enable
+// Handle main switches for manual mode
 function flipSwitched() {
     if ( switching ) {
         return;
@@ -551,6 +567,7 @@ function sendToOS( dest, type ) {
     dest = dest.replace( "pw=", "pw=" + encodeURIComponent( currPass ) );
     type = type || "text";
 
+    // Designate AJAX queue based on command type
     var queue = /\/(?:cv|cs|cr|cp|uwa|dp|co|cl|cu|up|cm)/.exec( dest ) ? "change" : "default",
         obj = {
             url: currPrefix + currIp + dest,
@@ -577,6 +594,8 @@ function sendToOS( dest, type ) {
     }
 
     if ( curr183 ) {
+
+		// Firmware 1.8.3 has a bug handling the time stamp in the GET request
         $.extend( obj, {
             cache: "true"
         } );
@@ -663,6 +682,8 @@ function networkFail() {
 
 // Gather new controller information and load home page
 function newload() {
+
+	// Get the current site name from the site select drop down
     var name = $( "#site-selector" ).val(),
         loading = "<div class='logo'></div>" +
 			"<h1 style='padding-top:5px'>" + _( "Connecting to" ) + " " + name + "</h1>" +
@@ -1407,6 +1428,8 @@ function showAddNew( autoIP, closeOld ) {
 
         addnew.popup( "reposition", { positionTo:"window" } );
     } );
+
+    return false;
 }
 
 function showSites( showBack ) {
@@ -2856,6 +2879,8 @@ function debugWU() {
         $.mobile.loading( "hide" );
         showerror( _( "Connection timed-out. Please try again." ) );
     } );
+
+    return false;
 }
 
 function getAdjustmentName( id ) {
@@ -2920,6 +2945,10 @@ function bindPanel() {
         changePage( "#about" );
         return false;
     } );
+
+    panel.find( "a[href='#debugWU']" ).on( "click", debugWU );
+
+    panel.find( "a[href='#localization']" ).on( "click", languageSelect );
 
     panel.find( ".export_config" ).on( "click", function() {
         getExportMethod();
@@ -10031,6 +10060,8 @@ function languageSelect() {
     } );
 
     openPopup( popup );
+
+    return false;
 }
 
 function checkCurrLang() {
