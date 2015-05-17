@@ -2859,7 +2859,7 @@ function debugWU() {
 }
 
 function getAdjustmentName( id ) {
-    return [ _( "Manual" ), "Zimmerman" ][getAdjustmentMethod( id )];
+    return [ _( "Manual" ), "Zimmerman" ][ id & ~( 1 << 7 ) ];
 }
 
 function getAdjustmentMethod() {
@@ -2874,7 +2874,7 @@ function getRestriction( id ) {
             {
                 isCurrent: ( ( controller.options.uwt >> 7 ) & 1 ) ? true : false,
                 name: _( "California Restriction" )
-            } ][id];
+            } ][ id ];
 }
 
 function setRestriction( id, uwt ) {
