@@ -2782,7 +2782,7 @@ function nearbyPWS( lat, lon, callback ) {
         data = encodeURIComponent( JSON.stringify( data ) );
 
         if ( currLocal ) {
-            prefix = $.mobile.path.parseUrl( $( "head" ).find( "script" ).eq( 0 ).attr( "src" ) ).hrefNoHash.slice( 0, -10 );
+            prefix = $.mobile.path.parseUrl( $( "head" ).find( "script[src$='app.jgz'],script[src$='app.js']" ).attr( "src" ) ).hrefNoHash.slice( 0, -10 );
         }
 
         var popup = $( "<div data-role='popup' id='location-list' data-theme='a' style='background-color:rgb(229, 227, 223);' data-overlay-theme='b'>" +
