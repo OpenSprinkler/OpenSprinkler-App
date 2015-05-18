@@ -1,4 +1,4 @@
-/* global $, Windows, MSApp, navigator, chrome, FastClick, currLocal */
+/* global $, Windows, MSApp, navigator, chrome, FastClick */
 /* global StatusBar, networkinterface, links, SunCalc, md5, sjcl */
 
 // Initialize global variables
@@ -92,7 +92,7 @@ var isIEMobile = /IEMobile/.test( navigator.userAgent ),
     notifications = [],
     timers = {},
     curr183, currIp, currPrefix, currAuth, currPass, currPiWeather, currAuthUser,
-    currAuthPass, currLang, language, deviceip, errorTimeout, weather, weatherKeyFail;
+    currAuthPass, currLocal, currLang, language, deviceip, errorTimeout, weather, weatherKeyFail;
 
 // Redirect jQuery Mobile DOM manipulation to prevent error
 if ( isWinApp ) {
