@@ -324,7 +324,7 @@
 				var pages = data.match( /<body>([.\s\S]*)<\/body>/ )[1];
 
 				// Disables site selection menu
-				window.curr_local = true;
+				window.currLocal = true;
 
 				// Show the body when jQM attempts first page transition
 				$( document ).one( "mobileinit", function() {
