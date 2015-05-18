@@ -223,7 +223,7 @@ $( document )
         } else if ( hash === "#start" ) {
             checkAutoScan();
             if ( !data.options.showStart ) {
-                if ( $.isEmptyObject( controller ) ) {
+                if ( !isDeviceConnected() ) {
                     changePage( "#site-control", {
                         showBack: false,
                         transition: "none"
@@ -297,7 +297,7 @@ $( document )
     // Fix issues between jQuery Mobile and FastClick
     fixInputClick( $newpage );
 
-    if ( !$.isEmptyObject( controller ) && newpage !== "#site-control" && newpage !== "#start" ) {
+    if ( isDeviceConnected() && newpage !== "#site-control" && newpage !== "#start" ) {
 
         // Update the controller status every 5 seconds and the program and station data every 30 seconds
         var refreshStatusInterval = setInterval( refreshStatus, 5000 ),
@@ -568,10 +568,13 @@ function sendToOS( dest, type ) {
     type = type || "text";
 
     // Designate AJAX queue based on command type
-    var queue = /\/(?:cv|cs|cr|cp|uwa|dp|co|cl|cu|up|cm)/.exec( dest ) ? "change" : "default",
+    var isChange = /\/(?:cv|cs|cr|cp|uwa|dp|co|cl|cu|up|cm)/.exec( dest ),
+		queue = isChange ? "change" : "default",
         obj = {
             url: currPrefix + currIp + dest,
-            type: "GET",
+
+            // Use POST when sending data to the controller (requires firmware 2.1.5 or newer)
+            type: ( isChange && checkOSVersion( 215 ) ) ? "POST" : "GET",
             dataType: type,
             shouldRetry: function( xhr, current ) {
                 if ( xhr.status === 0 && xhr.statusText === "abort" || retryCount < current ) {
@@ -753,8 +756,6 @@ function newload() {
             // Check if automatic rain delay plugin is enabled on OSPi devices
             checkWeatherPlugin();
 
-            goHome( true );
-
             // Check if a firmware update is available
             checkFirmwareUpdate();
 
@@ -772,6 +773,12 @@ function newload() {
             if ( !currLocal ) {
                 updateLoginButtons();
             }
+
+            if ( controller.options.firstRun ) {
+				showGuidedSetup();
+	        } else {
+	            goHome( true );
+	        }
         },
         function( error ) {
             $.ajaxq.abort( "default" );
@@ -833,6 +840,8 @@ function updateControllerPrograms( callback ) {
     callback = callback || function() {};
 
     if ( curr183 === true ) {
+
+		// If the controller is using firmware 1.8.3, then parse the script tag for variables
         return sendToOS( "/gp?d=0" ).done( function( programs ) {
             var vars = programs.match( /(nprogs|nboards|mnp)=[\w|\d|.\"]+/g ),
                 progs = /pd=\[\];(.*);/.exec( programs ),
@@ -872,6 +881,8 @@ function updateControllerStations( callback ) {
     callback = callback || function() {};
 
     if ( curr183 === true ) {
+
+		// If the controller is using firmware 1.8.3, then parse the script tag for variables
         return sendToOS( "/vs" ).done( function( stations ) {
             var names = /snames=\[(.*?)\];/.exec( stations ),
                 masop = stations.match( /(?:masop|mo)\s?[=|:]\s?\[(.*?)\]/ );
@@ -904,6 +915,8 @@ function updateControllerOptions( callback ) {
     callback = callback || function() {};
 
     if ( curr183 === true ) {
+
+		// If the controller is using firmware 1.8.3, then parse the script tag for variables
         return sendToOS( "/vo" ).done( function( options ) {
             var isOSPi = options.match( /var sd\s*=/ ),
                 vars = {}, tmp, i, o;
@@ -951,6 +964,8 @@ function updateControllerStatus( callback ) {
     callback = callback || function() {};
 
     if ( curr183 === true ) {
+
+		// If the controller is using firmware 1.8.3, then parse the script tag for variables
         return sendToOS( "/sn0" ).then(
             function( status ) {
                 var tmp = status.toString().match( /\d+/ );
@@ -979,6 +994,8 @@ function updateControllerSettings( callback ) {
     callback = callback || function() {};
 
     if ( curr183 === true ) {
+
+		// If the controller is using firmware 1.8.3, then parse the script tag for variables
         return sendToOS( "" ).then(
             function( settings ) {
                 var varsRegex = /(ver|devt|nbrd|tz|en|rd|rs|mm|rdst|urs)\s?[=|:]\s?([\w|\d|.\"]+)/gm,
@@ -1032,7 +1049,7 @@ function updateControllerSettings( callback ) {
     }
 }
 
-// Multisite functions
+// Multi site functions
 function checkConfigured( firstLoad ) {
     storage.get( [ "sites", "current_site", "cloudToken" ], function( data ) {
         var sites = data.sites,
@@ -3092,7 +3109,7 @@ function openPanel() {
         operation = ( controller && controller.settings && controller.settings.en && controller.settings.en === 1 ) ? _( "Disable" ) : _( "Enable" ),
         page = $( ".ui-page-active" ).attr( "id" );
 
-    if ( page === "start" || $.isEmptyObject( controller ) ) {
+    if ( page === "start" || !isDeviceConnected() ) {
         return;
     }
 
@@ -4070,7 +4087,7 @@ function showHomeMenu( btn ) {
 }
 
 function showHome( firstLoad ) {
-    if ( $.isEmptyObject( controller ) ) {
+    if ( !isDeviceConnected() ) {
         return false;
     }
 
@@ -4574,6 +4591,12 @@ function showHome( firstLoad ) {
     }
 }
 
+function showGuidedSetup() {
+
+	// Stub for guided setup page
+
+}
+
 function isStationMaster( sid ) {
     var m1 = typeof controller.options.mas === "number" ? controller.options.mas : 0,
         m2 = typeof controller.options.mas2 === "number" ? controller.options.mas2 : 0;
@@ -4648,11 +4671,7 @@ function changeStatus( seconds, color, line, onclick ) {
 function checkStatus() {
     var open, ptotal, sample, pid, pname, line, match, tmp, i;
 
-    if ( $.isEmptyObject( controller ) ||
-		!controller.hasOwnProperty( "settings" ) ||
-		!controller.hasOwnProperty( "status" ) ||
-		!controller.hasOwnProperty( "options" ) ) {
-
+    if ( !isDeviceConnected() ) {
         changeStatus( 0, "transparent", "<p class='running-text smaller'></p>" );
         return;
     }
@@ -9684,7 +9703,7 @@ function goHome( firstLoad ) {
 
 function goBack() {
     var page = $( ".ui-page-active" ).attr( "id" ),
-        managerStart = ( page === "site-control" && $.isEmptyObject( controller ) ),
+        managerStart = ( page === "site-control" && !isDeviceConnected() ),
         popup = $( ".ui-popup-active" );
 
     if ( popup.length ) {

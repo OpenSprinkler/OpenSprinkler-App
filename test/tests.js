@@ -155,11 +155,22 @@ describe( "General Function Checks", function() {
 		assert.equal( "Thu", getDayName( new Date( 1410445528126 ), "short" ) );
 	} );
 
-	it( "pad(number) should succesfully prepend a 0 to a single digit", function() {
+	it( "pad(number) should successfully prepend a 0 to a single digit", function() {
 		assert.equal( "00", pad( 0 ) );
 		assert.equal( "01", pad( 1 ) );
 		assert.equal( "10", pad( 10 ) );
 		assert.equal( "999", pad( 999 ) );
+	} );
+
+	it( "getAdjustmenMethod() should return the adjustment method ID", function() {
+		assert.equal( 0, getAdjustmentMethod() );
+	} );
+
+	it( "getAdjustmentName(uwt) should return the adjustment method name for the corresponding ID", function() {
+		assert.equal( "Manual", getAdjustmentName( 0 ) );
+		assert.equal( "Manual", getAdjustmentName( 128 ) );
+		assert.equal( "Zimmerman", getAdjustmentName( 1 ) );
+		assert.equal( "Zimmerman", getAdjustmentName( 129 ) );
 	} );
 } );
 
@@ -353,21 +364,6 @@ describe( "Popup Checks", function() {
 			languageSelect();
 		} );
 	} );
-
-/*
-	it("Show location selection popup",function(done){
-		$.mobile.document.one("popupafteropen","#location-list",function(){
-			$("#location-list").find("ul").children().eq(0).find("a").click();
-		});
-		assert.doesNotThrow(function(){
-			resolveLocation("boston",function(location){
-				assert.notStrictEqual(false,location);
-				done();
-			});
-		});
-	});
-*/
-
 } );
 
 describe( "Logout / Clean up", function() {
