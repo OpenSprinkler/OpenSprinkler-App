@@ -10036,7 +10036,7 @@ function updateLang( lang ) {
     }
 
     if ( currLocal ) {
-        prefix = $.mobile.path.parseUrl( $( "head" ).find( "script" ).eq( 0 ).attr( "src" ) ).hrefNoHash.slice( 0, -10 );
+        prefix = $.mobile.path.parseUrl( $( "head" ).find( "script[src$='app.jgz'],script[src$='app.js']" ).attr( "src" ) ).hrefNoHash.slice( 0, -10 );
     }
 
     $.getJSON( prefix + "locale/" + lang + ".js", function( store ) {
