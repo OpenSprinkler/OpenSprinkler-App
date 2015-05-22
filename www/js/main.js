@@ -476,7 +476,9 @@ function initApp() {
         return false;
     } );
 
-    $( "#start" ).find( "a[href='#addnew']" ).on( "click", showAddNew );
+    $( "#start" ).find( "a[href='#addnew']" ).on( "click", function() {
+		showAddNew();
+    } );
 
     $( ".cloud-login" ).on( "click", function() {
         requestCloudAuth();
