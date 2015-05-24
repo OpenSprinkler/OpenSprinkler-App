@@ -141,9 +141,6 @@ $( document )
         } catch ( err ) {}
     }, 500 );
 
-    // Check if device is on a local network
-    checkAutoScan();
-
     // For Android, Blackberry and Windows Phone devices catch the back button and redirect it
     $.mobile.document.on( "backbutton", function() {
         if ( isIEMobile && $.mobile.document.data( "iabOpen" ) ) {
@@ -220,17 +217,10 @@ $( document )
             getLogs();
         } else if ( hash === "#forecast" ) {
             showForecast();
+        } else if ( hash === "#loadingPage" ) {
+            checkConfigured( true );
         } else if ( hash === "#start" ) {
-            checkAutoScan();
-            if ( !data.options.showStart ) {
-                if ( !isDeviceConnected() ) {
-                    changePage( "#site-control", {
-                        showBack: false,
-                        transition: "none"
-                    } );
-                }
-                return false;
-            }
+			showStart();
         } else if ( hash === "#site-control" ) {
             showSites( data.options.showBack );
         } else if ( hash === "#weather_settings" ) {
@@ -250,9 +240,6 @@ $( document )
 
 // Handle OS resume event triggered by PhoneGap
 .on( "resume", function() {
-
-    // Check if device is still on a local network
-    checkAutoScan();
 
     // If we don't have a current device IP set, there is nothing else to update
     if ( currIp === undefined ) {
@@ -275,7 +262,7 @@ $( document )
     var newpage = "#" + e.target.id;
 
     // Modify the header and footer visibility before page show event
-    if ( newpage === "#start" ) {
+    if ( newpage === "#start" || newpage === "#loadingPage" ) {
 
 		// Hide the header, footer and menu button on the start page
         $( "#header,#footer,#footer-menu" ).hide();
@@ -297,7 +284,7 @@ $( document )
     // Fix issues between jQuery Mobile and FastClick
     fixInputClick( $newpage );
 
-    if ( isDeviceConnected() && newpage !== "#site-control" && newpage !== "#start" ) {
+    if ( isDeviceConnected() && newpage !== "#site-control" && newpage !== "#start" && newpage !== "#loadingPage" ) {
 
         // Update the controller status every 5 seconds and the program and station data every 30 seconds
         var refreshStatusInterval = setInterval( refreshStatus, 5000 ),
@@ -463,26 +450,6 @@ function initApp() {
     //Update site based on selector
     $( "#site-selector" ).on( "change", function() {
         updateSite( $( this ).val() );
-    } );
-
-    //When app isn't using cordova.js, check network status now
-    if ( isChromeApp || isOSXApp ) {
-        checkAutoScan();
-    }
-
-    //Bind start page buttons
-    $( "#auto-scan" ).find( "a" ).on( "click", function() {
-        startScan();
-        return false;
-    } );
-
-    $( "#start" ).find( "a[href='#addnew']" ).on( "click", function() {
-		showAddNew();
-    } );
-
-    $( ".cloud-login" ).on( "click", function() {
-        requestCloudAuth();
-        return false;
     } );
 
     // Bind footer menu button
@@ -1066,7 +1033,6 @@ function checkConfigured( firstLoad ) {
             if ( firstLoad ) {
                 if ( data.cloudToken === undefined || data.cloudToken === null ) {
                     changePage( "#start", {
-                        showStart: true,
                         transition: "none"
                     } );
                 } else {
@@ -1849,29 +1815,8 @@ function updateSite( newsite ) {
 }
 
 // Automatic device detection functions
-function checkAutoScan() {
-    var finishCheck = function() {
-        if ( ip === undefined ) {
-            resetStartMenu();
-            return;
-        }
-
-        // Check if the IP is on a private network, if not don't enable automatic scanning
-        if ( !isLocalIP( ip ) ) {
-            resetStartMenu();
-            return;
-        }
-
-        //Change main menu items to reflect ability to automatically scan
-        var auto = $( "#auto-scan" ),
-            next = auto.next();
-
-        next.removeClass( "ui-first-child" ).find( "a.ui-btn" ).text( _( "Manually Add Device" ) );
-        auto.show();
-
-        deviceip = ip;
-    },
-    ip;
+function updateDeviceIP( finishCheck ) {
+    var ip;
 
     if ( isChromeApp ) {
         chrome.system.network.getNetworkInterfaces( function( data ) {
@@ -1884,7 +1829,7 @@ function checkAutoScan() {
                 }
             }
 
-            finishCheck();
+            finishCheck( ip );
         } );
     } else {
         try {
@@ -1892,17 +1837,11 @@ function checkAutoScan() {
             // Request the device's IP address
             networkinterface.getIPAddress( function( data ) {
                 ip = data;
-                finishCheck();
+                finishCheck( ip );
             } );
         } catch ( err ) {
             findRouter( function( status, data ) {
-                if ( status === false ) {
-                    resetStartMenu();
-                    return;
-                } else {
-                    ip = data;
-                    finishCheck();
-                }
+				finishCheck( !status ? undefined : data );
             } );
         }
     }
@@ -1913,18 +1852,6 @@ function isLocalIP( ip ) {
 
     // Check if the IP is on a private network, if not don't enable automatic scanning
     return ( chk[0] === 10 || chk[0] === 127 || ( chk[0] === 172 && chk[1] > 17 && chk[1] < 32 ) || ( chk[0] === 192 && chk[1] === 168 ) );
-}
-
-function resetStartMenu() {
-
-    // Change main menu to reflect manual controller entry
-    var auto = $( "#auto-scan" ),
-        next = auto.next();
-
-    deviceip = undefined;
-
-    next.addClass( "ui-first-child" ).find( "a.ui-btn" ).text( _( "Add Controller" ) );
-    auto.hide();
 }
 
 function startScan( port, type ) {
@@ -4591,6 +4518,94 @@ function showHome( firstLoad ) {
     if ( !$.isEmptyObject( weather ) ) {
         updateWeatherBox();
     }
+}
+
+function showStart() {
+	if ( isDeviceConnected() ) {
+		return false;
+	}
+
+	var page = $( "<div data-role='page' id='start'>" +
+		    "<ul data-role='none' id='welcome_list' class='ui-listview ui-listview-inset ui-corner-all'>" +
+		        "<li><div class='logo' id='welcome_logo'></div></li>" +
+		        "<li class='ui-li-static ui-body-inherit ui-first-child ui-last-child ui-li-separate'>" +
+		            "<p class='rain-desc'>" +
+		                _( "Welcome to the OpenSprinkler application. This app only works with the OpenSprinkler controller which must be installed and setup on your home network." ) +
+		            "</p>" +
+		            "<a class='iab iabNoScale ui-btn ui-mini center' target='_blank' href='https://opensprinkler.com/product/opensprinkler/'>" +
+		                _( "Purchase OpenSprinkler" ) +
+		            "</a>" +
+		        "</li>" +
+		        "<li class='ui-first-child ui-last-child'>" +
+		            "<a href='#' class='ui-btn center cloud-login'>" + _( "OpenSprinkler.com Login" ) + "</a>" +
+		        "</li>" +
+		        "<hr class='content-divider'>" +
+		        "<li id='auto-scan' class='ui-first-child'>" +
+		            "<a href='#' class='ui-btn ui-btn-icon-right ui-icon-carat-r'>" +
+		                _( "Scan For Device" ) +
+		            "</a>" +
+		        "</li>" +
+		        "<li class='ui-first-child ui-last-child'>" +
+		            "<a class='ui-btn ui-btn-icon-right ui-icon-carat-r' data-rel='popup' href='#addnew'>" +
+		                 _( "Add Controller" ) +
+		            "</a>" +
+		        "</li>" +
+		    "</ul>" +
+		"</div>" ),
+		checkAutoScan = function() {
+			updateDeviceIP( function( ip ) {
+		        if ( ip === undefined ) {
+		            resetStartMenu();
+		            return;
+		        }
+
+		        // Check if the IP is on a private network, if not don't enable automatic scanning
+		        if ( !isLocalIP( ip ) ) {
+		            resetStartMenu();
+		            return;
+		        }
+
+		        //Change main menu items to reflect ability to automatically scan
+		        next.removeClass( "ui-first-child" ).find( "a.ui-btn" ).text( _( "Manually Add Device" ) );
+		        auto.show();
+
+		        deviceip = ip;
+			} );
+		},
+		resetStartMenu = function() {
+
+		    // Change main menu to reflect manual controller entry
+		    deviceip = undefined;
+
+		    next.addClass( "ui-first-child" ).find( "a.ui-btn" ).text( _( "Add Controller" ) );
+		    auto.hide();
+		},
+		auto = page.find( "#auto-scan" ),
+		next = auto.next();
+
+	checkAutoScan();
+
+    page.find( "#auto-scan" ).find( "a" ).on( "click", function() {
+        startScan();
+        return false;
+    } );
+
+    page.find( "a[href='#addnew']" ).on( "click", function() {
+		showAddNew();
+    } );
+
+    page.find( ".cloud-login" ).on( "click", function() {
+        requestCloudAuth();
+        return false;
+    } );
+
+    page.one( "pagehide", function() {
+        page.remove();
+    } );
+
+    $( "#start" ).remove();
+
+    $.mobile.pageContainer.append( page );
 }
 
 function showGuidedSetup() {
