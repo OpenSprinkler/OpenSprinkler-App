@@ -2450,6 +2450,10 @@ function getSunTimes( date ) {
     sunrise = ( sunrise.getHours() * 60 + sunrise.getMinutes() ) + tzOffset;
     sunset = ( sunset.getHours() * 60 + sunset.getMinutes() ) + tzOffset;
 
+    if ( sunrise > sunset ) {
+		sunset += 1440;
+    }
+
     return [ sunrise, sunset ];
 }
 
@@ -5827,9 +5831,9 @@ function getStationDuration( duration, date ) {
         var sunTimes = getSunTimes( date );
 
         if ( duration === 65535 ) {
-            duration = ( sunTimes[1] - sunTimes[0] ) * 60;
-        } else if ( duration === 65534 ) {
             duration = ( ( sunTimes[0] + 1440 ) - sunTimes[1] ) * 60;
+        } else if ( duration === 65534 ) {
+            duration = ( sunTimes[1] - sunTimes[0] ) * 60;
         }
     }
 
@@ -6533,14 +6537,15 @@ function readProgram21( program ) {
 
 function getStartTime( time, date ) {
     var offset = time & 0x7ff,
-        type = "sunrise";
+        type = 0,
+        times = getSunTimes( time, date );
 
     if ( time < 0 ) {
         return time;
     }
 
     if ( ( time >> 13 ) & 1 ) {
-        type = "sunset";
+        type = 1;
     } else if ( !( time >> 14 ) & 1 ) {
         return time;
     }
@@ -6549,16 +6554,8 @@ function getStartTime( time, date ) {
         offset = -offset;
     }
 
-    var now = new Date( controller.settings.devt * 1000 ),
-        control = SunCalc.getTimes( now, currentCoordinates[0], currentCoordinates[1] ),
-        tzOffset = controller.settings.sunrise - ( control.sunrise.getHours() * 60 + control.sunrise.getMinutes() );
-
-    date = date || now;
-
-    var times = SunCalc.getTimes( date, currentCoordinates[0], currentCoordinates[1] );
-
     time = times[type];
-    time = ( time.getHours() * 60 + time.getMinutes() ) + tzOffset + offset;
+    time += offset;
 
     if ( time < 0 ) {
         time = 0;
