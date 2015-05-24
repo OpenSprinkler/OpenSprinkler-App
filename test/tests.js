@@ -377,8 +377,7 @@ describe( "Logout / Clean up", function() {
 		$.mobile.document.one( "pageshow", "#start", function() {
 			done();
 		} );
-		changePage( "#start", {
-			showStart: true
-		} );
+		currIp = "";
+		changePage( "#start" );
     } );
 } );

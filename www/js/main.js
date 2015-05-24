@@ -1497,9 +1497,7 @@ function showSites( showBack ) {
 
         if ( $.isEmptyObject( sites ) ) {
             if ( typeof data.cloudToken !== "string" ) {
-                changePage( "#start", {
-                    showStart: true
-                } );
+                changePage( "#start" );
 
                 return;
             } else {
@@ -1720,9 +1718,7 @@ function showSites( showBack ) {
                     updateSiteList( Object.keys( sites ), data.current_site );
                     if ( $.isEmptyObject( sites ) &&
 						( data.cloudToken === null || data.cloudToken === undefined ) ) {
-                        changePage( "#start", {
-                            showStart: true
-                        } );
+                        changePage( "#start" );
                         return false;
                     }
                     changePage( "#site-control", { showLoadMsg: false } );
@@ -4525,6 +4521,8 @@ function showStart() {
 		return false;
 	}
 
+    $( "#start" ).remove();
+
 	var page = $( "<div data-role='page' id='start'>" +
 		    "<ul data-role='none' id='welcome_list' class='ui-listview ui-listview-inset ui-corner-all'>" +
 		        "<li><div class='logo' id='welcome_logo'></div></li>" +
@@ -4583,8 +4581,6 @@ function showStart() {
 		auto = page.find( "#auto-scan" ),
 		next = auto.next();
 
-	checkAutoScan();
-
     page.find( "#auto-scan" ).find( "a" ).on( "click", function() {
         startScan();
         return false;
@@ -4603,9 +4599,9 @@ function showStart() {
         page.remove();
     } );
 
-    $( "#start" ).remove();
-
     $.mobile.pageContainer.append( page );
+
+	checkAutoScan();
 }
 
 function showGuidedSetup() {
