@@ -7748,7 +7748,7 @@ function showAbout() {
                     "</li>" +
                 "</ul>" +
                 "<p class='smaller'>" +
-                    _( "App Version" ) + ": 1.4.2" +
+                    _( "App Version" ) + ": 1.4.3" +
                     ( typeof controller.options.hwv !== "undefined" ? "<br>" + _( "Hardware Version" ) + ": " + getHWVersion() : "" ) +
                     "<br>" + _( "Firmware" ) + ": " + getOSVersion() +
                 "</p>" +
