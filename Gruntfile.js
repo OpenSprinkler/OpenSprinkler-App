@@ -225,9 +225,9 @@ module.exports = function( grunt ) {
 				src: [ "www/js/main.js" ],
 				overwrite: true,
 				replacements: [ {
-					from: /_\("App Version"\)\+": ([\d|\.]+)"/g,
+					from: /_\(\s?"App Version"\s?\)\+": ([\d|\.]+)"/g,
 					to: function( matchedWord, index, fullText, regexMatches ) {
-						return "_(\"App Version\")+\": " + bumpVersion( regexMatches[0] ) + "\"";
+						return "_(\" App Version \")+\": " + bumpVersion( regexMatches[0] ) + "\"";
 					}
 				} ]
 			},
