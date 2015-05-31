@@ -8581,7 +8581,7 @@ function removeNotification( button ) {
 function checkFirmwareUpdate() {
 
     // Update checks are only be available for Arduino firmwares
-    if ( !isOSPi() ) {
+    if ( checkOSVersion( 200 ) ) {
 
         // Github API to get releases for OpenSprinkler firmware
         $.getJSON( "https://api.github.com/repos/opensprinkler/opensprinklergen2/releases" ).done( function( data ) {
