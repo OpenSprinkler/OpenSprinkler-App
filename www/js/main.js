@@ -150,6 +150,13 @@ $( document )
         return false;
     } );
 } )
+.one( "mobileinit", function() {
+
+    //Change history method for Chrome Packaged Apps
+    if ( isChromeApp ) {
+        $.mobile.hashListeningEnabled = false;
+    }
+} )
 .one( "pagebeforechange", function( event ) {
 
     // Let the framework know we're going to handle the first load
@@ -368,11 +375,6 @@ function initApp() {
 		( isAndroid || isIEMobile || isFireFoxOS || isBB10 ) ? "fade" : "slide";
     $.mobile.hoverDelay = 0;
     $.mobile.activeBtnClass = "activeButton";
-
-    //Change history method for Chrome Packaged Apps
-    if ( isChromeApp ) {
-        $.mobile.hashListeningEnabled = false;
-    }
 
     if ( !isOSXApp ) {
 
