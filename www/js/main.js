@@ -724,9 +724,6 @@ function newload() {
                 $( "#info-list" ).find( "li[data-role='list-divider']" ).text( _( "Information" ) );
             }
 
-            // Check if automatic rain delay plugin is enabled on OSPi devices
-            checkWeatherPlugin();
-
             // Check if a firmware update is available
             checkFirmwareUpdate();
 
@@ -743,6 +740,15 @@ function newload() {
             // Check if a cloud token is available and if so show logout button otherwise show login
             if ( !currLocal ) {
                 updateLoginButtons();
+            }
+
+            if ( isOSPi() ) {
+
+	            // Check if automatic rain delay plugin is enabled on OSPi devices
+	            checkWeatherPlugin();
+
+	            // Show notification of unified firmware availability
+				showUnifiedFirmwareNotification();
             }
 
             if ( controller.options.firstRun ) {
@@ -8362,6 +8368,41 @@ function checkWeatherPlugin() {
             weatherProvider.css( "display", "" );
         }
     }
+}
+
+function showUnifiedFirmwareNotification() {
+	if ( !isOSPi() ) {
+		return;
+	}
+
+    storage.get( "ignoreUnifiedFirmware", function( data ) {
+        if ( data.ignoreUnifiedFirmware !== "1" ) {
+
+		    // Unable to access the device using it's public IP
+		    addNotification( {
+		        title: _( "Unified firmware is now avaialble" ),
+		        desc: _( "Click here for more details" ),
+		        on: function() {
+		            var iab = window.open( "https://opensprinkler.freshdesk.com/support/solutions/articles/5000631599",
+						"_blank", "location=" + ( isAndroid ? "yes" : "no" ) +
+						",enableViewportScale=yes,toolbarposition=top,closebuttoncaption=" + _( "Back" ) );
+
+		            if ( isIEMobile ) {
+		                $.mobile.document.data( "iabOpen", true );
+		                iab.addEventListener( "exit", function() {
+		                    $.mobile.document.removeData( "iabOpen" );
+		                } );
+		            }
+
+		            return false;
+		        },
+		        off: function() {
+		            storage.set( { "ignoreUnifiedFirmware": "1" } );
+		            return true;
+		        }
+		    } );
+		}
+	} );
 }
 
 function intToIP( eip ) {
