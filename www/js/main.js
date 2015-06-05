@@ -2212,11 +2212,10 @@ function showWeatherSettings() {
     $.mobile.pageContainer.append( page );
 }
 
-function showAdjustmentOptions() {
+function showAdjustmentOptions( button, callback ) {
     $( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
 
-    var button = $.isWindow( this ) ? false : this,
-        options;
+    var options;
 
     if ( button ) {
         options = button.value;
@@ -2231,7 +2230,7 @@ function showAdjustmentOptions() {
     if ( typeof options !== "object" ) {
         options = {
             humidity: 100,
-            temperature: 100,
+            temp: 100,
             rain: 100
         };
     }
@@ -2261,7 +2260,7 @@ function showAdjustmentOptions() {
                             "<label class='center'>" +
                                 _( "Temp" ) + " (%)" +
                             "</label>" +
-                            "<input data-wrapper-class='pad_buttons' class='temperature' type='number' pattern='[0-9]{3}' value='" + options.temperature + "'>" +
+                            "<input data-wrapper-class='pad_buttons' class='temp' type='number' pattern='[0-9]{3}' value='" + options.temp + "'>" +
                         "</div>" +
                         "<div class='ui-block-b'>" +
                             "<label class='center'>" +
@@ -2305,13 +2304,15 @@ function showAdjustmentOptions() {
     popup.find( ".submit" ).on( "click", function() {
         options = {
             humidity: parseInt( popup.find( ".humidity" ).val() ),
-            temperature: parseInt( popup.find( ".temperature" ).val() ),
+            temp: parseInt( popup.find( ".temp" ).val() ),
             rain: parseInt( popup.find( ".rain" ).val() )
         };
 
         if ( button ) {
-            button.value = JSON.stringify( options );
+            button.value = JSON.stringify( options ).replace( /"/g, "\\\"" ) ;
         }
+
+        callback();
 
         popup.popup( "close" );
         return false;
@@ -3563,8 +3564,8 @@ function showOptions( expandItem ) {
         list += "</select></div>";
 
         if ( typeof controller.settings.wto !== "undefined" ) {
-	        list += "<div class='ui-field-contain" + ( getAdjustmentName() === 0 ? "hidden" : "" ) + "'><label for='wto'>" + _( "Adjustment Method Options" ) + "</label>" +
-				"<button data-mini='true' id='wto' value='" + JSON.stringify( controller.settings.wto ) + "'>" +
+	        list += "<div class='ui-field-contain" + ( getAdjustmentMethod() === 0 ? " hidden" : "" ) + "'><label for='wto'>" + _( "Adjustment Method Options" ) + "</label>" +
+				"<button data-mini='true' id='wto' value='" + JSON.stringify( controller.settings.wto ).replace( /"/g, "\\\"" ) + "'>" +
 					_( "Tap to Configure" ) +
 				"</button></div>";
         }
@@ -3718,7 +3719,12 @@ function showOptions( expandItem ) {
         }
     } );
 
-    page.find( "#wto" ).on( "click", showAdjustmentOptions );
+    page.find( "#wto" ).on( "click", function() {
+		showAdjustmentOptions( this, function() {
+	        header.eq( 2 ).prop( "disabled", false );
+            page.find( ".submit" ).addClass( "hasChanges" );
+		} );
+    } );
 
     page.find( ".reset-options" ).on( "click", function() {
         areYouSure( _( "Are you sure you want to delete all settings and return to the default settings?" ), "", function() {
@@ -4037,7 +4043,7 @@ function showOptions( expandItem ) {
         page.find( "#o23" ).prop( "disabled", ( parseInt( this.value ) === 0 || page.find( "#wtkey" ).val() === "" ? false : true ) );
 
         // Switch the state of adjustment options based on the selected method
-        page.find( "#wto" ).parents( ".ui-field-contain" ).toggle( parseInt( this.value ) === 0 ? false : true );
+        page.find( "#wto" ).parents( ".ui-field-contain" ).toggleClass( "hidden", parseInt( this.value ) === 0 ? true : false );
     } );
 
     page.find( "#wtkey" ).on( "change input", function() {
