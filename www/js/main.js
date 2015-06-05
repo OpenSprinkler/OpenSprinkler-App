@@ -545,7 +545,8 @@ function sendToOS( dest, type ) {
             url: currPrefix + currIp + dest,
 
             // Use POST when sending data to the controller (requires firmware 2.1.5 or newer)
-            type: ( isChange && checkOSVersion( 215 ) ) ? "POST" : "GET",
+            // TODO: Change GET to POST once OpenSprinkler supports it
+            type: ( isChange && checkOSVersion( 216 ) ) ? "GET" : "GET",
             dataType: type,
             shouldRetry: function( xhr, current ) {
                 if ( xhr.status === 0 && xhr.statusText === "abort" || retryCount < current ) {
@@ -2211,6 +2212,138 @@ function showWeatherSettings() {
     $.mobile.pageContainer.append( page );
 }
 
+function showAdjustmentOptions() {
+    $( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
+
+    var button = $.isWindow( this ) ? false : this,
+        options;
+
+    if ( button ) {
+        options = button.value;
+    }
+
+    try {
+        options = JSON.parse( options );
+    } catch ( err ) {
+        options = controller.settings.wtoptions;
+    }
+
+    if ( typeof options !== "object" ) {
+        options = {
+            humidity: 100,
+            temperature: 100,
+            rain: 100
+        };
+    }
+
+    var popup = $( "<div data-role='popup' data-overlay-theme='b' data-theme='a' id='adjustmentOptions'>" +
+            "<div data-role='header' data-theme='b'>" +
+                "<h1>" + _( "Weather Adjustment Options" ) + "</h1>" +
+            "</div>" +
+            "<div class='ui-content'>" +
+                "<p class='rain-desc center smaller'>" +
+                    _( "Modify the weight of each factor when calculating the scale" ) +
+                "</p>" +
+                "<span>" +
+                    "<fieldset class='ui-grid-b incr'>" +
+                        "<div class='ui-block-a'>" +
+                            "<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a>" +
+                        "</div>" +
+                        "<div class='ui-block-b'>" +
+                            "<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a>" +
+                        "</div>" +
+                        "<div class='ui-block-c'>" +
+                            "<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a>" +
+                        "</div>" +
+                    "</fieldset>" +
+                    "<div class='ui-grid-b inputs'>" +
+                        "<div class='ui-block-a'>" +
+                            "<label class='center'>" +
+                                _( "Temp" ) + " (%)" +
+                            "</label>" +
+                            "<input data-wrapper-class='pad_buttons' class='temperature' type='number' pattern='[0-9]{3}' value='" + options.temperature + "'>" +
+                        "</div>" +
+                        "<div class='ui-block-b'>" +
+                            "<label class='center'>" +
+                                _( "Rain" ) + " (%)" +
+                            "</label>" +
+                            "<input data-wrapper-class='pad_buttons' class='rain' type='number' pattern='[0-9]{3}' value='" + options.rain + "'>" +
+                        "</div>" +
+                        "<div class='ui-block-c'>" +
+                            "<label class='center'>" +
+                                _( "Humidity" ) + " (%)" +
+                            "</label>" +
+                            "<input data-wrapper-class='pad_buttons' class='humidity' type='number' pattern='[0-9]{3}' value='" + options.humidity + "'>" +
+                        "</div>" +
+                    "</div>" +
+                    "<fieldset class='ui-grid-b decr'>" +
+                        "<div class='ui-block-a'>" +
+                            "<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='minus' data-iconpos='bottom'></a>" +
+                        "</div>" +
+                        "<div class='ui-block-b'>" +
+                            "<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='minus' data-iconpos='bottom'></a>" +
+                        "</div>" +
+                        "<div class='ui-block-c'>" +
+                            "<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='minus' data-iconpos='bottom'></a>" +
+                        "</div>" +
+                    "</fieldset>" +
+                "</span>" +
+                "<button class='submit' data-theme='b'>" + _( "Submit" ) + "</button>" +
+            "</div>" +
+        "</div>" ),
+        changeValue = function( pos, dir ) {
+            var input = popup.find( ".inputs input" ).eq( pos ),
+                val = parseInt( input.val() );
+
+            if ( ( dir === -1 && val === 0 ) || ( dir === 1 && val === 100 ) ) {
+                return;
+            }
+
+            input.val( val + dir );
+        };
+
+    popup.find( ".submit" ).on( "click", function() {
+        options = {
+            humidity: parseInt( popup.find( ".humidity" ).val() ),
+            temperature: parseInt( popup.find( ".temperature" ).val() ),
+            rain: parseInt( popup.find( ".rain" ).val() )
+        };
+
+        if ( button ) {
+            button.value = JSON.stringify( options );
+        }
+
+        popup.popup( "close" );
+        return false;
+    } );
+
+    popup.on( "focus", "input[type='number']", function() {
+        this.value = "";
+    } ).on( "blur", "input[type='number']", function() {
+        if ( this.value === "" ) {
+            this.value = "0";
+        }
+    } );
+
+    holdButton( popup.find( ".incr" ).children(), function( e ) {
+        var pos = $( e.currentTarget ).index();
+        changeValue( pos, 1 );
+        return false;
+    } );
+
+    holdButton( popup.find( ".decr" ).children(), function( e ) {
+        var pos = $( e.currentTarget ).index();
+        changeValue( pos, -1 );
+        return false;
+    } );
+
+    $( "#adjustmentOptions" ).remove();
+
+    popup.css( "max-width", "380px" );
+
+    openPopup( popup, { positionTo: "window" } );
+}
+
 function convertTemp( temp, region ) {
     if ( region === "United States" || region === "Bermuda" || region === "Palau" ) {
         temp = temp + "&#176;F";
@@ -3429,6 +3562,13 @@ function showOptions( expandItem ) {
         }
         list += "</select></div>";
 
+        if ( typeof controller.settings.wtoptions !== "undefined" ) {
+	        list += "<div class='ui-field-contain" + ( getAdjustmentName() === 0 ? "hidden" : "" ) + "'><label for='wtoptions'>" + _( "Adjustment Method Options" ) + "</label>" +
+				"<button data-mini='true' id='wtoptions' value='" + JSON.stringify( controller.settings.wtoptions ) + "'>" +
+					_( "Tap to Configure" ) +
+				"</button></div>";
+        }
+
         if ( checkOSVersion( 214 ) ) {
             list += "<div class='ui-field-contain'><label for='weatherRestriction' class='select'>" + _( "Weather-Based Restrictions" ) +
 					"<button data-helptext='" + _( "Prevents watering when the selected restriction is met." ) +
@@ -3577,6 +3717,8 @@ function showOptions( expandItem ) {
             page.find( "#o1" ).selectmenu( "enable" );
         }
     } );
+
+    page.find( "#wtoptions" ).on( "click", showAdjustmentOptions );
 
     page.find( ".reset-options" ).on( "click", function() {
         areYouSure( _( "Are you sure you want to delete all settings and return to the default settings?" ), "", function() {
@@ -3893,6 +4035,9 @@ function showOptions( expandItem ) {
 
         // Switch state of water level input based on weather algorithm status
         page.find( "#o23" ).prop( "disabled", ( parseInt( this.value ) === 0 || page.find( "#wtkey" ).val() === "" ? false : true ) );
+
+        // Switch the state of adjustment options based on the selected method
+        page.find( "#wtoptions" ).parents( ".ui-field-contain" ).toggle( parseInt( this.value ) === 0 ? false : true );
     } );
 
     page.find( "#wtkey" ).on( "change input", function() {
