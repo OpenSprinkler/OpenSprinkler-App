@@ -2215,19 +2215,9 @@ function showWeatherSettings() {
 function showAdjustmentOptions( button, callback ) {
     $( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
 
-    var options;
+    var options = controller.settings.wto;
 
-    if ( button ) {
-        options = button.value;
-    }
-
-    try {
-        options = JSON.parse( options );
-    } catch ( err ) {
-        options = controller.settings.wto;
-    }
-
-    if ( typeof options !== "object" ) {
+    if ( typeof options !== "object" || $.isEmptyObject( options ) ) {
         options = {
             humidity: 100,
             temp: 100,
@@ -2309,7 +2299,7 @@ function showAdjustmentOptions( button, callback ) {
         };
 
         if ( button ) {
-            button.value = JSON.stringify( options ).replace( /"/g, "\\\"" ) ;
+            button.value = JSON.stringify( options ).replace( /\{|\}/g, "" );
         }
 
         callback();
@@ -3565,7 +3555,7 @@ function showOptions( expandItem ) {
 
         if ( typeof controller.settings.wto !== "undefined" ) {
 	        list += "<div class='ui-field-contain" + ( getAdjustmentMethod() === 0 ? " hidden" : "" ) + "'><label for='wto'>" + _( "Adjustment Method Options" ) + "</label>" +
-				"<button data-mini='true' id='wto' value='" + JSON.stringify( controller.settings.wto ).replace( /"/g, "\\\"" ) + "'>" +
+				"<button data-mini='true' id='wto' value='" + JSON.stringify( controller.settings.wto ).replace( /\{|\}/g, "" ) + "'>" +
 					_( "Tap to Configure" ) +
 				"</button></div>";
         }
