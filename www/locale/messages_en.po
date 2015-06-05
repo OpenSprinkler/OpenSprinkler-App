@@ -129,9 +129,6 @@ msgstr ""
 msgid "Synced with OpenSprinkler.com"
 msgstr ""
 
-msgid "Add Controller"
-msgstr ""
-
 msgid "Firmware"
 msgstr ""
 
@@ -184,6 +181,21 @@ msgid "Weather settings were not saved. Please try again."
 msgstr ""
 
 msgid "Weather Settings"
+msgstr ""
+
+msgid "Weather Adjustment Options"
+msgstr ""
+
+msgid "Modify the weight of each factor when calculating the scale"
+msgstr ""
+
+msgid "Temp"
+msgstr ""
+
+msgid "Rain"
+msgstr ""
+
+msgid "Humidity"
 msgstr ""
 
 msgid "Forecast"
@@ -371,6 +383,12 @@ msgstr ""
 msgid ""
 "Weather adjustment uses Weather Underground data in conjunction with the "
 "selected method to adjust the watering percentage."
+msgstr ""
+
+msgid "Adjustment Method Options"
+msgstr ""
+
+msgid "Tap to Configure"
 msgstr ""
 
 msgid "Weather-Based Restrictions"
@@ -573,6 +591,21 @@ msgid "Station has been queued"
 msgstr ""
 
 msgid "Station has been stopped"
+msgstr ""
+
+msgid ""
+"Welcome to the OpenSprinkler application. This app only works with the "
+"OpenSprinkler controller which must be installed and setup on your home "
+"network."
+msgstr ""
+
+msgid "Purchase OpenSprinkler"
+msgstr ""
+
+msgid "OpenSprinkler.com Login"
+msgstr ""
+
+msgid "Add Controller"
 msgstr ""
 
 msgid "System Disabled"
@@ -1051,9 +1084,6 @@ msgstr ""
 msgid "Password changed successfully"
 msgstr ""
 
-msgid "OpenSprinkler.com Login"
-msgstr ""
-
 msgid ""
 "Use your OpenSprinkler.com login and password to securely sync sites between "
 "all your devices."
@@ -1099,6 +1129,12 @@ msgid ""
 msgstr ""
 
 msgid "Password"
+msgstr ""
+
+msgid "Unified firmware is now avaialble"
+msgstr ""
+
+msgid "Click here for more details"
 msgstr ""
 
 msgid "Remote access is not enabled"
@@ -1321,15 +1357,6 @@ msgid "Localization"
 msgstr ""
 
 msgid "Thr"
-msgstr ""
-
-msgid ""
-"Welcome to the OpenSprinkler application. This app only works with the "
-"OpenSprinkler controller which must be installed and setup on your home "
-"network."
-msgstr ""
-
-msgid "Purchase OpenSprinkler"
 msgstr ""
 
 msgid "Export Configuration"
