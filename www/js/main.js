@@ -2225,7 +2225,7 @@ function showAdjustmentOptions() {
     try {
         options = JSON.parse( options );
     } catch ( err ) {
-        options = controller.settings.wtoptions;
+        options = controller.settings.wto;
     }
 
     if ( typeof options !== "object" ) {
@@ -3562,9 +3562,9 @@ function showOptions( expandItem ) {
         }
         list += "</select></div>";
 
-        if ( typeof controller.settings.wtoptions !== "undefined" ) {
-	        list += "<div class='ui-field-contain" + ( getAdjustmentName() === 0 ? "hidden" : "" ) + "'><label for='wtoptions'>" + _( "Adjustment Method Options" ) + "</label>" +
-				"<button data-mini='true' id='wtoptions' value='" + JSON.stringify( controller.settings.wtoptions ) + "'>" +
+        if ( typeof controller.settings.wto !== "undefined" ) {
+	        list += "<div class='ui-field-contain" + ( getAdjustmentName() === 0 ? "hidden" : "" ) + "'><label for='wto'>" + _( "Adjustment Method Options" ) + "</label>" +
+				"<button data-mini='true' id='wto' value='" + JSON.stringify( controller.settings.wto ) + "'>" +
 					_( "Tap to Configure" ) +
 				"</button></div>";
         }
@@ -3718,7 +3718,7 @@ function showOptions( expandItem ) {
         }
     } );
 
-    page.find( "#wtoptions" ).on( "click", showAdjustmentOptions );
+    page.find( "#wto" ).on( "click", showAdjustmentOptions );
 
     page.find( ".reset-options" ).on( "click", function() {
         areYouSure( _( "Are you sure you want to delete all settings and return to the default settings?" ), "", function() {
@@ -4037,7 +4037,7 @@ function showOptions( expandItem ) {
         page.find( "#o23" ).prop( "disabled", ( parseInt( this.value ) === 0 || page.find( "#wtkey" ).val() === "" ? false : true ) );
 
         // Switch the state of adjustment options based on the selected method
-        page.find( "#wtoptions" ).parents( ".ui-field-contain" ).toggle( parseInt( this.value ) === 0 ? false : true );
+        page.find( "#wto" ).parents( ".ui-field-contain" ).toggle( parseInt( this.value ) === 0 ? false : true );
     } );
 
     page.find( "#wtkey" ).on( "change input", function() {
