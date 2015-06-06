@@ -7918,7 +7918,7 @@ function showAbout() {
                 "</ul>" +
                 "<p class='smaller'>" +
                     _( "App Version" ) + ": 1.4.3" +
-                    ( typeof controller.options.hwv !== "undefined" ? "<br>" + _( "Hardware Version" ) + ": " + getHWVersion() + " (" + getHWType() + ")" : "" ) +
+                    ( typeof controller.options.hwv !== "undefined" ? "<br>" + _( "Hardware Version" ) + ": " + getHWVersion() + getHWType() : "" ) +
                     "<br>" + _( "Firmware" ) + ": " + getOSVersion() + getOSMinorVersion() +
                 "</p>" +
             "</div>" +
@@ -8953,11 +8953,11 @@ function getHWType() {
 	}
 
 	if ( controller.options.hwt === 172 ) {
-		return "AC";
+		return " (AC)";
 	} else if ( controller.options.hwt === 220 ) {
-		return "DC";
+		return " (DC)";
 	} else if ( controller.options.hwt === 26 ) {
-		return "Latching";
+		return " (Latching)";
 	} else {
 		return "";
 	}
