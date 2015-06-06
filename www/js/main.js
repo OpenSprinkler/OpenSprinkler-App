@@ -2312,7 +2312,7 @@ function showAdjustmentOptions( button, callback ) {
         };
 
         if ( button ) {
-            button.value = JSON.stringify( options ).replace( /\{|\}/g, "" );
+            button.value = escapeJSON( options );
         }
 
         callback();
@@ -3281,6 +3281,12 @@ function showOptions( expandItem ) {
                         opt.o35 = ip[3];
 
                         return true;
+                    case "wto":
+						if ( escapeJSON( controller.settings.wto ) === data ) {
+							return true;
+						}
+
+						break;
                     case "o12":
                         if ( !isPi ) {
                             opt.o12 = data & 0xff;
@@ -3566,9 +3572,9 @@ function showOptions( expandItem ) {
         }
         list += "</select></div>";
 
-        if ( typeof controller.settings.wto !== "undefined" ) {
+        if ( typeof controller.settings.wto === "object" ) {
 	        list += "<div class='ui-field-contain" + ( getAdjustmentMethod() === 0 ? " hidden" : "" ) + "'><label for='wto'>" + _( "Adjustment Method Options" ) + "</label>" +
-				"<button data-mini='true' id='wto' value='" + JSON.stringify( controller.settings.wto ).replace( /\{|\}/g, "" ) + "'>" +
+				"<button data-mini='true' id='wto' value='" + escapeJSON( controller.settings.wto ) + "'>" +
 					_( "Tap to Configure" ) +
 				"</button></div>";
         }
@@ -10313,6 +10319,10 @@ function checkCurrLang() {
 
         popup.find( "li.ui-last-child" ).removeClass( "ui-last-child" );
     } );
+}
+
+function escapeJSON( json ) {
+	return JSON.stringify( json ).replace( /\{|\}/g, "" );
 }
 
 function isMD5( pass ) {
