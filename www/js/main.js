@@ -743,10 +743,10 @@ function newload() {
                 updateLoginButtons();
             }
 
-            if ( isOSPi() ) {
+            // Check if automatic rain delay plugin is enabled on OSPi devices
+            checkWeatherPlugin();
 
-	            // Check if automatic rain delay plugin is enabled on OSPi devices
-	            checkWeatherPlugin();
+            if ( isOSPi() ) {
 
 	            // Show notification of unified firmware availability
 				showUnifiedFirmwareNotification();
