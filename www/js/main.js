@@ -1016,7 +1016,7 @@ function updateControllerSettings( callback ) {
                         settings = settings.replace( /,"wto":\{.*\}/, "" );
                         try {
                             settings = JSON.parse( settings );
-                        } catch ( err ) {
+                        } catch ( e ) {
                             return false;
                         }
                     }
