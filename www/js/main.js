@@ -1007,8 +1007,21 @@ function updateControllerSettings( callback ) {
                 }
             } );
     } else {
-        return sendToOS( "/jc?pw=", "json" ).then(
+        return sendToOS( "/jc?pw=" ).then(
             function( settings ) {
+                if ( typeof settings !== "object" ) {
+                    try {
+                        settings = JSON.parse( settings );
+                    } catch ( err ) {
+                        settings = settings.replace( /,"wto":\{.*\}/, "" );
+                        try {
+                            settings = JSON.parse( settings );
+                        } catch ( err ) {
+                            return false;
+                        }
+                    }
+                }
+
                 if ( typeof settings.lrun === "undefined" ) {
                     settings.lrun = [ 0, 0, 0, 0 ];
                 }
