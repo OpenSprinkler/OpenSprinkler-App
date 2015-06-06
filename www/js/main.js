@@ -2219,9 +2219,9 @@ function showAdjustmentOptions( button, callback ) {
 
     if ( typeof options !== "object" || $.isEmptyObject( options ) ) {
         options = {
-            humidity: 100,
-            temp: 100,
-            rain: 100
+            h: 100,
+            t: 100,
+            r: 100
         };
     }
 
@@ -2250,19 +2250,19 @@ function showAdjustmentOptions( button, callback ) {
                             "<label class='center'>" +
                                 _( "Temp" ) + " (%)" +
                             "</label>" +
-                            "<input data-wrapper-class='pad_buttons' class='temp' type='number' pattern='[0-9]{3}' value='" + options.temp + "'>" +
+                            "<input data-wrapper-class='pad_buttons' class='t' type='number' pattern='[0-9]{3}' value='" + options.t + "'>" +
                         "</div>" +
                         "<div class='ui-block-b'>" +
                             "<label class='center'>" +
                                 _( "Rain" ) + " (%)" +
                             "</label>" +
-                            "<input data-wrapper-class='pad_buttons' class='rain' type='number' pattern='[0-9]{3}' value='" + options.rain + "'>" +
+                            "<input data-wrapper-class='pad_buttons' class='r' type='number' pattern='[0-9]{3}' value='" + options.r + "'>" +
                         "</div>" +
                         "<div class='ui-block-c'>" +
                             "<label class='center'>" +
                                 _( "Humidity" ) + " (%)" +
                             "</label>" +
-                            "<input data-wrapper-class='pad_buttons' class='humidity' type='number' pattern='[0-9]{3}' value='" + options.humidity + "'>" +
+                            "<input data-wrapper-class='pad_buttons' class='h' type='number' pattern='[0-9]{3}' value='" + options.h + "'>" +
                         "</div>" +
                     "</div>" +
                     "<fieldset class='ui-grid-b decr'>" +
@@ -2293,9 +2293,9 @@ function showAdjustmentOptions( button, callback ) {
 
     popup.find( ".submit" ).on( "click", function() {
         options = {
-            humidity: parseInt( popup.find( ".humidity" ).val() ),
-            temp: parseInt( popup.find( ".temp" ).val() ),
-            rain: parseInt( popup.find( ".rain" ).val() )
+            h: parseInt( popup.find( ".h" ).val() ),
+            t: parseInt( popup.find( ".t" ).val() ),
+            r: parseInt( popup.find( ".r" ).val() )
         };
 
         if ( button ) {
