@@ -7912,7 +7912,7 @@ function showAbout() {
                 "<p class='smaller'>" +
                     _( "App Version" ) + ": 1.4.3" +
                     ( typeof controller.options.hwv !== "undefined" ? "<br>" + _( "Hardware Version" ) + ": " + getHWVersion() : "" ) +
-                    "<br>" + _( "Firmware" ) + ": " + getOSVersion() +
+                    "<br>" + _( "Firmware" ) + ": " + getOSVersion() + getOSMinorVersion() +
                 "</p>" +
             "</div>" +
         "</div>" );
@@ -8801,7 +8801,7 @@ function checkFirmwareUpdate() {
                                             "<h3 class='center' style='margin-bottom:0'>" +
 												_( "Latest" ) + " " + _( "Firmware" ) + ": " + data[0].name +
 											"</h3>" +
-                                            "<h5 class='center' style='margin:0'>" + _( "This Controller" ) + ": " + getOSVersion() + "</h5>" +
+                                            "<h5 class='center' style='margin:0'>" + _( "This Controller" ) + ": " + getOSVersion() + getOSMinorVersion() + "</h5>" +
                                             "<ul class='changelog'>" + changelog + "</ul>" +
                                             "<a class='guide ui-btn ui-corner-all ui-shadow' style='width:80%;margin:5px auto;' href='#'>" +
 												_( "Upgrade Guide" ) +
@@ -8905,6 +8905,13 @@ function getOSVersion( fwv ) {
     } else {
         return ( fwv / 100 >> 0 ) + "." + ( ( fwv / 10 >> 0 ) % 10 ) + "." + ( fwv % 10 );
     }
+}
+
+function getOSMinorVersion() {
+    if ( !isOSPi() && typeof controller.options === "object" && typeof controller.options.fwm === "number" && controller.options.fwm > 0 ) {
+		return " (" + controller.options.fwm + ")";
+    }
+    return "";
 }
 
 function getHWVersion( hwv ) {
