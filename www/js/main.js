@@ -4057,6 +4057,7 @@ function showOptions( expandItem ) {
 
         // Switch state of weather algorithm input based on API key status
         if ( this.value === "" ) {
+	        page.find( "#wto" ).parents( ".ui-field-contain" ).toggleClass( "hidden", true );
             page.find( "#o31,#weatherRestriction" ).val( "0" ).selectmenu( "refresh" ).selectmenu( "disable" );
             page.find( "#o23" ).prop( "disabled", false );
         } else {
