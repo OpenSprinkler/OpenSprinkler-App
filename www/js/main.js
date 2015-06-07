@@ -2324,7 +2324,7 @@ function showAdjustmentOptions( button, callback ) {
     popup.on( "focus", "input[type='number']", function() {
         this.value = "";
     } ).on( "blur", "input[type='number']", function() {
-        if ( this.value === "" ) {
+        if ( this.value === "" || parseInt( this.value ) < 0 ) {
             this.value = "0";
         }
     } );
