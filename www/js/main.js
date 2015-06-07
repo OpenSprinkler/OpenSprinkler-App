@@ -5415,14 +5415,12 @@ function submitRunonce( runonce ) {
 }
 
 // Preview functions
-function getPreview() {
-    var now = new Date( controller.settings.devt * 1000 ),
-        date = now.toISOString().slice( 0, 10 ),
-        page = $( "<div data-role='page' id='preview'>" +
+var getPreview = ( function() {
+    var page = $( "<div data-role='page' id='preview'>" +
             "<div class='ui-content' role='main'>" +
                 "<div id='preview_header' class='input_with_buttons'>" +
                     "<button class='preview-minus ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border'></button>" +
-                    "<input class='center' type='date' name='preview_date' id='preview_date' value='" + date + "'>" +
+                    "<input class='center' type='date' name='preview_date' id='preview_date'>" +
                     "<button class='preview-plus ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border'></button>" +
                 "</div>" +
                 "<div id='timeline'></div>" +
@@ -5436,12 +5434,7 @@ function getPreview() {
         "</div>" ),
         placeholder = page.find( "#timeline" ),
         navi = page.find( "#timeline-navigation" ),
-        is21 = checkOSVersion( 210 ),
-        is211 = checkOSVersion( 211 ),
-        previewData, processPrograms, checkMatch, checkMatch183, checkMatch21, runSched, timeToText, changeday, render, day;
-
-    date = date.split( "-" );
-    day = new Date( date[0], date[1] - 1, date[2] );
+        previewData, processPrograms, checkMatch, checkMatch183, checkMatch21, runSched, timeToText, changeday, render, date, day, now, is21, is211;
 
     processPrograms = function( month, day, year ) {
         previewData = [];
@@ -5968,43 +5961,52 @@ function getPreview() {
         }
     };
 
-    placeholder.on( "swiperight swipeleft", function( e ) {
-        e.stopImmediatePropagation();
-    } );
+    function begin() {
+	    now = new Date( controller.settings.devt * 1000 );
+	    date = now.toISOString().slice( 0, 10 ).split( "-" );
+	    is21 = checkOSVersion( 210 );
+	    is211 = checkOSVersion( 211 );
+	    day = new Date( date[0], date[1] - 1, date[2] );
 
-    page.find( "#preview_date" ).on( "change", function() {
-        date = this.value.split( "-" );
-        day = new Date( date[0], date[1] - 1, date[2] );
-        render();
-    } );
+	    placeholder.on( "swiperight swipeleft", function( e ) {
+	        e.stopImmediatePropagation();
+	    } );
 
-    holdButton( page.find( ".preview-plus" ), function() {
-        changeday( 1 );
-    } );
-    holdButton( page.find( ".preview-minus" ), function() {
-        changeday( -1 );
-    } );
+	    page.find( "#preview_date" ).val( date.join( "-" ) ).on( "change", function() {
+	        day = new Date( date[0], date[1] - 1, date[2] );
+	        render();
+	    } );
 
-    page.one( {
-        pagehide: function() {
-            page.remove();
-        },
-        pageshow: render
-    } );
+	    holdButton( page.find( ".preview-plus" ), function() {
+	        changeday( 1 );
+	    } );
+	    holdButton( page.find( ".preview-minus" ), function() {
+	        changeday( -1 );
+	    } );
 
-    changeHeader( {
-        title: _( "Program Preview" ),
-        leftBtn: {
-            icon: "carat-l",
-            text: _( "Back" ),
-            class: "ui-toolbar-back-btn",
-            on: goBack
-        }
-    } );
+	    page.one( {
+	        pagehide: function() {
+	            page.remove();
+	        },
+	        pageshow: render
+	    } );
 
-    $( "#preview" ).remove();
-    $.mobile.pageContainer.append( page );
-}
+	    changeHeader( {
+	        title: _( "Program Preview" ),
+	        leftBtn: {
+	            icon: "carat-l",
+	            text: _( "Back" ),
+	            class: "ui-toolbar-back-btn",
+	            on: goBack
+	        }
+	    } );
+
+	    $( "#preview" ).remove();
+	    $.mobile.pageContainer.append( page );
+    }
+
+    return begin;
+} )();
 
 function getStationDuration( duration, date ) {
     if ( checkOSVersion( 214 ) ) {
