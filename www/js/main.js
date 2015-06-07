@@ -4696,13 +4696,7 @@ function showHome( firstLoad ) {
     }
 }
 
-function showStart() {
-	if ( isDeviceConnected() ) {
-		return false;
-	}
-
-    $( "#start" ).remove();
-
+var showStart = ( function() {
 	var page = $( "<div data-role='page' id='start'>" +
 		    "<ul data-role='none' id='welcome_list' class='ui-listview ui-listview-inset ui-corner-all'>" +
 		        "<li><div class='logo' id='welcome_logo'></div></li>" +
@@ -4761,28 +4755,38 @@ function showStart() {
 		auto = page.find( "#auto-scan" ),
 		next = auto.next();
 
-    page.find( "#auto-scan" ).find( "a" ).on( "click", function() {
-        startScan();
-        return false;
-    } );
+	function begin() {
+		if ( isDeviceConnected() ) {
+			return false;
+		}
 
-    page.find( "a[href='#addnew']" ).on( "click", function() {
-		showAddNew();
-    } );
+	    $( "#start" ).remove();
 
-    page.find( ".cloud-login" ).on( "click", function() {
-        requestCloudAuth();
-        return false;
-    } );
+	    page.find( "#auto-scan" ).find( "a" ).on( "click", function() {
+	        startScan();
+	        return false;
+	    } );
 
-    page.one( "pagehide", function() {
-        page.remove();
-    } );
+	    page.find( "a[href='#addnew']" ).on( "click", function() {
+			showAddNew();
+	    } );
 
-    $.mobile.pageContainer.append( page );
+	    page.find( ".cloud-login" ).on( "click", function() {
+	        requestCloudAuth();
+	        return false;
+	    } );
 
-	checkAutoScan();
-}
+	    page.one( "pagehide", function() {
+	        page.remove();
+	    } );
+
+	    $.mobile.pageContainer.append( page );
+
+		checkAutoScan();
+	}
+
+	return begin;
+} )();
 
 function showGuidedSetup() {
 
