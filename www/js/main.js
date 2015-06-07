@@ -3660,6 +3660,13 @@ function showOptions( expandItem ) {
 					_( "Relay pulsing is used for special situations where rapid pulsing is needed in the output with a range from 1 to 2000 milliseconds. A zero value disables the pulsing option." ) +
 					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
 			"</label><button data-mini='true' id='o30' value='" + controller.options.rlp + "'>" + controller.options.rlp + "ms</button></div>";
+    } else if ( typeof controller.options.bst !== "undefined" ) {
+        list += "<div class='ui-field-contain duration-field'>" +
+			"<label for='o30'>" + _( "Boost Time" ) +
+				"<button data-helptext='" +
+					_( "Boost time changes how long the boost converter is activated with a range from 0 to 1000 milliseconds." ) +
+					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
+			"</label><button data-mini='true' id='o30' value='" + controller.options.bst + "'>" + controller.options.bst + "ms</button></div>";
     }
 
     if ( typeof controller.options.ntp !== "undefined" && checkOSVersion( 210 ) ) {
