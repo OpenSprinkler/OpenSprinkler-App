@@ -8833,9 +8833,12 @@ function checkFirmwareUpdate() {
                                     );
 
                                 popup.find( ".guide" ).on( "click", function() {
+									var url = controller.options.hwt > 63 ?
+										"https://opensprinkler.freshdesk.com/support/solutions/articles/5000631599-installing-and-updating-the-unified-firmware#upgrade"
+										: "https://opensprinkler.freshdesk.com/support/solutions/articles/5000381694-update-opensprinkler-firmware-with-downloads-";
 
                                     // Open the firmware upgrade guide in a child browser
-                                    $( "<a class='hidden iab' href='https://opensprinkler.freshdesk.com/support/solutions/articles/5000381694-update-opensprinkler-firmware-with-downloads-'></a>" )
+                                    $( "<a class='hidden iab' href='" + url + "'></a>" )
 										.appendTo( popup ).click();
                                 } );
 
