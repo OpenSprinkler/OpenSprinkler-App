@@ -3,7 +3,7 @@
 &nbsp;[Official Site][official] | [Support][help] | [Changelog][changelog]  
 &nbsp;&copy; 2013-2014 [Samer Albahra][salbahra] ([@salbahra](https://twitter.com/salbahra))  
 <br>
-A mobile interface for the OpenSprinkler irrigation device. Designed to allow manual control, program management (view, edit, delete and add), initiation of a run-once program, viewing device status, adjusting rain delay, and changing of OpenSprinkler settings.
+A mobile interface for the OpenSprinkler irrigation device. Designed to allow manual control, program management (view, edit, delete and add), initiation of a run-once program, viewing device status, adjusting rain delay, changing of OpenSprinkler settings and much more.
   
 ---
 
@@ -35,13 +35,15 @@ A mobile interface for the OpenSprinkler irrigation device. Designed to allow ma
   + [Google Web Store](https://chrome.google.com/webstore/detail/sprinklers/iegciplggbmhpihoeamfpjdedihblhhp)
   + [Windows Phone Store](http://www.windowsphone.com/en-us/store/app/sprinklers/3dbc5da0-b33f-4ca8-9e54-e80febf0a0c5)
 
-+ This application interfaces with the interval program on the OpenSprinkler which is the default software available. The application has been tested and is compatible with all firmware versions of the interval program, both Arduino and OSPi.
++ This application interfaces with OpenSprinkler. The application has been tested and is compatible with all versions of the Unified firmware for both Arduino and Raspberry Pi. Furthermore, Dan Kimberling's OSPi program is also supported.
 
 + The application is written in Javascript and HTML/CSS. The application runs completely within the user's browser (or webview) and communicates directly with the OpenSprinkler.
 
-+ For advanced users, the application supports authentication (HTTP Basic) and SSL for devices behind proxies. Guide for OSPi available [here](http://rayshobby.net/mediawiki/index.php?title=Secure_Remote_Access).
++ Language translation is crowd sourced using Get Localization. To contribute to any language please visit our Get Localization [page](http://getlocalization.com/OpenSprinkler).
 
 + For current discussion about the project please refer to the [forums](https://opensprinkler.com/forums/forum/opensprinkler-mobile-app/).
+
++ For advanced users, the application supports authentication (HTTP Basic) and SSL for devices behind proxies. Guide for OSPi available [here](http://rayshobby.net/mediawiki/index.php?title=Secure_Remote_Access).
 
 ---
 
@@ -52,6 +54,6 @@ Starting with firmware 2.0.3, an option has been added to change the Javascript 
 > Firmware 2.1.0 and newer have the following settings by default.
 
  1. Navigate to http://x.x.x.x/su (replace x.x.x.x with your OpenSprinkler IP)
- 2. For "Javascript URL" field use the following: http://ui.opensprinkler.com/js
+ 2. For "Javascript URL" field use the following: https://ui.opensprinkler.com/js
  3. Enter your password in the field and push "Submit"
  4. Your page will reload and you will now see the application
