@@ -7918,18 +7918,20 @@ function importConfig( data ) {
             } )
         ).then(
             function() {
-                updateController(
-                    function() {
-                        $.mobile.loading( "hide" );
-                        showerror( _( "Backup restored to your device" ) );
-                        updateWeather();
-                        goHome( true );
-                    },
-                    function() {
-                        $.mobile.loading( "hide" );
-                        networkFail();
-                    }
-                );
+				setTimeout( function() {
+	                updateController(
+	                    function() {
+	                        $.mobile.loading( "hide" );
+	                        showerror( _( "Backup restored to your device" ) );
+	                        updateWeather();
+	                        goHome( true );
+	                    },
+	                    function() {
+	                        $.mobile.loading( "hide" );
+	                        networkFail();
+	                    }
+	                );
+				}, 1500 );
             },
             function() {
                 $.mobile.loading( "hide" );
