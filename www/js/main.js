@@ -3019,6 +3019,7 @@ function testAPIKey( key, callback ) {
     } );
 }
 
+// Panel functions
 function bindPanel() {
     var panel = $( "#sprinklers-settings" ),
         operation = function() {
@@ -4105,14 +4106,14 @@ function showOptions( expandItem ) {
     $.mobile.pageContainer.append( page );
 }
 
-function showHomeMenu( btn ) {
-    btn = btn instanceof $ ? btn : $( btn );
+var showHomeMenu = ( function() {
 
-    $( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
+	var page, id, showHidden, popup;
 
-    var page = $( ".ui-page-active" ),
-        id = page.attr( "id" ),
-        showHidden = page.hasClass( "show-hidden" ),
+	function makeMenu() {
+		page = $( ".ui-page-active" );
+        id = page.attr( "id" );
+        showHidden = page.hasClass( "show-hidden" );
         popup = $( "<div data-role='popup' data-overlay-theme='b' data-theme='a' id='mainMenu'>" +
             "<ul data-role='listview' data-inset='true' data-corners='false'>" +
                 "<li data-role='list-divider'>" + _( "Information" ) + "</li>" +
@@ -4134,71 +4135,76 @@ function showHomeMenu( btn ) {
                 "</div>"
                 : "<li><a class='ui-btn red' href='#stop-all'>" + _( "Stop All Stations" ) + "</a></li></ul>" ) +
         "</div>" );
+	}
 
-    popup.on( "click", "a", function() {
-        var clicked = $( this ),
-            href = clicked.attr( "href" );
+	function begin( btn ) {
+	    btn = btn instanceof $ ? btn : $( btn );
 
-        popup.popup( "close" );
+	    $( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
 
-        if ( href === "#stop-all" ) {
-            areYouSure( _( "Are you sure you want to stop all stations?" ), "", function() {
-                $.mobile.loading( "show" );
-                sendToOS( "/cv?pw=&rsn=1" ).done( function() {
-                    $.mobile.loading( "hide" );
-                    refreshStatus();
-                    showerror( _( "All stations have been stopped" ) );
-                } );
-            } );
-        } else if ( href === "#show-hidden" ) {
-            if ( showHidden ) {
-                $( ".station-hidden" ).hide();
-                page.removeClass( "show-hidden" );
-            } else {
-                $( ".station-hidden" ).show();
-                page.addClass( "show-hidden" );
-            }
-        } else if ( href === "#raindelay" ) {
-            showDurationBox( {
-                title: _( "Change Rain Delay" ),
-                callback: raindelay,
-                label: _( "Duration" ),
-                maximum: 31536000,
-                granularity: 2,
-                preventCompression: true,
-                incrementalUpdate: false,
-                updateOnChange: false,
-                helptext:
-					_( "Enable manual rain delay by entering a value into the input below. To turn off a currently enabled rain delay use a value of 0." )
-            } );
-        } else {
-            checkChanges( function() {
-                changePage( href );
-            } );
-        }
+	    makeMenu();
 
-        return false;
-    } );
+	    popup.on( "click", "a", function() {
+	        var clicked = $( this ),
+	            href = clicked.attr( "href" );
 
-    $( "#mainMenu" ).remove();
+	        popup.popup( "close" );
 
-    popup.one( "popupafterclose", function() {
-        btn.show();
-    } );
+	        if ( href === "#stop-all" ) {
+	            areYouSure( _( "Are you sure you want to stop all stations?" ), "", function() {
+	                $.mobile.loading( "show" );
+	                sendToOS( "/cv?pw=&rsn=1" ).done( function() {
+	                    $.mobile.loading( "hide" );
+	                    refreshStatus();
+	                    showerror( _( "All stations have been stopped" ) );
+	                } );
+	            } );
+	        } else if ( href === "#show-hidden" ) {
+	            if ( showHidden ) {
+	                $( ".station-hidden" ).hide();
+	                page.removeClass( "show-hidden" );
+	            } else {
+	                $( ".station-hidden" ).show();
+	                page.addClass( "show-hidden" );
+	            }
+	        } else if ( href === "#raindelay" ) {
+	            showDurationBox( {
+	                title: _( "Change Rain Delay" ),
+	                callback: raindelay,
+	                label: _( "Duration" ),
+	                maximum: 31536000,
+	                granularity: 2,
+	                preventCompression: true,
+	                incrementalUpdate: false,
+	                updateOnChange: false,
+	                helptext:
+						_( "Enable manual rain delay by entering a value into the input below. To turn off a currently enabled rain delay use a value of 0." )
+	            } );
+	        } else {
+	            checkChanges( function() {
+	                changePage( href );
+	            } );
+	        }
 
-    openPopup( popup, { positionTo: btn } );
+	        return false;
+	    } );
 
-    btn.hide();
-}
+	    $( "#mainMenu" ).remove();
 
-function showHome( firstLoad ) {
-    if ( !isDeviceConnected() ) {
-        return false;
-    }
+	    popup.one( "popupafterclose", function() {
+	        btn.show();
+	    } );
 
-    var cards = "",
-        siteSelect = $( "#site-selector" ),
-        page = $( "<div data-role='page' id='sprinklers'>" +
+	    openPopup( popup, { positionTo: btn } );
+
+	    btn.hide();
+	}
+
+	return begin;
+} )();
+
+var showHome = ( function() {
+    var page = $( "<div data-role='page' id='sprinklers'>" +
             "<div class='ui-panel-wrapper'>" +
                 "<div class='ui-content' role='main'>" +
                     "<div class='ui-grid-a ui-body ui-corner-all info-card noweather'>" +
@@ -4206,15 +4212,15 @@ function showHome( firstLoad ) {
                             "<div id='weather' class='pointer'></div>" +
                         "</div>" +
                         "<div class='ui-block-b center home-info pointer'>" +
-                            "<span class='sitename bold" + ( currLocal ? " hidden" : "" ) + "'>" + siteSelect.val() + "</span>" +
-                            "<div id='clock-s' class='nobr'>" + dateToString( new Date( controller.settings.devt * 1000 ), null, true ) + "</div>" +
-                            _( "Water Level" ) + ": <span class='waterlevel'>" + controller.options.wl + "</span>%" +
+                            "<span class='sitename bold'></span>" +
+                            "<div id='clock-s' class='nobr'></div>" +
+                            _( "Water Level" ) + ": <span class='waterlevel'></span>%" +
                         "</div>" +
                     "</div>" +
                 "</div>" +
             "</div>" +
         "</div>" ),
-        addTimer = function( station, rem ) {
+		addTimer = function( station, rem ) {
             timers["station-" + station] = {
                 val: rem,
                 station: station,
@@ -4576,125 +4582,140 @@ function showHome( firstLoad ) {
 
             reorderCards();
         },
-        hasMaster = controller.options.mas ? true : false,
-        hasMaster2 = controller.options.mas2 ? true : false,
-        hasIR = ( typeof controller.stations.ignore_rain === "object" ) ? true : false,
-        hasAR = ( typeof controller.stations.act_relay === "object" ) ? true : false,
-        hasSD = ( typeof controller.stations.stn_dis === "object" ) ? true : false,
-        hasSequential = ( typeof controller.stations.stn_seq === "object" ) ? true : false,
-        i;
+	    hasMaster, hasMaster2, hasIR, hasAR, hasSD, hasSequential, cards, siteSelect, i;
 
-    updateClock();
+	function begin( firstLoad ) {
+	    if ( !isDeviceConnected() ) {
+	        return false;
+	    }
 
-    for ( i = 0; i < controller.stations.snames.length; i++ ) {
-        addCard( i );
-    }
+        hasMaster = controller.options.mas ? true : false;
+        hasMaster2 = controller.options.mas2 ? true : false;
+        hasIR = ( typeof controller.stations.ignore_rain === "object" ) ? true : false;
+        hasAR = ( typeof controller.stations.act_relay === "object" ) ? true : false;
+        hasSD = ( typeof controller.stations.stn_dis === "object" ) ? true : false;
+        hasSequential = ( typeof controller.stations.stn_seq === "object" ) ? true : false;
 
-    page.find( ".ui-content" ).append( "<div id='os-running-stations'></div><hr style='display:none' class='content-divider'>" +
-		"<div id='os-stations-list' class='card-group center'>" + cards + "</div>" );
-    reorderCards();
-    page.on( "datarefresh", updateContent );
-    page.on( "click", ".station-settings", showAttributes );
-    page.on( "click", ".home-info", function() {
-        changePage( "#os-options", {
-            expandItem: "weather"
-        } );
-        return false;
-    } );
+		cards = "";
+        siteSelect = $( "#site-selector" );
 
-    page.on( "click", ".card", function() {
+		page.find( ".sitename" ).toggleClass( "hidden", currLocal ? true : false ).text( siteSelect.val() );
+		page.find( ".waterlevel" ).text( controller.options.wl );
 
-        // Bind delegate handler to stop specific station (supported on firmware 2.1.0+ on Arduino)
-        if ( !checkOSVersion( 210 ) ) {
-            return false;
-        }
+	    updateClock();
 
-        var el = $( this ),
-            station = el.data( "station" ),
-            currentStatus = controller.status[station],
-            name = controller.stations.snames[station],
-            question;
+	    for ( i = 0; i < controller.stations.snames.length; i++ ) {
+	        addCard( i );
+	    }
 
-        if ( isStationMaster( station ) ) {
-            return false;
-        }
+	    page.find( ".ui-content" ).append( "<div id='os-running-stations'></div><hr style='display:none' class='content-divider'>" +
+			"<div id='os-stations-list' class='card-group center'>" + cards + "</div>" );
+	    reorderCards();
+	    page.on( "datarefresh", updateContent );
+	    page.on( "click", ".station-settings", showAttributes );
+	    page.on( "click", ".home-info", function() {
+	        changePage( "#os-options", {
+	            expandItem: "weather"
+	        } );
+	        return false;
+	    } );
 
-        if ( currentStatus ) {
-            question = _( "Do you want to stop the selected station?" );
-        } else {
-            if ( el.find( "span.nobr" ).length ) {
-                question = _( "Do you want to unschedule the selected station?" );
-            } else {
-                showDurationBox( {
-                    title: name,
-                    incrementalUpdate: false,
-                    maximum: 65535,
-                    helptext: _( "Enter a duration to manually run " + name ),
-                    callback: function( duration ) {
-                        sendToOS( "/cm?sid=" + station + "&en=1&t=" + duration + "&pw=", "json" ).done( function() {
+	    page.on( "click", ".card", function() {
 
-                            // Update local state until next device refresh occurs
-                            controller.settings.ps[station][0] = 99;
-                            controller.settings.ps[station][1] = duration;
+	        // Bind delegate handler to stop specific station (supported on firmware 2.1.0+ on Arduino)
+	        if ( !checkOSVersion( 210 ) ) {
+	            return false;
+	        }
 
-                            refreshStatus();
-                            showerror( _( "Station has been queued" ) );
-                        } );
-                    }
-                } );
-                return;
-            }
-        }
-        areYouSure( question, controller.stations.snames[station], function() {
-            sendToOS( "/cm?sid=" + station + "&en=0&pw=" ).done( function() {
+	        var el = $( this ),
+	            station = el.data( "station" ),
+	            currentStatus = controller.status[station],
+	            name = controller.stations.snames[station],
+	            question;
 
-                // Update local state until next device refresh occurs
-                controller.settings.ps[station][0] = 0;
-                controller.settings.ps[station][1] = 0;
-                controller.status[i] = 0;
+	        if ( isStationMaster( station ) ) {
+	            return false;
+	        }
 
-                refreshStatus();
-                showerror( _( "Station has been stopped" ) );
-            } );
-        } );
-    } );
+	        if ( currentStatus ) {
+	            question = _( "Do you want to stop the selected station?" );
+	        } else {
+	            if ( el.find( "span.nobr" ).length ) {
+	                question = _( "Do you want to unschedule the selected station?" );
+	            } else {
+	                showDurationBox( {
+	                    title: name,
+	                    incrementalUpdate: false,
+	                    maximum: 65535,
+	                    helptext: _( "Enter a duration to manually run " + name ),
+	                    callback: function( duration ) {
+	                        sendToOS( "/cm?sid=" + station + "&en=1&t=" + duration + "&pw=", "json" ).done( function() {
 
-    page.on( {
-        pagebeforeshow: function() {
-            var header = changeHeader( {
-                class: "logo",
-                leftBtn: {
-                    icon: "bullets",
-                    on: function() {
-                        openPanel();
-                        return false;
-                    }
-                },
-                rightBtn: {
-                    icon: "bell",
-                    class: "notifications",
-                    text: "<span class='notificationCount ui-li-count ui-btn-corner-all'>" + notifications.length + "</span>",
-                    on: function() {
-                        showNotifications();
-                        return false;
-                    }
-                },
-                animate: ( firstLoad ? false : true )
-            } );
+	                            // Update local state until next device refresh occurs
+	                            controller.settings.ps[station][0] = 99;
+	                            controller.settings.ps[station][1] = duration;
 
-            if ( notifications.length === 0 ) {
-                $( header[2] ).hide();
-            }
-        }
-    } );
+	                            refreshStatus();
+	                            showerror( _( "Station has been queued" ) );
+	                        } );
+	                    }
+	                } );
+	                return;
+	            }
+	        }
+	        areYouSure( question, controller.stations.snames[station], function() {
+	            sendToOS( "/cm?sid=" + station + "&en=0&pw=" ).done( function() {
 
-    $( "#sprinklers" ).remove();
-    $.mobile.pageContainer.append( page );
+	                // Update local state until next device refresh occurs
+	                controller.settings.ps[station][0] = 0;
+	                controller.settings.ps[station][1] = 0;
+	                controller.status[i] = 0;
 
-    if ( !$.isEmptyObject( weather ) ) {
-        updateWeatherBox();
-    }
-}
+	                refreshStatus();
+	                showerror( _( "Station has been stopped" ) );
+	            } );
+	        } );
+	    } );
+
+	    page.on( {
+	        pagebeforeshow: function() {
+	            var header = changeHeader( {
+	                class: "logo",
+	                leftBtn: {
+	                    icon: "bullets",
+	                    on: function() {
+	                        openPanel();
+	                        return false;
+	                    }
+	                },
+	                rightBtn: {
+	                    icon: "bell",
+	                    class: "notifications",
+	                    text: "<span class='notificationCount ui-li-count ui-btn-corner-all'>" + notifications.length + "</span>",
+	                    on: function() {
+	                        showNotifications();
+	                        return false;
+	                    }
+	                },
+	                animate: ( firstLoad ? false : true )
+	            } );
+
+	            if ( notifications.length === 0 ) {
+	                $( header[2] ).hide();
+	            }
+	        }
+	    } );
+
+	    $( "#sprinklers" ).remove();
+	    $.mobile.pageContainer.append( page );
+
+	    if ( !$.isEmptyObject( weather ) ) {
+	        updateWeatherBox();
+	    }
+	}
+
+	return begin;
+} )();
 
 var showStart = ( function() {
 	var page = $( "<div data-role='page' id='start'>" +
@@ -5066,7 +5087,7 @@ function updateTimers() {
 }
 
 // Manual control functions
-function getManual() {
+var getManual = ( function() {
     var list = "<li data-role='list-divider' data-theme='a'>" + _( "Sprinkler Stations" ) + "</li>",
         page = $( "<div data-role='page' id='manual'>" +
                 "<div class='ui-content' role='main'>" +
@@ -5075,8 +5096,7 @@ function getManual() {
                         "<legend>" + _( "Options" ) + "</legend>" +
                         "<div class='ui-field-contain'>" +
                             "<label for='mmm'><b>" + _( "Manual Mode" ) + "</b></label>" +
-                            "<input type='checkbox' data-on-text='On' data-off-text='Off' data-role='flipswitch' name='mmm' id='mmm'" +
-								( controller.settings.mm ? " checked" : "" ) + ">" +
+                            "<input type='checkbox' data-on-text='On' data-off-text='Off' data-role='flipswitch' name='mmm' id='mmm'>" +
                         "</div>" +
                         "<p class='rain-desc smaller center' style='padding-top:5px'>" +
 							_( "Station timer prevents a station from running indefinitely and will automatically turn it off after the set duration (or when toggled off)" ) +
@@ -5155,67 +5175,74 @@ function getManual() {
         autoOff = page.find( "#auto-off" ),
         dest, mmlist, listitems;
 
-    $.each( controller.stations.snames, function( i, station ) {
-        if ( isStationMaster( i ) ) {
-            list += "<li data-icon='false' class='center" + ( ( controller.status[i] ) ? " green" : "" ) +
-				( isStationDisabled( i ) ? " station-hidden' style='display:none" : "" ) + "'>" + station + " (" + _( "Master" ) + ")</li>";
-        } else {
-            list += "<li data-icon='false'><a class='mm_station center" + ( ( controller.status[i] ) ? " green" : "" ) +
-				( isStationDisabled( i ) ? " station-hidden' style='display:none" : "" ) + "'>" + station + "</a></li>";
-        }
-    } );
+    function begin() {
+		page.find( "#mmm" ).prop( "checked", controller.settings.mm ? true : false );
 
-    mmlist = $( "<ul data-role='listview' data-inset='true' id='mm_list'>" + list + "</ul>" );
-    listitems = mmlist.children( "li" ).slice( 1 );
-    mmlist.find( ".mm_station" ).on( "vclick", toggle );
-    page.find( ".ui-content" ).append( mmlist );
+	    $.each( controller.stations.snames, function( i, station ) {
+	        if ( isStationMaster( i ) ) {
+	            list += "<li data-icon='false' class='center" + ( ( controller.status[i] ) ? " green" : "" ) +
+					( isStationDisabled( i ) ? " station-hidden' style='display:none" : "" ) + "'>" + station + " (" + _( "Master" ) + ")</li>";
+	        } else {
+	            list += "<li data-icon='false'><a class='mm_station center" + ( ( controller.status[i] ) ? " green" : "" ) +
+					( isStationDisabled( i ) ? " station-hidden' style='display:none" : "" ) + "'>" + station + "</a></li>";
+	        }
+	    } );
 
-    autoOff.on( "click", function() {
-        var dur = $( this ),
-            name = page.find( "label[for='" + dur.attr( "id" ) + "']" ).text();
+	    mmlist = $( "<ul data-role='listview' data-inset='true' id='mm_list'>" + list + "</ul>" );
+	    listitems = mmlist.children( "li" ).slice( 1 );
+	    mmlist.find( ".mm_station" ).on( "vclick", toggle );
+	    page.find( ".ui-content" ).append( mmlist );
 
-        showDurationBox( {
-            seconds: dur.val(),
-            title: name,
-            callback: function( result ) {
-                dur.val( result );
-                dur.text( dhms2str( sec2dhms( result ) ) );
-                storage.set( { "autoOff":result } );
-            },
-            maximum: 32768
-        } );
+	    autoOff.on( "click", function() {
+	        var dur = $( this ),
+	            name = page.find( "label[for='" + dur.attr( "id" ) + "']" ).text();
 
-        return false;
-    } );
-    page.find( "#mmm" ).flipswitch().on( "change", flipSwitched );
-    storage.get( "autoOff", function( data ) {
-        if ( !data.autoOff ) {
-            return;
-        }
-        autoOff.val( data.autoOff );
-        autoOff.text( dhms2str( sec2dhms( data.autoOff ) ) );
-    } );
+	        showDurationBox( {
+	            seconds: dur.val(),
+	            title: name,
+	            callback: function( result ) {
+	                dur.val( result );
+	                dur.text( dhms2str( sec2dhms( result ) ) );
+	                storage.set( { "autoOff":result } );
+	            },
+	            maximum: 32768
+	        } );
 
-    page.one( "pagehide", function() {
-        page.remove();
-    } );
+	        return false;
+	    } );
+	    page.find( "#mmm" ).flipswitch().on( "change", flipSwitched );
+	    storage.get( "autoOff", function( data ) {
+	        if ( !data.autoOff ) {
+	            return;
+	        }
+	        autoOff.val( data.autoOff );
+	        autoOff.text( dhms2str( sec2dhms( data.autoOff ) ) );
+	    } );
 
-    changeHeader( {
-        title: _( "Manual Control" ),
-        leftBtn: {
-            icon: "carat-l",
-            text: _( "Back" ),
-            class: "ui-toolbar-back-btn",
-            on: goBack
-        }
-    } );
+	    page.one( "pagehide", function() {
+	        page.remove();
+	    } );
 
-    $( "#manual" ).remove();
-    $.mobile.pageContainer.append( page );
-}
+	    changeHeader( {
+	        title: _( "Manual Control" ),
+	        leftBtn: {
+	            icon: "carat-l",
+	            text: _( "Back" ),
+	            class: "ui-toolbar-back-btn",
+	            on: goBack
+	        }
+	    } );
+
+	    $( "#manual" ).remove();
+	    $.mobile.pageContainer.append( page );
+    }
+
+    return begin;
+} )();
 
 // Runonce functions
-function getRunonce() {
+var getRunonce = ( function() {
+
     var list = "<p class='center'>" + _( "Zero value excludes the station from the run-once program." ) + "</p>",
         page = $( "<div data-role='page' id='runonce'>" +
             "<div class='ui-content' role='main' id='runonce_list'>" +
@@ -5248,138 +5275,142 @@ function getRunonce() {
         },
         i, quickPick, progs, rprogs, z, program, name;
 
-    progs = [];
-    if ( controller.programs.pd.length ) {
-        for ( z = 0; z < controller.programs.pd.length; z++ ) {
-            program = readProgram( controller.programs.pd[z] );
-            var prog = [];
+    function begin() {
+	    progs = [];
+	    if ( controller.programs.pd.length ) {
+	        for ( z = 0; z < controller.programs.pd.length; z++ ) {
+	            program = readProgram( controller.programs.pd[z] );
+	            var prog = [];
 
-            if ( checkOSVersion( 210 ) ) {
-                prog = program.stations;
-            } else {
-                var setStations = program.stations.split( "" );
-                for ( i = 0; i < controller.stations.snames.length; i++ ) {
-                    prog.push( ( parseInt( setStations[i] ) ) ? program.duration : 0 );
-                }
-            }
+	            if ( checkOSVersion( 210 ) ) {
+	                prog = program.stations;
+	            } else {
+	                var setStations = program.stations.split( "" );
+	                for ( i = 0; i < controller.stations.snames.length; i++ ) {
+	                    prog.push( ( parseInt( setStations[i] ) ) ? program.duration : 0 );
+	                }
+	            }
 
-            progs.push( prog );
-        }
-    }
-    rprogs = progs;
+	            progs.push( prog );
+	        }
+	    }
+	    rprogs = progs;
 
-    quickPick = "<select data-mini='true' name='rprog' id='rprog'>" +
-		"<option value='t'>" + _( "Test All Stations" ) + "</option><option value='s' selected='selected'>" + _( "Quick Programs" ) + "</option>";
+	    quickPick = "<select data-mini='true' name='rprog' id='rprog'>" +
+			"<option value='t'>" + _( "Test All Stations" ) + "</option><option value='s' selected='selected'>" + _( "Quick Programs" ) + "</option>";
 
-    for ( i = 0; i < progs.length; i++ ) {
-        if ( checkOSVersion( 210 ) ) {
-            name = controller.programs.pd[i][5];
-        } else {
-            name = _( "Program" ) + " " + ( i + 1 );
-        }
-        quickPick += "<option value='" + i + "'>" + name + "</option>";
-    }
-    quickPick += "</select>";
-    list += quickPick + "<form>";
-    $.each( controller.stations.snames, function( i, station ) {
-        if ( isStationMaster( i ) ) {
-            list += "<div class='ui-field-contain duration-input" + ( isStationDisabled( i ) ? " station-hidden' style='display:none" : "" ) + "'>" +
-				"<label for='zone-" + i + "'>" + station + ":</label>" +
-				"<button disabled='true' data-mini='true' name='zone-" + i + "' id='zone-" + i + "' value='0'>Master</button></div>";
-        } else {
-            list += "<div class='ui-field-contain duration-input" + ( isStationDisabled( i ) ? " station-hidden' style='display:none" : "" ) + "'>" +
-				"<label for='zone-" + i + "'>" + station + ":</label>" +
-				"<button data-mini='true' name='zone-" + i + "' id='zone-" + i + "' value='0'>0s</button></div>";
-        }
-    } );
+	    for ( i = 0; i < progs.length; i++ ) {
+	        if ( checkOSVersion( 210 ) ) {
+	            name = controller.programs.pd[i][5];
+	        } else {
+	            name = _( "Program" ) + " " + ( i + 1 );
+	        }
+	        quickPick += "<option value='" + i + "'>" + name + "</option>";
+	    }
+	    quickPick += "</select>";
+	    list += quickPick + "<form>";
+	    $.each( controller.stations.snames, function( i, station ) {
+	        if ( isStationMaster( i ) ) {
+	            list += "<div class='ui-field-contain duration-input" + ( isStationDisabled( i ) ? " station-hidden' style='display:none" : "" ) + "'>" +
+					"<label for='zone-" + i + "'>" + station + ":</label>" +
+					"<button disabled='true' data-mini='true' name='zone-" + i + "' id='zone-" + i + "' value='0'>Master</button></div>";
+	        } else {
+	            list += "<div class='ui-field-contain duration-input" + ( isStationDisabled( i ) ? " station-hidden' style='display:none" : "" ) + "'>" +
+					"<label for='zone-" + i + "'>" + station + ":</label>" +
+					"<button data-mini='true' name='zone-" + i + "' id='zone-" + i + "' value='0'>0s</button></div>";
+	        }
+	    } );
 
-    list += "</form><a class='ui-btn ui-corner-all ui-shadow rsubmit' href='#'>" + _( "Submit" ) + "</a>" +
-		"<a class='ui-btn ui-btn-b ui-corner-all ui-shadow rreset' href='#'>" + _( "Reset" ) + "</a>";
+	    list += "</form><a class='ui-btn ui-corner-all ui-shadow rsubmit' href='#'>" + _( "Submit" ) + "</a>" +
+			"<a class='ui-btn ui-btn-b ui-corner-all ui-shadow rreset' href='#'>" + _( "Reset" ) + "</a>";
 
-    page.find( ".ui-content" ).html( list );
+	    page.find( ".ui-content" ).html( list );
 
-    if ( typeof controller.settings.rodur === "object" ) {
-        var total = 0;
+	    if ( typeof controller.settings.rodur === "object" ) {
+	        var total = 0;
 
-        for ( i = 0; i < controller.settings.rodur.length; i++ ) {
-            total += controller.settings.rodur[i];
-        }
+	        for ( i = 0; i < controller.settings.rodur.length; i++ ) {
+	            total += controller.settings.rodur[i];
+	        }
 
-        if ( total !== 0 ) {
-            updateLastRun( controller.settings.rodur );
-        }
-    } else {
-        storage.get( "runonce", function( data ) {
-            data = data.runonce;
-            if ( data ) {
-                data = JSON.parse( data );
-                updateLastRun( data );
-            }
-        } );
-    }
+	        if ( total !== 0 ) {
+	            updateLastRun( controller.settings.rodur );
+	        }
+	    } else {
+	        storage.get( "runonce", function( data ) {
+	            data = data.runonce;
+	            if ( data ) {
+	                data = JSON.parse( data );
+	                updateLastRun( data );
+	            }
+	        } );
+	    }
 
-    page.find( "#rprog" ).on( "change", function() {
-        var prog = $( this ).val();
-        if ( prog === "s" ) {
-            resetRunonce();
-            return;
-        } else if ( prog === "t" ) {
-            fillRunonce( Array.apply( null, Array( controller.stations.snames.length ) ).map( function() {return 60;} ) );
-            return;
-        }
-        if ( typeof rprogs[prog] === "undefined" ) {
-            return;
-        }
-        fillRunonce( rprogs[prog] );
-    } );
+	    page.find( "#rprog" ).on( "change", function() {
+	        var prog = $( this ).val();
+	        if ( prog === "s" ) {
+	            resetRunonce();
+	            return;
+	        } else if ( prog === "t" ) {
+	            fillRunonce( Array.apply( null, Array( controller.stations.snames.length ) ).map( function() {return 60;} ) );
+	            return;
+	        }
+	        if ( typeof rprogs[prog] === "undefined" ) {
+	            return;
+	        }
+	        fillRunonce( rprogs[prog] );
+	    } );
 
-    page.on( "click", ".rsubmit", submitRunonce ).on( "click", ".rreset", resetRunonce );
+	    page.on( "click", ".rsubmit", submitRunonce ).on( "click", ".rreset", resetRunonce );
 
-    page.find( "[id^='zone-']" ).on( "click", function() {
-        var dur = $( this ),
-            name = page.find( "label[for='" + dur.attr( "id" ) + "']" ).text().slice( 0, -1 );
+	    page.find( "[id^='zone-']" ).on( "click", function() {
+	        var dur = $( this ),
+	            name = page.find( "label[for='" + dur.attr( "id" ) + "']" ).text().slice( 0, -1 );
 
-        showDurationBox( {
-            seconds: dur.val(),
-            title: name,
-            callback: function( result ) {
-                dur.val( result );
-                dur.text( getDurationText( result ) );
-                if ( result > 0 ) {
-                    dur.addClass( "green" );
-                } else {
-                    dur.removeClass( "green" );
-                }
-            },
-            maximum: 65535,
-            showSun: checkOSVersion( 214 ) ? true : false
-        } );
+	        showDurationBox( {
+	            seconds: dur.val(),
+	            title: name,
+	            callback: function( result ) {
+	                dur.val( result );
+	                dur.text( getDurationText( result ) );
+	                if ( result > 0 ) {
+	                    dur.addClass( "green" );
+	                } else {
+	                    dur.removeClass( "green" );
+	                }
+	            },
+	            maximum: 65535,
+	            showSun: checkOSVersion( 214 ) ? true : false
+	        } );
 
-        return false;
-    } );
+	        return false;
+	    } );
 
-    page.one( "pagehide", function() {
-        page.remove();
-    } );
+	    page.one( "pagehide", function() {
+	        page.remove();
+	    } );
 
-    changeHeader( {
-        title: _( "Run-Once" ),
-        leftBtn: {
-            icon: "carat-l",
-            text: _( "Back" ),
-            class: "ui-toolbar-back-btn",
-            on: goBack
-        },
-        rightBtn: {
-            icon: "check",
-            text: _( "Submit" ),
-            on: submitRunonce
-        }
-    } );
+	    changeHeader( {
+	        title: _( "Run-Once" ),
+	        leftBtn: {
+	            icon: "carat-l",
+	            text: _( "Back" ),
+	            class: "ui-toolbar-back-btn",
+	            on: goBack
+	        },
+	        rightBtn: {
+	            icon: "check",
+	            text: _( "Submit" ),
+	            on: submitRunonce
+	        }
+	    } );
 
-    $( "#runonce" ).remove();
-    $.mobile.pageContainer.append( page );
-}
+	    $( "#runonce" ).remove();
+	    $.mobile.pageContainer.append( page );
+	}
+
+	return begin;
+} )();
 
 function submitRunonce( runonce ) {
     if ( !( runonce instanceof Array ) ) {
@@ -6023,17 +6054,14 @@ function getStationDuration( duration, date ) {
 }
 
 // Logging functions
-function getLogs() {
-    var now = new Date( controller.settings.devt * 1000 ),
-        isNarrow = $.mobile.window.width() < 640 ? true : false,
-        page = $( "<div data-role='page' id='logs'>" +
+var getLogs = ( function() {
+
+    var page = $( "<div data-role='page' id='logs'>" +
             "<div class='ui-content' role='main'>" +
                 "<fieldset data-role='controlgroup' data-type='horizontal' data-mini='true' class='log_type'>" +
-                    "<input data-mini='true' type='radio' name='log_type' id='log_timeline' value='timeline'" +
-						( isNarrow ? "" : " checked='checked'" ) + ">" +
+                    "<input data-mini='true' type='radio' name='log_type' id='log_timeline' value='timeline'>" +
                     "<label for='log_timeline'>" + _( "Timeline" ) + "</label>" +
-                    "<input data-mini='true' type='radio' name='log_type' id='log_table' value='table'" +
-						( !isNarrow ? "" : " checked='checked'" ) + ">" +
+                    "<input data-mini='true' type='radio' name='log_type' id='log_table' value='table'>" +
                     "<label for='log_table'>" + _( "Table" ) + "</label>" +
                 "</fieldset>" +
                 "<fieldset data-role='collapsible' data-mini='true' id='log_options' class='center'>" +
@@ -6047,14 +6075,14 @@ function getLogs() {
                     "</fieldset>" +
                     "<div class='ui-field-contain'>" +
                         "<label for='log_start'>" + _( "Start:" ) + "</label>" +
-                        "<input data-mini='true' type='date' id='log_start' value='" +
-							( new Date( now.getTime() - 604800000 ).toISOString().slice( 0, 10 ) ) + "'>" +
+                        "<input data-mini='true' type='date' id='log_start'>" +
                         "<label for='log_end'>" + _( "End:" ) + "</label>" +
-                        "<input data-mini='true' type='date' id='log_end' value='" + ( now.toISOString().slice( 0, 10 ) ) + "'>" +
+                        "<input data-mini='true' type='date' id='log_end'>" +
                     "</div>" +
                     "<a data-role='button' data-icon='action' class='export_logs' href='#' data-mini='true'>" + _( "Export" ) + "</a>" +
-                    ( isOSPi() || checkOSVersion( 210 ) ? "<a data-role='button' class='red clear_logs' href='#' data-mini='true' data-icon='alert'>" +
-						_( "Clear Logs" ) + "</a>" : "" ) +
+                    "<a data-role='button' class='red clear_logs' href='#' data-mini='true' data-icon='alert'>" +
+						_( "Clear Logs" ) +
+					"</a>" +
                 "</fieldset>" +
                 "<div id='logs_list' class='center'>" +
                 "</div>" +
@@ -6065,7 +6093,6 @@ function getLogs() {
         logOptions = page.find( "#log_options" ),
         data = [],
         waterlog = [],
-        stations = $.merge( $.merge( [], controller.stations.snames ), [ _( "Rain Sensor" ), _( "Rain Delay" ) ] ),
         sortData = function( type, grouping ) {
             var sortedData = [];
 
@@ -6385,66 +6412,82 @@ function getLogs() {
                 ).then( success, fail );
             }, delay );
         },
-        logtimeout, i;
+        stations, now, isNarrow, logtimeout, i;
 
-    page.find( "input" ).blur();
+    function begin() {
+	    page.find( "input" ).blur();
 
-    // Bind clear logs button
-    page.find( ".clear_logs" ).on( "click", function() {
-        areYouSure( _( "Are you sure you want to clear ALL your log data?" ), "", function() {
-            var url = isOSPi() ? "/cl?pw=" : "/dl?pw=&day=all";
-            $.mobile.loading( "show" );
-            sendToOS( url ).done( function() {
-                requestData();
-                showerror( _( "Logs have been cleared" ) );
-            } );
-        } );
-        return false;
-    } );
+		stations = $.merge( $.merge( [], controller.stations.snames ), [ _( "Rain Sensor" ), _( "Rain Delay" ) ] );
 
-    //Automatically update the log viewer when changing the date range
-    if ( isiOS ) {
-        page.find( "#log_start,#log_end" ).on( "blur", requestData );
-    } else {
-        page.find( "#log_start,#log_end" ).change( function() {
-            clearTimeout( logtimeout );
-            logtimeout = setTimeout( requestData, 1000 );
-        } );
-    }
+		now = new Date( controller.settings.devt * 1000 );
+		isNarrow = $.mobile.window.width() < 640 ? true : false;
 
-    //Automatically update log viewer when switching table sort
-    tableSort.find( "input[name='table-group']" ).change( function() {
-        prepTable();
-    } );
+		page.find( "#log_timeline" ).prop( "checked", !isNarrow );
+		page.find( "#log_table" ).prop( "checked", isNarrow );
+		page.find( "#log_start" ).val( new Date( now.getTime() - 604800000 ).toISOString().slice( 0, 10 ) );
+		page.find( "#log_end" ).val( now.toISOString().slice( 0, 10 ) );
 
-    //Bind view change buttons
-    page.find( "input:radio[name='log_type']" ).change( updateView );
+	    // Bind clear logs button
+	    page.find( ".clear_logs" )
+		    .toggleClass( "hidden", ( isOSPi() || checkOSVersion( 210 ) ?  false : true ) )
+			.on( "click", function() {
+		        areYouSure( _( "Are you sure you want to clear ALL your log data?" ), "", function() {
+		            var url = isOSPi() ? "/cl?pw=" : "/dl?pw=&day=all";
+		            $.mobile.loading( "show" );
+		            sendToOS( url ).done( function() {
+		                requestData();
+		                showerror( _( "Logs have been cleared" ) );
+		            } );
+		        } );
+		        return false;
+		    } );
 
-    page.one( {
-        pagehide: function() {
-            page.remove();
-        },
-        pageshow: requestData
-    } );
+	    //Automatically update the log viewer when changing the date range
+	    if ( isiOS ) {
+	        page.find( "#log_start,#log_end" ).on( "blur", requestData );
+	    } else {
+	        page.find( "#log_start,#log_end" ).change( function() {
+	            clearTimeout( logtimeout );
+	            logtimeout = setTimeout( requestData, 1000 );
+	        } );
+	    }
 
-    changeHeader( {
-        title: _( "Logs" ),
-        leftBtn: {
-            icon: "carat-l",
-            text: _( "Back" ),
-            class: "ui-toolbar-back-btn",
-            on: goBack
-        },
-        rightBtn: {
-            icon: "refresh",
-            text: _( "Refresh" ),
-            on: requestData
-        }
-    } );
+	    //Automatically update log viewer when switching table sort
+	    tableSort.find( "input[name='table-group']" ).change( function() {
+	        prepTable();
+	    } );
 
-    $( "#logs" ).remove();
-    $.mobile.pageContainer.append( page );
-}
+	    //Bind view change buttons
+	    page.find( "input:radio[name='log_type']" ).change( updateView );
+
+	    page.one( {
+	        pagehide: function() {
+	            page.remove();
+	        },
+	        pageshow: requestData
+	    } );
+
+	    changeHeader( {
+	        title: _( "Logs" ),
+	        leftBtn: {
+	            icon: "carat-l",
+	            text: _( "Back" ),
+	            class: "ui-toolbar-back-btn",
+	            on: goBack
+	        },
+	        rightBtn: {
+	            icon: "refresh",
+	            text: _( "Refresh" ),
+	            on: requestData
+	        }
+	    } );
+
+	    $( "#logs" ).remove();
+	    $.mobile.pageContainer.append( page );
+	}
+
+    return begin;
+} )();
 
 // Program management functions
 function getPrograms( pid ) {
@@ -7897,7 +7940,8 @@ function importConfig( data ) {
 }
 
 // About page
-function showAbout() {
+var showAbout = ( function() {
+
     var page = $( "<div data-role='page' id='about'>" +
             "<div class='ui-content' role='main'>" +
                 "<ul data-role='listview' data-inset='true'>" +
@@ -7931,29 +7975,40 @@ function showAbout() {
                 "</ul>" +
                 "<p class='smaller'>" +
                     _( "App Version" ) + ": 1.4.4" +
-                    ( typeof controller.options.hwv !== "undefined" ? "<br>" + _( "Hardware Version" ) + ": " + getHWVersion() + getHWType() : "" ) +
-                    "<br>" + _( "Firmware" ) + ": " + getOSVersion() + getOSMinorVersion() +
+                    "<br>" + _( "Firmware" ) + ": <span class='firmware'></span>" +
+                    "<br><span class='hardwareLabel'>" + _( "Hardware Version" ) + ":</span> <span class='hardware'></span>" +
                 "</p>" +
             "</div>" +
-        "</div>" );
+        "</div>" ),
+		showHardware;
 
-    page.one( "pagehide", function() {
-        page.remove();
-    } );
+	function begin() {
+		showHardware = typeof controller.options.hwv !== "undefined" ? false : true;
+		page.find( ".hardware" ).toggleClass( "hidden", showHardware ).text( getHWVersion() + getHWType() );
+		page.find( ".hardwareLabel" ).toggleClass( "hidden", showHardware );
 
-    changeHeader( {
-        title: _( "About" ),
-        leftBtn: {
-            icon: "carat-l",
-            text: _( "Back" ),
-            class: "ui-toolbar-back-btn",
-            on: goBack
-        }
-    } );
+		page.find( ".firmware" ).text( getOSVersion() + getOSMinorVersion() );
 
-    $( "#about" ).remove();
-    $.mobile.pageContainer.append( page );
-}
+	    page.one( "pagehide", function() {
+	        page.remove();
+	    } );
+
+	    changeHeader( {
+	        title: _( "About" ),
+	        leftBtn: {
+	            icon: "carat-l",
+	            text: _( "Back" ),
+	            class: "ui-toolbar-back-btn",
+	            on: goBack
+	        }
+	    } );
+
+	    $( "#about" ).remove();
+	    $.mobile.pageContainer.append( page );
+	}
+
+	return begin;
+} )();
 
 // OpenSprinkler controller methods
 function isRunning() {
