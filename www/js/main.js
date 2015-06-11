@@ -6763,7 +6763,7 @@ function readProgram21( program ) {
 function getStartTime( time, date ) {
     var offset = time & 0x7ff,
         type = 0,
-        times = getSunTimes( time, date );
+        times = getSunTimes( date );
 
     if ( time < 0 ) {
         return time;
