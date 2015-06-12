@@ -8,7 +8,7 @@ if [ $1 == "start" ]; then
 	fi
 	cd ospi
 	#Change port to 8080
-	sed -i '' 's/"htp": 80,/"htp": 8080,/' data/sd.json
+	sed -ibak "s/\"htp\": 80,/\"htp\": 8080,/" gv.py
 	nohup python ospi.py >/dev/null 2>&1 &
 	echo $! > pid
 	sleep 5
