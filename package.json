@@ -25,8 +25,8 @@
   },
   "homepage": "https://github.com/OpenSprinkler/OpenSprinkler-App",
   "devDependencies": {
-    "blanket": "1.1.6",
-    "chai": "^2.2.0",
+    "blanket": "^1.1.6",
+    "chai": "^3.0.0",
     "codecov.io": "^0.1.1",
     "coveralls": "^2.11.2",
     "grunt": "^0.4.5",
