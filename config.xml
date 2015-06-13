@@ -4,7 +4,7 @@
             xmlns:gap   = "http://phonegap.com/ns/1.0"
             id          = "com.albahra.sprinklers"
             version     = "1.4.4"
-            versionCode = "52" >
+            versionCode = "51" >
 
         <!-- Declare PhoneGap Version -->
         <preference name="phonegap-version" value="3.7.0" />
