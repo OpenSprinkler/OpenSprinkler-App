@@ -4,7 +4,7 @@
             xmlns:gap   = "http://phonegap.com/ns/1.0"
             id          = "com.albahra.sprinklers"
             version     = "1.4.4"
-            versionCode = "51" >
+            versionCode = "52" >
 
         <!-- Declare PhoneGap Version -->
         <preference name="phonegap-version" value="3.7.0" />
@@ -107,8 +107,7 @@
             <uses-sdk android:minSdkVersion="10" android:targetSdkVersion="19" />
 
             <!-- Delcare GPS as optional -->
-            <uses-feature android:name="android.permission.ACCESS_COARSE_LOCATION" android:required="false" />
-            <uses-feature android:name="android.permission.ACCESS_FINE_LOCATION" android:required="false" />
+            <uses-feature android:name="android.hardware.location" android:required="false" />
 
             <!-- Declare supported screens -->
             <supports-screens
