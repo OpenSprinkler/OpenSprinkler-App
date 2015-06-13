@@ -108,7 +108,7 @@
 
             <!-- Delcare GPS as optional -->
             <uses-feature android:name="android.hardware.location" android:required="false" />
-            <uses-feature android:name="android.hardware.location.GPS" android:required="false" />
+            <uses-feature android:name="android.hardware.location.gps" android:required="false" />
 
             <!-- Declare supported screens -->
             <supports-screens
