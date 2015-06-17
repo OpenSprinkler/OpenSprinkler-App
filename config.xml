@@ -7,7 +7,7 @@
             versionCode = "51" >
 
         <!-- Declare PhoneGap Version -->
-        <preference name="phonegap-version" value="3.7.0" />
+        <preference name="phonegap-version" value="cli-5.1.1" />
 
         <!-- Prevent bounce scroll effect on iOS -->
         <preference name="DisallowOverscroll" value="true"  />
@@ -84,6 +84,7 @@
         <gap:plugin name="org.apache.cordova.inappbrowser" />
         <gap:plugin name="org.apache.cordova.splashscreen" />
         <gap:plugin name="org.apache.cordova.geolocation" />
+        <gap:plugin name="org.crosswalk.engine" source="pgb" />
 
         <!-- Add description for GPS usage -->
         <gap:config-file platform="ios" parent="NSLocationAlwaysUsageDescription" overwrite="false">
