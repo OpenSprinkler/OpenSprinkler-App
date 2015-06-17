@@ -81,7 +81,7 @@
         <!-- Declare required plugins -->
         <gap:plugin name="com.phonegap.plugin.statusbar" />
         <gap:plugin name="com.albahra.plugin.networkinterface" />
-        <gap:plugin name="org.apache.cordova.inappbrowser" />
+        <gap:plugin name="cordova-plugin-inappbrowser" source="npm" />
         <gap:plugin name="org.apache.cordova.splashscreen" />
         <gap:plugin name="org.apache.cordova.geolocation" />
         <gap:plugin name="org.crosswalk.engine" source="pgb" />
