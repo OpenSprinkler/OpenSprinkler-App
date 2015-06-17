@@ -80,10 +80,10 @@
 
         <!-- Declare required plugins -->
         <gap:plugin name="com.phonegap.plugin.statusbar" />
-        <gap:plugin name="com.albahra.plugin.networkinterface" />
+        <gap:plugin name="cordova-plugin-networkinterface" source="npm" />
         <gap:plugin name="cordova-plugin-inappbrowser" source="npm" />
-        <gap:plugin name="org.apache.cordova.splashscreen" />
-        <gap:plugin name="org.apache.cordova.geolocation" />
+        <gap:plugin name="cordova-plugin-splashscreen" source="npm" />
+        <gap:plugin name="cordova-plugin-geolocation" source="npm" />
         <gap:plugin name="org.crosswalk.engine" source="pgb" />
 
         <!-- Add description for GPS usage -->
