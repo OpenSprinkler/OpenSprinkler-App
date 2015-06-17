@@ -41,6 +41,7 @@
 
         <!-- Allow CORS requests -->
         <access origin="*" />
+		<allow-navigation href="*" />
 
         <!-- iOS Splash Screen for PhoneGap -->
         <platform name="ios">
@@ -84,6 +85,7 @@
         <gap:plugin name="cordova-plugin-inappbrowser" source="npm" />
         <gap:plugin name="cordova-plugin-splashscreen" source="npm" />
         <gap:plugin name="cordova-plugin-geolocation" source="npm" />
+        <gap:plugin name="cordova-plugin-whitelist" source="npm" />
         <gap:plugin name="org.crosswalk.engine" source="pgb" />
 
         <!-- Add description for GPS usage -->
