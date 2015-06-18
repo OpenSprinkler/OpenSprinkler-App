@@ -3038,6 +3038,11 @@ function bindPanel() {
         return false;
     } );
 
+    panel.find( ".cloud-login" ).on( "click", function() {
+        requestCloudAuth();
+        return false;
+    } );
+
     panel.find( "a[href='#debugWU']" ).on( "click", debugWU );
 
     panel.find( "a[href='#localization']" ).on( "click", languageSelect );
