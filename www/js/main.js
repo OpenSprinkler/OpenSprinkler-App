@@ -329,7 +329,7 @@ function initApp() {
     //Set AJAX timeout
     if ( !currLocal ) {
         $.ajaxSetup( {
-            timeout: 6000
+            timeout: 10000
         } );
     }
 
