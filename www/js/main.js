@@ -5261,8 +5261,7 @@ var getManual = ( function() {
 // Runonce functions
 var getRunonce = ( function() {
 
-    var list = "<p class='center'>" + _( "Zero value excludes the station from the run-once program." ) + "</p>",
-        page = $( "<div data-role='page' id='runonce'>" +
+    var page = $( "<div data-role='page' id='runonce'>" +
             "<div class='ui-content' role='main' id='runonce_list'>" +
             "</div>" +
         "</div>" ),
@@ -5291,9 +5290,10 @@ var getRunonce = ( function() {
                 }
             } );
         },
-        i, quickPick, progs, rprogs, z, program, name;
+        i, list, quickPick, progs, rprogs, z, program, name;
 
     function begin() {
+		list = "<p class='center'>" + _( "Zero value excludes the station from the run-once program." ) + "</p>";
 	    progs = [];
 	    if ( controller.programs.pd.length ) {
 	        for ( z = 0; z < controller.programs.pd.length; z++ ) {
