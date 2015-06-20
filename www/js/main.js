@@ -1279,7 +1279,7 @@ function submitNewUser( ssl, useAuth ) {
         url: prefix + ip + "/jo?pw=" + md5( $( "#os_pw" ).val() ),
         type: "GET",
         dataType: "json",
-        timeout: 3000,
+        timeout: 10000,
         global: false,
         beforeSend: function( xhr ) {
             if ( useAuth ) {
@@ -1298,7 +1298,7 @@ function submitNewUser( ssl, useAuth ) {
                 url: prefix + ip,
                 type: "GET",
                 dataType: "text",
-                timeout: 3000,
+                timeout: 10000,
                 global: false,
                 cache: true,
                 beforeSend: function( xhr ) {
@@ -2011,7 +2011,7 @@ function startScan( port, type ) {
             url: url,
             type: "GET",
             dataType: dtype,
-            timeout: 3000,
+            timeout: 5000,
             global: false,
             error: notfound,
             success: found
@@ -2077,7 +2077,7 @@ function ping( ip, callback ) {
     $.ajax( {
         url: "http://" + ip,
         type: "GET",
-        timeout: 3000,
+        timeout: 5000,
         global: false
     } ).then(
         function() {
