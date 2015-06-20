@@ -4601,7 +4601,9 @@ var showHome = ( function() {
         },
 	    hasMaster, hasMaster2, hasIR, hasAR, hasSD, hasSequential, cards, siteSelect, i;
 
-    $( "html" ).on( "datarefresh", updateContent );
+	page.one( "pageshow", function() {
+		$( "html" ).on( "datarefresh", updateContent );
+	} );
 
 	function begin( firstLoad ) {
 	    if ( !isDeviceConnected() ) {
