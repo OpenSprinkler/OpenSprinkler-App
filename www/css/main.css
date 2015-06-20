@@ -647,10 +647,10 @@ body, input, select, textarea, button, .ui-btn {
 /* Home page rules */
 #footer-running {
     font-weight:400;
-    padding:2px 0;
     font-size:medium;
-    position:relative;
     width: 100%;
+    min-height: 24px;
+    padding: 2px 0;
 }
 #footer-menu {
     border: 0;
@@ -742,6 +742,7 @@ body, input, select, textarea, button, .ui-btn {
     margin:0;
     text-shadow:none;
     color:#fff;
+    min-height: 24px;
 }
 div.running-text{
     display: table-cell;

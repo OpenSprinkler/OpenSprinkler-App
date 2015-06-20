@@ -295,7 +295,7 @@ $( document )
 
         // Update the controller status every 5 seconds and the program and station data every 30 seconds
         var refreshStatusInterval = setInterval( refreshStatus, 5000 ),
-			refreshDataInterval = setInterval( refreshData, 30000 );
+			refreshDataInterval = setInterval( refreshData, 20000 );
 
         $newpage.one( "pagehide", function() {
             clearInterval( refreshStatusInterval );
