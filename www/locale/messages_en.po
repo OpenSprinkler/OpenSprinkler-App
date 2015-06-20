@@ -441,6 +441,14 @@ msgid ""
 "disables the pulsing option."
 msgstr ""
 
+msgid "Boost Time"
+msgstr ""
+
+msgid ""
+"Boost time changes how long the boost converter is activated with a range "
+"from 0 to 1000 milliseconds."
+msgstr ""
+
 msgid "NTP IP Address"
 msgstr ""
 
@@ -670,10 +678,10 @@ msgstr ""
 msgid "Master"
 msgstr ""
 
-msgid "Zero value excludes the station from the run-once program."
+msgid "Last Used Program"
 msgstr ""
 
-msgid "Last Used Program"
+msgid "Zero value excludes the station from the run-once program."
 msgstr ""
 
 msgid "Test All Stations"
@@ -742,10 +750,10 @@ msgstr ""
 msgid "Rain Sensor"
 msgstr ""
 
-msgid "Rain Delay"
+msgid "RS"
 msgstr ""
 
-msgid "RS"
+msgid "Rain Delay"
 msgstr ""
 
 msgid "RD"
@@ -1324,6 +1332,9 @@ msgid "Icelandic"
 msgstr ""
 
 msgid "Italian"
+msgstr ""
+
+msgid "Latvian"
 msgstr ""
 
 msgid "Mongolian"
