@@ -758,6 +758,8 @@ div.running-text{
 }
 .rem {
     margin:0;
+    width: 80%;
+    margin:0 auto;
     font-size:.71em!important;
     white-space: initial !important;
 }

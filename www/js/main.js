@@ -92,7 +92,7 @@ var isIEMobile = /IEMobile/.test( navigator.userAgent ),
     notifications = [],
     timers = {},
     curr183, currIp, currPrefix, currAuth, currPass, currPiWeather, currAuthUser,
-    currAuthPass, currLocal, currLang, language, deviceip, errorTimeout, weather, weatherKeyFail;
+    currAuthPass, currLocal, currLang, language, deviceip, errorTimeout, weather, weatherKeyFail, openPanel;
 
 // Redirect jQuery Mobile DOM manipulation to prevent error
 if ( isWinApp ) {
@@ -808,7 +808,7 @@ function updateController( callback, fail ) {
         updateControllerStatus(),
         updateControllerSettings()
     ).then( function() {
-        $( ".ui-page-active" ).trigger( "datarefresh" );
+        $( "html" ).trigger( "datarefresh" );
         checkStatus();
         callback();
     }, fail );
@@ -3182,19 +3182,27 @@ function bindPanel() {
         logout();
         return false;
     } );
-}
 
-function openPanel() {
-    var panel = $( "#sprinklers-settings" ),
-        operation = ( controller && controller.settings && controller.settings.en && controller.settings.en === 1 ) ? _( "Disable" ) : _( "Enable" ),
-        page = $( ".ui-page-active" ).attr( "id" );
+	openPanel = ( function() {
+	    var panel = $( "#sprinklers-settings" ),
+	        updateButtons = function() {
+				var operation = ( controller && controller.settings && controller.settings.en && controller.settings.en === 1 ) ? _( "Disable" ) : _( "Enable" );
+				panel.find( ".toggleOperation span:first" ).html( operation ).attr( "data-translate", operation );
+	        };
 
-    if ( page === "start" || !isDeviceConnected() ) {
-        return;
-    }
+	    $( "html" ).on( "datarefresh",  updateButtons );
 
-    panel.find( ".toggleOperation span:first" ).html( operation ).attr( "data-translate", operation );
-    panel.panel( "open" );
+	    function begin() {
+		    if ( $( ".ui-page-active" ).attr( "id" ) === "start" || !isDeviceConnected() ) {
+		        return;
+		    }
+
+		    updateButtons();
+		    panel.panel( "open" );
+	    }
+
+	    return begin;
+	} )();
 }
 
 // Device setting management functions
@@ -4451,7 +4459,7 @@ var showHome = ( function() {
 			).done( function() {
                 showerror( _( "Stations have been updated" ) );
                 updateController( function() {
-                    $( ".ui-page-active" ).trigger( "datarefresh" );
+                    $( "html" ).trigger( "datarefresh" );
                 } );
             } );
         },
@@ -4503,6 +4511,10 @@ var showHome = ( function() {
                 allCards = cardHolder.children(),
                 runningCards = page.find( "#os-running-stations" ).children(),
                 isScheduled, isRunning, pname, rem, card, line;
+
+            if ( $( ".ui-page-active" ).attr( "id" ) !== "sprinklers" ) {
+				return;
+            }
 
             updateClock();
 
@@ -4589,6 +4601,8 @@ var showHome = ( function() {
         },
 	    hasMaster, hasMaster2, hasIR, hasAR, hasSD, hasSequential, cards, siteSelect, i;
 
+    $( "html" ).on( "datarefresh", updateContent );
+
 	function begin( firstLoad ) {
 	    if ( !isDeviceConnected() ) {
 	        return false;
@@ -4616,7 +4630,6 @@ var showHome = ( function() {
 	    page.find( ".ui-content" ).append( "<div id='os-running-stations'></div><hr style='display:none' class='content-divider'>" +
 			"<div id='os-stations-list' class='card-group center'>" + cards + "</div>" );
 	    reorderCards();
-	    page.on( "datarefresh", updateContent );
 	    page.on( "click", ".station-settings", showAttributes );
 	    page.on( "click", ".home-info", function() {
 	        changePage( "#os-options", {
@@ -4849,16 +4862,14 @@ function isStationSequential( sid ) {
 
 // Current status related functions
 function refreshStatus() {
-    var page = $( ".ui-page-active" );
-
     $.when(
         updateControllerStatus(),
         updateControllerSettings(),
         updateControllerOptions()
     ).then( function() {
 
-        // Notify the current page that the data has refreshed
-        page.trigger( "datarefresh" );
+        // Notify the page container that the data has refreshed
+        $( "html" ).trigger( "datarefresh" );
         checkStatus();
         return;
     }, networkFail );
