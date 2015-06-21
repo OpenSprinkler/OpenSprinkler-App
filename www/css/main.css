@@ -176,6 +176,8 @@ a {
     opacity:.18
 }
 .mini-load.bottom {
+    -ms-transform-origin: center bottom;
+    -webkit-transform-origin: center bottom;
     transform-origin: center bottom;
     margin:-1.438em auto!important;
 }
