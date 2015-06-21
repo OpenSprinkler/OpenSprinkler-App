@@ -87,7 +87,7 @@
         <!-- PhoneGap Build Specific Configuration -->
 
         <!-- Declare required plugins -->
-        <gap:plugin name="com.phonegap.plugin.statusbar" />
+        <gap:plugin name="cordova-plugin-statusbar" source="npm" />
         <gap:plugin name="cordova-plugin-networkinterface" source="npm" />
         <gap:plugin name="cordova-plugin-inappbrowser" source="npm" />
         <gap:plugin name="cordova-plugin-splashscreen" source="npm" />
