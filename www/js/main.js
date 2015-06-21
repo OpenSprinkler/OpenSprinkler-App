@@ -294,7 +294,7 @@ $( document )
     // Fix issues between jQuery Mobile and FastClick
     fixInputClick( $newpage );
 
-    if ( isDeviceConnected() && newpage !== "#site-control" && newpage !== "#start" && newpage !== "#loadingPage" ) {
+    if ( isControllerConnected() && newpage !== "#site-control" && newpage !== "#start" && newpage !== "#loadingPage" ) {
 
         // Update the controller status every 5 seconds and the program and station data every 30 seconds
         var refreshStatusInterval = setInterval( refreshStatus, 5000 ),
@@ -1513,7 +1513,7 @@ var showSites = ( function() {
 
 	            total = Object.keys( sites ).length;
 
-	            if ( !isDeviceConnected() || !total || !( data.current_site in sites ) ) {
+	            if ( !isControllerConnected() || !total || !( data.current_site in sites ) ) {
 	                makeStart();
 	            } else {
 	                page.one( "pagebeforeshow", function() {
@@ -1742,7 +1742,7 @@ var showSites = ( function() {
 	function begin() {
         header = changeHeader( {
             title: _( "Manage Sites" ),
-            animate: isDeviceConnected() ? true : false,
+            animate: isControllerConnected() ? true : false,
             leftBtn: {
                 icon: "carat-l",
                 text: _( "Back" ),
@@ -3217,7 +3217,7 @@ function bindPanel() {
 	    $( "html" ).on( "datarefresh",  updateButtons );
 
 	    function begin() {
-		    if ( $( ".ui-page-active" ).attr( "id" ) === "start" || !isDeviceConnected() ) {
+		    if ( $( ".ui-page-active" ).attr( "id" ) === "start" || !isControllerConnected() ) {
 		        return;
 		    }
 
@@ -4630,7 +4630,7 @@ var showHome = ( function() {
 	} );
 
 	function begin( firstLoad ) {
-	    if ( !isDeviceConnected() ) {
+	    if ( !isControllerConnected() ) {
 	        return false;
 	    }
 
@@ -4815,7 +4815,7 @@ var showStart = ( function() {
 		next = auto.next();
 
 	function begin() {
-		if ( isDeviceConnected() ) {
+		if ( isControllerConnected() ) {
 			return false;
 		}
 
@@ -4882,7 +4882,7 @@ function isStationSequential( sid ) {
 
 // Current status related functions
 function refreshStatus() {
-	if ( !isDeviceConnected() ) {
+	if ( !isControllerConnected() ) {
 		return;
 	}
 
@@ -4900,7 +4900,7 @@ function refreshStatus() {
 }
 
 function refreshData() {
-	if ( !isDeviceConnected() ) {
+	if ( !isControllerConnected() ) {
 		return;
 	}
 
@@ -4933,7 +4933,7 @@ function changeStatus( seconds, color, line, onclick ) {
 function checkStatus() {
     var open, ptotal, sample, pid, pname, line, match, tmp, i;
 
-    if ( !isDeviceConnected() ) {
+    if ( !isControllerConnected() ) {
         changeStatus( 0, "transparent", "<p class='running-text smaller'></p>" );
         return;
     }
@@ -5083,7 +5083,7 @@ function updateTimers() {
 
     setInterval( function() {
 
-		if ( !isDeviceConnected() ) {
+		if ( !isControllerConnected() ) {
 			return false;
 		}
 
@@ -10053,7 +10053,7 @@ function goHome( firstLoad ) {
 
 function goBack() {
     var page = $( ".ui-page-active" ).attr( "id" ),
-        managerStart = ( page === "site-control" && !isDeviceConnected() ),
+        managerStart = ( page === "site-control" && !isControllerConnected() ),
         popup = $( ".ui-popup-active" );
 
     if ( popup.length ) {
@@ -10228,7 +10228,7 @@ function dhms2sec( arr ) {
     return parseInt( ( arr.days * 86400 ) + ( arr.hours * 3600 ) + ( arr.minutes * 60 ) + arr.seconds );
 }
 
-function isDeviceConnected() {
+function isControllerConnected() {
 	if ( currIp === "" ||
 		$.isEmptyObject( controller ) ||
 		$.isEmptyObject( controller.options ) ||
