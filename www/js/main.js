@@ -80,6 +80,10 @@ var isIEMobile = /IEMobile/.test( navigator.userAgent ),
         }
     },
 
+    // Define the status bar color(s) and use a darker color for Android
+    statusBarPrimary = isAndroid ? "#1A1A1A" : "#1D1D1D",
+    statusBarOverlay = isAndroid ? "#1D1D1D" : "#202020",
+
     // Define the amount of times the app will retry an HTTP request before marking it failed
     retryCount = 3,
 
@@ -131,7 +135,7 @@ $( document )
         //Change the status bar to match the headers
         StatusBar.overlaysWebView( false );
         StatusBar.styleLightContent();
-        StatusBar.backgroundColorByHexString( "#1D1D1D" );
+        StatusBar.backgroundColorByHexString( statusBarPrimary );
     } catch ( err ) {}
 
     // Hide the splash screen
@@ -307,7 +311,7 @@ $( document )
 	// When a popup opens that has an overlay, update the status bar background color to match
     if ( $( ".ui-overlay-b:not(.ui-screen-hidden)" ).length ) {
         try {
-            StatusBar.backgroundColorByHexString( "#202020" );
+            StatusBar.backgroundColorByHexString( statusBarOverlay );
         } catch ( err ) {}
     }
 } )
@@ -315,7 +319,7 @@ $( document )
 
 	// When a popup is closed, change the header back to the default color
     try {
-        StatusBar.backgroundColorByHexString( "#1D1D1D" );
+        StatusBar.backgroundColorByHexString( statusBarPrimary );
     } catch ( err ) {}
 } )
 .on( "popupbeforeposition", "#localization", checkCurrLang );
