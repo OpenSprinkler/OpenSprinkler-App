@@ -192,8 +192,7 @@ $( document )
                 // Change to page without any animation or history change
                 changePage( hash, {
                     transition: "none",
-                    showLoadMsg: false,
-                    showBack: data.options.showBack
+                    showLoadMsg: false
                 } );
             }
             return;
@@ -229,7 +228,7 @@ $( document )
         } else if ( hash === "#start" ) {
 			showStart();
         } else if ( hash === "#site-control" ) {
-            showSites( data.options.showBack );
+            showSites();
         } else if ( hash === "#weather_settings" ) {
             showWeatherSettings();
         } else if ( hash === "#sprinklers" ) {
@@ -679,7 +678,6 @@ function newload() {
     } ).find( ".cancel" ).one( "click", function() {
         $.ajaxq.abort( "default" );
         changePage( "#site-control", {
-            showBack: false,
             transition: "none"
         } );
     } );
@@ -770,7 +768,6 @@ function newload() {
                         showerror( _( "Unable to connect to" ) + " " + name, 3500 );
                     } );
                     changePage( "#site-control", {
-                        showBack: false,
                         transition: "none"
                     } );
                 } else {
@@ -1059,7 +1056,6 @@ function checkConfigured( firstLoad ) {
                     } );
                 } else {
                     changePage( "#site-control", {
-                        showBack: false,
                         transition: "none"
                     } );
                 }
@@ -1070,7 +1066,6 @@ function checkConfigured( firstLoad ) {
         if ( current === null || !( current in sites ) ) {
             $.mobile.loading( "hide" );
             changePage( "#site-control", {
-                showBack: false,
                 transition: firstLoad ? "none" : undefined
             } );
             return;
@@ -1439,7 +1434,7 @@ function showAddNew( autoIP, closeOld ) {
     return false;
 }
 
-function showSites( showBack ) {
+function showSites() {
     var page = $( "<div data-role='page' id='site-control'>" +
             "<div class='ui-content'>" +
             "</div>" +
@@ -1456,7 +1451,7 @@ function showSites( showBack ) {
         "</div>" ),
         header = changeHeader( {
             title: _( "Manage Sites" ),
-            animate: showBack ? true : false,
+            animate: isDeviceConnected() ? true : false,
             leftBtn: {
                 icon: "carat-l",
                 text: _( "Back" ),
@@ -1535,7 +1530,7 @@ function showSites( showBack ) {
 
             total = Object.keys( sites ).length;
 
-            if ( !total || showBack === false || !( data.current_site in sites ) ) {
+            if ( !isDeviceConnected() || !total || !( data.current_site in sites ) ) {
                 makeStart();
             } else {
                 page.one( "pagebeforeshow", function() {
@@ -8415,9 +8410,7 @@ function cloudSyncStart() {
             if ( Object.keys( sites ).length > 0 ) {
                 storage.set( { "sites":JSON.stringify( sites ) } );
             }
-            changePage( "#site-control", {
-                showBack: false
-            } );
+            changePage( "#site-control" );
         } else {
             updateLoginButtons();
 
