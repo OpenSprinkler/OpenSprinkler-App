@@ -219,15 +219,6 @@ describe( "Page Navigation Checks", function() {
 		} );
 	} );
 
-	it( "Reload edit programs page", function( done ) {
-		$.mobile.document.one( "pageshow", "#programs", function() {
-			done();
-		} );
-		assert.doesNotThrow( function() {
-			changePage( "#programs" );
-		} );
-	} );
-
 	it( "Change to add new program page", function( done ) {
 		$.mobile.document.one( "pageshow", "#addprogram", function() {
 			done();

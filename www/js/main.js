@@ -182,23 +182,6 @@ $( document )
         hash = $.mobile.path.parseUrl( page ).hash;
 
         if ( currPage.length > 0 && hash === "#" + currPage.attr( "id" ) ) {
-            if ( hash === "#programs" ) {
-
-                // Cancel page load when navigating to the same page
-                e.preventDefault();
-
-                // Allow pages to navigate back by adjusting active index in history
-                $.mobile.navigate.history.activeIndex--;
-
-                // Remove the current page from the DOM
-                currPage.remove();
-
-                // Change to page without any animation or history change
-                changePage( hash, {
-                    transition: "none",
-                    showLoadMsg: false
-                } );
-            }
             return;
         }
 
@@ -6536,108 +6519,120 @@ var getLogs = ( function() {
 } )();
 
 // Program management functions
-function getPrograms( pid ) {
+var getPrograms = ( function() {
     var page = $( "<div data-role='page' id='programs'>" +
             "<div class='ui-content' role='main' id='programs_list'>" +
-                makeAllPrograms() +
             "</div>" +
-        "</div>" );
-
-    page.find( "[id^=program-]" ).on( {
-        collapsiblecollapse: function() {
-            $( this ).find( ".ui-collapsible-content" ).empty();
-        },
-        collapsiblebeforecollapse: function( e ) {
-            var program = $( this ),
-                changed = program.find( ".hasChanges" );
-
-            if ( changed.length ) {
-                areYouSure( _( "Do you want to save your changes?" ), "", function() {
-                    changed.removeClass( "hasChanges" ).click();
-                    program.collapsible( "collapse" );
-                }, function() {
-                    changed.removeClass( "hasChanges" );
-                    program.collapsible( "collapse" );
-                } );
-                e.preventDefault();
-            }
-        },
-        collapsibleexpand: function() {
-            expandProgram( $( this ) );
-        }
-    } );
-
-    if ( checkOSVersion( 210 ) ) {
-        page.find( ".move-up" ).removeClass( "hidden" ).on( "click", function() {
-            var group = $( this ).parents( "fieldset" ),
-                pid = parseInt( group.attr( "id" ).split( "-" )[1] );
-
-            $.mobile.loading( "show" );
-
-            sendToOS( "/up?pw=&pid=" + pid ).done( function() {
-                updateControllerPrograms( function() {
-                    $.mobile.loading( "hide" );
-                    changePage( "#programs", {
-                        updatePrograms:true,
-                        showLoadMsg:false
-                    } );
-                } );
-            } );
-
-            return false;
-        } );
-    }
-
-    page.find( ".program-copy" ).on( "click", function() {
-        var copyID = parseInt( $( this ).parents( "fieldset" ).attr( "id" ).split( "-" )[1] );
-
-        changePage( "#addprogram", {
-            copyID: copyID
-        } );
-
-        return false;
-    } );
+        "</div>" ),
+		expandId;
 
     page
-    .one( "pagehide", function() {
-        page.remove();
+    .on( "programrefresh", updateContent )
+    .on( "pagehide", function() {
+        page.detach();
     } )
-    .one( "pagebeforeshow", function() {
+    .on( "pagebeforeshow", function() {
         updateProgramHeader();
 
-        if ( typeof pid !== "number" && controller.programs.pd.length === 1 ) {
-            pid = 0;
+        if ( typeof expandId !== "number" && controller.programs.pd.length === 1 ) {
+            expandId = 0;
         }
 
-        if ( typeof pid === "number" ) {
+        if ( typeof expandId === "number" ) {
             page.find( "fieldset[data-collapsed='false']" ).collapsible( "collapse" );
-            $( "#program-" + pid ).collapsible( "expand" );
+            $( "#program-" + expandId ).collapsible( "expand" );
         }
     } );
 
-    changeHeader( {
-        title: _( "Programs" ),
-        leftBtn: {
-            icon: "carat-l",
-            text: _( "Back" ),
-            class: "ui-toolbar-back-btn",
-            on: checkChangesBeforeBack
-        },
-        rightBtn: {
-            icon: "plus",
-            text: _( "Add" ),
-            on: function() {
-                checkChanges( function() {
-                    changePage( "#addprogram" );
-                } );
-            }
-        }
+	function updateContent() {
+		var list = $( makeAllPrograms() );
 
-    } );
+	    list.find( "[id^=program-]" ).on( {
+	        collapsiblecollapse: function() {
+	            $( this ).find( ".ui-collapsible-content" ).empty();
+	        },
+	        collapsiblebeforecollapse: function( e ) {
+	            var program = $( this ),
+	                changed = program.find( ".hasChanges" );
 
-    $( "#programs" ).remove();
-    $.mobile.pageContainer.append( page );
-}
+	            if ( changed.length ) {
+	                areYouSure( _( "Do you want to save your changes?" ), "", function() {
+	                    changed.removeClass( "hasChanges" ).click();
+	                    program.collapsible( "collapse" );
+	                }, function() {
+	                    changed.removeClass( "hasChanges" );
+	                    program.collapsible( "collapse" );
+	                } );
+	                e.preventDefault();
+	            }
+	        },
+	        collapsibleexpand: function() {
+	            expandProgram( $( this ) );
+	        }
+	    } );
+
+	    if ( checkOSVersion( 210 ) ) {
+	        list.find( ".move-up" ).removeClass( "hidden" ).on( "click", function() {
+	            var group = $( this ).parents( "fieldset" ),
+	                pid = parseInt( group.attr( "id" ).split( "-" )[1] );
+
+	            $.mobile.loading( "show" );
+
+	            sendToOS( "/up?pw=&pid=" + pid ).done( function() {
+	                updateControllerPrograms( function() {
+	                    $.mobile.loading( "hide" );
+	                    page.trigger( "programrefresh" );
+	                } );
+	            } );
+
+	            return false;
+	        } );
+	    }
+
+	    list.find( ".program-copy" ).on( "click", function() {
+	        var copyID = parseInt( $( this ).parents( "fieldset" ).attr( "id" ).split( "-" )[1] );
+
+	        changePage( "#addprogram", {
+	            copyID: copyID
+	        } );
+
+	        return false;
+	    } );
+
+	    page.find( "#programs_list" ).html( list.enhanceWithin() );
+	}
+
+	function begin( pid ) {
+		expandId = pid;
+
+	    changeHeader( {
+	        title: _( "Programs" ),
+	        leftBtn: {
+	            icon: "carat-l",
+	            text: _( "Back" ),
+	            class: "ui-toolbar-back-btn",
+	            on: checkChangesBeforeBack
+	        },
+	        rightBtn: {
+	            icon: "plus",
+	            text: _( "Add" ),
+	            on: function() {
+	                checkChanges( function() {
+	                    changePage( "#addprogram" );
+	                } );
+	            }
+	        }
+
+	    } );
+
+	    updateContent();
+
+	    $( "#programs" ).remove();
+	    $.mobile.pageContainer.append( page );
+	}
+
+    return begin;
+} )();
 
 function expandProgram( program ) {
     var id = parseInt( program.attr( "id" ).split( "-" )[1] );
@@ -7390,10 +7385,7 @@ function deleteProgram( id ) {
         sendToOS( "/dp?pw=&pid=" + id ).done( function() {
             $.mobile.loading( "hide" );
             updateControllerPrograms( function() {
-                changePage( "#programs", {
-                    updatePrograms: true,
-                    showLoadMsg:false
-                } );
+                $( "#programs" ).trigger( "programrefresh" );
                 showerror( _( "Program" ) + " " + ( parseInt( id ) + 1 ) + " " + _( "deleted" ) );
             } );
         } );
