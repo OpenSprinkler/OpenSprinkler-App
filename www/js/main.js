@@ -1482,11 +1482,11 @@ var showSites = ( function() {
     } );
 
     page.on( "pagehide", function() {
-        page.remove();
+        page.detach();
     } );
 
     $( "html" ).on( "siterefresh", function() {
-		if ( $( ".ui-page-active" ).attr( "id" ) === page.attr( "id" ) ) {
+		if ( page.hasClass( "ui-page-active" ) ) {
 			updateContent();
 		}
     } );
@@ -2221,7 +2221,7 @@ function showWeatherSettings() {
 
     page.one( {
         pagehide: function() {
-            page.remove();
+            page.detach();
         },
         pagebeforeshow: function() {
             if ( currPiWeather.weather_provider !== "wunderground" ) {
@@ -3217,7 +3217,9 @@ function bindPanel() {
 	    $( "html" ).on( "datarefresh",  updateButtons );
 
 	    function begin() {
-		    if ( $( ".ui-page-active" ).attr( "id" ) === "start" || !isControllerConnected() ) {
+			var currPage = $( ".ui-page-active" ).attr( "id" );
+
+		    if ( currPage === "start" || currPage === "loadingPage" || !isControllerConnected() ) {
 		        return;
 		    }
 
@@ -4536,7 +4538,7 @@ var showHome = ( function() {
                 runningCards = page.find( "#os-running-stations" ).children(),
                 isScheduled, isRunning, pname, rem, card, line;
 
-            if ( $( ".ui-page-active" ).attr( "id" ) !== "sprinklers" ) {
+            if ( !page.hasClass( "ui-page-active" ) ) {
 				return;
             }
 
@@ -4836,7 +4838,7 @@ var showStart = ( function() {
 	    } );
 
 	    page.one( "pagehide", function() {
-	        page.remove();
+	        page.detach();
 	    } );
 
 	    $.mobile.pageContainer.append( page );
@@ -5264,7 +5266,7 @@ var getManual = ( function() {
 	    } );
 
 	    page.one( "pagehide", function() {
-	        page.remove();
+	        page.detach();
 	    } );
 
 	    changeHeader( {
@@ -5431,7 +5433,7 @@ var getRunonce = ( function() {
 	    } );
 
 	    page.one( "pagehide", function() {
-	        page.remove();
+	        page.detach();
 	    } );
 
 	    changeHeader( {
@@ -6061,7 +6063,7 @@ var getPreview = ( function() {
 
 	    page.one( {
 	        pagehide: function() {
-	            page.remove();
+	            page.detach();
 	        },
 	        pageshow: render
 	    } );
@@ -6506,7 +6508,7 @@ var getLogs = ( function() {
 
 	    page.one( {
 	        pagehide: function() {
-	            page.remove();
+	            page.detach();
 	        },
 	        pageshow: requestData
 	    } );
@@ -8036,7 +8038,7 @@ var showAbout = ( function() {
 		page.find( ".firmware" ).text( getOSVersion() + getOSMinorVersion() );
 
 	    page.one( "pagehide", function() {
-	        page.remove();
+	        page.detach();
 	    } );
 
 	    changeHeader( {
