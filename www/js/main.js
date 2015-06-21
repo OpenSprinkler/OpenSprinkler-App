@@ -326,6 +326,9 @@ $( document )
 
 function initApp() {
 
+	// Update the IP address of the device running the app
+	updateDeviceIP();
+
     //Update the language on the page using the browser's locale
     updateLang();
 
@@ -1848,7 +1851,14 @@ function updateSite( newsite ) {
 
 // Automatic device detection functions
 function updateDeviceIP( finishCheck ) {
-    var ip;
+    var finish = function( ip ) {
+		deviceip = ip;
+
+		if ( typeof finishCheck === "function" ) {
+			finishCheck( ip );
+		}
+    },
+    ip;
 
     if ( isChromeApp ) {
         chrome.system.network.getNetworkInterfaces( function( data ) {
@@ -1861,7 +1871,7 @@ function updateDeviceIP( finishCheck ) {
                 }
             }
 
-            finishCheck( ip );
+            finish( ip );
         } );
     } else {
         try {
@@ -1869,11 +1879,11 @@ function updateDeviceIP( finishCheck ) {
             // Request the device's IP address
             networkinterface.getIPAddress( function( data ) {
                 ip = data;
-                finishCheck( ip );
+                finish( ip );
             } );
         } catch ( err ) {
             findRouter( function( status, data ) {
-				finishCheck( !status ? undefined : data );
+				finish( !status ? undefined : data );
             } );
         }
     }
@@ -4795,15 +4805,9 @@ var showStart = ( function() {
 		        //Change main menu items to reflect ability to automatically scan
 		        next.removeClass( "ui-first-child" ).find( "a.ui-btn" ).text( _( "Manually Add Device" ) );
 		        auto.show();
-
-		        deviceip = ip;
 			} );
 		},
 		resetStartMenu = function() {
-
-		    // Change main menu to reflect manual controller entry
-		    deviceip = undefined;
-
 		    next.addClass( "ui-first-child" ).find( "a.ui-btn" ).text( _( "Add Controller" ) );
 		    auto.hide();
 		},
