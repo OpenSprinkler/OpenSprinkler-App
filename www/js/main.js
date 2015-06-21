@@ -81,8 +81,8 @@ var isIEMobile = /IEMobile/.test( navigator.userAgent ),
     },
 
     // Define the status bar color(s) and use a darker color for Android
-    statusBarPrimary = isAndroid ? "#1A1A1A" : "#1D1D1D",
-    statusBarOverlay = isAndroid ? "#1D1D1D" : "#202020",
+    statusBarPrimary = isAndroid ? "#121212" : "#1D1D1D",
+    statusBarOverlay = isAndroid ? "#151515" : "#202020",
 
     // Define the amount of times the app will retry an HTTP request before marking it failed
     retryCount = 3,
