@@ -4882,6 +4882,10 @@ function isStationSequential( sid ) {
 
 // Current status related functions
 function refreshStatus() {
+	if ( !isDeviceConnected() ) {
+		return;
+	}
+
     $.when(
         updateControllerStatus(),
         updateControllerSettings(),
@@ -4896,6 +4900,10 @@ function refreshStatus() {
 }
 
 function refreshData() {
+	if ( !isDeviceConnected() ) {
+		return;
+	}
+
     $.when(
         updateControllerPrograms(),
         updateControllerStations()
