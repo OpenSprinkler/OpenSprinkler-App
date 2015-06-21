@@ -3219,7 +3219,7 @@ function bindPanel() {
 	    function begin() {
 			var currPage = $( ".ui-page-active" ).attr( "id" );
 
-		    if ( currPage === "start" || currPage === "loadingPage" || !isControllerConnected() ) {
+		    if ( currPage === "start" || currPage === "loadingPage" || !isControllerConnected() || $( ".ui-page-active" ).length !== 1 ) {
 		        return;
 		    }
 
