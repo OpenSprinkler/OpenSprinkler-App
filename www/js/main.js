@@ -178,7 +178,7 @@ $( document )
         hash = $.mobile.path.parseUrl( page ).hash;
 
         if ( currPage.length > 0 && hash === "#" + currPage.attr( "id" ) ) {
-            if ( hash === "#programs" || hash === "#site-control" ) {
+            if ( hash === "#programs" ) {
 
                 // Cancel page load when navigating to the same page
                 e.preventDefault();
@@ -1434,7 +1434,7 @@ function showAddNew( autoIP, closeOld ) {
     return false;
 }
 
-function showSites() {
+var showSites = ( function() {
     var page = $( "<div data-role='page' id='site-control'>" +
             "<div class='ui-content'>" +
             "</div>" +
@@ -1449,6 +1449,290 @@ function showSites() {
                 "</ul>" +
             "</div>" +
         "</div>" ),
+        makeStart = function() {
+            page.one( "pagebeforeshow", function() {
+                header.eq( 0 ).hide();
+            } );
+
+            page.on( "swiperight swipeleft", function( e ) {
+                e.stopImmediatePropagation();
+            } );
+
+            document.title = "OpenSprinkler";
+        },
+        popup = page.find( "#addsite" ),
+        sites, header, total;
+
+    popup.find( "#site-add-scan" ).on( "click", function() {
+        popup.popup( "close" );
+        startScan();
+        return false;
+    } );
+
+    popup.find( "#site-add-manual" ).on( "click", function() {
+        showAddNew( false, true );
+        return false;
+    } );
+
+    page.on( "pagehide", function() {
+        page.remove();
+    } );
+
+    $( "html" ).on( "siterefresh", function() {
+		if ( $( ".ui-page-active" ).attr( "id" ) === page.attr( "id" ) ) {
+			updateContent();
+		}
+    } );
+
+    function updateContent() {
+	    storage.get( [ "sites", "current_site", "cloudToken" ], function( data ) {
+			sites = parseSites( data.sites );
+
+	        if ( $.isEmptyObject( sites ) ) {
+	            if ( typeof data.cloudToken !== "string" ) {
+	                changePage( "#start" );
+
+	                return;
+	            } else {
+	                makeStart();
+	                page.find( ".ui-content" ).html( "<p class='center'>" +
+						_( "Please add a site by tapping the 'Add' button in the top right corner." ) +
+					"</p>" );
+	            }
+	        } else {
+	            var list = "<div data-role='collapsible-set'>",
+	                siteNames = [],
+	                i = 0;
+
+	            total = Object.keys( sites ).length;
+
+	            if ( !isDeviceConnected() || !total || !( data.current_site in sites ) ) {
+	                makeStart();
+	            } else {
+	                page.one( "pagebeforeshow", function() {
+	                    setTimeout( function() {
+	                        $( "#footer, #footer-menu" ).show();
+	                    }, 0 );
+	                } );
+	            }
+
+	            sites = sortObj( sites );
+
+	            $.each( sites, function( a, b ) {
+	                siteNames.push( a );
+
+	                a = htmlEscape( a );
+
+	                list += "<fieldset " + ( ( total === 1 ) ? "data-collapsed='false'" : "" ) + " id='site-" + i + "' data-role='collapsible'>" +
+	                    "<h3>" +
+							"<a class='ui-btn ui-btn-corner-all connectnow yellow' data-site='" + i + "' href='#'>" +
+								_( "connect" ) +
+							"</a>" +
+						a + "</h3>" +
+	                    "<form data-site='" + i + "' novalidate>" +
+	                        "<div class='ui-field-contain'>" +
+	                            "<label for='cnm-" + i + "'>" + _( "Change Name" ) + "</label><input id='cnm-" + i + "' type='text' value='" + a + "'>" +
+	                        "</div>" +
+	                        "<div class='ui-field-contain'>" +
+	                            "<label for='cip-" + i + "'>" + _( "Change IP" ) + "</label><input id='cip-" + i + "' type='url' value='" + b.os_ip +
+									"' autocomplete='off' autocorrect='off' autocapitalize='off' pattern='' spellcheck='false'>" +
+	                        "</div>" +
+	                        "<div class='ui-field-contain'>" +
+	                            "<label for='cpw-" + i + "'>" + _( "Change Password" ) + "</label><input id='cpw-" + i + "' type='password'>" +
+	                        "</div>" +
+	                        "<fieldset data-mini='true' data-role='collapsible'>" +
+	                            "<h3>" +
+									"<span style='line-height:23px'>" + _( "Advanced" ) + "</span>" +
+									"<button data-helptext='" +
+										_( "These options are only for an OpenSprinkler behind a proxy capable of SSL and/or Basic Authentication." ) +
+										"' class='collapsible-button-right help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
+								"</h3>" +
+	                            "<label for='usessl-" + i + "'>" +
+									"<input data-mini='true' type='checkbox' id='usessl-" + i + "' name='usessl-" + i + "'" +
+										( typeof b.ssl !== "undefined" && b.ssl === "1" ? " checked='checked'" : "" ) + ">" +
+									_( "Use SSL" ) +
+								"</label>" +
+	                            "<label for='useauth-" + i + "'>" +
+									"<input class='useauth' data-user='" + b.auth_user + "' data-pw='" + b.auth_pw +
+										"' data-mini='true' type='checkbox' id='useauth-" + i + "' name='useauth-" + i + "'" +
+										( typeof b.auth_user !== "undefined" && typeof b.auth_pw !== "undefined" ? " checked='checked'" : "" ) + ">" +
+									_( "Use Auth" ) +
+								"</label>" +
+	                        "</fieldset>" +
+	                        "<input class='submit' type='submit' value='" + _( "Save Changes to" ) + " " + a + "'>" +
+	                        "<a data-role='button' class='deletesite' data-site='" + i + "' href='#' data-theme='b'>" + _( "Delete" ) + " " + a + "</a>" +
+	                    "</form>" +
+	                "</fieldset>";
+
+	                testSite( b, i, function( id, result ) {
+	                    page.find( "#site-" + id + " .connectnow" )
+							.removeClass( "yellow" )
+							.addClass( result ? "green" : "red" );
+	                } );
+
+	                i++;
+	            } );
+
+	            list = $( list + "</div>" );
+
+	            list.find( "form" ).one( "change input", function() {
+	                $( this ).find( ".submit" ).addClass( "hasChanges" );
+	            } );
+
+	            list.find( ".connectnow" ).on( "click", function() {
+	                updateSite( siteNames[$( this ).data( "site" )] );
+	                return false;
+	            } );
+
+	            list.find( ".help-icon" ).on( "click", showHelpText );
+
+	            list.find( ".useauth" ).on( "change", function() {
+	                var el = $( this );
+
+	                if ( el.is( ":checked" ) ) {
+	                    var popup = $( "<div data-role='popup' data-theme='a'>" +
+	                        "<form method='post' class='ui-content' novalidate>" +
+	                            "<label for='auth_user'>" + _( "Username:" ) + "</label>" +
+	                            "<input autocomplete='off' autocorrect='off' autocapitalize='off' " +
+									"spellcheck='false' type='text' name='auth_user' id='auth_user'>" +
+	                            "<label for='auth_pw'>" + _( "Password:" ) + "</label>" +
+	                            "<input type='password' name='auth_pw' id='auth_pw'>" +
+	                            "<input type='submit' class='submit' value='" + _( "Submit" ) + "'>" +
+	                        "</form>" +
+	                        "</div>" ).enhanceWithin(),
+	                        didSubmit = false;
+
+	                    popup.find( ".submit" ).on( "click", function() {
+	                        el.data( {
+	                            user: popup.find( "#auth_user" ).val(),
+	                            pw: popup.find( "#auth_pw" ).val()
+	                        } );
+
+	                        didSubmit = true;
+	                        popup.popup( "close" );
+	                        return false;
+	                    } );
+
+	                    popup.one( "popupafterclose", function() {
+	                        if ( !didSubmit ) {
+	                            el.attr( "checked", false ).checkboxradio( "refresh" );
+	                        }
+	                    } );
+
+	                    openPopup( popup );
+	                } else {
+	                    el.data( {
+	                        user: "",
+	                        pw: ""
+	                    } );
+	                }
+	            } );
+
+	            list.find( "form" ).on( "submit", function() {
+	                var form = $( this ),
+	                    id = form.data( "site" ),
+	                    site = siteNames[id],
+	                    ip = list.find( "#cip-" + id ).val(),
+	                    pw = list.find( "#cpw-" + id ).val(),
+	                    nm = list.find( "#cnm-" + id ).val(),
+	                    useauth = list.find( "#useauth-" + id ).is( ":checked" ),
+	                    usessl = list.find( "#usessl-" + id ).is( ":checked" ) ? "1" : undefined,
+	                    authUser = list.find( "#useauth-" + id ).data( "user" ),
+	                    authPass = list.find( "#useauth-" + id ).data( "pw" ),
+	                    needsReconnect = ( ip !== "" && ip !== sites[site].os_ip ) ||
+											usessl !== sites[site].ssl ||
+											authUser !== sites[site].auth_user ||
+											authPass !== sites[site].auth_pw,
+	                    isCurrent = ( site === data.current_site ),
+	                    rename = ( nm !== "" && nm !== site );
+
+	                form.find( ".submit" ).removeClass( "hasChanges" );
+
+	                if ( useauth ) {
+	                    sites[site].auth_user = authUser;
+	                    sites[site].auth_pw = authPass;
+	                } else {
+	                    delete sites[site].auth_user;
+	                    delete sites[site].auth_pw;
+	                }
+
+	                if ( usessl === "1" ) {
+	                    sites[site].ssl = usessl;
+	                } else {
+	                    delete sites[site].ssl;
+	                }
+
+	                if ( ip !== "" && ip !== sites[site].os_ip ) {
+	                    sites[site].os_ip = ip;
+	                }
+	                if ( pw !== "" && pw !== sites[site].os_pw ) {
+	                    if ( isMD5( sites[site].os_pw ) ) {
+	                        pw = md5( pw );
+	                    }
+	                    sites[site].os_pw = pw;
+	                }
+	                if ( rename ) {
+	                    sites[nm] = sites[site];
+	                    delete sites[site];
+	                    site = nm;
+	                    if ( isCurrent ) {
+	                        storage.set( { "current_site":site } );
+	                        data.current_site = site;
+	                    }
+	                    updateSiteList( Object.keys( sites ), data.current_site );
+	                }
+
+	                storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
+
+	                showerror( _( "Site updated successfully" ) );
+
+	                if ( site === data.current_site ) {
+	                    if ( pw !== "" ) {
+	                        currPass = pw;
+	                    }
+	                    if ( needsReconnect ) {
+	                        checkConfigured();
+	                    }
+	                }
+
+	                if ( rename && !form.find( ".submit" ).hasClass( "preventUpdate" ) ) {
+	                    updateContent();
+	                }
+
+	                return false;
+	            } );
+
+	            list.find( ".deletesite" ).on( "click", function() {
+	                var site = siteNames[$( this ).data( "site" )];
+
+	                delete sites[site];
+	                storage.set( { "sites":JSON.stringify( sites ) }, function() {
+	                    cloudSaveSites();
+	                    updateSiteList( Object.keys( sites ), data.current_site );
+	                    if ( $.isEmptyObject( sites ) &&
+							( data.cloudToken === null || data.cloudToken === undefined ) ) {
+	                        changePage( "#start" );
+	                        return false;
+	                    }
+	                    updateContent();
+	                    showerror( _( "Site deleted successfully" ) );
+	                    return false;
+	                } );
+
+	                return false;
+	            } );
+
+	            page.find( ".ui-content" ).html( list.enhanceWithin() );
+	        }
+
+	        if ( typeof data.cloudToken === "string" ) {
+	            page.find( ".ui-content" ).prepend( addSyncStatus( data.cloudToken ) );
+
+	        }
+	    } );
+	}
+
+	function begin() {
         header = changeHeader( {
             title: _( "Manage Sites" ),
             animate: isDeviceConnected() ? true : false,
@@ -1474,290 +1758,21 @@ function showSites() {
                     }
                 }
             }
-        } ),
-        makeStart = function() {
-            page.one( "pagebeforeshow", function() {
-                header.eq( 0 ).hide();
-            } );
+        } );
 
-            page.on( "swiperight swipeleft", function( e ) {
-                e.stopImmediatePropagation();
-            } );
+	    popup.popup( {
+	        history: false,
+	        positionTo: header.eq( 2 )
+	    } ).enhanceWithin();
 
-            document.title = "OpenSprinkler";
-        },
-        popup = page.find( "#addsite" ),
-        sites, total;
+	    updateContent();
 
-    popup.popup( {
-        history: false,
-        positionTo: header.eq( 2 )
-    } ).enhanceWithin();
+	    $( "#site-control" ).remove();
+	    $.mobile.pageContainer.append( page );
+	}
 
-    popup.find( "#site-add-scan" ).on( "click", function() {
-        popup.popup( "close" );
-        startScan();
-        return false;
-    } );
-
-    popup.find( "#site-add-manual" ).on( "click", function() {
-        showAddNew( false, true );
-        return false;
-    } );
-
-    page.one( "pagehide", function() {
-        page.remove();
-    } );
-
-    storage.get( [ "sites", "current_site", "cloudToken" ], function( data ) {
-		sites = parseSites( data.sites );
-
-        if ( $.isEmptyObject( sites ) ) {
-            if ( typeof data.cloudToken !== "string" ) {
-                changePage( "#start" );
-
-                return;
-            } else {
-                makeStart();
-                page.find( ".ui-content" ).html( "<p class='center'>" +
-					_( "Please add a site by tapping the 'Add' button in the top right corner." ) +
-				"</p>" );
-            }
-        } else {
-            var list = "<div data-role='collapsible-set'>",
-                siteNames = [],
-                i = 0;
-
-            total = Object.keys( sites ).length;
-
-            if ( !isDeviceConnected() || !total || !( data.current_site in sites ) ) {
-                makeStart();
-            } else {
-                page.one( "pagebeforeshow", function() {
-                    setTimeout( function() {
-                        $( "#footer, #footer-menu" ).show();
-                    }, 0 );
-                } );
-            }
-
-            sites = sortObj( sites );
-
-            $.each( sites, function( a, b ) {
-                siteNames.push( a );
-
-                a = htmlEscape( a );
-
-                list += "<fieldset " + ( ( total === 1 ) ? "data-collapsed='false'" : "" ) + " id='site-" + i + "' data-role='collapsible'>" +
-                    "<h3>" +
-						"<a class='ui-btn ui-btn-corner-all connectnow yellow' data-site='" + i + "' href='#'>" +
-							_( "connect" ) +
-						"</a>" +
-					a + "</h3>" +
-                    "<form data-site='" + i + "' novalidate>" +
-                        "<div class='ui-field-contain'>" +
-                            "<label for='cnm-" + i + "'>" + _( "Change Name" ) + "</label><input id='cnm-" + i + "' type='text' value='" + a + "'>" +
-                        "</div>" +
-                        "<div class='ui-field-contain'>" +
-                            "<label for='cip-" + i + "'>" + _( "Change IP" ) + "</label><input id='cip-" + i + "' type='url' value='" + b.os_ip +
-								"' autocomplete='off' autocorrect='off' autocapitalize='off' pattern='' spellcheck='false'>" +
-                        "</div>" +
-                        "<div class='ui-field-contain'>" +
-                            "<label for='cpw-" + i + "'>" + _( "Change Password" ) + "</label><input id='cpw-" + i + "' type='password'>" +
-                        "</div>" +
-                        "<fieldset data-mini='true' data-role='collapsible'>" +
-                            "<h3>" +
-								"<span style='line-height:23px'>" + _( "Advanced" ) + "</span>" +
-								"<button data-helptext='" +
-									_( "These options are only for an OpenSprinkler behind a proxy capable of SSL and/or Basic Authentication." ) +
-									"' class='collapsible-button-right help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
-							"</h3>" +
-                            "<label for='usessl-" + i + "'>" +
-								"<input data-mini='true' type='checkbox' id='usessl-" + i + "' name='usessl-" + i + "'" +
-									( typeof b.ssl !== "undefined" && b.ssl === "1" ? " checked='checked'" : "" ) + ">" +
-								_( "Use SSL" ) +
-							"</label>" +
-                            "<label for='useauth-" + i + "'>" +
-								"<input class='useauth' data-user='" + b.auth_user + "' data-pw='" + b.auth_pw +
-									"' data-mini='true' type='checkbox' id='useauth-" + i + "' name='useauth-" + i + "'" +
-									( typeof b.auth_user !== "undefined" && typeof b.auth_pw !== "undefined" ? " checked='checked'" : "" ) + ">" +
-								_( "Use Auth" ) +
-							"</label>" +
-                        "</fieldset>" +
-                        "<input class='submit' type='submit' value='" + _( "Save Changes to" ) + " " + a + "'>" +
-                        "<a data-role='button' class='deletesite' data-site='" + i + "' href='#' data-theme='b'>" + _( "Delete" ) + " " + a + "</a>" +
-                    "</form>" +
-                "</fieldset>";
-
-                testSite( b, i, function( id, result ) {
-                    page.find( "#site-" + id + " .connectnow" )
-						.removeClass( "yellow" )
-						.addClass( result ? "green" : "red" );
-                } );
-
-                i++;
-            } );
-
-            list = $( list + "</div>" );
-
-            list.find( "form" ).one( "change input", function() {
-                $( this ).find( ".submit" ).addClass( "hasChanges" );
-            } );
-
-            list.find( ".connectnow" ).on( "click", function() {
-                updateSite( siteNames[$( this ).data( "site" )] );
-                return false;
-            } );
-
-            list.find( ".help-icon" ).on( "click", showHelpText );
-
-            list.find( ".useauth" ).on( "change", function() {
-                var el = $( this );
-
-                if ( el.is( ":checked" ) ) {
-                    var popup = $( "<div data-role='popup' data-theme='a'>" +
-                        "<form method='post' class='ui-content' novalidate>" +
-                            "<label for='auth_user'>" + _( "Username:" ) + "</label>" +
-                            "<input autocomplete='off' autocorrect='off' autocapitalize='off' " +
-								"spellcheck='false' type='text' name='auth_user' id='auth_user'>" +
-                            "<label for='auth_pw'>" + _( "Password:" ) + "</label>" +
-                            "<input type='password' name='auth_pw' id='auth_pw'>" +
-                            "<input type='submit' class='submit' value='" + _( "Submit" ) + "'>" +
-                        "</form>" +
-                        "</div>" ).enhanceWithin(),
-                        didSubmit = false;
-
-                    popup.find( ".submit" ).on( "click", function() {
-                        el.data( {
-                            user: popup.find( "#auth_user" ).val(),
-                            pw: popup.find( "#auth_pw" ).val()
-                        } );
-
-                        didSubmit = true;
-                        popup.popup( "close" );
-                        return false;
-                    } );
-
-                    popup.one( "popupafterclose", function() {
-                        if ( !didSubmit ) {
-                            el.attr( "checked", false ).checkboxradio( "refresh" );
-                        }
-                    } );
-
-                    openPopup( popup );
-                } else {
-                    el.data( {
-                        user: "",
-                        pw: ""
-                    } );
-                }
-            } );
-
-            list.find( "form" ).on( "submit", function() {
-                var form = $( this ),
-                    id = form.data( "site" ),
-                    site = siteNames[id],
-                    ip = list.find( "#cip-" + id ).val(),
-                    pw = list.find( "#cpw-" + id ).val(),
-                    nm = list.find( "#cnm-" + id ).val(),
-                    useauth = list.find( "#useauth-" + id ).is( ":checked" ),
-                    usessl = list.find( "#usessl-" + id ).is( ":checked" ) ? "1" : undefined,
-                    authUser = list.find( "#useauth-" + id ).data( "user" ),
-                    authPass = list.find( "#useauth-" + id ).data( "pw" ),
-                    needsReconnect = ( ip !== "" && ip !== sites[site].os_ip ) ||
-										usessl !== sites[site].ssl ||
-										authUser !== sites[site].auth_user ||
-										authPass !== sites[site].auth_pw,
-                    isCurrent = ( site === data.current_site ),
-                    rename = ( nm !== "" && nm !== site );
-
-                form.find( ".submit" ).removeClass( "hasChanges" );
-
-                if ( useauth ) {
-                    sites[site].auth_user = authUser;
-                    sites[site].auth_pw = authPass;
-                } else {
-                    delete sites[site].auth_user;
-                    delete sites[site].auth_pw;
-                }
-
-                if ( usessl === "1" ) {
-                    sites[site].ssl = usessl;
-                } else {
-                    delete sites[site].ssl;
-                }
-
-                if ( ip !== "" && ip !== sites[site].os_ip ) {
-                    sites[site].os_ip = ip;
-                }
-                if ( pw !== "" && pw !== sites[site].os_pw ) {
-                    if ( isMD5( sites[site].os_pw ) ) {
-                        pw = md5( pw );
-                    }
-                    sites[site].os_pw = pw;
-                }
-                if ( rename ) {
-                    sites[nm] = sites[site];
-                    delete sites[site];
-                    site = nm;
-                    if ( isCurrent ) {
-                        storage.set( { "current_site":site } );
-                        data.current_site = site;
-                    }
-                    updateSiteList( Object.keys( sites ), data.current_site );
-                }
-
-                storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
-
-                showerror( _( "Site updated successfully" ) );
-
-                if ( site === data.current_site ) {
-                    if ( pw !== "" ) {
-                        currPass = pw;
-                    }
-                    if ( needsReconnect ) {
-                        checkConfigured();
-                    }
-                }
-
-                if ( rename && !form.find( ".submit" ).hasClass( "preventUpdate" ) ) {
-                    changePage( "#site-control" );
-                }
-
-                return false;
-            } );
-
-            list.find( ".deletesite" ).on( "click", function() {
-                var site = siteNames[$( this ).data( "site" )];
-
-                delete sites[site];
-                storage.set( { "sites":JSON.stringify( sites ) }, function() {
-                    cloudSaveSites();
-                    updateSiteList( Object.keys( sites ), data.current_site );
-                    if ( $.isEmptyObject( sites ) &&
-						( data.cloudToken === null || data.cloudToken === undefined ) ) {
-                        changePage( "#start" );
-                        return false;
-                    }
-                    changePage( "#site-control", { showLoadMsg: false } );
-                    showerror( _( "Site deleted successfully" ) );
-                    return false;
-                } );
-
-                return false;
-            } );
-
-            page.find( ".ui-content" ).html( list.enhanceWithin() );
-        }
-
-        if ( typeof data.cloudToken === "string" ) {
-            page.find( ".ui-content" ).prepend( addSyncStatus( data.cloudToken ) );
-
-        }
-    } );
-
-    $( "#site-control" ).remove();
-    $.mobile.pageContainer.append( page );
-}
+	return begin;
+} )();
 
 function addSyncStatus( token ) {
     var ele = $( "<div class='ui-bar smaller ui-bar-a ui-corner-all logged-in-alert'>" +
@@ -8486,9 +8501,7 @@ function cloudSync( callback ) {
                     updateSiteList( Object.keys( data ), local.current_site );
                     callback();
 
-                    if ( $( ".ui-page-active" ).attr( "id" ) === "site-control" ) {
-                        changePage( "#site-control" );
-                    }
+                    $( "html" ).trigger( "siterefresh" );
                 } );
             }
         } );

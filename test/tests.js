@@ -255,15 +255,6 @@ describe( "Page Navigation Checks", function() {
 		} );
 	} );
 
-	it( "Reload site manager page", function( done ) {
-		$.mobile.document.one( "pageshow", "#site-control", function() {
-			done();
-		} );
-		assert.doesNotThrow( function() {
-			changePage( "#site-control" );
-		} );
-	} );
-
 	it( "Change to about page", function( done ) {
 		$.mobile.document.one( "pageshow", "#about", function() {
 			done();
