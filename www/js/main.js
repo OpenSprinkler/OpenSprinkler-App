@@ -8061,7 +8061,7 @@ var showAbout = ( function() {
 // OpenSprinkler controller methods
 function isRunning() {
     for ( var i = 0; i < controller.status.length; i++ ) {
-        if ( controller.status[i] > 0 ) {
+        if ( controller.status[i] > 0 && controller.settings.ps[i][0] > 0 ) {
             return i;
         }
     }
