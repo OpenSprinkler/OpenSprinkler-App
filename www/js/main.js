@@ -326,9 +326,6 @@ $( document )
 
 function initApp() {
 
-	// Update the IP address of the device running the app
-	updateDeviceIP();
-
     //Update the language on the page using the browser's locale
     updateLang();
 
@@ -492,6 +489,9 @@ function initApp() {
 
     // Initialize external panel
     bindPanel();
+
+	// Update the IP address of the device running the app
+	updateDeviceIP();
 
     // If cloud token is available then sync sites
     cloudSync();
@@ -1851,11 +1851,11 @@ function updateSite( newsite ) {
 
 // Automatic device detection functions
 function updateDeviceIP( finishCheck ) {
-    var finish = function( ip ) {
-		deviceip = ip;
+    var finish = function( result ) {
+		deviceip = result;
 
 		if ( typeof finishCheck === "function" ) {
-			finishCheck( ip );
+			finishCheck( result );
 		}
     },
     ip;
