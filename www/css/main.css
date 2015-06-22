@@ -104,7 +104,6 @@ a {
     height:11px;
     background:url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMXB4IiBoZWlnaHQ9IjExcHgiPjxjaXJjbGUgZmlsbD0iIzVBREM1NiIgY3g9IjUuNSIgY3k9IjUuNSIgcj0iNS41Ii8+PC9zdmc+) no-repeat;
     background-size:11px 11px;
-    display: inline-block;
     padding-right: 5px;
     float: left;
     margin-left: 5px;
@@ -176,6 +175,8 @@ a {
     opacity:.18
 }
 .mini-load.bottom {
+    -o-transform-origin: center bottom;
+    -moz-transform-origin: center bottom;
     -ms-transform-origin: center bottom;
     -webkit-transform-origin: center bottom;
     transform-origin: center bottom;
@@ -241,10 +242,6 @@ a {
     animation-iteration-count: infinite;
     animation-timing-function: linear;
 }
-@-ms-keyframes spin {
-    from { -ms-transform: rotate(0deg); }
-    to { -ms-transform: rotate(360deg); }
-}
 @-moz-keyframes spin {
     from { -moz-transform: rotate(0deg); }
     to { -moz-transform: rotate(360deg); }
@@ -299,7 +296,7 @@ a {
     border-radius: 0 !important;
     border-width: 1px !important;
     border-style: solid !important;
-    background-clip: initial !important;
+    background-clip: border-box !important;
 }
 .pad_buttons {
     width: 94% !important;
@@ -359,7 +356,6 @@ body, input, select, textarea, button, .ui-btn {
     -ms-content-zooming:none;
     -o-user-select:none;
     user-select:none;
-    touch-callout: none;
 }
 #header, #footer {
     display: none;
@@ -760,11 +756,10 @@ div.running-text{
     border: 0;
 }
 .rem {
-    margin:0;
     width: 80%;
     margin:0 auto;
     font-size:.71em!important;
-    white-space: initial !important;
+    white-space: normal !important;
 }
 
 /* Program preview rules */
@@ -1079,11 +1074,6 @@ div.running-text{
     display:none
 }
 /* Mozilla specific weather icon adjustments */
-@-moz-document url-prefix() {
-    .ui-mobile fieldset {
-        display: block;
-    }
-}
 @media (max-width:940px) {
     #weather .location {
         font-weight:inherit;
