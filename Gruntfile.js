@@ -7,6 +7,7 @@ module.exports = function( grunt ) {
 	grunt.loadNpmTasks( "grunt-contrib-compress" );
 	grunt.loadNpmTasks( "grunt-contrib-uglify" );
 	grunt.loadNpmTasks( "grunt-contrib-cssmin" );
+	grunt.loadNpmTasks( "grunt-contrib-csslint" );
 	grunt.loadNpmTasks( "grunt-contrib-clean" );
 	grunt.loadNpmTasks( "grunt-jscs" );
 	grunt.loadTasks( "tasks" );
@@ -54,6 +55,15 @@ module.exports = function( grunt ) {
 			options: {
 				config: true,
 				fix: true
+			}
+		},
+
+		csslint: {
+			strict: {
+				options: {
+				    csslintrc: ".csslintrc"
+				},
+				src: [ "www/css/main.css" ]
 			}
 		},
 
