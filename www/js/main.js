@@ -6460,7 +6460,11 @@ var getLogs = ( function() {
 
     //Automatically update the log viewer when changing the date range
     if ( isiOS ) {
-        page.find( "#log_start,#log_end" ).on( "blur", requestData );
+        page.find( "#log_start,#log_end" ).on( "blur", function() {
+			if ( page.hasClass( "ui-page-active" ) ) {
+				requestData();
+			}
+        } );
     } else {
         page.find( "#log_start,#log_end" ).change( function() {
             clearTimeout( logtimeout );
