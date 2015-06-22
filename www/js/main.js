@@ -474,7 +474,9 @@ function initApp() {
     bindPanel();
 
 	// Update the IP address of the device running the app
-	updateDeviceIP();
+	if ( !currLocal ) {
+		updateDeviceIP();
+	}
 
     // If cloud token is available then sync sites
     cloudSync();
@@ -5516,7 +5518,9 @@ var getPreview = ( function() {
         pagehide: function() {
             page.detach();
         },
-        pageshow: render
+        pageshow: function() {
+			render();
+        }
     } );
 
     processPrograms = function( month, day, year ) {
@@ -6045,13 +6049,15 @@ var getPreview = ( function() {
     };
 
     function begin() {
-	    now = new Date( controller.settings.devt * 1000 );
-	    date = now.toISOString().slice( 0, 10 ).split( "-" );
 	    is21 = checkOSVersion( 210 );
 	    is211 = checkOSVersion( 211 );
-	    day = new Date( date[0], date[1] - 1, date[2] );
 
-		page.find( "#preview_date" ).val( date.join( "-" ) );
+	    if ( page.find( "#preview_date" ).val() === "" ) {
+		    now = new Date( controller.settings.devt * 1000 );
+		    date = now.toISOString().slice( 0, 10 ).split( "-" );
+		    day = new Date( date[0], date[1] - 1, date[2] );
+			page.find( "#preview_date" ).val( date.join( "-" ) );
+		}
 
 	    changeHeader( {
 	        title: _( "Program Preview" ),
@@ -6399,8 +6405,8 @@ var getLogs = ( function() {
             logsList.show().html( _( "Error retrieving log data. Please refresh to try again." ) );
         },
         dates = function() {
-            var sDate = $( "#log_start" ).val().split( "-" ),
-                eDate = $( "#log_end" ).val().split( "-" );
+            var sDate = logStart.val().split( "-" ),
+                eDate = logEnd.val().split( "-" );
             return {
                 start: new Date( sDate[0], sDate[1] - 1, sDate[2] ),
                 end: new Date( eDate[0], eDate[1] - 1, eDate[2] )
@@ -6443,7 +6449,10 @@ var getLogs = ( function() {
                 ).then( success, fail );
             }, delay );
         },
-        stations, now, isNarrow, logtimeout, i;
+		isNarrow = window.innerWidth < 640 ? true : false,
+        logStart = page.find( "#log_start" ),
+        logEnd = page.find( "#log_end" ),
+        stations, logtimeout, i;
 
     // Bind clear logs button
     page.find( ".clear_logs" ).on( "click", function() {
@@ -6460,13 +6469,13 @@ var getLogs = ( function() {
 
     //Automatically update the log viewer when changing the date range
     if ( isiOS ) {
-        page.find( "#log_start,#log_end" ).on( "blur", function() {
+        logStart.add( logEnd ).on( "blur", function() {
 			if ( page.hasClass( "ui-page-active" ) ) {
 				requestData();
 			}
         } );
     } else {
-        page.find( "#log_start,#log_end" ).change( function() {
+        logStart.add( logEnd ).change( function() {
             clearTimeout( logtimeout );
             logtimeout = setTimeout( requestData, 1000 );
         } );
@@ -6487,19 +6496,18 @@ var getLogs = ( function() {
         pageshow: requestData
     } );
 
+	page.find( "#log_timeline" ).prop( "checked", !isNarrow );
+	page.find( "#log_table" ).prop( "checked", isNarrow );
+
     function begin() {
-	    page.find( "input" ).blur();
-
 		stations = $.merge( $.merge( [], controller.stations.snames ), [ _( "Rain Sensor" ), _( "Rain Delay" ) ] );
-
-		now = new Date( controller.settings.devt * 1000 );
-		isNarrow = $.mobile.window.width() < 640 ? true : false;
-
 		page.find( ".clear_logs" ).toggleClass( "hidden", ( isOSPi() || checkOSVersion( 210 ) ?  false : true ) );
-		page.find( "#log_timeline" ).prop( "checked", !isNarrow );
-		page.find( "#log_table" ).prop( "checked", isNarrow );
-		page.find( "#log_start" ).val( new Date( now.getTime() - 604800000 ).toISOString().slice( 0, 10 ) );
-		page.find( "#log_end" ).val( now.toISOString().slice( 0, 10 ) );
+
+		if ( logStart.val() === "" || logEnd.val() === "" ) {
+			var now = new Date( controller.settings.devt * 1000 );
+			logStart.val( new Date( now.getTime() - 604800000 ).toISOString().slice( 0, 10 ) );
+			logEnd.val( now.toISOString().slice( 0, 10 ) );
+		}
 
 	    changeHeader( {
 	        title: _( "Logs" ),
