@@ -1470,6 +1470,13 @@ var showSites = ( function() {
         page.detach();
     } );
 
+    page.one( "pagebeforeshow", function() {
+	    popup.popup( {
+	        history: false,
+	        positionTo: header.eq( 2 )
+	    } ).enhanceWithin();
+    } );
+
     $( "html" ).on( "siterefresh", function() {
 		if ( page.hasClass( "ui-page-active" ) ) {
 			updateContent();
@@ -1751,11 +1758,6 @@ var showSites = ( function() {
                 }
             }
         } );
-
-	    popup.popup( {
-	        history: false,
-	        positionTo: header.eq( 2 )
-	    } ).enhanceWithin();
 
 	    updateContent();
 
@@ -4801,30 +4803,30 @@ var showStart = ( function() {
 		auto = page.find( "#auto-scan" ),
 		next = auto.next();
 
+    page.find( "#auto-scan" ).find( "a" ).on( "click", function() {
+        startScan();
+        return false;
+    } );
+
+    page.find( "a[href='#addnew']" ).on( "click", function() {
+		showAddNew();
+    } );
+
+    page.find( ".cloud-login" ).on( "click", function() {
+        requestCloudAuth();
+        return false;
+    } );
+
+    page.on( "pagehide", function() {
+        page.detach();
+    } );
+
 	function begin() {
 		if ( isControllerConnected() ) {
 			return false;
 		}
 
 	    $( "#start" ).remove();
-
-	    page.find( "#auto-scan" ).find( "a" ).on( "click", function() {
-	        startScan();
-	        return false;
-	    } );
-
-	    page.find( "a[href='#addnew']" ).on( "click", function() {
-			showAddNew();
-	    } );
-
-	    page.find( ".cloud-login" ).on( "click", function() {
-	        requestCloudAuth();
-	        return false;
-	    } );
-
-	    page.one( "pagehide", function() {
-	        page.detach();
-	    } );
 
 	    $.mobile.pageContainer.append( page );
 
@@ -5119,8 +5121,7 @@ function updateTimers() {
 
 // Manual control functions
 var getManual = ( function() {
-    var list = "<li data-role='list-divider' data-theme='a'>" + _( "Sprinkler Stations" ) + "</li>",
-        page = $( "<div data-role='page' id='manual'>" +
+    var page = $( "<div data-role='page' id='manual'>" +
                 "<div class='ui-content' role='main'>" +
                     "<p class='center'>" + _( "With manual mode turned on, tap a station to toggle it." ) + "</p>" +
                     "<fieldset data-role='collapsible' data-collapsed='false' data-mini='true'>" +
@@ -5137,6 +5138,8 @@ var getManual = ( function() {
                             "<button data-mini='true' name='auto-off' id='auto-off' value='3600'>1h</button>" +
                         "</div>" +
                     "</fieldset>" +
+                    "<div id='manual-station-list'>" +
+                    "</div>" +
                 "</div>" +
             "</div>" ),
         checkToggle = function( currPos ) {
@@ -5206,7 +5209,47 @@ var getManual = ( function() {
         autoOff = page.find( "#auto-off" ),
         dest, mmlist, listitems;
 
+    page.on( "pagehide", function() {
+        page.detach();
+    } );
+
+    storage.get( "autoOff", function( data ) {
+        if ( !data.autoOff ) {
+            return;
+        }
+        autoOff.val( data.autoOff );
+        autoOff.text( dhms2str( sec2dhms( data.autoOff ) ) );
+    } );
+
+    autoOff.on( "click", function() {
+        var dur = $( this ),
+            name = page.find( "label[for='" + dur.attr( "id" ) + "']" ).text();
+
+        showDurationBox( {
+            seconds: dur.val(),
+            title: name,
+            callback: function( result ) {
+                dur.val( result );
+                dur.text( dhms2str( sec2dhms( result ) ) );
+                storage.set( { "autoOff":result } );
+            },
+            maximum: 32768
+        } );
+
+        return false;
+    } );
+
+/*
+    page.one( "pagebeforeshow", function() {
+		page.find( "#mmm" ).flipswitch();
+    } )
+*/
+
+    page.find( "#mmm" ).on( "change", flipSwitched );
+
     function begin() {
+		var list = "<li data-role='list-divider' data-theme='a'>" + _( "Sprinkler Stations" ) + "</li>";
+
 		page.find( "#mmm" ).prop( "checked", controller.settings.mm ? true : false );
 
 	    $.each( controller.stations.snames, function( i, station ) {
@@ -5222,37 +5265,7 @@ var getManual = ( function() {
 	    mmlist = $( "<ul data-role='listview' data-inset='true' id='mm_list'>" + list + "</ul>" );
 	    listitems = mmlist.children( "li" ).slice( 1 );
 	    mmlist.find( ".mm_station" ).on( "vclick", toggle );
-	    page.find( ".ui-content" ).append( mmlist );
-
-	    autoOff.on( "click", function() {
-	        var dur = $( this ),
-	            name = page.find( "label[for='" + dur.attr( "id" ) + "']" ).text();
-
-	        showDurationBox( {
-	            seconds: dur.val(),
-	            title: name,
-	            callback: function( result ) {
-	                dur.val( result );
-	                dur.text( dhms2str( sec2dhms( result ) ) );
-	                storage.set( { "autoOff":result } );
-	            },
-	            maximum: 32768
-	        } );
-
-	        return false;
-	    } );
-	    page.find( "#mmm" ).flipswitch().on( "change", flipSwitched );
-	    storage.get( "autoOff", function( data ) {
-	        if ( !data.autoOff ) {
-	            return;
-	        }
-	        autoOff.val( data.autoOff );
-	        autoOff.text( dhms2str( sec2dhms( data.autoOff ) ) );
-	    } );
-
-	    page.one( "pagehide", function() {
-	        page.detach();
-	    } );
+	    page.find( "#manual-station-list" ).html( mmlist ).enhanceWithin();
 
 	    changeHeader( {
 	        title: _( "Manual Control" ),
