@@ -5303,6 +5303,10 @@ var getRunonce = ( function() {
         },
         i, list, quickPick, progs, rprogs, z, program, name;
 
+    page.on( "pagehide", function() {
+        page.detach();
+    } );
+
     function begin() {
 		list = "<p class='center'>" + _( "Zero value excludes the station from the run-once program." ) + "</p>";
 	    progs = [];
@@ -5353,7 +5357,7 @@ var getRunonce = ( function() {
 	    list += "</form><a class='ui-btn ui-corner-all ui-shadow rsubmit' href='#'>" + _( "Submit" ) + "</a>" +
 			"<a class='ui-btn ui-btn-b ui-corner-all ui-shadow rreset' href='#'>" + _( "Reset" ) + "</a>";
 
-	    page.find( ".ui-content" ).html( list );
+	    page.find( ".ui-content" ).html( list ).enhanceWithin();
 
 	    if ( typeof controller.settings.rodur === "object" ) {
 	        var total = 0;
@@ -5413,10 +5417,6 @@ var getRunonce = ( function() {
 	        } );
 
 	        return false;
-	    } );
-
-	    page.one( "pagehide", function() {
-	        page.detach();
 	    } );
 
 	    changeHeader( {
@@ -5495,6 +5495,29 @@ var getPreview = ( function() {
         placeholder = page.find( "#timeline" ),
         navi = page.find( "#timeline-navigation" ),
         previewData, processPrograms, checkMatch, checkMatch183, checkMatch21, runSched, timeToText, changeday, render, date, day, now, is21, is211;
+
+    placeholder.on( "swiperight swipeleft", function( e ) {
+        e.stopImmediatePropagation();
+    } );
+
+    page.find( "#preview_date" ).on( "change", function() {
+        day = new Date( date[0], date[1] - 1, date[2] );
+        render();
+    } );
+
+    holdButton( page.find( ".preview-plus" ), function() {
+        changeday( 1 );
+    } );
+    holdButton( page.find( ".preview-minus" ), function() {
+        changeday( -1 );
+    } );
+
+    page.on( {
+        pagehide: function() {
+            page.detach();
+        },
+        pageshow: render
+    } );
 
     processPrograms = function( month, day, year ) {
         previewData = [];
@@ -6028,28 +6051,7 @@ var getPreview = ( function() {
 	    is211 = checkOSVersion( 211 );
 	    day = new Date( date[0], date[1] - 1, date[2] );
 
-	    placeholder.on( "swiperight swipeleft", function( e ) {
-	        e.stopImmediatePropagation();
-	    } );
-
-	    page.find( "#preview_date" ).val( date.join( "-" ) ).on( "change", function() {
-	        day = new Date( date[0], date[1] - 1, date[2] );
-	        render();
-	    } );
-
-	    holdButton( page.find( ".preview-plus" ), function() {
-	        changeday( 1 );
-	    } );
-	    holdButton( page.find( ".preview-minus" ), function() {
-	        changeday( -1 );
-	    } );
-
-	    page.one( {
-	        pagehide: function() {
-	            page.detach();
-	        },
-	        pageshow: render
-	    } );
+		page.find( "#preview_date" ).val( date.join( "-" ) );
 
 	    changeHeader( {
 	        title: _( "Program Preview" ),
@@ -6443,6 +6445,44 @@ var getLogs = ( function() {
         },
         stations, now, isNarrow, logtimeout, i;
 
+    // Bind clear logs button
+    page.find( ".clear_logs" ).on( "click", function() {
+        areYouSure( _( "Are you sure you want to clear ALL your log data?" ), "", function() {
+            var url = isOSPi() ? "/cl?pw=" : "/dl?pw=&day=all";
+            $.mobile.loading( "show" );
+            sendToOS( url ).done( function() {
+                requestData();
+                showerror( _( "Logs have been cleared" ) );
+            } );
+        } );
+        return false;
+    } );
+
+    //Automatically update the log viewer when changing the date range
+    if ( isiOS ) {
+        page.find( "#log_start,#log_end" ).on( "blur", requestData );
+    } else {
+        page.find( "#log_start,#log_end" ).change( function() {
+            clearTimeout( logtimeout );
+            logtimeout = setTimeout( requestData, 1000 );
+        } );
+    }
+
+    //Automatically update log viewer when switching table sort
+    tableSort.find( "input[name='table-group']" ).change( function() {
+        prepTable();
+    } );
+
+    //Bind view change buttons
+    page.find( "input:radio[name='log_type']" ).change( updateView );
+
+    page.on( {
+        pagehide: function() {
+            page.detach();
+        },
+        pageshow: requestData
+    } );
+
     function begin() {
 	    page.find( "input" ).blur();
 
@@ -6451,50 +6491,11 @@ var getLogs = ( function() {
 		now = new Date( controller.settings.devt * 1000 );
 		isNarrow = $.mobile.window.width() < 640 ? true : false;
 
+		page.find( ".clear_logs" ).toggleClass( "hidden", ( isOSPi() || checkOSVersion( 210 ) ?  false : true ) );
 		page.find( "#log_timeline" ).prop( "checked", !isNarrow );
 		page.find( "#log_table" ).prop( "checked", isNarrow );
 		page.find( "#log_start" ).val( new Date( now.getTime() - 604800000 ).toISOString().slice( 0, 10 ) );
 		page.find( "#log_end" ).val( now.toISOString().slice( 0, 10 ) );
-
-	    // Bind clear logs button
-	    page.find( ".clear_logs" )
-		    .toggleClass( "hidden", ( isOSPi() || checkOSVersion( 210 ) ?  false : true ) )
-			.on( "click", function() {
-		        areYouSure( _( "Are you sure you want to clear ALL your log data?" ), "", function() {
-		            var url = isOSPi() ? "/cl?pw=" : "/dl?pw=&day=all";
-		            $.mobile.loading( "show" );
-		            sendToOS( url ).done( function() {
-		                requestData();
-		                showerror( _( "Logs have been cleared" ) );
-		            } );
-		        } );
-		        return false;
-		    } );
-
-	    //Automatically update the log viewer when changing the date range
-	    if ( isiOS ) {
-	        page.find( "#log_start,#log_end" ).on( "blur", requestData );
-	    } else {
-	        page.find( "#log_start,#log_end" ).change( function() {
-	            clearTimeout( logtimeout );
-	            logtimeout = setTimeout( requestData, 1000 );
-	        } );
-	    }
-
-	    //Automatically update log viewer when switching table sort
-	    tableSort.find( "input[name='table-group']" ).change( function() {
-	        prepTable();
-	    } );
-
-	    //Bind view change buttons
-	    page.find( "input:radio[name='log_type']" ).change( updateView );
-
-	    page.one( {
-	        pagehide: function() {
-	            page.detach();
-	        },
-	        pageshow: requestData
-	    } );
 
 	    changeHeader( {
 	        title: _( "Logs" ),
@@ -7178,16 +7179,18 @@ function makeProgram21( n, isCopy ) {
     list += "<div class='ui-bar ui-bar-a'><h3>" + _( "Stations" ) + "</h3></div>";
     list += "<div class='ui-body ui-body-a'>";
 
+    var hideDisabled = $( "#programs" ).hasClass( "show-hidden" ) ? "" : "' style='display:none";
+
     // Show station duration inputs
     for ( j = 0; j < controller.stations.snames.length; j++ ) {
         if ( isStationMaster( j ) ) {
-            list += "<div class='ui-field-contain duration-input" + ( isStationDisabled( j ) ? " station-hidden' style='display:none" : "" ) + "'>" +
+            list += "<div class='ui-field-contain duration-input" + ( isStationDisabled( j ) ? " station-hidden" + hideDisabled : "" ) + "'>" +
 				"<label for='station_" + j + "-" + id + "'>" + controller.stations.snames[j] + ":</label>" +
 				"<button disabled='true' data-mini='true' name='station_" + j + "-" + id + "' id='station_" + j + "-" + id + "' value='0'>" +
 				_( "Master" ) + "</button></div>";
         } else {
             time = program.stations[j] || 0;
-            list += "<div class='ui-field-contain duration-input" + ( isStationDisabled( j ) ? " station-hidden' style='display:none" : "" ) + "'>" +
+            list += "<div class='ui-field-contain duration-input" + ( isStationDisabled( j ) ? " station-hidden" + hideDisabled : "" ) + "'>" +
 				"<label for='station_" + j + "-" + id + "'>" + controller.stations.snames[j] + ":</label>" +
 				"<button " + ( time > 0 ? "class='green' " : "" ) + "data-mini='true' name='station_" + j + "-" + id + "' " +
 					"id='station_" + j + "-" + id + "' value='" + time + "'>" + getDurationText( time ) + "</button></div>";
