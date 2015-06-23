@@ -2020,7 +2020,7 @@ function startScan( port, type ) {
             url: url,
             type: "GET",
             dataType: dtype,
-            timeout: 5000,
+            timeout: 6000,
             global: false,
             error: notfound,
             success: found
@@ -2086,7 +2086,7 @@ function ping( ip, callback ) {
     $.ajax( {
         url: "http://" + ip,
         type: "GET",
-        timeout: 5000,
+        timeout: 6000,
         global: false
     } ).then(
         function() {
