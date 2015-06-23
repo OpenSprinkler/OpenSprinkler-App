@@ -5516,6 +5516,7 @@ var getPreview = ( function() {
     } );
 
     page.find( "#preview_date" ).on( "change", function() {
+        date = this.value.split( "-" );
         day = new Date( date[0], date[1] - 1, date[2] );
         render();
     } );
