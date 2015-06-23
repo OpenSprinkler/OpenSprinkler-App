@@ -179,7 +179,7 @@ describe( "Page Navigation Checks", function() {
 		this.timeout( 30000 );
 		assert.doesNotThrow( $.mobile.initializePage );
 		$.mobile.document.one( "pageshow", "#sprinklers", function() {
-			setTimeout( done, 2000 );
+			setTimeout( done, 5000 );
 		} );
 	} );
 
