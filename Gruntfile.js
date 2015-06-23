@@ -261,14 +261,14 @@ module.exports = function( grunt ) {
 				overwrite: true,
 				replacements: [
 					{
-						from: /version     = "([\d|\.]+)"/g,
+						from: /^\w+?version="([\d|\.]+)"/g,
 						to: function( matchedWord, index, fullText, regexMatches ) {
-							return "version     = \"" + bumpVersion( regexMatches[0] ) + "\"";
+							return "version=\"" + bumpVersion( regexMatches[0] ) + "\"";
 						}
 					}, {
-						from: /versionCode = "(\d+)"/g,
+						from: /versionCode="(\d+)"/g,
 						to: function( matchedWord, index, fullText, regexMatches ) {
-							return "versionCode = \"" + ( parseInt( regexMatches[0] ) + 1 ) + "\"";
+							return "versionCode=\"" + ( parseInt( regexMatches[0] ) + 1 ) + "\"";
 						}
 					}, {
 						from: /<string>(\d+)<\/string>/g,
