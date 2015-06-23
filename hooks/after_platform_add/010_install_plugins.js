@@ -8,13 +8,13 @@ var pluginlist = [
 	"https://github.com/apache/cordova-plugin-geolocation.git"
 ];
 
-var sys = require("sys"),
-    exec = require("child_process").exec;
+var sys = require( "sys" ),
+    exec = require( "child_process" ).exec;
 
-function puts(error, stdout, stderr) {
-  sys.puts(stdout);
+function puts( error, stdout ) {
+  sys.puts( stdout );
 }
 
-pluginlist.forEach(function(plug) {
-  exec("cordova plugin add " + plug, puts);
-});
+pluginlist.forEach( function( plug ) {
+  exec( "cordova plugin add " + plug, puts );
+} );

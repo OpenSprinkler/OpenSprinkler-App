@@ -4,9 +4,8 @@
 // This hook copies various resource files from our version control system directories into the appropriate platform specific location
 //
 
-
 // configure all the files to copy.  Key of object is the source file, value is the destination location.  It's fine to put all platforms' icons and splash screen files here, even if we don't build for all platforms on each developer's box.
-var filestocopy = [{
+var filestocopy = [ {
     "res/android/icons/xxhdpi.png": "platforms/android/res/drawable/icon.png"
 }, {
     "res/android/icons/hdpi.png": "platforms/android/res/drawable-hdpi/icon.png"
@@ -54,20 +53,20 @@ var filestocopy = [{
     "res/ios/screens/startup-tablet-portrait-retina.png": "platforms/ios/OpenSprinkler/Resources/splash/Default-Portrait@2x~ipad.png"
 } ];
 
-var fs = require("fs");
-var path = require("path");
+var fs = require( "fs" );
+var path = require( "path" );
 
 // no need to configure below
 var rootdir = process.argv[2];
 
-filestocopy.forEach(function(obj) {
-    Object.keys(obj).forEach(function(key) {
+filestocopy.forEach( function( obj ) {
+    Object.keys( obj ).forEach( function( key ) {
         var val = obj[key];
-        var srcfile = path.join(rootdir, key);
-        var destfile = path.join(rootdir, val);
-        var destdir = path.dirname(destfile);
-        if (fs.existsSync(srcfile) && fs.existsSync(destdir)) {
-            fs.createReadStream(srcfile).pipe(fs.createWriteStream(destfile));
+        var srcfile = path.join( rootdir, key );
+        var destfile = path.join( rootdir, val );
+        var destdir = path.dirname( destfile );
+        if ( fs.existsSync( srcfile ) && fs.existsSync( destdir ) ) {
+            fs.createReadStream( srcfile ).pipe( fs.createWriteStream( destfile ) );
         }
-    });
-});
+    } );
+} );
