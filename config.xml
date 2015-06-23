@@ -92,7 +92,7 @@
         <gap:plugin name="cordova-plugin-inappbrowser" source="npm" />
         <gap:plugin name="cordova-plugin-splashscreen" source="npm" />
         <gap:plugin name="cordova-plugin-geolocation" source="npm" />
-        <gap:plugin name="cordova-plugin-whitelist" source="npm" />
+        <gap:plugin name="cordova-plugin-whitelist" source="npm" version="1.0.0" />
 
         <!-- Add description for GPS usage -->
         <gap:config-file platform="ios" parent="NSLocationAlwaysUsageDescription" overwrite="false">
