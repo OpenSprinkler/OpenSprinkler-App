@@ -5530,23 +5530,6 @@ var getPreview = ( function() {
 	    } );
     } );
 
-    navi.find( ".ui-icon-plus" ).on( "click", function() {
-        timeline.zoom( 0.4 );
-        return false;
-    } );
-    navi.find( ".ui-icon-minus" ).on( "click", function() {
-        timeline.zoom( -0.4 );
-        return false;
-    } );
-    navi.find( ".ui-icon-carat-l" ).on( "click", function() {
-        timeline.move( -0.2 );
-        return false;
-    } );
-    navi.find( ".ui-icon-carat-r" ).on( "click", function() {
-        timeline.move( 0.2 );
-        return false;
-    } );
-
     page.on( {
         pagehide: function() {
             page.detach();
@@ -6061,7 +6044,24 @@ var getPreview = ( function() {
 			getDayName( day, "short" ) + "'>" + getDayName( day ) + "</div>" );
 
         if ( isAndroid ) {
-			navi.show();
+		    navi.find( ".ui-icon-plus" ).off( "click" ).on( "click", function() {
+		        timeline.zoom( 0.4 );
+		        return false;
+		    } );
+		    navi.find( ".ui-icon-minus" ).off( "click" ).on( "click", function() {
+		        timeline.zoom( -0.4 );
+		        return false;
+		    } );
+		    navi.find( ".ui-icon-carat-l" ).off( "click" ).on( "click", function() {
+		        timeline.move( -0.2 );
+		        return false;
+		    } );
+		    navi.find( ".ui-icon-carat-r" ).off( "click" ).on( "click", function() {
+		        timeline.move( 0.2 );
+		        return false;
+		    } );
+
+		    navi.show();
         } else {
 			navi.hide();
         }
