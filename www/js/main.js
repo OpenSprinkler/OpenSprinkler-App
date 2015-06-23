@@ -136,6 +136,12 @@ $( document )
         StatusBar.overlaysWebView( false );
         StatusBar.styleLightContent();
         StatusBar.backgroundColorByHexString( statusBarPrimary );
+
+        $.mobile.window.on( "statusTap", function() {
+			$( "body, html" ).animate( {
+				scrollTop: 0
+			}, 700 );
+        } );
     } catch ( err ) {}
 
     // Hide the splash screen
