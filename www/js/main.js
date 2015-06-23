@@ -259,11 +259,6 @@ $( document )
 
 		// Hide the header, footer and menu button on the start page
         $( "#header,#footer,#footer-menu" ).hide();
-    } else if ( newpage === "#site-control" ) {
-
-		// Hide the footer and footer-menu on the site manager page but show menu button
-        $( "#footer,#footer-menu" ).hide();
-        $( "#header" ).show();
     } else {
 
 		// Show header, footer and menu button on all other pages
@@ -1442,8 +1437,11 @@ var showSites = ( function() {
             "</div>" +
         "</div>" ),
         makeStart = function() {
-            page.one( "pagebeforeshow", function() {
+            page.one( "pagebeforeshow", function( e ) {
+				e.stopImmediatePropagation();
                 header.eq( 0 ).hide();
+                $( "#header" ).show();
+	            $( "#footer, #footer-menu" ).hide();
             } );
 
             page.on( "swiperight swipeleft", function( e ) {
@@ -1507,12 +1505,6 @@ var showSites = ( function() {
 
 	            if ( !isControllerConnected() || !total || !( data.current_site in sites ) ) {
 	                makeStart();
-	            } else {
-	                page.one( "pagebeforeshow", function() {
-	                    setTimeout( function() {
-	                        $( "#footer, #footer-menu" ).show();
-	                    }, 0 );
-	                } );
 	            }
 
 	            sites = sortObj( sites );
