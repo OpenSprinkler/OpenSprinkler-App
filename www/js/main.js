@@ -1443,12 +1443,20 @@ var showSites = ( function() {
             "</div>" +
         "</div>" ),
         makeStart = function() {
-            page.one( "pagebeforeshow", function( e ) {
-				e.stopImmediatePropagation();
+            var finish = function() {
                 header.eq( 0 ).hide();
                 $( "#header" ).show();
-	            $( "#footer, #footer-menu" ).hide();
-            } );
+                $( "#footer, #footer-menu" ).hide();
+            };
+
+            if ( page.hasClass( "ui-page-active" ) ) {
+                finish();
+            } else {
+                page.one( "pagebeforeshow", function( e ) {
+                    e.stopImmediatePropagation();
+                    finish();
+                } );
+            }
 
             page.on( "swiperight swipeleft", function( e ) {
                 e.stopImmediatePropagation();
@@ -1701,6 +1709,10 @@ var showSites = ( function() {
 
 	            list.find( ".deletesite" ).on( "click", function() {
 	                var site = siteNames[$( this ).data( "site" )];
+
+                    if ( $( "#site-selector" ).val() === site ) {
+                        makeStart();
+                    }
 
 	                delete sites[site];
 	                storage.set( { "sites":JSON.stringify( sites ) }, function() {
