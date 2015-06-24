@@ -1706,13 +1706,19 @@ var showSites = ( function() {
 	                storage.set( { "sites":JSON.stringify( sites ) }, function() {
 	                    cloudSaveSites();
 	                    updateSiteList( Object.keys( sites ), data.current_site );
-	                    if ( $.isEmptyObject( sites ) &&
-							( data.cloudToken === null || data.cloudToken === undefined ) ) {
-	                        changePage( "#start" );
-	                        return false;
+	                    if ( $.isEmptyObject( sites ) ) {
+		                    storage.get( "cloudToken", function() {
+			                    if ( data.cloudToken === null || data.cloudToken === undefined ) {
+									currIp = "";
+									currPass = "";
+			                        changePage( "#start" );
+									return;
+								}
+							} );
+						} else {
+		                    updateContent();
+		                    showerror( _( "Site deleted successfully" ) );
 	                    }
-	                    updateContent();
-	                    showerror( _( "Site deleted successfully" ) );
 	                    return false;
 	                } );
 
