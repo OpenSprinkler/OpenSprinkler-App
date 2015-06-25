@@ -161,7 +161,8 @@ module.exports = function( grunt ) {
 					"cd build/firmware",
 					"unzip UI.zip",
 					"rsync -azp --chmod=Du=rwx,Dg=rx,Do=rx,Fu=rw,Fg=r,Fo=r * <%= secrets.firmware.rayshobby.location %>",
-					"rsync -azp --chmod=Du=rwx,Dg=rx,Do=rx,Fu=rw,Fg=r,Fo=r * <%= secrets.firmware.opensprinkler.location %>"
+					"rsync -azp --chmod=Du=rwx,Dg=rx,Do=rx,Fu=rw,Fg=r,Fo=r * <%= secrets.firmware.opensprinkler.location %>",
+					"rsync -azp --chmod=Du=rwx,Dg=rx,Do=rx,Fu=rw,Fg=r,Fo=r * <%= secrets.firmware.betaui.location %>"
 				].join( "&&" )
 			},
 			updateBetaUI: {
