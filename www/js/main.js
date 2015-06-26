@@ -7678,7 +7678,7 @@ function getExportMethod() {
             "</div>" +
         "</div>" ),
         obj = encodeURIComponent( JSON.stringify( controller ) ),
-        subject = "Sprinklers Data Export on " + dateToString( new Date() );
+        subject = "OpenSprinkler Data Export on " + dateToString( new Date() );
 
     if ( isFileCapable ) {
         popup.find( ".fileMethod" ).removeClass( "hidden" ).attr( {
@@ -10298,7 +10298,7 @@ function exportObj( ele, obj, subject ) {
             download: "backup.json"
         } );
     } else {
-        subject = subject || "Sprinklers Data Export on " + dateToString( new Date() );
+        subject = subject || "OpenSprinkler Data Export on " + dateToString( new Date() );
         var href = "mailto:?subject=" + encodeURIComponent( subject ) + "&body=" + obj;
         $( ele ).attr( "href", href ).on( "click", function() {
             window.open( href );
