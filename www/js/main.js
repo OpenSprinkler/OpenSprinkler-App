@@ -296,9 +296,8 @@ $( document )
         StatusBar.backgroundColorByHexString( statusBarPrimary );
     } catch ( err ) {}
 } )
-.on( "popupbeforeposition", "#localization", checkCurrLang );
-
-$( "#loadingPage" ).one( "pagebeforeshow", initApp );
+.on( "popupbeforeposition", "#localization", checkCurrLang )
+.one( "pagebeforeshow", "#loadingPage", initApp );
 
 function initApp() {
 
