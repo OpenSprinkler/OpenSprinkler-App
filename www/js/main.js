@@ -167,74 +167,64 @@ $( document )
         $.mobile.hashListeningEnabled = false;
     }
 } )
-.one( "pagebeforechange", function( event ) {
+.on( "pagebeforechange", function( e, data ) {
+    var page = data.toPage,
+        currPage = $( ".ui-page-active" ),
+        hash;
 
-    // Let the framework know we're going to handle the first load
-    event.preventDefault();
+    // Pagebeforechange event triggers twice (before and after)
+    // and this check ensures we get the before state
+    if ( typeof data.toPage !== "string" ) {
+        return;
+    }
 
-    // Bind the event handler for subsequent pagebeforechange requests
-    $.mobile.document.on( "pagebeforechange", function( e, data ) {
-        var page = data.toPage,
-            currPage = $( ".ui-page-active" ),
-            hash;
+    // Grabs the new page hash
+    hash = $.mobile.path.parseUrl( page ).hash;
 
-        // Pagebeforechange event triggers twice (before and after)
-        // and this check ensures we get the before state
-        if ( typeof data.toPage !== "string" ) {
-            return;
+    if ( currPage.length > 0 && hash === "#" + currPage.attr( "id" ) ) {
+        return;
+    }
+
+    // Animations are patchy if the page isn't scrolled to the top.
+    // This scrolls the page before the animation fires off.
+    if ( data.options.role !== "popup" && !$( ".ui-popup-active" ).length ) {
+        $.mobile.silentScroll( 0 );
+    }
+
+    // Cycle through page possibilities and call their init functions
+    if ( hash === "#programs" ) {
+        getPrograms( data.options.programToExpand );
+    } else if ( hash === "#addprogram" ) {
+        addProgram( data.options.copyID );
+    } else if ( hash === "#manual" ) {
+        getManual();
+    } else if ( hash === "#about" ) {
+        showAbout();
+    } else if ( hash === "#runonce" ) {
+        getRunonce();
+    } else if ( hash === "#os-options" ) {
+        showOptions( data.options.expandItem );
+    } else if ( hash === "#preview" ) {
+        getPreview();
+    } else if ( hash === "#logs" ) {
+        getLogs();
+    } else if ( hash === "#forecast" ) {
+        showForecast();
+    } else if ( hash === "#loadingPage" ) {
+        checkConfigured( true );
+    } else if ( hash === "#start" ) {
+		showStart();
+    } else if ( hash === "#site-control" ) {
+        showSites();
+    } else if ( hash === "#weather_settings" ) {
+        showWeatherSettings();
+    } else if ( hash === "#sprinklers" ) {
+        if ( $( hash ).length === 0 ) {
+            showHome( data.options.firstLoad );
+        } else {
+            $( hash ).one( "pageshow", refreshStatus );
         }
-
-        // Grabs the new page hash
-        hash = $.mobile.path.parseUrl( page ).hash;
-
-        if ( currPage.length > 0 && hash === "#" + currPage.attr( "id" ) ) {
-            return;
-        }
-
-        // Animations are patchy if the page isn't scrolled to the top.
-        // This scrolls the page before the animation fires off.
-        if ( data.options.role !== "popup" && !$( ".ui-popup-active" ).length ) {
-            $.mobile.silentScroll( 0 );
-        }
-
-        // Cycle through page possibilities and call their init functions
-        if ( hash === "#programs" ) {
-            getPrograms( data.options.programToExpand );
-        } else if ( hash === "#addprogram" ) {
-            addProgram( data.options.copyID );
-        } else if ( hash === "#manual" ) {
-            getManual();
-        } else if ( hash === "#about" ) {
-            showAbout();
-        } else if ( hash === "#runonce" ) {
-            getRunonce();
-        } else if ( hash === "#os-options" ) {
-            showOptions( data.options.expandItem );
-        } else if ( hash === "#preview" ) {
-            getPreview();
-        } else if ( hash === "#logs" ) {
-            getLogs();
-        } else if ( hash === "#forecast" ) {
-            showForecast();
-        } else if ( hash === "#loadingPage" ) {
-            checkConfigured( true );
-        } else if ( hash === "#start" ) {
-			showStart();
-        } else if ( hash === "#site-control" ) {
-            showSites();
-        } else if ( hash === "#weather_settings" ) {
-            showWeatherSettings();
-        } else if ( hash === "#sprinklers" ) {
-            if ( $( hash ).length === 0 ) {
-                showHome( data.options.firstLoad );
-            } else {
-                $( hash ).one( "pageshow", refreshStatus );
-            }
-        }
-    } );
-
-	// Initialize remainder of application
-    initApp();
+    }
 } )
 
 // Handle OS resume event triggered by PhoneGap
@@ -307,6 +297,8 @@ $( document )
     } catch ( err ) {}
 } )
 .on( "popupbeforeposition", "#localization", checkCurrLang );
+
+$( "#loadingPage" ).one( "pagebeforeshow", initApp );
 
 function initApp() {
 
@@ -10047,7 +10039,7 @@ function changeHeader( opt ) {
 
     // Fade out the header content, replace it, and update the header
     header.children().stop().fadeOut( speed, function() {
-        header.html( newHeader ).toolbar( "refresh" );
+        header.html( newHeader ).toolbar( header.hasClass( "ui-header" ) ? "refresh" : null );
         header.find( ".ui-btn-left" ).on( "click", opt.leftBtn.on );
         header.find( ".ui-btn-right" ).on( "click", opt.rightBtn.on );
     } ).fadeIn( speed );

@@ -176,11 +176,16 @@ describe( "General Function Checks", function() {
 
 describe( "Page Navigation Checks", function() {
 	it( "Start jQuery Mobile Page Initialization", function( done ) {
-		this.timeout( 30000 );
-		assert.doesNotThrow( $.mobile.initializePage );
+		currIp = "127.0.0.1:8080";
+		currPass = "opendoor";
+		currPrefix = "http://";
+		curr183 = false;
+
 		$.mobile.document.one( "pageshow", "#sprinklers", function() {
-			setTimeout( done, 6000 );
+			done();
 		} );
+
+		newload();
 	} );
 
 	it( "Change page to program preview", function( done ) {
