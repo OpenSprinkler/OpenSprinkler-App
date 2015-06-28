@@ -85,7 +85,7 @@ var isIEMobile = /IEMobile/.test( navigator.userAgent ),
     statusBarOverlay = isAndroid ? "#151515" : "#202020",
 
     // Define the amount of times the app will retry an HTTP request before marking it failed
-    retryCount = 3,
+    retryCount = 2,
 
     // Initialize controller array which will store JSON data
     controller = {},
@@ -2052,7 +2052,6 @@ function findRouter( callback ) {
 					"10.0.3.1", "10.0.4.1", "10.0.5.1" ],
         total = routerIPs.length,
         scanprogress = 0,
-        isCanceled = false,
         reply = function( status, ip ) {
             scanprogress++;
             if ( status === true ) {
@@ -2060,14 +2059,7 @@ function findRouter( callback ) {
             }
         },
         checkScanStatus = function() {
-            if ( isCanceled === true ) {
-                $.mobile.loading( "hide" );
-                clearInterval( scanning );
-                return false;
-            }
-
             if ( scanprogress === total || typeof routerFound === "string" ) {
-                $.mobile.loading( "hide" );
                 clearInterval( scanning );
                 if ( typeof routerFound === "string" ) {
                     callback( true, routerFound );
@@ -2077,10 +2069,6 @@ function findRouter( callback ) {
             }
         },
         scanning, routerFound, i;
-
-    $( ".ui-loader" ).find( ".cancel" ).one( "click", function() {
-        isCanceled = true;
-    } );
 
     for ( i = 0; i < total; i++ ) {
         if ( typeof routerFound !== "string" ) {
