@@ -757,17 +757,22 @@ function newload() {
 
             var fail = function() {
                 if ( !currLocal ) {
-                    $.mobile.document.one( "pageshow", function() {
-                        showerror( _( "Unable to connect to" ) + " " + name, 3500 );
-                    } );
-                    changePage( "#site-control", {
-                        transition: "none"
-                    } );
+					if ( $( ".ui-page-active" ).attr( "id" ) === "site-control" ) {
+						showFail();
+					} else {
+	                    $.mobile.document.one( "pageshow", showFail );
+	                    changePage( "#site-control", {
+	                        transition: "none"
+	                    } );
+					}
                 } else {
                     storage.remove( [ "sites" ], function() {
                         window.location.reload();
                     } );
                 }
+            },
+            showFail = function() {
+                showerror( _( "Unable to connect to" ) + " " + name, 3500 );
             };
 
             if ( typeof error === "object" && error.status === 401 ) {
