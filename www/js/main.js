@@ -291,7 +291,7 @@ $( document )
 } )
 .on( "popupafterclose", function() {
 
-	$( ".ui-page-active" ).add( "#header,#footer,#sprinklers-settings" ).removeClass( "blur-filter" );
+	$( ".ui-page-active" ).add( "#sprinklers-settings" ).removeClass( "blur-filter" );
 
 	// When a popup is closed, change the header back to the default color
     try {
@@ -299,7 +299,7 @@ $( document )
     } catch ( err ) {}
 } )
 .on( "popupbeforeposition", function() {
-	$( ".ui-page-active" ).add( "#header,#footer,#sprinklers-settings" ).addClass( "blur-filter" );
+	$( ".ui-page-active" ).add( "#sprinklers-settings" ).addClass( "blur-filter" );
 } )
 .on( "popupbeforeposition", "#localization", checkCurrLang )
 .one( "pagebeforeshow", "#loadingPage", initApp );
@@ -398,7 +398,8 @@ function initApp() {
 
         popup.popup( {
             history: false,
-            "positionTo": button
+            "positionTo": button,
+            overlayTheme: "b"
         } ).popup( "open" );
 
         button.off( "click" ).on( "click", function() {
