@@ -298,7 +298,7 @@ $( document )
         StatusBar.backgroundColorByHexString( statusBarPrimary );
     } catch ( err ) {}
 } )
-.on( "popupbeforeposition", function( e ) {
+.on( "popupbeforeposition", function() {
 	$( ".ui-page-active" ).add( "#header,#footer,#sprinklers-settings" ).addClass( "blur-filter" );
 } )
 .on( "popupbeforeposition", "#localization", checkCurrLang )
