@@ -291,10 +291,15 @@ $( document )
 } )
 .on( "popupafterclose", function() {
 
+	$( ".ui-page-active" ).add( "#header,#footer,#sprinklers-settings" ).removeClass( "blur-filter" );
+
 	// When a popup is closed, change the header back to the default color
     try {
         StatusBar.backgroundColorByHexString( statusBarPrimary );
     } catch ( err ) {}
+} )
+.on( "popupbeforeposition", function( e ) {
+	$( ".ui-page-active" ).add( "#header,#footer,#sprinklers-settings" ).addClass( "blur-filter" );
 } )
 .on( "popupbeforeposition", "#localization", checkCurrLang )
 .one( "pagebeforeshow", "#loadingPage", initApp );
@@ -386,8 +391,10 @@ function initApp() {
     $.mobile.document.on( "click", ".ui-select .ui-btn", function() {
         var button = $( this ),
             id = button.attr( "id" ).replace( "-button", "-listbox" ),
-            popup = $( "#" + id ),
-            screen = $( "#" + id + "-screen" );
+            popup = $( "#" + id );
+
+        popup.popup( "destroy" ).detach().addClass( "ui-page-theme-a" );
+        $.mobile.pageContainer.append( popup );
 
         popup.popup( {
             history: false,
@@ -396,10 +403,6 @@ function initApp() {
 
         button.off( "click" ).on( "click", function() {
             popup.popup( "open" );
-        } );
-
-        screen.off( "click" ).on( "click", function() {
-            popup.popup( "close" );
         } );
 
         return false;
