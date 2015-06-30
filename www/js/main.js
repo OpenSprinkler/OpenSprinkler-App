@@ -2252,7 +2252,7 @@ function showAdjustmentOptions( button, callback ) {
         };
     }
 
-    var popup = $( "<div data-role='popup' data-overlay-theme='b' data-theme='a' id='adjustmentOptions'>" +
+    var popup = $( "<div data-role='popup' data-theme='a' id='adjustmentOptions'>" +
             "<div data-role='header' data-theme='b'>" +
                 "<h1>" + _( "Weather Adjustment Options" ) + "</h1>" +
             "</div>" +
@@ -2799,7 +2799,7 @@ function resolveLocation( loc, callback ) {
             return;
         }
 
-        var popup = $( "<div data-role='popup' id='location-list' data-theme='a' data-overlay-theme='b'>" +
+        var popup = $( "<div data-role='popup' id='location-list' data-theme='a'>" +
                 "<div data-role='header' data-theme='b'>" +
                     "<h1>" + _( "Select City" ) + "</h1>" +
                 "</div>" +
@@ -2873,7 +2873,7 @@ function nearbyPWS( lat, lon, callback ) {
             prefix = $.mobile.path.parseUrl( $( "head" ).find( "script[src$='app.jgz'],script[src$='app.js']" ).attr( "src" ) ).hrefNoHash.slice( 0, -10 );
         }
 
-        var popup = $( "<div data-role='popup' id='location-list' data-theme='a' style='background-color:rgb(229, 227, 223);' data-overlay-theme='b'>" +
+        var popup = $( "<div data-role='popup' id='location-list' data-theme='a' style='background-color:rgb(229, 227, 223);'>" +
                 "<a href='#' data-rel='back' class='ui-btn ui-corner-all ui-shadow ui-btn-b ui-icon-delete ui-btn-icon-notext ui-btn-right'>" + _( "Close" ) + "</a>" +
                     "<iframe style='border:none' src='" + prefix + "map.htm' width='100%' height='100%' seamless=''></iframe>" +
             "</div>" ),
@@ -2961,7 +2961,7 @@ function debugWU() {
                 current = data.current_observation,
                 country = current.display_location.country_iso3166,
                 isMetric = ( ( country === "US" || country === "BM" || country === "PW" ) ? false : true ),
-                popup = $( "<div data-role='popup' id='debugWU' class='ui-content' data-overlay-theme='b' data-theme='a'>" +
+                popup = $( "<div data-role='popup' id='debugWU' class='ui-content' data-theme='a'>" +
                     "<table class='debugWU'>" +
                         "<tr><td>" + _( "Min Humidity" ) + "</td><td>" + summary.minhumidity + "%</td></tr>" +
                         "<tr><td>" + _( "Max Humidity" ) + "</td><td>" + summary.maxhumidity + "%</td></tr>" +
@@ -4143,7 +4143,7 @@ var showHomeMenu = ( function() {
 		page = $( ".ui-page-active" );
         id = page.attr( "id" );
         showHidden = page.hasClass( "show-hidden" );
-        popup = $( "<div data-role='popup' data-overlay-theme='b' data-theme='a' id='mainMenu'>" +
+        popup = $( "<div data-role='popup' data-theme='a' id='mainMenu'>" +
             "<ul data-role='listview' data-inset='true' data-corners='false'>" +
                 "<li data-role='list-divider'>" + _( "Information" ) + "</li>" +
                 "<li><a href='#preview' class='squeeze'>" + _( "Preview Programs" ) + "</a></li>" +
@@ -7695,7 +7695,7 @@ function getExportMethod() {
 function getImportMethod( localData ) {
     var getPaste = function() {
             var popup = $(
-                    "<div data-role='popup' data-overlay-theme='b' data-theme='a' id='paste_config'>" +
+                    "<div data-role='popup' data-theme='a' id='paste_config'>" +
                         "<p class='ui-bar'>" +
                             "<textarea class='textarea' rows='10' placeholder='" + _( "Paste your backup here" ) + "'></textarea>" +
                             "<button data-mini='true' data-theme='b'>" + _( "Import" ) + "</button>" +
@@ -8296,7 +8296,7 @@ function changePassword( opt ) {
 function requestCloudAuth( callback ) {
     callback = callback || function() {};
 
-    var popup = $( "<div data-role='popup' class='modal' id='requestCloudAuth' data-theme='a' data-overlay-theme='b'>" +
+    var popup = $( "<div data-role='popup' class='modal' id='requestCloudAuth' data-theme='a'>" +
                 "<ul data-role='listview' data-inset='true'>" +
                     "<li data-role='list-divider'>" + _( "OpenSprinkler.com Login" ) + "</li>" +
                     "<li><p class='rain-desc tight'>" +
@@ -8588,7 +8588,7 @@ function handleInvalidDataToken() {
         on: function() {
             var button = $( this ).parent(),
                 popup = $(
-                    "<div data-role='popup' data-theme='a' data-overlay-theme='b' class='modal ui-content' id='dataPassword'>" +
+                    "<div data-role='popup' data-theme='a' class='modal ui-content' id='dataPassword'>" +
                         "<p class='tight rain-desc'>" +
 							_( "Please enter your OpenSprinkler.com password. If you have recently changed your password, you may need to enter your previous password to decrypt the data." ) +
 						"</p>" +
@@ -8946,7 +8946,7 @@ function checkFirmwareUpdate() {
                                 var button = $( this ).parent(),
                                     changelog = data[0].body.replace( /[\-|\*|\+]\s(.*)?(?:\r\n)?/g, "<li>$1</li>" ),
                                     popup = $(
-                                        "<div data-role='popup' class='modal' data-theme='a' data-overlay-theme='b'>" +
+                                        "<div data-role='popup' class='modal' data-theme='a'>" +
                                             "<h3 class='center' style='margin-bottom:0'>" +
 												_( "Latest" ) + " " + _( "Firmware" ) + ": " + data[0].name +
 											"</h3>" +
@@ -9115,7 +9115,7 @@ function areYouSure( text1, text2, success, fail ) {
     fail = fail || function() {};
 
     var popup = $(
-        "<div data-role='popup' data-theme='a' data-overlay-theme='b' id='sure'>" +
+        "<div data-role='popup' data-theme='a' id='sure'>" +
             "<h3 class='sure-1 center'>" + text1 + "</h3>" +
             "<p class='sure-2 center'>" + text2 + "</p>" +
             "<a class='sure-do ui-btn ui-btn-b ui-corner-all ui-shadow' href='#'>" + _( "Yes" ) + "</a>" +
@@ -9150,7 +9150,7 @@ function showIPRequest( opt ) {
 
     $( "#ipInput" ).popup( "destroy" ).remove();
 
-    var popup = $( "<div data-role='popup' id='ipInput' data-theme='a' data-overlay-theme='b'>" +
+    var popup = $( "<div data-role='popup' id='ipInput' data-theme='a'>" +
             "<div data-role='header' data-theme='b'>" +
                 "<h1>" + opt.title + "</h1>" +
             "</div>" +
@@ -9281,7 +9281,7 @@ function showDurationBox( opt ) {
     var incrbts = "<fieldset class='ui-grid-" + String.fromCharCode( 95 + ( total ) ) + " incr'>",
         inputs = "<div class='ui-grid-" + String.fromCharCode( 95 + ( total ) ) + " inputs'>",
         decrbts = "<fieldset class='ui-grid-" + String.fromCharCode( 95 + ( total ) ) + " decr'>",
-        popup = $( "<div data-role='popup' id='durationBox' data-theme='a' data-overlay-theme='b'>" +
+        popup = $( "<div data-role='popup' id='durationBox' data-theme='a'>" +
             "<div data-role='header' data-theme='b'>" +
                 "<h1>" + opt.title + "</h1>" +
             "</div>" +
@@ -9483,7 +9483,7 @@ function showSingleDurationInput( opt ) {
 
     opt = $.extend( {}, defaults, opt );
 
-    var popup = $( "<div data-role='popup' id='singleDuration' data-theme='a' data-overlay-theme='b'>" +
+    var popup = $( "<div data-role='popup' id='singleDuration' data-theme='a'>" +
             "<div data-role='header' data-theme='b'>" +
                 "<h1>" + opt.title + "</h1>" +
             "</div>" +
@@ -9557,7 +9557,7 @@ function showDateTimeInput( timestamp, callback ) {
     var keys = [ "Month", "Date", "FullYear", "Hours", "Minutes" ],
         monthNames = [ _( "Jan" ), _( "Feb" ), _( "Mar" ), _( "Apr" ), _( "May" ), _( "Jun" ), _( "Jul" ),
 			_( "Aug" ), _( "Sep" ), _( "Oct" ), _( "Nov" ), _( "Dec" ) ],
-        popup = $( "<div data-role='popup' id='datetimeInput' data-theme='a' data-overlay-theme='b'>" +
+        popup = $( "<div data-role='popup' id='datetimeInput' data-theme='a'>" +
             "<div data-role='header' data-theme='b'>" +
                 "<h1>" + _( "Enter Date/Time" ) + "</h1>" +
             "</div>" +
@@ -9654,7 +9654,7 @@ function showTimeInput( opt ) {
         getPeriod = function() {
             return isPM ? _( "PM" ) : _( "AM" );
         },
-        popup = $( "<div data-role='popup' id='timeInput' data-theme='a' data-overlay-theme='b'>" +
+        popup = $( "<div data-role='popup' id='timeInput' data-theme='a'>" +
             "<div data-role='header' data-theme='b'>" +
                 "<h1>" + opt.title + "</h1>" +
             "</div>" +
@@ -9963,7 +9963,8 @@ function changePage( toPage, opts ) {
 function openPopup( popup, args ) {
     args = $.extend( {}, {
         history: false,
-        positionTo: "window"
+        positionTo: "window",
+        overlayTheme: "b"
     }, args );
 
     $.mobile.pageContainer.append( popup );
@@ -10436,7 +10437,7 @@ function languageSelect() {
 	//	mn: _("Mongolian"), no: _("Norwegian"), pl: _("Polish"), pt: _("Portuguese"), ru: _("Russian"),
 	//	sk: _("Slovak"), sl: _("Slovenian"), es: _("Spanish"), th: _("Thai")}
 
-    var popup = "<div data-role='popup' data-overlay-theme='b' data-theme='a' id='localization' data-corners='false'>" +
+    var popup = "<div data-role='popup' data-theme='a' id='localization' data-corners='false'>" +
                 "<ul data-inset='true' data-role='listview' id='lang' data-corners='false'>" +
                 "<li data-role='list-divider' data-theme='b' class='center' data-translate='Localization'>" + _( "Localization" ) + "</li>",
 
