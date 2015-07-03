@@ -6,10 +6,10 @@ before_install:
 install: npm install
 before_script:
  - grunt shell:startDemo
- - grunt test
+ - travis_retry grunt test
  - grunt shell:stopDemo
  - grunt shell:startOSPi
- - grunt test
+ - travis_retry grunt test
  - grunt shell:stopOSPi
 after_success:
  - ./node_modules/.bin/lcov-result-merger 'coverage/results-*.lcov' 'coverage/results.lcov'
