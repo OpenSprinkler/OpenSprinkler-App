@@ -10269,7 +10269,7 @@ function isControllerConnected() {
 		$.isEmptyObject( controller ) ||
 		$.isEmptyObject( controller.options ) ||
 		$.isEmptyObject( controller.programs ) ||
-		$.isEmptyObject( controller.status ) ||
+		$.isEmptyObject( controller.settings ) ||
 		$.isEmptyObject( controller.status ) ||
 		$.isEmptyObject( controller.stations ) ) {
 
