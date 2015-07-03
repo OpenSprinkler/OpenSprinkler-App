@@ -291,7 +291,7 @@ $( document )
 } )
 .on( "popupafterclose", function() {
 
-	$( ".ui-page-active" ).add( "#sprinklers-settings" ).removeClass( "blur-filter" );
+	$( ".ui-page-active" ).children().add( "#sprinklers-settings" ).removeClass( "blur-filter" );
 
 	// When a popup is closed, change the header back to the default color
     try {
@@ -299,7 +299,7 @@ $( document )
     } catch ( err ) {}
 } )
 .on( "popupbeforeposition", function() {
-	$( ".ui-page-active" ).add( "#sprinklers-settings" ).addClass( "blur-filter" );
+	$( ".ui-page-active" ).children().add( "#sprinklers-settings" ).addClass( "blur-filter" );
 } )
 .on( "popupbeforeposition", "#localization", checkCurrLang )
 .one( "pagebeforeshow", "#loadingPage", initApp );
@@ -1431,16 +1431,6 @@ var showSites = ( function() {
     var page = $( "<div data-role='page' id='site-control'>" +
             "<div class='ui-content'>" +
             "</div>" +
-            "<div data-role='popup' id='addsite' data-theme='b'>" +
-                "<ul data-role='listview'>" +
-                    "<li data-icon='false'>" +
-						"<a href='#' id='site-add-scan'>" + _( "Scan For Device" ) + "</a>" +
-                    "</li>" +
-                    "<li data-icon='false'>" +
-						"<a href='#' id='site-add-manual'>" + _( "Manually Add Device" ) + "</a>" +
-                    "</li>" +
-                "</ul>" +
-            "</div>" +
         "</div>" ),
         makeStart = function() {
             var finish = function() {
@@ -1464,7 +1454,16 @@ var showSites = ( function() {
 
             document.title = "OpenSprinkler";
         },
-        popup = page.find( "#addsite" ),
+        popup = $( "<div data-role='popup' id='addsite' data-theme='b'>" +
+            "<ul data-role='listview'>" +
+                "<li data-icon='false'>" +
+					"<a href='#' id='site-add-scan'>" + _( "Scan For Device" ) + "</a>" +
+                "</li>" +
+                "<li data-icon='false'>" +
+					"<a href='#' id='site-add-manual'>" + _( "Manually Add Device" ) + "</a>" +
+                "</li>" +
+            "</ul>" +
+        "</div>" ),
         sites, header, total;
 
     popup.find( "#site-add-scan" ).on( "click", function() {
@@ -1479,10 +1478,13 @@ var showSites = ( function() {
     } );
 
     page.on( "pagehide", function() {
+		popup.detach();
         page.detach();
     } );
 
     page.one( "pagebeforeshow", function() {
+		$.mobile.pageContainer.append( popup );
+
 	    popup.popup( {
 	        history: false,
 	        positionTo: header.eq( 2 )
@@ -1768,7 +1770,7 @@ var showSites = ( function() {
                         showAddNew();
                     } else {
                         popup.popup( "open" ).popup( "reposition", {
-                            "positionTo": header.eq( 2 )
+                            positionTo: header.eq( 2 )
                         } );
                     }
                 }
