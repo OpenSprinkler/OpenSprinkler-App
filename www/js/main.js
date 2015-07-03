@@ -2599,22 +2599,18 @@ function coordsToLocation( lat, lon, callback, fallback ) {
 }
 
 function getSunTimes( date ) {
-    var now = new Date( controller.settings.devt * 1000 ),
-        control = SunCalc.getTimes( now, currentCoordinates[0], currentCoordinates[1] ),
-        tzOffset = controller.settings.sunrise ? controller.settings.sunrise - ( control.sunrise.getHours() * 60 + control.sunrise.getMinutes() ) : 0;
-
-    date = date || now;
+    date = date || new Date( controller.settings.devt * 1000 );
 
     var times = SunCalc.getTimes( date, currentCoordinates[0], currentCoordinates[1] ),
         sunrise = times.sunrise,
-        sunset = times.sunset;
+        sunset = times.sunset,
+        tzOffset = getTimezoneOffset();
 
-    sunrise = ( sunrise.getHours() * 60 + sunrise.getMinutes() ) + tzOffset;
-    sunset = ( sunset.getHours() * 60 + sunset.getMinutes() ) + tzOffset;
+    sunrise.setUTCMinutes( sunrise.getUTCMinutes() + tzOffset );
+	sunset.setUTCMinutes( sunset.getUTCMinutes() + tzOffset );
 
-    if ( sunrise > sunset ) {
-		sunset += 1440;
-    }
+    sunrise = ( sunrise.getUTCHours() * 60 + sunrise.getUTCMinutes() );
+    sunset = ( sunset.getUTCHours() * 60 + sunset.getUTCMinutes() );
 
     return [ sunrise, sunset ];
 }
@@ -10513,6 +10509,14 @@ function minutesToTime( minutes ) {
     }
 
     return hour + ":" + pad( minutes % 60 ) + " " + period;
+}
+
+function getTimezoneOffset() {
+    var tz = controller.options.tz - 48,
+		sign = tz >= 0 ? 1 : -1;
+
+    tz = ( ( Math.abs( tz ) / 4 >> 0 ) * 60 ) + ( ( Math.abs( tz ) % 4 ) * 15 / 10 >> 0 ) + ( ( Math.abs( tz ) % 4 ) * 15 % 10 );
+    return tz * sign;
 }
 
 function dateToString( date, toUTC, shorten ) {
