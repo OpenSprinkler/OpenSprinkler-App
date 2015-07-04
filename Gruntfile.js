@@ -44,14 +44,14 @@ module.exports = function( grunt ) {
 		secrets: secrets,
 
 		jshint: {
-			main: [ "<%= pkg.main %>", "Gruntfile.js", "www/js/hasher.js", "www/js/home.js", "chrome.js", "test/tests.js" ],
+			main: [ "www/js/main.js", "Gruntfile.js", "www/js/hasher.js", "www/js/home.js", "chrome.js", "test/tests.js" ],
 			options: {
 				jshintrc: true
 			}
 		},
 
 		jscs: {
-			main: [ "<%= pkg.main %>", "Gruntfile.js", "www/js/hasher.js", "www/js/home.js", "chrome.js", "test/tests.js" ],
+			main: [ "www/js/main.js", "Gruntfile.js", "www/js/hasher.js", "www/js/home.js", "chrome.js", "test/tests.js" ],
 			options: {
 				config: true,
 				fix: true

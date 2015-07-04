@@ -1,11 +1,12 @@
 {
   "name": "OpenSprinkler",
+  "author": "Samer Albahra",
   "phonegap": {
     "id": "1371093"
   },
   "version": "1.4.5",
   "description": "Designed to allow intuitive control of the OpenSprinkler irrigation controller.",
-  "main": "www/js/main.js",
+  "main": "index.htm",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -19,11 +20,26 @@
     "sprinkler",
     "water"
   ],
-  "author": "Samer Albahra",
   "bugs": {
     "url": "https://github.com/OpenSprinkler/OpenSprinkler-App/issues"
   },
   "homepage": "https://github.com/OpenSprinkler/OpenSprinkler-App",
+  "window": {
+    "toolbar": false,
+    "width": 942,
+    "height": 512,
+    "title": "OpenSprinkler",
+    "icon": "res/ios-web/icons/icon.png",
+    "toolbar": false,
+    "resizable": true,
+    "fullscreen": false,
+    "position": "center"
+  },
+  "webkit": {
+    "page-cache": true
+  },
+  "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.130 Safari/537.36",
+  "no-edit-menu": true,
   "devDependencies": {
     "blanket": "^1.1.6",
     "chai": "^3.0.0",
