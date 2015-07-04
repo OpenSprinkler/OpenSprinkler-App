@@ -26,14 +26,14 @@ var isIEMobile = /IEMobile/.test( navigator.userAgent ),
                 var data = {},
                     i;
 
-                if ( typeof query === "object" ) {
-                    for ( i in query ) {
-                        if ( query.hasOwnProperty( i ) ) {
-                            data[query[i]] = localStorage.getItem( query[i] );
-                        }
+                if ( typeof query === "string" ) {
+					query = [ query ];
+                }
+
+                for ( i in query ) {
+                    if ( query.hasOwnProperty( i ) ) {
+                        data[query[i]] = localStorage.getItem( query[i] );
                     }
-                } else if ( typeof query === "string" ) {
-                    data[query] = localStorage.getItem( query );
                 }
 
                 callback( data );
@@ -65,14 +65,14 @@ var isIEMobile = /IEMobile/.test( navigator.userAgent ),
             } else {
                 var i;
 
-                if ( typeof query === "object" ) {
-                    for ( i in query ) {
-                        if ( query.hasOwnProperty( i ) ) {
-                            localStorage.removeItem( query[i] );
-                        }
+				if ( typeof query === "string" ) {
+                    query = [ query ];
+                }
+
+                for ( i in query ) {
+                    if ( query.hasOwnProperty( i ) ) {
+                        localStorage.removeItem( query[i] );
                     }
-                } else if ( typeof query === "string" ) {
-                    localStorage.removeItem( query );
                 }
 
                 callback( true );
