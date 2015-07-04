@@ -7545,9 +7545,19 @@ function submitProgram21( id, ignoreWarning ) {
     if ( $( "#days_n-" + id ).is( ":checked" ) ) {
         j |= ( 3 << 4 );
         days[1] = parseInt( $( "#every-" + id ).val(), 10 );
-        if ( !( days[1] >= 2 && days[1] <= 128 ) ) {showerror( _( "Error: Interval days must be between 2 and 128." ) );return;}
+
+        if ( !( days[1] >= 2 && days[1] <= 128 ) ) {
+			showerror( _( "Error: Interval days must be between 2 and 128." ) );
+			return;
+        }
+
         days[0] = parseInt( $( "#starting-" + id ).val(), 10 );
-        if ( !( days[0] >= 0 && days[0] < days[1] ) ) {showerror( _( "Error: Starting in days wrong." ) );return;}
+
+        if ( !( days[0] >= 0 && days[0] < days[1] ) ) {
+			showerror( _( "Error: Starting in days wrong." ) );
+			return;
+        }
+
     } else if ( $( "#days_week-" + id ).is( ":checked" ) ) {
         j |= ( 0 << 4 );
         daysin = $( "#d-" + id ).val();
@@ -7596,14 +7606,6 @@ function submitProgram21( id, ignoreWarning ) {
         runTimes.push( dur );
     } );
 
-    if ( !ignoreWarning && $( "#stype_repeat-" + id ).is( ":checked" ) && start[1] > 0 && calculateTotalRunningTime( runTimes ) > start[2] * 60 ) {
-        areYouSure( _( "Warning: The repeat interval is less than the program run time." ), _( "Do you want to continue?" ), function() {
-            submitProgram21( id, true );
-        } );
-
-        return;
-    }
-
     program[0] = j;
     program[1] = days[0];
     program[2] = days[1];
@@ -7615,6 +7617,22 @@ function submitProgram21( id, ignoreWarning ) {
 
     if ( stationSelected === 0 ) {
         showerror( _( "Error: You have not selected any stations." ) );
+        return;
+    }
+
+    if ( !ignoreWarning && $( "#stype_repeat-" + id ).is( ":checked" ) && start[1] > 0 && calculateTotalRunningTime( runTimes ) > start[2] * 60 ) {
+        areYouSure( _( "Warning: The repeat interval is less than the program run time." ), _( "Do you want to continue?" ), function() {
+            submitProgram21( id, true );
+        } );
+
+        return;
+    }
+
+    // If the interval is an even number and a restriction is set, notify user of possible conflict
+    if ( !ignoreWarning && ( ( j >> 4 ) & 0x03 ) === 3 && !( days[1] & 1 ) && ( ( j >> 2 ) & 0x03 ) > 0 ) {
+        areYouSure( _( "Warning: The use of odd/even restrictions with the selected interval day may result in the program not running at all." ), _( "Do you want to continue?" ), function() {
+            submitProgram21( id, true );
+        } );
         return;
     }
 
