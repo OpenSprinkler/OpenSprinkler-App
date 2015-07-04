@@ -457,7 +457,7 @@ function initApp() {
         }
 
 	    var code = event.keyCode,
-			ctrlDown = event.ctrlKey || event.metaKey,
+			altDown = event.altKey,
 			menuOpen = $( "#mainMenu-popup" ).hasClass( "ui-popup-active" );
 
         if ( code === 77 ) {
@@ -467,22 +467,22 @@ function initApp() {
             } else {
                 showHomeMenu();
             }
-        } else if ( ( menuOpen || ctrlDown ) && code === 80 ) {
+        } else if ( ( menuOpen || altDown ) && code === 80 ) {
 			event.preventDefault();
 			changePage( "#programs" );
-        } else if ( ( menuOpen || ctrlDown ) && code === 79 ) {
+        } else if ( ( menuOpen || altDown ) && code === 79 ) {
 			event.preventDefault();
 			changePage( "#os-options" );
-        } else if ( ( menuOpen || ctrlDown ) && code === 86 ) {
+        } else if ( ( menuOpen || altDown ) && code === 86 ) {
 			event.preventDefault();
 			changePage( "#preview" );
-        } else if ( ( menuOpen || ctrlDown ) && code === 76 ) {
+        } else if ( ( menuOpen || altDown ) && code === 76 ) {
 			event.preventDefault();
 			changePage( "#logs" );
-        } else if ( ( menuOpen || ctrlDown ) && code === 65 ) {
+        } else if ( ( menuOpen || altDown ) && code === 82 ) {
 			event.preventDefault();
 			changePage( "#runonce" );
-        } else if ( ( menuOpen || ctrlDown ) && code === 68 ) {
+        } else if ( ( menuOpen || altDown ) && code === 68 ) {
 			event.preventDefault();
 			showRainDelay();
 		}
