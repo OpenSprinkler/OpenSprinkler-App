@@ -8977,7 +8977,7 @@ function checkFirmwareUpdate() {
     if ( checkOSVersion( 200 ) ) {
 
         // Github API to get releases for OpenSprinkler firmware
-        $.getJSON( "https://api.github.com/repos/opensprinkler/opensprinklergen2/releases" ).done( function( data ) {
+        $.getJSON( "https://api.github.com/repos/opensprinkler/opensprinkler-firmware/releases" ).done( function( data ) {
             if ( controller.options.fwv < data[0].tag_name ) {
 
                 // Grab a local storage variable which defines the firmware version for the last dismissed update
