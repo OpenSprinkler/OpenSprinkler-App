@@ -10543,6 +10543,10 @@ function dateToString( date, toUTC, shorten ) {
         monthNames = [ _( "Jan" ), _( "Feb" ), _( "Mar" ), _( "Apr" ), _( "May" ), _( "Jun" ),
 					_( "Jul" ), _( "Aug" ), _( "Sep" ), _( "Oct" ), _( "Nov" ), _( "Dec" ) ];
 
+	if ( date.getTime() === 0 ) {
+		return "--";
+	}
+
     if ( toUTC !== false ) {
         date.setMinutes( date.getMinutes() + date.getTimezoneOffset() );
     }
