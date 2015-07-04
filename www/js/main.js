@@ -159,6 +159,8 @@ $( document )
         checkChangesBeforeBack();
         return false;
     } );
+
+    updateDeviceIP();
 } )
 .one( "mobileinit", function() {
 
@@ -492,7 +494,7 @@ function initApp() {
     bindPanel();
 
 	// Update the IP address of the device running the app
-	if ( !currLocal ) {
+	if ( !currLocal  && typeof cordova === "undefined" ) {
 		updateDeviceIP();
 	}
 
