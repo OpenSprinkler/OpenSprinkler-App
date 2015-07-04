@@ -456,14 +456,36 @@ function initApp() {
             return;
         }
 
-        if ( e.keyCode === 77 ) {
+	    var code = event.keyCode,
+			ctrlDown = event.ctrlKey || event.metaKey,
+			menuOpen = $( "#mainMenu-popup" ).hasClass( "ui-popup-active" );
+
+        if ( code === 77 ) {
             var menu = $( "#mainMenu" );
             if ( menu.length > 0 ) {
                 $( "#mainMenu" ).popup( "close" );
             } else {
                 showHomeMenu();
             }
-        }
+        } else if ( ( menuOpen || ctrlDown ) && code === 80 ) {
+			event.preventDefault();
+			changePage( "#programs" );
+        } else if ( ( menuOpen || ctrlDown ) && code === 79 ) {
+			event.preventDefault();
+			changePage( "#os-options" );
+        } else if ( ( menuOpen || ctrlDown ) && code === 86 ) {
+			event.preventDefault();
+			changePage( "#preview" );
+        } else if ( ( menuOpen || ctrlDown ) && code === 76 ) {
+			event.preventDefault();
+			changePage( "#logs" );
+        } else if ( ( menuOpen || ctrlDown ) && code === 65 ) {
+			event.preventDefault();
+			changePage( "#runonce" );
+        } else if ( ( menuOpen || ctrlDown ) && code === 68 ) {
+			event.preventDefault();
+			showRainDelay();
+		}
     } );
 
     // Initialize external panel
@@ -2987,6 +3009,23 @@ function debugWU() {
     return false;
 }
 
+function showRainDelay() {
+    $( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
+
+	showDurationBox( {
+	    title: _( "Change Rain Delay" ),
+	    callback: raindelay,
+	    label: _( "Duration" ),
+	    maximum: 31536000,
+	    granularity: 2,
+	    preventCompression: true,
+	    incrementalUpdate: false,
+	    updateOnChange: false,
+	    helptext:
+			_( "Enable manual rain delay by entering a value into the input below. To turn off a currently enabled rain delay use a value of 0." )
+	} );
+}
+
 function getAdjustmentName( id ) {
     return [ _( "Manual" ), "Zimmerman" ][ id & ~( 1 << 7 ) ];
 }
@@ -4196,18 +4235,7 @@ var showHomeMenu = ( function() {
 	                page.addClass( "show-hidden" );
 	            }
 	        } else if ( href === "#raindelay" ) {
-	            showDurationBox( {
-	                title: _( "Change Rain Delay" ),
-	                callback: raindelay,
-	                label: _( "Duration" ),
-	                maximum: 31536000,
-	                granularity: 2,
-	                preventCompression: true,
-	                incrementalUpdate: false,
-	                updateOnChange: false,
-	                helptext:
-						_( "Enable manual rain delay by entering a value into the input below. To turn off a currently enabled rain delay use a value of 0." )
-	            } );
+				showRainDelay();
 	        } else {
 	            checkChanges( function() {
 	                changePage( href );
