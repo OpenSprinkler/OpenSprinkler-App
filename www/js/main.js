@@ -4304,7 +4304,8 @@ var showHome = ( function() {
             // Group card settings visually
             cards += "<div data-station='" + i + "' class='ui-corner-all card" +
 				( isStationDisabled( i ) ? " station-hidden' style='display:none" : "" ) + "'>";
-            cards += "<div class='ui-body ui-body-a center'>";
+
+            cards += "<div class='ui-body ui-body-a center" + ( sites[currentSite].images[i] ? " has-image' style='background: url(data:image/jpeg;base64," + sites[currentSite].images[i] + ") no-repeat; background-size: cover'" : "'" ) + ">";
             cards += "<p class='tight center inline-icon' id='station_" + i + "'>" + station + "</p>";
 
             cards += "<span class='btn-no-border ui-btn ui-btn-icon-notext ui-corner-all station-status " +
@@ -4338,13 +4339,12 @@ var showHome = ( function() {
             // Close current card group
             cards += "</div></div>";
         },
-        showAttributes = function( context, sites ) {
+        showAttributes = function() {
             $( "#stn_attrib" ).popup( "destroy" ).remove();
 
-            var button = $( context ),
+            var button = $( this ),
                 id = button.data( "station" ),
                 name = button.siblings( "[id='station_" + id + "']" ),
-                currentSite = siteSelect.val(),
                 saveChanges = function() {
                     button.data( "um", select.find( "#um" ).is( ":checked" ) ? 1 : 0 );
                     button.data( "um2", select.find( "#um2" ).is( ":checked" ) ? 1 : 0 );
@@ -4362,14 +4362,15 @@ var showHome = ( function() {
                 return false;
             }
 
-            if ( typeof sites[currentSite].images !== "object" ) {
-				sites[currentSite].images = {};
-            }
-
             select += "<div class='ui-bar-a ui-bar'>" + _( "Station Name" ) + ":</div>" +
 				"<input class='bold center' data-corners='false' data-wrapper-class='tight stn-name ui-btn' id='stn-name' type='text' value='" +
-					name.text() + "'>" +
-				"<button class='changeBackground'>" + ( typeof sites[currentSite].images[id] !== "string" ? _( "Add" ) : _( "Change" ) ) + " " + _( "Background" ) + "</button>";
+					name.text() + "'>";
+
+			if ( typeof navigator.camera !== "undefined" && typeof navigator.camera.getPicture === "function" ) {
+				select += "<button class='changeBackground'>" +
+						( typeof sites[currentSite].images[id] !== "string" ? _( "Add" ) : _( "Change" ) ) + " " + _( "Background" ) +
+					"</button>";
+			}
 
             if ( !isStationMaster( id ) ) {
                 if ( hasMaster ) {
@@ -4623,6 +4624,18 @@ var showHome = ( function() {
                         card.show().removeClass( "station-hidden" );
                     }
 
+                    if ( sites[currentSite].images[i] ) {
+		                card.find( ".ui-body" ).addClass( "has-image" ).css( {
+							"background": "url(data:image/jpeg;base64," + sites[currentSite].images[i] + ") no-repeat",
+							"background-size": "cover"
+		                } );
+                    } else {
+		                card.find( ".ui-body" ).removeClass( "has-image" ).css( {
+							"background": "none",
+							"background-size": "auto"
+		                } );
+                    }
+
                     card.find( "#station_" + i ).text( controller.stations.snames[i] );
                     card.find( ".station-status" ).removeClass( "on off wait" ).addClass( isRunning ? "on" : ( isScheduled ? "wait" : "off" ) );
                     if ( isStationMaster( i ) ) {
@@ -4664,7 +4677,16 @@ var showHome = ( function() {
 
             reorderCards();
         },
-	    hasMaster, hasMaster2, hasIR, hasAR, hasSD, hasSequential, cards, siteSelect, i;
+        updateSites = function() {
+			currentSite = siteSelect.val();
+			storage.get( "sites", function( data ) {
+				sites = parseSites( data.sites );
+	            if ( typeof sites[currentSite].images !== "object" ) {
+					sites[currentSite].images = {};
+	            }
+			} );
+        },
+	    hasMaster, hasMaster2, hasIR, hasAR, hasSD, hasSequential, cards, siteSelect, currentSite, i, sites;
 
 	page.one( "pageshow", function() {
 		$( "html" ).on( "datarefresh", updateContent );
@@ -4685,6 +4707,8 @@ var showHome = ( function() {
 		cards = "";
         siteSelect = $( "#site-selector" );
 
+        updateSites();
+
 		page.find( ".sitename" ).toggleClass( "hidden", currLocal ? true : false ).text( siteSelect.val() );
 		page.find( ".waterlevel" ).text( controller.options.wl );
 
@@ -4697,14 +4721,7 @@ var showHome = ( function() {
 	    page.find( ".ui-content" ).append( "<div id='os-running-stations'></div><hr style='display:none' class='content-divider'>" +
 			"<div id='os-stations-list' class='card-group center'>" + cards + "</div>" );
 	    reorderCards();
-	    page.on( "click", ".station-settings", function() {
-			var context = this;
-
-			storage.get( "sites", function( data ) {
-				showAttributes( context, parseSites( data.sites ) );
-			} );
-			return false;
-	    } );
+	    page.on( "click", ".station-settings", showAttributes );
 	    page.on( "click", ".home-info", function() {
 	        changePage( "#os-options", {
 	            expandItem: "weather"
