@@ -709,6 +709,10 @@ body, input, select, textarea, button, .ui-btn {
     -o-transition: all 0.1s;
     transition: all 0.1s;
 }
+.has-image {
+    height: 90px;
+    line-height: 90px;
+}
 .home-info {
     margin-left: -10px;
 }

@@ -4422,12 +4422,15 @@ var showHome = ( function() {
 				navigator.camera.getPicture( function( image ) {
 					sites[currentSite].images[id] = image;
 	                storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
-	                button.parents( ".card" ).css( "background", "url(data:image/jpeg;base64," + image + ") no-repeat left center" );
+	                button.parents( ".ui-body" ).addClass( "has-image" ).css( {
+						"background": "url(data:image/jpeg;base64," + image + ") no-repeat",
+						"background-size": "cover"
+	                } );
 				}, function() {}, {
-					quality: 20,
+					quality: 50,
 					destinationType: Camera.DestinationType.DATA_URL,
 					allowEdit: true,
-					targetWidth: 500,
+					targetWidth: 300,
 					targetHeight: 300
 				} );
             } );
