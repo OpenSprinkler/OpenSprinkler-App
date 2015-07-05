@@ -88,12 +88,6 @@ msgstr ""
 msgid "Manually Add Device"
 msgstr ""
 
-msgid "Manage Sites"
-msgstr ""
-
-msgid "Add"
-msgstr ""
-
 msgid "Please add a site by tapping the 'Add' button in the top right corner."
 msgstr ""
 
@@ -124,6 +118,12 @@ msgid "Site updated successfully"
 msgstr ""
 
 msgid "Site deleted successfully"
+msgstr ""
+
+msgid "Manage Sites"
+msgstr ""
+
+msgid "Add"
 msgstr ""
 
 msgid "Synced with OpenSprinkler.com"
@@ -262,6 +262,17 @@ msgid "Last Successful Weather Call"
 msgstr ""
 
 msgid "Weather data cannot be found for your location"
+msgstr ""
+
+msgid "Change Rain Delay"
+msgstr ""
+
+msgid "Duration"
+msgstr ""
+
+msgid ""
+"Enable manual rain delay by entering a value into the input below. To turn "
+"off a currently enabled rain delay use a value of 0."
 msgstr ""
 
 msgid "Manual"
@@ -521,9 +532,6 @@ msgstr ""
 msgid "Programs and Settings"
 msgstr ""
 
-msgid "Change Rain Delay"
-msgstr ""
-
 msgid "Run-Once Program"
 msgstr ""
 
@@ -551,14 +559,6 @@ msgstr ""
 msgid "All stations have been stopped"
 msgstr ""
 
-msgid "Duration"
-msgstr ""
-
-msgid ""
-"Enable manual rain delay by entering a value into the input below. To turn "
-"off a currently enabled rain delay use a value of 0."
-msgstr ""
-
 msgid "Water Level"
 msgstr ""
 
@@ -575,6 +575,12 @@ msgid "for"
 msgstr ""
 
 msgid "Station Name"
+msgstr ""
+
+msgid "Change"
+msgstr ""
+
+msgid "Image"
 msgstr ""
 
 msgid "Use Master"
@@ -599,6 +605,9 @@ msgid "Station has been queued"
 msgstr ""
 
 msgid "Station has been stopped"
+msgstr ""
+
+msgid "Do you want to delete the current image?"
 msgstr ""
 
 msgid ""
@@ -652,9 +661,6 @@ msgstr ""
 msgid "System Idle"
 msgstr ""
 
-msgid "Sprinkler Stations"
-msgstr ""
-
 msgid "With manual mode turned on, tap a station to toggle it."
 msgstr ""
 
@@ -673,6 +679,9 @@ msgid "Station Timer"
 msgstr ""
 
 msgid "Manual mode is not enabled. Please enable manual mode then try again."
+msgstr ""
+
+msgid "Sprinkler Stations"
 msgstr ""
 
 msgid "Master"
@@ -982,6 +991,11 @@ msgid "Warning: The repeat interval is less than the program run time."
 msgstr ""
 
 msgid "Do you want to continue?"
+msgstr ""
+
+msgid ""
+"Warning: The use of odd/even restrictions with the selected interval day may "
+"result in the program not running at all."
 msgstr ""
 
 msgid "Rain delay has been successfully set"
