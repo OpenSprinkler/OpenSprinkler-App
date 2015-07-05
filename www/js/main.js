@@ -4305,7 +4305,7 @@ var showHome = ( function() {
             cards += "<div data-station='" + i + "' class='ui-corner-all card" +
 				( isStationDisabled( i ) ? " station-hidden' style='display:none" : "" ) + "'>";
 
-            cards += "<div class='ui-body ui-body-a center" + ( sites[currentSite].images[i] ? " has-image' style='background: url(data:image/jpeg;base64," + sites[currentSite].images[i] + ") no-repeat; background-size: cover'" : "'" ) + ">";
+            cards += "<div class='ui-body ui-body-a center" + ( sites[currentSite].images[i] ? " has-image' style='background: url(data:image/jpeg;base64," + sites[currentSite].images[i] + ");'" : "'" ) + ">";
             cards += "<p class='tight center inline-icon' id='station_" + i + "'>" + station + "</p>";
 
             cards += "<span class='btn-no-border ui-btn ui-btn-icon-notext ui-corner-all station-status " +
@@ -4368,7 +4368,7 @@ var showHome = ( function() {
 
 			if ( typeof navigator.camera !== "undefined" && typeof navigator.camera.getPicture === "function" ) {
 				select += "<button class='changeBackground'>" +
-						( typeof sites[currentSite].images[id] !== "string" ? _( "Add" ) : _( "Change" ) ) + " " + _( "Background" ) +
+						( typeof sites[currentSite].images[id] !== "string" ? _( "Add" ) : _( "Change" ) ) + " " + _( "Image" ) +
 					"</button>";
 			}
 
@@ -4423,16 +4423,13 @@ var showHome = ( function() {
 				navigator.camera.getPicture( function( image ) {
 					sites[currentSite].images[id] = image;
 	                storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
-	                button.parents( ".ui-body" ).addClass( "has-image" ).css( {
-						"background": "url(data:image/jpeg;base64," + image + ") no-repeat",
-						"background-size": "cover"
-	                } );
+	                button.parents( ".ui-body" ).addClass( "has-image" ).css( "background", "url(data:image/jpeg;base64," + image + ")" );
 				}, function() {}, {
 					quality: 50,
 					destinationType: Camera.DestinationType.DATA_URL,
 					allowEdit: true,
-					targetWidth: 300,
-					targetHeight: 300
+					targetWidth: 200,
+					targetHeight: 200
 				} );
             } );
 
@@ -4583,6 +4580,7 @@ var showHome = ( function() {
             }
 
             updateClock();
+            updateSites();
 
             if ( allCards.length > controller.stations.snames.length ) {
                 allCards.slice( controller.stations.snames.length, allCards.length ).remove();
@@ -4615,6 +4613,12 @@ var showHome = ( function() {
                     addCard( i );
                     cardHolder.append( cards );
                 } else {
+                    if ( sites[currentSite].images[i] ) {
+		                card.find( ".ui-body" ).addClass( "has-image" ).css( "background", "url(data:image/jpeg;base64," + sites[currentSite].images[i] + ")" );
+                    } else {
+		                card.find( ".ui-body" ).removeClass( "has-image" ).css( "background", "" );
+                    }
+
                     if ( isStationDisabled( i ) ) {
                         if ( !page.hasClass( "show-hidden" ) ) {
                             card.hide();
@@ -4622,18 +4626,6 @@ var showHome = ( function() {
                         card.addClass( "station-hidden" );
                     } else {
                         card.show().removeClass( "station-hidden" );
-                    }
-
-                    if ( sites[currentSite].images[i] ) {
-		                card.find( ".ui-body" ).addClass( "has-image" ).css( {
-							"background": "url(data:image/jpeg;base64," + sites[currentSite].images[i] + ") no-repeat",
-							"background-size": "cover"
-		                } );
-                    } else {
-		                card.find( ".ui-body" ).removeClass( "has-image" ).css( {
-							"background": "none",
-							"background-size": "auto"
-		                } );
                     }
 
                     card.find( "#station_" + i ).text( controller.stations.snames[i] );
