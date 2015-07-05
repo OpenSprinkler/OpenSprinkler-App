@@ -8827,36 +8827,8 @@ function checkPublicAccess( eip ) {
     }
 
     var ip = intToIP( eip ),
-        port = currIp.match( /.*:(\d+)/ );
-
-    if ( ip === currIp || isLocalIP( ip ) || !isLocalIP( currIp ) ) {
-        return;
-    }
-
-    port = ( port ? parseInt( port[1] ) : 80 );
-
-    $.ajax( {
-        url: currPrefix + ip + ":" + port + "/jo?pw=" + currPass,
-        global: false,
-        dataType: "json",
-        type: "GET"
-    } ).then(
-        function( data ) {
-            if ( typeof data !== "object" || !data.hasOwnProperty( "fwv" ) ) {
-                return;
-            }
-
-            // Public IP worked, update device IP to use the public IP instead
-            storage.get( [ "sites", "current_site" ], function( data ) {
-                var sites = parseSites( data.sites ),
-                    current = data.current_site;
-
-                sites[current].os_ip = ip + ( port === 80 ? "" : ":" + port );
-
-                storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
-            } );
-        },
-        function() {
+        port = currIp.match( /.*:(\d+)/ ),
+        fail = function() {
             storage.get( "ignoreRemoteFailed", function( data ) {
                 if ( data.ignoreRemoteFailed !== "1" ) {
 
@@ -8885,7 +8857,38 @@ function checkPublicAccess( eip ) {
                     } );
                 }
             } );
-        }
+        };
+
+    if ( ip === currIp || isLocalIP( ip ) || !isLocalIP( currIp ) ) {
+        return;
+    }
+
+    port = ( port ? parseInt( port[1] ) : 80 );
+
+    $.ajax( {
+        url: currPrefix + ip + ":" + port + "/jo?pw=" + currPass,
+        global: false,
+        dataType: "json",
+        type: "GET"
+    } ).then(
+        function( data ) {
+            if ( typeof data !== "object" || !data.hasOwnProperty( "fwv" ) || data.fwv !== controller.options.fwv ||
+				( checkOSVersion( 214 ) && controller.options.ip4 === data.ip4 ) ) {
+					fail();
+					return;
+            }
+
+            // Public IP worked, update device IP to use the public IP instead
+            storage.get( [ "sites", "current_site" ], function( data ) {
+                var sites = parseSites( data.sites ),
+                    current = data.current_site;
+
+                sites[current].os_ip = ip + ( port === 80 ? "" : ":" + port );
+
+                storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
+            } );
+        },
+        fail
     );
 }
 
