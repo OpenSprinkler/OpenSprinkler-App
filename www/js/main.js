@@ -4425,6 +4425,7 @@ var showHome = ( function() {
 	                button.parents( ".card" ).css( "background", "url(data:image/jpeg;base64," + image + ") no-repeat left center" );
 				}, function() {}, {
 					quality: 20,
+					destinationType: Camera.DestinationType.DATA_URL,
 					allowEdit: true,
 					targetWidth: 500,
 					targetHeight: 300
