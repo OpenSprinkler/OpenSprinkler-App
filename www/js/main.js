@@ -4363,7 +4363,8 @@ var showHome = ( function() {
 
             select += "<div class='ui-bar-a ui-bar'>" + _( "Station Name" ) + ":</div>" +
 				"<input class='bold center' data-corners='false' data-wrapper-class='tight stn-name ui-btn' id='stn-name' type='text' value='" +
-					name.text() + "'>";
+					name.text() + "'>" +
+				"<button class='changeBackground'>Add/Change Background</button>";
 
             if ( !isStationMaster( id ) ) {
                 if ( hasMaster ) {
@@ -4404,16 +4405,26 @@ var showHome = ( function() {
             }
 
             select += "<input data-wrapper-class='attrib-submit' data-theme='b' type='submit' value='" + _( "Submit" ) + "' /></form></fieldset></div>";
-            select = $( select );
-            select.on( "submit", "form", function() {
+            select = $( select ).enhanceWithin().on( "submit", "form", function() {
                 saveChanges();
                 submitStations();
 
                 return false;
             } );
-            select.one( "popupafteropen", function() {
-                select.find( "#stn-name" ).focusInput();
-            } ).enhanceWithin();
+
+            select.find( ".changeBackground" ).on( "click", function( e ) {
+				e.preventDefault();
+				navigator.camera.getPicture( function( image ) {
+				    console.log( image );
+				}, function( err ) {
+					console.log( err );
+				}, {
+					quality: 50,
+					allowEdit: true,
+					targetWidth: 500,
+					targetHeight: 500
+				} );
+            } );
 
             $.mobile.pageContainer.append( select );
 
