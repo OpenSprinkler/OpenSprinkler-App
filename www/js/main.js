@@ -4338,12 +4338,13 @@ var showHome = ( function() {
             // Close current card group
             cards += "</div></div>";
         },
-        showAttributes = function() {
+        showAttributes = function( context, sites ) {
             $( "#stn_attrib" ).popup( "destroy" ).remove();
 
-            var button = $( this ),
+            var button = $( context ),
                 id = button.data( "station" ),
                 name = button.siblings( "[id='station_" + id + "']" ),
+                currentSite = siteSelect.val(),
                 saveChanges = function() {
                     button.data( "um", select.find( "#um" ).is( ":checked" ) ? 1 : 0 );
                     button.data( "um2", select.find( "#um2" ).is( ":checked" ) ? 1 : 0 );
@@ -4361,10 +4362,14 @@ var showHome = ( function() {
                 return false;
             }
 
+            if ( typeof sites[currentSite].images !== "object" ) {
+				sites[currentSite].images = {};
+            }
+
             select += "<div class='ui-bar-a ui-bar'>" + _( "Station Name" ) + ":</div>" +
 				"<input class='bold center' data-corners='false' data-wrapper-class='tight stn-name ui-btn' id='stn-name' type='text' value='" +
 					name.text() + "'>" +
-				"<button class='changeBackground'>Add/Change Background</button>";
+				"<button class='changeBackground'>" + ( typeof sites[currentSite].images[id] !== "string" ? _( "Add" ) : _( "Change" ) ) + " " + _( "Background" ) + "</button>";
 
             if ( !isStationMaster( id ) ) {
                 if ( hasMaster ) {
@@ -4415,14 +4420,14 @@ var showHome = ( function() {
             select.find( ".changeBackground" ).on( "click", function( e ) {
 				e.preventDefault();
 				navigator.camera.getPicture( function( image ) {
-				    console.log( image );
-				}, function( err ) {
-					console.log( err );
-				}, {
-					quality: 50,
+					sites[currentSite].images[id] = image;
+	                storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
+	                button.parents( ".card" ).css( "background", "url(data:image/jpeg;base64," + image + ") no-repeat left center" );
+				}, function() {}, {
+					quality: 20,
 					allowEdit: true,
 					targetWidth: 500,
-					targetHeight: 500
+					targetHeight: 300
 				} );
             } );
 
@@ -4688,7 +4693,14 @@ var showHome = ( function() {
 	    page.find( ".ui-content" ).append( "<div id='os-running-stations'></div><hr style='display:none' class='content-divider'>" +
 			"<div id='os-stations-list' class='card-group center'>" + cards + "</div>" );
 	    reorderCards();
-	    page.on( "click", ".station-settings", showAttributes );
+	    page.on( "click", ".station-settings", function() {
+			var context = this;
+
+			storage.get( "sites", function( data ) {
+				showAttributes( context, parseSites( data.sites ) );
+			} );
+			return false;
+	    } );
 	    page.on( "click", ".home-info", function() {
 	        changePage( "#os-options", {
 	            expandItem: "weather"
