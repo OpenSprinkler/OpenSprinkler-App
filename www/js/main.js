@@ -4275,6 +4275,9 @@ var showHome = ( function() {
                             _( "Water Level" ) + ": <span class='waterlevel'></span>%" +
                         "</div>" +
                     "</div>" +
+                    "<div id='os-running-stations'></div>" +
+                    "<hr style='display:none' class='content-divider'>" +
+                    "<div id='os-stations-list' class='card-group center'></div>" +
                 "</div>" +
             "</div>" +
         "</div>" ),
@@ -4305,7 +4308,10 @@ var showHome = ( function() {
             cards += "<div data-station='" + i + "' class='ui-corner-all card" +
 				( isStationDisabled( i ) ? " station-hidden' style='display:none" : "" ) + "'>";
 
-            cards += "<div class='ui-body ui-body-a center" + ( sites[currentSite].images[i] ? " has-image' style='background: url(data:image/jpeg;base64," + sites[currentSite].images[i] + ");'" : "'" ) + ">";
+            cards += "<div class='ui-body ui-body-a center'>";
+
+			cards += "<img src='data:image/jpeg;base64," + ( sites[currentSite].images[i] || emptyImage ) + "' />";
+
             cards += "<p class='tight center inline-icon' id='station_" + i + "'>" + station + "</p>";
 
             cards += "<span class='btn-no-border ui-btn ui-btn-icon-notext ui-corner-all station-status " +
@@ -4423,7 +4429,7 @@ var showHome = ( function() {
 				navigator.camera.getPicture( function( image ) {
 					sites[currentSite].images[id] = image;
 	                storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
-	                button.parents( ".ui-body" ).addClass( "has-image" ).css( "background", "url(data:image/jpeg;base64," + image + ")" );
+	                updateContent();
 				}, function() {}, {
 					quality: 50,
 					destinationType: Camera.DestinationType.DATA_URL,
@@ -4613,11 +4619,7 @@ var showHome = ( function() {
                     addCard( i );
                     cardHolder.append( cards );
                 } else {
-                    if ( sites[currentSite].images[i] ) {
-		                card.find( ".ui-body" ).addClass( "has-image" ).css( "background", "url(data:image/jpeg;base64," + sites[currentSite].images[i] + ")" );
-                    } else {
-		                card.find( ".ui-body" ).removeClass( "has-image" ).css( "background", "" );
-                    }
+                    card.find( ".ui-body > img" ).attr( "src", "data:image/jpeg;base64," + ( sites[currentSite].images[i] || emptyImage ) );
 
                     if ( isStationDisabled( i ) ) {
                         if ( !page.hasClass( "show-hidden" ) ) {
@@ -4675,9 +4677,13 @@ var showHome = ( function() {
 				sites = parseSites( data.sites );
 	            if ( typeof sites[currentSite].images !== "object" ) {
 					sites[currentSite].images = {};
+					page.removeClass( "has-images" );
+	            } else {
+					page.addClass( "has-images" );
 	            }
 			} );
         },
+        emptyImage = "R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs%3D",
 	    hasMaster, hasMaster2, hasIR, hasAR, hasSD, hasSequential, cards, siteSelect, currentSite, i, sites;
 
 	page.one( "pageshow", function() {
@@ -4710,8 +4716,7 @@ var showHome = ( function() {
 	        addCard( i );
 	    }
 
-	    page.find( ".ui-content" ).append( "<div id='os-running-stations'></div><hr style='display:none' class='content-divider'>" +
-			"<div id='os-stations-list' class='card-group center'>" + cards + "</div>" );
+	    page.find( "#os-stations-list" ).html( cards );
 	    reorderCards();
 	    page.on( "click", ".station-settings", showAttributes );
 	    page.on( "click", ".home-info", function() {

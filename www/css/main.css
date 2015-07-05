@@ -709,12 +709,6 @@ body, input, select, textarea, button, .ui-btn {
     -o-transition: all 0.1s;
     transition: all 0.1s;
 }
-.has-image {
-    height: 100px;
-    line-height: 100px;
-    background-size: 100% 100% !important;
-    background-repeat: no-repeat !important;
-}
 .home-info {
     margin-left: -10px;
 }
@@ -741,6 +735,20 @@ body, input, select, textarea, button, .ui-btn {
 }
 .station-status.off:after {
     background-color:#C96161;
+}
+#os-stations-list img {
+	display: none;
+}
+.has-images .card img {
+    height: 100px;
+    float: left;
+    display: inherit !important;
+}
+.has-images .station-status {
+	right: 1%;
+	left: inherit;
+	bottom: -3px;
+	top: inherit;
 }
 #footer-running.ui-bar {
     font-weight: 600;
