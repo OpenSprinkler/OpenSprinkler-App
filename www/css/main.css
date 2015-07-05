@@ -712,7 +712,7 @@ body, input, select, textarea, button, .ui-btn {
 .has-image {
     height: 100px;
     line-height: 100px;
-    background-size: 100% 150% !important;
+    background-size: 100% 100% !important;
     background-repeat: no-repeat !important;
 }
 .home-info {

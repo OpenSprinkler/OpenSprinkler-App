@@ -1,5 +1,5 @@
 /* global $, Windows, MSApp, navigator, chrome, FastClick */
-/* global StatusBar, networkinterface, links, SunCalc, md5, sjcl */
+/* global StatusBar, networkinterface, links, SunCalc, md5, sjcl, Camera */
 
 // Initialize global variables
 var isIEMobile = /IEMobile/.test( navigator.userAgent ),
