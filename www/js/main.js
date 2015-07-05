@@ -4671,7 +4671,7 @@ var showHome = ( function() {
 			currentSite = siteSelect.val();
 			storage.get( "sites", function( data ) {
 				sites = parseSites( data.sites );
-	            if ( typeof sites[currentSite].images !== "object" ) {
+	            if ( typeof sites[currentSite].images !== "object" || $.isEmptyObject( sites[currentSite].images ) ) {
 					sites[currentSite].images = {};
 					page.removeClass( "has-images" );
 	            } else {

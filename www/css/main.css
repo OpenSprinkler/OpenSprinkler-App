@@ -740,7 +740,7 @@ body, input, select, textarea, button, .ui-btn {
 .station-status.off:after {
     background-color:#C96161;
 }
-#os-stations-list img {
+#os-stations-list img, #os-running-stations img {
 	display: none;
 }
 .has-images .card img {
