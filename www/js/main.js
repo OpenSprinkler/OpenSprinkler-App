@@ -4270,7 +4270,7 @@ var showHome = ( function() {
                             "<div id='weather' class='pointer'></div>" +
                         "</div>" +
                         "<div class='ui-block-b center home-info pointer'>" +
-                            "<span class='sitename bold'></span>" +
+                            "<div class='sitename bold'></div>" +
                             "<div id='clock-s' class='nobr'></div>" +
                             _( "Water Level" ) + ": <span class='waterlevel'></span>%" +
                         "</div>" +
@@ -4298,7 +4298,8 @@ var showHome = ( function() {
                 isScheduled = controller.settings.ps[i][0] > 0,
                 isRunning = controller.status[i] > 0,
                 pname = isScheduled ? pidname( controller.settings.ps[i][0] ) : "",
-                rem = controller.settings.ps[i][1];
+                rem = controller.settings.ps[i][1],
+                hasImage = sites[currentSite].images[i] ? true : false;
 
             if ( controller.status[i] && rem > 0 ) {
                 addTimer( i, rem );
@@ -4310,7 +4311,7 @@ var showHome = ( function() {
 
             cards += "<div class='ui-body ui-body-a center'>";
 
-			cards += "<img src='data:image/jpeg;base64," + ( sites[currentSite].images[i] || emptyImage ) + "' />";
+			cards += "<img src='" + ( hasImage ? "data:image/jpeg;base64," + sites[currentSite].images[i] : emptyImage ) + "' />";
 
             cards += "<p class='tight center inline-icon' id='station_" + i + "'>" + station + "</p>";
 
@@ -4426,16 +4427,10 @@ var showHome = ( function() {
 
             select.find( ".changeBackground" ).on( "click", function( e ) {
 				e.preventDefault();
-				navigator.camera.getPicture( function( image ) {
+				takePicture( function( image ) {
 					sites[currentSite].images[id] = image;
-	                storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
-	                updateContent();
-				}, function() {}, {
-					quality: 50,
-					destinationType: Camera.DestinationType.DATA_URL,
-					allowEdit: true,
-					targetWidth: 200,
-					targetHeight: 200
+			        storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
+			        updateContent();
 				} );
             } );
 
@@ -4579,7 +4574,7 @@ var showHome = ( function() {
             var cardHolder = page.find( "#os-stations-list" ),
                 allCards = cardHolder.children(),
                 runningCards = page.find( "#os-running-stations" ).children(),
-                isScheduled, isRunning, pname, rem, card, line;
+                isScheduled, isRunning, pname, rem, card, line, hasImage;
 
             if ( !page.hasClass( "ui-page-active" ) ) {
 				return;
@@ -4606,7 +4601,8 @@ var showHome = ( function() {
                 isScheduled = controller.settings.ps[i][0] > 0;
                 isRunning = controller.status[i] > 0;
                 pname = isScheduled ? pidname( controller.settings.ps[i][0] ) : "";
-                rem = controller.settings.ps[i][1];
+                rem = controller.settings.ps[i][1],
+                hasImage = sites[currentSite].images[i] ? true : false;
 
                 card = allCards.filter( "[data-station='" + i + "']" );
 
@@ -4619,7 +4615,7 @@ var showHome = ( function() {
                     addCard( i );
                     cardHolder.append( cards );
                 } else {
-                    card.find( ".ui-body > img" ).attr( "src", "data:image/jpeg;base64," + ( sites[currentSite].images[i] || emptyImage ) );
+                    card.find( ".ui-body > img" ).attr( "src", ( hasImage ? "data:image/jpeg;base64," + sites[currentSite].images[i] : emptyImage ) );
 
                     if ( isStationDisabled( i ) ) {
                         if ( !page.hasClass( "show-hidden" ) ) {
@@ -4683,7 +4679,7 @@ var showHome = ( function() {
 	            }
 			} );
         },
-        emptyImage = "R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs%3D",
+        emptyImage = "img/placeholder.png",
 	    hasMaster, hasMaster2, hasIR, hasAR, hasSD, hasSequential, cards, siteSelect, currentSite, i, sites;
 
 	page.one( "pageshow", function() {
@@ -4781,9 +4777,31 @@ var showHome = ( function() {
 	                showerror( _( "Station has been stopped" ) );
 	            } );
 	        } );
-	    } );
+	    } )
 
-	    page.on( {
+		.on( "click", "img", function() {
+			var image = $( this ),
+				id = image.parents( ".card" ).data( "station" ),
+				hasImage = image.attr( "src" ).indexOf( "data:image/jpeg;base64" ) === -1 ? false : true;
+
+			if ( hasImage ) {
+				areYouSure( _( "Do you want to delete the current image?" ), "", function() {
+					delete sites[currentSite].images[id];
+					storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
+					updateContent();
+				} );
+			} else {
+				takePicture( function( image ) {
+					sites[currentSite].images[id] = image;
+			        storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
+			        updateContent();
+				} );
+			}
+
+			return false;
+		} )
+
+	    .on( {
 	        pagebeforeshow: function() {
 	            var header = changeHeader( {
 	                class: "logo",
@@ -10144,6 +10162,20 @@ function showLoading( ele ) {
     if ( footer.length === 1 ) {
         footer.find( ".mini-load" ).addClass( "bottom" );
     }
+}
+
+function takePicture( callback ) {
+	if ( typeof navigator.camera !== "object" || typeof navigator.camera.getPicture !== "function" ) {
+		return;
+	}
+
+	navigator.camera.getPicture( callback, callback, {
+		quality: 50,
+		destinationType: Camera.DestinationType.DATA_URL,
+		allowEdit: true,
+		targetWidth: 200,
+		targetHeight: 200
+	} );
 }
 
 function goHome( firstLoad ) {
