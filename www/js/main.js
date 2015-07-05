@@ -1,5 +1,5 @@
 /* global $, Windows, MSApp, navigator, chrome, FastClick */
-/* global StatusBar, networkinterface, links, SunCalc, md5, sjcl */
+/* global StatusBar, networkinterface, links, SunCalc, md5, sjcl, Camera */
 
 // Initialize global variables
 var isIEMobile = /IEMobile/.test( navigator.userAgent ),
@@ -4270,11 +4270,14 @@ var showHome = ( function() {
                             "<div id='weather' class='pointer'></div>" +
                         "</div>" +
                         "<div class='ui-block-b center home-info pointer'>" +
-                            "<span class='sitename bold'></span>" +
+                            "<div class='sitename bold'></div>" +
                             "<div id='clock-s' class='nobr'></div>" +
                             _( "Water Level" ) + ": <span class='waterlevel'></span>%" +
                         "</div>" +
                     "</div>" +
+                    "<div id='os-running-stations'></div>" +
+                    "<hr style='display:none' class='content-divider'>" +
+                    "<div id='os-stations-list' class='card-group center'></div>" +
                 "</div>" +
             "</div>" +
         "</div>" ),
@@ -4295,7 +4298,8 @@ var showHome = ( function() {
                 isScheduled = controller.settings.ps[i][0] > 0,
                 isRunning = controller.status[i] > 0,
                 pname = isScheduled ? pidname( controller.settings.ps[i][0] ) : "",
-                rem = controller.settings.ps[i][1];
+                rem = controller.settings.ps[i][1],
+                hasImage = sites[currentSite].images[i] ? true : false;
 
             if ( controller.status[i] && rem > 0 ) {
                 addTimer( i, rem );
@@ -4304,7 +4308,11 @@ var showHome = ( function() {
             // Group card settings visually
             cards += "<div data-station='" + i + "' class='ui-corner-all card" +
 				( isStationDisabled( i ) ? " station-hidden' style='display:none" : "" ) + "'>";
+
             cards += "<div class='ui-body ui-body-a center'>";
+
+			cards += "<img src='" + ( hasImage ? "data:image/jpeg;base64," + sites[currentSite].images[i] : emptyImage ) + "' />";
+
             cards += "<p class='tight center inline-icon' id='station_" + i + "'>" + station + "</p>";
 
             cards += "<span class='btn-no-border ui-btn ui-btn-icon-notext ui-corner-all station-status " +
@@ -4365,6 +4373,12 @@ var showHome = ( function() {
 				"<input class='bold center' data-corners='false' data-wrapper-class='tight stn-name ui-btn' id='stn-name' type='text' value='" +
 					name.text() + "'>";
 
+			if ( typeof navigator.camera !== "undefined" && typeof navigator.camera.getPicture === "function" ) {
+				select += "<button class='changeBackground'>" +
+						( typeof sites[currentSite].images[id] !== "string" ? _( "Add" ) : _( "Change" ) ) + " " + _( "Image" ) +
+					"</button>";
+			}
+
             if ( !isStationMaster( id ) ) {
                 if ( hasMaster ) {
                     select += "<label for='um'><input class='needsclick' data-iconpos='right' id='um' type='checkbox' " +
@@ -4404,16 +4418,21 @@ var showHome = ( function() {
             }
 
             select += "<input data-wrapper-class='attrib-submit' data-theme='b' type='submit' value='" + _( "Submit" ) + "' /></form></fieldset></div>";
-            select = $( select );
-            select.on( "submit", "form", function() {
+            select = $( select ).enhanceWithin().on( "submit", "form", function() {
                 saveChanges();
                 submitStations();
 
                 return false;
             } );
-            select.one( "popupafteropen", function() {
-                select.find( "#stn-name" ).focusInput();
-            } ).enhanceWithin();
+
+            select.find( ".changeBackground" ).on( "click", function( e ) {
+				e.preventDefault();
+				takePicture( function( image ) {
+					sites[currentSite].images[id] = image;
+			        storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
+			        updateContent();
+				} );
+            } );
 
             $.mobile.pageContainer.append( select );
 
@@ -4555,13 +4574,14 @@ var showHome = ( function() {
             var cardHolder = page.find( "#os-stations-list" ),
                 allCards = cardHolder.children(),
                 runningCards = page.find( "#os-running-stations" ).children(),
-                isScheduled, isRunning, pname, rem, card, line;
+                isScheduled, isRunning, pname, rem, card, line, hasImage;
 
             if ( !page.hasClass( "ui-page-active" ) ) {
 				return;
             }
 
             updateClock();
+            updateSites();
 
             if ( allCards.length > controller.stations.snames.length ) {
                 allCards.slice( controller.stations.snames.length, allCards.length ).remove();
@@ -4581,7 +4601,8 @@ var showHome = ( function() {
                 isScheduled = controller.settings.ps[i][0] > 0;
                 isRunning = controller.status[i] > 0;
                 pname = isScheduled ? pidname( controller.settings.ps[i][0] ) : "";
-                rem = controller.settings.ps[i][1];
+                rem = controller.settings.ps[i][1],
+                hasImage = sites[currentSite].images[i] ? true : false;
 
                 card = allCards.filter( "[data-station='" + i + "']" );
 
@@ -4594,6 +4615,8 @@ var showHome = ( function() {
                     addCard( i );
                     cardHolder.append( cards );
                 } else {
+                    card.find( ".ui-body > img" ).attr( "src", ( hasImage ? "data:image/jpeg;base64," + sites[currentSite].images[i] : emptyImage ) );
+
                     if ( isStationDisabled( i ) ) {
                         if ( !page.hasClass( "show-hidden" ) ) {
                             card.hide();
@@ -4644,7 +4667,20 @@ var showHome = ( function() {
 
             reorderCards();
         },
-	    hasMaster, hasMaster2, hasIR, hasAR, hasSD, hasSequential, cards, siteSelect, i;
+        updateSites = function() {
+			currentSite = siteSelect.val();
+			storage.get( "sites", function( data ) {
+				sites = parseSites( data.sites );
+	            if ( typeof sites[currentSite].images !== "object" || $.isEmptyObject( sites[currentSite].images ) ) {
+					sites[currentSite].images = {};
+					page.removeClass( "has-images" );
+	            } else {
+					page.addClass( "has-images" );
+	            }
+			} );
+        },
+        emptyImage = "img/placeholder.png",
+	    hasMaster, hasMaster2, hasIR, hasAR, hasSD, hasSequential, cards, siteSelect, currentSite, i, sites;
 
 	page.one( "pageshow", function() {
 		$( "html" ).on( "datarefresh", updateContent );
@@ -4665,6 +4701,8 @@ var showHome = ( function() {
 		cards = "";
         siteSelect = $( "#site-selector" );
 
+        updateSites();
+
 		page.find( ".sitename" ).toggleClass( "hidden", currLocal ? true : false ).text( siteSelect.val() );
 		page.find( ".waterlevel" ).text( controller.options.wl );
 
@@ -4674,8 +4712,7 @@ var showHome = ( function() {
 	        addCard( i );
 	    }
 
-	    page.find( ".ui-content" ).append( "<div id='os-running-stations'></div><hr style='display:none' class='content-divider'>" +
-			"<div id='os-stations-list' class='card-group center'>" + cards + "</div>" );
+	    page.find( "#os-stations-list" ).html( cards );
 	    reorderCards();
 	    page.on( "click", ".station-settings", showAttributes );
 	    page.on( "click", ".home-info", function() {
@@ -4740,9 +4777,31 @@ var showHome = ( function() {
 	                showerror( _( "Station has been stopped" ) );
 	            } );
 	        } );
-	    } );
+	    } )
 
-	    page.on( {
+		.on( "click", "img", function() {
+			var image = $( this ),
+				id = image.parents( ".card" ).data( "station" ),
+				hasImage = image.attr( "src" ).indexOf( "data:image/jpeg;base64" ) === -1 ? false : true;
+
+			if ( hasImage ) {
+				areYouSure( _( "Do you want to delete the current image?" ), "", function() {
+					delete sites[currentSite].images[id];
+					storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
+					updateContent();
+				} );
+			} else {
+				takePicture( function( image ) {
+					sites[currentSite].images[id] = image;
+			        storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
+			        updateContent();
+				} );
+			}
+
+			return false;
+		} )
+
+	    .on( {
 	        pagebeforeshow: function() {
 	            var header = changeHeader( {
 	                class: "logo",
@@ -10103,6 +10162,20 @@ function showLoading( ele ) {
     if ( footer.length === 1 ) {
         footer.find( ".mini-load" ).addClass( "bottom" );
     }
+}
+
+function takePicture( callback ) {
+	if ( typeof navigator.camera !== "object" || typeof navigator.camera.getPicture !== "function" ) {
+		return;
+	}
+
+	navigator.camera.getPicture( callback, callback, {
+		quality: 50,
+		destinationType: Camera.DestinationType.DATA_URL,
+		allowEdit: true,
+		targetWidth: 200,
+		targetHeight: 200
+	} );
 }
 
 function goHome( firstLoad ) {

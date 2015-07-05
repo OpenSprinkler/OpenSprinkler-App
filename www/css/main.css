@@ -711,6 +711,10 @@ body, input, select, textarea, button, .ui-btn {
 }
 .home-info {
     margin-left: -10px;
+    margin-top: 10px;
+}
+.sitename {
+	padding-bottom: 10px;
 }
 .station-hidden {
     opacity: 0.5;
@@ -735,6 +739,25 @@ body, input, select, textarea, button, .ui-btn {
 }
 .station-status.off:after {
     background-color:#C96161;
+}
+#os-stations-list img, #os-running-stations img {
+	display: none;
+}
+.has-images .card img {
+    height: 60px;
+    width: 60px;
+    float: left;
+    display: inherit !important;
+}
+.has-images .station-status {
+	right: 1%;
+	left: inherit;
+	bottom: -3px;
+	top: inherit;
+}
+.has-images .rem {
+	padding-left: 5px;
+	padding-top: 8px;
 }
 #footer-running.ui-bar {
     font-weight: 600;

@@ -181,6 +181,8 @@ describe( "Page Navigation Checks", function() {
 		currPrefix = "http://";
 		curr183 = false;
 
+		updateSiteList( [ "Test" ], "Test" );
+
 		$.mobile.document.one( "pageshow", "#sprinklers", function() {
 			done();
 		} );
