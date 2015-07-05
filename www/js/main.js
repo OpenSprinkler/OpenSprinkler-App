@@ -8873,7 +8873,7 @@ function checkPublicAccess( eip ) {
     } ).then(
         function( data ) {
             if ( typeof data !== "object" || !data.hasOwnProperty( "fwv" ) || data.fwv !== controller.options.fwv ||
-				( checkOSVersion( 214 ) && controller.options.ip4 === data.ip4 ) ) {
+				( checkOSVersion( 214 ) && controller.options.ip4 !== data.ip4 ) ) {
 					fail();
 					return;
             }
