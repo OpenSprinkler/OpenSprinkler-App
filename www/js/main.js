@@ -1502,17 +1502,8 @@ var showSites = ( function() {
     } );
 
     page.on( "pagehide", function() {
-		popup.detach();
+		popup.popup( "destroy" ).detach();
         page.detach();
-    } );
-
-    page.one( "pagebeforeshow", function() {
-		$.mobile.pageContainer.append( popup );
-
-	    popup.popup( {
-	        history: false,
-	        positionTo: header.eq( 2 )
-	    } ).enhanceWithin();
     } );
 
     $( "html" ).on( "siterefresh", function() {
@@ -1802,6 +1793,13 @@ var showSites = ( function() {
         } );
 
 	    updateContent();
+
+	    $.mobile.pageContainer.append( popup );
+
+	    popup.popup( {
+	        history: false,
+	        positionTo: header.eq( 2 )
+	    } ).enhanceWithin();
 
 	    $( "#site-control" ).remove();
 	    $.mobile.pageContainer.append( page );
