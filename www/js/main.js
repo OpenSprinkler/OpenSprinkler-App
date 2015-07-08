@@ -4432,7 +4432,7 @@ var showHome = ( function() {
 			        storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
 			        updateContent();
 
-			        button.text( _( "Change" ) + " " + _( "Image" ) );
+			        button.innerHTML =  _( "Change" ) + " " + _( "Image" );
 				} );
             } );
 
