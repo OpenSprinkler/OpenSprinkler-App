@@ -4425,10 +4425,14 @@ var showHome = ( function() {
 
             select.find( ".changeBackground" ).on( "click", function( e ) {
 				e.preventDefault();
+				var button = this;
+
 				takePicture( function( image ) {
 					sites[currentSite].images[id] = image;
 			        storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
 			        updateContent();
+
+			        button.text( _( "Change" ) + " " + _( "Image" ) );
 				} );
             } );
 
