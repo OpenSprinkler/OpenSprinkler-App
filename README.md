@@ -47,7 +47,7 @@ A mobile interface for the OpenSprinkler irrigation device. Designed to allow ma
 
 ---
 
-#### OpenSprinkler
+#### Unified Firmware
 
 Starting with firmware 2.0.3, an option has been added to change the Javascript URL path for the UI. The application now offers an injection method which takes over Ray's OpenSprinkler UI. Just follow the simple steps below to switch your UI:
 
