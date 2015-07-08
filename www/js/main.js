@@ -9781,7 +9781,7 @@ function showTimeInput( opt ) {
                     "</fieldset>" +
                     "<div class='ui-grid-b inputs'>" +
                         "<div class='ui-block-a'>" +
-                            "<input data-wrapper-class='pad_buttons' class='hour' type='number' pattern='[0-9]*' value='" +
+                            "<input data-wrapper-class='pad_buttons' class='hour dontPad' type='number' pattern='[0-9]*' value='" +
 								( parseInt( opt.minutes / 60 ) % 12 === 0 ? 12 : parseInt( opt.minutes / 60 ) % 12 ) + "'>" +
                         "</div>" +
                         "<div class='ui-block-b'>" +
@@ -9816,7 +9816,7 @@ function showTimeInput( opt ) {
                     "<h5 class='center tight'>" + _( "Offset (minutes)" ) + "</h5>" +
                     "<div class='input_with_buttons'>" +
                         "<button class='decr ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border'></button>" +
-                        "<input type='number' pattern='[0-9]*' value='" + offset + "'>" +
+                        "<input class='dontPad' type='number' pattern='[0-9]*' value='" + offset + "'>" +
                         "<button class='incr ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border'></button>" +
                     "</div>" +
                 "</div>" : "" ) +
@@ -9913,11 +9913,11 @@ function showTimeInput( opt ) {
         popup.popup( "destroy" ).remove();
     } );
 
-    popup.on( "focus", "input[type='number']", function() {
-        this.value = "";
-    } ).on( "blur", "input[type='number']", function() {
-        var val = parseInt( this.value ) || 0;
-        this.value = $( this ).hasClass( "hour" ) ? val : pad( val );
+    popup.on( "focus", "input[type='number']", function( e ) {
+        e.target.value = "";
+    } ).on( "blur", "input[type='number']", function( e ) {
+        var val = parseInt( e.target.value ) || 0;
+        e.target.value = $( e.target ).hasClass( "dontPad" ) ? val : pad( val );
     } );
 
     holdButton( popup.find( ".incr" ).children(), function( e ) {
