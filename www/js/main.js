@@ -10170,7 +10170,7 @@ function takePicture( callback ) {
 		return;
 	}
 
-	navigator.camera.getPicture( callback, callback, {
+	navigator.camera.getPicture( callback, function() {}, {
 		quality: 50,
 		destinationType: Camera.DestinationType.DATA_URL,
 		allowEdit: true,
