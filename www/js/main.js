@@ -7069,8 +7069,8 @@ function makeProgram183( n, isCopy ) {
     list += "<div class='center'><p class='tight'>" + _( "Restrictions" ) + "</p>" +
 		"<select data-inline='true' data-iconpos='left' data-mini='true' id='days_rst-" + id + "'>";
     list += "<option value='none' " + ( ( !program.is_even && !program.is_odd ) ? "selected='selected'" : "" ) + ">" + _( "None" ) + "</option>";
-    list += "<option value='odd' " + ( ( !program.is_even && program.is_odd ) ? "selected='selected'" : "" ) + ">" + _( "Odd Days" ) + "</option>";
-    list += "<option value='even' " + ( ( !program.is_odd && program.is_even ) ? "selected='selected'" : "" ) + ">" + _( "Even Days" ) + "</option>";
+    list += "<option value='odd' " + ( ( !program.is_even && program.is_odd ) ? "selected='selected'" : "" ) + ">" + _( "Odd Days Only" ) + "</option>";
+    list += "<option value='even' " + ( ( !program.is_odd && program.is_even ) ? "selected='selected'" : "" ) + ">" + _( "Even Days Only" ) + "</option>";
     list += "</select></div>";
 
     list += "<div class='center'><p class='tight'>" + _( "Days of the Week" ) + "</p>" +
@@ -7288,8 +7288,8 @@ function makeProgram21( n, isCopy ) {
     // Show restriction options
     list += "<div class='center'><p class='tight'>" + _( "Restrictions" ) + "</p><select data-inline='true' data-iconpos='left' data-mini='true' id='days_rst-" + id + "'>";
     list += "<option value='none' " + ( ( !program.is_even && !program.is_odd ) ? "selected='selected'" : "" ) + ">" + _( "None" ) + "</option>";
-    list += "<option value='odd' " + ( ( !program.is_even && program.is_odd ) ? "selected='selected'" : "" ) + ">" + _( "Odd Days" ) + "</option>";
-    list += "<option value='even' " + ( ( !program.is_odd && program.is_even ) ? "selected='selected'" : "" ) + ">" + _( "Even Days" ) + "</option>";
+    list += "<option value='odd' " + ( ( !program.is_even && program.is_odd ) ? "selected='selected'" : "" ) + ">" + _( "Odd Days Only" ) + "</option>";
+    list += "<option value='even' " + ( ( !program.is_odd && program.is_even ) ? "selected='selected'" : "" ) + ">" + _( "Even Days Only" ) + "</option>";
     list += "</select></div>";
 
     // Close program type group
