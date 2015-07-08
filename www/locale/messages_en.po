@@ -876,10 +876,10 @@ msgstr ""
 msgid "Restrictions"
 msgstr ""
 
-msgid "Odd Days"
+msgid "Odd Days Only"
 msgstr ""
 
-msgid "Even Days"
+msgid "Even Days Only"
 msgstr ""
 
 msgid "Days of the Week"
