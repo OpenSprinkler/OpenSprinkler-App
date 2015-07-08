@@ -7504,13 +7504,15 @@ function addProgram( copyID ) {
 }
 
 function deleteProgram( id ) {
-    areYouSure( _( "Are you sure you want to delete program" ) + " " + ( parseInt( id ) + 1 ) + "?", "", function() {
+	var program = pidname( parseInt( id ) + 1 );
+
+    areYouSure( _( "Are you sure you want to delete program" ) + " " + program + "?", "", function() {
         $.mobile.loading( "show" );
         sendToOS( "/dp?pw=&pid=" + id ).done( function() {
             $.mobile.loading( "hide" );
             updateControllerPrograms( function() {
                 $( "#programs" ).trigger( "programrefresh" );
-                showerror( _( "Program" ) + " " + ( parseInt( id ) + 1 ) + " " + _( "deleted" ) );
+                showerror( _( "Program" ) + " " + program + " " + _( "deleted" ) );
             } );
         } );
     } );
