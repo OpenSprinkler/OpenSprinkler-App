@@ -1876,10 +1876,11 @@ function updateSite( newsite ) {
     } );
 }
 
+/*
 function findLocalSiteName( callback ) {
 	storage.get( "sites", function( data ) {
 		var sites = parseSites( data.sites ),
-			ip;
+			site;
 
 		for ( site in sites ) {
 			if ( sites.hasOwnProperty( site ) ) {
@@ -1893,6 +1894,7 @@ function findLocalSiteName( callback ) {
 		callback( false );
 	} );
 }
+*/
 
 // Automatic device detection functions
 function updateDeviceIP( finishCheck ) {
