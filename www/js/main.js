@@ -555,9 +555,8 @@ function sendToOS( dest, type ) {
         obj = {
             url: currPrefix + currIp + dest,
 
-            // Use POST when sending data to the controller (requires firmware 2.1.5 or newer)
-            // TODO: Change GET to POST once OpenSprinkler supports it
-            type: ( isChange && checkOSVersion( 216 ) ) ? "GET" : "GET",
+            // Use POST when sending data to the controller (requires firmware 2.1.6 or newer)
+            type: ( isChange && checkOSVersion( 216 ) ) ? "POST" : "GET",
             dataType: type,
             shouldRetry: function( xhr, current ) {
                 if ( xhr.status === 0 && xhr.statusText === "abort" || retryCount < current ) {
@@ -815,17 +814,26 @@ function updateController( callback, fail ) {
     callback = callback || function() {};
     fail = fail || function() {};
 
-    $.when(
-        updateControllerPrograms(),
-        updateControllerStations(),
-        updateControllerOptions(),
-        updateControllerStatus(),
-        updateControllerSettings()
-    ).then( function() {
-        $( "html" ).trigger( "datarefresh" );
-        checkStatus();
-        callback();
-    }, fail );
+    if ( isControllerConnected() && checkOSVersion( 216 ) ) {
+        sendToOS( "/ja?pw=", "json" ).then( function( data ) {
+			controller = data;
+			$( "html" ).trigger( "datarefresh" );
+			checkStatus();
+			callback();
+		}, fail );
+    } else {
+	    $.when(
+	        updateControllerPrograms(),
+	        updateControllerStations(),
+	        updateControllerOptions(),
+	        updateControllerStatus(),
+	        updateControllerSettings()
+	    ).then( function() {
+	        $( "html" ).trigger( "datarefresh" );
+	        checkStatus();
+	        callback();
+	    }, fail );
+    }
 }
 
 function updateControllerPrograms( callback ) {
@@ -4987,17 +4995,23 @@ function refreshStatus() {
 		return;
 	}
 
-    $.when(
-        updateControllerStatus(),
-        updateControllerSettings(),
-        updateControllerOptions()
-    ).then( function() {
+	var finish = function() {
 
         // Notify the page container that the data has refreshed
         $( "html" ).trigger( "datarefresh" );
         checkStatus();
         return;
-    }, networkFail );
+    };
+
+    if ( checkOSVersion( 216 ) ) {
+		updateController( finish );
+    } else {
+	    $.when(
+	        updateControllerStatus(),
+	        updateControllerSettings(),
+	        updateControllerOptions()
+	    ).then( finish, networkFail );
+	}
 }
 
 function refreshData() {
@@ -5005,10 +5019,14 @@ function refreshData() {
 		return;
 	}
 
-    $.when(
-        updateControllerPrograms(),
-        updateControllerStations()
-    ).fail( networkFail );
+    if ( checkOSVersion( 216 ) ) {
+		updateController();
+    } else {
+	    $.when(
+	        updateControllerPrograms(),
+	        updateControllerStations()
+	    ).fail( networkFail );
+	}
 }
 
 // Actually change the status bar
