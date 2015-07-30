@@ -1876,6 +1876,24 @@ function updateSite( newsite ) {
     } );
 }
 
+function findLocalSiteName( callback ) {
+	storage.get( "sites", function( data ) {
+		var sites = parseSites( data.sites ),
+			ip;
+
+		for ( site in sites ) {
+			if ( sites.hasOwnProperty( site ) ) {
+				if ( currIp.indexOf( sites[site].os_ip ) !== -1 ) {
+					callback( site );
+					return;
+				}
+			}
+		}
+
+		callback( false );
+	} );
+}
+
 // Automatic device detection functions
 function updateDeviceIP( finishCheck ) {
     var finish = function( result ) {
@@ -2982,7 +3000,7 @@ function debugWU() {
                 current = data.current_observation,
                 country = current.display_location.country_iso3166,
                 isMetric = ( ( country === "US" || country === "BM" || country === "PW" ) ? false : true ),
-                popup = $( "<div data-role='popup' id='debugWU' class='ui-content' data-theme='a'>" +
+                popup = $( "<div data-role='popup' id='debugWU' class='ui-content ui-page-theme-a'>" +
                     "<table class='debugWU'>" +
                         "<tr><td>" + _( "Min Humidity" ) + "</td><td>" + summary.minhumidity + "%</td></tr>" +
                         "<tr><td>" + _( "Max Humidity" ) + "</td><td>" + summary.maxhumidity + "%</td></tr>" +
@@ -3386,7 +3404,6 @@ function showOptions( expandItem ) {
                     case "o21":
                     case "o22":
                     case "o25":
-                    case "o30":
                     case "o36":
                     case "o3":
                         data = $item.is( ":checked" ) ? 1 : 0;
