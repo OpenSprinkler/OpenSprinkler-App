@@ -5098,7 +5098,7 @@ function refreshStatus() {
     };
 
     if ( checkOSVersion( 216 ) ) {
-		updateController( finish );
+		updateController( finish, networkFail );
     } else {
 	    $.when(
 	        updateControllerStatus(),
@@ -5114,7 +5114,7 @@ function refreshData() {
 	}
 
     if ( checkOSVersion( 216 ) ) {
-		updateController();
+		updateController( null, networkFail );
     } else {
 	    $.when(
 	        updateControllerPrograms(),
