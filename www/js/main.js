@@ -552,11 +552,13 @@ function sendToOS( dest, type ) {
     // Designate AJAX queue based on command type
     var isChange = /\/(?:cv|cs|cr|cp|uwa|dp|co|cl|cu|up|cm)/.exec( dest ),
 		queue = isChange ? "change" : "default",
-        obj = {
-            url: currPrefix + currIp + dest,
 
-            // Use POST when sending data to the controller (requires firmware 2.1.6 or newer)
-            type: ( isChange && checkOSVersion( 216 ) ) ? "POST" : "GET",
+        // Use POST when sending data to the controller (requires firmware 2.1.6 or newer)
+        usePOST = ( isChange && checkOSVersion( 216 ) ),
+        obj = {
+            url: currPrefix + currIp + ( usePOST ? dest.split( "?" )[0] : dest ),
+            type: usePOST ? "POST" : "GET",
+            data: usePOST ? getUrlVars( dest ) : null,
             dataType: type,
             shouldRetry: function( xhr, current ) {
                 if ( xhr.status === 0 && xhr.statusText === "abort" || retryCount < current ) {
@@ -666,7 +668,7 @@ function networkFail() {
 }
 
 // Gather new controller information and load home page
-function newload() {
+function newLoad() {
 
 	// Get the current site name from the site select drop down
     var name = $( "#site-selector" ).val(),
@@ -799,7 +801,7 @@ function newload() {
                 changePassword( {
                     fixIncorrect: true,
                     name: name,
-                    callback: newload,
+                    callback: newLoad,
                     cancel: fail
                 } );
             } else {
@@ -814,12 +816,20 @@ function updateController( callback, fail ) {
     callback = callback || function() {};
     fail = fail || function() {};
 
+    var finish = function() {
+		$( "html" ).trigger( "datarefresh" );
+		checkStatus();
+		callback();
+    };
+
     if ( isControllerConnected() && checkOSVersion( 216 ) ) {
         sendToOS( "/ja?pw=", "json" ).then( function( data ) {
 			controller = data;
-			$( "html" ).trigger( "datarefresh" );
-			checkStatus();
-			callback();
+
+			// Fix the station status array
+			controller.status = controller.status.sn;
+
+			finish();
 		}, fail );
     } else {
 	    $.when(
@@ -828,11 +838,7 @@ function updateController( callback, fail ) {
 	        updateControllerOptions(),
 	        updateControllerStatus(),
 	        updateControllerSettings()
-	    ).then( function() {
-	        $( "html" ).trigger( "datarefresh" );
-	        checkStatus();
-	        callback();
-	    }, fail );
+	    ).then( finish, fail );
     }
 }
 
@@ -1123,7 +1129,7 @@ function checkConfigured( firstLoad ) {
             curr183 = false;
         }
 
-        newload();
+        newLoad();
     } );
 }
 
@@ -1215,7 +1221,7 @@ function submitNewUser( ssl, useAuth ) {
                 }, function() {
                     cloudSaveSites();
                     updateSiteList( Object.keys( sites ), name );
-                    newload();
+                    newLoad();
                 } );
             } else {
                 showerror( _( "Check IP/Port and try again." ) );
@@ -8940,7 +8946,7 @@ function logout( success ) {
 
     areYouSure( _( "Are you sure you want to logout?" ), "", function() {
         if ( currLocal ) {
-            storage.remove( [ "sites", "current_site", "lang", "provider", "wapikey", "runonce" ], function() {
+            storage.remove( [ "sites", "current_site", "lang", "provider", "wapikey", "runonce", "cloudToken" ], function() {
                 location.reload();
             } );
         } else {
@@ -10645,6 +10651,18 @@ function checkCurrLang() {
 
         popup.find( "li.ui-last-child" ).removeClass( "ui-last-child" );
     } );
+}
+
+function getUrlVars( url ) {
+    var hash,
+		json = {},
+		hashes = url.slice( url.indexOf( "?" ) + 1 ).split( "&" );
+
+    for ( var i = 0; i < hashes.length; i++ ) {
+        hash = hashes[i].split( "=" );
+        json[hash[0]] = hash[1];
+    }
+    return json;
 }
 
 function escapeJSON( json ) {
