@@ -10343,8 +10343,16 @@ function goHome( firstLoad ) {
 }
 
 function goBack() {
-    var page = $( ".ui-page-active" ).attr( "id" ),
-        managerStart = ( page === "site-control" && !isControllerConnected() ),
+	var page = $( ".ui-page-active" );
+
+	// Prevent back navigation during active page transition
+	if ( page.length !== 1 ) {
+		return;
+	}
+
+    page = page.attr( "id" );
+
+    var managerStart = ( page === "site-control" && !isControllerConnected() ),
         popup = $( ".ui-popup-active" );
 
     if ( popup.length ) {
