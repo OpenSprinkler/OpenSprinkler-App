@@ -10760,7 +10760,7 @@ function getUrlVars( url ) {
 
     for ( var i = 0; i < hashes.length; i++ ) {
         hash = hashes[i].split( "=" );
-        json[hash[0]] = hash[1];
+        json[hash[0]] = decodeURIComponent( hash[1].replace( /\+/g, "%20" ) );
     }
     return json;
 }
