@@ -2400,6 +2400,10 @@ function showZimmermanAdjustmentOptions( button, callback ) {
         if ( this.value === "" || parseInt( this.value ) < 0 ) {
             this.value = "0";
         }
+
+        if ( parseInt( this.value ) > 100 ) {
+			this.value = "100";
+        }
     } );
 
     holdButton( popup.find( ".incr" ).children(), function( e ) {
