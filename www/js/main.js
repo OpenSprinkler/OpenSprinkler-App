@@ -2298,7 +2298,7 @@ function showWeatherSettings() {
     $.mobile.pageContainer.append( page );
 }
 
-function showAdjustmentOptions( button, callback ) {
+function showZimmermanAdjustmentOptions( button, callback ) {
     $( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
 
     var options = controller.settings.wto;
@@ -2411,6 +2411,81 @@ function showAdjustmentOptions( button, callback ) {
     holdButton( popup.find( ".decr" ).children(), function( e ) {
         var pos = $( e.currentTarget ).index();
         changeValue( pos, -1 );
+        return false;
+    } );
+
+    $( "#adjustmentOptions" ).remove();
+
+    popup.css( "max-width", "380px" );
+
+    openPopup( popup, { positionTo: "window" } );
+}
+
+function showAutoRainDelayAdjustmentOptions( button, callback ) {
+    $( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
+
+    var options = controller.settings.wto;
+
+    if ( typeof options !== "object" || $.isEmptyObject( options ) ) {
+        options = { d: 24 };
+    }
+
+    var popup = $( "<div data-role='popup' data-theme='a' id='adjustmentOptions'>" +
+            "<div data-role='header' data-theme='b'>" +
+                "<h1>" + _( "Weather Adjustment Options" ) + "</h1>" +
+            "</div>" +
+            "<div class='ui-content'>" +
+                "<p class='rain-desc center smaller'>" +
+					_( "If the weather reports any condition suggesting rain, a rain delay is automatically issued using the below set delay duration." ) +
+                "</p>" +
+                "<label class='center' for='delay_duration'>" + _( "Delay Duration (hours)" ) + "</label>" +
+                "<div class='input_with_buttons'>" +
+                    "<button class='decr ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border'></button>" +
+                    "<input id='delay_duration' type='number' pattern='[0-9]*' value='" + options.d + "'>" +
+                    "<button class='incr ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border'></button>" +
+                "</div>" +
+	            "<button class='submit' data-theme='b'>" + _( "Submit" ) + "</button>" +
+	        "</div>" +
+	    "</div>" ),
+        changeValue = function( dir ) {
+            var input = popup.find( "#delay_duration" ),
+                val = parseInt( input.val() );
+
+            if ( ( dir === -1 && val === 0 ) || ( dir === 1 && val === 8760 ) ) {
+                return;
+            }
+
+            input.val( val + dir );
+        };
+
+    popup.find( ".submit" ).on( "click", function() {
+        options = { d: parseInt( popup.find( "#delay_duration" ).val() ) };
+
+        if ( button ) {
+            button.value = escapeJSON( options );
+        }
+
+        callback();
+
+        popup.popup( "close" );
+        return false;
+    } );
+
+    popup.on( "focus", "input[type='number']", function() {
+        this.value = "";
+    } ).on( "blur", "input[type='number']", function() {
+        if ( this.value === "" || parseInt( this.value ) < 0 ) {
+            this.value = "0";
+        }
+    } );
+
+    holdButton( popup.find( ".incr" ), function() {
+        changeValue( 1 );
+        return false;
+    } );
+
+    holdButton( popup.find( ".decr" ), function() {
+        changeValue( -1 );
         return false;
     } );
 
@@ -3061,7 +3136,13 @@ function showRainDelay() {
 }
 
 function getAdjustmentName( id ) {
-    return [ _( "Manual" ), "Zimmerman" ][ id & ~( 1 << 7 ) ];
+	var methods = [ _( "Manual" ), "Zimmerman" ];
+
+	if ( checkOSVersion( 216 ) ) {
+		methods.push( _( "Auto Rain Delay" ) );
+	}
+
+    return methods[ id & ~( 1 << 7 ) ];
 }
 
 function getAdjustmentMethod() {
@@ -3668,7 +3749,7 @@ function showOptions( expandItem ) {
 					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
 			"</label><select " + ( controller.settings.wtkey && controller.settings.wtkey !== "" ? "" : "disabled='disabled' " ) +
 				"data-mini='true' id='o31'>";
-        for ( i = 0; i < 2; i++ ) {
+        for ( i = 0; i < 3; i++ ) {
             list += "<option " + ( ( i === getAdjustmentMethod() ) ? "selected" : "" ) + " value='" + i + "'>" + getAdjustmentName( i ) + "</option>";
         }
         list += "</select></div>";
@@ -3837,10 +3918,17 @@ function showOptions( expandItem ) {
     } );
 
     page.find( "#wto" ).on( "click", function() {
-		showAdjustmentOptions( this, function() {
-	        header.eq( 2 ).prop( "disabled", false );
-            page.find( ".submit" ).addClass( "hasChanges" );
-		} );
+		var method = parseInt( page.find( "#o31" ).val() ),
+			finish = function() {
+				header.eq( 2 ).prop( "disabled", false );
+	            page.find( ".submit" ).addClass( "hasChanges" );
+			};
+
+		if ( method === 1 ) {
+			showZimmermanAdjustmentOptions( this, finish );
+		} else if ( method === 2 ) {
+			showAutoRainDelayAdjustmentOptions( this, finish );
+		}
     } );
 
     page.find( ".reset-options" ).on( "click", function() {
