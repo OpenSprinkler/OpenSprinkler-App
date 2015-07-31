@@ -187,7 +187,7 @@ describe( "Page Navigation Checks", function() {
 			done();
 		} );
 
-		newload();
+		newLoad();
 	} );
 
 	it( "Change page to program preview", function( done ) {
