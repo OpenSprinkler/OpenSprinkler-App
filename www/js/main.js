@@ -4084,7 +4084,7 @@ function showOptions( expandItem ) {
             current = loc.val(),
             button = $( this );
 
-        if ( /^pws:|^icao:/.test( current ) ) {
+        if ( /^pws:|^icao:|^zmw:/.test( current ) ) {
             showerror( _( "When using a personal weather station the location lookup is unavailable." ) );
             return;
         }
