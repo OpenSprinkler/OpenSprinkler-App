@@ -22,7 +22,7 @@ module.exports = function( grunt ) {
 			}
 
 			version = version.split( join ) || [ 0, 0, 0 ];
-			version[level]++;
+			version[ level ]++;
 			return version.join( join );
 		},
 		secrets;
@@ -238,7 +238,7 @@ module.exports = function( grunt ) {
 				replacements: [ {
 					from: /_\( "App Version" \) \+ ": ([\d|\.]+)"/g,
 					to: function( matchedWord, index, fullText, regexMatches ) {
-						return "_( \"App Version\" ) + \": " + bumpVersion( regexMatches[0] ) + "\"";
+						return "_( \"App Version\" ) + \": " + bumpVersion( regexMatches[ 0 ] ) + "\"";
 					}
 				} ]
 			},
@@ -248,12 +248,12 @@ module.exports = function( grunt ) {
 				replacements: [ {
 					from: /<key>CFBundleShortVersionString<\/key>\n\t<string>([\d|\.]+)<\/string>/g,
 					to: function( matchedWord, index, fullText, regexMatches ) {
-						return "<key>CFBundleShortVersionString</key>\n\t<string>" + bumpVersion( regexMatches[0] ) + "</string>";
+						return "<key>CFBundleShortVersionString</key>\n\t<string>" + bumpVersion( regexMatches[ 0 ] ) + "</string>";
 					}
 				}, {
 					from: /<key>CFBundleVersion<\/key>\n\t<string>(\d+)<\/string>/g,
 					to: function( matchedWord, index, fullText, regexMatches ) {
-						return "<key>CFBundleVersion<\/key>\n\t<string>" + ( parseInt( regexMatches[0] ) + 1 ) + "<\/string>";
+						return "<key>CFBundleVersion<\/key>\n\t<string>" + ( parseInt( regexMatches[ 0 ] ) + 1 ) + "<\/string>";
 					}
 				} ]
 			},
@@ -264,17 +264,17 @@ module.exports = function( grunt ) {
 					{
 						from: /version="([\d|\.]+)"\n/g,
 						to: function( matchedWord, index, fullText, regexMatches ) {
-							return "version=\"" + bumpVersion( regexMatches[0] ) + "\"\n";
+							return "version=\"" + bumpVersion( regexMatches[ 0 ] ) + "\"\n";
 						}
 					}, {
 						from: /versionCode="(\d+)"/g,
 						to: function( matchedWord, index, fullText, regexMatches ) {
-							return "versionCode=\"" + ( parseInt( regexMatches[0] ) + 1 ) + "\"";
+							return "versionCode=\"" + ( parseInt( regexMatches[ 0 ] ) + 1 ) + "\"";
 						}
 					}, {
 						from: /<string>(\d+)<\/string>/g,
 						to: function( matchedWord, index, fullText, regexMatches ) {
-							return "<string>" + bumpVersion( parseInt( regexMatches[0] ) ) + "</string>";
+							return "<string>" + bumpVersion( parseInt( regexMatches[ 0 ] ) ) + "</string>";
 						}
 					} ]
 			},
@@ -284,7 +284,7 @@ module.exports = function( grunt ) {
 				replacements: [ {
 					from: /"version": "([\d|\.]+)"/g,
 					to: function( matchedWord, index, fullText, regexMatches ) {
-						return "\"version\": \"" + bumpVersion( regexMatches[0] ) + "\"";
+						return "\"version\": \"" + bumpVersion( regexMatches[ 0 ] ) + "\"";
 					}
 				} ]
 			}

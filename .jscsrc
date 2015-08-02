@@ -1,5 +1,8 @@
 {
 	"preset": "jquery",
 	"requireCamelCaseOrUpperCaseIdentifiers": "ignoreProperties",
-	"maximumLineLength": 250
+	"maximumLineLength": 250,
+	"requireCapitalizedComments": {
+		"allExcept": [ "global", "jshint" ]
+	}
 }

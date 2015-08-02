@@ -32,7 +32,7 @@ var isIEMobile = /IEMobile/.test( navigator.userAgent ),
 
                 for ( i in query ) {
                     if ( query.hasOwnProperty( i ) ) {
-                        data[query[i]] = localStorage.getItem( query[i] );
+                        data[ query[ i ] ] = localStorage.getItem( query[ i ] );
                     }
                 }
 
@@ -49,7 +49,7 @@ var isIEMobile = /IEMobile/.test( navigator.userAgent ),
                 if ( typeof query === "object" ) {
                     for ( i in query ) {
                         if ( query.hasOwnProperty( i ) ) {
-                            localStorage.setItem( i, query[i] );
+                            localStorage.setItem( i, query[ i ] );
                         }
                     }
                 }
@@ -71,7 +71,7 @@ var isIEMobile = /IEMobile/.test( navigator.userAgent ),
 
                 for ( i in query ) {
                     if ( query.hasOwnProperty( i ) ) {
-                        localStorage.removeItem( query[i] );
+                        localStorage.removeItem( query[ i ] );
                     }
                 }
 
@@ -454,7 +454,7 @@ function initApp() {
 
     // Handle keybinds
     $.mobile.document.on( "keydown", function( e ) {
-        if ( $( e.target ).closest( "input" )[0] ) {
+        if ( $( e.target ).closest( "input" )[ 0 ] ) {
             return;
         }
 
@@ -556,7 +556,7 @@ function sendToOS( dest, type ) {
         // Use POST when sending data to the controller (requires firmware 2.1.6 or newer)
         usePOST = ( isChange && checkOSVersion( 216 ) ),
         obj = {
-            url: currPrefix + currIp + ( usePOST ? dest.split( "?" )[0] : dest ),
+            url: currPrefix + currIp + ( usePOST ? dest.split( "?" )[ 0 ] : dest ),
             type: usePOST ? "POST" : "GET",
             data: usePOST ? getUrlVars( dest ) : null,
             dataType: type,
@@ -854,21 +854,21 @@ function updateControllerPrograms( callback ) {
                 newdata = {}, tmp, prog;
 
             for ( var i = 0; i < vars.length; i++ ) {
-                if ( vars[i] === "" ) {
+                if ( vars[ i ] === "" ) {
                     continue;
                 }
-                tmp = vars[i].split( "=" );
-                newdata[tmp[0]] = parseInt( tmp[1] );
+                tmp = vars[ i ].split( "=" );
+                newdata[ tmp[ 0 ] ] = parseInt( tmp[ 1 ] );
             }
 
             newdata.pd = [];
             if ( progs !== null ) {
-                progs = progs[1].split( ";" );
+                progs = progs[ 1 ].split( ";" );
                 for ( i = 0; i < progs.length; i++ ) {
-                    prog = progs[i].split( "=" );
-                    prog = prog[1].replace( "[", "" );
+                    prog = progs[ i ].split( "=" );
+                    prog = prog[ 1 ].replace( "[", "" );
                     prog = prog.replace( "]", "" );
-                    newdata.pd[i] = parseIntArray( prog.split( "," ) );
+                    newdata.pd[ i ] = parseIntArray( prog.split( "," ) );
                 }
             }
 
@@ -893,14 +893,14 @@ function updateControllerStations( callback ) {
             var names = /snames=\[(.*?)\];/.exec( stations ),
                 masop = stations.match( /(?:masop|mo)\s?[=|:]\s?\[(.*?)\]/ );
 
-            names = names[1].split( "," );
+            names = names[ 1 ].split( "," );
             names.pop();
 
             for ( var i = 0; i < names.length; i++ ) {
-                names[i] = names[i].replace( /'/g, "" );
+                names[ i ] = names[ i ].replace( /'/g, "" );
             }
 
-            masop = parseIntArray( masop[1].split( "," ) );
+            masop = parseIntArray( masop[ 1 ].split( "," ) );
 
             controller.stations = {
                 "snames": names,
@@ -932,8 +932,8 @@ function updateControllerOptions( callback ) {
                     name;
 
                 while ( ( tmp = varsRegex.exec( options ) ) !== null ) {
-                    name = tmp[1].replace( "nbrd", "ext" ).replace( "mtoff", "mtof" );
-                    vars[name] = +tmp[2];
+                    name = tmp[ 1 ].replace( "nbrd", "ext" ).replace( "mtoff", "mtof" );
+                    vars[ name ] = +tmp[ 2 ];
                 }
                 vars.ext--;
                 vars.fwv = "1.8.3-ospi";
@@ -945,12 +945,12 @@ function updateControllerOptions( callback ) {
 				},
 				valid = [ 1, 2, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 25, 26 ];
                 tmp = /var opts=\[(.*)\];/.exec( options );
-                tmp = tmp[1].replace( /"/g, "" ).split( "," );
+                tmp = tmp[ 1 ].replace( /"/g, "" ).split( "," );
 
                 for ( i = 0; i < tmp.length - 1; i = i + 4 ) {
-                    o = +tmp[i + 3];
+                    o = +tmp[ i + 3 ];
                     if ( $.inArray( o, valid ) !== -1 ) {
-                        vars[keyIndex[o]] = +tmp[i + 2];
+                        vars[ keyIndex[ o ] ] = +tmp[ i + 2 ];
                     }
                 }
                 vars.fwv = 183;
@@ -976,7 +976,7 @@ function updateControllerStatus( callback ) {
             function( status ) {
                 var tmp = status.toString().match( /\d+/ );
 
-                tmp = parseIntArray( tmp[0].split( "" ) );
+                tmp = parseIntArray( tmp[ 0 ].split( "" ) );
 
                 controller.status = tmp;
                 callback();
@@ -1010,18 +1010,18 @@ function updateControllerSettings( callback ) {
                     ps = settings.match( /ps=\[(.*)\];/ ),
                     vars = {}, tmp, i;
 
-                ps = ps[1].split( "],[" );
+                ps = ps[ 1 ].split( "],[" );
                 for ( i = ps.length - 1; i >= 0; i-- ) {
-                    ps[i] = parseIntArray( ps[i].replace( /\[|\]/g, "" ).split( "," ) );
+                    ps[ i ] = parseIntArray( ps[ i ].replace( /\[|\]/g, "" ).split( "," ) );
                 }
 
                 while ( ( tmp = varsRegex.exec( settings ) ) !== null ) {
-                    vars[tmp[1]] = +tmp[2];
+                    vars[ tmp[ 1 ] ] = +tmp[ 2 ];
                 }
 
-                vars.loc = loc[1];
+                vars.loc = loc[ 1 ];
                 vars.ps = ps;
-                vars.lrun = parseIntArray( lrun[1].split( "," ) );
+                vars.lrun = parseIntArray( lrun[ 1 ].split( "," ) );
 
                 controller.settings = vars;
             },
@@ -1104,26 +1104,26 @@ function checkConfigured( firstLoad ) {
 
         updateSiteList( names, current );
 
-        currIp = sites[current].os_ip;
-        currPass = sites[current].os_pw;
+        currIp = sites[ current ].os_ip;
+        currPass = sites[ current ].os_pw;
 
-        if ( typeof sites[current].ssl !== "undefined" && sites[current].ssl === "1" ) {
+        if ( typeof sites[ current ].ssl !== "undefined" && sites[ current ].ssl === "1" ) {
             currPrefix = "https://";
         } else {
             currPrefix = "http://";
         }
 
-        if ( typeof sites[current].auth_user !== "undefined" &&
-			typeof sites[current].auth_pw !== "undefined" ) {
+        if ( typeof sites[ current ].auth_user !== "undefined" &&
+			typeof sites[ current ].auth_pw !== "undefined" ) {
 
             currAuth = true;
-            currAuthUser = sites[current].auth_user;
-            currAuthPass = sites[current].auth_pw;
+            currAuthUser = sites[ current ].auth_user;
+            currAuthPass = sites[ current ].auth_pw;
         } else {
             currAuth = false;
         }
 
-        if ( sites[current].is183 ) {
+        if ( sites[ current ].is183 ) {
             curr183 = true;
         } else {
             curr183 = false;
@@ -1149,7 +1149,7 @@ function fixPasswordHash( current ) {
                 if ( !result || result > 1 ) {
                     return false;
                 } else {
-                    sites[current].os_pw = currPass = pw;
+                    sites[ current ].os_pw = currPass = pw;
                     storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
                 }
             } );
@@ -1180,8 +1180,8 @@ function submitNewUser( ssl, useAuth ) {
                     name = "Site " + ( Object.keys( sites ).length + 1 );
                 }
 
-                sites[name] = {};
-                sites[name].os_ip = currIp = ip;
+                sites[ name ] = {};
+                sites[ name ].os_ip = currIp = ip;
 
                 if ( typeof data.fwv === "number" && data.fwv >= 213 ) {
                     if ( typeof data.wl === "number" ) {
@@ -1189,28 +1189,28 @@ function submitNewUser( ssl, useAuth ) {
                     }
                 }
 
-                sites[name].os_pw = savePW ? pw : "";
+                sites[ name ].os_pw = savePW ? pw : "";
                 currPass = pw;
 
                 if ( ssl ) {
-                    sites[name].ssl = "1";
+                    sites[ name ].ssl = "1";
                     currPrefix = "https://";
                 } else {
                     currPrefix = "http://";
                 }
 
                 if ( useAuth ) {
-                    sites[name].auth_user = $( "#os_auth_user" ).val();
-                    sites[name].auth_pw = $( "#os_auth_pw" ).val();
+                    sites[ name ].auth_user = $( "#os_auth_user" ).val();
+                    sites[ name ].auth_pw = $( "#os_auth_pw" ).val();
                     currAuth = true;
-                    currAuthUser = sites[name].auth_user;
-                    currAuthPass = sites[name].auth_pw;
+                    currAuthUser = sites[ name ].auth_user;
+                    currAuthPass = sites[ name ].auth_pw;
                 } else {
                     currAuth = false;
                 }
 
                 if ( is183 === true ) {
-                    sites[name].is183 = "1";
+                    sites[ name ].is183 = "1";
                     curr183 = true;
                 }
 
@@ -1616,7 +1616,7 @@ var showSites = ( function() {
 	            } );
 
 	            list.find( ".connectnow" ).on( "click", function() {
-	                updateSite( siteNames[$( this ).data( "site" )] );
+	                updateSite( siteNames[ $( this ).data( "site" ) ] );
 	                return false;
 	            } );
 
@@ -1667,7 +1667,7 @@ var showSites = ( function() {
 	            list.find( "form" ).on( "submit", function() {
 	                var form = $( this ),
 	                    id = form.data( "site" ),
-	                    site = siteNames[id],
+	                    site = siteNames[ id ],
 	                    ip = list.find( "#cip-" + id ).val(),
 	                    pw = list.find( "#cpw-" + id ).val(),
 	                    nm = list.find( "#cnm-" + id ).val(),
@@ -1675,41 +1675,41 @@ var showSites = ( function() {
 	                    usessl = list.find( "#usessl-" + id ).is( ":checked" ) ? "1" : undefined,
 	                    authUser = list.find( "#useauth-" + id ).data( "user" ),
 	                    authPass = list.find( "#useauth-" + id ).data( "pw" ),
-	                    needsReconnect = ( ip !== "" && ip !== sites[site].os_ip ) ||
-											usessl !== sites[site].ssl ||
-											authUser !== sites[site].auth_user ||
-											authPass !== sites[site].auth_pw,
+	                    needsReconnect = ( ip !== "" && ip !== sites[ site ].os_ip ) ||
+											usessl !== sites[ site ].ssl ||
+											authUser !== sites[ site ].auth_user ||
+											authPass !== sites[ site ].auth_pw,
 	                    isCurrent = ( site === data.current_site ),
 	                    rename = ( nm !== "" && nm !== site );
 
 	                form.find( ".submit" ).removeClass( "hasChanges" );
 
 	                if ( useauth ) {
-	                    sites[site].auth_user = authUser;
-	                    sites[site].auth_pw = authPass;
+	                    sites[ site ].auth_user = authUser;
+	                    sites[ site ].auth_pw = authPass;
 	                } else {
-	                    delete sites[site].auth_user;
-	                    delete sites[site].auth_pw;
+	                    delete sites[ site ].auth_user;
+	                    delete sites[ site ].auth_pw;
 	                }
 
 	                if ( usessl === "1" ) {
-	                    sites[site].ssl = usessl;
+	                    sites[ site ].ssl = usessl;
 	                } else {
-	                    delete sites[site].ssl;
+	                    delete sites[ site ].ssl;
 	                }
 
-	                if ( ip !== "" && ip !== sites[site].os_ip ) {
-	                    sites[site].os_ip = ip;
+	                if ( ip !== "" && ip !== sites[ site ].os_ip ) {
+	                    sites[ site ].os_ip = ip;
 	                }
-	                if ( pw !== "" && pw !== sites[site].os_pw ) {
-	                    if ( isMD5( sites[site].os_pw ) ) {
+	                if ( pw !== "" && pw !== sites[ site ].os_pw ) {
+	                    if ( isMD5( sites[ site ].os_pw ) ) {
 	                        pw = md5( pw );
 	                    }
-	                    sites[site].os_pw = pw;
+	                    sites[ site ].os_pw = pw;
 	                }
 	                if ( rename ) {
-	                    sites[nm] = sites[site];
-	                    delete sites[site];
+	                    sites[ nm ] = sites[ site ];
+	                    delete sites[ site ];
 	                    site = nm;
 	                    if ( isCurrent ) {
 	                        storage.set( { "current_site":site } );
@@ -1739,13 +1739,13 @@ var showSites = ( function() {
 	            } );
 
 	            list.find( ".deletesite" ).on( "click", function() {
-	                var site = siteNames[$( this ).data( "site" )];
+	                var site = siteNames[ $( this ).data( "site" ) ];
 
                     if ( $( "#site-selector" ).val() === site ) {
                         makeStart();
                     }
 
-	                delete sites[site];
+	                delete sites[ site ];
 	                storage.set( { "sites":JSON.stringify( sites ) }, function() {
 	                    cloudSaveSites();
 	                    updateSiteList( Object.keys( sites ), data.current_site );
@@ -1891,6 +1891,8 @@ function updateSite( newsite ) {
 }
 
 /*
+TODO: Include function for cloud sync when using direct IP
+
 function findLocalSiteName( callback ) {
 	storage.get( "sites", function( data ) {
 		var sites = parseSites( data.sites ),
@@ -1926,8 +1928,8 @@ function updateDeviceIP( finishCheck ) {
             var i;
             for ( i in data ) {
                 if ( data.hasOwnProperty( i ) ) {
-                    if ( /^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$/.test( data[i].address ) ) {
-                        ip = data[i].address;
+                    if ( /^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$/.test( data[ i ].address ) ) {
+                        ip = data[ i ].address;
                     }
                 }
             }
@@ -1954,16 +1956,18 @@ function isLocalIP( ip ) {
     var chk = parseIntArray( ip.split( "." ) );
 
     // Check if the IP is on a private network, if not don't enable automatic scanning
-    return ( chk[0] === 10 || chk[0] === 127 || ( chk[0] === 172 && chk[1] > 17 && chk[1] < 32 ) || ( chk[0] === 192 && chk[1] === 168 ) );
+    return ( chk[ 0 ] === 10 || chk[ 0 ] === 127 || ( chk[ 0 ] === 172 && chk[ 1 ] > 17 && chk[ 1 ] < 32 ) || ( chk[ 0 ] === 192 && chk[ 1 ] === 168 ) );
 }
 
 function startScan( port, type ) {
 
-    // type represents the OpenSprinkler model as defined below
-    // 0 - OpenSprinkler using firmware 2.0+
-    // 1 - OpenSprinkler Pi using 1.9+
-    // 2 - OpenSprinkler using firmware 1.8.3
-    // 3 - OpenSprinkler Pi using 1.8.3
+	/*
+    	The type represents the OpenSprinkler model as defined below
+    	0 - OpenSprinkler using firmware 2.0+
+    	1 - OpenSprinkler Pi (Python) using 1.9+
+    	2 - OpenSprinkler using firmware 1.8.3
+    	3 - OpenSprinkler Pi (Python) using 1.8.3
+    */
 
     var ip = deviceip.split( "." ),
         scanprogress = 1,
@@ -1983,7 +1987,7 @@ function startScan( port, type ) {
 
         for ( i in oldsites ) {
             if ( oldsites.hasOwnProperty( i ) ) {
-                oldips.push( oldsites[i].os_ip );
+                oldips.push( oldsites[ i ].os_ip );
             }
         }
     } );
@@ -2006,7 +2010,7 @@ function startScan( port, type ) {
             if ( !tmp ) {
                 return;
             }
-            fwv = tmp[1];
+            fwv = tmp[ 1 ];
         } else {
             if ( !reply.hasOwnProperty( "fwv" ) ) {
                 return;
@@ -2134,7 +2138,7 @@ function findRouter( callback ) {
 
     for ( i = 0; i < total; i++ ) {
         if ( typeof routerFound !== "string" ) {
-            ping( routerIPs[i], reply );
+            ping( routerIPs[ i ], reply );
         }
     }
     scanning = setInterval( checkScanStatus, 50 );
@@ -2553,7 +2557,7 @@ function updateYahooWeather() {
             if ( typeof woeid.query.results.Result.woeid === "string" ) {
                 wid = woeid.query.results.Result.woeid;
             } else {
-                wid = woeid.query.results.Result[0].woeid;
+                wid = woeid.query.results.Result[ 0 ].woeid;
             }
 
             $.ajax( {
@@ -2580,7 +2584,7 @@ function updateYahooWeather() {
                         title: now.text,
                         code: now.code,
                         temp: convertTemp( now.temp, region ),
-                        location: loc[1],
+                        location: loc[ 1 ],
                         forecast: data.query.results.channel.item.forecast,
                         region: region,
                         source: "yahoo"
@@ -2647,7 +2651,7 @@ function updateWundergroundWeather( wapikey ) {
             currentCoordinates = [ data.current_observation.observation_location.latitude, data.current_observation.observation_location.longitude ];
 
             $.each( data.forecast.simpleforecast.forecastday, function( k, attr ) {
-                 wwForecast.simpleforecast[k] = attr;
+                 wwForecast.simpleforecast[ k ] = attr;
             } );
 
             if ( wwForecast.region === "US" || wwForecast.region === "BM" || wwForecast.region === "PW" ) {
@@ -2664,7 +2668,7 @@ function updateWundergroundWeather( wapikey ) {
                 source: "wunderground"
             };
 
-            coordsToLocation( currentCoordinates[0], currentCoordinates[1], function( result ) {
+            coordsToLocation( currentCoordinates[ 0 ], currentCoordinates[ 1 ], function( result ) {
                 weather.location = result;
                 updateWeatherBox();
             }, wwForecast.location );
@@ -2686,7 +2690,7 @@ function coordsToLocation( lat, lon, callback, fallback ) {
 
         for ( var item in data ) {
             if ( data.hasOwnProperty( item ) ) {
-                if ( $.inArray( "locality", data[item].types ) > -1 || $.inArray( "sublocality", data[item].types ) > -1 ) {
+                if ( $.inArray( "locality", data[ item ].types ) > -1 || $.inArray( "sublocality", data[ item ].types ) > -1 ) {
                     hasEnd = true;
                     break;
                 }
@@ -2697,7 +2701,7 @@ function coordsToLocation( lat, lon, callback, fallback ) {
             callback( fallback );
         }
 
-        data = data[item].address_components;
+        data = data[ item ].address_components;
 
         var location = "",
             country = "";
@@ -2706,21 +2710,21 @@ function coordsToLocation( lat, lon, callback, fallback ) {
 
         for ( item in data ) {
             if ( data.hasOwnProperty( item ) && !hasEnd ) {
-                if ( location === "" && $.inArray( "locality", data[item].types ) > -1 ) {
-                    location = data[item].long_name + ", " + location;
+                if ( location === "" && $.inArray( "locality", data[ item ].types ) > -1 ) {
+                    location = data[ item ].long_name + ", " + location;
                 }
 
-                if ( location === "" && $.inArray( "sublocality", data[item].types ) > -1 ) {
-                    location = data[item].long_name + ", " + location;
+                if ( location === "" && $.inArray( "sublocality", data[ item ].types ) > -1 ) {
+                    location = data[ item ].long_name + ", " + location;
                 }
 
-                if ( $.inArray( "administrative_area_level_1", data[item].types ) > -1 ) {
-                    location += data[item].long_name;
+                if ( $.inArray( "administrative_area_level_1", data[ item ].types ) > -1 ) {
+                    location += data[ item ].long_name;
                     hasEnd = true;
                 }
 
-                if ( $.inArray( "country", data[item].types ) > -1 ) {
-                    country = data[item].long_name;
+                if ( $.inArray( "country", data[ item ].types ) > -1 ) {
+                    country = data[ item ].long_name;
                 }
             }
         }
@@ -2736,7 +2740,7 @@ function coordsToLocation( lat, lon, callback, fallback ) {
 function getSunTimes( date ) {
     date = date || new Date( controller.settings.devt * 1000 );
 
-    var times = SunCalc.getTimes( date, currentCoordinates[0], currentCoordinates[1] ),
+    var times = SunCalc.getTimes( date, currentCoordinates[ 0 ], currentCoordinates[ 1 ] ),
         sunrise = times.sunrise,
         sunset = times.sunset,
         tzOffset = getTimezoneOffset();
@@ -2815,12 +2819,12 @@ function makeWundergroundForecast() {
         }
 
         var times = getSunTimes( new Date( this.date.epoch * 1000 ) ),
-            sunrise = times[0],
-            sunset = times[1],
+            sunrise = times[ 0 ],
+            sunset = times[ 1 ],
             precip;
 
         if ( weather.forecast.region === "US" || weather.forecast.region === "BM" || weather.forecast.region === "PW" ) {
-            precip = this.qpf_allday["in"];
+            precip = this.qpf_allday.in;
             if ( precip === null ) {
                 precip = 0;
             }
@@ -2857,8 +2861,8 @@ function makeWundergroundForecast() {
 
 function makeYahooForecast() {
     var list = "<li data-role='list-divider' data-theme='a' class='center'>" + weather.location + "</li>",
-        sunrise = controller.settings.sunrise ? controller.settings.sunrise : getSunTimes()[0],
-        sunset = controller.settings.sunset ? controller.settings.sunset : getSunTimes()[1],
+        sunrise = controller.settings.sunrise ? controller.settings.sunrise : getSunTimes()[ 0 ],
+        sunset = controller.settings.sunset ? controller.settings.sunset : getSunTimes()[ 1 ],
         i;
 
     list += "<li data-icon='false' class='center'>" +
@@ -2870,17 +2874,17 @@ function makeYahooForecast() {
 		"</li>";
 
     for ( i = 1; i < weather.forecast.length; i++ ) {
-        var times = getSunTimes( new Date( weather.forecast[i].date ) );
+        var times = getSunTimes( new Date( weather.forecast[ i ].date ) );
 
-        sunrise = times[0];
-        sunset = times[1];
+        sunrise = times[ 0 ];
+        sunset = times[ 1 ];
 
         list += "<li data-icon='false' class='center'>" +
-				"<div>" + weather.forecast[i].date + "</div><br>" +
-				"<div title='" + weather.forecast[i].text + "' class='wicon cond" + weather.forecast[i].code + "'></div>" +
-				"<span>" + _( weather.forecast[i].day ) + "</span><br>" +
-				"<span>" + _( "Low" ) + "</span><span>: " + convertTemp( weather.forecast[i].low, weather.region ) + "  </span>" +
-				"<span>" + _( "High" ) + "</span><span>: " + convertTemp( weather.forecast[i].high, weather.region ) + "</span><br>" +
+				"<div>" + weather.forecast[ i ].date + "</div><br>" +
+				"<div title='" + weather.forecast[ i ].text + "' class='wicon cond" + weather.forecast[ i ].code + "'></div>" +
+				"<span>" + _( weather.forecast[ i ].day ) + "</span><br>" +
+				"<span>" + _( "Low" ) + "</span><span>: " + convertTemp( weather.forecast[ i ].low, weather.region ) + "  </span>" +
+				"<span>" + _( "High" ) + "</span><span>: " + convertTemp( weather.forecast[ i ].high, weather.region ) + "</span><br>" +
 				"<span>" + _( "Sunrise" ) + "</span><span>: " + pad( parseInt( sunrise / 60 ) % 24 ) + ":" + pad( sunrise % 60 ) + "</span> " +
 				"<span>" + _( "Sunset" ) + "</span><span>: " + pad( parseInt( sunset / 60 ) % 24 ) + ":" + pad( sunset % 60 ) + "</span>" +
 			"</li>";
@@ -2914,18 +2918,18 @@ function resolveLocation( loc, callback ) {
             callback( false );
             return;
         } else if ( data.length === 1 ) {
-            callback( data[0].name );
+            callback( data[ 0 ].name );
             return;
         }
 
         var items = "";
 
         for ( var i = 0; i < data.length; i++ ) {
-            if ( data[i].type !== "city" || !data[i].tz ) {
+            if ( data[ i ].type !== "city" || !data[ i ].tz ) {
                 continue;
             }
 
-            items += "<li><a>" + data[i].name + "</a></li>";
+            items += "<li><a>" + data[ i ].name + "</a></li>";
         }
 
         if ( items === "" ) {
@@ -2996,7 +3000,7 @@ function nearbyPWS( lat, lon, callback ) {
             callback( false );
             return;
         } else if ( data.length === 1 ) {
-            callback( data[0].id );
+            callback( data[ 0 ].id );
             return;
         }
 
@@ -3091,7 +3095,7 @@ function debugWU() {
         }
 
         if ( typeof data.history === "object" && typeof data.history.dailysummary ) {
-            var summary = data.history.dailysummary[0],
+            var summary = data.history.dailysummary[ 0 ],
                 current = data.current_observation,
                 country = current.display_location.country_iso3166,
                 isMetric = ( ( country === "US" || country === "BM" || country === "PW" ) ? false : true ),
@@ -3413,10 +3417,10 @@ function showOptions( expandItem ) {
                 switch ( id ) {
                     case "o1":
                         var tz = data.split( ":" );
-                        tz[0] = parseInt( tz[0], 10 );
-                        tz[1] = parseInt( tz[1], 10 );
-                        tz[1] = ( tz[1] / 15 >> 0 ) / 4.0;tz[0] = tz[0] + ( tz[0] >= 0 ? tz[1] : -tz[1] );
-                        data = ( ( tz[0] + 12 ) * 4 ) >> 0;
+                        tz[ 0 ] = parseInt( tz[ 0 ], 10 );
+                        tz[ 1 ] = parseInt( tz[ 1 ], 10 );
+                        tz[ 1 ] = ( tz[ 1 ] / 15 >> 0 ) / 4.0;tz[ 0 ] = tz[ 0 ] + ( tz[ 0 ] >= 0 ? tz[ 1 ] : -tz[ 1 ] );
+                        data = ( ( tz[ 0 ] + 12 ) * 4 ) >> 0;
                         break;
                     case "datetime":
                         var dt = new Date( data * 1000 );
@@ -3438,10 +3442,10 @@ function showOptions( expandItem ) {
                             return false;
                         }
 
-                        opt.o4 = ip[0];
-                        opt.o5 = ip[1];
-                        opt.o6 = ip[2];
-                        opt.o7 = ip[3];
+                        opt.o4 = ip[ 0 ];
+                        opt.o5 = ip[ 1 ];
+                        opt.o6 = ip[ 2 ];
+                        opt.o7 = ip[ 3 ];
 
                         return true;
                     case "gateway":
@@ -3453,19 +3457,19 @@ function showOptions( expandItem ) {
                             return false;
                         }
 
-                        opt.o8 = ip[0];
-                        opt.o9 = ip[1];
-                        opt.o10 = ip[2];
-                        opt.o11 = ip[3];
+                        opt.o8 = ip[ 0 ];
+                        opt.o9 = ip[ 1 ];
+                        opt.o10 = ip[ 2 ];
+                        opt.o11 = ip[ 3 ];
 
                         return true;
                     case "ntp_addr":
                         ip = data.split( "." );
 
-                        opt.o32 = ip[0];
-                        opt.o33 = ip[1];
-                        opt.o34 = ip[2];
-                        opt.o35 = ip[3];
+                        opt.o32 = ip[ 0 ];
+                        opt.o33 = ip[ 1 ];
+                        opt.o34 = ip[ 2 ];
+                        opt.o35 = ip[ 3 ];
 
                         return true;
                     case "wto":
@@ -3518,7 +3522,7 @@ function showOptions( expandItem ) {
                         id = "o" + id;
                     } else {
                         key = /\d+/.exec( id );
-                        id = "o" + keyNames[key];
+                        id = "o" + keyNames[ key ];
                     }
                 }
 
@@ -3527,7 +3531,7 @@ function showOptions( expandItem ) {
                     data = data.replace( /\s/g, "_" );
                 }
 
-                opt[id] = data;
+                opt[ id ] = data;
             } );
             if ( invalid ) {
                 button.prop( "disabled", false );
@@ -3588,7 +3592,7 @@ function showOptions( expandItem ) {
 			"<select " + ( checkOSVersion( 210 ) ? "disabled='disabled' " : "" ) + "data-mini='true' id='o1'>";
 
         for ( i = 0; i < timezones.length; i++ ) {
-            list += "<option " + ( ( timezones[i] === tz ) ? "selected" : "" ) + " value='" + timezones[i] + "'>" + timezones[i] + "</option>";
+            list += "<option " + ( ( timezones[ i ] === tz ) ? "selected" : "" ) + " value='" + timezones[ i ] + "'>" + timezones[ i ] + "</option>";
         }
         list += "</select></div>";
     }
@@ -3631,7 +3635,7 @@ function showOptions( expandItem ) {
 
         for ( i = 0; i < controller.stations.snames.length; i++ ) {
             list += "<option " + ( ( isStationMaster( i ) === 1 ) ? "selected" : "" ) + " value='" + ( i + 1 ) + "'>" +
-				controller.stations.snames[i] + "</option>";
+				controller.stations.snames[ i ] + "</option>";
 
             if ( !checkOSVersion( 214 ) && i === 7 ) {
                 break;
@@ -3662,7 +3666,7 @@ function showOptions( expandItem ) {
 			"</label><select data-mini='true' id='o37'><option value='0'>" + _( "None" ) + "</option>";
 
         for ( i = 0; i < controller.stations.snames.length; i++ ) {
-            list += "<option " + ( ( isStationMaster( i ) === 2 ) ? "selected" : "" ) + " value='" + ( i + 1 ) + "'>" + controller.stations.snames[i] +
+            list += "<option " + ( ( isStationMaster( i ) === 2 ) ? "selected" : "" ) + " value='" + ( i + 1 ) + "'>" + controller.stations.snames[ i ] +
 				"</option>";
 
             if ( !checkOSVersion( 214 ) && i === 7 ) {
@@ -4405,7 +4409,7 @@ var showHome = ( function() {
             "</div>" +
         "</div>" ),
 		addTimer = function( station, rem ) {
-            timers["station-" + station] = {
+            timers[ "station-" + station ] = {
                 val: rem,
                 station: station,
                 update: function() {
@@ -4417,14 +4421,14 @@ var showHome = ( function() {
             };
         },
         addCard = function( i ) {
-            var station = controller.stations.snames[i],
-                isScheduled = controller.settings.ps[i][0] > 0,
-                isRunning = controller.status[i] > 0,
-                pname = isScheduled ? pidname( controller.settings.ps[i][0] ) : "",
-                rem = controller.settings.ps[i][1],
-                hasImage = sites[currentSite].images[i] ? true : false;
+            var station = controller.stations.snames[ i ],
+                isScheduled = controller.settings.ps[ i ][ 0 ] > 0,
+                isRunning = controller.status[ i ] > 0,
+                pname = isScheduled ? pidname( controller.settings.ps[ i ][ 0 ] ) : "",
+                rem = controller.settings.ps[ i ][ 1 ],
+                hasImage = sites[ currentSite ].images[ i ] ? true : false;
 
-            if ( controller.status[i] && rem > 0 ) {
+            if ( controller.status[ i ] && rem > 0 ) {
                 addTimer( i, rem );
             }
 
@@ -4434,7 +4438,7 @@ var showHome = ( function() {
 
             cards += "<div class='ui-body ui-body-a center'>";
 
-			cards += "<img src='" + ( hasImage ? "data:image/jpeg;base64," + sites[currentSite].images[i] : emptyImage ) + "' />";
+			cards += "<img src='" + ( hasImage ? "data:image/jpeg;base64," + sites[ currentSite ].images[ i ] : emptyImage ) + "' />";
 
             cards += "<p class='tight center inline-icon' id='station_" + i + "'>" + station + "</p>";
 
@@ -4443,12 +4447,12 @@ var showHome = ( function() {
 
             cards += "<span class='btn-no-border ui-btn " + ( ( isStationMaster( i ) ) ? "ui-icon-master" : "ui-icon-gear" ) +
 				" ui-btn-icon-notext station-settings' data-station='" + i + "' id='attrib-" + i + "' " +
-                ( hasMaster ? ( "data-um='" + ( ( controller.stations.masop[parseInt( i / 8 )] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) + "' " ) : "" ) +
-                ( hasMaster2 ? ( "data-um2='" + ( ( controller.stations.masop2[parseInt( i / 8 )] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) + "' " ) : "" ) +
-                ( hasIR ? ( "data-ir='" + ( ( controller.stations.ignore_rain[parseInt( i / 8 )] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) + "' " ) : "" ) +
-                ( hasAR ? ( "data-ar='" + ( ( controller.stations.act_relay[parseInt( i / 8 )] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) + "' " ) : "" ) +
-                ( hasSD ? ( "data-sd='" + ( ( controller.stations.stn_dis[parseInt( i / 8 )] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) + "' " ) : "" ) +
-                ( hasSequential ? ( "data-us='" + ( ( controller.stations.stn_seq[parseInt( i / 8 )] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) + "' " ) : "" ) +
+                ( hasMaster ? ( "data-um='" + ( ( controller.stations.masop[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) + "' " ) : "" ) +
+                ( hasMaster2 ? ( "data-um2='" + ( ( controller.stations.masop2[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) + "' " ) : "" ) +
+                ( hasIR ? ( "data-ir='" + ( ( controller.stations.ignore_rain[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) + "' " ) : "" ) +
+                ( hasAR ? ( "data-ar='" + ( ( controller.stations.act_relay[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) + "' " ) : "" ) +
+                ( hasSD ? ( "data-sd='" + ( ( controller.stations.stn_dis[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) + "' " ) : "" ) +
+                ( hasSequential ? ( "data-us='" + ( ( controller.stations.stn_seq[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) + "' " ) : "" ) +
                 "></span>";
 
             if ( !isStationMaster( i ) ) {
@@ -4456,7 +4460,7 @@ var showHome = ( function() {
 
                     // Generate status line for station
                     cards += "<p class='rem center'>" + ( isRunning ? _( "Running" ) + " " + pname : _( "Scheduled" ) + " " +
-						( controller.settings.ps[i][2] ? _( "for" ) + " " + dateToString( new Date( controller.settings.ps[i][2] * 1000 ) ) : pname ) );
+						( controller.settings.ps[ i ][ 2 ] ? _( "for" ) + " " + dateToString( new Date( controller.settings.ps[ i ][ 2 ] * 1000 ) ) : pname ) );
                     if ( rem > 0 ) {
 
                         // Show the remaining time if it's greater than 0
@@ -4498,7 +4502,7 @@ var showHome = ( function() {
 
 			if ( typeof navigator.camera !== "undefined" && typeof navigator.camera.getPicture === "function" ) {
 				select += "<button class='changeBackground'>" +
-						( typeof sites[currentSite].images[id] !== "string" ? _( "Add" ) : _( "Change" ) ) + " " + _( "Image" ) +
+						( typeof sites[ currentSite ].images[ id ] !== "string" ? _( "Add" ) : _( "Change" ) ) + " " + _( "Image" ) +
 					"</button>";
 			}
 
@@ -4553,7 +4557,7 @@ var showHome = ( function() {
 				var button = this;
 
 				takePicture( function( image ) {
-					sites[currentSite].images[id] = image;
+					sites[ currentSite ].images[ id ] = image;
 			        storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
 			        updateContent();
 
@@ -4589,22 +4593,22 @@ var showHome = ( function() {
 
             for ( bid = 0; bid < controller.settings.nbrd; bid++ ) {
                 if ( hasMaster ) {
-                    master["m" + bid] = 0;
+                    master[ "m" + bid ] = 0;
                 }
                 if ( hasMaster2 ) {
-                    master2["n" + bid] = 0;
+                    master2[ "n" + bid ] = 0;
                 }
                 if ( hasSequential ) {
-                    sequential["q" + bid] = 0;
+                    sequential[ "q" + bid ] = 0;
                 }
                 if ( hasIR ) {
-                    rain["i" + bid] = 0;
+                    rain[ "i" + bid ] = 0;
                 }
                 if ( hasAR ) {
-                    relay["a" + bid] = 0;
+                    relay[ "a" + bid ] = 0;
                 }
                 if ( hasSD ) {
-                    disable["d" + bid] = 0;
+                    disable[ "d" + bid ] = 0;
                 }
 
                 for ( s = 0; s < 8; s++ ) {
@@ -4612,29 +4616,29 @@ var showHome = ( function() {
                     attrib = page.find( "#attrib-" + sid );
 
                     if ( hasMaster ) {
-                        master["m" + bid] = ( master["m" + bid] ) + ( attrib.data( "um" ) << s );
+                        master[ "m" + bid ] = ( master[ "m" + bid ] ) + ( attrib.data( "um" ) << s );
                     }
                     if ( hasMaster2 ) {
-                        master2["n" + bid] = ( master2["n" + bid] ) + ( attrib.data( "um2" ) << s );
+                        master2[ "n" + bid ] = ( master2[ "n" + bid ] ) + ( attrib.data( "um2" ) << s );
                     }
                     if ( hasSequential ) {
-                        sequential["q" + bid] = ( sequential["q" + bid] ) + ( attrib.data( "us" ) << s );
+                        sequential[ "q" + bid ] = ( sequential[ "q" + bid ] ) + ( attrib.data( "us" ) << s );
                     }
                     if ( hasIR ) {
-                        rain["i" + bid] = ( rain["i" + bid] ) + ( attrib.data( "ir" ) << s );
+                        rain[ "i" + bid ] = ( rain[ "i" + bid ] ) + ( attrib.data( "ir" ) << s );
                     }
                     if ( hasAR ) {
-                        relay["a" + bid] = ( relay["a" + bid] ) + ( attrib.data( "ar" ) << s );
+                        relay[ "a" + bid ] = ( relay[ "a" + bid ] ) + ( attrib.data( "ar" ) << s );
                     }
                     if ( hasSD ) {
-                        disable["d" + bid] = ( disable["d" + bid] ) + ( attrib.data( "sd" ) << s );
+                        disable[ "d" + bid ] = ( disable[ "d" + bid ] ) + ( attrib.data( "sd" ) << s );
                     }
 
                     // Because the firmware has a bug regarding spaces, let us replace them out now with a compatible seperator
                     if ( is208 ) {
-                        names["s" + sid] = page.find( "#station_" + sid ).text().replace( /\s/g, "_" );
+                        names[ "s" + sid ] = page.find( "#station_" + sid ).text().replace( /\s/g, "_" );
                     } else {
-                        names["s" + sid] = page.find( "#station_" + sid ).text();
+                        names[ "s" + sid ] = page.find( "#station_" + sid ).text();
                     }
                 }
             }
@@ -4725,11 +4729,11 @@ var showHome = ( function() {
             hasSequential = ( typeof controller.stations.stn_seq === "object" ) ? true : false;
 
             for ( var i = 0; i < controller.stations.snames.length; i++ ) {
-                isScheduled = controller.settings.ps[i][0] > 0;
-                isRunning = controller.status[i] > 0;
-                pname = isScheduled ? pidname( controller.settings.ps[i][0] ) : "";
-                rem = controller.settings.ps[i][1],
-                hasImage = sites[currentSite].images[i] ? true : false;
+                isScheduled = controller.settings.ps[ i ][ 0 ] > 0;
+                isRunning = controller.status[ i ] > 0;
+                pname = isScheduled ? pidname( controller.settings.ps[ i ][ 0 ] ) : "";
+                rem = controller.settings.ps[ i ][ 1 ],
+                hasImage = sites[ currentSite ].images[ i ] ? true : false;
 
                 card = allCards.filter( "[data-station='" + i + "']" );
 
@@ -4742,7 +4746,7 @@ var showHome = ( function() {
                     addCard( i );
                     cardHolder.append( cards );
                 } else {
-                    card.find( ".ui-body > img" ).attr( "src", ( hasImage ? "data:image/jpeg;base64," + sites[currentSite].images[i] : emptyImage ) );
+                    card.find( ".ui-body > img" ).attr( "src", ( hasImage ? "data:image/jpeg;base64," + sites[ currentSite ].images[ i ] : emptyImage ) );
 
                     if ( isStationDisabled( i ) ) {
                         if ( !page.hasClass( "show-hidden" ) ) {
@@ -4753,7 +4757,7 @@ var showHome = ( function() {
                         card.show().removeClass( "station-hidden" );
                     }
 
-                    card.find( "#station_" + i ).text( controller.stations.snames[i] );
+                    card.find( "#station_" + i ).text( controller.stations.snames[ i ] );
                     card.find( ".station-status" ).removeClass( "on off wait" ).addClass( isRunning ? "on" : ( isScheduled ? "wait" : "off" ) );
                     if ( isStationMaster( i ) ) {
                         card.find( ".station-settings" ).removeClass( "ui-icon-gear" ).addClass( "ui-icon-master" );
@@ -4761,22 +4765,22 @@ var showHome = ( function() {
                         card.find( ".station-settings" ).removeClass( "ui-icon-master" ).addClass( "ui-icon-gear" );
                     }
                     card.find( ".station-settings" ).data( {
-                        um: hasMaster ? ( ( controller.stations.masop[parseInt( i / 8 )] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) : undefined,
-                        um2: hasMaster2 ? ( ( controller.stations.masop2[parseInt( i / 8 )] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) : undefined,
-                        ir: hasIR ? ( ( controller.stations.ignore_rain[parseInt( i / 8 )] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) : undefined,
-                        ar: hasAR ? ( ( controller.stations.act_relay[parseInt( i / 8 )] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) : undefined,
-                        sd: hasSD ? ( ( controller.stations.stn_dis[parseInt( i / 8 )] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) : undefined,
-                        us: hasSequential ? ( ( controller.stations.stn_seq[parseInt( i / 8 )] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) : undefined
+                        um: hasMaster ? ( ( controller.stations.masop[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) : undefined,
+                        um2: hasMaster2 ? ( ( controller.stations.masop2[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) : undefined,
+                        ir: hasIR ? ( ( controller.stations.ignore_rain[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) : undefined,
+                        ar: hasAR ? ( ( controller.stations.act_relay[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) : undefined,
+                        sd: hasSD ? ( ( controller.stations.stn_dis[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) : undefined,
+                        us: hasSequential ? ( ( controller.stations.stn_seq[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) : undefined
                     } );
 
                     if ( !isStationMaster( i ) && ( isScheduled || isRunning ) ) {
                         line = ( isRunning ? _( "Running" ) + " " + pname : _( "Scheduled" ) + " " +
-							( controller.settings.ps[i][2] ? _( "for" ) + " " + dateToString( new Date( controller.settings.ps[i][2] * 1000 ) ) : pname ) );
+							( controller.settings.ps[ i ][ 2 ] ? _( "for" ) + " " + dateToString( new Date( controller.settings.ps[ i ][ 2 ] * 1000 ) ) : pname ) );
                         if ( rem > 0 ) {
 
                             // Show the remaining time if it's greater than 0
                             line += " <span id='countdown-" + i + "' class='nobr'>(" + sec2hms( rem ) + " " + _( "remaining" ) + ")</span>";
-                            if ( controller.status[i] ) {
+                            if ( controller.status[ i ] ) {
                                 addTimer( i, rem );
                             }
                         }
@@ -4798,8 +4802,8 @@ var showHome = ( function() {
 			currentSite = siteSelect.val();
 			storage.get( "sites", function( data ) {
 				sites = parseSites( data.sites );
-	            if ( typeof sites[currentSite].images !== "object" || $.isEmptyObject( sites[currentSite].images ) ) {
-					sites[currentSite].images = {};
+	            if ( typeof sites[ currentSite ].images !== "object" || $.isEmptyObject( sites[ currentSite ].images ) ) {
+					sites[ currentSite ].images = {};
 					page.removeClass( "has-images" );
 	            } else {
 					page.addClass( "has-images" );
@@ -4858,8 +4862,8 @@ var showHome = ( function() {
 
 	        var el = $( this ),
 	            station = el.data( "station" ),
-	            currentStatus = controller.status[station],
-	            name = controller.stations.snames[station],
+	            currentStatus = controller.status[ station ],
+	            name = controller.stations.snames[ station ],
 	            question;
 
 	        if ( isStationMaster( station ) ) {
@@ -4881,8 +4885,8 @@ var showHome = ( function() {
 	                        sendToOS( "/cm?sid=" + station + "&en=1&t=" + duration + "&pw=", "json" ).done( function() {
 
 	                            // Update local state until next device refresh occurs
-	                            controller.settings.ps[station][0] = 99;
-	                            controller.settings.ps[station][1] = duration;
+	                            controller.settings.ps[ station ][ 0 ] = 99;
+	                            controller.settings.ps[ station ][ 1 ] = duration;
 
 	                            refreshStatus();
 	                            showerror( _( "Station has been queued" ) );
@@ -4892,13 +4896,13 @@ var showHome = ( function() {
 	                return;
 	            }
 	        }
-	        areYouSure( question, controller.stations.snames[station], function() {
+	        areYouSure( question, controller.stations.snames[ station ], function() {
 	            sendToOS( "/cm?sid=" + station + "&en=0&pw=" ).done( function() {
 
 	                // Update local state until next device refresh occurs
-	                controller.settings.ps[station][0] = 0;
-	                controller.settings.ps[station][1] = 0;
-	                controller.status[i] = 0;
+	                controller.settings.ps[ station ][ 0 ] = 0;
+	                controller.settings.ps[ station ][ 1 ] = 0;
+	                controller.status[ i ] = 0;
 
 	                refreshStatus();
 	                showerror( _( "Station has been stopped" ) );
@@ -4913,13 +4917,13 @@ var showHome = ( function() {
 
 			if ( hasImage ) {
 				areYouSure( _( "Do you want to delete the current image?" ), "", function() {
-					delete sites[currentSite].images[id];
+					delete sites[ currentSite ].images[ id ];
 					storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
 					updateContent();
 				} );
 			} else {
 				takePicture( function( image ) {
-					sites[currentSite].images[id] = image;
+					sites[ currentSite ].images[ id ] = image;
 			        storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
 			        updateContent();
 				} );
@@ -4952,7 +4956,7 @@ var showHome = ( function() {
 	            } );
 
 	            if ( notifications.length === 0 ) {
-	                $( header[2] ).hide();
+	                $( header[ 2 ] ).hide();
 	            }
 	        }
 	    } );
@@ -5076,12 +5080,12 @@ function isStationMaster( sid ) {
 }
 
 function isStationDisabled( sid ) {
-    return ( typeof controller.stations.stn_dis === "object" && ( controller.stations.stn_dis[parseInt( sid / 8 )] & ( 1 << ( sid % 8 ) ) ) > 0 );
+    return ( typeof controller.stations.stn_dis === "object" && ( controller.stations.stn_dis[ parseInt( sid / 8 ) ] & ( 1 << ( sid % 8 ) ) ) > 0 );
 }
 
 function isStationSequential( sid ) {
     if ( typeof controller.stations.stn_seq === "object" ) {
-        return ( controller.stations.stn_seq[parseInt( sid / 8 )] & ( 1 << ( sid % 8 ) ) ) > 0;
+        return ( controller.stations.stn_seq[ parseInt( sid / 8 ) ] & ( 1 << ( sid % 8 ) ) ) > 0;
     } else {
         return controller.options.seq;
     }
@@ -5171,8 +5175,8 @@ function checkStatus() {
     // Handle open stations
     open = {};
     for ( i = 0; i < controller.status.length; i++ ) {
-        if ( controller.status[i] && !isStationMaster( i ) ) {
-            open[i] = controller.status[i];
+        if ( controller.status[ i ] && !isStationMaster( i ) ) {
+            open[ i ] = controller.status[ i ];
         }
     }
 
@@ -5182,15 +5186,15 @@ function checkStatus() {
 
         for ( i in open ) {
             if ( open.hasOwnProperty( i ) ) {
-                tmp = controller.settings.ps[i][1];
+                tmp = controller.settings.ps[ i ][ 1 ];
                 if ( tmp > ptotal ) {
                     ptotal = tmp;
                 }
             }
         }
 
-        sample = Object.keys( open )[0];
-        pid    = controller.settings.ps[sample][0];
+        sample = Object.keys( open )[ 0 ];
+        pid    = controller.settings.ps[ sample ][ 0 ];
         pname  = pidname( pid );
         line   = "<div><div class='running-icon'></div><div class='running-text pointer'>";
 
@@ -5206,14 +5210,14 @@ function checkStatus() {
     // Handle a single station open
     match = false;
     for ( i = 0; i < controller.stations.snames.length; i++ ) {
-        if ( controller.settings.ps[i] && controller.settings.ps[i][0] && controller.status[i] && !isStationMaster( i ) ) {
+        if ( controller.settings.ps[ i ] && controller.settings.ps[ i ][ 0 ] && controller.status[ i ] && !isStationMaster( i ) ) {
             match = true;
-            pid = controller.settings.ps[i][0];
+            pid = controller.settings.ps[ i ][ 0 ];
             pname = pidname( pid );
             line = "<div><div class='running-icon'></div><div class='running-text pointer'>";
-            line += pname + " " + _( "is running on station" ) + " <span class='nobr'>" + controller.stations.snames[i] + "</span> ";
-            if ( controller.settings.ps[i][1] > 0 ) {
-                line += "<span id='countdown' class='nobr'>(" + sec2hms( controller.settings.ps[i][1] ) + " " + _( "remaining" ) + ")</span>";
+            line += pname + " " + _( "is running on station" ) + " <span class='nobr'>" + controller.stations.snames[ i ] + "</span> ";
+            if ( controller.settings.ps[ i ][ 1 ] > 0 ) {
+                line += "<span id='countdown' class='nobr'>(" + sec2hms( controller.settings.ps[ i ][ 1 ] ) + " " + _( "remaining" ) + ")</span>";
             }
             line += "</div></div>";
             break;
@@ -5221,7 +5225,7 @@ function checkStatus() {
     }
 
     if ( match ) {
-        changeStatus( controller.settings.ps[i][1], "green", line, goHome );
+        changeStatus( controller.settings.ps[ i ][ 1 ], "green", line, goHome );
         return;
     }
 
@@ -5260,16 +5264,16 @@ function checkStatus() {
         return;
     }
 
-    var lrdur = controller.settings.lrun[2];
+    var lrdur = controller.settings.lrun[ 2 ];
 
     // If last run duration is given, add it to the footer
     if ( lrdur !== 0 ) {
-        var lrpid = controller.settings.lrun[1];
+        var lrpid = controller.settings.lrun[ 1 ];
         pname = pidname( lrpid );
 
         changeStatus( 0, "transparent", "<p class='running-text smaller center pointer'>" + pname + " " + _( "last ran station" ) + " " +
-			controller.stations.snames[controller.settings.lrun[0]] + " " + _( "for" ) + " " + ( lrdur / 60 >> 0 ) + "m " + ( lrdur % 60 ) + "s " +
-			_( "on" ) + " " + dateToString( new Date( controller.settings.lrun[3] * 1000 ) ) + "</p>", goHome );
+			controller.stations.snames[ controller.settings.lrun[ 0 ] ] + " " + _( "for" ) + " " + ( lrdur / 60 >> 0 ) + "m " + ( lrdur % 60 ) + "s " +
+			_( "on" ) + " " + dateToString( new Date( controller.settings.lrun[ 3 ] * 1000 ) ) + "</p>", goHome );
         return;
     }
 
@@ -5281,7 +5285,7 @@ function calculateTotalRunningTime( runTimes ) {
         parallel = 0;
 
     $.each( controller.stations.snames, function( i ) {
-        var run = runTimes[i];
+        var run = runTimes[ i ];
         if ( isStationSequential( i ) ) {
             sequential += run;
         } else {
@@ -5322,24 +5326,24 @@ function updateTimers() {
 
         for ( var timer in timers ) {
             if ( timers.hasOwnProperty( timer ) ) {
-                if ( timers[timer].val <= 0 ) {
+                if ( timers[ timer ].val <= 0 ) {
                     if ( timer === "statusbar" ) {
                         showLoading( "#footer-running" );
                         refreshStatus();
                     }
 
-                    if ( typeof timers[timer].done === "function" ) {
-                        timers[timer].done();
+                    if ( typeof timers[ timer ].done === "function" ) {
+                        timers[ timer ].done();
                     }
 
-                    delete timers[timer];
+                    delete timers[ timer ];
                 } else {
                     if ( timer === "clock" ) {
-                        ++timers[timer].val;
-                        timers[timer].update();
-                    } else if ( timer === "statusbar" || typeof timers[timer].station === "number" ) {
-                        --timers[timer].val;
-                        timers[timer].update();
+                        ++timers[ timer ].val;
+                        timers[ timer ].update();
+                    } else if ( timer === "statusbar" || typeof timers[ timer ].station === "number" ) {
+                        --timers[ timer ].val;
+                        timers[ timer ].update();
                     }
                 }
             }
@@ -5375,16 +5379,16 @@ var getManual = ( function() {
                 var item = listitems.eq( currPos ).find( "a" );
 
                 if ( controller.options.mas ) {
-                    if ( controller.status[controller.options.mas - 1] ) {
+                    if ( controller.status[ controller.options.mas - 1 ] ) {
                         listitems.eq( controller.options.mas - 1 ).addClass( "green" );
                     } else {
                         listitems.eq( controller.options.mas - 1 ).removeClass( "green" );
                     }
                 }
 
-                item.text( controller.stations.snames[currPos] );
+                item.text( controller.stations.snames[ currPos ] );
 
-                if ( controller.status[currPos] ) {
+                if ( controller.status[ currPos ] ) {
                     item.removeClass( "yellow" ).addClass( "green" );
                 } else {
                     item.removeClass( "green yellow" );
@@ -5407,7 +5411,7 @@ var getManual = ( function() {
                 return false;
             }
 
-            if ( controller.status[currPos] ) {
+            if ( controller.status[ currPos ] ) {
                 if ( checkOSPiVersion( "2.1" ) ) {
                     dest = "/sn?sid=" + sid + "&set_to=0&pw=";
                 } else {
@@ -5467,12 +5471,6 @@ var getManual = ( function() {
         return false;
     } );
 
-/*
-    page.one( "pagebeforeshow", function() {
-		page.find( "#mmm" ).flipswitch();
-    } )
-*/
-
     page.find( "#mmm" ).on( "change", flipSwitched );
 
     function begin() {
@@ -5482,10 +5480,10 @@ var getManual = ( function() {
 
 	    $.each( controller.stations.snames, function( i, station ) {
 	        if ( isStationMaster( i ) ) {
-	            list += "<li data-icon='false' class='center" + ( ( controller.status[i] ) ? " green" : "" ) +
+	            list += "<li data-icon='false' class='center" + ( ( controller.status[ i ] ) ? " green" : "" ) +
 					( isStationDisabled( i ) ? " station-hidden' style='display:none" : "" ) + "'>" + station + " (" + _( "Master" ) + ")</li>";
 	        } else {
-	            list += "<li data-icon='false'><a class='mm_station center" + ( ( controller.status[i] ) ? " green" : "" ) +
+	            list += "<li data-icon='false'><a class='mm_station center" + ( ( controller.status[ i ] ) ? " green" : "" ) +
 					( isStationDisabled( i ) ? " station-hidden' style='display:none" : "" ) + "'>" + station + "</a></li>";
 	        }
 	    } );
@@ -5536,8 +5534,8 @@ var getRunonce = ( function() {
                 }
 
                 var ele = $( b );
-                ele.val( data[a] ).text( getDurationText( data[a] ) );
-                if ( data[a] > 0 ) {
+                ele.val( data[ a ] ).text( getDurationText( data[ a ] ) );
+                if ( data[ a ] > 0 ) {
                     ele.addClass( "green" );
                 } else {
                     ele.removeClass( "green" );
@@ -5555,7 +5553,7 @@ var getRunonce = ( function() {
 	    progs = [];
 	    if ( controller.programs.pd.length ) {
 	        for ( z = 0; z < controller.programs.pd.length; z++ ) {
-	            program = readProgram( controller.programs.pd[z] );
+	            program = readProgram( controller.programs.pd[ z ] );
 	            var prog = [];
 
 	            if ( checkOSVersion( 210 ) ) {
@@ -5563,7 +5561,7 @@ var getRunonce = ( function() {
 	            } else {
 	                var setStations = program.stations.split( "" );
 	                for ( i = 0; i < controller.stations.snames.length; i++ ) {
-	                    prog.push( ( parseInt( setStations[i] ) ) ? program.duration : 0 );
+	                    prog.push( ( parseInt( setStations[ i ] ) ) ? program.duration : 0 );
 	                }
 	            }
 
@@ -5577,7 +5575,7 @@ var getRunonce = ( function() {
 
 	    for ( i = 0; i < progs.length; i++ ) {
 	        if ( checkOSVersion( 210 ) ) {
-	            name = controller.programs.pd[i][5];
+	            name = controller.programs.pd[ i ][ 5 ];
 	        } else {
 	            name = _( "Program" ) + " " + ( i + 1 );
 	        }
@@ -5606,7 +5604,7 @@ var getRunonce = ( function() {
 	        var total = 0;
 
 	        for ( i = 0; i < controller.settings.rodur.length; i++ ) {
-	            total += controller.settings.rodur[i];
+	            total += controller.settings.rodur[ i ];
 	        }
 
 	        if ( total !== 0 ) {
@@ -5631,10 +5629,10 @@ var getRunonce = ( function() {
 	            fillRunonce( Array.apply( null, Array( controller.stations.snames.length ) ).map( function() {return 60;} ) );
 	            return;
 	        }
-	        if ( typeof rprogs[prog] === "undefined" ) {
+	        if ( typeof rprogs[ prog ] === "undefined" ) {
 	            return;
 	        }
-	        fillRunonce( rprogs[prog] );
+	        fillRunonce( rprogs[ prog ] );
 	    } );
 
 	    page.on( "click", ".rsubmit", submitRunonce ).on( "click", ".rreset", resetRunonce );
@@ -5708,7 +5706,7 @@ function submitRunonce( runonce ) {
         isOn = isRunning();
 
     if ( isOn !== -1 ) {
-        areYouSure( _( "Do you want to stop the currently running program?" ), pidname( controller.settings.ps[isOn][0] ), function() {
+        areYouSure( _( "Do you want to stop the currently running program?" ), pidname( controller.settings.ps[ isOn ][ 0 ] ), function() {
             $.mobile.loading( "show" );
             stopStations( submit );
         } );
@@ -5745,7 +5743,7 @@ var getPreview = ( function() {
 
     page.find( "#preview_date" ).on( "change", function() {
         date = this.value.split( "-" );
-        day = new Date( date[0], date[1] - 1, date[2] );
+        day = new Date( date[ 0 ], date[ 1 ] - 1, date[ 2 ] );
         render();
     } );
 
@@ -5783,13 +5781,13 @@ var getPreview = ( function() {
             busy, matchFound, prog;
 
         for ( var sid = 0; sid < controller.settings.nbrd * 8; sid++ ) {
-            startArray[sid] = -1;programArray[sid] = 0;endArray[sid] = 0;plArray[sid] = 0;
+            startArray[ sid ] = -1;programArray[ sid ] = 0;endArray[ sid ] = 0;plArray[ sid ] = 0;
         }
         do {
             busy = 0;
             matchFound = 0;
             for ( var pid = 0; pid < controller.programs.pd.length; pid++ ) {
-                prog = controller.programs.pd[pid];
+                prog = controller.programs.pd[ pid ];
                 if ( checkMatch( prog, simminutes, simt, simday, devday ) ) {
                     for ( sid = 0; sid < controller.settings.nbrd * 8; sid++ ) {
                         var bid = sid >> 3;var s = sid % 8;
@@ -5802,30 +5800,30 @@ var getPreview = ( function() {
                         if ( is21 ) {
 
 							// Skip disabled stations
-                            if ( controller.stations.stn_dis[bid] & ( 1 << s ) ) {
+                            if ( controller.stations.stn_dis[ bid ] & ( 1 << s ) ) {
                                 continue;
                             }
 
 							// Skip if water time is zero, or station is already scheduled
-                            if ( prog[4][sid] && endArray[sid] === 0 ) {
+                            if ( prog[ 4 ][ sid ] && endArray[ sid ] === 0 ) {
 
 								// Use weather scaling bit on
-                                if ( prog[0] & 0x02 && ( ( controller.options.uwt > 0 && simday === devday ) || controller.options.uwt === 0 ) ) {
-                                    endArray[sid] = getStationDuration( prog[4][sid], simt ) * controller.options.wl / 100 >> 0;
+                                if ( prog[ 0 ] & 0x02 && ( ( controller.options.uwt > 0 && simday === devday ) || controller.options.uwt === 0 ) ) {
+                                    endArray[ sid ] = getStationDuration( prog[ 4 ][ sid ], simt ) * controller.options.wl / 100 >> 0;
                                 } else {
-                                    endArray[sid] = getStationDuration( prog[4][sid], simt );
+                                    endArray[ sid ] = getStationDuration( prog[ 4 ][ sid ], simt );
                                 }
 
 								// After weather scaling, we maybe getting 0 water time
-                                if ( endArray[sid] > 0 ) {
-                                    programArray[sid] = pid + 1;
+                                if ( endArray[ sid ] > 0 ) {
+                                    programArray[ sid ] = pid + 1;
                                     matchFound = 1;
                                 }
                             }
                         } else {
-                            if ( prog[7 + bid] & ( 1 << s ) ) {
-                                endArray[sid] = prog[6] * controller.options.wl / 100 >> 0;
-                                programArray[sid] = pid + 1;
+                            if ( prog[ 7 + bid ] & ( 1 << s ) ) {
+                                endArray[ sid ] = prog[ 6 ] * controller.options.wl / 100 >> 0;
+                                programArray[ sid ] = pid + 1;
                                 matchFound = 1;
                             }
                         }
@@ -5843,17 +5841,17 @@ var getPreview = ( function() {
                     for ( sid = 0; sid < controller.settings.nbrd * 8; sid++ ) {
                         bid2 = sid >> 3;
                         s2 = sid & 0x07;
-                        if ( endArray[sid] === 0 || startArray[sid] >= 0 ) {
+                        if ( endArray[ sid ] === 0 || startArray[ sid ] >= 0 ) {
                             continue;
                         }
-                        if ( controller.stations.stn_seq[bid2] & ( 1 << s2 ) ) {
-                            startArray[sid] = seqAcctime;seqAcctime += endArray[sid];
-                            endArray[sid] = seqAcctime;seqAcctime += controller.options.sdt;
-                            plArray[sid] = 1;
+                        if ( controller.stations.stn_seq[ bid2 ] & ( 1 << s2 ) ) {
+                            startArray[ sid ] = seqAcctime;seqAcctime += endArray[ sid ];
+                            endArray[ sid ] = seqAcctime;seqAcctime += controller.options.sdt;
+                            plArray[ sid ] = 1;
                         } else {
-                            startArray[sid] = acctime;
-                            endArray[sid] = acctime + endArray[sid];
-                            plArray[sid] = 1;
+                            startArray[ sid ] = acctime;
+                            endArray[ sid ] = acctime + endArray[ sid ];
+                            plArray[ sid ] = 1;
                         }
                         busy = 1;
                     }
@@ -5865,20 +5863,20 @@ var getPreview = ( function() {
                     }
                     if ( controller.options.seq ) {
                         for ( sid = 0; sid < controller.settings.nbrd * 8; sid++ ) {
-                            if ( endArray[sid] === 0 || programArray[sid] === 0 ) {
+                            if ( endArray[ sid ] === 0 || programArray[ sid ] === 0 ) {
                                 continue;
                             }
-                            startArray[sid] = acctime;acctime += endArray[sid];
-                            endArray[sid] = acctime;acctime += controller.options.sdt;
+                            startArray[ sid ] = acctime;acctime += endArray[ sid ];
+                            endArray[ sid ] = acctime;acctime += controller.options.sdt;
                             busy = 1;
                         }
                     } else {
                         for ( sid = 0; sid < controller.settings.nbrd * 8; sid++ ) {
-                            if ( endArray[sid] === 0 || programArray[sid] === 0 ) {
+                            if ( endArray[ sid ] === 0 || programArray[ sid ] === 0 ) {
                                 continue;
                             }
-                            startArray[sid] = acctime;
-                            endArray[sid] = acctime + endArray[sid];
+                            startArray[ sid ] = acctime;
+                            endArray[ sid ] = acctime + endArray[ sid ];
                             busy = 1;
                         }
                     }
@@ -5889,15 +5887,15 @@ var getPreview = ( function() {
                     lastSeqStopTime = runSched( simminutes * 60, startArray, programArray, endArray, plArray, simt );
                     simminutes++;
                     for ( sid = 0; sid < controller.settings.nbrd * 8; sid++ ) {
-                        if ( programArray[sid] > 0 && simminutes * 60 >= endArray[sid] ) {
-                            startArray[sid] = -1;programArray[sid] = 0;endArray[sid] = 0;plArray[sid] = 0;
+                        if ( programArray[ sid ] > 0 && simminutes * 60 >= endArray[ sid ] ) {
+                            startArray[ sid ] = -1;programArray[ sid ] = 0;endArray[ sid ] = 0;plArray[ sid ] = 0;
                         }
                     }
                 } else if ( is21 ) {
                     lastStopTime = runSched( simminutes * 60, startArray, programArray, endArray, plArray, simt );
                     simminutes++;
                     for ( sid = 0; sid < controller.settings.nbrd * 8; sid++ ) {
-                        startArray[sid] = -1;programArray[sid] = 0;endArray[sid] = 0;
+                        startArray[ sid ] = -1;programArray[ sid ] = 0;endArray[ sid ] = 0;
                     }
                 } else {
                     var endminutes = runSched( simminutes * 60, startArray, programArray, endArray, plArray, simt ) / 60 >> 0;
@@ -5907,15 +5905,15 @@ var getPreview = ( function() {
                         simminutes++;
                     }
                     for ( sid = 0; sid < controller.settings.nbrd * 8; sid++ ) {
-                        startArray[sid] = -1;programArray[sid] = 0;endArray[sid] = 0;
+                        startArray[ sid ] = -1;programArray[ sid ] = 0;endArray[ sid ] = 0;
                     }
                 }
             } else {
                 simminutes++;
                 if ( is211 ) {
                   for ( sid = 0; sid < controller.settings.nbrd * 8; sid++ ) {
-                      if ( programArray[sid] > 0 && simminutes * 60 >= endArray[sid] ) {
-                          startArray[sid] = -1;programArray[sid] = 0;endArray[sid] = 0;plArray[sid] = 0;
+                      if ( programArray[ sid ] > 0 && simminutes * 60 >= endArray[ sid ] ) {
+                          startArray[ sid ] = -1;programArray[ sid ] = 0;endArray[ sid ] = 0;plArray[ sid ] = 0;
                       }
                   }
                 }
@@ -5926,18 +5924,18 @@ var getPreview = ( function() {
     runSched = function( simseconds, startArray, programArray, endArray, plArray, simt ) {
         var endtime = simseconds;
         for ( var sid = 0; sid < controller.settings.nbrd * 8; sid++ ) {
-            if ( programArray[sid] ) {
+            if ( programArray[ sid ] ) {
               if ( is211 ) {
-                if ( plArray[sid] ) {
+                if ( plArray[ sid ] ) {
                     var mas2 = typeof controller.options.mas2 !== "undefined" ? true : false,
-                        useMas1 = controller.stations.masop[sid >> 3] & ( 1 << ( sid % 8 ) ),
-                        useMas2 = mas2 ? controller.stations.masop2[sid >> 3] & ( 1 << ( sid % 8 ) ) : false;
+                        useMas1 = controller.stations.masop[ sid >> 3 ] & ( 1 << ( sid % 8 ) ),
+                        useMas2 = mas2 ? controller.stations.masop2[ sid >> 3 ] & ( 1 << ( sid % 8 ) ) : false;
 
                     if ( !isStationMaster( sid ) ) {
                         if ( controller.options.mas > 0 && useMas1 ) {
                             previewData.push( {
-                                "start": ( startArray[sid] + controller.options.mton ),
-                                "end": ( endArray[sid] + controller.options.mtof ),
+                                "start": ( startArray[ sid ] + controller.options.mton ),
+                                "end": ( endArray[ sid ] + controller.options.mtof ),
                                 "content":"",
                                 "className":"master",
                                 "shortname":"M" + ( mas2 ? "1" : "" ),
@@ -5948,8 +5946,8 @@ var getPreview = ( function() {
 
                         if ( mas2 && controller.options.mas2 > 0 && useMas2 ) {
                             previewData.push( {
-                                "start": ( startArray[sid] + controller.options.mton2 ),
-                                "end": ( endArray[sid] + controller.options.mtof2 ),
+                                "start": ( startArray[ sid ] + controller.options.mton2 ),
+                                "end": ( endArray[ sid ] + controller.options.mtof2 ),
                                 "content":"",
                                 "className":"master",
                                 "shortname":"M2",
@@ -5959,18 +5957,18 @@ var getPreview = ( function() {
                         }
                     }
 
-                    timeToText( sid, startArray[sid], programArray[sid], endArray[sid], simt );
-                    plArray[sid] = 0;
-                    if ( controller.stations.stn_seq[sid >> 3] & ( 1 << ( sid & 0x07 ) ) ) {
-                      endtime = ( endtime > endArray[sid] ) ? endtime : endArray[sid];
+                    timeToText( sid, startArray[ sid ], programArray[ sid ], endArray[ sid ], simt );
+                    plArray[ sid ] = 0;
+                    if ( controller.stations.stn_seq[ sid >> 3 ] & ( 1 << ( sid & 0x07 ) ) ) {
+                      endtime = ( endtime > endArray[ sid ] ) ? endtime : endArray[ sid ];
                     }
                 }
               } else {
                 if ( controller.options.seq === 1 ) {
-                    if ( isStationMaster( sid ) && ( controller.stations.masop[sid >> 3] & ( 1 << ( sid % 8 ) ) ) ) {
+                    if ( isStationMaster( sid ) && ( controller.stations.masop[ sid >> 3 ] & ( 1 << ( sid % 8 ) ) ) ) {
                         previewData.push( {
-                            "start": ( startArray[sid] + controller.options.mton ),
-                            "end": ( endArray[sid] + controller.options.mtof ),
+                            "start": ( startArray[ sid ] + controller.options.mton ),
+                            "end": ( endArray[ sid ] + controller.options.mtof ),
                             "content":"",
                             "className":"master",
                             "shortname":"M",
@@ -5978,12 +5976,12 @@ var getPreview = ( function() {
                             "station": sid
                         } );
                     }
-                    timeToText( sid, startArray[sid], programArray[sid], endArray[sid], simt );
-                    endtime = endArray[sid];
+                    timeToText( sid, startArray[ sid ], programArray[ sid ], endArray[ sid ], simt );
+                    endtime = endArray[ sid ];
                 } else {
-                    timeToText( sid, simseconds, programArray[sid], endArray[sid], simt );
-                    if ( isStationMaster( sid ) && ( controller.stations.masop[sid >> 3] & ( 1 << ( sid % 8 ) ) ) ) {
-                        endtime = ( endtime > endArray[sid] ) ? endtime : endArray[sid];
+                    timeToText( sid, simseconds, programArray[ sid ], endArray[ sid ], simt );
+                    if ( isStationMaster( sid ) && ( controller.stations.masop[ sid >> 3 ] & ( 1 << ( sid % 8 ) ) ) ) {
+                        endtime = ( endtime > endArray[ sid ] ) ? endtime : endArray[ sid ];
                     }
                 }
               }
@@ -6013,13 +6011,13 @@ var getPreview = ( function() {
 			( simt + start + ( controller.options.tz - 48 ) * 900 <= controller.settings.rdst * 1000 ) ||
 			controller.options.urs === 1 && controller.settings.rs === 1 ) &&
 			( typeof controller.stations.ignore_rain === "object" &&
-				( controller.stations.ignore_rain[parseInt( sid / 8 )] & ( 1 << ( sid % 8 ) ) ) === 0 ) ) {
+				( controller.stations.ignore_rain[ parseInt( sid / 8 ) ] & ( 1 << ( sid % 8 ) ) ) === 0 ) ) {
 
             className = "delayed";
         }
 
         if ( checkOSVersion( 210 ) ) {
-            pname = controller.programs.pd[pid - 1][5];
+            pname = controller.programs.pd[ pid - 1 ][ 5 ];
         }
 
         previewData.push( {
@@ -6029,7 +6027,7 @@ var getPreview = ( function() {
             "content":pname,
             "pid": pid - 1,
             "shortname":"S" + ( sid + 1 ),
-            "group": controller.stations.snames[sid],
+            "group": controller.stations.snames[ sid ],
             "station": sid
         } );
     };
@@ -6043,50 +6041,50 @@ var getPreview = ( function() {
     };
 
     checkMatch183 = function( prog, simminutes, simt, simday, devday ) {
-        if ( prog[0] === 0 ) {
+        if ( prog[ 0 ] === 0 ) {
             return 0;
         }
-        if ( ( prog[1] & 0x80 ) && ( prog[2] > 1 ) ) {
-            var dn = prog[2],
-                drem = prog[1] & 0x7f;
+        if ( ( prog[ 1 ] & 0x80 ) && ( prog[ 2 ] > 1 ) ) {
+            var dn = prog[ 2 ],
+                drem = prog[ 1 ] & 0x7f;
             if ( ( simday % dn ) !== ( ( devday + drem ) % dn ) ) {
                 return 0;
             }
         } else {
             var date = new Date( simt );
             var wd = ( date.getUTCDay() + 6 ) % 7;
-            if ( ( prog[1] & ( 1 << wd ) ) === 0 ) {
+            if ( ( prog[ 1 ] & ( 1 << wd ) ) === 0 ) {
                 return 0;
             }
             var dt = date.getUTCDate();
-            if ( ( prog[1] & 0x80 ) && ( prog[2] === 0 ) ) {
+            if ( ( prog[ 1 ] & 0x80 ) && ( prog[ 2 ] === 0 ) ) {
                 if ( ( dt % 2 ) !== 0 ) {
                     return 0;
                 }
             }
-            if ( ( prog[1] & 0x80 ) && ( prog[2] === 1 ) ) {
+            if ( ( prog[ 1 ] & 0x80 ) && ( prog[ 2 ] === 1 ) ) {
                 if ( dt === 31 || ( dt === 29 && date.getUTCMonth() === 1 ) || ( dt % 2 ) !== 1 ) {
                     return 0;
                 }
             }
         }
-        if ( simminutes < prog[3] || ( simminutes > prog[4] || ( isOSPi() && simminutes >= prog[4] ) ) ) {
+        if ( simminutes < prog[ 3 ] || ( simminutes > prog[ 4 ] || ( isOSPi() && simminutes >= prog[ 4 ] ) ) ) {
             return 0;
         }
-        if ( prog[5] === 0 ) {
+        if ( prog[ 5 ] === 0 ) {
             return 0;
         }
-        if ( ( ( simminutes - prog[3] ) / prog[5] >> 0 ) * prog[5] === ( simminutes - prog[3] ) ) {
+        if ( ( ( simminutes - prog[ 3 ] ) / prog[ 5 ] >> 0 ) * prog[ 5 ] === ( simminutes - prog[ 3 ] ) ) {
             return 1;
         }
         return 0;
     };
 
     checkMatch21 = function( prog, simminutes, simt, simday, devday ) {
-        var en = prog[0] & 0x01,
-            oddeven = ( prog[0] >> 2 ) & 0x03,
-            type = ( prog[0] >> 4 ) & 0x03,
-            sttype = ( prog[0] >> 6 ) & 0x01,
+        var en = prog[ 0 ] & 0x01,
+            oddeven = ( prog[ 0 ] >> 2 ) & 0x03,
+            type = ( prog[ 0 ] >> 4 ) & 0x03,
+            sttype = ( prog[ 0 ] >> 6 ) & 0x01,
             date = new Date( simt ),
             i;
 
@@ -6097,8 +6095,8 @@ var getPreview = ( function() {
         if ( type === 3 ) {
 
             // Interval program
-            var dn = prog[2],
-                drem = prog[1];
+            var dn = prog[ 2 ],
+                drem = prog[ 1 ];
 
             if ( ( simday % dn ) !== ( ( devday + drem ) % dn ) ) {
                 return 0;
@@ -6107,24 +6105,26 @@ var getPreview = ( function() {
 
             // Weekly program
             var wd = ( date.getUTCDay() + 6 ) % 7;
-            if ( ( prog[1] & ( 1 << wd ) ) === 0 ) {
+            if ( ( prog[ 1 ] & ( 1 << wd ) ) === 0 ) {
                 return 0;
             }
         } else {
             return 0;
         }
 
-        // odd/even restrictions
+        // Odd/Even restriction handling
         if ( oddeven ) {
             var dt = date.getUTCDate();
-            if ( oddeven === 2 ) {
 
-                // even restrict
+            // Even restriction
+            if ( oddeven === 2 ) {
                 if ( ( dt % 2 ) !== 0 ) {
                     return 0;
                 }
             }
-            if ( oddeven === 1 ) { // odd restrict
+
+			// Odd restriction
+            if ( oddeven === 1 ) {
                 if ( dt === 31 || ( dt === 29 && date.getUTCMonth() === 1 ) || ( dt % 2 ) !== 1 ) {
                     return 0;
                 }
@@ -6135,9 +6135,9 @@ var getPreview = ( function() {
         if ( sttype === 0 ) {
 
             // Repeating program
-            var start = getStartTime( prog[3][0], date ),
-                repeat = prog[3][1],
-                cycle = prog[3][2];
+            var start = getStartTime( prog[ 3 ][ 0 ], date ),
+                repeat = prog[ 3 ][ 1 ],
+                cycle = prog[ 3 ][ 2 ];
 
             if ( simminutes < start ) {
                 return 0;
@@ -6151,7 +6151,7 @@ var getPreview = ( function() {
 
             if ( cycle === 0 ) {
 
-                // if this is a multi-run, cycle time must be > 0
+                // If this is a multi-run, cycle time must be > 0
                 return 0;
             }
 
@@ -6162,11 +6162,10 @@ var getPreview = ( function() {
         } else {
 
             // Set start time program
-            var sttimes = prog[3];
+            var sttimes = prog[ 3 ];
             for ( i = 0; i < 4; i++ ) {
 
-                // fixme: 4 should be using the mnst (max_start_times) JSON variable
-                if ( simminutes === getStartTime( sttimes[i], date ) ) {
+                if ( simminutes === getStartTime( sttimes[ i ], date ) ) {
                     return 1;
                 }
             }
@@ -6187,7 +6186,7 @@ var getPreview = ( function() {
     };
 
     render = function() {
-        processPrograms( date[1], date[2], date[0] );
+        processPrograms( date[ 1 ], date[ 2 ], date[ 0 ] );
 
         navi.hide();
 
@@ -6199,22 +6198,22 @@ var getPreview = ( function() {
         previewData.sort( sortByStation );
 
         var shortnames = [],
-            max = new Date( date[0], date[1] - 1, date[2], 24 );
+            max = new Date( date[ 0 ], date[ 1 ] - 1, date[ 2 ], 24 );
 
         $.each( previewData, function() {
             var total = this.start + this.end;
 
-            this.start = new Date( date[0], date[1] - 1, date[2], 0, 0, this.start );
+            this.start = new Date( date[ 0 ], date[ 1 ] - 1, date[ 2 ], 0, 0, this.start );
             if ( total > 86400 ) {
                 var extraDays = Math.floor( this.end / 86400 );
 
-                this.end = new Date( date[0], date[1] - 1, parseInt( date[2] ) + extraDays, 0, 0, this.end % 86400 );
+                this.end = new Date( date[ 0 ], date[ 1 ] - 1, parseInt( date[ 2 ] ) + extraDays, 0, 0, this.end % 86400 );
                 max = max > this.end ? max : this.end;
 
             } else {
-                this.end = new Date( date[0], date[1] - 1, date[2], 0, 0, this.end );
+                this.end = new Date( date[ 0 ], date[ 1 ] - 1, date[ 2 ], 0, 0, this.end );
             }
-            shortnames[this.group] = this.shortname;
+            shortnames[ this.group ] = this.shortname;
         } );
 
         var options = {
@@ -6223,7 +6222,7 @@ var getPreview = ( function() {
             "axisOnTop": true,
             "eventMargin": 10,
             "eventMarginAxis": 0,
-            "min": new Date( date[0], date[1] - 1, date[2], 0 ),
+            "min": new Date( date[ 0 ], date[ 1 ] - 1, date[ 2 ], 0 ),
             "max": max,
             "selectable": true,
             "showMajorLabels": false,
@@ -6237,7 +6236,7 @@ var getPreview = ( function() {
         resize = function() {
             timeline.redraw();
         },
-        timeline = new links.Timeline( placeholder[0], options ),
+        timeline = new links.Timeline( placeholder[ 0 ], options ),
         currentTime = new Date( now );
 
         currentTime.setMinutes( currentTime.getMinutes() + currentTime.getTimezoneOffset() );
@@ -6247,9 +6246,9 @@ var getPreview = ( function() {
             var sel = timeline.getSelection();
 
             if ( sel.length ) {
-                if ( typeof sel[0].row !== "undefined" ) {
+                if ( typeof sel[ 0 ].row !== "undefined" ) {
                     changePage( "#programs", {
-                        "programToExpand": parseInt( timeline.getItem( sel[0].row ).pid )
+                        "programToExpand": parseInt( timeline.getItem( sel[ 0 ].row ).pid )
                     } );
                 }
             }
@@ -6265,7 +6264,7 @@ var getPreview = ( function() {
 
         page.find( ".timeline-groups-text" ).each( function() {
             var stn = $( this );
-            var name = shortnames[stn.text()];
+            var name = shortnames[ stn.text() ];
             stn.attr( "data-shortname", name );
         } );
 
@@ -6303,7 +6302,7 @@ var getPreview = ( function() {
 	    if ( page.find( "#preview_date" ).val() === "" ) {
 		    now = new Date( controller.settings.devt * 1000 );
 		    date = now.toISOString().slice( 0, 10 ).split( "-" );
-		    day = new Date( date[0], date[1] - 1, date[2] );
+		    day = new Date( date[ 0 ], date[ 1 ] - 1, date[ 2 ] );
 			page.find( "#preview_date" ).val( date.join( "-" ) );
 		}
 
@@ -6329,9 +6328,9 @@ function getStationDuration( duration, date ) {
         var sunTimes = getSunTimes( date );
 
         if ( duration === 65535 ) {
-            duration = ( ( sunTimes[0] + 1440 ) - sunTimes[1] ) * 60;
+            duration = ( ( sunTimes[ 0 ] + 1440 ) - sunTimes[ 1 ] ) * 60;
         } else if ( duration === 65534 ) {
-            duration = ( sunTimes[1] - sunTimes[0] ) * 60;
+            duration = ( sunTimes[ 1 ] - sunTimes[ 0 ] ) * 60;
         }
     }
 
@@ -6383,13 +6382,13 @@ var getLogs = ( function() {
 
             if ( type === "table" && grouping === "station" ) {
                 for ( i = 0; i < stations.length; i++ ) {
-                    sortedData[i] = [];
+                    sortedData[ i ] = [];
                 }
             }
 
             $.each( data, function() {
-                var stamp = parseInt( this[3] * 1000 ),
-                    station = this[1],
+                var stamp = parseInt( this[ 3 ] * 1000 ),
+                    station = this[ 1 ],
                     date = new Date( stamp ),
                     utc = new Date( date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(),  date.getUTCHours(),
 						date.getUTCMinutes(), date.getUTCSeconds() );
@@ -6409,31 +6408,31 @@ var getLogs = ( function() {
                 if ( type === "table" ) {
                     switch ( grouping ) {
                         case "station":
-                            sortedData[station].push( [ new Date( utc.getTime() - parseInt( this[2] * 1000 ) ),
-								dhms2str( sec2dhms( parseInt( this[2] ) ) ) ] );
+                            sortedData[ station ].push( [ new Date( utc.getTime() - parseInt( this[ 2 ] * 1000 ) ),
+								dhms2str( sec2dhms( parseInt( this[ 2 ] ) ) ) ] );
                             break;
                         case "day":
                             var day = Math.floor( date.getTime() / 1000 / 60 / 60 / 24 ),
-                                item = [ new Date( utc.getTime() - parseInt( this[2] * 1000 ) ), dhms2str( sec2dhms( parseInt( this[2] ) ) ), station ];
+                                item = [ new Date( utc.getTime() - parseInt( this[ 2 ] * 1000 ) ), dhms2str( sec2dhms( parseInt( this[ 2 ] ) ) ), station ];
 
-                            if ( typeof sortedData[day] !== "object" ) {
-                                sortedData[day] = [ item ];
+                            if ( typeof sortedData[ day ] !== "object" ) {
+                                sortedData[ day ] = [ item ];
                             } else {
-                                sortedData[day].push( item );
+                                sortedData[ day ].push( item );
                             }
 
                             break;
                     }
                 } else if ( type === "timeline" ) {
-                    var pid = parseInt( this[0] ),
+                    var pid = parseInt( this[ 0 ] ),
                         className, name, group, shortname;
 
-                    if ( this[1] === "rs" ) {
+                    if ( this[ 1 ] === "rs" ) {
                         className = "delayed";
                         name = _( "Rain Sensor" );
                         group = name;
                         shortname = _( "RS" );
-                    } else if ( this[1] === "rd" ) {
+                    } else if ( this[ 1 ] === "rd" ) {
                         className = "delayed";
                         name = _( "Rain Delay" );
                         group = name;
@@ -6443,12 +6442,12 @@ var getLogs = ( function() {
                     } else {
                         className = "program-" + ( ( pid + 3 ) % 4 );
                         name = pidname( pid );
-                        group = controller.stations.snames[station];
+                        group = controller.stations.snames[ station ];
                         shortname = "S" + ( station + 1 );
                     }
 
                     sortedData.push( {
-                        "start": new Date( utc.getTime() - parseInt( this[2] * 1000 ) ),
+                        "start": new Date( utc.getTime() - parseInt( this[ 2 ] * 1000 ) ),
                         "end": utc,
                         "className": className,
                         "content": name,
@@ -6530,7 +6529,7 @@ var getLogs = ( function() {
             } );
 
             $.each( sortedData, function() {
-                shortnames[this.group] = this.shortname;
+                shortnames[ this.group ] = this.shortname;
             } );
 
             var timeline = new links.Timeline( logsList.get( 0 ), options );
@@ -6542,7 +6541,7 @@ var getLogs = ( function() {
             timeline.draw( sortedData );
 
             logsList.find( ".timeline-groups-text" ).each( function() {
-                this.setAttribute( "data-shortname", shortnames[this.textContent] );
+                this.setAttribute( "data-shortname", shortnames[ this.textContent ] );
             } );
         },
         prepTable = function() {
@@ -6567,42 +6566,42 @@ var getLogs = ( function() {
 
             if ( !$.isEmptyObject( waterlog ) ) {
                 $.each( waterlog, function() {
-                    wlSorted[Math.floor( this[3] / 60 / 60 / 24 )] = this[2];
+                    wlSorted[ Math.floor( this[ 3 ] / 60 / 60 / 24 ) ] = this[ 2 ];
                 } );
             }
 
             for ( group in sortedData ) {
                 if ( sortedData.hasOwnProperty( group ) ) {
-                    ct = sortedData[group].length;
+                    ct = sortedData[ group ].length;
                     if ( ct === 0 ) {
                         continue;
                     }
-                    groupArray[i] = "<div data-role='collapsible' data-collapsed='true'><h2>" +
+                    groupArray[ i ] = "<div data-role='collapsible' data-collapsed='true'><h2>" +
 							( ( checkOSVersion( 210 ) && grouping === "day" ) ? "<a class='ui-btn red ui-btn-corner-all delete-day day-" +
 								group + "'>" + _( "delete" ) + "</a>" : "" ) +
 							"<div class='ui-btn-up-c ui-btn-corner-all custom-count-pos'>" +
 								ct + " " + ( ( ct === 1 ) ? _( "run" ) : _( "runs" ) ) +
-							"</div>" + ( grouping === "station" ? stations[group] : dateToString(
+							"</div>" + ( grouping === "station" ? stations[ group ] : dateToString(
 								new Date( group * 1000 * 60 * 60 * 24 )
 							).slice( 0, -9 ) ) +
 						"</h2>";
 
-                    if ( wlSorted[group] ) {
-                        groupArray[i] += "<span style='border:none' class='" +
-							( wlSorted[group] !== 100 ? ( wlSorted[group] < 100 ? "green " : "red " ) : "" ) +
-							"ui-body ui-body-a ui-corner-all'>" + _( "Average" ) + " " + _( "Water Level" ) + ": " + wlSorted[group] + "%</span>";
+                    if ( wlSorted[ group ] ) {
+                        groupArray[ i ] += "<span style='border:none' class='" +
+							( wlSorted[ group ] !== 100 ? ( wlSorted[ group ] < 100 ? "green " : "red " ) : "" ) +
+							"ui-body ui-body-a ui-corner-all'>" + _( "Average" ) + " " + _( "Water Level" ) + ": " + wlSorted[ group ] + "%</span>";
                     }
 
-                    groupArray[i] += tableHeader;
+                    groupArray[ i ] += tableHeader;
 
-                    for ( k = 0; k < sortedData[group].length; k++ ) {
-                        var date = new Date( sortedData[group][k][0] );
-                        groupArray[i] += "<tr><td>" + sortedData[group][k][1] + "</td><td>" +
+                    for ( k = 0; k < sortedData[ group ].length; k++ ) {
+                        var date = new Date( sortedData[ group ][ k ][ 0 ] );
+                        groupArray[ i ] += "<tr><td>" + sortedData[ group ][ k ][ 1 ] + "</td><td>" +
 							( grouping === "station" ? dateToString( date, false ) : pad( date.getHours() ) + ":" +
-								pad( date.getMinutes() ) + ":" + pad( date.getSeconds() ) + "</td><td>" + stations[sortedData[group][k][2]] ) +
+								pad( date.getMinutes() ) + ":" + pad( date.getSeconds() ) + "</td><td>" + stations[ sortedData[ group ][ k ][ 2 ] ] ) +
 							"</td></tr>";
                     }
-                    groupArray[i] += "</tbody></table></div>";
+                    groupArray[ i ] += "</tbody></table></div>";
 
                     i++;
                 }
@@ -6620,7 +6619,7 @@ var getLogs = ( function() {
 
                 $.each( this.className.split( " " ), function() {
                     if ( this.indexOf( "day-" ) === 0 ) {
-                        day = this.split( "day-" )[1];
+                        day = this.split( "day-" )[ 1 ];
                         return false;
                     }
                 } );
@@ -6656,8 +6655,8 @@ var getLogs = ( function() {
             var sDate = logStart.val().split( "-" ),
                 eDate = logEnd.val().split( "-" );
             return {
-                start: new Date( sDate[0], sDate[1] - 1, sDate[2] ),
-                end: new Date( eDate[0], eDate[1] - 1, eDate[2] )
+                start: new Date( sDate[ 0 ], sDate[ 1 ] - 1, sDate[ 2 ] ),
+                end: new Date( eDate[ 0 ], eDate[ 1 ] - 1, eDate[ 2 ] )
             };
         },
         parms = function() {
@@ -6835,7 +6834,7 @@ var getPrograms = ( function() {
 	    if ( checkOSVersion( 210 ) ) {
 	        list.find( ".move-up" ).removeClass( "hidden" ).on( "click", function() {
 	            var group = $( this ).parents( "fieldset" ),
-	                pid = parseInt( group.attr( "id" ).split( "-" )[1] );
+	                pid = parseInt( group.attr( "id" ).split( "-" )[ 1 ] );
 
 	            $.mobile.loading( "show" );
 
@@ -6851,7 +6850,7 @@ var getPrograms = ( function() {
 	    }
 
 	    list.find( ".program-copy" ).on( "click", function() {
-	        var copyID = parseInt( $( this ).parents( "fieldset" ).attr( "id" ).split( "-" )[1] );
+	        var copyID = parseInt( $( this ).parents( "fieldset" ).attr( "id" ).split( "-" )[ 1 ] );
 
 	        changePage( "#addprogram", {
 	            copyID: copyID
@@ -6896,7 +6895,7 @@ var getPrograms = ( function() {
 } )();
 
 function expandProgram( program ) {
-    var id = parseInt( program.attr( "id" ).split( "-" )[1] );
+    var id = parseInt( program.attr( "id" ).split( "-" )[ 1 ] );
 
     program.find( ".ui-collapsible-content" ).html( makeProgram( id ) ).enhanceWithin().on( "change input click", function( e ) {
         if ( e.type === "click" && e.target.tagName !== "BUTTON" ) {
@@ -6925,12 +6924,12 @@ function expandProgram( program ) {
 			};
 
         if ( checkOSVersion( 210 ) ) {
-			runonce = controller.programs.pd[id][4];
+			runonce = controller.programs.pd[ id ][ 4 ];
 
-			if ( ( controller.programs.pd[id][0] >> 1 ) & 1 ) {
+			if ( ( controller.programs.pd[ id ][ 0 ] >> 1 ) & 1 ) {
 				areYouSure( _( "Do you wish to apply the current watering level?" ), "", function() {
 					for ( var i = runonce.length - 1; i >= 0; i-- ) {
-						runonce[i] = parseInt( runonce[i] * ( controller.options.wl / 100 ) );
+						runonce[ i ] = parseInt( runonce[ i ] * ( controller.options.wl / 100 ) );
 					}
 					finish();
 				}, finish );
@@ -6963,8 +6962,8 @@ function readProgram( program ) {
 }
 
 function readProgram183( program ) {
-    var days0 = program[1],
-        days1 = program[2],
+    var days0 = program[ 1 ],
+        days1 = program[ 2 ],
         even = false,
         odd = false,
         interval = false,
@@ -6972,19 +6971,19 @@ function readProgram183( program ) {
         stations = "",
         newdata = {};
 
-    newdata.en = program[0];
+    newdata.en = program[ 0 ];
     for ( var n = 0; n < controller.programs.nboards; n++ ) {
-        var bits = program[7 + n];
+        var bits = program[ 7 + n ];
         for ( var s = 0; s < 8; s++ ) {
             stations += ( bits & ( 1 << s ) ) ? "1" : "0";
         }
     }
     newdata.stations = stations;
-    newdata.duration = program[6];
+    newdata.duration = program[ 6 ];
 
-    newdata.start = program[3];
-    newdata.end = program[4];
-    newdata.interval = program[5];
+    newdata.start = program[ 3 ];
+    newdata.end = program[ 4 ];
+    newdata.interval = program[ 5 ];
 
     if ( ( days0 & 0x80 ) && ( days1 > 1 ) ) {
 
@@ -7015,31 +7014,31 @@ function readProgram183( program ) {
 
 // Read program for OpenSprinkler 2.1+
 function readProgram21( program ) {
-    var days0 = program[1],
-        days1 = program[2],
-        restrict = ( ( program[0] >> 2 ) & 0x03 ),
-        type = ( ( program[0] >> 4 ) & 0x03 ),
-        startType = ( ( program[0] >> 6 ) & 0x01 ),
+    var days0 = program[ 1 ],
+        days1 = program[ 2 ],
+        restrict = ( ( program[ 0 ] >> 2 ) & 0x03 ),
+        type = ( ( program[ 0 ] >> 4 ) & 0x03 ),
+        startType = ( ( program[ 0 ] >> 6 ) & 0x01 ),
         days = "",
         newdata = {
             repeat: 0,
             interval: 0
         };
 
-    newdata.en = ( program[0] >> 0 ) & 1;
-    newdata.weather = ( program[0] >> 1 ) & 1;
+    newdata.en = ( program[ 0 ] >> 0 ) & 1;
+    newdata.weather = ( program[ 0 ] >> 1 ) & 1;
     newdata.is_even = ( restrict === 2 ) ? true : false;
     newdata.is_odd = ( restrict === 1 ) ? true : false;
     newdata.is_interval = ( type === 3 ) ? true : false;
-    newdata.stations = program[4];
-    newdata.name = program[5];
+    newdata.stations = program[ 4 ];
+    newdata.name = program[ 5 ];
 
     if ( startType === 0 ) {
-        newdata.start = program[3][0];
-        newdata.repeat = program[3][1];
-        newdata.interval = program[3][2];
+        newdata.start = program[ 3 ][ 0 ];
+        newdata.repeat = program[ 3 ][ 1 ];
+        newdata.interval = program[ 3 ][ 2 ];
     } else if ( startType === 1 ) {
-        newdata.start = program[3];
+        newdata.start = program[ 3 ];
     }
 
     if ( type === 3 ) {
@@ -7081,7 +7080,7 @@ function getStartTime( time, date ) {
         offset = -offset;
     }
 
-    time = times[type];
+    time = times[ type ];
     time += offset;
 
     if ( time < 0 ) {
@@ -7119,7 +7118,7 @@ function pidname( pid ) {
     } else if ( pid === 254 || pid === 98 ) {
         pname = _( "Run-once program" );
     } else if ( checkOSVersion( 210 ) && pid <= controller.programs.pd.length ) {
-        pname = controller.programs.pd[pid - 1][5];
+        pname = controller.programs.pd[ pid - 1 ][ 5 ];
     }
 
     return pname;
@@ -7130,7 +7129,7 @@ function updateProgramHeader() {
     $( "#programs_list" ).find( "[id^=program-]" ).each( function( a, b ) {
         var item = $( b ),
             heading = item.find( ".ui-collapsible-heading-toggle" ),
-            en = checkOSVersion( 210 ) ? ( controller.programs.pd[a][0] ) & 0x01 : controller.programs.pd[a][0];
+            en = checkOSVersion( 210 ) ? ( controller.programs.pd[ a ][ 0 ] ) & 0x01 : controller.programs.pd[ a ][ 0 ];
 
         if ( en ) {
             heading.removeClass( "red" );
@@ -7151,7 +7150,7 @@ function makeAllPrograms() {
     for ( var i = 0; i < controller.programs.pd.length; i++ ) {
         name = _( "Program" ) + " " + ( i + 1 );
         if ( checkOSVersion( 210 ) ) {
-            name = controller.programs.pd[i][5];
+            name = controller.programs.pd[ i ][ 5 ];
         }
         list += "<fieldset id='program-" + i + "' data-role='collapsible'><h3><a " + ( i > 0 ? "" : "style='visibility:hidden' " ) +
 				"class='hidden ui-btn ui-btn-icon-notext ui-icon-arrow-u ui-btn-corner-all move-up'></a><a class='ui-btn ui-btn-corner-all program-copy'>" +
@@ -7178,13 +7177,13 @@ function makeProgram183( n, isCopy ) {
     if ( n === "new" ) {
         program = { "en":0, "weather":0, "is_interval":0, "is_even":0, "is_odd":0, "duration":0, "interval":0, "start":0, "end":0, "days":[ 0, 0 ] };
     } else {
-        program = readProgram( controller.programs.pd[n] );
+        program = readProgram( controller.programs.pd[ n ] );
     }
 
     if ( typeof program.days === "string" ) {
         days = program.days.split( "" );
         for ( i = days.length; i--; ) {
-            days[i] = days[i] | 0;
+            days[ i ] = days[ i ] | 0;
         }
     } else {
         days = [ 0, 0, 0, 0, 0, 0, 0 ];
@@ -7192,7 +7191,7 @@ function makeProgram183( n, isCopy ) {
     if ( typeof program.stations !== "undefined" ) {
         setStations = program.stations.split( "" );
         for ( i = setStations.length - 1; i >= 0; i-- ) {
-            setStations[i] = setStations[i] | 0;
+            setStations[ i ] = setStations[ i ] | 0;
         }
     }
     list += "<label for='en-" + id + "'><input data-mini='true' type='checkbox' " + ( ( program.en || n === "new" ) ? "checked='checked'" : "" ) + " name='en-" + id + "' id='en-" + id + "'>" + _( "Enabled" ) + "</label>";
@@ -7217,17 +7216,17 @@ function makeProgram183( n, isCopy ) {
 			"multiple='multiple' data-native-menu='false' id='d-" + id + "'><option>" + _( "Choose day(s)" ) + "</option>";
 
     for ( j = 0; j < week.length; j++ ) {
-        list += "<option " + ( ( !program.is_interval && days[j] ) ? "selected='selected'" : "" ) + " value='" + j + "'>" + week[j] + "</option>";
+        list += "<option " + ( ( !program.is_interval && days[ j ] ) ? "selected='selected'" : "" ) + " value='" + j + "'>" + week[ j ] + "</option>";
     }
     list += "</select></div></div>";
 
     list += "<div " + ( ( program.is_interval ) ? "" : "style='display:none'" ) + " id='input_days_n-" + id + "' class='ui-grid-a'>";
     list += "<div class='ui-block-a'><label class='center' for='every-" + id + "'>" + _( "Interval (Days)" ) + "</label>" +
 		"<input data-wrapper-class='pad_buttons' data-mini='true' type='number' name='every-" + id + "' pattern='[0-9]*' id='every-" + id + "' " +
-			"value='" + program.days[0] + "'></div>";
+			"value='" + program.days[ 0 ] + "'></div>";
     list += "<div class='ui-block-b'><label class='center' for='starting-" + id + "'>" + _( "Starting In" ) + "</label>" +
 		"<input data-wrapper-class='pad_buttons' data-mini='true' type='number' name='starting-" + id + "' pattern='[0-9]*' " +
-			"id='starting-" + id + "' value='" + program.days[1] + "'></div>";
+			"id='starting-" + id + "' value='" + program.days[ 1 ] + "'></div>";
     list += "</div>";
 
     list += "<fieldset data-role='controlgroup'><legend>" + _( "Stations:" ) + "</legend>";
@@ -7235,8 +7234,8 @@ function makeProgram183( n, isCopy ) {
     for ( j = 0; j < controller.stations.snames.length; j++ ) {
         list += "<label for='station_" + j + "-" + id + "'><input " +
 			( isStationDisabled( j ) ? "data-wrapper-class='station-hidden hidden' " : "" ) +
-			"data-mini='true' type='checkbox' " + ( ( ( typeof setStations !== "undefined" ) && setStations[j] ) ? "checked='checked'" : "" ) +
-			" name='station_" + j + "-" + id + "' id='station_" + j + "-" + id + "'>" + controller.stations.snames[j] + "</label>";
+			"data-mini='true' type='checkbox' " + ( ( ( typeof setStations !== "undefined" ) && setStations[ j ] ) ? "checked='checked'" : "" ) +
+			" name='station_" + j + "-" + id + "' id='station_" + j + "-" + id + "'>" + controller.stations.snames[ j ] + "</label>";
     }
 
     list += "</fieldset>";
@@ -7278,10 +7277,10 @@ function makeProgram183( n, isCopy ) {
     page = $( list );
 
     page.find( "input[name^='rad_days']" ).on( "change", function() {
-        var type = $( this ).val().split( "-" )[0],
+        var type = $( this ).val().split( "-" )[ 0 ],
             old;
 
-        type = type.split( "_" )[1];
+        type = type.split( "_" )[ 1 ];
         if ( type === "n" ) {
             old = "week";
         } else {
@@ -7346,13 +7345,13 @@ function makeProgram21( n, isCopy ) {
     if ( n === "new" ) {
         program = { "name":"", "en":0, "weather":0, "is_interval":0, "is_even":0, "is_odd":0, "interval":0, "start":0, "days":[ 0, 0 ], "repeat":0, "stations":[] };
     } else {
-        program = readProgram( controller.programs.pd[n] );
+        program = readProgram( controller.programs.pd[ n ] );
     }
 
     if ( typeof program.days === "string" ) {
         days = program.days.split( "" );
         for ( i = days.length; i--; ) {
-            days[i] = days[i] | 0;
+            days[ i ] = days[ i ] | 0;
         }
     } else {
         days = [ 0, 0, 0, 0, 0, 0, 0 ];
@@ -7383,7 +7382,7 @@ function makeProgram21( n, isCopy ) {
 		( ( program.weather ) ? "checked='checked'" : "" ) + " name='uwt-" + id + "' id='uwt-" + id + "'>" + _( "Use Weather Adjustment" ) + "</label>";
 
     // Show start time menu
-    list += "<label class='center' for='start_1-" + id + "'>" + _( "Start Time" ) + "</label><button class='timefield' data-mini='true' id='start_1-" + id + "' value='" + times[0] + "'>" + readStartTime( times[0] ) + "</button>";
+    list += "<label class='center' for='start_1-" + id + "'>" + _( "Start Time" ) + "</label><button class='timefield' data-mini='true' id='start_1-" + id + "' value='" + times[ 0 ] + "'>" + readStartTime( times[ 0 ] ) + "</button>";
 
     // Close basic settings group
     list += "</div></div></div></div>";
@@ -7410,7 +7409,7 @@ function makeProgram21( n, isCopy ) {
 			"multiple='multiple' data-native-menu='false' id='d-" + id + "'>" +
 		"<option>" + _( "Choose day(s)" ) + "</option>";
     for ( j = 0; j < week.length; j++ ) {
-        list += "<option " + ( ( !program.is_interval && days[j] ) ? "selected='selected'" : "" ) + " value='" + j + "'>" + week[j] + "</option>";
+        list += "<option " + ( ( !program.is_interval && days[ j ] ) ? "selected='selected'" : "" ) + " value='" + j + "'>" + week[ j ] + "</option>";
     }
     list += "</select></div></div>";
 
@@ -7418,10 +7417,10 @@ function makeProgram21( n, isCopy ) {
     list += "<div " + ( ( program.is_interval ) ? "" : "style='display:none'" ) + " id='input_days_n-" + id + "' class='ui-grid-a'>";
     list += "<div class='ui-block-a'><label class='center' for='every-" + id + "'>" + _( "Interval (Days)" ) + "</label>" +
 		"<input data-wrapper-class='pad_buttons' data-mini='true' type='number' name='every-" + id + "' pattern='[0-9]*' " +
-			"id='every-" + id + "' value='" + program.days[0] + "'></div>";
+			"id='every-" + id + "' value='" + program.days[ 0 ] + "'></div>";
     list += "<div class='ui-block-b'><label class='center' for='starting-" + id + "'>" + _( "Starting In" ) + "</label>" +
 		"<input data-wrapper-class='pad_buttons' data-mini='true' type='number' name='starting-" + id + "' pattern='[0-9]*' " +
-			"id='starting-" + id + "' value='" + program.days[1] + "'></div>";
+			"id='starting-" + id + "' value='" + program.days[ 1 ] + "'></div>";
     list += "</div>";
 
     // Show restriction options
@@ -7445,13 +7444,13 @@ function makeProgram21( n, isCopy ) {
     for ( j = 0; j < controller.stations.snames.length; j++ ) {
         if ( isStationMaster( j ) ) {
             list += "<div class='ui-field-contain duration-input" + ( isStationDisabled( j ) ? " station-hidden" + hideDisabled : "" ) + "'>" +
-				"<label for='station_" + j + "-" + id + "'>" + controller.stations.snames[j] + ":</label>" +
+				"<label for='station_" + j + "-" + id + "'>" + controller.stations.snames[ j ] + ":</label>" +
 				"<button disabled='true' data-mini='true' name='station_" + j + "-" + id + "' id='station_" + j + "-" + id + "' value='0'>" +
 				_( "Master" ) + "</button></div>";
         } else {
-            time = program.stations[j] || 0;
+            time = program.stations[ j ] || 0;
             list += "<div class='ui-field-contain duration-input" + ( isStationDisabled( j ) ? " station-hidden" + hideDisabled : "" ) + "'>" +
-				"<label for='station_" + j + "-" + id + "'>" + controller.stations.snames[j] + ":</label>" +
+				"<label for='station_" + j + "-" + id + "'>" + controller.stations.snames[ j ] + ":</label>" +
 				"<button " + ( time > 0 ? "class='green' " : "" ) + "data-mini='true' name='station_" + j + "-" + id + "' " +
 					"id='station_" + j + "-" + id + "' value='" + time + "'>" + getDurationText( time ) + "</button></div>";
         }
@@ -7489,9 +7488,9 @@ function makeProgram21( n, isCopy ) {
     // Show set times options
     list += "<table style='width:100%;" + ( ( typeof program.start === "object" ) ? "" : "display:none" ) + "' id='input_stype_set-" + id + "'><tr><th class='center'>" + _( "Enable" ) + "</th><th>" + _( "Start Time" ) + "</th></tr>";
     for ( j = 1; j < 4; j++ ) {
-        unchecked = ( times[j] === -1 );
+        unchecked = ( times[ j ] === -1 );
         list += "<tr><td data-role='controlgroup' data-type='horizontal' class='use_master center'><label for='ust_" + ( j + 1 ) + "'><input id='ust_" + ( j + 1 ) + "' type='checkbox' " + ( unchecked ? "" : "checked='checked'" ) + "></label></td>";
-        list += "<td><button class='timefield' data-mini='true' type='time' id='start_" + ( j + 1 ) + "-" + id + "' value='" + ( unchecked ? 0 : times[j] ) + "'>" + readStartTime( unchecked ? 0 : times[j] ) + "</button></td></tr>";
+        list += "<td><button class='timefield' data-mini='true' type='time' id='start_" + ( j + 1 ) + "-" + id + "' value='" + ( unchecked ? 0 : times[ j ] ) + "'>" + readStartTime( unchecked ? 0 : times[ j ] ) + "</button></td></tr>";
     }
 
     list += "</table>";
@@ -7513,10 +7512,10 @@ function makeProgram21( n, isCopy ) {
 
     // When controlgroup buttons are toggled change relevant options
     page.find( "input[name^='rad_days'],input[name^='stype']" ).on( "change", function() {
-        var input = $( this ).val().split( "-" )[0].split( "_" );
+        var input = $( this ).val().split( "-" )[ 0 ].split( "_" );
 
-        $( "[id^='input_" + input[0] + "_']" ).hide();
-        $( "#input_" + input[0] + "_" + input[1] + "-" + id ).show();
+        $( "[id^='input_" + input[ 0 ] + "_']" ).hide();
+        $( "#input_" + input[ 0 ] + "_" + input[ 1 ] + "-" + id ).show();
     } );
 
     // Handle interval duration input
@@ -7570,7 +7569,7 @@ function makeProgram21( n, isCopy ) {
     // Handle all station duration inputs
     page.find( "[id^=station_]" ).on( "click", function() {
         var dur = $( this ),
-            name = controller.stations.snames[dur.attr( "id" ).split( "_" )[1].split( "-" )[0]];
+            name = controller.stations.snames[ dur.attr( "id" ).split( "_" )[ 1 ].split( "-" )[ 0 ] ];
 
         showDurationBox( {
             seconds: dur.val(),
@@ -7674,50 +7673,50 @@ function submitProgram183( id ) {
         en = ( $( "#en-" + id ).is( ":checked" ) ) ? 1 : 0,
         daysin, i, s;
 
-    program[0] = en;
+    program[ 0 ] = en;
 
     if ( $( "#days_week-" + id ).is( ":checked" ) ) {
         daysin = $( "#d-" + id ).val();
         daysin = ( daysin === null ) ? [] : parseIntArray( daysin );
-        for ( i = 0; i < 7; i++ ) {if ( $.inArray( i, daysin ) !== -1 ) {days[0] |= ( 1 << i ); }}
-        if ( days[0] === 0 ) {
+        for ( i = 0; i < 7; i++ ) {if ( $.inArray( i, daysin ) !== -1 ) {days[ 0 ] |= ( 1 << i ); }}
+        if ( days[ 0 ] === 0 ) {
             showerror( _( "Error: You have not selected any days of the week." ) );
             return;
         }
         if ( $( "#days_rst-" + id ).val() === "odd" ) {
-			days[0] |= 0x80; days[1] = 1;
+			days[ 0 ] |= 0x80; days[ 1 ] = 1;
         } else if ( $( "#days_rst-" + id ).val() === "even" ) {
-			days[0] |= 0x80; days[1] = 0;
+			days[ 0 ] |= 0x80; days[ 1 ] = 0;
         }
     } else if ( $( "#days_n-" + id ).is( ":checked" ) ) {
-        days[1] = parseInt( $( "#every-" + id ).val(), 10 );
-        if ( !( days[1] >= 2 && days[1] <= 128 ) ) {showerror( _( "Error: Interval days must be between 2 and 128." ) );return;}
-        days[0] = parseInt( $( "#starting-" + id ).val(), 10 );
-        if ( !( days[0] >= 0 && days[0] < days[1] ) ) {showerror( _( "Error: Starting in days wrong." ) );return;}
-        days[0] |= 0x80;
+        days[ 1 ] = parseInt( $( "#every-" + id ).val(), 10 );
+        if ( !( days[ 1 ] >= 2 && days[ 1 ] <= 128 ) ) {showerror( _( "Error: Interval days must be between 2 and 128." ) );return;}
+        days[ 0 ] = parseInt( $( "#starting-" + id ).val(), 10 );
+        if ( !( days[ 0 ] >= 0 && days[ 0 ] < days[ 1 ] ) ) {showerror( _( "Error: Starting in days wrong." ) );return;}
+        days[ 0 ] |= 0x80;
     }
-    program[1] = days[0];
-    program[2] = days[1];
+    program[ 1 ] = days[ 0 ];
+    program[ 2 ] = days[ 1 ];
 
-    program[3] = parseInt( $( "#start-" + id ).val() );
-    program[4] = parseInt( $( "#end-" + id ).val() );
+    program[ 3 ] = parseInt( $( "#start-" + id ).val() );
+    program[ 4 ] = parseInt( $( "#end-" + id ).val() );
 
-    if ( program[3] > program[4] ) {showerror( _( "Error: Start time must be prior to end time." ) );return;}
+    if ( program[ 3 ] > program[ 4 ] ) {showerror( _( "Error: Start time must be prior to end time." ) );return;}
 
-    program[5] = parseInt( $( "#interval-" + id ).val() / 60 );
+    program[ 5 ] = parseInt( $( "#interval-" + id ).val() / 60 );
 
     var sel = $( "[id^=station_][id$=-" + id + "]" ),
         total = sel.length,
         nboards = total / 8;
 
-    program[6] = parseInt( $( "#duration-" + id ).val() );
+    program[ 6 ] = parseInt( $( "#duration-" + id ).val() );
     var stations = [ 0 ], bid, sid;
     for ( bid = 0; bid < nboards; bid++ ) {
-        stations[bid] = 0;
+        stations[ bid ] = 0;
         for ( s = 0; s < 8; s++ ) {
             sid = bid * 8 + s;
             if ( $( "#station_" + sid + "-" + id ).is( ":checked" ) ) {
-                stations[bid] |= 1 << s; stationSelected = 1;
+                stations[ bid ] |= 1 << s; stationSelected = 1;
             }
         }
     }
@@ -7772,16 +7771,16 @@ function submitProgram21( id, ignoreWarning ) {
     // Set program type
     if ( $( "#days_n-" + id ).is( ":checked" ) ) {
         j |= ( 3 << 4 );
-        days[1] = parseInt( $( "#every-" + id ).val(), 10 );
+        days[ 1 ] = parseInt( $( "#every-" + id ).val(), 10 );
 
-        if ( !( days[1] >= 2 && days[1] <= 128 ) ) {
+        if ( !( days[ 1 ] >= 2 && days[ 1 ] <= 128 ) ) {
 			showerror( _( "Error: Interval days must be between 2 and 128." ) );
 			return;
         }
 
-        days[0] = parseInt( $( "#starting-" + id ).val(), 10 );
+        days[ 0 ] = parseInt( $( "#starting-" + id ).val(), 10 );
 
-        if ( !( days[0] >= 0 && days[0] < days[1] ) ) {
+        if ( !( days[ 0 ] >= 0 && days[ 0 ] < days[ 1 ] ) ) {
 			showerror( _( "Error: Starting in days wrong." ) );
 			return;
         }
@@ -7792,10 +7791,10 @@ function submitProgram21( id, ignoreWarning ) {
         daysin = ( daysin === null ) ? [] : parseIntArray( daysin );
         for ( i = 0; i < 7; i++ ) {
             if ( $.inArray( i, daysin ) !== -1 ) {
-                days[0] |= ( 1 << i );
+                days[ 0 ] |= ( 1 << i );
             }
         }
-        if ( days[0] === 0 ) {
+        if ( days[ 0 ] === 0 ) {
             showerror( _( "Error: You have not selected any days of the week." ) );
             return;
         }
@@ -7805,9 +7804,9 @@ function submitProgram21( id, ignoreWarning ) {
     if ( $( "#stype_repeat-" + id ).is( ":checked" ) ) {
         j |= ( 0 << 6 );
 
-        start[0] = parseInt( $( "#start_1-" + id ).val() );
-        start[1] = parseInt( $( "#repeat-" + id ).val() );
-        start[2] = parseInt( $( "#interval-" + id ).val() / 60 );
+        start[ 0 ] = parseInt( $( "#start_1-" + id ).val() );
+        start[ 1 ] = parseInt( $( "#repeat-" + id ).val() );
+        start[ 2 ] = parseInt( $( "#interval-" + id ).val() / 60 );
     } else if ( $( "#stype_set-" + id ).is( ":checked" ) ) {
         j |= ( 1 << 6 );
         var times = $( "[id^='start_'][id$='-" + id + "']" );
@@ -7819,7 +7818,7 @@ function submitProgram21( id, ignoreWarning ) {
                 time = -1;
             }
 
-            start[a] = time;
+            start[ a ] = time;
         } );
     }
 
@@ -7834,11 +7833,11 @@ function submitProgram21( id, ignoreWarning ) {
         runTimes.push( dur );
     } );
 
-    program[0] = j;
-    program[1] = days[0];
-    program[2] = days[1];
-    program[3] = start;
-    program[4] = runTimes;
+    program[ 0 ] = j;
+    program[ 1 ] = days[ 0 ];
+    program[ 2 ] = days[ 1 ];
+    program[ 3 ] = start;
+    program[ 4 ] = runTimes;
 
     name = $( "#name-" + id ).val();
     url = "&v=" + JSON.stringify( program ) + "&name=" + encodeURIComponent( name );
@@ -7848,7 +7847,7 @@ function submitProgram21( id, ignoreWarning ) {
         return;
     }
 
-    if ( !ignoreWarning && $( "#stype_repeat-" + id ).is( ":checked" ) && start[1] > 0 && calculateTotalRunningTime( runTimes ) > start[2] * 60 ) {
+    if ( !ignoreWarning && $( "#stype_repeat-" + id ).is( ":checked" ) && start[ 1 ] > 0 && calculateTotalRunningTime( runTimes ) > start[ 2 ] * 60 ) {
         areYouSure( _( "Warning: The repeat interval is less than the program run time." ), _( "Do you want to continue?" ), function() {
             submitProgram21( id, true );
         } );
@@ -7857,7 +7856,7 @@ function submitProgram21( id, ignoreWarning ) {
     }
 
     // If the interval is an even number and a restriction is set, notify user of possible conflict
-    if ( !ignoreWarning && ( ( j >> 4 ) & 0x03 ) === 3 && !( days[1] & 1 ) && ( ( j >> 2 ) & 0x03 ) > 0 ) {
+    if ( !ignoreWarning && ( ( j >> 4 ) & 0x03 ) === 3 && !( days[ 1 ] & 1 ) && ( ( j >> 2 ) & 0x03 ) > 0 ) {
         areYouSure( _( "Warning: The use of odd/even restrictions with the selected interval day may result in the program not running at all." ), _( "Do you want to continue?" ), function() {
             submitProgram21( id, true );
         } );
@@ -7985,7 +7984,7 @@ function getImportMethod( localData ) {
             popup.popup( "close" );
             var input = $( "<input type='file' id='configInput' data-role='none' style='visibility:hidden;position:absolute;top:-50px;left:-50px'/>" )
 				.on( "change", function() {
-                    var config = this.files[0],
+                    var config = this.files[ 0 ],
                         reader = new FileReader();
 
                     if ( typeof config !== "object" ) {
@@ -8065,8 +8064,8 @@ function importConfig( data ) {
 
         for ( i in data.options ) {
             if ( data.options.hasOwnProperty( i ) && keyIndex.hasOwnProperty( i ) ) {
-                key = keyIndex[i];
-                if ( $.inArray( key, [ 2, 14, 16, 21, 22, 25, 36 ] ) !== -1 && data.options[i] === 0 ) {
+                key = keyIndex[ i ];
+                if ( $.inArray( key, [ 2, 14, 16, 21, 22, 25, 36 ] ) !== -1 && data.options[ i ] === 0 ) {
                     continue;
                 }
                 if ( key === 3 ) {
@@ -8076,17 +8075,17 @@ function importConfig( data ) {
                     continue;
                 }
                 if ( isPi ) {
-                    key = piNames[key];
+                    key = piNames[ key ];
                     if ( key === undefined ) {
                         continue;
                     }
                 } else {
                     key = key;
                 }
-                if ( checkOSVersion( 208 ) === true && typeof data.options[i] === "string" ) {
-                    option = data.options[i].replace( /\s/g, "_" );
+                if ( checkOSVersion( 208 ) === true && typeof data.options[ i ] === "string" ) {
+                    option = data.options[ i ].replace( /\s/g, "_" );
                 } else {
-                    option = data.options[i];
+                    option = data.options[ i ];
                 }
                 co += "&o" + key + "=" + option;
             }
@@ -8108,38 +8107,38 @@ function importConfig( data ) {
 
         for ( i = 0; i < data.stations.snames.length; i++ ) {
             if ( checkOSVersion( 208 ) === true ) {
-                station = data.stations.snames[i].replace( /\s/g, "_" );
+                station = data.stations.snames[ i ].replace( /\s/g, "_" );
             } else {
-                station = data.stations.snames[i];
+                station = data.stations.snames[ i ];
             }
             cs += "&s" + i + "=" + station;
         }
 
         for ( i = 0; i < data.stations.masop.length; i++ ) {
-            cs += "&m" + i + "=" + data.stations.masop[i];
+            cs += "&m" + i + "=" + data.stations.masop[ i ];
         }
 
         if ( typeof data.stations.masop2 === "object" ) {
             for ( i = 0; i < data.stations.masop2.length; i++ ) {
-                cs += "&n" + i + "=" + data.stations.masop2[i];
+                cs += "&n" + i + "=" + data.stations.masop2[ i ];
             }
         }
 
         if ( typeof data.stations.ignore_rain === "object" ) {
             for ( i = 0; i < data.stations.ignore_rain.length; i++ ) {
-                cs += "&i" + i + "=" + data.stations.ignore_rain[i];
+                cs += "&i" + i + "=" + data.stations.ignore_rain[ i ];
             }
         }
 
         if ( typeof data.stations.stn_dis === "object" ) {
             for ( i = 0; i < data.stations.stn_dis.length; i++ ) {
-                cs += "&d" + i + "=" + data.stations.stn_dis[i];
+                cs += "&d" + i + "=" + data.stations.stn_dis[ i ];
             }
         }
 
         if ( typeof data.stations.stn_seq === "object" ) {
             for ( i = 0; i < data.stations.stn_seq.length; i++ ) {
-                cs += "&q" + i + "=" + data.stations.stn_seq[i];
+                cs += "&q" + i + "=" + data.stations.stn_seq[ i ];
             }
         } else if ( !isPi && typeof data.options.fwv === "number" && data.options.fwv < 211 && !checkOSVersion( 211 ) ) {
             var bid;
@@ -8150,7 +8149,7 @@ function importConfig( data ) {
 
         if ( typeof data.stations.act_relay === "object" ) {
             for ( i = 0; i < data.stations.act_relay.length; i++ ) {
-                cs += "&a" + i + "=" + data.stations.act_relay[i];
+                cs += "&a" + i + "=" + data.stations.act_relay[ i ];
             }
         }
 
@@ -8176,7 +8175,7 @@ function importConfig( data ) {
                 // Handle data from firmware 2.1+ being imported to a 2.1+ device
                 // The firmware does not accept program name inside the program array and must be submitted seperately
                 if ( !isPi && typeof data.options.fwv === "number" && data.options.fwv >= 210 && checkOSVersion( 210 ) ) {
-                    name = "&name=" + prog[5];
+                    name = "&name=" + prog[ 5 ];
 
                     // Truncate the program name off the array
                     prog = prog.slice( 0, 5 );
@@ -8213,21 +8212,21 @@ function importConfig( data ) {
                     j |= ( 0 << 6 );
 
                     // Save bits to program data
-                    prog[0] = j;
+                    prog[ 0 ] = j;
 
                     // Using the total number of stations, migrate the duration into each station
                     for ( n = 0; n < total; n++ ) {
-                        bits = prog[7 + n];
+                        bits = prog[ 7 + n ];
                         for ( s = 0; s < 8; s++ ) {
                             allDur.push( ( bits & ( 1 << s ) ) ? program.duration : 0 );
                         }
                     }
 
                     // Set the start time, interval time, and repeat count
-                    prog[3] = [ program.start, parseInt( ( program.end - program.start ) / program.interval ), program.interval, 0 ];
+                    prog[ 3 ] = [ program.start, parseInt( ( program.end - program.start ) / program.interval ), program.interval, 0 ];
 
                     // Change the duration from the previous int to the new array
-                    prog[4] = allDur;
+                    prog[ 4 ] = allDur;
 
                     // Truncate the station enable/disable flags
                     prog = prog.slice( 0, 5 );
@@ -8336,7 +8335,7 @@ var showAbout = ( function() {
 // OpenSprinkler controller methods
 function isRunning() {
     for ( var i = 0; i < controller.status.length; i++ ) {
-        if ( controller.status[i] > 0 && controller.settings.ps[i][0] > 0 ) {
+        if ( controller.status[ i ] > 0 && controller.settings.ps[ i ][ 0 ] > 0 ) {
             return i;
         }
     }
@@ -8434,7 +8433,7 @@ function changePassword( opt ) {
                 var sites = parseSites( data.sites ),
                     success = function( pass ) {
                         currPass = pass;
-                        sites[opt.name].os_pw = popup.find( "#save_pw" ).is( ":checked" ) ? pass : "";
+                        sites[ opt.name ].os_pw = popup.find( "#save_pw" ).is( ":checked" ) ? pass : "";
                         storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
                         popup.popup( "close" );
                         opt.callback();
@@ -8485,7 +8484,7 @@ function changePassword( opt ) {
                 storage.get( [ "sites", "current_site" ], function( data ) {
                     var sites = parseSites( data.sites );
 
-                    sites[data.current_site].os_pw = npw;
+                    sites[ data.current_site ].os_pw = npw;
                     currPass = npw;
                     storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
                 } );
@@ -8508,20 +8507,20 @@ function changePassword( opt ) {
 
     if ( opt.fixIncorrect ) {
 
-        // hash password and try again, if failed then show the popup
+        // Hash password and try again, if it fails then show the password prompt popup
         storage.get( [ "sites", "current_site" ], function( data ) {
             var sites = parseSites( data.sites ),
                 current = data.current_site,
-                pw = md5( sites[current].os_pw );
+                pw = md5( sites[ current ].os_pw );
 
-            if ( !isMD5( sites[current].os_pw ) ) {
+            if ( !isMD5( sites[ current ].os_pw ) ) {
                 $.ajax( {
                     url: currPrefix + currIp + "/jc?pw=" + pw,
                     type: "GET",
                     dataType: "json"
                 } ).then(
                     function() {
-                        sites[current].os_pw = currPass = pw;
+                        sites[ current ].os_pw = currPass = pw;
                         storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
                         opt.callback();
                     },
@@ -8871,7 +8870,7 @@ function handleInvalidDataToken() {
 }
 
 function getTokenUser( token ) {
-    return atob( token ).split( "|" )[0];
+    return atob( token ).split( "|" )[ 0 ];
 }
 
 function checkWeatherPlugin() {
@@ -9002,7 +9001,7 @@ function checkPublicAccess( eip ) {
         return;
     }
 
-    port = ( port ? parseInt( port[1] ) : 80 );
+    port = ( port ? parseInt( port[ 1 ] ) : 80 );
 
     $.ajax( {
         url: currPrefix + ip + ":" + port + "/jo?pw=" + currPass,
@@ -9022,7 +9021,7 @@ function checkPublicAccess( eip ) {
                 var sites = parseSites( data.sites ),
                     current = data.current_site;
 
-                sites[current].os_ip = ip + ( port === 80 ? "" : ":" + port );
+                sites[ current ].os_ip = ip + ( port === 80 ? "" : ":" + port );
 
                 storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
             } );
@@ -9132,7 +9131,7 @@ function showNotifications() {
         } ) ];
 
     for ( var i = notifications.length - 1; i >= 0; i-- ) {
-        items.push( createNotificationItem( notifications[i] ) );
+        items.push( createNotificationItem( notifications[ i ] ) );
     }
 
     panel.find( "ul" ).replaceWith( $( "<ul/>" ).append( items ).listview() );
@@ -9156,7 +9155,7 @@ function clearNotifications() {
 
 function removeNotification( button ) {
     var panel = $( "#notificationPanel" ),
-        off = notifications[button.index() - 1].off;
+        off = notifications[ button.index() - 1 ].off;
 
     if ( typeof off === "function" ) {
         if ( !off() ) {
@@ -9179,24 +9178,24 @@ function checkFirmwareUpdate() {
 
         // Github API to get releases for OpenSprinkler firmware
         $.getJSON( "https://api.github.com/repos/opensprinkler/opensprinkler-firmware/releases" ).done( function( data ) {
-            if ( controller.options.fwv < data[0].tag_name ) {
+            if ( controller.options.fwv < data[ 0 ].tag_name ) {
 
                 // Grab a local storage variable which defines the firmware version for the last dismissed update
                 storage.get( "updateDismiss", function( flag ) {
 
                     // If the variable does not exist or is lower than the newest update, show the update notification
-                    if ( !flag.updateDismiss || flag.updateDismiss < data[0].tag_name ) {
+                    if ( !flag.updateDismiss || flag.updateDismiss < data[ 0 ].tag_name ) {
                         addNotification( {
                             title: _( "Firmware update available" ),
                             on: function() {
 
                                 // Modify the changelog by parsing markdown of lists to HTML
                                 var button = $( this ).parent(),
-                                    changelog = data[0].body.replace( /[\-|\*|\+]\s(.*)?(?:\r\n)?/g, "<li>$1</li>" ),
+                                    changelog = data[ 0 ].body.replace( /[\-|\*|\+]\s(.*)?(?:\r\n)?/g, "<li>$1</li>" ),
                                     popup = $(
                                         "<div data-role='popup' class='modal' data-theme='a'>" +
                                             "<h3 class='center' style='margin-bottom:0'>" +
-												_( "Latest" ) + " " + _( "Firmware" ) + ": " + data[0].name +
+												_( "Latest" ) + " " + _( "Firmware" ) + ": " + data[ 0 ].name +
 											"</h3>" +
                                             "<h5 class='center' style='margin:0'>" + _( "This Controller" ) + ": " + getOSVersion() + getOSMinorVersion() + "</h5>" +
                                             "<ul class='changelog'>" + changelog + "</ul>" +
@@ -9222,7 +9221,7 @@ function checkFirmwareUpdate() {
                                 popup.find( ".dismiss" ).one( "click", function() {
 
                                     // Update the notification dismiss variable with the latest available version
-                                    storage.set( { updateDismiss:data[0].tag_name } );
+                                    storage.set( { updateDismiss:data[ 0 ].tag_name } );
                                     popup.popup( "close" );
                                     removeNotification( button );
                                     return false;
@@ -9242,7 +9241,7 @@ function checkOSPiVersion( check ) {
     var ver;
 
     if ( isOSPi() ) {
-        ver = controller.options.fwv.split( "-" )[0];
+        ver = controller.options.fwv.split( "-" )[ 0 ];
         if ( ver !== check ) {
             ver = ver.split( "." );
             check = check.split( "." );
@@ -9283,7 +9282,7 @@ function versionCompare( ver, check ) {
     }
 
     for ( var i = 0; i < max; i++ ) {
-        result = Math.max( -1, Math.min( 1, ver[i] - check[i] ) );
+        result = Math.max( -1, Math.min( 1, ver[ i ] - check[ i ] ) );
         if ( result !== 0 ) {
             break;
         }
@@ -9411,10 +9410,10 @@ function showIPRequest( opt ) {
                         "<div class='ui-block-d'><a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a></div>" +
                     "</fieldset>" +
                     "<div class='ui-grid-c inputs'>" +
-                        "<div class='ui-block-a'><input data-wrapper-class='pad_buttons' class='ip_addr' type='number' pattern='[0-9]*' max='255' value='" + opt.ip[0] + "'></div>" +
-                        "<div class='ui-block-b'><input data-wrapper-class='pad_buttons' class='ip_addr' type='number' pattern='[0-9]*' max='255' value='" + opt.ip[1] + "'></div>" +
-                        "<div class='ui-block-c'><input data-wrapper-class='pad_buttons' class='ip_addr' type='number' pattern='[0-9]*' max='255' value='" + opt.ip[2] + "'></div>" +
-                        "<div class='ui-block-d'><input data-wrapper-class='pad_buttons' class='ip_addr' type='number' pattern='[0-9]*' max='255' value='" + opt.ip[3] + "'></div>" +
+                        "<div class='ui-block-a'><input data-wrapper-class='pad_buttons' class='ip_addr' type='number' pattern='[0-9]*' max='255' value='" + opt.ip[ 0 ] + "'></div>" +
+                        "<div class='ui-block-b'><input data-wrapper-class='pad_buttons' class='ip_addr' type='number' pattern='[0-9]*' max='255' value='" + opt.ip[ 1 ] + "'></div>" +
+                        "<div class='ui-block-c'><input data-wrapper-class='pad_buttons' class='ip_addr' type='number' pattern='[0-9]*' max='255' value='" + opt.ip[ 2 ] + "'></div>" +
+                        "<div class='ui-block-d'><input data-wrapper-class='pad_buttons' class='ip_addr' type='number' pattern='[0-9]*' max='255' value='" + opt.ip[ 3 ] + "'></div>" +
                     "</div>" +
                     "<fieldset class='ui-grid-c decr'>" +
                         "<div class='ui-block-a'><a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='minus' data-iconpos='bottom'></a></div>" +
@@ -9518,7 +9517,7 @@ function showDurationBox( opt ) {
 
     if ( opt.maximum ) {
         for ( i = conv.length - 1; i >= 0; i-- ) {
-            if ( opt.maximum < conv[i] ) {
+            if ( opt.maximum < conv[ i ] ) {
                 start = i + 1;
                 total = ( conv.length - start ) - opt.granularity;
                 break;
@@ -9558,12 +9557,12 @@ function showDurationBox( opt ) {
                 return;
             }
 
-            if ( ( dir === -1 && ( getValue() <= opt.minimum || next > 0 && val <= 0 ) ) || ( dir === 1 && ( getValue() + conv[apos] ) > opt.maximum ) ) {
+            if ( ( dir === -1 && ( getValue() <= opt.minimum || next > 0 && val <= 0 ) ) || ( dir === 1 && ( getValue() + conv[ apos ] ) > opt.maximum ) ) {
                 return;
             }
 
             // Increment next time field on current max
-            if ( ( max[apos] !== 0 && pos !== 0 && Math.abs( val ) >= max[apos] ) ) {
+            if ( ( max[ apos ] !== 0 && pos !== 0 && Math.abs( val ) >= max[ apos ] ) ) {
                 input.val( 0 );
                 input = popup.find( ".inputs input" ).eq( pos - 1 );
                 val = parseInt( input.val() );
@@ -9625,8 +9624,8 @@ function showDurationBox( opt ) {
         incrbts += "<div " + ( ( total > 1 ) ? "class='ui-block-" + String.fromCharCode( 97 + i - start ) + "'" : "" ) + ">" +
 			"<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a></div>";
         inputs += "<div " + ( ( total > 1 ) ? "class='ui-block-" + String.fromCharCode( 97 + i - start ) + "'" : "" ) + "><label class='center'>" +
-			_( text[i] ) + "</label><input data-wrapper-class='pad_buttons' class='" + keys[i] + "' type='number' pattern='[0-9]*' value='" +
-			arr[keys[i]] + "'></div>";
+			_( text[ i ] ) + "</label><input data-wrapper-class='pad_buttons' class='" + keys[ i ] + "' type='number' pattern='[0-9]*' value='" +
+			arr[ keys[ i ] ] + "'></div>";
         decrbts += "<div " + ( ( total > 1 ) ? "class='ui-block-" + String.fromCharCode( 97 + i - start ) + "'" : "" ) +
 			"><a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='minus' data-iconpos='bottom'></a></div>";
     }
@@ -9813,7 +9812,7 @@ function showDateTimeInput( timestamp, callback ) {
             "</div>" +
         "</div>" ),
         changeValue = function( pos, dir ) {
-            timestamp["setUTC" + pos]( timestamp["getUTC" + pos]() + dir );
+            timestamp[ "setUTC" + pos ]( timestamp[ "getUTC" + pos ]() + dir );
             callback( new Date( timestamp.getTime() ) );
             updateContent();
         },
@@ -9824,21 +9823,21 @@ function showDateTimeInput( timestamp, callback ) {
                 val, mark, i;
 
             for ( i = 0; i < 5; i++ ) {
-                val = timestamp["getUTC" + keys[i]]();
+                val = timestamp[ "getUTC" + keys[ i ] ]();
                 mark = "";
 
-                if ( keys[i] === "Month" ) {
-                    val = "<p class='center'>" + monthNames[val] + "</p>";
-                } else if ( keys[i] === "Date" ) {
+                if ( keys[ i ] === "Month" ) {
+                    val = "<p class='center'>" + monthNames[ val ] + "</p>";
+                } else if ( keys[ i ] === "Date" ) {
                     val = "<p class='center'>" + val + ",</p>";
-                } else if ( keys[i] === "Hours" ) {
+                } else if ( keys[ i ] === "Hours" ) {
                     val = "<p style='width:90%;display:inline-block' class='center'>" + val + "</p><p style='display:inline-block'>:</p>";
                 } else {
                     val = "<p class='center'>" + val + "</p>";
                 }
 
                 incrbts += "<div class='ui-block-" + String.fromCharCode( 97 + i ) + "'><a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a></div>";
-                inputs += "<div id='" + keys[i] + "' class='ui-block-" + String.fromCharCode( 97 + i ) + "'>" + val + "</div>";
+                inputs += "<div id='" + keys[ i ] + "' class='ui-block-" + String.fromCharCode( 97 + i ) + "'>" + val + "</div>";
                 decrbts += "<div class='ui-block-" + String.fromCharCode( 97 + i ) + "'><a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='minus' data-iconpos='bottom'></a></div>";
             }
 
@@ -10022,15 +10021,21 @@ function showTimeInput( opt ) {
                         st = -offset;
                         st |= ( 1 << 12 );
                     }
-                    st |= ( 1 << 14 );    // set the sunrise bit
+
+                    // Set the sunrise bit
+                    st |= ( 1 << 14 );
                 } else {
                     if ( offset >= 0 ) {
                         st = offset;
                     } else {
                         st = -offset;
-                        st |= ( 1 << 12 );  // set the sign bit
+
+                        // Set the sign bit
+                        st |= ( 1 << 12 );
                     }
-                    st |= ( 1 << 13 );  // set the sunset bit
+
+                    // Set the sunset bit
+                    st |= ( 1 << 13 );
                 }
 
                 return st;
@@ -10411,7 +10416,7 @@ function checkChanges( callback ) {
     }
 }
 
-// show error message
+// Show error message box
 function showerror( msg, dur ) {
     dur = dur || 2500;
 
@@ -10424,7 +10429,7 @@ function showerror( msg, dur ) {
         theme: "b"
     } );
 
-    // hide after delay
+    // Hide after provided delay
     errorTimeout = setTimeout( function() {$.mobile.loading( "hide" );}, dur );
 }
 
@@ -10468,7 +10473,7 @@ function insertStyle( style ) {
 
 // Convert all elements in array to integer
 function parseIntArray( arr ) {
-    for ( var i = 0; i < arr.length; i++ ) {arr[i] = +arr[i];}
+    for ( var i = 0; i < arr.length; i++ ) {arr[ i ] = +arr[ i ];}
     return arr;
 }
 
@@ -10578,8 +10583,8 @@ function sortObj( obj, type ) {
         tempArray.sort( type );
     } else if ( type === "value" ) {
         tempArray.sort( function( a, b ) {
-            var x = obj[a];
-            var y = obj[b];
+            var x = obj[ a ];
+            var y = obj[ b ];
             return ( ( x < y ) ? -1 : ( ( x > y ) ? 1 : 0 ) );
         } );
     } else {
@@ -10589,7 +10594,7 @@ function sortObj( obj, type ) {
     var tempObj = {};
 
     for ( var i = 0; i < tempArray.length; i++ ) {
-        tempObj[tempArray[i]] = obj[tempArray[i]];
+        tempObj[ tempArray[ i ] ] = obj[ tempArray[ i ] ];
     }
 
     return tempObj;
@@ -10601,13 +10606,13 @@ function getDayName( day, type ) {
         sdays = [ _( "Sun" ), _( "Mon" ), _( "Tue" ), _( "Wed" ), _( "Thu" ), _( "Fri" ), _( "Sat" ) ];
 
     if ( type === "short" ) {
-        return sdays[day.getDay()];
+        return sdays[ day.getDay() ];
     } else {
-        return ldays[day.getDay()];
+        return ldays[ day.getDay() ];
     }
 }
 
-// pad a single digit with a leading zero
+// Pad a single digit with a leading zero
 function pad( number ) {
     var r = String( number );
     if ( r.length === 1 ) {
@@ -10631,7 +10636,7 @@ function _( key ) {
 
     //Translate item (key) based on currently defined language
     if ( typeof language === "object" && language.hasOwnProperty( key ) ) {
-        var trans = language[key];
+        var trans = language[ key ];
         return trans ? trans : key;
     } else {
 
@@ -10701,11 +10706,15 @@ function updateLang( lang ) {
 function languageSelect() {
     $( "#localization" ).popup( "destroy" ).remove();
 
-	//  {af: _("Afrikaans"), am: _("Amharic"), zh: _("Chinese"), hr: _("Croatian"), cs: _("Czech"),
-	//	nl: _("Dutch"), en: _("English"), pes: _("Farsi"), fr: _("French"), de: _("German"),
-	//	el: _("Greek"), he: _("Hebrew"), hu: _("Hungarian"), is: _("Icelandic"), it: _("Italian"), lv: _("Latvian"),
-	//	mn: _("Mongolian"), no: _("Norwegian"), pl: _("Polish"), pt: _("Portuguese"), ru: _("Russian"),
-	//	sk: _("Slovak"), sl: _("Slovenian"), es: _("Spanish"), th: _("Thai")}
+    /*
+    	Commented list of languages used by the string parser to identify strings for translation
+
+		{af: _("Afrikaans"), am: _("Amharic"), zh: _("Chinese"), hr: _("Croatian"), cs: _("Czech"),
+		nl: _("Dutch"), en: _("English"), pes: _("Farsi"), fr: _("French"), de: _("German"),
+		el: _("Greek"), he: _("Hebrew"), hu: _("Hungarian"), is: _("Icelandic"), it: _("Italian"), lv: _("Latvian"),
+		mn: _("Mongolian"), no: _("Norwegian"), pl: _("Polish"), pt: _("Portuguese"), ru: _("Russian"),
+		sk: _("Slovak"), sl: _("Slovenian"), es: _("Spanish"), th: _("Thai")}
+	*/
 
     var popup = "<div data-role='popup' data-theme='a' id='localization' data-corners='false'>" +
                 "<ul data-inset='true' data-role='listview' id='lang' data-corners='false'>" +
@@ -10759,8 +10768,8 @@ function getUrlVars( url ) {
 		hashes = url.slice( url.indexOf( "?" ) + 1 ).split( "&" );
 
     for ( var i = 0; i < hashes.length; i++ ) {
-        hash = hashes[i].split( "=" );
-        json[hash[0]] = decodeURIComponent( hash[1].replace( /\+/g, "%20" ) );
+        hash = hashes[ i ].split( "=" );
+        json[ hash[ 0 ] ] = decodeURIComponent( hash[ 1 ].replace( /\+/g, "%20" ) );
     }
     return json;
 }
@@ -10822,12 +10831,12 @@ function dateToString( date, toUTC, shorten ) {
 				pad( date.getMinutes() ) + ":" + pad( date.getSeconds() );
     } else {
         if ( shorten ) {
-            return monthNames[date.getMonth()] + " " + pad( date.getDate() ) + ", " +
+            return monthNames[ date.getMonth() ] + " " + pad( date.getDate() ) + ", " +
 					date.getFullYear() + " " + pad( date.getHours() ) + ":" +
 					pad( date.getMinutes() ) + ":" + pad( date.getSeconds() );
         } else {
-            return dayNames[date.getDay()] + ", " + pad( date.getDate() ) + " " +
-					monthNames[date.getMonth()] + " " + date.getFullYear() + " " +
+            return dayNames[ date.getDay() ] + ", " + pad( date.getDate() ) + " " +
+					monthNames[ date.getMonth() ] + " " + date.getFullYear() + " " +
 					pad( date.getHours() ) + ":" + pad( date.getMinutes() ) + ":" +
 					pad( date.getSeconds() );
         }

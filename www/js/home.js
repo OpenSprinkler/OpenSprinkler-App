@@ -12,11 +12,11 @@
 		}
 
 		mainScript = /^\s*(((([^:\/#\?]+:)?(?:(\/\/)((?:(([^:@\/#\?]+)(?:\:([^:@\/#\?]+))?)@)?(([^:\/#\?\]\[]+|\[[^\/\]@#?]+\])(?:\:([0-9]+))?))?)?)?((\/?(?:[^\/\?#]+\/+)*)([^\?#]*)))?(\?[^#]+)?)(#.*)?/.exec( mainScript || "" ) || [];
-		return mainScript[1].slice( 0, -10 ) || def;
+		return mainScript[ 1 ].slice( 0, -10 ) || def;
 	}
 
 	function insertStyle( css ) {
-		var head = document.head || document.getElementsByTagName( "head" )[0],
+		var head = document.head || document.getElementsByTagName( "head" )[ 0 ],
 		    style = document.createElement( "style" );
 
 		style.type = "text/css";
@@ -30,7 +30,7 @@
 	}
 
 	function insertStyleSheet( href, rel, media ) {
-		var head = document.head || document.getElementsByTagName( "head" )[0],
+		var head = document.head || document.getElementsByTagName( "head" )[ 0 ],
 		    link = document.createElement( "link" );
 
 		rel = rel || "stylesheet";
@@ -45,7 +45,7 @@
 	}
 
 	function insertMeta( name, content ) {
-		var head = document.head || document.getElementsByTagName( "head" )[0],
+		var head = document.head || document.getElementsByTagName( "head" )[ 0 ],
 		    meta = document.createElement( "meta" );
 
 		content = content || "";
@@ -69,7 +69,7 @@
 	    var a = document.createElement( "script" );
 	    a.src = src;
 	    a.addEventListener( "load", callback, false );
-	    document.getElementsByTagName( "head" )[0].appendChild( a );
+	    document.getElementsByTagName( "head" )[ 0 ].appendChild( a );
 	}
 
 	// Change the viewport
@@ -178,7 +178,7 @@
 			savePassword = function( pw, isHashed ) {
 				var sites = {
 					"Local": {
-						"os_ip": document.URL.match( /https?:\/\/(.*)\/.*?/ )[1],
+						"os_ip": document.URL.match( /https?:\/\/(.*)\/.*?/ )[ 1 ],
 						"os_pw": pw,
 						"isHashed": isHashed,
 						"is183": ( ver < 204 ) ? true : false,
@@ -254,7 +254,7 @@
 				var pw = $( "#os_pw" ).val(),
 					checkPW = function( pass, callback ) {
 						$.ajax( {
-							url: document.URL.match( /(https?:\/\/.*)\/.*?/ )[1] + "/sp?pw=" + encodeURIComponent( pass ) + "&npw=" + encodeURIComponent( pass ) + "&cpw=" + encodeURIComponent( pass ),
+							url: document.URL.match( /(https?:\/\/.*)\/.*?/ )[ 1 ] + "/sp?pw=" + encodeURIComponent( pass ) + "&npw=" + encodeURIComponent( pass ) + "&cpw=" + encodeURIComponent( pass ),
 							cache: false,
 							crossDomain: true,
 							type: "GET"
@@ -321,7 +321,7 @@
 			function( data ) {
 
 				// Grab the pages from index.htm (body content)
-				var pages = data.match( /<body>([.\s\S]*)<\/body>/ )[1];
+				var pages = data.match( /<body>([.\s\S]*)<\/body>/ )[ 1 ];
 
 				// Disables site selection menu
 				window.currLocal = true;

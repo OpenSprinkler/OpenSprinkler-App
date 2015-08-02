@@ -8,7 +8,7 @@
 
 // jshint ignore:end
 // jscs:enable
-var form = document.forms[0];
+var form = document.forms[ 0 ];
 if ( form.addEventListener ) {
 
 	// Handle modern browsers
