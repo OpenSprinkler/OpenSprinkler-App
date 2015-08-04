@@ -8718,7 +8718,19 @@ function cloudSyncStart() {
 
 						// Logout if the current site isn't matched in the cloud sites
 						if ( result === false ) {
-							storage.remove( "cloudToken", updateLoginButtons );
+							areYouSure(
+								_( "Do you wish to add this location to your cloud synced site list?" ),
+								_( "This site is not found in the currently synced site list but may be added now." ),
+								function() {
+									sites[ currIp ] = data.sites.Local;
+									storage.set( { "sites": JSON.stringify( sites ) }, cloudSaveSites );
+									storage.set( { "current_site": currIp } );
+									updateSiteList( Object.keys( sites ), currIp );
+								},
+								function() {
+									storage.remove( "cloudToken", updateLoginButtons );
+								}
+							 );
 						} else {
 							storage.set( { "sites": JSON.stringify( sites ) }, cloudSaveSites );
 							storage.set( { "current_site": result } );
