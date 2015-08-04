@@ -2690,9 +2690,11 @@ function coordsToLocation( lat, lon, callback, fallback ) {
 
         for ( var item in data ) {
             if ( data.hasOwnProperty( item ) ) {
-                if ( $.inArray( "locality", data[ item ].types ) > -1 || $.inArray( "sublocality", data[ item ].types ) > -1 ) {
-                    hasEnd = true;
-                    break;
+                if ( $.inArray( "locality", data[ item ].types ) > -1 ||
+					 $.inArray( "sublocality", data[ item ].types ) > -1 ||
+					 $.inArray( "street_address", data[ item ].types ) > -1 ) {
+						hasEnd = true;
+						break;
                 }
             }
         }
