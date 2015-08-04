@@ -4473,10 +4473,15 @@ var showHome = ( function() {
                     button.data( "sd", select.find( "#sd" ).is( ":checked" ) ? 1 : 0 );
                     button.data( "us", select.find( "#us" ).is( ":checked" ) ? 1 : 0 );
                     name.html( select.find( "#stn-name" ).val() );
+
+                    // Update the notes section
+			        sites[ currentSite ].notes[ id ] = select.find( "#stn-notes" ).val();
+			        storage.set( { "sites": JSON.stringify( sites ) }, cloudSaveSites );
+
                     select.popup( "destroy" ).remove();
                 },
                 select = "<div data-overlay-theme='b' data-role='popup' data-theme='a' id='stn_attrib'>" +
-					"<fieldset style='margin:0' data-corners='false' data-role='controlgroup'><form>";
+					"<fieldset style='margin:0' data-mini='true' data-corners='false' data-role='controlgroup'><form>";
 
             if ( typeof id !== "number" ) {
                 return false;
@@ -4530,10 +4535,15 @@ var showHome = ( function() {
                 }
             }
 
+            select += "<div class='ui-bar-a ui-bar'>" + _( "Station Notes" ) + ":</div>" +
+				"<textarea data-corners='false' class='tight stn-notes' id='stn-notes'>" +
+					( sites[ currentSite ].notes[ id ] ? sites[ currentSite ].notes[ id ] : "" ) +
+				"</textarea>";
+
             select += "<input data-wrapper-class='attrib-submit' data-theme='b' type='submit' value='" + _( "Submit" ) + "' /></form></fieldset></div>";
             select = $( select ).enhanceWithin().on( "submit", "form", function() {
                 saveChanges();
-                submitStations();
+                submitStations( id );
 
                 return false;
             } );
@@ -4566,7 +4576,7 @@ var showHome = ( function() {
 
             select.popup( opts ).popup( "open" );
         },
-        submitStations = function() {
+        submitStations = function( id ) {
             var is208 = ( checkOSVersion( 208 ) === true ),
                 master = {},
                 master2 = {},
@@ -4604,27 +4614,36 @@ var showHome = ( function() {
                     if ( hasMaster ) {
                         master[ "m" + bid ] = ( master[ "m" + bid ] ) + ( attrib.data( "um" ) << s );
                     }
+
                     if ( hasMaster2 ) {
                         master2[ "n" + bid ] = ( master2[ "n" + bid ] ) + ( attrib.data( "um2" ) << s );
                     }
+
                     if ( hasSequential ) {
                         sequential[ "q" + bid ] = ( sequential[ "q" + bid ] ) + ( attrib.data( "us" ) << s );
                     }
+
                     if ( hasIR ) {
                         rain[ "i" + bid ] = ( rain[ "i" + bid ] ) + ( attrib.data( "ir" ) << s );
                     }
+
                     if ( hasAR ) {
                         relay[ "a" + bid ] = ( relay[ "a" + bid ] ) + ( attrib.data( "ar" ) << s );
                     }
+
                     if ( hasSD ) {
                         disable[ "d" + bid ] = ( disable[ "d" + bid ] ) + ( attrib.data( "sd" ) << s );
                     }
 
-                    // Because the firmware has a bug regarding spaces, let us replace them out now with a compatible seperator
-                    if ( is208 ) {
-                        names[ "s" + sid ] = page.find( "#station_" + sid ).text().replace( /\s/g, "_" );
-                    } else {
-                        names[ "s" + sid ] = page.find( "#station_" + sid ).text();
+                    // Only send the name of the station being updated
+                    if ( sid === id ) {
+
+	                    // Because the firmware has a bug regarding spaces, let us replace them out now with a compatible seperator
+	                    if ( is208 ) {
+	                        names[ "s" + sid ] = page.find( "#station_" + sid ).text().replace( /\s/g, "_" );
+	                    } else {
+	                        names[ "s" + sid ] = page.find( "#station_" + sid ).text();
+	                    }
                     }
                 }
             }
@@ -4793,6 +4812,9 @@ var showHome = ( function() {
 					page.removeClass( "has-images" );
 	            } else {
 					page.addClass( "has-images" );
+	            }
+	            if ( typeof sites[ currentSite ].notes !== "object" ) {
+					sites[ currentSite ].notes = {};
 	            }
 			} );
         },
