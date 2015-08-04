@@ -2995,16 +2995,11 @@ function nearbyPWS( lat, lon, callback ) {
             return;
         }
 
-        var prefix = "";
         data = encodeURIComponent( JSON.stringify( data ) );
-
-        if ( currLocal ) {
-            prefix = $.mobile.path.parseUrl( $( "head" ).find( "script[src$='app.jgz'],script[src$='app.js']" ).attr( "src" ) ).hrefNoHash.slice( 0, -10 );
-        }
 
         var popup = $( "<div data-role='popup' id='location-list' data-theme='a' style='background-color:rgb(229, 227, 223);'>" +
                 "<a href='#' data-rel='back' class='ui-btn ui-corner-all ui-shadow ui-btn-b ui-icon-delete ui-btn-icon-notext ui-btn-right'>" + _( "Close" ) + "</a>" +
-                    "<iframe style='border:none' src='" + prefix + "map.htm' width='100%' height='100%' seamless=''></iframe>" +
+                    "<iframe style='border:none' src='" + getAppURLPath() + "map.htm' width='100%' height='100%' seamless=''></iframe>" +
             "</div>" ),
             iframe = popup.find( "iframe" ),
             dataSent = false;
@@ -4801,7 +4796,7 @@ var showHome = ( function() {
 	            }
 			} );
         },
-        emptyImage = "img/placeholder.png",
+        emptyImage = getAppURLPath() + "img/placeholder.png",
 	    hasMaster, hasMaster2, hasIR, hasAR, hasSD, hasSequential, cards, siteSelect, currentSite, i, sites;
 
 	page.one( "pageshow", function() {
@@ -8720,15 +8715,15 @@ function cloudSyncStart() {
                 data.sites = parseSites( data.sites );
 
                 if ( currLocal ) {
-					findLocalSiteName( data.sites, function( result ) {
+					findLocalSiteName( sites, function( result ) {
 
 						// Logout if the current site isn't matched in the cloud sites
 						if ( result === false ) {
 							storage.remove( "cloudToken", updateLoginButtons );
 						} else {
-							storage.set( { "sites": JSON.stringify( data.sites ) }, cloudSaveSites );
+							storage.set( { "sites": JSON.stringify( sites ) }, cloudSaveSites );
 							storage.set( { "current_site": result } );
-							updateSiteList( Object.keys( data.sites ), result );
+							updateSiteList( Object.keys( sites ), result );
 						}
 					} );
 
@@ -9060,19 +9055,24 @@ function updateLoginButtons() {
     var page = $( ".ui-page-active" );
 
     storage.get( "cloudToken", function( data ) {
+		var login = $( ".login-button" ),
+			logout = $( ".logout-button" );
+
         if ( data.cloudToken === null || data.cloudToken === undefined ) {
-            $( ".login-button" ).removeClass( "hidden" );
+            login.removeClass( "hidden" );
 
             if ( !currLocal ) {
-	            $( ".logout-button" ).addClass( "hidden" );
+	            logout.addClass( "hidden" );
 	        }
+
+	        logout.find( "a" ).text( _( "Logout" ) );
 
             if ( page.attr( "id" ) === "site-control" ) {
                 page.find( ".logged-in-alert" ).remove();
             }
         } else {
-            $( ".logout-button" ).removeClass( "hidden" ).find( "a" ).text( _( "Logout" ) + " (" + getTokenUser( data.cloudToken ) + ")" );
-            $( ".login-button" ).addClass( "hidden" );
+            logout.removeClass( "hidden" ).find( "a" ).text( _( "Logout" ) + " (" + getTokenUser( data.cloudToken ) + ")" );
+            login.addClass( "hidden" );
 
             if ( page.attr( "id" ) === "site-control" && page.find( ".logged-in-alert" ).length === 0 ) {
                 page.find( ".ui-content" ).prepend( addSyncStatus( data.cloudToken ) );
@@ -10679,7 +10679,6 @@ function setLang() {
 }
 
 function updateLang( lang ) {
-    var prefix = "";
 
     //Empty out the current language (English is provided as the key)
     language = {};
@@ -10703,11 +10702,7 @@ function updateLang( lang ) {
         return;
     }
 
-    if ( currLocal ) {
-        prefix = $.mobile.path.parseUrl( $( "head" ).find( "script[src$='app.jgz'],script[src$='app.js']" ).attr( "src" ) ).hrefNoHash.slice( 0, -10 );
-    }
-
-    $.getJSON( prefix + "locale/" + lang + ".js", function( store ) {
+    $.getJSON( getAppURLPath() + "locale/" + lang + ".js", function( store ) {
         language = store.messages;
         setLang();
     } ).fail( setLang );
@@ -10770,6 +10765,10 @@ function checkCurrLang() {
 
         popup.find( "li.ui-last-child" ).removeClass( "ui-last-child" );
     } );
+}
+
+function getAppURLPath() {
+	return currLocal ? $.mobile.path.parseUrl( $( "head" ).find( "script[src$='app.jgz'],script[src$='app.js']" ).attr( "src" ) ).hrefNoHash.slice( 0, -10 ) : "";
 }
 
 function getUrlVars( url ) {
