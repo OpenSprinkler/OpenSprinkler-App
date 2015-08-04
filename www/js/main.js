@@ -750,9 +750,7 @@ function newLoad() {
             }
 
             // Check if a cloud token is available and if so show logout button otherwise show login
-            if ( !currLocal ) {
-                updateLoginButtons();
-            }
+            updateLoginButtons();
 
             // Check if automatic rain delay plugin is enabled on OSPi devices
             checkWeatherPlugin();
@@ -1890,27 +1888,18 @@ function updateSite( newsite ) {
     } );
 }
 
-/*
-TODO: Include function for cloud sync when using direct IP
-
-function findLocalSiteName( callback ) {
-	storage.get( "sites", function( data ) {
-		var sites = parseSites( data.sites ),
-			site;
-
-		for ( site in sites ) {
-			if ( sites.hasOwnProperty( site ) ) {
-				if ( currIp.indexOf( sites[site].os_ip ) !== -1 ) {
-					callback( site );
-					return;
-				}
+function findLocalSiteName( sites, callback ) {
+	for ( var site in sites ) {
+		if ( sites.hasOwnProperty( site ) ) {
+			if ( currIp.indexOf( sites[ site ].os_ip ) !== -1 ) {
+				callback( site );
+				return;
 			}
 		}
+	}
 
-		callback( false );
-	} );
+	callback( false );
 }
-*/
 
 // Automatic device detection functions
 function updateDeviceIP( finishCheck ) {
@@ -8730,6 +8719,22 @@ function cloudSyncStart() {
 
                 data.sites = parseSites( data.sites );
 
+                if ( currLocal ) {
+					findLocalSiteName( data.sites, function( result ) {
+
+						// Logout if the current site isn't matched in the cloud sites
+						if ( result === false ) {
+							storage.remove( "cloudToken", updateLoginButtons );
+						} else {
+							storage.set( { "sites": JSON.stringify( data.sites ) }, cloudSaveSites );
+							storage.set( { "current_site": result } );
+							updateSiteList( Object.keys( data.sites ), result );
+						}
+					} );
+
+					return;
+                }
+
                 if ( Object.keys( sites ).length > 0 ) {
 
                     // Handle how to merge when cloud is populated
@@ -8742,14 +8747,14 @@ function cloudSyncStart() {
                                 "<button class='replaceCloud'>" + _( "Replace cloud with local" ) + "</button>" +
                             "</div>" +
                         "</div>" ),
-                        finish = function() {
-                            storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
-                            popup.popup( "close" );
+						finish = function() {
+							storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
+		                    popup.popup( "close" );
 
-                            if ( page === "site-control" ) {
-                                changePage( "#site-control" );
-                            }
-                        };
+		                    if ( page === "site-control" ) {
+		                        changePage( "#site-control" );
+		                    }
+		                };
 
                     popup.find( ".merge" ).on( "click", function() {
                         sites = $.extend( {}, data.sites, sites );
@@ -9057,7 +9062,10 @@ function updateLoginButtons() {
     storage.get( "cloudToken", function( data ) {
         if ( data.cloudToken === null || data.cloudToken === undefined ) {
             $( ".login-button" ).removeClass( "hidden" );
-            $( ".logout-button" ).addClass( "hidden" );
+
+            if ( !currLocal ) {
+	            $( ".logout-button" ).addClass( "hidden" );
+	        }
 
             if ( page.attr( "id" ) === "site-control" ) {
                 page.find( ".logged-in-alert" ).remove();
