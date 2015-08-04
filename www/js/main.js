@@ -4424,7 +4424,7 @@ var showHome = ( function() {
 
             cards += "<div class='ui-body ui-body-a center'>";
 
-			cards += "<img src='" + ( hasImage ? "data:image/jpeg;base64," + sites[ currentSite ].images[ i ] : emptyImage ) + "' />";
+			cards += "<img src='" + ( hasImage ? "data:image/jpeg;base64," + sites[ currentSite ].images[ i ] : getAppURLPath() + "img/placeholder.png" ) + "' />";
 
             cards += "<p class='tight center inline-icon' id='station_" + i + "'>" + station + "</p>";
 
@@ -4732,7 +4732,7 @@ var showHome = ( function() {
                     addCard( i );
                     cardHolder.append( cards );
                 } else {
-                    card.find( ".ui-body > img" ).attr( "src", ( hasImage ? "data:image/jpeg;base64," + sites[ currentSite ].images[ i ] : emptyImage ) );
+                    card.find( ".ui-body > img" ).attr( "src", ( hasImage ? "data:image/jpeg;base64," + sites[ currentSite ].images[ i ] : getAppURLPath() + "img/placeholder.png" ) );
 
                     if ( isStationDisabled( i ) ) {
                         if ( !page.hasClass( "show-hidden" ) ) {
@@ -4796,7 +4796,6 @@ var showHome = ( function() {
 	            }
 			} );
         },
-        emptyImage = getAppURLPath() + "img/placeholder.png",
 	    hasMaster, hasMaster2, hasIR, hasAR, hasSD, hasSequential, cards, siteSelect, currentSite, i, sites;
 
 	page.one( "pageshow", function() {
