@@ -92,6 +92,10 @@ var isIEMobile = /IEMobile/.test( navigator.userAgent ),
     switching = false,
     currentCoordinates = [ 0, 0 ],
 
+    // Initialize variables to keep track of current page count
+	pageHistoryCount = -1,
+	goingBack = false,
+
     // Array to hold all notifications currently displayed within the app
     notifications = [],
     timers = {},
@@ -266,6 +270,12 @@ $( document )
 .on( "pageshow", function( e ) {
     var newpage = "#" + e.target.id,
         $newpage = $( newpage );
+
+    if ( goingBack ) {
+        goingBack = false;
+    } else {
+        pageHistoryCount++;
+    }
 
     // Fix issues between jQuery Mobile and FastClick
     fixInputClick( $newpage );
@@ -10410,12 +10420,7 @@ function goBack() {
     page = page.attr( "id" );
 
     var managerStart = ( page === "site-control" && !isControllerConnected() ),
-        popup = $( ".ui-popup-active" ),
-		url = $.mobile.navigate.history.getPrev().url;
-
-    if ( url.slice( 0, 1 ) !== "#" ) {
-        return;
-    }
+        popup = $( ".ui-popup-active" );
 
     if ( popup.length ) {
         popup.find( "[data-role='popup']" ).popup( "close" );
@@ -10428,6 +10433,12 @@ function goBack() {
         } catch ( err ) {}
     } else {
         if ( isChromeApp ) {
+            var url = $.mobile.navigate.history.getPrev().url;
+
+            if ( url.slice( 0, 1 ) !== "#" ) {
+                return;
+            }
+
             changePage( url, {
                 reverse: true
             } );
@@ -10435,7 +10446,17 @@ function goBack() {
                 $.mobile.navigate.history.activeIndex -= 2;
             } );
         } else {
-            $.mobile.back();
+			if ( pageHistoryCount > 0 ) {
+				pageHistoryCount--;
+			}
+
+			if ( pageHistoryCount === 0 ) {
+				navigator.app.exitApp();
+		    } else {
+		        goingBack = true;
+	            $.mobile.back();
+		    }
+
         }
     }
 }
