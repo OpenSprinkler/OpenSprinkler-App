@@ -4803,7 +4803,7 @@ var showHome = ( function() {
 
             reorderCards();
         },
-        updateSites = function() {
+        updateSites = function( callback ) {
 			currentSite = siteSelect.val();
 			storage.get( "sites", function( data ) {
 				sites = parseSites( data.sites );
@@ -4816,6 +4816,8 @@ var showHome = ( function() {
 	            if ( typeof sites[ currentSite ].notes !== "object" ) {
 					sites[ currentSite ].notes = {};
 	            }
+
+	            callback();
 			} );
         },
 	    hasMaster, hasMaster2, hasIR, hasAR, hasSD, hasSequential, cards, siteSelect, currentSite, i, sites;
@@ -4839,19 +4841,20 @@ var showHome = ( function() {
 		cards = "";
         siteSelect = $( "#site-selector" );
 
-        updateSites();
+        updateSites( function() {
+		    for ( i = 0; i < controller.stations.snames.length; i++ ) {
+		        addCard( i );
+		    }
+
+		    page.find( "#os-stations-list" ).html( cards );
+		    reorderCards();
+        } );
 
 		page.find( ".sitename" ).toggleClass( "hidden", currLocal ? true : false ).text( siteSelect.val() );
 		page.find( ".waterlevel" ).text( controller.options.wl );
 
 	    updateClock();
 
-	    for ( i = 0; i < controller.stations.snames.length; i++ ) {
-	        addCard( i );
-	    }
-
-	    page.find( "#os-stations-list" ).html( cards );
-	    reorderCards();
 	    page.on( "click", ".station-settings", showAttributes );
 	    page.on( "click", ".home-info", function() {
 	        changePage( "#os-options", {
