@@ -4804,6 +4804,8 @@ var showHome = ( function() {
             reorderCards();
         },
         updateSites = function( callback ) {
+			callback = callback || function() {};
+
 			currentSite = siteSelect.val();
 			storage.get( "sites", function( data ) {
 				sites = parseSites( data.sites );
@@ -10408,7 +10410,12 @@ function goBack() {
     page = page.attr( "id" );
 
     var managerStart = ( page === "site-control" && !isControllerConnected() ),
-        popup = $( ".ui-popup-active" );
+        popup = $( ".ui-popup-active" ),
+		url = $.mobile.navigate.history.getPrev().url;
+
+    if ( url.slice( 0, 1 ) !== "#" ) {
+        return;
+    }
 
     if ( popup.length ) {
         popup.find( "[data-role='popup']" ).popup( "close" );
@@ -10421,12 +10428,6 @@ function goBack() {
         } catch ( err ) {}
     } else {
         if ( isChromeApp ) {
-            var url = $.mobile.navigate.history.getPrev().url;
-
-            if ( url.slice( 0, 1 ) !== "#" ) {
-                return;
-            }
-
             changePage( url, {
                 reverse: true
             } );
