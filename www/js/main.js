@@ -464,12 +464,14 @@ function initApp() {
 
     // Handle keybinds
     $.mobile.document.on( "keydown", function( e ) {
-        if ( $( e.target ).closest( "input" )[ 0 ] ) {
+		var tag = $( e.target ).prop( "tagName" );
+
+        if ( tag === "INPUT" || tag === "TEXTAREA" ) {
             return;
         }
 
-	    var code = event.keyCode,
-			altDown = event.altKey,
+	    var code = e.keyCode,
+			altDown = e.altKey,
 			menuOpen = $( "#mainMenu-popup" ).hasClass( "ui-popup-active" );
 
         if ( code === 77 ) {
@@ -480,22 +482,22 @@ function initApp() {
                 showHomeMenu();
             }
         } else if ( ( menuOpen || altDown ) && code === 80 ) {
-			event.preventDefault();
+			e.preventDefault();
 			changePage( "#programs" );
         } else if ( ( menuOpen || altDown ) && code === 79 ) {
-			event.preventDefault();
+			e.preventDefault();
 			changePage( "#os-options" );
         } else if ( ( menuOpen || altDown ) && code === 86 ) {
-			event.preventDefault();
+			e.preventDefault();
 			changePage( "#preview" );
         } else if ( ( menuOpen || altDown ) && code === 76 ) {
-			event.preventDefault();
+			e.preventDefault();
 			changePage( "#logs" );
         } else if ( ( menuOpen || altDown ) && code === 82 ) {
-			event.preventDefault();
+			e.preventDefault();
 			changePage( "#runonce" );
         } else if ( ( menuOpen || altDown ) && code === 68 ) {
-			event.preventDefault();
+			e.preventDefault();
 			showRainDelay();
 		}
     } );
