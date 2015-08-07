@@ -9405,11 +9405,11 @@ function getHWType() {
 	}
 
 	if ( controller.options.hwt === 172 ) {
-		return " (AC)";
+		return " - AC";
 	} else if ( controller.options.hwt === 220 ) {
-		return " (DC)";
+		return " - DC" + ( controller.settings.curr ? " (" + _( "current" ) + ": " + controller.settings.curr + " mA)" : "" );
 	} else if ( controller.options.hwt === 26 ) {
-		return " (Latching)";
+		return " - Latching";
 	} else {
 		return "";
 	}
