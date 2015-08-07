@@ -9251,6 +9251,7 @@ function checkFirmwareUpdate() {
 
                                 // Modify the changelog by parsing markdown of lists to HTML
                                 var button = $( this ).parent(),
+									canUpdate = controller.options.hwt > 63 && checkOSVersion( 216 ),
                                     changelog = data[ 0 ].body.replace( /[\-|\*|\+]\s(.*)?(?:\r\n)?/g, "<li>$1</li>" ),
                                     popup = $(
                                         "<div data-role='popup' class='modal' data-theme='a'>" +
@@ -9260,7 +9261,7 @@ function checkFirmwareUpdate() {
                                             "<h5 class='center' style='margin:0'>" + _( "This Controller" ) + ": " + getOSVersion() + getOSMinorVersion() + "</h5>" +
                                             "<ul class='changelog'>" + changelog + "</ul>" +
                                             "<a class='guide ui-btn ui-corner-all ui-shadow' style='width:80%;margin:5px auto;' href='#'>" +
-												_( "Upgrade Guide" ) +
+												( canUpdate ? _( "Update Now" ) : _( "Update Guide" ) ) +
 											"</a>" +
                                             "<a class='dismiss ui-btn ui-btn-b ui-corner-all ui-shadow' style='width:80%;margin:5px auto;' href='#'>" +
 												_( "Dismiss" ) +
@@ -9269,13 +9270,34 @@ function checkFirmwareUpdate() {
                                     );
 
                                 popup.find( ".guide" ).on( "click", function() {
-									var url = controller.options.hwt > 63 ?
-										"https://opensprinkler.freshdesk.com/support/solutions/articles/5000631599-installing-and-updating-the-unified-firmware#upgrade"
-										: "https://opensprinkler.freshdesk.com/support/solutions/articles/5000381694-update-opensprinkler-firmware-with-downloads-";
+									if ( canUpdate ) {
 
-                                    // Open the firmware upgrade guide in a child browser
-                                    $( "<a class='hidden iab' href='" + url + "'></a>" )
-										.appendTo( popup ).click();
+										// For OSPi/OSBo with firmware 2.1.6 or newer, trigger the update script from the app
+										sendToOS( "/cv?pw=&update=1", "json" ).then(
+											function() {
+												showerror( _( "Update successful" ) );
+												popup.find( ".dismiss" ).click();
+											},
+											function() {
+											    $.mobile.loading( "show", {
+											        html: _( "<div class='center'>Update did not complete.<br>" +
+														"<a class='iab ui-btn' href='https://opensprinkler.freshdesk.com/support/solutions/articles/5000631599-installing-and-updating-the-unified-firmware#upgrade'>" + _( "Update Guide" ) + "</a></div>" ),
+											        textVisible: true,
+											        theme: "b"
+											    } );
+												setTimeout( function() { $.mobile.loading( "hide" ); }, 3000 );
+											}
+										);
+									} else {
+
+										var url = controller.options.hwt > 63 ?
+											"https://opensprinkler.freshdesk.com/support/solutions/articles/5000631599-installing-and-updating-the-unified-firmware#upgrade"
+											: "https://opensprinkler.freshdesk.com/support/solutions/articles/5000381694-opensprinkler-firmware-update-guide";
+
+	                                    // Open the firmware upgrade guide in a child browser
+	                                    $( "<a class='hidden iab' href='" + url + "'></a>" )
+											.appendTo( popup ).click();
+									}
                                 } );
 
                                 popup.find( ".dismiss" ).one( "click", function() {
