@@ -99,7 +99,7 @@ var isIEMobile = /IEMobile/.test( navigator.userAgent ),
     // Array to hold all notifications currently displayed within the app
     notifications = [],
     timers = {},
-    curr183, currIp, currPrefix, currAuth, currPass, currPiWeather, currAuthUser,
+    curr183, currIp, currPrefix, currAuth, currPass, currAuthUser,
     currAuthPass, currLocal, currLang, language, deviceip, errorTimeout, weather, weatherKeyFail, openPanel;
 
 // Redirect jQuery Mobile DOM manipulation to prevent error
@@ -222,8 +222,6 @@ $( document )
 		showStart();
     } else if ( hash === "#site-control" ) {
         showSites();
-    } else if ( hash === "#weather_settings" ) {
-        showWeatherSettings();
     } else if ( hash === "#sprinklers" ) {
         if ( $( hash ).length === 0 ) {
             showHome( data.options.firstLoad );
@@ -722,7 +720,8 @@ function newLoad() {
     updateController(
         function() {
             var weatherAdjust = $( ".weatherAdjust" ),
-                changePassword = $( ".changePassword" );
+                changePassword = $( ".changePassword" ),
+                weatherProvider = $( ".show-providers" );
 
             $.mobile.loading( "hide" );
             updateWeather();
@@ -748,6 +747,14 @@ function newLoad() {
                 $( "#info-list" ).find( "li[data-role='list-divider']" ).text( _( "Information" ) );
             }
 
+            // Check if the firmware supports a Weather Underground Key
+            // If not, allow the app to manage key settings for in-app weather view
+	        if ( checkOSVersion( 210 ) ) {
+	            weatherProvider.hide();
+	        } else {
+	            weatherProvider.css( "display", "" );
+	        }
+
             // Check if a firmware update is available
             checkFirmwareUpdate();
 
@@ -763,9 +770,6 @@ function newLoad() {
 
             // Check if a cloud token is available and if so show logout button otherwise show login
             updateLoginButtons();
-
-            // Check if automatic rain delay plugin is enabled on OSPi devices
-            checkWeatherPlugin();
 
             if ( isOSPi() ) {
 
@@ -2179,130 +2183,6 @@ function addFound( ip ) {
 }
 
 // Weather functions
-function showWeatherSettings() {
-    var page = $( "<div data-role='page' id='weather_settings'>" +
-        "<div class='ui-content' role='main'>" +
-            "<ul data-role='listview' data-inset='true'>" +
-                "<li>" +
-                    "<label for='weather_provider'>" + _( "Weather Provider" ) + "</label>" +
-                    "<select data-mini='true' id='weather_provider'>" +
-                        "<option value='yahoo' " + ( currPiWeather.weather_provider === "yahoo" ? "selected" : "" ) + ">" + _( "Yahoo!" ) + "</option>" +
-                        "<option value='wunderground' " + ( currPiWeather.weather_provider === "wunderground" ? "selected" : "" ) + ">" +
-							_( "Wunderground" ) +
-						"</option>" +
-                    "</select>" +
-                    "<label " + ( currPiWeather.weather_provider === "wunderground" ? "" : "style='display:none' " ) + "for='wapikey'>" +
-						_( "Wunderground API Key" ) +
-					"</label>" +
-					"<input " + ( currPiWeather.weather_provider === "wunderground" ? "" : "style='display:none' " ) + "data-mini='true' " +
-						"autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' type='text' " +
-						"id='wapikey' value='" + currPiWeather.wapikey + "'>" +
-                "</li>" +
-            "</ul>" +
-            "<ul data-role='listview' data-inset='true'> " +
-                "<li>" +
-                    "<p class='rain-desc'>" +
-						_( "When automatic rain delay is enabled, the weather will be checked for rain every hour. If the weather reports any condition suggesting rain, a rain delay is automatically issued using the below set delay duration." ) +
-					"</p>" +
-                    "<div class='ui-field-contain'>" +
-                        "<label for='auto_delay'>" + _( "Auto Rain Delay" ) + "</label>" +
-                        "<input type='checkbox' data-on-text='On' data-off-text='Off' data-role='flipswitch' " +
-							"name='auto_delay' id='auto_delay' " + ( currPiWeather.auto_delay === "on" ? "checked" : "" ) + ">" +
-                    "</div>" +
-                    "<div class='ui-field-contain duration-input'>" +
-                        "<label for='delay_duration'>" + _( "Delay Duration" ) + "</label>" +
-                        "<button id='delay_duration' data-mini='true' value='" + ( currPiWeather.delay_duration * 3600 ) + "'>" +
-							dhms2str( sec2dhms( currPiWeather.delay_duration * 3600 ) ) +
-						"</button>" +
-                    "</div>" +
-                "</li>" +
-            "</ul>" +
-            "<a class='wsubmit' href='#' data-role='button' data-theme='b' type='submit'>" + _( "Submit" ) + "</a>" +
-        "</div>" +
-    "</div>" ),
-    submitWeatherSettings = function() {
-        var url = "/uwa?auto_delay=" +
-			( $( "#auto_delay" ).is( ":checked" ) ? "on" : "off" ) + "&delay_duration=" + parseInt( $( "#delay_duration" ).val() / 3600 ) +
-			"&weather_provider=" + $( "#weather_provider" ).val() + "&wapikey=" + $( "#wapikey" ).val();
-
-        $.mobile.loading( "show" );
-
-        sendToOS( url ).then(
-            function() {
-                $.mobile.document.one( "pageshow", function() {
-                    showerror( _( "Weather settings have been saved" ) );
-                } );
-                goBack();
-                checkWeatherPlugin();
-            },
-            function() {
-                showerror( _( "Weather settings were not saved. Please try again." ) );
-            }
-        );
-
-        return false;
-    };
-
-    //Handle provider select change on weather settings
-    page.find( "#weather_provider" ).on( "change", function() {
-        var val = $( this ).val();
-        if ( val === "wunderground" ) {
-            page.find( "#wapikey,label[for='wapikey']" ).show( "fast" );
-            page.find( "#wapikey" ).parent( ".ui-input-text" ).css( "border-style", "solid" );
-        } else {
-            page.find( "#wapikey,label[for='wapikey']" ).hide( "fast" );
-            page.find( "#wapikey" ).parent( ".ui-input-text" ).css( "border-style", "none" );
-        }
-    } );
-
-    page.find( ".wsubmit" ).on( "click", submitWeatherSettings );
-
-    page.find( "#delay_duration" ).on( "click", function() {
-        var dur = $( this ),
-            name = page.find( "label[for='" + dur.attr( "id" ) + "']" ).text();
-
-        showDurationBox( {
-            seconds: dur.val(),
-            title: name,
-            callback: function( result ) {
-                dur.val( result );
-                dur.text( dhms2str( sec2dhms( result ) ) );
-            },
-            maximum: 345600,
-            granularity:2
-        } );
-    } );
-
-    page.one( {
-        pagehide: function() {
-            page.detach();
-        },
-        pagebeforeshow: function() {
-            if ( currPiWeather.weather_provider !== "wunderground" ) {
-                page.find( "#wapikey" ).parent( ".ui-input-text" ).css( "border-style", "none" );
-            }
-        }
-    } );
-
-    changeHeader( {
-        title: _( "Weather Settings" ),
-        leftBtn: {
-            icon: "carat-l",
-            text: _( "Back" ),
-            class: "ui-toolbar-back-btn",
-            on: goBack
-        },
-        rightBtn: {
-            icon: "check",
-            text: _( "Submit" ),
-            on: submitWeatherSettings
-        }
-    } );
-
-    $( "#weather_settings" ).remove();
-    $.mobile.pageContainer.append( page );
-}
-
 function showZimmermanAdjustmentOptions( button, callback ) {
     $( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
 
@@ -8923,50 +8803,6 @@ function handleInvalidDataToken() {
 
 function getTokenUser( token ) {
     return atob( token ).split( "|" )[ 0 ];
-}
-
-function checkWeatherPlugin() {
-    var weatherSettings = $( ".weather_settings" ),
-        weatherProvider = $( ".show-providers" );
-
-    currPiWeather = [];
-    weatherSettings.hide();
-    if ( isOSPi() ) {
-        storage.get( "provider", function( data ) {
-            sendToOS( "/wj?pw=", "json" ).done( function( results ) {
-                var provider = results.weather_provider;
-
-                // Check if the OSPi has valid weather provider data
-                if ( typeof provider === "string" && ( provider === "yahoo" || provider === "wunderground" ) ) {
-                    if ( data.provider !== provider ) {
-                        storage.set( {
-                            "provider": provider,
-                            "wapikey": results.wapikey
-                        } );
-
-                        // Update the weather based on this information
-                        updateWeather();
-                    }
-
-                    // Hide the weather provider option when the OSPi provides it
-                    weatherProvider.hide();
-                }
-
-                if ( typeof results.auto_delay === "string" ) {
-                    currPiWeather = results;
-                    weatherSettings.css( "display", "" );
-                }
-            } );
-        } );
-    } else {
-        if ( checkOSVersion( 210 ) ) {
-
-            // Hide the weather provider option when the OSPi provides it
-            weatherProvider.hide();
-        } else {
-            weatherProvider.css( "display", "" );
-        }
-    }
 }
 
 function showUnifiedFirmwareNotification() {

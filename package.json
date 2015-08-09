@@ -30,7 +30,6 @@
     "height": 512,
     "title": "OpenSprinkler",
     "icon": "res/ios-web/icons/icon.png",
-    "toolbar": false,
     "resizable": true,
     "fullscreen": false,
     "position": "center"
