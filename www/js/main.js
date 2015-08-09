@@ -9116,8 +9116,8 @@ function checkFirmwareUpdate() {
 											},
 											function() {
 											    $.mobile.loading( "show", {
-											        html: _( "<div class='center'>Update did not complete.<br>" +
-														"<a class='iab ui-btn' href='https://opensprinkler.freshdesk.com/support/solutions/articles/5000631599-installing-and-updating-the-unified-firmware#upgrade'>" + _( "Update Guide" ) + "</a></div>" ),
+											        html: "<div class='center'>" + _( "Update did not complete." ) + "<br>" +
+														"<a class='iab ui-btn' href='https://opensprinkler.freshdesk.com/support/solutions/articles/5000631599-installing-and-updating-the-unified-firmware#upgrade'>" + _( "Update Guide" ) + "</a></div>",
 											        textVisible: true,
 											        theme: "b"
 											    } );
