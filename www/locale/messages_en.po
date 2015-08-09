@@ -150,39 +150,6 @@ msgstr ""
 msgid "Cancel"
 msgstr ""
 
-msgid "Weather Provider"
-msgstr ""
-
-msgid "Yahoo!"
-msgstr ""
-
-msgid "Wunderground"
-msgstr ""
-
-msgid "Wunderground API Key"
-msgstr ""
-
-msgid ""
-"When automatic rain delay is enabled, the weather will be checked for rain "
-"every hour. If the weather reports any condition suggesting rain, a rain "
-"delay is automatically issued using the below set delay duration."
-msgstr ""
-
-msgid "Auto Rain Delay"
-msgstr ""
-
-msgid "Delay Duration"
-msgstr ""
-
-msgid "Weather settings have been saved"
-msgstr ""
-
-msgid "Weather settings were not saved. Please try again."
-msgstr ""
-
-msgid "Weather Settings"
-msgstr ""
-
 msgid "Weather Adjustment Options"
 msgstr ""
 
@@ -196,6 +163,14 @@ msgid "Rain"
 msgstr ""
 
 msgid "Humidity"
+msgstr ""
+
+msgid ""
+"If the weather reports any condition suggesting rain, a rain delay is "
+"automatically issued using the below set delay duration."
+msgstr ""
+
+msgid "Delay Duration (hours)"
 msgstr ""
 
 msgid "Forecast"
@@ -278,6 +253,9 @@ msgstr ""
 msgid "Manual"
 msgstr ""
 
+msgid "Auto Rain Delay"
+msgstr ""
+
 msgid "None"
 msgstr ""
 
@@ -300,6 +278,18 @@ msgid "Are you sure you want to reboot OpenSprinkler?"
 msgstr ""
 
 msgid "OpenSprinkler is rebooting now"
+msgstr ""
+
+msgid "Weather Provider"
+msgstr ""
+
+msgid "Yahoo!"
+msgstr ""
+
+msgid "Wunderground"
+msgstr ""
+
+msgid "Wunderground API Key"
 msgstr ""
 
 msgid "Are you sure you want to downgrade the UI?"
@@ -590,6 +580,9 @@ msgid "Ignore Rain"
 msgstr ""
 
 msgid "Activate Relay"
+msgstr ""
+
+msgid "Station Notes"
 msgstr ""
 
 msgid "Do you want to stop the selected station?"
@@ -1120,6 +1113,14 @@ msgstr ""
 msgid "Invalid username/password combination. Please try again."
 msgstr ""
 
+msgid "Do you wish to add this location to your cloud synced site list?"
+msgstr ""
+
+msgid ""
+"This site is not found in the currently synced site list but may be added "
+"now."
+msgstr ""
+
 msgid "Select Merge Method"
 msgstr ""
 
@@ -1186,10 +1187,22 @@ msgstr ""
 msgid "This Controller"
 msgstr ""
 
-msgid "Upgrade Guide"
+msgid "Update Now"
+msgstr ""
+
+msgid "Update Guide"
 msgstr ""
 
 msgid "Dismiss"
+msgstr ""
+
+msgid "Update successful"
+msgstr ""
+
+msgid "Update did not complete."
+msgstr ""
+
+msgid "current"
 msgstr ""
 
 msgid "Yes"
