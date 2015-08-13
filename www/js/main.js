@@ -4331,6 +4331,7 @@ var showHome = ( function() {
                 ( hasAR ? ( "data-ar='" + ( ( controller.stations.act_relay[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) + "' " ) : "" ) +
                 ( hasSD ? ( "data-sd='" + ( ( controller.stations.stn_dis[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) + "' " ) : "" ) +
                 ( hasSequential ? ( "data-us='" + ( ( controller.stations.stn_seq[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) + "' " ) : "" ) +
+                ( hasSpecial ? ( "data-hs='" + ( ( controller.stations.stn_spe[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) + "' " ) : "" ) +
                 "></span>";
 
             if ( !isStationMaster( i ) ) {
@@ -4364,6 +4365,7 @@ var showHome = ( function() {
                     button.data( "ar", select.find( "#ar" ).is( ":checked" ) ? 1 : 0 );
                     button.data( "sd", select.find( "#sd" ).is( ":checked" ) ? 1 : 0 );
                     button.data( "us", select.find( "#us" ).is( ":checked" ) ? 1 : 0 );
+                    button.data( "hs", parseInt( select.find( "#hs" ) ) );
                     name.html( select.find( "#stn-name" ).val() );
 
                     // Update the notes section
@@ -4425,6 +4427,10 @@ var showHome = ( function() {
 							( ( button.data( "us" ) === 1 ) ? "checked='checked'" : "" ) + ">" + _( "Sequential" ) +
 						"</label>";
                 }
+
+                if ( hasSpecial ) {
+                    select += "<input id='hs' type='hidden' value='" + button.data( "hs" ) + "'>";
+                }
             }
 
             select += "<div class='ui-bar-a ui-bar'>" + _( "Station Notes" ) + ":</div>" +
@@ -4473,6 +4479,7 @@ var showHome = ( function() {
                 master = {},
                 master2 = {},
                 sequential = {},
+                special = {},
                 rain = {},
                 relay = {},
                 disable = {},
@@ -4488,6 +4495,9 @@ var showHome = ( function() {
                 }
                 if ( hasSequential ) {
                     sequential[ "q" + bid ] = 0;
+                }
+                if ( hasSpecial ) {
+                    special[ "p" + bid ] = 0;
                 }
                 if ( hasIR ) {
                     rain[ "i" + bid ] = 0;
@@ -4513,6 +4523,10 @@ var showHome = ( function() {
 
                     if ( hasSequential ) {
                         sequential[ "q" + bid ] = ( sequential[ "q" + bid ] ) + ( attrib.data( "us" ) << s );
+                    }
+
+                    if ( hasSpecial ) {
+                        special[ "p" + bid ] = ( special[ "p" + bid ] ) + ( attrib.data( "hs" ) << s );
                     }
 
                     if ( hasIR ) {
@@ -4545,6 +4559,7 @@ var showHome = ( function() {
 				( hasMaster ? "&" + $.param( master ) : "" ) +
 				( hasMaster2 ? "&" + $.param( master2 ) : "" ) +
 				( hasSequential ? "&" + $.param( sequential ) : "" ) +
+				( hasSpecial ? "&" + $.param( special ) : "" ) +
 				( hasIR ? "&" + $.param( rain ) : "" ) +
 				( hasAR ? "&" + $.param( relay ) : "" ) +
 				( hasSD ? "&" + $.param( disable ) : "" )
@@ -4624,6 +4639,7 @@ var showHome = ( function() {
             hasAR = ( typeof controller.stations.act_relay === "object" ) ? true : false;
             hasSD = ( typeof controller.stations.stn_dis === "object" ) ? true : false;
             hasSequential = ( typeof controller.stations.stn_seq === "object" ) ? true : false;
+            hasSpecial = ( typeof controller.stations.stn_spe === "object" ) ? true : false;
 
             for ( var i = 0; i < controller.stations.snames.length; i++ ) {
                 isScheduled = controller.settings.ps[ i ][ 0 ] > 0;
@@ -4667,7 +4683,8 @@ var showHome = ( function() {
                         ir: hasIR ? ( ( controller.stations.ignore_rain[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) : undefined,
                         ar: hasAR ? ( ( controller.stations.act_relay[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) : undefined,
                         sd: hasSD ? ( ( controller.stations.stn_dis[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) : undefined,
-                        us: hasSequential ? ( ( controller.stations.stn_seq[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) : undefined
+                        us: hasSequential ? ( ( controller.stations.stn_seq[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) : undefined,
+                        hs: hasSpecial ? ( ( controller.stations.stn_spe[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) : undefined
                     } );
 
                     if ( !isStationMaster( i ) && ( isScheduled || isRunning ) ) {
@@ -4714,7 +4731,7 @@ var showHome = ( function() {
 	            callback();
 			} );
         },
-	    hasMaster, hasMaster2, hasIR, hasAR, hasSD, hasSequential, cards, siteSelect, currentSite, i, sites;
+	    hasMaster, hasMaster2, hasIR, hasAR, hasSD, hasSequential, hasSpecial, cards, siteSelect, currentSite, i, sites;
 
 	page.one( "pageshow", function() {
 		$( "html" ).on( "datarefresh", updateContent );
@@ -4731,6 +4748,7 @@ var showHome = ( function() {
         hasAR = ( typeof controller.stations.act_relay === "object" ) ? true : false;
         hasSD = ( typeof controller.stations.stn_dis === "object" ) ? true : false;
         hasSequential = ( typeof controller.stations.stn_seq === "object" ) ? true : false;
+        hasSpecial = ( typeof controller.stations.stn_spe === "object" ) ? true : false;
 
 		cards = "";
         siteSelect = $( "#site-selector" );
