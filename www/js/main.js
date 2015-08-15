@@ -4358,6 +4358,34 @@ var showHome = ( function() {
             var button = $( this ),
                 id = button.data( "station" ),
                 name = button.siblings( "[id='station_" + id + "']" ),
+                updateSpecialOptions = function( callback ) {
+					sendToOS( "/je?pw=&sid=" + id, "json" ).done( function( data ) {
+						special = data;
+						callback();
+					} );
+                },
+                showSpecialOptions = function( value ) {
+					var opts = select.find( "#specialOpts" );
+					opts.empty();
+
+					if ( value === 1 ) {
+						opts.append(
+							"<div class='ui-bar-a ui-bar'>" + _( "RF Code" ) + ":</div>" +
+							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='rf-code' type='text' value='" + special.sd + "'>"
+						).enhanceWithin();
+					} else if ( value === 2 ) {
+						var data = parseRemoteStationData( special.sd );
+
+						opts.append(
+							"<div class='ui-bar-a ui-bar'>" + _( "Remote Address" ) + ":</div>" +
+							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='remote-address' type='text' value='" + data.ip + "'>" +
+							"<div class='ui-bar-a ui-bar'>" + _( "Remote Port" ) + ":</div>" +
+							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='remote-port' type='number' placeholder='80' min='0' max='65535' value='" + data.port + "'>" +
+							"<div class='ui-bar-a ui-bar'>" + _( "Remote Station (index)" ) + ":</div>" +
+							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='remote-station' type='number' min='1' max='48' placeholder='0' value='" + data.station + "'>"
+						).enhanceWithin();
+					}
+                },
                 saveChanges = function() {
                     button.data( "um", select.find( "#um" ).is( ":checked" ) ? 1 : 0 );
                     button.data( "um2", select.find( "#um2" ).is( ":checked" ) ? 1 : 0 );
@@ -4365,7 +4393,26 @@ var showHome = ( function() {
                     button.data( "ar", select.find( "#ar" ).is( ":checked" ) ? 1 : 0 );
                     button.data( "sd", select.find( "#sd" ).is( ":checked" ) ? 1 : 0 );
                     button.data( "us", select.find( "#us" ).is( ":checked" ) ? 1 : 0 );
-                    button.data( "hs", parseInt( select.find( "#hs" ) ) );
+
+                    var hs = select.find( "#hs" ).data( "value" );
+                    button.data( "hs", hs );
+
+                    if ( hs === 1 ) {
+						button.data( "specialData", select.find( "#rf-code" ).val() );
+                    } else if ( hs === 2 ) {
+						var ip = select.find( "#remote-address" ).split( "." ),
+							hex = "";
+
+						for ( var i = 0; i < 4; i++ ) {
+							hex += ip[ i ].toString( 16 );
+						}
+
+						hex += select.find( "#remote-port" ).val().toString( 16 );
+						hex += select.find( "#remote-station" ).val().toString( 16 );
+
+						button.data( "specialData", hex );
+                    }
+
                     name.html( select.find( "#stn-name" ).val() );
 
                     // Update the notes section
@@ -4375,7 +4422,11 @@ var showHome = ( function() {
                     select.popup( "destroy" ).remove();
                 },
                 select = "<div data-overlay-theme='b' data-role='popup' data-theme='a' id='stn_attrib'>" +
-					"<fieldset style='margin:0' data-mini='true' data-corners='false' data-role='controlgroup'><form>";
+					"<fieldset style='margin:0' data-mini='true' data-corners='false' data-role='controlgroup'><form>",
+				special = {
+					st: 0,
+					sd: ""
+				};
 
             if ( typeof id !== "number" ) {
                 return false;
@@ -4429,7 +4480,13 @@ var showHome = ( function() {
                 }
 
                 if ( hasSpecial ) {
-                    select += "<input id='hs' type='hidden' value='" + button.data( "hs" ) + "'>";
+	                select += "<div class='ui-bar-a ui-bar'>" + _( "Station Type" ) + ":</div>" +
+		                "<fieldset data-role='controlgroup' data-type='horizontal' data-corners='false' style='width:100%;margin:0' data-value='0' id='hs'" + ( isStationSpecial( id ) ? " class='ui-disabled'" : "" ) + ">" +
+						    "<button data-hs='0'" + ( isStationSpecial( id ) ? "" : " class='ui-btn-active'" ) + ">" + _( "Standard" ) + "</button>" +
+						    "<button data-hs='1'>" + _( "RF" ) + "</button>" +
+						    "<button data-hs='2' style='border-bottom-width:0!important'>" + _( "Remote" ) + "</button>" +
+					    "</fieldset>" +
+						"<div id='specialOpts'></div>";
                 }
             }
 
@@ -4445,6 +4502,27 @@ var showHome = ( function() {
 
                 return false;
             } );
+
+            select.find( "#hs" ).on( "click", "button", function() {
+				var button = $( this ),
+					value = button.data( "hs" ),
+					buttons = button.siblings();
+
+				buttons.removeClass( "ui-btn-active" );
+				button.addClass( "ui-btn-active" );
+				button.parents( "#hs" ).data( "value", value );
+
+				showSpecialOptions( value );
+
+				return false;
+            } );
+
+			if ( isStationSpecial( id ) ) {
+				updateSpecialOptions( function() {
+					select.find( "#hs" ).removeClass( "ui-disabled" );
+					showSpecialOptions( special.st );
+				} );
+			}
 
             select.find( ".changeBackground" ).on( "click", function( e ) {
 				e.preventDefault();
@@ -4526,7 +4604,7 @@ var showHome = ( function() {
                     }
 
                     if ( hasSpecial ) {
-                        special[ "p" + bid ] = ( special[ "p" + bid ] ) + ( attrib.data( "hs" ) << s );
+                        special[ "p" + bid ] = ( special[ "p" + bid ] ) + ( ( attrib.data( "hs" ) ? 1 : 0 ) << s );
                     }
 
                     if ( hasIR ) {
@@ -4549,6 +4627,11 @@ var showHome = ( function() {
 	                        names[ "s" + sid ] = page.find( "#station_" + sid ).text().replace( /\s/g, "_" );
 	                    } else {
 	                        names[ "s" + sid ] = page.find( "#station_" + sid ).text();
+	                    }
+
+	                    if ( hasSpecial && attrib.data( "hs" ) ) {
+							special.st = attrib.data( "hs" );
+							special.sd = attrib.data( "specialData" );
 	                    }
                     }
                 }
@@ -5005,12 +5088,36 @@ function isStationDisabled( sid ) {
     return ( typeof controller.stations.stn_dis === "object" && ( controller.stations.stn_dis[ parseInt( sid / 8 ) ] & ( 1 << ( sid % 8 ) ) ) > 0 );
 }
 
+function isStationSpecial( sid ) {
+    return ( typeof controller.stations.stn_spe === "object" && ( controller.stations.stn_spe[ parseInt( sid / 8 ) ] & ( 1 << ( sid % 8 ) ) ) > 0 );
+}
+
 function isStationSequential( sid ) {
     if ( typeof controller.stations.stn_seq === "object" ) {
         return ( controller.stations.stn_seq[ parseInt( sid / 8 ) ] & ( 1 << ( sid % 8 ) ) ) > 0;
     } else {
         return controller.options.seq;
     }
+}
+
+function parseRemoteStationData( hex ) {
+	hex = hex.split( "" );
+
+	var ip = [],
+		value,
+		result = {};
+
+	for ( var i = 0; i < 8; i++ ) {
+		value = parseInt( hex[ i ] + hex[ i + 1 ], 16 ) || 0;
+		ip.push( value );
+		i++;
+	}
+
+	result.ip = ip.join( "." );
+	result.port = parseInt( hex[ 8 ] + hex[ 9 ] + hex[ 10 ] + hex[ 11 ], 16 );
+	result.station = parseInt( hex[ 12 ] + hex[ 13 ], 16 );
+
+	return result;
 }
 
 // Current status related functions
