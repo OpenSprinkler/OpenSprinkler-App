@@ -4659,6 +4659,7 @@ var showHome = ( function() {
 	                    if ( hasSpecial && attrib.data( "hs" ) ) {
 							special.st = attrib.data( "hs" );
 							special.sd = attrib.data( "specialData" );
+							special.sid = id;
 	                    }
                     }
                 }
