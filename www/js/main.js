@@ -4402,7 +4402,7 @@ var showHome = ( function() {
 
 						opts.append(
 							"<div class='ui-bar-a ui-bar'>" + _( "Remote Address" ) + ":</div>" +
-							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='remote-address' type='text' value='" + data.ip + "'>" +
+							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='remote-address' pattern='^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$' type='text' value='" + data.ip + "'>" +
 							"<div class='ui-bar-a ui-bar'>" + _( "Remote Port" ) + ":</div>" +
 							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='remote-port' type='number' placeholder='80' min='0' max='65535' value='" + data.port + "'>" +
 							"<div class='ui-bar-a ui-bar'>" + _( "Remote Station (index)" ) + ":</div>" +
@@ -4425,8 +4425,8 @@ var showHome = ( function() {
 						button.data( "specialData", select.find( "#rf-code" ).val() );
                     } else if ( hs === 2 ) {
 						var ip = select.find( "#remote-address" ).val().split( "." ),
-							port = parseInt( select.find( "#remote-port" ).val() ),
-							station = select.find( "#remote-station" ).val() - 1,
+							port = parseInt( select.find( "#remote-port" ).val() ) || 80,
+							station = ( select.find( "#remote-station" ).val() || 1 ) - 1,
 							hex = "";
 
 						for ( var i = 0; i < 4; i++ ) {
