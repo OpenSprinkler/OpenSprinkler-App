@@ -3416,6 +3416,10 @@ function showOptions( expandItem ) {
                 page.find( ".submit" ).addClass( "hasChanges" );
                 return;
             }
+            if ( typeof controller.options.fpr0 !== "undefined" ) {
+				opt.o21 = page.find( "input[name='o21'][type='radio']:checked" ).val();
+            }
+
             $.mobile.loading( "show" );
             sendToOS( "/co?pw=&" + $.param( opt ) ).done( function() {
                 $.mobile.document.one( "pageshow", function() {
@@ -3673,9 +3677,24 @@ function showOptions( expandItem ) {
     }
 
     if ( typeof controller.options.urs !== "undefined" ) {
-        list += "<label for='o21'>" +
-			"<input data-mini='true' id='o21' type='checkbox' " + ( ( controller.options.urs === 1 ) ? "checked='checked'" : "" ) + ">" +
-			_( "Use Rain Sensor" ) + "</label>";
+		if ( typeof controller.options.fpr0 !== "undefined" ) {
+			list += "<div class='ui-field-contain'>" +
+				    "<fieldset data-role='controlgroup' class='ui-mini center' data-type='horizontal'>" +
+				        "<legend>" + _( "Attached Sensor Type" ) + "</legend>" +
+				        "<input class='noselect' type='radio' name='o21' id='o21-none' value='0'" + ( controller.options.urs === 0 ? " checked='checked'" : "" ) + ">" +
+				        "<label for='o21-none'>" + _( "None" ) + "</label>" +
+				        "<input class='noselect' type='radio' name='o21' id='o21-rain' value='1'" + ( controller.options.urs === 1 ? " checked='checked'" : "" ) + ">" +
+				        "<label for='o21-rain'>" + _( "Rain" ) + "</label>" +
+				        "<input class='noselect' type='radio' name='o21' id='o21-flow' value='2'" + ( controller.options.urs === 2 ? " checked='checked'" : "" ) + ">" +
+				        "<label for='o21-flow'>" + _( "Flow" ) + "</label>" +
+				    "</fieldset>" +
+				"</div>";
+
+		} else {
+	        list += "<label for='o21'>" +
+				"<input data-mini='true' id='o21' type='checkbox' " + ( ( controller.options.urs === 1 ) ? "checked='checked'" : "" ) + ">" +
+				_( "Use Rain Sensor" ) + "</label>";
+		}
     }
 
     if ( typeof controller.options.rso !== "undefined" ) {
@@ -3896,9 +3915,9 @@ function showOptions( expandItem ) {
         }
     } );
 
-    page.find( "#o21" ).on( "change", function() {
+    page.find( "#o21,input[name='o21'][type='radio']" ).on( "change", function() {
         var button = $( this ),
-            checked = button.is( ":checked" );
+            checked = button.attr( "id" ) === "o21" ? button.is( ":checked" ) : button.val() === "1";
 
         if ( checked ) {
             page.find( "#o22" ).parent().removeClass( "hidden" );
