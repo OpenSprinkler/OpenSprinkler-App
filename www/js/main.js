@@ -4361,6 +4361,11 @@ var showHome = ( function() {
                 updateSpecialOptions = function( callback ) {
 					sendToOS( "/je?pw=&sid=" + id, "json" ).done( function( data ) {
 						special = data;
+
+						if ( special.sd === 0 ) {
+							special.sd = "";
+						}
+
 						callback();
 					} );
                 },
@@ -4382,7 +4387,7 @@ var showHome = ( function() {
 							"<div class='ui-bar-a ui-bar'>" + _( "Remote Port" ) + ":</div>" +
 							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='remote-port' type='number' placeholder='80' min='0' max='65535' value='" + data.port + "'>" +
 							"<div class='ui-bar-a ui-bar'>" + _( "Remote Station (index)" ) + ":</div>" +
-							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='remote-station' type='number' min='1' max='48' placeholder='0' value='" + data.station + "'>"
+							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='remote-station' type='number' min='1' max='48' placeholder='1' value='" + ( data.station + 1 ) + "'>"
 						).enhanceWithin();
 					}
                 },
@@ -4400,15 +4405,17 @@ var showHome = ( function() {
                     if ( hs === 1 ) {
 						button.data( "specialData", select.find( "#rf-code" ).val() );
                     } else if ( hs === 2 ) {
-						var ip = select.find( "#remote-address" ).split( "." ),
+						var ip = select.find( "#remote-address" ).val().split( "." ),
+							port = parseInt( select.find( "#remote-port" ).val() ),
+							station = select.find( "#remote-station" ).val() - 1,
 							hex = "";
 
 						for ( var i = 0; i < 4; i++ ) {
-							hex += ip[ i ].toString( 16 );
+							hex += pad( parseInt( ip[ i ] ).toString( 16 ) );
 						}
 
-						hex += select.find( "#remote-port" ).val().toString( 16 );
-						hex += select.find( "#remote-station" ).val().toString( 16 );
+						hex += ( port < 256 ? "00" : "" ) + pad( port.toString( 16 ) );
+						hex += pad( station.toString( 16 ) );
 
 						button.data( "specialData", hex );
                     }
@@ -4519,8 +4526,9 @@ var showHome = ( function() {
 
 			if ( isStationSpecial( id ) ) {
 				updateSpecialOptions( function() {
-					select.find( "#hs" ).removeClass( "ui-disabled" );
-					showSpecialOptions( special.st );
+					select.find( "#hs" )
+						.removeClass( "ui-disabled" )
+						.find( "button[data-hs='" + special.st + "']" ).click();
 				} );
 			}
 
