@@ -4268,10 +4268,7 @@ var showHomeMenu = ( function() {
 	                $.mobile.loading( "show" );
 	                sendToOS( "/cv?pw=&rsn=1" ).done( function() {
 	                    $.mobile.loading( "hide" );
-
-		                // Clear all running station timers
-		                timers = {};
-
+		                removeStationTimers();
 	                    refreshStatus();
 	                    showerror( _( "All stations have been stopped" ) );
 	                } );
@@ -5471,6 +5468,16 @@ function updateTimers() {
             }
         }
     }, 1000 );
+}
+
+function removeStationTimers() {
+    for ( var timer in timers ) {
+        if ( timers.hasOwnProperty( timer ) ) {
+			if ( timer !== "clock" ) {
+				delete timers[ timer ];
+			}
+        }
+	}
 }
 
 // Manual control functions
