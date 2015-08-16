@@ -3280,7 +3280,7 @@ function showOptions( expandItem ) {
                 isPi = isOSPi(),
                 button = header.eq( 2 ),
                 keyNames = { 1:"tz", 2:"ntp", 12:"htp", 13:"htp2", 14:"ar", 15:"nbrd", 16:"seq", 17:"sdt", 18:"mas", 19:"mton", 20:"mtoff",
-					21:"urs", 22:"rst", 23:"wl", 25:"ipas", 30:"rlp", 36:"lg", 31:"uwt", 37:"mas2", 38:"mton2", 39:"mtof2" },
+					21:"urs", 22:"rst", 23:"wl", 25:"ipas", 30:"rlp", 36:"lg", 31:"uwt", 37:"mas2", 38:"mton2", 39:"mtof2", 41:"fpr0", 42:"fpr1" },
                 key;
 
             button.prop( "disabled", true );
@@ -3910,6 +3910,14 @@ function showOptions( expandItem ) {
 
         areYouSure( _( "Are you sure you want to reset all stations?" ), _( "This will reset all station names and attributes" ), function() {
             $.mobile.loading( "show" );
+            storage.get( [ "sites", "current_site" ], function( data ) {
+				var sites = parseSites( data.sites );
+
+				sites[ data.current_site ].notes = {};
+				sites[ data.current_site ].images = {};
+
+		        storage.set( { "sites": JSON.stringify( sites ) }, cloudSaveSites );
+            } );
             sendToOS( "/cs?pw=&" + cs ).done( function() {
                 showerror( _( "Stations have been updated" ) );
                 updateController();
@@ -4452,15 +4460,44 @@ var showHome = ( function() {
 
 						if ( checkPassed !== true ) {
 							verifyRemoteStation( hex, function( result ) {
+								var text;
+
 								if ( result === true ) {
 									saveChanges( true );
+									return;
 								} else if ( result === false || result === -1 ) {
-									showerror( _( "Unable to reach the remote station" ) );
+									text = _( "Unable to reach the remote station." );
 								} else if ( result === -2 ) {
 
 									// Likely an invalid password since the firmware version is present but no other data
-									showerror( _( "Password on remote controller does not match the password on this controller" ) );
+									text = _( "Password on remote controller does not match the password on this controller." );
+								} else if ( result === -3 ) {
+
+									// Remote controller is not configured as a slave
+									text = _( "Remote controller is not configured as a slave. Would you like to do this now?" );
 								}
+
+							    $.mobile.loading( "show", {
+							        html: "<h1>" + text + "</h1>" +
+										"<button class='ui-btn cancel'>" + _( "Cancel" ) + "</button>" +
+										"<button class='ui-btn continue'>" + _( "Continue" ) + "</button>",
+							        textVisible: true,
+							        theme: "b"
+							    } );
+
+							    $( ".ui-loader" ).find( ".cancel" ).one( "click", function() {
+							        $.mobile.loading( "hide" );
+							    } );
+
+							    $( ".ui-loader" ).find( ".continue" ).one( "click", function() {
+							        $.mobile.loading( "hide" );
+
+							        if ( result === -3 ) {
+										convertRemoteToSlave( hex );
+							        }
+
+							        saveChanges( true );
+							    } );
 							} );
 							return;
 						}
@@ -5197,17 +5234,28 @@ function verifyRemoteStation( data, callback ) {
 		function( result ) {
 			if ( typeof result !== "object" || !result.hasOwnProperty( "fwv" ) ) {
 				callback( -1 );
-				return;
 			} else if ( Object.keys( result ).length === 1 ) {
 				callback( -2 );
-				return;
+			} else if ( !result.hasOwnProperty( "sl" ) || result.sl === 0 ) {
+				callback( -3 );
+			} else {
+				callback( true );
 			}
-			callback( true );
 		},
 		function() {
 			callback( false );
 		}
 	);
+}
+
+function convertRemoteToSlave( data ) {
+	data = parseRemoteStationData( data );
+
+    $.ajax( {
+        url: "http://" + data.ip + ":" + data.port + "/cv?sl=1&pw=" + encodeURIComponent( currPass ),
+        type: "GET",
+        dataType: "json"
+	} );
 }
 
 // Current status related functions
@@ -8167,7 +8215,7 @@ function importConfig( data ) {
 			21:"urs", 22:"rst", 23:"wl", 25:"ipas", 30:"rlp", 36:"lg" },
         keyIndex = { "tz":1, "ntp":2, "dhcp":3, "hp0":12, "hp1":13, "ar":14, "ext":15, "seq":16, "sdt":17, "mas":18, "mton":19,
 			"mtof":20, "urs":21, "rso":22, "wl":23, "ipas":25, "devid":26, "con": 27, "lit": 28, "dim": 29, "rlp":30, "lg":36,
-			"uwt":31, "ntp1":32, "ntp2":33, "ntp3":34, "ntp4":35, "mas2":37, "mton2":38, "mtof2":39 },
+			"uwt":31, "ntp1":32, "ntp2":33, "ntp3":34, "ntp4":35, "mas2":37, "mton2":38, "mtof2":39, "fpr0":41, "fpr1":42, "sl":43 },
         warning = "";
 
     if ( typeof data !== "object" || !data.settings ) {
