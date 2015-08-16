@@ -4430,14 +4430,7 @@ var showHome = ( function() {
 						).enhanceWithin();
 					}
                 },
-                saveChanges = function() {
-                    button.data( "um", select.find( "#um" ).is( ":checked" ) ? 1 : 0 );
-                    button.data( "um2", select.find( "#um2" ).is( ":checked" ) ? 1 : 0 );
-                    button.data( "ir", select.find( "#ir" ).is( ":checked" ) ? 1 : 0 );
-                    button.data( "ar", select.find( "#ar" ).is( ":checked" ) ? 1 : 0 );
-                    button.data( "sd", select.find( "#sd" ).is( ":checked" ) ? 1 : 0 );
-                    button.data( "us", select.find( "#us" ).is( ":checked" ) ? 1 : 0 );
-
+                saveChanges = function( checkPassed ) {
                     var hs = select.find( "#hs" ).data( "value" );
                     button.data( "hs", hs );
 
@@ -4456,15 +4449,37 @@ var showHome = ( function() {
 						hex += ( port < 256 ? "00" : "" ) + pad( port.toString( 16 ) );
 						hex += pad( station.toString( 16 ) );
 
+						if ( checkPassed !== true ) {
+							verifyRemoteStation( hex, function( result ) {
+								if ( result === true ) {
+									saveChanges( true );
+								} else if ( result === false || result === -1 ) {
+									showerror( _( "Unable to reach the remote station" ) );
+								} else if ( result === -2 ) {
+
+									// Likely an invalid password since the firmware version is present but no other data
+									showerror( _( "Password on remote controller does not match the password on this controller" ) );
+								}
+							} );
+							return;
+						}
+
 						button.data( "specialData", hex );
                     }
 
+                    button.data( "um", select.find( "#um" ).is( ":checked" ) ? 1 : 0 );
+                    button.data( "um2", select.find( "#um2" ).is( ":checked" ) ? 1 : 0 );
+                    button.data( "ir", select.find( "#ir" ).is( ":checked" ) ? 1 : 0 );
+                    button.data( "ar", select.find( "#ar" ).is( ":checked" ) ? 1 : 0 );
+                    button.data( "sd", select.find( "#sd" ).is( ":checked" ) ? 1 : 0 );
+                    button.data( "us", select.find( "#us" ).is( ":checked" ) ? 1 : 0 );
                     name.html( select.find( "#stn-name" ).val() );
 
                     // Update the notes section
 			        sites[ currentSite ].notes[ id ] = select.find( "#stn-notes" ).val();
 			        storage.set( { "sites": JSON.stringify( sites ) }, cloudSaveSites );
 
+                    submitStations( id );
                     select.popup( "destroy" ).remove();
                 },
                 select = "<div data-overlay-theme='b' data-role='popup' data-theme='a' id='stn_attrib'>" +
@@ -4543,8 +4558,7 @@ var showHome = ( function() {
 
             select += "<input data-wrapper-class='attrib-submit' data-theme='b' type='submit' value='" + _( "Submit" ) + "' /></form></fieldset></div>";
             select = $( select ).enhanceWithin().on( "submit", "form", function() {
-                saveChanges();
-                submitStations( id );
+                saveChanges( id );
 
                 return false;
             } );
@@ -4600,7 +4614,7 @@ var showHome = ( function() {
             select.popup( opts ).popup( "open" );
         },
         submitStations = function( id ) {
-            var is208 = ( checkOSVersion( 208 ) === true ),
+			var is208 = ( checkOSVersion( 208 ) === true ),
                 master = {},
                 master2 = {},
                 sequential = {},
@@ -4685,8 +4699,8 @@ var showHome = ( function() {
                 }
             }
 
-            $.mobile.loading( "show" );
-            sendToOS( "/cs?pw=&" + $.param( names ) +
+	        $.mobile.loading( "show" );
+	        sendToOS( "/cs?pw=&" + $.param( names ) +
 				( hasMaster ? "&" + $.param( master ) : "" ) +
 				( hasMaster2 ? "&" + $.param( master2 ) : "" ) +
 				( hasSequential ? "&" + $.param( sequential ) : "" ) +
@@ -4695,11 +4709,11 @@ var showHome = ( function() {
 				( hasAR ? "&" + $.param( relay ) : "" ) +
 				( hasSD ? "&" + $.param( disable ) : "" )
 			).done( function() {
-                showerror( _( "Stations have been updated" ) );
-                updateController( function() {
-                    $( "html" ).trigger( "datarefresh" );
-                } );
-            } );
+	            showerror( _( "Stations have been updated" ) );
+	            updateController( function() {
+	                $( "html" ).trigger( "datarefresh" );
+	            } );
+	        } );
         },
         updateClock = function() {
 
@@ -5166,6 +5180,30 @@ function parseRemoteStationData( hex ) {
 	result.station = parseInt( hex[ 12 ] + hex[ 13 ], 16 );
 
 	return result;
+}
+
+function verifyRemoteStation( data, callback ) {
+	data = parseRemoteStationData( data );
+
+    $.ajax( {
+        url: "http://" + data.ip + ":" + data.port + "/jo?pw=" + encodeURIComponent( currPass ),
+        type: "GET",
+        dataType: "json"
+	} ).then(
+		function( result ) {
+			if ( typeof result !== "object" || !result.hasOwnProperty( "fwv" ) ) {
+				callback( -1 );
+				return;
+			} else if ( Object.keys( result ).length === 1 ) {
+				callback( -2 );
+				return;
+			}
+			callback( true );
+		},
+		function() {
+			callback( false );
+		}
+	);
 }
 
 // Current status related functions
