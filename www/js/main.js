@@ -282,7 +282,11 @@ $( document )
 
         // Update the controller status every 5 seconds and the program and station data every 30 seconds
         var refreshStatusInterval = setInterval( refreshStatus, 5000 ),
+			refreshDataInterval;
+
+		if ( !checkOSVersion( 216 ) ) {
 			refreshDataInterval = setInterval( refreshData, 20000 );
+		}
 
         $newpage.one( "pagehide", function() {
             clearInterval( refreshStatusInterval );
@@ -3381,6 +3385,10 @@ function showOptions( expandItem ) {
                         }
 
                         break;
+                    case "o41":
+                        opt.o41 = ( data * 100 ) & 0xff;
+                        opt.o42 = ( ( data * 100 ) >> 8 ) & 0xff;
+                        return true;
                     case "o2":
                     case "o14":
                     case "o16":
@@ -3703,6 +3711,12 @@ function showOptions( expandItem ) {
 			_( "Normally Open (Rain Sensor)" ) + "</label>";
     }
 
+    if ( typeof controller.options.fpr0 !== "undefined" ) {
+        list += "<div class='ui-field-contain'><label for='o41'>" + _( "Flow Pulse Rate (L/pulse)" ) + "</label>" +
+			"<input data-mini='true' type='number' pattern='^[-+]?[0-9]*\.?[0-9]*$' id='o41' value='" + ( ( controller.options.fpr1 * 256 + controller.options.fpr0 ) / 100 ) + "'>" +
+			"</div>";
+    }
+
     list += "</fieldset><fieldset class='full-width-slider' data-role='collapsible'" +
 		( typeof expandItem === "string" && expandItem === "lcd" ? " data-collapsed='false'" : "" ) + ">" +
 		"<legend>" + _( "LCD Screen" ) + "</legend>";
@@ -3923,6 +3937,12 @@ function showOptions( expandItem ) {
             page.find( "#o22" ).parent().removeClass( "hidden" );
         } else {
             page.find( "#o22" ).parent().addClass( "hidden" );
+        }
+
+        if ( button.val() === "2" ) {
+            page.find( "#o41" ).parents( ".ui-field-contain" ).removeClass( "hidden" );
+        } else {
+            page.find( "#o41" ).parents( ".ui-field-contain" ).addClass( "hidden" );
         }
     } );
 
