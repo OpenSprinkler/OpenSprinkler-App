@@ -4268,6 +4268,10 @@ var showHomeMenu = ( function() {
 	                $.mobile.loading( "show" );
 	                sendToOS( "/cv?pw=&rsn=1" ).done( function() {
 	                    $.mobile.loading( "hide" );
+
+		                // Clear all running station timers
+		                timers = {};
+
 	                    refreshStatus();
 	                    showerror( _( "All stations have been stopped" ) );
 	                } );
@@ -4970,6 +4974,9 @@ var showHome = ( function() {
 	                controller.settings.ps[ station ][ 0 ] = 0;
 	                controller.settings.ps[ station ][ 1 ] = 0;
 	                controller.status[ i ] = 0;
+
+	                // Remove any timer associated with the station
+	                delete timers[ "station-" + station ];
 
 	                refreshStatus();
 	                showerror( _( "Station has been stopped" ) );
