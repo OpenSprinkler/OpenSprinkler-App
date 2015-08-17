@@ -842,7 +842,14 @@ function updateController( callback, fail ) {
 
     if ( isControllerConnected() && checkOSVersion( 216 ) ) {
         sendToOS( "/ja?pw=", "json" ).then( function( data ) {
+
+			// The /ja call does not contain special station data, so let's cache it
+			var special = controller.special;
+
 			controller = data;
+
+			// Restore the station cache to the object
+			controller.special = special;
 
 			// Fix the station status array
 			controller.status = controller.status.sn;
