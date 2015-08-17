@@ -313,14 +313,14 @@
 		body.html( loader );
 
 		$.ajax( {
-			url: assetLocation + "index.htm",
+			url: assetLocation + "index.html",
 			crossDomain: true,
 			cache: true,
 			type: "GET"
 		} ).then(
 			function( data ) {
 
-				// Grab the pages from index.htm (body content)
+				// Grab the pages from index.html (body content)
 				var pages = data.match( /<body>([.\s\S]*)<\/body>/ )[ 1 ];
 
 				// Disables site selection menu

@@ -66,7 +66,7 @@
 
     // Load the index.htm page
 	NSString *resourcesPath = [[NSBundle mainBundle] resourcePath];
-	NSString *htmlPath = [resourcesPath stringByAppendingString:@"/index.htm"];
+	NSString *htmlPath = [resourcesPath stringByAppendingString:@"/index.html"];
 	[[webView mainFrame] loadRequest:[NSURLRequest requestWithURL:[NSURL fileURLWithPath:htmlPath]]];
 }
 
