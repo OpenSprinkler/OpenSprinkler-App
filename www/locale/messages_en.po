@@ -363,7 +363,7 @@ msgstr ""
 msgid "Sequential"
 msgstr ""
 
-msgid "Weather Control"
+msgid "Weather and Sensors"
 msgstr ""
 
 msgid "Wunderground Key"
@@ -406,10 +406,19 @@ msgid ""
 "weather adjustment is used the watering percentage is automatically adjusted."
 msgstr ""
 
+msgid "Attached Sensor Type"
+msgstr ""
+
+msgid "Flow"
+msgstr ""
+
 msgid "Use Rain Sensor"
 msgstr ""
 
 msgid "Normally Open (Rain Sensor)"
+msgstr ""
+
+msgid "Flow Pulse Rate (L/pulse)"
 msgstr ""
 
 msgid "LCD Screen"
@@ -564,6 +573,33 @@ msgstr ""
 msgid "for"
 msgstr ""
 
+msgid "RF Code"
+msgstr ""
+
+msgid "Remote Address"
+msgstr ""
+
+msgid "Remote Port"
+msgstr ""
+
+msgid "Remote Station (index)"
+msgstr ""
+
+msgid "Unable to reach the remote station."
+msgstr ""
+
+msgid ""
+"Password on remote controller does not match the password on this controller."
+msgstr ""
+
+msgid ""
+"Remote controller is not configured as an extender. Would you like to do "
+"this now?"
+msgstr ""
+
+msgid "Continue"
+msgstr ""
+
 msgid "Station Name"
 msgstr ""
 
@@ -580,6 +616,18 @@ msgid "Ignore Rain"
 msgstr ""
 
 msgid "Activate Relay"
+msgstr ""
+
+msgid "Station Type"
+msgstr ""
+
+msgid "Standard"
+msgstr ""
+
+msgid "RF"
+msgstr ""
+
+msgid "Remote"
 msgstr ""
 
 msgid "Station Notes"
