@@ -3125,7 +3125,16 @@ function bindPanel() {
     panel.find( "a[href='#localization']" ).on( "click", languageSelect );
 
     panel.find( ".export_config" ).on( "click", function() {
-        getExportMethod();
+
+        // Check if the controller has special stations which are enabled
+        if ( typeof controller.stations.stn_spe === "object" && typeof controller.special !== "object" && !controller.stations.stn_spe.every( function( e ) { return e === 0; } ) ) {
+
+            // Grab station special data before proceeding
+            updateControllerStationSpecial( getExportMethod );
+        } else {
+            getExportMethod();
+        }
+
         return false;
     } );
 
@@ -8318,6 +8327,12 @@ function importConfig( data ) {
             }
         }
 
+        if ( typeof data.stations.stn_spe === "object" ) {
+            for ( i = 0; i < data.stations.stn_spe.length; i++ ) {
+                cs += "&p" + i + "=" + data.stations.stn_spe[ i ];
+            }
+        }
+
         if ( typeof data.stations.stn_seq === "object" ) {
             for ( i = 0; i < data.stations.stn_seq.length; i++ ) {
                 cs += "&q" + i + "=" + data.stations.stn_seq[ i ];
@@ -8334,6 +8349,9 @@ function importConfig( data ) {
                 cs += "&a" + i + "=" + data.stations.act_relay[ i ];
             }
         }
+
+        // Normalize station special data object
+        data.special = data.special || {};
 
         $.when(
             sendToOS( co ),
@@ -8417,6 +8435,9 @@ function importConfig( data ) {
                 }
 
                 sendToOS( cpStart + "&pid=-1&v=" + JSON.stringify( prog ) + name );
+            } ),
+            $.each( data.special, function( sid, info ) {
+                sendToOS( "/cs?pw=&sid=" + sid + "&st=" + info.st + "&sd=" + info.sd );
             } )
         ).then(
             function() {
