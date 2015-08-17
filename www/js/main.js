@@ -4473,8 +4473,8 @@ var showHome = ( function() {
 									text = _( "Password on remote controller does not match the password on this controller." );
 								} else if ( result === -3 ) {
 
-									// Remote controller is not configured as a slave
-									text = _( "Remote controller is not configured as a slave. Would you like to do this now?" );
+									// Remote controller is not configured as an extender
+									text = _( "Remote controller is not configured as an extender. Would you like to do this now?" );
 								}
 
 							    $.mobile.loading( "show", {
@@ -4493,7 +4493,7 @@ var showHome = ( function() {
 							        $.mobile.loading( "hide" );
 
 							        if ( result === -3 ) {
-										convertRemoteToSlave( hex );
+										convertRemoteToExtender( hex );
 							        }
 
 							        saveChanges( true );
@@ -5248,7 +5248,7 @@ function verifyRemoteStation( data, callback ) {
 	);
 }
 
-function convertRemoteToSlave( data ) {
+function convertRemoteToExtender( data ) {
 	data = parseRemoteStationData( data );
 
     $.ajax( {
