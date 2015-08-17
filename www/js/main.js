@@ -1086,6 +1086,19 @@ function updateControllerSettings( callback ) {
     }
 }
 
+function updateControllerStationSpecial( callback ) {
+    callback = callback || function() {};
+
+    return sendToOS( "/je?pw=", "json" ).then(
+        function( special ) {
+            controller.special = special;
+            callback();
+        },
+        function() {
+            controller.special = {};
+        } );
+}
+
 // Multi site functions
 function checkConfigured( firstLoad ) {
     storage.get( [ "sites", "current_site", "cloudToken" ], function( data ) {
@@ -4406,17 +4419,6 @@ var showHome = ( function() {
             var button = $( this ),
                 id = button.data( "station" ),
                 name = button.siblings( "[id='station_" + id + "']" ),
-                updateSpecialOptions = function( callback ) {
-					sendToOS( "/je?pw=&sid=" + id, "json" ).done( function( data ) {
-						special = data;
-
-						if ( special.sd === 0 ) {
-							special.sd = "";
-						}
-
-						callback();
-					} );
-                },
                 showSpecialOptions = function( value ) {
 					var opts = select.find( "#specialOpts" );
 					opts.empty();
@@ -4424,10 +4426,10 @@ var showHome = ( function() {
 					if ( value === 1 ) {
 						opts.append(
 							"<div class='ui-bar-a ui-bar'>" + _( "RF Code" ) + ":</div>" +
-							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='rf-code' type='text' value='" + special.sd + "'>"
+							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='rf-code' type='text' value='" + controller.special[ id ].sd + "'>"
 						).enhanceWithin();
 					} else if ( value === 2 ) {
-						var data = parseRemoteStationData( special.sd );
+						var data = parseRemoteStationData( controller.special[ id ].sd );
 
 						opts.append(
 							"<div class='ui-bar-a ui-bar'>" + _( "Remote Address" ) + ":</div>" +
@@ -4521,11 +4523,7 @@ var showHome = ( function() {
                     select.popup( "destroy" ).remove();
                 },
                 select = "<div data-overlay-theme='b' data-role='popup' data-theme='a' id='stn_attrib'>" +
-					"<fieldset style='margin:0' data-mini='true' data-corners='false' data-role='controlgroup'><form>",
-				special = {
-					st: 0,
-					sd: ""
-				};
+					"<fieldset style='margin:0' data-mini='true' data-corners='false' data-role='controlgroup'><form>";
 
             if ( typeof id !== "number" ) {
                 return false;
@@ -4616,10 +4614,10 @@ var showHome = ( function() {
             } );
 
 			if ( isStationSpecial( id ) ) {
-				updateSpecialOptions( function() {
+				updateControllerStationSpecial( function() {
 					select.find( "#hs" )
 						.removeClass( "ui-disabled" )
-						.find( "button[data-hs='" + special.st + "']" ).click();
+						.find( "button[data-hs='" + controller.special[ id ].st + "']" ).click();
 				} );
 			}
 
@@ -5236,7 +5234,7 @@ function verifyRemoteStation( data, callback ) {
 				callback( -1 );
 			} else if ( Object.keys( result ).length === 1 ) {
 				callback( -2 );
-			} else if ( !result.hasOwnProperty( "sl" ) || result.sl === 0 ) {
+			} else if ( !result.hasOwnProperty( "re" ) || result.re === 0 ) {
 				callback( -3 );
 			} else {
 				callback( true );
@@ -5252,7 +5250,7 @@ function convertRemoteToExtender( data ) {
 	data = parseRemoteStationData( data );
 
     $.ajax( {
-        url: "http://" + data.ip + ":" + data.port + "/cv?sl=1&pw=" + encodeURIComponent( currPass ),
+        url: "http://" + data.ip + ":" + data.port + "/cv?re=1&pw=" + encodeURIComponent( currPass ),
         type: "GET",
         dataType: "json"
 	} );
@@ -8215,7 +8213,7 @@ function importConfig( data ) {
 			21:"urs", 22:"rst", 23:"wl", 25:"ipas", 30:"rlp", 36:"lg" },
         keyIndex = { "tz":1, "ntp":2, "dhcp":3, "hp0":12, "hp1":13, "ar":14, "ext":15, "seq":16, "sdt":17, "mas":18, "mton":19,
 			"mtof":20, "urs":21, "rso":22, "wl":23, "ipas":25, "devid":26, "con": 27, "lit": 28, "dim": 29, "rlp":30, "lg":36,
-			"uwt":31, "ntp1":32, "ntp2":33, "ntp3":34, "ntp4":35, "mas2":37, "mton2":38, "mtof2":39, "fpr0":41, "fpr1":42, "sl":43 },
+			"uwt":31, "ntp1":32, "ntp2":33, "ntp3":34, "ntp4":35, "mas2":37, "mton2":38, "mtof2":39, "fpr0":41, "fpr1":42, "re":43 },
         warning = "";
 
     if ( typeof data !== "object" || !data.settings ) {
