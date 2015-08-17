@@ -3626,7 +3626,7 @@ function showOptions( expandItem ) {
 
     list += "</fieldset><fieldset data-role='collapsible'" +
 		( typeof expandItem === "string" && expandItem === "weather" ? " data-collapsed='false'" : "" ) + ">" +
-		"<legend>" + _( "Weather Control" ) + "</legend>";
+		"<legend>" + _( "Weather and Sensors" ) + "</legend>";
 
     if ( typeof controller.settings.wtkey !== "undefined" ) {
         list += "<div class='ui-field-contain'><label for='wtkey'>" + _( "Wunderground Key" ).replace( "Wunderground", "Wunder&shy;ground" ) +
