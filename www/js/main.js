@@ -282,7 +282,11 @@ $( document )
 
         // Update the controller status every 5 seconds and the program and station data every 30 seconds
         var refreshStatusInterval = setInterval( refreshStatus, 5000 ),
+			refreshDataInterval;
+
+		if ( !checkOSVersion( 216 ) ) {
 			refreshDataInterval = setInterval( refreshData, 20000 );
+		}
 
         $newpage.one( "pagehide", function() {
             clearInterval( refreshStatusInterval );
@@ -838,7 +842,14 @@ function updateController( callback, fail ) {
 
     if ( isControllerConnected() && checkOSVersion( 216 ) ) {
         sendToOS( "/ja?pw=", "json" ).then( function( data ) {
+
+			// The /ja call does not contain special station data, so let's cache it
+			var special = controller.special;
+
 			controller = data;
+
+			// Restore the station cache to the object
+			controller.special = special;
 
 			// Fix the station status array
 			controller.status = controller.status.sn;
@@ -1080,6 +1091,19 @@ function updateControllerSettings( callback ) {
                 }
             } );
     }
+}
+
+function updateControllerStationSpecial( callback ) {
+    callback = callback || function() {};
+
+    return sendToOS( "/je?pw=", "json" ).then(
+        function( special ) {
+            controller.special = special;
+            callback();
+        },
+        function() {
+            controller.special = {};
+        } );
 }
 
 // Multi site functions
@@ -3168,7 +3192,16 @@ function bindPanel() {
     panel.find( "a[href='#localization']" ).on( "click", languageSelect );
 
     panel.find( ".export_config" ).on( "click", function() {
-        getExportMethod();
+
+        // Check if the controller has special stations which are enabled
+        if ( typeof controller.stations.stn_spe === "object" && typeof controller.special !== "object" && !controller.stations.stn_spe.every( function( e ) { return e === 0; } ) ) {
+
+            // Grab station special data before proceeding
+            updateControllerStationSpecial( getExportMethod );
+        } else {
+            getExportMethod();
+        }
+
         return false;
     } );
 
@@ -3343,7 +3376,7 @@ function showOptions( expandItem ) {
                 isPi = isOSPi(),
                 button = header.eq( 2 ),
                 keyNames = { 1:"tz", 2:"ntp", 12:"htp", 13:"htp2", 14:"ar", 15:"nbrd", 16:"seq", 17:"sdt", 18:"mas", 19:"mton", 20:"mtoff",
-					21:"urs", 22:"rst", 23:"wl", 25:"ipas", 30:"rlp", 36:"lg", 31:"uwt", 37:"mas2", 38:"mton2", 39:"mtof2" },
+					21:"urs", 22:"rst", 23:"wl", 25:"ipas", 30:"rlp", 36:"lg", 31:"uwt", 37:"mas2", 38:"mton2", 39:"mtof2", 41:"fpr0", 42:"fpr1" },
                 key;
 
             button.prop( "disabled", true );
@@ -3448,6 +3481,10 @@ function showOptions( expandItem ) {
                         }
 
                         break;
+                    case "o41":
+                        opt.o41 = ( data * 100 ) & 0xff;
+                        opt.o42 = ( ( data * 100 ) >> 8 ) & 0xff;
+                        return true;
                     case "o2":
                     case "o14":
                     case "o16":
@@ -3483,6 +3520,10 @@ function showOptions( expandItem ) {
                 page.find( ".submit" ).addClass( "hasChanges" );
                 return;
             }
+            if ( typeof controller.options.fpr0 !== "undefined" ) {
+				opt.o21 = page.find( "input[name='o21'][type='radio']:checked" ).val();
+            }
+
             $.mobile.loading( "show" );
             sendToOS( "/co?pw=&" + $.param( opt ) ).done( function() {
                 $.mobile.document.one( "pageshow", function() {
@@ -3668,7 +3709,7 @@ function showOptions( expandItem ) {
 
     list += "</fieldset><fieldset data-role='collapsible'" +
 		( typeof expandItem === "string" && expandItem === "weather" ? " data-collapsed='false'" : "" ) + ">" +
-		"<legend>" + _( "Weather Control" ) + "</legend>";
+		"<legend>" + _( "Weather and Sensors" ) + "</legend>";
 
     if ( typeof controller.settings.wtkey !== "undefined" ) {
         list += "<div class='ui-field-contain'><label for='wtkey'>" + _( "Wunderground Key" ).replace( "Wunderground", "Wunder&shy;ground" ) +
@@ -3740,15 +3781,36 @@ function showOptions( expandItem ) {
     }
 
     if ( typeof controller.options.urs !== "undefined" ) {
-        list += "<label for='o21'>" +
-			"<input data-mini='true' id='o21' type='checkbox' " + ( ( controller.options.urs === 1 ) ? "checked='checked'" : "" ) + ">" +
-			_( "Use Rain Sensor" ) + "</label>";
+		if ( typeof controller.options.fpr0 !== "undefined" ) {
+			list += "<div class='ui-field-contain'>" +
+				    "<fieldset data-role='controlgroup' class='ui-mini center' data-type='horizontal'>" +
+				        "<legend>" + _( "Attached Sensor Type" ) + "</legend>" +
+				        "<input class='noselect' type='radio' name='o21' id='o21-none' value='0'" + ( controller.options.urs === 0 ? " checked='checked'" : "" ) + ">" +
+				        "<label for='o21-none'>" + _( "None" ) + "</label>" +
+				        "<input class='noselect' type='radio' name='o21' id='o21-rain' value='1'" + ( controller.options.urs === 1 ? " checked='checked'" : "" ) + ">" +
+				        "<label for='o21-rain'>" + _( "Rain" ) + "</label>" +
+				        "<input class='noselect' type='radio' name='o21' id='o21-flow' value='2'" + ( controller.options.urs === 2 ? " checked='checked'" : "" ) + ">" +
+				        "<label for='o21-flow'>" + _( "Flow" ) + "</label>" +
+				    "</fieldset>" +
+				"</div>";
+
+		} else {
+	        list += "<label for='o21'>" +
+				"<input data-mini='true' id='o21' type='checkbox' " + ( ( controller.options.urs === 1 ) ? "checked='checked'" : "" ) + ">" +
+				_( "Use Rain Sensor" ) + "</label>";
+		}
     }
 
     if ( typeof controller.options.rso !== "undefined" ) {
         list += "<label for='o22'><input " + ( controller.options.urs === 1 ? "" : "data-wrapper-class='hidden' " ) +
 			"data-mini='true' id='o22' type='checkbox' " + ( ( controller.options.rso === 1 ) ? "checked='checked'" : "" ) + ">" +
 			_( "Normally Open (Rain Sensor)" ) + "</label>";
+    }
+
+    if ( typeof controller.options.fpr0 !== "undefined" ) {
+        list += "<div class='ui-field-contain'><label for='o41'>" + _( "Flow Pulse Rate (L/pulse)" ) + "</label>" +
+			"<input data-mini='true' type='number' pattern='^[-+]?[0-9]*\.?[0-9]*$' id='o41' value='" + ( ( controller.options.fpr1 * 256 + controller.options.fpr0 ) / 100 ) + "'>" +
+			"</div>";
     }
 
     list += "</fieldset><fieldset class='full-width-slider' data-role='collapsible'" +
@@ -3944,6 +4006,14 @@ function showOptions( expandItem ) {
 
         areYouSure( _( "Are you sure you want to reset all stations?" ), _( "This will reset all station names and attributes" ), function() {
             $.mobile.loading( "show" );
+            storage.get( [ "sites", "current_site" ], function( data ) {
+				var sites = parseSites( data.sites );
+
+				sites[ data.current_site ].notes = {};
+				sites[ data.current_site ].images = {};
+
+		        storage.set( { "sites": JSON.stringify( sites ) }, cloudSaveSites );
+            } );
             sendToOS( "/cs?pw=&" + cs ).done( function() {
                 showerror( _( "Stations have been updated" ) );
                 updateController();
@@ -3963,14 +4033,20 @@ function showOptions( expandItem ) {
         }
     } );
 
-    page.find( "#o21" ).on( "change", function() {
+    page.find( "#o21,input[name='o21'][type='radio']" ).on( "change", function() {
         var button = $( this ),
-            checked = button.is( ":checked" );
+            checked = button.attr( "id" ) === "o21" ? button.is( ":checked" ) : button.val() === "1";
 
         if ( checked ) {
             page.find( "#o22" ).parent().removeClass( "hidden" );
         } else {
             page.find( "#o22" ).parent().addClass( "hidden" );
+        }
+
+        if ( button.val() === "2" ) {
+            page.find( "#o41" ).parents( ".ui-field-contain" ).removeClass( "hidden" );
+        } else {
+            page.find( "#o41" ).parents( ".ui-field-contain" ).addClass( "hidden" );
         }
     } );
 
@@ -4296,6 +4372,7 @@ var showHomeMenu = ( function() {
 	                $.mobile.loading( "show" );
 	                sendToOS( "/cv?pw=&rsn=1" ).done( function() {
 	                    $.mobile.loading( "hide" );
+		                removeStationTimers();
 	                    refreshStatus();
 	                    showerror( _( "All stations have been stopped" ) );
 	                } );
@@ -4398,6 +4475,7 @@ var showHome = ( function() {
                 ( hasAR ? ( "data-ar='" + ( ( controller.stations.act_relay[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) + "' " ) : "" ) +
                 ( hasSD ? ( "data-sd='" + ( ( controller.stations.stn_dis[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) + "' " ) : "" ) +
                 ( hasSequential ? ( "data-us='" + ( ( controller.stations.stn_seq[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) + "' " ) : "" ) +
+                ( hasSpecial ? ( "data-hs='" + ( ( controller.stations.stn_spe[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) + "' " ) : "" ) +
                 "></span>";
 
             if ( !isStationMaster( i ) ) {
@@ -4424,7 +4502,94 @@ var showHome = ( function() {
             var button = $( this ),
                 id = button.data( "station" ),
                 name = button.siblings( "[id='station_" + id + "']" ),
-                saveChanges = function() {
+                showSpecialOptions = function( value ) {
+					var opts = select.find( "#specialOpts" );
+					opts.empty();
+
+					if ( value === 1 ) {
+						opts.append(
+							"<div class='ui-bar-a ui-bar'>" + _( "RF Code" ) + ":</div>" +
+							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='rf-code' type='text' value='" + controller.special[ id ].sd + "'>"
+						).enhanceWithin();
+					} else if ( value === 2 ) {
+						var data = parseRemoteStationData( controller.special[ id ].sd );
+
+						opts.append(
+							"<div class='ui-bar-a ui-bar'>" + _( "Remote Address" ) + ":</div>" +
+							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='remote-address' pattern='^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$' type='text' value='" + data.ip + "'>" +
+							"<div class='ui-bar-a ui-bar'>" + _( "Remote Port" ) + ":</div>" +
+							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='remote-port' type='number' placeholder='80' min='0' max='65535' value='" + data.port + "'>" +
+							"<div class='ui-bar-a ui-bar'>" + _( "Remote Station (index)" ) + ":</div>" +
+							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='remote-station' type='number' min='1' max='48' placeholder='1' value='" + ( data.station + 1 ) + "'>"
+						).enhanceWithin();
+					}
+                },
+                saveChanges = function( checkPassed ) {
+                    var hs = select.find( "#hs" ).data( "value" );
+                    button.data( "hs", hs );
+
+                    if ( hs === 1 ) {
+						button.data( "specialData", select.find( "#rf-code" ).val() );
+                    } else if ( hs === 2 ) {
+						var ip = select.find( "#remote-address" ).val().split( "." ),
+							port = parseInt( select.find( "#remote-port" ).val() ) || 80,
+							station = ( select.find( "#remote-station" ).val() || 1 ) - 1,
+							hex = "";
+
+						for ( var i = 0; i < 4; i++ ) {
+							hex += pad( parseInt( ip[ i ] ).toString( 16 ) );
+						}
+
+						hex += ( port < 256 ? "00" : "" ) + pad( port.toString( 16 ) );
+						hex += pad( station.toString( 16 ) );
+
+						if ( checkPassed !== true ) {
+							verifyRemoteStation( hex, function( result ) {
+								var text;
+
+								if ( result === true ) {
+									saveChanges( true );
+									return;
+								} else if ( result === false || result === -1 ) {
+									text = _( "Unable to reach the remote station." );
+								} else if ( result === -2 ) {
+
+									// Likely an invalid password since the firmware version is present but no other data
+									text = _( "Password on remote controller does not match the password on this controller." );
+								} else if ( result === -3 ) {
+
+									// Remote controller is not configured as an extender
+									text = _( "Remote controller is not configured as an extender. Would you like to do this now?" );
+								}
+
+							    $.mobile.loading( "show", {
+							        html: "<h1>" + text + "</h1>" +
+										"<button class='ui-btn cancel'>" + _( "Cancel" ) + "</button>" +
+										"<button class='ui-btn continue'>" + _( "Continue" ) + "</button>",
+							        textVisible: true,
+							        theme: "b"
+							    } );
+
+							    $( ".ui-loader" ).find( ".cancel" ).one( "click", function() {
+							        $.mobile.loading( "hide" );
+							    } );
+
+							    $( ".ui-loader" ).find( ".continue" ).one( "click", function() {
+							        $.mobile.loading( "hide" );
+
+							        if ( result === -3 ) {
+										convertRemoteToExtender( hex );
+							        }
+
+							        saveChanges( true );
+							    } );
+							} );
+							return;
+						}
+
+						button.data( "specialData", hex );
+                    }
+
                     button.data( "um", select.find( "#um" ).is( ":checked" ) ? 1 : 0 );
                     button.data( "um2", select.find( "#um2" ).is( ":checked" ) ? 1 : 0 );
                     button.data( "ir", select.find( "#ir" ).is( ":checked" ) ? 1 : 0 );
@@ -4437,6 +4602,7 @@ var showHome = ( function() {
 			        sites[ currentSite ].notes[ id ] = select.find( "#stn-notes" ).val();
 			        storage.set( { "sites": JSON.stringify( sites ) }, cloudSaveSites );
 
+                    submitStations( id );
                     select.popup( "destroy" ).remove();
                 },
                 select = "<div data-overlay-theme='b' data-role='popup' data-theme='a' id='stn_attrib'>" +
@@ -4492,6 +4658,16 @@ var showHome = ( function() {
 							( ( button.data( "us" ) === 1 ) ? "checked='checked'" : "" ) + ">" + _( "Sequential" ) +
 						"</label>";
                 }
+
+                if ( hasSpecial ) {
+	                select += "<div class='ui-bar-a ui-bar'>" + _( "Station Type" ) + ":</div>" +
+		                "<fieldset data-role='controlgroup' data-type='horizontal' data-corners='false' style='width:100%;margin:0' data-value='0' id='hs'" + ( isStationSpecial( id ) ? " class='ui-disabled'" : "" ) + ">" +
+						    "<button data-hs='0'" + ( isStationSpecial( id ) ? "" : " class='ui-btn-active'" ) + ">" + _( "Standard" ) + "</button>" +
+						    "<button data-hs='1'>" + _( "RF" ) + "</button>" +
+						    "<button data-hs='2' style='border-bottom-width:0!important'>" + _( "Remote" ) + "</button>" +
+					    "</fieldset>" +
+						"<div id='specialOpts'></div>";
+                }
             }
 
             select += "<div class='ui-bar-a ui-bar'>" + _( "Station Notes" ) + ":</div>" +
@@ -4501,11 +4677,32 @@ var showHome = ( function() {
 
             select += "<input data-wrapper-class='attrib-submit' data-theme='b' type='submit' value='" + _( "Submit" ) + "' /></form></fieldset></div>";
             select = $( select ).enhanceWithin().on( "submit", "form", function() {
-                saveChanges();
-                submitStations( id );
+                saveChanges( id );
 
                 return false;
             } );
+
+            select.find( "#hs" ).on( "click", "button", function() {
+				var button = $( this ),
+					value = button.data( "hs" ),
+					buttons = button.siblings();
+
+				buttons.removeClass( "ui-btn-active" );
+				button.addClass( "ui-btn-active" );
+				button.parents( "#hs" ).data( "value", value );
+
+				showSpecialOptions( value );
+
+				return false;
+            } );
+
+			if ( isStationSpecial( id ) ) {
+				updateControllerStationSpecial( function() {
+					select.find( "#hs" )
+						.removeClass( "ui-disabled" )
+						.find( "button[data-hs='" + controller.special[ id ].st + "']" ).click();
+				} );
+			}
 
             select.find( ".changeBackground" ).on( "click", function( e ) {
 				e.preventDefault();
@@ -4536,10 +4733,11 @@ var showHome = ( function() {
             select.popup( opts ).popup( "open" );
         },
         submitStations = function( id ) {
-            var is208 = ( checkOSVersion( 208 ) === true ),
+			var is208 = ( checkOSVersion( 208 ) === true ),
                 master = {},
                 master2 = {},
                 sequential = {},
+                special = {},
                 rain = {},
                 relay = {},
                 disable = {},
@@ -4555,6 +4753,9 @@ var showHome = ( function() {
                 }
                 if ( hasSequential ) {
                     sequential[ "q" + bid ] = 0;
+                }
+                if ( hasSpecial ) {
+                    special[ "p" + bid ] = 0;
                 }
                 if ( hasIR ) {
                     rain[ "i" + bid ] = 0;
@@ -4582,6 +4783,10 @@ var showHome = ( function() {
                         sequential[ "q" + bid ] = ( sequential[ "q" + bid ] ) + ( attrib.data( "us" ) << s );
                     }
 
+                    if ( hasSpecial ) {
+                        special[ "p" + bid ] = ( special[ "p" + bid ] ) + ( ( attrib.data( "hs" ) ? 1 : 0 ) << s );
+                    }
+
                     if ( hasIR ) {
                         rain[ "i" + bid ] = ( rain[ "i" + bid ] ) + ( attrib.data( "ir" ) << s );
                     }
@@ -4603,24 +4808,31 @@ var showHome = ( function() {
 	                    } else {
 	                        names[ "s" + sid ] = page.find( "#station_" + sid ).text();
 	                    }
+
+	                    if ( hasSpecial && attrib.data( "hs" ) ) {
+							special.st = attrib.data( "hs" );
+							special.sd = attrib.data( "specialData" );
+							special.sid = id;
+	                    }
                     }
                 }
             }
 
-            $.mobile.loading( "show" );
-            sendToOS( "/cs?pw=&" + $.param( names ) +
+	        $.mobile.loading( "show" );
+	        sendToOS( "/cs?pw=&" + $.param( names ) +
 				( hasMaster ? "&" + $.param( master ) : "" ) +
 				( hasMaster2 ? "&" + $.param( master2 ) : "" ) +
 				( hasSequential ? "&" + $.param( sequential ) : "" ) +
+				( hasSpecial ? "&" + $.param( special ) : "" ) +
 				( hasIR ? "&" + $.param( rain ) : "" ) +
 				( hasAR ? "&" + $.param( relay ) : "" ) +
 				( hasSD ? "&" + $.param( disable ) : "" )
 			).done( function() {
-                showerror( _( "Stations have been updated" ) );
-                updateController( function() {
-                    $( "html" ).trigger( "datarefresh" );
-                } );
-            } );
+	            showerror( _( "Stations have been updated" ) );
+	            updateController( function() {
+	                $( "html" ).trigger( "datarefresh" );
+	            } );
+	        } );
         },
         updateClock = function() {
 
@@ -4691,6 +4903,7 @@ var showHome = ( function() {
             hasAR = ( typeof controller.stations.act_relay === "object" ) ? true : false;
             hasSD = ( typeof controller.stations.stn_dis === "object" ) ? true : false;
             hasSequential = ( typeof controller.stations.stn_seq === "object" ) ? true : false;
+            hasSpecial = ( typeof controller.stations.stn_spe === "object" ) ? true : false;
 
             for ( var i = 0; i < controller.stations.snames.length; i++ ) {
                 isScheduled = controller.settings.ps[ i ][ 0 ] > 0;
@@ -4734,7 +4947,8 @@ var showHome = ( function() {
                         ir: hasIR ? ( ( controller.stations.ignore_rain[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) : undefined,
                         ar: hasAR ? ( ( controller.stations.act_relay[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) : undefined,
                         sd: hasSD ? ( ( controller.stations.stn_dis[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) : undefined,
-                        us: hasSequential ? ( ( controller.stations.stn_seq[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) : undefined
+                        us: hasSequential ? ( ( controller.stations.stn_seq[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) : undefined,
+                        hs: hasSpecial ? ( ( controller.stations.stn_spe[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) : undefined
                     } );
 
                     if ( !isStationMaster( i ) && ( isScheduled || isRunning ) ) {
@@ -4781,7 +4995,7 @@ var showHome = ( function() {
 	            callback();
 			} );
         },
-	    hasMaster, hasMaster2, hasIR, hasAR, hasSD, hasSequential, cards, siteSelect, currentSite, i, sites;
+	    hasMaster, hasMaster2, hasIR, hasAR, hasSD, hasSequential, hasSpecial, cards, siteSelect, currentSite, i, sites;
 
 	page.one( "pageshow", function() {
 		$( "html" ).on( "datarefresh", updateContent );
@@ -4798,6 +5012,7 @@ var showHome = ( function() {
         hasAR = ( typeof controller.stations.act_relay === "object" ) ? true : false;
         hasSD = ( typeof controller.stations.stn_dis === "object" ) ? true : false;
         hasSequential = ( typeof controller.stations.stn_seq === "object" ) ? true : false;
+        hasSpecial = ( typeof controller.stations.stn_spe === "object" ) ? true : false;
 
 		cards = "";
         siteSelect = $( "#site-selector" );
@@ -4874,6 +5089,9 @@ var showHome = ( function() {
 	                controller.settings.ps[ station ][ 0 ] = 0;
 	                controller.settings.ps[ station ][ 1 ] = 0;
 	                controller.status[ i ] = 0;
+
+	                // Remove any timer associated with the station
+	                delete timers[ "station-" + station ];
 
 	                refreshStatus();
 	                showerror( _( "Station has been stopped" ) );
@@ -5054,12 +5272,71 @@ function isStationDisabled( sid ) {
     return ( typeof controller.stations.stn_dis === "object" && ( controller.stations.stn_dis[ parseInt( sid / 8 ) ] & ( 1 << ( sid % 8 ) ) ) > 0 );
 }
 
+function isStationSpecial( sid ) {
+    return ( typeof controller.stations.stn_spe === "object" && ( controller.stations.stn_spe[ parseInt( sid / 8 ) ] & ( 1 << ( sid % 8 ) ) ) > 0 );
+}
+
 function isStationSequential( sid ) {
     if ( typeof controller.stations.stn_seq === "object" ) {
         return ( controller.stations.stn_seq[ parseInt( sid / 8 ) ] & ( 1 << ( sid % 8 ) ) ) > 0;
     } else {
         return controller.options.seq;
     }
+}
+
+function parseRemoteStationData( hex ) {
+	hex = hex.split( "" );
+
+	var ip = [],
+		value,
+		result = {};
+
+	for ( var i = 0; i < 8; i++ ) {
+		value = parseInt( hex[ i ] + hex[ i + 1 ], 16 ) || 0;
+		ip.push( value );
+		i++;
+	}
+
+	result.ip = ip.join( "." );
+	result.port = parseInt( hex[ 8 ] + hex[ 9 ] + hex[ 10 ] + hex[ 11 ], 16 );
+	result.station = parseInt( hex[ 12 ] + hex[ 13 ], 16 );
+
+	return result;
+}
+
+function verifyRemoteStation( data, callback ) {
+	data = parseRemoteStationData( data );
+
+    $.ajax( {
+        url: "http://" + data.ip + ":" + data.port + "/jo?pw=" + encodeURIComponent( currPass ),
+        type: "GET",
+        dataType: "json"
+	} ).then(
+		function( result ) {
+			if ( typeof result !== "object" || !result.hasOwnProperty( "fwv" ) ) {
+				callback( -1 );
+			} else if ( Object.keys( result ).length === 1 ) {
+				callback( -2 );
+			} else if ( !result.hasOwnProperty( "re" ) || result.re === 0 ) {
+				callback( -3 );
+			} else {
+				callback( true );
+			}
+		},
+		function() {
+			callback( false );
+		}
+	);
+}
+
+function convertRemoteToExtender( data ) {
+	data = parseRemoteStationData( data );
+
+    $.ajax( {
+        url: "http://" + data.ip + ":" + data.port + "/cv?re=1&pw=" + encodeURIComponent( currPass ),
+        type: "GET",
+        dataType: "json"
+	} );
 }
 
 // Current status related functions
@@ -5320,6 +5597,16 @@ function updateTimers() {
             }
         }
     }, 1000 );
+}
+
+function removeStationTimers() {
+    for ( var timer in timers ) {
+        if ( timers.hasOwnProperty( timer ) ) {
+			if ( timer !== "clock" ) {
+				delete timers[ timer ];
+			}
+        }
+	}
 }
 
 // Manual control functions
@@ -8009,7 +8296,7 @@ function importConfig( data ) {
 			21:"urs", 22:"rst", 23:"wl", 25:"ipas", 30:"rlp", 36:"lg" },
         keyIndex = { "tz":1, "ntp":2, "dhcp":3, "hp0":12, "hp1":13, "ar":14, "ext":15, "seq":16, "sdt":17, "mas":18, "mton":19,
 			"mtof":20, "urs":21, "rso":22, "wl":23, "ipas":25, "devid":26, "con": 27, "lit": 28, "dim": 29, "rlp":30, "lg":36,
-			"uwt":31, "ntp1":32, "ntp2":33, "ntp3":34, "ntp4":35, "mas2":37, "mton2":38, "mtof2":39 },
+			"uwt":31, "ntp1":32, "ntp2":33, "ntp3":34, "ntp4":35, "mas2":37, "mton2":38, "mtof2":39, "fpr0":41, "fpr1":42, "re":43 },
         warning = "";
 
     if ( typeof data !== "object" || !data.settings ) {
@@ -8107,6 +8394,12 @@ function importConfig( data ) {
             }
         }
 
+        if ( typeof data.stations.stn_spe === "object" ) {
+            for ( i = 0; i < data.stations.stn_spe.length; i++ ) {
+                cs += "&p" + i + "=" + data.stations.stn_spe[ i ];
+            }
+        }
+
         if ( typeof data.stations.stn_seq === "object" ) {
             for ( i = 0; i < data.stations.stn_seq.length; i++ ) {
                 cs += "&q" + i + "=" + data.stations.stn_seq[ i ];
@@ -8123,6 +8416,9 @@ function importConfig( data ) {
                 cs += "&a" + i + "=" + data.stations.act_relay[ i ];
             }
         }
+
+        // Normalize station special data object
+        data.special = data.special || {};
 
         $.when(
             sendToOS( co ),
@@ -8206,6 +8502,9 @@ function importConfig( data ) {
                 }
 
                 sendToOS( cpStart + "&pid=-1&v=" + JSON.stringify( prog ) + name );
+            } ),
+            $.each( data.special, function( sid, info ) {
+                sendToOS( "/cs?pw=&sid=" + sid + "&st=" + info.st + "&sd=" + info.sd );
             } )
         ).then(
             function() {

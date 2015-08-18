@@ -1,7 +1,7 @@
 {
   "name": "OpenSprinkler",
   "description": "Designed to allow intuitive program management (view, edit, delete and add), manual control, initiation of a run-once program, viewing device status, adjusting rain delay, viewing logs, and changing of OpenSprinkler settings.",
-  "launch_path": "/index.htm",
+  "launch_path": "/index.html",
   "icons": {
     "60": "/res/firefox/icons/icon-60.png",
     "128": "/res/firefox/icons/icon-128.png"

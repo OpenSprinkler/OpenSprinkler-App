@@ -136,6 +136,10 @@ a {
 .center {
     text-align:center!important
 }
+.center > .ui-controlgroup-controls {
+    display: flex;
+    justify-content: center;
+}
 .center-div {
     margin: inherit auto
 }
@@ -482,10 +486,6 @@ body, input, select, textarea, button, .ui-btn {
     border-bottom-right-radius: 0 !important;
     border-top-right-radius: 0 !important;
     border-right: none;
-}
-
-#os-options .ui-controlgroup-controls {
-    display: block !important;
 }
 
 #lookup-loc > button, #verify-api {
