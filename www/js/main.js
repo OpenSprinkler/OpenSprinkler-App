@@ -3798,7 +3798,7 @@ function showOptions( expandItem ) {
     }
 
     if ( typeof controller.options.fpr0 !== "undefined" ) {
-        list += "<div class='ui-field-contain'><label for='o41'>" + _( "Flow Pulse Rate (L/pulse)" ) + "</label>" +
+        list += "<div class='ui-field-contain" + ( controller.options.urs === 2 ? "" : " hidden" ) + "'><label for='o41'>" + _( "Flow Pulse Rate (L/pulse)" ) + "</label>" +
 			"<input data-mini='true' type='number' pattern='^[-+]?[0-9]*\.?[0-9]*$' id='o41' value='" + ( ( controller.options.fpr1 * 256 + controller.options.fpr0 ) / 100 ) + "'>" +
 			"</div>";
     }
