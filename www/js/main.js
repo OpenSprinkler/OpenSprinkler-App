@@ -2508,7 +2508,7 @@ function updateWeatherBox() {
     $( "#weather" )
         .html( "<div title='" + weather.title + "' class='wicon cond" + weather.code + "'></div>" +
 			"<div class='inline tight'>" + weather.temp + "</div><br><div class='inline location tight'>" + weather.location + "</div>" +
-			(weather.alerts.length > 0 ? "<div>" + (weather.alerts[0].level == 'Red' ? '<img src="https://cdn2.iconfinder.com/data/icons/aspneticons_v1.0_Nov2006/attention3_16x16.gif" alt="Alert"> ' : '<img src="http://iconsineed.com/icons/16x16-free-toolbar-icons/58.png" alt="Warning" > ') + weather.alerts[0].type + '</div>' : ''))
+			( typeof weather.alert === "object" ? "<div><button class='help-icon btn-no-border ui-btn ui-icon-alert ui-btn-icon-notext ui-corner-all'></button>" + weather.alert.type + "</div>" : "" ) )
         .off( "click" ).on( "click", function() {
             changePage( "#forecast" );
             return false;
@@ -2518,7 +2518,7 @@ function updateWeatherBox() {
 
 function updateWundergroundWeather( wapikey ) {
     $.ajax( {
-        url: "https://api.wunderground.com/api/" + wapikey + "/conditions/forecast/lang:EN/q/" + encodeURIComponent( controller.settings.loc ) + ".json",
+        url: "https://api.wunderground.com/api/" + wapikey + "/conditions/forecast/alerts/lang:EN/q/" + encodeURIComponent( controller.settings.loc ) + ".json",
         dataType: isChromeApp ? "json" : "jsonp",
         contentType: "application/json; charset=utf-8",
         shouldRetry: retryCount,
@@ -2540,17 +2540,17 @@ function updateWundergroundWeather( wapikey ) {
             }
 
             var wwForecast = {
-                "condition": {
-                    "text": data.current_observation.weather,
-                    "code": code,
-                    "temp_c": data.current_observation.temp_c,
-                    "temp_f": data.current_observation.temp_f,
-                    "date": data.current_observation.observation_time,
-                    "precip_today_in": data.current_observation.precip_today_in,
-                    "precip_today_metric": data.current_observation.precip_today_metric
+                condition: {
+                    text: data.current_observation.weather,
+                    code: code,
+                    temp_c: data.current_observation.temp_c,
+                    temp_f: data.current_observation.temp_f,
+                    date: data.current_observation.observation_time,
+                    precip_today_in: data.current_observation.precip_today_in,
+                    precip_today_metric: data.current_observation.precip_today_metric
                 },
-                "location": data.current_observation.display_location.full,
-                "region": data.current_observation.display_location.country_iso3166,
+                location: data.current_observation.display_location.full,
+                region: data.current_observation.display_location.country_iso3166,
                 simpleforecast: {}
             };
 
@@ -2571,9 +2571,42 @@ function updateWundergroundWeather( wapikey ) {
                 code: code,
                 temp: temp,
                 forecast: wwForecast,
-                source: "wunderground",
-				alerts: {}
+                source: "wunderground"
             };
+
+            if ( data.alerts.length > 0 ) {
+
+                // Check if alert is formatted in a US format
+                var alertTypes = {
+                    HUR: "Hurricane Local Statement",
+                    TOR: "Tornado Warning",
+                    TOW: "Tornado Watch",
+                    WRN: "Severe Thunderstorm Warning",
+                    SEW: "Severe Thunderstorm Watch",
+                    WIN: "Winter Weather Advisory",
+                    FLO: "Flood Warning",
+                    WAT: "Flood Watch / Statement",
+                    WND: "High Wind Advisory",
+                    SVR: "Severe Weather Statement",
+                    HEA: "Heat Advisory",
+                    FOG: "Dense Fog Advisory",
+                    SPE: "Special Weather Statement",
+                    FIR: "Fire Weather Advisory",
+                    VOL: "Volcanic Activity Statement",
+                    HWW: "Hurricane Wind Warning",
+                    REC: "Record Set",
+                    REP: "Public Reports",
+                    PUB: "Public Information Statement"
+                },
+                isUS = ( typeof ( data.alerts[ 0 ].wtype_meteoalarm_name ) === "undefined" ? true : false );
+
+                weather.alert = {
+                    type: alertTypes[ data.alerts[ 0 ].type ],
+                    name: ( isUS ? data.alerts[ 0 ].description : data.alerts[ 0 ].wtype_meteoalarm_name ),
+                    level: ( isUS ? "Red" : data.alerts[ 0 ].level_meteoalarm_name ),
+                    message: data.alerts[ 0 ].message
+                };
+            }
 
             coordsToLocation( currentCoordinates[ 0 ], currentCoordinates[ 1 ], function( result ) {
                 weather.location = result;
@@ -2581,62 +2614,8 @@ function updateWundergroundWeather( wapikey ) {
             }, wwForecast.location );
 
             $.mobile.document.trigger( "weatherUpdateComplete" );
-			
-			updateWundergroundWeatherAlert( wapikey );
         }
     } );
-}
-
-function updateWundergroundWeatherAlert( wapikey){
-	$.ajax( {
-		url: "https://api.wunderground.com/api/" + wapikey + "/alerts/q/" + encodeURIComponent( controller.settings.loc ) + ".json",  
-        dataType: isChromeApp ? "json" : "jsonp",
-        contentType: "application/json; charset=utf-8",
-        shouldRetry: retryCount,
-        success: function( data ) {
-            
-			var alert_types = {	'HUR' : 'Hurricane Local Statement', 
-								'TOR' :	'Tornado Warning', 
-								'TOW':'Tornado Watch',
-								'WRN':'Severe Thunderstorm Warning',
-								'SEW':'Severe Thunderstorm Watch',
-								'WIN':'Winter Weather Advisory',
-								'FLO':'Flood Warning',
-								'WAT':'Flood Watch / Statement',
-								'WND':'High Wind Advisory',
-								'SVR':'Severe Weather Statement',
-								'HEA':'Heat Advisory',
-								'FOG':'Dense Fog Advisory',
-								'SPE':'Special Weather Statement',
-								'FIR':'Fire Weather Advisory',
-								'VOL':'Volcanic Activity Statement',
-								'HWW':'Hurricane Wind Warning',
-								'REC':'Record Set',
-								'REP':'Public Reports',
-								'PUB':'Public Information Statemen'};
-			var alerts = [];	//alerts array, there can be more then 1 alert for a region
-			var isAlert = false;
-			
-			if(data.alerts.length > 0){
-				for(var x = 0; x < data.response.features.alerts; x++ ){ //crawl all alerts
-					
-					var isUS = (typeof(data.alerts[x].wtype_meteoalarm_name) == "undefined" ? true : false); //US alert format or not
-					//if(isUS){document.write("<br> US mode<br>");}else{document.write("<br>not US Mode<br>")}
-					var alert = {
-						"type" : alert_types[data.alerts[x].type],
-						"name" : (isUS ? data.alerts[x].description : data.alerts[x].wtype_meteoalarm_name),
-						"level": (isUS ? "Red" : data.alerts[x].level_meteoalarm_name),
-						"message" : data.alerts[x].message.replace(/[^a-z A-Z0-9äÄöÖüÜ.,:/]/g ,'')
-					}
-					alerts.push(alert); //add alert to alerts
-				}
-			}
-						
-			weather.alerts = alerts;
-			
-			updateWeatherBox();	
-		}
-	} );
 }
 
 function coordsToLocation( lat, lon, callback, fallback ) {
@@ -2751,6 +2730,17 @@ function showForecast() {
         page.remove();
     } );
 
+    page.find( ".alert" ).on( "click", function() {
+        openPopup( $( "<div data-role='popup' data-theme='a'>" +
+                "<div data-role='header' data-theme='b'>" +
+                    "<h1>" + weather.alert.name + "</h1>" +
+                "</div>" +
+                "<div class='ui-content'>" +
+                    "<span style='white-space: pre-wrap'>" + weather.alert.message + "</span>" +
+                "</div>" +
+            "</div>" ) );
+    } );
+
     $( "#forecast" ).remove();
     $.mobile.pageContainer.append( page );
 }
@@ -2767,17 +2757,17 @@ function makeWundergroundForecast() {
     }
 
     var list = "<li data-role='list-divider' data-theme='a' class='center'>" + weather.location + "</li>";
-	
-	if(weather.alerts.length > 0){
-		list += "<li data-icon='false' class='center' style='background-color: #FFB2B2'>" +
-			"<div>" + (weather.alerts[0].level == 'Red' ? "Alert: " : "Warning: ") + weather.alerts[0].type + "</div>" +
+
+	if ( typeof weather.alert === "object" ) {
+		list += "<li data-icon='false' class='center red alert'>" +
+			"<div>" + ( weather.alert.level === "Red" ? "Alert: " : "Warning: " ) + weather.alert.type + "</div>" +
 			"<br>" +
-			"<span><b>" + weather.alerts[0].name + "</b></span>" +
+			"<span><b>" + weather.alert.name + "</b></span>" +
 			"<br>" +
-			"<span style='white-space: pre-wrap;'>" + weather.alerts[0].message + "</span>" +
+			"<span class='smaller'>" + _( "Click to read more..." ) + "</span>" +
 		"</li>";
 	}
-	
+
     list += "<li data-icon='false' class='center'>" +
 			"<div>" + _( "Now" ) + "</div><br>" +
 			"<div title='" + weather.forecast.condition.text + "' class='wicon cond" + weather.forecast.condition.code + "'></div>" +
@@ -4422,7 +4412,7 @@ var showHome = ( function() {
                             "<div class='sitename bold'></div>" +
                             "<div id='clock-s' class='nobr'></div>" +
                             _( "Water Level" ) + ": <span class='waterlevel'></span>%" +
-                        "</div>" +						
+                        "</div>" +
                     "</div>" +
                     "<div id='os-running-stations'></div>" +
                     "<hr style='display:none' class='content-divider'>" +
