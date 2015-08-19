@@ -4536,6 +4536,9 @@ var showHome = ( function() {
 						hex += pad( station.toString( 16 ) );
 
 						if ( checkPassed !== true ) {
+							$.mobile.loading( "show" );
+							select.find( ".attrib-submit" ).addClass( "ui-disabled" );
+
 							verifyRemoteStation( hex, function( result ) {
 								var text;
 
@@ -4553,6 +4556,10 @@ var showHome = ( function() {
 									// Remote controller is not configured as an extender
 									text = _( "Remote controller is not configured as an extender. Would you like to do this now?" );
 								}
+
+								select.one( "popupafterclose", function() {
+									$.mobile.loading( "hide" );
+								} );
 
 							    $.mobile.loading( "show", {
 							        html: "<h1>" + text + "</h1>" +
@@ -4575,6 +4582,8 @@ var showHome = ( function() {
 
 							        saveChanges( true );
 							    } );
+
+								select.find( ".attrib-submit" ).removeClass( "ui-disabled" );
 							} );
 							return;
 						}
