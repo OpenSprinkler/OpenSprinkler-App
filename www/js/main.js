@@ -4493,16 +4493,18 @@ var showHome = ( function() {
                 id = button.data( "station" ),
                 name = button.siblings( "[id='station_" + id + "']" ),
                 showSpecialOptions = function( value ) {
-					var opts = select.find( "#specialOpts" );
+					var opts = select.find( "#specialOpts" ),
+						hex = controller.special && controller.special.hasOwnProperty( id ) ? controller.special[ id ].sd : "";
+
 					opts.empty();
 
 					if ( value === 1 ) {
 						opts.append(
 							"<div class='ui-bar-a ui-bar'>" + _( "RF Code" ) + ":</div>" +
-							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='rf-code' type='text' value='" + controller.special[ id ].sd + "'>"
+							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='rf-code' type='text' value='" + hex + "'>"
 						).enhanceWithin();
 					} else if ( value === 2 ) {
-						var data = parseRemoteStationData( controller.special[ id ].sd );
+						var data = parseRemoteStationData( hex );
 
 						opts.append(
 							"<div class='ui-bar-a ui-bar'>" + _( "Remote Address" ) + ":</div>" +
