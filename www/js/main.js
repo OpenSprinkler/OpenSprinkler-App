@@ -2576,7 +2576,6 @@ function updateWundergroundWeather( wapikey ) {
 
             if ( data.alerts.length > 0 ) {
 
-                // Check if alert is formatted in a US format
                 var alertTypes = {
                     HUR: "Hurricane Local Statement",
                     TOR: "Tornado Warning",
@@ -2597,13 +2596,11 @@ function updateWundergroundWeather( wapikey ) {
                     REC: "Record Set",
                     REP: "Public Reports",
                     PUB: "Public Information Statement"
-                },
-                isUS = ( typeof ( data.alerts[ 0 ].wtype_meteoalarm_name ) === "undefined" ? true : false );
+                };
 
                 weather.alert = {
                     type: alertTypes[ data.alerts[ 0 ].type ],
-                    name: ( isUS ? data.alerts[ 0 ].description : data.alerts[ 0 ].wtype_meteoalarm_name ),
-                    level: ( isUS ? "Red" : data.alerts[ 0 ].level_meteoalarm_name ),
+                    name: ( data.alerts[ 0 ].wtype_meteoalarm_name || data.alerts[ 0 ].description ),
                     message: data.alerts[ 0 ].message
                 };
             }
@@ -2736,7 +2733,7 @@ function showForecast() {
                     "<h1>" + weather.alert.name + "</h1>" +
                 "</div>" +
                 "<div class='ui-content'>" +
-                    "<span style='white-space: pre-wrap'>" + weather.alert.message + "</span>" +
+                    "<span style='white-space: pre-wrap'>" + $.trim( weather.alert.message ) + "</span>" +
                 "</div>" +
             "</div>" ) );
     } );
@@ -2760,9 +2757,7 @@ function makeWundergroundForecast() {
 
 	if ( typeof weather.alert === "object" ) {
 		list += "<li data-icon='false' class='center red alert'>" +
-			"<div>" + ( weather.alert.level === "Red" ? "Alert: " : "Warning: " ) + weather.alert.type + "</div>" +
-			"<br>" +
-			"<span><b>" + weather.alert.name + "</b></span>" +
+			"<div>" + weather.alert.type + "</div>" +
 			"<br>" +
 			"<span class='smaller'>" + _( "Click to read more..." ) + "</span>" +
 		"</li>";
