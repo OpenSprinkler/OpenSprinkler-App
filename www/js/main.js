@@ -6631,6 +6631,7 @@ var getLogs = ( function() {
         logOptions = page.find( "#log_options" ),
         data = [],
         waterlog = [],
+        flowlog = [],
         sortData = function( type, grouping ) {
             var sortedData = [];
 
@@ -6719,7 +6720,7 @@ var getLogs = ( function() {
 
             return sortedData;
         },
-        success = function( items, wl ) {
+        success = function( items, wl, fl ) {
             if ( typeof items !== "object" || items.length < 1 || ( items.result && items.result === 32 ) ) {
                 $.mobile.loading( "hide" );
                 resetLogsPage();
@@ -6728,6 +6729,7 @@ var getLogs = ( function() {
 
             data = items;
             waterlog = $.isEmptyObject( wl ) ? [] : wl;
+            flowlog = $.isEmptyObject( fl ) ? [] : fl;
 
             updateView();
 
@@ -6812,9 +6814,15 @@ var getLogs = ( function() {
 					"<th data-priority='2'>" + ( grouping === "station" ? _( "Date/Time" ) : _( "Time" ) + "</th><th>" + _( "Station" ) ) + "</th>" +
 					"</tr></thead><tbody>",
                 html = "<div data-role='collapsible-set' data-inset='true' data-theme='b' data-collapsed-icon='arrow-d' data-expanded-icon='arrow-u'>",
+                stats = {
+					totalRuntime: 0,
+					totalCount: 0,
+					totalVolume: 0
+                },
                 sortedData = sortData( "table", grouping ),
                 groupArray = [],
                 wlSorted = [],
+                flSorted = [],
                 i = 0,
                 group, ct, k;
 
@@ -6824,12 +6832,29 @@ var getLogs = ( function() {
                 } );
             }
 
+            if ( !$.isEmptyObject( flowlog ) ) {
+                $.each( flowlog, function() {
+					var day = Math.floor( this[ 3 ] / 60 / 60 / 24 ),
+						volume = flowCountToVolume( this[ 0 ] );
+
+                    flSorted[ day ] = flSorted[ day ] ? flSorted[ day ] + volume : volume;
+                    stats.totalVolume += volume;
+                } );
+            }
+
+            if ( stats.totalVolume > 0 ) {
+                html = "<span style='border:none' class='ui-body ui-body-a ui-corner-all'>" +
+					_( "Total water used" ) + " " + _( "over the selected range" ) + ": " + stats.totalVolume + " L" +
+					"</span>" + html;
+            }
+
             for ( group in sortedData ) {
                 if ( sortedData.hasOwnProperty( group ) ) {
                     ct = sortedData[ group ].length;
                     if ( ct === 0 ) {
                         continue;
                     }
+                    stats.totalCount += ct;
                     groupArray[ i ] = "<div data-role='collapsible' data-collapsed='true'><h2>" +
 							( ( checkOSVersion( 210 ) && grouping === "day" ) ? "<a class='ui-btn red ui-btn-corner-all delete-day day-" +
 								group + "'>" + _( "delete" ) + "</a>" : "" ) +
@@ -6844,6 +6869,12 @@ var getLogs = ( function() {
                         groupArray[ i ] += "<span style='border:none' class='" +
 							( wlSorted[ group ] !== 100 ? ( wlSorted[ group ] < 100 ? "green " : "red " ) : "" ) +
 							"ui-body ui-body-a ui-corner-all'>" + _( "Average" ) + " " + _( "Water Level" ) + ": " + wlSorted[ group ] + "%</span>";
+                    }
+
+                    if ( flSorted[ group ] ) {
+                        groupArray[ i ] += "<span style='border:none' class='ui-body ui-body-a ui-corner-all'>" +
+							_( "Total water used" ) + ": " + flSorted[ group ] + " L" +
+							"</span>";
                     }
 
                     groupArray[ i ] += tableHeader;
@@ -6937,16 +6968,22 @@ var getLogs = ( function() {
                 delay = 500;
             }
 
-            var defer = $.Deferred().resolve();
+            var wlDefer = $.Deferred().resolve(),
+				flDefer = $.Deferred().resolve();
 
             if ( checkOSVersion( 211 ) ) {
-                defer = sendToOS( "/jl?pw=&type=wl&" + parms(), "json" );
+                wlDefer = sendToOS( "/jl?pw=&type=wl&" + parms(), "json" );
+            }
+
+            if ( checkOSVersion( 216 ) ) {
+                wlDefer = sendToOS( "/jl?pw=&type=fl&" + parms(), "json" );
             }
 
             setTimeout( function() {
                 $.when(
                     sendToOS( "/jl?pw=&" + parms(), "json" ),
-                    defer
+                    wlDefer,
+                    flDefer
                 ).then( success, fail );
             }, delay );
         },
@@ -8500,7 +8537,9 @@ function importConfig( data ) {
                 sendToOS( cpStart + "&pid=-1&v=" + JSON.stringify( prog ) + name );
             } ),
             $.each( data.special, function( sid, info ) {
-                sendToOS( "/cs?pw=&sid=" + sid + "&st=" + info.st + "&sd=" + info.sd );
+				if ( checkOSVersion( 216 ) ) {
+	                sendToOS( "/cs?pw=&sid=" + sid + "&st=" + info.st + "&sd=" + info.sd );
+	            }
             } )
         ).then(
             function() {
@@ -8619,6 +8658,10 @@ function stopStations( callback ) {
             callback();
         }, 1000 );
     } );
+}
+
+function flowCountToVolume( count ) {
+	return count * ( ( controller.options.fpr1 << 8 ) + controller.options.fpr0 ) / 100;
 }
 
 // OpenSprinkler feature detection functions
@@ -10855,7 +10898,6 @@ function exportObj( ele, obj, subject ) {
         var href = "mailto:?subject=" + encodeURIComponent( subject ) + "&body=" + obj;
         $( ele ).attr( "href", href ).on( "click", function() {
             window.open( href );
-            return false;
         } );
     }
 }
