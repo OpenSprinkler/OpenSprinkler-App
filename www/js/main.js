@@ -2508,7 +2508,7 @@ function updateWeatherBox() {
     $( "#weather" )
         .html( "<div title='" + weather.title + "' class='wicon cond" + weather.code + "'></div>" +
 			"<div class='inline tight'>" + weather.temp + "</div><br><div class='inline location tight'>" + weather.location + "</div>" +
-			( typeof weather.alert === "object" ? "<div><button class='help-icon btn-no-border ui-btn ui-icon-alert ui-btn-icon-notext ui-corner-all'></button>" + weather.alert.type + "</div>" : "" ) )
+			( typeof weather.alert === "object" ? "<div><button class='tight help-icon btn-no-border ui-btn ui-icon-alert ui-btn-icon-notext ui-corner-all'></button>" + weather.alert.type + "</div>" : "" ) )
         .off( "click" ).on( "click", function() {
             changePage( "#forecast" );
             return false;
@@ -2577,25 +2577,25 @@ function updateWundergroundWeather( wapikey ) {
             if ( data.alerts.length > 0 ) {
 
                 var alertTypes = {
-                    HUR: "Hurricane Local Statement",
-                    TOR: "Tornado Warning",
-                    TOW: "Tornado Watch",
-                    WRN: "Severe Thunderstorm Warning",
-                    SEW: "Severe Thunderstorm Watch",
-                    WIN: "Winter Weather Advisory",
-                    FLO: "Flood Warning",
-                    WAT: "Flood Watch / Statement",
-                    WND: "High Wind Advisory",
-                    SVR: "Severe Weather Statement",
-                    HEA: "Heat Advisory",
-                    FOG: "Dense Fog Advisory",
-                    SPE: "Special Weather Statement",
-                    FIR: "Fire Weather Advisory",
-                    VOL: "Volcanic Activity Statement",
-                    HWW: "Hurricane Wind Warning",
-                    REC: "Record Set",
-                    REP: "Public Reports",
-                    PUB: "Public Information Statement"
+                    HUR: _( "Hurricane Local Statement" ),
+                    TOR: _( "Tornado Warning" ),
+                    TOW: _( "Tornado Watch" ),
+                    WRN: _( "Severe Thunderstorm Warning" ),
+                    SEW: _( "Severe Thunderstorm Watch" ),
+                    WIN: _( "Winter Weather Advisory" ),
+                    FLO: _( "Flood Warning" ),
+                    WAT: _( "Flood Watch / Statement" ),
+                    WND: _( "High Wind Advisory" ),
+                    SVR: _( "Severe Weather Statement" ),
+                    HEA: _( "Heat Advisory" ),
+                    FOG: _( "Dense Fog Advisory" ),
+                    SPE: _( "Special Weather Statement" ),
+                    FIR: _( "Fire Weather Advisory" ),
+                    VOL: _( "Volcanic Activity Statement" ),
+                    HWW: _( "Hurricane Wind Warning" ),
+                    REC: _( "Record Set" ),
+                    REP: _( "Public Reports" ),
+                    PUB: _( "Public Information Statement" )
                 };
 
                 weather.alert = {
@@ -6843,9 +6843,7 @@ var getLogs = ( function() {
             }
 
             if ( stats.totalVolume > 0 ) {
-                html = "<span style='border:none' class='ui-body ui-body-a ui-corner-all'>" +
-					_( "Total water used" ) + " " + _( "over the selected range" ) + ": " + stats.totalVolume + " L" +
-					"</span>" + html;
+                html = "<span>" + _( "Total Water Used" ) + ": " + stats.totalVolume + " L</span>" + html;
             }
 
             for ( group in sortedData ) {
@@ -6868,12 +6866,12 @@ var getLogs = ( function() {
                     if ( wlSorted[ group ] ) {
                         groupArray[ i ] += "<span style='border:none' class='" +
 							( wlSorted[ group ] !== 100 ? ( wlSorted[ group ] < 100 ? "green " : "red " ) : "" ) +
-							"ui-body ui-body-a ui-corner-all'>" + _( "Average" ) + " " + _( "Water Level" ) + ": " + wlSorted[ group ] + "%</span>";
+							"ui-body ui-body-a'>" + _( "Average" ) + " " + _( "Water Level" ) + ": " + wlSorted[ group ] + "%</span>";
                     }
 
                     if ( flSorted[ group ] ) {
-                        groupArray[ i ] += "<span style='border:none' class='ui-body ui-body-a ui-corner-all'>" +
-							_( "Total water used" ) + ": " + flSorted[ group ] + " L" +
+                        groupArray[ i ] += "<span style='border:none' class='ui-body ui-body-a'>" +
+							_( "Total Water Used" ) + ": " + flSorted[ group ] + " L" +
 							"</span>";
                     }
 
@@ -6976,7 +6974,7 @@ var getLogs = ( function() {
             }
 
             if ( checkOSVersion( 216 ) ) {
-                wlDefer = sendToOS( "/jl?pw=&type=fl&" + parms(), "json" );
+                flDefer = sendToOS( "/jl?pw=&type=fl&" + parms(), "json" );
             }
 
             setTimeout( function() {
