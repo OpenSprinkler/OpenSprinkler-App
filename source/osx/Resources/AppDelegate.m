@@ -64,7 +64,7 @@
     // Make webView part of the window's contentView
     [self.window setContentView:self.webView];
 
-    // Load the index.htm page
+    // Load the index.html page
 	NSString *resourcesPath = [[NSBundle mainBundle] resourcePath];
 	NSString *htmlPath = [resourcesPath stringByAppendingString:@"/index.html"];
 	[[webView mainFrame] loadRequest:[NSURLRequest requestWithURL:[NSURL fileURLWithPath:htmlPath]]];
