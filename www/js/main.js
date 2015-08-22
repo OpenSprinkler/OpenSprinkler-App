@@ -560,7 +560,7 @@ function flipSwitched() {
 function sendToOS( dest, type ) {
 
     // Inject password into the request
-    dest = dest.replace( "pw=", "pw=" + encodeURIComponent( currPass ) );
+    dest = dest.replace( "pw=", "pw=" + encodeURIComponent( currPass ) ); 
     type = type || "text";
 
     // Designate AJAX queue based on command type
@@ -6605,6 +6605,8 @@ var getLogs = ( function() {
                     "<label for='log_timeline'>" + _( "Timeline" ) + "</label>" +
                     "<input data-mini='true' type='radio' name='log_type' id='log_table' value='table'>" +
                     "<label for='log_table'>" + _( "Table" ) + "</label>" +
+					 "<input data-mini='true' type='radio' name='log_type' id='log_statistic' value='statistic'>" +
+                    "<label for='log_statistic'>" + _( "Graph" ) + "</label>" +
                 "</fieldset>" +
                 "<fieldset data-role='collapsible' data-mini='true' id='log_options' class='center'>" +
                     "<legend>" + _( "Options" ) + "</legend>" +
@@ -6744,7 +6746,9 @@ var getLogs = ( function() {
                 prepTable();
             } else if ( page.find( "#log_timeline" ).prop( "checked" ) ) {
                 prepTimeline();
-            }
+            } else if ( page.find( "#log_statistic" ).prop( "checked" ) ){
+				prepStatics();
+			}
         },
         prepTimeline = function() {
             if ( data.length < 1 ) {
@@ -6897,7 +6901,331 @@ var getLogs = ( function() {
 
             fixInputClick( logsList );
         },
-        resetLogsPage = function() {
+        prepStatics = function() {
+			
+			if ( data.length < 1 ) {
+                resetLogsPage();
+                return;
+            }
+			
+			var out = '';
+			
+			//Time PerWeek Line
+			out += "<div><h3>total running time per week [in hours]</h3></div>" +
+			"<div style=\"width: 100%; max-width:400px\" >" +
+				"<canvas id=\"totalTimeLine\" height=\"200\" ></canvas>" +
+			"</div>";
+			
+			//Waterlevel PerWeek Line
+			out += "<div><h3>mean Waterlevel per week [in %]</h3></div>" +
+			"<div style=\"width: 100%; max-width:400px\">" +
+				"<canvas id=\"waterlevelLine\" height=\"200\" ></canvas>" +
+			"</div>";
+			
+			//Mean Time Per WeekDay Bar
+			out += " <div><h3>mean running time per day [in hours]</h3></div> " +
+			'<div style="width: 100%; max-width:400px; align:center">' +
+			'	<canvas id="meanPerDay" height="200" ></canvas>' +
+			"	</canvas>" +
+			" </div>";
+			
+			var days = [_( "Sun" ), _( "Mon" ), _( "Tue" ), _( "Wed" ), _( "Thr" ), _( "Fri" ), _( "Sat" ) ];
+			var statTimeDay = {0:0,1:0,2:0,3:0,4:0,5:0,6:0}; 		//table of mean run Time per day of the week
+			var statTimeDayCounter = {0:0,1:0,2:0,3:0,4:0,5:0,6:0}; 
+			var statWeekTime = []; 		//table of total run time of the last weeks
+			var statWeekWater = [];		//table of mean waterlevel of the last weeks 
+			var statStationTime = [];	//table of mean station runtime per day over all days
+			var statMeanDay = 0;		//table of mean runtime per station of all days
+			var statDays = 0;
+			var statTotalTime = 0;
+			var statTotalRainTime = 0;
+			
+			if ( data.length > 0 ) {
+				//function getStatDayTime(){
+					
+				//out += "start getStartDayTime: " + data.length + "<br>";
+				var old_day = 0;
+				
+				for(var x= 0; x < data.length; x++){
+					
+					//TODO: ignore or seperate Master stations
+					
+					var temp = {
+							pid : data[x][0],
+							sid : data[x][1],
+							dur : data[x][2],
+							end : data[x][3],
+							date : 0,
+							week : 0
+					};					
+					
+					if(temp.pid !== '0') {	//&& temp.sid > 0&& temp.sid < 99
+						
+						temp.date = new Date(parseInt(data[x][3])*1000);
+						temp.week = getWeekOfYear(temp.date);
+						
+						/*
+						//if(temp.sid == 3){
+						out += "<br>-----------<br>" + 
+						//JSON.stringify(data[x]) + 
+						"pid: " + temp.pid + "<br>" +
+						"sid: " + temp.sid + "<br>" +
+						"dur: " + temp.dur + "<br>" +
+						"end: " + temp.end + " " + days[temp.date.getDay()] + ' ' + temp.date.getDate() + '.' + (temp.date.getMonth()+1) + "<br>" + temp.week;
+						//}
+						*/
+						
+						//meanTimePerDay
+						statTimeDay[temp.date.getDay()] += temp.dur; //add duration time to the weekt day						
+						
+						if(old_day != temp.date.getDate()){
+							//next day add counter +1
+							statTimeDayCounter[temp.date.getDay()] += 1;
+							statDays++; //statDays = Log_end - Log_start in Days
+							
+							//out += "<br> new Day <br>";
+							
+							old_day = temp.date.getDate(); //save old date
+						}
+						
+						//TimePerWeek
+						if(isNaN( statWeekTime[ temp.week ] )){
+							statWeekTime.push(temp.week);
+							statWeekTime[temp.week] = temp.dur;
+							
+							//out += "<br> ----- ADD WEEK " + temp.week + " -----<br>";
+						}else{
+							statWeekTime[temp.week] += temp.dur;
+						}
+						
+						//statStationTime
+						if(isNaN( statStationTime[ temp.sid.toString() ] )){
+							statStationTime.push(temp.sid.toString());
+							statStationTime[temp.sid.toString()] = temp.dur;
+							
+							//out += "<br> ----- ADD Station " + temp.sid.toString() + " -----<br>";
+						}else{
+							statStationTime[temp.sid.toString()] += temp.dur;
+						}
+						
+						//statTotalTime
+						statTotalTime += temp.dur;	
+						
+										
+					} else { //end station run
+						if( temp.sid === 'rs'){
+							statTotalRainTime += temp.dur;
+						}
+						
+					}
+					
+				}//end for loop
+				
+				statMeanDay =  Math.round(statTotalTime / statDays);
+				
+				//calc mean per day
+				for(var y = 0; y<7; y++){
+					
+					//out += "<br> " + y + " dur: " + statTimeDay[y] + " / " + statTimeDayCounter[y];
+					statTimeDay[y] = Math.round(( statTimeDay[y] / statTimeDayCounter[y] ) / 60 / 60 * 10) / 10; 
+					
+					if(isNaN( statTimeDay[y] ) ){
+						statTimeDay[y] = 0;
+					}
+					//out += " = " +statTimeDay[y];
+				}
+				
+				//calc WeekTime
+				/*
+				for(y = 1; y < statWeekTime.length; y++){
+					if( !isNaN( statWeekTime[y] ) ){
+						//out += "<br> Week: " + y + " - " + ( Math.round(statWeekTime[y] / 60 / 60 * 10 ) / 20 )  + " h";
+					}
+				}
+				*/
+				
+			}	
+
+			if ( waterlog.length > 0 ) {
+				//out += "<br> ---------- i found water ---------- <br>";
+				
+				var dayCount = 0;
+				var tempTime = 0;
+				var oldWeek = 0;
+				
+				for ( var x = 0; x < waterlog.length; x++){
+								
+					var temp = {
+						pid : waterlog[x][0],
+						sid : waterlog[x][1],
+						dur : waterlog[x][2],
+						end : waterlog[x][3],
+						date : 0,
+						week : 0
+					};			
+					
+							
+					if ( temp.pid == 0 && temp.sid === 'wl' ){ //
+						
+						temp.date = new Date(parseInt(temp.end)*1000);
+						temp.week = getWeekOfYear(temp.date);
+						
+						/*
+						//if(temp.sid == 3){
+						out += "<br>-----------<br>" + 
+						//JSON.stringify(data[x]) + 
+						//"pid: " + waterlog[x][0] + "<br>" +
+						//"sid: " + waterlog[x][1] + "<br>" +
+						"dur: " + waterlog[x][2] + "<br>" +
+						"end: " + waterlog[x][3] + " " + temp.week +"<br>";
+						//}
+						*/
+						/*
+						//WaterLevelWeek
+						if(isNaN( statWeekWater[ temp.week ] )){
+							statWeekWater.push(temp.week);
+							statWeekWater[temp.week] = temp.dur;
+							
+							//out += "<br> ----- ADD WEEK " + temp.week + " -----<br>";
+						}else{
+							statWeekWater[temp.week] += temp.dur;
+						}
+						*/
+						
+						if (oldWeek == 0) {
+							oldWeek = temp.week;
+						}
+						
+						if( oldWeek != temp.week){
+							
+							statWeekWater.push(oldWeek);
+							statWeekWater[oldWeek] = tempTime / dayCount;
+							
+							//out += "<br> ----- ADD WEEK " + oldWeek + " " + statWeekWater[oldWeek] + " -----<br>";
+							
+							dayCount = 0;
+							tempTime = 0;
+							oldWeek = temp.week;
+						}
+						
+						dayCount++;
+						tempTime += temp.dur;
+					
+					}
+				}
+				
+				statWeekWater.push(temp.week);
+				statWeekWater[temp.week] = tempTime / dayCount;
+			}			
+			
+			
+			//TimePerWeek data
+			var totalTimeLineData = {
+				labels : [],
+				datasets : [
+					{
+						label: "Running Time per Week",
+						fillColor : "rgba(51, 51, 255,0.15)",
+						strokeColor : "rgba(51, 51, 255, 0.8)",
+						pointColor : "rgba(51, 51, 255,1)",
+						pointStrokeColor : "#fff",
+						pointHighlightFill : "#fff",
+						pointHighlightStroke : "rgba(51, 51, 255,1)",
+						data : []
+					}
+				],
+				datasetFill : false
+			}
+			
+			//meanWaterlevelPerWeek data
+			var waterlevelLineData = {
+				labels : [],
+				datasets : [
+					{
+						label: "mean Waterlever per Week",
+						fillColor : "rgba(51, 51, 255,0.15)",
+						strokeColor : "rgba(51, 51, 255, 0.8)",
+						pointColor : "rgba(51, 51, 255,1)",
+						pointStrokeColor : "#fff",
+						pointHighlightFill : "#fff",
+						pointHighlightStroke : "rgba(51, 51, 255,1)",
+						data : []
+					}
+				],
+				datasetFill : false
+			}
+			
+			//perpear data for mean per day Bar
+			var barChartData = {
+				labels : [days[1],days[2],days[3],days[4],days[5],days[6],days[0] ],
+				datasets : [
+					{
+						fillColor : "rgba(51, 51, 255,0.2)",
+						strokeColor : "rgba(51, 51, 255,0.8)",
+						highlightFill: "rgba(51, 51, 255,0.75)",
+						highlightStroke: "rgba(51, 51, 255,1)",
+						data : [statTimeDay[1],statTimeDay[2],statTimeDay[3],statTimeDay[4],statTimeDay[5],statTimeDay[6],statTimeDay[0]]
+					}
+				]
+			}
+			
+			for(y = 1; y < statWeekTime.length; y++){
+				if( !isNaN( statWeekTime[ y ] ) ){
+					totalTimeLineData.labels.push( y );						
+					totalTimeLineData.datasets[ 0 ].data.push( Math.round(statWeekTime[ y ] / 60 / 60 * 10 ) / 10 );
+				}
+			}	
+			
+			for(y = 1; y < statWeekWater.length; y++){
+				if( !isNaN( statWeekWater[ y ] ) ){
+					waterlevelLineData.labels.push( y );						
+					waterlevelLineData.datasets[ 0 ].data.push( Math.round(statWeekWater[ y ] ) );
+					out += "<br> ADD: " + y + " " + Math.round(statWeekWater[ y ] ) + "%";
+				}
+			}	
+			
+			//total run time table				
+			for(y = 0; y < statStationTime.length; y++){
+				if( !isNaN( statStationTime[y.toString()] ) ){
+					out += "<br> Station: " + (y+1) + " - " + ( Math.round(statStationTime[y.toString()] / 60 / 60 * 10 ) / 10 )  + " h";
+				}					
+			}
+			
+			//bring this content in a table
+			out += "<br>";
+			out += "<br>total Time: " + ( Math.round( statTotalTime / 60 / 60 * 10 ) / 10) + " h"; //or 
+			out += "<br>total Rain: " + ( Math.round( statTotalRainTime / 60 / 60 * 10 ) / 10) + " h";
+			out += "<br> countDays: " +statDays + " Days logged";
+			//out += "<br> mean per Day: " +statMeanDay/60/60 + "h";
+			
+			tableSort.hide(); //hide Day,Station sort menu
+			logsList.show(); //show log content
+			
+			logOptions.collapsible( "collapse" ); //close the log
+			
+			//show data
+			logsList.html( "<div>" + out + "</div>" ).enhanceWithin();
+		
+			//show TimePerWeek line
+			var ctx = document.getElementById("totalTimeLine").getContext("2d");
+			window.myLine = new Chart(ctx).Line(totalTimeLineData, {
+				responsive: true,
+			});
+		
+			//show WaterlevelPerWeek line
+			var ctx = document.getElementById("waterlevelLine").getContext("2d");
+			window.myLine = new Chart(ctx).Line(waterlevelLineData, {
+				responsive: true,
+			});
+		
+			//show meanPerDay Bar
+			var ctx = document.getElementById("meanPerDay").getContext("2d");
+			window.myBar = new Chart(ctx).Bar(barChartData, {
+				responsive : true
+			});
+		
+		},
+		resetLogsPage = function() {
             data = [];
             logOptions.collapsible( "expand" );
             tableSort.hide();
@@ -7000,10 +7328,11 @@ var getLogs = ( function() {
         },
         pageshow: requestData
     } );
-
+	
 	page.find( "#log_timeline" ).prop( "checked", !isNarrow );
 	page.find( "#log_table" ).prop( "checked", isNarrow );
-
+	page.find( "#log_statistic" ).prop( "checked", !isNarrow );
+	
     function begin() {
 		stations = $.merge( $.merge( [], controller.stations.snames ), [ _( "Rain Sensor" ), _( "Rain Delay" ) ] );
 		page.find( ".clear_logs" ).toggleClass( "hidden", ( isOSPi() || checkOSVersion( 210 ) ?  false : true ) );
@@ -11134,4 +11463,17 @@ function dateToString( date, toUTC, shorten ) {
 					pad( date.getSeconds() );
         }
     }
+}
+
+function getWeekOfYear( date ) { 
+  
+  var target  = new Date(date.valueOf());  
+  var dayNr   = (date.getDay() + 6) % 7;  
+  target.setDate(target.getDate() - dayNr + 3);  
+
+  var jan4    = new Date(target.getFullYear(), 0, 4);  
+  var dayDiff = (target - jan4) / 86400000;    
+  var weekNr = 1 + Math.ceil(dayDiff / 7);    
+
+  return weekNr; 
 }
