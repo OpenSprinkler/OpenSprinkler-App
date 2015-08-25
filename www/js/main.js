@@ -5377,7 +5377,8 @@ function refreshData() {
 
 // Actually change the status bar
 function changeStatus( seconds, color, line, onclick ) {
-    var footer = $( "#footer-running" );
+    var footer = $( "#footer-running" ),
+		html = "";
 
     onclick = onclick || function() {};
 
@@ -5391,7 +5392,21 @@ function changeStatus( seconds, color, line, onclick ) {
         };
     }
 
-    footer.removeClass().addClass( color ).html( line ).off( "click" ).on( "click", onclick );
+    if ( controller.settings.curr ) {
+		html += _( "Current" ) + ": " + controller.settings.curr + " mA ";
+    }
+
+    if ( controller.settings.flcrt && controller.settings.flwrt ) {
+		html += "<span style='padding-left:5px'>" + _( "Flow" ) + ": " + flowCountToVolume( controller.settings.flcrt ) / controller.settings.flwrt + " L/min</span>";
+    }
+
+    if ( html !== "" ) {
+		html = line + "<p class='running-text smaller center'>" + html + "</p>";
+    } else {
+		html = line;
+    }
+
+    footer.removeClass().addClass( color ).html( html ).off( "click" ).on( "click", onclick );
 }
 
 // Update status bar based on device status
@@ -8680,7 +8695,7 @@ function stopStations( callback ) {
 }
 
 function flowCountToVolume( count ) {
-	return count * ( ( controller.options.fpr1 << 8 ) + controller.options.fpr0 ) / 100;
+	return Math.round( count * ( ( controller.options.fpr1 << 8 ) + controller.options.fpr0 ) / 100 );
 }
 
 // OpenSprinkler feature detection functions
@@ -9689,7 +9704,7 @@ function getHWType() {
 	if ( controller.options.hwt === 172 ) {
 		return " - AC";
 	} else if ( controller.options.hwt === 220 ) {
-		return " - DC" + ( controller.settings.curr ? " (" + _( "current" ) + ": " + controller.settings.curr + " mA)" : "" );
+		return " - DC";
 	} else if ( controller.options.hwt === 26 ) {
 		return " - Latching";
 	} else {
