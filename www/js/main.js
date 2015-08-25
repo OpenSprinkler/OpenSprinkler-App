@@ -6633,7 +6633,11 @@ var getLogs = ( function() {
         waterlog = [],
         flowlog = [],
         sortData = function( type, grouping ) {
-            var sortedData = [];
+            var sortedData = [],
+				stats = {
+					totalRuntime: 0,
+					totalCount: 0
+				};
 
             if ( type === "table" && grouping === "station" ) {
                 for ( i = 0; i < stations.length; i++ ) {
@@ -6656,8 +6660,13 @@ var getLogs = ( function() {
                     } else {
                         return;
                     }
-                } else if ( typeof station === "number" && station > stations.length - 2 ) {
-                    return;
+                } else if ( typeof station === "number" ) {
+					if ( station > stations.length - 2 || isStationMaster( station ) ) {
+						return;
+					}
+
+					stats.totalRuntime += parseInt( this[ 2 ] );
+					stats.totalCount++;
                 }
 
                 if ( type === "table" ) {
@@ -6718,7 +6727,33 @@ var getLogs = ( function() {
                 sortedData.sort( sortByStation );
             }
 
-            return sortedData;
+            return [ sortedData, stats ];
+        },
+        sortExtraData = function( stats ) {
+			var wlSorted = [],
+				flSorted = [];
+
+            if ( !$.isEmptyObject( waterlog ) ) {
+				stats.avgWaterLevel = 0;
+                $.each( waterlog, function() {
+                    wlSorted[ Math.floor( this[ 3 ] / 60 / 60 / 24 ) ] = this[ 2 ];
+					stats.avgWaterLevel += this[ 2 ];
+                } );
+                stats.avgWaterLevel = stats.avgWaterLevel / waterlog.length;
+            }
+
+            if ( !$.isEmptyObject( flowlog ) ) {
+				stats.totalVolume = 0;
+                $.each( flowlog, function() {
+					var day = Math.floor( this[ 3 ] / 60 / 60 / 24 ),
+						volume = flowCountToVolume( this[ 0 ] );
+
+                    flSorted[ day ] = flSorted[ day ] ? flSorted[ day ] + volume : volume;
+                    stats.totalVolume += volume;
+                } );
+            }
+
+            return [ wlSorted, flSorted, stats ];
         },
         success = function( items, wl, fl ) {
             if ( typeof items !== "object" || items.length < 1 || ( items.result && items.result === 32 ) ) {
@@ -6784,7 +6819,7 @@ var getLogs = ( function() {
                 e.stopImmediatePropagation();
             } );
 
-            $.each( sortedData, function() {
+            $.each( sortedData[ 0 ], function() {
                 shortnames[ this.group ] = this.shortname;
             } );
 
@@ -6794,7 +6829,7 @@ var getLogs = ( function() {
             page.one( "pagehide", reset );
             page.find( "input:radio[name='log_type']" ).one( "change", reset );
 
-            timeline.draw( sortedData );
+            timeline.draw( sortedData[ 0 ] );
 
             logsList.find( ".timeline-groups-text" ).each( function() {
                 this.setAttribute( "data-shortname", shortnames[ this.textContent ] );
@@ -6810,41 +6845,19 @@ var getLogs = ( function() {
             logsList.show();
 
             var grouping = page.find( "input:radio[name='table-group']:checked" ).val(),
+                rawData = sortData( "table", grouping ),
+                sortedData = rawData[ 0 ],
+                extraData = sortExtraData( rawData [ 1 ] ),
+                groupArray = [],
+                wlSorted = extraData[ 0 ],
+                flSorted = extraData[ 1 ],
+                stats = extraData[ 2 ],
                 tableHeader = "<table><thead><tr><th data-priority='1'>" + _( "Runtime" ) + "</th>" +
 					"<th data-priority='2'>" + ( grouping === "station" ? _( "Date/Time" ) : _( "Time" ) + "</th><th>" + _( "Station" ) ) + "</th>" +
 					"</tr></thead><tbody>",
-                html = "<div data-role='collapsible-set' data-inset='true' data-theme='b' data-collapsed-icon='arrow-d' data-expanded-icon='arrow-u'>",
-                stats = {
-					totalRuntime: 0,
-					totalCount: 0,
-					totalVolume: 0
-                },
-                sortedData = sortData( "table", grouping ),
-                groupArray = [],
-                wlSorted = [],
-                flSorted = [],
+                html = showStats( stats ) + "<div data-role='collapsible-set' data-inset='true' data-theme='b' data-collapsed-icon='arrow-d' data-expanded-icon='arrow-u'>",
                 i = 0,
                 group, ct, k;
-
-            if ( !$.isEmptyObject( waterlog ) ) {
-                $.each( waterlog, function() {
-                    wlSorted[ Math.floor( this[ 3 ] / 60 / 60 / 24 ) ] = this[ 2 ];
-                } );
-            }
-
-            if ( !$.isEmptyObject( flowlog ) ) {
-                $.each( flowlog, function() {
-					var day = Math.floor( this[ 3 ] / 60 / 60 / 24 ),
-						volume = flowCountToVolume( this[ 0 ] );
-
-                    flSorted[ day ] = flSorted[ day ] ? flSorted[ day ] + volume : volume;
-                    stats.totalVolume += volume;
-                } );
-            }
-
-            if ( stats.totalVolume > 0 ) {
-                html = "<span>" + _( "Total Water Used" ) + ": " + stats.totalVolume + " L</span>" + html;
-            }
 
             for ( group in sortedData ) {
                 if ( sortedData.hasOwnProperty( group ) ) {
@@ -6852,7 +6865,6 @@ var getLogs = ( function() {
                     if ( ct === 0 ) {
                         continue;
                     }
-                    stats.totalCount += ct;
                     groupArray[ i ] = "<div data-role='collapsible' data-collapsed='true'><h2>" +
 							( ( checkOSVersion( 210 ) && grouping === "day" ) ? "<a class='ui-btn red ui-btn-corner-all delete-day day-" +
 								group + "'>" + _( "delete" ) + "</a>" : "" ) +
@@ -6921,6 +6933,15 @@ var getLogs = ( function() {
             } );
 
             fixInputClick( logsList );
+        },
+        showStats = function( stats ) {
+			var html = "";
+
+            if ( stats.totalVolume > 0 ) {
+                html += "<span>" + _( "Total Water Used" ) + ": " + stats.totalVolume + " L</span>";
+            }
+
+            return html;
         },
         resetLogsPage = function() {
             data = [];
