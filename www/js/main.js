@@ -5392,11 +5392,11 @@ function changeStatus( seconds, color, line, onclick ) {
         };
     }
 
-    if ( controller.settings.curr ) {
+    if ( isControllerConnected() && controller.settings.curr ) {
 		html += _( "Current" ) + ": " + controller.settings.curr + " mA ";
     }
 
-    if ( controller.settings.flcrt && controller.settings.flwrt ) {
+    if ( isControllerConnected() && controller.settings.flcrt && controller.settings.flwrt ) {
 		html += "<span style='padding-left:5px'>" + _( "Flow" ) + ": " + flowCountToVolume( controller.settings.flcrt ) / controller.settings.flwrt + " L/min</span>";
     }
 
@@ -6744,14 +6744,28 @@ var getLogs = ( function() {
 
             return [ sortedData, stats ];
         },
-        sortExtraData = function( stats ) {
+        sortExtraData = function( stats, type ) {
 			var wlSorted = [],
 				flSorted = [];
 
             if ( !$.isEmptyObject( waterlog ) ) {
 				stats.avgWaterLevel = 0;
                 $.each( waterlog, function() {
-                    wlSorted[ Math.floor( this[ 3 ] / 60 / 60 / 24 ) ] = this[ 2 ];
+					if ( type === "timeline" ) {
+		                var stamp = parseInt( this[ 3 ] * 1000 ),
+		                    date = new Date( stamp ),
+		                    utc = new Date( date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(),  date.getUTCHours(),
+								date.getUTCMinutes(), date.getUTCSeconds() );
+
+	                    wlSorted.push( {
+	                        "start": new Date( utc.getTime() ),
+	                        "content": this[ 2 ] + " %",
+	                        "shortname": _( "WL" ),
+	                        "group": _( "Average Water Level" )
+	                    } );
+					} else {
+	                    wlSorted[ Math.floor( this[ 3 ] / 60 / 60 / 24 ) ] = this[ 2 ];
+	                }
 					stats.avgWaterLevel += this[ 2 ];
                 } );
                 stats.avgWaterLevel = stats.avgWaterLevel / waterlog.length;
@@ -6760,10 +6774,27 @@ var getLogs = ( function() {
             if ( !$.isEmptyObject( flowlog ) ) {
 				stats.totalVolume = 0;
                 $.each( flowlog, function() {
-					var day = Math.floor( this[ 3 ] / 60 / 60 / 24 ),
-						volume = flowCountToVolume( this[ 0 ] );
+					var volume = flowCountToVolume( this[ 0 ] );
 
-                    flSorted[ day ] = flSorted[ day ] ? flSorted[ day ] + volume : volume;
+					if ( type === "timeline" ) {
+		                var stamp = parseInt( this[ 3 ] * 1000 ),
+		                    date = new Date( stamp ),
+		                    utc = new Date( date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(),  date.getUTCHours(),
+								date.getUTCMinutes(), date.getUTCSeconds() );
+
+	                    flSorted.push( {
+	                        "start": new Date( utc.getTime() - parseInt( this[ 2 ] * 1000 ) ),
+	                        "end": utc,
+	                        "className": "",
+	                        "content": volume + " L/min",
+	                        "shortname": _( "FS" ),
+	                        "group": _( "Flow Sensor" )
+	                    } );
+					} else {
+						var day = Math.floor( this[ 3 ] / 60 / 60 / 24 );
+
+	                    flSorted[ day ] = flSorted[ day ] ? flSorted[ day ] + volume : volume;
+					}
                     stats.totalVolume += volume;
                 } );
             }
@@ -6806,6 +6837,9 @@ var getLogs = ( function() {
             logOptions.collapsible( "collapse" );
 
             var sortedData = sortData( "timeline" ),
+                extraData = sortExtraData( sortedData[ 1 ], "timeline" ),
+                fullData = sortedData[ 0 ].concat( extraData[ 0 ] ).concat( extraData[ 1 ] ),
+                stats = extraData[ 2 ],
                 options = {
                     "width":  "100%",
                     "editable": false,
@@ -6834,7 +6868,7 @@ var getLogs = ( function() {
                 e.stopImmediatePropagation();
             } );
 
-            $.each( sortedData[ 0 ], function() {
+            $.each( fullData, function() {
                 shortnames[ this.group ] = this.shortname;
             } );
 
@@ -6844,11 +6878,13 @@ var getLogs = ( function() {
             page.one( "pagehide", reset );
             page.find( "input:radio[name='log_type']" ).one( "change", reset );
 
-            timeline.draw( sortedData[ 0 ] );
+            timeline.draw( fullData );
 
             logsList.find( ".timeline-groups-text" ).each( function() {
                 this.setAttribute( "data-shortname", shortnames[ this.textContent ] );
             } );
+
+            logsList.prepend( showStats( stats ) );
         },
         prepTable = function() {
             if ( data.length < 1 ) {
