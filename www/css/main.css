@@ -129,9 +129,15 @@ a {
 .squeeze {
     letter-spacing: -0.3px;
 }
+.full-width {
+    width: 100% !important
+}
 .smaller {
     margin:0;
     font-size:smaller
+}
+.larger {
+    font-size:larger
 }
 .center {
     text-align:center!important
@@ -141,7 +147,7 @@ a {
     justify-content: center;
 }
 .center-div {
-    margin: inherit auto
+    margin: 5px auto
 }
 .right {
     text-align: right;
@@ -636,6 +642,13 @@ body, input, select, textarea, button, .ui-btn {
 #log_options {
     max-width: 800px;
     margin: 0 auto;
+}
+#logs_summary {
+    margin: 0 auto 10px auto;
+    padding: 2px
+}
+#logs_summary > div {
+    padding: 2px;
 }
 @media (max-width:480px) {
     #logs_list .ui-li-aside {

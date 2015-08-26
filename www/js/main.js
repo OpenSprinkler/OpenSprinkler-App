@@ -6780,16 +6780,16 @@ var getLogs = ( function() {
 			var wlSorted = [],
 				flSorted = [];
 
-            if ( !$.isEmptyObject( waterlog ) ) {
+            if ( waterlog.length ) {
 				stats.avgWaterLevel = 0;
                 $.each( waterlog, function() {
                     wlSorted[ Math.floor( this[ 3 ] / 60 / 60 / 24 ) ] = this[ 2 ];
 					stats.avgWaterLevel += this[ 2 ];
                 } );
-                stats.avgWaterLevel = stats.avgWaterLevel / waterlog.length;
+                stats.avgWaterLevel = ( stats.avgWaterLevel / waterlog.length ).toFixed( 2 );
             }
 
-            if ( !$.isEmptyObject( flowlog ) ) {
+            if ( flowlog.length ) {
 				stats.totalVolume = 0;
                 $.each( flowlog, function() {
 					var volume = flowCountToVolume( this[ 0 ] );
@@ -7004,13 +7004,19 @@ var getLogs = ( function() {
             fixInputClick( logsList );
         },
         showStats = function( stats ) {
-			var html = "";
+			if ( stats.totalCount === 0 || stats.totalRuntime === 0 ) {
+				return "";
+			}
 
-            if ( stats.totalVolume > 0 ) {
-                html += "<span>" + _( "Total Water Used" ) + ": " + stats.totalVolume + " L</span>";
-            }
-
-            return html;
+            return "<div class='ui-grid-a ui-body-a smaller left' id='logs_summary'>" +
+			            "<div class='ui-block-a'>" + _( "Total Station Events" ) + ": " + stats.totalCount + "</div>" +
+			            "<div class='ui-block-b'>" + _( "Total Runtime" ) + ": " + dhms2str( sec2dhms( stats.totalRuntime ) ) + "</div>" +
+			            ( typeof stats.avgWaterLevel !== "undefined" ?
+							"<div class='ui-block-a" + ( typeof stats.totalVolume === "undefined" ? " full-width center" : "" ) + "'>" +  _( "Average" ) + " " + _( "Water Level" ) + ": " + stats.avgWaterLevel + "%</div>" : ""
+						) +
+			            ( typeof stats.totalVolume !== "undefined" ? "<div class='ui-block-b'>" + _( "Total Water Used" ) + ": " + stats.totalVolume + " L</div>" : "" ) +
+                    "</div>" +
+                "</fieldset>";
         },
         resetLogsPage = function() {
             data = [];
