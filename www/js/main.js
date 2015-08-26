@@ -6813,7 +6813,7 @@ var getLogs = ( function() {
                     wlSorted[ Math.floor( this[ 3 ] / 60 / 60 / 24 ) ] = this[ 2 ];
 					stats.avgWaterLevel += this[ 2 ];
                 } );
-                stats.avgWaterLevel = ( stats.avgWaterLevel / waterlog.length ).toFixed( 2 );
+                stats.avgWaterLevel = parseFloat( ( stats.avgWaterLevel / waterlog.length ).toFixed( 2 ) );
             }
 
             if ( flowlog.length ) {
@@ -7035,13 +7035,17 @@ var getLogs = ( function() {
 				return "";
 			}
 
+			var hasWater = typeof stats.avgWaterLevel !== "undefined";
+
             return "<div class='ui-body-a smaller' id='logs_summary'>" +
 			            "<div><span class='bold'>" + _( "Total Station Events" ) + "</span>: " + stats.totalCount + "</div>" +
 			            "<div><span class='bold'>" + _( "Total Runtime" ) + "</span>: " + dhms2str( sec2dhms( stats.totalRuntime ) ) + "</div>" +
-			            ( typeof stats.avgWaterLevel !== "undefined" ?
+			            ( hasWater ?
 							"<div><span class='bold'>" +  _( "Average" ) + " " + _( "Water Level" ) + "</span>: " + stats.avgWaterLevel + "%</div>" : ""
 						) +
-			            ( typeof stats.totalVolume !== "undefined" ? "<div><span class='bold'>" + _( "Total Water Used" ) + "</span>: " + stats.totalVolume + " L</div>" : "" ) +
+			            ( typeof stats.totalVolume !== "undefined" ? "<div><span class='bold'>" + _( "Total Water Used" ) + "</span>: " + stats.totalVolume + " L" +
+							( hasWater && stats.totalVolume > 0 && stats.avgWaterLevel < 100 ? " (<span class='green-text'>" + ( stats.totalVolume - ( stats.totalVolume / ( stats.avgWaterLevel / 100 ) ) ) + "L saved</span>)" : "" ) +
+			            "</div>" : "" ) +
                     "</div>";
         },
         resetLogsPage = function() {

@@ -210,6 +210,9 @@ a {
     font-weight:400;
     text-shadow:none!important
 }
+.red-text {
+    color: #C96161!important;
+}
 .red.ui-btn {
     border-color:#C96161!important;
 }
@@ -221,6 +224,9 @@ a {
     color:#FFF!important;
     font-weight:400;
     text-shadow:none!important
+}
+.green-text {
+    color: #16a085!important;
 }
 .green.ui-btn {
     border-color:#16a085!important;
