@@ -132,11 +132,9 @@ a {
 .full-width {
     width: 100% !important
 }
-@media ( max-width: 800px ) {
-    .smaller {
-        margin:0;
-        font-size:smaller
-    }
+.smaller {
+    margin:0;
+    font-size:smaller
 }
 .larger {
     font-size:larger
