@@ -6019,10 +6019,6 @@ var getPreview = ( function() {
         navi = page.find( "#timeline-navigation" ),
         previewData, processPrograms, checkMatch, checkMatch183, checkMatch21, runSched, timeToText, changeday, render, date, day, now, is21, is211;
 
-    placeholder.on( "swiperight swipeleft", function( e ) {
-        e.stopImmediatePropagation();
-    } );
-
     page.find( "#preview_date" ).on( "change", function() {
         date = this.value.split( "-" );
         day = new Date( date[ 0 ], date[ 1 ] - 1, date[ 2 ] );
@@ -6575,6 +6571,11 @@ var getPreview = ( function() {
         } else {
 			navi.hide();
         }
+
+        placeholder.on( "swiperight swipeleft", function( e ) {
+			e.stopImmediatePropagation();
+	    } );
+
     };
 
     function begin() {
