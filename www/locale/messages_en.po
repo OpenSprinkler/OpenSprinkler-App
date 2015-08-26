@@ -173,10 +173,70 @@ msgstr ""
 msgid "Delay Duration (hours)"
 msgstr ""
 
+msgid "Hurricane Local Statement"
+msgstr ""
+
+msgid "Tornado Warning"
+msgstr ""
+
+msgid "Tornado Watch"
+msgstr ""
+
+msgid "Severe Thunderstorm Warning"
+msgstr ""
+
+msgid "Severe Thunderstorm Watch"
+msgstr ""
+
+msgid "Winter Weather Advisory"
+msgstr ""
+
+msgid "Flood Warning"
+msgstr ""
+
+msgid "Flood Watch / Statement"
+msgstr ""
+
+msgid "High Wind Advisory"
+msgstr ""
+
+msgid "Severe Weather Statement"
+msgstr ""
+
+msgid "Heat Advisory"
+msgstr ""
+
+msgid "Dense Fog Advisory"
+msgstr ""
+
+msgid "Special Weather Statement"
+msgstr ""
+
+msgid "Fire Weather Advisory"
+msgstr ""
+
+msgid "Volcanic Activity Statement"
+msgstr ""
+
+msgid "Hurricane Wind Warning"
+msgstr ""
+
+msgid "Record Set"
+msgstr ""
+
+msgid "Public Reports"
+msgstr ""
+
+msgid "Public Information Statement"
+msgstr ""
+
 msgid "Forecast"
 msgstr ""
 
 msgid "Refresh"
+msgstr ""
+
+msgid "Click to read more..."
 msgstr ""
 
 msgid "Now"
@@ -418,7 +478,7 @@ msgstr ""
 msgid "Normally Open (Rain Sensor)"
 msgstr ""
 
-msgid "Flow Pulse Rate (L/pulse)"
+msgid "Flow Pulse Rate"
 msgstr ""
 
 msgid "LCD Screen"
@@ -666,6 +726,9 @@ msgstr ""
 msgid "Add Controller"
 msgstr ""
 
+msgid "Current"
+msgstr ""
+
 msgid "System Disabled"
 msgstr ""
 
@@ -809,6 +872,12 @@ msgstr ""
 msgid "RD"
 msgstr ""
 
+msgid "FS"
+msgstr ""
+
+msgid "Flow Sensor"
+msgstr ""
+
 msgid "Runtime"
 msgstr ""
 
@@ -828,6 +897,9 @@ msgid "runs"
 msgstr ""
 
 msgid "Average"
+msgstr ""
+
+msgid "Total Water Used"
 msgstr ""
 
 msgid "Are you sure you want to "
@@ -1248,9 +1320,6 @@ msgid "Update successful"
 msgstr ""
 
 msgid "Update did not complete."
-msgstr ""
-
-msgid "current"
 msgstr ""
 
 msgid "Yes"
