@@ -5410,7 +5410,7 @@ function changeStatus( seconds, color, line, onclick ) {
     }
 
     if ( isControllerConnected() && typeof controller.settings.flcrt !== "undefined" && typeof controller.settings.flwrt !== "undefined" ) {
-		html += "<span style='padding-left:5px'>" + _( "Flow" ) + ": " + flowCountToVolume( controller.settings.flcrt ) / ( controller.settings.flwrt / 60 ) + " L/min</span>";
+		html += "<span style='padding-left:5px'>" + _( "Flow" ) + ": " + ( flowCountToVolume( controller.settings.flcrt ) / ( controller.settings.flwrt / 60 ) ).toFixed( 2 ) + " L/min</span>";
     }
 
     if ( html !== "" ) {
@@ -8730,7 +8730,7 @@ function stopStations( callback ) {
 }
 
 function flowCountToVolume( count ) {
-	return ( count * ( ( controller.options.fpr1 << 8 ) + controller.options.fpr0 ) / 100 ).toFixed( 2 );
+	return parseFloat( ( count * ( ( controller.options.fpr1 << 8 ) + controller.options.fpr0 ) / 100 ).toFixed( 2 ) );
 }
 
 // OpenSprinkler feature detection functions
