@@ -8730,7 +8730,7 @@ function stopStations( callback ) {
 }
 
 function flowCountToVolume( count ) {
-	return Math.round( count * ( ( controller.options.fpr1 << 8 ) + controller.options.fpr0 ) / 100 );
+	return ( count * ( ( controller.options.fpr1 << 8 ) + controller.options.fpr0 ) / 100 ).toFixed( 2 );
 }
 
 // OpenSprinkler feature detection functions
