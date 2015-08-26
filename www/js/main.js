@@ -5405,12 +5405,12 @@ function changeStatus( seconds, color, line, onclick ) {
         };
     }
 
-    if ( isControllerConnected() && controller.settings.curr ) {
+    if ( isControllerConnected() && typeof controller.settings.curr !== "undefined" ) {
 		html += _( "Current" ) + ": " + controller.settings.curr + " mA ";
     }
 
-    if ( isControllerConnected() && controller.settings.flcrt && controller.settings.flwrt ) {
-		html += "<span style='padding-left:5px'>" + _( "Flow" ) + ": " + flowCountToVolume( controller.settings.flcrt ) / controller.settings.flwrt + " L/min</span>";
+    if ( isControllerConnected() && typeof controller.settings.flcrt !== "undefined" && typeof controller.settings.flwrt !== "undefined" ) {
+		html += "<span style='padding-left:5px'>" + _( "Flow" ) + ": " + flowCountToVolume( controller.settings.flcrt ) / ( controller.settings.flwrt / 60 ) + " L/min</span>";
     }
 
     if ( html !== "" ) {
@@ -6764,21 +6764,7 @@ var getLogs = ( function() {
             if ( !$.isEmptyObject( waterlog ) ) {
 				stats.avgWaterLevel = 0;
                 $.each( waterlog, function() {
-					if ( type === "timeline" ) {
-		                var stamp = parseInt( this[ 3 ] * 1000 ),
-		                    date = new Date( stamp ),
-		                    utc = new Date( date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(),  date.getUTCHours(),
-								date.getUTCMinutes(), date.getUTCSeconds() );
-
-	                    wlSorted.push( {
-	                        "start": new Date( utc.getTime() ),
-	                        "content": this[ 2 ] + " %",
-	                        "shortname": _( "WL" ),
-	                        "group": _( "Average Water Level" )
-	                    } );
-					} else {
-	                    wlSorted[ Math.floor( this[ 3 ] / 60 / 60 / 24 ) ] = this[ 2 ];
-	                }
+                    wlSorted[ Math.floor( this[ 3 ] / 60 / 60 / 24 ) ] = this[ 2 ];
 					stats.avgWaterLevel += this[ 2 ];
                 } );
                 stats.avgWaterLevel = stats.avgWaterLevel / waterlog.length;
@@ -6799,7 +6785,7 @@ var getLogs = ( function() {
 	                        "start": new Date( utc.getTime() - parseInt( this[ 2 ] * 1000 ) ),
 	                        "end": utc,
 	                        "className": "",
-	                        "content": volume + " L/min",
+	                        "content": volume + " L",
 	                        "shortname": _( "FS" ),
 	                        "group": _( "Flow Sensor" )
 	                    } );
@@ -6851,7 +6837,7 @@ var getLogs = ( function() {
 
             var sortedData = sortData( "timeline" ),
                 extraData = sortExtraData( sortedData[ 1 ], "timeline" ),
-                fullData = sortedData[ 0 ].concat( extraData[ 0 ] ).concat( extraData[ 1 ] ),
+                fullData = sortedData[ 0 ].concat( extraData[ 1 ] ),
                 stats = extraData[ 2 ],
                 options = {
                     "width":  "100%",
