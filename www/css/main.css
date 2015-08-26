@@ -132,9 +132,11 @@ a {
 .full-width {
     width: 100% !important
 }
-.smaller {
-    margin:0;
-    font-size:smaller
+@media ( max-width: 800px ) {
+    .smaller {
+        margin:0;
+        font-size:smaller
+    }
 }
 .larger {
     font-size:larger
@@ -787,7 +789,6 @@ body, input, select, textarea, button, .ui-btn {
     margin:0;
     text-shadow:none;
     color:#fff;
-    min-height: 24px;
 }
 div.running-text{
     display: table-cell;

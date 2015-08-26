@@ -5455,7 +5455,7 @@ function checkStatus() {
 
     // Handle operation disabled
     if ( !controller.settings.en ) {
-        changeStatus( 0, "red", "<p class='running-text center pointer'>" + _( "System Disabled" ) + "</p>", function() {
+        changeStatus( 0, "red", "<p class='running-text center pointer smaller'>" + _( "System Disabled" ) + "</p>", function() {
             areYouSure( _( "Do you want to re-enable system operation?" ), "", function() {
                 showLoading( "#footer-running" );
                 sendToOS( "/cv?pw=&en=1" ).done( function() {
@@ -5490,7 +5490,7 @@ function checkStatus() {
         sample = Object.keys( open )[ 0 ];
         pid    = controller.settings.ps[ sample ][ 0 ];
         pname  = pidname( pid );
-        line   = "<div><div class='running-icon'></div><div class='running-text pointer'>";
+        line   = "<div><div class='running-icon'></div><div class='running-text pointer smaller'>";
 
         line += pname + " " + _( "is running on" ) + " " + Object.keys( open ).length + " " + _( "stations" ) + " ";
         if ( ptotal > 0 ) {
@@ -5508,7 +5508,7 @@ function checkStatus() {
             match = true;
             pid = controller.settings.ps[ i ][ 0 ];
             pname = pidname( pid );
-            line = "<div><div class='running-icon'></div><div class='running-text pointer'>";
+            line = "<div><div class='running-icon'></div><div class='running-text pointer smaller'>";
             line += pname + " " + _( "is running on station" ) + " <span class='nobr'>" + controller.stations.snames[ i ] + "</span> ";
             if ( controller.settings.ps[ i ][ 1 ] > 0 ) {
                 line += "<span id='countdown' class='nobr'>(" + sec2hms( controller.settings.ps[ i ][ 1 ] ) + " " + _( "remaining" ) + ")</span>";
@@ -5525,7 +5525,7 @@ function checkStatus() {
 
     // Handle rain delay enabled
     if ( controller.settings.rd ) {
-        changeStatus( 0, "red", "<p class='running-text center pointer'>" +
+        changeStatus( 0, "red", "<p class='running-text center pointer smaller'>" +
 			_( "Rain delay until" ) + " " + dateToString( new Date( controller.settings.rdst * 1000 ) ) + "</p>",
 			function() {
 	            areYouSure( _( "Do you want to turn off rain delay?" ), "", function() {
@@ -5541,13 +5541,13 @@ function checkStatus() {
 
     // Handle rain sensor triggered
     if ( controller.options.urs === 1 && controller.settings.rs === 1 ) {
-        changeStatus( 0, "red", "<p class='running-text center'>" + _( "Rain detected" ) + "</p>" );
+        changeStatus( 0, "red", "<p class='running-text center smaller'>" + _( "Rain detected" ) + "</p>" );
         return;
     }
 
     // Handle manual mode enabled
     if ( controller.settings.mm === 1 ) {
-        changeStatus( 0, "red", "<p class='running-text center pointer'>" + _( "Manual mode enabled" ) + "</p>", function() {
+        changeStatus( 0, "red", "<p class='running-text center pointer smaller'>" + _( "Manual mode enabled" ) + "</p>", function() {
             areYouSure( _( "Do you want to turn off manual mode?" ), "", function() {
                 showLoading( "#footer-running" );
                 sendToOS( "/cv?pw=&mm=0" ).done( function() {
