@@ -4921,6 +4921,10 @@ var showHome = ( function() {
                 allCards.slice( controller.stations.snames.length, allCards.length ).remove();
             }
 
+            if ( allCards.length + runningCards.length > controller.stations.snames.length ) {
+				runningCards.remove();
+            }
+
             page.find( ".waterlevel" ).text( controller.options.wl );
             page.find( ".sitename" ).text( siteSelect.val() );
 
