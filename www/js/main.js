@@ -4917,12 +4917,22 @@ var showHome = ( function() {
             updateClock();
             updateSites();
 
-            if ( allCards.length > controller.stations.snames.length ) {
-                allCards.slice( controller.stations.snames.length, allCards.length ).remove();
-            }
-
             if ( allCards.length + runningCards.length > controller.stations.snames.length ) {
-				runningCards.remove();
+
+				// Merge running station cards with remainder of station cards
+				runningCards.detach().appendTo( cardHolder );
+
+				// Update the allCards array since running cards were merged in above
+				allCards = cardHolder.children();
+
+				// Remove all stations which are higher in index than the current max
+				allCards.each( function() {
+					var c = $( this );
+
+					if ( c.data( "station" ) >= controller.stations.snames.length ) {
+						c.remove();
+					}
+				} );
             }
 
             page.find( ".waterlevel" ).text( controller.options.wl );
