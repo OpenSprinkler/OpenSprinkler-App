@@ -7012,15 +7012,14 @@ var getLogs = ( function() {
 				return "";
 			}
 
-            return "<div class='ui-grid-a ui-body-a smaller left' id='logs_summary'>" +
-			            "<div class='ui-block-a'>" + _( "Total Station Events" ) + ": " + stats.totalCount + "</div>" +
-			            "<div class='ui-block-b'>" + _( "Total Runtime" ) + ": " + dhms2str( sec2dhms( stats.totalRuntime ) ) + "</div>" +
+            return "<div class='ui-body-a smaller' id='logs_summary'>" +
+			            "<div><span class='bold'>" + _( "Total Station Events" ) + "</span>: " + stats.totalCount + "</div>" +
+			            "<div><span class='bold'>" + _( "Total Runtime" ) + "</span>: " + dhms2str( sec2dhms( stats.totalRuntime ) ) + "</div>" +
 			            ( typeof stats.avgWaterLevel !== "undefined" ?
-							"<div class='ui-block-a" + ( typeof stats.totalVolume === "undefined" ? " full-width center" : "" ) + "'>" +  _( "Average" ) + " " + _( "Water Level" ) + ": " + stats.avgWaterLevel + "%</div>" : ""
+							"<div><span class='bold'>" +  _( "Average" ) + " " + _( "Water Level" ) + "</span>: " + stats.avgWaterLevel + "%</div>" : ""
 						) +
-			            ( typeof stats.totalVolume !== "undefined" ? "<div class='ui-block-b'>" + _( "Total Water Used" ) + ": " + stats.totalVolume + " L</div>" : "" ) +
-                    "</div>" +
-                "</fieldset>";
+			            ( typeof stats.totalVolume !== "undefined" ? "<div><span class='bold'>" + _( "Total Water Used" ) + "</span>: " + stats.totalVolume + " L</div>" : "" ) +
+                    "</div>";
         },
         resetLogsPage = function() {
             data = [];

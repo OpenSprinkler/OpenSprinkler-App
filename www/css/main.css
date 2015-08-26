@@ -648,7 +648,8 @@ body, input, select, textarea, button, .ui-btn {
     padding: 2px
 }
 #logs_summary > div {
-    padding: 2px;
+    padding: 2px 10px;
+    display: inline-block
 }
 @media (max-width:480px) {
     #logs_list .ui-li-aside {
