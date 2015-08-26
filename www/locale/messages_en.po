@@ -732,7 +732,7 @@ msgstr ""
 msgid "Configured as Extender"
 msgstr ""
 
-msgid "Do you wish to disable the extender mode?"
+msgid "Do you wish to disable extender mode?"
 msgstr ""
 
 msgid "System Disabled"
