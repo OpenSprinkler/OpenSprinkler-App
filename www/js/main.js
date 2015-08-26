@@ -440,7 +440,7 @@ function initApp() {
     $.mobile.document.on( "swiperight swipeleft", ".ui-page", function( e ) {
         var page = $( ".ui-page-active" );
 
-        if ( page.jqmData( "panel" ) !== "open" && !page.find( ".ui-popup-active" ).length ) {
+        if ( e.target.tagName !== "INPUT" && e.target.tagName !== "TEXTAREA" && page.jqmData( "panel" ) !== "open" && !page.find( ".ui-popup-active" ).length ) {
             if ( e.type === "swiperight" ) {
                 openPanel();
             } else {
@@ -3480,6 +3480,10 @@ function showOptions( expandItem ) {
 
                         break;
                     case "o41":
+						if ( page.find( "#o41-units" ).val() === "gallon" ) {
+							data = data * 3.78541;
+						}
+
                         opt.o41 = ( data * 100 ) & 0xff;
                         opt.o42 = ( ( data * 100 ) >> 8 ) & 0xff;
                         return true;
@@ -3782,7 +3786,7 @@ function showOptions( expandItem ) {
 		if ( typeof controller.options.fpr0 !== "undefined" ) {
 			list += "<div class='ui-field-contain'>" +
 				    "<fieldset data-role='controlgroup' class='ui-mini center' data-type='horizontal'>" +
-				        "<legend>" + _( "Attached Sensor Type" ) + "</legend>" +
+				        "<legend class='left'>" + _( "Attached Sensor Type" ) + "</legend>" +
 				        "<input class='noselect' type='radio' name='o21' id='o21-none' value='0'" + ( controller.options.urs === 0 ? " checked='checked'" : "" ) + ">" +
 				        "<label for='o21-none'>" + _( "None" ) + "</label>" +
 				        "<input class='noselect' type='radio' name='o21' id='o21-rain' value='1'" + ( controller.options.urs === 1 ? " checked='checked'" : "" ) + ">" +
@@ -3806,9 +3810,23 @@ function showOptions( expandItem ) {
     }
 
     if ( typeof controller.options.fpr0 !== "undefined" ) {
-        list += "<div class='ui-field-contain" + ( controller.options.urs === 2 ? "" : " hidden" ) + "'><label for='o41'>" + _( "Flow Pulse Rate (L/pulse)" ) + "</label>" +
-			"<input data-mini='true' type='number' pattern='^[-+]?[0-9]*\.?[0-9]*$' id='o41' value='" + ( ( controller.options.fpr1 * 256 + controller.options.fpr0 ) / 100 ) + "'>" +
-			"</div>";
+        list += "<div class='ui-field-contain" + ( controller.options.urs === 2 ? "" : " hidden" ) + "'>" +
+			"<label for='o41'>" + _( "Flow Pulse Rate" ) + "</label>" +
+	        "<table>" +
+	            "<tr style='width:100%;vertical-align: top;'>" +
+	                "<td style='width:100%'>" +
+	                    "<div class='ui-input-text controlgroup-textinput ui-btn ui-body-inherit ui-corner-all ui-mini ui-shadow-inset ui-input-has-clear'>" +
+							"<input data-role='none' data-mini='true' type='number' pattern='^[-+]?[0-9]*\.?[0-9]*$' id='o41' value='" + ( ( controller.options.fpr1 * 256 + controller.options.fpr0 ) / 100 ) + "'>" +
+	                    "</div>" +
+	                "</td>" +
+	                "<td class='tight-select'>" +
+						"<select id='o41-units' class='noselect' data-mini='true'>" +
+							"<option selected='selected' value='liter'>L/pulse</option>" +
+							"<option value='gallon'>Gal/pulse</option>" +
+						"</select>" +
+	                "</td>" +
+	            "</tr>" +
+	        "</table></div>";
     }
 
     list += "</fieldset><fieldset class='full-width-slider' data-role='collapsible'" +
