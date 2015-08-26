@@ -5466,7 +5466,7 @@ function checkStatus() {
     // Handle controller configured as extender
     if ( controller.options.re === 1 ) {
         changeStatus( 0, "red", "<p class='running-text center pointer'>" + _( "Configured as Extender" ) + "</p>", function() {
-            areYouSure( _( "Do you wish to disable the extender mode?" ), "", function() {
+            areYouSure( _( "Do you wish to disable extender mode?" ), "", function() {
                 showLoading( "#footer-running" );
                 sendToOS( "/cv?pw=&re=0" ).done( function() {
                     updateController();
