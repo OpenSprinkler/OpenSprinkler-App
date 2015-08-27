@@ -4585,6 +4585,7 @@ var showHome = ( function() {
 
 								select.one( "popupafterclose", function() {
 									$.mobile.loading( "hide" );
+								    loader.css( "opacity", "" );
 								} );
 
 							    $.mobile.loading( "show", {
@@ -4595,12 +4596,18 @@ var showHome = ( function() {
 							        theme: "b"
 							    } );
 
-							    $( ".ui-loader" ).find( ".cancel" ).one( "click", function() {
+							    var loader = $( ".ui-loader" );
+
+							    loader.css( "opacity", ".96" );
+
+							    loader.find( ".cancel" ).one( "click", function() {
 							        $.mobile.loading( "hide" );
+								    loader.css( "opacity", "" );
 							    } );
 
-							    $( ".ui-loader" ).find( ".continue" ).one( "click", function() {
+							    loader.find( ".continue" ).one( "click", function() {
 							        $.mobile.loading( "hide" );
+								    loader.css( "opacity", "" );
 
 							        if ( result === -3 ) {
 										convertRemoteToExtender( hex );
