@@ -6069,7 +6069,8 @@ var getPreview = ( function() {
         "</div>" ),
         placeholder = page.find( "#timeline" ),
         navi = page.find( "#timeline-navigation" ),
-        previewData, processPrograms, checkMatch, checkMatch183, checkMatch21, runSched, timeToText, changeday, render, date, day, now, is21, is211;
+        previewData, processPrograms, checkMatch, checkMatch183, checkMatch21, checkDayMatch, checkMatch216, runSched, runSched216,
+        timeToText, changeday, render, date, day, now, is21, is211, is216;
 
     page.find( "#preview_date" ).on( "change", function() {
         date = this.value.split( "-" );
@@ -6102,25 +6103,38 @@ var getPreview = ( function() {
             simminutes = 0,
             simt = Date.UTC( year, month - 1, day, 0, 0, 0, 0 ),
             simday = ( simt / 1000 / 3600 / 24 ) >> 0,
-            startArray = new Array( controller.settings.nbrd * 8 ),
-            programArray = new Array( controller.settings.nbrd * 8 ),
-            endArray = new Array( controller.settings.nbrd * 8 ),
-            plArray = new Array( controller.settings.nbrd * 8 ),
+            nstations = controller.settings.nbrd * 8,
+            startArray = new Array( nstations ),
+            programArray = new Array( nstations ),
+            endArray = new Array( nstations ),
+            plArray = new Array( nstations ),
+
+            // Runtime queue for FW 2.1.6+
+            rtQueue = [],
+
+            // Station qid for FW 2.1.6+
+            qidArray = new Array( nstations ),
             lastStopTime = 0,
             lastSeqStopTime = 0,
-            busy, matchFound, prog;
+            busy, matchFound, prog, sid, qid, q, sqi, bid, bid2, s, s2;
 
-        for ( var sid = 0; sid < controller.settings.nbrd * 8; sid++ ) {
-            startArray[ sid ] = -1;programArray[ sid ] = 0;endArray[ sid ] = 0;plArray[ sid ] = 0;
+        for ( sid = 0; sid < nstations; sid++ ) {
+            startArray[ sid ] = -1;
+            programArray[ sid ] = 0;
+            endArray[ sid ] = 0;
+            plArray[ sid ] = 0;
+            qidArray[ sid ] = 0xFF;
         }
+
         do {
             busy = 0;
             matchFound = 0;
             for ( var pid = 0; pid < controller.programs.pd.length; pid++ ) {
                 prog = controller.programs.pd[ pid ];
                 if ( checkMatch( prog, simminutes, simt, simday, devday ) ) {
-                    for ( sid = 0; sid < controller.settings.nbrd * 8; sid++ ) {
-                        var bid = sid >> 3;var s = sid % 8;
+                    for ( sid = 0; sid < nstations; sid++ ) {
+                        bid = sid >> 3;
+                        s = sid % 8;
 
 						// Skip master station
                         if ( isStationMaster( sid ) ) {
@@ -6136,17 +6150,33 @@ var getPreview = ( function() {
 
 							// Skip if water time is zero, or station is already scheduled
                             if ( prog[ 4 ][ sid ] && endArray[ sid ] === 0 ) {
+                                var waterTime = 0;
 
 								// Use weather scaling bit on
                                 if ( prog[ 0 ] & 0x02 && ( ( controller.options.uwt > 0 && simday === devday ) || controller.options.uwt === 0 ) ) {
-                                    endArray[ sid ] = getStationDuration( prog[ 4 ][ sid ], simt ) * controller.options.wl / 100 >> 0;
+                                    waterTime = getStationDuration( prog[ 4 ][ sid ], simt ) * controller.options.wl / 100 >> 0;
                                 } else {
-                                    endArray[ sid ] = getStationDuration( prog[ 4 ][ sid ], simt );
+                                    waterTime = getStationDuration( prog[ 4 ][ sid ], simt );
                                 }
 
 								// After weather scaling, we maybe getting 0 water time
-                                if ( endArray[ sid ] > 0 ) {
-                                    programArray[ sid ] = pid + 1;
+                                if ( waterTime > 0 ) {
+                                    if ( is216 ) {
+                                        if ( rtQueue.length < nstations ) {
+
+                                            // Check if there is space in the queue (queue is as large as number of stations)
+                                            rtQueue.push( {
+												st: 0,
+												dur: waterTime,
+												sid: sid,
+												pid: pid + 1,
+												pl: 1
+                                            } );
+                                        }
+                                    } else {
+                                        endArray[ sid ] = waterTime;
+                                        programArray[ sid ] = pid + 1;
+                                    }
                                     matchFound = 1;
                                 }
                             }
@@ -6161,29 +6191,55 @@ var getPreview = ( function() {
               }
             }
             if ( matchFound ) {
-                var acctime = simminutes * 60;
-                var seqAcctime = acctime;
+                var acctime = simminutes * 60,
+					seqAcctime = acctime;
+
                 if ( is211 ) {
                     if ( lastSeqStopTime > acctime ) {
                         seqAcctime = lastSeqStopTime + controller.options.sdt;
                     }
-                    var bid2, s2;
-                    for ( sid = 0; sid < controller.settings.nbrd * 8; sid++ ) {
-                        bid2 = sid >> 3;
-                        s2 = sid & 0x07;
-                        if ( endArray[ sid ] === 0 || startArray[ sid ] >= 0 ) {
-                            continue;
+
+                    if ( is216 ) {
+
+                        // Schedule all stations
+                        for ( qid = 0; qid < rtQueue.length; qid++ ) {
+                            q = rtQueue[ qid ];
+
+                            // Check if already scheduled or water time is zero
+                            if ( q.st > 0 || q.dur === 0 ) {
+								continue;
+                            }
+                            sid = q.sid;
+                            bid2 = sid >> 3;
+                            s2 = sid & 0x07;
+                            if ( controller.stations.stn_seq[ bid2 ] & ( 1 << s2 ) ) {
+                                q.st = seqAcctime;
+                                seqAcctime += q.dur;
+                                seqAcctime += controller.options.sdt;
+                            } else {
+                                q.st = acctime;
+                                acctime++;
+                            }
+                            busy = 1;
                         }
-                        if ( controller.stations.stn_seq[ bid2 ] & ( 1 << s2 ) ) {
-                            startArray[ sid ] = seqAcctime;seqAcctime += endArray[ sid ];
-                            endArray[ sid ] = seqAcctime;seqAcctime += controller.options.sdt;
-                            plArray[ sid ] = 1;
-                        } else {
-                            startArray[ sid ] = acctime;
-                            endArray[ sid ] = acctime + endArray[ sid ];
-                            plArray[ sid ] = 1;
+                    } else {
+                        for ( sid = 0; sid < nstations; sid++ ) {
+                            bid2 = sid >> 3;
+                            s2 = sid & 0x07;
+                            if ( endArray[ sid ] === 0 || startArray[ sid ] >= 0 ) {
+                                continue;
+                            }
+                            if ( controller.stations.stn_seq[ bid2 ] & ( 1 << s2 ) ) {
+                                startArray[ sid ] = seqAcctime;seqAcctime += endArray[ sid ];
+                                endArray[ sid ] = seqAcctime;seqAcctime += controller.options.sdt;
+                                plArray[ sid ] = 1;
+                            } else {
+                                startArray[ sid ] = acctime;
+                                endArray[ sid ] = acctime + endArray[ sid ];
+                                plArray[ sid ] = 1;
+                            }
+                            busy = 1;
                         }
-                        busy = 1;
                     }
                 } else {
                     if ( is21 && controller.options.seq ) {
@@ -6212,43 +6268,152 @@ var getPreview = ( function() {
                     }
                 }
             }
-            if ( busy ) {
-                if ( is211 ) {
-                    lastSeqStopTime = runSched( simminutes * 60, startArray, programArray, endArray, plArray, simt );
-                    simminutes++;
-                    for ( sid = 0; sid < controller.settings.nbrd * 8; sid++ ) {
-                        if ( programArray[ sid ] > 0 && simminutes * 60 >= endArray[ sid ] ) {
-                            startArray[ sid ] = -1;programArray[ sid ] = 0;endArray[ sid ] = 0;plArray[ sid ] = 0;
+            if ( is216 ) {
+
+                // Go through queue and assign queue elements to stations
+                for ( qid = 0; qid < rtQueue.length; qid++ ) {
+                    q = rtQueue[ qid ];
+                    sid = q.sid;
+                    sqi = qidArray[ sid ];
+                    if ( sqi < 255 && rtQueue[ sqi ].st < q.st ) {
+						continue;
+                    }
+                    qidArray[ sid ] = qid;
+                }
+
+                // Next, go through stations and calculate the schedules
+                runSched216( simminutes * 60, rtQueue, qidArray, simt );
+
+                // Progress 1 minute
+                simminutes++;
+
+                // Go through stations and remove jobs that have been done
+                for ( sid = 0; sid < controller.settings.nbrd * 8; sid++ ) {
+                    sqi = qidArray[ sid ];
+                    if ( sqi === 255 ) {
+						continue;
+                    }
+                    q = rtQueue[ sqi ];
+                    if ( q.st > 0 && simminutes * 60 >= q.st + q.dur ) {
+
+                        // Remove element at index sqi
+                        var nqueue = rtQueue.length;
+
+                        if ( sqi < nqueue - 1 ) {
+
+							// Copy last element to overwrite
+                            rtQueue[ sqi ] = rtQueue[ nqueue - 1 ];
+
+                            // Fix queue index if necessary
+                            if ( qidArray[ rtQueue[ sqi ].sid ] === nqueue - 1 ) {
+                                qidArray[ rtQueue[ sqi ].sid ] = sqi;
+                            }
                         }
+                        rtQueue.pop();
+                        qidArray[ sid ] = 0xFF;
                     }
-                } else if ( is21 ) {
-                    lastStopTime = runSched( simminutes * 60, startArray, programArray, endArray, plArray, simt );
-                    simminutes++;
-                    for ( sid = 0; sid < controller.settings.nbrd * 8; sid++ ) {
-                        startArray[ sid ] = -1;programArray[ sid ] = 0;endArray[ sid ] = 0;
-                    }
-                } else {
-                    var endminutes = runSched( simminutes * 60, startArray, programArray, endArray, plArray, simt ) / 60 >> 0;
-                    if ( controller.options.seq && simminutes !== endminutes ) {
-                        simminutes = endminutes;
-                    } else {
-                        simminutes++;
-                    }
-                    for ( sid = 0; sid < controller.settings.nbrd * 8; sid++ ) {
-                        startArray[ sid ] = -1;programArray[ sid ] = 0;endArray[ sid ] = 0;
+                }
+
+                // Lastly, calculate lastSeqStopTime
+                lastSeqStopTime = 0;
+                for ( qid = 0; qid < rtQueue.length; qid++ ) {
+                    q = rtQueue[ qid ];
+                    sid = q.sid;
+                    bid2 = sid >> 3;
+                    s2 = sid & 0x07;
+                    var sst = q.st + q.dur;
+                    if ( controller.stations.stn_seq[ bid2 ] & ( 1 << s2 ) ) {
+                        if ( sst > lastSeqStopTime ) {
+							lastSeqStopTime = sst;
+                        }
                     }
                 }
             } else {
-                simminutes++;
-                if ( is211 ) {
-                  for ( sid = 0; sid < controller.settings.nbrd * 8; sid++ ) {
-                      if ( programArray[ sid ] > 0 && simminutes * 60 >= endArray[ sid ] ) {
-                          startArray[ sid ] = -1;programArray[ sid ] = 0;endArray[ sid ] = 0;plArray[ sid ] = 0;
+
+				// Handle firmwares prior to 2.1.6
+                if ( busy ) {
+                    if ( is211 ) {
+                        lastSeqStopTime = runSched( simminutes * 60, startArray, programArray, endArray, plArray, simt );
+                        simminutes++;
+                        for ( sid = 0; sid < controller.settings.nbrd * 8; sid++ ) {
+                            if ( programArray[ sid ] > 0 && simminutes * 60 >= endArray[ sid ] ) {
+                                startArray[ sid ] = -1;programArray[ sid ] = 0;endArray[ sid ] = 0;plArray[ sid ] = 0;
+                            }
+                        }
+                    } else if ( is21 ) {
+                        lastStopTime = runSched( simminutes * 60, startArray, programArray, endArray, plArray, simt );
+                        simminutes++;
+                        for ( sid = 0; sid < controller.settings.nbrd * 8; sid++ ) {
+                            startArray[ sid ] = -1;programArray[ sid ] = 0;endArray[ sid ] = 0;
+                        }
+                    } else {
+                        var endminutes = runSched( simminutes * 60, startArray, programArray, endArray, plArray, simt ) / 60 >> 0;
+                        if ( controller.options.seq && simminutes !== endminutes ) {
+                            simminutes = endminutes;
+                        } else {
+                            simminutes++;
+                        }
+                        for ( sid = 0; sid < controller.settings.nbrd * 8; sid++ ) {
+                            startArray[ sid ] = -1;programArray[ sid ] = 0;endArray[ sid ] = 0;
+                        }
+                    }
+                } else {
+                    simminutes++;
+                    if ( is211 ) {
+                      for ( sid = 0; sid < controller.settings.nbrd * 8; sid++ ) {
+                          if ( programArray[ sid ] > 0 && simminutes * 60 >= endArray[ sid ] ) {
+                              startArray[ sid ] = -1;programArray[ sid ] = 0;endArray[ sid ] = 0;plArray[ sid ] = 0;
+                          }
                       }
-                  }
+                    }
                 }
             }
         } while ( simminutes < 24 * 60 );
+    };
+
+    runSched216 = function( simseconds, rtQueue, qidArray, simt ) {
+        for ( var sid = 0; sid < controller.settings.nbrd * 8; sid++ ) {
+            var sqi = qidArray[ sid ];
+            if ( sqi === 255 ) {
+				continue;
+            }
+            var q = rtQueue[ sqi ];
+            if ( q.pl ) {
+
+				// If this one hasn't been plotted
+                var mas2 = typeof controller.options.mas2 !== "undefined" ? true : false,
+                    useMas1 = controller.stations.masop[ sid >> 3 ] & ( 1 << ( sid % 8 ) ),
+                    useMas2 = mas2 ? controller.stations.masop2[ sid >> 3 ] & ( 1 << ( sid % 8 ) ) : false;
+
+                if ( !isStationMaster( sid ) ) {
+                    if ( controller.options.mas > 0 && useMas1 ) {
+                        previewData.push( {
+                            "start": ( q.st + controller.options.mton ),
+                            "end": ( q.st + q.dur + controller.options.mtof ),
+                            "content":"",
+                            "className":"master",
+                            "shortname":"M" + ( mas2 ? "1" : "" ),
+                            "group":"Master",
+                            "station": sid
+                        } );
+                    }
+
+                    if ( mas2 && controller.options.mas2 > 0 && useMas2 ) {
+                        previewData.push( {
+                            "start": ( q.st + controller.options.mton2 ),
+                            "end": ( q.st + q.dur + controller.options.mtof2 ),
+                            "content":"",
+                            "className":"master",
+                            "shortname":"M2",
+                            "group":"Master 2",
+                            "station": sid
+                        } );
+                    }
+                }
+                timeToText( sid, q.st, q.pid, q.st + q.dur, simt );
+                q.pl = 0;
+            }
+        }
     };
 
     runSched = function( simseconds, startArray, programArray, endArray, plArray, simt ) {
@@ -6363,7 +6528,9 @@ var getPreview = ( function() {
     };
 
     checkMatch = function( prog, simminutes, simt, simday, devday ) {
-        if ( is21 ) {
+        if ( is216 ) {
+            return checkMatch216( prog, simminutes, simt, simday, devday );
+        } else if ( is21 ) {
             return checkMatch21( prog, simminutes, simt, simday, devday );
         } else {
             return checkMatch183( prog, simminutes, simt, simday, devday );
@@ -6410,17 +6577,10 @@ var getPreview = ( function() {
         return 0;
     };
 
-    checkMatch21 = function( prog, simminutes, simt, simday, devday ) {
-        var en = prog[ 0 ] & 0x01,
-            oddeven = ( prog[ 0 ] >> 2 ) & 0x03,
+    checkDayMatch = function( prog, simt, simday, devday ) {
+        var oddeven = ( prog[ 0 ] >> 2 ) & 0x03,
             type = ( prog[ 0 ] >> 4 ) & 0x03,
-            sttype = ( prog[ 0 ] >> 6 ) & 0x01,
-            date = new Date( simt ),
-            i;
-
-        if ( en === 0 ) {
-            return 0;
-        }
+            date = new Date( simt );
 
         if ( type === 3 ) {
 
@@ -6443,22 +6603,31 @@ var getPreview = ( function() {
         }
 
         // Odd/Even restriction handling
-        if ( oddeven ) {
-            var dt = date.getUTCDate();
+        var dt = date.getUTCDate();
 
-            // Even restriction
-            if ( oddeven === 2 ) {
-                if ( ( dt % 2 ) !== 0 ) {
-                    return 0;
-                }
+        if ( oddeven === 2 ) {
+            if ( ( dt % 2 ) !== 0 ) {
+                return 0;
             }
+        } else if ( oddeven === 1 ) {
+            if ( dt === 31 || ( dt === 29 && date.getUTCMonth() === 1 ) || ( dt % 2 ) !== 1 ) {
+                return 0;
+            }
+        }
+        return 1;
+    };
 
-			// Odd restriction
-            if ( oddeven === 1 ) {
-                if ( dt === 31 || ( dt === 29 && date.getUTCMonth() === 1 ) || ( dt % 2 ) !== 1 ) {
-                    return 0;
-                }
-            }
+    checkMatch21 = function( prog, simminutes, simt, simday, devday ) {
+        var en = prog[ 0 ] & 0x01,
+            sttype = ( prog[ 0 ] >> 6 ) & 0x01,
+            date = new Date( simt );
+
+        if ( en === 0 ) {
+            return 0;
+        }
+
+        if ( !checkDayMatch( prog, simt, simday, devday ) ) {
+          return 0;
         }
 
         // Start time matching
@@ -6493,11 +6662,76 @@ var getPreview = ( function() {
 
             // Set start time program
             var sttimes = prog[ 3 ];
-            for ( i = 0; i < 4; i++ ) {
+            for ( var i = 0; i < 4; i++ ) {
 
                 if ( simminutes === getStartTime( sttimes[ i ], date ) ) {
                     return 1;
                 }
+            }
+        }
+        return 0;
+    };
+
+    checkMatch216 = function( prog, simminutes, simt, simday, devday ) {
+        var en = prog[ 0 ] & 0x01,
+            sttype = ( prog[ 0 ] >> 6 ) & 0x01,
+            date = new Date( simt );
+
+        if ( en === 0 ) {
+            return 0;
+        }
+
+        var start = getStartTime( prog[ 3 ][ 0 ], date ),
+            repeat = prog[ 3 ][ 1 ],
+            cycle = prog[ 3 ][ 2 ],
+            c;
+
+        // Check if simday matches the program start days
+        if ( checkDayMatch( prog, simt, simday, devday ) ) {
+
+            // Match the start time
+            if ( sttype === 0 ) {
+
+                // Repeating program
+                if ( simminutes === start ) {
+                    return 1;
+                }
+
+                if ( simminutes > start && cycle ) {
+                    c = Math.round( ( simminutes - start ) / cycle );
+                    if ( ( c * cycle === ( simminutes - start ) ) && ( c <= repeat ) ) {
+                        return 1;
+                    }
+                }
+
+            } else {
+
+                // Set start time program
+                var sttimes = prog[ 3 ];
+                for ( var i = 0; i < 4; i++ ) {
+
+                    if ( simminutes === getStartTime( sttimes[ i ], date ) ) {
+                        return 1;
+                    }
+                }
+                return 0;
+            }
+        }
+
+        // To proceed, the program has to be repeating type,
+        // and interval and repeat must be non-zero
+        if ( sttype || !cycle ) {
+			return 0;
+        }
+
+        // Check if the previous day is a program start day
+        if ( checkDayMatch( prog, simt - 86400000, simday - 1, devday ) ) {
+
+            // If so, check if a repeating program
+            // has start times that fall on today
+            c = Math.round( ( simminutes - start + 1440 ) / cycle );
+            if ( ( c * cycle === ( simminutes - start + 1440 ) ) && ( c <= repeat ) ) {
+                return 1;
             }
         }
         return 0;
@@ -6633,6 +6867,7 @@ var getPreview = ( function() {
     function begin() {
 	    is21 = checkOSVersion( 210 );
 	    is211 = checkOSVersion( 211 );
+	    is216 = checkOSVersion( 216 );
 
 	    if ( page.find( "#preview_date" ).val() === "" ) {
 		    now = new Date( controller.settings.devt * 1000 );
