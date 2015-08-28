@@ -2223,15 +2223,11 @@ function addFound( ip ) {
 function showZimmermanAdjustmentOptions( button, callback ) {
     $( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
 
-    var options = controller.settings.wto;
-
-    if ( typeof options !== "object" || $.isEmptyObject( options ) ) {
-        options = {
-            h: 100,
-            t: 100,
-            r: 100
-        };
-    }
+    var options = $.extend( {}, {
+        h: 100,
+        t: 100,
+        r: 100
+    }, controller.settings.wto );
 
     var popup = $( "<div data-role='popup' data-theme='a' id='adjustmentOptions'>" +
             "<div data-role='header' data-theme='b'>" +
@@ -2350,11 +2346,9 @@ function showZimmermanAdjustmentOptions( button, callback ) {
 function showAutoRainDelayAdjustmentOptions( button, callback ) {
     $( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
 
-    var options = controller.settings.wto;
-
-    if ( typeof options !== "object" || $.isEmptyObject( options ) ) {
-        options = { d: 24 };
-    }
+    var options = $.extend( {}, {
+		d: 24
+    }, controller.settings.wto );
 
     var popup = $( "<div data-role='popup' data-theme='a' id='adjustmentOptions'>" +
             "<div data-role='header' data-theme='b'>" +
