@@ -8961,7 +8961,7 @@ var showAbout = ( function() {
                     "</li>" +
                 "</ul>" +
                 "<p class='smaller'>" +
-                    _( "App Version" ) + ": 1.4.6" +
+                    _( "App Version" ) + ": 1.4.7" +
                     "<br>" + _( "Firmware" ) + ": <span class='firmware'></span>" +
                     "<br><span class='hardwareLabel'>" + _( "Hardware Version" ) + ":</span> <span class='hardware'></span>" +
                 "</p>" +
