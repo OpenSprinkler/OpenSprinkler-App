@@ -6160,7 +6160,7 @@ var getPreview = ( function() {
 
                                             // Check if there is space in the queue (queue is as large as number of stations)
                                             rtQueue.push( {
-												st: 0,
+												st: -1,
 												dur: waterTime,
 												sid: sid,
 												pid: pid + 1,
@@ -6200,7 +6200,7 @@ var getPreview = ( function() {
                             q = rtQueue[ qid ];
 
                             // Check if already scheduled or water time is zero
-                            if ( q.st > 0 || q.dur === 0 ) {
+                            if ( q.st >= 0 || q.dur === 0 ) {
 								continue;
                             }
                             sid = q.sid;
@@ -6288,7 +6288,7 @@ var getPreview = ( function() {
 						continue;
                     }
                     q = rtQueue[ sqi ];
-                    if ( q.st > 0 && simminutes * 60 >= q.st + q.dur ) {
+                    if ( q.st >= 0 && simminutes * 60 >= q.st + q.dur ) {
 
                         // Remove element at index sqi
                         var nqueue = rtQueue.length;
