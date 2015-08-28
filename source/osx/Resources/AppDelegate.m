@@ -60,6 +60,9 @@
 
     // Get notification on navigation changes (AJAX)
     [webView setPolicyDelegate:self];
+    
+    // Fix sluggish scrolling performance
+    [webView setWantsLayer:YES];
 
     // Make webView part of the window's contentView
     [self.window setContentView:self.webView];
