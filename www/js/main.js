@@ -3534,7 +3534,9 @@ function showOptions( expandItem ) {
 
     list += "<div class='ui-field-contain'>" +
         "<label for='loc'>" + _( "Location" ) + "</label>" +
-		"<button data-mini='true' id='loc' value='" + controller.settings.loc + "'>" + ( weather.location || controller.settings.loc ) + "</button></div>";
+		"<button data-mini='true' id='loc' value='" + controller.settings.loc + "'>" +
+			( typeof weather === "object" ? weather.location : controller.settings.loc ) +
+		"</button></div>";
 
     if ( typeof controller.options.lg !== "undefined" ) {
         list += "<label for='o36'><input data-mini='true' id='o36' type='checkbox' " + ( ( controller.options.lg === 1 ) ? "checked='checked'" : "" ) + ">" +
