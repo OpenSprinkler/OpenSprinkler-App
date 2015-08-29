@@ -3111,6 +3111,10 @@ function getAdjustmentName( id ) {
 		methods.push( _( "Auto Rain Delay" ) );
 	}
 
+	if ( id === "length" ) {
+		return methods.length;
+	}
+
     return methods[ id & ~( 1 << 7 ) ];
 }
 
@@ -3739,7 +3743,7 @@ function showOptions( expandItem ) {
 					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
 			"</label><select " + ( controller.settings.wtkey && controller.settings.wtkey !== "" ? "" : "disabled='disabled' " ) +
 				"data-mini='true' id='o31'>";
-        for ( i = 0; i < 3; i++ ) {
+        for ( i = 0; i < getAdjustmentName( "length" ); i++ ) {
             list += "<option " + ( ( i === getAdjustmentMethod() ) ? "selected" : "" ) + " value='" + i + "'>" + getAdjustmentName( i ) + "</option>";
         }
         list += "</select></div>";
