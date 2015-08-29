@@ -7276,7 +7276,7 @@ var getLogs = ( function() {
 			}
 
 			var hasWater = typeof stats.avgWaterLevel !== "undefined";
-console.log( stats.totalVolume, stats.avgWaterLevel )
+
             return "<div class='ui-body-a smaller' id='logs_summary'>" +
 			            "<div><span class='bold'>" + _( "Total Station Events" ) + "</span>: " + stats.totalCount + "</div>" +
 			            "<div><span class='bold'>" + _( "Total Runtime" ) + "</span>: " + dhms2str( sec2dhms( stats.totalRuntime ) ) + "</div>" +
