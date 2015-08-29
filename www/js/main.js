@@ -7276,15 +7276,17 @@ var getLogs = ( function() {
 			}
 
 			var hasWater = typeof stats.avgWaterLevel !== "undefined";
-
+console.log( stats.totalVolume, stats.avgWaterLevel )
             return "<div class='ui-body-a smaller' id='logs_summary'>" +
 			            "<div><span class='bold'>" + _( "Total Station Events" ) + "</span>: " + stats.totalCount + "</div>" +
 			            "<div><span class='bold'>" + _( "Total Runtime" ) + "</span>: " + dhms2str( sec2dhms( stats.totalRuntime ) ) + "</div>" +
 			            ( hasWater ?
-							"<div><span class='bold'>" +  _( "Average" ) + " " + _( "Water Level" ) + "</span>: " + stats.avgWaterLevel + "%</div>" : ""
+							"<div><span class='bold'>" +  _( "Average" ) + " " + _( "Water Level" ) + "</span>: <span class='" +
+									( stats.avgWaterLevel !== 100 ? ( stats.avgWaterLevel < 100 ? "green-text" : "red-text" ) : "" ) +
+								"'>" + stats.avgWaterLevel + "%</span></div>" : ""
 						) +
 			            ( typeof stats.totalVolume !== "undefined" ? "<div><span class='bold'>" + _( "Total Water Used" ) + "</span>: " + stats.totalVolume + " L" +
-							( hasWater && stats.totalVolume > 0 && stats.avgWaterLevel < 100 ? " (<span class='green-text'>" + ( stats.totalVolume - ( stats.totalVolume / ( stats.avgWaterLevel / 100 ) ) ) + "L saved</span>)" : "" ) +
+							( hasWater && stats.totalVolume > 0 && stats.avgWaterLevel < 100 ? " (<span class='green-text'>" + ( stats.totalVolume - ( stats.totalVolume * ( stats.avgWaterLevel / 100 ) ) ).toFixed( 2 ) + "L saved</span>)" : "" ) +
 			            "</div>" : "" ) +
                     "</div>";
         },
