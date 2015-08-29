@@ -2899,6 +2899,7 @@ function overlayMap( lat, lon, callback ) {
                 "<iframe style='border:none' src='" + getAppURLPath() + "map.htm' width='100%' height='100%' seamless=''></iframe>" +
         "</div>" ),
         iframe = popup.find( "iframe" ),
+        locInput = $( "#loc" ).val(),
         dataSent = false;
 
     // Wire in listener for communication from iframe
@@ -2922,8 +2923,8 @@ function overlayMap( lat, lon, callback ) {
 					lon: lon
 				},
 				current: {
-					lat: controller.settings.loc.match( regex.gps ) ? controller.settings.loc.split( "," )[ 0 ] : currentCoordinates[ 0 ],
-					lon: controller.settings.loc.match( regex.gps ) ? controller.settings.loc.split( "," )[ 1 ] : currentCoordinates[ 1 ]
+					lat: locInput.match( regex.gps ) ? locInput.split( "," )[ 0 ] : currentCoordinates[ 0 ],
+					lon: locInput.match( regex.gps ) ? locInput.split( "," )[ 1 ] : currentCoordinates[ 1 ]
 				}
             }
         }, "*" );
