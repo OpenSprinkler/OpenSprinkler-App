@@ -3687,7 +3687,8 @@ function showOptions( expandItem ) {
 			( typeof controller.options.dexp === "number" && controller.options.dexp < 255 && controller.options.dexp >= 0 ? " <span class='nobr'>(" +
 				( controller.options.dexp * 8 + 8 ) + " " + _( "available" ) + ")</span>" : "" ) +
 			"</label><select data-mini='true' id='o15'>";
-        for ( i = 0; i < 6; i++ ) {
+
+        for ( i = 0; i <= ( controller.options.mexp || 5 ); i++ ) {
             list += "<option " + ( ( controller.options.ext === i ) ? "selected" : "" ) + " value='" + i + "'>" + ( i * 8 + 8 ) + " " + _( "stations" ) +
 				"</option>";
         }
