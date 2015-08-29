@@ -3776,7 +3776,7 @@ function showOptions( expandItem ) {
 				"<button data-helptext='" +
 					_( "The watering percentage scales station run times by the set value. When weather adjustment is used the watering percentage is automatically adjusted." ) +
 					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
-			"</label><button " + ( ( controller.options.uwt && controller.options.uwt > 0 ) ? "disabled='disabled' " : "" ) +
+			"</label><button " + ( ( controller.options.uwt && getAdjustmentMethod() > 0 ) ? "disabled='disabled' " : "" ) +
 				"data-mini='true' id='o23' value='" + controller.options.wl + "'>" + controller.options.wl + "%</button></div>";
     }
 
