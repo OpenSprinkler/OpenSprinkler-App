@@ -2451,10 +2451,20 @@ function updateWeather() {
     } );
 }
 
-function updateYahooWeather() {
+function updateYahooWeather( string ) {
+
+	// If location matches a GPS coordinate, parse the location before querying for weather
+	if ( !string && controller.settings.loc.match( /^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/ ) ) {
+		coordsToLocation( controller.settings.loc.split( "," )[ 0 ], controller.settings.loc.split( "," )[ 1 ], function( result ) {
+			updateYahooWeather( result );
+		} );
+
+		return;
+	}
+
     $.ajax( {
         url: "https://query.yahooapis.com/v1/public/yql?q=select%20woeid%20from%20geo.placefinder%20where%20text=%22" +
-			encodeURIComponent( controller.settings.loc ) + "%22&format=json",
+			encodeURIComponent( string || controller.settings.loc ) + "%22&format=json",
         dataType: isChromeApp ? "json" : "jsonp",
         contentType: "application/json; charset=utf-8",
         shouldRetry: retryCount,
@@ -2623,12 +2633,16 @@ function updateWundergroundWeather( wapikey ) {
 }
 
 function coordsToLocation( lat, lon, callback, fallback ) {
+	fallback = fallback || lat + "," + lon;
+
     $.getJSON( "https://maps.googleapis.com/maps/api/geocode/json?latlng=" + lat + "," + lon, function( data ) {
         if ( data.results.length === 0 ) {
             callback( fallback );
+            return;
         }
 
         data = data.results;
+        fallback = data[ 0 ].formatted_address;
 
         var hasEnd = false;
 
@@ -2636,6 +2650,7 @@ function coordsToLocation( lat, lon, callback, fallback ) {
             if ( data.hasOwnProperty( item ) ) {
                 if ( $.inArray( "locality", data[ item ].types ) > -1 ||
 					 $.inArray( "sublocality", data[ item ].types ) > -1 ||
+					 $.inArray( "postal_code", data[ item ].types ) > -1 ||
 					 $.inArray( "street_address", data[ item ].types ) > -1 ) {
 						hasEnd = true;
 						break;
@@ -2645,6 +2660,7 @@ function coordsToLocation( lat, lon, callback, fallback ) {
 
         if ( hasEnd === false ) {
             callback( fallback );
+            return;
         }
 
         data = data[ item ].address_components;
@@ -2859,77 +2875,7 @@ function makeYahooForecast() {
     return list;
 }
 
-function resolveLocation( loc, callback ) {
-
-    // Looks up the location and shows a list possible matches for selection
-    // Returns the selection to the callback
-    $( "#location-list" ).popup( "destroy" ).remove();
-
-    callback = callback || function() {};
-
-    if ( !loc || loc === "" ) {
-        callback( false );
-        return;
-    }
-
-    $.ajax( {
-        url: "https://autocomplete.wunderground.com/aq?format=json&h=0&query=" + encodeURIComponent( loc ),
-        dataType: isChromeApp ? "json" : "jsonp",
-        jsonp: "cb",
-        shouldRetry: retryCount
-    } ).done( function( data ) {
-        data = data.RESULTS;
-
-        if ( data.length === 0 ) {
-            callback( false );
-            return;
-        } else if ( data.length === 1 ) {
-            callback( data[ 0 ].name );
-            return;
-        }
-
-        var items = "";
-
-        for ( var i = 0; i < data.length; i++ ) {
-            if ( data[ i ].type !== "city" || !data[ i ].tz ) {
-                continue;
-            }
-
-            items += "<li><a>" + data[ i ].name + "</a></li>";
-        }
-
-        if ( items === "" ) {
-            callback( false );
-            return;
-        }
-
-        var popup = $( "<div data-role='popup' id='location-list' data-theme='a'>" +
-                "<div data-role='header' data-theme='b'>" +
-                    "<h1>" + _( "Select City" ) + "</h1>" +
-                "</div>" +
-                "<div class='ui-content'>" +
-                    "<ul data-role='listview'>" +
-                        items +
-                    "</ul>" +
-                "</div>" +
-            "</div>" ),
-            dataSent = false;
-
-        popup.on( "click", "a", function() {
-            callback( this.textContent );
-            dataSent = true;
-            popup.popup( "close" );
-        } ).one( "popupafterclose", function() {
-            if ( dataSent === false ) {
-                callback( false );
-            }
-        } );
-
-        openPopup( popup );
-    } );
-}
-
-function nearbyPWS( lat, lon, callback ) {
+function overlayMap( lat, lon, callback ) {
 
     // Looks up the location and shows a list possible matches for selection
     // Returns the selection to the callback
@@ -2943,12 +2889,68 @@ function nearbyPWS( lat, lon, callback ) {
         return;
     }
 
+    var popup = $( "<div data-role='popup' id='location-list' data-theme='a' style='background-color:rgb(229, 227, 223);'>" +
+            "<a href='#' data-rel='back' class='ui-btn ui-corner-all ui-shadow ui-btn-b ui-icon-delete ui-btn-icon-notext ui-btn-right'>" + _( "Close" ) + "</a>" +
+                "<iframe style='border:none' src='" + getAppURLPath() + "map.htm' width='100%' height='100%' seamless=''></iframe>" +
+        "</div>" ),
+        iframe = popup.find( "iframe" ),
+        dataSent = false;
+
+    // Wire in listener for communication from iframe
+    $.mobile.window.off( "message onmessage" ).on( "message onmessage", function( e ) {
+        var data = e.originalEvent.data;
+        if ( typeof data.WS !== "undefined" ) {
+            callback( data.WS );
+            dataSent = true;
+            popup.popup( "destroy" ).remove();
+        } else if ( typeof data.loaded !== "undefined" && data.loaded === true ) {
+            $.mobile.loading( "hide" );
+        }
+    } );
+
+    iframe.one( "load", function() {
+        this.contentWindow.postMessage( {
+            type: "currentLocation",
+            payload: {
+				start: {
+					lat: lat,
+					lon: lon
+				},
+				current: {
+					lat: currentCoordinates[ 0 ],
+					lon: currentCoordinates[ 1 ]
+				}
+            }
+        }, "*" );
+    } );
+
+    popup.one( "popupafterclose", function() {
+        if ( dataSent === false ) {
+            callback( false );
+        }
+    } );
+
+    openPopup( popup, {
+        beforeposition: function() {
+            popup.css( {
+                width: window.innerWidth - 36,
+                height: window.innerHeight - 28
+            } );
+        },
+        x: 0,
+        y: 0
+    } );
+
     $.ajax( {
         url: "https://api.wunderground.com/api/" + controller.settings.wtkey + "/geolookup/q/" +
 			( lat === -999 || lon === -999 ? "autoip" : encodeURIComponent( lat ) + "," + encodeURIComponent( lon ) ) + ".json",
         dataType: isChromeApp ? "json" : "jsonp",
         shouldRetry: retryCount
     } ).done( function( data ) {
+		if ( typeof data.response.error === "object" ) {
+			return;
+		}
+
         var airports;
 
         lat = data.location.lat;
@@ -2958,80 +2960,27 @@ function nearbyPWS( lat, lon, callback ) {
             airports = data.location.nearby_weather_stations.airport.station;
             data = data.location.nearby_weather_stations.pws.station;
         } catch ( err ) {
-            callback( false );
             return;
         }
 
         if ( data.length === 0 ) {
-            callback( false );
-            return;
-        } else if ( data.length === 1 ) {
-            callback( data[ 0 ].id );
             return;
         }
 
         data = encodeURIComponent( JSON.stringify( data ) );
 
-        var popup = $( "<div data-role='popup' id='location-list' data-theme='a' style='background-color:rgb(229, 227, 223);'>" +
-                "<a href='#' data-rel='back' class='ui-btn ui-corner-all ui-shadow ui-btn-b ui-icon-delete ui-btn-icon-notext ui-btn-right'>" + _( "Close" ) + "</a>" +
-                    "<iframe style='border:none' src='" + getAppURLPath() + "map.htm' width='100%' height='100%' seamless=''></iframe>" +
-            "</div>" ),
-            iframe = popup.find( "iframe" ),
-            dataSent = false;
+        iframe.get( 0 ).contentWindow.postMessage( {
+            type: "pwsData",
+            payload: data
+        }, "*" );
 
-        // Wire in listener for communication from iframe
-        $.mobile.window.off( "message onmessage" ).on( "message onmessage", function( e ) {
-            var data = e.originalEvent.data;
-            if ( typeof data.WS !== "undefined" ) {
-                callback( data.WS );
-                dataSent = true;
-                popup.popup( "destroy" ).remove();
-            } else if ( typeof data.loaded !== "undefined" && data.loaded === true ) {
-                $.mobile.loading( "hide" );
-            }
-        } );
-
-        iframe.one( "load", function() {
-            this.contentWindow.postMessage( {
-                type: "currentLocation",
-                payload: {
-                    lat: lat,
-                    lon: lon
-                }
+        if ( airports.length > 0 ) {
+            airports = encodeURIComponent( JSON.stringify( airports ) );
+            iframe.get( 0 ).contentWindow.postMessage( {
+                type: "airportData",
+                payload: airports
             }, "*" );
-
-            this.contentWindow.postMessage( {
-                type: "pwsData",
-                payload: data
-            }, "*" );
-
-            if ( airports.length > 0 ) {
-                airports = encodeURIComponent( JSON.stringify( airports ) );
-                this.contentWindow.postMessage( {
-                    type: "airportData",
-                    payload: airports
-                }, "*" );
-            }
-        } );
-
-        popup.one( "popupafterclose", function() {
-            if ( dataSent === false ) {
-                callback( false );
-            }
-        } );
-
-        openPopup( popup, {
-            beforeposition: function() {
-                popup.css( {
-                    width: window.innerWidth - 36,
-                    height: window.innerHeight - 28
-                } );
-            },
-            x: 0,
-            y: 0
-        } );
-    } ).fail( function() {
-        callback( false );
+        }
     } );
 }
 
@@ -3584,26 +3533,8 @@ function showOptions( expandItem ) {
     }
 
     list += "<div class='ui-field-contain'>" +
-        "<label for='loc'>" + _( "Location" ) +
-			"<button data-helptext='" +
-				_( "Location can be a zip code, city/state or a weatherunderground personal weather station using the format: pws:ID." ) +
-				"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
-		"</label>" +
-        "<table>" +
-            "<tr style='width:100%;vertical-align: top;'>" +
-                "<td style='width:100%'>" +
-					"<input data-wrapper-class='" + ( $( "#weather" ).is( ":empty" ) ? "" : "green " ) +
-						"controlgroup-textinput ui-btn' data-mini='true' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' " +
-						"type='text' id='loc' value='" + controller.settings.loc + "'>" +
-				"</td>" +
-                "<td " + ( checkOSVersion( 210 ) && controller.settings.wtkey !== "" && weatherKeyFail === false ? "" : "class='hidden' " ) + "id='nearbyPWS'>" +
-					"<button class='noselect' data-icon='location' data-iconpos='notext' data-mini='true'></button>" +
-				"</td>" +
-                "<td " + ( checkOSVersion( 210 ) && controller.settings.wtkey !== "" && weatherKeyFail === false ? "class='hidden' " : "" ) + "id='lookup-loc'>" +
-					"<button class='noselect' data-corners='false' data-mini='true'>" + _( "Lookup" ) + "</button>" +
-				"</td>" +
-            "</tr>" +
-        "</table></div>";
+        "<label for='loc'>" + _( "Location" ) + "</label>" +
+		"<button data-mini='true' id='loc' value='" + controller.settings.loc + "'>" + ( weather.location || controller.settings.loc ) + "</button></div>";
 
     if ( typeof controller.options.lg !== "undefined" ) {
         list += "<label for='o36'><input data-mini='true' id='o36' type='checkbox' " + ( ( controller.options.lg === 1 ) ? "checked='checked'" : "" ) + ">" +
@@ -3938,13 +3869,60 @@ function showOptions( expandItem ) {
             }
         } );
 
-    page.find( "#loc" ).on( "change input", function() {
-        var loc = $( this );
+    page.find( "#loc" ).on( "click", function() {
 
-        if ( loc.val() === "" ) {
-            loc.parent().removeClass( "green" );
-            page.find( "#o1" ).selectmenu( "enable" );
-        }
+        $.mobile.loading( "show" );
+
+        var finish = function( selected ) {
+                if ( selected === false ) {
+                    if ( loc.val() === "" ) {
+                        page.find( "#o1" ).selectmenu( "enable" );
+                    }
+                } else {
+                    if ( checkOSVersion( 210 ) ) {
+                        page.find( "#o1" ).selectmenu( "disable" );
+                    }
+                    selected = selected.split( "," );
+                    selected[ 0 ] = parseFloat( selected[ 0 ] ).toFixed( 5 );
+                    selected[ 1 ] = parseFloat( selected[ 1 ] ).toFixed( 5 );
+                    loc.val( selected );
+                    coordsToLocation( selected[ 0 ], selected[ 1 ], function( result ) {
+						loc.text( result );
+		            } );
+                    header.eq( 2 ).prop( "disabled", false );
+                    page.find( ".submit" ).addClass( "hasChanges" );
+                }
+                exit( true );
+            },
+            exit = function( result ) {
+                clearTimeout( loadMsg );
+                $.mobile.loading( "hide" );
+                if ( result !== true ) {
+
+					// If location cannot be determined, use IP based location
+                    overlayMap( -999, -999, finish );
+                    return;
+                }
+                loc.prop( "disabled", false );
+            },
+            loc = $( this ),
+            loadMsg;
+
+        loc.prop( "disabled", true );
+
+        try {
+            loadMsg = setTimeout( function() {
+                $.mobile.loading( "show", {
+                    html: "<div class='logo'></div><h1 style='padding-top:5px'>" + _( "Attempting to retrieve your current location" ) + "</h1></p>",
+                    textVisible: true,
+                    theme: "b"
+                } );
+            }, 100 );
+            navigator.geolocation.getCurrentPosition( function( position ) {
+                clearTimeout( loadMsg );
+                overlayMap( position.coords.latitude, position.coords.longitude, finish );
+            }, exit, { timeout: 10000 } );
+        } catch ( err ) { exit(); }
     } );
 
     page.find( "#wto" ).on( "click", function() {
@@ -4065,92 +4043,6 @@ function showOptions( expandItem ) {
         }
     } );
 
-    page.find( "#nearbyPWS > button" ).on( "click", function() {
-        var loc = $( "#loc" ),
-            button = $( this ),
-            exit = function( result ) {
-                clearTimeout( loadMsg );
-                $.mobile.loading( "hide" );
-                if ( result !== true ) {
-                    nearbyPWS( -999, -999, finish );
-                    return;
-                }
-                button.prop( "disabled", false );
-            },
-            loadMsg;
-
-        if ( controller.settings.wtkey === "" ) {
-            showerror( _( "An API key must be provided for Weather Underground" ) );
-            exit();
-        }
-
-        $.mobile.loading( "show" );
-        button.prop( "disabled", true );
-
-        var finish = function( selected ) {
-                if ( selected === false ) {
-                    if ( page.find( "#loc" ).val() === "" ) {
-                        page.find( "#o1" ).selectmenu( "enable" );
-                    }
-                } else {
-                    if ( checkOSVersion( 210 ) ) {
-                        page.find( "#o1" ).selectmenu( "disable" );
-                    }
-                    loc.parent().addClass( "green" );
-                    loc.val( selected );
-                    header.eq( 2 ).prop( "disabled", false );
-                    page.find( ".submit" ).addClass( "hasChanges" );
-                }
-                exit( true );
-            };
-
-        try {
-            loadMsg = setTimeout( function() {
-                $.mobile.loading( "show", {
-                    html: "<div class='logo'></div><h1 style='padding-top:5px'>" + _( "Attempting to retrieve your current location" ) + "</h1></p>",
-                    textVisible: true,
-                    theme: "b"
-                } );
-            }, 100 );
-            navigator.geolocation.getCurrentPosition( function( position ) {
-                clearTimeout( loadMsg );
-                nearbyPWS( position.coords.latitude, position.coords.longitude, finish );
-            }, exit );
-        } catch ( err ) { exit(); }
-    } );
-
-    page.find( "#lookup-loc > button" ).on( "click", function() {
-        var loc = page.find( "#loc" ),
-            current = loc.val(),
-            button = $( this );
-
-        if ( /^pws:|^icao:|^zmw:/.test( current ) ) {
-            showerror( _( "When using a personal weather station the location lookup is unavailable." ) );
-            return;
-        }
-
-        button.prop( "disabled", true );
-
-        resolveLocation( current, function( selected ) {
-            if ( selected === false ) {
-                if ( page.find( "#loc" ).val() === "" ) {
-                    page.find( "#o1" ).selectmenu( "enable" );
-                }
-                showerror( _( "Unable to locate using:" ) + " " + current + ". " + _( "Please use another value and try again." ) );
-            } else {
-                if ( checkOSVersion( 210 ) ) {
-                    page.find( "#o1" ).selectmenu( "disable" );
-                }
-                selected = selected.replace( /^[0-9]{5}\s-\s/, "" );
-                loc.parent().addClass( "green" );
-                loc.val( selected );
-                header.eq( 2 ).prop( "disabled", false );
-                page.find( ".submit" ).addClass( "hasChanges" );
-            }
-            button.prop( "disabled", false );
-        } );
-    } );
-
     page.find( "#verify-api" ).on( "click", function() {
         var key = page.find( "#wtkey" ),
             button = $( this );
@@ -4161,17 +4053,9 @@ function showOptions( expandItem ) {
             if ( result === true ) {
                 key.parent().find( ".ui-icon-alert" ).hide();
                 key.parent().removeClass( "red" ).addClass( "green" );
-                if ( checkOSVersion( 210 ) ) {
-                    page.find( "#lookup-loc" ).addClass( "hidden" );
-                    page.find( "#nearbyPWS" ).removeClass( "hidden" );
-                }
             } else {
                 key.parent().find( ".ui-icon-alert" ).removeClass( "hidden" ).show();
                 key.parent().removeClass( "green" ).addClass( "red" );
-                if ( checkOSVersion( 210 ) ) {
-                    page.find( "#lookup-loc" ).removeClass( "hidden" );
-                    page.find( "#nearbyPWS" ).addClass( "hidden" );
-                }
             }
             button.prop( "disabled", false );
         } );
