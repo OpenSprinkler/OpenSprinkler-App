@@ -93,6 +93,11 @@ var isIEMobile = /IEMobile/.test( navigator.userAgent ),
         }
     },
 
+    // Define general regex patterns
+    regex = {
+		gps: /^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/
+    },
+
     // Define the status bar color(s) and use a darker color for Android
     statusBarPrimary = isAndroid ? "#121212" : "#1D1D1D",
     statusBarOverlay = isAndroid ? "#151515" : "#202020",
@@ -2454,7 +2459,7 @@ function updateWeather() {
 function updateYahooWeather( string ) {
 
 	// If location matches a GPS coordinate, parse the location before querying for weather
-	if ( !string && controller.settings.loc.match( /^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/ ) ) {
+	if ( !string && controller.settings.loc.match( regex.gps ) ) {
 		coordsToLocation( controller.settings.loc.split( "," )[ 0 ], controller.settings.loc.split( "," )[ 1 ], function( result ) {
 			updateYahooWeather( result );
 		} );
@@ -2542,7 +2547,7 @@ function updateWundergroundWeather( wapikey ) {
         success: function( data ) {
             var code, temp;
 
-            if ( typeof data.response.error === "object" && data.response.error.type === "keynotfound" ) {
+			if ( typeof data.response.error === "object" ) {
                 weatherKeyFail = true;
                 updateYahooWeather();
                 return;
@@ -2917,8 +2922,8 @@ function overlayMap( lat, lon, callback ) {
 					lon: lon
 				},
 				current: {
-					lat: currentCoordinates[ 0 ],
-					lon: currentCoordinates[ 1 ]
+					lat: controller.settings.loc.match( regex.gps ) ? controller.settings.loc.split( "," )[ 0 ] : currentCoordinates[ 0 ],
+					lon: controller.settings.loc.match( regex.gps ) ? controller.settings.loc.split( "," )[ 1 ] : currentCoordinates[ 1 ]
 				}
             }
         }, "*" );
@@ -3535,7 +3540,7 @@ function showOptions( expandItem ) {
     list += "<div class='ui-field-contain'>" +
         "<label for='loc'>" + _( "Location" ) + "</label>" +
 		"<button data-mini='true' id='loc' value='" + controller.settings.loc + "'>" +
-			( typeof weather === "object" ? weather.location : controller.settings.loc ) +
+			( typeof weather === "object" ? weather.location : ( controller.settings.loc.trim() ? controller.settings.loc : _( "Not specified" ) ) ) +
 		"</button></div>";
 
     if ( typeof controller.options.lg !== "undefined" ) {
