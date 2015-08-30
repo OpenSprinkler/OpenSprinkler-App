@@ -76,7 +76,7 @@
 
 					currentLocationDiv.index = 1;
 					map.controls[ google.maps.ControlPosition.TOP_CENTER ].push( currentLocationDiv );
-					plotMarker( "orgin", { message: "Current Location" }, start.lat(), start.lng() );
+					start = plotMarker( "orgin", { message: "Current Location" }, start.lat(), start.lng() );
 				}
 
                 // If a current location is specified, display and center it now
@@ -253,12 +253,14 @@
 			controlText.style.lineHeight = "38px";
 			controlText.style.paddingLeft = "5px";
 			controlText.style.paddingRight = "5px";
-			controlText.innerHTML = "Current Location";
+			controlText.innerHTML = "Jump to Current Location";
 			controlUI.appendChild( controlText );
 
 			// Setup the click event listeners: simply set the map to Chicago.
 			controlUI.addEventListener( "click", function() {
-				map.setCenter( { lat: start.lat(), lng: start.lng() } );
+				infoWindow.close();
+				map.setCenter( { lat: start.getPosition().lat(), lng: start.getPosition().lng() } );
+				google.maps.event.trigger( start, "click" );
 			});
 		}
     </script>
