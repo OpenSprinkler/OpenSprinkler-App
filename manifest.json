@@ -11,7 +11,11 @@
   "permissions": [
     "storage",
     "system.network",
+    "geolocation",
     "<all_urls>"
   ],
-  "icons": { "16": "res/chrome/icons/icon-16.png", "128": "res/chrome/icons/icon-128.png" }
+  "icons": { "16": "res/chrome/icons/icon-16.png", "128": "res/chrome/icons/icon-128.png" },
+  "sandbox": {
+    "pages": [ "map.html" ]
+  }
 }
