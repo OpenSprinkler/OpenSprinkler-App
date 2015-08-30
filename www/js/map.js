@@ -99,6 +99,7 @@ function initialize() {
                 droppedPin = null;
             }
             droppedPin = plotMarker( "orgin", { message: "Selected Location" }, places[ 0 ].geometry.location.lat(), places[ 0 ].geometry.location.lng() );
+            map.setCenter( droppedPin.getPosition() );
 		} );
 
         // If a current location is specified, show the current location button
@@ -119,11 +120,6 @@ function initialize() {
         // If a current location is specified, display and center it now
         if ( current.lat() !== 0 && current.lng() !== 0 ) {
             droppedPin = plotMarker( "orgin", { message: "Selected Location" }, current.lat(), current.lng() );
-            var bounds = new google.maps.LatLngBounds();
-            bounds.extend( current );
-			bounds.extend( new google.maps.LatLng( bounds.getNorthEast().lat() + 0.01, bounds.getNorthEast().lng() + 0.01 ) );
-			bounds.extend( new google.maps.LatLng( bounds.getNorthEast().lat() - 0.01, bounds.getNorthEast().lng() - 0.01 ) );
-            map.fitBounds( bounds );
         }
 
         // Once the UI/tiles are loaded, let the parent script know
@@ -147,7 +143,7 @@ function initialize() {
 
         // When the map center changes, update the weather stations shown
         map.addListener( "idle", function() {
-			if ( getDistance( map.getCenter(), priorIdle ) < 30000 ) {
+			if ( getDistance( map.getCenter(), priorIdle ) < 15000 ) {
 				return;
 			}
 
