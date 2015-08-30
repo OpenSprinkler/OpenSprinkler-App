@@ -66,7 +66,11 @@ function initialize() {
             center: current,
             streetViewControl: false,
             mapTypeControl: false,
-            mapTypeId: google.maps.MapTypeId.ROADMAP
+            mapTypeId: google.maps.MapTypeId.ROADMAP,
+            styles: [
+                { featureType: "poi", elementType: "labels", stylers: [ { visibility: "off" } ] },
+                { featureType: "transit", elementType: "labels", stylers: [ { visibility: "off" } ] }
+            ]
         };
 
         map = new google.maps.Map( document.getElementById( "map_canvas" ), myOptions );
