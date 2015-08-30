@@ -39,13 +39,15 @@
             getScript("https://maps.gstatic.com/maps-api-v3/api/js/19/10/main.js");
         })();
 
-        var map, infoWindow, start, stations, airports, droppedPin, current;
+        var markers = { airport: [], pws: [], orgin: [] },
+            centerChangeEvent = false,
+            map, infoWindow, start, stations, airports, droppedPin, current;
 
         // Handle select button for weather station selection
         document.addEventListener( "click", function( e ) {
-            var classes = e.target.className.split(" ");
-            if (classes.indexOf("submit") > -1) {
-                window.top.postMessage({"WS": e.target.dataset.loc }, "*" );
+            var classes = e.target.className.split( " " );
+            if ( classes.indexOf( "submit" ) > -1 ) {
+                window.top.postMessage( { WS: e.target.dataset.loc }, "*" );
             }
         }, false);
 
@@ -54,20 +56,35 @@
             if (typeof start === "object") {
                 var myOptions = {
                     zoom: 14,
-                    center: start,
+                    maxZoom: 17,
+                    center: current,
                     streetViewControl: false,
                     mapTypeControl: false,
                     mapTypeId: google.maps.MapTypeId.ROADMAP
                 }
 
-                map = new google.maps.Map(document.getElementById( "map_canvas" ), myOptions);
+                map = new google.maps.Map( document.getElementById( "map_canvas" ), myOptions );
                 infoWindow = new google.maps.InfoWindow;
+
+                // If a current location is specified, show the current location button
+                // The app uses -999, -999 when geolocation is not possible which is resolved to -90, 81
+                if ( start.lat() !== -90 && start.lng() !== 81 ) {
+
+					// Create the DIV to hold the custom control and call the constructor
+					var currentLocationDiv = document.createElement( "div" ),
+						control = new currentLocationControl( currentLocationDiv, map );
+
+					currentLocationDiv.index = 1;
+					map.controls[ google.maps.ControlPosition.TOP_CENTER ].push( currentLocationDiv );
+					plotMarker( "orgin", { message: "Current Location" }, start.lat(), start.lng() );
+				}
 
                 // If a current location is specified, display and center it now
                 if ( current.lat() !== 0 && current.lng() !== 0 ) {
                     droppedPin = plotMarker( "orgin", { message: "Selected Location" }, current.lat(), current.lng() );
                     var bounds = new google.maps.LatLngBounds();
                     bounds.extend( current );
+                    centerChangeEvent = true;
                     map.fitBounds( bounds );
                 }
 
@@ -89,6 +106,30 @@
                     }
                     droppedPin = plotMarker( "orgin", { message: "Selected Location" }, event.latLng.lat(), event.latLng.lng() );
                 });
+
+                // When the map center changes, update the weather stations shown
+                map.addListener( "center_changed", function() {
+
+                    if ( centerChangeEvent === false ) {
+
+                        // Delay 3 seconds after the center of the map has changed before firing
+                        window.setTimeout( function() {
+                            centerChangeEvent = false;
+                            removeAllMarkers();
+                            window.top.postMessage( {
+                                location: [ map.getCenter().lat(), map.getCenter().lng() ]
+                            }, "*" );
+                        }, 3000);
+                    }
+
+                    centerChangeEvent = true;
+                });
+
+                google.maps.event.addListener( map, "zoom_changed", function() {
+
+                    // Clear change event flag after fitBounds call
+                    centerChangeEvent = false;
+                } );
             } else {
                 setTimeout( initialize, 1 );
             }
@@ -107,34 +148,22 @@
             // Handle stations data
             } else if (data.type === "pwsData") {
                 stations = JSON.parse( decodeURIComponent( data.payload ) );
+                removeMarkers( "pws" );
                 plotAllMarkers( stations, true );
             } else if (data.type === "airportData") {
                 airports = JSON.parse( decodeURIComponent( data.payload ) );
+                removeMarkers( "airport" );
                 plotAllMarkers( airports );
             }
         }
 
         // Plot all stations on the map
         function plotAllMarkers( markers, areStations ) {
-            var bounds = new google.maps.LatLngBounds(),
-                openFirst = false,
-                marker;
-
-            if ( current.lat() !== 0 && current.lng() !== 0 ) {
-                bounds.extend( current );
-            } else {
-                openFirst = true;
-            }
+            var marker;
 
             for (var i = 0; i < markers.length; i++ ) {
                 marker = plotMarker( ( areStations ? "pws" : "airport" ), markers[i], markers[i].lat, markers[i].lon );
-                if ( i === 0 && openFirst === true ) {
-                    new google.maps.event.trigger( marker, "click" );
-                }
-                bounds.extend( new google.maps.LatLng( markers[i].lat, markers[i].lon ) );
             }
-
-            map.fitBounds( bounds );
         }
 
         // Plot an individual station on the map
@@ -155,11 +184,27 @@
                 infoWindow.open( map, marker );
             });
 
-            if ( type === "orgin" ) {
+            markers[ type ].push( marker );
+
+            if ( data.message === "Selected Location" ) {
                 google.maps.event.trigger( marker, "click" );
             }
 
             return marker;
+        }
+
+        // Removes markers of specified type
+        function removeMarkers( type ) {
+            for ( var i = 0; i < markers[ type ].length; i++) {
+                markers[ type ][ i ].setMap( null );
+            }
+            markers[ type ] = [];
+        }
+
+        // Remove all markers
+        function removeAllMarkers() {
+            removeMarkers( "pws" );
+            removeMarkers( "airport" );
         }
 
         // Create text for popup info window
@@ -177,9 +222,45 @@
                     "</h3><span style='font-size:8px;margin:0;padding:0;vertical-align: top'>Airport ICAO: " + data.icao + "</span><br>" +
                     "<button class='submit' data-loc='" + latLon + "'>Select</button></div>";
             } else {
-                return "<div style='min-height:40px;text-align:center'>" + data.message + "<br><button class='submit' data-loc='" + latLon + "'>Submit</button></div>";
+                return "<div style='min-height:40px;text-align:center'>" + data.message + "<br><br><button class='submit' data-loc='" + latLon + "'>Submit</button></div>";
             }
         }
+
+		/**
+		 * The CenterControl adds a control to the map that recenters the map on Chicago.
+		 * This constructor takes the control DIV as an argument.
+		 * @constructor
+		 */
+		function currentLocationControl( controlDiv ) {
+
+			// Set CSS for the control border
+			var controlUI = document.createElement( "div" );
+			controlUI.style.backgroundColor = "#fff";
+			controlUI.style.border = "2px solid #fff";
+			controlUI.style.borderRadius = "3px";
+			controlUI.style.boxShadow = "0 2px 6px rgba(0,0,0,.3)";
+			controlUI.style.cursor = "pointer";
+			controlUI.style.marginBottom = "22px";
+			controlUI.style.textAlign = "center";
+			controlUI.title = "Click to move to current location";
+			controlDiv.appendChild( controlUI );
+
+			// Set CSS for the control interior
+			var controlText = document.createElement( "div" );
+			controlText.style.color = "rgb(25,25,25)";
+			controlText.style.fontFamily = "Roboto,Arial,sans-serif";
+			controlText.style.fontSize = "16px";
+			controlText.style.lineHeight = "38px";
+			controlText.style.paddingLeft = "5px";
+			controlText.style.paddingRight = "5px";
+			controlText.innerHTML = "Current Location";
+			controlUI.appendChild( controlText );
+
+			// Setup the click event listeners: simply set the map to Chicago.
+			controlUI.addEventListener( "click", function() {
+				map.setCenter( { lat: start.lat(), lng: start.lng() } );
+			});
+		}
     </script>
     <style>
         html {

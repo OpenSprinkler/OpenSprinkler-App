@@ -2889,28 +2889,67 @@ function overlayMap( lat, lon, callback ) {
 
     callback = callback || function() {};
 
-    if ( !lat || !lon ) {
-        callback( false );
-        return;
-    }
-
     var popup = $( "<div data-role='popup' id='location-list' data-theme='a' style='background-color:rgb(229, 227, 223);'>" +
             "<a href='#' data-rel='back' class='ui-btn ui-corner-all ui-shadow ui-btn-b ui-icon-delete ui-btn-icon-notext ui-btn-right'>" + _( "Close" ) + "</a>" +
                 "<iframe style='border:none' src='" + getAppURLPath() + "map.htm' width='100%' height='100%' seamless=''></iframe>" +
         "</div>" ),
+        updateStations = function( latitude, longitude ) {
+            $.ajax( {
+                url: "https://api.wunderground.com/api/" + controller.settings.wtkey + "/geolookup/q/" +
+                    ( latitude === -999 || longitude === -999 ? "autoip" : encodeURIComponent( latitude ) + "," + encodeURIComponent( longitude ) ) + ".json",
+                dataType: isChromeApp ? "json" : "jsonp",
+                shouldRetry: retryCount
+            } ).done( function( data ) {
+                if ( typeof data.response.error === "object" ) {
+                    return;
+                }
+
+                var airports;
+
+                try {
+                    airports = data.location.nearby_weather_stations.airport.station;
+                    data = data.location.nearby_weather_stations.pws.station;
+                } catch ( err ) {
+                    return;
+                }
+
+                if ( data.length > 0 ) {
+                    data = encodeURIComponent( JSON.stringify( data ) );
+                    iframe.get( 0 ).contentWindow.postMessage( {
+                        type: "pwsData",
+                        payload: data
+                    }, "*" );
+                }
+
+                if ( airports.length > 0 ) {
+                    airports = encodeURIComponent( JSON.stringify( airports ) );
+                    iframe.get( 0 ).contentWindow.postMessage( {
+                        type: "airportData",
+                        payload: airports
+                    }, "*" );
+                }
+            } );
+        },
         iframe = popup.find( "iframe" ),
         locInput = $( "#loc" ).val(),
+        current = {
+            lat: locInput.match( regex.gps ) ? locInput.split( "," )[ 0 ] : currentCoordinates[ 0 ],
+            lon: locInput.match( regex.gps ) ? locInput.split( "," )[ 1 ] : currentCoordinates[ 1 ]
+        },
         dataSent = false;
 
     // Wire in listener for communication from iframe
     $.mobile.window.off( "message onmessage" ).on( "message onmessage", function( e ) {
         var data = e.originalEvent.data;
+
         if ( typeof data.WS !== "undefined" ) {
             callback( data.WS );
             dataSent = true;
             popup.popup( "destroy" ).remove();
         } else if ( typeof data.loaded !== "undefined" && data.loaded === true ) {
             $.mobile.loading( "hide" );
+        } else if ( typeof data.location === "object" ) {
+            updateStations( data.location[ 0 ], data.location[ 1 ] );
         }
     } );
 
@@ -2922,10 +2961,7 @@ function overlayMap( lat, lon, callback ) {
 					lat: lat,
 					lon: lon
 				},
-				current: {
-					lat: locInput.match( regex.gps ) ? locInput.split( "," )[ 0 ] : currentCoordinates[ 0 ],
-					lon: locInput.match( regex.gps ) ? locInput.split( "," )[ 1 ] : currentCoordinates[ 1 ]
-				}
+				current: current
             }
         }, "*" );
     } );
@@ -2947,47 +2983,7 @@ function overlayMap( lat, lon, callback ) {
         y: 0
     } );
 
-    $.ajax( {
-        url: "https://api.wunderground.com/api/" + controller.settings.wtkey + "/geolookup/q/" +
-			( lat === -999 || lon === -999 ? "autoip" : encodeURIComponent( lat ) + "," + encodeURIComponent( lon ) ) + ".json",
-        dataType: isChromeApp ? "json" : "jsonp",
-        shouldRetry: retryCount
-    } ).done( function( data ) {
-		if ( typeof data.response.error === "object" ) {
-			return;
-		}
-
-        var airports;
-
-        lat = data.location.lat;
-        lon = data.location.lon;
-
-        try {
-            airports = data.location.nearby_weather_stations.airport.station;
-            data = data.location.nearby_weather_stations.pws.station;
-        } catch ( err ) {
-            return;
-        }
-
-        if ( data.length === 0 ) {
-            return;
-        }
-
-        data = encodeURIComponent( JSON.stringify( data ) );
-
-        iframe.get( 0 ).contentWindow.postMessage( {
-            type: "pwsData",
-            payload: data
-        }, "*" );
-
-        if ( airports.length > 0 ) {
-            airports = encodeURIComponent( JSON.stringify( airports ) );
-            iframe.get( 0 ).contentWindow.postMessage( {
-                type: "airportData",
-                payload: airports
-            }, "*" );
-        }
-    } );
+    updateStations( current.lat, current.lon );
 }
 
 function debugWU() {
