@@ -1,3 +1,18 @@
+/*global google */
+
+/* OpenSprinkler App
+ * Copyright (C) 2015 - present, Samer Albahra. All rights reserved.
+ *
+ * This file is part of the OpenSprinkler project <http://opensprinkler.com>.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License version 3 as
+ * published by the Free Software Foundation.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 window.google = window.google || {};
 google.maps = google.maps || {};
 ( function() {
@@ -12,17 +27,18 @@ google.maps = google.maps || {};
         modules[ name ] = text;
     };
 
+	// jscs:disable
+	// jshint ignore:start
     google.maps.Load = function( apiLoad ) {
         delete google.maps.Load;
 
-        // jscs:disable
-        // jshint ignore:start
         apiLoad([0.009999999776482582,[[["https://mts0.googleapis.com/vt?lyrs=m@292000000\u0026src=api\u0026hl=en-US\u0026","https://mts1.googleapis.com/vt?lyrs=m@292000000\u0026src=api\u0026hl=en-US\u0026"],null,null,null,null,"m@292000000",["https://mts0.google.com/vt?lyrs=m@292000000\u0026src=api\u0026hl=en-US\u0026","https://mts1.google.com/vt?lyrs=m@292000000\u0026src=api\u0026hl=en-US\u0026"]],[["https://khms0.googleapis.com/kh?v=166\u0026hl=en-US\u0026","https://khms1.googleapis.com/kh?v=166\u0026hl=en-US\u0026"],null,null,null,1,"166",["https://khms0.google.com/kh?v=166\u0026hl=en-US\u0026","https://khms1.google.com/kh?v=166\u0026hl=en-US\u0026"]],[["https://mts0.googleapis.com/vt?lyrs=h@292000000\u0026src=api\u0026hl=en-US\u0026","https://mts1.googleapis.com/vt?lyrs=h@292000000\u0026src=api\u0026hl=en-US\u0026"],null,null,null,null,"h@292000000",["https://mts0.google.com/vt?lyrs=h@292000000\u0026src=api\u0026hl=en-US\u0026","https://mts1.google.com/vt?lyrs=h@292000000\u0026src=api\u0026hl=en-US\u0026"]],[["https://mts0.googleapis.com/vt?lyrs=t@132,r@292000000\u0026src=api\u0026hl=en-US\u0026","https://mts1.googleapis.com/vt?lyrs=t@132,r@292000000\u0026src=api\u0026hl=en-US\u0026"],null,null,null,null,"t@132,r@292000000",["https://mts0.google.com/vt?lyrs=t@132,r@292000000\u0026src=api\u0026hl=en-US\u0026","https://mts1.google.com/vt?lyrs=t@132,r@292000000\u0026src=api\u0026hl=en-US\u0026"]],null,null,[["https://cbks0.googleapis.com/cbk?","https://cbks1.googleapis.com/cbk?"]],[["https://khms0.googleapis.com/kh?v=84\u0026hl=en-US\u0026","https://khms1.googleapis.com/kh?v=84\u0026hl=en-US\u0026"],null,null,null,null,"84",["https://khms0.google.com/kh?v=84\u0026hl=en-US\u0026","https://khms1.google.com/kh?v=84\u0026hl=en-US\u0026"]],[["https://mts0.googleapis.com/mapslt?hl=en-US\u0026","https://mts1.googleapis.com/mapslt?hl=en-US\u0026"]],[["https://mts0.googleapis.com/mapslt/ft?hl=en-US\u0026","https://mts1.googleapis.com/mapslt/ft?hl=en-US\u0026"]],[["https://mts0.googleapis.com/vt?hl=en-US\u0026","https://mts1.googleapis.com/vt?hl=en-US\u0026"]],[["https://mts0.googleapis.com/mapslt/loom?hl=en-US\u0026","https://mts1.googleapis.com/mapslt/loom?hl=en-US\u0026"]],[["https://mts0.googleapis.com/mapslt?hl=en-US\u0026","https://mts1.googleapis.com/mapslt?hl=en-US\u0026"]],[["https://mts0.googleapis.com/mapslt/ft?hl=en-US\u0026","https://mts1.googleapis.com/mapslt/ft?hl=en-US\u0026"]],[["https://mts0.googleapis.com/mapslt/loom?hl=en-US\u0026","https://mts1.googleapis.com/mapslt/loom?hl=en-US\u0026"]]],["en-US","US",null,0,null,null,"https://maps.gstatic.com/mapfiles/","https://csi.gstatic.com","https://maps.googleapis.com","https://maps.googleapis.com",null,"https://maps.google.com","https://csi.gstatic.com","https://maps.gstatic.com/maps-api-v3/api/images/"],["https://maps.gstatic.com/maps-api-v3/api/js/19/10","3.19.10"],[1958094959],1,null,null,null,null,null,"",null,null,1,"https://khms.googleapis.com/mz?v=166\u0026",null,"https://earthbuilder.googleapis.com","https://earthbuilder.googleapis.com",null,"https://mts.googleapis.com/vt/icon",[["https://mts0.googleapis.com/vt","https://mts1.googleapis.com/vt"],["https://mts0.googleapis.com/vt","https://mts1.googleapis.com/vt"],null,null,null,null,null,null,null,null,null,null,["https://mts0.google.com/vt","https://mts1.google.com/vt"],"/maps/vt",292000000,132],2,500,[null,"https://g0.gstatic.com/landmark/tour","https://g0.gstatic.com/landmark/config","","https://www.google.com/maps/preview/log204","","https://static.panoramio.com.storage.googleapis.com/photos/",["https://geo0.ggpht.com/cbk","https://geo1.ggpht.com/cbk","https://geo2.ggpht.com/cbk","https://geo3.ggpht.com/cbk"]],["https://www.google.com/maps/api/js/master?pb=!1m2!1u19!2s10!2sen-US!3sUS!4s19/10","https://www.google.com/maps/api/js/widget?pb=!1m2!1u19!2s10!2sen-US"],null,0,0], loadScriptTime);
-        // jshint ignore:end
-        // jscs:enable
     };
 
     var loadScriptTime = new Date().getTime();
+
+    // jshint ignore:end
+    // jscs:enable
     getScript( "https://maps.gstatic.com/maps-api-v3/api/js/19/10/main.js" );
 } )();
 
@@ -51,15 +67,15 @@ function initialize() {
         };
 
         map = new google.maps.Map( document.getElementById( "map_canvas" ), myOptions );
-        infoWindow = new google.maps.InfoWindow;
+        infoWindow = new google.maps.InfoWindow();
 
         // If a current location is specified, show the current location button
         // The app uses -999, -999 when geolocation is not possible which is resolved to -90, 81
         if ( start.lat() !== -90 && start.lng() !== 81 ) {
 
 			// Create the DIV to hold the custom control and call the constructor
-			var currentLocationDiv = document.createElement( "div" ),
-				control = new currentLocationControl( currentLocationDiv, map );
+			var currentLocationDiv = document.createElement( "div" );
+			new currentLocationControl( currentLocationDiv, map );
 
 			currentLocationDiv.index = 1;
 			map.controls[ google.maps.ControlPosition.TOP_CENTER ].push( currentLocationDiv );
@@ -164,7 +180,7 @@ function plotMarker( type, data, lat, lon ) {
 
     google.maps.event.addListener( marker, "click", function() {
         infoWindow.close();
-        html = createInfoWindow( type, data, lat + "," + lon );
+        var html = createInfoWindow( type, data, lat + "," + lon );
         infoWindow = new google.maps.InfoWindow( {
             content: html
         } );
