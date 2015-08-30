@@ -43,8 +43,7 @@ google.maps = google.maps || {};
 } )();
 
 var markers = { airport: [], pws: [], orgin: [] },
-    centerChangeEvent = false,
-    map, infoWindow, start, stations, airports, droppedPin, current;
+    priorIdle, map, infoWindow, start, stations, airports, droppedPin, current;
 
 // Handle select button for weather station selection
 document.addEventListener( "click", function( e ) {
@@ -74,11 +73,11 @@ function initialize() {
         if ( start.lat() !== -90 && start.lng() !== 81 ) {
 
 			// Create the DIV to hold the custom control and call the constructor
-			var currentLocationDiv = document.createElement( "div" );
-			new currentLocationControl( currentLocationDiv, map );
+			var locationDiv = document.createElement( "div" );
+			new locationControl( locationDiv, map );
 
-			currentLocationDiv.index = 1;
-			map.controls[ google.maps.ControlPosition.TOP_CENTER ].push( currentLocationDiv );
+			locationDiv.index = 1;
+			map.controls[ google.maps.ControlPosition.TOP_CENTER ].push( locationDiv );
 			start = plotMarker( "orgin", { message: "Current Location" }, start.lat(), start.lng() );
 		}
 
@@ -87,7 +86,8 @@ function initialize() {
             droppedPin = plotMarker( "orgin", { message: "Selected Location" }, current.lat(), current.lng() );
             var bounds = new google.maps.LatLngBounds();
             bounds.extend( current );
-            centerChangeEvent = true;
+			bounds.extend( new google.maps.LatLng( bounds.getNorthEast().lat() + 0.01, bounds.getNorthEast().lng() + 0.01 ) );
+			bounds.extend( new google.maps.LatLng( bounds.getNorthEast().lat() - 0.01, bounds.getNorthEast().lng() - 0.01 ) );
             map.fitBounds( bounds );
         }
 
@@ -111,27 +111,16 @@ function initialize() {
         } );
 
         // When the map center changes, update the weather stations shown
-        map.addListener( "center_changed", function() {
+        map.addListener( "idle", function() {
+			if ( getDistance( map.getCenter(), priorIdle ) < 30000 ) {
+				return;
+			}
 
-            if ( centerChangeEvent === false ) {
-
-                // Delay 3 seconds after the center of the map has changed before firing
-                window.setTimeout( function() {
-                    centerChangeEvent = false;
-                    removeAllMarkers();
-                    window.top.postMessage( {
-                        location: [ map.getCenter().lat(), map.getCenter().lng() ]
-                    }, "*" );
-                }, 3000 );
-            }
-
-            centerChangeEvent = true;
-        } );
-
-        google.maps.event.addListener( map, "zoom_changed", function() {
-
-            // Clear change event flag after fitBounds call
-            centerChangeEvent = false;
+			priorIdle = map.getCenter();
+            removeAllMarkers();
+            window.top.postMessage( {
+                location: [ map.getCenter().lat(), map.getCenter().lng() ]
+            }, "*" );
         } );
     } else {
         setTimeout( initialize, 1 );
@@ -146,6 +135,7 @@ window.onmessage = function( e ) {
     if ( data.type === "currentLocation" ) {
         start = new google.maps.LatLng( data.payload.start.lat, data.payload.start.lon );
         current = new google.maps.LatLng( data.payload.current.lat, data.payload.current.lon );
+        priorIdle = current;
         initialize();
 
     // Handle stations data
@@ -216,7 +206,7 @@ function createInfoWindow( type, data, latLon ) {
         return "<div style='min-height:90px;min-width:170px;text-align:center;'><h3 style='padding:0;margin:0 0 4px 0'>" +
                 ( data.city ? data.city + ", " : "" ) + ( data.state ? data.state + ", " : "" ) + data.country +
             "</h3><span style='font-size:8px;margin:0;padding:0;vertical-align: top'>ID: " + data.id + "</span><br><p style='margin:0'>" +
-                data.neighborhood + "<br>" + data.distance_mi + " mile" + ( data.distance_mi > 1 ? "s" : "" ) + " away<br>" +
+                data.neighborhood + "<br>" +
                 "<button class='submit' data-loc='" + latLon + "'>Select</button>" +
             "</p></div>";
     } else if ( type === "airport" ) {
@@ -234,7 +224,7 @@ function createInfoWindow( type, data, latLon ) {
  * This constructor takes the control DIV as an argument.
  * @constructor
  */
-function currentLocationControl( controlDiv ) {
+function locationControl( controlDiv ) {
 
 	// Set CSS for the control border
 	var controlUI = document.createElement( "div" );
@@ -265,4 +255,20 @@ function currentLocationControl( controlDiv ) {
 		map.setCenter( { lat: start.getPosition().lat(), lng: start.getPosition().lng() } );
 		google.maps.event.trigger( start, "click" );
 	} );
+}
+
+function rad( x ) {
+	return x * Math.PI / 180;
+}
+
+function getDistance( p1, p2 ) {
+	var R = 6378137,
+		dLat = rad( p2.lat() - p1.lat() ),
+		dLong = rad( p2.lng() - p1.lng() ),
+		a = Math.sin( dLat / 2 ) * Math.sin( dLat / 2 ) +
+			Math.cos( rad( p1.lat() ) ) * Math.cos( rad( p2.lat() ) ) *
+			Math.sin( dLong / 2 ) * Math.sin( dLong / 2 ),
+		c = 2 * Math.atan2( Math.sqrt( a ), Math.sqrt( 1 - a ) );
+
+  return R * c;
 }
