@@ -31,6 +31,37 @@
         #map_canvas {
             height: 100%;
         }
+        .controls {
+            border: 1px solid transparent;
+            border-radius: 2px 0 0 2px;
+            box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            height: 32px;
+            outline: none;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        }
+        #pac-input {
+            background-color: #fff;
+            font-family: Roboto;
+            font-size: 15px;
+            font-weight: 300;
+            margin-left: 8px;
+            padding: 0 11px 0 13px;
+            text-overflow: ellipsis;
+            vertical-align: bottom;
+            width: 300px;
+        }
+        #pac-input:focus {
+            border-color: #4d90fe;
+        }
+        #pac-current {
+            opacity: 0.75;
+            display: none;
+            cursor: pointer
+        }
+        #pac-container {
+            margin-top: 10px;
+        }
         .gm-style-iw {
             overflow: hidden !important;
             line-height: 1.35;
@@ -42,6 +73,12 @@
     </style>
 </head>
 <body>
+    <div id="pac-container">
+        <span id="pac-current">
+            <svg xmlns="http://www.w3.org/2000/svg" width="31.5" height="31.5" viewBox="0 0 31.5 31.5"><path d="M15.75 10.023c-3.164 0-5.727 2.563-5.727 5.727s2.563 5.727 5.727 5.727 5.727-2.563 5.727-5.727-2.563-5.727-5.727-5.727zm12.8 4.295c-.658-5.97-5.398-10.71-11.368-11.368v-2.95h-2.863v2.95c-5.971.658-10.711 5.398-11.369 11.368h-2.95v2.863h2.95c.659 5.971 5.398 10.71 11.369 11.369v2.95h2.863v-2.95c5.971-.659 10.71-5.398 11.369-11.369h2.95v-2.863h-2.951zm-12.8 11.455c-5.534 0-10.023-4.489-10.023-10.023s4.489-10.023 10.023-10.023 10.023 4.489 10.023 10.023-4.489 10.023-10.023 10.023z"/></svg>
+        </span>
+        <input id="pac-input" class="controls" type="text" placeholder="Search Box">
+    </div>
     <div id="map_canvas"></div>
 </body>
 </html>
