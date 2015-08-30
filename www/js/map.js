@@ -76,8 +76,8 @@ function initialize() {
         map = new google.maps.Map( document.getElementById( "map_canvas" ), myOptions );
         infoWindow = new google.maps.InfoWindow();
 
-		var controlBox = document.getElementById( "pac-container" ),
-			jumpToCurrent = document.getElementById( "pac-current" ),
+		var controlBox = document.getElementById( "customControls" ),
+			jumpToCurrent = document.getElementById( "jumpCurrent" ),
 			searchField = document.getElementById( "pac-input" ),
 			searchBox = new google.maps.places.SearchBox( searchField );
 
@@ -125,6 +125,13 @@ function initialize() {
         // Once the UI/tiles are loaded, let the parent script know
         google.maps.event.addListenerOnce( map, "tilesloaded", function() {
             window.top.postMessage( { "loaded": true }, "*" );
+
+			// Fix autocomplete field for iOS (blur event never fires and therefore redirection does not occur)
+			if ( /iP(ad|hone|od)/.test( navigator.userAgent ) ) {
+				document.querySelectorAll( ".pac-container" ).onclick = function() {
+					searchField.blur();
+				};
+			}
         } );
 
         // When the map is clicked, close any open info windows
