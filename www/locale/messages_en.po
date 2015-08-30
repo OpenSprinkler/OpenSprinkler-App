@@ -257,9 +257,6 @@ msgstr ""
 msgid "High"
 msgstr ""
 
-msgid "Select City"
-msgstr ""
-
 msgid "Close"
 msgstr ""
 
@@ -382,12 +379,7 @@ msgstr ""
 msgid "Location"
 msgstr ""
 
-msgid ""
-"Location can be a zip code, city/state or a weatherunderground personal "
-"weather station using the format: pws:ID."
-msgstr ""
-
-msgid "Lookup"
+msgid "Not specified"
 msgstr ""
 
 msgid "Enable Logging"
@@ -549,6 +541,9 @@ msgstr ""
 msgid "Reset All Station Data"
 msgstr ""
 
+msgid "Attempting to retrieve your current location"
+msgstr ""
+
 msgid ""
 "Are you sure you want to delete all settings and return to the default "
 "settings?"
@@ -561,19 +556,6 @@ msgid "This will reset all station names and attributes"
 msgstr ""
 
 msgid "Stations have been updated"
-msgstr ""
-
-msgid "Attempting to retrieve your current location"
-msgstr ""
-
-msgid ""
-"When using a personal weather station the location lookup is unavailable."
-msgstr ""
-
-msgid "Unable to locate using:"
-msgstr ""
-
-msgid "Please use another value and try again."
 msgstr ""
 
 msgid "Seconds"
