@@ -3536,7 +3536,7 @@ function showOptions( expandItem ) {
 
     list += "<div class='ui-field-contain'>" +
         "<label for='loc'>" + _( "Location" ) + "</label>" +
-		"<button data-mini='true' id='loc' value='" + controller.settings.loc + "'>" +
+		"<button data-mini='true' id='loc' value='" + controller.settings.loc + "'" + ( $( "#weather" ).is( ":empty" ) ? "" : " class='green'" ) + ">" +
 			( typeof weather === "object" ? weather.location : ( controller.settings.loc.trim() ? controller.settings.loc : _( "Not specified" ) ) ) +
 		"</button></div>";
 
@@ -3880,6 +3880,7 @@ function showOptions( expandItem ) {
         var finish = function( selected ) {
                 if ( selected === false ) {
                     if ( loc.val() === "" ) {
+                        loc.removeClass( "green" );
                         page.find( "#o1" ).selectmenu( "enable" );
                     }
                 } else {
@@ -3892,6 +3893,10 @@ function showOptions( expandItem ) {
                     loc.val( selected );
                     coordsToLocation( selected[ 0 ], selected[ 1 ], function( result ) {
 						loc.text( result );
+
+                        if ( result !== selected[ 0 ] + "," + selected[ 1 ] ) {
+                            loc.addClass( "green" );
+                        }
 		            } );
                     header.eq( 2 ).prop( "disabled", false );
                     page.find( ".submit" ).addClass( "hasChanges" );
