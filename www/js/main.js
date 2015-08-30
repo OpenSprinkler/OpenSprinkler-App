@@ -2946,10 +2946,12 @@ function overlayMap( lat, lon, callback ) {
             callback( data.WS );
             dataSent = true;
             popup.popup( "destroy" ).remove();
-        } else if ( typeof data.loaded !== "undefined" && data.loaded === true ) {
+        } else if ( data.loaded === true ) {
             $.mobile.loading( "hide" );
         } else if ( typeof data.location === "object" ) {
             updateStations( data.location[ 0 ], data.location[ 1 ] );
+        } else if ( data.dismissKeyboard === true ) {
+            document.activeElement.blur();
         }
     } );
 

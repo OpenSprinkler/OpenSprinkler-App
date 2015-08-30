@@ -1,6 +1,7 @@
 {
   "name": "OpenSprinkler",
   "author": "Samer Albahra",
+  "license": "AGPL-3.0",
   "phonegap": {
     "id": "1371093"
   },
@@ -57,6 +58,7 @@
     "grunt-text-replace": "^0.4.0",
     "lcov-result-merger": "^1.0.2",
     "lodash": "^3.6.0",
-    "mocha": "^2.2.3"
+    "mocha": "^2.2.3",
+    "xcode": "^0.8.0"
   }
 }

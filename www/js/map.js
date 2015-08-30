@@ -124,13 +124,16 @@ function initialize() {
 
         // Once the UI/tiles are loaded, let the parent script know
         google.maps.event.addListenerOnce( map, "tilesloaded", function() {
-            window.top.postMessage( { "loaded": true }, "*" );
+            window.top.postMessage( { loaded: true }, "*" );
 
 			// Fix autocomplete field for iOS (blur event never fires and therefore redirection does not occur)
 			if ( /iP(ad|hone|od)/.test( navigator.userAgent ) ) {
-				document.querySelectorAll( ".pac-container" ).onclick = function() {
-					searchField.blur();
-				};
+				var predictionContainer = document.querySelectorAll( ".pac-container" )[ 0 ];
+
+				predictionContainer.addEventListener( "mousedown", function() {
+					window.top.postMessage( { dismissKeyboard: true }, "*" );
+				} );
+
 			}
         } );
 
