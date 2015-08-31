@@ -783,6 +783,9 @@ body, input, select, textarea, button, .ui-btn {
     float: left;
     display: inherit !important;
 }
+.has-images .station-name {
+    width: 45%;
+}
 .has-images .station-status {
 	right: 1%;
 	left: inherit;
