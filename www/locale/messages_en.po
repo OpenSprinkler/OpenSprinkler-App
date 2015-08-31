@@ -260,6 +260,12 @@ msgstr ""
 msgid "Close"
 msgstr ""
 
+msgid "Unable to retrieve your current location"
+msgstr ""
+
+msgid "Attempting to retrieve your current location"
+msgstr ""
+
 msgid "An API key must be provided for Weather Underground"
 msgstr ""
 
@@ -539,9 +545,6 @@ msgid "Reset All Options"
 msgstr ""
 
 msgid "Reset All Station Data"
-msgstr ""
-
-msgid "Attempting to retrieve your current location"
 msgstr ""
 
 msgid ""
