@@ -101,8 +101,12 @@ a {
 
 .ui-icon-wifi:after {
     background-image:url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200.188%2016%2016%22%20enable-background%3D%22new%200%200.188%2016%2016%22%3E%3Cpath%20d%3D%22M6.476%2012.32c.39-.39.929-.631%201.524-.631s1.134.241%201.523.631l-1.523%201.525-1.524-1.525z%22%2F%3E%3Cpath%20stroke%3D%22%23000%22%20d%3D%22M4.571%2010.416c.878-.878%202.09-1.42%203.429-1.42s2.551.542%203.429%201.42m-9.143-2.286c1.462-1.463%203.482-2.367%205.714-2.367%202.231%200%204.252.904%205.714%202.367m-13.714-2.286c2.047-2.047%204.875-3.314%208-3.314%203.124%200%205.952%201.267%208%203.313%22%20fill%3D%22none%22%2F%3E%3C%2Fsvg%3E" );
-    transform: rotate(45deg);
     background-color: rgba(0,0,0,0);
+    -o-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    -moz-transform: rotate(45deg);
+    -webkit-transform: rotate(45deg);
+    transform: rotate(45deg);
 }
 
 .running-icon {
