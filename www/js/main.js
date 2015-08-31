@@ -2923,6 +2923,10 @@ function overlayMap( callback ) {
             } catch ( err ) { exit( false ); }
         },
         updateStations = function( latitude, longitude ) {
+			if ( typeof controller.settings.wtkey !== "string" || controller.settings.wtkey === "" ) {
+			    return;
+			}
+
             $.ajax( {
                 url: "https://api.wunderground.com/api/" + controller.settings.wtkey + "/geolookup/q/" +
                     ( latitude === -999 || longitude === -999 ? "autoip" : encodeURIComponent( latitude ) + "," + encodeURIComponent( longitude ) ) + ".json",
