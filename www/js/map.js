@@ -81,6 +81,8 @@ function initialize() {
 			searchField = document.getElementById( "pac-input" ),
 			searchBox = new google.maps.places.SearchBox( searchField );
 
+		controlBox.style.display = "block";
+
 		map.controls[ google.maps.ControlPosition.TOP_LEFT ].push( controlBox );
 
 		// Bias the SearchBox results towards current map's viewport.

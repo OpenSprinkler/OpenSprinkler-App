@@ -43,6 +43,16 @@
         .pac-container {
             font-family: Roboto;
         }
+        .submit {
+            color: #fff;
+            background-color: #337ab7;
+            border-color: #2e6da4;
+            font-size: 14px;
+            line-height: 1.42857143;
+            cursor: pointer;
+            border: 1px solid transparent;
+            border-radius: 4px;
+        }
         #pac-input {
             background-color: #fff;
             font-family: Roboto;
@@ -65,7 +75,8 @@
         #customControls {
             margin-top: 10px;
             width: 90%;
-            text-align: center
+            text-align: center;
+            display: none
         }
         .gm-style-iw {
             overflow: hidden !important;
@@ -83,7 +94,7 @@
             <!-- Curent location icon -->
             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 31.5 31.5"><path d="M15.75 10.023c-3.164 0-5.727 2.563-5.727 5.727s2.563 5.727 5.727 5.727 5.727-2.563 5.727-5.727-2.563-5.727-5.727-5.727zm12.8 4.295c-.658-5.97-5.398-10.71-11.368-11.368v-2.95h-2.863v2.95c-5.971.658-10.711 5.398-11.369 11.368h-2.95v2.863h2.95c.659 5.971 5.398 10.71 11.369 11.369v2.95h2.863v-2.95c5.971-.659 10.71-5.398 11.369-11.369h2.95v-2.863h-2.951zm-12.8 11.455c-5.534 0-10.023-4.489-10.023-10.023s4.489-10.023 10.023-10.023 10.023 4.489 10.023 10.023-4.489 10.023-10.023 10.023z"/></svg>
         </span>
-        <input id="pac-input" class="controls" type="text" placeholder="Search Box">
+        <input id="pac-input" class="controls" type="text" placeholder="Enter a location">
     </div>
     <div id="map_canvas"></div>
 </body>
