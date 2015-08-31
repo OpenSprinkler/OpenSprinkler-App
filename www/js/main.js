@@ -4387,7 +4387,7 @@ var showHome = ( function() {
 
 			cards += "<img src='" + ( hasImage ? "data:image/jpeg;base64," + sites[ currentSite ].images[ i ] : getAppURLPath() + "img/placeholder.png" ) + "' />";
 
-            cards += "<p class='tight center inline-icon' id='station_" + i + "'>" + station + "</p>";
+            cards += "<p class='station-name center inline-icon' id='station_" + i + "'>" + station + "</p>";
 
             cards += "<span class='btn-no-border ui-btn ui-btn-icon-notext ui-corner-all card-icon station-status " +
 				( isRunning ? "on" : ( isScheduled ? "wait" : "off" ) ) + "'></span>";

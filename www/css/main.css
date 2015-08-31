@@ -746,6 +746,12 @@ body, input, select, textarea, button, .ui-btn {
     position: absolute;
     border: none;
 }
+.station-name {
+    width: 70%;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    margin: 0 auto;
+}
 .station-settings {
     top: -3px;
     right: 1%;
