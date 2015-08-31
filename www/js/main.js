@@ -5506,7 +5506,7 @@ function checkStatus() {
 
         changeStatus( 0, "transparent", "<p class='running-text smaller center pointer'>" + pname + " " + _( "last ran station" ) + " " +
 			controller.stations.snames[ controller.settings.lrun[ 0 ] ] + " " + _( "for" ) + " " + ( lrdur / 60 >> 0 ) + "m " + ( lrdur % 60 ) + "s " +
-			_( "on" ) + " " + dateToString( new Date( controller.settings.lrun[ 3 ] * 1000 ) ) + "</p>", goHome );
+			_( "on" ) + " " + dateToString( new Date( ( controller.settings.lrun[ 3 ] - lrdur ) * 1000 ) ) + "</p>", goHome );
         return;
     }
 
