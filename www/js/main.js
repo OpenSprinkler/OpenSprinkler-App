@@ -6871,9 +6871,8 @@ var getLogs = ( function() {
             }
 
             $.each( data, function() {
-                var stamp = parseInt( this[ 3 ] * 1000 ),
-                    station = this[ 1 ],
-                    date = new Date( stamp ),
+                var station = this[ 1 ],
+                    date = new Date( parseInt( this[ 3 ] * 1000 ) - parseInt( this[ 2 ] * 1000 ) ),
                     utc = new Date( date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(),  date.getUTCHours(),
 						date.getUTCMinutes(), date.getUTCSeconds() );
 
@@ -6897,12 +6896,11 @@ var getLogs = ( function() {
                 if ( type === "table" ) {
                     switch ( grouping ) {
                         case "station":
-                            sortedData[ station ].push( [ new Date( utc.getTime() - parseInt( this[ 2 ] * 1000 ) ),
-								dhms2str( sec2dhms( parseInt( this[ 2 ] ) ) ) ] );
+                            sortedData[ station ].push( [ utc, dhms2str( sec2dhms( parseInt( this[ 2 ] ) ) ) ] );
                             break;
                         case "day":
-                            var day = Math.floor( date.getTime() / 1000 / 60 / 60 / 24 ),
-                                item = [ new Date( utc.getTime() - parseInt( this[ 2 ] * 1000 ) ), dhms2str( sec2dhms( parseInt( this[ 2 ] ) ) ), station ];
+                            var day = Math.floor( utc.getTime() / 1000 / 60 / 60 / 24 ),
+                                item = [ utc, dhms2str( sec2dhms( parseInt( this[ 2 ] ) ) ), station ];
 
                             if ( typeof sortedData[ day ] !== "object" ) {
                                 sortedData[ day ] = [ item ];
@@ -6936,8 +6934,8 @@ var getLogs = ( function() {
                     }
 
                     sortedData.push( {
-                        "start": new Date( utc.getTime() - parseInt( this[ 2 ] * 1000 ) ),
-                        "end": utc,
+                        "start": utc,
+                        "end": new Date( utc.getTime() + parseInt( this[ 2 ] * 1000 ) ),
                         "className": className,
                         "content": name,
                         "pid": pid - 1,
@@ -6973,8 +6971,7 @@ var getLogs = ( function() {
 					var volume = flowCountToVolume( this[ 0 ] );
 
 					if ( type === "timeline" ) {
-		                var stamp = parseInt( this[ 3 ] * 1000 ),
-		                    date = new Date( stamp ),
+		                var date = new Date( parseInt( this[ 3 ] * 1000 ) ),
 		                    utc = new Date( date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(),  date.getUTCHours(),
 								date.getUTCMinutes(), date.getUTCSeconds() );
 
