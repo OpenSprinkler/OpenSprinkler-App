@@ -6876,7 +6876,14 @@ var getLogs = ( function() {
 
             $.each( data, function() {
                 var station = this[ 1 ],
-                    date = new Date( parseInt( this[ 3 ] * 1000 ) - parseInt( this[ 2 ] * 1000 ) ),
+					duration = parseInt( this[ 2 ] );
+
+                // Adjust for negative watering time firmware bug
+                if ( duration < 0 ) {
+					duration += 65536;
+                }
+
+                var date = new Date( parseInt( this[ 3 ] * 1000 ) - ( duration * 1000 ) ),
                     utc = new Date( date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(),  date.getUTCHours(),
 						date.getUTCMinutes(), date.getUTCSeconds() );
 
@@ -6893,18 +6900,18 @@ var getLogs = ( function() {
 						return;
 					}
 
-					stats.totalRuntime += parseInt( this[ 2 ] );
+					stats.totalRuntime += duration;
 					stats.totalCount++;
                 }
 
                 if ( type === "table" ) {
                     switch ( grouping ) {
                         case "station":
-                            sortedData[ station ].push( [ utc, dhms2str( sec2dhms( parseInt( this[ 2 ] ) ) ) ] );
+                            sortedData[ station ].push( [ utc, dhms2str( sec2dhms( duration ) ) ] );
                             break;
                         case "day":
                             var day = Math.floor( utc.getTime() / 1000 / 60 / 60 / 24 ),
-                                item = [ utc, dhms2str( sec2dhms( parseInt( this[ 2 ] ) ) ), station ];
+                                item = [ utc, dhms2str( sec2dhms( duration ) ), station ];
 
                             if ( typeof sortedData[ day ] !== "object" ) {
                                 sortedData[ day ] = [ item ];
@@ -6939,7 +6946,7 @@ var getLogs = ( function() {
 
                     sortedData.push( {
                         "start": utc,
-                        "end": new Date( utc.getTime() + parseInt( this[ 2 ] * 1000 ) ),
+                        "end": new Date( utc.getTime() + duration ),
                         "className": className,
                         "content": name,
                         "pid": pid - 1,
