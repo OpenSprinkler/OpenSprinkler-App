@@ -4389,11 +4389,14 @@ var showHome = ( function() {
 
             cards += "<p class='tight center inline-icon' id='station_" + i + "'>" + station + "</p>";
 
-            cards += "<span class='btn-no-border ui-btn ui-btn-icon-notext ui-corner-all station-status " +
+            cards += "<span class='btn-no-border ui-btn ui-btn-icon-notext ui-corner-all card-icon station-status " +
 				( isRunning ? "on" : ( isScheduled ? "wait" : "off" ) ) + "'></span>";
 
+            cards += "<span class='btn-no-border ui-btn ui-btn-icon-notext ui-icon-wifi card-icon special-station " +
+                ( isStationSpecial( i ) ? "" : "hidden" ) + "'></span>";
+
             cards += "<span class='btn-no-border ui-btn " + ( ( isStationMaster( i ) ) ? "ui-icon-master" : "ui-icon-gear" ) +
-				" ui-btn-icon-notext station-settings' data-station='" + i + "' id='attrib-" + i + "' " +
+				" card-icon ui-btn-icon-notext station-settings' data-station='" + i + "' id='attrib-" + i + "' " +
                 ( hasMaster ? ( "data-um='" + ( ( controller.stations.masop[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) + "' " ) : "" ) +
                 ( hasMaster2 ? ( "data-um2='" + ( ( controller.stations.masop2[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) + "' " ) : "" ) +
                 ( hasIR ? ( "data-ir='" + ( ( controller.stations.ignore_rain[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) + "' " ) : "" ) +
@@ -4892,6 +4895,7 @@ var showHome = ( function() {
                     }
 
                     card.find( "#station_" + i ).text( controller.stations.snames[ i ] );
+                    card.find( ".special-station" ).removeClass( "hidden" ).addClass( isStationSpecial( i ) ? "" : "hidden" );
                     card.find( ".station-status" ).removeClass( "on off wait" ).addClass( isRunning ? "on" : ( isScheduled ? "wait" : "off" ) );
                     if ( isStationMaster( i ) ) {
                         card.find( ".station-settings" ).removeClass( "ui-icon-gear" ).addClass( "ui-icon-master" );
