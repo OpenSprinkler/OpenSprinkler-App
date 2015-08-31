@@ -711,6 +711,9 @@ body, input, select, textarea, button, .ui-btn {
 #stn_attrib {
     border: 0;
 }
+.location {
+	padding-right: 5px;
+}
 .changelog {
     font-size: smaller;
     margin: 10px;
@@ -784,7 +787,7 @@ body, input, select, textarea, button, .ui-btn {
     display: inherit !important;
 }
 .has-images .station-name {
-    width: 45%;
+    width: 60%;
 }
 .has-images .station-status {
 	right: 1%;
@@ -1148,13 +1151,16 @@ div.running-text{
 }
 @media (max-width: 640px) {
     .card {
-        max-width: 260px;
+        max-width: 300px;
     }
     .info-card {
         max-width: 500px;
     }
 }
 @media (max-width: 320px) {
+	.has-images .station-name {
+		width: 45%;
+	}
     .card {
         max-width: 220px;
     }
