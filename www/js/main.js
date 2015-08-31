@@ -2483,7 +2483,7 @@ function updateYahooWeather( string ) {
 
             if ( typeof woeid.query.results.Result.woeid === "string" ) {
                 wid = woeid.query.results.Result.woeid;
-            } else {
+            } else if ( Array.isArray( woeid.query.results.Result ) ) {
                 wid = woeid.query.results.Result[ 0 ].woeid;
             }
 

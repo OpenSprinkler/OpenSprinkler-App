@@ -44,7 +44,7 @@ google.maps = google.maps || {};
 } )();
 
 var markers = { airport: [], pws: [], orgin: [] },
-    priorIdle, map, infoWindow, stations, airports, droppedPin, start;
+    priorIdle, map, infoWindow, stations, airports, droppedPin, start, current;
 
 // Handle select button for weather station selection
 document.addEventListener( "click", function( e ) {
@@ -145,7 +145,7 @@ function initialize() {
 
         // When the map center changes, update the weather stations shown
         map.addListener( "idle", function() {
-			if ( getDistance( map.getCenter(), priorIdle ) < 15000 ) {
+			if ( getDistance( map.getCenter(), priorIdle ) < 15000 || map.getZoom() < 9 ) {
 				return;
 			}
 
@@ -180,7 +180,11 @@ window.onmessage = function( e ) {
         removeMarkers( "airport" );
         plotAllMarkers( airports );
     } else if ( data.type === "currentLocation" ) {
-        showCurrentLocation( data.payload );
+		if ( current ) {
+			current.setMap( null );
+		}
+		current = new google.maps.LatLng( data.payload.lat, data.payload.lon );
+        showCurrentLocation();
     }
 };
 
@@ -253,8 +257,7 @@ function createInfoWindow( type, data, latLon ) {
     }
 }
 
-function showCurrentLocation( current ) {
-    current = new google.maps.LatLng( current.lat, current.lon );
+function showCurrentLocation() {
 
     // The app uses -999, -999 when geolocation is not possible which is resolved to -90, 81
     if ( current.lat() !== -90 && current.lng() !== 81 ) {
