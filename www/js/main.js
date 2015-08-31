@@ -2880,7 +2880,7 @@ function makeYahooForecast() {
     return list;
 }
 
-function overlayMap( lat, lon, callback ) {
+function overlayMap( callback ) {
 
     // Looks up the location and shows a list possible matches for selection
     // Returns the selection to the callback
@@ -2893,6 +2893,35 @@ function overlayMap( lat, lon, callback ) {
             "<a href='#' data-rel='back' class='ui-btn ui-corner-all ui-shadow ui-btn-b ui-icon-delete ui-btn-icon-notext ui-btn-right'>" + _( "Close" ) + "</a>" +
                 "<iframe style='border:none' src='" + getAppURLPath() + "map.html' width='100%' height='100%' seamless=''></iframe>" +
         "</div>" ),
+        getCurrentLocation = function( callback ) {
+            var exit = function( result ) {
+                    clearTimeout( loadMsg );
+                    $.mobile.loading( "hide" );
+
+                    if ( !result ) {
+                        showerror( _( "Unable to retrieve your current location" ) );
+                    }
+
+                    callback( result );
+                },
+                loadMsg;
+
+            try {
+                loadMsg = setTimeout( function() {
+                    $.mobile.loading( "show", {
+                        html: "<div class='logo'></div><h1 style='padding-top:5px'>" + _( "Attempting to retrieve your current location" ) + "</h1></p>",
+                        textVisible: true,
+                        theme: "b"
+                    } );
+                }, 100 );
+                navigator.geolocation.getCurrentPosition( function( position ) {
+                    clearTimeout( loadMsg );
+                    exit( position );
+                }, function() {
+                    exit( false );
+                }, { timeout: 10000 } );
+            } catch ( err ) { exit( false ); }
+        },
         updateStations = function( latitude, longitude ) {
             $.ajax( {
                 url: "https://api.wunderground.com/api/" + controller.settings.wtkey + "/geolookup/q/" +
@@ -2952,18 +2981,26 @@ function overlayMap( lat, lon, callback ) {
             updateStations( data.location[ 0 ], data.location[ 1 ] );
         } else if ( data.dismissKeyboard === true ) {
             document.activeElement.blur();
+        } else if ( data.getLocation === true ) {
+            getCurrentLocation( function( result ) {
+                if ( result ) {
+                    iframe.get( 0 ).contentWindow.postMessage( {
+                        type: "currentLocation",
+                        payload: {
+                            lat: result.coords.latitude,
+                            lon: result.coords.longitude
+                        }
+                    }, "*" );
+                }
+            } );
         }
     } );
 
     iframe.one( "load", function() {
         this.contentWindow.postMessage( {
-            type: "currentLocation",
+            type: "startLocation",
             payload: {
-				start: {
-					lat: lat,
-					lon: lon
-				},
-				current: current
+				start: current
             }
         }, "*" );
     } );
@@ -3879,61 +3916,35 @@ function showOptions( expandItem ) {
 
         $.mobile.loading( "show" );
 
-        var finish = function( selected ) {
-                if ( selected === false ) {
-                    if ( loc.val() === "" ) {
-                        loc.removeClass( "green" );
-                        page.find( "#o1" ).selectmenu( "enable" );
-                    }
-                } else {
-                    if ( checkOSVersion( 210 ) ) {
-                        page.find( "#o1" ).selectmenu( "disable" );
-                    }
-                    selected = selected.split( "," );
-                    selected[ 0 ] = parseFloat( selected[ 0 ] ).toFixed( 5 );
-                    selected[ 1 ] = parseFloat( selected[ 1 ] ).toFixed( 5 );
-                    loc.val( selected );
-                    coordsToLocation( selected[ 0 ], selected[ 1 ], function( result ) {
-						loc.text( result );
-
-                        if ( result !== selected[ 0 ] + "," + selected[ 1 ] ) {
-                            loc.addClass( "green" );
-                        }
-		            } );
-                    header.eq( 2 ).prop( "disabled", false );
-                    page.find( ".submit" ).addClass( "hasChanges" );
-                }
-                exit( true );
-            },
-            exit = function( result ) {
-                clearTimeout( loadMsg );
-                $.mobile.loading( "hide" );
-                if ( result !== true ) {
-
-					// If location cannot be determined, use IP based location
-                    overlayMap( -999, -999, finish );
-                    return;
-                }
-                loc.prop( "disabled", false );
-            },
-            loc = $( this ),
-            loadMsg;
+        var loc = $( this );
 
         loc.prop( "disabled", true );
+        overlayMap( function( selected ) {
+            if ( selected === false ) {
+                if ( loc.val() === "" ) {
+                    loc.removeClass( "green" );
+                    page.find( "#o1" ).selectmenu( "enable" );
+                }
+            } else {
+                if ( checkOSVersion( 210 ) ) {
+                    page.find( "#o1" ).selectmenu( "disable" );
+                }
+                selected = selected.split( "," );
+                selected[ 0 ] = parseFloat( selected[ 0 ] ).toFixed( 5 );
+                selected[ 1 ] = parseFloat( selected[ 1 ] ).toFixed( 5 );
+                loc.val( selected );
+                coordsToLocation( selected[ 0 ], selected[ 1 ], function( result ) {
+                    loc.text( result );
 
-        try {
-            loadMsg = setTimeout( function() {
-                $.mobile.loading( "show", {
-                    html: "<div class='logo'></div><h1 style='padding-top:5px'>" + _( "Attempting to retrieve your current location" ) + "</h1></p>",
-                    textVisible: true,
-                    theme: "b"
+                    if ( result !== selected[ 0 ] + "," + selected[ 1 ] ) {
+                        loc.addClass( "green" );
+                    }
                 } );
-            }, 100 );
-            navigator.geolocation.getCurrentPosition( function( position ) {
-                clearTimeout( loadMsg );
-                overlayMap( position.coords.latitude, position.coords.longitude, finish );
-            }, exit, { timeout: 10000 } );
-        } catch ( err ) { exit(); }
+                header.eq( 2 ).prop( "disabled", false );
+                page.find( ".submit" ).addClass( "hasChanges" );
+            }
+            loc.prop( "disabled", false );
+        } );
     } );
 
     page.find( "#wto" ).on( "click", function() {

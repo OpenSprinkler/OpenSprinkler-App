@@ -44,7 +44,7 @@ google.maps = google.maps || {};
 } )();
 
 var markers = { airport: [], pws: [], orgin: [] },
-    priorIdle, map, infoWindow, start, stations, airports, droppedPin, current;
+    priorIdle, map, infoWindow, stations, airports, droppedPin, start;
 
 // Handle select button for weather station selection
 document.addEventListener( "click", function( e ) {
@@ -57,13 +57,13 @@ document.addEventListener( "click", function( e ) {
     }
 }, false );
 
-// Load the map using the current location as the starting point
+// Load the map using the controller's current location
 function initialize() {
     if ( typeof start === "object" ) {
         var myOptions = {
             zoom: 14,
             maxZoom: 17,
-            center: current,
+            center: start,
             streetViewControl: false,
             mapTypeControl: false,
             mapTypeId: google.maps.MapTypeId.ROADMAP,
@@ -76,8 +76,8 @@ function initialize() {
         map = new google.maps.Map( document.getElementById( "map_canvas" ), myOptions );
         infoWindow = new google.maps.InfoWindow();
 
+        // Setup SearchBox for auto completion
 		var controlBox = document.getElementById( "customControls" ),
-			jumpToCurrent = document.getElementById( "jumpCurrent" ),
 			searchField = document.getElementById( "pac-input" ),
 			searchBox = new google.maps.places.SearchBox( searchField );
 
@@ -102,24 +102,16 @@ function initialize() {
             map.setCenter( droppedPin.getPosition() );
 		} );
 
-        // If a current location is specified, show the current location button
-        // The app uses -999, -999 when geolocation is not possible which is resolved to -90, 81
-        if ( start.lat() !== -90 && start.lng() !== 81 ) {
-			start = plotMarker( "orgin", { message: "Current Location" }, start.lat(), start.lng() );
+		var jumpToCurrent = document.getElementById( "jumpCurrent" );
 
-			// Bind the current location button
-			jumpToCurrent.addEventListener( "click", function() {
-				infoWindow.close();
-				map.setCenter( { lat: start.getPosition().lat(), lng: start.getPosition().lng() } );
-				google.maps.event.trigger( start, "click" );
-			} );
+		// Bind the current location button
+		jumpToCurrent.addEventListener( "click", function() {
+			window.top.postMessage( { getLocation: true }, "*" );
+		} );
 
-			jumpToCurrent.style.display = "inline";
-		}
-
-        // If a current location is specified, display and center it now
-        if ( current.lat() !== 0 && current.lng() !== 0 ) {
-            droppedPin = plotMarker( "orgin", { message: "Selected Location" }, current.lat(), current.lng() );
+        // If a start location is specified, display and center it now
+        if ( start.lat() !== 0 && start.lng() !== 0 ) {
+            droppedPin = plotMarker( "orgin", { message: "Selected Location" }, start.lat(), start.lng() );
         }
 
         // Once the UI/tiles are loaded, let the parent script know
@@ -173,10 +165,9 @@ window.onmessage = function( e ) {
     var data = e.data;
 
     // Handle start point data
-    if ( data.type === "currentLocation" ) {
+    if ( data.type === "startLocation" ) {
         start = new google.maps.LatLng( data.payload.start.lat, data.payload.start.lon );
-        current = new google.maps.LatLng( data.payload.current.lat, data.payload.current.lon );
-        priorIdle = current;
+        priorIdle = start;
         initialize();
 
     // Handle stations data
@@ -188,6 +179,8 @@ window.onmessage = function( e ) {
         airports = JSON.parse( decodeURIComponent( data.payload ) );
         removeMarkers( "airport" );
         plotAllMarkers( airports );
+    } else if ( data.type === "currentLocation" ) {
+        showCurrentLocation( data.payload );
     }
 };
 
@@ -258,6 +251,19 @@ function createInfoWindow( type, data, latLon ) {
     } else {
         return "<div style='min-height:40px;text-align:center'>" + data.message + "<br><br><button class='submit' data-loc='" + latLon + "'>Submit</button></div>";
     }
+}
+
+function showCurrentLocation( current ) {
+    current = new google.maps.LatLng( current.lat, current.lon );
+
+    // The app uses -999, -999 when geolocation is not possible which is resolved to -90, 81
+    if ( current.lat() !== -90 && current.lng() !== 81 ) {
+		current = plotMarker( "orgin", { message: "Current Location" }, current.lat(), current.lng() );
+
+		map.setCenter( { lat: current.getPosition().lat(), lng: current.getPosition().lng() } );
+		infoWindow.close();
+		google.maps.event.trigger( current, "click" );
+	}
 }
 
 function rad( x ) {
