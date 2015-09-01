@@ -323,7 +323,9 @@ $( document )
 } )
 .on( "popupafterclose", function() {
 
-	$( ".ui-page-active" ).children().add( "#sprinklers-settings" ).removeClass( "blur-filter" );
+	if ( !isBB10 ) {
+		$( ".ui-page-active" ).children().add( "#sprinklers-settings" ).removeClass( "blur-filter" );
+	}
 
 	// When a popup is closed, change the header back to the default color
     try {
@@ -331,7 +333,9 @@ $( document )
     } catch ( err ) {}
 } )
 .on( "popupbeforeposition", function() {
-	$( ".ui-page-active" ).children().add( "#sprinklers-settings" ).addClass( "blur-filter" );
+	if ( !isBB10 ) {
+		$( ".ui-page-active" ).children().add( "#sprinklers-settings" ).addClass( "blur-filter" );
+	}
 } )
 .on( "popupbeforeposition", "#localization", checkCurrLang )
 .one( "pagebeforeshow", "#loadingPage", initApp );
