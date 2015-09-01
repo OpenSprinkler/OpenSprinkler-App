@@ -187,7 +187,7 @@ $( document )
 .one( "mobileinit", function() {
 
     //Change history method for Chrome Packaged Apps
-    if ( isChromeApp ) {
+    if ( isChromeApp || window.location.protocol === "file:" ) {
         $.mobile.hashListeningEnabled = false;
     }
 } )
@@ -10985,7 +10985,7 @@ function goBack() {
             navigator.app.exitApp();
         } catch ( err ) {}
     } else {
-        if ( isChromeApp ) {
+        if ( isChromeApp || window.location.protocol === "file:" ) {
             var url = $.mobile.navigate.history.getPrev().url;
 
             if ( url.slice( 0, 1 ) !== "#" ) {
