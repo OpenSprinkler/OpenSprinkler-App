@@ -204,8 +204,8 @@ function plotMarker( type, data, lat, lon ) {
     var marker = new google.maps.Marker( {
             position: new google.maps.LatLng( lat, lon ),
             map: map,
-            icon: ( type === "orgin" ? "http://maps.google.com/mapfiles/ms/icons/red-dot.png" :
-                ( type ===  "pws" ? "http://maps.google.com/mapfiles/ms/icons/blue-dot.png" : "http://maps.google.com/mapfiles/ms/icons/orange-dot.png" ) )
+            icon: ( type === "orgin" ? "https://maps.google.com/mapfiles/ms/icons/red-dot.png" :
+                ( type ===  "pws" ? "https://maps.google.com/mapfiles/ms/icons/blue-dot.png" : "https://maps.google.com/mapfiles/ms/icons/orange-dot.png" ) )
         } );
 
     google.maps.event.addListener( marker, "click", function() {
