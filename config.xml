@@ -4,8 +4,8 @@
             xmlns:gap="http://phonegap.com/ns/1.0"
             id="com.albahra.sprinklers"
             version="1.4.7"
-            android-versionCode="55"
-            versionCode="55" >
+            android-versionCode="56"
+            versionCode="56" >
 
         <!-- Declare PhoneGap Version -->
         <preference name="phonegap-version" value="cli-5.1.1" />
