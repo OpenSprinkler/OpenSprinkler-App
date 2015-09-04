@@ -3,7 +3,7 @@
             xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:gap="http://phonegap.com/ns/1.0"
             id="com.albahra.sprinklers"
-            version="1.4.7"
+            version="1.4.7-1"
             android-versionCode="56"
             versionCode="56" >
 
