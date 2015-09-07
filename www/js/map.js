@@ -137,6 +137,15 @@ function initialize() {
                 location: [ map.getCenter().lat(), map.getCenter().lng() ]
             }, "*" );
         } );
+
+        // If any stations or airports are saved already, draw them on the map
+        if ( stations.length > 0 ) {
+			plotAllMarkers( stations, true );
+        }
+
+        if ( airports.length > 0 ) {
+			plotAllMarkers( airports );
+        }
     } else {
         setTimeout( initialize, 1 );
     }
