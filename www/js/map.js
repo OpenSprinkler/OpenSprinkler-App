@@ -24,7 +24,9 @@
 } )();
 
 var markers = { airport: [], pws: [], orgin: [] },
-    priorIdle, map, infoWindow, stations, airports, droppedPin, start, current;
+	stations = [],
+	airports = [],
+    priorIdle, map, infoWindow, droppedPin, start, current;
 
 // Handle select button for weather station selection
 document.addEventListener( "click", function( e ) {
