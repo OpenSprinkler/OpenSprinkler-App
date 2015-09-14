@@ -2425,6 +2425,60 @@ function showAutoRainDelayAdjustmentOptions( button, callback ) {
     openPopup( popup, { positionTo: "window" } );
 }
 
+// Checks to make sure an array contains the keys provided and returns true or false
+function validateWUValues( keys, array ) {
+	var key;
+
+	for ( key in keys ) {
+		if ( !keys.hasOwnProperty( key ) ) {
+			continue;
+		}
+
+		key = keys[ key ];
+
+		if ( !array.hasOwnProperty( key ) || array[ key ] === null || parseInt( array[ key ] ) === -999 ) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
+// Validates a Weather Underground location to verify it contains the data needed for Weather Adjustments
+function validateWULocation( location, callback ) {
+    if ( typeof controller.settings.wtkey !== "string" || controller.settings.wtkey === "" ) {
+        callback( false );
+    }
+
+    $.ajax( {
+        url: "https://api.wunderground.com/api/" + controller.settings.wtkey + "/yesterday/conditions/q/" + encodeURIComponent( location ) + ".json",
+        dataType: isChromeApp ? "json" : "jsonp",
+        shouldRetry: retryCount
+    } ).done( function( data ) {
+        if ( typeof data.response.error === "object" ) {
+            callback( false );
+            return;
+        }
+
+        if ( typeof data.history === "object" && typeof data.history.dailysummary === "object" ) {
+            var summary = data.history.dailysummary[ 0 ],
+				current = data.current_observation;
+
+            if ( !validateWUValues( [ "minhumidity", "maxhumidity", "meantempm", "meantempi", "precipm", "precipi" ], summary ) ||
+					!validateWUValues( [ "precip_today_metric", "precip_today_in" ], current ) ) {
+				callback( false );
+				return;
+            }
+
+            callback( true );
+        } else {
+			callback( false );
+        }
+    } ).fail( function() {
+		callback( false );
+    } );
+}
+
 function convertTemp( temp, region ) {
     if ( region === "United States" || region === "Bermuda" || region === "Palau" ) {
         temp = temp + "&#176;F";
@@ -2580,7 +2634,10 @@ function updateWundergroundWeather( wapikey ) {
                 simpleforecast: {}
             };
 
-            currentCoordinates = [ data.current_observation.observation_location.latitude, data.current_observation.observation_location.longitude ];
+            currentCoordinates = [
+				data.current_observation.display_location.latitude || data.current_observation.observation_location.latitude,
+				data.current_observation.display_location.longitude || data.current_observation.observation_location.longitude
+			];
 
             $.each( data.forecast.simpleforecast.forecastday, function( k, attr ) {
                  wwForecast.simpleforecast[ k ] = attr;
@@ -2644,7 +2701,7 @@ function updateWundergroundWeather( wapikey ) {
 function coordsToLocation( lat, lon, callback, fallback ) {
 	fallback = fallback || lat + "," + lon;
 
-    $.getJSON( "https://maps.googleapis.com/maps/api/geocode/json?latlng=" + lat + "," + lon, function( data ) {
+    $.getJSON( "https://maps.googleapis.com/maps/api/geocode/json?latlng=" + lat + "," + lon + "&key=AIzaSyDaT_HTZwFojXmvYIhwWudK00vFXzMmOKc&result_type=locality|sublocality|administrative_area_level_1|country", function( data ) {
         if ( data.results.length === 0 ) {
             callback( fallback );
             return;
@@ -3053,10 +3110,17 @@ function debugWU() {
             return;
         }
 
-        if ( typeof data.history === "object" && typeof data.history.dailysummary ) {
+        if ( typeof data.history === "object" && typeof data.history.dailysummary === "object" ) {
             var summary = data.history.dailysummary[ 0 ],
-                current = data.current_observation,
-                country = current.display_location.country_iso3166,
+				current = data.current_observation;
+
+            if ( !validateWUValues( [ "minhumidity", "maxhumidity", "meantempm", "meantempi", "precipm", "precipi" ], summary ) ||
+					!validateWUValues( [ "precip_today_metric", "precip_today_in" ], current ) ) {
+				showerror( _( "Weather data cannot be found for your location" ) );
+				return;
+            }
+
+            var country = current.display_location.country_iso3166,
                 isMetric = ( ( country === "US" || country === "BM" || country === "PW" ) ? false : true ),
                 popup = $( "<div data-role='popup' id='debugWU' class='ui-content ui-page-theme-a'>" +
                     "<table class='debugWU'>" +
@@ -3943,10 +4007,13 @@ function showOptions( expandItem ) {
                 loc.val( selected );
                 coordsToLocation( selected[ 0 ], selected[ 1 ], function( result ) {
                     loc.text( result );
-
-                    if ( result !== selected[ 0 ] + "," + selected[ 1 ] ) {
-                        loc.addClass( "green" );
-                    }
+                    validateWULocation( selected[ 0 ] + "," + selected[ 1 ], function( isValid ) {
+	                    if ( isValid && result !== selected[ 0 ] + "," + selected[ 1 ] ) {
+	                        loc.removeClass( "red" ).addClass( "green" );
+	                    } else if ( !isValid ) {
+							loc.removeClass( "green" ).addClass( "red" );
+	                    }
+                    } );
                 } );
                 header.eq( 2 ).prop( "disabled", false );
                 page.find( ".submit" ).addClass( "hasChanges" );
