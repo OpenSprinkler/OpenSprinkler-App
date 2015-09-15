@@ -117,6 +117,7 @@ var isIEMobile = /IEMobile/.test( navigator.userAgent ),
     // Array to hold all notifications currently displayed within the app
     notifications = [],
     timers = {},
+    isWUDataValid = false,
     curr183, currIp, currPrefix, currAuth, currPass, currAuthUser,
     currAuthPass, currLocal, currLang, language, deviceip, errorTimeout, weather, weatherKeyFail, openPanel;
 
@@ -2444,6 +2445,21 @@ function validateWUValues( keys, array ) {
 	return true;
 }
 
+function validateWUData( history, current ) {
+    if ( typeof history === "object" && typeof history.dailysummary === "object" ) {
+        var summary = history.dailysummary[ 0 ];
+
+        if ( !validateWUValues( [ "minhumidity", "maxhumidity", "meantempm", "meantempi", "precipm", "precipi" ], summary ) ||
+				!validateWUValues( [ "precip_today_metric", "precip_today_in" ], current ) ) {
+			return false;
+        }
+
+        return true;
+    } else {
+		return false;
+    }
+}
+
 // Validates a Weather Underground location to verify it contains the data needed for Weather Adjustments
 function validateWULocation( location, callback ) {
     if ( typeof controller.settings.wtkey !== "string" || controller.settings.wtkey === "" ) {
@@ -2460,20 +2476,7 @@ function validateWULocation( location, callback ) {
             return;
         }
 
-        if ( typeof data.history === "object" && typeof data.history.dailysummary === "object" ) {
-            var summary = data.history.dailysummary[ 0 ],
-				current = data.current_observation;
-
-            if ( !validateWUValues( [ "minhumidity", "maxhumidity", "meantempm", "meantempi", "precipm", "precipi" ], summary ) ||
-					!validateWUValues( [ "precip_today_metric", "precip_today_in" ], current ) ) {
-				callback( false );
-				return;
-            }
-
-            callback( true );
-        } else {
-			callback( false );
-        }
+        callback( validateWUData( data.history, data.current_observation ) );
     } ).fail( function() {
 		callback( false );
     } );
@@ -2575,6 +2578,8 @@ function updateYahooWeather( string ) {
                         source: "yahoo"
                     };
 
+                    isWUDataValid = false;
+
                     updateWeatherBox();
 
                     $.mobile.document.trigger( "weatherUpdateComplete" );
@@ -2598,7 +2603,7 @@ function updateWeatherBox() {
 
 function updateWundergroundWeather( wapikey ) {
     $.ajax( {
-        url: "https://api.wunderground.com/api/" + wapikey + "/conditions/forecast/alerts/lang:EN/q/" + encodeURIComponent( controller.settings.loc ) + ".json",
+        url: "https://api.wunderground.com/api/" + wapikey + "/yesterday/conditions/forecast/alerts/lang:EN/q/" + encodeURIComponent( controller.settings.loc ) + ".json",
         dataType: isChromeApp ? "json" : "jsonp",
         contentType: "application/json; charset=utf-8",
         shouldRetry: retryCount,
@@ -2612,6 +2617,12 @@ function updateWundergroundWeather( wapikey ) {
             } else {
                 weatherKeyFail = false;
             }
+
+	        if ( validateWUData( data.history, data.current_observation ) ) {
+				isWUDataValid = true;
+	        } else {
+				isWUDataValid = false;
+	        }
 
             if ( data.current_observation.icon_url.indexOf( "nt_" ) !== -1 ) {
                 code = "nt_" + data.current_observation.icon;
@@ -3647,7 +3658,7 @@ function showOptions( expandItem ) {
 
     list += "<div class='ui-field-contain'>" +
         "<label for='loc'>" + _( "Location" ) + "</label>" +
-		"<button data-mini='true' id='loc' value='" + controller.settings.loc + "'" + ( $( "#weather" ).is( ":empty" ) ? "" : " class='green'" ) + ">" +
+		"<button data-mini='true' id='loc' value='" + controller.settings.loc + "'" + ( isWUDataValid === true ? " class='green'" : "" ) + ">" +
 			( typeof weather === "object" ? weather.location : ( controller.settings.loc.trim() ? controller.settings.loc : _( "Not specified" ) ) ) +
 		"</button></div>";
 
@@ -4009,9 +4020,9 @@ function showOptions( expandItem ) {
                     loc.text( result );
                     validateWULocation( selected[ 0 ] + "," + selected[ 1 ], function( isValid ) {
 	                    if ( isValid && result !== selected[ 0 ] + "," + selected[ 1 ] ) {
-	                        loc.removeClass( "red" ).addClass( "green" );
+	                        loc.addClass( "green" );
 	                    } else if ( !isValid ) {
-							loc.removeClass( "green" ).addClass( "red" );
+							loc.removeClass( "green" );
 	                    }
                     } );
                 } );
