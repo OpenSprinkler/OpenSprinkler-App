@@ -22,7 +22,7 @@ describe( "Initial Definition Check", function() {
 				"testkey": "helloworld",
                 "sites": JSON.stringify( {
 					"Test": {
-						"os_ip": "127.0.0.1:8080",
+						"os_ip": "127.0.0.1",
 						"os_pw":"opendoor"
 					}
                 } ),
