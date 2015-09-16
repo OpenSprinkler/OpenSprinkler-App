@@ -190,7 +190,7 @@ describe( "General Function Checks", function() {
 
 describe( "Page Navigation Checks", function() {
 	it( "Start jQuery Mobile Page Initialization", function( done ) {
-		currIp = "127.0.0.1:8080";
+		currIp = "127.0.0.1";
 		currPass = "opendoor";
 		currPrefix = "http://";
 		curr183 = false;
