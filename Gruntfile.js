@@ -217,7 +217,7 @@ module.exports = function( grunt ) {
 			stopOSPi: {
 				command: [
 					"test/launch_ospi.sh stop",
-					"rm -r build/firmware/ospi"
+					"rm -r build/firmware/sip"
 				].join( "&&" )
 			},
 			startDemo: {
