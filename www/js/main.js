@@ -9859,7 +9859,7 @@ function checkFirmwareUpdate() {
 
                                 // Modify the changelog by parsing markdown of lists to HTML
                                 var button = $( this ).parent(),
-									canUpdate = controller.options.hwt > 63 && checkOSVersion( 216 ),
+									canUpdate = controller.options.hwv > 63 && checkOSVersion( 216 ),
                                     changelog = data[ 0 ].body.replace( /[\-|\*|\+]\s(.*)?(?:\r\n)?/g, "<li>$1</li>" ),
                                     popup = $(
                                         "<div data-role='popup' class='modal' data-theme='a'>" +
@@ -9898,7 +9898,7 @@ function checkFirmwareUpdate() {
 										);
 									} else {
 
-										var url = controller.options.hwt > 63 ?
+										var url = controller.options.hwv > 63 ?
 											"https://opensprinkler.freshdesk.com/support/solutions/articles/5000631599-installing-and-updating-the-unified-firmware#upgrade"
 											: "https://opensprinkler.freshdesk.com/support/solutions/articles/5000381694-opensprinkler-firmware-update-guide";
 
