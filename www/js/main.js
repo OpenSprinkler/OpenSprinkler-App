@@ -6992,7 +6992,7 @@ var getLogs = ( function() {
                             sortedData[ station ].push( [ utc, dhms2str( sec2dhms( duration ) ) ] );
                             break;
                         case "day":
-                            var day = Math.floor( utc.getTime() / 1000 / 60 / 60 / 24 ),
+                            var day = Math.floor( date.getTime() / 1000 / 60 / 60 / 24 ),
                                 item = [ utc, dhms2str( sec2dhms( duration ) ), station ];
 
                             if ( typeof sortedData[ day ] !== "object" ) {
