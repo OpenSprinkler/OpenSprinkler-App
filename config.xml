@@ -8,7 +8,7 @@
             versionCode="57" >
 
         <!-- Declare PhoneGap Version -->
-        <preference name="phonegap-version" value="cli-5.1.1" />
+        <preference name="phonegap-version" value="cli-5.2.0" />
 
         <!-- Prevent bounce scroll effect on iOS -->
         <preference name="DisallowOverscroll" value="true"  />
