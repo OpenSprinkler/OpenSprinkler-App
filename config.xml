@@ -3,9 +3,9 @@
             xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:gap="http://phonegap.com/ns/1.0"
             id="com.albahra.sprinklers"
-            version="1.4.7"
-            android-versionCode="56"
-            versionCode="56" >
+            version="1.4.8"
+            android-versionCode="57"
+            versionCode="57" >
 
         <!-- Declare PhoneGap Version -->
         <preference name="phonegap-version" value="cli-5.1.1" />
@@ -107,7 +107,7 @@
 
         <!-- Add required short version string to iOS configuration -->
         <gap:config-file platform="ios" parent="CFBundleShortVersionString">
-            <string>148</string>
+            <string>149</string>
         </gap:config-file>
 
         <!-- Android specific Configuration -->
