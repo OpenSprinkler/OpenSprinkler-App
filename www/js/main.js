@@ -9860,14 +9860,16 @@ function checkFirmwareUpdate() {
                                 // Modify the changelog by parsing markdown of lists to HTML
                                 var button = $( this ).parent(),
 									canUpdate = controller.options.hwv > 63 && checkOSVersion( 216 ),
-                                    changelog = data[ 0 ].body.replace( /[\-|\*|\+]\s(.*)?(?:\r\n)?/g, "<li>$1</li>" ),
+                                    changelog = data[ 0 ][ "html_url" ],
                                     popup = $(
                                         "<div data-role='popup' class='modal' data-theme='a'>" +
                                             "<h3 class='center' style='margin-bottom:0'>" +
 												_( "Latest" ) + " " + _( "Firmware" ) + ": " + data[ 0 ].name +
 											"</h3>" +
                                             "<h5 class='center' style='margin:0'>" + _( "This Controller" ) + ": " + getOSVersion() + getOSMinorVersion() + "</h5>" +
-                                            "<ul class='changelog'>" + changelog + "</ul>" +
+                                            "<a class='ui-btn ui-corner-all ui-shadow' style='width:80%;margin:5px auto;' target='_blank' href='" + changelog + "'>" +
+                                                _( "View Changelog" ) +
+                                            "</a>" +
                                             "<a class='guide ui-btn ui-corner-all ui-shadow' style='width:80%;margin:5px auto;' href='#'>" +
 												( canUpdate ? _( "Update Now" ) : _( "Update Guide" ) ) +
 											"</a>" +
