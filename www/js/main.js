@@ -8472,7 +8472,7 @@ function submitProgram21( id, ignoreWarning ) {
         times.each( function( a, b ) {
             var time = parseInt( b.value );
 
-            if ( !time || ( a > 0 && !$( "#ust_" + ( a + 1 ) ).is( ":checked" ) ) ) {
+            if ( typeof time !== "number" || ( a > 0 && !$( "#ust_" + ( a + 1 ) ).is( ":checked" ) ) ) {
                 time = -1;
             }
 
