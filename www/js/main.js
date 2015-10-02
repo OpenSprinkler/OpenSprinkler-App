@@ -7286,8 +7286,8 @@ var getLogs = ( function() {
 									( stats.avgWaterLevel !== 100 ? ( stats.avgWaterLevel < 100 ? "green-text" : "red-text" ) : "" ) +
 								"'>" + stats.avgWaterLevel + "%</span></div>" : ""
 						) +
-			            ( typeof stats.totalVolume !== "undefined" ? "<div><span class='bold'>" + _( "Total Water Used" ) + "</span>: " + stats.totalVolume + " L" +
-							( hasWater && stats.totalVolume > 0 && stats.avgWaterLevel < 100 ? " (<span class='green-text'>" + ( stats.totalVolume - ( stats.totalVolume * ( stats.avgWaterLevel / 100 ) ) ).toFixed( 2 ) + "L saved</span>)" : "" ) +
+			            ( typeof stats.totalVolume !== "undefined" && stats.totalVolume > 0 ? "<div><span class='bold'>" + _( "Total Water Used" ) + "</span>: " + stats.totalVolume + " L" +
+							( hasWater && stats.avgWaterLevel < 100 ? " (<span class='green-text'>" + ( stats.totalVolume - ( stats.totalVolume * ( stats.avgWaterLevel / 100 ) ) ).toFixed( 2 ) + "L saved</span>)" : "" ) +
 			            "</div>" : "" ) +
                     "</div>";
         },
