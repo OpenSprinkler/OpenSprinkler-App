@@ -9867,7 +9867,7 @@ function checkFirmwareUpdate() {
 												_( "Latest" ) + " " + _( "Firmware" ) + ": " + data[ 0 ].name +
 											"</h3>" +
                                             "<h5 class='center' style='margin:0'>" + _( "This Controller" ) + ": " + getOSVersion() + getOSMinorVersion() + "</h5>" +
-                                            "<a class='ui-btn ui-corner-all ui-shadow' style='width:80%;margin:5px auto;' target='_blank' href='" + changelog + "'>" +
+                                            "<a class='iab ui-btn ui-corner-all ui-shadow' style='width:80%;margin:5px auto;' target='_blank' href='" + changelog + "'>" +
                                                 _( "View Changelog" ) +
                                             "</a>" +
                                             "<a class='guide ui-btn ui-corner-all ui-shadow' style='width:80%;margin:5px auto;' href='#'>" +
