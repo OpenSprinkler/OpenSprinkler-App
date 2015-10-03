@@ -88,6 +88,7 @@
 
         <!-- Declare required plugins -->
         <gap:plugin name="cordova-plugin-statusbar" source="npm" />
+        <gap:plugin name="cordova-plugin-transport-security" source="npm" />
         <gap:plugin name="cordova-plugin-networkinterface" source="npm" />
         <gap:plugin name="cordova-plugin-inappbrowser" source="npm" />
         <gap:plugin name="cordova-plugin-splashscreen" source="npm" />
