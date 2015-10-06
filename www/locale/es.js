@@ -478,7 +478,7 @@
       "The passwords don't match. Please try again." : "Las Contraseñas no coinciden. Por favor inténtenlo otra vez",
       "Programs" : "Programas",
       "Use Sunset" : "Usar la puesta de sol",
-      "Station has been stopped" : "La estación a sido parada",
+      "Station has been stopped" : "La estación ha sido parada",
       "Edit Options" : "Editar Opciones",
       "Table" : "Tabla",
       "Language localization is crowdsourced using Get Localization available at" : "Las traducciones del idioma son crowsourced usando Get Localization (Español: @jzapater) disponible en",
