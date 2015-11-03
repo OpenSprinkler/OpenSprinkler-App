@@ -4686,16 +4686,16 @@ var showHome = ( function() {
 							( ( button.data( "us" ) === 1 ) ? "checked='checked'" : "" ) + ">" + _( "Sequential" ) +
 						"</label>";
                 }
+            }
 
-                if ( hasSpecial ) {
-	                select += "<div class='ui-bar-a ui-bar'>" + _( "Station Type" ) + ":</div>" +
-		                "<fieldset data-role='controlgroup' data-type='horizontal' data-corners='false' style='width:100%;margin:0' data-value='0' id='hs'" + ( isStationSpecial( id ) ? " class='ui-disabled'" : "" ) + ">" +
-						    "<button data-hs='0'" + ( isStationSpecial( id ) ? "" : " class='ui-btn-active'" ) + ">" + _( "Standard" ) + "</button>" +
-						    "<button data-hs='1'>" + _( "RF" ) + "</button>" +
-						    "<button data-hs='2' style='border-bottom-width:0!important'>" + _( "Remote" ) + "</button>" +
-					    "</fieldset>" +
-						"<div id='specialOpts'></div>";
-                }
+            if ( hasSpecial ) {
+                select += "<div class='ui-bar-a ui-bar'>" + _( "Station Type" ) + ":</div>" +
+	                "<fieldset data-role='controlgroup' data-type='horizontal' data-corners='false' style='width:100%;margin:0' data-value='0' id='hs'" + ( isStationSpecial( id ) ? " class='ui-disabled'" : "" ) + ">" +
+					    "<button data-hs='0'" + ( isStationSpecial( id ) ? "" : " class='ui-btn-active'" ) + ">" + _( "Standard" ) + "</button>" +
+					    "<button data-hs='1'>" + _( "RF" ) + "</button>" +
+					    "<button data-hs='2' style='border-bottom-width:0!important'>" + _( "Remote" ) + "</button>" +
+				    "</fieldset>" +
+					"<div id='specialOpts'></div>";
             }
 
             select += "<div class='ui-bar-a ui-bar'>" + _( "Station Notes" ) + ":</div>" +
