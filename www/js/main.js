@@ -3054,7 +3054,7 @@ function overlayMap( callback ) {
         var data = e.originalEvent.data;
 
         if ( typeof data.WS !== "undefined" ) {
-            callback( data.WS );
+            callback( data.WS.split( "," ), data.station );
             dataSent = true;
             popup.popup( "destroy" ).remove();
         } else if ( data.loaded === true ) {
@@ -3665,7 +3665,7 @@ function showOptions( expandItem ) {
     list += "<div class='ui-field-contain'>" +
         "<label for='loc'>" + _( "Location" ) + "</label>" +
 		"<button data-mini='true' id='loc' value='" + controller.settings.loc + "'" + ( isWUDataValid === true ? " class='green'" : "" ) + ">" +
-			( typeof weather === "object" ? weather.location : ( controller.settings.loc.trim() ? controller.settings.loc : _( "Not specified" ) ) ) +
+			"<span>" + ( typeof weather === "object" ? weather.location : ( controller.settings.loc.trim() ? controller.settings.loc : _( "Not specified" ) ) ) + "</span>" +
 			"<a class='ui-btn btn-no-border ui-btn-icon-notext ui-icon-delete ui-btn-corner-all clear-loc'></a>" +
 		"</button></div>";
 
@@ -4006,7 +4006,7 @@ function showOptions( expandItem ) {
 		e.stopImmediatePropagation();
 
 		areYouSure( _( "Are you sure you want to clear the current location?" ), "", function() {
-			page.find( "#loc" ).val( " " ).text( _( "Not specified" ) );
+			page.find( "#loc" ).val( " " ).find( "span" ).text( _( "Not specified" ) );
 			page.find( "#o1" ).selectmenu( "enable" );
 			header.eq( 2 ).prop( "disabled", false );
 			page.find( ".submit" ).addClass( "hasChanges" );
@@ -4020,7 +4020,7 @@ function showOptions( expandItem ) {
         var loc = $( this );
 
         loc.prop( "disabled", true );
-        overlayMap( function( selected ) {
+        overlayMap( function( selected, station ) {
             if ( selected === false ) {
                 if ( loc.val() === "" ) {
                     loc.removeClass( "green" );
@@ -4030,19 +4030,22 @@ function showOptions( expandItem ) {
                 if ( checkOSVersion( 210 ) ) {
                     page.find( "#o1" ).selectmenu( "disable" );
                 }
-                selected = selected.split( "," );
                 selected[ 0 ] = parseFloat( selected[ 0 ] ).toFixed( 5 );
                 selected[ 1 ] = parseFloat( selected[ 1 ] ).toFixed( 5 );
-                loc.val( selected );
+                if ( typeof station === "string" ) {
+                    loc.val( station );
+                } else {
+                    loc.val( selected );
+                }
                 coordsToLocation( selected[ 0 ], selected[ 1 ], function( result ) {
-                    loc.text( result );
-                    validateWULocation( selected[ 0 ] + "," + selected[ 1 ], function( isValid ) {
-	                    if ( isValid && result !== selected[ 0 ] + "," + selected[ 1 ] ) {
-	                        loc.addClass( "green" );
-	                    } else if ( !isValid ) {
-							loc.removeClass( "green" );
-	                    }
-                    } );
+                    loc.find( "span" ).text( result );
+                } );
+                validateWULocation( selected, function( isValid ) {
+                    if ( isValid ) {
+                        loc.addClass( "green" );
+                    } else if ( !isValid ) {
+                        loc.removeClass( "green" );
+                    }
                 } );
                 header.eq( 2 ).prop( "disabled", false );
                 page.find( ".submit" ).addClass( "hasChanges" );

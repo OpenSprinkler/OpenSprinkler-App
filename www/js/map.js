@@ -34,7 +34,11 @@ document.addEventListener( "click", function( e ) {
 		return;
 	}
     var classes = e.target.className.split( " " );
-    if ( classes.indexOf( "submit" ) > -1 ) {
+    if ( classes.indexOf( "submitPWS" ) > -1 ) {
+        window.top.postMessage( { WS: e.target.dataset.loc, station: "pws:" + e.target.dataset.id }, "*" );
+    } else if ( classes.indexOf( "submitICAO" ) > -1 ) {
+        window.top.postMessage( { WS: e.target.dataset.loc, station: "icao:" + e.target.dataset.id }, "*" );
+    } else if ( classes.indexOf( "submit" ) > -1 ) {
         window.top.postMessage( { WS: e.target.dataset.loc }, "*" );
     }
 }, false );
@@ -238,13 +242,13 @@ function createInfoWindow( type, data, latLon ) {
                 ( data.city ? data.city + ", " : "" ) + ( data.state ? data.state + ", " : "" ) + data.country +
             "</h3><span style='font-size:8px;margin:0;padding:0;vertical-align: top'>ID: " + data.id + "</span><br><p style='margin:0'>" +
                 data.neighborhood + "<br>" +
-                "<button class='submit' data-loc='" + latLon + "'>Select</button>" +
+                "<button class='submitPWS' data-loc='" + latLon + "' data-id='" + data.id + "'>Select</button>" +
             "</p></div>";
     } else if ( type === "airport" ) {
         return "<div style='min-height:80px;min-width:170px;text-align:center;'><h3 style='padding:0;margin:0 0 4px 0'>" +
                 ( data.city ? data.city + ", " : "" ) + ( data.state ? data.state + ", " : "" ) + data.country +
             "</h3><span style='font-size:8px;margin:0;padding:0;vertical-align: top'>Airport ICAO: " + data.icao + "</span><br>" +
-            "<button class='submit' data-loc='" + latLon + "'>Select</button></div>";
+            "<button class='submitICAO' data-loc='" + latLon + "' data-id='" + data.id + "'>Select</button></div>";
     } else {
         return "<div style='min-height:40px;text-align:center'>" + data.message + "<br><br><button class='submit' data-loc='" + latLon + "'>Submit</button></div>";
     }
