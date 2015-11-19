@@ -502,6 +502,15 @@ body, input, select, textarea, button, .ui-btn {
     vertical-align: middle
 }
 
+.clear-loc {
+    display: inline-block;
+    padding: 0;
+    margin: 0;
+    right: 0;
+    position: absolute;
+    top: 3px;
+}
+
 .controlgroup-textinput {
     height: 32px;
     padding:0;

@@ -2430,6 +2430,10 @@ function showAutoRainDelayAdjustmentOptions( button, callback ) {
 function validateWUValues( keys, array ) {
 	var key;
 
+	if ( typeof array !== "object" ) {
+		return false;
+	}
+
 	for ( key in keys ) {
 		if ( !keys.hasOwnProperty( key ) ) {
 			continue;
@@ -2611,7 +2615,9 @@ function updateWundergroundWeather( wapikey ) {
             var code, temp;
 
 			if ( typeof data.response.error === "object" ) {
-                weatherKeyFail = true;
+				if ( data.response.error.type !== "querynotfound" ) {
+	                weatherKeyFail = true;
+	            }
                 updateYahooWeather();
                 return;
             } else {
@@ -3648,7 +3654,7 @@ function showOptions( expandItem ) {
         tz = controller.options.tz - 48;
         tz = ( ( tz >= 0 ) ? "+" : "-" ) + pad( ( Math.abs( tz ) / 4 >> 0 ) ) + ":" + ( ( Math.abs( tz ) % 4 ) * 15 / 10 >> 0 ) + ( ( Math.abs( tz ) % 4 ) * 15 % 10 );
         list += "<div class='ui-field-contain'><label for='o1' class='select'>" + _( "Timezone" ) + "</label>" +
-			"<select " + ( checkOSVersion( 210 ) ? "disabled='disabled' " : "" ) + "data-mini='true' id='o1'>";
+			"<select " + ( checkOSVersion( 210 ) && typeof weather === "object" ? "disabled='disabled' " : "" ) + "data-mini='true' id='o1'>";
 
         for ( i = 0; i < timezones.length; i++ ) {
             list += "<option " + ( ( timezones[ i ] === tz ) ? "selected" : "" ) + " value='" + timezones[ i ] + "'>" + timezones[ i ] + "</option>";
@@ -3660,6 +3666,7 @@ function showOptions( expandItem ) {
         "<label for='loc'>" + _( "Location" ) + "</label>" +
 		"<button data-mini='true' id='loc' value='" + controller.settings.loc + "'" + ( isWUDataValid === true ? " class='green'" : "" ) + ">" +
 			( typeof weather === "object" ? weather.location : ( controller.settings.loc.trim() ? controller.settings.loc : _( "Not specified" ) ) ) +
+			"<a class='ui-btn btn-no-border ui-btn-icon-notext ui-icon-delete ui-btn-corner-all clear-loc'></a>" +
 		"</button></div>";
 
     if ( typeof controller.options.lg !== "undefined" ) {
@@ -3994,6 +4001,17 @@ function showOptions( expandItem ) {
                 group.remove();
             }
         } );
+
+    page.find( ".clear-loc" ).on( "click", function( e ) {
+		e.stopImmediatePropagation();
+
+		areYouSure( _( "Are you sure you want to clear the current location?" ), "", function() {
+			page.find( "#loc" ).val( " " ).text( _( "Not specified" ) );
+			page.find( "#o1" ).selectmenu( "enable" );
+			header.eq( 2 ).prop( "disabled", false );
+			page.find( ".submit" ).addClass( "hasChanges" );
+		} );
+    } );
 
     page.find( "#loc" ).on( "click", function() {
 
