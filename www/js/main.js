@@ -8790,7 +8790,7 @@ function importConfig( data ) {
             } else {
                 station = data.stations.snames[ i ];
             }
-            cs += "&s" + i + "=" + station;
+            cs += "&s" + i + "=" + encodeURIComponent( station );
         }
 
         for ( i = 0; i < data.stations.masop.length; i++ ) {
