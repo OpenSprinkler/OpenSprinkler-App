@@ -111,6 +111,35 @@
             <string>149</string>
         </gap:config-file>
 
+		<gap:config-file platform="ios" parent="UIApplicationShortcutItems" overwrite="true">
+			<array>
+				<dict>
+					<key>UIApplicationShortcutItemIconType</key>
+					<string>UIApplicationShortcutIconTypeLocation</string>
+					<key>UIApplicationShortcutItemTitle</key>
+					<string>Manage Sites</string>
+					<key>UIApplicationShortcutItemType</key>
+					<string>sites</string>
+				</dict>
+				<dict>
+					<key>UIApplicationShortcutItemIconType</key>
+					<string>UIApplicationShortcutIconTypeAdd</string>
+					<key>UIApplicationShortcutItemTitle</key>
+					<string>Add Program</string>
+					<key>UIApplicationShortcutItemType</key>
+					<string>addprogram</string>
+				</dict>
+				<dict>
+					<key>UIApplicationShortcutItemIconType</key>
+					<string>UIApplicationShortcutIconTypePause</string>
+					<key>UIApplicationShortcutItemTitle</key>
+					<string>Stop All Stations</string>
+					<key>UIApplicationShortcutItemType</key>
+					<string>stopall</string>
+				</dict>
+			</array>
+		</gap:config-file>
+
         <!-- Android specific Configuration -->
         <gap:config-file platform="android" parent="/manifest" mode="merge">
 
