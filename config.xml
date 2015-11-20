@@ -57,32 +57,31 @@
             <splash src="res/ios/screens/startup-tablet-portrait.png"           width="768"   height="1024" />
             <splash src="res/ios/screens/startup-tablet-landscape-retina.png"   width="2048"  height="1536" />
             <splash src="res/ios/screens/startup-tablet-portrait-retina.png"    width="1536"  height="2048" />
+	        <icon src="res/ios/icons/icon-57.png"       width="57" height="57" />
+	        <icon src="res/ios/icons/icon-60@2x.png"    width="120" height="120" />
+	        <icon src="res/ios/icons/icon-60@3x.png"    width="180" height="180" />
+	        <icon src="res/ios/icons/icon-72.png"       width="72" height="72" />
+	        <icon src="res/ios/icons/icon-72@2x.png"    width="144" height="144" />
+	        <icon src="res/ios/icons/icon-76.png"       width="76" height="76" />
+	        <icon src="res/ios/icons/icon-76@2x.png"    width="152" height="152" />
         </platform>
-
-        <!-- iOS Icons for PhoneGap -->
-        <icon src="res/ios/icons/icon-57.png"       gap:platform="ios" width="57" height="57" />
-        <icon src="res/ios/icons/icon-60@2x.png"    gap:platform="ios" width="120" height="120" />
-        <icon src="res/ios/icons/icon-60@3x.png"    gap:platform="ios" width="180" height="180" />
-        <icon src="res/ios/icons/icon-72.png"       gap:platform="ios" width="72" height="72" />
-        <icon src="res/ios/icons/icon-72@2x.png"    gap:platform="ios" width="144" height="144" />
-        <icon src="res/ios/icons/icon-76.png"       gap:platform="ios" width="76" height="76" />
-        <icon src="res/ios/icons/icon-76@2x.png"    gap:platform="ios" width="152" height="152" />
 
         <!-- Android Splash Screens for PhoneGap -->
         <platform name="android">
 	        <splash src="res/android/screens/mdpi.9.png"    density="mdpi" />
     	    <splash src="res/android/screens/xhdpi.9.png"   density="xhdpi" />
+	        <icon src="res/android/icons/ldpi.png"      gap:qualifier="ldpi" />
+	        <icon src="res/android/icons/mdpi.png"      gap:qualifier="mdpi" />
+	        <icon src="res/android/icons/hdpi.png"      gap:qualifier="hdpi" />
+	        <icon src="res/android/icons/xhdpi.png"     gap:qualifier="xhdpi" />
+	        <icon src="res/android/icons/xxhdpi.png"    gap:qualifier="xxhdpi" />
     	</platform>
 
-        <!-- Android Icons for PhoneGap -->
-        <icon src="res/android/icons/ldpi.png"      gap:platform="android" gap:qualifier="ldpi" />
-        <icon src="res/android/icons/mdpi.png"      gap:platform="android" gap:qualifier="mdpi" />
-        <icon src="res/android/icons/hdpi.png"      gap:platform="android" gap:qualifier="hdpi" />
-        <icon src="res/android/icons/xhdpi.png"     gap:platform="android" gap:qualifier="xhdpi" />
-        <icon src="res/android/icons/xxhdpi.png"    gap:platform="android" gap:qualifier="xxhdpi" />
-
         <!-- Windows Phone Icons for PhoneGap -->
-        <icon src="res/winphone/icons/icon-48.png"  gap:platform="winphone" />
+        <platform name="winphone">
+	        <icon src="res/winphone/icons/icon-48.png" />
+	        <splash src="res/winphone/screens/startup.jpg" />
+	    </platform>
 
         <!-- PhoneGap Build Specific Configuration -->
 
@@ -94,6 +93,7 @@
         <gap:plugin name="cordova-plugin-splashscreen" source="npm" />
         <gap:plugin name="cordova-plugin-geolocation" source="npm" />
         <gap:plugin name="cordova-plugin-camera" source="npm" />
+        <gap:plugin name="cordova-plugin-3dtouch" source="npm" />
         <gap:plugin name="cordova-plugin-whitelist" source="npm" version="1.0.0" />
 
         <!-- Add description for GPS usage -->
@@ -132,25 +132,5 @@
             </application>
 
         </gap:config-file>
-
-        <!-- iOS Splash Screen for PhoneGap Build -->
-        <gap:splash src="res/ios/screens/startup.png"                           gap:platform="ios" width="320"  height="480"  />
-        <gap:splash src="res/ios/screens/startup-retina.png"                    gap:platform="ios" width="640"  height="960"  />
-        <gap:splash src="res/ios/screens/startup-iphone5-retina.png"            gap:platform="ios" width="640"  height="1136" />
-        <gap:splash src="res/ios/screens/startup-iphone6-portrait.png"          gap:platform="ios" width="750"  height="1334" />
-        <gap:splash src="res/ios/screens/startup-iphone6-landscape.png"         gap:platform="ios" width="1334"  height="750" />
-        <gap:splash src="res/ios/screens/startup-iphone6plus-portrait.png"      gap:platform="ios" width="1242"  height="2208" />
-        <gap:splash src="res/ios/screens/startup-iphone6plus-landscape.png"     gap:platform="ios" width="2208"  height="1242" />
-        <gap:splash src="res/ios/screens/startup-tablet-landscape.png"          gap:platform="ios" width="1024" height="768"  />
-        <gap:splash src="res/ios/screens/startup-tablet-portrait.png"           gap:platform="ios" width="768"  height="1024" />
-        <gap:splash src="res/ios/screens/startup-tablet-landscape-retina.png"   gap:platform="ios" width="2048" height="1536" />
-        <gap:splash src="res/ios/screens/startup-tablet-portrait-retina.png"    gap:platform="ios" width="1536" height="2048" />
-
-        <!-- Android Splash Screen for PhoneGap Build -->
-        <gap:splash src="res/android/screens/mdpi.9.png"      gap:platform="android" gap:density="mdpi" />
-        <gap:splash src="res/android/screens/xhdpi.9.png"     gap:platform="android" gap:density="xhdpi" />
-
-        <!-- Windows Phone Splash Screen for PhoneGap Build -->
-        <gap:splash src="res/winphone/screens/startup.jpg" gap:platform="winphone" />
 
     </widget>
