@@ -94,6 +94,7 @@
         <gap:plugin name="cordova-plugin-splashscreen" source="npm" />
         <gap:plugin name="cordova-plugin-geolocation" source="npm" />
         <gap:plugin name="cordova-plugin-camera" source="npm" />
+        <gap:plugin name="cordova-plugin-3dtouch" source="npm" />
         <gap:plugin name="cordova-plugin-whitelist" source="npm" version="1.0.0" />
 
         <!-- Add description for GPS usage -->

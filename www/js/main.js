@@ -184,6 +184,46 @@ $( document )
     } );
 
     updateDeviceIP();
+
+    // Check if 3D touch is available and add menu when possible
+    if ( isiOS ) {
+        ThreeDeeTouch.isAvailable( function( available ) {
+            if ( available ) {
+
+                // Enable quick preview on web links
+                ThreeDeeTouch.enableLinkPreview();
+
+                // Configure menu actions
+                ThreeDeeTouch.configureQuickActions( [
+                    {
+                        type: "sites",
+                        title: _( "Manage Sites" ),
+                        iconType: "Location"
+                    },
+                    {
+                        type: "addprogram",
+                        title: _( "Add Program" ),
+                        iconType: "Add"
+                    },
+                    {
+                        type: "stopall",
+                        title: _( "Stop All Stations" ),
+                        iconType: "Pause"
+                    }
+                ] );
+
+                ThreeDeeTouch.onHomeIconPressed = function( payload ) {
+                    if ( payload.type === "sites" ) {
+                        changePage( "#site-control" );
+                    } else if ( payload.type === "addprogram" ) {
+                        changePage( "#addprogram" )
+                    } else if ( payload.type === "stopall" ) {
+                        stopAllStations();
+                    }
+                }
+            }
+        } );
+    }
 } )
 .one( "mobileinit", function() {
 
@@ -4396,15 +4436,7 @@ var showHomeMenu = ( function() {
 	        popup.popup( "close" );
 
 	        if ( href === "#stop-all" ) {
-	            areYouSure( _( "Are you sure you want to stop all stations?" ), "", function() {
-	                $.mobile.loading( "show" );
-	                sendToOS( "/cv?pw=&rsn=1" ).done( function() {
-	                    $.mobile.loading( "hide" );
-		                removeStationTimers();
-	                    refreshStatus();
-	                    showerror( _( "All stations have been stopped" ) );
-	                } );
-	            } );
+                stopAllStations();
 	        } else if ( href === "#show-hidden" ) {
 	            if ( showHidden ) {
 	                $( ".station-hidden" ).hide();
@@ -9948,6 +9980,18 @@ function checkFirmwareUpdate() {
             }
         } );
     }
+}
+
+function stopAllStations() {
+    areYouSure( _( "Are you sure you want to stop all stations?" ), "", function() {
+        $.mobile.loading( "show" );
+        sendToOS( "/cv?pw=&rsn=1" ).done( function() {
+            $.mobile.loading( "hide" );
+            removeStationTimers();
+            refreshStatus();
+            showerror( _( "All stations have been stopped" ) );
+        } );
+    } );
 }
 
 function checkOSPiVersion( check ) {
