@@ -9983,6 +9983,11 @@ function checkFirmwareUpdate() {
 }
 
 function stopAllStations() {
+
+    if ( !isControllerConnected() ) {
+        return false;
+    }
+
     areYouSure( _( "Are you sure you want to stop all stations?" ), "", function() {
         $.mobile.loading( "show" );
         sendToOS( "/cv?pw=&rsn=1" ).done( function() {
