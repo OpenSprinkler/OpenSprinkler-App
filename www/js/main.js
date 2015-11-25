@@ -3012,6 +3012,18 @@ function overlayMap( callback ) {
                 "<iframe style='border:none' src='" + getAppURLPath() + "map.html' width='100%' height='100%' seamless=''></iframe>" +
         "</div>" ),
         getCurrentLocation = function( callback ) {
+            callback = callback || function( result ) {
+                if ( result ) {
+                    iframe.get( 0 ).contentWindow.postMessage( {
+                        type: "currentLocation",
+                        payload: {
+                            lat: result.coords.latitude,
+                            lon: result.coords.longitude
+                        }
+                    }, "*" );
+                }
+            };
+
             var exit = function( result ) {
                     clearTimeout( loadMsg );
                     $.mobile.loading( "hide" );
@@ -3104,21 +3116,15 @@ function overlayMap( callback ) {
         } else if ( data.dismissKeyboard === true ) {
             document.activeElement.blur();
         } else if ( data.getLocation === true ) {
-            getCurrentLocation( function( result ) {
-                if ( result ) {
-                    iframe.get( 0 ).contentWindow.postMessage( {
-                        type: "currentLocation",
-                        payload: {
-                            lat: result.coords.latitude,
-                            lon: result.coords.longitude
-                        }
-                    }, "*" );
-                }
-            } );
+            getCurrentLocation();
         }
     } );
 
     iframe.one( "load", function() {
+        if ( current.lat === 0 && current.lon === 0 ) {
+            getCurrentLocation();
+        }
+
         this.contentWindow.postMessage( {
             type: "startLocation",
             payload: {
@@ -3705,7 +3711,7 @@ function showOptions( expandItem ) {
     list += "<div class='ui-field-contain'>" +
         "<label for='loc'>" + _( "Location" ) + "</label>" +
 		"<button data-mini='true' id='loc' value='" + controller.settings.loc + "'" + ( isWUDataValid === true ? " class='green'" : "" ) + ">" +
-			"<span>" + ( typeof weather === "object" ? weather.location : ( controller.settings.loc.trim() ? controller.settings.loc : _( "Not specified" ) ) ) + "</span>" +
+			"<span>" + ( typeof weather === "object" ? weather.location : ( controller.settings.loc.trim() === "''" ? _( "Not specified" ) : controller.settings.loc ) ) + "</span>" +
 			"<a class='ui-btn btn-no-border ui-btn-icon-notext ui-icon-delete ui-btn-corner-all clear-loc'></a>" +
 		"</button></div>";
 
@@ -4046,7 +4052,7 @@ function showOptions( expandItem ) {
 		e.stopImmediatePropagation();
 
 		areYouSure( _( "Are you sure you want to clear the current location?" ), "", function() {
-			page.find( "#loc" ).val( " " ).find( "span" ).text( _( "Not specified" ) );
+			page.find( "#loc" ).val( "''" ).find( "span" ).text( _( "Not specified" ) );
 			page.find( "#o1" ).selectmenu( "enable" );
 			header.eq( 2 ).prop( "disabled", false );
 			page.find( ".submit" ).addClass( "hasChanges" );
