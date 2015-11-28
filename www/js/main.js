@@ -4052,7 +4052,7 @@ function showOptions( expandItem ) {
 		e.stopImmediatePropagation();
 
 		areYouSure( _( "Are you sure you want to clear the current location?" ), "", function() {
-			page.find( "#loc" ).val( "''" ).find( "span" ).text( _( "Not specified" ) );
+			page.find( "#loc" ).val( "''" ).removeClass( "green" ).find( "span" ).text( _( "Not specified" ) );
 			page.find( "#o1" ).selectmenu( "enable" );
 			header.eq( 2 ).prop( "disabled", false );
 			page.find( ".submit" ).addClass( "hasChanges" );
