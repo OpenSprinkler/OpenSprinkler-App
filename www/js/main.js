@@ -4573,8 +4573,8 @@ var showHome = ( function() {
                 name = button.siblings( "[id='station_" + id + "']" ),
                 showSpecialOptions = function( value ) {
 					var opts = select.find( "#specialOpts" ),
-					var hexFormat  = controller.special && controller.special.hasOwnProperty( id ) ? controller.special[ id ].st : 0;	// Remember station type to understand special data format
-						hex = controller.special && controller.special.hasOwnProperty( id ) ? controller.special[ id ].sd : "";
+						hex = controller.special && controller.special.hasOwnProperty( id ) ? controller.special[ id ].sd : "",
+						hexFormat  = controller.special && controller.special.hasOwnProperty( id ) ? controller.special[ id ].st : 0;	// Remember station type to understand special data format
 
 					opts.empty();
 
