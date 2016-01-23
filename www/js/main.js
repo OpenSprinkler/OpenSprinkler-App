@@ -4596,7 +4596,7 @@ var showHome = ( function() {
 						).enhanceWithin();
 					} else if ( value === 3 ) {										// Extended special station model to support GPIO stations
 						var ospiPins = [ 5, 6, 7, 8, 9, 10, 11, 12, 13, 16, 18, 19, 20, 21, 23, 24, 25, 26 ];	// GPIO pins available RPi R2.
-						var gpioPin, activeState, uiStr;														// To Do: Consider RPi R1 and Arduino models
+						var gpioPin, activeState, uiStr;
 
 						if ( hexFormat === value ) {								// Ignore any stored special data unless it is for the GPIO station type
 							hex = hex.split( "" );									// Special data for GPIO Station is three bytes of ascii decimal (not hex)
@@ -4784,7 +4784,7 @@ var showHome = ( function() {
 					    "<button data-hs='0'" + ( isStationSpecial( id ) ? "" : " class='ui-btn-active'" ) + ">" + _( "Standard" ) + "</button>" +
 					    "<button data-hs='1'>" + _( "RF" ) + "</button>" +
 						"<button data-hs='2'>" + _( "Remote" ) + "</button>" +
-			    		"<button data-hs='3' style='border-bottom-width:0!important'>" + _( "GPIO" ) + "</button>" +		// Expose UI for GPIO Station settings
+			    		"<button data-hs='3' style='border-bottom-width:0!important'" + ( getHWVersion() === "OSPi" ? ">" : " disabled='disabled'>" ) + _( "GPIO" ) + "</button>" +		// Expose UI for GPIO Station settings
 					"</fieldset>" +
 					"<div id='specialOpts'></div>";
             }
