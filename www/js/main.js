@@ -2579,7 +2579,7 @@ function updateYahooWeather( string ) {
         contentType: "application/json; charset=utf-8",
         shouldRetry: retryCount,
         success: function( woeid ) {
-            if ( woeid.query.results === null ) {
+            if ( typeof woeid !== "object" || typeof woeid.query !== "object" || woeid.query.results === null ) {
                 hideWeather();
                 return;
             }
