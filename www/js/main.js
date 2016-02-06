@@ -4573,7 +4573,8 @@ var showHome = ( function() {
                 name = button.siblings( "[id='station_" + id + "']" ),
                 showSpecialOptions = function( value ) {
 					var opts = select.find( "#specialOpts" ),
-						hex = controller.special && controller.special.hasOwnProperty( id ) ? controller.special[ id ].sd : "";
+						hex = controller.special && controller.special.hasOwnProperty( id ) ? controller.special[ id ].sd : "",
+						hexFormat  = controller.special && controller.special.hasOwnProperty( id ) ? controller.special[ id ].st : 0;	// Remember station type to understand special data format
 
 					opts.empty();
 
@@ -4593,6 +4594,32 @@ var showHome = ( function() {
 							"<div class='ui-bar-a ui-bar'>" + _( "Remote Station (index)" ) + ":</div>" +
 							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='remote-station' type='number' min='1' max='48' placeholder='1' value='" + ( data.station + 1 ) + "'>"
 						).enhanceWithin();
+					} else if ( value === 3 ) {										// Extended special station model to support GPIO stations
+						var ospiPins = [ 5, 6, 7, 8, 9, 10, 11, 12, 13, 16, 18, 19, 20, 21, 23, 24, 25, 26 ];	// GPIO pins available RPi R2.
+						var gpioPin, activeState, uiStr;
+
+						if ( hexFormat === value ) {								// Ignore any stored special data unless it is for the GPIO station type
+							hex = hex.split( "" );									// Special data for GPIO Station is three bytes of ascii decimal (not hex)
+							gpioPin = parseInt( hex[ 0 ] + hex[ 1 ] );				// First two bytes are zero padded GPIO pin number (default GPIO05)
+							activeState = parseInt( hex[ 2 ] );						// Third byte is either 0 or 1 for active low (GND) or high (+5V) relays (default 1 for HIGH)
+						}
+
+						// Set up GPIO selection based on available OSPi pins
+						uiStr = "<div class='ui-bar-a ui-bar'>" + _( "GPIO Pin" ) + ":</div>" +
+							    "<select class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='gpio-pin'>";
+						for ( var i = 0; i < ospiPins.length; i++ ) {
+							uiStr += "<option value='" + ospiPins[ i ] + "' " + ( ospiPins[ i ] === gpioPin ? "selected='selected'" : "" ) + ">" + ospiPins[ i ];
+						}
+						uiStr += "</select>";
+
+						// Set up active state selection (High or LOW)
+						uiStr += "<div class='ui-bar-a ui-bar'>" + _( "Active State" ) + ":</div>" +
+							     "<select class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='active-state'>" +
+									"<option value='1' " + ( activeState === 1 ? "selected='selected'" : "" ) + ">" + _( "HIGH" ) +
+									"<option value='0' " + ( activeState === 0 ? "selected='selected'" : "" ) + ">" + _( "LOW" ) +
+							     "</select>";
+
+						opts.append( uiStr ).enhanceWithin();
 					}
                 },
                 saveChanges = function( checkPassed ) {
@@ -4675,6 +4702,10 @@ var showHome = ( function() {
 						}
 
 						button.data( "specialData", hex );
+					} else if ( hs === 3 ) {													// Handle GPIO Station special data. Use default GPIO05 and active High
+						var sd = pad( select.find( "#gpio-pin" ).val() || "05" );
+						    sd += select.find( "#active-state" ).val() || "1";
+						button.data( "specialData", sd );
                     }
 
                     button.data( "um", select.find( "#um" ).is( ":checked" ) ? 1 : 0 );
@@ -4752,8 +4783,9 @@ var showHome = ( function() {
 	                "<fieldset data-role='controlgroup' data-type='horizontal' data-corners='false' style='width:100%;margin:0' data-value='0' id='hs'" + ( isStationSpecial( id ) ? " class='ui-disabled'" : "" ) + ">" +
 					    "<button data-hs='0'" + ( isStationSpecial( id ) ? "" : " class='ui-btn-active'" ) + ">" + _( "Standard" ) + "</button>" +
 					    "<button data-hs='1'>" + _( "RF" ) + "</button>" +
-					    "<button data-hs='2' style='border-bottom-width:0!important'>" + _( "Remote" ) + "</button>" +
-				    "</fieldset>" +
+						"<button data-hs='2'>" + _( "Remote" ) + "</button>" +
+			    		"<button data-hs='3' style='border-bottom-width:0!important'" + ( getHWVersion() === "OSPi" ? ">" : " disabled='disabled'>" ) + _( "GPIO" ) + "</button>" +		// Expose UI for GPIO Station settings
+					"</fieldset>" +
 					"<div id='specialOpts'></div>";
             }
 
