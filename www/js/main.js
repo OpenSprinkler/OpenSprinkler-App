@@ -2274,10 +2274,20 @@ function showZimmermanAdjustmentOptions( button, callback ) {
     $( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
 
     var options = $.extend( {}, {
-        h: 100,
-        t: 100,
-        r: 100
-    }, controller.settings.wto );
+            h: 100,
+            t: 100,
+            r: 100,
+            bh: 30,
+            bt: 70,
+            br: 0
+        }, controller.settings.wto ),
+        isMetric = ( weather.forecast.region === "US" || weather.forecast.region === "BM" || weather.forecast.region === "PW" ) ? false : true;
+
+    // OSPi stores in imperial so convert to metric and adjust to nearest 1/10ths of a degree and mm
+    if ( isMetric ) {
+        options.bt = Math.round( ( ( options.bt - 32 ) * 5 / 9 ) * 10 ) / 10;
+        options.br = Math.round( ( options.br * 25.4 ) * 10 ) / 10;
+    }
 
     var popup = $( "<div data-role='popup' data-theme='a' id='adjustmentOptions'>" +
             "<div data-role='header' data-theme='b'>" +
@@ -2285,7 +2295,31 @@ function showZimmermanAdjustmentOptions( button, callback ) {
             "</div>" +
             "<div class='ui-content'>" +
                 "<p class='rain-desc center smaller'>" +
-                    _( "Modify the weight of each factor when calculating the scale" ) +
+                    _( "Set the baseline weather conditions for your location. " ) +
+                    _( "The Zimmerman method will adjust the watering duration based on differences from this reference point." ) +
+                "</p>" +
+                "<div class='ui-grid-b'>" +
+                    "<div class='ui-block-a'>" +
+                        "<label class='center'>" +
+                            _( "Temp" ) + ( isMetric ? " &#176;C" : " &#176;F" ) +
+                        "</label>" +
+                        "<input data-wrapper-class='pad_buttons' class='bt' type='number' " + ( isMetric ? "min='-20' max='50'" : "min='0' max='120'" ) + " value='" + options.bt + "'>" +
+                    "</div>" +
+                    "<div class='ui-block-b'>" +
+                        "<label class='center'>" +
+                            _( "Rain" ) + ( isMetric ? " mm" : " \"" ) +
+                        "</label>" +
+                        "<input data-wrapper-class='pad_buttons' class='br' type='number' " + ( isMetric ? "min='0' max='25' step='0.1'" : "min='0' max='1' step='0.01'" ) + " value='" + options.br + "'>" +
+                    "</div>" +
+                    "<div class='ui-block-c'>" +
+                        "<label class='center'>" +
+                            _( "Humidity" ) + " %" +
+                        "</label>" +
+                        "<input data-wrapper-class='pad_buttons' class='bh' type='number'  min='0' max='100' value='" + options.bh + "'>" +
+                    "</div>" +
+                "</div>" +
+                "<p class='rain-desc center smaller'>" +
+                    _( "Set the sensitivity of the watering adjustment to changes in each of the above weather conditions." ) +
                 "</p>" +
                 "<span>" +
                     "<fieldset class='ui-grid-b incr'>" +
@@ -2301,22 +2335,13 @@ function showZimmermanAdjustmentOptions( button, callback ) {
                     "</fieldset>" +
                     "<div class='ui-grid-b inputs'>" +
                         "<div class='ui-block-a'>" +
-                            "<label class='center'>" +
-                                _( "Temp" ) + " (%)" +
-                            "</label>" +
-                            "<input data-wrapper-class='pad_buttons' class='t' type='number' pattern='[0-9]{3}' value='" + options.t + "'>" +
+                            "<input data-wrapper-class='pad_buttons' class='t' type='number' min='0' max='100' value='" + options.t + "'>" +
                         "</div>" +
                         "<div class='ui-block-b'>" +
-                            "<label class='center'>" +
-                                _( "Rain" ) + " (%)" +
-                            "</label>" +
-                            "<input data-wrapper-class='pad_buttons' class='r' type='number' pattern='[0-9]{3}' value='" + options.r + "'>" +
+                            "<input data-wrapper-class='pad_buttons' class='r' type='number'  min='0' max='100' value='" + options.r + "'>" +
                         "</div>" +
                         "<div class='ui-block-c'>" +
-                            "<label class='center'>" +
-                                _( "Humidity" ) + " (%)" +
-                            "</label>" +
-                            "<input data-wrapper-class='pad_buttons' class='h' type='number' pattern='[0-9]{3}' value='" + options.h + "'>" +
+                            "<input data-wrapper-class='pad_buttons' class='h' type='number'  min='0' max='100' value='" + options.h + "'>" +
                         "</div>" +
                     "</div>" +
                     "<fieldset class='ui-grid-b decr'>" +
@@ -2349,8 +2374,17 @@ function showZimmermanAdjustmentOptions( button, callback ) {
         options = {
             h: parseInt( popup.find( ".h" ).val() ),
             t: parseInt( popup.find( ".t" ).val() ),
-            r: parseInt( popup.find( ".r" ).val() )
+            r: parseInt( popup.find( ".r" ).val() ),
+            bh: parseInt( popup.find( ".bh" ).val() ),
+            bt: parseFloat( popup.find( ".bt" ).val() ),
+            br: parseFloat( popup.find( ".br" ).val() )
         };
+
+        // OSPi strores in imperial so onvert metric at higher precision so we dont lose accuracy
+        if ( isMetric ) {
+            options.bt = Math.round( ( options.bt * 9 / 5 + 32 ) * 100 ) / 100;
+            options.br = Math.round( ( options.br / 25.4 ) * 1000 ) / 1000;
+        }
 
         if ( button ) {
             button.value = escapeJSON( options );
@@ -2365,12 +2399,15 @@ function showZimmermanAdjustmentOptions( button, callback ) {
     popup.on( "focus", "input[type='number']", function() {
         this.value = "";
     } ).on( "blur", "input[type='number']", function() {
-        if ( this.value === "" || parseInt( this.value ) < 0 ) {
+        // Generic min/max checker for Temp/Rain/Hum baseline as well as 0-100%
+        var min = parseFloat( this.min ),
+            max = parseFloat( this.max );
+
+        if ( this.value === "" ) {
             this.value = "0";
         }
-
-        if ( parseInt( this.value ) > 100 ) {
-			this.value = "100";
+        if ( this.value < min || this.value > max ) {
+            this.value = this.value < min ? min : max;
         }
     } );
 
