@@ -7,42 +7,62 @@
             android-versionCode="58"
             versionCode="58" >
 
-        <!-- Declare PhoneGap Version -->
-        <preference name="phonegap-version" value="cli-5.2.0" />
+	    <name>OpenSprinkler</name>
+	    <description>
+	        Designed to allow intuitive control of the OpenSprinkler irrigation controller.
+	    </description>
+	    <author href="http://albahra.com/sprinklers/" email="salbahra@gmail.com">
+	        Samer Albahra
+	    </author>
+		<content src="index.html"/>
 
-        <!-- Prevent bounce scroll effect on iOS -->
-        <preference name="DisallowOverscroll" value="true"  />
-
-        <!-- Declare no permissions needed (default is everything) -->
-        <preference name="permissions" value="none" />
-
-        <!-- Disable web security in Blackberry 10 allowing CORS -->
-        <preference name="WebSecurity" value="disable"/>
-
-        <!-- Stop the app in the background -->
-        <preference name="KeepRunning" value="false"/>
-
-        <!-- Disable splash screen hiding automatically (instead JS removes it) -->
-        <preference name="AutoHideSplashScreen" value="false" />
-        <preference name="SplashScreenDelay" value="10000"/>
-        <preference name="ShowSplashScreenSpinner" value="false" />
-
-        <!-- Declare network access is required -->
-        <feature name="http://api.phonegap.com/1.0/network"/>
-
-        <name>OpenSprinkler</name>
-
-        <description>
-            Designed to allow intuitive control of the OpenSprinkler irrigation controller.
-        </description>
-
-        <author href="http://albahra.com/sprinklers/" email="salbahra@gmail.com">
-            Samer Albahra
-        </author>
-
-        <!-- Allow CORS requests -->
-        <access origin="*" />
+		<!-- Allow CORS requests -->
+		<access origin="*"/>
 		<allow-navigation href="*" />
+
+		<!-- Declare PhoneGap Version -->
+		<preference name="phonegap-version" value="cli-5.2.0" />
+
+		<!-- Disable web security in Blackberry 10 allowing CORS -->
+		<preference name="WebSecurity" value="disable"/>
+
+		<!-- Stop the app in the background -->
+		<preference name="KeepRunning" value="false"/>
+
+		<!-- Declare no permissions needed (default is everything) -->
+		<preference name="permissions" value="none" />
+
+		<!-- Declare network access is required -->
+		<feature name="http://api.phonegap.com/1.0/network"/>
+
+		<!-- Prevent bounce scroll effect -->
+		<preference name="DisallowOverscroll" value="true"/>
+		<preference name="webviewbounce" value="false"/>
+		<preference name="UIWebViewBounce" value="false"/>
+
+		<!-- Set splash screen settings -->
+		<preference name="AutoHideSplashScreen" value="false" />
+		<preference name="SplashScreenDelay" value="10000"/>
+		<preference name="SplashScreen" value="splash"/>
+		<preference name="ShowSplashScreenSpinner" value="false" />
+		<preference name="FadeSplashScreen" value="false" />
+
+		<!-- Allow the keyboard to be opened by the app -->
+		<preference name="KeyboardDisplayRequiresUserAction" value="false" />
+
+		<!-- Declare required plugins -->
+        <plugin name="cordova-plugin-statusbar" source="npm" />
+        <plugin name="cordova-plugin-transport-security" source="npm" />
+        <plugin name="cordova-plugin-networkinterface" source="npm" />
+        <plugin name="cordova-plugin-inappbrowser" source="npm" />
+        <plugin name="cordova-plugin-splashscreen" source="npm" />
+        <plugin name="cordova-plugin-geolocation" source="npm" />
+        <plugin name="cordova-plugin-camera" source="npm" />
+        <plugin name="cordova-plugin-3dtouch" source="npm" />
+
+		<feature name="StatusBar">
+			<param name="ios-package" value="CDVStatusBar" onload="true"/>
+		</feature>
 
         <!-- iOS Splash Screen for PhoneGap -->
         <platform name="ios">
@@ -78,23 +98,12 @@
     	</platform>
 
         <!-- Windows Phone Icons for PhoneGap -->
-        <platform name="winphone">
+        <platform name="wp8">
 	        <icon src="res/winphone/icons/icon-48.png" />
 	        <splash src="res/winphone/screens/startup.jpg" />
 	    </platform>
 
         <!-- PhoneGap Build Specific Configuration -->
-
-        <!-- Declare required plugins -->
-        <gap:plugin name="cordova-plugin-statusbar" source="npm" />
-        <gap:plugin name="cordova-plugin-transport-security" source="npm" />
-        <gap:plugin name="cordova-plugin-networkinterface" source="npm" />
-        <gap:plugin name="cordova-plugin-inappbrowser" source="npm" />
-        <gap:plugin name="cordova-plugin-splashscreen" source="npm" />
-        <gap:plugin name="cordova-plugin-geolocation" source="npm" />
-        <gap:plugin name="cordova-plugin-camera" source="npm" />
-        <gap:plugin name="cordova-plugin-3dtouch" source="npm" />
-        <gap:plugin name="cordova-plugin-whitelist" source="npm" version="1.0.0" />
 
         <!-- Add description for GPS usage -->
         <gap:config-file platform="ios" parent="NSLocationAlwaysUsageDescription" overwrite="false">
