@@ -2283,6 +2283,7 @@ function showZimmermanAdjustmentOptions( button, callback ) {
             br: 0
         }, controller.settings.wto ),
         isMetric = ( weather.forecast.region === "US" || weather.forecast.region === "BM" || weather.forecast.region === "PW" ) ? false : true,
+		// Enable Zimmerman extension to set weather conditions as baseline for adjustment
         hasBaseline = checkOSVersion( 217 );
 
     // OSPi stores in imperial so convert to metric and adjust to nearest 1/10ths of a degree and mm
