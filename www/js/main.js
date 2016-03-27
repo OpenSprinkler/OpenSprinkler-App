@@ -2273,6 +2273,7 @@ function addFound( ip ) {
 function showZimmermanAdjustmentOptions( button, callback ) {
     $( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
 
+    // Sensitivity and baseline values for Humidity, Temp and Rainfall for Zimmerman adjustment
     var options = $.extend( {}, {
             h: 100,
             t: 100,
@@ -2281,7 +2282,9 @@ function showZimmermanAdjustmentOptions( button, callback ) {
             bt: 70,
             br: 0
         }, controller.settings.wto ),
-        isMetric = ( weather.forecast.region === "US" || weather.forecast.region === "BM" || weather.forecast.region === "PW" ) ? false : true;
+        isMetric = ( weather.forecast.region === "US" || weather.forecast.region === "BM" || weather.forecast.region === "PW" ) ? false : true,
+		// Enable Zimmerman extension to set weather conditions as baseline for adjustment
+        hasBaseline = checkOSVersion( 217 );
 
     // OSPi stores in imperial so convert to metric and adjust to nearest 1/10ths of a degree and mm
     if ( isMetric ) {
@@ -2303,19 +2306,19 @@ function showZimmermanAdjustmentOptions( button, callback ) {
                         "<label class='center'>" +
                             _( "Temp" ) + ( isMetric ? " &#176;C" : " &#176;F" ) +
                         "</label>" +
-                        "<input data-wrapper-class='pad_buttons' class='bt' type='number' " + ( isMetric ? "min='-20' max='50'" : "min='0' max='120'" ) + " value='" + options.bt + "'>" +
+                        "<input data-wrapper-class='pad_buttons' class='bt' type='number' " + ( isMetric ? "min='-20' max='50'" : "min='0' max='120'" ) + " value='" + options.bt + ( hasBaseline ? "'>" : "' disabled='disabled'>" ) +
                     "</div>" +
                     "<div class='ui-block-b'>" +
                         "<label class='center'>" +
                             _( "Rain" ) + ( isMetric ? " mm" : " \"" ) +
                         "</label>" +
-                        "<input data-wrapper-class='pad_buttons' class='br' type='number' " + ( isMetric ? "min='0' max='25' step='0.1'" : "min='0' max='1' step='0.01'" ) + " value='" + options.br + "'>" +
+                        "<input data-wrapper-class='pad_buttons' class='br' type='number' " + ( isMetric ? "min='0' max='25' step='0.1'" : "min='0' max='1' step='0.01'" ) + " value='" + options.br + ( hasBaseline ? "'>" : "' disabled='disabled'>" ) +
                     "</div>" +
                     "<div class='ui-block-c'>" +
                         "<label class='center'>" +
                             _( "Humidity" ) + " %" +
                         "</label>" +
-                        "<input data-wrapper-class='pad_buttons' class='bh' type='number'  min='0' max='100' value='" + options.bh + "'>" +
+                        "<input data-wrapper-class='pad_buttons' class='bh' type='number'  min='0' max='100' value='" + options.bh + ( hasBaseline ? "'>" : "' disabled='disabled'>" ) +
                     "</div>" +
                 "</div>" +
                 "<p class='rain-desc center smaller'>" +
@@ -2371,19 +2374,24 @@ function showZimmermanAdjustmentOptions( button, callback ) {
         };
 
     popup.find( ".submit" ).on( "click", function() {
-        options = {
+        var options = {
             h: parseInt( popup.find( ".h" ).val() ),
             t: parseInt( popup.find( ".t" ).val() ),
-            r: parseInt( popup.find( ".r" ).val() ),
-            bh: parseInt( popup.find( ".bh" ).val() ),
-            bt: parseFloat( popup.find( ".bt" ).val() ),
-            br: parseFloat( popup.find( ".br" ).val() )
+            r: parseInt( popup.find( ".r" ).val() )
         };
 
-        // OSPi strores in imperial so onvert metric at higher precision so we dont lose accuracy
-        if ( isMetric ) {
-            options.bt = Math.round( ( options.bt * 9 / 5 + 32 ) * 100 ) / 100;
-            options.br = Math.round( ( options.br / 25.4 ) * 1000 ) / 1000;
+        if ( hasBaseline ) {
+            $.extend( options, {
+                bh: parseInt( popup.find( ".bh" ).val() ),
+                bt: parseFloat( popup.find( ".bt" ).val() ),
+                br: parseFloat( popup.find( ".br" ).val() )
+            } );
+
+            // OSPi strores in imperial so onvert metric at higher precision so we dont lose accuracy
+            if ( isMetric ) {
+                options.bt = Math.round( ( options.bt * 9 / 5 + 32 ) * 100 ) / 100;
+                options.br = Math.round( ( options.br / 25.4 ) * 1000 ) / 1000;
+            }
         }
 
         if ( button ) {
@@ -2399,6 +2407,7 @@ function showZimmermanAdjustmentOptions( button, callback ) {
     popup.on( "focus", "input[type='number']", function() {
         this.value = "";
     } ).on( "blur", "input[type='number']", function() {
+
         // Generic min/max checker for Temp/Rain/Hum baseline as well as 0-100%
         var min = parseFloat( this.min ),
             max = parseFloat( this.max );
@@ -4837,7 +4846,7 @@ var showHome = ( function() {
 						"<button data-hs='2'>" + _( "Remote" ) + "</button>" +
 
 						// Expose UI for GPIO Station settings
-			    		"<button data-hs='3' style='border-bottom-width:0!important'" + ( getHWVersion() === "OSPi" ? ">" : " disabled='disabled'>" ) + _( "GPIO" ) + "</button>" +
+			    		"<button data-hs='3' style='border-bottom-width:0!important'" + ( checkOSVersion( 217 ) && ( getHWVersion() === "OSPi" ) ? ">" : " disabled='disabled'>" ) + _( "GPIO" ) + "</button>" +
 					"</fieldset>" +
 					"<div id='specialOpts'></div>";
             }
