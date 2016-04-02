@@ -630,8 +630,8 @@ function sendToOS( dest, type ) {
     var isChange = /\/(?:cv|cs|cr|cp|uwa|dp|co|cl|cu|up|cm)/.exec( dest ),
 		queue = isChange ? "change" : "default",
 
-        // Use POST when sending data to the controller (requires firmware 2.1.6 or newer)
-        usePOST = ( isChange && checkOSVersion( 217 ) ),
+        // Use POST when sending data to the controller (requires firmware 2.1.8 or newer)
+        usePOST = ( isChange && checkOSVersion( 218 ) ),
         obj = {
             url: currPrefix + currIp + ( usePOST ? dest.split( "?" )[ 0 ] : dest ),
             type: usePOST ? "POST" : "GET",
