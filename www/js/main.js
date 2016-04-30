@@ -2285,7 +2285,7 @@ function showZimmermanAdjustmentOptions( button, callback ) {
         isMetric = ( weather.forecast.region === "US" || weather.forecast.region === "BM" || weather.forecast.region === "PW" ) ? false : true,
 
 		// Enable Zimmerman extension to set weather conditions as baseline for adjustment
-        hasBaseline = checkOSVersion( 217 );
+        hasBaseline = checkOSVersion( 2162 );
 
     // OSPi stores in imperial so convert to metric and adjust to nearest 1/10ths of a degree and mm
     if ( isMetric ) {
@@ -4847,7 +4847,7 @@ var showHome = ( function() {
 						"<button data-hs='2'>" + _( "Remote" ) + "</button>" +
 
 						// Expose UI for GPIO Station settings
-			    		"<button data-hs='3' style='border-bottom-width:0!important'" + ( checkOSVersion( 217 ) && ( getHWVersion() === "OSPi" ) ? ">" : " disabled='disabled'>" ) + _( "GPIO" ) + "</button>" +
+			    		"<button data-hs='3' style='border-bottom-width:0!important'" + ( checkOSVersion( 2162 ) && ( getHWVersion() === "OSPi" ) ? ">" : " disabled='disabled'>" ) + _( "GPIO" ) + "</button>" +
 					"</fieldset>" +
 					"<div id='specialOpts'></div>";
             }
@@ -10118,13 +10118,20 @@ function checkOSPiVersion( check ) {
 }
 
 function checkOSVersion( check ) {
+	var version = controller.options.fwv;
+
+	// If check is 4 digits then we need to include the minor version number as well
+	if ( check >= 1000 ) {
+		version = version * 10 + controller.options.fwm;
+	}
+
     if ( isOSPi() ) {
         return false;
     } else {
-        if ( check === controller.options.fwv ) {
+        if ( check === version ) {
             return true;
         } else {
-            return versionCompare( controller.options.fwv.toString().split( "" ), check.toString().split( "" ) );
+            return versionCompare( version.toString().split( "" ), check.toString().split( "" ) );
         }
     }
 }
