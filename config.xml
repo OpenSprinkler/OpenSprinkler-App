@@ -58,6 +58,7 @@
         <plugin name="cordova-plugin-splashscreen" source="npm" />
         <plugin name="cordova-plugin-geolocation" source="npm" />
         <plugin name="cordova-plugin-camera" source="npm" />
+        <plugin name="cordova-plugin-whitelist" source="npm" />
         <plugin name="cordova-plugin-3dtouch" source="npm" />
 
 		<feature name="StatusBar">

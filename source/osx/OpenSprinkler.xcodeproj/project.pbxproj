@@ -156,7 +156,7 @@
 		F4F83F811981E481006B2617 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0510;
+				LastUpgradeCheck = 0730;
 				ORGANIZATIONNAME = "Samer Albahra";
 				TargetAttributes = {
 					F4F83F881981E481006B2617 = {
@@ -236,6 +236,7 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
@@ -300,6 +301,7 @@
 				GCC_PREFIX_HEADER = "Resources/OpenSprinkler-Prefix.pch";
 				INFOPLIST_FILE = "Resources/OpenSprinkler-Info.plist";
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				PRODUCT_BUNDLE_IDENTIFIER = com.albahra.Sprinklers.osx;
 				PRODUCT_NAME = OpenSprinkler;
 				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;
@@ -317,6 +319,7 @@
 				GCC_PREFIX_HEADER = "Resources/OpenSprinkler-Prefix.pch";
 				INFOPLIST_FILE = "Resources/OpenSprinkler-Info.plist";
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				PRODUCT_BUNDLE_IDENTIFIER = com.albahra.Sprinklers.osx;
 				PRODUCT_NAME = OpenSprinkler;
 				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;
