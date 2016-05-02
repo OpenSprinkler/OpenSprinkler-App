@@ -906,6 +906,11 @@ function updateController( callback, fail ) {
     if ( isControllerConnected() && checkOSVersion( 216 ) ) {
         sendToOS( "/ja?pw=", "json" ).then( function( data ) {
 
+            if ( typeof data === "undefined" || $.isEmptyObject( data ) ) {
+                fail();
+                return;
+            }
+
 			// The /ja call does not contain special station data, so let's cache it
 			var special = controller.special;
 
