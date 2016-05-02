@@ -53,11 +53,11 @@
     "grunt-contrib-jshint": "^1.0.0",
     "grunt-contrib-uglify": "^1.0.1",
     "grunt-jscs": "^2.3.0",
-    "grunt-lib-phantomjs": "^1.0.2",
+    "grunt-lib-phantomjs": "^0.7.1",
     "grunt-shell": "^1.1.2",
     "grunt-text-replace": "^0.4.0",
     "lcov-result-merger": "^1.0.2",
-    "lodash": "^4.11.1",
+    "lodash": "^3.6.0",
     "mocha": "^2.3.4",
     "xcode": "^0.8.2"
   }
