@@ -55,6 +55,36 @@ a {
     text-decoration:none
 }
 
+/* Station tab rules */
+
+ul.tabs {
+	margin: 0px;
+	padding: 0px;
+	list-style: none;
+}
+
+ul.tabs li {
+	background: none;
+	display: inline-block;
+	padding: 10px 15px;
+	cursor: pointer;
+}
+
+ul.tabs li.current {
+	background: #ededed;
+}
+
+.tab-content {
+	display: none;
+	background: #ededed;
+	padding: 15px;
+	width: 200px;
+}
+
+.tab-content.current {
+	display: inherit;
+}
+
 /*
     Additional Icons
 */
@@ -840,6 +870,7 @@ div.running-text{
     font-size:.71em!important;
     white-space: normal !important;
 }
+
 
 /* Program preview rules */
 .master {

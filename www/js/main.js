@@ -4625,69 +4625,82 @@ var showHome = ( function() {
                 name = button.siblings( "[id='station_" + id + "']" ),
                 showSpecialOptions = function( value ) {
 					var opts = select.find( "#specialOpts" ),
-						hex = controller.special && controller.special.hasOwnProperty( id ) ? controller.special[ id ].sd : "",
-
-						// Remember station type to understand special data format
-						hexFormat  = controller.special && controller.special.hasOwnProperty( id ) ? controller.special[ id ].st : 0;
+						data = controller.special && controller.special.hasOwnProperty( id ) ? controller.special[ id ].sd : "",
+						type  = controller.special && controller.special.hasOwnProperty( id ) ? controller.special[ id ].st : 0;
 
 					opts.empty();
 
-					if ( value === 1 ) {
+					if ( value === 0 ) {
+						opts.append(
+							"<p class='special-desc center small'>" +
+								_( "Select the station type using the dropdown selector above and configure the station properties." ) +
+							"</p>"
+						).enhanceWithin();
+					} else if ( value === 1 ) {
+						data = ( type === value ) ? data : "0000000000000000";
+
 						opts.append(
 							"<div class='ui-bar-a ui-bar'>" + _( "RF Code" ) + ":</div>" +
-							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='rf-code' type='text' value='" + hex + "'>"
+							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='rf-code' required='true' type='text' value='" + data + "'>"
 						).enhanceWithin();
 					} else if ( value === 2 ) {
-						var data = parseRemoteStationData( hex );
+						data = ( type === value ) ? parseRemoteStationData( data ) : parseRemoteStationData( "00000000005000" );
 
 						opts.append(
 							"<div class='ui-bar-a ui-bar'>" + _( "Remote Address" ) + ":</div>" +
-							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='remote-address' pattern='^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$' type='text' value='" + data.ip + "'>" +
+							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='remote-address' required='true' type='text' pattern='^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$' value='" + data.ip + "'>" +
 							"<div class='ui-bar-a ui-bar'>" + _( "Remote Port" ) + ":</div>" +
-							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='remote-port' type='number' placeholder='80' min='0' max='65535' value='" + data.port + "'>" +
+							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='remote-port' required='true' type='number' placeholder='80' min='0' max='65535' value='" + data.port + "'>" +
 							"<div class='ui-bar-a ui-bar'>" + _( "Remote Station (index)" ) + ":</div>" +
-							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='remote-station' type='number' min='1' max='48' placeholder='1' value='" + ( data.station + 1 ) + "'>"
+							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='remote-station' required='true' type='number' min='1' max='48' placeholder='1' value='" + ( data.station + 1 ) + "'>"
 						).enhanceWithin();
 					} else if ( value === 3 ) {
 
 						// Extended special station model to support GPIO stations
-						// GPIO pins available RPi R2.
+						// Special data for GPIO Station is three bytes of ascii decimal (not hex)
+						// First two bytes are zero padded GPIO pin number (default GPIO05)
+						// Third byte is either 0 or 1 for active low (GND) or high (+5V) relays (default 1 for HIGH)
+						// Restrict selection to GPIO pins available on the RPi R2.
 						var ospiPins = [ 5, 6, 7, 8, 9, 10, 11, 12, 13, 16, 18, 19, 20, 21, 23, 24, 25, 26 ];
-						var gpioPin, activeState, uiStr;
+						var gpioPin = 5, activeState = 1, sel;
 
-						// Ignore any stored special data unless it is for the GPIO station type
-						if ( hexFormat === value ) {
-
-							// Special data for GPIO Station is three bytes of ascii decimal (not hex)
-							hex = hex.split( "" );
-
-							// First two bytes are zero padded GPIO pin number (default GPIO05)
-							gpioPin = parseInt( hex[ 0 ] + hex[ 1 ] );
-
-							// Third byte is either 0 or 1 for active low (GND) or high (+5V) relays (default 1 for HIGH)
-							activeState = parseInt( hex[ 2 ] );
+						if ( type === value ) {
+							data = data.split( "" );
+							gpioPin = parseInt( data[ 0 ] + data[ 1 ] );
+							activeState = parseInt( data[ 2 ] );
 						}
 
-						// Set up GPIO selection based on available OSPi pins
-						uiStr = "<div class='ui-bar-a ui-bar'>" + _( "GPIO Pin" ) + ":</div>" +
+						sel = "<div class='ui-bar-a ui-bar'>" + _( "GPIO Pin" ) + ":</div>" +
 							    "<select class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='gpio-pin'>";
 						for ( var i = 0; i < ospiPins.length; i++ ) {
-							uiStr += "<option value='" + ospiPins[ i ] + "' " + ( ospiPins[ i ] === gpioPin ? "selected='selected'" : "" ) + ">" + ospiPins[ i ];
+							sel += "<option value='" + ospiPins[ i ] + "' " + ( ospiPins[ i ] === gpioPin ? "selected='selected'" : "" ) + ">" + ospiPins[ i ];
 						}
-						uiStr += "</select>";
+						sel += "</select>";
 
-						// Set up active state selection (High or LOW)
-						uiStr += "<div class='ui-bar-a ui-bar'>" + _( "Active State" ) + ":</div>" +
+						sel += "<div class='ui-bar-a ui-bar'>" + _( "Active State" ) + ":</div>" +
 							     "<select class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='active-state'>" +
 									"<option value='1' " + ( activeState === 1 ? "selected='selected'" : "" ) + ">" + _( "HIGH" ) +
 									"<option value='0' " + ( activeState === 0 ? "selected='selected'" : "" ) + ">" + _( "LOW" ) +
 							     "</select>";
 
-						opts.append( uiStr ).enhanceWithin();
+						opts.append( sel ).enhanceWithin();
+					} else if ( value === 4 ) {
+						data = ( type === value ) ? data.split( "," ) : [ "server", "80", "On", "Off" ];
+
+						opts.append(
+							"<div class='ui-bar-a ui-bar'>" + _( "Server Name" ) + ":</div>" +
+							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='http-server' required='true' type='text' value='" + data[ 0 ] + "'>" +
+							"<div class='ui-bar-a ui-bar'>" + _( "Server Port" ) + ":</div>" +
+							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='http-port' required='true' type='number' min='0' max='65535' value='" + parseInt( data[ 1 ] ) + "'>" +
+							"<div class='ui-bar-a ui-bar'>" + _( "On Command" ) + ":</div>" +
+							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='http-on' required='true' type='text' value='" + data[ 2 ] + "'>" +
+							"<div class='ui-bar-a ui-bar'>" + _( "Off Command" ) + ":</div>" +
+							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='http-off' required='true' type='text' value='" + data[ 3 ] + "'>"
+						).enhanceWithin();
 					}
                 },
                 saveChanges = function( checkPassed ) {
-                    var hs = select.find( "#hs" ).data( "value" );
+					var hs = parseInt( select.find( "#hs" ).val() );
                     button.data( "hs", hs );
 
                     if ( hs === 1 ) {
@@ -4767,10 +4780,14 @@ var showHome = ( function() {
 
 						button.data( "specialData", hex );
 					} else if ( hs === 3 ) {
-
-						// Handle GPIO Station special data. Use default GPIO05 and active High
 						var sd = pad( select.find( "#gpio-pin" ).val() || "05" );
 						sd += select.find( "#active-state" ).val() || "1";
+						button.data( "specialData", sd );
+					} else if ( hs === 4 ) {
+						var sd = select.find( "#http-server" ).val();
+							sd += "," + select.find( "#http-port" ).val();
+							sd += "," + select.find( "#http-on" ).val();
+							sd += "," + select.find( "#http-off" ).val();
 						button.data( "specialData", sd );
                     }
 
@@ -4795,6 +4812,16 @@ var showHome = ( function() {
             if ( typeof id !== "number" ) {
                 return false;
             }
+
+			// Setup two tabs for station configuration (Basic / Advanced)
+			select += "<div id='station-tabs'>" +
+							"<ul class='tabs'>" +
+								"<li class='current' data-tab='tab-basic'>Basic</li>" +
+								"<li data-tab='tab-advanced'>Advanced</li>" +
+							"</ul>";
+
+			// Start of Basic Tab settings
+			select += "<div id='tab-basic' class='tab-content current'>";
 
             select += "<div class='ui-bar-a ui-bar'>" + _( "Station Name" ) + ":</div>" +
 				"<input class='bold center' data-corners='false' data-wrapper-class='tight stn-name ui-btn' id='stn-name' type='text' value='" +
@@ -4844,51 +4871,67 @@ var showHome = ( function() {
                 }
             }
 
-            if ( hasSpecial ) {
-                select += "<div class='ui-bar-a ui-bar'>" + _( "Station Type" ) + ":</div>" +
-	                "<fieldset data-role='controlgroup' data-type='horizontal' data-corners='false' style='width:100%;margin:0' data-value='0' id='hs'" + ( isStationSpecial( id ) ? " class='ui-disabled'" : "" ) + ">" +
-					    "<button data-hs='0'" + ( isStationSpecial( id ) ? "" : " class='ui-btn-active'" ) + ">" + _( "Standard" ) + "</button>" +
-					    "<button data-hs='1'>" + _( "RF" ) + "</button>" +
-						"<button data-hs='2'>" + _( "Remote" ) + "</button>" +
-
-						// Expose UI for GPIO Station settings
-			    		"<button data-hs='3' style='border-bottom-width:0!important'" + ( checkOSVersion( 2162 ) && ( getHWVersion() === "OSPi" ) ? ">" : " disabled='disabled'>" ) + _( "GPIO" ) + "</button>" +
-					"</fieldset>" +
-					"<div id='specialOpts'></div>";
-            }
-
             select += "<div class='ui-bar-a ui-bar'>" + _( "Station Notes" ) + ":</div>" +
 				"<textarea data-corners='false' class='tight stn-notes' id='stn-notes'>" +
 					( sites[ currentSite ].notes[ id ] ? sites[ currentSite ].notes[ id ] : "" ) +
 				"</textarea>";
 
+			select += "</div>";
+
+			// Start of Advanced Tab settings. Initially set to disabled until we have refreshed station data from firmware
+            if ( hasSpecial ) {
+				select += "<div id='tab-advanced' class='tab-content'>" +
+					"<div class='ui-bar-a ui-bar'>" + _( "Station Type" ) + ":</div>" +
+						"<select data-mini='true' id='hs'"  + ( isStationSpecial( id ) ? " class='ui-disabled'" : "" ) + ">" +
+							"<option data-hs='0' value='0'" + ( isStationSpecial( id ) ? "" : "selected") + ">" + _( "Standard" ) + "</option>" +
+							"<option data-hs='1' value='1'>" + _( "RF" ) + "</option>" +
+							"<option data-hs='2' value='2'>" + _( "Remote" ) + "</option>" +
+							"<option data-hs='3' value='3'" + ( checkOSVersion( 2162 ) && ( getHWVersion() === "OSPi" ) ? ">" : " disabled>" ) + _( "GPIO" ) + "</option>" +
+							"<option data-hs='4' value='4'" + ( checkOSVersion( 2162 ) && ( getHWVersion() === "OSPi" ) ? ">" : " disabled>" ) + _( "HTTP" ) + "</option>" +
+						"</select>" +
+						"<div id='specialOpts'></div>" +
+					"</div>" +
+				"</div>";
+			}
+
+			// Common Submit button
             select += "<input data-wrapper-class='attrib-submit' data-theme='b' type='submit' value='" + _( "Submit" ) + "' /></form></fieldset></div>";
+
             select = $( select ).enhanceWithin().on( "submit", "form", function() {
                 saveChanges( id );
-
                 return false;
             } );
 
-            select.find( "#hs" ).on( "click", "button", function() {
-				var button = $( this ),
-					value = button.data( "hs" ),
-					buttons = button.siblings();
+			// Display the selected tab when clicked
+			select.find( "ul.tabs li" ).click( function() {
+				var tab_id = $( this ).attr( "data-tab" );
 
-				buttons.removeClass( "ui-btn-active" );
-				button.addClass( "ui-btn-active" );
-				button.parents( "#hs" ).data( "value", value );
+				$( "ul.tabs li" ).removeClass( "current" );
+				$( ".tab-content" ).removeClass( "current" );
 
+				$( this ).addClass( "current" );
+				$( "#" + tab_id ).addClass( "current" );
+			})
+
+			// Update Advanced tab whenever a new special station type is selected
+            select.find( "#hs" ).on( "change", function() {
+				var value = parseInt( $(this).val() );
 				showSpecialOptions( value );
-
 				return false;
             } );
 
+			// Refresh station data from firmware and update the Advanced tab to reflect special station type
 			if ( isStationSpecial( id ) ) {
 				updateControllerStationSpecial( function() {
 					select.find( "#hs" )
 						.removeClass( "ui-disabled" )
-						.find( "button[data-hs='" + controller.special[ id ].st + "']" ).click();
+						.find( "option[data-hs='" + controller.special[ id ].st + "']" ).prop( "selected", true );
+					select.find( "#hs" ).change();
 				} );
+			} else {
+				select.find( "#hs" ).removeClass( "ui-disabled" );
+				select.find( "option[data-hs='0']" ).prop( "selected", true );
+				select.find( "#hs" ).change();
 			}
 
             select.find( ".changeBackground" ).on( "click", function( e ) {
