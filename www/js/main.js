@@ -231,6 +231,9 @@ $( document )
     if ( isChromeApp || window.location.protocol === "file:" ) {
         $.mobile.hashListeningEnabled = false;
     }
+
+    $.support.cors = true;
+    $.mobile.allowCrossDomainPages = true;
 } )
 .on( "pagebeforechange", function( e, data ) {
     var page = data.toPage,
