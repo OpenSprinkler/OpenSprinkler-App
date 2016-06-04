@@ -1,3 +1,12 @@
+msgid "Manage Sites"
+msgstr ""
+
+msgid "Add Program"
+msgstr ""
+
+msgid "Stop All Stations"
+msgstr ""
+
 msgid "Back"
 msgstr ""
 
@@ -120,9 +129,6 @@ msgstr ""
 msgid "Site deleted successfully"
 msgstr ""
 
-msgid "Manage Sites"
-msgstr ""
-
 msgid "Add"
 msgstr ""
 
@@ -153,7 +159,12 @@ msgstr ""
 msgid "Weather Adjustment Options"
 msgstr ""
 
-msgid "Modify the weight of each factor when calculating the scale"
+msgid "Set the baseline weather conditions for your location. "
+msgstr ""
+
+msgid ""
+"The Zimmerman method will adjust the watering duration based on differences "
+"from this reference point."
 msgstr ""
 
 msgid "Temp"
@@ -163,6 +174,11 @@ msgid "Rain"
 msgstr ""
 
 msgid "Humidity"
+msgstr ""
+
+msgid ""
+"Set the sensitivity of the watering adjustment to changes in each of the "
+"above weather conditions."
 msgstr ""
 
 msgid ""
@@ -272,6 +288,9 @@ msgstr ""
 msgid "An invalid API key has been detected"
 msgstr ""
 
+msgid "Weather data cannot be found for your location"
+msgstr ""
+
 msgid "Min Humidity"
 msgstr ""
 
@@ -297,9 +316,6 @@ msgid "Last Weather Call"
 msgstr ""
 
 msgid "Last Successful Weather Call"
-msgstr ""
-
-msgid "Weather data cannot be found for your location"
 msgstr ""
 
 msgid "Change Rain Delay"
@@ -547,6 +563,9 @@ msgstr ""
 msgid "Reset All Station Data"
 msgstr ""
 
+msgid "Are you sure you want to clear the current location?"
+msgstr ""
+
 msgid ""
 "Are you sure you want to delete all settings and return to the default "
 "settings?"
@@ -594,15 +613,6 @@ msgstr ""
 msgid "Disabled"
 msgstr ""
 
-msgid "Stop All Stations"
-msgstr ""
-
-msgid "Are you sure you want to stop all stations?"
-msgstr ""
-
-msgid "All stations have been stopped"
-msgstr ""
-
 msgid "Water Level"
 msgstr ""
 
@@ -618,6 +628,11 @@ msgstr ""
 msgid "for"
 msgstr ""
 
+msgid ""
+"Select the station type using the dropdown selector above and configure the "
+"station properties."
+msgstr ""
+
 msgid "RF Code"
 msgstr ""
 
@@ -628,6 +643,30 @@ msgid "Remote Port"
 msgstr ""
 
 msgid "Remote Station (index)"
+msgstr ""
+
+msgid "GPIO Pin"
+msgstr ""
+
+msgid "Active State"
+msgstr ""
+
+msgid "HIGH"
+msgstr ""
+
+msgid "LOW"
+msgstr ""
+
+msgid "Server Name"
+msgstr ""
+
+msgid "Server Port"
+msgstr ""
+
+msgid "On Command"
+msgstr ""
+
+msgid "Off Command"
 msgstr ""
 
 msgid "Unable to reach the remote station."
@@ -663,6 +702,9 @@ msgstr ""
 msgid "Activate Relay"
 msgstr ""
 
+msgid "Station Notes"
+msgstr ""
+
 msgid "Station Type"
 msgstr ""
 
@@ -675,7 +717,10 @@ msgstr ""
 msgid "Remote"
 msgstr ""
 
-msgid "Station Notes"
+msgid "GPIO"
+msgstr ""
+
+msgid "HTTP"
 msgstr ""
 
 msgid "Do you want to stop the selected station?"
@@ -1070,9 +1115,6 @@ msgstr ""
 msgid "Run"
 msgstr ""
 
-msgid "Add Program"
-msgstr ""
-
 msgid "Are you sure you want to delete program"
 msgstr ""
 
@@ -1304,6 +1346,9 @@ msgstr ""
 msgid "This Controller"
 msgstr ""
 
+msgid "View Changelog"
+msgstr ""
+
 msgid "Update Now"
 msgstr ""
 
@@ -1317,6 +1362,12 @@ msgid "Update successful"
 msgstr ""
 
 msgid "Update did not complete."
+msgstr ""
+
+msgid "Are you sure you want to stop all stations?"
+msgstr ""
+
+msgid "All stations have been stopped"
 msgstr ""
 
 msgid "Yes"
