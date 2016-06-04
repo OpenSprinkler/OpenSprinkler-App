@@ -4807,18 +4807,19 @@ var showHome = ( function() {
                     select.popup( "destroy" ).remove();
                 },
                 select = "<div data-overlay-theme='b' data-role='popup' data-theme='a' id='stn_attrib'>" +
-					"<fieldset style='margin:0' data-mini='true' data-corners='false' data-role='controlgroup'><form>";
+					"<fieldset style='margin:0' data-mini='true' data-corners='false' data-role='controlgroup'><form><div id='station-tabs'>";
 
             if ( typeof id !== "number" ) {
                 return false;
             }
 
-			// Setup two tabs for station configuration (Basic / Advanced)
-			select += "<div id='station-tabs'>" +
-							"<ul class='tabs'>" +
+			// Setup two tabs for station configuration (Basic / Advanced) when applicable
+			if ( hasSpecial ) {
+				select += "<ul class='tabs'>" +
 								"<li class='current' data-tab='tab-basic'>Basic</li>" +
 								"<li data-tab='tab-advanced'>Advanced</li>" +
 							"</ul>";
+			}
 
 			// Start of Basic Tab settings
 			select += "<div id='tab-basic' class='tab-content current'>";
