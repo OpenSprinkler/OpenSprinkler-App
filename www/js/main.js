@@ -4784,11 +4784,11 @@ var showHome = ( function() {
 						sd += select.find( "#active-state" ).val() || "1";
 						button.data( "specialData", sd );
 					} else if ( hs === 4 ) {
-						var sd = select.find( "#http-server" ).val();
-							sd += "," + select.find( "#http-port" ).val();
-							sd += "," + select.find( "#http-on" ).val();
-							sd += "," + select.find( "#http-off" ).val();
-						button.data( "specialData", sd );
+						var sdata = select.find( "#http-server" ).val();
+						sdata += "," + select.find( "#http-port" ).val();
+						sdata += "," + select.find( "#http-on" ).val();
+						sdata += "," + select.find( "#http-off" ).val();
+						button.data( "specialData", sdata );
                     }
 
                     button.data( "um", select.find( "#um" ).is( ":checked" ) ? 1 : 0 );
@@ -4883,11 +4883,11 @@ var showHome = ( function() {
 				select += "<div id='tab-advanced' class='tab-content'>" +
 					"<div class='ui-bar-a ui-bar'>" + _( "Station Type" ) + ":</div>" +
 						"<select data-mini='true' id='hs'"  + ( isStationSpecial( id ) ? " class='ui-disabled'" : "" ) + ">" +
-							"<option data-hs='0' value='0'" + ( isStationSpecial( id ) ? "" : "selected") + ">" + _( "Standard" ) + "</option>" +
+							"<option data-hs='0' value='0'" + ( isStationSpecial( id ) ? "" : "selected" ) + ">" + _( "Standard" ) + "</option>" +
 							"<option data-hs='1' value='1'>" + _( "RF" ) + "</option>" +
 							"<option data-hs='2' value='2'>" + _( "Remote" ) + "</option>" +
 							"<option data-hs='3' value='3'" + ( checkOSVersion( 2162 ) && ( getHWVersion() === "OSPi" ) ? ">" : " disabled>" ) + _( "GPIO" ) + "</option>" +
-							"<option data-hs='4' value='4'" + ( checkOSVersion( 2162 ) && ( getHWVersion() === "OSPi" ) ? ">" : " disabled>" ) + _( "HTTP" ) + "</option>" +
+							"<option data-hs='4' value='4'" + ( checkOSVersion( 217 ) && ( getHWVersion() === "OSPi" ) ? ">" : " disabled>" ) + _( "HTTP" ) + "</option>" +
 						"</select>" +
 						"<div id='specialOpts'></div>" +
 					"</div>" +
@@ -4904,18 +4904,18 @@ var showHome = ( function() {
 
 			// Display the selected tab when clicked
 			select.find( "ul.tabs li" ).click( function() {
-				var tab_id = $( this ).attr( "data-tab" );
+				var tabId = $( this ).attr( "data-tab" );
 
 				$( "ul.tabs li" ).removeClass( "current" );
 				$( ".tab-content" ).removeClass( "current" );
 
 				$( this ).addClass( "current" );
-				$( "#" + tab_id ).addClass( "current" );
-			})
+				$( "#" + tabId ).addClass( "current" );
+			} );
 
 			// Update Advanced tab whenever a new special station type is selected
             select.find( "#hs" ).on( "change", function() {
-				var value = parseInt( $(this).val() );
+				var value = parseInt( $( this ).val() );
 				showSpecialOptions( value );
 				return false;
             } );
