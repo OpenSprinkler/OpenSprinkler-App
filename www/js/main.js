@@ -4644,7 +4644,7 @@ var showHome = ( function() {
 							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='rf-code' required='true' type='text' value='" + data + "'>"
 						).enhanceWithin();
 					} else if ( value === 2 ) {
-						data = ( type === value ) ? parseRemoteStationData( data ) : parseRemoteStationData( "00000000005000" );
+						data = parseRemoteStationData( ( type === value ) ? data : "00000000005000" );
 
 						opts.append(
 							"<div class='ui-bar-a ui-bar'>" + _( "Remote Address" ) + ":</div>" +
