@@ -2,6 +2,7 @@
     <widget xmlns="http://www.w3.org/ns/widgets"
             xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:gap="http://phonegap.com/ns/1.0"
+            xmlns:cdv="http://cordova.apache.org/ns/1.0"
             id="com.albahra.sprinklers"
             version="1.4.11"
             android-versionCode="60"
@@ -17,24 +18,18 @@
 		<content src="index.html"/>
 
 		<!-- Allow CORS requests -->
-		<access origin="*"/>
+		<access origin="*" />
 		<allow-intent href="*" />
 		<allow-navigation href="*" />
 
 		<!-- Declare PhoneGap Version -->
-		<preference name="phonegap-version" value="cli-6.1.0" />
+		<preference name="phonegap-version" value="cli-6.2.0" />
 
 		<!-- Disable web security in Blackberry 10 allowing CORS -->
 		<preference name="WebSecurity" value="disable"/>
 
 		<!-- Stop the app in the background -->
 		<preference name="KeepRunning" value="false"/>
-
-		<!-- Declare no permissions needed (default is everything) -->
-		<preference name="permissions" value="none" />
-
-		<!-- Declare network access is required -->
-		<feature name="http://api.phonegap.com/1.0/network"/>
 
 		<!-- Prevent bounce scroll effect -->
 		<preference name="DisallowOverscroll" value="true"/>
