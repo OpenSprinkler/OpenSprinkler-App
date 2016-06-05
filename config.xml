@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
     <widget xmlns="http://www.w3.org/ns/widgets"
             xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:gap="http://phonegap.com/ns/1.0"
             xmlns:cdv="http://cordova.apache.org/ns/1.0"
             id="com.albahra.sprinklers"
             version="1.4.11"
@@ -24,6 +23,9 @@
 
 		<!-- Declare PhoneGap Version -->
 		<preference name="phonegap-version" value="cli-6.1.0" />
+
+		<!-- Declare Windows platform -->
+		<preference name="windows-appx-target" value="8.1-phone" />
 
 		<!-- Disable web security in Blackberry 10 allowing CORS -->
 		<preference name="WebSecurity" value="disable"/>
@@ -57,10 +59,6 @@
         <plugin name="cordova-plugin-whitelist" source="npm" />
         <plugin name="cordova-plugin-3dtouch" source="npm" />
 
-		<feature name="StatusBar">
-			<param name="ios-package" value="CDVStatusBar" onload="true"/>
-		</feature>
-
         <!-- iOS Splash Screen for PhoneGap -->
         <platform name="ios">
             <splash src="res/ios/screens/startup.png"                           width="320"   height="480"  />
@@ -87,11 +85,11 @@
         <platform name="android">
 	        <splash src="res/android/screens/mdpi.9.png"    density="mdpi" />
     	    <splash src="res/android/screens/xhdpi.9.png"   density="xhdpi" />
-	        <icon src="res/android/icons/ldpi.png"      gap:qualifier="ldpi" />
-	        <icon src="res/android/icons/mdpi.png"      gap:qualifier="mdpi" />
-	        <icon src="res/android/icons/hdpi.png"      gap:qualifier="hdpi" />
-	        <icon src="res/android/icons/xhdpi.png"     gap:qualifier="xhdpi" />
-	        <icon src="res/android/icons/xxhdpi.png"    gap:qualifier="xxhdpi" />
+	        <icon src="res/android/icons/ldpi.png"      qualifier="ldpi" />
+	        <icon src="res/android/icons/mdpi.png"      qualifier="mdpi" />
+	        <icon src="res/android/icons/hdpi.png"      qualifier="hdpi" />
+	        <icon src="res/android/icons/xhdpi.png"     qualifier="xhdpi" />
+	        <icon src="res/android/icons/xxhdpi.png"    qualifier="xxhdpi" />
     	</platform>
 
         <!-- Windows Phone Icons for PhoneGap -->
@@ -103,22 +101,22 @@
         <!-- PhoneGap Build Specific Configuration -->
 
         <!-- Add description for GPS usage -->
-        <gap:config-file platform="ios" parent="NSLocationAlwaysUsageDescription" overwrite="false">
+        <config-file platform="ios" parent="NSLocationAlwaysUsageDescription" overwrite="false">
             <string>Your current location will be used to configure OpenSprinkler.</string>
-        </gap:config-file>
+        </config-file>
 
         <!-- Add description for GPS usage -->
-        <gap:config-file platform="ios" parent="NSLocationWhenInUseUsageDescription" overwrite="false">
+        <config-file platform="ios" parent="NSLocationWhenInUseUsageDescription" overwrite="false">
             <string>Your current location will be used to configure OpenSprinkler.</string>
-        </gap:config-file>
+        </config-file>
 
         <!-- Add required short version string to iOS configuration -->
-        <gap:config-file platform="ios" parent="CFBundleShortVersionString">
+        <config-file platform="ios" parent="CFBundleShortVersionString">
             <string>152</string>
-        </gap:config-file>
+        </config-file>
 
         <!-- Android specific Configuration -->
-        <gap:config-file platform="android" parent="/manifest" mode="merge">
+        <config-file platform="android" parent="/manifest" mode="merge">
 
             <!-- Declare SDK -->
             <uses-sdk android:minSdkVersion="10" android:targetSdkVersion="22" />
@@ -137,6 +135,6 @@
                 <activity android:theme="@android:style/Theme.Holo.Light.NoActionBar"></activity>
             </application>
 
-        </gap:config-file>
+        </config-file>
 
     </widget>
