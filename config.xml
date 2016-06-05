@@ -23,7 +23,7 @@
 		<allow-navigation href="*" />
 
 		<!-- Declare PhoneGap Version -->
-		<preference name="phonegap-version" value="cli-6.2.0" />
+		<preference name="phonegap-version" value="cli-6.1.0" />
 
 		<!-- Disable web security in Blackberry 10 allowing CORS -->
 		<preference name="WebSecurity" value="disable"/>
