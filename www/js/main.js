@@ -1149,6 +1149,13 @@ function updateControllerSettings( callback ) {
                 if ( typeof settings.lrun === "undefined" ) {
                     settings.lrun = [ 0, 0, 0, 0 ];
                 }
+
+                // Update the current coordinates if the user's location is using them
+                if ( settings.loc.match( regex.gps ) ) {
+                    var location = settings.loc.split( "," );
+                    currentCoordinates = [ parseFloat( location[ 0 ] ), parseFloat( location[ 1 ] ) ];
+                }
+
                 controller.settings = settings;
                 callback();
             },
