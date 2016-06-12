@@ -4241,6 +4241,7 @@ function showOptions( expandItem ) {
 
 				sites[ data.current_site ].notes = {};
 				sites[ data.current_site ].images = {};
+				sites[ data.current_site ].lastRunTime = {};
 
 		        storage.set( { "sites": JSON.stringify( sites ) }, cloudSaveSites );
             } );
@@ -5247,6 +5248,9 @@ var showHome = ( function() {
 	            if ( typeof sites[ currentSite ].notes !== "object" ) {
 					sites[ currentSite ].notes = {};
 	            }
+	            if ( typeof sites[ currentSite ].lastRunTime !== "object" ) {
+					sites[ currentSite ].lastRunTime = {};
+	            }
 
 	            callback();
 			} );
@@ -5322,6 +5326,7 @@ var showHome = ( function() {
 	                    title: name,
 	                    incrementalUpdate: false,
 	                    maximum: 65535,
+	                    seconds: sites[ currentSite ].lastRunTime[ station ] > 0 ? sites[ currentSite ].lastRunTime[ station ] : 0,
 	                    helptext: _( "Enter a duration to manually run " + name ),
 	                    callback: function( duration ) {
 	                        sendToOS( "/cm?sid=" + station + "&en=1&t=" + duration + "&pw=", "json" ).done( function() {
@@ -5332,6 +5337,10 @@ var showHome = ( function() {
 
 	                            refreshStatus();
 	                            showerror( _( "Station has been queued" ) );
+
+	                            // Save run time for this station
+						        sites[ currentSite ].lastRunTime[ station ] = duration;
+						        storage.set( { "sites": JSON.stringify( sites ) }, cloudSaveSites );
 	                        } );
 	                    }
 	                } );
