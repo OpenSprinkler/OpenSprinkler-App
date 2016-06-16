@@ -7250,7 +7250,7 @@ var getLogs = ( function() {
 
                     sortedData.push( {
                         "start": utc,
-                        "end": new Date( utc.getTime() + duration ),
+                        "end": new Date( utc.getTime() + ( duration * 1000 ) ),
                         "className": className,
                         "content": name,
                         "pid": pid - 1,
