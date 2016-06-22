@@ -3,9 +3,9 @@
             xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:cdv="http://cordova.apache.org/ns/1.0"
             id="com.albahra.sprinklers"
-            version="1.4.11"
-            android-versionCode="60"
-            versionCode="60" >
+            version="1.5.0"
+            android-versionCode="61"
+            versionCode="61" >
 
 	    <name>OpenSprinkler</name>
 	    <description>
@@ -112,7 +112,7 @@
 
         <!-- Add required short version string to iOS configuration -->
         <config-file platform="ios" parent="CFBundleShortVersionString">
-            <string>152</string>
+            <string>153</string>
         </config-file>
 
         <!-- Android specific Configuration -->
