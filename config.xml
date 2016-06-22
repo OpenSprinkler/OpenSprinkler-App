@@ -25,7 +25,10 @@
 		<preference name="phonegap-version" value="cli-6.1.0" />
 
 		<!-- Declare Windows platform -->
-		<preference name="windows-appx-target" value="8.1-phone" />
+		<preference name="windows-appx-target" value="uap" />
+        <preference name="WindowsStorePublisherName" value="CN=8F0F825B-0E15-463C-8770-CA0313FEE1E7" />
+        <preference name="WindowsStoreIdentityName" value="27908SamerAlbahra.OpenSprinkler" />
+        <preference name="windows-identity-name" value="27908SamerAlbahra.OpenSprinkler" />
 
 		<!-- Disable web security in Blackberry 10 allowing CORS -->
 		<preference name="WebSecurity" value="disable"/>
