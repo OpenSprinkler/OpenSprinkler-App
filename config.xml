@@ -36,10 +36,18 @@
 		<!-- Stop the app in the background -->
 		<preference name="KeepRunning" value="false"/>
 
+		<!-- Set the background color -->
+		<preference name="BackgroundColor" value="0x00333333"/>
+
 		<!-- Prevent bounce scroll effect -->
 		<preference name="DisallowOverscroll" value="true"/>
 		<preference name="webviewbounce" value="false"/>
 		<preference name="UIWebViewBounce" value="false"/>
+
+		<!-- Define OS X settings -->
+		<preference name="HideMousePointer" value="1" />
+		<preference name="WindowSize" value="900x760" />
+		<preference name="EnableWebGL" value="true" />
 
 		<!-- Set splash screen settings -->
 		<preference name="AutoHideSplashScreen" value="false" />
@@ -50,6 +58,9 @@
 
 		<!-- Allow the keyboard to be opened by the app -->
 		<preference name="KeyboardDisplayRequiresUserAction" value="false" />
+
+		<!-- Allow a grace period for Android devices to load JS -->
+		<preference name="loadUrlTimeoutValue" value="700000" />
 
 		<!-- Declare required plugins -->
         <plugin name="cordova-plugin-statusbar" source="npm" />
@@ -95,13 +106,21 @@
 	        <icon src="res/android/icons/xxhdpi.png"    qualifier="xxhdpi" />
     	</platform>
 
-        <!-- Windows Phone Icons for PhoneGap -->
-        <platform name="wp8">
-	        <icon src="res/winphone/icons/icon-48.png" />
-	        <splash src="res/winphone/screens/startup.jpg" />
+        <!-- Windows Icons for PhoneGap -->
+        <platform name="windows">
+	        <icon src="res/windows/icon/icon50.png" width="50" height="50" />
+	        <icon src="res/windows/icon/icon30.png" width="30" height="30" />
+	        <icon src="res/windows/icon/icon44.png" width="44" height="44" />
+	        <icon src="res/windows/icon/icon70.png" width="70" height="70" />
+	        <icon src="res/windows/icon/icon71.png" width="71" height="71" />
+	        <icon src="res/windows/icon/icon150.png" width="150" height="150" />
+	        <icon src="res/windows/icon/icon310.png" width="310" height="310" />
+	        <icon src="res/windows/icon/iconw.png" width="310" height="150" />
+			<splash src="res/windows/splash/landscape.png" width="620" height="300" />
+			<splash src="res/windows/splash/portrait.png" width="1152" height="1920" />
 	    </platform>
 
-        <!-- PhoneGap Build Specific Configuration -->
+        <!-- iOS Specific Configuration -->
 
         <!-- Add description for GPS usage -->
         <config-file platform="ios" parent="NSLocationAlwaysUsageDescription" overwrite="false">
