@@ -108,16 +108,16 @@
 
         <!-- Windows Icons for PhoneGap -->
         <platform name="windows">
-	        <icon src="res/windows/icon/icon50.png" width="50" height="50" />
-	        <icon src="res/windows/icon/icon30.png" width="30" height="30" />
-	        <icon src="res/windows/icon/icon44.png" width="44" height="44" />
-	        <icon src="res/windows/icon/icon70.png" width="70" height="70" />
-	        <icon src="res/windows/icon/icon71.png" width="71" height="71" />
-	        <icon src="res/windows/icon/icon150.png" width="150" height="150" />
-	        <icon src="res/windows/icon/icon310.png" width="310" height="310" />
-	        <icon src="res/windows/icon/iconw.png" width="310" height="150" />
-			<splash src="res/windows/splash/landscape.png" width="620" height="300" />
-			<splash src="res/windows/splash/portrait.png" width="1152" height="1920" />
+	        <icon src="res/windows/icons/icon50.png" width="50" height="50" />
+	        <icon src="res/windows/icons/icon30.png" width="30" height="30" />
+	        <icon src="res/windows/icons/icon44.png" width="44" height="44" />
+	        <icon src="res/windows/icons/icon70.png" width="70" height="70" />
+	        <icon src="res/windows/icons/icon71.png" width="71" height="71" />
+	        <icon src="res/windows/icons/icon150.png" width="150" height="150" />
+	        <icon src="res/windows/icons/icon310.png" width="310" height="310" />
+	        <icon src="res/windows/icons/iconw.png" width="310" height="150" />
+			<splash src="res/windows/screens/landscape.png" width="620" height="300" />
+			<splash src="res/windows/screens/portrait.png" width="1152" height="1920" />
 	    </platform>
 
         <!-- iOS Specific Configuration -->
