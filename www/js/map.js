@@ -76,6 +76,17 @@ function initialize() {
 			searchBox.setBounds( map.getBounds() );
 		} );
 
+        searchField.addEventListener( "keyup", function( e ) {
+            if ( e.keyCode === 13 ) {
+                var loc = searchField.value;
+
+                if ( loc.match( /^(pws|icao):.*/ ) ) {
+                    e.preventDefault();
+                    window.top.postMessage( { WS: loc }, "*" );
+                }
+            }
+        } );
+
 		searchBox.addListener( "places_changed", function() {
 		    var places = searchBox.getPlaces();
 		    if ( places.length === 0 ) {

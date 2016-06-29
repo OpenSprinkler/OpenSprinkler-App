@@ -3168,7 +3168,8 @@ function overlayMap( callback ) {
         var data = e.originalEvent.data;
 
         if ( typeof data.WS !== "undefined" ) {
-            callback( data.WS.split( "," ), data.station );
+            var coords = data.WS.split( "," );
+            callback( coords.length > 1 ? coords : data.WS, data.station );
             dataSent = true;
             popup.popup( "destroy" ).remove();
         } else if ( data.loaded === true ) {
@@ -4138,16 +4139,21 @@ function showOptions( expandItem ) {
                 if ( checkOSVersion( 210 ) ) {
                     page.find( "#o1" ).selectmenu( "disable" );
                 }
-                selected[ 0 ] = parseFloat( selected[ 0 ] ).toFixed( 5 );
-                selected[ 1 ] = parseFloat( selected[ 1 ] ).toFixed( 5 );
-                if ( typeof station === "string" ) {
-                    loc.val( station );
+
+                if ( typeof selected === "string" ) {
+                    loc.val( selected ).find( "span" ).text( selected );
                 } else {
-                    loc.val( selected );
+                    selected[ 0 ] = parseFloat( selected[ 0 ] ).toFixed( 5 );
+                    selected[ 1 ] = parseFloat( selected[ 1 ] ).toFixed( 5 );
+                    if ( typeof station === "string" ) {
+                        loc.val( station );
+                    } else {
+                        loc.val( selected );
+                    }
+                    coordsToLocation( selected[ 0 ], selected[ 1 ], function( result ) {
+                        loc.find( "span" ).text( result );
+                    } );
                 }
-                coordsToLocation( selected[ 0 ], selected[ 1 ], function( result ) {
-                    loc.find( "span" ).text( result );
-                } );
                 validateWULocation( selected, function( isValid ) {
                     if ( isValid ) {
                         loc.addClass( "green" );
