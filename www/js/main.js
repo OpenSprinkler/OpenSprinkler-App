@@ -122,9 +122,9 @@ var isIEMobile = /IEMobile/.test( navigator.userAgent ),
     currAuthPass, currLocal, currLang, language, deviceip, errorTimeout, weather, weatherKeyFail, openPanel;
 
 // Redirect jQuery Mobile DOM manipulation to prevent error
-if ( isWinApp ) {
+if ( window.MSApp ) {
 
-	if ( Windows.UI && Windows.UI.ApplicationSettings ) {
+	if ( window.Windows && Windows.UI && Windows.UI.ApplicationSettings ) {
 
 	    // Add link to privacy statement
 	    var settingsPane = Windows.UI.ApplicationSettings.SettingsPane.getForCurrentView();
