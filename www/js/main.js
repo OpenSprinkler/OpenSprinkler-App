@@ -124,19 +124,22 @@ var isIEMobile = /IEMobile/.test( navigator.userAgent ),
 // Redirect jQuery Mobile DOM manipulation to prevent error
 if ( isWinApp ) {
 
-    // Add link to privacy statement
-    var settingsPane = Windows.UI.ApplicationSettings.SettingsPane.getForCurrentView();
+	if ( Windows.UI && Windows.UI.ApplicationSettings ) {
 
-    // Bind the privacy policy to the settings panel
-    settingsPane.addEventListener( "commandsrequested", function( eventArgs ) {
-        var applicationCommands = eventArgs.request.applicationCommands;
-        var privacyCommand = new Windows.UI.ApplicationSettings.SettingsCommand(
-			"privacy", "Privacy Policy", function() {
-				window.open( "https://albahra.com/journal/privacy-policy" );
-			}
-        );
-        applicationCommands.append( privacyCommand );
-    } );
+	    // Add link to privacy statement
+	    var settingsPane = Windows.UI.ApplicationSettings.SettingsPane.getForCurrentView();
+
+	    // Bind the privacy policy to the settings panel
+	    settingsPane.addEventListener( "commandsrequested", function( eventArgs ) {
+	        var applicationCommands = eventArgs.request.applicationCommands;
+	        var privacyCommand = new Windows.UI.ApplicationSettings.SettingsCommand(
+				"privacy", "Privacy Policy", function() {
+					window.open( "https://albahra.com/journal/privacy-policy" );
+				}
+	        );
+	        applicationCommands.append( privacyCommand );
+	    } );
+	}
 
     // Cache the old domManip function.
     $.fn.oldDomManIp = $.fn.domManip;
