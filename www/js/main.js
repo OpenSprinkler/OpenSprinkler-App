@@ -2577,7 +2577,7 @@ function validateWULocation( location, callback ) {
 
     $.ajax( {
         url: "https://api.wunderground.com/api/" + controller.settings.wtkey + "/yesterday/conditions/q/" + encodeURIComponent( location ) + ".json",
-        dataType: isChromeApp ? "json" : "jsonp",
+        dataType: isChromeApp || isWinApp ? "json" : "jsonp",
         shouldRetry: retryCount
     } ).done( function( data ) {
         if ( typeof data.response.error === "object" ) {
@@ -2640,7 +2640,7 @@ function updateYahooWeather( string ) {
     $.ajax( {
         url: "https://query.yahooapis.com/v1/public/yql?q=select%20woeid%20from%20geo.placefinder%20where%20text=%22" +
 			encodeURIComponent( string || controller.settings.loc ) + "%22&format=json",
-        dataType: isChromeApp ? "json" : "jsonp",
+        dataType: isChromeApp || isWinApp ? "json" : "jsonp",
         contentType: "application/json; charset=utf-8",
         shouldRetry: retryCount,
         success: function( woeid ) {
@@ -2660,7 +2660,7 @@ function updateYahooWeather( string ) {
             $.ajax( {
                 url: "https://query.yahooapis.com/v1/public/yql?q=select%20item%2Ctitle%2Clocation%20from%20weather.forecast%20where%20woeid%3D%22" +
 					wid + "%22&format=json",
-                dataType: isChromeApp ? "json" : "jsonp",
+                dataType: isChromeApp || isWinApp ? "json" : "jsonp",
                 contentType: "application/json; charset=utf-8",
                 shouldRetry: retryCount,
                 success: function( data ) {
@@ -2713,7 +2713,7 @@ function updateWeatherBox() {
 function updateWundergroundWeather( wapikey ) {
     $.ajax( {
         url: "https://api.wunderground.com/api/" + wapikey + "/yesterday/conditions/forecast/alerts/lang:EN/q/" + encodeURIComponent( controller.settings.loc ) + ".json",
-        dataType: isChromeApp ? "json" : "jsonp",
+        dataType: isChromeApp || isWinApp ? "json" : "jsonp",
         contentType: "application/json; charset=utf-8",
         shouldRetry: retryCount,
         success: function( data ) {
@@ -3125,7 +3125,7 @@ function overlayMap( callback ) {
             $.ajax( {
                 url: "https://api.wunderground.com/api/" + controller.settings.wtkey + "/geolookup/q/" +
                     ( latitude === -999 || longitude === -999 ? "autoip" : encodeURIComponent( latitude ) + "," + encodeURIComponent( longitude ) ) + ".json",
-                dataType: isChromeApp ? "json" : "jsonp",
+                dataType: isChromeApp || isWinApp ? "json" : "jsonp",
                 shouldRetry: retryCount
             } ).done( function( data ) {
                 if ( typeof data.response.error === "object" ) {
@@ -3229,7 +3229,7 @@ function debugWU() {
 
     $.ajax( {
         url: "https://api.wunderground.com/api/" + controller.settings.wtkey + "/yesterday/conditions/q/" + controller.settings.loc + ".json",
-        dataType: isChromeApp ? "json" : "jsonp",
+        dataType: isChromeApp || isWinApp ? "json" : "jsonp",
         shouldRetry: retryCount
     } ).done( function( data ) {
         $.mobile.loading( "hide" );
@@ -3337,7 +3337,7 @@ function setRestriction( id, uwt ) {
 function testAPIKey( key, callback ) {
     $.ajax( {
         url: "https://api.wunderground.com/api/" + key + "/conditions/forecast/lang:EN/q/75252.json",
-        dataType: isChromeApp ? "json" : "jsonp",
+        dataType: isChromeApp || isWinApp ? "json" : "jsonp",
         shouldRetry: retryCount
     } ).done( function( data ) {
         if ( typeof data.response.error === "object" && data.response.error.type === "keynotfound" ) {
