@@ -29,7 +29,7 @@
       <script src="../www/js/libs.js"></script>
       <script src="../node_modules/mocha/mocha.js"></script>
       <script src="../node_modules/chai/chai.js"></script>
-      <script src="support/blanket_mocha.min.js"></script>
+      <script src="../node_modules/blanket/dist/mocha/blanket_mocha.min.js"></script>
       <script>
         $(document).one("mobileinit",function(){
           $.ajax({
@@ -47,10 +47,10 @@
         mocha.setup('bdd');
 
         if (window.PHANTOMJS) {
-          blanket.options("reporter", "support/grunt-reporter.js");
+          blanket.options("reporter", "../node_modules/grunt-blanket-mocha/support/grunt-reporter.js");
         }
       </script>
-      <script type="text/javascript" src="support/mocha-blanket.js"></script>
+      <script type="text/javascript" src="../node_modules/grunt-blanket-mocha/support/mocha-blanket.js"></script>
       <script src="../www/js/main.js" data-cover></script>
       <script src="../www/js/jqm.js"></script>
       <script src="tests.js"></script>
