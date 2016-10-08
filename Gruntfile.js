@@ -82,7 +82,10 @@ module.exports = function( grunt ) {
 
 		blanket_mocha: {
 			test: {
-				src: [ "test/tests.html" ]
+				src: [ "test/tests.html" ],
+				options: {
+					threshold: 5
+				}
 			}
 		},
 
