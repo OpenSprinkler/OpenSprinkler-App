@@ -57,7 +57,7 @@
     "grunt-shell": "^2.0.0",
     "grunt-text-replace": "^0.4.0",
     "lcov-result-merger": "^1.0.2",
-    "lodash": "^4.16.4",
+    "lodash": "^3.6.0",
     "mocha": "^3.1.0",
     "xcode": "^0.8.2"
   }
