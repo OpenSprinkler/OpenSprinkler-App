@@ -25,7 +25,7 @@
 		<preference name="phonegap-version" value="cli-6.3.0" />
 
 		<!-- Declare Windows platform -->
-		<preference name="windows-appx-target" value="uap" />
+		<preference name="windows-appx-target" value="8.1-phone" />
         <preference name="WindowsStorePublisherName" value="CN=8F0F825B-0E15-463C-8770-CA0313FEE1E7" />
         <preference name="WindowsStoreIdentityName" value="27908SamerAlbahra.OpenSprinkler" />
         <preference name="windows-identity-name" value="27908SamerAlbahra.OpenSprinkler" />
@@ -119,6 +119,12 @@
 			<splash src="res/windows/screens/landscape.png" width="620" height="300" />
 			<splash src="res/windows/screens/portrait.png" width="1152" height="1920" />
 	    </platform>
+
+        <!-- Windows Phone 8 Icons for PhoneGap -->
+		<platform name="wp8">
+ 			<icon src="res/windows/icons/icon48.png" />
+			<splash src="res/windows/screens/startup.jpg" />
+		</platform>
 
         <!-- iOS Specific Configuration -->
 
