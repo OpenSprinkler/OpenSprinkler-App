@@ -4708,8 +4708,13 @@ var showHome = ( function() {
 						// First two bytes are zero padded GPIO pin number (default GPIO05)
 						// Third byte is either 0 or 1 for active low (GND) or high (+5V) relays (default 1 for HIGH)
 						// Restrict selection to GPIO pins available on the RPi R2.
-						var ospiPins = [ 5, 6, 7, 8, 9, 10, 11, 12, 13, 16, 18, 19, 20, 21, 23, 24, 25, 26 ];
-						var gpioPin = 5, activeState = 1, sel;
+						var gpioPin = 5, activeState = 1, freePins, sel;
+
+                        if ( getHWVersion() === "OSPi" ) {
+                            freePins = [ 5, 6, 7, 8, 9, 10, 11, 12, 13, 16, 18, 19, 20, 21, 23, 24, 25, 26 ];
+                        } else if ( getHWVersion() === "2.3" ) {
+                            freePins = [ 2, 10, 12, 13, 14, 15, 18, 19 ];
+                        }
 
 						if ( type === value ) {
 							data = data.split( "" );
@@ -4719,8 +4724,8 @@ var showHome = ( function() {
 
 						sel = "<div class='ui-bar-a ui-bar'>" + _( "GPIO Pin" ) + ":</div>" +
 							    "<select class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='gpio-pin'>";
-						for ( var i = 0; i < ospiPins.length; i++ ) {
-							sel += "<option value='" + ospiPins[ i ] + "' " + ( ospiPins[ i ] === gpioPin ? "selected='selected'" : "" ) + ">" + ospiPins[ i ];
+						for ( var i = 0; i < freePins.length; i++ ) {
+							sel += "<option value='" + freePins[ i ] + "' " + ( freePins[ i ] === gpioPin ? "selected='selected'" : "" ) + ">" + freePins[ i ];
 						}
 						sel += "</select>";
 
