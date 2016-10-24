@@ -4023,6 +4023,25 @@ function showOptions( expandItem ) {
 	        "</table></div>";
     }
 
+    if ( typeof controller.options.ifkey !== "undefined" ) {
+	    list += "</fieldset><fieldset data-role='collapsible'" +
+			( typeof expandItem === "string" && expandItem === "integrations" ? " data-collapsed='false'" : "" ) + ">" +
+			"<legend>" + _( "Integrations" ) + "</legend>";
+
+        list += "<div class='ui-field-contain'><label for='ifkey'>" + _( "IFTTT Key" ) +
+	        "<button data-helptext='" +
+				_( "To enable IFTTT, a Maker channel key is required which can be obtained from https://ifttt.com" ) +
+				"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
+		"</label><input autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' data-mini='true' type='text' id='ifkey' value='" + controller.settings.ifkey + "'>" +
+		"</div>";
+
+        list += "<div class='ui-field-contain'><label for='o49'>" + _( "IFTTT Events" ) +
+				"<button data-helptext='" +
+					_( "Select which events to send to IFTTT for use in recipes." ) +
+					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
+			"</label><button data-mini='true' id='o49' value='" + controller.options.ife + "'>Configure Events</button></div>";
+	}
+
     list += "</fieldset><fieldset class='full-width-slider' data-role='collapsible'" +
 		( typeof expandItem === "string" && expandItem === "lcd" ? " data-collapsed='false'" : "" ) + ">" +
 		"<legend>" + _( "LCD Screen" ) + "</legend>";
@@ -4471,6 +4490,51 @@ function showOptions( expandItem ) {
         } else {
             page.find( "#o31,#weatherRestriction" ).selectmenu( "enable" );
         }
+    } );
+
+    page.find( "#o49" ).on( "click", function() {
+		var events = {
+			open: _( "Station Open" ),
+			close: _( "Station Close" ),
+			program: _( "Program Run" ),
+			rain: _( "Rain Sensor Change" ),
+			flow: _( "Flow Sensor Change" ),
+			weather: _( "Weather Adjustment Change" ),
+			restart: _( "Controller Restart" )
+		}, button = this, inputs = "", a = 0, ife = 0;
+
+	    $.each( events, function( i, val ) {
+			inputs += "<label for='ifttt-" + i + "'><input class='needsclick' data-iconpos='right' id='ifttt-" + i + "' type='checkbox' " +
+				( getBitFromByte( controller.options.ife, a ) ? "checked='checked'" : "" ) + ">" + val +
+			"</label>";
+			a++;
+	    } );
+
+	    var popup = $(
+	        "<div data-role='popup' data-theme='a'>" +
+	            "<div data-role='controlgroup' data-mini='true' class='tight'>" +
+		            "<div class='ui-bar ui-bar-a'>" + _( "Select IFTTT Events" ) + "</div>" +
+						inputs +
+					"<input data-wrapper-class='attrib-submit' class='submit' data-theme='b' type='submit' value='" + _( "Submit" ) + "' />" +
+	            "</div>" +
+	        "</div>" );
+
+	    popup.find( ".submit" ).on( "click", function() {
+			a = 0;
+		    $.each( events, function( i ) {
+				ife |= popup.find( "#ifttt-" + i ).is( ":checked" ) << a;
+				a++;
+		    } );
+			popup.popup( "close" );
+		    if ( button.value === ife ) {
+				return;
+		    } else {
+				button.value = ife;
+				page.find( ".submit" ).addClass( "hasChanges" );
+		    }
+	    } );
+
+	    openPopup( popup );
     } );
 
     page.find( ".datetime-input" ).on( "click", function() {
@@ -11792,6 +11856,10 @@ function minutesToTime( minutes ) {
     }
 
     return hour + ":" + pad( minutes % 60 ) + " " + period;
+}
+
+function getBitFromByte( byte, bit ) {
+	return ( byte & ( 1 << bit ) ) !== 0;
 }
 
 function getTimezoneOffset() {
