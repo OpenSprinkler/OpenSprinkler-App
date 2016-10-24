@@ -3985,8 +3985,8 @@ function showOptions( expandItem ) {
 				        "<label for='o21-rain'>" + _( "Rain" ) + "</label>" +
 				        "<input class='noselect' type='radio' name='o21' id='o21-flow' value='2'" + ( controller.options.urs === 2 ? " checked='checked'" : "" ) + ">" +
 				        "<label for='o21-flow'>" + _( "Flow" ) + "</label>" +
-				        "<input class='noselect' type='radio' name='o21' id='o21-program' value='240'" + ( controller.options.urs === 3 ? " checked='checked'" : "" ) + ">" +
-				        "<label for='o21-program'>" + _( "Program Switch" ) + "</label>" +
+				        ( checkOSVersion( 217 ) ? "<input class='noselect' type='radio' name='o21' id='o21-program' value='240'" + ( controller.options.urs === 3 ? " checked='checked'" : "" ) + ">" +
+				        	"<label for='o21-program'>" + _( "Program Switch" ) + "</label>" : "" ) +
 				    "</fieldset>" +
 				"</div>";
 
