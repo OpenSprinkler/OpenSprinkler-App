@@ -380,6 +380,9 @@ msgstr ""
 msgid "A valid gateway address is required when DHCP is not used"
 msgstr ""
 
+msgid "A valid DNS address is required when DHCP is not used"
+msgstr ""
+
 msgid "Weather Underground API key is required for weather-based control"
 msgstr ""
 
@@ -411,6 +414,12 @@ msgid "Configure Master"
 msgstr ""
 
 msgid "Master Station"
+msgstr ""
+
+msgid "Master On Adjustment"
+msgstr ""
+
+msgid "Master Off Adjustment"
 msgstr ""
 
 msgid "Master On Delay"
@@ -486,6 +495,9 @@ msgstr ""
 msgid "Flow"
 msgstr ""
 
+msgid "Program Switch"
+msgstr ""
+
 msgid "Use Rain Sensor"
 msgstr ""
 
@@ -542,6 +554,9 @@ msgstr ""
 msgid "Gateway Address"
 msgstr ""
 
+msgid "DNS Address"
+msgstr ""
+
 msgid "Use DHCP (restart required)"
 msgstr ""
 
@@ -552,6 +567,9 @@ msgid "Auto Reconnect"
 msgstr ""
 
 msgid "Ignore Password"
+msgstr ""
+
+msgid "Special Station Auto-Refresh"
 msgstr ""
 
 msgid "Reset"
