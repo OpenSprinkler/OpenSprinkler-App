@@ -507,6 +507,23 @@ msgstr ""
 msgid "Flow Pulse Rate"
 msgstr ""
 
+msgid "Integrations"
+msgstr ""
+
+msgid "IFTTT Key"
+msgstr ""
+
+msgid ""
+"To enable IFTTT, a Maker channel key is required which can be obtained from "
+"https://ifttt.com"
+msgstr ""
+
+msgid "IFTTT Events"
+msgstr ""
+
+msgid "Select which events to send to IFTTT for use in recipes."
+msgstr ""
+
 msgid "LCD Screen"
 msgstr ""
 
@@ -602,6 +619,30 @@ msgid "Seconds"
 msgstr ""
 
 msgid "Milliseconds"
+msgstr ""
+
+msgid "Station Open"
+msgstr ""
+
+msgid "Station Close"
+msgstr ""
+
+msgid "Program Run"
+msgstr ""
+
+msgid "Rain Sensor Change"
+msgstr ""
+
+msgid "Flow Sensor Change"
+msgstr ""
+
+msgid "Weather Adjustment Change"
+msgstr ""
+
+msgid "Controller Restart"
+msgstr ""
+
+msgid "Select IFTTT Events"
 msgstr ""
 
 msgid "Preview Programs"
