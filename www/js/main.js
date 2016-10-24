@@ -3563,7 +3563,8 @@ function showOptions( expandItem ) {
                 isPi = isOSPi(),
                 button = header.eq( 2 ),
                 keyNames = { 1:"tz", 2:"ntp", 12:"htp", 13:"htp2", 14:"ar", 15:"nbrd", 16:"seq", 17:"sdt", 18:"mas", 19:"mton", 20:"mtoff",
-					21:"urs", 22:"rst", 23:"wl", 25:"ipas", 30:"rlp", 36:"lg", 31:"uwt", 37:"mas2", 38:"mton2", 39:"mtof2", 41:"fpr0", 42:"fpr1" },
+					21:"urs", 22:"rst", 23:"wl", 25:"ipas", 30:"rlp", 36:"lg", 31:"uwt", 37:"mas2", 38:"mton2", 39:"mtof2", 41:"fpr0", 42:"fpr1",
+					48: "sar", 49: "ife" },
                 key;
 
             button.prop( "disabled", true );
@@ -3628,6 +3629,21 @@ function showOptions( expandItem ) {
                         opt.o11 = ip[ 3 ];
 
                         return true;
+                    case "dns":
+                        ip = data.split( "." );
+
+                        if ( ip === "0.0.0.0" ) {
+                            showerror( _( "A valid DNS address is required when DHCP is not used" ) );
+                            invalid = true;
+                            return false;
+                        }
+
+                        opt.o44 = ip[ 0 ];
+                        opt.o45 = ip[ 1 ];
+                        opt.o46 = ip[ 2 ];
+                        opt.o47 = ip[ 3 ];
+
+                        return true;
                     case "ntp_addr":
                         ip = data.split( "." );
 
@@ -3683,6 +3699,7 @@ function showOptions( expandItem ) {
                     case "o22":
                     case "o25":
                     case "o36":
+                    case "o48":
                     case "o3":
                         data = $item.is( ":checked" ) ? 1 : 0;
                         if ( !data ) {
@@ -3808,14 +3825,14 @@ function showOptions( expandItem ) {
         if ( typeof controller.options.mton !== "undefined" ) {
             list += "<div " + ( controller.options.mas === 0 ? "style='display:none' " : "" ) +
 				"class='ui-field-no-border ui-field-contain duration-field'><label for='o19'>" +
-					_( "Master On Delay" ) +
+					_( "Master On Adjustment" ) +
 				"</label><button data-mini='true' id='o19' value='" + controller.options.mton + "'>" + controller.options.mton + "s</button></div>";
         }
 
         if ( typeof controller.options.mtof !== "undefined" ) {
             list += "<div " + ( controller.options.mas === 0 ? "style='display:none' " : "" ) +
 				"class='ui-field-no-border ui-field-contain duration-field'><label for='o20'>" +
-					_( "Master Off Delay" ) +
+					_( "Master Off Adjustment" ) +
 				"</label><button data-mini='true' id='o20' value='" + controller.options.mtof + "'>" + controller.options.mtof + "s</button></div>";
         }
     }
@@ -3968,6 +3985,8 @@ function showOptions( expandItem ) {
 				        "<label for='o21-rain'>" + _( "Rain" ) + "</label>" +
 				        "<input class='noselect' type='radio' name='o21' id='o21-flow' value='2'" + ( controller.options.urs === 2 ? " checked='checked'" : "" ) + ">" +
 				        "<label for='o21-flow'>" + _( "Flow" ) + "</label>" +
+				        "<input class='noselect' type='radio' name='o21' id='o21-program' value='240'" + ( controller.options.urs === 3 ? " checked='checked'" : "" ) + ">" +
+				        "<label for='o21-program'>" + _( "Program Switch" ) + "</label>" +
 				    "</fieldset>" +
 				"</div>";
 
@@ -4065,12 +4084,15 @@ function showOptions( expandItem ) {
 
     if ( typeof controller.options.dhcp !== "undefined" && checkOSVersion( 210 ) ) {
         var ip = [ controller.options.ip1, controller.options.ip2, controller.options.ip3, controller.options.ip4 ].join( "." ),
-            gw = [ controller.options.gw1, controller.options.gw2, controller.options.gw3, controller.options.gw4 ].join( "." );
+            gw = [ controller.options.gw1, controller.options.gw2, controller.options.gw3, controller.options.gw4 ].join( "." ),
+            dns = [ controller.options.dns1, controller.options.dns2, controller.options.dns3, controller.options.dns4 ].join( "." );
 
         list += "<div class='" + ( ( controller.options.dhcp === 1 ) ? "hidden " : "" ) + "ui-field-contain duration-field'><label for='ip_addr'>" +
 			_( "IP Address" ) + "</label><button data-mini='true' id='ip_addr' value='" + ip + "'>" + ip + "</button></div>";
         list += "<div class='" + ( ( controller.options.dhcp === 1 ) ? "hidden " : "" ) + "ui-field-contain duration-field'><label for='gateway'>" +
 			_( "Gateway Address" ) + "</label><button data-mini='true' id='gateway' value='" + gw + "'>" + gw + "</button></div>";
+        list += "<div class='" + ( ( controller.options.dhcp === 1 ) ? "hidden " : "" ) + "ui-field-contain duration-field'><label for='dns'>" +
+			_( "DNS Address" ) + "</label><button data-mini='true' id='dns' value='" + dns + "'>" + dns + "</button></div>";
         list += "<label for='o3'><input data-mini='true' id='o3' type='checkbox' " + ( ( controller.options.dhcp === 1 ) ? "checked='checked'" : "" ) + ">" +
 			_( "Use DHCP (restart required)" ) + "</label>";
     }
@@ -4088,6 +4110,11 @@ function showOptions( expandItem ) {
     if ( typeof controller.options.ipas !== "undefined" ) {
         list += "<label for='o25'><input data-mini='true' id='o25' type='checkbox' " + ( ( controller.options.ipas === 1 ) ? "checked='checked'" : "" ) + ">" +
 			_( "Ignore Password" ) + "</label>";
+    }
+
+    if ( typeof controller.options.sar !== "undefined" ) {
+        list += "<label for='o48'><input data-mini='true' id='o48' type='checkbox' " + ( ( controller.options.sar === 1 ) ? "checked='checked'" : "" ) + ">" +
+			_( "Special Station Auto-Refresh" ) + "</label>";
     }
 
     list += "</fieldset><fieldset data-role='collapsible' data-theme='b'" +
@@ -4264,7 +4291,7 @@ function showOptions( expandItem ) {
     page.find( "#o3" ).on( "change", function() {
         var button = $( this ),
             checked = button.is( ":checked" ),
-            manualInputs = page.find( "#ip_addr,#gateway" ).parents( ".ui-field-contain" );
+            manualInputs = page.find( "#ip_addr,#gateway,#dns" ).parents( ".ui-field-contain" );
 
         if ( checked ) {
             manualInputs.addClass( "hidden" );
@@ -4320,7 +4347,7 @@ function showOptions( expandItem ) {
         header.eq( 2 ).prop( "disabled", false );
         page.find( ".submit" ).addClass( "hasChanges" );
 
-        if ( id === "ip_addr" || id === "gateway" || id === "ntp_addr" ) {
+        if ( id === "ip_addr" || id === "gateway" || id === "dns" || id === "ntp_addr" ) {
             showIPRequest( {
                 title: name,
                 ip: dur.val().split( "." ),
@@ -4907,8 +4934,8 @@ var showHome = ( function() {
 							"<option data-hs='0' value='0'" + ( isStationSpecial( id ) ? "" : "selected" ) + ">" + _( "Standard" ) + "</option>" +
 							"<option data-hs='1' value='1'>" + _( "RF" ) + "</option>" +
 							"<option data-hs='2' value='2'>" + _( "Remote" ) + "</option>" +
-							"<option data-hs='3' value='3'" + ( checkOSVersion( 2162 ) && ( getHWVersion() === "OSPi" ) ? ">" : " disabled>" ) + _( "GPIO" ) + "</option>" +
-							"<option data-hs='4' value='4'" + ( checkOSVersion( 217 ) && ( getHWVersion() === "OSPi" ) ? ">" : " disabled>" ) + _( "HTTP" ) + "</option>" +
+							"<option data-hs='3' value='3'" + ( checkOSVersion( 217 ) ? ">" : " disabled>" ) + _( "GPIO" ) + "</option>" +
+							"<option data-hs='4' value='4'" + ( checkOSVersion( 217 ) ? ">" : " disabled>" ) + _( "HTTP" ) + "</option>" +
 						"</select>" +
 						"<div id='specialOpts'></div>" +
 					"</div>" +
@@ -8927,7 +8954,8 @@ function importConfig( data ) {
 			21:"urs", 22:"rst", 23:"wl", 25:"ipas", 30:"rlp", 36:"lg" },
         keyIndex = { "tz":1, "ntp":2, "dhcp":3, "hp0":12, "hp1":13, "ar":14, "ext":15, "seq":16, "sdt":17, "mas":18, "mton":19,
 			"mtof":20, "urs":21, "rso":22, "wl":23, "ipas":25, "devid":26, "con": 27, "lit": 28, "dim": 29, "rlp":30, "lg":36,
-			"uwt":31, "ntp1":32, "ntp2":33, "ntp3":34, "ntp4":35, "mas2":37, "mton2":38, "mtof2":39, "fpr0":41, "fpr1":42, "re":43 },
+			"uwt":31, "ntp1":32, "ntp2":33, "ntp3":34, "ntp4":35, "mas2":37, "mton2":38, "mtof2":39, "fpr0":41, "fpr1":42, "re":43,
+			"dns1": 44, "dns2": 45, "dns3": 46, "dns4": 47, "sar": 48, "ife": 49 },
         warning = "";
 
     if ( typeof data !== "object" || !data.settings ) {
