@@ -4408,7 +4408,7 @@ function showOptions( expandItem ) {
                     dur.val( result ).text( result + "s" );
                 },
                 label: _( "Seconds" ),
-                maximum: 60,
+                maximum: checkOSVersion( 217 ) ? 0 : 60,
                 minimum: -60,
                 helptext: helptext
             } );
