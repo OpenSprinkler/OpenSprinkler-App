@@ -10550,6 +10550,10 @@ function showDurationBox( opt ) {
         opt.seconds = 0;
     }
 
+    if ( checkOSVersion( 217 ) ) {
+		opt.preventCompression = true;
+    }
+
     var keys = [ "days", "hours", "minutes", "seconds" ],
         text = [ _( "Days" ), _( "Hours" ), _( "Minutes" ), _( "Seconds" ) ],
         conv = [ 86400, 3600, 60, 1 ],
