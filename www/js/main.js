@@ -10803,6 +10803,9 @@ function showSingleDurationInput( opt ) {
             "</div>" +
         "</div>" ),
         input = popup.find( "input" ),
+        reply = function( val ) {
+			opt.callback( parseInt( val ).clamp( opt.minimum, opt.maximum ) );
+        },
         changeValue = function( dir ) {
             var val = parseInt( input.val() );
 
@@ -10812,7 +10815,7 @@ function showSingleDurationInput( opt ) {
 
             input.val( val + dir );
             if ( opt.updateOnChange ) {
-                opt.callback( val + dir );
+                reply( val + dir );
             }
         };
 
@@ -10834,14 +10837,14 @@ function showSingleDurationInput( opt ) {
     } );
 
     popup.find( "input[type='submit']" ).on( "click", function() {
-        opt.callback( input.val() );
+        reply( input.val() );
         popup.popup( "destroy" ).remove();
     } );
 
     popup
     .one( "popupafterclose", function() {
         if ( opt.updateOnChange ) {
-            opt.callback( input.val() );
+            reply( input.val() );
         }
     } );
 
@@ -11256,6 +11259,10 @@ $.fn.focusInput = function() {
     }
 
     return this;
+};
+
+Number.prototype.clamp = function( min, max ) {
+	return Math.min( Math.max( this, min ), max );
 };
 
 function changePage( toPage, opts ) {
