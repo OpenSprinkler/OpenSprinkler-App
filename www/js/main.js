@@ -4435,9 +4435,15 @@ function showOptions( expandItem ) {
                 max = 3540;
             }
 
-            showDurationBox( {
-                seconds: dur.val(),
+            if ( checkOSVersion( 217 ) ) {
+                min = -600;
+                max = 600;
+            }
+
+            showSingleDurationInput( {
+                data: dur.val(),
                 title: name,
+                label: _( "Seconds" ),
                 callback: function( result ) {
                     dur.val( result );
                     dur.text( dhms2str( sec2dhms( result ) ) );
