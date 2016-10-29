@@ -4023,7 +4023,7 @@ function showOptions( expandItem ) {
 	        "</table></div>";
     }
 
-    if ( typeof controller.options.ifkey !== "undefined" ) {
+    if ( typeof controller.settings.ifkey !== "undefined" ) {
 	    list += "</fieldset><fieldset data-role='collapsible'" +
 			( typeof expandItem === "string" && expandItem === "integrations" ? " data-collapsed='false'" : "" ) + ">" +
 			"<legend>" + _( "Integrations" ) + "</legend>";
