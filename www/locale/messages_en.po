@@ -492,6 +492,11 @@ msgstr ""
 msgid "Attached Sensor Type"
 msgstr ""
 
+msgid ""
+"When using program switch, a switch is connected to the sensor port to "
+"trigger Program 1 every time the switch is pressed for at least 1 second."
+msgstr ""
+
 msgid "Flow"
 msgstr ""
 
@@ -624,22 +629,22 @@ msgstr ""
 msgid "Station Open"
 msgstr ""
 
-msgid "Station Close"
+msgid "Station Run"
 msgstr ""
 
-msgid "Program Run"
+msgid "Program Start"
 msgstr ""
 
-msgid "Rain Sensor Change"
+msgid "Rain Sensor Update"
 msgstr ""
 
-msgid "Flow Sensor Change"
+msgid "Flow Sensor Update"
 msgstr ""
 
-msgid "Weather Adjustment Change"
+msgid "Weather Adjustment Update"
 msgstr ""
 
-msgid "Controller Restart"
+msgid "Controller Reboot"
 msgstr ""
 
 msgid "Select IFTTT Events"
