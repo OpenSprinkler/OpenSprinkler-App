@@ -3978,7 +3978,11 @@ function showOptions( expandItem ) {
 		if ( typeof controller.options.fpr0 !== "undefined" ) {
 			list += "<div class='ui-field-contain'>" +
 				    "<fieldset data-role='controlgroup' class='ui-mini center' data-type='horizontal'>" +
-				        "<legend class='left'>" + _( "Attached Sensor Type" ) + "</legend>" +
+				        "<legend class='left'>" + _( "Attached Sensor Type" ) +
+						( checkOSVersion( 217 ) ? "<button data-helptext='" +
+							_( "When using program switch, a switch is connected to the sensor port to trigger Program 1 every time the switch is pressed for at least 1 second." ) +
+							"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" : "" ) +
+						"</legend>" +
 				        "<input class='noselect' type='radio' name='o21' id='o21-none' value='0'" + ( controller.options.urs === 0 ? " checked='checked'" : "" ) + ">" +
 				        "<label for='o21-none'>" + _( "None" ) + "</label>" +
 				        "<input class='noselect' type='radio' name='o21' id='o21-rain' value='1'" + ( controller.options.urs === 1 ? " checked='checked'" : "" ) + ">" +
@@ -4501,12 +4505,12 @@ function showOptions( expandItem ) {
     page.find( "#o49" ).on( "click", function() {
 		var events = {
 			open: _( "Station Open" ),
-			close: _( "Station Close" ),
-			program: _( "Program Run" ),
-			rain: _( "Rain Sensor Change" ),
-			flow: _( "Flow Sensor Change" ),
-			weather: _( "Weather Adjustment Change" ),
-			restart: _( "Controller Restart" )
+			run: _( "Station Run" ),
+			program: _( "Program Start" ),
+			rain: _( "Rain Sensor Update" ),
+			flow: _( "Flow Sensor Update" ),
+			weather: _( "Weather Adjustment Update" ),
+			reboot: _( "Controller Reboot" )
 		}, button = this, inputs = "", a = 0, ife = 0;
 
 	    $.each( events, function( i, val ) {
