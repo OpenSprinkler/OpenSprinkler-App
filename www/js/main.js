@@ -4342,7 +4342,6 @@ function showOptions( expandItem ) {
         }
 
         if ( button.val() === "240" ) {
-        	console.log( page.find( "#prgswitch" ) )
             page.find( "#prgswitch" ).removeClass( "hidden" );
         } else {
             page.find( "#prgswitch" ).addClass( "hidden" );
