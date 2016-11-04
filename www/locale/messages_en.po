@@ -626,12 +626,6 @@ msgstr ""
 msgid "Milliseconds"
 msgstr ""
 
-msgid "Station Open"
-msgstr ""
-
-msgid "Station Run"
-msgstr ""
-
 msgid "Program Start"
 msgstr ""
 
@@ -645,6 +639,9 @@ msgid "Weather Adjustment Update"
 msgstr ""
 
 msgid "Controller Reboot"
+msgstr ""
+
+msgid "Station Run"
 msgstr ""
 
 msgid "Select IFTTT Events"
