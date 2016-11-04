@@ -4508,7 +4508,7 @@ function showOptions( expandItem ) {
 			rain: _( "Rain Sensor Update" ),
 			flow: _( "Flow Sensor Update" ),
 			weather: _( "Weather Adjustment Update" ),
-			reboot: _( "Controller Reboot" )
+			reboot: _( "Controller Reboot" ),
 			run: _( "Station Run" )
 		}, button = this, inputs = "", a = 0, ife = 0;
 
