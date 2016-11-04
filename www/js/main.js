@@ -4504,13 +4504,12 @@ function showOptions( expandItem ) {
 
     page.find( "#o49" ).on( "click", function() {
 		var events = {
-			open: _( "Station Open" ),
-			run: _( "Station Run" ),
 			program: _( "Program Start" ),
 			rain: _( "Rain Sensor Update" ),
 			flow: _( "Flow Sensor Update" ),
 			weather: _( "Weather Adjustment Update" ),
 			reboot: _( "Controller Reboot" )
+			run: _( "Station Run" )
 		}, button = this, inputs = "", a = 0, ife = 0;
 
 	    $.each( events, function( i, val ) {
