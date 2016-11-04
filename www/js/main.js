@@ -4510,11 +4510,11 @@ function showOptions( expandItem ) {
 			weather: _( "Weather Adjustment Update" ),
 			reboot: _( "Controller Reboot" ),
 			run: _( "Station Run" )
-		}, button = this, inputs = "", a = 0, ife = 0;
+		}, button = this, curr = parseInt( button.value ), inputs = "", a = 0, ife = 0;
 
 	    $.each( events, function( i, val ) {
 			inputs += "<label for='ifttt-" + i + "'><input class='needsclick' data-iconpos='right' id='ifttt-" + i + "' type='checkbox' " +
-				( getBitFromByte( controller.options.ife, a ) ? "checked='checked'" : "" ) + ">" + val +
+				( getBitFromByte( curr, a ) ? "checked='checked'" : "" ) + ">" + val +
 			"</label>";
 			a++;
 	    } );
@@ -4535,10 +4535,11 @@ function showOptions( expandItem ) {
 				a++;
 		    } );
 			popup.popup( "close" );
-		    if ( button.value === ife ) {
+		    if ( curr === ife ) {
 				return;
 		    } else {
 				button.value = ife;
+				header.eq( 2 ).prop( "disabled", false );
 				page.find( ".submit" ).addClass( "hasChanges" );
 		    }
 	    } );
