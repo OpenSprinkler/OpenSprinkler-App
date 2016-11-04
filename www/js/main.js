@@ -122,7 +122,7 @@ var isIEMobile = /IEMobile/.test( navigator.userAgent ),
     currAuthPass, currLocal, currLang, language, deviceip, errorTimeout, weather, weatherKeyFail, openPanel;
 
 // Redirect jQuery Mobile DOM manipulation to prevent error
-if ( window.MSApp ) {
+if ( MSApp ) {
 
 	if ( window.Windows && Windows.UI && Windows.UI.ApplicationSettings ) {
 
@@ -141,17 +141,20 @@ if ( window.MSApp ) {
 	    } );
 	}
 
-    // Cache the old domManip function.
-    $.fn.oldDomManIp = $.fn.domManip;
+	if ( MSApp.execUnsafeLocalFunction ) {
 
-    // Override the domManip function with a call to the cached
-    // domManip function wrapped in a MSapp.execUnsafeLocalFunction call.
-    $.fn.domManip = function( args, callback, allowIntersection ) {
-        var that = this;
-        return MSApp.execUnsafeLocalFunction( function() {
-            return that.oldDomManIp( args, callback, allowIntersection );
-        } );
-    };
+	    // Cache the old domManip function.
+	    $.fn.oldDomManIp = $.fn.domManip;
+
+	    // Override the domManip function with a call to the cached
+	    // domManip function wrapped in a MSapp.execUnsafeLocalFunction call.
+	    $.fn.domManip = function( args, callback, allowIntersection ) {
+	        var that = this;
+	        return MSApp.execUnsafeLocalFunction( function() {
+	            return that.oldDomManIp( args, callback, allowIntersection );
+	        } );
+	    };
+	}
 }
 
 $( document )
