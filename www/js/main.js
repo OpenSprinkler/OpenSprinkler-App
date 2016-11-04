@@ -3978,11 +3978,7 @@ function showOptions( expandItem ) {
 		if ( typeof controller.options.fpr0 !== "undefined" ) {
 			list += "<div class='ui-field-contain'>" +
 				    "<fieldset data-role='controlgroup' class='ui-mini center' data-type='horizontal'>" +
-				        "<legend class='left'>" + _( "Attached Sensor Type" ) +
-						( checkOSVersion( 217 ) ? "<button data-helptext='" +
-							_( "When using program switch, a switch is connected to the sensor port to trigger Program 1 every time the switch is pressed for at least 1 second." ) +
-							"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" : "" ) +
-						"</legend>" +
+				        "<legend class='left'>" + _( "Attached Sensor Type" ) + "</legend>" +
 				        "<input class='noselect' type='radio' name='o21' id='o21-none' value='0'" + ( controller.options.urs === 0 ? " checked='checked'" : "" ) + ">" +
 				        "<label for='o21-none'>" + _( "None" ) + "</label>" +
 				        "<input class='noselect' type='radio' name='o21' id='o21-rain' value='1'" + ( controller.options.urs === 1 ? " checked='checked'" : "" ) + ">" +
@@ -3992,8 +3988,10 @@ function showOptions( expandItem ) {
 				        ( checkOSVersion( 217 ) ? "<input class='noselect' type='radio' name='o21' id='o21-program' value='240'" + ( controller.options.urs === 240 ? " checked='checked'" : "" ) + ">" +
 				        	"<label for='o21-program'>" + _( "Program Switch" ) + "</label>" : "" ) +
 				    "</fieldset>" +
-				"</div>";
-
+				"</div>" +
+				( checkOSVersion( 217 ) ? "<label id='prgswitch' class='center smaller" + ( controller.options.urs === 240 ? "" : " hidden" ) + "'>" +
+					_( "When using program switch, a switch is connected to the sensor port to trigger Program 1 every time the switch is pressed for at least 1 second." ) +
+				"</label>" : "" );
 		} else {
 	        list += "<label for='o21'>" +
 				"<input data-mini='true' id='o21' type='checkbox' " + ( ( controller.options.urs === 1 ) ? "checked='checked'" : "" ) + ">" +
@@ -4341,6 +4339,13 @@ function showOptions( expandItem ) {
             page.find( "#o41" ).parents( ".ui-field-contain" ).removeClass( "hidden" );
         } else {
             page.find( "#o41" ).parents( ".ui-field-contain" ).addClass( "hidden" );
+        }
+
+        if ( button.val() === "240" ) {
+        	console.log( page.find( "#prgswitch" ) )
+            page.find( "#prgswitch" ).removeClass( "hidden" );
+        } else {
+            page.find( "#prgswitch" ).addClass( "hidden" );
         }
     } );
 
