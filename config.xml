@@ -37,7 +37,7 @@
 		<preference name="KeepRunning" value="false"/>
 
 		<!-- Set the background color -->
-		<preference name="BackgroundColor" value="0x00333333"/>
+		<preference name="BackgroundColor" value="0x001c1c1c"/>
 
 		<!-- Prevent bounce scroll effect -->
 		<preference name="DisallowOverscroll" value="true"/>
