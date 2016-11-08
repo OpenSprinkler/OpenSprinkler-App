@@ -124,7 +124,7 @@ var isIEMobile = /IEMobile/.test( navigator.userAgent ),
 // Redirect jQuery Mobile DOM manipulation to prevent error
 if ( MSApp ) {
 
-	if ( window.Windows && Windows.UI && Windows.UI.ApplicationSettings ) {
+	if ( window.Windows && Windows.UI && Windows.UI.ApplicationSettings && Windows.UI.ApplicationSettings.SettingsPane ) {
 
 	    // Add link to privacy statement
 	    var settingsPane = Windows.UI.ApplicationSettings.SettingsPane.getForCurrentView();
