@@ -121,6 +121,14 @@ var isIEMobile = /IEMobile/.test( navigator.userAgent ),
     curr183, currIp, currPrefix, currAuth, currPass, currAuthUser,
     currAuthPass, currLocal, currLang, language, deviceip, errorTimeout, weather, weatherKeyFail, openPanel;
 
+// Prevent errors from bubbling up on Windows
+if ( isWinApp ) {
+    $( window ).on( "error", function( msg, url, line ) {
+        window.console.log( msg, url, line );
+        return true;
+    } );
+}
+
 // Redirect jQuery Mobile DOM manipulation to prevent error
 if ( MSApp ) {
 
