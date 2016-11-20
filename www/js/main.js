@@ -130,7 +130,7 @@ if ( isWinApp ) {
 }
 
 // Redirect jQuery Mobile DOM manipulation to prevent error
-if ( MSApp ) {
+if ( window.MSApp ) {
 
 	if ( window.Windows && Windows.UI && Windows.UI.ApplicationSettings && Windows.UI.ApplicationSettings.SettingsPane ) {
 
@@ -8928,7 +8928,7 @@ function getExportMethod() {
     if ( isFileCapable ) {
         popup.find( ".fileMethod" ).removeClass( "hidden" ).attr( {
             href: "data:text/json;charset=utf-8," + obj,
-            download: "backup.json"
+            download: "backup-" + new Date().toLocaleDateString().replace( /\//g, "-" ) + ".json"
         } ).on( "click", function() {
             popup.popup( "close" );
         } );
@@ -11651,7 +11651,7 @@ function exportObj( ele, obj, subject ) {
     if ( isFileCapable ) {
         $( ele ).attr( {
             href: "data:text/json;charset=utf-8," + obj,
-            download: "backup.json"
+            download: "backup-" + new Date().toLocaleDateString().replace( /\//g, "-" ) + ".json"
         } );
     } else {
         subject = subject || "OpenSprinkler Data Export on " + dateToString( new Date() );
