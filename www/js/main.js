@@ -9298,7 +9298,7 @@ var showAbout = ( function() {
                 "<ul data-role='listview' data-inset='true'>" +
                     "<li>" +
                         "<p>" + _( "User manual for OpenSprinkler is available at" ) +
-							" <a class='iab' target='_blank' href='https://opensprinkler.freshdesk.com/support/solutions/folders/5000147083'>" +
+							" <a class='iab' target='_blank' href='https://openthings.freshdesk.com/support/solutions/folders/5000147083'>" +
 								"https://support.opensprinkler.com" +
 							"</a>" +
 						"</p>" +
@@ -9947,7 +9947,7 @@ function showUnifiedFirmwareNotification() {
 		        title: _( "Unified firmware is now avaialble" ),
 		        desc: _( "Click here for more details" ),
 		        on: function() {
-		            var iab = window.open( "https://opensprinkler.freshdesk.com/support/solutions/articles/5000631599",
+		            var iab = window.open( "https://openthings.freshdesk.com/support/solutions/articles/5000631599",
 						"_blank", "location=" + ( isAndroid ? "yes" : "no" ) +
 						",enableViewportScale=yes,toolbarposition=top,closebuttoncaption=" + _( "Back" ) );
 
@@ -9992,7 +9992,7 @@ function checkPublicAccess( eip ) {
                         title: _( "Remote access is not enabled" ),
                         desc: _( "Click here to troubleshoot remote access issues" ),
                         on: function() {
-                            var iab = window.open( "https://opensprinkler.freshdesk.com/support/solutions/articles/5000569763",
+                            var iab = window.open( "https://openthings.freshdesk.com/support/solutions/articles/5000569763",
 								"_blank", "location=" + ( isAndroid ? "yes" : "no" ) +
 								",enableViewportScale=yes,toolbarposition=top,closebuttoncaption=" + _( "Back" ) );
 
@@ -10248,7 +10248,7 @@ function checkFirmwareUpdate() {
 											function() {
 											    $.mobile.loading( "show", {
 											        html: "<div class='center'>" + _( "Update did not complete." ) + "<br>" +
-														"<a class='iab ui-btn' href='https://opensprinkler.freshdesk.com/support/solutions/articles/5000631599-installing-and-updating-the-unified-firmware#upgrade'>" + _( "Update Guide" ) + "</a></div>",
+														"<a class='iab ui-btn' href='https://openthings.freshdesk.com/support/solutions/articles/5000631599-installing-and-updating-the-unified-firmware#upgrade'>" + _( "Update Guide" ) + "</a></div>",
 											        textVisible: true,
 											        theme: "b"
 											    } );
@@ -10258,8 +10258,8 @@ function checkFirmwareUpdate() {
 									} else {
 
 										var url = controller.options.hwv > 63 ?
-											"https://opensprinkler.freshdesk.com/support/solutions/articles/5000631599-installing-and-updating-the-unified-firmware#upgrade"
-											: "https://opensprinkler.freshdesk.com/support/solutions/articles/5000381694-opensprinkler-firmware-update-guide";
+											"https://openthings.freshdesk.com/support/solutions/articles/5000631599-installing-and-updating-the-unified-firmware#upgrade"
+											: "https://openthings.freshdesk.com/support/solutions/articles/5000381694-opensprinkler-firmware-update-guide";
 
 	                                    // Open the firmware upgrade guide in a child browser
 	                                    $( "<a class='hidden iab' href='" + url + "'></a>" )
@@ -11253,7 +11253,7 @@ function showHelpText( e ) {
         popup;
 
     if ( button.parent().attr( "for" ) === "wtkey" ) {
-        text += "<a class='iab' target='_blank' href='https://opensprinkler.freshdesk.com/support/solutions/articles/5000017485-getting-a-weather-api#article-show-5000017485'>here</a>.";
+        text += "<a class='iab' target='_blank' href='https://openthings.freshdesk.com/support/solutions/articles/5000017485-getting-a-weather-api#article-show-5000017485'>here</a>.";
     }
 
     popup = $( "<div data-role='popup' data-theme='a'>" +
