@@ -4834,16 +4834,39 @@ var showHome = ( function() {
 
 						opts.append(
 							"<div class='ui-bar-a ui-bar'>" + _( "Server Name" ) + ":</div>" +
-							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='http-server' required='true' type='text' value='" + data[ 0 ] + "'>" +
+							"<input class='center  validate-length' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='http-server' required='true' type='text' value='" + data[ 0 ] + "'>" +
 							"<div class='ui-bar-a ui-bar'>" + _( "Server Port" ) + ":</div>" +
-							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='http-port' required='true' type='number' min='0' max='65535' value='" + parseInt( data[ 1 ] ) + "'>" +
+							"<input class='center  validate-length' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='http-port' required='true' type='number' min='0' max='65535' value='" + parseInt( data[ 1 ] ) + "'>" +
 							"<div class='ui-bar-a ui-bar'>" + _( "On Command" ) + ":</div>" +
-							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='http-on' required='true' type='text' value='" + data[ 2 ] + "'>" +
+							"<input class='center validate-length' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='http-on' required='true' type='text' value='" + data[ 2 ] + "'>" +
 							"<div class='ui-bar-a ui-bar'>" + _( "Off Command" ) + ":</div>" +
-							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='http-off' required='true' type='text' value='" + data[ 3 ] + "'>"
+							"<input class='center validate-length' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='http-off' required='true' type='text' value='" + data[ 3 ] + "'>" +
+							"<div class='center smaller' id='character-tracking' style='color:#999;'>" +
+								"<p>" +	_( "Note: There is a limit on the number of character used to configure this station type." ) + "</p>" +
+								"<span>" + _( "Characters remaining" ) + ": </span><span id='character-count'>placeholder</span>" +
+							"</div>"
 						).enhanceWithin();
+
+						validateLength();
+						$( ".validate-length" ).on( "input", validateLength );
 					}
                 },
+				validateLength = function() {
+					var maxSDChars = 240,		// Maximum size of special data when uri encoded. Needs to be less than sizeof(SpecialStationData) i.e. 247 bytes
+					    sd = select.find( "#http-server" ).val() + "," + select.find( "#http-port" ).val() + "," +
+							 select.find( "#http-on" ).val() + "," + select.find( "#http-off" ).val(),
+						sdLen = encodeURIComponent( sd ).length;
+
+					select.find( "#character-count" ).text( maxSDChars - sdLen );
+
+					if ( sdLen > maxSDChars ) {
+						select.find( ".attrib-submit" ).addClass( "ui-disabled" );
+						select.find( "#character-tracking" ).addClass( "red-text bold" );
+					} else {
+						select.find( ".attrib-submit" ).removeClass( "ui-disabled" );
+						select.find( "#character-tracking" ).removeClass( "red-text bold" );
+					}
+				},
                 saveChanges = function( checkPassed ) {
 					var hs = parseInt( select.find( "#hs" ).val() );
                     button.data( "hs", hs );
