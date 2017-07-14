@@ -1,168 +1,106 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-    <widget xmlns="http://www.w3.org/ns/widgets"
-            xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:cdv="http://cordova.apache.org/ns/1.0"
-            id="com.albahra.sprinklers"
-            version="1.6.0"
-            android-versionCode="62"
-            versionCode="62" >
-
-	    <name>OpenSprinkler</name>
-	    <description>
+<?xml version='1.0' encoding='utf-8'?>
+<widget android-versionCode="62" id="com.albahra.sprinklers" version="1.6.0" versionCode="62" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>OpenSprinkler</name>
+    <description>
 	        Designed to allow intuitive control of the OpenSprinkler irrigation controller.
 	    </description>
-	    <author href="http://albahra.com/sprinklers/" email="salbahra@gmail.com">
+    <author email="salbahra@gmail.com" href="http://albahra.com/sprinklers/">
 	        Samer Albahra
 	    </author>
-		<content src="index.html"/>
-
-		<!-- Allow CORS requests -->
-		<access origin="*" />
-		<allow-intent href="*" />
-		<allow-navigation href="*" />
-
-		<!-- Declare PhoneGap Version -->
-		<preference name="phonegap-version" value="cli-6.3.0" />
-
-		<!-- Declare Windows platform -->
-		<preference name="windows-appx-target" value="uap" />
-        <preference name="WindowsStorePublisherName" value="CN=8F0F825B-0E15-463C-8770-CA0313FEE1E7" />
-        <preference name="WindowsStoreIdentityName" value="27908SamerAlbahra.OpenSprinkler" />
-        <preference name="windows-identity-name" value="27908SamerAlbahra.OpenSprinkler" />
-
-		<!-- Disable web security in Blackberry 10 allowing CORS -->
-		<preference name="WebSecurity" value="disable"/>
-
-		<!-- Stop the app in the background -->
-		<preference name="KeepRunning" value="false"/>
-
-		<!-- Set the background color -->
-		<preference name="BackgroundColor" value="0x001c1c1c"/>
-
-		<!-- Prevent bounce scroll effect -->
-		<preference name="DisallowOverscroll" value="true"/>
-		<preference name="webviewbounce" value="false"/>
-		<preference name="UIWebViewBounce" value="false"/>
-
-		<!-- Define OS X settings -->
-		<preference name="HideMousePointer" value="1" />
-		<preference name="WindowSize" value="900x760" />
-		<preference name="EnableWebGL" value="true" />
-
-		<!-- Set splash screen settings -->
-		<preference name="AutoHideSplashScreen" value="false" />
-		<preference name="SplashScreenDelay" value="10000"/>
-		<preference name="SplashScreen" value="splash"/>
-		<preference name="ShowSplashScreenSpinner" value="false" />
-		<preference name="FadeSplashScreen" value="false" />
-
-		<!-- Allow the keyboard to be opened by the app -->
-		<preference name="KeyboardDisplayRequiresUserAction" value="false" />
-
-		<!-- Allow a grace period for Android devices to load JS -->
-		<preference name="loadUrlTimeoutValue" value="700000" />
-
-		<!-- Declare required plugins -->
-        <plugin name="cordova-plugin-statusbar" source="npm" />
-        <plugin name="cordova-plugin-transport-security" source="npm" />
-        <plugin name="cordova-plugin-networkinterface" source="npm" />
-        <plugin name="cordova-plugin-inappbrowser" source="npm" />
-        <plugin name="cordova-plugin-splashscreen" source="npm" />
-        <plugin name="cordova-plugin-geolocation" source="npm" />
-        <plugin name="cordova-plugin-camera" source="npm" />
-        <plugin name="cordova-plugin-whitelist" source="npm" />
-        <plugin name="cordova-plugin-3dtouch" source="npm" />
-
-        <!-- iOS Splash Screen for PhoneGap -->
-        <platform name="ios">
-            <splash src="res/ios/screens/startup.png"                           width="320"   height="480"  />
-            <splash src="res/ios/screens/startup-retina.png"                    width="640"   height="960"  />
-            <splash src="res/ios/screens/startup-iphone5-retina.png"            width="640"   height="1136" />
-            <splash src="res/ios/screens/startup-iphone6-portrait.png"          width="750"   height="1334" />
-            <splash src="res/ios/screens/startup-iphone6-landscape.png"         width="1334"  height="750"  />
-            <splash src="res/ios/screens/startup-iphone6plus-portrait.png"      width="1242"  height="2208" />
-            <splash src="res/ios/screens/startup-iphone6plus-landscape.png"     width="2208"  height="1242" />
-            <splash src="res/ios/screens/startup-tablet-landscape.png"          width="1024"  height="768"  />
-            <splash src="res/ios/screens/startup-tablet-portrait.png"           width="768"   height="1024" />
-            <splash src="res/ios/screens/startup-tablet-landscape-retina.png"   width="2048"  height="1536" />
-            <splash src="res/ios/screens/startup-tablet-portrait-retina.png"    width="1536"  height="2048" />
-	        <icon src="res/ios/icons/icon-57.png"       width="57" height="57" />
-	        <icon src="res/ios/icons/icon-60@2x.png"    width="120" height="120" />
-	        <icon src="res/ios/icons/icon-60@3x.png"    width="180" height="180" />
-	        <icon src="res/ios/icons/icon-72.png"       width="72" height="72" />
-	        <icon src="res/ios/icons/icon-72@2x.png"    width="144" height="144" />
-	        <icon src="res/ios/icons/icon-76.png"       width="76" height="76" />
-	        <icon src="res/ios/icons/icon-76@2x.png"    width="152" height="152" />
-        </platform>
-
-        <!-- Android Splash Screens for PhoneGap -->
-        <platform name="android">
-	        <splash src="res/android/screens/mdpi.9.png"    density="mdpi" />
-    	    <splash src="res/android/screens/xhdpi.9.png"   density="xhdpi" />
-	        <icon src="res/android/icons/ldpi.png"      qualifier="ldpi" />
-	        <icon src="res/android/icons/mdpi.png"      qualifier="mdpi" />
-	        <icon src="res/android/icons/hdpi.png"      qualifier="hdpi" />
-	        <icon src="res/android/icons/xhdpi.png"     qualifier="xhdpi" />
-	        <icon src="res/android/icons/xxhdpi.png"    qualifier="xxhdpi" />
-    	</platform>
-
-        <!-- Windows Icons for PhoneGap -->
-        <platform name="windows">
-	        <icon src="res/windows/icons/icon50.png" width="50" height="50" />
-	        <icon src="res/windows/icons/icon30.png" width="30" height="30" />
-	        <icon src="res/windows/icons/icon44.png" width="44" height="44" />
-	        <icon src="res/windows/icons/icon70.png" width="70" height="70" />
-	        <icon src="res/windows/icons/icon71.png" width="71" height="71" />
-	        <icon src="res/windows/icons/icon150.png" width="150" height="150" />
-	        <icon src="res/windows/icons/icon310.png" width="310" height="310" />
-	        <icon src="res/windows/icons/iconw.png" width="310" height="150" />
-			<splash src="res/windows/screens/landscape.png" width="620" height="300" />
-			<splash src="res/windows/screens/portrait.png" width="1152" height="1920" />
-	    </platform>
-
-        <!-- Windows Phone 8 Icons for PhoneGap -->
-		<platform name="wp8">
- 			<icon src="res/windows/icons/icon48.png" />
-			<splash src="res/windows/screens/startup.jpg" />
-		</platform>
-
-        <!-- iOS Specific Configuration -->
-
-        <!-- Add description for GPS usage -->
-        <config-file platform="ios" parent="NSLocationAlwaysUsageDescription" overwrite="false">
-            <string>Your current location will be used to configure OpenSprinkler.</string>
-        </config-file>
-
-        <!-- Add description for GPS usage -->
-        <config-file platform="ios" parent="NSLocationWhenInUseUsageDescription" overwrite="false">
-            <string>Your current location will be used to configure OpenSprinkler.</string>
-        </config-file>
-
-        <!-- Add required short version string to iOS configuration -->
-        <config-file platform="ios" parent="CFBundleShortVersionString">
-            <string>163</string>
-        </config-file>
-
-        <!-- Android specific Configuration -->
-        <config-file platform="android" parent="/manifest" mode="merge">
-
-            <!-- Declare SDK -->
-            <uses-sdk android:minSdkVersion="10" android:targetSdkVersion="22" />
-
-            <!-- Delcare GPS as optional -->
-            <uses-feature android:name="android.hardware.location.gps" android:required="false" />
-
-            <!-- Declare supported screens -->
-            <supports-screens
-                android:xlargeScreens="true"
-                android:largeScreens="true"
-                android:smallScreens="true" />
-
-            <!-- Declare theme which fixes select menu background color -->
-            <application android:theme="@android:style/Theme.Holo.Light.NoActionBar">
-                <activity android:theme="@android:style/Theme.Holo.Light.NoActionBar"></activity>
-            </application>
-
-        </config-file>
-
-    </widget>
+    <content src="index.html" />
+    <access origin="*" />
+    <allow-intent href="*" />
+    <allow-navigation href="*" />
+    <preference name="phonegap-version" value="cli-6.5.0" />
+    <preference name="windows-appx-target" value="uap" />
+    <preference name="WindowsStorePublisherName" value="CN=8F0F825B-0E15-463C-8770-CA0313FEE1E7" />
+    <preference name="WindowsStoreIdentityName" value="27908SamerAlbahra.OpenSprinkler" />
+    <preference name="windows-identity-name" value="27908SamerAlbahra.OpenSprinkler" />
+    <preference name="WebSecurity" value="disable" />
+    <preference name="KeepRunning" value="false" />
+    <preference name="BackgroundColor" value="0x001c1c1c" />
+    <preference name="DisallowOverscroll" value="true" />
+    <preference name="webviewbounce" value="false" />
+    <preference name="UIWebViewBounce" value="false" />
+    <preference name="HideMousePointer" value="1" />
+    <preference name="WindowSize" value="900x760" />
+    <preference name="EnableWebGL" value="true" />
+    <preference name="AutoHideSplashScreen" value="false" />
+    <preference name="SplashScreenDelay" value="10000" />
+    <preference name="SplashScreen" value="splash" />
+    <preference name="ShowSplashScreenSpinner" value="false" />
+    <preference name="FadeSplashScreen" value="false" />
+    <preference name="KeyboardDisplayRequiresUserAction" value="false" />
+    <preference name="loadUrlTimeoutValue" value="700000" />
+    <platform name="ios">
+        <splash height="480" src="res/ios/screens/startup.png" width="320" />
+        <splash height="960" src="res/ios/screens/startup-retina.png" width="640" />
+        <splash height="1136" src="res/ios/screens/startup-iphone5-retina.png" width="640" />
+        <splash height="1334" src="res/ios/screens/startup-iphone6-portrait.png" width="750" />
+        <splash height="750" src="res/ios/screens/startup-iphone6-landscape.png" width="1334" />
+        <splash height="2208" src="res/ios/screens/startup-iphone6plus-portrait.png" width="1242" />
+        <splash height="1242" src="res/ios/screens/startup-iphone6plus-landscape.png" width="2208" />
+        <splash height="768" src="res/ios/screens/startup-tablet-landscape.png" width="1024" />
+        <splash height="1024" src="res/ios/screens/startup-tablet-portrait.png" width="768" />
+        <splash height="1536" src="res/ios/screens/startup-tablet-landscape-retina.png" width="2048" />
+        <splash height="2048" src="res/ios/screens/startup-tablet-portrait-retina.png" width="1536" />
+        <icon height="57" src="res/ios/icons/icon-57.png" width="57" />
+        <icon height="120" src="res/ios/icons/icon-60@2x.png" width="120" />
+        <icon height="180" src="res/ios/icons/icon-60@3x.png" width="180" />
+        <icon height="72" src="res/ios/icons/icon-72.png" width="72" />
+        <icon height="144" src="res/ios/icons/icon-72@2x.png" width="144" />
+        <icon height="76" src="res/ios/icons/icon-76.png" width="76" />
+        <icon height="152" src="res/ios/icons/icon-76@2x.png" width="152" />
+    </platform>
+    <platform name="android">
+        <splash density="mdpi" src="res/android/screens/mdpi.9.png" />
+        <splash density="xhdpi" src="res/android/screens/xhdpi.9.png" />
+        <icon qualifier="ldpi" src="res/android/icons/ldpi.png" />
+        <icon qualifier="mdpi" src="res/android/icons/mdpi.png" />
+        <icon qualifier="hdpi" src="res/android/icons/hdpi.png" />
+        <icon qualifier="xhdpi" src="res/android/icons/xhdpi.png" />
+        <icon qualifier="xxhdpi" src="res/android/icons/xxhdpi.png" />
+    </platform>
+    <platform name="windows">
+        <icon height="50" src="res/windows/icons/icon50.png" width="50" />
+        <icon height="30" src="res/windows/icons/icon30.png" width="30" />
+        <icon height="44" src="res/windows/icons/icon44.png" width="44" />
+        <icon height="70" src="res/windows/icons/icon70.png" width="70" />
+        <icon height="71" src="res/windows/icons/icon71.png" width="71" />
+        <icon height="150" src="res/windows/icons/icon150.png" width="150" />
+        <icon height="310" src="res/windows/icons/icon310.png" width="310" />
+        <icon height="150" src="res/windows/icons/iconw.png" width="310" />
+        <splash height="300" src="res/windows/screens/landscape.png" width="620" />
+        <splash height="1920" src="res/windows/screens/portrait.png" width="1152" />
+    </platform>
+    <platform name="wp8">
+        <icon src="res/windows/icons/icon48.png" />
+        <splash src="res/windows/screens/startup.jpg" />
+    </platform>
+    <config-file overwrite="false" parent="NSLocationAlwaysUsageDescription" platform="ios">
+        <string>Your current location will be used to configure OpenSprinkler.</string>
+    </config-file>
+    <config-file overwrite="false" parent="NSLocationWhenInUseUsageDescription" platform="ios">
+        <string>Your current location will be used to configure OpenSprinkler.</string>
+    </config-file>
+    <config-file parent="CFBundleShortVersionString" platform="ios">
+        <string>163</string>
+    </config-file>
+    <config-file mode="merge" parent="/manifest" platform="android">
+        <uses-sdk android:minSdkVersion="10" android:targetSdkVersion="22" />
+        <uses-feature android:name="android.hardware.location.gps" android:required="false" />
+        <supports-screens android:largeScreens="true" android:smallScreens="true" android:xlargeScreens="true" />
+        <application android:theme="@android:style/Theme.Holo.Light.NoActionBar">
+            <activity android:theme="@android:style/Theme.Holo.Light.NoActionBar" />
+        </application>
+    </config-file>
+    <plugin name="cordova-plugin-3dtouch" />
+    <plugin name="cordova-plugin-camera" />
+    <plugin name="cordova-plugin-geolocation" />
+    <plugin name="cordova-plugin-inappbrowser" />
+    <plugin name="cordova-plugin-networkinterface" />
+    <plugin name="cordova-plugin-splashscreen" />
+    <plugin name="cordova-plugin-statusbar" />
+    <plugin name="cordova-plugin-transport-security" />
+    <plugin name="cordova-plugin-whitelist" />
+</widget>
