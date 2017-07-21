@@ -9322,7 +9322,7 @@ var showAbout = ( function() {
                     "<li>" +
                         "<p>" + _( "User manual for OpenSprinkler is available at" ) +
 							" <a class='iab' target='_blank' href='https://openthings.freshdesk.com/support/solutions/folders/5000147083'>" +
-								"https://support.openthings.com" +
+								"https://support.openthings.io" +
 							"</a>" +
 						"</p>" +
                     "</li>" +
