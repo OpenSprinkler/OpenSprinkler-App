@@ -7473,7 +7473,13 @@ var getLogs = ( function() {
                 return;
             }
 
-            data = items;
+			try {
+	            flowlog = JSON.parse( flowlog.replace( /,\s*inf/g, "" ) );
+			} catch ( err ) {
+				flowlog = [];
+			}
+
+			data = items;
             waterlog = $.isEmptyObject( wl ) ? [] : wl;
             flowlog = $.isEmptyObject( fl ) ? [] : fl;
 
@@ -7722,7 +7728,7 @@ var getLogs = ( function() {
             }
 
             if ( checkOSVersion( 216 ) ) {
-                flDefer = sendToOS( "/jl?pw=&type=fl&" + parms(), "json" );
+                flDefer = sendToOS( "/jl?pw=&type=fl&" + parms() );
             }
 
             setTimeout( function() {
