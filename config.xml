@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget android-versionCode="62" id="com.albahra.sprinklers" version="1.6.0" versionCode="62" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget android-versionCode="62" id="com.albahra.sprinklers" version="1.7.0" versionCode="63" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>OpenSprinkler</name>
     <description>
 	        Designed to allow intuitive control of the OpenSprinkler irrigation controller.
@@ -84,7 +84,7 @@
         <string>Your current location will be used to configure OpenSprinkler.</string>
     </config-file>
     <config-file parent="CFBundleShortVersionString" platform="ios">
-        <string>163</string>
+        <string>164</string>
     </config-file>
     <config-file mode="merge" parent="/manifest" platform="android">
         <uses-sdk android:minSdkVersion="10" android:targetSdkVersion="22" />
