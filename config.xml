@@ -44,6 +44,16 @@
         <splash height="1024" src="res/ios/screens/startup-tablet-portrait.png" width="768" />
         <splash height="1536" src="res/ios/screens/startup-tablet-landscape-retina.png" width="2048" />
         <splash height="2048" src="res/ios/screens/startup-tablet-portrait-retina.png" width="1536" />
+        <icon height="114" src="res/ios/icons/icon@2x.png" width="114" />
+        <icon height="40" src="res/ios/icons/icon-40.png" width="40" />
+        <icon height="80" src="res/ios/icons/icon-40@2x.png" width="80" />
+        <icon height="50" src="res/ios/icons/icon-50.png" width="50" />
+        <icon height="100" src="res/ios/icons/icon-50@2x.png" width="100" />
+        <icon height="60" src="res/ios/icons/icon-60.png" width="60" />
+        <icon height="167" src="res/ios/icons/icon-83.5@2x.png" width="167" />
+        <icon height="29" src="res/ios/icons/icon-small.png" width="29" />
+        <icon height="58" src="res/ios/icons/icon-small@2x.png" width="58" />
+        <icon height="87" src="res/ios/icons/icon-small@3x.png" width="87" />
         <icon height="57" src="res/ios/icons/icon-57.png" width="57" />
         <icon height="120" src="res/ios/icons/icon-60@2x.png" width="120" />
         <icon height="180" src="res/ios/icons/icon-60@3x.png" width="180" />
