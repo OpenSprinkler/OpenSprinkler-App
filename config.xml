@@ -97,7 +97,7 @@
         <string>Your photo library is used to provide an image for your stations.</string>
     </config-file>
     <config-file parent="CFBundleShortVersionString" platform="ios">
-        <string>165</string>
+        <string>166</string>
     </config-file>
     <config-file mode="merge" parent="/manifest" platform="android">
         <uses-sdk android:minSdkVersion="10" android:targetSdkVersion="22" />
