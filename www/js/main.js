@@ -4157,6 +4157,7 @@ function showOptions( expandItem ) {
 		( typeof expandItem === "string" && expandItem === "reset" ? " data-collapsed='false'" : "" ) + ">" +
 		"<legend>" + _( "Reset" ) + "</legend>";
 
+    list += "<button data-mini='true' class='center-div reset-log'>" + _( "Clear Log Data" ) + "</button>";
     list += "<button data-mini='true' class='center-div reset-options'>" + _( "Reset All Options" ) + "</button>";
     list += "<button data-mini='true' class='center-div reset-stations'>" + _( "Reset All Station Data" ) + "</button>";
 
@@ -4247,6 +4248,8 @@ function showOptions( expandItem ) {
 			showAutoRainDelayAdjustmentOptions( this, finish );
 		}
     } );
+
+    page.find( ".reset-log" ).on( "click", clearLogs );
 
     page.find( ".reset-options" ).on( "click", function() {
         areYouSure( _( "Are you sure you want to delete all settings and return to the default settings?" ), "", function() {
@@ -7746,14 +7749,7 @@ var getLogs = ( function() {
 
     // Bind clear logs button
     page.find( ".clear_logs" ).on( "click", function() {
-        areYouSure( _( "Are you sure you want to clear ALL your log data?" ), "", function() {
-            var url = isOSPi() ? "/cl?pw=" : "/dl?pw=&day=all";
-            $.mobile.loading( "show" );
-            sendToOS( url ).done( function() {
-                requestData();
-                showerror( _( "Logs have been cleared" ) );
-            } );
-        } );
+        clearLogs( requestData );
         return false;
     } );
 
@@ -7820,6 +7816,19 @@ var getLogs = ( function() {
 
     return begin;
 } )();
+
+function clearLogs( callback ) {
+    areYouSure( _( "Are you sure you want to clear ALL your log data?" ), "", function() {
+        var url = isOSPi() ? "/cl?pw=" : "/dl?pw=&day=all";
+        $.mobile.loading( "show" );
+        sendToOS( url ).done( function() {
+            if ( typeof callback === "function" ) {
+                callback();
+            }
+            showerror( _( "Logs have been cleared" ) );
+        } );
+    } );
+}
 
 // Program management functions
 var getPrograms = ( function() {
