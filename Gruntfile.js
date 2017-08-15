@@ -275,7 +275,7 @@ module.exports = function( grunt ) {
 				overwrite: true,
 				replacements: [
 					{
-						from: /version="([\d|\.]+)"\n/g,
+						from: /version="([\d|\.]+)"/g,
 						to: function( matchedWord, index, fullText, regexMatches ) {
 							return "version=\"" + bumpVersion( regexMatches[ 0 ] ) + "\"\n";
 						}
