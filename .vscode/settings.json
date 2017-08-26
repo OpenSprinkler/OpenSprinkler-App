@@ -1,0 +1,24 @@
+{
+    "editor.insertSpaces": true,
+    "files.trimTrailingWhitespace": true,
+    "files.exclude": {
+        ".git": true,
+        ".vscode/typings": true,
+        "build": true,
+        "node_modules": true,
+        "package-lock.json": true,
+        "platforms": true,
+        "plugins": true,
+        "typings": true
+    },
+    "search.exclude": {
+        ".git": true,
+        ".vscode/typings": true,
+        "build": true,
+        "node_modules": true,
+        "package-lock.json": true,
+        "platforms": true,
+        "plugins": true,
+        "typings": true
+    }
+}

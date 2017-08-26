@@ -1,0 +1,9 @@
+{
+    "recommendations": [
+        "glen-84.sass-lint",
+        "dbaeumer.jshint",
+        "ms-vscode.jscs",
+        "EditorConfig.EditorConfig",
+        "msjsdiag.debugger-for-chrome"
+    ]
+}

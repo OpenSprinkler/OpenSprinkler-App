@@ -1,11 +1,45 @@
-npm-debug.log
-.DS_Store
-.secrets.json
-.coveralls.yml
-.cordova/
-node_modules
-coverage
+# Specifies intentionally untracked files to ignore when using Git
+# http://git-scm.com/docs/gitignore
+
+# NPM package location
+node_modules/
+
+# Cordova folders
+platforms/
+plugins/
+
+# OS X build output
 project.xcworkspace/
 xcuserdata/
-plugins/
-platforms/
+
+# Coverage data
+.coveralls.yml
+coverage
+
+# VS Code
+typings/
+.vscode/**/
+.vscode/plugins.json
+
+# Visual Studio
+.vs/
+
+# Local environment variables
+.secrets.json
+
+# OS Meta data files
+Thumbs.db
+.DS_Store
+UserInterfaceState.xcuserstate
+$RECYCLE.BIN/
+
+# Editor / Log data
+*~
+*.sw[mnpcod]
+*.log
+*.tmp
+*.tmp.*
+log.txt
+*.sublime-project
+*.sublime-workspace
+npm-debug.log*
