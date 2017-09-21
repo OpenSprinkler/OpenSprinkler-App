@@ -11904,7 +11904,7 @@ function getUrlVars( url ) {
 }
 
 function escapeJSON( json ) {
-	return JSON.stringify( json ).replace( /\{|\}/g, "" );
+	return JSON.stringify( json ).replace( /^\{|\}$/g, "" );
 }
 
 function isMD5( pass ) {
