@@ -3585,7 +3585,7 @@ function showOptions( expandItem ) {
                 var $item = $( this ),
                     id = $item.attr( "id" ),
                     data = $item.val(),
-                    ip;
+                    ip, ifttt;
 
                 if ( !id || ( !data && data !== "" ) ) {
                     return true;
@@ -3670,6 +3670,17 @@ function showOptions( expandItem ) {
 						}
 
 						break;
+                    case "ifttt":
+						ifttt = { "ifkey":controller.settings.ifkey, "ife":controller.options.ife, "ifttt":controller.settings.iffttt };
+						if ( escapeJSON( ifttt ) === data ) {
+							return true;
+						}
+						ifttt = JSON.parse( "{" + data + "}" );
+						opt.ifkey = ifttt.ifkey;
+						opt.o49 = ifttt.ife;
+						opt.ifttt = escapeJSON( ifttt.ifttt );
+
+						return true;
                     case "o12":
                         if ( !isPi ) {
                             opt.o12 = data & 0xff;
@@ -4048,18 +4059,33 @@ function showOptions( expandItem ) {
 					"</div>";
 		}
 
-        list += "<div class='ui-field-contain'><label for='ifkey'>" + _( "IFTTT Key" ) +
-	        "<button data-helptext='" +
-				_( "To enable IFTTT, a Maker channel key is required which can be obtained from https://ifttt.com" ) +
-				"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
-		"</label><input autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' data-mini='true' type='text' id='ifkey' value='" + controller.settings.ifkey + "'>" +
-		"</div>";
-
-        list += "<div class='ui-field-contain'><label for='o49'>" + _( "IFTTT Events" ) +
+		if ( typeof controller.settings.ifttt !== "undefined" ) {
+			list += "<div class='ui-field-contain'>" +
+						"<label for='ifttt'>" + _( "IFTTT" ) +
+							"<button style='display:inline-block;' data-helptext='" +
+								_( "You can specify when OpenSprinkler will send IFTTT a notification and what IFTTT event it will trigger. " ) +
+								_( "To enable IFTTT, a Maker channel key is required which can be obtained from https://ifttt.com." ) +
+								"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'>" +
+							"</button>" +
+						 "</label>" +
+						"<button data-mini='true' id='ifttt' value='" + escapeJSON( { "ifkey": controller.settings.ifkey, "ife": controller.options.ife, "ifttt": controller.settings.ifttt } ) + "'>" +
+							_( "Tap to Configure" ) +
+						"</button>" +
+					"</div>";
+		} else {
+			list += "<div class='ui-field-contain'><label for='ifkey'>" + _( "IFTTT Key" ) +
 				"<button data-helptext='" +
-					_( "Select which events to send to IFTTT for use in recipes." ) +
+					_( "To enable IFTTT, a Maker channel key is required which can be obtained from https://ifttt.com" ) +
 					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
-			"</label><button data-mini='true' id='o49' value='" + controller.options.ife + "'>Configure Events</button></div>";
+			"</label><input autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' data-mini='true' type='text' id='ifkey' value='" + controller.settings.ifkey + "'>" +
+			"</div>";
+
+			list += "<div class='ui-field-contain'><label for='o49'>" + _( "IFTTT Events" ) +
+					"<button data-helptext='" +
+						_( "Select which events to send to IFTTT for use in recipes." ) +
+						"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
+				"</label><button data-mini='true' id='o49' value='" + controller.options.ife + "'>Configure Events</button></div>";
+		}
 	}
 
     list += "</fieldset><fieldset class='full-width-slider' data-role='collapsible'" +
@@ -4254,6 +4280,142 @@ function showOptions( expandItem ) {
 		} else if ( method === 2 ) {
 			showAutoRainDelayAdjustmentOptions( this, finish );
 		}
+    } );
+
+    page.find( "#o49" ).on( "click", function() {
+		var events = {
+			program: _( "Program Start" ),
+			rain: _( "Rain Sensor Update" ),
+			flow: _( "Flow Sensor Update" ),
+			weather: _( "Weather Adjustment Update" ),
+			reboot: _( "Controller Reboot" ),
+			run: _( "Station Run" )
+		}, button = this, curr = parseInt( button.value ), inputs = "", a = 0, ife = 0;
+
+	    $.each( events, function( i, val ) {
+			inputs += "<label for='ifttt-" + i + "'><input class='needsclick' data-iconpos='right' id='ifttt-" + i + "' type='checkbox' " +
+				( getBitFromByte( curr, a ) ? "checked='checked'" : "" ) + ">" + val +
+			"</label>";
+			a++;
+	    } );
+
+	    var popup = $(
+	        "<div data-role='popup' data-theme='a'>" +
+	            "<div data-role='controlgroup' data-mini='true' class='tight'>" +
+		            "<div class='ui-bar ui-bar-a'>" + _( "Select IFTTT Events" ) + "</div>" +
+						inputs +
+					"<input data-wrapper-class='attrib-submit' class='submit' data-theme='b' type='submit' value='" + _( "Submit" ) + "' />" +
+	            "</div>" +
+	        "</div>" );
+
+	    popup.find( ".submit" ).on( "click", function() {
+			a = 0;
+		    $.each( events, function( i ) {
+				ife |= popup.find( "#ifttt-" + i ).is( ":checked" ) << a;
+				a++;
+		    } );
+			popup.popup( "close" );
+		    if ( curr === ife ) {
+				return;
+		    } else {
+				button.value = ife;
+				header.eq( 2 ).prop( "disabled", false );
+				page.find( ".submit" ).addClass( "hasChanges" );
+		    }
+	    } );
+
+	    openPopup( popup );
+    } );
+
+    page.find( "#ifttt" ).on( "click", function() {
+		var options = $.extend( true, {}, {
+				ifkey: "",
+				ife: 0,
+				ifttt: { events: [ "sprinkler",  "sprinkler", "sprinkler", "sprinkler", "sprinkler", "sprinkler", "sprinkler", "sprinkler" ] }
+			}, { "ifkey": controller.settings.ifkey, "ife": controller.options.ife, "ifttt": controller.settings.ifttt } ),
+			events = {
+				program: _( "Program Start" ),
+				rain: _( "Rain Sensor" ),
+				flow: _( "Flow Sensor" ),
+				weather: _( "Water Level" ),
+				reboot: _( "Reboot" ),
+				run: _( "Station Run" )
+			}, button = this, curr = button.value, inputs = "", a = 0;
+
+		$.each( events, function( i, val ) {
+			inputs +=	"<div class='ui-block-a'>" +
+							"<label for='ifttt-" + i + "' style='border-color:#fff;background-color:#fff'>" + val + "</label>" +
+							"<input class='needsclick ifttt_enable' data-mini='true' data-iconpos='left' id='ifttt-" + i + "' type='checkbox' " +
+								( getBitFromByte( options.ife, a ) ? "checked='checked'" : "" ) + ">" +
+						"</div>" +
+						"<div class='ui-block-b' >" +
+							"<input id='ifeve-" + i + "' class='ifttt-" + i + "'  type='text' data-mini='true' maxlength='15' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' " +
+							( controller.settings.ifttt !== "undefined" && getBitFromByte( options.ife, a ) ? "" : "disabled='disabled'" ) + " value='" + options.ifttt.events[ a ] + "'>" +
+						"</div>";
+			a++;
+		} );
+
+		$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
+
+		var popup = $(	"<div data-role='popup' data-theme='a' id='iftttSettings'>" +
+							"<div data-role='header' data-theme='b'>" +
+								"<h1>" + _( "IFTTT Settings" ) + "</h1>" +
+							"</div>" +
+							"<div class='ui-content'>" +
+								"<div class='ui-field-contain'>" +
+									"<label for='ifkey' data-mini='true'>" + _( "IFTTT Key" ) + "</label>" +
+									"<input id='ifkey' type='text' data-mini='true' maxlength='128' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' value='" + options.ifkey + "'/>" +
+								"</div>" +
+								"<div class='ui-grid-a'>" +
+									"<div class='ui-block-a'>" +
+										"<label data-mini='true'>" + _( "OS Trigger" ) + "</label>" +
+									"</div>" +
+									"<div class='ui-block-b'>" +
+										"<label for='o49' data-mini='true'>" + _( "IFTTT Event" ) + "</label>" +
+									"</div>" +
+									inputs +
+								"</div>" +
+								"<button class='submit' data-theme='b'>" + _( "Submit" ) + "</button>" +
+							"</div>" +
+						"</div>" );
+
+	    popup.find( ".help-icon" ).on( "click", showHelpText );
+
+		popup.find( ".ifttt_enable" ).on( "change", function() {
+			var checkbox = $( this ),
+				inputClass = checkbox.attr( "id" );
+
+			if ( this.checked ) {
+				popup.find( "." + inputClass ).textinput( "enable" );
+			} else {
+				popup.find( "." + inputClass ).textinput( "disable" );
+			}
+		} );
+
+		popup.find( ".submit" ).on( "click", function() {
+			var a = 0;
+
+			options.ife = 0;
+			$.each( events, function( i ) {
+				options.ife |= popup.find( "#ifttt-" + i ).is( ":checked" ) << a;
+				options.ifttt.events[ a ] = popup.find( ".ifttt-" + i ).val();
+				a++;
+			} );
+			options.ifkey = popup.find( "#ifkey" ).val();
+			popup.popup( "close" );
+
+			if ( curr === escapeJSON( options ) ) {
+				return;
+			} else {
+				button.value = escapeJSON( options );
+				header.eq( 2 ).prop( "disabled", false );
+				page.find( ".submit" ).addClass( "hasChanges" );
+			}
+		} );
+
+		popup.css( "max-width", "380px" );
+
+		openPopup( popup, { positionTo: "window" } );
     } );
 
     page.find( ".reset-log" ).on( "click", clearLogs );
@@ -4525,51 +4687,6 @@ function showOptions( expandItem ) {
         } else {
             page.find( "#o31,#weatherRestriction" ).selectmenu( "enable" );
         }
-    } );
-
-    page.find( "#o49" ).on( "click", function() {
-		var events = {
-			program: _( "Program Start" ),
-			rain: _( "Rain Sensor Update" ),
-			flow: _( "Flow Sensor Update" ),
-			weather: _( "Weather Adjustment Update" ),
-			reboot: _( "Controller Reboot" ),
-			run: _( "Station Run" )
-		}, button = this, curr = parseInt( button.value ), inputs = "", a = 0, ife = 0;
-
-	    $.each( events, function( i, val ) {
-			inputs += "<label for='ifttt-" + i + "'><input class='needsclick' data-iconpos='right' id='ifttt-" + i + "' type='checkbox' " +
-				( getBitFromByte( curr, a ) ? "checked='checked'" : "" ) + ">" + val +
-			"</label>";
-			a++;
-	    } );
-
-	    var popup = $(
-	        "<div data-role='popup' data-theme='a'>" +
-	            "<div data-role='controlgroup' data-mini='true' class='tight'>" +
-		            "<div class='ui-bar ui-bar-a'>" + _( "Select IFTTT Events" ) + "</div>" +
-						inputs +
-					"<input data-wrapper-class='attrib-submit' class='submit' data-theme='b' type='submit' value='" + _( "Submit" ) + "' />" +
-	            "</div>" +
-	        "</div>" );
-
-	    popup.find( ".submit" ).on( "click", function() {
-			a = 0;
-		    $.each( events, function( i ) {
-				ife |= popup.find( "#ifttt-" + i ).is( ":checked" ) << a;
-				a++;
-		    } );
-			popup.popup( "close" );
-		    if ( curr === ife ) {
-				return;
-		    } else {
-				button.value = ife;
-				header.eq( 2 ).prop( "disabled", false );
-				page.find( ".submit" ).addClass( "hasChanges" );
-		    }
-	    } );
-
-	    openPopup( popup );
     } );
 
     page.find( ".datetime-input" ).on( "click", function() {
