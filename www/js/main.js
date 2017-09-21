@@ -3670,6 +3670,12 @@ function showOptions( expandItem ) {
 						}
 
 						break;
+                    case "influx":
+						if ( escapeJSON( controller.settings.influx ) === data ) {
+							return true;
+						}
+
+						break;
                     case "ifttt":
 						ifttt = { "ifkey":controller.settings.ifkey, "ife":controller.options.ife, "ifttt":controller.settings.iffttt };
 						if ( escapeJSON( ifttt ) === data ) {
@@ -4088,6 +4094,21 @@ function showOptions( expandItem ) {
 		}
 	}
 
+		if ( typeof controller.settings.influx !== "undefined" ) {
+			list += "<div class='ui-field-contain'>" +
+						"<label for='influx'>" + _( "InfluxDb" ) +
+							"<button style='display:inline-block;' data-helptext='" +
+								_( "You can use the open-source InfluxDb and Grafana to create a visual dashboard to monitor OpenSprinkler usage. " ) +
+								_( "To learn about InfluxDB visit https://www.influxdata.com/. To learn about Grafana visit https://grafana.com/." ) +
+								"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'>" +
+							"</button>" +
+						"</label>" +
+						"<button data-mini='true' id='influx' value='" + escapeJSON( controller.settings.influx ) + "'>" +
+							_( "Tap to Configure" ) +
+						"</button>" +
+					"</div>";
+		}
+
     list += "</fieldset><fieldset class='full-width-slider' data-role='collapsible'" +
 		( typeof expandItem === "string" && expandItem === "lcd" ? " data-collapsed='false'" : "" ) + ">" +
 		"<legend>" + _( "LCD Screen" ) + "</legend>";
@@ -4404,6 +4425,85 @@ function showOptions( expandItem ) {
 			options.ifkey = popup.find( "#ifkey" ).val();
 			popup.popup( "close" );
 
+			if ( curr === escapeJSON( options ) ) {
+				return;
+			} else {
+				button.value = escapeJSON( options );
+				header.eq( 2 ).prop( "disabled", false );
+				page.find( ".submit" ).addClass( "hasChanges" );
+			}
+		} );
+
+		popup.css( "max-width", "380px" );
+
+		openPopup( popup, { positionTo: "window" } );
+    } );
+
+    page.find( "#influx" ).on( "click", function() {
+		var button = this, curr = button.value,
+			options = $.extend( {}, {
+				server: "server",
+				port: 8086,
+				db: "opensprinkler",
+				enable: 0
+			}, controller.settings.influx );
+
+		$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
+
+		var popup = $( "<div data-role='popup' data-theme='a' id='influxSettings'>" +
+				"<div data-role='header' data-theme='b'>" +
+					"<h1>" + _( "InfluxDB Settings" ) + "</h1>" +
+				"</div>" +
+				"<div class='ui-content'>" +
+					"<label for='enable'>Enable</label>" +
+					"<input class='needsclick influx_enable' data-mini='true' data-iconpos='right' id='enable' type='checkbox' " +
+						( options.enable ? "checked='checked'" : "" ) + ">" +
+					"<div class='ui-body'>" +
+						"<div class='ui-grid-a' style='display:table;'>" +
+							"<div class='ui-block-a' style='width:40%'>" +
+								"<label for='server' style='padding-top:10px'>" + _( "Server" ) + "</label>" +
+							"</div>" +
+							"<div class='ui-block-b' style='width:60%'>" +
+								"<input class='influx-input' type='text' id='server' data-mini='true' maxlength='30' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
+									( options.enable ? "" : "disabled='disabled'" ) + " placeholder='" + _( "server" ) + "' value='" + options.server + "' required />" +
+							"</div>" +
+							"<div class='ui-block-a' style='width:40%'>" +
+								"<label for='port' style='padding-top:10px'>" + _( "Port" ) + "</label>" +
+							"</div>" +
+							"<div class='ui-block-b' style='width:60%'>" +
+								"<input class='influx-input' type='number' id='port' data-mini='true' type='number' pattern='[0-9]*' min='0' max='65535' placeholder='80'" +
+									( options.enable ? "" : "disabled='disabled'" ) + " value='" + options.port + "' required />" +
+							"</div>" +
+							"<div class='ui-block-a' style='width:40%'>" +
+								"<label for='db' style='padding-top:10px'>" + _( "Database" ) + "</label>" +
+							"</div>" +
+							"<div class='ui-block-b' style='width:60%'>" +
+								"<input class='influx-input' type='text' id='db' data-mini='true' maxlength='25' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
+									( options.enable ? "" : "disabled='disabled'" ) + " placeholder='" + _( "database" ) + "' value='" + options.db + "' required />" +
+							"</div>" +
+						"</div>" +
+					"</div>" +
+					"<button class='submit' data-theme='b'>" + _( "Submit" ) + "</button>" +
+				"</div>" +
+			"</div>" );
+
+		popup.find( "#enable" ).on( "change", function() {
+			if ( this.checked ) {
+				popup.find( ".influx-input" ).textinput( "enable" );
+			} else {
+				popup.find( ".influx-input" ).textinput( "disable" );
+			}
+		} );
+
+		popup.find( ".submit" ).on( "click", function() {
+			var options = {
+				server: popup.find( "#server" ).val(),
+				port: parseInt( popup.find( "#port" ).val() ),
+				db: popup.find( "#db" ).val(),
+				enable: ( popup.find( "#enable" ).prop( "checked" ) ? 1 : 0 )
+			};
+
+			popup.popup( "close" );
 			if ( curr === escapeJSON( options ) ) {
 				return;
 			} else {
