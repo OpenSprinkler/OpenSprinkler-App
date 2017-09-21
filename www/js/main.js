@@ -3676,6 +3676,12 @@ function showOptions( expandItem ) {
 						}
 
 						break;
+                    case "webhook":
+						if ( escapeJSON( controller.settings.webhook ) === data ) {
+							return true;
+						}
+
+						break;
                     case "ifttt":
 						ifttt = { "ifkey":controller.settings.ifkey, "ife":controller.options.ife, "ifttt":controller.settings.iffttt };
 						if ( escapeJSON( ifttt ) === data ) {
@@ -4092,7 +4098,6 @@ function showOptions( expandItem ) {
 						"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
 				"</label><button data-mini='true' id='o49' value='" + controller.options.ife + "'>Configure Events</button></div>";
 		}
-	}
 
 		if ( typeof controller.settings.influx !== "undefined" ) {
 			list += "<div class='ui-field-contain'>" +
@@ -4108,6 +4113,22 @@ function showOptions( expandItem ) {
 						"</button>" +
 					"</div>";
 		}
+
+		if ( typeof controller.settings.webhook !== "undefined" ) {
+			list += "<div class='ui-field-contain'>" +
+						"<label for='webhook'>" + _( "Webhook" ) +
+							"<button style='display:inline-block;' data-helptext='" +
+								_( "You can send OpenSprinkler events to a custom web application to use your own integration logic. " ) +
+								_( "Events will be sent to the server and port specified and provided in a JSON format message." ) +
+								"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'>" +
+							"</button>" +
+						"</label>" +
+						"<button data-mini='true' id='webhook' value='" + escapeJSON( controller.settings.webhook ) + "'>" +
+							_( "Tap to Configure" ) +
+						"</button>" +
+					"</div>";
+		}
+	}
 
     list += "</fieldset><fieldset class='full-width-slider' data-role='collapsible'" +
 		( typeof expandItem === "string" && expandItem === "lcd" ? " data-collapsed='false'" : "" ) + ">" +
@@ -4500,6 +4521,76 @@ function showOptions( expandItem ) {
 				server: popup.find( "#server" ).val(),
 				port: parseInt( popup.find( "#port" ).val() ),
 				db: popup.find( "#db" ).val(),
+				enable: ( popup.find( "#enable" ).prop( "checked" ) ? 1 : 0 )
+			};
+
+			popup.popup( "close" );
+			if ( curr === escapeJSON( options ) ) {
+				return;
+			} else {
+				button.value = escapeJSON( options );
+				header.eq( 2 ).prop( "disabled", false );
+				page.find( ".submit" ).addClass( "hasChanges" );
+			}
+		} );
+
+		popup.css( "max-width", "380px" );
+
+		openPopup( popup, { positionTo: "window" } );
+    } );
+
+    page.find( "#webhook" ).on( "click", function() {
+		var button = this, curr = button.value,
+			options = $.extend( {}, {
+				server: "server",
+				port: 8080,
+				enable: 0
+			}, controller.settings.webhook );
+
+		$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
+
+		var popup = $( "<div data-role='popup' data-theme='a' id='webhookSettings'>" +
+				"<div data-role='header' data-theme='b'>" +
+					"<h1>" + _( "Webhook Settings" ) + "</h1>" +
+				"</div>" +
+				"<div class='ui-content'>" +
+					"<label for='enable'>Enable</label>" +
+					"<input class='needsclick webhook_enable' data-mini='true' data-iconpos='right' id='enable' type='checkbox' " +
+						( options.enable ? "checked='checked'" : "" ) + ">" +
+					"<div class='ui-body'>" +
+						"<div class='ui-grid-a' style='display:table;'>" +
+							"<div class='ui-block-a' style='width:40%'>" +
+								"<label for='server' style='padding-top:10px'>" + _( "Server" ) + "</label>" +
+							"</div>" +
+							"<div class='ui-block-b' style='width:60%'>" +
+								"<input class='webhook-input' type='text' id='server' data-mini='true' maxlength='50' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
+									( options.enable ? "" : "disabled='disabled'" ) + " placeholder='" + _( "server" ) + "' value='" + options.server + "' required />" +
+							"</div>" +
+							"<div class='ui-block-a' style='width:40%'>" +
+								"<label for='port' style='padding-top:10px'>" + _( "Port" ) + "</label>" +
+							"</div>" +
+							"<div class='ui-block-b' style='width:60%'>" +
+								"<input class='webhook-input' type='number' id='port' data-mini='true' pattern='[0-9]*' min='0' max='65535'" +
+									( options.enable ? "" : "disabled='disabled'" ) + " placeholder='80' value='" + options.port + "' required />" +
+							"</div>" +
+						"</div>" +
+					"</div>" +
+					"<button class='submit' data-theme='b'>" + _( "Submit" ) + "</button>" +
+				"</div>" +
+			"</div>" );
+
+		popup.find( "#enable" ).on( "change", function() {
+			if ( this.checked ) {
+				popup.find( ".webhook-input" ).textinput( "enable" );
+			} else {
+				popup.find( ".webhook-input" ).textinput( "disable" );
+			}
+		} );
+
+		popup.find( ".submit" ).on( "click", function() {
+			var options = {
+				server: popup.find( "#server" ).val(),
+				port: parseInt( popup.find( "#port" ).val() ),
 				enable: ( popup.find( "#enable" ).prop( "checked" ) ? 1 : 0 )
 			};
 
