@@ -4041,6 +4041,13 @@ function showOptions( expandItem ) {
 			( typeof expandItem === "string" && expandItem === "integrations" ? " data-collapsed='false'" : "" ) + ">" +
 			"<legend>" + _( "Integrations" ) + "</legend>";
 
+		if ( typeof controller.settings.name !== "undefined" ) {
+			list += "<div class='ui-field-contain'>" +
+						"<label for='name'>" + _( "Unit Name" ) + "</label>" +
+						"<input autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' data-mini='true' type='text' id='name' value='" + controller.settings.name + "'>" +
+					"</div>";
+		}
+
         list += "<div class='ui-field-contain'><label for='ifkey'>" + _( "IFTTT Key" ) +
 	        "<button data-helptext='" +
 				_( "To enable IFTTT, a Maker channel key is required which can be obtained from https://ifttt.com" ) +
