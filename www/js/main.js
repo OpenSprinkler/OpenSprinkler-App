@@ -861,6 +861,12 @@ function newLoad() {
 				showUnifiedFirmwareNotification();
             }
 
+            if ( checkOSVersion( 2172 ) && !currLocal && controller.settings.site !== name ) {
+
+                // Update Controller with the new site name
+                sendToOS( "/co?pw=&site=" + name );
+            }
+
             if ( controller.options.firstRun ) {
 				showGuidedSetup();
 	        } else {
@@ -4063,13 +4069,6 @@ function showOptions( expandItem ) {
 	    list += "</fieldset><fieldset data-role='collapsible'" +
 			( typeof expandItem === "string" && expandItem === "integrations" ? " data-collapsed='false'" : "" ) + ">" +
 			"<legend>" + _( "Integrations" ) + "</legend>";
-
-		if ( typeof controller.settings.name !== "undefined" ) {
-			list += "<div class='ui-field-contain'>" +
-						"<label for='name'>" + _( "Unit Name" ) + "</label>" +
-						"<input autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' data-mini='true' type='text' id='name' value='" + controller.settings.name + "'>" +
-					"</div>";
-		}
 
 		if ( typeof controller.settings.ifttt !== "undefined" ) {
 			list += "<div class='ui-field-contain'>" +
@@ -9469,6 +9468,29 @@ function importConfig( data ) {
 
             // Enables logging since prior firmwares always had logging enabled
             co += "&o36=1";
+        }
+
+        // Import Weather Adjustment Options, if available
+        if ( data.settings.hasOwnProperty( "wto" ) && data.settings.wto !== "" && checkOSVersion( 215 ) ) {
+            co += "&wto=" + escapeJSON( data.settings.wto );
+        }
+
+        // Import IFTTT Key, if available
+        if ( data.settings.hasOwnProperty( "ifkey" ) && data.settings.ifkey !== "" && checkOSVersion( 217 ) ) {
+            co += "&ifkey=" + data.settings.ifkey;
+        }
+
+        // Import extended notification options, if available
+        if ( checkOSVersion( 2172 ) ) {
+            var opts = [ "ifttt", "webhook", "influx" ];
+            for ( var opt in opts ) {
+                if ( data.settings.hasOwnProperty( opts[ opt ] ) && data.settings[ opts[ opt ] ] !== "" ) {
+                    co += "&" + opts[ opt ] + "=" + escapeJSON( data.settings[ opts[ opt ] ] );
+                }
+            }
+            if ( data.settings.hasOwnProperty( "site" ) && data.settings.site !== "" ) {
+                co += "&site=" + data.settings.site;
+            }
         }
 
         co += "&" + ( isPi ? "o" : "" ) + "loc=" + data.settings.loc;
