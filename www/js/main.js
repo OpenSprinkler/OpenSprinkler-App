@@ -11838,7 +11838,7 @@ function languageSelect() {
 		nl: _("Dutch"), en: _("English"), pes: _("Farsi"), fr: _("French"), de: _("German"),
 		el: _("Greek"), he: _("Hebrew"), hu: _("Hungarian"), is: _("Icelandic"), it: _("Italian"), lv: _("Latvian"),
 		mn: _("Mongolian"), no: _("Norwegian"), pl: _("Polish"), pt: _("Portuguese"), ru: _("Russian"),
-		sk: _("Slovak"), sl: _("Slovenian"), es: _("Spanish"), th: _("Thai")}
+		sk: _("Slovak"), sl: _("Slovenian"), es: _("Spanish"), th: _("Thai"), tr: _("Turkish"), sv: _("Swedish"), ro: _("Romanian")}
 	*/
 
     var popup = "<div data-role='popup' data-theme='a' id='localization' data-corners='false'>" +
@@ -11848,7 +11848,7 @@ function languageSelect() {
         codes = { af: "Afrikaans", am: "Amharic", zh: "Chinese", hr: "Croatian", cs: "Czech", nl: "Dutch",
 				en: "English", pes: "Farsi", fr: "French", de: "German", el: "Greek", he: "Hebrew", hu: "Hungarian",
 				is: "Icelandic", it: "Italian", lv: "Latvian", mn: "Mongolian", no: "Norwegian", pl: "Polish", pt: "Portuguese",
-				ru: "Russian", sk: "Slovak", sl: "Slovenian", es: "Spanish", th: "Thai" };
+				ru: "Russian", sk: "Slovak", sl: "Slovenian", es: "Spanish", th: "Thai", tr: "Turkish", sv: "Swedish", ro: "Romanian" };
 
     $.each( codes, function( key, name ) {
         popup += "<li><a href='#' data-translate='" + name + "' data-lang-code='" + key + "'>" + _( name ) + "</a></li>";
