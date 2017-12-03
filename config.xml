@@ -10,7 +10,6 @@
     <content src="index.html" />
     <access origin="*" />
     <allow-intent href="*" />
-    <allow-navigation href="*" />
     <preference name="phonegap-version" value="cli-7.0.1" />
     <preference name="WebSecurity" value="disable" />
     <preference name="KeepRunning" value="false" />
