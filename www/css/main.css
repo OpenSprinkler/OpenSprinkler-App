@@ -503,6 +503,16 @@ body, input, select, textarea, button, .ui-btn {
     text-overflow: clip !important;
 }
 
+/* iPhone X rules */
+.ui-footer {
+	padding-bottom: constant(safe-area-inset-bottom);
+	padding-bottom: env(safe-area-inset-bottom);
+}
+
+#footer-menu {
+	bottom: calc(constant(safe-area-inset-bottom) + 10%) !important;
+}
+
 /* Start page rules */
 
 #start {

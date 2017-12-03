@@ -1,79 +1,93 @@
 {
-    "name": "OpenSprinkler",
-    "author": "Samer Albahra",
-    "license": "AGPL-3.0",
-    "phonegap": {
-        "id": "1371093"
+  "name": "OpenSprinkler",
+  "author": "Samer Albahra",
+  "license": "AGPL-3.0",
+  "phonegap": {
+    "id": "1371093"
+  },
+  "version": "1.7.2",
+  "description": "Designed to allow intuitive control of the OpenSprinkler irrigation controller.",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/OpenSprinkler/OpenSprinkler-App.git"
+  },
+  "keywords": [
+    "sprinklers",
+    "opensprinkler",
+    "sprinkler",
+    "water"
+  ],
+  "bugs": {
+    "url": "https://github.com/OpenSprinkler/OpenSprinkler-App/issues"
+  },
+  "homepage": "https://github.com/OpenSprinkler/OpenSprinkler-App",
+  "window": {
+    "toolbar": false,
+    "width": 942,
+    "height": 512,
+    "title": "OpenSprinkler",
+    "icon": "res/ios-web/icons/icon.png",
+    "resizable": true,
+    "fullscreen": false,
+    "position": "center"
+  },
+  "webkit": {
+    "page-cache": true
+  },
+  "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.130 Safari/537.36",
+  "no-edit-menu": true,
+  "devDependencies": {
+    "blanket": "^1.2.1",
+    "chai": "^3.4.1",
+    "codecov.io": "^0.1.6",
+    "coveralls": "^2.11.4",
+    "grunt": "^1.0.1",
+    "grunt-blanket-mocha": "^0.5.0",
+    "grunt-contrib-clean": "^1.0.0",
+    "grunt-contrib-compress": "^1.2.0",
+    "grunt-contrib-csslint": "^2.0.0",
+    "grunt-contrib-cssmin": "^1.0.1",
+    "grunt-contrib-jshint": "^1.0.0",
+    "grunt-contrib-uglify": "^2.0.0",
+    "grunt-jscs": "^3.0.1",
+    "grunt-lib-phantomjs": "^1.1.0",
+    "grunt-shell": "^2.0.0",
+    "grunt-text-replace": "^0.4.0",
+    "lcov-result-merger": "^1.0.2",
+    "lodash": "^4.16.4",
+    "mocha": "^3.1.0",
+    "xcode": "^0.8.2"
+  },
+  "cordova": {
+    "plugins": {
+      "cordova-plugin-3dtouch": {},
+      "cordova-plugin-camera": {},
+      "cordova-plugin-geolocation": {},
+      "cordova-plugin-inappbrowser": {},
+      "cordova-plugin-networkinterface": {},
+      "cordova-plugin-splashscreen": {},
+      "cordova-plugin-statusbar": {},
+      "cordova-plugin-transport-security": {},
+      "cordova-plugin-whitelist": {}
     },
-    "version": "1.7.2",
-    "description": "Designed to allow intuitive control of the OpenSprinkler irrigation controller.",
-    "main": "index.html",
-    "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
-    },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/OpenSprinkler/OpenSprinkler-App.git"
-    },
-    "keywords": [
-        "sprinklers",
-        "opensprinkler",
-        "sprinkler",
-        "water"
-    ],
-    "bugs": {
-        "url": "https://github.com/OpenSprinkler/OpenSprinkler-App/issues"
-    },
-    "homepage": "https://github.com/OpenSprinkler/OpenSprinkler-App",
-    "window": {
-        "toolbar": false,
-        "width": 942,
-        "height": 512,
-        "title": "OpenSprinkler",
-        "icon": "res/ios-web/icons/icon.png",
-        "resizable": true,
-        "fullscreen": false,
-        "position": "center"
-    },
-    "webkit": {
-        "page-cache": true
-    },
-    "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.130 Safari/537.36",
-    "no-edit-menu": true,
-    "devDependencies": {
-        "blanket": "^1.2.1",
-        "chai": "^3.4.1",
-        "codecov.io": "^0.1.6",
-        "coveralls": "^2.11.4",
-        "grunt": "^1.0.1",
-        "grunt-blanket-mocha": "^0.5.0",
-        "grunt-contrib-clean": "^1.0.0",
-        "grunt-contrib-compress": "^1.2.0",
-        "grunt-contrib-csslint": "^2.0.0",
-        "grunt-contrib-cssmin": "^1.0.1",
-        "grunt-contrib-jshint": "^1.0.0",
-        "grunt-contrib-uglify": "^2.0.0",
-        "grunt-jscs": "^3.0.1",
-        "grunt-lib-phantomjs": "^1.1.0",
-        "grunt-shell": "^2.0.0",
-        "grunt-text-replace": "^0.4.0",
-        "lcov-result-merger": "^1.0.2",
-        "lodash": "^4.16.4",
-        "mocha": "^3.1.0",
-        "xcode": "^0.8.2"
-    },
-    "cordova": {
-        "plugins": {
-            "cordova-plugin-3dtouch": {},
-            "cordova-plugin-camera": {},
-            "cordova-plugin-geolocation": {},
-            "cordova-plugin-inappbrowser": {},
-            "cordova-plugin-networkinterface": {},
-            "cordova-plugin-splashscreen": {},
-            "cordova-plugin-statusbar": {},
-            "cordova-plugin-transport-security": {},
-            "cordova-plugin-whitelist": {}
-        }
-    },
-    "dependencies": {}
+    "platforms": [
+      "ios"
+    ]
+  },
+  "dependencies": {
+    "cordova-ios": "^4.5.4",
+    "cordova-plugin-3dtouch": "^1.3.5",
+    "cordova-plugin-camera": "^3.0.0",
+    "cordova-plugin-geolocation": "git+https://github.com/apache/cordova-plugin-geolocation.git",
+    "cordova-plugin-inappbrowser": "git+https://github.com/apache/cordova-plugin-inappbrowser.git",
+    "cordova-plugin-networkinterface": "git+https://github.com/salbahra/NetworkInterfacePlugin.git",
+    "cordova-plugin-splashscreen": "git+https://github.com/apache/cordova-plugin-splashscreen.git",
+    "cordova-plugin-statusbar": "^2.3.0",
+    "cordova-plugin-transport-security": "^0.1.2",
+    "cordova-plugin-whitelist": "^1.3.3"
+  }
 }
