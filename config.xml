@@ -111,10 +111,10 @@
     <engine name="ios" spec="^4.5.4" />
     <plugin name="cordova-plugin-3dtouch" spec="^1.3.5" />
     <plugin name="cordova-plugin-camera" spec="^3.0.0" />
-    <plugin name="cordova-plugin-geolocation" spec="git+https://github.com/apache/cordova-plugin-geolocation.git" />
-    <plugin name="cordova-plugin-inappbrowser" spec="git+https://github.com/apache/cordova-plugin-inappbrowser.git" />
-    <plugin name="cordova-plugin-networkinterface" spec="git+https://github.com/salbahra/NetworkInterfacePlugin.git" />
-    <plugin name="cordova-plugin-splashscreen" spec="git+https://github.com/apache/cordova-plugin-splashscreen.git" />
+    <plugin name="cordova-plugin-geolocation" spec="^3.0.0" />
+    <plugin name="cordova-plugin-inappbrowser" spec="^1.7.2" />
+    <plugin name="cordova-plugin-networkinterface" spec="^1.0.2" />
+    <plugin name="cordova-plugin-splashscreen" spec="^4.1.0" />
     <plugin name="cordova-plugin-statusbar" spec="^2.3.0" />
     <plugin name="cordova-plugin-transport-security" spec="^0.1.2" />
     <plugin name="cordova-plugin-whitelist" spec="^1.3.3" />
