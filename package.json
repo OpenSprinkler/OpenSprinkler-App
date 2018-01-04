@@ -5,7 +5,7 @@
   "phonegap": {
     "id": "1371093"
   },
-  "version": "1.7.2",
+  "version": "1.7.3",
   "description": "Designed to allow intuitive control of the OpenSprinkler irrigation controller.",
   "main": "index.html",
   "scripts": {
