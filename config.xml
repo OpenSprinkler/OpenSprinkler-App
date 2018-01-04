@@ -38,7 +38,7 @@
             <string>Your photo library is used to provide an image for your stations.</string>
         </edit-config>
         <edit-config file="*-Info.plist" mode="merge" target="CFBundleShortVersionString">
-            <string>1</string>
+            <string>167</string>
         </edit-config>
         <splash height="480" src="res/ios/screens/startup.png" width="320" />
         <splash height="960" src="res/ios/screens/startup-retina.png" width="640" />
@@ -108,7 +108,6 @@
         <icon src="res/windows/icons/icon48.png" />
         <splash src="res/windows/screens/startup.jpg" />
     </platform>
-    <engine name="ios" spec="^4.5.4" />
     <plugin name="cordova-plugin-3dtouch" spec="^1.3.5" />
     <plugin name="cordova-plugin-camera" spec="^3.0.0" />
     <plugin name="cordova-plugin-geolocation" spec="^3.0.0" />
@@ -118,4 +117,5 @@
     <plugin name="cordova-plugin-statusbar" spec="^2.3.0" />
     <plugin name="cordova-plugin-transport-security" spec="^0.1.2" />
     <plugin name="cordova-plugin-whitelist" spec="^1.3.3" />
+    <engine name="ios" spec="^4.5.4" />
 </widget>
