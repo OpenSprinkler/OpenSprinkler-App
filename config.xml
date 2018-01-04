@@ -53,6 +53,7 @@
         <splash height="2048" src="res/ios/screens/startup-tablet-portrait-retina.png" width="1536" />
         <splash height="2436" src="res/ios/screens/startup-iphonex-portrait.png" width="1125" />
         <splash height="1125" src="res/ios/screens/startup-iphonex-landscape.png" width="2436" />
+        <splash height="2732" src="res/ios/screens/startup@2x~universal~anyany.png" width="2732" />
         <icon height="1024" src="res/ios/icons/icon-1024.png" width="1024" />
         <icon height="114" src="res/ios/icons/icon@2x.png" width="114" />
         <icon height="40" src="res/ios/icons/icon-40.png" width="40" />
