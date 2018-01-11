@@ -120,13 +120,13 @@
 	document.title = "Loading...";
 
 	// Insert main application stylesheet
-	insertStyleSheet( assetLocation + "css/app." + ( ver < 210 ? "css" : "cgz" ) );
+	insertStyleSheet( assetLocation + "css/app.css" );
 
 	// Insert favicon for web page
 	insertStyleSheet( assetLocation + "img/favicon.ico", "shortcut icon" );
 
 	// Insert jQuery and run init function on completion
-	insertScript( assetLocation + "js/app." + ( ver < 210 ? "js" : "jgz" ), function() {
+	insertScript( assetLocation + "js/app.js", function() {
 		try {
 			localStorage.setItem( "testQuota", "true" );
 			localStorage.removeItem( "testQuota" );
@@ -182,7 +182,7 @@
 
 						// Load jQuery Mobile
 						$.ajax( {
-							url: assetLocation + "js/jqm." + ( ver < 210 ? "js" : "jgz" ),
+							url: assetLocation + "js/jqm.js",
 							dataType: "script",
 							cache: true
 						} );

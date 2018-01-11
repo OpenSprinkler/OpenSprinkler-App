@@ -4721,7 +4721,7 @@ var showHome = ( function() {
 
             cards += "<div class='ui-body ui-body-a center'>";
 
-			cards += "<img src='" + ( hasImage ? "data:image/jpeg;base64," + sites[ currentSite ].images[ i ] : getAppURLPath() + "img/placeholder.png" ) + "' />";
+			cards += "<img src='" + ( hasImage ? "data:image/jpeg;base64," + sites[ currentSite ].images[ i ] : getAppURLPath() + "/img/placeholder.png" ) + "' />";
 
             cards += "<p class='station-name center inline-icon' id='station_" + i + "'>" + station + "</p>";
 
@@ -5339,7 +5339,7 @@ var showHome = ( function() {
                     addCard( i );
                     cardHolder.append( cards );
                 } else {
-                    card.find( ".ui-body > img" ).attr( "src", ( hasImage ? "data:image/jpeg;base64," + sites[ currentSite ].images[ i ] : getAppURLPath() + "img/placeholder.png" ) );
+                    card.find( ".ui-body > img" ).attr( "src", ( hasImage ? "data:image/jpeg;base64," + sites[ currentSite ].images[ i ] : getAppURLPath() + "/img/placeholder.png" ) );
 
                     if ( isStationDisabled( i ) ) {
                         if ( !page.hasClass( "show-hidden" ) ) {
