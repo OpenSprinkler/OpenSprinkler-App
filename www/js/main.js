@@ -11888,7 +11888,7 @@ function checkCurrLang() {
 }
 
 function getAppURLPath() {
-	return currLocal ? $.mobile.path.parseUrl( $( "head" ).find( "script[src$='app.jgz'],script[src$='app.js']" ).attr( "src" ) ).hrefNoHash.slice( 0, -10 ) : "";
+	return currLocal ? $.mobile.path.parseUrl( $( "head" ).find( "script[src$='app.js']" ).attr( "src" ) ).hrefNoHash.slice( 0, -9 ) : "";
 }
 
 function getUrlVars( url ) {
