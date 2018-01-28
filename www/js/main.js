@@ -861,6 +861,12 @@ function newLoad() {
 				showUnifiedFirmwareNotification();
             }
 
+            if ( checkOSVersion( 2172 ) && !currLocal && controller.settings.site !== name ) {
+
+                // Update Controller with the new site name
+                sendToOS( "/co?pw=&site=" + name );
+            }
+
             if ( controller.options.firstRun ) {
 				showGuidedSetup();
 	        } else {
@@ -3585,7 +3591,7 @@ function showOptions( expandItem ) {
                 var $item = $( this ),
                     id = $item.attr( "id" ),
                     data = $item.val(),
-                    ip;
+                    ip, ifttt;
 
                 if ( !id || ( !data && data !== "" ) ) {
                     return true;
@@ -3670,6 +3676,29 @@ function showOptions( expandItem ) {
 						}
 
 						break;
+                    case "influx":
+						if ( escapeJSON( controller.settings.influx ) === data ) {
+							return true;
+						}
+
+						break;
+                    case "webhook":
+						if ( escapeJSON( controller.settings.webhook ) === data ) {
+							return true;
+						}
+
+						break;
+                    case "ifttt":
+						ifttt = { "ifkey":controller.settings.ifkey, "ife":controller.options.ife, "ifttt":controller.settings.iffttt };
+						if ( escapeJSON( ifttt ) === data ) {
+							return true;
+						}
+						ifttt = JSON.parse( "{" + data + "}" );
+						opt.ifkey = ifttt.ifkey;
+						opt.o49 = ifttt.ife;
+						opt.ifttt = escapeJSON( ifttt.ifttt );
+
+						return true;
                     case "o12":
                         if ( !isPi ) {
                             opt.o12 = data & 0xff;
@@ -4041,18 +4070,63 @@ function showOptions( expandItem ) {
 			( typeof expandItem === "string" && expandItem === "integrations" ? " data-collapsed='false'" : "" ) + ">" +
 			"<legend>" + _( "Integrations" ) + "</legend>";
 
-        list += "<div class='ui-field-contain'><label for='ifkey'>" + _( "IFTTT Key" ) +
-	        "<button data-helptext='" +
-				_( "To enable IFTTT, a Maker channel key is required which can be obtained from https://ifttt.com" ) +
-				"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
-		"</label><input autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' data-mini='true' type='text' id='ifkey' value='" + controller.settings.ifkey + "'>" +
-		"</div>";
-
-        list += "<div class='ui-field-contain'><label for='o49'>" + _( "IFTTT Events" ) +
+		if ( typeof controller.settings.ifttt !== "undefined" ) {
+			list += "<div class='ui-field-contain'>" +
+						"<label for='ifttt'>" + _( "IFTTT" ) +
+							"<button style='display:inline-block;' data-helptext='" +
+								_( "You can specify when OpenSprinkler will send IFTTT a notification and what IFTTT event it will trigger. " ) +
+								_( "To enable IFTTT, a Maker channel key is required which can be obtained from https://ifttt.com." ) +
+								"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'>" +
+							"</button>" +
+						 "</label>" +
+						"<button data-mini='true' id='ifttt' value='" + escapeJSON( { "ifkey": controller.settings.ifkey, "ife": controller.options.ife, "ifttt": controller.settings.ifttt } ) + "'>" +
+							_( "Tap to Configure" ) +
+						"</button>" +
+					"</div>";
+		} else {
+			list += "<div class='ui-field-contain'><label for='ifkey'>" + _( "IFTTT Key" ) +
 				"<button data-helptext='" +
-					_( "Select which events to send to IFTTT for use in recipes." ) +
+					_( "To enable IFTTT, a Maker channel key is required which can be obtained from https://ifttt.com" ) +
 					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
-			"</label><button data-mini='true' id='o49' value='" + controller.options.ife + "'>Configure Events</button></div>";
+			"</label><input autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' data-mini='true' type='text' id='ifkey' value='" + controller.settings.ifkey + "'>" +
+			"</div>";
+
+			list += "<div class='ui-field-contain'><label for='o49'>" + _( "IFTTT Events" ) +
+					"<button data-helptext='" +
+						_( "Select which events to send to IFTTT for use in recipes." ) +
+						"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
+				"</label><button data-mini='true' id='o49' value='" + controller.options.ife + "'>Configure Events</button></div>";
+		}
+
+		if ( typeof controller.settings.influx !== "undefined" ) {
+			list += "<div class='ui-field-contain'>" +
+						"<label for='influx'>" + _( "InfluxDb" ) +
+							"<button style='display:inline-block;' data-helptext='" +
+								_( "You can use the open-source InfluxDb and Grafana to create a visual dashboard to monitor OpenSprinkler usage. " ) +
+								_( "To learn about InfluxDB visit https://www.influxdata.com/. To learn about Grafana visit https://grafana.com/." ) +
+								"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'>" +
+							"</button>" +
+						"</label>" +
+						"<button data-mini='true' id='influx' value='" + escapeJSON( controller.settings.influx ) + "'>" +
+							_( "Tap to Configure" ) +
+						"</button>" +
+					"</div>";
+		}
+
+		if ( typeof controller.settings.webhook !== "undefined" ) {
+			list += "<div class='ui-field-contain'>" +
+						"<label for='webhook'>" + _( "Webhook" ) +
+							"<button style='display:inline-block;' data-helptext='" +
+								_( "You can send OpenSprinkler events to a custom web application to use your own integration logic. " ) +
+								_( "Events will be sent to the server and port specified and provided in a JSON format message." ) +
+								"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'>" +
+							"</button>" +
+						"</label>" +
+						"<button data-mini='true' id='webhook' value='" + escapeJSON( controller.settings.webhook ) + "'>" +
+							_( "Tap to Configure" ) +
+						"</button>" +
+					"</div>";
+		}
 	}
 
     list += "</fieldset><fieldset class='full-width-slider' data-role='collapsible'" +
@@ -4247,6 +4321,291 @@ function showOptions( expandItem ) {
 		} else if ( method === 2 ) {
 			showAutoRainDelayAdjustmentOptions( this, finish );
 		}
+    } );
+
+    page.find( "#o49" ).on( "click", function() {
+		var events = {
+			program: _( "Program Start" ),
+			rain: _( "Rain Sensor Update" ),
+			flow: _( "Flow Sensor Update" ),
+			weather: _( "Weather Adjustment Update" ),
+			reboot: _( "Controller Reboot" ),
+			run: _( "Station Run" )
+		}, button = this, curr = parseInt( button.value ), inputs = "", a = 0, ife = 0;
+
+	    $.each( events, function( i, val ) {
+			inputs += "<label for='ifttt-" + i + "'><input class='needsclick' data-iconpos='right' id='ifttt-" + i + "' type='checkbox' " +
+				( getBitFromByte( curr, a ) ? "checked='checked'" : "" ) + ">" + val +
+			"</label>";
+			a++;
+	    } );
+
+	    var popup = $(
+	        "<div data-role='popup' data-theme='a'>" +
+	            "<div data-role='controlgroup' data-mini='true' class='tight'>" +
+		            "<div class='ui-bar ui-bar-a'>" + _( "Select IFTTT Events" ) + "</div>" +
+						inputs +
+					"<input data-wrapper-class='attrib-submit' class='submit' data-theme='b' type='submit' value='" + _( "Submit" ) + "' />" +
+	            "</div>" +
+	        "</div>" );
+
+	    popup.find( ".submit" ).on( "click", function() {
+			a = 0;
+		    $.each( events, function( i ) {
+				ife |= popup.find( "#ifttt-" + i ).is( ":checked" ) << a;
+				a++;
+		    } );
+			popup.popup( "close" );
+		    if ( curr === ife ) {
+				return;
+		    } else {
+				button.value = ife;
+				header.eq( 2 ).prop( "disabled", false );
+				page.find( ".submit" ).addClass( "hasChanges" );
+		    }
+	    } );
+
+	    openPopup( popup );
+    } );
+
+    page.find( "#ifttt" ).on( "click", function() {
+		var options = $.extend( true, {}, {
+				ifkey: "",
+				ife: 0,
+				ifttt: { events: [ "sprinkler",  "sprinkler", "sprinkler", "sprinkler", "sprinkler", "sprinkler", "sprinkler", "sprinkler" ] }
+			}, { "ifkey": controller.settings.ifkey, "ife": controller.options.ife, "ifttt": controller.settings.ifttt } ),
+			events = {
+				program: _( "Program Start" ),
+				rain: _( "Rain Sensor" ),
+				flow: _( "Flow Sensor" ),
+				weather: _( "Water Level" ),
+				reboot: _( "Reboot" ),
+				run: _( "Station Run" )
+			}, button = this, curr = button.value, inputs = "", a = 0;
+
+		$.each( events, function( i, val ) {
+			inputs +=	"<div class='ui-block-a'>" +
+							"<label for='ifttt-" + i + "' style='border-color:#fff;background-color:#fff'>" + val + "</label>" +
+							"<input class='needsclick ifttt_enable' data-mini='true' data-iconpos='left' id='ifttt-" + i + "' type='checkbox' " +
+								( getBitFromByte( options.ife, a ) ? "checked='checked'" : "" ) + ">" +
+						"</div>" +
+						"<div class='ui-block-b' >" +
+							"<input id='ifeve-" + i + "' class='ifttt-" + i + "'  type='text' data-mini='true' maxlength='15' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' " +
+							( controller.settings.ifttt !== "undefined" && getBitFromByte( options.ife, a ) ? "" : "disabled='disabled'" ) + " value='" + options.ifttt.events[ a ] + "'>" +
+						"</div>";
+			a++;
+		} );
+
+		$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
+
+		var popup = $(	"<div data-role='popup' data-theme='a' id='iftttSettings'>" +
+							"<div data-role='header' data-theme='b'>" +
+								"<h1>" + _( "IFTTT Settings" ) + "</h1>" +
+							"</div>" +
+							"<div class='ui-content'>" +
+								"<div class='ui-field-contain'>" +
+									"<label for='ifkey' data-mini='true'>" + _( "IFTTT Key" ) + "</label>" +
+									"<input id='ifkey' type='text' data-mini='true' maxlength='128' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' value='" + options.ifkey + "'/>" +
+								"</div>" +
+								"<div class='ui-grid-a'>" +
+									"<div class='ui-block-a'>" +
+										"<label data-mini='true'>" + _( "OS Trigger" ) + "</label>" +
+									"</div>" +
+									"<div class='ui-block-b'>" +
+										"<label for='o49' data-mini='true'>" + _( "IFTTT Event" ) + "</label>" +
+									"</div>" +
+									inputs +
+								"</div>" +
+								"<button class='submit' data-theme='b'>" + _( "Submit" ) + "</button>" +
+							"</div>" +
+						"</div>" );
+
+	    popup.find( ".help-icon" ).on( "click", showHelpText );
+
+		popup.find( ".ifttt_enable" ).on( "change", function() {
+			var checkbox = $( this ),
+				inputClass = checkbox.attr( "id" );
+
+			if ( this.checked ) {
+				popup.find( "." + inputClass ).textinput( "enable" );
+			} else {
+				popup.find( "." + inputClass ).textinput( "disable" );
+			}
+		} );
+
+		popup.find( ".submit" ).on( "click", function() {
+			var a = 0;
+
+			options.ife = 0;
+			$.each( events, function( i ) {
+				options.ife |= popup.find( "#ifttt-" + i ).is( ":checked" ) << a;
+				options.ifttt.events[ a ] = popup.find( ".ifttt-" + i ).val();
+				a++;
+			} );
+			options.ifkey = popup.find( "#ifkey" ).val();
+			popup.popup( "close" );
+
+			if ( curr === escapeJSON( options ) ) {
+				return;
+			} else {
+				button.value = escapeJSON( options );
+				header.eq( 2 ).prop( "disabled", false );
+				page.find( ".submit" ).addClass( "hasChanges" );
+			}
+		} );
+
+		popup.css( "max-width", "380px" );
+
+		openPopup( popup, { positionTo: "window" } );
+    } );
+
+    page.find( "#influx" ).on( "click", function() {
+		var button = this, curr = button.value,
+			options = $.extend( {}, {
+				server: "server",
+				port: 8086,
+				db: "opensprinkler",
+				enable: 0
+			}, controller.settings.influx );
+
+		$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
+
+		var popup = $( "<div data-role='popup' data-theme='a' id='influxSettings'>" +
+				"<div data-role='header' data-theme='b'>" +
+					"<h1>" + _( "InfluxDB Settings" ) + "</h1>" +
+				"</div>" +
+				"<div class='ui-content'>" +
+					"<label for='enable'>Enable</label>" +
+					"<input class='needsclick influx_enable' data-mini='true' data-iconpos='right' id='enable' type='checkbox' " +
+						( options.enable ? "checked='checked'" : "" ) + ">" +
+					"<div class='ui-body'>" +
+						"<div class='ui-grid-a' style='display:table;'>" +
+							"<div class='ui-block-a' style='width:40%'>" +
+								"<label for='server' style='padding-top:10px'>" + _( "Server" ) + "</label>" +
+							"</div>" +
+							"<div class='ui-block-b' style='width:60%'>" +
+								"<input class='influx-input' type='text' id='server' data-mini='true' maxlength='30' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
+									( options.enable ? "" : "disabled='disabled'" ) + " placeholder='" + _( "server" ) + "' value='" + options.server + "' required />" +
+							"</div>" +
+							"<div class='ui-block-a' style='width:40%'>" +
+								"<label for='port' style='padding-top:10px'>" + _( "Port" ) + "</label>" +
+							"</div>" +
+							"<div class='ui-block-b' style='width:60%'>" +
+								"<input class='influx-input' type='number' id='port' data-mini='true' type='number' pattern='[0-9]*' min='0' max='65535' placeholder='80'" +
+									( options.enable ? "" : "disabled='disabled'" ) + " value='" + options.port + "' required />" +
+							"</div>" +
+							"<div class='ui-block-a' style='width:40%'>" +
+								"<label for='db' style='padding-top:10px'>" + _( "Database" ) + "</label>" +
+							"</div>" +
+							"<div class='ui-block-b' style='width:60%'>" +
+								"<input class='influx-input' type='text' id='db' data-mini='true' maxlength='25' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
+									( options.enable ? "" : "disabled='disabled'" ) + " placeholder='" + _( "database" ) + "' value='" + options.db + "' required />" +
+							"</div>" +
+						"</div>" +
+					"</div>" +
+					"<button class='submit' data-theme='b'>" + _( "Submit" ) + "</button>" +
+				"</div>" +
+			"</div>" );
+
+		popup.find( "#enable" ).on( "change", function() {
+			if ( this.checked ) {
+				popup.find( ".influx-input" ).textinput( "enable" );
+			} else {
+				popup.find( ".influx-input" ).textinput( "disable" );
+			}
+		} );
+
+		popup.find( ".submit" ).on( "click", function() {
+			var options = {
+				server: popup.find( "#server" ).val(),
+				port: parseInt( popup.find( "#port" ).val() ),
+				db: popup.find( "#db" ).val(),
+				enable: ( popup.find( "#enable" ).prop( "checked" ) ? 1 : 0 )
+			};
+
+			popup.popup( "close" );
+			if ( curr === escapeJSON( options ) ) {
+				return;
+			} else {
+				button.value = escapeJSON( options );
+				header.eq( 2 ).prop( "disabled", false );
+				page.find( ".submit" ).addClass( "hasChanges" );
+			}
+		} );
+
+		popup.css( "max-width", "380px" );
+
+		openPopup( popup, { positionTo: "window" } );
+    } );
+
+    page.find( "#webhook" ).on( "click", function() {
+		var button = this, curr = button.value,
+			options = $.extend( {}, {
+				server: "server",
+				port: 8080,
+				enable: 0
+			}, controller.settings.webhook );
+
+		$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
+
+		var popup = $( "<div data-role='popup' data-theme='a' id='webhookSettings'>" +
+				"<div data-role='header' data-theme='b'>" +
+					"<h1>" + _( "Webhook Settings" ) + "</h1>" +
+				"</div>" +
+				"<div class='ui-content'>" +
+					"<label for='enable'>Enable</label>" +
+					"<input class='needsclick webhook_enable' data-mini='true' data-iconpos='right' id='enable' type='checkbox' " +
+						( options.enable ? "checked='checked'" : "" ) + ">" +
+					"<div class='ui-body'>" +
+						"<div class='ui-grid-a' style='display:table;'>" +
+							"<div class='ui-block-a' style='width:40%'>" +
+								"<label for='server' style='padding-top:10px'>" + _( "Server" ) + "</label>" +
+							"</div>" +
+							"<div class='ui-block-b' style='width:60%'>" +
+								"<input class='webhook-input' type='text' id='server' data-mini='true' maxlength='50' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
+									( options.enable ? "" : "disabled='disabled'" ) + " placeholder='" + _( "server" ) + "' value='" + options.server + "' required />" +
+							"</div>" +
+							"<div class='ui-block-a' style='width:40%'>" +
+								"<label for='port' style='padding-top:10px'>" + _( "Port" ) + "</label>" +
+							"</div>" +
+							"<div class='ui-block-b' style='width:60%'>" +
+								"<input class='webhook-input' type='number' id='port' data-mini='true' pattern='[0-9]*' min='0' max='65535'" +
+									( options.enable ? "" : "disabled='disabled'" ) + " placeholder='80' value='" + options.port + "' required />" +
+							"</div>" +
+						"</div>" +
+					"</div>" +
+					"<button class='submit' data-theme='b'>" + _( "Submit" ) + "</button>" +
+				"</div>" +
+			"</div>" );
+
+		popup.find( "#enable" ).on( "change", function() {
+			if ( this.checked ) {
+				popup.find( ".webhook-input" ).textinput( "enable" );
+			} else {
+				popup.find( ".webhook-input" ).textinput( "disable" );
+			}
+		} );
+
+		popup.find( ".submit" ).on( "click", function() {
+			var options = {
+				server: popup.find( "#server" ).val(),
+				port: parseInt( popup.find( "#port" ).val() ),
+				enable: ( popup.find( "#enable" ).prop( "checked" ) ? 1 : 0 )
+			};
+
+			popup.popup( "close" );
+			if ( curr === escapeJSON( options ) ) {
+				return;
+			} else {
+				button.value = escapeJSON( options );
+				header.eq( 2 ).prop( "disabled", false );
+				page.find( ".submit" ).addClass( "hasChanges" );
+			}
+		} );
+
+		popup.css( "max-width", "380px" );
+
+		openPopup( popup, { positionTo: "window" } );
     } );
 
     page.find( ".reset-log" ).on( "click", clearLogs );
@@ -4518,51 +4877,6 @@ function showOptions( expandItem ) {
         } else {
             page.find( "#o31,#weatherRestriction" ).selectmenu( "enable" );
         }
-    } );
-
-    page.find( "#o49" ).on( "click", function() {
-		var events = {
-			program: _( "Program Start" ),
-			rain: _( "Rain Sensor Update" ),
-			flow: _( "Flow Sensor Update" ),
-			weather: _( "Weather Adjustment Update" ),
-			reboot: _( "Controller Reboot" ),
-			run: _( "Station Run" )
-		}, button = this, curr = parseInt( button.value ), inputs = "", a = 0, ife = 0;
-
-	    $.each( events, function( i, val ) {
-			inputs += "<label for='ifttt-" + i + "'><input class='needsclick' data-iconpos='right' id='ifttt-" + i + "' type='checkbox' " +
-				( getBitFromByte( curr, a ) ? "checked='checked'" : "" ) + ">" + val +
-			"</label>";
-			a++;
-	    } );
-
-	    var popup = $(
-	        "<div data-role='popup' data-theme='a'>" +
-	            "<div data-role='controlgroup' data-mini='true' class='tight'>" +
-		            "<div class='ui-bar ui-bar-a'>" + _( "Select IFTTT Events" ) + "</div>" +
-						inputs +
-					"<input data-wrapper-class='attrib-submit' class='submit' data-theme='b' type='submit' value='" + _( "Submit" ) + "' />" +
-	            "</div>" +
-	        "</div>" );
-
-	    popup.find( ".submit" ).on( "click", function() {
-			a = 0;
-		    $.each( events, function( i ) {
-				ife |= popup.find( "#ifttt-" + i ).is( ":checked" ) << a;
-				a++;
-		    } );
-			popup.popup( "close" );
-		    if ( curr === ife ) {
-				return;
-		    } else {
-				button.value = ife;
-				header.eq( 2 ).prop( "disabled", false );
-				page.find( ".submit" ).addClass( "hasChanges" );
-		    }
-	    } );
-
-	    openPopup( popup );
     } );
 
     page.find( ".datetime-input" ).on( "click", function() {
@@ -9156,6 +9470,29 @@ function importConfig( data ) {
             co += "&o36=1";
         }
 
+        // Import Weather Adjustment Options, if available
+        if ( data.settings.hasOwnProperty( "wto" ) && data.settings.wto !== "" && checkOSVersion( 215 ) ) {
+            co += "&wto=" + escapeJSON( data.settings.wto );
+        }
+
+        // Import IFTTT Key, if available
+        if ( data.settings.hasOwnProperty( "ifkey" ) && data.settings.ifkey !== "" && checkOSVersion( 217 ) ) {
+            co += "&ifkey=" + data.settings.ifkey;
+        }
+
+        // Import extended notification options, if available
+        if ( checkOSVersion( 2172 ) ) {
+            var opts = [ "ifttt", "webhook", "influx" ];
+            for ( var opt in opts ) {
+                if ( data.settings.hasOwnProperty( opts[ opt ] ) && data.settings[ opts[ opt ] ] !== "" ) {
+                    co += "&" + opts[ opt ] + "=" + escapeJSON( data.settings[ opts[ opt ] ] );
+                }
+            }
+            if ( data.settings.hasOwnProperty( "site" ) && data.settings.site !== "" ) {
+                co += "&site=" + data.settings.site;
+            }
+        }
+
         co += "&" + ( isPi ? "o" : "" ) + "loc=" + data.settings.loc;
 
         for ( i = 0; i < data.stations.snames.length; i++ ) {
@@ -11904,7 +12241,7 @@ function getUrlVars( url ) {
 }
 
 function escapeJSON( json ) {
-	return JSON.stringify( json ).replace( /\{|\}/g, "" );
+	return JSON.stringify( json ).replace( /^\{|\}$/g, "" );
 }
 
 function isMD5( pass ) {
