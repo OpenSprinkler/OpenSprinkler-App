@@ -503,15 +503,6 @@ body, input, select, textarea, button, .ui-btn {
     text-overflow: clip !important;
 }
 
-/* iPhone X rules */
-.ui-footer {
-	padding-bottom: env(safe-area-inset-bottom);
-}
-
-#footer-menu {
-	bottom: calc(env(safe-area-inset-bottom) + 10%) !important;
-}
-
 /* Start page rules */
 
 #start {
@@ -727,7 +718,7 @@ body, input, select, textarea, button, .ui-btn {
     font-weight:400;
     font-size:medium;
     width: 100%;
-    min-height: 24px;
+	min-height: 24px;
     padding: 2px 0;
 }
 #footer-menu {
@@ -1229,4 +1220,13 @@ div.running-text{
     .home-info {
         margin-left: -25px;
     }
+}
+
+/* iPhone X rules */
+#footer-running {
+	padding: 0 2px env(safe-area-inset-bottom) 2px;
+}
+
+#footer-menu {
+	bottom: calc(env(safe-area-inset-bottom) + 10%) !important;
 }
