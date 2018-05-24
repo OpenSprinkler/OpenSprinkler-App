@@ -3677,12 +3677,6 @@ function showOptions( expandItem ) {
                         }
                         return true;
                     case "o31":
-                        if ( data > 0 && $( "#wtkey" ).val() === "" ) {
-                            showerror( _( "Weather Underground API key is required for weather-based control" ) );
-                            invalid = true;
-                            return false;
-                        }
-
                         var restrict = page.find( "#weatherRestriction" );
                         if ( restrict.length ) {
                             data = setRestriction( parseInt( restrict.val() ), data );
