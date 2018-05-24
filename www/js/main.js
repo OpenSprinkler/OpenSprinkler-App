@@ -3916,38 +3916,12 @@ function showOptions( expandItem ) {
 		( typeof expandItem === "string" && expandItem === "weather" ? " data-collapsed='false'" : "" ) + ">" +
 		"<legend>" + _( "Weather and Sensors" ) + "</legend>";
 
-    if ( typeof controller.settings.wtkey !== "undefined" ) {
-        list += "<div class='ui-field-contain'><label for='wtkey'>" + _( "Wunderground Key" ).replace( "Wunderground", "Wunder&shy;ground" ) +
-	        "<button data-helptext='" +
-				_( "Weather Underground requires an API Key which can be obtained from " ) +
-				"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
-		"</label>" +
-        "<table>" +
-            "<tr style='width:100%;vertical-align: top;'>" +
-                "<td style='width:100%'>" +
-                    "<div class='" +
-						( weatherKeyFail === true ? "red " : ( ( controller.settings.wtkey && controller.settings.wtkey !== "" ) ? "green " : "" ) ) +
-						"ui-input-text controlgroup-textinput ui-btn ui-body-inherit ui-corner-all ui-mini ui-shadow-inset ui-input-has-clear'>" +
-							"<input data-role='none' data-mini='true' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' " +
-								"type='text' id='wtkey' value='" + controller.settings.wtkey + "'>" +
-							"<a href='#' tabindex='-1' aria-hidden='true' data-helptext='" + _( "An invalid API key has been detected." ) +
-								"' class='" + ( weatherKeyFail === true ? "" : "hidden " ) +
-								"help-icon ui-input-clear ui-btn ui-icon-alert ui-btn-icon-notext ui-corner-all'>" +
-							"</a>" +
-                    "</div>" +
-                "</td>" +
-                "<td><button class='noselect' data-mini='true' id='verify-api'>" + _( "Verify" ) + "</button></td>" +
-            "</tr>" +
-        "</table></div>";
-    }
-
     if ( typeof controller.options.uwt !== "undefined" ) {
         list += "<div class='ui-field-contain'><label for='o31' class='select'>" + _( "Weather Adjustment Method" ) +
 				"<button data-helptext='" +
 					_( "Weather adjustment uses Weather Underground data in conjunction with the selected method to adjust the watering percentage." ) +
 					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
-			"</label><select " + ( controller.settings.wtkey && controller.settings.wtkey !== "" ? "" : "disabled='disabled' " ) +
-				"data-mini='true' id='o31'>";
+			"</label><select data-mini='true' id='o31'>";
         for ( i = 0; i < getAdjustmentName( "length" ); i++ ) {
             list += "<option " + ( ( i === getAdjustmentMethod() ) ? "selected" : "" ) + " value='" + i + "'>" + getAdjustmentName( i ) + "</option>";
         }
@@ -3965,8 +3939,7 @@ function showOptions( expandItem ) {
 					"<button data-helptext='" + _( "Prevents watering when the selected restriction is met." ) +
 						"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
 				"</label>" +
-				"<select " + ( controller.settings.wtkey && controller.settings.wtkey !== "" ? "" : "disabled='disabled' " ) +
-					"data-mini='true' class='noselect' id='weatherRestriction'>";
+				"<select data-mini='true' class='noselect' id='weatherRestriction'>";
 
             for ( i = 0; i < 2; i++ ) {
                 var restrict = getRestriction( i );
@@ -4077,6 +4050,31 @@ function showOptions( expandItem ) {
     list += "</fieldset><fieldset data-role='collapsible' data-theme='b'" +
 		( typeof expandItem === "string" && expandItem === "advanced" ? " data-collapsed='false'" : "" ) + ">" +
 		"<legend>" + _( "Advanced" ) + "</legend>";
+
+	if ( typeof controller.options.uwt !== "undefined" && typeof controller.settings.wtkey !== "undefined" ) {
+		list += "<div class='ui-field-contain'><label for='wtkey'>" + _( "Wunderground Key" ).replace( "Wunderground", "Wunder&shy;ground" ) +
+			"<button data-helptext='" +
+				_( "We use OpenWeatherMap normally however with a user provided API key the weather source will switch to Weather Underground." ) +
+				"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
+		"</label>" +
+		"<table>" +
+			"<tr style='width:100%;vertical-align: top;'>" +
+				"<td style='width:100%'>" +
+					"<div class='" +
+						( weatherKeyFail === true ? "red " : ( ( controller.settings.wtkey && controller.settings.wtkey !== "" ) ? "green " : "" ) ) +
+						"ui-input-text controlgroup-textinput ui-btn ui-body-inherit ui-corner-all ui-mini ui-shadow-inset ui-input-has-clear'>" +
+							"<input data-role='none' data-mini='true' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' " +
+								"type='text' id='wtkey' value='" + controller.settings.wtkey + "'>" +
+							"<a href='#' tabindex='-1' aria-hidden='true' data-helptext='" + _( "An invalid API key has been detected." ) +
+								"' class='" + ( weatherKeyFail === true ? "" : "hidden " ) +
+								"help-icon ui-input-clear ui-btn ui-icon-alert ui-btn-icon-notext ui-corner-all'>" +
+							"</a>" +
+					"</div>" +
+				"</td>" +
+				"<td><button class='noselect' data-mini='true' id='verify-api'>" + _( "Verify" ) + "</button></td>" +
+			"</tr>" +
+		"</table></div>";
+	}
 
     if ( typeof controller.options.hp0 !== "undefined" ) {
         list += "<div class='ui-field-contain'><label for='o12'>" + _( "HTTP Port (restart required)" ) + "</label>" +
@@ -4513,10 +4511,7 @@ function showOptions( expandItem ) {
         // Switch state of weather algorithm input based on API key status
         if ( this.value === "" ) {
 	        page.find( "#wto" ).parents( ".ui-field-contain" ).toggleClass( "hidden", true );
-            page.find( "#o31,#weatherRestriction" ).val( "0" ).selectmenu( "refresh" ).selectmenu( "disable" );
             page.find( "#o23" ).prop( "disabled", false );
-        } else {
-            page.find( "#o31,#weatherRestriction" ).selectmenu( "enable" );
         }
     } );
 
@@ -11289,10 +11284,6 @@ function showHelpText( e ) {
     var button = $( this ),
         text = button.data( "helptext" ),
         popup;
-
-    if ( button.parent().attr( "for" ) === "wtkey" ) {
-        text += "<a class='iab' target='_blank' href='https://openthings.freshdesk.com/support/solutions/articles/5000017485-getting-a-weather-api#article-show-5000017485'>here</a>.";
-    }
 
     popup = $( "<div data-role='popup' data-theme='a'>" +
         "<p>" + text + "</p>" +
