@@ -11,7 +11,7 @@
     <content src="index.html" />
     <access origin="*" />
     <allow-intent href="*" />
-    <preference name="phonegap-version" value="cli-7.0.1" />
+    <preference name="phonegap-version" value="cli-8.0.0" />
     <preference name="WebSecurity" value="disable" />
     <preference name="KeepRunning" value="false" />
     <preference name="BackgroundColor" value="0x001c1c1c" />
