@@ -1,7 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget android-versionCode="69" id="com.albahra.sprinklers" version="1.7.5"
-
- versionCode="69" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget android-versionCode="69" id="com.albahra.sprinklers" version="1.7.5" versionCode="69" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>OpenSprinkler</name>
     <description>
 	        Designed to allow intuitive control of the OpenSprinkler irrigation controller.
@@ -40,7 +38,7 @@
             <string>Your photo library is used to provide an image for your stations.</string>
         </edit-config>
         <edit-config file="*-Info.plist" mode="merge" target="CFBundleShortVersionString">
-            <string>1610</string>
+            <string>170</string>
         </edit-config>
         <splash height="480" src="res/ios/screens/startup.png" width="320" />
         <splash height="960" src="res/ios/screens/startup-retina.png" width="640" />
