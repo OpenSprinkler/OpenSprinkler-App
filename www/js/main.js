@@ -648,7 +648,7 @@ function sendToOS( dest, type ) {
 		queue = isChange ? "change" : "default",
 
         // Use POST when sending data to the controller (requires firmware 2.1.8 or newer)
-        usePOST = ( isChange && checkOSVersion( 218 ) ),
+        usePOST = ( isChange && checkOSVersion( 300 ) ),
         obj = {
             url: currPrefix + currIp + ( usePOST ? dest.split( "?" )[ 0 ] : dest ),
             type: usePOST ? "POST" : "GET",
