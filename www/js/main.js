@@ -2310,8 +2310,9 @@ function showZimmermanAdjustmentOptions( button, callback ) {
             bh: 30,
             bt: 70,
             br: 0
-        }, controller.settings.wto ),
-        isMetric = ( weather.forecast.region === "US" || weather.forecast.region === "BM" || weather.forecast.region === "PW" ) ? false : true,
+		}, controller.settings.wto ),
+		region = weather ? weather.forecast.region : navigator.language.split( "-" )[ 1 ],
+        isMetric = ( region === "US" || region === "BM" || region === "PW" ) ? false : true,
 
 		// Enable Zimmerman extension to set weather conditions as baseline for adjustment
         hasBaseline = checkOSVersion( 2162 );
