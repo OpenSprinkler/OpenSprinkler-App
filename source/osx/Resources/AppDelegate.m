@@ -118,6 +118,11 @@
     NSScrollView *mainScrollView = sender.mainFrame.frameView.documentView.enclosingScrollView;
     [mainScrollView setVerticalScrollElasticity:NSScrollElasticityNone];
     [mainScrollView setHorizontalScrollElasticity:NSScrollElasticityNone];
+    
+    // Make sure our web view and its superview resize automatically when the
+    // window resizes
+    [webView setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
+    [[webView superview] setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
 }
 
 @end

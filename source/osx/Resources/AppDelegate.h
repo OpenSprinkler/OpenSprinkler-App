@@ -10,7 +10,7 @@
 #import <WebKit/WebKit.h>
 #import <WebKit/WebPreferences.h>
 
-@interface AppDelegate : NSObject  {
+@interface AppDelegate : NSObject <WebFrameLoadDelegate,WebResourceLoadDelegate,WebPolicyDelegate>  {
 	NSWindow *window;
 	IBOutlet WebView *webView;
 }
