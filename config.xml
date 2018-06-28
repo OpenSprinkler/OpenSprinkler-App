@@ -1,5 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget android-versionCode="71" id="com.albahra.sprinklers" version="1.7.7" versionCode="71" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget android-versionCode="72" id="com.albahra.sprinklers" version="1.7.8"
+ versionCode="72" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>OpenSprinkler</name>
     <description>
 	        Designed to allow intuitive control of the OpenSprinkler irrigation controller.
@@ -41,7 +42,7 @@
             <string>Your camera is used to provide an image for your stations.</string>
         </edit-config>
         <edit-config file="*-Info.plist" mode="merge" target="CFBundleShortVersionString">
-            <string>172</string>
+            <string>173</string>
         </edit-config>
         <splash height="480" src="res/ios/screens/startup.png" width="320" />
         <splash height="960" src="res/ios/screens/startup-retina.png" width="640" />
@@ -114,13 +115,13 @@
     </platform>
     <plugin name="cordova-plugin-3dtouch" spec="^1.3.5" />
     <plugin name="cordova-plugin-camera" spec="^3.0.0" />
-    <plugin name="cordova-plugin-networkinterface" spec="2.0.0" />
     <plugin name="cordova-plugin-statusbar" spec="^2.3.0" />
     <plugin name="cordova-plugin-transport-security" spec="^0.1.2" />
     <plugin name="cordova-plugin-whitelist" spec="^1.3.3" />
     <plugin name="cordova-plugin-geolocation" spec="https://github.com/apache/cordova-plugin-geolocation.git" />
     <plugin name="cordova-plugin-splashscreen" spec="https://github.com/apache/cordova-plugin-splashscreen.git" />
     <plugin name="cordova-plugin-inappbrowser" spec="https://github.com/apache/cordova-plugin-inappbrowser.git" />
+    <plugin name="cordova-plugin-networkinterface" spec="https://github.com/salbahra/cordova-plugin-networkinterface.git" />
     <engine name="ios" spec="^4.5.4" />
     <engine name="android" spec="^7.0.0" />
 </widget>

@@ -5,7 +5,7 @@
   "phonegap": {
     "id": "1371093"
   },
-  "version": "1.7.7",
+  "version": "1.7.8",
   "description": "Designed to allow intuitive control of the OpenSprinkler irrigation controller.",
   "main": "index.html",
   "scripts": {
@@ -84,10 +84,10 @@
     "cordova-ios": "^4.5.4",
     "cordova-plugin-3dtouch": "^1.3.5",
     "cordova-plugin-camera": "^3.0.0",
-    "cordova-plugin-geolocation": "git+https://github.com/apache/cordova-plugin-geolocation.git",
-    "cordova-plugin-inappbrowser": "git+https://github.com/apache/cordova-plugin-inappbrowser.git",
-    "cordova-plugin-networkinterface": "git+https://github.com/salbahra/NetworkInterfacePlugin.git",
-    "cordova-plugin-splashscreen": "git+https://github.com/apache/cordova-plugin-splashscreen.git",
+    "cordova-plugin-geolocation": "https://github.com/apache/cordova-plugin-geolocation.git",
+    "cordova-plugin-inappbrowser": "https://github.com/apache/cordova-plugin-inappbrowser.git",
+    "cordova-plugin-networkinterface": "https://github.com/salbahra/cordova-plugin-networkinterface.git",
+    "cordova-plugin-splashscreen": "https://github.com/apache/cordova-plugin-splashscreen.git",
     "cordova-plugin-statusbar": "^2.3.0",
     "cordova-plugin-transport-security": "^0.1.2",
     "cordova-plugin-whitelist": "^1.3.3"
