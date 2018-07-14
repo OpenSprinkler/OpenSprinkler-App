@@ -383,9 +383,6 @@ msgstr ""
 msgid "A valid DNS address is required when DHCP is not used"
 msgstr ""
 
-msgid "Weather Underground API key is required for weather-based control"
-msgstr ""
-
 msgid "Settings have been saved"
 msgstr ""
 
@@ -447,18 +444,6 @@ msgid "Sequential"
 msgstr ""
 
 msgid "Weather and Sensors"
-msgstr ""
-
-msgid "Wunderground Key"
-msgstr ""
-
-msgid "Weather Underground requires an API Key which can be obtained from "
-msgstr ""
-
-msgid "An invalid API key has been detected."
-msgstr ""
-
-msgid "Verify"
 msgstr ""
 
 msgid "Weather Adjustment Method"
@@ -539,6 +524,20 @@ msgid "Brightness"
 msgstr ""
 
 msgid "Idle Brightness"
+msgstr ""
+
+msgid "Wunderground Key"
+msgstr ""
+
+msgid ""
+"We use OpenWeatherMap normally however with a user provided API key the "
+"weather source will switch to Weather Underground."
+msgstr ""
+
+msgid "An invalid API key has been detected."
+msgstr ""
+
+msgid "Verify"
 msgstr ""
 
 msgid "HTTP Port (restart required)"
@@ -1383,6 +1382,12 @@ msgid ""
 msgstr ""
 
 msgid "Password"
+msgstr ""
+
+msgid "Unused Expansion Boards Detected"
+msgstr ""
+
+msgid "Click here to enable all connected stations."
 msgstr ""
 
 msgid "Unified firmware is now avaialble"
