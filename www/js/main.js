@@ -840,7 +840,10 @@ function newLoad() {
 	        }
 
             // Check if a firmware update is available
-            checkFirmwareUpdate();
+			checkFirmwareUpdate();
+
+			// Check for unused expansion boards
+			detectUnusedExpansionBoards();
 
             // Check if password is plain text (older method) and hash the password, if needed
             if ( checkOSVersion( 213 ) && controller.options.hwv !== 255 ) {
@@ -9960,6 +9963,27 @@ function handleInvalidDataToken() {
 
 function getTokenUser( token ) {
     return atob( token ).split( "|" )[ 0 ];
+}
+
+function detectUnusedExpansionBoards() {
+    if (
+        typeof controller.options.dexp === "number" &&
+        controller.options.dexp < 255 &&
+        controller.options.dexp >= 0 &&
+        controller.options.ext !== controller.options.dexp
+    ) {
+        addNotification( {
+            title: _( "Unused Expansion Boards Detected" ),
+            desc: _( "Click here to enable all connected stations." ),
+            on: function() {
+                removeNotification( $( this ).parent() );
+				changePage( "#os-options", {
+					expandItem: "station"
+				} );
+				return false;
+            }
+        } );
+    }
 }
 
 function showUnifiedFirmwareNotification() {
