@@ -9293,7 +9293,7 @@ function importConfig( data ) {
             } ),
             $.each( data.special, function( sid, info ) {
 				if ( checkOSVersion( 216 ) ) {
-	                sendToOS( "/cs?pw=&sid=" + sid + "&st=" + info.st + "&sd=" + info.sd );
+	                sendToOS( "/cs?pw=&sid=" + sid + "&st=" + info.st + "&sd=" + encodeURIComponent( info.sd ) );
 	            }
             } )
         ).then(
