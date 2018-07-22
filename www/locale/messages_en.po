@@ -1384,7 +1384,7 @@ msgstr ""
 msgid "Password"
 msgstr ""
 
-msgid "Unused Expansion Boards Detected"
+msgid "Unused Expanders Detected"
 msgstr ""
 
 msgid "Click here to enable all connected stations."
