@@ -121,6 +121,8 @@
     <plugin name="cordova-plugin-splashscreen" spec="https://github.com/apache/cordova-plugin-splashscreen.git" />
     <plugin name="cordova-plugin-inappbrowser" spec="https://github.com/apache/cordova-plugin-inappbrowser.git" />
     <plugin name="cordova-plugin-networkinterface" spec="https://github.com/salbahra/cordova-plugin-networkinterface.git" />
+    <plugin name="cordova-plugin-wkwebview-engine" spec="^1.1.4" />
+    <plugin name="cordova-plugin-migrate-localstorage" spec="0.0.2" />
     <engine name="ios" spec="^4.5.4" />
     <engine name="android" spec="^7.0.0" />
 </widget>

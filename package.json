@@ -72,7 +72,9 @@
       "cordova-plugin-splashscreen": {},
       "cordova-plugin-statusbar": {},
       "cordova-plugin-transport-security": {},
-      "cordova-plugin-whitelist": {}
+      "cordova-plugin-whitelist": {},
+      "cordova-plugin-wkwebview-engine": {},
+      "cordova-plugin-migrate-localstorage": {}
     },
     "platforms": [
       "ios",
@@ -86,10 +88,12 @@
     "cordova-plugin-camera": "^3.0.0",
     "cordova-plugin-geolocation": "https://github.com/apache/cordova-plugin-geolocation.git",
     "cordova-plugin-inappbrowser": "https://github.com/apache/cordova-plugin-inappbrowser.git",
+    "cordova-plugin-migrate-localstorage": "0.0.2",
     "cordova-plugin-networkinterface": "https://github.com/salbahra/cordova-plugin-networkinterface.git",
     "cordova-plugin-splashscreen": "https://github.com/apache/cordova-plugin-splashscreen.git",
     "cordova-plugin-statusbar": "^2.3.0",
     "cordova-plugin-transport-security": "^0.1.2",
-    "cordova-plugin-whitelist": "^1.3.3"
+    "cordova-plugin-whitelist": "^1.3.3",
+    "cordova-plugin-wkwebview-engine": "^1.1.4"
   }
 }
