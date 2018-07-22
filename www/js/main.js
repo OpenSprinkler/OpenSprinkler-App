@@ -9970,7 +9970,7 @@ function detectUnusedExpansionBoards() {
         typeof controller.options.dexp === "number" &&
         controller.options.dexp < 255 &&
         controller.options.dexp >= 0 &&
-        controller.options.ext !== controller.options.dexp
+        controller.options.ext < controller.options.dexp
     ) {
         addNotification( {
             title: _( "Unused Expansion Boards Detected" ),
