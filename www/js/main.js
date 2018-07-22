@@ -11833,9 +11833,9 @@ function languageSelect() {
     	Commented list of languages used by the string parser to identify strings for translation
 
 		{af: _("Afrikaans"), am: _("Amharic"), zh: _("Chinese"), hr: _("Croatian"), cs: _("Czech"),
-		nl: _("Dutch"), en: _("English"), pes: _("Farsi"), fr: _("French"), de: _("German"),
+		nl: _("Dutch"), en: _("English"), pes: _("Farsi"), fr: _("French"), de: _("German"), bg: _("Bulgarian"),
 		el: _("Greek"), he: _("Hebrew"), hu: _("Hungarian"), is: _("Icelandic"), it: _("Italian"), lv: _("Latvian"),
-		mn: _("Mongolian"), no: _("Norwegian"), pl: _("Polish"), pt: _("Portuguese"), ru: _("Russian"),
+		mn: _("Mongolian"), no: _("Norwegian"), pl: _("Polish"), pt: _("Portuguese"), ru: _("Russian"), ta: _("Tamil"),
 		sk: _("Slovak"), sl: _("Slovenian"), es: _("Spanish"), th: _("Thai"), tr: _("Turkish"), sv: _("Swedish"), ro: _("Romanian")}
 	*/
 
@@ -11843,10 +11843,10 @@ function languageSelect() {
                 "<ul data-inset='true' data-role='listview' id='lang' data-corners='false'>" +
                 "<li data-role='list-divider' data-theme='b' class='center' data-translate='Localization'>" + _( "Localization" ) + "</li>",
 
-        codes = { af: "Afrikaans", am: "Amharic", zh: "Chinese", hr: "Croatian", cs: "Czech", nl: "Dutch",
+        codes = { af: "Afrikaans", am: "Amharic", bg: "Bulgarian", zh: "Chinese", hr: "Croatian", cs: "Czech", nl: "Dutch",
 				en: "English", pes: "Farsi", fr: "French", de: "German", el: "Greek", he: "Hebrew", hu: "Hungarian",
 				is: "Icelandic", it: "Italian", lv: "Latvian", mn: "Mongolian", no: "Norwegian", pl: "Polish", pt: "Portuguese",
-				ru: "Russian", sk: "Slovak", sl: "Slovenian", es: "Spanish", th: "Thai", tr: "Turkish", sv: "Swedish", ro: "Romanian" };
+				ru: "Russian", sk: "Slovak", sl: "Slovenian", es: "Spanish", ta: "Tamil", th: "Thai", tr: "Turkish", sv: "Swedish", ro: "Romanian" };
 
     $.each( codes, function( key, name ) {
         popup += "<li><a href='#' data-translate='" + name + "' data-lang-code='" + key + "'>" + _( name ) + "</a></li>";
