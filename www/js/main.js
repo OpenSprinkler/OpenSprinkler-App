@@ -3235,59 +3235,42 @@ function overlayMap( callback ) {
 }
 
 function debugWU() {
-    if ( typeof controller.settings.wtkey !== "string" || controller.settings.wtkey === "" ) {
-        showerror( _( "An API key must be provided for Weather Underground" ) );
-        return;
-    }
-
     $.mobile.loading( "show" );
 
     $.ajax( {
         url: "https://api.wunderground.com/api/" + controller.settings.wtkey + "/yesterday/conditions/q/" + controller.settings.loc + ".json",
         dataType: isChromeApp || isWinApp ? "json" : "jsonp",
         shouldRetry: retryCount
-    } ).done( function( data ) {
-        $.mobile.loading( "hide" );
+    } ).always( function( data ) {
+		$.mobile.loading( "hide" );
 
-        if ( typeof data.response.error === "object" ) {
-            showerror( _( "An invalid API key has been detected" ) );
-            return;
-        }
+		var popup = "<div data-role='popup' id='debugWU' class='ui-content ui-page-theme-a'><table class='debugWU'>";
 
-        if ( typeof data.history === "object" && typeof data.history.dailysummary === "object" ) {
-            var summary = data.history.dailysummary[ 0 ],
-				current = data.current_observation;
+		if (
+			typeof data.response.error !== "object" &&
+			typeof data.history === "object" &&
+			typeof data.history.dailysummary === "object" &&
+			validateWUValues( [ "minhumidity", "maxhumidity", "meantempm", "meantempi", "precipm", "precipi" ], data.history.dailysummary[ 0 ] ) &&
+			validateWUValues( [ "precip_today_metric", "precip_today_in" ], data.current_observation )
+		) {
 
-            if ( !validateWUValues( [ "minhumidity", "maxhumidity", "meantempm", "meantempi", "precipm", "precipi" ], summary ) ||
-					!validateWUValues( [ "precip_today_metric", "precip_today_in" ], current ) ) {
-				showerror( _( "Weather data cannot be found for your location" ) );
-				return;
-            }
+            var country = data.current_observation.display_location.country_iso3166,
+				isMetric = ( ( country === "US" || country === "BM" || country === "PW" ) ? false : true );
 
-            var country = current.display_location.country_iso3166,
-                isMetric = ( ( country === "US" || country === "BM" || country === "PW" ) ? false : true ),
-                popup = $( "<div data-role='popup' id='debugWU' class='ui-content ui-page-theme-a'>" +
-                    "<table class='debugWU'>" +
-                        "<tr><td>" + _( "Min Humidity" ) + "</td><td>" + summary.minhumidity + "%</td></tr>" +
-                        "<tr><td>" + _( "Max Humidity" ) + "</td><td>" + summary.maxhumidity + "%</td></tr>" +
-                        "<tr><td>" + _( "Mean Temp" ) + "</td><td>" + ( isMetric ? summary.meantempm + "&#176;C" : summary.meantempi + "&#176;F" ) + "</td></tr>" +
-                        "<tr><td>" + _( "Precip Yesterday" ) + "</td><td>" + ( isMetric ? summary.precipm + "mm" : summary.precipi + "\"" ) + "</td></tr>" +
-                        "<tr><td>" + _( "Precip Today" ) + "</td><td>" + ( isMetric ? current.precip_today_metric + "mm" : current.precip_today_in + "\"" ) + "</td></tr>" +
-                        "<tr><td>" + _( "Adjustment Method" ) + "</td><td>" + getAdjustmentName( controller.options.uwt ) + "</td></tr>" +
-                        "<tr><td>" + _( "Current % Watering" ) + "</td><td>" + controller.options.wl + "%</td></tr>" +
-                        ( typeof controller.settings.lwc === "number" ? "<tr><td>" + _( "Last Weather Call" ) + "</td><td>" + dateToString( new Date( controller.settings.lwc * 1000 ) ) + "</td></tr>" : "" ) +
-                        ( typeof controller.settings.lswc === "number" ? "<tr><td>" + _( "Last Successful Weather Call" ) + "</td><td>" + dateToString( new Date( controller.settings.lswc * 1000 ) ) + "</td></tr>" : "" ) +
-                    "</table>" +
-                "</div>" );
+            popup += "<tr><td>" + _( "Min Humidity" ) + "</td><td>" + data.history.dailysummary[ 0 ].minhumidity + "%</td></tr>" +
+                	 "<tr><td>" + _( "Max Humidity" ) + "</td><td>" + data.history.dailysummary[ 0 ].maxhumidity + "%</td></tr>" +
+                     "<tr><td>" + _( "Mean Temp" ) + "</td><td>" + ( isMetric ? data.history.dailysummary[ 0 ].meantempm + "&#176;C" : data.history.dailysummary[ 0 ].meantempi + "&#176;F" ) + "</td></tr>" +
+                     "<tr><td>" + _( "Precip Yesterday" ) + "</td><td>" + ( isMetric ? data.history.dailysummary[ 0 ].precipm + "mm" : data.history.dailysummary[ 0 ].precipi + "\"" ) + "</td></tr>" +
+                     "<tr><td>" + _( "Precip Today" ) + "</td><td>" + ( isMetric ? data.current_observation.precip_today_metric + "mm" : data.current_observation.precip_today_in + "\"" ) + "</td></tr>" +
+                     "<tr><td>" + _( "Adjustment Method" ) + "</td><td>" + getAdjustmentName( controller.options.uwt ) + "</td></tr>" +
+                     "<tr><td>" + _( "Current % Watering" ) + "</td><td>" + controller.options.wl + "%</td></tr>";
+		}
 
-            openPopup( popup );
-        } else {
-            showerror( _( "Weather data cannot be found for your location" ) );
-            return;
-        }
-    } ).fail( function() {
-        $.mobile.loading( "hide" );
-        showerror( _( "Connection timed-out. Please try again." ) );
+		popup += ( typeof controller.settings.lwc === "number" ? "<tr><td>" + _( "Last Weather Call" ) + "</td><td>" + dateToString( new Date( controller.settings.lwc * 1000 ) ) + "</td></tr>" : "" ) +
+				 ( typeof controller.settings.lswc === "number" ? "<tr><td>" + _( "Last Successful Weather Call" ) + "</td><td>" + dateToString( new Date( controller.settings.lswc * 1000 ) ) + "</td></tr>" : "" ) +
+				 "</table></div>";
+
+		openPopup( $( popup ) );
     } );
 
     return false;
