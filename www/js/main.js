@@ -10267,8 +10267,8 @@ function checkFirmwareUpdate() {
                             on: function() {
 
                                 // Modify the changelog by parsing markdown of lists to HTML
-                                var button = $( this ).parent(),
-									canUpdate = controller.options.hwv > 63 && checkOSVersion( 216 ),
+								var button = $( this ).parent(),
+									canUpdate = controller.options.hwv === 30 || controller.options.hwv > 63 && checkOSVersion( 216 ),
                                     changelog = data[ 0 ][ "html_url" ],
                                     popup = $(
                                         "<div data-role='popup' class='modal' data-theme='a'>" +
@@ -10290,6 +10290,11 @@ function checkFirmwareUpdate() {
 
                                 popup.find( ".guide" ).on( "click", function() {
 									if ( canUpdate ) {
+
+										if ( controller.options.hwv === 30 ) {
+											window.open( currPrefix + currIp + "/update", "_system" );
+											return;
+										}
 
 										// For OSPi/OSBo with firmware 2.1.6 or newer, trigger the update script from the app
 										sendToOS( "/cv?pw=&update=1", "json" ).then(
