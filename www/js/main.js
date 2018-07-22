@@ -9973,7 +9973,7 @@ function detectUnusedExpansionBoards() {
         controller.options.ext < controller.options.dexp
     ) {
         addNotification( {
-            title: _( "Unused Expansion Boards Detected" ),
+            title: _( "Unused Expanders Detected" ),
             desc: _( "Click here to enable all connected stations." ),
             on: function() {
                 removeNotification( $( this ).parent() );
