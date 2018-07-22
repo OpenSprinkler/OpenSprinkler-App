@@ -3257,13 +3257,13 @@ function debugWU() {
             var country = data.current_observation.display_location.country_iso3166,
 				isMetric = ( ( country === "US" || country === "BM" || country === "PW" ) ? false : true );
 
-            popup += "<tr><td>" + _( "Min Humidity" ) + "</td><td>" + data.history.dailysummary[ 0 ].minhumidity + "%</td></tr>" +
-                	 "<tr><td>" + _( "Max Humidity" ) + "</td><td>" + data.history.dailysummary[ 0 ].maxhumidity + "%</td></tr>" +
-                     "<tr><td>" + _( "Mean Temp" ) + "</td><td>" + ( isMetric ? data.history.dailysummary[ 0 ].meantempm + "&#176;C" : data.history.dailysummary[ 0 ].meantempi + "&#176;F" ) + "</td></tr>" +
-                     "<tr><td>" + _( "Precip Yesterday" ) + "</td><td>" + ( isMetric ? data.history.dailysummary[ 0 ].precipm + "mm" : data.history.dailysummary[ 0 ].precipi + "\"" ) + "</td></tr>" +
-                     "<tr><td>" + _( "Precip Today" ) + "</td><td>" + ( isMetric ? data.current_observation.precip_today_metric + "mm" : data.current_observation.precip_today_in + "\"" ) + "</td></tr>" +
-                     "<tr><td>" + _( "Adjustment Method" ) + "</td><td>" + getAdjustmentName( controller.options.uwt ) + "</td></tr>" +
-                     "<tr><td>" + _( "Current % Watering" ) + "</td><td>" + controller.options.wl + "%</td></tr>";
+			popup += "<tr><td>" + _( "Min Humidity" ) + "</td><td>" + data.history.dailysummary[ 0 ].minhumidity + "%</td></tr>" +
+				"<tr><td>" + _( "Max Humidity" ) + "</td><td>" + data.history.dailysummary[ 0 ].maxhumidity + "%</td></tr>" +
+				"<tr><td>" + _( "Mean Temp" ) + "</td><td>" + ( isMetric ? data.history.dailysummary[ 0 ].meantempm + "&#176;C" : data.history.dailysummary[ 0 ].meantempi + "&#176;F" ) + "</td></tr>" +
+				"<tr><td>" + _( "Precip Yesterday" ) + "</td><td>" + ( isMetric ? data.history.dailysummary[ 0 ].precipm + "mm" : data.history.dailysummary[ 0 ].precipi + "\"" ) + "</td></tr>" +
+				"<tr><td>" + _( "Precip Today" ) + "</td><td>" + ( isMetric ? data.current_observation.precip_today_metric + "mm" : data.current_observation.precip_today_in + "\"" ) + "</td></tr>" +
+				"<tr><td>" + _( "Adjustment Method" ) + "</td><td>" + getAdjustmentName( controller.options.uwt ) + "</td></tr>" +
+				"<tr><td>" + _( "Current % Watering" ) + "</td><td>" + controller.options.wl + "%</td></tr>";
 		}
 
 		popup += ( typeof controller.settings.lwc === "number" ? "<tr><td>" + _( "Last Weather Call" ) + "</td><td>" + dateToString( new Date( controller.settings.lwc * 1000 ) ) + "</td></tr>" : "" ) +
