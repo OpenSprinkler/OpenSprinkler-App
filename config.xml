@@ -113,7 +113,6 @@
         <splash src="res/windows/screens/startup.jpg" />
     </platform>
     <plugin name="cordova-plugin-3dtouch" spec="^1.3.5" />
-    <plugin name="cordova-plugin-camera" spec="^3.0.0" />
     <plugin name="cordova-plugin-statusbar" spec="^2.3.0" />
     <plugin name="cordova-plugin-transport-security" spec="^0.1.2" />
     <plugin name="cordova-plugin-whitelist" spec="^1.3.3" />
@@ -125,4 +124,5 @@
     <plugin name="cordova-plugin-migrate-localstorage" spec="0.0.2" />
     <engine name="android" spec="^7.1.1" />
     <engine name="ios" spec="^4.5.4" />
+    <plugin name="cordova-plugin-camera" spec="^4.0.3" />
 </widget>
