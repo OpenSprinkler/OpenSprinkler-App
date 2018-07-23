@@ -10263,39 +10263,42 @@ function checkFirmwareUpdate() {
                                                 _( "View Changelog" ) +
                                             "</a>" +
                                             "<a class='guide ui-btn ui-corner-all ui-shadow' style='width:80%;margin:5px auto;' href='#'>" +
-												( canUpdate ? _( "Update Now" ) : _( "Update Guide" ) ) +
+												_( "Update Guide" ) +
 											"</a>" +
+                                            ( canUpdate ? "<a class='update ui-btn ui-corner-all ui-shadow' style='width:80%;margin:5px auto;' href='#'>" +
+												_( "Update Now" ) +
+											"</a>" : "" ) +
                                             "<a class='dismiss ui-btn ui-btn-b ui-corner-all ui-shadow' style='width:80%;margin:5px auto;' href='#'>" +
 												_( "Dismiss" ) +
 											"</a>" +
                                         "</div>"
                                     );
 
-                                popup.find( ".guide" ).on( "click", function() {
-									if ( canUpdate ) {
+                                popup.find( ".update" ).on( "click", function() {
+									if ( controller.options.hwv === 30 ) {
+										$( "<a class='hidden iab' href='" + currPrefix + currIp + "/update'></a>" ).appendTo( popup ).click();
+										return;
+									}
 
-										if ( controller.options.hwv === 30 ) {
-											window.open( currPrefix + currIp + "/update", "_system" );
-											return;
+									// For OSPi/OSBo with firmware 2.1.6 or newer, trigger the update script from the app
+									sendToOS( "/cv?pw=&update=1", "json" ).then(
+										function() {
+											showerror( _( "Update successful" ) );
+											popup.find( ".dismiss" ).click();
+										},
+										function() {
+											$.mobile.loading( "show", {
+												html: "<div class='center'>" + _( "Update did not complete." ) + "<br>" +
+													"<a class='iab ui-btn' href='https://openthings.freshdesk.com/support/solutions/articles/5000631599-installing-and-updating-the-unified-firmware#upgrade'>" + _( "Update Guide" ) + "</a></div>",
+												textVisible: true,
+												theme: "b"
+											} );
+											setTimeout( function() { $.mobile.loading( "hide" ); }, 3000 );
 										}
+									);
+								} );
 
-										// For OSPi/OSBo with firmware 2.1.6 or newer, trigger the update script from the app
-										sendToOS( "/cv?pw=&update=1", "json" ).then(
-											function() {
-												showerror( _( "Update successful" ) );
-												popup.find( ".dismiss" ).click();
-											},
-											function() {
-											    $.mobile.loading( "show", {
-											        html: "<div class='center'>" + _( "Update did not complete." ) + "<br>" +
-														"<a class='iab ui-btn' href='https://openthings.freshdesk.com/support/solutions/articles/5000631599-installing-and-updating-the-unified-firmware#upgrade'>" + _( "Update Guide" ) + "</a></div>",
-											        textVisible: true,
-											        theme: "b"
-											    } );
-												setTimeout( function() { $.mobile.loading( "hide" ); }, 3000 );
-											}
-										);
-									} else {
+								popup.find( ".guide" ).on( "click", function() {
 
 										var url = controller.options.hwv > 63 ?
 											"https://openthings.freshdesk.com/support/solutions/articles/5000631599-installing-and-updating-the-unified-firmware#upgrade"
@@ -10304,7 +10307,6 @@ function checkFirmwareUpdate() {
 	                                    // Open the firmware upgrade guide in a child browser
 	                                    $( "<a class='hidden iab' href='" + url + "'></a>" )
 											.appendTo( popup ).click();
-									}
                                 } );
 
                                 popup.find( ".dismiss" ).one( "click", function() {
