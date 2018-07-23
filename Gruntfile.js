@@ -84,7 +84,12 @@
 				test: {
 					src: [ "test/tests.html" ],
 					options: {
-						threshold: 5
+						threshold: 5,
+						page: {
+							settings: {
+								webSecurityEnabled: false
+							}
+						}
 					}
 				}
 			},
