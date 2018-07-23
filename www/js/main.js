@@ -2652,65 +2652,44 @@ function updateYahooWeather( string ) {
 		return;
 	}
 
-    $.ajax( {
-        url: "https://query.yahooapis.com/v1/public/yql?q=select%20woeid%20from%20geo.placefinder%20where%20text=%22" +
-			encodeURIComponent( string || controller.settings.loc ) + "%22&format=json",
-        dataType: isChromeApp || isWinApp ? "json" : "jsonp",
-        contentType: "application/json; charset=utf-8",
-        shouldRetry: retryCount,
-        success: function( woeid ) {
-            if ( typeof woeid !== "object" || typeof woeid.query !== "object" || woeid.query.results === null ) {
-                hideWeather();
-                return;
-            }
+	$.ajax( {
+		url: "https://query.yahooapis.com/v1/public/yql?q=select%20item,title,location%20from%20weather.forecast%20where%20woeid%20in%20(select%20woeid%20from%20geo.places(1)%20where%20text%3D%22" +
+			encodeURIComponent( string || controller.settings.loc ) +
+			"%22)&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys",
+		dataType: isChromeApp || isWinApp ? "json" : "jsonp",
+		contentType: "application/json; charset=utf-8",
+		shouldRetry: retryCount,
+		success: function( data ) {
 
-            var wid;
+			// Hide the weather if no data is returned
+			if ( data.query.results.channel.item.title === "City not found" ) {
+				hideWeather();
+				return;
+			}
+			var now = data.query.results.channel.item.condition,
+				title = data.query.results.channel.title,
+				loc = /Yahoo! Weather - (.*)/.exec( title ),
+				region = data.query.results.channel.location.country;
 
-            if ( typeof woeid.query.results.Result.woeid === "string" ) {
-                wid = woeid.query.results.Result.woeid;
-            } else if ( Array.isArray( woeid.query.results.Result ) ) {
-                wid = woeid.query.results.Result[ 0 ].woeid;
-            }
+			currentCoordinates = [ data.query.results.channel.item.lat, data.query.results.channel.item.long ];
 
-            $.ajax( {
-                url: "https://query.yahooapis.com/v1/public/yql?q=select%20item%2Ctitle%2Clocation%20from%20weather.forecast%20where%20woeid%3D%22" +
-					wid + "%22&format=json",
-                dataType: isChromeApp || isWinApp ? "json" : "jsonp",
-                contentType: "application/json; charset=utf-8",
-                shouldRetry: retryCount,
-                success: function( data ) {
+			weather = {
+				title: now.text,
+				code: now.code,
+				temp: convertTemp( now.temp, region ),
+				location: loc[ 1 ],
+				forecast: data.query.results.channel.item.forecast,
+				region: region,
+				source: "yahoo"
+			};
 
-                    // Hide the weather if no data is returned
-                    if ( data.query.results.channel.item.title === "City not found" ) {
-                        hideWeather();
-                        return;
-                    }
-                    var now = data.query.results.channel.item.condition,
-                        title = data.query.results.channel.title,
-                        loc = /Yahoo! Weather - (.*)/.exec( title ),
-                        region = data.query.results.channel.location.country;
+			isWUDataValid = false;
 
-                    currentCoordinates = [ data.query.results.channel.item.lat, data.query.results.channel.item.long ];
+			updateWeatherBox();
 
-                    weather = {
-                        title: now.text,
-                        code: now.code,
-                        temp: convertTemp( now.temp, region ),
-                        location: loc[ 1 ],
-                        forecast: data.query.results.channel.item.forecast,
-                        region: region,
-                        source: "yahoo"
-                    };
-
-                    isWUDataValid = false;
-
-                    updateWeatherBox();
-
-                    $.mobile.document.trigger( "weatherUpdateComplete" );
-                }
-            } );
-        }
-    } );
+			$.mobile.document.trigger( "weatherUpdateComplete" );
+		}
+	} );
 }
 
 function updateWeatherBox() {
