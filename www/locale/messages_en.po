@@ -282,15 +282,6 @@ msgstr ""
 msgid "Attempting to retrieve your current location"
 msgstr ""
 
-msgid "An API key must be provided for Weather Underground"
-msgstr ""
-
-msgid "An invalid API key has been detected"
-msgstr ""
-
-msgid "Weather data cannot be found for your location"
-msgstr ""
-
 msgid "Min Humidity"
 msgstr ""
 
@@ -316,6 +307,9 @@ msgid "Last Weather Call"
 msgstr ""
 
 msgid "Last Successful Weather Call"
+msgstr ""
+
+msgid "Last System Reboot"
 msgstr ""
 
 msgid "Change Rain Delay"
@@ -369,6 +363,9 @@ msgid "Wunderground"
 msgstr ""
 
 msgid "Wunderground API Key"
+msgstr ""
+
+msgid "An API key must be provided for Weather Underground"
 msgstr ""
 
 msgid "Are you sure you want to downgrade the UI?"
@@ -1426,10 +1423,10 @@ msgstr ""
 msgid "View Changelog"
 msgstr ""
 
-msgid "Update Now"
+msgid "Update Guide"
 msgstr ""
 
-msgid "Update Guide"
+msgid "Update Now"
 msgstr ""
 
 msgid "Dismiss"
@@ -1588,6 +1585,9 @@ msgstr ""
 msgid "German"
 msgstr ""
 
+msgid "Bulgarian"
+msgstr ""
+
 msgid "Greek"
 msgstr ""
 
@@ -1619,6 +1619,9 @@ msgid "Portuguese"
 msgstr ""
 
 msgid "Russian"
+msgstr ""
+
+msgid "Tamil"
 msgstr ""
 
 msgid "Slovak"
@@ -1666,5 +1669,5 @@ msgstr ""
 msgid "Downgrade UI"
 msgstr ""
 
-msgid "Weather Diagnostics"
+msgid "System Diagnostics"
 msgstr ""
