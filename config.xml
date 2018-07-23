@@ -86,11 +86,11 @@
         </edit-config>
         <splash density="mdpi" src="res/android/screens/mdpi.9.png" />
         <splash density="xhdpi" src="res/android/screens/xhdpi.9.png" />
-        <icon qualifier="ldpi" src="res/android/icons/ldpi.png" />
-        <icon qualifier="mdpi" src="res/android/icons/mdpi.png" />
-        <icon qualifier="hdpi" src="res/android/icons/hdpi.png" />
-        <icon qualifier="xhdpi" src="res/android/icons/xhdpi.png" />
-        <icon qualifier="xxhdpi" src="res/android/icons/xxhdpi.png" />
+        <icon density="ldpi" src="res/android/icons/ldpi.png" />
+        <icon density="mdpi" src="res/android/icons/mdpi.png" />
+        <icon density="hdpi" src="res/android/icons/hdpi.png" />
+        <icon density="xhdpi" src="res/android/icons/xhdpi.png" />
+        <icon density="xxhdpi" src="res/android/icons/xxhdpi.png" />
     </platform>
     <platform name="windows">
         <preference name="windows-appx-target" value="uap" />
