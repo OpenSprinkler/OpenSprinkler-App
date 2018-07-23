@@ -602,6 +602,9 @@ msgstr ""
 msgid "Reset All Station Data"
 msgstr ""
 
+msgid "Reset Wireless Settings"
+msgstr ""
+
 msgid "Are you sure you want to clear the current location?"
 msgstr ""
 
@@ -617,6 +620,19 @@ msgid "This will reset all station names and attributes"
 msgstr ""
 
 msgid "Stations have been updated"
+msgstr ""
+
+msgid "Are you sure you want to reset the wireless settings?"
+msgstr ""
+
+msgid ""
+"This will delete the stored SSID/password for your wireless network and "
+"return the device to access point mode"
+msgstr ""
+
+msgid ""
+"Wireless settings have been reset. Please follow the OpenSprinkler user "
+"manual on restoring connectivity."
 msgstr ""
 
 msgid "Seconds"
