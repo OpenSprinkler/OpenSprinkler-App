@@ -4142,7 +4142,7 @@ function showOptions( expandItem ) {
 	list += "<button data-mini='true' class='center-div reset-stations'>" + _( "Reset All Station Data" ) + "</button>";
 
 	if ( getHWVersion() === "3.0" ) {
-		list += "<br><button data-mini='true' class='center-div reset-wireless'>" + _( "Reset Wireless Settings" ) + "</button>";
+		list += "<hr class='divider'><button data-mini='true' class='center-div reset-wireless'>" + _( "Reset Wireless Settings" ) + "</button>";
 	}
 
     list += "</fieldset>";
@@ -4313,7 +4313,7 @@ function showOptions( expandItem ) {
 
 	page.find( ".reset-wireless" ).on( "click", function() {
         areYouSure( _( "Are you sure you want to reset the wireless settings?" ), _( "This will delete the stored SSID/password for your wireless network and return the device to access point mode" ), function() {
-            sendToOS( "/cc?pw=&ap=1" ).done( function() {
+            sendToOS( "/cv?pw=&ap=1" ).done( function() {
                 $.mobile.document.one( "pageshow", function() {
                     showerror( _( "Wireless settings have been reset. Please follow the OpenSprinkler user manual on restoring connectivity." ) );
                 } );

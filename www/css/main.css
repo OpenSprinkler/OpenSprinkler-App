@@ -209,6 +209,11 @@ ul.tabs li.current {
     background:none!important;
     height:25px
 }
+hr.divider {
+    width: 60%;
+    opacity: 0.2;
+    margin: 15px auto;
+}
 .content-divider {
     border: 0;
     height: 0;
