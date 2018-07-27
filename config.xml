@@ -10,10 +10,6 @@
     <content src="index.html" />
     <access origin="*" />
     <allow-intent href="*" />
-    <feature name="CDVWKWebViewEngine">
-        <param name="ios-package" value="CDVWKWebViewEngine" />
-    </feature>
-    <preference name="CordovaWebViewEngine" value="CDVWKWebViewEngine" />
     <preference name="phonegap-version" value="cli-8.0.0" />
     <preference name="WebSecurity" value="disable" />
     <preference name="KeepRunning" value="false" />
@@ -124,10 +120,7 @@
     <plugin name="cordova-plugin-splashscreen" spec="^5.0.2" />
     <plugin name="cordova-plugin-inappbrowser" spec="^3.0.0" />
     <plugin name="cordova-plugin-networkinterface" spec="^2.0.0" />
-    <plugin name="cordova-plugin-wkwebview-engine" spec="^1.1.4" />
-    <plugin name="cordova-plugin-migrate-localstorage" spec="0.0.2" />
     <plugin name="cordova-plugin-camera" spec="^4.0.3" />
-    <plugin name="cordova-plugin-wkwebview-file-xhr" spec="^2.1.1" />
     <engine name="android" spec="^7.1.1" />
     <engine name="ios" spec="^4.5.4" />
 </widget>
