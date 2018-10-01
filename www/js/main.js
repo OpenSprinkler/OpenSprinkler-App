@@ -4139,7 +4139,6 @@ function showOptions( expandItem ) {
     page.find( "#os-options-list" )
         .html( list )
         .one( "change input", ":not(.noselect)", function() {
-			console.log(this)
             header.eq( 2 ).prop( "disabled", false );
             page.find( ".submit" ).addClass( "hasChanges" );
         } )
