@@ -339,7 +339,13 @@ $( document )
 
 		// Show header, footer and menu button on all other pages
         $( "#header,#footer,#footer-menu" ).show();
-    }
+	}
+
+	storage.get( "showDisabled", function( data ) {
+		if ( data.showDisabled && data.showDisabled === "true" ) {
+			$( newpage ).addClass( "show-hidden" ).find( ".station-hidden" ).show();
+		}
+	} );
 } )
 .on( "pageshow", function( e ) {
     var newpage = "#" + e.target.id,
@@ -3867,6 +3873,9 @@ function showOptions( expandItem ) {
 			"</button></div>";
     }
 
+	list += "<label for='showDisabled'><input data-mini='true' class='noselect' id='showDisabled' type='checkbox' " + ( ( localStorage.showDisabled === "true" ) ? "checked='checked'" : "" ) + ">" +
+	_( "Show Disabled" ) + "</label>";
+
     if ( typeof controller.options.seq !== "undefined" ) {
         list += "<label for='o16'><input data-mini='true' id='o16' type='checkbox' " +
 				( ( controller.options.seq === 1 ) ? "checked='checked'" : "" ) + ">" +
@@ -4129,7 +4138,8 @@ function showOptions( expandItem ) {
     // Insert options and remove unused groups
     page.find( "#os-options-list" )
         .html( list )
-        .one( "change input", function() {
+        .one( "change input", ":not(.noselect)", function() {
+			console.log(this)
             header.eq( 2 ).prop( "disabled", false );
             page.find( ".submit" ).addClass( "hasChanges" );
         } )
@@ -4151,6 +4161,11 @@ function showOptions( expandItem ) {
 			page.find( ".submit" ).addClass( "hasChanges" );
 		} );
     } );
+
+	page.find( "#showDisabled" ).on( "change", function() {
+		storage.set( { showDisabled: this.checked } );
+		return false;
+	} );
 
     page.find( "#loc" ).on( "click", function() {
 
