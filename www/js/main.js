@@ -3874,7 +3874,7 @@ function showOptions( expandItem ) {
     }
 
 	list += "<label for='showDisabled'><input data-mini='true' class='noselect' id='showDisabled' type='checkbox' " + ( ( localStorage.showDisabled === "true" ) ? "checked='checked'" : "" ) + ">" +
-	_( "Show Disabled" ) + "</label>";
+	_( "Show Disabled" ) + " " + _( "(Changes Auto-Saved)" ) + "</label>";
 
     if ( typeof controller.options.seq !== "undefined" ) {
         list += "<label for='o16'><input data-mini='true' id='o16' type='checkbox' " +
