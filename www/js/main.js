@@ -119,7 +119,10 @@ var isIEMobile = /IEMobile/.test( navigator.userAgent ),
     timers = {},
     isWUDataValid = false,
     curr183, currIp, currPrefix, currAuth, currPass, currAuthUser,
-    currAuthPass, currLocal, currLang, language, deviceip, errorTimeout, weather, weatherKeyFail, openPanel;
+    currAuthPass, currLocal, currLang, language, deviceip, errorTimeout, weather, weatherKeyFail, darkSkyKeyFail, openPanel;
+
+	//test
+	var dskey = "936fbffed9e46f1c3689b0e2c0a2c717";
 
 // Prevent errors from bubbling up on Windows
 if ( isWinApp ) {
@@ -4037,6 +4040,31 @@ function showOptions( expandItem ) {
 								"type='text' id='wtkey' value='" + controller.settings.wtkey + "'>" +
 							"<a href='#' tabindex='-1' aria-hidden='true' data-helptext='" + _( "An invalid API key has been detected." ) +
 								"' class='" + ( weatherKeyFail === true ? "" : "hidden " ) +
+								"help-icon ui-input-clear ui-btn ui-icon-alert ui-btn-icon-notext ui-corner-all'>" +
+							"</a>" +
+					"</div>" +
+				"</td>" +
+				"<td><button class='noselect' data-mini='true' id='verify-api'>" + _( "Verify" ) + "</button></td>" +
+			"</tr>" +
+		"</table></div>";
+	}
+
+	if ( typeof controller.options.uwt !== "undefined" && typeof /*controller.settings.*/dskey !== "undefined" ) {
+		list += "<div class='ui-field-contain'><label for='dskey'>" + _( "Dark Sky Key" ).replace( "Wunderground", "Wunder&shy;ground" ) +
+			"<button data-helptext='" +
+				_( "We use OpenWeatherMap normally however with a user provided API key the weather source will switch to Dark Sky." ) +
+				"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
+		"</label>" +
+		"<table>" +
+			"<tr style='width:100%;vertical-align: top;'>" +
+				"<td style='width:100%'>" +
+					"<div class='" +
+						( darkSkyKeyFail === true ? "red " : ( ( /*controller.settings.*/dskey && /*controller.settings.*/dskey !== "" ) ? "green " : "" ) ) +
+						"ui-input-text controlgroup-textinput ui-btn ui-body-inherit ui-corner-all ui-mini ui-shadow-inset ui-input-has-clear'>" +
+							"<input data-role='none' data-mini='true' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' " +
+								"type='text' id='dskey' value='" + /*controller.settings.*/dskey + "'>" +
+							"<a href='#' tabindex='-1' aria-hidden='true' data-helptext='" + _( "An invalid API key has been detected." ) +
+								"' class='" + ( darkSkyKeyFail === true ? "" : "hidden " ) +
 								"help-icon ui-input-clear ui-btn ui-icon-alert ui-btn-icon-notext ui-corner-all'>" +
 							"</a>" +
 					"</div>" +
