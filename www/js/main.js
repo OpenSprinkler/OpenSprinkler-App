@@ -118,6 +118,7 @@ var isIEMobile = /IEMobile/.test( navigator.userAgent ),
     notifications = [],
     timers = {},
     isWUDataValid = false,
+	isDSDataValid = false,
     curr183, currIp, currPrefix, currAuth, currPass, currAuthUser,
     currAuthPass, currLocal, currLang, language, deviceip, errorTimeout, weather, weatherKeyFail, darkSkyKeyFail, openPanel;
 
@@ -2554,7 +2555,7 @@ function showAutoRainDelayAdjustmentOptions( button, callback ) {
 
     openPopup( popup, { positionTo: "window" } );
 }
-
+//WU
 // Checks to make sure an array contains the keys provided and returns true or false
 function validateWUValues( keys, array ) {
 	var key;
@@ -2577,7 +2578,7 @@ function validateWUValues( keys, array ) {
 
 	return true;
 }
-
+//WU
 function validateWUData( history, current ) {
     if ( typeof history === "object" && typeof history.dailysummary === "object" ) {
         var summary = history.dailysummary[ 0 ];
@@ -2592,7 +2593,7 @@ function validateWUData( history, current ) {
 		return false;
     }
 }
-
+//WU
 // Validates a Weather Underground location to verify it contains the data needed for Weather Adjustments
 function validateWULocation( location, callback ) {
     if ( typeof controller.settings.wtkey !== "string" || controller.settings.wtkey === "" ) {
@@ -2633,6 +2634,11 @@ function updateWeather() {
         updateWundergroundWeather( controller.settings.wtkey );
         return;
     }
+	
+    if ( typeof /*controller.settings.*/dskey !== "undefined" && /*controller.settings.*/dskey !== "" ) {
+        updateDarkSkyWeather( /*controller.settings.*/dskey );
+        return;
+    }
 
     storage.get( [ "provider", "wapikey" ], function( data ) {
         if ( controller.settings.loc === "" ) {
@@ -2649,7 +2655,7 @@ function updateWeather() {
         }
     } );
 }
-
+//deprecate for OWM, issue with key sharing
 function updateYahooWeather( string ) {
 
 	// If location matches a GPS coordinate, parse the location before querying for weather
@@ -2712,7 +2718,7 @@ function updateWeatherBox() {
         } )
         .parents( ".info-card" ).removeClass( "noweather" );
 }
-
+//WU
 function updateWundergroundWeather( wapikey ) {
     $.ajax( {
         url: "https://api.wunderground.com/api/" + wapikey + "/yesterday/conditions/forecast/alerts/lang:EN/q/" + encodeURIComponent( controller.settings.loc ) + ".json",
@@ -2906,7 +2912,7 @@ function getSunTimes( date ) {
 
     return [ sunrise, sunset ];
 }
-
+//WU
 function showForecast() {
     var page = $( "<div data-role='page' id='forecast'>" +
             "<div class='ui-content' role='main'>" +
@@ -2955,7 +2961,7 @@ function showForecast() {
     $( "#forecast" ).remove();
     $.mobile.pageContainer.append( page );
 }
-
+//WU
 function makeWundergroundForecast() {
     var temp, precip;
 
@@ -3031,7 +3037,7 @@ function makeWundergroundForecast() {
 
     return list;
 }
-
+//Deprecate, should be OWM - issue with API key sharing
 function makeYahooForecast() {
     var list = "<li data-role='list-divider' data-theme='a' class='center'>" + weather.location + "</li>",
         sunrise = controller.settings.sunrise ? controller.settings.sunrise : getSunTimes()[ 0 ],
@@ -3065,7 +3071,7 @@ function makeYahooForecast() {
 
     return list;
 }
-
+//WU
 function overlayMap( callback ) {
 
     // Looks up the location and shows a list possible matches for selection
@@ -3221,7 +3227,7 @@ function overlayMap( callback ) {
 
     updateStations( current.lat, current.lon );
 }
-
+//WU, need to handle darksky
 function debugWU() {
     $.mobile.loading( "show" );
 
@@ -3320,7 +3326,7 @@ function setRestriction( id, uwt ) {
 
     return uwt;
 }
-
+//WU
 function testAPIKey( key, callback ) {
     $.ajax( {
         url: "https://api.wunderground.com/api/" + key + "/conditions/forecast/lang:EN/q/75252.json",
@@ -3416,7 +3422,7 @@ function bindPanel() {
         } );
         return false;
     } );
-
+//WU
     panel.find( ".show-providers" ).on( "click", function() {
         $( "#providers" ).popup( "destroy" ).remove();
 
@@ -3774,7 +3780,7 @@ function showOptions( expandItem ) {
 
     list += "<div class='ui-field-contain'>" +
         "<label for='loc'>" + _( "Location" ) + "</label>" +
-		"<button data-mini='true' id='loc' value='" + controller.settings.loc + "'" + ( isWUDataValid === true ? " class='green'" : "" ) + ">" +
+		"<button data-mini='true' id='loc' value='" + controller.settings.loc + "'" + ( ( isWUDataValid === true || isDSDataValid === true ) ? " class='green'" : "" ) + ">" +
 			"<span>" + ( typeof weather === "object" ? weather.location : ( controller.settings.loc.trim() === "''" ? _( "Not specified" ) : controller.settings.loc ) ) + "</span>" +
 			"<a class='ui-btn btn-no-border ui-btn-icon-notext ui-icon-delete ui-btn-corner-all clear-loc'></a>" +
 		"</button></div>";
@@ -9162,6 +9168,11 @@ function importConfig( data ) {
             co += "&wtkey=" + data.settings.wtkey;
         }
 
+        // Import Dark Sky API key, if available
+        if ( data.settings.hasOwnProperty( "dskey" ) && data.settings.dskey !== "" && checkOSVersion( 210 ) ) {
+            co += "&dskey=" + data.settings.dskey;
+        }		
+		
         // Handle import from versions prior to 2.1.1 for enable logging flag
         if ( !isPi && typeof data.options.fwv === "number" && data.options.fwv < 211 && checkOSVersion( 211 ) ) {
 
