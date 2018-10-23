@@ -1131,10 +1131,10 @@ div.running-text{
 .wicon.cond27, .wicon.condnt_mostlycloudy, .wicon.condnt_partlysunny {
     background-position:-300px -600px
 }
-.wicon.cond28, .wicon.condmostlycloudy, .wicon.condpartlysunny {
+.wicon.cond28, .wicon.condmostlycloudy, .wicon.condpartlysunny, .wicon.condpartly-cloudy-day {
     background-position:0 -300px
 }
-.wicon.cond29, .wicon.condnt_mostlysunny, .wicon.condnt_partlycloudy {
+.wicon.cond29, .wicon.condnt_mostlysunny, .wicon.condnt_partlycloudy, .wicon.condpartly-cloudy-night {
     background-position:-450px -600px
 }
 .wicon.cond30, .wicon.condmostlysunny, .wicon.condpartlycloudy {
@@ -1143,10 +1143,10 @@ div.running-text{
 .wicon.cond31, .wicon.condnt_sunny {
     background-position:-450px -450px
 }
-.wicon.cond32, .wicon.condclear, .wicon.condsunny {
+.wicon.cond32, .wicon.condclear, .wicon.condsunny, .wicon.condclear-day {
     background-position:-450px 0
 }
-.wicon.cond33, .wicon.condnt_clear {
+.wicon.cond33, .wicon.condnt_clear, .wicon.condclear-night {
     background-position:-450px -450px
 }
 .wicon.cond34 {
