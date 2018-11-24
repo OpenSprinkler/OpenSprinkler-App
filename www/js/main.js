@@ -27,6 +27,7 @@ var isIEMobile = /IEMobile/.test( navigator.userAgent ),
     isFileCapable = !isiOS && !isAndroid && !isIEMobile && !isOSXApp && !isFireFoxOS &&
                     !isWinApp && !isBB10 && window.FileReader,
     isTouchCapable = "ontouchstart" in window || "onmsgesturechange" in window,
+    isMetric = ( [ "US", "BM", "PW" ].indexOf( navigator.language.split( "-" )[ 1 ] ) !== -1 ),
 
     // Small wrapper to handle Chrome vs localStorage usage
     storage = {
@@ -2320,8 +2321,6 @@ function showZimmermanAdjustmentOptions( button, callback ) {
             bt: 70,
             br: 0
 		}, controller.settings.wto ),
-		region = weather ? weather.forecast.region : navigator.language.split( "-" )[ 1 ],
-        isMetric = ( region === "US" || region === "BM" || region === "PW" ) ? false : true,
 
 		// Enable Zimmerman extension to set weather conditions as baseline for adjustment
         hasBaseline = checkOSVersion( 2162 );
@@ -2612,13 +2611,22 @@ function validateWULocation( location, callback ) {
     } );
 }
 
-function convertTemp( temp, region ) {
-    if ( region === "United States" || region === "Bermuda" || region === "Palau" ) {
-        temp = temp + "&#176;F";
+function formatTemp( temp ) {
+    if ( isMetric ) {
+        temp = Math.round( ( temp - 32 ) * ( 5 / 9 ) * 10 ) / 10 + "&#176;C";
     } else {
-        temp = parseInt( Math.round( ( temp - 32 ) * ( 5 / 9 ) ) ) + "&#176;C";
+        temp = Math.round( temp * 10 ) / 10 + "&#176;F";
     }
     return temp;
+}
+
+function formatPrecip( precip ) {
+    if ( isMetric ) {
+        precip = Math.round( precip * 25.4 ) + " mm";
+    } else {
+        precip = Math.round( precip * 100 ) / 100 + " in";
+    }
+    return precip;
 }
 
 function hideWeather() {
@@ -2677,12 +2685,14 @@ function updateYahooWeather( string ) {
 				loc = /Yahoo! Weather - (.*)/.exec( title ),
 				region = data.query.results.channel.location.country;
 
+			isMetric = ( region !== "United States" && region !== "Bermuda" && region !== "Palau" );
+
 			currentCoordinates = [ data.query.results.channel.item.lat, data.query.results.channel.item.long ];
 
 			weather = {
 				title: now.text,
 				code: now.code,
-				temp: convertTemp( now.temp, region ),
+				temp: formatTemp( now.temp ),
 				location: loc[ 1 ],
 				forecast: data.query.results.channel.item.forecast,
 				region: region,
@@ -2717,7 +2727,7 @@ function updateWundergroundWeather( wapikey ) {
         contentType: "application/json; charset=utf-8",
         shouldRetry: retryCount,
         success: function( data ) {
-            var code, temp;
+            var code;
 
 			if ( typeof data.response.error === "object" ) {
 				if ( data.response.error.type !== "querynotfound" ) {
@@ -2756,6 +2766,8 @@ function updateWundergroundWeather( wapikey ) {
                 simpleforecast: {}
             };
 
+            isMetric = ( wwForecast.region !== "US" && wwForecast.region !== "BM" && wwForecast.region !== "PW" );
+
             currentCoordinates = [
 				data.current_observation.display_location.latitude || data.current_observation.observation_location.latitude,
 				data.current_observation.display_location.longitude || data.current_observation.observation_location.longitude
@@ -2765,16 +2777,10 @@ function updateWundergroundWeather( wapikey ) {
                  wwForecast.simpleforecast[ k ] = attr;
             } );
 
-            if ( wwForecast.region === "US" || wwForecast.region === "BM" || wwForecast.region === "PW" ) {
-                temp = Math.round( wwForecast.condition.temp_f ) + "&#176;F";
-            } else {
-                temp = wwForecast.condition.temp_c + "&#176;C";
-            }
-
             weather = {
                 title: wwForecast.condition.text,
                 code: code,
-                temp: temp,
+                temp: formatTemp( wwForecast.condition.temp_f ),
                 forecast: wwForecast,
                 source: "wunderground"
             };
@@ -2956,13 +2962,8 @@ function showForecast() {
 function makeWundergroundForecast() {
     var temp, precip;
 
-    if ( weather.forecast.region === "US" || weather.forecast.region === "BM" || weather.forecast.region === "PW" ) {
-        temp = weather.forecast.condition.temp_f + "&#176;F";
-        precip = weather.forecast.condition.precip_today_in + " in";
-    } else {
-        temp = weather.forecast.condition.temp_c + "&#176;C";
-        precip = weather.forecast.condition.precip_today_metric + " mm";
-    }
+    temp = formatTemp( weather.forecast.condition.temp_f );
+    precip = formatPrecip( weather.forecast.condition.precip_today_in );
 
     var list = "<li data-role='list-divider' data-theme='a' class='center'>" + weather.location + "</li>";
 
@@ -2993,37 +2994,20 @@ function makeWundergroundForecast() {
             sunset = times[ 1 ],
             precip;
 
-        if ( weather.forecast.region === "US" || weather.forecast.region === "BM" || weather.forecast.region === "PW" ) {
-            precip = this.qpf_allday.in;
-            if ( precip === null ) {
-                precip = 0;
-            }
-            list += "<li data-icon='false' class='center'>" +
-					"<div>" + this.date.monthname_short + " " + this.date.day + "</div><br>" +
-					"<div title='" + this.conditions + "' class='wicon cond" + this.icon + "'></div>" +
-					"<span>" + _( this.date.weekday_short ) + "</span><br>" +
-					"<span>" + _( "Low" ) + "</span><span>: " + this.low.fahrenheit + "&#176;F  </span>" +
-					"<span>" + _( "High" ) + "</span><span>: " + this.high.fahrenheit + "&#176;F</span><br>" +
-					"<span>" + _( "Sunrise" ) + "</span><span>: " + pad( parseInt( sunrise / 60 ) % 24 ) + ":" + pad( sunrise % 60 ) + "</span> " +
-					"<span>" + _( "Sunset" ) + "</span><span>: " + pad( parseInt( sunset / 60 ) % 24 ) + ":" + pad( sunset % 60 ) + "</span><br>" +
-					"<span>" + _( "Precip" ) + "</span><span>: " + precip + " in</span>" +
-				"</li>";
-        } else {
-            precip = this.qpf_allday.mm;
-            if ( precip === null ) {
-                precip = 0;
-            }
-            list += "<li data-icon='false' class='center'>" +
-					"<div>" + this.date.monthname_short + " " + this.date.day + "</div><br>" +
-					"<div title='" + this.conditions + "' class='wicon cond" + this.icon + "'></div>" +
-					"<span>" + _( this.date.weekday_short ) + "</span><br>" +
-					"<span>" + _( "Low" ) + "</span><span>: " + this.low.celsius + "&#176;C  </span>" +
-					"<span>" + _( "High" ) + "</span><span>: " + this.high.celsius + "&#176;C</span><br>" +
-					"<span>" + _( "Sunrise" ) + "</span><span>: " + pad( parseInt( sunrise / 60 ) % 24 ) + ":" + pad( sunrise % 60 ) + "</span> " +
-					"<span>" + _( "Sunset" ) + "</span><span>: " + pad( parseInt( sunset / 60 ) % 24 ) + ":" + pad( controller.settings.sunset % 60 ) + "</span><br>" +
-					"<span>" + _( "Precip" ) + "</span><span>: " + precip + " mm</span>" +
-				"</li>";
+        precip = this.qpf_allday.in;
+        if ( precip === null ) {
+            precip = 0;
         }
+        list += "<li data-icon='false' class='center'>" +
+				"<div>" + this.date.monthname_short + " " + this.date.day + "</div><br>" +
+				"<div title='" + this.conditions + "' class='wicon cond" + this.icon + "'></div>" +
+				"<span>" + _( this.date.weekday_short ) + "</span><br>" +
+				"<span>" + _( "Low" ) + "</span><span>: " + formatTemp( this.low.fahrenheit ) + "  </span>" +
+				"<span>" + _( "High" ) + "</span><span>: " + formatTemp( this.high.fahrenheit ) + "</span><br>" +
+				"<span>" + _( "Sunrise" ) + "</span><span>: " + pad( parseInt( sunrise / 60 ) % 24 ) + ":" + pad( sunrise % 60 ) + "</span> " +
+				"<span>" + _( "Sunset" ) + "</span><span>: " + pad( parseInt( sunset / 60 ) % 24 ) + ":" + pad( sunset % 60 ) + "</span><br>" +
+				"<span>" + _( "Precip" ) + "</span><span>: " + formatPrecip( precip ) + "</span>" +
+			"</li>";
     } );
 
     return list;
@@ -3053,8 +3037,8 @@ function makeYahooForecast() {
 				"<div>" + weather.forecast[ i ].date + "</div><br>" +
 				"<div title='" + weather.forecast[ i ].text + "' class='wicon cond" + weather.forecast[ i ].code + "'></div>" +
 				"<span>" + _( weather.forecast[ i ].day ) + "</span><br>" +
-				"<span>" + _( "Low" ) + "</span><span>: " + convertTemp( weather.forecast[ i ].low, weather.region ) + "  </span>" +
-				"<span>" + _( "High" ) + "</span><span>: " + convertTemp( weather.forecast[ i ].high, weather.region ) + "</span><br>" +
+				"<span>" + _( "Low" ) + "</span><span>: " + formatTemp( weather.forecast[ i ].low ) + "  </span>" +
+				"<span>" + _( "High" ) + "</span><span>: " + formatTemp( weather.forecast[ i ].high ) + "</span><br>" +
 				"<span>" + _( "Sunrise" ) + "</span><span>: " + pad( parseInt( sunrise / 60 ) % 24 ) + ":" + pad( sunrise % 60 ) + "</span> " +
 				"<span>" + _( "Sunset" ) + "</span><span>: " + pad( parseInt( sunset / 60 ) % 24 ) + ":" + pad( sunset % 60 ) + "</span>" +
 			"</li>";
@@ -3239,14 +3223,11 @@ function debugWU() {
 			validateWUValues( [ "precip_today_metric", "precip_today_in" ], data.current_observation )
 		) {
 
-            var country = data.current_observation.display_location.country_iso3166,
-				isMetric = ( ( country === "US" || country === "BM" || country === "PW" ) ? false : true );
-
 			popup += "<tr><td>" + _( "Min Humidity" ) + "</td><td>" + data.history.dailysummary[ 0 ].minhumidity + "%</td></tr>" +
 				"<tr><td>" + _( "Max Humidity" ) + "</td><td>" + data.history.dailysummary[ 0 ].maxhumidity + "%</td></tr>" +
-				"<tr><td>" + _( "Mean Temp" ) + "</td><td>" + ( isMetric ? data.history.dailysummary[ 0 ].meantempm + "&#176;C" : data.history.dailysummary[ 0 ].meantempi + "&#176;F" ) + "</td></tr>" +
-				"<tr><td>" + _( "Precip Yesterday" ) + "</td><td>" + ( isMetric ? data.history.dailysummary[ 0 ].precipm + "mm" : data.history.dailysummary[ 0 ].precipi + "\"" ) + "</td></tr>" +
-				"<tr><td>" + _( "Precip Today" ) + "</td><td>" + ( isMetric ? data.current_observation.precip_today_metric + "mm" : data.current_observation.precip_today_in + "\"" ) + "</td></tr>" +
+				"<tr><td>" + _( "Mean Temp" ) + "</td><td>" + formatTemp( data.history.dailysummary[ 0 ].meantempi ) + "</td></tr>" +
+				"<tr><td>" + _( "Precip Yesterday" ) + "</td><td>" + formatPrecip( data.history.dailysummary[ 0 ].precipi ) + "</td></tr>" +
+				"<tr><td>" + _( "Precip Today" ) + "</td><td>" + formatPrecip( data.current_observation.precip_today_in ) + "</td></tr>" +
 				"<tr><td>" + _( "Adjustment Method" ) + "</td><td>" + getAdjustmentName( controller.options.uwt ) + "</td></tr>" +
 				"<tr><td>" + _( "Current % Watering" ) + "</td><td>" + controller.options.wl + "%</td></tr>";
 		}
