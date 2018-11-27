@@ -2578,7 +2578,7 @@ function validateWeatherValues( keys, array ) {
 
 	return true;
 }
-//WU
+
 function validateWUData( history, current ) {
     if ( typeof history === "object" && typeof history.dailysummary === "object" ) {
         var summary = history.dailysummary[ 0 ];
@@ -2593,7 +2593,23 @@ function validateWUData( history, current ) {
 		return false;
     }
 }
-//WU - unsure if an error fires for darksky
+//TODO
+function validateDSData( history, current ) {
+    /*if ( typeof history === "object" && typeof history.dailysummary === "object" ) {
+        var summary = history.dailysummary[ 0 ];
+
+        if ( !validateWeatherValues( [ "minhumidity", "maxhumidity", "meantempm", "meantempi", "precipm", "precipi" ], summary ) ||
+				!validateWeatherValues( [ "precip_today_metric", "precip_today_in" ], current ) ) {
+			return false;
+        }
+*/
+        return true;
+/*    } else {
+		return false;
+    }*/
+}
+
+//TODO WU - unsure if an error fires for darksky
 // Validates a Weather Underground location to verify it contains the data needed for Weather Adjustments
 function validateWULocation( location, callback ) {
     if ( typeof controller.settings.wtkey !== "string" || controller.settings.wtkey === "" ) {
@@ -2838,21 +2854,21 @@ function updateDarkSkyWeather( wapikey ) {
         success: function( data ) {
             var code, temp;
 
-//			if ( typeof data.response.error === "object" ) {
-//				if ( data.response.error.type !== "querynotfound" ) {
-//	                weatherKeyFail = true;
-//	            }
- //               updateYahooWeather();
-//                return;
-//            } else {
-                weatherKeyFail = false;
-//            }
+			if ( data === "Forbidden" ) {
+				if ( data !== "Not Found" ) {
+	                darkSkyKeyFail = true;
+	            }
+                updateYahooWeather();
+                return;
+            } else {
+                darkSkyKeyFail = false;
+            }
 
-//	        if ( validateWUData( data.history, data.current_observation ) ) {
-//				isWUDataValid = true;
-//	        } else {
-//				isWUDataValid = false;
-//	        }
+	        if ( validateDSData( data.history, data.current_observation ) ) {
+				isDSDataValid = true;
+	        } else {
+				isDSDataValid = false;
+	        }
 
             code = data.currently.icon;
 
@@ -2863,14 +2879,19 @@ function updateDarkSkyWeather( wapikey ) {
                     temp_c: Math.round( (data.currently.temperature - 32 ) * 5 / 9 ),
                     temp_f: data.currently.temperature,
                     date: data.currently.time,
-                    precip_today_in: "0", //data.current_observation.precip_today_in,
-                    precip_today_metric: "0", //data.current_observation.precip_today_metric
+                    precip_today_in: "0", //TODO data.current_observation.precip_today_in,
+                    precip_today_metric: "0", //TODO data.current_observation.precip_today_metric
                 },
                 location: data.latitude + "," + data.longitude,
-                region: "-1",//data.current_observation.display_location.country_iso3166,
                 simpleforecast: {}
             };
 
+			// Convert the timezone to country ISO3166 code based on string match; America = US, Bermuda = BM, Palau = PW
+			if ( data.timezone.match( /^America.*$/ ) ) { wwForecast.region = "US";
+			} else if ( data.timezone.match( /^Bermuda.*$/ ) ) { wwForecast.region = "BM";
+			} else if ( data.timezone.match( /^Bermuda.*$/ ) ) { wwForecast.region = "PW";
+			} else wwForecast.region = data.timezone;
+			
             currentCoordinates = [
 				data.latitude,
 				data.longitude
@@ -2879,7 +2900,7 @@ function updateDarkSkyWeather( wapikey ) {
             $.each( data.daily.data, function( k, attr ) {
                  wwForecast.simpleforecast[ k ] = attr;
             } );
-//TODO
+
             if ( wwForecast.region === "US" || wwForecast.region === "BM" || wwForecast.region === "PW" ) {
                 temp = Math.round( wwForecast.condition.temp_f ) + "&#176;F";
             } else {
@@ -2910,7 +2931,15 @@ function updateDarkSkyWeather( wapikey ) {
             }, wwForecast.location );
 
             $.mobile.document.trigger( "weatherUpdateComplete" );
-        }
+        },
+		error: function( data ) {
+			if ( data === "Not Found" ) {
+                updateYahooWeather();
+                return;
+            } else {
+                darkSkyKeyFail = false;
+            }
+		}
     } );	
 }
 
@@ -3459,18 +3488,25 @@ function debugDarkSky() {
 
 				var popup = "<div data-role='popup' id='debugWeather' class='ui-content ui-page-theme-a'><table class='debugWeather'>";
 
-		/*	if (
-					typeof data.response.error !== "object" &&
-					typeof data.history === "object" &&
-					typeof data.history.dailysummary === "object" &&
-					validateWeatherValues( [ "minhumidity", "maxhumidity", "meantempm", "meantempi", "precipm", "precipi" ], data.history.dailysummary[ 0 ] ) &&
-					validateWeatherValues( [ "precip_today_metric", "precip_today_in" ], data.current_observation )
+			if (
+					typeof yesterdayData !== "Forbidden" &&
+					typeof yesterdayData.daily.data === "object" &&
+					typeof todayData.hourly.data === "object" &&
+					typeof forecastData === "object" &&
+					validateWeatherValues( [ "humidity", "temperatureLow", "temperatureHigh", "precipIntensity", "precipProbability" ], yesterdayData.daily.data[0] ) &&
+					validateWeatherValues( [ "precipIntensity", "precipProbability" ], todayData.hourly.data[0] ) &&
+					validateWeatherValues( [ "time" ], forecastData.currently )
 				) {
-*/
-					/*var country = data.current_observation.display_location.country_iso3166,
-						isMetric = ( ( country === "US" || country === "BM" || country === "PW" ) ? false : true );
-		*/
-		isMetric = true;
+			
+					var country;
+					
+					// Convert the timezone to country ISO3166 code based on string match; America = US, Bermuda = BM, Palau = PW
+					if ( forecastData.timezone.match( /^America.*$/ ) ) { country = "US";
+					} else if ( forecastData.timezone.match( /^Bermuda.*$/ ) ) { country = "BM";
+					} else if ( forecastData.timezone.match( /^Bermuda.*$/ ) ) { country = "PW";
+					} else country = forecastData.timezone;
+					
+					var isMetric = ( ( country === "US" || country === "BM" || country === "PW" ) ? false : true );
 
 					const maxCount = 24;
 			
@@ -3491,14 +3527,14 @@ function debugDarkSky() {
 						yesterdayPrecip += parseFloat( yesterdayData.hourly.data[index].precipIntensity * yesterdayData.hourly.data[index].precipProbability );
 					}
 			
-					popup += "<tr><td>" + _( "Humidity" ) + "</td><td>" + parseFloat( yesterdayData.daily.data[0].humidity ) * 100 + "%</td></tr>" +
+					popup += "<tr><td>" + _( "Humidity" ) + "</td><td>" + ( parseFloat( yesterdayData.daily.data[0].humidity ) ).toFixed(0) * 100 + "%</td></tr>" +
 						"<tr><td>" + _( "Min Temp" ) + "</td><td>" + ( isMetric ? Math.round( ( parseInt( yesterdayData.daily.data[0].temperatureLow ) - 32 ) * 5 / 9 ) + "&#176;C" : parseInt( yesterdayData.daily.data[0].temperatureLow ) + "&#176;F" ) + "</td></tr>" +
 						"<tr><td>" + _( "Max Temp" ) + "</td><td>" + ( isMetric ? Math.round( ( parseInt( yesterdayData.daily.data[0].temperatureHigh ) - 32 ) * 5 / 9 ) + "&#176;C" : parseInt( yesterdayData.daily.data[0].temperatureHigh ) + "&#176;F" ) + "</td></tr>" +
 						"<tr><td>" + _( "Precip Yesterday" ) + "</td><td>" + ( isMetric ? parseFloat( yesterdayPrecip * 25.4 ).toFixed(0) + "mm" : yesterdayPrecip.toFixed(0) + "\"" ) + "</td></tr>" +
 						"<tr><td>" + _( "Precip Today" ) + "</td><td>" + ( isMetric ? parseFloat( currentPrecip * 25.4 ).toFixed(0) + "mm" : currentPrecip.toFixed(0) + "\"" ) + "</td></tr>" +
 						"<tr><td>" + _( "Adjustment Method" ) + "</td><td>" + getAdjustmentName( controller.options.uwt ) + "</td></tr>" +
 						"<tr><td>" + _( "Current % Watering" ) + "</td><td>" + controller.options.wl + "%</td></tr>";
-		/*		}*/
+				}
 
 				popup += ( typeof controller.settings.lwc === "number" ? "<tr><td>" + _( "Last Weather Call" ) + "</td><td>" + dateToString( new Date( controller.settings.lwc * 1000 ) ) + "</td></tr>" : "" ) +
 						 ( typeof controller.settings.lswc === "number" ? "<tr><td>" + _( "Last Successful Weather Call" ) + "</td><td>" + dateToString( new Date( controller.settings.lswc * 1000 ) ) + "</td></tr>" : "" ) +
@@ -3568,7 +3604,7 @@ function setRestriction( id, uwt ) {
 
     return uwt;
 }
-//WU
+
 function testAPIKey( key, callback ) {
     $.ajax( {
         url: "https://api.wunderground.com/api/" + key + "/conditions/forecast/lang:EN/q/75252.json",
@@ -3576,6 +3612,23 @@ function testAPIKey( key, callback ) {
         shouldRetry: retryCount
     } ).done( function( data ) {
         if ( typeof data.response.error === "object" && data.response.error.type === "keynotfound" ) {
+            callback( false );
+            return;
+        }
+        callback( true );
+    } ).fail( function() {
+        callback( false );
+    } );
+}
+
+function testDSAPIKey( key, callback ) {
+    $.ajax( {
+        url: "https://api.darksky.net/forecast/" + key + "/" + encodeURIComponent( controller.settings.loc ) + "?exclude=currently,minutely,hourly,daily,alerts",
+        dataType: isChromeApp || isWinApp ? "json" : "jsonp",
+		contentType: "application/json; charset=utf-8",
+        shouldRetry: retryCount
+    } ).done( function( data ) {
+        if ( typeof data.error === "object" ) {
             callback( false );
             return;
         }
@@ -4334,7 +4387,7 @@ function showOptions( expandItem ) {
 	}
 
 	if ( typeof controller.options.uwt !== "undefined" && typeof controller.settings.dskey !== "undefined" ) {
-		list += "<div class='ui-field-contain'><label for='dskey'>" + _( "Dark Sky Key" ).replace( "Wunderground", "Wunder&shy;ground" ) +
+		list += "<div class='ui-field-contain'><label for='dskey'>" + _( "Dark Sky Key" ).replace( "Darksky", "Dark&shy;sky" ) +
 			"<button data-helptext='" +
 				_( "We use OpenWeatherMap normally however with a user provided API key the weather source will switch to Dark Sky." ) +
 				"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
@@ -4353,7 +4406,7 @@ function showOptions( expandItem ) {
 							"</a>" +
 					"</div>" +
 				"</td>" +
-				"<td><button class='noselect' data-mini='true' id='verify-api'>" + _( "Verify" ) + "</button></td>" +
+				"<td><button class='noselect' data-mini='true' id='verify-dsapi'>" + _( "Verify" ) + "</button></td>" +
 			"</tr>" +
 		"</table></div>";
 	}
@@ -4669,6 +4722,24 @@ function showOptions( expandItem ) {
         button.prop( "disabled", true );
 
         testAPIKey( key.val(), function( result ) {
+            if ( result === true ) {
+                key.parent().find( ".ui-icon-alert" ).hide();
+                key.parent().removeClass( "red" ).addClass( "green" );
+            } else {
+                key.parent().find( ".ui-icon-alert" ).removeClass( "hidden" ).show();
+                key.parent().removeClass( "green" ).addClass( "red" );
+            }
+            button.prop( "disabled", false );
+        } );
+    } );
+	
+    page.find( "#verify-dsapi" ).on( "click", function() {
+        var key = page.find( "#dskey" ),
+            button = $( this );
+
+        button.prop( "disabled", true );
+
+        testDSAPIKey( key.val(), function( result ) {
             if ( result === true ) {
                 key.parent().find( ".ui-icon-alert" ).hide();
                 key.parent().removeClass( "red" ).addClass( "green" );
