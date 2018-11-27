@@ -570,6 +570,17 @@ body, input, select, textarea, button, .ui-btn {
     border-left: none;
 }
 
+#verify-dsapi {
+    height: 34px;
+    width: 80px;
+    margin:0;
+    border-bottom-right-radius: 3.90625px;
+    border-top-right-radius: 3.90625px;
+    border-bottom-left-radius: 0;
+    border-top-left-radius: 0;
+    border-left: none;
+}
+
 /* Site manager rules */
 
 #site-control form > .ui-field-contain:nth-child(3), .ui-field-no-border {
