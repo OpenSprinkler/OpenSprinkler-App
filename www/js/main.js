@@ -2593,23 +2593,22 @@ function validateWUData( history, current ) {
 		return false;
     }
 }
-//TODO
-function validateDSData( history, current ) {
-    /*if ( typeof history === "object" && typeof history.dailysummary === "object" ) {
-        var summary = history.dailysummary[ 0 ];
 
-        if ( !validateWeatherValues( [ "minhumidity", "maxhumidity", "meantempm", "meantempi", "precipm", "precipi" ], summary ) ||
-				!validateWeatherValues( [ "precip_today_metric", "precip_today_in" ], current ) ) {
+function validateDSData( forecast, current ) {
+    if ( typeof forecast === "object" && typeof current === "object" ) {
+        var summary = current.hourly.data[ 0 ];
+
+        if ( !validateWeatherValues( [ "icon", "summary", "temperature", "time", "latitude", "longitude", "timezone" ], forecast.currently ) ||
+				!validateWeatherValues( [ "time", "precipIntensity" ], summary ) ) {
 			return false;
         }
-*/
+
         return true;
-/*    } else {
+    } else {
 		return false;
-    }*/
+    }
 }
 
-//TODO WU - unsure if an error fires for darksky
 // Validates a Weather Underground location to verify it contains the data needed for Weather Adjustments
 function validateWULocation( location, callback ) {
     if ( typeof controller.settings.wtkey !== "string" || controller.settings.wtkey === "" ) {
@@ -2846,94 +2845,128 @@ function updateWundergroundWeather( wapikey ) {
 }
 
 function updateDarkSkyWeather( wapikey ) {
+	
+	// Generate URL for Dark Sky Time Machine Request to get conditions yesterday and use forecast request for current conditions
     $.ajax( {
         url: "https://api.darksky.net/forecast/" + wapikey + "/" + encodeURIComponent( controller.settings.loc ) + "?exclude=hourly,flags",
         dataType: isChromeApp || isWinApp ? "json" : "jsonp",
         contentType: "application/json; charset=utf-8",
         shouldRetry: retryCount,
-        success: function( data ) {
-            var code, temp;
-
-			if ( data === "Forbidden" ) {
-				if ( data !== "Not Found" ) {
-	                darkSkyKeyFail = true;
-	            }
-                updateYahooWeather();
-                return;
-            } else {
-                darkSkyKeyFail = false;
-            }
-
-	        if ( validateDSData( data.history, data.current_observation ) ) {
-				isDSDataValid = true;
-	        } else {
-				isDSDataValid = false;
-	        }
-
-            code = data.currently.icon;
-
-            var wwForecast = {
-                condition: {
-                    text: data.currently.summary,
-                    code: code,
-                    temp_c: Math.round( (data.currently.temperature - 32 ) * 5 / 9 ),
-                    temp_f: data.currently.temperature,
-                    date: data.currently.time,
-                    precip_today_in: "0", //TODO data.current_observation.precip_today_in,
-                    precip_today_metric: "0", //TODO data.current_observation.precip_today_metric
-                },
-                location: data.latitude + "," + data.longitude,
-                simpleforecast: {}
-            };
-
-			// Convert the timezone to country ISO3166 code based on string match; America = US, Bermuda = BM, Palau = PW
-			if ( data.timezone.match( /^America.*$/ ) ) { wwForecast.region = "US";
-			} else if ( data.timezone.match( /^Bermuda.*$/ ) ) { wwForecast.region = "BM";
-			} else if ( data.timezone.match( /^Bermuda.*$/ ) ) { wwForecast.region = "PW";
-			} else wwForecast.region = data.timezone;
+        success: function( forecastData ) {
 			
-            currentCoordinates = [
-				data.latitude,
-				data.longitude
-			];
-
-            $.each( data.daily.data, function( k, attr ) {
-                 wwForecast.simpleforecast[ k ] = attr;
-            } );
-
-            if ( wwForecast.region === "US" || wwForecast.region === "BM" || wwForecast.region === "PW" ) {
-                temp = Math.round( wwForecast.condition.temp_f ) + "&#176;F";
-            } else {
-                temp = wwForecast.condition.temp_c + "&#176;C";
-            }
-
-            weather = {
-                title: wwForecast.condition.text,
-                code: code,
-                temp: temp,
-                forecast: wwForecast,
-                source: "darksky"
-            };
+			// Generate URL for Dark Sky Time machine request to get conditions for today
+			$.ajax( {
+				url: "https://api.darksky.net/forecast/" + wapikey + "/" + encodeURIComponent( controller.settings.loc ) + "," + ( ( forecastData.daily.data[0].time) || 0 ) + "?exclude=currently,daily,flags",
+				dataType: isChromeApp || isWinApp ? "json" : "jsonp",
+				contentType: "application/json; charset=utf-8",
+				shouldRetry: retryCount,
+				success: function( todayData ) {
 			
-			if ( typeof data.alerts != "undefined" ){
-				if ( data.alerts.length > 0 ) {
+					var code, temp;
+
+					if ( forecastData === "Forbidden" ) {
+						if ( forecastData !== "Not Found" ) {
+							darkSkyKeyFail = true;
+						}
+						updateYahooWeather();
+						return;
+					} else {
+						darkSkyKeyFail = false;
+					}
+
+					if ( validateDSData( forecastData, todayData ) ) {
+						isDSDataValid = true;
+					} else {
+						isDSDataValid = false;
+					}
+
+					const maxCount = 24;
+				
+					var currentPrecip = 0;
+				
+					for ( var index = 0; index < maxCount; index++ ) {
+						
+						// Only use current day rainfall data for the hourly readings prior to the current hour
+						if ( todayData.hourly.data[index].time <= ( forecastData.currently.time - 3600 ) ) {
+							currentPrecip += parseFloat( todayData.hourly.data[index].precipIntensity );
+						}
+						
+					}
 					
-					weather.alert = {
-						name: data.alerts[ 0 ].title,
-						message: data.alerts[ 0 ].description
-					};
-				}
-			}
-			
-            coordsToLocation( currentCoordinates[ 0 ], currentCoordinates[ 1 ], function( result ) {
-                weather.location = result;
-                updateWeatherBox();
-            }, wwForecast.location );
+					code = forecastData.currently.icon;
 
-            $.mobile.document.trigger( "weatherUpdateComplete" );
+					var wwForecast = {
+						condition: {
+							text: forecastData.currently.summary,
+							code: code,
+							temp_c: Math.round( (forecastData.currently.temperature - 32 ) * 5 / 9 ),
+							temp_f: forecastData.currently.temperature,
+							date: forecastData.currently.time,
+							precip_today_in: parseFloat( currentPrecip ).toFixed(2),
+							precip_today_metric: parseFloat( currentPrecip * 25.4 ).toFixed(1),
+						},
+						location: forecastData.latitude + "," + forecastData.longitude,
+						simpleforecast: {}
+					};
+
+					// Convert the timezone to country ISO3166 code based on string match; America = US, Bermuda = BM, Palau = PW
+					if ( forecastData.timezone.match( /^America.*$/ ) ) { wwForecast.region = "US";
+					} else if ( forecastData.timezone.match( /^Bermuda.*$/ ) ) { wwForecast.region = "BM";
+					} else if ( forecastData.timezone.match( /^Palau.*$/ ) ) { wwForecast.region = "PW";
+					} else wwForecast.region = forecastData.timezone;
+					
+					currentCoordinates = [
+						forecastData.latitude,
+						forecastData.longitude
+					];
+
+					$.each( forecastData.daily.data, function( k, attr ) {
+						 wwForecast.simpleforecast[ k ] = attr;
+					} );
+
+					if ( wwForecast.region === "US" || wwForecast.region === "BM" || wwForecast.region === "PW" ) {
+						temp = Math.round( wwForecast.condition.temp_f ) + "&#176;F";
+					} else {
+						temp = wwForecast.condition.temp_c + "&#176;C";
+					}
+
+					weather = {
+						title: wwForecast.condition.text,
+						code: code,
+						temp: temp,
+						forecast: wwForecast,
+						source: "darksky"
+					};
+					
+					if ( typeof forecastData.alerts != "undefined" ){
+						if ( forecastData.alerts.length > 0 ) {
+							
+							weather.alert = {
+								name: forecastData.alerts[ 0 ].title,
+								message: forecastData.alerts[ 0 ].description
+							};
+						}
+					}
+					
+					coordsToLocation( currentCoordinates[ 0 ], currentCoordinates[ 1 ], function( result ) {
+						weather.location = result;
+						updateWeatherBox();
+					}, wwForecast.location );
+
+					$.mobile.document.trigger( "weatherUpdateComplete" );
+				},
+				error: function( todayData ) {
+					if ( todayData === "Not Found" ) {
+						updateYahooWeather();
+						return;
+					} else {
+						darkSkyKeyFail = false;
+					}
+				} 
+			} );
         },
-		error: function( data ) {
-			if ( data === "Not Found" ) {
+		error: function( forecastData ) {
+			if ( forecastData === "Not Found" ) {
                 updateYahooWeather();
                 return;
             } else {
@@ -3208,7 +3241,7 @@ function makeDarkSkyForecast() {
 					"<span>" + _( "Precip" ) + "</span><span>: " + precip + " in</span>" +
 				"</li>";
         } else {
-            precip = parseFloat( this.precipIntensity * 24 * 25.4 ).toFixed(0);
+            precip = parseFloat( this.precipIntensity * 24 * 25.4 ).toFixed(1);
             if ( precip === null ) {
                 precip = 100;
             }
@@ -3493,8 +3526,8 @@ function debugDarkSky() {
 					typeof yesterdayData.daily.data === "object" &&
 					typeof todayData.hourly.data === "object" &&
 					typeof forecastData === "object" &&
-					validateWeatherValues( [ "humidity", "temperatureLow", "temperatureHigh", "precipIntensity", "precipProbability" ], yesterdayData.daily.data[0] ) &&
-					validateWeatherValues( [ "precipIntensity", "precipProbability" ], todayData.hourly.data[0] ) &&
+					validateWeatherValues( [ "humidity", "temperatureLow", "temperatureHigh", "precipIntensity" ], yesterdayData.daily.data[0] ) &&
+					validateWeatherValues( [ "precipIntensity" ], todayData.hourly.data[0] ) &&
 					validateWeatherValues( [ "time" ], forecastData.currently )
 				) {
 			
@@ -3503,7 +3536,7 @@ function debugDarkSky() {
 					// Convert the timezone to country ISO3166 code based on string match; America = US, Bermuda = BM, Palau = PW
 					if ( forecastData.timezone.match( /^America.*$/ ) ) { country = "US";
 					} else if ( forecastData.timezone.match( /^Bermuda.*$/ ) ) { country = "BM";
-					} else if ( forecastData.timezone.match( /^Bermuda.*$/ ) ) { country = "PW";
+					} else if ( forecastData.timezone.match( /^Palau.*$/ ) ) { country = "PW";
 					} else country = forecastData.timezone;
 					
 					var isMetric = ( ( country === "US" || country === "BM" || country === "PW" ) ? false : true );
@@ -3518,20 +3551,20 @@ function debugDarkSky() {
 					
 						// Only use current day rainfall data for the hourly readings prior to the current hour
 						if ( todayData.hourly.data[index].time <= ( forecastData.currently.time - 3600 ) ) {
-							currentPrecip += parseFloat( todayData.hourly.data[index].precipIntensity * todayData.hourly.data[index].precipProbability );
+							currentPrecip += parseFloat( todayData.hourly.data[index].precipIntensity );
 						}
 					
 					}
 				
 					for ( var index = 0; index < maxCount; index++ ) {
-						yesterdayPrecip += parseFloat( yesterdayData.hourly.data[index].precipIntensity * yesterdayData.hourly.data[index].precipProbability );
+						yesterdayPrecip += parseFloat( yesterdayData.hourly.data[index].precipIntensity );
 					}
 			
 					popup += "<tr><td>" + _( "Humidity" ) + "</td><td>" + ( parseFloat( yesterdayData.daily.data[0].humidity ) ).toFixed(0) * 100 + "%</td></tr>" +
 						"<tr><td>" + _( "Min Temp" ) + "</td><td>" + ( isMetric ? Math.round( ( parseInt( yesterdayData.daily.data[0].temperatureLow ) - 32 ) * 5 / 9 ) + "&#176;C" : parseInt( yesterdayData.daily.data[0].temperatureLow ) + "&#176;F" ) + "</td></tr>" +
 						"<tr><td>" + _( "Max Temp" ) + "</td><td>" + ( isMetric ? Math.round( ( parseInt( yesterdayData.daily.data[0].temperatureHigh ) - 32 ) * 5 / 9 ) + "&#176;C" : parseInt( yesterdayData.daily.data[0].temperatureHigh ) + "&#176;F" ) + "</td></tr>" +
-						"<tr><td>" + _( "Precip Yesterday" ) + "</td><td>" + ( isMetric ? parseFloat( yesterdayPrecip * 25.4 ).toFixed(0) + "mm" : yesterdayPrecip.toFixed(0) + "\"" ) + "</td></tr>" +
-						"<tr><td>" + _( "Precip Today" ) + "</td><td>" + ( isMetric ? parseFloat( currentPrecip * 25.4 ).toFixed(0) + "mm" : currentPrecip.toFixed(0) + "\"" ) + "</td></tr>" +
+						"<tr><td>" + _( "Precip Yesterday" ) + "</td><td>" + ( isMetric ? parseFloat( yesterdayPrecip * 25.4 ).toFixed(1) + "mm" : yesterdayPrecip.toFixed(0) + "\"" ) + "</td></tr>" +
+						"<tr><td>" + _( "Precip Today" ) + "</td><td>" + ( isMetric ? parseFloat( currentPrecip * 25.4 ).toFixed(1) + "mm" : currentPrecip.toFixed(0) + "\"" ) + "</td></tr>" +
 						"<tr><td>" + _( "Adjustment Method" ) + "</td><td>" + getAdjustmentName( controller.options.uwt ) + "</td></tr>" +
 						"<tr><td>" + _( "Current % Watering" ) + "</td><td>" + controller.options.wl + "%</td></tr>";
 				}
