@@ -3184,7 +3184,7 @@ function makeWundergroundForecast() {
 }
 
 function makeDarkSkyForecast() {
-    var temp, precip;
+    var temp, precip, moment;
 
     if ( weather.forecast.region === "US" || weather.forecast.region === "BM" || weather.forecast.region === "PW" ) {
         temp = weather.forecast.condition.temp_f + "&#176;F";
