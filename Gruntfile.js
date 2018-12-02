@@ -57,14 +57,14 @@
 			secrets: secrets,
 
 			jshint: {
-				main: [ "www/js/main.js", "www/js/map.js", "Gruntfile.js", "www/js/hasher.js", "www/js/home.js", "chrome.js", "test/tests.js" ],
+				main: [ "www/js/main.js", "www/js/map.js", "Gruntfile.js", "www/js/hasher.js", "www/js/home.js", "www/js/moment.js", "chrome.js", "test/tests.js" ],
 				options: {
 					jshintrc: true
 				}
 			},
 
 			jscs: {
-				main: [ "www/js/main.js", "www/js/map.js", "Gruntfile.js", "www/js/hasher.js", "www/js/home.js", "chrome.js", "test/tests.js" ],
+				main: [ "www/js/main.js", "www/js/map.js", "Gruntfile.js", "www/js/hasher.js", "www/js/home.js", "www/js/moment.js", "chrome.js", "test/tests.js" ],
 				options: {
 					config: true,
 					fix: true
@@ -291,7 +291,7 @@
 			uglify: {
 				buildFW: {
 					files: {
-						"www/js/app.js": [ "www/js/jquery.js", "www/js/main.js", "www/js/libs.js" ]
+						"www/js/app.js": [ "www/js/jquery.js", "www/js/main.js", "www/js/moment.js", "www/js/libs.js" ]
 					}
 				}
 			},

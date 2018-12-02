@@ -3184,7 +3184,7 @@ function makeWundergroundForecast() {
 }
 
 function makeDarkSkyForecast() {
-    var temp, precip, moment;
+    var temp, precip;
 
     if ( weather.forecast.region === "US" || weather.forecast.region === "BM" || weather.forecast.region === "PW" ) {
         temp = weather.forecast.condition.temp_f + "&#176;F";
@@ -3520,7 +3520,7 @@ function debugDarkSky() {
 				var popup = "<div data-role='popup' id='debugWeather' class='ui-content ui-page-theme-a'><table class='debugWeather'>";
 
 			if (
-					yesterdayData !== "Forbidden" &&
+					typeof yesterdayData !== "Forbidden" &&
 					typeof yesterdayData.daily.data === "object" &&
 					typeof todayData.hourly.data === "object" &&
 					typeof forecastData === "object" &&
