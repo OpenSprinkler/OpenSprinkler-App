@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
+ 
 // Initialize global variables
 var isIEMobile = /IEMobile/.test( navigator.userAgent ),
     isAndroid = /Android|\bSilk\b/.test( navigator.userAgent ),
@@ -120,11 +120,8 @@ var isIEMobile = /IEMobile/.test( navigator.userAgent ),
     isWUDataValid = false,
 	isDSDataValid = false,
     curr183, currIp, currPrefix, currAuth, currPass, currAuthUser,
-    currAuthPass, currLocal, currLang, language, deviceip, errorTimeout, weather, weatherKeyFail, darkSkyKeyFail, openPanel,
+    currAuthPass, currLocal, currLang, language, deviceip, errorTimeout, weather, weatherKeyFail, darkSkyKeyFail, openPanel;
 	
-	// Array to hold the days of the week for Dark Sky
-	weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-
 // Prevent errors from bubbling up on Windows
 if ( isWinApp ) {
     $( window ).on( "error", function( msg, url, line ) {
@@ -2880,7 +2877,7 @@ function updateDarkSkyWeather( wapikey ) {
 						isDSDataValid = false;
 					}
 
-					const maxCount = 24;
+					var maxCount = 24;
 				
 					var currentPrecip = 0;
 				
@@ -2913,7 +2910,8 @@ function updateDarkSkyWeather( wapikey ) {
 					if ( forecastData.timezone.match( /^America.*$/ ) ) { wwForecast.region = "US";
 					} else if ( forecastData.timezone.match( /^Bermuda.*$/ ) ) { wwForecast.region = "BM";
 					} else if ( forecastData.timezone.match( /^Palau.*$/ ) ) { wwForecast.region = "PW";
-					} else wwForecast.region = forecastData.timezone;
+					} else { wwForecast.region = forecastData.timezone; 
+					}
 					
 					currentCoordinates = [
 						forecastData.latitude,
@@ -2938,7 +2936,7 @@ function updateDarkSkyWeather( wapikey ) {
 						source: "darksky"
 					};
 					
-					if ( typeof forecastData.alerts != "undefined" ){
+					if ( typeof forecastData.alerts !== "undefined" ){
 						if ( forecastData.alerts.length > 0 ) {
 							
 							weather.alert = {
@@ -3522,7 +3520,7 @@ function debugDarkSky() {
 				var popup = "<div data-role='popup' id='debugWeather' class='ui-content ui-page-theme-a'><table class='debugWeather'>";
 
 			if (
-					typeof yesterdayData !== "Forbidden" &&
+					yesterdayData !== "Forbidden" &&
 					typeof yesterdayData.daily.data === "object" &&
 					typeof todayData.hourly.data === "object" &&
 					typeof forecastData === "object" &&
@@ -3537,17 +3535,19 @@ function debugDarkSky() {
 					if ( forecastData.timezone.match( /^America.*$/ ) ) { country = "US";
 					} else if ( forecastData.timezone.match( /^Bermuda.*$/ ) ) { country = "BM";
 					} else if ( forecastData.timezone.match( /^Palau.*$/ ) ) { country = "PW";
-					} else country = forecastData.timezone;
+					} else { country = forecastData.timezone;
+					}
 					
 					var isMetric = ( ( country === "US" || country === "BM" || country === "PW" ) ? false : true );
 
-					const maxCount = 24;
+					var maxCount = 24;
 			
 					var currentPrecip = 0,
 					yesterdayPrecip = 0,
-					weather;
+					weather,
+					index;
 					
-					for ( var index = 0; index < maxCount; index++ ) {
+					for ( index = 0; index < maxCount; index++ ) {
 					
 						// Only use current day rainfall data for the hourly readings prior to the current hour
 						if ( todayData.hourly.data[index].time <= ( forecastData.currently.time - 3600 ) ) {
@@ -3556,7 +3556,7 @@ function debugDarkSky() {
 					
 					}
 				
-					for ( var index = 0; index < maxCount; index++ ) {
+					for ( index = 0; index < maxCount; index++ ) {
 						yesterdayPrecip += parseFloat( yesterdayData.hourly.data[index].precipIntensity );
 					}
 			
