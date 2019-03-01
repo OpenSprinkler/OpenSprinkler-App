@@ -2825,7 +2825,7 @@ function makeForecast() {
         sunset = controller.settings.sunset ? controller.settings.sunset : getSunTimes()[ 1 ],
 		i, date, times;
 
-	var weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+	var weekdays = [ "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" ];
 
     list += "<li data-icon='false' class='center'>" +
 			"<div>" + _( "Now" ) + "</div><br>" +
