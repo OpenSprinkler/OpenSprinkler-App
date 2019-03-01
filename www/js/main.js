@@ -2634,72 +2634,38 @@ function hideWeather() {
 }
 
 function updateWeather() {
-    if ( typeof controller.settings.wtkey !== "undefined" && controller.settings.wtkey !== "" ) {
-        updateWundergroundWeather( controller.settings.wtkey );
-        return;
-    }
-
-    storage.get( [ "provider", "wapikey" ], function( data ) {
-        if ( controller.settings.loc === "" ) {
-            hideWeather();
-            return;
-        }
-
-        showLoading( "#weather" );
-
-        if ( data.provider === "wunderground" && data.wapikey ) {
-            updateWundergroundWeather( data.wapikey );
-        } else {
-            updateYahooWeather();
-        }
-    } );
-}
-
-function updateYahooWeather( string ) {
-
-	// If location matches a GPS coordinate, parse the location before querying for weather
-	if ( !string && controller.settings.loc.match( regex.gps ) ) {
-		coordsToLocation( controller.settings.loc.split( "," )[ 0 ], controller.settings.loc.split( "," )[ 1 ], function( result ) {
-			updateYahooWeather( result );
-		} );
-
+	if ( controller.settings.loc === "" ) {
+		hideWeather();
 		return;
 	}
 
+	showLoading( "#weather" );
+
 	$.ajax( {
-		url: "https://query.yahooapis.com/v1/public/yql?q=select%20item,title,location%20from%20weather.forecast%20where%20woeid%20in%20(select%20woeid%20from%20geo.places(1)%20where%20text%3D%22" +
-			encodeURIComponent( string || controller.settings.loc ) +
-			"%22)&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys",
-		dataType: isChromeApp || isWinApp ? "json" : "jsonp",
+		url: "http://weather.opensprinkler.com/weatherData?loc=" +
+			encodeURIComponent( controller.settings.loc ),
 		contentType: "application/json; charset=utf-8",
-		shouldRetry: retryCount,
 		success: function( data ) {
 
 			// Hide the weather if no data is returned
-			if ( data.query.results.channel.item.title === "City not found" ) {
+			if ( !data ) {
 				hideWeather();
 				return;
 			}
-			var now = data.query.results.channel.item.condition,
-				title = data.query.results.channel.title,
-				loc = /Yahoo! Weather - (.*)/.exec( title ),
-				region = data.query.results.channel.location.country;
 
-			isMetric = ( region !== "United States" && region !== "Bermuda" && region !== "Palau" );
+			isMetric = ( data.region !== "US" && data.region !== "BM" && data.region !== "PW" );
 
-			currentCoordinates = [ data.query.results.channel.item.lat, data.query.results.channel.item.long ];
+			currentCoordinates = data.location;
 
 			weather = {
-				title: now.text,
-				code: now.code,
-				temp: formatTemp( now.temp ),
-				location: loc[ 1 ],
-				forecast: data.query.results.channel.item.forecast,
-				region: region,
-				source: "yahoo"
+				title: data.description,
+				code: data.icon,
+				temp: formatTemp( data.temp ),
+				location: data.city,
+				forecast: [],
+				region: data.region,
+				source: "owm"
 			};
-
-			isWUDataValid = false;
 
 			updateWeatherBox();
 
@@ -2710,7 +2676,7 @@ function updateYahooWeather( string ) {
 
 function updateWeatherBox() {
     $( "#weather" )
-        .html( "<div title='" + weather.title + "' class='wicon cond" + weather.code + "'></div>" +
+        .html( "<div title='" + weather.title + "' class='wicon'><img src='http://openweathermap.org/img/w/" + weather.code + ".png'></div>" +
 			"<div class='inline tight'>" + weather.temp + "</div><br><div class='inline location tight'>" + weather.location + "</div>" +
 			( typeof weather.alert === "object" ? "<div><button class='tight help-icon btn-no-border ui-btn ui-icon-alert ui-btn-icon-notext ui-corner-all'></button>" + weather.alert.type + "</div>" : "" ) )
         .off( "click" ).on( "click", function() {
@@ -2718,112 +2684,6 @@ function updateWeatherBox() {
             return false;
         } )
         .parents( ".info-card" ).removeClass( "noweather" );
-}
-
-function updateWundergroundWeather( wapikey ) {
-    $.ajax( {
-        url: "https://api.wunderground.com/api/" + wapikey + "/yesterday/conditions/forecast/alerts/lang:EN/q/" + encodeURIComponent( controller.settings.loc ) + ".json",
-        dataType: isChromeApp || isWinApp ? "json" : "jsonp",
-        contentType: "application/json; charset=utf-8",
-        shouldRetry: retryCount,
-        success: function( data ) {
-            var code;
-
-			if ( typeof data.response.error === "object" ) {
-				if ( data.response.error.type !== "querynotfound" ) {
-	                weatherKeyFail = true;
-	            }
-                updateYahooWeather();
-                return;
-            } else {
-                weatherKeyFail = false;
-            }
-
-	        if ( validateWUData( data.history, data.current_observation ) ) {
-				isWUDataValid = true;
-	        } else {
-				isWUDataValid = false;
-	        }
-
-            if ( data.current_observation.icon_url.indexOf( "nt_" ) !== -1 ) {
-                code = "nt_" + data.current_observation.icon;
-            } else {
-                code = data.current_observation.icon;
-            }
-
-            var wwForecast = {
-                condition: {
-                    text: data.current_observation.weather,
-                    code: code,
-                    temp_c: data.current_observation.temp_c,
-                    temp_f: data.current_observation.temp_f,
-                    date: data.current_observation.observation_time,
-                    precip_today_in: data.current_observation.precip_today_in,
-                    precip_today_metric: data.current_observation.precip_today_metric
-                },
-                location: data.current_observation.display_location.full,
-                region: data.current_observation.display_location.country_iso3166,
-                simpleforecast: {}
-            };
-
-            isMetric = ( wwForecast.region !== "US" && wwForecast.region !== "BM" && wwForecast.region !== "PW" );
-
-            currentCoordinates = [
-				data.current_observation.display_location.latitude || data.current_observation.observation_location.latitude,
-				data.current_observation.display_location.longitude || data.current_observation.observation_location.longitude
-			];
-
-            $.each( data.forecast.simpleforecast.forecastday, function( k, attr ) {
-                 wwForecast.simpleforecast[ k ] = attr;
-            } );
-
-            weather = {
-                title: wwForecast.condition.text,
-                code: code,
-                temp: formatTemp( wwForecast.condition.temp_f ),
-                forecast: wwForecast,
-                source: "wunderground"
-            };
-
-            if ( data.alerts.length > 0 ) {
-
-                var alertTypes = {
-                    HUR: _( "Hurricane Local Statement" ),
-                    TOR: _( "Tornado Warning" ),
-                    TOW: _( "Tornado Watch" ),
-                    WRN: _( "Severe Thunderstorm Warning" ),
-                    SEW: _( "Severe Thunderstorm Watch" ),
-                    WIN: _( "Winter Weather Advisory" ),
-                    FLO: _( "Flood Warning" ),
-                    WAT: _( "Flood Watch / Statement" ),
-                    WND: _( "High Wind Advisory" ),
-                    SVR: _( "Severe Weather Statement" ),
-                    HEA: _( "Heat Advisory" ),
-                    FOG: _( "Dense Fog Advisory" ),
-                    SPE: _( "Special Weather Statement" ),
-                    FIR: _( "Fire Weather Advisory" ),
-                    VOL: _( "Volcanic Activity Statement" ),
-                    HWW: _( "Hurricane Wind Warning" ),
-                    REC: _( "Record Set" ),
-                    REP: _( "Public Reports" ),
-                    PUB: _( "Public Information Statement" )
-                };
-
-                weather.alert = {
-                    type: alertTypes[ data.alerts[ 0 ].type ],
-                    name: ( data.alerts[ 0 ].wtype_meteoalarm_name || data.alerts[ 0 ].description ),
-                    message: data.alerts[ 0 ].message
-                };
-            }
-
-            coordsToLocation( currentCoordinates[ 0 ], currentCoordinates[ 1 ], function( result ) {
-                weather.location = result;
-                updateWeatherBox();
-            }, wwForecast.location );
-
-            $.mobile.document.trigger( "weatherUpdateComplete" );
-        }
-    } );
 }
 
 function coordsToLocation( lat, lon, callback, fallback ) {
@@ -2914,7 +2774,7 @@ function showForecast() {
     var page = $( "<div data-role='page' id='forecast'>" +
             "<div class='ui-content' role='main'>" +
                 "<ul data-role='listview' data-inset='true'>" +
-                    ( weather.source === "wunderground" ? makeWundergroundForecast() : makeYahooForecast() ) +
+                    makeForecast() +
                 "</ul>" +
             "</div>" +
         "</div>" );
@@ -2959,61 +2819,7 @@ function showForecast() {
     $.mobile.pageContainer.append( page );
 }
 
-function makeWundergroundForecast() {
-    var temp, precip;
-
-    temp = formatTemp( weather.forecast.condition.temp_f );
-    precip = formatPrecip( weather.forecast.condition.precip_today_in );
-
-    var list = "<li data-role='list-divider' data-theme='a' class='center'>" + weather.location + "</li>";
-
-	if ( typeof weather.alert === "object" ) {
-		list += "<li data-icon='false' class='center red alert'>" +
-			"<div>" + weather.alert.type + "</div>" +
-			"<br>" +
-			"<span class='smaller'>" + _( "Click to read more..." ) + "</span>" +
-		"</li>";
-	}
-
-    list += "<li data-icon='false' class='center'>" +
-			"<div>" + _( "Now" ) + "</div><br>" +
-			"<div title='" + weather.forecast.condition.text + "' class='wicon cond" + weather.forecast.condition.code + "'></div>" +
-			"<span>" + temp + "</span><br>" +
-			"<span>" + _( "Sunrise" ) + "</span><span>: " + pad( parseInt( controller.settings.sunrise / 60 ) % 24 ) + ":" + pad( controller.settings.sunrise % 60 ) + "</span> " +
-			"<span>" + _( "Sunset" ) + "</span><span>: " + pad( parseInt( controller.settings.sunset / 60 ) % 24 ) + ":" + pad( controller.settings.sunset % 60 ) + "</span><br>" +
-			"<span>" + _( "Precip" ) + "</span><span>: " + precip + "</span>" +
-		"</li>";
-
-    $.each( weather.forecast.simpleforecast, function( i ) {
-        if ( i === "0" ) {
-            return;
-        }
-
-        var times = getSunTimes( new Date( this.date.epoch * 1000 ) ),
-            sunrise = times[ 0 ],
-            sunset = times[ 1 ],
-            precip;
-
-        precip = this.qpf_allday.in;
-        if ( precip === null ) {
-            precip = 0;
-        }
-        list += "<li data-icon='false' class='center'>" +
-				"<div>" + this.date.monthname_short + " " + this.date.day + "</div><br>" +
-				"<div title='" + this.conditions + "' class='wicon cond" + this.icon + "'></div>" +
-				"<span>" + _( this.date.weekday_short ) + "</span><br>" +
-				"<span>" + _( "Low" ) + "</span><span>: " + formatTemp( this.low.fahrenheit ) + "  </span>" +
-				"<span>" + _( "High" ) + "</span><span>: " + formatTemp( this.high.fahrenheit ) + "</span><br>" +
-				"<span>" + _( "Sunrise" ) + "</span><span>: " + pad( parseInt( sunrise / 60 ) % 24 ) + ":" + pad( sunrise % 60 ) + "</span> " +
-				"<span>" + _( "Sunset" ) + "</span><span>: " + pad( parseInt( sunset / 60 ) % 24 ) + ":" + pad( sunset % 60 ) + "</span><br>" +
-				"<span>" + _( "Precip" ) + "</span><span>: " + formatPrecip( precip ) + "</span>" +
-			"</li>";
-    } );
-
-    return list;
-}
-
-function makeYahooForecast() {
+function makeForecast() {
     var list = "<li data-role='list-divider' data-theme='a' class='center'>" + weather.location + "</li>",
         sunrise = controller.settings.sunrise ? controller.settings.sunrise : getSunTimes()[ 0 ],
         sunset = controller.settings.sunset ? controller.settings.sunset : getSunTimes()[ 1 ],
@@ -3021,7 +2827,7 @@ function makeYahooForecast() {
 
     list += "<li data-icon='false' class='center'>" +
 			"<div>" + _( "Now" ) + "</div><br>" +
-			"<div title='" + weather.title + "' class='wicon cond" + weather.code + "'></div>" +
+			"<div title='" + weather.title + "' class='wicon'><img src='http://openweathermap.org/img/w/" + weather.code + ".png'></div>" +
 			"<span>" + weather.temp + "</span><br>" +
 			"<span>" + _( "Sunrise" ) + "</span><span>: " + pad( parseInt( sunrise / 60 ) % 24 ) + ":" + pad( sunrise % 60 ) + "</span> " +
 			"<span>" + _( "Sunset" ) + "</span><span>: " + pad( parseInt( sunset / 60 ) % 24 ) + ":" + pad( sunset % 60 ) + "</span>" +
@@ -3035,7 +2841,7 @@ function makeYahooForecast() {
 
         list += "<li data-icon='false' class='center'>" +
 				"<div>" + weather.forecast[ i ].date + "</div><br>" +
-				"<div title='" + weather.forecast[ i ].text + "' class='wicon cond" + weather.forecast[ i ].code + "'></div>" +
+				"<div title='" + weather.forecast[ i ].text + "' class='wicon'><img src='http://openweathermap.org/img/w/" + weather.forecast[ i ].code + ".png'></div>" +
 				"<span>" + _( weather.forecast[ i ].day ) + "</span><br>" +
 				"<span>" + _( "Low" ) + "</span><span>: " + formatTemp( weather.forecast[ i ].low ) + "  </span>" +
 				"<span>" + _( "High" ) + "</span><span>: " + formatTemp( weather.forecast[ i ].high ) + "</span><br>" +
