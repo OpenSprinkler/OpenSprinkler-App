@@ -2662,7 +2662,7 @@ function updateWeather() {
 				code: data.icon,
 				temp: formatTemp( data.temp ),
 				location: data.city,
-				forecast: [],
+				forecast: data.forecast,
 				region: data.region,
 				source: "owm"
 			};
@@ -2823,7 +2823,9 @@ function makeForecast() {
     var list = "<li data-role='list-divider' data-theme='a' class='center'>" + weather.location + "</li>",
         sunrise = controller.settings.sunrise ? controller.settings.sunrise : getSunTimes()[ 0 ],
         sunset = controller.settings.sunset ? controller.settings.sunset : getSunTimes()[ 1 ],
-        i;
+		i, date, times;
+
+	var weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
     list += "<li data-icon='false' class='center'>" +
 			"<div>" + _( "Now" ) + "</div><br>" +
@@ -2834,17 +2836,18 @@ function makeForecast() {
 		"</li>";
 
     for ( i = 1; i < weather.forecast.length; i++ ) {
-        var times = getSunTimes( new Date( weather.forecast[ i ].date ) );
+		date = new Date( weather.forecast[ i ].date * 1000 );
+		times = getSunTimes( date );
 
         sunrise = times[ 0 ];
         sunset = times[ 1 ];
 
         list += "<li data-icon='false' class='center'>" +
-				"<div>" + weather.forecast[ i ].date + "</div><br>" +
-				"<div title='" + weather.forecast[ i ].text + "' class='wicon'><img src='http://openweathermap.org/img/w/" + weather.forecast[ i ].code + ".png'></div>" +
-				"<span>" + _( weather.forecast[ i ].day ) + "</span><br>" +
-				"<span>" + _( "Low" ) + "</span><span>: " + formatTemp( weather.forecast[ i ].low ) + "  </span>" +
-				"<span>" + _( "High" ) + "</span><span>: " + formatTemp( weather.forecast[ i ].high ) + "</span><br>" +
+				"<div>" + date.toLocaleDateString() + "</div><br>" +
+				"<div title='" + weather.forecast[ i ].description + "' class='wicon'><img src='http://openweathermap.org/img/w/" + weather.forecast[ i ].icon + ".png'></div>" +
+				"<span>" + _( weekdays[ date.getDay() ] ) + "</span><br>" +
+				"<span>" + _( "Low" ) + "</span><span>: " + formatTemp( weather.forecast[ i ].temp_min ) + "  </span>" +
+				"<span>" + _( "High" ) + "</span><span>: " + formatTemp( weather.forecast[ i ].temp_max ) + "</span><br>" +
 				"<span>" + _( "Sunrise" ) + "</span><span>: " + pad( parseInt( sunrise / 60 ) % 24 ) + ":" + pad( sunrise % 60 ) + "</span> " +
 				"<span>" + _( "Sunset" ) + "</span><span>: " + pad( parseInt( sunset / 60 ) % 24 ) + ":" + pad( sunset % 60 ) + "</span>" +
 			"</li>";
