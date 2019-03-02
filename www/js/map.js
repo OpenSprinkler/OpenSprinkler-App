@@ -142,19 +142,6 @@ function initialize() {
             droppedPin = plotMarker( "orgin", { message: "Selected Location" }, event.latLng.lat(), event.latLng.lng() );
         } );
 
-        // When the map center changes, update the weather stations shown
-        map.addListener( "idle", function() {
-			if ( getDistance( map.getCenter(), priorIdle ) < 15000 || map.getZoom() < 9 ) {
-				return;
-			}
-
-			priorIdle = map.getCenter();
-            removeAllMarkers();
-            window.top.postMessage( {
-                location: [ map.getCenter().lat(), map.getCenter().lng() ]
-            }, "*" );
-        } );
-
         // If any stations or airports are saved already, draw them on the map
         if ( stations.length > 0 ) {
 			plotAllMarkers( stations, true );

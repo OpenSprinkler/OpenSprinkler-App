@@ -811,8 +811,7 @@ function newLoad() {
     updateController(
         function() {
             var weatherAdjust = $( ".weatherAdjust" ),
-                changePassword = $( ".changePassword" ),
-                weatherProvider = $( ".show-providers" );
+                changePassword = $( ".changePassword" );
 
             $.mobile.loading( "hide" );
             updateWeather();
@@ -837,14 +836,6 @@ function newLoad() {
             } else {
                 $( "#info-list" ).find( "li[data-role='list-divider']" ).text( _( "Information" ) );
             }
-
-            // Check if the firmware supports a Weather Underground Key
-            // If not, allow the app to manage key settings for in-app weather view
-	        if ( checkOSVersion( 210 ) ) {
-	            weatherProvider.hide();
-	        } else {
-	            weatherProvider.css( "display", "" );
-	        }
 
             // Check if a firmware update is available
 			checkFirmwareUpdate();
@@ -2589,28 +2580,6 @@ function validateWUData( history, current ) {
     }
 }
 
-// Validates a Weather Underground location to verify it contains the data needed for Weather Adjustments
-function validateWULocation( location, callback ) {
-    if ( typeof controller.settings.wtkey !== "string" || controller.settings.wtkey === "" ) {
-        callback( false );
-    }
-
-    $.ajax( {
-        url: "https://api.wunderground.com/api/" + controller.settings.wtkey + "/yesterday/conditions/q/" + encodeURIComponent( location ) + ".json",
-        dataType: isChromeApp || isWinApp ? "json" : "jsonp",
-        shouldRetry: retryCount
-    } ).done( function( data ) {
-        if ( typeof data.response.error === "object" ) {
-            callback( false );
-            return;
-        }
-
-        callback( validateWUData( data.history, data.current_observation ) );
-    } ).fail( function() {
-		callback( false );
-    } );
-}
-
 function formatTemp( temp ) {
     if ( isMetric ) {
         temp = Math.round( ( temp - 32 ) * ( 5 / 9 ) * 10 ) / 10 + "&#176;C";
@@ -2902,47 +2871,6 @@ function overlayMap( callback ) {
                 }, { timeout: 10000 } );
             } catch ( err ) { exit( false ); }
         },
-        updateStations = function( latitude, longitude ) {
-			if ( typeof controller.settings.wtkey !== "string" || controller.settings.wtkey === "" ) {
-			    return;
-			}
-
-            $.ajax( {
-                url: "https://api.wunderground.com/api/" + controller.settings.wtkey + "/geolookup/q/" +
-                    ( latitude === -999 || longitude === -999 ? "autoip" : encodeURIComponent( latitude ) + "," + encodeURIComponent( longitude ) ) + ".json",
-                dataType: isChromeApp || isWinApp ? "json" : "jsonp",
-                shouldRetry: retryCount
-            } ).done( function( data ) {
-                if ( typeof data.response.error === "object" ) {
-                    return;
-                }
-
-                var airports;
-
-                try {
-                    airports = data.location.nearby_weather_stations.airport.station;
-                    data = data.location.nearby_weather_stations.pws.station;
-                } catch ( err ) {
-                    return;
-                }
-
-                if ( data.length > 0 ) {
-                    data = encodeURIComponent( JSON.stringify( data ) );
-                    iframe.get( 0 ).contentWindow.postMessage( {
-                        type: "pwsData",
-                        payload: data
-                    }, "*" );
-                }
-
-                if ( airports.length > 0 ) {
-                    airports = encodeURIComponent( JSON.stringify( airports ) );
-                    iframe.get( 0 ).contentWindow.postMessage( {
-                        type: "airportData",
-                        payload: airports
-                    }, "*" );
-                }
-            } );
-        },
         iframe = popup.find( "iframe" ),
         locInput = $( "#loc" ).val(),
         current = {
@@ -2962,8 +2890,6 @@ function overlayMap( callback ) {
             popup.popup( "destroy" ).remove();
         } else if ( data.loaded === true ) {
             $.mobile.loading( "hide" );
-        } else if ( typeof data.location === "object" ) {
-            updateStations( data.location[ 0 ], data.location[ 1 ] );
         } else if ( data.dismissKeyboard === true ) {
             document.activeElement.blur();
         } else if ( data.getLocation === true ) {
@@ -3000,8 +2926,6 @@ function overlayMap( callback ) {
         x: 0,
         y: 0
     } );
-
-    updateStations( current.lat, current.lon );
 }
 
 function debugWU() {
@@ -3079,22 +3003,6 @@ function setRestriction( id, uwt ) {
     }
 
     return uwt;
-}
-
-function testAPIKey( key, callback ) {
-    $.ajax( {
-        url: "https://api.wunderground.com/api/" + key + "/conditions/forecast/lang:EN/q/75252.json",
-        dataType: isChromeApp || isWinApp ? "json" : "jsonp",
-        shouldRetry: retryCount
-    } ).done( function( data ) {
-        if ( typeof data.response.error === "object" && data.response.error.type === "keynotfound" ) {
-            callback( false );
-            return;
-        }
-        callback( true );
-    } ).fail( function() {
-        callback( false );
-    } );
 }
 
 // Panel functions
@@ -3175,80 +3083,6 @@ function bindPanel() {
             } );
         } );
         return false;
-    } );
-
-    panel.find( ".show-providers" ).on( "click", function() {
-        $( "#providers" ).popup( "destroy" ).remove();
-
-        storage.get( [ "provider", "wapikey" ], function( data ) {
-            data.provider = data.provider || "yahoo";
-
-            var popup = $(
-                "<div data-role='popup' id='providers' data-theme='a' data-overlay-theme='b'>" +
-                    "<div class='ui-content'>" +
-                        "<form>" +
-                            "<label for='weather_provider'>" + _( "Weather Provider" ) +
-                                "<select data-mini='true' id='weather_provider' class='needsclick'>" +
-                                    "<option value='yahoo'>" + _( "Yahoo!" ) + "</option>" +
-                                    "<option " + ( ( data.provider === "wunderground" ) ? "selected " : "" ) + "value='wunderground'>" + _( "Wunderground" ) + "</option>" +
-                                "</select>" +
-                            "</label>" +
-                            "<label for='wapikey'>" + _( "Wunderground API Key" ) +
-								"<input data-mini='true' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' " +
-									"type='text' id='wapikey' value='" + ( ( data.wapikey ) ? data.wapikey : "" ) + "'>" +
-							"</label>" +
-                            "<input type='submit' value='" + _( "Submit" ) + "'>" +
-                        "</form>" +
-                    "</div>" +
-                "</div>"
-            );
-
-            if ( data.provider === "yahoo" ) {
-                popup.find( "#wapikey" ).closest( "label" ).hide();
-            }
-
-            popup.find( "form" ).on( "submit", function( e ) {
-                e.preventDefault();
-
-                var wapikey = $( "#wapikey" ).val(),
-                    provider = $( "#weather_provider" ).val();
-
-                if ( provider === "wunderground" && wapikey === "" ) {
-                    showerror( _( "An API key must be provided for Weather Underground" ) );
-                    return;
-                }
-
-                storage.set( {
-                    "wapikey": wapikey,
-                    "provider": provider
-                } );
-
-                updateWeather();
-
-                $( "#providers" ).popup( "close" );
-
-                return false;
-            } );
-
-            //Handle provider select change on weather settings
-            popup.on( "change", "#weather_provider", function() {
-                var val = $( this ).val();
-                if ( val === "wunderground" ) {
-                    $( "#wapikey" ).closest( "label" ).show();
-                } else {
-                    $( "#wapikey" ).closest( "label" ).hide();
-                }
-                popup.popup( "reposition", {
-                    "positionTo": "window"
-                } );
-            } );
-
-            popup.one( "popupafterclose", function() {
-                document.activeElement.blur();
-                this.remove();
-            } ).popup().enhanceWithin().popup( "open" );
-            return false;
-        } );
     } );
 
     panel.find( ".changePassword > a" ).on( "click", changePassword );
@@ -3652,7 +3486,7 @@ function showOptions( expandItem ) {
     if ( typeof controller.options.uwt !== "undefined" ) {
         list += "<div class='ui-field-contain'><label for='o31' class='select'>" + _( "Weather Adjustment Method" ) +
 				"<button data-helptext='" +
-					_( "Weather adjustment uses Weather Underground data in conjunction with the selected method to adjust the watering percentage." ) +
+					_( "Weather adjustment uses OpenWeatherMaps data in conjunction with the selected method to adjust the watering percentage." ) +
 					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
 			"</label><select data-mini='true' id='o31'>";
         for ( i = 0; i < getAdjustmentName( "length" ); i++ ) {
@@ -3783,31 +3617,6 @@ function showOptions( expandItem ) {
     list += "</fieldset><fieldset data-role='collapsible' data-theme='b'" +
 		( typeof expandItem === "string" && expandItem === "advanced" ? " data-collapsed='false'" : "" ) + ">" +
 		"<legend>" + _( "Advanced" ) + "</legend>";
-
-	if ( typeof controller.options.uwt !== "undefined" && typeof controller.settings.wtkey !== "undefined" ) {
-		list += "<div class='ui-field-contain'><label for='wtkey'>" + _( "Wunderground Key" ).replace( "Wunderground", "Wunder&shy;ground" ) +
-			"<button data-helptext='" +
-				_( "We use OpenWeatherMap normally however with a user provided API key the weather source will switch to Weather Underground." ) +
-				"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
-		"</label>" +
-		"<table>" +
-			"<tr style='width:100%;vertical-align: top;'>" +
-				"<td style='width:100%'>" +
-					"<div class='" +
-						( weatherKeyFail === true ? "red " : ( ( controller.settings.wtkey && controller.settings.wtkey !== "" ) ? "green " : "" ) ) +
-						"ui-input-text controlgroup-textinput ui-btn ui-body-inherit ui-corner-all ui-mini ui-shadow-inset ui-input-has-clear'>" +
-							"<input data-role='none' data-mini='true' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' " +
-								"type='text' id='wtkey' value='" + controller.settings.wtkey + "'>" +
-							"<a href='#' tabindex='-1' aria-hidden='true' data-helptext='" + _( "An invalid API key has been detected." ) +
-								"' class='" + ( weatherKeyFail === true ? "" : "hidden " ) +
-								"help-icon ui-input-clear ui-btn ui-icon-alert ui-btn-icon-notext ui-corner-all'>" +
-							"</a>" +
-					"</div>" +
-				"</td>" +
-				"<td><button class='noselect' data-mini='true' id='verify-api'>" + _( "Verify" ) + "</button></td>" +
-			"</tr>" +
-		"</table></div>";
-	}
 
     if ( typeof controller.options.hp0 !== "undefined" ) {
         list += "<div class='ui-field-contain'><label for='o12'>" + _( "HTTP Port (restart required)" ) + "</label>" +
@@ -3961,13 +3770,6 @@ function showOptions( expandItem ) {
                         loc.find( "span" ).text( result );
                     } );
                 }
-                validateWULocation( selected, function( isValid ) {
-                    if ( isValid ) {
-                        loc.addClass( "green" );
-                    } else if ( !isValid ) {
-                        loc.removeClass( "green" );
-                    }
-                } );
                 header.eq( 2 ).prop( "disabled", false );
                 page.find( ".submit" ).addClass( "hasChanges" );
             }
@@ -4113,24 +3915,6 @@ function showOptions( expandItem ) {
         }
     } );
 
-    page.find( "#verify-api" ).on( "click", function() {
-        var key = page.find( "#wtkey" ),
-            button = $( this );
-
-        button.prop( "disabled", true );
-
-        testAPIKey( key.val(), function( result ) {
-            if ( result === true ) {
-                key.parent().find( ".ui-icon-alert" ).hide();
-                key.parent().removeClass( "red" ).addClass( "green" );
-            } else {
-                key.parent().find( ".ui-icon-alert" ).removeClass( "hidden" ).show();
-                key.parent().removeClass( "green" ).addClass( "red" );
-            }
-            button.prop( "disabled", false );
-        } );
-    } );
-
     page.find( ".help-icon" ).on( "click", showHelpText );
 
     page.find( ".duration-field button:not(.help-icon)" ).on( "click", function() {
@@ -4249,23 +4033,10 @@ function showOptions( expandItem ) {
     page.find( "#o31" ).on( "change", function() {
 
         // Switch state of water level input based on weather algorithm status
-        page.find( "#o23" ).prop( "disabled", ( parseInt( this.value ) === 0 || page.find( "#wtkey" ).val() === "" ? false : true ) );
+        page.find( "#o23" ).prop( "disabled", ( parseInt( this.value ) === 0 ? false : true ) );
 
         // Switch the state of adjustment options based on the selected method
         page.find( "#wto" ).parents( ".ui-field-contain" ).toggleClass( "hidden", parseInt( this.value ) === 0 ? true : false );
-    } );
-
-    page.find( "#wtkey" ).on( "change input", function() {
-
-        // Hide the invalid key status after change
-        page.find( "#wtkey" ).siblings( ".help-icon" ).hide();
-        page.find( "#wtkey" ).parent().removeClass( "red green" );
-
-        // Switch state of weather algorithm input based on API key status
-        if ( this.value === "" ) {
-	        page.find( "#wto" ).parents( ".ui-field-contain" ).toggleClass( "hidden", true );
-            page.find( "#o23" ).prop( "disabled", false );
-        }
     } );
 
     page.find( "#o49" ).on( "click", function() {
@@ -8890,11 +8661,6 @@ function importConfig( data ) {
                 }
                 co += "&o" + key + "=" + option;
             }
-        }
-
-        // Import WUnderground API key, if available
-        if ( data.settings.hasOwnProperty( "wtkey" ) && data.settings.wtkey !== "" && checkOSVersion( 210 ) ) {
-            co += "&wtkey=" + data.settings.wtkey;
         }
 
         // Handle import from versions prior to 2.1.1 for enable logging flag
