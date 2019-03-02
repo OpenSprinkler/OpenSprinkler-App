@@ -2657,15 +2657,7 @@ function updateWeather() {
 
 			currentCoordinates = data.location;
 
-			weather = {
-				title: data.description,
-				code: data.icon,
-				temp: formatTemp( data.temp ),
-				location: data.city,
-				forecast: data.forecast,
-				region: data.region,
-				source: "owm"
-			};
+			weather = data;
 
 			updateWeatherBox();
 
@@ -2676,8 +2668,8 @@ function updateWeather() {
 
 function updateWeatherBox() {
     $( "#weather" )
-        .html( "<div title='" + weather.title + "' class='wicon'><img src='http://openweathermap.org/img/w/" + weather.code + ".png'></div>" +
-			"<div class='inline tight'>" + weather.temp + "</div><br><div class='inline location tight'>" + weather.location + "</div>" +
+        .html( "<div title='" + weather.description + "' class='wicon'><img src='http://openweathermap.org/img/w/" + weather.icon + ".png'></div>" +
+			"<div class='inline tight'>" + formatTemp( weather.temp ) + "</div><br><div class='inline location tight'>" + weather.city + "</div>" +
 			( typeof weather.alert === "object" ? "<div><button class='tight help-icon btn-no-border ui-btn ui-icon-alert ui-btn-icon-notext ui-corner-all'></button>" + weather.alert.type + "</div>" : "" ) )
         .off( "click" ).on( "click", function() {
             changePage( "#forecast" );
@@ -2820,7 +2812,7 @@ function showForecast() {
 }
 
 function makeForecast() {
-    var list = "<li data-role='list-divider' data-theme='a' class='center'>" + weather.location + "</li>",
+    var list = "<li data-role='list-divider' data-theme='a' class='center'>" + weather.city + "</li>",
         sunrise = controller.settings.sunrise ? controller.settings.sunrise : getSunTimes()[ 0 ],
         sunset = controller.settings.sunset ? controller.settings.sunset : getSunTimes()[ 1 ],
 		i, date, times;
@@ -2829,8 +2821,8 @@ function makeForecast() {
 
     list += "<li data-icon='false' class='center'>" +
 			"<div>" + _( "Now" ) + "</div><br>" +
-			"<div title='" + weather.title + "' class='wicon'><img src='http://openweathermap.org/img/w/" + weather.code + ".png'></div>" +
-			"<span>" + weather.temp + "</span><br>" +
+			"<div title='" + weather.description + "' class='wicon'><img src='http://openweathermap.org/img/w/" + weather.icon + ".png'></div>" +
+			"<span>" + formatTemp( weather.temp ) + "</span><br>" +
 			"<span>" + _( "Sunrise" ) + "</span><span>: " + pad( parseInt( sunrise / 60 ) % 24 ) + ":" + pad( sunrise % 60 ) + "</span> " +
 			"<span>" + _( "Sunset" ) + "</span><span>: " + pad( parseInt( sunset / 60 ) % 24 ) + ":" + pad( sunset % 60 ) + "</span>" +
 		"</li>";
@@ -3013,41 +3005,22 @@ function overlayMap( callback ) {
 }
 
 function debugWU() {
-    $.mobile.loading( "show" );
+	var popup = "<div data-role='popup' id='debugWU' class='ui-content ui-page-theme-a'><table class='debugWU'>";
 
-    $.ajax( {
-        url: "https://api.wunderground.com/api/" + controller.settings.wtkey + "/yesterday/conditions/q/" + controller.settings.loc + ".json",
-        dataType: isChromeApp || isWinApp ? "json" : "jsonp",
-        shouldRetry: retryCount
-    } ).always( function( data ) {
-		$.mobile.loading( "hide" );
+	if ( weather ) {
+		popup += "<tr><td>" + _( "Humidity" ) + "</td><td>" + weather.humidity + "%</td></tr>" +
+			"<tr><td>" + _( "Mean Temp" ) + "</td><td>" + formatTemp( weather.temp ) + "</td></tr>" +
+			"<tr><td>" + _( "Precip Today" ) + "</td><td>" + formatPrecip( weather.precip ) + "</td></tr>" +
+			"<tr><td>" + _( "Adjustment Method" ) + "</td><td>" + getAdjustmentName( controller.options.uwt ) + "</td></tr>" +
+			"<tr><td>" + _( "Current % Watering" ) + "</td><td>" + controller.options.wl + "%</td></tr>";
+	}
 
-		var popup = "<div data-role='popup' id='debugWU' class='ui-content ui-page-theme-a'><table class='debugWU'>";
+	popup += ( typeof controller.settings.lwc === "number" ? "<tr><td>" + _( "Last Weather Call" ) + "</td><td>" + dateToString( new Date( controller.settings.lwc * 1000 ) ) + "</td></tr>" : "" ) +
+				( typeof controller.settings.lswc === "number" ? "<tr><td>" + _( "Last Successful Weather Call" ) + "</td><td>" + dateToString( new Date( controller.settings.lswc * 1000 ) ) + "</td></tr>" : "" ) +
+				( typeof controller.settings.lupt === "number" ? "<tr><td>" + _( "Last System Reboot" ) + "</td><td>" + dateToString( new Date( controller.settings.lupt * 1000 ) ) + "</td></tr>" : "" ) +
+				"</table></div>";
 
-		if (
-			typeof data.response.error !== "object" &&
-			typeof data.history === "object" &&
-			typeof data.history.dailysummary === "object" &&
-			validateWUValues( [ "minhumidity", "maxhumidity", "meantempm", "meantempi", "precipm", "precipi" ], data.history.dailysummary[ 0 ] ) &&
-			validateWUValues( [ "precip_today_metric", "precip_today_in" ], data.current_observation )
-		) {
-
-			popup += "<tr><td>" + _( "Min Humidity" ) + "</td><td>" + data.history.dailysummary[ 0 ].minhumidity + "%</td></tr>" +
-				"<tr><td>" + _( "Max Humidity" ) + "</td><td>" + data.history.dailysummary[ 0 ].maxhumidity + "%</td></tr>" +
-				"<tr><td>" + _( "Mean Temp" ) + "</td><td>" + formatTemp( data.history.dailysummary[ 0 ].meantempi ) + "</td></tr>" +
-				"<tr><td>" + _( "Precip Yesterday" ) + "</td><td>" + formatPrecip( data.history.dailysummary[ 0 ].precipi ) + "</td></tr>" +
-				"<tr><td>" + _( "Precip Today" ) + "</td><td>" + formatPrecip( data.current_observation.precip_today_in ) + "</td></tr>" +
-				"<tr><td>" + _( "Adjustment Method" ) + "</td><td>" + getAdjustmentName( controller.options.uwt ) + "</td></tr>" +
-				"<tr><td>" + _( "Current % Watering" ) + "</td><td>" + controller.options.wl + "%</td></tr>";
-		}
-
-		popup += ( typeof controller.settings.lwc === "number" ? "<tr><td>" + _( "Last Weather Call" ) + "</td><td>" + dateToString( new Date( controller.settings.lwc * 1000 ) ) + "</td></tr>" : "" ) +
-				 ( typeof controller.settings.lswc === "number" ? "<tr><td>" + _( "Last Successful Weather Call" ) + "</td><td>" + dateToString( new Date( controller.settings.lswc * 1000 ) ) + "</td></tr>" : "" ) +
-				 ( typeof controller.settings.lupt === "number" ? "<tr><td>" + _( "Last System Reboot" ) + "</td><td>" + dateToString( new Date( controller.settings.lupt * 1000 ) ) + "</td></tr>" : "" ) +
-				 "</table></div>";
-
-		openPopup( $( popup ) );
-    } );
+	openPopup( $( popup ) );
 
     return false;
 }
@@ -3562,7 +3535,7 @@ function showOptions( expandItem ) {
     list += "<div class='ui-field-contain'>" +
         "<label for='loc'>" + _( "Location" ) + "</label>" +
 		"<button data-mini='true' id='loc' value='" + controller.settings.loc + "'" + ( isWUDataValid === true ? " class='green'" : "" ) + ">" +
-			"<span>" + ( typeof weather === "object" ? weather.location : ( controller.settings.loc.trim() === "''" ? _( "Not specified" ) : controller.settings.loc ) ) + "</span>" +
+			"<span>" + ( typeof weather === "object" ? `${weather.city}, ${weather.region}` : ( controller.settings.loc.trim() === "''" ? _( "Not specified" ) : controller.settings.loc ) ) + "</span>" +
 			"<a class='ui-btn btn-no-border ui-btn-icon-notext ui-icon-delete ui-btn-corner-all clear-loc'></a>" +
 		"</button></div>";
 
