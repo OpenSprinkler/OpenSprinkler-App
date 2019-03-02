@@ -120,7 +120,7 @@ var isIEMobile = /IEMobile/.test( navigator.userAgent ),
     timers = {},
     isWUDataValid = false,
     curr183, currIp, currPrefix, currAuth, currPass, currAuthUser,
-    currAuthPass, currLocal, currLang, language, deviceip, errorTimeout, weather, weatherKeyFail, openPanel;
+    currAuthPass, currLocal, currLang, language, deviceip, errorTimeout, weather, openPanel;
 
 // Prevent errors from bubbling up on Windows
 if ( isWinApp ) {
@@ -2542,44 +2542,6 @@ function showAutoRainDelayAdjustmentOptions( button, callback ) {
     openPopup( popup, { positionTo: "window" } );
 }
 
-// Checks to make sure an array contains the keys provided and returns true or false
-function validateWUValues( keys, array ) {
-	var key;
-
-	if ( typeof array !== "object" ) {
-		return false;
-	}
-
-	for ( key in keys ) {
-		if ( !keys.hasOwnProperty( key ) ) {
-			continue;
-		}
-
-		key = keys[ key ];
-
-		if ( !array.hasOwnProperty( key ) || array[ key ] === null || parseInt( array[ key ] ) === -999 ) {
-			return false;
-		}
-	}
-
-	return true;
-}
-
-function validateWUData( history, current ) {
-    if ( typeof history === "object" && typeof history.dailysummary === "object" ) {
-        var summary = history.dailysummary[ 0 ];
-
-        if ( !validateWUValues( [ "minhumidity", "maxhumidity", "meantempm", "meantempi", "precipm", "precipi" ], summary ) ||
-				!validateWUValues( [ "precip_today_metric", "precip_today_in" ], current ) ) {
-			return false;
-        }
-
-        return true;
-    } else {
-		return false;
-    }
-}
-
 function formatTemp( temp ) {
     if ( isMetric ) {
         temp = Math.round( ( temp - 32 ) * ( 5 / 9 ) * 10 ) / 10 + "&#176;C";
@@ -3369,7 +3331,7 @@ function showOptions( expandItem ) {
     list += "<div class='ui-field-contain'>" +
         "<label for='loc'>" + _( "Location" ) + "</label>" +
 		"<button data-mini='true' id='loc' value='" + controller.settings.loc + "'" + ( isWUDataValid === true ? " class='green'" : "" ) + ">" +
-			"<span>" + ( typeof weather === "object" ? `${weather.city}, ${weather.region}` : ( controller.settings.loc.trim() === "''" ? _( "Not specified" ) : controller.settings.loc ) ) + "</span>" +
+			"<span>" + ( typeof weather === "object" ? weather.city + ", " + weather.region : ( controller.settings.loc.trim() === "''" ? _( "Not specified" ) : controller.settings.loc ) ) + "</span>" +
 			"<a class='ui-btn btn-no-border ui-btn-icon-notext ui-icon-delete ui-btn-corner-all clear-loc'></a>" +
 		"</button></div>";
 
@@ -8877,7 +8839,7 @@ var showAbout = ( function() {
                     "</li>" +
                 "</ul>" +
                 "<p class='smaller'>" +
-                    _( "App Version" ) + ": 1.8.2" +
+                    _( "App Version" ) + ": 1.8.3" +
                     "<br>" + _( "Firmware" ) + ": <span class='firmware'></span>" +
                     "<br><span class='hardwareLabel'>" + _( "Hardware Version" ) + ":</span> <span class='hardware'></span>" +
                 "</p>" +
