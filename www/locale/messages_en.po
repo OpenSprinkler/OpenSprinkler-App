@@ -189,70 +189,10 @@ msgstr ""
 msgid "Delay Duration (hours)"
 msgstr ""
 
-msgid "Hurricane Local Statement"
-msgstr ""
-
-msgid "Tornado Warning"
-msgstr ""
-
-msgid "Tornado Watch"
-msgstr ""
-
-msgid "Severe Thunderstorm Warning"
-msgstr ""
-
-msgid "Severe Thunderstorm Watch"
-msgstr ""
-
-msgid "Winter Weather Advisory"
-msgstr ""
-
-msgid "Flood Warning"
-msgstr ""
-
-msgid "Flood Watch / Statement"
-msgstr ""
-
-msgid "High Wind Advisory"
-msgstr ""
-
-msgid "Severe Weather Statement"
-msgstr ""
-
-msgid "Heat Advisory"
-msgstr ""
-
-msgid "Dense Fog Advisory"
-msgstr ""
-
-msgid "Special Weather Statement"
-msgstr ""
-
-msgid "Fire Weather Advisory"
-msgstr ""
-
-msgid "Volcanic Activity Statement"
-msgstr ""
-
-msgid "Hurricane Wind Warning"
-msgstr ""
-
-msgid "Record Set"
-msgstr ""
-
-msgid "Public Reports"
-msgstr ""
-
-msgid "Public Information Statement"
-msgstr ""
-
 msgid "Forecast"
 msgstr ""
 
 msgid "Refresh"
-msgstr ""
-
-msgid "Click to read more..."
 msgstr ""
 
 msgid "Now"
@@ -262,9 +202,6 @@ msgid "Sunrise"
 msgstr ""
 
 msgid "Sunset"
-msgstr ""
-
-msgid "Precip"
 msgstr ""
 
 msgid "Low"
@@ -282,16 +219,7 @@ msgstr ""
 msgid "Attempting to retrieve your current location"
 msgstr ""
 
-msgid "Min Humidity"
-msgstr ""
-
-msgid "Max Humidity"
-msgstr ""
-
 msgid "Mean Temp"
-msgstr ""
-
-msgid "Precip Yesterday"
 msgstr ""
 
 msgid "Precip Today"
@@ -351,21 +279,6 @@ msgid "Are you sure you want to reboot OpenSprinkler?"
 msgstr ""
 
 msgid "OpenSprinkler is rebooting now"
-msgstr ""
-
-msgid "Weather Provider"
-msgstr ""
-
-msgid "Yahoo!"
-msgstr ""
-
-msgid "Wunderground"
-msgstr ""
-
-msgid "Wunderground API Key"
-msgstr ""
-
-msgid "An API key must be provided for Weather Underground"
 msgstr ""
 
 msgid "Are you sure you want to downgrade the UI?"
@@ -437,6 +350,12 @@ msgstr ""
 msgid "Station Delay"
 msgstr ""
 
+msgid "Show Disabled"
+msgstr ""
+
+msgid "(Changes Auto-Saved)"
+msgstr ""
+
 msgid "Sequential"
 msgstr ""
 
@@ -447,7 +366,7 @@ msgid "Weather Adjustment Method"
 msgstr ""
 
 msgid ""
-"Weather adjustment uses Weather Underground data in conjunction with the "
+"Weather adjustment uses OpenWeatherMaps data in conjunction with the "
 "selected method to adjust the watering percentage."
 msgstr ""
 
@@ -521,20 +440,6 @@ msgid "Brightness"
 msgstr ""
 
 msgid "Idle Brightness"
-msgstr ""
-
-msgid "Wunderground Key"
-msgstr ""
-
-msgid ""
-"We use OpenWeatherMap normally however with a user provided API key the "
-"weather source will switch to Weather Underground."
-msgstr ""
-
-msgid "An invalid API key has been detected."
-msgstr ""
-
-msgid "Verify"
 msgstr ""
 
 msgid "HTTP Port (restart required)"
