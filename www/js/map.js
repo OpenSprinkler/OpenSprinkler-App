@@ -227,12 +227,6 @@ function removeMarkers( type ) {
     markers[ type ] = [];
 }
 
-// Remove all markers
-function removeAllMarkers() {
-    removeMarkers( "pws" );
-    removeMarkers( "airport" );
-}
-
 // Create text for popup info window
 function createInfoWindow( type, data, latLon ) {
     if ( type === "pws" ) {
@@ -262,20 +256,4 @@ function showCurrentLocation() {
 		infoWindow.close();
 		google.maps.event.trigger( current, "click" );
 	}
-}
-
-function rad( x ) {
-	return x * Math.PI / 180;
-}
-
-function getDistance( p1, p2 ) {
-	var R = 6378137,
-		dLat = rad( p2.lat() - p1.lat() ),
-		dLong = rad( p2.lng() - p1.lng() ),
-		a = Math.sin( dLat / 2 ) * Math.sin( dLat / 2 ) +
-			Math.cos( rad( p1.lat() ) ) * Math.cos( rad( p2.lat() ) ) *
-			Math.sin( dLong / 2 ) * Math.sin( dLong / 2 ),
-		c = 2 * Math.atan2( Math.sqrt( a ), Math.sqrt( 1 - a ) );
-
-  return R * c;
 }
