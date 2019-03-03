@@ -23,9 +23,7 @@
     getScript( "https://maps.googleapis.com/maps/api/js?key=AIzaSyDaT_HTZwFojXmvYIhwWudK00vFXzMmOKc&libraries=places" );
 } )();
 
-var markers = { airport: [], pws: [], orgin: [] },
-	stations = [],
-	airports = [],
+var markers = [],
     priorIdle, map, infoWindow, droppedPin, start, current;
 
 // Handle select button for weather station selection
@@ -97,7 +95,7 @@ function initialize() {
                 droppedPin.setMap( null );
                 droppedPin = null;
             }
-            droppedPin = plotMarker( "orgin", { message: "Selected Location" }, places[ 0 ].geometry.location.lat(), places[ 0 ].geometry.location.lng() );
+            droppedPin = plotMarker( { message: "Selected Location" }, places[ 0 ].geometry.location.lat(), places[ 0 ].geometry.location.lng() );
             map.setCenter( droppedPin.getPosition() );
 		} );
 
@@ -110,7 +108,7 @@ function initialize() {
 
         // If a start location is specified, display and center it now
         if ( start.lat() !== 0 && start.lng() !== 0 ) {
-            droppedPin = plotMarker( "orgin", { message: "Selected Location" }, start.lat(), start.lng() );
+            droppedPin = plotMarker( { message: "Selected Location" }, start.lat(), start.lng() );
         }
 
         // Once the UI/tiles are loaded, let the parent script know
@@ -139,17 +137,8 @@ function initialize() {
                 droppedPin.setMap( null );
                 droppedPin = null;
             }
-            droppedPin = plotMarker( "orgin", { message: "Selected Location" }, event.latLng.lat(), event.latLng.lng() );
+            droppedPin = plotMarker( { message: "Selected Location" }, event.latLng.lat(), event.latLng.lng() );
         } );
-
-        // If any stations or airports are saved already, draw them on the map
-        if ( stations.length > 0 ) {
-			plotAllMarkers( stations, true );
-        }
-
-        if ( airports.length > 0 ) {
-			plotAllMarkers( airports );
-        }
     } else {
         setTimeout( initialize, 1 );
     }
@@ -164,16 +153,6 @@ window.onmessage = function( e ) {
         start = new google.maps.LatLng( data.payload.start.lat, data.payload.start.lon );
         priorIdle = start;
         initialize();
-
-    // Handle stations data
-    } else if ( data.type === "pwsData" ) {
-        stations = JSON.parse( decodeURIComponent( data.payload ) );
-        removeMarkers( "pws" );
-        plotAllMarkers( stations, true );
-    } else if ( data.type === "airportData" ) {
-        airports = JSON.parse( decodeURIComponent( data.payload ) );
-        removeMarkers( "airport" );
-        plotAllMarkers( airports );
     } else if ( data.type === "currentLocation" ) {
 		if ( current ) {
 			current.setMap( null );
@@ -183,34 +162,24 @@ window.onmessage = function( e ) {
     }
 };
 
-// Plot all stations on the map
-function plotAllMarkers( markers, areStations ) {
-    var marker;
-
-    for ( var i = 0; i < markers.length; i++ ) {
-        marker = plotMarker( ( areStations ? "pws" : "airport" ), markers[ i ], markers[ i ].lat, markers[ i ].lon );
-    }
-}
-
 // Plot an individual station on the map
-function plotMarker( type, data, lat, lon ) {
+function plotMarker( data, lat, lon ) {
     var marker = new google.maps.Marker( {
             position: new google.maps.LatLng( lat, lon ),
             map: map,
-            icon: ( type === "orgin" ? "https://maps.google.com/mapfiles/ms/icons/red-dot.png" :
-                ( type ===  "pws" ? "https://maps.google.com/mapfiles/ms/icons/blue-dot.png" : "https://maps.google.com/mapfiles/ms/icons/orange-dot.png" ) )
+            icon: "https://maps.google.com/mapfiles/ms/icons/red-dot.png"
         } );
 
     google.maps.event.addListener( marker, "click", function() {
         infoWindow.close();
-        var html = createInfoWindow( type, data, lat + "," + lon );
+        var html = createInfoWindow( data, lat + "," + lon );
         infoWindow = new google.maps.InfoWindow( {
             content: html
         } );
         infoWindow.open( map, marker );
     } );
 
-    markers[ type ].push( marker );
+    markers.push( marker );
 
     if ( data.message === "Selected Location" ) {
         google.maps.event.trigger( marker, "click" );
@@ -219,38 +188,16 @@ function plotMarker( type, data, lat, lon ) {
     return marker;
 }
 
-// Removes markers of specified type
-function removeMarkers( type ) {
-    for ( var i = 0; i < markers[ type ].length; i++ ) {
-        markers[ type ][ i ].setMap( null );
-    }
-    markers[ type ] = [];
-}
-
 // Create text for popup info window
-function createInfoWindow( type, data, latLon ) {
-    if ( type === "pws" ) {
-        return "<div style='min-height:90px;min-width:170px;text-align:center;'><h3 style='padding:0;margin:0 0 4px 0'>" +
-                ( data.city ? data.city + ", " : "" ) + ( data.state ? data.state + ", " : "" ) + data.country +
-            "</h3><span style='font-size:8px;margin:0;padding:0;vertical-align: top'>ID: " + data.id + "</span><br><p style='margin:0'>" +
-                data.neighborhood + "<br>" +
-                "<button class='submitPWS' data-loc='" + latLon + "' data-id='" + data.id + "'>Select</button>" +
-            "</p></div>";
-    } else if ( type === "airport" ) {
-        return "<div style='min-height:80px;min-width:170px;text-align:center;'><h3 style='padding:0;margin:0 0 4px 0'>" +
-                ( data.city ? data.city + ", " : "" ) + ( data.state ? data.state + ", " : "" ) + data.country +
-            "</h3><span style='font-size:8px;margin:0;padding:0;vertical-align: top'>Airport ICAO: " + data.icao + "</span><br>" +
-            "<button class='submitICAO' data-loc='" + latLon + "' data-id='" + data.id + "'>Select</button></div>";
-    } else {
-        return "<div style='min-height:40px;text-align:center'>" + data.message + "<br><br><button class='submit' data-loc='" + latLon + "'>Submit</button></div>";
-    }
+function createInfoWindow( data, latLon ) {
+	return "<div style='min-height:40px;text-align:center'>" + data.message + "<br><br><button class='submit' data-loc='" + latLon + "'>Submit</button></div>";
 }
 
 function showCurrentLocation() {
 
     // The app uses -999, -999 when geolocation is not possible which is resolved to -90, 81
     if ( current.lat() !== -90 && current.lng() !== 81 ) {
-		current = plotMarker( "orgin", { message: "Current Location" }, current.lat(), current.lng() );
+		current = plotMarker( { message: "Current Location" }, current.lat(), current.lng() );
 
 		map.setCenter( { lat: current.getPosition().lat(), lng: current.getPosition().lng() } );
 		infoWindow.close();
