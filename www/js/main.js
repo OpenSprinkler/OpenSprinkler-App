@@ -2564,6 +2564,8 @@ function hideWeather() {
 }
 
 function updateWeather() {
+	weather = undefined;
+
 	if ( controller.settings.loc === "" ) {
 		hideWeather();
 		return;
