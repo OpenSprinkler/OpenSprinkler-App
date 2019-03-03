@@ -20,7 +20,7 @@
 	    document.getElementsByTagName( "head" )[ 0 ].appendChild( a );
     }
 
-    getScript( "https://maps.googleapis.com/maps/api/js?key=AIzaSyDaT_HTZwFojXmvYIhwWudK00vFXzMmOKc&libraries=places&callback=rad" );
+    getScript( "https://maps.googleapis.com/maps/api/js?key=AIzaSyDaT_HTZwFojXmvYIhwWudK00vFXzMmOKc&libraries=places" );
 } )();
 
 var markers = { airport: [], pws: [], orgin: [] },

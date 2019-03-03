@@ -118,7 +118,6 @@ var isIEMobile = /IEMobile/.test( navigator.userAgent ),
     // Array to hold all notifications currently displayed within the app
     notifications = [],
     timers = {},
-    isWUDataValid = false,
     curr183, currIp, currPrefix, currAuth, currPass, currAuthUser,
     currAuthPass, currLocal, currLang, language, deviceip, errorTimeout, weather, openPanel;
 
@@ -2579,7 +2578,7 @@ function updateWeather() {
 		success: function( data ) {
 
 			// Hide the weather if no data is returned
-			if ( !data ) {
+			if ( typeof data !== "object" ) {
 				hideWeather();
 				return;
 			}
@@ -3330,7 +3329,7 @@ function showOptions( expandItem ) {
 
     list += "<div class='ui-field-contain'>" +
         "<label for='loc'>" + _( "Location" ) + "</label>" +
-		"<button data-mini='true' id='loc' value='" + controller.settings.loc + "'" + ( isWUDataValid === true ? " class='green'" : "" ) + ">" +
+		"<button data-mini='true' id='loc' value='" + controller.settings.loc + "'>" +
 			"<span>" + ( typeof weather === "object" ? weather.city + ", " + weather.region : ( controller.settings.loc.trim() === "''" ? _( "Not specified" ) : controller.settings.loc ) ) + "</span>" +
 			"<a class='ui-btn btn-no-border ui-btn-icon-notext ui-icon-delete ui-btn-corner-all clear-loc'></a>" +
 		"</button></div>";
