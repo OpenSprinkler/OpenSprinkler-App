@@ -32,11 +32,7 @@ document.addEventListener( "click", function( e ) {
 		return;
 	}
     var classes = e.target.className.split( " " );
-    if ( classes.indexOf( "submitPWS" ) > -1 ) {
-        window.top.postMessage( { WS: e.target.dataset.loc, station: "pws:" + e.target.dataset.id }, "*" );
-    } else if ( classes.indexOf( "submitICAO" ) > -1 ) {
-        window.top.postMessage( { WS: e.target.dataset.loc, station: "icao:" + e.target.dataset.id }, "*" );
-    } else if ( classes.indexOf( "submit" ) > -1 ) {
+    if ( classes.indexOf( "submit" ) > -1 ) {
         window.top.postMessage( { WS: e.target.dataset.loc }, "*" );
     }
 }, false );
@@ -73,17 +69,6 @@ function initialize() {
 		map.addListener( "bounds_changed", function() {
 			searchBox.setBounds( map.getBounds() );
 		} );
-
-        searchField.addEventListener( "keyup", function( e ) {
-            if ( e.keyCode === 13 ) {
-                var loc = searchField.value;
-
-                if ( loc.match( /^(pws|icao):.*/ ) ) {
-                    e.preventDefault();
-                    window.top.postMessage( { WS: loc }, "*" );
-                }
-            }
-        } );
 
 		searchBox.addListener( "places_changed", function() {
 		    var places = searchBox.getPlaces();
