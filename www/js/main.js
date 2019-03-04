@@ -3702,9 +3702,6 @@ function showOptions( expandItem ) {
 	} );
 
     page.find( "#loc" ).on( "click", function() {
-
-        $.mobile.loading( "show" );
-
         var loc = $( this );
 
         loc.prop( "disabled", true );
