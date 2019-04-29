@@ -2571,13 +2571,13 @@ function finishWeatherUpdate() {
 function updateWeather() {
 	var now = new Date().getTime();
 
-	if ( weather && now - weather.lastUpdated < 60 * 60 * 100 ) {
+	if ( weather && weather.providedLocation === controller.settings.loc && now - weather.lastUpdated < 60 * 60 * 100 ) {
 		finishWeatherUpdate();
 		return;
 	} else if ( localStorage.weatherData ) {
 		try {
 			var weatherData = JSON.parse( localStorage.weatherData );
-			if ( now - weatherData.lastUpdated < 60 * 60 * 100 ) {
+			if ( weatherData.providedLocation === controller.settings.loc && now - weatherData.lastUpdated < 60 * 60 * 100 ) {
 				weather = weatherData;
 				finishWeatherUpdate();
 				return;
@@ -2612,6 +2612,7 @@ function updateWeather() {
 
 			weather = data;
 			data.lastUpdated = new Date().getTime();
+			data.providedLocation = controller.settings.loc;
 			localStorage.weatherData = JSON.stringify( data );
 			finishWeatherUpdate();
 		}
