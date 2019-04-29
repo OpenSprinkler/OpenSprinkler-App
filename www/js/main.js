@@ -2563,7 +2563,28 @@ function hideWeather() {
     $( "#weather" ).empty().parents( ".info-card" ).addClass( "noweather" );
 }
 
+function finishWeatherUpdate() {
+	updateWeatherBox();
+	$.mobile.document.trigger( "weatherUpdateComplete" );
+}
+
 function updateWeather() {
+	const now = new Date().getTime();
+
+	if ( weather && now - weather.lastUpdated < 60 * 60 * 100 ) {
+		finishWeatherUpdate();
+		return;
+	} else if ( localStorage.weatherData ) {
+		try {
+			const weatherData = JSON.parse( localStorage.weatherData );
+			if ( now - weatherData.lastUpdated < 60 * 60 * 100 ) {
+				weather = weatherData;
+				finishWeatherUpdate();
+				return;
+			}
+		} catch ( err ) {}
+	}
+
 	weather = undefined;
 
 	if ( controller.settings.loc === "" ) {
@@ -2590,10 +2611,9 @@ function updateWeather() {
 			currentCoordinates = data.location;
 
 			weather = data;
-
-			updateWeatherBox();
-
-			$.mobile.document.trigger( "weatherUpdateComplete" );
+			data.lastUpdated = new Date().getTime();
+			localStorage.weatherData = JSON.stringify( data );
+			finishWeatherUpdate();
 		}
 	} );
 }
