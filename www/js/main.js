@@ -2569,14 +2569,14 @@ function finishWeatherUpdate() {
 }
 
 function updateWeather() {
-	const now = new Date().getTime();
+	var now = new Date().getTime();
 
 	if ( weather && now - weather.lastUpdated < 60 * 60 * 100 ) {
 		finishWeatherUpdate();
 		return;
 	} else if ( localStorage.weatherData ) {
 		try {
-			const weatherData = JSON.parse( localStorage.weatherData );
+			var weatherData = JSON.parse( localStorage.weatherData );
 			if ( now - weatherData.lastUpdated < 60 * 60 * 100 ) {
 				weather = weatherData;
 				finishWeatherUpdate();
