@@ -77,8 +77,6 @@
         <icon height="152" src="res/ios/icons/icon-76@2x.png" width="152" />
     </platform>
     <platform name="android">
-        <preference name="android-minSdkVersion" value="16" />
-        <preference name="android-targetSdkVersion" value="22" />
         <preference name="android-theme" value="@android:style/Theme.Holo.Light.NoActionBar" />
         <edit-config file="AndroidManifest.xml" mode="merge" target="/manifest">
             <supports-screens android:largeScreens="true" android:smallScreens="true" android:xlargeScreens="true" />
@@ -121,6 +119,6 @@
     <plugin name="cordova-plugin-inappbrowser" spec="^3.0.0" />
     <plugin name="cordova-plugin-networkinterface" spec="^2.0.0" />
     <plugin name="cordova-plugin-camera" spec="^4.0.3" />
-    <engine name="android" spec="^7.1.1" />
     <engine name="ios" spec="^4.5.4" />
+    <engine name="android" spec="~8.0.0" />
 </widget>
