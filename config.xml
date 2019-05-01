@@ -41,7 +41,7 @@
             <string>Your camera is used to provide an image for your stations.</string>
         </edit-config>
         <edit-config file="*-Info.plist" mode="merge" target="CFBundleShortVersionString">
-            <string>1710</string>
+            <string>180</string>
         </edit-config>
         <splash height="480" src="res/ios/screens/startup.png" width="320" />
         <splash height="960" src="res/ios/screens/startup-retina.png" width="640" />
