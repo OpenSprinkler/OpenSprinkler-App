@@ -119,6 +119,6 @@
     <plugin name="cordova-plugin-inappbrowser" spec="^3.0.0" />
     <plugin name="cordova-plugin-networkinterface" spec="^2.0.0" />
     <plugin name="cordova-plugin-camera" spec="^4.0.3" />
-    <engine name="ios" spec="^4.5.4" />
+    <engine name="ios" spec="^5.0.0" />
     <engine name="android" spec="~8.0.0" />
 </widget>
