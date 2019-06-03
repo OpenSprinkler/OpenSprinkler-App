@@ -2919,7 +2919,7 @@ function debugWU() {
 		popup += "<tr><td>" + _( "Humidity" ) + "</td><td>" + weather.humidity + "%</td></tr>" +
 			"<tr><td>" + _( "Mean Temp" ) + "</td><td>" + formatTemp( weather.temp ) + "</td></tr>" +
 			"<tr><td>" + _( "Precip Today" ) + "</td><td>" + formatPrecip( weather.precip ) + "</td></tr>" +
-			"<tr><td>" + _( "Adjustment Method" ) + "</td><td>" + getAdjustmentName( controller.options.uwt ) + "</td></tr>" +
+			"<tr><td>" + _( "Adjustment Method" ) + "</td><td>" + getAdjustmentMethod( controller.options.uwt ).name + "</td></tr>" +
 			"<tr><td>" + _( "Current % Watering" ) + "</td><td>" + controller.options.wl + "%</td></tr>";
 	}
 
@@ -2950,21 +2950,22 @@ function showRainDelay() {
 	} );
 }
 
-function getAdjustmentName( id ) {
-	var methods = [ _( "Manual" ), "Zimmerman" ];
+/** Returns the adjustment method for the corresponding ID, or a list of all methods if no ID is specified. */
+function getAdjustmentMethod( id ) {
+    var methods = [
+        { name: _( "Manual" ), id: 0 },
+        { name: "Zimmerman", id: 1 },
+        { name: _( "Auto Rain Delay" ), id: 2, minVersion: 216 }
+    ];
 
-	if ( checkOSVersion( 216 ) ) {
-		methods.push( _( "Auto Rain Delay" ) );
-	}
-
-	if ( id === "length" ) {
-		return methods.length;
-	}
+    if ( id === undefined ) {
+        return methods;
+    }
 
     return methods[ id & ~( 1 << 7 ) ];
 }
 
-function getAdjustmentMethod() {
+function getCurrentAdjustmentMethodId() {
     return controller.options.uwt & ~( 1 << 7 );
 }
 
@@ -3473,13 +3474,18 @@ function showOptions( expandItem ) {
 					_( "Weather adjustment uses OpenWeatherMaps data in conjunction with the selected method to adjust the watering percentage." ) +
 					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
 			"</label><select data-mini='true' id='o31'>";
-        for ( i = 0; i < getAdjustmentName( "length" ); i++ ) {
-            list += "<option " + ( ( i === getAdjustmentMethod() ) ? "selected" : "" ) + " value='" + i + "'>" + getAdjustmentName( i ) + "</option>";
+        for ( i = 0; i < getAdjustmentMethod().length; i++ ) {
+            var adjustmentMethod = getAdjustmentMethod()[ i ];
+            // Skip unsupported adjustment options.
+            if ( adjustmentMethod.minVersion && !checkOSVersion( adjustmentMethod.minVersion ) ) {
+                continue;
+            }
+            list += "<option " + ( ( adjustmentMethod.id === getCurrentAdjustmentMethodId() ) ? "selected" : "" ) + " value='" + i + "'>" + adjustmentMethod.name + "</option>";
         }
         list += "</select></div>";
 
         if ( typeof controller.settings.wto === "object" ) {
-	        list += "<div class='ui-field-contain" + ( getAdjustmentMethod() === 0 ? " hidden" : "" ) + "'><label for='wto'>" + _( "Adjustment Method Options" ) + "</label>" +
+	        list += "<div class='ui-field-contain" + ( getCurrentAdjustmentMethodId() === 0 ? " hidden" : "" ) + "'><label for='wto'>" + _( "Adjustment Method Options" ) + "</label>" +
 				"<button data-mini='true' id='wto' value='" + escapeJSON( controller.settings.wto ) + "'>" +
 					_( "Tap to Configure" ) +
 				"</button></div>";
@@ -3505,7 +3511,7 @@ function showOptions( expandItem ) {
 				"<button data-helptext='" +
 					_( "The watering percentage scales station run times by the set value. When weather adjustment is used the watering percentage is automatically adjusted." ) +
 					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
-			"</label><button " + ( ( controller.options.uwt && getAdjustmentMethod() > 0 ) ? "disabled='disabled' " : "" ) +
+			"</label><button " + ( ( controller.options.uwt && getCurrentAdjustmentMethodId() > 0 ) ? "disabled='disabled' " : "" ) +
 				"data-mini='true' id='o23' value='" + controller.options.wl + "'>" + controller.options.wl + "%</button></div>";
     }
 
