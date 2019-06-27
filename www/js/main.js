@@ -27,7 +27,7 @@ var isIEMobile = /IEMobile/.test( navigator.userAgent ),
     isFileCapable = !isiOS && !isAndroid && !isIEMobile && !isOSXApp && !isFireFoxOS &&
                     !isWinApp && !isBB10 && window.FileReader,
     isTouchCapable = "ontouchstart" in window || "onmsgesturechange" in window,
-    isMetric = ( [ "US", "BM", "PW" ].indexOf( navigator.language.split( "-" )[ 1 ] ) !== -1 ),
+    isMetric = ( [ "US", "BM", "PW" ].indexOf( navigator.language.split( "-" )[ 1 ] ) === -1 ),
 
     // Small wrapper to handle Chrome vs localStorage usage
     storage = {
@@ -8864,7 +8864,7 @@ var showAbout = ( function() {
                     "</li>" +
                 "</ul>" +
                 "<p class='smaller'>" +
-                    _( "App Version" ) + ": 1.8.5" +
+                    _( "App Version" ) + ": 1.8.6" +
                     "<br>" + _( "Firmware" ) + ": <span class='firmware'></span>" +
                     "<br><span class='hardwareLabel'>" + _( "Hardware Version" ) + ":</span> <span class='hardware'></span>" +
                 "</p>" +
