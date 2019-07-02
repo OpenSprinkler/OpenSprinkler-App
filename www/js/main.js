@@ -2595,7 +2595,7 @@ function updateWeather() {
 	showLoading( "#weather" );
 
 	$.ajax( {
-		url: "http://weather.opensprinkler.com/weatherData?loc=" +
+		url: "https://weather.opensprinkler.com/weatherData?loc=" +
 			encodeURIComponent( controller.settings.loc ),
 		contentType: "application/json; charset=utf-8",
 		success: function( data ) {
