@@ -2611,6 +2611,7 @@ function showEToAdjustmentOptions( button, callback ) {
 	} );
 
 	popup.find( ".detect-baseline-eto" ).on( "click", function() {
+
 		// Backup button contents so it can be restored after the request is completed.
 		var buttonContents = $( ".detect-baseline-eto" ).html();
 
@@ -2633,6 +2634,7 @@ function showEToAdjustmentOptions( button, callback ) {
 				window.alert( "Detected baseline ETo for configured location is " + baselineETo + ( isMetric ? "mm" : "in" ) + "/day" );
 			},
 			error: function( xhr, errorType ) {
+
 				// Use the response body for HTTP errors and the error type for JQuery errors.
 				var errorMessage = "Unable to detect baseline ETo: " +
 					( xhr.status ? xhr.responseText + "(" + xhr.status + ")" : errorType );
@@ -2640,10 +2642,9 @@ function showEToAdjustmentOptions( button, callback ) {
 				window.console.error( errorMessage );
 			},
 			complete: function( ) {
-				$(".detect-baseline-eto").html( buttonContents );
+				$( ".detect-baseline-eto" ).html( buttonContents );
 			}
 		} );
-
 
 		return false;
 	} );
@@ -3607,6 +3608,7 @@ function showOptions( expandItem ) {
 			"</label><select data-mini='true' id='o31'>";
         for ( i = 0; i < getAdjustmentMethod().length; i++ ) {
             var adjustmentMethod = getAdjustmentMethod()[ i ];
+
             // Skip unsupported adjustment options.
             if ( adjustmentMethod.minVersion && !checkOSVersion( adjustmentMethod.minVersion ) ) {
                 continue;
