@@ -3088,7 +3088,7 @@ function getAdjustmentMethod( id ) {
         { name: _( "Manual" ), id: 0 },
         { name: "Zimmerman", id: 1 },
         { name: _( "Auto Rain Delay" ), id: 2, minVersion: 216 },
-		{ name: "Evapotranspiration", id: 3 }
+		{ name: "Evapotranspiration (ET)", id: 3 }
     ];
 
     if ( id === undefined ) {
