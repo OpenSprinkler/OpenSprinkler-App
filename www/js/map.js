@@ -123,6 +123,19 @@ function initialize() {
                 droppedPin = null;
             }
             droppedPin = plotMarker( { message: "Selected Location" }, event.latLng.lat(), event.latLng.lng() );
+		} );
+
+        // When the map center changes, update the weather stations shown
+        map.addListener( "idle", function() {
+			if ( getDistance( map.getCenter(), priorIdle ) < 15000 || map.getZoom() < 9 ) {
+				return;
+			}
+
+			priorIdle = map.getCenter();
+            removeAllMarkers();
+            window.top.postMessage( {
+                location: [ map.getCenter().lat(), map.getCenter().lng() ]
+            }, "*" );
         } );
     } else {
         setTimeout( initialize, 1 );

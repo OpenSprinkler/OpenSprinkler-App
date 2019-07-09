@@ -2541,6 +2541,27 @@ function showAutoRainDelayAdjustmentOptions( button, callback ) {
     openPopup( popup, { positionTo: "window" } );
 }
 
+// Validates a Weather Underground location to verify it contains the data needed for Weather Adjustments
+function validateWULocation( location, callback ) {
+    if ( !controller.settings.wto || typeof controller.settings.wto.key !== "string" || controller.settings.wto.key === "" ) {
+        callback( false );
+    }
+
+    $.ajax( {
+		url: `https://api.weather.com/v2/pws/observations/hourly/7day?stationId=${location}&format=json&units=e&apiKey=${controller.settings.wto.key}`,
+		cache: true
+    } ).done( function( data ) {
+        if ( data.errors ) {
+            callback( false );
+            return;
+        }
+
+        callback( true );
+    } ).fail( function() {
+		callback( false );
+    } );
+}
+
 function formatTemp( temp ) {
     if ( isMetric ) {
         temp = Math.round( ( temp - 32 ) * ( 5 / 9 ) * 10 ) / 10 + "&#176;C";
@@ -2854,6 +2875,35 @@ function overlayMap( callback ) {
                     exit( false );
                 }, { timeout: 10000 } );
             } catch ( err ) { exit( false ); }
+		},
+        updateStations = function( latitude, longitude ) {
+			if ( !controller.settings.wto || typeof controller.settings.wto.key !== "string" || controller.settings.wto.key === "" ) {
+			    return;
+			}
+
+            $.ajax( {
+                url: `https://api.weather.com/v3/location/near?format=json&product=pws&apiKey=${controller.settings.wto.key}&geocode=${encodeURIComponent( latitude )},${encodeURIComponent( longitude )}`,
+                dataType: isChromeApp || isWinApp ? "json" : "jsonp",
+                shouldRetry: retryCount
+            } ).done( function( data ) {
+                if ( typeof data.response.error === "object" ) {
+                    return;
+                }
+
+                try {
+                    data = data.location.nearby_weather_stations.pws.station;
+                } catch ( err ) {
+                    return;
+                }
+
+                if ( data.length > 0 ) {
+                    data = encodeURIComponent( JSON.stringify( data ) );
+                    iframe.get( 0 ).contentWindow.postMessage( {
+                        type: "pwsData",
+                        payload: data
+                    }, "*" );
+                }
+            } );
         },
         iframe = popup.find( "iframe" ),
         locInput = $( "#loc" ).val(),
@@ -2873,7 +2923,9 @@ function overlayMap( callback ) {
             dataSent = true;
             popup.popup( "destroy" ).remove();
         } else if ( data.loaded === true ) {
-            $.mobile.loading( "hide" );
+			$.mobile.loading( "hide" );
+        } else if ( typeof data.location === "object" ) {
+            updateStations( data.location[ 0 ], data.location[ 1 ] );
         } else if ( data.dismissKeyboard === true ) {
             document.activeElement.blur();
         } else if ( data.getLocation === true ) {
@@ -2909,7 +2961,9 @@ function overlayMap( callback ) {
         },
         x: 0,
         y: 0
-    } );
+	} );
+
+	updateStations( current.lat, current.lon );
 }
 
 function debugWU() {
@@ -2988,6 +3042,21 @@ function setRestriction( id, uwt ) {
     }
 
     return uwt;
+}
+
+function testAPIKey( key, callback ) {
+    $.ajax( {
+		url: "https://api.weather.com/v2/pws/observations/current?stationId=KMAHANOV10&format=json&units=m&apiKey=" + key,
+		cache: true
+    } ).done( function( data ) {
+        if ( data.errors ) {
+            callback( false );
+            return;
+        }
+        callback( true );
+    } ).fail( function() {
+        callback( false );
+    } );
 }
 
 // Panel functions
@@ -3220,6 +3289,11 @@ function showOptions( expandItem ) {
 
                         return true;
                     case "wto":
+						data = unescapeJSON( data );
+						data.key = page.find( "#wtkey" ).val();
+						data.pws = page.find( "#loc" ).val();
+						data = escapeJSON( data );
+
 						if ( escapeJSON( controller.settings.wto ) === data ) {
 							return true;
 						}
@@ -3603,6 +3677,30 @@ function showOptions( expandItem ) {
 		( typeof expandItem === "string" && expandItem === "advanced" ? " data-collapsed='false'" : "" ) + ">" +
 		"<legend>" + _( "Advanced" ) + "</legend>";
 
+	if ( typeof controller.options.uwt !== "undefined" && typeof controller.settings.wto === "object" ) {
+		list += "<div class='ui-field-contain'><label for='wtkey'>" + _( "Wunderground Key" ).replace( "Wunderground", "Wunder&shy;ground" ) +
+			"<button data-helptext='" +
+				_( "We use OpenWeatherMap normally however with a user provided API key the weather source will switch to Weather Underground." ) +
+				"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
+		"</label>" +
+		"<table>" +
+			"<tr style='width:100%;vertical-align: top;'>" +
+				"<td style='width:100%'>" +
+					"<div class='" +
+						( ( controller.settings.wto.key && controller.settings.wto.key !== "" ) ? "green " : "" ) +
+						"ui-input-text controlgroup-textinput ui-btn ui-body-inherit ui-corner-all ui-mini ui-shadow-inset ui-input-has-clear'>" +
+							"<input data-role='none' data-mini='true' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' " +
+								"type='text' id='wtkey' value='" + ( controller.settings.wto.key || "" ) + "'>" +
+							"<a href='#' tabindex='-1' aria-hidden='true' data-helptext='" + _( "An invalid API key has been detected." ) +
+								"' class='hidden help-icon ui-input-clear ui-btn ui-icon-alert ui-btn-icon-notext ui-corner-all'>" +
+							"</a>" +
+					"</div>" +
+				"</td>" +
+				"<td><button class='noselect' data-mini='true' id='verify-api'>" + _( "Verify" ) + "</button></td>" +
+			"</tr>" +
+		"</table></div>";
+	}
+
     if ( typeof controller.options.hp0 !== "undefined" ) {
         list += "<div class='ui-field-contain'><label for='o12'>" + _( "HTTP Port (restart required)" ) + "</label>" +
 			"<input data-mini='true' type='number' pattern='[0-9]*' id='o12' value='" + ( controller.options.hp1 * 256 + controller.options.hp0 ) + "'>" +
@@ -3751,7 +3849,14 @@ function showOptions( expandItem ) {
                     coordsToLocation( selected[ 0 ], selected[ 1 ], function( result ) {
                         loc.find( "span" ).text( result );
                     } );
-                }
+				}
+                validateWULocation( selected, function( isValid ) {
+                    if ( isValid ) {
+                        loc.addClass( "green" );
+                    } else if ( !isValid ) {
+                        loc.removeClass( "green" );
+                    }
+                } );
                 header.eq( 2 ).prop( "disabled", false );
                 page.find( ".submit" ).addClass( "hasChanges" );
             }
@@ -3897,6 +4002,24 @@ function showOptions( expandItem ) {
         }
     } );
 
+    page.find( "#verify-api" ).on( "click", function() {
+        var key = page.find( "#wtkey" ),
+            button = $( this );
+
+        button.prop( "disabled", true );
+
+        testAPIKey( key.val(), function( result ) {
+            if ( result === true ) {
+                key.parent().find( ".ui-icon-alert" ).hide();
+                key.parent().removeClass( "red" ).addClass( "green" );
+            } else {
+                key.parent().find( ".ui-icon-alert" ).removeClass( "hidden" ).show();
+                key.parent().removeClass( "green" ).addClass( "red" );
+            }
+            button.prop( "disabled", false );
+        } );
+    } );
+
     page.find( ".help-icon" ).on( "click", showHelpText );
 
     page.find( ".duration-field button:not(.help-icon)" ).on( "click", function() {
@@ -4019,6 +4142,13 @@ function showOptions( expandItem ) {
 
         // Switch the state of adjustment options based on the selected method
         page.find( "#wto" ).parents( ".ui-field-contain" ).toggleClass( "hidden", parseInt( this.value ) === 0 ? true : false );
+    } );
+
+    page.find( "#wtkey" ).on( "change input", function() {
+
+        // Hide the invalid key status after change
+        page.find( "#wtkey" ).siblings( ".help-icon" ).hide();
+        page.find( "#wtkey" ).parent().removeClass( "red green" );
     } );
 
     page.find( "#o49" ).on( "click", function() {
@@ -11425,6 +11555,10 @@ function getUrlVars( url ) {
 
 function escapeJSON( json ) {
 	return JSON.stringify( json ).replace( /\{|\}/g, "" );
+}
+
+function unescapeJSON( string ) {
+	return JSON.parse( `{${string}}` );
 }
 
 function isMD5( pass ) {
