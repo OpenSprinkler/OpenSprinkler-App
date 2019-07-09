@@ -2885,10 +2885,6 @@ function overlayMap( callback ) {
 				url: "https://api.weather.com/v3/location/near?format=json&product=pws&apiKey=" + controller.settings.wto.key + "&geocode=" + encodeURIComponent( latitude ) + "," + encodeURIComponent( longitude ),
 				cache: true
 			} ).done( function( data ) {
-				if ( typeof data.error === "object" ) {
-					return;
-				}
-
 				var sortedData = [];
 
 				data.location.stationId.forEach( function( id, index ) {
