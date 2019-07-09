@@ -34,7 +34,7 @@ document.addEventListener( "click", function( e ) {
 	}
 	var classes = e.target.className.split( " " );
 	if ( classes.indexOf( "submitPWS" ) > -1 ) {
-        window.top.postMessage( { WS: e.target.dataset.loc, station: "pws:" + e.target.dataset.id }, "*" );
+        window.top.postMessage( { WS: e.target.dataset.loc, station: e.target.dataset.id }, "*" );
     } else if ( classes.indexOf( "submit" ) > -1 ) {
         window.top.postMessage( { WS: e.target.dataset.loc }, "*" );
     }
@@ -187,10 +187,8 @@ window.onmessage = function( e ) {
 
 // Plot all stations on the map
 function plotAllMarkers( markers ) {
-    var marker;
-
     for ( var i = 0; i < markers.length; i++ ) {
-        marker = plotMarker( "pws", markers[ i ], markers[ i ].lat, markers[ i ].lon );
+        plotMarker( "pws", markers[ i ], markers[ i ].lat, markers[ i ].lon );
     }
 }
 
@@ -230,16 +228,7 @@ function removeAllMarkers() {
 
 // Create text for popup info window
 function createInfoWindow( type, data, latLon ) {
-    if ( type === "pws" ) {
-        return "<div style='min-height:90px;min-width:170px;text-align:center;'><h3 style='padding:0;margin:0 0 4px 0'>" +
-                ( data.city ? data.city + ", " : "" ) + ( data.state ? data.state + ", " : "" ) + data.country +
-            "</h3><span style='font-size:8px;margin:0;padding:0;vertical-align: top'>ID: " + data.id + "</span><br><p style='margin:0'>" +
-                data.neighborhood + "<br>" +
-                "<button class='submitPWS' data-loc='" + latLon + "' data-id='" + data.id + "'>Select</button>" +
-            "</p></div>";
-    } else {
-        return "<div style='min-height:40px;text-align:center'>" + data.message + "<br><br><button class='submit' data-loc='" + latLon + "'>Submit</button></div>";
-	}
+	return "<div style='min-height:40px;text-align:center'>" + data.message + "<br><br><button class='submit" + ( type === "pws" ? "PWS' data-id='" + data.id : "" ) + "' data-loc='" + latLon + "'>Submit</button></div>";
 }
 
 function showCurrentLocation() {

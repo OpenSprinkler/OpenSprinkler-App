@@ -2310,7 +2310,7 @@ function showZimmermanAdjustmentOptions( button, callback ) {
             bh: 30,
             bt: 70,
             br: 0
-		}, controller.settings.wto ),
+		}, unescapeJSON( button.value ) ),
 
 		// Enable Zimmerman extension to set weather conditions as baseline for adjustment
         hasBaseline = checkOSVersion( 2162 );
@@ -2473,7 +2473,7 @@ function showAutoRainDelayAdjustmentOptions( button, callback ) {
 
     var options = $.extend( {}, {
 		d: 24
-    }, controller.settings.wto );
+    }, unescapeJSON( button.value ) );
 
     var popup = $( "<div data-role='popup' data-theme='a' id='adjustmentOptions'>" +
             "<div data-role='header' data-theme='b'>" +
@@ -2551,7 +2551,7 @@ function validateWULocation( location, callback ) {
 		url: `https://api.weather.com/v2/pws/observations/hourly/7day?stationId=${location}&format=json&units=e&apiKey=${controller.settings.wto.key}`,
 		cache: true
     } ).done( function( data ) {
-        if ( data.errors ) {
+        if ( !data || data.errors ) {
             callback( false );
             return;
         }
@@ -2887,19 +2887,24 @@ function overlayMap( callback ) {
             } ).done( function( data ) {
                 if ( typeof data.error === "object" ) {
                     return;
-                }
+				}
 
-                try {
-                    data = data.location.nearby_weather_stations.pws.station;
-                } catch ( err ) {
-                    return;
-                }
+				var sortedData = [];
 
-                if ( data.length > 0 ) {
-                    data = encodeURIComponent( JSON.stringify( data ) );
+				data.location.stationId.forEach( function( id, index ) {
+					sortedData.push( {
+						id: id,
+						lat: data.location.latitude[ index ],
+						lon: data.location.longitude[ index ],
+						message: data.location.stationName[ index ]
+					} );
+				} );
+
+                if ( sortedData.length > 0 ) {
+                    sortedData = encodeURIComponent( JSON.stringify( sortedData ) );
                     iframe.get( 0 ).contentWindow.postMessage( {
                         type: "pwsData",
-                        payload: data
+                        payload: sortedData
                     }, "*" );
                 }
             } );
@@ -3290,10 +3295,7 @@ function showOptions( expandItem ) {
 					case "wtkey":
 						return true;
                     case "wto":
-						data = unescapeJSON( data );
-						data.key = page.find( "#wtkey" ).val();
-						data.pws = page.find( "#loc" ).val();
-						data = escapeJSON( data );
+						data = escapeJSON( $.extend( {}, unescapeJSON( data ), { key: page.find( "#wtkey" ).val() } ) );
 
 						if ( escapeJSON( controller.settings.wto ) === data ) {
 							return true;
@@ -3843,21 +3845,22 @@ function showOptions( expandItem ) {
                     selected[ 0 ] = parseFloat( selected[ 0 ] ).toFixed( 5 );
                     selected[ 1 ] = parseFloat( selected[ 1 ] ).toFixed( 5 );
                     if ( typeof station === "string" ) {
-                        loc.val( station );
-                    } else {
-                        loc.val( selected );
+						var wtoButton = page.find( "#wto" );
+						wtoButton.val( escapeJSON( $.extend( {}, unescapeJSON( wtoButton.val() ), { pws: station } ) ) );
+
+						validateWULocation( station, function( isValid ) {
+							if ( isValid ) {
+								loc.addClass( "green" );
+							} else if ( !isValid ) {
+								loc.removeClass( "green" );
+							}
+						} );
                     }
+					loc.val( selected );
                     coordsToLocation( selected[ 0 ], selected[ 1 ], function( result ) {
                         loc.find( "span" ).text( result );
                     } );
 				}
-                validateWULocation( selected, function( isValid ) {
-                    if ( isValid ) {
-                        loc.addClass( "green" );
-                    } else if ( !isValid ) {
-                        loc.removeClass( "green" );
-                    }
-                } );
                 header.eq( 2 ).prop( "disabled", false );
                 page.find( ".submit" ).addClass( "hasChanges" );
             }
