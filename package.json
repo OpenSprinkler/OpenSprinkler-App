@@ -47,20 +47,20 @@
     "coveralls": "^3.0.4",
     "grunt": "^1.0.4",
     "grunt-blanket-mocha": "^1.0.0",
-    "grunt-contrib-clean": "^1.0.0",
+    "grunt-contrib-clean": "^2.0.0",
     "grunt-contrib-compress": "^1.5.0",
     "grunt-contrib-csslint": "^2.0.0",
-    "grunt-contrib-cssmin": "^2.2.1",
-    "grunt-contrib-jshint": "^1.0.0",
-    "grunt-contrib-uglify": "^3.4.0",
+    "grunt-contrib-cssmin": "^3.0.0",
+    "grunt-contrib-jshint": "^2.1.0",
+    "grunt-contrib-uglify": "^4.0.1",
     "grunt-jscs": "^3.0.1",
     "grunt-lib-phantomjs": "^1.1.0",
-    "grunt-shell": "^2.0.0",
+    "grunt-shell": "^3.0.1",
     "grunt-text-replace": "^0.4.0",
     "lcov-result-merger": "^3.1.0",
     "lodash": "^4.17.11",
-    "mocha": "^5.2.0",
-    "xcode": "^1.1.0"
+    "mocha": "^6.1.4",
+    "xcode": "2.0.0"
   },
   "cordova": {
     "plugins": {
