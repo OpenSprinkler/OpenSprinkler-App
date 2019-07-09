@@ -2882,11 +2882,10 @@ function overlayMap( callback ) {
 			}
 
             $.ajax( {
-                url: `https://api.weather.com/v3/location/near?format=json&product=pws&apiKey=${controller.settings.wto.key}&geocode=${encodeURIComponent( latitude )},${encodeURIComponent( longitude )}`,
-                dataType: isChromeApp || isWinApp ? "json" : "jsonp",
-                shouldRetry: retryCount
+				url: `https://api.weather.com/v3/location/near?format=json&product=pws&apiKey=${controller.settings.wto.key}&geocode=${encodeURIComponent( latitude )},${encodeURIComponent( longitude )}`,
+				cache: true
             } ).done( function( data ) {
-                if ( typeof data.response.error === "object" ) {
+                if ( typeof data.error === "object" ) {
                     return;
                 }
 
@@ -3287,7 +3286,9 @@ function showOptions( expandItem ) {
                         opt.o34 = ip[ 2 ];
                         opt.o35 = ip[ 3 ];
 
-                        return true;
+						return true;
+					case "wtkey":
+						return true;
                     case "wto":
 						data = unescapeJSON( data );
 						data.key = page.find( "#wtkey" ).val();
