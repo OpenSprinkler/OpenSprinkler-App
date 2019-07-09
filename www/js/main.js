@@ -2548,7 +2548,7 @@ function validateWULocation( location, callback ) {
     }
 
     $.ajax( {
-		url: `https://api.weather.com/v2/pws/observations/hourly/7day?stationId=${location}&format=json&units=e&apiKey=${controller.settings.wto.key}`,
+		url: "https://api.weather.com/v2/pws/observations/hourly/7day?stationId=" + location + "&format=json&units=e&apiKey=" + controller.settings.wto.key,
 		cache: true
     } ).done( function( data ) {
         if ( !data || data.errors ) {
@@ -2882,7 +2882,7 @@ function overlayMap( callback ) {
 			}
 
             $.ajax( {
-				url: `https://api.weather.com/v3/location/near?format=json&product=pws&apiKey=${controller.settings.wto.key}&geocode=${encodeURIComponent( latitude )},${encodeURIComponent( longitude )}`,
+				url: "https://api.weather.com/v3/location/near?format=json&product=pws&apiKey=" + controller.settings.wto.key + "&geocode=" + encodeURIComponent( latitude ) + "," + encodeURIComponent( longitude ),
 				cache: true
             } ).done( function( data ) {
                 if ( typeof data.error === "object" ) {
@@ -11562,7 +11562,7 @@ function escapeJSON( json ) {
 }
 
 function unescapeJSON( string ) {
-	return JSON.parse( `{${string}}` );
+	return JSON.parse( "{" + string + "}" );
 }
 
 function isMD5( pass ) {
