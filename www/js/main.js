@@ -2582,7 +2582,7 @@ function showEToAdjustmentOptions( button, callback ) {
 						"<input data-wrapper-class='pad_buttons' class='elevation' type='number' step='1'" + ( isMetric ? "min='-400' max='9000'" : "min='-1400' max='30000'" ) + " value='" + options.elevation + "'>" +
 					"</div>" +
 				"</div>" +
-				"<button class='detect-baseline-eto' data-theme='b'>" + _( "Detect baseline ETo" ) + "</button>" +
+				"<button class='detect-baseline-eto'>" + _( "Detect baseline ETo" ) + "</button>" +
 				"<button class='submit' data-theme='b'>" + _( "Submit" ) + "</button>" +
 			"</div>" +
 		"</div>"
