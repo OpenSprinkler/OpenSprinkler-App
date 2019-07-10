@@ -31,7 +31,7 @@
 
 	function insertStyle( css ) {
 		var head = document.head || document.getElementsByTagName( "head" )[ 0 ],
-		    style = document.createElement( "style" );
+			style = document.createElement( "style" );
 
 		style.type = "text/css";
 		if ( style.styleSheet ) {
@@ -45,7 +45,7 @@
 
 	function insertStyleSheet( href, rel, media ) {
 		var head = document.head || document.getElementsByTagName( "head" )[ 0 ],
-		    link = document.createElement( "link" );
+			link = document.createElement( "link" );
 
 		rel = rel || "stylesheet";
 
@@ -60,7 +60,7 @@
 
 	function insertMeta( name, content ) {
 		var head = document.head || document.getElementsByTagName( "head" )[ 0 ],
-		    meta = document.createElement( "meta" );
+			meta = document.createElement( "meta" );
 
 		content = content || "";
 
@@ -80,10 +80,10 @@
 		// Create callback if one is not provided
 		callback = callback || function() {};
 
-	    var a = document.createElement( "script" );
-	    a.src = src;
-	    a.addEventListener( "load", callback, false );
-	    document.getElementsByTagName( "head" )[ 0 ].appendChild( a );
+		var a = document.createElement( "script" );
+		a.src = src;
+		a.addEventListener( "load", callback, false );
+		document.getElementsByTagName( "head" )[ 0 ].appendChild( a );
 	}
 
 	// Change the viewport
@@ -147,23 +147,23 @@
 
 	//Insert the startup images for iOS
 	( function() {
-	    var p, l, r = window.devicePixelRatio, h = window.screen.height;
-	    if ( navigator.platform === "iPad" ) {
-	            p = r === 2 ? "res/ios-web/screens/startup-tablet-portrait-retina.png" :
+		var p, l, r = window.devicePixelRatio, h = window.screen.height;
+		if ( navigator.platform === "iPad" ) {
+				p = r === 2 ? "res/ios-web/screens/startup-tablet-portrait-retina.png" :
 					"res/ios-web/screens/startup-tablet-portrait.png";
-	            l = r === 2 ? "res/ios-web/screens/startup-tablet-landscape-retina.png" :
+				l = r === 2 ? "res/ios-web/screens/startup-tablet-landscape-retina.png" :
 					"res/ios-web/screens/startup-tablet-landscape.png";
-	            insertStyleSheet( assetLocation + l, "apple-touch-startup-image",
+				insertStyleSheet( assetLocation + l, "apple-touch-startup-image",
 					"screen and (orientation: landscape)" );
-	            insertStyleSheet( assetLocation + p, "apple-touch-startup-image",
+				insertStyleSheet( assetLocation + p, "apple-touch-startup-image",
 					"screen and (orientation: portrait)" );
-	    } else {
-	            p = r === 2 ?
+		} else {
+				p = r === 2 ?
 					( h === 568 ? "res/ios-web/screens/startup-iphone5-retina.png" :
 						"res/ios-web/screens/startup-retina.png" ) :
 					"res/ios-web/screens/startup.png";
-	            insertStyleSheet( assetLocation + p, "apple-touch-startup-image" );
-	    }
+				insertStyleSheet( assetLocation + p, "apple-touch-startup-image" );
+		}
 	} )();
 
 	if ( !document.createElementNS ||
@@ -175,8 +175,8 @@
 		var body = $( "body" ),
 			finishInit = function() {
 
-			    // Start checking for script load completion and callback when done
-			    var interval = setInterval( function() {
+				// Start checking for script load completion and callback when done
+				var interval = setInterval( function() {
 					if ( isReady ) {
 						clearInterval( interval );
 
@@ -274,13 +274,13 @@
 							type: "GET"
 						} ).then(
 							function( data ) {
-				                var result = data.result;
+								var result = data.result;
 
-				                if ( typeof result === "undefined" || result > 1 ) {
+								if ( typeof result === "undefined" || result > 1 ) {
 									callback( false );
-				                } else {
+								} else {
 									callback( true );
-				                }
+								}
 							},
 							function() {
 								callback( false );
