@@ -1152,7 +1152,7 @@ function updateControllerSettings( callback ) {
 						settings = JSON.parse( settings );
 					} catch ( err ) {
 						var matchWTO = /,"wto":\{.*?\}/;
-						var wto = settings.match(matchWTO);
+						var wto = settings.match( matchWTO );
 						settings = settings.replace( matchWTO, "" );
 						try {
 							settings = JSON.parse( settings );
