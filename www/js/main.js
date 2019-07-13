@@ -1151,9 +1151,12 @@ function updateControllerSettings( callback ) {
 					try {
 						settings = JSON.parse( settings );
 					} catch ( err ) {
-						settings = settings.replace( /,"wto":\{.*\}/, "" );
+						matchWTO = /,"wto":\{.*?\}/;
+						var wto = settings.match(matchWTO);
+						settings = settings.replace( matchWTO, "" );
 						try {
 							settings = JSON.parse( settings );
+							handleCorruptedWeatherOptions( wto );
 						} catch ( e ) {
 							return false;
 						}
@@ -9526,6 +9529,41 @@ function cloudSync( callback ) {
 				} );
 			}
 		} );
+	} );
+}
+
+function handleCorruptedWeatherOptions( wto ) {
+	addNotification( {
+		title: _( "Weather Options have Corrupted" ),
+		desc: _( "Click here to retrieve the partial weather option data" ),
+		on: function() {
+			var button = $( this ).parent(),
+				popup = $(
+					"<div data-role='popup' data-theme='a' class='modal ui-content' id='weatherOptionCorruption'>" +
+						"<h3 class='center'>" +
+							_( "Weather option data has corrupted" ) +
+						"</h3>" +
+						"<h5 class='center'>" + _( "Please note this may indicate other data corruption as well, please verify all settings." ) + "</h5>" +
+						"<h6 class='center'>" + _( "Below is the corrupt data which could not be parsed but may be useful for restoration." ) + "</h6>" +
+						"<code>" +
+							wto[0].substr(7) +
+						"</code>" +
+						"<a class='iab ui-btn ui-corner-all ui-shadow' class='submit' style='width:80%;margin:5px auto;' target='_blank'>" +
+							_( "Okay" ) +
+						"</a>" +
+					"</div>"
+				);
+
+			popup.find( ".submit" ).on( "click", function() {
+				removeNotification( button );
+				popup.popup( "close" );
+
+				return false;
+			} );
+
+			openPopup( popup );
+			return false;
+		}
 	} );
 }
 
