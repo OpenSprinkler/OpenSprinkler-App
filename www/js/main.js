@@ -3841,9 +3841,6 @@ function showOptions( expandItem ) {
 					selected[ 0 ] = parseFloat( selected[ 0 ] ).toFixed( 5 );
 					selected[ 1 ] = parseFloat( selected[ 1 ] ).toFixed( 5 );
 					if ( typeof station === "string" ) {
-						var wtoButton = page.find( "#wto" );
-						wtoButton.val( escapeJSON( $.extend( {}, unescapeJSON( wtoButton.val() ), { pws: station } ) ) );
-
 						validateWULocation( station, function( isValid ) {
 							if ( isValid ) {
 								loc.addClass( "green" );
@@ -3852,6 +3849,13 @@ function showOptions( expandItem ) {
 							}
 						} );
 					}
+
+					// Update the PWS location (either with the PWS station or reset to undefined)
+					var wtoButton = page.find( "#wto" );
+					if ( wtoButton ) {
+						wtoButton.val( escapeJSON( $.extend( {}, unescapeJSON( wtoButton.val() ), { pws: station || "" } ) ) );
+					}
+
 					loc.val( selected );
 					coordsToLocation( selected[ 0 ], selected[ 1 ], function( result ) {
 						loc.find( "span" ).text( result );
