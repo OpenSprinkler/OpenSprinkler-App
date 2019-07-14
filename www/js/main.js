@@ -3888,23 +3888,11 @@ function showOptions( expandItem ) {
 	page.find( ".reset-log" ).on( "click", clearLogs );
 
 	page.find( ".reset-options" ).on( "click", function() {
-		areYouSure( _( "Are you sure you want to delete all settings and return to the default settings?" ), "", function() {
-			var co;
-
-			if ( isOSPi() ) {
-				co = "otz=32&ontp=1&onbrd=0&osdt=0&omas=0&omton=0&omtoff=0&orst=1&owl=100&orlp=0&ouwt=0&olg=1&oloc=Boston,MA";
-			} else {
-				co = "o1=32&o2=1&o3=1&o12=80&o13=0&o15=0&o17=0&o18=0&o19=0&o20=0&o22=1&o23=100&o26=0&o27=110&o28=100&o29=15&" +
-					"o30=0&o31=0&o32=50&o33=97&o34=210&o35=169&o36=1&o37=0&038=0&o39=0&loc=Boston,MA&wto=";
-			}
-
-			sendToOS( "/co?pw=&" + co ).done( function() {
-				$.mobile.document.one( "pageshow", function() {
-					showerror( _( "Settings have been saved" ) );
-				} );
-				goBack();
-				updateController( updateWeather );
+		resetAllOptions( function() {
+			$.mobile.document.one( "pageshow", function() {
+				showerror( _( "Settings have been saved" ) );
 			} );
+			goBack();
 		} );
 	} );
 
@@ -7475,6 +7463,26 @@ function clearLogs( callback ) {
 	} );
 }
 
+function resetAllOptions( callback ) {
+	areYouSure( _( "Are you sure you want to delete all settings and return to the default settings?" ), "", function() {
+		var co;
+
+		if ( isOSPi() ) {
+			co = "otz=32&ontp=1&onbrd=0&osdt=0&omas=0&omton=0&omtoff=0&orst=1&owl=100&orlp=0&ouwt=0&olg=1&oloc=Boston,MA";
+		} else {
+			co = "o1=32&o2=1&o3=1&o12=80&o13=0&o15=0&o17=0&o18=0&o19=0&o20=0&o22=1&o23=100&o26=0&o27=110&o28=100&o29=15&" +
+				"o30=0&o31=0&o32=50&o33=97&o34=210&o35=169&o36=1&o37=0&038=0&o39=0&loc=Boston,MA&wto=%22key%22%3A%22%22";
+		}
+
+		sendToOS( "/co?pw=&" + co ).done( function() {
+			if ( typeof callback === "function" ) {
+				callback();
+			}
+			updateController( updateWeather );
+		} );
+	} );
+}
+
 // Program management functions
 var getPrograms = ( function() {
 	var page = $( "<div data-role='page' id='programs'>" +
@@ -9560,8 +9568,11 @@ function handleCorruptedWeatherOptions( wto ) {
 						"<code>" +
 							wto[ 0 ].substr( 7 ) +
 						"</code>" +
+						"<a class='ui-btn ui-corner-all ui-shadow red reset-options' style='width:80%;margin:5px auto;' href='#'>" +
+							_( "Reset All Options" ) +
+						"</a>" +
 						"<a class='ui-btn ui-corner-all ui-shadow submit' style='width:80%;margin:5px auto;' href='#'>" +
-							_( "Okay" ) +
+							_( "Dismiss" ) +
 						"</a>" +
 					"</div>"
 				);
@@ -9569,6 +9580,16 @@ function handleCorruptedWeatherOptions( wto ) {
 			popup.find( ".submit" ).on( "click", function() {
 				removeNotification( button );
 				popup.popup( "close" );
+
+				return false;
+			} );
+
+			popup.find( ".reset-options" ).on( "click", function() {
+				removeNotification( button );
+				popup.popup( "close" );
+				resetAllOptions( function() {
+					showerror( _( "Settings have been saved" ) );
+				} );
 
 				return false;
 			} );
