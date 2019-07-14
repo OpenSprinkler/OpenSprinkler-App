@@ -5402,8 +5402,10 @@ function convertRemoteToExtender( data ) {
 	} );
 }
 
+var useFailOverMethodForRefresh = false;
+
 // Current status related functions
-function refreshStatus() {
+function refreshStatus( failOverMethod = false ) {
 	if ( !isControllerConnected() ) {
 		return;
 	}
@@ -5416,14 +5418,19 @@ function refreshStatus() {
 		return;
 	};
 
-	if ( checkOSVersion( 216 ) ) {
-		updateController( finish, networkFail );
+	if ( !( useFailOverMethodForRefresh || failOverMethod ) && checkOSVersion( 216 ) ) {
+		updateController( finish, refreshStatus.call( this, true ) );
 	} else {
 		$.when(
 			updateControllerStatus(),
 			updateControllerSettings(),
 			updateControllerOptions()
-		).then( finish, networkFail );
+		).then( function() {
+			if ( failOverMethod ) {
+				useFailOverMethodForRefresh = true;
+			}
+			finish();
+		}, networkFail );
 	}
 }
 
@@ -9532,7 +9539,12 @@ function cloudSync( callback ) {
 	} );
 }
 
+var corruptionNotificationShown = false;
 function handleCorruptedWeatherOptions( wto ) {
+	if ( corruptionNotificationShown ) {
+		return;
+	}
+
 	addNotification( {
 		title: _( "Weather Options have Corrupted" ),
 		desc: _( "Click here to retrieve the partial weather option data" ),
@@ -9546,9 +9558,9 @@ function handleCorruptedWeatherOptions( wto ) {
 						"<h5 class='center'>" + _( "Please note this may indicate other data corruption as well, please verify all settings." ) + "</h5>" +
 						"<h6 class='center'>" + _( "Below is the corrupt data which could not be parsed but may be useful for restoration." ) + "</h6>" +
 						"<code>" +
-							wto[0].substr(7) +
+							wto[ 0 ].substr( 7 ) +
 						"</code>" +
-						"<a class='iab ui-btn ui-corner-all ui-shadow' class='submit' style='width:80%;margin:5px auto;' target='_blank'>" +
+						"<a class='ui-btn ui-corner-all ui-shadow submit' style='width:80%;margin:5px auto;' href='#'>" +
 							_( "Okay" ) +
 						"</a>" +
 					"</div>"
@@ -9565,6 +9577,8 @@ function handleCorruptedWeatherOptions( wto ) {
 			return false;
 		}
 	} );
+
+	corruptionNotificationShown = true;
 }
 
 function handleExpiredLogin() {
