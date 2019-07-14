@@ -5405,7 +5405,7 @@ function convertRemoteToExtender( data ) {
 var useFailOverMethodForRefresh = false;
 
 // Current status related functions
-function refreshStatus( failOverMethod = false ) {
+function refreshStatus( failOverMethod ) {
 	if ( !isControllerConnected() ) {
 		return;
 	}
