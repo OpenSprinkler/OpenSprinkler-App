@@ -5548,7 +5548,7 @@ function refreshStatus( failOverMethod ) {
 	};
 
 	if ( !( useFailOverMethodForRefresh || failOverMethod ) && checkOSVersion( 216 ) ) {
-		updateController( finish, refreshStatus.call( this, true ) );
+		updateController( finish, refreshStatus.bind( this, true ) );
 	} else {
 		$.when(
 			updateControllerStatus(),
