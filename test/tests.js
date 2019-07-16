@@ -176,15 +176,15 @@ describe( "General Function Checks", function() {
 		assert.equal( "999", pad( 999 ) );
 	} );
 
-	it( "getAdjustmenMethod() should return the adjustment method ID", function() {
-		assert.equal( 0, getAdjustmentMethod() );
+	it( "getCurrentAdjustmentMethodId() should return the adjustment method ID", function() {
+		assert.equal( 0, getCurrentAdjustmentMethodId() );
 	} );
 
-	it( "getAdjustmentName(uwt) should return the adjustment method name for the corresponding ID", function() {
-		assert.equal( "Manual", getAdjustmentName( 0 ) );
-		assert.equal( "Manual", getAdjustmentName( 128 ) );
-		assert.equal( "Zimmerman", getAdjustmentName( 1 ) );
-		assert.equal( "Zimmerman", getAdjustmentName( 129 ) );
+	it( "getAdjustmentMethod(uwt) should return the adjustment method for the corresponding ID", function() {
+		assert.equal( "Manual", getAdjustmentMethod( 0 ).name );
+		assert.equal( "Manual", getAdjustmentMethod( 128 ).name );
+		assert.equal( "Zimmerman", getAdjustmentMethod( 1 ).name );
+		assert.equal( "Zimmerman", getAdjustmentMethod( 129 ).name );
 	} );
 } );
 

@@ -14,6 +14,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+var WEATHER_SERVER_URL = "http://weather.opensprinkler.com";
+
 // Initialize global variables
 var isIEMobile = /IEMobile/.test( navigator.userAgent ),
 	isAndroid = /Android|\bSilk\b/.test( navigator.userAgent ),
@@ -2565,6 +2567,135 @@ function validateWULocation( location, callback ) {
 	} );
 }
 
+function showEToAdjustmentOptions( button, callback ) {
+	$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
+
+	// Elevation and baseline ETo for ETo adjustment.
+	var options = $.extend( {}, {
+			baseETo: 0,
+			elevation: 600
+		},
+		controller.settings.wto
+	);
+
+	if ( isMetric ) {
+		options.baseETo = Math.round( options.baseETo * 25.4 * 10 ) / 10;
+		options.elevation = Math.round( options.elevation / 3.28 );
+	}
+
+	var popup = $( "<div data-role='popup' data-theme='a' id='adjustmentOptions'>" +
+			"<div data-role='header' data-theme='b'>" +
+				"<h1>" + _( "Weather Adjustment Options" ) + "</h1>" +
+			"</div>" +
+			"<div class='ui-content'>" +
+				"<p class='rain-desc center smaller'>" +
+					_( "Set the baseline potential evapotranspiration (ETo) and elevation for your location. " ) +
+					_( "The ETo adjustment method will adjust the watering duration based on the difference between the baseline ETo and the current ETo." ) +
+				"</p>" +
+				"<div class='ui-grid-a'>" +
+					"<div class='ui-block-a'>" +
+						"<label class='center'>" +
+							_( "Baseline ETo" ) + ( isMetric ? " (mm" : "(in" ) + "/day)" +
+						"</label>" +
+						"<input data-wrapper-class='pad_buttons' class='baseline-ETo' type='number' min='0' " + ( isMetric ? "max='25' step='0.1'" : "max='1' step='0.01'" ) + " value='" + options.baseETo + "'>" +
+					"</div>" +
+					"<div class='ui-block-b'>" +
+						"<label class='center'>" +
+							_( "Elevation" ) + ( isMetric ? " (m)" : " (ft)" ) +
+						"</label>" +
+						"<input data-wrapper-class='pad_buttons' class='elevation' type='number' step='1'" + ( isMetric ? "min='-400' max='9000'" : "min='-1400' max='30000'" ) + " value='" + options.elevation + "'>" +
+					"</div>" +
+				"</div>" +
+				"<button class='detect-baseline-eto'>" + _( "Detect baseline ETo" ) + "</button>" +
+				"<button class='submit' data-theme='b'>" + _( "Submit" ) + "</button>" +
+			"</div>" +
+		"</div>"
+	);
+
+	popup.find( ".submit" ).on( "click", function() {
+		$.extend( options, {
+			baseETo: parseFloat( popup.find( ".baseline-ETo" ).val() ),
+			elevation: parseInt( popup.find( ".elevation" ).val() )
+		} );
+
+		// Convert to imperial before storing.
+		if ( isMetric ) {
+			options.baseETo = Math.round( options.baseETo / 25.4 * 100 ) / 100;
+			options.elevation = Math.round( options.elevation * 3.28 );
+		}
+
+		if ( button ) {
+			button.value = escapeJSON( options );
+		}
+
+		callback();
+
+		popup.popup( "close" );
+		return false;
+	} );
+
+	popup.find( ".detect-baseline-eto" ).on( "click", function() {
+
+		// Backup button contents so it can be restored after the request is completed.
+		var buttonContents = $( ".detect-baseline-eto" ).html();
+
+		showLoading( ".detect-baseline-eto" );
+
+		$.ajax( {
+			url: WEATHER_SERVER_URL + "/baselineETo?loc=" + encodeURIComponent( controller.settings.loc ),
+			contentType: "application/json; charset=utf-8",
+			success: function( data ) {
+
+				var baselineETo = data.eto;
+
+				// Convert to metric if necessary.
+				if ( isMetric ) {
+					baselineETo = Math.round( baselineETo * 25.4 * 100 ) / 100;
+				}
+
+				$( ".baseline-ETo" ).val( baselineETo );
+
+				window.alert( "Detected baseline ETo for configured location is " + baselineETo + ( isMetric ? "mm" : "in" ) + "/day" );
+			},
+			error: function( xhr, errorType ) {
+
+				// Use the response body for HTTP errors and the error type for JQuery errors.
+				var errorMessage = "Unable to detect baseline ETo: " +
+					( xhr.status ? xhr.responseText + "(" + xhr.status + ")" : errorType );
+				window.alert( errorMessage );
+				window.console.error( errorMessage );
+			},
+			complete: function( ) {
+				$( ".detect-baseline-eto" ).html( buttonContents );
+			}
+		} );
+
+		return false;
+	} );
+
+	popup.on( "focus", "input[type='number']", function() {
+		this.value = "";
+	} ).on( "blur", "input[type='number']", function() {
+
+		// Generic min/max checker for each option.
+		var min = parseFloat( this.min ),
+			max = parseFloat( this.max );
+
+		if ( this.value === "" ) {
+			this.value = "0";
+		}
+		if ( this.value < min || this.value > max ) {
+			this.value = this.value < min ? min : max;
+		}
+	} );
+
+	$( "#adjustmentOptions" ).remove();
+
+	popup.css( "max-width", "380px" );
+
+	openPopup( popup, { positionTo: "window" } );
+}
+
 function formatTemp( temp ) {
 	if ( isMetric ) {
 		temp = Math.round( ( temp - 32 ) * ( 5 / 9 ) * 10 ) / 10 + "&#176;C";
@@ -2619,7 +2750,7 @@ function updateWeather() {
 	showLoading( "#weather" );
 
 	$.ajax( {
-		url: "https://weather.opensprinkler.com/weatherData?loc=" +
+		url: WEATHER_SERVER_URL + "/weatherData?loc=" +
 			encodeURIComponent( controller.settings.loc ),
 		contentType: "application/json; charset=utf-8",
 		success: function( data ) {
@@ -2976,7 +3107,7 @@ function debugWU() {
 		popup += "<tr><td>" + _( "Humidity" ) + "</td><td>" + weather.humidity + "%</td></tr>" +
 			"<tr><td>" + _( "Mean Temp" ) + "</td><td>" + formatTemp( weather.temp ) + "</td></tr>" +
 			"<tr><td>" + _( "Precip Today" ) + "</td><td>" + formatPrecip( weather.precip ) + "</td></tr>" +
-			"<tr><td>" + _( "Adjustment Method" ) + "</td><td>" + getAdjustmentName( controller.options.uwt ) + "</td></tr>" +
+			"<tr><td>" + _( "Adjustment Method" ) + "</td><td>" + getAdjustmentMethod( controller.options.uwt ).name + "</td></tr>" +
 			"<tr><td>" + _( "Current % Watering" ) + "</td><td>" + controller.options.wl + "%</td></tr>";
 	}
 
@@ -3008,21 +3139,23 @@ function showRainDelay() {
 	} );
 }
 
-function getAdjustmentName( id ) {
-	var methods = [ _( "Manual" ), "Zimmerman" ];
+/** Returns the adjustment method for the corresponding ID, or a list of all methods if no ID is specified. */
+function getAdjustmentMethod( id ) {
+    var methods = [
+        { name: _( "Manual" ), id: 0 },
+        { name: "Zimmerman", id: 1 },
+        { name: _( "Auto Rain Delay" ), id: 2, minVersion: 216 },
+		{ name: "Evapotranspiration (ET)", id: 3 }
+    ];
 
-	if ( checkOSVersion( 216 ) ) {
-		methods.push( _( "Auto Rain Delay" ) );
-	}
-
-	if ( id === "length" ) {
-		return methods.length;
-	}
+    if ( id === undefined ) {
+        return methods;
+    }
 
 	return methods[ id & ~( 1 << 7 ) ];
 }
 
-function getAdjustmentMethod() {
+function getCurrentAdjustmentMethodId() {
 	return controller.options.uwt & ~( 1 << 7 );
 }
 
@@ -3550,13 +3683,19 @@ function showOptions( expandItem ) {
 					_( "Weather adjustment uses OpenWeatherMaps data in conjunction with the selected method to adjust the watering percentage." ) +
 					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
 			"</label><select data-mini='true' id='o31'>";
-		for ( i = 0; i < getAdjustmentName( "length" ); i++ ) {
-			list += "<option " + ( ( i === getAdjustmentMethod() ) ? "selected" : "" ) + " value='" + i + "'>" + getAdjustmentName( i ) + "</option>";
+		for ( i = 0; i < getAdjustmentMethod().length; i++ ) {
+			var adjustmentMethod = getAdjustmentMethod()[ i ];
+
+			// Skip unsupported adjustment options.
+			if ( adjustmentMethod.minVersion && !checkOSVersion( adjustmentMethod.minVersion ) ) {
+				continue;
+			}
+			list += "<option " + ( ( adjustmentMethod.id === getCurrentAdjustmentMethodId() ) ? "selected" : "" ) + " value='" + i + "'>" + adjustmentMethod.name + "</option>";
 		}
 		list += "</select></div>";
 
 		if ( typeof controller.settings.wto === "object" ) {
-			list += "<div class='ui-field-contain" + ( getAdjustmentMethod() === 0 ? " hidden" : "" ) + "'><label for='wto'>" + _( "Adjustment Method Options" ) + "</label>" +
+			list += "<div class='ui-field-contain" + ( getCurrentAdjustmentMethodId() === 0 ? " hidden" : "" ) + "'><label for='wto'>" + _( "Adjustment Method Options" ) + "</label>" +
 				"<button data-mini='true' id='wto' value='" + escapeJSON( controller.settings.wto ) + "'>" +
 					_( "Tap to Configure" ) +
 				"</button></div>";
@@ -3582,7 +3721,7 @@ function showOptions( expandItem ) {
 				"<button data-helptext='" +
 					_( "The watering percentage scales station run times by the set value. When weather adjustment is used the watering percentage is automatically adjusted." ) +
 					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
-			"</label><button " + ( ( controller.options.uwt && getAdjustmentMethod() > 0 ) ? "disabled='disabled' " : "" ) +
+			"</label><button " + ( ( controller.options.uwt && getCurrentAdjustmentMethodId() > 0 ) ? "disabled='disabled' " : "" ) +
 				"data-mini='true' id='o23' value='" + controller.options.wl + "'>" + controller.options.wl + "%</button></div>";
 	}
 
@@ -3882,6 +4021,8 @@ function showOptions( expandItem ) {
 			showZimmermanAdjustmentOptions( this, finish );
 		} else if ( method === 2 ) {
 			showAutoRainDelayAdjustmentOptions( this, finish );
+		} else if ( method === 3 ) {
+			showEToAdjustmentOptions( this, finish );
 		}
 	} );
 
