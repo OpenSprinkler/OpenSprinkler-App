@@ -2761,8 +2761,6 @@ function updateWeather() {
 				return;
 			}
 
-			isMetric = ( data.region !== "US" && data.region !== "BM" && data.region !== "PW" );
-
 			currentCoordinates = data.location;
 
 			weather = data;
