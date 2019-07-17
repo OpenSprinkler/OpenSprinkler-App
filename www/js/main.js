@@ -2920,7 +2920,7 @@ function showForecast() {
 }
 
 function makeForecast() {
-	var list = "<li data-role='list-divider' data-theme='a' class='center'>" + weather.city + "</li>",
+	var list = "",
 		sunrise = controller.settings.sunrise ? controller.settings.sunrise : getSunTimes()[ 0 ],
 		sunset = controller.settings.sunset ? controller.settings.sunset : getSunTimes()[ 1 ],
 		i, date, times;
