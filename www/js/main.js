@@ -3563,7 +3563,7 @@ function showOptions( expandItem ) {
 	list += "<div class='ui-field-contain'>" +
 		"<label for='loc'>" + _( "Location" ) + "</label>" +
 		"<button data-mini='true' id='loc' value='" + controller.settings.loc + "'>" +
-			"<span>" + _( "Click Here to View/Change" ) + "</span>" +
+			"<span>" + controller.settings.loc + "</span>" +
 			"<a class='ui-btn btn-no-border ui-btn-icon-notext ui-icon-delete ui-btn-corner-all clear-loc'></a>" +
 		"</button></div>";
 
