@@ -2777,7 +2777,7 @@ function updateWeather() {
 function updateWeatherBox() {
 	$( "#weather" )
 		.html( "<div title='" + weather.description + "' class='wicon'><img src='http://openweathermap.org/img/w/" + weather.icon + ".png'></div>" +
-			"<div class='inline tight'>" + formatTemp( weather.temp ) + "</div><br><div class='inline location tight'>" + weather.city + "</div>" +
+			"<div class='inline tight'>" + formatTemp( weather.temp ) + "</div><br><div class='inline location tight'>" + _( "Current Weather" ) + "</div>" +
 			( typeof weather.alert === "object" ? "<div><button class='tight help-icon btn-no-border ui-btn ui-icon-alert ui-btn-icon-notext ui-corner-all'></button>" + weather.alert.type + "</div>" : "" ) )
 		.off( "click" ).on( "click", function() {
 			changePage( "#forecast" );
@@ -3563,7 +3563,7 @@ function showOptions( expandItem ) {
 	list += "<div class='ui-field-contain'>" +
 		"<label for='loc'>" + _( "Location" ) + "</label>" +
 		"<button data-mini='true' id='loc' value='" + controller.settings.loc + "'>" +
-			"<span>" + ( typeof weather === "object" ? weather.city + ", " + weather.region : ( controller.settings.loc.trim() === "''" ? _( "Not specified" ) : controller.settings.loc ) ) + "</span>" +
+			"<span>" + _( "Click Here to View/Change" ) + "</span>" +
 			"<a class='ui-btn btn-no-border ui-btn-icon-notext ui-icon-delete ui-btn-corner-all clear-loc'></a>" +
 		"</button></div>";
 
