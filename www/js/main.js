@@ -9138,11 +9138,6 @@ var showAbout = ( function() {
 								"https://github.com/OpenSprinkler/OpenSprinkler-App/" +
 							"</a>" +
 						"</p>" +
-						"<p>" + _( "Language localization is crowdsourced using Get Localization available at" ) + " " +
-							"<a class='iab squeeze' target='_blank' href='http://www.getlocalization.com/OpenSprinkler/'>" +
-								"http://www.getlocalization.com/OpenSprinkler/" +
-							"</a>" +
-						"</p>" +
 						"<p>" + _( "Open source attributions" ) + ": " +
 							"<a class='iab iabNoScale squeeze' target='_blank' " +
 								"href='https://github.com/OpenSprinkler/OpenSprinkler-App/wiki/List-of-Integrated-Libraries'>" +
