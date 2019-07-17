@@ -5531,10 +5531,8 @@ function convertRemoteToExtender( data ) {
 	} );
 }
 
-var useFailOverMethodForRefresh = false;
-
 // Current status related functions
-function refreshStatus( failOverMethod ) {
+function refreshStatus() {
 	if ( !isControllerConnected() ) {
 		return;
 	}
@@ -5547,19 +5545,14 @@ function refreshStatus( failOverMethod ) {
 		return;
 	};
 
-	if ( !( useFailOverMethodForRefresh || failOverMethod ) && checkOSVersion( 216 ) ) {
-		updateController( finish, refreshStatus.bind( this, true ) );
+	if ( checkOSVersion( 216 ) ) {
+		updateController( finish, networkFail );
 	} else {
 		$.when(
 			updateControllerStatus(),
 			updateControllerSettings(),
 			updateControllerOptions()
-		).then( function() {
-			if ( failOverMethod ) {
-				useFailOverMethodForRefresh = true;
-			}
-			finish();
-		}, networkFail );
+		).then( finish, networkFail );
 	}
 }
 
