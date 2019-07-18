@@ -3327,6 +3327,29 @@ function showOptions( expandItem ) {
 			"</div>" +
 		"</div>" ),
 		submitOptions = function() {
+			// Error if the ET adjustment method is being used but baseETo isn't set.
+			if ( parseInt( $( "#o31" )[ 0 ].value ) === 3 && !JSON.parse( "{" + $( "#wto" )[ 0 ].value + "}" ).baseETo ) {
+				var popup = $(
+					"<div data-role='popup' data-theme='a'>" +
+						"<div data-role='header' data-theme='b'>" +
+							"<h1>" + _( "Error Saving Settings" ) + "</h1>" +
+						"</div>" +
+						"<div class='ui-content'>" +
+							"<p class='ui-bar'>" +
+								_( "You must specify a baseline ETo adjustment method option to use the ET adjustment method." ) +
+							"</p>" +
+						"</div>" +
+					"</div>"
+				);
+				popup.css( "max-width", "380px" );
+				popup.on( "click", function() {
+					popup.popup( "close" );
+				} );
+
+				openPopup( popup );
+				return;
+			}
+
 			var opt = {},
 				invalid = false,
 				isPi = isOSPi(),
