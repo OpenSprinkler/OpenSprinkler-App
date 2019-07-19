@@ -3439,6 +3439,12 @@ function showOptions( expandItem ) {
 						}
 						return true;
 					case "o31":
+						if ( parseInt( data ) === 3 && !unescapeJSON( $( "#wto" )[ 0 ].value ).baseETo ) {
+							showerror( _( "You must specify a baseline ETo adjustment method option to use the ET adjustment method." ) );
+							invalid = true;
+							return false;
+						}
+
 						var restrict = page.find( "#weatherRestriction" );
 						if ( restrict.length ) {
 							data = setRestriction( parseInt( restrict.val() ), data );
