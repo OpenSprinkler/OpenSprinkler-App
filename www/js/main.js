@@ -14,7 +14,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-var WEATHER_SERVER_URL = "http://weather.opensprinkler.com";
+var DEFAULT_WEATHER_SERVER_URL = "http://weather.opensprinkler.com";
+var WEATHER_SERVER_URL = DEFAULT_WEATHER_SERVER_URL;
 
 // Initialize global variables
 var isIEMobile = /IEMobile/.test( navigator.userAgent ),
@@ -815,7 +816,7 @@ function newLoad() {
 				changePassword = $( ".changePassword" );
 
 			$.mobile.loading( "hide" );
-			updateWeather();
+			checkURLandUpdateWeather();
 
 			if ( checkOSVersion( 210 ) ) {
 				weatherAdjust.css( "display", "" );
@@ -2769,6 +2770,21 @@ function updateWeather() {
 			localStorage.weatherData = JSON.stringify( data );
 			finishWeatherUpdate();
 		}
+	} );
+}
+
+function checkURLandUpdateWeather() {
+	return $.get( currPrefix + currIp + "/su" ).then( function( reply ) {
+		var wsp = reply.match( /value="([\w|:|/|.]+)" name=wsp/ );
+
+		if ( wsp ) {
+			WEATHER_SERVER_URL = wsp[ 1 ];
+			console.log(WEATHER_SERVER_URL);
+		} else {
+			WEATHER_SERVER_URL = DEFAULT_WEATHER_SERVER_URL;
+		}
+
+		updateWeather();
 	} );
 }
 
