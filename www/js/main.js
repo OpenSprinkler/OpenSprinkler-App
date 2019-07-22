@@ -2780,7 +2780,6 @@ function checkURLandUpdateWeather() {
 
 		if ( wsp ) {
 			WEATHER_SERVER_URL = wsp[ 1 ];
-			console.log(WEATHER_SERVER_URL);
 		} else {
 			WEATHER_SERVER_URL = DEFAULT_WEATHER_SERVER_URL;
 		}
