@@ -30,7 +30,7 @@ var isIEMobile = /IEMobile/.test( navigator.userAgent ),
 	isFileCapable = !isiOS && !isAndroid && !isIEMobile && !isOSXApp && !isFireFoxOS &&
 					!isWinApp && !isBB10 && window.FileReader,
 	isTouchCapable = "ontouchstart" in window || "onmsgesturechange" in window,
-	isMetric = ( [ "US", "BM", "PW" ].indexOf( navigator.language.split( "-" )[ 1 ] ) === -1 ),
+	isMetric = ( [ "US", "BM", "PW" ].indexOf( navigator.languages[ 0 ].split( "-" )[ 1 ] ) === -1 ),
 
 	// Small wrapper to handle Chrome vs localStorage usage
 	storage = {
@@ -251,6 +251,7 @@ $( document )
 
 	$.support.cors = true;
 	$.mobile.allowCrossDomainPages = true;
+	loadUnitSetting();
 } )
 .on( "pagebeforechange", function( e, data ) {
 	var page = data.toPage,
@@ -3448,6 +3449,10 @@ function showOptions( expandItem ) {
 						}
 
 						break;
+					case "isMetric":
+						isMetric = $item.is( ":checked" );
+						storage.set( { isMetric: isMetric } );
+						return true;
 					case "o12":
 						if ( !isPi ) {
 							opt.o12 = data & 0xff;
@@ -3582,7 +3587,7 @@ function showOptions( expandItem ) {
 
 	list += "<div class='ui-field-contain'>" +
 		"<label for='loc'>" + _( "Location" ) + "</label>" +
-		"<button data-mini='true' id='loc' value='" + controller.settings.loc.trim() === "''" ? _( "Not specified" ) : controller.settings.loc + "'>" +
+		"<button data-mini='true' id='loc' value='" + ( controller.settings.loc.trim() === "''" ? _( "Not specified" ) : controller.settings.loc ) + "'>" +
 			"<span>" + controller.settings.loc + "</span>" +
 			"<a class='ui-btn btn-no-border ui-btn-icon-notext ui-icon-delete ui-btn-corner-all clear-loc'></a>" +
 		"</button></div>";
@@ -3591,6 +3596,9 @@ function showOptions( expandItem ) {
 		list += "<label for='o36'><input data-mini='true' id='o36' type='checkbox' " + ( ( controller.options.lg === 1 ) ? "checked='checked'" : "" ) + ">" +
 			_( "Enable Logging" ) + "</label>";
 	}
+
+	list += "<label for='isMetric'><input data-mini='true' id='isMetric' type='checkbox' " + ( isMetric ? "checked='checked'" : "" ) + ">" +
+		_( "Use Metric" ) + "</label>";
 
 	list += "</fieldset><fieldset data-role='collapsible'" +
 		( typeof expandItem === "string" && expandItem === "master" ? " data-collapsed='false'" : "" ) + ">" +
@@ -11438,6 +11446,24 @@ function showerror( msg, dur ) {
 
 	// Hide after provided delay
 	errorTimeout = setTimeout( function() {$.mobile.loading( "hide" );}, dur );
+}
+
+function loadUnitSetting() {
+	storage.get( "isMetric", function( data ) {
+
+		// We are using a switch because the boolean gets stored as a string
+		// and we don't want to impact the in-memory value of `isMetric` when
+		// no value in local storage exists.
+		switch ( data.isMetric ) {
+			case "true":
+				isMetric = true;
+				break;
+			case "false":
+				isMetric = false;
+				break;
+			default:
+		}
+	} );
 }
 
 // Accessory functions
