@@ -250,6 +250,7 @@ $( document )
 
 	$.support.cors = true;
 	$.mobile.allowCrossDomainPages = true;
+	loadUnitSetting();
 } )
 .on( "pagebeforechange", function( e, data ) {
 	var page = data.toPage,
@@ -3432,6 +3433,10 @@ function showOptions( expandItem ) {
 						}
 
 						break;
+					case "isMetric":
+						isMetric = $item.is( ":checked" );
+						storage.set( { isMetric: isMetric } );
+						return true;
 					case "o12":
 						if ( !isPi ) {
 							opt.o12 = data & 0xff;
@@ -3575,6 +3580,9 @@ function showOptions( expandItem ) {
 		list += "<label for='o36'><input data-mini='true' id='o36' type='checkbox' " + ( ( controller.options.lg === 1 ) ? "checked='checked'" : "" ) + ">" +
 			_( "Enable Logging" ) + "</label>";
 	}
+
+	list += "<label for='isMetric'><input data-mini='true' id='isMetric' type='checkbox' " + ( isMetric ? "checked='checked'" : "" ) + ">" +
+		_( "Use Metric" ) + "</label>";
 
 	list += "</fieldset><fieldset data-role='collapsible'" +
 		( typeof expandItem === "string" && expandItem === "master" ? " data-collapsed='false'" : "" ) + ">" +
@@ -11422,6 +11430,24 @@ function showerror( msg, dur ) {
 
 	// Hide after provided delay
 	errorTimeout = setTimeout( function() {$.mobile.loading( "hide" );}, dur );
+}
+
+function loadUnitSetting() {
+	storage.get( "isMetric", function( data ) {
+
+		// We are using a switch because the boolean gets stored as a string
+		// and we don't want to impact the in-memory value of `isMetric` when
+		// no value in local storage exists.
+		switch( data.isMetric ) {
+			case "true":
+				isMetric = true;
+				break;
+			case "false":
+				isMetric = false;
+				break;
+			default:
+		}
+	} );
 }
 
 // Accessory functions
