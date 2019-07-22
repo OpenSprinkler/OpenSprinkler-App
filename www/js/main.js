@@ -14,7 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-var DEFAULT_WEATHER_SERVER_URL = "http://weather.opensprinkler.com";
+var DEFAULT_WEATHER_SERVER_URL = "https://weather.opensprinkler.com";
 var WEATHER_SERVER_URL = DEFAULT_WEATHER_SERVER_URL;
 
 // Initialize global variables
@@ -2779,7 +2779,7 @@ function checkURLandUpdateWeather() {
 		var wsp = reply.match( /value="([\w|:|/|.]+)" name=wsp/ );
 
 		if ( wsp ) {
-			WEATHER_SERVER_URL = wsp[ 1 ];
+			WEATHER_SERVER_URL = "https://" + wsp[ 1 ];
 		} else {
 			WEATHER_SERVER_URL = DEFAULT_WEATHER_SERVER_URL;
 		}
