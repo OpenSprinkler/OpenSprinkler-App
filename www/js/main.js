@@ -11438,7 +11438,7 @@ function loadUnitSetting() {
 		// We are using a switch because the boolean gets stored as a string
 		// and we don't want to impact the in-memory value of `isMetric` when
 		// no value in local storage exists.
-		switch( data.isMetric ) {
+		switch ( data.isMetric ) {
 			case "true":
 				isMetric = true;
 				break;
