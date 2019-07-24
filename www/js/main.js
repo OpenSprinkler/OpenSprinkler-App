@@ -4006,7 +4006,8 @@ function showOptions( expandItem ) {
 
 					// Update the PWS location (either with the PWS station or reset to undefined)
 					var wtoButton = page.find( "#wto" );
-					if ( wtoButton ) {
+					// The value will be undefined if running an older HW version without an SD card.
+					if ( wtoButton && wtoButton.val() !== undefined ) {
 						wtoButton.val( escapeJSON( $.extend( {}, unescapeJSON( wtoButton.val() ), { pws: station || "" } ) ) );
 					}
 
