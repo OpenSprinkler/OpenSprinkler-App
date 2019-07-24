@@ -3144,7 +3144,7 @@ function getAdjustmentMethod( id ) {
         { name: _( "Manual" ), id: 0 },
         { name: "Zimmerman", id: 1 },
         { name: _( "Auto Rain Delay" ), id: 2, minVersion: 216 },
-		{ name: "Evapotranspiration (ET)", id: 3 }
+		{ name: "Evapotranspiration (ET)", id: 3, minVersion: 216 }
     ];
 
     if ( id === undefined ) {
@@ -4006,7 +4006,8 @@ function showOptions( expandItem ) {
 
 					// Update the PWS location (either with the PWS station or reset to undefined)
 					var wtoButton = page.find( "#wto" );
-					if ( wtoButton ) {
+					// The value will be undefined if running an older HW version without an SD card.
+					if ( wtoButton && wtoButton.val() !== undefined ) {
 						wtoButton.val( escapeJSON( $.extend( {}, unescapeJSON( wtoButton.val() ), { pws: station || "" } ) ) );
 					}
 
