@@ -1,10 +1,10 @@
 <img align="left" height="150" src="http://albahra.com/opensprinkler/icon-new.png"><h3>&nbsp;OpenSprinkler App [![GitHub version](https://img.shields.io/github/package-json/v/opensprinkler/opensprinkler-app.svg)](http://github.com/OpenSprinkler/OpenSprinkler-App)</h3>
-&nbsp;[![Build Status](https://api.travis-ci.org/OpenSprinkler/OpenSprinkler-App.svg?branch=master)](https://travis-ci.org/) [![Coverage Status](https://coveralls.io/repos/OpenSprinkler/OpenSprinkler-App/badge.svg?branch=master)](https://codecov.io/github/OpenSprinkler/OpenSprinkler-App?branch=master) [![devDependency Status](https://david-dm.org/OpenSprinkler/OpenSprinkler-App/dev-status.svg)](https://david-dm.org/OpenSprinkler/OpenSprinkler-App#info=devDependencies)  
-&nbsp;[Official Site][official] | [Support][help] | [Changelog][changelog]  
-&nbsp;&copy; 2013-2016 [Samer Albahra][salbahra] ([@salbahra](https://twitter.com/salbahra))  
+&nbsp;[![Build Status](https://api.travis-ci.org/OpenSprinkler/OpenSprinkler-App.svg?branch=master)](https://travis-ci.org/) [![Coverage Status](https://coveralls.io/repos/OpenSprinkler/OpenSprinkler-App/badge.svg?branch=master)](https://codecov.io/github/OpenSprinkler/OpenSprinkler-App?branch=master) [![devDependency Status](https://david-dm.org/OpenSprinkler/OpenSprinkler-App/dev-status.svg)](https://david-dm.org/OpenSprinkler/OpenSprinkler-App#info=devDependencies)
+&nbsp;[Official Site][official] | [Support][help] | [Changelog][changelog]
+&nbsp;&copy; 2013-2016 [Samer Albahra][salbahra] ([@salbahra](https://twitter.com/salbahra))
 <br>
 A mobile interface for the OpenSprinkler irrigation device. Designed to allow manual control, program management (view, edit, delete and add), initiation of a run-once program, viewing device status, adjusting rain delay, changing of OpenSprinkler settings and much more.
-  
+
 ---
 
 [official]: https://opensprinkler.com
@@ -29,8 +29,6 @@ A mobile interface for the OpenSprinkler irrigation device. Designed to allow ma
   + [Amazon Appstore](http://www.amazon.com/dp/B00JYFL8LW)
   + [Apple App Store - iOS](https://itunes.apple.com/us/app/sprinklers/id830988967?ls=1&mt=8)
   + [Apple App Store - OS X](https://itunes.apple.com/us/app/sprinklers/id903464532?ls=1&mt=12)
-  + [BlackBerry AppWorld](http://appworld.blackberry.com/webstore/content/53161895/)
-  + [Firefox Marketplace](https://marketplace.firefox.com/app/opensprinkler/)
   + [Google Play Store](https://play.google.com/store/apps/details?id=com.albahra.sprinklers)
   + [Google Web Store](https://chrome.google.com/webstore/detail/sprinklers/iegciplggbmhpihoeamfpjdedihblhhp)
   + [Windows Phone Store](http://www.windowsphone.com/en-us/store/app/sprinklers/3dbc5da0-b33f-4ca8-9e54-e80febf0a0c5)

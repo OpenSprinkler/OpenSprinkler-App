@@ -20,14 +20,12 @@ var WEATHER_SERVER_URL = "http://weather.opensprinkler.com";
 var isIEMobile = /IEMobile/.test( navigator.userAgent ),
 	isAndroid = /Android|\bSilk\b/.test( navigator.userAgent ),
 	isiOS = /iP(ad|hone|od)/.test( navigator.userAgent ),
-	isFireFoxOS = /^.*?\Mobile\b.*?\Firefox\b.*?$/m.test( navigator.userAgent ),
 	isFireFox = /Firefox/.test( navigator.userAgent ),
 	isWinApp = /MSAppHost/.test( navigator.userAgent ),
-	isBB10 = /BB10/.test( navigator.userAgent ),
 	isOSXApp = isOSXApp || false,
 	isChromeApp = typeof chrome === "object" && typeof chrome.storage === "object",
-	isFileCapable = !isiOS && !isAndroid && !isIEMobile && !isOSXApp && !isFireFoxOS &&
-					!isWinApp && !isBB10 && window.FileReader,
+	isFileCapable = !isiOS && !isAndroid && !isIEMobile && !isOSXApp &&
+					!isWinApp && window.FileReader,
 	isTouchCapable = "ontouchstart" in window || "onmsgesturechange" in window,
 	isMetric = ( [ "US", "BM", "PW" ].indexOf( navigator.languages[ 0 ].split( "-" )[ 1 ] ) === -1 ),
 
@@ -190,7 +188,7 @@ $( document )
 		} catch ( err ) {}
 	}, 500 );
 
-	// For Android, Blackberry and Windows Phone devices catch the back button and redirect it
+	// For Android and Windows Phone devices catch the back button and redirect it
 	$.mobile.document.on( "backbutton", function() {
 		if ( isIEMobile && $.mobile.document.data( "iabOpen" ) ) {
 			return false;
@@ -390,9 +388,7 @@ $( document )
 } )
 .on( "popupafterclose", function() {
 
-	if ( !isBB10 ) {
-		$( ".ui-page-active" ).children().add( "#sprinklers-settings" ).removeClass( "blur-filter" );
-	}
+	$( ".ui-page-active" ).children().add( "#sprinklers-settings" ).removeClass( "blur-filter" );
 
 	// When a popup is closed, change the header back to the default color
 	try {
@@ -400,9 +396,7 @@ $( document )
 	} catch ( err ) {}
 } )
 .on( "popupbeforeposition", function() {
-	if ( !isBB10 ) {
-		$( ".ui-page-active" ).children().add( "#sprinklers-settings" ).addClass( "blur-filter" );
-	}
+	$( ".ui-page-active" ).children().add( "#sprinklers-settings" ).addClass( "blur-filter" );
 } )
 .on( "popupbeforeposition", "#localization", checkCurrLang )
 .one( "pagebeforeshow", "#loadingPage", initApp );
@@ -440,7 +434,7 @@ function initApp() {
 				navigator.app.clearCache();
 			} catch ( err ) {}
 		} );
-	} else if ( isFireFoxOS || isFireFox ) {
+	} else if ( isFireFox ) {
 
 		// Allow cross domain AJAX requests in FireFox OS
 		$.ajaxSetup( {
@@ -458,7 +452,7 @@ function initApp() {
 
 	//After jQuery mobile is loaded set initial configuration
 	$.mobile.defaultPageTransition =
-		( isAndroid || isIEMobile || isFireFoxOS || isBB10 ) ? "fade" : "slide";
+		( isAndroid || isIEMobile ) ? "fade" : "slide";
 	$.mobile.hoverDelay = 0;
 	$.mobile.activeBtnClass = "activeButton";
 
