@@ -8946,6 +8946,16 @@ function importConfig( data ) {
 			co += "&o36=1";
 		}
 
+		// Import Weather Adjustment Options, if available
+		if ( typeof data.settings.wto === "object" && checkOSVersion( 215 ) ) {
+			co += "&wto=" + escapeJSON( data.settings.wto );
+		}
+
+		// Import IFTTT Key, if available
+		if ( typeof data.settings.ifkey === "string" && checkOSVersion( 217 ) ) {
+			co += "&ifkey=" + data.settings.ifkey;
+		}
+
 		co += "&" + ( isPi ? "o" : "" ) + "loc=" + data.settings.loc;
 
 		for ( i = 0; i < data.stations.snames.length; i++ ) {
