@@ -197,7 +197,7 @@
 				},
 				pushBump: {
 					command: [
-						"git add www/js/main.js source/osx/Resources/OpenSprinkler-Info.plist config.xml manifest.json manifest.webapp package.json",
+						"git add www/js/main.js source/osx/Resources/OpenSprinkler-Info.plist config.xml manifest.json package.json",
 						"git commit -m 'Base: Increment version number'",
 						"git push"
 					].join( "&&" )
@@ -252,7 +252,7 @@
 						} ]
 				},
 				manifests: {
-					src: [ "manifest.json", "manifest.webapp", "package.json" ],
+					src: [ "manifest.json", "package.json" ],
 					overwrite: true,
 					replacements: [ {
 						from: /"version": "([\d|\.]+)"/g,
