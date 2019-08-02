@@ -11314,6 +11314,7 @@ function takePicture( callback ) {
 	navigator.camera.getPicture( callback, function() {}, {
 		quality: 50,
 		destinationType: Camera.DestinationType.DATA_URL,
+		sourceType: Camera.PictureSourceType.PHOTOLIBRARY,
 		allowEdit: true,
 		targetWidth: 200,
 		targetHeight: 200
