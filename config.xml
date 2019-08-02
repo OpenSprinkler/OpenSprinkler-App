@@ -77,9 +77,9 @@
         <icon height="152" src="res/ios/icons/icon-76@2x.png" width="152" />
     </platform>
     <platform name="android">
-		<edit-config file="app/src/main/AndroidManifest.xml" mode="merge" target="/manifest/application">
-			<application android:usesCleartextTraffic="true" />
-		</edit-config>
+        <edit-config file="app/src/main/AndroidManifest.xml" mode="merge" target="/manifest/application">
+            <application android:usesCleartextTraffic="true" />
+        </edit-config>
         <preference name="android-minSdkVersion" value="19" />
         <preference name="android-targetSdkVersion" value="28" />
         <preference name="android-theme" value="@android:style/Theme.Holo.Light.NoActionBar" />
@@ -119,7 +119,7 @@
     <plugin name="cordova-plugin-splashscreen" spec="^5.0.2" />
     <plugin name="cordova-plugin-inappbrowser" spec="^3.0.0" />
     <plugin name="cordova-plugin-networkinterface" spec="^2.0.0" />
-    <plugin name="cordova-plugin-camera" spec="^4.0.3" />
+    <plugin name="cordova-plugin-camera" spec="^4.1.0" />
     <engine name="ios" spec="^5.0.0" />
-    <engine name="android" spec="~8.0.0" />
+	<engine name="android" spec="~8.0.0" />
 </widget>
