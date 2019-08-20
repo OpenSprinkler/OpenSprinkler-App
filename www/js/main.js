@@ -115,6 +115,16 @@ var isIEMobile = /IEMobile/.test( navigator.userAgent ),
 	pageHistoryCount = -1,
 	goingBack = false,
 
+	// Define the mapping between options and JSON keys
+	keyIndex = {
+		"tz":1, "ntp":2, "dhcp":3, "ip1":4, "ip2":5, "ip3":6, "ip4":7, "gw1":8, "gw2":9, "gw3":10, "gw4":11,
+		"hp0":12, "hp1":13, "ar":14, "ext":15, "seq":16, "sdt":17, "mas":18, "mton":19, "mtof":20, "urs":21, "rso":22,
+		"wl":23, "den":24, "ipas":25, "devid":26, "con":27, "lit":28, "dim":29, "rlp":30, "uwt":31, "ntp1":32, "ntp2":33,
+		"ntp3":34, "ntp4":35, "lg":36, "mas2":37, "mton2":38, "mtof2":39, "fpr0":41, "fpr1":42, "re":43, "dns1": 44,
+		"dns2":45, "dns3":46, "dns4":47, "sar":48, "ife":49, "sn1t":50, "sn1o":51, "sn2t":52, "sn2o":53, "sn1on":54,
+		"sn1of":55, "sn2on":56, "sn2of":57
+	},
+
 	// Array to hold all notifications currently displayed within the app
 	notifications = [],
 	timers = {},
@@ -1045,11 +1055,6 @@ function updateControllerOptions( callback ) {
 				vars.ext--;
 				vars.fwv = "1.8.3-ospi";
 			} else {
-				var keyIndex = {
-					1:"tz", 2:"ntp", 12:"hp0", 13:"hp1", 14:"ar", 15:"ext", 16:"seq", 17:"sdt",
-					18:"mas", 19:"mton", 20:"mtof", 21:"urs", 22:"rso", 23:"wl", 25:"ipas",
-					26:"devid"
-				},
 				valid = [ 1, 2, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 25, 26 ];
 				tmp = /var opts=\[(.*)\];/.exec( options );
 				tmp = tmp[ 1 ].replace( /"/g, "" ).split( "," );
@@ -3326,9 +3331,6 @@ function showOptions( expandItem ) {
 				invalid = false,
 				isPi = isOSPi(),
 				button = header.eq( 2 ),
-				keyNames = { 1:"tz", 2:"ntp", 12:"htp", 13:"htp2", 14:"ar", 15:"nbrd", 16:"seq", 17:"sdt", 18:"mas", 19:"mton", 20:"mtoff",
-					21:"urs", 22:"rst", 23:"wl", 25:"ipas", 30:"rlp", 36:"lg", 31:"uwt", 37:"mas2", 38:"mton2", 39:"mtof2", 41:"fpr0", 42:"fpr1",
-					48: "sar", 49: "ife" },
 				key;
 
 			button.prop( "disabled", true );
@@ -3484,7 +3486,7 @@ function showOptions( expandItem ) {
 						id = "o" + id;
 					} else {
 						key = /\d+/.exec( id );
-						id = "o" + keyNames[ key ];
+						id = "o" + Object.keys( keyIndex ).find( index => keyIndex[ index ] === key );
 					}
 				}
 
@@ -3502,6 +3504,22 @@ function showOptions( expandItem ) {
 			}
 			if ( typeof controller.options.fpr0 !== "undefined" ) {
 				opt.o21 = page.find( "input[name='o21'][type='radio']:checked" ).val();
+			}
+
+			// Transform keys to JSON names for 2.1.9+
+			if ( checkOSVersion(219) ) {
+				var renamedOpt = {};
+				Object.keys( opt ).forEach( function( item ) {
+					var name = item.match(/^o(\d+)$/);
+
+					if ( name && name[ 1 ] ) {
+						renamedOpt[ Object.keys( keyIndex ).find( index => keyIndex[ index ] === parseInt( name[ 1 ], 10 ) ) ] = opt[ item ];
+					} else {
+						renamedOpt[ item ] = opt[ item ];
+					}
+				} );
+
+				opt = renamedOpt;
 			}
 
 			$.mobile.loading( "show" );
@@ -8881,13 +8899,7 @@ function getImportMethod( localData ) {
 }
 
 function importConfig( data ) {
-	var piNames = { 1:"tz", 2:"ntp", 12:"htp", 13:"htp2", 14:"ar", 15:"nbrd", 16:"seq", 17:"sdt", 18:"mas", 19:"mton", 20:"mtoff",
-			21:"urs", 22:"rst", 23:"wl", 25:"ipas", 30:"rlp", 36:"lg" },
-		keyIndex = { "tz":1, "ntp":2, "dhcp":3, "hp0":12, "hp1":13, "ar":14, "ext":15, "seq":16, "sdt":17, "mas":18, "mton":19,
-			"mtof":20, "urs":21, "rso":22, "wl":23, "ipas":25, "devid":26, "con": 27, "lit": 28, "dim": 29, "rlp":30, "lg":36,
-			"uwt":31, "ntp1":32, "ntp2":33, "ntp3":34, "ntp4":35, "mas2":37, "mton2":38, "mtof2":39, "fpr0":41, "fpr1":42, "re":43,
-			"dns1": 44, "dns2": 45, "dns3": 46, "dns4": 47, "sar": 48, "ife": 49 },
-		warning = "";
+	var warning = "";
 
 	if ( typeof data !== "object" || !data.settings ) {
 		showerror( _( "Invalid configuration" ) );
@@ -8923,7 +8935,7 @@ function importConfig( data ) {
 					continue;
 				}
 				if ( isPi ) {
-					key = piNames[ key ];
+					key = Object.keys( keyIndex ).find( index => keyIndex[ index ] === key );
 					if ( key === undefined ) {
 						continue;
 					}
