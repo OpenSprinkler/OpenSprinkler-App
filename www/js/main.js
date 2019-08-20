@@ -3534,21 +3534,7 @@ function showOptions( expandItem ) {
 				opt.o21 = page.find( "input[name='o21'][type='radio']:checked" ).val();
 			}
 
-			// Transform keys to JSON names for 2.1.9+
-			if ( checkOSVersion( 219 ) ) {
-				var renamedOpt = {};
-				Object.keys( opt ).forEach( function( item ) {
-					var name = item.match( /^o(\d+)$/ );
-
-					if ( name && name[ 1 ] ) {
-						renamedOpt[ Object.keys( keyIndex ).find( function( index ) { return keyIndex[ index ] === parseInt( name[ 1 ], 10 ); } ) ] = opt[ item ];
-					} else {
-						renamedOpt[ item ] = opt[ item ];
-					}
-				} );
-
-				opt = renamedOpt;
-			}
+			opt = transformKeys( opt );
 
 			$.mobile.loading( "show" );
 			sendToOS( "/co?pw=&" + $.param( opt ) ).done( function() {
@@ -7661,7 +7647,8 @@ function resetAllOptions( callback ) {
 			co = "otz=32&ontp=1&onbrd=0&osdt=0&omas=0&omton=0&omtoff=0&orst=1&owl=100&orlp=0&ouwt=0&olg=1&oloc=Boston,MA";
 		} else {
 			co = "o1=32&o2=1&o3=1&o12=80&o13=0&o15=0&o17=0&o18=0&o19=0&o20=0&o22=1&o23=100&o26=0&o27=110&o28=100&o29=15&" +
-				"o30=0&o31=0&o32=50&o33=97&o34=210&o35=169&o36=1&o37=0&038=0&o39=0&loc=Boston,MA&wto=%22key%22%3A%22%22";
+				"o30=0&o31=0&o32=50&o33=97&o34=210&o35=169&o36=1&o37=0&o38=0&o39=0&loc=Boston,MA&wto=%22key%22%3A%22%22";
+			transformKeysinString(co);
 		}
 
 		sendToOS( "/co?pw=&" + co ).done( function() {
@@ -9058,7 +9045,7 @@ function importConfig( data ) {
 		data.special = data.special || {};
 
 		$.when(
-			sendToOS( co ),
+			sendToOS( transformKeysinString( co ) ),
 			sendToOS( cs ),
 			sendToOS( "/dp?pw=&pid=-1" ),
 			$.each( data.programs.pd, function( i, prog ) {
@@ -11913,4 +11900,37 @@ function dateToString( date, toUTC, shorten ) {
 					pad( date.getSeconds() );
 		}
 	}
+}
+
+// Transform keys to JSON names for 2.1.9+
+function transformKeys( opt ) {
+	if ( checkOSVersion( 219 ) ) {
+		var renamedOpt = {};
+		Object.keys( opt ).forEach( function( item ) {
+			var name = item.match( /^o(\d+)$/ );
+
+			if ( name && name[ 1 ] ) {
+				renamedOpt[ Object.keys( keyIndex ).find( function( index ) { return keyIndex[ index ] === parseInt( name[ 1 ], 10 ); } ) ] = opt[ item ];
+			} else {
+				renamedOpt[ item ] = opt[ item ];
+			}
+		} );
+
+		return renamedOpt;
+	}
+
+	return opt;
+}
+
+function transformKeysinString( co ) {
+	opt = {};
+	co.split( "&" ).forEach( function( item ) {
+		item = item.split( "=" );
+		opt[ item[ 0 ] ] = item[ 1 ]
+	} );
+	opt = transformKeys( opt );
+	arr = [];
+	Object.keys( opt ).forEach( function( key ) { arr.push( key + "=" + opt[ key ] ) } );
+	co = arr.join( "&" );
+	return co;
 }
