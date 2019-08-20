@@ -248,7 +248,7 @@
       "Forecast" : "Vorhersage",
       "Stop All Stations" : "Alle Bewässerungskreise stoppen",
       "Error: Interval days must be between 2 and 128." : "Fehler: Tagesintervall muss zwischen 2 und 128 Tagen liegen",
-      "Standard" : "Standart",
+      "Standard" : "Standard",
       "Water Level" : "% Bewässerung",
       "Are you sure you want to delete all settings and return to the default settings?" : "Sind Sie sicher, dass Sie alle Einstellungen löschen und auf die Werkseinstellungen zurücksetzen wollen?",
       "Do you want to turn off rain delay?" : "Wollen Sie die Regenverzögerung abschalten?",
