@@ -2786,6 +2786,11 @@ function checkURLandUpdateWeather() {
 	};
 
 	if ( controller.settings.wsp ) {
+		if ( controller.settings.wsp === "weather.opensprinkler.com" ) {
+			finish();
+			return;
+		}
+
 		finish( controller.settings.wsp );
 		return;
 	}
