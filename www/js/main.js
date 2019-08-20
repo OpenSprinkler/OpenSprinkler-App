@@ -14,7 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-var DEFAULT_WEATHER_SERVER_URL = "https://weather.opensprinkler.com";
+var DEFAULT_WEATHER_SERVER_URL = "http://weather.opensprinkler.com";
 var WEATHER_SERVER_URL = DEFAULT_WEATHER_SERVER_URL;
 
 // Initialize global variables
@@ -2775,16 +2775,24 @@ function updateWeather() {
 }
 
 function checkURLandUpdateWeather() {
-	return $.get( currPrefix + currIp + "/su" ).then( function( reply ) {
-		var wsp = reply.match( /value="([\w|:|/|.]+)" name=wsp/ );
-
+	finish = function( wsp ) {
 		if ( wsp ) {
-			WEATHER_SERVER_URL = "https://" + wsp[ 1 ];
+			WEATHER_SERVER_URL = "https://" + wsp;
 		} else {
 			WEATHER_SERVER_URL = DEFAULT_WEATHER_SERVER_URL;
 		}
 
 		updateWeather();
+	};
+
+	if ( controller.settings.wsp ) {
+		finish( controller.settings.wsp );
+		return;
+	}
+
+	return $.get( currPrefix + currIp + "/su" ).then( function( reply ) {
+		var wsp = reply.match( /value="([\w|:|/|.]+)" name=wsp/ );
+		finish( wsp[ 1 ] );
 	} );
 }
 
