@@ -1055,7 +1055,7 @@ function updateControllerOptions( callback ) {
 				vars.ext--;
 				vars.fwv = "1.8.3-ospi";
 			} else {
-				valid = [ 1, 2, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 25, 26 ];
+				var valid = [ 1, 2, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 25, 26 ];
 				tmp = /var opts=\[(.*)\];/.exec( options );
 				tmp = tmp[ 1 ].replace( /"/g, "" ).split( "," );
 
@@ -3486,7 +3486,7 @@ function showOptions( expandItem ) {
 						id = "o" + id;
 					} else {
 						key = /\d+/.exec( id );
-						id = "o" + Object.keys( keyIndex ).find( index => keyIndex[ index ] === key );
+						id = "o" + Object.keys( keyIndex ).find( function( index ) { return keyIndex[ index ] === key; } );
 					}
 				}
 
@@ -3507,13 +3507,13 @@ function showOptions( expandItem ) {
 			}
 
 			// Transform keys to JSON names for 2.1.9+
-			if ( checkOSVersion(219) ) {
+			if ( checkOSVersion( 219 ) ) {
 				var renamedOpt = {};
 				Object.keys( opt ).forEach( function( item ) {
-					var name = item.match(/^o(\d+)$/);
+					var name = item.match( /^o(\d+)$/ );
 
 					if ( name && name[ 1 ] ) {
-						renamedOpt[ Object.keys( keyIndex ).find( index => keyIndex[ index ] === parseInt( name[ 1 ], 10 ) ) ] = opt[ item ];
+						renamedOpt[ Object.keys( keyIndex ).find( function( index ) { return keyIndex[ index ] === parseInt( name[ 1 ], 10 ); } ) ] = opt[ item ];
 					} else {
 						renamedOpt[ item ] = opt[ item ];
 					}
@@ -8924,6 +8924,8 @@ function importConfig( data ) {
 			isPi = isOSPi(),
 			i, key, option, station;
 
+		var findKey = function( index ) { return keyIndex[ index ] === key; };
+
 		for ( i in data.options ) {
 			if ( data.options.hasOwnProperty( i ) && keyIndex.hasOwnProperty( i ) ) {
 				key = keyIndex[ i ];
@@ -8937,12 +8939,10 @@ function importConfig( data ) {
 					continue;
 				}
 				if ( isPi ) {
-					key = Object.keys( keyIndex ).find( index => keyIndex[ index ] === key );
+					key = Object.keys( keyIndex ).find( findKey );
 					if ( key === undefined ) {
 						continue;
 					}
-				} else {
-					key = key;
 				}
 				if ( checkOSVersion( 208 ) === true && typeof data.options[ i ] === "string" ) {
 					option = data.options[ i ].replace( /\s/g, "_" );
