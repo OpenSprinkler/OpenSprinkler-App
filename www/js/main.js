@@ -2774,7 +2774,7 @@ function updateWeather() {
 }
 
 function checkURLandUpdateWeather() {
-	finish = function( wsp ) {
+	var finish = function( wsp ) {
 		if ( wsp ) {
 			WEATHER_SERVER_URL = "http://" + wsp;
 		} else {
@@ -7648,7 +7648,7 @@ function resetAllOptions( callback ) {
 		} else {
 			co = "o1=32&o2=1&o3=1&o12=80&o13=0&o15=0&o17=0&o18=0&o19=0&o20=0&o22=1&o23=100&o26=0&o27=110&o28=100&o29=15&" +
 				"o30=0&o31=0&o32=50&o33=97&o34=210&o35=169&o36=1&o37=0&o38=0&o39=0&loc=Boston,MA&wto=%22key%22%3A%22%22";
-			transformKeysinString(co);
+			transformKeysinString( co );
 		}
 
 		sendToOS( "/co?pw=&" + co ).done( function() {
@@ -11923,14 +11923,14 @@ function transformKeys( opt ) {
 }
 
 function transformKeysinString( co ) {
-	opt = {};
+	var opt = {};
 	co.split( "&" ).forEach( function( item ) {
 		item = item.split( "=" );
-		opt[ item[ 0 ] ] = item[ 1 ]
+		opt[ item[ 0 ] ] = item[ 1 ];
 	} );
 	opt = transformKeys( opt );
-	arr = [];
-	Object.keys( opt ).forEach( function( key ) { arr.push( key + "=" + opt[ key ] ) } );
+	var arr = [];
+	Object.keys( opt ).forEach( function( key ) { arr.push( key + "=" + opt[ key ] ); } );
 	co = arr.join( "&" );
 	return co;
 }
