@@ -4322,7 +4322,7 @@ function showOptions( expandItem ) {
 		header.eq( 2 ).prop( "disabled", false );
 		page.find( ".submit" ).addClass( "hasChanges" );
 
-		if ( id === "ip_addr" || id === "gateway" || id === "dns" || id === "ntp_addr" ) {
+		if ( id === "ip_addr" || id === "gateway" || id === "dns" || id === "ntp_addr" || id === "subnet" ) {
 			showIPRequest( {
 				title: name,
 				ip: dur.val().split( "." ),
