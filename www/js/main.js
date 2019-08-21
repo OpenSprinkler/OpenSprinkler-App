@@ -3357,7 +3357,7 @@ function showOptions( expandItem ) {
 		generateSensorOptions = function( index, sensorType, number ) {
 			return "<div class='ui-field-contain'>" +
 			    "<fieldset data-role='controlgroup' class='ui-mini center sensor-options' data-type='horizontal'>" +
-			        "<legend class='left'>" + _( "Sensor" ) + ( number ? " " + number + " " : " " )+ _( "Type" ) + "</legend>" +
+			        "<legend class='left'>" + _( "Sensor" ) + ( number ? " " + number + " " : " " ) + _( "Type" ) + "</legend>" +
 			        "<input class='noselect' type='radio' name='o" + index + "' id='o" + index + "-none' value='0'" + ( sensorType === 0 ? " checked='checked'" : "" ) + ">" +
 			        "<label for='o" + index + "-none'>" + _( "None" ) + "</label>" +
 			        "<input class='noselect' type='radio' name='o" + index + "' id='o" + index + "-rain' value='1'" + ( sensorType === 1 ? " checked='checked'" : "" ) + ">" +
@@ -3369,7 +3369,7 @@ function showOptions( expandItem ) {
 			        ( checkOSVersion( 217 ) ? "<input class='noselect' type='radio' name='o" + index + "' id='o" + index + "-program' value='240'" + ( sensorType === 240 ? " checked='checked'" : "" ) + ">" +
 			        	"<label for='o" + index + "-program'>" + _( "Program Switch" ) + "</label>" : "" ) +
 			    "</fieldset>" +
-			"</div>"
+			"</div>";
 		},
 		submitOptions = function() {
 			var opt = {},
@@ -3812,7 +3812,7 @@ function showOptions( expandItem ) {
 	if ( typeof controller.options.urs !== "undefined" || typeof controller.options.sn1t !== "undefined" ) {
 		if ( typeof controller.options.fpr0 !== "undefined" ) {
 			list += typeof controller.options.urs !== "undefined" ? generateSensorOptions( keyIndex.urs, controller.options.urs ) :
-					( typeof controller.options.sn1t !== "undefined" ? generateSensorOptions( keyIndex.sn1t, controller.options.sn1t, 1 ) : "" )
+					( typeof controller.options.sn1t !== "undefined" ? generateSensorOptions( keyIndex.sn1t, controller.options.sn1t, 1 ) : "" );
 		} else {
 			list += "<label for='o21'>" +
 				"<input data-mini='true' id='o21' type='checkbox' " + ( ( controller.options.urs === 1 ) ? "checked='checked'" : "" ) + ">" +
@@ -4261,7 +4261,7 @@ function showOptions( expandItem ) {
 
 		if ( currentValue === "2" ) {
 			page.find( "#o41" ).parents( ".ui-field-contain" ).removeClass( "hidden" );
-		} else {
+		} else if ( index === 21 || index === 50 ) {
 			page.find( "#o41" ).parents( ".ui-field-contain" ).addClass( "hidden" );
 		}
 
@@ -4272,9 +4272,9 @@ function showOptions( expandItem ) {
 		}
 
 		if (
-			$("input[name='o21'][type='radio']:checked").val() === "240" ||
-			$("input[name='o50'][type='radio']:checked").val() === "240" ||
-			$("input[name='o52'][type='radio']:checked").val() === "240"
+			$( "input[name='o21'][type='radio']:checked" ).val() === "240" ||
+			$( "input[name='o50'][type='radio']:checked" ).val() === "240" ||
+			$( "input[name='o52'][type='radio']:checked" ).val() === "240"
 		) {
 			page.find( "#prgswitch" ).removeClass( "hidden" );
 		} else {
