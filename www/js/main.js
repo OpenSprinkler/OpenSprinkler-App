@@ -2776,7 +2776,7 @@ function updateWeather() {
 function checkURLandUpdateWeather() {
 	var finish = function( wsp ) {
 		if ( wsp ) {
-			WEATHER_SERVER_URL = ( ssl ? "https://" : "http://" ) + wsp;
+			WEATHER_SERVER_URL = currPrefix + wsp;
 		} else {
 			WEATHER_SERVER_URL = DEFAULT_WEATHER_SERVER_URL;
 		}
