@@ -123,7 +123,7 @@ var isIEMobile = /IEMobile/.test( navigator.userAgent ),
 		"wl":23, "den":24, "ipas":25, "devid":26, "con":27, "lit":28, "dim":29, "rlp":30, "uwt":31, "ntp1":32, "ntp2":33,
 		"ntp3":34, "ntp4":35, "lg":36, "mas2":37, "mton2":38, "mtof2":39, "fpr0":41, "fpr1":42, "re":43, "dns1": 44,
 		"dns2":45, "dns3":46, "dns4":47, "sar":48, "ife":49, "sn1t":50, "sn1o":51, "sn2t":52, "sn2o":53, "sn1on":54,
-		"sn1of":55, "sn2on":56, "sn2of":57
+		"sn1of":55, "sn2on":56, "sn2of":57, "subn1":58, "subn2":59, "subn3":60, "subn4":61
 	},
 
 	// Array to hold all notifications currently displayed within the app
@@ -3408,6 +3408,21 @@ function showOptions( expandItem ) {
 						opt.o7 = ip[ 3 ];
 
 						return true;
+					case "subnet":
+						ip = data.split( "." );
+
+						if ( ip === "0.0.0.0" ) {
+							showerror( _( "A valid subnet address is required when DHCP is not used" ) );
+							invalid = true;
+							return false;
+						}
+
+						opt.o58 = ip[ 0 ];
+						opt.o59 = ip[ 1 ];
+						opt.o60 = ip[ 2 ];
+						opt.o61 = ip[ 3 ];
+
+						return true;
 					case "gateway":
 						ip = data.split( "." );
 
@@ -3495,6 +3510,7 @@ function showOptions( expandItem ) {
 						opt.o42 = ( ( data * 100 ) >> 8 ) & 0xff;
 						return true;
 					case "o2":
+					case "o3":
 					case "o14":
 					case "o16":
 					case "o21":
@@ -3502,7 +3518,10 @@ function showOptions( expandItem ) {
 					case "o25":
 					case "o36":
 					case "o48":
-					case "o3":
+					case "o50":
+					case "o51":
+					case "o52":
+					case "o53":
 						data = $item.is( ":checked" ) ? 1 : 0;
 						if ( !data ) {
 							return true;
@@ -3924,6 +3943,12 @@ function showOptions( expandItem ) {
 			_( "IP Address" ) + "</label><button data-mini='true' id='ip_addr' value='" + ip + "'>" + ip + "</button></div>";
 		list += "<div class='" + ( ( controller.options.dhcp === 1 ) ? "hidden " : "" ) + "ui-field-contain duration-field'><label for='gateway'>" +
 			_( "Gateway Address" ) + "</label><button data-mini='true' id='gateway' value='" + gw + "'>" + gw + "</button></div>";
+
+		if ( controller.options.subn1 ) {
+			var subnet = [ controller.options.subn1, controller.options.subn2, controller.options.subn3, controller.options.subn4 ].join( "." );
+			list += "<div class='" + ( ( controller.options.dhcp === 1 ) ? "hidden " : "" ) + "ui-field-contain duration-field'><label for='subnet'>" +
+				_( "Subnet Mask" ) + "</label><button data-mini='true' id='subnet' value='" + dns + "'>" + dns + "</button></div>";
+		}
 
 		if ( controller.options.dns1 ) {
 			var dns = [ controller.options.dns1, controller.options.dns2, controller.options.dns3, controller.options.dns4 ].join( "." );
