@@ -4123,6 +4123,18 @@ function showOptions( expandItem ) {
 			}
 		}
 
+		if ( typeof controller.stations.ignore_sn1 === "object" ) {
+			for ( i = 0; i < controller.settings.nbrd; i++ ) {
+				cs += "j" + i + "=0&";
+			}
+		}
+
+		if ( typeof controller.stations.ignore_sn2 === "object" ) {
+			for ( i = 0; i < controller.settings.nbrd; i++ ) {
+				cs += "r" + i + "=0&";
+			}
+		}
+
 		if ( typeof controller.stations.act_relay === "object" ) {
 			for ( i = 0; i < controller.settings.nbrd; i++ ) {
 				cs += "a" + i + "=0&";
@@ -4572,6 +4584,8 @@ var showHome = ( function() {
 				( hasMaster ? ( "data-um='" + ( ( controller.stations.masop[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) + "' " ) : "" ) +
 				( hasMaster2 ? ( "data-um2='" + ( ( controller.stations.masop2[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) + "' " ) : "" ) +
 				( hasIR ? ( "data-ir='" + ( ( controller.stations.ignore_rain[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) + "' " ) : "" ) +
+				( hasSN1 ? ( "data-sn1='" + ( ( controller.stations.ignore_sn1[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) + "' " ) : "" ) +
+				( hasSN2 ? ( "data-sn2='" + ( ( controller.stations.ignore_sn2[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) + "' " ) : "" ) +
 				( hasAR ? ( "data-ar='" + ( ( controller.stations.act_relay[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) + "' " ) : "" ) +
 				( hasSD ? ( "data-sd='" + ( ( controller.stations.stn_dis[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) + "' " ) : "" ) +
 				( hasSequential ? ( "data-us='" + ( ( controller.stations.stn_seq[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) + "' " ) : "" ) +
@@ -4860,6 +4874,18 @@ var showHome = ( function() {
 						"</label>";
 				}
 
+				if ( hasSN1 ) {
+					select += "<label for='sn1'><input class='needsclick' data-iconpos='right' id='sn1' type='checkbox' " +
+							( ( button.data( "sn1" ) === 1 ) ? "checked='checked'" : "" ) + ">" + _( "Ignore Sensor 1" ) +
+						"</label>";
+				}
+
+				if ( hasSN2 ) {
+					select += "<label for='sn2'><input class='needsclick' data-iconpos='right' id='sn2' type='checkbox' " +
+							( ( button.data( "sn2" ) === 1 ) ? "checked='checked'" : "" ) + ">" + _( "Ignore Sensor 2" ) +
+						"</label>";
+				}
+
 				if ( hasAR ) {
 					select += "<label for='ar'><input class='needsclick' data-iconpos='right' id='ar' type='checkbox' " +
 							( ( button.data( "ar" ) === 1 ) ? "checked='checked'" : "" ) + ">" + _( "Activate Relay" ) +
@@ -4977,6 +5003,8 @@ var showHome = ( function() {
 				sequential = {},
 				special = {},
 				rain = {},
+				sensor1 = {},
+				sensor2 = {},
 				relay = {},
 				disable = {},
 				names = {},
@@ -4997,6 +5025,12 @@ var showHome = ( function() {
 				}
 				if ( hasIR ) {
 					rain[ "i" + bid ] = 0;
+				}
+				if ( hasSN1 ) {
+					sensor1[ "j" + bid ] = 0;
+				}
+				if ( hasSN2 ) {
+					sensor2[ "r" + bid ] = 0;
 				}
 				if ( hasAR ) {
 					relay[ "a" + bid ] = 0;
@@ -5027,6 +5061,14 @@ var showHome = ( function() {
 
 					if ( hasIR ) {
 						rain[ "i" + bid ] = ( rain[ "i" + bid ] ) + ( attrib.data( "ir" ) << s );
+					}
+
+					if ( hasSN1 ) {
+						sensor1[ "j" + bid ] = ( sensor1[ "j" + bid ] ) + ( attrib.data( "sn1" ) << s );
+					}
+
+					if ( hasSN2 ) {
+						sensor2[ "r" + bid ] = ( sensor2[ "r" + bid ] ) + ( attrib.data( "sn2" ) << s );
 					}
 
 					if ( hasAR ) {
@@ -5063,6 +5105,8 @@ var showHome = ( function() {
 				( hasSequential ? "&" + $.param( sequential ) : "" ) +
 				( hasSpecial ? "&" + $.param( special ) : "" ) +
 				( hasIR ? "&" + $.param( rain ) : "" ) +
+				( hasSN1 ? "&" + $.param( sensor1 ) : "" ) +
+				( hasSN2 ? "&" + $.param( sensor2 ) : "" ) +
 				( hasAR ? "&" + $.param( relay ) : "" ) +
 				( hasSD ? "&" + $.param( disable ) : "" )
 			).done( function() {
@@ -5152,6 +5196,8 @@ var showHome = ( function() {
 			hasMaster = controller.options.mas ? true : false;
 			hasMaster2 = controller.options.mas2 ? true : false;
 			hasIR = ( typeof controller.stations.ignore_rain === "object" ) ? true : false;
+			hasSN1 = ( typeof controller.stations.ignore_sn1 === "object" ) ? true : false;
+			hasSN2 = ( typeof controller.stations.ignore_sn2 === "object" ) ? true : false;
 			hasAR = ( typeof controller.stations.act_relay === "object" ) ? true : false;
 			hasSD = ( typeof controller.stations.stn_dis === "object" ) ? true : false;
 			hasSequential = ( typeof controller.stations.stn_seq === "object" ) ? true : false;
@@ -5198,6 +5244,8 @@ var showHome = ( function() {
 						um: hasMaster ? ( ( controller.stations.masop[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) : undefined,
 						um2: hasMaster2 ? ( ( controller.stations.masop2[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) : undefined,
 						ir: hasIR ? ( ( controller.stations.ignore_rain[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) : undefined,
+						sn1: hasSN1 ? ( ( controller.stations.ignore_sn1[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) : undefined,
+						sn2: hasSN2 ? ( ( controller.stations.ignore_sn2[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) : undefined,
 						ar: hasAR ? ( ( controller.stations.act_relay[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) : undefined,
 						sd: hasSD ? ( ( controller.stations.stn_dis[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) : undefined,
 						us: hasSequential ? ( ( controller.stations.stn_seq[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) : undefined,
@@ -5251,7 +5299,7 @@ var showHome = ( function() {
 				callback();
 			} );
 		},
-		hasMaster, hasMaster2, hasIR, hasAR, hasSD, hasSequential, hasSpecial, cards, siteSelect, currentSite, i, sites;
+		hasMaster, hasMaster2, hasIR, hasSN1, hasSN2, hasAR, hasSD, hasSequential, hasSpecial, cards, siteSelect, currentSite, i, sites;
 
 	page.one( "pageshow", function() {
 		$( "html" ).on( "datarefresh", updateContent );
@@ -5265,6 +5313,8 @@ var showHome = ( function() {
 		hasMaster = controller.options.mas ? true : false;
 		hasMaster2 = controller.options.mas2 ? true : false;
 		hasIR = ( typeof controller.stations.ignore_rain === "object" ) ? true : false;
+		hasSN1 = ( typeof controller.stations.ignore_sn1 === "object" ) ? true : false;
+		hasSN2 = ( typeof controller.stations.ignore_sn2 === "object" ) ? true : false;
 		hasAR = ( typeof controller.stations.act_relay === "object" ) ? true : false;
 		hasSD = ( typeof controller.stations.stn_dis === "object" ) ? true : false;
 		hasSequential = ( typeof controller.stations.stn_seq === "object" ) ? true : false;
@@ -9036,6 +9086,18 @@ function importConfig( data ) {
 		if ( typeof data.stations.ignore_rain === "object" ) {
 			for ( i = 0; i < data.stations.ignore_rain.length; i++ ) {
 				cs += "&i" + i + "=" + data.stations.ignore_rain[ i ];
+			}
+		}
+
+		if ( typeof data.stations.ignore_sn1 === "object" ) {
+			for ( i = 0; i < data.stations.ignore_sn1.length; i++ ) {
+				cs += "&j" + i + "=" + data.stations.ignore_sn1[ i ];
+			}
+		}
+
+		if ( typeof data.stations.ignore_sn2 === "object" ) {
+			for ( i = 0; i < data.stations.ignore_sn2.length; i++ ) {
+				cs += "&r" + i + "=" + data.stations.ignore_sn2[ i ];
 			}
 		}
 
