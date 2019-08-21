@@ -4902,6 +4902,8 @@ var showHome = ( function() {
 					button.data( "um", select.find( "#um" ).is( ":checked" ) ? 1 : 0 );
 					button.data( "um2", select.find( "#um2" ).is( ":checked" ) ? 1 : 0 );
 					button.data( "ir", select.find( "#ir" ).is( ":checked" ) ? 1 : 0 );
+					button.data( "sn1", select.find( "#sn1" ).is( ":checked" ) ? 1 : 0 );
+					button.data( "sn2", select.find( "#sn2" ).is( ":checked" ) ? 1 : 0 );
 					button.data( "ar", select.find( "#ar" ).is( ":checked" ) ? 1 : 0 );
 					button.data( "sd", select.find( "#sd" ).is( ":checked" ) ? 1 : 0 );
 					button.data( "us", select.find( "#us" ).is( ":checked" ) ? 1 : 0 );
