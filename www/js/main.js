@@ -3949,7 +3949,7 @@ function showOptions( expandItem ) {
 		if ( controller.options.subn1 ) {
 			var subnet = [ controller.options.subn1, controller.options.subn2, controller.options.subn3, controller.options.subn4 ].join( "." );
 			list += "<div class='" + ( ( controller.options.dhcp === 1 ) ? "hidden " : "" ) + "ui-field-contain duration-field'><label for='subnet'>" +
-				_( "Subnet Mask" ) + "</label><button data-mini='true' id='subnet' value='" + dns + "'>" + dns + "</button></div>";
+				_( "Subnet Mask" ) + "</label><button data-mini='true' id='subnet' value='" + subnet + "'>" + subnet + "</button></div>";
 		}
 
 		if ( controller.options.dns1 ) {
