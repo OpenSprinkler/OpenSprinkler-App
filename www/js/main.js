@@ -3354,6 +3354,23 @@ function showOptions( expandItem ) {
 				"<a class='submit preventBack' style='display:none'></a>" +
 			"</div>" +
 		"</div>" ),
+		generateSensorOptions = function( index, sensorType, number ) {
+			return "<div class='ui-field-contain'>" +
+			    "<fieldset data-role='controlgroup' class='ui-mini center sensor-options' data-type='horizontal'>" +
+			        "<legend class='left'>" + _( "Sensor" ) + ( number ? " " + number + " " : " " )+ _( "Type" ) + "</legend>" +
+			        "<input class='noselect' type='radio' name='o" + index + "' id='o" + index + "-none' value='0'" + ( sensorType === 0 ? " checked='checked'" : "" ) + ">" +
+			        "<label for='o" + index + "-none'>" + _( "None" ) + "</label>" +
+			        "<input class='noselect' type='radio' name='o" + index + "' id='o" + index + "-rain' value='1'" + ( sensorType === 1 ? " checked='checked'" : "" ) + ">" +
+			        "<label for='o" + index + "-rain'>" + _( "Rain" ) + "</label>" +
+					( index === 52 ? "" : "<input class='noselect' type='radio' name='o" + index + "' id='o" + index + "-flow' value='2'" + ( sensorType === 2 ? " checked='checked'" : "" ) + ">" +
+			        	"<label for='o" + index + "-flow'>" + _( "Flow" ) + "</label>" ) +
+			        ( checkOSVersion( 219 ) ? "<input class='noselect' type='radio' name='o" + index + "' id='o" + index + "-soil' value='3'" + ( sensorType === 3 ? " checked='checked'" : "" ) + ">" +
+			        	"<label for='o" + index + "-soil'>" + _( "Soil" ) + "</label>" : "" ) +
+			        ( checkOSVersion( 217 ) ? "<input class='noselect' type='radio' name='o" + index + "' id='o" + index + "-program' value='240'" + ( sensorType === 240 ? " checked='checked'" : "" ) + ">" +
+			        	"<label for='o" + index + "-program'>" + _( "Program Switch" ) + "</label>" : "" ) +
+			    "</fieldset>" +
+			"</div>"
+		},
 		submitOptions = function() {
 			var opt = {},
 				invalid = false,
@@ -3550,7 +3567,17 @@ function showOptions( expandItem ) {
 				return;
 			}
 			if ( typeof controller.options.fpr0 !== "undefined" ) {
-				opt.o21 = page.find( "input[name='o21'][type='radio']:checked" ).val();
+				if ( controller.options.urs ) {
+					opt.o21 = page.find( "input[name='o21'][type='radio']:checked" ).val();
+				} else {
+					if ( controller.options.sn1t ) {
+						opt.o50 = page.find( "input[name='o50'][type='radio']:checked" ).val();
+					}
+
+					if ( controller.options.sn2t ) {
+						opt.o52 = page.find( "input[name='o52'][type='radio']:checked" ).val();
+					}
+				}
 			}
 
 			opt = transformKeys( opt );
@@ -3782,26 +3809,10 @@ function showOptions( expandItem ) {
 				"data-mini='true' id='o23' value='" + controller.options.wl + "'>" + controller.options.wl + "%</button></div>";
 	}
 
-	if ( typeof controller.options.urs !== "undefined" ) {
+	if ( typeof controller.options.urs !== "undefined" || typeof controller.options.sn1t !== "undefined" ) {
 		if ( typeof controller.options.fpr0 !== "undefined" ) {
-			list += "<div class='ui-field-contain'>" +
-				    "<fieldset data-role='controlgroup' class='ui-mini center' data-type='horizontal'>" +
-				        "<legend class='left'>" + _( "Attached Sensor Type" ) + "</legend>" +
-				        "<input class='noselect' type='radio' name='o21' id='o21-none' value='0'" + ( controller.options.urs === 0 ? " checked='checked'" : "" ) + ">" +
-				        "<label for='o21-none'>" + _( "None" ) + "</label>" +
-				        "<input class='noselect' type='radio' name='o21' id='o21-rain' value='1'" + ( controller.options.urs === 1 ? " checked='checked'" : "" ) + ">" +
-				        "<label for='o21-rain'>" + _( "Rain" ) + "</label>" +
-				        "<input class='noselect' type='radio' name='o21' id='o21-flow' value='2'" + ( controller.options.urs === 2 ? " checked='checked'" : "" ) + ">" +
-				        "<label for='o21-flow'>" + _( "Flow" ) + "</label>" +
-				        ( checkOSVersion( 219 ) ? "<input class='noselect' type='radio' name='o21' id='o21-soil' value='3'" + ( controller.options.urs === 3 ? " checked='checked'" : "" ) + ">" +
-				        	"<label for='o21-soil'>" + _( "Soil" ) + "</label>" : "" ) +
-				        ( checkOSVersion( 217 ) ? "<input class='noselect' type='radio' name='o21' id='o21-program' value='240'" + ( controller.options.urs === 240 ? " checked='checked'" : "" ) + ">" +
-				        	"<label for='o21-program'>" + _( "Program Switch" ) + "</label>" : "" ) +
-				    "</fieldset>" +
-				"</div>" +
-				( checkOSVersion( 217 ) ? "<label id='prgswitch' class='center smaller" + ( controller.options.urs === 240 ? "" : " hidden" ) + "'>" +
-					_( "When using program switch, a switch is connected to the sensor port to trigger Program 1 every time the switch is pressed for at least 1 second." ) +
-				"</label>" : "" );
+			list += typeof controller.options.urs !== "undefined" ? generateSensorOptions( keyIndex.urs, controller.options.urs ) :
+					( typeof controller.options.sn1t !== "undefined" ? generateSensorOptions( keyIndex.sn1t, controller.options.sn1t, 1 ) : "" )
 		} else {
 			list += "<label for='o21'>" +
 				"<input data-mini='true' id='o21' type='checkbox' " + ( ( controller.options.urs === 1 ) ? "checked='checked'" : "" ) + ">" +
@@ -3812,6 +3823,12 @@ function showOptions( expandItem ) {
 	if ( typeof controller.options.rso !== "undefined" ) {
 		list += "<label for='o22'><input " + ( controller.options.urs !== 2 ? "" : "data-wrapper-class='hidden' " ) +
 			"data-mini='true' id='o22' type='checkbox' " + ( ( controller.options.rso === 1 ) ? "checked='checked'" : "" ) + ">" +
+			_( "Normally Open" ) + "</label>";
+	}
+
+	if ( typeof controller.options.sn1o !== "undefined" ) {
+		list += "<label for='o51'><input " + ( controller.options.sn1t === 1 || controller.options.sn1t === 3 || controller.options.sn1t === 240 ? "" : "data-wrapper-class='hidden' " ) +
+			"data-mini='true' id='o51' type='checkbox' " + ( ( controller.options.sn1o === 1 ) ? "checked='checked'" : "" ) + ">" +
 			_( "Normally Open" ) + "</label>";
 	}
 
@@ -3849,6 +3866,16 @@ function showOptions( expandItem ) {
 			"</label><button data-mini='true' id='o55' value='" + controller.options.sn1of + "'>" + controller.options.sn1of + "m</button></div>";
 	}
 
+	if ( typeof controller.options.sn2t !== "undefined" ) {
+		list += generateSensorOptions( keyIndex.sn2t, controller.options.sn2t, 2 );
+	}
+
+	if ( typeof controller.options.sn2o !== "undefined" ) {
+		list += "<label for='o53'><input " + ( controller.options.sn2t === 1 || controller.options.sn2t === 3 || controller.options.sn2t === 240 ? "" : "data-wrapper-class='hidden' " ) +
+			"data-mini='true' id='o53' type='checkbox' " + ( ( controller.options.sn2o === 1 ) ? "checked='checked'" : "" ) + ">" +
+			_( "Normally Open" ) + "</label>";
+	}
+
 	if ( typeof controller.options.sn2on !== "undefined" ) {
 		list += "<div " + ( controller.options.urs === 1 || controller.options.urs === 3 ? "" : "class='hidden' " ) +
 			"class='ui-field-no-border ui-field-contain duration-field'><label for='o56'>" +
@@ -3861,6 +3888,12 @@ function showOptions( expandItem ) {
 			"class='ui-field-no-border ui-field-contain duration-field'><label for='o57'>" +
 				_( "Sensor 2 Delayed Off Time" ) +
 			"</label><button data-mini='true' id='o57' value='" + controller.options.sn2of + "'>" + controller.options.sn2of + "m</button></div>";
+	}
+
+	if ( checkOSVersion( 217 ) ) {
+		list += "<label id='prgswitch' class='center smaller" + ( controller.options.urs === 240 ? "" : " hidden" ) + "'>" +
+			_( "When using program switch, a switch is connected to the sensor port to trigger Program 1 every time the switch is pressed for at least 1 second." ) +
+		"</label>";
 	}
 
 	if ( typeof controller.settings.ifkey !== "undefined" ) {
@@ -4222,33 +4255,41 @@ function showOptions( expandItem ) {
 		}
 	} );
 
-	page.find( "#o21,input[name='o21'][type='radio']" ).on( "change", function() {
-		var button = $( this ),
-			checked = button.attr( "id" ) === "o21" ? button.is( ":checked" ) : false;
+	page.find( ".sensor-options input[type='radio']" ).on( "change", function() {
+		var currentValue = this.value;
+		var index = parseInt( this.id.match( /o(\d+)/ )[ 1 ], 10 );
 
-		if ( checked || button.val() !== "2" ) {
-			page.find( "#o22" ).parent().removeClass( "hidden" );
-		} else {
-			page.find( "#o22" ).parent().addClass( "hidden" );
-		}
-
-		if ( button.val() === "2" ) {
+		if ( currentValue === "2" ) {
 			page.find( "#o41" ).parents( ".ui-field-contain" ).removeClass( "hidden" );
 		} else {
 			page.find( "#o41" ).parents( ".ui-field-contain" ).addClass( "hidden" );
 		}
 
-		if ( button.val() === "240" ) {
+		if ( currentValue === "1" || currentValue === "3" || currentValue === "240" ) {
+			page.find( "#o" + ( index + 1 ) ).parent().removeClass( "hidden" );
+		} else {
+			page.find( "#o" + ( index + 1 ) ).parent().addClass( "hidden" );
+		}
+
+		if (
+			$("input[name='o21'][type='radio']:checked").val() === "240" ||
+			$("input[name='o50'][type='radio']:checked").val() === "240" ||
+			$("input[name='o52'][type='radio']:checked").val() === "240"
+		) {
 			page.find( "#prgswitch" ).removeClass( "hidden" );
 		} else {
 			page.find( "#prgswitch" ).addClass( "hidden" );
 		}
 
-		if ( button.val() === "1" || button.val() === "3" ) {
-			page.find( "#o54, #o55, #o56, #o57" ).parents( ".ui-field-contain" ).removeClass( "hidden" );
+		if ( currentValue === "1" || currentValue === "3" ) {
+			page.find( "#o" + ( index + 4 ) + ",#o" + ( index + 5 ) ).parents( ".ui-field-contain" ).removeClass( "hidden" );
 		} else {
-			page.find( "#o54, #o55, #o56, #o57" ).parents( ".ui-field-contain" ).addClass( "hidden" );
+			page.find( "#o" + ( index + 4 ) + ",#o" + ( index + 5 ) ).parents( ".ui-field-contain" ).addClass( "hidden" );
 		}
+	} );
+
+	page.find( "#o21" ).on( "change", function() {
+		page.find( "#o22" ).parent().toggleClass( "hidden", $( this ).is( ":checked" ) );
 	} );
 
 	page.find( "#verify-api" ).on( "click", function() {
