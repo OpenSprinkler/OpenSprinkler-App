@@ -5186,7 +5186,6 @@ var showHome = ( function() {
 			}
 
 			$.mobile.loading( "show" );
-			console.log(sensor1, sensor2)
 			sendToOS( "/cs?pw=&" + $.param( names ) +
 				( hasMaster ? "&" + $.param( master ) : "" ) +
 				( hasMaster2 ? "&" + $.param( master2 ) : "" ) +
