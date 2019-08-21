@@ -3567,14 +3567,14 @@ function showOptions( expandItem ) {
 				return;
 			}
 			if ( typeof controller.options.fpr0 !== "undefined" ) {
-				if ( controller.options.urs ) {
+				if ( typeof controller.options.urs !== "undefined" ) {
 					opt.o21 = page.find( "input[name='o21'][type='radio']:checked" ).val();
 				} else {
-					if ( controller.options.sn1t ) {
+					if ( typeof controller.options.sn1t !== "undefined" ) {
 						opt.o50 = page.find( "input[name='o50'][type='radio']:checked" ).val();
 					}
 
-					if ( controller.options.sn2t ) {
+					if ( typeof controller.options.sn2t !== "undefined" ) {
 						opt.o52 = page.find( "input[name='o52'][type='radio']:checked" ).val();
 					}
 				}
@@ -3833,7 +3833,7 @@ function showOptions( expandItem ) {
 	}
 
 	if ( typeof controller.options.fpr0 !== "undefined" ) {
-		list += "<div class='ui-field-contain" + ( controller.options.urs === 2 ? "" : " hidden" ) + "'>" +
+		list += "<div class='ui-field-contain" + ( controller.options.urs === 2 || controller.options.sn1t === 2 ? "" : " hidden" ) + "'>" +
 			"<label for='o41'>" + _( "Flow Pulse Rate" ) + "</label>" +
 			"<table>" +
 				"<tr style='width:100%;vertical-align: top;'>" +
@@ -3891,7 +3891,7 @@ function showOptions( expandItem ) {
 	}
 
 	if ( checkOSVersion( 217 ) ) {
-		list += "<label id='prgswitch' class='center smaller" + ( controller.options.urs === 240 ? "" : " hidden" ) + "'>" +
+		list += "<label id='prgswitch' class='center smaller" + ( controller.options.urs === 240 || controller.options.sn1t === 240 || controller.options.sn2t === 240 ? "" : " hidden" ) + "'>" +
 			_( "When using program switch, a switch is connected to the sensor port to trigger Program 1 every time the switch is pressed for at least 1 second." ) +
 		"</label>";
 	}
