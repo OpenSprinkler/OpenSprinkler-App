@@ -3793,6 +3793,8 @@ function showOptions( expandItem ) {
 				        "<label for='o21-rain'>" + _( "Rain" ) + "</label>" +
 				        "<input class='noselect' type='radio' name='o21' id='o21-flow' value='2'" + ( controller.options.urs === 2 ? " checked='checked'" : "" ) + ">" +
 				        "<label for='o21-flow'>" + _( "Flow" ) + "</label>" +
+				        ( checkOSVersion( 219 ) ? "<input class='noselect' type='radio' name='o21' id='o21-soil' value='3'" + ( controller.options.urs === 3 ? " checked='checked'" : "" ) + ">" +
+				        	"<label for='o21-soil'>" + _( "Soil" ) + "</label>" : "" ) +
 				        ( checkOSVersion( 217 ) ? "<input class='noselect' type='radio' name='o21' id='o21-program' value='240'" + ( controller.options.urs === 240 ? " checked='checked'" : "" ) + ">" +
 				        	"<label for='o21-program'>" + _( "Program Switch" ) + "</label>" : "" ) +
 				    "</fieldset>" +
@@ -3810,7 +3812,7 @@ function showOptions( expandItem ) {
 	if ( typeof controller.options.rso !== "undefined" ) {
 		list += "<label for='o22'><input " + ( controller.options.urs === 1 ? "" : "data-wrapper-class='hidden' " ) +
 			"data-mini='true' id='o22' type='checkbox' " + ( ( controller.options.rso === 1 ) ? "checked='checked'" : "" ) + ">" +
-			_( "Normally Open (Rain Sensor)" ) + "</label>";
+			_( "Normally Open" ) + "</label>";
 	}
 
 	if ( typeof controller.options.fpr0 !== "undefined" ) {
@@ -4182,9 +4184,9 @@ function showOptions( expandItem ) {
 
 	page.find( "#o21,input[name='o21'][type='radio']" ).on( "change", function() {
 		var button = $( this ),
-			checked = button.attr( "id" ) === "o21" ? button.is( ":checked" ) : button.val() === "1";
+			checked = button.attr( "id" ) === "o21" ? button.is( ":checked" ) : false;
 
-		if ( checked ) {
+		if ( checked || button.val() === "1" || button.val() === "3" || button.val() === "240" ) {
 			page.find( "#o22" ).parent().removeClass( "hidden" );
 		} else {
 			page.find( "#o22" ).parent().addClass( "hidden" );
