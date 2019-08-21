@@ -3810,7 +3810,7 @@ function showOptions( expandItem ) {
 	}
 
 	if ( typeof controller.options.rso !== "undefined" ) {
-		list += "<label for='o22'><input " + ( controller.options.urs === 1 ? "" : "data-wrapper-class='hidden' " ) +
+		list += "<label for='o22'><input " + ( controller.options.urs !== 2 ? "" : "data-wrapper-class='hidden' " ) +
 			"data-mini='true' id='o22' type='checkbox' " + ( ( controller.options.rso === 1 ) ? "checked='checked'" : "" ) + ">" +
 			_( "Normally Open" ) + "</label>";
 	}
@@ -3833,6 +3833,34 @@ function showOptions( expandItem ) {
 					"</td>" +
 				"</tr>" +
 			"</table></div>";
+	}
+
+	if ( typeof controller.options.sn1on !== "undefined" ) {
+		list += "<div " + ( controller.options.urs === 1 || controller.options.urs === 3 ? "" : "class='hidden' " ) +
+			"class='ui-field-no-border ui-field-contain duration-field'><label for='o54'>" +
+				_( "Sensor Delayed On Time" ) +
+			"</label><button data-mini='true' id='o54' value='" + controller.options.sn1on + "'>" + controller.options.sn1on + "m</button></div>";
+	}
+
+	if ( typeof controller.options.sn1of !== "undefined" ) {
+		list += "<div " + ( controller.options.urs === 1 || controller.options.urs === 3 ? "" : "class='hidden' " ) +
+			"class='ui-field-no-border ui-field-contain duration-field'><label for='o55'>" +
+				_( "Sensor Delayed Off Time" ) +
+			"</label><button data-mini='true' id='o55' value='" + controller.options.sn1of + "'>" + controller.options.sn1of + "m</button></div>";
+	}
+
+	if ( typeof controller.options.sn2on !== "undefined" ) {
+		list += "<div " + ( controller.options.urs === 1 || controller.options.urs === 3 ? "" : "class='hidden' " ) +
+			"class='ui-field-no-border ui-field-contain duration-field'><label for='o56'>" +
+				_( "Sensor 2 Delayed On Time" ) +
+			"</label><button data-mini='true' id='o56' value='" + controller.options.sn2on + "'>" + controller.options.sn2on + "m</button></div>";
+	}
+
+	if ( typeof controller.options.sn2of !== "undefined" ) {
+		list += "<div " + ( controller.options.urs === 1 || controller.options.urs === 3 ? "" : "class='hidden' " ) +
+			"class='ui-field-no-border ui-field-contain duration-field'><label for='o57'>" +
+				_( "Sensor 2 Delayed Off Time" ) +
+			"</label><button data-mini='true' id='o57' value='" + controller.options.sn2of + "'>" + controller.options.sn2of + "m</button></div>";
 	}
 
 	if ( typeof controller.settings.ifkey !== "undefined" ) {
@@ -4198,7 +4226,7 @@ function showOptions( expandItem ) {
 		var button = $( this ),
 			checked = button.attr( "id" ) === "o21" ? button.is( ":checked" ) : false;
 
-		if ( checked || button.val() === "1" || button.val() === "3" || button.val() === "240" ) {
+		if ( checked || button.val() !== "2" ) {
 			page.find( "#o22" ).parent().removeClass( "hidden" );
 		} else {
 			page.find( "#o22" ).parent().addClass( "hidden" );
@@ -4214,6 +4242,12 @@ function showOptions( expandItem ) {
 			page.find( "#prgswitch" ).removeClass( "hidden" );
 		} else {
 			page.find( "#prgswitch" ).addClass( "hidden" );
+		}
+
+		if ( button.val() === "1" || button.val() === "3" ) {
+			page.find( "#o54, #o55, #o56, #o57" ).parents( ".ui-field-contain" ).removeClass( "hidden" );
+		} else {
+			page.find( "#o54, #o55, #o56, #o57" ).parents( ".ui-field-contain" ).addClass( "hidden" );
 		}
 	} );
 
@@ -4327,6 +4361,18 @@ function showOptions( expandItem ) {
 				},
 				maximum: max,
 				minimum: min
+			} );
+		} else if ( id === "o54" || id === "o55" || id === "o56" || id === "o57" ) {
+			showSingleDurationInput( {
+				data: dur.val(),
+				title: name,
+				callback: function( result ) {
+					dur.val( result ).text( result + "m" );
+				},
+				label: _( "Minutes" ),
+				maximum: 240,
+				minimum: 0,
+				helptext: helptext
 			} );
 		}
 
