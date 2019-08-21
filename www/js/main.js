@@ -3821,7 +3821,7 @@ function showOptions( expandItem ) {
 	}
 
 	if ( typeof controller.options.rso !== "undefined" ) {
-		list += "<label for='o22'><input " + ( controller.options.urs !== 2 ? "" : "data-wrapper-class='hidden' " ) +
+		list += "<label for='o22'><input " + ( controller.options.sn1t === 1 || controller.options.sn1t === 240 ? "" : "data-wrapper-class='hidden' " ) +
 			"data-mini='true' id='o22' type='checkbox' " + ( ( controller.options.rso === 1 ) ? "checked='checked'" : "" ) + ">" +
 			_( "Normally Open" ) + "</label>";
 	}
