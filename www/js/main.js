@@ -5155,7 +5155,7 @@ var showHome = ( function() {
 					}
 
 					if ( hasSN2 ) {
-						sensor2[ "k" + bid ] = ( sensor2[ "r" + bid ] ) + ( attrib.data( "sn2" ) << s );
+						sensor2[ "k" + bid ] = ( sensor2[ "k" + bid ] ) + ( attrib.data( "sn2" ) << s );
 					}
 
 					if ( hasAR ) {
@@ -5186,6 +5186,7 @@ var showHome = ( function() {
 			}
 
 			$.mobile.loading( "show" );
+			console.log(sensor1, sensor2)
 			sendToOS( "/cs?pw=&" + $.param( names ) +
 				( hasMaster ? "&" + $.param( master ) : "" ) +
 				( hasMaster2 ? "&" + $.param( master2 ) : "" ) +
