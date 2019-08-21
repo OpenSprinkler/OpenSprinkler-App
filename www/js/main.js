@@ -4246,7 +4246,7 @@ function showOptions( expandItem ) {
 	page.find( "#o3" ).on( "change", function() {
 		var button = $( this ),
 			checked = button.is( ":checked" ),
-			manualInputs = page.find( "#ip_addr,#gateway,#dns" ).parents( ".ui-field-contain" );
+			manualInputs = page.find( "#ip_addr,#gateway,#dns,#subnet" ).parents( ".ui-field-contain" );
 
 		if ( checked ) {
 			manualInputs.addClass( "hidden" );
