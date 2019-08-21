@@ -4131,7 +4131,7 @@ function showOptions( expandItem ) {
 
 		if ( typeof controller.stations.ignore_sn2 === "object" ) {
 			for ( i = 0; i < controller.settings.nbrd; i++ ) {
-				cs += "r" + i + "=0&";
+				cs += "k" + i + "=0&";
 			}
 		}
 
@@ -5030,7 +5030,7 @@ var showHome = ( function() {
 					sensor1[ "j" + bid ] = 0;
 				}
 				if ( hasSN2 ) {
-					sensor2[ "r" + bid ] = 0;
+					sensor2[ "k" + bid ] = 0;
 				}
 				if ( hasAR ) {
 					relay[ "a" + bid ] = 0;
@@ -5068,7 +5068,7 @@ var showHome = ( function() {
 					}
 
 					if ( hasSN2 ) {
-						sensor2[ "r" + bid ] = ( sensor2[ "r" + bid ] ) + ( attrib.data( "sn2" ) << s );
+						sensor2[ "k" + bid ] = ( sensor2[ "r" + bid ] ) + ( attrib.data( "sn2" ) << s );
 					}
 
 					if ( hasAR ) {
@@ -9097,7 +9097,7 @@ function importConfig( data ) {
 
 		if ( typeof data.stations.ignore_sn2 === "object" ) {
 			for ( i = 0; i < data.stations.ignore_sn2.length; i++ ) {
-				cs += "&r" + i + "=" + data.stations.ignore_sn2[ i ];
+				cs += "&k" + i + "=" + data.stations.ignore_sn2[ i ];
 			}
 		}
 
