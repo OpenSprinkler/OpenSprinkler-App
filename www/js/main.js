@@ -3540,7 +3540,7 @@ function showOptions( expandItem ) {
 					case "o52":
 					case "o53":
 						data = $item.is( ":checked" ) ? 1 : 0;
-						if ( !data ) {
+						if ( !checkOSVersion(219) && !data ) {
 							return true;
 						}
 						break;
