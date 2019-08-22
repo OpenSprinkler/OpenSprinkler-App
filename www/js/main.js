@@ -3867,6 +3867,12 @@ function showOptions( expandItem ) {
 			"</label><button data-mini='true' id='o55' value='" + controller.options.sn1of + "'>" + controller.options.sn1of + "m</button></div>";
 	}
 
+	if ( checkOSVersion( 217 ) ) {
+		list += "<label id='prgswitch' class='center smaller" + ( controller.options.urs === 240 || controller.options.sn1t === 240 || controller.options.sn2t === 240 ? "" : " hidden" ) + "'>" +
+			_( "When using program switch, a switch is connected to the sensor port to trigger Program 1 every time the switch is pressed for at least 1 second." ) +
+		"</label>";
+	}
+
 	if ( typeof controller.options.sn2t !== "undefined" ) {
 		list += generateSensorOptions( keyIndex.sn2t, controller.options.sn2t, 2 );
 	}
@@ -3891,9 +3897,9 @@ function showOptions( expandItem ) {
 			"</label><button data-mini='true' id='o57' value='" + controller.options.sn2of + "'>" + controller.options.sn2of + "m</button></div>";
 	}
 
-	if ( checkOSVersion( 217 ) ) {
-		list += "<label id='prgswitch' class='center smaller" + ( controller.options.urs === 240 || controller.options.sn1t === 240 || controller.options.sn2t === 240 ? "" : " hidden" ) + "'>" +
-			_( "When using program switch, a switch is connected to the sensor port to trigger Program 1 every time the switch is pressed for at least 1 second." ) +
+	if ( typeof controller.options.sn2t !== "undefined" ) {
+		list += "<label id='prgswitch-2' class='center smaller" + ( controller.options.urs === 240 || controller.options.sn1t === 240 || controller.options.sn2t === 240 ? "" : " hidden" ) + "'>" +
+			_( "When using program switch, a switch is connected to the sensor port to trigger Program 2 every time the switch is pressed for at least 1 second." ) +
 		"</label>";
 	}
 
@@ -4274,12 +4280,17 @@ function showOptions( expandItem ) {
 
 		if (
 			$( "input[name='o21'][type='radio']:checked" ).val() === "240" ||
-			$( "input[name='o50'][type='radio']:checked" ).val() === "240" ||
-			$( "input[name='o52'][type='radio']:checked" ).val() === "240"
+			$( "input[name='o50'][type='radio']:checked" ).val() === "240"
 		) {
 			page.find( "#prgswitch" ).removeClass( "hidden" );
 		} else {
 			page.find( "#prgswitch" ).addClass( "hidden" );
+		}
+
+		if ( $( "input[name='o52'][type='radio']:checked" ).val() === "240" ) {
+			page.find( "#prgswitch-2" ).removeClass( "hidden" );
+		} else {
+			page.find( "#prgswitch-2" ).addClass( "hidden" );
 		}
 
 		if ( currentValue === "1" || currentValue === "3" ) {
