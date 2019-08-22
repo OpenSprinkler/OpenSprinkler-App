@@ -3129,10 +3129,10 @@ function overlayMap( callback ) {
 function debugWU() {
 	var popup = "<div data-role='popup' id='debugWU' class='ui-content ui-page-theme-a'><table class='debugWU'>";
 
-	if ( weather ) {
-		popup += "<tr><td>" + _( "Humidity" ) + "</td><td>" + weather.humidity + "%</td></tr>" +
-			"<tr><td>" + _( "Mean Temp" ) + "</td><td>" + formatTemp( weather.temp ) + "</td></tr>" +
-			"<tr><td>" + _( "Precip Today" ) + "</td><td>" + formatPrecip( weather.precip ) + "</td></tr>" +
+	if ( typeof controller.settings.wtdata === "object" ) {
+		popup += "<tr><td>" + _( "Humidity" ) + "</td><td>" + controller.settings.wtdata.h + "%</td></tr>" +
+			"<tr><td>" + _( "Mean Temp" ) + "</td><td>" + formatTemp( controller.settings.wtdata.t ) + "</td></tr>" +
+			"<tr><td>" + _( "Precip Today" ) + "</td><td>" + formatPrecip( controller.settings.wtdata.p ) + "</td></tr>" +
 			"<tr><td>" + _( "Adjustment Method" ) + "</td><td>" + getAdjustmentMethod( controller.options.uwt ).name + "</td></tr>" +
 			"<tr><td>" + _( "Current % Watering" ) + "</td><td>" + controller.options.wl + "%</td></tr>";
 	}
