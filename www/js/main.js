@@ -4007,13 +4007,13 @@ function showOptions( expandItem ) {
 		list += "<div class='" + ( ( controller.options.dhcp === 1 ) ? "hidden " : "" ) + "ui-field-contain duration-field'><label for='gateway'>" +
 			_( "Gateway Address" ) + "</label><button data-mini='true' id='gateway' value='" + gw + "'>" + gw + "</button></div>";
 
-		if ( controller.options.subn1 ) {
+		if ( typeof controller.options.subn1 !== "undefined" ) {
 			var subnet = [ controller.options.subn1, controller.options.subn2, controller.options.subn3, controller.options.subn4 ].join( "." );
 			list += "<div class='" + ( ( controller.options.dhcp === 1 ) ? "hidden " : "" ) + "ui-field-contain duration-field'><label for='subnet'>" +
 				_( "Subnet Mask" ) + "</label><button data-mini='true' id='subnet' value='" + subnet + "'>" + subnet + "</button></div>";
 		}
 
-		if ( controller.options.dns1 ) {
+		if ( typeof controller.options.dns1 !== "undefined" ) {
 			var dns = [ controller.options.dns1, controller.options.dns2, controller.options.dns3, controller.options.dns4 ].join( "." );
 			list += "<div class='" + ( ( controller.options.dhcp === 1 ) ? "hidden " : "" ) + "ui-field-contain duration-field'><label for='dns'>" +
 				_( "DNS Address" ) + "</label><button data-mini='true' id='dns' value='" + dns + "'>" + dns + "</button></div>";
