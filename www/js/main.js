@@ -3853,14 +3853,14 @@ function showOptions( expandItem ) {
 	}
 
 	if ( typeof controller.options.sn1on !== "undefined" ) {
-		list += "<div class='" + ( controller.options.urs === 1 || controller.options.urs === 3 ? "" : "hidden " ) +
+		list += "<div class='" + ( controller.options.sn1t === 1 || controller.options.sn1t === 3 ? "" : "hidden " ) +
 			"ui-field-no-border ui-field-contain duration-field'><label for='o54'>" +
 				_( "Sensor 1 Delayed On Time" ) +
 			"</label><button data-mini='true' id='o54' value='" + controller.options.sn1on + "'>" + controller.options.sn1on + "m</button></div>";
 	}
 
 	if ( typeof controller.options.sn1of !== "undefined" ) {
-		list += "<div class='" + ( controller.options.urs === 1 || controller.options.urs === 3 ? "" : "hidden " ) +
+		list += "<div class='" + ( controller.options.sn1t === 1 || controller.options.sn1t === 3 ? "" : "hidden " ) +
 			"ui-field-no-border ui-field-contain duration-field'><label for='o55'>" +
 				_( "Sensor 1 Delayed Off Time" ) +
 			"</label><button data-mini='true' id='o55' value='" + controller.options.sn1of + "'>" + controller.options.sn1of + "m</button></div>";
@@ -3877,14 +3877,14 @@ function showOptions( expandItem ) {
 	}
 
 	if ( typeof controller.options.sn2on !== "undefined" ) {
-		list += "<div class='" + ( controller.options.urs === 1 || controller.options.urs === 3 ? "" : "hidden " ) +
+		list += "<div class='" + ( controller.options.sn2t === 1 || controller.options.sn2t === 3 ? "" : "hidden " ) +
 			"ui-field-no-border ui-field-contain duration-field'><label for='o56'>" +
 				_( "Sensor 2 Delayed On Time" ) +
 			"</label><button data-mini='true' id='o56' value='" + controller.options.sn2on + "'>" + controller.options.sn2on + "m</button></div>";
 	}
 
 	if ( typeof controller.options.sn2of !== "undefined" ) {
-		list += "<div class='" + ( controller.options.urs === 1 || controller.options.urs === 3 ? "" : "hidden " ) +
+		list += "<div class='" + ( controller.options.sn2t === 1 || controller.options.sn2t === 3 ? "" : "hidden " ) +
 			"ui-field-no-border ui-field-contain duration-field'><label for='o57'>" +
 				_( "Sensor 2 Delayed Off Time" ) +
 			"</label><button data-mini='true' id='o57' value='" + controller.options.sn2of + "'>" + controller.options.sn2of + "m</button></div>";
