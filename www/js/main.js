@@ -2609,10 +2609,10 @@ function showEToAdjustmentOptions( button, callback ) {
 	);
 
 	popup.find( ".submit" ).on( "click", function() {
-		$.extend( options, {
+		options = {
 			baseETo: parseFloat( popup.find( ".baseline-ETo" ).val() ),
 			elevation: parseInt( popup.find( ".elevation" ).val() )
-		} );
+		};
 
 		// Convert to imperial before storing.
 		if ( isMetric ) {
