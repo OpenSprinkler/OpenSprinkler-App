@@ -3129,20 +3129,29 @@ function overlayMap( callback ) {
 function debugWU() {
 	var popup = "<div data-role='popup' id='debugWU' class='ui-content ui-page-theme-a'><table class='debugWU'>";
 
+	popup += ( typeof controller.settings.lupt === "number" ? "<tr><td>" + _( "Last System Reboot" ) + "</td><td>" + dateToString( new Date( controller.settings.lupt * 1000 ) ) + "</td></tr>" : "" ) +
+			( typeof controller.settings.lrbtc === "number" ? "<tr><td>" + _( "Reboot Reason" ) + "</td><td>" + controller.settings.lrbtc + "</td></tr>" : "" ) +
+			( typeof controller.settings.lwc === "number" ? "<tr><td>" + _( "Last Weather Call" ) + "</td><td>" + dateToString( new Date( controller.settings.lwc * 1000 ) ) + "</td></tr>" : "" ) +
+			( typeof controller.settings.lswc === "number" ? "<tr><td>" + _( "Last Successful Weather Call" ) + "</td><td>" + dateToString( new Date( controller.settings.lswc * 1000 ) ) + "</td></tr>" : "" ) +
+			( typeof controller.settings.uwt !== "undefined" ? "<tr><td>" + _( "Adjustment Method" ) + "</td><td>" + getAdjustmentMethod( controller.options.uwt ).name + "</td></tr>" : "" );
+
 	if ( typeof controller.settings.wtdata === "object" && Object.keys( controller.settings.wtdata ).length > 0 ) {
-		popup += "<tr><td>" + _( "Humidity" ) + "</td><td>" + controller.settings.wtdata.h + "%</td></tr>" +
-			"<tr><td>" + _( "Mean Temp" ) + "</td><td>" + formatTemp( controller.settings.wtdata.t ) + "</td></tr>" +
-			"<tr><td>" + _( "Precip Today" ) + "</td><td>" + formatPrecip( controller.settings.wtdata.p ) + "</td></tr>" +
-			"<tr><td>" + _( "Adjustment Method" ) + "</td><td>" + getAdjustmentMethod( controller.options.uwt ).name + "</td></tr>" +
-			"<tr><td>" + _( "Current % Watering" ) + "</td><td>" + controller.options.wl + "%</td></tr>";
+		popup += ( typeof controller.settings.wtdata.h !== "undefined" ? "<tr><td>" + _( "Humidity" ) + "</td><td>" + controller.settings.wtdata.h + "%</td></tr>" : "" ) +
+			( typeof controller.settings.wtdata.t !== "undefined" ? "<tr><td>" + _( "Mean Temp" ) + "</td><td>" + formatTemp( controller.settings.wtdata.t ) + "</td></tr>" : "" ) +
+			( typeof controller.settings.wtdata.p !== "undefined" ? "<tr><td>" + _( "Precip Today" ) + "</td><td>" + formatPrecip( controller.settings.wtdata.p ) + "</td></tr>" : "" ) +
+			( typeof controller.settings.wtdata.eto !== "undefined" ? "<tr><td>" + _( "ETo" ) + "</td><td>" + controller.settings.wtdata.eto + "</td></tr>" : "" ) +
+			( typeof controller.settings.wtdata.radiation !== "undefined" ? "<tr><td>" + _( "Radiation" ) + "</td><td>" + controller.settings.wtdata.radiation + "</td></tr>" : "" ) +
+			( typeof controller.settings.wtdata.minT !== "undefined" ? "<tr><td>" + _( "Miniumum Temp" ) + "</td><td>" + formatTemp( controller.settings.wtdata.p ) + "</td></tr>" : "" ) +
+			( typeof controller.settings.wtdata.maxT !== "undefined" ? "<tr><td>" + _( "Maximum Temp" ) + "</td><td>" + formatTemp( controller.settings.wtdata.p ) + "</td></tr>" : "" ) +
+			( typeof controller.settings.wtdata.minH !== "undefined" ? "<tr><td>" + _( "Miniumum Humidity" ) + "</td><td>" + controller.settings.wtdata.minH + "</td></tr>" : "" ) +
+			( typeof controller.settings.wtdata.maxH !== "undefined" ? "<tr><td>" + _( "Maximum Humidity" ) + "</td><td>" + controller.settings.wtdata.maxH + "</td></tr>" : "" ) +
+			( typeof controller.settings.wtdata.wind !== "undefined" ? "<tr><td>" + _( "Wind" ) + "</td><td>" + controller.settings.wtdata.wind + "</td></tr>" : "" )
+			( typeof controller.settings.wtdata.h !== "undefined" ? "<tr><td>" + _( "Current % Watering" ) + "</td><td>" + controller.options.wl + "%</td></tr>" : "" );
+
 	}
 
-	popup += ( typeof controller.settings.lwc === "number" ? "<tr><td>" + _( "Last Weather Call" ) + "</td><td>" + dateToString( new Date( controller.settings.lwc * 1000 ) ) + "</td></tr>" : "" ) +
-				( typeof controller.settings.lswc === "number" ? "<tr><td>" + _( "Last Successful Weather Call" ) + "</td><td>" + dateToString( new Date( controller.settings.lswc * 1000 ) ) + "</td></tr>" : "" ) +
-				( typeof controller.settings.lupt === "number" ? "<tr><td>" + _( "Last System Reboot" ) + "</td><td>" + dateToString( new Date( controller.settings.lupt * 1000 ) ) + "</td></tr>" : "" ) +
-				( typeof controller.settings.lrbtc === "number" ? "<tr><td>" + _( "Reboot Reason" ) + "</td><td>" + controller.settings.lrbtc + "</td></tr>" : "" ) +
-				( weather && weather.weatherProvider === "DarkSky" ? "<tr><td><a href='https://darksky.net/poweredby/' target='_blank'>Powered by Dark Sky</a></td></tr>" : "" ) +
-				"</table></div>";
+	popup += ( weather && weather.weatherProvider === "DarkSky" ? "<tr><td><a href='https://darksky.net/poweredby/' target='_blank'>Powered by Dark Sky</a></td></tr>" : "" ) +
+	"</table></div>";
 
 	openPopup( $( popup ) );
 
