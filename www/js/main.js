@@ -4067,7 +4067,7 @@ function showOptions( expandItem ) {
 	list += "<button data-mini='true' class='center-div reset-options'>" + _( "Reset All Options" ) + "</button>";
 	list += "<button data-mini='true' class='center-div reset-stations'>" + _( "Reset All Station Data" ) + "</button>";
 
-	if ( controller.options.hwv >= 30 ) {
+	if ( controller.options.hwv >= 30 && controller.options.hwv >= 40 ) {
 		list += "<hr class='divider'><button data-mini='true' class='center-div reset-wireless'>" + _( "Reset Wireless Settings" ) + "</button>";
 	}
 
