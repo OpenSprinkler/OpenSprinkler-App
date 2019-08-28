@@ -3138,7 +3138,7 @@ function debugWU() {
 	if ( typeof controller.settings.wtdata === "object" && Object.keys( controller.settings.wtdata ).length > 0 ) {
 		popup += ( typeof controller.settings.wtdata.h !== "undefined" ? "<tr><td>" + _( "Humidity" ) + "</td><td>" + controller.settings.wtdata.h + "%</td></tr>" : "" ) +
 			( typeof controller.settings.wtdata.t !== "undefined" ? "<tr><td>" + _( "Mean Temp" ) + "</td><td>" + formatTemp( controller.settings.wtdata.t ) + "</td></tr>" : "" ) +
-			( typeof controller.settings.wtdata.p !== "undefined" ? "<tr><td>" + _( "Precip Today" ) + "</td><td>" + formatPrecip( controller.settings.wtdata.p ) + "</td></tr>" : "" ) +
+			( typeof controller.settings.wtdata.p !== "undefined" ? "<tr><td>" + _( "Precip" ) + "</td><td>" + formatPrecip( controller.settings.wtdata.p ) + "</td></tr>" : "" ) +
 			( typeof controller.settings.wtdata.eto !== "undefined" ? "<tr><td>" + _( "ETo" ) + "</td><td>" + controller.settings.wtdata.eto + "</td></tr>" : "" ) +
 			( typeof controller.settings.wtdata.radiation !== "undefined" ? "<tr><td>" + _( "Radiation" ) + "</td><td>" + controller.settings.wtdata.radiation + "</td></tr>" : "" ) +
 			( typeof controller.settings.wtdata.minT !== "undefined" ? "<tr><td>" + _( "Miniumum Temp" ) + "</td><td>" + formatTemp( controller.settings.wtdata.minT ) + "</td></tr>" : "" ) +
