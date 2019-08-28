@@ -3146,7 +3146,7 @@ function debugWU() {
 			( typeof controller.settings.wtdata.minH !== "undefined" ? "<tr><td>" + _( "Miniumum Humidity" ) + "</td><td>" + controller.settings.wtdata.minH + "</td></tr>" : "" ) +
 			( typeof controller.settings.wtdata.maxH !== "undefined" ? "<tr><td>" + _( "Maximum Humidity" ) + "</td><td>" + controller.settings.wtdata.maxH + "</td></tr>" : "" ) +
 			( typeof controller.settings.wtdata.wind !== "undefined" ? "<tr><td>" + _( "Wind" ) + "</td><td>" + controller.settings.wtdata.wind + "</td></tr>" : "" ) +
-			( typeof controller.settings.wtdata.wl !== "undefined" ? "<tr><td>" + _( "Current % Watering" ) + "</td><td>" + controller.options.wl + "%</td></tr>" : "" );
+			( typeof controller.settings.wl !== "undefined" ? "<tr><td>" + _( "Current % Watering" ) + "</td><td>" + controller.options.wl + "%</td></tr>" : "" );
 
 	}
 
