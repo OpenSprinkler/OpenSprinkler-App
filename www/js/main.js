@@ -4463,7 +4463,7 @@ function showOptions( expandItem ) {
 		page.find( "#o23" ).prop( "disabled", ( parseInt( this.value ) === 0 ? false : true ) );
 
 		// Switch the state of adjustment options based on the selected method
-		page.find( "#wto" ).parents( ".ui-field-contain" ).toggleClass( "hidden", parseInt( this.value ) === 0 ? true : false );
+		page.find( "#wto" ).click().parents( ".ui-field-contain" ).toggleClass( "hidden", parseInt( this.value ) === 0 ? true : false );
 	} );
 
 	page.find( "#wtkey" ).on( "change input", function() {
