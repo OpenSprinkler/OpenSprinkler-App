@@ -3133,7 +3133,7 @@ function debugWU() {
 			( typeof controller.settings.lrbtc === "number" ? "<tr><td>" + _( "Reboot Reason" ) + "</td><td>" + controller.settings.lrbtc + "</td></tr>" : "" ) +
 			( typeof controller.settings.lwc === "number" ? "<tr><td>" + _( "Last Weather Call" ) + "</td><td>" + dateToString( new Date( controller.settings.lwc * 1000 ) ) + "</td></tr>" : "" ) +
 			( typeof controller.settings.lswc === "number" ? "<tr><td>" + _( "Last Weather Response Received" ) + "</td><td>" + dateToString( new Date( controller.settings.lswc * 1000 ) ) + "</td></tr>" : "" ) +
-			( typeof controller.settings.wterr === "number" ? "<tr><td>" + _( "Weather Response" ) + "</td><td>" + ( controller.settings.wterr === 0 ? "Success" : "Error" ) + " (" + controller.settings.wterr + ")</td></tr>" : "" ) +
+			( typeof controller.settings.wterr === "number" ? "<tr><td>" + _( "Weather Response" ) + "</td><td>" + ( controller.settings.wterr === 0 ? _( "Success" ) : _( "Error" ) ) + " (" + controller.settings.wterr + ")</td></tr>" : "" ) +
 			( typeof controller.settings.uwt !== "undefined" ? "<tr><td>" + _( "Adjustment Method" ) + "</td><td>" + getAdjustmentMethod( controller.options.uwt ).name + "</td></tr>" : "" );
 
 	if ( typeof controller.settings.wtdata === "object" && Object.keys( controller.settings.wtdata ).length > 0 ) {
@@ -5943,13 +5943,18 @@ function checkStatus() {
 	}
 
 	// Handle rain sensor triggered
-	if ( ( controller.options.urs === 1 && controller.settings.rs === 1 ) || ( controller.options.sn1t === 1 && controller.settings.sn1 === 1 ) ) {
+	if ( controller.options.urs === 1 && controller.settings.rs === 1 ) {
 		changeStatus( 0, "red", "<p class='running-text center'>" + _( "Rain detected" ) + "</p>" );
 		return;
 	}
 
-	if ( controller.options.sn2t === 1 && controller.settings.sn2 === 1 ) {
-		changeStatus( 0, "red", "<p class='running-text center'>" + _( "Rain detected (sensor 2)" ) + "</p>" );
+	if ( controller.settings.sn1 === 1 ) {
+		changeStatus( 0, "red", "<p class='running-text center'>" + ( controller.settings.sn1t === 3 ? _( "Soil" ) : _( "Rain" ) ) + _( " detected (sensor 1)" ) + "</p>" );
+		return;
+	}
+
+	if ( controller.settings.sn2 === 1 ) {
+		changeStatus( 0, "red", "<p class='running-text center'>" + ( controller.settings.sn2t === 3 ? _( "Soil" ) : _( "Rain" ) ) + _( " detected (sensor 2)" ) + "</p>" );
 		return;
 	}
 
