@@ -5949,12 +5949,12 @@ function checkStatus() {
 	}
 
 	if ( controller.settings.sn1 === 1 ) {
-		changeStatus( 0, "red", "<p class='running-text center'>" + ( controller.options.sn1t === 3 ? _( "Soil" ) : _( "Rain" ) ) + _( " detected (sensor 1)" ) + "</p>" );
+		changeStatus( 0, "red", "<p class='running-text center'>Sensor 1 (" + ( controller.options.sn1t === 3 ? _( "Soil" ) : _( "Rain" ) ) + _( ") Activated" ) + "</p>" );
 		return;
 	}
 
 	if ( controller.settings.sn2 === 1 ) {
-		changeStatus( 0, "red", "<p class='running-text center'>" + ( controller.options.sn2t === 3 ? _( "Soil" ) : _( "Rain" ) ) + _( " detected (sensor 2)" ) + "</p>" );
+		changeStatus( 0, "red", "<p class='running-text center'>Sensor 2 (" + ( controller.options.sn2t === 3 ? _( "Soil" ) : _( "Rain" ) ) + _( ") Activated" ) + "</p>" );
 		return;
 	}
 
