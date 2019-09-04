@@ -3133,7 +3133,7 @@ function debugWU() {
 			( typeof controller.settings.lrbtc === "number" ? "<tr><td>" + _( "Reboot Reason" ) + "</td><td>" + controller.settings.lrbtc + "</td></tr>" : "" ) +
 			( typeof controller.settings.lwc === "number" ? "<tr><td>" + _( "Last Weather Call" ) + "</td><td>" + dateToString( new Date( controller.settings.lwc * 1000 ) ) + "</td></tr>" : "" ) +
 			( typeof controller.settings.lswc === "number" ? "<tr><td>" + _( "Last Weather Response Received" ) + "</td><td>" + dateToString( new Date( controller.settings.lswc * 1000 ) ) + "</td></tr>" : "" ) +
-			( typeof controller.settings.wterr === "number" ? "<tr><td>" + _( "Weather Response Code" ) + "</td><td>" + ( controller.settings.wterr === 0 ? _( "Success" ) : _( "Error" ) ) + " (" + controller.settings.wterr + ")</td></tr>" : "" ) +
+			( typeof controller.settings.wterr === "number" ? "<tr><td>" + _( "Weather Code" ) + "</td><td>" + ( controller.settings.wterr === 0 ? _( "Success" ) : _( "Error" ) ) + " (" + controller.settings.wterr + ")</td></tr>" : "" ) +
 			( typeof controller.settings.uwt !== "undefined" ? "<tr><td>" + _( "Adjustment Method" ) + "</td><td>" + getAdjustmentMethod( controller.options.uwt ).name + "</td></tr>" : "" );
 
 	if ( typeof controller.settings.wtdata === "object" && Object.keys( controller.settings.wtdata ).length > 0 ) {
