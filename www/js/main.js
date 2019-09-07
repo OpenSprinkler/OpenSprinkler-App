@@ -122,8 +122,8 @@ var isIEMobile = /IEMobile/.test( navigator.userAgent ),
 		"hp0":12, "hp1":13, "ar":14, "ext":15, "seq":16, "sdt":17, "mas":18, "mton":19, "mtof":20, "urs":21, "rso":22,
 		"wl":23, "den":24, "ipas":25, "devid":26, "con":27, "lit":28, "dim":29, "rlp":30, "uwt":31, "ntp1":32, "ntp2":33,
 		"ntp3":34, "ntp4":35, "lg":36, "mas2":37, "mton2":38, "mtof2":39, "fpr0":41, "fpr1":42, "re":43, "dns1": 44,
-		"dns2":45, "dns3":46, "dns4":47, "sar":48, "ife":49, "sn1t":50, "sn1o":51, "sn2t":52, "sn2o":53, "sn1on":54,
-		"sn1of":55, "sn2on":56, "sn2of":57, "subn1":58, "subn2":59, "subn3":60, "subn4":61, "mqtt": 62
+		"dns2":45, "dns3":46, "dns4":47, "sar":48, "ife":49, "mqtt": 50, "sn1t":51, "sn1o":52, "sn2t":53, "sn2o":54, "sn1on":55,
+		"sn1of":56, "sn2on":57, "sn2of":58, "subn1":59, "subn2":60, "subn3":61, "subn4":62
 	},
 
 	// Array to hold all notifications currently displayed within the app
@@ -3545,10 +3545,10 @@ function showOptions( expandItem ) {
 					case "o25":
 					case "o36":
 					case "o48":
-					case "o50":
 					case "o51":
 					case "o52":
 					case "o53":
+					case "o54":
 						data = $item.is( ":checked" ) ? 1 : 0;
 						if ( !checkOSVersion( 219 ) && !data ) {
 							return true;
@@ -3581,11 +3581,11 @@ function showOptions( expandItem ) {
 					opt.o21 = page.find( "input[name='o21'][type='radio']:checked" ).val();
 				} else {
 					if ( typeof controller.options.sn1t !== "undefined" ) {
-						opt.o50 = page.find( "input[name='o50'][type='radio']:checked" ).val();
+						opt.o51 = page.find( "input[name='o51'][type='radio']:checked" ).val();
 					}
 
 					if ( typeof controller.options.sn2t !== "undefined" ) {
-						opt.o52 = page.find( "input[name='o52'][type='radio']:checked" ).val();
+						opt.o53 = page.find( "input[name='o53'][type='radio']:checked" ).val();
 					}
 				}
 			}
@@ -3864,16 +3864,16 @@ function showOptions( expandItem ) {
 
 	if ( typeof controller.options.sn1on !== "undefined" ) {
 		list += "<div class='" + ( controller.options.sn1t === 1 || controller.options.sn1t === 3 ? "" : "hidden " ) +
-			"ui-field-no-border ui-field-contain duration-field'><label for='o54'>" +
+			"ui-field-no-border ui-field-contain duration-field'><label for='o55'>" +
 				_( "Sensor 1 Delayed On Time" ) +
-			"</label><button data-mini='true' id='o54' value='" + controller.options.sn1on + "'>" + controller.options.sn1on + "m</button></div>";
+			"</label><button data-mini='true' id='o55' value='" + controller.options.sn1on + "'>" + controller.options.sn1on + "m</button></div>";
 	}
 
 	if ( typeof controller.options.sn1of !== "undefined" ) {
 		list += "<div class='" + ( controller.options.sn1t === 1 || controller.options.sn1t === 3 ? "" : "hidden " ) +
-			"ui-field-no-border ui-field-contain duration-field'><label for='o55'>" +
+			"ui-field-no-border ui-field-contain duration-field'><label for='o56'>" +
 				_( "Sensor 1 Delayed Off Time" ) +
-			"</label><button data-mini='true' id='o55' value='" + controller.options.sn1of + "'>" + controller.options.sn1of + "m</button></div>";
+			"</label><button data-mini='true' id='o56' value='" + controller.options.sn1of + "'>" + controller.options.sn1of + "m</button></div>";
 	}
 
 	if ( checkOSVersion( 217 ) ) {
@@ -4295,14 +4295,14 @@ function showOptions( expandItem ) {
 
 		if (
 			$( "input[name='o21'][type='radio']:checked" ).val() === "240" ||
-			$( "input[name='o50'][type='radio']:checked" ).val() === "240"
+			$( "input[name='o51'][type='radio']:checked" ).val() === "240"
 		) {
 			page.find( "#prgswitch" ).removeClass( "hidden" );
 		} else {
 			page.find( "#prgswitch" ).addClass( "hidden" );
 		}
 
-		if ( $( "input[name='o52'][type='radio']:checked" ).val() === "240" ) {
+		if ( $( "input[name='o53'][type='radio']:checked" ).val() === "240" ) {
 			page.find( "#prgswitch-2" ).removeClass( "hidden" );
 		} else {
 			page.find( "#prgswitch-2" ).addClass( "hidden" );
@@ -4430,7 +4430,7 @@ function showOptions( expandItem ) {
 				maximum: max,
 				minimum: min
 			} );
-		} else if ( id === "o54" || id === "o55" || id === "o56" || id === "o57" ) {
+		} else if ( id === "o55" || id === "o56" || id === "o57" || id === "o58" ) {
 			showSingleDurationInput( {
 				data: dur.val(),
 				title: name,
