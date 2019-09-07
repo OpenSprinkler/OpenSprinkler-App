@@ -123,7 +123,7 @@ var isIEMobile = /IEMobile/.test( navigator.userAgent ),
 		"wl":23, "den":24, "ipas":25, "devid":26, "con":27, "lit":28, "dim":29, "rlp":30, "uwt":31, "ntp1":32, "ntp2":33,
 		"ntp3":34, "ntp4":35, "lg":36, "mas2":37, "mton2":38, "mtof2":39, "fpr0":41, "fpr1":42, "re":43, "dns1": 44,
 		"dns2":45, "dns3":46, "dns4":47, "sar":48, "ife":49, "sn1t":50, "sn1o":51, "sn2t":52, "sn2o":53, "sn1on":54,
-		"sn1of":55, "sn2on":56, "sn2of":57, "subn1":58, "subn2":59, "subn3":60, "subn4":61
+		"sn1of":55, "sn2on":56, "sn2of":57, "subn1":58, "subn2":59, "subn3":60, "subn4":61, "mqtt": 62
 	},
 
 	// Array to hold all notifications currently displayed within the app
@@ -3931,6 +3931,12 @@ function showOptions( expandItem ) {
 			"</label><button data-mini='true' id='o49' value='" + controller.options.ife + "'>Configure Events</button></div>";
 	}
 
+	list += "<div class='ui-field-contain'><label for='o62'>" + _( "MQTT Events" ) +
+			"<button data-helptext='" +
+				_( "Select which events to send to MQTT broker." ) +
+				"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
+		"</label><button data-mini='true' id='o62' value='" + controller.options.mqtt + "'>Configure Events</button></div>";
+
 	list += "</fieldset><fieldset class='full-width-slider' data-role='collapsible'" +
 		( typeof expandItem === "string" && expandItem === "lcd" ? " data-collapsed='false'" : "" ) + ">" +
 		"<legend>" + _( "LCD Screen" ) + "</legend>";
@@ -4520,6 +4526,54 @@ function showOptions( expandItem ) {
 
 		openPopup( popup );
 	} );
+
+	page.find( "#o62" ).on( "click", function() {
+		var events = {
+			program: _( "Program Start" ),
+			sensor1: _( "Sensor 1 Update" ),
+			flow: _( "Flow Sensor Update" ),
+			weather: _( "Weather Adjustment Update" ),
+			reboot: _( "Controller Reboot" ),
+			run: _( "Station Run" ),
+			sensor2: _( "Sensor 2 Update" ),
+			rain: _( "Rain Delay Update" )
+		}, button = this, curr = parseInt( button.value ), inputs = "", a = 0, mqtt = 0;
+
+		$.each( events, function( i, val ) {
+			inputs += "<label for='mqtt-" + i + "'><input class='needsclick' data-iconpos='right' id='mqtt-" + i + "' type='checkbox' " +
+				( getBitFromByte( curr, a ) ? "checked='checked'" : "" ) + ">" + val +
+			"</label>";
+			a++;
+		} );
+
+		var popup = $(
+			"<div data-role='popup' data-theme='a'>" +
+				"<div data-role='controlgroup' data-mini='true' class='tight'>" +
+					"<div class='ui-bar ui-bar-a'>" + _( "Select MQTT Events" ) + "</div>" +
+						inputs +
+					"<input data-wrapper-class='attrib-submit' class='submit' data-theme='b' type='submit' value='" + _( "Submit" ) + "' />" +
+				"</div>" +
+			"</div>" );
+
+		popup.find( ".submit" ).on( "click", function() {
+			a = 0;
+			$.each( events, function( i ) {
+				mqtt |= popup.find( "#mqtt-" + i ).is( ":checked" ) << a;
+				a++;
+			} );
+			popup.popup( "close" );
+			if ( curr === mqtt ) {
+				return;
+			} else {
+				button.value = mqtt;
+				header.eq( 2 ).prop( "disabled", false );
+				page.find( ".submit" ).addClass( "hasChanges" );
+			}
+		} );
+
+		openPopup( popup );
+	} );
+
 
 	page.find( ".datetime-input" ).on( "click", function() {
 		var input = $( this ).find( "button" );
