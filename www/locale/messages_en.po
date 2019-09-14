@@ -189,6 +189,28 @@ msgstr ""
 msgid "Delay Duration (hours)"
 msgstr ""
 
+msgid ""
+"Set the baseline potential evapotranspiration (ETo) and elevation for your "
+"location. "
+msgstr ""
+
+msgid ""
+"The ETo adjustment method will adjust the watering duration based on the "
+"difference between the baseline ETo and the current ETo."
+msgstr ""
+
+msgid "Baseline ETo"
+msgstr ""
+
+msgid "Elevation"
+msgstr ""
+
+msgid "Detect baseline ETo"
+msgstr ""
+
+msgid "Current Weather"
+msgstr ""
+
 msgid "Forecast"
 msgstr ""
 
@@ -219,25 +241,58 @@ msgstr ""
 msgid "Attempting to retrieve your current location"
 msgstr ""
 
-msgid "Mean Temp"
+msgid "Last System Reboot"
 msgstr ""
 
-msgid "Precip Today"
-msgstr ""
-
-msgid "Adjustment Method"
-msgstr ""
-
-msgid "Current % Watering"
+msgid "Reboot Reason"
 msgstr ""
 
 msgid "Last Weather Call"
 msgstr ""
 
-msgid "Last Successful Weather Call"
+msgid "Last Weather Response Received"
 msgstr ""
 
-msgid "Last System Reboot"
+msgid "Response Code"
+msgstr ""
+
+msgid "Success"
+msgstr ""
+
+msgid "Error"
+msgstr ""
+
+msgid "Adjustment Method"
+msgstr ""
+
+msgid "Mean Temp"
+msgstr ""
+
+msgid "Precip"
+msgstr ""
+
+msgid "ETo"
+msgstr ""
+
+msgid "Radiation"
+msgstr ""
+
+msgid "Miniumum Temp"
+msgstr ""
+
+msgid "Maximum Temp"
+msgstr ""
+
+msgid "Miniumum Humidity"
+msgstr ""
+
+msgid "Maximum Humidity"
+msgstr ""
+
+msgid "Wind"
+msgstr ""
+
+msgid "Current % Watering"
 msgstr ""
 
 msgid "Change Rain Delay"
@@ -284,13 +339,36 @@ msgstr ""
 msgid "Are you sure you want to downgrade the UI?"
 msgstr ""
 
+msgid "Sensor"
+msgstr ""
+
+msgid "Type"
+msgstr ""
+
+msgid "Flow"
+msgstr ""
+
+msgid "Soil"
+msgstr ""
+
+msgid "Program Switch"
+msgstr ""
+
 msgid "A valid IP address is required when DHCP is not used"
+msgstr ""
+
+msgid "A valid subnet address is required when DHCP is not used"
 msgstr ""
 
 msgid "A valid gateway address is required when DHCP is not used"
 msgstr ""
 
 msgid "A valid DNS address is required when DHCP is not used"
+msgstr ""
+
+msgid ""
+"You must specify a baseline ETo adjustment method option to use the ET "
+"adjustment method."
 msgstr ""
 
 msgid "Settings have been saved"
@@ -315,6 +393,9 @@ msgid "Not specified"
 msgstr ""
 
 msgid "Enable Logging"
+msgstr ""
+
+msgid "Use Metric"
 msgstr ""
 
 msgid "Configure Master"
@@ -390,13 +471,19 @@ msgid ""
 "weather adjustment is used the watering percentage is automatically adjusted."
 msgstr ""
 
-msgid "Attached Sensor Type"
+msgid "Use Rain Sensor"
 msgstr ""
 
-msgid "Flow"
+msgid "Normally Open"
 msgstr ""
 
-msgid "Program Switch"
+msgid "Flow Pulse Rate"
+msgstr ""
+
+msgid "Sensor 1 Delayed On Time"
+msgstr ""
+
+msgid "Sensor 1 Delayed Off Time"
 msgstr ""
 
 msgid ""
@@ -404,13 +491,15 @@ msgid ""
 "trigger Program 1 every time the switch is pressed for at least 1 second."
 msgstr ""
 
-msgid "Use Rain Sensor"
+msgid "Sensor 2 Delayed On Time"
 msgstr ""
 
-msgid "Normally Open (Rain Sensor)"
+msgid "Sensor 2 Delayed Off Time"
 msgstr ""
 
-msgid "Flow Pulse Rate"
+msgid ""
+"When using program switch, a switch is connected to the sensor port to "
+"trigger Program 2 every time the switch is pressed for at least 1 second."
 msgstr ""
 
 msgid "Integrations"
@@ -440,6 +529,20 @@ msgid "Brightness"
 msgstr ""
 
 msgid "Idle Brightness"
+msgstr ""
+
+msgid "Wunderground Key"
+msgstr ""
+
+msgid ""
+"We use OpenWeatherMap normally however with a user provided API key the "
+"weather source will switch to Weather Underground."
+msgstr ""
+
+msgid "An invalid API key has been detected."
+msgstr ""
+
+msgid "Verify"
 msgstr ""
 
 msgid "HTTP Port (restart required)"
@@ -475,6 +578,9 @@ msgid "IP Address"
 msgstr ""
 
 msgid "Gateway Address"
+msgstr ""
+
+msgid "Subnet Mask"
 msgstr ""
 
 msgid "DNS Address"
@@ -513,11 +619,6 @@ msgstr ""
 msgid "Are you sure you want to clear the current location?"
 msgstr ""
 
-msgid ""
-"Are you sure you want to delete all settings and return to the default "
-"settings?"
-msgstr ""
-
 msgid "Are you sure you want to reset all stations?"
 msgstr ""
 
@@ -546,10 +647,13 @@ msgstr ""
 msgid "Milliseconds"
 msgstr ""
 
+msgid "Minutes"
+msgstr ""
+
 msgid "Program Start"
 msgstr ""
 
-msgid "Rain Sensor Update"
+msgid "Sensor 1 Update"
 msgstr ""
 
 msgid "Flow Sensor Update"
@@ -562,6 +666,12 @@ msgid "Controller Reboot"
 msgstr ""
 
 msgid "Station Run"
+msgstr ""
+
+msgid "Sensor 2 Update"
+msgstr ""
+
+msgid "Rain Delay Update"
 msgstr ""
 
 msgid "Select IFTTT Events"
@@ -688,6 +798,12 @@ msgstr ""
 msgid "Ignore Rain"
 msgstr ""
 
+msgid "Ignore Sensor 1"
+msgstr ""
+
+msgid "Ignore Sensor 2"
+msgstr ""
+
 msgid "Activate Relay"
 msgstr ""
 
@@ -773,6 +889,9 @@ msgid "Do you want to turn off rain delay?"
 msgstr ""
 
 msgid "Rain detected"
+msgstr ""
+
+msgid ") Activated"
 msgstr ""
 
 msgid "Manual mode enabled"
@@ -961,10 +1080,18 @@ msgstr ""
 msgid "Logs have been cleared"
 msgstr ""
 
+msgid ""
+"Are you sure you want to delete all settings and return to the default "
+"settings?"
+msgstr ""
+
 msgid "Do you want to save your changes?"
 msgstr ""
 
 msgid "Programs"
+msgstr ""
+
+msgid "Are you sure you want to start "
 msgstr ""
 
 msgid "Do you wish to apply the current watering level?"
@@ -1201,10 +1328,6 @@ msgid ""
 "can be found at"
 msgstr ""
 
-msgid ""
-"Language localization is crowdsourced using Get Localization available at"
-msgstr ""
-
 msgid "Open source attributions"
 msgstr ""
 
@@ -1281,6 +1404,28 @@ msgstr ""
 msgid "Replace cloud with local"
 msgstr ""
 
+msgid "Weather Options have Corrupted"
+msgstr ""
+
+msgid "Click here to retrieve the partial weather option data"
+msgstr ""
+
+msgid "Weather option data has corrupted"
+msgstr ""
+
+msgid ""
+"Please note this may indicate other data corruption as well, please verify "
+"all settings."
+msgstr ""
+
+msgid ""
+"Below is the corrupt data which could not be parsed but may be useful for "
+"restoration."
+msgstr ""
+
+msgid "Dismiss"
+msgstr ""
+
 msgid "OpenSprinkler.com Login Expired"
 msgstr ""
 
@@ -1350,9 +1495,6 @@ msgstr ""
 msgid "Update Now"
 msgstr ""
 
-msgid "Dismiss"
-msgstr ""
-
 msgid "Update successful"
 msgstr ""
 
@@ -1378,9 +1520,6 @@ msgid "Days"
 msgstr ""
 
 msgid "Hours"
-msgstr ""
-
-msgid "Minutes"
 msgstr ""
 
 msgid "Sunrise to Sunset"
@@ -1491,6 +1630,9 @@ msgstr ""
 msgid "Czech"
 msgstr ""
 
+msgid "Estonian"
+msgstr ""
+
 msgid "Dutch"
 msgstr ""
 
@@ -1570,25 +1712,4 @@ msgid "Localization"
 msgstr ""
 
 msgid "Thr"
-msgstr ""
-
-msgid "Export Configuration"
-msgstr ""
-
-msgid "Import Configuration"
-msgstr ""
-
-msgid "Help & Support"
-msgstr ""
-
-msgid "Operation"
-msgstr ""
-
-msgid "Reboot OpenSprinkler"
-msgstr ""
-
-msgid "Downgrade UI"
-msgstr ""
-
-msgid "System Diagnostics"
 msgstr ""
