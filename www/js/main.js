@@ -3882,7 +3882,7 @@ function showOptions( expandItem ) {
 		"</label>";
 	}
 
-	if ( typeof controller.options.sn2t !== "undefined" ) {
+	if ( typeof controller.options.sn2t !== "undefined" && checkOSVersion( 219 ) ) {
 		list += generateSensorOptions( keyIndex.sn2t, controller.options.sn2t, 2 );
 	}
 
