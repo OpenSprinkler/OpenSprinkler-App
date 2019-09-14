@@ -7996,37 +7996,41 @@ function expandProgram( program ) {
 	} );
 
 	program.find( "[id^='run-']" ).on( "click", function() {
-		var runonce = [],
-			finish = function() {
-				runonce.push( 0 );
-				submitRunonce( runonce );
-			};
+		name = checkOSVersion( 210 ) ? controller.programs.pd[ id ][ 5 ] : "Program " + id;
 
-		if ( checkOSVersion( 210 ) ) {
-			runonce = controller.programs.pd[ id ][ 4 ];
-
-			if ( ( controller.programs.pd[ id ][ 0 ] >> 1 ) & 1 ) {
-				areYouSure( _( "Do you wish to apply the current watering level?" ), "", function() {
-					for ( var i = runonce.length - 1; i >= 0; i-- ) {
-						runonce[ i ] = parseInt( runonce[ i ] * ( controller.options.wl / 100 ) );
-					}
-					finish();
-				}, finish );
-				return false;
-			}
-		} else {
-			var durr = parseInt( $( "#duration-" + id ).val() ),
-				stations = $( "[id^='station_'][id$='-" + id + "']" );
-
-			$.each( stations, function() {
-				if ( $( this ).is( ":checked" ) ) {
-					runonce.push( durr );
-				} else {
+		areYouSure( _( "Are you sure you want to start " + name + " now?" ), "", function() {
+			var runonce = [],
+				finish = function() {
 					runonce.push( 0 );
+					submitRunonce( runonce );
+				};
+
+			if ( checkOSVersion( 210 ) ) {
+				runonce = controller.programs.pd[ id ][ 4 ];
+
+				if ( ( controller.programs.pd[ id ][ 0 ] >> 1 ) & 1 ) {
+					areYouSure( _( "Do you wish to apply the current watering level?" ), "", function() {
+						for ( var i = runonce.length - 1; i >= 0; i-- ) {
+							runonce[ i ] = parseInt( runonce[ i ] * ( controller.options.wl / 100 ) );
+						}
+						finish();
+					}, finish );
+					return false;
 				}
-			} );
-		}
-		finish();
+			} else {
+				var durr = parseInt( $( "#duration-" + id ).val() ),
+					stations = $( "[id^='station_'][id$='-" + id + "']" );
+
+				$.each( stations, function() {
+					if ( $( this ).is( ":checked" ) ) {
+						runonce.push( durr );
+					} else {
+						runonce.push( 0 );
+					}
+				} );
+			}
+			finish();
+		} );
 		return false;
 	} );
 }
