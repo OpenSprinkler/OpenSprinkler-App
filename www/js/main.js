@@ -7996,7 +7996,7 @@ function expandProgram( program ) {
 	} );
 
 	program.find( "[id^='run-']" ).on( "click", function() {
-		name = checkOSVersion( 210 ) ? controller.programs.pd[ id ][ 5 ] : "Program " + id;
+		var name = checkOSVersion( 210 ) ? controller.programs.pd[ id ][ 5 ] : "Program " + id;
 
 		areYouSure( _( "Are you sure you want to start " + name + " now?" ), "", function() {
 			var runonce = [],
