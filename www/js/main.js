@@ -1543,7 +1543,7 @@ function showAddNew( autoIP, closeOld ) {
 						"value='" + ( isAuto ? autoIP : "" ) + "' placeholder='home.dyndns.org'>" +
 					"<label for='os_pw'>" + _( "Open Sprinkler Password:" ) + "</label>" +
 					"<input type='password' name='os_pw' id='os_pw' value=''>" +
-				    "<label for='save_pw'>" + _( "Save Password" ) + "</label>" +
+					"<label for='save_pw'>" + _( "Save Password" ) + "</label>" +
 					"<input type='checkbox' data-wrapper-class='save_pw' name='save_pw' " +
 						"id='save_pw' data-mini='true' checked='checked'>" +
 					( isAuto ? "" :
@@ -3517,7 +3517,11 @@ function showOptions( expandItem ) {
 						if ( escapeJSON( controller.settings.wto ) === data ) {
 							return true;
 						}
-
+						break;
+					case "mqtt":
+						if ( escapeJSON( controller.settings.mqtt ) === data ) {
+							return true;
+						}
 						break;
 					case "isMetric":
 						isMetric = $item.is( ":checked" );
@@ -3932,23 +3936,39 @@ function showOptions( expandItem ) {
 		"</label>";
 	}
 
-	if ( typeof controller.settings.ifkey !== "undefined" ) {
+	if ( typeof controller.settings.ifkey !== "undefined" || typeof controller.settings.mqtt !== "undefined") {
 		list += "</fieldset><fieldset data-role='collapsible'" +
 			( typeof expandItem === "string" && expandItem === "integrations" ? " data-collapsed='false'" : "" ) + ">" +
 			"<legend>" + _( "Integrations" ) + "</legend>";
 
-		list += "<div class='ui-field-contain'><label for='ifkey'>" + _( "IFTTT Key" ) +
-			"<button data-helptext='" +
-				_( "To enable IFTTT, a Maker channel key is required which can be obtained from https://ifttt.com" ) +
-				"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
-		"</label><input autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' data-mini='true' type='text' id='ifkey' value='" + controller.settings.ifkey + "'>" +
-		"</div>";
-
-		list += "<div class='ui-field-contain'><label for='o49'>" + _( "IFTTT Events" ) +
+		if ( typeof controller.settings.ifkey !== "undefined" ) {
+			list += "<div class='ui-field-contain'><label for='ifkey'>" + _( "IFTTT Key" ) +
 				"<button data-helptext='" +
-					_( "Select which events to send to IFTTT for use in recipes." ) +
+					_( "To enable IFTTT, a Maker channel key is required which can be obtained from https://ifttt.com" ) +
 					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
-			"</label><button data-mini='true' id='o49' value='" + controller.options.ife + "'>Configure Events</button></div>";
+			"</label><input autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' data-mini='true' type='text' id='ifkey' value='" + controller.settings.ifkey + "'>" +
+			"</div>";
+
+			list += "<div class='ui-field-contain'><label for='o49'>" + _( "IFTTT Events" ) +
+					"<button data-helptext='" +
+						_( "Select which events to send to IFTTT for use in recipes." ) +
+						"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
+				"</label><button data-mini='true' id='o49' value='" + controller.options.ife + "'>Configure Events</button></div>";
+		}
+
+		if ( typeof controller.settings.mqtt !== "undefined" ) {
+			list += "<div class='ui-field-contain'>" +
+						"<label for='mqtt'>" + _( "MQTT" ) +
+							"<button style='display:inline-block;' data-helptext='" +
+								_( "OpenSprinkler can send notifications to an MQTT broker at a specified host and port." ) +
+								"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'>" +
+							"</button>" +
+						"</label>" +
+						"<button data-mini='true' id='mqtt' value='" + escapeJSON( controller.settings.mqtt ) + "'>" +
+							_( "Tap to Configure" ) +
+						"</button>" +
+					"</div>";
+		}
 	}
 
 	list += "</fieldset><fieldset class='full-width-slider' data-role='collapsible'" +
@@ -4540,6 +4560,76 @@ function showOptions( expandItem ) {
 
 		openPopup( popup );
 	} );
+
+	page.find( "#mqtt" ).on( "click", function() {
+		var button = this, curr = button.value,
+			options = $.extend( {}, {
+				server: "server",
+				port: 1883,
+				enable: 0
+			}, controller.settings.mqtt );
+
+		$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
+
+		var popup = $( "<div data-role='popup' data-theme='a' id='mqttSettings'>" +
+				"<div data-role='header' data-theme='b'>" +
+					"<h1>" + _( "MQTT Settings" ) + "</h1>" +
+				"</div>" +
+				"<div class='ui-content'>" +
+					"<label for='enable'>Enable</label>" +
+					"<input class='needsclick mqtt_enable' data-mini='true' data-iconpos='right' id='enable' type='checkbox' " +
+						( options.enable ? "checked='checked'" : "" ) + ">" +
+					"<div class='ui-body'>" +
+						"<div class='ui-grid-a' style='display:table;'>" +
+							"<div class='ui-block-a' style='width:40%'>" +
+								"<label for='server' style='padding-top:10px'>" + _( "Server" ) + "</label>" +
+							"</div>" +
+							"<div class='ui-block-b' style='width:60%'>" +
+								"<input class='mqtt-input' type='text' id='server' data-mini='true' maxlength='50' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
+									( options.enable ? "" : "disabled='disabled'" ) + " placeholder='" + _( "server" ) + "' value='" + options.server + "' required />" +
+							"</div>" +
+							"<div class='ui-block-a' style='width:40%'>" +
+								"<label for='port' style='padding-top:10px'>" + _( "Port" ) + "</label>" +
+							"</div>" +
+							"<div class='ui-block-b' style='width:60%'>" +
+								"<input class='mqtt-input' type='number' id='port' data-mini='true' pattern='[0-9]*' min='0' max='65535'" +
+									( options.enable ? "" : "disabled='disabled'" ) + " placeholder='80' value='" + options.port + "' required />" +
+							"</div>" +
+						"</div>" +
+					"</div>" +
+					"<button class='submit' data-theme='b'>" + _( "Submit" ) + "</button>" +
+				"</div>" +
+			"</div>" );
+
+		popup.find( "#enable" ).on( "change", function() {
+			if ( this.checked ) {
+				popup.find( ".mqtt-input" ).textinput( "enable" );
+			} else {
+				popup.find( ".mqtt-input" ).textinput( "disable" );
+			}
+		} );
+
+		popup.find( ".submit" ).on( "click", function() {
+			var options = {
+				server: popup.find( "#server" ).val(),
+				port: parseInt( popup.find( "#port" ).val() ),
+				enable: ( popup.find( "#enable" ).prop( "checked" ) ? 1 : 0 )
+			};
+
+			popup.popup( "close" );
+			if ( curr === escapeJSON( options ) ) {
+				return;
+			} else {
+				button.value = escapeJSON( options );
+				header.eq( 2 ).prop( "disabled", false );
+				page.find( ".submit" ).addClass( "hasChanges" );
+			}
+		} );
+
+		popup.css( "max-width", "380px" );
+
+		openPopup( popup, { positionTo: "window" } );
+    } );
 
 	page.find( ".datetime-input" ).on( "click", function() {
 		var input = $( this ).find( "button" );
@@ -9230,6 +9320,11 @@ function importConfig( data ) {
 		if ( typeof data.settings.ifkey === "string" && checkOSVersion( 217 ) ) {
 			co += "&ifkey=" + data.settings.ifkey;
 		}
+
+		// Import mqtt options, if available
+		if ( typeof data.settings.mqtt === "object" && checkOSVersion( 2191 ) ) {
+			co += "&mqtt=" + escapeJSON( data.settings.mqtt );
+			}
 
 		co += "&" + ( isPi ? "o" : "" ) + "loc=" + data.settings.loc;
 
