@@ -7363,10 +7363,14 @@ var getLogs = ( function() {
 						date.getUTCMinutes(), date.getUTCSeconds() );
 
 				if ( typeof station === "string" ) {
-					if ( station === "rs" ) {
-						station = stations.length - 2;
-					} else if ( station === "rd" ) {
+					if ( station === "rd" ) {
 						station = stations.length - 1;
+					} else if ( station === "s1" ) {
+						station = stations.length - 3;
+					} else if ( station === "s2" ) {
+						station = stations.length - 2;
+					} else if ( station === "rs" ) {
+						station = stations.length - 2;
 					} else {
 						return;
 					}
@@ -7410,6 +7414,16 @@ var getLogs = ( function() {
 						name = _( "Rain Delay" );
 						group = name;
 						shortname = _( "RD" );
+					} else if ( this[ 1 ] === "s1" ) {
+						className = "delayed";
+						name = controller.options.sn1t === 3 ? _( "Soil Sensor" ) : _( "Rain Sensor" );
+						group = name;
+						shortname = _( "SEN1" );
+					} else if ( this[ 1 ] === "s2" ) {
+						className = "delayed";
+						name = controller.options.sn2t === 3 ? _( "Soil Sensor" ) : _( "Rain Sensor" );
+						group = name;
+						shortname = _( "SEN2" );
 					} else if ( pid === 0 ) {
 						return;
 					} else {
@@ -7797,7 +7811,13 @@ var getLogs = ( function() {
 	page.find( "#log_table" ).prop( "checked", isNarrow );
 
 	function begin() {
-		stations = $.merge( $.merge( [], controller.stations.snames ), [ _( "Rain Sensor" ), _( "Rain Delay" ) ] );
+		var additionalMetrics = checkOSVersion( 219 ) ? [
+			controller.options.sn1t === 3 ? _( "Soil Sensor" ) : _( "Rain Sensor" ),
+			controller.options.sn2t === 3 ? _( "Soil Sensor" ) : _( "Rain Sensor" ),
+			_( "Rain Delay" )
+		] : [ _( "Rain Sensor" ), _( "Rain Delay" ) ];
+
+		stations = $.merge( $.merge( [], controller.stations.snames ), additionalMetrics );
 		page.find( ".clear_logs" ).toggleClass( "hidden", ( isOSPi() || checkOSVersion( 210 ) ?  false : true ) );
 
 		if ( logStart.val() === "" || logEnd.val() === "" ) {
