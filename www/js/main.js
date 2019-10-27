@@ -2896,12 +2896,28 @@ function getSunTimes( date ) {
 	return [ sunrise, sunset ];
 }
 
+function makeAttribution( provider ) {
+	if (typeof provider !== "string") { return ""; }
+
+	var attrib = "<div class='weatherAttribution'>";
+	switch ( provider ) {
+		case "DarkSky":		attrib += "<a href='https://darksky.net/poweredby/' target='_blank'>" + _( "Powered by Dark Sky" ) + "</a>"; break;
+		case "OWM":			attrib += "<a href='https://openweathermap.org/' target='_blank'>" + _( "Powered by OpenWeather" ) + "</a>"; break;
+		case "WUnderground":attrib += "<a href='https://wunderground.com/' target='_blank'>" + _( "Powered by Weather Underground" ) + "</a>"; break;
+		case "local":		attrib += _( "Powered by your Local PWS" ); break;
+		case "Manual":		attrib += _( "Using manual watering" ); break;
+		default:			attrib += _( "Unrecognised weather provider" ); break;
+	}
+	return attrib + "</div>";
+}
+
 function showForecast() {
 	var page = $( "<div data-role='page' id='forecast'>" +
 			"<div class='ui-content' role='main'>" +
 				"<ul data-role='listview' data-inset='true'>" +
 					makeForecast() +
 				"</ul>" +
+				makeAttribution( weather.weatherProvider ) +
 			"</div>" +
 		"</div>" );
 
@@ -3148,10 +3164,14 @@ function debugWU() {
 			( typeof controller.settings.wtdata.maxH !== "undefined" ? "<tr><td>" + _( "Maximum Humidity" ) + "</td><td>" + controller.settings.wtdata.maxH + "</td></tr>" : "" ) +
 			( typeof controller.settings.wtdata.wind !== "undefined" ? "<tr><td>" + _( "Wind" ) + "</td><td>" + controller.settings.wtdata.wind + "</td></tr>" : "" );
 	}
+	popup += ( typeof controller.options.wl !== "undefined" ? "<tr><td>" + _( "Current % Watering" ) + "</td><td>" + controller.options.wl + "%</td></tr>" : "" );
+	popup += "</table>";
 
-	popup += ( typeof controller.options.wl !== "undefined" ? "<tr><td>" + _( "Current % Watering" ) + "</td><td>" + controller.options.wl + "%</td></tr>" : "" ) +
-		( weather && weather.weatherProvider === "DarkSky" ? "<tr><td><a href='https://darksky.net/poweredby/' target='_blank'>Powered by Dark Sky</a></td></tr>" : "" ) +
-		"</table></div>";
+	if ( typeof controller.settings.wtdata.weatherProvider === "string" ) {
+		popup += "<hr>";
+		popup += makeAttribution( controller.settings.wtdata.weatherProvider );
+	}
+	popup += "</div>";
 
 	openPopup( $( popup ) );
 
