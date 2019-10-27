@@ -1067,6 +1067,10 @@ div.running-text{
     width:50px;
     height:50px;
 }
+.weatherAttribution {
+    text-align:right;
+    font-weight:bold
+}
 
 /* Mozilla specific weather icon adjustments */
 @media (max-width:940px) {
