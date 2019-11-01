@@ -2897,7 +2897,7 @@ function getSunTimes( date ) {
 }
 
 function makeAttribution( provider ) {
-	if (typeof provider !== "string") { return ""; }
+	if ( typeof provider !== "string" ) { return ""; }
 
 	var attrib = "<div class='weatherAttribution'>";
 	switch ( provider ) {
@@ -9445,7 +9445,7 @@ var showAbout = ( function() {
 					"</li>" +
 				"</ul>" +
 				"<p class='smaller'>" +
-					_( "App Version" ) + ": 2.1.3" +
+					_( "App Version" ) + ": 2.1.4" +
 					"<br>" + _( "Firmware" ) + ": <span class='firmware'></span>" +
 					"<br><span class='hardwareLabel'>" + _( "Hardware Version" ) + ":</span> <span class='hardware'></span>" +
 				"</p>" +
