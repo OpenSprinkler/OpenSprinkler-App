@@ -3512,13 +3512,14 @@ function showOptions( expandItem ) {
 					case "wtkey":
 						return true;
 					case "wto":
+						data = unescapeJSON( data );
 						var newData = { key: page.find( "#wtkey" ).val() };
 
 						if ( newData.key && controller.settings.wto && controller.settings.wto.pws ) {
-							newData.pws = controller.settings.wto.pws;
+							newData.pws = data.pws || controller.settings.wto.pws;
 						}
 
-						data = escapeJSON( $.extend( {}, unescapeJSON( data ), newData ) );
+						data = escapeJSON( $.extend( {}, data, newData ) );
 
 						if ( escapeJSON( controller.settings.wto ) === data ) {
 							return true;
