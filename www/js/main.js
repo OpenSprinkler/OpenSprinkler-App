@@ -2699,20 +2699,33 @@ function showEToAdjustmentOptions( button, callback ) {
 
 function formatTemp( temp ) {
 	if ( isMetric ) {
-		temp = Math.round( ( temp - 32 ) * ( 5 / 9 ) * 10 ) / 10 + "&#176;C";
+		temp = Math.round( ( temp - 32 ) * ( 5 / 9 ) * 10 ) / 10 + " &#176;C";
 	} else {
-		temp = Math.round( temp * 10 ) / 10 + "&#176;F";
+		temp = Math.round( temp * 10 ) / 10 + " &#176;F";
 	}
 	return temp;
 }
 
 function formatPrecip( precip ) {
 	if ( isMetric ) {
-		precip = Math.round( precip * 25.4 ) + " mm";
+		precip = Math.round( precip * 25.4 * 10 ) / 10 + " mm";
 	} else {
 		precip = Math.round( precip * 100 ) / 100 + " in";
 	}
 	return precip;
+}
+
+function formatHumidity( humidity ) {
+	return Math.round( humidity ) + " %";
+}
+
+function formatSpeed( speed ) {
+	if ( isMetric ) {
+		speed = Math.round( speed * 1.6 * 10 ) / 10 + " km/h";
+	} else {
+		speed = Math.round( speed * 10 ) / 10 + " mph";
+	}
+	return speed;
 }
 
 function hideWeather() {
@@ -3142,30 +3155,122 @@ function overlayMap( callback ) {
 	updateStations( current.lat, current.lon );
 }
 
-function debugWU() {
-	var popup = "<div data-role='popup' id='debugWU' class='ui-content ui-page-theme-a'><table class='debugWU'>";
+// Ensure error codes align with reboot causes in Firmware defines.h
+var rebootReasons =	{ 0: _( "None" ), 1: _( "Factory Reset" ), 2: _( "Reset Button" ), 3: _( "WiFi Change" ),
+					4: _( "Web Request" ), 5: _( "Web Request" ), 6: _( "WiFi Configure" ), 7: _( "Firmware Update" ),
+					8: _( "Weather Failure" ), 9: _( "Network Failure" ), 10: _( "Clock Update" ), 99: _( "Power On" ) };
 
-	popup += ( typeof controller.settings.lupt === "number" ? "<tr><td>" + _( "Last System Reboot" ) + "</td><td>" + dateToString( new Date( controller.settings.lupt * 1000 ) ) + "</td></tr>" : "" ) +
-			( typeof controller.settings.lrbtc === "number" ? "<tr><td>" + _( "Reboot Reason" ) + "</td><td>" + controller.settings.lrbtc + "</td></tr>" : "" ) +
-			( typeof controller.settings.lwc === "number" ? "<tr><td>" + _( "Last Weather Call" ) + "</td><td>" + dateToString( new Date( controller.settings.lwc * 1000 ) ) + "</td></tr>" : "" ) +
-			( typeof controller.settings.lswc === "number" ? "<tr><td>" + _( "Last Weather Response Received" ) + "</td><td>" + dateToString( new Date( controller.settings.lswc * 1000 ) ) + "</td></tr>" : "" ) +
-			( typeof controller.settings.wterr === "number" ? "<tr><td>" + _( "Response Code" ) + "</td><td>" + ( controller.settings.wterr === 0 ? _( "Success" ) : _( "Error" ) ) + " (" + controller.settings.wterr + ")</td></tr>" : "" ) +
-			( typeof controller.settings.uwt !== "undefined" ? "<tr><td>" + _( "Adjustment Method" ) + "</td><td>" + getAdjustmentMethod( controller.options.uwt ).name + "</td></tr>" : "" );
+// Ensure error codes align with App errors.ts (codes > 0) and HTTP error codes in Firmware defines.h (codes < 0)
+var weatherErrors = {
+	"-4":	_( "Empty Response" ),
+	"-3":	_( "Timed Out" ),
+	"-2":	_( "Connection Failed" ),
+	"-1":	_( "No Response" ),
+	"0":	_( "Success" ),
+	"1":	_( "Weather Data Error" ),
+	"10":	_( "Building Weather History" ),
+	"11":	_( "Weather Provider Respnse Incomplete" ),
+	"12":	_( "Weather Provider Request Failed" ),
+	"2":	_( "Location Error" ),
+	"20":	_( "Location Request Error" ),
+	"21":	_( "Location Not Found" ),
+	"22":	_( "Invalid Location Format" ),
+	"3":	_( "PWS Error" ),
+	"30":	_( "Invalid WUnderground PWS" ),
+	"31":	_( "Invalid WUnderground Key" ),
+	"32":	_( "WUnderground Authentication Error" ),
+	"33":	_( "Unsupported WUnderground Method" ),
+	"34":	_( "No WUnderground PWS Provided" ),
+	"4":	_( "Adjustment Method Error" ),
+	"40":	_( "Unsupported Adjustment Method" ),
+	"41":	_( "No Adjustment Method Provided" ),
+	"5":	_( "Adjustment Options Error" ),
+	"50":	_( "Corrupt Adjustment Options" ),
+	"51":	_( "Missing Adjustment Option" ),
+	"99":	_( "Unexpected Error" )
+};
+
+function getRebootReason( reason ) {
+	if ( reason in rebootReasons ) {
+		return rebootReasons[ reason ];
+	}
+
+	return _( "Unrecognised" ) + " (" + reason + ")";
+}
+
+function getWeatherError( err ) {
+	var errType = Math.floor( err / 10 );
+
+	if ( err in weatherErrors ) {
+		return weatherErrors[ err ];
+	} else if ( err <= 59 && err >= 10 && errType in weatherErrors ) {
+		return weatherErrors[ errType ];
+	}
+
+	return _( "Unrecognised" ) + " (" + err + ")";
+}
+
+function getWeatherStatus( status ) {
+	if ( status < 0 ) {
+		return "<font class='debugWUError'>" + _( "Offline" ) + "</font>";
+	} else if ( status > 0 ) {
+		return "<font class='debugWUWarning'>" + _( "Error" ) + "</font>";
+	} else {
+		return "<font class='debugWUOK'>" + _( "Online" ) + "</font>";
+	}
+}
+
+function getWiFiRating( rssi ) {
+	if ( rssi < -80 ) {
+		return _( "Unuseable" );
+	} else if ( rssi < -70 ) {
+		return _( "Poor" );
+	} else if ( rssi < -60 ) {
+		return _( "Fair" );
+	} else if ( rssi < -50 ) {
+		return _( "Good" );
+	} else {
+		return _( "Excellent" );
+	}
+}
+
+function debugWU() {
+	var popup = "<div data-role='popup' id='debugWU' class='ui-content ui-page-theme-a'>";
+
+	popup += "<div class='debugWUHeading'>System Status</div>" +
+			"<table class='debugWUTable'>" +
+				( typeof controller.settings.lupt === "number" ? "<tr><td>" + _( "Last Reboot" ) + "</td><td>" +
+					( controller.settings.lupt < 1000 ? "--" : dateToString( new Date( controller.settings.lupt * 1000 ), null, 2 ) ) + "</td></tr>" : "" ) +
+				( typeof controller.settings.lrbtc === "number" ? "<tr><td>" + _( "Reboot Reason" ) + "</td><td>" + getRebootReason( controller.settings.lrbtc ) + "</td></tr>" : "" ) +
+				( typeof controller.settings.RSSI === "number" ? "<tr><td>" + _( "WiFi Strength" ) + "</td><td>" + getWiFiRating( controller.settings.RSSI ) + "</td></tr>" : "" ) +
+				( typeof controller.settings.wterr === "number" ? "<tr><td>" + _( "Weather Service" ) + "</td><td>" + getWeatherStatus( controller.settings.wterr ) + "</td></tr>" : "" ) +
+			"</table>" +
+			"<div class='debugWUHeading'>Watering Level</div>" +
+			"<table class='debugWUTable'>" +
+				( typeof controller.options.uwt !== "undefined" ? "<tr><td>" + _( "Method" ) + "</td><td>" + getAdjustmentMethod( controller.options.uwt ).name + "</td></tr>" : "" ) +
+				( typeof controller.options.wl !== "undefined" ? "<tr><td>" + _( "Watering Level" ) + "</td><td>" + controller.options.wl + " %</td></tr>" : "" ) +
+				( typeof controller.settings.lswc === "number" ? "<tr><td>" + _( "Last Updated" ) + "</td><td>" +
+					( controller.settings.lswc === 0  ? _( "Never" ) : humaniseDuration( controller.settings.devt * 1000, controller.settings.lswc * 1000 ) ) + "</td></tr>" : "" ) +
+			"</table>" +
+			"<div class='debugWUHeading'>Weather Service Details</div>" +
+			"<div class='debugWUScrollable'>" +
+			"<table class='debugWUTable'>";
 
 	if ( typeof controller.settings.wtdata === "object" && Object.keys( controller.settings.wtdata ).length > 0 ) {
-		popup += ( typeof controller.settings.wtdata.h !== "undefined" ? "<tr><td>" + _( "Humidity" ) + "</td><td>" + controller.settings.wtdata.h + "%</td></tr>" : "" ) +
+		popup += ( typeof controller.settings.wtdata.h !== "undefined" ? "<tr><td>" + _( "Mean Humidity" ) + "</td><td>" + formatHumidity( controller.settings.wtdata.h ) + "</td></tr>" : "" ) +
 			( typeof controller.settings.wtdata.t !== "undefined" ? "<tr><td>" + _( "Mean Temp" ) + "</td><td>" + formatTemp( controller.settings.wtdata.t ) + "</td></tr>" : "" ) +
-			( typeof controller.settings.wtdata.p !== "undefined" ? "<tr><td>" + _( "Precip" ) + "</td><td>" + formatPrecip( controller.settings.wtdata.p ) + "</td></tr>" : "" ) +
-			( typeof controller.settings.wtdata.eto !== "undefined" ? "<tr><td>" + _( "ETo" ) + "</td><td>" + controller.settings.wtdata.eto + "</td></tr>" : "" ) +
-			( typeof controller.settings.wtdata.radiation !== "undefined" ? "<tr><td>" + _( "Radiation" ) + "</td><td>" + controller.settings.wtdata.radiation + "</td></tr>" : "" ) +
-			( typeof controller.settings.wtdata.minT !== "undefined" ? "<tr><td>" + _( "Miniumum Temp" ) + "</td><td>" + formatTemp( controller.settings.wtdata.minT ) + "</td></tr>" : "" ) +
-			( typeof controller.settings.wtdata.maxT !== "undefined" ? "<tr><td>" + _( "Maximum Temp" ) + "</td><td>" + formatTemp( controller.settings.wtdata.maxT ) + "</td></tr>" : "" ) +
-			( typeof controller.settings.wtdata.minH !== "undefined" ? "<tr><td>" + _( "Miniumum Humidity" ) + "</td><td>" + controller.settings.wtdata.minH + "</td></tr>" : "" ) +
-			( typeof controller.settings.wtdata.maxH !== "undefined" ? "<tr><td>" + _( "Maximum Humidity" ) + "</td><td>" + controller.settings.wtdata.maxH + "</td></tr>" : "" ) +
-			( typeof controller.settings.wtdata.wind !== "undefined" ? "<tr><td>" + _( "Wind" ) + "</td><td>" + controller.settings.wtdata.wind + "</td></tr>" : "" );
+			( typeof controller.settings.wtdata.p !== "undefined" ? "<tr><td>" + _( "Total Rain" ) + "</td><td>" + formatPrecip( controller.settings.wtdata.p ) + "</td></tr>" : "" ) +
+			( typeof controller.settings.wtdata.eto !== "undefined" ? "<tr><td>" + _( "ETo" ) + "</td><td>" + formatPrecip( controller.settings.wtdata.eto ) + "</td></tr>" : "" ) +
+			( typeof controller.settings.wtdata.radiation !== "undefined" ? "<tr><td>" + _( "Mean Radiation" ) + "</td><td>" + controller.settings.wtdata.radiation + " kWh/m2</td></tr>" : "" ) +
+			( typeof controller.settings.wtdata.minT !== "undefined" ? "<tr><td>" + _( "Min Temp" ) + "</td><td>" + formatTemp( controller.settings.wtdata.minT ) + "</td></tr>" : "" ) +
+			( typeof controller.settings.wtdata.maxT !== "undefined" ? "<tr><td>" + _( "Max Temp" ) + "</td><td>" + formatTemp( controller.settings.wtdata.maxT ) + "</td></tr>" : "" ) +
+			( typeof controller.settings.wtdata.minH !== "undefined" ? "<tr><td>" + _( "Min Humidity" ) + "</td><td>" + formatHumidity( controller.settings.wtdata.minH ) + "</td></tr>" : "" ) +
+			( typeof controller.settings.wtdata.maxH !== "undefined" ? "<tr><td>" + _( "Max Humidity" ) + "</td><td>" + formatHumidity( controller.settings.wtdata.maxH ) + "</td></tr>" : "" ) +
+			( typeof controller.settings.wtdata.wind !== "undefined" ? "<tr><td>" + _( "Mean Wind" ) + "</td><td>" + formatSpeed( controller.settings.wtdata.wind ) + "</td></tr>" : "" );
 	}
-	popup += ( typeof controller.options.wl !== "undefined" ? "<tr><td>" + _( "Current % Watering" ) + "</td><td>" + controller.options.wl + "%</td></tr>" : "" );
-	popup += "</table>";
+	popup += ( typeof controller.settings.lwc === "number" ? "<tr><td>" + _( "Last Request" ) + "</td><td>" + dateToString( new Date( controller.settings.lwc * 1000 ), null, 2 ) + "</td></tr>" : "" );
+	popup += ( typeof controller.settings.wterr === "number" ? "<tr><td>" + _( "Last Response" ) + "</td><td>" + getWeatherError( controller.settings.wterr ) + "</td></tr>" : "" );
+	popup += "</table></div>";
 
 	if ( typeof controller.settings.wtdata.weatherProvider === "string" ) {
 		popup += "<hr>";
@@ -3201,7 +3306,7 @@ function getAdjustmentMethod( id ) {
         { name: _( "Manual" ), id: 0 },
         { name: "Zimmerman", id: 1 },
         { name: _( "Auto Rain Delay" ), id: 2, minVersion: 216 },
-		{ name: "Evapotranspiration (ET)", id: 3, minVersion: 216 }
+		{ name: "ETo", id: 3, minVersion: 216 }
     ];
 
     if ( id === undefined ) {
@@ -5252,7 +5357,7 @@ var showHome = ( function() {
 			timers.clock = {
 				val: controller.settings.devt,
 				update: function() {
-					page.find( "#clock-s" ).text( dateToString( new Date( this.val * 1000 ), null, true ) );
+					page.find( "#clock-s" ).text( dateToString( new Date( this.val * 1000 ), null, 1 ) );
 				}
 			};
 		},
@@ -12128,6 +12233,53 @@ function getTimezoneOffset() {
 	return tz * sign;
 }
 
+// Credit Stacktrace
+// https://stackoverflow.com/questions/3177836/how-to-format-time-since-xxx-e-g-4-minutes-ago-similar-to-stack-exchange-site/23259289#23259289
+function humaniseDuration( base, relative ) {
+	var seconds = Math.floor( ( relative - base ) / 1000 ),
+		isFuture = ( seconds > 0 ) ? true : false,
+		intervalType;
+
+	seconds = Math.abs( seconds );
+	if ( seconds < 10 ) {
+		return _( "Just Now" );
+	}
+
+	var interval = Math.floor( seconds / 31536000 );
+	if ( interval >= 1 ) {
+		intervalType = ( interval > 1 ) ? _( "years" ) : _( "year" );
+	} else {
+		interval = Math.floor( seconds / 2592000 );
+		if ( interval >= 1 ) {
+			intervalType = ( interval > 1 ) ? _( "months" ) : _( "month" );
+		} else {
+			interval = Math.floor( seconds / 86400 );
+			if ( interval >= 1 ) {
+				intervalType = ( interval > 1 ) ? _( "days" ) : _( "day" );
+			} else {
+				interval = Math.floor( seconds / 3600 );
+				if ( interval >= 1 ) {
+					intervalType = ( interval > 1 ) ? _( "hours" ) : _( "hour" );
+				} else {
+					interval = Math.floor( seconds / 60 );
+					if ( interval >= 1 ) {
+						intervalType = ( interval > 1 ) ? _( "minutes" ) : _( "minute" );
+					} else {
+						interval = seconds;
+						intervalType = ( interval > 1 ) ? _( "seconds" ) : _( "second" );
+					}
+				}
+			}
+		}
+	}
+
+	if ( isFuture ) {
+		return _( "In" ) + " " + interval + " " + intervalType;
+	} else {
+		return interval + " " + intervalType + " " + _( "ago" );
+	}
+}
+
 function dateToString( date, toUTC, shorten ) {
 	var dayNames = [ _( "Sun" ), _( "Mon" ), _( "Tue" ),
 					_( "Wed" ), _( "Thr" ), _( "Fri" ), _( "Sat" ) ],
@@ -12147,10 +12299,14 @@ function dateToString( date, toUTC, shorten ) {
 				date.getFullYear() + " " + pad( date.getHours() ) + ":" +
 				pad( date.getMinutes() ) + ":" + pad( date.getSeconds() );
 	} else {
-		if ( shorten ) {
+		if ( shorten === 1 ) {
 			return monthNames[ date.getMonth() ] + " " + pad( date.getDate() ) + ", " +
 					date.getFullYear() + " " + pad( date.getHours() ) + ":" +
 					pad( date.getMinutes() ) + ":" + pad( date.getSeconds() );
+		} else if ( shorten === 2 ) {
+			return monthNames[ date.getMonth() ] + " " + pad( date.getDate() ) + ", " +
+					pad( date.getHours() ) + ":" + pad( date.getMinutes() ) + ":" +
+					pad( date.getSeconds() );
 		} else {
 			return dayNames[ date.getDay() ] + ", " + pad( date.getDate() ) + " " +
 					monthNames[ date.getMonth() ] + " " + date.getFullYear() + " " +
