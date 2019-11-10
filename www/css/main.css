@@ -1057,9 +1057,29 @@ div.running-text{
 .noweather #clock-s {
     padding-top:0;
 }
-.debugWU tr td:first-child {
+.debugWUHeading {
+    text-align:center;
+    font-weight:bold;
+}
+.debugWUHeading:not(:first-of-type) {
+    margin-top: 8px;
+    border-top: thin inset  #f3f3f3;
+    padding-top: 8px;
+}
+.debugWUTable tr td:first-child {
+    vertical-align: top;
     width: 160px;
     font-weight: 700;
+}
+.debugWUScrollable {
+    max-height: 150px;
+    overflow: auto;
+}
+.debugWUError {
+    color:red;
+}
+.debugWUOK {
+    color:green;
 }
 .wicon {
     vertical-align:middle;
