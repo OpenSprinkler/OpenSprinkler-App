@@ -3214,7 +3214,7 @@ function getWeatherStatus( status ) {
 	if ( status < 0 ) {
 		return "<font class='debugWUError'>" + _( "Offline" ) + "</font>";
 	} else if ( status > 0 ) {
-		return "<font class='debugWUWarning'>" + _( "Error" ) + "</font>";
+		return "<font class='debugWUError'>" + _( "Error" ) + "</font>";
 	} else {
 		return "<font class='debugWUOK'>" + _( "Online" ) + "</font>";
 	}

@@ -1078,9 +1078,6 @@ div.running-text{
 .debugWUError {
     color:red;
 }
-.debugWUWarning {
-    color:red;
-}
 .debugWUOK {
     color:green;
 }
