@@ -4182,8 +4182,12 @@ function showOptions( expandItem ) {
 	} );
 
 	page.find( "#wto" ).on( "click", function() {
-		var method = parseInt( page.find( "#o31" ).val() ),
+		var self = this,
+			options = unescapeJSON( this.value ),
+			retainOptions = { pws: options.pws, key: options.pws },
+			method = parseInt( page.find( "#o31" ).val() ),
 			finish = function() {
+				self.value = escapeJSON( $.extend( {}, unescapeJSON( self.value ), retainOptions ) );
 				header.eq( 2 ).prop( "disabled", false );
 				page.find( ".submit" ).addClass( "hasChanges" );
 			};
