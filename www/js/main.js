@@ -4282,7 +4282,7 @@ function showOptions( expandItem ) {
 	page.find( "#wto" ).on( "click", function() {
 		var self = this,
 			options = unescapeJSON( this.value ),
-			retainOptions = { pws: options.pws, key: options.pws },
+			retainOptions = { pws: options.pws, key: options.key },
 			method = parseInt( page.find( "#o31" ).val() ),
 			finish = function() {
 				self.value = escapeJSON( $.extend( {}, unescapeJSON( self.value ), retainOptions ) );
