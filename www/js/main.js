@@ -3053,12 +3053,14 @@ function overlayMap( callback ) {
 			} catch ( err ) { exit( false ); }
 		},
 		updateStations = function( latitude, longitude ) {
-			if ( !controller.settings.wto || typeof controller.settings.wto.key !== "string" || controller.settings.wto.key === "" ) {
+			var key = $( "#wtkey" ).val();
+			if ( key === "" ) {
 				return;
 			}
 
 			$.ajax( {
-				url: "https://api.weather.com/v3/location/near?format=json&product=pws&apiKey=" + controller.settings.wto.key + "&geocode=" + encodeURIComponent( latitude ) + "," + encodeURIComponent( longitude ),
+				url: "https://api.weather.com/v3/location/near?format=json&product=pws&apiKey=" + key +
+						"&geocode=" + encodeURIComponent( latitude ) + "," + encodeURIComponent( longitude ),
 				cache: true
 			} ).done( function( data ) {
 				var sortedData = [];
@@ -3068,7 +3070,7 @@ function overlayMap( callback ) {
 						id: id,
 						lat: data.location.latitude[ index ],
 						lon: data.location.longitude[ index ],
-						message: data.location.stationName[ index ]
+						message: data.location.stationId[ index ]
 					} );
 				} );
 

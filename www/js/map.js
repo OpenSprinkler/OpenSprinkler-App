@@ -50,6 +50,10 @@ function initialize() {
 			streetViewControl: false,
 			mapTypeControl: false,
 			mapTypeId: google.maps.MapTypeId.ROADMAP,
+			zoomControl: true,
+			zoomControlOptions: {
+				position: google.maps.ControlPosition.LEFT_BOTTOM
+			},
 			styles: [
 				{ featureType: "poi", elementType: "labels", stylers: [ { visibility: "off" } ] },
 				{ featureType: "transit", elementType: "labels", stylers: [ { visibility: "off" } ] }
