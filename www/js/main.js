@@ -2809,7 +2809,7 @@ function checkURLandUpdateWeather() {
 
 	return $.get( currPrefix + currIp + "/su" ).then( function( reply ) {
 		var wsp = reply.match( /value="([\w|:|/|.]+)" name=wsp/ );
-		finish( wsp ? wsp[ 1 ] : DEFAULT_WEATHER_SERVER_URL );
+		finish( wsp ? wsp[ 1 ] : undefined );
 	} );
 }
 
