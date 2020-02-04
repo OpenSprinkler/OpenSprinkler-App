@@ -76,12 +76,14 @@
     },
     "platforms": [
       "android",
-      "ios"
+      "ios",
+      "osx"
     ]
   },
   "dependencies": {
     "cordova-android": "^8.0.0",
     "cordova-ios": "^5.0.0",
+    "cordova-osx": "^5.0.0",
     "cordova-plugin-3dtouch": "^1.3.6",
     "cordova-plugin-camera": "^4.1.0",
     "cordova-plugin-geolocation": "^4.0.1",
