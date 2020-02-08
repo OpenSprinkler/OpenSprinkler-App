@@ -471,8 +471,10 @@ function initApp() {
 
 		// Handle In-App browser requests (marked with iab class)
 		$.mobile.document.on( "click", ".iab", function() {
+			var target = cordova && cordova.platformId === "osx" ? "_system" : "_blank";
+
 			var button = $( this ),
-				iab = window.open( this.href, "_blank", "location=" + ( isAndroid ? "yes" : "no" ) +
+				iab = window.open( this.href, target, "location=" + ( isAndroid ? "yes" : "no" ) +
 					",enableViewportScale=" + ( button.hasClass( "iabNoScale" ) ? "no" : "yes" ) +
 					",toolbarposition=top" +
 					",closebuttoncaption=" +

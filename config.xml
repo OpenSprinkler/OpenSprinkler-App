@@ -111,6 +111,9 @@
         <icon src="res/windows/icons/icon48.png" />
         <splash src="res/windows/screens/startup.jpg" />
     </platform>
+	<platform name="osx">
+		<icon src="res/osx/icons/icon-1024.png" />
+	</platform>
     <plugin name="cordova-plugin-3dtouch" spec="^1.3.5" />
     <plugin name="cordova-plugin-statusbar" spec="^2.3.0" />
     <plugin name="cordova-plugin-transport-security" spec="^0.1.2" />
