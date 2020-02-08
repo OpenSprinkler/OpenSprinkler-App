@@ -113,6 +113,12 @@
     </platform>
 	<platform name="osx">
 		<icon src="res/osx/icons/icon-1024.png" />
+        <edit-config file="*-Info.plist" mode="merge" target="CFBundleVersion">
+            <string>1870</string>
+        </edit-config>
+        <edit-config file="*-Info.plist" mode="merge" target="CFBundleIdentifier">
+            <string>com.albahra.Sprinklers.osx</string>
+        </edit-config>
 	</platform>
     <plugin name="cordova-plugin-3dtouch" spec="^1.3.5" />
     <plugin name="cordova-plugin-statusbar" spec="^2.3.0" />

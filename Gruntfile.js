@@ -197,7 +197,7 @@
 				},
 				pushBump: {
 					command: [
-						"git add www/js/main.js source/osx/Resources/OpenSprinkler-Info.plist config.xml manifest.json package.json",
+						"git add www/js/main.js config.xml manifest.json package.json",
 						"git commit -m 'Base: Increment version number'",
 						"git push"
 					].join( "&&" )
@@ -212,21 +212,6 @@
 						from: /_\( "App Version" \) \+ ": ([\d|\.]+)"/g,
 						to: function( matchedWord, index, fullText, regexMatches ) {
 							return "_( \"App Version\" ) + \": " + bumpVersion( regexMatches[ 0 ] ) + "\"";
-						}
-					} ]
-				},
-				osx: {
-					src: [ "source/osx/Resources/OpenSprinkler-Info.plist" ],
-					overwrite: true,
-					replacements: [ {
-						from: /<key>CFBundleShortVersionString<\/key>\n\t<string>([\d|\.]+)<\/string>/g,
-						to: function( matchedWord, index, fullText, regexMatches ) {
-							return "<key>CFBundleShortVersionString</key>\n\t<string>" + bumpVersion( regexMatches[ 0 ] ) + "</string>";
-						}
-					}, {
-						from: /<key>CFBundleVersion<\/key>\n\t<string>(\d+)<\/string>/g,
-						to: function( matchedWord, index, fullText, regexMatches ) {
-							return "<key>CFBundleVersion<\/key>\n\t<string>" + ( parseInt( regexMatches[ 0 ] ) + 1 ) + "<\/string>";
 						}
 					} ]
 				},
@@ -296,6 +281,6 @@
 		grunt.registerTask( "pushFW", [ "makeFW", "shell:updateUI", "clean:pushFW" ] );
 		grunt.registerTask( "pushBetaFW", [ "makeFW", "shell:updateBetaUI", "clean:pushFW" ] );
 		grunt.registerTask( "build", [ "default", "shell:symres", "compress:chrome", "pushFW", "clean:symres" ] );
-		grunt.registerTask( "bump", [ "default", "replace:about", "replace:osx", "replace:phonegap", "replace:manifests", "shell:pushBump" ] );
+		grunt.registerTask( "bump", [ "default", "replace:about", "replace:phonegap", "replace:manifests", "shell:pushBump" ] );
 
 	};

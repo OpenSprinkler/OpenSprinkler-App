@@ -15,7 +15,5 @@ after_success:
  - ./node_modules/.bin/lcov-result-merger './coverage/results-*.lcov' './coverage/results.lcov'
  - cat coverage/results.lcov | ./node_modules/codecov.io/bin/codecov.io.js
  - cat coverage/results.lcov | ./node_modules/.bin/coveralls
-script:
- - xcodebuild build -project source/osx/OpenSprinkler.xcodeproj -scheme OpenSprinkler CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGN_ENTITLEMENTS=""
 notifications:
   on_failure: change
