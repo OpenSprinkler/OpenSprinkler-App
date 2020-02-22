@@ -41,7 +41,7 @@
             <string>Your camera is used to provide an image for your stations.</string>
         </edit-config>
         <edit-config file="*-Info.plist" mode="merge" target="CFBundleShortVersionString">
-            <string>1872</string>
+            <string>1873</string>
         </edit-config>
         <splash height="480" src="res/ios/screens/startup.png" width="320" />
         <splash height="960" src="res/ios/screens/startup-retina.png" width="640" />
@@ -120,7 +120,7 @@
 		<icon src="res/osx/icons/icon-32.png" width="32" />
 		<icon src="res/osx/icons/icon-16.png" width="16" />
         <edit-config file="*-Info.plist" mode="merge" target="CFBundleVersion">
-            <string>1872</string>
+            <string>1873</string>
         </edit-config>
         <edit-config file="*-Info.plist" mode="merge" target="CFBundleIdentifier">
             <string>com.albahra.Sprinklers.osx</string>

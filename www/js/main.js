@@ -23,7 +23,7 @@ var isIEMobile = /IEMobile/.test( navigator.userAgent ),
 	isiOS = /iP(ad|hone|od)/.test( navigator.userAgent ),
 	isFireFox = /Firefox/.test( navigator.userAgent ),
 	isWinApp = /MSAppHost/.test( navigator.userAgent ),
-	isOSXApp = isOSXApp || false,
+	isOSXApp = cordova && cordova.platformId === "osx",
 	isChromeApp = typeof chrome === "object" && typeof chrome.storage === "object",
 	isFileCapable = !isiOS && !isAndroid && !isIEMobile && !isOSXApp &&
 					!isWinApp && window.FileReader,
@@ -467,35 +467,32 @@ function initApp() {
 	$.mobile.hoverDelay = 0;
 	$.mobile.activeBtnClass = "activeButton";
 
-	if ( !isOSXApp ) {
+	// Handle In-App browser requests (marked with iab class)
+	$.mobile.document.on( "click", ".iab", function() {
+		var target = isOSXApp ? "_system" : "_blank";
 
-		// Handle In-App browser requests (marked with iab class)
-		$.mobile.document.on( "click", ".iab", function() {
-			var target = cordova && cordova.platformId === "osx" ? "_system" : "_blank";
+		var button = $( this ),
+			iab = window.open( this.href, target, "location=" + ( isAndroid ? "yes" : "no" ) +
+				",enableViewportScale=" + ( button.hasClass( "iabNoScale" ) ? "no" : "yes" ) +
+				",toolbarposition=top" +
+				",closebuttoncaption=" +
+					( button.hasClass( "iabNoScale" ) ? _( "Back" ) : _( "Done" ) )
+			);
 
-			var button = $( this ),
-				iab = window.open( this.href, target, "location=" + ( isAndroid ? "yes" : "no" ) +
-					",enableViewportScale=" + ( button.hasClass( "iabNoScale" ) ? "no" : "yes" ) +
-					",toolbarposition=top" +
-					",closebuttoncaption=" +
-						( button.hasClass( "iabNoScale" ) ? _( "Back" ) : _( "Done" ) )
-				);
+		if ( isIEMobile ) {
 
-			if ( isIEMobile ) {
+			// For Windows Mobile, save state of In-App browser to allow back button to close it
+			$.mobile.document.data( "iabOpen", true );
+			iab.addEventListener( "exit", function() {
+				$.mobile.document.removeData( "iabOpen" );
+			} );
+		}
 
-				// For Windows Mobile, save state of In-App browser to allow back button to close it
-				$.mobile.document.data( "iabOpen", true );
-				iab.addEventListener( "exit", function() {
-					$.mobile.document.removeData( "iabOpen" );
-				} );
-			}
-
-			setTimeout( function() {
-				button.removeClass( "ui-btn-active" );
-			}, 100 );
-			return false;
-		} );
-	}
+		setTimeout( function() {
+			button.removeClass( "ui-btn-active" );
+		}, 100 );
+		return false;
+	} );
 
 	// Correctly handle popup events and prevent history navigation on custom selectmenu popup
 	$.mobile.document.on( "click", ".ui-select .ui-btn", function() {
@@ -9163,7 +9160,7 @@ function getExportMethod() {
 
 	var href = "mailto:?subject=" + encodeURIComponent( subject ) + "&body=" + obj;
 	popup.find( ".pasteMethod" ).attr( "href", href ).on( "click", function() {
-		window.open( href );
+		window.open( href, isOSXApp ? "_system" : undefined );
 		popup.popup( "close" );
 	} );
 
