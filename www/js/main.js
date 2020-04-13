@@ -23,7 +23,7 @@ var isIEMobile = /IEMobile/.test( navigator.userAgent ),
 	isiOS = /iP(ad|hone|od)/.test( navigator.userAgent ),
 	isFireFox = /Firefox/.test( navigator.userAgent ),
 	isWinApp = /MSAppHost/.test( navigator.userAgent ),
-	isOSXApp = cordova && cordova.platformId === "osx",
+	isOSXApp = window.cordova && window.cordova.platformId === "osx",
 	isChromeApp = typeof chrome === "object" && typeof chrome.storage === "object",
 	isFileCapable = !isiOS && !isAndroid && !isIEMobile && !isOSXApp &&
 					!isWinApp && window.FileReader,
@@ -601,7 +601,7 @@ function initApp() {
 	bindPanel();
 
 	// Update the IP address of the device running the app
-	if ( !currLocal  && typeof cordova === "undefined" ) {
+	if ( !currLocal  && typeof window.cordova === "undefined" ) {
 		updateDeviceIP();
 	}
 
@@ -1875,31 +1875,31 @@ var showSites = ( function() {
 
 				list.find( ".deletesite" ).on( "click", function() {
 					var site = siteNames[ $( this ).data( "site" ) ];
-
-					if ( $( "#site-selector" ).val() === site ) {
-						makeStart();
-					}
-
-					delete sites[ site ];
-					storage.set( { "sites":JSON.stringify( sites ) }, function() {
-						cloudSaveSites();
-						updateSiteList( Object.keys( sites ), data.current_site );
-						if ( $.isEmptyObject( sites ) ) {
-							storage.get( "cloudToken", function() {
-								if ( data.cloudToken === null || data.cloudToken === undefined ) {
-									currIp = "";
-									currPass = "";
-									changePage( "#start" );
-									return;
-								}
-							} );
-						} else {
-							updateContent();
-							showerror( _( "Site deleted successfully" ) );
+					areYouSure( _( "Are you sure you want to delete " ) + site + "?", "", function() {
+						if ( $( "#site-selector" ).val() === site ) {
+							makeStart();
 						}
-						return false;
-					} );
 
+						delete sites[ site ];
+						storage.set( { "sites":JSON.stringify( sites ) }, function() {
+							cloudSaveSites();
+							updateSiteList( Object.keys( sites ), data.current_site );
+							if ( $.isEmptyObject( sites ) ) {
+								storage.get( "cloudToken", function() {
+									if ( data.cloudToken === null || data.cloudToken === undefined ) {
+										currIp = "";
+										currPass = "";
+										changePage( "#start" );
+										return;
+									}
+								} );
+							} else {
+								updateContent();
+								showerror( _( "Site deleted successfully" ) );
+							}
+							return false;
+						} );
+					} );
 					return false;
 				} );
 
