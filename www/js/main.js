@@ -4883,7 +4883,7 @@ var showHome = ( function() {
 							"<div class='ui-bar-a ui-bar'>" + _( "Remote Port" ) + ":</div>" +
 							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='remote-port' required='true' type='number' placeholder='80' min='0' max='65535' value='" + data.port + "'>" +
 							"<div class='ui-bar-a ui-bar'>" + _( "Remote Station (index)" ) + ":</div>" +
-							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='remote-station' required='true' type='number' min='1' max='48' placeholder='1' value='" + ( data.station + 1 ) + "'>"
+							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='remote-station' required='true' type='number' min='1' max='200' placeholder='1' value='" + ( data.station + 1 ) + "'>"
 						).enhanceWithin();
 					} else if ( value === 3 ) {
 
