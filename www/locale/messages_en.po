@@ -126,6 +126,9 @@ msgstr ""
 msgid "Site updated successfully"
 msgstr ""
 
+msgid "Are you sure you want to delete "
+msgstr ""
+
 msgid "Site deleted successfully"
 msgstr ""
 
@@ -211,6 +214,24 @@ msgstr ""
 msgid "Current Weather"
 msgstr ""
 
+msgid "Powered by Dark Sky"
+msgstr ""
+
+msgid "Powered by OpenWeather"
+msgstr ""
+
+msgid "Powered by Weather Underground"
+msgstr ""
+
+msgid "Powered by your Local PWS"
+msgstr ""
+
+msgid "Using manual watering"
+msgstr ""
+
+msgid "Unrecognised weather provider"
+msgstr ""
+
 msgid "Forecast"
 msgstr ""
 
@@ -241,58 +262,202 @@ msgstr ""
 msgid "Attempting to retrieve your current location"
 msgstr ""
 
-msgid "Last System Reboot"
+msgid "None"
 msgstr ""
 
-msgid "Reboot Reason"
+msgid "Factory Reset"
 msgstr ""
 
-msgid "Last Weather Call"
+msgid "Reset Button"
 msgstr ""
 
-msgid "Last Weather Response Received"
+msgid "WiFi Change"
 msgstr ""
 
-msgid "Response Code"
+msgid "Web Request"
+msgstr ""
+
+msgid "WiFi Configure"
+msgstr ""
+
+msgid "Firmware Update"
+msgstr ""
+
+msgid "Weather Failure"
+msgstr ""
+
+msgid "Network Failure"
+msgstr ""
+
+msgid "Clock Update"
+msgstr ""
+
+msgid "Power On"
+msgstr ""
+
+msgid "Empty Response"
+msgstr ""
+
+msgid "Timed Out"
+msgstr ""
+
+msgid "Connection Failed"
+msgstr ""
+
+msgid "No Response"
 msgstr ""
 
 msgid "Success"
 msgstr ""
 
+msgid "Weather Data Error"
+msgstr ""
+
+msgid "Building Weather History"
+msgstr ""
+
+msgid "Weather Provider Respnse Incomplete"
+msgstr ""
+
+msgid "Weather Provider Request Failed"
+msgstr ""
+
+msgid "Location Error"
+msgstr ""
+
+msgid "Location Request Error"
+msgstr ""
+
+msgid "Location Not Found"
+msgstr ""
+
+msgid "Invalid Location Format"
+msgstr ""
+
+msgid "PWS Error"
+msgstr ""
+
+msgid "Invalid WUnderground PWS"
+msgstr ""
+
+msgid "Invalid WUnderground Key"
+msgstr ""
+
+msgid "WUnderground Authentication Error"
+msgstr ""
+
+msgid "Unsupported WUnderground Method"
+msgstr ""
+
+msgid "No WUnderground PWS Provided"
+msgstr ""
+
+msgid "Adjustment Method Error"
+msgstr ""
+
+msgid "Unsupported Adjustment Method"
+msgstr ""
+
+msgid "No Adjustment Method Provided"
+msgstr ""
+
+msgid "Adjustment Options Error"
+msgstr ""
+
+msgid "Corrupt Adjustment Options"
+msgstr ""
+
+msgid "Missing Adjustment Option"
+msgstr ""
+
+msgid "Unexpected Error"
+msgstr ""
+
+msgid "Unrecognised"
+msgstr ""
+
+msgid "Offline"
+msgstr ""
+
 msgid "Error"
 msgstr ""
 
-msgid "Adjustment Method"
+msgid "Online"
+msgstr ""
+
+msgid "Unuseable"
+msgstr ""
+
+msgid "Poor"
+msgstr ""
+
+msgid "Fair"
+msgstr ""
+
+msgid "Good"
+msgstr ""
+
+msgid "Excellent"
+msgstr ""
+
+msgid "Last Reboot"
+msgstr ""
+
+msgid "Reboot Reason"
+msgstr ""
+
+msgid "WiFi Strength"
+msgstr ""
+
+msgid "Weather Service"
+msgstr ""
+
+msgid "Method"
+msgstr ""
+
+msgid "Watering Level"
+msgstr ""
+
+msgid "Last Updated"
+msgstr ""
+
+msgid "Never"
+msgstr ""
+
+msgid "Mean Humidity"
 msgstr ""
 
 msgid "Mean Temp"
 msgstr ""
 
-msgid "Precip"
+msgid "Total Rain"
 msgstr ""
 
 msgid "ETo"
 msgstr ""
 
-msgid "Radiation"
+msgid "Mean Radiation"
 msgstr ""
 
-msgid "Miniumum Temp"
+msgid "Min Temp"
 msgstr ""
 
-msgid "Maximum Temp"
+msgid "Max Temp"
 msgstr ""
 
-msgid "Miniumum Humidity"
+msgid "Min Humidity"
 msgstr ""
 
-msgid "Maximum Humidity"
+msgid "Max Humidity"
 msgstr ""
 
-msgid "Wind"
+msgid "Mean Wind"
 msgstr ""
 
-msgid "Current % Watering"
+msgid "Last Request"
+msgstr ""
+
+msgid "Last Response"
 msgstr ""
 
 msgid "Change Rain Delay"
@@ -310,9 +475,6 @@ msgid "Manual"
 msgstr ""
 
 msgid "Auto Rain Delay"
-msgstr ""
-
-msgid "None"
 msgstr ""
 
 msgid "California Restriction"
@@ -1016,6 +1178,15 @@ msgstr ""
 msgid "RD"
 msgstr ""
 
+msgid "Soil Sensor"
+msgstr ""
+
+msgid "SEN1"
+msgstr ""
+
+msgid "SEN2"
+msgstr ""
+
 msgid "FS"
 msgstr ""
 
@@ -1711,5 +1882,71 @@ msgstr ""
 msgid "Localization"
 msgstr ""
 
+msgid "Just Now"
+msgstr ""
+
+msgid "years"
+msgstr ""
+
+msgid "year"
+msgstr ""
+
+msgid "months"
+msgstr ""
+
+msgid "month"
+msgstr ""
+
+msgid "days"
+msgstr ""
+
+msgid "day"
+msgstr ""
+
+msgid "hours"
+msgstr ""
+
+msgid "hour"
+msgstr ""
+
+msgid "minutes"
+msgstr ""
+
+msgid "minute"
+msgstr ""
+
+msgid "seconds"
+msgstr ""
+
+msgid "second"
+msgstr ""
+
+msgid "In"
+msgstr ""
+
+msgid "ago"
+msgstr ""
+
 msgid "Thr"
+msgstr ""
+
+msgid "Export Configuration"
+msgstr ""
+
+msgid "Import Configuration"
+msgstr ""
+
+msgid "Help & Support"
+msgstr ""
+
+msgid "Operation"
+msgstr ""
+
+msgid "Reboot OpenSprinkler"
+msgstr ""
+
+msgid "Downgrade UI"
+msgstr ""
+
+msgid "System Diagnostics"
 msgstr ""
