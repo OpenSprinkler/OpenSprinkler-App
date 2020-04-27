@@ -3273,7 +3273,7 @@ function debugWU() {
 	popup += ( typeof controller.settings.wterr === "number" ? "<tr><td>" + _( "Last Response" ) + "</td><td>" + getWeatherError( controller.settings.wterr ) + "</td></tr>" : "" );
 	popup += "</table></div>";
 
-	if ( typeof controller.settings.wtdata.weatherProvider === "string" ) {
+	if ( controller.settings.wtdata && typeof controller.settings.wtdata.weatherProvider === "string" ) {
 		popup += "<hr>";
 		popup += makeAttribution( controller.settings.wtdata.weatherProvider );
 	}
