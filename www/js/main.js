@@ -9546,6 +9546,11 @@ var showAbout = ( function() {
 								"https://github.com/OpenSprinkler/OpenSprinkler-App/" +
 							"</a>" +
 						"</p>" +
+						"<p>" + _( "Language localization is crowdsourced using Transifex available at" ) + " " +
+							"<a class='iab squeeze' target='_blank' href='https://www.transifex.com/albahra/opensprinkler/'>" +
+								"https://www.transifex.com/albahra/opensprinkler/" +
+							"</a>" +
+						"</p>" +
 						"<p>" + _( "Open source attributions" ) + ": " +
 							"<a class='iab iabNoScale squeeze' target='_blank' " +
 								"href='https://github.com/OpenSprinkler/OpenSprinkler-App/wiki/List-of-Integrated-Libraries'>" +
