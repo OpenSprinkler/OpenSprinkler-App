@@ -2913,12 +2913,26 @@ function makeAttribution( provider ) {
 
 	var attrib = "<div class='weatherAttribution'>";
 	switch ( provider ) {
-		case "DarkSky":		attrib += "<a href='https://darksky.net/poweredby/' target='_blank'>" + _( "Powered by Dark Sky" ) + "</a>"; break;
-		case "OWM":			attrib += "<a href='https://openweathermap.org/' target='_blank'>" + _( "Powered by OpenWeather" ) + "</a>"; break;
-		case "WUnderground":attrib += "<a href='https://wunderground.com/' target='_blank'>" + _( "Powered by Weather Underground" ) + "</a>"; break;
-		case "local":		attrib += _( "Powered by your Local PWS" ); break;
-		case "Manual":		attrib += _( "Using manual watering" ); break;
-		default:			attrib += _( "Unrecognised weather provider" ); break;
+		case "DarkSky":
+		case "DS":
+			attrib += "<a href='https://darksky.net/poweredby/' target='_blank'>" + _( "Powered by Dark Sky" ) + "</a>";
+			break;
+		case "OWM":
+			attrib += "<a href='https://openweathermap.org/' target='_blank'>" + _( "Powered by OpenWeather" ) + "</a>";
+			break;
+		case "WUnderground":
+		case "WU":
+			attrib += "<a href='https://wunderground.com/' target='_blank'>" + _( "Powered by Weather Underground" ) + "</a>";
+			break;
+		case "local":
+			attrib += _( "Powered by your Local PWS" );
+			break;
+		case "Manual":
+			attrib += _( "Using manual watering" );
+			break;
+		default:
+			attrib += _( "Unrecognised weather provider" );
+			break;
 	}
 	return attrib + "</div>";
 }
@@ -2929,7 +2943,7 @@ function showForecast() {
 				"<ul data-role='listview' data-inset='true'>" +
 					makeForecast() +
 				"</ul>" +
-				makeAttribution( weather.weatherProvider ) +
+				makeAttribution( weather.wp || weather.weatherProvider ) +
 			"</div>" +
 		"</div>" );
 
@@ -3273,9 +3287,9 @@ function debugWU() {
 	popup += ( typeof controller.settings.wterr === "number" ? "<tr><td>" + _( "Last Response" ) + "</td><td>" + getWeatherError( controller.settings.wterr ) + "</td></tr>" : "" );
 	popup += "</table></div>";
 
-	if ( controller.settings.wtdata && typeof controller.settings.wtdata.weatherProvider === "string" ) {
+	if ( controller.settings.wtdata && (typeof controller.settings.wtdata.wp === "string" || typeof controller.settings.wtdata.weatherProvider === "string") ) {
 		popup += "<hr>";
-		popup += makeAttribution( controller.settings.wtdata.weatherProvider );
+		popup += makeAttribution( controller.settings.wtdata.wp || controller.settings.wtdata.weatherProvider );
 	}
 	popup += "</div>";
 
