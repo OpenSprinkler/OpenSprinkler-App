@@ -2575,7 +2575,7 @@ function showEToAdjustmentOptions( button, callback ) {
 			baseETo: 0,
 			elevation: 600
 		},
-		controller.settings.wto
+		unescapeJSON(button.value)
 	);
 
 	if ( isMetric ) {
