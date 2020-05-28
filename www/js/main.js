@@ -1851,6 +1851,9 @@ var showSites = ( function() {
 							data.current_site = site;
 						}
 						updateSiteList( Object.keys( sites ), data.current_site );
+
+						// TODO: make sure this works with multiple sites
+						sendToOS("/cv?pw=&cn=" + data.current_site);
 					}
 
 					storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
