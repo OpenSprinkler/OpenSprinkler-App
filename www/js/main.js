@@ -1852,7 +1852,6 @@ var showSites = ( function() {
 						}
 						updateSiteList( Object.keys( sites ), data.current_site );
 
-						// TODO: make sure this works with multiple sites
 						sendToOS("/cv?pw=&cn=" + data.current_site);
 					}
 
