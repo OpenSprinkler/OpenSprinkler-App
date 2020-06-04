@@ -4833,6 +4833,9 @@ var showHome = ( function() {
 			cards += "<span class='btn-no-border ui-btn ui-btn-icon-notext ui-icon-wifi card-icon special-station " +
 				( isStationSpecial( i ) ? "" : "hidden" ) + "'></span>";
 
+			cards += "<span class='btn-no-border ui-btn ui-btn-icon-notext card-icon pause-toggle card-icon " +
+				( isRunning ? "" : "hidden" ) + "'></span>";
+
 			cards += "<span class='btn-no-border ui-btn " + ( ( isStationMaster( i ) ) ? "ui-icon-master" : "ui-icon-gear" ) +
 				" card-icon ui-btn-icon-notext station-settings' data-station='" + i + "' id='attrib-" + i + "' " +
 				( hasMaster ? ( "data-um='" + ( ( controller.stations.masop[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) + "' " ) : "" ) +
@@ -5372,6 +5375,21 @@ var showHome = ( function() {
 				} );
 			} );
 		},
+		onPause = function(e) {
+			e.stopPropagation();
+
+			// throttling
+			let lastCall = 0;
+			const now = (new Date).getTime();
+			if (now - lastCall > 300) {
+				var cardProps = $(this).parent().parent();
+				station = cardProps.data( "station" );
+				lastCall = now;
+				sendToOS("/cm?sid=" + station + "&en=0&ps=0&pw=").done(function() {
+					// change button appearance maybe?
+				});
+			}
+		},
 		updateClock = function() {
 
 			// Update the current time
@@ -5496,6 +5514,9 @@ var showHome = ( function() {
 					} else {
 						card.find( ".station-settings" ).removeClass( "ui-icon-master" ).addClass( "ui-icon-gear" );
 					}
+
+					card.find( ".pause-toggle" ).removeClass( "hidden" ).addClass( isRunning ? "" : "hidden");
+
 					card.find( ".station-settings" ).data( {
 						um: hasMaster ? ( ( controller.stations.masop[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) : undefined,
 						um2: hasMaster2 ? ( ( controller.stations.masop2[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) : undefined,
@@ -5594,6 +5615,8 @@ var showHome = ( function() {
 		updateClock();
 
 		page.on( "click", ".station-settings", showAttributes );
+
+		page.on( "click", ".pause-toggle", onPause);
 		page.on( "click", ".home-info", function() {
 			changePage( "#os-options", {
 				expandItem: "weather"

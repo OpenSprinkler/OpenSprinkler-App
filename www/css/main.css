@@ -797,6 +797,12 @@ body, input, select, textarea, button, .ui-btn {
     top: -3px;
     right: 1%;
 }
+
+.pause-toggle {
+	top: -3px;
+	right: 6%;
+}
+
 .special-station {
     top: -3px;
     right: 1%;
