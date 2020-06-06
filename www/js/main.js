@@ -29,6 +29,7 @@ var isIEMobile = /IEMobile/.test( navigator.userAgent ),
 					!isWinApp && window.FileReader,
 	isTouchCapable = "ontouchstart" in window || "onmsgesturechange" in window,
 	isMetric = ( [ "US", "BM", "PW" ].indexOf( navigator.languages[ 0 ].split( "-" )[ 1 ] ) === -1 ),
+	lastCall = 0,
 
 	// Small wrapper to handle Chrome vs localStorage usage
 	storage = {
@@ -5375,20 +5376,41 @@ var showHome = ( function() {
 				} );
 			} );
 		},
-		onPause = function(e) {
-			e.stopPropagation();
+		togglePause = function( sta ) {
+			let isRunning = controller.status[ sta ];
 
-			// throttling
-			let lastCall = 0;
-			const now = (new Date).getTime();
-			if (now - lastCall > 300) {
-				var cardProps = $(this).parent().parent();
-				station = cardProps.data( "station" );
-				lastCall = now;
-				sendToOS("/cm?sid=" + station + "&en=0&ps=0&pw=").done(function() {
-					// change button appearance maybe?
-				});
+			if ( isRunning == 1) {
+				controller.status[ sta ] = 2; // pause
+			} else if ( isRunning == 2 ) {
+				controller.status[ sta ] = 1; // resume
+			} else {
+				showerror( _( "station isn't scheduled or running" ) )
 			}
+
+			return controller.status[ sta ];
+		},
+		onPause = function( e ) {
+
+			// TODO: fix where sometimes the toggle does not work
+
+			e.stopPropagation();
+			const now = ( new Date ).getTime();
+
+			if (  now - lastCall < 500 ) { return; }
+
+			let cardProps = $( this ).parent().parent(),
+				station = cardProps.data( "station" );
+
+			let status = togglePause( station );
+
+			if ( status == 1 ) {
+				console.log("sending a 1");
+				sendToOS( "/cm?pw=&sid=" + station + "&en=1&t=10" );
+			} else {
+				console.log("sending a 2");
+				sendToOS( "/cm?pw=&sid=" + station + "&en=2" );
+			}
+			lastCall = now;
 		},
 		updateClock = function() {
 
