@@ -11414,40 +11414,40 @@ function showTimeInput( opt ) {
 			"<div class='ui-content'>" +
 				( opt.helptext ? "<p class='pad-top rain-desc center smaller'>" + opt.helptext + "</p>" : "" ) +
 				"<span>" +
-					"<fieldset class='ui-grid-b incr'>" +
+					"<fieldset class='ui-grid-" + (isMetric ? 'a' : 'b') + " incr'>" +
 						"<div class='ui-block-a'>" +
 							"<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a>" +
 						"</div>" +
 						"<div class='ui-block-b'>" +
 							"<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a>" +
 						"</div>" +
-						"<div class='ui-block-c'>" +
+						(isMetric ? "" : "<div class='ui-block-c'>" +
 							"<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a>" +
-						"</div>" +
+						"</div>") +
 					"</fieldset>" +
-					"<div class='ui-grid-b inputs'>" +
+					"<div class='ui-grid-" + (isMetric ? 'a' : 'b') + " inputs'>" +
 						"<div class='ui-block-a'>" +
 							"<input data-wrapper-class='pad_buttons' class='hour dontPad' type='number' pattern='[0-9]*' value='" +
-								( parseInt( opt.minutes / 60 ) % 12 === 0 ? 12 : parseInt( opt.minutes / 60 ) % 12 ) + "'>" +
+								(isMetric ? pad( (opt.minutes / 60 >> 0) % 24 ) + "'>" : ( parseInt( opt.minutes / 60 ) % 12 === 0 ? 12 : parseInt( opt.minutes / 60 ) % 12 ) + "'>") +
 						"</div>" +
 						"<div class='ui-block-b'>" +
 							"<input data-wrapper-class='pad_buttons' class='minute' type='number' pattern='[0-9]*' value='" +
 								pad( opt.minutes % 60 ) + "'>" +
 						"</div>" +
-						"<div class='ui-block-c'>" +
+						(isMetric ? "" : "<div class='ui-block-c'>" +
 							"<p class='center period'>" + getPeriod() + "</p>" +
-						"</div>" +
+						"</div>") +
 					"</div>" +
-					"<fieldset class='ui-grid-b decr'>" +
+					"<fieldset class='ui-grid-" + (isMetric ? 'a' : 'b') + " decr'>" +
 						"<div class='ui-block-a'>" +
 							"<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='minus' data-iconpos='bottom'></a>" +
 						"</div>" +
 						"<div class='ui-block-b'>" +
 							"<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='minus' data-iconpos='bottom'></a>" +
 						"</div>" +
-						"<div class='ui-block-c'>" +
+						(isMetric ? "" : "<div class='ui-block-c'>" +
 							"<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='minus' data-iconpos='bottom'></a>" +
-						"</div>" +
+						"</div>") +
 					"</fieldset>" +
 				"</span>" +
 				( opt.showSun ? "<div class='ui-grid-a useSun'>" +
@@ -11478,7 +11478,7 @@ function showTimeInput( opt ) {
 					val = parseInt( input.val() );
 
 				if ( dir === 1 ) {
-					if ( isHour && val >= 12 ) {
+					if ( isHour && ((isMetric && val >= 24) || (!isMetric && val >= 12))) {
 						val = 0;
 					}
 					if ( !isHour && val >= 59 ) {
@@ -11486,11 +11486,13 @@ function showTimeInput( opt ) {
 						var hour = popup.find( ".hour" ),
 							hourFixed = parseInt( hour.val() );
 
-						if ( hourFixed === 12 ) {
-							hourFixed = 0;
-						}
+						if (!isMetric) {
+							if ( hourFixed === 12 ) {
+								hourFixed = 0;
+							}
 
-						hour.val( hourFixed + 1 );
+							hour.val( hourFixed + 1 );
+						}
 					}
 				} else if ( isHour && val <= 1 ) {
 					val = 13;
@@ -11548,12 +11550,14 @@ function showTimeInput( opt ) {
 			} else {
 				var hour = parseInt( popup.find( ".hour" ).val() );
 
-				if ( isPM && hour !== 12 ) {
-					hour = hour + 12;
-				}
+				if (!isMetric) {
+					if ( isPM && hour !== 12 ) {
+						hour = hour + 12;
+					}
 
-				if ( !isPM && hour === 12 ) {
-					hour = 0;
+					if ( !isPM && hour === 12 ) {
+						hour = 0;
+					}
 				}
 
 				return ( hour * 60 ) + parseInt( popup.find( ".minute" ).val() );
