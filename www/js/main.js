@@ -12341,7 +12341,7 @@ function minutesToTime( minutes ) {
 		hour = 12;
 	}
 
-	return hour + ":" + pad( minutes % 60 ) + " " + period;
+	return isMetric ? (pad( (minutes / 60 >> 0) % 24 ) + ":" + pad( minutes % 60 )) : (hour + ":" + pad( minutes % 60 ) + " " + period);
 }
 
 function getBitFromByte( byte, bit ) {
