@@ -11414,7 +11414,7 @@ function showTimeInput( opt ) {
 			"<div class='ui-content'>" +
 				( opt.helptext ? "<p class='pad-top rain-desc center smaller'>" + opt.helptext + "</p>" : "" ) +
 				"<span>" +
-					"<fieldset class='ui-grid-" + (isMetric ? 'a' : 'b') + " incr'>" +
+					"<fieldset class='ui-grid-" + (isMetric ? "a" : "b") + " incr'>" +
 						"<div class='ui-block-a'>" +
 							"<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a>" +
 						"</div>" +
@@ -11425,7 +11425,7 @@ function showTimeInput( opt ) {
 							"<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a>" +
 						"</div>") +
 					"</fieldset>" +
-					"<div class='ui-grid-" + (isMetric ? 'a' : 'b') + " inputs'>" +
+					"<div class='ui-grid-" + (isMetric ? "a" : "b") + " inputs'>" +
 						"<div class='ui-block-a'>" +
 							"<input data-wrapper-class='pad_buttons' class='hour dontPad' type='number' pattern='[0-9]*' value='" +
 								(isMetric ? pad( (opt.minutes / 60 >> 0) % 24 ) + "'>" : ( parseInt( opt.minutes / 60 ) % 12 === 0 ? 12 : parseInt( opt.minutes / 60 ) % 12 ) + "'>") +
@@ -11438,7 +11438,7 @@ function showTimeInput( opt ) {
 							"<p class='center period'>" + getPeriod() + "</p>" +
 						"</div>") +
 					"</div>" +
-					"<fieldset class='ui-grid-" + (isMetric ? 'a' : 'b') + " decr'>" +
+					"<fieldset class='ui-grid-" + (isMetric ? "a" : "b") + " decr'>" +
 						"<div class='ui-block-a'>" +
 							"<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='minus' data-iconpos='bottom'></a>" +
 						"</div>" +
