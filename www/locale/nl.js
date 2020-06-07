@@ -1,2511 +1,515 @@
 {
    "messages" : {
-      "Program" : [
-         null,
-         "Programma"
-      ],
-      "Verify" : [
-         null,
-         ""
-      ],
-      "Max Humidity" : [
-         null,
-         ""
-      ],
-      "Offline" : [
-         null,
-         ""
-      ],
-      "Device Time" : [
-         null,
-         "Apparaat Tijd"
-      ],
-      "Use Weather Adjustment" : [
-         null,
-         "Gebruik Weer Aanpassing"
-      ],
-      "" : {
-         "Last-Translator" : " Samer Albahra <salbahra@gmail.com>, 2020\nLanguage-Team: Dutch (https://www.transifex.com/albahra/teams/109462/nl/)\nLanguage: nl\nPlural-Forms: nplurals=2; plural=(n != 1);\n"
-      },
-      "Program data is newer than the device firmware and cannot be imported" : [
-         null,
-         "Programma data is nieuwer dan de firmware van apparaat en kan niet geïmporteerd worden"
-      ],
-      "Notifications" : [
-         null,
-         "Meldingen"
-      ],
-      "Sunset to Sunrise" : [
-         null,
-         "Zonsondergang tot Zonsopgang"
-      ],
-      "Unable to read the configuration file. Please check the file and try again." : [
-         null,
-         "Onmogelijk om het instellingen bestand te lezen. Controleer het bestand en probeer opnieuw."
-      ],
-      "Manual" : [
-         null,
-         "Manueel"
-      ],
-      "Min Temp" : [
-         null,
-         ""
-      ],
-      "Flow Sensor" : [
-         null,
-         "Debiet Sensor"
-      ],
-      "Controller Reboot" : [
-         null,
-         "Controller herstart"
-      ],
-      "All stations have been stopped" : [
-         null,
-         "Alle stations zijn gestopt"
-      ],
-      "ago" : [
-         null,
-         ""
-      ],
-      "Localization" : [
-         null,
-         "Lokalisatie"
-      ],
-      "Slovenian" : [
-         null,
-         "Sloveens"
-      ],
-      "Thr" : [
-         null,
-         "Don"
-      ],
-      "When using program switch, a switch is connected to the sensor port to trigger Program 1 every time the switch is pressed for at least 1 second." : [
-         null,
-         "Tijdens het gebruik van de programma schakelaar, een schakelaar is aangesloten op de sensor poort om Programma 1 te activeren iedere keer de schakelaar ingedrukt word voor minimum 1 seconde."
-      ],
-      "Total Water Used" : [
-         null,
-         "Totaal Verbruikt Water"
-      ],
-      "No WUnderground PWS Provided" : [
-         null,
-         ""
-      ],
-      "Reboot Reason" : [
-         null,
-         ""
-      ],
-      "No Response" : [
-         null,
-         ""
-      ],
-      "Powered by Weather Underground" : [
-         null,
-         ""
-      ],
-      "No new devices were detected on your network" : [
-         null,
-         "Geen nieuwe apparaten gedetecteerd op uw netwerk"
-      ],
-      "Rain Delay" : [
-         null,
-         "Regen Vertraging"
-      ],
-      "ETo" : [
-         null,
-         ""
-      ],
-      "Set the baseline potential evapotranspiration (ETo) and elevation for your location. " : [
-         null,
-         ""
-      ],
-      "Contrast" : [
-         null,
-         "Contrast"
-      ],
-      "Max Temp" : [
-         null,
-         ""
-      ],
-      "You must specify a baseline ETo adjustment method option to use the ET adjustment method." : [
-         null,
-         ""
-      ],
-      "Apr" : [
-         null,
-         "Apr"
-      ],
-      "Move right" : [
-         null,
-         "Navigeer rechts"
-      ],
-      "Please check input and try again." : [
-         null,
-         "Verifieer uw ingaven en probeer opnieuw."
-      ],
-      "Save Password" : [
-         null,
-         "Bewaar Wachtwoord"
-      ],
-      "System Idle" : [
-         null,
-         "Systeem Inactief"
-      ],
-      "Note: There is a limit on the number of character used to configure this station type." : [
-         null,
-         ""
-      ],
-      "Attempting to retrieve your current location" : [
-         null,
-         "Proberen om uw huidige locatie op te halen"
-      ],
-      "Manual program" : [
-         null,
-         "Manueel programma"
-      ],
-      "Adjustment Method Error" : [
-         null,
-         ""
-      ],
-      "Scanning for OpenSprinkler (1.8.3)" : [
-         null,
-         "Zoeken naar OpenSprinkler (1.8.3)"
-      ],
-      "Replace cloud with local" : [
-         null,
-         "Vervang cloud door lokaal"
-      ],
-      "Thursday" : [
-         null,
-         "Donderdag"
-      ],
-      "stations" : [
-         null,
-         "stations"
-      ],
-      "Help & Support" : [
-         null,
-         "Hulp & Ondersteuning"
-      ],
-      "Yes" : [
-         null,
-         "Ja"
-      ],
-      "Synced with OpenSprinkler.com" : [
-         null,
-         "Gesynchroniseerd met OpenSprinkler.com"
-      ],
-      "Zero value excludes the station from the run-once program." : [
-         null,
-         "Nul waardes sluiten het station uit van eenmalige programma's."
-      ],
-      "s" : [
-         null,
-         "s"
-      ],
-      "Timed Out" : [
-         null,
-         ""
-      ],
-      "Stations" : [
-         null,
-         "Stations"
-      ],
-      "Boost time changes how long the boost converter is activated with a range from 0 to 1000 milliseconds." : [
-         null,
-         "Boosttijd verandert hoelang de boost convertor wordt geactiveerd met een bereik 0-1000 milliseconden."
-      ],
-      "Powered by OpenWeather" : [
-         null,
-         ""
-      ],
-      "Close" : [
-         null,
-         "Sluiten"
-      ],
-      "Submit" : [
-         null,
-         "Opslaan"
-      ],
-      "German" : [
-         null,
-         "Duits"
-      ],
-      "Programs and Settings" : [
-         null,
-         "Programma's en Instellingen"
-      ],
-      "May" : [
-         null,
-         "Mei"
-      ],
-      "Incorrect password for " : [
-         null,
-         "Ongeldig wachtwoord voor "
-      ],
-      "Do you want to turn off manual mode?" : [
-         null,
-         "Wenst u manuele modus uit te schakelen?"
-      ],
-      "Are you sure you want to" : [
-         null,
-         "Bent u zeker dat u wil "
-      ],
-      "Success" : [
-         null,
-         ""
-      ],
-      "Preview Programs" : [
-         null,
-         "Overzicht"
-      ],
-      "Weather Data Error" : [
-         null,
-         ""
-      ],
-      "Duration" : [
-         null,
-         "Duur"
-      ],
-      "run" : [
-         null,
-         "start"
-      ],
-      "If the weather reports any condition suggesting rain, a rain delay is automatically issued using the below set delay duration." : [
-         null,
-         "Als de weersvoorspelling regen suggereert, zal een regen vertraging geactiveerd worden voor de hieronder ingestelde tijd."
-      ],
-      "Not specified" : [
-         null,
-         "Niet bepaald"
-      ],
-      "Error" : [
-         null,
-         ""
-      ],
-      "Are you sure you want to reset all stations?" : [
-         null,
-         "Bent u zeker dat u alle station data opnieuw wil instellen?"
-      ],
-      "Device ID (restart required)" : [
-         null,
-         "Apparaat ID (herstart vereist)"
-      ],
-      "RF Code" : [
-         null,
-         "RF Code"
-      ],
-      "Manually Add Device" : [
-         null,
-         "Manueel Apparaat Toevoegen"
-      ],
-      "Sat" : [
-         null,
-         "Zat"
-      ],
-      "Sensor 2 Delayed On Time" : [
-         null,
-         ""
-      ],
-      "The Zimmerman method will adjust the watering duration based on differences from this reference point." : [
-         null,
-         "De Zimmreman methode zal de bewatering aanpassen volgend dit referentie punt."
-      ],
-      "Repeat Every" : [
-         null,
-         "Herhaal Elke"
-      ],
-      "Humidity" : [
-         null,
-         "Vochtigheid"
-      ],
-      "We use OpenWeatherMap normally however with a user provided API key the weather source will switch to Weather Underground." : [
-         null,
-         ""
-      ],
-      "System" : [
-         null,
-         "Syteem"
-      ],
-      "Mongolian" : [
-         null,
-         "Mongools"
-      ],
-      "Mar" : [
-         null,
-         "Mrt"
-      ],
-      "Time" : [
-         null,
-         "Tijd"
-      ],
-      "Remote Address" : [
-         null,
-         "Remote Adres"
-      ],
-      "Do you want to re-enable system operation?" : [
-         null,
-         "Wenst u de systeem werking terug in te schakelen?"
-      ],
-      "Relay pulsing is used for special situations where rapid pulsing is needed in the output with a range from 1 to 2000 milliseconds. A zero value disables the pulsing option." : [
-         null,
-         "Relais impuls wordt gebruikt in speciale gevallen waar snelle impulsen worden gebruikt op de uitgang met een bereik van 1 tot 2000 milliseconden. Een nul waarde schakelt de impuls optie uit."
-      ],
-      "Update did not complete." : [
-         null,
-         "Update is niet uitgevoerd"
-      ],
-      "With manual mode turned on, tap a station to toggle it." : [
-         null,
-         "Met manuele modus ingeschakeld, druk op een station om te schakelen."
-      ],
-      "Unused Expanders Detected" : [
-         null,
-         ""
-      ],
-      "Friday" : [
-         null,
-         "Vrijdag"
-      ],
-      "Program has been updated" : [
-         null,
-         "Programma bijgewerkt"
-      ],
-      "SEN1" : [
-         null,
-         ""
-      ],
-      "Do you want to save your changes?" : [
-         null,
-         "Wenst u de wijzigingen op te slaan?"
-      ],
-      "Station timer prevents a station from running indefinitely and will automatically turn it off after the set duration (or when toggled off)" : [
-         null,
-         "Station tijdklok voorkomt dat het station oneindig blijft lopen en zal automatisch uitschakelen na de opgegeven duur (of bij uitschakeling)"
-      ],
-      "This site is not found in the currently synced site list but may be added now." : [
-         null,
-         "Deze locatie komt niet voor in de huidige gesynchroniseerde locatie lijst, maar zal worden toegevoegd."
-      ],
-      "Backup saved on this device" : [
-         null,
-         "Reserve kopie bewaard op dit apparaat"
-      ],
-      "Fair" : [
-         null,
-         ""
-      ],
-      "Total Runtime" : [
-         null,
-         "Totale Looptijd"
-      ],
-      "Manual mode is not enabled. Please enable manual mode then try again." : [
-         null,
-         "Manuele modus is niet ingeschakeld. Stel manuele modus in en probeer opnieuw aub."
-      ],
-      "Network Error" : [
-         null,
-         "Netwerk Fout"
-      ],
-      "In" : [
-         null,
-         ""
-      ],
-      "Unable to import configuration." : [
-         null,
-         "Configuratie kan niet geïmporteerd worden."
-      ],
-      "Error: Interval days must be between 2 and 128." : [
-         null,
-         "Fout: Tijdspanne dagen moet tussen 2 en 128 liggen."
-      ],
-      "Firmware" : [
-         null,
-         "Firmware"
-      ],
-      "Firmware Update" : [
-         null,
-         ""
-      ],
-      "operation?" : [
-         null,
-         "operatie?"
-      ],
-      "Number of Stations" : [
-         null,
-         "Aantal Stations"
-      ],
-      "Afrikaans" : [
-         null,
-         "Afrikaans"
-      ],
-      "Change Name" : [
-         null,
-         "Naam Wijzigen"
-      ],
-      "Romanian" : [
-         null,
-         ""
-      ],
-      "Watering Level" : [
-         null,
-         ""
-      ],
-      "Station Timer" : [
-         null,
-         "Station Tijdklok"
-      ],
-      "Enable Logging" : [
-         null,
-         "Logboek inschakelen"
-      ],
-      "Update Now" : [
-         null,
-         "Update Nu"
-      ],
-      "Click here to troubleshoot remote access issues" : [
-         null,
-         "Klik hier om toegang op afstand problemen op te lossen"
-      ],
-      "Refresh" : [
-         null,
-         "Vernieuwen"
-      ],
-      "This Controller" : [
-         null,
-         "Deze Controller"
-      ],
-      "Adjustment Options Error" : [
-         null,
-         ""
-      ],
-      "Milliseconds" : [
-         null,
-         "Milliseconden"
-      ],
-      "RS" : [
-         null,
-         "RS"
-      ],
-      "Are you sure you want to delete " : [
-         null,
-         ""
-      ],
-      "Set the sensitivity of the watering adjustment to changes in each of the above weather conditions." : [
-         null,
-         "Zet de gevoeligheid van de bewatering volgens elke van de boventstaande condities."
-      ],
-      "Subnet Mask" : [
-         null,
-         ""
-      ],
-      "Use Master" : [
-         null,
-         "Gebruik Master"
-      ],
-      "Odd Days Only" : [
-         null,
-         "Enkel Oneven Dagen"
-      ],
-      "Unrecognised weather provider" : [
-         null,
-         ""
-      ],
-      "Basic Settings" : [
-         null,
-         "Standaard Instellingen"
-      ],
-      "Cancel" : [
-         null,
-         "Annuleer"
-      ],
-      "View Changelog" : [
-         null,
-         "Zie wijzigings log"
-      ],
-      "WiFi Change" : [
-         null,
-         ""
-      ],
-      "Logs have been cleared" : [
-         null,
-         "Logboek gewist"
-      ],
-      "Back" : [
-         null,
-         "Terug"
-      ],
-      "Master Off Adjustment" : [
-         null,
-         "Master Uit Aanpassing"
-      ],
-      "Check device password and try again." : [
-         null,
-         "Controleer het apparaat wachtwoord en probeer opnieuw."
-      ],
-      "Invalid WUnderground Key" : [
-         null,
-         ""
-      ],
-      "Quick Programs" : [
-         null,
-         "Snelle programma's"
-      ],
-      "Add Program" : [
-         null,
-         "Programma Toevoegen"
-      ],
-      "Password cannot be longer than 32 characters" : [
-         null,
-         "Wachtwoord kan niet langer dan 32 karakters zijn"
-      ],
-      "File" : [
-         null,
-         "Bestand"
-      ],
-      "Done" : [
-         null,
-         "Klaar"
-      ],
-      "Manual Control" : [
-         null,
-         "Manuele Controle"
-      ],
-      "Chinese" : [
-         null,
-         "Chinees"
-      ],
-      "Standard" : [
-         null,
-         "Standaard"
-      ],
-      "Unexpected Error" : [
-         null,
-         ""
-      ],
-      "WUnderground Authentication Error" : [
-         null,
-         ""
-      ],
-      "Username:" : [
-         null,
-         "Gebruikersnaam:"
-      ],
-      "hours" : [
-         null,
-         ""
-      ],
-      "Clock Update" : [
-         null,
-         ""
-      ],
-      "Dismiss" : [
-         null,
-         "Afwijzen"
-      ],
-      "IP Address" : [
-         null,
-         "IP Adres"
-      ],
-      "Greek" : [
-         null,
-         "Grieks"
-      ],
-      "Please enter your OpenSprinkler.com password. If you have recently changed your password, you may need to enter your previous password to decrypt the data." : [
-         null,
-         "Voer uw OpenSprinkler.com wachtwoord in a.u.b. . Als u recent uw wachtwoord gewijzigd hebt, kan het zijn dat, u uw vorig wachtwoord moet invoeren, om de data te ontcijferen."
-      ],
-      "Select Import Method" : [
-         null,
-         "Selecteer Import Methode"
-      ],
-      "Are you sure you want to clear the current location?" : [
-         null,
-         "Weet u zeker dat u de huidige locatie wil wissen?"
-      ],
-      "Use Auth" : [
-         null,
-         "Gebruik Auth"
-      ],
-      "Tue" : [
-         null,
-         "Din"
-      ],
-      "Use SSL" : [
-         null,
-         "Gebruik SSL"
-      ],
-      "Ignore Rain" : [
-         null,
-         "Negeer regen?"
-      ],
-      "Hebrew" : [
-         null,
-         "Hebreeuws"
-      ],
-      "Bulgarian" : [
-         null,
-         ""
-      ],
-      "Do you wish to apply the current watering level?" : [
-         null,
-         "Wil je het huidige sproeisysteem niveau toepassen?"
-      ],
-      "Start time cannot be greater than end time" : [
-         null,
-         "Start tijd mag niet groter zijn dan eind tijd"
-      ],
-      "These options are only for an OpenSprinkler behind a proxy capable of SSL and/or Basic Authentication." : [
-         null,
-         "Deze opties zijn enkel voor een OpenSprinkller achter een proxy server die SSL aankan en/of Basic Aithentication. "
-      ],
-      "Spanish" : [
-         null,
-         "Spaans"
-      ],
-      "Server Name" : [
-         null,
-         "Server Naam"
-      ],
-      "Hours" : [
-         null,
-         "Uren"
-      ],
-      "Total Rain" : [
-         null,
-         ""
-      ],
-      "Sensor 2 Update" : [
-         null,
-         ""
-      ],
-      "Use Sunrise" : [
-         null,
-         "Gebruik Zonsopkomst"
-      ],
-      "Click here for more details" : [
-         null,
-         "Klik hier voor meer details"
-      ],
-      "Connection timed-out. Please try again." : [
-         null,
-         "Verbinding onderbroken. Probeer opnieuw aub."
-      ],
-      "Please add a site by tapping the 'Add' button in the top right corner." : [
-         null,
-         "Voeg een plaats toe door \"toevoegen\" te klikken in de rechter bovenhoek."
-      ],
-      "Are you sure you want to logout?" : [
-         null,
-         "Bent u zeker dat u wil afmelden?"
-      ],
-      "d" : [
-         null,
-         "d"
-      ],
-      "Rain Sensor" : [
-         null,
-         "Regen Sensor"
-      ],
-      "Tap to Configure" : [
-         null,
-         "Klik om te configureren"
-      ],
-      "Amharic" : [
-         null,
-         "Amharic"
-      ],
-      "Open source attributions" : [
-         null,
-         "Open source bijdragen"
-      ],
-      "Slovak" : [
-         null,
-         "Slovaaks"
-      ],
-      "Elevation" : [
-         null,
-         ""
-      ],
-      "A valid IP address is required when DHCP is not used" : [
-         null,
-         "Een geldig IP adres is vereist wanneer DHCP niet wordt gebruikt"
-      ],
-      "month" : [
-         null,
-         ""
-      ],
-      "last ran station" : [
-         null,
-         "laatste loop station"
-      ],
-      "% Watering" : [
-         null,
-         "% Besproeien"
-      ],
-      "Location Error" : [
-         null,
-         ""
-      ],
-      "Thu" : [
-         null,
-         "Don"
-      ],
-      "for" : [
-         null,
-         "voor"
-      ],
-      "Select which events to send to IFTTT for use in recipes." : [
-         null,
-         "Selecteer de gebeurtenis om naar IFTTT te sturen voor gebruik in recipes."
-      ],
-      "This is open source software: source code and changelog for this application can be found at" : [
-         null,
-         "Dit is open broncode programmatuur:  broncode en wijzigingen log kan gevonden worden bij"
-      ],
-      "Run-once program has been scheduled" : [
-         null,
-         "Eenmalig programma is gepland"
-      ],
-      "Days of the Week" : [
-         null,
-         "Dagen van de week"
-      ],
-      "Programs" : [
-         null,
-         "Programma's"
-      ],
-      "Run" : [
-         null,
-         "Start"
-      ],
-      "Auto Reconnect" : [
-         null,
-         "Automatisch Verbinden"
-      ],
-      "Latest" : [
-         null,
-         "Laatste"
-      ],
-      "This will delete the stored SSID/password for your wireless network and return the device to access point mode" : [
-         null,
-         ""
-      ],
-      "Network Failure" : [
-         null,
-         ""
-      ],
-      "Polish" : [
-         null,
-         "Pools"
-      ],
-      "Unable to change password. Please try again." : [
-         null,
-         "Wachtwoord niet gewijzigd. Probeer opnieuw aub."
-      ],
-      "Flow Sensor Update" : [
-         null,
-         "Debiet Meter update"
-      ],
-      "Master Off Delay" : [
-         null,
-         "Master Uit vertraging"
-      ],
-      "Factory Reset" : [
-         null,
-         ""
-      ],
-      "Forecast" : [
-         null,
-         "Voorspelling"
-      ],
-      "day" : [
-         null,
-         ""
-      ],
-      "Delete" : [
-         null,
-         "Verwijder"
-      ],
-      "Boost Time" : [
-         null,
-         "Boosttijd"
-      ],
-      "Are you sure you want to downgrade the UI?" : [
-         null,
-         "Weet u zeker dat u de gebruikersinterface  wil degraderen?"
-      ],
-      "Invalid Location Format" : [
-         null,
-         ""
-      ],
-      "Error: You have not selected any stations." : [
-         null,
-         "Fout: U hebt geen station geslecteerd."
-      ],
-      "Password changed successfully" : [
-         null,
-         "Wachtwoord gewijzigd"
-      ],
-      "Enter a duration to manually run " : [
-         null,
-         "Geef de tduur van de manuele looptijd"
-      ],
-      "Select Merge Method" : [
-         null,
-         "Selecteer Samenvoeg Methode"
-      ],
-      "Continue" : [
-         null,
-         "Verder"
-      ],
-      "End:" : [
-         null,
-         "Einde:"
-      ],
-      "Empty Response" : [
-         null,
-         ""
-      ],
-      "Auto Rain Delay" : [
-         null,
-         "Auto Regen Uitstel"
-      ],
-      "Additional Start Times" : [
-         null,
-         "Bijkomende Start Tijden"
-      ],
-      "A valid subnet address is required when DHCP is not used" : [
-         null,
-         ""
-      ],
-      "Are you sure you want to reset the wireless settings?" : [
-         null,
-         ""
-      ],
-      "No" : [
-         null,
-         "Nee"
-      ],
-      "Update successful" : [
-         null,
-         "Update Succesvol"
-      ],
-      "deleted" : [
-         null,
-         "verwijderd"
-      ],
-      "Rain" : [
-         null,
-         "Regen"
-      ],
-      "Now" : [
-         null,
-         "Nu"
-      ],
-      "Characters remaining" : [
-         null,
-         ""
-      ],
-      "Enable manual rain delay by entering a value into the input below. To turn off a currently enabled rain delay use a value of 0." : [
-         null,
-         "Schakel manuele regen vertraging in door een waarde hieronder op te geven. Om een manuele regen vertraging uit te schakelen geeft u de waarde 0 op."
-      ],
-      "This will reset all station names and attributes" : [
-         null,
-         "Dit zal alle station namen en eigenschappen opnieuw instellen."
-      ],
-      "Please note this may indicate other data corruption as well, please verify all settings." : [
-         null,
-         ""
-      ],
-      "Do you wish to add this location to your cloud synced site list?" : [
-         null,
-         "Wil je deze locatie toevoegen aan de cloud gesynchroniseerde locatie lijst"
-      ],
-      "m" : [
-         null,
-         "m"
-      ],
-      "Minutes" : [
-         null,
-         "Minuten"
-      ],
-      "Portuguese" : [
-         null,
-         "Portugees"
-      ],
-      "Invalid username/password combination. Please try again." : [
-         null,
-         "Ongeldige gebruikersnaam/wachtwoord combinatie. Probeer opnieuw."
-      ],
-      "Soil Sensor" : [
-         null,
-         ""
-      ],
-      "No Adjustment Method Provided" : [
-         null,
-         ""
-      ],
-      "Are you sure you want to stop all stations?" : [
-         null,
-         "Weet u zeker dat u alle stations wil stoppen?"
-      ],
-      "Russian" : [
-         null,
-         "Russisch"
-      ],
-      "Dec" : [
-         null,
-         "Dec"
-      ],
-      "Operation" : [
-         null,
-         ""
-      ],
-      "Import Configuration" : [
-         null,
-         "Importeer Instellingen"
-      ],
-      "Sensor 2 Delayed Off Time" : [
-         null,
-         ""
-      ],
-      "Even Days Only" : [
-         null,
-         "Enkel Even Dagen"
-      ],
-      "Reboot OpenSprinkler" : [
-         null,
-         "Herstart OpenSprinkler"
-      ],
-      "Croatian" : [
-         null,
-         "Kroatisch"
-      ],
-      "Do you wish to disable extender mode?" : [
-         null,
-         "Wil je extender mode uitschakelen"
-      ],
-      "Excellent" : [
-         null,
-         ""
-      ],
-      "Idle Brightness" : [
-         null,
-         "Inactieve Helderheid"
-      ],
-      "System Disabled" : [
-         null,
-         "Systeem uitgeschakeld"
-      ],
-      "seconds" : [
-         null,
-         ""
-      ],
-      "Fri" : [
-         null,
-         "Vri"
-      ],
-      "Adjustment Method Options" : [
-         null,
-         "Aanpassing Methode Opties"
-      ],
-      "Server Port" : [
-         null,
-         "Server Poort"
-      ],
-      "Are you sure you want to delete program" : [
-         null,
-         "Bent u zeker dat u het programma wil verwijderen"
-      ],
-      "Good" : [
-         null,
-         ""
-      ],
-      "Are you sure you want to reboot OpenSprinkler?" : [
-         null,
-         "Weet u zeker dat u OpenSprinkler wil herstarten?"
-      ],
-      "remaining" : [
-         null,
-         "overblijvend"
-      ],
-      "Gateway Address" : [
-         null,
-         "Gateway Adres"
-      ],
-      "Weather Service" : [
-         null,
-         ""
-      ],
-      "Type" : [
-         null,
-         ""
-      ],
-      "Warning: Network changes will be made and the device may no longer be accessible from this address." : [
-         null,
-         "Waarschuwing: Netwerk wijzigingen zullen toegepast worden en het apparaat  kan door deze wijzigingen niet meer bereikbaar zijn."
-      ],
-      "Remote access is not enabled" : [
-         null,
-         "Toegang op afstand is niet ingeschakeld"
-      ],
-      "Thai" : [
-         null,
-         "Thai's"
-      ],
-      "Weather option data has corrupted" : [
-         null,
-         ""
-      ],
-      "Grouping:" : [
-         null,
-         "Groepering:"
-      ],
-      "Use Rain Sensor" : [
-         null,
-         "Gebruik Regen Sensor"
-      ],
-      "Brightness" : [
-         null,
-         "Helderheid"
-      ],
-      "Loading" : [
-         null,
-         "Laden"
-      ],
-      "Error: Start time must be prior to end time." : [
-         null,
-         "Fout: Start tijd moet voor Eind tijd zijn."
-      ],
-      "Program Preview" : [
-         null,
-         "Programma overzicht"
-      ],
-      "Czech" : [
-         null,
-         "Tsjechisch"
-      ],
-      "Uncheck All" : [
-         null,
-         "Alles deselecteren"
-      ],
-      "Run-Once Program" : [
-         null,
-         "Eenmalig Programma"
-      ],
-      "Connecting to" : [
-         null,
-         "Verbinden naar"
-      ],
-      "Save New Program" : [
-         null,
-         "Nieuw Programma Bewaren"
-      ],
-      "Weather and Sensors" : [
-         null,
-         "Weer en Sensors"
-      ],
-      "Method" : [
-         null,
-         ""
-      ],
-      "Weather Provider Request Failed" : [
-         null,
-         ""
-      ],
-      "IFTTT Key" : [
-         null,
-         "IFTTT code"
-      ],
-      "minutes" : [
-         null,
-         ""
-      ],
-      "Starting In" : [
-         null,
-         "Start binnen"
-      ],
-      "Interval (Days)" : [
-         null,
-         "Tussenpoos (Dagen)"
-      ],
-      "Jul" : [
-         null,
-         "Jul"
-      ],
-      "Repeating" : [
-         null,
-         "Herhalingen"
-      ],
-      "copy" : [
-         null,
-         "kopie"
-      ],
-      "OpenSprinkler.com Login Expired" : [
-         null,
-         "OpenSprinkler log in vervallen"
-      ],
-      "Are you sure you want to clear ALL your log data?" : [
-         null,
-         "Weet u zeker dat u alle logboeken wil wissen?"
-      ],
-      "Export" : [
-         null,
-         "Exporteer"
-      ],
-      "Weather Adjustment Method" : [
-         null,
-         "Weer aanpassing methode"
-      ],
-      "Site updated successfully" : [
-         null,
-         "Plaats gewijzigd"
-      ],
-      "Invalid WUnderground PWS" : [
-         null,
-         ""
-      ],
-      "The selected station is already running or is scheduled to run." : [
-         null,
-         "Het geselecteerde station is al gestart al of is gepland om te starten."
-      ],
-      "Never" : [
-         null,
-         ""
-      ],
-      "Stations:" : [
-         null,
-         "Stations:"
-      ],
-      "Reset Wireless Settings" : [
-         null,
-         ""
-      ],
-      "Delay Duration (hours)" : [
-         null,
-         "Uitstel duur (uren)"
-      ],
-      "Below is the corrupt data which could not be parsed but may be useful for restoration." : [
-         null,
-         ""
-      ],
-      "Password" : [
-         null,
-         "Wachtwoord"
-      ],
-      "Are you sure you want to delete all settings and return to the default settings?" : [
-         null,
-         "Weet u zeker dat u alle instellingen wil wissen en terugkeren naar de standaard instellingen?"
-      ],
-      "Online" : [
-         null,
-         ""
-      ],
-      "Device ID modifies the last byte of the MAC address." : [
-         null,
-         "Apparaat ID wijzigt de laatste byte van het MAC adres"
-      ],
-      "An IP address is required to continue." : [
-         null,
-         "Een IP adres is vereist om verder te gaan."
-      ],
-      "Disabled" : [
-         null,
-         "Uitgeschakeld"
-      ],
-      "Password:" : [
-         null,
-         "Wachtwoord:"
-      ],
-      "Delete Program" : [
-         null,
-         "Programma Verwijderen"
-      ],
-      "Sensor" : [
-         null,
-         ""
-      ],
-      "Merge" : [
-         null,
-         "Samenvoegen"
-      ],
-      "Configure Master" : [
-         null,
-         "Master Instellen"
-      ],
-      "Manual mode enabled" : [
-         null,
-         "Manuele modus ingeschakeld"
-      ],
-      "Enable" : [
-         null,
-         "Aanzetten"
-      ],
-      "Mean Humidity" : [
-         null,
-         ""
-      ],
-      "Run Program" : [
-         null,
-         "Programma Starten"
-      ],
-      "Clear Log Data" : [
-         null,
-         ""
-      ],
-      "Reset" : [
-         null,
-         "Opnieuw Instellen"
-      ],
-      "California Restriction" : [
-         null,
-         "Californië Beperking"
-      ],
-      "Are you sure you want to restore the configuration?" : [
-         null,
-         "Weet u zeker dat u de instelling wil terugzetten?"
-      ],
-      "Clear" : [
-         null,
-         "Vrijmaken"
-      ],
-      "Note: The name is used to identify the OpenSprinkler within the app. OpenSprinkler IP can be either an IP or hostname. You can also specify a port by using IP:Port" : [
-         null,
-         "Opmerking: De naam wordt gebruikt om de OpenSprinkler te identificeren binnen de applicatie. OpenSprinkler IP kan een IP of een hostnaam zijn. U kan ook een poort specificeren door gebruik te maken van IP:Poort"
-      ],
-      "Use DHCP (restart required)" : [
-         null,
-         "Gebruik DHCP (herstart vereist)"
-      ],
-      "Paste your backup here" : [
-         null,
-         "Plak je reservekopie hier"
-      ],
-      "is running on station" : [
-         null,
-         "loopt op station"
-      ],
-      "Estonian" : [
-         null,
-         ""
-      ],
-      "Power On" : [
-         null,
-         ""
-      ],
-      "Norwegian" : [
-         null,
-         "Noors"
-      ],
-      "Sun" : [
-         null,
-         "Zon"
-      ],
-      "Backup restored to your device" : [
-         null,
-         "Reserve kopie teruggezet op uw apparaat"
-      ],
-      "Sunday" : [
-         null,
-         "Zondag"
-      ],
-      "Nov" : [
-         null,
-         "Nov"
-      ],
-      "Select the station type using the dropdown selector above and configure the station properties." : [
-         null,
-         "Selecteer het station type met bovenstaande keuzelijst en configureer de station eigenschappen."
-      ],
-      "Wireless settings have been reset. Please follow the OpenSprinkler user manual on restoring connectivity." : [
-         null,
-         ""
-      ],
-      "High" : [
-         null,
-         "Hoog"
-      ],
-      "Mon" : [
-         null,
-         "Maa"
-      ],
-      "Station Notes" : [
-         null,
-         "Station Notities"
-      ],
-      "Last Response" : [
-         null,
-         ""
-      ],
-      "Last Reboot" : [
-         null,
-         ""
-      ],
-      "Last Updated" : [
-         null,
-         ""
-      ],
-      "Save Changes to" : [
-         null,
-         "Bewaar Wijzigingen in"
-      ],
-      "Station Handling" : [
-         null,
-         "Station Bediening"
-      ],
-      "Authorization Required" : [
-         null,
-         "Autorisatie Vereist"
-      ],
-      "Image" : [
-         null,
-         "Afbeelding"
-      ],
-      "second" : [
-         null,
-         ""
-      ],
-      "delete" : [
-         null,
-         "verwijder"
-      ],
-      "Icelandic" : [
-         null,
-         "Ijslands"
-      ],
-      "Weather Provider Respnse Incomplete" : [
-         null,
-         ""
-      ],
-      "Use your OpenSprinkler.com login and password to securely sync sites between all your devices." : [
-         null,
-         "Gebruik uw OpenSprinkler.com log in en wachtwoord om veilig al uw plaatsen te synchroniseren tussen al uw apparaten."
-      ],
-      "Change Password" : [
-         null,
-         "Wijzig Wachtwoord"
-      ],
-      "Building Weather History" : [
-         null,
-         ""
-      ],
-      "Day" : [
-         null,
-         "Dag"
-      ],
-      "Enabled" : [
-         null,
-         "Ingeschakeld"
-      ],
-      "Do you want to turn off rain delay?" : [
-         null,
-         "Wenst u regen uitstel uit te schakelen?"
-      ],
-      "Weather Adjustment Options" : [
-         null,
-         "Weer Aanpassing Opties"
-      ],
-      "To enable IFTTT, a Maker channel key is required which can be obtained from https://ifttt.com" : [
-         null,
-         "Om IFTTT te activeren is een Maker channel code benodigd die bekomen kan worden op https://ifttt.com"
-      ],
-      "days" : [
-         null,
-         ""
-      ],
-      "Email" : [
-         null,
-         "Email"
-      ],
-      "Program Type" : [
-         null,
-         "Programma Type"
-      ],
-      "Sensor 1 Delayed On Time" : [
-         null,
-         ""
-      ],
-      "h" : [
-         null,
-         "u"
-      ],
-      "OpenSprinkler.com Login" : [
-         null,
-         "OpenSprinkler.com log in"
-      ],
-      "No entries found in the selected date range" : [
-         null,
-         "Geen gegevens gevonden voor het geselecteerde datumbereik"
-      ],
-      "Do you want to delete the current image?" : [
-         null,
-         "Ben je zeker dat je de huidige afbeelding wil wissen?"
-      ],
-      "Show Disabled" : [
-         null,
-         ""
-      ],
-      ") Activated" : [
-         null,
-         ""
-      ],
-      "Register here" : [
-         null,
-         "Registreer hier"
-      ],
-      "Do you want to stop the currently running program?" : [
-         null,
-         "Wenst u het huidig lopende programma stoppen?"
-      ],
-      "Stop All Stations" : [
-         null,
-         "Stop Alle Stations"
-      ],
-      "Click any program below to expand/edit. Be sure to save changes." : [
-         null,
-         "Klik op een onderstaand programma om open te klappen of te bewerken. Bewaar zeker uw wijzigingen."
-      ],
-      "Unable to retrieve your current location" : [
-         null,
-         "Onmogelijk je huidige locatie te bepalen"
-      ],
-      "Don't have an account?" : [
-         null,
-         "Geen account ?"
-      ],
-      "Program Name" : [
-         null,
-         "Programma Naam"
-      ],
-      "Program Start" : [
-         null,
-         "Programma Start"
-      ],
-      "on" : [
-         null,
-         "op"
-      ],
-      "months" : [
-         null,
-         ""
-      ],
-      "Open Sprinkler Name:" : [
-         null,
-         "Open Sprinkler Naam:"
-      ],
-      "Ignore Sensor 2" : [
-         null,
-         ""
-      ],
-      "Station has been queued" : [
-         null,
-         "Station in wachtrij gezet"
-      ],
-      "Unsupported Adjustment Method" : [
-         null,
-         ""
-      ],
-      "Wunderground Key" : [
-         null,
-         ""
-      ],
-      "Disable" : [
-         null,
-         "Uitschakelen"
-      ],
-      "On Command" : [
-         null,
-         "Aan Commando"
-      ],
-      "Rain detected" : [
-         null,
-         "Regen gedetecteerd"
-      ],
-      "Average" : [
-         null,
-         "Gemiddeld"
-      ],
-      "Integrations" : [
-         null,
-         "Integraties"
-      ],
-      "System Diagnostics" : [
-         null,
-         "Systeem Diagnose"
-      ],
-      "runs" : [
-         null,
-         "loopt"
-      ],
-      "Manual Mode" : [
-         null,
-         "Manuele Modus"
-      ],
-      "WiFi Configure" : [
-         null,
-         ""
-      ],
-      "Soil" : [
-         null,
-         ""
-      ],
-      "App Version" : [
-         null,
-         "Programma Versie"
-      ],
-      "Location" : [
-         null,
-         "Locatie"
-      ],
-      "Normally Open" : [
-         null,
-         ""
-      ],
-      "When using program switch, a switch is connected to the sensor port to trigger Program 2 every time the switch is pressed for at least 1 second." : [
-         null,
-         ""
-      ],
-      "Prevents watering when the selected restriction is met." : [
-         null,
-         "Voorkomt besproeiing wanneer de geselecteerde beperking is voldaan."
-      ],
-      "Run-once program" : [
-         null,
-         "Eenmalig programma"
-      ],
-      "Invalid configuration" : [
-         null,
-         "Ongeldige configuratie"
-      ],
-      "Wed" : [
-         null,
-         "Woe"
-      ],
-      "Unable to read cloud data" : [
-         null,
-         "Kan de cloud data niet lezen"
-      ],
-      "Move left" : [
-         null,
-         "Navigeer links"
-      ],
-      "Logout" : [
-         null,
-         "Afmelden"
-      ],
-      "Please re-enter password to try again." : [
-         null,
-         "Voer wachtwoord opnieuw in, om nogmaals te proberen."
-      ],
-      "Timezone" : [
-         null,
-         "Tijdszone"
-      ],
-      "Days" : [
-         null,
-         "Dagen"
-      ],
-      "Configured as Extender" : [
-         null,
-         "Geconfigureerd als extender"
-      ],
-      "Warning: The repeat interval is less than the program run time." : [
-         null,
-         "Opgelet: Het herhaal interval is minder dan de programma looptijd."
-      ],
-      "Location Request Error" : [
-         null,
-         ""
-      ],
-      "Do you want to unschedule the selected station?" : [
-         null,
-         "Wenst u het geplande station te stoppen ?"
-      ],
-      "NTP Sync" : [
-         null,
-         "NTP Sync"
-      ],
-      "Start:" : [
-         null,
-         "Start:"
-      ],
-      "Sunset" : [
-         null,
-         "Zonsondergang"
-      ],
-      "Choose day(s)" : [
-         null,
-         "Kies dag(en)"
-      ],
-      "Use Metric" : [
-         null,
-         ""
-      ],
-      "Unrecognised" : [
-         null,
-         ""
-      ],
-      "Weather adjustment uses OpenWeatherMaps data in conjunction with the selected method to adjust the watering percentage." : [
-         null,
-         ""
-      ],
-      "Manage Sites" : [
-         null,
-         "Beheer Locaties"
-      ],
-      "Scan For Device" : [
-         null,
-         "Zoek Apparaat"
-      ],
-      "Show" : [
-         null,
-         "Toon"
-      ],
-      "Jan" : [
-         null,
-         "Jan"
-      ],
-      "Monday" : [
-         null,
-         "Maandag"
-      ],
-      "Scanning for OpenSprinkler Pi (1.8.3)" : [
-         null,
-         "Zoeken naar OpenSprinkler Pi (1.8.3)"
-      ],
-      "Last Request" : [
-         null,
-         ""
-      ],
-      "Clear Logs" : [
-         null,
-         "Logboek Wissen"
-      ],
-      "Date/Time" : [
-         null,
-         "Datum/Tijd"
-      ],
-      "(Changes Auto-Saved)" : [
-         null,
-         ""
-      ],
-      "Sep" : [
-         null,
-         "Sep"
-      ],
-      "Station Delay" : [
-         null,
-         "Station vertraging"
-      ],
-      "Test All Stations" : [
-         null,
-         "Test Alle Stations"
-      ],
-      "Options" : [
-         null,
-         "Opties"
-      ],
-      "Station Type" : [
-         null,
-         "Station Type"
-      ],
-      "Weather-Based Restrictions" : [
-         null,
-         "Weer Gebaseerde Beperkingen"
-      ],
-      "Sprinkler Stations" : [
-         null,
-         "Sproei stations"
-      ],
-      "Click here to enter a valid password to decrypt the data" : [
-         null,
-         "Klik hier om een geldig wachtwoord op te geven om de data te ontcijferen"
-      ],
-      "Edit Programs" : [
-         null,
-         "Wijzig programma's"
-      ],
-      "The passwords don't match. Please try again." : [
-         null,
-         "De wachtwoorden komen niet overeen. Probeer opnieuw aub."
-      ],
-      "The ETo adjustment method will adjust the watering duration based on the difference between the baseline ETo and the current ETo." : [
-         null,
-         ""
-      ],
-      "Mean Radiation" : [
-         null,
-         ""
-      ],
-      "Jun" : [
-         null,
-         "Jun"
-      ],
-      "Mean Wind" : [
-         null,
-         ""
-      ],
-      "hour" : [
-         null,
-         ""
-      ],
-      "Start Time" : [
-         null,
-         "Start Tijd"
-      ],
-      "Select IFTTT Events" : [
-         null,
-         "Selecteer IFTTT gebeurtenissen"
-      ],
-      "Save Changes to Program" : [
-         null,
-         "Programma Bewaren"
-      ],
-      "Flow Pulse Rate" : [
-         null,
-         "Stroom Puls Ration"
-      ],
-      "Min Humidity" : [
-         null,
-         ""
-      ],
-      "Remote Station (index)" : [
-         null,
-         "Remote Station (index)"
-      ],
-      "Password cannot be empty" : [
-         null,
-         "Wachtwoord kan niet leeg zijn"
-      ],
-      "SEN2" : [
-         null,
-         ""
-      ],
-      "Update Guide" : [
-         null,
-         "Update Gids"
-      ],
-      "Station Run" : [
-         null,
-         "Station starten"
-      ],
-      "Open Sprinkler IP:" : [
-         null,
-         "Open Sprinkler IP:"
-      ],
-      "Sequential" : [
-         null,
-         "Opeenvolgend"
-      ],
-      "Relay Pulse" : [
-         null,
-         "Releais Impuls"
-      ],
-      "Using manual watering" : [
-         null,
-         ""
-      ],
-      "minute" : [
-         null,
-         ""
-      ],
-      "Station" : [
-         null,
-         "Station"
-      ],
-      "Unable to connect to" : [
-         null,
-         "Niet in staat om verbinding te maken met"
-      ],
-      "Interval" : [
-         null,
-         "Tussenpoos"
-      ],
-      "The watering percentage scales station run times by the set value. When weather adjustment is used the watering percentage is automatically adjusted." : [
-         null,
-         "Het sproei percentage past de looptijd van het station aan met de opgegeven waarde. Wanneer weer aanpassingen wordt gebruikt, wordt het percentage automatisch aangepast."
-      ],
-      "French" : [
-         null,
-         "Frans"
-      ],
-      "Ignore Password" : [
-         null,
-         "Negeer Wachtwoord"
-      ],
-      "Master On Delay" : [
-         null,
-         "Master Aan vertraging"
-      ],
-      "Enter IP Address" : [
-         null,
-         "Voer IP Adres in"
-      ],
-      "LOW" : [
-         null,
-         "LAAG"
-      ],
-      "Open Sprinkler Password:" : [
-         null,
-         "Open Sprinkler Wachtwoord:"
-      ],
-      "Timeline" : [
-         null,
-         "Tijdlijn"
-      ],
-      "PM" : [
-         null,
-         "PM"
-      ],
-      "GPIO Pin" : [
-         null,
-         "GPIO aansluiting"
-      ],
-      "NTP IP Address" : [
-         null,
-         "NTP IP Adres"
-      ],
-      "Weather Options have Corrupted" : [
-         null,
-         ""
-      ],
-      "Water Level" : [
-         null,
-         "Water Niveau"
-      ],
-      "HTTP Port (restart required)" : [
-         null,
-         "HTTP Poort (herstart vereist)"
-      ],
-      "Low" : [
-         null,
-         "Laag"
-      ],
-      "Fixed" : [
-         null,
-         "Vast"
-      ],
-      "Station has been stopped" : [
-         null,
-         "Station is gestopt"
-      ],
-      "HIGH" : [
-         null,
-         "HOOG"
-      ],
-      "GPIO" : [
-         null,
-         "GPIO"
-      ],
-      "available" : [
-         null,
-         "beschikbaar"
-      ],
-      "Italian" : [
-         null,
-         "Italiaans"
-      ],
-      "Are you sure you want to " : [
-         null,
-         "Bent u zeker dat u wil "
-      ],
-      "New Device" : [
-         null,
-         "Nieuw Apparaat"
-      ],
-      "Offset (minutes)" : [
-         null,
-         "Compensatie (minuten)"
-      ],
-      "An invalid API key has been detected." : [
-         null,
-         ""
-      ],
-      "Reset Button" : [
-         null,
-         ""
-      ],
-      "WiFi Strength" : [
-         null,
-         ""
-      ],
-      "Settings have been saved" : [
-         null,
-         "Instellingen zijn bewaard"
-      ],
-      "Running" : [
-         null,
-         "Loopt"
-      ],
-      "Enter Date/Time" : [
-         null,
-         "Geef Datum/Tijd"
-      ],
-      "Last Used Program" : [
-         null,
-         "Laatst gebruikte programma"
-      ],
-      "Warning: The use of odd/even restrictions with the selected interval day may result in the program not running at all." : [
-         null,
-         "Opgelet: Het gebruik van even en oneven beperkingen met de gekozen interval dag kan ervoor zorgen dat het programma helemaal niet loopt."
-      ],
-      "Stations have been updated" : [
-         null,
-         "Stations zijn gewijzigd"
-      ],
-      "Seconds" : [
-         null,
-         "Seconden"
-      ],
-      "Special Station Auto-Refresh" : [
-         null,
-         "Speciaal station automatisch vernieuwen"
-      ],
-      "AM" : [
-         null,
-         "AM"
-      ],
-      "Baseline ETo" : [
-         null,
-         ""
-      ],
-      "Do you want to continue?" : [
-         null,
-         "Wenst u verder te gaan?"
-      ],
-      "years" : [
-         null,
-         ""
-      ],
-      "Program Interval" : [
-         null,
-         "Programma tussenpoos"
-      ],
-      "Edit Options" : [
-         null,
-         "Wijzig Opties"
-      ],
-      "Rain delay until" : [
-         null,
-         "Regen uitstel tot"
-      ],
-      "Feb" : [
-         null,
-         "Feb"
-      ],
-      "Saturday" : [
-         null,
-         "Zaterdag"
-      ],
-      "Replace local with cloud" : [
-         null,
-         "Vervang lokaal door cloud"
-      ],
-      "The requested time span exceeds the maxiumum of 1 year and has been adjusted" : [
-         null,
-         "De tijdspanne overschrijdt het maximum van 1 jaar en is aangepast."
-      ],
-      "Welcome to the OpenSprinkler application. This app only works with the OpenSprinkler controller which must be installed and setup on your home network." : [
-         null,
-         "Welkom bij de OpenSprinkler applicatie. Deze applicatie werkt met de OpenSprinkler controller welke geïnstalleerd en geconfigureerd moet zijn op uw thuis netwerk."
-      ],
-      "Downgrade UI" : [
-         null,
-         "Degradeer UI"
-      ],
-      "Sensor 1 Delayed Off Time" : [
-         null,
-         ""
-      ],
-      "Select Export Method" : [
-         null,
-         "Selecteer Export Methode"
-      ],
-      "Missing Adjustment Option" : [
-         null,
-         ""
-      ],
-      "Ignore Sensor 1" : [
-         null,
-         ""
-      ],
-      "Unified firmware is now avaialble" : [
-         null,
-         "Unified firmware is nu beschikbaar"
-      ],
-      "Rain Delay Update" : [
-         null,
-         ""
-      ],
-      "IFTTT Events" : [
-         null,
-         "IFTTT gebeurtenissen"
-      ],
-      "Restrictions" : [
-         null,
-         "Beperkingen"
-      ],
-      "Scheduled" : [
-         null,
-         "Gepland"
-      ],
-      "Unuseable" : [
-         null,
-         ""
-      ],
-      "Do you want to stop the selected station?" : [
-         null,
-         "Wenst u het gekozen station te stoppen?"
-      ],
-      "Current Weather" : [
-         null,
-         ""
-      ],
-      "User manual for OpenSprinkler is available at" : [
-         null,
-         "De handleiding voor OpenSprinkler is beschikbaar op"
-      ],
-      "Powered by Dark Sky" : [
-         null,
-         ""
-      ],
-      "A valid gateway address is required when DHCP is not used" : [
-         null,
-         "Een geldig gateway adres is vereist wanneer DHCP niet wordt gebruikt"
-      ],
-      "Confirm New Password" : [
-         null,
-         "Bevestig Nieuw Wachtwoord"
-      ],
-      "Weather Adjustment Update" : [
-         null,
-         "Weer aanpassing Update"
-      ],
-      "HTTP" : [
-         null,
-         "HTTP"
-      ],
-      "Mean Temp" : [
-         null,
-         "Gemiddelde Temp"
-      ],
-      "Aug" : [
-         null,
-         "Aug"
-      ],
-      "Sunrise to Sunset" : [
-         null,
-         "Zonsopgang tot Zonsondergang"
-      ],
-      "Wednesday" : [
-         null,
-         "Woensdag"
-      ],
-      "Click here to retrieve the partial weather option data" : [
-         null,
-         ""
-      ],
-      "year" : [
-         null,
-         ""
-      ],
-      "Import" : [
-         null,
-         "Importeer"
-      ],
-      "Program Switch" : [
-         null,
-         "Programma Wijziging"
-      ],
-      "Location Not Found" : [
-         null,
-         ""
-      ],
-      "About" : [
-         null,
-         "Over"
-      ],
-      "OpenSprinkler is rebooting now" : [
-         null,
-         "OpenSprinkler is nu aan het herstarten"
-      ],
-      "English" : [
-         null,
-         "Engels"
-      ],
-      "Poor" : [
-         null,
-         ""
-      ],
-      "Site deleted successfully" : [
-         null,
-         "Plaats verwijderd"
-      ],
-      "Current" : [
-         null,
-         "huidige"
-      ],
-      "Hungarian" : [
-         null,
-         "Hongaars"
-      ],
-      "New Password" : [
-         null,
-         "Nieuw Wachtwoord"
-      ],
-      "Flow" : [
-         null,
-         "Stroom"
-      ],
-      "Use Sunset" : [
-         null,
-         "Gebruik Zonsondergang"
-      ],
-      "Weekly" : [
-         null,
-         "Wekelijks"
-      ],
-      "Total Station Events" : [
-         null,
-         "Totaal Station Gebeurtenissen"
-      ],
-      "Remote controller is not configured as an extender. Would you like to do this now?" : [
-         null,
-         "Remote controller is niet geconfigureerd als uitbreiding. Wil je dat nu doen?"
-      ],
-      "Change" : [
-         null,
-         "Wijzig"
-      ],
-      "FS" : [
-         null,
-         "FS"
-      ],
-      "Detect baseline ETo" : [
-         null,
-         ""
-      ],
-      "Hide" : [
-         null,
-         "Verberg"
-      ],
-      "Station Duration" : [
-         null,
-         "Station duur"
-      ],
-      "Hardware Version" : [
-         null,
-         "Hardware Versie"
-      ],
-      "Farsi" : [
-         null,
-         "Farsi"
-      ],
-      "Sunrise" : [
-         null,
-         "Zonsopkomst"
-      ],
-      "Change IP" : [
-         null,
-         "Wijzig IP"
-      ],
-      "Add" : [
-         null,
-         "Toevoegen"
-      ],
-      "Reset All Station Data" : [
-         null,
-         "Stel alle station data opnieuw in"
-      ],
-      "Password on remote controller does not match the password on this controller." : [
-         null,
-         "Paswoord op remote station komt niet overeen met paswoord op deze controller"
-      ],
-      "Unsupported WUnderground Method" : [
-         null,
-         ""
-      ],
-      "is running on" : [
-         null,
-         "loopt op"
-      ],
-      "Internal (within app)" : [
-         null,
-         "Intern (in app)"
-      ],
-      "Email (copy/paste)" : [
-         null,
-         "Email (kopieer/plak)"
-      ],
-      "Click here to re-login to OpenSprinkler.com" : [
-         null,
-         "Klik hier om opnieuw in te loggen op OpenSprinkler.com"
-      ],
-      "Off Command" : [
-         null,
-         "Uit Commando"
-      ],
-      "Sensor 1 Update" : [
-         null,
-         ""
-      ],
-      "Run-Once" : [
-         null,
-         "Eénmalig"
-      ],
-      "A valid DNS address is required when DHCP is not used" : [
-         null,
-         "Een geldig DNS adres is vereist wanneer DHCP niet wordt gebruikt"
-      ],
-      "End Time" : [
-         null,
-         "Eind Tijd"
-      ],
-      "Oct" : [
-         null,
-         "Okt"
-      ],
-      "Error: You have not selected any days of the week." : [
-         null,
-         "Fout: U hebt geen dagen van de week geselecteerd."
-      ],
-      "LCD Screen" : [
-         null,
-         "LCD Scherm"
-      ],
-      "connect" : [
-         null,
-         "verbinden"
-      ],
-      "Add Controller" : [
-         null,
-         "Controller Toevoegen"
-      ],
-      "Runtime" : [
-         null,
-         "Looptijd"
-      ],
-      "Logs" : [
-         null,
-         "Logboeken"
-      ],
-      "Purchase OpenSprinkler" : [
-         null,
-         "Aankopen OpenSprinkler"
-      ],
-      "Reset All Options" : [
-         null,
-         "Alle Opties Opnieuw Instellen"
-      ],
-      "Web Request" : [
-         null,
-         ""
-      ],
-      "Remote Port" : [
-         null,
-         "Remote Poort"
-      ],
-      "Table" : [
-         null,
-         "Tabel"
-      ],
-      "Unable to reach the remote station." : [
-         null,
-         "Remote station niet bereikbaar"
-      ],
-      "Scanning for OpenSprinkler" : [
-         null,
-         "Zoeken naar OpenSprinkler"
-      ],
-      "Change Rain Delay" : [
-         null,
-         "Wijzig Regen Vertraging"
-      ],
-      "Export Configuration" : [
-         null,
-         "Exporteer Instellingen"
-      ],
-      "Station Name" : [
-         null,
-         "Station Naam"
-      ],
-      "Master" : [
-         null,
-         "Master"
-      ],
-      "Firmware update available" : [
-         null,
-         "Firmware update beschikbaar"
-      ],
-      "Remote" : [
-         null,
-         "Remote"
-      ],
-      "Scanning for OpenSprinkler Pi" : [
-         null,
-         "Zoeken naar OpenSprinkler Pi"
-      ],
-      "Corrupt Adjustment Options" : [
-         null,
-         ""
-      ],
-      "No stations set to run on this day." : [
-         null,
-         "Geen stations die lopen op deze dag."
-      ],
-      "Just Now" : [
-         null,
-         ""
-      ],
-      "Please check the current device password is correct then try again" : [
-         null,
-         "Kijk het huidige apparaat wachtwoord na, corrigeer en probeer opnieuw"
-      ],
-      "Tamil" : [
-         null,
-         ""
-      ],
-      "Powered by your Local PWS" : [
-         null,
-         ""
-      ],
-      "PWS Error" : [
-         null,
-         ""
-      ],
-      "View Logs" : [
-         null,
-         "Bekijk Logboek"
-      ],
-      "Swedish" : [
-         null,
-         ""
-      ],
-      "Set the baseline weather conditions for your location. " : [
-         null,
-         "Zet de basis condities voor je locatie"
-      ],
-      "Click here to enable all connected stations." : [
-         null,
-         ""
-      ],
-      "Latvian" : [
-         null,
-         "Lets"
-      ],
-      "Master On Adjustment" : [
-         null,
-         "Master Aan Aanpassing"
-      ],
-      "Check All" : [
-         null,
-         "Alles selecteren"
-      ],
-      "You have no programs currently added. Tap the Add button on the top right corner to get started." : [
-         null,
-         "U hebt geen programma's toegevoegd. Druk op de toevoegen knop in de rechter bovenhoek om te starten."
-      ],
-      "Information" : [
-         null,
-         "Informatie"
-      ],
-      "Dutch" : [
-         null,
-         "Nederlands"
-      ],
-      "Error: Starting in days wrong." : [
-         null,
-         "Fout: Start binnen dagen fout."
-      ],
-      "RF" : [
-         null,
-         "RF"
-      ],
-      "Temp" : [
-         null,
-         "Temp"
-      ],
-      "Weather Failure" : [
-         null,
-         ""
-      ],
-      "Rain delay has been successfully set" : [
-         null,
-         "Regen vertraging is succesvol ingesteld"
-      ],
-      "Zoom in" : [
-         null,
-         "Inzoomen"
-      ],
-      "Active State" : [
-         null,
-         "Actieve Satus"
-      ],
-      "Error retrieving log data. Please refresh to try again." : [
-         null,
-         "Fout bij het ophalen van log gegevens, Hernieuw om nogmaals te proberen."
-      ],
-      "DNS Address" : [
-         null,
-         "DNS adres"
-      ],
-      "Tuesday" : [
-         null,
-         "Dinsdag"
-      ],
-      "Check IP/Port and try again." : [
-         null,
-         "Controleer IP/poort en probeer opnieuw."
-      ],
-      "Master Station" : [
-         null,
-         "Master Station"
-      ],
-      "None" : [
-         null,
-         "Geen"
-      ],
-      "Connection Failed" : [
-         null,
-         ""
-      ],
-      "Zoom out" : [
-         null,
-         "Uitzoomen"
-      ],
-      "Select Site" : [
-         null,
-         "Selecteer plaats"
-      ],
-      "Turkish" : [
-         null,
-         ""
-      ],
-      "Activate Relay" : [
-         null,
-         "Activeer Relais?"
-      ],
-      "Are you sure you want to start " : [
-         null,
-         ""
-      ],
-      "RD" : [
-         null,
-         "RD"
-      ],
-      "Advanced" : [
-         null,
-         "Geavanceerd"
-      ],
-      "Program added successfully" : [
-         null,
-         "Programma toegevoegd"
-      ],
-      "Repeat Count" : [
-         null,
-         "Aantal herhalingen"
-      ]
+      "Station Run" : "Station starten",
+      "California Restriction" : "Californië Beperking",
+      "Thursday" : "Donderdag",
+      "Last Successful Weather Call" : "Laatste Succesvolle Weer Update",
+      "Are you sure you want to delete all settings and return to the default settings?" : "Weet u zeker dat u alle instellingen wil wissen en terugkeren naar de standaard instellingen?",
+      "Total Runtime" : "Totale Looptijd",
+      "d" : "d",
+      "Starting In" : "Start binnen",
+      "Apr" : "Apr",
+      "connect" : "verbinden",
+      "Reset" : "Opnieuw Instellen",
+      "Rain detected" : "Regen gedetecteerd",
+      "Check IP/Port and try again." : "Controleer IP/poort en probeer opnieuw.",
+      "Program Start" : "Programma Start",
+      "Bulgarian" : "",
+      "Offset (minutes)" : "Compensatie (minuten)",
+      "Run Program" : "Programma Starten",
+      "Password cannot be longer than 32 characters" : "Wachtwoord kan niet langer dan 32 karakters zijn",
+      "Dismiss" : "Afwijzen",
+      "The Zimmerman method will adjust the watering duration based on differences from this reference point." : "De Zimmreman methode zal de bewatering aanpassen volgend dit referentie punt.",
+      "Norwegian" : "Noors",
+      "Weather and Sensors" : "Weer en Sensors",
+      "Controller Reboot" : "Controller herstart",
+      "Are you sure you want to reset the wireless settings?" : "",
+      "Scanning for OpenSprinkler (1.8.3)" : "Zoeken naar OpenSprinkler (1.8.3)",
+      "Run-once program has been scheduled" : "Eenmalig programma is gepland",
+      "Are you sure you want to delete program" : "Bent u zeker dat u het programma wil verwijderen",
+      "Total Station Events" : "Totaal Station Gebeurtenissen",
+      "Loading" : "Laden",
+      "is running on" : "loopt op",
+      "Manual mode is not enabled. Please enable manual mode then try again." : "Manuele modus is niet ingeschakeld. Stel manuele modus in en probeer opnieuw aub.",
+      "Station Type" : "Station Type",
+      "Station Timer" : "Station Tijdklok",
+      "Zoom out" : "Uitzoomen",
+      "About" : "Over",
+      "Last Used Program" : "Laatst gebruikte programma",
+      "Chinese" : "Chinees",
+      "Note: The name is used to identify the OpenSprinkler within the app. OpenSprinkler IP can be either an IP or hostname. You can also specify a port by using IP:Port" : "Opmerking: De naam wordt gebruikt om de OpenSprinkler te identificeren binnen de applicatie. OpenSprinkler IP kan een IP of een hostnaam zijn. U kan ook een poort specificeren door gebruik te maken van IP:Poort",
+      "Flow Pulse Rate" : "Stroom Puls Ration",
+      "m" : "m",
+      "Day" : "Dag",
+      "Note: There is a limit on the number of character used to configure this station type." : "",
+      "IFTTT Events" : "IFTTT gebeurtenissen",
+      "Romanian" : "",
+      "Program data is newer than the device firmware and cannot be imported" : "Programma data is nieuwer dan de firmware van apparaat en kan niet geïmporteerd worden",
+      "Click here to re-login to OpenSprinkler.com" : "Klik hier om opnieuw in te loggen op OpenSprinkler.com",
+      "Error: Start time must be prior to end time." : "Fout: Start tijd moet voor Eind tijd zijn.",
+      "Import Configuration" : "Importeer Instellingen",
+      "Remote access is not enabled" : "Toegang op afstand is niet ingeschakeld",
+      "Repeat Count" : "Aantal herhalingen",
+      "Rain Sensor Update" : "Regen Sensor Update",
+      "Scanning for OpenSprinkler Pi" : "Zoeken naar OpenSprinkler Pi",
+      "Attempting to retrieve your current location" : "Proberen om uw huidige locatie op te halen",
+      "Delete" : "Verwijder",
+      "Save Changes to" : "Bewaar Wijzigingen in",
+      "Welcome to the OpenSprinkler application. This app only works with the OpenSprinkler controller which must be installed and setup on your home network." : "Welkom bij de OpenSprinkler applicatie. Deze applicatie werkt met de OpenSprinkler controller welke geïnstalleerd en geconfigureerd moet zijn op uw thuis netwerk.",
+      "Program Preview" : "Programma overzicht",
+      "Swedish" : "",
+      "Logs" : "Logboeken",
+      "Hebrew" : "Hebreeuws",
+      "Internal (within app)" : "Intern (in app)",
+      "Date/Time" : "Datum/Tijd",
+      "Weather Adjustment Method" : "Weer aanpassing methode",
+      "Mongolian" : "Mongools",
+      "Confirm New Password" : "Bevestig Nieuw Wachtwoord",
+      "Even Days Only" : "Enkel Even Dagen",
+      "Purchase OpenSprinkler" : "Aankopen OpenSprinkler",
+      "Device ID (restart required)" : "Apparaat ID (herstart vereist)",
+      "Password" : "Wachtwoord",
+      "OpenSprinkler.com Login" : "OpenSprinkler.com log in",
+      "% Watering" : "% Besproeien",
+      "Master On Adjustment" : "Master Aan Aanpassing",
+      "Device ID modifies the last byte of the MAC address." : "Apparaat ID wijzigt de laatste byte van het MAC adres",
+      "Ignore Rain" : "Negeer regen?",
+      "Export Configuration" : "Exporteer Instellingen",
+      "Last Weather Call" : "Laatste Weer Update",
+      "Aug" : "Aug",
+      "Use your OpenSprinkler.com login and password to securely sync sites between all your devices." : "Gebruik uw OpenSprinkler.com log in en wachtwoord om veilig al uw plaatsen te synchroniseren tussen al uw apparaten.",
+      "Station Duration" : "Station duur",
+      "Do you want to continue?" : "Wenst u verder te gaan?",
+      "Are you sure you want to clear the current location?" : "Weet u zeker dat u de huidige locatie wil wissen?",
+      "available" : "beschikbaar",
+      "System Disabled" : "Systeem uitgeschakeld",
+      "Hardware Version" : "Hardware Versie",
+      "Click here to enter a valid password to decrypt the data" : "Klik hier om een geldig wachtwoord op te geven om de data te ontcijferen",
+      "Odd Days Only" : "Enkel Oneven Dagen",
+      "When using program switch, a switch is connected to the sensor port to trigger Program 1 every time the switch is pressed for at least 1 second." : "Tijdens het gebruik van de programma schakelaar, een schakelaar is aangesloten op de sensor poort om Programma 1 te activeren iedere keer de schakelaar ingedrukt word voor minimum 1 seconde.",
+      "Options" : "Opties",
+      "Clear Logs" : "Logboek Wissen",
+      "Jan" : "Jan",
+      "Open Sprinkler IP:" : "Open Sprinkler IP:",
+      "Now" : "Nu",
+      "Station has been stopped" : "Station is gestopt",
+      "Sep" : "Sep",
+      "Do you want to delete the current image?" : "Ben je zeker dat je de huidige afbeelding wil wissen?",
+      "run" : "start",
+      "Run-once program" : "Eenmalig programma",
+      "Edit Options" : "Wijzig Opties",
+      "With manual mode turned on, tap a station to toggle it." : "Met manuele modus ingeschakeld, druk op een station om te schakelen.",
+      "Low" : "Laag",
+      "Stations:" : "Stations:",
+      "Rain Sensor" : "Regen Sensor",
+      "Select IFTTT Events" : "Selecteer IFTTT gebeurtenissen",
+      "RF Code" : "RF Code",
+      "Disable" : "Uitschakelen",
+      "RF" : "RF",
+      "Station Delay" : "Station vertraging",
+      "Monday" : "Maandag",
+      "Relay Pulse" : "Releais Impuls",
+      "Do you want to turn off manual mode?" : "Wenst u manuele modus uit te schakelen?",
+      "Register here" : "Registreer hier",
+      "Do you wish to apply the current watering level?" : "Wil je het huidige sproeisysteem niveau toepassen?",
+      "is running on station" : "loopt op station",
+      "Wireless settings have been reset. Please follow the OpenSprinkler user manual on restoring connectivity." : "",
+      "Adjustment Method Options" : "Aanpassing Methode Opties",
+      "End Time" : "Eind Tijd",
+      "Portuguese" : "Portugees",
+      "Stop All Stations" : "Stop Alle Stations",
+      "Invalid configuration" : "Ongeldige configuratie",
+      "An IP address is required to continue." : "Een IP adres is vereist om verder te gaan.",
+      "Sunset to Sunrise" : "Zonsondergang tot Zonsopgang",
+      "Sat" : "Zat",
+      "Unable to read the configuration file. Please check the file and try again." : "Onmogelijk om het instellingen bestand te lezen. Controleer het bestand en probeer opnieuw.",
+      "Run" : "Start",
+      "Change Rain Delay" : "Wijzig Regen Vertraging",
+      "Remote controller is not configured as an extender. Would you like to do this now?" : "Remote controller is niet geconfigureerd als uitbreiding. Wil je dat nu doen?",
+      "Zero value excludes the station from the run-once program." : "Nul waardes sluiten het station uit van eenmalige programma's.",
+      "Error: You have not selected any stations." : "Fout: U hebt geen station geslecteerd.",
+      "Language localization is crowdsourced using Get Localization available at" : "Taal lokalisatie is crowdsourced door Get Localization beschikbaar op",
+      "Set the sensitivity of the watering adjustment to changes in each of the above weather conditions." : "Zet de gevoeligheid van de bewatering volgens elke van de boventstaande condities.",
+      "System" : "Syteem",
+      "Repeating" : "Herhalingen",
+      "Auto Reconnect" : "Automatisch Verbinden",
+      "Disabled" : "Uitgeschakeld",
+      "Enter Date/Time" : "Geef Datum/Tijd",
+      "Connection timed-out. Please try again." : "Verbinding onderbroken. Probeer opnieuw aub.",
+      "AM" : "AM",
+      "Flow Sensor" : "Debiet Sensor",
+      "Password cannot be empty" : "Wachtwoord kan niet leeg zijn",
+      "Program added successfully" : "Programma toegevoegd",
+      "Master Off Adjustment" : "Master Uit Aanpassing",
+      "Unable to reach the remote station." : "Remote station niet bereikbaar",
+      "Master On Delay" : "Master Aan vertraging",
+      "Delay Duration (hours)" : "Uitstel duur (uren)",
+      "Backup saved on this device" : "Reserve kopie bewaard op dit apparaat",
+      "Firmware update available" : "Firmware update beschikbaar",
+      "Please add a site by tapping the 'Add' button in the top right corner." : "Voeg een plaats toe door \"toevoegen\" te klikken in de rechter bovenhoek.",
+      "Configured as Extender" : "Geconfigureerd als extender",
+      "OpenSprinkler.com Login Expired" : "OpenSprinkler log in vervallen",
+      "Change" : "Wijzig",
+      "To enable IFTTT, a Maker channel key is required which can be obtained from https://ifttt.com" : "Om IFTTT te activeren is een Maker channel code benodigd die bekomen kan worden op https://ifttt.com",
+      "Number of Stations" : "Aantal Stations",
+      "Dec" : "Dec",
+      "Reboot OpenSprinkler" : "Herstart OpenSprinkler",
+      "Move left" : "Navigeer links",
+      "German" : "Duits",
+      "Error: You have not selected any days of the week." : "Fout: U hebt geen dagen van de week geselecteerd.",
+      "Prevents watering when the selected restriction is met." : "Voorkomt besproeiing wanneer de geselecteerde beperking is voldaan.",
+      "System Diagnostics" : "Systeem Diagnose",
+      "Open source attributions" : "Open source bijdragen",
+      "OpenSprinkler is rebooting now" : "OpenSprinkler is nu aan het herstarten",
+      "Fri" : "Vri",
+      "Export" : "Exporteer",
+      "Select the station type using the dropdown selector above and configure the station properties." : "Selecteer het station type met bovenstaande keuzelijst en configureer de station eigenschappen.",
+      "System Idle" : "Systeem Inactief",
+      "Don't have an account?" : "Geen account ?",
+      "Tuesday" : "Dinsdag",
+      "View Logs" : "Bekijk Logboek",
+      "Server Port" : "Server Poort",
+      "Do you wish to disable extender mode?" : "Wil je extender mode uitschakelen",
+      "Slovak" : "Slovaaks",
+      "Latvian" : "Lets",
+      "Are you sure you want to" : "Bent u zeker dat u wil ",
+      "Enter a duration to manually run " : "Geef de tduur van de manuele looptijd",
+      "Localization" : "Lokalisatie",
+      "Choose day(s)" : "Kies dag(en)",
+      "Password changed successfully" : "Wachtwoord gewijzigd",
+      "Do you want to turn off rain delay?" : "Wenst u regen uitstel uit te schakelen?",
+      "Stations" : "Stations",
+      "Station timer prevents a station from running indefinitely and will automatically turn it off after the set duration (or when toggled off)" : "Station tijdklok voorkomt dat het station oneindig blijft lopen en zal automatisch uitschakelen na de opgegeven duur (of bij uitschakeling)",
+      "Continue" : "Verder",
+      "NTP IP Address" : "NTP IP Adres",
+      "Days" : "Dagen",
+      "Please re-enter password to try again." : "Voer wachtwoord opnieuw in, om nogmaals te proberen.",
+      "Submit" : "Opslaan",
+      "LOW" : "LAAG",
+      "No" : "Nee",
+      "Milliseconds" : "Milliseconden",
+      "Hours" : "Uren",
+      "Scanning for OpenSprinkler" : "Zoeken naar OpenSprinkler",
+      "Reset Wireless Settings" : "",
+      "Manual program" : "Manueel programma",
+      "HTTP" : "HTTP",
+      "The watering percentage scales station run times by the set value. When weather adjustment is used the watering percentage is automatically adjusted." : "Het sproei percentage past de looptijd van het station aan met de opgegeven waarde. Wanneer weer aanpassingen wordt gebruikt, wordt het percentage automatisch aangepast.",
+      "Move right" : "Navigeer rechts",
+      "Update Guide" : "Update Gids",
+      "Quick Programs" : "Snelle programma's",
+      "Start Time" : "Start Tijd",
+      "Basic Settings" : "Standaard Instellingen",
+      "Logs have been cleared" : "Logboek gewist",
+      "This is open source software: source code and changelog for this application can be found at" : "Dit is open broncode programmatuur:  broncode en wijzigingen log kan gevonden worden bij",
+      "The selected station is already running or is scheduled to run." : "Het geselecteerde station is al gestart al of is gepland om te starten.",
+      "Water Level" : "Water Niveau",
+      "Warning: The repeat interval is less than the program run time." : "Opgelet: Het herhaal interval is minder dan de programma looptijd.",
+      "No entries found in the selected date range" : "Geen gegevens gevonden voor het geselecteerde datumbereik",
+      "Stations have been updated" : "Stations zijn gewijzigd",
+      "Run-Once Program" : "Eenmalig Programma",
+      "Russian" : "Russisch",
+      "Add Program" : "Programma Toevoegen",
+      "Mar" : "Mrt",
+      "The requested time span exceeds the maxiumum of 1 year and has been adjusted" : "De tijdspanne overschrijdt het maximum van 1 jaar en is aangepast.",
+      "delete" : "verwijder",
+      "Programs" : "Programma's",
+      "Username:" : "Gebruikersnaam:",
+      "Click any program below to expand/edit. Be sure to save changes." : "Klik op een onderstaand programma om open te klappen of te bewerken. Bewaar zeker uw wijzigingen.",
+      "Repeat Every" : "Herhaal Elke",
+      "HTTP Port (restart required)" : "HTTP Poort (herstart vereist)",
+      "A valid gateway address is required when DHCP is not used" : "Een geldig gateway adres is vereist wanneer DHCP niet wordt gebruikt",
+      "These options are only for an OpenSprinkler behind a proxy capable of SSL and/or Basic Authentication." : "Deze opties zijn enkel voor een OpenSprinkller achter een proxy server die SSL aankan en/of Basic Aithentication. ",
+      "Remote Address" : "Remote Adres",
+      "Czech" : "Tsjechisch",
+      "Warning: The use of odd/even restrictions with the selected interval day may result in the program not running at all." : "Opgelet: Het gebruik van even en oneven beperkingen met de gekozen interval dag kan ervoor zorgen dat het programma helemaal niet loopt.",
+      "Enter IP Address" : "Voer IP Adres in",
+      "Program has been updated" : "Programma bijgewerkt",
+      "Table" : "Tabel",
+      "Current % Watering" : "Huidig % Beproeiing",
+      "Latest" : "Laatste",
+      "A valid DNS address is required when DHCP is not used" : "Een geldig DNS adres is vereist wanneer DHCP niet wordt gebruikt",
+      "Network Error" : "Netwerk Fout",
+      "last ran station" : "laatste loop station",
+      "Station Name" : "Station Naam",
+      "Check All" : "Alles selecteren",
+      "Information" : "Informatie",
+      "Station Notes" : "Station Notities",
+      "Brightness" : "Helderheid",
+      "Authorization Required" : "Autorisatie Vereist",
+      "Minutes" : "Minuten",
+      "Gateway Address" : "Gateway Adres",
+      "Sprinkler Stations" : "Sproei stations",
+      "All stations have been stopped" : "Alle stations zijn gestopt",
+      "Replace local with cloud" : "Vervang lokaal door cloud",
+      "Error retrieving log data. Please refresh to try again." : "Fout bij het ophalen van log gegevens, Hernieuw om nogmaals te proberen.",
+      "Flow" : "Stroom",
+      "GPIO Pin" : "GPIO aansluiting",
+      "Check device password and try again." : "Controleer het apparaat wachtwoord en probeer opnieuw.",
+      "Unified firmware is now avaialble" : "Unified firmware is nu beschikbaar",
+      "Scanning for OpenSprinkler Pi (1.8.3)" : "Zoeken naar OpenSprinkler Pi (1.8.3)",
+      "Click here to troubleshoot remote access issues" : "Klik hier om toegang op afstand problemen op te lossen",
+      "Add Controller" : "Controller Toevoegen",
+      "Synced with OpenSprinkler.com" : "Gesynchroniseerd met OpenSprinkler.com",
+      "The passwords don't match. Please try again." : "De wachtwoorden komen niet overeen. Probeer opnieuw aub.",
+      "Please enter your OpenSprinkler.com password. If you have recently changed your password, you may need to enter your previous password to decrypt the data." : "Voer uw OpenSprinkler.com wachtwoord in a.u.b. . Als u recent uw wachtwoord gewijzigd hebt, kan het zijn dat, u uw vorig wachtwoord moet invoeren, om de data te ontcijferen.",
+      "Close" : "Sluiten",
+      "Boost Time" : "Boosttijd",
+      "Please check input and try again." : "Verifieer uw ingaven en probeer opnieuw.",
+      "Wed" : "Woe",
+      "Site deleted successfully" : "Plaats verwijderd",
+      "Done" : "Klaar",
+      "Amharic" : "Amharic",
+      "Image" : "Afbeelding",
+      "Remote" : "Remote",
+      "Import" : "Importeer",
+      "Active State" : "Actieve Satus",
+      "Help & Support" : "Hulp & Ondersteuning",
+      "Friday" : "Vrijdag",
+      "Preview Programs" : "Overzicht",
+      "Program Type" : "Programma Type",
+      "Warning: Network changes will be made and the device may no longer be accessible from this address." : "Waarschuwing: Netwerk wijzigingen zullen toegepast worden en het apparaat  kan door deze wijzigingen niet meer bereikbaar zijn.",
+      "Dutch" : "Nederlands",
+      "Device Time" : "Apparaat Tijd",
+      "Master Station" : "Master Station",
+      "Are you sure you want to reboot OpenSprinkler?" : "Weet u zeker dat u OpenSprinkler wil herstarten?",
+      "Activate Relay" : "Activeer Relais?",
+      "NTP Sync" : "NTP Sync",
+      "This will delete the stored SSID/password for your wireless network and return the device to access point mode" : "",
+      "Turkish" : "",
+      "Auto Rain Delay" : "Auto Regen Uitstel",
+      "RD" : "RD",
+      "Manually Add Device" : "Manueel Apparaat Toevoegen",
+      "Save New Program" : "Nieuw Programma Bewaren",
+      "Open Sprinkler Password:" : "Open Sprinkler Wachtwoord:",
+      "Update successful" : "Update Succesvol",
+      "Select Merge Method" : "Selecteer Samenvoeg Methode",
+      "Do you want to re-enable system operation?" : "Wenst u de systeem werking terug in te schakelen?",
+      "Program" : "Programma",
+      "Mean Temp" : "Gemiddelde Temp",
+      "Additional Start Times" : "Bijkomende Start Tijden",
+      "Notifications" : "Meldingen",
+      "Rain delay until" : "Regen uitstel tot",
+      "Run-Once" : "Eénmalig",
+      "Do you want to stop the currently running program?" : "Wenst u het huidig lopende programma stoppen?",
+      "New Device" : "Nieuw Apparaat",
+      "Are you sure you want to downgrade the UI?" : "Weet u zeker dat u de gebruikersinterface  wil degraderen?",
+      "Croatian" : "Kroatisch",
+      "Station Handling" : "Station Bediening",
+      "New Password" : "Nieuw Wachtwoord",
+      "Relay pulsing is used for special situations where rapid pulsing is needed in the output with a range from 1 to 2000 milliseconds. A zero value disables the pulsing option." : "Relais impuls wordt gebruikt in speciale gevallen waar snelle impulsen worden gebruikt op de uitgang met een bereik van 1 tot 2000 milliseconden. Een nul waarde schakelt de impuls optie uit.",
+      "Select Export Method" : "Selecteer Export Methode",
+      "File" : "Bestand",
+      "High" : "Hoog",
+      "No stations set to run on this day." : "Geen stations die lopen op deze dag.",
+      "Delete Program" : "Programma Verwijderen",
+      "GPIO" : "GPIO",
+      "Invalid username/password combination. Please try again." : "Ongeldige gebruikersnaam/wachtwoord combinatie. Probeer opnieuw.",
+      "Contrast" : "Contrast",
+      "Select which events to send to IFTTT for use in recipes." : "Selecteer de gebeurtenis om naar IFTTT te sturen voor gebruik in recipes.",
+      "Humidity" : "Vochtigheid",
+      "Remote Port" : "Remote Poort",
+      "Forecast" : "Voorspelling",
+      "Unable to connect to" : "Niet in staat om verbinding te maken met",
+      "runs" : "loopt",
+      "Enabled" : "Ingeschakeld",
+      "Logout" : "Afmelden",
+      "Show Disabled" : "",
+      "Show" : "Toon",
+      "Set the baseline weather conditions for your location. " : "Zet de basis condities voor je locatie",
+      "LCD Screen" : "LCD Scherm",
+      "Tamil" : "",
+      "Use DHCP (restart required)" : "Gebruik DHCP (herstart vereist)",
+      "Save Changes to Program" : "Programma Bewaren",
+      "Tue" : "Din",
+      "Sequential" : "Opeenvolgend",
+      "Station" : "Station",
+      "DNS Address" : "DNS adres",
+      "Mon" : "Maa",
+      "Total Water Used" : "Totaal Verbruikt Water",
+      "Replace cloud with local" : "Vervang cloud door lokaal",
+      "Remote Station (index)" : "Remote Station (index)",
+      "IP Address" : "IP Adres",
+      "Yes" : "Ja",
+      "Precip Today" : "Neerslag Kans Vandaag",
+      "Weather Adjustment Update" : "Weer aanpassing Update",
+      "Cancel" : "Annuleer",
+      "Incorrect password for " : "Ongeldig wachtwoord voor ",
+      "Timezone" : "Tijdszone",
+      "Firmware" : "Firmware",
+      "Unable to import configuration." : "Configuratie kan niet geïmporteerd worden.",
+      "On Command" : "Aan Commando",
+      "View Changelog" : "Zie wijzigings log",
+      "Use Rain Sensor" : "Gebruik Regen Sensor",
+      "Program Switch" : "Programma Wijziging",
+      "This will reset all station names and attributes" : "Dit zal alle station namen en eigenschappen opnieuw instellen.",
+      "App Version" : "Programma Versie",
+      "Flow Sensor Update" : "Debiet Meter update",
+      "Italian" : "Italiaans",
+      "Change Password" : "Wijzig Wachtwoord",
+      "PM" : "PM",
+      "Location" : "Locatie",
+      "Paste your backup here" : "Plak je reservekopie hier",
+      "Uncheck All" : "Alles deselecteren",
+      "Unable to retrieve your current location" : "Onmogelijk je huidige locatie te bepalen",
+      "Sunrise to Sunset" : "Zonsopgang tot Zonsondergang",
+      "Site updated successfully" : "Plaats gewijzigd",
+      "Nov" : "Nov",
+      "Merge" : "Samenvoegen",
+      "French" : "Frans",
+      "Wednesday" : "Woensdag",
+      "Afrikaans" : "Afrikaans",
+      "Are you sure you want to " : "Bent u zeker dat u wil ",
+      "Sunrise" : "Zonsopkomst",
+      "Manual" : "Manueel",
+      "Feb" : "Feb",
+      "Restrictions" : "Beperkingen",
+      "Weather-Based Restrictions" : "Weer Gebaseerde Beperkingen",
+      "Click here for more details" : "Klik hier voor meer details",
+      "Change IP" : "Wijzig IP",
+      "Use Auth" : "Gebruik Auth",
+      "Standard" : "Standaard",
+      "Icelandic" : "Ijslands",
+      "No new devices were detected on your network" : "Geen nieuwe apparaten gedetecteerd op uw netwerk",
+      "Days of the Week" : "Dagen van de week",
+      "You have no programs currently added. Tap the Add button on the top right corner to get started." : "U hebt geen programma's toegevoegd. Druk op de toevoegen knop in de rechter bovenhoek om te starten.",
+      "Save Password" : "Bewaar Wachtwoord",
+      "Unused Expanders Detected" : "",
+      "Advanced" : "Geavanceerd",
+      "Downgrade UI" : "Degradeer UI",
+      "Runtime" : "Looptijd",
+      "Slovenian" : "Sloveens",
+      "Edit Programs" : "Wijzig programma's",
+      "Use SSL" : "Gebruik SSL",
+      "Change Name" : "Naam Wijzigen",
+      "English" : "Engels",
+      "Are you sure you want to restore the configuration?" : "Weet u zeker dat u de instelling wil terugzetten?",
+      "Sunset" : "Zonsondergang",
+      "Email (copy/paste)" : "Email (kopieer/plak)",
+      "Use Master" : "Gebruik Master",
+      "Server Name" : "Server Naam",
+      "Programs and Settings" : "Programma's en Instellingen",
+      "Thai" : "Thai's",
+      "Clear Log Data" : "",
+      "Operation" : " ",
+      "Rain Delay" : "Regen Vertraging",
+      "Oct" : "Okt",
+      "Are you sure you want to reset all stations?" : "Bent u zeker dat u alle station data opnieuw wil instellen?",
+      "Greek" : "Grieks",
+      "Interval (Days)" : "Tussenpoos (Dagen)",
+      "This Controller" : "Deze Controller",
+      "Please check the current device password is correct then try again" : "Kijk het huidige apparaat wachtwoord na, corrigeer en probeer opnieuw",
+      "Email" : "Email",
+      "Configure Master" : "Master Instellen",
+      "remaining" : "overblijvend",
+      "Do you want to stop the selected station?" : "Wenst u het gekozen station te stoppen?",
+      "h" : "u",
+      "Weather Adjustment Options" : "Weer Aanpassing Opties",
+      "Program Interval" : "Programma tussenpoos",
+      "Reset All Options" : "Alle Opties Opnieuw Instellen",
+      "Seconds" : "Seconden",
+      "stations" : "stations",
+      "Attached Sensor Type" : "Aangesloten Sensor Type",
+      "Unable to change password. Please try again." : "Wachtwoord niet gewijzigd. Probeer opnieuw aub.",
+      "Rain delay has been successfully set" : "Regen vertraging is succesvol ingesteld",
+      "Reset All Station Data" : "Stel alle station data opnieuw in",
+      "Use Sunrise" : "Gebruik Zonsopkomst",
+      "Open Sprinkler Name:" : "Open Sprinkler Naam:",
+      "Error: Starting in days wrong." : "Fout: Start binnen dagen fout.",
+      "A valid IP address is required when DHCP is not used" : "Een geldig IP adres is vereist wanneer DHCP niet wordt gebruikt",
+      "Manual Control" : "Manuele Controle",
+      "Select Site" : "Selecteer plaats",
+      "Select Import Method" : "Selecteer Import Methode",
+      "Settings have been saved" : "Instellingen zijn bewaard",
+      "Duration" : "Duur",
+      "Enable Logging" : "Logboek inschakelen",
+      "Characters remaining" : "",
+      "Ignore Password" : "Negeer Wachtwoord",
+      "Thr" : "Don",
+      "Tap to Configure" : "Klik om te configureren",
+      "Hungarian" : "Hongaars",
+      "for" : "voor",
+      "Enable" : "Aanzetten",
+      "Station has been queued" : "Station in wachtrij gezet",
+      "Master Off Delay" : "Master Uit vertraging",
+      "Do you want to unschedule the selected station?" : "Wenst u het geplande station te stoppen ?",
+      "Not specified" : "Niet bepaald",
+      "Are you sure you want to stop all stations?" : "Weet u zeker dat u alle stations wil stoppen?",
+      "Hide" : "Verberg",
+      "Scan For Device" : "Zoek Apparaat",
+      "Do you want to save your changes?" : "Wenst u de wijzigingen op te slaan?",
+      "HIGH" : "HOOG",
+      "Average" : "Gemiddeld",
+      "deleted" : "verwijderd",
+      "Fixed" : "Vast",
+      "Enable manual rain delay by entering a value into the input below. To turn off a currently enabled rain delay use a value of 0." : "Schakel manuele regen vertraging in door een waarde hieronder op te geven. Om een manuele regen vertraging uit te schakelen geeft u de waarde 0 op.",
+      "Off Command" : "Uit Commando",
+      "Update did not complete." : "Update is niet uitgevoerd",
+      "Start time cannot be greater than end time" : "Start tijd mag niet groter zijn dan eind tijd",
+      "Temp" : "Temp",
+      "Use Weather Adjustment" : "Gebruik Weer Aanpassing",
+      "Unable to read cloud data" : "Kan de cloud data niet lezen",
+      "Current" : "huidige",
+      "RS" : "RS",
+      "operation?" : "operatie?",
+      "Password on remote controller does not match the password on this controller." : "Paswoord op remote station komt niet overeen met paswoord op deze controller",
+      "Interval" : "Tussenpoos",
+      "Manual mode enabled" : "Manuele modus ingeschakeld",
+      "Back" : "Terug",
+      "Integrations" : "Integraties",
+      "Weather adjustment uses OpenWeatherMaps data in conjunction with the selected method to adjust the watering percentage." : "",
+      "Saturday" : "Zaterdag",
+      "Scheduled" : "Gepland",
+      "Zoom in" : "Inzoomen",
+      "Idle Brightness" : "Inactieve Helderheid",
+      "None" : "Geen",
+      "s" : "s",
+      "Are you sure you want to clear ALL your log data?" : "Weet u zeker dat u alle logboeken wil wissen?",
+      "Manual Mode" : "Manuele Modus",
+      "Sun" : "Zon",
+      "Time" : "Tijd",
+      "Jul" : "Jul",
+      "on" : "op",
+      "Last System Reboot" : "Laatste systeem herstart",
+      "If the weather reports any condition suggesting rain, a rain delay is automatically issued using the below set delay duration." : "Als de weersvoorspelling regen suggereert, zal een regen vertraging geactiveerd worden voor de hieronder ingestelde tijd.",
+      "Jun" : "Jun",
+      "Grouping:" : "Groepering:",
+      "Normally Open (Rain Sensor)" : "Normaal Open (Regen Sensor)",
+      "Do you wish to add this location to your cloud synced site list?" : "Wil je deze locatie toevoegen aan de cloud gesynchroniseerde locatie lijst",
+      "Test All Stations" : "Test Alle Stations",
+      "Click here to enable all connected stations." : "",
+      "Running" : "Loopt",
+      "Clear" : "Vrijmaken",
+      "Timeline" : "Tijdlijn",
+      "Spanish" : "Spaans",
+      "May" : "Mei",
+      "Start:" : "Start:",
+      "copy" : "kopie",
+      "(Changes Auto-Saved)" : "",
+      "Boost time changes how long the boost converter is activated with a range from 0 to 1000 milliseconds." : "Boosttijd verandert hoelang de boost convertor wordt geactiveerd met een bereik 0-1000 milliseconden.",
+      "Rain" : "Regen",
+      "Password:" : "Wachtwoord:",
+      "Error: Interval days must be between 2 and 128." : "Fout: Tijdspanne dagen moet tussen 2 en 128 liggen.",
+      "Refresh" : "Vernieuwen",
+      "Are you sure you want to logout?" : "Bent u zeker dat u wil afmelden?",
+      "Weekly" : "Wekelijks",
+      "User manual for OpenSprinkler is available at" : "De handleiding voor OpenSprinkler is beschikbaar op",
+      "This site is not found in the currently synced site list but may be added now." : "Deze locatie komt niet voor in de huidige gesynchroniseerde locatie lijst, maar zal worden toegevoegd.",
+      "Backup restored to your device" : "Reserve kopie teruggezet op uw apparaat",
+      "End:" : "Einde:",
+      "Program Name" : "Programma Naam",
+      "Special Station Auto-Refresh" : "Speciaal station automatisch vernieuwen",
+      "Connecting to" : "Verbinden naar",
+      "Add" : "Toevoegen",
+      "IFTTT Key" : "IFTTT code",
+      "FS" : "FS",
+      "Update Now" : "Update Nu",
+      "Sunday" : "Zondag",
+      "Master" : "Master",
+      "Polish" : "Pools",
+      "Farsi" : "Farsi",
+      "Use Sunset" : "Gebruik Zonsondergang",
+      "Thu" : "Don",
+      "Adjustment Method" : "Aanpassing Methode",
+      "Manage Sites" : "Beheer Locaties"
    }
 }

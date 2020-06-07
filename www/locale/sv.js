@@ -1,2511 +1,515 @@
 {
    "messages" : {
-      ") Activated" : [
-         null,
-         ""
-      ],
-      "Edit Options" : [
-         null,
-         "Ändra alternativ"
-      ],
-      "Nov" : [
-         null,
-         "Nov"
-      ],
-      "Synced with OpenSprinkler.com" : [
-         null,
-         "Synkroniserad med OpenSprinkler.com"
-      ],
-      "Run-once program has been scheduled" : [
-         null,
-         "Engångsprogram har blivit schemalagt"
-      ],
-      "Subnet Mask" : [
-         null,
-         ""
-      ],
-      "Reset All Options" : [
-         null,
-         "Återställ alla inställningar"
-      ],
-      "Unable to import configuration." : [
-         null,
-         "Kunde inte importera konfiguration"
-      ],
-      "Interval" : [
-         null,
-         "Intervall"
-      ],
-      "Min Humidity" : [
-         null,
-         ""
-      ],
-      "Open Sprinkler IP:" : [
-         null,
-         "Open Sprinkler IP:"
-      ],
-      "Enter IP Address" : [
-         null,
-         "Skriv in IP-adress"
-      ],
-      "Weather Adjustment Update" : [
-         null,
-         "Väderjustering uppdatering"
-      ],
-      "Are you sure you want to delete " : [
-         null,
-         ""
-      ],
-      "Water Level" : [
-         null,
-         "Vattennivå"
-      ],
-      "Powered by Dark Sky" : [
-         null,
-         ""
-      ],
-      "% Watering" : [
-         null,
-         "% bevattning"
-      ],
-      "Enable manual rain delay by entering a value into the input below. To turn off a currently enabled rain delay use a value of 0." : [
-         null,
-         "Aktivera manuell regnfördröjning genom att ange ett värde nedan. För att stänga av en nuvarande aktiverad regnfördröjning, använd ett värde på 0."
-      ],
-      "Password cannot be empty" : [
-         null,
-         "Lösenordet kan inte vara tomt"
-      ],
-      "Method" : [
-         null,
-         ""
-      ],
-      "Oct" : [
-         null,
-         "Okt"
-      ],
-      "Idle Brightness" : [
-         null,
-         "Inaktiv ljusstyrka"
-      ],
-      "Connection Failed" : [
-         null,
-         ""
-      ],
-      "Type" : [
-         null,
-         ""
-      ],
-      "Master On Delay" : [
-         null,
-         "Huvudenhet PÅ fördröjning"
-      ],
-      "Max Humidity" : [
-         null,
-         ""
-      ],
-      "Seconds" : [
-         null,
-         "Sekunder"
-      ],
-      "Authorization Required" : [
-         null,
-         "Behörighet krävs"
-      ],
-      "In" : [
-         null,
-         ""
-      ],
-      "Import Configuration" : [
-         null,
-         "Importera konfiguration"
-      ],
-      "Fixed" : [
-         null,
-         "Fast"
-      ],
-      "Error: Starting in days wrong." : [
-         null,
-         "Fel: Startdagar är felaktiga."
-      ],
-      "This site is not found in the currently synced site list but may be added now." : [
-         null,
-         "Den här platsen finns inte på listan över synkroniserade platser, men kan läggas till nu."
-      ],
-      "Clear" : [
-         null,
-         "Rensa"
-      ],
-      "GPIO Pin" : [
-         null,
-         "GPIO Pin"
-      ],
-      "Detect baseline ETo" : [
-         null,
-         ""
-      ],
-      "Start:" : [
-         null,
-         "Start:"
-      ],
-      "HTTP" : [
-         null,
-         "HTTP"
-      ],
-      "Export Configuration" : [
-         null,
-         "Exportera konfiguration"
-      ],
-      "Network Failure" : [
-         null,
-         ""
-      ],
-      "Remote Port" : [
-         null,
-         "Fjärrport"
-      ],
-      "Relay pulsing is used for special situations where rapid pulsing is needed in the output with a range from 1 to 2000 milliseconds. A zero value disables the pulsing option." : [
-         null,
-         "Reläpulsering används för speciella situationer där snabb pulsering behövs i utgången med ett intervall från 1 till 2000 millisekunder. Ett nollvärde inaktiverar pulseringsalternativet."
-      ],
-      "Add" : [
-         null,
-         "Skapa"
-      ],
-      "Delete Program" : [
-         null,
-         "Ta bort program"
-      ],
-      "Web Request" : [
-         null,
-         ""
-      ],
-      "Please check the current device password is correct then try again" : [
-         null,
-         "Kontrollera att nuvarande lösenord för enheten är korrekt och försök igen"
-      ],
-      "Hardware Version" : [
-         null,
-         "Hårdvaruversion"
-      ],
-      "Open Sprinkler Password:" : [
-         null,
-         "Open Sprinkler Lösenord:"
-      ],
-      "Never" : [
-         null,
-         ""
-      ],
-      "Weather option data has corrupted" : [
-         null,
-         ""
-      ],
-      "DNS Address" : [
-         null,
-         "DNS Adress"
-      ],
-      "seconds" : [
-         null,
-         ""
-      ],
-      "Are you sure you want to delete all settings and return to the default settings?" : [
-         null,
-         "Är du säker på att du vill radera alla inställningar och återgå till standardinställningarna?"
-      ],
-      "days" : [
-         null,
-         ""
-      ],
-      "Unable to connect to" : [
-         null,
-         "Kunde inte ansluta till"
-      ],
-      "Remote access is not enabled" : [
-         null,
-         "Fjärråtkomst är inte aktiverad"
-      ],
-      "Click any program below to expand/edit. Be sure to save changes." : [
-         null,
-         "Klicka på något program nedan för att expandera / redigera. Var noga med att spara ändringar."
-      ],
-      "runs" : [
-         null,
-         "körningar"
-      ],
-      "Change Name" : [
-         null,
-         "Byt Namn"
-      ],
-      "Unable to reach the remote station." : [
-         null,
-         "Kan inte nå fjärrstationen."
-      ],
-      "Username:" : [
-         null,
-         "Användarnamn:"
-      ],
-      "Dec" : [
-         null,
-         "Dec"
-      ],
-      "File" : [
-         null,
-         "Fil"
-      ],
-      "minutes" : [
-         null,
-         ""
-      ],
-      "Weather adjustment uses OpenWeatherMaps data in conjunction with the selected method to adjust the watering percentage." : [
-         null,
-         ""
-      ],
-      "No Adjustment Method Provided" : [
-         null,
-         ""
-      ],
-      "Turkish" : [
-         null,
-         ""
-      ],
-      "Manually Add Device" : [
-         null,
-         "Lägg till enhet manuellt"
-      ],
-      "Error: Start time must be prior to end time." : [
-         null,
-         "Fel: Starttiden måste vara före slutet."
-      ],
-      "Attempting to retrieve your current location" : [
-         null,
-         "Försöker hämta din nuvarande plats"
-      ],
-      "Close" : [
-         null,
-         "Stäng"
-      ],
-      "IFTTT Events" : [
-         null,
-         "IFTTT händelser"
-      ],
-      "Zero value excludes the station from the run-once program." : [
-         null,
-         "Nollvärde utesluter stationen från körprogrammet."
-      ],
-      "Are you sure you want to start " : [
-         null,
-         ""
-      ],
-      "AM" : [
-         null,
-         "AM"
-      ],
-      "Mean Radiation" : [
-         null,
-         ""
-      ],
-      "Corrupt Adjustment Options" : [
-         null,
-         ""
-      ],
-      "Reset All Station Data" : [
-         null,
-         "Återställ all stationsdata"
-      ],
-      "Sensor 2 Delayed Off Time" : [
-         null,
-         ""
-      ],
-      "The Zimmerman method will adjust the watering duration based on differences from this reference point." : [
-         null,
-         "Zimmerman-metoden kommer att justera bevattningens varaktighet baserat på skillnader från denna referenspunkt."
-      ],
-      "Add Program" : [
-         null,
-         "Lägg till program"
-      ],
-      "Note: There is a limit on the number of character used to configure this station type." : [
-         null,
-         ""
-      ],
-      "Are you sure you want to clear ALL your log data?" : [
-         null,
-         "Är du säker på att du vill rensa ALL din loggdata?"
-      ],
-      "WiFi Strength" : [
-         null,
-         ""
-      ],
-      "Choose day(s)" : [
-         null,
-         "Välj dagar"
-      ],
-      "Station Notes" : [
-         null,
-         "Stationsnoteringar"
-      ],
-      "Use Sunset" : [
-         null,
-         "Använd Solnedgång"
-      ],
-      "Unsupported Adjustment Method" : [
-         null,
-         ""
-      ],
-      "Configured as Extender" : [
-         null,
-         "Konfigurerad som en utökning"
-      ],
-      "HIGH" : [
-         null,
-         "HÖG"
-      ],
-      "All stations have been stopped" : [
-         null,
-         "Alla stationer har blivit stoppade"
-      ],
-      "Basic Settings" : [
-         null,
-         "Basinställningar"
-      ],
-      "View Logs" : [
-         null,
-         "Visa loggar"
-      ],
-      "Scanning for OpenSprinkler Pi" : [
-         null,
-         "Söker efter OpenSprinkler Pi"
-      ],
-      "Error retrieving log data. Please refresh to try again." : [
-         null,
-         "Det gick inte att hämta loggdata. Uppdatera för att försöka igen."
-      ],
-      "Station timer prevents a station from running indefinitely and will automatically turn it off after the set duration (or when toggled off)" : [
-         null,
-         "Stationstimern hindrar en station från att köras i obegränsad tid och stängs av automatiskt efter den inställda varaktigheten (eller när den stängs av)"
-      ],
-      "These options are only for an OpenSprinkler behind a proxy capable of SSL and/or Basic Authentication." : [
-         null,
-         "Dessa alternativ är endast för en OpenSprinkler placerad bakom en proxy som hanterar SSL och / eller Basic Authentication."
-      ],
-      "Invalid Location Format" : [
-         null,
-         ""
-      ],
-      "Check device password and try again." : [
-         null,
-         "Kontrollera enhetens lösenord och försök igen"
-      ],
-      "Change Password" : [
-         null,
-         "Byt lösenord"
-      ],
-      "Timed Out" : [
-         null,
-         ""
-      ],
-      "Program added successfully" : [
-         null,
-         "Programmet har lagts till"
-      ],
-      "WiFi Change" : [
-         null,
-         ""
-      ],
-      "A valid gateway address is required when DHCP is not used" : [
-         null,
-         "En giltig gatewayadress krävs när DHCP inte används"
-      ],
-      "RS" : [
-         null,
-         "RS"
-      ],
-      "Run Program" : [
-         null,
-         "Kör program"
-      ],
-      "h" : [
-         null,
-         "t"
-      ],
-      "Sunrise to Sunset" : [
-         null,
-         "Soluppgång till solnedgång"
-      ],
-      "Open Sprinkler Name:" : [
-         null,
-         "Open Sprinkler Namn:"
-      ],
-      "Change" : [
-         null,
-         "Ändra"
-      ],
-      "IFTTT Key" : [
-         null,
-         "IFTTT Nyckel"
-      ],
-      "A valid DNS address is required when DHCP is not used" : [
-         null,
-         "En giltig DNS-adress krävs när DHCP inte används"
-      ],
-      "Weather Failure" : [
-         null,
-         ""
-      ],
-      "Do you want to delete the current image?" : [
-         null,
-         "Vill du ta bort nuvarande bild"
-      ],
-      "Flow Sensor" : [
-         null,
-         "Flödessensor"
-      ],
-      "Server Name" : [
-         null,
-         "Servernamn"
-      ],
-      "Are you sure you want to logout?" : [
-         null,
-         "Är du säker på att du vill logga ut?"
-      ],
-      "Activate Relay" : [
-         null,
-         "Aktivera Relä"
-      ],
-      "Swedish" : [
-         null,
-         ""
-      ],
-      "The selected station is already running or is scheduled to run." : [
-         null,
-         "Vald station kör redan eller är schemalagd"
-      ],
-      "Portuguese" : [
-         null,
-         "Portugisiska"
-      ],
-      "Change IP" : [
-         null,
-         "Byt IP"
-      ],
-      "Use Auth" : [
-         null,
-         "Använd inloggning"
-      ],
-      "Do you want to stop the selected station?" : [
-         null,
-         "Vill du stoppa den valda stationen?"
-      ],
-      "Save Password" : [
-         null,
-         "Spara lösenord"
-      ],
-      "Do you want to unschedule the selected station?" : [
-         null,
-         "Vill du ta bort schemat för den valda stationen?"
-      ],
-      "Password on remote controller does not match the password on this controller." : [
-         null,
-         "Lösenordet på fjärrkontrollen matchar inte lösenordet på den här kontrollenheten."
-      ],
-      "Tamil" : [
-         null,
-         ""
-      ],
-      "Repeat Every" : [
-         null,
-         "Upprepa varje"
-      ],
-      "Manage Sites" : [
-         null,
-         "Hantera platser"
-      ],
-      "German" : [
-         null,
-         "Tyska"
-      ],
-      "Afrikaans" : [
-         null,
-         "Afrikaans"
-      ],
-      "Unrecognised" : [
-         null,
-         ""
-      ],
-      "Days" : [
-         null,
-         "Dagar"
-      ],
-      "Check All" : [
-         null,
-         "Välj alla"
-      ],
-      "Hungarian" : [
-         null,
-         "Ungerska"
-      ],
-      "Latvian" : [
-         null,
-         "Lättiska"
-      ],
-      "This Controller" : [
-         null,
-         "Denna kontroller"
-      ],
-      "Program Type" : [
-         null,
-         "Programtyp"
-      ],
-      "Odd Days Only" : [
-         null,
-         "Fördröjning ojämna dagar"
-      ],
-      "Fri" : [
-         null,
-         "Fre"
-      ],
-      "Weather Provider Respnse Incomplete" : [
-         null,
-         ""
-      ],
-      "Select Export Method" : [
-         null,
-         "Välj exportmetod"
-      ],
-      "Mean Humidity" : [
-         null,
-         ""
-      ],
-      "Relay Pulse" : [
-         null,
-         "Reläpulsering"
-      ],
-      "Site updated successfully" : [
-         null,
-         "Platsen uppdaterad"
-      ],
-      "months" : [
-         null,
-         ""
-      ],
-      "Select Site" : [
-         null,
-         "Välj Plats"
-      ],
-      "Remote controller is not configured as an extender. Would you like to do this now?" : [
-         null,
-         "Fjärrkontrollern är inte konfigurerad som en utökning. Vill du göra det nu?"
-      ],
-      "stations" : [
-         null,
-         "stationer"
-      ],
-      "Repeating" : [
-         null,
-         "Upprepning"
-      ],
-      "Stop All Stations" : [
-         null,
-         "Stoppa alla stationer"
-      ],
-      "Internal (within app)" : [
-         null,
-         "Internt (I appen)"
-      ],
-      "Submit" : [
-         null,
-         "Skicka"
-      ],
-      "Hide" : [
-         null,
-         "Göm"
-      ],
-      "No Response" : [
-         null,
-         ""
-      ],
-      "Select the station type using the dropdown selector above and configure the station properties." : [
-         null,
-         "Välj stationstyp ovan och konfigurera stationens egenskaper."
-      ],
-      "Preview Programs" : [
-         null,
-         "Förhandsgranska program"
-      ],
-      "Thursday" : [
-         null,
-         "Torsdag"
-      ],
-      "Scheduled" : [
-         null,
-         "Schemalagd"
-      ],
-      "Master Off Adjustment" : [
-         null,
-         "Huvudenhet AV justering"
-      ],
-      "Password changed successfully" : [
-         null,
-         "Lösenordet har ändrats"
-      ],
-      "Forecast" : [
-         null,
-         "Prognos"
-      ],
-      "Good" : [
-         null,
-         ""
-      ],
-      "operation?" : [
-         null,
-         "åtgärden?"
-      ],
-      "on" : [
-         null,
-         "på"
-      ],
-      "NTP IP Address" : [
-         null,
-         "NTP IP Adress"
-      ],
-      "Server Port" : [
-         null,
-         "Serverport"
-      ],
-      "Click here to enter a valid password to decrypt the data" : [
-         null,
-         "Klicka här för att ange ett giltigt lösenord för att dekryptera data"
-      ],
-      "Image" : [
-         null,
-         "Bild"
-      ],
-      "Number of Stations" : [
-         null,
-         "Antal stationer"
-      ],
-      "Continue" : [
-         null,
-         "Fortsätt"
-      ],
-      "Date/Time" : [
-         null,
-         "Datum/Tid"
-      ],
-      "Note: The name is used to identify the OpenSprinkler within the app. OpenSprinkler IP can be either an IP or hostname. You can also specify a port by using IP:Port" : [
-         null,
-         "Obs! Namnet används för att identifiera OpenSprinkler i appen. OpenSprinkler IP kan antingen vara en IP eller värdnamn. Du kan också ange en port med hjälp av IP: Port"
-      ],
-      "Apr" : [
-         null,
-         "Apri"
-      ],
-      "New Password" : [
-         null,
-         "Nytt lösenord"
-      ],
-      "Czech" : [
-         null,
-         "Tjeckiska"
-      ],
-      "Weather Adjustment Method" : [
-         null,
-         "Metod för väderjustering"
-      ],
-      "Estonian" : [
-         null,
-         ""
-      ],
-      "Ignore Rain" : [
-         null,
-         "Ignorera regn"
-      ],
-      "Weather and Sensors" : [
-         null,
-         "Väder och sensorer"
-      ],
-      "Yes" : [
-         null,
-         "Ja"
-      ],
-      "Prevents watering when the selected restriction is met." : [
-         null,
-         "Förhindrar bevattning när den valda begränsningen är uppfylld."
-      ],
-      "Program Switch" : [
-         null,
-         "Programbrytare"
-      ],
-      "Zoom in" : [
-         null,
-         "Zooma in"
-      ],
-      "With manual mode turned on, tap a station to toggle it." : [
-         null,
-         "Med manuellt läge aktiverat trycker du på en station för att växla den."
-      ],
-      "Station Delay" : [
-         null,
-         "Stationsfördröjning"
-      ],
-      "Manual mode is not enabled. Please enable manual mode then try again." : [
-         null,
-         "Manuell funktion är inte aktiverad. Vänligen aktivera manuellt läge och försök igen."
-      ],
-      "Are you sure you want to" : [
-         null,
-         "Är du säker på att du vill"
-      ],
-      "Localization" : [
-         null,
-         "Översättning"
-      ],
-      "Farsi" : [
-         null,
-         "Persiska"
-      ],
-      "Location Error" : [
-         null,
-         ""
-      ],
-      "Programs and Settings" : [
-         null,
-         "Program och inställningar"
-      ],
-      "Weather Data Error" : [
-         null,
-         ""
-      ],
-      "Auto Reconnect" : [
-         null,
-         "Koppla upp automatiskt"
-      ],
-      "Runtime" : [
-         null,
-         "Körtid"
-      ],
-      "Purchase OpenSprinkler" : [
-         null,
-         "Köp OpenSprinkler"
-      ],
-      "Do you wish to add this location to your cloud synced site list?" : [
-         null,
-         "Vill du lägga till den här platsen på din molnsynkroniserade plats lista?"
-      ],
-      "Enabled" : [
-         null,
-         "Aktiverad"
-      ],
-      "PWS Error" : [
-         null,
-         ""
-      ],
-      "Please note this may indicate other data corruption as well, please verify all settings." : [
-         null,
-         ""
-      ],
-      "Starting In" : [
-         null,
-         "Startar om"
-      ],
-      "Start time cannot be greater than end time" : [
-         null,
-         "Starttid kan inte vara större än sluttiden"
-      ],
-      "years" : [
-         null,
-         ""
-      ],
-      "Save Changes to" : [
-         null,
-         "Spara förändringar till"
-      ],
-      "View Changelog" : [
-         null,
-         "Visa förändringslogg"
-      ],
-      "Last Used Program" : [
-         null,
-         "Senaste använda program"
-      ],
-      "Start Time" : [
-         null,
-         "Starttid"
-      ],
-      "Export" : [
-         null,
-         "Exportera"
-      ],
-      "Thr" : [
-         null,
-         "Thr"
-      ],
-      "SEN1" : [
-         null,
-         ""
-      ],
-      "Master On Adjustment" : [
-         null,
-         "Huvudenhet PÅ justering"
-      ],
-      "Please re-enter password to try again." : [
-         null,
-         "Skriv in lösenordet igen"
-      ],
-      "Adjustment Method Error" : [
-         null,
-         ""
-      ],
-      "Contrast" : [
-         null,
-         "Kontrast"
-      ],
-      "d" : [
-         null,
-         "d"
-      ],
-      "Jul" : [
-         null,
-         "Jul"
-      ],
-      "ETo" : [
-         null,
-         ""
-      ],
-      "Wunderground Key" : [
-         null,
-         ""
-      ],
-      "To enable IFTTT, a Maker channel key is required which can be obtained from https://ifttt.com" : [
-         null,
-         "För att aktivera IFTTT krävs en nyckel som kan hämtas från https://ifttt.com"
-      ],
-      "Minutes" : [
-         null,
-         "Minuter"
-      ],
-      "Incorrect password for " : [
-         null,
-         "Ogiltigt lösenord för"
-      ],
-      "Reset" : [
-         null,
-         "Återställ"
-      ],
-      "Program Preview" : [
-         null,
-         "Förhandsgranskning av program"
-      ],
-      "Notifications" : [
-         null,
-         "Notifieringar"
-      ],
-      "Day" : [
-         null,
-         "Dag"
-      ],
-      "Network Error" : [
-         null,
-         "Nätverksfel"
-      ],
-      "Characters remaining" : [
-         null,
-         ""
-      ],
-      "Fair" : [
-         null,
-         ""
-      ],
-      "Watering Level" : [
-         null,
-         ""
-      ],
-      "Dismiss" : [
-         null,
-         "Avfärda"
-      ],
-      "Station Type" : [
-         null,
-         "Stationstyp"
-      ],
-      "Gateway Address" : [
-         null,
-         "Gateway Adress"
-      ],
-      "Import" : [
-         null,
-         "Importera"
-      ],
-      "Rain delay until" : [
-         null,
-         "Regnfördröjning tills"
-      ],
-      "You must specify a baseline ETo adjustment method option to use the ET adjustment method." : [
-         null,
-         ""
-      ],
-      "Password:" : [
-         null,
-         "Lösenord:"
-      ],
-      "Table" : [
-         null,
-         "Tabell"
-      ],
-      "Do you want to re-enable system operation?" : [
-         null,
-         "Vill du aktivera systemet igen?"
-      ],
-      "Do you want to turn off manual mode?" : [
-         null,
-         "Vill du stänga av manuellt läge?"
-      ],
-      "Enable Logging" : [
-         null,
-         "Slå på loggning"
-      ],
-      "Timeline" : [
-         null,
-         "Tidslinje"
-      ],
-      "last ran station" : [
-         null,
-         "Senaste körda station"
-      ],
-      "Aug" : [
-         null,
-         "Aug"
-      ],
-      "Move left" : [
-         null,
-         "Flytta vänster"
-      ],
-      "Timezone" : [
-         null,
-         "Tidszon"
-      ],
-      "Reset Button" : [
-         null,
-         ""
-      ],
-      "Station Name" : [
-         null,
-         "Stationsnamn"
-      ],
-      "Jun" : [
-         null,
-         "Jun"
-      ],
-      "Set the baseline weather conditions for your location. " : [
-         null,
-         "Ange väderförutsättningar för din plats."
-      ],
-      "California Restriction" : [
-         null,
-         "Begränsning för Kalifornien"
-      ],
-      "minute" : [
-         null,
-         ""
-      ],
-      "NTP Sync" : [
-         null,
-         "NTP Sync"
-      ],
-      "The watering percentage scales station run times by the set value. When weather adjustment is used the watering percentage is automatically adjusted." : [
-         null,
-         "Vattenprocenten justerar stationens tidsschema med inställt värde. När vädret justeras används den justerade bervattningsprocenten automatiskt."
-      ],
-      "No new devices were detected on your network" : [
-         null,
-         "Inga nya enheter upptäcktes i ditt nätverk"
-      ],
-      "Rain Sensor" : [
-         null,
-         "Regnsensor"
-      ],
-      "Run-Once" : [
-         null,
-         "Engångs"
-      ],
-      "Time" : [
-         null,
-         "Tid"
-      ],
-      "Program data is newer than the device firmware and cannot be imported" : [
-         null,
-         "Programdata är nyare än enhetens firmware och kan inte importeras"
-      ],
-      "No entries found in the selected date range" : [
-         null,
-         "Inga poster hittades i det valda datumintervallet"
-      ],
-      "Move right" : [
-         null,
-         "Flytta höger"
-      ],
-      "Reboot Reason" : [
-         null,
-         ""
-      ],
-      "Powered by OpenWeather" : [
-         null,
-         ""
-      ],
-      "day" : [
-         null,
-         ""
-      ],
-      "Icelandic" : [
-         null,
-         "Isländska"
-      ],
-      "Repeat Count" : [
-         null,
-         "Antal upprepningar"
-      ],
-      "About" : [
-         null,
-         "Om"
-      ],
-      "Missing Adjustment Option" : [
-         null,
-         ""
-      ],
-      "Paste your backup here" : [
-         null,
-         "Klistra in din backup här"
-      ],
-      "Sequential" : [
-         null,
-         "Sekvensiell"
-      ],
-      "m" : [
-         null,
-         "m"
-      ],
-      "Are you sure you want to reset all stations?" : [
-         null,
-         "Är du säker på att du vill återställa alla stationer?"
-      ],
-      "Mar" : [
-         null,
-         "Mar"
-      ],
-      "Just Now" : [
-         null,
-         ""
-      ],
-      "Croatian" : [
-         null,
-         "Kroatiska"
-      ],
-      "Advanced" : [
-         null,
-         "Avancerat"
-      ],
-      "End Time" : [
-         null,
-         "Sluttid"
-      ],
-      "Stations have been updated" : [
-         null,
-         "Stationerna har uppdaterats"
-      ],
-      "Poor" : [
-         null,
-         ""
-      ],
-      "Do you want to turn off rain delay?" : [
-         null,
-         "Vill du stänga av regnfördröjning"
-      ],
-      "Update Guide" : [
-         null,
-         "Uppdateringsguide"
-      ],
-      "Location Request Error" : [
-         null,
-         ""
-      ],
-      "Use your OpenSprinkler.com login and password to securely sync sites between all your devices." : [
-         null,
-         "Använd din OpenSprinkler.com inloggning och lösenord för att säkert synkronisera olika platser mellan alla dina enheter."
-      ],
-      "Standard" : [
-         null,
-         "Standard"
-      ],
-      "Register here" : [
-         null,
-         "Registrera dig här"
-      ],
-      "Tuesday" : [
-         null,
-         "Tisdag"
-      ],
-      "System Diagnostics" : [
-         null,
-         ""
-      ],
-      "copy" : [
-         null,
-         "kopiera"
-      ],
-      "Polish" : [
-         null,
-         "Polska"
-      ],
-      "IP Address" : [
-         null,
-         "IP Adress"
-      ],
-      "Norwegian" : [
-         null,
-         "Norska"
-      ],
-      "Unable to read the configuration file. Please check the file and try again." : [
-         null,
-         "Det gick inte att läsa konfigurationsfilen. Kontrollera filen och försök igen."
-      ],
-      "PM" : [
-         null,
-         "PM"
-      ],
-      "Wednesday" : [
-         null,
-         "Onsdag"
-      ],
-      "Hebrew" : [
-         null,
-         "Hebreiska"
-      ],
-      "Settings have been saved" : [
-         null,
-         "Inställningarna har sparats"
-      ],
-      "Select which events to send to IFTTT for use in recipes." : [
-         null,
-         "Välj vilka händelser som ska skickas till IFTTT för användning i recept."
-      ],
-      "Use Weather Adjustment" : [
-         null,
-         "Använd vattenjustering"
-      ],
-      "System Disabled" : [
-         null,
-         "Systemet avaktiverat"
-      ],
-      "Restrictions" : [
-         null,
-         "Begränsningar"
-      ],
-      "Options" : [
-         null,
-         "Inställningar"
-      ],
-      "Please check input and try again." : [
-         null,
-         "Verifiera inmatning och försök igen"
-      ],
-      "Done" : [
-         null,
-         "Klar"
-      ],
-      "Station" : [
-         null,
-         "Station"
-      ],
-      "Sensor 2 Update" : [
-         null,
-         ""
-      ],
-      "Update Now" : [
-         null,
-         "Uppdatera nu"
-      ],
-      "Site deleted successfully" : [
-         null,
-         "Platsen borttagen"
-      ],
-      "remaining" : [
-         null,
-         "återstående"
-      ],
-      "Use Rain Sensor" : [
-         null,
-         "Använd regnsensor"
-      ],
-      "Running" : [
-         null,
-         "Kör"
-      ],
-      "Total Water Used" : [
-         null,
-         "Totalt  mängd vatten använt"
-      ],
-      "Success" : [
-         null,
-         ""
-      ],
-      "Sunset" : [
-         null,
-         "Solnedgång"
-      ],
-      "OpenSprinkler.com Login" : [
-         null,
-         "OpenSprinkler.com inloggning"
-      ],
-      "French" : [
-         null,
-         "Franska"
-      ],
-      "Sensor 1 Delayed Off Time" : [
-         null,
-         ""
-      ],
-      "Enable" : [
-         null,
-         "Aktivera"
-      ],
-      "Chinese" : [
-         null,
-         "Kinesiska"
-      ],
-      "Duration" : [
-         null,
-         "Varaktighet"
-      ],
-      "Welcome to the OpenSprinkler application. This app only works with the OpenSprinkler controller which must be installed and setup on your home network." : [
-         null,
-         "Välkommen till OpenSprinkler-programmet. Den här appen fungerar bara med OpenSprinkler-kontrollern som måste installeras i ditt hemnätverk."
-      ],
-      "Are you sure you want to clear the current location?" : [
-         null,
-         "Är du säker på att du vill rensa den aktuella platsen?"
-      ],
-      "Rain delay has been successfully set" : [
-         null,
-         "Regnfördröjning har blivit inställd"
-      ],
-      "An invalid API key has been detected." : [
-         null,
-         ""
-      ],
-      "ago" : [
-         null,
-         ""
-      ],
-      "Unified firmware is now avaialble" : [
-         null,
-         "Unified firmware är tillgänglig"
-      ],
-      "Scanning for OpenSprinkler Pi (1.8.3)" : [
-         null,
-         "Söker efter OpenSprinkler Pi (1.8.3)"
-      ],
-      "User manual for OpenSprinkler is available at" : [
-         null,
-         "Användarhandbok för OpenSprinkler finns på"
-      ],
-      "Flow" : [
-         null,
-         "Flöde"
-      ],
-      "Back" : [
-         null,
-         "TIllbaka"
-      ],
-      "No" : [
-         null,
-         "Nej"
-      ],
-      "Backup restored to your device" : [
-         null,
-         "Backup återställd till enheten"
-      ],
-      "Station has been queued" : [
-         null,
-         "Stationen har köats"
-      ],
-      "Manual program" : [
-         null,
-         "Manuellt program"
-      ],
-      "Remote Station (index)" : [
-         null,
-         "Fjärrstation (index)"
-      ],
-      "Rain Delay Update" : [
-         null,
-         ""
-      ],
-      "End:" : [
-         null,
-         "Slut:"
-      ],
-      "Change Rain Delay" : [
-         null,
-         "Förändra regnfördröjning"
-      ],
-      "WiFi Configure" : [
-         null,
-         ""
-      ],
-      "The passwords don't match. Please try again." : [
-         null,
-         "Lösenorden stämmer inte överens. Försök igen"
-      ],
-      "Weather-Based Restrictions" : [
-         null,
-         "Väderbaserade begränsningar"
-      ],
-      "We use OpenWeatherMap normally however with a user provided API key the weather source will switch to Weather Underground." : [
-         null,
-         ""
-      ],
-      "deleted" : [
-         null,
-         "borttagen"
-      ],
-      "High" : [
-         null,
-         "Hög"
-      ],
-      "Controller Reboot" : [
-         null,
-         "Starta om Kontrollenhet"
-      ],
-      "Off Command" : [
-         null,
-         "Av kommando"
-      ],
-      "HTTP Port (restart required)" : [
-         null,
-         "HTTP-port (omstart krävs)"
-      ],
-      "Boost time changes how long the boost converter is activated with a range from 0 to 1000 milliseconds." : [
-         null,
-         "Boosttiden ändrar hur länge boostkonverteraren aktiveras med ett intervall från 0 till 1000 millisekunder."
-      ],
-      "Connection timed-out. Please try again." : [
-         null,
-         "Uppkopplingen tog för lång tid. Försök igen"
-      ],
-      "Operation" : [
-         null,
-         "Funktion"
-      ],
-      "Delay Duration (hours)" : [
-         null,
-         "Fördröjningstid (timmar)"
-      ],
-      "When using program switch, a switch is connected to the sensor port to trigger Program 2 every time the switch is pressed for at least 1 second." : [
-         null,
-         ""
-      ],
-      "Warning: The use of odd/even restrictions with the selected interval day may result in the program not running at all." : [
-         null,
-         "Varning: Användningen av udda / jämn begränsningar med den valda intervalldagen kan leda till att programmet inte körs alls."
-      ],
-      "Sensor 1 Update" : [
-         null,
-         ""
-      ],
-      "Sat" : [
-         null,
-         "Lör"
-      ],
-      "Offline" : [
-         null,
-         ""
-      ],
-      "SEN2" : [
-         null,
-         ""
-      ],
-      "Master Station" : [
-         null,
-         "Huvudstation"
-      ],
-      "Manual Mode" : [
-         null,
-         "Manuellt läge"
-      ],
-      "Add Controller" : [
-         null,
-         "Lägg till kontroller"
-      ],
-      "None" : [
-         null,
-         "Ingen"
-      ],
-      "System" : [
-         null,
-         "System"
-      ],
-      "Don't have an account?" : [
-         null,
-         "Har du inget konto?"
-      ],
-      "s" : [
-         null,
-         "s"
-      ],
-      "Powered by Weather Underground" : [
-         null,
-         ""
-      ],
-      "Stations" : [
-         null,
-         "Stationer"
-      ],
-      "Use Metric" : [
-         null,
-         ""
-      ],
-      "Please add a site by tapping the 'Add' button in the top right corner." : [
-         null,
-         "Lägg till en plats genom att trycka på 'Lägg till' knappen i övre högra hörnet."
-      ],
-      "Below is the corrupt data which could not be parsed but may be useful for restoration." : [
-         null,
-         ""
-      ],
-      "Flow Sensor Update" : [
-         null,
-         "Flödessensor uppdatering"
-      ],
-      "Select Merge Method" : [
-         null,
-         "Välj sammanfogninsmetod"
-      ],
-      "Mon" : [
-         null,
-         "Mån"
-      ],
-      "Are you sure you want to restore the configuration?" : [
-         null,
-         "Är du säker på att du vill återställa konfigurationen?"
-      ],
-      "Unable to change password. Please try again." : [
-         null,
-         "Det gick inte att ändra lösenordet. Var god försök igen."
-      ],
-      "Replace cloud with local" : [
-         null,
-         "ERsätt molnversion med lokal"
-      ],
-      "WUnderground Authentication Error" : [
-         null,
-         ""
-      ],
-      "Reboot OpenSprinkler" : [
-         null,
-         "Starta om OpenSprinkler"
-      ],
-      "Greek" : [
-         null,
-         "Grekiska"
-      ],
-      "Enter a duration to manually run " : [
-         null,
-         "Ange en varaktighet för manuell körning"
-      ],
-      "Help & Support" : [
-         null,
-         "Hjälp & Support"
-      ],
-      "Unable to retrieve your current location" : [
-         null,
-         "Det gick inte att hämta din nuvarande plats"
-      ],
-      "Do you want to stop the currently running program?" : [
-         null,
-         "Vill du avbryta det pågående programmet?"
-      ],
-      "Unexpected Error" : [
-         null,
-         ""
-      ],
-      "hours" : [
-         null,
-         ""
-      ],
-      "Password" : [
-         null,
-         "Lösenord"
-      ],
-      "Weather Provider Request Failed" : [
-         null,
-         ""
-      ],
-      "Unused Expanders Detected" : [
-         null,
-         ""
-      ],
-      "Clock Update" : [
-         null,
-         ""
-      ],
-      "Click here to enable all connected stations." : [
-         null,
-         ""
-      ],
-      "Downgrade UI" : [
-         null,
-         "Nedgradera UI"
-      ],
-      "Not specified" : [
-         null,
-         "Ej angiven"
-      ],
-      "Delete" : [
-         null,
-         "Ta Bort"
-      ],
-      "Thu" : [
-         null,
-         "Tor"
-      ],
-      "Device ID (restart required)" : [
-         null,
-         "Enhets-ID (omstart krävs)"
-      ],
-      "Building Weather History" : [
-         null,
-         ""
-      ],
-      "Invalid username/password combination. Please try again." : [
-         null,
-         "Ogiltig kombination av användarnamnet och lösenordet. Var god försök igen."
-      ],
-      "Jan" : [
-         null,
-         "Jan"
-      ],
-      "Latest" : [
-         null,
-         "Senaste"
-      ],
-      "Use DHCP (restart required)" : [
-         null,
-         "Använd DHCP (omstart krävs)"
-      ],
-      "Wireless settings have been reset. Please follow the OpenSprinkler user manual on restoring connectivity." : [
-         null,
-         ""
-      ],
-      "App Version" : [
-         null,
-         "Appversion"
-      ],
-      "Device Time" : [
-         null,
-         "Enhetstid"
-      ],
-      "Are you sure you want to reboot OpenSprinkler?" : [
-         null,
-         "Är du säker på att du vill starta om OpenSprinkler?"
-      ],
-      "Click here to troubleshoot remote access issues" : [
-         null,
-         "Klicka här för att felsöka problem med fjärråtkomst"
-      ],
-      "Normally Open" : [
-         null,
-         ""
-      ],
-      "Average" : [
-         null,
-         "Snitt"
-      ],
-      "Baseline ETo" : [
-         null,
-         ""
-      ],
-      "Loading" : [
-         null,
-         "Laddar"
-      ],
-      "Update successful" : [
-         null,
-         "Uppdatering klar"
-      ],
-      "An IP address is required to continue." : [
-         null,
-         "En IP-adress krävs för att fortsätta"
-      ],
-      "for" : [
-         null,
-         "för"
-      ],
-      "Temp" : [
-         null,
-         "Temperatur"
-      ],
-      "Manual" : [
-         null,
-         "Manuell"
-      ],
-      "is running on station" : [
-         null,
-         "Körs nu på station"
-      ],
-      "Station Run" : [
-         null,
-         "Station Kör"
-      ],
-      "GPIO" : [
-         null,
-         "GPIO"
-      ],
-      "Current" : [
-         null,
-         "Nuvarande"
-      ],
-      "Manual Control" : [
-         null,
-         "Manuell kontroll"
-      ],
-      "Using manual watering" : [
-         null,
-         ""
-      ],
-      "Update did not complete." : [
-         null,
-         "Uppdatering kunde inte slutföras"
-      ],
-      "Invalid configuration" : [
-         null,
-         "Felaktig konfiguration"
-      ],
-      "Are you sure you want to delete program" : [
-         null,
-         "Är du säker på att du vill radera programmet"
-      ],
-      "RD" : [
-         null,
-         "RF"
-      ],
-      "Ignore Sensor 2" : [
-         null,
-         ""
-      ],
-      "Check IP/Port and try again." : [
-         null,
-         "Verifiera IP/Port och försök igen"
-      ],
-      "Show" : [
-         null,
-         "Visa"
-      ],
-      "Weather Adjustment Options" : [
-         null,
-         "Justeringar för väderlek"
-      ],
-      "Saturday" : [
-         null,
-         "Lördag"
-      ],
-      "Sunset to Sunrise" : [
-         null,
-         "Solnedgång till soluppgång"
-      ],
-      "Remote Address" : [
-         null,
-         "Fjärradress"
-      ],
-      "RF Code" : [
-         null,
-         "RF Kod"
-      ],
-      "Milliseconds" : [
-         null,
-         "Millisekunder"
-      ],
-      "Slovak" : [
-         null,
-         "Solvakiska"
-      ],
-      "Programs" : [
-         null,
-         "Program"
-      ],
-      "Error: You have not selected any stations." : [
-         null,
-         "Fel: Du har inte valt några stationer."
-      ],
-      "Sunrise" : [
-         null,
-         "Soluppgång"
-      ],
-      "Logout" : [
-         null,
-         "Logga ut"
-      ],
-      "Merge" : [
-         null,
-         "Sammanfoga"
-      ],
-      "Run-Once Program" : [
-         null,
-         "Engångsprogram"
-      ],
-      "Clear Log Data" : [
-         null,
-         ""
-      ],
-      "This is open source software: source code and changelog for this application can be found at" : [
-         null,
-         "Detta är öppen källkod: källkod och förändringslogg för den här applikationen finns på"
-      ],
-      "Bulgarian" : [
-         null,
-         ""
-      ],
-      "Sun" : [
-         null,
-         "Sön"
-      ],
-      "This will reset all station names and attributes" : [
-         null,
-         "Detta återställer alla stationsnamn och attribut"
-      ],
-      "Rain Delay" : [
-         null,
-         "Regnfördröjning"
-      ],
-      "Romanian" : [
-         null,
-         ""
-      ],
-      "Current Weather" : [
-         null,
-         ""
-      ],
-      "Min Temp" : [
-         null,
-         ""
-      ],
-      "Email (copy/paste)" : [
-         null,
-         "Email (Kopiera/Klistra in)"
-      ],
-      "Are you sure you want to downgrade the UI?" : [
-         null,
-         "Är du säker på att du vill nedgradera gränssnittet?"
-      ],
-      "Unuseable" : [
-         null,
-         ""
-      ],
-      "Firmware update available" : [
-         null,
-         "Firmware uppdatering finns tillgänglig"
-      ],
-      "Mean Wind" : [
-         null,
-         ""
-      ],
-      "Warning: The repeat interval is less than the program run time." : [
-         null,
-         "Varning: Repeteringsintervallet är mindre än programmets körtid."
-      ],
-      "Logs have been cleared" : [
-         null,
-         "Loggar har rensats"
-      ],
-      "Last Reboot" : [
-         null,
-         ""
-      ],
-      "Last Response" : [
-         null,
-         ""
-      ],
-      "Replace local with cloud" : [
-         null,
-         "Ersätt lokal med molnversion"
-      ],
-      "second" : [
-         null,
-         ""
-      ],
-      "Zoom out" : [
-         null,
-         "Zooma ut"
-      ],
-      "FS" : [
-         null,
-         "FS"
-      ],
-      "Unable to read cloud data" : [
-         null,
-         "Kunde inte läsa molndata"
-      ],
-      "Interval (Days)" : [
-         null,
-         "Intervall (Dagar)"
-      ],
-      "When using program switch, a switch is connected to the sensor port to trigger Program 1 every time the switch is pressed for at least 1 second." : [
-         null,
-         "Vid användning av programbrytare är en brytare ansluten till sensorporten för att aktivera Program 1 varje gång brytaren trycks in i minst 1 sekund."
-      ],
-      "Program Name" : [
-         null,
-         "Programnamn"
-      ],
-      "Low" : [
-         null,
-         "Låg"
-      ],
-      "Adjustment Method Options" : [
-         null,
-         "Alternativ för justeringsmetod"
-      ],
-      "Use Master" : [
-         null,
-         "Använd huvudenhet"
-      ],
-      "available" : [
-         null,
-         "tillgängliga"
-      ],
-      "month" : [
-         null,
-         ""
-      ],
-      "System Idle" : [
-         null,
-         "Systemet är inaktivt"
-      ],
-      "No WUnderground PWS Provided" : [
-         null,
-         ""
-      ],
-      "If the weather reports any condition suggesting rain, a rain delay is automatically issued using the below set delay duration." : [
-         null,
-         "Om vädret rapporterar något tillstånd som tyder på regn, utfärdas en regnfördröjning automatiskt med den nedan angivna fördröjningsperioden."
-      ],
-      "Error: Interval days must be between 2 and 128." : [
-         null,
-         "Fel: Intervalldagar måste vara mellan 2 och 128."
-      ],
-      "Slovenian" : [
-         null,
-         "Slovenska"
-      ],
-      "Spanish" : [
-         null,
-         "Spanska"
-      ],
-      "" : {
-         "Last-Translator" : " Samer Albahra <salbahra@gmail.com>, 2020\nLanguage-Team: Swedish (https://www.transifex.com/albahra/teams/109462/sv/)\nLanguage: sv\nPlural-Forms: nplurals=2; plural=(n != 1);\n"
-      },
-      "Disabled" : [
-         null,
-         "Avaktiverad"
-      ],
-      "Soil" : [
-         null,
-         ""
-      ],
-      "Amharic" : [
-         null,
-         "Amhariska"
-      ],
-      "Active State" : [
-         null,
-         "Aktiv status"
-      ],
-      "Excellent" : [
-         null,
-         ""
-      ],
-      "Master" : [
-         null,
-         "Huvudenhet"
-      ],
-      "Click here for more details" : [
-         null,
-         "Klicka här för mer information"
-      ],
-      "Select Import Method" : [
-         null,
-         "Välj importmetod"
-      ],
-      "Show Disabled" : [
-         null,
-         ""
-      ],
-      "Enter Date/Time" : [
-         null,
-         "Skriv in Datum/Tid"
-      ],
-      "Station Timer" : [
-         null,
-         "Stationstimer"
-      ],
-      "The requested time span exceeds the maxiumum of 1 year and has been adjusted" : [
-         null,
-         "Den begärda tidsperioden överstiger maximalt 1 år och har justerats"
-      ],
-      "Offset (minutes)" : [
-         null,
-         "Kompensera (Minuter)"
-      ],
-      "RF" : [
-         null,
-         "RF"
-      ],
-      "Sprinkler Stations" : [
-         null,
-         "Sprinklerstationer"
-      ],
-      "Now" : [
-         null,
-         "Nu"
-      ],
-      "Are you sure you want to stop all stations?" : [
-         null,
-         "Är du säker på att du vill stoppa alla stationer?"
-      ],
-      "This will delete the stored SSID/password for your wireless network and return the device to access point mode" : [
-         null,
-         ""
-      ],
-      "Total Station Events" : [
-         null,
-         "Totalt antal stationsevent"
-      ],
-      "Disable" : [
-         null,
-         "Inaktivera"
-      ],
-      "Ignore Password" : [
-         null,
-         "Ignorera lösenord"
-      ],
-      "Invalid WUnderground Key" : [
-         null,
-         ""
-      ],
-      "A valid IP address is required when DHCP is not used" : [
-         null,
-         "En giltig IP-adress krävs när DHCP inte används"
-      ],
-      "Weather Service" : [
-         null,
-         ""
-      ],
-      "Rain" : [
-         null,
-         "Regn"
-      ],
-      "Click here to re-login to OpenSprinkler.com" : [
-         null,
-         "Klicka här för att logga in igen på OpenSprinkler.com"
-      ],
-      "Remote" : [
-         null,
-         "Fjärr"
-      ],
-      "Click here to retrieve the partial weather option data" : [
-         null,
-         ""
-      ],
-      "Open source attributions" : [
-         null,
-         "Öppen källkod attribut"
-      ],
-      "Edit Programs" : [
-         null,
-         "Förändra program"
-      ],
-      "Auto Rain Delay" : [
-         null,
-         "Automatisk Regnfördröjning"
-      ],
-      "No stations set to run on this day." : [
-         null,
-         "Inga stationer inställda att köras på denna dag."
-      ],
-      "Special Station Auto-Refresh" : [
-         null,
-         "Special Station Auto-Refresh"
-      ],
-      "connect" : [
-         null,
-         "anslut"
-      ],
-      "run" : [
-         null,
-         "kör"
-      ],
-      "Integrations" : [
-         null,
-         "Integrationer"
-      ],
-      "Configure Master" : [
-         null,
-         "Konfigurera huvudstation"
-      ],
-      "Tap to Configure" : [
-         null,
-         "Välj för att konfigurera"
-      ],
-      "Sensor" : [
-         null,
-         ""
-      ],
-      "Warning: Network changes will be made and the device may no longer be accessible from this address." : [
-         null,
-         "Varning: Nätverksändringar kommer att göras och enheten kanske inte kommer vara tillgänglig från den här adressen."
-      ],
-      "Sensor 2 Delayed On Time" : [
-         null,
-         ""
-      ],
-      "Logs" : [
-         null,
-         "Loggar"
-      ],
-      "is running on" : [
-         null,
-         "Kör nu på"
-      ],
-      "Run-once program" : [
-         null,
-         "Engångsprogram"
-      ],
-      "hour" : [
-         null,
-         ""
-      ],
-      "Online" : [
-         null,
-         ""
-      ],
-      "(Changes Auto-Saved)" : [
-         null,
-         ""
-      ],
-      "Manual mode enabled" : [
-         null,
-         "Manuellt läge påslaget"
-      ],
-      "Russian" : [
-         null,
-         "Ryska"
-      ],
-      "English" : [
-         null,
-         "Engelska"
-      ],
-      "Error: You have not selected any days of the week." : [
-         null,
-         "Fel: Du har inte valt några dagar i veckan."
-      ],
-      "Set the baseline potential evapotranspiration (ETo) and elevation for your location. " : [
-         null,
-         ""
-      ],
-      "Hours" : [
-         null,
-         "Timmar"
-      ],
-      "Reset Wireless Settings" : [
-         null,
-         ""
-      ],
-      "Scan For Device" : [
-         null,
-         "Skanna efter enhet"
-      ],
-      "Invalid WUnderground PWS" : [
-         null,
-         ""
-      ],
-      "Soil Sensor" : [
-         null,
-         ""
-      ],
-      "Total Runtime" : [
-         null,
-         "Total körtid"
-      ],
-      "Firmware Update" : [
-         null,
-         ""
-      ],
-      "On Command" : [
-         null,
-         "På kommando"
-      ],
-      "Quick Programs" : [
-         null,
-         "Snabbprogram"
-      ],
-      "Location" : [
-         null,
-         "Plats"
-      ],
-      "delete" : [
-         null,
-         "Ta bort"
-      ],
-      "Dutch" : [
-         null,
-         "Holländska"
-      ],
-      "Mongolian" : [
-         null,
-         "Mongoliska"
-      ],
-      "Sep" : [
-         null,
-         "Sep"
-      ],
-      "Mean Temp" : [
-         null,
-         "Medeltemperatur"
-      ],
-      "Error" : [
-         null,
-         ""
-      ],
-      "Firmware" : [
-         null,
-         "Firmware"
-      ],
-      "Backup saved on this device" : [
-         null,
-         "Backup sparad på denna enhet"
-      ],
-      "Station Duration" : [
-         null,
-         "Stationens varaktighet"
-      ],
-      "Powered by your Local PWS" : [
-         null,
-         ""
-      ],
-      "Adjustment Options Error" : [
-         null,
-         ""
-      ],
-      "Password cannot be longer than 32 characters" : [
-         null,
-         "Lösenordet kan inte vara längre än 32 tecken"
-      ],
-      "Master Off Delay" : [
-         null,
-         "Huvudenhet AV fördröjning"
-      ],
-      "Verify" : [
-         null,
-         ""
-      ],
-      "Are you sure you want to " : [
-         null,
-         "Är du säker på att du vill"
-      ],
-      "You have no programs currently added. Tap the Add button on the top right corner to get started." : [
-         null,
-         "Du har för tillfället inga tillagda program. Tryck på knappen Lägg till i övre högra hörnet för att komma igång."
-      ],
-      "Monday" : [
-         null,
-         "Måndag"
-      ],
-      "Uncheck All" : [
-         null,
-         "Välj bort alla"
-      ],
-      "Scanning for OpenSprinkler (1.8.3)" : [
-         null,
-         "Söker efter OpenSprinkler (1.8.3)"
-      ],
-      "Select IFTTT Events" : [
-         null,
-         "Välj IFTTT event"
-      ],
-      "Test All Stations" : [
-         null,
-         "Testa alla stationer"
-      ],
-      "Program has been updated" : [
-         null,
-         "Programmet har uppdaterats"
-      ],
-      "Factory Reset" : [
-         null,
-         ""
-      ],
-      "Do you want to save your changes?" : [
-         null,
-         "Vill du spara dina ändringar?"
-      ],
-      "New Device" : [
-         null,
-         "Ny enhet"
-      ],
-      "Cancel" : [
-         null,
-         "Avbryt"
-      ],
-      "Tue" : [
-         null,
-         "Tis"
-      ],
-      "Power On" : [
-         null,
-         ""
-      ],
-      "Feb" : [
-         null,
-         "Feb"
-      ],
-      "Device ID modifies the last byte of the MAC address." : [
-         null,
-         "Enhets-ID ändrar den sista byten för MAC-adressen."
-      ],
-      "Weekly" : [
-         null,
-         "Veckovis"
-      ],
-      "LOW" : [
-         null,
-         "LÅG"
-      ],
-      "LCD Screen" : [
-         null,
-         "LCD-skärm"
-      ],
-      "Stations:" : [
-         null,
-         "Stationer:"
-      ],
-      "Do you wish to apply the current watering level?" : [
-         null,
-         "Vill du applicera den aktuella bevattningsnivån?"
-      ],
-      "Sunday" : [
-         null,
-         "Söndag"
-      ],
-      "Connecting to" : [
-         null,
-         "Kopplar upp till"
-      ],
-      "Station has been stopped" : [
-         null,
-         "Stationen har stoppats"
-      ],
-      "Do you wish to disable extender mode?" : [
-         null,
-         "Vill du stänga av utökningsläget"
-      ],
-      "Ignore Sensor 1" : [
-         null,
-         ""
-      ],
-      "Empty Response" : [
-         null,
-         ""
-      ],
-      "Use Sunrise" : [
-         null,
-         "Använd Soluppgång"
-      ],
-      "Sensor 1 Delayed On Time" : [
-         null,
-         ""
-      ],
-      "Set the sensitivity of the watering adjustment to changes in each of the above weather conditions." : [
-         null,
-         "Ställ in känsligheten för bevattningen för ändringar i var och en av de ovanstående väderförhållandena."
-      ],
-      "Additional Start Times" : [
-         null,
-         "Ytterligare starttider"
-      ],
-      "Humidity" : [
-         null,
-         "Luftfuktighet"
-      ],
-      "Days of the Week" : [
-         null,
-         "Veckodagar"
-      ],
-      "Refresh" : [
-         null,
-         "Uppdatera"
-      ],
-      "Email" : [
-         null,
-         "Email"
-      ],
-      "Confirm New Password" : [
-         null,
-         "Bekräfta nytt lösenord"
-      ],
-      "Scanning for OpenSprinkler" : [
-         null,
-         "Söker efter OpenSprinkler"
-      ],
-      "Program Start" : [
-         null,
-         "Programstart"
-      ],
-      "The ETo adjustment method will adjust the watering duration based on the difference between the baseline ETo and the current ETo." : [
-         null,
-         ""
-      ],
-      "Friday" : [
-         null,
-         "Fredag"
-      ],
-      "Unsupported WUnderground Method" : [
-         null,
-         ""
-      ],
-      "Unrecognised weather provider" : [
-         null,
-         ""
-      ],
-      "Weather Options have Corrupted" : [
-         null,
-         ""
-      ],
-      "Thai" : [
-         null,
-         "Thailändska"
-      ],
-      "Run" : [
-         null,
-         "Kör"
-      ],
-      "Do you want to continue?" : [
-         null,
-         "Vill du fortsätta?"
-      ],
-      "Program" : [
-         null,
-         "Program"
-      ],
-      "Rain detected" : [
-         null,
-         "Regn detekterat"
-      ],
-      "Last Updated" : [
-         null,
-         ""
-      ],
-      "Station Handling" : [
-         null,
-         "Stationshantering"
-      ],
-      "Last Request" : [
-         null,
-         ""
-      ],
-      "Even Days Only" : [
-         null,
-         "Fördröjning jämna dagar"
-      ],
-      "Flow Pulse Rate" : [
-         null,
-         "Pulsratio för flöde"
-      ],
-      "Use SSL" : [
-         null,
-         "Använd SSL"
-      ],
-      "Boost Time" : [
-         null,
-         "Boost-tid"
-      ],
-      "Elevation" : [
-         null,
-         ""
-      ],
-      "Max Temp" : [
-         null,
-         ""
-      ],
-      "Location Not Found" : [
-         null,
-         ""
-      ],
-      "Information" : [
-         null,
-         "Information"
-      ],
-      "OpenSprinkler is rebooting now" : [
-         null,
-         "OpenSprinkler startar om nu"
-      ],
-      "Save Changes to Program" : [
-         null,
-         "Spara förändringar till program"
-      ],
-      "Clear Logs" : [
-         null,
-         "Rensa loggar"
-      ],
-      "Are you sure you want to reset the wireless settings?" : [
-         null,
-         ""
-      ],
-      "A valid subnet address is required when DHCP is not used" : [
-         null,
-         ""
-      ],
-      "Program Interval" : [
-         null,
-         "Programintervall"
-      ],
-      "Save New Program" : [
-         null,
-         "Spara nytt program"
-      ],
-      "Grouping:" : [
-         null,
-         "Gruppering:"
-      ],
-      "Italian" : [
-         null,
-         "Italienska"
-      ],
-      "Wed" : [
-         null,
-         "Ons"
-      ],
-      "Total Rain" : [
-         null,
-         ""
-      ],
-      "year" : [
-         null,
-         ""
-      ],
-      "Brightness" : [
-         null,
-         "Ljusstyrka"
-      ],
-      "May" : [
-         null,
-         "Maj"
-      ],
-      "OpenSprinkler.com Login Expired" : [
-         null,
-         "OpenSprinkler.com inloggning har utgått"
-      ],
-      "Please enter your OpenSprinkler.com password. If you have recently changed your password, you may need to enter your previous password to decrypt the data." : [
-         null,
-         "Vänligen ange ditt OpenSprinkler.com lösenord. Om du nyligen har ändrat ditt lösenord kan du behöva ange ditt tidigare lösenord för att dekryptera data."
-      ]
+      "Invalid configuration" : "Felaktig konfiguration",
+      "Confirm New Password" : "Bekräfta nytt lösenord",
+      "Quick Programs" : "Snabbprogram",
+      "Zoom in" : "Zooma in",
+      "German" : "Tyska",
+      "Do you want to stop the currently running program?" : "Vill du avbryta det pågående programmet?",
+      "RF" : "RF",
+      "Station Run" : "Station Kör",
+      "Set the sensitivity of the watering adjustment to changes in each of the above weather conditions." : "Ställ in känsligheten för bevattningen för ändringar i var och en av de ovanstående väderförhållandena.",
+      "OpenSprinkler is rebooting now" : "OpenSprinkler startar om nu",
+      "Click here to re-login to OpenSprinkler.com" : "Klicka här för att logga in igen på OpenSprinkler.com",
+      "Station Notes" : "Stationsnoteringar",
+      "stations" : "stationer",
+      "Open Sprinkler IP:" : "Open Sprinkler IP:",
+      "Sat" : "Lör",
+      "Device ID modifies the last byte of the MAC address." : "Enhets-ID ändrar den sista byten för MAC-adressen.",
+      "IFTTT Key" : "IFTTT Nyckel",
+      "Sprinkler Stations" : "Sprinklerstationer",
+      "This will delete the stored SSID/password for your wireless network and return the device to access point mode" : "",
+      "A valid gateway address is required when DHCP is not used" : "En giltig gatewayadress krävs när DHCP inte används",
+      "Close" : "Stäng",
+      "Total Station Events" : "Totalt antal stationsevent",
+      "You have no programs currently added. Tap the Add button on the top right corner to get started." : "Du har för tillfället inga tillagda program. Tryck på knappen Lägg till i övre högra hörnet för att komma igång.",
+      "Are you sure you want to reset the wireless settings?" : "",
+      "Mon" : "Mån",
+      "Ignore Password" : "Ignorera lösenord",
+      "Activate Relay" : "Aktivera Relä",
+      "Remote Station (index)" : "Fjärrstation (index)",
+      "OpenSprinkler.com Login" : "OpenSprinkler.com inloggning",
+      "Error: You have not selected any days of the week." : "Fel: Du har inte valt några dagar i veckan.",
+      "Edit Programs" : "Förändra program",
+      "Not specified" : "Ej angiven",
+      "Minutes" : "Minuter",
+      "End:" : "Slut:",
+      "LOW" : "LÅG",
+      "Grouping:" : "Gruppering:",
+      "HIGH" : "HÖG",
+      "Don't have an account?" : "Har du inget konto?",
+      "RF Code" : "RF Kod",
+      "available" : "tillgängliga",
+      "Time" : "Tid",
+      "RS" : "RS",
+      "Preview Programs" : "Förhandsgranska program",
+      "for" : "för",
+      "Polish" : "Polska",
+      "Email" : "Email",
+      "Rain detected" : "Regn detekterat",
+      "Unable to read the configuration file. Please check the file and try again." : "Det gick inte att läsa konfigurationsfilen. Kontrollera filen och försök igen.",
+      "Last Successful Weather Call" : "Senaste framgångsrika väderuppdatering",
+      "Nov" : "Nov",
+      "Aug" : "Aug",
+      "Croatian" : "Kroatiska",
+      "Weather Adjustment Options" : "Justeringar för väderlek",
+      "Manual Mode" : "Manuellt läge",
+      "Program Interval" : "Programintervall",
+      "Sep" : "Sep",
+      "Configured as Extender" : "Konfigurerad som en utökning",
+      "Continue" : "Fortsätt",
+      "New Password" : "Nytt lösenord",
+      "Please check input and try again." : "Verifiera inmatning och försök igen",
+      "Stations:" : "Stationer:",
+      "Bulgarian" : "",
+      "Interval (Days)" : "Intervall (Dagar)",
+      "Scanning for OpenSprinkler Pi" : "Söker efter OpenSprinkler Pi",
+      "The selected station is already running or is scheduled to run." : "Vald station kör redan eller är schemalagd",
+      "Choose day(s)" : "Välj dagar",
+      "New Device" : "Ny enhet",
+      "Select Import Method" : "Välj importmetod",
+      "(Changes Auto-Saved)" : "",
+      "Stations" : "Stationer",
+      "Ignore Rain" : "Ignorera regn",
+      "Rain Delay" : "Regnfördröjning",
+      "Attached Sensor Type" : "Kopplad sensortyp",
+      "Feb" : "Feb",
+      "Special Station Auto-Refresh" : "Special Station Auto-Refresh",
+      "Clear Log Data" : "",
+      "Use your OpenSprinkler.com login and password to securely sync sites between all your devices." : "Använd din OpenSprinkler.com inloggning och lösenord för att säkert synkronisera olika platser mellan alla dina enheter.",
+      "System Disabled" : "Systemet avaktiverat",
+      "Check IP/Port and try again." : "Verifiera IP/Port och försök igen",
+      "Replace local with cloud" : "Ersätt lokal med molnversion",
+      "Password cannot be empty" : "Lösenordet kan inte vara tomt",
+      "Import" : "Importera",
+      "Do you wish to apply the current watering level?" : "Vill du applicera den aktuella bevattningsnivån?",
+      "A valid IP address is required when DHCP is not used" : "En giltig IP-adress krävs när DHCP inte används",
+      "Master Off Delay" : "Huvudenhet AV fördröjning",
+      "Rain" : "Regn",
+      "Wireless settings have been reset. Please follow the OpenSprinkler user manual on restoring connectivity." : "",
+      "Cancel" : "Avbryt",
+      "Enable" : "Aktivera",
+      "Click here to troubleshoot remote access issues" : "Klicka här för att felsöka problem med fjärråtkomst",
+      "Weekly" : "Veckovis",
+      "Zoom out" : "Zooma ut",
+      "Turkish" : "",
+      "Stop All Stations" : "Stoppa alla stationer",
+      "connect" : "anslut",
+      "Enter IP Address" : "Skriv in IP-adress",
+      "Email (copy/paste)" : "Email (Kopiera/Klistra in)",
+      "Last Used Program" : "Senaste använda program",
+      "All stations have been stopped" : "Alla stationer har blivit stoppade",
+      "Are you sure you want to delete program" : "Är du säker på att du vill radera programmet",
+      "Disabled" : "Avaktiverad",
+      "Basic Settings" : "Basinställningar",
+      "Amharic" : "Amhariska",
+      "May" : "Maj",
+      "No entries found in the selected date range" : "Inga poster hittades i det valda datumintervallet",
+      "Stations have been updated" : "Stationerna har uppdaterats",
+      "System Diagnostics" : "",
+      "System" : "System",
+      "This Controller" : "Denna kontroller",
+      "Offset (minutes)" : "Kompensera (Minuter)",
+      "Delete Program" : "Ta bort program",
+      "Error: Interval days must be between 2 and 128." : "Fel: Intervalldagar måste vara mellan 2 och 128.",
+      "Do you want to delete the current image?" : "Vill du ta bort nuvarande bild",
+      "Are you sure you want to clear ALL your log data?" : "Är du säker på att du vill rensa ALL din loggdata?",
+      "% Watering" : "% bevattning",
+      "Move right" : "Flytta höger",
+      "Are you sure you want to clear the current location?" : "Är du säker på att du vill rensa den aktuella platsen?",
+      "Remote" : "Fjärr",
+      "Use Rain Sensor" : "Använd regnsensor",
+      "Paste your backup here" : "Klistra in din backup här",
+      "Off Command" : "Av kommando",
+      "Unable to reach the remote station." : "Kan inte nå fjärrstationen.",
+      "Master Station" : "Huvudstation",
+      "Running" : "Kör",
+      "Monday" : "Måndag",
+      "Tamil" : "",
+      "Program Start" : "Programstart",
+      "Unable to connect to" : "Kunde inte ansluta till",
+      "Apr" : "Apri",
+      "Integrations" : "Integrationer",
+      "Select Merge Method" : "Välj sammanfogninsmetod",
+      "Brightness" : "Ljusstyrka",
+      "Are you sure you want to delete all settings and return to the default settings?" : "Är du säker på att du vill radera alla inställningar och återgå till standardinställningarna?",
+      "Unified firmware is now avaialble" : "Unified firmware är tillgänglig",
+      "Username:" : "Användarnamn:",
+      "Weather adjustment uses OpenWeatherMaps data in conjunction with the selected method to adjust the watering percentage." : "",
+      "Please re-enter password to try again." : "Skriv in lösenordet igen",
+      "Refresh" : "Uppdatera",
+      "Click here to enter a valid password to decrypt the data" : "Klicka här för att ange ett giltigt lösenord för att dekryptera data",
+      "Set the baseline weather conditions for your location. " : "Ange väderförutsättningar för din plats.",
+      "Sun" : "Sön",
+      "Incorrect password for " : "Ogiltigt lösenord för",
+      "Adjustment Method Options" : "Alternativ för justeringsmetod",
+      "Romanian" : "",
+      "FS" : "FS",
+      "Delete" : "Ta Bort",
+      "h" : "t",
+      "Save Password" : "Spara lösenord",
+      "Latest" : "Senaste",
+      "Relay Pulse" : "Reläpulsering",
+      "Error: You have not selected any stations." : "Fel: Du har inte valt några stationer.",
+      "Test All Stations" : "Testa alla stationer",
+      "Standard" : "Standard",
+      "Remote Address" : "Fjärradress",
+      "Please enter your OpenSprinkler.com password. If you have recently changed your password, you may need to enter your previous password to decrypt the data." : "Vänligen ange ditt OpenSprinkler.com lösenord. Om du nyligen har ändrat ditt lösenord kan du behöva ange ditt tidigare lösenord för att dekryptera data.",
+      "Thr" : "Thr",
+      "Weather Adjustment Method" : "Metod för väderjustering",
+      "Are you sure you want to" : "Är du säker på att du vill",
+      "Controller Reboot" : "Starta om Kontrollenhet",
+      "Firmware update available" : "Firmware uppdatering finns tillgänglig",
+      "Sunset" : "Solnedgång",
+      "Do you want to turn off rain delay?" : "Vill du stänga av regnfördröjning",
+      "Purchase OpenSprinkler" : "Köp OpenSprinkler",
+      "Dismiss" : "Avfärda",
+      "Number of Stations" : "Antal stationer",
+      "Friday" : "Fredag",
+      "Day" : "Dag",
+      "This will reset all station names and attributes" : "Detta återställer alla stationsnamn och attribut",
+      "Error retrieving log data. Please refresh to try again." : "Det gick inte att hämta loggdata. Uppdatera för att försöka igen.",
+      "Contrast" : "Kontrast",
+      "Sunrise" : "Soluppgång",
+      "Logs" : "Loggar",
+      "Manage Sites" : "Hantera platser",
+      "Greek" : "Grekiska",
+      "Password cannot be longer than 32 characters" : "Lösenordet kan inte vara längre än 32 tecken",
+      "Flow Pulse Rate" : "Pulsratio för flöde",
+      "Authorization Required" : "Behörighet krävs",
+      "No stations set to run on this day." : "Inga stationer inställda att köras på denna dag.",
+      "Timeline" : "Tidslinje",
+      "Reset All Options" : "Återställ alla inställningar",
+      "Rain Sensor" : "Regnsensor",
+      "Settings have been saved" : "Inställningarna har sparats",
+      "Flow" : "Flöde",
+      "Average" : "Snitt",
+      "IP Address" : "IP Adress",
+      "AM" : "AM",
+      "Are you sure you want to reboot OpenSprinkler?" : "Är du säker på att du vill starta om OpenSprinkler?",
+      "Back" : "TIllbaka",
+      "No" : "Nej",
+      "is running on station" : "Körs nu på station",
+      "Weather and Sensors" : "Väder och sensorer",
+      "Water Level" : "Vattennivå",
+      "Relay pulsing is used for special situations where rapid pulsing is needed in the output with a range from 1 to 2000 milliseconds. A zero value disables the pulsing option." : "Reläpulsering används för speciella situationer där snabb pulsering behövs i utgången med ett intervall från 1 till 2000 millisekunder. Ett nollvärde inaktiverar pulseringsalternativet.",
+      "Run-Once" : "Engångs",
+      "Program has been updated" : "Programmet har uppdaterats",
+      "operation?" : "åtgärden?",
+      "Sunset to Sunrise" : "Solnedgång till soluppgång",
+      "Start:" : "Start:",
+      "Are you sure you want to " : "Är du säker på att du vill",
+      "Add Controller" : "Lägg till kontroller",
+      "Show Disabled" : "",
+      "is running on" : "Kör nu på",
+      "High" : "Hög",
+      "View Changelog" : "Visa förändringslogg",
+      "Information" : "Information",
+      "s" : "s",
+      "Program Switch" : "Programbrytare",
+      "Click any program below to expand/edit. Be sure to save changes." : "Klicka på något program nedan för att expandera / redigera. Var noga med att spara ändringar.",
+      "Programs" : "Program",
+      "Station Handling" : "Stationshantering",
+      "Reset All Station Data" : "Återställ all stationsdata",
+      "Even Days Only" : "Fördröjning jämna dagar",
+      "PM" : "PM",
+      "Are you sure you want to stop all stations?" : "Är du säker på att du vill stoppa alla stationer?",
+      "Are you sure you want to downgrade the UI?" : "Är du säker på att du vill nedgradera gränssnittet?",
+      "Check device password and try again." : "Kontrollera enhetens lösenord och försök igen",
+      "Operation" : "Funktion",
+      "Tuesday" : "Tisdag",
+      "Save Changes to" : "Spara förändringar till",
+      "Synced with OpenSprinkler.com" : "Synkroniserad med OpenSprinkler.com",
+      "Unused Expanders Detected" : "",
+      "Run-once program" : "Engångsprogram",
+      "Fixed" : "Fast",
+      "Note: There is a limit on the number of character used to configure this station type." : "",
+      "Normally Open (Rain Sensor)" : "Normalt öppen (Regnsensor)",
+      "Station" : "Station",
+      "Flow Sensor Update" : "Flödessensor uppdatering",
+      "Program" : "Program",
+      "Idle Brightness" : "Inaktiv ljusstyrka",
+      "Change IP" : "Byt IP",
+      "Site deleted successfully" : "Platsen borttagen",
+      "Do you want to unschedule the selected station?" : "Vill du ta bort schemat för den valda stationen?",
+      "Last System Reboot" : "",
+      "Mar" : "Mar",
+      "Remote controller is not configured as an extender. Would you like to do this now?" : "Fjärrkontrollern är inte konfigurerad som en utökning. Vill du göra det nu?",
+      "Jun" : "Jun",
+      "Yes" : "Ja",
+      "Master" : "Huvudenhet",
+      "Norwegian" : "Norska",
+      "French" : "Franska",
+      "RD" : "RF",
+      "DNS Address" : "DNS Adress",
+      "Master On Adjustment" : "Huvudenhet PÅ justering",
+      "Use SSL" : "Använd SSL",
+      "The Zimmerman method will adjust the watering duration based on differences from this reference point." : "Zimmerman-metoden kommer att justera bevattningens varaktighet baserat på skillnader från denna referenspunkt.",
+      "Station has been queued" : "Stationen har köats",
+      "Seconds" : "Sekunder",
+      "Unable to retrieve your current location" : "Det gick inte att hämta din nuvarande plats",
+      "Select the station type using the dropdown selector above and configure the station properties." : "Välj stationstyp ovan och konfigurera stationens egenskaper.",
+      "Repeat Count" : "Antal upprepningar",
+      "Device Time" : "Enhetstid",
+      "Delay Duration (hours)" : "Fördröjningstid (timmar)",
+      "Image" : "Bild",
+      "To enable IFTTT, a Maker channel key is required which can be obtained from https://ifttt.com" : "För att aktivera IFTTT krävs en nyckel som kan hämtas från https://ifttt.com",
+      "Sequential" : "Sekvensiell",
+      "Flow Sensor" : "Flödessensor",
+      "Humidity" : "Luftfuktighet",
+      "Update Guide" : "Uppdateringsguide",
+      "Edit Options" : "Ändra alternativ",
+      "Run-Once Program" : "Engångsprogram",
+      "Connecting to" : "Kopplar upp till",
+      "Unable to change password. Please try again." : "Det gick inte att ändra lösenordet. Var god försök igen.",
+      "Hardware Version" : "Hårdvaruversion",
+      "If the weather reports any condition suggesting rain, a rain delay is automatically issued using the below set delay duration." : "Om vädret rapporterar något tillstånd som tyder på regn, utfärdas en regnfördröjning automatiskt med den nedan angivna fördröjningsperioden.",
+      "Loading" : "Laddar",
+      "Do you want to re-enable system operation?" : "Vill du aktivera systemet igen?",
+      "Are you sure you want to logout?" : "Är du säker på att du vill logga ut?",
+      "Select IFTTT Events" : "Välj IFTTT event",
+      "LCD Screen" : "LCD-skärm",
+      "Run" : "Kör",
+      "Latvian" : "Lättiska",
+      "HTTP" : "HTTP",
+      "Please add a site by tapping the 'Add' button in the top right corner." : "Lägg till en plats genom att trycka på 'Lägg till' knappen i övre högra hörnet.",
+      "Enter Date/Time" : "Skriv in Datum/Tid",
+      "Total Runtime" : "Total körtid",
+      "Boost Time" : "Boost-tid",
+      "Network Error" : "Nätverksfel",
+      "Current" : "Nuvarande",
+      "Do you want to turn off manual mode?" : "Vill du stänga av manuellt läge?",
+      "Run Program" : "Kör program",
+      "Mongolian" : "Mongoliska",
+      "GPIO" : "GPIO",
+      "Use Sunset" : "Använd Solnedgång",
+      "Slovenian" : "Slovenska",
+      "Days" : "Dagar",
+      "Repeat Every" : "Upprepa varje",
+      "Options" : "Inställningar",
+      "Connection timed-out. Please try again." : "Uppkopplingen tog för lång tid. Försök igen",
+      "Scan For Device" : "Skanna efter enhet",
+      "App Version" : "Appversion",
+      "Scheduled" : "Schemalagd",
+      "Precip Today" : "Sannolikhet idag",
+      "Error: Start time must be prior to end time." : "Fel: Starttiden måste vara före slutet.",
+      "Use DHCP (restart required)" : "Använd DHCP (omstart krävs)",
+      "Manual" : "Manuell",
+      "Current % Watering" : "Nuvarande % bevattning",
+      "d" : "d",
+      "Attempting to retrieve your current location" : "Försöker hämta din nuvarande plats",
+      "Portuguese" : "Portugisiska",
+      "Weather-Based Restrictions" : "Väderbaserade begränsningar",
+      "Submit" : "Skicka",
+      "Update did not complete." : "Uppdatering kunde inte slutföras",
+      "Disable" : "Inaktivera",
+      "Language localization is crowdsourced using Get Localization available at" : "Språköversättning är crowdsourced med hjälp av \"Get Localization\" tillgänglig på",
+      "Sunrise to Sunset" : "Soluppgång till solnedgång",
+      "Reset Wireless Settings" : "",
+      "Odd Days Only" : "Fördröjning ojämna dagar",
+      "Auto Rain Delay" : "Automatisk Regnfördröjning",
+      "Click here to enable all connected stations." : "",
+      "Do you want to save your changes?" : "Vill du spara dina ändringar?",
+      "Export" : "Exportera",
+      "Characters remaining" : "",
+      "Move left" : "Flytta vänster",
+      "Warning: Network changes will be made and the device may no longer be accessible from this address." : "Varning: Nätverksändringar kommer att göras och enheten kanske inte kommer vara tillgänglig från den här adressen.",
+      "Open Sprinkler Password:" : "Open Sprinkler Lösenord:",
+      "Station Timer" : "Stationstimer",
+      "Active State" : "Aktiv status",
+      "Add Program" : "Lägg till program",
+      "Hide" : "Göm",
+      "Enable Logging" : "Slå på loggning",
+      "Jul" : "Jul",
+      "Remote Port" : "Fjärrport",
+      "Program Name" : "Programnamn",
+      "Enable manual rain delay by entering a value into the input below. To turn off a currently enabled rain delay use a value of 0." : "Aktivera manuell regnfördröjning genom att ange ett värde nedan. För att stänga av en nuvarande aktiverad regnfördröjning, använd ett värde på 0.",
+      "Afrikaans" : "Afrikaans",
+      "Russian" : "Ryska",
+      "Check All" : "Välj alla",
+      "Register here" : "Registrera dig här",
+      "Select Site" : "Välj Plats",
+      "Master Off Adjustment" : "Huvudenhet AV justering",
+      "Backup restored to your device" : "Backup återställd till enheten",
+      "A valid DNS address is required when DHCP is not used" : "En giltig DNS-adress krävs när DHCP inte används",
+      "Jan" : "Jan",
+      "Rain delay has been successfully set" : "Regnfördröjning har blivit inställd",
+      "Station has been stopped" : "Stationen har stoppats",
+      "The passwords don't match. Please try again." : "Lösenorden stämmer inte överens. Försök igen",
+      "Change Name" : "Byt Namn",
+      "Sunday" : "Söndag",
+      "Show" : "Visa",
+      "Rain Sensor Update" : "Regnsensor uppdatering",
+      "Enter a duration to manually run " : "Ange en varaktighet för manuell körning",
+      "Date/Time" : "Datum/Tid",
+      "File" : "Fil",
+      "Boost time changes how long the boost converter is activated with a range from 0 to 1000 milliseconds." : "Boosttiden ändrar hur länge boostkonverteraren aktiveras med ett intervall från 0 till 1000 millisekunder.",
+      "Program Type" : "Programtyp",
+      "Slovak" : "Solvakiska",
+      "Are you sure you want to reset all stations?" : "Är du säker på att du vill återställa alla stationer?",
+      "deleted" : "borttagen",
+      "English" : "Engelska",
+      "Wed" : "Ons",
+      "Manual program" : "Manuellt program",
+      "These options are only for an OpenSprinkler behind a proxy capable of SSL and/or Basic Authentication." : "Dessa alternativ är endast för en OpenSprinkler placerad bakom en proxy som hanterar SSL och / eller Basic Authentication.",
+      "Password" : "Lösenord",
+      "When using program switch, a switch is connected to the sensor port to trigger Program 1 every time the switch is pressed for at least 1 second." : "Vid användning av programbrytare är en brytare ansluten till sensorporten för att aktivera Program 1 varje gång brytaren trycks in i minst 1 sekund.",
+      "Auto Reconnect" : "Koppla upp automatiskt",
+      "Thu" : "Tor",
+      "Runtime" : "Körtid",
+      "Swedish" : "",
+      "California Restriction" : "Begränsning för Kalifornien",
+      "Password changed successfully" : "Lösenordet har ändrats",
+      "Use Master" : "Använd huvudenhet",
+      "Please check the current device password is correct then try again" : "Kontrollera att nuvarande lösenord för enheten är korrekt och försök igen",
+      "Change" : "Ändra",
+      "Tue" : "Tis",
+      "This site is not found in the currently synced site list but may be added now." : "Den här platsen finns inte på listan över synkroniserade platser, men kan läggas till nu.",
+      "Use Weather Adjustment" : "Använd vattenjustering",
+      "Station Delay" : "Stationsfördröjning",
+      "Chinese" : "Kinesiska",
+      "Thai" : "Thailändska",
+      "Import Configuration" : "Importera konfiguration",
+      "Change Password" : "Byt lösenord",
+      "Click here for more details" : "Klicka här för mer information",
+      "Saturday" : "Lördag",
+      "Forecast" : "Prognos",
+      "Program Preview" : "Förhandsgranskning av program",
+      "Tap to Configure" : "Välj för att konfigurera",
+      "Table" : "Tabell",
+      "Use Sunrise" : "Använd Soluppgång",
+      "Dec" : "Dec",
+      "Change Rain Delay" : "Förändra regnfördröjning",
+      "Scanning for OpenSprinkler" : "Söker efter OpenSprinkler",
+      "Welcome to the OpenSprinkler application. This app only works with the OpenSprinkler controller which must be installed and setup on your home network." : "Välkommen till OpenSprinkler-programmet. Den här appen fungerar bara med OpenSprinkler-kontrollern som måste installeras i ditt hemnätverk.",
+      "Logout" : "Logga ut",
+      "Server Name" : "Servernamn",
+      "Spanish" : "Spanska",
+      "Remote access is not enabled" : "Fjärråtkomst är inte aktiverad",
+      "Master On Delay" : "Huvudenhet PÅ fördröjning",
+      "Site updated successfully" : "Platsen uppdaterad",
+      "Station timer prevents a station from running indefinitely and will automatically turn it off after the set duration (or when toggled off)" : "Stationstimern hindrar en station från att köras i obegränsad tid och stängs av automatiskt efter den inställda varaktigheten (eller när den stängs av)",
+      "User manual for OpenSprinkler is available at" : "Användarhandbok för OpenSprinkler finns på",
+      "Clear" : "Rensa",
+      "Manual mode enabled" : "Manuellt läge påslaget",
+      "Help & Support" : "Hjälp & Support",
+      "Firmware" : "Firmware",
+      "Done" : "Klar",
+      "run" : "kör",
+      "Czech" : "Tjeckiska",
+      "Temp" : "Temperatur",
+      "Hebrew" : "Hebreiska",
+      "Timezone" : "Tidszon",
+      "Restrictions" : "Begränsningar",
+      "Do you want to stop the selected station?" : "Vill du stoppa den valda stationen?",
+      "Do you wish to disable extender mode?" : "Vill du stänga av utökningsläget",
+      "Programs and Settings" : "Program och inställningar",
+      "Zero value excludes the station from the run-once program." : "Nollvärde utesluter stationen från körprogrammet.",
+      "With manual mode turned on, tap a station to toggle it." : "Med manuellt läge aktiverat trycker du på en station för att växla den.",
+      "delete" : "Ta bort",
+      "Device ID (restart required)" : "Enhets-ID (omstart krävs)",
+      "System Idle" : "Systemet är inaktivt",
+      "Italian" : "Italienska",
+      "m" : "m",
+      "Station Name" : "Stationsnamn",
+      "OpenSprinkler.com Login Expired" : "OpenSprinkler.com inloggning har utgått",
+      "Password:" : "Lösenord:",
+      "Scanning for OpenSprinkler Pi (1.8.3)" : "Söker efter OpenSprinkler Pi (1.8.3)",
+      "Mean Temp" : "Medeltemperatur",
+      "This is open source software: source code and changelog for this application can be found at" : "Detta är öppen källkod: källkod och förändringslogg för den här applikationen finns på",
+      "Add" : "Skapa",
+      "Days of the Week" : "Veckodagar",
+      "Select Export Method" : "Välj exportmetod",
+      "Export Configuration" : "Exportera konfiguration",
+      "Start time cannot be greater than end time" : "Starttid kan inte vara större än sluttiden",
+      "Starting In" : "Startar om",
+      "Hungarian" : "Ungerska",
+      "Server Port" : "Serverport",
+      "Now" : "Nu",
+      "None" : "Ingen",
+      "The requested time span exceeds the maxiumum of 1 year and has been adjusted" : "Den begärda tidsperioden överstiger maximalt 1 år och har justerats",
+      "Reset" : "Återställ",
+      "No new devices were detected on your network" : "Inga nya enheter upptäcktes i ditt nätverk",
+      "Rain delay until" : "Regnfördröjning tills",
+      "Scanning for OpenSprinkler (1.8.3)" : "Söker efter OpenSprinkler (1.8.3)",
+      "Logs have been cleared" : "Loggar har rensats",
+      "Adjustment Method" : "Justeringsmetod",
+      "Farsi" : "Persiska",
+      "Internal (within app)" : "Internt (I appen)",
+      "Run-once program has been scheduled" : "Engångsprogram har blivit schemalagt",
+      "Location" : "Plats",
+      "Milliseconds" : "Millisekunder",
+      "Hours" : "Timmar",
+      "Error: Starting in days wrong." : "Fel: Startdagar är felaktiga.",
+      "On Command" : "På kommando",
+      "Additional Start Times" : "Ytterligare starttider",
+      "Advanced" : "Avancerat",
+      "Duration" : "Varaktighet",
+      "Total Water Used" : "Totalt  mängd vatten använt",
+      "NTP Sync" : "NTP Sync",
+      "Program data is newer than the device firmware and cannot be imported" : "Programdata är nyare än enhetens firmware och kan inte importeras",
+      "Dutch" : "Holländska",
+      "Update successful" : "Uppdatering klar",
+      "Wednesday" : "Onsdag",
+      "copy" : "kopiera",
+      "Repeating" : "Upprepning",
+      "Enabled" : "Aktiverad",
+      "Manual mode is not enabled. Please enable manual mode then try again." : "Manuell funktion är inte aktiverad. Vänligen aktivera manuellt läge och försök igen.",
+      "Save Changes to Program" : "Spara förändringar till program",
+      "Select which events to send to IFTTT for use in recipes." : "Välj vilka händelser som ska skickas till IFTTT för användning i recept.",
+      "Prevents watering when the selected restriction is met." : "Förhindrar bevattning när den valda begränsningen är uppfylld.",
+      "Merge" : "Sammanfoga",
+      "Fri" : "Fre",
+      "Note: The name is used to identify the OpenSprinkler within the app. OpenSprinkler IP can be either an IP or hostname. You can also specify a port by using IP:Port" : "Obs! Namnet används för att identifiera OpenSprinkler i appen. OpenSprinkler IP kan antingen vara en IP eller värdnamn. Du kan också ange en port med hjälp av IP: Port",
+      "Reboot OpenSprinkler" : "Starta om OpenSprinkler",
+      "Low" : "Låg",
+      "Save New Program" : "Spara nytt program",
+      "Unable to import configuration." : "Kunde inte importera konfiguration",
+      "Station Type" : "Stationstyp",
+      "Notifications" : "Notifieringar",
+      "GPIO Pin" : "GPIO Pin",
+      "Program added successfully" : "Programmet har lagts till",
+      "Replace cloud with local" : "ERsätt molnversion med lokal",
+      "Update Now" : "Uppdatera nu",
+      "Station Duration" : "Stationens varaktighet",
+      "Open source attributions" : "Öppen källkod attribut",
+      "Password on remote controller does not match the password on this controller." : "Lösenordet på fjärrkontrollen matchar inte lösenordet på den här kontrollenheten.",
+      "last ran station" : "Senaste körda station",
+      "Oct" : "Okt",
+      "Are you sure you want to restore the configuration?" : "Är du säker på att du vill återställa konfigurationen?",
+      "Configure Master" : "Konfigurera huvudstation",
+      "Interval" : "Intervall",
+      "Unable to read cloud data" : "Kunde inte läsa molndata",
+      "The watering percentage scales station run times by the set value. When weather adjustment is used the watering percentage is automatically adjusted." : "Vattenprocenten justerar stationens tidsschema med inställt värde. När vädret justeras används den justerade bervattningsprocenten automatiskt.",
+      "Thursday" : "Torsdag",
+      "End Time" : "Sluttid",
+      "NTP IP Address" : "NTP IP Adress",
+      "Use Auth" : "Använd inloggning",
+      "Weather Adjustment Update" : "Väderjustering uppdatering",
+      "About" : "Om",
+      "Uncheck All" : "Välj bort alla",
+      "Last Weather Call" : "Senaste väderuppdatering",
+      "on" : "på",
+      "IFTTT Events" : "IFTTT händelser",
+      "Start Time" : "Starttid",
+      "Clear Logs" : "Rensa loggar",
+      "runs" : "körningar",
+      "Icelandic" : "Isländska",
+      "Open Sprinkler Name:" : "Open Sprinkler Namn:",
+      "An IP address is required to continue." : "En IP-adress krävs för att fortsätta",
+      "Localization" : "Översättning",
+      "Downgrade UI" : "Nedgradera UI",
+      "Invalid username/password combination. Please try again." : "Ogiltig kombination av användarnamnet och lösenordet. Var god försök igen.",
+      "Backup saved on this device" : "Backup sparad på denna enhet",
+      "remaining" : "återstående",
+      "Warning: The use of odd/even restrictions with the selected interval day may result in the program not running at all." : "Varning: Användningen av udda / jämn begränsningar med den valda intervalldagen kan leda till att programmet inte körs alls.",
+      "View Logs" : "Visa loggar",
+      "Manually Add Device" : "Lägg till enhet manuellt",
+      "Gateway Address" : "Gateway Adress",
+      "Manual Control" : "Manuell kontroll",
+      "Do you wish to add this location to your cloud synced site list?" : "Vill du lägga till den här platsen på din molnsynkroniserade plats lista?",
+      "Warning: The repeat interval is less than the program run time." : "Varning: Repeteringsintervallet är mindre än programmets körtid.",
+      "Do you want to continue?" : "Vill du fortsätta?",
+      "HTTP Port (restart required)" : "HTTP-port (omstart krävs)"
    }
 }
