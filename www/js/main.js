@@ -10454,14 +10454,14 @@ function checkPublicAccess( eip ) {
 			}
 
 			// Public IP worked, update device IP to use the public IP instead
-			storage.get( [ "sites", "current_site" ], function( data ) {
-				var sites = parseSites( data.sites ),
-					current = data.current_site;
+			// storage.get( [ "sites", "current_site" ], function( data ) {
+			// 	var sites = parseSites( data.sites ),
+			// 		current = data.current_site;
 
-				sites[ current ].os_ip = ip + ( port === 80 ? "" : ":" + port );
+			// 	sites[ current ].os_ip = ip + ( port === 80 ? "" : ":" + port );
 
-				storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
-			} );
+			// 	storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
+			// } );
 		},
 		fail
 	);
