@@ -165,7 +165,8 @@
 					command: [
 						"tx pull --all",
 						"find . -type f -maxdepth 1 -iname 'messages_*.po' -print0 | while IFS= read -r -d $'\\0' line; do file=(${line//_/ }); lang=${file[1]}; file=(${lang//-/ }); " +
-							"lang=${file[0]}; file=(${lang//./ }); lang=${file[0]}; mv \"$line\" messages.po; po2json -p messages.po > \"www/locale/$lang.js\"; rm messages.po; done",
+							"lang=${file[0]}; file=(${lang//./ }); lang=${file[0]}; mv \"$line\" messages.po; npx po2json -p -f mf messages.po \"www/locale/$lang.js\"; rm messages.po; " +
+							"echo '{\"messages\":' | cat - \"www/locale/$lang.js\" | (cat && echo '}') > temp && mv temp \"www/locale/$lang.js\"; done",
 						"git add www/locale",
 						"git diff-index --quiet HEAD || git commit -m 'Localization: Update languages from Transifex'",
 						"git push"

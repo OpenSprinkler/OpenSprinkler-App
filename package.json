@@ -60,6 +60,7 @@
     "lcov-result-merger": "^3.1.0",
     "lodash": "^4.17.13",
     "mocha": "^6.1.4",
+    "po2json": "^0.4.5",
     "xcode": "2.0.0"
   },
   "cordova": {
