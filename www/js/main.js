@@ -4690,6 +4690,8 @@ function showOptions( expandItem ) {
 			options = $.extend( {}, {
 				server: "server",
 				port: 1883,
+				username: "",
+				password: "",
 				enable: 0
 			}, controller.settings.mqtt );
 
@@ -4718,6 +4720,20 @@ function showOptions( expandItem ) {
 							"<div class='ui-block-b' style='width:60%'>" +
 								"<input class='mqtt-input' type='number' id='port' data-mini='true' pattern='[0-9]*' min='0' max='65535'" +
 									( options.enable ? "" : "disabled='disabled'" ) + " placeholder='80' value='" + options.port + "' required />" +
+							"</div>" +
+							"<div class='ui-block-a' style='width:40%'>" +
+								"<label for='server' style='padding-top:10px'>" + _( "Username" ) + "</label>" +
+							"</div>" +
+							"<div class='ui-block-b' style='width:60%'>" +
+								"<input class='mqtt-input' type='text' id='username' data-mini='true' maxlength='20' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
+									( options.enable ? "" : "disabled='disabled'" ) + " placeholder='" + _( "username" ) + "' value='" + options.username + "' required />" +
+							"</div>" +
+							"<div class='ui-block-a' style='width:40%'>" +
+								"<label for='server' style='padding-top:10px'>" + _( "Password" ) + "</label>" +
+							"</div>" +
+							"<div class='ui-block-b' style='width:60%'>" +
+								"<input class='mqtt-input' type='password' id='password' data-mini='true' maxlength='20' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
+									( options.enable ? "" : "disabled='disabled'" ) + " placeholder='" + _( "password" ) + "' value='" + options.password + "' required />" +
 							"</div>" +
 						"</div>" +
 					"</div>" +
