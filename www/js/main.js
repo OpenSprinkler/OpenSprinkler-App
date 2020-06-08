@@ -4753,6 +4753,8 @@ function showOptions( expandItem ) {
 			var options = {
 				server: popup.find( "#server" ).val(),
 				port: parseInt( popup.find( "#port" ).val() ),
+				username: popup.find( "#username" ).val(),
+				password: popup.find( "#password" ).val(),
 				enable: ( popup.find( "#enable" ).prop( "checked" ) ? 1 : 0 )
 			};
 
