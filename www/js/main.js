@@ -4708,32 +4708,32 @@ function showOptions( expandItem ) {
 					"<div class='ui-body'>" +
 						"<div class='ui-grid-a' style='display:table;'>" +
 							"<div class='ui-block-a' style='width:40%'>" +
-								"<label for='server' style='padding-top:10px'>" + _( "Server" ) + "</label>" +
+								"<label for='server' style='padding-top:10px'>" + _( "Broker/Server" ) + "</label>" +
 							"</div>" +
 							"<div class='ui-block-b' style='width:60%'>" +
 								"<input class='mqtt-input' type='text' id='server' data-mini='true' maxlength='50' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
-									( options.enable ? "" : "disabled='disabled'" ) + " placeholder='" + _( "server" ) + "' value='" + options.server + "' required />" +
+									( options.enable ? "" : "disabled='disabled'" ) + " placeholder='" + _( "broker/server" ) + "' value='" + options.server + "' required />" +
 							"</div>" +
 							"<div class='ui-block-a' style='width:40%'>" +
 								"<label for='port' style='padding-top:10px'>" + _( "Port" ) + "</label>" +
 							"</div>" +
 							"<div class='ui-block-b' style='width:60%'>" +
 								"<input class='mqtt-input' type='number' id='port' data-mini='true' pattern='[0-9]*' min='0' max='65535'" +
-									( options.enable ? "" : "disabled='disabled'" ) + " placeholder='80' value='" + options.port + "' required />" +
+									( options.enable ? "" : "disabled='disabled'" ) + " placeholder='1883' value='" + options.port + "' required />" +
 							"</div>" +
 							"<div class='ui-block-a' style='width:40%'>" +
 								"<label for='username' style='padding-top:10px'>" + _( "Username" ) + "</label>" +
 							"</div>" +
 							"<div class='ui-block-b' style='width:60%'>" +
 								"<input class='mqtt-input' type='text' id='username' data-mini='true' maxlength='20' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
-									( options.enable ? "" : "disabled='disabled'" ) + " placeholder='" + _( "username" ) + "' value='" + options.username + "' required />" +
+									( options.enable ? "" : "disabled='disabled'" ) + " placeholder='" + _( "username (optional)" ) + "' value='" + options.username + "' required />" +
 							"</div>" +
 							"<div class='ui-block-a' style='width:40%'>" +
 								"<label for='password' style='padding-top:10px'>" + _( "Password" ) + "</label>" +
 							"</div>" +
 							"<div class='ui-block-b' style='width:60%'>" +
 								"<input class='mqtt-input' type='password' id='password' data-mini='true' maxlength='20' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
-									( options.enable ? "" : "disabled='disabled'" ) + " placeholder='" + _( "password" ) + "' value='" + options.password + "' required />" +
+									( options.enable ? "" : "disabled='disabled'" ) + " placeholder='" + _( "password (optional)" ) + "' value='" + options.password + "' required />" +
 							"</div>" +
 						"</div>" +
 					"</div>" +
