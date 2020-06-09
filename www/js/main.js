@@ -4688,11 +4688,11 @@ function showOptions( expandItem ) {
 	page.find( "#mqtt" ).on( "click", function() {
 		var button = this, curr = button.value,
 			options = $.extend( {}, {
-				server: "server",
+				en: 0,
+				host: "server",
 				port: 1883,
-				username: "",
-				password: "",
-				enable: 0
+				user: "",
+				pass: ""
 			}, controller.settings.mqtt );
 
 		$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
@@ -4704,7 +4704,7 @@ function showOptions( expandItem ) {
 				"<div class='ui-content'>" +
 					"<label for='enable'>Enable</label>" +
 					"<input class='needsclick mqtt_enable' data-mini='true' data-iconpos='right' id='enable' type='checkbox' " +
-						( options.enable ? "checked='checked'" : "" ) + ">" +
+						( options.en ? "checked='checked'" : "" ) + ">" +
 					"<div class='ui-body'>" +
 						"<div class='ui-grid-a' style='display:table;'>" +
 							"<div class='ui-block-a' style='width:40%'>" +
@@ -4712,28 +4712,28 @@ function showOptions( expandItem ) {
 							"</div>" +
 							"<div class='ui-block-b' style='width:60%'>" +
 								"<input class='mqtt-input' type='text' id='server' data-mini='true' maxlength='50' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
-									( options.enable ? "" : "disabled='disabled'" ) + " placeholder='" + _( "broker/server" ) + "' value='" + options.server + "' required />" +
+									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + _( "broker/server" ) + "' value='" + options.host + "' required />" +
 							"</div>" +
 							"<div class='ui-block-a' style='width:40%'>" +
 								"<label for='port' style='padding-top:10px'>" + _( "Port" ) + "</label>" +
 							"</div>" +
 							"<div class='ui-block-b' style='width:60%'>" +
 								"<input class='mqtt-input' type='number' id='port' data-mini='true' pattern='[0-9]*' min='0' max='65535'" +
-									( options.enable ? "" : "disabled='disabled'" ) + " placeholder='1883' value='" + options.port + "' required />" +
+									( options.en ? "" : "disabled='disabled'" ) + " placeholder='1883' value='" + options.port + "' required />" +
 							"</div>" +
 							"<div class='ui-block-a' style='width:40%'>" +
 								"<label for='username' style='padding-top:10px'>" + _( "Username" ) + "</label>" +
 							"</div>" +
 							"<div class='ui-block-b' style='width:60%'>" +
-								"<input class='mqtt-input' type='text' id='username' data-mini='true' maxlength='20' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
-									( options.enable ? "" : "disabled='disabled'" ) + " placeholder='" + _( "username (optional)" ) + "' value='" + options.username + "' required />" +
+								"<input class='mqtt-input' type='text' id='username' data-mini='true' maxlength='32' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
+									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + _( "username (optional)" ) + "' value='" + options.user + "' required />" +
 							"</div>" +
 							"<div class='ui-block-a' style='width:40%'>" +
 								"<label for='password' style='padding-top:10px'>" + _( "Password" ) + "</label>" +
 							"</div>" +
 							"<div class='ui-block-b' style='width:60%'>" +
-								"<input class='mqtt-input' type='password' id='password' data-mini='true' maxlength='20' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
-									( options.enable ? "" : "disabled='disabled'" ) + " placeholder='" + _( "password (optional)" ) + "' value='" + options.password + "' required />" +
+								"<input class='mqtt-input' type='password' id='password' data-mini='true' maxlength='32' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
+									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + _( "password (optional)" ) + "' value='" + options.pass + "' required />" +
 							"</div>" +
 						"</div>" +
 					"</div>" +
@@ -4751,11 +4751,11 @@ function showOptions( expandItem ) {
 
 		popup.find( ".submit" ).on( "click", function() {
 			var options = {
-				server: popup.find( "#server" ).val(),
+				en: ( popup.find( "#enable" ).prop( "checked" ) ? 1 : 0 ),
+				host: popup.find( "#server" ).val(),
 				port: parseInt( popup.find( "#port" ).val() ),
-				username: popup.find( "#username" ).val(),
-				password: popup.find( "#password" ).val(),
-				enable: ( popup.find( "#enable" ).prop( "checked" ) ? 1 : 0 )
+				user: popup.find( "#username" ).val(),
+				pass: popup.find( "#password" ).val()
 			};
 
 			popup.popup( "close" );
