@@ -4887,7 +4887,6 @@ var showHome = ( function() {
 					if ( rem > 0 ) {
 
 						// Show the remaining time if it's greater than 0
-						console.log("queue is paused...?" + queueIsPaused());
 						cards += " <span id='countdown-" + i + "' class='nobr'>(" + (queueIsPaused() ? "" : sec2hms( rem ) + " " + _( "remaining" )) + ")</span>";
 					}
 					cards += "</p>";
