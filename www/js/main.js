@@ -3318,6 +3318,30 @@ function showRainDelay() {
 	} );
 }
 
+function showPause() {
+	if ( queueIsPaused() ) {
+		console.log("resuming...");
+		sendToOS( "/pq?pw=" );
+	} else {
+		console.log("pausing...");
+		let activeStation = isRunning();
+		if ( activeStation != -1 ) {
+			showDurationBox( {
+				name: "Pause",
+				incrementalUpdate: false,
+				maximum: 65535,
+				callback: function( duration ) {
+					sendToOS( "/pq?dur=" + duration + "&pw=" );
+				},
+			} );
+		} else {
+			showerror(
+				_( "No stations currently running" )
+			);
+		}
+	}
+}
+
 /** Returns the adjustment method for the corresponding ID, or a list of all methods if no ID is specified. */
 function getAdjustmentMethod( id ) {
     var methods = [
@@ -4710,6 +4734,8 @@ var showHomeMenu = ( function() {
 				( checkOSVersion( 206 ) || checkOSPiVersion( "1.9" ) ? "<li><a href='#logs'>" + _( "View Logs" ) + "</a></li>" : "" ) +
 				"<li data-role='list-divider'>" + _( "Programs and Settings" ) + "</li>" +
 				"<li><a href='#raindelay'>" + _( "Change Rain Delay" ) + "</a></li>" +
+				( queueIsPaused() ? "<li><a href='#globalpause'>" + _( "Resume Stations" ) + "</a></li>"
+					: "<li><a href='#globalpause'>" + _( "Pause Stations" ) + "</a></li>" ) +
 				"<li><a href='#runonce'>" + _( "Run-Once Program" ) + "</a></li>" +
 				"<li><a href='#programs'>" + _( "Edit Programs" ) + "</a></li>" +
 				"<li><a href='#os-options'>" + _( "Edit Options" ) + "</a></li>" +
@@ -4751,6 +4777,9 @@ var showHomeMenu = ( function() {
 				}
 			} else if ( href === "#raindelay" ) {
 				showRainDelay();
+			}
+			else if ( href === "#globalpause" ) {
+				showPause();
 			} else {
 				checkChanges( function() {
 					changePage( href );
@@ -4852,14 +4881,14 @@ var showHome = ( function() {
 
 			if ( !isStationMaster( i ) ) {
 				if ( isScheduled || isRunning ) {
-
 					// Generate status line for station
 					cards += "<p class='rem center'>" + ( isRunning ? _( "Running" ) + " " + pname : _( "Scheduled" ) + " " +
 						( controller.settings.ps[ i ][ 2 ] ? _( "for" ) + " " + dateToString( new Date( controller.settings.ps[ i ][ 2 ] * 1000 ) ) : pname ) );
 					if ( rem > 0 ) {
 
 						// Show the remaining time if it's greater than 0
-						cards += " <span id='countdown-" + i + "' class='nobr'>(" + sec2hms( rem ) + " " + _( "remaining" ) + ")</span>";
+						console.log("queue is paused...?" + queueIsPaused());
+						cards += " <span id='countdown-" + i + "' class='nobr'>(" + (queueIsPaused() ? "" : sec2hms( rem ) + " " + _( "remaining" )) + ")</span>";
 					}
 					cards += "</p>";
 				}
@@ -5376,19 +5405,6 @@ var showHome = ( function() {
 				} );
 			} );
 		},
-		togglePause = function( sta ) {
-			let isRunning = controller.status[ sta ];
-
-			if ( isRunning == 1) {
-				controller.status[ sta ] = 2; // pause
-			} else if ( isRunning == 2 ) {
-				controller.status[ sta ] = 1; // resume
-			} else {
-				showerror( _( "station isn't scheduled or running" ) )
-			}
-
-			return controller.status[ sta ];
-		},
 		onPause = function( e ) {
 
 			// TODO: fix where sometimes the toggle does not work
@@ -5401,15 +5417,8 @@ var showHome = ( function() {
 			let cardProps = $( this ).parent().parent(),
 				station = cardProps.data( "station" );
 
-			let status = togglePause( station );
+			sendToOS( "/pq?dur=60&sid=" + station + "pw=" ); // change to actual values
 
-			if ( status == 1 ) {
-				console.log("sending a 1");
-				sendToOS( "/cm?pw=&sid=" + station + "&en=1&t=10" );
-			} else {
-				console.log("sending a 2");
-				sendToOS( "/cm?pw=&sid=" + station + "&en=2" );
-			}
 			lastCall = now;
 		},
 		updateClock = function() {
@@ -5503,7 +5512,7 @@ var showHome = ( function() {
 				isScheduled = controller.settings.ps[ i ][ 0 ] > 0;
 				isRunning = controller.status[ i ] > 0;
 				pname = isScheduled ? pidname( controller.settings.ps[ i ][ 0 ] ) : "";
-				rem = controller.settings.ps[ i ][ 1 ],
+				rem = queueIsPaused() ? 0 : controller.settings.ps[ i ][ 1 ],
 				hasImage = sites[ currentSite ].images[ i ] ? true : false;
 
 				card = allCards.filter( "[data-station='" + i + "']" );
@@ -5639,6 +5648,7 @@ var showHome = ( function() {
 		page.on( "click", ".station-settings", showAttributes );
 
 		page.on( "click", ".pause-toggle", onPause);
+
 		page.on( "click", ".home-info", function() {
 			changePage( "#os-options", {
 				expandItem: "weather"
@@ -9666,6 +9676,10 @@ function isRunning() {
 	}
 
 	return -1;
+}
+
+function queueIsPaused() {
+	return controller.settings.pq;
 }
 
 function stopStations( callback ) {

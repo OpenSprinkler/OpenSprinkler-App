@@ -798,11 +798,6 @@ body, input, select, textarea, button, .ui-btn {
     right: 1%;
 }
 
-.pause-toggle {
-	top: -3px;
-	right: 6%;
-}
-
 .special-station {
     top: -3px;
     right: 1%;
@@ -1135,4 +1130,11 @@ div.running-text{
 
 #footer-menu {
 	bottom: calc(env(safe-area-inset-bottom) + 10%) !important;
+}
+
+/* Pause buttons rules */
+
+.pause-toggle {
+	top: -3px;
+	right: 6%;
 }
