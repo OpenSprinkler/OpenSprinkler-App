@@ -3716,6 +3716,7 @@ function showOptions( expandItem ) {
 					case "o51":
 					case "o52":
 					case "o53":
+					case "shift":
 						data = $item.is( ":checked" ) ? 1 : 0;
 						if ( !checkOSVersion( 219 ) && !data ) {
 							return true;
@@ -3928,9 +3929,9 @@ function showOptions( expandItem ) {
 	list += "<label for='showDisabled'><input data-mini='true' class='noselect' id='showDisabled' type='checkbox' " + ( ( localStorage.showDisabled === "true" ) ? "checked='checked'" : "" ) + ">" +
 	_( "Show Disabled" ) + " " + _( "(Changes Auto-Saved)" ) + "</label>";
 
-	if ( typeof controller.options.shift !== "undefined" ) {
-		list += "<label for='shiftStations'><input data-mini='true' class='noselect' id='shiftStations' type='checkbox' " + ( ( controller.options.shift === 1 ) ? "checked='checked'" : "" ) + ">" +
-		_( "Shift Stations" ) + " " + "</label>";
+	if ( typeof controller.options.lg !== "undefined" ) {
+		list += "<label for='shift'><input data-mini='true' id='shift' type='checkbox' " + ( ( controller.options.shift === 1 ) ? "checked='checked'" : "" ) + ">" +
+			_( "Shift Stations" ) + "</label>";
 	}
 
 	if ( typeof controller.options.seq !== "undefined" ) {
@@ -4272,14 +4273,7 @@ function showOptions( expandItem ) {
 	} );
 
 	page.find( "#showDisabled" ).on( "change", function() {
-		console.log(this.checked);
 		storage.set( { showDisabled: this.checked } );
-		return false;
-	} );
-
-	page.find( "#shiftStations" ).on( "change", function() {
-		// TODO: this shouldn't send an update every change but instead stage an on-submit change...
-		sendToOS( "/cv?ssta=" + ( this.checked ? 1 : 0 ) + "&pw=" );
 		return false;
 	} );
 
