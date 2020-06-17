@@ -3928,6 +3928,11 @@ function showOptions( expandItem ) {
 	list += "<label for='showDisabled'><input data-mini='true' class='noselect' id='showDisabled' type='checkbox' " + ( ( localStorage.showDisabled === "true" ) ? "checked='checked'" : "" ) + ">" +
 	_( "Show Disabled" ) + " " + _( "(Changes Auto-Saved)" ) + "</label>";
 
+	if ( typeof controller.options.shift !== "undefined" ) {
+		list += "<label for='shiftStations'><input data-mini='true' class='noselect' id='shiftStations' type='checkbox' " + ( ( controller.options.shift === 1 ) ? "checked='checked'" : "" ) + ">" +
+		_( "Shift Stations" ) + " " + "</label>";
+	}
+
 	if ( typeof controller.options.seq !== "undefined" ) {
 		list += "<label for='o16'><input data-mini='true' id='o16' type='checkbox' " +
 				( ( controller.options.seq === 1 ) ? "checked='checked'" : "" ) + ">" +
@@ -4267,7 +4272,14 @@ function showOptions( expandItem ) {
 	} );
 
 	page.find( "#showDisabled" ).on( "change", function() {
+		console.log(this.checked);
 		storage.set( { showDisabled: this.checked } );
+		return false;
+	} );
+
+	page.find( "#shiftStations" ).on( "change", function() {
+		// TODO: this shouldn't send an update every change but instead stage an on-submit change...
+		sendToOS( "/cv?ssta=" + ( this.checked ? 1 : 0 ) + "&pw=" );
 		return false;
 	} );
 
@@ -4863,9 +4875,6 @@ var showHome = ( function() {
 			cards += "<span class='btn-no-border ui-btn ui-btn-icon-notext ui-icon-wifi card-icon special-station " +
 				( isStationSpecial( i ) ? "" : "hidden" ) + "'></span>";
 
-			cards += "<span class='btn-no-border ui-btn ui-btn-icon-notext card-icon pause-toggle card-icon " +
-				( isRunning ? "" : "hidden" ) + "'></span>";
-
 			cards += "<span class='btn-no-border ui-btn " + ( ( isStationMaster( i ) ) ? "ui-icon-master" : "ui-icon-gear" ) +
 				" card-icon ui-btn-icon-notext station-settings' data-station='" + i + "' id='attrib-" + i + "' " +
 				( hasMaster ? ( "data-um='" + ( ( controller.stations.masop[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) + "' " ) : "" ) +
@@ -5404,22 +5413,6 @@ var showHome = ( function() {
 				} );
 			} );
 		},
-		onPause = function( e ) {
-
-			// TODO: fix where sometimes the toggle does not work
-
-			e.stopPropagation();
-			const now = ( new Date ).getTime();
-
-			if (  now - lastCall < 500 ) { return; }
-
-			let cardProps = $( this ).parent().parent(),
-				station = cardProps.data( "station" );
-
-			sendToOS( "/pq?dur=60&sid=" + station + "pw=" ); // change to actual values
-
-			lastCall = now;
-		},
 		updateClock = function() {
 
 			// Update the current time
@@ -5545,8 +5538,6 @@ var showHome = ( function() {
 						card.find( ".station-settings" ).removeClass( "ui-icon-master" ).addClass( "ui-icon-gear" );
 					}
 
-					card.find( ".pause-toggle" ).removeClass( "hidden" ).addClass( isRunning ? "" : "hidden");
-
 					card.find( ".station-settings" ).data( {
 						um: hasMaster ? ( ( controller.stations.masop[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) : undefined,
 						um2: hasMaster2 ? ( ( controller.stations.masop2[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) : undefined,
@@ -5645,8 +5636,6 @@ var showHome = ( function() {
 		updateClock();
 
 		page.on( "click", ".station-settings", showAttributes );
-
-		page.on( "click", ".pause-toggle", onPause);
 
 		page.on( "click", ".home-info", function() {
 			changePage( "#os-options", {
