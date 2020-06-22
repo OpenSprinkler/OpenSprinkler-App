@@ -3320,14 +3320,12 @@ function showRainDelay() {
 
 function showPause() {
 	if ( queueIsPaused() ) {
-		console.log("resuming...");
 		sendToOS( "/pq?pw=" );
 	} else {
-		console.log("pausing...");
 		let activeStation = isRunning();
 		if ( activeStation != -1 ) {
 			showDurationBox( {
-				name: "Pause",
+				title: "Pause Stations",
 				incrementalUpdate: false,
 				maximum: 65535,
 				callback: function( duration ) {
@@ -4841,6 +4839,7 @@ var showHome = ( function() {
 				isRunning = controller.status[ i ] > 0,
 				pname = isScheduled ? pidname( controller.settings.ps[ i ][ 0 ] ) : "",
 				rem = controller.settings.ps[ i ][ 1 ],
+				qPause = queueIsPaused(),
 				hasImage = sites[ currentSite ].images[ i ] ? true : false;
 
 			if ( controller.status[ i ] && rem > 0 ) {
@@ -4882,9 +4881,8 @@ var showHome = ( function() {
 					cards += "<p class='rem center'>" + ( isRunning ? _( "Running" ) + " " + pname : _( "Scheduled" ) + " " +
 						( controller.settings.ps[ i ][ 2 ] ? _( "for" ) + " " + dateToString( new Date( controller.settings.ps[ i ][ 2 ] * 1000 ) ) : pname ) );
 					if ( rem > 0 ) {
-
 						// Show the remaining time if it's greater than 0
-						cards += " <span id='countdown-" + i + "' class='nobr'>(" + (queueIsPaused() ? "" : sec2hms( rem ) + " " + _( "remaining" )) + ")</span>";
+						cards += " <span id=" + ( qPause ? "'pause" : "'countdown-" ) + i + "' class='nobr'>(" + sec2hms( rem ) + " " + _( "remaining" ) + ")</span>";
 					}
 					cards += "</p>";
 				}
@@ -5492,8 +5490,11 @@ var showHome = ( function() {
 				isScheduled = controller.settings.ps[ i ][ 0 ] > 0;
 				isRunning = controller.status[ i ] > 0;
 				pname = isScheduled ? pidname( controller.settings.ps[ i ][ 0 ] ) : "";
-				rem = queueIsPaused() ? 0 : controller.settings.ps[ i ][ 1 ],
+				rem = controller.settings.ps[ i ][ 1 ],
+				qPause = queueIsPaused(),
 				hasImage = sites[ currentSite ].images[ i ] ? true : false;
+
+				console.log(qPause)
 
 				card = allCards.filter( "[data-station='" + i + "']" );
 
@@ -5542,9 +5543,8 @@ var showHome = ( function() {
 						line = ( isRunning ? _( "Running" ) + " " + pname : _( "Scheduled" ) + " " +
 							( controller.settings.ps[ i ][ 2 ] ? _( "for" ) + " " + dateToString( new Date( controller.settings.ps[ i ][ 2 ] * 1000 ) ) : pname ) );
 						if ( rem > 0 ) {
-
 							// Show the remaining time if it's greater than 0
-							line += " <span id='countdown-" + i + "' class='nobr'>(" + sec2hms( rem ) + " " + _( "remaining" ) + ")</span>";
+							line += " <span id=" + (qPause ? "'pause" : "'countdown-") + i + "' class='nobr'>(" + sec2hms( rem ) + " " + _( "remaining" ) + ")</span>";
 							if ( controller.status[ i ]) {
 								addTimer( i, rem );
 							}
@@ -5649,10 +5649,11 @@ var showHome = ( function() {
 				return false;
 			}
 
+			// TODO: add dialogue box to unpause a station
 			if ( currentStatus ) {
 				question = _( "Do you want to stop the selected station?" );
 			} else {
-				if ( el.find( "span.nobr" ).length ) {
+				if ( el.find( "span.nobr" ).length ) { //|| queueIsPaused() set the circle status to yellow color  check if controller.settings.ps[i][1] exists
 					question = _( "Do you want to unschedule the selected station?" );
 				} else {
 					showDurationBox( {
@@ -5682,10 +5683,13 @@ var showHome = ( function() {
 			}
 			areYouSure( question, controller.stations.snames[ station ], function() {
 
+				// obj might be destroyed, save to var
+
 				// TODO: how can I get the selector directly?
 				// tried: $('#shift-sta').is(':checked') and $(this).find('#shift-sta').is(':checked')
 
-				let shiftStations = $( "input:checked" ).length > 0 ? 1 : 0;
+				// let shiftStations = $( "input:checked" ).length > 0 ? 1 : 0;
+				let shiftStations = 0;
 
 				sendToOS( "/cm?sid=" + station + "&ssta=" + shiftStations + "&en=0&pw=" ).done( function() {
 
