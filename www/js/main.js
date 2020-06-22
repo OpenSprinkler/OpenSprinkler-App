@@ -3716,7 +3716,6 @@ function showOptions( expandItem ) {
 					case "o51":
 					case "o52":
 					case "o53":
-					case "shift":
 						data = $item.is( ":checked" ) ? 1 : 0;
 						if ( !checkOSVersion( 219 ) && !data ) {
 							return true;
@@ -3928,11 +3927,6 @@ function showOptions( expandItem ) {
 
 	list += "<label for='showDisabled'><input data-mini='true' class='noselect' id='showDisabled' type='checkbox' " + ( ( localStorage.showDisabled === "true" ) ? "checked='checked'" : "" ) + ">" +
 	_( "Show Disabled" ) + " " + _( "(Changes Auto-Saved)" ) + "</label>";
-
-	if ( typeof controller.options.lg !== "undefined" ) {
-		list += "<label for='shift'><input data-mini='true' id='shift' type='checkbox' " + ( ( controller.options.shift === 1 ) ? "checked='checked'" : "" ) + ">" +
-			_( "Shift Stations" ) + "</label>";
-	}
 
 	if ( typeof controller.options.seq !== "undefined" ) {
 		list += "<label for='o16'><input data-mini='true' id='o16' type='checkbox' " +
@@ -5551,7 +5545,7 @@ var showHome = ( function() {
 
 							// Show the remaining time if it's greater than 0
 							line += " <span id='countdown-" + i + "' class='nobr'>(" + sec2hms( rem ) + " " + _( "remaining" ) + ")</span>";
-							if ( controller.status[ i ] ) {
+							if ( controller.status[ i ]) {
 								addTimer( i, rem );
 							}
 						}
@@ -5687,7 +5681,13 @@ var showHome = ( function() {
 				}
 			}
 			areYouSure( question, controller.stations.snames[ station ], function() {
-				sendToOS( "/cm?sid=" + station + "&en=0&pw=" ).done( function() {
+
+				// TODO: how can I get the selector directly?
+				// tried: $('#shift-sta').is(':checked') and $(this).find('#shift-sta').is(':checked')
+
+				let shiftStations = $( "input:checked" ).length > 0 ? 1 : 0;
+
+				sendToOS( "/cm?sid=" + station + "&ssta=" + shiftStations + "&en=0&pw=" ).done( function() {
 
 					// Update local state until next device refresh occurs
 					controller.settings.ps[ station ][ 0 ] = 0;
@@ -10809,12 +10809,15 @@ function areYouSure( text1, text2, success, fail ) {
 	success = success || function() {};
 	fail = fail || function() {};
 
+	// TODO: only show shift dialogue if there is more than 1 element in the queue
 	var popup = $(
 		"<div data-role='popup' data-theme='a' id='sure'>" +
 			"<h3 class='sure-1 center'>" + text1 + "</h3>" +
 			"<p class='sure-2 center'>" + text2 + "</p>" +
 			"<a class='sure-do ui-btn ui-btn-b ui-corner-all ui-shadow' href='#'>" + _( "Yes" ) + "</a>" +
 			"<a class='sure-dont ui-btn ui-corner-all ui-shadow' href='#'>" + _( "No" ) + "</a>" +
+			(text1 === "Do you want to stop the selected station?" ?
+				"<label><input class='shift-sta' type='checkbox'>Update Remaining Stations</label>" : "") +
 		"</div>"
 	);
 

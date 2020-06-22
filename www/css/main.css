@@ -1131,10 +1131,3 @@ div.running-text{
 #footer-menu {
 	bottom: calc(env(safe-area-inset-bottom) + 10%) !important;
 }
-
-/* Pause buttons rules */
-
-.pause-toggle {
-	top: -3px;
-	right: 6%;
-}
