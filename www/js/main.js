@@ -29,7 +29,6 @@ var isIEMobile = /IEMobile/.test( navigator.userAgent ),
 					!isWinApp && window.FileReader,
 	isTouchCapable = "ontouchstart" in window || "onmsgesturechange" in window,
 	isMetric = ( [ "US", "BM", "PW" ].indexOf( navigator.languages[ 0 ].split( "-" )[ 1 ] ) === -1 ),
-	lastCall = 0,
 
 	// Small wrapper to handle Chrome vs localStorage usage
 	storage = {
@@ -130,8 +129,10 @@ var isIEMobile = /IEMobile/.test( navigator.userAgent ),
 	// Array to hold all notifications currently displayed within the app
 	notifications = [],
 	timers = {},
+	popupPayload = {},
 	curr183, currIp, currPrefix, currAuth, currPass, currAuthUser,
 	currAuthPass, currLocal, currLang, language, deviceip, errorTimeout, weather, openPanel;
+
 
 // Prevent errors from bubbling up on Windows
 if ( isWinApp ) {
@@ -5494,8 +5495,6 @@ var showHome = ( function() {
 				qPause = queueIsPaused(),
 				hasImage = sites[ currentSite ].images[ i ] ? true : false;
 
-				console.log(qPause)
-
 				card = allCards.filter( "[data-station='" + i + "']" );
 
 				if ( card.length === 0 ) {
@@ -5682,14 +5681,7 @@ var showHome = ( function() {
 				}
 			}
 			areYouSure( question, controller.stations.snames[ station ], function() {
-
-				// obj might be destroyed, save to var
-
-				// TODO: how can I get the selector directly?
-				// tried: $('#shift-sta').is(':checked') and $(this).find('#shift-sta').is(':checked')
-
-				// let shiftStations = $( "input:checked" ).length > 0 ? 1 : 0;
-				let shiftStations = 0;
+				let shiftStations = popupPayload.data == true ? 1 : 0;
 
 				sendToOS( "/cm?sid=" + station + "&ssta=" + shiftStations + "&en=0&pw=" ).done( function() {
 
@@ -11684,6 +11676,12 @@ function openPopup( popup, args ) {
 	$.mobile.pageContainer.append( popup );
 
 	popup.one( "popupafterclose", function() {
+
+		// store data from popup before closing
+
+		if ( $( ".shift-sta" ).is( ":checked" ) !== undefined ) {
+			popupPayload = { "data" : $( ".shift-sta" ).is( ":checked" )  };
+		}
 		popup.popup( "destroy" ).remove();
 	} ).popup( args ).enhanceWithin();
 
