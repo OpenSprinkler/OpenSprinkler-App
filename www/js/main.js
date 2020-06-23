@@ -126,10 +126,19 @@ var isIEMobile = /IEMobile/.test( navigator.userAgent ),
 		"sn1of":55, "sn2on":56, "sn2of":57, "subn1":58, "subn2":59, "subn3":60, "subn4":61
 	},
 
+	dialog = {
+		STOP_STATIONS: 1,
+	},
+
+	// Save state for dialog boxes
+	popupKeys = {
+		SHIFT_STATIONS: "shift-sta",
+	},
+	popupValues = [],
+
 	// Array to hold all notifications currently displayed within the app
 	notifications = [],
 	timers = {},
-	popupPayload = {},
 	curr183, currIp, currPrefix, currAuth, currPass, currAuthUser,
 	currAuthPass, currLocal, currLang, language, deviceip, errorTimeout, weather, openPanel;
 
@@ -5642,7 +5651,7 @@ var showHome = ( function() {
 				station = el.data( "station" ),
 				currentStatus = controller.status[ station ],
 				name = controller.stations.snames[ station ],
-				question;
+				question, dialogType = 0;
 
 			if ( isStationMaster( station ) ) {
 				return false;
@@ -5651,8 +5660,9 @@ var showHome = ( function() {
 			// TODO: add dialogue box to unpause a station
 			if ( currentStatus ) {
 				question = _( "Do you want to stop the selected station?" );
+				dialogType = dialog.STOP_STATIONS;
 			} else {
-				if ( el.find( "span.nobr" ).length ) { //|| queueIsPaused() set the circle status to yellow color  check if controller.settings.ps[i][1] exists
+				if ( el.find( "span.nobr" ).length ) {
 					question = _( "Do you want to unschedule the selected station?" );
 				} else {
 					showDurationBox( {
@@ -5681,7 +5691,8 @@ var showHome = ( function() {
 				}
 			}
 			areYouSure( question, controller.stations.snames[ station ], function() {
-				let shiftStations = popupPayload.data == true ? 1 : 0;
+
+				let shiftStations = popupValues[ popupKeys.SHIFT_STATIONS ] === true ? 1 : 0;
 
 				sendToOS( "/cm?sid=" + station + "&ssta=" + shiftStations + "&en=0&pw=" ).done( function() {
 
@@ -5696,7 +5707,7 @@ var showHome = ( function() {
 					refreshStatus();
 					showerror( _( "Station has been stopped" ) );
 				} );
-			} );
+			}, null, dialogType );
 		} )
 
 		.on( "click", "img", function() {
@@ -9660,6 +9671,10 @@ function queueIsPaused() {
 	return controller.settings.pq;
 }
 
+function queueSize() {
+	return controller.settings.nq;
+}
+
 function stopStations( callback ) {
 	$.mobile.loading( "show" );
 
@@ -10800,20 +10815,19 @@ function getHWType() {
 }
 
 // Accessory functions for jQuery Mobile
-function areYouSure( text1, text2, success, fail ) {
+function areYouSure( text1, text2, success, fail, type = 0 ) {
 	$( "#sure" ).popup( "destroy" ).remove();
 	success = success || function() {};
 	fail = fail || function() {};
 
-	// TODO: only show shift dialogue if there is more than 1 element in the queue
 	var popup = $(
 		"<div data-role='popup' data-theme='a' id='sure'>" +
 			"<h3 class='sure-1 center'>" + text1 + "</h3>" +
 			"<p class='sure-2 center'>" + text2 + "</p>" +
 			"<a class='sure-do ui-btn ui-btn-b ui-corner-all ui-shadow' href='#'>" + _( "Yes" ) + "</a>" +
 			"<a class='sure-dont ui-btn ui-corner-all ui-shadow' href='#'>" + _( "No" ) + "</a>" +
-			(text1 === "Do you want to stop the selected station?" ?
-				"<label><input class='shift-sta' type='checkbox'>Update Remaining Stations</label>" : "") +
+			(type === dialog.STOP_STATIONS && queueSize() > 1 ?
+				"<label><input id='" + popupKeys.SHIFT_STATIONS + "' type='checkbox'>Update Remaining Stations</label>" : "") +
 		"</div>"
 	);
 
@@ -11677,11 +11691,14 @@ function openPopup( popup, args ) {
 
 	popup.one( "popupafterclose", function() {
 
-		// store data from popup before closing
+		// retreive popup data
+		let updateRemainingStations = $( "#" + popupKeys.SHIFT_STATIONS ).is( ":checked" );
 
-		if ( $( ".shift-sta" ).is( ":checked" ) !== undefined ) {
-			popupPayload = { "data" : $( ".shift-sta" ).is( ":checked" )  };
+		// save data before view is destroyed
+		if ( updateRemainingStations !== undefined ) {
+			popupValues[ popupKeys.SHIFT_STATIONS ] = updateRemainingStations;
 		}
+
 		popup.popup( "destroy" ).remove();
 	} ).popup( args ).enhanceWithin();
 
