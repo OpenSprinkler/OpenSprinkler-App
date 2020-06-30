@@ -123,18 +123,16 @@ var isIEMobile = /IEMobile/.test( navigator.userAgent ),
 		"wl":23, "den":24, "ipas":25, "devid":26, "con":27, "lit":28, "dim":29, "bst":30, "uwt":31, "ntp1":32, "ntp2":33,
 		"ntp3":34, "ntp4":35, "lg":36, "mas2":37, "mton2":38, "mtof2":39, "fpr0":41, "fpr1":42, "re":43, "dns1": 44,
 		"dns2":45, "dns3":46, "dns4":47, "sar":48, "ife":49, "sn1t":50, "sn1o":51, "sn2t":52, "sn2o":53, "sn1on":54,
-		"sn1of":55, "sn2on":56, "sn2of":57, "subn1":58, "subn2":59, "subn3":60, "subn4":61
+		"sn1of":55, "sn2on":56, "sn2of":57, "subn1":58, "subn2":59, "subn3":60, "subn4":61, "masli": 70,
 	},
 
 	dialog = {
 		STOP_STATIONS: 1,
 	},
 
-	// Save state for dialog boxes
-	popupKeys = {
-		SHIFT_STATIONS: "shift-sta",
+	popupData = {
+		"shift": undefined,
 	},
-	popupValues = [],
 
 	// Array to hold all notifications currently displayed within the app
 	notifications = [],
@@ -3561,6 +3559,7 @@ function showOptions( expandItem ) {
 				invalid = false,
 				isPi = isOSPi(),
 				button = header.eq( 2 ),
+				masterIterator = 0,
 				key;
 
 			button.prop( "disabled", true );
@@ -3700,8 +3699,10 @@ function showOptions( expandItem ) {
 					case "o37":
 						if ( parseInt( data ) > ( parseInt( page.find( "#o15" ).val() ) + 1 ) * 8 ) {
 							data = 0;
+						} else {
+							controller.options.ms[masterIterator++] = data; // change this
+							// not properly sending on and off adjustment :( )
 						}
-
 						break;
 					case "o41":
 						if ( page.find( "#o41-units" ).val() === "gallon" ) {
@@ -3746,6 +3747,11 @@ function showOptions( expandItem ) {
 
 				opt[ id ] = data;
 			} );
+
+			// update master station array
+			opt.o70 = controller.options.ms.join();
+			// console.log("hello? " + opt.o70);
+
 			if ( invalid ) {
 				button.prop( "disabled", false );
 				page.find( ".submit" ).addClass( "hasChanges" );
@@ -3765,9 +3771,12 @@ function showOptions( expandItem ) {
 				}
 			}
 
+			console.log(opt);
 			opt = transformKeys( opt );
+			console.log(opt);
 
 			$.mobile.loading( "show" );
+			console.log("sending options!")
 			sendToOS( "/co?pw=&" + $.param( opt ) ).done( function() {
 				$.mobile.document.one( "pageshow", function() {
 					showerror( _( "Settings have been saved" ) );
@@ -3896,14 +3905,14 @@ function showOptions( expandItem ) {
 		if ( typeof controller.options.mton2 !== "undefined" ) {
 			list += "<div " + ( controller.options.mas2 === 0 ? "style='display:none' " : "" ) +
 				"class='ui-field-no-border ui-field-contain duration-field'><label for='o38'>" +
-					_( "Master On Delay" ) +
+					_( "Master On Adjustment" ) +
 				"</label><button data-mini='true' id='o38' value='" + controller.options.mton2 + "'>" + controller.options.mton2 + "s</button></div>";
 		}
 
 		if ( typeof controller.options.mtof2 !== "undefined" ) {
 			list += "<div " + ( controller.options.mas2 === 0 ? "style='display:none' " : "" ) +
 				"class='ui-field-no-border ui-field-contain duration-field'><label for='o39'>" +
-					_( "Master Off Delay" ) +
+					_( "Master Off Adjustment" ) +
 				"</label><button data-mini='true' id='o39' value='" + controller.options.mtof2 + "'>" + controller.options.mtof2 + "s</button></div>";
 		}
 	}
@@ -4539,6 +4548,7 @@ function showOptions( expandItem ) {
 				},
 				label: _( "Seconds" ),
 				maximum: 60,
+				minimum:  -60, // checkOSVersion( 220 ) ? -60 : 0
 				helptext: helptext
 			} );
 		} else if ( id === "o30" ) {
@@ -4560,7 +4570,7 @@ function showOptions( expandItem ) {
 					dur.val( result ).text( result + "s" );
 				},
 				label: _( "Seconds" ),
-				maximum: checkOSVersion( 217 ) ? 0 : 60,
+				maximum: 60, // checkOSVersion( 217 ) ? 0 : 60,
 				minimum: -60,
 				helptext: helptext
 			} );
@@ -4743,7 +4753,7 @@ var showHomeMenu = ( function() {
 				"<li data-role='list-divider'>" + _( "Programs and Settings" ) + "</li>" +
 				"<li><a href='#raindelay'>" + _( "Change Rain Delay" ) + "</a></li>" +
 				( queueIsPaused() ? "<li><a href='#globalpause'>" + _( "Resume Stations" ) + "</a></li>"
-					: "<li><a href='#globalpause'>" + _( "Pause Stations" ) + "</a></li>" ) +
+				: ( queueSize() ? "<li><a href='#globalpause'>" + _( "Pause Stations" ) + "</a></li>" : "")) +
 				"<li><a href='#runonce'>" + _( "Run-Once Program" ) + "</a></li>" +
 				"<li><a href='#programs'>" + _( "Edit Programs" ) + "</a></li>" +
 				"<li><a href='#os-options'>" + _( "Edit Options" ) + "</a></li>" +
@@ -5692,7 +5702,7 @@ var showHome = ( function() {
 			}
 			areYouSure( question, controller.stations.snames[ station ], function() {
 
-				let shiftStations = popupValues[ popupKeys.SHIFT_STATIONS ] === true ? 1 : 0;
+				let shiftStations = popupData.shift === true ? 1 : 0;
 
 				sendToOS( "/cm?sid=" + station + "&ssta=" + shiftStations + "&en=0&pw=" ).done( function() {
 
@@ -10827,7 +10837,7 @@ function areYouSure( text1, text2, success, fail, type = 0 ) {
 			"<a class='sure-do ui-btn ui-btn-b ui-corner-all ui-shadow' href='#'>" + _( "Yes" ) + "</a>" +
 			"<a class='sure-dont ui-btn ui-corner-all ui-shadow' href='#'>" + _( "No" ) + "</a>" +
 			(type === dialog.STOP_STATIONS && queueSize() > 1 ?
-				"<label><input id='" + popupKeys.SHIFT_STATIONS + "' type='checkbox'>Update Remaining Stations</label>" : "") +
+				"<label><input id='shift-sta' type='checkbox'>Update Remaining Stations</label>" : "") +
 		"</div>"
 	);
 
@@ -11692,11 +11702,11 @@ function openPopup( popup, args ) {
 	popup.one( "popupafterclose", function() {
 
 		// retreive popup data
-		let updateRemainingStations = $( "#" + popupKeys.SHIFT_STATIONS ).is( ":checked" );
+		let updateRemainingStations = $( "#shift-sta" ).is( ":checked" );
 
 		// save data before view is destroyed
 		if ( updateRemainingStations !== undefined ) {
-			popupValues[ popupKeys.SHIFT_STATIONS ] = updateRemainingStations;
+			popupData.shift = updateRemainingStations;
 		}
 
 		popup.popup( "destroy" ).remove();
