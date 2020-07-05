@@ -123,7 +123,7 @@ var isIEMobile = /IEMobile/.test( navigator.userAgent ),
 		"wl":23, "den":24, "ipas":25, "devid":26, "con":27, "lit":28, "dim":29, "bst":30, "uwt":31, "ntp1":32, "ntp2":33,
 		"ntp3":34, "ntp4":35, "lg":36, "mas2":37, "mton2":38, "mtof2":39, "fpr0":41, "fpr1":42, "re":43, "dns1": 44,
 		"dns2":45, "dns3":46, "dns4":47, "sar":48, "ife":49, "sn1t":50, "sn1o":51, "sn2t":52, "sn2o":53, "sn1on":54,
-		"sn1of":55, "sn2on":56, "sn2of":57, "subn1":58, "subn2":59, "subn3":60, "subn4":61, "masli": 70,
+		"sn1of":55, "sn2on":56, "sn2of":57, "subn1":58, "subn2":59, "subn3":60, "subn4":61,
 	},
 
 	dialog = {
@@ -3559,7 +3559,6 @@ function showOptions( expandItem ) {
 				invalid = false,
 				isPi = isOSPi(),
 				button = header.eq( 2 ),
-				masterIterator = 0,
 				key;
 
 			button.prop( "disabled", true );
@@ -3699,11 +3698,7 @@ function showOptions( expandItem ) {
 					case "o37":
 						if ( parseInt( data ) > ( parseInt( page.find( "#o15" ).val() ) + 1 ) * 8 ) {
 							data = 0;
-						} else {
-							controller.options.ms[masterIterator++] = data; // change this
-							// not properly sending on and off adjustment :( )
 						}
-						break;
 					case "o41":
 						if ( page.find( "#o41-units" ).val() === "gallon" ) {
 							data = data * 3.78541;
@@ -3748,10 +3743,6 @@ function showOptions( expandItem ) {
 				opt[ id ] = data;
 			} );
 
-			// update master station array
-			opt.o70 = controller.options.ms.join();
-			// console.log("hello? " + opt.o70);
-
 			if ( invalid ) {
 				button.prop( "disabled", false );
 				page.find( ".submit" ).addClass( "hasChanges" );
@@ -3771,9 +3762,7 @@ function showOptions( expandItem ) {
 				}
 			}
 
-			console.log(opt);
 			opt = transformKeys( opt );
-			console.log(opt);
 
 			$.mobile.loading( "show" );
 			console.log("sending options!")
