@@ -3699,6 +3699,7 @@ function showOptions( expandItem ) {
 						if ( parseInt( data ) > ( parseInt( page.find( "#o15" ).val() ) + 1 ) * 8 ) {
 							data = 0;
 						}
+						break;
 					case "o41":
 						if ( page.find( "#o41-units" ).val() === "gallon" ) {
 							data = data * 3.78541;
