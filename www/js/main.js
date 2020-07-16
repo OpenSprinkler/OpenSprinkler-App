@@ -4827,9 +4827,21 @@ var showHome = ( function() {
 							_( "Water Level" ) + ": <span class='waterlevel'></span>%" +
 						"</div>" +
 					"</div>" +
-					"<div id='os-running-stations'></div>" +
-					"<hr style='display:none' class='content-divider'>" +
-					"<div id='os-stations-list' class='card-group center'></div>" +
+					"<div id='station-groups'>" +
+						"<div id='group-A'></div>" +
+						"<hr id='content-divider'>" +
+						"<div id='group-B'></div>" +
+						"<hr id='content-divider'>" +
+						"<div id='group-C'></div>" +
+						"<hr id='content-divider'>" +
+						"<div id='group-D'></div>" +
+						"<hr id='content-divider'>" +
+					"</div>" +
+
+					// "<div id='os-running-stations'></div>" +
+					// "<hr class='content-divider'>" +
+					// "<div id='os-stations-list' class='card-group center'>" +
+					// "</div>" +
 				"</div>" +
 			"</div>" +
 		"</div>" ),
@@ -5457,9 +5469,7 @@ var showHome = ( function() {
 		},
 		reorderCards = function() {
 
-			// change this to have the stations be in the order of their groups
-
-			var cardHolder = page.find( "#os-stations-list" ),
+			var cardHolder = page.find( "#station-groups" ),
 				runningCards = page.find( "#os-running-stations" ),
 				divider = page.find( ".content-divider" ),
 				compare = function( a, b ) {
@@ -5479,28 +5489,28 @@ var showHome = ( function() {
 					}
 				};
 
-			// Move running stations up
-			cardHolder.find( ".station-status.on" ).parents( ".card" ).appendTo( runningCards );
+			// // Move running stations up
+			// cardHolder.find( ".station-status.on" ).parents( ".card" ).appendTo( runningCards );
 
-			// Move stopped stations down
-			runningCards.find( ".station-status.off" ).parents( ".card" ).appendTo( cardHolder );
+			// // Move stopped stations down
+			// runningCards.find( ".station-status.off" ).parents( ".card" ).appendTo( cardHolder );
 
-			// Sort stations
-			cardHolder.children().sort( compare ).detach().appendTo( cardHolder );
-			runningCards.children().sort( compare ).detach().appendTo( runningCards );
+			// // Sort stations
+			// cardHolder.children().sort( compare ).detach().appendTo( cardHolder );
+			// runningCards.children().sort( compare ).detach().appendTo( runningCards );
 
-			// Hide divider if running group is empty
-			if ( runningCards.children().length === 0 ) {
-				divider.hide();
-			} else {
-				divider.show();
-			}
+			// // Hide divider if running group is empty
+			// if ( runningCards.children().length === 0 ) {
+			// 	divider.hide();
+			// } else {
+			// 	divider.show();
+			// }
 		},
 		updateContent = function() {
-			var cardHolder = page.find( "#os-stations-list" ),
+			var cardHolder = page.find( "#station-groups" ),
 				allCards = cardHolder.children(),
 				runningCards = page.find( "#os-running-stations" ).children(),
-				isScheduled, isRunning, pname, rem, card, line, hasImage;
+				isScheduled, isRunning, pname, rem, card, group, line, hasImage;
 
 			if ( !page.hasClass( "ui-page-active" ) ) {
 				return;
@@ -5546,9 +5556,11 @@ var showHome = ( function() {
 				pname = isScheduled ? pidname( controller.settings.ps[ i ][ 0 ] ) : "";
 				rem = controller.settings.ps[ i ][ 1 ],
 				qPause = queueIsPaused(),
+				gid = String.fromCharCode(65 + controller.settings.ps[i][3]),
 				hasImage = sites[ currentSite ].images[ i ] ? true : false;
 
 				card = allCards.filter( "[data-station='" + i + "']" );
+				group = cardHolder.find( "#group-" + gid);
 
 				if ( card.length === 0 ) {
 					card = runningCards.filter( "[data-station='" + i + "']" );
@@ -5557,7 +5569,8 @@ var showHome = ( function() {
 				if ( card.length === 0 ) {
 					cards = "";
 					addCard( i );
-					cardHolder.append( cards );
+					group.append( cards ); // <---- this creates hundreds of cards
+					// cardHolder.append( cards ); <--- this creates the correct number of cards but they all have placeholder images
 				} else {
 					card.find( ".ui-body > img" ).attr( "src", ( hasImage ? "data:image/jpeg;base64," + sites[ currentSite ].images[ i ] : getAppURLPath() + "img/placeholder.png" ) );
 
@@ -5613,7 +5626,7 @@ var showHome = ( function() {
 				}
 			}
 
-			reorderCards();
+			// reorderCards();
 		},
 		updateSites = function( callback ) {
 			callback = callback || function() {};
