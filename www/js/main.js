@@ -134,6 +134,8 @@ var isIEMobile = /IEMobile/.test( navigator.userAgent ),
 		"shift": undefined,
 	},
 
+	numSequentialGroups = 4,
+
 	// Array to hold all notifications currently displayed within the app
 	notifications = [],
 	timers = {},
@@ -3766,7 +3768,7 @@ function showOptions( expandItem ) {
 			opt = transformKeys( opt );
 
 			$.mobile.loading( "show" );
-			console.log("sending options!")
+
 			sendToOS( "/co?pw=&" + $.param( opt ) ).done( function() {
 				$.mobile.document.one( "pageshow", function() {
 					showerror( _( "Settings have been saved" ) );
@@ -4743,7 +4745,7 @@ var showHomeMenu = ( function() {
 				"<li data-role='list-divider'>" + _( "Programs and Settings" ) + "</li>" +
 				"<li><a href='#raindelay'>" + _( "Change Rain Delay" ) + "</a></li>" +
 				( queueIsPaused() ? "<li><a href='#globalpause'>" + _( "Resume Stations" ) + "</a></li>"
-				: ( queueSize() ? "<li><a href='#globalpause'>" + _( "Pause Stations" ) + "</a></li>" : "")) +
+				: ( isRunning() > -1 ? "<li><a href='#globalpause'>" + _( "Pause Stations" ) + "</a></li>" : "")) +
 				"<li><a href='#runonce'>" + _( "Run-Once Program" ) + "</a></li>" +
 				"<li><a href='#programs'>" + _( "Edit Programs" ) + "</a></li>" +
 				"<li><a href='#os-options'>" + _( "Edit Options" ) + "</a></li>" +
@@ -4850,6 +4852,7 @@ var showHome = ( function() {
 				pname = isScheduled ? pidname( controller.settings.ps[ i ][ 0 ] ) : "",
 				rem = controller.settings.ps[ i ][ 1 ],
 				qPause = queueIsPaused(),
+				gid = controller.settings.ps[i][3],
 				hasImage = sites[ currentSite ].images[ i ] ? true : false;
 
 			if ( controller.status[ i ] && rem > 0 ) {
@@ -4883,6 +4886,7 @@ var showHome = ( function() {
 				( hasSD ? ( "data-sd='" + ( ( controller.stations.stn_dis[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) + "' " ) : "" ) +
 				( hasSequential ? ( "data-us='" + ( ( controller.stations.stn_seq[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) + "' " ) : "" ) +
 				( hasSpecial ? ( "data-hs='" + ( ( controller.stations.stn_spe[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) + "' " ) : "" ) +
+				( "data-gid='" + gid  + "' ") +
 				"></span>";
 
 			if ( !isStationMaster( i ) ) {
@@ -5112,6 +5116,8 @@ var showHome = ( function() {
 					button.data( "sd", select.find( "#sd" ).is( ":checked" ) ? 1 : 0 );
 					button.data( "us", select.find( "#us" ).is( ":checked" ) ? 1 : 0 );
 					name.html( select.find( "#stn-name" ).val() );
+					console.log(select.find( 'span.seqgrp' ).text().charCodeAt(0) - 65)
+					button.attr( "data-gid", select.find( 'span.seqgrp' ).text().charCodeAt(0) - 65);
 
 					// Update the notes section
 					sites[ currentSite ].notes[ id ] = select.find( "#stn-notes" ).val();
@@ -5205,9 +5211,17 @@ var showHome = ( function() {
 
 			select += "</div>";
 
-			// Start of Advanced Tab settings. Initially set to disabled until we have refreshed station data from firmware
+			// start of Advanced Tab settings.
+			select += "<div id='tab-advanced' class='tab-content'>";
+
+			// sequential groups
+			select +=
+				"<div class='ui-bar-a ui-bar seq-container'>" + _( "Sequential Group" ) + ":</div>" +
+					"<select id='gid' class='seqgrp' data-mini='true'></select>";
+
+			// station tab is initially set to disabled until we have refreshed station data from firmware
 			if ( hasSpecial ) {
-				select += "<div id='tab-advanced' class='tab-content'>" +
+				select +=
 					"<div class='ui-bar-a ui-bar'>" + _( "Station Type" ) + ":</div>" +
 						"<select data-mini='true' id='hs'"  + ( isStationSpecial( id ) ? " class='ui-disabled'" : "" ) + ">" +
 							"<option data-hs='0' value='0'" + ( isStationSpecial( id ) ? "" : "selected" ) + ">" + _( "Standard" ) + "</option>" +
@@ -5216,10 +5230,10 @@ var showHome = ( function() {
 							"<option data-hs='3' value='3'" + ( checkOSVersion( 217 ) ? ">" : " disabled>" ) + _( "GPIO" ) + "</option>" +
 							"<option data-hs='4' value='4'" + ( checkOSVersion( 217 ) ? ">" : " disabled>" ) + _( "HTTP" ) + "</option>" +
 						"</select>" +
-						"<div id='specialOpts'></div>" +
-					"</div>" +
-				"</div>";
+						"<div id='specialOpts'></div>";
 			}
+
+			select += "</div>";
 
 			// Common Submit button
 			select += "<input data-wrapper-class='attrib-submit' data-theme='b' type='submit' value='" + _( "Submit" ) + "' /></form></fieldset></div>";
@@ -5228,6 +5242,24 @@ var showHome = ( function() {
 				saveChanges( id );
 				return false;
 			} );
+
+			let selectOptions = select.find( 'select.seqgrp' ),
+				selectLabel = select.find( 'span.seqgrp' ),
+				gid = controller.settings.ps[id][3];
+
+			for (let i = 0; i < numSequentialGroups; i++) {
+
+				let isParallel = (i < numSequentialGroups - 1) ? false : true,
+					value = (isParallel) ? 255 : i;
+					label = (isParallel) ? 'P' : String.fromCharCode(65 + i),
+					option = $("<option data-gid='" + value + "'value='" + value + "' selected=''>" + label + "</option>");
+
+				if (option.val() == gid) {
+					option.attr('selected', true);
+					selectLabel.text(label);
+				}
+				selectOptions.append(option);
+			}
 
 			// Display the selected tab when clicked
 			select.find( "ul.tabs li" ).click( function() {
@@ -5301,7 +5333,7 @@ var showHome = ( function() {
 				relay = {},
 				disable = {},
 				names = {},
-				attrib, bid, sid, s;
+				attrib, bid, sid, gid, s;
 
 			for ( bid = 0; bid < controller.settings.nbrd; bid++ ) {
 				if ( hasMaster ) {
@@ -5387,6 +5419,9 @@ var showHome = ( function() {
 							special.sd = attrib.data( "specialData" );
 							special.sid = id;
 						}
+
+						// if os = 2.2.0
+						gid = attrib.attr('data-gid')
 					}
 				}
 			}
@@ -5401,7 +5436,8 @@ var showHome = ( function() {
 				( hasSN1 ? "&" + $.param( sensor1 ) : "" ) +
 				( hasSN2 ? "&" + $.param( sensor2 ) : "" ) +
 				( hasAR ? "&" + $.param( relay ) : "" ) +
-				( hasSD ? "&" + $.param( disable ) : "" )
+				( hasSD ? "&" + $.param( disable ) : "" ) +
+				( "&sid=" + id + "&gid=" + gid )
 			).done( function() {
 				showerror( _( "Stations have been updated" ) );
 				updateController( function() {
@@ -5420,19 +5456,27 @@ var showHome = ( function() {
 			};
 		},
 		reorderCards = function() {
+
+			// change this to have the stations be in the order of their groups
+
 			var cardHolder = page.find( "#os-stations-list" ),
 				runningCards = page.find( "#os-running-stations" ),
 				divider = page.find( ".content-divider" ),
 				compare = function( a, b ) {
-					a = $( a ).data( "station" );
-					b = $( b ).data( "station" );
-					if ( a < b ) {
+					gidA = $( a ).find( ".station-settings" ).attr( "data-gid" );
+					gidB = $( b ).find( ".station-settings" ).attr( "data-gid" );
+					if ( gidA < gidB ) {
 						return -1;
-					}
-					if ( a > b ) {
+					} else if (gidA > gidB) {
 						return 1;
+					} else {
+						a = $( a ).data( "station" );
+						b = $( b ).data( "station" );
+
+						if (a < b) { return -1; }
+						else if (a > b) { return 1; }
+						else { return 0; }
 					}
-					return 0;
 				};
 
 			// Move running stations up
@@ -5651,7 +5695,7 @@ var showHome = ( function() {
 				station = el.data( "station" ),
 				currentStatus = controller.status[ station ],
 				name = controller.stations.snames[ station ],
-				question, dialogType = 0;
+				question, dialogOptions = {};
 
 			if ( isStationMaster( station ) ) {
 				return false;
@@ -5660,7 +5704,8 @@ var showHome = ( function() {
 			// TODO: add dialogue box to unpause a station
 			if ( currentStatus ) {
 				question = _( "Do you want to stop the selected station?" );
-				dialogType = dialog.STOP_STATIONS;
+				dialogOptions.type = dialog.STOP_STATIONS;
+				dialogOptions.station = station;
 			} else {
 				if ( el.find( "span.nobr" ).length ) {
 					question = _( "Do you want to unschedule the selected station?" );
@@ -5707,7 +5752,7 @@ var showHome = ( function() {
 					refreshStatus();
 					showerror( _( "Station has been stopped" ) );
 				} );
-			}, null, dialogType );
+			}, null, dialogOptions );
 		} )
 
 		.on( "click", "img", function() {
@@ -10815,7 +10860,7 @@ function getHWType() {
 }
 
 // Accessory functions for jQuery Mobile
-function areYouSure( text1, text2, success, fail, type = 0 ) {
+function areYouSure( text1, text2, success, fail, options = {}) {
 	$( "#sure" ).popup( "destroy" ).remove();
 	success = success || function() {};
 	fail = fail || function() {};
@@ -10826,7 +10871,7 @@ function areYouSure( text1, text2, success, fail, type = 0 ) {
 			"<p class='sure-2 center'>" + text2 + "</p>" +
 			"<a class='sure-do ui-btn ui-btn-b ui-corner-all ui-shadow' href='#'>" + _( "Yes" ) + "</a>" +
 			"<a class='sure-dont ui-btn ui-corner-all ui-shadow' href='#'>" + _( "No" ) + "</a>" +
-			(type === dialog.STOP_STATIONS && queueSize() > 1 ?
+			(options.type === dialog.STOP_STATIONS && queueSize() > 1 && isStationSequential(options.station) ?
 				"<label><input id='shift-sta' type='checkbox'>Update Remaining Stations</label>" : "") +
 		"</div>"
 	);
