@@ -3184,7 +3184,7 @@ var weatherErrors = {
 	"0":	_( "Success" ),
 	"1":	_( "Weather Data Error" ),
 	"10":	_( "Building Weather History" ),
-	"11":	_( "Weather Provider Respnse Incomplete" ),
+	"11":	_( "Weather Provider Response Incomplete" ),
 	"12":	_( "Weather Provider Request Failed" ),
 	"2":	_( "Location Error" ),
 	"20":	_( "Location Request Error" ),
