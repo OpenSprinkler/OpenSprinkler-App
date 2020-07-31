@@ -135,6 +135,7 @@ var isIEMobile = /IEMobile/.test( navigator.userAgent ),
 	},
 
 	numSequentialGroups = 4,
+	parallelGroupID = "P".charCodeAt(0) - 65,
 
 	// Array to hold all notifications currently displayed within the app
 	notifications = [],
@@ -4828,7 +4829,6 @@ var showHome = ( function() {
 						"</div>" +
 					"</div>" +
 					"<div id='os-running-stations'></div>" +
-					"<hr style='display:none' class='content-divider'>" +
 					"<div id='os-stations-list' class='card-group center'></div>" +
 				"</div>" +
 			"</div>" +
@@ -4902,8 +4902,9 @@ var showHome = ( function() {
 				}
 			}
 
-			// Close current card group
-			cards += "</div></div>";
+			// add sequential group divider and close current card group
+			cards += "</div><hr style='display:none' class='content-divider' divider-gid=" + gid + "></div>";
+
 		},
 		showAttributes = function() {
 			$( "#stn_attrib" ).popup( "destroy" ).remove();
@@ -5116,8 +5117,13 @@ var showHome = ( function() {
 					button.data( "sd", select.find( "#sd" ).is( ":checked" ) ? 1 : 0 );
 					button.data( "us", select.find( "#us" ).is( ":checked" ) ? 1 : 0 );
 					name.html( select.find( "#stn-name" ).val() );
-					console.log(select.find( 'span.seqgrp' ).text().charCodeAt(0) - 65)
-					button.attr( "data-gid", select.find( 'span.seqgrp' ).text().charCodeAt(0) - 65);
+
+					let gidValue = select.find( 'span.seqgrp' ).text().charCodeAt(0) - 65;
+					if (gidValue == parallelGroupID) {
+						gidValue = 255;
+					}
+
+					button.attr( "data-gid", gidValue);
 
 					// Update the notes section
 					sites[ currentSite ].notes[ id ] = select.find( "#stn-notes" ).val();
@@ -5215,9 +5221,11 @@ var showHome = ( function() {
 			select += "<div id='tab-advanced' class='tab-content'>";
 
 			// sequential groups
-			select +=
-				"<div class='ui-bar-a ui-bar seq-container'>" + _( "Sequential Group" ) + ":</div>" +
-					"<select id='gid' class='seqgrp' data-mini='true'></select>";
+			if ( !isStationMaster(id) ) {
+				select +=
+					"<div class='ui-bar-a ui-bar seq-container'>" + _( "Sequential Group" ) + ":</div>" +
+						"<select id='gid' class='seqgrp' data-mini='true'></select>";
+			}
 
 			// station tab is initially set to disabled until we have refreshed station data from firmware
 			if ( hasSpecial ) {
@@ -5457,44 +5465,70 @@ var showHome = ( function() {
 		},
 		reorderCards = function() {
 
-			// change this to have the stations be in the order of their groups
-
 			var cardHolder = page.find( "#os-stations-list" ),
-				runningCards = page.find( "#os-running-stations" ),
-				divider = page.find( ".content-divider" ),
+				cards = cardHolder.children(),
+				div1, div2,
 				compare = function( a, b ) {
-					gidA = $( a ).find( ".station-settings" ).attr( "data-gid" );
-					gidB = $( b ).find( ".station-settings" ).attr( "data-gid" );
-					if ( gidA < gidB ) {
-						return -1;
-					} else if (gidA > gidB) {
-						return 1;
-					} else {
-						a = $( a ).data( "station" );
-						b = $( b ).data( "station" );
 
-						if (a < b) { return -1; }
-						else if (a > b) { return 1; }
-						else { return 0; }
+					/* sorting order: 	master ->
+										sequential group id ->
+										active status ->
+										station id
+					*/
+
+					// station IDs
+					sidA = $( a ).data( "station" );
+					sidB = $( b ).data( "station" );
+
+					// verify if a master station
+					masA = isStationMaster(sidA) > 0 ? 1 : 0;
+					masB = isStationMaster(sidB) > 0 ? 1 : 0;
+
+					if (masA > masB) {
+						return -1;
+					} else if (masA < masB) {
+						return 1;
+					} else { // if both or neither master check group id
+
+						gidA = $( a ).find( ".station-settings" ).attr( "data-gid" );
+						gidB = $( b ).find( ".station-settings" ).attr( "data-gid" );
+
+						if ( gidA < gidB ) {
+							return -1;
+						} else if (gidA > gidB) {
+							return 1;
+						} else { // if same group shift running stations up
+
+							statusA = controller.status[sidA];
+							statusB = controller.status[sidB];
+
+							// TODO: if station with divider is enabled, then need to turn on a different divider
+
+							if (statusA > statusB) {
+								return -1;
+							} else if (statusA < statusB) {
+								return 1;
+							} else {
+								if (sidA < sidB) { return -1; }
+								else if (sidA > sidB) { return 1; }
+								else { return 0; }
+							}
+						}
 					}
 				};
 
-			// Move running stations up
-			cardHolder.find( ".station-status.on" ).parents( ".card" ).appendTo( runningCards );
-
-			// Move stopped stations down
-			runningCards.find( ".station-status.off" ).parents( ".card" ).appendTo( cardHolder );
-
 			// Sort stations
-			cardHolder.children().sort( compare ).detach().appendTo( cardHolder );
-			runningCards.children().sort( compare ).detach().appendTo( runningCards );
+			cards.sort( compare ).detach().appendTo( cardHolder );
 
-			// Hide divider if running group is empty
-			if ( runningCards.children().length === 0 ) {
-				divider.hide();
-			} else {
-				divider.show();
+			// display appropriate dividers for sequential groups
+			for (let i = 0; i < cardHolder.children().length - 1; i++) {
+				div1 = $(cards[i]).children('.content-divider')
+				div2 = $(cards[i + 1]).children('.content-divider');
+				if (div1.attr('divider-gid') != div2.attr('divider-gid')) {
+					div1.show();
+				}
 			}
+			div2.show(); // display the last group
 		},
 		updateContent = function() {
 			var cardHolder = page.find( "#os-stations-list" ),
@@ -5546,9 +5580,16 @@ var showHome = ( function() {
 				pname = isScheduled ? pidname( controller.settings.ps[ i ][ 0 ] ) : "";
 				rem = controller.settings.ps[ i ][ 1 ],
 				qPause = queueIsPaused(),
+				gid = controller.settings.ps[i][3],
 				hasImage = sites[ currentSite ].images[ i ] ? true : false;
 
 				card = allCards.filter( "[data-station='" + i + "']" );
+				divider = card.find('.content-divider');
+
+				// update divider if gid has been changed
+				if (gid != divider.attr('divider-gid')) {
+					divider.attr('divider-gid', gid);
+				}
 
 				if ( card.length === 0 ) {
 					card = runningCards.filter( "[data-station='" + i + "']" );
