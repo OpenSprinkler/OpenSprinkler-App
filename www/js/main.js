@@ -29,6 +29,7 @@ var isIEMobile = /IEMobile/.test( navigator.userAgent ),
 					!isWinApp && window.FileReader,
 	isTouchCapable = "ontouchstart" in window || "onmsgesturechange" in window,
 	isMetric = ( [ "US", "BM", "PW" ].indexOf( navigator.languages[ 0 ].split( "-" )[ 1 ] ) === -1 ),
+	groupView = false,
 
 	// Small wrapper to handle Chrome vs localStorage usage
 	storage = {
@@ -127,15 +128,26 @@ var isIEMobile = /IEMobile/.test( navigator.userAgent ),
 	},
 
 	dialog = {
-		STOP_STATIONS: 1,
+		REMOVE_STATION: 1,
 	},
 
 	popupData = {
 		"shift": undefined,
 	},
 
+	// option constants
+
+	MANUAL_STATION_PID = 99,
+	MASTER_STATION_1 = 1,
+	MASTER_STATION_2 = 2,
+
+	IGNORE_SENSOR_1 = 1,
+	IGNORE_SENSOR_2 = 2,
+
 	numSequentialGroups = 4,
-	parallelGroupID = "P".charCodeAt(0) - 65,
+	parallelGroupID = "P".charCodeAt( 0 ) - 65,
+	parallelGIDValue = 255,
+	seqGroupStatus = new Array( numSequentialGroups ).fill( 0 ),
 
 	// Array to hold all notifications currently displayed within the app
 	notifications = [],
@@ -271,7 +283,7 @@ $( document )
 
 	$.support.cors = true;
 	$.mobile.allowCrossDomainPages = true;
-	loadUnitSetting();
+	loadLocalSettings();
 } )
 .on( "pagebeforechange", function( e, data ) {
 	var page = data.toPage,
@@ -1864,7 +1876,7 @@ var showSites = ( function() {
 						}
 						updateSiteList( Object.keys( sites ), data.current_site );
 
-						sendToOS("/cv?pw=&cn=" + data.current_site);
+						sendToOS("/cv?pw=&cn=" + data.current_site );
 					}
 
 					storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
@@ -2589,7 +2601,7 @@ function showEToAdjustmentOptions( button, callback ) {
 			baseETo: 0,
 			elevation: 600
 		},
-		unescapeJSON(button.value)
+		unescapeJSON( button.value )
 	);
 
 	if ( isMetric ) {
@@ -3301,7 +3313,7 @@ function debugWU() {
 	popup += ( typeof controller.settings.wterr === "number" ? "<tr><td>" + _( "Last Response" ) + "</td><td>" + getWeatherError( controller.settings.wterr ) + "</td></tr>" : "" );
 	popup += "</table></div>";
 
-	if ( controller.settings.wtdata && (typeof controller.settings.wtdata.wp === "string" || typeof controller.settings.wtdata.weatherProvider === "string") ) {
+	if ( controller.settings.wtdata && ( typeof controller.settings.wtdata.wp === "string" || typeof controller.settings.wtdata.weatherProvider === "string") ) {
 		popup += "<hr>";
 		popup += makeAttribution( controller.settings.wtdata.wp || controller.settings.wtdata.weatherProvider );
 	}
@@ -3330,7 +3342,7 @@ function showRainDelay() {
 }
 
 function showPause() {
-	if ( queueIsPaused() ) {
+	if ( isQueuePaused() ) {
 		sendToOS( "/pq?pw=" );
 	} else {
 		let activeStation = isRunning();
@@ -3679,6 +3691,10 @@ function showOptions( expandItem ) {
 						isMetric = $item.is( ":checked" );
 						storage.set( { isMetric: isMetric } );
 						return true;
+					case "groupView":
+						groupView = $item.is( ":checked" );
+						storage.set( { groupView: groupView } );
+						return true;
 					case "o12":
 						if ( !isPi ) {
 							opt.o12 = data & 0xff;
@@ -3842,6 +3858,9 @@ function showOptions( expandItem ) {
 
 	list += "<label for='isMetric'><input data-mini='true' id='isMetric' type='checkbox' " + ( isMetric ? "checked='checked'" : "" ) + ">" +
 		_( "Use Metric" ) + "</label>";
+
+	list += "<label for='groupView'><input data-mini='true' id='groupView' type='checkbox' " + ( groupView ? "checked='checked'" : "" ) + ">" +
+	_( "Show Sequential Groups" ) + "</label>";
 
 	list += "</fieldset><fieldset data-role='collapsible'" +
 		( typeof expandItem === "string" && expandItem === "master" ? " data-collapsed='false'" : "" ) + ">" +
@@ -4367,6 +4386,7 @@ function showOptions( expandItem ) {
 
 		for ( var i = 0; i < controller.stations.snames.length; i++ ) {
 			cs += "s" + i + "=S" + pad( i + 1 ) + "&";
+			cs += "g" + i + "=0&";
 		}
 
 		if ( controller.options.mas ) {
@@ -4745,7 +4765,7 @@ var showHomeMenu = ( function() {
 				( checkOSVersion( 206 ) || checkOSPiVersion( "1.9" ) ? "<li><a href='#logs'>" + _( "View Logs" ) + "</a></li>" : "" ) +
 				"<li data-role='list-divider'>" + _( "Programs and Settings" ) + "</li>" +
 				"<li><a href='#raindelay'>" + _( "Change Rain Delay" ) + "</a></li>" +
-				( queueIsPaused() ? "<li><a href='#globalpause'>" + _( "Resume Stations" ) + "</a></li>"
+				( isQueuePaused() ? "<li><a href='#globalpause'>" + _( "Resume Stations" ) + "</a></li>"
 				: ( isRunning() > -1 ? "<li><a href='#globalpause'>" + _( "Pause Stations" ) + "</a></li>" : "")) +
 				"<li><a href='#runonce'>" + _( "Run-Once Program" ) + "</a></li>" +
 				"<li><a href='#programs'>" + _( "Edit Programs" ) + "</a></li>" +
@@ -4828,7 +4848,6 @@ var showHome = ( function() {
 							_( "Water Level" ) + ": <span class='waterlevel'></span>%" +
 						"</div>" +
 					"</div>" +
-					"<div id='os-running-stations'></div>" +
 					"<div id='os-stations-list' class='card-group center'></div>" +
 				"</div>" +
 			"</div>" +
@@ -4842,61 +4861,62 @@ var showHome = ( function() {
 				},
 				done: function() {
 					page.find( "#countdown-" + station ).parent( "p" ).empty().siblings( ".station-status" ).removeClass( "on" ).addClass( "off" );
+					seqGroupStatus[ getStationSeqGroupID( station ) ]--
 				}
 			};
 		},
-		addCard = function( i ) {
-			var station = controller.stations.snames[ i ],
-				isScheduled = controller.settings.ps[ i ][ 0 ] > 0,
-				isRunning = controller.status[ i ] > 0,
-				pname = isScheduled ? pidname( controller.settings.ps[ i ][ 0 ] ) : "",
-				rem = controller.settings.ps[ i ][ 1 ],
-				qPause = queueIsPaused(),
-				gid = controller.settings.ps[i][3],
-				hasImage = sites[ currentSite ].images[ i ] ? true : false;
+		addCard = function( sid ) {
+			var station = getStationName( sid ),
+				isScheduled = getStationPID( sid ) > 0,
+				isRunning = isStationActive( sid ),
+				pname = isScheduled ? pidname( getStationPID( sid ) ) : "",
+				rem = getStationRemainingRuntime( sid ),
+				qPause = isQueuePaused(),
+				gid = getStationSeqGroupID( sid ),
+				hasImage = sites[ currentSite ].images[ sid ] ? true : false;
 
-			if ( controller.status[ i ] && rem > 0 ) {
-				addTimer( i, rem );
+			if ( getStationExecutionStatus( sid ) && rem > 0 ) {
+				addTimer( sid, rem );
 			}
 
 			// Group card settings visually
-			cards += "<div data-station='" + i + "' class='ui-corner-all card" +
-				( isStationDisabled( i ) ? " station-hidden' style='display:none" : "" ) + "'>";
+			cards += "<div data-station='" + sid + "' class='ui-corner-all card" +
+				( isStationDisabled( sid ) ? " station-hidden' style='display:none" : "" ) + "'>";
 
 			cards += "<div class='ui-body ui-body-a center'>";
 
-			cards += "<img src='" + ( hasImage ? "data:image/jpeg;base64," + sites[ currentSite ].images[ i ] : getAppURLPath() + "img/placeholder.png" ) + "' />";
+			cards += "<img src='" + ( hasImage ? "data:image/jpeg;base64," + sites[ currentSite ].images[ sid ] : getAppURLPath() + "img/placeholder.png" ) + "' />";
 
-			cards += "<p class='station-name center inline-icon' id='station_" + i + "'>" + station + "</p>";
+			cards += "<p class='station-name center inline-icon' id='station_" + sid + "'>" + station + "</p>";
 
 			cards += "<span class='btn-no-border ui-btn ui-btn-icon-notext ui-corner-all card-icon station-status " +
 				( isRunning ? "on" : ( isScheduled ? "wait" : "off" ) ) + "'></span>";
 
 			cards += "<span class='btn-no-border ui-btn ui-btn-icon-notext ui-icon-wifi card-icon special-station " +
-				( isStationSpecial( i ) ? "" : "hidden" ) + "'></span>";
+				( isStationSpecial( sid ) ? "" : "hidden" ) + "'></span>";
 
-			cards += "<span class='btn-no-border ui-btn " + ( ( isStationMaster( i ) ) ? "ui-icon-master" : "ui-icon-gear" ) +
-				" card-icon ui-btn-icon-notext station-settings' data-station='" + i + "' id='attrib-" + i + "' " +
-				( hasMaster ? ( "data-um='" + ( ( controller.stations.masop[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) + "' " ) : "" ) +
-				( hasMaster2 ? ( "data-um2='" + ( ( controller.stations.masop2[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) + "' " ) : "" ) +
-				( hasIR ? ( "data-ir='" + ( ( controller.stations.ignore_rain[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) + "' " ) : "" ) +
-				( hasSN1 ? ( "data-sn1='" + ( ( controller.stations.ignore_sn1[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) + "' " ) : "" ) +
-				( hasSN2 ? ( "data-sn2='" + ( ( controller.stations.ignore_sn2[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) + "' " ) : "" ) +
-				( hasAR ? ( "data-ar='" + ( ( controller.stations.act_relay[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) + "' " ) : "" ) +
-				( hasSD ? ( "data-sd='" + ( ( controller.stations.stn_dis[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) + "' " ) : "" ) +
-				( hasSequential ? ( "data-us='" + ( ( controller.stations.stn_seq[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) + "' " ) : "" ) +
-				( hasSpecial ? ( "data-hs='" + ( ( controller.stations.stn_spe[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) + "' " ) : "" ) +
-				( "data-gid='" + gid  + "' ") +
+			cards += "<span class='btn-no-border ui-btn " + ( ( isStationMaster( sid ) ) ? "ui-icon-master" : "ui-icon-gear" ) +
+				" card-icon ui-btn-icon-notext station-settings' data-station='" + sid + "' id='attrib-" + sid + "' " +
+				( hasMaster ? ( "data-um='" + ( getStationMasterOperation( sid, MASTER_STATION_1 ) ) + "' " ) : "" ) +
+				( hasMaster2 ? ( "data-um2='" + ( getStationMasterOperation( sid, MASTER_STATION_2 ) ) + "' " ) : "" ) +
+				( hasIR ? ( "data-ir='" + ( getStationIgnoreRain( sid ) ) + "' " ) : "" ) +
+				( hasSN1 ? ( "data-sn1='" + ( getStationIgnoreSensor( sid, IGNORE_SENSOR_1 ) ) + "' " ) : "" ) +
+				( hasSN2 ? ( "data-sn2='" + ( getStationIgnoreSensor( sid, IGNORE_SENSOR_2 ) ) + "' " ) : "" ) +
+				( hasAR ? ( "data-ar='" + ( getStationActRelay( sid ) ) + "' " ) : "" ) +
+				( hasSD ? ( "data-sd='" + ( getStationDisabled( sid ) ) + "' " ) : "" ) +
+				( hasSequential ? ( "data-us='" + ( getStationSequential( sid ) ) + "' " ) : "" ) +
+				( hasSpecial ? ( "data-hs='" + ( getStationSpecial( sid ) ) + "' " ) : "" ) +
+				( 				( "data-gid='" + gid  + "' ") ) +
 				"></span>";
 
-			if ( !isStationMaster( i ) ) {
+			if ( !isStationMaster( sid ) ) {
 				if ( isScheduled || isRunning ) {
 					// Generate status line for station
 					cards += "<p class='rem center'>" + ( isRunning ? _( "Running" ) + " " + pname : _( "Scheduled" ) + " " +
-						( controller.settings.ps[ i ][ 2 ] ? _( "for" ) + " " + dateToString( new Date( controller.settings.ps[ i ][ 2 ] * 1000 ) ) : pname ) );
+						( getStationStartTime( sid ) ? _( "for" ) + " " + dateToString( new Date( getStationStartTime( sid ) * 1000 ) ) : pname ) );
 					if ( rem > 0 ) {
 						// Show the remaining time if it's greater than 0
-						cards += " <span id=" + ( qPause ? "'pause" : "'countdown-" ) + i + "' class='nobr'>(" + sec2hms( rem ) + " " + _( "remaining" ) + ")</span>";
+						cards += " <span id=" + ( qPause ? "'pause" : "'countdown-" ) + sid + "' class='nobr'>(" + sec2hms( rem ) + " " + _( "remaining" ) + ")</span>";
 					}
 					cards += "</p>";
 				}
@@ -4910,12 +4930,12 @@ var showHome = ( function() {
 			$( "#stn_attrib" ).popup( "destroy" ).remove();
 
 			var button = $( this ),
-				id = button.data( "station" ),
-				name = button.siblings( "[id='station_" + id + "']" ),
+				sid = button.data( "station" ),
+				name = button.siblings( "[id='station_" + sid + "']" ),
 				showSpecialOptions = function( value ) {
 					var opts = select.find( "#specialOpts" ),
-						data = controller.special && controller.special.hasOwnProperty( id ) ? controller.special[ id ].sd : "",
-						type  = controller.special && controller.special.hasOwnProperty( id ) ? controller.special[ id ].st : 0;
+						data = controller.special && controller.special.hasOwnProperty( sid ) ? controller.special[ sid ].sd : "",
+						type  = controller.special && controller.special.hasOwnProperty( sid ) ? controller.special[ sid ].st : 0;
 
 					opts.empty();
 
@@ -5118,24 +5138,20 @@ var showHome = ( function() {
 					button.data( "us", select.find( "#us" ).is( ":checked" ) ? 1 : 0 );
 					name.html( select.find( "#stn-name" ).val() );
 
-					let gidValue = select.find( 'span.seqgrp' ).text().charCodeAt(0) - 65;
-					if (gidValue == parallelGroupID) {
-						gidValue = 255;
-					}
-
-					button.attr( "data-gid", gidValue);
+					let seqGroupName = select.find( 'span.seqgrp' ).text();
+					button.attr( "data-gid", getSeqGroupIDValueFromName( seqGroupName ));
 
 					// Update the notes section
-					sites[ currentSite ].notes[ id ] = select.find( "#stn-notes" ).val();
+					sites[ currentSite ].notes[ sid ] = select.find( "#stn-notes" ).val();
 					storage.set( { "sites": JSON.stringify( sites ) }, cloudSaveSites );
 
-					submitStations( id );
+					submitStations( sid );
 					select.popup( "destroy" ).remove();
 				},
 				select = "<div data-overlay-theme='b' data-role='popup' data-theme='a' id='stn_attrib'>" +
 					"<fieldset style='margin:0' data-mini='true' data-corners='false' data-role='controlgroup'><form><div id='station-tabs'>";
 
-			if ( typeof id !== "number" ) {
+			if ( typeof sid !== "number" ) {
 				return false;
 			}
 
@@ -5156,11 +5172,11 @@ var showHome = ( function() {
 
 			if ( typeof navigator.camera !== "undefined" && typeof navigator.camera.getPicture === "function" ) {
 				select += "<button class='changeBackground'>" +
-						( typeof sites[ currentSite ].images[ id ] !== "string" ? _( "Add" ) : _( "Change" ) ) + " " + _( "Image" ) +
+						( typeof sites[ currentSite ].images[ sid ] !== "string" ? _( "Add" ) : _( "Change" ) ) + " " + _( "Image" ) +
 					"</button>";
 			}
 
-			if ( !isStationMaster( id ) ) {
+			if ( !isStationMaster( sid ) ) {
 				if ( hasMaster ) {
 					select += "<label for='um'><input class='needsclick' data-iconpos='right' id='um' type='checkbox' " +
 							( ( button.data( "um" ) === 1 ) ? "checked='checked'" : "" ) + ">" + _( "Use Master" ) + " " + ( hasMaster2 ? "1" : "" ) +
@@ -5212,7 +5228,7 @@ var showHome = ( function() {
 
 			select += "<div class='ui-bar-a ui-bar'>" + _( "Station Notes" ) + ":</div>" +
 				"<textarea data-corners='false' class='tight stn-notes' id='stn-notes'>" +
-					( sites[ currentSite ].notes[ id ] ? sites[ currentSite ].notes[ id ] : "" ) +
+					( sites[ currentSite ].notes[ sid ] ? sites[ currentSite ].notes[ sid ] : "" ) +
 				"</textarea>";
 
 			select += "</div>";
@@ -5220,8 +5236,8 @@ var showHome = ( function() {
 			// start of Advanced Tab settings.
 			select += "<div id='tab-advanced' class='tab-content'>";
 
-			// sequential groups
-			if ( !isStationMaster(id) ) {
+			// create sequential group selection menu
+			if ( !isStationMaster( sid ) ) {
 				select +=
 					"<div class='ui-bar-a ui-bar seq-container'>" + _( "Sequential Group" ) + ":</div>" +
 						"<select id='gid' class='seqgrp' data-mini='true'></select>";
@@ -5231,8 +5247,8 @@ var showHome = ( function() {
 			if ( hasSpecial ) {
 				select +=
 					"<div class='ui-bar-a ui-bar'>" + _( "Station Type" ) + ":</div>" +
-						"<select data-mini='true' id='hs'"  + ( isStationSpecial( id ) ? " class='ui-disabled'" : "" ) + ">" +
-							"<option data-hs='0' value='0'" + ( isStationSpecial( id ) ? "" : "selected" ) + ">" + _( "Standard" ) + "</option>" +
+						"<select data-mini='true' id='hs'"  + ( isStationSpecial( sid ) ? " class='ui-disabled'" : "" ) + ">" +
+							"<option data-hs='0' value='0'" + ( isStationSpecial( sid ) ? "" : "selected" ) + ">" + _( "Standard" ) + "</option>" +
 							"<option data-hs='1' value='1'>" + _( "RF" ) + "</option>" +
 							"<option data-hs='2' value='2'>" + _( "Remote" ) + "</option>" +
 							"<option data-hs='3' value='3'" + ( checkOSVersion( 217 ) ? ">" : " disabled>" ) + _( "GPIO" ) + "</option>" +
@@ -5247,26 +5263,28 @@ var showHome = ( function() {
 			select += "<input data-wrapper-class='attrib-submit' data-theme='b' type='submit' value='" + _( "Submit" ) + "' /></form></fieldset></div>";
 
 			select = $( select ).enhanceWithin().on( "submit", "form", function() {
-				saveChanges( id );
+				saveChanges( sid );
 				return false;
 			} );
 
-			let selectOptions = select.find( 'select.seqgrp' ),
-				selectLabel = select.find( 'span.seqgrp' ),
-				gid = controller.settings.ps[id][3];
+			// populate sequential group selection menu
+			let seqGroupSelect = select.find( 'select.seqgrp' ),
+				seqGroupLabel = select.find( 'span.seqgrp' ),
+				stationGID = getStationSeqGroupID( sid );
 
-			for (let i = 0; i < numSequentialGroups; i++) {
+			for ( let i = 0; i < numSequentialGroups; i++) {
 
-				let isParallel = (i < numSequentialGroups - 1) ? false : true,
-					value = (isParallel) ? 255 : i;
-					label = (isParallel) ? 'P' : String.fromCharCode(65 + i),
+				// // last group is parallel group
+				let isParallel = ( i == numSequentialGroups - 1),
+					value = ( isParallel ) ? 255 : i;
+					label = ( isParallel ) ? 'P' : String.fromCharCode( 65 + i ),
 					option = $("<option data-gid='" + value + "'value='" + value + "' selected=''>" + label + "</option>");
 
-				if (option.val() == gid) {
-					option.attr('selected', true);
-					selectLabel.text(label);
+				if ( option.val() == stationGID ) {
+					option.attr('selected', true );
+					seqGroupLabel.text( label );
 				}
-				selectOptions.append(option);
+				seqGroupSelect.append( option );
 			}
 
 			// Display the selected tab when clicked
@@ -5288,11 +5306,11 @@ var showHome = ( function() {
 			} );
 
 			// Refresh station data from firmware and update the Advanced tab to reflect special station type
-			if ( isStationSpecial( id ) ) {
+			if ( isStationSpecial( sid ) ) {
 				updateControllerStationSpecial( function() {
 					select.find( "#hs" )
 						.removeClass( "ui-disabled" )
-						.find( "option[data-hs='" + controller.special[ id ].st + "']" ).prop( "selected", true );
+						.find( "option[data-hs='" + controller.special[ sid ].st + "']" ).prop( "selected", true );
 					select.find( "#hs" ).change();
 				} );
 			} else {
@@ -5306,7 +5324,7 @@ var showHome = ( function() {
 				var button = this;
 
 				takePicture( function( image ) {
-					sites[ currentSite ].images[ id ] = image;
+					sites[ currentSite ].images[ sid ] = image;
 					storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
 					updateContent();
 
@@ -5445,7 +5463,7 @@ var showHome = ( function() {
 				( hasSN2 ? "&" + $.param( sensor2 ) : "" ) +
 				( hasAR ? "&" + $.param( relay ) : "" ) +
 				( hasSD ? "&" + $.param( disable ) : "" ) +
-				( "&sid=" + id + "&gid=" + gid )
+				( "&g" + id + "=" + gid )
 			).done( function() {
 				showerror( _( "Stations have been updated" ) );
 				updateController( function() {
@@ -5463,77 +5481,149 @@ var showHome = ( function() {
 				}
 			};
 		},
-		reorderCards = function() {
+		getCardBySID = function( cardList, dataStation ) {
+			return cardList.filter( "[data-station='" + dataStation + "']" );
+		},
+		getCardFromList = function( cardList, cardIndex ) {
+			return $( cardList[ cardIndex ] );
+		},
+		getStationIDFromCard = function( card ) {
+			return card.data( "station" );
+		},
+		getGIDValueFromCard = function( card ) {
+			let cardButtons = $( card.children()[ 0 ]).children().filter( "span" ),
+				cardAttributes = $( cardButtons[ cardButtons.length - 1 ]);
 
-			var cardHolder = page.find( "#os-stations-list" ),
-				cards = cardHolder.children(),
-				div1, div2,
-				compare = function( a, b ) {
+			return cardAttributes.attr( 'data-gid' );
+		},
+		getDividerFromCard = function( card ) {
+			return card.find( '.content-divider' );
+		},
+		compareCardsGroupView = function( a, b ) {
 
-					/* sorting order: 	master ->
-										sequential group id ->
-										active status ->
-										station id
-					*/
+			/* sorting order: 	master ->
+								sequential group id ->
+								active status ->
+								station id
+			*/
 
-					// station IDs
-					sidA = $( a ).data( "station" );
-					sidB = $( b ).data( "station" );
+			cardA = $( a ), cardB = $( b );
 
-					// verify if a master station
-					masA = isStationMaster(sidA) > 0 ? 1 : 0;
-					masB = isStationMaster(sidB) > 0 ? 1 : 0;
+			// station IDs
+			sidA = getStationIDFromCard( cardA );
+			sidB = getStationIDFromCard( cardB );
 
-					if (masA > masB) {
+			// verify if a master station
+			masA = isStationMaster( sidA ) > 0 ? 1 : 0;
+			masB = isStationMaster( sidB ) > 0 ? 1 : 0;
+
+			if ( masA > masB ) {
+				return -1;
+			} else if ( masA < masB ) {
+				return 1;
+			} else { // if both or neither master check group id
+
+				gidA = getGIDValueFromCard( cardA );
+				gidB = getGIDValueFromCard( cardB );
+
+				if ( gidA < gidB ) {
+					return -1;
+				} else if ( gidA > gidB ) {
+					return 1;
+				} else { // if same group shift running stations up
+
+					statusA = getStationExecutionStatus( sidA );
+					statusB = getStationExecutionStatus( sidB );
+
+					if ( statusA > statusB ) {
 						return -1;
-					} else if (masA < masB) {
+					} else if ( statusA < statusB ) {
 						return 1;
-					} else { // if both or neither master check group id
-
-						gidA = $( a ).find( ".station-settings" ).attr( "data-gid" );
-						gidB = $( b ).find( ".station-settings" ).attr( "data-gid" );
-
-						if ( gidA < gidB ) {
-							return -1;
-						} else if (gidA > gidB) {
-							return 1;
-						} else { // if same group shift running stations up
-
-							statusA = controller.status[sidA];
-							statusB = controller.status[sidB];
-
-							// TODO: if station with divider is enabled, then need to turn on a different divider
-
-							if (statusA > statusB) {
-								return -1;
-							} else if (statusA < statusB) {
-								return 1;
-							} else {
-								if (sidA < sidB) { return -1; }
-								else if (sidA > sidB) { return 1; }
-								else { return 0; }
-							}
-						}
+					} else {
+						if ( sidA < sidB ) { return -1; }
+						else if ( sidA > sidB ) { return 1; }
+						else { return 0; }
 					}
-				};
-
-			// Sort stations
-			cards.sort( compare ).detach().appendTo( cardHolder );
-
-			// display appropriate dividers for sequential groups
-			for (let i = 0; i < cardHolder.children().length - 1; i++) {
-				div1 = $(cards[i]).children('.content-divider')
-				div2 = $(cards[i + 1]).children('.content-divider');
-				if (div1.attr('divider-gid') != div2.attr('divider-gid')) {
-					div1.show();
 				}
 			}
-			div2.show(); // display the last group
+		},
+		compareCardsStandardView = function( a, b ) { // push running to the top
+
+			/* sorting order: 	running status ->
+								station id
+			 */
+
+			cardA = $( a ), cardB = $( b );
+
+			sidA = getStationIDFromCard( cardA );
+			sidB = getStationIDFromCard( cardB );
+
+			statusA = getStationExecutionStatus( sidA );
+			statusB = getStationExecutionStatus( sidB );
+
+			if ( statusA > statusB ) {
+				return -1;
+			} else if ( statusA < statusB ) {
+				return 1;
+			} else {
+				if ( sidA < sidB ) {
+					return -1;
+				}
+				if ( sidA > sidB ) {
+					return 1;
+				}
+				return 0;
+			}
+		},
+		displayGroupDividers = function( cardHolder, cardList ) {
+			var thisCard, nextCard, divider;
+			for ( let idx = 0; idx < cardHolder.children().length - 1; idx++) {
+				thisCard = getCardFromList( cardList, idx );
+				nextCard = getCardFromList( cardList, idx + 1 );
+
+				divider = getDividerFromCard( thisCard );
+
+				if ( getGIDValueFromCard( thisCard ) != getGIDValueFromCard( nextCard ) ) {
+					divider.show();
+				} else {
+					divider.hide();
+				}
+			}
+			getDividerFromCard( nextCard ).show(); // last group divider
+		},
+		displayStandardDivider = function( cardHolder, cardList ) {
+			var thisCard, nextCard, divider;
+			for ( let idx = 0; idx < cardHolder.children().length - 1; idx++) {
+				thisCard = getCardFromList( cardList, idx );
+				nextCard = getCardFromList( cardList, idx + 1);
+
+				divider = getDividerFromCard( thisCard );
+				divider.hide(); // remove all dividers when switching from group view
+
+				//  display divider between active and non-active stations
+				if ( isStationActive( getStationIDFromCard( thisCard ) ) &&
+						!isStationActive( getStationIDFromCard( nextCard ) ) ) {
+							divider.show();
+				}
+			}
+		},
+		reorderCards = function() {
+			var cardHolder = page.find( "#os-stations-list" ),
+				cardList = cardHolder.children(),
+				compareCards = groupView ? compareCardsGroupView : compareCardsStandardView;
+
+			// Sort stations
+			cardList.sort( compareCards ).detach().appendTo( cardHolder );
+
+			if ( groupView ) {
+				displayGroupDividers( cardHolder, cardList );
+			} else {
+				displayStandardDivider( cardHolder, cardList );
+			}
 		},
 		updateContent = function() {
 			var cardHolder = page.find( "#os-stations-list" ),
-				allCards = cardHolder.children(),
-				runningCards = page.find( "#os-running-stations" ).children(),
+				cardList = cardHolder.children(),
 				isScheduled, isRunning, pname, rem, card, line, hasImage;
 
 			if ( !page.hasClass( "ui-page-active" ) ) {
@@ -5542,24 +5632,6 @@ var showHome = ( function() {
 
 			updateClock();
 			updateSites();
-
-			if ( allCards.length + runningCards.length > controller.stations.snames.length ) {
-
-				// Merge running station cards with remainder of station cards
-				runningCards.detach().appendTo( cardHolder );
-
-				// Update the allCards array since running cards were merged in above
-				allCards = cardHolder.children();
-
-				// Remove all stations which are higher in index than the current max
-				allCards.each( function() {
-					var c = $( this );
-
-					if ( c.data( "station" ) >= controller.stations.snames.length ) {
-						c.remove();
-					}
-				} );
-			}
 
 			page.find( ".waterlevel" ).text( controller.options.wl );
 			page.find( ".sitename" ).text( siteSelect.val() );
@@ -5574,35 +5646,26 @@ var showHome = ( function() {
 			hasSequential = ( typeof controller.stations.stn_seq === "object" ) ? true : false;
 			hasSpecial = ( typeof controller.stations.stn_spe === "object" ) ? true : false;
 
-			for ( var i = 0; i < controller.stations.snames.length; i++ ) {
-				isScheduled = controller.settings.ps[ i ][ 0 ] > 0;
-				isRunning = controller.status[ i ] > 0;
-				pname = isScheduled ? pidname( controller.settings.ps[ i ][ 0 ] ) : "";
-				rem = controller.settings.ps[ i ][ 1 ],
-				qPause = queueIsPaused(),
-				gid = controller.settings.ps[i][3],
-				hasImage = sites[ currentSite ].images[ i ] ? true : false;
+			for ( var sid = 0; sid < controller.stations.snames.length; sid++ ) {
+				isScheduled = getStationPID( sid ) > 0;
+				isRunning = getStationExecutionStatus( sid ) > 0;
+				pname = isScheduled ? pidname( getStationPID( sid ) ) : "";
+				rem = getStationRemainingRuntime( sid ),
+				qPause = isQueuePaused(),
+				cardGID = getStationSeqGroupID( sid ),
+				hasImage = sites[ currentSite ].images[ sid ] ? true : false;
 
-				card = allCards.filter( "[data-station='" + i + "']" );
-				divider = card.find('.content-divider');
-
-				// update divider if gid has been changed
-				if (gid != divider.attr('divider-gid')) {
-					divider.attr('divider-gid', gid);
-				}
-
-				if ( card.length === 0 ) {
-					card = runningCards.filter( "[data-station='" + i + "']" );
-				}
+				card = getCardBySID( cardList, sid );
+				divider = getDividerFromCard( card );
 
 				if ( card.length === 0 ) {
 					cards = "";
-					addCard( i );
+					addCard( sid );
 					cardHolder.append( cards );
 				} else {
-					card.find( ".ui-body > img" ).attr( "src", ( hasImage ? "data:image/jpeg;base64," + sites[ currentSite ].images[ i ] : getAppURLPath() + "img/placeholder.png" ) );
+					card.find( ".ui-body > img" ).attr( "src", ( hasImage ? "data:image/jpeg;base64," + sites[ currentSite ].images[ sid ] : getAppURLPath() + "img/placeholder.png" ) );
 
-					if ( isStationDisabled( i ) ) {
+					if ( isStationDisabled( sid ) ) {
 						if ( !page.hasClass( "show-hidden" ) ) {
 							card.hide();
 						}
@@ -5611,35 +5674,35 @@ var showHome = ( function() {
 						card.show().removeClass( "station-hidden" );
 					}
 
-					card.find( "#station_" + i ).text( controller.stations.snames[ i ] );
-					card.find( ".special-station" ).removeClass( "hidden" ).addClass( isStationSpecial( i ) ? "" : "hidden" );
+					card.find( "#station_" + sid ).text( controller.stations.snames[ sid ] );
+					card.find( ".special-station" ).removeClass( "hidden" ).addClass( isStationSpecial( sid ) ? "" : "hidden" );
 					card.find( ".station-status" ).removeClass( "on off wait" ).addClass( isRunning ? "on" : ( isScheduled ? "wait" : "off" ) );
-					if ( isStationMaster( i ) ) {
+					if ( isStationMaster( sid ) ) {
 						card.find( ".station-settings" ).removeClass( "ui-icon-gear" ).addClass( "ui-icon-master" );
 					} else {
 						card.find( ".station-settings" ).removeClass( "ui-icon-master" ).addClass( "ui-icon-gear" );
 					}
 
 					card.find( ".station-settings" ).data( {
-						um: hasMaster ? ( ( controller.stations.masop[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) : undefined,
-						um2: hasMaster2 ? ( ( controller.stations.masop2[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) : undefined,
-						ir: hasIR ? ( ( controller.stations.ignore_rain[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) : undefined,
-						sn1: hasSN1 ? ( ( controller.stations.ignore_sn1[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) : undefined,
-						sn2: hasSN2 ? ( ( controller.stations.ignore_sn2[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) : undefined,
-						ar: hasAR ? ( ( controller.stations.act_relay[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) : undefined,
-						sd: hasSD ? ( ( controller.stations.stn_dis[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) : undefined,
-						us: hasSequential ? ( ( controller.stations.stn_seq[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) : undefined,
-						hs: hasSpecial ? ( ( controller.stations.stn_spe[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) : undefined
+						um: hasMaster ? ( getStationMasterOperation( sid, MASTER_STATION_1 ) ) : undefined,
+						um2: hasMaster2 ? ( getStationMasterOperation( sid, MASTER_STATION_2 ) ) : undefined,
+						ir: hasIR ? ( getStationIgnoreRain( sid ) ) : undefined,
+						sn1: hasSN1 ? ( getStationIgnoreSensor( sid, IGNORE_SENSOR_1 ) ) : undefined,
+						sn2: hasSN2 ? ( getStationIgnoreRain( sid, IGNORE_SENSOR_2 ) ) : undefined,
+						ar: hasAR ? ( getStationActRelay( sid ) ) : undefined,
+						sd: hasSD ? ( getStationDisabled( sid ) ) : undefined,
+						us: hasSequential ? ( getStationSequential( sid ) ) : undefined,
+						hs: hasSpecial ? ( getStationSpecial( sid ) ) : undefined
 					} );
 
-					if ( !isStationMaster( i ) && ( isScheduled || isRunning ) ) {
+					if ( !isStationMaster( sid ) && ( isScheduled || isRunning ) ) {
 						line = ( isRunning ? _( "Running" ) + " " + pname : _( "Scheduled" ) + " " +
-							( controller.settings.ps[ i ][ 2 ] ? _( "for" ) + " " + dateToString( new Date( controller.settings.ps[ i ][ 2 ] * 1000 ) ) : pname ) );
+							( getStationStartTime( sid ) ? _( "for" ) + " " + dateToString( new Date( getStationStartTime( sid ) * 1000 ) ) : pname ) );
 						if ( rem > 0 ) {
 							// Show the remaining time if it's greater than 0
-							line += " <span id=" + (qPause ? "'pause" : "'countdown-") + i + "' class='nobr'>(" + sec2hms( rem ) + " " + _( "remaining" ) + ")</span>";
-							if ( controller.status[ i ]) {
-								addTimer( i, rem );
+							line += " <span id=" + ( qPause ? "'pause" : "'countdown-") + sid + "' class='nobr'>(" + sec2hms( rem ) + " " + _( "remaining" ) + ")</span>";
+							if ( controller.status[ sid ]) {
+								addTimer( sid, rem );
 							}
 						}
 						if ( card.find( ".rem" ).length === 0 ) {
@@ -5733,20 +5796,23 @@ var showHome = ( function() {
 			}
 
 			var el = $( this ),
-				station = el.data( "station" ),
-				currentStatus = controller.status[ station ],
-				name = controller.stations.snames[ station ],
+				sid = getStationIDFromCard( el ),
+				stationGID = getGIDValueFromCard( el ),
+				currentStatus = getStationExecutionStatus( sid ),
+				name = getStationName( sid ),
 				question, dialogOptions = {};
 
-			if ( isStationMaster( station ) ) {
+			if ( isStationMaster( sid ) ) {
 				return false;
 			}
+
+			dialogOptions.type = dialog.REMOVE_STATION;
+			dialogOptions.station = sid;
+			dialogOptions.gid = stationGID;
 
 			// TODO: add dialogue box to unpause a station
 			if ( currentStatus ) {
 				question = _( "Do you want to stop the selected station?" );
-				dialogOptions.type = dialog.STOP_STATIONS;
-				dialogOptions.station = station;
 			} else {
 				if ( el.find( "span.nobr" ).length ) {
 					question = _( "Do you want to unschedule the selected station?" );
@@ -5755,20 +5821,21 @@ var showHome = ( function() {
 						title: name,
 						incrementalUpdate: false,
 						maximum: 65535,
-						seconds: sites[ currentSite ].lastRunTime[ station ] > 0 ? sites[ currentSite ].lastRunTime[ station ] : 0,
+						seconds: sites[ currentSite ].lastRunTime[ sid ] > 0 ? sites[ currentSite ].lastRunTime[ sid ] : 0,
 						helptext: _( "Enter a duration to manually run " + name ),
 						callback: function( duration ) {
-							sendToOS( "/cm?sid=" + station + "&en=1&t=" + duration + "&pw=", "json" ).done( function() {
+							sendToOS( "/cm?sid=" + sid + "&en=1&t=" + duration + "&pw=", "json" ).done( function() {
 
 								// Update local state until next device refresh occurs
-								controller.settings.ps[ station ][ 0 ] = 99;
-								controller.settings.ps[ station ][ 1 ] = duration;
+								setStationPID( sid, MANUAL_STATION_PID );
+								setStationRemainingRuntime( sid, duration );
+								seqGroupStatus[ stationGID ]++;
 
 								refreshStatus();
 								showerror( _( "Station has been queued" ) );
 
 								// Save run time for this station
-								sites[ currentSite ].lastRunTime[ station ] = duration;
+								sites[ currentSite ].lastRunTime[ sid ] = duration;
 								storage.set( { "sites": JSON.stringify( sites ) }, cloudSaveSites );
 							} );
 						}
@@ -5776,19 +5843,21 @@ var showHome = ( function() {
 					return;
 				}
 			}
-			areYouSure( question, controller.stations.snames[ station ], function() {
+
+			areYouSure( question, getStationName( sid ), function() {
 
 				let shiftStations = popupData.shift === true ? 1 : 0;
+				seqGroupStatus[ stationGID ]--;
 
-				sendToOS( "/cm?sid=" + station + "&ssta=" + shiftStations + "&en=0&pw=" ).done( function() {
+				sendToOS( "/cm?sid=" + sid + "&ssta=" + shiftStations + "&en=0&pw=" ).done( function() {
 
 					// Update local state until next device refresh occurs
-					controller.settings.ps[ station ][ 0 ] = 0;
-					controller.settings.ps[ station ][ 1 ] = 0;
-					controller.status[ i ] = 0;
+					setStationPID( sid, 0 );
+					setStationRemainingRuntime( sid, 0 );
+					setStationExecutionStatus( sid, 0 );
 
 					// Remove any timer associated with the station
-					delete timers[ "station-" + station ];
+					delete timers[ "station-" + sid ];
 
 					refreshStatus();
 					showerror( _( "Station has been stopped" ) );
@@ -5853,6 +5922,7 @@ var showHome = ( function() {
 		if ( !$.isEmptyObject( weather ) ) {
 			updateWeatherBox();
 		}
+		populateSeqGroupStatusArray();
 	}
 
 	return begin;
@@ -5975,7 +6045,7 @@ function isStationSpecial( sid ) {
 
 function isStationSequential( sid ) {
 	if ( typeof controller.stations.stn_seq === "object" ) {
-		return ( controller.stations.stn_seq[ parseInt( sid / 8 ) ] & ( 1 << ( sid % 8 ) ) ) > 0;
+		return getStationSequential( sid ) > 0;
 	} else {
 		return controller.options.seq;
 	}
@@ -6164,7 +6234,7 @@ function checkStatus() {
 
 		for ( i in open ) {
 			if ( open.hasOwnProperty( i ) ) {
-				tmp = controller.settings.ps[ i ][ 1 ];
+				tmp = getStationRemainingRuntime( i );
 				if ( tmp > ptotal ) {
 					ptotal = tmp;
 				}
@@ -6172,7 +6242,7 @@ function checkStatus() {
 		}
 
 		sample = Object.keys( open )[ 0 ];
-		pid    = controller.settings.ps[ sample ][ 0 ];
+		pid    = getStationPID( sample );
 		pname  = pidname( pid );
 		line   = "<div><div class='running-icon'></div><div class='running-text pointer'>";
 
@@ -6188,14 +6258,14 @@ function checkStatus() {
 	// Handle a single station open
 	match = false;
 	for ( i = 0; i < controller.stations.snames.length; i++ ) {
-		if ( controller.settings.ps[ i ] && controller.settings.ps[ i ][ 0 ] && controller.status[ i ] && !isStationMaster( i ) ) {
+		if ( controller.settings.ps[ i ] && getStationPID( i ) && getStationExecutionStatus( i ) && !isStationMaster( i ) ) {
 			match = true;
-			pid = controller.settings.ps[ i ][ 0 ];
+			pid = getStationPID( i );
 			pname = pidname( pid );
 			line = "<div><div class='running-icon'></div><div class='running-text pointer'>";
-			line += pname + " " + _( "is running on station" ) + " <span class='nobr'>" + controller.stations.snames[ i ] + "</span> ";
-			if ( controller.settings.ps[ i ][ 1 ] > 0 ) {
-				line += "<span id='countdown' class='nobr'>(" + sec2hms( controller.settings.ps[ i ][ 1 ] ) + " " + _( "remaining" ) + ")</span>";
+			line += pname + " " + _( "is running on station" ) + " <span class='nobr'>" + getStationName( i ) + "</span> ";
+			if ( getStationRemainingRuntime( i ) > 0 ) {
+				line += "<span id='countdown' class='nobr'>(" + sec2hms( getStationRemainingRuntime( i ) ) + " " + _( "remaining" ) + ")</span>";
 			}
 			line += "</div></div>";
 			break;
@@ -6203,7 +6273,7 @@ function checkStatus() {
 	}
 
 	if ( match ) {
-		changeStatus( controller.settings.ps[ i ][ 1 ], "green", line, goHome );
+		changeStatus( getStationRemainingRuntime( i ), "green", line, goHome );
 		return;
 	}
 
@@ -6704,7 +6774,7 @@ function submitRunonce( runonce ) {
 		isOn = isRunning();
 
 	if ( isOn !== -1 ) {
-		areYouSure( _( "Do you want to stop the currently running program?" ), pidname( controller.settings.ps[ isOn ][ 0 ] ), function() {
+		areYouSure( _( "Do you want to stop the currently running program?" ), pidname( getStationPID( isOn ) ), function() {
 			$.mobile.loading( "show" );
 			stopStations( submit );
 		} );
@@ -9743,22 +9813,185 @@ var showAbout = ( function() {
 } )();
 
 // OpenSprinkler controller methods
+
+function getStationName( sid ) {
+	return controller.stations.snames[ sid ];
+}
+
+function setStationName( sid, name ) {
+	controller.stations.snames[ sid ] = name;
+}
+
+function getNumStations() {
+	return controller.settings.ps.length;
+}
+
+function getStationPID( sid ) {
+	return controller.settings.ps[ sid ][ 0 ];
+}
+
+function setStationPID( sid, pid ) {
+	controller.settings.ps[ sid ][ 0 ] = pid;
+}
+
+function getStationRemainingRuntime( sid ) {
+	return controller.settings.ps[ sid ][ 1 ];
+}
+
+function setStationRemainingRuntime( sid, remainingTimeInSeconds ) {
+	controller.settings.ps[ sid ][ 1 ] = remainingTimeInSeconds;
+}
+
+function getStationStartTime( sid ) {
+	return controller.settings.ps[ sid ][ 2 ];
+}
+
+function setStationStartTime( sid, epochStartTime ) {
+	controller.settings.ps[ sid ][ 2 ] = epochStartTime;
+}
+
+function getStationSeqGroupID( sid ) {
+	return controller.settings.ps[ sid ][ 3 ];
+}
+
+function setStationSeqGroupID( sid, gid ) {
+	controller.settings.ps[ sid ][ 3 ] = gid;
+}
+
+function getStationExecutionStatus( sid ) {
+	return controller.status[ sid ];
+}
+
+function setStationExecutionStatus( sid, status ) {
+	controller.status[ sid ] = status;
+}
+
 function isRunning() {
 	for ( var i = 0; i < controller.status.length; i++ ) {
-		if ( controller.status[ i ] > 0 && controller.settings.ps[ i ][ 0 ] > 0 ) {
+		if ( getStationExecutionStatus( i ) > 0 && getStationPID( i ) > 0 ) {
 			return i;
 		}
 	}
-
 	return -1;
 }
 
-function queueIsPaused() {
+function isQueuePaused() {
 	return controller.settings.pq;
 }
 
-function queueSize() {
+function getQueueSize() {
 	return controller.settings.nq;
+}
+
+function isStationActive( sid ) {
+	return getStationExecutionStatus( sid ) > 0;
+}
+
+function populateSeqGroupStatusArray() {
+	for (let i = 0; i < getNumStations(); i++) {
+		if ( isStationActive( i ) ) {
+			seqGroupStatus[ getStationSeqGroupID( i ) ]++;
+		}
+	}
+}
+
+// returns true if seq group has scheduled or running stations
+function seqGroupIsActive( gid ) {
+	return seqGroupStatus[ gid ] > 1;
+}
+
+function getSeqGroupIDValueFromName( groupName ) {
+	let value = groupName.charCodeAt( 0 ) - 65;
+	if ( value == parallelGroupID ) {
+		return parallelGIDValue;
+	}
+	return value;
+}
+
+// station attribute getters
+
+function getStationMasterOperation( sid, masid ) {
+	let bid = sid / 8,
+	sourceMasterAttribute;
+
+	switch ( masid ) {
+		case MASTER_STATION_1:
+			sourceMasterAttribute = controller.stations.masop;
+			break;
+		case MASTER_STATION_2:
+			sourceMasterAttribute = controller.stations.masop2;
+			break;
+		default:
+			sourceMasterAttribute = undefined;
+			// handle this case somehow
+	}
+
+	let boardMasterAttribute = sourceMasterAttribute[ parseInt( bid ) ],
+		boardStationID = 1 << ( sid % 8 );
+
+	return ( boardMasterAttribute & boardStationID ) ? 1 : 0;
+}
+
+function getStationIgnoreRain( sid ) {
+	let bid = sid / 8,
+		boardIgnoreRainAttribute = controller.stations.ignore_rain[ parseInt( bid ) ],
+		boardStationID = 1 << ( sid % 8 );
+
+	return ( boardIgnoreRainAttribute & boardStationID )? 1 : 0;
+}
+
+function getStationIgnoreSensor( sid, sensorID ) {
+	let bid = sid / 8,
+		sourceIgnoreSensorAttribute;
+
+	switch ( sensorID ) {
+		case IGNORE_SENSOR_1:
+			sourceIgnoreSensorAttribute = controller.stations.ignore_sn1;
+			break;
+		case IGNORE_SENSOR_2:
+			sourceIgnoreSensorAttribute = controller.stations.ignore_sn2;
+			break;
+		default:
+			sourceIgnoreSensorAttribute = undefined;
+			// handle
+	}
+
+	let boardIgnoreSensorAttribute = sourceIgnoreSensorAttribute[ parseInt( bid ) ],
+		boardStationID = 1 << ( sid << 8 );
+
+	return ( boardIgnoreSensorAttribute & boardStationID ) ? 1 : 0;
+}
+
+function getStationActRelay( sid ) {
+	let bid = sid / 8,
+		boardActRelayAttribute = controller.stations.act_relay[ parseInt( bid ) ],
+		boardStationID = 1 << ( sid % 8 );
+
+	return ( boardActRelayAttribute & boardStationID ) ? 1 : 0;
+}
+
+function getStationDisabled( sid ) {
+	let bid = sid / 8,
+		boardDisabledAttribute = controller.stations.stn_dis[ parseInt( bid ) ],
+		boardStationID = 1 << ( sid % 8 );
+
+	return ( boardDisabledAttribute & boardStationID ) ? 1 : 0;
+}
+
+function getStationSequential( sid ) {
+	let bid = sid / 8,
+		boardSequentialAttribute = controller.stations.stn_seq[ parseInt( bid ) ],
+		boardStationID = 1 << ( sid % 8 );
+
+	return ( boardSequentialAttribute & boardStationID ) ? 1 : 0;
+}
+
+function getStationSpecial( sid ) {
+	let bid = sid / 8,
+		boardSpecialAttribute = controller.stations.stn_spe[ parseInt( bid ) ],
+		boardStationID = 1 << ( sid % 8 );
+
+	return ( boardSpecialAttribute & boardStationID ) ? 1 : 0;
 }
 
 function stopStations( callback ) {
@@ -10906,14 +11139,16 @@ function areYouSure( text1, text2, success, fail, options = {}) {
 	success = success || function() {};
 	fail = fail || function() {};
 
+	let showShiftDialog = ( options.type == dialog.REMOVE_STATION )
+		&& seqGroupIsActive( options.gid ) && isStationSequential( options.station );
+
 	var popup = $(
 		"<div data-role='popup' data-theme='a' id='sure'>" +
 			"<h3 class='sure-1 center'>" + text1 + "</h3>" +
 			"<p class='sure-2 center'>" + text2 + "</p>" +
 			"<a class='sure-do ui-btn ui-btn-b ui-corner-all ui-shadow' href='#'>" + _( "Yes" ) + "</a>" +
 			"<a class='sure-dont ui-btn ui-corner-all ui-shadow' href='#'>" + _( "No" ) + "</a>" +
-			(options.type === dialog.STOP_STATIONS && queueSize() > 1 && isStationSequential(options.station) ?
-				"<label><input id='shift-sta' type='checkbox'>Update Remaining Stations</label>" : "") +
+			( showShiftDialog ? "<label><input id='shift-sta' type='checkbox'>Update Remaining Stations</label>" : "") +
 		"</div>"
 	);
 
@@ -12006,7 +12241,7 @@ function showerror( msg, dur ) {
 	errorTimeout = setTimeout( function() {$.mobile.loading( "hide" );}, dur );
 }
 
-function loadUnitSetting() {
+function loadLocalSettings() {
 	storage.get( "isMetric", function( data ) {
 
 		// We are using a switch because the boolean gets stored as a string
@@ -12018,6 +12253,17 @@ function loadUnitSetting() {
 				break;
 			case "false":
 				isMetric = false;
+				break;
+			default:
+		}
+	} );
+	storage.get( "groupView", function( data ) {
+		switch( data.groupView ) {
+			case "true":
+				groupView = true;
+				break;
+			case "false":
+				groupView = false;
 				break;
 			default:
 		}
