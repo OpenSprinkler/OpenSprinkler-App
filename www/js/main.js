@@ -178,6 +178,11 @@ if ( window.MSApp ) {
 
 $( document )
 .one( "deviceready", function() {
+	/** Replace window.open with InAppBrowser if available */
+	if (window.cordova && window.cordova.InAppBrowser) {
+		window.open = window.cordova.InAppBrowser.open;
+	}
+
 	try {
 
 		//Change the status bar to match the headers
@@ -474,7 +479,7 @@ function initApp() {
 		var button = $( this ),
 			iab = window.open( this.href, target, "location=" + ( isAndroid ? "yes" : "no" ) +
 				",enableViewportScale=" + ( button.hasClass( "iabNoScale" ) ? "no" : "yes" ) +
-				",toolbarposition=top" +
+				",toolbar=yes,toolbarposition=top,toolbarcolor=" + statusBarPrimary +
 				",closebuttoncaption=" +
 					( button.hasClass( "iabNoScale" ) ? _( "Back" ) : _( "Done" ) )
 			);

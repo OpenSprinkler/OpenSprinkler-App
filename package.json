@@ -1,5 +1,5 @@
 {
-  "name": "OpenSprinkler",
+  "name": "opensprinkler",
   "author": "Samer Albahra",
   "license": "AGPL-3.0",
   "phonegap": {
@@ -44,24 +44,24 @@
     "blanket": "^1.2.1",
     "chai": "^4.2.0",
     "codecov.io": "^0.1.6",
-    "coveralls": "^3.0.4",
-    "grunt": "^1.0.4",
+    "coveralls": "^3.1.0",
+    "grunt": "^1.2.1",
     "grunt-blanket-mocha": "^1.0.0",
     "grunt-contrib-clean": "^2.0.0",
-    "grunt-contrib-compress": "^1.5.0",
+    "grunt-contrib-compress": "^1.6.0",
     "grunt-contrib-csslint": "^2.0.0",
     "grunt-contrib-cssmin": "^3.0.0",
     "grunt-contrib-jshint": "^2.1.0",
-    "grunt-contrib-uglify": "^4.0.1",
+    "grunt-contrib-uglify": "^5.0.0",
     "grunt-jscs": "^3.0.1",
     "grunt-lib-phantomjs": "^1.1.0",
     "grunt-shell": "^3.0.1",
     "grunt-text-replace": "^0.4.0",
     "lcov-result-merger": "^3.1.0",
-    "lodash": "^4.17.13",
-    "mocha": "^6.1.4",
+    "lodash": "^4.17.19",
+    "mocha": "^8.1.1",
     "po2json": "^0.4.5",
-    "xcode": "2.0.0"
+    "xcode": "^3.0.1"
   },
   "cordova": {
     "plugins": {
@@ -82,15 +82,15 @@
     ]
   },
   "dependencies": {
-    "cordova-android": "^8.0.0",
-    "cordova-ios": "^5.0.0",
-    "cordova-osx": "^5.0.0",
-    "cordova-plugin-3dtouch": "^1.3.6",
+    "cordova-android": "^9.0.0",
+    "cordova-ios": "^6.1.0",
+    "cordova-osx": "^6.0.0",
+    "cordova-plugin-3dtouch": "^1.3.8",
     "cordova-plugin-camera": "^4.1.0",
-    "cordova-plugin-geolocation": "^4.0.1",
-    "cordova-plugin-inappbrowser": "^3.2.0",
+    "cordova-plugin-geolocation": "^4.0.2",
+    "cordova-plugin-inappbrowser": "^4.0.0",
     "cordova-plugin-networkinterface": "^2.0.0",
-    "cordova-plugin-splashscreen": "^5.0.3",
+    "cordova-plugin-splashscreen": "^6.0.0",
     "cordova-plugin-statusbar": "^2.4.3",
     "cordova-plugin-transport-security": "^0.1.2",
     "cordova-plugin-whitelist": "^1.3.4"
