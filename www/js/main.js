@@ -12277,7 +12277,7 @@ function languageSelect() {
 				ru: "Russian", sk: "Slovak", sl: "Slovenian", es: "Spanish", ta: "Tamil", th: "Thai", tr: "Turkish", sv: "Swedish", ro: "Romanian" };
 
 	$.each( codes, function( key, name ) {
-		popup += "<li><a href='#' data-translate='" + name + "' data-lang-code='" + key + "'>" + _( name ) + "</a></li>";
+		popup += "<li><a href='#' data-lang-code='" + key + "'><span data-translate='" + name + "'>" + _( name ) + "</span> (" + key.toUpperCase() + ")</a></li>";
 	} );
 
 	popup += "</ul></div>";
