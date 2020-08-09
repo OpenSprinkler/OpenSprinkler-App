@@ -605,7 +605,7 @@
    "Localization": "Nyelvválasztás",
    "Just Now": "",
    "years": "",
-   "year": "",
+   "year": "év",
    "months": "",
    "month": "hónap",
    "days": "napok",
