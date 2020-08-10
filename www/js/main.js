@@ -144,10 +144,11 @@ var isIEMobile = /IEMobile/.test( navigator.userAgent ),
 	IGNORE_SENSOR_1 = 1,
 	IGNORE_SENSOR_2 = 2,
 
-	numSequentialGroups = 4,
-	parallelGroupID = "P".charCodeAt( 0 ) - 65,
-	parallelGIDValue = 255,
-	seqGroupStatus = new Array( numSequentialGroups ).fill( 0 ),
+	NUM_SEQ_GROUPS = 4,
+	PARALLEL_GROUP_NAME = "P",
+	PARALLEL_GID_VALUE = 255,
+	MASTER_GROUP_NAME = "M",
+	MASTER_GID_VALUE = 254,
 
 	// Array to hold all notifications currently displayed within the app
 	notifications = [],
@@ -4861,18 +4862,17 @@ var showHome = ( function() {
 				},
 				done: function() {
 					page.find( "#countdown-" + station ).parent( "p" ).empty().siblings( ".station-status" ).removeClass( "on" ).addClass( "off" );
-					seqGroupStatus[ getStationSeqGroupID( station ) ]--
 				}
 			};
 		},
 		addCard = function( sid ) {
 			var station = getStationName( sid ),
 				isScheduled = getStationPID( sid ) > 0,
-				isRunning = isStationActive( sid ),
+				isRunning = isStationRunning( sid ),
 				pname = isScheduled ? pidname( getStationPID( sid ) ) : "",
 				rem = getStationRemainingRuntime( sid ),
 				qPause = isQueuePaused(),
-				gid = getStationSeqGroupID( sid ),
+				gid = getStationGIDValue( sid ),
 				hasImage = sites[ currentSite ].images[ sid ] ? true : false;
 
 			if ( getStationExecutionStatus( sid ) && rem > 0 ) {
@@ -5139,7 +5139,7 @@ var showHome = ( function() {
 					name.html( select.find( "#stn-name" ).val() );
 
 					let seqGroupName = select.find( 'span.seqgrp' ).text();
-					button.attr( "data-gid", getSeqGroupIDValueFromName( seqGroupName ));
+					button.attr( "data-gid", mapGIDNameToValue( seqGroupName ));
 
 					// Update the notes section
 					sites[ currentSite ].notes[ sid ] = select.find( "#stn-notes" ).val();
@@ -5267,24 +5267,25 @@ var showHome = ( function() {
 				return false;
 			} );
 
-			// populate sequential group selection menu
+			// // populate sequential group selection menu
 			let seqGroupSelect = select.find( 'select.seqgrp' ),
 				seqGroupLabel = select.find( 'span.seqgrp' ),
-				stationGID = getStationSeqGroupID( sid );
+				stationGID = getStationGIDValue( sid );
 
-			for ( let i = 0; i < numSequentialGroups; i++) {
+			for ( let i = 0; i <= NUM_SEQ_GROUPS; i++ ) {
+				let value = mapIndexToGIDValue( i ),
+					label = mapGIDValueToName( value ),
+					option = $(
+						"<option data-gid=''" + value + "value=''" +
+							value + "selected=''>" +  _( label ) + "</option>"
+					);
 
-				// // last group is parallel group
-				let isParallel = ( i == numSequentialGroups - 1),
-					value = ( isParallel ) ? 255 : i;
-					label = ( isParallel ) ? 'P' : String.fromCharCode( 65 + i ),
-					option = $("<option data-gid='" + value + "'value='" + value + "' selected=''>" + label + "</option>");
+					if ( value == stationGID ) {
+						option.attr( 'selected', 'selected' );
+						seqGroupLabel.text( label )
+					}
 
-				if ( option.val() == stationGID ) {
-					option.attr('selected', true );
-					seqGroupLabel.text( label );
-				}
-				seqGroupSelect.append( option );
+					seqGroupSelect.append( option );
 			}
 
 			// Display the selected tab when clicked
@@ -5481,24 +5482,6 @@ var showHome = ( function() {
 				}
 			};
 		},
-		getCardBySID = function( cardList, dataStation ) {
-			return cardList.filter( "[data-station='" + dataStation + "']" );
-		},
-		getCardFromList = function( cardList, cardIndex ) {
-			return $( cardList[ cardIndex ] );
-		},
-		getStationIDFromCard = function( card ) {
-			return card.data( "station" );
-		},
-		getGIDValueFromCard = function( card ) {
-			let cardButtons = $( card.children()[ 0 ]).children().filter( "span" ),
-				cardAttributes = $( cardButtons[ cardButtons.length - 1 ]);
-
-			return cardAttributes.attr( 'data-gid' );
-		},
-		getDividerFromCard = function( card ) {
-			return card.find( '.content-divider' );
-		},
 		compareCardsGroupView = function( a, b ) {
 
 			/* sorting order: 	master ->
@@ -5583,6 +5566,12 @@ var showHome = ( function() {
 
 				divider = getDividerFromCard( thisCard );
 
+				// display master separately
+				if (isStationMasterFromCard( thisCard ) && !isStationMasterFromCard( nextCard )) {
+					divider.show();
+					continue;
+				}
+
 				if ( getGIDValueFromCard( thisCard ) != getGIDValueFromCard( nextCard ) ) {
 					divider.show();
 				} else {
@@ -5601,8 +5590,8 @@ var showHome = ( function() {
 				divider.hide(); // remove all dividers when switching from group view
 
 				//  display divider between active and non-active stations
-				if ( isStationActive( getStationIDFromCard( thisCard ) ) &&
-						!isStationActive( getStationIDFromCard( nextCard ) ) ) {
+				if ( isStationRunning( getStationIDFromCard( thisCard ) ) &&
+						!isStationRunning( getStationIDFromCard( nextCard ) ) ) {
 							divider.show();
 				}
 			}
@@ -5652,7 +5641,7 @@ var showHome = ( function() {
 				pname = isScheduled ? pidname( getStationPID( sid ) ) : "";
 				rem = getStationRemainingRuntime( sid ),
 				qPause = isQueuePaused(),
-				cardGID = getStationSeqGroupID( sid ),
+				cardGID = getStationGIDValue( sid ),
 				hasImage = sites[ currentSite ].images[ sid ] ? true : false;
 
 				card = getCardBySID( cardList, sid );
@@ -5810,7 +5799,6 @@ var showHome = ( function() {
 			dialogOptions.station = sid;
 			dialogOptions.gid = stationGID;
 
-			// TODO: add dialogue box to unpause a station
 			if ( currentStatus ) {
 				question = _( "Do you want to stop the selected station?" );
 			} else {
@@ -5829,7 +5817,6 @@ var showHome = ( function() {
 								// Update local state until next device refresh occurs
 								setStationPID( sid, MANUAL_STATION_PID );
 								setStationRemainingRuntime( sid, duration );
-								seqGroupStatus[ stationGID ]++;
 
 								refreshStatus();
 								showerror( _( "Station has been queued" ) );
@@ -5847,7 +5834,6 @@ var showHome = ( function() {
 			areYouSure( question, getStationName( sid ), function() {
 
 				let shiftStations = popupData.shift === true ? 1 : 0;
-				seqGroupStatus[ stationGID ]--;
 
 				sendToOS( "/cm?sid=" + sid + "&ssta=" + shiftStations + "&en=0&pw=" ).done( function() {
 
@@ -5922,7 +5908,6 @@ var showHome = ( function() {
 		if ( !$.isEmptyObject( weather ) ) {
 			updateWeatherBox();
 		}
-		populateSeqGroupStatusArray();
 	}
 
 	return begin;
@@ -9812,7 +9797,7 @@ var showAbout = ( function() {
 	return begin;
 } )();
 
-// OpenSprinkler controller methods
+/* OpenSprinkler controller methods */
 
 function getStationName( sid ) {
 	return controller.stations.snames[ sid ];
@@ -9850,11 +9835,11 @@ function setStationStartTime( sid, epochStartTime ) {
 	controller.settings.ps[ sid ][ 2 ] = epochStartTime;
 }
 
-function getStationSeqGroupID( sid ) {
+function getStationGIDValue( sid ) {
 	return controller.settings.ps[ sid ][ 3 ];
 }
 
-function setStationSeqGroupID( sid, gid ) {
+function setStationGIDValue( sid, gid ) {
 	controller.settings.ps[ sid ][ 3 ] = gid;
 }
 
@@ -9883,32 +9868,91 @@ function getQueueSize() {
 	return controller.settings.nq;
 }
 
-function isStationActive( sid ) {
+function isStationRunning( sid ) {
 	return getStationExecutionStatus( sid ) > 0;
 }
 
-function populateSeqGroupStatusArray() {
-	for (let i = 0; i < getNumStations(); i++) {
-		if ( isStationActive( i ) ) {
-			seqGroupStatus[ getStationSeqGroupID( i ) ]++;
-		}
+function isStationActive( sid ) {
+	return getStationPID( sid ) > 0;
+}
+
+// card helpers
+
+getCardBySID = function( cardList, dataStation ) {
+	return cardList.filter( "[data-station='" + dataStation + "']" );
+}
+
+getCardFromList = function( cardList, cardIndex ) {
+	return $( cardList[ cardIndex ] );
+}
+
+getStationIDFromCard = function( card ) {
+	return card.data( "station" );
+}
+
+getDividerFromCard = function( card ) {
+	return card.find( '.content-divider' );
+}
+
+getGIDValueFromCard = function( card ) {
+	let cardButtons = $( card.children()[ 0 ]).children().filter( "span" ),
+		cardAttributes = $( cardButtons[ cardButtons.length - 1 ]);
+
+	return cardAttributes.attr( 'data-gid' );
+}
+
+isStationMasterFromCard = function( card ) {
+	return isStationMaster( getStationIDFromCard( card ) );
+}
+
+// sequential group helpers
+
+function mapIndexToGIDValue( index ) {
+	return ( index - NUM_SEQ_GROUPS ) ? index : PARALLEL_GID_VALUE
+}
+
+function mapGIDValueToName( value ) {
+	switch ( value ) {
+		case PARALLEL_GID_VALUE:
+			return PARALLEL_GROUP_NAME;
+		case MASTER_GID_VALUE:
+			return MASTER_GROUP_NAME;
+		default:
+			return String.fromCharCode( 65 + value );
+	}
+}
+
+function mapGIDNameToValue( groupName ) {
+	switch ( groupName ) {
+		case PARALLEL_GROUP_NAME:
+			return PARALLEL_GID_VALUE;
+		case MASTER_GROUP_NAME:
+			return MASTER_GID_VALUE;
+		default:
+			return groupName.charCodeAt( 0 ) - 65;
 	}
 }
 
 // returns true if seq group has scheduled or running stations
-function seqGroupIsActive( gid ) {
-	return seqGroupStatus[ gid ] > 1;
+function getNumActiveStationsInGroup( gid ) {
+	let activeCards = $( ".station-status.on, .station-status.wait" ).parents( ".card" );
+	let numMatchingCards = 0;
+
+	$.each( activeCards, function( index ) {
+		let activeCard = $( activeCards[ index ] );
+		if ( getGIDValueFromCard( activeCard ) == gid && !isStationMasterFromCard( activeCard ) ) {
+			numMatchingCards++;
+		}
+	} )
+
+	return numMatchingCards;
 }
 
-function getSeqGroupIDValueFromName( groupName ) {
-	let value = groupName.charCodeAt( 0 ) - 65;
-	if ( value == parallelGroupID ) {
-		return parallelGIDValue;
-	}
-	return value;
+function groupContainsStationsToShift( gid ) {
+	return getNumActiveStationsInGroup( gid ) > 1;
 }
 
-// station attribute getters
+// station attribute accessors
 
 function getStationMasterOperation( sid, masid ) {
 	let bid = sid / 8,
@@ -11135,12 +11179,13 @@ function getHWType() {
 
 // Accessory functions for jQuery Mobile
 function areYouSure( text1, text2, success, fail, options = {}) {
+
 	$( "#sure" ).popup( "destroy" ).remove();
 	success = success || function() {};
 	fail = fail || function() {};
 
 	let showShiftDialog = ( options.type == dialog.REMOVE_STATION )
-		&& seqGroupIsActive( options.gid ) && isStationSequential( options.station );
+		&& groupContainsStationsToShift( options.gid ) && isStationSequential( options.station );
 
 	var popup = $(
 		"<div data-role='popup' data-theme='a' id='sure'>" +
