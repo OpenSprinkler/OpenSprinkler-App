@@ -361,6 +361,8 @@ $( document )
 	storage.get( "showDisabled", function( data ) {
 		if ( data.showDisabled && data.showDisabled === "true" ) {
 			$( newpage ).addClass( "show-hidden" ).find( ".station-hidden" ).show();
+		} else {
+			$( newpage ).removeClass( "show-hidden" ).find( ".station-hidden" ).hide();
 		}
 	} );
 } )
