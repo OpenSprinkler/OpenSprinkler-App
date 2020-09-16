@@ -1140,3 +1140,18 @@ div.running-text{
 #footer-menu {
 	bottom: calc(env(safe-area-inset-bottom) + 10%) !important;
 }
+
+/* temporary fix for Start Time input box in edit program menu*/
+button[id^="start_1-"] {
+	margin-left: 0em;
+	margin-right: 0em;
+}
+
+/* date range styling */
+.dr-input {
+	margin-left: 5px;
+	margin-right: 5px;
+}
+
+
+
