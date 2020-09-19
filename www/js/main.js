@@ -179,7 +179,7 @@ if ( window.MSApp ) {
 $( document )
 .one( "deviceready", function() {
 	/** Replace window.open with InAppBrowser if available */
-	if (window.cordova && window.cordova.InAppBrowser) {
+	if ( window.cordova && window.cordova.InAppBrowser ) {
 		window.open = window.cordova.InAppBrowser.open;
 	}
 
