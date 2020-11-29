@@ -12430,7 +12430,7 @@ function humaniseDuration( base, relative ) {
 
 function dateToString( date, toUTC, shorten ) {
 	var dayNames = [ _( "Sun" ), _( "Mon" ), _( "Tue" ),
-					_( "Wed" ), _( "Thr" ), _( "Fri" ), _( "Sat" ) ],
+					_( "Wed" ), _( "Thu" ), _( "Fri" ), _( "Sat" ) ],
 		monthNames = [ _( "Jan" ), _( "Feb" ), _( "Mar" ), _( "Apr" ), _( "May" ), _( "Jun" ),
 					_( "Jul" ), _( "Aug" ), _( "Sep" ), _( "Oct" ), _( "Nov" ), _( "Dec" ) ];
 
