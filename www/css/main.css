@@ -1039,6 +1039,35 @@ div.running-text{
     text-overflow:ellipsis;
     text-align: center;
 }
+#weather .rain-delay {
+	border-radius: 5px;
+	font-size: 12px;
+	padding-right: 4px;
+    padding-bottom: 2px;
+	max-width: 80%;
+    margin: 0 auto;
+}
+#weather .rain-delay .icon {
+	display: inline-block;
+    width: 16px;
+    height: 16px;
+	margin-right: 8px;
+}
+#weather .rain-delay .time {
+	padding: 0 5px;
+    border-radius: 1em;
+	display: block;
+}
+#weather .rain-delay .icon::after {
+	content: "";
+	position: absolute;
+	display: block;
+	width: 22px;
+	height: 22px;
+    background-position: center center;
+    background-repeat: no-repeat;
+	border-radius: 1em;
+}
 .noweather > .ui-block-a {
     width: 0;
 }

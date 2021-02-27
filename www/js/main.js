@@ -2821,11 +2821,23 @@ function checkURLandUpdateWeather() {
 
 function updateWeatherBox() {
 	$( "#weather" )
-		.html( "<div title='" + weather.description + "' class='wicon'><img src='https://openweathermap.org/img/w/" + weather.icon + ".png'></div>" +
+		.html(
+			( controller.settings.rd ? "<div class='rain-delay red'><span class='icon ui-icon-alert'></span>Rain Delay<span class='time'>" + dateToString(new Date(controller.settings.rdst * 1000), undefined, true) + "</span></div>" : "" ) +
+			"<div title='" + weather.description + "' class='wicon'><img src='https://openweathermap.org/img/w/" + weather.icon + ".png'></div>" +
 			"<div class='inline tight'>" + formatTemp( weather.temp ) + "</div><br><div class='inline location tight'>" + _( "Current Weather" ) + "</div>" +
 			( typeof weather.alert === "object" ? "<div><button class='tight help-icon btn-no-border ui-btn ui-icon-alert ui-btn-icon-notext ui-corner-all'></button>" + weather.alert.type + "</div>" : "" ) )
-		.off( "click" ).on( "click", function() {
-			changePage( "#forecast" );
+		.off( "click" ).on( "click", function(event) {
+			var target = $(event.target);
+			if (target.hasClass('rain-delay') || target.parents('.rain-delay').length) {
+				areYouSure( _( "Do you want to turn off rain delay?" ), "", function() {
+					showLoading( "#weather" );
+					sendToOS( "/cv?pw=&rd=0" ).done( function() {
+						updateController(updateWeather);
+					} );
+				} );
+			} else {
+				changePage( "#forecast" );
+			}
 			return false;
 		} )
 		.parents( ".info-card" ).removeClass( "noweather" );
@@ -6020,17 +6032,18 @@ function convertRemoteToExtender( data ) {
 }
 
 // Current status related functions
-function refreshStatus() {
+function refreshStatus(callback) {
 	if ( !isControllerConnected() ) {
 		return;
 	}
 
+	callback = callback || function() {};
 	var finish = function() {
 
 		// Notify the page container that the data has refreshed
 		$( "html" ).trigger( "datarefresh" );
 		checkStatus();
-		return;
+		callback();
 	};
 
 	if ( checkOSVersion( 216 ) ) {
@@ -9258,7 +9271,7 @@ function raindelay( delay ) {
 	sendToOS( "/cv?pw=&rd=" + ( delay / 3600 ) ).done( function() {
 		$.mobile.loading( "hide" );
 		showLoading( "#footer-running" );
-		refreshStatus();
+		refreshStatus(updateWeather);
 		showerror( _( "Rain delay has been successfully set" ) );
 	} );
 	return false;
