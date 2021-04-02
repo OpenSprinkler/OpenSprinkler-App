@@ -79,7 +79,7 @@
         <config-file target="app/src/main/AndroidManifest.xml" overwrite="true" parent="/manifest/application">
             <application android:usesCleartextTraffic="true" />
         </config-file>
-        <preference name="android-minSdkVersion" value="19" />
+        <preference name="android-minSdkVersion" value="22" />
         <preference name="android-targetSdkVersion" value="28" />
         <preference name="android-theme" value="@android:style/Theme.Holo.Light.NoActionBar" />
         <splash density="mdpi" src="res/android/screens/mdpi.9.png" />
