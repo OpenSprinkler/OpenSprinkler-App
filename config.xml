@@ -26,6 +26,7 @@
     <preference name="KeyboardDisplayRequiresUserAction" value="false" />
     <preference name="loadUrlTimeoutValue" value="700000" />
     <platform name="ios">
+		<preference name="scheme" value="ionic" />
         <config-file target="*-Info.plist" overwrite="true" parent="NSLocationAlwaysUsageDescription">
             <string>Your current location will be used to configure OpenSprinkler.</string>
         </config-file>
