@@ -20,7 +20,6 @@
     <preference name="WindowSize" value="900x760" />
     <preference name="EnableWebGL" value="true" />
     <preference name="AutoHideSplashScreen" value="false" />
-    <preference name="SplashScreenDelay" value="10000" />
     <preference name="SplashScreen" value="splash" />
     <preference name="ShowSplashScreenSpinner" value="false" />
     <preference name="FadeSplashScreen" value="false" />
