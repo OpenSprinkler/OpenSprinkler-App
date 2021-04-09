@@ -319,7 +319,7 @@ $( document )
 		if ( $( hash ).length === 0 ) {
 			showHome( data.options.firstLoad );
 		} else {
-			$( hash ).one( "pageshow", refreshStatus );
+			$( hash ).one( "pageshow", () => refreshStatus() );
 		}
 	}
 } )
@@ -382,7 +382,7 @@ $( document )
 	if ( isControllerConnected() && newpage !== "#site-control" && newpage !== "#start" && newpage !== "#loadingPage" ) {
 
 		// Update the controller status every 5 seconds and the program and station data every 30 seconds
-		var refreshStatusInterval = setInterval( refreshStatus, 5000 ),
+		var refreshStatusInterval = setInterval( () => refreshStatus(), 5000 ),
 			refreshDataInterval;
 
 		if ( !checkOSVersion( 216 ) ) {
