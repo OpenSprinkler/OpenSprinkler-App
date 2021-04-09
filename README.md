@@ -37,7 +37,7 @@ A mobile interface for the OpenSprinkler irrigation device. Designed to allow ma
 
 + The application is written in Javascript and HTML/CSS. The application runs completely within the user's browser (or webview) and communicates directly with the OpenSprinkler.
 
-+ Language translation is crowd sourced using Get Localization. To contribute to any language please visit our Get Localization [page](http://getlocalization.com/OpenSprinkler).
++ Language translation is crowd sourced using Transifex. To contribute to any language please visit our Transifex [page](https://www.transifex.com/albahra/opensprinkler).
 
 + For current discussion about the project please refer to the [forums](https://opensprinkler.com/forums/forum/opensprinkler-mobile-app/).
 
