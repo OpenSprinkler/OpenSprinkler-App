@@ -4968,7 +4968,7 @@ var showHome = ( function() {
 				( hasAR ? ( "data-ar='" + ( ( controller.stations.act_relay[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) + "' " ) : "" ) +
 				( hasSD ? ( "data-sd='" + ( ( controller.stations.stn_dis[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) + "' " ) : "" ) +
 				( hasSequential ? ( "data-us='" + ( ( controller.stations.stn_seq[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) + "' " ) : "" ) +
-				( hasGroup ? ( "data-grp='" + controller.stations.stn_grp[i] + "' " ) : "" ) +
+				( hasGroup ? ( "data-grp='" + controller.stations.stn_grp[ i ] + "' " ) : "" ) +
 				( hasSpecial ? ( "data-hs='" + ( ( controller.stations.stn_spe[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) + "' " ) : "" ) +
 				"></span>";
 
@@ -5444,8 +5444,8 @@ var showHome = ( function() {
 						sequential[ "q" + bid ] = ( sequential[ "q" + bid ] ) + ( attrib.data( "us" ) << s );
 					}
 
-					if ( hasGroup) {
-						group[ "g" + (bid*8 + s) ] = attrib.data( "grp" );
+					if ( hasGroup ) {
+						group[ "g" + ( bid * 8 + s ) ] = attrib.data( "grp" );
 					}
 
 					if ( hasSpecial ) {
@@ -5644,7 +5644,7 @@ var showHome = ( function() {
 						ar: hasAR ? ( ( controller.stations.act_relay[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) : undefined,
 						sd: hasSD ? ( ( controller.stations.stn_dis[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) : undefined,
 						us: hasSequential ? ( ( controller.stations.stn_seq[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) : undefined,
-						grp: hasGroup ? controller.stations.stn_grp[i] : undefined,
+						grp: hasGroup ? controller.stations.stn_grp[ i ] : undefined,
 						hs: hasSpecial ? ( ( controller.stations.stn_spe[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) : undefined
 					} );
 
@@ -6791,7 +6791,7 @@ var getPreview = ( function() {
 			// Station qid for FW 2.1.6+
 			qidArray = new Array( nstations ),
 			lastStopTime = 0,
-			lastSeqStopTime = new Array(16),
+			lastSeqStopTime = new Array( 16 ),
 			busy, matchFound, prog, sid, qid, q, sqi, bid, bid2, s, s2;
 
 		for ( sid = 0; sid < nstations; sid++ ) {
@@ -6846,7 +6846,7 @@ var getPreview = ( function() {
 												dur: waterTime,
 												sid: sid,
 												pid: pid + 1,
-												gid: controller.stations.stn_grp ? controller.stations.stn_grp[sid] : 0,
+												gid: controller.stations.stn_grp ? controller.stations.stn_grp[ sid ] : 0,
 												pl: 1
 											} );
 										}
@@ -6869,11 +6869,11 @@ var getPreview = ( function() {
 			}
 			if ( matchFound ) {
 				var acctime = simminutes * 60,
-					seqAcctime = new Array(lastSeqStopTime.length);
+					seqAcctime = new Array( lastSeqStopTime.length );
 
 				if ( is211 ) {
-					for (var i = 0; i < seqAcctime.length; i++) {
-						seqAcctime[i] = Math.max(acctime, lastSeqStopTime[i] + controller.options.sdt);
+					for ( var i = 0; i < seqAcctime.length; i++ ) {
+						seqAcctime[ i ] = Math.max( acctime, lastSeqStopTime[ i ] + controller.options.sdt );
 					}
 
 					if ( is216 ) {
@@ -6890,9 +6890,9 @@ var getPreview = ( function() {
 							bid2 = sid >> 3;
 							s2 = sid & 0x07;
 							if ( controller.stations.stn_seq[ bid2 ] & ( 1 << s2 ) ) {
-								q.st = seqAcctime[q.gid];
-								seqAcctime[q.gid] += q.dur;
-								seqAcctime[q.gid] += controller.options.sdt;
+								q.st = seqAcctime[ q.gid ];
+								seqAcctime[ q.gid ] += q.dur;
+								seqAcctime[ q.gid ] += controller.options.sdt;
 							} else {
 								q.st = acctime;
 								acctime++;
@@ -6907,8 +6907,8 @@ var getPreview = ( function() {
 								continue;
 							}
 							if ( controller.stations.stn_seq[ bid2 ] & ( 1 << s2 ) ) {
-								startArray[ sid ] = seqAcctime[0];seqAcctime[0] += endArray[ sid ];
-								endArray[ sid ] = seqAcctime[0];seqAcctime[0] += controller.options.sdt;
+								startArray[ sid ] = seqAcctime[ 0 ];seqAcctime[ 0 ] += endArray[ sid ];
+								endArray[ sid ] = seqAcctime[ 0 ];seqAcctime[ 0 ] += controller.options.sdt;
 								plArray[ sid ] = 1;
 							} else {
 								startArray[ sid ] = acctime;
@@ -6992,7 +6992,7 @@ var getPreview = ( function() {
 				}
 
 				// Lastly, calculate lastSeqStopTime
-				for (var i = 0; i < lastSeqStopTime.length; i++) lastSeqStopTime[i] = 0;
+				for ( var d = 0; d < lastSeqStopTime.length; d++ ) { lastSeqStopTime[ d ] = 0; }
 				for ( qid = 0; qid < rtQueue.length; qid++ ) {
 					q = rtQueue[ qid ];
 					sid = q.sid;
@@ -7000,8 +7000,8 @@ var getPreview = ( function() {
 					s2 = sid & 0x07;
 					var sst = q.st + q.dur;
 					if ( controller.stations.stn_seq[ bid2 ] & ( 1 << s2 ) ) {
-						if ( sst > lastSeqStopTime[q.gid] ) {
-							lastSeqStopTime[q.gid] = sst;
+						if ( sst > lastSeqStopTime[ q.gid ] ) {
+							lastSeqStopTime[ q.gid ] = sst;
 						}
 					}
 				}
@@ -7010,7 +7010,7 @@ var getPreview = ( function() {
 				// Handle firmwares prior to 2.1.6
 				if ( busy ) {
 					if ( is211 ) {
-						lastSeqStopTime[0] = runSched( simminutes * 60, startArray, programArray, endArray, plArray, simt );
+						lastSeqStopTime[ 0 ] = runSched( simminutes * 60, startArray, programArray, endArray, plArray, simt );
 						simminutes++;
 						for ( sid = 0; sid < controller.settings.nbrd * 8; sid++ ) {
 							if ( programArray[ sid ] > 0 && simminutes * 60 >= endArray[ sid ] ) {
