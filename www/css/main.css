@@ -420,6 +420,9 @@ body, input, select, textarea, button, .ui-btn {
     -ms-content-zooming:none;
     -o-user-select:none;
     user-select:none;
+    -webkit-column-break-inside: avoid;
+    page-break-inside: avoid;
+    break-inside: avoid-column;
 }
 #header, #footer {
     display: none;
@@ -817,6 +820,14 @@ body, input, select, textarea, button, .ui-btn {
 }
 #os-stations-list img, #os-running-stations img {
 	display: none;
+}
+@media (min-width: 1032px) {
+    #os-stations-list, #os-running-stations {
+        column-count: 2;
+        column-gap: 10px;
+        -webkit-column-count: 2;
+        -moz-column-count: 2;
+    }
 }
 .has-images .card img {
     height: 60px;
