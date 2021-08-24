@@ -9150,7 +9150,7 @@ function submitProgram21( id, ignoreWarning ) {
 		en = ( $( "#en-" + id ).is( ":checked" ) ) ? 1 : 0,
 		weather = ( $( "#uwt-" + id ).is( ":checked" ) ) ? 1 : 0,
 		j = 0,
-		minIntervalDays = checkOSVersion(2199) ? 1 : 2,
+		minIntervalDays = checkOSVersion( 2199 ) ? 1 : 2,
 		daysin, i, name, url;
 
 	// Set enable/disable bit for program
