@@ -9150,6 +9150,7 @@ function submitProgram21( id, ignoreWarning ) {
 		en = ( $( "#en-" + id ).is( ":checked" ) ) ? 1 : 0,
 		weather = ( $( "#uwt-" + id ).is( ":checked" ) ) ? 1 : 0,
 		j = 0,
+		minIntervalDays = checkOSVersion(2199) ? 1 : 2,
 		daysin, i, name, url;
 
 	// Set enable/disable bit for program
@@ -9170,7 +9171,7 @@ function submitProgram21( id, ignoreWarning ) {
 		j |= ( 3 << 4 );
 		days[ 1 ] = parseInt( $( "#every-" + id ).val(), 10 );
 
-		if ( !( days[ 1 ] >= 2 && days[ 1 ] <= 128 ) ) {
+		if ( !( days[ 1 ] >= minIntervalDays && days[ 1 ] <= 128 ) ) {
 			showerror( _( "Error: Interval days must be between 2 and 128." ) );
 			return;
 		}
