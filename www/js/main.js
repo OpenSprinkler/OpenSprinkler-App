@@ -9172,7 +9172,7 @@ function submitProgram21( id, ignoreWarning ) {
 		days[ 1 ] = parseInt( $( "#every-" + id ).val(), 10 );
 
 		if ( !( days[ 1 ] >= minIntervalDays && days[ 1 ] <= 128 ) ) {
-			showerror( _( "Error: Interval days must be between 2 and 128." ) );
+			showerror( _( "Error: Interval days must be between " + minIntervalDays + " and 128." ) );
 			return;
 		}
 
