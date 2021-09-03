@@ -10791,7 +10791,11 @@ function checkOSVersion( check ) {
 
 	// If check is 4 digits then we need to include the minor version number as well
 	if ( check >= 1000 ) {
-		version = version * 10 + controller.options.fwm;
+		if (isNaN(controller.options.fwm)) {
+			return false;
+		} else {
+			version = version * 10 + controller.options.fwm;
+		}
 	}
 
 	if ( isOSPi() ) {
