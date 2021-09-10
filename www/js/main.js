@@ -5218,8 +5218,8 @@ var showHome = ( function() {
 			// Setup two tabs for station configuration (Basic / Advanced) when applicable
 			if ( hasSpecial ) {
 				select += "<ul class='tabs'>" +
-								"<li class='current' data-tab='tab-basic'>Basic</li>" +
-								"<li data-tab='tab-advanced'>Advanced</li>" +
+								"<li class='current' data-tab='tab-basic'>" + _( "Basic" ) + "</li>" +
+								"<li data-tab='tab-advanced'>" + _( "Advanced" ) + "</li>" +
 							"</ul>";
 			}
 
