@@ -4092,7 +4092,7 @@ function showOptions( expandItem ) {
 					"<button data-helptext='" +
 						_( "Select which events to send to IFTTT for use in recipes." ) +
 						"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
-				"</label><button data-mini='true' id='o49' value='" + controller.options.ife + "'>Configure Events</button></div>";
+				"</label><button data-mini='true' id='o49' value='" + controller.options.ife + "'>" + _( "Configure Events" ) + "</button></div>";
 		}
 
 		if ( typeof controller.settings.mqtt !== "undefined" ) {
@@ -4721,7 +4721,7 @@ function showOptions( expandItem ) {
 					"<h1>" + _( "MQTT Settings" ) + "</h1>" +
 				"</div>" +
 				"<div class='ui-content'>" +
-					"<label for='enable'>Enable</label>" +
+					"<label for='enable'>" + _( "Enable" ) + "</label>" +
 					"<input class='needsclick mqtt_enable' data-mini='true' data-iconpos='right' id='enable' type='checkbox' " +
 						( options.en ? "checked='checked'" : "" ) + ">" +
 					"<div class='ui-body'>" +
@@ -5754,7 +5754,7 @@ var showHome = ( function() {
 						incrementalUpdate: false,
 						maximum: 65535,
 						seconds: sites[ currentSite ].lastRunTime[ station ] > 0 ? sites[ currentSite ].lastRunTime[ station ] : 0,
-						helptext: _( "Enter a duration to manually run " + name ),
+						helptext: _( "Enter a duration to manually run " ) + name,
 						callback: function( duration ) {
 							sendToOS( "/cm?sid=" + station + "&en=1&t=" + duration + "&pw=", "json" ).done( function() {
 
