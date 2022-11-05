@@ -7302,11 +7302,11 @@ var getPreview = ( function() {
 				if(dr[1]<=dr[2]) {
 					if(currdate<dr[1]||currdate>dr[2]) return 0;
 				} else {
-					if(currdate>dr[1] && currdate<dr[0]) return 0;
+					if(currdate>dr[2] && currdate<dr[1]) return 0;
 				}
 			}
 		}
-		
+
 		if ( type === 3 ) {
 
 			// Interval program
