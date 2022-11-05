@@ -7293,6 +7293,20 @@ var getPreview = ( function() {
 			type = ( prog[ 0 ] >> 4 ) & 0x03,
 			date = new Date( simt );
 
+		let dt = date.getUTCDate();
+		let mt = date.getUTCMonth()+1;
+		let dr = prog[ 6 ];
+		if(typeof dr ==='object') { // daterange is available
+			if(dr[0]) { // check date range if enabled
+				let currdate = (mt<<5)+dt;
+				if(dr[1]<=dr[2]) {
+					if(currdate<dr[1]||currdate>dr[2]) return 0;
+				} else {
+					if(currdate>dr[1] && currdate<dr[0]) return 0;
+				}
+			}
+		}
+		
 		if ( type === 3 ) {
 
 			// Interval program
@@ -7314,7 +7328,6 @@ var getPreview = ( function() {
 		}
 
 		// Odd/Even restriction handling
-		var dt = date.getUTCDate();
 
 		if ( oddeven === 2 ) {
 			if ( ( dt % 2 ) !== 0 ) {
@@ -8808,6 +8821,10 @@ function makeProgram21( n, isCopy ) {
 	list += "<label for='en-" + id + "'><input data-mini='true' type='checkbox' " +
 		( ( program.en || n === "new" ) ? "checked='checked'" : "" ) + " name='en-" + id + "' id='en-" + id + "'>" + _( "Enabled" ) + "</label>";
 
+	// Program weather control flag
+	list += "<label for='uwt-" + id + "'><input data-mini='true' type='checkbox' " +
+		( ( program.weather ) ? "checked='checked'" : "" ) + " name='uwt-" + id + "' id='uwt-" + id + "'>" + _( "Use Weather Adjustment" ) + "</label>";
+
 	if ( Supported.dateRange() ) {
 		let from = Program.getDateRangeStart( id ),
 			to 	 = Program.getDateRangeEnd( id );
@@ -8815,19 +8832,19 @@ function makeProgram21( n, isCopy ) {
 		list += "<label for='use-dr-" + id + "'>" +
 					"<input data-mini='true' type='checkbox' " +
 					( ( Program.isDateRangeEnabled( id ) ) ? "checked='checked'" : "" ) + " name='use-dr-" + id + "' id='use-dr-" + id + "'>" +
-					 _( "Use Date Range" ) +
+					 _( "Enable Date Range" ) +
 				"</label>";
 
 		list += "<div id='date-range-options-" + id + "'" + ( ( Program.isDateRangeEnabled( id ) ) ? "" : "style='display:none'" ) + ">";
 		list += 	"<div class='ui-grid-a' style=''>" +
 						"<div class='ui-block-a drfrom'>" +
-							"<label class='center' for='from-dr-" + id + "'>" + _( "From" ) + "</label>" +
+							"<label class='center' for='from-dr-" + id + "'>" + _( "From (mm/dd)" ) + "</label>" +
 							"<div class='dr-input'>" +
 								"<input type='text' placeholder='MM/DD' id='from-dr-" + id + "' value=" + decodeDate( from ) + "></input>" +
 							"</div>" +
 						"</div>" +
 						"<div class='ui-block-b drto'>" +
-							"<label class='center' for='to-dr-" + id + "'>" + _( "To" ) + "</label>" +
+							"<label class='center' for='to-dr-" + id + "'>" + _( "To (mm/dd)" ) + "</label>" +
 							"<div class='dr-input'>" +
 								"<input type='text' placeholder='MM/DD' id='to-dr-" + id + "' value=" + decodeDate( to ) + "></input>" +
 							"</div>" +
@@ -8835,10 +8852,6 @@ function makeProgram21( n, isCopy ) {
 					"</div>" +
 				"</div>";
 	}
-
-	// Program weather control flag
-	list += "<label for='uwt-" + id + "'><input data-mini='true' type='checkbox' " +
-		( ( program.weather ) ? "checked='checked'" : "" ) + " name='uwt-" + id + "' id='uwt-" + id + "'>" + _( "Use Weather Adjustment" ) + "</label>";
 
 	// Show start time menu
 	list += "<label class='center' for='start_1-" + id + "'>" + _( "Start Time" ) + "</label><button class='timefield' data-mini='true' id='start_1-" + id +
@@ -9308,7 +9321,6 @@ function submitProgram21( id, ignoreWarning ) {
 
 	name = $( "#name-" + id ).val();
 
-	url = "&v=" + JSON.stringify( program ) + "&name=" + encodeURIComponent( name );
 	daterange = "";
 
 	// set date range parameters
@@ -9322,9 +9334,12 @@ function submitProgram21( id, ignoreWarning ) {
 			showerror( _( "Error: date range is malformed" ) );
 			return;
 		} else {
-			daterange = "&endr=" + ( enableDateRange ? 1 : 0 ) + "&from=" + from + "&to=" + to;
+			daterange = "&endr=" + ( enableDateRange ? 1 : 0 ) + "&from=" + encodeDate(from) + "&to=" + encodeDate(to);
+			program[ 0 ] |= (enableDateRange ? (1<<7) : 0);
 		}
 	}
+
+	url = "&v=" + JSON.stringify( program ) + "&name=" + encodeURIComponent( name );
 
 	if ( stationSelected === 0 ) {
 		console.log("hello?");
@@ -13055,10 +13070,11 @@ encodeDate = function( dateString ) {
 	if ( dateValues === null ) {
 		return -1;
 	}
-	let dateToEncode = dateValues[0];
-	let month = parseInt( dateToEncode.substr( 0, 2 ) ),
-		day = parseInt( dateToEncode.substr( 3, 5 ) );
-	return month * (1 << 5) + day;
+	let dateToEncode = dateValues[0].split('/',2);
+
+	let month = parseInt( dateToEncode[0] ),
+		day = parseInt( dateToEncode[1] );
+	return (month << 5) + day;
 };
 
 const minEncodedDate = encodeDate( "01/01" ),
@@ -13068,8 +13084,8 @@ decodeDate = function( dateValue ) {
 	let dateString = [],
 		monthValue, dayValue;
 	if ( minEncodedDate <= dateValue && dateValue <= maxEncodedDate ) {
-		monthValue = dateValue / ( 1 << 5 ) >> 0;
-		dayValue = dateValue % ( 1 << 5 );
+		monthValue = dateValue >> 5;
+		dayValue = dateValue % 32;
 		dateString.push(
 			monthValue / 10 >> 0,
 			monthValue % 10,
