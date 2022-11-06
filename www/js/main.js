@@ -3346,21 +3346,23 @@ function showPause() {
 	if ( StationQueue.isPaused() ) {
 		sendToOS( "/pq?pw=" );
 	} else {
-		let activeStation = StationQueue.isActive();
-		if ( activeStation != -1 ) {
+		//let activeStation = StationQueue.isActive();
+		//if ( activeStation >= -1 )
+		{
 			showDurationBox( {
-				title: "Pause Stations",
+				title: "Pause Station Runs",
 				incrementalUpdate: false,
 				maximum: 65535,
 				callback: function( duration ) {
 					sendToOS( "/pq?dur=" + duration + "&pw=" );
 				},
 			} );
-		} else {
+		}
+		/*else {
 			showerror(
 				_( "No stations currently running" )
 			);
-		}
+		}*/
 	}
 }
 
@@ -4769,7 +4771,7 @@ var showHomeMenu = ( function() {
 				"<li><a href='#raindelay'>" + _( "Change Rain Delay" ) + "</a></li>" +
 				( Supported.pausing() ?
 					( StationQueue.isPaused() ? "<li><a href='#globalpause'>" + _( "Resume Stations" ) + "</a></li>"
-						: ( StationQueue.isActive() > -1 ? "<li><a href='#globalpause'>" + _( "Pause Stations" ) + "</a></li>" : ""))
+						: ( StationQueue.isActive() >= -1 ? "<li><a href='#globalpause'>" + _( "Pause Station Runs" ) + "</a></li>" : ""))
 				 	: "") +
 				"<li><a href='#runonce'>" + _( "Run-Once Program" ) + "</a></li>" +
 				"<li><a href='#programs'>" + _( "Edit Programs" ) + "</a></li>" +
@@ -11013,7 +11015,7 @@ function areYouSure( text1, text2, success, fail, options = {}) {
 			"<p class='sure-2 center'>" + text2 + "</p>" +
 			"<a class='sure-do ui-btn ui-btn-b ui-corner-all ui-shadow' href='#'>" + _( "Yes" ) + "</a>" +
 			"<a class='sure-dont ui-btn ui-corner-all ui-shadow' href='#'>" + _( "No" ) + "</a>" +
-			( showShiftDialog ? "<label><input id='shift-sta' type='checkbox'>Update Stations in Group</label>" : "") +
+			( showShiftDialog ? "<label><input id='shift-sta' type='checkbox'>Move up remaining stations in the same sequential group?</label>" : "") +
 		"</div>"
 	);
 
