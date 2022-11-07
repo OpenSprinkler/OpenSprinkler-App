@@ -3344,7 +3344,9 @@ function showRainDelay() {
 
 function showPause() {
 	if ( StationQueue.isPaused() ) {
-		sendToOS( "/pq?pw=" );
+		areYouSure( _( "Do you want to resume program operation?" ), "", function() {
+			sendToOS( "/pq?pw=" );
+		});
 	} else {
 		//let activeStation = StationQueue.isActive();
 		//if ( activeStation >= -1 )
@@ -3863,7 +3865,7 @@ function showOptions( expandItem ) {
 
 	if ( Supported.groups() ) {
 		list += "<label for='groupView'><input data-mini='true' id='groupView' type='checkbox' " + ( groupView ? "checked='checked'" : "" ) + ">" +
-		_( "Show Sequential Groups" ) + "</label>";
+		_( "Order Stations by Sequential Groups" ) + "</label>";
 	}
 
 	list += "</fieldset><fieldset data-role='collapsible'" +
@@ -4770,7 +4772,7 @@ var showHomeMenu = ( function() {
 				"<li data-role='list-divider'>" + _( "Programs and Settings" ) + "</li>" +
 				"<li><a href='#raindelay'>" + _( "Change Rain Delay" ) + "</a></li>" +
 				( Supported.pausing() ?
-					( StationQueue.isPaused() ? "<li><a href='#globalpause'>" + _( "Resume Stations" ) + "</a></li>"
+					( StationQueue.isPaused() ? "<li><a href='#globalpause'>" + _( "Resume Station Runs" ) + "</a></li>"
 						: ( StationQueue.isActive() >= -1 ? "<li><a href='#globalpause'>" + _( "Pause Station Runs" ) + "</a></li>" : ""))
 				 	: "") +
 				"<li><a href='#runonce'>" + _( "Run-Once Program" ) + "</a></li>" +
@@ -6193,6 +6195,19 @@ function checkStatus() {
 				showLoading( "#footer-running" );
 				sendToOS( "/cv?pw=&en=1" ).done( function() {
 					updateController();
+				} );
+			} );
+		} );
+		return;
+	}
+
+	// Handle queue paused
+	if ( controller.settings.pq ) {
+		changeStatus( 0, "yellow", "<p class='running-text center pointer'>" + _( "Programs Paused" ) + "</p>", function() {
+			areYouSure( _( "Do you want to resume program operation?" ), "", function() {
+				showLoading( "#footer-running" );
+				sendToOS( "/pq?pw=&dur=0" ).done( function() {
+					setTimeout(refreshStatus, 1000);
 				} );
 			} );
 		} );
