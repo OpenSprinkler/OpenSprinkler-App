@@ -6333,21 +6333,47 @@ function checkStatus() {
 }
 
 function calculateTotalRunningTime( runTimes ) {
-	var sequential = 0,
-		parallel = 0;
-
-	$.each( controller.stations.snames, function( i ) {
-		var run = runTimes[ i ];
-		if ( Station.isSequential( i ) ) {
-			sequential += run;
-		} else {
-			if ( run > parallel ) {
-				parallel = run;
+	let sdt = controller.options.sdt;
+	if(Supported.groups()) {
+		let sequential = new Array(NUM_SEQ_GROUPS), sequential_max = 0, parallel = 0;
+		for(let d=0;d<NUM_SEQ_GROUPS;d++)	sequential[d] = 0;
+		$.each( controller.stations.snames, function( i ) {
+			var run = runTimes[ i ];
+			let gid = Station.getGIDValue(i);
+			if(run>0) {
+				if ( gid!=PARALLEL_GID_VALUE ) {
+					sequential[gid] += (run + sdt);
+				} else {
+					if ( run > parallel ) {
+						parallel = run;
+					}
+				}
 			}
+		} );
+		for(let d=0;d<NUM_SEQ_GROUPS;d++)	{
+			if(sequential[d]>sdt) sequential[d]-=sdt;
+			if(sequential[d]>sequential_max) sequential_max=sequential[d];
 		}
-	} );
-
-	return Math.max( sequential, parallel );
+		return Math.max(sequential_max, parallel);
+	} else {
+		var sequential = 0,
+		parallel = 0;
+		$.each( controller.stations.snames, function( i ) {
+			var run = runTimes[ i ];
+			if(run>0) {
+				if ( Station.isSequential( i ) ) {
+					sequential += (run + sdt);
+				} else {
+					if ( run > parallel ) {
+						parallel = run;
+					}
+				}
+			}
+		} );
+		if(sequential>sdt) sequential-=sdt; // discount the last sdt
+		console.log(Math.max( sequential, parallel ));
+		return Math.max( sequential, parallel );
+	}
 }
 
 // Handle timer update on the home page and status bar
@@ -9398,12 +9424,15 @@ function submitProgram21( id, ignoreWarning ) {
 		return;
 	}
 
-	if ( !ignoreWarning && $( "#stype_repeat-" + id ).is( ":checked" ) && start[ 1 ] > 0 && calculateTotalRunningTime( runTimes ) > start[ 2 ] * 60 ) {
-		areYouSure( _( "Warning: The repeat interval is less than the program run time." ), _( "Do you want to continue?" ), function() {
-			submitProgram21( id, true );
-		} );
-
-		return;
+	if ( !ignoreWarning && $( "#stype_repeat-" + id ).is( ":checked" ) && start[ 1 ] > 0 ) {
+		let totalruntime = calculateTotalRunningTime( runTimes );
+		let repeatinterval = start[ 2 ] * 60;
+		if(totalruntime > repeatinterval ) {
+			areYouSure( _( "Warning: The repeat interval ("+repeatinterval+" sec) is less than the program run time ("+totalruntime+" sec)." ), _( "Do you want to continue?" ), function() {
+				submitProgram21( id, true );
+			} );
+			return;
+		}
 	}
 
 	// If the interval is an even number and a restriction is set, notify user of possible conflict
