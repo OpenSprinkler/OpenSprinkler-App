@@ -6203,7 +6203,7 @@ function checkStatus() {
 
 	// Handle queue paused
 	if ( controller.settings.pq ) {
-		changeStatus( 0, "yellow", "<p class='running-text center pointer'>" + _( "Programs Paused" ) + "</p>", function() {
+		changeStatus( 0, "yellow", "<p class='running-text center pointer'>" + _( "Station Runs are Paused" ) + "</p>", function() {
 			areYouSure( _( "Do you want to resume program operation?" ), "", function() {
 				showLoading( "#footer-running" );
 				sendToOS( "/pq?pw=&dur=0" ).done( function() {
@@ -6844,6 +6844,7 @@ var getPreview = ( function() {
 			qidArray = new Array( nstations ),
 			lastStopTime = 0,
 			lastSeqStopTime = 0,
+			lastSeqStopTimes = new Array(NUM_SEQ_GROUPS), // use this array if seq group is available
 			busy, matchFound, prog, sid, qid, q, sqi, bid, bid2, s, s2;
 
 		for ( sid = 0; sid < nstations; sid++ ) {
@@ -6853,6 +6854,7 @@ var getPreview = ( function() {
 			plArray[ sid ] = 0;
 			qidArray[ sid ] = 0xFF;
 		}
+		for ( var d = 0; d < NUM_SEQ_GROUPS; d++ ) { lastSeqStopTimes[ d ] = 0; }
 
 		do {
 			busy = 0;
@@ -6881,6 +6883,8 @@ var getPreview = ( function() {
 								var waterTime = 0;
 
 								// Use weather scaling bit on
+								// * if options.uwt >0: using an automatic adjustment method, only applies to today
+								// * if options.uwt==0: using fixed manual adjustment, does not depend on tday
 								if ( prog[ 0 ] & 0x02 && ( ( controller.options.uwt > 0 && simday === devday ) || controller.options.uwt === 0 ) ) {
 									waterTime = getStationDuration( prog[ 4 ][ sid ], simt ) * controller.options.wl / 100 >> 0;
 								} else {
@@ -6898,6 +6902,7 @@ var getPreview = ( function() {
 												dur: waterTime,
 												sid: sid,
 												pid: pid + 1,
+												gid: controller.stations.stn_grp?controller.stations.stn_grp[ sid ] : -1,
 												pl: 1
 											} );
 										}
@@ -6908,7 +6913,7 @@ var getPreview = ( function() {
 									matchFound = 1;
 								}
 							}
-						} else {
+						} else { // if !is21
 							if ( prog[ 7 + bid ] & ( 1 << s ) ) {
 								endArray[ sid ] = prog[ 6 ] * controller.options.wl / 100 >> 0;
 								programArray[ sid ] = pid + 1;
@@ -6920,11 +6925,19 @@ var getPreview = ( function() {
 			}
 			if ( matchFound ) {
 				var acctime = simminutes * 60,
-					seqAcctime = acctime;
+					seqAcctime = acctime,
+					seqAcctimes = new Array(NUM_SEQ_GROUPS);
 
 				if ( is211 ) {
 					if ( lastSeqStopTime > acctime ) {
 						seqAcctime = lastSeqStopTime + controller.options.sdt;
+					}
+
+					for(let d=0;d<NUM_SEQ_GROUPS;d++) {
+						seqAcctimes[d] = acctime;
+						if(lastSeqStopTimes[d]>acctime) {
+							seqAcctimes[d] = lastSeqStopTimes[d] + controller.options.sdt;
+						}
 					}
 
 					if ( is216 ) {
@@ -6940,17 +6953,29 @@ var getPreview = ( function() {
 							sid = q.sid;
 							bid2 = sid >> 3;
 							s2 = sid & 0x07;
-							if ( controller.stations.stn_seq[ bid2 ] & ( 1 << s2 ) ) {
-								q.st = seqAcctime;
-								seqAcctime += q.dur;
-								seqAcctime += controller.options.sdt;
-							} else {
-								q.st = acctime;
-								acctime++;
+							if(q.gid==-1) { // group id is not available
+								if ( controller.stations.stn_seq[ bid2 ] & ( 1 << s2 ) ) {
+									q.st = seqAcctime;
+									seqAcctime += q.dur;
+									seqAcctime += controller.options.sdt;
+								} else {
+									q.st = acctime;
+									acctime++;
+								}
+							} else { // group id is available
+								if ( q.gid!=PARALLEL_GID_VALUE) { // this is a sequential station
+									q.st = seqAcctimes[q.gid];
+									seqAcctimes[q.gid] += q.dur;
+									seqAcctimes[q.gid] += controller.options.sdt;
+								} else { // this is a parallel station
+									q.st = acctime;
+									acctime++;
+								}
+
 							}
 							busy = 1;
 						}
-					} else {
+					} else { // !is216
 						for ( sid = 0; sid < nstations; sid++ ) {
 							bid2 = sid >> 3;
 							s2 = sid & 0x07;
@@ -6969,7 +6994,7 @@ var getPreview = ( function() {
 							busy = 1;
 						}
 					}
-				} else {
+				} else { // !is21
 					if ( is21 && controller.options.seq ) {
 						if ( lastStopTime > acctime ) {
 							acctime = lastStopTime + controller.options.sdt;
@@ -6994,7 +7019,7 @@ var getPreview = ( function() {
 							busy = 1;
 						}
 					}
-				}
+				} // end of !is21
 			}
 			if ( is216 ) {
 
@@ -7044,19 +7069,28 @@ var getPreview = ( function() {
 
 				// Lastly, calculate lastSeqStopTime
 				lastSeqStopTime = 0;
+				for ( var d = 0; d < NUM_SEQ_GROUPS; d++ ) { lastSeqStopTime[ d ] = 0; }
 				for ( qid = 0; qid < rtQueue.length; qid++ ) {
 					q = rtQueue[ qid ];
 					sid = q.sid;
 					bid2 = sid >> 3;
 					s2 = sid & 0x07;
 					var sst = q.st + q.dur;
-					if ( controller.stations.stn_seq[ bid2 ] & ( 1 << s2 ) ) {
-						if ( sst > lastSeqStopTime ) {
-							lastSeqStopTime = sst;
+					if(q.gid==-1) { // group id is not available
+						if ( controller.stations.stn_seq[ bid2 ] & ( 1 << s2 ) ) {
+							if ( sst > lastSeqStopTime ) {
+								lastSeqStopTime = sst;
+							}
+						}
+					} else { // group id is available
+						if(q.gid!=PARALLEL_GID_VALUE) {
+							if(sst>lastSeqStopTimes[q.gid]) {
+								lastSeqStopTimes[q.gid] = sst; 
+							}
 						}
 					}
 				}
-			} else {
+			} else { // if !is216
 
 				// Handle firmwares prior to 2.1.6
 				if ( busy ) {
