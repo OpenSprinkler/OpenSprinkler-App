@@ -3662,6 +3662,11 @@ function showOptions( expandItem ) {
 							return true;
 						}
 						break;
+					case "otc":
+						if ( escapeJSON( controller.settings.otc ) === data ) {
+							return true;
+						}
+						break;
 					case "isMetric":
 						isMetric = $item.is( ":checked" );
 						storage.set( { isMetric: isMetric } );
@@ -4075,24 +4080,24 @@ function showOptions( expandItem ) {
 		"</label>";
 	}
 
-	if ( typeof controller.settings.ifkey !== "undefined" || typeof controller.settings.mqtt !== "undefined" ) {
+	if ( typeof controller.settings.ifkey !== "undefined" || typeof controller.settings.mqtt !== "undefined" ||
+		typeof controller.settings.otc !== "undefined") {
 		list += "</fieldset><fieldset data-role='collapsible'" +
 			( typeof expandItem === "string" && expandItem === "integrations" ? " data-collapsed='false'" : "" ) + ">" +
 			"<legend>" + _( "Integrations" ) + "</legend>";
 
-		if ( typeof controller.settings.ifkey !== "undefined" ) {
-			list += "<div class='ui-field-contain'><label for='ifkey'>" + _( "IFTTT Key" ) +
-				"<button data-helptext='" +
-					_( "To enable IFTTT, a Maker channel key is required which can be obtained from https://ifttt.com" ) +
-					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
-			"</label><input autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' data-mini='true' type='text' id='ifkey' value='" + controller.settings.ifkey + "'>" +
-			"</div>";
-
-			list += "<div class='ui-field-contain'><label for='o49'>" + _( "IFTTT Events" ) +
-					"<button data-helptext='" +
-						_( "Select which events to send to IFTTT for use in recipes." ) +
-						"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
-				"</label><button data-mini='true' id='o49' value='" + controller.options.ife + "'>" + _( "Configure Events" ) + "</button></div>";
+		if ( typeof controller.settings.otc !== "undefined" ) {
+			list += "<div class='ui-field-contain'>" +
+						"<label for='otc'>" + _( "OTC" ) +
+							"<button style='display:inline-block;' data-helptext='" +
+								_( "OpenThings Cloud (OTC) allows remote access using OTC Token ." ) +
+								"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'>" +
+							"</button>" +
+						"</label>" +
+						"<button data-mini='true' id='otc' value='" + escapeJSON( controller.settings.otc ) + "'>" +
+							_( "Tap to Configure" ) +
+						"</button>" +
+					"</div>";
 		}
 
 		if ( typeof controller.settings.mqtt !== "undefined" ) {
@@ -4107,6 +4112,21 @@ function showOptions( expandItem ) {
 							_( "Tap to Configure" ) +
 						"</button>" +
 					"</div>";
+		}
+
+		if ( typeof controller.settings.ifkey !== "undefined" ) {
+			list += "<div class='ui-field-contain'><label for='ifkey'>" + _( "IFTTT Key" ) +
+				"<button data-helptext='" +
+					_( "To enable IFTTT, a Maker channel key is required which can be obtained from https://ifttt.com" ) +
+					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
+			"</label><input autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' data-mini='true' type='text' id='ifkey' value='" + controller.settings.ifkey + "'>" +
+			"</div>";
+
+			list += "<div class='ui-field-contain'><label for='o49'>" + _( "IFTTT Events" ) +
+					"<button data-helptext='" +
+						_( "Select which events to send to IFTTT for use in recipes." ) +
+						"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
+				"</label><button data-mini='true' id='o49' value='" + controller.options.ife + "'>" + _( "Configure Events" ) + "</button></div>";
 		}
 	}
 
@@ -4775,6 +4795,84 @@ function showOptions( expandItem ) {
 				port: parseInt( popup.find( "#port" ).val() ),
 				user: popup.find( "#username" ).val(),
 				pass: popup.find( "#password" ).val()
+			};
+
+			popup.popup( "close" );
+			if ( curr === escapeJSON( options ) ) {
+				return;
+			} else {
+				button.value = escapeJSON( options );
+				header.eq( 2 ).prop( "disabled", false );
+				page.find( ".submit" ).addClass( "hasChanges" );
+			}
+		} );
+
+		popup.css( "max-width", "380px" );
+
+		openPopup( popup, { positionTo: "window" } );
+    } );
+
+	page.find( "#otc" ).on( "click", function() {
+		var button = this, curr = button.value,
+			options = $.extend( {}, {
+				en: 0,
+				token: "",
+				server: "ws.cloud.openthings.io",
+				port: 80,
+			}, controller.settings.otc );
+
+		$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
+
+		var popup = $( "<div data-role='popup' data-theme='a' id='otcSettings'>" +
+				"<div data-role='header' data-theme='b'>" +
+					"<h1>" + _( "OpenThings Cloud (OTC) Settings" ) + "</h1>" +
+				"</div>" +
+				"<div class='ui-content'>" +
+					"<label for='enable'>" + _( "Enable" ) + "</label>" +
+					"<input class='needsclick otc_enable' data-mini='true' data-iconpos='right' id='enable' type='checkbox' " +
+						( options.en ? "checked='checked'" : "" ) + ">" +
+					"<div class='ui-body'>" +
+						"<div class='ui-grid-a' style='display:table;'>" +
+							"<div class='ui-block-a' style='width:25%'>" +
+								"<label for='token' style='padding-top:10px'>" + _( "Token" ) + "</label>" +
+							"</div>" +
+							"<div class='ui-block-b' style='width:75%'>" +
+								"<input class='otc-input' type='text' id='token' data-mini='true' maxlength='36' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
+									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + _( "token" ) + "' value='" + options.token + "' required />" +
+							"</div>" +
+							"<div class='ui-block-a' style='width:25%'>" +
+								"<label for='server' style='padding-top:10px'>" + _( "Server" ) + "</label>" +
+							"</div>" +
+							"<div class='ui-block-b' style='width:75%'>" +
+								"<input class='otc-input' type='text' id='server' data-mini='true' maxlength='50' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
+									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + _( "server" ) + "' value='" + options.server + "' required />" +
+							"</div>" +
+							"<div class='ui-block-a' style='width:25%'>" +
+								"<label for='port' style='padding-top:10px'>" + _( "Port" ) + "</label>" +
+							"</div>" +
+							"<div class='ui-block-b' style='width:75%'>" +
+								"<input class='otc-input' type='number' id='port' data-mini='true' pattern='[0-9]*' min='0' max='65535'" +
+									( options.en ? "" : "disabled='disabled'" ) + " placeholder='80' value='" + options.port + "' required />" +
+							"</div>" +
+						"</div>" +
+					"</div>" +
+					"<button class='submit' data-theme='b'>" + _( "Submit" ) + "</button>" +
+				"</div>" +
+			"</div>" );
+
+		popup.find( "#enable" ).on( "change", function() {
+			if ( this.checked ) {
+				popup.find( ".otc-input" ).textinput( "enable" );
+			} else {
+				popup.find( ".otc-input" ).textinput( "disable" );
+			}
+		} );
+		popup.find( ".submit" ).on( "click", function() {
+			var options = {
+				en: ( popup.find( "#enable" ).prop( "checked" ) ? 1 : 0 ),
+				token: popup.find( "#token" ).val(),
+				server: popup.find( "#server" ).val(),
+				port: parseInt( popup.find( "#port" ).val() )
 			};
 
 			popup.popup( "close" );
@@ -9488,6 +9586,10 @@ function importConfig( data ) {
 		if ( typeof data.settings.mqtt === "object" && checkOSVersion( 2191 ) ) {
 			co += "&mqtt=" + escapeJSON( data.settings.mqtt );
 			}
+
+		if (typeof data.settings.otc === "object" && checkOSVersion(2191) ) {
+			co += "&otc=" + escapeJSON( data.settings.otc );
+		}
 
 		co += "&" + ( isPi ? "o" : "" ) + "loc=" + data.settings.loc;
 
