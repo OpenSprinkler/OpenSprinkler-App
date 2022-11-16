@@ -3302,9 +3302,17 @@ function debugWU() {
 			( typeof controller.settings.wtdata.maxH !== "undefined" ? "<tr><td>" + _( "Max Humidity" ) + "</td><td>" + formatHumidity( controller.settings.wtdata.maxH ) + "</td></tr>" : "" ) +
 			( typeof controller.settings.wtdata.wind !== "undefined" ? "<tr><td>" + _( "Mean Wind" ) + "</td><td>" + formatSpeed( controller.settings.wtdata.wind ) + "</td></tr>" : "" );
 	}
+
 	popup += ( typeof controller.settings.lwc === "number" ? "<tr><td>" + _( "Last Request" ) + "</td><td>" + dateToString( new Date( controller.settings.lwc * 1000 ), null, 2 ) + "</td></tr>" : "" );
 	popup += ( typeof controller.settings.wterr === "number" ? "<tr><td>" + _( "Last Response" ) + "</td><td>" + getWeatherError( controller.settings.wterr ) + "</td></tr>" : "" );
 	popup += "</table></div>";
+
+	if ( typeof controller.settings.otcs === "number" ) {
+		popup += "<div class='debugWUHeading'>Integrations</div>" +
+			"<table class='debugWUTable'>" +
+			"<tr><td>OpenThings Cloud</td><td>" + resolveOTCStatus(controller.settings.otcs) + "</td></tr>" +
+		"</table>";
+	}
 
 	if ( controller.settings.wtdata && ( typeof controller.settings.wtdata.wp === "string" || typeof controller.settings.wtdata.weatherProvider === "string" ) ) {
 		popup += "<hr>";
@@ -3315,6 +3323,19 @@ function debugWU() {
 	openPopup( $( popup ) );
 
 	return false;
+}
+
+function resolveOTCStatus(status) {
+	switch (status) {
+		case 0:
+			return "Not Enabled";
+		case 1:
+			return "Connecting...";
+		case 2:
+			return "<font class='debugWUError'>Disconnected</font>";
+		case 3:
+			return "<font class='debugWUOK'>Connected</font>";
+	}
 }
 
 function showRainDelay() {
