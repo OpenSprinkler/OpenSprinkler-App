@@ -4732,7 +4732,7 @@ function showOptions( expandItem ) {
 				port: 1883,
 				user: "",
 				pass: ""
-			}, controller.settings.mqtt );
+			}, unescapeJSON(curr) );
 
 		$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
 
@@ -4819,7 +4819,7 @@ function showOptions( expandItem ) {
 				token: "",
 				server: "ws.cloud.openthings.io",
 				port: 80,
-			}, controller.settings.otc );
+			}, unescapeJSON(curr) );
 
 		$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
 
