@@ -3310,7 +3310,7 @@ function debugWU() {
 	if ( typeof controller.settings.otcs === "number" ) {
 		popup += "<div class='debugWUHeading'>Integrations</div>" +
 			"<table class='debugWUTable'>" +
-			"<tr><td>OpenThings Cloud</td><td>" + resolveOTCStatus(controller.settings.otcs) + "</td></tr>" +
+			"<tr><td>OpenThings Cloud</td><td>" + resolveOTCStatus( controller.settings.otcs ) + "</td></tr>" +
 		"</table>";
 	}
 
@@ -3325,8 +3325,8 @@ function debugWU() {
 	return false;
 }
 
-function resolveOTCStatus(status) {
-	switch (status) {
+function resolveOTCStatus( status ) {
+	switch ( status ) {
 		case 0:
 			return "Not Enabled";
 		case 1:
@@ -4102,7 +4102,7 @@ function showOptions( expandItem ) {
 	}
 
 	if ( typeof controller.settings.ifkey !== "undefined" || typeof controller.settings.mqtt !== "undefined" ||
-		typeof controller.settings.otc !== "undefined") {
+		typeof controller.settings.otc !== "undefined" ) {
 		list += "</fieldset><fieldset data-role='collapsible'" +
 			( typeof expandItem === "string" && expandItem === "integrations" ? " data-collapsed='false'" : "" ) + ">" +
 			"<legend>" + _( "Integrations" ) + "</legend>";
@@ -4753,7 +4753,7 @@ function showOptions( expandItem ) {
 				port: 1883,
 				user: "",
 				pass: ""
-			}, unescapeJSON(curr) );
+			}, unescapeJSON( curr ) );
 
 		$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
 
@@ -4839,8 +4839,8 @@ function showOptions( expandItem ) {
 				en: 0,
 				token: "",
 				server: "ws.cloud.openthings.io",
-				port: 80,
-			}, unescapeJSON(curr) );
+				port: 80
+			}, unescapeJSON( curr ) );
 
 		$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
 
@@ -9608,7 +9608,7 @@ function importConfig( data ) {
 			co += "&mqtt=" + escapeJSON( data.settings.mqtt );
 			}
 
-		if (typeof data.settings.otc === "object" && checkOSVersion(2191) ) {
+		if ( typeof data.settings.otc === "object" && checkOSVersion( 2191 ) ) {
 			co += "&otc=" + escapeJSON( data.settings.otc );
 		}
 
