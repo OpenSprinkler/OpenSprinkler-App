@@ -4923,7 +4923,7 @@ function showOptions( expandItem ) {
 			}
 		} );
 		popup.find( ".submit" ).on( "click", function() {
-			if (popup.find( "#token" ).val().length !== 32) {
+			if ( popup.find( "#token" ).val().length !== 32 ) {
 				showerror( _( "OpenThings Token must be 32 characters long." ) );
 				return;
 			}
@@ -12281,7 +12281,7 @@ function dhms2sec( arr ) {
 }
 
 function isControllerConnected() {
-	if ( (!currIp && !currToken ) ||
+	if ( ( !currIp && !currToken ) ||
 		$.isEmptyObject( controller ) ||
 		$.isEmptyObject( controller.options ) ||
 		$.isEmptyObject( controller.programs ) ||
