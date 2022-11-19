@@ -4889,6 +4889,11 @@ function showOptions( expandItem ) {
 			}
 		} );
 		popup.find( ".submit" ).on( "click", function() {
+			if (popup.find( "#token" ).val().length !== 32) {
+				showerror( _( "OpenThings Token must be 32 characters long." ) );
+				return;
+			}
+
 			var options = {
 				en: ( popup.find( "#enable" ).prop( "checked" ) ? 1 : 0 ),
 				token: popup.find( "#token" ).val(),
