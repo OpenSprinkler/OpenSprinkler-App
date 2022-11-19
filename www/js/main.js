@@ -129,7 +129,7 @@ var isIEMobile = /IEMobile/.test( navigator.userAgent ),
 	// Array to hold all notifications currently displayed within the app
 	notifications = [],
 	timers = {},
-	curr183, currIp, currPrefix, currAuth, currPass, currAuthUser,
+	curr183, currToken, currIp, currPrefix, currAuth, currPass, currAuthUser,
 	currAuthPass, currLocal, currLang, language, deviceip, errorTimeout, weather, openPanel;
 
 // Prevent errors from bubbling up on Windows
@@ -669,8 +669,9 @@ function sendToOS( dest, type ) {
 
 		// Use POST when sending data to the controller (requires firmware 2.1.8 or newer)
 		usePOST = ( isChange && checkOSVersion( 300 ) ),
+		urlDest = usePOST ? dest.split( "?" )[ 0 ] : dest,
 		obj = {
-			url: currPrefix + currIp + ( usePOST ? dest.split( "?" )[ 0 ] : dest ),
+			url: currToken ? "https://cloud.openthings.io/forward/v1/" + currToken + urlDest : currPrefix + currIp + urlDest,
 			type: usePOST ? "POST" : "GET",
 			data: usePOST ? getUrlVars( dest ) : null,
 			dataType: type,
@@ -1246,6 +1247,8 @@ function checkConfigured( firstLoad ) {
 
 		updateSiteList( names, current );
 
+		currToken = sites[ current ].os_token;
+
 		currIp = sites[ current ].os_ip;
 		currPass = sites[ current ].os_pw;
 
@@ -1304,7 +1307,9 @@ function submitNewUser( ssl, useAuth ) {
 	document.activeElement.blur();
 	$.mobile.loading( "show" );
 
-	var ip = $.mobile.path.parseUrl( $( "#os_ip" ).val() ).hrefNoHash.replace( /https?:\/\//, "" ),
+	var connectionType = $( ".connection-type input[type='radio']:checked" ).val(),
+		ip = $.mobile.path.parseUrl( $( "#os_ip" ).val() ).hrefNoHash.replace( /https?:\/\//, "" ),
+		token = connectionType === "token" ? $( "#os_token" ).val() : null,
 		success = function( data, sites ) {
 			$.mobile.loading( "hide" );
 			var is183;
@@ -1323,6 +1328,7 @@ function submitNewUser( ssl, useAuth ) {
 				}
 
 				sites[ name ] = {};
+				sites[ name ].os_token = currToken = token;
 				sites[ name ].os_ip = currIp = ip;
 
 				if ( typeof data.fwv === "number" && data.fwv >= 213 ) {
@@ -1356,7 +1362,7 @@ function submitNewUser( ssl, useAuth ) {
 					curr183 = true;
 				}
 
-				$( "#os_name,#os_ip,#os_pw,#os_auth_user,#os_auth_pw" ).val( "" );
+				$( "#os_name,#os_ip,#os_pw,#os_auth_user,#os_auth_pw,#os_token" ).val( "" );
 				storage.set( {
 					"sites": JSON.stringify( sites ),
 					"current_site": name
@@ -1416,8 +1422,8 @@ function submitNewUser( ssl, useAuth ) {
 		},
 		prefix;
 
-	if ( !ip ) {
-		showerror( _( "An IP address is required to continue." ) );
+	if ( !ip && !token ) {
+		showerror( _( "An IP address or token is required to continue." ) );
 		return;
 	}
 
@@ -1442,15 +1448,18 @@ function submitNewUser( ssl, useAuth ) {
 		$( "#addnew" ).popup( "reposition", { positionTo:"window" } );
 	}
 
+	var urlDest = "/jo?pw=" + md5( $( "#os_pw" ).val() ),
+		url = token ? "https://cloud.openthings.io/forward/v1/" + token + urlDest : prefix + ip + urlDest;
+
 	//Submit form data to the server
 	$.ajax( {
-		url: prefix + ip + "/jo?pw=" + md5( $( "#os_pw" ).val() ),
+		url: url,
 		type: "GET",
 		dataType: "json",
 		timeout: 10000,
 		global: false,
 		beforeSend: function( xhr ) {
-			if ( useAuth ) {
+			if ( !token && useAuth ) {
 				xhr.setRequestHeader(
 					"Authorization",
 					"Basic " + getAuthInfo()
@@ -1463,14 +1472,14 @@ function submitNewUser( ssl, useAuth ) {
 				return;
 			}
 			$.ajax( {
-				url: prefix + ip,
+				url: token ? "https://cloud.openthings.io/forward/v1/" + token : prefix + ip,
 				type: "GET",
 				dataType: "text",
 				timeout: 10000,
 				global: false,
 				cache: true,
 				beforeSend: function( xhr ) {
-					if ( useAuth ) {
+					if ( !token && useAuth ) {
 						xhr.setRequestHeader(
 							"Authorization",
 							"Basic " + getAuthInfo()
@@ -1542,18 +1551,32 @@ function showAddNew( autoIP, closeOld ) {
 					"<input autocorrect='off' spellcheck='false' type='text' name='os_name' " +
 						"id='os_name' placeholder='Home'>" +
 					( isAuto ? "" :
-						"<label for='os_ip'>" + _( "Open Sprinkler IP:" ) + "</label>" ) +
-					"<input " + ( isAuto ? "data-role='none' style='display:none' " : "" ) +
+						"<div class='ui-field-contain'>" +
+						    "<fieldset data-role='controlgroup' class='ui-mini center connection-type' data-type='horizontal'>" +
+						        "<legend class='left'>" + _( "Connection Type" ) + ":</legend>" +
+						        "<input class='noselect' type='radio' name='connectionType' id='type-direct' value='ip' checked='checked'>" +
+						        "<label for='type-direct'>" + _( "Direct" ) + "</label>" +
+						        "<input class='noselect' type='radio' name='connectionType' id='type-token' value='token'>" +
+						        "<label for='type-token'>" + _( "OpenThings Cloud" ) + "</label>" +
+						    "</fieldset>" +
+						"</div>" +
+						"<label class='ip-field' for='os_ip'>" + _( "Open Sprinkler IP:" ) + "</label>" ) +
+					"<input data-wrapper-class='ip-field' " + ( isAuto ? "data-role='none' style='display:none' " : "" ) +
 						"autocomplete='off' autocorrect='off' autocapitalize='off' " +
 						"spellcheck='false' type='url' pattern='' name='os_ip' id='os_ip' " +
 						"value='" + ( isAuto ? autoIP : "" ) + "' placeholder='home.dyndns.org'>" +
+					"<label class='token-field' for='os_token' style='display: none'>" + _( "OpenThings Token" ) + ":</label>" +
+					"<input data-wrapper-class='token-field hidden' " +
+						"autocomplete='off' autocorrect='off' autocapitalize='off' " +
+						"spellcheck='false' type='text' pattern='' name='os_token' id='os_token' " +
+						"value='' placeholder='" + _( "OpenThings Token" ) + "'>" +
 					"<label for='os_pw'>" + _( "Open Sprinkler Password:" ) + "</label>" +
 					"<input type='password' name='os_pw' id='os_pw' value=''>" +
 					"<label for='save_pw'>" + _( "Save Password" ) + "</label>" +
 					"<input type='checkbox' data-wrapper-class='save_pw' name='save_pw' " +
 						"id='save_pw' data-mini='true' checked='checked'>" +
 					( isAuto ? "" :
-						"<div data-theme='a' data-mini='true' data-role='collapsible'>" +
+						"<div data-theme='a' data-mini='true' data-role='collapsible' class='advanced-options'>" +
 							"<h4>" + _( "Advanced" ) + "</h4>" +
 							"<fieldset data-role='controlgroup' data-type='horizontal' " +
 								"data-mini='true' class='center'>" +
@@ -1602,6 +1625,13 @@ function showAddNew( autoIP, closeOld ) {
 		}
 
 		addnew.popup( "reposition", { positionTo:"window" } );
+	} );
+
+	addnew.find( ".connection-type input[type='radio']" ).on( "change", function() {
+		var previous = this.value === "token" ? "ip" : "token";
+		addnew.find( "." + previous + "-field" ).hide();
+		addnew.find( "." + this.value + "-field" ).removeClass( "hidden" ).show();
+		addnew.find( ".advanced-options" ).toggle( this.value === "ip" );
 	} );
 
 	return false;
@@ -1711,14 +1741,18 @@ var showSites = ( function() {
 							"<div class='ui-field-contain'>" +
 								"<label for='cnm-" + i + "'>" + _( "Change Name" ) + "</label><input id='cnm-" + i + "' type='text' value='" + a + "'>" +
 							"</div>" +
-							"<div class='ui-field-contain'>" +
+							( b.os_token ? "" : "<div class='ui-field-contain'>" +
 								"<label for='cip-" + i + "'>" + _( "Change IP" ) + "</label><input id='cip-" + i + "' type='url' value='" + b.os_ip +
 									"' autocomplete='off' autocorrect='off' autocapitalize='off' pattern='' spellcheck='false'>" +
-							"</div>" +
+							"</div>" ) +
+							( b.os_token ? "<div class='ui-field-contain'>" +
+								"<label for='ctoken-" + i + "'>" + _( "Change Token" ) + "</label><input id='ctoken-" + i + "' type='text' value='" + b.os_token +
+									"' autocomplete='off' autocorrect='off' autocapitalize='off' pattern='' spellcheck='false'>" +
+							"</div>" : "" ) +
 							"<div class='ui-field-contain'>" +
 								"<label for='cpw-" + i + "'>" + _( "Change Password" ) + "</label><input id='cpw-" + i + "' type='password'>" +
 							"</div>" +
-							"<fieldset data-mini='true' data-role='collapsible'>" +
+							( b.os_token ? "" : "<fieldset data-mini='true' data-role='collapsible'>" +
 								"<h3>" +
 									"<span style='line-height:23px'>" + _( "Advanced" ) + "</span>" +
 									"<button data-helptext='" +
@@ -1736,7 +1770,7 @@ var showSites = ( function() {
 										( typeof b.auth_user !== "undefined" && typeof b.auth_pw !== "undefined" ? " checked='checked'" : "" ) + ">" +
 									_( "Use Auth" ) +
 								"</label>" +
-							"</fieldset>" +
+							"</fieldset>" ) +
 							"<input class='submit' type='submit' value='" + _( "Save Changes to" ) + " " + a + "'>" +
 							"<a data-role='button' class='deletesite' data-site='" + i + "' href='#' data-theme='b'>" + _( "Delete" ) + " " + a + "</a>" +
 						"</form>" +
@@ -12247,7 +12281,7 @@ function dhms2sec( arr ) {
 }
 
 function isControllerConnected() {
-	if ( currIp === "" ||
+	if ( (!currIp && !currToken ) ||
 		$.isEmptyObject( controller ) ||
 		$.isEmptyObject( controller.options ) ||
 		$.isEmptyObject( controller.programs ) ||
