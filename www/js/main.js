@@ -1427,6 +1427,11 @@ function submitNewUser( ssl, useAuth ) {
 		return;
 	}
 
+	if ( token && token.length !== 32 ) {
+		showerror( _( "OpenThings Token must be 32 characters long." ) );
+		return;
+	}
+
 	if ( useAuth !== true && $( "#os_useauth" ).is( ":checked" ) ) {
 		getAuth();
 		return;
