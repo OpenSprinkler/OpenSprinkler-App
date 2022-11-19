@@ -2018,8 +2018,9 @@ function addSyncStatus( token ) {
 }
 
 function testSite( site, id, callback ) {
-	var urlDest = "/jo?pw=" + encodeURIComponent( site.os_pw );
+	var urlDest = "/jo?pw=" + encodeURIComponent( site.os_pw ),
 		url = site.os_token ? "https://cloud.openthings.io/forward/v1/" + currToken + urlDest : ( site.ssl === "1" ? "https://" : "http://" ) + site.os_ip + urlDest;
+
 	$.ajax( {
 		url: url,
 		type: "GET",
