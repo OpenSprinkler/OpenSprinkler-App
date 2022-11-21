@@ -9955,8 +9955,10 @@ function isOSPi() {
 
 // Check if password is valid
 function checkPW( pass, callback ) {
+	var urlDest = "/sp?pw=" + encodeURIComponent( pass ) + "&npw=" + encodeURIComponent( pass ) + "&cpw=" + encodeURIComponent( pass );
+
 	$.ajax( {
-		url: currPrefix + currIp + "/sp?pw=" + encodeURIComponent( pass ) + "&npw=" + encodeURIComponent( pass ) + "&cpw=" + encodeURIComponent( pass ),
+		url: currToken ? "https://cloud.openthings.io/forward/v1/" + currToken + urlDest : currPrefix + currIp + urlDest,
 		cache: false,
 		crossDomain: true,
 		type: "GET"
@@ -10609,6 +10611,10 @@ function checkPublicAccess( eip ) {
 	// Check if the device is accessible from it's public IP
 
 	if ( eip === 0 ) {
+		return;
+	}
+
+	if ( currToken ) {
 		return;
 	}
 
