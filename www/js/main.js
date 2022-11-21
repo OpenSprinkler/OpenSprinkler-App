@@ -594,29 +594,32 @@ function initApp() {
 			altDown = e.altKey,
 			menuOpen = $( "#mainMenu-popup" ).hasClass( "ui-popup-active" );
 
-		if ( code === 77 ) {
+		if ( code === 77 ) { // m
 			var menu = $( "#mainMenu" );
 			if ( menu.length > 0 ) {
 				$( "#mainMenu" ).popup( "close" );
 			} else {
 				showHomeMenu();
 			}
-		} else if ( ( menuOpen || altDown ) && code === 80 ) {
+		} else if ( ( menuOpen || altDown ) && code === 80 ) { // p
 			e.preventDefault();
 			changePage( "#programs" );
-		} else if ( ( menuOpen || altDown ) && code === 79 ) {
+		} else if ( ( menuOpen || altDown ) && code === 79 ) { // o
 			e.preventDefault();
 			changePage( "#os-options" );
-		} else if ( ( menuOpen || altDown ) && code === 86 ) {
+		} else if ( ( menuOpen || altDown ) && code === 86 ) { // v
 			e.preventDefault();
 			changePage( "#preview" );
-		} else if ( ( menuOpen || altDown ) && code === 76 ) {
+		} else if ( ( menuOpen || altDown ) && code === 76 ) { // l
 			e.preventDefault();
 			changePage( "#logs" );
-		} else if ( ( menuOpen || altDown ) && code === 82 ) {
+		} else if ( ( menuOpen || altDown ) && code === 82 ) { // r
 			e.preventDefault();
 			changePage( "#runonce" );
-		} else if ( ( menuOpen || altDown ) && code === 68 ) {
+		} else if ( ( menuOpen || altDown ) && code === 85 ) { // u
+			e.preventDefault();
+			showPause();
+		} else if ( ( menuOpen || altDown ) && code === 68 ) { // d
 			e.preventDefault();
 			showRainDelay();
 		}
