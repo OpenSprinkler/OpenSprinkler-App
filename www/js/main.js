@@ -3894,7 +3894,7 @@ function showOptions( expandItem ) {
 
 	if ( Supported.groups() ) {
 		list += "<label for='groupView'><input data-mini='true' id='groupView' type='checkbox' " + ( groupView ? "checked='checked'" : "" ) + ">" +
-		_( "Order Stations by Sequential Groups" ) + "</label>";
+		_( "Order Stations by Groups" ) + "</label>";
 	}
 
 	list += "</fieldset><fieldset data-role='collapsible'" +
@@ -4626,8 +4626,8 @@ function showOptions( expandItem ) {
 					dur.val( result ).text( result + "s" );
 				},
 				label: _( "Seconds" ),
-				maximum: 60,
-				minimum: checkOSVersion( 220 ) ? -60 : 0,
+				maximum: checkOSVersion( 220 ) ? 600 : 60,
+				minimum: checkOSVersion( 220 ) ?-600 : 0,
 				helptext: helptext
 			} );
 		} else if ( id === "o30" ) {
@@ -4649,8 +4649,8 @@ function showOptions( expandItem ) {
 					dur.val( result ).text( result + "s" );
 				},
 				label: _( "Seconds" ),
-				maximum: checkOSVersion( 220 ) ? 60 : 0,
-				minimum: -60,
+				maximum: checkOSVersion( 220 ) ? 600 : 0,
+				minimum: checkOSVersion( 220 ) ?-600 : -60,
 				helptext: helptext
 			} );
 		} else if ( id === "o23" ) {
