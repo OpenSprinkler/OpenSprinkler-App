@@ -10100,8 +10100,10 @@ function changePassword( opt ) {
 				pw = md5( sites[ current ].os_pw );
 
 			if ( !isMD5( sites[ current ].os_pw ) ) {
+				var urlDest = "/jc?pw=" + pw;
+
 				$.ajax( {
-					url: currPrefix + currIp + "/jc?pw=" + pw,
+					url: currToken ? "https://cloud.openthings.io/forward/v1/" + currToken + urlDest : currPrefix + currIp + urlDest,
 					type: "GET",
 					dataType: "json"
 				} ).then(
