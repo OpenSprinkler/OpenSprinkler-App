@@ -11318,8 +11318,11 @@ function areYouSure( text1, text2, success, fail, options ) {
 	success = success || function() {};
 	fail = fail || function() {};
 
-	var showShiftDialog = ( options.type === dialog.REMOVE_STATION ) &&
-		Groups.canShift( options.gid ) && Station.isSequential( options.station );
+	var showShiftDialog = 0;
+	if ( typeof options === "object" ) {
+		showShiftDialog = ( options.type === dialog.REMOVE_STATION ) &&
+			Groups.canShift( options.gid ) && Station.isSequential( options.station );
+	}
 
 	var popup = $(
 		"<div data-role='popup' data-theme='a' id='sure'>" +
@@ -11328,36 +11331,6 @@ function areYouSure( text1, text2, success, fail, options ) {
 			"<a class='sure-do ui-btn ui-btn-b ui-corner-all ui-shadow' href='#'>" + _( "Yes" ) + "</a>" +
 			"<a class='sure-dont ui-btn ui-corner-all ui-shadow' href='#'>" + _( "No" ) + "</a>" +
 			( showShiftDialog ? "<label><input id='shift-sta' type='checkbox'>Move up remaining stations in the same sequential group?</label>" : "" ) +
-		"</div>"
-	);
-
-	//Bind buttons
-	popup.find( ".sure-do" ).one( "click.sure", function() {
-		popup.popup( "close" );
-		success();
-		return false;
-	} );
-	popup.find( ".sure-dont" ).one( "click.sure", function() {
-		popup.popup( "close" );
-		fail();
-		return false;
-	} );
-
-	openPopup( popup );
-}
-
-function areYouSure( text1, text2, success, fail ) {
-
-	$( "#sure" ).popup( "destroy" ).remove();
-	success = success || function() {};
-	fail = fail || function() {};
-
-	var popup = $(
-		"<div data-role='popup' data-theme='a' id='sure'>" +
-			"<h3 class='sure-1 center'>" + text1 + "</h3>" +
-			"<p class='sure-2 center'>" + text2 + "</p>" +
-			"<a class='sure-do ui-btn ui-btn-b ui-corner-all ui-shadow' href='#'>" + _( "Yes" ) + "</a>" +
-			"<a class='sure-dont ui-btn ui-corner-all ui-shadow' href='#'>" + _( "No" ) + "</a>" +
 		"</div>"
 	);
 
@@ -12282,7 +12255,7 @@ function changeHeader( opt ) {
 	// Generate new header content
 	var newHeader = $( "<button data-icon='" + opt.leftBtn.icon + "' " + ( opt.leftBtn.text === "" ? "data-iconpos='notext' " : "" ) +
 				"class='ui-btn-left " + opt.leftBtn.class + "'>" + opt.leftBtn.text + "</button>" +
-			"<h3 class='" + opt.class + "'>" + opt.title + "</h3>" +
+			"<h3 class='" + opt.class + "'>" + opt.title + " <span style='color:red'>TEST BUILD</span></h3>" +
 			"<button data-icon='" + opt.rightBtn.icon + "' " + ( opt.rightBtn.text === "" ? "data-iconpos='notext' " : "" ) +
 				"class='ui-btn-right " + opt.rightBtn.class + "'>" + opt.rightBtn.text + "</button>" ),
 		speed = opt.animate ? "fast" : 0;
@@ -13377,7 +13350,7 @@ Program.getDateRange = function( pid ) {
 
 Program.isDateRangeEnabled = function( pid ) {
 	if ( pid === "new" ) {
-		return 1;
+		return 0;
 	}
 	return Program.getDateRange( pid )[ 0 ];
 };
