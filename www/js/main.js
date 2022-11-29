@@ -2576,6 +2576,136 @@ function showAutoRainDelayAdjustmentOptions( button, callback ) {
 	openPopup( popup, { positionTo: "window" } );
 }
 
+function showMonthlyAdjustmentOptions( button, callback ) {
+	$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
+
+	var options = $.extend( {}, {
+		scales: [100,100,100,100,100,100,100,100,100,100,100,100]
+	}, unescapeJSON( button.value ) );
+
+	var popup = $( "<div data-role='popup' data-theme='a' id='adjustmentOptions'>" +
+			"<div data-role='header' data-theme='b'>" +
+				"<h1>" + _( "Weather Adjustment Options" ) + "</h1>" +
+			"</div>" +
+			"<div class='ui-content'>" +
+				"<p class='rain-desc center smaller'>" +
+					_( "Input Monthly Watering Percentage Values" ) +
+				"</p>" +
+				"<div class='ui-grid-c'>" +
+					"<div class='ui-block-a'>" +
+						"<label class='center'>" +
+							_( "Jan" )  +
+						"</label>" +
+						"<input data-wrapper-class='pad_buttons' class='sc0' type='number' min=0 max=250 value=" + options.scales[0] + ">" +
+					"</div>" +
+					"<div class='ui-block-b'>" +
+						"<label class='center'>" +
+							_( "Feb" ) +
+						"</label>" +
+						"<input data-wrapper-class='pad_buttons' class='sc1' type='number' min=0 max=250 value=" + options.scales[1] + ">" +
+					"</div>" +
+					"<div class='ui-block-c'>" +
+						"<label class='center'>" +
+							_( "Mar" ) +
+						"</label>" +
+						"<input data-wrapper-class='pad_buttons' class='sc2' type='number' min=0 max=250 value=" + options.scales[2] + ">" +
+					"</div>" +
+					"<div class='ui-block-d'>" +
+						"<label class='center'>" +
+							_( "Apr" ) +
+						"</label>" +
+						"<input data-wrapper-class='pad_buttons' class='sc3' type='number' min=0 max=250 value=" + options.scales[3] + ">" +
+					"</div>" +
+				"</div>"+
+				"<div class='ui-grid-c'>" +
+					"<div class='ui-block-a'>" +
+						"<label class='center'>" +
+							_( "May" )  +
+						"</label>" +
+						"<input data-wrapper-class='pad_buttons' class='sc4' type='number' min=0 max=250 value=" + options.scales[4] + ">" +
+					"</div>" +
+					"<div class='ui-block-b'>" +
+						"<label class='center'>" +
+							_( "Jun" ) +
+						"</label>" +
+						"<input data-wrapper-class='pad_buttons' class='sc5' type='number' min=0 max=250 value=" + options.scales[5] + ">" +
+					"</div>" +
+					"<div class='ui-block-c'>" +
+						"<label class='center'>" +
+							_( "Jul" ) +
+						"</label>" +
+						"<input data-wrapper-class='pad_buttons' class='sc6' type='number' min=0 max=250 value=" + options.scales[6] + ">" +
+					"</div>" +
+					"<div class='ui-block-d'>" +
+						"<label class='center'>" +
+							_( "Aug" ) +
+						"</label>" +
+						"<input data-wrapper-class='pad_buttons' class='sc7' type='number' min=0 max=250 value=" + options.scales[7] + ">" +
+					"</div>" +
+				"</div>"+
+				"<div class='ui-grid-c'>" +
+					"<div class='ui-block-a'>" +
+						"<label class='center'>" +
+							_( "Sep" )  +
+						"</label>" +
+						"<input data-wrapper-class='pad_buttons' class='sc8' type='number' min=0 max=250 value=" + options.scales[8] + ">" +
+					"</div>" +
+					"<div class='ui-block-b'>" +
+						"<label class='center'>" +
+							_( "Oct" ) +
+						"</label>" +
+						"<input data-wrapper-class='pad_buttons' class='sc9' type='number' min=0 max=250 value=" + options.scales[9] + ">" +
+					"</div>" +
+					"<div class='ui-block-c'>" +
+						"<label class='center'>" +
+							_( "Nov" ) +
+						"</label>" +
+						"<input data-wrapper-class='pad_buttons' class='sc10' type='number' min=0 max=250 value=" + options.scales[10] + ">" +
+					"</div>" +
+					"<div class='ui-block-d'>" +
+						"<label class='center'>" +
+							_( "Dec" ) +
+						"</label>" +
+						"<input data-wrapper-class='pad_buttons' class='sc11' type='number' min=0 max=250 value=" + options.scales[11] + ">" +
+					"</div>" +
+				"</div>"+
+				"<button class='submit' data-theme='b'>" + _( "Submit" ) + "</button>" +
+			"</div>" +
+		"</div>" );
+
+	popup.find( ".submit" ).on( "click", function() {
+		var _scales = [];
+		for(var i=0;i<12;i++) {
+			_scales[i] = parseInt( popup.find( ".sc"+i ).val() );
+			if(_scales[i]<0) _scales[i]=0;
+			if(_scales[i]>250) _scales[i]=250;
+		}
+		options = { scales : _scales };
+		if ( button ) {
+			button.value = escapeJSON( options );
+		}
+
+		callback();
+
+		popup.popup( "close" );
+		return false;
+	} );
+
+	popup.on( "focus", "input[type='number']", function() {
+		this.value = "";
+	} ).on( "blur", "input[type='number']", function() {
+		if ( this.value === "" || parseInt( this.value ) < 0 ) {
+			this.value = "0";
+		}
+	} );
+
+	$( "#adjustmentOptions" ).remove();
+
+	popup.css( "max-width", "380px" );
+
+	openPopup( popup, { positionTo: "window" } );
+}
+
 // Validates a Weather Underground location to verify it contains the data needed for Weather Adjustments
 function validateWULocation( location, callback ) {
 	if ( !controller.settings.wto || typeof controller.settings.wto.key !== "string" || controller.settings.wto.key === "" ) {
@@ -3397,7 +3527,8 @@ function getAdjustmentMethod( id ) {
         { name: _( "Manual" ), id: 0 },
         { name: "Zimmerman", id: 1 },
         { name: _( "Auto Rain Delay" ), id: 2, minVersion: 216 },
-		{ name: "ETo", id: 3, minVersion: 216 }
+		{ name: "ETo", id: 3, minVersion: 216 },
+		{ name: "Monthly", id:4, minVersion: 220}
     ];
 
     if ( id === undefined ) {
@@ -4047,7 +4178,7 @@ function showOptions( expandItem ) {
 	if ( typeof controller.options.wl !== "undefined" ) {
 		list += "<div class='ui-field-contain duration-field'><label for='o23'>" + _( "% Watering" ) +
 				"<button data-helptext='" +
-					_( "The watering percentage scales station run times by the set value. When weather adjustment is used the watering percentage is automatically adjusted." ) +
+					_( "The watering percentage scales station run times by the set value." ) +
 					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
 			"</label><button " + ( ( controller.options.uwt && getCurrentAdjustmentMethodId() > 0 ) ? "disabled='disabled' " : "" ) +
 				"data-mini='true' id='o23' value='" + controller.options.wl + "'>" + controller.options.wl + "%</button></div>";
@@ -4436,6 +4567,8 @@ function showOptions( expandItem ) {
 			showAutoRainDelayAdjustmentOptions( this, finish );
 		} else if ( method === 3 ) {
 			showEToAdjustmentOptions( this, finish );
+		} else if (method === 4 ) {
+			showMonthlyAdjustmentOptions(this, finish);
 		}
 	} );
 
