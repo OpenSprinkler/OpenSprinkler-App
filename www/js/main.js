@@ -2580,7 +2580,7 @@ function showMonthlyAdjustmentOptions( button, callback ) {
 	$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
 
 	var options = $.extend( {}, {
-		scales: [100,100,100,100,100,100,100,100,100,100,100,100]
+		scales: [ 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100 ]
 	}, unescapeJSON( button.value ) );
 
 	var popup = $( "<div data-role='popup' data-theme='a' id='adjustmentOptions'>" +
@@ -2596,91 +2596,91 @@ function showMonthlyAdjustmentOptions( button, callback ) {
 						"<label class='center'>" +
 							_( "Jan" )  +
 						"</label>" +
-						"<input data-wrapper-class='pad_buttons' class='sc0' type='number' min=0 max=250 value=" + options.scales[0] + ">" +
+						"<input data-wrapper-class='pad_buttons' class='sc0' type='number' min=0 max=250 value=" + options.scales[ 0 ] + ">" +
 					"</div>" +
 					"<div class='ui-block-b'>" +
 						"<label class='center'>" +
 							_( "Feb" ) +
 						"</label>" +
-						"<input data-wrapper-class='pad_buttons' class='sc1' type='number' min=0 max=250 value=" + options.scales[1] + ">" +
+						"<input data-wrapper-class='pad_buttons' class='sc1' type='number' min=0 max=250 value=" + options.scales[ 1 ] + ">" +
 					"</div>" +
 					"<div class='ui-block-c'>" +
 						"<label class='center'>" +
 							_( "Mar" ) +
 						"</label>" +
-						"<input data-wrapper-class='pad_buttons' class='sc2' type='number' min=0 max=250 value=" + options.scales[2] + ">" +
+						"<input data-wrapper-class='pad_buttons' class='sc2' type='number' min=0 max=250 value=" + options.scales[ 2 ] + ">" +
 					"</div>" +
 					"<div class='ui-block-d'>" +
 						"<label class='center'>" +
 							_( "Apr" ) +
 						"</label>" +
-						"<input data-wrapper-class='pad_buttons' class='sc3' type='number' min=0 max=250 value=" + options.scales[3] + ">" +
+						"<input data-wrapper-class='pad_buttons' class='sc3' type='number' min=0 max=250 value=" + options.scales[ 3 ] + ">" +
 					"</div>" +
-				"</div>"+
+				"</div>" +
 				"<div class='ui-grid-c'>" +
 					"<div class='ui-block-a'>" +
 						"<label class='center'>" +
 							_( "May" )  +
 						"</label>" +
-						"<input data-wrapper-class='pad_buttons' class='sc4' type='number' min=0 max=250 value=" + options.scales[4] + ">" +
+						"<input data-wrapper-class='pad_buttons' class='sc4' type='number' min=0 max=250 value=" + options.scales[ 4 ] + ">" +
 					"</div>" +
 					"<div class='ui-block-b'>" +
 						"<label class='center'>" +
 							_( "Jun" ) +
 						"</label>" +
-						"<input data-wrapper-class='pad_buttons' class='sc5' type='number' min=0 max=250 value=" + options.scales[5] + ">" +
+						"<input data-wrapper-class='pad_buttons' class='sc5' type='number' min=0 max=250 value=" + options.scales[ 5 ] + ">" +
 					"</div>" +
 					"<div class='ui-block-c'>" +
 						"<label class='center'>" +
 							_( "Jul" ) +
 						"</label>" +
-						"<input data-wrapper-class='pad_buttons' class='sc6' type='number' min=0 max=250 value=" + options.scales[6] + ">" +
+						"<input data-wrapper-class='pad_buttons' class='sc6' type='number' min=0 max=250 value=" + options.scales[ 6 ] + ">" +
 					"</div>" +
 					"<div class='ui-block-d'>" +
 						"<label class='center'>" +
 							_( "Aug" ) +
 						"</label>" +
-						"<input data-wrapper-class='pad_buttons' class='sc7' type='number' min=0 max=250 value=" + options.scales[7] + ">" +
+						"<input data-wrapper-class='pad_buttons' class='sc7' type='number' min=0 max=250 value=" + options.scales[ 7 ] + ">" +
 					"</div>" +
-				"</div>"+
+				"</div>" +
 				"<div class='ui-grid-c'>" +
 					"<div class='ui-block-a'>" +
 						"<label class='center'>" +
 							_( "Sep" )  +
 						"</label>" +
-						"<input data-wrapper-class='pad_buttons' class='sc8' type='number' min=0 max=250 value=" + options.scales[8] + ">" +
+						"<input data-wrapper-class='pad_buttons' class='sc8' type='number' min=0 max=250 value=" + options.scales[ 8 ] + ">" +
 					"</div>" +
 					"<div class='ui-block-b'>" +
 						"<label class='center'>" +
 							_( "Oct" ) +
 						"</label>" +
-						"<input data-wrapper-class='pad_buttons' class='sc9' type='number' min=0 max=250 value=" + options.scales[9] + ">" +
+						"<input data-wrapper-class='pad_buttons' class='sc9' type='number' min=0 max=250 value=" + options.scales[ 9 ] + ">" +
 					"</div>" +
 					"<div class='ui-block-c'>" +
 						"<label class='center'>" +
 							_( "Nov" ) +
 						"</label>" +
-						"<input data-wrapper-class='pad_buttons' class='sc10' type='number' min=0 max=250 value=" + options.scales[10] + ">" +
+						"<input data-wrapper-class='pad_buttons' class='sc10' type='number' min=0 max=250 value=" + options.scales[ 10 ] + ">" +
 					"</div>" +
 					"<div class='ui-block-d'>" +
 						"<label class='center'>" +
 							_( "Dec" ) +
 						"</label>" +
-						"<input data-wrapper-class='pad_buttons' class='sc11' type='number' min=0 max=250 value=" + options.scales[11] + ">" +
+						"<input data-wrapper-class='pad_buttons' class='sc11' type='number' min=0 max=250 value=" + options.scales[ 11 ] + ">" +
 					"</div>" +
-				"</div>"+
+				"</div>" +
 				"<button class='submit' data-theme='b'>" + _( "Submit" ) + "</button>" +
 			"</div>" +
 		"</div>" );
 
 	popup.find( ".submit" ).on( "click", function() {
 		var _scales = [];
-		for(var i=0;i<12;i++) {
-			_scales[i] = parseInt( popup.find( ".sc"+i ).val() );
-			if(_scales[i]<0) _scales[i]=0;
-			if(_scales[i]>250) _scales[i]=250;
+		for ( var i = 0; i < 12; i++ ) {
+			_scales[ i ] = parseInt( popup.find( ".sc" + i ).val() );
+			if ( _scales[ i ] < 0 ) _scales[ i ] = 0;
+			if ( _scales[ i ] > 250 ) _scales[ i ] = 250;
 		}
-		options = { scales : _scales };
+		options = { scales: _scales };
 		if ( button ) {
 			button.value = escapeJSON( options );
 		}
@@ -3528,7 +3528,7 @@ function getAdjustmentMethod( id ) {
         { name: "Zimmerman", id: 1 },
         { name: _( "Auto Rain Delay" ), id: 2, minVersion: 216 },
 		{ name: "ETo", id: 3, minVersion: 216 },
-		{ name: "Monthly", id:4, minVersion: 220}
+		{ name: "Monthly", id:4, minVersion: 220 }
     ];
 
     if ( id === undefined ) {
@@ -4567,8 +4567,8 @@ function showOptions( expandItem ) {
 			showAutoRainDelayAdjustmentOptions( this, finish );
 		} else if ( method === 3 ) {
 			showEToAdjustmentOptions( this, finish );
-		} else if (method === 4 ) {
-			showMonthlyAdjustmentOptions(this, finish);
+		} else if ( method === 4 ) {
+			showMonthlyAdjustmentOptions( this, finish );
 		}
 	} );
 
@@ -5982,7 +5982,7 @@ var showHome = ( function() {
 			Card.setGroupLabel( nextCard, Card.getGIDName( nextCard ) );
 		},
 		updateStandardView = function( cardHolder, cardList ) {
-			var thisCard, nextCard, divider;
+			var thisCard, nextCard, divider, label;
 			for ( var idx = 0; idx < cardHolder.children().length - 1; idx++ ) {
 				thisCard = CardList.getCardByIndex( cardList, idx );
 				nextCard = CardList.getCardByIndex( cardList, idx + 1 );
@@ -5991,6 +5991,10 @@ var showHome = ( function() {
 				divider.hide(); // Remove all dividers when switching from group view
 
 				Card.setGroupLabel( thisCard, Card.getGIDName( thisCard ) );
+				label = Card.getGroupLabel( thisCard );
+				if ( Card.isMasterStation( thisCard ) ) {
+					label.addClass( "hidden" );
+				}
 
 				//  Display divider between active and non-active stations
 				if ( Station.isRunning( Card.getSID( thisCard ) ) &&
@@ -6000,6 +6004,10 @@ var showHome = ( function() {
 			}
 			Card.getDivider( nextCard ).hide();
 			Card.setGroupLabel( nextCard, Card.getGIDName( nextCard ) );
+			label = Card.getGroupLabel( nextCard );
+			if ( Card.isMasterStation( nextCard ) ) {
+				label.addClass( "hidden" );
+			}
 		},
 		reorderCards = function() {
 			var cardHolder = page.find( "#os-stations-list" ),
