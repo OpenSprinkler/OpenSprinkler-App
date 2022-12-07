@@ -424,6 +424,16 @@ body, input, select, textarea, button, .ui-btn {
     page-break-inside: avoid;
     break-inside: avoid-column;
 }
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+	appearance: none;
+    margin: 0;
+}
+input[type=number] {
+	-moz-appearance: textfield;
+	appearance: none;
+}
 #header, #footer {
     display: none;
     overflow: hidden;
