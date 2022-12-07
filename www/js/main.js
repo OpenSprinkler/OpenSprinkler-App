@@ -6646,7 +6646,7 @@ function checkStatus() {
 		line += "</p>";
 
 		changeStatus( controller.settings.pt || 0, "yellow", line, function() {
-			areYouSure( _( "Do you want to resume program operation?" ), "", function() {
+			areYouSure( _( "Do you want to resume station operation?" ), "", function() {
 				showLoading( "#footer-running" );
 				sendToOS( "/pq?pw=&dur=0" ).done( function() {
 					setTimeout( refreshStatus, 1000 );
