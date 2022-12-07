@@ -6637,7 +6637,15 @@ function checkStatus() {
 
 	// Handle queue paused
 	if ( controller.settings.pq ) {
-		changeStatus( 0, "yellow", "<p class='running-text center pointer'>" + _( "Station Runs are Paused" ) + "</p>", function() {
+		line = "<p class='running-text center pointer'>" + _( "Stations Currently Paused" );
+
+		if ( controller.settings.pt ) {
+			line += " <span id='countdown' class='nobr'>(" + sec2hms( controller.settings.pt ) + " " + _( "remaining" ) + ")</span>";
+		}
+
+		line += "</p>";
+
+		changeStatus( controller.settings.pt || 0, "yellow", line, function() {
 			areYouSure( _( "Do you want to resume program operation?" ), "", function() {
 				showLoading( "#footer-running" );
 				sendToOS( "/pq?pw=&dur=0" ).done( function() {
