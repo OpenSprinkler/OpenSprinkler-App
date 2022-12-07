@@ -214,6 +214,9 @@ msgstr ""
 msgid "Current Weather"
 msgstr ""
 
+msgid "Do you want to turn off rain delay?"
+msgstr ""
+
 msgid "Powered by Dark Sky"
 msgstr ""
 
@@ -316,7 +319,7 @@ msgstr ""
 msgid "Building Weather History"
 msgstr ""
 
-msgid "Weather Provider Respnse Incomplete"
+msgid "Weather Provider Response Incomplete"
 msgstr ""
 
 msgid "Weather Provider Request Failed"
@@ -681,6 +684,14 @@ msgstr ""
 msgid "Select which events to send to IFTTT for use in recipes."
 msgstr ""
 
+msgid "MQTT"
+msgstr ""
+
+msgid ""
+"OpenSprinkler can send notifications to an MQTT broker at a specified host "
+"and port."
+msgstr ""
+
 msgid "LCD Screen"
 msgstr ""
 
@@ -837,6 +848,30 @@ msgid "Rain Delay Update"
 msgstr ""
 
 msgid "Select IFTTT Events"
+msgstr ""
+
+msgid "MQTT Settings"
+msgstr ""
+
+msgid "Broker/Server"
+msgstr ""
+
+msgid "broker/server"
+msgstr ""
+
+msgid "Port"
+msgstr ""
+
+msgid "Username"
+msgstr ""
+
+msgid "username (optional)"
+msgstr ""
+
+msgid "Password"
+msgstr ""
+
+msgid "password (optional)"
 msgstr ""
 
 msgid "Preview Programs"
@@ -1045,9 +1080,6 @@ msgid "is running on station"
 msgstr ""
 
 msgid "Rain delay until"
-msgstr ""
-
-msgid "Do you want to turn off rain delay?"
 msgstr ""
 
 msgid "Rain detected"
@@ -1426,6 +1458,9 @@ msgstr ""
 msgid "Program has been updated"
 msgstr ""
 
+msgid "Error: Interval days must be between "
+msgstr ""
+
 msgid "Warning: The repeat interval is less than the program run time."
 msgstr ""
 
@@ -1497,6 +1532,9 @@ msgstr ""
 msgid ""
 "This is open source software: source code and changelog for this application "
 "can be found at"
+msgstr ""
+
+msgid "Language localization is crowdsourced using Transifex available at"
 msgstr ""
 
 msgid "Open source attributions"
@@ -1613,9 +1651,6 @@ msgid ""
 "Please enter your OpenSprinkler.com password. If you have recently changed "
 "your password, you may need to enter your previous password to decrypt the "
 "data."
-msgstr ""
-
-msgid "Password"
 msgstr ""
 
 msgid "Unused Expanders Detected"
@@ -1925,9 +1960,6 @@ msgid "In"
 msgstr ""
 
 msgid "ago"
-msgstr ""
-
-msgid "Thr"
 msgstr ""
 
 msgid "Export Configuration"

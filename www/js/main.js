@@ -4,14 +4,14 @@
 /* OpenSprinkler App
  * Copyright (C) 2015 - present, Samer Albahra. All rights reserved.
  *
- * This file is part of the OpenSprinkler project <http://opensprinkler.com>.
+ * This file is part of the OpenSprinkler project <https://opensprinkler.com>.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License version 3 as
  * published by the Free Software Foundation.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 var DEFAULT_WEATHER_SERVER_URL = "https://weather.opensprinkler.com";
@@ -153,7 +153,7 @@ var isIEMobile = /IEMobile/.test( navigator.userAgent ),
 	// Array to hold all notifications currently displayed within the app
 	notifications = [],
 	timers = {},
-	curr183, currIp, currPrefix, currAuth, currPass, currAuthUser,
+	curr183, currToken, currIp, currPrefix, currAuth, currPass, currAuthUser,
 	currAuthPass, currLocal, currLang, language, deviceip, errorTimeout, weather, openPanel;
 
 
@@ -203,6 +203,11 @@ if ( window.MSApp ) {
 
 $( document )
 .one( "deviceready", function() {
+	/** Replace window.open with InAppBrowser if available */
+	if ( window.cordova && window.cordova.InAppBrowser ) {
+		window.open = window.cordova.InAppBrowser.open;
+	}
+
 	try {
 
 		//Change the status bar to match the headers
@@ -339,7 +344,7 @@ $( document )
 		if ( $( hash ).length === 0 ) {
 			showHome( data.options.firstLoad );
 		} else {
-			$( hash ).one( "pageshow", refreshStatus );
+			$( hash ).one( "pageshow", function() { refreshStatus(); } );
 		}
 	}
 } )
@@ -381,6 +386,8 @@ $( document )
 	storage.get( "showDisabled", function( data ) {
 		if ( data.showDisabled && data.showDisabled === "true" ) {
 			$( newpage ).addClass( "show-hidden" ).find( ".station-hidden" ).show();
+		} else {
+			$( newpage ).removeClass( "show-hidden" ).find( ".station-hidden" ).hide();
 		}
 	} );
 } )
@@ -400,7 +407,7 @@ $( document )
 	if ( isControllerConnected() && newpage !== "#site-control" && newpage !== "#start" && newpage !== "#loadingPage" ) {
 
 		// Update the controller status every 5 seconds and the program and station data every 30 seconds
-		var refreshStatusInterval = setInterval( refreshStatus, 5000 ),
+		var refreshStatusInterval = setInterval( function() { refreshStatus(); }, 5000 ),
 			refreshDataInterval;
 
 		if ( !checkOSVersion( 216 ) ) {
@@ -499,7 +506,7 @@ function initApp() {
 		var button = $( this ),
 			iab = window.open( this.href, target, "location=" + ( isAndroid ? "yes" : "no" ) +
 				",enableViewportScale=" + ( button.hasClass( "iabNoScale" ) ? "no" : "yes" ) +
-				",toolbarposition=top" +
+				",toolbar=yes,toolbarposition=top,toolbarcolor=" + statusBarPrimary +
 				",closebuttoncaption=" +
 					( button.hasClass( "iabNoScale" ) ? _( "Back" ) : _( "Done" ) )
 			);
@@ -690,8 +697,9 @@ function sendToOS( dest, type ) {
 
 		// Use POST when sending data to the controller (requires firmware 2.1.8 or newer)
 		usePOST = ( isChange && checkOSVersion( 300 ) ),
+		urlDest = usePOST ? dest.split( "?" )[ 0 ] : dest,
 		obj = {
-			url: currPrefix + currIp + ( usePOST ? dest.split( "?" )[ 0 ] : dest ),
+			url: currToken ? "https://cloud.openthings.io/forward/v1/" + currToken + urlDest : currPrefix + currIp + urlDest,
 			type: usePOST ? "POST" : "GET",
 			data: usePOST ? getUrlVars( dest ) : null,
 			dataType: type,
@@ -1267,6 +1275,8 @@ function checkConfigured( firstLoad ) {
 
 		updateSiteList( names, current );
 
+		currToken = sites[ current ].os_token;
+
 		currIp = sites[ current ].os_ip;
 		currPass = sites[ current ].os_pw;
 
@@ -1325,7 +1335,9 @@ function submitNewUser( ssl, useAuth ) {
 	document.activeElement.blur();
 	$.mobile.loading( "show" );
 
-	var ip = $.mobile.path.parseUrl( $( "#os_ip" ).val() ).hrefNoHash.replace( /https?:\/\//, "" ),
+	var connectionType = $( ".connection-type input[type='radio']:checked" ).val(),
+		ip = $.mobile.path.parseUrl( $( "#os_ip" ).val() ).hrefNoHash.replace( /https?:\/\//, "" ),
+		token = connectionType === "token" ? $( "#os_token" ).val() : null,
 		success = function( data, sites ) {
 			$.mobile.loading( "hide" );
 			var is183;
@@ -1344,6 +1356,7 @@ function submitNewUser( ssl, useAuth ) {
 				}
 
 				sites[ name ] = {};
+				sites[ name ].os_token = currToken = token;
 				sites[ name ].os_ip = currIp = ip;
 
 				if ( typeof data.fwv === "number" && data.fwv >= 213 ) {
@@ -1377,7 +1390,7 @@ function submitNewUser( ssl, useAuth ) {
 					curr183 = true;
 				}
 
-				$( "#os_name,#os_ip,#os_pw,#os_auth_user,#os_auth_pw" ).val( "" );
+				$( "#os_name,#os_ip,#os_pw,#os_auth_user,#os_auth_pw,#os_token" ).val( "" );
 				storage.set( {
 					"sites": JSON.stringify( sites ),
 					"current_site": name
@@ -1437,8 +1450,13 @@ function submitNewUser( ssl, useAuth ) {
 		},
 		prefix;
 
-	if ( !ip ) {
-		showerror( _( "An IP address is required to continue." ) );
+	if ( !ip && !token ) {
+		showerror( _( "An IP address or token is required to continue." ) );
+		return;
+	}
+
+	if ( token && token.length !== 32 ) {
+		showerror( _( "OpenThings Token must be 32 characters long." ) );
 		return;
 	}
 
@@ -1463,15 +1481,18 @@ function submitNewUser( ssl, useAuth ) {
 		$( "#addnew" ).popup( "reposition", { positionTo:"window" } );
 	}
 
+	var urlDest = "/jo?pw=" + md5( $( "#os_pw" ).val() ),
+		url = token ? "https://cloud.openthings.io/forward/v1/" + token + urlDest : prefix + ip + urlDest;
+
 	//Submit form data to the server
 	$.ajax( {
-		url: prefix + ip + "/jo?pw=" + md5( $( "#os_pw" ).val() ),
+		url: url,
 		type: "GET",
 		dataType: "json",
 		timeout: 10000,
 		global: false,
 		beforeSend: function( xhr ) {
-			if ( useAuth ) {
+			if ( !token && useAuth ) {
 				xhr.setRequestHeader(
 					"Authorization",
 					"Basic " + getAuthInfo()
@@ -1484,14 +1505,14 @@ function submitNewUser( ssl, useAuth ) {
 				return;
 			}
 			$.ajax( {
-				url: prefix + ip,
+				url: token ? "https://cloud.openthings.io/forward/v1/" + token : prefix + ip,
 				type: "GET",
 				dataType: "text",
 				timeout: 10000,
 				global: false,
 				cache: true,
 				beforeSend: function( xhr ) {
-					if ( useAuth ) {
+					if ( !token && useAuth ) {
 						xhr.setRequestHeader(
 							"Authorization",
 							"Basic " + getAuthInfo()
@@ -1563,18 +1584,32 @@ function showAddNew( autoIP, closeOld ) {
 					"<input autocorrect='off' spellcheck='false' type='text' name='os_name' " +
 						"id='os_name' placeholder='Home'>" +
 					( isAuto ? "" :
-						"<label for='os_ip'>" + _( "Open Sprinkler IP:" ) + "</label>" ) +
-					"<input " + ( isAuto ? "data-role='none' style='display:none' " : "" ) +
+						"<div class='ui-field-contain'>" +
+						    "<fieldset data-role='controlgroup' class='ui-mini center connection-type' data-type='horizontal'>" +
+						        "<legend class='left'>" + _( "Connection Type" ) + ":</legend>" +
+						        "<input class='noselect' type='radio' name='connectionType' id='type-direct' value='ip' checked='checked'>" +
+						        "<label for='type-direct'>" + _( "Direct" ) + "</label>" +
+						        "<input class='noselect' type='radio' name='connectionType' id='type-token' value='token'>" +
+						        "<label for='type-token'>" + _( "OpenThings Cloud" ) + "</label>" +
+						    "</fieldset>" +
+						"</div>" +
+						"<label class='ip-field' for='os_ip'>" + _( "Open Sprinkler IP:" ) + "</label>" ) +
+					"<input data-wrapper-class='ip-field' " + ( isAuto ? "data-role='none' style='display:none' " : "" ) +
 						"autocomplete='off' autocorrect='off' autocapitalize='off' " +
 						"spellcheck='false' type='url' pattern='' name='os_ip' id='os_ip' " +
 						"value='" + ( isAuto ? autoIP : "" ) + "' placeholder='home.dyndns.org'>" +
+					"<label class='token-field' for='os_token' style='display: none'>" + _( "OpenThings Token" ) + ":</label>" +
+					"<input data-wrapper-class='token-field hidden' " +
+						"autocomplete='off' autocorrect='off' autocapitalize='off' " +
+						"spellcheck='false' type='text' pattern='' name='os_token' id='os_token' " +
+						"value='' placeholder='" + _( "OpenThings Token" ) + "'>" +
 					"<label for='os_pw'>" + _( "Open Sprinkler Password:" ) + "</label>" +
 					"<input type='password' name='os_pw' id='os_pw' value=''>" +
-				    "<label for='save_pw'>" + _( "Save Password" ) + "</label>" +
+					"<label for='save_pw'>" + _( "Save Password" ) + "</label>" +
 					"<input type='checkbox' data-wrapper-class='save_pw' name='save_pw' " +
 						"id='save_pw' data-mini='true' checked='checked'>" +
 					( isAuto ? "" :
-						"<div data-theme='a' data-mini='true' data-role='collapsible'>" +
+						"<div data-theme='a' data-mini='true' data-role='collapsible' class='advanced-options'>" +
 							"<h4>" + _( "Advanced" ) + "</h4>" +
 							"<fieldset data-role='controlgroup' data-type='horizontal' " +
 								"data-mini='true' class='center'>" +
@@ -1623,6 +1658,13 @@ function showAddNew( autoIP, closeOld ) {
 		}
 
 		addnew.popup( "reposition", { positionTo:"window" } );
+	} );
+
+	addnew.find( ".connection-type input[type='radio']" ).on( "change", function() {
+		var previous = this.value === "token" ? "ip" : "token";
+		addnew.find( "." + previous + "-field" ).hide();
+		addnew.find( "." + this.value + "-field" ).removeClass( "hidden" ).show();
+		addnew.find( ".advanced-options" ).toggle( this.value === "ip" );
 	} );
 
 	return false;
@@ -1732,14 +1774,18 @@ var showSites = ( function() {
 							"<div class='ui-field-contain'>" +
 								"<label for='cnm-" + i + "'>" + _( "Change Name" ) + "</label><input id='cnm-" + i + "' type='text' value='" + a + "'>" +
 							"</div>" +
-							"<div class='ui-field-contain'>" +
+							( b.os_token ? "" : "<div class='ui-field-contain'>" +
 								"<label for='cip-" + i + "'>" + _( "Change IP" ) + "</label><input id='cip-" + i + "' type='url' value='" + b.os_ip +
 									"' autocomplete='off' autocorrect='off' autocapitalize='off' pattern='' spellcheck='false'>" +
-							"</div>" +
+							"</div>" ) +
+							( b.os_token ? "<div class='ui-field-contain'>" +
+								"<label for='ctoken-" + i + "'>" + _( "Change Token" ) + "</label><input id='ctoken-" + i + "' type='text' value='" + b.os_token +
+									"' autocomplete='off' autocorrect='off' autocapitalize='off' pattern='' spellcheck='false'>" +
+							"</div>" : "" ) +
 							"<div class='ui-field-contain'>" +
 								"<label for='cpw-" + i + "'>" + _( "Change Password" ) + "</label><input id='cpw-" + i + "' type='password'>" +
 							"</div>" +
-							"<fieldset data-mini='true' data-role='collapsible'>" +
+							( b.os_token ? "" : "<fieldset data-mini='true' data-role='collapsible'>" +
 								"<h3>" +
 									"<span style='line-height:23px'>" + _( "Advanced" ) + "</span>" +
 									"<button data-helptext='" +
@@ -1757,7 +1803,7 @@ var showSites = ( function() {
 										( typeof b.auth_user !== "undefined" && typeof b.auth_pw !== "undefined" ? " checked='checked'" : "" ) + ">" +
 									_( "Use Auth" ) +
 								"</label>" +
-							"</fieldset>" +
+							"</fieldset>" ) +
 							"<input class='submit' type='submit' value='" + _( "Save Changes to" ) + " " + a + "'>" +
 							"<a data-role='button' class='deletesite' data-site='" + i + "' href='#' data-theme='b'>" + _( "Delete" ) + " " + a + "</a>" +
 						"</form>" +
@@ -2007,8 +2053,11 @@ function addSyncStatus( token ) {
 }
 
 function testSite( site, id, callback ) {
+	var urlDest = "/jo?pw=" + encodeURIComponent( site.os_pw ),
+		url = site.os_token ? "https://cloud.openthings.io/forward/v1/" + site.os_token + urlDest : ( site.ssl === "1" ? "https://" : "http://" ) + site.os_ip + urlDest;
+
 	$.ajax( {
-		url: ( site.ssl === "1" ? "https://" : "http://" ) + site.os_ip + "/jo?pw=" + encodeURIComponent( site.os_pw ),
+		url: url,
 		type: "GET",
 		dataType: "json",
 		beforeSend: function( xhr ) {
@@ -2974,11 +3023,23 @@ function checkURLandUpdateWeather() {
 
 function updateWeatherBox() {
 	$( "#weather" )
-		.html( "<div title='" + weather.description + "' class='wicon'><img src='http://openweathermap.org/img/w/" + weather.icon + ".png'></div>" +
+		.html(
+			( controller.settings.rd ? "<div class='rain-delay red'><span class='icon ui-icon-alert'></span>Rain Delay<span class='time'>" + dateToString( new Date( controller.settings.rdst * 1000 ), undefined, true ) + "</span></div>" : "" ) +
+			"<div title='" + weather.description + "' class='wicon'><img src='https://openweathermap.org/img/w/" + weather.icon + ".png'></div>" +
 			"<div class='inline tight'>" + formatTemp( weather.temp ) + "</div><br><div class='inline location tight'>" + _( "Current Weather" ) + "</div>" +
 			( typeof weather.alert === "object" ? "<div><button class='tight help-icon btn-no-border ui-btn ui-icon-alert ui-btn-icon-notext ui-corner-all'></button>" + weather.alert.type + "</div>" : "" ) )
-		.off( "click" ).on( "click", function() {
-			changePage( "#forecast" );
+		.off( "click" ).on( "click", function( event ) {
+			var target = $( event.target );
+			if ( target.hasClass( "rain-delay" ) || target.parents( ".rain-delay" ).length ) {
+				areYouSure( _( "Do you want to turn off rain delay?" ), "", function() {
+					showLoading( "#weather" );
+					sendToOS( "/cv?pw=&rd=0" ).done( function() {
+						updateController( updateWeather );
+					} );
+				} );
+			} else {
+				changePage( "#forecast" );
+			}
 			return false;
 		} )
 		.parents( ".info-card" ).removeClass( "noweather" );
@@ -3157,7 +3218,7 @@ function makeForecast() {
 
 	list += "<li data-icon='false' class='center'>" +
 			"<div>" + _( "Now" ) + "</div><br>" +
-			"<div title='" + weather.description + "' class='wicon'><img src='http://openweathermap.org/img/w/" + weather.icon + ".png'></div>" +
+			"<div title='" + weather.description + "' class='wicon'><img src='https://openweathermap.org/img/w/" + weather.icon + ".png'></div>" +
 			"<span>" + formatTemp( weather.temp ) + "</span><br>" +
 			"<span>" + _( "Sunrise" ) + "</span><span>: " + pad( parseInt( sunrise / 60 ) % 24 ) + ":" + pad( sunrise % 60 ) + "</span> " +
 			"<span>" + _( "Sunset" ) + "</span><span>: " + pad( parseInt( sunset / 60 ) % 24 ) + ":" + pad( sunset % 60 ) + "</span>" +
@@ -3172,7 +3233,7 @@ function makeForecast() {
 
 		list += "<li data-icon='false' class='center'>" +
 				"<div>" + date.toLocaleDateString() + "</div><br>" +
-				"<div title='" + weather.forecast[ i ].description + "' class='wicon'><img src='http://openweathermap.org/img/w/" + weather.forecast[ i ].icon + ".png'></div>" +
+				"<div title='" + weather.forecast[ i ].description + "' class='wicon'><img src='https://openweathermap.org/img/w/" + weather.forecast[ i ].icon + ".png'></div>" +
 				"<span>" + _( weekdays[ date.getDay() ] ) + "</span><br>" +
 				"<span>" + _( "Low" ) + "</span><span>: " + formatTemp( weather.forecast[ i ].temp_min ) + "  </span>" +
 				"<span>" + _( "High" ) + "</span><span>: " + formatTemp( weather.forecast[ i ].temp_max ) + "</span><br>" +
@@ -3344,7 +3405,7 @@ var weatherErrors = {
 	"0":	_( "Success" ),
 	"1":	_( "Weather Data Error" ),
 	"10":	_( "Building Weather History" ),
-	"11":	_( "Weather Provider Respnse Incomplete" ),
+	"11":	_( "Weather Provider Response Incomplete" ),
 	"12":	_( "Weather Provider Request Failed" ),
 	"2":	_( "Location Error" ),
 	"20":	_( "Location Request Error" ),
@@ -3443,6 +3504,7 @@ function debugWU() {
 			( typeof controller.settings.wtdata.maxH !== "undefined" ? "<tr><td>" + _( "Max Humidity" ) + "</td><td>" + formatHumidity( controller.settings.wtdata.maxH ) + "</td></tr>" : "" ) +
 			( typeof controller.settings.wtdata.wind !== "undefined" ? "<tr><td>" + _( "Mean Wind" ) + "</td><td>" + formatSpeed( controller.settings.wtdata.wind ) + "</td></tr>" : "" );
 	}
+
 	popup += ( typeof controller.settings.lwc === "number" ? "<tr><td>" + _( "Last Request" ) + "</td><td>" + dateToString( new Date( controller.settings.lwc * 1000 ), null, 2 ) + "</td></tr>" : "" );
 	popup += ( typeof controller.settings.wterr === "number" ? "<tr><td>" + _( "Last Response" ) + "</td><td>" + getWeatherError( controller.settings.wterr ) + "</td></tr>" : "" );
 	popup += "</table></div>";
@@ -5069,6 +5131,11 @@ function showOptions( expandItem ) {
 			}
 		} );
 		popup.find( ".submit" ).on( "click", function() {
+			if ( popup.find( "#token" ).val().length !== 32 ) {
+				showerror( _( "OpenThings Token must be 32 characters long." ) );
+				return;
+			}
+
 			var options = {
 				en: ( popup.find( "#enable" ).prop( "checked" ) ? 1 : 0 ),
 				token: popup.find( "#token" ).val(),
@@ -5089,7 +5156,7 @@ function showOptions( expandItem ) {
 		popup.css( "max-width", "380px" );
 
 		openPopup( popup, { positionTo: "window" } );
-		} );
+    } );
 
 	page.find( ".datetime-input" ).on( "click", function() {
 		var input = $( this ).find( "button" );
@@ -5531,8 +5598,8 @@ var showHome = ( function() {
 			// Setup two tabs for station configuration (Basic / Advanced) when applicable
 			if ( Supported.special() ) {
 				select += "<ul class='tabs'>" +
-								"<li class='current' data-tab='tab-basic'>Basic</li>" +
-								"<li data-tab='tab-advanced'>Advanced</li>" +
+								"<li class='current' data-tab='tab-basic'>" + _( "Basic" ) + "</li>" +
+								"<li data-tab='tab-advanced'>" + _( "Advanced" ) + "</li>" +
 							"</ul>";
 			}
 
@@ -6203,7 +6270,7 @@ var showHome = ( function() {
 						incrementalUpdate: false,
 						maximum: 65535,
 						seconds: sites[ currentSite ].lastRunTime[ sid ] > 0 ? sites[ currentSite ].lastRunTime[ sid ] : 0,
-						helptext: _( "Enter a duration to manually run " + name ),
+						helptext: _( "Enter a duration to manually run " ) + name,
 						callback: function( duration ) {
 							sendToOS( "/cm?sid=" + sid + "&en=1&t=" + duration + "&pw=", "json" ).done( function() {
 
@@ -6454,17 +6521,18 @@ function convertRemoteToExtender( data ) {
 }
 
 // Current status related functions
-function refreshStatus() {
+function refreshStatus( callback ) {
 	if ( !isControllerConnected() ) {
 		return;
 	}
 
+	callback = callback || function() {};
 	var finish = function() {
 
 		// Notify the page container that the data has refreshed
 		$( "html" ).trigger( "datarefresh" );
 		checkStatus();
-		return;
+		callback();
 	};
 
 	if ( checkOSVersion( 216 ) ) {
@@ -9676,6 +9744,7 @@ function submitProgram21( id, ignoreWarning ) {
 		en = ( $( "#en-" + id ).is( ":checked" ) ) ? 1 : 0,
 		weather = ( $( "#uwt-" + id ).is( ":checked" ) ) ? 1 : 0,
 		j = 0,
+		minIntervalDays = checkOSVersion( 2199 ) ? 1 : 2,
 		daysin, i, name, url, daterange;
 
 	// Set enable/disable bit for program
@@ -9696,8 +9765,8 @@ function submitProgram21( id, ignoreWarning ) {
 		j |= ( 3 << 4 );
 		days[ 1 ] = parseInt( $( "#every-" + id ).val(), 10 );
 
-		if ( !( days[ 1 ] >= 2 && days[ 1 ] <= 128 ) ) {
-			showerror( _( "Error: Interval days must be between 2 and 128." ) );
+		if ( !( days[ 1 ] >= minIntervalDays && days[ 1 ] <= 128 ) ) {
+			showerror( _( "Error: Interval days must be between " + minIntervalDays + " and 128." ) );
 			return;
 		}
 
@@ -9837,7 +9906,7 @@ function raindelay( delay ) {
 	sendToOS( "/cv?pw=&rd=" + ( delay / 3600 ) ).done( function() {
 		$.mobile.loading( "hide" );
 		showLoading( "#footer-running" );
-		refreshStatus();
+		refreshStatus( updateWeather );
 		showerror( _( "Rain delay has been successfully set" ) );
 	} );
 	return false;
@@ -10277,7 +10346,7 @@ var showAbout = ( function() {
 					"</li>" +
 				"</ul>" +
 				"<p class='smaller'>" +
-					_( "App Version" ) + ": 2.1.10" +
+					_( "App Version" ) + ": 2.2.5" +
 					"<br>" + _( "Firmware" ) + ": <span class='firmware'></span>" +
 					"<br><span class='hardwareLabel'>" + _( "Hardware Version" ) + ":</span> <span class='hardware'></span>" +
 				"</p>" +
@@ -10343,8 +10412,10 @@ function isOSPi() {
 
 // Check if password is valid
 function checkPW( pass, callback ) {
+	var urlDest = "/sp?pw=" + encodeURIComponent( pass ) + "&npw=" + encodeURIComponent( pass ) + "&cpw=" + encodeURIComponent( pass );
+
 	$.ajax( {
-		url: currPrefix + currIp + "/sp?pw=" + encodeURIComponent( pass ) + "&npw=" + encodeURIComponent( pass ) + "&cpw=" + encodeURIComponent( pass ),
+		url: currToken ? "https://cloud.openthings.io/forward/v1/" + currToken + urlDest : currPrefix + currIp + urlDest,
 		cache: false,
 		crossDomain: true,
 		type: "GET"
@@ -10488,8 +10559,10 @@ function changePassword( opt ) {
 				pw = md5( sites[ current ].os_pw );
 
 			if ( !isMD5( sites[ current ].os_pw ) ) {
+				var urlDest = "/jc?pw=" + pw;
+
 				$.ajax( {
-					url: currPrefix + currIp + "/jc?pw=" + pw,
+					url: currToken ? "https://cloud.openthings.io/forward/v1/" + currToken + urlDest : currPrefix + currIp + urlDest,
 					type: "GET",
 					dataType: "json"
 				} ).then(
@@ -10520,7 +10593,7 @@ function requestCloudAuth( callback ) {
 					"<li><p class='rain-desc tight'>" +
 						_( "Use your OpenSprinkler.com login and password to securely sync sites between all your devices." ) +
 						"<br><br>" +
-						_( "Don't have an account?" ) + " <a href='https://opensprinkler.com/wp-login.php?action=register' class='iab'>" +
+						_( "Don't have an account?" ) + " <a href='https://opensprinkler.com/my-account/' class='iab'>" +
 						_( "Register here" ) + "</a>" +
 					"</p></li>" +
 					"<li>" +
@@ -10998,6 +11071,10 @@ function checkPublicAccess( eip ) {
 		return;
 	}
 
+	if ( currToken ) {
+		return;
+	}
+
 	var ip = intToIP( eip ),
 		port = currIp.match( /.*:(\d+)/ ),
 		fail = function() {
@@ -11051,14 +11128,14 @@ function checkPublicAccess( eip ) {
 			}
 
 			// Public IP worked, update device IP to use the public IP instead
-			storage.get( [ "sites", "current_site" ], function( data ) {
-				var sites = parseSites( data.sites ),
-					current = data.current_site;
+			// storage.get( [ "sites", "current_site" ], function( data ) {
+			// 	var sites = parseSites( data.sites ),
+			// 		current = data.current_site;
 
-				sites[ current ].os_ip = ip + ( port === 80 ? "" : ":" + port );
+			// 	sites[ current ].os_ip = ip + ( port === 80 ? "" : ":" + port );
 
-				storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
-			} );
+			// 	storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
+			// } );
 		},
 		fail
 	);
@@ -11349,7 +11426,11 @@ function checkOSVersion( check ) {
 
 	// If check is 4 digits then we need to include the minor version number as well
 	if ( check >= 1000 ) {
-		version = version * 10 + controller.options.fwm;
+		if ( isNaN( controller.options.fwm ) ) {
+			return false;
+		} else {
+			version = version * 10 + controller.options.fwm;
+		}
 	}
 
 	if ( isOSPi() ) {
@@ -12019,40 +12100,40 @@ function showTimeInput( opt ) {
 			"<div class='ui-content'>" +
 				( opt.helptext ? "<p class='pad-top rain-desc center smaller'>" + opt.helptext + "</p>" : "" ) +
 				"<span>" +
-					"<fieldset class='ui-grid-b incr'>" +
+					"<fieldset class='ui-grid-" + ( isMetric ? "a" : "b" ) + " incr'>" +
 						"<div class='ui-block-a'>" +
 							"<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a>" +
 						"</div>" +
 						"<div class='ui-block-b'>" +
 							"<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a>" +
 						"</div>" +
-						"<div class='ui-block-c'>" +
+						( isMetric ? "" : "<div class='ui-block-c'>" +
 							"<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a>" +
-						"</div>" +
+						"</div>" ) +
 					"</fieldset>" +
-					"<div class='ui-grid-b inputs'>" +
+					"<div class='ui-grid-" + ( isMetric ? "a" : "b" ) + " inputs'>" +
 						"<div class='ui-block-a'>" +
 							"<input data-wrapper-class='pad_buttons' class='hour dontPad' type='number' pattern='[0-9]*' value='" +
-								( parseInt( opt.minutes / 60 ) % 12 === 0 ? 12 : parseInt( opt.minutes / 60 ) % 12 ) + "'>" +
+								( isMetric ? pad( ( opt.minutes / 60 >> 0 ) % 24 ) + "'>" : ( parseInt( opt.minutes / 60 ) % 12 === 0 ? 12 : parseInt( opt.minutes / 60 ) % 12 ) + "'>" ) +
 						"</div>" +
 						"<div class='ui-block-b'>" +
 							"<input data-wrapper-class='pad_buttons' class='minute' type='number' pattern='[0-9]*' value='" +
 								pad( opt.minutes % 60 ) + "'>" +
 						"</div>" +
-						"<div class='ui-block-c'>" +
+						( isMetric ? "" : "<div class='ui-block-c'>" +
 							"<p class='center period'>" + getPeriod() + "</p>" +
-						"</div>" +
+						"</div>" ) +
 					"</div>" +
-					"<fieldset class='ui-grid-b decr'>" +
+					"<fieldset class='ui-grid-" + ( isMetric ? "a" : "b" ) + " decr'>" +
 						"<div class='ui-block-a'>" +
 							"<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='minus' data-iconpos='bottom'></a>" +
 						"</div>" +
 						"<div class='ui-block-b'>" +
 							"<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='minus' data-iconpos='bottom'></a>" +
 						"</div>" +
-						"<div class='ui-block-c'>" +
+						( isMetric ? "" : "<div class='ui-block-c'>" +
 							"<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='minus' data-iconpos='bottom'></a>" +
-						"</div>" +
+						"</div>" ) +
 					"</fieldset>" +
 				"</span>" +
 				( opt.showSun ? "<div class='ui-grid-a useSun'>" +
@@ -12083,7 +12164,7 @@ function showTimeInput( opt ) {
 					val = parseInt( input.val() );
 
 				if ( dir === 1 ) {
-					if ( isHour && val >= 12 ) {
+					if ( isHour && ( ( isMetric && val >= 24 ) || ( !isMetric && val >= 12 ) ) ) {
 						val = 0;
 					}
 					if ( !isHour && val >= 59 ) {
@@ -12091,11 +12172,13 @@ function showTimeInput( opt ) {
 						var hour = popup.find( ".hour" ),
 							hourFixed = parseInt( hour.val() );
 
-						if ( hourFixed === 12 ) {
-							hourFixed = 0;
-						}
+						if ( !isMetric ) {
+							if ( hourFixed === 12 ) {
+								hourFixed = 0;
+							}
 
-						hour.val( hourFixed + 1 );
+							hour.val( hourFixed + 1 );
+						}
 					}
 				} else if ( isHour && val <= 1 ) {
 					val = 13;
@@ -12153,12 +12236,14 @@ function showTimeInput( opt ) {
 			} else {
 				var hour = parseInt( popup.find( ".hour" ).val() );
 
-				if ( isPM && hour !== 12 ) {
-					hour = hour + 12;
-				}
+				if ( !isMetric ) {
+					if ( isPM && hour !== 12 ) {
+						hour = hour + 12;
+					}
 
-				if ( !isPM && hour === 12 ) {
-					hour = 0;
+					if ( !isPM && hour === 12 ) {
+						hour = 0;
+					}
 				}
 
 				return ( hour * 60 ) + parseInt( popup.find( ".minute" ).val() );
@@ -12696,7 +12781,7 @@ function dhms2sec( arr ) {
 }
 
 function isControllerConnected() {
-	if ( currIp === "" ||
+	if ( ( !currIp && !currToken ) ||
 		$.isEmptyObject( controller ) ||
 		$.isEmptyObject( controller.options ) ||
 		$.isEmptyObject( controller.programs ) ||
@@ -12879,7 +12964,7 @@ function languageSelect() {
 				ru: "Russian", sk: "Slovak", sl: "Slovenian", es: "Spanish", ta: "Tamil", th: "Thai", tr: "Turkish", sv: "Swedish", ro: "Romanian" };
 
 	$.each( codes, function( key, name ) {
-		popup += "<li><a href='#' data-translate='" + name + "' data-lang-code='" + key + "'>" + _( name ) + "</a></li>";
+		popup += "<li><a href='#' data-lang-code='" + key + "'><span data-translate='" + name + "'>" + _( name ) + "</span> (" + key.toUpperCase() + ")</a></li>";
 	} );
 
 	popup += "</ul></div>";
@@ -12961,7 +13046,7 @@ function minutesToTime( minutes ) {
 		hour = 12;
 	}
 
-	return hour + ":" + pad( minutes % 60 ) + " " + period;
+	return isMetric ? ( pad( ( minutes / 60 >> 0 ) % 24 ) + ":" + pad( minutes % 60 ) ) : ( hour + ":" + pad( minutes % 60 ) + " " + period );
 }
 
 function getBitFromByte( byte, bit ) {
@@ -13025,7 +13110,7 @@ function humaniseDuration( base, relative ) {
 
 function dateToString( date, toUTC, shorten ) {
 	var dayNames = [ _( "Sun" ), _( "Mon" ), _( "Tue" ),
-					_( "Wed" ), _( "Thr" ), _( "Fri" ), _( "Sat" ) ],
+					_( "Wed" ), _( "Thu" ), _( "Fri" ), _( "Sat" ) ],
 		monthNames = [ _( "Jan" ), _( "Feb" ), _( "Mar" ), _( "Apr" ), _( "May" ), _( "Jun" ),
 					_( "Jul" ), _( "Aug" ), _( "Sep" ), _( "Oct" ), _( "Nov" ), _( "Dec" ) ];
 

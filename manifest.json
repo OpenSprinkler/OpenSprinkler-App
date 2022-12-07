@@ -1,7 +1,7 @@
 {
   "name": "OpenSprinkler",
   "description": "Designed to allow intuitive control of the OpenSprinkler irrigation controller.",
-  "version": "2.1.10",
+  "version": "2.2.5",
   "manifest_version": 2,
   "app": {
 	  "background": {
