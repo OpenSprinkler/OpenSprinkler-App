@@ -12489,7 +12489,7 @@ function changeHeader( opt ) {
 	// Generate new header content
 	var newHeader = $( "<button data-icon='" + opt.leftBtn.icon + "' " + ( opt.leftBtn.text === "" ? "data-iconpos='notext' " : "" ) +
 				"class='ui-btn-left " + opt.leftBtn.class + "'>" + opt.leftBtn.text + "</button>" +
-			"<h3 class='" + opt.class + "'>" + opt.title + " <span style='color:red'>TEST BUILD</span></h3>" +
+			"<h3 class='" + opt.class + "'>" + opt.title + "</h3>" +
 			"<button data-icon='" + opt.rightBtn.icon + "' " + ( opt.rightBtn.text === "" ? "data-iconpos='notext' " : "" ) +
 				"class='ui-btn-right " + opt.rightBtn.class + "'>" + opt.rightBtn.text + "</button>" ),
 		speed = opt.animate ? "fast" : 0;
