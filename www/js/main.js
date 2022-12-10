@@ -4523,7 +4523,7 @@ function showOptions( expandItem ) {
 
 	list += "<button data-mini='true' class='center-div reset-log'>" + _( "Clear Log Data" ) + "</button>";
 	list += "<button data-mini='true' class='center-div reset-options'>" + _( "Reset All Options" ) + "</button>";
-	list += "<button data-mini='true' class='center-div reset-stations'>" + _( "Reset All Station Data" ) + "</button>";
+	list += "<button data-mini='true' class='center-div reset-stations'>" + _( "Reset Station Attributes" ) + "</button>";
 
 	if ( controller.options.hwv >= 30 && controller.options.hwv < 40 ) {
 		list += "<hr class='divider'><button data-mini='true' class='center-div reset-wireless'>" + _( "Reset Wireless Settings" ) + "</button>";
@@ -4649,7 +4649,7 @@ function showOptions( expandItem ) {
 		var cs = "";
 
 		for ( var i = 0; i < controller.stations.snames.length; i++ ) {
-			cs += "s" + i + "=S" + pad( i + 1 ) + "&";
+			//cs += "s" + i + "=S" + pad( i + 1 ) + "&"; // not resetting station names because it takes too long
 			cs += "g" + i + "=0&";
 		}
 
@@ -13226,6 +13226,7 @@ Supported.disabled = function() {
 };
 
 Supported.sequential = function() {
+	if (checkOSVersion( 220 )) return false;
 	return ( typeof controller.stations.stn_seq === "object" ) ? true : false;
 };
 
