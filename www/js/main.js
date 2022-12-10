@@ -5131,7 +5131,7 @@ function showOptions( expandItem ) {
 			}
 		} );
 		popup.find( ".submit" ).on( "click", function() {
-			if ( popup.find( "#token" ).val().length !== 32 ) {
+			if ( popup.find( "#enable" ).prop( "checked" ) && popup.find( "#token" ).val().length !== 32 ) {
 				showerror( _( "OpenThings Token must be 32 characters long." ) );
 				return;
 			}
@@ -5410,7 +5410,7 @@ var showHome = ( function() {
 						// First two bytes are zero padded GPIO pin number (default GPIO05)
 						// Third byte is either 0 or 1 for active low (GND) or high (+5V) relays (default 1 for HIGH)
 						// Restrict selection to GPIO pins available on the RPi R2.
-						var gpioPin = 5, activeState = 1, freePins, sel;
+						var gpioPin = 5, activeState = 1, freePins = [ ], sel;
 
 						if ( getHWVersion() === "OSPi" ) {
 							freePins = [ 5, 6, 7, 8, 9, 10, 11, 12, 13, 16, 18, 19, 20, 21, 23, 24, 25, 26 ];
@@ -6146,7 +6146,7 @@ var showHome = ( function() {
 						um2: Supported.master( MASTER_STATION_2 ) ? StationAttribute.getMasterOperation( sid, MASTER_STATION_2 ) : undefined,
 						ir: Supported.ignoreRain() ? StationAttribute.getIgnoreRain( sid ) : undefined,
 						sn1: Supported.ignoreSensor( IGNORE_SENSOR_1 ) ? StationAttribute.getIgnoreSensor( sid, IGNORE_SENSOR_1 ) : undefined,
-						sn2: Supported.ignoreSensor( IGNORE_SENSOR_2 ) ? StationAttribute.getIgnoreRain( sid, IGNORE_SENSOR_2 ) : undefined,
+						sn2: Supported.ignoreSensor( IGNORE_SENSOR_2 ) ? StationAttribute.getIgnoreSensor( sid, IGNORE_SENSOR_2 ) : undefined,
 						ar: Supported.actRelay() ? StationAttribute.getActRelay( sid ) : undefined,
 						sd: Supported.disabled() ? StationAttribute.getDisabled( sid ) : undefined,
 						us: Supported.sequential() ? StationAttribute.getSequential( sid ) : undefined,
@@ -7736,7 +7736,7 @@ var getPreview = ( function() {
 			( simt + start + ( controller.options.tz - 48 ) * 900 <= controller.settings.rdst * 1000 ) ||
 			controller.options.urs === 1 && controller.settings.rs === 1 ) &&
 			( typeof controller.stations.ignore_rain === "object" &&
-				( controller.stations.ignore_rain[ parseInt( sid / 8 ) ] & ( 1 << ( sid % 8 ) ) ) === 0 ) ) {
+				( controller.stations.ignore_rain[ (sid / 8) >> 0 ] & ( 1 << ( sid % 8 ) ) ) === 0 ) ) {
 
 			className = "delayed";
 		}
@@ -9862,7 +9862,6 @@ function submitProgram21( id, ignoreWarning ) {
 	url = "&v=" + JSON.stringify( program ) + "&name=" + encodeURIComponent( name );
 
 	if ( stationSelected === 0 ) {
-		console.log( "hello?" );
 		showerror( _( "Error: You have not selected any stations." ) );
 		return;
 	}
@@ -13355,7 +13354,7 @@ function StationAttribute() {};
 
 // Determines if a station is bound to the master (masid)
 StationAttribute.getMasterOperation = function( sid, masid ) {
-	var bid = sid / 8,
+	var bid = (sid / 8) >> 0,
 		sourceMasterAttribute;
 
 	if ( !Supported.master( masid ) ) return 0;
@@ -13372,7 +13371,7 @@ StationAttribute.getMasterOperation = function( sid, masid ) {
 			return 0;
 	}
 
-	var boardMasterAttribute = sourceMasterAttribute[ parseInt( bid ) ],
+	var boardMasterAttribute = sourceMasterAttribute[ bid ],
 		boardStationID = 1 << ( sid % 8 );
 
 	return ( boardMasterAttribute & boardStationID ) ? 1 : 0;
@@ -13380,15 +13379,15 @@ StationAttribute.getMasterOperation = function( sid, masid ) {
 
 StationAttribute.getIgnoreRain = function( sid ) {
 	if ( !Supported.ignoreRain() ) return 0;
-	var bid = sid / 8,
-		boardIgnoreRainAttribute = controller.stations.ignore_rain[ parseInt( bid ) ],
+	var bid = (sid / 8) >> 0,
+		boardIgnoreRainAttribute = controller.stations.ignore_rain[ bid ],
 		boardStationID = 1 << ( sid % 8 );
 
 	return ( boardIgnoreRainAttribute & boardStationID ) ? 1 : 0;
 };
 
 StationAttribute.getIgnoreSensor = function( sid, sensorID ) {
-	var bid = sid / 8,
+	var bid = (sid / 8) >> 0,
 		sourceIgnoreSensorAttribute;
 
 	if ( !Supported.ignoreSensor( sensorID ) ) return 0;
@@ -13405,16 +13404,16 @@ StationAttribute.getIgnoreSensor = function( sid, sensorID ) {
 			return 0;
 	}
 
-	var boardIgnoreSensorAttribute = sourceIgnoreSensorAttribute[ parseInt( bid ) ],
-		boardStationID = 1 << ( sid << 8 );
+	var boardIgnoreSensorAttribute = sourceIgnoreSensorAttribute[ bid ],
+		boardStationID = 1 << ( sid % 8 );
 
 	return ( boardIgnoreSensorAttribute & boardStationID ) ? 1 : 0;
 };
 
 StationAttribute.getActRelay = function( sid ) {
 	if ( !Supported.actRelay() ) return 0;
-	var bid = sid / 8,
-		boardActRelayAttribute = controller.stations.act_relay[ parseInt( bid ) ],
+	var bid = (sid / 8) >> 0,
+		boardActRelayAttribute = controller.stations.act_relay[ bid ],
 		boardStationID = 1 << ( sid % 8 );
 
 	return ( boardActRelayAttribute & boardStationID ) ? 1 : 0;
@@ -13422,8 +13421,8 @@ StationAttribute.getActRelay = function( sid ) {
 
 StationAttribute.getDisabled = function( sid ) {
 	if ( !Supported.disabled() ) return 0;
-	var bid = sid / 8,
-		boardDisabledAttribute = controller.stations.stn_dis[ parseInt( bid ) ],
+	var bid = (sid / 8) >> 0,
+		boardDisabledAttribute = controller.stations.stn_dis[ bid ],
 		boardStationID = 1 << ( sid % 8 );
 
 	return ( boardDisabledAttribute & boardStationID ) ? 1 : 0;
@@ -13434,8 +13433,8 @@ StationAttribute.getSequential = function( sid ) {
 		return Station.getGIDValue !== PARALLEL_GID_VALUE ? 1 : 0;
 	}
 	if ( !Supported.sequential() ) return 0;
-	var bid = sid / 8,
-		boardSequentialAttribute = controller.stations.stn_seq[ parseInt( bid ) ],
+	var bid = (sid / 8) >> 0,
+		boardSequentialAttribute = controller.stations.stn_seq[ bid ],
 		boardStationID = 1 << ( sid % 8 );
 
 	return ( boardSequentialAttribute & boardStationID ) ? 1 : 0;
@@ -13443,8 +13442,8 @@ StationAttribute.getSequential = function( sid ) {
 
 StationAttribute.getSpecial = function( sid ) {
 	if ( !Supported.special() ) return 0;
-	var bid = sid / 8,
-		boardSpecialAttribute = controller.stations.stn_spe[ parseInt( bid ) ],
+	var bid = (sid / 8) >> 0,
+		boardSpecialAttribute = controller.stations.stn_spe[ bid ],
 		boardStationID = 1 << ( sid % 8 );
 
 	return ( boardSpecialAttribute & boardStationID ) ? 1 : 0;
