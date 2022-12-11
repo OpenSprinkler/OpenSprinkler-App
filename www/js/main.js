@@ -6059,7 +6059,7 @@ var showHome = ( function() {
 
 				Card.setGroupLabel( thisCard, Card.getGIDName( thisCard ) );
 				label = Card.getGroupLabel( thisCard );
-				if ( Card.isMasterStation( thisCard ) ) {
+				if ( typeof label!='undefined' && Card.isMasterStation( thisCard ) ) {
 					label.addClass( "hidden" );
 				}
 
@@ -6072,7 +6072,7 @@ var showHome = ( function() {
 			Card.getDivider( nextCard ).hide();
 			Card.setGroupLabel( nextCard, Card.getGIDName( nextCard ) );
 			label = Card.getGroupLabel( nextCard );
-			if ( Card.isMasterStation( nextCard ) ) {
+			if ( typeof label!='undefined' && Card.isMasterStation( nextCard ) ) {
 				label.addClass( "hidden" );
 			}
 		},
@@ -13488,9 +13488,9 @@ Card.setGroupLabel = function( cardObj, value ) {
 };
 
 Card.getGIDValue = function( cardObj ) {
+	if ( !Supported.groups() ) { return 0; }
 	var cardButtons = $( cardObj.children()[ 0 ] ).children().filter( "span" ),
 		cardAttributes = $( cardButtons[ cardButtons.length - 1 ] );
-
 	return parseInt( cardAttributes.attr( "data-gid" ) );
 };
 
