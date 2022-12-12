@@ -6109,6 +6109,9 @@ var showHome = ( function() {
 			page.find( ".waterlevel" ).text( controller.options.wl );
 			page.find( ".sitename" ).text( siteSelect.val() );
 
+			// Remove unused stations
+			CardList.getAllCards( cardList ).filter((_, a) => parseInt($(a).data("station"), 10) >= controller.stations.snames.length).remove();
+
 			for ( var sid = 0; sid < controller.stations.snames.length; sid++ ) {
 				isScheduled = Station.getPID( sid ) > 0;
 				isRunning = Station.getStatus( sid ) > 0;
@@ -13457,6 +13460,10 @@ StationAttribute.getSpecial = function( sid ) {
 /* Card helpers: must pass in jquery object $(obj) */
 
 function CardList() {};
+
+CardList.getAllCards = function( cardList ) {
+	return cardList.filter( ".card" );
+}
 
 CardList.getCardBySID = function( cardList, sid ) {
 	return cardList.filter( "[data-station='" + sid + "']" );
