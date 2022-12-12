@@ -5699,7 +5699,7 @@ var showHome = ( function() {
 							"<option data-hs='0' value='0'" + ( Station.isSpecial( sid ) ? "" : "selected" ) + ">" + _( "Standard" ) + "</option>" +
 							"<option data-hs='1' value='1'>" + _( "RF" ) + "</option>" +
 							"<option data-hs='2' value='2'>" + _( "Remote" ) + "</option>" +
-							"<option data-hs='3' value='3'" + ( checkOSVersion( 217 ) ? ">" : " disabled>" ) + _( "GPIO" ) + "</option>" +
+							"<option data-hs='3' value='3'" + ( checkOSVersion( 217 ) && getHWVersion() === "OSPi" && getHWVersion() === "2.3" ? ">" : " disabled>" ) + _( "GPIO" ) + "</option>" +
 							"<option data-hs='4' value='4'" + ( checkOSVersion( 217 ) ? ">" : " disabled>" ) + _( "HTTP" ) + "</option>" +
 						"</select>" +
 						"<div id='specialOpts'></div>";
