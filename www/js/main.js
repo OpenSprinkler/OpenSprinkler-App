@@ -5424,12 +5424,16 @@ var showHome = ( function() {
 							activeState = parseInt( data[ 2 ] );
 						}
 
-						sel = "<div class='ui-bar-a ui-bar'>" + _( "GPIO Pin" ) + ":</div>" +
-								"<select class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='gpio-pin'>";
-						for ( var i = 0; i < freePins.length; i++ ) {
-							sel += "<option value='" + freePins[ i ] + "' " + ( freePins[ i ] === gpioPin ? "selected='selected'" : "" ) + ">" + freePins[ i ];
+						if (freePins.length) {
+							sel = "<div class='ui-bar-a ui-bar'>" + _( "GPIO Pin" ) + ":</div>" +
+							"<select class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='gpio-pin'>";
+							for ( var i = 0; i < freePins.length; i++ ) {
+								sel += "<option value='" + freePins[ i ] + "' " + ( freePins[ i ] === gpioPin ? "selected='selected'" : "" ) + ">" + freePins[ i ];
+							}
+							sel += "</select>";
+						} else {
+							sel = "";
 						}
-						sel += "</select>";
 
 						sel += "<div class='ui-bar-a ui-bar'>" + _( "Active State" ) + ":</div>" +
 								 "<select class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='active-state'>" +
