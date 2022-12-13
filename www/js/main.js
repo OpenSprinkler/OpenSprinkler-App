@@ -5412,7 +5412,9 @@ var showHome = ( function() {
 						// Restrict selection to GPIO pins available on the RPi R2.
 						var gpioPin = 5, activeState = 1, freePins = [ ], sel;
 
-						if ( getHWVersion() === "OSPi" ) {
+						if (controller.settings.gpio) {
+							freePins = controller.settings.gpio;
+						} else if ( getHWVersion() === "OSPi" ) {
 							freePins = [ 5, 6, 7, 8, 9, 10, 11, 12, 13, 16, 18, 19, 20, 21, 23, 24, 25, 26 ];
 						} else if ( getHWVersion() === "2.3" ) {
 							freePins = [ 2, 10, 12, 13, 14, 15, 18, 19 ];
@@ -5688,9 +5690,7 @@ var showHome = ( function() {
 							// Options programmatically generated
 						"</select>" +
 						"<div><p id='prohibit-change' class='center hidden' style='color: #ff0033;'>Changing group designation is prohibited while station is running</p></div>";
-
 			}
-
 			// Station tab is initially set to disabled until we have refreshed station data from firmware
 			if ( Supported.special() ) {
 				select +=
@@ -5699,7 +5699,7 @@ var showHome = ( function() {
 							"<option data-hs='0' value='0'" + ( Station.isSpecial( sid ) ? "" : "selected" ) + ">" + _( "Standard" ) + "</option>" +
 							"<option data-hs='1' value='1'>" + _( "RF" ) + "</option>" +
 							"<option data-hs='2' value='2'>" + _( "Remote" ) + "</option>" +
-							"<option data-hs='3' value='3'" + ( checkOSVersion( 217 ) && getHWVersion() === "OSPi" && getHWVersion() === "2.3" ? ">" : " disabled>" ) + _( "GPIO" ) + "</option>" +
+							"<option data-hs='3' value='3'" + ( checkOSVersion( 217 ) && ((typeof controller.settings.gpio !== 'undefined' && controller.settings.gpio.length>0) || getHWVersion() === "OSPi" || getHWVersion() === "2.3") ? ">" : " disabled>" ) + _( "GPIO" ) + "</option>" +
 							"<option data-hs='4' value='4'" + ( checkOSVersion( 217 ) ? ">" : " disabled>" ) + _( "HTTP" ) + "</option>" +
 						"</select>" +
 						"<div id='specialOpts'></div>";
