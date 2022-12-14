@@ -156,7 +156,6 @@ var isIEMobile = /IEMobile/.test( navigator.userAgent ),
 	curr183, currToken, currIp, currPrefix, currAuth, currPass, currAuthUser,
 	currAuthPass, currLocal, currLang, language, deviceip, errorTimeout, weather, openPanel;
 
-
 // Prevent errors from bubbling up on Windows
 if ( isWinApp ) {
 	$( window ).on( "error", function( msg, url, line ) {
@@ -3563,23 +3562,14 @@ function showPause() {
 			sendToOS( "/pq?pw=" );
 		} );
 	} else {
-		//Let activeStation = StationQueue.isActive();
-		//if ( activeStation >= -1 )
-		{
-			showDurationBox( {
-				title: "Pause Station Runs",
-				incrementalUpdate: false,
-				maximum: 65535,
-				callback: function( duration ) {
-					sendToOS( "/pq?dur=" + duration + "&pw=" );
-				}
-			} );
-		}
-		/*Else {
-			showerror(
-				_( "No stations currently running" )
-			);
-		}*/
+		showDurationBox( {
+			title: "Pause Station Runs",
+			incrementalUpdate: false,
+			maximum: 65535,
+			callback: function( duration ) {
+				sendToOS( "/pq?dur=" + duration + "&pw=" );
+			}
+		} );
 	}
 }
 
@@ -4649,7 +4639,6 @@ function showOptions( expandItem ) {
 		var cs = "";
 
 		for ( var i = 0; i < controller.stations.snames.length; i++ ) {
-			//cs += "s" + i + "=S" + pad( i + 1 ) + "&"; // not resetting station names because it takes too long
 			cs += "g" + i + "=0&";
 		}
 
@@ -5186,7 +5175,6 @@ function showOptions( expandItem ) {
 }
 
 var showHomeMenu = ( function() {
-
 	var page, id, showHidden, popup;
 
 	function makeMenu() {
@@ -5203,7 +5191,7 @@ var showHomeMenu = ( function() {
 				( Supported.pausing() ?
 					( StationQueue.isPaused() ? "<li><a href='#globalpause'>" + _( "Resume Station Runs" ) + "</a></li>"
 						: ( StationQueue.isActive() >= -1 ? "<li><a href='#globalpause'>" + _( "Pause Station Runs" ) + "</a></li>" : "" ) )
-				 	: "" ) +
+					: "" ) +
 				"<li><a href='#runonce'>" + _( "Run-Once Program" ) + "</a></li>" +
 				"<li><a href='#programs'>" + _( "Edit Programs" ) + "</a></li>" +
 				"<li><a href='#os-options'>" + _( "Edit Options" ) + "</a></li>" +
@@ -5350,10 +5338,13 @@ var showHome = ( function() {
 
 			if ( !Station.isMaster( sid ) ) {
 				if ( isScheduled || isRunning ) {
+
 					// Generate status line for station
 					cards += "<p class='rem center'>" + ( isRunning ? _( "Running" ) + " " + pname : _( "Scheduled" ) + " " +
 						( Station.getStartTime( sid ) ? _( "for" ) + " " + dateToString( new Date( Station.getStartTime( sid ) * 1000 ) ) : pname ) );
+
 					if ( rem > 0 ) {
+
 						// Show the remaining time if it's greater than 0
 						cards += " <span id=" + ( qPause ? "'pause" : "'countdown-" ) + sid + "' class='nobr'>(" + sec2hms( rem ) + " " + _( "remaining" ) + ")</span>";
 					}
@@ -5412,7 +5403,7 @@ var showHome = ( function() {
 						// Restrict selection to GPIO pins available on the RPi R2.
 						var gpioPin = 5, activeState = 1, freePins = [ ], sel;
 
-						if (controller.settings.gpio) {
+						if ( controller.settings.gpio ) {
 							freePins = controller.settings.gpio;
 						} else if ( getHWVersion() === "OSPi" ) {
 							freePins = [ 5, 6, 7, 8, 9, 10, 11, 12, 13, 16, 18, 19, 20, 21, 23, 24, 25, 26 ];
@@ -5426,7 +5417,7 @@ var showHome = ( function() {
 							activeState = parseInt( data[ 2 ] );
 						}
 
-						if (freePins.length) {
+						if ( freePins.length ) {
 							sel = "<div class='ui-bar-a ui-bar'>" + _( "GPIO Pin" ) + ":</div>" +
 							"<select class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='gpio-pin'>";
 							for ( var i = 0; i < freePins.length; i++ ) {
@@ -5686,11 +5677,10 @@ var showHome = ( function() {
 			if ( Supported.groups() && !Station.isMaster( sid ) ) {
 				select +=
 					"<div class='ui-bar-a ui-bar seq-container'>" + _( "Sequential Group" ) + ":</div>" +
-						"<select id='gid' class='seqgrp' data-mini='true'>" +
-							// Options programmatically generated
-						"</select>" +
+						"<select id='gid' class='seqgrp' data-mini='true'></select>" +
 						"<div><p id='prohibit-change' class='center hidden' style='color: #ff0033;'>Changing group designation is prohibited while station is running</p></div>";
 			}
+
 			// Station tab is initially set to disabled until we have refreshed station data from firmware
 			if ( Supported.special() ) {
 				select +=
@@ -5699,7 +5689,11 @@ var showHome = ( function() {
 							"<option data-hs='0' value='0'" + ( Station.isSpecial( sid ) ? "" : "selected" ) + ">" + _( "Standard" ) + "</option>" +
 							"<option data-hs='1' value='1'>" + _( "RF" ) + "</option>" +
 							"<option data-hs='2' value='2'>" + _( "Remote" ) + "</option>" +
-							"<option data-hs='3' value='3'" + ( checkOSVersion( 217 ) && ((typeof controller.settings.gpio !== "undefined" && controller.settings.gpio.length>0) || getHWVersion() === "OSPi" || getHWVersion() === "2.3") ? ">" : " disabled>" ) + _( "GPIO" ) + "</option>" +
+							"<option data-hs='3' value='3'" + (
+								checkOSVersion( 217 ) && (
+									( typeof controller.settings.gpio !== "undefined" && controller.settings.gpio.length > 0 ) || getHWVersion() === "OSPi" || getHWVersion() === "2.3"
+								) ? ">" : " disabled>"
+							) + _( "GPIO" ) + "</option>" +
 							"<option data-hs='4' value='4'" + ( checkOSVersion( 217 ) ? ">" : " disabled>" ) + _( "HTTP" ) + "</option>" +
 						"</select>" +
 						"<div id='specialOpts'></div>";
@@ -6110,7 +6104,9 @@ var showHome = ( function() {
 			page.find( ".sitename" ).text( siteSelect.val() );
 
 			// Remove unused stations
-			CardList.getAllCards( cardList ).filter(function(_, a) { return parseInt($(a).data("station"), 10) >= controller.stations.snames.length; }).remove();
+			CardList.getAllCards( cardList ).filter( function( _, a ) {
+				return parseInt( $( a ).data( "station" ), 10 ) >= controller.stations.snames.length;
+			} ).remove();
 
 			for ( var sid = 0; sid < controller.stations.snames.length; sid++ ) {
 				isScheduled = Station.getPID( sid ) > 0;
@@ -6165,6 +6161,7 @@ var showHome = ( function() {
 						line = ( isRunning ? _( "Running" ) + " " + pname : _( "Scheduled" ) + " " +
 							( Station.getStartTime( sid ) ? _( "for" ) + " " + dateToString( new Date( Station.getStartTime( sid ) * 1000 ) ) : pname ) );
 						if ( rem > 0 ) {
+
 							// Show the remaining time if it's greater than 0
 							line += " <span id=" + ( qPause ? "'pause" : "'countdown-" ) + sid + "' class='nobr'>(" + sec2hms( rem ) + " " + _( "remaining" ) + ")</span>";
 							if ( controller.status[ sid ] ) {
@@ -6787,7 +6784,7 @@ function calculateTotalRunningTime( runTimes ) {
 	if ( Supported.groups() ) {
 		sequential = new Array( NUM_SEQ_GROUPS ).fill( 0 );
 		parallel = 0;
-		var sequential_max = 0;
+		var sequentialMax = 0;
 		$.each( controller.stations.snames, function( i ) {
 			var run = runTimes[ i ];
 			var gid = Station.getGIDValue( i );
@@ -6803,9 +6800,9 @@ function calculateTotalRunningTime( runTimes ) {
 		} );
 		for ( var d = 0; d < NUM_SEQ_GROUPS; d++ )	{
 			if ( sequential[ d ] > sdt ) { sequential[ d ] -= sdt; }
-			if ( sequential[ d ] > sequential_max ) { sequential_max = sequential[ d ]; }
+			if ( sequential[ d ] > sequentialMax ) { sequentialMax = sequential[ d ]; }
 		}
-		return Math.max( sequential_max, parallel );
+		return Math.max( sequentialMax, parallel );
 	} else {
 		sequential = 0;
 		parallel = 0;
@@ -7744,7 +7741,7 @@ var getPreview = ( function() {
 			( simt + start + ( controller.options.tz - 48 ) * 900 <= controller.settings.rdst * 1000 ) ||
 			controller.options.urs === 1 && controller.settings.rs === 1 ) &&
 			( typeof controller.stations.ignore_rain === "object" &&
-				( controller.stations.ignore_rain[ (sid / 8) >> 0 ] & ( 1 << ( sid % 8 ) ) ) === 0 ) ) {
+				( controller.stations.ignore_rain[ ( sid / 8 ) >> 0 ] & ( 1 << ( sid % 8 ) ) ) === 0 ) ) {
 
 			className = "delayed";
 		}
@@ -9354,7 +9351,7 @@ function makeProgram21( n, isCopy ) {
 
 	if ( Supported.dateRange() ) {
 		var from = Program.getDateRangeStart( id ),
-			to 	 = Program.getDateRangeEnd( id );
+			to = Program.getDateRangeEnd( id );
 
 		list += "<label for='use-dr-" + id + "'>" +
 					"<input data-mini='true' type='checkbox' " +
@@ -9363,7 +9360,7 @@ function makeProgram21( n, isCopy ) {
 				"</label>";
 
 		list += "<div id='date-range-options-" + id + "'" + ( ( Program.isDateRangeEnabled( id ) ) ? "" : "style='display:none'" ) + ">";
-		list += 	"<div class='ui-grid-a' style=''>" +
+		list += "<div class='ui-grid-a' style=''>" +
 						"<div class='ui-block-a drfrom'>" +
 							"<label class='center' for='from-dr-" + id + "'>" + _( "From (mm/dd)" ) + "</label>" +
 							"<div class='dr-input'>" +
@@ -12666,6 +12663,7 @@ function showerror( msg, dur ) {
 
 function loadLocalSettings() {
 	storage.get( "isMetric", function( data ) {
+
 		// We are using a switch because the boolean gets stored as a string
 		// and we don't want to impact the in-memory value of `isMetric` when
 		// no value in local storage exists.
@@ -13192,7 +13190,6 @@ function transformKeysinString( co ) {
 	return co;
 }
 
-
 /* Compatability methods, verify that necessary data is
  * sent from the controller to the UI without explicitly
  * checking for OS version. */
@@ -13234,7 +13231,7 @@ Supported.disabled = function() {
 };
 
 Supported.sequential = function() {
-	if (checkOSVersion( 220 )) {
+	if ( checkOSVersion( 220 ) ) {
 		return false;
 	}
 	return ( typeof controller.stations.stn_seq === "object" ) ? true : false;
@@ -13261,10 +13258,10 @@ Supported.dateRange = function() {
 function Station() {}
 
 var ProgramStatusOptions = {
-	PID: 	0,
-	REM: 	1,
-	START: 	2,
-	GID: 	3
+	PID: 0,
+	REM: 1,
+	START: 2,
+	GID: 3
 };
 
 function getNumberProgramStatusOptions() {
@@ -13363,7 +13360,7 @@ function StationAttribute() {}
 
 // Determines if a station is bound to the master (masid)
 StationAttribute.getMasterOperation = function( sid, masid ) {
-	var bid = (sid / 8) >> 0,
+	var bid = ( sid / 8 ) >> 0,
 		sourceMasterAttribute;
 
 	if ( !Supported.master( masid ) ) { return 0; }
@@ -13387,7 +13384,7 @@ StationAttribute.getMasterOperation = function( sid, masid ) {
 
 StationAttribute.getIgnoreRain = function( sid ) {
 	if ( !Supported.ignoreRain() ) { return 0; }
-	var bid = (sid / 8) >> 0,
+	var bid = ( sid / 8 ) >> 0,
 		boardIgnoreRainAttribute = controller.stations.ignore_rain[ bid ],
 		boardStationID = 1 << ( sid % 8 );
 
@@ -13395,7 +13392,7 @@ StationAttribute.getIgnoreRain = function( sid ) {
 };
 
 StationAttribute.getIgnoreSensor = function( sid, sensorID ) {
-	var bid = (sid / 8) >> 0,
+	var bid = ( sid / 8 ) >> 0,
 		sourceIgnoreSensorAttribute;
 
 	if ( !Supported.ignoreSensor( sensorID ) ) { return 0; }
@@ -13419,7 +13416,7 @@ StationAttribute.getIgnoreSensor = function( sid, sensorID ) {
 
 StationAttribute.getActRelay = function( sid ) {
 	if ( !Supported.actRelay() ) { return 0; }
-	var bid = (sid / 8) >> 0,
+	var bid = ( sid / 8 ) >> 0,
 		boardActRelayAttribute = controller.stations.act_relay[ bid ],
 		boardStationID = 1 << ( sid % 8 );
 
@@ -13428,7 +13425,7 @@ StationAttribute.getActRelay = function( sid ) {
 
 StationAttribute.getDisabled = function( sid ) {
 	if ( !Supported.disabled() ) { return 0; }
-	var bid = (sid / 8) >> 0,
+	var bid = ( sid / 8 ) >> 0,
 		boardDisabledAttribute = controller.stations.stn_dis[ bid ],
 		boardStationID = 1 << ( sid % 8 );
 
@@ -13440,7 +13437,7 @@ StationAttribute.getSequential = function( sid ) {
 		return Station.getGIDValue !== PARALLEL_GID_VALUE ? 1 : 0;
 	}
 	if ( !Supported.sequential() ) { return 0; }
-	var bid = (sid / 8) >> 0,
+	var bid = ( sid / 8 ) >> 0,
 		boardSequentialAttribute = controller.stations.stn_seq[ bid ],
 		boardStationID = 1 << ( sid % 8 );
 
@@ -13449,7 +13446,7 @@ StationAttribute.getSequential = function( sid ) {
 
 StationAttribute.getSpecial = function( sid ) {
 	if ( !Supported.special() ) { return 0; }
-	var bid = (sid / 8) >> 0,
+	var bid = ( sid / 8 ) >> 0,
 		boardSpecialAttribute = controller.stations.stn_spe[ bid ],
 		boardStationID = 1 << ( sid % 8 );
 
