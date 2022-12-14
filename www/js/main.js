@@ -6050,7 +6050,7 @@ var showHome = ( function() {
 				}
 			}
 			Card.getDivider( nextCard ).show(); // Last group divider
-			Card.setGroupLabel( nextCard, mapGIDValueToName( Station.getGIDValue( idx + 1 ) ) );
+			Card.setGroupLabel( nextCard, mapGIDValueToName( Station.getGIDValue( idx ) ) );
 		},
 		updateStandardView = function( cardHolder, cardList ) {
 			var thisCard, nextCard, divider, label, idx;
@@ -6074,7 +6074,7 @@ var showHome = ( function() {
 				}
 			}
 			Card.getDivider( nextCard ).hide();
-			Card.setGroupLabel( nextCard, mapGIDValueToName( Station.getGIDValue( idx + 1 ) ) );
+			Card.setGroupLabel( nextCard, mapGIDValueToName( Station.getGIDValue( idx ) ) );
 			label = Card.getGroupLabel( nextCard );
 			if ( typeof label!='undefined' && Card.isMasterStation( nextCard ) ) {
 				label.addClass( "hidden" );
