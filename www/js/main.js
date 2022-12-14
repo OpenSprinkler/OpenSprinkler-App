@@ -6020,9 +6020,9 @@ var showHome = ( function() {
 		},
 
 		updateGroupView = function( cardHolder, cardList ) {
-			var thisCard, nextCard, divider, label;
+			var thisCard, nextCard, divider, label, idx;
 
-			for ( var idx = 0; idx < cardHolder.children().length - 1; idx++ ) {
+			for ( idx = 0; idx < cardHolder.children().length - 1; idx++ ) {
 				thisCard = CardList.getCardByIndex( cardList, idx );
 				nextCard = CardList.getCardByIndex( cardList, idx + 1 );
 
@@ -6050,11 +6050,11 @@ var showHome = ( function() {
 				}
 			}
 			Card.getDivider( nextCard ).show(); // Last group divider
-			Card.setGroupLabel( nextCard, Card.getGIDName( nextCard ) );
+			Card.setGroupLabel( nextCard, mapGIDValueToName( Station.getGIDValue( idx + 1 ) ) );
 		},
 		updateStandardView = function( cardHolder, cardList ) {
-			var thisCard, nextCard, divider, label;
-			for ( var idx = 0; idx < cardHolder.children().length - 1; idx++ ) {
+			var thisCard, nextCard, divider, label, idx;
+			for ( idx = 0; idx < cardHolder.children().length - 1; idx++ ) {
 				thisCard = CardList.getCardByIndex( cardList, idx );
 				nextCard = CardList.getCardByIndex( cardList, idx + 1 );
 
@@ -6074,7 +6074,7 @@ var showHome = ( function() {
 				}
 			}
 			Card.getDivider( nextCard ).hide();
-			Card.setGroupLabel( nextCard, Card.getGIDName( nextCard ) );
+			Card.setGroupLabel( nextCard, mapGIDValueToName( Station.getGIDValue( idx + 1 ) ) );
 			label = Card.getGroupLabel( nextCard );
 			if ( typeof label!='undefined' && Card.isMasterStation( nextCard ) ) {
 				label.addClass( "hidden" );
