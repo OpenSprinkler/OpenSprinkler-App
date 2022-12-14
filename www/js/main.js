@@ -6040,7 +6040,7 @@ var showHome = ( function() {
 					continue;
 				}
 
-				Card.setGroupLabel( thisCard, Card.getGIDName( thisCard ) );
+				Card.setGroupLabel( thisCard, mapGIDValueToName( Station.getGIDValue( idx ) ) );
 
 				// Display dividers between different groups
 				if ( Card.getGIDValue( thisCard ) != Card.getGIDValue( nextCard ) ) {
@@ -6061,7 +6061,7 @@ var showHome = ( function() {
 				divider = Card.getDivider( thisCard );
 				divider.hide(); // Remove all dividers when switching from group view
 
-				Card.setGroupLabel( thisCard, Card.getGIDName( thisCard ) );
+				Card.setGroupLabel( thisCard, mapGIDValueToName( Station.getGIDValue( idx ) ) );
 				label = Card.getGroupLabel( thisCard );
 				if ( typeof label!='undefined' && Card.isMasterStation( thisCard ) ) {
 					label.addClass( "hidden" );
