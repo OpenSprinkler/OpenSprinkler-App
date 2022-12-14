@@ -2726,8 +2726,8 @@ function showMonthlyAdjustmentOptions( button, callback ) {
 		var _scales = [];
 		for ( var i = 0; i < 12; i++ ) {
 			_scales[ i ] = parseInt( popup.find( ".sc" + i ).val() );
-			if ( _scales[ i ] < 0 ) _scales[ i ] = 0;
-			if ( _scales[ i ] > 250 ) _scales[ i ] = 250;
+			if ( _scales[ i ] < 0 ) { _scales[ i ] = 0; }
+			if ( _scales[ i ] > 250 ) { _scales[ i ] = 250; }
 		}
 		options = { scales: _scales };
 		if ( button ) {
@@ -5699,7 +5699,7 @@ var showHome = ( function() {
 							"<option data-hs='0' value='0'" + ( Station.isSpecial( sid ) ? "" : "selected" ) + ">" + _( "Standard" ) + "</option>" +
 							"<option data-hs='1' value='1'>" + _( "RF" ) + "</option>" +
 							"<option data-hs='2' value='2'>" + _( "Remote" ) + "</option>" +
-							"<option data-hs='3' value='3'" + ( checkOSVersion( 217 ) && ((typeof controller.settings.gpio !== 'undefined' && controller.settings.gpio.length>0) || getHWVersion() === "OSPi" || getHWVersion() === "2.3") ? ">" : " disabled>" ) + _( "GPIO" ) + "</option>" +
+							"<option data-hs='3' value='3'" + ( checkOSVersion( 217 ) && ((typeof controller.settings.gpio !== "undefined" && controller.settings.gpio.length>0) || getHWVersion() === "OSPi" || getHWVersion() === "2.3") ? ">" : " disabled>" ) + _( "GPIO" ) + "</option>" +
 							"<option data-hs='4' value='4'" + ( checkOSVersion( 217 ) ? ">" : " disabled>" ) + _( "HTTP" ) + "</option>" +
 						"</select>" +
 						"<div id='specialOpts'></div>";
@@ -5952,15 +5952,15 @@ var showHome = ( function() {
 								station id
 			*/
 
-			cardA = $( a ), cardB = $( b );
+			var cardA = $( a ), cardB = $( b );
 
 			// Station IDs
-			sidA = Card.getSID( cardA );
-			sidB = Card.getSID( cardB );
+			var sidA = Card.getSID( cardA );
+			var sidB = Card.getSID( cardB );
 
 			// Verify if a master station
-			masA = Station.isMaster( sidA ) > 0 ? 1 : 0;
-			masB = Station.isMaster( sidB ) > 0 ? 1 : 0;
+			var masA = Station.isMaster( sidA ) > 0 ? 1 : 0;
+			var masB = Station.isMaster( sidB ) > 0 ? 1 : 0;
 
 			if ( masA > masB ) {
 				return -1;
@@ -5968,8 +5968,8 @@ var showHome = ( function() {
 				return 1;
 			} else { // If both or neither master check group id
 
-				gidA = Card.getGIDValue( cardA );
-				gidB = Card.getGIDValue( cardB );
+				var gidA = Card.getGIDValue( cardA );
+				var gidB = Card.getGIDValue( cardB );
 
 				if ( gidA < gidB ) {
 					return -1;
@@ -5977,8 +5977,8 @@ var showHome = ( function() {
 					return 1;
 				} else { // If same group shift running stations up
 
-					statusA = Station.getStatus( sidA );
-					statusB = Station.getStatus( sidB );
+					var statusA = Station.getStatus( sidA );
+					var statusB = Station.getStatus( sidB );
 
 					if ( statusA > statusB ) {
 						return -1;
@@ -5996,13 +5996,13 @@ var showHome = ( function() {
 								station id
 			 */
 
-			cardA = $( a ), cardB = $( b );
+			var cardA = $( a ), cardB = $( b );
 
-			sidA = Card.getSID( cardA );
-			sidB = Card.getSID( cardB );
+			var sidA = Card.getSID( cardA );
+			var sidB = Card.getSID( cardB );
 
-			statusA = Station.getStatus( sidA );
-			statusB = Station.getStatus( sidB );
+			var statusA = Station.getStatus( sidA );
+			var statusB = Station.getStatus( sidB );
 
 			if ( statusA > statusB ) {
 				return -1;
@@ -6043,7 +6043,7 @@ var showHome = ( function() {
 				Card.setGroupLabel( thisCard, mapGIDValueToName( Station.getGIDValue( idx ) ) );
 
 				// Display dividers between different groups
-				if ( Card.getGIDValue( thisCard ) != Card.getGIDValue( nextCard ) ) {
+				if ( Card.getGIDValue( thisCard ) !== Card.getGIDValue( nextCard ) ) {
 					divider.show();
 				} else {
 					divider.hide();
@@ -6063,7 +6063,7 @@ var showHome = ( function() {
 
 				Card.setGroupLabel( thisCard, mapGIDValueToName( Station.getGIDValue( idx ) ) );
 				label = Card.getGroupLabel( thisCard );
-				if ( typeof label!='undefined' && Card.isMasterStation( thisCard ) ) {
+				if ( typeof label !== "undefined" && Card.isMasterStation( thisCard ) ) {
 					label.addClass( "hidden" );
 				}
 
@@ -6076,7 +6076,7 @@ var showHome = ( function() {
 			Card.getDivider( nextCard ).hide();
 			Card.setGroupLabel( nextCard, mapGIDValueToName( Station.getGIDValue( idx ) ) );
 			label = Card.getGroupLabel( nextCard );
-			if ( typeof label!='undefined' && Card.isMasterStation( nextCard ) ) {
+			if ( typeof label !== "undefined" && Card.isMasterStation( nextCard ) ) {
 				label.addClass( "hidden" );
 			}
 		},
@@ -6097,7 +6097,7 @@ var showHome = ( function() {
 		updateContent = function() {
 			var cardHolder = page.find( "#os-stations-list" ),
 				cardList = cardHolder.children(),
-				isScheduled, isRunning, pname, rem, card, line, hasImage;
+				isScheduled, isRunning, pname, rem, qPause, card, line, hasImage, divider;
 
 			if ( !page.hasClass( "ui-page-active" ) ) {
 				return;
@@ -6110,7 +6110,7 @@ var showHome = ( function() {
 			page.find( ".sitename" ).text( siteSelect.val() );
 
 			// Remove unused stations
-			CardList.getAllCards( cardList ).filter((_, a) => parseInt($(a).data("station"), 10) >= controller.stations.snames.length).remove();
+			CardList.getAllCards( cardList ).filter(function(_, a) { return parseInt($(a).data("station"), 10) >= controller.stations.snames.length; }).remove();
 
 			for ( var sid = 0; sid < controller.stations.snames.length; sid++ ) {
 				isScheduled = Station.getPID( sid ) > 0;
@@ -6782,15 +6782,17 @@ function checkStatus() {
 }
 
 function calculateTotalRunningTime( runTimes ) {
-	var sdt = controller.options.sdt;
+	var sdt = controller.options.sdt,
+		sequential, parallel;
 	if ( Supported.groups() ) {
-		var sequential = new Array( NUM_SEQ_GROUPS ), sequential_max = 0, parallel = 0;
-		for ( var d = 0; d < NUM_SEQ_GROUPS; d++ )	sequential[ d ] = 0;
+		sequential = new Array( NUM_SEQ_GROUPS ).fill( 0 );
+		parallel = 0;
+		var sequential_max = 0;
 		$.each( controller.stations.snames, function( i ) {
 			var run = runTimes[ i ];
 			var gid = Station.getGIDValue( i );
 			if ( run > 0 ) {
-				if ( gid != PARALLEL_GID_VALUE ) {
+				if ( gid !== PARALLEL_GID_VALUE ) {
 					sequential[ gid ] += ( run + sdt );
 				} else {
 					if ( run > parallel ) {
@@ -6800,12 +6802,12 @@ function calculateTotalRunningTime( runTimes ) {
 			}
 		} );
 		for ( var d = 0; d < NUM_SEQ_GROUPS; d++ )	{
-			if ( sequential[ d ] > sdt ) sequential[ d ] -= sdt;
-			if ( sequential[ d ] > sequential_max ) sequential_max = sequential[ d ];
+			if ( sequential[ d ] > sdt ) { sequential[ d ] -= sdt; }
+			if ( sequential[ d ] > sequential_max ) { sequential_max = sequential[ d ]; }
 		}
 		return Math.max( sequential_max, parallel );
 	} else {
-		var sequential = 0,
+		sequential = 0;
 		parallel = 0;
 		$.each( controller.stations.snames, function( i ) {
 			var run = runTimes[ i ];
@@ -6819,8 +6821,7 @@ function calculateTotalRunningTime( runTimes ) {
 				}
 			}
 		} );
-		if ( sequential > sdt ) sequential -= sdt; // Discount the last sdt
-		console.log( Math.max( sequential, parallel ) );
+		if ( sequential > sdt ) { sequential -= sdt; } // Discount the last sdt
 		return Math.max( sequential, parallel );
 	}
 }
@@ -7320,7 +7321,7 @@ var getPreview = ( function() {
 			lastStopTime = 0,
 			lastSeqStopTime = 0,
 			lastSeqStopTimes = new Array( NUM_SEQ_GROUPS ), // Use this array if seq group is available
-			busy, matchFound, prog, sid, qid, q, sqi, bid, bid2, s, s2;
+			busy, matchFound, prog, sid, qid, d, q, sqi, bid, bid2, s, s2;
 
 		for ( sid = 0; sid < nstations; sid++ ) {
 			startArray[ sid ] = -1;
@@ -7329,7 +7330,7 @@ var getPreview = ( function() {
 			plArray[ sid ] = 0;
 			qidArray[ sid ] = 0xFF;
 		}
-		for ( var d = 0; d < NUM_SEQ_GROUPS; d++ ) { lastSeqStopTimes[ d ] = 0; }
+		for ( d = 0; d < NUM_SEQ_GROUPS; d++ ) { lastSeqStopTimes[ d ] = 0; }
 
 		do {
 			busy = 0;
@@ -7408,7 +7409,7 @@ var getPreview = ( function() {
 						seqAcctime = lastSeqStopTime + controller.options.sdt;
 					}
 
-					for ( var d = 0; d < NUM_SEQ_GROUPS; d++ ) {
+					for ( d = 0; d < NUM_SEQ_GROUPS; d++ ) {
 						seqAcctimes[ d ] = acctime;
 						if ( lastSeqStopTimes[ d ] > acctime ) {
 							seqAcctimes[ d ] = lastSeqStopTimes[ d ] + controller.options.sdt;
@@ -7428,7 +7429,7 @@ var getPreview = ( function() {
 							sid = q.sid;
 							bid2 = sid >> 3;
 							s2 = sid & 0x07;
-							if ( q.gid == -1 ) { // Group id is not available
+							if ( q.gid === -1 ) { // Group id is not available
 								if ( controller.stations.stn_seq[ bid2 ] & ( 1 << s2 ) ) {
 									q.st = seqAcctime;
 									seqAcctime += q.dur;
@@ -7438,7 +7439,7 @@ var getPreview = ( function() {
 									acctime++;
 								}
 							} else { // Group id is available
-								if ( q.gid != PARALLEL_GID_VALUE ) { // This is a sequential station
+								if ( q.gid !== PARALLEL_GID_VALUE ) { // This is a sequential station
 									q.st = seqAcctimes[ q.gid ];
 									seqAcctimes[ q.gid ] += q.dur;
 									seqAcctimes[ q.gid ] += controller.options.sdt;
@@ -7544,21 +7545,21 @@ var getPreview = ( function() {
 
 				// Lastly, calculate lastSeqStopTime
 				lastSeqStopTime = 0;
-				for ( var d = 0; d < NUM_SEQ_GROUPS; d++ ) { lastSeqStopTime[ d ] = 0; }
+				for ( d = 0; d < NUM_SEQ_GROUPS; d++ ) { lastSeqStopTime[ d ] = 0; }
 				for ( qid = 0; qid < rtQueue.length; qid++ ) {
 					q = rtQueue[ qid ];
 					sid = q.sid;
 					bid2 = sid >> 3;
 					s2 = sid & 0x07;
 					var sst = q.st + q.dur;
-					if ( q.gid == -1 ) { // Group id is not available
+					if ( q.gid === -1 ) { // Group id is not available
 						if ( controller.stations.stn_seq[ bid2 ] & ( 1 << s2 ) ) {
 							if ( sst > lastSeqStopTime ) {
 								lastSeqStopTime = sst;
 							}
 						}
 					} else { // Group id is available
-						if ( q.gid != PARALLEL_GID_VALUE ) {
+						if ( q.gid !== PARALLEL_GID_VALUE ) {
 							if ( sst > lastSeqStopTimes[ q.gid ] ) {
 								lastSeqStopTimes[ q.gid ] = sst;
 							}
@@ -7826,9 +7827,9 @@ var getPreview = ( function() {
 			if ( dr[ 0 ] ) { // Check date range if enabled
 				var currdate = ( mt << 5 ) + dt;
 				if ( dr[ 1 ] <= dr[ 2 ] ) {
-					if ( currdate < dr[ 1 ] || currdate > dr[ 2 ] ) return 0;
+					if ( currdate < dr[ 1 ] || currdate > dr[ 2 ] ) { return 0; }
 				} else {
-					if ( currdate > dr[ 2 ] && currdate < dr[ 1 ] ) return 0;
+					if ( currdate > dr[ 2 ] && currdate < dr[ 1 ] ) { return 0; }
 				}
 			}
 		}
@@ -13196,7 +13197,7 @@ function transformKeysinString( co ) {
  * sent from the controller to the UI without explicitly
  * checking for OS version. */
 
-function Supported() {};
+function Supported() {}
 
 Supported.master = function( masid ) {
 	switch ( masid ) {
@@ -13233,7 +13234,9 @@ Supported.disabled = function() {
 };
 
 Supported.sequential = function() {
-	if (checkOSVersion( 220 )) return false;
+	if (checkOSVersion( 220 )) {
+		return false;
+	}
 	return ( typeof controller.stations.stn_seq === "object" ) ? true : false;
 };
 
@@ -13242,7 +13245,7 @@ Supported.special = function() {
 };
 
 Supported.pausing = function() {
-	return controller.settings.pq != undefined;
+	return controller.settings.pq !== undefined;
 };
 
 Supported.groups = function() {
@@ -13255,7 +13258,7 @@ Supported.dateRange = function() {
 
 /* Station accessor methods */
 
-function Station() {};
+function Station() {}
 
 var ProgramStatusOptions = {
 	PID: 	0,
@@ -13264,12 +13267,12 @@ var ProgramStatusOptions = {
 	GID: 	3
 };
 
-getNumberProgramStatusOptions = function() {
+function getNumberProgramStatusOptions() {
 	if ( controller.settings.ps.length <= 0 ) {
 		return undefined;
 	}
 	return controller.settings.ps[ 0 ].length;
-};
+}
 
 Station.getName = function( sid ) {
 	return controller.stations.snames[ sid ];
@@ -13305,7 +13308,6 @@ Station.setStartTime = function( sid, value ) {
 
 Station.getGIDValue = function( sid ) {
 	if ( !Supported.groups() ) {
-		console.log( "Sequential groups are not supported!" );
 		return undefined;
 	}
 	return controller.settings.ps[ sid ][ ProgramStatusOptions.GID ];
@@ -13313,7 +13315,6 @@ Station.getGIDValue = function( sid ) {
 
 Station.setGIDValue = function( sid, value ) {
 	if ( !Supported.groups() ) {
-		console.log( "Sequential groups are not supported!" );
 		return;
 	}
 	controller.settings.ps[ sid ][ ProgramStatusOptions.GID ] = value;
@@ -13358,14 +13359,14 @@ Station.isDisabled = function( sid )  {
 	return StationAttribute.getDisabled( sid ) > 0;
 };
 
-function StationAttribute() {};
+function StationAttribute() {}
 
 // Determines if a station is bound to the master (masid)
 StationAttribute.getMasterOperation = function( sid, masid ) {
 	var bid = (sid / 8) >> 0,
 		sourceMasterAttribute;
 
-	if ( !Supported.master( masid ) ) return 0;
+	if ( !Supported.master( masid ) ) { return 0; }
 
 	switch ( masid ) {
 		case MASTER_STATION_1:
@@ -13375,7 +13376,6 @@ StationAttribute.getMasterOperation = function( sid, masid ) {
 			sourceMasterAttribute = controller.stations.masop2;
 			break;
 		default:
-			console.log( "invalid master id" );
 			return 0;
 	}
 
@@ -13386,7 +13386,7 @@ StationAttribute.getMasterOperation = function( sid, masid ) {
 };
 
 StationAttribute.getIgnoreRain = function( sid ) {
-	if ( !Supported.ignoreRain() ) return 0;
+	if ( !Supported.ignoreRain() ) { return 0; }
 	var bid = (sid / 8) >> 0,
 		boardIgnoreRainAttribute = controller.stations.ignore_rain[ bid ],
 		boardStationID = 1 << ( sid % 8 );
@@ -13398,7 +13398,7 @@ StationAttribute.getIgnoreSensor = function( sid, sensorID ) {
 	var bid = (sid / 8) >> 0,
 		sourceIgnoreSensorAttribute;
 
-	if ( !Supported.ignoreSensor( sensorID ) ) return 0;
+	if ( !Supported.ignoreSensor( sensorID ) ) { return 0; }
 
 	switch ( sensorID ) {
 		case IGNORE_SENSOR_1:
@@ -13408,7 +13408,6 @@ StationAttribute.getIgnoreSensor = function( sid, sensorID ) {
 			sourceIgnoreSensorAttribute = controller.stations.ignore_sn2;
 			break;
 		default:
-			console.log( "invalid sensor id" );
 			return 0;
 	}
 
@@ -13419,7 +13418,7 @@ StationAttribute.getIgnoreSensor = function( sid, sensorID ) {
 };
 
 StationAttribute.getActRelay = function( sid ) {
-	if ( !Supported.actRelay() ) return 0;
+	if ( !Supported.actRelay() ) { return 0; }
 	var bid = (sid / 8) >> 0,
 		boardActRelayAttribute = controller.stations.act_relay[ bid ],
 		boardStationID = 1 << ( sid % 8 );
@@ -13428,7 +13427,7 @@ StationAttribute.getActRelay = function( sid ) {
 };
 
 StationAttribute.getDisabled = function( sid ) {
-	if ( !Supported.disabled() ) return 0;
+	if ( !Supported.disabled() ) { return 0; }
 	var bid = (sid / 8) >> 0,
 		boardDisabledAttribute = controller.stations.stn_dis[ bid ],
 		boardStationID = 1 << ( sid % 8 );
@@ -13440,7 +13439,7 @@ StationAttribute.getSequential = function( sid ) {
 	if ( Supported.groups() ) {
 		return Station.getGIDValue !== PARALLEL_GID_VALUE ? 1 : 0;
 	}
-	if ( !Supported.sequential() ) return 0;
+	if ( !Supported.sequential() ) { return 0; }
 	var bid = (sid / 8) >> 0,
 		boardSequentialAttribute = controller.stations.stn_seq[ bid ],
 		boardStationID = 1 << ( sid % 8 );
@@ -13449,7 +13448,7 @@ StationAttribute.getSequential = function( sid ) {
 };
 
 StationAttribute.getSpecial = function( sid ) {
-	if ( !Supported.special() ) return 0;
+	if ( !Supported.special() ) { return 0; }
 	var bid = (sid / 8) >> 0,
 		boardSpecialAttribute = controller.stations.stn_spe[ bid ],
 		boardStationID = 1 << ( sid % 8 );
@@ -13459,11 +13458,11 @@ StationAttribute.getSpecial = function( sid ) {
 
 /* Card helpers: must pass in jquery object $(obj) */
 
-function CardList() {};
+function CardList() {}
 
 CardList.getAllCards = function( cardList ) {
 	return cardList.filter( ".card" );
-}
+};
 
 CardList.getCardBySID = function( cardList, sid ) {
 	return cardList.filter( "[data-station='" + sid + "']" );
@@ -13474,7 +13473,7 @@ CardList.getCardByIndex = function( cardList, idx ) {
 	return $( cardList[ idx ] );
 };
 
-function Card() {};
+function Card() {}
 
 Card.getSID = function( cardObj ) {
 	return cardObj.data( "station" );
@@ -13513,7 +13512,7 @@ Card.isMasterStation = function( cardObj ) {
 	return Station.isMaster( Card.getSID( cardObj ) );
 };
 
-function Groups() {};
+function Groups() {}
 
 // Determines the number of station that are on or scheduled (active)
 Groups.numActiveStations = function( gid ) {
@@ -13522,7 +13521,7 @@ Groups.numActiveStations = function( gid ) {
 
 	$.each( activeCards, function( index ) {
 		var activeCard = $( activeCards[ index ] );
-		if ( Card.getGIDValue( activeCard ) == gid && !Card.isMasterStation( activeCard ) ) {
+		if ( Card.getGIDValue( activeCard ) === gid && !Card.isMasterStation( activeCard ) ) {
 			numMatchingCards++;
 		}
 	} );
@@ -13535,7 +13534,7 @@ Groups.canShift = function( gid ) {
 	return Groups.numActiveStations( gid ) > 1;
 };
 
-function StationQueue() {};
+function StationQueue() {}
 
 StationQueue.isActive = function() {
 	for ( var i = 0; i < controller.status.length; i++ ) {
@@ -13557,11 +13556,11 @@ StationQueue.size = function() {
 /* Gid conversions */
 
 // Last index value is dedicated to the parallel group
-mapIndexToGIDValue = function( index ) {
+function mapIndexToGIDValue( index ) {
 	return ( index - NUM_SEQ_GROUPS ) ? index : PARALLEL_GID_VALUE;
-};
+}
 
-mapGIDValueToName = function( value ) {
+function mapGIDValueToName( value ) {
 	switch ( value ) {
 		case PARALLEL_GID_VALUE:
 			return PARALLEL_GROUP_NAME;
@@ -13570,9 +13569,9 @@ mapGIDValueToName = function( value ) {
 		default:
 			return String.fromCharCode( 65 + value );
 	}
-};
+}
 
-mapGIDNameToValue = function( groupName ) {
+function mapGIDNameToValue( groupName ) {
 	switch ( groupName ) {
 		case PARALLEL_GROUP_NAME:
 			return PARALLEL_GID_VALUE;
@@ -13581,13 +13580,13 @@ mapGIDNameToValue = function( groupName ) {
 		default:
 			return groupName.charCodeAt( 0 ) - 65;
 	}
-};
+}
 
 // Miscellaneous
 
 var dateRegex = /[0-9]{1,2}[\/][0-9]{1,2}/g;
 
-function Program() {};
+function Program() {}
 
 Program.getDateRange = function( pid ) {
 	return controller.programs.pd[ pid ][ 6 ];
@@ -13614,20 +13613,20 @@ Program.getDateRangeEnd = function( pid ) {
 	return Program.getDateRange( pid )[ 2 ];
 };
 
-extractDateFromString = function( inputString ) {
+function extractDateFromString( inputString ) {
 	return inputString.match( dateRegex );
-};
+}
 
-isValidDateFormat = function( dateString ) {
+function isValidDateFormat( dateString ) {
 	var dates = extractDateFromString( dateString );
 	return dates !== null;
-};
+}
 
-isValidDateRange = function( startDate, endDate ) {
+function isValidDateRange( startDate, endDate ) {
 	return isValidDateFormat( startDate ) && isValidDateFormat( endDate );
-};
+}
 
-encodeDate = function( dateString ) {
+function encodeDate( dateString ) {
 	var dateValues = extractDateFromString( dateString );
 	if ( dateValues === null ) {
 		return -1;
@@ -13637,12 +13636,12 @@ encodeDate = function( dateString ) {
 	var month = parseInt( dateToEncode[ 0 ] ),
 		day = parseInt( dateToEncode[ 1 ] );
 	return ( month << 5 ) + day;
-};
+}
 
 var minEncodedDate = encodeDate( "01/01" ),
 	  maxEncodedDate = encodeDate( "12/31" );
 
-decodeDate = function( dateValue ) {
+function decodeDate( dateValue ) {
 	var dateString = [],
 		monthValue, dayValue;
 	if ( minEncodedDate <= dateValue && dateValue <= maxEncodedDate ) {
@@ -13661,5 +13660,4 @@ decodeDate = function( dateValue ) {
 	} else {
 		return "12/31";
 	}
-};
-
+}
