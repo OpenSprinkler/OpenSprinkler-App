@@ -6725,7 +6725,7 @@ function checkStatus() {
 				areYouSure( _( "Do you want to turn off rain delay?" ), "", function() {
 					showLoading( "#footer-running" );
 					sendToOS( "/cv?pw=&rd=0" ).done( function() {
-						updateController();
+						refreshStatus( updateWeather );
 					} );
 				} );
 			}
