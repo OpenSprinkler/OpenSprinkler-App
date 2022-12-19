@@ -4001,6 +4001,9 @@ function showOptions( expandItem ) {
 					}
 				}
 			}
+			if ( typeof opt.dname !== "undefined") {
+				opt.dname = encodeURIComponent(opt.dname);
+			}
 
 			opt = transformKeys( opt );
 			$.mobile.loading( "show" );
@@ -4366,7 +4369,7 @@ function showOptions( expandItem ) {
 		if ( typeof controller.settings.ifkey !== "undefined" ) {
 			list += "<div class='ui-field-contain'><label for='ifkey'>" + _( "IFTTT Key" ) +
 				"<button data-helptext='" +
-					_( "To enable IFTTT, a Maker channel key is required which can be obtained from https://ifttt.com" ) +
+					_( "To enable IFTTT, a Webhooks key is required which can be obtained from https://ifttt.com" ) +
 					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
 			"</label><input autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' data-mini='true' type='text' id='ifkey' value='" + controller.settings.ifkey + "'>" +
 			"</div>";
@@ -4376,6 +4379,15 @@ function showOptions( expandItem ) {
 						_( "Select which events to send to IFTTT for use in recipes." ) +
 						"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
 				"</label><button data-mini='true' id='o49' value='" + controller.options.ife + "'>" + _( "Configure Events" ) + "</button></div>";
+		}
+
+		if ( typeof controller.settings.dname !== "undefined" ) {
+			list += "<div class='ui-field-contain'><label for='dname'>" + _( "Device Name" ) +
+				"<button data-helptext='" +
+					_( "Device name is attached to all IFTTT notifications to help distinguish multiple devices" ) +
+					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
+			"</label><input autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' data-mini='true' type='text' id='dname' value=\"" + controller.settings.dname + "\">" +
+			"</div>";
 		}
 	}
 
@@ -5607,8 +5619,8 @@ var showHome = ( function() {
 			select += "<div id='tab-basic' class='tab-content current'>";
 
 			select += "<div class='ui-bar-a ui-bar'>" + _( "Station Name" ) + ":</div>" +
-				"<input class='bold center' data-corners='false' data-wrapper-class='tight stn-name ui-btn' id='stn-name' type='text' value='" +
-					name.text() + "'>";
+				"<input class='bold center' data-corners='false' data-wrapper-class='tight stn-name ui-btn' id='stn-name' type='text' value=\"" +
+					name.text() + "\">";
 
 			if ( typeof navigator.camera !== "undefined" && typeof navigator.camera.getPicture === "function" ) {
 				select += "<button class='changeBackground'>" +
@@ -9363,7 +9375,7 @@ function makeProgram21( n, isCopy ) {
 	// Progran name
 	list += "<label for='name-" + id + "'>" + _( "Program Name" ) + "</label>" +
 		"<input data-mini='true' type='text' name='name-" + id + "' id='name-" + id + "' maxlength='" + controller.programs.pnsize + "' " +
-		"placeholder='" + _( "Program" ) + " " + ( controller.programs.pd.length + 1 ) + "' value='" + program.name + "'>";
+		"placeholder='" + _( "Program" ) + " " + ( controller.programs.pd.length + 1 ) + "' value=\"" + program.name + "\">";
 
 	// Program enable/disable flag
 	list += "<label for='en-" + id + "'><input data-mini='true' type='checkbox' " +
@@ -10154,6 +10166,11 @@ function importConfig( data ) {
 		// Import IFTTT Key, if available
 		if ( typeof data.settings.ifkey === "string" && checkOSVersion( 217 ) ) {
 			co += "&ifkey=" + data.settings.ifkey;
+		}
+
+		// Import device name, if available
+		if ( typeof data.settings.dname === "string" && checkOSVersion( 2191 ) ) {
+			co += "&dname=" + data.settings.dname;
 		}
 
 		// Import mqtt options, if available
