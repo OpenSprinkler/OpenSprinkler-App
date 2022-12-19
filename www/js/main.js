@@ -4513,6 +4513,7 @@ function showOptions( expandItem ) {
 
 	list += "<button data-mini='true' class='center-div reset-log'>" + _( "Clear Log Data" ) + "</button>";
 	list += "<button data-mini='true' class='center-div reset-options'>" + _( "Reset All Options" ) + "</button>";
+	list += "<button data-mini='true' class='center-div reset-programs'>" + _( "Delete All Programs" ) + "</button>";
 	list += "<button data-mini='true' class='center-div reset-stations'>" + _( "Reset Station Attributes" ) + "</button>";
 
 	if ( controller.options.hwv >= 30 && controller.options.hwv < 40 ) {
@@ -4625,6 +4626,8 @@ function showOptions( expandItem ) {
 	} );
 
 	page.find( ".reset-log" ).on( "click", clearLogs );
+
+	page.find( ".reset-programs" ).on( "click", clearPrograms );
 
 	page.find( ".reset-options" ).on( "click", function() {
 		resetAllOptions( function() {
@@ -8721,6 +8724,19 @@ function clearLogs( callback ) {
 	} );
 }
 
+function clearPrograms( callback ) {
+	areYouSure( _( "Are you sure you want to delete ALL programs?" ), "", function() {
+		var url = "/dp?pw=&pid=-1";
+		$.mobile.loading( "show" );
+		sendToOS( url ).done( function() {
+			if ( typeof callback === "function" ) {
+				callback();
+			}
+			showerror( _( "Programs have been deleted" ) );
+		} );
+	} );
+}
+
 function resetAllOptions( callback ) {
 	areYouSure( _( "Are you sure you want to delete all settings and return to the default settings?" ), "", function() {
 		var co;
@@ -8728,9 +8744,17 @@ function resetAllOptions( callback ) {
 		if ( isOSPi() ) {
 			co = "otz=32&ontp=1&onbrd=0&osdt=0&omas=0&omton=0&omtoff=0&orst=1&owl=100&orlp=0&ouwt=0&olg=1&oloc=Boston,MA";
 		} else {
-			co = "o1=32&o2=1&o3=1&o12=80&o13=0&o15=0&o17=0&o18=0&o19=0&o20=0&o22=1&o23=100&o26=0&o27=110&o28=100&o29=15&" +
-				"o30=0&o31=0&o32=50&o33=97&o34=210&o35=169&o36=1&o37=0&o38=0&o39=0&loc=Boston,MA&wto=%22key%22%3A%22%22";
-			transformKeysinString( co );
+			co = "o2=1&o3=1&o12=80&o13=0&o15=0&o17=0&o18=0&o19=0&o20=0&o22=1&o23=100&o26=0&o27=110&o28=100&o29=15&" +
+				"o30=320&o31=0&o36=1&o37=0&o38=0&o39=0&o41=100&o42=0&o43=0&o44=8&o45=8&o46=8&o47=8&" +
+				"o48=0&o49=0&o50=0&o51=1&o52=0&o53=1&o54=0&o55=0&o56=0&o57=0&";
+			if ( checkOSVersion( 2199 ) ) {
+				co += "o32=0&o33=0&o34=0&o35=0&"; // for newer firmwares, resets ntp to 0.0.0.0
+			} else {
+				co += "o32=216&o33=239&o34=35&o35=12&"; // time.google.com
+			}
+			co += "loc=Boston,MA&wto=%22key%22%3A%22%22";
+
+			co = transformKeysinString( co );
 		}
 
 		sendToOS( "/co?pw=&" + co ).done( function() {
