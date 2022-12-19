@@ -4191,7 +4191,7 @@ function showOptions( expandItem ) {
 	if ( typeof controller.options.uwt !== "undefined" ) {
 		list += "<div class='ui-field-contain'><label for='o31' class='select'>" + _( "Weather Adjustment Method" ) +
 				"<button data-helptext='" +
-					_( "Weather adjustment uses OpenWeatherMaps data in conjunction with the selected method to adjust the watering percentage." ) +
+					_( "Weather adjustment uses DarkSky data in conjunction with the selected method to adjust the watering percentage." ) +
 					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
 			"</label><select data-mini='true' id='o31'>";
 		for ( i = 0; i < getAdjustmentMethod().length; i++ ) {
@@ -4405,7 +4405,7 @@ function showOptions( expandItem ) {
 	if ( checkOSVersion( 219 ) && typeof controller.options.uwt !== "undefined" && typeof controller.settings.wto === "object" ) {
 		list += "<div class='ui-field-contain'><label for='wtkey'>" + _( "Wunderground Key" ).replace( "Wunderground", "Wunder&shy;ground" ) +
 			"<button data-helptext='" +
-				_( "We use OpenWeatherMap normally however with a user provided API key the weather source will switch to Weather Underground." ) +
+				_( "We use DarkSky normally however with a user provided API key the weather source will switch to Weather Underground." ) +
 				"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
 		"</label>" +
 		"<table>" +
@@ -4684,7 +4684,7 @@ function showOptions( expandItem ) {
 			}
 		}
 
-		areYouSure( _( "Are you sure you want to reset all stations?" ), _( "This will reset all station names and attributes" ), function() {
+		areYouSure( _( "Are you sure you want to reset station attributes?" ), _( "This will reset all station attributes" ), function() {
 			$.mobile.loading( "show" );
 			storage.get( [ "sites", "current_site" ], function( data ) {
 				var sites = parseSites( data.sites );
@@ -10081,8 +10081,10 @@ function importConfig( data ) {
 		var cs = "/cs?pw=",
 			co = "/co?pw=",
 			cpStart = "/cp?pw=",
+			ncs = Math.ceil( data.stations.snames.length / 16 ),
+			csi = new Array( ncs ).fill("/cs?pw="),
 			isPi = isOSPi(),
-			i, key, option, station;
+			i, k, key, option, station;
 
 		var findKey = function( index ) { return keyIndex[ index ] === key; };
 
@@ -10141,13 +10143,16 @@ function importConfig( data ) {
 
 		co += "&" + ( isPi ? "o" : "" ) + "loc=" + data.settings.loc;
 
-		for ( i = 0; i < data.stations.snames.length; i++ ) {
-			if ( checkOSVersion( 208 ) === true ) {
-				station = data.stations.snames[ i ].replace( /\s/g, "_" );
-			} else {
-				station = data.stations.snames[ i ];
+		// due to potentially large number of zones, we split zone names import to maximum 16 per group
+		for ( k = 0; k < ncs; k++ ) {
+			for ( i = k * 16; i < (k + 1) * 16 && i < data.stations.snames.length; i++ ) {
+				if ( checkOSVersion( 208 ) === true ) {
+					station = data.stations.snames[ i ].replace( /\s/g, "_" );
+				} else {
+					station = data.stations.snames[ i ];
+				}
+				csi[k] += "&s" + i + "=" + encodeURIComponent( station );
 			}
-			cs += "&s" + i + "=" + encodeURIComponent( station );
 		}
 
 		for ( i = 0; i < data.stations.masop.length; i++ ) {
@@ -10214,6 +10219,9 @@ function importConfig( data ) {
 			sendToOS( transformKeysinString( co ) ),
 			sendToOS( cs ),
 			sendToOS( "/dp?pw=&pid=-1" ),
+			$.each( csi, function( i, comm ) {
+				sendToOS( comm );
+			} ),
 			$.each( data.programs.pd, function( i, prog ) {
 				var name = "";
 
