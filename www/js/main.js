@@ -935,26 +935,31 @@ function updateController( callback, fail ) {
 	};
 
 	if ( isControllerConnected() && checkOSVersion( 216 ) ) {
-		sendToOS( "/ja?pw=", "json" ).then( function( data ) {
+		$.when(
+			sendToOS( "/ja?pw=", "json" ).then( function( data ) {
 
-			if ( typeof data === "undefined" || $.isEmptyObject( data ) ) {
-				fail();
-				return;
-			}
+				if ( typeof data === "undefined" || $.isEmptyObject( data ) ) {
+					fail();
+					return;
+				}
 
-			// The /ja call does not contain special station data, so let's cache it
-			var special = controller.special;
+				// The /ja call does not contain special station data, so let's cache it
+				var special = controller.special;
 
-			controller = data;
+				controller = data;
 
-			// Restore the station cache to the object
-			controller.special = special;
+				// Restore the station cache to the object
+				controller.special = special;
 
-			// Fix the station status array
-			controller.status = controller.status.sn;
+				// Fix the station status array
+				controller.status = controller.status.sn;
 
-			finish();
-		}, fail );
+				callback();
+			}),
+			//Analog Sensor API:
+			updateAnalogSensor(),
+			updateProgramAdjustments()
+		).then( finish, fail );
 	} else {
 		$.when(
 			updateControllerPrograms(),
@@ -963,6 +968,29 @@ function updateController( callback, fail ) {
 			updateControllerStatus(),
 			updateControllerSettings()
 		).then( finish, fail );
+	}
+}
+
+
+function updateProgramAdjustments( callback ) {
+	if ( checkOSVersion( 230 ) ) {
+		callback = callback || function() {};
+
+		return sendToOS( "/se?pw=", "json" ).then( function( data ) {
+				controller.programadjustments = data.progAdjust;
+				callback();
+			} );
+	}
+}
+
+function updateAnalogSensor( callback ) {
+	if ( checkOSVersion( 230 ) ) {
+		callback = callback || function() {};
+
+		return sendToOS( "/sl?pw=", "json" ).then( function( data ) {
+				controller.analogsensors = data.sensors;
+				callback();
+			} );
 	}
 }
 
@@ -4250,6 +4278,82 @@ function showOptions( expandItem ) {
 		list += "<hr class='divider'><button data-mini='true' class='center-div reset-wireless'>" + _( "Reset Wireless Settings" ) + "</button>";
 	}
 
+	// analog sensor api support:
+	if (checkOSVersion( 230 )) {
+		list += "</fieldset><fieldset data-role='collapsible' data-theme='c'" +
+			( typeof expandItem === "string" && expandItem === "analogsensor" ? " data-collapsed='false'" : "" ) + ">" +
+			"<legend>" + _( "Analog Sensor Setup" ) + "</legend>";
+
+		// Analog Sensor Table:
+		list += "<table id='analogsensortable'><tr style='width:100%;vertical-align: top;'>" +
+		"<tr><th>Nr</th><th>Type</th><th>Group</th><th>Name</th><th>IP</th><th>Port</th><th>ID</th><th>Read<br>Interval</th><th>Native<br>Data</th><th>Data</th><th>Enabled</th><th>Log</th><th>Last</th></tr>";
+
+		var row = 0;
+		$(function() {
+			$.each(controller.analogsensors, function(i, item) {
+
+				var $tr = $('<tr>').append(
+					$('<td>').text(item.nr),
+					$('<td>').text(item.type),
+					$('<td>').text(item.group),
+					$('<td>').text(item.name),
+					$('<td>').text(toByteArray(item.ip).join( "." )),
+					$('<td>').text(item.port),
+					$('<td>').text(item.id),
+					$('<td>').text(item.ri),
+					$('<td>').text(item.nativedata),
+					$('<td>').text(item.data),
+					$('<td>').text(item.enable),
+					$('<td>').text(item.log),
+					$('<td>').text(dateToString(new Date(item.last*1000)), null, 2),
+					"<td><button data-mini='true' class='center-div' id='edit-sensor' value='"+item.nr+" 'row='"+row+"'>"+ _( "Edit" ),
+					"<td><button data-mini='true' class='center-div' id='delete-sensor' value='"+item.nr+"' row='"+row+"'>"+ _( "Delete" ),
+				);
+				list += $tr.wrap('<p>').html() + "</tr>";
+				row++;
+			});
+		});
+		list += "</table>";
+		list += "<button data-mini='true' class='center-div' id='add-sensor'>" + _( "Add Sensor" ) + "</button>";
+
+		//Program adjustments table:
+		list += "<table id='progadjusttable'><tr style='width:100%;vertical-align: top;'>" +
+		"<tr><th>Nr</th><th>Type</th><th>Sensor-Nr</th><th>Name</th><th>Program-Nr</th><th>Program</th><th>Factor 1</th><th>Factor 2</th><th>Min Value</th><th>Max Value</th></tr>";
+
+		row = 0;
+		$(function() {
+			$.each(controller.programadjustments, function(i, item) {
+
+				var sensorName = "";
+				for (var j = 0; j < controller.analogsensors.length; j++) {
+					if (controller.analogsensors[j].nr == item.nr)
+						sensorName = controller.analogsensors[j].name;
+				}
+				var progName = "?";
+				if (item.prog <= controller.programs.pd.length)
+					progName = controller.programs.pd[ item.prog-1 ][ 5 ];
+
+				var $tr = $('<tr>').append(
+					$('<td>').text(item.nr),
+					$('<td>').text(item.type),
+					$('<td>').text(item.sensor),
+					$('<td>').text(sensorName),
+					$('<td>').text(item.prog),
+					$('<td>').text(progName),
+					$('<td>').text(item.factor1),
+					$('<td>').text(item.factor2),
+					$('<td>').text(item.min),
+					$('<td>').text(item.max),
+					"<td><button data-mini='true' class='center-div' id='edit-progadjust' value='"+item.nr+"' row='"+row+"'>"+ _( "Edit" ),
+					"<td><button data-mini='true' class='center-div' id='delete-progadjust' value='"+item.nr+"' row='"+row+"'>"+ _( "Delete" ),
+				);
+				list += $tr.wrap('<p>').html() + "</tr>";
+				row++;
+			});
+		});
+		list += "</table>";
+		list += "<button data-mini='true' class='center-div' id='add-progadjust'>" + _( "Add program adjustment" ) + "</button>";
+	}
 	list += "</fieldset>";
 
 	// Insert options and remove unused groups
@@ -4266,6 +4370,62 @@ function showOptions( expandItem ) {
 				group.remove();
 			}
 		} );
+
+	// analog sensor api support:
+	if (checkOSVersion( 230 )) {
+
+		//delete a sensor:
+		page.find( "#delete-sensor" ).on( "click", function( ) {
+			var dur = $( this ),
+			value = dur.attr( "value" ),
+			row = dur.attr( "row" );
+
+			areYouSure( _( "Are you sure you want to delete the sensor?" ), value, function() {
+				sendToOS( "/sc?pw=&nr="+value+"&type=0"  ).done( function() {
+                    document.getElementById("analogsensortable").deleteRow(row+2);
+					updateController();
+					showerror( _( "Sensor has been deleted" ) );
+				} );
+			} );
+		} );
+
+		//edit a sensor:
+		page.find( "#edit-sensor" ).on( "click", function( ) {
+			var dur = $( this ),
+			value = dur.attr( "value" ),
+			row = dur.attr( "row" );
+
+			var sensor = controller.analogsensors[row];
+
+			editSensor(sensor);
+
+				//sendToOS( "/sc?pw=&nr="+value+"&type=0"  ).done( function() {
+                    //document.getElementById("analogsensortable").deleteRow(row);
+				//	updateController();
+				//	showerror( _( "Sensor has been updated" ) );
+				//} );
+			//} );
+		} );
+
+		page.find( "#add-sensor").on( "click", function( ) {
+
+		} );
+
+		//delete a program adjust:
+		page.find( "#delete-progadjust" ).on( "click", function( ) {
+			var dur = $( this ),
+			value = dur.attr( "value" );
+			row = dur.attr( "row" );
+
+			areYouSure( _( "Are you sure you want to delete this program adjustment?" ), value, function() {
+				sendToOS( "/sb?pw=&nr="+value+"&type=0"  ).done( function() {
+                    document.getElementById("analogsensortable").deleteRow(row+2);
+					updateController();
+					showerror( _( "Program adjustment has been deleted" ) );
+				} );
+			} );
+		} );
+	}
 
 	page.find( ".clear-loc" ).on( "click", function( e ) {
 		e.stopImmediatePropagation();
@@ -12514,3 +12674,17 @@ function transformKeysinString( co ) {
 	co = arr.join( "&" );
 	return co;
 }
+
+function toByteArray(n) {
+	let b = BigInt(n);
+	let result = [];
+	while (b > 0n) {
+	  result.push(Number(b % 0x100n));
+	  b /= 0x100n;
+	}
+	return Uint8Array.from(result);
+  }
+
+  function editSensor( copyID ) {
+
+  }
