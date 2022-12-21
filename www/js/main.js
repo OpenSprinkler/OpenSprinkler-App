@@ -4001,8 +4001,8 @@ function showOptions( expandItem ) {
 					}
 				}
 			}
-			if ( typeof opt.dname !== "undefined") {
-				opt.dname = encodeURIComponent(opt.dname);
+			if ( typeof opt.dname !== "undefined" ) {
+				opt.dname = encodeURIComponent( opt.dname );
 			}
 
 			opt = transformKeys( opt );
@@ -5977,8 +5977,8 @@ var showHome = ( function() {
 				return 1;
 			} else { // If both or neither master check group id
 
-				var gidA = Card.getGIDValue( cardA );
-				var gidB = Card.getGIDValue( cardB );
+				var gidA = Station.getGIDValue( Card.getSID( cardA ) );
+				var gidB = Station.getGIDValue( Card.getSID( cardB ) );
 
 				if ( gidA < gidB ) {
 					return -1;
@@ -6031,6 +6031,10 @@ var showHome = ( function() {
 		updateGroupView = function( cardHolder, cardList ) {
 			var thisCard, nextCard, divider, label, idx;
 
+			for ( idx = 0; idx < cardHolder.children().length; idx++ ) {
+				thisCard = CardList.getCardByIndex( cardList, idx );
+				Card.setGroupLabel( thisCard, Card.getGIDName( thisCard ) );
+			}
 			for ( idx = 0; idx < cardHolder.children().length - 1; idx++ ) {
 				thisCard = CardList.getCardByIndex( cardList, idx );
 				nextCard = CardList.getCardByIndex( cardList, idx + 1 );
@@ -6049,17 +6053,14 @@ var showHome = ( function() {
 					continue;
 				}
 
-				Card.setGroupLabel( thisCard, mapGIDValueToName( Station.getGIDValue( idx ) ) );
-
-				// Display dividers between different groups
-				if ( Card.getGIDValue( thisCard ) !== Card.getGIDValue( nextCard ) ) {
+				if( Station.getGIDValue( Card.getSID( thisCard ) ) !== Station.getGIDValue( Card.getSID( nextCard ) ) ) {
 					divider.show();
 				} else {
 					divider.hide();
 				}
 			}
 			Card.getDivider( nextCard ).show(); // Last group divider
-			Card.setGroupLabel( nextCard, mapGIDValueToName( Station.getGIDValue( idx ) ) );
+			Card.setGroupLabel( nextCard, Card.getGIDName( nextCard ) );
 		},
 		updateStandardView = function( cardHolder, cardList ) {
 			var thisCard, nextCard, divider, label, idx;
@@ -8760,9 +8761,9 @@ function resetAllOptions( callback ) {
 				"o30=320&o31=0&o36=1&o37=0&o38=0&o39=0&o41=100&o42=0&o43=0&o44=8&o45=8&o46=8&o47=8&" +
 				"o48=0&o49=0&o50=0&o51=1&o52=0&o53=1&o54=0&o55=0&o56=0&o57=0&";
 			if ( checkOSVersion( 2199 ) ) {
-				co += "o32=0&o33=0&o34=0&o35=0&"; // for newer firmwares, resets ntp to 0.0.0.0
+				co += "o32=0&o33=0&o34=0&o35=0&"; // For newer firmwares, resets ntp to 0.0.0.0
 			} else {
-				co += "o32=216&o33=239&o34=35&o35=12&"; // time.google.com
+				co += "o32=216&o33=239&o34=35&o35=12&"; // Time.google.com
 			}
 			co += "loc=Boston,MA&wto=%22key%22%3A%22%22";
 
@@ -10118,7 +10119,7 @@ function importConfig( data ) {
 			co = "/co?pw=",
 			cpStart = "/cp?pw=",
 			ncs = Math.ceil( data.stations.snames.length / 16 ),
-			csi = new Array( ncs ).fill("/cs?pw="),
+			csi = new Array( ncs ).fill( "/cs?pw=" ),
 			isPi = isOSPi(),
 			i, k, key, option, station;
 
@@ -10184,15 +10185,15 @@ function importConfig( data ) {
 
 		co += "&" + ( isPi ? "o" : "" ) + "loc=" + data.settings.loc;
 
-		// due to potentially large number of zones, we split zone names import to maximum 16 per group
+		// Due to potentially large number of zones, we split zone names import to maximum 16 per group
 		for ( k = 0; k < ncs; k++ ) {
-			for ( i = k * 16; i < (k + 1) * 16 && i < data.stations.snames.length; i++ ) {
+			for ( i = k * 16; i < ( k + 1 ) * 16 && i < data.stations.snames.length; i++ ) {
 				if ( checkOSVersion( 208 ) === true ) {
 					station = data.stations.snames[ i ].replace( /\s/g, "_" );
 				} else {
 					station = data.stations.snames[ i ];
 				}
-				csi[k] += "&s" + i + "=" + encodeURIComponent( station );
+				csi[ k ] += "&s" + i + "=" + encodeURIComponent( station );
 			}
 		}
 
@@ -13551,7 +13552,8 @@ Card.getGIDValue = function( cardObj ) {
 };
 
 Card.getGIDName = function( cardObj ) {
-	return mapGIDValueToName( Card.getGIDValue( cardObj ) );
+	//return mapGIDValueToName( Card.getGIDValue( cardObj ) );
+	return mapGIDValueToName( Station.getGIDValue( Card.getSID( cardObj ) ) );
 };
 
 Card.isMasterStation = function( cardObj ) {
