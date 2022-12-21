@@ -4001,9 +4001,6 @@ function showOptions( expandItem ) {
 					}
 				}
 			}
-			if ( typeof opt.dname !== "undefined" ) {
-				opt.dname = encodeURIComponent( opt.dname );
-			}
 
 			opt = transformKeys( opt );
 			$.mobile.loading( "show" );
