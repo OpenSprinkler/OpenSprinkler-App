@@ -6053,7 +6053,7 @@ var showHome = ( function() {
 					continue;
 				}
 
-				if( Station.getGIDValue( Card.getSID( thisCard ) ) !== Station.getGIDValue( Card.getSID( nextCard ) ) ) {
+				if ( Station.getGIDValue( Card.getSID( thisCard ) ) !== Station.getGIDValue( Card.getSID( nextCard ) ) ) {
 					divider.show();
 				} else {
 					divider.hide();
@@ -13552,7 +13552,8 @@ Card.getGIDValue = function( cardObj ) {
 };
 
 Card.getGIDName = function( cardObj ) {
-	//return mapGIDValueToName( Card.getGIDValue( cardObj ) );
+
+	//Return mapGIDValueToName( Card.getGIDValue( cardObj ) );
 	return mapGIDValueToName( Station.getGIDValue( Card.getSID( cardObj ) ) );
 };
 
