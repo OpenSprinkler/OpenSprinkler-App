@@ -4648,15 +4648,23 @@ function showOptions( expandItem ) {
 	} );
 
 	page.find( ".reset-stations" ).on( "click", function() {
-		var cs = "";
+		var cs = "", i;
 
-		for ( var i = 0; i < controller.stations.snames.length; i++ ) {
-			cs += "g" + i + "=0&";
+		if ( Supported.groups() ) {
+			for ( i = 0; i < controller.stations.snames.length; i++ ) {
+				cs += "g" + i + "=0&";
+			}
 		}
 
-		if ( controller.options.mas ) {
+		if ( typeof controller.options.mas !== "undefined" ) {
 			for ( i = 0; i < controller.settings.nbrd; i++ ) {
 				cs += "m" + i + "=255&";
+			}
+		}
+
+		if ( typeof controller.options.mas2 !== "undefined" ) {
+			for ( i = 0; i < controller.settings.nbrd; i++ ) {
+				cs += "n" + i + "=0&";
 			}
 		}
 
@@ -4693,6 +4701,12 @@ function showOptions( expandItem ) {
 		if ( typeof controller.stations.stn_seq === "object" ) {
 			for ( i = 0; i < controller.settings.nbrd; i++ ) {
 				cs += "q" + i + "=255&";
+			}
+		}
+
+		if ( typeof controller.stations.stn_spe === "object" ) {
+			for ( i = 0; i < controller.settings.nbrd; i++ ) {
+				cs += "p" + i + "=0&";
 			}
 		}
 
