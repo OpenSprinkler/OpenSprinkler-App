@@ -1,0 +1,7 @@
+git:
+  filters:
+  - filter_type: file
+    file_format: PO
+    source_file: www/locale/messages_en.po
+    source_language: en
+    translation_files_expression: 'www/locale/<lang>.js'
