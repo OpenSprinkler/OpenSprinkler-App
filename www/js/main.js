@@ -342,6 +342,7 @@ $( document )
 	showLoading( "#weather,#footer-running" );
 
 	updateController( updateWeather, networkFail );
+
 } )
 .on( "pause", function() {
 
@@ -838,6 +839,11 @@ function newLoad() {
 				weatherAdjust.hide();
 			}
 
+			if ( checkOSVersion( 230 ) ) {
+				updateAnalogSensor();
+				updateProgramAdjustments();
+			}
+
 			// Hide change password feature for unsupported devices
 			if ( isOSPi() || checkOSVersion( 208 ) ) {
 				changePassword.css( "display", "" );
@@ -939,18 +945,7 @@ function updateController( callback, fail ) {
 
 	if ( isControllerConnected() && checkOSVersion( 216 ) ) {
 
-			updateControllerData(function() {
-				if ( checkOSVersion( 230 ) ) {
-					//Analog Sensor API:
-					updateAnalogSensor(function() {
-						updateProgramAdjustments(function() {
-							finish();
-						});
-					});
-				} else {
-					finish();
-				}
-			}, fail);
+			updateControllerData( finish, fail );
 
 	} else {
 		$.when(
@@ -4612,11 +4607,11 @@ function showOptions( expandItem ) {
 			var $tr = $('<tr>').append(
 				$('<td>').text(item.nr),
 				$('<td>').text(item.type),
-				$('<td>').text(item.group),
+				$('<td>').text(item.group?item.group:""),
 				$('<td>').text(item.name),
-				$('<td>').text(toByteArray(item.ip).join( "." )),
-				$('<td>').text(item.port),
-				$('<td>').text(item.id),
+				$('<td>').text(item.ip?toByteArray(item.ip).join( "." ):""),
+				$('<td>').text(item.port?item.port:""),
+				$('<td>').text(item.id?item.id:""),
 				$('<td>').text(item.ri),
 				$('<td>').text(Math.round(item.data)+item.unit),
 				$('<td>').text(item.enable),
