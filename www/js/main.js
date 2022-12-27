@@ -2407,22 +2407,22 @@ function showAdjustmentsEditor( progAdjust, callback) {
 				list += "</select></div>" +
 
 				"<label>" +
-					_( "Factor 1" ) +
+					_( "Factor 1 (adjustment for Min)" ) +
 					"</label>" +
 					"<input class='factor1' type='number' value='" + progAdjust.factor1+ "'>" +
 
 				"<label>" +
-					_( "Factor 2" ) +
+					_( "Factor 2 (adjustment for Max)" ) +
 					"</label>" +
 					"<input class='factor2' type='number' value='" + progAdjust.factor2+ "'>" +
 
 				"<label>" +
-					_( "Min" ) +
+					_( "Min Sensor value" ) +
 					"</label>" +
 					"<input class='min' type='number' value='" + progAdjust.min+ "'>" +
 
 				"<label>" +
-					_( "Max" ) +
+					_( "Max Sensor value" ) +
 					"</label>" +
 					"<input class='max' type='number' value='" + progAdjust.max+ "'>" +
 
@@ -2451,10 +2451,10 @@ function showAdjustmentsEditor( progAdjust, callback) {
 				type:    parseInt( popup.find( "#type" ).val() ),
 				sensor:  parseInt( popup.find( "#sensor" ).val() ),
 				prog:    parseInt( popup.find( "#prog" ).val() ),
-				factor1: parseInt( popup.find( ".factor1" ).val() ),
-				factor2: parseInt( popup.find( ".factor2" ).val() ),
-				min: 	 parseInt( popup.find( ".min" ).val() ),
-				max: 	 parseInt( popup.find( ".max" ).val() ),
+				factor1: parseFloat( popup.find( ".factor1" ).val() ),
+				factor2: parseFloat( popup.find( ".factor2" ).val() ),
+				min: 	 parseFloat( popup.find( ".min" ).val() ),
+				max: 	 parseFloat( popup.find( ".max" ).val() ),
 			}
 			callback( progAdjust );
 
@@ -2497,6 +2497,12 @@ function showAdjustmentsEditor( progAdjust, callback) {
 	});
 }
 
+function isSmt100(sensorType) {
+	if (!sensorType)
+		return false;
+	return sensorType === 1 || sensorType === 2;
+}
+
 // analog sensor editor
 function showSensorEditor( sensor, callback) {
 
@@ -2530,6 +2536,8 @@ function showSensorEditor( sensor, callback) {
 							supportedSensorTypes[i].name + "</option>";
 						}
 						list += "</select></div>";
+
+					list += "<button data-mini='true' class='center-div' id='smt100id' style='display:"+(isSmt100(sensor.type)?"block":"none")+"'>"+ _( "Set SMT100 Modbus ID" )+"</button>";
 
 					list += "<label>" +
 						_( "Group" ) +
@@ -2591,6 +2599,24 @@ function showSensorEditor( sensor, callback) {
 
 			input.val( val + dir );
 		};
+
+
+	//SMT 100 Toolbox function: SET ID
+	popup.find( "#smt100id" ).on( "click", function() {
+		nr    = parseInt( popup.find( ".nr" ).val() );
+		newid = parseInt( popup.find( ".id" ).val() );
+		popup.popup( "close" );
+		areYouSure( _( "This function sets the Modbus ID for one SMT100 sensor. Disconnect all other sensors on this Modbus port. Please confirm." ),
+		"new id="+newid, function() {
+			sendToOS("/sa?pw=&nr="+nr+"&id="+id ).done( function() {
+
+			});
+		});
+	});
+	popup.find( "#type" ).change(function() {
+		var type = parseInt( popup.find( "#type" ).val());
+		document.getElementById("smt100id").style.display=isSmt100(type)?"block":"none";
+	});
 
 	popup.find( ".submit" ).on( "click", function() {
 
@@ -2769,10 +2795,10 @@ function showZimmermanAdjustmentOptions( button, callback ) {
 				br: parseFloat( popup.find( ".br" ).val() )
 			} );
 
-			// OSPi strores in imperial so onvert metric at higher precision so we dont lose accuracy
+			// OSPi strores in imperial so convert metric at higher precision so we dont lose accuracy
 			if ( isMetric ) {
-				options.bt = Math.round( ( options.bt * 9 / 5 + 32 ) * 100 ) / 100;
-				options.br = Math.round( ( options.br / 25.4 ) * 1000 ) / 1000;
+				options.bt = Math.round( ( options.bt * 9.0 / 5.0 + 32.0 ) * 100.0 ) / 100.0;
+				options.br = Math.round( ( options.br / 25.4 ) * 1000.0 ) / 1000.0;
 			}
 		}
 
@@ -2920,14 +2946,14 @@ function showEToAdjustmentOptions( button, callback ) {
 
 	// Elevation and baseline ETo for ETo adjustment.
 	var options = $.extend( {}, {
-			baseETo: 0,
+			baseETo: 0.0,
 			elevation: 600
 		},
 		unescapeJSON( button.value )
 	);
 
 	if ( isMetric ) {
-		options.baseETo = Math.round( options.baseETo * 25.4 * 10 ) / 10;
+		options.baseETo = Math.round( options.baseETo * 25.4 * 100.0 ) / 100.0;
 		options.elevation = Math.round( options.elevation / 3.28 );
 	}
 
@@ -2968,7 +2994,7 @@ function showEToAdjustmentOptions( button, callback ) {
 
 		// Convert to imperial before storing.
 		if ( isMetric ) {
-			options.baseETo = Math.round( options.baseETo / 25.4 * 100 ) / 100;
+			options.baseETo = Math.round( options.baseETo / 25.4 * 100.0 ) / 100.0;
 			options.elevation = Math.round( options.elevation * 3.28 );
 		}
 
@@ -4598,7 +4624,7 @@ function showOptions( expandItem ) {
 			"<legend>" + _( "Analog Sensor Setup" ) + "</legend>";
 
 		// Analog Sensor Table:
-		list += "<table id='analogsensortable'><tr style='width:100%;vertical-align: top;'>" +
+		list += "<table id='analogsensortable'><tr style='width:100%;vertical-align: top;'>"+
 		"<tr><th>Nr</th><th>Type</th><th>Group</th><th>Name</th><th>IP</th><th>Port</th><th>ID</th><th>Read<br>Interval</th><th>Data</th><th>Enabled</th><th>Log</th><th>Show</th><th>Last</th></tr>";
 
 		var row = 0;
@@ -4611,7 +4637,7 @@ function showOptions( expandItem ) {
 				$('<td>').text(item.name),
 				$('<td>').text(item.ip?toByteArray(item.ip).join( "." ):""),
 				$('<td>').text(item.port?item.port:""),
-				$('<td>').text(item.id?item.id:""),
+				$('<td>').text(item.type < 1000?item.id:""),
 				$('<td>').text(item.ri),
 				$('<td>').text(Math.round(item.data)+item.unit),
 				$('<td>').text(item.enable),
@@ -4629,7 +4655,7 @@ function showOptions( expandItem ) {
 
 		//Program adjustments table:
 		list += "<table id='progadjusttable'><tr style='width:100%;vertical-align: top;'>" +
-		"<tr><th>Nr</th><th>Type</th><th>Sensor-Nr</th><th>Name</th><th>Program-Nr</th><th>Program</th><th>Factor 1</th><th>Factor 2</th><th>Min Value</th><th>Max Value</th></tr>";
+		"<tr><th>Nr</th><th>Type</th><th>Sensor-Nr</th><th>Name</th><th>Program-Nr</th><th>Program</th><th>Factor 1</th><th>Factor 2</th><th>Min Value</th><th>Max Value</th><th>Current</th></tr>";
 
 		row = 0;
 		$.each(progAdjusts, function(i, item) {
@@ -4654,6 +4680,7 @@ function showOptions( expandItem ) {
 				$('<td>').text(item.factor2),
 				$('<td>').text(item.min),
 				$('<td>').text(item.max),
+				$('<td>').text(Math.round(item.current*100.0)+"%"),
 				"<td><button data-mini='true' class='center-div' id='edit-progadjust' value='"+item.nr+"' row='"+row+"'>"+ _( "Edit" ),
 				"<td><button data-mini='true' class='center-div' id='delete-progadjust' value='"+item.nr+"' row='"+row+"'>"+ _( "Delete" ),
 			);
