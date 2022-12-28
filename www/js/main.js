@@ -6673,7 +6673,15 @@ function refreshStatus( callback ) {
 	};
 
 	if ( checkOSVersion( 216 ) ) {
-		updateController( finish, networkFail );
+		updateController( function() {
+			if (checkOSVersion( 230 )) {
+				updateAnalogSensor(function() {
+					updateProgramAdjustments(finish);
+				});
+			} else {
+				finish();
+			}
+		}, networkFail );
 	} else {
 		$.when(
 			updateControllerStatus(),
