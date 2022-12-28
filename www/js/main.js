@@ -1925,7 +1925,7 @@ var showSites = ( function() {
 						}
 						updateSiteList( Object.keys( sites ), data.current_site );
 
-						sendToOS( "/cv?pw=&cn=" + data.current_site );
+						//SendToOS( "/cv?pw=&cn=" + data.current_site );
 					}
 
 					storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
