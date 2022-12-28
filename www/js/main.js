@@ -5492,6 +5492,9 @@ var showHome = ( function() {
 					"<div id='os-running-stations'></div>" +
 					"<hr style='display:none' class='content-divider'>" +
 					"<div id='os-stations-list' class='card-group center'></div>" +
+					//Analog Sensor API - show area start:
+					"<div id='os-sensor-show' class='card-group center'></div>" +
+					//Analog Sensor API - show area end
 				"</div>" +
 			"</div>" +
 		"</div>" ),
@@ -6084,6 +6087,22 @@ var showHome = ( function() {
 				}
 			};
 		},
+		updateSensorShowArea = function() {
+			if ( checkOSVersion( 230 ) ) {
+				var showArea =  page.find( "#os-sensor-show");
+				var html = "";
+				for (var i = 0; i < analogSensors.length; i++) {
+					var sensor = analogSensors[i];
+					if (sensor.show==1) {
+						html += "<div id='sensor-show-"+sensor.nr+"' class='ui-body ui-body-a center'>";
+						html += "<label>"+sensor.name+": "+Math.round(sensor.data)+sensor.unit+"</label>";
+						html += "</div>";
+					}
+				}
+				while (showArea.firstChild) showArea.removeChild(showArea.firstChild);
+				showArea.html(html);
+			}
+		},
 		reorderCards = function() {
 			var cardHolder = page.find( "#os-stations-list" ),
 				runningCards = page.find( "#os-running-stations" ),
@@ -6129,6 +6148,7 @@ var showHome = ( function() {
 
 			updateClock();
 			updateSites();
+			updateSensorShowArea();
 
 			if ( allCards.length + runningCards.length > controller.stations.snames.length ) {
 
@@ -6293,6 +6313,7 @@ var showHome = ( function() {
 		page.find( ".sitename" ).toggleClass( "hidden", currLocal ? true : false ).text( siteSelect.val() );
 		page.find( ".waterlevel" ).text( controller.options.wl );
 
+		updateSensorShowArea();
 		updateClock();
 
 		page.on( "click", ".station-settings", showAttributes );
@@ -12340,15 +12361,18 @@ Number.prototype.clamp = function( min, max ) {
 	return Math.min( Math.max( this, min ), max );
 };
 
-function changePage( toPage, opts ) {
+function changePage( toPage, opts, callback ) {
 	opts = opts || {};
 	if ( toPage.indexOf( "#" ) !== 0 ) {
 		toPage = "#" + toPage;
 	}
 
+	callback = callback || function() {};
+
 	// Close the panel before page transition to avoid bug in jQM 1.4+
 	closePanel( function() {
 		$.mobile.pageContainer.pagecontainer( "change", toPage, opts );
+		callback();
 	} );
 }
 
@@ -12544,7 +12568,7 @@ function goBack() {
 }
 
 function checkChangesBeforeBack() {
-	checkChanges( goBack );
+	checkChanges( goHome );
 }
 
 function checkChanges( callback ) {
@@ -13127,5 +13151,5 @@ function refresh() {
 }
 
 function reloadOptionsAnalogSensor() {
-	changePage( "#os-options", { expandItem: "analogsensor", changeHash: false } );
+	changePage( "#os-options", { expandItem: "analogsensor", changeHash: false, transition: "none" });
 }
