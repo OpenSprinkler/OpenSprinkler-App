@@ -29,6 +29,7 @@ var isIEMobile = /IEMobile/.test( navigator.userAgent ),
 					!isWinApp && window.FileReader,
 	isTouchCapable = "ontouchstart" in window || "onmsgesturechange" in window,
 	isMetric = ( [ "US", "BM", "PW" ].indexOf( navigator.languages[ 0 ].split( "-" )[ 1 ] ) === -1 ),
+	groupView = false,
 
 	// Small wrapper to handle Chrome vs localStorage usage
 	storage = {
@@ -126,10 +127,33 @@ var isIEMobile = /IEMobile/.test( navigator.userAgent ),
 		"sn1of":55, "sn2on":56, "sn2of":57, "subn1":58, "subn2":59, "subn3":60, "subn4":61
 	},
 
+	dialog = {
+		REMOVE_STATION: 1
+	},
+
+	popupData = {
+		"shift": undefined
+	},
+
+	// Option constants
+
+	MANUAL_STATION_PID = 99,
+	MASTER_STATION_1 = 1,
+	MASTER_STATION_2 = 2,
+
+	IGNORE_SENSOR_1 = 1,
+	IGNORE_SENSOR_2 = 2,
+
+	NUM_SEQ_GROUPS = 4,
+	PARALLEL_GROUP_NAME = "P",
+	PARALLEL_GID_VALUE = 255,
+	MASTER_GROUP_NAME = "M",
+	MASTER_GID_VALUE = 254,
+
 	// Array to hold all notifications currently displayed within the app
 	notifications = [],
 	timers = {},
-	curr183, currIp, currPrefix, currAuth, currPass, currAuthUser,
+	curr183, currToken, currIp, currPrefix, currAuth, currPass, currAuthUser,
 	currAuthPass, currLocal, currLang, language, deviceip, errorTimeout, weather, openPanel;
 
 // Prevent errors from bubbling up on Windows
@@ -264,7 +288,7 @@ $( document )
 
 	$.support.cors = true;
 	$.mobile.allowCrossDomainPages = true;
-	loadUnitSetting();
+	loadLocalSettings();
 } )
 .on( "pagebeforechange", function( e, data ) {
 	var page = data.toPage,
@@ -576,29 +600,32 @@ function initApp() {
 			altDown = e.altKey,
 			menuOpen = $( "#mainMenu-popup" ).hasClass( "ui-popup-active" );
 
-		if ( code === 77 ) {
+		if ( code === 77 ) { // M
 			var menu = $( "#mainMenu" );
 			if ( menu.length > 0 ) {
 				$( "#mainMenu" ).popup( "close" );
 			} else {
 				showHomeMenu();
 			}
-		} else if ( ( menuOpen || altDown ) && code === 80 ) {
+		} else if ( ( menuOpen || altDown ) && code === 80 ) { // P
 			e.preventDefault();
 			changePage( "#programs" );
-		} else if ( ( menuOpen || altDown ) && code === 79 ) {
+		} else if ( ( menuOpen || altDown ) && code === 79 ) { // O
 			e.preventDefault();
 			changePage( "#os-options" );
-		} else if ( ( menuOpen || altDown ) && code === 86 ) {
+		} else if ( ( menuOpen || altDown ) && code === 86 ) { // V
 			e.preventDefault();
 			changePage( "#preview" );
-		} else if ( ( menuOpen || altDown ) && code === 76 ) {
+		} else if ( ( menuOpen || altDown ) && code === 76 ) { // L
 			e.preventDefault();
 			changePage( "#logs" );
-		} else if ( ( menuOpen || altDown ) && code === 82 ) {
+		} else if ( ( menuOpen || altDown ) && code === 82 ) { // R
 			e.preventDefault();
 			changePage( "#runonce" );
-		} else if ( ( menuOpen || altDown ) && code === 68 ) {
+		} else if ( ( menuOpen || altDown ) && code === 85 ) { // U
+			e.preventDefault();
+			showPause();
+		} else if ( ( menuOpen || altDown ) && code === 68 ) { // D
 			e.preventDefault();
 			showRainDelay();
 		}
@@ -669,8 +696,9 @@ function sendToOS( dest, type ) {
 
 		// Use POST when sending data to the controller (requires firmware 2.1.8 or newer)
 		usePOST = ( isChange && checkOSVersion( 300 ) ),
+		urlDest = usePOST ? dest.split( "?" )[ 0 ] : dest,
 		obj = {
-			url: currPrefix + currIp + ( usePOST ? dest.split( "?" )[ 0 ] : dest ),
+			url: currToken ? "https://cloud.openthings.io/forward/v1/" + currToken + urlDest : currPrefix + currIp + urlDest,
 			type: usePOST ? "POST" : "GET",
 			data: usePOST ? getUrlVars( dest ) : null,
 			dataType: type,
@@ -1246,6 +1274,8 @@ function checkConfigured( firstLoad ) {
 
 		updateSiteList( names, current );
 
+		currToken = sites[ current ].os_token;
+
 		currIp = sites[ current ].os_ip;
 		currPass = sites[ current ].os_pw;
 
@@ -1304,7 +1334,9 @@ function submitNewUser( ssl, useAuth ) {
 	document.activeElement.blur();
 	$.mobile.loading( "show" );
 
-	var ip = $.mobile.path.parseUrl( $( "#os_ip" ).val() ).hrefNoHash.replace( /https?:\/\//, "" ),
+	var connectionType = $( ".connection-type input[type='radio']:checked" ).val(),
+		ip = $.mobile.path.parseUrl( $( "#os_ip" ).val() ).hrefNoHash.replace( /https?:\/\//, "" ),
+		token = connectionType === "token" ? $( "#os_token" ).val() : null,
 		success = function( data, sites ) {
 			$.mobile.loading( "hide" );
 			var is183;
@@ -1323,6 +1355,7 @@ function submitNewUser( ssl, useAuth ) {
 				}
 
 				sites[ name ] = {};
+				sites[ name ].os_token = currToken = token;
 				sites[ name ].os_ip = currIp = ip;
 
 				if ( typeof data.fwv === "number" && data.fwv >= 213 ) {
@@ -1356,7 +1389,7 @@ function submitNewUser( ssl, useAuth ) {
 					curr183 = true;
 				}
 
-				$( "#os_name,#os_ip,#os_pw,#os_auth_user,#os_auth_pw" ).val( "" );
+				$( "#os_name,#os_ip,#os_pw,#os_auth_user,#os_auth_pw,#os_token" ).val( "" );
 				storage.set( {
 					"sites": JSON.stringify( sites ),
 					"current_site": name
@@ -1416,8 +1449,13 @@ function submitNewUser( ssl, useAuth ) {
 		},
 		prefix;
 
-	if ( !ip ) {
-		showerror( _( "An IP address is required to continue." ) );
+	if ( !ip && !token ) {
+		showerror( _( "An IP address or token is required to continue." ) );
+		return;
+	}
+
+	if ( token && token.length !== 32 ) {
+		showerror( _( "OpenThings Token must be 32 characters long." ) );
 		return;
 	}
 
@@ -1442,15 +1480,18 @@ function submitNewUser( ssl, useAuth ) {
 		$( "#addnew" ).popup( "reposition", { positionTo:"window" } );
 	}
 
+	var urlDest = "/jo?pw=" + md5( $( "#os_pw" ).val() ),
+		url = token ? "https://cloud.openthings.io/forward/v1/" + token + urlDest : prefix + ip + urlDest;
+
 	//Submit form data to the server
 	$.ajax( {
-		url: prefix + ip + "/jo?pw=" + md5( $( "#os_pw" ).val() ),
+		url: url,
 		type: "GET",
 		dataType: "json",
 		timeout: 10000,
 		global: false,
 		beforeSend: function( xhr ) {
-			if ( useAuth ) {
+			if ( !token && useAuth ) {
 				xhr.setRequestHeader(
 					"Authorization",
 					"Basic " + getAuthInfo()
@@ -1463,14 +1504,14 @@ function submitNewUser( ssl, useAuth ) {
 				return;
 			}
 			$.ajax( {
-				url: prefix + ip,
+				url: token ? "https://cloud.openthings.io/forward/v1/" + token : prefix + ip,
 				type: "GET",
 				dataType: "text",
 				timeout: 10000,
 				global: false,
 				cache: true,
 				beforeSend: function( xhr ) {
-					if ( useAuth ) {
+					if ( !token && useAuth ) {
 						xhr.setRequestHeader(
 							"Authorization",
 							"Basic " + getAuthInfo()
@@ -1542,18 +1583,32 @@ function showAddNew( autoIP, closeOld ) {
 					"<input autocorrect='off' spellcheck='false' type='text' name='os_name' " +
 						"id='os_name' placeholder='Home'>" +
 					( isAuto ? "" :
-						"<label for='os_ip'>" + _( "Open Sprinkler IP:" ) + "</label>" ) +
-					"<input " + ( isAuto ? "data-role='none' style='display:none' " : "" ) +
+						"<div class='ui-field-contain'>" +
+						    "<fieldset data-role='controlgroup' class='ui-mini center connection-type' data-type='horizontal'>" +
+						        "<legend class='left'>" + _( "Connection Type" ) + ":</legend>" +
+						        "<input class='noselect' type='radio' name='connectionType' id='type-direct' value='ip' checked='checked'>" +
+						        "<label for='type-direct'>" + _( "Direct" ) + "</label>" +
+						        "<input class='noselect' type='radio' name='connectionType' id='type-token' value='token'>" +
+						        "<label for='type-token'>" + _( "OpenThings Cloud" ) + "</label>" +
+						    "</fieldset>" +
+						"</div>" +
+						"<label class='ip-field' for='os_ip'>" + _( "Open Sprinkler IP:" ) + "</label>" ) +
+					"<input data-wrapper-class='ip-field' " + ( isAuto ? "data-role='none' style='display:none' " : "" ) +
 						"autocomplete='off' autocorrect='off' autocapitalize='off' " +
 						"spellcheck='false' type='url' pattern='' name='os_ip' id='os_ip' " +
 						"value='" + ( isAuto ? autoIP : "" ) + "' placeholder='home.dyndns.org'>" +
+					"<label class='token-field' for='os_token' style='display: none'>" + _( "OpenThings Token" ) + ":</label>" +
+					"<input data-wrapper-class='token-field hidden' " +
+						"autocomplete='off' autocorrect='off' autocapitalize='off' " +
+						"spellcheck='false' type='text' pattern='' name='os_token' id='os_token' " +
+						"value='' placeholder='" + _( "OpenThings Token" ) + "'>" +
 					"<label for='os_pw'>" + _( "Open Sprinkler Password:" ) + "</label>" +
 					"<input type='password' name='os_pw' id='os_pw' value=''>" +
 					"<label for='save_pw'>" + _( "Save Password" ) + "</label>" +
 					"<input type='checkbox' data-wrapper-class='save_pw' name='save_pw' " +
 						"id='save_pw' data-mini='true' checked='checked'>" +
 					( isAuto ? "" :
-						"<div data-theme='a' data-mini='true' data-role='collapsible'>" +
+						"<div data-theme='a' data-mini='true' data-role='collapsible' class='advanced-options'>" +
 							"<h4>" + _( "Advanced" ) + "</h4>" +
 							"<fieldset data-role='controlgroup' data-type='horizontal' " +
 								"data-mini='true' class='center'>" +
@@ -1602,6 +1657,13 @@ function showAddNew( autoIP, closeOld ) {
 		}
 
 		addnew.popup( "reposition", { positionTo:"window" } );
+	} );
+
+	addnew.find( ".connection-type input[type='radio']" ).on( "change", function() {
+		var previous = this.value === "token" ? "ip" : "token";
+		addnew.find( "." + previous + "-field" ).hide();
+		addnew.find( "." + this.value + "-field" ).removeClass( "hidden" ).show();
+		addnew.find( ".advanced-options" ).toggle( this.value === "ip" );
 	} );
 
 	return false;
@@ -1711,14 +1773,18 @@ var showSites = ( function() {
 							"<div class='ui-field-contain'>" +
 								"<label for='cnm-" + i + "'>" + _( "Change Name" ) + "</label><input id='cnm-" + i + "' type='text' value='" + a + "'>" +
 							"</div>" +
-							"<div class='ui-field-contain'>" +
+							( b.os_token ? "" : "<div class='ui-field-contain'>" +
 								"<label for='cip-" + i + "'>" + _( "Change IP" ) + "</label><input id='cip-" + i + "' type='url' value='" + b.os_ip +
 									"' autocomplete='off' autocorrect='off' autocapitalize='off' pattern='' spellcheck='false'>" +
-							"</div>" +
+							"</div>" ) +
+							( b.os_token ? "<div class='ui-field-contain'>" +
+								"<label for='ctoken-" + i + "'>" + _( "Change Token" ) + "</label><input id='ctoken-" + i + "' type='text' value='" + b.os_token +
+									"' autocomplete='off' autocorrect='off' autocapitalize='off' pattern='' spellcheck='false'>" +
+							"</div>" : "" ) +
 							"<div class='ui-field-contain'>" +
 								"<label for='cpw-" + i + "'>" + _( "Change Password" ) + "</label><input id='cpw-" + i + "' type='password'>" +
 							"</div>" +
-							"<fieldset data-mini='true' data-role='collapsible'>" +
+							( b.os_token ? "" : "<fieldset data-mini='true' data-role='collapsible'>" +
 								"<h3>" +
 									"<span style='line-height:23px'>" + _( "Advanced" ) + "</span>" +
 									"<button data-helptext='" +
@@ -1736,7 +1802,7 @@ var showSites = ( function() {
 										( typeof b.auth_user !== "undefined" && typeof b.auth_pw !== "undefined" ? " checked='checked'" : "" ) + ">" +
 									_( "Use Auth" ) +
 								"</label>" +
-							"</fieldset>" +
+							"</fieldset>" ) +
 							"<input class='submit' type='submit' value='" + _( "Save Changes to" ) + " " + a + "'>" +
 							"<a data-role='button' class='deletesite' data-site='" + i + "' href='#' data-theme='b'>" + _( "Delete" ) + " " + a + "</a>" +
 						"</form>" +
@@ -1858,6 +1924,8 @@ var showSites = ( function() {
 							data.current_site = site;
 						}
 						updateSiteList( Object.keys( sites ), data.current_site );
+
+						sendToOS( "/cv?pw=&cn=" + data.current_site );
 					}
 
 					storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
@@ -1984,8 +2052,11 @@ function addSyncStatus( token ) {
 }
 
 function testSite( site, id, callback ) {
+	var urlDest = "/jo?pw=" + encodeURIComponent( site.os_pw ),
+		url = site.os_token ? "https://cloud.openthings.io/forward/v1/" + site.os_token + urlDest : ( site.ssl === "1" ? "https://" : "http://" ) + site.os_ip + urlDest;
+
 	$.ajax( {
-		url: ( site.ssl === "1" ? "https://" : "http://" ) + site.os_ip + "/jo?pw=" + encodeURIComponent( site.os_pw ),
+		url: url,
 		type: "GET",
 		dataType: "json",
 		beforeSend: function( xhr ) {
@@ -2544,6 +2615,136 @@ function showAutoRainDelayAdjustmentOptions( button, callback ) {
 	holdButton( popup.find( ".decr" ), function() {
 		changeValue( -1 );
 		return false;
+	} );
+
+	$( "#adjustmentOptions" ).remove();
+
+	popup.css( "max-width", "380px" );
+
+	openPopup( popup, { positionTo: "window" } );
+}
+
+function showMonthlyAdjustmentOptions( button, callback ) {
+	$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
+
+	var options = $.extend( {}, {
+		scales: [ 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100 ]
+	}, unescapeJSON( button.value ) );
+
+	var popup = $( "<div data-role='popup' data-theme='a' id='adjustmentOptions'>" +
+			"<div data-role='header' data-theme='b'>" +
+				"<h1>" + _( "Weather Adjustment Options" ) + "</h1>" +
+			"</div>" +
+			"<div class='ui-content'>" +
+				"<p class='rain-desc center smaller'>" +
+					_( "Input Monthly Watering Percentage Values" ) +
+				"</p>" +
+				"<div class='ui-grid-c'>" +
+					"<div class='ui-block-a'>" +
+						"<label class='center'>" +
+							_( "Jan" )  +
+						"</label>" +
+						"<input data-wrapper-class='pad_buttons' class='sc0' type='number' min=0 max=250 value=" + options.scales[ 0 ] + ">" +
+					"</div>" +
+					"<div class='ui-block-b'>" +
+						"<label class='center'>" +
+							_( "Feb" ) +
+						"</label>" +
+						"<input data-wrapper-class='pad_buttons' class='sc1' type='number' min=0 max=250 value=" + options.scales[ 1 ] + ">" +
+					"</div>" +
+					"<div class='ui-block-c'>" +
+						"<label class='center'>" +
+							_( "Mar" ) +
+						"</label>" +
+						"<input data-wrapper-class='pad_buttons' class='sc2' type='number' min=0 max=250 value=" + options.scales[ 2 ] + ">" +
+					"</div>" +
+					"<div class='ui-block-d'>" +
+						"<label class='center'>" +
+							_( "Apr" ) +
+						"</label>" +
+						"<input data-wrapper-class='pad_buttons' class='sc3' type='number' min=0 max=250 value=" + options.scales[ 3 ] + ">" +
+					"</div>" +
+				"</div>" +
+				"<div class='ui-grid-c'>" +
+					"<div class='ui-block-a'>" +
+						"<label class='center'>" +
+							_( "May" )  +
+						"</label>" +
+						"<input data-wrapper-class='pad_buttons' class='sc4' type='number' min=0 max=250 value=" + options.scales[ 4 ] + ">" +
+					"</div>" +
+					"<div class='ui-block-b'>" +
+						"<label class='center'>" +
+							_( "Jun" ) +
+						"</label>" +
+						"<input data-wrapper-class='pad_buttons' class='sc5' type='number' min=0 max=250 value=" + options.scales[ 5 ] + ">" +
+					"</div>" +
+					"<div class='ui-block-c'>" +
+						"<label class='center'>" +
+							_( "Jul" ) +
+						"</label>" +
+						"<input data-wrapper-class='pad_buttons' class='sc6' type='number' min=0 max=250 value=" + options.scales[ 6 ] + ">" +
+					"</div>" +
+					"<div class='ui-block-d'>" +
+						"<label class='center'>" +
+							_( "Aug" ) +
+						"</label>" +
+						"<input data-wrapper-class='pad_buttons' class='sc7' type='number' min=0 max=250 value=" + options.scales[ 7 ] + ">" +
+					"</div>" +
+				"</div>" +
+				"<div class='ui-grid-c'>" +
+					"<div class='ui-block-a'>" +
+						"<label class='center'>" +
+							_( "Sep" )  +
+						"</label>" +
+						"<input data-wrapper-class='pad_buttons' class='sc8' type='number' min=0 max=250 value=" + options.scales[ 8 ] + ">" +
+					"</div>" +
+					"<div class='ui-block-b'>" +
+						"<label class='center'>" +
+							_( "Oct" ) +
+						"</label>" +
+						"<input data-wrapper-class='pad_buttons' class='sc9' type='number' min=0 max=250 value=" + options.scales[ 9 ] + ">" +
+					"</div>" +
+					"<div class='ui-block-c'>" +
+						"<label class='center'>" +
+							_( "Nov" ) +
+						"</label>" +
+						"<input data-wrapper-class='pad_buttons' class='sc10' type='number' min=0 max=250 value=" + options.scales[ 10 ] + ">" +
+					"</div>" +
+					"<div class='ui-block-d'>" +
+						"<label class='center'>" +
+							_( "Dec" ) +
+						"</label>" +
+						"<input data-wrapper-class='pad_buttons' class='sc11' type='number' min=0 max=250 value=" + options.scales[ 11 ] + ">" +
+					"</div>" +
+				"</div>" +
+				"<button class='submit' data-theme='b'>" + _( "Submit" ) + "</button>" +
+			"</div>" +
+		"</div>" );
+
+	popup.find( ".submit" ).on( "click", function() {
+		var _scales = [];
+		for ( var i = 0; i < 12; i++ ) {
+			_scales[ i ] = parseInt( popup.find( ".sc" + i ).val() );
+			if ( _scales[ i ] < 0 ) { _scales[ i ] = 0; }
+			if ( _scales[ i ] > 250 ) { _scales[ i ] = 250; }
+		}
+		options = { scales: _scales };
+		if ( button ) {
+			button.value = escapeJSON( options );
+		}
+
+		callback();
+
+		popup.popup( "close" );
+		return false;
+	} );
+
+	popup.on( "focus", "input[type='number']", function() {
+		this.value = "";
+	} ).on( "blur", "input[type='number']", function() {
+		if ( this.value === "" || parseInt( this.value ) < 0 ) {
+			this.value = "0";
+		}
 	} );
 
 	$( "#adjustmentOptions" ).remove();
@@ -3302,9 +3503,17 @@ function debugWU() {
 			( typeof controller.settings.wtdata.maxH !== "undefined" ? "<tr><td>" + _( "Max Humidity" ) + "</td><td>" + formatHumidity( controller.settings.wtdata.maxH ) + "</td></tr>" : "" ) +
 			( typeof controller.settings.wtdata.wind !== "undefined" ? "<tr><td>" + _( "Mean Wind" ) + "</td><td>" + formatSpeed( controller.settings.wtdata.wind ) + "</td></tr>" : "" );
 	}
+
 	popup += ( typeof controller.settings.lwc === "number" ? "<tr><td>" + _( "Last Request" ) + "</td><td>" + dateToString( new Date( controller.settings.lwc * 1000 ), null, 2 ) + "</td></tr>" : "" );
 	popup += ( typeof controller.settings.wterr === "number" ? "<tr><td>" + _( "Last Response" ) + "</td><td>" + getWeatherError( controller.settings.wterr ) + "</td></tr>" : "" );
 	popup += "</table></div>";
+
+	if ( typeof controller.settings.otcs === "number" ) {
+		popup += "<div class='debugWUHeading'>Integrations</div>" +
+			"<table class='debugWUTable'>" +
+			"<tr><td>OpenThings Cloud</td><td>" + resolveOTCStatus( controller.settings.otcs ) + "</td></tr>" +
+		"</table>";
+	}
 
 	if ( controller.settings.wtdata && ( typeof controller.settings.wtdata.wp === "string" || typeof controller.settings.wtdata.weatherProvider === "string" ) ) {
 		popup += "<hr>";
@@ -3315,6 +3524,19 @@ function debugWU() {
 	openPopup( $( popup ) );
 
 	return false;
+}
+
+function resolveOTCStatus( status ) {
+	switch ( status ) {
+		case 0:
+			return "Not Enabled";
+		case 1:
+			return "Connecting...";
+		case 2:
+			return "<font class='debugWUError'>Disconnected</font>";
+		case 3:
+			return "<font class='debugWUOK'>Connected</font>";
+	}
 }
 
 function showRainDelay() {
@@ -3334,13 +3556,31 @@ function showRainDelay() {
 	} );
 }
 
+function showPause() {
+	if ( StationQueue.isPaused() ) {
+		areYouSure( _( "Do you want to resume program operation?" ), "", function() {
+			sendToOS( "/pq?pw=" );
+		} );
+	} else {
+		showDurationBox( {
+			title: "Pause Station Runs",
+			incrementalUpdate: false,
+			maximum: 65535,
+			callback: function( duration ) {
+				sendToOS( "/pq?dur=" + duration + "&pw=" );
+			}
+		} );
+	}
+}
+
 /** Returns the adjustment method for the corresponding ID, or a list of all methods if no ID is specified. */
 function getAdjustmentMethod( id ) {
     var methods = [
         { name: _( "Manual" ), id: 0 },
         { name: "Zimmerman", id: 1 },
         { name: _( "Auto Rain Delay" ), id: 2, minVersion: 216 },
-		{ name: "ETo", id: 3, minVersion: 216 }
+		{ name: "ETo", id: 3, minVersion: 216 },
+		{ name: "Monthly", id:4, minVersion: 220 }
     ];
 
     if ( id === undefined ) {
@@ -3662,9 +3902,18 @@ function showOptions( expandItem ) {
 							return true;
 						}
 						break;
+					case "otc":
+						if ( escapeJSON( controller.settings.otc ) === data ) {
+							return true;
+						}
+						break;
 					case "isMetric":
 						isMetric = $item.is( ":checked" );
 						storage.set( { isMetric: isMetric } );
+						return true;
+					case "groupView":
+						groupView = $item.is( ":checked" );
+						storage.set( { "groupView": groupView } );
 						return true;
 					case "o12":
 						if ( !isPi ) {
@@ -3689,7 +3938,6 @@ function showOptions( expandItem ) {
 						if ( parseInt( data ) > ( parseInt( page.find( "#o15" ).val() ) + 1 ) * 8 ) {
 							data = 0;
 						}
-
 						break;
 					case "o41":
 						if ( page.find( "#o41-units" ).val() === "gallon" ) {
@@ -3734,6 +3982,7 @@ function showOptions( expandItem ) {
 
 				opt[ id ] = data;
 			} );
+
 			if ( invalid ) {
 				button.prop( "disabled", false );
 				page.find( ".submit" ).addClass( "hasChanges" );
@@ -3754,8 +4003,8 @@ function showOptions( expandItem ) {
 			}
 
 			opt = transformKeys( opt );
-
 			$.mobile.loading( "show" );
+
 			sendToOS( "/co?pw=&" + $.param( opt ) ).done( function() {
 				$.mobile.document.one( "pageshow", function() {
 					showerror( _( "Settings have been saved" ) );
@@ -3829,6 +4078,11 @@ function showOptions( expandItem ) {
 	list += "<label for='isMetric'><input data-mini='true' id='isMetric' type='checkbox' " + ( isMetric ? "checked='checked'" : "" ) + ">" +
 		_( "Use Metric" ) + "</label>";
 
+	if ( Supported.groups() ) {
+		list += "<label for='groupView'><input data-mini='true' id='groupView' type='checkbox' " + ( groupView ? "checked='checked'" : "" ) + ">" +
+		_( "Order Stations by Groups" ) + "</label>";
+	}
+
 	list += "</fieldset><fieldset data-role='collapsible'" +
 		( typeof expandItem === "string" && expandItem === "master" ? " data-collapsed='false'" : "" ) + ">" +
 		"<legend>" + _( "Configure Master" ) + "</legend>";
@@ -3839,7 +4093,7 @@ function showOptions( expandItem ) {
 			"</label><select data-mini='true' id='o18'><option value='0'>" + _( "None" ) + "</option>";
 
 		for ( i = 0; i < controller.stations.snames.length; i++ ) {
-			list += "<option " + ( ( isStationMaster( i ) === 1 ) ? "selected" : "" ) + " value='" + ( i + 1 ) + "'>" +
+			list += "<option " + ( ( Station.isMaster( i ) === 1 ) ? "selected" : "" ) + " value='" + ( i + 1 ) + "'>" +
 				controller.stations.snames[ i ] + "</option>";
 
 			if ( !checkOSVersion( 214 ) && i === 7 ) {
@@ -3871,7 +4125,7 @@ function showOptions( expandItem ) {
 			"</label><select data-mini='true' id='o37'><option value='0'>" + _( "None" ) + "</option>";
 
 		for ( i = 0; i < controller.stations.snames.length; i++ ) {
-			list += "<option " + ( ( isStationMaster( i ) === 2 ) ? "selected" : "" ) + " value='" + ( i + 1 ) + "'>" + controller.stations.snames[ i ] +
+			list += "<option " + ( ( Station.isMaster( i ) === 2 ) ? "selected" : "" ) + " value='" + ( i + 1 ) + "'>" + controller.stations.snames[ i ] +
 				"</option>";
 
 			if ( !checkOSVersion( 214 ) && i === 7 ) {
@@ -3884,14 +4138,14 @@ function showOptions( expandItem ) {
 		if ( typeof controller.options.mton2 !== "undefined" ) {
 			list += "<div " + ( controller.options.mas2 === 0 ? "style='display:none' " : "" ) +
 				"class='ui-field-no-border ui-field-contain duration-field'><label for='o38'>" +
-					_( "Master On Delay" ) +
+					_( "Master On Adjustment" ) +
 				"</label><button data-mini='true' id='o38' value='" + controller.options.mton2 + "'>" + controller.options.mton2 + "s</button></div>";
 		}
 
 		if ( typeof controller.options.mtof2 !== "undefined" ) {
 			list += "<div " + ( controller.options.mas2 === 0 ? "style='display:none' " : "" ) +
 				"class='ui-field-no-border ui-field-contain duration-field'><label for='o39'>" +
-					_( "Master Off Delay" ) +
+					_( "Master Off Adjustment" ) +
 				"</label><button data-mini='true' id='o39' value='" + controller.options.mtof2 + "'>" + controller.options.mtof2 + "s</button></div>";
 		}
 	}
@@ -3937,7 +4191,7 @@ function showOptions( expandItem ) {
 	if ( typeof controller.options.uwt !== "undefined" ) {
 		list += "<div class='ui-field-contain'><label for='o31' class='select'>" + _( "Weather Adjustment Method" ) +
 				"<button data-helptext='" +
-					_( "Weather adjustment uses OpenWeatherMaps data in conjunction with the selected method to adjust the watering percentage." ) +
+					_( "Weather adjustment uses DarkSky data in conjunction with the selected method to adjust the watering percentage." ) +
 					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
 			"</label><select data-mini='true' id='o31'>";
 		for ( i = 0; i < getAdjustmentMethod().length; i++ ) {
@@ -3976,7 +4230,7 @@ function showOptions( expandItem ) {
 	if ( typeof controller.options.wl !== "undefined" ) {
 		list += "<div class='ui-field-contain duration-field'><label for='o23'>" + _( "% Watering" ) +
 				"<button data-helptext='" +
-					_( "The watering percentage scales station run times by the set value. When weather adjustment is used the watering percentage is automatically adjusted." ) +
+					_( "The watering percentage scales station run times by the set value." ) +
 					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
 			"</label><button " + ( ( controller.options.uwt && getCurrentAdjustmentMethodId() > 0 ) ? "disabled='disabled' " : "" ) +
 				"data-mini='true' id='o23' value='" + controller.options.wl + "'>" + controller.options.wl + "%</button></div>";
@@ -4075,24 +4329,24 @@ function showOptions( expandItem ) {
 		"</label>";
 	}
 
-	if ( typeof controller.settings.ifkey !== "undefined" || typeof controller.settings.mqtt !== "undefined" ) {
+	if ( typeof controller.settings.ifkey !== "undefined" || typeof controller.settings.mqtt !== "undefined" ||
+		typeof controller.settings.otc !== "undefined" ) {
 		list += "</fieldset><fieldset data-role='collapsible'" +
 			( typeof expandItem === "string" && expandItem === "integrations" ? " data-collapsed='false'" : "" ) + ">" +
 			"<legend>" + _( "Integrations" ) + "</legend>";
 
-		if ( typeof controller.settings.ifkey !== "undefined" ) {
-			list += "<div class='ui-field-contain'><label for='ifkey'>" + _( "IFTTT Key" ) +
-				"<button data-helptext='" +
-					_( "To enable IFTTT, a Maker channel key is required which can be obtained from https://ifttt.com" ) +
-					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
-			"</label><input autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' data-mini='true' type='text' id='ifkey' value='" + controller.settings.ifkey + "'>" +
-			"</div>";
-
-			list += "<div class='ui-field-contain'><label for='o49'>" + _( "IFTTT Events" ) +
-					"<button data-helptext='" +
-						_( "Select which events to send to IFTTT for use in recipes." ) +
-						"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
-				"</label><button data-mini='true' id='o49' value='" + controller.options.ife + "'>" + _( "Configure Events" ) + "</button></div>";
+		if ( typeof controller.settings.otc !== "undefined" ) {
+			list += "<div class='ui-field-contain'>" +
+						"<label for='otc'>" + _( "OTC" ) +
+							"<button style='display:inline-block;' data-helptext='" +
+								_( "OpenThings Cloud (OTC) allows remote access using OTC Token ." ) +
+								"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'>" +
+							"</button>" +
+						"</label>" +
+						"<button data-mini='true' id='otc' value='" + escapeJSON( controller.settings.otc ) + "'>" +
+							_( "Tap to Configure" ) +
+						"</button>" +
+					"</div>";
 		}
 
 		if ( typeof controller.settings.mqtt !== "undefined" ) {
@@ -4107,6 +4361,30 @@ function showOptions( expandItem ) {
 							_( "Tap to Configure" ) +
 						"</button>" +
 					"</div>";
+		}
+
+		if ( typeof controller.settings.ifkey !== "undefined" ) {
+			list += "<div class='ui-field-contain'><label for='ifkey'>" + _( "IFTTT Key" ) +
+				"<button data-helptext='" +
+					_( "To enable IFTTT, a Webhooks key is required which can be obtained from https://ifttt.com" ) +
+					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
+			"</label><input autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' data-mini='true' type='text' id='ifkey' value='" + controller.settings.ifkey + "'>" +
+			"</div>";
+
+			list += "<div class='ui-field-contain'><label for='o49'>" + _( "IFTTT Events" ) +
+					"<button data-helptext='" +
+						_( "Select which events to send to IFTTT for use in recipes." ) +
+						"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
+				"</label><button data-mini='true' id='o49' value='" + controller.options.ife + "'>" + _( "Configure Events" ) + "</button></div>";
+		}
+
+		if ( typeof controller.settings.dname !== "undefined" ) {
+			list += "<div class='ui-field-contain'><label for='dname'>" + _( "Device Name" ) +
+				"<button data-helptext='" +
+					_( "Device name is attached to all IFTTT notifications to help distinguish multiple devices" ) +
+					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
+			"</label><input autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' data-mini='true' type='text' id='dname' value=\"" + controller.settings.dname + "\">" +
+			"</div>";
 		}
 	}
 
@@ -4136,7 +4414,7 @@ function showOptions( expandItem ) {
 	if ( checkOSVersion( 219 ) && typeof controller.options.uwt !== "undefined" && typeof controller.settings.wto === "object" ) {
 		list += "<div class='ui-field-contain'><label for='wtkey'>" + _( "Wunderground Key" ).replace( "Wunderground", "Wunder&shy;ground" ) +
 			"<button data-helptext='" +
-				_( "We use OpenWeatherMap normally however with a user provided API key the weather source will switch to Weather Underground." ) +
+				_( "We use DarkSky normally however with a user provided API key the weather source will switch to Weather Underground." ) +
 				"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
 		"</label>" +
 		"<table>" +
@@ -4244,7 +4522,8 @@ function showOptions( expandItem ) {
 
 	list += "<button data-mini='true' class='center-div reset-log'>" + _( "Clear Log Data" ) + "</button>";
 	list += "<button data-mini='true' class='center-div reset-options'>" + _( "Reset All Options" ) + "</button>";
-	list += "<button data-mini='true' class='center-div reset-stations'>" + _( "Reset All Station Data" ) + "</button>";
+	list += "<button data-mini='true' class='center-div reset-programs'>" + _( "Delete All Programs" ) + "</button>";
+	list += "<button data-mini='true' class='center-div reset-stations'>" + _( "Reset Station Attributes" ) + "</button>";
 
 	if ( controller.options.hwv >= 30 && controller.options.hwv < 40 ) {
 		list += "<hr class='divider'><button data-mini='true' class='center-div reset-wireless'>" + _( "Reset Wireless Settings" ) + "</button>";
@@ -4350,10 +4629,14 @@ function showOptions( expandItem ) {
 			showAutoRainDelayAdjustmentOptions( this, finish );
 		} else if ( method === 3 ) {
 			showEToAdjustmentOptions( this, finish );
+		} else if ( method === 4 ) {
+			showMonthlyAdjustmentOptions( this, finish );
 		}
 	} );
 
 	page.find( ".reset-log" ).on( "click", clearLogs );
+
+	page.find( ".reset-programs" ).on( "click", clearPrograms );
 
 	page.find( ".reset-options" ).on( "click", function() {
 		resetAllOptions( function() {
@@ -4365,15 +4648,23 @@ function showOptions( expandItem ) {
 	} );
 
 	page.find( ".reset-stations" ).on( "click", function() {
-		var cs = "";
+		var cs = "", i;
 
-		for ( var i = 0; i < controller.stations.snames.length; i++ ) {
-			cs += "s" + i + "=S" + pad( i + 1 ) + "&";
+		if ( Supported.groups() ) {
+			for ( i = 0; i < controller.stations.snames.length; i++ ) {
+				cs += "g" + i + "=0&";
+			}
 		}
 
-		if ( controller.options.mas ) {
+		if ( typeof controller.options.mas !== "undefined" ) {
 			for ( i = 0; i < controller.settings.nbrd; i++ ) {
 				cs += "m" + i + "=255&";
+			}
+		}
+
+		if ( typeof controller.options.mas2 !== "undefined" ) {
+			for ( i = 0; i < controller.settings.nbrd; i++ ) {
+				cs += "n" + i + "=0&";
 			}
 		}
 
@@ -4413,7 +4704,13 @@ function showOptions( expandItem ) {
 			}
 		}
 
-		areYouSure( _( "Are you sure you want to reset all stations?" ), _( "This will reset all station names and attributes" ), function() {
+		if ( typeof controller.stations.stn_spe === "object" ) {
+			for ( i = 0; i < controller.settings.nbrd; i++ ) {
+				cs += "p" + i + "=0&";
+			}
+		}
+
+		areYouSure( _( "Are you sure you want to reset station attributes?" ), _( "This will reset all station attributes" ), function() {
 			$.mobile.loading( "show" );
 			storage.get( [ "sites", "current_site" ], function( data ) {
 				var sites = parseSites( data.sites );
@@ -4542,7 +4839,8 @@ function showOptions( expandItem ) {
 					dur.val( result ).text( result + "s" );
 				},
 				label: _( "Seconds" ),
-				maximum: 60,
+				maximum: checkOSVersion( 220 ) ? 600 : 60,
+				minimum: checkOSVersion( 220 ) ? -600 : 0,
 				helptext: helptext
 			} );
 		} else if ( id === "o30" ) {
@@ -4564,8 +4862,8 @@ function showOptions( expandItem ) {
 					dur.val( result ).text( result + "s" );
 				},
 				label: _( "Seconds" ),
-				maximum: checkOSVersion( 217 ) ? 0 : 60,
-				minimum: -60,
+				maximum: checkOSVersion( 220 ) ? 600 : 0,
+				minimum: checkOSVersion( 220 ) ? -600 : -60,
 				helptext: helptext
 			} );
 		} else if ( id === "o23" ) {
@@ -4712,7 +5010,7 @@ function showOptions( expandItem ) {
 				port: 1883,
 				user: "",
 				pass: ""
-			}, controller.settings.mqtt );
+			}, unescapeJSON( curr ) );
 
 		$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
 
@@ -4792,6 +5090,89 @@ function showOptions( expandItem ) {
 		openPopup( popup, { positionTo: "window" } );
     } );
 
+	page.find( "#otc" ).on( "click", function() {
+		var button = this, curr = button.value,
+			options = $.extend( {}, {
+				en: 0,
+				token: "",
+				server: "ws.cloud.openthings.io",
+				port: 80
+			}, unescapeJSON( curr ) );
+
+		$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
+
+		var popup = $( "<div data-role='popup' data-theme='a' id='otcSettings'>" +
+				"<div data-role='header' data-theme='b'>" +
+					"<h1>" + _( "OpenThings Cloud (OTC) Settings" ) + "</h1>" +
+				"</div>" +
+				"<div class='ui-content'>" +
+					"<label for='enable'>" + _( "Enable" ) + "</label>" +
+					"<input class='needsclick otc_enable' data-mini='true' data-iconpos='right' id='enable' type='checkbox' " +
+						( options.en ? "checked='checked'" : "" ) + ">" +
+					"<div class='ui-body'>" +
+						"<div class='ui-grid-a' style='display:table;'>" +
+							"<div class='ui-block-a' style='width:25%'>" +
+								"<label for='token' style='padding-top:10px'>" + _( "Token" ) + "</label>" +
+							"</div>" +
+							"<div class='ui-block-b' style='width:75%'>" +
+								"<input class='otc-input' type='text' id='token' data-mini='true' maxlength='36' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
+									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + _( "token" ) + "' value='" + options.token + "' required />" +
+							"</div>" +
+							"<div class='ui-block-a' style='width:25%'>" +
+								"<label for='server' style='padding-top:10px'>" + _( "Server" ) + "</label>" +
+							"</div>" +
+							"<div class='ui-block-b' style='width:75%'>" +
+								"<input class='otc-input' type='text' id='server' data-mini='true' maxlength='50' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
+									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + _( "server" ) + "' value='" + options.server + "' required />" +
+							"</div>" +
+							"<div class='ui-block-a' style='width:25%'>" +
+								"<label for='port' style='padding-top:10px'>" + _( "Port" ) + "</label>" +
+							"</div>" +
+							"<div class='ui-block-b' style='width:75%'>" +
+								"<input class='otc-input' type='number' id='port' data-mini='true' pattern='[0-9]*' min='0' max='65535'" +
+									( options.en ? "" : "disabled='disabled'" ) + " placeholder='80' value='" + options.port + "' required />" +
+							"</div>" +
+						"</div>" +
+					"</div>" +
+					"<button class='submit' data-theme='b'>" + _( "Submit" ) + "</button>" +
+				"</div>" +
+			"</div>" );
+
+		popup.find( "#enable" ).on( "change", function() {
+			if ( this.checked ) {
+				popup.find( ".otc-input" ).textinput( "enable" );
+			} else {
+				popup.find( ".otc-input" ).textinput( "disable" );
+			}
+		} );
+		popup.find( ".submit" ).on( "click", function() {
+			if ( popup.find( "#enable" ).prop( "checked" ) && popup.find( "#token" ).val().length !== 32 ) {
+				showerror( _( "OpenThings Token must be 32 characters long." ) );
+				return;
+			}
+
+			var options = {
+				en: ( popup.find( "#enable" ).prop( "checked" ) ? 1 : 0 ),
+				token: popup.find( "#token" ).val(),
+				server: popup.find( "#server" ).val(),
+				port: parseInt( popup.find( "#port" ).val() )
+			};
+
+			popup.popup( "close" );
+			if ( curr === escapeJSON( options ) ) {
+				return;
+			} else {
+				button.value = escapeJSON( options );
+				header.eq( 2 ).prop( "disabled", false );
+				page.find( ".submit" ).addClass( "hasChanges" );
+			}
+		} );
+
+		popup.css( "max-width", "380px" );
+
+		openPopup( popup, { positionTo: "window" } );
+    } );
+
 	page.find( ".datetime-input" ).on( "click", function() {
 		var input = $( this ).find( "button" );
 
@@ -4820,7 +5201,6 @@ function showOptions( expandItem ) {
 }
 
 var showHomeMenu = ( function() {
-
 	var page, id, showHidden, popup;
 
 	function makeMenu() {
@@ -4834,6 +5214,10 @@ var showHomeMenu = ( function() {
 				( checkOSVersion( 206 ) || checkOSPiVersion( "1.9" ) ? "<li><a href='#logs'>" + _( "View Logs" ) + "</a></li>" : "" ) +
 				"<li data-role='list-divider'>" + _( "Programs and Settings" ) + "</li>" +
 				"<li><a href='#raindelay'>" + _( "Change Rain Delay" ) + "</a></li>" +
+				( Supported.pausing() ?
+					( StationQueue.isPaused() ? "<li><a href='#globalpause'>" + _( "Resume Station Runs" ) + "</a></li>"
+						: ( StationQueue.isActive() >= -1 ? "<li><a href='#globalpause'>" + _( "Pause Station Runs" ) + "</a></li>" : "" ) )
+					: "" ) +
 				"<li><a href='#runonce'>" + _( "Run-Once Program" ) + "</a></li>" +
 				"<li><a href='#programs'>" + _( "Edit Programs" ) + "</a></li>" +
 				"<li><a href='#os-options'>" + _( "Edit Options" ) + "</a></li>" +
@@ -4875,6 +5259,8 @@ var showHomeMenu = ( function() {
 				}
 			} else if ( href === "#raindelay" ) {
 				showRainDelay();
+			} else if ( href === "#globalpause" ) {
+				showPause();
 			} else {
 				checkChanges( function() {
 					changePage( href );
@@ -4912,8 +5298,6 @@ var showHome = ( function() {
 							_( "Water Level" ) + ": <span class='waterlevel'></span>%" +
 						"</div>" +
 					"</div>" +
-					"<div id='os-running-stations'></div>" +
-					"<hr style='display:none' class='content-divider'>" +
 					"<div id='os-stations-list' class='card-group center'></div>" +
 				"</div>" +
 			"</div>" +
@@ -4930,75 +5314,85 @@ var showHome = ( function() {
 				}
 			};
 		},
-		addCard = function( i ) {
-			var station = controller.stations.snames[ i ],
-				isScheduled = controller.settings.ps[ i ][ 0 ] > 0,
-				isRunning = controller.status[ i ] > 0,
-				pname = isScheduled ? pidname( controller.settings.ps[ i ][ 0 ] ) : "",
-				rem = controller.settings.ps[ i ][ 1 ],
-				hasImage = sites[ currentSite ].images[ i ] ? true : false;
+		addCard = function( sid ) {
+			var station = Station.getName( sid ),
+				isScheduled = Station.getPID( sid ) > 0,
+				isRunning = Station.isRunning( sid ),
+				pname = isScheduled ? pidname( Station.getPID( sid ) ) : "",
+				rem = Station.getRemainingRuntime( sid ),
+				qPause = Supported.pausing() && StationQueue.isPaused(),
+				hasImage = sites[ currentSite ].images[ sid ] ? true : false;
 
-			if ( controller.status[ i ] && rem > 0 ) {
-				addTimer( i, rem );
+			if ( Station.getStatus( sid ) && rem > 0 ) {
+				addTimer( sid, rem );
 			}
 
 			// Group card settings visually
-			cards += "<div data-station='" + i + "' class='ui-corner-all card" +
-				( isStationDisabled( i ) ? " station-hidden' style='display:none" : "" ) + "'>";
+			cards += "<div data-station='" + sid + "' class='ui-corner-all card" +
+				( Station.isDisabled( sid ) ? " station-hidden' style='display:none" : "" ) + "'>";
 
 			cards += "<div class='ui-body ui-body-a center'>";
 
-			cards += "<img src='" + ( hasImage ? "data:image/jpeg;base64," + sites[ currentSite ].images[ i ] : getAppURLPath() + "img/placeholder.png" ) + "' />";
+			cards += "<img src='" + ( hasImage ? "data:image/jpeg;base64," + sites[ currentSite ].images[ sid ] : getAppURLPath() + "img/placeholder.png" ) + "' />";
 
-			cards += "<p class='station-name center inline-icon' id='station_" + i + "'>" + station + "</p>";
+			cards += "<p class='station-name center inline-icon' id='station_" + sid + "'>" + station + "</p>";
 
 			cards += "<span class='btn-no-border ui-btn ui-btn-icon-notext ui-corner-all card-icon station-status " +
 				( isRunning ? "on" : ( isScheduled ? "wait" : "off" ) ) + "'></span>";
 
 			cards += "<span class='btn-no-border ui-btn ui-btn-icon-notext ui-icon-wifi card-icon special-station " +
-				( isStationSpecial( i ) ? "" : "hidden" ) + "'></span>";
+				( Station.isSpecial( sid ) ? "" : "hidden" ) + "'></span>";
 
-			cards += "<span class='btn-no-border ui-btn " + ( ( isStationMaster( i ) ) ? "ui-icon-master" : "ui-icon-gear" ) +
-				" card-icon ui-btn-icon-notext station-settings' data-station='" + i + "' id='attrib-" + i + "' " +
-				( hasMaster ? ( "data-um='" + ( ( controller.stations.masop[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) + "' " ) : "" ) +
-				( hasMaster2 ? ( "data-um2='" + ( ( controller.stations.masop2[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) + "' " ) : "" ) +
-				( hasIR ? ( "data-ir='" + ( ( controller.stations.ignore_rain[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) + "' " ) : "" ) +
-				( hasSN1 ? ( "data-sn1='" + ( ( controller.stations.ignore_sn1[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) + "' " ) : "" ) +
-				( hasSN2 ? ( "data-sn2='" + ( ( controller.stations.ignore_sn2[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) + "' " ) : "" ) +
-				( hasAR ? ( "data-ar='" + ( ( controller.stations.act_relay[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) + "' " ) : "" ) +
-				( hasSD ? ( "data-sd='" + ( ( controller.stations.stn_dis[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) + "' " ) : "" ) +
-				( hasSequential ? ( "data-us='" + ( ( controller.stations.stn_seq[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) + "' " ) : "" ) +
-				( hasSpecial ? ( "data-hs='" + ( ( controller.stations.stn_spe[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) + "' " ) : "" ) +
+			if ( Supported.groups() ) {
+				cards += "<span class='btn-no-border ui-btn card-icon station-gid " + ( Station.isMaster( sid ) ? "hidden" : "" ) +
+							"'>" + mapGIDValueToName( Station.getGIDValue( sid ) ) + "</span>";
+			}
+
+			cards += "<span class='btn-no-border ui-btn " + ( ( Station.isMaster( sid ) ) ? "ui-icon-master" : "ui-icon-gear" ) +
+				" card-icon ui-btn-icon-notext station-settings' data-station='" + sid + "' id='attrib-" + sid + "' " +
+				( Supported.master( MASTER_STATION_1 ) ? ( "data-um='" + ( StationAttribute.getMasterOperation( sid, MASTER_STATION_1 ) ) + "' " ) : "" ) +
+				( Supported.master( MASTER_STATION_2 ) ? ( "data-um2='" + ( StationAttribute.getMasterOperation( sid, MASTER_STATION_2 ) ) + "' " ) : "" ) +
+				( Supported.ignoreRain() ? ( "data-ir='" + ( StationAttribute.getIgnoreRain( sid ) ) + "' " ) : "" ) +
+				( Supported.ignoreSensor( IGNORE_SENSOR_1 ) ? ( "data-sn1='" + ( StationAttribute.getIgnoreSensor( sid, IGNORE_SENSOR_1 ) ) + "' " ) : "" ) +
+				( Supported.ignoreSensor( IGNORE_SENSOR_2 ) ? ( "data-sn2='" + ( StationAttribute.getIgnoreSensor( sid, IGNORE_SENSOR_2 ) ) + "' " ) : "" ) +
+				( Supported.actRelay() ? ( "data-ar='" + ( StationAttribute.getActRelay( sid ) ) + "' " ) : "" ) +
+				( Supported.disabled() ? ( "data-sd='" + ( StationAttribute.getDisabled( sid ) ) + "' " ) : "" ) +
+				( Supported.sequential() ? ( "data-us='" + ( StationAttribute.getSequential( sid ) ) + "' " ) : "" ) +
+				( Supported.special() ? ( "data-hs='" + ( StationAttribute.getSpecial( sid ) ) + "' " ) : "" ) +
+				( Supported.groups() ? ( "data-gid='" + Station.getGIDValue( sid ) + "' " ) : "" ) +
 				"></span>";
 
-			if ( !isStationMaster( i ) ) {
+			if ( !Station.isMaster( sid ) ) {
 				if ( isScheduled || isRunning ) {
 
 					// Generate status line for station
 					cards += "<p class='rem center'>" + ( isRunning ? _( "Running" ) + " " + pname : _( "Scheduled" ) + " " +
-						( controller.settings.ps[ i ][ 2 ] ? _( "for" ) + " " + dateToString( new Date( controller.settings.ps[ i ][ 2 ] * 1000 ) ) : pname ) );
+						( Station.getStartTime( sid ) ? _( "for" ) + " " + dateToString( new Date( Station.getStartTime( sid ) * 1000 ) ) : pname ) );
+
 					if ( rem > 0 ) {
 
 						// Show the remaining time if it's greater than 0
-						cards += " <span id='countdown-" + i + "' class='nobr'>(" + sec2hms( rem ) + " " + _( "remaining" ) + ")</span>";
+						cards += " <span id=" + ( qPause ? "'pause" : "'countdown-" ) + sid + "' class='nobr'>(" + sec2hms( rem ) + " " + _( "remaining" ) + ")</span>";
 					}
 					cards += "</p>";
 				}
 			}
 
-			// Close current card group
-			cards += "</div></div>";
+			// Add sequential group divider and close current card group
+			cards += "</div><hr style='display:none' class='content-divider'" +
+				( Supported.groups() ? "divider-gid=" + Station.getGIDValue( sid ) : "" ) + "></div>";
+
 		},
 		showAttributes = function() {
 			$( "#stn_attrib" ).popup( "destroy" ).remove();
 
 			var button = $( this ),
-				id = button.data( "station" ),
-				name = button.siblings( "[id='station_" + id + "']" ),
+				sid = button.data( "station" ),
+				name = button.siblings( "[id='station_" + sid + "']" ),
 				showSpecialOptions = function( value ) {
 					var opts = select.find( "#specialOpts" ),
-						data = controller.special && controller.special.hasOwnProperty( id ) ? controller.special[ id ].sd : "",
-						type  = controller.special && controller.special.hasOwnProperty( id ) ? controller.special[ id ].st : 0;
+						data = controller.special && controller.special.hasOwnProperty( sid ) ? controller.special[ sid ].sd : "",
+						type  = controller.special && controller.special.hasOwnProperty( sid ) ? controller.special[ sid ].st : 0;
 
 					opts.empty();
 
@@ -5033,9 +5427,11 @@ var showHome = ( function() {
 						// First two bytes are zero padded GPIO pin number (default GPIO05)
 						// Third byte is either 0 or 1 for active low (GND) or high (+5V) relays (default 1 for HIGH)
 						// Restrict selection to GPIO pins available on the RPi R2.
-						var gpioPin = 5, activeState = 1, freePins, sel;
+						var gpioPin = 5, activeState = 1, freePins = [ ], sel;
 
-						if ( getHWVersion() === "OSPi" ) {
+						if ( controller.settings.gpio ) {
+							freePins = controller.settings.gpio;
+						} else if ( getHWVersion() === "OSPi" ) {
 							freePins = [ 5, 6, 7, 8, 9, 10, 11, 12, 13, 16, 18, 19, 20, 21, 23, 24, 25, 26 ];
 						} else if ( getHWVersion() === "2.3" ) {
 							freePins = [ 2, 10, 12, 13, 14, 15, 18, 19 ];
@@ -5047,12 +5443,16 @@ var showHome = ( function() {
 							activeState = parseInt( data[ 2 ] );
 						}
 
-						sel = "<div class='ui-bar-a ui-bar'>" + _( "GPIO Pin" ) + ":</div>" +
-								"<select class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='gpio-pin'>";
-						for ( var i = 0; i < freePins.length; i++ ) {
-							sel += "<option value='" + freePins[ i ] + "' " + ( freePins[ i ] === gpioPin ? "selected='selected'" : "" ) + ">" + freePins[ i ];
+						if ( freePins.length ) {
+							sel = "<div class='ui-bar-a ui-bar'>" + _( "GPIO Pin" ) + ":</div>" +
+							"<select class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='gpio-pin'>";
+							for ( var i = 0; i < freePins.length; i++ ) {
+								sel += "<option value='" + freePins[ i ] + "' " + ( freePins[ i ] === gpioPin ? "selected='selected'" : "" ) + ">" + freePins[ i ];
+							}
+							sel += "</select>";
+						} else {
+							sel = "";
 						}
-						sel += "</select>";
 
 						sel += "<div class='ui-bar-a ui-bar'>" + _( "Active State" ) + ":</div>" +
 								 "<select class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='active-state'>" +
@@ -5201,22 +5601,25 @@ var showHome = ( function() {
 					button.data( "us", select.find( "#us" ).is( ":checked" ) ? 1 : 0 );
 					name.html( select.find( "#stn-name" ).val() );
 
+					var seqGroupName = select.find( "span.seqgrp" ).text();
+					button.attr( "data-gid", mapGIDNameToValue( seqGroupName ) );
+
 					// Update the notes section
-					sites[ currentSite ].notes[ id ] = select.find( "#stn-notes" ).val();
+					sites[ currentSite ].notes[ sid ] = select.find( "#stn-notes" ).val();
 					storage.set( { "sites": JSON.stringify( sites ) }, cloudSaveSites );
 
-					submitStations( id );
+					submitStations( sid );
 					select.popup( "destroy" ).remove();
 				},
 				select = "<div data-overlay-theme='b' data-role='popup' data-theme='a' id='stn_attrib'>" +
 					"<fieldset style='margin:0' data-mini='true' data-corners='false' data-role='controlgroup'><form><div id='station-tabs'>";
 
-			if ( typeof id !== "number" ) {
+			if ( typeof sid !== "number" ) {
 				return false;
 			}
 
 			// Setup two tabs for station configuration (Basic / Advanced) when applicable
-			if ( hasSpecial ) {
+			if ( Supported.special() ) {
 				select += "<ul class='tabs'>" +
 								"<li class='current' data-tab='tab-basic'>" + _( "Basic" ) + "</li>" +
 								"<li data-tab='tab-advanced'>" + _( "Advanced" ) + "</li>" +
@@ -5227,59 +5630,59 @@ var showHome = ( function() {
 			select += "<div id='tab-basic' class='tab-content current'>";
 
 			select += "<div class='ui-bar-a ui-bar'>" + _( "Station Name" ) + ":</div>" +
-				"<input class='bold center' data-corners='false' data-wrapper-class='tight stn-name ui-btn' id='stn-name' type='text' value='" +
-					name.text() + "'>";
+				"<input class='bold center' data-corners='false' data-wrapper-class='tight stn-name ui-btn' id='stn-name' type='text' value=\"" +
+					name.text() + "\">";
 
 			if ( typeof navigator.camera !== "undefined" && typeof navigator.camera.getPicture === "function" ) {
 				select += "<button class='changeBackground'>" +
-						( typeof sites[ currentSite ].images[ id ] !== "string" ? _( "Add" ) : _( "Change" ) ) + " " + _( "Image" ) +
+						( typeof sites[ currentSite ].images[ sid ] !== "string" ? _( "Add" ) : _( "Change" ) ) + " " + _( "Image" ) +
 					"</button>";
 			}
 
-			if ( !isStationMaster( id ) ) {
-				if ( hasMaster ) {
+			if ( !Station.isMaster( sid ) ) {
+				if ( Supported.master( MASTER_STATION_1 ) ) {
 					select += "<label for='um'><input class='needsclick' data-iconpos='right' id='um' type='checkbox' " +
-							( ( button.data( "um" ) === 1 ) ? "checked='checked'" : "" ) + ">" + _( "Use Master" ) + " " + ( hasMaster2 ? "1" : "" ) +
-						"</label>";
+							( ( button.data( "um" ) === 1 ) ? "checked='checked'" : "" ) + ">" + _( "Use Master" ) + " " +
+								( Supported.master( MASTER_STATION_2 ) ? "1" : "" ) + "</label>";
 				}
 
-				if ( hasMaster2 ) {
+				if ( Supported.master( MASTER_STATION_2 ) ) {
 					select += "<label for='um2'><input class='needsclick' data-iconpos='right' id='um2' type='checkbox' " +
 							( ( button.data( "um2" ) === 1 ) ? "checked='checked'" : "" ) + ">" + _( "Use Master" ) + " 2" +
 						"</label>";
 				}
 
-				if ( hasIR ) {
+				if ( Supported.ignoreRain() ) {
 					select += "<label for='ir'><input class='needsclick' data-iconpos='right' id='ir' type='checkbox' " +
 							( ( button.data( "ir" ) === 1 ) ? "checked='checked'" : "" ) + ">" + _( "Ignore Rain" ) +
 						"</label>";
 				}
 
-				if ( hasSN1 ) {
+				if ( Supported.ignoreSensor( IGNORE_SENSOR_1 ) ) {
 					select += "<label for='sn1'><input class='needsclick' data-iconpos='right' id='sn1' type='checkbox' " +
 							( ( button.data( "sn1" ) === 1 ) ? "checked='checked'" : "" ) + ">" + _( "Ignore Sensor 1" ) +
 						"</label>";
 				}
 
-				if ( hasSN2 ) {
+				if ( Supported.ignoreSensor( IGNORE_SENSOR_2 ) ) {
 					select += "<label for='sn2'><input class='needsclick' data-iconpos='right' id='sn2' type='checkbox' " +
 							( ( button.data( "sn2" ) === 1 ) ? "checked='checked'" : "" ) + ">" + _( "Ignore Sensor 2" ) +
 						"</label>";
 				}
 
-				if ( hasAR ) {
+				if ( Supported.actRelay() ) {
 					select += "<label for='ar'><input class='needsclick' data-iconpos='right' id='ar' type='checkbox' " +
 							( ( button.data( "ar" ) === 1 ) ? "checked='checked'" : "" ) + ">" + _( "Activate Relay" ) +
 						"</label>";
 				}
 
-				if ( hasSD ) {
+				if ( Supported.disabled() ) {
 					select += "<label for='sd'><input class='needsclick' data-iconpos='right' id='sd' type='checkbox' " +
 							( ( button.data( "sd" ) === 1 ) ? "checked='checked'" : "" ) + ">" + _( "Disable" ) +
 						"</label>";
 				}
 
-				if ( hasSequential ) {
+				if ( Supported.sequential() && !Supported.groups() ) {
 					select += "<label for='us'><input class='needsclick' data-iconpos='right' id='us' type='checkbox' " +
 							( ( button.data( "us" ) === 1 ) ? "checked='checked'" : "" ) + ">" + _( "Sequential" ) +
 						"</label>";
@@ -5288,34 +5691,83 @@ var showHome = ( function() {
 
 			select += "<div class='ui-bar-a ui-bar'>" + _( "Station Notes" ) + ":</div>" +
 				"<textarea data-corners='false' class='tight stn-notes' id='stn-notes'>" +
-					( sites[ currentSite ].notes[ id ] ? sites[ currentSite ].notes[ id ] : "" ) +
+					( sites[ currentSite ].notes[ sid ] ? sites[ currentSite ].notes[ sid ] : "" ) +
 				"</textarea>";
 
 			select += "</div>";
 
-			// Start of Advanced Tab settings. Initially set to disabled until we have refreshed station data from firmware
-			if ( hasSpecial ) {
-				select += "<div id='tab-advanced' class='tab-content'>" +
+			// Start of Advanced Tab settings.
+			select += "<div id='tab-advanced' class='tab-content'>";
+
+			// Create sequential group selection menu
+			if ( Supported.groups() && !Station.isMaster( sid ) ) {
+				select +=
+					"<div class='ui-bar-a ui-bar seq-container'>" + _( "Sequential Group" ) + ":</div>" +
+						"<select id='gid' class='seqgrp' data-mini='true'></select>" +
+						"<div><p id='prohibit-change' class='center hidden' style='color: #ff0033;'>Changing group designation is prohibited while station is running</p></div>";
+			}
+
+			// Station tab is initially set to disabled until we have refreshed station data from firmware
+			if ( Supported.special() ) {
+				select +=
 					"<div class='ui-bar-a ui-bar'>" + _( "Station Type" ) + ":</div>" +
-						"<select data-mini='true' id='hs'"  + ( isStationSpecial( id ) ? " class='ui-disabled'" : "" ) + ">" +
-							"<option data-hs='0' value='0'" + ( isStationSpecial( id ) ? "" : "selected" ) + ">" + _( "Standard" ) + "</option>" +
+						"<select data-mini='true' id='hs'"  + ( Station.isSpecial( sid ) ? " class='ui-disabled'" : "" ) + ">" +
+							"<option data-hs='0' value='0'" + ( Station.isSpecial( sid ) ? "" : "selected" ) + ">" + _( "Standard" ) + "</option>" +
 							"<option data-hs='1' value='1'>" + _( "RF" ) + "</option>" +
 							"<option data-hs='2' value='2'>" + _( "Remote" ) + "</option>" +
-							"<option data-hs='3' value='3'" + ( checkOSVersion( 217 ) ? ">" : " disabled>" ) + _( "GPIO" ) + "</option>" +
+							"<option data-hs='3' value='3'" + (
+								checkOSVersion( 217 ) && (
+									( typeof controller.settings.gpio !== "undefined" && controller.settings.gpio.length > 0 ) || getHWVersion() === "OSPi" || getHWVersion() === "2.3"
+								) ? ">" : " disabled>"
+							) + _( "GPIO" ) + "</option>" +
 							"<option data-hs='4' value='4'" + ( checkOSVersion( 217 ) ? ">" : " disabled>" ) + _( "HTTP" ) + "</option>" +
 						"</select>" +
-						"<div id='specialOpts'></div>" +
-					"</div>" +
-				"</div>";
+						"<div id='specialOpts'></div>";
 			}
+
+			select += "</div>";
 
 			// Common Submit button
 			select += "<input data-wrapper-class='attrib-submit' data-theme='b' type='submit' value='" + _( "Submit" ) + "' /></form></fieldset></div>";
 
 			select = $( select ).enhanceWithin().on( "submit", "form", function() {
-				saveChanges( id );
+				saveChanges( sid );
 				return false;
 			} );
+
+			// Populate sequential group selection menu
+			if ( Supported.groups() ) {
+				var seqGroupSelect = select.find( "select.seqgrp" ),
+					seqGroupLabel = select.find( "span.seqgrp" ),
+					stationGID = Station.getGIDValue( sid );
+
+				var isRunning = Station.isRunning( sid ),
+					prohibitChange = select.find( "p#prohibit-change" );
+				if ( isRunning ) {
+					seqGroupSelect.addClass( "ui-state-disabled" );
+					prohibitChange.removeClass( "hidden" );
+				} else {
+					seqGroupSelect.removeClass( "ui-state-disabled" );
+					prohibitChange.addClass( "hidden" );
+				}
+
+				for ( var i = 0; i <= NUM_SEQ_GROUPS; i++ ) {
+					var value = mapIndexToGIDValue( i ),
+						label = mapGIDValueToName( value ),
+						option = $(
+							"<option data-gid='" + value + "' value='" +
+							value + "'>" +  _( label ) + "</option>"
+						);
+
+					if ( value === stationGID ) {
+						option.prop( "selected", true );
+						seqGroupLabel.text( label );
+					} else {
+						option.prop( "selected", false  );
+					}
+					seqGroupSelect.append( option );
+				}
+			}
 
 			// Display the selected tab when clicked
 			select.find( "ul.tabs li" ).click( function() {
@@ -5336,11 +5788,11 @@ var showHome = ( function() {
 			} );
 
 			// Refresh station data from firmware and update the Advanced tab to reflect special station type
-			if ( isStationSpecial( id ) ) {
+			if ( Station.isSpecial( sid ) ) {
 				updateControllerStationSpecial( function() {
 					select.find( "#hs" )
 						.removeClass( "ui-disabled" )
-						.find( "option[data-hs='" + controller.special[ id ].st + "']" ).prop( "selected", true );
+						.find( "option[data-hs='" + controller.special[ sid ].st + "']" ).prop( "selected", true );
 					select.find( "#hs" ).change();
 				} );
 			} else {
@@ -5354,7 +5806,7 @@ var showHome = ( function() {
 				var button = this;
 
 				takePicture( function( image ) {
-					sites[ currentSite ].images[ id ] = image;
+					sites[ currentSite ].images[ sid ] = image;
 					storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
 					updateContent();
 
@@ -5389,34 +5841,34 @@ var showHome = ( function() {
 				relay = {},
 				disable = {},
 				names = {},
-				attrib, bid, sid, s;
+				attrib, bid, sid, gid, s;
 
 			for ( bid = 0; bid < controller.settings.nbrd; bid++ ) {
-				if ( hasMaster ) {
+				if ( Supported.master( MASTER_STATION_1 ) ) {
 					master[ "m" + bid ] = 0;
 				}
-				if ( hasMaster2 ) {
+				if ( Supported.master( MASTER_STATION_2 ) ) {
 					master2[ "n" + bid ] = 0;
 				}
-				if ( hasSequential ) {
+				if ( Supported.sequential() ) {
 					sequential[ "q" + bid ] = 0;
 				}
-				if ( hasSpecial ) {
+				if ( Supported.special() ) {
 					special[ "p" + bid ] = 0;
 				}
-				if ( hasIR ) {
+				if ( Supported.ignoreRain() ) {
 					rain[ "i" + bid ] = 0;
 				}
-				if ( hasSN1 ) {
+				if ( Supported.ignoreSensor( IGNORE_SENSOR_1 ) ) {
 					sensor1[ "j" + bid ] = 0;
 				}
-				if ( hasSN2 ) {
+				if ( Supported.ignoreSensor( IGNORE_SENSOR_2 ) ) {
 					sensor2[ "k" + bid ] = 0;
 				}
-				if ( hasAR ) {
+				if ( Supported.actRelay() ) {
 					relay[ "a" + bid ] = 0;
 				}
-				if ( hasSD ) {
+				if ( Supported.disabled() ) {
 					disable[ "d" + bid ] = 0;
 				}
 
@@ -5424,39 +5876,39 @@ var showHome = ( function() {
 					sid = bid * 8 + s;
 					attrib = page.find( "#attrib-" + sid );
 
-					if ( hasMaster ) {
+					if ( Supported.master( MASTER_STATION_1 ) ) {
 						master[ "m" + bid ] = ( master[ "m" + bid ] ) + ( attrib.data( "um" ) << s );
 					}
 
-					if ( hasMaster2 ) {
+					if ( Supported.master( MASTER_STATION_2 ) ) {
 						master2[ "n" + bid ] = ( master2[ "n" + bid ] ) + ( attrib.data( "um2" ) << s );
 					}
 
-					if ( hasSequential ) {
+					if ( Supported.sequential() ) {
 						sequential[ "q" + bid ] = ( sequential[ "q" + bid ] ) + ( attrib.data( "us" ) << s );
 					}
 
-					if ( hasSpecial ) {
+					if ( Supported.special() ) {
 						special[ "p" + bid ] = ( special[ "p" + bid ] ) + ( ( attrib.data( "hs" ) ? 1 : 0 ) << s );
 					}
 
-					if ( hasIR ) {
+					if ( Supported.ignoreRain() ) {
 						rain[ "i" + bid ] = ( rain[ "i" + bid ] ) + ( attrib.data( "ir" ) << s );
 					}
 
-					if ( hasSN1 ) {
+					if ( Supported.ignoreSensor( IGNORE_SENSOR_1 ) ) {
 						sensor1[ "j" + bid ] = ( sensor1[ "j" + bid ] ) + ( attrib.data( "sn1" ) << s );
 					}
 
-					if ( hasSN2 ) {
+					if ( Supported.ignoreSensor( IGNORE_SENSOR_2 ) ) {
 						sensor2[ "k" + bid ] = ( sensor2[ "k" + bid ] ) + ( attrib.data( "sn2" ) << s );
 					}
 
-					if ( hasAR ) {
+					if ( Supported.actRelay() ) {
 						relay[ "a" + bid ] = ( relay[ "a" + bid ] ) + ( attrib.data( "ar" ) << s );
 					}
 
-					if ( hasSD ) {
+					if ( Supported.disabled() ) {
 						disable[ "d" + bid ] = ( disable[ "d" + bid ] ) + ( attrib.data( "sd" ) << s );
 					}
 
@@ -5470,10 +5922,14 @@ var showHome = ( function() {
 							names[ "s" + sid ] = page.find( "#station_" + sid ).text();
 						}
 
-						if ( hasSpecial && attrib.data( "hs" ) ) {
+						if ( Supported.special() && attrib.data( "hs" ) ) {
 							special.st = attrib.data( "hs" );
 							special.sd = attrib.data( "specialData" );
 							special.sid = id;
+						}
+
+						if ( Supported.groups() ) {
+							gid = attrib.attr( "data-gid" );
 						}
 					}
 				}
@@ -5481,15 +5937,16 @@ var showHome = ( function() {
 
 			$.mobile.loading( "show" );
 			sendToOS( "/cs?pw=&" + $.param( names ) +
-				( hasMaster ? "&" + $.param( master ) : "" ) +
-				( hasMaster2 ? "&" + $.param( master2 ) : "" ) +
-				( hasSequential ? "&" + $.param( sequential ) : "" ) +
-				( hasSpecial ? "&" + $.param( special ) : "" ) +
-				( hasIR ? "&" + $.param( rain ) : "" ) +
-				( hasSN1 ? "&" + $.param( sensor1 ) : "" ) +
-				( hasSN2 ? "&" + $.param( sensor2 ) : "" ) +
-				( hasAR ? "&" + $.param( relay ) : "" ) +
-				( hasSD ? "&" + $.param( disable ) : "" )
+				( Supported.master( MASTER_STATION_1 ) ? "&" + $.param( master ) : "" ) +
+				( Supported.master( MASTER_STATION_2 ) ? "&" + $.param( master2 ) : "" ) +
+				( Supported.sequential() ? "&" + $.param( sequential ) : "" ) +
+				( Supported.special() ? "&" + $.param( special ) : "" ) +
+				( Supported.ignoreRain() ? "&" + $.param( rain ) : "" ) +
+				( Supported.ignoreSensor( IGNORE_SENSOR_1 ) ? "&" + $.param( sensor1 ) : "" ) +
+				( Supported.ignoreSensor( IGNORE_SENSOR_2 ) ? "&" + $.param( sensor2 ) : "" ) +
+				( Supported.actRelay() ? "&" + $.param( relay ) : "" ) +
+				( Supported.disabled() ? "&" + $.param( disable ) : "" ) +
+				( Supported.groups() ? "&g" + id + "=" + gid : "" )
 			).done( function() {
 				showerror( _( "Stations have been updated" ) );
 				updateController( function() {
@@ -5507,44 +5964,161 @@ var showHome = ( function() {
 				}
 			};
 		},
+		compareCardsGroupView = function( a, b ) {
+
+			/* Sorting order: 	master ->
+								sequential group id ->
+								active status ->
+								station id
+			*/
+
+			var cardA = $( a ), cardB = $( b );
+
+			// Station IDs
+			var sidA = Card.getSID( cardA );
+			var sidB = Card.getSID( cardB );
+
+			// Verify if a master station
+			var masA = Station.isMaster( sidA ) > 0 ? 1 : 0;
+			var masB = Station.isMaster( sidB ) > 0 ? 1 : 0;
+
+			if ( masA > masB ) {
+				return -1;
+			} else if ( masA < masB ) {
+				return 1;
+			} else { // If both or neither master check group id
+
+				var gidA = Station.getGIDValue( Card.getSID( cardA ) );
+				var gidB = Station.getGIDValue( Card.getSID( cardB ) );
+
+				if ( gidA < gidB ) {
+					return -1;
+				} else if ( gidA > gidB ) {
+					return 1;
+				} else { // If same group shift running stations up
+
+					var statusA = Station.getStatus( sidA );
+					var statusB = Station.getStatus( sidB );
+
+					if ( statusA > statusB ) {
+						return -1;
+					} else if ( statusA < statusB ) {
+						return 1;
+					} else {
+						if ( sidA < sidB ) { return -1; } else if ( sidA > sidB ) { return 1; } else { return 0; }
+					}
+				}
+			}
+		},
+		compareCardsStandardView = function( a, b ) {
+
+			/* Sorting order: 	running status ->
+								station id
+			 */
+
+			var cardA = $( a ), cardB = $( b );
+
+			var sidA = Card.getSID( cardA );
+			var sidB = Card.getSID( cardB );
+
+			var statusA = Station.getStatus( sidA );
+			var statusB = Station.getStatus( sidB );
+
+			if ( statusA > statusB ) {
+				return -1;
+			} else if ( statusA < statusB ) {
+				return 1;
+			} else {
+				if ( sidA < sidB ) {
+					return -1;
+				}
+				if ( sidA > sidB ) {
+					return 1;
+				}
+				return 0;
+			}
+		},
+
+		updateGroupView = function( cardHolder, cardList ) {
+			var thisCard, nextCard, divider, label, idx;
+
+			for ( idx = 0; idx < cardHolder.children().length; idx++ ) {
+				thisCard = CardList.getCardByIndex( cardList, idx );
+				Card.setGroupLabel( thisCard, Card.getGIDName( thisCard ) );
+			}
+			for ( idx = 0; idx < cardHolder.children().length - 1; idx++ ) {
+				thisCard = CardList.getCardByIndex( cardList, idx );
+				nextCard = CardList.getCardByIndex( cardList, idx + 1 );
+
+				divider = Card.getDivider( thisCard );
+				label = Card.getGroupLabel( thisCard );
+
+				// Display master separately
+				if ( Card.isMasterStation( thisCard ) ) {
+					if ( !Card.isMasterStation( nextCard ) ) {
+						divider.show();
+					} else {
+						divider.hide();
+					}
+					label.addClass( "hidden" );
+					continue;
+				}
+
+				if ( Station.getGIDValue( Card.getSID( thisCard ) ) !== Station.getGIDValue( Card.getSID( nextCard ) ) ) {
+					divider.show();
+				} else {
+					divider.hide();
+				}
+			}
+			Card.getDivider( nextCard ).show(); // Last group divider
+			Card.setGroupLabel( nextCard, Card.getGIDName( nextCard ) );
+		},
+		updateStandardView = function( cardHolder, cardList ) {
+			var thisCard, nextCard, divider, label, idx;
+			for ( idx = 0; idx < cardHolder.children().length - 1; idx++ ) {
+				thisCard = CardList.getCardByIndex( cardList, idx );
+				nextCard = CardList.getCardByIndex( cardList, idx + 1 );
+
+				divider = Card.getDivider( thisCard );
+				divider.hide(); // Remove all dividers when switching from group view
+
+				Card.setGroupLabel( thisCard, mapGIDValueToName( Station.getGIDValue( idx ) ) );
+				label = Card.getGroupLabel( thisCard );
+				if ( typeof label !== "undefined" && Card.isMasterStation( thisCard ) ) {
+					label.addClass( "hidden" );
+				}
+
+				//  Display divider between active and non-active stations
+				if ( Station.isRunning( Card.getSID( thisCard ) ) &&
+						!Station.isRunning( Card.getSID( nextCard ) ) ) {
+							divider.show();
+				}
+			}
+			Card.getDivider( nextCard ).hide();
+			Card.setGroupLabel( nextCard, mapGIDValueToName( Station.getGIDValue( idx ) ) );
+			label = Card.getGroupLabel( nextCard );
+			if ( typeof label !== "undefined" && Card.isMasterStation( nextCard ) ) {
+				label.addClass( "hidden" );
+			}
+		},
 		reorderCards = function() {
 			var cardHolder = page.find( "#os-stations-list" ),
-				runningCards = page.find( "#os-running-stations" ),
-				divider = page.find( ".content-divider" ),
-				compare = function( a, b ) {
-					a = $( a ).data( "station" );
-					b = $( b ).data( "station" );
-					if ( a < b ) {
-						return -1;
-					}
-					if ( a > b ) {
-						return 1;
-					}
-					return 0;
-				};
-
-			// Move running stations up
-			cardHolder.find( ".station-status.on" ).parents( ".card" ).appendTo( runningCards );
-
-			// Move stopped stations down
-			runningCards.find( ".station-status.off" ).parents( ".card" ).appendTo( cardHolder );
+				cardList = cardHolder.children(),
+				compareCards = groupView ? compareCardsGroupView : compareCardsStandardView;
 
 			// Sort stations
-			cardHolder.children().sort( compare ).detach().appendTo( cardHolder );
-			runningCards.children().sort( compare ).detach().appendTo( runningCards );
+			cardList.sort( compareCards ).detach().appendTo( cardHolder );
 
-			// Hide divider if running group is empty
-			if ( runningCards.children().length === 0 ) {
-				divider.hide();
+			if ( Supported.groups() && groupView ) {
+				updateGroupView( cardHolder, cardList );
 			} else {
-				divider.show();
+				updateStandardView( cardHolder, cardList );
 			}
 		},
 		updateContent = function() {
 			var cardHolder = page.find( "#os-stations-list" ),
-				allCards = cardHolder.children(),
-				runningCards = page.find( "#os-running-stations" ).children(),
-				isScheduled, isRunning, pname, rem, card, line, hasImage;
+				cardList = cardHolder.children(),
+				isScheduled, isRunning, pname, rem, qPause, card, line, hasImage, divider;
 
 			if ( !page.hasClass( "ui-page-active" ) ) {
 				return;
@@ -5553,58 +6127,33 @@ var showHome = ( function() {
 			updateClock();
 			updateSites();
 
-			if ( allCards.length + runningCards.length > controller.stations.snames.length ) {
-
-				// Merge running station cards with remainder of station cards
-				runningCards.detach().appendTo( cardHolder );
-
-				// Update the allCards array since running cards were merged in above
-				allCards = cardHolder.children();
-
-				// Remove all stations which are higher in index than the current max
-				allCards.each( function() {
-					var c = $( this );
-
-					if ( c.data( "station" ) >= controller.stations.snames.length ) {
-						c.remove();
-					}
-				} );
-			}
-
 			page.find( ".waterlevel" ).text( controller.options.wl );
 			page.find( ".sitename" ).text( siteSelect.val() );
 
-			hasMaster = controller.options.mas ? true : false;
-			hasMaster2 = controller.options.mas2 ? true : false;
-			hasIR = ( typeof controller.stations.ignore_rain === "object" ) ? true : false;
-			hasSN1 = ( typeof controller.stations.ignore_sn1 === "object" ) ? true : false;
-			hasSN2 = ( typeof controller.stations.ignore_sn2 === "object" ) ? true : false;
-			hasAR = ( typeof controller.stations.act_relay === "object" ) ? true : false;
-			hasSD = ( typeof controller.stations.stn_dis === "object" ) ? true : false;
-			hasSequential = ( typeof controller.stations.stn_seq === "object" ) ? true : false;
-			hasSpecial = ( typeof controller.stations.stn_spe === "object" ) ? true : false;
+			// Remove unused stations
+			CardList.getAllCards( cardList ).filter( function( _, a ) {
+				return parseInt( $( a ).data( "station" ), 10 ) >= controller.stations.snames.length;
+			} ).remove();
 
-			for ( var i = 0; i < controller.stations.snames.length; i++ ) {
-				isScheduled = controller.settings.ps[ i ][ 0 ] > 0;
-				isRunning = controller.status[ i ] > 0;
-				pname = isScheduled ? pidname( controller.settings.ps[ i ][ 0 ] ) : "";
-				rem = controller.settings.ps[ i ][ 1 ],
-				hasImage = sites[ currentSite ].images[ i ] ? true : false;
+			for ( var sid = 0; sid < controller.stations.snames.length; sid++ ) {
+				isScheduled = Station.getPID( sid ) > 0;
+				isRunning = Station.getStatus( sid ) > 0;
+				pname = isScheduled ? pidname( Station.getPID( sid ) ) : "";
+				rem = Station.getRemainingRuntime( sid ),
+				qPause = StationQueue.isPaused(),
+				hasImage = sites[ currentSite ].images[ sid ] ? true : false;
 
-				card = allCards.filter( "[data-station='" + i + "']" );
-
-				if ( card.length === 0 ) {
-					card = runningCards.filter( "[data-station='" + i + "']" );
-				}
+				card = CardList.getCardBySID( cardList, sid );
+				divider = Card.getDivider( card );
 
 				if ( card.length === 0 ) {
 					cards = "";
-					addCard( i );
+					addCard( sid );
 					cardHolder.append( cards );
 				} else {
-					card.find( ".ui-body > img" ).attr( "src", ( hasImage ? "data:image/jpeg;base64," + sites[ currentSite ].images[ i ] : getAppURLPath() + "img/placeholder.png" ) );
+					card.find( ".ui-body > img" ).attr( "src", ( hasImage ? "data:image/jpeg;base64," + sites[ currentSite ].images[ sid ] : getAppURLPath() + "img/placeholder.png" ) );
 
-					if ( isStationDisabled( i ) ) {
+					if ( Station.isDisabled( sid ) ) {
 						if ( !page.hasClass( "show-hidden" ) ) {
 							card.hide();
 						}
@@ -5613,35 +6162,37 @@ var showHome = ( function() {
 						card.show().removeClass( "station-hidden" );
 					}
 
-					card.find( "#station_" + i ).text( controller.stations.snames[ i ] );
-					card.find( ".special-station" ).removeClass( "hidden" ).addClass( isStationSpecial( i ) ? "" : "hidden" );
+					card.find( "#station_" + sid ).text( controller.stations.snames[ sid ] );
+					card.find( ".special-station" ).removeClass( "hidden" ).addClass( Station.isSpecial( sid ) ? "" : "hidden" );
 					card.find( ".station-status" ).removeClass( "on off wait" ).addClass( isRunning ? "on" : ( isScheduled ? "wait" : "off" ) );
-					if ( isStationMaster( i ) ) {
+					if ( Station.isMaster( sid ) ) {
 						card.find( ".station-settings" ).removeClass( "ui-icon-gear" ).addClass( "ui-icon-master" );
 					} else {
 						card.find( ".station-settings" ).removeClass( "ui-icon-master" ).addClass( "ui-icon-gear" );
 					}
+
 					card.find( ".station-settings" ).data( {
-						um: hasMaster ? ( ( controller.stations.masop[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) : undefined,
-						um2: hasMaster2 ? ( ( controller.stations.masop2[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) : undefined,
-						ir: hasIR ? ( ( controller.stations.ignore_rain[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) : undefined,
-						sn1: hasSN1 ? ( ( controller.stations.ignore_sn1[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) : undefined,
-						sn2: hasSN2 ? ( ( controller.stations.ignore_sn2[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) : undefined,
-						ar: hasAR ? ( ( controller.stations.act_relay[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) : undefined,
-						sd: hasSD ? ( ( controller.stations.stn_dis[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) : undefined,
-						us: hasSequential ? ( ( controller.stations.stn_seq[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) : undefined,
-						hs: hasSpecial ? ( ( controller.stations.stn_spe[ parseInt( i / 8 ) ] & ( 1 << ( i % 8 ) ) ) ? 1 : 0 ) : undefined
+						um: Supported.master( MASTER_STATION_1 ) ? StationAttribute.getMasterOperation( sid, MASTER_STATION_1 ) : undefined,
+						um2: Supported.master( MASTER_STATION_2 ) ? StationAttribute.getMasterOperation( sid, MASTER_STATION_2 ) : undefined,
+						ir: Supported.ignoreRain() ? StationAttribute.getIgnoreRain( sid ) : undefined,
+						sn1: Supported.ignoreSensor( IGNORE_SENSOR_1 ) ? StationAttribute.getIgnoreSensor( sid, IGNORE_SENSOR_1 ) : undefined,
+						sn2: Supported.ignoreSensor( IGNORE_SENSOR_2 ) ? StationAttribute.getIgnoreSensor( sid, IGNORE_SENSOR_2 ) : undefined,
+						ar: Supported.actRelay() ? StationAttribute.getActRelay( sid ) : undefined,
+						sd: Supported.disabled() ? StationAttribute.getDisabled( sid ) : undefined,
+						us: Supported.sequential() ? StationAttribute.getSequential( sid ) : undefined,
+						hs: Supported.special() ? StationAttribute.getSpecial( sid ) : undefined,
+						gid: Supported.groups() ? Station.getGIDValue( sid ) : undefined
 					} );
 
-					if ( !isStationMaster( i ) && ( isScheduled || isRunning ) ) {
+					if ( !Station.isMaster( sid ) && ( isScheduled || isRunning ) ) {
 						line = ( isRunning ? _( "Running" ) + " " + pname : _( "Scheduled" ) + " " +
-							( controller.settings.ps[ i ][ 2 ] ? _( "for" ) + " " + dateToString( new Date( controller.settings.ps[ i ][ 2 ] * 1000 ) ) : pname ) );
+							( Station.getStartTime( sid ) ? _( "for" ) + " " + dateToString( new Date( Station.getStartTime( sid ) * 1000 ) ) : pname ) );
 						if ( rem > 0 ) {
 
 							// Show the remaining time if it's greater than 0
-							line += " <span id='countdown-" + i + "' class='nobr'>(" + sec2hms( rem ) + " " + _( "remaining" ) + ")</span>";
-							if ( controller.status[ i ] ) {
-								addTimer( i, rem );
+							line += " <span id=" + ( qPause ? "'pause" : "'countdown-" ) + sid + "' class='nobr'>(" + sec2hms( rem ) + " " + _( "remaining" ) + ")</span>";
+							if ( controller.status[ sid ] ) {
+								addTimer( sid, rem );
 							}
 						}
 						if ( card.find( ".rem" ).length === 0 ) {
@@ -5680,7 +6231,7 @@ var showHome = ( function() {
 				callback();
 			} );
 		},
-		hasMaster, hasMaster2, hasIR, hasSN1, hasSN2, hasAR, hasSD, hasSequential, hasSpecial, cards, siteSelect, currentSite, i, sites;
+		cards, siteSelect, currentSite, i, sites;
 
 	page.one( "pageshow", function() {
 		$( "html" ).on( "datarefresh", updateContent );
@@ -5690,16 +6241,6 @@ var showHome = ( function() {
 		if ( !isControllerConnected() ) {
 			return false;
 		}
-
-		hasMaster = controller.options.mas ? true : false;
-		hasMaster2 = controller.options.mas2 ? true : false;
-		hasIR = ( typeof controller.stations.ignore_rain === "object" ) ? true : false;
-		hasSN1 = ( typeof controller.stations.ignore_sn1 === "object" ) ? true : false;
-		hasSN2 = ( typeof controller.stations.ignore_sn2 === "object" ) ? true : false;
-		hasAR = ( typeof controller.stations.act_relay === "object" ) ? true : false;
-		hasSD = ( typeof controller.stations.stn_dis === "object" ) ? true : false;
-		hasSequential = ( typeof controller.stations.stn_seq === "object" ) ? true : false;
-		hasSpecial = ( typeof controller.stations.stn_spe === "object" ) ? true : false;
 
 		cards = "";
 		siteSelect = $( "#site-selector" );
@@ -5719,6 +6260,7 @@ var showHome = ( function() {
 		updateClock();
 
 		page.on( "click", ".station-settings", showAttributes );
+
 		page.on( "click", ".home-info", function() {
 			changePage( "#os-options", {
 				expandItem: "weather"
@@ -5734,14 +6276,19 @@ var showHome = ( function() {
 			}
 
 			var el = $( this ),
-				station = el.data( "station" ),
-				currentStatus = controller.status[ station ],
-				name = controller.stations.snames[ station ],
-				question;
+				sid = Card.getSID( el ),
+				stationGID = Card.getGIDValue( el ),
+				currentStatus = Station.getStatus( sid ),
+				name = Station.getName( sid ),
+				question, dialogOptions = {};
 
-			if ( isStationMaster( station ) ) {
+			if ( Station.isMaster( sid ) ) {
 				return false;
 			}
+
+			dialogOptions.type = dialog.REMOVE_STATION;
+			dialogOptions.station = sid;
+			dialogOptions.gid = stationGID;
 
 			if ( currentStatus ) {
 				question = _( "Do you want to stop the selected station?" );
@@ -5753,20 +6300,20 @@ var showHome = ( function() {
 						title: name,
 						incrementalUpdate: false,
 						maximum: 65535,
-						seconds: sites[ currentSite ].lastRunTime[ station ] > 0 ? sites[ currentSite ].lastRunTime[ station ] : 0,
+						seconds: sites[ currentSite ].lastRunTime[ sid ] > 0 ? sites[ currentSite ].lastRunTime[ sid ] : 0,
 						helptext: _( "Enter a duration to manually run " ) + name,
 						callback: function( duration ) {
-							sendToOS( "/cm?sid=" + station + "&en=1&t=" + duration + "&pw=", "json" ).done( function() {
+							sendToOS( "/cm?sid=" + sid + "&en=1&t=" + duration + "&pw=", "json" ).done( function() {
 
 								// Update local state until next device refresh occurs
-								controller.settings.ps[ station ][ 0 ] = 99;
-								controller.settings.ps[ station ][ 1 ] = duration;
+								Station.setPID( sid, MANUAL_STATION_PID );
+								Station.setRemainingRuntime( sid, duration );
 
 								refreshStatus();
 								showerror( _( "Station has been queued" ) );
 
 								// Save run time for this station
-								sites[ currentSite ].lastRunTime[ station ] = duration;
+								sites[ currentSite ].lastRunTime[ sid ] = duration;
 								storage.set( { "sites": JSON.stringify( sites ) }, cloudSaveSites );
 							} );
 						}
@@ -5774,21 +6321,25 @@ var showHome = ( function() {
 					return;
 				}
 			}
-			areYouSure( question, controller.stations.snames[ station ], function() {
-				sendToOS( "/cm?sid=" + station + "&en=0&pw=" ).done( function() {
+
+			areYouSure( question, Station.getName( sid ), function() {
+
+				var shiftStations = popupData.shift === true ? 1 : 0;
+
+				sendToOS( "/cm?sid=" + sid + "&ssta=" + shiftStations + "&en=0&pw=" ).done( function() {
 
 					// Update local state until next device refresh occurs
-					controller.settings.ps[ station ][ 0 ] = 0;
-					controller.settings.ps[ station ][ 1 ] = 0;
-					controller.status[ i ] = 0;
+					Station.setPID( sid, 0 );
+					Station.setRemainingRuntime( sid, 0 );
+					Station.setStatus( sid, 0 );
 
 					// Remove any timer associated with the station
-					delete timers[ "station-" + station ];
+					delete timers[ "station-" + sid ];
 
 					refreshStatus();
 					showerror( _( "Station has been stopped" ) );
 				} );
-			} );
+			}, null, dialogOptions );
 		} )
 
 		.on( "click", "img", function() {
@@ -5943,37 +6494,6 @@ function showGuidedSetup() {
 
 	// Stub for guided setup page
 
-}
-
-function isStationMaster( sid ) {
-	var m1 = typeof controller.options.mas === "number" ? controller.options.mas : 0,
-		m2 = typeof controller.options.mas2 === "number" ? controller.options.mas2 : 0;
-
-	sid++;
-
-	if ( m1 === sid ) {
-		return 1;
-	} else if ( m2 === sid ) {
-		return 2;
-	} else {
-		return 0;
-	}
-}
-
-function isStationDisabled( sid ) {
-	return ( typeof controller.stations.stn_dis === "object" && ( controller.stations.stn_dis[ parseInt( sid / 8 ) ] & ( 1 << ( sid % 8 ) ) ) > 0 );
-}
-
-function isStationSpecial( sid ) {
-	return ( typeof controller.stations.stn_spe === "object" && ( controller.stations.stn_spe[ parseInt( sid / 8 ) ] & ( 1 << ( sid % 8 ) ) ) > 0 );
-}
-
-function isStationSequential( sid ) {
-	if ( typeof controller.stations.stn_seq === "object" ) {
-		return ( controller.stations.stn_seq[ parseInt( sid / 8 ) ] & ( 1 << ( sid % 8 ) ) ) > 0;
-	} else {
-		return controller.options.seq;
-	}
 }
 
 function parseRemoteStationData( hex ) {
@@ -6146,10 +6666,31 @@ function checkStatus() {
 		return;
 	}
 
+	// Handle queue paused
+	if ( controller.settings.pq ) {
+		line = "<p class='running-text center pointer'>" + _( "Stations Currently Paused" );
+
+		if ( controller.settings.pt ) {
+			line += " <span id='countdown' class='nobr'>(" + sec2hms( controller.settings.pt ) + " " + _( "remaining" ) + ")</span>";
+		}
+
+		line += "</p>";
+
+		changeStatus( controller.settings.pt || 0, "yellow", line, function() {
+			areYouSure( _( "Do you want to resume station operation?" ), "", function() {
+				showLoading( "#footer-running" );
+				sendToOS( "/pq?pw=&dur=0" ).done( function() {
+					setTimeout( refreshStatus, 1000 );
+				} );
+			} );
+		} );
+		return;
+	}
+
 	// Handle open stations
 	open = {};
 	for ( i = 0; i < controller.status.length; i++ ) {
-		if ( controller.status[ i ] && !isStationMaster( i ) ) {
+		if ( controller.status[ i ] && !Station.isMaster( i ) ) {
 			open[ i ] = controller.status[ i ];
 		}
 	}
@@ -6160,7 +6701,7 @@ function checkStatus() {
 
 		for ( i in open ) {
 			if ( open.hasOwnProperty( i ) ) {
-				tmp = controller.settings.ps[ i ][ 1 ];
+				tmp = Station.getRemainingRuntime( i );
 				if ( tmp > ptotal ) {
 					ptotal = tmp;
 				}
@@ -6168,7 +6709,7 @@ function checkStatus() {
 		}
 
 		sample = Object.keys( open )[ 0 ];
-		pid    = controller.settings.ps[ sample ][ 0 ];
+		pid    = Station.getPID( sample );
 		pname  = pidname( pid );
 		line   = "<div><div class='running-icon'></div><div class='running-text pointer'>";
 
@@ -6184,14 +6725,14 @@ function checkStatus() {
 	// Handle a single station open
 	match = false;
 	for ( i = 0; i < controller.stations.snames.length; i++ ) {
-		if ( controller.settings.ps[ i ] && controller.settings.ps[ i ][ 0 ] && controller.status[ i ] && !isStationMaster( i ) ) {
+		if ( controller.settings.ps[ i ] && Station.getPID( i ) && Station.getStatus( i ) && !Station.isMaster( i ) ) {
 			match = true;
-			pid = controller.settings.ps[ i ][ 0 ];
+			pid = Station.getPID( i );
 			pname = pidname( pid );
 			line = "<div><div class='running-icon'></div><div class='running-text pointer'>";
-			line += pname + " " + _( "is running on station" ) + " <span class='nobr'>" + controller.stations.snames[ i ] + "</span> ";
-			if ( controller.settings.ps[ i ][ 1 ] > 0 ) {
-				line += "<span id='countdown' class='nobr'>(" + sec2hms( controller.settings.ps[ i ][ 1 ] ) + " " + _( "remaining" ) + ")</span>";
+			line += pname + " " + _( "is running on station" ) + " <span class='nobr'>" + Station.getName( i ) + "</span> ";
+			if ( Station.getRemainingRuntime( i ) > 0 ) {
+				line += "<span id='countdown' class='nobr'>(" + sec2hms( Station.getRemainingRuntime( i ) ) + " " + _( "remaining" ) + ")</span>";
 			}
 			line += "</div></div>";
 			break;
@@ -6199,7 +6740,7 @@ function checkStatus() {
 	}
 
 	if ( match ) {
-		changeStatus( controller.settings.ps[ i ][ 1 ], "green", line, goHome );
+		changeStatus( Station.getRemainingRuntime( i ), "green", line, goHome );
 		return;
 	}
 
@@ -6211,7 +6752,7 @@ function checkStatus() {
 				areYouSure( _( "Do you want to turn off rain delay?" ), "", function() {
 					showLoading( "#footer-running" );
 					sendToOS( "/cv?pw=&rd=0" ).done( function() {
-						updateController();
+						refreshStatus( updateWeather );
 					} );
 				} );
 			}
@@ -6265,21 +6806,48 @@ function checkStatus() {
 }
 
 function calculateTotalRunningTime( runTimes ) {
-	var sequential = 0,
+	var sdt = controller.options.sdt,
+		sequential, parallel;
+	if ( Supported.groups() ) {
+		sequential = new Array( NUM_SEQ_GROUPS ).fill( 0 );
 		parallel = 0;
-
-	$.each( controller.stations.snames, function( i ) {
-		var run = runTimes[ i ];
-		if ( isStationSequential( i ) ) {
-			sequential += run;
-		} else {
-			if ( run > parallel ) {
-				parallel = run;
+		var sequentialMax = 0;
+		$.each( controller.stations.snames, function( i ) {
+			var run = runTimes[ i ];
+			var gid = Station.getGIDValue( i );
+			if ( run > 0 ) {
+				if ( gid !== PARALLEL_GID_VALUE ) {
+					sequential[ gid ] += ( run + sdt );
+				} else {
+					if ( run > parallel ) {
+						parallel = run;
+					}
+				}
 			}
+		} );
+		for ( var d = 0; d < NUM_SEQ_GROUPS; d++ )	{
+			if ( sequential[ d ] > sdt ) { sequential[ d ] -= sdt; }
+			if ( sequential[ d ] > sequentialMax ) { sequentialMax = sequential[ d ]; }
 		}
-	} );
-
-	return Math.max( sequential, parallel );
+		return Math.max( sequentialMax, parallel );
+	} else {
+		sequential = 0;
+		parallel = 0;
+		$.each( controller.stations.snames, function( i ) {
+			var run = runTimes[ i ];
+			if ( run > 0 ) {
+				if ( Station.isSequential( i ) ) {
+					sequential += ( run + sdt );
+				} else {
+					if ( run > parallel ) {
+						parallel = run;
+					}
+				}
+			}
+		} );
+		if ( sequential > sdt ) { sequential -= sdt; } // Discount the last sdt
+		return Math.max( sequential, parallel );
+	}
 }
 
 // Handle timer update on the home page and status bar
@@ -6473,12 +7041,12 @@ var getManual = ( function() {
 		page.find( "#mmm" ).prop( "checked", controller.settings.mm ? true : false );
 
 		$.each( controller.stations.snames, function( i, station ) {
-			if ( isStationMaster( i ) ) {
+			if ( Station.isMaster( i ) ) {
 				list += "<li data-icon='false' class='center" + ( ( controller.status[ i ] ) ? " green" : "" ) +
-					( isStationDisabled( i ) ? " station-hidden' style='display:none" : "" ) + "'>" + station + " (" + _( "Master" ) + ")</li>";
+					( Station.isDisabled( i ) ? " station-hidden' style='display:none" : "" ) + "'>" + station + " (" + _( "Master" ) + ")</li>";
 			} else {
 				list += "<li data-icon='false'><a class='mm_station center" + ( ( controller.status[ i ] ) ? " green" : "" ) +
-					( isStationDisabled( i ) ? " station-hidden' style='display:none" : "" ) + "'>" + station + "</a></li>";
+					( Station.isDisabled( i ) ? " station-hidden' style='display:none" : "" ) + "'>" + station + "</a></li>";
 			}
 		} );
 
@@ -6523,7 +7091,7 @@ var getRunonce = ( function() {
 		},
 		fillRunonce = function( data ) {
 			page.find( "[id^='zone-']" ).each( function( a, b ) {
-				if ( isStationMaster( a ) ) {
+				if ( Station.isMaster( a ) ) {
 					return;
 				}
 
@@ -6578,12 +7146,12 @@ var getRunonce = ( function() {
 		quickPick += "</select>";
 		list += quickPick + "<form>";
 		$.each( controller.stations.snames, function( i, station ) {
-			if ( isStationMaster( i ) ) {
-				list += "<div class='ui-field-contain duration-input" + ( isStationDisabled( i ) ? " station-hidden' style='display:none" : "" ) + "'>" +
+			if ( Station.isMaster( i ) ) {
+				list += "<div class='ui-field-contain duration-input" + ( Station.isDisabled( i ) ? " station-hidden' style='display:none" : "" ) + "'>" +
 					"<label for='zone-" + i + "'>" + station + ":</label>" +
 					"<button disabled='true' data-mini='true' name='zone-" + i + "' id='zone-" + i + "' value='0'>Master</button></div>";
 			} else {
-				list += "<div class='ui-field-contain duration-input" + ( isStationDisabled( i ) ? " station-hidden' style='display:none" : "" ) + "'>" +
+				list += "<div class='ui-field-contain duration-input" + ( Station.isDisabled( i ) ? " station-hidden' style='display:none" : "" ) + "'>" +
 					"<label for='zone-" + i + "'>" + station + ":</label>" +
 					"<button data-mini='true' name='zone-" + i + "' id='zone-" + i + "' value='0'>0s</button></div>";
 			}
@@ -6697,10 +7265,10 @@ function submitRunonce( runonce ) {
 				goBack();
 			} );
 		},
-		isOn = isRunning();
+		isOn = StationQueue.isActive();
 
 	if ( isOn !== -1 ) {
-		areYouSure( _( "Do you want to stop the currently running program?" ), pidname( controller.settings.ps[ isOn ][ 0 ] ), function() {
+		areYouSure( _( "Do you want to stop the currently running program?" ), pidname( Station.getPID( isOn ) ), function() {
 			$.mobile.loading( "show" );
 			stopStations( submit );
 		} );
@@ -6776,7 +7344,8 @@ var getPreview = ( function() {
 			qidArray = new Array( nstations ),
 			lastStopTime = 0,
 			lastSeqStopTime = 0,
-			busy, matchFound, prog, sid, qid, q, sqi, bid, bid2, s, s2;
+			lastSeqStopTimes = new Array( NUM_SEQ_GROUPS ), // Use this array if seq group is available
+			busy, matchFound, prog, sid, qid, d, q, sqi, bid, bid2, s, s2;
 
 		for ( sid = 0; sid < nstations; sid++ ) {
 			startArray[ sid ] = -1;
@@ -6785,6 +7354,7 @@ var getPreview = ( function() {
 			plArray[ sid ] = 0;
 			qidArray[ sid ] = 0xFF;
 		}
+		for ( d = 0; d < NUM_SEQ_GROUPS; d++ ) { lastSeqStopTimes[ d ] = 0; }
 
 		do {
 			busy = 0;
@@ -6797,7 +7367,7 @@ var getPreview = ( function() {
 						s = sid % 8;
 
 						// Skip master station
-						if ( isStationMaster( sid ) ) {
+						if ( Station.isMaster( sid ) ) {
 							continue;
 						}
 
@@ -6813,6 +7383,8 @@ var getPreview = ( function() {
 								var waterTime = 0;
 
 								// Use weather scaling bit on
+								// * if options.uwt >0: using an automatic adjustment method, only applies to today
+								// * if options.uwt==0: using fixed manual adjustment, does not depend on tday
 								if ( prog[ 0 ] & 0x02 && ( ( controller.options.uwt > 0 && simday === devday ) || controller.options.uwt === 0 ) ) {
 									waterTime = getStationDuration( prog[ 4 ][ sid ], simt ) * controller.options.wl / 100 >> 0;
 								} else {
@@ -6830,6 +7402,7 @@ var getPreview = ( function() {
 												dur: waterTime,
 												sid: sid,
 												pid: pid + 1,
+												gid: controller.stations.stn_grp ? controller.stations.stn_grp[ sid ] : -1,
 												pl: 1
 											} );
 										}
@@ -6840,7 +7413,7 @@ var getPreview = ( function() {
 									matchFound = 1;
 								}
 							}
-						} else {
+						} else { // If !is21
 							if ( prog[ 7 + bid ] & ( 1 << s ) ) {
 								endArray[ sid ] = prog[ 6 ] * controller.options.wl / 100 >> 0;
 								programArray[ sid ] = pid + 1;
@@ -6852,11 +7425,19 @@ var getPreview = ( function() {
 			}
 			if ( matchFound ) {
 				var acctime = simminutes * 60,
-					seqAcctime = acctime;
+					seqAcctime = acctime,
+					seqAcctimes = new Array( NUM_SEQ_GROUPS );
 
 				if ( is211 ) {
 					if ( lastSeqStopTime > acctime ) {
 						seqAcctime = lastSeqStopTime + controller.options.sdt;
+					}
+
+					for ( d = 0; d < NUM_SEQ_GROUPS; d++ ) {
+						seqAcctimes[ d ] = acctime;
+						if ( lastSeqStopTimes[ d ] > acctime ) {
+							seqAcctimes[ d ] = lastSeqStopTimes[ d ] + controller.options.sdt;
+						}
 					}
 
 					if ( is216 ) {
@@ -6872,17 +7453,29 @@ var getPreview = ( function() {
 							sid = q.sid;
 							bid2 = sid >> 3;
 							s2 = sid & 0x07;
-							if ( controller.stations.stn_seq[ bid2 ] & ( 1 << s2 ) ) {
-								q.st = seqAcctime;
-								seqAcctime += q.dur;
-								seqAcctime += controller.options.sdt;
-							} else {
-								q.st = acctime;
-								acctime++;
+							if ( q.gid === -1 ) { // Group id is not available
+								if ( controller.stations.stn_seq[ bid2 ] & ( 1 << s2 ) ) {
+									q.st = seqAcctime;
+									seqAcctime += q.dur;
+									seqAcctime += controller.options.sdt;
+								} else {
+									q.st = acctime;
+									acctime++;
+								}
+							} else { // Group id is available
+								if ( q.gid !== PARALLEL_GID_VALUE ) { // This is a sequential station
+									q.st = seqAcctimes[ q.gid ];
+									seqAcctimes[ q.gid ] += q.dur;
+									seqAcctimes[ q.gid ] += controller.options.sdt;
+								} else { // This is a parallel station
+									q.st = acctime;
+									acctime++;
+								}
+
 							}
 							busy = 1;
 						}
-					} else {
+					} else { // !is216
 						for ( sid = 0; sid < nstations; sid++ ) {
 							bid2 = sid >> 3;
 							s2 = sid & 0x07;
@@ -6901,7 +7494,7 @@ var getPreview = ( function() {
 							busy = 1;
 						}
 					}
-				} else {
+				} else { // !is21
 					if ( is21 && controller.options.seq ) {
 						if ( lastStopTime > acctime ) {
 							acctime = lastStopTime + controller.options.sdt;
@@ -6926,7 +7519,7 @@ var getPreview = ( function() {
 							busy = 1;
 						}
 					}
-				}
+				} // End of !is21
 			}
 			if ( is216 ) {
 
@@ -6976,19 +7569,28 @@ var getPreview = ( function() {
 
 				// Lastly, calculate lastSeqStopTime
 				lastSeqStopTime = 0;
+				for ( d = 0; d < NUM_SEQ_GROUPS; d++ ) { lastSeqStopTime[ d ] = 0; }
 				for ( qid = 0; qid < rtQueue.length; qid++ ) {
 					q = rtQueue[ qid ];
 					sid = q.sid;
 					bid2 = sid >> 3;
 					s2 = sid & 0x07;
 					var sst = q.st + q.dur;
-					if ( controller.stations.stn_seq[ bid2 ] & ( 1 << s2 ) ) {
-						if ( sst > lastSeqStopTime ) {
-							lastSeqStopTime = sst;
+					if ( q.gid === -1 ) { // Group id is not available
+						if ( controller.stations.stn_seq[ bid2 ] & ( 1 << s2 ) ) {
+							if ( sst > lastSeqStopTime ) {
+								lastSeqStopTime = sst;
+							}
+						}
+					} else { // Group id is available
+						if ( q.gid !== PARALLEL_GID_VALUE ) {
+							if ( sst > lastSeqStopTimes[ q.gid ] ) {
+								lastSeqStopTimes[ q.gid ] = sst;
+							}
 						}
 					}
 				}
-			} else {
+			} else { // If !is216
 
 				// Handle firmwares prior to 2.1.6
 				if ( busy ) {
@@ -7045,7 +7647,7 @@ var getPreview = ( function() {
 					useMas1 = controller.stations.masop[ sid >> 3 ] & ( 1 << ( sid % 8 ) ),
 					useMas2 = mas2 ? controller.stations.masop2[ sid >> 3 ] & ( 1 << ( sid % 8 ) ) : false;
 
-				if ( !isStationMaster( sid ) ) {
+				if ( !Station.isMaster( sid ) ) {
 					if ( controller.options.mas > 0 && useMas1 ) {
 						previewData.push( {
 							"start": ( q.st + controller.options.mton ),
@@ -7086,7 +7688,7 @@ var getPreview = ( function() {
 						useMas1 = controller.stations.masop[ sid >> 3 ] & ( 1 << ( sid % 8 ) ),
 						useMas2 = mas2 ? controller.stations.masop2[ sid >> 3 ] & ( 1 << ( sid % 8 ) ) : false;
 
-					if ( !isStationMaster( sid ) ) {
+					if ( !Station.isMaster( sid ) ) {
 						if ( controller.options.mas > 0 && useMas1 ) {
 							previewData.push( {
 								"start": ( startArray[ sid ] + controller.options.mton ),
@@ -7120,7 +7722,7 @@ var getPreview = ( function() {
 				}
 			  } else {
 				if ( controller.options.seq === 1 ) {
-					if ( isStationMaster( sid ) && ( controller.stations.masop[ sid >> 3 ] & ( 1 << ( sid % 8 ) ) ) ) {
+					if ( Station.isMaster( sid ) && ( controller.stations.masop[ sid >> 3 ] & ( 1 << ( sid % 8 ) ) ) ) {
 						previewData.push( {
 							"start": ( startArray[ sid ] + controller.options.mton ),
 							"end": ( endArray[ sid ] + controller.options.mtof ),
@@ -7135,7 +7737,7 @@ var getPreview = ( function() {
 					endtime = endArray[ sid ];
 				} else {
 					timeToText( sid, simseconds, programArray[ sid ], endArray[ sid ], simt );
-					if ( isStationMaster( sid ) && ( controller.stations.masop[ sid >> 3 ] & ( 1 << ( sid % 8 ) ) ) ) {
+					if ( Station.isMaster( sid ) && ( controller.stations.masop[ sid >> 3 ] & ( 1 << ( sid % 8 ) ) ) ) {
 						endtime = ( endtime > endArray[ sid ] ) ? endtime : endArray[ sid ];
 					}
 				}
@@ -7166,7 +7768,7 @@ var getPreview = ( function() {
 			( simt + start + ( controller.options.tz - 48 ) * 900 <= controller.settings.rdst * 1000 ) ||
 			controller.options.urs === 1 && controller.settings.rs === 1 ) &&
 			( typeof controller.stations.ignore_rain === "object" &&
-				( controller.stations.ignore_rain[ parseInt( sid / 8 ) ] & ( 1 << ( sid % 8 ) ) ) === 0 ) ) {
+				( controller.stations.ignore_rain[ ( sid / 8 ) >> 0 ] & ( 1 << ( sid % 8 ) ) ) === 0 ) ) {
 
 			className = "delayed";
 		}
@@ -7242,6 +7844,20 @@ var getPreview = ( function() {
 			type = ( prog[ 0 ] >> 4 ) & 0x03,
 			date = new Date( simt );
 
+		var dt = date.getUTCDate();
+		var mt = date.getUTCMonth() + 1;
+		var dr = prog[ 6 ];
+		if ( typeof dr === "object" ) { // Daterange is available
+			if ( dr[ 0 ] ) { // Check date range if enabled
+				var currdate = ( mt << 5 ) + dt;
+				if ( dr[ 1 ] <= dr[ 2 ] ) {
+					if ( currdate < dr[ 1 ] || currdate > dr[ 2 ] ) { return 0; }
+				} else {
+					if ( currdate > dr[ 2 ] && currdate < dr[ 1 ] ) { return 0; }
+				}
+			}
+		}
+
 		if ( type === 3 ) {
 
 			// Interval program
@@ -7263,7 +7879,6 @@ var getPreview = ( function() {
 		}
 
 		// Odd/Even restriction handling
-		var dt = date.getUTCDate();
 
 		if ( oddeven === 2 ) {
 			if ( ( dt % 2 ) !== 0 ) {
@@ -7647,7 +8262,7 @@ var getLogs = ( function() {
 						return;
 					}
 				} else if ( typeof station === "number" ) {
-					if ( station > stations.length - 2 || isStationMaster( station ) ) {
+					if ( station > stations.length - 2 || Station.isMaster( station ) ) {
 						return;
 					}
 
@@ -8133,6 +8748,19 @@ function clearLogs( callback ) {
 	} );
 }
 
+function clearPrograms( callback ) {
+	areYouSure( _( "Are you sure you want to delete ALL programs?" ), "", function() {
+		var url = "/dp?pw=&pid=-1";
+		$.mobile.loading( "show" );
+		sendToOS( url ).done( function() {
+			if ( typeof callback === "function" ) {
+				callback();
+			}
+			showerror( _( "Programs have been deleted" ) );
+		} );
+	} );
+}
+
 function resetAllOptions( callback ) {
 	areYouSure( _( "Are you sure you want to delete all settings and return to the default settings?" ), "", function() {
 		var co;
@@ -8140,9 +8768,17 @@ function resetAllOptions( callback ) {
 		if ( isOSPi() ) {
 			co = "otz=32&ontp=1&onbrd=0&osdt=0&omas=0&omton=0&omtoff=0&orst=1&owl=100&orlp=0&ouwt=0&olg=1&oloc=Boston,MA";
 		} else {
-			co = "o1=32&o2=1&o3=1&o12=80&o13=0&o15=0&o17=0&o18=0&o19=0&o20=0&o22=1&o23=100&o26=0&o27=110&o28=100&o29=15&" +
-				"o30=0&o31=0&o32=50&o33=97&o34=210&o35=169&o36=1&o37=0&o38=0&o39=0&loc=Boston,MA&wto=%22key%22%3A%22%22";
-			transformKeysinString( co );
+			co = "o2=1&o3=1&o12=80&o13=0&o15=0&o17=0&o18=0&o19=0&o20=0&o22=1&o23=100&o26=0&o27=110&o28=100&o29=15&" +
+				"o30=320&o31=0&o36=1&o37=0&o38=0&o39=0&o41=100&o42=0&o43=0&o44=8&o45=8&o46=8&o47=8&" +
+				"o48=0&o49=0&o50=0&o51=1&o52=0&o53=1&o54=0&o55=0&o56=0&o57=0&";
+			if ( checkOSVersion( 2199 ) ) {
+				co += "o32=0&o33=0&o34=0&o35=0&"; // For newer firmwares, resets ntp to 0.0.0.0
+			} else {
+				co += "o32=216&o33=239&o34=35&o35=12&"; // Time.google.com
+			}
+			co += "loc=Boston,MA&wto=%22key%22%3A%22%22";
+
+			co = transformKeysinString( co );
 		}
 
 		sendToOS( "/co?pw=&" + co ).done( function() {
@@ -8613,7 +9249,7 @@ function makeProgram183( n, isCopy ) {
 
 	for ( j = 0; j < controller.stations.snames.length; j++ ) {
 		list += "<label for='station_" + j + "-" + id + "'><input " +
-			( isStationDisabled( j ) ? "data-wrapper-class='station-hidden hidden' " : "" ) +
+			( Station.isDisabled( j ) ? "data-wrapper-class='station-hidden hidden' " : "" ) +
 			"data-mini='true' type='checkbox' " + ( ( ( typeof setStations !== "undefined" ) && setStations[ j ] ) ? "checked='checked'" : "" ) +
 			" name='station_" + j + "-" + id + "' id='station_" + j + "-" + id + "'>" + controller.stations.snames[ j ] + "</label>";
 	}
@@ -8751,7 +9387,7 @@ function makeProgram21( n, isCopy ) {
 	// Progran name
 	list += "<label for='name-" + id + "'>" + _( "Program Name" ) + "</label>" +
 		"<input data-mini='true' type='text' name='name-" + id + "' id='name-" + id + "' maxlength='" + controller.programs.pnsize + "' " +
-		"placeholder='" + _( "Program" ) + " " + ( controller.programs.pd.length + 1 ) + "' value='" + program.name + "'>";
+		"placeholder='" + _( "Program" ) + " " + ( controller.programs.pd.length + 1 ) + "' value=\"" + program.name + "\">";
 
 	// Program enable/disable flag
 	list += "<label for='en-" + id + "'><input data-mini='true' type='checkbox' " +
@@ -8761,8 +9397,37 @@ function makeProgram21( n, isCopy ) {
 	list += "<label for='uwt-" + id + "'><input data-mini='true' type='checkbox' " +
 		( ( program.weather ) ? "checked='checked'" : "" ) + " name='uwt-" + id + "' id='uwt-" + id + "'>" + _( "Use Weather Adjustment" ) + "</label>";
 
+	if ( Supported.dateRange() ) {
+		var from = Program.getDateRangeStart( id ),
+			to = Program.getDateRangeEnd( id );
+
+		list += "<label for='use-dr-" + id + "'>" +
+					"<input data-mini='true' type='checkbox' " +
+					( ( Program.isDateRangeEnabled( id ) ) ? "checked='checked'" : "" ) + " name='use-dr-" + id + "' id='use-dr-" + id + "'>" +
+					 _( "Enable Date Range" ) +
+				"</label>";
+
+		list += "<div id='date-range-options-" + id + "'" + ( ( Program.isDateRangeEnabled( id ) ) ? "" : "style='display:none'" ) + ">";
+		list += "<div class='ui-grid-a' style=''>" +
+						"<div class='ui-block-a drfrom'>" +
+							"<label class='center' for='from-dr-" + id + "'>" + _( "From (mm/dd)" ) + "</label>" +
+							"<div class='dr-input'>" +
+								"<input type='text' placeholder='MM/DD' id='from-dr-" + id + "' value=" + decodeDate( from ) + "></input>" +
+							"</div>" +
+						"</div>" +
+						"<div class='ui-block-b drto'>" +
+							"<label class='center' for='to-dr-" + id + "'>" + _( "To (mm/dd)" ) + "</label>" +
+							"<div class='dr-input'>" +
+								"<input type='text' placeholder='MM/DD' id='to-dr-" + id + "' value=" + decodeDate( to ) + "></input>" +
+							"</div>" +
+						"</div>" +
+					"</div>" +
+				"</div>";
+	}
+
 	// Show start time menu
-	list += "<label class='center' for='start_1-" + id + "'>" + _( "Start Time" ) + "</label><button class='timefield' data-mini='true' id='start_1-" + id + "' value='" + times[ 0 ] + "'>" + readStartTime( times[ 0 ] ) + "</button>";
+	list += "<label class='center' for='start_1-" + id + "'>" + _( "Start Time" ) + "</label><button class='timefield' data-mini='true' id='start_1-" + id +
+		"' value='" + times[ 0 ] + "'>" + readStartTime( times[ 0 ] ) + "</button>";
 
 	// Close basic settings group
 	list += "</div></div></div></div>";
@@ -8822,14 +9487,14 @@ function makeProgram21( n, isCopy ) {
 
 	// Show station duration inputs
 	for ( j = 0; j < controller.stations.snames.length; j++ ) {
-		if ( isStationMaster( j ) ) {
-			list += "<div class='ui-field-contain duration-input" + ( isStationDisabled( j ) ? " station-hidden" + hideDisabled : "" ) + "'>" +
+		if ( Station.isMaster( j ) ) {
+			list += "<div class='ui-field-contain duration-input" + ( Station.isDisabled( j ) ? " station-hidden" + hideDisabled : "" ) + "'>" +
 				"<label for='station_" + j + "-" + id + "'>" + controller.stations.snames[ j ] + ":</label>" +
 				"<button disabled='true' data-mini='true' name='station_" + j + "-" + id + "' id='station_" + j + "-" + id + "' value='0'>" +
 				_( "Master" ) + "</button></div>";
 		} else {
 			time = program.stations[ j ] || 0;
-			list += "<div class='ui-field-contain duration-input" + ( isStationDisabled( j ) ? " station-hidden" + hideDisabled : "" ) + "'>" +
+			list += "<div class='ui-field-contain duration-input" + ( Station.isDisabled( j ) ? " station-hidden" + hideDisabled : "" ) + "'>" +
 				"<label for='station_" + j + "-" + id + "'>" + controller.stations.snames[ j ] + ":</label>" +
 				"<button " + ( time > 0 ? "class='green' " : "" ) + "data-mini='true' name='station_" + j + "-" + id + "' " +
 					"id='station_" + j + "-" + id + "' value='" + time + "'>" + getDurationText( time ) + "</button></div>";
@@ -8897,6 +9562,13 @@ function makeProgram21( n, isCopy ) {
 		$( "[id^='input_" + input[ 0 ] + "_']" ).hide();
 		$( "#input_" + input[ 0 ] + "_" + input[ 1 ] + "-" + id ).show();
 	} );
+
+	// Display date range options when checkbox enabled
+	if ( Supported.dateRange() ) {
+		page.find( "#use-dr-" + id ).on( "click", function() {
+			page.find( "#date-range-options-" + id ).toggle();
+		} );
+	}
 
 	// Handle interval duration input
 	page.find( "[id^='interval-']" ).on( "click", function() {
@@ -9134,7 +9806,7 @@ function submitProgram21( id, ignoreWarning ) {
 		weather = ( $( "#uwt-" + id ).is( ":checked" ) ) ? 1 : 0,
 		j = 0,
 		minIntervalDays = checkOSVersion( 2199 ) ? 1 : 2,
-		daysin, i, name, url;
+		daysin, i, name, url, daterange;
 
 	// Set enable/disable bit for program
 	j |= ( en << 0 );
@@ -9221,6 +9893,25 @@ function submitProgram21( id, ignoreWarning ) {
 	program[ 4 ] = runTimes;
 
 	name = $( "#name-" + id ).val();
+
+	daterange = "";
+
+	// Set date range parameters
+	if ( Supported.dateRange() ) {
+		var enableDateRange = $( "#use-dr-" + id ).is( ":checked" ),
+			from = $( "#from-dr-" + id ).val(),
+			to = $( "#to-dr-" + id ).val();
+
+		var isValidRange = isValidDateRange( from, to );
+		if ( !isValidRange ) {
+			showerror( _( "Error: date range is malformed" ) );
+			return;
+		} else {
+			daterange = "&endr=" + ( enableDateRange ? 1 : 0 ) + "&from=" + encodeDate( from ) + "&to=" + encodeDate( to );
+			program[ 0 ] |= ( enableDateRange ? ( 1 << 7 ) : 0 );
+		}
+	}
+
 	url = "&v=" + JSON.stringify( program ) + "&name=" + encodeURIComponent( name );
 
 	if ( stationSelected === 0 ) {
@@ -9228,12 +9919,15 @@ function submitProgram21( id, ignoreWarning ) {
 		return;
 	}
 
-	if ( !ignoreWarning && $( "#stype_repeat-" + id ).is( ":checked" ) && start[ 1 ] > 0 && calculateTotalRunningTime( runTimes ) > start[ 2 ] * 60 ) {
-		areYouSure( _( "Warning: The repeat interval is less than the program run time." ), _( "Do you want to continue?" ), function() {
-			submitProgram21( id, true );
-		} );
-
-		return;
+	if ( !ignoreWarning && $( "#stype_repeat-" + id ).is( ":checked" ) && start[ 1 ] > 0 ) {
+		var totalruntime = calculateTotalRunningTime( runTimes );
+		var repeatinterval = start[ 2 ] * 60;
+		if ( totalruntime > repeatinterval ) {
+			areYouSure( _( "Warning: The repeat interval (" + repeatinterval + " sec) is less than the program run time (" + totalruntime + " sec)." ), _( "Do you want to continue?" ), function() {
+				submitProgram21( id, true );
+			} );
+			return;
+		}
 	}
 
 	// If the interval is an even number and a restriction is set, notify user of possible conflict
@@ -9246,7 +9940,7 @@ function submitProgram21( id, ignoreWarning ) {
 
 	$.mobile.loading( "show" );
 	if ( id === "new" ) {
-		sendToOS( "/cp?pw=&pid=-1" + url ).done( function() {
+		sendToOS( "/cp?pw=&pid=-1" + url + daterange ).done( function() {
 			$.mobile.loading( "hide" );
 			updateControllerPrograms( function() {
 				$.mobile.document.one( "pageshow", function() {
@@ -9256,7 +9950,7 @@ function submitProgram21( id, ignoreWarning ) {
 			} );
 		} );
 	} else {
-		sendToOS( "/cp?pw=&pid=" + id + url ).done( function() {
+		sendToOS( "/cp?pw=&pid=" + id + url + daterange ).done( function() {
 			$.mobile.loading( "hide" );
 			updateControllerPrograms( function() {
 				updateProgramHeader();
@@ -9435,8 +10129,10 @@ function importConfig( data ) {
 		var cs = "/cs?pw=",
 			co = "/co?pw=",
 			cpStart = "/cp?pw=",
+			ncs = Math.ceil( data.stations.snames.length / 16 ),
+			csi = new Array( ncs ).fill( "/cs?pw=" ),
 			isPi = isOSPi(),
-			i, key, option, station;
+			i, k, key, option, station;
 
 		var findKey = function( index ) { return keyIndex[ index ] === key; };
 
@@ -9484,20 +10180,32 @@ function importConfig( data ) {
 			co += "&ifkey=" + data.settings.ifkey;
 		}
 
+		// Import device name, if available
+		if ( typeof data.settings.dname === "string" && checkOSVersion( 2191 ) ) {
+			co += "&dname=" + data.settings.dname;
+		}
+
 		// Import mqtt options, if available
 		if ( typeof data.settings.mqtt === "object" && checkOSVersion( 2191 ) ) {
 			co += "&mqtt=" + escapeJSON( data.settings.mqtt );
 			}
 
+		if ( typeof data.settings.otc === "object" && checkOSVersion( 2191 ) ) {
+			co += "&otc=" + escapeJSON( data.settings.otc );
+		}
+
 		co += "&" + ( isPi ? "o" : "" ) + "loc=" + data.settings.loc;
 
-		for ( i = 0; i < data.stations.snames.length; i++ ) {
-			if ( checkOSVersion( 208 ) === true ) {
-				station = data.stations.snames[ i ].replace( /\s/g, "_" );
-			} else {
-				station = data.stations.snames[ i ];
+		// Due to potentially large number of zones, we split zone names import to maximum 16 per group
+		for ( k = 0; k < ncs; k++ ) {
+			for ( i = k * 16; i < ( k + 1 ) * 16 && i < data.stations.snames.length; i++ ) {
+				if ( checkOSVersion( 208 ) === true ) {
+					station = data.stations.snames[ i ].replace( /\s/g, "_" );
+				} else {
+					station = data.stations.snames[ i ];
+				}
+				csi[ k ] += "&s" + i + "=" + encodeURIComponent( station );
 			}
-			cs += "&s" + i + "=" + encodeURIComponent( station );
 		}
 
 		for ( i = 0; i < data.stations.masop.length; i++ ) {
@@ -9564,6 +10272,9 @@ function importConfig( data ) {
 			sendToOS( transformKeysinString( co ) ),
 			sendToOS( cs ),
 			sendToOS( "/dp?pw=&pid=-1" ),
+			$.each( csi, function( i, comm ) {
+				sendToOS( comm );
+			} ),
 			$.each( data.programs.pd, function( i, prog ) {
 				var name = "";
 
@@ -9708,7 +10419,7 @@ var showAbout = ( function() {
 					"</li>" +
 				"</ul>" +
 				"<p class='smaller'>" +
-					_( "App Version" ) + ": 2.2.5" +
+					_( "App Version" ) + ": 2.3.0" +
 					"<br>" + _( "Firmware" ) + ": <span class='firmware'></span>" +
 					"<br><span class='hardwareLabel'>" + _( "Hardware Version" ) + ":</span> <span class='hardware'></span>" +
 				"</p>" +
@@ -9744,17 +10455,6 @@ var showAbout = ( function() {
 	return begin;
 } )();
 
-// OpenSprinkler controller methods
-function isRunning() {
-	for ( var i = 0; i < controller.status.length; i++ ) {
-		if ( controller.status[ i ] > 0 && controller.settings.ps[ i ][ 0 ] > 0 ) {
-			return i;
-		}
-	}
-
-	return -1;
-}
-
 function stopStations( callback ) {
 	$.mobile.loading( "show" );
 
@@ -9785,8 +10485,10 @@ function isOSPi() {
 
 // Check if password is valid
 function checkPW( pass, callback ) {
+	var urlDest = "/sp?pw=" + encodeURIComponent( pass ) + "&npw=" + encodeURIComponent( pass ) + "&cpw=" + encodeURIComponent( pass );
+
 	$.ajax( {
-		url: currPrefix + currIp + "/sp?pw=" + encodeURIComponent( pass ) + "&npw=" + encodeURIComponent( pass ) + "&cpw=" + encodeURIComponent( pass ),
+		url: currToken ? "https://cloud.openthings.io/forward/v1/" + currToken + urlDest : currPrefix + currIp + urlDest,
 		cache: false,
 		crossDomain: true,
 		type: "GET"
@@ -9930,8 +10632,10 @@ function changePassword( opt ) {
 				pw = md5( sites[ current ].os_pw );
 
 			if ( !isMD5( sites[ current ].os_pw ) ) {
+				var urlDest = "/jc?pw=" + pw;
+
 				$.ajax( {
-					url: currPrefix + currIp + "/jc?pw=" + pw,
+					url: currToken ? "https://cloud.openthings.io/forward/v1/" + currToken + urlDest : currPrefix + currIp + urlDest,
 					type: "GET",
 					dataType: "json"
 				} ).then(
@@ -10440,6 +11144,10 @@ function checkPublicAccess( eip ) {
 		return;
 	}
 
+	if ( currToken ) {
+		return;
+	}
+
 	var ip = intToIP( eip ),
 		port = currIp.match( /.*:(\d+)/ ),
 		fail = function() {
@@ -10899,10 +11607,17 @@ function getHWType() {
 }
 
 // Accessory functions for jQuery Mobile
-function areYouSure( text1, text2, success, fail ) {
+function areYouSure( text1, text2, success, fail, options ) {
+
 	$( "#sure" ).popup( "destroy" ).remove();
 	success = success || function() {};
 	fail = fail || function() {};
+
+	var showShiftDialog = 0;
+	if ( typeof options === "object" ) {
+		showShiftDialog = ( options.type === dialog.REMOVE_STATION ) &&
+			Groups.canShift( options.gid ) && Station.isSequential( options.station );
+	}
 
 	var popup = $(
 		"<div data-role='popup' data-theme='a' id='sure'>" +
@@ -10910,6 +11625,7 @@ function areYouSure( text1, text2, success, fail ) {
 			"<p class='sure-2 center'>" + text2 + "</p>" +
 			"<a class='sure-do ui-btn ui-btn-b ui-corner-all ui-shadow' href='#'>" + _( "Yes" ) + "</a>" +
 			"<a class='sure-dont ui-btn ui-corner-all ui-shadow' href='#'>" + _( "No" ) + "</a>" +
+			( showShiftDialog ? "<label><input id='shift-sta' type='checkbox'>Move up remaining stations in the same sequential group?</label>" : "" ) +
 		"</div>"
 	);
 
@@ -11776,6 +12492,15 @@ function openPopup( popup, args ) {
 	$.mobile.pageContainer.append( popup );
 
 	popup.one( "popupafterclose", function() {
+
+		// Retreive popup data
+		var updateRemainingStations = $( "#shift-sta" ).is( ":checked" );
+
+		// Save data before view is destroyed
+		if ( updateRemainingStations !== undefined ) {
+			popupData.shift = updateRemainingStations;
+		}
+
 		popup.popup( "destroy" ).remove();
 	} ).popup( args ).enhanceWithin();
 
@@ -11997,7 +12722,7 @@ function showerror( msg, dur ) {
 	errorTimeout = setTimeout( function() {$.mobile.loading( "hide" );}, dur );
 }
 
-function loadUnitSetting() {
+function loadLocalSettings() {
 	storage.get( "isMetric", function( data ) {
 
 		// We are using a switch because the boolean gets stored as a string
@@ -12009,6 +12734,17 @@ function loadUnitSetting() {
 				break;
 			case "false":
 				isMetric = false;
+				break;
+			default:
+		}
+	} );
+	storage.get( "groupView", function( data ) {
+		switch ( data.groupView ) {
+			case "true":
+				groupView = true;
+				break;
+			case "false":
+				groupView = false;
 				break;
 			default:
 		}
@@ -12119,7 +12855,7 @@ function dhms2sec( arr ) {
 }
 
 function isControllerConnected() {
-	if ( currIp === "" ||
+	if ( ( !currIp && !currToken ) ||
 		$.isEmptyObject( controller ) ||
 		$.isEmptyObject( controller.options ) ||
 		$.isEmptyObject( controller.programs ) ||
@@ -12513,4 +13249,475 @@ function transformKeysinString( co ) {
 	Object.keys( opt ).forEach( function( key ) { arr.push( key + "=" + opt[ key ] ); } );
 	co = arr.join( "&" );
 	return co;
+}
+
+/* Compatability methods, verify that necessary data is
+ * sent from the controller to the UI without explicitly
+ * checking for OS version. */
+
+function Supported() {}
+
+Supported.master = function( masid ) {
+	switch ( masid ) {
+		case MASTER_STATION_1:
+			return controller.options.mas ? true : false;
+		case MASTER_STATION_2:
+			return controller.options.mas2 ? true : false;
+		default:
+			return false;
+	}
+};
+
+Supported.ignoreRain = function() {
+	return ( typeof controller.stations.ignore_rain === "object" ) ? true : false;
+};
+
+Supported.ignoreSensor = function( sensorID ) {
+	switch ( sensorID ) {
+		case IGNORE_SENSOR_1:
+			return ( typeof controller.stations.ignore_sn1 === "object" ) ? true : false;
+		case IGNORE_SENSOR_2:
+			return ( typeof controller.stations.ignore_sn2 === "object" ) ? true : false;
+		default:
+			return false;
+	}
+};
+
+Supported.actRelay = function() {
+	return ( typeof controller.stations.act_relay === "object" ) ? true : false;
+};
+
+Supported.disabled = function() {
+	return ( typeof controller.stations.stn_dis === "object" ) ? true : false;
+};
+
+Supported.sequential = function() {
+	if ( checkOSVersion( 220 ) ) {
+		return false;
+	}
+	return ( typeof controller.stations.stn_seq === "object" ) ? true : false;
+};
+
+Supported.special = function() {
+	return ( typeof controller.stations.stn_spe === "object" ) ? true : false;
+};
+
+Supported.pausing = function() {
+	return controller.settings.pq !== undefined;
+};
+
+Supported.groups = function() {
+	return getNumberProgramStatusOptions() >= 4;
+};
+
+Supported.dateRange = function() {
+	return checkOSVersion( 220 );
+};
+
+/* Station accessor methods */
+
+function Station() {}
+
+var ProgramStatusOptions = {
+	PID: 0,
+	REM: 1,
+	START: 2,
+	GID: 3
+};
+
+function getNumberProgramStatusOptions() {
+	if ( controller.settings.ps.length <= 0 ) {
+		return undefined;
+	}
+	return controller.settings.ps[ 0 ].length;
+}
+
+Station.getName = function( sid ) {
+	return controller.stations.snames[ sid ];
+};
+
+Station.setName = function( sid, value ) {
+	controller.settings.snames[ sid ] = value;
+};
+
+Station.getPID = function( sid ) {
+	return controller.settings.ps[ sid ][ ProgramStatusOptions.PID ];
+};
+
+Station.setPID = function( sid, value ) {
+	controller.settings.ps[ sid ][ ProgramStatusOptions.PID ] = value;
+};
+
+Station.getRemainingRuntime = function( sid ) {
+	return controller.settings.ps[ sid ][ ProgramStatusOptions.REM ];
+};
+
+Station.setRemainingRuntime = function( sid, value ) {
+	controller.settings.ps[ sid ][ ProgramStatusOptions.REM ] = value;
+};
+
+Station.getStartTime = function( sid ) {
+	return controller.settings.ps[ sid ][ ProgramStatusOptions.START ];
+};
+
+Station.setStartTime = function( sid, value ) {
+	controller.settings.ps[ sid ][ ProgramStatusOptions.START ] = value;
+};
+
+Station.getGIDValue = function( sid ) {
+	if ( !Supported.groups() ) {
+		return undefined;
+	}
+	return controller.settings.ps[ sid ][ ProgramStatusOptions.GID ];
+};
+
+Station.setGIDValue = function( sid, value ) {
+	if ( !Supported.groups() ) {
+		return;
+	}
+	controller.settings.ps[ sid ][ ProgramStatusOptions.GID ] = value;
+};
+
+Station.getStatus = function( sid ) {
+	return controller.status[ sid ];
+};
+
+Station.setStatus = function( sid, value ) {
+	controller.status[ sid ] = value;
+};
+
+Station.isRunning = function( sid ) {
+	return Station.getStatus( sid ) > 0;
+};
+
+Station.isMaster = function( sid ) {
+	var m1 = typeof controller.options.mas === "number" ? controller.options.mas : 0,
+		m2 = typeof controller.options.mas2 === "number" ? controller.options.mas2 : 0;
+
+	sid++;
+
+	if ( m1 === sid ) {
+		return 1;
+	} else if ( m2 === sid ) {
+		return 2;
+	} else {
+		return 0;
+	}
+};
+
+Station.isSequential = function( sid ) {
+	return StationAttribute.getSequential( sid ) > 0;
+};
+
+Station.isSpecial = function( sid ) {
+	return StationAttribute.getSpecial( sid ) > 0;
+};
+
+Station.isDisabled = function( sid )  {
+	return StationAttribute.getDisabled( sid ) > 0;
+};
+
+function StationAttribute() {}
+
+// Determines if a station is bound to the master (masid)
+StationAttribute.getMasterOperation = function( sid, masid ) {
+	var bid = ( sid / 8 ) >> 0,
+		sourceMasterAttribute;
+
+	if ( !Supported.master( masid ) ) { return 0; }
+
+	switch ( masid ) {
+		case MASTER_STATION_1:
+			sourceMasterAttribute = controller.stations.masop;
+			break;
+		case MASTER_STATION_2:
+			sourceMasterAttribute = controller.stations.masop2;
+			break;
+		default:
+			return 0;
+	}
+
+	var boardMasterAttribute = sourceMasterAttribute[ bid ],
+		boardStationID = 1 << ( sid % 8 );
+
+	return ( boardMasterAttribute & boardStationID ) ? 1 : 0;
+};
+
+StationAttribute.getIgnoreRain = function( sid ) {
+	if ( !Supported.ignoreRain() ) { return 0; }
+	var bid = ( sid / 8 ) >> 0,
+		boardIgnoreRainAttribute = controller.stations.ignore_rain[ bid ],
+		boardStationID = 1 << ( sid % 8 );
+
+	return ( boardIgnoreRainAttribute & boardStationID ) ? 1 : 0;
+};
+
+StationAttribute.getIgnoreSensor = function( sid, sensorID ) {
+	var bid = ( sid / 8 ) >> 0,
+		sourceIgnoreSensorAttribute;
+
+	if ( !Supported.ignoreSensor( sensorID ) ) { return 0; }
+
+	switch ( sensorID ) {
+		case IGNORE_SENSOR_1:
+			sourceIgnoreSensorAttribute = controller.stations.ignore_sn1;
+			break;
+		case IGNORE_SENSOR_2:
+			sourceIgnoreSensorAttribute = controller.stations.ignore_sn2;
+			break;
+		default:
+			return 0;
+	}
+
+	var boardIgnoreSensorAttribute = sourceIgnoreSensorAttribute[ bid ],
+		boardStationID = 1 << ( sid % 8 );
+
+	return ( boardIgnoreSensorAttribute & boardStationID ) ? 1 : 0;
+};
+
+StationAttribute.getActRelay = function( sid ) {
+	if ( !Supported.actRelay() ) { return 0; }
+	var bid = ( sid / 8 ) >> 0,
+		boardActRelayAttribute = controller.stations.act_relay[ bid ],
+		boardStationID = 1 << ( sid % 8 );
+
+	return ( boardActRelayAttribute & boardStationID ) ? 1 : 0;
+};
+
+StationAttribute.getDisabled = function( sid ) {
+	if ( !Supported.disabled() ) { return 0; }
+	var bid = ( sid / 8 ) >> 0,
+		boardDisabledAttribute = controller.stations.stn_dis[ bid ],
+		boardStationID = 1 << ( sid % 8 );
+
+	return ( boardDisabledAttribute & boardStationID ) ? 1 : 0;
+};
+
+StationAttribute.getSequential = function( sid ) {
+	if ( Supported.groups() ) {
+		return Station.getGIDValue !== PARALLEL_GID_VALUE ? 1 : 0;
+	}
+	if ( !Supported.sequential() ) { return 0; }
+	var bid = ( sid / 8 ) >> 0,
+		boardSequentialAttribute = controller.stations.stn_seq[ bid ],
+		boardStationID = 1 << ( sid % 8 );
+
+	return ( boardSequentialAttribute & boardStationID ) ? 1 : 0;
+};
+
+StationAttribute.getSpecial = function( sid ) {
+	if ( !Supported.special() ) { return 0; }
+	var bid = ( sid / 8 ) >> 0,
+		boardSpecialAttribute = controller.stations.stn_spe[ bid ],
+		boardStationID = 1 << ( sid % 8 );
+
+	return ( boardSpecialAttribute & boardStationID ) ? 1 : 0;
+};
+
+/* Card helpers: must pass in jquery object $(obj) */
+
+function CardList() {}
+
+CardList.getAllCards = function( cardList ) {
+	return cardList.filter( ".card" );
+};
+
+CardList.getCardBySID = function( cardList, sid ) {
+	return cardList.filter( "[data-station='" + sid + "']" );
+};
+
+// Based on order of cardList content
+CardList.getCardByIndex = function( cardList, idx ) {
+	return $( cardList[ idx ] );
+};
+
+function Card() {}
+
+Card.getSID = function( cardObj ) {
+	return cardObj.data( "station" );
+};
+
+Card.getDivider = function( cardObj ) {
+	return cardObj.find( ".content-divider" );
+};
+
+Card.getGroupLabel = function( cardObj ) {
+	if ( !Supported.groups() ) {
+		return undefined;
+	}
+	return cardObj.find( ".station-gid" );
+};
+
+Card.setGroupLabel = function( cardObj, value ) {
+	if ( !Supported.groups() ) { return; }
+	var groupLabel = Card.getGroupLabel( cardObj );
+	groupLabel.removeClass( "hidden" );
+	groupLabel.text( value );
+};
+
+Card.getGIDValue = function( cardObj ) {
+	if ( !Supported.groups() ) { return 0; }
+	var cardButtons = $( cardObj.children()[ 0 ] ).children().filter( "span" ),
+		cardAttributes = $( cardButtons[ cardButtons.length - 1 ] );
+	return parseInt( cardAttributes.attr( "data-gid" ) );
+};
+
+Card.getGIDName = function( cardObj ) {
+
+	//Return mapGIDValueToName( Card.getGIDValue( cardObj ) );
+	return mapGIDValueToName( Station.getGIDValue( Card.getSID( cardObj ) ) );
+};
+
+Card.isMasterStation = function( cardObj ) {
+	return Station.isMaster( Card.getSID( cardObj ) );
+};
+
+function Groups() {}
+
+// Determines the number of station that are on or scheduled (active)
+Groups.numActiveStations = function( gid ) {
+	var activeCards = $( ".station-status.on, .station-status.wait" ).parents( ".card" );
+	var numMatchingCards = 0;
+
+	$.each( activeCards, function( index ) {
+		var activeCard = $( activeCards[ index ] );
+		if ( Card.getGIDValue( activeCard ) === gid && !Card.isMasterStation( activeCard ) ) {
+			numMatchingCards++;
+		}
+	} );
+
+	return numMatchingCards;
+};
+
+// If more than 1 stations (includes the one to be turned off) are active
+Groups.canShift = function( gid ) {
+	return Groups.numActiveStations( gid ) > 1;
+};
+
+function StationQueue() {}
+
+StationQueue.isActive = function() {
+	for ( var i = 0; i < controller.status.length; i++ ) {
+		if ( Station.getStatus( i ) > 0 && Station.getPID( i ) > 0 ) {
+			return i;
+		}
+	}
+	return -1;
+};
+
+StationQueue.isPaused = function() {
+	return controller.settings.pq;
+};
+
+StationQueue.size = function() {
+	return controller.settings.nq;
+};
+
+/* Gid conversions */
+
+// Last index value is dedicated to the parallel group
+function mapIndexToGIDValue( index ) {
+	return ( index - NUM_SEQ_GROUPS ) ? index : PARALLEL_GID_VALUE;
+}
+
+function mapGIDValueToName( value ) {
+	switch ( value ) {
+		case PARALLEL_GID_VALUE:
+			return PARALLEL_GROUP_NAME;
+		case MASTER_GID_VALUE:
+			return MASTER_GROUP_NAME;
+		default:
+			return String.fromCharCode( 65 + value );
+	}
+}
+
+function mapGIDNameToValue( groupName ) {
+	switch ( groupName ) {
+		case PARALLEL_GROUP_NAME:
+			return PARALLEL_GID_VALUE;
+		case MASTER_GROUP_NAME:
+			return MASTER_GID_VALUE;
+		default:
+			return groupName.charCodeAt( 0 ) - 65;
+	}
+}
+
+// Miscellaneous
+
+var dateRegex = /[0-9]{1,2}[\/][0-9]{1,2}/g;
+
+function Program() {}
+
+Program.getDateRange = function( pid ) {
+	return controller.programs.pd[ pid ][ 6 ];
+};
+
+Program.isDateRangeEnabled = function( pid ) {
+	if ( pid === "new" ) {
+		return 0;
+	}
+	return Program.getDateRange( pid )[ 0 ];
+};
+
+Program.getDateRangeStart = function( pid ) {
+	if ( pid === "new" ) {
+		return minEncodedDate;
+	}
+	return Program.getDateRange( pid )[ 1 ];
+};
+
+Program.getDateRangeEnd = function( pid ) {
+	if ( pid === "new" ) {
+		return maxEncodedDate;
+	}
+	return Program.getDateRange( pid )[ 2 ];
+};
+
+function extractDateFromString( inputString ) {
+	return inputString.match( dateRegex );
+}
+
+function isValidDateFormat( dateString ) {
+	var dates = extractDateFromString( dateString );
+	return dates !== null;
+}
+
+function isValidDateRange( startDate, endDate ) {
+	return isValidDateFormat( startDate ) && isValidDateFormat( endDate );
+}
+
+function encodeDate( dateString ) {
+	var dateValues = extractDateFromString( dateString );
+	if ( dateValues === null ) {
+		return -1;
+	}
+	var dateToEncode = dateValues[ 0 ].split( "/", 2 );
+
+	var month = parseInt( dateToEncode[ 0 ] ),
+		day = parseInt( dateToEncode[ 1 ] );
+	return ( month << 5 ) + day;
+}
+
+var minEncodedDate = encodeDate( "01/01" ),
+	  maxEncodedDate = encodeDate( "12/31" );
+
+function decodeDate( dateValue ) {
+	var dateString = [],
+		monthValue, dayValue;
+	if ( minEncodedDate <= dateValue && dateValue <= maxEncodedDate ) {
+		monthValue = dateValue >> 5;
+		dayValue = dateValue % 32;
+		dateString.push(
+			monthValue / 10 >> 0,
+			monthValue % 10,
+			"/",
+			dayValue / 10 >> 0,
+			dayValue % 10
+		);
+		return dateString.join( "" );
+	} else if ( dateValue < minEncodedDate ) { // Sanitize
+		return "01/01";
+	} else {
+		return "12/31";
+	}
 }

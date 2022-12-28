@@ -219,7 +219,7 @@ hr.divider {
     height: 0;
     border-top: 1px solid rgba(0, 0, 0, 0.1);
     border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-    width: 55%;
+	width: 75%;
 }
 .mini-load {
     -o-transform: scale(0.5);
@@ -423,6 +423,16 @@ body, input, select, textarea, button, .ui-btn {
     -webkit-column-break-inside: avoid;
     page-break-inside: avoid;
     break-inside: avoid-column;
+}
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+	appearance: none;
+    margin: 0;
+}
+input[type=number] {
+	-moz-appearance: textfield;
+	appearance: none;
 }
 #header, #footer {
     display: none;
@@ -787,7 +797,7 @@ body, input, select, textarea, button, .ui-btn {
     opacity: 0.5;
 }
 .card-icon {
-    position: absolute;
+	position: absolute;
     border: none;
 }
 .station-name {
@@ -800,10 +810,19 @@ body, input, select, textarea, button, .ui-btn {
     top: -3px;
     right: 1%;
 }
+
+.station-gid {
+	top: -2px;
+	right: 1%;
+	margin-right: 32px;
+	padding: 0px;
+	color: rgb(178, 178, 178) !important;
+}
+
 .special-station {
     top: -3px;
     right: 1%;
-    margin-right: 24px;
+    margin-right: 45px;
 }
 .station-status {
     top: -3px;
@@ -1170,3 +1189,18 @@ div.running-text{
 #footer-menu {
 	bottom: calc(env(safe-area-inset-bottom) + 10%) !important;
 }
+
+/* temporary fix for Start Time input box in edit program menu*/
+button[id^="start_1-"] {
+	margin-left: 0em;
+	margin-right: 0em;
+}
+
+/* date range styling */
+.dr-input {
+	margin-left: 5px;
+	margin-right: 5px;
+}
+
+
+
