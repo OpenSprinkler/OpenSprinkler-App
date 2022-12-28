@@ -2608,8 +2608,9 @@ function showSensorEditor( sensor, callback) {
 		popup.popup( "close" );
 		areYouSure( _( "This function sets the Modbus ID for one SMT100 sensor. Disconnect all other sensors on this Modbus port. Please confirm." ),
 		"new id="+newid, function() {
-			sendToOS("/sa?pw=&nr="+nr+"&id="+id ).done( function() {
-
+			sendToOS("/sa?pw=&nr="+nr+"&id="+newid ).done( function() {
+				window.alert( "SMT100 id assigned!" );
+				updateAnalogSensor(reloadOptionsAnalogSensor);
 			});
 		});
 	});
@@ -2620,6 +2621,15 @@ function showSensorEditor( sensor, callback) {
 
 	popup.find( ".submit" ).on( "click", function() {
 
+		if (!sensor.nr) { //New Sensor - check existing Nr to avoid overwriting
+			var nr = parseInt( popup.find( ".nr" ).val() );
+			for (var i = 0; i < analogSensors.length; i++) {
+				if (analogSensors[i].nr == nr) {
+					alert(_("Sensor-Number exists!"));
+					return;
+				}
+			}
+		}
 		var sensorOut = {
 			nr:     parseInt( popup.find( ".nr" ).val() ),
 			type:   parseInt( popup.find( "#type" ).val() ),
@@ -2633,6 +2643,7 @@ function showSensorEditor( sensor, callback) {
 			log:    popup.find("#log").is(":checked")?1:0,
 			show:   popup.find("#show").is(":checked")?1:0,
 		}
+		//alert(sensorOut.ip);
 
 		callback( sensorOut );
 
@@ -4758,6 +4769,7 @@ function showOptions( expandItem ) {
 			var sensor = {
 				name: "new sensor",
 				type: 1,
+				ri: 60,
 				enable: 1,
 				log: 1};
 
@@ -6091,6 +6103,22 @@ var showHome = ( function() {
 			if ( checkOSVersion( 230 ) ) {
 				var showArea =  page.find( "#os-sensor-show");
 				var html = "";
+				for (var i = 0; i < progAdjusts.length; i++) {
+					var progAdjust = progAdjusts[i];
+					var sensorName = "";
+					for (j = 0; j < analogSensors.length; j++) {
+						if (analogSensors[j].nr == progAdjust.sensor)
+							sensorName = analogSensors[j].name;
+					}
+					var progName = "?";
+					if (progAdjust.prog <= controller.programs.pd.length)
+						progName = controller.programs.pd[ progAdjust.prog-1 ][ 5 ];
+
+					html += "<div id='progAdjust-show-"+progAdjust.nr+"' class='ui-body ui-body-a center'>";
+					html += "<label>"+sensorName+" - " + progName+": "+Math.round(progAdjust.current*100)+"%</label>";
+					html += "</div>";
+				}
+
 				for (var i = 0; i < analogSensors.length; i++) {
 					var sensor = analogSensors[i];
 					if (sensor.show==1) {
@@ -13136,12 +13164,16 @@ function toByteArray(n) {
 }
 
 function intFromBytes( x ){
-    var val = 0;
-    for (var i = x.length-1; i >= 0; i--) {
-		val = val << 8;
-        val += parseInt(x[i]);
-    }
-    return val;
+	try {
+	    let val = BigInt(0);
+	    for (var i = x.length-1; i >= 0; i--) {
+			val *= 0x100n;
+        	val += BigInt(parseInt(x[i]));
+    	}
+    	return val;
+	} catch(error) {
+		return 0;
+	}
 }
 
 function refresh() {
