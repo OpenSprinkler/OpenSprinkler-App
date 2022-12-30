@@ -4700,6 +4700,13 @@ function showOptions( expandItem ) {
 		});
 		list += "</table>";
 		list += "<button data-mini='true' class='center-div' id='add-progadjust'>" + _( "Add program adjustment" ) + "</button>";
+
+		//analog sensor logs:
+		list += "<table id='logfunctions'><tr style='width:100%;vertical-align: top;'><tr>" +
+			"<th><button data-mini='true' class='center-div' id='clear-log'>" + _( "Clear Log" ) + "</button></th>" +
+			"<th><button data-mini='true' class='center-div' id='download-log'>" + _( "Download Log" ) + "</button></th>" +
+			"<th><button data-mini='true' class='center-div' id='show-log'>" + _( "Show Log" ) + "</button></th>" +
+			"</tr></table>";
 	}
 	list += "</fieldset>";
 
@@ -4765,6 +4772,7 @@ function showOptions( expandItem ) {
 			});
 		} );
 
+		// add a new analog sensor:
 		page.find( "#add-sensor").on( "click", function( ) {
 			var sensor = {
 				name: "new sensor",
@@ -4839,17 +4847,51 @@ function showOptions( expandItem ) {
 
 			showAdjustmentsEditor(progAdjust, function( progAdjustOut ) {
 				sendToOS("/sb?pw=&nr="+progAdjustOut.nr+
-				"&type="+progAdjustOut.type+
-				"&sensor="+progAdjustOut.sensor+
-				"&prog="+progAdjustOut.prog+
-				"&factor1="+progAdjustOut.factor1+
-				"&factor2="+progAdjustOut.factor2+
-				"&min="+progAdjustOut.min+
-				"&max="+progAdjustOut.max
+					"&type="+progAdjustOut.type+
+					"&sensor="+progAdjustOut.sensor+
+					"&prog="+progAdjustOut.prog+
+					"&factor1="+progAdjustOut.factor1+
+					"&factor2="+progAdjustOut.factor2+
+					"&min="+progAdjustOut.min+
+					"&max="+progAdjustOut.max
 				).done( function() {
 					progAdjusts.push(progAdjustOut);
 					reloadOptionsAnalogSensor();
 				});
+			});
+		} );
+
+		// clear sensor log
+		page.find("#clear-log").on( "click", function() {
+			areYouSure( _( "Are you sure you want to clear the sensor log?" ), "", function() {
+				sendToOS("/sn?pw=&").done( function(result) {
+					alert(_("Log cleared: "+ result.deleted+_(" records")));
+				});
+			});
+		});
+
+		// download log as csv
+		page.find("#download-log").on( "click", function(e) {
+			sendToOS("/so?pw=&").done( function(result) {
+
+				var json = result.log;
+				var fields = Object.keys(json[0]);
+				var replacer = function(key, value) { return value === null ? '' : value };
+				var csv = json.map(function(row){
+				  return fields.map(function(fieldName){
+					return replacer(row[fieldName]);
+				  }).join(',');
+				});
+				csv.unshift(fields.join(',')); // add header column
+				csv = csv.join('\r\n');
+
+				var csvContent = new Blob([csv], { type: 'text/csv' });
+				var encodedUri = encodeURI(csvContent);
+				var link = document.createElement("a");
+				link.setAttribute("href", encodedUri);
+				link.setAttribute("download", "sensorlog-" + new Date().toLocaleDateString().replace( /\//g, "-" ) + ".csv");
+				document.body.appendChild(link); // Required for FF
+				link.click();
 			});
 		} );
 	}
