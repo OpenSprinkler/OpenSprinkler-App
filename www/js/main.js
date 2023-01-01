@@ -13,6 +13,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+import { BigInt } from "as-bigint";
 
 var DEFAULT_WEATHER_SERVER_URL = "https://weather.opensprinkler.com";
 var WEATHER_SERVER_URL = DEFAULT_WEATHER_SERVER_URL;
@@ -283,8 +284,9 @@ $( document )
 	hash = $.mobile.path.parseUrl( page ).hash;
 
 	if ( currPage.length > 0 && hash === "#" + currPage.attr( "id" ) ) {
-		if (hash !== "#os-options")
+		if (hash !== "#os-options") {
 			return;
+		}
 	}
 
 	// Animations are patchy if the page isn't scrolled to the top.
@@ -953,7 +955,7 @@ function updateController( callback, fail ) {
 			updateControllerStations(),
 			updateControllerOptions(),
 			updateControllerStatus(),
-			updateControllerSettings(),
+			updateControllerSettings()
 		).then( finish, fail );
 	}
 }
@@ -2346,6 +2348,7 @@ function showAdjustmentsEditor( progAdjust, callback) {
 
 	sendToOS( "/sh?pw=", "json" ).then( function( data ) {
 		var supportedAdjustmentTypes = data.progTypes;
+		var i;
 
 		$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
 
@@ -2455,7 +2458,7 @@ function showAdjustmentsEditor( progAdjust, callback) {
 				factor2: parseFloat( popup.find( ".factor2" ).val() ),
 				min: 	 parseFloat( popup.find( ".min" ).val() ),
 				max: 	 parseFloat( popup.find( ".max" ).val() ),
-			}
+			};
 			callback( progAdjust );
 
 			popup.popup( "close" );
@@ -2498,8 +2501,9 @@ function showAdjustmentsEditor( progAdjust, callback) {
 }
 
 function isSmt100(sensorType) {
-	if (!sensorType)
+	if (!sensorType) {
 		return false;
+	}
 	return sensorType === 1 || sensorType === 2;
 }
 
@@ -2508,6 +2512,7 @@ function showSensorEditor( sensor, callback) {
 
 	sendToOS( "/sf?pw=", "json" ).then( function( data ) {
 		var supportedSensorTypes = data.sensorTypes;
+		var i;
 
 	$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
 
@@ -2603,8 +2608,8 @@ function showSensorEditor( sensor, callback) {
 
 	//SMT 100 Toolbox function: SET ID
 	popup.find( "#smt100id" ).on( "click", function() {
-		nr    = parseInt( popup.find( ".nr" ).val() );
-		newid = parseInt( popup.find( ".id" ).val() );
+		var nr    = parseInt( popup.find( ".nr" ).val() ),
+			newid = parseInt( popup.find( ".id" ).val() );
 		popup.popup( "close" );
 		areYouSure( _( "This function sets the Modbus ID for one SMT100 sensor. Disconnect all other sensors on this Modbus port. Please confirm." ),
 		"new id="+newid, function() {
@@ -2624,8 +2629,8 @@ function showSensorEditor( sensor, callback) {
 		if (!sensor.nr) { //New Sensor - check existing Nr to avoid overwriting
 			var nr = parseInt( popup.find( ".nr" ).val() );
 			for (var i = 0; i < analogSensors.length; i++) {
-				if (analogSensors[i].nr == nr) {
-					alert(_("Sensor-Number exists!"));
+				if (analogSensors[i].nr === nr) {
+					window.alert(_("Sensor-Number exists!"));
 					return;
 				}
 			}
@@ -2642,7 +2647,7 @@ function showSensorEditor( sensor, callback) {
 			enable: popup.find("#enable").is(":checked")?1:0,
 			log:    popup.find("#log").is(":checked")?1:0,
 			show:   popup.find("#show").is(":checked")?1:0,
-		}
+		};
 		//alert(sensorOut.ip);
 
 		callback( sensorOut );
@@ -4641,24 +4646,24 @@ function showOptions( expandItem ) {
 		var row = 0;
 		$.each(analogSensors, function(i, item) {
 
-			var $tr = $('<tr>').append(
-				$('<td>').text(item.nr),
-				$('<td>').text(item.type),
-				$('<td>').text(item.group?item.group:""),
-				$('<td>').text(item.name),
-				$('<td>').text(item.ip?toByteArray(item.ip).join( "." ):""),
-				$('<td>').text(item.port?item.port:""),
-				$('<td>').text(item.type < 1000?item.id:""),
-				$('<td>').text(item.ri),
-				$('<td>').text(Math.round(item.data)+item.unit),
-				$('<td>').text(item.enable),
-				$('<td>').text(item.log),
-				$('<td>').text(item.show),
-				$('<td>').text(dateToString(new Date(item.last*1000)), null, 2),
+			var $tr = $("<tr>").append(
+				$("<td>").text(item.nr),
+				$("<td>").text(item.type),
+				$("<td>").text(item.group?item.group:""),
+				$("<td>").text(item.name),
+				$("<td>").text(item.ip?toByteArray(item.ip).join( "." ):""),
+				$("<td>").text(item.port?item.port:""),
+				$("<td>").text(item.type < 1000?item.id:""),
+				$("<td>").text(item.ri),
+				$("<td>").text(Math.round(item.data)+item.unit),
+				$("<td>").text(item.enable),
+				$("<td>").text(item.log),
+				$("<td>").text(item.show),
+				$("<td>").text(dateToString(new Date(item.last*1000)), null, 2),
 				"<td><button data-mini='true' class='center-div' id='edit-sensor' value='"+item.nr+" 'row='"+row+"'>"+ _( "Edit" ),
-				"<td><button data-mini='true' class='center-div' id='delete-sensor' value='"+item.nr+"' row='"+row+"'>"+ _( "Delete" ),
+				"<td><button data-mini='true' class='center-div' id='delete-sensor' value='"+item.nr+"' row='"+row+"'>"+ _( "Delete" )
 			);
-			list += $tr.wrap('<p>').html() + "</tr>";
+			list += $tr.wrap("<p>").html() + "</tr>";
 			row++;
 		});
 		list += "</table>";
@@ -4672,30 +4677,32 @@ function showOptions( expandItem ) {
 		$.each(progAdjusts, function(i, item) {
 
 			var sensorName = "";
-			for (j = 0; j < analogSensors.length; j++) {
-				if (analogSensors[j].nr == item.sensor)
+			for (var j = 0; j < analogSensors.length; j++) {
+				if (analogSensors[j].nr === item.sensor) {
 					sensorName = analogSensors[j].name;
+				}
 			}
 			var progName = "?";
-			if (item.prog <= controller.programs.pd.length)
+			if (item.prog <= controller.programs.pd.length) {
 				progName = controller.programs.pd[ item.prog-1 ][ 5 ];
+			}
 
-			var $tr = $('<tr>').append(
-				$('<td>').text(item.nr),
-				$('<td>').text(item.type),
-				$('<td>').text(item.sensor),
-				$('<td>').text(sensorName),
-				$('<td>').text(item.prog),
-				$('<td>').text(progName),
-				$('<td>').text(item.factor1),
-				$('<td>').text(item.factor2),
-				$('<td>').text(item.min),
-				$('<td>').text(item.max),
-				$('<td>').text(Math.round(item.current*100.0)+"%"),
+			var $tr = $("<tr>").append(
+				$("<td>").text(item.nr),
+				$("<td>").text(item.type),
+				$("<td>").text(item.sensor),
+				$("<td>").text(sensorName),
+				$("<td>").text(item.prog),
+				$("<td>").text(progName),
+				$("<td>").text(item.factor1),
+				$("<td>").text(item.factor2),
+				$("<td>").text(item.min),
+				$("<td>").text(item.max),
+				$("<td>").text(Math.round(item.current*100.0)+"%"),
 				"<td><button data-mini='true' class='center-div' id='edit-progadjust' value='"+item.nr+"' row='"+row+"'>"+ _( "Edit" ),
-				"<td><button data-mini='true' class='center-div' id='delete-progadjust' value='"+item.nr+"' row='"+row+"'>"+ _( "Delete" ),
+				"<td><button data-mini='true' class='center-div' id='delete-progadjust' value='"+item.nr+"' row='"+row+"'>"+ _( "Delete" )
 			);
-			list += $tr.wrap('<p>').html() + "</tr>";
+			list += $tr.wrap("<p>").html() + "</tr>";
 			row++;
 		});
 		list += "</table>";
@@ -4745,7 +4752,7 @@ function showOptions( expandItem ) {
 		//edit a sensor:
 		page.find( "#edit-sensor" ).on( "click", function( ) {
 			var dur = $( this ),
-			value = dur.attr( "value" ),
+			//value = dur.attr( "value" ),
 			row = dur.attr( "row" );
 
 			var sensor = analogSensors[row];
@@ -4817,7 +4824,7 @@ function showOptions( expandItem ) {
 		//edit a program adjust:
 		page.find( "#edit-progadjust" ).on( "click", function( ) {
 			var dur = $( this ),
-			value = dur.attr( "value" ),
+			//value = dur.attr( "value" ),
 			row = dur.attr( "row" );
 
 			var progAdjust = progAdjusts[row];
@@ -4865,27 +4872,27 @@ function showOptions( expandItem ) {
 		page.find("#clear-log").on( "click", function() {
 			areYouSure( _( "Are you sure you want to clear the sensor log?" ), "", function() {
 				sendToOS("/sn?pw=&").done( function(result) {
-					alert(_("Log cleared: "+ result.deleted+_(" records")));
+					window.alert(_("Log cleared: "+ result.deleted+_(" records")));
 				});
 			});
 		});
 
 		// download log as csv
-		page.find("#download-log").on( "click", function(e) {
+		page.find("#download-log").on( "click", function() {
 			sendToOS("/so?pw=&").done( function(result) {
 
 				var json = result.log;
 				var fields = Object.keys(json[0]);
-				var replacer = function(key, value) { return value === null ? '' : value };
+				var replacer = function(key, value) { return value === null ? "" : value; };
 				var csv = json.map(function(row){
 				  return fields.map(function(fieldName){
 					return replacer(row[fieldName]);
-				  }).join(',');
+				  }).join(",");
 				});
-				csv.unshift(fields.join(',')); // add header column
-				csv = csv.join('\r\n');
+				csv.unshift(fields.join(",")); // add header column
+				csv = csv.join("\r\n");
 
-				var csvContent = new Blob([csv], { type: 'text/csv' });
+				var csvContent = new Blob([csv], { type: "text/csv" });
 				var encodedUri = encodeURI(csvContent);
 				var link = document.createElement("a");
 				link.setAttribute("href", encodedUri);
@@ -6149,27 +6156,31 @@ var showHome = ( function() {
 					var progAdjust = progAdjusts[i];
 					var sensorName = "";
 					for (j = 0; j < analogSensors.length; j++) {
-						if (analogSensors[j].nr == progAdjust.sensor)
+						if (analogSensors[j].nr === progAdjust.sensor) {
 							sensorName = analogSensors[j].name;
+						}
 					}
 					var progName = "?";
-					if (progAdjust.prog <= controller.programs.pd.length)
+					if (progAdjust.prog <= controller.programs.pd.length) {
 						progName = controller.programs.pd[ progAdjust.prog-1 ][ 5 ];
+					}
 
 					html += "<div id='progAdjust-show-"+progAdjust.nr+"' class='ui-body ui-body-a center'>";
 					html += "<label>"+sensorName+" - " + progName+": "+Math.round(progAdjust.current*100)+"%</label>";
 					html += "</div>";
 				}
 
-				for (var i = 0; i < analogSensors.length; i++) {
-					var sensor = analogSensors[i];
-					if (sensor.show==1) {
+				for (var j = 0; i < analogSensors.length; i++) {
+					var sensor = analogSensors[j];
+					if (sensor.show === 1) {
 						html += "<div id='sensor-show-"+sensor.nr+"' class='ui-body ui-body-a center'>";
 						html += "<label>"+sensor.name+": "+Math.round(sensor.data)+sensor.unit+"</label>";
 						html += "</div>";
 					}
 				}
-				while (showArea.firstChild) showArea.removeChild(showArea.firstChild);
+				while (showArea.firstChild) {
+					showArea.removeChild(showArea.firstChild);
+				}
 				showArea.html(html);
 			}
 		},
@@ -7119,8 +7130,8 @@ var getManual = ( function() {
 	try {
 		storage.get( "autoOff");
 	} catch(e) {
-		if(e.name == "NS_ERROR_FILE_CORRUPTED") {
-			console.log("Sorry, it looks like your browser storage has been corrupted. Please clear your storage by going to Tools -> Clear Recent History -> Cookies and set time range to 'Everything'. This will remove the corrupted browser storage across all sites.");
+		if(e.name === "NS_ERROR_FILE_CORRUPTED") {
+			window.console.log("Sorry, it looks like your browser storage has been corrupted. Please clear your storage by going to Tools -> Clear Recent History -> Cookies and set time range to 'Everything'. This will remove the corrupted browser storage across all sites.");
 		}
 	}
 
@@ -13204,21 +13215,21 @@ function transformKeysinString( co ) {
 }
 
 function toByteArray(n) {
-	let b = BigInt(n);
-	let result = [];
-	while (b > 0n) {
-	  result.push(Number(b % 0x100n));
-	  b /= 0x100n;
+	var b = BigInt.from(n);
+	var result = [];
+	while (b > 0) {
+	  result.push(Number(b % 0x100));
+	  b /= 0x100;
 	}
 	return Uint8Array.from(result);
 }
 
 function intFromBytes( x ){
 	try {
-	    let val = BigInt(0);
+	    var val = BigInt.from(0);
 	    for (var i = x.length-1; i >= 0; i--) {
-			val *= 0x100n;
-        	val += BigInt(parseInt(x[i]));
+			val *= 0x100;
+        	val += BigInt.from(parseInt(x[i]));
     	}
     	return val;
 	} catch(error) {
@@ -13226,11 +13237,12 @@ function intFromBytes( x ){
 	}
 }
 
+/**
 function refresh() {
     setTimeout(function () {
-        location.reload()
+        location.reload();
     }, 100);
-}
+} */
 
 function reloadOptionsAnalogSensor() {
 	changePage( "#os-options", { expandItem: "analogsensor", changeHash: false, transition: "none" });

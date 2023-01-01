@@ -16,5 +16,6 @@
 	"sub": true,
 	"globals": {
 		"module": true
-	}
+	},
+	"esversion": 6
 }
