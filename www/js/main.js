@@ -13,7 +13,6 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-import { BigInt } from "as-bigint";
 
 var DEFAULT_WEATHER_SERVER_URL = "https://weather.opensprinkler.com";
 var WEATHER_SERVER_URL = DEFAULT_WEATHER_SERVER_URL;
@@ -13214,10 +13213,9 @@ function transformKeysinString( co ) {
 	return co;
 }
 
-function toByteArray(n) {
-	var b = BigInt.from(n);
+function toByteArray(b) {
 	var result = [];
-	while (b > 0) {
+	while (b > 0.1) {
 	  result.push(Number(b % 0x100));
 	  b /= 0x100;
 	}
@@ -13226,10 +13224,10 @@ function toByteArray(n) {
 
 function intFromBytes( x ){
 	try {
-	    var val = BigInt.from(0);
+	    var val = 0;
 	    for (var i = x.length-1; i >= 0; i--) {
 			val *= 0x100;
-        	val += BigInt.from(parseInt(x[i]));
+        	val += parseInt(x[i]);
     	}
     	return val;
 	} catch(error) {
