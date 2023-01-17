@@ -5607,6 +5607,8 @@ var showHome = ( function() {
 							_( "Water Level" ) + ": <span class='waterlevel'></span>%" +
 						"</div>" +
 					"</div>" +
+					"<div id='os-running-stations'></div>" +
+					"<hr style='display:none' class='content-divider'>" +
 					"<div id='os-stations-list' class='card-group center'></div>" +
 					//Analog Sensor API - show area start:
 					"<div id='os-sensor-show' class='card-group center'></div>" +
@@ -6276,7 +6278,7 @@ var showHome = ( function() {
 				}
 			};
 		},
-			updateSensorShowArea = function() {
+		updateSensorShowArea = function() {
 			if ( checkOSVersion( 230 ) ) {
 				var showArea =  page.find( "#os-sensor-show");
 				var html = "";
@@ -6354,19 +6356,6 @@ var showHome = ( function() {
 						return 1;
 					} else {
 						if ( sidA < sidB ) { return -1; } else if ( sidA > sidB ) { return 1; } else { return 0; }
-					}
-				}
-			}
-		},
-		reorderCards = function() {
-			var cardHolder = page.find( "#os-stations-list" ),
-				runningCards = page.find( "#os-running-stations" ),
-				divider = page.find( ".content-divider" ),
-				compare = function( a, b ) {
-					a = $( a ).data( "station" );
-					b = $( b ).data( "station" );
-					if ( a < b ) {
-						return -1;
 					}
 				}
 			}
