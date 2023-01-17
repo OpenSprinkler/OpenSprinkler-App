@@ -38,6 +38,7 @@ $RECYCLE.BIN/
 *.sw[mnpcod]
 *.log
 *.tmp
+*.bak
 *.tmp.*
 log.txt
 *.sublime-project

@@ -55,7 +55,10 @@ msgstr ""
 msgid "Submit"
 msgstr ""
 
-msgid "An IP address is required to continue."
+msgid "An IP address or token is required to continue."
+msgstr ""
+
+msgid "OpenThings Token must be 32 characters long."
 msgstr ""
 
 msgid "Select Site"
@@ -73,7 +76,19 @@ msgstr ""
 msgid "Open Sprinkler Name:"
 msgstr ""
 
+msgid "Connection Type"
+msgstr ""
+
+msgid "Direct"
+msgstr ""
+
+msgid "OpenThings Cloud"
+msgstr ""
+
 msgid "Open Sprinkler IP:"
+msgstr ""
+
+msgid "OpenThings Token"
 msgstr ""
 
 msgid "Open Sprinkler Password:"
@@ -107,6 +122,9 @@ msgid "Change Name"
 msgstr ""
 
 msgid "Change IP"
+msgstr ""
+
+msgid "Change Token"
 msgstr ""
 
 msgid "Change Password"
@@ -190,6 +208,45 @@ msgid ""
 msgstr ""
 
 msgid "Delay Duration (hours)"
+msgstr ""
+
+msgid "Input Monthly Watering Percentage Values"
+msgstr ""
+
+msgid "Jan"
+msgstr ""
+
+msgid "Feb"
+msgstr ""
+
+msgid "Mar"
+msgstr ""
+
+msgid "Apr"
+msgstr ""
+
+msgid "May"
+msgstr ""
+
+msgid "Jun"
+msgstr ""
+
+msgid "Jul"
+msgstr ""
+
+msgid "Aug"
+msgstr ""
+
+msgid "Sep"
+msgstr ""
+
+msgid "Oct"
+msgstr ""
+
+msgid "Nov"
+msgstr ""
+
+msgid "Dec"
 msgstr ""
 
 msgid ""
@@ -474,6 +531,9 @@ msgid ""
 "off a currently enabled rain delay use a value of 0."
 msgstr ""
 
+msgid "Do you want to resume program operation?"
+msgstr ""
+
 msgid "Manual"
 msgstr ""
 
@@ -563,6 +623,9 @@ msgstr ""
 msgid "Use Metric"
 msgstr ""
 
+msgid "Order Stations by Groups"
+msgstr ""
+
 msgid "Configure Master"
 msgstr ""
 
@@ -573,12 +636,6 @@ msgid "Master On Adjustment"
 msgstr ""
 
 msgid "Master Off Adjustment"
-msgstr ""
-
-msgid "Master On Delay"
-msgstr ""
-
-msgid "Master Off Delay"
 msgstr ""
 
 msgid "Station Handling"
@@ -612,8 +669,8 @@ msgid "Weather Adjustment Method"
 msgstr ""
 
 msgid ""
-"Weather adjustment uses OpenWeatherMaps data in conjunction with the "
-"selected method to adjust the watering percentage."
+"Weather adjustment uses DarkSky data in conjunction with the selected method "
+"to adjust the watering percentage."
 msgstr ""
 
 msgid "Adjustment Method Options"
@@ -631,9 +688,7 @@ msgstr ""
 msgid "% Watering"
 msgstr ""
 
-msgid ""
-"The watering percentage scales station run times by the set value. When "
-"weather adjustment is used the watering percentage is automatically adjusted."
+msgid "The watering percentage scales station run times by the set value."
 msgstr ""
 
 msgid "Use Rain Sensor"
@@ -670,11 +725,25 @@ msgstr ""
 msgid "Integrations"
 msgstr ""
 
+msgid "OTC"
+msgstr ""
+
+msgid "OpenThings Cloud (OTC) allows remote access using OTC Token ."
+msgstr ""
+
+msgid "MQTT"
+msgstr ""
+
+msgid ""
+"OpenSprinkler can send notifications to an MQTT broker at a specified host "
+"and port."
+msgstr ""
+
 msgid "IFTTT Key"
 msgstr ""
 
 msgid ""
-"To enable IFTTT, a Maker channel key is required which can be obtained from "
+"To enable IFTTT, a Webhooks key is required which can be obtained from "
 "https://ifttt.com"
 msgstr ""
 
@@ -684,12 +753,15 @@ msgstr ""
 msgid "Select which events to send to IFTTT for use in recipes."
 msgstr ""
 
-msgid "MQTT"
+msgid "Configure Events"
+msgstr ""
+
+msgid "Device Name"
 msgstr ""
 
 msgid ""
-"OpenSprinkler can send notifications to an MQTT broker at a specified host "
-"and port."
+"Device name is attached to all IFTTT notifications to help distinguish "
+"multiple devices"
 msgstr ""
 
 msgid "LCD Screen"
@@ -708,8 +780,8 @@ msgid "Wunderground Key"
 msgstr ""
 
 msgid ""
-"We use OpenWeatherMap normally however with a user provided API key the "
-"weather source will switch to Weather Underground."
+"We use DarkSky normally however with a user provided API key the weather "
+"source will switch to Weather Underground."
 msgstr ""
 
 msgid "An invalid API key has been detected."
@@ -783,7 +855,10 @@ msgstr ""
 msgid "Reset All Options"
 msgstr ""
 
-msgid "Reset All Station Data"
+msgid "Delete All Programs"
+msgstr ""
+
+msgid "Reset Station Attributes"
 msgstr ""
 
 msgid "Reset Wireless Settings"
@@ -792,10 +867,10 @@ msgstr ""
 msgid "Are you sure you want to clear the current location?"
 msgstr ""
 
-msgid "Are you sure you want to reset all stations?"
+msgid "Are you sure you want to reset station attributes?"
 msgstr ""
 
-msgid "This will reset all station names and attributes"
+msgid "This will reset all station attributes"
 msgstr ""
 
 msgid "Stations have been updated"
@@ -874,6 +949,21 @@ msgstr ""
 msgid "password (optional)"
 msgstr ""
 
+msgid "OpenThings Cloud (OTC) Settings"
+msgstr ""
+
+msgid "Token"
+msgstr ""
+
+msgid "token"
+msgstr ""
+
+msgid "Server"
+msgstr ""
+
+msgid "server"
+msgstr ""
+
 msgid "Preview Programs"
 msgstr ""
 
@@ -881,6 +971,12 @@ msgid "View Logs"
 msgstr ""
 
 msgid "Programs and Settings"
+msgstr ""
+
+msgid "Resume Station Runs"
+msgstr ""
+
+msgid "Pause Station Runs"
 msgstr ""
 
 msgid "Run-Once Program"
@@ -980,6 +1076,9 @@ msgstr ""
 msgid "Continue"
 msgstr ""
 
+msgid "Basic"
+msgstr ""
+
 msgid "Station Name"
 msgstr ""
 
@@ -1005,6 +1104,9 @@ msgid "Activate Relay"
 msgstr ""
 
 msgid "Station Notes"
+msgstr ""
+
+msgid "Sequential Group"
 msgstr ""
 
 msgid "Station Type"
@@ -1071,6 +1173,12 @@ msgid "System Disabled"
 msgstr ""
 
 msgid "Do you want to re-enable system operation?"
+msgstr ""
+
+msgid "Stations Currently Paused"
+msgstr ""
+
+msgid "Do you want to resume station operation?"
 msgstr ""
 
 msgid "is running on"
@@ -1283,6 +1391,12 @@ msgstr ""
 msgid "Logs have been cleared"
 msgstr ""
 
+msgid "Are you sure you want to delete ALL programs?"
+msgstr ""
+
+msgid "Programs have been deleted"
+msgstr ""
+
 msgid ""
 "Are you sure you want to delete all settings and return to the default "
 "settings?"
@@ -1410,6 +1524,15 @@ msgstr ""
 msgid "Use Weather Adjustment"
 msgstr ""
 
+msgid "Enable Date Range"
+msgstr ""
+
+msgid "From (mm/dd)"
+msgstr ""
+
+msgid "To (mm/dd)"
+msgstr ""
+
 msgid "Program Type"
 msgstr ""
 
@@ -1461,7 +1584,10 @@ msgstr ""
 msgid "Error: Interval days must be between "
 msgstr ""
 
-msgid "Warning: The repeat interval is less than the program run time."
+msgid "Error: date range is malformed"
+msgstr ""
+
+msgid "Warning: The repeat interval ("
 msgstr ""
 
 msgid "Do you want to continue?"
@@ -1732,42 +1858,6 @@ msgid "Sunrise to Sunset"
 msgstr ""
 
 msgid "Sunset to Sunrise"
-msgstr ""
-
-msgid "Jan"
-msgstr ""
-
-msgid "Feb"
-msgstr ""
-
-msgid "Mar"
-msgstr ""
-
-msgid "Apr"
-msgstr ""
-
-msgid "May"
-msgstr ""
-
-msgid "Jun"
-msgstr ""
-
-msgid "Jul"
-msgstr ""
-
-msgid "Aug"
-msgstr ""
-
-msgid "Sep"
-msgstr ""
-
-msgid "Oct"
-msgstr ""
-
-msgid "Nov"
-msgstr ""
-
-msgid "Dec"
 msgstr ""
 
 msgid "Enter Date/Time"
