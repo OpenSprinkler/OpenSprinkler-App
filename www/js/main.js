@@ -152,6 +152,29 @@ var isIEMobile = /IEMobile/.test( navigator.userAgent ),
 	MASTER_GROUP_NAME = "M",
 	MASTER_GID_VALUE = 254,
 
+	dialog = {
+		REMOVE_STATION: 1
+	},
+
+	popupData = {
+		"shift": undefined
+	},
+
+	// Option constants
+
+	MANUAL_STATION_PID = 99,
+	MASTER_STATION_1 = 1,
+	MASTER_STATION_2 = 2,
+
+	IGNORE_SENSOR_1 = 1,
+	IGNORE_SENSOR_2 = 2,
+
+	NUM_SEQ_GROUPS = 4,
+	PARALLEL_GROUP_NAME = "P",
+	PARALLEL_GID_VALUE = 255,
+	MASTER_GROUP_NAME = "M",
+	MASTER_GID_VALUE = 254,
+
 	// Array to hold all notifications currently displayed within the app
 	notifications = [],
 	timers = {},
@@ -4939,7 +4962,7 @@ function showOptions( expandItem ) {
 		if ( Supported.groups() ) {
 			for ( i = 0; i < controller.stations.snames.length; i++ ) {
 				cs += "g" + i + "=0&";
-		}
+			}
 		}
 
 		if ( typeof controller.options.mas !== "undefined" ) {
@@ -5584,8 +5607,6 @@ var showHome = ( function() {
 							_( "Water Level" ) + ": <span class='waterlevel'></span>%" +
 						"</div>" +
 					"</div>" +
-					"<div id='os-running-stations'></div>" +
-					"<hr style='display:none' class='content-divider'>" +
 					"<div id='os-stations-list' class='card-group center'></div>" +
 					//Analog Sensor API - show area start:
 					"<div id='os-sensor-show' class='card-group center'></div>" +
@@ -5735,12 +5756,12 @@ var showHome = ( function() {
 						}
 
 						if ( freePins.length ) {
-						sel = "<div class='ui-bar-a ui-bar'>" + _( "GPIO Pin" ) + ":</div>" +
-								"<select class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='gpio-pin'>";
-						for ( var i = 0; i < freePins.length; i++ ) {
-							sel += "<option value='" + freePins[ i ] + "' " + ( freePins[ i ] === gpioPin ? "selected='selected'" : "" ) + ">" + freePins[ i ];
-						}
-						sel += "</select>";
+							sel = "<div class='ui-bar-a ui-bar'>" + _( "GPIO Pin" ) + ":</div>" +
+							"<select class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='gpio-pin'>";
+							for ( var i = 0; i < freePins.length; i++ ) {
+								sel += "<option value='" + freePins[ i ] + "' " + ( freePins[ i ] === gpioPin ? "selected='selected'" : "" ) + ">" + freePins[ i ];
+							}
+							sel += "</select>";
 						} else {
 							sel = "";
 						}
@@ -6255,7 +6276,7 @@ var showHome = ( function() {
 				}
 			};
 		},
-		updateSensorShowArea = function() {
+			updateSensorShowArea = function() {
 			if ( checkOSVersion( 230 ) ) {
 				var showArea =  page.find( "#os-sensor-show");
 				var html = "";
@@ -6333,6 +6354,19 @@ var showHome = ( function() {
 						return 1;
 					} else {
 						if ( sidA < sidB ) { return -1; } else if ( sidA > sidB ) { return 1; } else { return 0; }
+					}
+				}
+			}
+		},
+		reorderCards = function() {
+			var cardHolder = page.find( "#os-stations-list" ),
+				runningCards = page.find( "#os-running-stations" ),
+				divider = page.find( ".content-divider" ),
+				compare = function( a, b ) {
+					a = $( a ).data( "station" );
+					b = $( b ).data( "station" );
+					if ( a < b ) {
+						return -1;
 					}
 				}
 			}
@@ -7149,19 +7183,19 @@ function calculateTotalRunningTime( runTimes ) {
 		sequential = new Array( NUM_SEQ_GROUPS ).fill( 0 );
 		parallel = 0;
 		var sequentialMax = 0;
-	$.each( controller.stations.snames, function( i ) {
-		var run = runTimes[ i ];
+		$.each( controller.stations.snames, function( i ) {
+			var run = runTimes[ i ];
 			var gid = Station.getGIDValue( i );
 			if ( run > 0 ) {
 				if ( gid !== PARALLEL_GID_VALUE ) {
 					sequential[ gid ] += ( run + sdt );
-		} else {
-			if ( run > parallel ) {
-				parallel = run;
+				} else {
+					if ( run > parallel ) {
+						parallel = run;
+					}
+				}
 			}
-		}
-			}
-	} );
+		} );
 		for ( var d = 0; d < NUM_SEQ_GROUPS; d++ )	{
 			if ( sequential[ d ] > sdt ) { sequential[ d ] -= sdt; }
 			if ( sequential[ d ] > sequentialMax ) { sequentialMax = sequential[ d ]; }
@@ -7183,8 +7217,8 @@ function calculateTotalRunningTime( runTimes ) {
 			}
 		} );
 		if ( sequential > sdt ) { sequential -= sdt; } // Discount the last sdt
-	return Math.max( sequential, parallel );
-}
+		return Math.max( sequential, parallel );
+	}
 }
 
 // Handle timer update on the home page and status bar
@@ -7791,14 +7825,14 @@ var getPreview = ( function() {
 							bid2 = sid >> 3;
 							s2 = sid & 0x07;
 							if ( q.gid === -1 ) { // Group id is not available
-							if ( controller.stations.stn_seq[ bid2 ] & ( 1 << s2 ) ) {
-								q.st = seqAcctime;
-								seqAcctime += q.dur;
-								seqAcctime += controller.options.sdt;
-							} else {
-								q.st = acctime;
-								acctime++;
-							}
+								if ( controller.stations.stn_seq[ bid2 ] & ( 1 << s2 ) ) {
+									q.st = seqAcctime;
+									seqAcctime += q.dur;
+									seqAcctime += controller.options.sdt;
+								} else {
+									q.st = acctime;
+									acctime++;
+								}
 							} else { // Group id is available
 								if ( q.gid !== PARALLEL_GID_VALUE ) { // This is a sequential station
 									q.st = seqAcctimes[ q.gid ];
@@ -7914,17 +7948,17 @@ var getPreview = ( function() {
 					s2 = sid & 0x07;
 					var sst = q.st + q.dur;
 					if ( q.gid === -1 ) { // Group id is not available
-					if ( controller.stations.stn_seq[ bid2 ] & ( 1 << s2 ) ) {
-						if ( sst > lastSeqStopTime ) {
-							lastSeqStopTime = sst;
+						if ( controller.stations.stn_seq[ bid2 ] & ( 1 << s2 ) ) {
+							if ( sst > lastSeqStopTime ) {
+								lastSeqStopTime = sst;
+							}
 						}
-					}
 					} else { // Group id is available
 						if ( q.gid !== PARALLEL_GID_VALUE ) {
 							if ( sst > lastSeqStopTimes[ q.gid ] ) {
 								lastSeqStopTimes[ q.gid ] = sst;
 							}
-				}
+						}
 					}
 				}
 			} else { // If !is216
@@ -10261,10 +10295,10 @@ function submitProgram21( id, ignoreWarning ) {
 		var repeatinterval = start[ 2 ] * 60;
 		if ( totalruntime > repeatinterval ) {
 			areYouSure( _( "Warning: The repeat interval (" + repeatinterval + " sec) is less than the program run time (" + totalruntime + " sec)." ), _( "Do you want to continue?" ), function() {
-			submitProgram21( id, true );
-		} );
-		return;
-	}
+				submitProgram21( id, true );
+			} );
+			return;
+		}
 	}
 
 	// If the interval is an even number and a restriction is set, notify user of possible conflict
@@ -10536,13 +10570,13 @@ function importConfig( data ) {
 		// Due to potentially large number of zones, we split zone names import to maximum 16 per group
 		for ( k = 0; k < ncs; k++ ) {
 			for ( i = k * 16; i < ( k + 1 ) * 16 && i < data.stations.snames.length; i++ ) {
-			if ( checkOSVersion( 208 ) === true ) {
-				station = data.stations.snames[ i ].replace( /\s/g, "_" );
-			} else {
-				station = data.stations.snames[ i ];
-			}
+				if ( checkOSVersion( 208 ) === true ) {
+					station = data.stations.snames[ i ].replace( /\s/g, "_" );
+				} else {
+					station = data.stations.snames[ i ];
+				}
 				csi[ k ] += "&s" + i + "=" + encodeURIComponent( station );
-		}
+			}
 		}
 
 		for ( i = 0; i < data.stations.masop.length; i++ ) {

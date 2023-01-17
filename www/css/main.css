@@ -797,7 +797,7 @@ input[type=number] {
     opacity: 0.5;
 }
 .card-icon {
-    position: absolute;
+	position: absolute;
     border: none;
 }
 .station-name {
