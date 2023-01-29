@@ -4851,6 +4851,31 @@ function showOptions( expandItem ) {
 				link.click();
 			});
 		} );
+
+		page.find("#show-log").on( "click", function() {
+			sendToOS("/so?pw=&max=100").done( function(result) {
+
+				var json = result.log;
+				var fields = Object.keys(json[0]);
+				var replacer = function(key, value) { return value === null ? "" : value; };
+				var csv = json.map(function(row){
+				  return fields.map(function(fieldName){
+					return replacer(row[fieldName]);
+				  }).join(",");
+				});
+				csv.unshift(fields.join(",")); // add header column
+				csv = csv.join("\r\n");
+
+				var csvContent = new Blob([csv], { type: "text/csv" });
+				var encodedUri = encodeURI(csvContent);
+				var link = document.createElement("a");
+				link.setAttribute("href", encodedUri);
+				link.setAttribute("download", "sensorlog-" + new Date().toLocaleDateString().replace( /\//g, "-" ) + ".csv");
+				document.body.appendChild(link); // Required for FF
+				link.click();
+			});
+		} );
+
 	}
 
 	//All the other staff...
