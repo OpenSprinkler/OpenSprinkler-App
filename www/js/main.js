@@ -354,6 +354,8 @@ $( document )
 		getRunonce();
 	} else if ( hash === "#os-options" ) {
 		showOptions( data.options.expandItem );
+	} else if ( hash === "#charts" ) {
+		showCharts();
 	} else if ( hash === "#preview" ) {
 		getPreview();
 	} else if ( hash === "#logs" ) {
@@ -4662,7 +4664,7 @@ function showOptions( expandItem ) {
 		list += "<table id='logfunctions'><tr style='width:100%;vertical-align: top;'><tr>" +
 			"<th><button data-mini='true' class='center-div' id='clear-log'>" + _( "Clear Log" ) + "</button></th>" +
 			"<th><button data-mini='true' class='center-div' id='download-log'>" + _( "Download Log" ) + "</button></th>" +
-			"<th><button data-mini='true' class='center-div' id='show-log'>" + _( "Show Log" ) + "</button></th>" +
+			"<th><a href='#charts'><button data-mini='true' class='center-div' id='show-log'>" + _( "Show Log" ) + "</button></a></th>" +
 			"</tr></table>";
 	}
 	list += "</fieldset>";
@@ -4853,27 +4855,8 @@ function showOptions( expandItem ) {
 		} );
 
 		page.find("#show-log").on( "click", function() {
-			sendToOS("/so?pw=&max=100").done( function(result) {
-
-				var json = result.log;
-				var fields = Object.keys(json[0]);
-				var replacer = function(key, value) { return value === null ? "" : value; };
-				var csv = json.map(function(row){
-				  return fields.map(function(fieldName){
-					return replacer(row[fieldName]);
-				  }).join(",");
-				});
-				csv.unshift(fields.join(",")); // add header column
-				csv = csv.join("\r\n");
-
-				var csvContent = new Blob([csv], { type: "text/csv" });
-				var encodedUri = encodeURI(csvContent);
-				var link = document.createElement("a");
-				link.setAttribute("href", encodedUri);
-				link.setAttribute("download", "sensorlog-" + new Date().toLocaleDateString().replace( /\//g, "-" ) + ".csv");
-				document.body.appendChild(link); // Required for FF
-				link.click();
-			});
+				changePage( "#charts" );
+				return false;
 		} );
 
 	}
@@ -5534,6 +5517,43 @@ function showOptions( expandItem ) {
 	$.mobile.pageContainer.append( page );
 }
 
+// About page
+var showCharts = ( function() {
+
+	var page = $( "<div data-role='page' id='charts'>" +
+			"<div class='ui-content' role='main'>" +
+			"<ul data-role='listview' data-inset='true'>" +
+			"<h1>Charts Test</h1>" +
+			"</div>" +
+			"</div>" ),
+		chart;
+
+	function begin() {
+		chart = null;
+
+		// page.find( ".firmware" ).text( getOSVersion() + getOSMinorVersion() );
+
+		page.one( "pagehide", function() {
+			page.detach();
+		} );
+
+		changeHeader( {
+			title: _( "Charts" ),
+			leftBtn: {
+				icon: "carat-l",
+				text: _( "Back" ),
+				class: "ui-toolbar-back-btn",
+				on: goBack
+			}
+		} );
+
+		$( "#about" ).remove();
+		$.mobile.pageContainer.append( page );
+	}
+
+	return begin;
+} )();
+
 var showHomeMenu = ( function() {
 	var page, id, showHidden, popup;
 
@@ -5555,6 +5575,7 @@ var showHomeMenu = ( function() {
 				"<li><a href='#runonce'>" + _( "Run-Once Program" ) + "</a></li>" +
 				"<li><a href='#programs'>" + _( "Edit Programs" ) + "</a></li>" +
 				"<li><a href='#os-options'>" + _( "Edit Options" ) + "</a></li>" +
+				"<li><a href='#charts'>" + _( "Show Charts" ) + "</a></li>" +
 				( checkOSVersion( 210 ) ? "" : "<li><a href='#manual'>" + _( "Manual Control" ) + "</a></li>" ) +
 			( id === "sprinklers" || id === "runonce" || id === "programs" || id === "manual" || id === "addprogram" ?
 				"</ul>" +
