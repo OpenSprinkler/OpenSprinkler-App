@@ -4,6 +4,7 @@
  * (c) 2023 OpenSprinklerShop
  * Released under the MIT License
  */
+
 var analogSensors = {},
 	progAdjusts = {};
 
