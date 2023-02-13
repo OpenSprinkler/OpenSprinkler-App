@@ -525,6 +525,15 @@ var showAnalogSensorConfig = ( function() {
 			});
 		} );
 
+		// refresh sensor data:
+		list.find( "#refresh-sensor").on( "click", function( ) {
+			updateProgramAdjustments(
+				updateAnalogSensor(
+					updateSensorContent()
+				)
+			);
+		} );
+
 		//delete a program adjust:
 		list.find( "#delete-progadjust" ).on( "click", function( ) {
 			var dur = $( this ),
@@ -591,6 +600,7 @@ var showAnalogSensorConfig = ( function() {
 			areYouSure( _( "Are you sure you want to clear the sensor log?" ), "", function() {
 				sendToOS("/sn?pw=&").done( function(result) {
 					window.alert(_("Log cleared: "+ result.deleted+_(" records")));
+					updateSensorContent();
 				});
 			});
 		});
@@ -678,6 +688,7 @@ function buildSensorConfig() {
 		});
 		list += "</table>";
 		list += "<button data-mini='true' class='center-div' id='add-sensor'>" + _( "Add Sensor" ) + "</button>";
+		list += "<button data-mini='true' class='center-div' id='refresh-sensor'>" + _( "Refresh Sensordata" ) + "</button>";
 
 		//Program adjustments table:
 		list += "<table id='progadjusttable'><tr style='width:100%;vertical-align: top;'>" +
