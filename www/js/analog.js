@@ -527,12 +527,12 @@ var showAnalogSensorConfig = ( function() {
 
 		// refresh sensor data:
 		list.find( "#refresh-sensor").on( "click", function( ) {
-			updateProgramAdjustments(
-				updateAnalogSensor(
-					updateSensorContent()
-				)
-			);
-		} );
+			updateProgramAdjustments( function( ) {
+				updateAnalogSensor( function( ) {
+					updateSensorContent();
+				});
+			});
+		});
 
 		//delete a program adjust:
 		list.find( "#delete-progadjust" ).on( "click", function( ) {
@@ -635,7 +635,7 @@ var showAnalogSensorConfig = ( function() {
 				return false;
 		} );
 
-		page.find( "#analogsensorlist" ).html( list );
+		page.find( "#analogsensorlist" ).html( list.enhanceWithin() );
 	}
 
 	function begin() {
@@ -680,15 +680,15 @@ function buildSensorConfig() {
 				$("<td>").text(item.log),
 				$("<td>").text(item.show),
 				$("<td>").text(dateToString(new Date(item.last*1000)), null, 2),
-				"<td><button data-mini='true' class='center-div' id='edit-sensor' value='"+item.nr+" 'row='"+row+"'>"+ _( "Edit" ),
-				"<td><button data-mini='true' class='center-div' id='delete-sensor' value='"+item.nr+"' row='"+row+"'>"+ _( "Delete" )
+				"<td><button data-mini='true' class='center-div' id='edit-sensor' value='"+item.nr+"' row='"+row+"'>"+ _( "Edit" )+"</button></td>",
+				"<td><button data-mini='true' class='center-div' id='delete-sensor' value='"+item.nr+"' row='"+row+"'>"+ _( "Delete" )+"</button></td>"
 			);
 			list += $tr.wrap("<p>").html() + "</tr>";
 			row++;
 		});
 		list += "</table>";
-		list += "<button data-mini='true' class='center-div' id='add-sensor'>" + _( "Add Sensor" ) + "</button>";
-		list += "<button data-mini='true' class='center-div' id='refresh-sensor'>" + _( "Refresh Sensordata" ) + "</button>";
+		list += "<p><button data-mini='true' class='center-div' id='add-sensor' value='1'>" + _( "Add Sensor" ) + "</button></p>";
+		list += "<p><button data-mini='true' class='center-div' id='refresh-sensor' value='2'>" + _( "Refresh Sensordata" ) + "</button></p>";
 
 		//Program adjustments table:
 		list += "<table id='progadjusttable'><tr style='width:100%;vertical-align: top;'>" +
@@ -720,14 +720,14 @@ function buildSensorConfig() {
 				$("<td>").text(item.min),
 				$("<td>").text(item.max),
 				$("<td>").text(Math.round(item.current*100.0)+"%"),
-				"<td><button data-mini='true' class='center-div' id='edit-progadjust' value='"+item.nr+"' row='"+row+"'>"+ _( "Edit" ),
-				"<td><button data-mini='true' class='center-div' id='delete-progadjust' value='"+item.nr+"' row='"+row+"'>"+ _( "Delete" )
+				"<td><button data-mini='true' class='center-div' id='edit-progadjust' value='"+item.nr+"' row='"+row+"'>"+ _( "Edit" )+"</button></td>",
+				"<td><button data-mini='true' class='center-div' id='delete-progadjust' value='"+item.nr+"' row='"+row+"'>"+ _( "Delete" )+"</button></td>"
 			);
 			list += $tr.wrap("<p>").html() + "</tr>";
 			row++;
 		});
 		list += "</table>";
-		list += "<button data-mini='true' class='center-div' id='add-progadjust'>" + _( "Add program adjustment" ) + "</button>";
+		list += "<p><button data-mini='true' class='center-div' id='add-progadjust' value='3'>" + _( "Add program adjustment" ) + "</button></p>";
 
 		//analog sensor logs:
 		list += "<table id='logfunctions'><tr style='width:100%;vertical-align: top;'><tr>" +
@@ -770,9 +770,18 @@ var showAnalogSensorCharts = ( function() {
 		$( "#analogsensorchart").remove();
 		$.mobile.pageContainer.append( page );
 
+		var labels = [];
+		var sensordata = [];
+		$.each(analogSensors, function(i, item) {
+
+			labels.push(item.name);
+
+			sendToOS( "/ja?pw=&lasthours=24", "json" ).then( function( data ) {
+
+			});
+		});
 
 		// set chart js labels and datasets
-		var labels = [1,2,3,4,5,6,7];
 		var data = {
 			labels: labels,
 			datasets: [{
