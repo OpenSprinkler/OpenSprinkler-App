@@ -744,7 +744,7 @@ var showAnalogSensorCharts = ( function() {
 	var page = $( "<div data-role='page' id='analogsensorchart'>" +
 			"<div class='ui-content' role='main'>" +
 			"<ul data-role='listview' data-inset='true'>" +
-			"<h1>Analog sensor log</h1>" +
+			"<h1>Analog sensor log last 24h</h1>" +
 			"<canvas id='myChart'></canvas>" +
 			"</div>" +
 			"</div>" ),
@@ -754,11 +754,12 @@ var showAnalogSensorCharts = ( function() {
 		chart = null;
 
 		page.one( "pagehide", function() {
+			chart.destroy();
 			page.detach();
 		} );
 
 		changeHeader( {
-			title: _( "Analog sensor log" ),
+			title: _( "Analog sensor log last 24h" ),
 			leftBtn: {
 				icon: "carat-l",
 				text: _( "Back" ),
@@ -770,63 +771,56 @@ var showAnalogSensorCharts = ( function() {
 		$( "#analogsensorchart").remove();
 		$.mobile.pageContainer.append( page );
 
-		var labels = [];
-		var sensordata = [];
-		$.each(analogSensors, function(i, item) {
-
-			labels.push(item.name);
-
-			sendToOS( "/ja?pw=&lasthours=24", "json" ).then( function( data ) {
-
-			});
-		});
-
-		// set chart js labels and datasets
-		var data = {
-			labels: labels,
-			datasets: [{
-				label: 'My First Dataset',
-				data: [65, 59, 80, 81, 56, 55, 40],
-				backgroundColor: [
-					'rgba(255, 99, 132, 0.2)',
-					'rgba(255, 159, 64, 0.2)',
-					'rgba(255, 205, 86, 0.2)',
-					'rgba(75, 192, 192, 0.2)',
-					'rgba(54, 162, 235, 0.2)',
-					'rgba(153, 102, 255, 0.2)',
-					'rgba(201, 203, 207, 0.2)'
-				],
-				borderColor: [
-					'rgb(255, 99, 132)',
-					'rgb(255, 159, 64)',
-					'rgb(255, 205, 86)',
-					'rgb(75, 192, 192)',
-					'rgb(54, 162, 235)',
-					'rgb(153, 102, 255)',
-					'rgb(201, 203, 207)'
-				],
-				borderWidth: 1
-			}]
-		};
-
-
-
-		// var ctx = page.find("myChart");
-		var ctx = document.getElementById('myChart');
-
-		new Chart(ctx, {
-			type: 'bar',
-			data: data,
-			options: {
-				scales: {
-					y: {
-						beginAtZero: true
+		sendToOS( "/so?pw=&lasthours=24", "json" ).then( function( data ) {
+			var datasets = [];
+			var scales = [];
+			scales['x'] = {
+					type: 'time',
+				};
+			for (j = 0; j < analogSensors.length; j++) {
+				var nr = analogSensors[j].nr;
+				var logdata = [];
+				for (k = 0; k < data.log.length; k++) {
+					if (data.log[k].nr === nr) {
+						logdata.push({x: data.log[k].time*1000, y: data.log[k].data});
 					}
 				}
+				if (logdata.length > 0) {
+					var unitid = analogSensors[j].unitid;
+					datasets.push({
+						label: analogSensors[j].name,
+						data: logdata,
+						fill: false,
+						xAxisID: 'x',
+						yAxisID: 'y'+unitid,
+					});
+					scales['y'+unitid] = {
+						type: 'linear',
+						display: true,
+						position: (unitid%2)?'left':'right',
+						title: {
+							display: true,
+							text: analogSensors[j].unit,
+						},
+					};
+				}
 			}
+
+			// set chart js labels and datasets
+			var ctx = document.getElementById('myChart').getContext('2d');
+			chart = new Chart(ctx, {
+				type: 'line',
+				data: {datasets: datasets},
+				options: {
+					responsive: true,
+					interaction: {
+						mode: 'index',
+						intersect: false,
+					  },
+					scales: scales,
+				}
+			});
 		});
-
-
 
 	}
 
