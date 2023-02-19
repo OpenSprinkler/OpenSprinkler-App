@@ -5990,10 +5990,6 @@ var showHome = ( function() {
 				}
 			};
 		},
-		//analog sensor api:
-		updateSensorShowAreaInt = function() {
-			updateSensorShowArea(page);
-		},
 
 		compareCardsGroupView = function( a, b ) {
 
