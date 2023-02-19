@@ -794,15 +794,30 @@ var showAnalogSensorCharts = ( function() {
 						xAxisID: 'x',
 						yAxisID: 'y'+unitid,
 					});
-					scales['y'+unitid] = {
-						type: 'linear',
-						display: true,
-						position: (unitid%2)?'left':'right',
-						title: {
+
+					if (unitid === 1) { // % soil
+						scales['y'+unitid] = {
+							type: 'linear',
 							display: true,
-							text: analogSensors[j].unit,
-						},
-					};
+							position: 'left',
+							title: {
+								display: true,
+								text: analogSensors[j].unit,
+							},
+							suggestedMin: 0,
+							suggestedMax: 50,
+						};
+					} else {
+						scales['y'+unitid] = {
+							type: 'linear',
+							display: true,
+							position: (unitid%2)?'left':'right',
+							title: {
+								display: true,
+								text: analogSensors[j].unit,
+							},
+						};
+					}
 				}
 			}
 
