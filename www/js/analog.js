@@ -33,8 +33,8 @@ function updateAnalogSensor( callback ) {
 function updateSensorShowArea( page ) {
 	if ( checkOSVersion( 230 ) ) {
 		var showArea =  page.find( "#os-sensor-show");
-		var html = "";
-		for (var i = 0; i < progAdjusts.length; i++) {
+		var html = "", i, j;
+		for (i = 0; i < progAdjusts.length; i++) {
 			var progAdjust = progAdjusts[i];
 			var sensorName = "";
 			for (j = 0; j < analogSensors.length; j++) {
@@ -52,7 +52,7 @@ function updateSensorShowArea( page ) {
 			html += "</div>";
 		}
 
-		for (var i = 0; i < analogSensors.length; i++) {
+		for (i = 0; i < analogSensors.length; i++) {
 			var sensor = analogSensors[i];
 			if (sensor.show) {
 				html += "<div id='sensor-show-"+sensor.nr+"' class='ui-body ui-body-a center'>";
@@ -65,7 +65,7 @@ function updateSensorShowArea( page ) {
 		}
 		showArea.html(html);
 	}
-};
+}
 
 function toByteArray(b) {
 	var result = [];
@@ -772,10 +772,9 @@ var showAnalogSensorCharts = ( function() {
 		$.mobile.pageContainer.append( page );
 
 		sendToOS( "/so?pw=&lasthours=24", "json" ).then( function( data ) {
-			var datasets = [];
-			var scales = [];
-			scales['x'] = {
-					type: 'time',
+			var datasets = [], scales = [], j, k;
+			scales["x"] = {
+					type: "time",
 				};
 			for (j = 0; j < analogSensors.length; j++) {
 				var nr = analogSensors[j].nr;
@@ -791,15 +790,15 @@ var showAnalogSensorCharts = ( function() {
 						label: analogSensors[j].name,
 						data: logdata,
 						fill: false,
-						xAxisID: 'x',
-						yAxisID: 'y'+unitid,
+						xAxisID: "x",
+						yAxisID: "y"+unitid,
 					});
 
 					if (unitid === 1) { // % soil
-						scales['y'+unitid] = {
-							type: 'linear',
+						scales["y"+unitid] = {
+							type: "linear",
 							display: true,
-							position: 'left',
+							position: "left",
 							title: {
 								display: true,
 								text: analogSensors[j].unit,
@@ -808,10 +807,10 @@ var showAnalogSensorCharts = ( function() {
 							suggestedMax: 50,
 						};
 					} else {
-						scales['y'+unitid] = {
-							type: 'linear',
+						scales["y"+unitid] = {
+							type: "linear",
 							display: true,
-							position: (unitid%2)?'left':'right',
+							position: (unitid%2)?"left":"right",
 							title: {
 								display: true,
 								text: analogSensors[j].unit,
@@ -822,14 +821,14 @@ var showAnalogSensorCharts = ( function() {
 			}
 
 			// set chart js labels and datasets
-			var ctx = document.getElementById('myChart').getContext('2d');
+			var ctx = document.getElementById("myChart").getContext("2d");
 			chart = new Chart(ctx, {
-				type: 'line',
+				type: "line",
 				data: {datasets: datasets},
 				options: {
 					responsive: true,
 					interaction: {
-						mode: 'index',
+						mode: "index",
 						intersect: false,
 					  },
 					scales: scales,
