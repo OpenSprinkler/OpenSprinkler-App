@@ -867,7 +867,7 @@ function newLoad() {
 				weatherAdjust.hide();
 			}
 
-			//analog sensor api
+			//Analog sensor api
 			if ( checkOSVersion( 230 ) ) {
 				updateAnalogSensor();
 				updateProgramAdjustments();
@@ -1007,7 +1007,7 @@ function updateControllerData( callback, fail ) {
 		controller.status = controller.status.sn;
 
 		callback();
-	});
+	} );
 }
 
 function updateControllerPrograms( callback ) {
@@ -5238,11 +5238,11 @@ var showHomeMenu = ( function() {
 				"<li><a href='#programs'>" + _( "Edit Programs" ) + "</a></li>" +
 				"<li><a href='#os-options'>" + _( "Edit Options" ) + "</a></li>" +
 
-				//analog sensor api:
-				( checkOSVersion( 230 )?(
+				//Analog sensor api:
+				( checkOSVersion( 230 ) ? (
 				"<li><a href='#analogsensorconfig'>" + _( "Analog Sensor Config" ) + "</a></li>" +
 				"<li><a href='#analogsensorchart'>" + _( "Show Sensor Log" ) + "</a></li>"
-				):"" ) +
+				) : "" ) +
 
 				( checkOSVersion( 210 ) ? "" : "<li><a href='#manual'>" + _( "Manual Control" ) + "</a></li>" ) +
 			( id === "sprinklers" || id === "runonce" || id === "programs" || id === "manual" || id === "addprogram" ?
@@ -6153,7 +6153,7 @@ var showHome = ( function() {
 
 			updateClock();
 			updateSites();
-			updateSensorShowArea(page);
+			updateSensorShowArea( page );
 
 			page.find( ".waterlevel" ).text( controller.options.wl );
 			page.find( ".sitename" ).text( siteSelect.val() );
@@ -6285,7 +6285,7 @@ var showHome = ( function() {
 		page.find( ".sitename" ).toggleClass( "hidden", currLocal ? true : false ).text( siteSelect.val() );
 		page.find( ".waterlevel" ).text( controller.options.wl );
 
-		updateSensorShowArea(page);
+		updateSensorShowArea( page );
 		updateClock();
 
 		page.on( "click", ".station-settings", showAttributes );
@@ -6597,10 +6597,10 @@ function refreshStatus( callback ) {
 
 	if ( checkOSVersion( 216 ) ) {
 		updateController( function() {
-			if (checkOSVersion( 230 )) {
-				updateAnalogSensor(function() {
-					updateProgramAdjustments(finish);
-				});
+			if ( checkOSVersion( 230 ) ) {
+				updateAnalogSensor( function() {
+					updateProgramAdjustments( finish );
+				} );
 			} else {
 				finish();
 			}
