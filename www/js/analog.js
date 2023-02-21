@@ -667,19 +667,19 @@ function buildSensorConfig() {
 		$.each( analogSensors, function( i, item ) {
 
 			var $tr = $( "<tr>" ).append(
-				$( "<td>" ).text( item.nr ),
-				$( "<td>" ).text( item.type ),
-				$( "<td>" ).text( item.group ? item.group : "" ),
-				$( "<td>" ).text( item.name ),
-				$( "<td>" ).text( item.ip ? toByteArray( item.ip ).join( "." ) : "" ),
-				$( "<td>" ).text( item.port ? item.port : "" ),
-				$( "<td>" ).text( item.type < 1000 ? item.id : "" ),
-				$( "<td>" ).text( item.ri ),
-				$( "<td>" ).text( Math.round( item.data ) + item.unit ),
-				$( "<td>" ).text( item.enable ),
-				$( "<td>" ).text( item.log ),
-				$( "<td>" ).text( item.show ),
-				$( "<td>" ).text( dateToString( new Date( item.last * 1000 ) ), null, 2 ),
+				$("<td><div class=\"cell\">").text(item.nr),
+				$("<td><div class=\"cell collapsable\">").text(item.type),
+				$("<td><div class=\"cell collapsable\">").text(item.group?item.group:""),
+				$("<td><div class=\"cell\">").text(item.name),
+				$("<td><div class=\"cell collapsable\">").text(item.ip?toByteArray(item.ip).join( "." ):""),
+				$("<td><div class=\"cell collapsable\">").text(item.port?item.port:""),
+				$("<td><div class=\"cell collapsable\">").text(item.type < 1000?item.id:""),
+				$("<td><div class=\"cell collapsable\">").text(item.ri),
+				$("<td><div class=\"cell collapsable\">").text(Math.round(item.data)+item.unit),
+				$("<td><div class=\"cell\">").text(item.enable),
+				$("<td><div class=\"cell collapsable\">").text(item.log),
+				$("<td><div class=\"cell collapsable\">").text(item.show),
+				$("<td><div class=\"cell collapsable\">").text(dateToString(new Date(item.last*1000)), null, 2),
 				"<td><button data-mini='true' class='center-div' id='edit-sensor' value='" + item.nr + "' row='" + row + "'>" + _( "Edit" ) + "</button></td>",
 				"<td><button data-mini='true' class='center-div' id='delete-sensor' value='" + item.nr + "' row='" + row + "'>" + _( "Delete" ) + "</button></td>"
 			);
@@ -709,17 +709,17 @@ function buildSensorConfig() {
 			}
 
 			var $tr = $( "<tr>" ).append(
-				$( "<td>" ).text( item.nr ),
-				$( "<td>" ).text( item.type ),
-				$( "<td>" ).text( item.sensor ),
-				$( "<td>" ).text( sensorName ),
-				$( "<td>" ).text( item.prog ),
-				$( "<td>" ).text( progName ),
-				$( "<td>" ).text( item.factor1 ),
-				$( "<td>" ).text( item.factor2 ),
-				$( "<td>" ).text( item.min ),
-				$( "<td>" ).text( item.max ),
-				$( "<td>" ).text( Math.round( item.current * 100.0 ) + "%" ),
+				$("<td><div class=\"cell\">").text(item.nr),
+				$("<td><div class=\"cell collapsable\">").text(item.type),
+				$("<td><div class=\"cell\">").text(item.sensor),
+				$("<td><div class=\"cell collapsable\">").text(sensorName),
+				$("<td><div class=\"cell\">").text(item.prog),
+				$("<td><div class=\"cell\">").text(progName),
+				$("<td><div class=\"cell collapsable\">").text(item.factor1),
+				$("<td><div class=\"cell collapsable\">").text(item.factor2),
+				$("<td><div class=\"cell collapsable\">").text(item.min),
+				$("<td><div class=\"cell collapsable\">").text(item.max),
+				$("<td><div class=\"cell\">").text(Math.round(item.current*100.0)+"%"),
 				"<td><button data-mini='true' class='center-div' id='edit-progadjust' value='" + item.nr + "' row='" + row + "'>" + _( "Edit" ) + "</button></td>",
 				"<td><button data-mini='true' class='center-div' id='delete-progadjust' value='" + item.nr + "' row='" + row + "'>" + _( "Delete" ) + "</button></td>"
 			);

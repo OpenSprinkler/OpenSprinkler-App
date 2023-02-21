@@ -5322,8 +5322,10 @@ var showHome = ( function() {
 						"</div>" +
 					"</div>" +
 					"<div id='os-stations-list' class='card-group center'></div>" +
+
 					//Analog Sensor API - show area start:
 					"<div id='os-sensor-show' class='card-group center'></div>" +
+
 					//Analog Sensor API - show area end
 				"</div>" +
 			"</div>" +

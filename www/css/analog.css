@@ -1,0 +1,5 @@
+td.collapsable {display:none; }
+
+@media only screen and (min-width: 450px) {
+  td.collapsable {display:table-cell; }
+}

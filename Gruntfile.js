@@ -18,7 +18,8 @@
 		grunt.loadNpmTasks( "grunt-text-replace" );
 		grunt.loadNpmTasks( "grunt-shell" );
 		grunt.loadNpmTasks( "grunt-contrib-compress" );
-		grunt.loadNpmTasks( "grunt-contrib-uglify" );
+		//grunt.loadNpmTasks( "grunt-contrib-uglify-es" );
+		grunt.loadNpmTasks( "grunt-terser" );
 		grunt.loadNpmTasks( "grunt-contrib-cssmin" );
 		grunt.loadNpmTasks( "grunt-contrib-csslint" );
 		grunt.loadNpmTasks( "grunt-contrib-clean" );
@@ -57,14 +58,14 @@
 			secrets: secrets,
 
 			jshint: {
-				main: [ "www/js/main.js", "www/js/map.js", "Gruntfile.js", "www/js/hasher.js", "www/js/home.js", "chrome.js", "test/tests.js" ],
+				main: [ "www/js/main.js", "www/js/analog.js", "www/js/map.js", "Gruntfile.js", "www/js/hasher.js", "www/js/home.js", "chrome.js", "test/tests.js" ],
 				options: {
 					jshintrc: true
 				}
 			},
 
 			jscs: {
-				main: [ "www/js/main.js", "www/js/map.js", "Gruntfile.js", "www/js/hasher.js", "www/js/home.js", "chrome.js", "test/tests.js" ],
+				main: [ "www/js/main.js", "www/js/analog.js", "www/js/map.js", "Gruntfile.js", "www/js/hasher.js", "www/js/home.js", "chrome.js", "test/tests.js" ],
 				options: {
 					config: true,
 					fix: true
@@ -246,10 +247,10 @@
 				}
 			},
 
-			uglify: {
+			terser: {
 				buildFW: {
 					files: {
-						"www/js/app.js": [ "www/js/jquery.js", "www/js/main.js", "www/js/libs.js" ]
+						"www/js/app.js": [ "www/js/jquery.js", "www/js/main.js", "www/js/analog.js", "www/js/chart.umd.js", "www/js/chartjs-adapter-date-fns.bundle.min.js", "www/js/libs.js" ]
 					}
 				}
 			},
@@ -274,7 +275,7 @@
 		grunt.registerTask( "test", [ "default", "blanket_mocha" ] );
 		grunt.registerTask( "updateLang", [ "shell:updateLang" ] );
 		grunt.registerTask( "pushEng", [ "shell:pushEng" ] );
-		grunt.registerTask( "buildFW", [ "default", "uglify", "cssmin" ] );
+		grunt.registerTask( "buildFW", [ "terser", "cssmin" ] );
 		grunt.registerTask( "makeFW", [ "buildFW", "compress:makeFW", "clean:makeFW" ] );
 		grunt.registerTask( "pushFW", [ "makeFW", "shell:updateUI", "clean:pushFW" ] );
 		grunt.registerTask( "pushBetaFW", [ "makeFW", "shell:updateBetaUI", "clean:pushFW" ] );
