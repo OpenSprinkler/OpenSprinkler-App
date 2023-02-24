@@ -69,7 +69,8 @@ function updateSensorShowArea( page ) {
 
 function toByteArray( b ) {
 	var result = [];
-	while ( b > 0.1 ) {
+	var n = 4;
+	while ( n-- ) {
 	  result.push( Number( b % 0x100 ) );
 	  b /= 0x100;
 	}
