@@ -77,7 +77,7 @@
 					options: {
 						csslintrc: ".csslintrc"
 					},
-					src: [ "www/css/main.css" ]
+					src: [ "www/css/main.css", "www/css/analog.css" ]
 				}
 			},
 
@@ -258,7 +258,7 @@
 			cssmin: {
 				combine: {
 					files: {
-						"www/css/app.css": [ "www/css/jqm.css", "www/css/main.css" ]
+						"www/css/app.css": [ "www/css/jqm.css", "www/css/main.css", "www/css/analog.css" ]
 					}
 				}
 			},

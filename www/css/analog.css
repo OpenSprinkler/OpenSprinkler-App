@@ -1,5 +1,7 @@
-td.collapsable {display:none; }
-
-@media only screen and (min-width: 450px) {
-  td.collapsable {display:table-cell; }
+@media screen and (max-width: 800px) and (min-width: 300px) {
+  .hidecol{display:none; }
+  .hidecol2{display:none; }
+}
+@media screen and (max-width: 1200px) and (min-width: 800px) {
+  .hidecol{display:none; }
 }
