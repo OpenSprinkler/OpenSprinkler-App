@@ -985,6 +985,12 @@ msgstr ""
 msgid "Edit Programs"
 msgstr ""
 
+msgid "Analog Sensor Config"
+msgstr ""
+
+msgid "Show Sensor Log"
+msgstr ""
+
 msgid "Manual Control"
 msgstr ""
 
@@ -2050,25 +2056,4 @@ msgid "In"
 msgstr ""
 
 msgid "ago"
-msgstr ""
-
-msgid "Export Configuration"
-msgstr ""
-
-msgid "Import Configuration"
-msgstr ""
-
-msgid "Help & Support"
-msgstr ""
-
-msgid "Operation"
-msgstr ""
-
-msgid "Reboot OpenSprinkler"
-msgstr ""
-
-msgid "Downgrade UI"
-msgstr ""
-
-msgid "System Diagnostics"
 msgstr ""
