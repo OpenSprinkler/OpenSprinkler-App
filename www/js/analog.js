@@ -662,25 +662,28 @@ var showAnalogSensorConfig = ( function() {
 function buildSensorConfig() {
 	// Analog sensor api support:
 	var list = "<table id='analog_sensor_table'><tr style='width:100%;vertical-align: top;'>" +
-		"<tr><th>Nr</th><th>Type</th><th>Group</th><th>Name</th><th>IP</th><th>Port</th><th>ID</th><th>Read<br>Interval</th><th>Data</th><th>Enabled</th><th>Log</th><th>Show</th><th>Last</th></tr>";
+		"<tr><th>Nr</th><th class=\"hidecol\">Type</th><th class=\"hidecol\">Group</th><th>Name</th>"+
+		"<th class=\"hidecol\">IP</th><th class=\"hidecol\">Port</th><th class=\"hidecol\">ID</th>"+
+		"<th class=\"hidecol\">Read<br>Interval</th><th class=\"hidecol\">Data</th><th>Enabled</th>"+
+		"<th class=\"hidecol\">Log</th><th class=\"hidecol\">Show</th><th class=\"hidecol2\">Last</th></tr>";
 
 		var row = 0;
 		$.each( analogSensors, function( i, item ) {
 
 			var $tr = $( "<tr>" ).append(
-				$("<td><div class=\"cell\">").text(item.nr),
-				$("<td><div class=\"cell collapsable\">").text(item.type),
-				$("<td><div class=\"cell collapsable\">").text(item.group?item.group:""),
-				$("<td><div class=\"cell\">").text(item.name),
-				$("<td><div class=\"cell collapsable\">").text(item.ip?toByteArray(item.ip).join( "." ):""),
-				$("<td><div class=\"cell collapsable\">").text(item.port?item.port:""),
-				$("<td><div class=\"cell collapsable\">").text(item.type < 1000?item.id:""),
-				$("<td><div class=\"cell collapsable\">").text(item.ri),
-				$("<td><div class=\"cell collapsable\">").text(Math.round(item.data)+item.unit),
-				$("<td><div class=\"cell\">").text(item.enable),
-				$("<td><div class=\"cell collapsable\">").text(item.log),
-				$("<td><div class=\"cell collapsable\">").text(item.show),
-				$("<td><div class=\"cell collapsable\">").text(dateToString(new Date(item.last*1000)), null, 2),
+				$("<td>").text(item.nr),
+				$("<td class=\"hidecol\">").text(item.type),
+				$("<td class=\"hidecol\">").text(item.group?item.group:""),
+				$("<td>").text(item.name),
+				$("<td class=\"hidecol\">").text(item.ip?toByteArray(item.ip).join( "." ):""),
+				$("<td class=\"hidecol\">").text(item.port?item.port:""),
+				$("<td class=\"hidecol\">").text(item.type < 1000?item.id:""),
+				$("<td class=\"hidecol\">").text(item.ri),
+				$("<td class=\"hidecol\">").text(Math.round(item.data)+item.unit),
+				$("<td>").text(item.enable),
+				$("<td class=\"hidecol\">").text(item.log),
+				$("<td class=\"hidecol\">").text(item.show),
+				$("<td class=\"hidecol2\">").text(dateToString(new Date(item.last*1000)), null, 2),
 				"<td><button data-mini='true' class='center-div' id='edit-sensor' value='" + item.nr + "' row='" + row + "'>" + _( "Edit" ) + "</button></td>",
 				"<td><button data-mini='true' class='center-div' id='delete-sensor' value='" + item.nr + "' row='" + row + "'>" + _( "Delete" ) + "</button></td>"
 			);
@@ -693,7 +696,11 @@ function buildSensorConfig() {
 
 		//Program adjustments table:
 		list += "<table id='progadjusttable'><tr style='width:100%;vertical-align: top;'>" +
-		"<tr><th>Nr</th><th>Type</th><th>Sensor-Nr</th><th>Name</th><th>Program-Nr</th><th>Program</th><th>Factor 1</th><th>Factor 2</th><th>Min Value</th><th>Max Value</th><th>Current</th></tr>";
+		"<tr><th>Nr</th><th class=\"hidecol\">Type</th><th class=\"hidecol\">Sensor-Nr</th>"+
+		"<th class=\"hidecol2\">Name</th><th>Program-Nr</th><th>Program</th>"+
+		"<th class=\"hidecol2\">Factor 1</th><th class=\"hidecol2\">Factor 2</th>"+
+		"<th class=\"hidecol2\">Min Value</th><th class=\"hidecol2\">Max Value</th>"+
+		"<th class=\"hidecol\">Current</th></tr>";
 
 		row = 0;
 		$.each( progAdjusts, function( i, item ) {
@@ -710,17 +717,17 @@ function buildSensorConfig() {
 			}
 
 			var $tr = $( "<tr>" ).append(
-				$("<td><div class=\"cell\">").text(item.nr),
-				$("<td><div class=\"cell collapsable\">").text(item.type),
-				$("<td><div class=\"cell\">").text(item.sensor),
-				$("<td><div class=\"cell collapsable\">").text(sensorName),
-				$("<td><div class=\"cell\">").text(item.prog),
-				$("<td><div class=\"cell\">").text(progName),
-				$("<td><div class=\"cell collapsable\">").text(item.factor1),
-				$("<td><div class=\"cell collapsable\">").text(item.factor2),
-				$("<td><div class=\"cell collapsable\">").text(item.min),
-				$("<td><div class=\"cell collapsable\">").text(item.max),
-				$("<td><div class=\"cell\">").text(Math.round(item.current*100.0)+"%"),
+				$("<td>").text(item.nr),
+				$("<td class=\"hidecol\">").text(item.type),
+				$("<td class=\"hidecol\">").text(item.sensor),
+				$("<td class=\"hidecol2\">").text(sensorName),
+				$("<td>").text(item.prog),
+				$("<td>").text(progName),
+				$("<td class=\"hidecol2\">").text(item.factor1),
+				$("<td class=\"hidecol2\">").text(item.factor2),
+				$("<td class=\"hidecol2\">").text(item.min),
+				$("<td class=\"hidecol2\">").text(item.max),
+				$("<td class=\"hidecol\">").text(Math.round(item.current*100.0)+"%"),
 				"<td><button data-mini='true' class='center-div' id='edit-progadjust' value='" + item.nr + "' row='" + row + "'>" + _( "Edit" ) + "</button></td>",
 				"<td><button data-mini='true' class='center-div' id='delete-progadjust' value='" + item.nr + "' row='" + row + "'>" + _( "Delete" ) + "</button></td>"
 			);
