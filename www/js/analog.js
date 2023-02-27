@@ -606,9 +606,22 @@ var showAnalogSensorConfig = ( function() {
 			} );
 		} );
 
-		// Download log as csv
 		list.find( "#download-log" ).on( "click", function() {
-			sendToOS( "/so?pw=&" ).done( function( result ) {
+			var link = document.createElement( "a" );
+			link.setAttribute( "download", "sensorlog-" + new Date().toLocaleDateString().replace( /\//g, "-" ) + ".csv" );
+
+			dest = "/so?pw=&csv=1";
+			dest = dest.replace( "pw=", "pw=" + encodeURIComponent( currPass ) );
+			link.href = currToken ? "https://cloud.openthings.io/forward/v1/" + currToken + dest : currPrefix + currIp + dest;
+			alert(link.href);
+			document.body.appendChild( link ); // Required for FF
+			link.click();
+		} );
+
+		// Download log as csv
+		/*
+		list.find( "#download-log-old" ).on( "click", function() {
+			sendToOS( "/so?pw=" ).done( function( result ) {
 
 				var json = result.log;
 				var fields = Object.keys( json[ 0 ] );
@@ -629,7 +642,7 @@ var showAnalogSensorConfig = ( function() {
 				document.body.appendChild( link ); // Required for FF
 				link.click();
 			} );
-		} );
+		} );*/
 
 		list.find( "#show-log" ).on( "click", function() {
 				changePage( "#analogsensorchart" );
