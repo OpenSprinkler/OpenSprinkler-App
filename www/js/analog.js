@@ -773,17 +773,20 @@ var showAnalogSensorCharts = ( function() {
 
 		sendToOS( "/so?pw=&lasthours=24", "json" ).then( function( data ) {
 			var datasets = [], scales = [], j, k;
+			var dateopts = {hour: "2-digit", minute: "2-digit", timeZone: "UTC"};
 			scales[ "x" ] = {
 					type: "time",
 					time : {
+						unit: "hour",
+						unitStepSize: 1,
 						displayFormats: {
 							hour: "hh:mm",
-						}
+						},
 					},
 					display: true,
 					ticks: {
 						callback: function(value) {
-							return new Date(value).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+							return new Date(value).toLocaleTimeString([], dateopts);
 						},
 					},
 				};
