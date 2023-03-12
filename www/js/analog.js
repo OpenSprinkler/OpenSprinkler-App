@@ -618,32 +618,6 @@ var showAnalogSensorConfig = ( function() {
 			link.click();
 		} );
 
-		// Download log as csv
-		/*
-		list.find( "#download-log-old" ).on( "click", function() {
-			sendToOS( "/so?pw=" ).done( function( result ) {
-
-				var json = result.log;
-				var fields = Object.keys( json[ 0 ] );
-				var replacer = function( key, value ) { return value === null ? "" : value; };
-				var csv = json.map( function( row ) {
-				  return fields.map( function( fieldName ) {
-					return replacer( row[ fieldName ] );
-				  } ).join( "," );
-				} );
-				csv.unshift( fields.join( "," ) ); // Add header column
-				csv = csv.join( "\r\n" );
-
-				var csvContent = new Blob( [ csv ], { type: "text/csv" } );
-				var encodedUri = encodeURI( csvContent );
-				var link = document.createElement( "a" );
-				link.setAttribute( "href", encodedUri );
-				link.setAttribute( "download", "sensorlog-" + new Date().toLocaleDateString().replace( /\//g, "-" ) + ".csv" );
-				document.body.appendChild( link ); // Required for FF
-				link.click();
-			} );
-		} );*/
-
 		list.find( "#show-log" ).on( "click", function() {
 				changePage( "#analogsensorchart" );
 				return false;
@@ -709,10 +683,15 @@ function buildSensorConfig() {
 
 		//Program adjustments table:
 		list += "<table id='progadjusttable'><tr style='width:100%;vertical-align: top;'>" +
-		"<tr><th>Nr</th><th class=\"hidecol\">Type</th><th class=\"hidecol\">Sensor-Nr</th>"+
-		"<th class=\"hidecol2\">Name</th><th>Program-Nr</th><th>Program</th>"+
-		"<th class=\"hidecol2\">Factor 1</th><th class=\"hidecol2\">Factor 2</th>"+
-		"<th class=\"hidecol2\">Min Value</th><th class=\"hidecol2\">Max Value</th>"+
+		"<tr><th>Nr</th>"+
+		"<th class=\"hidecol\">Type</th>"+
+		"<th>Sensor-Nr</th>"+
+		"<th>Name</th>"+
+		"<th class=\"hidecol2\">Program-Nr</th><th>Program</th>"+
+		"<th class=\"hidecol2\">Factor 1</th>"+
+		"<th class=\"hidecol2\">Factor 2</th>"+
+		"<th class=\"hidecol2\">Min Value</th>"+
+		"<th class=\"hidecol2\">Max Value</th>"+
 		"<th class=\"hidecol\">Current</th></tr>";
 
 		row = 0;
@@ -795,7 +774,18 @@ var showAnalogSensorCharts = ( function() {
 		sendToOS( "/so?pw=&lasthours=24", "json" ).then( function( data ) {
 			var datasets = [], scales = [], j, k;
 			scales[ "x" ] = {
-					type: "time"
+					type: "time",
+					time : {
+						displayFormats: {
+							hour: "hh:mm",
+						}
+					},
+					display: true,
+					ticks: {
+						callback: function(value) {
+							return new Date(value).toLocaleDateString("de-DE", {month: "short", year: "numeric"});
+						},
+					},
 				};
 			for ( j = 0; j < analogSensors.length; j++ ) {
 				var nr = analogSensors[ j ].nr;
@@ -812,7 +802,7 @@ var showAnalogSensorCharts = ( function() {
 						data: logdata,
 						fill: false,
 						xAxisID: "x",
-						yAxisID: "y" + unitid
+						yAxisID: "y" + unitid,
 					} );
 
 					if ( unitid === 1 ) { // % soil
@@ -822,7 +812,7 @@ var showAnalogSensorCharts = ( function() {
 							position: "left",
 							title: {
 								display: true,
-								text: analogSensors[ j ].unit
+								text: analogSensors[ j ].unit,
 							},
 							suggestedMin: 0,
 							suggestedMax: 50
@@ -834,8 +824,8 @@ var showAnalogSensorCharts = ( function() {
 							position: ( unitid % 2 ) ? "left" : "right",
 							title: {
 								display: true,
-								text: analogSensors[ j ].unit
-							}
+								text: analogSensors[ j ].unit,
+							},
 						};
 					}
 				}
@@ -852,8 +842,8 @@ var showAnalogSensorCharts = ( function() {
 						mode: "index",
 						intersect: false
 					  },
-					scales: scales
-				}
+					scales: scales,
+				},
 			} );
 		} );
 
