@@ -783,7 +783,7 @@ var showAnalogSensorCharts = ( function() {
 					display: true,
 					ticks: {
 						callback: function(value) {
-							return new Date(value).toLocaleDateString("de-DE", {month: "short", year: "numeric"});
+							return new Date(value).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 						},
 					},
 				};
