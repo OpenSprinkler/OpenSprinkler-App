@@ -3133,6 +3133,9 @@ function makeAttribution( provider ) {
 
 	var attrib = "<div class='weatherAttribution'>";
 	switch ( provider ) {
+		case "Apple":
+			attrib += _( "Powered by Apple" );
+			break;
 		case "DarkSky":
 		case "DS":
 			attrib += "<a href='https://darksky.net/poweredby/' target='_blank'>" + _( "Powered by Dark Sky" ) + "</a>";
