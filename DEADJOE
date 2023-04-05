@@ -1,0 +1,98 @@
+
+*** These modified files were found in JOE when it aborted on Mon Mar 20 19:52:30 2023
+*** JOE was aborted because the terminal closed
+
+*** File '(Unnamed)'
+exit
+
+*** File '(Unnamed)'
+$VPNGROUP
+iptables
+Tray3
+PingClient
+OS
+marketing
+192.168.0.50    
+Temp
+relative_humidity
+this.toF
+
+*** File '(Unnamed)'
+loading
+grunt
+punc
+chartjs
+chartjs
+chart
+MaxRequestWorkers
+memory
+memory
+compress
+
+*** File '(Unnamed)'
+zmd/secret
+zmd/zmd.conf
+zoneminder/zm.conf
+zm.conf
+01-system-paths.conf
+01-system-paths.conf
+02-multiserver.conf
+README
+03-db.conf
+/etc/crontab
+config.xml
+
+*** File '* Startup Log *'
+Processing '/etc/joe/joerc'...
+Processing '/etc/joe/ftyperc'...
+Finished processing /etc/joe/ftyperc
+Finished processing /etc/joe/joerc
+
+*** These modified files were found in JOE when it aborted on Mon Mar 20 23:50:42 2023
+*** JOE was aborted by UNIX signal 1
+
+*** File '(Unnamed)'
+exit
+
+*** File '(Unnamed)'
+$VPNGROUP
+iptables
+Tray3
+PingClient
+OS
+marketing
+192.168.0.50    
+Temp
+relative_humidity
+this.toF
+
+*** File '(Unnamed)'
+loading
+grunt
+punc
+chartjs
+chartjs
+chart
+MaxRequestWorkers
+memory
+memory
+compress
+
+*** File '(Unnamed)'
+zmd/secret
+zmd/zmd.conf
+zoneminder/zm.conf
+zm.conf
+01-system-paths.conf
+01-system-paths.conf
+02-multiserver.conf
+README
+03-db.conf
+/etc/crontab
+config.xml
+
+*** File '* Startup Log *'
+Processing '/etc/joe/joerc'...
+Processing '/etc/joe/ftyperc'...
+Finished processing /etc/joe/ftyperc
+Finished processing /etc/joe/joerc

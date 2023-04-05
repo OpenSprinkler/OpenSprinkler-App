@@ -651,7 +651,7 @@ function buildSensorConfig() {
 	var list = "<table id='analog_sensor_table'><tr style='width:100%;vertical-align: top;'>" +
 		"<tr><th>Nr</th><th class=\"hidecol\">Type</th><th class=\"hidecol\">Group</th><th>Name</th>"+
 		"<th class=\"hidecol\">IP</th><th class=\"hidecol\">Port</th><th class=\"hidecol\">ID</th>"+
-		"<th class=\"hidecol\">Read<br>Interval</th><th class=\"hidecol\">Data</th><th>Enabled</th>"+
+		"<th class=\"hidecol\">Read<br>Interval</th><th>Data</th><th>Enabled</th>"+
 		"<th class=\"hidecol\">Log</th><th class=\"hidecol\">Show</th><th class=\"hidecol2\">Last</th></tr>";
 
 		var row = 0;
@@ -666,7 +666,7 @@ function buildSensorConfig() {
 				$("<td class=\"hidecol\">").text(item.port?item.port:""),
 				$("<td class=\"hidecol\">").text(item.type < 1000?item.id:""),
 				$("<td class=\"hidecol\">").text(item.ri),
-				$("<td class=\"hidecol\">").text(Math.round(item.data)+item.unit),
+				$("<td>").text(Math.round(item.data)+item.unit),
 				$("<td>").text(item.enable),
 				$("<td class=\"hidecol\">").text(item.log),
 				$("<td class=\"hidecol\">").text(item.show),
@@ -687,7 +687,8 @@ function buildSensorConfig() {
 		"<th class=\"hidecol\">Type</th>"+
 		"<th>Sensor-Nr</th>"+
 		"<th>Name</th>"+
-		"<th class=\"hidecol2\">Program-Nr</th><th>Program</th>"+
+		"<th class=\"hidecol2\">Program-Nr</th>"+
+		"<th>Program</th>"+
 		"<th class=\"hidecol2\">Factor 1</th>"+
 		"<th class=\"hidecol2\">Factor 2</th>"+
 		"<th class=\"hidecol2\">Min Value</th>"+
@@ -711,9 +712,9 @@ function buildSensorConfig() {
 			var $tr = $( "<tr>" ).append(
 				$("<td>").text(item.nr),
 				$("<td class=\"hidecol\">").text(item.type),
-				$("<td class=\"hidecol\">").text(item.sensor),
-				$("<td class=\"hidecol2\">").text(sensorName),
-				$("<td>").text(item.prog),
+				$("<td>").text(item.sensor),
+				$("<td>").text(sensorName),
+				$("<td class=\"hidecol2\">").text(item.prog),
 				$("<td>").text(progName),
 				$("<td class=\"hidecol2\">").text(item.factor1),
 				$("<td class=\"hidecol2\">").text(item.factor2),
@@ -738,28 +739,41 @@ function buildSensorConfig() {
 	return list;
 }
 
-// About page
+// show Sensor Charts with apexcharts
 var showAnalogSensorCharts = ( function() {
 
 	var page = $( "<div data-role='page' id='analogsensorchart'>" +
-			"<div class='ui-content' role='main'>" +
-			"<ul data-role='listview' data-inset='true'>" +
-			"<h1>Analog sensor log last 24h</h1>" +
-			"<canvas id='myChart'></canvas>" +
+			"<div class='ui-content' role='main' style='width: 95%'>" +
+			"<div id='myChart1'></div>" +
+			"<div id='myChart2'></div>" +
+			"<div id='myChart3'></div>" +
+			"<div id='myChart4'></div>" +
+			"<div id='myChart5'></div>" +
+			"<div id='myChartW1'></div>" +
+			"<div id='myChartW2'></div>" +
+			"<div id='myChartW3'></div>" +
+			"<div id='myChartW4'></div>" +
+			"<div id='myChartW5'></div>" +
+			"<div id='myChartM1'></div>" +
+			"<div id='myChartM2'></div>" +
+			"<div id='myChartM3'></div>" +
+			"<div id='myChartM4'></div>" +
+			"<div id='myChartM5'></div>" +
 			"</div>" +
 			"</div>" ),
-		chart;
+		chart1, chart2, chart3;
 
 	function begin() {
-		chart = null;
+		chart1 = new Array(6);
+		chart2 = new Array(6);
+		chart3 = new Array(6);
 
 		page.one( "pagehide", function() {
-			chart.destroy();
 			page.detach();
 		} );
 
 		changeHeader( {
-			title: _( "Analog sensor log last 24h" ),
+			title: _( "Analog sensor log" ),
 			leftBtn: {
 				icon: "carat-l",
 				text: _( "Back" ),
@@ -771,87 +785,119 @@ var showAnalogSensorCharts = ( function() {
 		$( "#analogsensorchart" ).remove();
 		$.mobile.pageContainer.append( page );
 
-		sendToOS( "/so?pw=&lasthours=24", "json" ).then( function( data ) {
-			var datasets = [], scales = [], j, k;
-			var dateopts = {hour: "2-digit", minute: "2-digit", timeZone: "UTC"};
-			scales[ "x" ] = {
-					type: "time",
-					time : {
-						unit: "hour",
-						unitStepSize: 1,
-						displayFormats: {
-							hour: "hh:mm",
-						},
-					},
-					display: true,
-					ticks: {
-						callback: function(value) {
-							return new Date(value).toLocaleTimeString([], dateopts);
-						},
-					},
-				};
-			for ( j = 0; j < analogSensors.length; j++ ) {
-				var nr = analogSensors[ j ].nr;
-				var logdata = [];
-				for ( k = 0; k < data.log.length; k++ ) {
-					if ( data.log[ k ].nr === nr ) {
-						logdata.push( { x: data.log[ k ].time * 1000, y: data.log[ k ].data } );
-					}
-				}
-				if ( logdata.length > 0 ) {
-					var unitid = analogSensors[ j ].unitid;
-					datasets.push( {
-						label: analogSensors[ j ].name,
-						data: logdata,
-						fill: false,
-						xAxisID: "x",
-						yAxisID: "y" + unitid,
-					} );
+		//sendToOS("/so?pw=&lasthours=24&csv=2", "text").then(function (csv) {
+		sendToOS("/so?pw=&lasthours=24&csv=2", "text").then(function (csv1) {
+			build_graph("#myChart", chart1, csv1, _("last 24h"), "HH:mm");
 
-					if ( unitid === 1 ) { // % soil
-						scales[ "y" + unitid ] = {
-							type: "linear",
-							display: true,
-							position: "left",
-							title: {
-								display: true,
-								text: analogSensors[ j ].unit,
-							},
-							suggestedMin: 0,
-							suggestedMax: 50
-						};
-					} else {
-						scales[ "y" + unitid ] = {
-							type: "linear",
-							display: true,
-							position: ( unitid % 2 ) ? "left" : "right",
-							title: {
-								display: true,
-								text: analogSensors[ j ].unit,
-							},
-						};
-					}
-				}
-			}
+			sendToOS("/so?pw=&csv=2&log=1", "text").then(function (csv2) {
+				build_graph("#myChartW", chart2, csv2, _("last weeks"), "dd.MM.yyyy");
 
-			// Set chart js labels and datasets
-			var ctx = document.getElementById( "myChart" ).getContext( "2d" );
-			chart = new Chart( ctx, {
-				type: "line",
-				data: { datasets: datasets },
-				options: {
-					responsive: true,
-					interaction: {
-						mode: "index",
-						intersect: false
-					  },
-					scales: scales,
-				},
-			} );
-		} );
-
+				sendToOS("/so?pw=&csv=2&log=2", "text").then(function (csv3) {
+					build_graph("#myChartM", chart3, csv3, _("last months"), "MM.yyyy");
+				});
+			});
+		});
 	}
 
 	return begin;
 } )();
 
+function build_graph(prefix, chart, csv, title, timestr) {
+			let csvlines = csv.split(/(?:\r\n|\n)+/).filter(function(el) {return el.length != 0});
+
+			for ( var j = 0; j < analogSensors.length; j++ ) {
+				if (!analogSensors[j].log)
+					continue;
+
+				var nr = analogSensors[j].nr,
+					logdata = [],
+					unitid = analogSensors[j].unitid;
+
+				for ( var k = 1; k < csvlines.length; k++ ) {
+					let line = csvlines[k].split(";");
+					if (line.length >= 3 && Number(line[0]) === nr ) {
+						logdata.push( { x: Number(line[1]) * 1000, y: Number(line[2]) } );
+					}
+				}
+				var series = { name: analogSensors[j].name, data: logdata };
+
+				if (!chart[unitid]) {
+					var unit, title;
+					switch (unitid) {
+						case 1: unit = _("% soil moisture"); title = _("Soil moisture ")+title; break;
+						case 2: unit = _("degree celsius temperature"); title = _("Temperature ")+title; break;
+						case 3: unit = _("degree fahrenheit temperature"); title = _("Temperature ")+title; break;
+						case 4: unit = _("Volt"); title = _("Voltage ")+title; break;
+						default: unit = ""; title = "";
+					}
+
+					var options = {
+						chart: {
+							type: "line",
+							stacked: false,
+							width: "100%"
+						},
+						dataLabels: {
+							enabled: false
+						},
+						series: [series],
+						stroke: {
+							curve: 'smooth',
+							width: 4,
+						},
+						grid: {
+							xaxis: {
+								lines: {
+									show: true,
+								},
+							},
+							yaxis: {
+								lines: {
+									show: true,
+								},
+							},
+						},
+						plotOptions: {
+							bar: {
+								columnWidth: "20%"
+							}
+						},
+						tooltip: {
+							x: {
+								format: 'dd.MM.yyyy HH:mm:ss',
+							},
+						},
+						xaxis: {
+							type: 'datetime',
+							labels: {
+								datetimeUTC : true,
+								format: timestr,
+								//formatter: function (val) {
+								//	return new Date(val).toLocaleTimeString()
+								//},
+							},
+						},
+						yaxis: {
+							title: { text: unit },
+							decimalsInFloat: 0,
+							//tickAmount: 10,
+							forceNiceScale: true,
+						},
+						title: {text: title},
+					};
+
+					chart[unitid] = new ApexCharts(document.querySelector(prefix + unitid), options);
+					chart[unitid].render();
+				} else {
+					chart[unitid].appendSeries(series);
+				}
+			}
+
+			for (k = 1; k < 6; k++) {
+				if (!chart[k]) {
+					var x = document.querySelector(prefix + k);
+					if (x)
+						x.parentElement.removeChild(x);
+				}
+			}
+}

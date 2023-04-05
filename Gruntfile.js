@@ -248,19 +248,26 @@
 			},
 
 			terser: {
+				options: {
+					compress: true,
+					format: {
+						comments: false,
+					},
+				},
 				buildFW: {
 					files: {
-						"www/js/app.js": [ "www/js/jquery.js", "www/js/main.js", "www/js/analog.js", "www/js/chart.umd.js", "www/js/chartjs-adapter-date-fns.bundle.min.js", "www/js/libs.js" ]
-					}
-				}
+						"www/js/app.js": [ "www/js/jquery.js", "www/js/libs.js", "www/js/main.js", "www/js/analog.js", 
+						"www/js/jqm.js", "www/js/apexcharts.min.js" ]
+					},
+				},
 			},
 
 			cssmin: {
 				combine: {
 					files: {
 						"www/css/app.css": [ "www/css/jqm.css", "www/css/main.css", "www/css/analog.css" ]
-					}
-				}
+					},
+				},
 			},
 
 			clean: {

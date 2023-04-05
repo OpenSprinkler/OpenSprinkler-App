@@ -1,11 +1,12 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget android-versionCode="109" id="com.albahra.sprinklers" version="2.3.0" versionCode="109" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cordova.apache.org/ns/1.0">
-    <name>OpenSprinkler</name>
+<widget android-versionCode="112" id="de.opensprinklershop.sprinklers" version="2.3.0" versionCode="112" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>OpenSprinklerPro</name>
     <description>
 	    Designed to allow intuitive control of the OpenSprinkler irrigation controller.
+	    Added Analog Sensor Api by Stefan Schmaltz OpenSprinklerShop
 	</description>
-    <author email="salbahra@gmail.com" href="https://opensprinkler.com/">
-	    Samer Albahra
+    <author email="info@opensprinklershop.de" href="https://opensprinklershop.de/">
+	    Stefan Schmaltz
 	</author>
     <content src="index.html" />
     <access origin="*" />
@@ -25,6 +26,21 @@
     <preference name="FadeSplashScreen" value="false" />
     <preference name="KeyboardDisplayRequiresUserAction" value="false" />
     <preference name="loadUrlTimeoutValue" value="700000" />
+    
+    <exclude-files pattern="**/analog.*"/>
+    <exclude-files pattern="**/chart.umd.js"/>
+    <exclude-files pattern="**/chartjs-adapter-date-fns.bundle.min.js"/>
+    <exclude-files pattern="**/apexcharts.min.js"/>
+    <exclude-files pattern="**/hasher.js"/>
+    <exclude-files pattern="**/home.js"/>
+    <exclude-files pattern="**/jqm.*"/>
+    <exclude-files pattern="**/jquery.js"/>
+    <exclude-files pattern="**/jquery.js.sav"/>
+    <exclude-files pattern="**/libs.js"/>
+    <exclude-files pattern="**/main.*"/>
+    <exclude-files pattern="**/map.js"/>
+    <exclude-files pattern="**/*.js~"/>
+    
     <platform name="ios">
 		<preference name="scheme" value="ionic" />
         <config-file target="*-Info.plist" overwrite="true" parent="NSLocationAlwaysUsageDescription">
@@ -76,12 +92,17 @@
         <icon height="152" src="res/ios/icons/icon-76@2x.png" width="152" />
     </platform>
     <platform name="android">
-        <config-file target="app/src/main/AndroidManifest.xml" overwrite="true" parent="/manifest/application">
-            <application android:usesCleartextTraffic="true" />
-        </config-file>
+    	<edit-config file="app/src/main/AndroidManifest.xml" mode="merge" target="/manifest/application" xmlns:android="http://schemas.android.com/apk/res/android">
+		<application android:networkSecurityConfig="@xml/network_security_config" />
+		<application android:usesCleartextTraffic="true" />
+	</edit-config>
+	<resource-file src="res/android/xml/network_security_config.xml" target="app/src/main/res/xml/network_security_config.xml" />
+	
+	<preference name="cdvMinSdkVersion" value="22" />
         <preference name="android-minSdkVersion" value="22" />
-        <preference name="android-targetSdkVersion" value="28" />
+        <preference name="android-targetSdkVersion" value="31" />
         <preference name="android-theme" value="@android:style/Theme.Holo.Light.NoActionBar" />
+        <preference name="AndroidInsecureFileModeEnabled" value="true" />
         <splash density="mdpi" src="res/android/screens/mdpi.9.png" />
         <splash density="xhdpi" src="res/android/screens/xhdpi.9.png" />
         <icon density="ldpi" src="res/android/icons/ldpi.png" />
