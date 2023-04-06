@@ -670,7 +670,7 @@ function buildSensorConfig() {
 				$("<td>").text(item.enable),
 				$("<td class=\"hidecol\">").text(item.log),
 				$("<td class=\"hidecol\">").text(item.show),
-				$("<td class=\"hidecol2\">").text(dateToString(new Date(item.last*1000)), null, 2),
+				$("<td class=\"hidecol2\">").text((item.data_ok === undefined || item.data_ok)?dateToString(new Date(item.last*1000)):"Error", null, 2),
 				"<td><button data-mini='true' class='center-div' id='edit-sensor' value='" + item.nr + "' row='" + row + "'>" + _( "Edit" ) + "</button></td>",
 				"<td><button data-mini='true' class='center-div' id='delete-sensor' value='" + item.nr + "' row='" + row + "'>" + _( "Delete" ) + "</button></td>"
 			);
@@ -802,7 +802,7 @@ var showAnalogSensorCharts = ( function() {
 	return begin;
 } )();
 
-function build_graph(prefix, chart, csv, title, timestr) {
+function build_graph(prefix, chart, csv, title_add, timestr) {
 			let csvlines = csv.split(/(?:\r\n|\n)+/).filter(function(el) {return el.length != 0});
 
 			for ( var j = 0; j < analogSensors.length; j++ ) {
@@ -824,11 +824,11 @@ function build_graph(prefix, chart, csv, title, timestr) {
 				if (!chart[unitid]) {
 					var unit, title;
 					switch (unitid) {
-						case 1: unit = _("% soil moisture"); title = _("Soil moisture ")+title; break;
-						case 2: unit = _("degree celsius temperature"); title = _("Temperature ")+title; break;
-						case 3: unit = _("degree fahrenheit temperature"); title = _("Temperature ")+title; break;
-						case 4: unit = _("Volt"); title = _("Voltage ")+title; break;
-						default: unit = ""; title = "";
+						case 1: unit = _("% soil moisture"); title = _("Soil moisture ")+title_add; break;
+						case 2: unit = _("degree celsius temperature"); title = _("Temperature ")+title_add; break;
+						case 3: unit = _("degree fahrenheit temperature"); title = _("Temperature ")+title_add; break;
+						case 4: unit = _("Volt"); title = _("Voltage ")+title_add; break;
+						default: unit = ""; title = title_add;
 					}
 
 					var options = {
