@@ -651,25 +651,27 @@ function buildSensorConfig() {
 	var list = "<table id='analog_sensor_table'><tr style='width:100%;vertical-align: top;'>" +
 		"<tr><th>Nr</th><th class=\"hidecol\">Type</th><th class=\"hidecol\">Group</th><th>Name</th>"+
 		"<th class=\"hidecol\">IP</th><th class=\"hidecol\">Port</th><th class=\"hidecol\">ID</th>"+
-		"<th class=\"hidecol\">Read<br>Interval</th><th>Data</th><th>Enabled</th>"+
+		"<th class=\"hidecol\">Read<br>Interval</th><th>Data</th><th>En</th>"+
 		"<th class=\"hidecol\">Log</th><th class=\"hidecol\">Show</th><th class=\"hidecol2\">Last</th></tr>";
+
+		var checkpng = "<img src=\""+getAppURLPath() + "img/check-black.png\">";
 
 		var row = 0;
 		$.each( analogSensors, function( i, item ) {
 
 			var $tr = $( "<tr>" ).append(
-				$("<td>").text(item.nr),
+				$("<td>"                  ).text(item.nr),
 				$("<td class=\"hidecol\">").text(item.type),
 				$("<td class=\"hidecol\">").text(item.group?item.group:""),
-				$("<td>").text(item.name),
+				$("<td>"                  ).text(item.name),
 				$("<td class=\"hidecol\">").text(item.ip?toByteArray(item.ip).join( "." ):""),
 				$("<td class=\"hidecol\">").text(item.port?item.port:""),
 				$("<td class=\"hidecol\">").text(item.type < 1000?item.id:""),
 				$("<td class=\"hidecol\">").text(item.ri),
-				$("<td>").text(Math.round(item.data)+item.unit),
-				$("<td>").text(item.enable),
-				$("<td class=\"hidecol\">").text(item.log),
-				$("<td class=\"hidecol\">").text(item.show),
+				$("<td>"                  ).text(Math.round(item.data)+item.unit),
+				"<td>"                  +(item.enable?checkpng:"")+"</td>",
+				"<td class=\"hidecol\">"+(item.log?checkpng:"")+"</td>",
+				"<td class=\"hidecol\">"+(item.show?checkpng:"")+"</td>",
 				$("<td class=\"hidecol2\">").text((item.data_ok === undefined || item.data_ok)?dateToString(new Date(item.last*1000)):"Error", null, 2),
 				"<td><button data-mini='true' class='center-div' id='edit-sensor' value='" + item.nr + "' row='" + row + "'>" + _( "Edit" ) + "</button></td>",
 				"<td><button data-mini='true' class='center-div' id='delete-sensor' value='" + item.nr + "' row='" + row + "'>" + _( "Delete" ) + "</button></td>"
@@ -685,7 +687,7 @@ function buildSensorConfig() {
 		list += "<table id='progadjusttable'><tr style='width:100%;vertical-align: top;'>" +
 		"<tr><th>Nr</th>"+
 		"<th class=\"hidecol\">Type</th>"+
-		"<th>Sensor-Nr</th>"+
+		"<th>S.Nr</th>"+
 		"<th>Name</th>"+
 		"<th class=\"hidecol2\">Program-Nr</th>"+
 		"<th>Program</th>"+
