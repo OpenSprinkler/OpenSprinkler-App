@@ -41,7 +41,7 @@ A mobile interface for the OpenSprinkler irrigation device. Designed to allow ma
 
 + For current discussion about the project please refer to the [forums](https://opensprinkler.com/forums/forum/opensprinkler-mobile-app/).
 
-+ For advanced users, the application supports authentication (HTTP Basic) and SSL for devices behind proxies. Guide for OSPi available [here](http://rayshobby.net/mediawiki/index.php?title=Secure_Remote_Access).
++ For advanced users, the application supports authentication (HTTP Basic) and SSL for devices behind proxies.
 
 ---
 
