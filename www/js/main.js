@@ -3161,7 +3161,7 @@ function makeAttribution( provider ) {
 			attrib += "<a href='https://wunderground.com/' target='_blank'>" + _( "Powered by Weather Underground" ) + "</a>";
 			break;
 		case "DWD":
-			attrib += "<a href='https://brightsky.dev/' target='_blank'>" + _( "Powered by Deutscher Wetterdienst" ) + "</a>";
+			attrib += "<a href='https://brightsky.dev/' target='_blank'>" + _( "Powered by Bright Sky+DWD" ) + "</a>";
 			break;
 		case "OpenMeteo":
 		case "OM":

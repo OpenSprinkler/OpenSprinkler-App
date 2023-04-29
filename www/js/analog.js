@@ -214,7 +214,7 @@ function showAdjustmentsEditor( progAdjust, callback ) {
 		} );
 
 		popup.on( "focus", "input[type='number']", function() {
-			this.value = "";
+			this.select();
 		} ).on( "blur", "input[type='number']", function() {
 
 			var min = parseFloat( this.min ),
@@ -240,11 +240,12 @@ function showAdjustmentsEditor( progAdjust, callback ) {
 			return false;
 		} );
 
-		$( "#sensorEditor" ).remove();
+		$( "#progAdjustEditor" ).remove();
 
 		popup.css( "max-width", "580px" );
 
 		openPopup( popup, { positionTo: "window" } );
+
 	} );
 }
 
@@ -405,7 +406,7 @@ function showSensorEditor( sensor, callback ) {
 	} );
 
 	popup.on( "focus", "input[type='number']", function() {
-		this.value = "";
+		this.select();
 	} ).on( "blur", "input[type='number']", function() {
 
 		var min = parseFloat( this.min ),
@@ -608,12 +609,14 @@ var showAnalogSensorConfig = ( function() {
 
 		list.find( "#download-log" ).on( "click", function() {
 			var link = document.createElement( "a" );
+			link.style.display = "none";
 			link.setAttribute( "download", "sensorlog-" + new Date().toLocaleDateString().replace( /\//g, "-" ) + ".csv" );
 
 			dest = "/so?pw=&csv=1";
 			dest = dest.replace( "pw=", "pw=" + encodeURIComponent( currPass ) );
+			link.target = "_blank";
 			link.href = currToken ? "https://cloud.openthings.io/forward/v1/" + currToken + dest : currPrefix + currIp + dest;
-			alert(link.href);
+			//alert(link.href);
 			document.body.appendChild( link ); // Required for FF
 			link.click();
 		} );
@@ -689,13 +692,13 @@ function buildSensorConfig() {
 		"<th class=\"hidecol\">Type</th>"+
 		"<th>S.Nr</th>"+
 		"<th>Name</th>"+
-		"<th class=\"hidecol2\">Program-Nr</th>"+
+		"<th class=\"hidecol\">Program-Nr</th>"+
 		"<th>Program</th>"+
 		"<th class=\"hidecol2\">Factor 1</th>"+
 		"<th class=\"hidecol2\">Factor 2</th>"+
 		"<th class=\"hidecol2\">Min Value</th>"+
 		"<th class=\"hidecol2\">Max Value</th>"+
-		"<th class=\"hidecol\">Current</th></tr>";
+		"<th>Current</th></tr>";
 
 		row = 0;
 		$.each( progAdjusts, function( i, item ) {
@@ -716,13 +719,13 @@ function buildSensorConfig() {
 				$("<td class=\"hidecol\">").text(item.type),
 				$("<td>").text(item.sensor),
 				$("<td>").text(sensorName),
-				$("<td class=\"hidecol2\">").text(item.prog),
+				$("<td class=\"hidecol\">").text(item.prog),
 				$("<td>").text(progName),
 				$("<td class=\"hidecol2\">").text(item.factor1),
 				$("<td class=\"hidecol2\">").text(item.factor2),
 				$("<td class=\"hidecol2\">").text(item.min),
 				$("<td class=\"hidecol2\">").text(item.max),
-				$("<td class=\"hidecol\">").text(Math.round(item.current*100.0)+"%"),
+				$("<td>").text(Math.round(item.current*100.0)+"%"),
 				"<td><button data-mini='true' class='center-div' id='edit-progadjust' value='" + item.nr + "' row='" + row + "'>" + _( "Edit" ) + "</button></td>",
 				"<td><button data-mini='true' class='center-div' id='delete-progadjust' value='" + item.nr + "' row='" + row + "'>" + _( "Delete" ) + "</button></td>"
 			);
@@ -751,24 +754,39 @@ var showAnalogSensorCharts = ( function() {
 			"<div id='myChart3'></div>" +
 			"<div id='myChart4'></div>" +
 			"<div id='myChart5'></div>" +
+			"<div id='myChart6'></div>" +
+			"<div id='myChart7'></div>" +
+			"<div id='myChart8'></div>" +
+			"<div id='myChart9'></div>" +
+			"<div id='myChart10'></div>" +
 			"<div id='myChartW1'></div>" +
 			"<div id='myChartW2'></div>" +
 			"<div id='myChartW3'></div>" +
 			"<div id='myChartW4'></div>" +
 			"<div id='myChartW5'></div>" +
+			"<div id='myChartW6'></div>" +
+			"<div id='myChartW7'></div>" +
+			"<div id='myChartW8'></div>" +
+			"<div id='myChartW9'></div>" +
+			"<div id='myChartW10'></div>" +
 			"<div id='myChartM1'></div>" +
 			"<div id='myChartM2'></div>" +
 			"<div id='myChartM3'></div>" +
 			"<div id='myChartM4'></div>" +
 			"<div id='myChartM5'></div>" +
+			"<div id='myChartM6'></div>" +
+			"<div id='myChartM7'></div>" +
+			"<div id='myChartM8'></div>" +
+			"<div id='myChartM9'></div>" +
+			"<div id='myChartM10'></div>" +
 			"</div>" +
 			"</div>" ),
 		chart1, chart2, chart3;
 
 	function begin() {
-		chart1 = new Array(6);
-		chart2 = new Array(6);
-		chart3 = new Array(6);
+		chart1 = new Array(10);
+		chart2 = new Array(10);
+		chart3 = new Array(10);
 
 		page.one( "pagehide", function() {
 			page.detach();
@@ -824,13 +842,47 @@ function build_graph(prefix, chart, csv, title_add, timestr) {
 				var series = { name: analogSensors[j].name, data: logdata };
 
 				if (!chart[unitid]) {
-					var unit, title;
+					var unit, title, unitStr;
 					switch (unitid) {
-						case 1: unit = _("% soil moisture"); title = _("Soil moisture ")+title_add; break;
-						case 2: unit = _("degree celsius temperature"); title = _("Temperature ")+title_add; break;
-						case 3: unit = _("degree fahrenheit temperature"); title = _("Temperature ")+title_add; break;
-						case 4: unit = _("Volt"); title = _("Voltage ")+title_add; break;
-						default: unit = ""; title = title_add;
+						case 1: unit = _("Soil moisture");
+								title = _("Soil moisture ")+title_add;
+								unitStr = function(val) {return val+" %"};
+								break;
+						case 2: unit = _("degree celsius temperature");
+								title = _("Temperature ")+title_add;
+								unitStr = function(val) {return val+String.fromCharCode(176)+"C"};
+								break;
+						case 3: unit = _("degree fahrenheit temperature");
+								title = _("Temperature ")+title_add;
+								unitStr = function(val) {return val+String.fromCharCode(176)+"F"};
+								break;
+						case 4: unit = _("Volt");
+								title = _("Voltage ")+title_add;6
+								unitStr = function(val) {return val+" V"};
+								break;
+						case 5: unit = _("Humidity");
+								title = _("Air Humidity ")+title_add;
+								unitStr = function(val) {return val+" %"};
+								break;
+						case 6: unit = _("Rain");
+								title = _("Rainfall ")+title_add;
+								unitStr = function(val) {return val+" in"};
+								break;
+						case 7: unit = _("Rain");
+								title = _("Rainfall ")+title_add;
+								unitStr = function(val) {return val+" mm"};
+								break;
+						case 8: unit = _("Wind");
+								title = _("Wind ")+title_add;
+								unitStr = function(val) {return val+" mph"};
+								break;
+						case 9: unit = _("Wind");
+								title = _("Wind ")+title_add;
+								unitStr = function(val) {return val+" kmh"};
+								break;
+						default: unit = "";
+								title = title_add;
+								unitStr = null;
 					}
 
 					var options = {
@@ -874,9 +926,6 @@ function build_graph(prefix, chart, csv, title_add, timestr) {
 							labels: {
 								datetimeUTC : true,
 								format: timestr,
-								//formatter: function (val) {
-								//	return new Date(val).toLocaleTimeString()
-								//},
 							},
 						},
 						yaxis: {
@@ -884,8 +933,15 @@ function build_graph(prefix, chart, csv, title_add, timestr) {
 							decimalsInFloat: 0,
 							//tickAmount: 10,
 							forceNiceScale: true,
+							labels: {
+								formatter: unitStr,
+							}
 						},
 						title: {text: title},
+						//forecastDataPoints: {
+						//	count: 10,
+						//	strokeWidth: 4,
+						//},
 					};
 
 					chart[unitid] = new ApexCharts(document.querySelector(prefix + unitid), options);
