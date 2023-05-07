@@ -504,7 +504,7 @@ var showAnalogSensorConfig = ( function() {
 			var sensor = {
 				name: "new sensor",
 				type: 1,
-				ri: 60,
+				ri: 600,
 				enable: 1,
 				log: 1 };
 
@@ -784,6 +784,8 @@ var showAnalogSensorCharts = ( function() {
 		chart1, chart2, chart3;
 
 	function begin() {
+		$.mobile.loading( "show" );
+
 		chart1 = new Array(10);
 		chart2 = new Array(10);
 		chart3 = new Array(10);
@@ -814,6 +816,7 @@ var showAnalogSensorCharts = ( function() {
 
 				sendToOS("/so?pw=&csv=2&log=2", "text").then(function (csv3) {
 					build_graph("#myChartM", chart3, csv3, _("last months"), "MM.yyyy");
+					$.mobile.loading( "hide" );
 				});
 			});
 		});
@@ -845,39 +848,39 @@ function build_graph(prefix, chart, csv, title_add, timestr) {
 					var unit, title, unitStr;
 					switch (unitid) {
 						case 1: unit = _("Soil moisture");
-								title = _("Soil moisture ")+title_add;
+								title = _("Soil moisture")+" "+title_add;
 								unitStr = function(val) {return val+" %"};
 								break;
 						case 2: unit = _("degree celsius temperature");
-								title = _("Temperature ")+title_add;
+								title = _("Temperature")+" "+title_add;
 								unitStr = function(val) {return val+String.fromCharCode(176)+"C"};
 								break;
 						case 3: unit = _("degree fahrenheit temperature");
-								title = _("Temperature ")+title_add;
+								title = _("Temperature")+" "+title_add;
 								unitStr = function(val) {return val+String.fromCharCode(176)+"F"};
 								break;
 						case 4: unit = _("Volt");
-								title = _("Voltage ")+title_add;6
+								title = _("Voltage")+" "+title_add;6
 								unitStr = function(val) {return val+" V"};
 								break;
 						case 5: unit = _("Humidity");
-								title = _("Air Humidity ")+title_add;
+								title = _("Air Humidity")+" "+title_add;
 								unitStr = function(val) {return val+" %"};
 								break;
 						case 6: unit = _("Rain");
-								title = _("Rainfall ")+title_add;
+								title = _("Rainfall")+" "+title_add;
 								unitStr = function(val) {return val+" in"};
 								break;
 						case 7: unit = _("Rain");
-								title = _("Rainfall ")+title_add;
+								title = _("Rainfall")+" "+title_add;
 								unitStr = function(val) {return val+" mm"};
 								break;
 						case 8: unit = _("Wind");
-								title = _("Wind ")+title_add;
+								title = _("Wind")+" "+title_add;
 								unitStr = function(val) {return val+" mph"};
 								break;
 						case 9: unit = _("Wind");
-								title = _("Wind ")+title_add;
+								title = _("Wind")+" "+title_add;
 								unitStr = function(val) {return val+" kmh"};
 								break;
 						default: unit = "";

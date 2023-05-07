@@ -1,4 +1,4 @@
-/* global $, ThreeDeeTouch, Windows, MSApp, navigator, chrome, FastClick */
+	/* global $, ThreeDeeTouch, Windows, MSApp, navigator, chrome, FastClick */
 /* global StatusBar, networkinterface, links, SunCalc, md5, sjcl, Camera */
 
 /* OpenSprinkler App
