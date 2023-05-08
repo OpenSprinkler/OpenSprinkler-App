@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget android-versionCode="127" id="de.opensprinklershop.sprinklers" version="2.3.0" versionCode="127" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget android-versionCode="128" id="de.opensprinklershop.sprinklers" version="2.3.0" versionCode="128" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>OpenSprinklerPro</name>
     <description>
 	    Designed to allow intuitive control of the OpenSprinkler irrigation controller.
