@@ -744,6 +744,8 @@ function buildSensorConfig() {
 	return list;
 }
 
+const CHARTS = 11;
+
 // show Sensor Charts with apexcharts
 var showAnalogSensorCharts = ( function() {
 
@@ -786,9 +788,9 @@ var showAnalogSensorCharts = ( function() {
 	function begin() {
 		$.mobile.loading( "show" );
 
-		chart1 = new Array(10);
-		chart2 = new Array(10);
-		chart3 = new Array(10);
+		chart1 = new Array(CHARTS);
+		chart2 = new Array(CHARTS);
+		chart3 = new Array(CHARTS);
 
 		page.one( "pagehide", function() {
 			page.detach();
@@ -844,6 +846,9 @@ function build_graph(prefix, chart, csv, title_add, timestr) {
 				}
 				var series = { name: analogSensors[j].name, data: logdata };
 
+				if (unitid >= CHARTS)
+					unitid = 0;
+
 				if (!chart[unitid]) {
 					var unit, title, unitStr;
 					switch (unitid) {
@@ -883,6 +888,11 @@ function build_graph(prefix, chart, csv, title_add, timestr) {
 								title = _("Wind")+" "+title_add;
 								unitStr = function(val) {return val+" kmh"};
 								break;
+						case 10: unit = _("Level");
+								title = _("Level")+" "+title_add;
+								unitStr = function(val) {return val+" %"};
+								break;
+
 						default: unit = "";
 								title = title_add;
 								unitStr = null;
@@ -954,7 +964,7 @@ function build_graph(prefix, chart, csv, title_add, timestr) {
 				}
 			}
 
-			for (k = 1; k < 6; k++) {
+			for (k = 1; k < CHARTS; k++) {
 				if (!chart[k]) {
 					var x = document.querySelector(prefix + k);
 					if (x)

@@ -720,5 +720,6 @@
 "Air Humidity": "Luft Feuchtigkeit",
 "Rain": "Regen",
 "Rainfall": "Regenfälle",
-"Wind": "Wind"
+"Wind": "Wind",
+"Level": "Stand"
 }}
