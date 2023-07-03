@@ -1,0 +1,21 @@
+{
+	"short_name": "OpenSprinkler",
+	"name": "OpenSprinkler",
+	"icons": [
+	  {
+		"src": "/img/icon-1024.png",
+		"type": "image/png",
+		"sizes": "1024x1024"
+	  },
+	  {
+		"src": "/img/icon-512.png",
+		"type": "image/png",
+		"sizes": "512x512"
+	  }
+	],
+	"start_url": "/",
+	"background_color": "#1c1c1c",
+	"display": "standalone",
+	"scope": "/",
+	"theme_color": "#65D1C6"
+  }

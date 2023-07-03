@@ -100,7 +100,7 @@
 						archive: "build/firmware/UI.zip"
 					},
 					files: [ {
-						src: [ "css/**", "js/**", "img/**", "locale/*.js", "*.html" ],
+						src: [ "css/**", "js/**", "img/**", "locale/*.js", "*.html", "manifest.json", "sw.js" ],
 						cwd: "www/",
 						expand: true
 					}, {

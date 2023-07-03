@@ -156,6 +156,12 @@ var isIEMobile = /IEMobile/.test( navigator.userAgent ),
 	curr183, currToken, currIp, currPrefix, currAuth, currPass, currAuthUser,
 	currAuthPass, currLocal, currLang, language, deviceip, errorTimeout, weather, openPanel;
 
+if ( "serviceWorker" in navigator ) {
+	window.addEventListener( "load", function() {
+		navigator.serviceWorker.register( "/sw.js" );
+	} );
+}
+
 // Prevent errors from bubbling up on Windows
 if ( isWinApp ) {
 	$( window ).on( "error", function( msg, url, line ) {
