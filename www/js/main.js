@@ -6091,7 +6091,7 @@ var showHome = ( function() {
 				divider = Card.getDivider( thisCard );
 				divider.hide(); // Remove all dividers when switching from group view
 
-				Card.setGroupLabel( thisCard, mapGIDValueToName( Station.getGIDValue( idx ) ) );
+				Card.setGroupLabel( thisCard, mapGIDValueToName( Station.getGIDValue( Card.getSID( thisCard ) ) ) );
 				label = Card.getGroupLabel( thisCard );
 				if ( typeof label !== "undefined" && Card.isMasterStation( thisCard ) ) {
 					label.addClass( "hidden" );
