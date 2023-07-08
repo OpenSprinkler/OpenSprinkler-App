@@ -80,10 +80,9 @@
             <application android:usesCleartextTraffic="true" />
         </config-file>
         <preference name="android-minSdkVersion" value="22" />
-        <preference name="android-targetSdkVersion" value="28" />
+        <preference name="android-targetSdkVersion" value="33" />
         <preference name="android-theme" value="@android:style/Theme.Holo.Light.NoActionBar" />
-        <splash density="mdpi" src="res/android/screens/mdpi.9.png" />
-        <splash density="xhdpi" src="res/android/screens/xhdpi.9.png" />
+		<preference name="AndroidWindowSplashScreenAnimatedIcon" src="res/android/screens/xhdpi.9.png" />
         <icon density="ldpi" src="res/android/icons/ldpi.png" />
         <icon density="mdpi" src="res/android/icons/mdpi.png" />
         <icon density="hdpi" src="res/android/icons/hdpi.png" />
