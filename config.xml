@@ -78,6 +78,7 @@
         <edit-config file="AndroidManifest.xml" mode="merge" target="/manifest/application">
             <application android:usesCleartextTraffic="true" />
         </edit-config>
+		<preference name="Scheme" value="http" />
         <preference name="android-minSdkVersion" value="24" />
         <preference name="android-targetSdkVersion" value="33" />
         <preference name="android-theme" value="@android:style/Theme.Holo.Light.NoActionBar" />
