@@ -2505,7 +2505,7 @@ function showZimmermanAdjustmentOptions( button, callback ) {
 				br: parseFloat( popup.find( ".br" ).val() )
 			} );
 
-			// OSPi strores in imperial so onvert metric at higher precision so we dont lose accuracy
+			// OSPi stores in imperial so onvert metric at higher precision so we dont lose accuracy
 			if ( isMetric ) {
 				options.bt = Math.round( ( options.bt * 9 / 5 + 32 ) * 100 ) / 100;
 				options.br = Math.round( ( options.br / 25.4 ) * 1000 ) / 1000;
@@ -3984,7 +3984,7 @@ function showOptions( expandItem ) {
 					}
 				}
 
-				// Because the firmware has a bug regarding spaces, let us replace them out now with a compatible seperator
+				// Because the firmware has a bug regarding spaces, let us replace them out now with a compatible separator
 				if ( checkOSVersion( 208 ) === true && id === "loc" ) {
 					data = data.replace( /\s/g, "_" );
 				}
@@ -5924,7 +5924,7 @@ var showHome = ( function() {
 					// Only send the name of the station being updated
 					if ( sid === id ) {
 
-						// Because the firmware has a bug regarding spaces, let us replace them out now with a compatible seperator
+						// Because the firmware has a bug regarding spaces, let us replace them out now with a compatible separator
 						if ( is208 ) {
 							names[ "s" + sid ] = page.find( "#station_" + sid ).text().replace( /\s/g, "_" );
 						} else {
@@ -8637,7 +8637,7 @@ var getLogs = ( function() {
 			$.mobile.loading( "show" );
 
 			if ( ( endtime - starttime ) > 31540000 ) {
-				showerror( _( "The requested time span exceeds the maxiumum of 1 year and has been adjusted" ), 3500 );
+				showerror( _( "The requested time span exceeds the maximum of 1 year and has been adjusted" ), 3500 );
 				var nDate = dates().start;
 				nDate.setFullYear( nDate.getFullYear() + 1 );
 				$( "#log_end" ).val( nDate.getFullYear() + "-" + pad( nDate.getMonth() + 1 ) + "-" + pad( nDate.getDate() ) );
@@ -10300,7 +10300,7 @@ function importConfig( data ) {
 				}
 
 				// Handle data from firmware 2.1+ being imported to a 2.1+ device
-				// The firmware does not accept program name inside the program array and must be submitted seperately
+				// The firmware does not accept program name inside the program array and must be submitted separately
 				if ( !isPi && typeof data.options.fwv === "number" && data.options.fwv >= 210 && checkOSVersion( 210 ) ) {
 					name = "&name=" + prog[ 5 ];
 
@@ -11116,7 +11116,7 @@ function showUnifiedFirmwareNotification() {
 
 			// Unable to access the device using it's public IP
 			addNotification( {
-				title: _( "Unified firmware is now avaialble" ),
+				title: _( "Unified firmware is now available" ),
 				desc: _( "Click here for more details" ),
 				on: function() {
 					var iab = window.open( "https://openthings.freshdesk.com/support/solutions/articles/5000631599",
@@ -12502,7 +12502,7 @@ function openPopup( popup, args ) {
 
 	popup.one( "popupafterclose", function() {
 
-		// Retreive popup data
+		// Retrieve popup data
 		var updateRemainingStations = $( "#shift-sta" ).is( ":checked" );
 
 		// Save data before view is destroyed
@@ -12615,7 +12615,7 @@ function takePicture( callback ) {
 
 function goHome( firstLoad ) {
 
-	// Transition to home page after succesful load
+	// Transition to home page after successful load
 	if ( $( ".ui-page-active" ).attr( "id" ) !== "sprinklers" ) {
 		$.mobile.document.one( "pageshow", function() {
 
@@ -13260,7 +13260,7 @@ function transformKeysinString( co ) {
 	return co;
 }
 
-/* Compatability methods, verify that necessary data is
+/* Compatibility methods, verify that necessary data is
  * sent from the controller to the UI without explicitly
  * checking for OS version. */
 
