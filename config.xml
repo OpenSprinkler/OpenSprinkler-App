@@ -82,6 +82,8 @@
         <preference name="android-minSdkVersion" value="24" />
         <preference name="android-targetSdkVersion" value="33" />
         <preference name="android-theme" value="@android:style/Theme.Holo.Light.NoActionBar" />
+		<preference name="AndroidWindowSplashScreenAnimatedIcon" value="res/android/screens/splash.png" />
+		<preference name="AndroidWindowSplashScreenBackground" value="#1c1c1c" />
         <icon density="ldpi" src="res/android/icons/ldpi.png" />
         <icon density="mdpi" src="res/android/icons/mdpi.png" />
         <icon density="hdpi" src="res/android/icons/hdpi.png" />
