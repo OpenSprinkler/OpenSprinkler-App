@@ -1,5 +1,5 @@
 /* global $, ThreeDeeTouch, Windows, MSApp, navigator, chrome, FastClick */
-/* global StatusBar, networkinterface, links, SunCalc, md5, sjcl, Camera */
+/* global StatusBar, networkinterface, links, SunCalc, md5, sjcl */
 
 /* OpenSprinkler App
  * Copyright (C) 2015 - present, Samer Albahra. All rights reserved.
@@ -12597,40 +12597,40 @@ function showLoading( ele ) {
 }
 
 function getPicture( callback ) {
-	const imageLoader = $( "<input style='display: none' type='file' accept='image/*' />" )
+	var imageLoader = $( "<input style='display: none' type='file' accept='image/*' />" )
 		.insertAfter( "body" )
-		.on( "change", function(event) {
+		.on( "change", function( event ) {
 			var reader = new FileReader();
-			reader.onload = function(readerEvent) {
+			reader.onload = function( readerEvent ) {
 				var image = new Image();
 				image.onload = function() {
 					var canvas = document.createElement( "canvas" ),
-						max_size = 200,
+						maxSize = 200,
 						width = image.width,
 						height = image.height;
-					if (width > height) {
-						if (width > max_size) {
-							height *= max_size / width;
-							width = max_size;
+					if ( width > height ) {
+						if ( width > maxSize ) {
+							height *= maxSize / width;
+							width = maxSize;
 						}
 					} else {
-						if (height > max_size) {
-							width *= max_size / height;
-							height = max_size;
+						if ( height > maxSize ) {
+							width *= maxSize / height;
+							height = maxSize;
 						}
 					}
 					canvas.width = width;
 					canvas.height = height;
 					canvas.getContext( "2d" ).drawImage( image, 0, 0, width, height );
-					resizedImage = canvas.toDataURL( "image/jpeg", .5 ).replace( "data:image/jpeg;base64,", "" );
+					var resizedImage = canvas.toDataURL( "image/jpeg", 0.5 ).replace( "data:image/jpeg;base64,", "" );
 					imageLoader.remove();
 					callback( resizedImage );
-				}
+				};
 				image.src = readerEvent.target.result;
-			}
-			reader.readAsDataURL(event.target.files[0]);
+			};
+			reader.readAsDataURL( event.target.files[ 0 ] );
 		} );
-	imageLoader.get(0).click();
+	imageLoader.get( 0 ).click();
 }
 
 function goHome( firstLoad ) {
