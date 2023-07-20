@@ -12597,7 +12597,7 @@ function showLoading( ele ) {
 }
 
 function getPicture( callback ) {
-	const imageLoader = $( "<input style='display: none' type='file' accept='image/*' capture />" )
+	const imageLoader = $( "<input style='display: none' type='file' accept='image/*' />" )
 		.insertAfter( "body" )
 		.on( "change", function(event) {
 			var reader = new FileReader();
