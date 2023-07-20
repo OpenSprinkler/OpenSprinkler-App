@@ -5642,11 +5642,9 @@ var showHome = ( function() {
 				"<input class='bold center' data-corners='false' data-wrapper-class='tight stn-name ui-btn' id='stn-name' type='text' value=\"" +
 					name.text() + "\">";
 
-			if ( typeof navigator.camera !== "undefined" && typeof navigator.camera.getPicture === "function" ) {
-				select += "<button class='changeBackground'>" +
-						( typeof sites[ currentSite ].images[ sid ] !== "string" ? _( "Add" ) : _( "Change" ) ) + " " + _( "Image" ) +
-					"</button>";
-			}
+			select += "<button class='changeBackground'>" +
+					( typeof sites[ currentSite ].images[ sid ] !== "string" ? _( "Add" ) : _( "Change" ) ) + " " + _( "Image" ) +
+				"</button>";
 
 			if ( !Station.isMaster( sid ) ) {
 				if ( Supported.master( MASTER_STATION_1 ) ) {
@@ -5814,7 +5812,7 @@ var showHome = ( function() {
 				e.preventDefault();
 				var button = this;
 
-				takePicture( function( image ) {
+				getPicture( function( image ) {
 					sites[ currentSite ].images[ sid ] = image;
 					storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
 					updateContent();
@@ -6363,7 +6361,7 @@ var showHome = ( function() {
 					updateContent();
 				} );
 			} else {
-				takePicture( function( image ) {
+				getPicture( function( image ) {
 					sites[ currentSite ].images[ id ] = image;
 					storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
 					updateContent();
@@ -12598,19 +12596,57 @@ function showLoading( ele ) {
 	}
 }
 
-function takePicture( callback ) {
-	if ( typeof navigator.camera !== "object" || typeof navigator.camera.getPicture !== "function" ) {
+function hasCameraAccess() {
+	return typeof navigator.camera !== "undefined" && typeof navigator.camera.getPicture === "function";
+}
+
+function getPicture( callback ) {
+	if ( hasCameraAccess() ) {
+		navigator.camera.getPicture( callback, function() {}, {
+			quality: 50,
+			destinationType: Camera.DestinationType.DATA_URL,
+			sourceType: Camera.PictureSourceType.PHOTOLIBRARY,
+			allowEdit: true,
+			targetWidth: 200,
+			targetHeight: 200
+		} );
 		return;
 	}
 
-	navigator.camera.getPicture( callback, function() {}, {
-		quality: 50,
-		destinationType: Camera.DestinationType.DATA_URL,
-		sourceType: Camera.PictureSourceType.PHOTOLIBRARY,
-		allowEdit: true,
-		targetWidth: 200,
-		targetHeight: 200
-	} );
+	const imageLoader = $( "<input style='display: none' type='file' accept='image/*' />" )
+		.insertAfter( "body" )
+		.on( "change", function(event) {
+			var reader = new FileReader();
+			reader.onload = function(readerEvent) {
+				var image = new Image();
+				image.onload = function() {
+					var canvas = document.createElement( "canvas" ),
+						max_size = 200,
+						width = image.width,
+						height = image.height;
+					if (width > height) {
+						if (width > max_size) {
+							height *= max_size / width;
+							width = max_size;
+						}
+					} else {
+						if (height > max_size) {
+							width *= max_size / height;
+							height = max_size;
+						}
+					}
+					canvas.width = width;
+					canvas.height = height;
+					canvas.getContext( "2d" ).drawImage( image, 0, 0, width, height );
+					resizedImage = canvas.toDataURL( "image/jpeg", .5 ).replace( "data:image/jpeg;base64,", "" );
+					imageLoader.remove();
+					callback( resizedImage );
+				}
+				image.src = readerEvent.target.result;
+			}
+			reader.readAsDataURL(event.target.files[0]);
+		} );
+	imageLoader.get(0).click();
 }
 
 function goHome( firstLoad ) {
