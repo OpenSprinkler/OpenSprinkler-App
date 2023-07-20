@@ -44,6 +44,7 @@
     "blanket": "^1.2.1",
     "chai": "^4.2.0",
     "codecov.io": "^0.1.6",
+    "cordova": "^12.0.0",
     "coveralls": "^3.1.0",
     "grunt": "^1.2.1",
     "grunt-blanket-mocha": "^1.0.0",
