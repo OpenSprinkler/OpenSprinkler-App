@@ -12596,24 +12596,8 @@ function showLoading( ele ) {
 	}
 }
 
-function hasCameraAccess() {
-	return typeof navigator.camera !== "undefined" && typeof navigator.camera.getPicture === "function";
-}
-
 function getPicture( callback ) {
-	if ( hasCameraAccess() ) {
-		navigator.camera.getPicture( callback, function() {}, {
-			quality: 50,
-			destinationType: Camera.DestinationType.DATA_URL,
-			sourceType: Camera.PictureSourceType.PHOTOLIBRARY,
-			allowEdit: true,
-			targetWidth: 200,
-			targetHeight: 200
-		} );
-		return;
-	}
-
-	const imageLoader = $( "<input style='display: none' type='file' accept='image/*' />" )
+	const imageLoader = $( "<input style='display: none' type='file' accept='image/*' capture />" )
 		.insertAfter( "body" )
 		.on( "change", function(event) {
 			var reader = new FileReader();
