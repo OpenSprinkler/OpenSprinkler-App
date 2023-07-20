@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget android-versionCode="110" id="com.albahra.sprinklers" version="2.3.2" versionCode="111" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget android-versionCode="111" id="com.albahra.sprinklers" version="2.3.3" versionCode="112" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>OpenSprinkler</name>
     <description>
 	    Designed to allow intuitive control of the OpenSprinkler irrigation controller.
@@ -39,7 +39,7 @@
             <string>Your camera is used to provide an image for your stations.</string>
         </config-file>
         <config-file target="*-Info.plist" overwrite="true" parent="CFBundleShortVersionString">
-            <string>19704</string>
+            <string>19804</string>
         </config-file>
         <splash height="480" src="res/ios/screens/startup.png" width="320" />
         <splash height="960" src="res/ios/screens/startup-retina.png" width="640" />
@@ -127,7 +127,7 @@
 		<icon src="res/osx/icons/icon-32.png" width="32" />
 		<icon src="res/osx/icons/icon-16.png" width="16" />
         <config-file target="*-Info.plist" overwrite="true" parent="CFBundleVersion">
-            <string>19706</string>
+            <string>19806</string>
         </config-file>
         <config-file target="*-Info.plist" overwrite="true" parent="CFBundleIdentifier">
             <string>com.albahra.Sprinklers.osx</string>
