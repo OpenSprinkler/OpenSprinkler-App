@@ -5,3 +5,13 @@
 @media screen and (max-width: 1200px) and (min-width: 800px) {
   .hidecol{display:none; }
 }
+
+#analogsensorlist table {
+	border: 1px solid lightgray;
+	border-collapse: collapse;
+}
+#analogsensorlist table tr {
+	border: 1px solid lightgray;
+	border-collapse: collapse;
+}
+

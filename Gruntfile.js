@@ -129,6 +129,12 @@
 				updatePGB: {
 					command: "curl -X PUT -F file=@build/app.zip https://build.phonegap.com/api/v1/apps/<%= pkg.phonegap.id %>?auth_token=<%= secrets.phonegap.token %> >/dev/null 2>&1"
 				},
+				updateTrans: {
+					command: [
+						" xgettext --keyword=_ --output=- www/js/analog.js --omit-header --force-po --from-code=UTF-8 --language='javascript' --stringtable-output|sed '/File/d'|sed '/Flag/d'|sed '/^$/d' >www/locale/out.txt"
+                                        ].join( "&&" )
+
+				},
 				pushEng: {
 					command: [
 						"xgettext --keyword=_ --output=- www/js/main.js --omit-header --force-po --from-code=UTF-8 --language='Python' | sed '/^\#/d' > .msgjs",
@@ -227,7 +233,8 @@
 
 			terser: {
 				options: {
-					compress: true,
+					compress: false,
+					mangle: false,
 					format: {
 						comments: false,
 					},
@@ -235,7 +242,7 @@
 				buildFW: {
 					files: {
 						"www/js/app.js": [ "www/js/jquery.js", "www/js/libs.js", "www/js/main.js", "www/js/analog.js",
-						"www/js/jqm.js", "www/js/apexcharts.min.js" ]
+						"www/js/apexcharts.min.js" ]
 					},
 				},
 			},
@@ -243,7 +250,7 @@
 			cssmin: {
 				combine: {
 					files: {
-						"www/css/app.css": [ "www/css/jqm.css", "www/css/main.css", "www/css/analog.css" ]
+						"www/css/app.css": [ "www/css/analog.css", "www/css/jqm.css", "www/css/main.css"  ]
 					},
 				},
 			},
