@@ -1,7 +1,7 @@
 [main]
 host = https://www.transifex.com
 
-[opensprinkler.app]
+[o:albahra:p:opensprinkler:r:app]
 file_filter = messages_<lang>.po
 minimum_perc = 0
 source_file = www/locale/messages_en.po
