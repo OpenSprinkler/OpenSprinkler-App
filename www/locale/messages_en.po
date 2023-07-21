@@ -274,6 +274,9 @@ msgstr ""
 msgid "Do you want to turn off rain delay?"
 msgstr ""
 
+msgid "Powered by Apple"
+msgstr ""
+
 msgid "Powered by Dark Sky"
 msgstr ""
 
@@ -1379,7 +1382,7 @@ msgid "Start time cannot be greater than end time"
 msgstr ""
 
 msgid ""
-"The requested time span exceeds the maxiumum of 1 year and has been adjusted"
+"The requested time span exceeds the maximum of 1 year and has been adjusted"
 msgstr ""
 
 msgid "Logs"
@@ -1785,7 +1788,7 @@ msgstr ""
 msgid "Click here to enable all connected stations."
 msgstr ""
 
-msgid "Unified firmware is now avaialble"
+msgid "Unified firmware is now available"
 msgstr ""
 
 msgid "Click here for more details"
