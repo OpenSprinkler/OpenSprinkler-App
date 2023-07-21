@@ -1,4 +1,4 @@
-/* global $, ThreeDeeTouch, Windows, navigator, FastClick */
+/* global $, ThreeDeeTouch, navigator, FastClick */
 /* global StatusBar, networkinterface, links, SunCalc, md5, sjcl */
 
 /* OpenSprinkler App
@@ -431,13 +431,13 @@ function initApp() {
 	$.mobile.document.on( "click", ".iab", function() {
 		var target = isOSXApp ? "_system" : "_blank";
 
-		var button = $( this ),
-			iab = window.open( this.href, target, "location=" + ( isAndroid ? "yes" : "no" ) +
-				",enableViewportScale=" + ( button.hasClass( "iabNoScale" ) ? "no" : "yes" ) +
-				",toolbar=yes,toolbarposition=top,toolbarcolor=" + statusBarPrimary +
-				",closebuttoncaption=" +
-					( button.hasClass( "iabNoScale" ) ? _( "Back" ) : _( "Done" ) )
-			);
+		var button = $( this );
+		window.open( this.href, target, "location=" + ( isAndroid ? "yes" : "no" ) +
+			",enableViewportScale=" + ( button.hasClass( "iabNoScale" ) ? "no" : "yes" ) +
+			",toolbar=yes,toolbarposition=top,toolbarcolor=" + statusBarPrimary +
+			",closebuttoncaption=" +
+				( button.hasClass( "iabNoScale" ) ? _( "Back" ) : _( "Done" ) )
+		);
 
 		setTimeout( function() {
 			button.removeClass( "ui-btn-active" );
@@ -11016,9 +11016,10 @@ function showUnifiedFirmwareNotification() {
 				title: _( "Unified firmware is now available" ),
 				desc: _( "Click here for more details" ),
 				on: function() {
-					var iab = window.open( "https://openthings.freshdesk.com/support/solutions/articles/5000631599",
+					window.open( "https://openthings.freshdesk.com/support/solutions/articles/5000631599",
 						"_blank", "location=" + ( isAndroid ? "yes" : "no" ) +
-						",enableViewportScale=yes,toolbarposition=top,closebuttoncaption=" + _( "Back" ) );
+						",enableViewportScale=yes,toolbarposition=top,closebuttoncaption=" + _( "Back" )
+					);
 
 					return false;
 				},
@@ -11058,9 +11059,10 @@ function checkPublicAccess( eip ) {
 						title: _( "Remote access is not enabled" ),
 						desc: _( "Click here to troubleshoot remote access issues" ),
 						on: function() {
-							var iab = window.open( "https://openthings.freshdesk.com/support/solutions/articles/5000569763",
+							window.open( "https://openthings.freshdesk.com/support/solutions/articles/5000569763",
 								"_blank", "location=" + ( isAndroid ? "yes" : "no" ) +
-								",enableViewportScale=yes,toolbarposition=top,closebuttoncaption=" + _( "Back" ) );
+								",enableViewportScale=yes,toolbarposition=top,closebuttoncaption=" + _( "Back" )
+							);
 
 							return false;
 						},
