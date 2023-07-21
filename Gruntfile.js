@@ -57,14 +57,14 @@
 			secrets: secrets,
 
 			jshint: {
-				main: [ "www/js/main.js", "www/js/map.js", "Gruntfile.js", "www/js/hasher.js", "www/js/home.js", "chrome.js", "test/tests.js" ],
+				main: [ "www/js/main.js", "www/js/map.js", "Gruntfile.js", "www/js/hasher.js", "www/js/home.js", "test/tests.js" ],
 				options: {
 					jshintrc: true
 				}
 			},
 
 			jscs: {
-				main: [ "www/js/main.js", "www/js/map.js", "Gruntfile.js", "www/js/hasher.js", "www/js/home.js", "chrome.js", "test/tests.js" ],
+				main: [ "www/js/main.js", "www/js/map.js", "Gruntfile.js", "www/js/hasher.js", "www/js/home.js", "test/tests.js" ],
 				options: {
 					config: true,
 					fix: true
@@ -105,28 +105,6 @@
 						expand: true
 					}, {
 						src: "res/ios-web/**"
-					} ]
-				},
-				makePGB: {
-					options: {
-						archive: "build/app.zip"
-					},
-					files: [ {
-						src: [ "config.xml", "res/**", "www/**" ],
-						dot: true,
-						expand: true
-					} ]
-				},
-				chrome: {
-					options: {
-						archive: "build/chrome/com.albahra.sprinklers.zip"
-					},
-					files: [ {
-						src: [ "css/**", "js/**", "img/**", "locale/**", "*.html" ],
-						cwd: "www/",
-						expand: true
-					}, {
-						src: [ "manifest.json", "chrome.js", "res/chrome/**" ]
 					} ]
 				}
 			},
@@ -278,7 +256,7 @@
 		grunt.registerTask( "makeFW", [ "buildFW", "compress:makeFW", "clean:makeFW" ] );
 		grunt.registerTask( "pushFW", [ "makeFW", "shell:updateUI", "clean:pushFW" ] );
 		grunt.registerTask( "pushBetaFW", [ "makeFW", "shell:updateBetaUI", "clean:pushFW" ] );
-		grunt.registerTask( "build", [ "default", "shell:symres", "compress:chrome", "pushFW", "clean:symres" ] );
+		grunt.registerTask( "build", [ "default", "shell:symres", "pushFW", "clean:symres" ] );
 		grunt.registerTask( "bump", [ "default", "replace:about", "replace:phonegap", "replace:manifests", "shell:pushBump" ] );
 
 	};

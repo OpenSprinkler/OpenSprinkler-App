@@ -55,6 +55,14 @@ a {
     text-decoration:none
 }
 
+.macos #header {
+	top: 36px;
+}
+
+.macos #sprinklers-settings {
+	top: 36px;
+}
+
 /* Station tab rules */
 
 ul.tabs {

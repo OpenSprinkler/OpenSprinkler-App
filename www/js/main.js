@@ -1,4 +1,4 @@
-/* global $, ThreeDeeTouch, Windows, MSApp, navigator, chrome, FastClick */
+/* global $, ThreeDeeTouch, Windows, navigator, FastClick */
 /* global StatusBar, networkinterface, links, SunCalc, md5, sjcl */
 
 /* OpenSprinkler App
@@ -18,81 +18,64 @@ var DEFAULT_WEATHER_SERVER_URL = "https://weather.opensprinkler.com";
 var WEATHER_SERVER_URL = DEFAULT_WEATHER_SERVER_URL;
 
 // Initialize global variables
-var isIEMobile = /IEMobile/.test( navigator.userAgent ),
-	isAndroid = /Android|\bSilk\b/.test( navigator.userAgent ),
+var isAndroid = /Android|\bSilk\b/.test( navigator.userAgent ),
 	isiOS = /iP(ad|hone|od)/.test( navigator.userAgent ),
 	isFireFox = /Firefox/.test( navigator.userAgent ),
-	isWinApp = /MSAppHost/.test( navigator.userAgent ),
-	isOSXApp = window.cordova && window.cordova.platformId === "osx",
-	isChromeApp = typeof chrome === "object" && typeof chrome.storage === "object",
-	isFileCapable = !isiOS && !isAndroid && !isIEMobile && !isOSXApp &&
-					!isWinApp && window.FileReader,
+	isOSXApp = window.cordova && window.cordova.platformId === "ios" && navigator.platform === "MacIntel",
+	isFileCapable = !isiOS && !isAndroid && !isOSXApp && window.FileReader,
 	isTouchCapable = "ontouchstart" in window || "onmsgesturechange" in window,
 	isMetric = ( [ "US", "BM", "PW" ].indexOf( navigator.languages[ 0 ].split( "-" )[ 1 ] ) === -1 ),
 	groupView = false,
 
-	// Small wrapper to handle Chrome vs localStorage usage
 	storage = {
 		get: function( query, callback ) {
 			callback = callback || function() {};
 
-			if ( isChromeApp ) {
-				chrome.storage.local.get( query, callback );
-			} else {
-				var data = {},
-					i;
+			var data = {},
+				i;
 
-				if ( typeof query === "string" ) {
-					query = [ query ];
-				}
-
-				for ( i in query ) {
-					if ( query.hasOwnProperty( i ) ) {
-						data[ query[ i ] ] = localStorage.getItem( query[ i ] );
-					}
-				}
-
-				callback( data );
+			if ( typeof query === "string" ) {
+				query = [ query ];
 			}
+
+			for ( i in query ) {
+				if ( query.hasOwnProperty( i ) ) {
+					data[ query[ i ] ] = localStorage.getItem( query[ i ] );
+				}
+			}
+
+			callback( data );
 		},
 		set: function( query, callback ) {
 			callback = callback || function() {};
 
-			if ( isChromeApp ) {
-				chrome.storage.local.set( query, callback );
-			} else {
-				var i;
-				if ( typeof query === "object" ) {
-					for ( i in query ) {
-						if ( query.hasOwnProperty( i ) ) {
-							localStorage.setItem( i, query[ i ] );
-						}
+			var i;
+			if ( typeof query === "object" ) {
+				for ( i in query ) {
+					if ( query.hasOwnProperty( i ) ) {
+						localStorage.setItem( i, query[ i ] );
 					}
 				}
-
-				callback( true );
 			}
+
+			callback( true );
 		},
 		remove: function( query, callback ) {
 			callback = callback || function() {};
 
-			if ( isChromeApp ) {
-				chrome.storage.local.remove( query, callback );
-			} else {
-				var i;
+			var i;
 
-				if ( typeof query === "string" ) {
-					query = [ query ];
-				}
-
-				for ( i in query ) {
-					if ( query.hasOwnProperty( i ) ) {
-						localStorage.removeItem( query[ i ] );
-					}
-				}
-
-				callback( true );
+			if ( typeof query === "string" ) {
+				query = [ query ];
 			}
+
+			for ( i in query ) {
+				if ( query.hasOwnProperty( i ) ) {
+					localStorage.removeItem( query[ i ] );
+				}
+			}
+
+			callback( true );
 		}
 	},
 
@@ -162,48 +145,8 @@ if ( "serviceWorker" in navigator ) {
 	} );
 }
 
-// Prevent errors from bubbling up on Windows
-if ( isWinApp ) {
-	$( window ).on( "error", function( msg, url, line ) {
-		window.console.log( msg, url, line );
-		return true;
-	} );
-}
-
-// Redirect jQuery Mobile DOM manipulation to prevent error
-if ( window.MSApp ) {
-
-	if ( window.Windows && Windows.UI && Windows.UI.ApplicationSettings && Windows.UI.ApplicationSettings.SettingsPane ) {
-
-		// Add link to privacy statement
-		var settingsPane = Windows.UI.ApplicationSettings.SettingsPane.getForCurrentView();
-
-		// Bind the privacy policy to the settings panel
-		settingsPane.addEventListener( "commandsrequested", function( eventArgs ) {
-			var applicationCommands = eventArgs.request.applicationCommands;
-			var privacyCommand = new Windows.UI.ApplicationSettings.SettingsCommand(
-				"privacy", "Privacy Policy", function() {
-					window.open( "https://albahra.com/journal/privacy-policy" );
-				}
-			);
-			applicationCommands.append( privacyCommand );
-		} );
-	}
-
-	if ( MSApp.execUnsafeLocalFunction ) {
-
-		// Cache the old domManip function.
-		$.fn.oldDomManIp = $.fn.domManip;
-
-		// Override the domManip function with a call to the cached
-		// domManip function wrapped in a MSapp.execUnsafeLocalFunction call.
-		$.fn.domManip = function( args, callback, allowIntersection ) {
-			var that = this;
-			return MSApp.execUnsafeLocalFunction( function() {
-				return that.oldDomManIp( args, callback, allowIntersection );
-			} );
-		};
-	}
+if ( isOSXApp ) {
+	document.documentElement.classList.add( "macos" );
 }
 
 $( document )
@@ -234,11 +177,8 @@ $( document )
 		} catch ( err ) {}
 	}, 500 );
 
-	// For Android and Windows Phone devices catch the back button and redirect it
+	// For Android devices catch the back button and redirect it
 	$.mobile.document.on( "backbutton", function() {
-		if ( isIEMobile && $.mobile.document.data( "iabOpen" ) ) {
-			return false;
-		}
 		checkChangesBeforeBack();
 		return false;
 	} );
@@ -286,12 +226,6 @@ $( document )
 	}
 } )
 .one( "mobileinit", function() {
-
-	//Change history method for Chrome Packaged Apps
-	if ( isChromeApp || window.location.protocol === "file:" ) {
-		$.mobile.hashListeningEnabled = false;
-	}
-
 	$.support.cors = true;
 	$.mobile.allowCrossDomainPages = true;
 	loadLocalSettings();
@@ -461,16 +395,6 @@ function initApp() {
 		} );
 	}
 
-	// Fix CSS for IE Mobile (Windows Phone 8)
-	if ( isIEMobile ) {
-		insertStyle( ".ui-toolbar-back-btn{display:none!important}ul{list-style:none!important;}" );
-	}
-
-	// Fix CSS for Chrome Web Store apps
-	if ( isChromeApp ) {
-		insertStyle( "html,body{overflow-y:scroll}" );
-	}
-
 	// Prevent caching of AJAX requests on Android and Windows Phone devices
 	if ( isAndroid ) {
 
@@ -499,8 +423,7 @@ function initApp() {
 	}
 
 	//After jQuery mobile is loaded set initial configuration
-	$.mobile.defaultPageTransition =
-		( isAndroid || isIEMobile ) ? "fade" : "slide";
+	$.mobile.defaultPageTransition = isAndroid ? "fade" : "slide";
 	$.mobile.hoverDelay = 0;
 	$.mobile.activeBtnClass = "activeButton";
 
@@ -515,15 +438,6 @@ function initApp() {
 				",closebuttoncaption=" +
 					( button.hasClass( "iabNoScale" ) ? _( "Back" ) : _( "Done" ) )
 			);
-
-		if ( isIEMobile ) {
-
-			// For Windows Mobile, save state of In-App browser to allow back button to close it
-			$.mobile.document.data( "iabOpen", true );
-			iab.addEventListener( "exit", function() {
-				$.mobile.document.removeData( "iabOpen" );
-			} );
-		}
 
 		setTimeout( function() {
 			button.removeClass( "ui-btn-active" );
@@ -2133,32 +2047,17 @@ function updateDeviceIP( finishCheck ) {
 	},
 	ip;
 
-	if ( isChromeApp ) {
-		chrome.system.network.getNetworkInterfaces( function( data ) {
-			var i;
-			for ( i in data ) {
-				if ( data.hasOwnProperty( i ) ) {
-					if ( /^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$/.test( data[ i ].address ) ) {
-						ip = data[ i ].address;
-					}
-				}
-			}
+	try {
 
+		// Request the device's IP address
+		networkinterface.getWiFiIPAddress( function( data ) {
+			ip = data.ip;
 			finish( ip );
 		} );
-	} else {
-		try {
-
-			// Request the device's IP address
-			networkinterface.getWiFiIPAddress( function( data ) {
-				ip = data.ip;
-				finish( ip );
-			} );
-		} catch ( err ) {
-			findRouter( function( status, data ) {
-				finish( !status ? undefined : data );
-			} );
-		}
+	} catch ( err ) {
+		findRouter( function( status, data ) {
+			finish( !status ? undefined : data );
+		} );
 	}
 }
 
@@ -11121,13 +11020,6 @@ function showUnifiedFirmwareNotification() {
 						"_blank", "location=" + ( isAndroid ? "yes" : "no" ) +
 						",enableViewportScale=yes,toolbarposition=top,closebuttoncaption=" + _( "Back" ) );
 
-					if ( isIEMobile ) {
-						$.mobile.document.data( "iabOpen", true );
-						iab.addEventListener( "exit", function() {
-							$.mobile.document.removeData( "iabOpen" );
-						} );
-					}
-
 					return false;
 				},
 				off: function() {
@@ -11169,13 +11061,6 @@ function checkPublicAccess( eip ) {
 							var iab = window.open( "https://openthings.freshdesk.com/support/solutions/articles/5000569763",
 								"_blank", "location=" + ( isAndroid ? "yes" : "no" ) +
 								",enableViewportScale=yes,toolbarposition=top,closebuttoncaption=" + _( "Back" ) );
-
-							if ( isIEMobile ) {
-								$.mobile.document.data( "iabOpen", true );
-								iab.addEventListener( "exit", function() {
-									$.mobile.document.removeData( "iabOpen" );
-								} );
-							}
 
 							return false;
 						},
@@ -12682,31 +12567,15 @@ function goBack() {
 			navigator.app.exitApp();
 		} catch ( err ) {}
 	} else {
-		if ( isChromeApp || window.location.protocol === "file:" ) {
-			var url = $.mobile.navigate.history.getPrev().url;
+		if ( pageHistoryCount > 0 ) {
+			pageHistoryCount--;
+		}
 
-			if ( url.slice( 0, 1 ) !== "#" ) {
-				return;
-			}
-
-			changePage( url, {
-				reverse: true
-			} );
-			$.mobile.document.one( "pagehide", function() {
-				$.mobile.navigate.history.activeIndex -= 2;
-			} );
+		if ( pageHistoryCount === 0 ) {
+			navigator.app.exitApp();
 		} else {
-			if ( pageHistoryCount > 0 ) {
-				pageHistoryCount--;
-			}
-
-			if ( pageHistoryCount === 0 ) {
-				navigator.app.exitApp();
-			} else {
-				goingBack = true;
-				$.mobile.back();
-			}
-
+			goingBack = true;
+			$.mobile.back();
 		}
 	}
 }

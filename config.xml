@@ -41,6 +41,9 @@
         <config-file target="*-Info.plist" overwrite="true" parent="CFBundleShortVersionString">
             <string>19804</string>
         </config-file>
+        <config-file target="*-Info.plist" overwrite="true" parent="LSApplicationCategoryType">
+            <string>public.app-category.utilities</string>
+        </config-file>
         <splash height="480" src="res/ios/screens/startup.png" width="320" />
         <splash height="960" src="res/ios/screens/startup-retina.png" width="640" />
         <splash height="1136" src="res/ios/screens/startup-iphone5-retina.png" width="640" />
@@ -98,42 +101,4 @@
         <icon density="xhdpi" src="res/android/icons/xhdpi.png" />
         <icon density="xxhdpi" src="res/android/icons/xxhdpi.png" />
     </platform>
-    <platform name="windows">
-        <preference name="windows-appx-target" value="uap" />
-        <preference name="WindowsStorePublisherName" value="CN=8F0F825B-0E15-463C-8770-CA0313FEE1E7" />
-        <preference name="WindowsStoreIdentityName" value="27908SamerAlbahra.OpenSprinkler" />
-        <preference name="windows-identity-name" value="27908SamerAlbahra.OpenSprinkler" />
-        <icon height="50" src="res/windows/icons/icon50.png" width="50" />
-        <icon height="30" src="res/windows/icons/icon30.png" width="30" />
-        <icon height="44" src="res/windows/icons/icon44.png" width="44" />
-        <icon height="70" src="res/windows/icons/icon70.png" width="70" />
-        <icon height="71" src="res/windows/icons/icon71.png" width="71" />
-        <icon height="150" src="res/windows/icons/icon150.png" width="150" />
-        <icon height="310" src="res/windows/icons/icon310.png" width="310" />
-        <icon height="150" src="res/windows/icons/iconw.png" width="310" />
-        <splash height="300" src="res/windows/screens/landscape.png" width="620" />
-        <splash height="1920" src="res/windows/screens/portrait.png" width="1152" />
-    </platform>
-    <platform name="wp8">
-        <icon src="res/windows/icons/icon48.png" />
-        <splash src="res/windows/screens/startup.jpg" />
-    </platform>
-	<platform name="osx">
-		<icon src="res/osx/icons/icon-1024.png" width="1024" />
-		<icon src="res/osx/icons/icon-512.png" width="512" />
-		<icon src="res/osx/icons/icon-256.png" width="256" />
-		<icon src="res/osx/icons/icon-128.png" width="128" />
-		<icon src="res/osx/icons/icon-64.png" width="64" />
-		<icon src="res/osx/icons/icon-32.png" width="32" />
-		<icon src="res/osx/icons/icon-16.png" width="16" />
-        <config-file target="*-Info.plist" overwrite="true" parent="CFBundleVersion">
-            <string>19806</string>
-        </config-file>
-        <config-file target="*-Info.plist" overwrite="true" parent="CFBundleIdentifier">
-            <string>com.albahra.Sprinklers.osx</string>
-        </config-file>
-        <config-file target="*-Info.plist" overwrite="true" parent="LSApplicationCategoryType">
-            <string>public.app-category.utilities</string>
-        </config-file>
-	</platform>
 </widget>
