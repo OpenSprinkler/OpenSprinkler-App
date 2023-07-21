@@ -1,5 +1,5 @@
-/* global $, ThreeDeeTouch, Windows, MSApp, navigator, chrome, FastClick */
-/* global StatusBar, networkinterface, links, SunCalc, md5, sjcl, Camera */
+/* global $, ThreeDeeTouch, navigator, FastClick */
+/* global StatusBar, networkinterface, links, SunCalc, md5, sjcl */
 
 /* OpenSprinkler App
  * Copyright (C) 2015 - present, Samer Albahra. All rights reserved.
@@ -18,15 +18,11 @@ var DEFAULT_WEATHER_SERVER_URL = "https://weather.opensprinkler.com";
 var WEATHER_SERVER_URL = DEFAULT_WEATHER_SERVER_URL;
 
 // Initialize global variables
-var isIEMobile = /IEMobile/.test( navigator.userAgent ),
-	isAndroid = /Android|\bSilk\b/.test( navigator.userAgent ),
+var isAndroid = /Android|\bSilk\b/.test( navigator.userAgent ),
 	isiOS = /iP(ad|hone|od)/.test( navigator.userAgent ),
 	isFireFox = /Firefox/.test( navigator.userAgent ),
-	isWinApp = /MSAppHost/.test( navigator.userAgent ),
-	isOSXApp = window.cordova && window.cordova.platformId === "osx",
-	isChromeApp = typeof chrome === "object" && typeof chrome.storage === "object",
-	isFileCapable = !isiOS && !isAndroid && !isIEMobile && !isOSXApp &&
-					!isWinApp && window.FileReader,
+	isOSXApp = window.cordova && window.cordova.platformId === "ios" && navigator.platform === "MacIntel",
+	isFileCapable = !isiOS && !isAndroid && !isOSXApp && window.FileReader,
 	isTouchCapable = "ontouchstart" in window || "onmsgesturechange" in window,
 	isMetric = ( [ "US", "BM", "PW" ].indexOf( navigator.languages[ 0 ].split( "-" )[ 1 ] ) === -1 ),
 	groupView = false,
@@ -156,48 +152,14 @@ var isIEMobile = /IEMobile/.test( navigator.userAgent ),
 	curr183, currToken, currIp, currPrefix, currAuth, currPass, currAuthUser,
 	currAuthPass, currLocal, currLang, language, deviceip, errorTimeout, weather, openPanel;
 
-// Prevent errors from bubbling up on Windows
-if ( isWinApp ) {
-	$( window ).on( "error", function( msg, url, line ) {
-		window.console.log( msg, url, line );
-		return true;
+if ( "serviceWorker" in navigator ) {
+	window.addEventListener( "load", function() {
+		navigator.serviceWorker.register( "/sw.js" );
 	} );
 }
 
-// Redirect jQuery Mobile DOM manipulation to prevent error
-if ( window.MSApp ) {
-
-	if ( window.Windows && Windows.UI && Windows.UI.ApplicationSettings && Windows.UI.ApplicationSettings.SettingsPane ) {
-
-		// Add link to privacy statement
-		var settingsPane = Windows.UI.ApplicationSettings.SettingsPane.getForCurrentView();
-
-		// Bind the privacy policy to the settings panel
-		settingsPane.addEventListener( "commandsrequested", function( eventArgs ) {
-			var applicationCommands = eventArgs.request.applicationCommands;
-			var privacyCommand = new Windows.UI.ApplicationSettings.SettingsCommand(
-				"privacy", "Privacy Policy", function() {
-					window.open( "https://albahra.com/journal/privacy-policy" );
-				}
-			);
-			applicationCommands.append( privacyCommand );
-		} );
-	}
-
-	if ( MSApp.execUnsafeLocalFunction ) {
-
-		// Cache the old domManip function.
-		$.fn.oldDomManIp = $.fn.domManip;
-
-		// Override the domManip function with a call to the cached
-		// domManip function wrapped in a MSapp.execUnsafeLocalFunction call.
-		$.fn.domManip = function( args, callback, allowIntersection ) {
-			var that = this;
-			return MSApp.execUnsafeLocalFunction( function() {
-				return that.oldDomManIp( args, callback, allowIntersection );
-			} );
-		};
-	}
+if ( isOSXApp ) {
+	document.documentElement.classList.add( "macos" );
 }
 
 $( document )
@@ -230,9 +192,6 @@ $( document )
 
 	// For Android and Windows Phone devices catch the back button and redirect it
 	$.mobile.document.on( "backbutton", function() {
-		if ( isIEMobile && $.mobile.document.data( "iabOpen" ) ) {
-			return false;
-		}
 		checkChangesBeforeBack();
 		return false;
 	} );
@@ -459,16 +418,6 @@ function initApp() {
 		} );
 	}
 
-	// Fix CSS for IE Mobile (Windows Phone 8)
-	if ( isIEMobile ) {
-		insertStyle( ".ui-toolbar-back-btn{display:none!important}ul{list-style:none!important;}" );
-	}
-
-	// Fix CSS for Chrome Web Store apps
-	if ( isChromeApp ) {
-		insertStyle( "html,body{overflow-y:scroll}" );
-	}
-
 	// Prevent caching of AJAX requests on Android and Windows Phone devices
 	if ( isAndroid ) {
 
@@ -497,8 +446,7 @@ function initApp() {
 	}
 
 	//After jQuery mobile is loaded set initial configuration
-	$.mobile.defaultPageTransition =
-		( isAndroid || isIEMobile ) ? "fade" : "slide";
+	$.mobile.defaultPageTransition = isAndroid ? "fade" : "slide";
 	$.mobile.hoverDelay = 0;
 	$.mobile.activeBtnClass = "activeButton";
 
@@ -506,22 +454,13 @@ function initApp() {
 	$.mobile.document.on( "click", ".iab", function() {
 		var target = isOSXApp ? "_system" : "_blank";
 
-		var button = $( this ),
-			iab = window.open( this.href, target, "location=" + ( isAndroid ? "yes" : "no" ) +
-				",enableViewportScale=" + ( button.hasClass( "iabNoScale" ) ? "no" : "yes" ) +
-				",toolbar=yes,toolbarposition=top,toolbarcolor=" + statusBarPrimary +
-				",closebuttoncaption=" +
-					( button.hasClass( "iabNoScale" ) ? _( "Back" ) : _( "Done" ) )
-			);
-
-		if ( isIEMobile ) {
-
-			// For Windows Mobile, save state of In-App browser to allow back button to close it
-			$.mobile.document.data( "iabOpen", true );
-			iab.addEventListener( "exit", function() {
-				$.mobile.document.removeData( "iabOpen" );
-			} );
-		}
+		var button = $( this );
+		window.open( this.href, target, "location=" + ( isAndroid ? "yes" : "no" ) +
+			",enableViewportScale=" + ( button.hasClass( "iabNoScale" ) ? "no" : "yes" ) +
+			",toolbar=yes,toolbarposition=top,toolbarcolor=" + statusBarPrimary +
+			",closebuttoncaption=" +
+				( button.hasClass( "iabNoScale" ) ? _( "Back" ) : _( "Done" ) )
+		);
 
 		setTimeout( function() {
 			button.removeClass( "ui-btn-active" );
@@ -2515,7 +2454,7 @@ function showZimmermanAdjustmentOptions( button, callback ) {
 				br: parseFloat( popup.find( ".br" ).val() )
 			} );
 
-			// OSPi strores in imperial so convert metric at higher precision so we dont lose accuracy
+			// OSPi stores in imperial so convert metric at higher precision so we dont lose accuracy
 			if ( isMetric ) {
 				options.bt = Math.round( ( options.bt * 9.0 / 5.0 + 32.0 ) * 100.0 ) / 100.0;
 				options.br = Math.round( ( options.br / 25.4 ) * 1000.0 ) / 1000.0;
@@ -3149,6 +3088,9 @@ function makeAttribution( provider ) {
 
 	var attrib = "<div class='weatherAttribution'>";
 	switch ( provider ) {
+		case "Apple":
+			attrib += _( "Powered by Apple" );
+			break;
 		case "DarkSky":
 		case "DS":
 			attrib += "<a href='https://darksky.net/poweredby/' target='_blank'>" + _( "Powered by Dark Sky" ) + "</a>";
@@ -3998,7 +3940,7 @@ function showOptions( expandItem ) {
 					}
 				}
 
-				// Because the firmware has a bug regarding spaces, let us replace them out now with a compatible seperator
+				// Because the firmware has a bug regarding spaces, let us replace them out now with a compatible separator
 				if ( checkOSVersion( 208 ) === true && id === "loc" ) {
 					data = data.replace( /\s/g, "_" );
 				}
@@ -5668,11 +5610,9 @@ var showHome = ( function() {
 				"<input class='bold center' data-corners='false' data-wrapper-class='tight stn-name ui-btn' id='stn-name' type='text' value=\"" +
 					name.text() + "\">";
 
-			if ( typeof navigator.camera !== "undefined" && typeof navigator.camera.getPicture === "function" ) {
-				select += "<button class='changeBackground'>" +
-						( typeof sites[ currentSite ].images[ sid ] !== "string" ? _( "Add" ) : _( "Change" ) ) + " " + _( "Image" ) +
-					"</button>";
-			}
+			select += "<button class='changeBackground'>" +
+					( typeof sites[ currentSite ].images[ sid ] !== "string" ? _( "Add" ) : _( "Change" ) ) + " " + _( "Image" ) +
+				"</button>";
 
 			if ( !Station.isMaster( sid ) ) {
 				if ( Supported.master( MASTER_STATION_1 ) ) {
@@ -5840,7 +5780,7 @@ var showHome = ( function() {
 				e.preventDefault();
 				var button = this;
 
-				takePicture( function( image ) {
+				getPicture( function( image ) {
 					sites[ currentSite ].images[ sid ] = image;
 					storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
 					updateContent();
@@ -5950,7 +5890,7 @@ var showHome = ( function() {
 					// Only send the name of the station being updated
 					if ( sid === id ) {
 
-						// Because the firmware has a bug regarding spaces, let us replace them out now with a compatible seperator
+						// Because the firmware has a bug regarding spaces, let us replace them out now with a compatible separator
 						if ( is208 ) {
 							names[ "s" + sid ] = page.find( "#station_" + sid ).text().replace( /\s/g, "_" );
 						} else {
@@ -6118,7 +6058,7 @@ var showHome = ( function() {
 				divider = Card.getDivider( thisCard );
 				divider.hide(); // Remove all dividers when switching from group view
 
-				Card.setGroupLabel( thisCard, mapGIDValueToName( Station.getGIDValue( idx ) ) );
+				Card.setGroupLabel( thisCard, mapGIDValueToName( Station.getGIDValue( Card.getSID( thisCard ) ) ) );
 				label = Card.getGroupLabel( thisCard );
 				if ( typeof label !== "undefined" && Card.isMasterStation( thisCard ) ) {
 					label.addClass( "hidden" );
@@ -6392,7 +6332,7 @@ var showHome = ( function() {
 					updateContent();
 				} );
 			} else {
-				takePicture( function( image ) {
+				getPicture( function( image ) {
 					sites[ currentSite ].images[ id ] = image;
 					storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
 					updateContent();
@@ -8674,7 +8614,7 @@ var getLogs = ( function() {
 			$.mobile.loading( "show" );
 
 			if ( ( endtime - starttime ) > 31540000 ) {
-				showerror( _( "The requested time span exceeds the maxiumum of 1 year and has been adjusted" ), 3500 );
+				showerror( _( "The requested time span exceeds the maximum of 1 year and has been adjusted" ), 3500 );
 				var nDate = dates().start;
 				nDate.setFullYear( nDate.getFullYear() + 1 );
 				$( "#log_end" ).val( nDate.getFullYear() + "-" + pad( nDate.getMonth() + 1 ) + "-" + pad( nDate.getDate() ) );
@@ -10337,7 +10277,7 @@ function importConfig( data ) {
 				}
 
 				// Handle data from firmware 2.1+ being imported to a 2.1+ device
-				// The firmware does not accept program name inside the program array and must be submitted seperately
+				// The firmware does not accept program name inside the program array and must be submitted separately
 				if ( !isPi && typeof data.options.fwv === "number" && data.options.fwv >= 210 && checkOSVersion( 210 ) ) {
 					name = "&name=" + prog[ 5 ];
 
@@ -10465,7 +10405,7 @@ var showAbout = ( function() {
 					"</li>" +
 				"</ul>" +
 				"<p class='smaller'>" +
-					_( "App Version" ) + ": 2.3.0" +
+					_( "App Version" ) + ": 2.3.3" +
 					"<br>" + _( "Firmware" ) + ": <span class='firmware'></span>" +
 					"<br><span class='hardwareLabel'>" + _( "Hardware Version" ) + ":</span> <span class='hardware'></span>" +
 				"</p>" +
@@ -11153,19 +11093,13 @@ function showUnifiedFirmwareNotification() {
 
 			// Unable to access the device using it's public IP
 			addNotification( {
-				title: _( "Unified firmware is now avaialble" ),
+				title: _( "Unified firmware is now available" ),
 				desc: _( "Click here for more details" ),
 				on: function() {
-					var iab = window.open( "https://openthings.freshdesk.com/support/solutions/articles/5000631599",
+					window.open( "https://openthings.freshdesk.com/support/solutions/articles/5000631599",
 						"_blank", "location=" + ( isAndroid ? "yes" : "no" ) +
-						",enableViewportScale=yes,toolbarposition=top,closebuttoncaption=" + _( "Back" ) );
-
-					if ( isIEMobile ) {
-						$.mobile.document.data( "iabOpen", true );
-						iab.addEventListener( "exit", function() {
-							$.mobile.document.removeData( "iabOpen" );
-						} );
-					}
+						",enableViewportScale=yes,toolbarposition=top,closebuttoncaption=" + _( "Back" )
+					);
 
 					return false;
 				},
@@ -11205,16 +11139,10 @@ function checkPublicAccess( eip ) {
 						title: _( "Remote access is not enabled" ),
 						desc: _( "Click here to troubleshoot remote access issues" ),
 						on: function() {
-							var iab = window.open( "https://openthings.freshdesk.com/support/solutions/articles/5000569763",
+							window.open( "https://openthings.freshdesk.com/support/solutions/articles/5000569763",
 								"_blank", "location=" + ( isAndroid ? "yes" : "no" ) +
-								",enableViewportScale=yes,toolbarposition=top,closebuttoncaption=" + _( "Back" ) );
-
-							if ( isIEMobile ) {
-								$.mobile.document.data( "iabOpen", true );
-								iab.addEventListener( "exit", function() {
-									$.mobile.document.removeData( "iabOpen" );
-								} );
-							}
+								",enableViewportScale=yes,toolbarposition=top,closebuttoncaption=" + _( "Back" )
+							);
 
 							return false;
 						},
@@ -12539,7 +12467,7 @@ function openPopup( popup, args ) {
 
 	popup.one( "popupafterclose", function() {
 
-		// Retreive popup data
+		// Retrieve popup data
 		var updateRemainingStations = $( "#shift-sta" ).is( ":checked" );
 
 		// Save data before view is destroyed
@@ -12635,24 +12563,46 @@ function showLoading( ele ) {
 	}
 }
 
-function takePicture( callback ) {
-	if ( typeof navigator.camera !== "object" || typeof navigator.camera.getPicture !== "function" ) {
-		return;
-	}
-
-	navigator.camera.getPicture( callback, function() {}, {
-		quality: 50,
-		destinationType: Camera.DestinationType.DATA_URL,
-		sourceType: Camera.PictureSourceType.PHOTOLIBRARY,
-		allowEdit: true,
-		targetWidth: 200,
-		targetHeight: 200
-	} );
+function getPicture( callback ) {
+	var imageLoader = $( "<input style='display: none' type='file' accept='image/*' capture />" )
+		.insertAfter( "body" )
+		.on( "change", function( event ) {
+			var reader = new FileReader();
+			reader.onload = function( readerEvent ) {
+				var image = new Image();
+				image.onload = function() {
+					var canvas = document.createElement( "canvas" ),
+						maxsize = 200,
+						width = image.width,
+						height = image.height;
+					if ( width > height ) {
+						if ( width > maxsize ) {
+							height *= maxsize / width;
+							width = maxsize;
+						}
+					} else {
+						if ( height > maxsize ) {
+							width *= maxsize / height;
+							height = maxsize;
+						}
+					}
+					canvas.width = width;
+					canvas.height = height;
+					canvas.getContext( "2d" ).drawImage( image, 0, 0, width, height );
+					var resizedImage = canvas.toDataURL( "image/jpeg", 0.5 ).replace( "data:image/jpeg;base64,", "" );
+					imageLoader.remove();
+					callback( resizedImage );
+				};
+				image.src = readerEvent.target.result;
+			};
+			reader.readAsDataURL( event.target.files[ 0 ]);
+		} );
+	imageLoader.get( 0 ).click();
 }
 
 function goHome( firstLoad ) {
 
-	// Transition to home page after succesful load
+	// Transition to home page after successful load
 	if ( $( ".ui-page-active" ).attr( "id" ) !== "sprinklers" ) {
 		$.mobile.document.one( "pageshow", function() {
 
@@ -13297,7 +13247,7 @@ function transformKeysinString( co ) {
 	return co;
 }
 
-/* Compatability methods, verify that necessary data is
+/* Compatibility methods, verify that necessary data is
  * sent from the controller to the UI without explicitly
  * checking for OS version. */
 
