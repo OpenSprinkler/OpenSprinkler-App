@@ -32,63 +32,51 @@ var isAndroid = /Android|\bSilk\b/.test( navigator.userAgent ),
 		get: function( query, callback ) {
 			callback = callback || function() {};
 
-			if ( isChromeApp ) {
-				chrome.storage.local.get( query, callback );
-			} else {
-				var data = {},
-					i;
+			var data = {},
+				i;
 
-				if ( typeof query === "string" ) {
-					query = [ query ];
-				}
-
-				for ( i in query ) {
-					if ( query.hasOwnProperty( i ) ) {
-						data[ query[ i ] ] = localStorage.getItem( query[ i ] );
-					}
-				}
-
-				callback( data );
+			if ( typeof query === "string" ) {
+				query = [ query ];
 			}
+
+			for ( i in query ) {
+				if ( query.hasOwnProperty( i ) ) {
+					data[ query[ i ] ] = localStorage.getItem( query[ i ] );
+				}
+			}
+
+			callback( data );
 		},
 		set: function( query, callback ) {
 			callback = callback || function() {};
 
-			if ( isChromeApp ) {
-				chrome.storage.local.set( query, callback );
-			} else {
-				var i;
-				if ( typeof query === "object" ) {
-					for ( i in query ) {
-						if ( query.hasOwnProperty( i ) ) {
-							localStorage.setItem( i, query[ i ] );
-						}
+			var i;
+			if ( typeof query === "object" ) {
+				for ( i in query ) {
+					if ( query.hasOwnProperty( i ) ) {
+						localStorage.setItem( i, query[ i ] );
 					}
 				}
-
-				callback( true );
 			}
+
+			callback( true );
 		},
 		remove: function( query, callback ) {
 			callback = callback || function() {};
 
-			if ( isChromeApp ) {
-				chrome.storage.local.remove( query, callback );
-			} else {
-				var i;
+			var i;
 
-				if ( typeof query === "string" ) {
-					query = [ query ];
-				}
-
-				for ( i in query ) {
-					if ( query.hasOwnProperty( i ) ) {
-						localStorage.removeItem( query[ i ] );
-					}
-				}
-
-				callback( true );
+			if ( typeof query === "string" ) {
+				query = [ query ];
 			}
+
+			for ( i in query ) {
+				if ( query.hasOwnProperty( i ) ) {
+					localStorage.removeItem( query[ i ] );
+				}
+			}
+
+			callback( true );
 		}
 	},
 
@@ -239,12 +227,6 @@ $( document )
 	}
 } )
 .one( "mobileinit", function() {
-
-	//Change history method for Chrome Packaged Apps
-	if ( isChromeApp || window.location.protocol === "file:" ) {
-		$.mobile.hashListeningEnabled = false;
-	}
-
 	$.support.cors = true;
 	$.mobile.allowCrossDomainPages = true;
 	loadLocalSettings();
@@ -2082,32 +2064,17 @@ function updateDeviceIP( finishCheck ) {
 	},
 	ip;
 
-	if ( isChromeApp ) {
-		chrome.system.network.getNetworkInterfaces( function( data ) {
-			var i;
-			for ( i in data ) {
-				if ( data.hasOwnProperty( i ) ) {
-					if ( /^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$/.test( data[ i ].address ) ) {
-						ip = data[ i ].address;
-					}
-				}
-			}
+	try {
 
+		// Request the device's IP address
+		networkinterface.getWiFiIPAddress( function( data ) {
+			ip = data.ip;
 			finish( ip );
 		} );
-	} else {
-		try {
-
-			// Request the device's IP address
-			networkinterface.getWiFiIPAddress( function( data ) {
-				ip = data.ip;
-				finish( ip );
-			} );
-		} catch ( err ) {
-			findRouter( function( status, data ) {
-				finish( !status ? undefined : data );
-			} );
-		}
+	} catch ( err ) {
+		findRouter( function( status, data ) {
+			finish( !status ? undefined : data );
+		} );
 	}
 }
 
@@ -12649,31 +12616,15 @@ function goBack() {
 			navigator.app.exitApp();
 		} catch ( err ) {}
 	} else {
-		if ( isChromeApp || window.location.protocol === "file:" ) {
-			var url = $.mobile.navigate.history.getPrev().url;
+		if ( pageHistoryCount > 0 ) {
+			pageHistoryCount--;
+		}
 
-			if ( url.slice( 0, 1 ) !== "#" ) {
-				return;
-			}
-
-			changePage( url, {
-				reverse: true
-			} );
-			$.mobile.document.one( "pagehide", function() {
-				$.mobile.navigate.history.activeIndex -= 2;
-			} );
+		if ( pageHistoryCount === 0 ) {
+			navigator.app.exitApp();
 		} else {
-			if ( pageHistoryCount > 0 ) {
-				pageHistoryCount--;
-			}
-
-			if ( pageHistoryCount === 0 ) {
-				navigator.app.exitApp();
-			} else {
-				goingBack = true;
-				$.mobile.back();
-			}
-
+			goingBack = true;
+			$.mobile.back();
 		}
 	}
 }
