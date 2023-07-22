@@ -76,9 +76,7 @@
   "cordova": {
     "plugins": {
       "cordova-plugin-3dtouch": {},
-      "cordova-plugin-geolocation": {
-        "GPS_REQUIRED": "true"
-      },
+      "cordova-plugin-geolocation": {},
       "cordova-plugin-networkinterface": {},
       "cordova-plugin-splashscreen": {},
       "cordova-plugin-statusbar": {},

@@ -56,7 +56,11 @@
         <config-file target="*-Info.plist" overwrite="true" parent="CFBundleShortVersionString">
             <string>19604</string>
         </config-file>
-        <splash height="480" src="res/ios/screens/startup.png" width="320" />
+	<config-file target="*-Info.plist" overwrite="true" parent="NSLocationAlwaysAndWhenInUseUsageDescription">
+                <string>Your current location will be used to configure OpenSprinkler.</string>
+        </config-file>
+
+    <splash height="480" src="res/ios/screens/startup.png" width="320" />
         <splash height="960" src="res/ios/screens/startup-retina.png" width="640" />
         <splash height="1136" src="res/ios/screens/startup-iphone5-retina.png" width="640" />
         <splash height="1334" src="res/ios/screens/startup-iphone6-portrait.png" width="750" />
