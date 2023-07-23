@@ -1,7 +1,7 @@
 {
 	"android": {
 		"release": {
-		"keystore": "/srv/www/htdocs/ui/OpenSprinklerPro.keystore",
+		"keystore": "/srv/www/htdocs/ui/OpenSprinklerASB.keystore",
 			"storePassword": "android",
 			"alias": "opensprinklerpro",
 			"password" : "android",

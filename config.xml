@@ -1,6 +1,9 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget android-versionCode="112" id="de.opensprinklershop.sprinklers" version="2.3.0" versionCode="112" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cordova.apache.org/ns/1.0">
-    <name>OpenSprinklerPro</name>
+<widget android-versionCode="112" id="de.opensprinklershop.sprinklers"
+version="2.3.0" versionCode="112" xmlns="http://www.w3.org/ns/widgets"
+xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+
+    <name>OpenSprinklerASB</name>
     <description>
 	    Designed to allow intuitive control of the OpenSprinkler irrigation controller.
 	    Added Analog Sensor Api by Stefan Schmaltz OpenSprinklerShop
