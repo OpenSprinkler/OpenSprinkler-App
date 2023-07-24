@@ -20,7 +20,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        sudo apt-get install build-essential
+        sudo apt-get install gcc-multilib g++-multilib
         npm install
 
     - name: Start demo firmware
