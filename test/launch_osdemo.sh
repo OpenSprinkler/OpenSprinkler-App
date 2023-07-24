@@ -7,7 +7,7 @@ if [ $1 == "start" ]; then
 		git clone https://github.com/OpenSprinkler/OpenSprinkler-Firmware unified
 	fi
 	cd unified
-	./build.sh demo
+	sudo ./build.sh demo
 	./OpenSprinkler >/dev/null 2>&1 &
 	echo $! > pid
 	sleep 5
