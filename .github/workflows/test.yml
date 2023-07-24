@@ -20,7 +20,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        sudo apt-get install build-essentials
+        sudo apt-get install build-essential
         npm install
 
     - name: Start demo firmware
