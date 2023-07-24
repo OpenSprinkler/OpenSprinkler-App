@@ -20,23 +20,8 @@ jobs:
 
     - name: Install dependencies
       run: |
-        sudo apt-get install gcc-multilib g++-multilib
         npm install
-
-    - name: Start demo firmware
-      run: |
-        grunt shell:startDemo
 
     - name: Run test steps
       run: |
-        grunt test
-
-    - name: Stop demo firmware
-      run: |
-        grunt shell:stopDemo
-
-    - name: Aggregate and post results
-      run: |
-        lcov-result-merger './coverage/results-*.lcov' './coverage/results.lcov'
-        cat coverage/results.lcov | codecov.io.js
-        cat coverage/results.lcov | coveralls
+        grunt
