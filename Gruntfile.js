@@ -150,15 +150,6 @@
 						"git push"
 					].join( "&&" )
 				},
-				startOSPi: {
-					command: "test/launch_ospi.sh start"
-				},
-				stopOSPi: {
-					command: [
-						"test/launch_ospi.sh stop",
-						"rm -r build/firmware/sip"
-					].join( "&&" )
-				},
 				startDemo: {
 					command: "test/launch_osdemo.sh start"
 				},

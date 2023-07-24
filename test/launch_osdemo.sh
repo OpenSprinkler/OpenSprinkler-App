@@ -4,10 +4,10 @@ cd build/firmware
 
 if [ $1 == "start" ]; then
 	if [ ! -d "unified" ]; then
-		git clone https://github.com/opensprinkler/opensprinklergen2 unified
+		git clone https://github.com/OpenSprinkler/OpenSprinkler-Firmware unified
 	fi
 	cd unified
-	g++ -o OpenSprinkler -m32 main.cpp OpenSprinkler.cpp program.cpp server.cpp utils.cpp weather.cpp gpio.cpp etherport.cpp
+	./build.sh demo
 	./OpenSprinkler >/dev/null 2>&1 &
 	echo $! > pid
 	sleep 5
