@@ -57,7 +57,7 @@
 			secrets: secrets,
 
 			jshint: {
-				main: [ "www/js/main.js", "www/js/map.js", "Gruntfile.js", "www/js/hasher.js", "www/js/home.js", "test/tests.js" ],
+				main: [ "www/js/main.js", "www/js/map.js", "Gruntfile.js", "www/js/hasher.js", "www/js/home.js", "test/tests.js", "www/js/analog.js" ],
 				options: {
 					jshintrc: true
 				}
@@ -227,7 +227,7 @@
 			uglify: {
 				buildFW: {
 					files: {
-						"www/js/app.js": [ "www/js/jquery.js", "www/js/main.js", "www/js/libs.js" ]
+						"www/js/app.js": [ "www/js/jquery.js", "www/js/main.js", "www/js/libs.js", "www/js/analog.js", "www/js/apexcharts.min.js" ]
 					}
 				}
 			},
