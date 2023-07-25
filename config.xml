@@ -113,8 +113,8 @@ xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cor
         <preference name="android-targetSdkVersion" value="33" />
         <preference name="android-theme" value="@android:style/Theme.Holo.Light.NoActionBar" />
         <preference name="AndroidInsecureFileModeEnabled" value="true" />
-		<preference name="AndroidWindowSplashScreenAnimatedIcon" value="res/android/screens/splash.png" />
-		<preference name="AndroidWindowSplashScreenBackground" value="#1c1c1c" />
+		<!--preference name="AndroidWindowSplashScreenAnimatedIcon" value="res/android/screens/splash.png" /-->
+		<!--preference name="AndroidWindowSplashScreenBackground" value="#1c1c1c" /-->
         <icon density="ldpi" src="res/android/icons/ldpi.png" />
         <icon density="mdpi" src="res/android/icons/mdpi.png" />
         <icon density="hdpi" src="res/android/icons/hdpi.png" />
@@ -136,6 +136,7 @@ xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cor
         <icon height="150" src="res/windows/icons/iconw.png" width="310" />
         <splash height="300" src="res/windows/screens/landscape.png" width="620" />
         <splash height="1920" src="res/windows/screens/portrait.png" width="1152" />
+        <preference name="AndroidPersistentFileLocation" value="Compatibility" />
     </platform>
     <platform name="wp8">
         <icon src="res/windows/icons/icon48.png" />

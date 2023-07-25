@@ -27,7 +27,6 @@ var isAndroid = /Android|\bSilk\b/.test( navigator.userAgent ),
 	isMetric = ( [ "US", "BM", "PW" ].indexOf( navigator.languages[ 0 ].split( "-" )[ 1 ] ) === -1 ),
 	groupView = false,
 
-	// Small wrapper to handle Chrome vs localStorage usage
 	storage = {
 		get: function( query, callback ) {
 			callback = callback || function() {};
@@ -178,7 +177,7 @@ $( document )
 		} catch ( err ) {}
 	}, 500 );
 
-	// For Android and Windows Phone devices catch the back button and redirect it
+	// For Android devices catch the back button and redirect it
 	$.mobile.document.on( "backbutton", function() {
 		checkChangesBeforeBack();
 		return false;
@@ -246,8 +245,8 @@ $( document )
 	hash = $.mobile.path.parseUrl( page ).hash;
 
 	if ( currPage.length > 0 && hash === "#" + currPage.attr( "id" ) ) {
-			return;
-		}
+		return;
+	}
 
 	// Animations are patchy if the page isn't scrolled to the top.
 	// This scrolls the page before the animation fires off.
@@ -268,10 +267,12 @@ $( document )
 		getRunonce();
 	} else if ( hash === "#os-options" ) {
 		showOptions( data.options.expandItem );
-	} else if ( hash === "#analogsensorconfig" ) {
-		showAnalogSensorConfig();
-	} else if ( hash === "#analogsensorchart" ) {
-		showAnalogSensorCharts();
+	// Analog Sensor Api:
+	} else if ( analogSensorAvail && hash === "#analogsensorconfig" ) {
+                showAnalogSensorConfig();
+        } else if ( analogSensorAvail && hash === "#analogsensorchart" ) {
+                showAnalogSensorCharts();
+	// Analog Sensor Api end		
 	} else if ( hash === "#preview" ) {
 		getPreview();
 	} else if ( hash === "#logs" ) {
@@ -788,12 +789,13 @@ function newLoad() {
 				weatherAdjust.hide();
 			}
 
-			//Analog sensor api
-			if ( checkOSVersion( 230 ) ) {
+			// Analog Sensor Api:
+			checkAnalogSensorAvail( function() {
 				updateAnalogSensor();
-				updateProgramAdjustments();
-			}
-
+                                updateProgramAdjustments();
+                        });	
+                        // Analog Sensor APi end		
+			
 			// Hide change password feature for unsupported devices
 			if ( isOSPi() || checkOSVersion( 208 ) ) {
 				changePassword.css( "display", "" );
@@ -894,9 +896,26 @@ function updateController( callback, fail ) {
 	};
 
 	if ( isControllerConnected() && checkOSVersion( 216 ) ) {
+		sendToOS( "/ja?pw=", "json" ).then( function( data ) {
 
-			updateControllerData( finish, fail );
+			if ( typeof data === "undefined" || $.isEmptyObject( data ) ) {
+				fail();
+				return;
+			}
 
+			// The /ja call does not contain special station data, so let's cache it
+			var special = controller.special;
+
+			controller = data;
+
+			// Restore the station cache to the object
+			controller.special = special;
+
+			// Fix the station status array
+			controller.status = controller.status.sn;
+
+			finish();
+		}, fail );
 	} else {
 		$.when(
 			updateControllerPrograms(),
@@ -906,29 +925,6 @@ function updateController( callback, fail ) {
 			updateControllerSettings()
 		).then( finish, fail );
 	}
-}
-
-function updateControllerData( callback, fail ) {
-	sendToOS( "/ja?pw=", "json" ).then( function( data ) {
-
-		if ( typeof data === "undefined" || $.isEmptyObject( data ) ) {
-			fail();
-			return;
-		}
-
-		// The /ja call does not contain special station data, so let's cache it
-		var special = controller.special;
-
-		controller = data;
-
-		// Restore the station cache to the object
-		controller.special = special;
-
-		// Fix the station status array
-		controller.status = controller.status.sn;
-
-		callback();
-	} );
 }
 
 function updateControllerPrograms( callback ) {
@@ -2421,10 +2417,10 @@ function showZimmermanAdjustmentOptions( button, callback ) {
 				br: parseFloat( popup.find( ".br" ).val() )
 			} );
 
-			// OSPi stores in imperial so convert metric at higher precision so we dont lose accuracy
+			// OSPi stores in imperial so onvert metric at higher precision so we dont lose accuracy
 			if ( isMetric ) {
-				options.bt = Math.round( ( options.bt * 9.0 / 5.0 + 32.0 ) * 100.0 ) / 100.0;
-				options.br = Math.round( ( options.br / 25.4 ) * 1000.0 ) / 1000.0;
+				options.bt = Math.round( ( options.bt * 9 / 5 + 32 ) * 100 ) / 100;
+				options.br = Math.round( ( options.br / 25.4 ) * 1000 ) / 1000;
 			}
 		}
 
@@ -2702,14 +2698,14 @@ function showEToAdjustmentOptions( button, callback ) {
 
 	// Elevation and baseline ETo for ETo adjustment.
 	var options = $.extend( {}, {
-			baseETo: 0.0,
+			baseETo: 0,
 			elevation: 600
 		},
 		unescapeJSON( button.value )
 	);
 
 	if ( isMetric ) {
-		options.baseETo = Math.round( options.baseETo * 25.4 * 100.0 ) / 100.0;
+		options.baseETo = Math.round( options.baseETo * 25.4 * 10 ) / 10;
 		options.elevation = Math.round( options.elevation / 3.28 );
 	}
 
@@ -2750,7 +2746,7 @@ function showEToAdjustmentOptions( button, callback ) {
 
 		// Convert to imperial before storing.
 		if ( isMetric ) {
-			options.baseETo = Math.round( options.baseETo / 25.4 * 100.0 ) / 100.0;
+			options.baseETo = Math.round( options.baseETo / 25.4 * 100 ) / 100;
 			options.elevation = Math.round( options.elevation * 3.28 );
 		}
 
@@ -3068,13 +3064,6 @@ function makeAttribution( provider ) {
 		case "WUnderground":
 		case "WU":
 			attrib += "<a href='https://wunderground.com/' target='_blank'>" + _( "Powered by Weather Underground" ) + "</a>";
-			break;
-		case "DWD":
-			attrib += "<a href='https://brightsky.dev/' target='_blank'>" + _( "Powered by Bright Sky+DWD" ) + "</a>";
-			break;
-		case "OpenMeteo":
-		case "OM":
-			attrib += "<a href='https://open-meteo.com/' target='_blank'>" + _( "Powered by Open Meteo" ) + "</a>";
 			break;
 		case "local":
 			attrib += _( "Powered by your Local PWS" );
@@ -4278,7 +4267,7 @@ function showOptions( expandItem ) {
 						"<button data-mini='true' id='otc' value='" + escapeJSON( controller.settings.otc ) + "'>" +
 							_( "Tap to Configure" ) +
 						"</button>" +
-			"</div>";
+					"</div>";
 		}
 
 		if ( typeof controller.settings.mqtt !== "undefined" ) {
@@ -5153,13 +5142,14 @@ var showHomeMenu = ( function() {
 				"<li><a href='#runonce'>" + _( "Run-Once Program" ) + "</a></li>" +
 				"<li><a href='#programs'>" + _( "Edit Programs" ) + "</a></li>" +
 				"<li><a href='#os-options'>" + _( "Edit Options" ) + "</a></li>" +
-
-				//Analog sensor api:
-				( checkOSVersion( 230 ) ? (
-				"<li><a href='#analogsensorconfig'>" + _( "Analog Sensor Config" ) + "</a></li>" +
-				"<li><a href='#analogsensorchart'>" + _( "Show Sensor Log" ) + "</a></li>"
-				) : "" ) +
-
+				
+				// Analog Sensor Api:
+				( analogSensorAvail ? (
+                                "<li><a href='#analogsensorconfig'>" + _( "Analog Sensor Config" ) + "</a></li>" +
+                                "<li><a href='#analogsensorchart'>" + _( "Show Sensor Log" ) + "</a></li>"
+                                ) : "" ) +
+                                // Analog Sensor Api end
+				
 				( checkOSVersion( 210 ) ? "" : "<li><a href='#manual'>" + _( "Manual Control" ) + "</a></li>" ) +
 			( id === "sprinklers" || id === "runonce" || id === "programs" || id === "manual" || id === "addprogram" ?
 				"</ul>" +
@@ -5238,11 +5228,10 @@ var showHome = ( function() {
 						"</div>" +
 					"</div>" +
 					"<div id='os-stations-list' class='card-group center'></div>" +
-
-					//Analog Sensor API - show area start:
-					"<div id='os-sensor-show' class='card-group center'></div>" +
-
-					//Analog Sensor API - show area end
+					
+					// Analog Sensor API - show area start:
+					( analogSensorAvail ? "<div id='os-sensor-show' class='card-group center'></div>" : "" ) +
+                                        // Analog Sensor API - show area end
 				"</div>" +
 			"</div>" +
 		"</div>" ),
@@ -5906,7 +5895,6 @@ var showHome = ( function() {
 				}
 			};
 		},
-
 		compareCardsGroupView = function( a, b ) {
 
 			/* Sorting order: 	master ->
@@ -6069,8 +6057,10 @@ var showHome = ( function() {
 
 			updateClock();
 			updateSites();
+			//Analog Sensor API:
 			updateSensorShowArea( page );
-
+			//Analog Sensor API end
+			
 			page.find( ".waterlevel" ).text( controller.options.wl );
 			page.find( ".sitename" ).text( siteSelect.val() );
 
@@ -6201,7 +6191,9 @@ var showHome = ( function() {
 		page.find( ".sitename" ).toggleClass( "hidden", currLocal ? true : false ).text( siteSelect.val() );
 		page.find( ".waterlevel" ).text( controller.options.wl );
 
+		//Analog Sensor Api:
 		updateSensorShowArea( page );
+		//Analog Sensor Api end
 		updateClock();
 
 		page.on( "click", ".station-settings", showAttributes );
@@ -6512,15 +6504,7 @@ function refreshStatus( callback ) {
 	};
 
 	if ( checkOSVersion( 216 ) ) {
-		updateController( function() {
-			if ( checkOSVersion( 230 ) ) {
-				updateAnalogSensor( function() {
-					updateProgramAdjustments( finish );
-				} );
-			} else {
-				finish();
-			}
-		}, networkFail );
+		updateController( finish, networkFail );
 	} else {
 		$.when(
 			updateControllerStatus(),
@@ -12531,7 +12515,7 @@ function showLoading( ele ) {
 }
 
 function getPicture( callback ) {
-	var imageLoader = $( "<input style='display: none' type='file' accept='image/*' capture />" )
+	var imageLoader = $( "<input style='display: none' type='file' accept='image/*' />" )
 		.insertAfter( "body" )
 		.on( "change", function( event ) {
 			var reader = new FileReader();
@@ -12539,18 +12523,18 @@ function getPicture( callback ) {
 				var image = new Image();
 				image.onload = function() {
 					var canvas = document.createElement( "canvas" ),
-						maxsize = 200,
+						maxSize = 200,
 						width = image.width,
 						height = image.height;
 					if ( width > height ) {
-						if ( width > maxsize ) {
-							height *= maxsize / width;
-							width = maxsize;
+						if ( width > maxSize ) {
+							height *= maxSize / width;
+							width = maxSize;
 						}
 					} else {
-						if ( height > maxsize ) {
-							width *= maxsize / height;
-							height = maxsize;
+						if ( height > maxSize ) {
+							width *= maxSize / height;
+							height = maxSize;
 						}
 					}
 					canvas.width = width;
@@ -12562,7 +12546,7 @@ function getPicture( callback ) {
 				};
 				image.src = readerEvent.target.result;
 			};
-			reader.readAsDataURL( event.target.files[ 0 ]);
+			reader.readAsDataURL( event.target.files[ 0 ] );
 		} );
 	imageLoader.get( 0 ).click();
 }

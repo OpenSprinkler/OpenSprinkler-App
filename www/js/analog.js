@@ -6,7 +6,23 @@
  */
 
 var analogSensors = {},
-	progAdjusts = {};
+    progAdjusts = {},
+    analogSensorAvail = false;
+
+function checkAnalogSensorAvail( callback ) {
+	callback = callback || function() {};
+	return sendToOS( "/sl?pw=", "json" ).then( function( data ) {
+		if ( typeof data === "undefined" || $.isEmptyObject( data ) ) {
+			analogSensorAvail = false;
+			return;
+		}
+		analogSensorAvail = true;
+		callback();
+	}, function( data ) {
+		analogSensorAvail = false;
+	} );
+
+}
 
 function refresh() {
     setTimeout( function() {
@@ -31,7 +47,7 @@ function updateAnalogSensor( callback ) {
 }
 
 function updateSensorShowArea( page ) {
-	if ( checkOSVersion( 230 ) ) {
+	if ( analogSensorAvail ) {
 		var showArea =  page.find( "#os-sensor-show" );
 		var html = "", i, j;
 		for ( i = 0; i < progAdjusts.length; i++ ) {
