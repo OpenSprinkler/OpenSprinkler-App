@@ -30,7 +30,7 @@ A mobile interface for the OpenSprinkler irrigation device. Designed to allow ma
   + [Apple App Store - OS X](https://itunes.apple.com/us/app/sprinklers/id903464532?ls=1&mt=12)
   + [Google Play Store](https://play.google.com/store/apps/details?id=com.albahra.sprinklers)
 
-+ This application interfaces with OpenSprinkler. The application has been tested and is compatible with all versions of the Unified firmware for both Arduino and Raspberry Pi. Furthermore, Dan Kimberling's OSPi program is also supported.
++ This application interfaces with OpenSprinkler. The application has been tested and is compatible with all versions of the Unified firmware for both Arduino and Raspberry Pi.
 
 + The application is written in Javascript and HTML/CSS. The application runs completely within the user's browser (or webview) and communicates directly with the OpenSprinkler.
 
