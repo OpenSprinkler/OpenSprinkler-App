@@ -1,5 +1,7 @@
 /* global $, ThreeDeeTouch, navigator, FastClick */
 /* global StatusBar, networkinterface, links, SunCalc, md5, sjcl */
+/* global analogSensorAvail, showAnalogSensorConfig, checkAnalogSensorAvail, updateAnalogSensor, updateProgramAdjustments, updateSensorShowArea */
+/* global showAnalogSensorCharts */
 
 /* OpenSprinkler App
  * Copyright (C) 2015 - present, Samer Albahra. All rights reserved.
@@ -272,7 +274,7 @@ $( document )
                 showAnalogSensorConfig();
         } else if ( analogSensorAvail && hash === "#analogsensorchart" ) {
                 showAnalogSensorCharts();
-	// Analog Sensor Api end		
+	// Analog Sensor Api end
 	} else if ( hash === "#preview" ) {
 		getPreview();
 	} else if ( hash === "#logs" ) {
@@ -793,9 +795,9 @@ function newLoad() {
 			checkAnalogSensorAvail( function() {
 				updateAnalogSensor();
                                 updateProgramAdjustments();
-                        });	
-                        // Analog Sensor APi end		
-			
+                        });
+                        // Analog Sensor APi end
+
 			// Hide change password feature for unsupported devices
 			if ( isOSPi() || checkOSVersion( 208 ) ) {
 				changePassword.css( "display", "" );
@@ -5142,14 +5144,14 @@ var showHomeMenu = ( function() {
 				"<li><a href='#runonce'>" + _( "Run-Once Program" ) + "</a></li>" +
 				"<li><a href='#programs'>" + _( "Edit Programs" ) + "</a></li>" +
 				"<li><a href='#os-options'>" + _( "Edit Options" ) + "</a></li>" +
-				
+
 				// Analog Sensor Api:
 				( analogSensorAvail ? (
                                 "<li><a href='#analogsensorconfig'>" + _( "Analog Sensor Config" ) + "</a></li>" +
                                 "<li><a href='#analogsensorchart'>" + _( "Show Sensor Log" ) + "</a></li>"
                                 ) : "" ) +
                                 // Analog Sensor Api end
-				
+
 				( checkOSVersion( 210 ) ? "" : "<li><a href='#manual'>" + _( "Manual Control" ) + "</a></li>" ) +
 			( id === "sprinklers" || id === "runonce" || id === "programs" || id === "manual" || id === "addprogram" ?
 				"</ul>" +
@@ -5228,7 +5230,7 @@ var showHome = ( function() {
 						"</div>" +
 					"</div>" +
 					"<div id='os-stations-list' class='card-group center'></div>" +
-					
+
 					// Analog Sensor API - show area start:
 					"<div id='os-sensor-show' class='card-group center'></div>" +
                                         // Analog Sensor API - show area end
@@ -6060,7 +6062,7 @@ var showHome = ( function() {
 			//Analog Sensor API:
 			updateSensorShowArea( page );
 			//Analog Sensor API end
-			
+
 			page.find( ".waterlevel" ).text( controller.options.wl );
 			page.find( ".sitename" ).text( siteSelect.val() );
 

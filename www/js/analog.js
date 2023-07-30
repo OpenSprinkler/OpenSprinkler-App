@@ -1,3 +1,7 @@
+/* global sendToOS, controller, readProgram, holdButton, openPopup, areYouSure, _, $ */
+/* global currPass, currToken, currPrefix, currIp, changePage, changeHeader, goBack */
+/* global getAppURLPath, dateToString, ApexCharts */
+
 /*!
  * Analog Sensor API - GUI for OpenSprinkker App
  * https://github.com/opensprinklershop/
@@ -7,7 +11,9 @@
 
 var analogSensors = {},
     progAdjusts = {},
-    analogSensorAvail = false;
+    analogSensorAvail = false,
+	CHARTS = 11;
+
 
 function checkAnalogSensorAvail( callback ) {
 	callback = callback || function() {};
@@ -18,7 +24,7 @@ function checkAnalogSensorAvail( callback ) {
 		}
 		analogSensorAvail = true;
 		callback();
-	}, function( data ) {
+	}, function( ) {
 		analogSensorAvail = false;
 	} );
 
@@ -555,7 +561,7 @@ var showAnalogSensorConfig = ( function() {
 		//Delete a program adjust:
 		list.find( "#delete-progadjust" ).on( "click", function( ) {
 			var dur = $( this ),
-			value = dur.attr( "value" );
+			value = dur.attr( "value" ),
 			row = dur.attr( "row" );
 
 			areYouSure( _( "Are you sure you want to delete this program adjustment?" ), value, function() {
@@ -628,7 +634,7 @@ var showAnalogSensorConfig = ( function() {
 			link.style.display = "none";
 			link.setAttribute( "download", "sensorlog-" + new Date().toLocaleDateString().replace( /\//g, "-" ) + ".csv" );
 
-			dest = "/so?pw=&csv=1";
+			var dest = "/so?pw=&csv=1";
 			dest = dest.replace( "pw=", "pw=" + encodeURIComponent( currPass ) );
 			link.target = "_blank";
 			link.href = currToken ? "https://cloud.openthings.io/forward/v1/" + currToken + dest : currPrefix + currIp + dest;
@@ -760,8 +766,6 @@ function buildSensorConfig() {
 	return list;
 }
 
-const CHARTS = 11;
-
 // show Sensor Charts with apexcharts
 var showAnalogSensorCharts = ( function() {
 
@@ -844,82 +848,84 @@ var showAnalogSensorCharts = ( function() {
 } )();
 
 function build_graph(prefix, chart, csv, title_add, timestr) {
-			let csvlines = csv.split(/(?:\r\n|\n)+/).filter(function(el) {return el.length != 0});
+			var csvlines = csv.split(/(?:\r\n|\n)+/).filter(function(el) {return el.length !== 0;});
 
 			for ( var j = 0; j < analogSensors.length; j++ ) {
-				if (!analogSensors[j].log)
+				if (!analogSensors[j].log) {
 					continue;
+				}
 
 				var nr = analogSensors[j].nr,
 					logdata = [],
 					unitid = analogSensors[j].unitid;
 
 				for ( var k = 1; k < csvlines.length; k++ ) {
-					let line = csvlines[k].split(";");
+					var line = csvlines[k].split(";");
 					if (line.length >= 3 && Number(line[0]) === nr ) {
 						logdata.push( { x: Number(line[1]) * 1000, y: Number(line[2]) } );
 					}
 				}
 				var series = { name: analogSensors[j].name, data: logdata };
 
-				if (unitid >= CHARTS)
+				if (unitid >= CHARTS) {
 					unitid = 0;
+				}
 
 				if (!chart[unitid]) {
 					var unit, title, unitStr,
-						minFunc = function(val) {return Math.floor(Math.max(0, val-4))},
-						maxFunc = function(val) {return Math.ceil(val)},
+						minFunc = function(val) {return Math.floor(Math.max(0, val-4));},
+						maxFunc = function(val) {return Math.ceil(val);},
 						autoY = true;
 					switch (unitid) {
 						case 1: unit = _("Soil moisture");
 								title = _("Soil moisture")+" "+title_add;
-								unitStr = function(val) {return val+" %"};
+								unitStr = function(val) {return val+" %";};
 								minFunc = 0;
 								maxFunc = 100;
 								break;
 						case 2: unit = _("degree celsius temperature");
 								title = _("Temperature")+" "+title_add;
-								unitStr = function(val) {return val+String.fromCharCode(176)+"C"};
+								unitStr = function(val) {return val+String.fromCharCode(176)+"C";};
 								break;
 						case 3: unit = _("degree fahrenheit temperature");
 								title = _("Temperature")+" "+title_add;
-								unitStr = function(val) {return val+String.fromCharCode(176)+"F"};
+								unitStr = function(val) {return val+String.fromCharCode(176)+"F";};
 								break;
 						case 4: unit = _("Volt");
 								title = _("Voltage")+" "+title_add;
-								unitStr = function(val) {return val+" V"};
+								unitStr = function(val) {return val+" V";};
 								minFunc = 0;
 								maxFunc = 4;
 								autoY = false;
 								break;
 						case 5: unit = _("Humidity");
 								title = _("Air Humidity")+" "+title_add;
-								unitStr = function(val) {return val+" %"};
+								unitStr = function(val) {return val+" %";};
 								minFunc = 0;
 								maxFunc = 100;
 								break;
 						case 6: unit = _("Rain");
 								title = _("Rainfall")+" "+title_add;
-								unitStr = function(val) {return val+" in"};
+								unitStr = function(val) {return val+" in";};
 								break;
 						case 7: unit = _("Rain");
 								title = _("Rainfall")+" "+title_add;
-								unitStr = function(val) {return val+" mm"};
+								unitStr = function(val) {return val+" mm";};
 								minFunc = 0;
 								break;
 						case 8: unit = _("Wind");
 								title = _("Wind")+" "+title_add;
-								unitStr = function(val) {return val+" mph"};
+								unitStr = function(val) {return val+" mph";};
 								minFunc = 0;
 								break;
 						case 9: unit = _("Wind");
 								title = _("Wind")+" "+title_add;
-								unitStr = function(val) {return val+" kmh"};
+								unitStr = function(val) {return val+" kmh";};
 								minFunc = 0;
 								break;
 						case 10: unit = _("Level");
 								title = _("Level")+" "+title_add;
-								unitStr = function(val) {return val+" %"};
+								unitStr = function(val) {return val+" %";};
 								minFunc = 0;
 								maxFunc = 100;
 								autoY = false;
@@ -941,7 +947,7 @@ function build_graph(prefix, chart, csv, title_add, timestr) {
 						},
 						series: [series],
 						stroke: {
-							curve: 'smooth',
+							curve: "smooth",
 							width: 4,
 						},
 						grid: {
@@ -963,11 +969,11 @@ function build_graph(prefix, chart, csv, title_add, timestr) {
 						},
 						tooltip: {
 							x: {
-								format: 'dd.MM.yyyy HH:mm:ss',
+								format: "dd.MM.yyyy HH:mm:ss",
 							},
 						},
 						xaxis: {
-							type: 'datetime',
+							type: "datetime",
 							labels: {
 								datetimeUTC : true,
 								format: timestr,
@@ -998,11 +1004,12 @@ function build_graph(prefix, chart, csv, title_add, timestr) {
 				}
 			}
 
-			for (k = 1; k < CHARTS; k++) {
-				if (!chart[k]) {
-					var x = document.querySelector(prefix + k);
-					if (x)
+			for (var c = 1; c < CHARTS; c++) {
+				if (!chart[c]) {
+					var x = document.querySelector(prefix + c);
+					if (x) {
 						x.parentElement.removeChild(x);
+					}
 				}
 			}
 }
