@@ -1,17 +1,17 @@
 @media screen and (max-width: 800px) and (min-width: 300px) {
-  .hidecol{display:none; }
-  .hidecol2{display:none; }
+  .hidecol{ display:none; }
+  .hidecol2{ display:none; }
 }
 @media screen and (max-width: 1200px) and (min-width: 800px) {
-  .hidecol{display:none; }
+  .hidecol{ display:none; }
 }
 
 #analogsensorlist table {
 	border: 1px solid lightgray;
 	border-collapse: collapse;
+	width: 100%;
 }
 #analogsensorlist table tr {
 	border: 1px solid lightgray;
 	border-collapse: collapse;
 }
-
