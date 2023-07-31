@@ -18,8 +18,6 @@
 		grunt.loadNpmTasks( "grunt-text-replace" );
 		grunt.loadNpmTasks( "grunt-shell" );
 		grunt.loadNpmTasks( "grunt-contrib-compress" );
-		grunt.loadNpmTasks( "grunt-contrib-uglify" );
-		grunt.loadNpmTasks( "grunt-contrib-cssmin" );
 		grunt.loadNpmTasks( "grunt-contrib-csslint" );
 		grunt.loadNpmTasks( "grunt-contrib-clean" );
 		grunt.loadNpmTasks( "grunt-jscs" );
@@ -125,9 +123,6 @@
 						"rsync -azp --chmod=Du=rwx,Dg=rx,Do=rx,Fu=rw,Fg=r,Fo=r * <%= secrets.firmware.betaui.location %>"
 					].join( "&&" )
 				},
-				updatePGB: {
-					command: "curl -X PUT -F file=@build/app.zip https://build.phonegap.com/api/v1/apps/<%= pkg.phonegap.id %>?auth_token=<%= secrets.phonegap.token %> >/dev/null 2>&1"
-				},
 				pushEng: {
 					command: [
 						"xgettext --keyword=_ --output=- www/js/main.js --omit-header --force-po --from-code=UTF-8 --language='Python' | sed '/^\#/d' > .msgjs",
@@ -182,7 +177,7 @@
 						}
 					} ]
 				},
-				phonegap: {
+				cordova: {
 					src: [ "config.xml" ],
 					overwrite: true,
 					replacements: [
@@ -204,7 +199,7 @@
 						} ]
 				},
 				manifests: {
-					src: [ "manifest.json", "package.json" ],
+					src: [ "package.json" ],
 					overwrite: true,
 					replacements: [ {
 						from: /"version": "([\d|\.]+)"/g,
@@ -215,25 +210,7 @@
 				}
 			},
 
-			uglify: {
-				buildFW: {
-					files: {
-						"www/js/app.js": [ "www/js/jquery.js", "www/js/main.js", "www/js/libs.js", "www/js/analog.js", "www/js/apexcharts.min.js" ]
-					}
-				}
-			},
-
-			cssmin: {
-				combine: {
-					files: {
-						"www/css/app.css": [ "www/css/jqm.css", "www/css/main.css" ]
-					}
-				}
-			},
-
 			clean: {
-				makeFW: [ "www/js/app.js", "www/css/app.css" ],
-				pushFW: [ "build/firmware/*", "build/app.zip" ],
 				symres: [ "www/res" ]
 			}
 		} );
@@ -243,11 +220,8 @@
 		grunt.registerTask( "test", [ "default", "blanket_mocha" ] );
 		grunt.registerTask( "updateLang", [ "shell:updateLang" ] );
 		grunt.registerTask( "pushEng", [ "shell:pushEng" ] );
-		grunt.registerTask( "buildFW", [ "default", "uglify", "cssmin" ] );
-		grunt.registerTask( "makeFW", [ "buildFW", "compress:makeFW", "clean:makeFW" ] );
-		grunt.registerTask( "pushFW", [ "makeFW", "shell:updateUI", "clean:pushFW" ] );
-		grunt.registerTask( "pushBetaFW", [ "makeFW", "shell:updateBetaUI", "clean:pushFW" ] );
+		grunt.registerTask( "pushFW", [ "compress:makeFW", "shell:updateUI" ] );
+		grunt.registerTask( "pushBetaFW", ["compress:makeFW", "shell:updateBetaUI" ] );
 		grunt.registerTask( "build", [ "default", "shell:symres", "pushFW", "clean:symres" ] );
-		grunt.registerTask( "bump", [ "default", "replace:about", "replace:phonegap", "replace:manifests", "shell:pushBump" ] );
-
+		grunt.registerTask( "bump", [ "default", "replace:about", "replace:cordova", "replace:manifests", "shell:pushBump" ] );
 	};
