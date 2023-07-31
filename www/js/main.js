@@ -269,12 +269,10 @@ $( document )
 		getRunonce();
 	} else if ( hash === "#os-options" ) {
 		showOptions( data.options.expandItem );
-	// Analog Sensor Api:
 	} else if ( analogSensorAvail && hash === "#analogsensorconfig" ) {
-                showAnalogSensorConfig();
-        } else if ( analogSensorAvail && hash === "#analogsensorchart" ) {
-                showAnalogSensorCharts();
-	// Analog Sensor Api end
+		showAnalogSensorConfig();
+	} else if ( analogSensorAvail && hash === "#analogsensorchart" ) {
+		showAnalogSensorCharts();
 	} else if ( hash === "#preview" ) {
 		getPreview();
 	} else if ( hash === "#logs" ) {
@@ -791,12 +789,10 @@ function newLoad() {
 				weatherAdjust.hide();
 			}
 
-			// Analog Sensor Api:
 			checkAnalogSensorAvail( function() {
 				updateAnalogSensor();
-                                updateProgramAdjustments();
-                        });
-                        // Analog Sensor APi end
+				updateProgramAdjustments();
+			} );
 
 			// Hide change password feature for unsupported devices
 			if ( isOSPi() || checkOSVersion( 208 ) ) {
@@ -5145,12 +5141,10 @@ var showHomeMenu = ( function() {
 				"<li><a href='#programs'>" + _( "Edit Programs" ) + "</a></li>" +
 				"<li><a href='#os-options'>" + _( "Edit Options" ) + "</a></li>" +
 
-				// Analog Sensor Api:
 				( analogSensorAvail ? (
-                                "<li><a href='#analogsensorconfig'>" + _( "Analog Sensor Config" ) + "</a></li>" +
-                                "<li><a href='#analogsensorchart'>" + _( "Show Sensor Log" ) + "</a></li>"
-                                ) : "" ) +
-                                // Analog Sensor Api end
+					"<li><a href='#analogsensorconfig'>" + _( "Analog Sensor Config" ) + "</a></li>" +
+					"<li><a href='#analogsensorchart'>" + _( "Show Sensor Log" ) + "</a></li>"
+				) : "" ) +
 
 				( checkOSVersion( 210 ) ? "" : "<li><a href='#manual'>" + _( "Manual Control" ) + "</a></li>" ) +
 			( id === "sprinklers" || id === "runonce" || id === "programs" || id === "manual" || id === "addprogram" ?
@@ -5231,9 +5225,7 @@ var showHome = ( function() {
 					"</div>" +
 					"<div id='os-stations-list' class='card-group center'></div>" +
 
-					// Analog Sensor API - show area start:
-					"<div id='os-sensor-show' class='card-group center'></div>" +
-                                        // Analog Sensor API - show area end
+					( analogSensorAvail ? "<div id='os-sensor-show' class='card-group center'></div>" : "" ) +
 				"</div>" +
 			"</div>" +
 		"</div>" ),
@@ -6059,9 +6051,7 @@ var showHome = ( function() {
 
 			updateClock();
 			updateSites();
-			//Analog Sensor API:
 			updateSensorShowArea( page );
-			//Analog Sensor API end
 
 			page.find( ".waterlevel" ).text( controller.options.wl );
 			page.find( ".sitename" ).text( siteSelect.val() );
@@ -6193,9 +6183,7 @@ var showHome = ( function() {
 		page.find( ".sitename" ).toggleClass( "hidden", currLocal ? true : false ).text( siteSelect.val() );
 		page.find( ".waterlevel" ).text( controller.options.wl );
 
-		//Analog Sensor Api:
 		updateSensorShowArea( page );
-		//Analog Sensor Api end
 		updateClock();
 
 		page.on( "click", ".station-settings", showAttributes );

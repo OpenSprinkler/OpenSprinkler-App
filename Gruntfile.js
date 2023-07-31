@@ -62,7 +62,7 @@
 			},
 
 			jscs: {
-				main: [ "www/js/main.js", "www/js/map.js", "Gruntfile.js", "www/js/hasher.js", "www/js/home.js", "test/tests.js" ],
+				main: [ "www/js/main.js", "www/js/map.js", "Gruntfile.js", "www/js/hasher.js", "www/js/home.js", "test/tests.js", "www/js/analog.js" ],
 				options: {
 					config: true,
 					fix: true
@@ -221,7 +221,7 @@
 		grunt.registerTask( "updateLang", [ "shell:updateLang" ] );
 		grunt.registerTask( "pushEng", [ "shell:pushEng" ] );
 		grunt.registerTask( "pushFW", [ "compress:makeFW", "shell:updateUI" ] );
-		grunt.registerTask( "pushBetaFW", ["compress:makeFW", "shell:updateBetaUI" ] );
+		grunt.registerTask( "pushBetaFW", [ "compress:makeFW", "shell:updateBetaUI" ] );
 		grunt.registerTask( "build", [ "default", "shell:symres", "pushFW", "clean:symres" ] );
 		grunt.registerTask( "bump", [ "default", "replace:about", "replace:cordova", "replace:manifests", "shell:pushBump" ] );
 	};
