@@ -12,22 +12,10 @@
 
 var analogSensors = {},
 	progAdjusts = {},
-	analogSensorAvail = false,
 	CHARTS = 11;
 
-function checkAnalogSensorAvail( callback ) {
-	callback = callback || function() { };
-	return sendToOS( "/sl?pw=", "json" ).then( function( data ) {
-		if ( typeof data === "undefined" || $.isEmptyObject( data ) ) {
-			analogSensorAvail = false;
-			return;
-		}
-		analogSensorAvail = true;
-		callback();
-	}, function() {
-		analogSensorAvail = false;
-	} );
-
+function checkAnalogSensorAvail() {
+	return controller.options?.feature === "ASB";
 }
 
 function refresh() {
@@ -53,7 +41,7 @@ function updateAnalogSensor( callback ) {
 }
 
 function updateSensorShowArea( page ) {
-	if ( analogSensorAvail ) {
+	if ( checkAnalogSensorAvail() ) {
 		var showArea = page.find( "#os-sensor-show" );
 		var html = "", i, j;
 		for ( i = 0; i < progAdjusts.length; i++ ) {
