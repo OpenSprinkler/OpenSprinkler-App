@@ -15,7 +15,7 @@ var analogSensors = {},
 	CHARTS = 11;
 
 function checkAnalogSensorAvail() {
-	return controller.options?.feature === "ASB";
+	return controller.options && controller.options.feature === "ASB";
 }
 
 function refresh() {
