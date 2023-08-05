@@ -1,7 +1,7 @@
 /* global $, ThreeDeeTouch, navigator, FastClick */
 /* global StatusBar, networkinterface, links, SunCalc, md5, sjcl */
-/* global analogSensorAvail, showAnalogSensorConfig, checkAnalogSensorAvail, updateAnalogSensor, updateProgramAdjustments, updateSensorShowArea */
-/* global showAnalogSensorCharts */
+/* global showAnalogSensorConfig, checkAnalogSensorAvail, updateAnalogSensor */
+/* global showAnalogSensorCharts, updateProgramAdjustments, updateSensorShowArea */
 
 /* OpenSprinkler App
  * Copyright (C) 2015 - present, Samer Albahra. All rights reserved.
@@ -269,9 +269,9 @@ $( document )
 		getRunonce();
 	} else if ( hash === "#os-options" ) {
 		showOptions( data.options.expandItem );
-	} else if ( analogSensorAvail && hash === "#analogsensorconfig" ) {
+	} else if ( checkAnalogSensorAvail() && hash === "#analogsensorconfig" ) {
 		showAnalogSensorConfig();
-	} else if ( analogSensorAvail && hash === "#analogsensorchart" ) {
+	} else if ( checkAnalogSensorAvail() && hash === "#analogsensorchart" ) {
 		showAnalogSensorCharts();
 	} else if ( hash === "#preview" ) {
 		getPreview();
@@ -789,10 +789,10 @@ function newLoad() {
 				weatherAdjust.hide();
 			}
 
-			checkAnalogSensorAvail( function() {
+			if ( checkAnalogSensorAvail() ) {
 				updateAnalogSensor();
 				updateProgramAdjustments();
-			} );
+			}
 
 			// Hide change password feature for unsupported devices
 			if ( isOSPi() || checkOSVersion( 208 ) ) {
@@ -3059,6 +3059,13 @@ function makeAttribution( provider ) {
 		case "OWM":
 			attrib += "<a href='https://openweathermap.org/' target='_blank'>" + _( "Powered by OpenWeather" ) + "</a>";
 			break;
+		case "DWD":
+				attrib += "<a href='https://brightsky.dev/' target='_blank'>" + _( "Powered by Bright Sky+DWD" ) + "</a>";
+				break;
+		case "OpenMeteo":
+		case "OM":
+				attrib += "<a href='https://open-meteo.com/' target='_blank'>" + _( "Powered by Open Meteo" ) + "</a>";
+				break;
 		case "WUnderground":
 		case "WU":
 			attrib += "<a href='https://wunderground.com/' target='_blank'>" + _( "Powered by Weather Underground" ) + "</a>";
@@ -5141,7 +5148,7 @@ var showHomeMenu = ( function() {
 				"<li><a href='#programs'>" + _( "Edit Programs" ) + "</a></li>" +
 				"<li><a href='#os-options'>" + _( "Edit Options" ) + "</a></li>" +
 
-				( analogSensorAvail ? (
+				( checkAnalogSensorAvail() ? (
 					"<li><a href='#analogsensorconfig'>" + _( "Analog Sensor Config" ) + "</a></li>" +
 					"<li><a href='#analogsensorchart'>" + _( "Show Sensor Log" ) + "</a></li>"
 				) : "" ) +
@@ -5225,7 +5232,7 @@ var showHome = ( function() {
 					"</div>" +
 					"<div id='os-stations-list' class='card-group center'></div>" +
 
-					( analogSensorAvail ? "<div id='os-sensor-show' class='card-group center'></div>" : "" ) +
+					( checkAnalogSensorAvail() ? "<div id='os-sensor-show' class='card-group center'></div>" : "" ) +
 				"</div>" +
 			"</div>" +
 		"</div>" ),
