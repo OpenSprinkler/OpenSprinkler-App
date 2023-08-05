@@ -1,5 +1,7 @@
 /* global $, ThreeDeeTouch, navigator, FastClick */
 /* global StatusBar, networkinterface, links, SunCalc, md5, sjcl */
+/* global showAnalogSensorConfig, checkAnalogSensorAvail, updateAnalogSensor */
+/* global showAnalogSensorCharts, updateProgramAdjustments, updateSensorShowArea */
 
 /* OpenSprinkler App
  * Copyright (C) 2015 - present, Samer Albahra. All rights reserved.
@@ -267,6 +269,10 @@ $( document )
 		getRunonce();
 	} else if ( hash === "#os-options" ) {
 		showOptions( data.options.expandItem );
+	} else if ( checkAnalogSensorAvail() && hash === "#analogsensorconfig" ) {
+		showAnalogSensorConfig();
+	} else if ( checkAnalogSensorAvail() && hash === "#analogsensorchart" ) {
+		showAnalogSensorCharts();
 	} else if ( hash === "#preview" ) {
 		getPreview();
 	} else if ( hash === "#logs" ) {
@@ -781,6 +787,11 @@ function newLoad() {
 				weatherAdjust.css( "display", "" );
 			} else {
 				weatherAdjust.hide();
+			}
+
+			if ( checkAnalogSensorAvail() ) {
+				updateAnalogSensor();
+				updateProgramAdjustments();
 			}
 
 			// Hide change password feature for unsupported devices
@@ -3048,6 +3059,13 @@ function makeAttribution( provider ) {
 		case "OWM":
 			attrib += "<a href='https://openweathermap.org/' target='_blank'>" + _( "Powered by OpenWeather" ) + "</a>";
 			break;
+		case "DWD":
+				attrib += "<a href='https://brightsky.dev/' target='_blank'>" + _( "Powered by Bright Sky+DWD" ) + "</a>";
+				break;
+		case "OpenMeteo":
+		case "OM":
+				attrib += "<a href='https://open-meteo.com/' target='_blank'>" + _( "Powered by Open Meteo" ) + "</a>";
+				break;
 		case "WUnderground":
 		case "WU":
 			attrib += "<a href='https://wunderground.com/' target='_blank'>" + _( "Powered by Weather Underground" ) + "</a>";
@@ -5129,6 +5147,12 @@ var showHomeMenu = ( function() {
 				"<li><a href='#runonce'>" + _( "Run-Once Program" ) + "</a></li>" +
 				"<li><a href='#programs'>" + _( "Edit Programs" ) + "</a></li>" +
 				"<li><a href='#os-options'>" + _( "Edit Options" ) + "</a></li>" +
+
+				( checkAnalogSensorAvail() ? (
+					"<li><a href='#analogsensorconfig'>" + _( "Analog Sensor Config" ) + "</a></li>" +
+					"<li><a href='#analogsensorchart'>" + _( "Show Sensor Log" ) + "</a></li>"
+				) : "" ) +
+
 				( checkOSVersion( 210 ) ? "" : "<li><a href='#manual'>" + _( "Manual Control" ) + "</a></li>" ) +
 			( id === "sprinklers" || id === "runonce" || id === "programs" || id === "manual" || id === "addprogram" ?
 				"</ul>" +
@@ -5207,6 +5231,8 @@ var showHome = ( function() {
 						"</div>" +
 					"</div>" +
 					"<div id='os-stations-list' class='card-group center'></div>" +
+
+					( checkAnalogSensorAvail() ? "<div id='os-sensor-show' class='card-group center'></div>" : "" ) +
 				"</div>" +
 			"</div>" +
 		"</div>" ),
@@ -6032,6 +6058,7 @@ var showHome = ( function() {
 
 			updateClock();
 			updateSites();
+			updateSensorShowArea( page );
 
 			page.find( ".waterlevel" ).text( controller.options.wl );
 			page.find( ".sitename" ).text( siteSelect.val() );
@@ -6163,6 +6190,7 @@ var showHome = ( function() {
 		page.find( ".sitename" ).toggleClass( "hidden", currLocal ? true : false ).text( siteSelect.val() );
 		page.find( ".waterlevel" ).text( controller.options.wl );
 
+		updateSensorShowArea( page );
 		updateClock();
 
 		page.on( "click", ".station-settings", showAttributes );
