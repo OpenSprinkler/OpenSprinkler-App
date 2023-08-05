@@ -117,7 +117,7 @@ function showAdjustmentsEditor( progAdjust, callback ) {
 			"<div class='ui-content'>" +
 			"<p class='rain-desc center smaller'>" +
 			_( "Notice: If you want to combine multiple sensors, then build a sensor group. " ) +
-			_( "See Help Documentation for details." ) +
+			_( "See help documentation for details." ) +
 			"</p>" +
 
 			"<div class='ui-field-contain'>" +
@@ -168,22 +168,22 @@ function showAdjustmentsEditor( progAdjust, callback ) {
 		list += "</select></div>" +
 
 			"<label>" +
-			_( "Factor 1 (adjustment for Min)" ) +
+			_( "Factor 1 (adjustment for min)" ) +
 			"</label>" +
 			"<input class='factor1' type='number' value='" + progAdjust.factor1 + "'>" +
 
 			"<label>" +
-			_( "Factor 2 (adjustment for Max)" ) +
+			_( "Factor 2 (adjustment for max)" ) +
 			"</label>" +
 			"<input class='factor2' type='number' value='" + progAdjust.factor2 + "'>" +
 
 			"<label>" +
-			_( "Min Sensor value" ) +
+			_( "Min sensor value" ) +
 			"</label>" +
 			"<input class='min' type='number' value='" + progAdjust.min + "'>" +
 
 			"<label>" +
-			_( "Max Sensor value" ) +
+			_( "Max sensor value" ) +
 			"</label>" +
 			"<input class='max' type='number' value='" + progAdjust.max + "'>" +
 
@@ -282,7 +282,7 @@ function showSensorEditor( sensor, callback ) {
 			"<div class='ui-content'>" +
 			"<p class='rain-desc center smaller'>" +
 			_( "Edit Sensor Configuration. " ) +
-			_( "See Help Documentation for details." ) +
+			_( "See help documentation for details." ) +
 			"</p>" +
 			"<div class='ui-field-contain'>" +
 			"<label>" +
@@ -314,7 +314,7 @@ function showSensorEditor( sensor, callback ) {
 			"<input class='name' type='text'  value='" + sensor.name + "'>" +
 
 			"<label>" +
-			_( "IP-Address" ) +
+			_( "IP Address" ) +
 			"</label>" +
 			"<input class='ip' type='text'  value='" + ( sensor.ip ? toByteArray( sensor.ip ).join( "." ) : "" ) + "'>" +
 
@@ -342,7 +342,7 @@ function showSensorEditor( sensor, callback ) {
 			"</label>" +
 
 			"<label for='log'><input data-mini='true' id='show' type='checkbox' " + ( ( sensor.show === 1 ) ? "checked='checked'" : "" ) + ">" +
-			_( "Show on Mainpage" ) +
+			_( "Show on Main Page" ) +
 			"</label>" +
 
 			"</div>" +
@@ -372,7 +372,7 @@ function showSensorEditor( sensor, callback ) {
 			areYouSure( _( "This function sets the Modbus ID for one SMT100 sensor. Disconnect all other sensors on this Modbus port. Please confirm." ),
 				"new id=" + newid, function() {
 					sendToOS( "/sa?pw=&nr=" + nr + "&id=" + newid ).done( function() {
-						window.alert( "SMT100 id assigned!" );
+						window.alert( _( "SMT100 id assigned!" ) );
 						updateAnalogSensor( refresh );
 					} );
 				} );
@@ -388,7 +388,7 @@ function showSensorEditor( sensor, callback ) {
 				var nr = parseInt( popup.find( ".nr" ).val() );
 				for ( var i = 0; i < analogSensors.length; i++ ) {
 					if ( analogSensors[ i ].nr === nr ) {
-						window.alert( _( "Sensor-Number exists!" ) );
+						window.alert( _( "Sensor number exists!" ) );
 						return;
 					}
 				}
@@ -689,7 +689,7 @@ function buildSensorConfig() {
 	} );
 	list += "</table>";
 	list += "<p><button data-mini='true' class='center-div' id='add-sensor' value='1'>" + _( "Add Sensor" ) + "</button></p>";
-	list += "<p><button data-mini='true' class='center-div' id='refresh-sensor' value='2'>" + _( "Refresh Sensordata" ) + "</button></p>";
+	list += "<p><button data-mini='true' class='center-div' id='refresh-sensor' value='2'>" + _( "Refresh Sensor data" ) + "</button></p>";
 
 	//Program adjustments table:
 	list += "<table id='progadjusttable'><tr style='width:100%;vertical-align: top;'>" +
@@ -800,7 +800,7 @@ var showAnalogSensorCharts = ( function() {
 		} );
 
 		changeHeader( {
-			title: _( "Analog sensor log" ),
+			title: _( "Analog Sensor Log" ),
 			leftBtn: {
 				icon: "carat-l",
 				text: _( "Back" ),
