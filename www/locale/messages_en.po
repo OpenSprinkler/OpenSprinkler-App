@@ -283,6 +283,12 @@ msgstr ""
 msgid "Powered by OpenWeather"
 msgstr ""
 
+msgid "Powered by Bright Sky+DWD"
+msgstr ""
+
+msgid "Powered by Open Meteo"
+msgstr ""
+
 msgid "Powered by Weather Underground"
 msgstr ""
 
