@@ -111,7 +111,7 @@ function showAdjustmentsEditor( progAdjust, callback ) {
 
 		var list = "<div data-role='popup' data-theme='a' id='progAdjustEditor'>" +
 			"<div data-role='header' data-theme='b'>" +
-			"<h1>" + _( progAdjust.nr > 0 ? "Edit Program Adjustment" : "New Program Adjustment" ) + "</h1>" +
+			"<h1>" + progAdjust.nr > 0 ? _( "Edit Program Adjustment" ) : _( "New Program Adjustment" ) + "</h1>" +
 			"</div>" +
 
 			"<div class='ui-content'>" +
@@ -277,7 +277,7 @@ function showSensorEditor( sensor, callback ) {
 
 		var list = "<div data-role='popup' data-theme='a' id='sensorEditor'>" +
 			"<div data-role='header' data-theme='b'>" +
-			"<h1>" + _( sensor.nr > 0 ? "Edit Sensor" : "New Sensor" ) + "</h1>" +
+			"<h1>" + sensor.nr > 0 ? _( "Edit Sensor" ) : _( "New Sensor" ) + "</h1>" +
 			"</div>" +
 			"<div class='ui-content'>" +
 			"<p class='rain-desc center smaller'>" +
@@ -608,7 +608,7 @@ var showAnalogSensorConfig = ( function() {
 		list.find( "#clear-log" ).on( "click", function() {
 			areYouSure( _( "Are you sure you want to clear the sensor log?" ), "", function() {
 				sendToOS( "/sn?pw=&" ).done( function( result ) {
-					window.alert( _( "Log cleared: " + result.deleted + _( " records" ) ) );
+					window.alert( _( "Log cleared:" ) + " " + result.deleted + " " + _( "records" ) );
 					updateSensorContent();
 				} );
 			} );
