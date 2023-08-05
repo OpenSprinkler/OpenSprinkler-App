@@ -10366,7 +10366,7 @@ var showAbout = ( function() {
 		page.find( ".hardware" ).toggleClass( "hidden", showHardware ).text( getHWVersion() + getHWType() );
 		page.find( ".hardwareLabel" ).toggleClass( "hidden", showHardware );
 
-		page.find( ".firmware" ).text( getOSVersion() + getOSMinorVersion() );
+		page.find( ".firmware" ).text( getOSVersion() + getOSMinorVersion() + ( checkAnalogSensorAvail() ? " - ASB" : "" ) );
 
 		page.one( "pagehide", function() {
 			page.detach();
