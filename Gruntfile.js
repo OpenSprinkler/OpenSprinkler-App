@@ -160,7 +160,7 @@
 				},
 				pushBump: {
 					command: [
-						"git add www/js/main.js config.xml manifest.json package.json",
+						"git add www/js/main.js config.xml package.json",
 						"git commit -m 'Base: Increment version number'",
 						"git push"
 					].join( "&&" )
