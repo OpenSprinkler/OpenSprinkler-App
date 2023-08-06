@@ -212,6 +212,7 @@
 			},
 
 			clean: {
+				pushFW: [ "build/firmware/*", "build/app.zip" ],
 				symres: [ "www/res" ]
 			}
 		} );
@@ -221,8 +222,8 @@
 		grunt.registerTask( "test", [ "default", "blanket_mocha" ] );
 		grunt.registerTask( "updateLang", [ "shell:updateLang" ] );
 		grunt.registerTask( "pushEng", [ "shell:pushEng" ] );
-		grunt.registerTask( "pushFW", [ "compress:makeFW", "shell:updateUI" ] );
-		grunt.registerTask( "pushBetaFW", [ "compress:makeFW", "shell:updateBetaUI" ] );
+		grunt.registerTask( "pushFW", [ "compress:makeFW", "shell:updateUI", "clean:makeFW" ] );
+		grunt.registerTask( "pushBetaFW", [ "compress:makeFW", "shell:updateBetaUI", "clean:makeFW" ] );
 		grunt.registerTask( "build", [ "default", "shell:symres", "pushFW", "clean:symres" ] );
 		grunt.registerTask( "bump", [ "default", "replace:about", "replace:cordova", "replace:manifests", "shell:pushBump" ] );
 	};
