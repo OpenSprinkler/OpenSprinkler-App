@@ -2067,6 +2067,162 @@ msgstr ""
 msgid "ago"
 msgstr ""
 
+msgid "Edit Program Adjustment"
+msgstr ""
+
+msgid "New Program Adjustment"
+msgstr ""
+
+msgid ""
+"Notice: If you want to combine multiple sensors, then build a sensor group. "
+msgstr ""
+
+msgid "See help documentation for details."
+msgstr ""
+
+msgid "Adjustment-Nr"
+msgstr ""
+
+msgid "Program to adjust"
+msgstr ""
+
+msgid "Factor 1 (adjustment for min)"
+msgstr ""
+
+msgid "Factor 2 (adjustment for max)"
+msgstr ""
+
+msgid "Min sensor value"
+msgstr ""
+
+msgid "Max sensor value"
+msgstr ""
+
+msgid "Edit Sensor"
+msgstr ""
+
+msgid "New Sensor"
+msgstr ""
+
+msgid "Edit Sensor Configuration. "
+msgstr ""
+
+msgid "Sensor-Nr"
+msgstr ""
+
+msgid "Set SMT100 Modbus ID"
+msgstr ""
+
+msgid "Group"
+msgstr ""
+
+msgid "Name"
+msgstr ""
+
+msgid "ID"
+msgstr ""
+
+msgid "Read Interval (s)"
+msgstr ""
+
+msgid "Sensor Enabled"
+msgstr ""
+
+msgid "Enable Data Logging"
+msgstr ""
+
+msgid "Show on Main Page"
+msgstr ""
+
+msgid ""
+"This function sets the Modbus ID for one SMT100 sensor. Disconnect all other "
+"sensors on this Modbus port. Please confirm."
+msgstr ""
+
+msgid "SMT100 id assigned!"
+msgstr ""
+
+msgid "Sensor number exists!"
+msgstr ""
+
+msgid "Are you sure you want to delete the sensor?"
+msgstr ""
+
+msgid "Are you sure you want to delete this program adjustment?"
+msgstr ""
+
+msgid "Are you sure you want to clear the sensor log?"
+msgstr ""
+
+msgid "Log cleared:"
+msgstr ""
+
+msgid "records"
+msgstr ""
+
+msgid "Edit"
+msgstr ""
+
+msgid "Add Sensor"
+msgstr ""
+
+msgid "Refresh Sensor data"
+msgstr ""
+
+msgid "Add program adjustment"
+msgstr ""
+
+msgid "Clear Log"
+msgstr ""
+
+msgid "Download Log"
+msgstr ""
+
+msgid "Show Log"
+msgstr ""
+
+msgid "Analog Sensor Log"
+msgstr ""
+
+msgid "last 24h"
+msgstr ""
+
+msgid "last weeks"
+msgstr ""
+
+msgid "last months"
+msgstr ""
+
+msgid "Soil moisture"
+msgstr ""
+
+msgid "degree celsius temperature"
+msgstr ""
+
+msgid "Temperature"
+msgstr ""
+
+msgid "degree fahrenheit temperature"
+msgstr ""
+
+msgid "Volt"
+msgstr ""
+
+msgid "Voltage"
+msgstr ""
+
+msgid "Air Humidity"
+msgstr ""
+
+msgid "Rainfall"
+msgstr ""
+
+msgid "Wind"
+msgstr ""
+
+msgid "Level"
+msgstr ""
+
 msgid "Export Configuration"
 msgstr ""
 
