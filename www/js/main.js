@@ -5232,7 +5232,7 @@ var showHome = ( function() {
 					"</div>" +
 					"<div id='os-stations-list' class='card-group center'></div>" +
 
-					( checkAnalogSensorAvail() ? "<div id='os-sensor-show' class='card-group center'></div>" : "" ) +
+					"<div id='os-sensor-show' class='card-group center'></div>" +
 				"</div>" +
 			"</div>" +
 		"</div>" ),
