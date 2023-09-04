@@ -1,5 +1,5 @@
 // Define a name for the current cache
-var cacheName = "OpenSprinkler-v1";
+var cacheName = "OpenSprinkler-v2";
 
 // List of files to be cached for offline use
 var cacheFiles = [
@@ -107,6 +107,8 @@ var cacheFiles = [
   "/css/images/icons-png/user-white.png",
   "/css/images/icons-png/video-black.png",
   "/css/images/icons-png/video-white.png",
+  "/js/analog.js",
+  "/js/apexcharts.min.js",
   "/js/jquery.js",
   "/js/jqm.js",
   "/js/libs.js",
@@ -184,6 +186,7 @@ self.addEventListener("activate", (e) => {
         caches.keys().then((keyList) => {
             return Promise.all(keyList.map((key) => {
                 if (key !== cacheName) {
+                    console.log("[Service Worker] Removing old cache: " + key);
                     return caches.delete(key);
                 }
             }));
