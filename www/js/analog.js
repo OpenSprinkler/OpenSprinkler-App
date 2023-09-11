@@ -41,9 +41,11 @@ function updateAnalogSensor( callback ) {
 }
 
 function updateSensorShowArea( page ) {
+	var showArea = page.find( "#os-sensor-show" ),
+		html = "";
+
 	if ( checkAnalogSensorAvail() ) {
-		var showArea = page.find( "#os-sensor-show" );
-		var html = "", i, j;
+		var i, j;
 		for ( i = 0; i < progAdjusts.length; i++ ) {
 			var progAdjust = progAdjusts[ i ];
 			var sensorName = "";
@@ -70,11 +72,12 @@ function updateSensorShowArea( page ) {
 				html += "</div>";
 			}
 		}
-		while ( showArea.firstChild ) {
-			showArea.removeChild( showArea.firstChild );
-		}
-		showArea.html( html );
 	}
+
+	while ( showArea.firstChild ) {
+		showArea.removeChild( showArea.firstChild );
+	}
+	showArea.html( html );
 }
 
 function toByteArray( b ) {
