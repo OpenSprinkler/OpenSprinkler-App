@@ -798,15 +798,14 @@ var showAnalogSensorCharts = ( function() {
 			"<div id='myChartM9'></div>" +
 			"<div id='myChartM10'></div>" +
 			"</div>" +
-			"</div>" ),
-		chart1, chart2, chart3;
+			"</div>" );
 
 	function begin() {
 		$.mobile.loading( "show" );
 
-		chart1 = new Array(CHARTS);
-		chart2 = new Array(CHARTS);
-		chart3 = new Array(CHARTS);
+		var chart1 = new Array(CHARTS),
+			chart2 = new Array(CHARTS),
+			chart3 = new Array(CHARTS);
 
 		page.one( "pagehide", function() {
 			page.detach();
@@ -825,7 +824,6 @@ var showAnalogSensorCharts = ( function() {
 		$( "#analogsensorchart" ).remove();
 		$.mobile.pageContainer.append( page );
 
-		//sendToOS("/so?pw=&lasthours=24&csv=2", "text").then(function (csv) {
 		sendToOS("/so?pw=&lasthours=24&csv=2", "text").then(function (csv1) {
 			build_graph("#myChart", chart1, csv1, _("last 24h"), "HH:mm");
 
