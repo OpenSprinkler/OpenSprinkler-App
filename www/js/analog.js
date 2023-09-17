@@ -843,6 +843,12 @@ var showAnalogSensorCharts = ( function() {
 	return begin;
 } )();
 
+// https://stackoverflow.com/questions/11832914/how-to-round-to-at-most-2-decimal-places-if-necessary
+function roundToTwo(num) {
+    return +(Math.round(num + "e+2")  + "e-2");
+}
+
+
 function build_graph(prefix, chart, csv, title_add, timestr) {
 			let csvlines = csv.split(/(?:\r\n|\n)+/).filter(function(el) {return el.length != 0});
 
@@ -873,53 +879,53 @@ function build_graph(prefix, chart, csv, title_add, timestr) {
 					switch (unitid) {
 						case 1: unit = _("Soil moisture");
 								title = _("Soil moisture")+" "+title_add;
-								unitStr = function(val) {return val+" %"};
+								unitStr = function(val) {return roundToTwo(val)+" %"};
 								minFunc = 0;
 								maxFunc = 100;
 								break;
 						case 2: unit = _("degree celsius temperature");
 								title = _("Temperature")+" "+title_add;
-								unitStr = function(val) {return val+String.fromCharCode(176)+"C"};
+								unitStr = function(val) {return roundToTwo(val)+String.fromCharCode(176)+"C"};
 								break;
 						case 3: unit = _("degree fahrenheit temperature");
 								title = _("Temperature")+" "+title_add;
-								unitStr = function(val) {return val+String.fromCharCode(176)+"F"};
+								unitStr = function(val) {return roundToTwo(val)+String.fromCharCode(176)+"F"};
 								break;
 						case 4: unit = _("Volt");
 								title = _("Voltage")+" "+title_add;
-								unitStr = function(val) {return val+" V"};
+								unitStr = function(val) {return roundToTwo(val)+" V"};
 								minFunc = 0;
 								maxFunc = 4;
 								autoY = false;
 								break;
 						case 5: unit = _("Humidity");
 								title = _("Air Humidity")+" "+title_add;
-								unitStr = function(val) {return val+" %"};
+								unitStr = function(val) {return roundToTwo(val)+" %"};
 								minFunc = 0;
 								maxFunc = 100;
 								break;
 						case 6: unit = _("Rain");
 								title = _("Rainfall")+" "+title_add;
-								unitStr = function(val) {return val+" in"};
+								unitStr = function(val) {return roundToTwo(val)+" in"};
 								break;
 						case 7: unit = _("Rain");
 								title = _("Rainfall")+" "+title_add;
-								unitStr = function(val) {return val+" mm"};
+								unitStr = function(val) {return roundToTwo(val)+" mm"};
 								minFunc = 0;
 								break;
 						case 8: unit = _("Wind");
 								title = _("Wind")+" "+title_add;
-								unitStr = function(val) {return val+" mph"};
+								unitStr = function(val) {return roundToTwo(val)+" mph"};
 								minFunc = 0;
 								break;
 						case 9: unit = _("Wind");
 								title = _("Wind")+" "+title_add;
-								unitStr = function(val) {return val+" kmh"};
+								unitStr = function(val) {return roundToTwo(val)+" kmh"};
 								minFunc = 0;
 								break;
 						case 10: unit = _("Level");
 								title = _("Level")+" "+title_add;
-								unitStr = function(val) {return val+" %"};
+								unitStr = function(val) {return roundToTwo(val)+" %"};
 								minFunc = 0;
 								maxFunc = 100;
 								autoY = false;
