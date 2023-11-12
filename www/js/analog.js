@@ -913,10 +913,8 @@ function build_graph(prefix, chart, csv, title_add, timestr) {
 
 				// User defined sensor:
 				if (unitid === 99) {
-					do {
-						unitid = chart.length;
-						chart.push(undefined);
-					} while (unitid <= CHARTS)
+					unitid = chart.length;
+					chart.push(undefined);
 				} else if (unitid >= CHARTS)
 					unitid = 0;
 
@@ -982,8 +980,7 @@ function build_graph(prefix, chart, csv, title_add, timestr) {
 
 						default: unit = analogSensors[j].unit;
 								title = analogSensors[j].name+" "+title_add;
-								unitStr = function(val) {return roundToTwo(val)+" "+unit};
-								break;
+								unitStr = function(val) {return roundToTwo(val)};
 					}
 
 					var options = {
@@ -1054,7 +1051,7 @@ function build_graph(prefix, chart, csv, title_add, timestr) {
 				}
 			}
 
-			for (k = 1; k < CHARTS; k++) {
+			for (k = 1; k < chart.length; k++) {
 				if (!chart[k]) {
 					var x = document.querySelector(prefix + k);
 					if (x)
