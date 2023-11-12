@@ -790,7 +790,7 @@ function buildSensorConfig() {
 	return list;
 }
 
-const CHARTS = 12;
+const CHARTS = 11;
 
 // show Sensor Charts with apexcharts
 var showAnalogSensorCharts = ( function() {
