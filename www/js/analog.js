@@ -913,8 +913,10 @@ function build_graph(prefix, chart, csv, title_add, timestr) {
 
 				// User defined sensor:
 				if (unitid === 99) {
-					unitid = chart.length;
-					chart.push(undefined);
+					do {
+						unitid = chart.length;
+						chart.push(undefined);
+					} while (unitid <= CHARTS)
 				} else if (unitid >= CHARTS)
 					unitid = 0;
 
