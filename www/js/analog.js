@@ -72,7 +72,7 @@ function updateSensorShowArea( page ) {
 			var sensor = analogSensors[ i ];
 			if ( sensor.show ) {
 				html += "<div id='sensor-show-" + sensor.nr + "' class='ui-body ui-body-a center'>";
-				html += "<label>" + sensor.name + ": " + Math.round( sensor.data ) + sensor.unit + "</label>";
+				html += "<label>" + sensor.name + ": " + roundToTwo( sensor.data ) + sensor.unit + "</label>";
 				html += "</div>";
 			}
 		}
@@ -334,6 +334,24 @@ function showSensorEditor( sensor, callback ) {
 					"</label>" +
 					"<input class='id' type='number' min='0' max='65535' value='" + sensor.id + "'>" +
 
+					((sensor.type===49)?
+						("<label>" +
+							_( "Factor" ) +
+						"</label>" +
+						"<input class='factor' type='number' min='-32768' max='32767' value='" + sensor.fac + "'>" +
+
+						"<label>" +
+							_( "Divider" ) +
+						"</label>" +
+						"<input class='divider' type='number' min='-32768' max='32767' value='" + sensor.div + "'>" +
+
+						"<label>" +
+						_( "Unit" ) +
+						"</label>" +
+						"<input class='unit' type='text'  value='" + sensor.unit + "'>"
+
+						):"") +
+
 					"<label>" +
 						_( "Read Interval (s)" ) +
 					"</label>" +
@@ -347,7 +365,7 @@ function showSensorEditor( sensor, callback ) {
 					_( "Enable Data Logging" ) +
 					"</label>" +
 
-					"<label for='log'><input data-mini='true' id='show' type='checkbox' " + ( ( sensor.show === 1 ) ? "checked='checked'" : "" ) + ">" +
+					"<label for='show'><input data-mini='true' id='show' type='checkbox' " + ( ( sensor.show === 1 ) ? "checked='checked'" : "" ) + ">" +
 					_( "Show on Mainpage" ) +
 					"</label>" +
 
@@ -505,6 +523,11 @@ var showAnalogSensorConfig = ( function() {
 					"&port=" + sensorOut.port +
 					"&id=" + sensorOut.id +
 					"&ri=" + sensorOut.ri +
+					((sensorOut.type===49)?
+						("&fac="+sensorOut.fac +
+						"&div="+sensorOut.div +
+						"&unit="+sensorOut.unit
+						):"") +
 					"&enable=" + sensorOut.enable +
 					"&log=" + sensorOut.log +
 					"&show=" + sensorOut.show
@@ -533,6 +556,11 @@ var showAnalogSensorConfig = ( function() {
 				"&port=" + sensorOut.port +
 				"&id=" + sensorOut.id +
 				"&ri=" + sensorOut.ri +
+				((sensorOut.type===49)?
+					("&fac="+sensorOut.fac +
+					"&div="+sensorOut.div +
+					"&unit="+sensorOut.unit
+				):"") +
 				"&enable=" + sensorOut.enable +
 				"&log=" + sensorOut.log +
 				"&show=" + sensorOut.show
@@ -760,7 +788,7 @@ function buildSensorConfig() {
 	return list;
 }
 
-const CHARTS = 11;
+const CHARTS = 12;
 
 // show Sensor Charts with apexcharts
 var showAnalogSensorCharts = ( function() {
@@ -866,7 +894,11 @@ function build_graph(prefix, chart, csv, title_add, timestr) {
 				}
 				var series = { name: analogSensors[j].name, data: logdata };
 
-				if (unitid >= CHARTS)
+				// User defined sensor:
+				if (unitid === 99) {
+					chart.push(undefined);
+					unitid = chart.length-1;
+				} else if (unitid >= CHARTS)
 					unitid = 0;
 
 				if (!chart[unitid]) {
@@ -929,9 +961,10 @@ function build_graph(prefix, chart, csv, title_add, timestr) {
 								autoY = false;
 								break;
 
-						default: unit = "";
-								title = title_add;
-								unitStr = null;
+						default: unit = analogSensors[j].unit;
+								title = analogSensors[j].name+" "+title_add;
+								unitStr = function(val) {return roundToTwo(val)+" "+unit};
+								break;
 					}
 
 					var options = {
