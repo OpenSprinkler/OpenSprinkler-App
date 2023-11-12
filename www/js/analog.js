@@ -349,7 +349,6 @@ function showSensorEditor( sensor, callback ) {
 						_( "Unit" ) +
 						"</label>" +
 						"<input class='unit' type='text'  value='" + sensor.unit + "'>"
-
 						):"") +
 
 					"<label>" +
@@ -427,6 +426,9 @@ function showSensorEditor( sensor, callback ) {
 			port:   parseInt( popup.find( ".port" ).val() ),
 			id:     parseInt( popup.find( ".id" ).val() ),
 			ri:     parseInt( popup.find( ".ri" ).val() ),
+			fac:    parseInt( popup.find( ".fac" ).val() ),
+			div:    parseInt( popup.find( ".div" ).val() ),
+			unit:   popup.find( ".unit" ).val(),
 			enable: popup.find( "#enable" ).is( ":checked" ) ? 1 : 0,
 			log:    popup.find( "#log" ).is( ":checked" ) ? 1 : 0,
 			show:   popup.find( "#show" ).is( ":checked" ) ? 1 : 0
