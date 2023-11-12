@@ -807,6 +807,11 @@ var showAnalogSensorCharts = ( function() {
 			"<div id='myChart8'></div>" +
 			"<div id='myChart9'></div>" +
 			"<div id='myChart10'></div>" +
+			"<div id='myChart11'></div>" +
+			"<div id='myChart12'></div>" +
+			"<div id='myChart13'></div>" +
+			"<div id='myChart14'></div>" +
+			"<div id='myChart15'></div>" +
 			"<div id='myChartW1'></div>" +
 			"<div id='myChartW2'></div>" +
 			"<div id='myChartW3'></div>" +
@@ -817,6 +822,11 @@ var showAnalogSensorCharts = ( function() {
 			"<div id='myChartW8'></div>" +
 			"<div id='myChartW9'></div>" +
 			"<div id='myChartW10'></div>" +
+			"<div id='myChartW11'></div>" +
+			"<div id='myChartW12'></div>" +
+			"<div id='myChartW13'></div>" +
+			"<div id='myChartW14'></div>" +
+			"<div id='myChartW15'></div>" +
 			"<div id='myChartM1'></div>" +
 			"<div id='myChartM2'></div>" +
 			"<div id='myChartM3'></div>" +
@@ -827,6 +837,11 @@ var showAnalogSensorCharts = ( function() {
 			"<div id='myChartM8'></div>" +
 			"<div id='myChartM9'></div>" +
 			"<div id='myChartM10'></div>" +
+			"<div id='myChartM11'></div>" +
+			"<div id='myChartM12'></div>" +
+			"<div id='myChartM13'></div>" +
+			"<div id='myChartM14'></div>" +
+			"<div id='myChartM15'></div>" +
 			"</div>" +
 			"</div>" );
 
@@ -898,8 +913,8 @@ function build_graph(prefix, chart, csv, title_add, timestr) {
 
 				// User defined sensor:
 				if (unitid === 99) {
+					unitid = chart.length;
 					chart.push(undefined);
-					unitid = chart.length-1;
 				} else if (unitid >= CHARTS)
 					unitid = 0;
 
