@@ -72,7 +72,7 @@ function updateSensorShowArea( page ) {
 			var sensor = analogSensors[ i ];
 			if ( sensor.show ) {
 				html += "<div id='sensor-show-" + sensor.nr + "' class='ui-body ui-body-a center'>";
-				html += "<label>" + sensor.name + ": " + Math.round( sensor.data ) + sensor.unit + "</label>";
+				html += "<label>" + sensor.name + ": " + roundToTwo( sensor.data ) + sensor.unit + "</label>";
 				html += "</div>";
 			}
 		}
@@ -334,6 +334,23 @@ function showSensorEditor( sensor, callback ) {
 					"</label>" +
 					"<input class='id' type='number' min='0' max='65535' value='" + sensor.id + "'>" +
 
+					((sensor.type===49)?
+						("<label>" +
+							_( "Factor" ) +
+						"</label>" +
+						"<input class='factor' type='number' min='-32768' max='32767' value='" + sensor.fac + "'>" +
+
+						"<label>" +
+							_( "Divider" ) +
+						"</label>" +
+						"<input class='divider' type='number' min='-32768' max='32767' value='" + sensor.div + "'>" +
+
+						"<label>" +
+						_( "Unit" ) +
+						"</label>" +
+						"<input class='unit' type='text'  value='" + sensor.unit + "'>"
+						):"") +
+
 					"<label>" +
 						_( "Read Interval (s)" ) +
 					"</label>" +
@@ -347,7 +364,7 @@ function showSensorEditor( sensor, callback ) {
 					_( "Enable Data Logging" ) +
 					"</label>" +
 
-					"<label for='log'><input data-mini='true' id='show' type='checkbox' " + ( ( sensor.show === 1 ) ? "checked='checked'" : "" ) + ">" +
+					"<label for='show'><input data-mini='true' id='show' type='checkbox' " + ( ( sensor.show === 1 ) ? "checked='checked'" : "" ) + ">" +
 					_( "Show on Mainpage" ) +
 					"</label>" +
 
@@ -409,6 +426,9 @@ function showSensorEditor( sensor, callback ) {
 			port:   parseInt( popup.find( ".port" ).val() ),
 			id:     parseInt( popup.find( ".id" ).val() ),
 			ri:     parseInt( popup.find( ".ri" ).val() ),
+			fac:    parseInt( popup.find( ".fac" ).val() ),
+			div:    parseInt( popup.find( ".div" ).val() ),
+			unit:   popup.find( ".unit" ).val(),
 			enable: popup.find( "#enable" ).is( ":checked" ) ? 1 : 0,
 			log:    popup.find( "#log" ).is( ":checked" ) ? 1 : 0,
 			show:   popup.find( "#show" ).is( ":checked" ) ? 1 : 0
@@ -505,6 +525,11 @@ var showAnalogSensorConfig = ( function() {
 					"&port=" + sensorOut.port +
 					"&id=" + sensorOut.id +
 					"&ri=" + sensorOut.ri +
+					((sensorOut.type===49)?
+						("&fac="+sensorOut.fac +
+						"&div="+sensorOut.div +
+						"&unit="+sensorOut.unit
+						):"") +
 					"&enable=" + sensorOut.enable +
 					"&log=" + sensorOut.log +
 					"&show=" + sensorOut.show
@@ -533,6 +558,11 @@ var showAnalogSensorConfig = ( function() {
 				"&port=" + sensorOut.port +
 				"&id=" + sensorOut.id +
 				"&ri=" + sensorOut.ri +
+				((sensorOut.type===49)?
+					("&fac="+sensorOut.fac +
+					"&div="+sensorOut.div +
+					"&unit="+sensorOut.unit
+				):"") +
 				"&enable=" + sensorOut.enable +
 				"&log=" + sensorOut.log +
 				"&show=" + sensorOut.show
@@ -777,6 +807,11 @@ var showAnalogSensorCharts = ( function() {
 			"<div id='myChart8'></div>" +
 			"<div id='myChart9'></div>" +
 			"<div id='myChart10'></div>" +
+			"<div id='myChart11'></div>" +
+			"<div id='myChart12'></div>" +
+			"<div id='myChart13'></div>" +
+			"<div id='myChart14'></div>" +
+			"<div id='myChart15'></div>" +
 			"<div id='myChartW1'></div>" +
 			"<div id='myChartW2'></div>" +
 			"<div id='myChartW3'></div>" +
@@ -787,6 +822,11 @@ var showAnalogSensorCharts = ( function() {
 			"<div id='myChartW8'></div>" +
 			"<div id='myChartW9'></div>" +
 			"<div id='myChartW10'></div>" +
+			"<div id='myChartW11'></div>" +
+			"<div id='myChartW12'></div>" +
+			"<div id='myChartW13'></div>" +
+			"<div id='myChartW14'></div>" +
+			"<div id='myChartW15'></div>" +
 			"<div id='myChartM1'></div>" +
 			"<div id='myChartM2'></div>" +
 			"<div id='myChartM3'></div>" +
@@ -797,6 +837,11 @@ var showAnalogSensorCharts = ( function() {
 			"<div id='myChartM8'></div>" +
 			"<div id='myChartM9'></div>" +
 			"<div id='myChartM10'></div>" +
+			"<div id='myChartM11'></div>" +
+			"<div id='myChartM12'></div>" +
+			"<div id='myChartM13'></div>" +
+			"<div id='myChartM14'></div>" +
+			"<div id='myChartM15'></div>" +
 			"</div>" +
 			"</div>" );
 
@@ -866,7 +911,11 @@ function build_graph(prefix, chart, csv, title_add, timestr) {
 				}
 				var series = { name: analogSensors[j].name, data: logdata };
 
-				if (unitid >= CHARTS)
+				// User defined sensor:
+				if (unitid === 99) {
+					unitid = chart.length;
+					chart.push(undefined);
+				} else if (unitid >= CHARTS)
 					unitid = 0;
 
 				if (!chart[unitid]) {
@@ -929,9 +978,9 @@ function build_graph(prefix, chart, csv, title_add, timestr) {
 								autoY = false;
 								break;
 
-						default: unit = "";
-								title = title_add;
-								unitStr = null;
+						default: unit = analogSensors[j].unit;
+								title = analogSensors[j].name+" "+title_add;
+								unitStr = function(val) {return roundToTwo(val)};
 					}
 
 					var options = {
@@ -1002,7 +1051,7 @@ function build_graph(prefix, chart, csv, title_add, timestr) {
 				}
 			}
 
-			for (k = 1; k < CHARTS; k++) {
+			for (k = 1; k < chart.length; k++) {
 				if (!chart[k]) {
 					var x = document.querySelector(prefix + k);
 					if (x)
