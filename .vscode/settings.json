@@ -20,5 +20,11 @@
         "platforms": true,
         "plugins": true,
         "typings": true
-    }
+    },
+    "cSpell.words": [
+        "Mainpage",
+        "nativedata",
+        "unitid",
+        "USERDEF"
+    ]
 }

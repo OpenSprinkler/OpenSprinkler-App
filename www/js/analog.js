@@ -9,6 +9,11 @@ var analogSensors = {},
     progAdjusts = {},
     analogSensorAvail = false;
 
+const CHARTS = 11;
+const USERDEF_SENSOR = 49;
+const USERDEF_UNIT   = 99;
+
+
 function checkAnalogSensorAvail( callback ) {
 	callback = callback || function() {};
 	return sendToOS( "/sl?pw=", "json" ).then( function( data ) {
@@ -334,19 +339,19 @@ function showSensorEditor( sensor, callback ) {
 					"</label>" +
 					"<input class='id' type='number' min='0' max='65535' value='" + sensor.id + "'>" +
 
-					((sensor.type===49)?
+					((sensor.type === USERDEF_SENSOR) ?
 						("<label>" +
 							_( "Factor" ) +
 						"</label>" +
-						"<input class='factor' type='number' min='-32768' max='32767' value='" + sensor.fac + "'>" +
+						"<input class='fac' type='number' min='-32768' max='32767' value='" + sensor.fac + "'>" +
 
 						"<label>" +
 							_( "Divider" ) +
 						"</label>" +
-						"<input class='divider' type='number' min='-32768' max='32767' value='" + sensor.div + "'>" +
+						"<input class='div' type='number' min='-32768' max='32767' value='" + sensor.div + "'>" +
 
 						"<label>" +
-						_( "Unit" ) +
+							_( "Unit" ) +
 						"</label>" +
 						"<input class='unit' type='text'  value='" + sensor.unit + "'>"
 						):"") +
@@ -525,7 +530,7 @@ var showAnalogSensorConfig = ( function() {
 					"&port=" + sensorOut.port +
 					"&id=" + sensorOut.id +
 					"&ri=" + sensorOut.ri +
-					((sensorOut.type===49)?
+					((sensorOut.type === USERDEF_SENSOR) ?
 						("&fac="+sensorOut.fac +
 						"&div="+sensorOut.div +
 						"&unit="+sensorOut.unit
@@ -558,7 +563,7 @@ var showAnalogSensorConfig = ( function() {
 				"&port=" + sensorOut.port +
 				"&id=" + sensorOut.id +
 				"&ri=" + sensorOut.ri +
-				((sensorOut.type===49)?
+				((sensorOut.type === USERDEF_SENSOR) ?
 					("&fac="+sensorOut.fac +
 					"&div="+sensorOut.div +
 					"&unit="+sensorOut.unit
@@ -790,60 +795,28 @@ function buildSensorConfig() {
 	return list;
 }
 
-const CHARTS = 11;
-
 // show Sensor Charts with apexcharts
 var showAnalogSensorCharts = ( function() {
 
+	var max = CHARTS;
+	for ( var j = 0; j < analogSensors.length; j++ ) {
+		if (!analogSensors[j].log)
+			continue;
+		var unitid = analogSensors[j].unitid;
+		if (unitid === USERDEF_UNIT) max++;
+	}
+
+	var last = "", week = "", month = "";
+	for ( var j = 1; j < max; j++ ) {
+		last  += "<div id='myChart"+j+"'></div>";
+		week  += "<div id='myChartW"+j+"'></div>";
+		month += "<div id='myChartM"+j+"'></div>";
+	}
+
 	var page = $( "<div data-role='page' id='analogsensorchart'>" +
-			"<div class='ui-content' role='main' style='width: 95%'>" +
-			"<div id='myChart1'></div>" +
-			"<div id='myChart2'></div>" +
-			"<div id='myChart3'></div>" +
-			"<div id='myChart4'></div>" +
-			"<div id='myChart5'></div>" +
-			"<div id='myChart6'></div>" +
-			"<div id='myChart7'></div>" +
-			"<div id='myChart8'></div>" +
-			"<div id='myChart9'></div>" +
-			"<div id='myChart10'></div>" +
-			"<div id='myChart11'></div>" +
-			"<div id='myChart12'></div>" +
-			"<div id='myChart13'></div>" +
-			"<div id='myChart14'></div>" +
-			"<div id='myChart15'></div>" +
-			"<div id='myChartW1'></div>" +
-			"<div id='myChartW2'></div>" +
-			"<div id='myChartW3'></div>" +
-			"<div id='myChartW4'></div>" +
-			"<div id='myChartW5'></div>" +
-			"<div id='myChartW6'></div>" +
-			"<div id='myChartW7'></div>" +
-			"<div id='myChartW8'></div>" +
-			"<div id='myChartW9'></div>" +
-			"<div id='myChartW10'></div>" +
-			"<div id='myChartW11'></div>" +
-			"<div id='myChartW12'></div>" +
-			"<div id='myChartW13'></div>" +
-			"<div id='myChartW14'></div>" +
-			"<div id='myChartW15'></div>" +
-			"<div id='myChartM1'></div>" +
-			"<div id='myChartM2'></div>" +
-			"<div id='myChartM3'></div>" +
-			"<div id='myChartM4'></div>" +
-			"<div id='myChartM5'></div>" +
-			"<div id='myChartM6'></div>" +
-			"<div id='myChartM7'></div>" +
-			"<div id='myChartM8'></div>" +
-			"<div id='myChartM9'></div>" +
-			"<div id='myChartM10'></div>" +
-			"<div id='myChartM11'></div>" +
-			"<div id='myChartM12'></div>" +
-			"<div id='myChartM13'></div>" +
-			"<div id='myChartM14'></div>" +
-			"<div id='myChartM15'></div>" +
-			"</div>" +
-			"</div>" );
+		"<div class='ui-content' role='main' style='width: 95%'>" +
+		last + week + month +
+		"</div></div>" );
 
 	function begin() {
 		$.mobile.loading( "show" );
@@ -912,7 +885,7 @@ function build_graph(prefix, chart, csv, title_add, timestr) {
 				var series = { name: analogSensors[j].name, data: logdata };
 
 				// User defined sensor:
-				if (unitid === 99) {
+				if (unitid === USERDEF_UNIT) {
 					unitid = chart.length;
 					chart.push(undefined);
 				} else if (unitid >= CHARTS)
