@@ -807,7 +807,7 @@ var showAnalogSensorCharts = ( function() {
 	}
 
 	var last = "", week = "", month = "";
-	for ( var j = 1; j < max; j++ ) {
+	for ( var j = 1; j <= max; j++ ) {
 		last  += "<div id='myChart"+j+"'></div>";
 		week  += "<div id='myChartW"+j+"'></div>";
 		month += "<div id='myChartM"+j+"'></div>";
