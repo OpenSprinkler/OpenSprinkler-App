@@ -9,6 +9,10 @@ var analogSensors = {},
     progAdjusts = {},
     analogSensorAvail = false;
 
+const CHARTS = 11;
+
+
+
 function checkAnalogSensorAvail( callback ) {
 	callback = callback || function() {};
 	return sendToOS( "/sl?pw=", "json" ).then( function( data ) {
@@ -72,7 +76,7 @@ function updateSensorShowArea( page ) {
 			var sensor = analogSensors[ i ];
 			if ( sensor.show ) {
 				html += "<div id='sensor-show-" + sensor.nr + "' class='ui-body ui-body-a center'>";
-				html += "<label>" + sensor.name + ": " + roundToTwo( sensor.data ) + sensor.unit + "</label>";
+				html += "<label>" + sensor.name + ": " + ( +( Math.round( sensor.data + "e+2" )  + "e-2" ) ) + sensor.unit + "</label>";
 				html += "</div>";
 			}
 		}
@@ -106,7 +110,6 @@ function intFromBytes( x ) {
 	}
 }
 
-
 //Program adjustments editor
 function showAdjustmentsEditor( progAdjust, callback ) {
 
@@ -118,16 +121,17 @@ function showAdjustmentsEditor( progAdjust, callback ) {
 
 		var list = "<div data-role='popup' data-theme='a' id='progAdjustEditor'>" +
 			"<div data-role='header' data-theme='b'>" +
-				"<h1>" + _( progAdjust.nr > 0 ? "Edit Program Adjustment" : "New Program Adjustment" ) + "</h1>" +
+			"<h1>" + ( progAdjust.nr > 0 ? _( "Edit Program Adjustment" ) : _( "New Program Adjustment" ) ) + "</h1>" +
 			"</div>" +
 
 			"<div class='ui-content'>" +
-				"<p class='rain-desc center smaller'>" +
-					_( "Notice: If you want to combine multiple sensors, then build a sensor group. " ) +
-					_( "See Help Documentation for details." ) +
+			"<p class='rain-desc center smaller'>" +
+			_( "Notice: If you want to combine multiple sensors, then build a sensor group. " ) +
+			_( "See help documentation for details." ) +
 				"</p>" +
 
 			"<div class='ui-field-contain'>" +
+
 				//Adjustment-Nr:
 				"<label>" +
 					_( "Adjustment-Nr" ) +
@@ -174,22 +178,22 @@ function showAdjustmentsEditor( progAdjust, callback ) {
 				list += "</select></div>" +
 
 				"<label>" +
-					_( "Factor 1 (adjustment for Min)" ) +
+			_( "Factor 1 (adjustment for min)" ) +
 					"</label>" +
 					"<input class='factor1' type='number' value='" + progAdjust.factor1 + "'>" +
 
 				"<label>" +
-					_( "Factor 2 (adjustment for Max)" ) +
+			_( "Factor 2 (adjustment for max)" ) +
 					"</label>" +
 					"<input class='factor2' type='number' value='" + progAdjust.factor2 + "'>" +
 
 				"<label>" +
-					_( "Min Sensor value" ) +
+			_( "Min sensor value" ) +
 					"</label>" +
 					"<input class='min' type='number' value='" + progAdjust.min + "'>" +
 
 				"<label>" +
-					_( "Max Sensor value" ) +
+			_( "Max sensor value" ) +
 					"</label>" +
 					"<input class='max' type='number' value='" + progAdjust.max + "'>" +
 
@@ -283,94 +287,94 @@ function showSensorEditor( sensor, callback ) {
 
 	var list = "<div data-role='popup' data-theme='a' id='sensorEditor'>" +
 			"<div data-role='header' data-theme='b'>" +
-				"<h1>" + _( sensor.nr > 0 ? "Edit Sensor" : "New Sensor" ) + "</h1>" +
+			"<h1>" + ( sensor.nr > 0 ? _( "Edit Sensor" ) : _( "New Sensor" ) ) + "</h1>" +
 			"</div>" +
 			"<div class='ui-content'>" +
-				"<p class='rain-desc center smaller'>" +
-					_( "Edit Sensor Configuration. " ) +
-					_( "See Help Documentation for details." ) +
-				"</p>" +
-				"<div class='ui-field-contain'>" +
-					"<label>" +
-						_( "Sensor-Nr" ) +
-					"</label>" +
-					"<input class='nr' type='number' min='1' max='99999' value='" + sensor.nr + ( sensor.nr > 0 ? "' disabled='disabled'>" : "'>" ) +
+			"<p class='rain-desc center smaller'>" +
+			_( "Edit Sensor Configuration. " ) +
+			_( "See help documentation for details." ) +
+			"</p>" +
+			"<div class='ui-field-contain'>" +
+			"<label>" +
+			_( "Sensor-Nr" ) +
+			"</label>" +
+			"<input class='nr' type='number' min='1' max='99999' value='" + sensor.nr + ( sensor.nr > 0 ? "' disabled='disabled'>" : "'>" ) +
 
-					"<div class='ui-field-contain'><label for='type' class='select'>" +
-						_( "Type" ) +
-						"</label><select data-mini='true' id='type'>";
+			"<div class='ui-field-contain'><label for='type' class='select'>" +
+			_( "Type" ) +
+			"</label><select data-mini='true' id='type'>";
 
-						for ( i = 0; i < supportedSensorTypes.length; i++ ) {
-							list += "<option " + ( ( sensor.type === supportedSensorTypes[ i ].type ) ? "selected" : "" ) +
-							" value='" + supportedSensorTypes[ i ].type + "'>" +
-							supportedSensorTypes[ i ].name + "</option>";
-						}
-						list += "</select></div>";
+		for ( i = 0; i < supportedSensorTypes.length; i++ ) {
+			list += "<option " + ( ( sensor.type === supportedSensorTypes[ i ].type ) ? "selected" : "" ) +
+				" value='" + supportedSensorTypes[ i ].type + "'>" +
+				supportedSensorTypes[ i ].name + "</option>";
+		}
+		list += "</select></div>";
 
-					list += "<button data-mini='true' class='center-div' id='smt100id' style='display:" + ( isSmt100( sensor.type ) ? "block" : "none" ) + "'>" + _( "Set SMT100 Modbus ID" ) + "</button>";
+		list += "<button data-mini='true' class='center-div' id='smt100id' style='display:" + ( isSmt100( sensor.type ) ? "block" : "none" ) + "'>" + _( "Set SMT100 Modbus ID" ) + "</button>";
 
-					list += "<label>" +
-						_( "Group" ) +
-					"</label>" +
-					"<input class='group' type='number'  min='0' max='99999' value='" + sensor.group + "'>" +
+		list += "<label>" +
+			_( "Group" ) +
+			"</label>" +
+			"<input class='group' type='number'  min='0' max='99999' value='" + sensor.group + "'>" +
 
-					"<label>" +
-						_( "Name" ) +
-					"</label>" +
-					"<input class='name' type='text'  value='" + sensor.name + "'>" +
+			"<label>" +
+			_( "Name" ) +
+			"</label>" +
+			"<input class='name' type='text'  value='" + sensor.name + "'>" +
 
-					"<label>" +
-						_( "IP-Address" ) +
-					"</label>" +
-					"<input class='ip' type='text'  value='" + ( sensor.ip ? toByteArray( sensor.ip ).join( "." ) : "" ) + "'>" +
+			"<label>" +
+			_( "IP Address" ) +
+			"</label>" +
+			"<input class='ip' type='text'  value='" + ( sensor.ip ? toByteArray( sensor.ip ).join( "." ) : "" ) + "'>" +
 
-					"<label>" +
-						_( "Port" ) +
-					"</label>" +
-					"<input class='port' type='number' min='0' max='65535' value='" + sensor.port + "'>" +
+			"<label>" +
+			_( "Port" ) +
+			"</label>" +
+			"<input class='port' type='number' min='0' max='65535' value='" + sensor.port + "'>" +
 
-					"<label>" +
-						_( "ID" ) +
-					"</label>" +
-					"<input class='id' type='number' min='0' max='65535' value='" + sensor.id + "'>" +
+			"<label>" +
+			_( "ID" ) +
+			"</label>" +
+			"<input class='id' type='number' min='0' max='65535' value='" + sensor.id + "'>" +
 
-					((sensor.type===49)?
+					((sensor.type === USERDEF_SENSOR) ?
 						("<label>" +
 							_( "Factor" ) +
 						"</label>" +
-						"<input class='factor' type='number' min='-32768' max='32767' value='" + sensor.fac + "'>" +
+						"<input class='fac' type='number' min='-32768' max='32767' value='" + sensor.fac + "'>" +
 
 						"<label>" +
 							_( "Divider" ) +
 						"</label>" +
-						"<input class='divider' type='number' min='-32768' max='32767' value='" + sensor.div + "'>" +
+						"<input class='div' type='number' min='-32768' max='32767' value='" + sensor.div + "'>" +
 
 						"<label>" +
-						_( "Unit" ) +
+							_( "Unit" ) +
 						"</label>" +
 						"<input class='unit' type='text'  value='" + sensor.unit + "'>"
 						):"") +
 
-					"<label>" +
-						_( "Read Interval (s)" ) +
-					"</label>" +
-					"<input class='ri' type='number' min='1' max='999999' value='" + sensor.ri + "'>" +
+			"<label>" +
+			_( "Read Interval (s)" ) +
+			"</label>" +
+			"<input class='ri' type='number' min='1' max='999999' value='" + sensor.ri + "'>" +
 
-					"<label for='enable'><input data-mini='true' id='enable' type='checkbox' " + ( ( sensor.enable === 1 ) ? "checked='checked'" : "" ) + ">" +
-					_( "Sensor Enabled" ) +
-					"</label>" +
+			"<label for='enable'><input data-mini='true' id='enable' type='checkbox' " + ( ( sensor.enable === 1 ) ? "checked='checked'" : "" ) + ">" +
+			_( "Sensor Enabled" ) +
+			"</label>" +
 
-					"<label for='log'><input data-mini='true' id='log' type='checkbox' " + ( ( sensor.log === 1 ) ? "checked='checked'" : "" ) + ">" +
-					_( "Enable Data Logging" ) +
-					"</label>" +
+			"<label for='log'><input data-mini='true' id='log' type='checkbox' " + ( ( sensor.log === 1 ) ? "checked='checked'" : "" ) + ">" +
+			_( "Enable Data Logging" ) +
+			"</label>" +
 
-					"<label for='show'><input data-mini='true' id='show' type='checkbox' " + ( ( sensor.show === 1 ) ? "checked='checked'" : "" ) + ">" +
-					_( "Show on Mainpage" ) +
-					"</label>" +
+			"<label for='show'><input data-mini='true' id='show' type='checkbox' " + ( ( sensor.show === 1 ) ? "checked='checked'" : "" ) + ">" +
+			_( "Show on Mainpage" ) +
+			"</label>" +
 
-				"</div>" +
+			"</div>" +
 
-				"<button class='submit' data-theme='b'>" + _( "Submit" ) + "</button>" +
+			"<button class='submit' data-theme='b'>" + _( "Submit" ) + "</button>" +
 			"</div>" +
 		"</div>";
 
@@ -387,7 +391,6 @@ function showSensorEditor( sensor, callback ) {
 			input.val( val + dir );
 		};
 
-
 	//SMT 100 Toolbox function: SET ID
 	popup.find( "#smt100id" ).on( "click", function() {
 		var nr    = parseInt( popup.find( ".nr" ).val() ),
@@ -396,7 +399,7 @@ function showSensorEditor( sensor, callback ) {
 		areYouSure( _( "This function sets the Modbus ID for one SMT100 sensor. Disconnect all other sensors on this Modbus port. Please confirm." ),
 		"new id=" + newid, function() {
 			sendToOS( "/sa?pw=&nr=" + nr + "&id=" + newid ).done( function() {
-				window.alert( "SMT100 id assigned!" );
+				window.alert( _( "SMT100 id assigned!" ) );
 				updateAnalogSensor( refresh );
 			} );
 		} );
@@ -412,7 +415,7 @@ function showSensorEditor( sensor, callback ) {
 			var nr = parseInt( popup.find( ".nr" ).val() );
 			for ( var i = 0; i < analogSensors.length; i++ ) {
 				if ( analogSensors[ i ].nr === nr ) {
-					window.alert( _( "Sensor-Number exists!" ) );
+					window.alert( _( "Sensor number exists!" ) );
 					return;
 				}
 			}
@@ -433,7 +436,6 @@ function showSensorEditor( sensor, callback ) {
 			log:    popup.find( "#log" ).is( ":checked" ) ? 1 : 0,
 			show:   popup.find( "#show" ).is( ":checked" ) ? 1 : 0
 		};
-		//Alert(sensorOut.ip);
 
 		callback( sensorOut );
 
@@ -508,7 +510,6 @@ var showAnalogSensorConfig = ( function() {
 		//Edit a sensor:
 		list.find( "#edit-sensor" ).on( "click", function( ) {
 			var dur = $( this ),
-			//Value = dur.attr( "value" ),
 			row = dur.attr( "row" );
 
 			var sensor = analogSensors[ row ];
@@ -525,7 +526,7 @@ var showAnalogSensorConfig = ( function() {
 					"&port=" + sensorOut.port +
 					"&id=" + sensorOut.id +
 					"&ri=" + sensorOut.ri +
-					((sensorOut.type===49)?
+					((sensorOut.type === USERDEF_SENSOR) ?
 						("&fac="+sensorOut.fac +
 						"&div="+sensorOut.div +
 						"&unit="+sensorOut.unit
@@ -547,7 +548,8 @@ var showAnalogSensorConfig = ( function() {
 				type: 1,
 				ri: 600,
 				enable: 1,
-				log: 1 };
+				log: 1
+			};
 
 			showSensorEditor( sensor, function( sensorOut ) {
 				sendToOS( "/sc?pw=&nr=" + sensorOut.nr +
@@ -558,7 +560,7 @@ var showAnalogSensorConfig = ( function() {
 				"&port=" + sensorOut.port +
 				"&id=" + sensorOut.id +
 				"&ri=" + sensorOut.ri +
-				((sensorOut.type===49)?
+				((sensorOut.type === USERDEF_SENSOR) ?
 					("&fac="+sensorOut.fac +
 					"&div="+sensorOut.div +
 					"&unit="+sensorOut.unit
@@ -584,8 +586,8 @@ var showAnalogSensorConfig = ( function() {
 
 		//Delete a program adjust:
 		list.find( "#delete-progadjust" ).on( "click", function( ) {
-			var dur = $( this ),
-			value = dur.attr( "value" );
+		var dur = $( this ),
+			value = dur.attr( "value" ),
 			row = dur.attr( "row" );
 
 			areYouSure( _( "Are you sure you want to delete this program adjustment?" ), value, function() {
@@ -599,7 +601,6 @@ var showAnalogSensorConfig = ( function() {
 		//Edit a program adjust:
 		list.find( "#edit-progadjust" ).on( "click", function( ) {
 			var dur = $( this ),
-			//Value = dur.attr( "value" ),
 			row = dur.attr( "row" );
 
 			var progAdjust = progAdjusts[ row ];
@@ -647,7 +648,7 @@ var showAnalogSensorConfig = ( function() {
 		list.find( "#clear-log" ).on( "click", function() {
 			areYouSure( _( "Are you sure you want to clear the sensor log?" ), "", function() {
 				sendToOS( "/sn?pw=&" ).done( function( result ) {
-					window.alert( _( "Log cleared: " + result.deleted + _( " records" ) ) );
+					window.alert( _( "Log cleared:" ) + " " + result.deleted + " " + _( "records" ) );
 					updateSensorContent();
 				} );
 			} );
@@ -658,11 +659,10 @@ var showAnalogSensorConfig = ( function() {
 			link.style.display = "none";
 			link.setAttribute( "download", "sensorlog-" + new Date().toLocaleDateString().replace( /\//g, "-" ) + ".csv" );
 
-			dest = "/so?pw=&csv=1";
+			var dest = "/so?pw=&csv=1";
 			dest = dest.replace( "pw=", "pw=" + encodeURIComponent( currPass ) );
 			link.target = "_blank";
 			link.href = currToken ? "https://cloud.openthings.io/forward/v1/" + currToken + dest : currPrefix + currIp + dest;
-			//alert(link.href);
 			document.body.appendChild( link ); // Required for FF
 			link.click();
 		} );
@@ -696,7 +696,6 @@ var showAnalogSensorConfig = ( function() {
 } )();
 
 function buildSensorConfig() {
-	// Analog sensor api support:
 	var list = "<table id='analog_sensor_table'><tr style='width:100%;vertical-align: top;'>" +
 		"<tr><th>Nr</th><th class=\"hidecol\">Type</th><th class=\"hidecol\">Group</th><th>Name</th>"+
 		"<th class=\"hidecol\">IP</th><th class=\"hidecol\">Port</th><th class=\"hidecol\">ID</th>"+
@@ -790,60 +789,28 @@ function buildSensorConfig() {
 	return list;
 }
 
-const CHARTS = 11;
-
-// show Sensor Charts with apexcharts
+// Show Sensor Charts with apexcharts
 var showAnalogSensorCharts = ( function() {
 
+	var max = CHARTS;
+	for ( var j = 0; j < analogSensors.length; j++ ) {
+		if (!analogSensors[j].log)
+			continue;
+		var unitid = analogSensors[j].unitid;
+		if (unitid === USERDEF_UNIT) max++;
+	}
+
+	var last = "", week = "", month = "";
+	for ( var j = 1; j <= max; j++ ) {
+		last  += "<div id='myChart"+j+"'></div>";
+		week  += "<div id='myChartW"+j+"'></div>";
+		month += "<div id='myChartM"+j+"'></div>";
+	}
+
 	var page = $( "<div data-role='page' id='analogsensorchart'>" +
-			"<div class='ui-content' role='main' style='width: 95%'>" +
-			"<div id='myChart1'></div>" +
-			"<div id='myChart2'></div>" +
-			"<div id='myChart3'></div>" +
-			"<div id='myChart4'></div>" +
-			"<div id='myChart5'></div>" +
-			"<div id='myChart6'></div>" +
-			"<div id='myChart7'></div>" +
-			"<div id='myChart8'></div>" +
-			"<div id='myChart9'></div>" +
-			"<div id='myChart10'></div>" +
-			"<div id='myChart11'></div>" +
-			"<div id='myChart12'></div>" +
-			"<div id='myChart13'></div>" +
-			"<div id='myChart14'></div>" +
-			"<div id='myChart15'></div>" +
-			"<div id='myChartW1'></div>" +
-			"<div id='myChartW2'></div>" +
-			"<div id='myChartW3'></div>" +
-			"<div id='myChartW4'></div>" +
-			"<div id='myChartW5'></div>" +
-			"<div id='myChartW6'></div>" +
-			"<div id='myChartW7'></div>" +
-			"<div id='myChartW8'></div>" +
-			"<div id='myChartW9'></div>" +
-			"<div id='myChartW10'></div>" +
-			"<div id='myChartW11'></div>" +
-			"<div id='myChartW12'></div>" +
-			"<div id='myChartW13'></div>" +
-			"<div id='myChartW14'></div>" +
-			"<div id='myChartW15'></div>" +
-			"<div id='myChartM1'></div>" +
-			"<div id='myChartM2'></div>" +
-			"<div id='myChartM3'></div>" +
-			"<div id='myChartM4'></div>" +
-			"<div id='myChartM5'></div>" +
-			"<div id='myChartM6'></div>" +
-			"<div id='myChartM7'></div>" +
-			"<div id='myChartM8'></div>" +
-			"<div id='myChartM9'></div>" +
-			"<div id='myChartM10'></div>" +
-			"<div id='myChartM11'></div>" +
-			"<div id='myChartM12'></div>" +
-			"<div id='myChartM13'></div>" +
-			"<div id='myChartM14'></div>" +
-			"<div id='myChartM15'></div>" +
-			"</div>" +
-			"</div>" );
+		"<div class='ui-content' role='main' style='width: 95%'>" +
+		last + week + month +
+		"</div></div>" );
 
 	function begin() {
 		$.mobile.loading( "show" );
@@ -857,7 +824,7 @@ var showAnalogSensorCharts = ( function() {
 		} );
 
 		changeHeader( {
-			title: _( "Analog sensor log" ),
+			title: _( "Analog Sensor Log" ),
 			leftBtn: {
 				icon: "carat-l",
 				text: _( "Back" ),
@@ -870,13 +837,13 @@ var showAnalogSensorCharts = ( function() {
 		$.mobile.pageContainer.append( page );
 
 		sendToOS("/so?pw=&lasthours=24&csv=2", "text").then(function (csv1) {
-			build_graph("#myChart", chart1, csv1, _("last 24h"), "HH:mm");
+			buildGraph( "#myChart", chart1, csv1, _( "last 24h" ), "HH:mm" );
 
 			sendToOS("/so?pw=&csv=2&log=1", "text").then(function (csv2) {
-				build_graph("#myChartW", chart2, csv2, _("last weeks"), "dd.MM.yyyy");
+				buildGraph( "#myChartW", chart2, csv2, _( "last weeks" ), "dd.MM.yyyy" );
 
 				sendToOS("/so?pw=&csv=2&log=2", "text").then(function (csv3) {
-					build_graph("#myChartM", chart3, csv3, _("last months"), "MM.yyyy");
+					buildGraph( "#myChartM", chart3, csv3, _( "last months" ), "MM.yyyy" );
 					$.mobile.loading( "hide" );
 				});
 			});
@@ -886,101 +853,97 @@ var showAnalogSensorCharts = ( function() {
 	return begin;
 } )();
 
-// https://stackoverflow.com/questions/11832914/how-to-round-to-at-most-2-decimal-places-if-necessary
-function roundToTwo(num) {
-    return +(Math.round(num + "e+2")  + "e-2");
-}
+function buildGraph( prefix, chart, csv, titleAdd, timestr ) {
+	var csvlines = csv.split( /(?:\r\n|\n)+/ ).filter( function( el ) { return el.length !== 0; } );
 
+	for ( var j = 0; j < analogSensors.length; j++ ) {
+		if (!analogSensors[j].log) {
+			continue;
+		}
 
-function build_graph(prefix, chart, csv, title_add, timestr) {
-			let csvlines = csv.split(/(?:\r\n|\n)+/).filter(function(el) {return el.length != 0});
+		var nr = analogSensors[j].nr,
+			logdata = [],
+			unitid = analogSensors[j].unitid;
 
-			for ( var j = 0; j < analogSensors.length; j++ ) {
-				if (!analogSensors[j].log)
-					continue;
+		for ( var k = 1; k < csvlines.length; k++ ) {
+			var line = csvlines[ k ].split( ";" );
+			if (line.length >= 3 && Number(line[0]) === nr ) {
+				logdata.push( { x: Number(line[1]) * 1000, y: Number(line[2]) } );
+			}
+		}
+		var series = { name: analogSensors[j].name, data: logdata };
 
-				var nr = analogSensors[j].nr,
-					logdata = [],
-					unitid = analogSensors[j].unitid;
+		// User defined sensor:
+		if (unitid === USERDEF_UNIT) {
+			unitid = chart.length;
+			chart.push(undefined);
+		} else if (unitid >= CHARTS) {
+			unitid = 0;
+		}
 
-				for ( var k = 1; k < csvlines.length; k++ ) {
-					let line = csvlines[k].split(";");
-					if (line.length >= 3 && Number(line[0]) === nr ) {
-						logdata.push( { x: Number(line[1]) * 1000, y: Number(line[2]) } );
-					}
-				}
-				var series = { name: analogSensors[j].name, data: logdata };
-
-				// User defined sensor:
-				if (unitid === 99) {
-					unitid = chart.length;
-					chart.push(undefined);
-				} else if (unitid >= CHARTS)
-					unitid = 0;
-
-				if (!chart[unitid]) {
-					var unit, title, unitStr,
-						minFunc = function(val) {return Math.floor(Math.max(0, val-4))},
-						maxFunc = function(val) {return Math.ceil(val)},
-						autoY = true;
-					switch (unitid) {
-						case 1: unit = _("Soil moisture");
-								title = _("Soil moisture")+" "+title_add;
-								unitStr = function(val) {return roundToTwo(val)+" %"};
-								minFunc = 0;
-								maxFunc = 100;
-								break;
-						case 2: unit = _("degree celsius temperature");
-								title = _("Temperature")+" "+title_add;
-								unitStr = function(val) {return roundToTwo(val)+String.fromCharCode(176)+"C"};
+		if (!chart[unitid]) {
+			var unit, title, unitStr,
+				minFunc = function( val ) { return Math.floor( Math.max( 0, val - 4 ) ); },
+				maxFunc = function( val ) { return Math.ceil( val ); },
+				autoY = true;
+			switch (unitid) {
+				case 1: unit = _("Soil moisture");
+					title = _( "Soil moisture" ) + " " + titleAdd;
+					unitStr = function( val ) { return +( Math.round( val + "e+2" )  + "e-2" ) + " %"; };
+					minFunc = 0;
+					maxFunc = 100;
+					break;
+				case 2: unit = _("degree celsius temperature");
+					title = _( "Temperature" ) + " " + titleAdd;
+					unitStr = function( val ) { return +( Math.round( val + "e+2" )  + "e-2" ) + String.fromCharCode( 176 ) + "C"; };
 								break;
 						case 3: unit = _("degree fahrenheit temperature");
-								title = _("Temperature")+" "+title_add;
-								unitStr = function(val) {return roundToTwo(val)+String.fromCharCode(176)+"F"};
+					title = _( "Temperature" ) + " " + titleAdd;
+					unitStr = function( val ) { return +( Math.round( val + "e+2" )  + "e-2" ) + String.fromCharCode( 176 ) + "F"; };
 								break;
 						case 4: unit = _("Volt");
-								title = _("Voltage")+" "+title_add;
-								unitStr = function(val) {return roundToTwo(val)+" V"};
+					title = _( "Voltage" ) + " " + titleAdd;
+					unitStr = function( val ) { return +( Math.round( val + "e+2" )  + "e-2" ) + " V"; };
 								minFunc = 0;
 								maxFunc = 4;
 								autoY = false;
 								break;
 						case 5: unit = _("Humidity");
-								title = _("Air Humidity")+" "+title_add;
-								unitStr = function(val) {return roundToTwo(val)+" %"};
+					title = _( "Air Humidity" ) + " " + titleAdd;
+					unitStr = function( val ) { return +( Math.round( val + "e+2" )  + "e-2" ) + " %"; };
 								minFunc = 0;
 								maxFunc = 100;
 								break;
 						case 6: unit = _("Rain");
-								title = _("Rainfall")+" "+title_add;
-								unitStr = function(val) {return roundToTwo(val)+" in"};
+					title = _( "Rainfall" ) + " " + titleAdd;
+					unitStr = function( val ) { return +( Math.round( val + "e+2" )  + "e-2" ) + " in"; };
 								break;
 						case 7: unit = _("Rain");
-								title = _("Rainfall")+" "+title_add;
-								unitStr = function(val) {return roundToTwo(val)+" mm"};
+					title = _( "Rainfall" ) + " " + titleAdd;
+					unitStr = function( val ) { return +( Math.round( val + "e+2" )  + "e-2" ) + " mm"; };
 								minFunc = 0;
 								break;
 						case 8: unit = _("Wind");
-								title = _("Wind")+" "+title_add;
-								unitStr = function(val) {return roundToTwo(val)+" mph"};
+					title = _( "Wind" ) + " " + titleAdd;
+					unitStr = function( val ) { return +( Math.round( val + "e+2" )  + "e-2" ) + " mph"; };
 								minFunc = 0;
 								break;
 						case 9: unit = _("Wind");
-								title = _("Wind")+" "+title_add;
-								unitStr = function(val) {return roundToTwo(val)+" kmh"};
+					title = _( "Wind" ) + " " + titleAdd;
+					unitStr = function( val ) { return +( Math.round( val + "e+2" )  + "e-2" ) + " kmh"; };
 								minFunc = 0;
 								break;
 						case 10: unit = _("Level");
-								title = _("Level")+" "+title_add;
-								unitStr = function(val) {return roundToTwo(val)+" %"};
+					title = _( "Level" ) + " " + titleAdd;
+					unitStr = function( val ) { return +( Math.round( val + "e+2" )  + "e-2" ) + " %"; };
 								minFunc = 0;
 								maxFunc = 100;
 								autoY = false;
 								break;
 
-						default: unit = analogSensors[j].unit;
-								title = analogSensors[j].name+" "+title_add;
-								unitStr = function(val) {return roundToTwo(val)};
+				default: unit = "";
+					title = titleAdd;
+					unitStr = null;
 					}
 
 					var options = {
@@ -994,20 +957,20 @@ function build_graph(prefix, chart, csv, title_add, timestr) {
 						},
 						series: [series],
 						stroke: {
-							curve: 'smooth',
-							width: 4,
+					curve: "smooth",
+					width: 4
 						},
 						grid: {
 							xaxis: {
 								lines: {
-									show: true,
-								},
+							show: true
+						}
 							},
 							yaxis: {
 								lines: {
-									show: true,
-								},
-							},
+							show: true
+						}
+					}
 						},
 						plotOptions: {
 							bar: {
@@ -1016,32 +979,27 @@ function build_graph(prefix, chart, csv, title_add, timestr) {
 						},
 						tooltip: {
 							x: {
-								format: 'dd.MM.yyyy HH:mm:ss',
-							},
+						format: "dd.MM.yyyy HH:mm:ss"
+					}
 						},
 						xaxis: {
-							type: 'datetime',
+					type: "datetime",
 							labels: {
 								datetimeUTC : true,
-								format: timestr,
-							},
+						format: timestr
+					}
 						},
 						yaxis: {
 							title: { text: unit },
 							decimalsInFloat: 0,
-							//tickAmount: 10,
 							forceNiceScale: autoY,
 							labels: {
-								formatter: unitStr,
+						formatter: unitStr
 							},
 							min: minFunc,
-							max: autoY?undefined:maxFunc,
+					max: autoY ? undefined : maxFunc
 						},
-						title: {text: title},
-						//forecastDataPoints: {
-						//	count: 10,
-						//	strokeWidth: 4,
-						//},
+				title: { text: title }
 					};
 
 					chart[unitid] = new ApexCharts(document.querySelector(prefix + unitid), options);
@@ -1051,11 +1009,12 @@ function build_graph(prefix, chart, csv, title_add, timestr) {
 				}
 			}
 
-			for (k = 1; k < chart.length; k++) {
-				if (!chart[k]) {
-					var x = document.querySelector(prefix + k);
-					if (x)
+	for ( var c = 1; c < chart.length; c++ ) {
+		if ( !chart[ c ] ) {
+			var x = document.querySelector( prefix + c );
+					if (x) {
 						x.parentElement.removeChild(x);
+					}
 				}
 			}
 }
