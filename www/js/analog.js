@@ -70,7 +70,7 @@ function updateSensorShowArea( page ) {
 			var sensor = analogSensors[ i ];
 			if ( sensor.show ) {
 				html += "<div id='sensor-show-" + sensor.nr + "' class='ui-body ui-body-a center'>";
-				html += "<label>" + sensor.name + ": " + ( Math.round( sensor.data + "e+2" )  + "e-2" ) + sensor.unit + "</label>";
+				html += "<label>" + sensor.name + ": " ( +( Math.round( sensor.data + "e+2" )  + "e-2" ) ) + sensor.unit + "</label>";
 				html += "</div>";
 			}
 		}
