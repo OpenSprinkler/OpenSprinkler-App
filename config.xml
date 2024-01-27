@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget android-versionCode="132" id="de.opensprinklershop.sprinklers"
-version="2.3.3.asb" versionCode="132" xmlns="http://www.w3.org/ns/widgets"
+<widget android-versionCode="134" id="de.opensprinklershop.sprinklers"
+version="2.3.4.asb" versionCode="134" xmlns="http://www.w3.org/ns/widgets"
 xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cordova.apache.org/ns/1.0">
 
     <name>OpenSprinklerASB</name>

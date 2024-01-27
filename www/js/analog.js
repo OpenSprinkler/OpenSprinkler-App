@@ -10,7 +10,8 @@ var analogSensors = {},
     analogSensorAvail = false;
 
 const CHARTS = 11;
-
+const USERDEF_SENSOR = 49;
+const USERDEF_UNIT   = 99;
 
 
 function checkAnalogSensorAvail( callback ) {
