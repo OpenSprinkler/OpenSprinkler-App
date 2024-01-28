@@ -942,9 +942,9 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr ) {
 								autoY = false;
 								break;
 
-				default: unit = "";
-					title = titleAdd;
-					unitStr = null;
+				default: unit = analogSensors[j].unit;
+					title = analogSensors[j].name + " " + titleAdd;
+					unitStr = function( val ) { return +( Math.round( val + "e+2" )  + "e-2" ); };
 					}
 
 					var options = {
