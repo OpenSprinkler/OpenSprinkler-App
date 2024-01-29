@@ -10,7 +10,8 @@ var analogSensors = {},
     analogSensorAvail = false;
 
 const CHARTS = 11;
-
+const USERDEF_SENSOR = 49;
+const USERDEF_UNIT   = 99;
 
 
 function checkAnalogSensorAvail( callback ) {
@@ -941,9 +942,9 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr ) {
 								autoY = false;
 								break;
 
-				default: unit = "";
-					title = titleAdd;
-					unitStr = null;
+				default: unit = analogSensors[j].unit;
+					title = analogSensors[j].name + " " + titleAdd;
+					unitStr = function( val ) { return +( Math.round( val + "e+2" )  + "e-2" ); };
 					}
 
 					var options = {
