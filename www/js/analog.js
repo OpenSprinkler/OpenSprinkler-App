@@ -353,7 +353,7 @@ function showSensorEditor( sensor, callback ) {
 						"<label>" +
 							_( "Offset in millivolt" ) +
 						"</label>" +
-						"<input class='div' type='number' min='-32768' max='32767' value='" + sensor.offset + "'>" +
+						"<input class='offset' type='number' min='-32768' max='32767' value='" + sensor.offset + "'>" +
 
 						"<label>" +
 							_( "Unit" ) +
