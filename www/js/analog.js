@@ -350,10 +350,12 @@ function showSensorEditor( sensor, callback ) {
 						"</label>" +
 						"<input class='div' type='number' min='-32768' max='32767' value='" + sensor.div + "'>" +
 
-						"<label>" +
-							_( "Offset in millivolt" ) +
-						"</label>" +
-						"<input class='offset' type='number' min='-32768' max='32767' value='" + sensor.offset + "'>" +
+						(sensor.hasOwnProperty('offset')?
+							"<label>" +
+								_( "Offset in millivolt" ) +
+							"</label>" +
+							"<input class='offset' type='number' min='-32768' max='32767' value='" + sensor.offset + "'>"
+						:"")+
 
 						"<label>" +
 							_( "Unit" ) +
