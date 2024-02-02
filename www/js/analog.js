@@ -351,6 +351,11 @@ function showSensorEditor( sensor, callback ) {
 						"<input class='div' type='number' min='-32768' max='32767' value='" + sensor.div + "'>" +
 
 						"<label>" +
+							_( "Offset in millivolt" ) +
+						"</label>" +
+						"<input class='div' type='number' min='-32768' max='32767' value='" + sensor.offset + "'>" +
+
+						"<label>" +
 							_( "Unit" ) +
 						"</label>" +
 						"<input class='unit' type='text'  value='" + sensor.unit + "'>"
@@ -432,6 +437,7 @@ function showSensorEditor( sensor, callback ) {
 			ri:     parseInt( popup.find( ".ri" ).val() ),
 			fac:    parseInt( popup.find( ".fac" ).val() ),
 			div:    parseInt( popup.find( ".div" ).val() ),
+			offset: parseInt( popup.find( ".offset" ).val() ),
 			unit:   popup.find( ".unit" ).val(),
 			enable: popup.find( "#enable" ).is( ":checked" ) ? 1 : 0,
 			log:    popup.find( "#log" ).is( ":checked" ) ? 1 : 0,
@@ -530,6 +536,7 @@ var showAnalogSensorConfig = ( function() {
 					((sensorOut.type === USERDEF_SENSOR) ?
 						("&fac="+sensorOut.fac +
 						"&div="+sensorOut.div +
+						"&offset="+sensorOut.offset +
 						"&unit="+sensorOut.unit
 						):"") +
 					"&enable=" + sensorOut.enable +
@@ -564,6 +571,7 @@ var showAnalogSensorConfig = ( function() {
 				((sensorOut.type === USERDEF_SENSOR) ?
 					("&fac="+sensorOut.fac +
 					"&div="+sensorOut.div +
+					"&offset="+sensorOut.offset +
 					"&unit="+sensorOut.unit
 				):"") +
 				"&enable=" + sensorOut.enable +
