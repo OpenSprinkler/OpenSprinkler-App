@@ -896,7 +896,7 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr ) {
 
 		if (!chart[unitid]) {
 			var unit, title, unitStr,
-				minFunc = function( val ) { return Math.floor( Math.max( 0, val - 4 ) ); },
+				minFunc = function( val ) { return Math.floor( val > 0 ? Math.max( 0, val - 4 ) : val - 1 ); },
 				maxFunc = function( val ) { return Math.ceil( val ); },
 				autoY = true;
 			switch (unitid) {
