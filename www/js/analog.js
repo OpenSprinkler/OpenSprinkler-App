@@ -828,7 +828,8 @@ var showAnalogSensorCharts = ( function() {
 
 		var chart1 = new Array(CHARTS),
 			chart2 = new Array(CHARTS),
-			chart3 = new Array(CHARTS);
+			chart3 = new Array(CHARTS),
+			datalimit = false;
 
 		page.one( "pagehide", function() {
 			page.detach();
@@ -847,13 +848,15 @@ var showAnalogSensorCharts = ( function() {
 		$( "#analogsensorchart" ).remove();
 		$.mobile.pageContainer.append( page );
 
+		datalimit = window.location.href.includes("cloud.openthings.io/forward/v1"); //OTC Access
+
 		sendToOS("/so?pw=&lasthours=24&csv=2", "text").then(function (csv1) {
 			buildGraph( "#myChart", chart1, csv1, _( "last 24h" ), "HH:mm" );
 
-			sendToOS("/so?pw=&csv=2&log=1", "text").then(function (csv2) {
+			sendToOS(datalimit?"/so?pw=&csv=2&log=1&lastdays=31":"/so?pw=&csv=2&log=1", "text").then(function (csv2) {
 				buildGraph( "#myChartW", chart2, csv2, _( "last weeks" ), "dd.MM.yyyy" );
 
-				sendToOS("/so?pw=&csv=2&log=2", "text").then(function (csv3) {
+				sendToOS(datalimit?"/so?pw=&csv=2&log=2&lastdays=100":"/so?pw=&csv=2&log=2", "text").then(function (csv3) {
 					buildGraph( "#myChartM", chart3, csv3, _( "last months" ), "MM.yyyy" );
 					$.mobile.loading( "hide" );
 				});
@@ -871,7 +874,6 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr ) {
 		if (!analogSensors[j].log) {
 			continue;
 		}
-
 		var nr = analogSensors[j].nr,
 			logdata = [],
 			unitid = analogSensors[j].unitid;
@@ -907,125 +909,124 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr ) {
 				case 2: unit = _("degree celsius temperature");
 					title = _( "Temperature" ) + " " + titleAdd;
 					unitStr = function( val ) { return +( Math.round( val + "e+2" )  + "e-2" ) + String.fromCharCode( 176 ) + "C"; };
-								break;
-						case 3: unit = _("degree fahrenheit temperature");
+					break;
+				case 3: unit = _("degree fahrenheit temperature");
 					title = _( "Temperature" ) + " " + titleAdd;
 					unitStr = function( val ) { return +( Math.round( val + "e+2" )  + "e-2" ) + String.fromCharCode( 176 ) + "F"; };
-								break;
-						case 4: unit = _("Volt");
+					break;
+				case 4: unit = _("Volt");
 					title = _( "Voltage" ) + " " + titleAdd;
 					unitStr = function( val ) { return +( Math.round( val + "e+2" )  + "e-2" ) + " V"; };
-								minFunc = 0;
-								maxFunc = 4;
-								autoY = false;
-								break;
-						case 5: unit = _("Humidity");
+					minFunc = 0;
+					maxFunc = 4;
+					autoY = false;
+					break;
+				case 5: unit = _("Humidity");
 					title = _( "Air Humidity" ) + " " + titleAdd;
 					unitStr = function( val ) { return +( Math.round( val + "e+2" )  + "e-2" ) + " %"; };
-								minFunc = 0;
-								maxFunc = 100;
-								break;
-						case 6: unit = _("Rain");
+					minFunc = 0;
+					maxFunc = 100;
+					break;
+				case 6: unit = _("Rain");
 					title = _( "Rainfall" ) + " " + titleAdd;
 					unitStr = function( val ) { return +( Math.round( val + "e+2" )  + "e-2" ) + " in"; };
-								break;
-						case 7: unit = _("Rain");
+					break;
+				case 7: unit = _("Rain");
 					title = _( "Rainfall" ) + " " + titleAdd;
 					unitStr = function( val ) { return +( Math.round( val + "e+2" )  + "e-2" ) + " mm"; };
-								minFunc = 0;
-								break;
-						case 8: unit = _("Wind");
+					minFunc = 0;
+					break;
+				case 8: unit = _("Wind");
 					title = _( "Wind" ) + " " + titleAdd;
 					unitStr = function( val ) { return +( Math.round( val + "e+2" )  + "e-2" ) + " mph"; };
-								minFunc = 0;
-								break;
-						case 9: unit = _("Wind");
+					minFunc = 0;
+					break;
+				case 9: unit = _("Wind");
 					title = _( "Wind" ) + " " + titleAdd;
 					unitStr = function( val ) { return +( Math.round( val + "e+2" )  + "e-2" ) + " kmh"; };
-								minFunc = 0;
-								break;
-						case 10: unit = _("Level");
+					minFunc = 0;
+					break;
+				case 10: unit = _("Level");
 					title = _( "Level" ) + " " + titleAdd;
 					unitStr = function( val ) { return +( Math.round( val + "e+2" )  + "e-2" ) + " %"; };
-								minFunc = 0;
-								maxFunc = 100;
-								autoY = false;
-								break;
+					minFunc = 0;
+					maxFunc = 100;
+					autoY = false;
+					break;
 
 				default: unit = analogSensors[j].unit;
 					title = analogSensors[j].name + " " + titleAdd;
 					unitStr = function( val ) { return +( Math.round( val + "e+2" )  + "e-2" ); };
-					}
-
-					var options = {
-						chart: {
-							type: "line",
-							stacked: false,
-							width: "100%"
-						},
-						dataLabels: {
-							enabled: false
-						},
-						series: [series],
-						stroke: {
-					curve: "smooth",
-					width: 4
-						},
-						grid: {
-							xaxis: {
-								lines: {
-							show: true
-						}
-							},
-							yaxis: {
-								lines: {
-							show: true
-						}
-					}
-						},
-						plotOptions: {
-							bar: {
-								columnWidth: "20%"
-							}
-						},
-						tooltip: {
-							x: {
-						format: "dd.MM.yyyy HH:mm:ss"
-					}
-						},
-						xaxis: {
-					type: "datetime",
-							labels: {
-								datetimeUTC : true,
-						format: timestr
-					}
-						},
-						yaxis: {
-							title: { text: unit },
-							decimalsInFloat: 0,
-							forceNiceScale: autoY,
-							labels: {
-						formatter: unitStr
-							},
-							min: minFunc,
-					max: autoY ? undefined : maxFunc
-						},
-				title: { text: title }
-					};
-
-					chart[unitid] = new ApexCharts(document.querySelector(prefix + unitid), options);
-					chart[unitid].render();
-				} else {
-					chart[unitid].appendSeries(series);
-				}
 			}
 
+			var options = {
+				chart: {
+					type: "line",
+					stacked: false,
+					width: "100%"
+				},
+				dataLabels: {
+					enabled: false
+				},
+				series: [series],
+				stroke: {
+					curve: "smooth",
+					width: 4
+				},
+				grid: {
+					xaxis: {
+						lines: {
+							show: true
+						}
+					},
+					yaxis: {
+						lines: {
+							show: true
+						}
+					}
+				},
+				plotOptions: {
+					bar: {
+						columnWidth: "20%"
+					}
+				},
+				tooltip: {
+					x: {
+						format: "dd.MM.yyyy HH:mm:ss"
+					}
+				},
+				xaxis: {
+					type: "datetime",
+					labels: {
+						datetimeUTC : true,
+						format: timestr
+					}
+				},
+				yaxis: {
+					title: { text: unit },
+					decimalsInFloat: 0,
+					forceNiceScale: autoY,
+					labels: {
+						formatter: unitStr
+						},
+					min: minFunc,
+					max: autoY ? undefined : maxFunc
+				},
+				title: { text: title }
+			};
+
+			chart[unitid] = new ApexCharts(document.querySelector(prefix + unitid), options);
+			chart[unitid].render();
+		} else {
+			chart[unitid].appendSeries(series);
+		}
+	}
 	for ( var c = 1; c < chart.length; c++ ) {
 		if ( !chart[ c ] ) {
 			var x = document.querySelector( prefix + c );
-					if (x) {
-						x.parentElement.removeChild(x);
-					}
-				}
+			if (x) {
+				x.parentElement.removeChild(x);
 			}
+		}
+	}
 }
