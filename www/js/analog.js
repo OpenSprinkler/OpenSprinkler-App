@@ -1012,6 +1012,10 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr ) {
 					min: minFunc,
 					max: autoY ? undefined : maxFunc
 				},
+				legend: {
+					showForSingleSeries: true,
+					fontSize: "12px"
+				},
 				title: { text: title }
 			};
 
