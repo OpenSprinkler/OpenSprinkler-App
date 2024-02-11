@@ -12,6 +12,7 @@ var analogSensors = {},
 const CHARTS = 11;
 const USERDEF_SENSOR = 49;
 const USERDEF_UNIT   = 99;
+const COLORS = ['#daffcf', '#ffcdcd', '#ffd6c5', '#fdffd6', '#bbf6ff', '#c0e4ff', '#ddd2ff', '#ffe6ff'];
 
 
 function checkAnalogSensorAvail( callback ) {
@@ -803,27 +804,27 @@ function buildSensorConfig() {
 // Show Sensor Charts with apexcharts
 var showAnalogSensorCharts = ( function() {
 
-	var max = CHARTS;
-	for ( var j = 0; j < analogSensors.length; j++ ) {
-		if (!analogSensors[j].log)
-			continue;
-		var unitid = analogSensors[j].unitid;
-		if (unitid === USERDEF_UNIT) max++;
-	}
-
-	var last = "", week = "", month = "";
-	for ( var j = 1; j <= max; j++ ) {
-		last  += "<div id='myChart"+j+"'></div>";
-		week  += "<div id='myChartW"+j+"'></div>";
-		month += "<div id='myChartM"+j+"'></div>";
-	}
-
-	var page = $( "<div data-role='page' id='analogsensorchart'>" +
-		"<div class='ui-content' role='main' style='width: 95%'>" +
-		last + week + month +
-		"</div></div>" );
-
 	function begin() {
+		var max = CHARTS;
+		for ( var j = 0; j < analogSensors.length; j++ ) {
+			if (!analogSensors[j].log)
+				continue;
+			var unitid = analogSensors[j].unitid;
+			if (unitid === USERDEF_UNIT) max++;
+		}
+		
+		var last = "", week = "", month = "";
+		for ( var j = 1; j <= max; j++ ) {
+			last  += "<div id='myChart"+j+"'></div>";
+			week  += "<div id='myChartW"+j+"'></div>";
+			month += "<div id='myChartM"+j+"'></div>";
+		}
+
+		var page = $( "<div data-role='page' id='analogsensorchart'>" +
+			"<div class='ui-content' role='main' style='width: 95%'>" +
+			last + week + month +
+			"</div></div>" );
+
 		$.mobile.loading( "show" );
 
 		var chart1 = new Array(CHARTS),
@@ -866,6 +867,7 @@ var showAnalogSensorCharts = ( function() {
 
 	return begin;
 } )();
+
 
 function buildGraph( prefix, chart, csv, titleAdd, timestr ) {
 	var csvlines = csv.split( /(?:\r\n|\n)+/ ).filter( function( el ) { return el.length !== 0; } );
@@ -1024,35 +1026,44 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr ) {
 		} else {
 			chart[unitid].appendSeries(series);
 		}
-		analogSensors[j].chart = chart[unitid];
+		if (!analogSensors[j].chart)
+			analogSensors[j].chart = new Map();
+		analogSensors[j].chart.set(prefix, chart[unitid]);
 	}
 
-	sendToOS("/se", "json").then(function (adjustments) {
+	sendToOS("/se?pw=", "json").then(function (adjustments) {
 
 		for ( var p = 0; p < adjustments.progAdjust.length; p++) {
 			var adjust = adjustments.progAdjust[p];
-			var mchart = analogSensors[adjust.sensor].chart;
-			if (mchart) {
+			var sensor = adjust.sensor;
+			for ( var j = 0; j < analogSensors.length; j++ ) {
+				if (analogSensors[j].nr == sensor) {
+					var mchart = analogSensors[j].chart.get(prefix);
+					if (mchart) {
 
-				var progName = "";
-				if ( adjust.prog >= 1 && adjust.prog <= controller.programs.pd.length ) {
-					progName = readProgram( controller.programs.pd[ adjust.prog - 1 ] ).name;
-				}
-
-				var options = {
-					annotations: {
-						yaxis: [
-							{
-								y: adjust.min,
-								y2: adjust.max,
-								label: {
-									text: _( "Adjustment-Nr" )+" "+adjust.nr+" "+progName
-								}
+						var progName = "";
+						if ( adjust.prog >= 1 && adjust.prog <= controller.programs.pd.length ) {
+							progName = readProgram( controller.programs.pd[ adjust.prog - 1 ] ).name;
+						}
+						
+						var options = {
+							annotations: {
+								yaxis: [
+									{
+										y: adjust.min,
+										y2: adjust.max,
+										borderColor: '#000',
+										fillColor: COLORS[(j+p) % COLORS.length],
+										label: {
+											text: _( "Adjustment-Nr" )+" "+adjust.nr+" "+progName
+										}
+									}
+								]
 							}
-						]
+						};
+						mchart.updateOptions(options);
 					}
-				};
-				mchart.updateOptions(options);
+				}
 			}
 		}
 
