@@ -1020,13 +1020,45 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr ) {
 		} else {
 			chart[unitid].appendSeries(series);
 		}
+		analogSensors[j].chart = chart[unitid];
 	}
-	for ( var c = 1; c < chart.length; c++ ) {
-		if ( !chart[ c ] ) {
-			var x = document.querySelector( prefix + c );
-			if (x) {
-				x.parentElement.removeChild(x);
+
+	sendToOS("/se", "json").then(function (adjustments) {
+
+		for ( var p = 0; p < adjustments.progAdjust.length; p++) {
+			var adjust = adjustments.progAdjust[p];
+			var mchart = analogSensors[adjust.sensor].chart;
+			if (mchart) {
+
+				var progName = "";
+				if ( adjust.prog >= 1 && adjust.prog <= controller.programs.pd.length ) {
+					progName = readProgram( controller.programs.pd[ adjust.prog - 1 ] ).name;
+				}
+
+				var options = {
+					annotations: {
+						yaxis: [
+							{
+								y: adjust.min,
+								y2: adjust.max,
+								label: {
+									text: _( "Adjustment-Nr" )+" "+adjust.nr+" "+progName
+								}
+							}
+						]
+					}
+				};
+				mchart.updateOptions(options);
 			}
 		}
-	}
+
+		for ( var c = 1; c < chart.length; c++ ) {
+			if ( !chart[ c ] ) {
+				var x = document.querySelector( prefix + c );
+				if (x) {
+					x.parentElement.removeChild(x);
+				}
+			}
+		}
+	});
 }
