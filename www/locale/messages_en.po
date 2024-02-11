@@ -997,7 +997,7 @@ msgstr ""
 msgid "Analog Sensor Config"
 msgstr ""
 
-msgid "Show Sensor Log"
+msgid "Analog Sensor Log"
 msgstr ""
 
 msgid "Manual Control"
@@ -2179,9 +2179,6 @@ msgid "Download Log"
 msgstr ""
 
 msgid "Show Log"
-msgstr ""
-
-msgid "Analog Sensor Log"
 msgstr ""
 
 msgid "last 24h"
