@@ -12,7 +12,6 @@ var analogSensors = {},
 const CHARTS = 11;
 const USERDEF_SENSOR = 49;
 const USERDEF_UNIT   = 99;
-const COLORS = ['#daffcf', '#ffcdcd', '#ffd6c5', '#fdffd6', '#bbf6ff', '#c0e4ff', '#ddd2ff', '#ffe6ff'];
 
 
 function checkAnalogSensorAvail( callback ) {
@@ -895,7 +894,7 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr ) {
 		} else if (unitid >= CHARTS) {
 			unitid = 0;
 		}
-
+		
 		if (!chart[unitid]) {
 			var unit, title, unitStr,
 				minFunc = function( val ) { return Math.floor( val > 0 ? Math.max( 0, val - 4 ) : val - 1 ); },
@@ -964,6 +963,7 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr ) {
 			var options = {
 				chart: {
 					type: "line",
+					//type: "area",
 					stacked: false,
 					width: "100%"
 				},
@@ -985,6 +985,10 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr ) {
 						lines: {
 							show: true
 						}
+					//},
+					//row: {
+					//	colors: ['#f3f3f3', 'transparent'],
+					//	opacity: 0.5
 					}
 				},
 				plotOptions: {
@@ -997,6 +1001,16 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr ) {
 						format: "dd.MM.yyyy HH:mm:ss"
 					}
 				},
+				//fill: {
+				//	type: "gradient",
+				//	gradient: {
+				//		shadeIntensity: 1,
+				//		inverseColors: false,
+				//		opacityFrom: 0.5,
+				//		opacityTo: 0,
+				//		stops: [0, 90, 100]
+				//	},
+				//},
 				xaxis: {
 					type: "datetime",
 					labels: {
@@ -1031,49 +1045,70 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr ) {
 		analogSensors[j].chart.set(prefix, chart[unitid]);
 	}
 
-	sendToOS("/se?pw=", "json").then(function (adjustments) {
+	for ( var p = 0; p < progAdjusts.length; p++) {
+		var adjust = progAdjusts[p];
+		var sensor = adjust.sensor;
+		for ( var j = 0; j < analogSensors.length; j++ ) {
+			if (analogSensors[j].nr == sensor) {
+				var mchart = analogSensors[j].chart.get(prefix);
+				if (mchart) {
+					var unitStr = analogSensors[j].unit;
 
-		for ( var p = 0; p < adjustments.progAdjust.length; p++) {
-			var adjust = adjustments.progAdjust[p];
-			var sensor = adjust.sensor;
-			for ( var j = 0; j < analogSensors.length; j++ ) {
-				if (analogSensors[j].nr == sensor) {
-					var mchart = analogSensors[j].chart.get(prefix);
-					if (mchart) {
-
-						var progName = "";
-						if ( adjust.prog >= 1 && adjust.prog <= controller.programs.pd.length ) {
-							progName = readProgram( controller.programs.pd[ adjust.prog - 1 ] ).name;
-						}
+					//var progName = "";
+					//if ( adjust.prog >= 1 && adjust.prog <= controller.programs.pd.length ) {
+					//	progName = readProgram( controller.programs.pd[ adjust.prog - 1 ] ).name;
+					//}
 						
-						var options = {
-							annotations: {
-								yaxis: [
-									{
-										y: adjust.min,
-										y2: adjust.max,
-										borderColor: '#000',
-										fillColor: COLORS[(j+p) % COLORS.length],
-										label: {
-											text: _( "Adjustment-Nr" )+" "+adjust.nr+" "+progName
+					var options = {
+						annotations: {
+							yaxis: [
+								{
+									y: adjust.min,
+									strokeDashArray: 4,
+									borderColor: "#00E396",
+									label: {
+										borderColor: "#00E396",
+										textAnchor: "start",
+										position: "left",
+										offsetX: 60,
+										text: _( "Min" )+" "+adjust.min+" "+unitStr,
+										style: {
+											color: "#fff",
+											background: "#00E396"
 										}
 									}
-								]
-							}
-						};
-						mchart.updateOptions(options);
-					}
+								},
+								{
+									y: adjust.max,
+									strokeDashArray: 4,
+									borderColor: "#ffadad",
+									label: {
+										borderColor: "#ffadad",
+										textAnchor: "start",
+										position: "left",
+										offsetX: 60,
+										text: _( "Max" )+" "+adjust.max+" "+unitStr,
+										style: {
+											color: "#fff",
+											background: "#ffadad"
+										}
+									}
+								}
+							]
+						}
+					};
+					mchart.updateOptions(options);
 				}
 			}
 		}
+	}
 
-		for ( var c = 1; c < chart.length; c++ ) {
-			if ( !chart[ c ] ) {
-				var x = document.querySelector( prefix + c );
-				if (x) {
-					x.parentElement.removeChild(x);
-				}
+	for ( var c = 1; c < chart.length; c++ ) {
+		if ( !chart[ c ] ) {
+			var x = document.querySelector( prefix + c );
+			if (x) {
+				x.parentElement.removeChild(x);
 			}
 		}
-	});
+	}
 }
