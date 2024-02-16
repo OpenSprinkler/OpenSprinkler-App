@@ -41,7 +41,10 @@ xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cor
     <exclude-files pattern="**/*.js~"/>
 
     <platform name="ios">
-		<preference name="scheme" value="ionic" />
+	<preference name="scheme" value="ionic" />
+        <config-file target="*-Info.plist" overwrite="true" parent="NSLocationAlwaysAndWhenInUseUsageDescription">
+            <string>Your current location will be used to configure OpenSprinkler.</string>
+        </config-file>
         <config-file target="*-Info.plist" overwrite="true" parent="NSLocationAlwaysUsageDescription">
             <string>Your current location will be used to configure OpenSprinkler.</string>
         </config-file>
@@ -55,16 +58,12 @@ xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cor
             <string>Your camera is used to provide an image for your stations.</string>
         </config-file>
         <config-file target="*-Info.plist" overwrite="true" parent="CFBundleShortVersionString">
-            <string>19806</string>
+            <string>19905</string>
         </config-file>
-     	<config-file target="*-Info.plist" overwrite="true" parent="LSApplicationCategoryType">
+        <config-file target="*-Info.plist" overwrite="true" parent="LSApplicationCategoryType">
             <string>public.app-category.utilities</string>
         </config-file>
-	<config-file target="*-Info.plist" overwrite="true" parent="NSLocationAlwaysAndWhenInUseUsageDescription">
-                <string>Your current location will be used to configure OpenSprinkler.</string>
-        </config-file>
-
-    <splash height="480" src="res/ios/screens/startup.png" width="320" />
+   	<splash height="480" src="res/ios/screens/startup.png" width="320" />
         <splash height="960" src="res/ios/screens/startup-retina.png" width="640" />
         <splash height="1136" src="res/ios/screens/startup-iphone5-retina.png" width="640" />
         <splash height="1334" src="res/ios/screens/startup-iphone6-portrait.png" width="750" />
@@ -116,8 +115,8 @@ xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cor
         <preference name="android-targetSdkVersion" value="33" />
         <preference name="android-theme" value="@android:style/Theme.Holo.Light.NoActionBar" />
         <preference name="AndroidInsecureFileModeEnabled" value="true" />
-		<!--preference name="AndroidWindowSplashScreenAnimatedIcon" value="res/android/screens/splash.png" /-->
-		<!--preference name="AndroidWindowSplashScreenBackground" value="#1c1c1c" /-->
+	<preference name="AndroidWindowSplashScreenAnimatedIcon" value="res/android/screens/splash.png" />
+	<preference name="AndroidWindowSplashScreenBackground" value="#1c1c1c" />
         <icon density="ldpi" src="res/android/icons/ldpi.png" />
         <icon density="mdpi" src="res/android/icons/mdpi.png" />
         <icon density="hdpi" src="res/android/icons/hdpi.png" />
