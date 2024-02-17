@@ -41,7 +41,7 @@
  "Download Log"
  "Show Log"
  "Analog sensor log"
- "last 24h"
+ "last 48h"
  "last weeks"
  "last months"
  "Soil moisture"

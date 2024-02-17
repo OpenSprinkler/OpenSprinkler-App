@@ -702,7 +702,7 @@
    "Download Log": "Protokoll herunterladen",
    "Show Log": "Protokoll anzeigen",
    "Analog Sensor Log": "Analoges Sensorprotokoll",
-   "last 24h": "Letzte 24h",
+   "last 48h": "Letzte 48h",
    "last weeks": "Letzten Wochen",
    "last months": "Letzte Monate",
    "Soil moisture": "Bodenfeuchtigkeit",

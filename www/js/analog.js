@@ -848,15 +848,16 @@ var showAnalogSensorCharts = ( function() {
 		$( "#analogsensorchart" ).remove();
 		$.mobile.pageContainer.append( page );
 
-		datalimit = window.location.href.includes("cloud.openthings.io/forward/v1"); //OTC Access
+		var datalimit = window.location.href.includes("cloud.openthings.io/forward/v1"); //OTC Access
+		var limit = datalimit?"&max=5500":""; //download limit is 140kb, 5500 lines ca 137kb 
 
-		sendToOS("/so?pw=&lasthours=24&csv=2", "text").then(function (csv1) {
-			buildGraph( "#myChart", chart1, csv1, _( "last 24h" ), "HH:mm" );
+		sendToOS("/so?pw=&lasthours=48&csv=2"+limit, "text").then(function (csv1) {
+			buildGraph( "#myChart", chart1, csv1, _( "last 48h" ), "HH:mm" );
 
-			sendToOS(datalimit?"/so?pw=&csv=2&log=1&lastdays=31":"/so?pw=&csv=2&log=1", "text").then(function (csv2) {
+			sendToOS("/so?pw=&csv=2&log=1"+limit, "text").then(function (csv2) {
 				buildGraph( "#myChartW", chart2, csv2, _( "last weeks" ), "dd.MM.yyyy" );
 
-				sendToOS(datalimit?"/so?pw=&csv=2&log=2&lastdays=100":"/so?pw=&csv=2&log=2", "text").then(function (csv3) {
+				sendToOS("/so?pw=&csv=2&log=2"+limit, "text").then(function (csv3) {
 					buildGraph( "#myChartM", chart3, csv3, _( "last months" ), "MM.yyyy" );
 					$.mobile.loading( "hide" );
 				});

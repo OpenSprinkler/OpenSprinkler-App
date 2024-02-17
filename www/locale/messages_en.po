@@ -2181,7 +2181,7 @@ msgstr ""
 msgid "Show Log"
 msgstr ""
 
-msgid "last 24h"
+msgid "last 48h"
 msgstr ""
 
 msgid "last weeks"
