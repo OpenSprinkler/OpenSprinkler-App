@@ -663,6 +663,8 @@ function sendToOS( dest, type ) {
 			// If fix not possible, return string
 			if ( typeof data === "string" ) {
 				try {
+					if (type === "text")
+						return data;
 					data = $.parseJSON( data );
 				} catch ( e ) {
 					return data;

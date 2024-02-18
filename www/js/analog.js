@@ -848,7 +848,9 @@ var showAnalogSensorCharts = ( function() {
 		$( "#analogsensorchart" ).remove();
 		$.mobile.pageContainer.append( page );
 
-		var datalimit = window.location.href.includes("cloud.openthings.io/forward/v1"); //OTC Access
+		//alert(controller.settings.otcs);
+		var datalimit = controller.settings.otcs >= 1; //OTC Access
+		//alert("datalimit: "+(datalimit?"yes":"no"));
 		var limit = datalimit?"&max=5500":""; //download limit is 140kb, 5500 lines ca 137kb 
 
 		sendToOS("/so?pw=&lasthours=48&csv=2"+limit, "text").then(function (csv1) {
