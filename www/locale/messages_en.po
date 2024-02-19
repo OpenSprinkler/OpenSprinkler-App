@@ -2240,3 +2240,15 @@ msgstr ""
 
 msgid "System Diagnostics"
 msgstr ""
+
+msgid "Sensors"
+msgstr ""
+
+msgid "Program Adjustments"
+msgstr ""
+
+msgid "Sensor Log"
+msgstr ""
+
+msgid "Refresh Sensordata"
+msgstr ""

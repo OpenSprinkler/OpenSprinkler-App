@@ -55,3 +55,7 @@
  "Rain"
  "Rainfall"
  "Wind"
+ "Sensors"
+ "Program Adjustments"
+ "Sensor Log"
+ "Refresh Sensordata"

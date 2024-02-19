@@ -721,5 +721,9 @@
    "Operation": "Betrieb",
    "Reboot OpenSprinkler": "OpenSprinkler neu starten",
    "Downgrade UI": "UI downgraden",
-   "System Diagnostics": "System-Diagnose"
+   "System Diagnostics": "System-Diagnose",
+   "Sensors": "Sensoren",
+   "Program Adjustments": "Programm-Anpassungen",
+   "Sensor Log": "Sensor Protokoll",
+   "Refresh Sensordata": "Sensordaten aktualisieren"
 }}

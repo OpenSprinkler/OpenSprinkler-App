@@ -47,6 +47,7 @@ function updateAnalogSensor( callback ) {
 	callback = callback || function() {};
 	return sendToOS( "/sl?pw=", "json" ).then( function( data ) {
 		analogSensors = data.sensors;
+		analogSensors.expandItem = "sensors";
 		callback();
 	} );
 }
@@ -488,7 +489,7 @@ function showSensorEditor( sensor, callback ) {
 }
 
 // Config Page
-var showAnalogSensorConfig = ( function() {
+function showAnalogSensorConfig() {
 	var page = $( "<div data-role='page' id='analogsensorconfig'>" +
 			"<div class='ui-content' role='main' id='analogsensorlist'>" +
 			"</div></div>" );
@@ -500,7 +501,7 @@ var showAnalogSensorConfig = ( function() {
 		} );
 
 	function updateSensorContent() {
-		var list = $( buildSensorConfig() );
+		var list = $( buildSensorConfig( analogSensors.expandItem ) );
 
 		//Delete a sensor:
 		list.find( "#delete-sensor" ).on( "click", function( ) {
@@ -686,28 +687,27 @@ var showAnalogSensorConfig = ( function() {
 		page.find( "#analogsensorlist" ).html( list.enhanceWithin() );
 	}
 
-	function begin() {
-		changeHeader( {
-			title: _( "Analog Sensor Config" ),
-			leftBtn: {
-				icon: "carat-l",
-				text: _( "Back" ),
-				class: "ui-toolbar-back-btn",
-				on: goBack
-			}
-		} );
+	changeHeader( {
+		title: _( "Analog Sensor Config" ),
+		leftBtn: {
+			icon: "carat-l",
+			text: _( "Back" ),
+			class: "ui-toolbar-back-btn",
+			on: goBack
+		}
+	} );
 
-		updateSensorContent();
+	updateSensorContent();
 
-		$( "#analogsensorconfig" ).remove();
-		$.mobile.pageContainer.append( page );
-	}
+	$( "#analogsensorconfig" ).remove();
+	$.mobile.pageContainer.append( page );
+}
 
-	return begin;
-} )();
+function buildSensorConfig( expandItem ) {
+	var list = "<fieldset data-role='collapsible'" + ( typeof expandItem !== "string" || expandItem === "sensors" ? " data-collapsed='false'" : "" ) + ">" +
+	"<legend>" + _( "Sensors" ) + "</legend>";
 
-function buildSensorConfig() {
-	var list = "<table id='analog_sensor_table'><tr style='width:100%;vertical-align: top;'>" +
+	list += "<table id='analog_sensor_table'><tr style='width:100%;vertical-align: top;'>" +
 		"<tr><th>Nr</th><th class=\"hidecol\">Type</th><th class=\"hidecol\">Group</th><th>Name</th>"+
 		"<th class=\"hidecol\">IP</th><th class=\"hidecol\">Port</th><th class=\"hidecol\">ID</th>"+
 		"<th class=\"hidecol\">Read<br>Interval</th><th>Data</th><th>En</th>"+
@@ -741,8 +741,11 @@ function buildSensorConfig() {
 		list += "</table>";
 		list += "<p><button data-mini='true' class='center-div' id='add-sensor' value='1'>" + _( "Add Sensor" ) + "</button></p>";
 		list += "<p><button data-mini='true' class='center-div' id='refresh-sensor' value='2'>" + _( "Refresh Sensordata" ) + "</button></p>";
+		list += "</fieldset>";
 
 		//Program adjustments table:
+		list += "<fieldset data-role='collapsible'" + ( typeof expandItem !== "string" || expandItem === "progadjust" ? " data-collapsed='false'" : "" ) + ">" +
+		"<legend>" + _( "Program Adjustments" ) + "</legend>";
 		list += "<table id='progadjusttable'><tr style='width:100%;vertical-align: top;'>" +
 		"<tr><th>Nr</th>"+
 		"<th class=\"hidecol\">Type</th>"+
@@ -790,13 +793,17 @@ function buildSensorConfig() {
 		} );
 		list += "</table>";
 		list += "<p><button data-mini='true' class='center-div' id='add-progadjust' value='3'>" + _( "Add program adjustment" ) + "</button></p>";
+		list += "</fieldset>";
 
 		//Analog sensor logs:
+		list += "<fieldset data-role='collapsible'" + ( typeof expandItem !== "string" || expandItem === "sensorlog" ? " data-collapsed='false'" : "" ) + ">" +
+				"<legend>" + _( "Sensor Log" ) + "</legend>";
 		list += "<table id='logfunctions'><tr style='width:100%;vertical-align: top;'><tr>" +
 			"<th><button data-mini='true' class='center-div' id='clear-log'>" + _( "Clear Log" ) + "</button></th>" +
 			"<th><button data-mini='true' class='center-div' id='download-log'>" + _( "Download Log" ) + "</button></th>" +
 			"<th><a href='#analogsensorchart'><button data-mini='true' class='center-div' id='show-log'>" + _( "Show Log" ) + "</button></a></th>" +
-			"</tr></table>";
+			"</tr></table>" +
+			"</div></fieldset>";
 	return list;
 }
 
@@ -811,7 +818,7 @@ var showAnalogSensorCharts = ( function() {
 			var unitid = analogSensors[j].unitid;
 			if (unitid === USERDEF_UNIT) max++;
 		}
-		
+
 		var last = "", week = "", month = "";
 		for ( var j = 1; j <= max; j++ ) {
 			last  += "<div id='myChart"+j+"'></div>";
@@ -851,7 +858,7 @@ var showAnalogSensorCharts = ( function() {
 		//alert(controller.settings.otcs);
 		var datalimit = controller.settings.otcs >= 1; //OTC Access
 		//alert("datalimit: "+(datalimit?"yes":"no"));
-		var limit = datalimit?"&max=5500":""; //download limit is 140kb, 5500 lines ca 137kb 
+		var limit = datalimit?"&max=5500":""; //download limit is 140kb, 5500 lines ca 137kb
 
 		sendToOS("/so?pw=&lasthours=48&csv=2"+limit, "text").then(function (csv1) {
 			buildGraph( "#myChart", chart1, csv1, _( "last 48h" ), "HH:mm" );
@@ -897,7 +904,7 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr ) {
 		} else if (unitid >= CHARTS) {
 			unitid = 0;
 		}
-		
+
 		if (!chart[unitid]) {
 			var unit, title, unitStr,
 				minFunc = function( val ) { return Math.floor( val > 0 ? Math.max( 0, val - 4 ) : val - 1 ); },
@@ -1061,7 +1068,7 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr ) {
 					//if ( adjust.prog >= 1 && adjust.prog <= controller.programs.pd.length ) {
 					//	progName = readProgram( controller.programs.pd[ adjust.prog - 1 ] ).name;
 					//}
-						
+
 					var options = {
 						annotations: {
 							yaxis: [
