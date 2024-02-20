@@ -1074,8 +1074,9 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr ) {
 							yaxis: [
 								{
 									y: adjust.min,
-									strokeDashArray: 4,
+									strokeDashArray: 8,
 									borderColor: "#00E396",
+									borderWidth: 4,
 									label: {
 										borderColor: "#00E396",
 										textAnchor: "start",
@@ -1090,8 +1091,9 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr ) {
 								},
 								{
 									y: adjust.max,
-									strokeDashArray: 4,
+									strokeDashArray: 8,
 									borderColor: "#ffadad",
+									borderWidth: 4,
 									label: {
 										borderColor: "#ffadad",
 										textAnchor: "start",
