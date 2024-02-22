@@ -711,9 +711,9 @@ function buildSensorConfig( expandItem ) {
 		"<tr><th>Nr</th><th class=\"hidecol\">Type</th><th class=\"hidecol\">Group</th><th>Name</th>"+
 		"<th class=\"hidecol\">IP</th><th class=\"hidecol\">Port</th><th class=\"hidecol\">ID</th>"+
 		"<th class=\"hidecol\">Read<br>Interval</th><th>Data</th><th>En</th>"+
-		"<th class=\"hidecol\">Log</th><th class=\"hidecol\">Show</th><th class=\"hidecol2\">Last</th></tr>";
+		"<th class=\"hidecol\">Log</th><th class=\"hidecol\">Show</th><th class=\"hidecol2\">Last</th><th></th><th></th></tr>";
 
-		var checkpng = "<img src=\""+getAppURLPath() + "img/check-black.png\">";
+		var checkpng = "<img src=\""+getAppURLPath() + "img/check-blue.png\">";
 
 		var row = 0;
 		$.each( analogSensors, function( i, item ) {
@@ -732,8 +732,8 @@ function buildSensorConfig( expandItem ) {
 				"<td class=\"hidecol\">"+(item.log?checkpng:"")+"</td>",
 				"<td class=\"hidecol\">"+(item.show?checkpng:"")+"</td>",
 				$("<td class=\"hidecol2\">").text((item.data_ok === undefined || item.data_ok)?dateToString(new Date(item.last*1000)):"Error", null, 2),
-				"<td><button data-mini='true' class='center-div' id='edit-sensor' value='" + item.nr + "' row='" + row + "'>" + _( "Edit" ) + "</button></td>",
-				"<td><button data-mini='true' class='center-div' id='delete-sensor' value='" + item.nr + "' row='" + row + "'>" + _( "Delete" ) + "</button></td>"
+				"<td><button data-mini='true' class='editAndDeleteBtn' id='edit-sensor' value='" + item.nr + "' row='" + row + "'>" + _( "Edit" ) + "</button></td>",
+				"<td><button data-mini='true' class='editAndDeleteBtn' id='delete-sensor' value='" + item.nr + "' row='" + row + "'>" + _( "Delete" ) + "</button></td>"
 			);
 			list += $tr.wrap( "<p>" ).html() + "</tr>";
 			row++;
@@ -757,6 +757,7 @@ function buildSensorConfig( expandItem ) {
 		"<th class=\"hidecol2\">Factor 2</th>"+
 		"<th class=\"hidecol2\">Min Value</th>"+
 		"<th class=\"hidecol2\">Max Value</th>"+
+		"<th></th><th></th>"+
 		"<th>Current</th></tr>";
 
 		row = 0;
@@ -785,8 +786,8 @@ function buildSensorConfig( expandItem ) {
 				$("<td class=\"hidecol2\">").text(item.min),
 				$("<td class=\"hidecol2\">").text(item.max),
 				$("<td>").text(Math.round(item.current*100.0)+"%"),
-				"<td><button data-mini='true' class='center-div' id='edit-progadjust' value='" + item.nr + "' row='" + row + "'>" + _( "Edit" ) + "</button></td>",
-				"<td><button data-mini='true' class='center-div' id='delete-progadjust' value='" + item.nr + "' row='" + row + "'>" + _( "Delete" ) + "</button></td>"
+				"<td><button data-mini='true' class='editAndDeleteBtn' id='edit-progadjust' value='" + item.nr + "' row='" + row + "'>" + _( "Edit" ) + "</button></td>",
+				"<td><button data-mini='true' class='editAndDeleteBtn' id='delete-progadjust' value='" + item.nr + "' row='" + row + "'>" + _( "Delete" ) + "</button></td>"
 			);
 			list += $tr.wrap( "<p>" ).html() + "</tr>";
 			row++;
@@ -799,9 +800,9 @@ function buildSensorConfig( expandItem ) {
 		list += "<fieldset data-role='collapsible'" + ( typeof expandItem !== "string" || expandItem === "sensorlog" ? " data-collapsed='false'" : "" ) + ">" +
 				"<legend>" + _( "Sensor Log" ) + "</legend>";
 		list += "<table id='logfunctions'><tr style='width:100%;vertical-align: top;'><tr>" +
-			"<th><button data-mini='true' class='center-div' id='clear-log'>" + _( "Clear Log" ) + "</button></th>" +
-			"<th><button data-mini='true' class='center-div' id='download-log'>" + _( "Download Log" ) + "</button></th>" +
-			"<th><a href='#analogsensorchart'><button data-mini='true' class='center-div' id='show-log'>" + _( "Show Log" ) + "</button></a></th>" +
+			"<td><button data-mini='true' class='center-div' id='clear-log'>" + _( "Clear Log" ) + "</button></td>" +
+			"<td><button data-mini='true' class='center-div' id='download-log'>" + _( "Download Log" ) + "</button></td>" +
+			"<td><a href='#analogsensorchart'><button data-mini='true' class='center-div' id='show-log'>" + _( "Show Log" ) + "</button></a></td>" +
 			"</tr></table>" +
 			"</div></fieldset>";
 	return list;

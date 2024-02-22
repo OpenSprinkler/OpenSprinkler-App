@@ -1,9 +1,26 @@
-@media screen and (max-width: 800px) and (min-width: 300px) {
+.editAndDeleteBtn {
+	margin: 5px auto !important;
+	padding: 4px 0px !important;
+	font-size: 12px !important;
+}
+
+@media screen and (max-width: 799px) and (min-width: 300px) {
   .hidecol{display:none; }
   .hidecol2{display:none; }
+  .editAndDeleteBtn {
+	margin: 4px auto !important;
+	padding: 4px 0px !important;
+	font-size: 11px !important;
+	}
 }
-@media screen and (max-width: 1200px) and (min-width: 800px) {
+
+@media screen and (max-width: 1199px) and (min-width: 800px) {
   .hidecol{display:none; }
+  .editAndDeleteBtn {
+	margin: 4px auto !important;
+	padding: 4px 0px !important;
+	font-size: 11px !important;
+	}
 }
 
 #analogsensorlist table {
@@ -13,5 +30,11 @@
 #analogsensorlist table tr {
 	border: 1px solid lightgray;
 	border-collapse: collapse;
+}
+
+#analogsensorlist table th {
+	border: 1px solid lightgray;
+	border-collapse: collapse;
+	background: lightskyblue;
 }
 
