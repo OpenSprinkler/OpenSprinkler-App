@@ -2252,3 +2252,10 @@ msgstr ""
 
 msgid "Refresh Sensordata"
 msgstr ""
+
+msgid "Error calling rest service: "
+msgstr ""
+
+msgid "Incomplete parameters! Please check that all necessary input fields are filled in!"
+msgstr ""
+

@@ -70,7 +70,7 @@ function updateSensorShowArea( page ) {
 			}
 
 			html += "<div id='progAdjust-show-" + progAdjust.nr + "' class='ui-body ui-body-a center'>";
-			html += "<label>" + sensorName + " - " + progName + ": " + Math.round( progAdjust.current * 100 ) + "%</label>";
+			html += "<label>" + sensorName + " - " + progName + ": " + (progAdjust.current === undefined?"":(Math.round( progAdjust.current * 100 ) + "%</label>"));
 			html += "</div>";
 		}
 
@@ -231,8 +231,12 @@ function showAdjustmentsEditor( progAdjust, row, callback, callbackCancel ) {
 				popup.popup( "close" );
 
 				areYouSure( _( "Are you sure you want to delete this program adjustment?" ), value, function() {
-					sendToOS( "/sb?pw=&nr=" + value + "&type=0"  ).done( function() {
-						progAdjusts.splice( row, 1 );
+					return sendToOS( "/sb?pw=&nr=" + value + "&type=0", "json" ).done( function( info ) {
+						var result = info.result;
+						if ( !result || result > 1 )
+							showerror(_("Error calling rest service: ")+" "+result);
+						else
+							progAdjusts.splice( row, 1 );
 						callbackCancel();
 					} );
 				} );
@@ -454,8 +458,12 @@ function isSmt100( sensorType ) {
 		popup.popup( "close" );
 
 		areYouSure( _( "Are you sure you want to delete the sensor?" ), value, function() {
-			sendToOS( "/sc?pw=&nr=" + value + "&type=0"  ).done( function() {
-				analogSensors.splice( row, 1 );
+			return sendToOS( "/sc?pw=&nr=" + value + "&type=0", "json" ).done( function( info ) {
+				var result = info.result;
+				if ( !result || result > 1 )
+					showerror(_("Error calling rest service: ")+" "+result);
+				else
+					analogSensors.splice( row, 1 );
 				updateAnalogSensor( callbackCancel );
 			} );
 		} );
@@ -554,11 +562,12 @@ function showAnalogSensorConfig() {
 
 			var sensor = analogSensors[ row ];
 
+			analogSensors.expandItem = "sensors";
 			showSensorEditor( sensor, row, function( sensorOut ) {
 				sensorOut.nativedata = sensor.nativedata;
 				sensorOut.data = sensor.data;
 				sensorOut.last = sensor.last;
-				sendToOS( "/sc?pw=&nr=" + sensorOut.nr +
+				return sendToOS( "/sc?pw=&nr=" + sensorOut.nr +
 					"&type=" + sensorOut.type +
 					"&group=" + sensorOut.group +
 					"&name=" + sensorOut.name +
@@ -574,16 +583,21 @@ function showAnalogSensorConfig() {
 						):"") +
 					"&enable=" + sensorOut.enable +
 					"&log=" + sensorOut.log +
-					"&show=" + sensorOut.show
-				).done( function() {
-					analogSensors[ row ] = sensorOut;
+					"&show=" + sensorOut.show,
+					"json"
+				).done( function( info ) {
+					var result = info.result;
+					if ( !result || result > 1 )
+						showerror(_("Error calling rest service: ")+" "+result);
+					else
+						analogSensors[ row ] = sensorOut;
 					updateSensorContent();
 				} );
 			}, updateSensorContent );
 		} );
 
 		// Add a new analog sensor:
-		list.find( "#add-sensor" ).on( "click", function( ) {
+		list.find( ".add-sensor" ).on( "click", function( ) {
 			var sensor = {
 				name: "new sensor",
 				type: 1,
@@ -593,7 +607,7 @@ function showAnalogSensorConfig() {
 			};
 
 			showSensorEditor( sensor, -1, function( sensorOut ) {
-				sendToOS( "/sc?pw=&nr=" + sensorOut.nr +
+				return sendToOS( "/sc?pw=&nr=" + sensorOut.nr +
 				"&type=" + sensorOut.type +
 				"&group=" + sensorOut.group +
 				"&name=" + sensorOut.name +
@@ -609,16 +623,24 @@ function showAnalogSensorConfig() {
 				):"") +
 				"&enable=" + sensorOut.enable +
 				"&log=" + sensorOut.log +
-				"&show=" + sensorOut.show
-				).done( function() {
-					analogSensors.push( sensorOut );
+				"&show=" + sensorOut.show,
+				"json"
+				).done( function( info ) {
+					var result = info.result;
+					if ( !result || result > 1 )
+						showerror(_("Error calling rest service: ")+" "+result);
+					else {
+						analogSensors.push( sensorOut );
+						analogSensors.expandItem = "sensors";
+					}
 					updateSensorContent();
 				} );
 			}, updateSensorContent );
 		} );
 
 		// Refresh sensor data:
-		list.find( "#refresh-sensor" ).on( "click", function( ) {
+		list.find( ".refresh-sensor" ).on( "click", function( ) {
+			analogSensors.expandItem = "sensors";
 			updateProgramAdjustments( function( ) {
 				updateAnalogSensor( function( ) {
 					updateSensorContent();
@@ -633,40 +655,52 @@ function showAnalogSensorConfig() {
 
 			var progAdjust = progAdjusts[ row ];
 
+			analogSensors.expandItem = "progadjust";
 			showAdjustmentsEditor( progAdjust, row, function( progAdjustOut ) {
 
-				sendToOS( "/sb?pw=&nr=" + progAdjustOut.nr +
+				return sendToOS( "/sb?pw=&nr=" + progAdjustOut.nr +
 					"&type=" + progAdjustOut.type +
 					"&sensor=" + progAdjustOut.sensor +
 					"&prog=" + progAdjustOut.prog +
 					"&factor1=" + progAdjustOut.factor1 +
 					"&factor2=" + progAdjustOut.factor2 +
 					"&min=" + progAdjustOut.min +
-					"&max=" + progAdjustOut.max
-				).done( function() {
-					progAdjusts[ row ] = progAdjustOut;
+					"&max=" + progAdjustOut.max,
+					"json"
+				).done( function( info ) {
+					var result = info.result;
+					if ( !result || result > 1 )
+						showerror(_("Error calling rest service: ")+" "+result);
+					else
+						progAdjusts[ row ] = progAdjustOut;
 					updateSensorContent();
 				} );
 			}, updateSensorContent );
 		} );
 
 		//Add a new program adjust:
-		list.find( "#add-progadjust" ).on( "click", function( ) {
+		list.find( ".add-progadjust" ).on( "click", function( ) {
 			var progAdjust = {
 				type: 1
 			};
 
+			analogSensors.expandItem = "progadjust";
 			showAdjustmentsEditor( progAdjust, -1, function( progAdjustOut ) {
-				sendToOS( "/sb?pw=&nr=" + progAdjustOut.nr +
+				return sendToOS( "/sb?pw=&nr=" + progAdjustOut.nr +
 					"&type=" + progAdjustOut.type +
 					"&sensor=" + progAdjustOut.sensor +
 					"&prog=" + progAdjustOut.prog +
 					"&factor1=" + progAdjustOut.factor1 +
 					"&factor2=" + progAdjustOut.factor2 +
 					"&min=" + progAdjustOut.min +
-					"&max=" + progAdjustOut.max
-				).done( function() {
-					progAdjusts.push( progAdjustOut );
+					"&max=" + progAdjustOut.max,
+					"json"
+				).done( function( info ) {
+					var result = info.result;
+					if ( !result || result > 1 )
+						showerror(_("Error calling rest service: ")+" "+result);
+					else
+						progAdjusts.push( progAdjustOut );
 					updateSensorContent();
 				} );
 			}, updateSensorContent );
@@ -674,8 +708,9 @@ function showAnalogSensorConfig() {
 
 		// Clear sensor log
 		list.find( ".clear_sensor_logs" ).on( "click", function() {
+			analogSensors.expandItem = "sensorlog";
 			areYouSure( _( "Are you sure you want to clear the sensor log?" ), "", function() {
-				sendToOS( "/sn?pw=&" ).done( function( result ) {
+				return sendToOS( "/sn?pw=&", "json" ).done( function( result ) {
 					window.alert( _( "Log cleared:" ) + " " + result.deleted + " " + _( "records" ) );
 					updateSensorContent();
 				} );
@@ -683,21 +718,24 @@ function showAnalogSensorConfig() {
 		} );
 
 		list.find( ".download-log" ).on( "click", function() {
+			analogSensors.expandItem = "sensorlog";
 			var link = document.createElement( "a" );
 			link.style.display = "none";
 			link.setAttribute( "download", "sensorlog-" + new Date().toLocaleDateString().replace( /\//g, "-" ) + ".csv" );
 
-			var dest = "/so?pw=&csv=1";
+			var limit = currToken?"&max=5500":""; //download limit is 140kb, 5500 lines ca 137kb
+			var dest = "/so?pw=&csv=1"+limit;
 			dest = dest.replace( "pw=", "pw=" + encodeURIComponent( currPass ) );
 			link.target = "_blank";
-			link.href = currToken ? "https://cloud.openthings.io/forward/v1/" + currToken + dest : currPrefix + currIp + dest;
+			link.href = currToken ? ("https://cloud.openthings.io/forward/v1/" + currToken + dest) : (currPrefix + currIp + dest);
 			document.body.appendChild( link ); // Required for FF
 			link.click();
 		} );
 
 		list.find( ".show-log" ).on( "click", function() {
-				changePage( "#analogsensorchart" );
-				return false;
+			analogSensors.expandItem = "sensorlog";
+			changePage( "#analogsensorchart" );
+			return false;
 		} );
 
 		page.find( "#analogsensorlist" ).html( list ) .enhanceWithin();
@@ -738,11 +776,11 @@ function buildSensorConfig( expandItem ) {
 				$("<td>"                  ).text(item.nr),
 				$("<td class=\"hidecol\">").text(item.type),
 				$("<td class=\"hidecol\">").text(item.group?item.group:""),
-				"<td><a data-role='button' class='edit-sensor' value='" + item.nr + "' row='" + row + "' href='#' data-mini='true' data-icon='arrow-r'>" +
+				"<td><a data-role='button' class='edit-sensor' value='" + item.nr + "' row='" + row + "' href='#' data-mini='true' data-icon='edit'>" +
 				item.name + "</a></td>",
 				$("<td class=\"hidecol\">").text(item.ip?toByteArray(item.ip).join( "." ):""),
-				$("<td class=\"hidecol\">").text(item.port?item.port:""),
-				$("<td class=\"hidecol\">").text(item.type < 1000?item.id:""),
+				$("<td class=\"hidecol\">").text(item.port?(":"+item.port):""),
+				$("<td class=\"hidecol\">").text(item.id === undefined?"":(item.type < 1000?item.id:"")),
 				$("<td class=\"hidecol\">").text(item.ri === undefined?"":item.ri),
 				$("<td>"                  ).text(item.data === undefined?"":( Math.round(item.data)+item.unit) ),
 				"<td>"                  +(item.enable?checkpng:"")+"</td>",
@@ -754,8 +792,10 @@ function buildSensorConfig( expandItem ) {
 			row++;
 		} );
 		list += "</table>";
-		list += "<p><button data-mini='true' class='center-div' id='add-sensor' value='1'>" + _( "Add Sensor" ) + "</button></p>";
-		list += "<p><button data-mini='true' class='center-div' id='refresh-sensor' value='2'>" + _( "Refresh Sensordata" ) + "</button></p>";
+		list += "<a data-role='button' class='add-sensor'     href='#' data-mini='true' data-icon='plus'   >" +
+			_( "Add Sensor" ) + "</a>";
+		list += "<a data-role='button' class='refresh-sensor' href='#' data-mini='true' data-icon='refresh'>" +
+			_( "Refresh Sensordata" ) + "</a>";
 		list += "</fieldset>";
 
 		//Program adjustments table:
@@ -792,7 +832,7 @@ function buildSensorConfig( expandItem ) {
 				$("<td>").text(item.nr),
 				$("<td class=\"hidecol\">").text(item.type),
 				$("<td class=\"hidecol2\">").text(item.sensor),
-				"<td><a data-role='button' class='edit-progadjust' value='" + item.nr + "' row='" + row + "' href='#' data-mini='true' data-icon='arrow-r'>" +
+				"<td><a data-role='button' class='edit-progadjust' value='" + item.nr + "' row='" + row + "' href='#' data-mini='true' data-icon='edit'>" +
 				sensorName + "</a></td>",
 				$("<td class=\"hidecol\">").text(item.prog),
 				$("<td class=\"hidecol2\">").text(progName),
@@ -806,7 +846,7 @@ function buildSensorConfig( expandItem ) {
 			row++;
 		} );
 		list += "</table>";
-		list += "<p><button data-mini='true' class='center-div' id='add-progadjust' value='3'>" + _( "Add program adjustment" ) + "</button></p>";
+		list += "<a data-role='button' class='add-progadjust' href='#' data-mini='true' data-icon='plus'>" + _( "Add program adjustment" ) + "</a>";
 		list += "</fieldset>";
 
 		//Analog sensor logs:
@@ -869,11 +909,7 @@ var showAnalogSensorCharts = ( function() {
 
 		$( "#analogsensorchart" ).remove();
 		$.mobile.pageContainer.append( page );
-
-		//alert(controller.settings.otcs);
-		var datalimit = controller.settings.otcs >= 1; //OTC Access
-		//alert("datalimit: "+(datalimit?"yes":"no"));
-		var limit = datalimit?"&max=5500":""; //download limit is 140kb, 5500 lines ca 137kb
+		var limit = currToken?"&max=5500":""; //download limit is 140kb, 5500 lines ca 137kb
 
 		sendToOS("/so?pw=&lasthours=48&csv=2"+limit, "text").then(function (csv1) {
 			buildGraph( "#myChart", chart1, csv1, _( "last 48h" ), "HH:mm" );

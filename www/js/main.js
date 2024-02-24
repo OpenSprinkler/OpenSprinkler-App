@@ -708,7 +708,12 @@ function sendToOS( dest, type ) {
 				// Tell subsequent handlers this request has failed
 				return $.Deferred().reject( data );
 			}
-
+			if ( data.result === 16 ) //Incomplete data
+			{
+				showerror(_("Incomplete parameters! Please check that all necessary input fields are filled in!"));
+				return $.Deferred().reject( data );
+			}
+			return data;
 		},
 		function( e ) {
 			if ( ( e.statusText === "timeout" || e.status === 0 ) && /\/(?:cv|cs|cr|cp|uwa|dp|co|cl|cu|cm)/.exec( dest ) ) {
@@ -10365,7 +10370,7 @@ var showAbout = ( function() {
 					"</li>" +
 				"</ul>" +
 				"<p class='smaller'>" +
-					_( "App Version" ) + ": 2.4.0" +
+					_( "App Version" ) + ": 2.4.1" +
 					"<br>" + _( "Firmware" ) + ": <span class='firmware'></span>" +
 					"<br><span class='hardwareLabel'>" + _( "Hardware Version" ) + ":</span> <span class='hardware'></span>" +
 				"</p>" +

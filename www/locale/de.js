@@ -725,5 +725,8 @@
    "Sensors": "Sensoren",
    "Program Adjustments": "Programm-Anpassungen",
    "Sensor Log": "Sensor Protokoll",
-   "Refresh Sensordata": "Sensordaten aktualisieren"
+   "Refresh Sensordata": "Sensordaten aktualisieren",
+   "Error calling rest service: ": "Fehler beim Aufrufen der REST API Funktion: ",
+   "Incomplete parameters! Please check that all necessary input fields are filled in!": "Unvollständige Parameter! Bitte prüfen Sie, ob alle notwendigen Eingabefelder ausgefüllt sind!"
+
 }}

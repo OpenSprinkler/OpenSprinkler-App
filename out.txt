@@ -59,3 +59,5 @@
  "Program Adjustments"
  "Sensor Log"
  "Refresh Sensordata"
+ "Error calling rest service: "
+ "Incomplete parameters! Please check that all necessary input fields are filled in!"
