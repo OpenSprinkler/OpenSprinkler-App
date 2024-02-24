@@ -113,7 +113,7 @@ function intFromBytes( x ) {
 }
 
 //Program adjustments editor
-function showAdjustmentsEditor( progAdjust, callback ) {
+function showAdjustmentsEditor( progAdjust, row, callback, callbackCancel ) {
 
 	sendToOS( "/sh?pw=", "json" ).then( function( data ) {
 		var supportedAdjustmentTypes = data.progTypes;
@@ -201,6 +201,11 @@ function showAdjustmentsEditor( progAdjust, callback ) {
 
 				"</div>" +
 				"<button class='submit' data-theme='b'>" + _( "Submit" ) + "</button>" +
+
+				((row < 0) ? "" : ("<a data-role='button' class='black delete-progadjust' value='" + progAdjust.nr + "' row='" + row + "' href='#' data-icon='delete'>" +
+				_( "Delete" ) + "</a>")) +
+
+
 				"</div>" +
 			"</div>";
 
@@ -216,6 +221,23 @@ function showAdjustmentsEditor( progAdjust, callback ) {
 
 				input.val( val + dir );
 			};
+
+					//Delete a program adjust:
+		popup.find( ".delete-progadjust" ).on( "click", function( ) {
+			var dur = $( this ),
+				value = dur.attr( "value" ),
+				row = dur.attr( "row" );
+
+				popup.popup( "close" );
+
+				areYouSure( _( "Are you sure you want to delete this program adjustment?" ), value, function() {
+					sendToOS( "/sb?pw=&nr=" + value + "&type=0"  ).done( function() {
+						progAdjusts.splice( row, 1 );
+						callbackCancel();
+					} );
+				} );
+			} );
+
 
 		popup.find( ".submit" ).on( "click", function() {
 
@@ -279,7 +301,7 @@ function isSmt100( sensorType ) {
 }
 
 // Analog sensor editor
-function showSensorEditor( sensor, callback ) {
+ function showSensorEditor( sensor, row, callback, callbackCancel ) {
 
 	sendToOS( "/sf?pw=", "json" ).then( function( data ) {
 		var supportedSensorTypes = data.sensorTypes;
@@ -384,6 +406,10 @@ function showSensorEditor( sensor, callback ) {
 			"</div>" +
 
 			"<button class='submit' data-theme='b'>" + _( "Submit" ) + "</button>" +
+
+			((row < 0) ? "" : ("<a data-role='button' class='black delete-sensor' value='" + sensor.nr + "' row='" + row + "' href='#' data-icon='delete'>" +
+				_( "Delete" ) + "</a>")) +
+
 			"</div>" +
 		"</div>";
 
@@ -409,7 +435,7 @@ function showSensorEditor( sensor, callback ) {
 		"new id=" + newid, function() {
 			sendToOS( "/sa?pw=&nr=" + nr + "&id=" + newid ).done( function() {
 				window.alert( _( "SMT100 id assigned!" ) );
-				updateAnalogSensor( refresh );
+				updateAnalogSensor( callbackCancel );
 			} );
 		} );
 	} );
@@ -417,6 +443,24 @@ function showSensorEditor( sensor, callback ) {
 		var type = parseInt( popup.find( "#type" ).val() );
 		document.getElementById( "smt100id" ).style.display = isSmt100( type ) ? "block" : "none";
 	} );
+
+	//Delete a sensor:
+	popup.find( ".delete-sensor" ).on( "click", function() {
+
+		var dur = $( this ),
+		value = dur.attr( "value" ),
+		row = dur.attr( "row" );
+
+		popup.popup( "close" );
+
+		areYouSure( _( "Are you sure you want to delete the sensor?" ), value, function() {
+			sendToOS( "/sc?pw=&nr=" + value + "&type=0"  ).done( function() {
+				analogSensors.splice( row, 1 );
+				updateAnalogSensor( callbackCancel );
+			} );
+		} );
+	} );
+
 
 	popup.find( ".submit" ).on( "click", function() {
 
@@ -503,28 +547,14 @@ function showAnalogSensorConfig() {
 	function updateSensorContent() {
 		var list = $( buildSensorConfig( analogSensors.expandItem ) );
 
-		//Delete a sensor:
-		list.find( "#delete-sensor" ).on( "click", function( ) {
-			var dur = $( this ),
-			value = dur.attr( "value" ),
-			row = dur.attr( "row" );
-
-			areYouSure( _( "Are you sure you want to delete the sensor?" ), value, function() {
-				sendToOS( "/sc?pw=&nr=" + value + "&type=0"  ).done( function() {
-                    analogSensors.splice( row, 1 );
-					updateSensorContent();
-				} );
-			} );
-		} );
-
 		//Edit a sensor:
-		list.find( "#edit-sensor" ).on( "click", function( ) {
+		list.find( ".edit-sensor" ).on( "click", function( ) {
 			var dur = $( this ),
 			row = dur.attr( "row" );
 
 			var sensor = analogSensors[ row ];
 
-			showSensorEditor( sensor, function( sensorOut ) {
+			showSensorEditor( sensor, row, function( sensorOut ) {
 				sensorOut.nativedata = sensor.nativedata;
 				sensorOut.data = sensor.data;
 				sensorOut.last = sensor.last;
@@ -549,7 +579,7 @@ function showAnalogSensorConfig() {
 					analogSensors[ row ] = sensorOut;
 					updateSensorContent();
 				} );
-			} );
+			}, updateSensorContent );
 		} );
 
 		// Add a new analog sensor:
@@ -562,7 +592,7 @@ function showAnalogSensorConfig() {
 				log: 1
 			};
 
-			showSensorEditor( sensor, function( sensorOut ) {
+			showSensorEditor( sensor, -1, function( sensorOut ) {
 				sendToOS( "/sc?pw=&nr=" + sensorOut.nr +
 				"&type=" + sensorOut.type +
 				"&group=" + sensorOut.group +
@@ -584,7 +614,7 @@ function showAnalogSensorConfig() {
 					analogSensors.push( sensorOut );
 					updateSensorContent();
 				} );
-			} );
+			}, updateSensorContent );
 		} );
 
 		// Refresh sensor data:
@@ -596,28 +626,14 @@ function showAnalogSensorConfig() {
 			} );
 		} );
 
-		//Delete a program adjust:
-		list.find( "#delete-progadjust" ).on( "click", function( ) {
-		var dur = $( this ),
-			value = dur.attr( "value" ),
-			row = dur.attr( "row" );
-
-			areYouSure( _( "Are you sure you want to delete this program adjustment?" ), value, function() {
-				sendToOS( "/sb?pw=&nr=" + value + "&type=0"  ).done( function() {
-                    progAdjusts.splice( row, 1 );
-					updateSensorContent();
-				} );
-			} );
-		} );
-
 		//Edit a program adjust:
-		list.find( "#edit-progadjust" ).on( "click", function( ) {
+		list.find( ".edit-progadjust" ).on( "click", function( ) {
 			var dur = $( this ),
 			row = dur.attr( "row" );
 
 			var progAdjust = progAdjusts[ row ];
 
-			showAdjustmentsEditor( progAdjust, function( progAdjustOut ) {
+			showAdjustmentsEditor( progAdjust, row, function( progAdjustOut ) {
 
 				sendToOS( "/sb?pw=&nr=" + progAdjustOut.nr +
 					"&type=" + progAdjustOut.type +
@@ -631,7 +647,7 @@ function showAnalogSensorConfig() {
 					progAdjusts[ row ] = progAdjustOut;
 					updateSensorContent();
 				} );
-			} );
+			}, updateSensorContent );
 		} );
 
 		//Add a new program adjust:
@@ -640,7 +656,7 @@ function showAnalogSensorConfig() {
 				type: 1
 			};
 
-			showAdjustmentsEditor( progAdjust, function( progAdjustOut ) {
+			showAdjustmentsEditor( progAdjust, -1, function( progAdjustOut ) {
 				sendToOS( "/sb?pw=&nr=" + progAdjustOut.nr +
 					"&type=" + progAdjustOut.type +
 					"&sensor=" + progAdjustOut.sensor +
@@ -653,11 +669,11 @@ function showAnalogSensorConfig() {
 					progAdjusts.push( progAdjustOut );
 					updateSensorContent();
 				} );
-			} );
+			}, updateSensorContent );
 		} );
 
 		// Clear sensor log
-		list.find( "#clear-log" ).on( "click", function() {
+		list.find( ".clear_sensor_logs" ).on( "click", function() {
 			areYouSure( _( "Are you sure you want to clear the sensor log?" ), "", function() {
 				sendToOS( "/sn?pw=&" ).done( function( result ) {
 					window.alert( _( "Log cleared:" ) + " " + result.deleted + " " + _( "records" ) );
@@ -666,7 +682,7 @@ function showAnalogSensorConfig() {
 			} );
 		} );
 
-		list.find( "#download-log" ).on( "click", function() {
+		list.find( ".download-log" ).on( "click", function() {
 			var link = document.createElement( "a" );
 			link.style.display = "none";
 			link.setAttribute( "download", "sensorlog-" + new Date().toLocaleDateString().replace( /\//g, "-" ) + ".csv" );
@@ -679,12 +695,12 @@ function showAnalogSensorConfig() {
 			link.click();
 		} );
 
-		list.find( "#show-log" ).on( "click", function() {
+		list.find( ".show-log" ).on( "click", function() {
 				changePage( "#analogsensorchart" );
 				return false;
 		} );
 
-		page.find( "#analogsensorlist" ).html( list.enhanceWithin() );
+		page.find( "#analogsensorlist" ).html( list ) .enhanceWithin();
 	}
 
 	changeHeader( {
@@ -704,14 +720,14 @@ function showAnalogSensorConfig() {
 }
 
 function buildSensorConfig( expandItem ) {
-	var list = "<fieldset data-role='collapsible'" + ( typeof expandItem !== "string" || expandItem === "sensors" ? " data-collapsed='false'" : "" ) + ">" +
+	var list = "<fieldset data-role='collapsible' id='confighead'" + ( typeof expandItem !== "string" || expandItem === "sensors" ? " data-collapsed='false'" : "" ) + ">" +
 	"<legend>" + _( "Sensors" ) + "</legend>";
 
 	list += "<table id='analog_sensor_table'><tr style='width:100%;vertical-align: top;'>" +
 		"<tr><th>Nr</th><th class=\"hidecol\">Type</th><th class=\"hidecol\">Group</th><th>Name</th>"+
 		"<th class=\"hidecol\">IP</th><th class=\"hidecol\">Port</th><th class=\"hidecol\">ID</th>"+
 		"<th class=\"hidecol\">Read<br>Interval</th><th>Data</th><th>En</th>"+
-		"<th class=\"hidecol\">Log</th><th class=\"hidecol\">Show</th><th class=\"hidecol2\">Last</th><th></th><th></th></tr>";
+		"<th class=\"hidecol\">Log</th><th class=\"hidecol\">Show</th><th class=\"hidecol2\">Last</th></tr>";
 
 		var checkpng = "<img src=\""+getAppURLPath() + "img/check-blue.png\">";
 
@@ -722,18 +738,17 @@ function buildSensorConfig( expandItem ) {
 				$("<td>"                  ).text(item.nr),
 				$("<td class=\"hidecol\">").text(item.type),
 				$("<td class=\"hidecol\">").text(item.group?item.group:""),
-				$("<td>"                  ).text(item.name),
+				"<td><a data-role='button' class='edit-sensor' value='" + item.nr + "' row='" + row + "' href='#' data-mini='true' data-icon='arrow-r'>" +
+				item.name + "</a></td>",
 				$("<td class=\"hidecol\">").text(item.ip?toByteArray(item.ip).join( "." ):""),
 				$("<td class=\"hidecol\">").text(item.port?item.port:""),
 				$("<td class=\"hidecol\">").text(item.type < 1000?item.id:""),
-				$("<td class=\"hidecol\">").text(item.ri),
-				$("<td>"                  ).text(Math.round(item.data)+item.unit),
+				$("<td class=\"hidecol\">").text(item.ri === undefined?"":item.ri),
+				$("<td>"                  ).text(item.data === undefined?"":( Math.round(item.data)+item.unit) ),
 				"<td>"                  +(item.enable?checkpng:"")+"</td>",
 				"<td class=\"hidecol\">"+(item.log?checkpng:"")+"</td>",
 				"<td class=\"hidecol\">"+(item.show?checkpng:"")+"</td>",
-				$("<td class=\"hidecol2\">").text((item.data_ok === undefined || item.data_ok)?dateToString(new Date(item.last*1000)):"Error", null, 2),
-				"<td><button data-mini='true' class='editAndDeleteBtn' id='edit-sensor' value='" + item.nr + "' row='" + row + "'>" + _( "Edit" ) + "</button></td>",
-				"<td><button data-mini='true' class='editAndDeleteBtn' id='delete-sensor' value='" + item.nr + "' row='" + row + "'>" + _( "Delete" ) + "</button></td>"
+				$("<td class=\"hidecol2\">").text(item.last === undefined?"" : (item.data_ok?dateToString(new Date(item.last*1000)):"Error"), null, 2)
 			);
 			list += $tr.wrap( "<p>" ).html() + "</tr>";
 			row++;
@@ -747,18 +762,17 @@ function buildSensorConfig( expandItem ) {
 		list += "<fieldset data-role='collapsible'" + ( typeof expandItem !== "string" || expandItem === "progadjust" ? " data-collapsed='false'" : "" ) + ">" +
 		"<legend>" + _( "Program Adjustments" ) + "</legend>";
 		list += "<table id='progadjusttable'><tr style='width:100%;vertical-align: top;'>" +
-		"<tr><th>Nr</th>"+
-		"<th class=\"hidecol\">Type</th>"+
-		"<th>S.Nr</th>"+
-		"<th>Name</th>"+
+		"<tr><th>"+_("Nr")+"</th>"+
+		"<th class=\"hidecol\">"+_("Type")+"</th>"+
+		"<th class=\"hidecol2\">"+_("S.Nr")+"</th>"+
+		"<th>"+_("Name")+"</th>"+
 		"<th class=\"hidecol\">Program-Nr</th>"+
-		"<th>Program</th>"+
-		"<th class=\"hidecol2\">Factor 1</th>"+
-		"<th class=\"hidecol2\">Factor 2</th>"+
-		"<th class=\"hidecol2\">Min Value</th>"+
-		"<th class=\"hidecol2\">Max Value</th>"+
-		"<th></th><th></th>"+
-		"<th>Current</th></tr>";
+		"<th class=\"hidecol2\">"+_("Program")+"</th>"+
+		"<th class=\"hidecol2\">"+_("Factor 1")+"</th>"+
+		"<th class=\"hidecol2\">"+_("Factor 2")+"</th>"+
+		"<th class=\"hidecol2\">"+_("Min Value")+"</th>"+
+		"<th class=\"hidecol2\">"+_("Max Value")+"</th>"+
+		"<th class=\"hidecol2\">"+_("Cur")+"</th></tr>";
 
 		row = 0;
 		$.each( progAdjusts, function( i, item ) {
@@ -777,17 +791,16 @@ function buildSensorConfig( expandItem ) {
 			var $tr = $( "<tr>" ).append(
 				$("<td>").text(item.nr),
 				$("<td class=\"hidecol\">").text(item.type),
-				$("<td>").text(item.sensor),
-				$("<td>").text(sensorName),
+				$("<td class=\"hidecol2\">").text(item.sensor),
+				"<td><a data-role='button' class='edit-progadjust' value='" + item.nr + "' row='" + row + "' href='#' data-mini='true' data-icon='arrow-r'>" +
+				sensorName + "</a></td>",
 				$("<td class=\"hidecol\">").text(item.prog),
-				$("<td>").text(progName),
+				$("<td class=\"hidecol2\">").text(progName),
 				$("<td class=\"hidecol2\">").text(item.factor1),
 				$("<td class=\"hidecol2\">").text(item.factor2),
 				$("<td class=\"hidecol2\">").text(item.min),
 				$("<td class=\"hidecol2\">").text(item.max),
-				$("<td>").text(Math.round(item.current*100.0)+"%"),
-				"<td><button data-mini='true' class='editAndDeleteBtn' id='edit-progadjust' value='" + item.nr + "' row='" + row + "'>" + _( "Edit" ) + "</button></td>",
-				"<td><button data-mini='true' class='editAndDeleteBtn' id='delete-progadjust' value='" + item.nr + "' row='" + row + "'>" + _( "Delete" ) + "</button></td>"
+				$("<td class=\"hidecol2\">").text(Math.round(item.current*100.0)+"%")
 			);
 			list += $tr.wrap( "<p>" ).html() + "</tr>";
 			row++;
@@ -799,11 +812,12 @@ function buildSensorConfig( expandItem ) {
 		//Analog sensor logs:
 		list += "<fieldset data-role='collapsible'" + ( typeof expandItem !== "string" || expandItem === "sensorlog" ? " data-collapsed='false'" : "" ) + ">" +
 				"<legend>" + _( "Sensor Log" ) + "</legend>";
-		list += "<table id='logfunctions'><tr style='width:100%;vertical-align: top;'><tr>" +
-			"<td><button data-mini='true' class='center-div' id='clear-log'>" + _( "Clear Log" ) + "</button></td>" +
-			"<td><button data-mini='true' class='center-div' id='download-log'>" + _( "Download Log" ) + "</button></td>" +
-			"<td><a href='#analogsensorchart'><button data-mini='true' class='center-div' id='show-log'>" + _( "Show Log" ) + "</button></a></td>" +
-			"</tr></table>" +
+		list += "<a data-role='button' class='red clear_sensor_logs' href='#' data-mini='true' data-icon='alert'>" +
+						_( "Clear Log" ) +
+					"</a>" +
+			"<a data-role='button' data-icon='action' class='download-log' href='#' data-mini='true'>" + _( "Download Log" ) + "</a>" +
+			"<a data-role='button' data-icon='grid' class='show-log' href='#' data-mini='true'>" + _( "Show Log" ) + "</a>" +
+
 			"</div></fieldset>";
 	return list;
 }
