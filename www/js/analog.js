@@ -47,7 +47,7 @@ function updateAnalogSensor( callback ) {
 	callback = callback || function() {};
 	return sendToOS( "/sl?pw=", "json" ).then( function( data ) {
 		analogSensors = data.sensors;
-		analogSensors.expandItem = "sensors";
+		analogSensors.expandItem = new Set(["sensors"]);
 		callback();
 	} );
 }
@@ -562,7 +562,7 @@ function showAnalogSensorConfig() {
 
 			var sensor = analogSensors[ row ];
 
-			analogSensors.expandItem = "sensors";
+			analogSensors.expandItem.add("sensors");
 			showSensorEditor( sensor, row, function( sensorOut ) {
 				sensorOut.nativedata = sensor.nativedata;
 				sensorOut.data = sensor.data;
@@ -631,7 +631,7 @@ function showAnalogSensorConfig() {
 						showerror(_("Error calling rest service: ")+" "+result);
 					else {
 						analogSensors.push( sensorOut );
-						analogSensors.expandItem = "sensors";
+						analogSensors.expandItem.add("sensors");
 					}
 					updateSensorContent();
 				} );
@@ -640,7 +640,7 @@ function showAnalogSensorConfig() {
 
 		// Refresh sensor data:
 		list.find( ".refresh-sensor" ).on( "click", function( ) {
-			analogSensors.expandItem = "sensors";
+			analogSensors.expandItem.add("sensors");
 			updateProgramAdjustments( function( ) {
 				updateAnalogSensor( function( ) {
 					updateSensorContent();
@@ -655,7 +655,7 @@ function showAnalogSensorConfig() {
 
 			var progAdjust = progAdjusts[ row ];
 
-			analogSensors.expandItem = "progadjust";
+			analogSensors.expandItem.add("progadjust");
 			showAdjustmentsEditor( progAdjust, row, function( progAdjustOut ) {
 
 				return sendToOS( "/sb?pw=&nr=" + progAdjustOut.nr +
@@ -684,7 +684,7 @@ function showAnalogSensorConfig() {
 				type: 1
 			};
 
-			analogSensors.expandItem = "progadjust";
+			analogSensors.expandItem.add("progadjust");
 			showAdjustmentsEditor( progAdjust, -1, function( progAdjustOut ) {
 				return sendToOS( "/sb?pw=&nr=" + progAdjustOut.nr +
 					"&type=" + progAdjustOut.type +
@@ -708,7 +708,7 @@ function showAnalogSensorConfig() {
 
 		// Clear sensor log
 		list.find( ".clear_sensor_logs" ).on( "click", function() {
-			analogSensors.expandItem = "sensorlog";
+			analogSensors.expandItem.add("sensorlog");
 			areYouSure( _( "Are you sure you want to clear the sensor log?" ), "", function() {
 				return sendToOS( "/sn?pw=&", "json" ).done( function( result ) {
 					window.alert( _( "Log cleared:" ) + " " + result.deleted + " " + _( "records" ) );
@@ -718,7 +718,7 @@ function showAnalogSensorConfig() {
 		} );
 
 		list.find( ".download-log" ).on( "click", function() {
-			analogSensors.expandItem = "sensorlog";
+			analogSensors.expandItem.add("sensorlog");
 			var link = document.createElement( "a" );
 			link.style.display = "none";
 			link.setAttribute( "download", "sensorlog-" + new Date().toLocaleDateString().replace( /\//g, "-" ) + ".csv" );
@@ -733,7 +733,7 @@ function showAnalogSensorConfig() {
 		} );
 
 		list.find( ".show-log" ).on( "click", function() {
-			analogSensors.expandItem = "sensorlog";
+			analogSensors.expandItem.add("sensorlog");
 			changePage( "#analogsensorchart" );
 			return false;
 		} );
@@ -758,14 +758,14 @@ function showAnalogSensorConfig() {
 }
 
 function buildSensorConfig( expandItem ) {
-	var list = "<fieldset data-role='collapsible' id='confighead'" + ( typeof expandItem !== "string" || expandItem === "sensors" ? " data-collapsed='false'" : "" ) + ">" +
+	var list = "<fieldset data-role='collapsible' id='confighead'" + ( expandItem.has("sensors") ? " data-collapsed='false'" : "" ) + ">" +
 	"<legend>" + _( "Sensors" ) + "</legend>";
 
 	list += "<table id='analog_sensor_table'><tr style='width:100%;vertical-align: top;'>" +
-		"<tr><th>Nr</th><th class=\"hidecol\">Type</th><th class=\"hidecol\">Group</th><th>Name</th>"+
-		"<th class=\"hidecol\">IP</th><th class=\"hidecol\">Port</th><th class=\"hidecol\">ID</th>"+
-		"<th class=\"hidecol\">Read<br>Interval</th><th>Data</th><th>En</th>"+
-		"<th class=\"hidecol\">Log</th><th class=\"hidecol\">Show</th><th class=\"hidecol2\">Last</th></tr>";
+		"<tr><th>"+_("Nr")+"</th><th class=\"hidecol\">"+_("Type")+"</th><th class=\"hidecol\">"+_("Group")+"</th><th>"+_("Name")+"</th>"+
+		"<th class=\"hidecol\">"+_("IP")+"</th><th class=\"hidecol\">"+_("Port")+"</th><th class=\"hidecol\">"+_("ID")+"</th>"+
+		"<th class=\"hidecol\">"+_("Read")+"<br>"+_("Interval")+"</th><th>"+_("Data")+"</th><th>"+_("En")+"</th>"+
+		"<th class=\"hidecol\">"+_("Log")+"</th><th class=\"hidecol\">"+_("Show")+"</th><th class=\"hidecol2\">"+_("Last")+"</th></tr>";
 
 		var checkpng = "<img src=\""+getAppURLPath() + "img/check-blue.png\">";
 
@@ -799,7 +799,7 @@ function buildSensorConfig( expandItem ) {
 		list += "</fieldset>";
 
 		//Program adjustments table:
-		list += "<fieldset data-role='collapsible'" + ( typeof expandItem !== "string" || expandItem === "progadjust" ? " data-collapsed='false'" : "" ) + ">" +
+		list += "<fieldset data-role='collapsible'" + ( expandItem.has("progadjust") ? " data-collapsed='false'" : "" ) + ">" +
 		"<legend>" + _( "Program Adjustments" ) + "</legend>";
 		list += "<table id='progadjusttable'><tr style='width:100%;vertical-align: top;'>" +
 		"<tr><th>"+_("Nr")+"</th>"+
@@ -812,7 +812,7 @@ function buildSensorConfig( expandItem ) {
 		"<th class=\"hidecol2\">"+_("Factor 2")+"</th>"+
 		"<th class=\"hidecol2\">"+_("Min Value")+"</th>"+
 		"<th class=\"hidecol2\">"+_("Max Value")+"</th>"+
-		"<th class=\"hidecol2\">"+_("Cur")+"</th></tr>";
+		"<th>"+_("Cur")+"</th></tr>";
 
 		row = 0;
 		$.each( progAdjusts, function( i, item ) {
@@ -840,7 +840,7 @@ function buildSensorConfig( expandItem ) {
 				$("<td class=\"hidecol2\">").text(item.factor2),
 				$("<td class=\"hidecol2\">").text(item.min),
 				$("<td class=\"hidecol2\">").text(item.max),
-				$("<td class=\"hidecol2\">").text(Math.round(item.current*100.0)+"%")
+				$("<td>").text(item.current === undefined?"":(Math.round(item.current*100.0)+"%"))
 			);
 			list += $tr.wrap( "<p>" ).html() + "</tr>";
 			row++;
@@ -850,7 +850,7 @@ function buildSensorConfig( expandItem ) {
 		list += "</fieldset>";
 
 		//Analog sensor logs:
-		list += "<fieldset data-role='collapsible'" + ( typeof expandItem !== "string" || expandItem === "sensorlog" ? " data-collapsed='false'" : "" ) + ">" +
+		list += "<fieldset data-role='collapsible'" + ( expandItem.has("sensorlog") ? " data-collapsed='false'" : "" ) + ">" +
 				"<legend>" + _( "Sensor Log" ) + "</legend>";
 		list += "<a data-role='button' class='red clear_sensor_logs' href='#' data-mini='true' data-icon='alert'>" +
 						_( "Clear Log" ) +
@@ -911,6 +911,7 @@ var showAnalogSensorCharts = ( function() {
 		$.mobile.pageContainer.append( page );
 		var limit = currToken?"&max=5500":""; //download limit is 140kb, 5500 lines ca 137kb
 
+		$.mobile.loading( "show" );
 		sendToOS("/so?pw=&lasthours=48&csv=2"+limit, "text").then(function (csv1) {
 			buildGraph( "#myChart", chart1, csv1, _( "last 48h" ), "HH:mm" );
 

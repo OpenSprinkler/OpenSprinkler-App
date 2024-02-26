@@ -684,7 +684,7 @@
    "ID": "ID",
    "Read Interval (s)": "Leseintervall (e)",
    "Sensor Enabled": "Sensor aktiviert",
-   "Enable Data Logging": "Aktivieren Sie die Datenprotokollierung",
+   "Enable Data Logging": "Datenprotokollierung aktivieren",
    "Show on Main Page": "Auf der Hauptseite anzeigen",
    "This function sets the Modbus ID for one SMT100 sensor. Disconnect all other sensors on this Modbus port. Please confirm.": "Diese Funktion legt die Modbus-ID für einen SMT100-Sensor fest. Trennen Sie alle anderen Sensoren an diesem Modbus-Port. Bitte bestätigen.",
    "SMT100 id assigned!": "SMT100-ID zugewiesen!",
@@ -727,6 +727,18 @@
    "Sensor Log": "Sensor Protokoll",
    "Refresh Sensordata": "Sensordaten aktualisieren",
    "Error calling rest service: ": "Fehler beim Aufrufen der REST API Funktion: ",
-   "Incomplete parameters! Please check that all necessary input fields are filled in!": "Unvollständige Parameter! Bitte prüfen Sie, ob alle notwendigen Eingabefelder ausgefüllt sind!"
+   "Incomplete parameters! Please check that all necessary input fields are filled in!": "Unvollständige Parameter! Bitte prüfen Sie, ob alle notwendigen Eingabefelder ausgefüllt sind!",
+   "Last": "Zuletzt",
+   "Cur":"Akt",
+   "Min Value": "Min Wert",
+   "Max Value": "Max Wert",
+   "Factor 1": "Faktor 1",
+   "Factor 2": "Faktor 2",
+   "Show": "Zeigen",
+   "En": "An",
+   "Data":"Daten",
+   "Read": "Lese",
+   "Interval": "Intervall",
+   "Type": "Typ"
 
 }}

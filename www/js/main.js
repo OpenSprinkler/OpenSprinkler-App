@@ -5408,8 +5408,8 @@ var showHome = ( function() {
 								 "</select>";
 
 						opts.append( sel ).enhanceWithin();
-					} else if ( value === 4 ) {
-						data = ( type === value ) ? data.split( "," ) : [ "server", "80", "On", "Off" ];
+					} else if ( value === 4 || value === 5 ) {
+						data = ( type === value ) ? data.split( "," ) : (value === 4? [ "server", "80", "On", "Off" ] : [ "server", "443", "On", "Off" ]);
 
 						opts.append(
 							"<div class='ui-bar-a ui-bar'>" + _( "Server Name" ) + ":</div>" +
@@ -5530,7 +5530,7 @@ var showHome = ( function() {
 						var sd = pad( select.find( "#gpio-pin" ).val() || "05" );
 						sd += select.find( "#active-state" ).val() || "1";
 						button.data( "specialData", sd );
-					} else if ( hs === 4 ) {
+					} else if ( hs === 4 || hs === 5) {
 						var sdata = select.find( "#http-server" ).val();
 						sdata += "," + select.find( "#http-port" ).val();
 						sdata += "," + select.find( "#http-on" ).val();
@@ -5666,6 +5666,7 @@ var showHome = ( function() {
 								) ? ">" : " disabled>"
 							) + _( "GPIO" ) + "</option>" +
 							"<option data-hs='4' value='4'" + ( checkOSVersion( 217 ) ? ">" : " disabled>" ) + _( "HTTP" ) + "</option>" +
+							"<option data-hs='5' value='5'" + ( checkOSVersion( 230 ) ? ">" : " disabled>" ) + _( "HTTPS" ) + "</option>" +
 						"</select>" +
 						"<div id='specialOpts'></div>";
 			}

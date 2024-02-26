@@ -2259,3 +2259,40 @@ msgstr ""
 msgid "Incomplete parameters! Please check that all necessary input fields are filled in!"
 msgstr ""
 
+msgid "Last"
+msgstr ""
+
+msgid "Cur"
+msgstr ""
+
+msgid "Min Value"
+msgstr ""
+
+msgid "Max Value"
+msgstr ""
+
+msgid "Factor 1"
+msgstr ""
+
+msgid "Factor 2"
+msgstr ""
+
+msgid "Show"
+msgstr ""
+
+msgid "En"
+msgstr ""
+
+msgid "Data"
+msgstr ""
+
+msgid "Read"
+msgstr ""
+
+msgid "Interval"
+msgstr ""
+
+msgid "Type"
+msgstr ""
+
+
