@@ -12,7 +12,7 @@ var analogSensors = {},
 const CHARTS = 11;
 const USERDEF_SENSOR = 49;
 const USERDEF_UNIT   = 99;
-
+const SENSOR_MQTT    = 90;
 
 function checkAnalogSensorAvail( callback ) {
 	callback = callback || function() {};
@@ -33,6 +33,11 @@ function refresh() {
     setTimeout( function() {
         location.reload();
     }, 100 );
+}
+
+function enc(s) {
+	//encodeURIComponent does not encode a single "%" !
+	return encodeURIComponent(s.replace("%", "%25"));
 }
 
 function updateProgramAdjustments( callback ) {
@@ -367,28 +372,40 @@ function isSmt100( sensorType ) {
 			"<input class='id' type='number' min='0' max='65535' value='" + sensor.id + "'>" +
 
 					((sensor.type === USERDEF_SENSOR) ?
-						("<label>" +
-							_( "Factor" ) +
-						"</label>" +
+						("<label>" + _( "Factor" ) +
+						"</label>" + 
 						"<input class='fac' type='number' min='-32768' max='32767' value='" + sensor.fac + "'>" +
 
-						"<label>" +
-							_( "Divider" ) +
+						"<label>" + _( "Divider" ) +
 						"</label>" +
 						"<input class='div' type='number' min='-32768' max='32767' value='" + sensor.div + "'>" +
 
 						(sensor.hasOwnProperty('offset')?
-							"<label>" +
-								_( "Offset in millivolt" ) +
+							"<label>" + _( "Offset in millivolt" ) +
 							"</label>" +
 							"<input class='offset' type='number' min='-32768' max='32767' value='" + sensor.offset + "'>"
 						:"")+
 
-						"<label>" +
-							_( "Unit" ) +
+						"<label>" + _( "Unit" ) +
 						"</label>" +
 						"<input class='unit' type='text'  value='" + sensor.unit + "'>"
 						):"") +
+						
+					((sensor.type === SENSOR_MQTT) ?
+						("<label>" +
+						_( "MQTT Topic" ) +
+						"</label>" +
+						"<input class='topic' type='text'  value='" + sensor.topic + "'>" +
+						"<label>" +
+						_( "MQTT Filter" ) +
+						"</label>" +
+						"<input class='filter' type='text'  value='" + sensor.filter + "'>" +
+						"<label>" +
+						_( "Unit" ) +
+						"</label>" +
+						"<input class='unit' type='text'  value='" + sensor.unit + "'>"
+						):"") +
+
 
 			"<label>" +
 			_( "Read Interval (s)" ) +
@@ -496,7 +513,9 @@ function isSmt100( sensorType ) {
 			unit:   popup.find( ".unit" ).val(),
 			enable: popup.find( "#enable" ).is( ":checked" ) ? 1 : 0,
 			log:    popup.find( "#log" ).is( ":checked" ) ? 1 : 0,
-			show:   popup.find( "#show" ).is( ":checked" ) ? 1 : 0
+			show:   popup.find( "#show" ).is( ":checked" ) ? 1 : 0,
+			topic:  popup.find( ".topic" ).val(),
+			filter: popup.find( ".filter" ).val()
 		};
 
 		callback( sensorOut );
@@ -570,16 +589,21 @@ function showAnalogSensorConfig() {
 				return sendToOS( "/sc?pw=&nr=" + sensorOut.nr +
 					"&type=" + sensorOut.type +
 					"&group=" + sensorOut.group +
-					"&name=" + sensorOut.name +
+					"&name=" + enc( sensorOut.name ) +
 					"&ip=" + sensorOut.ip +
 					"&port=" + sensorOut.port +
 					"&id=" + sensorOut.id +
 					"&ri=" + sensorOut.ri +
 					((sensorOut.type === USERDEF_SENSOR) ?
-						("&fac="+sensorOut.fac +
-						"&div="+sensorOut.div +
-						"&offset="+sensorOut.offset +
-						"&unit="+sensorOut.unit
+						("&fac=" + sensorOut.fac +
+						"&div=" + sensorOut.div +
+						"&offset=" + sensorOut.offset +
+						"&unit="+ enc( sensorOut.unit )
+						):"") +
+					((sensorOut.type === SENSOR_MQTT) ?
+						("&topic=" + enc( sensorOut.topic ) +
+						"&filter=" + enc( sensorOut.filter ) +
+						"&unit=" + enc( sensorOut.unit )
 						):"") +
 					"&enable=" + sensorOut.enable +
 					"&log=" + sensorOut.log +
@@ -610,17 +634,22 @@ function showAnalogSensorConfig() {
 				return sendToOS( "/sc?pw=&nr=" + sensorOut.nr +
 				"&type=" + sensorOut.type +
 				"&group=" + sensorOut.group +
-				"&name=" + sensorOut.name +
+				"&name=" + enc( sensorOut.name ) +
 				"&ip=" + sensorOut.ip +
 				"&port=" + sensorOut.port +
 				"&id=" + sensorOut.id +
 				"&ri=" + sensorOut.ri +
 				((sensorOut.type === USERDEF_SENSOR) ?
-					("&fac="+sensorOut.fac +
-					"&div="+sensorOut.div +
-					"&offset="+sensorOut.offset +
-					"&unit="+sensorOut.unit
-				):"") +
+					("&fac=" + sensorOut.fac +
+					"&div=" + sensorOut.div +
+					"&offset=" + sensorOut.offset +
+					"&unit=" + enc( sensorOut.unit )
+					):"") +
+				((sensorOut.type === SENSOR_MQTT) ?
+					("&topic=" + enc( sensorOut.topic ) +
+					"&filter=" + enc( sensorOut.filter ) +
+					"&unit=" + enc( sensorOut.unit )
+					):"") +					
 				"&enable=" + sensorOut.enable +
 				"&log=" + sensorOut.log +
 				"&show=" + sensorOut.show,
@@ -725,7 +754,7 @@ function showAnalogSensorConfig() {
 
 			var limit = currToken?"&max=5500":""; //download limit is 140kb, 5500 lines ca 137kb
 			var dest = "/so?pw=&csv=1"+limit;
-			dest = dest.replace( "pw=", "pw=" + encodeURIComponent( currPass ) );
+			dest = dest.replace( "pw=", "pw=" + enc( currPass ) );
 			link.target = "_blank";
 			link.href = currToken ? ("https://cloud.openthings.io/forward/v1/" + currToken + dest) : (currPrefix + currIp + dest);
 			document.body.appendChild( link ); // Required for FF
@@ -782,11 +811,11 @@ function buildSensorConfig( expandItem ) {
 				$("<td class=\"hidecol\">").text(item.port?(":"+item.port):""),
 				$("<td class=\"hidecol\">").text(item.id === undefined?"":(item.type < 1000?item.id:"")),
 				$("<td class=\"hidecol\">").text(item.ri === undefined?"":item.ri),
-				$("<td>"                  ).text(item.data === undefined?"":( Math.round(item.data)+item.unit) ),
+				$("<td>"                  ).text(isNaN(item.data)?"":( Math.round(item.data)+item.unit) ),
 				"<td>"                  +(item.enable?checkpng:"")+"</td>",
 				"<td class=\"hidecol\">"+(item.log?checkpng:"")+"</td>",
 				"<td class=\"hidecol\">"+(item.show?checkpng:"")+"</td>",
-				$("<td class=\"hidecol2\">").text(item.last === undefined?"" : (item.data_ok?dateToString(new Date(item.last*1000)):"Error"), null, 2)
+				$("<td class=\"hidecol2\">").text(item.last === undefined?"" : (item.data_ok?dateToString(new Date(item.last*1000)):""), null, 2)
 			);
 			list += $tr.wrap( "<p>" ).html() + "</tr>";
 			row++;
@@ -934,12 +963,13 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr ) {
 	var csvlines = csv.split( /(?:\r\n|\n)+/ ).filter( function( el ) { return el.length !== 0; } );
 
 	for ( var j = 0; j < analogSensors.length; j++ ) {
-		if (!analogSensors[j].log) {
+		var sensor = analogSensors[j];
+		if (!sensor.log) {
 			continue;
 		}
-		var nr = analogSensors[j].nr,
+		var nr = sensor.nr,
 			logdata = [],
-			unitid = analogSensors[j].unitid;
+			unitid = sensor.unitid;
 
 		for ( var k = 1; k < csvlines.length; k++ ) {
 			var line = csvlines[ k ].split( ";" );
@@ -947,7 +977,7 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr ) {
 				logdata.push( { x: Number(line[1]) * 1000, y: Number(line[2]) } );
 			}
 		}
-		var series = { name: analogSensors[j].name, data: logdata };
+		var series = { name: sensor.name, data: logdata };
 
 		// User defined sensor:
 		if (unitid === USERDEF_UNIT) {
@@ -1017,8 +1047,8 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr ) {
 					autoY = false;
 					break;
 
-				default: unit = analogSensors[j].unit;
-					title = analogSensors[j].name + " " + titleAdd;
+				default: unit = sensor.unit;
+					title = sensor.name + " " + titleAdd;
 					unitStr = function( val ) { return +( Math.round( val + "e+2" )  + "e-2" ); };
 			}
 
@@ -1102,9 +1132,9 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr ) {
 		} else {
 			chart[unitid].appendSeries(series);
 		}
-		if (!analogSensors[j].chart)
-			analogSensors[j].chart = new Map();
-		analogSensors[j].chart.set(prefix, chart[unitid]);
+		if (!sensor.chart)
+			sensor.chart = new Map();
+		sensor.chart.set(prefix, chart[unitid]);
 	}
 
 	for ( var p = 0; p < progAdjusts.length; p++) {
