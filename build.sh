@@ -1,6 +1,7 @@
 #!/bin/sh
 rm ./www/js/*~
 rm ./www/js/DEADJOE
+rm ./www/locale/*~
 
 grunt buildFW
 cp build.json platforms/android/build.json

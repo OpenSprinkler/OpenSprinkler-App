@@ -37,7 +37,9 @@ function refresh() {
 
 function enc(s) {
 	//encodeURIComponent does not encode a single "%" !
-	return encodeURIComponent(s.replace("%", "%25"));
+	if (s)
+		return encodeURIComponent(s.replace("%", "%25").replace("/", "%2F"));
+	return s;
 }
 
 function updateProgramAdjustments( callback ) {
@@ -116,6 +118,181 @@ function intFromBytes( x ) {
 		return 0;
 	}
 }
+
+// Restore from Backup - Dialog
+function getImportMethodSensors( localData, restore_type, callback) {
+	callback = callback || function() {};
+	var getPaste = function() {
+			var popup = $(
+					"<div data-role='popup' data-theme='a' id='paste_config'>" +
+						"<p class='ui-bar'>" +
+							"<textarea class='textarea' rows='10' placeholder='" + _( "Paste your backup here" ) + "'></textarea>" +
+							"<button data-mini='true' data-theme='b'>" + _( "Import" ) + "</button>" +
+						"</p>" +
+					"</div>"
+				),
+				width = $.mobile.window.width();
+
+			popup.find( "button" ).on( "click", function() {
+				var data = popup.find( "textarea" ).val();
+
+				if ( data === "" ) {
+					return;
+				}
+
+				try {
+					data = JSON.parse( $.trim( data ).replace( /“|”|″/g, "\"" ) );
+					popup.popup( "close" );
+					importConfigSensors( data, restore_type, callback );
+				}catch ( err ) {
+					popup.find( "textarea" ).val( "" );
+					showerror( _( "Unable to read the configuration file. Please check the file and try again." ) );
+				}
+			} );
+
+			popup.css( "width", ( width > 600 ? width * 0.4 + "px" : "100%" ) );
+			openPopup( popup );
+			return false;
+		},
+		popup = $(
+			"<div data-role='popup' data-theme='a'>" +
+				"<div class='ui-bar ui-bar-a'>" + _( "Select Import Method" ) + "</div>" +
+				"<div data-role='controlgroup' class='tight'>" +
+					"<button class='hidden fileMethod'>" + _( "File" ) + "</button>" +
+					"<button class='pasteMethod'>" + _( "Email (copy/paste)" ) + "</button>" +
+					//"<button class='hidden localMethod'>" + _( "Internal (within app)" ) + "</button>" +
+				"</div>" +
+			"</div>" );
+
+	if ( isFileCapable ) {
+		popup.find( ".fileMethod" ).removeClass( "hidden" ).on( "click", function() {
+			popup.popup( "close" );
+			var input = $( "<input type='file' id='configInput' data-role='none' style='visibility:hidden;position:absolute;top:-50px;left:-50px'/>" )
+				.on( "change", function() {
+					var config = this.files[ 0 ],
+						reader = new FileReader();
+
+					if ( typeof config !== "object" ) {
+						return;
+					}
+
+					reader.onload = function( e ) {
+						try {
+							var obj = JSON.parse( $.trim( e.target.result ) );
+							importConfigSensors( obj, restore_type, callback );
+						}catch ( err ) {
+							showerror( _( "Unable to read the configuration file. Please check the file and try again." ) );
+						}
+					};
+
+					reader.readAsText( config );
+				} );
+
+			input.appendTo( "#sprinklers-settings" );
+			input.click();
+			return false;
+		} );
+	} else {
+
+		// Handle local storage being unavailable and present paste dialog immediately
+		if ( !localData ) {
+			getPaste();
+			return;
+		}
+	}
+
+	popup.find( ".pasteMethod" ).on( "click", function() {
+		popup.popup( "close" );
+		getPaste();
+		return false;
+	} );
+
+	if ( localData ) {
+		popup.find( ".localMethod" ).removeClass( "hidden" ).on( "click", function() {
+			popup.popup( "close" );
+			importConfigSensors( JSON.parse( localData ), restore_type, callback );
+			return false;
+		} );
+	}
+
+	openPopup( popup, { positionTo: $( "#sprinklers-settings" ).find( ".import_config" ) } );
+}
+
+// Restore from backup - send to OS
+function importConfigSensors( data, restore_type, callback ) {
+	callback = callback || function() {};
+	var warning = "";
+
+	if ( typeof data !== "object" || !data.backup ) {
+		showerror( _( "Invalid configuration" ) );
+		return;
+	}
+
+	areYouSure( _( "Are you sure you want to restore the configuration?" ), warning, function() {
+		$.mobile.loading( "show" );
+
+		if ((restore_type & 1) === 1 && data.hasOwnProperty("sensors")) { //restore Sensor
+			var sensorOut;
+			for (var i = 0; i < data.sensors.length; i++)
+			{
+				sensorOut = data.sensors[i];
+				sendToOS( "/sc?pw=&nr=" + sensorOut.nr +
+					"&type=" + sensorOut.type +
+					"&group=" + sensorOut.group +
+					"&name=" + enc( sensorOut.name ) +
+					"&ip=" + sensorOut.ip +
+					"&port=" + sensorOut.port +
+					"&id=" + sensorOut.id +
+					"&ri=" + sensorOut.ri +
+					((sensorOut.type === USERDEF_SENSOR) ?
+						("&fac=" + sensorOut.fac +
+						"&div=" + sensorOut.div +
+						"&offset=" + sensorOut.offset +
+						"&unit="+ enc( sensorOut.unit )
+						):"") +
+					((sensorOut.type === SENSOR_MQTT) ?
+						("&topic=" + enc( sensorOut.topic ) +
+						"&filter=" + enc( sensorOut.filter ) +
+						"&unit=" + enc( sensorOut.unit )
+						):"") +
+					"&enable=" + sensorOut.enable +
+					"&log=" + sensorOut.log +
+					"&show=" + sensorOut.show,
+					"json");
+			}
+		}
+
+		if ((restore_type & 2) === 2 && data.hasOwnProperty("progadjust")) { //restore program adjustments
+			var progAdjustOut;
+			for (var i = 0; i < data.progadjust.length; i++) {
+				progAdjustOut = data.progadjust[i];
+				return sendToOS( "/sb?pw=&nr=" + progAdjustOut.nr +
+					"&type=" + progAdjustOut.type +
+					"&sensor=" + progAdjustOut.sensor +
+					"&prog=" + progAdjustOut.prog +
+					"&factor1=" + progAdjustOut.factor1 +
+					"&factor2=" + progAdjustOut.factor2 +
+					"&min=" + progAdjustOut.min +
+					"&max=" + progAdjustOut.max,
+					"json");
+			}
+		}
+
+		analogSensors.expandItem.add("sensors");
+		analogSensors.expandItem.add("progadjust");
+		updateProgramAdjustments( function( ) {
+			updateAnalogSensor( function( ) {
+				$.mobile.loading( "hide" );
+				showerror( _( "Backup restored to your device" ) );
+				callback();
+			} );
+		} );
+
+	} );
+}
+
+
+
 
 //Program adjustments editor
 function showAdjustmentsEditor( progAdjust, row, callback, callbackCancel ) {
@@ -373,7 +550,7 @@ function isSmt100( sensorType ) {
 
 					((sensor.type === USERDEF_SENSOR) ?
 						("<label>" + _( "Factor" ) +
-						"</label>" + 
+						"</label>" +
 						"<input class='fac' type='number' min='-32768' max='32767' value='" + sensor.fac + "'>" +
 
 						"<label>" + _( "Divider" ) +
@@ -390,20 +567,20 @@ function isSmt100( sensorType ) {
 						"</label>" +
 						"<input class='unit' type='text'  value='" + sensor.unit + "'>"
 						):"") +
-						
+
 					((sensor.type === SENSOR_MQTT) ?
 						("<label>" +
 						_( "MQTT Topic" ) +
 						"</label>" +
-						"<input class='topic' type='text'  value='" + sensor.topic + "'>" +
+						"<input class='topic' type='text'  value='" + (sensor.topic?sensor.topic:"") + "'>" +
 						"<label>" +
 						_( "MQTT Filter" ) +
 						"</label>" +
-						"<input class='filter' type='text'  value='" + sensor.filter + "'>" +
+						"<input class='filter' type='text'  value='" + (sensor.filter?sensor.filter:"") + "'>" +
 						"<label>" +
 						_( "Unit" ) +
 						"</label>" +
-						"<input class='unit' type='text'  value='" + sensor.unit + "'>"
+						"<input class='unit' type='text'  value='" + (sensor.unit?sensor.unit:"") + "'>"
 						):"") +
 
 
@@ -649,7 +826,7 @@ function showAnalogSensorConfig() {
 					("&topic=" + enc( sensorOut.topic ) +
 					"&filter=" + enc( sensorOut.filter ) +
 					"&unit=" + enc( sensorOut.unit )
-					):"") +					
+					):"") +
 				"&enable=" + sensorOut.enable +
 				"&log=" + sensorOut.log +
 				"&show=" + sensorOut.show,
@@ -767,6 +944,48 @@ function showAnalogSensorConfig() {
 			return false;
 		} );
 
+		list.find( ".backup-sensors" ).on( "click", function() {
+			analogSensors.expandItem.add("backup");
+			var link = document.createElement( "a" );
+			link.style.display = "none";
+			link.setAttribute( "download", "BackupSensorConfig-" + new Date().toLocaleDateString().replace( /\//g, "-" ) + ".json" );
+
+			var dest = "/sx?pw=&backup=1";
+			dest = dest.replace( "pw=", "pw=" + enc( currPass ) );
+			link.target = "_blank";
+			link.href = currToken ? ("https://cloud.openthings.io/forward/v1/" + currToken + dest) : (currPrefix + currIp + dest);
+			document.body.appendChild( link ); // Required for FF
+			link.click();
+
+		} );
+
+		list.find( ".restore-sensors" ).on( "click", function() {
+			analogSensors.expandItem.add("backup");
+			var localData = {};
+			getImportMethodSensors(localData, 1, updateSensorContent);
+		} );
+
+		list.find( ".backup-adjustments" ).on( "click", function() {
+			analogSensors.expandItem.add("backup");
+			var link = document.createElement( "a" );
+			link.style.display = "none";
+			link.setAttribute( "download", "BackupAdjustments-" + new Date().toLocaleDateString().replace( /\//g, "-" ) + ".json" );
+
+			var dest = "/sx?pw=&backup=2";
+			dest = dest.replace( "pw=", "pw=" + enc( currPass ) );
+			link.target = "_blank";
+			link.href = currToken ? ("https://cloud.openthings.io/forward/v1/" + currToken + dest) : (currPrefix + currIp + dest);
+			document.body.appendChild( link ); // Required for FF
+			link.click();
+
+		} );
+
+		list.find( ".restore-adjustments" ).on( "click", function() {
+			analogSensors.expandItem.add("backup");
+			var localData = {};
+			getImportMethodSensors(localData, 2, updateSensorContent);
+		} );
+
 		page.find( "#analogsensorlist" ).html( list ) .enhanceWithin();
 	}
 
@@ -809,8 +1028,8 @@ function buildSensorConfig( expandItem ) {
 				item.name + "</a></td>",
 				$("<td class=\"hidecol\">").text(item.ip?toByteArray(item.ip).join( "." ):""),
 				$("<td class=\"hidecol\">").text(item.port?(":"+item.port):""),
-				$("<td class=\"hidecol\">").text(item.id === undefined?"":(item.type < 1000?item.id:"")),
-				$("<td class=\"hidecol\">").text(item.ri === undefined?"":item.ri),
+				$("<td class=\"hidecol\">").text(isNaN(item.id)?"":(item.type < 1000?item.id:"")),
+				$("<td class=\"hidecol\">").text(isNaN(item.ri)?"":item.ri),
 				$("<td>"                  ).text(isNaN(item.data)?"":( Math.round(item.data)+item.unit) ),
 				"<td>"                  +(item.enable?checkpng:"")+"</td>",
 				"<td class=\"hidecol\">"+(item.log?checkpng:"")+"</td>",
@@ -842,6 +1061,7 @@ function buildSensorConfig( expandItem ) {
 		"<th class=\"hidecol2\">"+_("Min Value")+"</th>"+
 		"<th class=\"hidecol2\">"+_("Max Value")+"</th>"+
 		"<th>"+_("Cur")+"</th></tr>";
+
 
 		row = 0;
 		$.each( progAdjusts, function( i, item ) {
@@ -888,6 +1108,17 @@ function buildSensorConfig( expandItem ) {
 			"<a data-role='button' data-icon='grid' class='show-log' href='#' data-mini='true'>" + _( "Show Log" ) + "</a>" +
 
 			"</div></fieldset>";
+
+		//backup:
+		if (checkOSVersion( 231 )) {
+			list += "<fieldset data-role='collapsible'" + ( expandItem.has("backup") ? " data-collapsed='false'" : "" ) + ">" +
+				"<legend>" + _( "Backup and Restore" ) + "</legend>";
+			list += "<a data-role='button' data-icon='arrow-d-r' class='backup-sensors'  href='#' data-mini='true'>" + _( "Backup Sensor Config" ) + "</a>" +
+				"<a data-role='button' data-icon='back'      class='restore-sensors' href='#' data-mini='true'>" + _( "Restore Sensor Config" ) + "</a>";
+			list += "<a data-role='button' data-icon='arrow-d-r' class='backup-adjustments'  href='#' data-mini='true'>" + _( "Backup Program Adjustments" ) + "</a>" +
+				"<a data-role='button' data-icon='back'      class='restore-adjustments' href='#' data-mini='true'>" + _( "Restore Program Adjustments" ) + "</a>";
+			list += "</div></fieldset>";
+		}
 	return list;
 }
 

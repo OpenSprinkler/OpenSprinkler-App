@@ -685,7 +685,7 @@
    "Read Interval (s)": "Leseintervall (e)",
    "Sensor Enabled": "Sensor aktiviert",
    "Enable Data Logging": "Datenprotokollierung aktivieren",
-   "Show on Main Page": "Auf der Hauptseite anzeigen",
+   "Show on Mainpage": "Auf der Hauptseite anzeigen",
    "This function sets the Modbus ID for one SMT100 sensor. Disconnect all other sensors on this Modbus port. Please confirm.": "Diese Funktion legt die Modbus-ID für einen SMT100-Sensor fest. Trennen Sie alle anderen Sensoren an diesem Modbus-Port. Bitte bestätigen.",
    "SMT100 id assigned!": "SMT100-ID zugewiesen!",
    "Sensor number exists!": "Sensornummer existiert!",
@@ -739,6 +739,10 @@
    "Data":"Daten",
    "Read": "Lese",
    "Interval": "Intervall",
-   "Type": "Typ"
-
+   "Type": "Typ",
+   "Backup and Restore": "Datensicherung",
+   "Backup Sensor Config": "Datensicheruing Sensoren",
+   "Restore Sensor Config": "Wiederherstellung Sensoren",
+   "Backup Program Adjustments": "Datensicherung Programmanpassungen",
+   "Restore Program Adjustments": "Wiederhestellung Programmanpassungen"
 }}

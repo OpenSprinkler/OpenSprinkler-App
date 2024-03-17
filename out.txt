@@ -73,3 +73,8 @@
  "Read"
  "Interval"
  "Type"
+ "Backup and Restore"
+ "Backup Sensor Config"
+ "Restore Sensor Config"
+ "Backup Program Adjustments"
+ "Restore Program Adjustments"

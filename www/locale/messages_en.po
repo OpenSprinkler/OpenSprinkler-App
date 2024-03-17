@@ -2131,7 +2131,7 @@ msgstr ""
 msgid "Enable Data Logging"
 msgstr ""
 
-msgid "Show on Main Page"
+msgid "Show on Mainpage"
 msgstr ""
 
 msgid ""
@@ -2295,4 +2295,18 @@ msgstr ""
 msgid "Type"
 msgstr ""
 
+msgid "Backup and Restore"
+msgstr ""
+
+msgid "Backup Sensor Config"
+msgstr ""
+
+msgid "Restore Sensor Config"
+msgstr ""
+
+msgid "Backup Program Adjustments"
+msgstr ""
+
+msgid "Restore Program Adjustments"
+msgstr ""
 

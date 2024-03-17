@@ -921,7 +921,7 @@ function updateController( callback, fail ) {
 			// Fix the station status array
 			controller.status = controller.status.sn;
 
-			finish();
+			updateAnalogSensor(	finish );
 		}, fail );
 	} else {
 		$.when(
@@ -10371,7 +10371,7 @@ var showAbout = ( function() {
 					"</li>" +
 				"</ul>" +
 				"<p class='smaller'>" +
-					_( "App Version" ) + ": 2.4.1" +
+					_( "App Version" ) + ": 2.5.0 ASB" +
 					"<br>" + _( "Firmware" ) + ": <span class='firmware'></span>" +
 					"<br><span class='hardwareLabel'>" + _( "Hardware Version" ) + ":</span> <span class='hardware'></span>" +
 				"</p>" +
