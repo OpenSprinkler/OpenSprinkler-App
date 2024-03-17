@@ -741,8 +741,8 @@
    "Interval": "Intervall",
    "Type": "Typ",
    "Backup and Restore": "Datensicherung",
-   "Backup Sensor Config": "Datensicheruing Sensoren",
+   "Backup Sensor Config": "Datensicherung Sensoren",
    "Restore Sensor Config": "Wiederherstellung Sensoren",
    "Backup Program Adjustments": "Datensicherung Programmanpassungen",
-   "Restore Program Adjustments": "Wiederhestellung Programmanpassungen"
+   "Restore Program Adjustments": "Wiederherstellung Programmanpassungen"
 }}
