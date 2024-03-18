@@ -37,8 +37,9 @@ function refresh() {
 
 function enc(s) {
 	//encodeURIComponent does not encode a single "%" !
-	if (s)
-		return encodeURIComponent(s.replace("%", "%25").replace("/", "%2F"));
+	if (s) {
+		return encodeURIComponent(s);
+	}
 	return s;
 }
 
