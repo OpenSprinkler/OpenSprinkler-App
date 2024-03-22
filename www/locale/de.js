@@ -682,7 +682,7 @@
    "Group": "Gruppe",
    "Name": "Name",
    "ID": "ID",
-   "Read Interval (s)": "Leseintervall (e)",
+   "Read Interval (s)": "Leseintervall (s)",
    "Sensor Enabled": "Sensor aktiviert",
    "Enable Data Logging": "Datenprotokollierung aktivieren",
    "Show on Mainpage": "Auf der Hauptseite anzeigen",

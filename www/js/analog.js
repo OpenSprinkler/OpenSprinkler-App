@@ -484,7 +484,79 @@ function isSmt100( sensorType ) {
 	if ( !sensorType ) {
 		return false;
 	}
-	return sensorType === 1 || sensorType === 2;
+	return sensorType === 1 || sensorType == 2;
+}
+
+function isIPSensor( sensorType ) {
+	return sensorType <= 2 || sensorType == 100;
+}
+
+function isIDNeeded( sensorType) {
+	return sensorType < 90 || sensorType == 100;
+}
+
+//show and hide sensor editor fields
+function updateSensorVisibility(popup, type) {
+	if (isIPSensor(type)) {
+		popup.find(".ip_label").show();
+		popup.find(".port_label").show();
+		popup.find(".ip").show();
+		popup.find(".port").show();
+	} else {
+		popup.find(".ip_label").hide();
+		popup.find(".port_label").hide();
+		popup.find(".ip").hide();
+		popup.find(".port").hide();
+	}
+	if (isIDNeeded(type)) {
+		popup.find(".id_label").show();
+		popup.find(".id").show();
+	} else {
+		popup.find(".id_label").hide();
+		popup.find(".id").hide();
+	}
+	if (isSmt100(type)) {
+		popup.find("#smt100id").show();
+	} else {
+		popup.find("#smt100id").hide();
+	}
+	if (type == USERDEF_SENSOR) {
+		popup.find(".fac_label").show();
+		popup.find(".fac").show();
+		popup.find(".div_label").show();
+		popup.find(".div").show();
+		popup.find(".offset_label").show();
+		popup.find(".offset").show();
+	} else {
+		popup.find(".fac_label").hide();
+		popup.find(".fac").hide();
+		popup.find(".div_label").hide();
+		popup.find(".div").hide();
+		popup.find(".offset_label").hide();
+		popup.find(".offset").hide();
+	}
+	if (type == SENSOR_MQTT) {
+		popup.find(".unit_label").show();
+		popup.find(".unit").show();
+		popup.find(".topic_label").show();
+		popup.find(".topic").show();
+		popup.find(".filter_label").show();
+		popup.find(".filter").show();
+	} else {
+		popup.find(".unit_label").hide();
+		popup.find(".unit").hide();
+		popup.find(".topic_label").hide();
+		popup.find(".topic").hide();
+		popup.find(".filter_label").hide();
+		popup.find(".filter").hide();
+	}
+	if (type == SENSOR_MQTT || type == USERDEF_SENSOR) {
+		popup.find(".unit_label").show();
+		popup.find(".unit").show();
+	} else {
+		popup.find(".unit_label").hide();
+		popup.find(".unit").hide();
+	}
 }
 
 // Analog sensor editor
@@ -522,71 +594,53 @@ function isSmt100( sensorType ) {
 		}
 		list += "</select></div>";
 
-		list += "<button data-mini='true' class='center-div' id='smt100id' style='display:" + ( isSmt100( sensor.type ) ? "block" : "none" ) + "'>" + _( "Set SMT100 Modbus ID" ) + "</button>";
+		list += "<button data-mini='true' class='center-div' id='smt100id'>" + _( "Set SMT100 Modbus ID" ) + "</button>";
 
-		list += "<label>" +
-			_( "Group" ) +
+		list += "<label>" + _( "Group" ) +
 			"</label>" +
 			"<input class='group' type='number'  min='0' max='99999' value='" + sensor.group + "'>" +
 
-			"<label>" +
-			_( "Name" ) +
+			"<label>" + _( "Name" ) +
 			"</label>" +
 			"<input class='name' type='text'  value='" + sensor.name + "'>" +
 
-			"<label>" +
-			_( "IP Address" ) +
+			"<label class='ip_label'>" + _( "IP Address" ) +
 			"</label>" +
 			"<input class='ip' type='text'  value='" + ( sensor.ip ? toByteArray( sensor.ip ).join( "." ) : "" ) + "'>" +
 
-			"<label>" +
-			_( "Port" ) +
+			"<label class='port_label'>" + 	_( "Port" ) +
 			"</label>" +
 			"<input class='port' type='number' min='0' max='65535' value='" + sensor.port + "'>" +
 
-			"<label>" +
-			_( "ID" ) +
+			"<label class='id_label'>" + _( "ID" ) +
 			"</label>" +
 			"<input class='id' type='number' min='0' max='65535' value='" + sensor.id + "'>" +
 
-					((sensor.type === USERDEF_SENSOR) ?
-						("<label>" + _( "Factor" ) +
-						"</label>" +
-						"<input class='fac' type='number' min='-32768' max='32767' value='" + sensor.fac + "'>" +
+			"<label class='fac_label'>" + _( "Factor" ) +
+			"</label>" +
+			"<input class='fac' type='number' min='-32768' max='32767' value='" + sensor.fac + "'>" +
 
-						"<label>" + _( "Divider" ) +
-						"</label>" +
-						"<input class='div' type='number' min='-32768' max='32767' value='" + sensor.div + "'>" +
+			"<label class='div_label'>" + _( "Divider" ) +
+			"</label>" +
+			"<input class='div' type='number' min='-32768' max='32767' value='" + sensor.div + "'>" +
 
-						(sensor.hasOwnProperty('offset')?
-							"<label>" + _( "Offset in millivolt" ) +
-							"</label>" +
-							"<input class='offset' type='number' min='-32768' max='32767' value='" + sensor.offset + "'>"
-						:"")+
+			"<label class='offset_label'>" + _( "Offset in millivolt" ) +
+			"</label>" +
+			"<input class='offset' type='number' min='-32768' max='32767' value='" + sensor.offset + "'>" +
 
-						"<label>" + _( "Unit" ) +
-						"</label>" +
-						"<input class='unit' type='text'  value='" + sensor.unit + "'>"
-						):"") +
+			"<label class='unit_label'>" + _( "Unit" ) +
+			"</label>" +
+			"<input class='unit' type='text'  value='" + (sensor.unit?sensor.unit:"") + "'>" +
 
-					((sensor.type === SENSOR_MQTT) ?
-						("<label>" +
-						_( "MQTT Topic" ) +
-						"</label>" +
-						"<input class='topic' type='text'  value='" + (sensor.topic?sensor.topic:"") + "'>" +
-						"<label>" +
-						_( "MQTT Filter" ) +
-						"</label>" +
-						"<input class='filter' type='text'  value='" + (sensor.filter?sensor.filter:"") + "'>" +
-						"<label>" +
-						_( "Unit" ) +
-						"</label>" +
-						"<input class='unit' type='text'  value='" + (sensor.unit?sensor.unit:"") + "'>"
-						):"") +
+			"<label class='topic_label'>" + _( "MQTT Topic" ) +
+			"</label>" +
+			"<input class='topic' type='text'  value='" + (sensor.topic?sensor.topic:"") + "'>" +
 
+			"<label class='filter_label'>" + _( "MQTT Filter" ) +
+			"</label>" +
+			"<input class='filter' type='text'  value='" + (sensor.filter?sensor.filter:"") + "'>" +
 
-			"<label>" +
-			_( "Read Interval (s)" ) +
+			"<label>" + _( "Read Interval (s)" ) +
 			"</label>" +
 			"<input class='ri' type='number' min='1' max='999999' value='" + sensor.ri + "'>" +
 
@@ -624,6 +678,11 @@ function isSmt100( sensorType ) {
 
 			input.val( val + dir );
 		};
+
+	popup.find( "#type" ).change(function() {
+		var type = $(this).val();
+		updateSensorVisibility(popup, type);
+	});
 
 	//SMT 100 Toolbox function: SET ID
 	popup.find( "#smt100id" ).on( "click", function() {
@@ -732,6 +791,8 @@ function isSmt100( sensorType ) {
 	$( "#sensorEditor" ).remove();
 
 	popup.css( "max-width", "580px" );
+
+	updateSensorVisibility(popup, sensor.type);
 
 	openPopup( popup, { positionTo: "window" } );
 } );

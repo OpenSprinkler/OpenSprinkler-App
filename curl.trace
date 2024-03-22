@@ -1,0 +1,90 @@
+== Info:   Trying 192.168.0.55:80...
+== Info: Connected to 192.168.0.55 (192.168.0.55) port 80
+=> Send header, 185 bytes (0xb9)
+0000: POST /sy?pw=a6d82bced638de3def1e9bbb4983225c HTTP/1.1
+0037: Host: 192.168.0.55
+004b: User-Agent: curl/8.5.0
+0063: Accept: */*
+0070: Content-Length: 4095
+0086: Content-Type: application/x-www-form-urlencoded
+00b7: 
+=> Send data, 4095 bytes (0xfff)
+0000: {"backup":1,"time":1710639810,"os-version":231,"minor":150,"sens
+0040: ors":[{"nr":1,"type":1,"group":20,"name":"SMT100-Mois","ip":4261
+0080: 456064,"port":502,"id":1,"ri":600,"fac":0,"div":0,"offset":0,"of
+00c0: fset2":0,"nativedata":1323,"data": 13.230000,"unit":"%","unitid"
+0100: :1,"enable":1,"log":1,"show":0,"data_ok":1,"last":1710639438,"ur
+0140: l":"","topic":"","filter":""},{"nr":2,"type":2,"group":21,"name"
+0180: :"SMT100-Temp","ip":4261456064,"port":502,"id":1,"ri":600,"fac":
+01c0: 0,"div":0,"offset":0,"offset2":0,"nativedata":10895,"data":  8.9
+0200: 50000,"unit":"..C","unitid":2,"enable":1,"log":1,"show":1,"data_
+0240: ok":1,"last":1710639438,"url":"","topic":"","filter":""},{"nr":3
+0280: ,"type":15,"group":20,"name":"SMT50-Mois","ip":0,"port":0,"id":0
+02c0: ,"ri":600,"fac":0,"div":0,"offset":0,"offset2":0,"nativedata":21
+0300: 67,"data":  4.514721,"unit":"%","unitid":1,"enable":1,"log":1,"s
+0340: how":1,"data_ok":1,"last":1710639323,"url":"","topic":"","filter
+0380: ":""},{"nr":4,"type":16,"group":21,"name":"SMT50-Temp","ip":0,"p
+03c0: ort":0,"id":1,"ri":599,"fac":0,"div":0,"offset":0,"offset2":0,"n
+0400: ativedata":4551,"data":  6.889236,"unit":"..C","unitid":2,"enabl
+0440: e":1,"log":1,"show":1,"data_ok":1,"last":1710639317,"url":"","to
+0480: pic":"","filter":""},{"nr":5,"type":15,"group":20,"name":"SMT50-
+04c0: Mois2","ip":0,"port":0,"id":2,"ri":600,"fac":0,"div":0,"offset":
+0500: 0,"offset2":0,"nativedata":8812,"data": 18.358894,"unit":"%","un
+0540: itid":1,"enable":1,"log":1,"show":0,"data_ok":1,"last":171063932
+0580: 5,"url":"","topic":"","filter":""},{"nr":6,"type":16,"group":21,
+05c0: "name":"SMT50-Temp2","ip":0,"port":0,"id":3,"ri":600,"fac":0,"di
+0600: v":0,"offset":0,"offset2":0,"nativedata":4658,"data":  8.226776,
+0640: "unit":"..C","unitid":2,"enable":1,"log":1,"show":0,"data_ok":1,
+0680: "last":1710639326,"url":"","topic":"","filter":""},{"nr":20,"typ
+06c0: e":1002,"group":0,"name":"Group avg soil moisture","ip":0,"port"
+0700: :0,"id":0,"ri":600,"fac":0,"div":0,"offset":0,"offset2":0,"nativ
+0740: edata":0,"data": 12.034538,"unit":"%","unitid":1,"enable":1,"log
+0780: ":1,"show":1,"data_ok":1,"last":1710639327,"url":"","topic":"","
+07c0: filter":""},{"nr":21,"type":1002,"group":0,"name":"Group avg tem
+0800: perature","ip":0,"port":0,"id":0,"ri":600,"fac":0,"div":0,"offse
+0840: t":0,"offset2":0,"nativedata":0,"data":  8.035337,"unit":"..C","
+0880: unitid":2,"enable":1,"log":1,"show":1,"data_ok":1,"last":1710639
+08c0: 327,"url":"","topic":"","filter":""},{"nr":30,"type":102,"group"
+0900: :0,"name":"Wetter-Temperatur","ip":0,"port":0,"id":0,"ri":3600,"
+0940: fac":0,"div":0,"offset":0,"offset2":0,"nativedata":0,"data":  5.
+0980: 700000,"unit":"..C","unitid":2,"enable":1,"log":1,"show":0,"data
+09c0: _ok":1,"last":1710638787,"url":"","topic":"","filter":""},{"nr":
+0a00: 31,"type":103,"group":0,"name":"Wetter-Luftfeuchtigkeit","ip":0,
+0a40: "port":0,"id":0,"ri":3600,"fac":0,"div":0,"offset":0,"offset2":0
+0a80: ,"nativedata":0,"data": 93.000000,"unit":"%","unitid":5,"enable"
+0ac0: :1,"log":1,"show":0,"data_ok":1,"last":1710638787,"url":"","topi
+0b00: c":"","filter":""},{"nr":32,"type":106,"group":0,"name":"Wetter-
+0b40: Regen","ip":0,"port":0,"id":0,"ri":3600,"fac":0,"div":0,"offset"
+0b80: :0,"offset2":0,"nativedata":0,"data":  0.000000,"unit":"mm","uni
+0bc0: tid":7,"enable":1,"log":1,"show":0,"data_ok":1,"last":1710638788
+0c00: ,"url":"","topic":"","filter":""},{"nr":33,"type":108,"group":0,
+0c40: "name":"Wetter-Wind","ip":0,"port":0,"id":0,"ri":3600,"fac":0,"d
+0c80: iv":0,"offset":0,"offset2":0,"nativedata":0,"data":  2.900000,"u
+0cc0: nit":"kmh","unitid":9,"enable":1,"log":1,"show":0,"data_ok":1,"l
+0d00: ast":1710638788,"url":"","topic":"","filter":""},{"nr":100,"type
+0d40: ":90,"group":0,"name":"Dragino LSE","ip":0,"port":0,"id":0,"ri":
+0d80: 600,"fac":0,"div":0,"offset":0,"offset2":0,"nativedata":0,"data"
+0dc0: : 41.420000,"unit":"%","unitid":99,"enable":1,"log":1,"show":1,"
+0e00: data_ok":1,"last":1710639260,"url":"","topic":"application/5069a
+0e40: 95c-0c2f-4ce9-b228-69281f02b842/device/a84041e4f1876075/event/up
+0e80: ","filter":"water_SOIL"},{"nr":101,"type":90,"group":0,"name":"E
+0ec0: M500-SMTC","ip":0,"port":0,"id":0,"ri":600,"fac":0,"div":0,"offs
+0f00: et":0,"offset2":0,"nativedata":0,"data": 22.590000,"unit":"%","u
+0f40: nitid":99,"enable":1,"log":1,"show":1,"data_ok":1,"last":1710639
+0f80: 664,"url":"","topic":"application/5069a95c-0c2f-4ce9-b228-69281f
+0fc0: 02b842/device/24e124126c481371/event/up","filter":"moisture"}]}
+<= Recv header, 17 bytes (0x11)
+0000: HTTP/1.1 200 OK
+<= Recv header, 32 bytes (0x20)
+0000: Content-Type: application/json
+<= Recv header, 32 bytes (0x20)
+0000: Access-Control-Allow-Origin: *
+<= Recv header, 63 bytes (0x3f)
+0000: Cache-Control: max-age=0, no-cache, no-store, must-revalidate
+<= Recv header, 19 bytes (0x13)
+0000: Connection: close
+<= Recv header, 2 bytes (0x2)
+0000: 
+<= Recv data, 36 bytes (0x24)
+0000: {"status":2,"statusText":"NoMemory"}
+== Info: Closing connection

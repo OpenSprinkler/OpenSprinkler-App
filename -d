@@ -1,0 +1,37 @@
+== Info: URL rejected: No host part in the URL
+== Info: Closing connection
+== Info:   Trying 192.168.0.55:80...
+== Info: Connected to 192.168.0.55 (192.168.0.55) port 80
+=> Send header, 113 bytes (0x71)
+0000: 47 45 54 20 2f 73 79 3f 70 77 3d 61 36 64 38 32 GET /sy?pw=a6d82
+0010: 62 63 65 64 36 33 38 64 65 33 64 65 66 31 65 39 bced638de3def1e9
+0020: 62 62 62 34 39 38 33 32 32 35 63 20 48 54 54 50 bbb4983225c HTTP
+0030: 2f 31 2e 31 0d 0a 48 6f 73 74 3a 20 31 39 32 2e /1.1..Host: 192.
+0040: 31 36 38 2e 30 2e 35 35 0d 0a 55 73 65 72 2d 41 168.0.55..User-A
+0050: 67 65 6e 74 3a 20 63 75 72 6c 2f 38 2e 35 2e 30 gent: curl/8.5.0
+0060: 0d 0a 41 63 63 65 70 74 3a 20 2a 2f 2a 0d 0a 0d ..Accept: */*...
+0070: 0a                                              .
+<= Recv header, 17 bytes (0x11)
+0000: 48 54 54 50 2f 31 2e 31 20 32 30 30 20 4f 4b 0d HTTP/1.1 200 OK.
+0010: 0a                                              .
+<= Recv header, 32 bytes (0x20)
+0000: 43 6f 6e 74 65 6e 74 2d 54 79 70 65 3a 20 61 70 Content-Type: ap
+0010: 70 6c 69 63 61 74 69 6f 6e 2f 6a 73 6f 6e 0d 0a plication/json..
+<= Recv header, 32 bytes (0x20)
+0000: 41 63 63 65 73 73 2d 43 6f 6e 74 72 6f 6c 2d 41 Access-Control-A
+0010: 6c 6c 6f 77 2d 4f 72 69 67 69 6e 3a 20 2a 0d 0a llow-Origin: *..
+<= Recv header, 63 bytes (0x3f)
+0000: 43 61 63 68 65 2d 43 6f 6e 74 72 6f 6c 3a 20 6d Cache-Control: m
+0010: 61 78 2d 61 67 65 3d 30 2c 20 6e 6f 2d 63 61 63 ax-age=0, no-cac
+0020: 68 65 2c 20 6e 6f 2d 73 74 6f 72 65 2c 20 6d 75 he, no-store, mu
+0030: 73 74 2d 72 65 76 61 6c 69 64 61 74 65 0d 0a    st-revalidate..
+<= Recv header, 19 bytes (0x13)
+0000: 43 6f 6e 6e 65 63 74 69 6f 6e 3a 20 63 6c 6f 73 Connection: clos
+0010: 65 0d 0a                                        e..
+<= Recv header, 2 bytes (0x2)
+0000: 0d 0a                                           ..
+<= Recv data, 38 bytes (0x26)
+0000: 7b 22 73 74 61 74 75 73 22 3a 22 66 61 69 6c 22 {"status":"fail"
+0010: 2c 22 65 72 72 6f 72 22 3a 22 45 6d 70 74 79 49 ,"error":"EmptyI
+0020: 6e 70 75 74 22 7d                               nput"}
+== Info: Closing connection
