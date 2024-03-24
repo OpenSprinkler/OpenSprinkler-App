@@ -292,7 +292,49 @@ function importConfigSensors( data, restore_type, callback ) {
 	} );
 }
 
-
+function getExportMethodSensors(backuptype) {
+    var storageName = backuptype==1?"backupSensors":backuptype==2?"backupAdjustments":"backupAll";
+    var filename = backuptype==1?"BackupSensorConfig":backuptype==2?"BackupSensorAdjustments":"BackupAll";
+    
+    sendToOS( "sx?pw=&backup="+backuptype, "json" ).then( function( data ) {
+        
+        var popup = $(
+                      "<div data-role='popup' data-theme='a'>" +
+                      "<div class='ui-bar ui-bar-a'>" + _( "Select Export Method" ) + "</div>" +
+                      "<div data-role='controlgroup' class='tight'>" +
+                      "<a class='ui-btn hidden fileMethod'>" + _( "File" ) + "</a>" +
+                      "<a class='ui-btn pasteMethod'>" + _( "Email" ) + "</a>" +
+                      "<a class='ui-btn localMethod'>" + _( "Internal (within app)" ) + "</a>" +
+                      "</div>" +
+                      "</div>" ),
+        obj = encodeURIComponent( JSON.stringify( data ) ),
+        subject = "OpenSprinkler Sensor Export on " + dateToString( new Date() );
+        
+        if ( isFileCapable ) {
+            popup.find( ".fileMethod" ).removeClass( "hidden" ).attr( {
+                href: "data:text/json;charset=utf-8," + obj,
+                download: filename+"-" + new Date().toLocaleDateString().replace( /\//g, "-" ) + ".json"
+            } ).on( "click", function() {
+                popup.popup( "close" );
+            } );
+        }
+        
+        var href = "mailto:?subject=" + encodeURIComponent( subject ) + "&body=" + obj;
+        popup.find( ".pasteMethod" ).attr( "href", href ).on( "click", function() {
+            window.open( href, isOSXApp ? "_system" : undefined );
+            popup.popup( "close" );
+        } );
+        
+        popup.find( ".localMethod" ).on( "click", function() {
+            popup.popup( "close" );
+            storage.set( { storageName:JSON.stringify( data ) }, function() {
+                showerror( _( "Backup saved on this device" ) );
+            } );
+        } );
+        
+        openPopup( popup, { positionTo: $( "#sprinklers-settings" ).find( ".export_config" ) } );
+    }
+}
 
 
 //Program adjustments editor
@@ -1007,44 +1049,24 @@ function showAnalogSensorConfig() {
 		} );
 
 		list.find( ".backup-sensors" ).on( "click", function() {
-			analogSensors.expandItem.add("backup");
-			var link = document.createElement( "a" );
-			link.style.display = "none";
-			link.setAttribute( "download", "BackupSensorConfig-" + new Date().toLocaleDateString().replace( /\//g, "-" ) + ".json" );
-
-			var dest = "/sx?pw=&backup=1";
-			dest = dest.replace( "pw=", "pw=" + enc( currPass ) );
-			link.target = "_blank";
-			link.href = currToken ? ("https://cloud.openthings.io/forward/v1/" + currToken + dest) : (currPrefix + currIp + dest);
-			document.body.appendChild( link ); // Required for FF
-			link.click();
-
+            analogSensors.expandItem.add("backup");
+            getExportMethodSensors(1);
 		} );
 
 		list.find( ".restore-sensors" ).on( "click", function() {
 			analogSensors.expandItem.add("backup");
-			var localData = {};
+			var localData = storage.get("backupSensors");
 			getImportMethodSensors(localData, 1, updateSensorContent);
 		} );
 
 		list.find( ".backup-adjustments" ).on( "click", function() {
-			analogSensors.expandItem.add("backup");
-			var link = document.createElement( "a" );
-			link.style.display = "none";
-			link.setAttribute( "download", "BackupAdjustments-" + new Date().toLocaleDateString().replace( /\//g, "-" ) + ".json" );
-
-			var dest = "/sx?pw=&backup=2";
-			dest = dest.replace( "pw=", "pw=" + enc( currPass ) );
-			link.target = "_blank";
-			link.href = currToken ? ("https://cloud.openthings.io/forward/v1/" + currToken + dest) : (currPrefix + currIp + dest);
-			document.body.appendChild( link ); // Required for FF
-			link.click();
-
+            analogSensors.expandItem.add("backup");
+            getExportMethodSensors(2);
 		} );
 
 		list.find( ".restore-adjustments" ).on( "click", function() {
 			analogSensors.expandItem.add("backup");
-			var localData = {};
+			var localData = storage.get("backupAdjustments");
 			getImportMethodSensors(localData, 2, updateSensorContent);
 		} );
 
