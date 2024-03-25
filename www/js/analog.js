@@ -145,8 +145,7 @@ function getImportMethodSensors( restore_type, callback) {
 					return;
 				}
 
-				try {
-					data = JSON.parse( $.trim( data ).replace( /“|”|″/g, "\"" ) );
+				try {					data = JSON.parse( $.trim( data ).replace( /“|”|″/g, "\"" ) );
 					popup.popup( "close" );
 					importConfigSensors( data, restore_type, callback );
 				}catch ( err ) {
@@ -675,7 +674,23 @@ function updateSensorVisibility(popup, type) {
 
 			"<label class='unit_label'>" + _( "Unit" ) +
 			"</label>" +
-			"<input class='unit' type='text'  value='" + (sensor.unit?sensor.unit:"") + "'>" +
+            "<select data-mini='true' id='chartunits'>" +
+            "<option value='1'>" + _("Soil Moisture %") + "</option>" +
+            "<option value='2'>" + _("Degree Celcius °C") + "</option>" +
+            "<option value='3'>" + _("Degree Fahrenheit °F") + "</option>" +
+            "<option value='4'>" + _("Volt V") + "</option>" +
+            "<option value='5'>" + _("Air Humidity %") + "</option>" +
+            "<option value='6'>" + _("Inch in") + "</option>" +
+            "<option value='7'>" + _("Millimeter mm") + "</option>" +
+            "<option value='8'>" + _("MPH") + "</option>" +
+            "<option value='9'>" + _("KM/H") + "</option>" +
+            "<option value='10'>" + _("Level %") + "</option>" +
+            "<option value='11'>" + _("Own Unit") + "</option>" +
+            "</select>" +
+
+            "<label class='unit_label'>" + _( "Chart Unit" ) +
+            "</label>" +
+            "<input class='unit' type='text'  value='" + (sensor.unit?sensor.unit:"") + "'>" +
 
 			"<label class='topic_label'>" + _( "MQTT Topic" ) +
 			"</label>" +
@@ -768,6 +783,7 @@ function updateSensorVisibility(popup, type) {
 		} );
 	} );
 
+    popup.find("#chartunits").val(sensor.unitid).change();
 
 	popup.find( ".submit" ).on( "click", function() {
 
@@ -793,6 +809,7 @@ function updateSensorVisibility(popup, type) {
 			div:    parseInt( popup.find( ".div" ).val() ),
 			offset: parseInt( popup.find( ".offset" ).val() ),
 			unit:   popup.find( ".unit" ).val(),
+            unitid: popup.find( "#chartunits" ).val(),
 			enable: popup.find( "#enable" ).is( ":checked" ) ? 1 : 0,
 			log:    popup.find( "#log" ).is( ":checked" ) ? 1 : 0,
 			show:   popup.find( "#show" ).is( ":checked" ) ? 1 : 0,
@@ -878,6 +895,7 @@ function showAnalogSensorConfig() {
 					"&port=" + sensorOut.port +
 					"&id=" + sensorOut.id +
 					"&ri=" + sensorOut.ri +
+                    "&unitid=" + sensorOut.unitid +
 					((sensorOut.type === USERDEF_SENSOR) ?
 						("&fac=" + sensorOut.fac +
 						"&div=" + sensorOut.div +
@@ -923,6 +941,7 @@ function showAnalogSensorConfig() {
 				"&port=" + sensorOut.port +
 				"&id=" + sensorOut.id +
 				"&ri=" + sensorOut.ri +
+                "&unitid=" + sensorOut.unitid +
 				((sensorOut.type === USERDEF_SENSOR) ?
 					("&fac=" + sensorOut.fac +
 					"&div=" + sensorOut.div +
