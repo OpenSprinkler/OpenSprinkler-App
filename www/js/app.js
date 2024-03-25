@@ -13869,16 +13869,20 @@ function intFromBytes( x ) {
 }
 
 // Restore from Backup - Dialog
-function getImportMethodSensors( localData, restore_type, callback) {
-	callback = callback || function() {};
-	var getPaste = function() {
+function getImportMethodSensors( restore_type, callback) {
+
+	let storageName = (restore_type==1)?"backupSensors":(restore_type==2)?"backupAdjustments":"backupAll";
+	let localData = localStorage.getItem( storageName );
+	
+		callback = callback || function() {};
+		var getPaste = function() {
 			var popup = $(
-					"<div data-role='popup' data-theme='a' id='paste_config'>" +
-						"<p class='ui-bar'>" +
-							"<textarea class='textarea' rows='10' placeholder='" + _( "Paste your backup here" ) + "'></textarea>" +
-							"<button data-mini='true' data-theme='b'>" + _( "Import" ) + "</button>" +
-						"</p>" +
-					"</div>"
+				"<div data-role='popup' data-theme='a' id='paste_config'>" +
+				"<p class='ui-bar'>" +
+				"<textarea class='textarea' rows='10' placeholder='" + _( "Paste your backup here" ) + "'></textarea>" +
+				"<button data-mini='true' data-theme='b'>" + _( "Import" ) + "</button>" +
+				"</p>" +
+				"</div>"
 				),
 				width = $.mobile.window.width();
 
@@ -13905,16 +13909,16 @@ function getImportMethodSensors( localData, restore_type, callback) {
 		},
 		popup = $(
 			"<div data-role='popup' data-theme='a'>" +
-				"<div class='ui-bar ui-bar-a'>" + _( "Select Import Method" ) + "</div>" +
-				"<div data-role='controlgroup' class='tight'>" +
-					"<button class='hidden fileMethod'>" + _( "File" ) + "</button>" +
-					"<button class='pasteMethod'>" + _( "Email (copy/paste)" ) + "</button>" +
-					//"<button class='hidden localMethod'>" + _( "Internal (within app)" ) + "</button>" +
-				"</div>" +
+			"<div class='ui-bar ui-bar-a'>" + _( "Select Import Method" ) + "</div>" +
+			"<div data-role='controlgroup' class='tight'>" +
+			"<button class='hidden fileMethod'>" + _( "File" ) + "</button>" +
+			"<button class='pasteMethod'>" + _( "Email (copy/paste)" ) + "</button>" +
+			"<button class='hidden localMethod'>" + _( "Internal (within app)" ) + "</button>" +
+			"</div>" +
 			"</div>" );
 
-	if ( isFileCapable ) {
-		popup.find( ".fileMethod" ).removeClass( "hidden" ).on( "click", function() {
+		if ( isFileCapable ) {
+			popup.find( ".fileMethod" ).removeClass( "hidden" ).on( "click", function() {
 			popup.popup( "close" );
 			var input = $( "<input type='file' id='configInput' data-role='none' style='visibility:hidden;position:absolute;top:-50px;left:-50px'/>" )
 				.on( "change", function() {
@@ -13940,31 +13944,31 @@ function getImportMethodSensors( localData, restore_type, callback) {
 			input.appendTo( "#sprinklers-settings" );
 			input.click();
 			return false;
-		} );
-	} else {
+			} );
+		} else {
 
-		// Handle local storage being unavailable and present paste dialog immediately
-		if ( !localData ) {
-			getPaste();
-			return;
+			// Handle local storage being unavailable and present paste dialog immediately
+			if ( !localData ) {
+				getPaste();
+				return;
+			}
 		}
-	}
 
-	popup.find( ".pasteMethod" ).on( "click", function() {
-		popup.popup( "close" );
-		getPaste();
-		return false;
-	} );
-
-	if ( localData ) {
-		popup.find( ".localMethod" ).removeClass( "hidden" ).on( "click", function() {
+		popup.find( ".pasteMethod" ).on( "click", function() {
 			popup.popup( "close" );
-			importConfigSensors( JSON.parse( localData ), restore_type, callback );
+			getPaste();
 			return false;
 		} );
-	}
 
-	openPopup( popup, { positionTo: $( "#sprinklers-settings" ).find( ".import_config" ) } );
+		if ( localData ) {
+			popup.find( ".localMethod" ).removeClass( "hidden" ).on( "click", function() {
+				popup.popup( "close" );
+				importConfigSensors( JSON.parse( localData ), restore_type, callback );
+				return false;
+			} );
+		}
+
+		openPopup( popup );
 }
 
 // Restore from backup - send to OS
@@ -13980,7 +13984,7 @@ function importConfigSensors( data, restore_type, callback ) {
 	areYouSure( _( "Are you sure you want to restore the configuration?" ), warning, function() {
 		$.mobile.loading( "show" );
 
-		if ((restore_type & 1) === 1 && data.hasOwnProperty("sensors")) { //restore Sensor
+		if ((restore_type & 1) == 1 && data.hasOwnProperty("sensors")) { //restore Sensor
 			var sensorOut;
 			for (var i = 0; i < data.sensors.length; i++)
 			{
@@ -14011,7 +14015,7 @@ function importConfigSensors( data, restore_type, callback ) {
 			}
 		}
 
-		if ((restore_type & 2) === 2 && data.hasOwnProperty("progadjust")) { //restore program adjustments
+		if ((restore_type & 2) == 2 && data.hasOwnProperty("progadjust")) { //restore program adjustments
 			var progAdjustOut;
 			for (var i = 0; i < data.progadjust.length; i++) {
 				progAdjustOut = data.progadjust[i];
@@ -14040,7 +14044,48 @@ function importConfigSensors( data, restore_type, callback ) {
 	} );
 }
 
-
+function getExportMethodSensors(backuptype) {
+    let storageName = (backuptype==1)?"backupSensors":(backuptype==2)?"backupAdjustments":"backupAll";
+    let filename = (backuptype==1)?"BackupSensorConfig":(backuptype==2)?"BackupSensorAdjustments":"BackupAll";
+    
+    sendToOS( "/sx?pw=&backup="+backuptype, "json" ).then( function( data ) {
+        
+        var popup = $(
+                      "<div data-role='popup' data-theme='a'>" +
+                      "<div class='ui-bar ui-bar-a'>" + _( "Select Export Method" ) + "</div>" +
+                      "<div data-role='controlgroup' class='tight'>" +
+                      "<a class='ui-btn hidden fileMethod'>" + _( "File" ) + "</a>" +
+                      "<a class='ui-btn pasteMethod'>" + _( "Email" ) + "</a>" +
+                      "<a class='ui-btn localMethod'>" + _( "Internal (within app)" ) + "</a>" +
+                      "</div>" +
+                      "</div>" ),
+        obj = encodeURIComponent( JSON.stringify( data ) ),
+        subject = "OpenSprinkler Sensor Export on " + dateToString( new Date() );
+        
+        if ( isFileCapable ) {
+            popup.find( ".fileMethod" ).removeClass( "hidden" ).attr( {
+                href: "data:text/json;charset=utf-8," + obj,
+                download: filename+"-" + new Date().toLocaleDateString().replace( /\//g, "-" ) + ".json"
+            } ).on( "click", function() {
+                popup.popup( "close" );
+            } );
+        }
+        
+        var href = "mailto:?subject=" + encodeURIComponent( subject ) + "&body=" + obj;
+        popup.find( ".pasteMethod" ).attr( "href", href ).on( "click", function() {
+            window.open( href, isOSXApp ? "_system" : undefined );
+            popup.popup( "close" );
+        } );
+        
+        popup.find( ".localMethod" ).on( "click", function() {
+            popup.popup( "close" );
+            localStorage.setItem( storageName, JSON.stringify( data ) );
+	    showerror( _( "Backup saved on this device" ) );
+        } );
+        
+        openPopup( popup );
+    });
+}
 
 
 //Program adjustments editor
@@ -14243,6 +14288,7 @@ function isIDNeeded( sensorType) {
 	return sensorType < 90 || sensorType == 100;
 }
 
+//show and hide sensor editor fields
 function updateSensorVisibility(popup, type) {
 	if (isIPSensor(type)) {
 		popup.find(".ip_label").show();
@@ -14745,6 +14791,7 @@ function showAnalogSensorConfig() {
 			link.href = currToken ? ("https://cloud.openthings.io/forward/v1/" + currToken + dest) : (currPrefix + currIp + dest);
 			document.body.appendChild( link ); // Required for FF
 			link.click();
+			return false;
 		} );
 
 		list.find( ".show-log" ).on( "click", function() {
@@ -14754,45 +14801,27 @@ function showAnalogSensorConfig() {
 		} );
 
 		list.find( ".backup-sensors" ).on( "click", function() {
-			analogSensors.expandItem.add("backup");
-			var link = document.createElement( "a" );
-			link.style.display = "none";
-			link.setAttribute( "download", "BackupSensorConfig-" + new Date().toLocaleDateString().replace( /\//g, "-" ) + ".json" );
-
-			var dest = "/sx?pw=&backup=1";
-			dest = dest.replace( "pw=", "pw=" + enc( currPass ) );
-			link.target = "_blank";
-			link.href = currToken ? ("https://cloud.openthings.io/forward/v1/" + currToken + dest) : (currPrefix + currIp + dest);
-			document.body.appendChild( link ); // Required for FF
-			link.click();
-
+            analogSensors.expandItem.add("backup");
+            getExportMethodSensors(1);
+            return false;
 		} );
 
 		list.find( ".restore-sensors" ).on( "click", function() {
 			analogSensors.expandItem.add("backup");
-			var localData = {};
-			getImportMethodSensors(localData, 1, updateSensorContent);
+			getImportMethodSensors(1, updateSensorContent);
+			return false;
 		} );
 
 		list.find( ".backup-adjustments" ).on( "click", function() {
-			analogSensors.expandItem.add("backup");
-			var link = document.createElement( "a" );
-			link.style.display = "none";
-			link.setAttribute( "download", "BackupAdjustments-" + new Date().toLocaleDateString().replace( /\//g, "-" ) + ".json" );
-
-			var dest = "/sx?pw=&backup=2";
-			dest = dest.replace( "pw=", "pw=" + enc( currPass ) );
-			link.target = "_blank";
-			link.href = currToken ? ("https://cloud.openthings.io/forward/v1/" + currToken + dest) : (currPrefix + currIp + dest);
-			document.body.appendChild( link ); // Required for FF
-			link.click();
-
+            analogSensors.expandItem.add("backup");
+            getExportMethodSensors(2);
+            return false;
 		} );
 
 		list.find( ".restore-adjustments" ).on( "click", function() {
 			analogSensors.expandItem.add("backup");
-			var localData = {};
-			getImportMethodSensors(localData, 2, updateSensorContent);
+			getImportMethodSensors(2, updateSensorContent);
+			return false;
 		} );
 
 		page.find( "#analogsensorlist" ).html( list ) .enhanceWithin();
