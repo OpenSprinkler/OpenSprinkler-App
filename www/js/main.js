@@ -3412,7 +3412,7 @@ function format2(value) {
 	return ( +( Math.round( value + "e+2" )  + "e-2" ) );
 }
 function debugWU() {
-	sendToOS("/du/pw=").then( function( status ) {
+	sendToOS("/du?pw=").then( function( status ) {
 
 		var popup = "<div data-role='popup' id='debugWU' class='ui-content ui-page-theme-a'>";
 
