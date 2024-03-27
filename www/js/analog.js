@@ -672,7 +672,7 @@ function updateSensorVisibility(popup, type) {
 			"</label>" +
 			"<input class='offset' type='number' min='-32768' max='32767' value='" + sensor.offset + "'>" +
 
-			"<label class='unit_label'>" + _( "Unit" ) +
+			"<label class='chartunit_label'>" + _( "Chart Unit" ) +
 			"</label>" +
             "<select data-mini='true' id='chartunits'>" +
             "<option value='1'>" + _("Soil Moisture %") + "</option>" +
@@ -685,10 +685,10 @@ function updateSensorVisibility(popup, type) {
             "<option value='8'>" + _("MPH") + "</option>" +
             "<option value='9'>" + _("KM/H") + "</option>" +
             "<option value='10'>" + _("Level %") + "</option>" +
-            "<option value='11'>" + _("Own Unit") + "</option>" +
+            "<option value='99'>" + _("Own Unit") + "</option>" +
             "</select>" +
 
-            "<label class='unit_label'>" + _( "Chart Unit" ) +
+            "<label class='unit_label'>" + _( "Unit" ) +
             "</label>" +
             "<input class='unit' type='text'  value='" + (sensor.unit?sensor.unit:"") + "'>" +
 
