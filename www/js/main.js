@@ -3463,7 +3463,7 @@ function debugWU() {
 				popup += "<tr><td>Ping check ok</td><td>" + status.pingok + "</td></tr>";
 			if (status.hasOwnProperty("mqtt"))
 				popup += "<tr><td>MQTT</td><td>" + status.mqtt?"connected":"disconnected" + "</td></tr>";
-			popup += "</table>";
+			popup +="</table>";
 		}
 
 		if ( controller.settings.wtdata && ( typeof controller.settings.wtdata.wp === "string" || typeof controller.settings.wtdata.weatherProvider === "string" ) ) {

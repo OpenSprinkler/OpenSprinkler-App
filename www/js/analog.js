@@ -300,7 +300,6 @@ function getExportMethodSensors(backuptype) {
     let filename = (backuptype==1)?"BackupSensorConfig":(backuptype==2)?"BackupSensorAdjustments":"BackupAll";
     
     sendToOS( "/sx?pw=&backup="+backuptype, "json" ).then( function( data ) {
-        
         var popup = $(
                       "<div data-role='popup' data-theme='a'>" +
                       "<div class='ui-bar ui-bar-a'>" + _( "Select Export Method" ) + "</div>" +
@@ -312,7 +311,7 @@ function getExportMethodSensors(backuptype) {
                       "</div>" ),
         obj = encodeURIComponent( JSON.stringify( data ) ),
         subject = "OpenSprinkler Sensor Export on " + dateToString( new Date() );
-        
+
         if ( isFileCapable ) {
             popup.find( ".fileMethod" ).removeClass( "hidden" ).attr( {
                 href: "data:text/json;charset=utf-8," + obj,
@@ -321,21 +320,27 @@ function getExportMethodSensors(backuptype) {
                 popup.popup( "close" );
             } );
         }
-        
+
         var href = "mailto:?subject=" + encodeURIComponent( subject ) + "&body=" + obj;
         popup.find( ".pasteMethod" ).attr( "href", href ).on( "click", function() {
             window.open( href, isOSXApp ? "_system" : undefined );
             popup.popup( "close" );
         } );
-        
+
         popup.find( ".localMethod" ).on( "click", function() {
             popup.popup( "close" );
             localStorage.setItem( storageName, JSON.stringify( data ) );
 	    showerror( _( "Backup saved on this device" ) );
         } );
+<<<<<<< HEAD
         
         openPopup( popup );
     });
+=======
+
+        openPopup( popup, { positionTo: $( "#sprinklers-settings" ).find( ".export_config" ) } );
+    }
+>>>>>>> 9151d90ba5ca7cbf303204757c74e3c085c9c7c7
 }
 
 
@@ -675,6 +680,7 @@ function updateSensorVisibility(popup, type) {
 			"<label class='chartunit_label'>" + _( "Chart Unit" ) +
 			"</label>" +
             "<select data-mini='true' id='chartunits'>" +
+            "<option value='0'>" + _("Default") + "</option>" +
             "<option value='1'>" + _("Soil Moisture %") + "</option>" +
             "<option value='2'>" + _("Degree Celcius °C") + "</option>" +
             "<option value='3'>" + _("Degree Fahrenheit °F") + "</option>" +
