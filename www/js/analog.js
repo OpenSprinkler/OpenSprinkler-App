@@ -125,7 +125,7 @@ function getImportMethodSensors( restore_type, callback) {
 
 	let storageName = (restore_type==1)?"backupSensors":(restore_type==2)?"backupAdjustments":"backupAll";
 	let localData = localStorage.getItem( storageName );
-	
+
 		callback = callback || function() {};
 		var getPaste = function() {
 			var popup = $(
@@ -298,7 +298,7 @@ function importConfigSensors( data, restore_type, callback ) {
 function getExportMethodSensors(backuptype) {
     let storageName = (backuptype==1)?"backupSensors":(backuptype==2)?"backupAdjustments":"backupAll";
     let filename = (backuptype==1)?"BackupSensorConfig":(backuptype==2)?"BackupSensorAdjustments":"BackupAll";
-    
+
     sendToOS( "/sx?pw=&backup="+backuptype, "json" ).then( function( data ) {
         var popup = $(
                       "<div data-role='popup' data-theme='a'>" +
@@ -332,15 +332,9 @@ function getExportMethodSensors(backuptype) {
             localStorage.setItem( storageName, JSON.stringify( data ) );
 	    showerror( _( "Backup saved on this device" ) );
         } );
-<<<<<<< HEAD
-        
+
         openPopup( popup );
     });
-=======
-
-        openPopup( popup, { positionTo: $( "#sprinklers-settings" ).find( ".export_config" ) } );
-    }
->>>>>>> 9151d90ba5ca7cbf303204757c74e3c085c9c7c7
 }
 
 
@@ -619,6 +613,7 @@ function updateSensorVisibility(popup, type) {
 
 	var list = "<div data-role='popup' data-theme='a' id='sensorEditor'>" +
 			"<div data-role='header' data-theme='b'>" +
+			"<label>"+_("Last")+"</label><label>"+(sensor.last === undefined?"" : dateToString(new Date(sensor.last*1000)))+"</label>"+
 			"<h1>" + ( sensor.nr > 0 ? _( "Edit Sensor" ) : _( "New Sensor" ) ) + "</h1>" +
 			"</div>" +
 			"<div class='ui-content'>" +
@@ -1120,11 +1115,16 @@ function showAnalogSensorConfig() {
 	$.mobile.pageContainer.append( page );
 }
 
+function checkFirmwareUpdate() {
+	return (checkOSVersion(231) && getOSMinorVersion() >= 150)?"" : (_("Please Update Firmware to ") + "231(150)");
+}
+
 function buildSensorConfig( expandItem ) {
 	var list = "<fieldset data-role='collapsible' id='confighead'" + ( expandItem.has("sensors") ? " data-collapsed='false'" : "" ) + ">" +
 	"<legend>" + _( "Sensors" ) + "</legend>";
 
 	list += "<table id='analog_sensor_table'><tr style='width:100%;vertical-align: top;'>" +
+		checkFirmwareUpdate()+
 		"<tr><th>"+_("Nr")+"</th><th class=\"hidecol\">"+_("Type")+"</th><th class=\"hidecol\">"+_("Group")+"</th><th>"+_("Name")+"</th>"+
 		"<th class=\"hidecol\">"+_("IP")+"</th><th class=\"hidecol\">"+_("Port")+"</th><th class=\"hidecol\">"+_("ID")+"</th>"+
 		"<th class=\"hidecol\">"+_("Read")+"<br>"+_("Interval")+"</th><th>"+_("Data")+"</th><th>"+_("En")+"</th>"+

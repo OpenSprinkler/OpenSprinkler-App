@@ -3463,6 +3463,8 @@ function debugWU() {
 				popup += "<tr><td>Ping check ok</td><td>" + status.pingok + "</td></tr>";
 			if (status.hasOwnProperty("mqtt"))
 				popup += "<tr><td>MQTT</td><td>" + status.mqtt?"connected":"disconnected" + "</td></tr>";
+			if (status.hasOwnProperty("ifttt"))
+				popup += "<tr><td>IFTTT</td><td>" + status.ifttt?"enabled":"disabled" + "</td></tr>";
 			popup +="</table>";
 		}
 
