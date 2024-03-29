@@ -332,15 +332,9 @@ function getExportMethodSensors(backuptype) {
             localStorage.setItem( storageName, JSON.stringify( data ) );
 	    showerror( _( "Backup saved on this device" ) );
         } );
-<<<<<<< HEAD
         
         openPopup( popup );
     });
-=======
-
-        openPopup( popup, { positionTo: $( "#sprinklers-settings" ).find( ".export_config" ) } );
-    }
->>>>>>> 9151d90ba5ca7cbf303204757c74e3c085c9c7c7
 }
 
 
@@ -789,7 +783,7 @@ function updateSensorVisibility(popup, type) {
 		} );
 	} );
 
-    popup.find("#chartunits").val(sensor.unitid).change();
+	popup.find("#chartunits").val(sensor.unitid?sensor.unitid:0).change();
 
 	popup.find( ".submit" ).on( "click", function() {
 
