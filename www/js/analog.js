@@ -14,6 +14,13 @@ const USERDEF_SENSOR = 49;
 const USERDEF_UNIT   = 99;
 const SENSOR_MQTT    = 90;
 
+const CURRENT_FW     = "2.3.1(150)";
+const CURRENT_FW_ID  = 231;
+const CURRENT_FW_MIN = 150;
+
+const COLORS = ["#F3B415", "#F27036", "#663F59", "#6A6E94", "#4E88B4", "#00A7C6", "#18D8D8", '#A9D794','#46AF78', '#A93F55', '#8C5E58', '#2176FF', '#33A1FD', '#7A918D', '#BAFF29'];
+
+
 function checkAnalogSensorAvail( callback ) {
 	callback = callback || function() {};
 	return sendToOS( "/sl?pw=", "json" ).then( function( data ) {
@@ -1116,7 +1123,7 @@ function showAnalogSensorConfig() {
 }
 
 function checkFirmwareUpdate() {
-	return (checkOSVersion(231) && getOSMinorVersion() >= 150)?"" : (_("Please Update Firmware to ") + "231(150)");
+	return (checkOSVersion(CURRENT_FW_ID) && controller.options.fwm >= CURRENT_FW_MIN)?"" : (_("Please update firmware to ") + CURRENT_FW);
 }
 
 function buildSensorConfig( expandItem ) {
@@ -1288,13 +1295,13 @@ var showAnalogSensorCharts = ( function() {
 
 		$.mobile.loading( "show" );
 		sendToOS("/so?pw=&lasthours=48&csv=2"+limit, "text").then(function (csv1) {
-			buildGraph( "#myChart", chart1, csv1, _( "last 48h" ), "HH:mm" );
+			buildGraph( "#myChart", chart1, csv1, _( "last 48h" ), "HH:mm", 0 );
 
 			sendToOS("/so?pw=&csv=2&log=1"+limit, "text").then(function (csv2) {
-				buildGraph( "#myChartW", chart2, csv2, _( "last weeks" ), "dd.MM.yyyy" );
+				buildGraph( "#myChartW", chart2, csv2, _( "last weeks" ), "dd.MM.yyyy", 1 );
 
 				sendToOS("/so?pw=&csv=2&log=2"+limit, "text").then(function (csv3) {
-					buildGraph( "#myChartM", chart3, csv3, _( "last months" ), "MM.yyyy" );
+					buildGraph( "#myChartM", chart3, csv3, _( "last months" ), "MM.yyyy", 2 );
 					$.mobile.loading( "hide" );
 				});
 			});
@@ -1305,9 +1312,10 @@ var showAnalogSensorCharts = ( function() {
 } )();
 
 
-function buildGraph( prefix, chart, csv, titleAdd, timestr ) {
+function buildGraph( prefix, chart, csv, titleAdd, timestr, lvl ) {
 	var csvlines = csv.split( /(?:\r\n|\n)+/ ).filter( function( el ) { return el.length !== 0; } );
 
+	var legends = [], opacities = [], widths = [], colors = [], coloridx = 0;
 	for ( var j = 0; j < analogSensors.length; j++ ) {
 		var sensor = analogSensors[j];
 		if (!sensor.log) {
@@ -1315,15 +1323,56 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr ) {
 		}
 		var nr = sensor.nr,
 			logdata = [],
+			rngdata = [],
+			logmap = new Map(),
 			unitid = sensor.unitid;
 
 		for ( var k = 1; k < csvlines.length; k++ ) {
 			var line = csvlines[ k ].split( ";" );
 			if (line.length >= 3 && Number(line[0]) === nr ) {
-				logdata.push( { x: Number(line[1]) * 1000, y: Number(line[2]) } );
+				let date = Number(line[1]);
+				let value = Number(line[2]);
+				if (unitid != 3 && value > 100) continue;
+				if (unitid == 1 && value < 0) continue;
+				if (lvl == 0) //day values
+					logdata.push( { x: date * 1000, y: value } );
+				else {
+					var key;
+					var fac;
+					if (lvl == 1) //week values
+						fac = 7*24*60*60;
+					else //month values
+						fac = 30*24*60*60;
+					key = Math.trunc(date / fac) * fac * 1000;
+
+					var minmax = logmap.get(key);
+					if (!minmax)
+						minmax = {min: value, max: value};
+					else
+						minmax = {min: Math.min(minmax.min, value), max: Math.max(minmax.max, value)};
+					logmap.set(key, minmax);
+				}
 			}
 		}
-		var series = { name: sensor.name, data: logdata };
+
+		if (lvl > 0) {
+			for (let [ key, value ] of logmap) {
+				rngdata.push( { x : key, y : [ value.min, value.max ] } );
+				logdata.push( { x : key, y : ( value.max + value.min ) / 2 } );
+			}
+		}
+		if (!legends[unitid])
+			legends[unitid] = [sensor.name];
+		else
+			legends[unitid].push(sensor.name);
+		if (!opacities[unitid])
+			opacities[unitid] = [1];
+		else
+			opacities[unitid].push(1);
+		if (!widths[unitid])
+			widths[unitid] = [4];
+		else
+			widths[unitid].push(4);
 
 		// User defined sensor:
 		if (unitid === USERDEF_UNIT) {
@@ -1332,6 +1381,13 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr ) {
 		} else if (unitid >= CHARTS) {
 			unitid = 0;
 		}
+		let color = COLORS[coloridx++];
+		if (!colors[unitid])
+			colors[unitid] = [color];
+		else
+			colors[unitid].push(color);
+
+		var series = { name: sensor.name, type: "line", data: logdata, color: color };
 
 		if (!chart[unitid]) {
 			var unit, title, unitStr,
@@ -1400,18 +1456,25 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr ) {
 
 			var options = {
 				chart: {
-					type: "line",
-					//type: "area",
+					type: 'rangeArea',
+          			animations: {
+            			speed: 500
+          			},
 					stacked: false,
 					width: "100%"
 				},
 				dataLabels: {
 					enabled: false
 				},
+				fill: {
+					colors: colors[unitid],
+					opacity: opacities[unitid],
+				},
 				series: [series],
 				stroke: {
 					curve: "smooth",
-					width: 4
+					colors: colors[unitid],
+					width: widths[unitid]
 				},
 				grid: {
 					xaxis: {
@@ -1423,10 +1486,6 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr ) {
 						lines: {
 							show: true
 						}
-					//},
-					//row: {
-					//	colors: ['#f3f3f3', 'transparent'],
-					//	opacity: 0.5
 					}
 				},
 				plotOptions: {
@@ -1439,16 +1498,6 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr ) {
 						format: "dd.MM.yyyy HH:mm:ss"
 					}
 				},
-				//fill: {
-				//	type: "gradient",
-				//	gradient: {
-				//		shadeIntensity: 1,
-				//		inverseColors: false,
-				//		opacityFrom: 0.5,
-				//		opacityTo: 0,
-				//		stops: [0, 90, 100]
-				//	},
-				//},
 				xaxis: {
 					type: "datetime",
 					labels: {
@@ -1468,7 +1517,7 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr ) {
 				},
 				legend: {
 					showForSingleSeries: true,
-					fontSize: "12px"
+					fontSize: "10px"
 				},
 				title: { text: title }
 			};
@@ -1478,6 +1527,32 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr ) {
 		} else {
 			chart[unitid].appendSeries(series);
 		}
+
+		if (lvl > 0) {
+			opacities[unitid].push(0.24);
+			widths[unitid].push(0);
+			colors[unitid].push(color);
+			rangeArea = {
+				type: 'rangeArea',
+				name: [],
+				color: color,
+				data: rngdata
+			};
+			var otherOptions = {
+				fill: {
+					colors: colors[unitid],
+					opacity: opacities[unitid]
+				},
+				stroke: {
+					curve: "smooth",
+					colors: colors[unitid],
+					width: widths[unitid]
+				}
+			};
+			chart[unitid].appendSeries(rangeArea);
+			chart[unitid].updateOptions(otherOptions);
+		}
+
 		if (!sensor.chart)
 			sensor.chart = new Map();
 		sensor.chart.set(prefix, chart[unitid]);
