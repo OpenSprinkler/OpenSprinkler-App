@@ -620,13 +620,14 @@ function updateSensorVisibility(popup, type) {
 
 	var list = "<div data-role='popup' data-theme='a' id='sensorEditor'>" +
 			"<div data-role='header' data-theme='b'>" +
-			"<label>"+_("Last")+"</label><label>"+(sensor.last === undefined?"" : dateToString(new Date(sensor.last*1000)))+"</label>"+
 			"<h1>" + ( sensor.nr > 0 ? _( "Edit Sensor" ) : _( "New Sensor" ) ) + "</h1>" +
 			"</div>" +
 			"<div class='ui-content'>" +
 			"<p class='rain-desc center smaller'>" +
 			_( "Edit Sensor Configuration. " ) +
 			_( "See help documentation for details." ) +
+			"<br>"+
+			_("Last")+": "+(sensor.last === undefined?"" : dateToString(new Date(sensor.last*1000)))+
 			"</p>" +
 			"<div class='ui-field-contain'>" +
 			"<label>" +
@@ -1495,7 +1496,7 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr, lvl ) {
 				},
 				tooltip: {
 					x: {
-						format: "dd.MM.yyyy HH:mm:ss"
+						format: timestr
 					}
 				},
 				xaxis: {
