@@ -433,16 +433,16 @@ function showAdjustmentsEditor( progAdjust, row, callback, callbackCancel ) {
 					"<input class='max' type='number' value='" + progAdjust.max + "'>" +
 
 				"</div>" +
+				"<div id='adjchart'></div>"+
 				"<button class='submit' data-theme='b'>" + _( "Submit" ) + "</button>" +
 
 				((row < 0) ? "" : ("<a data-role='button' class='black delete-progadjust' value='" + progAdjust.nr + "' row='" + row + "' href='#' data-icon='delete'>" +
 				_( "Delete" ) + "</a>")) +
 
-
 				"</div>" +
 			"</div>";
 
-			var popup = $( list ),
+			let popup = $( list ),
 
 			changeValue = function( pos, dir ) {
 				var input = popup.find( ".inputs input" ).eq( pos ),
@@ -455,39 +455,39 @@ function showAdjustmentsEditor( progAdjust, row, callback, callbackCancel ) {
 				input.val( val + dir );
 			};
 
-					//Delete a program adjust:
+		//Delete a program adjust:
 		popup.find( ".delete-progadjust" ).on( "click", function( ) {
 			var dur = $( this ),
 				value = dur.attr( "value" ),
 				row = dur.attr( "row" );
 
-				popup.popup( "close" );
+			popup.popup( "close" );
 
-				areYouSure( _( "Are you sure you want to delete this program adjustment?" ), value, function() {
-					return sendToOS( "/sb?pw=&nr=" + value + "&type=0", "json" ).done( function( info ) {
-						var result = info.result;
-						if ( !result || result > 1 )
-							showerror(_("Error calling rest service: ")+" "+result);
-						else
-							progAdjusts.splice( row, 1 );
-						callbackCancel();
-					} );
+			areYouSure( _( "Are you sure you want to delete this program adjustment?" ), value, function() {
+				return sendToOS( "/sb?pw=&nr=" + value + "&type=0", "json" ).done( function( info ) {
+					var result = info.result;
+					if ( !result || result > 1 )
+						showerror(_("Error calling rest service: ")+" "+result);
+					else
+						progAdjusts.splice( row, 1 );
+					callbackCancel();
 				} );
 			} );
+		} );
 
+		let adjFunc = function() {
+			updateAdjustmentChart(popup);
+		};
+		popup.find( "#sensor" ).change(adjFunc);
+		popup.find( "#type" ).change(adjFunc);
+		popup.find( ".factor1" ).change(adjFunc);
+		popup.find( ".factor2" ).change(adjFunc);
+		popup.find( ".min" ).change(adjFunc);
+		popup.find( ".max" ).change(adjFunc);
 
 		popup.find( ".submit" ).on( "click", function() {
 
-			var progAdjust = {
-				nr:      parseInt( popup.find( ".nr" ).val() ),
-				type:    parseInt( popup.find( "#type" ).val() ),
-				sensor:  parseInt( popup.find( "#sensor" ).val() ),
-				prog:    parseInt( popup.find( "#prog" ).val() ),
-				factor1: parseFloat( popup.find( ".factor1" ).val() ),
-				factor2: parseFloat( popup.find( ".factor2" ).val() ),
-				min: 	 parseFloat( popup.find( ".min" ).val() ),
-				max: 	 parseFloat( popup.find( ".max" ).val() )
-			};
+			var progAdjust = getProgAdjust(popup);
 			callback( progAdjust );
 
 			popup.popup( "close" );
@@ -525,9 +525,93 @@ function showAdjustmentsEditor( progAdjust, row, callback, callbackCancel ) {
 
 		popup.css( "max-width", "580px" );
 
+		adjFunc();
 		openPopup( popup, { positionTo: "window" } );
-
 	} );
+}
+
+const PROG_LINEAR =     	1; //formula see above
+const PROG_DIGITAL_MIN = 	2; //under or equal min : factor1 else factor2
+const PROG_DIGITAL_MAX =	3; //over or equal max  : factor2 else factor1
+const PROG_DIGITAL_MINMAX = 4; //under min or over max : factor1 else factor2
+
+function getProgAdjust(popup) {
+	return {
+		nr:      parseInt( popup.find( ".nr" ).val() ),
+		type:    parseInt( popup.find( "#type" ).val() ),
+		sensor:  parseInt( popup.find( "#sensor" ).val() ),
+		prog:    parseInt( popup.find( "#prog" ).val() ),
+		factor1: parseFloat( popup.find( ".factor1" ).val() ),
+		factor2: parseFloat( popup.find( ".factor2" ).val() ),
+		min: 	 parseFloat( popup.find( ".min" ).val() ),
+		max: 	 parseFloat( popup.find( ".max" ).val() )
+	};
+}
+
+function updateAdjustmentChart(popup) {
+
+	let p = getProgAdjust(popup);
+	sendToOS("/sd?pw=&type="+p.type+"&sensor="+p.sensor+"&factor1="+p.factor1+"&factor2="+p.factor2+"&min="+p.min+"&max="+p.max, "json").done( function(values) {
+		if (!values || !values.hasOwnProperty("adjustment"))
+			return;
+		let adj = values.adjustment;
+		if (!adj.hasOwnProperty("inval"))
+			return;
+
+		let options = {
+			chart: {
+				height: 200,
+				type: 'line',
+				zoom: {
+					enabled: false
+				}
+			},
+			dataLabels: {
+				enabled: false
+			},
+			stroke: {
+				curve: 'straight'
+			},
+			title: {
+				text: _("Adjustment preview"),
+				align: 'left'
+			},
+			xaxis: {
+				categories: adj.inval,
+				tickAmount: Math.min(15, adj.inval.length),
+				labels: {
+					formatter: function(value) {
+						if (value === undefined || isNaN(value))
+							return "";
+						return +( Math.round( value + "e+2" )  + "e-2" ) + adj.unit;
+					}
+				}
+			},
+			yaxis: {
+				forceNiceScale: true,
+				labels: {
+					formatter: function(value) {
+						if (value === undefined || isNaN(value))
+							return "";
+						return +( Math.round( (value*100) + "e+2" )  + "e-2" )+"%";
+					}
+				},
+				title: {
+					text: _("Adjustments in %")
+				}
+			},
+			series: [{
+				name: "Adjustment",
+				type: "line",
+				data: adj.outval
+			}]
+		};
+		let sel = document.querySelector("#adjchart");
+		while (sel.firstChild)
+			sel.removeChild(sel.lastChild);
+		let chart = new ApexCharts(sel, options);
+		chart.render();
+	});
 }
 
 function isSmt100( sensorType ) {
