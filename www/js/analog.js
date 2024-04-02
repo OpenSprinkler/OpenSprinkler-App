@@ -769,8 +769,8 @@ function updateSensorVisibility(popup, type) {
             "<select data-mini='true' id='chartunits'>" +
             "<option value='0'>" + _("Default") + "</option>" +
             "<option value='1'>" + _("Soil Moisture %") + "</option>" +
-            "<option value='2'>" + _("Degree Celcius °C") + "</option>" +
-            "<option value='3'>" + _("Degree Fahrenheit °F") + "</option>" +
+            "<option value='2'>" + _("Degree Celcius "+String.fromCharCode( 176 ) + "C") + "</option>" +
+            "<option value='3'>" + _("Degree Fahrenheit "+String.fromCharCode( 176 ) + "F") + "</option>" +
             "<option value='4'>" + _("Volt V") + "</option>" +
             "<option value='5'>" + _("Air Humidity %") + "</option>" +
             "<option value='6'>" + _("Inch in") + "</option>" +
@@ -1446,6 +1446,14 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr, lvl ) {
 				logdata.push( { x : key, y : ( value.max + value.min ) / 2 } );
 			}
 		}
+		// User defined sensor:
+		if (unitid === USERDEF_UNIT) {
+			unitid = chart.length;
+			chart.push(undefined);
+		} else if (unitid >= CHARTS) {
+			unitid = 0;
+		}
+
 		if (!legends[unitid])
 			legends[unitid] = [sensor.name];
 		else
@@ -1459,13 +1467,6 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr, lvl ) {
 		else
 			widths[unitid].push(4);
 
-		// User defined sensor:
-		if (unitid === USERDEF_UNIT) {
-			unitid = chart.length;
-			chart.push(undefined);
-		} else if (unitid >= CHARTS) {
-			unitid = 0;
-		}
 		let color = COLORS[coloridx++];
 		if (!colors[unitid])
 			colors[unitid] = [color];
