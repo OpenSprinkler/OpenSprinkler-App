@@ -1198,6 +1198,11 @@ function showAnalogSensorConfig() {
 			text: _( "Back" ),
 			class: "ui-toolbar-back-btn",
 			on: goBack
+		},
+		rightBtn: {
+			icon: "refresh",
+			text: _( "Refresh" ),
+			on: updateSensorContent
 		}
 	} );
 
@@ -1330,12 +1335,11 @@ function buildSensorConfig( expandItem ) {
 }
 
 // Show Sensor Charts with apexcharts
-var showAnalogSensorCharts = ( function() {
+function showAnalogSensorCharts() {
 
-	function begin() {
 		var max = CHARTS;
 		for ( var j = 0; j < analogSensors.length; j++ ) {
-			if (!analogSensors[j].log)
+			if (!analogSensors[j].log || !analogSensors[j].enable)
 				continue;
 			var unitid = analogSensors[j].unitid;
 			if (unitid === USERDEF_UNIT) max++;
@@ -1353,17 +1357,6 @@ var showAnalogSensorCharts = ( function() {
 			last + week + month +
 			"</div></div>" );
 
-		$.mobile.loading( "show" );
-
-		var chart1 = new Array(CHARTS),
-			chart2 = new Array(CHARTS),
-			chart3 = new Array(CHARTS),
-			datalimit = false;
-
-		page.one( "pagehide", function() {
-			page.detach();
-		} );
-
 		changeHeader( {
 			title: _( "Analog Sensor Log" ),
 			leftBtn: {
@@ -1371,31 +1364,46 @@ var showAnalogSensorCharts = ( function() {
 				text: _( "Back" ),
 				class: "ui-toolbar-back-btn",
 				on: goBack
+			},
+			rightBtn: {
+				icon: "refresh",
+				text: _( "Refresh" ),
+				on: updateCharts
 			}
+		} );
+
+		page.one( "pagehide", function() {
+			page.detach();
 		} );
 
 		$( "#analogsensorchart" ).remove();
 		$.mobile.pageContainer.append( page );
-		var limit = currToken?"&max=5500":""; //download limit is 140kb, 5500 lines ca 137kb
+		
+		updateCharts();
+}
 
-		$.mobile.loading( "show" );
-		sendToOS("/so?pw=&lasthours=48&csv=2"+limit, "text").then(function (csv1) {
-			buildGraph( "#myChart", chart1, csv1, _( "last 48h" ), "HH:mm", 0 );
+function updateCharts() {
+	var chart1 = new Array(CHARTS),
+		chart2 = new Array(CHARTS),
+		chart3 = new Array(CHARTS),
+		datalimit = false;
 
-			sendToOS("/so?pw=&csv=2&log=1"+limit, "text").then(function (csv2) {
-				buildGraph( "#myChartW", chart2, csv2, _( "last weeks" ), "dd.MM.yyyy", 1 );
+	var limit = currToken?"&max=5500":""; //download limit is 140kb, 5500 lines ca 137kb
 
-				sendToOS("/so?pw=&csv=2&log=2"+limit, "text").then(function (csv3) {
-					buildGraph( "#myChartM", chart3, csv3, _( "last months" ), "MM.yyyy", 2 );
-					$.mobile.loading( "hide" );
-				});
+	$.mobile.loading( "show" );
+	sendToOS("/so?pw=&lasthours=48&csv=2"+limit, "text").then(function (csv1) {
+		buildGraph( "#myChart", chart1, csv1, _( "last 48h" ), "HH:mm", 0 );
+
+		sendToOS("/so?pw=&csv=2&log=1"+limit, "text").then(function (csv2) {
+			buildGraph( "#myChartW", chart2, csv2, _( "last weeks" ), "dd.MM.yyyy", 1 );
+
+			sendToOS("/so?pw=&csv=2&log=2"+limit, "text").then(function (csv3) {
+				buildGraph( "#myChartM", chart3, csv3, _( "last months" ), "MM.yyyy", 2 );
+				$.mobile.loading( "hide" );
 			});
 		});
-	}
-
-	return begin;
-} )();
-
+	});
+}
 
 function buildGraph( prefix, chart, csv, titleAdd, timestr, lvl ) {
 	var csvlines = csv.split( /(?:\r\n|\n)+/ ).filter( function( el ) { return el.length !== 0; } );
@@ -1403,7 +1411,7 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr, lvl ) {
 	var legends = [], opacities = [], widths = [], colors = [], coloridx = 0;
 	for ( var j = 0; j < analogSensors.length; j++ ) {
 		var sensor = analogSensors[j];
-		if (!sensor.log) {
+		if (!sensor.log || !sensor.enable) {
 			continue;
 		}
 		var nr = sensor.nr,
@@ -1439,6 +1447,7 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr, lvl ) {
 				}
 			}
 		}
+		if (logdata.length < 3) continue;
 
 		if (lvl > 0) {
 			for (let [ key, value ] of logmap) {
@@ -1543,11 +1552,11 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr, lvl ) {
 			var options = {
 				chart: {
 					type: 'rangeArea',
-          			animations: {
-            			speed: 500
-          			},
+	          			animations: {
+	        	    			speed: 500
+          				},
 					stacked: false,
-					width: "100%"
+					width: '100%'
 				},
 				dataLabels: {
 					enabled: false
@@ -1648,7 +1657,7 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr, lvl ) {
 		var adjust = progAdjusts[p];
 		var sensor = adjust.sensor;
 		for ( var j = 0; j < analogSensors.length; j++ ) {
-			if (analogSensors[j].nr == sensor) {
+			if (analogSensors[j].nr == sensor && analogSensors[j].chart != undefined) {
 				var mchart = analogSensors[j].chart.get(prefix);
 				if (mchart) {
 					var unitStr = analogSensors[j].unit;
