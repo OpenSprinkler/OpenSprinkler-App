@@ -1,7 +1,7 @@
 #!/bin/sh
-rm ./www/js/*~
-rm ./www/js/DEADJOE
-rm ./www/locale/*~
+rm ./www/js/*~ 2>/dev/null
+rm ./www/js/DEADJOE 2>/dev/null
+rm ./www/locale/*~ 2>/dev/null
 
 #grunt buildFW
 cd www/js

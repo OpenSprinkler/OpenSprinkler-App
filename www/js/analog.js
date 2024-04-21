@@ -1447,7 +1447,6 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr, lvl ) {
 				}
 			}
 		}
-		if (logdata.length < 3) continue;
 
 		if (lvl > 0) {
 			for (let [ key, value ] of logmap) {
@@ -1455,6 +1454,8 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr, lvl ) {
 				logdata.push( { x : key, y : ( value.max + value.min ) / 2 } );
 			}
 		}
+		if (logdata.length < 3) continue;
+
 		// User defined sensor:
 		if (unitid === USERDEF_UNIT) {
 			unitid = chart.length;
@@ -1545,7 +1546,7 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr, lvl ) {
 					break;
 
 				default: unit = sensor.unit;
-					title = sensor.name + " " + titleAdd;
+					title = sensor.name + "~ " + titleAdd;
 					unitStr = function( val ) { return +( Math.round( val + "e+2" )  + "e-2" ); };
 			}
 
