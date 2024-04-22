@@ -1456,12 +1456,20 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr, lvl ) {
 			}
 		}
 		
+		if (logdata.length < 3) continue;
+		
 		//add current value as forecast data:
-		let date = new Date();
+		let date = new Date(); 
 		date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
 
-		let value = sensor.data? sensor.data : logdata.slice(-1).y;
+		let value = sensor.data? sensor.data : logdata.slice(-1)[0].y;
 		logdata.push( { x : date, y : sensor.data } );
+
+		if (lvl > 0) {
+			let rng = rngdata.slice(-1)[0].y;
+			let diff = ( rng[1] - rng[0] ) / 2;
+			rngdata.push( { x : date, y : [ value - diff, value + diff ] } );
+		}
 
 		// User defined sensor:
 		if (unitid === USERDEF_UNIT) {
