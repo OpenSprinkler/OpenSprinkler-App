@@ -19,7 +19,7 @@ const CURRENT_FW_ID  = 231;
 const CURRENT_FW_MIN = 150;
 
 const COLORS = ["#F3B415", "#F27036", "#663F59", "#6A6E94", "#4E88B4", "#00A7C6", "#18D8D8", '#A9D794','#46AF78', '#A93F55', '#8C5E58', '#2176FF', '#33A1FD', '#7A918D', '#BAFF29'];
-
+const COLCOUNT = 15;
 
 function checkAnalogSensorAvail( callback ) {
 	callback = callback || function() {};
@@ -1411,6 +1411,7 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr, lvl ) {
 	var legends = [], opacities = [], widths = [], colors = [], coloridx = 0;
 	for ( var j = 0; j < analogSensors.length; j++ ) {
 		var sensor = analogSensors[j];
+		let color = COLORS[coloridx++ % COLCOUNT];
 		if (!sensor.log || !sensor.enable) {
 			continue;
 		}
@@ -1454,7 +1455,13 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr, lvl ) {
 				logdata.push( { x : key, y : ( value.max + value.min ) / 2 } );
 			}
 		}
-		if (logdata.length < 3) continue;
+		
+		//add current value as forecast data:
+		let date = new Date();
+		date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
+
+		let value = sensor.data? sensor.data : logdata.slice(-1).y;
+		logdata.push( { x : date, y : sensor.data } );
 
 		// User defined sensor:
 		if (unitid === USERDEF_UNIT) {
@@ -1477,7 +1484,6 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr, lvl ) {
 		else
 			widths[unitid].push(4);
 
-		let color = COLORS[coloridx++];
 		if (!colors[unitid])
 			colors[unitid] = [color];
 		else
@@ -1570,7 +1576,8 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr, lvl ) {
 				stroke: {
 					curve: "smooth",
 					colors: colors[unitid],
-					width: widths[unitid]
+					width: widths[unitid],
+					dashArray: 0
 				},
 				grid: {
 					xaxis: {
@@ -1615,6 +1622,9 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr, lvl ) {
 					showForSingleSeries: true,
 					fontSize: "10px"
 				},
+				forecastDataPoints: {
+					count: 1
+				},
 				title: { text: title }
 			};
 
@@ -1642,7 +1652,8 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr, lvl ) {
 				stroke: {
 					curve: "smooth",
 					colors: colors[unitid],
-					width: widths[unitid]
+					width: widths[unitid],
+					dashArray: 0
 				}
 			};
 			chart[unitid].appendSeries(rangeArea);
