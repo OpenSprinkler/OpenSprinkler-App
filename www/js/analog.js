@@ -558,6 +558,14 @@ function updateAdjustmentChart(popup) {
 		if (!adj.hasOwnProperty("inval"))
 			return;
 
+		var sensor;
+		for ( i = 0; i < analogSensors.length; i++ ) {
+			if (p.sensor == analogSensors[ i ].nr) {
+				sensor = analogSensors[ i ];
+				break;
+			}
+		}
+
 		let options = {
 			chart: {
 				height: 200,
@@ -578,13 +586,17 @@ function updateAdjustmentChart(popup) {
 			},
 			xaxis: {
 				categories: adj.inval,
-				tickAmount: Math.min(15, adj.inval.length),
+				tickAmount: Math.min(14, adj.inval.length),
 				labels: {
 					formatter: function(value) {
 						if (value === undefined || isNaN(value))
 							return "";
-						return +( Math.round( value + "e+2" )  + "e-2" ) + adj.unit;
-					}
+						return +( Math.round( value + "e+2" )  + "e-2" );
+						},
+					rotate: 0
+				},
+				title: {
+					text: sensor.name + " " + adj.unit
 				}
 			},
 			yaxis: {
@@ -1201,7 +1213,7 @@ function showAnalogSensorConfig() {
 		},
 		rightBtn: {
 			icon: "refresh",
-			text: _( "Refresh" ),
+			text: screen.width >= 500 ?_( "Refresh" ) : "",
 			on: updateSensorContent
 		}
 	} );
@@ -1367,7 +1379,7 @@ function showAnalogSensorCharts() {
 			},
 			rightBtn: {
 				icon: "refresh",
-				text: _( "Refresh" ),
+				text: screen.width >= 500 ?_( "Refresh" ) : "",
 				on: updateCharts
 			}
 		} );
@@ -1562,16 +1574,21 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr, lvl ) {
 				default: unit = sensor.unit;
 					title = sensor.name + "~ " + titleAdd;
 					unitStr = function( val ) { return +( Math.round( val + "e+2" )  + "e-2" ); };
-			}
+			};
 
-			var options = {
+			let canExport = !window.hasOwnProperty("cordova");
+			let options = {
 				chart: {
 					type: 'rangeArea',
 	          			animations: {
 	        	    			speed: 500
           				},
 					stacked: false,
-					width: '100%'
+					width: '100%',
+					height: screen.height / 3,
+					toolbar: {
+						download: canExport
+					}
 				},
 				dataLabels: {
 					enabled: false
@@ -1631,7 +1648,7 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr, lvl ) {
 					fontSize: "10px"
 				},
 				forecastDataPoints: {
-					count: 1
+					count: lvl == 0?1:0
 				},
 				title: { text: title }
 			};
