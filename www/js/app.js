@@ -3051,7 +3051,8 @@ function updateWeatherBox() {
 function coordsToLocation( lat, lon, callback, fallback ) {
 	fallback = fallback || lat + "," + lon;
 
-	$.getJSON( "https://maps.googleapis.com/maps/api/geocode/json?latlng=" + lat + "," + lon + "&key=AIzaSyDaT_HTZwFojXmvYIhwWudK00vFXzMmOKc&result_type=locality|sublocality|administrative_area_level_1|country", function( data ) {
+	var GoogleMapsApiKey = "AIzaSyBM1keTpMBKQKs_OrUK3Vqp0BT59zAbwgc";
+	$.getJSON( "https://mapsgoogleapis.com/maps/api/geocode/json?latlng=" + lat + "," + lon + "&key="+GoogleMapsApiKey+"&result_type=locality|sublocality|administrative_area_level_1|country", function( data ) {
 		if ( data.results.length === 0 ) {
 			callback( fallback );
 			return;
@@ -5065,7 +5066,7 @@ function showOptions( expandItem ) {
 								"<label for='server' style='padding-top:10px'>" + _( "Broker/Server" ) + "</label>" +
 							"</div>" +
 							"<div class='ui-block-b' style='width:60%'>" +
-								"<input class='mqtt-input' type='text' id='server' data-mini='true' maxlength='50' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
+								"<input class='mqtt-input' type='text' id='server' data-mini='true' maxlength='100' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
 									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + _( "broker/server" ) + "' value='" + options.host + "' required />" +
 							"</div>" +
 							"<div class='ui-block-a' style='width:40%'>" +
@@ -5079,14 +5080,14 @@ function showOptions( expandItem ) {
 								"<label for='username' style='padding-top:10px'>" + _( "Username" ) + "</label>" +
 							"</div>" +
 							"<div class='ui-block-b' style='width:60%'>" +
-								"<input class='mqtt-input' type='text' id='username' data-mini='true' maxlength='32' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
+								"<input class='mqtt-input' type='text' id='username' data-mini='true' maxlength='50' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
 									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + _( "username (optional)" ) + "' value='" + options.user + "' required />" +
 							"</div>" +
 							"<div class='ui-block-a' style='width:40%'>" +
 								"<label for='password' style='padding-top:10px'>" + _( "Password" ) + "</label>" +
 							"</div>" +
 							"<div class='ui-block-b' style='width:60%'>" +
-								"<input class='mqtt-input' type='password' id='password' data-mini='true' maxlength='32' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
+								"<input class='mqtt-input' type='password' id='password' data-mini='true' maxlength='100' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
 									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + _( "password (optional)" ) + "' value='" + options.pass + "' required />" +
 							"</div>" +
 						"</div>" +
@@ -13855,8 +13856,22 @@ function updateSensorShowArea( page ) {
 				progName = readProgram( controller.programs.pd[ progAdjust.prog - 1 ] ).name;
 			}
 
-			html += "<div id='progAdjust-show-" + progAdjust.nr + "' class='ui-body ui-body-a center'>";
-			html += "<label>" + sensorName + " - " + progName + ": " + (progAdjust.current === undefined?"":(Math.round( progAdjust.current * 100 ) + "%</label>"));
+			var symbol;
+			var current = progAdjust.current;
+			if (current === undefined || isNaN(current))
+				symbol = "forbidden";
+			else {
+				current = Math.round( current * 100 );
+				if (current <= 20) symbol = "arrow-d";
+				else if (current < 100) symbol = "arrow-d-l";
+				else if (current > 200) symbol = "alert";
+				else if (current >= 180) symbol = "arrow-u";
+				else if (current > 100) symbol = "arrow-u-l";
+				else symbol = "star";
+			}
+			html += "<div class='ui-body ui-body-a center'>";
+			html += "<h4>"+ sensorName + " - " + progName + ": " + formatValUnit(current, "%");
+			html += "<a class='ui-btn ui-corner-all ui-btn-inline ui-icon-"+symbol+" ui-btn-icon-notext'>status</a></h4>";
 			html += "</div>";
 		}
 
@@ -13864,7 +13879,7 @@ function updateSensorShowArea( page ) {
 			var sensor = analogSensors[ i ];
 			if ( sensor.show ) {
 				html += "<div id='sensor-show-" + sensor.nr + "' class='ui-body ui-body-a center'>";
-				html += "<label>" + sensor.name + ": " + ( +( Math.round( sensor.data + "e+2" )  + "e-2" ) ) + sensor.unit + "</label>";
+				html += "<label>" + sensor.name + ": " + formatVal( sensor.data ) + sensor.unit + "</label>";
 				html += "</div>";
 			}
 		}
@@ -13923,7 +13938,8 @@ function getImportMethodSensors( restore_type, callback) {
 					return;
 				}
 
-				try {					data = JSON.parse( $.trim( data ).replace( /“|”|″/g, "\"" ) );
+				try {
+					data = JSON.parse( $.trim( data ).replace( /“|”|″/g, "\"" ) );
 					popup.popup( "close" );
 					importConfigSensors( data, restore_type, callback );
 				}catch ( err ) {
@@ -14142,7 +14158,7 @@ function showAdjustmentsEditor( progAdjust, row, callback, callbackCancel ) {
 				"<label>" +
 					_( "Adjustment-Nr" ) +
 				"</label>" +
-				"<input class='nr' type='number' min='1' max='99999' value='" + progAdjust.nr + ( progAdjust.nr > 0 ? "' disabled='disabled'>" : "'>" ) +
+				"<input class='nr' type='number' inputmode='decimal' min='1' max='99999' value='" + progAdjust.nr + ( progAdjust.nr > 0 ? "' disabled='disabled'>" : "'>" ) +
 
 				//Select Type:
 				"<div class='ui-field-contain'><label for='type' class='select'>" +
@@ -14184,14 +14200,14 @@ function showAdjustmentsEditor( progAdjust, row, callback, callbackCancel ) {
 				list += "</select></div>" +
 
 				"<label>" +
-			_( "Factor 1 (adjustment for min)" ) +
+			_( "Factor 1 in % (adjustment for min)" ) +
 					"</label>" +
-					"<input class='factor1' type='number' value='" + progAdjust.factor1 + "'>" +
+					"<input class='factor1' type='number' inputmode='decimal' value='" + Math.round(progAdjust.factor1*100) + "'>" +
 
 				"<label>" +
-			_( "Factor 2 (adjustment for max)" ) +
+			_( "Factor 2 in % (adjustment for max)" ) +
 					"</label>" +
-					"<input class='factor2' type='number' value='" + progAdjust.factor2 + "'>" +
+					"<input class='factor2' type='number' inputmode='decimal' value='" + Math.round(progAdjust.factor2*100) + "'>" +
 
 				"<label>" +
 			_( "Min sensor value" ) +
@@ -14201,7 +14217,7 @@ function showAdjustmentsEditor( progAdjust, row, callback, callbackCancel ) {
 				"<label>" +
 			_( "Max sensor value" ) +
 					"</label>" +
-					"<input class='max' type='number' value='" + progAdjust.max + "'>" +
+					"<input class='max' type='number' inputmode='decimal' value='" + progAdjust.max + "'>" +
 
 				"</div>" +
 				"<div id='adjchart'></div>"+
@@ -14312,8 +14328,8 @@ function getProgAdjust(popup) {
 		type:    parseInt( popup.find( "#type" ).val() ),
 		sensor:  parseInt( popup.find( "#sensor" ).val() ),
 		prog:    parseInt( popup.find( "#prog" ).val() ),
-		factor1: parseFloat( popup.find( ".factor1" ).val() ),
-		factor2: parseFloat( popup.find( ".factor2" ).val() ),
+		factor1: parseFloat( popup.find( ".factor1" ).val() / 100 ),
+		factor2: parseFloat( popup.find( ".factor2" ).val() / 100 ),
 		min: 	 parseFloat( popup.find( ".min" ).val() ),
 		max: 	 parseFloat( popup.find( ".max" ).val() )
 	};
@@ -14357,12 +14373,10 @@ function updateAdjustmentChart(popup) {
 			},
 			xaxis: {
 				categories: adj.inval,
-				tickAmount: Math.min(14, adj.inval.length),
+				tickAmount: Math.min(20, Math.min( screen.width / 30, adj.inval.length)),
 				labels: {
 					formatter: function(value) {
-						if (value === undefined || isNaN(value))
-							return "";
-						return +( Math.round( value + "e+2" )  + "e-2" );
+						return formatVal(value);
 						},
 					rotate: 0
 				},
@@ -14374,9 +14388,7 @@ function updateAdjustmentChart(popup) {
 				forceNiceScale: true,
 				labels: {
 					formatter: function(value) {
-						if (value === undefined || isNaN(value))
-							return "";
-						return +( Math.round( (value*100) + "e+2" )  + "e-2" )+"%";
+						return formatVal(value*100);
 					}
 				},
 				title: {
@@ -14390,10 +14402,12 @@ function updateAdjustmentChart(popup) {
 			}]
 		};
 		let sel = document.querySelector("#adjchart");
-		while (sel.firstChild)
-			sel.removeChild(sel.lastChild);
-		let chart = new ApexCharts(sel, options);
-		chart.render();
+		if (sel) {
+			while (sel.firstChild)
+				sel.removeChild(sel.lastChild);
+			let chart = new ApexCharts(sel, options);
+			chart.render();
+		}
 	});
 }
 
@@ -14500,7 +14514,7 @@ function updateSensorVisibility(popup, type) {
 			"<label>" +
 			_( "Sensor-Nr" ) +
 			"</label>" +
-			"<input class='nr' type='number' min='1' max='99999' value='" + sensor.nr + ( sensor.nr > 0 ? "' disabled='disabled'>" : "'>" ) +
+			"<input class='nr' type='number' inputmode='decimal' min='1' max='99999' value='" + sensor.nr + ( sensor.nr > 0 ? "' disabled='disabled'>" : "'>" ) +
 
 			"<div class='ui-field-contain'><label for='type' class='select'>" +
 			_( "Type" ) +
@@ -14517,7 +14531,7 @@ function updateSensorVisibility(popup, type) {
 
 		list += "<label>" + _( "Group" ) +
 			"</label>" +
-			"<input class='group' type='number'  min='0' max='99999' value='" + sensor.group + "'>" +
+			"<input class='group' type='number'  inputmode='decimal' min='0' max='99999' value='" + sensor.group + "'>" +
 
 			"<label>" + _( "Name" ) +
 			"</label>" +
@@ -14529,23 +14543,23 @@ function updateSensorVisibility(popup, type) {
 
 			"<label class='port_label'>" + 	_( "Port" ) +
 			"</label>" +
-			"<input class='port' type='number' min='0' max='65535' value='" + sensor.port + "'>" +
+			"<input class='port' type='number' inputmode='decimal' min='0' max='65535' value='" + sensor.port + "'>" +
 
 			"<label class='id_label'>" + _( "ID" ) +
 			"</label>" +
-			"<input class='id' type='number' min='0' max='65535' value='" + sensor.id + "'>" +
+			"<input class='id' type='number' inputmode='decimal' min='0' max='65535' value='" + sensor.id + "'>" +
 
 			"<label class='fac_label'>" + _( "Factor" ) +
 			"</label>" +
-			"<input class='fac' type='number' min='-32768' max='32767' value='" + sensor.fac + "'>" +
+			"<input class='fac' type='number' inputmode='decimal' min='-32768' max='32767' value='" + sensor.fac + "'>" +
 
 			"<label class='div_label'>" + _( "Divider" ) +
 			"</label>" +
-			"<input class='div' type='number' min='-32768' max='32767' value='" + sensor.div + "'>" +
+			"<input class='div' type='number' inputmode='decimal' min='-32768' max='32767' value='" + sensor.div + "'>" +
 
 			"<label class='offset_label'>" + _( "Offset in millivolt" ) +
 			"</label>" +
-			"<input class='offset' type='number' min='-32768' max='32767' value='" + sensor.offset + "'>" +
+			"<input class='offset' type='number' inputmode='decimal' min='-32768' max='32767' value='" + sensor.offset + "'>" +
 
 			"<label class='chartunit_label'>" + _( "Chart Unit" ) +
 			"</label>" +
@@ -14578,7 +14592,7 @@ function updateSensorVisibility(popup, type) {
 
 			"<label>" + _( "Read Interval (s)" ) +
 			"</label>" +
-			"<input class='ri' type='number' min='1' max='999999' value='" + sensor.ri + "'>" +
+			"<input class='ri' type='number' inputmode='decimal' min='1' max='999999' value='" + sensor.ri + "'>" +
 
 			"<label for='enable'><input data-mini='true' id='enable' type='checkbox' " + ( ( sensor.enable === 1 ) ? "checked='checked'" : "" ) + ">" +
 			_( "Sensor Enabled" ) +
@@ -15000,7 +15014,7 @@ function checkFirmwareUpdate() {
 }
 
 function buildSensorConfig( expandItem ) {
-	var list = "<fieldset data-role='collapsible' id='confighead'" + ( expandItem.has("sensors") ? " data-collapsed='false'" : "" ) + ">" +
+	var list = "<fieldset data-role='collapsible'" + ( expandItem.has("sensors") ? " data-collapsed='false'" : "" ) + ">" +
 	"<legend>" + _( "Sensors" ) + "</legend>";
 
 	list += "<table id='analog_sensor_table'><tr style='width:100%;vertical-align: top;'>" +
@@ -15025,7 +15039,7 @@ function buildSensorConfig( expandItem ) {
 				$("<td class=\"hidecol\">").text(item.port?(":"+item.port):""),
 				$("<td class=\"hidecol\">").text(isNaN(item.id)?"":(item.type < 1000?item.id:"")),
 				$("<td class=\"hidecol\">").text(isNaN(item.ri)?"":item.ri),
-				$("<td>"                  ).text(isNaN(item.data)?"":( Math.round(item.data)+item.unit) ),
+				$("<td>"                  ).text(isNaN(item.data)?"":(formatVal( item.data ) + item.unit) ),
 				"<td>"                  +(item.enable?checkpng:"")+"</td>",
 				"<td class=\"hidecol\">"+(item.log?checkpng:"")+"</td>",
 				"<td class=\"hidecol\">"+(item.show?checkpng:"")+"</td>",
@@ -15080,8 +15094,8 @@ function buildSensorConfig( expandItem ) {
 				sensorName + "</a></td>",
 				$("<td class=\"hidecol\">").text(item.prog),
 				$("<td class=\"hidecol2\">").text(progName),
-				$("<td class=\"hidecol2\">").text(item.factor1),
-				$("<td class=\"hidecol2\">").text(item.factor2),
+				$("<td class=\"hidecol2\">").text(Math.round(item.factor1*100)+"%"),
+				$("<td class=\"hidecol2\">").text(Math.round(item.factor2*100)+"%"),
 				$("<td class=\"hidecol2\">").text(item.min),
 				$("<td class=\"hidecol2\">").text(item.max),
 				$("<td>").text(item.current === undefined?"":(Math.round(item.current*100.0)+"%"))
@@ -15161,7 +15175,7 @@ function showAnalogSensorCharts() {
 
 		$( "#analogsensorchart" ).remove();
 		$.mobile.pageContainer.append( page );
-		
+
 		updateCharts();
 }
 
@@ -15238,11 +15252,11 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr, lvl ) {
 				logdata.push( { x : key, y : ( value.max + value.min ) / 2 } );
 			}
 		}
-		
+
 		if (logdata.length < 3) continue;
-		
+
 		//add current value as forecast data:
-		let date = new Date(); 
+		let date = new Date();
 		date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
 
 		let value = sensor.data? sensor.data : logdata.slice(-1)[0].y;
@@ -15290,53 +15304,53 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr, lvl ) {
 			switch (unitid) {
 				case 1: unit = _("Soil moisture");
 					title = _( "Soil moisture" ) + " " + titleAdd;
-					unitStr = function( val ) { return +( Math.round( val + "e+2" )  + "e-2" ) + " %"; };
+					unitStr = function( val ) { return formatVal(val) + " %"; };
 					minFunc = 0;
 					maxFunc = 100;
 					break;
 				case 2: unit = _("degree celsius temperature");
 					title = _( "Temperature" ) + " " + titleAdd;
-					unitStr = function( val ) { return +( Math.round( val + "e+2" )  + "e-2" ) + String.fromCharCode( 176 ) + "C"; };
+					unitStr = function( val ) { return formatVal(val) + String.fromCharCode( 176 ) + "C"; };
 					break;
 				case 3: unit = _("degree fahrenheit temperature");
 					title = _( "Temperature" ) + " " + titleAdd;
-					unitStr = function( val ) { return +( Math.round( val + "e+2" )  + "e-2" ) + String.fromCharCode( 176 ) + "F"; };
+					unitStr = function( val ) { return formatVal(val) + String.fromCharCode( 176 ) + "F"; };
 					break;
 				case 4: unit = _("Volt");
 					title = _( "Voltage" ) + " " + titleAdd;
-					unitStr = function( val ) { return +( Math.round( val + "e+2" )  + "e-2" ) + " V"; };
+					unitStr = function( val ) { return formatVal(val) + " V"; };
 					minFunc = 0;
 					maxFunc = 4;
 					autoY = false;
 					break;
 				case 5: unit = _("Humidity");
 					title = _( "Air Humidity" ) + " " + titleAdd;
-					unitStr = function( val ) { return +( Math.round( val + "e+2" )  + "e-2" ) + " %"; };
+					unitStr = function( val ) { return formatVal(val) + " %"; };
 					minFunc = 0;
 					maxFunc = 100;
 					break;
 				case 6: unit = _("Rain");
 					title = _( "Rainfall" ) + " " + titleAdd;
-					unitStr = function( val ) { return +( Math.round( val + "e+2" )  + "e-2" ) + " in"; };
+					unitStr = function( val ) { return formatVal(val) + " in"; };
 					break;
 				case 7: unit = _("Rain");
 					title = _( "Rainfall" ) + " " + titleAdd;
-					unitStr = function( val ) { return +( Math.round( val + "e+2" )  + "e-2" ) + " mm"; };
+					unitStr = function( val ) { return formatVal(val) + " mm"; };
 					minFunc = 0;
 					break;
 				case 8: unit = _("Wind");
 					title = _( "Wind" ) + " " + titleAdd;
-					unitStr = function( val ) { return +( Math.round( val + "e+2" )  + "e-2" ) + " mph"; };
+					unitStr = function( val ) { return formatVal(val) + " mph"; };
 					minFunc = 0;
 					break;
 				case 9: unit = _("Wind");
 					title = _( "Wind" ) + " " + titleAdd;
-					unitStr = function( val ) { return +( Math.round( val + "e+2" )  + "e-2" ) + " kmh"; };
+					unitStr = function( val ) { return formatVal(val) + " kmh"; };
 					minFunc = 0;
 					break;
 				case 10: unit = _("Level");
 					title = _( "Level" ) + " " + titleAdd;
-					unitStr = function( val ) { return +( Math.round( val + "e+2" )  + "e-2" ) + " %"; };
+					unitStr = function( val ) { return formatVal(val) + " %"; };
 					minFunc = 0;
 					maxFunc = 100;
 					autoY = false;
@@ -15344,7 +15358,7 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr, lvl ) {
 
 				default: unit = sensor.unit;
 					title = sensor.name + "~ " + titleAdd;
-					unitStr = function( val ) { return +( Math.round( val + "e+2" )  + "e-2" ); };
+					unitStr = function( val ) { return formatVal(val); };
 			};
 
 			let canExport = !window.hasOwnProperty("cordova");
@@ -15356,7 +15370,7 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr, lvl ) {
           				},
 					stacked: false,
 					width: '100%',
-					height: screen.height / 3,
+					height: (screen.height>screen.width?screen.height:screen.width) / 3,
 					toolbar: {
 						download: canExport
 					}
@@ -15417,9 +15431,6 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr, lvl ) {
 				legend: {
 					showForSingleSeries: true,
 					fontSize: "10px"
-				},
-				forecastDataPoints: {
-					count: lvl == 0?1:0
 				},
 				title: { text: title }
 			};
@@ -15529,6 +15540,26 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr, lvl ) {
 			}
 		}
 	}
+}
+
+/**
+* format value output with 2 decimals.
+* Empty string result if value is undefined or invalid
+*/
+function formatVal( val ) {
+	if (val === undefined || isNaN(val))
+		return "";
+	return (+( Math.round( val + "e+2" )  + "e-2" ));
+}
+
+/**
+* format value output. unit is only printed, if value valid
+*/
+function formatValUnit( val, unit ) {
+	if (val === undefined || isNaN(val))
+		return "";
+	return (+( Math.round( val + "e+2" )  + "e-2" )) + unit;
+
 }
 /*!
  * ApexCharts v3.41.0

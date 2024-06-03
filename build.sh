@@ -18,16 +18,25 @@ config.xml.sav >config.xml
 
 cordova platform remove android
 cordova platform add android@12.0.1
+cordova plugin add cordova-plugin-device
 cordova build --release
 #cordova run android --release
 cordova run android --release -- --packageType=apk
 
-mv config.xml.sav config.xml -f
 cp /srv/www/htdocs/ui/platforms/android/app/build/outputs/apk/release/app-release.apk /srv/www/htdocs/opensprinklershop/firmware/ -v
 
 #Und wieder zurück:
+mv config.xml config.xml.sav -f
+xmlstarlet edit \
+--update '//*[local-name()="preference"][@name="android-minSdkVersion"]/@value' \
+--value "29" \
+--update '//*[local-name()="preference"][@name="android-targetSdkVersion"]/@value' \
+--value "33" \
+config.xml.sav >config.xml
+
 cordova platform remove android
 cordova platform add android
+cordova plugin add cordova-plugin-device
 cordova prepare
 cordova build --release
 cordova run android --release

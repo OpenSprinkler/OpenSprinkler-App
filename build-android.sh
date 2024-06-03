@@ -7,6 +7,7 @@ grunt buildFW
 cp build.json platforms/android/build.json
 cp network_security_config.xml /srv/www/htdocs/ui/platforms/android/app/src/main/res/xml/
 
+cordova plugin add cordova-plugin-device
 cordova prepare
 cordova build --release
 cordova run android --release

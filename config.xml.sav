@@ -105,7 +105,7 @@
     </config-file>
     <resource-file src="res/android/xml/network_security_config.xml" target="app/src/main/res/xml/network_security_config.xml"/>
     <preference name="Scheme" value="http"/>
-    <preference name="android-minSdkVersion" value="24"/>
+    <preference name="android-minSdkVersion" value="29"/>
     <preference name="android-targetSdkVersion" value="33"/>
     <preference name="android-theme" value="@android:style/Theme.Holo.Light.NoActionBar"/>
     <preference name="AndroidInsecureFileModeEnabled" value="true"/>

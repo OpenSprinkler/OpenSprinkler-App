@@ -2086,10 +2086,16 @@ msgstr ""
 msgid "Program to adjust"
 msgstr ""
 
-msgid "Factor 1 (adjustment for min)"
+msgid "Factor 1 in % (adjustment for min)"
 msgstr ""
 
-msgid "Factor 2 (adjustment for max)"
+msgid "Factor 2 in % (adjustment for max)"
+msgstr ""
+
+msgid "Adjustment preview"
+msgstr ""
+
+msgid "Adjustments in %"
 msgstr ""
 
 msgid "Min sensor value"

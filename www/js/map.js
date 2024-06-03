@@ -1,5 +1,6 @@
 /*global google */
 
+
 /* OpenSprinkler App
  * Copyright (C) 2015 - present, Samer Albahra. All rights reserved.
  *
@@ -20,7 +21,8 @@
 		document.getElementsByTagName( "head" )[ 0 ].appendChild( a );
 	}
 
-	getScript( "https://maps.googleapis.com/maps/api/js?key=AIzaSyDaT_HTZwFojXmvYIhwWudK00vFXzMmOKc&libraries=places" );
+	var GoogleMapsApiKey = "AIzaSyBM1keTpMBKQKs_OrUK3Vqp0BT59zAbwgc";
+	getScript( "https://maps.googleapis.com/maps/api/js?key="+GoogleMapsApiKey+"&libraries=places" );
 } )();
 
 var markers = { pws: [], origin: [] },
