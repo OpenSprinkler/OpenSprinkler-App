@@ -5,12 +5,10 @@ rm ./www/locale/*~
 
 export JAVA_HOME=/usr/lib64/jvm/jre-20-openjdk/
 grunt buildFW
-sed -i "s/GOOGLEMAPSAPIKEY/$GOOGLEMAPSAPIKEY/g" www/js/app.js
 cp build.json platforms/android/build.json
 cp network_security_config.xml /srv/www/htdocs/ui/platforms/android/app/src/main/res/xml/
 
 cordova plugin add cordova-plugin-device
-cordova prepare
 cordova build --release
 cordova run android --release
 cordova run android --release -- --packageType=apk

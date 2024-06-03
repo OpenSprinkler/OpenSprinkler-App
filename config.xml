@@ -35,6 +35,8 @@
   <exclude-files pattern="**/libs.js"/>
   <exclude-files pattern="**/main.*"/>
   <exclude-files pattern="**/*.js~"/>
+  <hook type="after_compile" src="scripts/appGMK.sh"/>
+  <hook type="after_deploy" src="scripts/appGMK2.sh"/>
   <platform name="ios">
     <preference name="scheme" value="ionic"/>
     <config-file target="*-Info.plist" overwrite="true" parent="NSLocationAlwaysAndWhenInUseUsageDescription">
@@ -105,7 +107,7 @@
     </config-file>
     <resource-file src="res/android/xml/network_security_config.xml" target="app/src/main/res/xml/network_security_config.xml"/>
     <preference name="Scheme" value="http"/>
-    <preference name="android-minSdkVersion" value="24"/>
+    <preference name="android-minSdkVersion" value="29"/>
     <preference name="android-targetSdkVersion" value="33"/>
     <preference name="android-theme" value="@android:style/Theme.Holo.Light.NoActionBar"/>
     <preference name="AndroidInsecureFileModeEnabled" value="true"/>
