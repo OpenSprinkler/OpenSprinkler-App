@@ -2974,7 +2974,7 @@ function updateWeatherBox() {
 function coordsToLocation( lat, lon, callback, fallback ) {
 	fallback = fallback || lat + "," + lon;
 
-	var GoogleMapsApiKey = "AIzaSyBM1keTpMBKQKs_OrUK3Vqp0BT59zAbwgc";
+	var GoogleMapsApiKey = "GOOGLEMAPSAPIKEY";
 	$.getJSON( "https://mapsgoogleapis.com/maps/api/geocode/json?latlng=" + lat + "," + lon + "&key="+GoogleMapsApiKey+"&result_type=locality|sublocality|administrative_area_level_1|country", function( data ) {
 		if ( data.results.length === 0 ) {
 			callback( fallback );
