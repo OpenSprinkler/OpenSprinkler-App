@@ -1515,13 +1515,13 @@ function showAddNew( autoIP, closeOld ) {
 						"id='os_name' placeholder='Home'>" +
 					( isAuto ? "" :
 						"<div class='ui-field-contain'>" +
-						    "<fieldset data-role='controlgroup' class='ui-mini center connection-type' data-type='horizontal'>" +
-						        "<legend class='left'>" + _( "Connection Type" ) + ":</legend>" +
-						        "<input class='noselect' type='radio' name='connectionType' id='type-direct' value='ip' checked='checked'>" +
-						        "<label for='type-direct'>" + _( "Direct" ) + "</label>" +
-						        "<input class='noselect' type='radio' name='connectionType' id='type-token' value='token'>" +
-						        "<label for='type-token'>" + _( "OpenThings Cloud" ) + "</label>" +
-						    "</fieldset>" +
+							"<fieldset data-role='controlgroup' class='ui-mini center connection-type' data-type='horizontal'>" +
+								"<legend class='left'>" + _( "Connection Type" ) + ":</legend>" +
+								"<input class='noselect' type='radio' name='connectionType' id='type-direct' value='ip' checked='checked'>" +
+								"<label for='type-direct'>" + _( "Direct" ) + "</label>" +
+								"<input class='noselect' type='radio' name='connectionType' id='type-token' value='token'>" +
+								"<label for='type-token'>" + _( "OpenThings Cloud" ) + "</label>" +
+							"</fieldset>" +
 						"</div>" +
 						"<label class='ip-field' for='os_ip'>" + _( "Open Sprinkler IP:" ) + "</label>" ) +
 					"<input data-wrapper-class='ip-field' " + ( isAuto ? "data-role='none' style='display:none' " : "" ) +
@@ -3691,19 +3691,19 @@ function showOptions( expandItem ) {
 		"</div>" ),
 		generateSensorOptions = function( index, sensorType, number ) {
 			return "<div class='ui-field-contain'>" +
-			    "<fieldset data-role='controlgroup' class='ui-mini center sensor-options' data-type='horizontal'>" +
-			        "<legend class='left'>" + _( "Sensor" ) + ( number ? " " + number + " " : " " ) + _( "Type" ) + "</legend>" +
-			        "<input class='noselect' type='radio' name='o" + index + "' id='o" + index + "-none' value='0'" + ( sensorType === 0 ? " checked='checked'" : "" ) + ">" +
-			        "<label for='o" + index + "-none'>" + _( "None" ) + "</label>" +
-			        "<input class='noselect' type='radio' name='o" + index + "' id='o" + index + "-rain' value='1'" + ( sensorType === 1 ? " checked='checked'" : "" ) + ">" +
-			        "<label for='o" + index + "-rain'>" + _( "Rain" ) + "</label>" +
+			    "<fieldset data-role='controlgroup' class='ui-mini center sensor-options' data-type='horizontal'>" +
+			        "<legend class='left'>" + _( "Sensor" ) + ( number ? " " + number + " " : " " ) + _( "Type" ) + "</legend>" +
+			        "<input class='noselect' type='radio' name='o" + index + "' id='o" + index + "-none' value='0'" + ( sensorType === 0 ? " checked='checked'" : "" ) + ">" +
+			        "<label for='o" + index + "-none'>" + _( "None" ) + "</label>" +
+			        "<input class='noselect' type='radio' name='o" + index + "' id='o" + index + "-rain' value='1'" + ( sensorType === 1 ? " checked='checked'" : "" ) + ">" +
+			        "<label for='o" + index + "-rain'>" + _( "Rain" ) + "</label>" +
 					( index === 52 ? "" : "<input class='noselect' type='radio' name='o" + index + "' id='o" + index + "-flow' value='2'" + ( sensorType === 2 ? " checked='checked'" : "" ) + ">" +
-			        	"<label for='o" + index + "-flow'>" + _( "Flow" ) + "</label>" ) +
-			        ( checkOSVersion( 219 ) ? "<input class='noselect' type='radio' name='o" + index + "' id='o" + index + "-soil' value='3'" + ( sensorType === 3 ? " checked='checked'" : "" ) + ">" +
-			        	"<label for='o" + index + "-soil'>" + _( "Soil" ) + "</label>" : "" ) +
-			        ( checkOSVersion( 217 ) ? "<input class='noselect' type='radio' name='o" + index + "' id='o" + index + "-program' value='240'" + ( sensorType === 240 ? " checked='checked'" : "" ) + ">" +
-			        	"<label for='o" + index + "-program'>" + _( "Program Switch" ) + "</label>" : "" ) +
-			    "</fieldset>" +
+			        	"<label for='o" + index + "-flow'>" + _( "Flow" ) + "</label>" ) +
+			        ( checkOSVersion( 219 ) ? "<input class='noselect' type='radio' name='o" + index + "' id='o" + index + "-soil' value='3'" + ( sensorType === 3 ? " checked='checked'" : "" ) + ">" +
+			        	"<label for='o" + index + "-soil'>" + _( "Soil" ) + "</label>" : "" ) +
+			        ( checkOSVersion( 217 ) ? "<input class='noselect' type='radio' name='o" + index + "' id='o" + index + "-program' value='240'" + ( sensorType === 240 ? " checked='checked'" : "" ) + ">" +
+			        	"<label for='o" + index + "-program'>" + _( "Program Switch" ) + "</label>" : "" ) +
+			    "</fieldset>" +
 			"</div>";
 		},
 		submitOptions = function() {
