@@ -125,8 +125,11 @@
 	// Insert favicon for web page
 	insertStyleSheet( assetLocation + "img/favicon.ico", "shortcut icon" );
 
-	// Insert jQuery and run init function on completion
-	insertScript( assetLocation + "js/app.js", function() {
+	// Insert jQuery
+	insertScript( assetLocation + "js/jquery.js" );
+
+	// Insert primary application script
+	insertScript( assetLocation + "js/main.js", function() {
 		try {
 			localStorage.setItem( "testQuota", "true" );
 			localStorage.removeItem( "testQuota" );
@@ -141,6 +144,15 @@
 			}
 		}
 	} );
+
+	// Insert libraries
+	insertScript( assetLocation + "js/libs.js" )
+
+	// Insert analog sensor (if supported)
+	insertScript( assetLocation + "js/analog.js" );
+
+	// Insert charting library for analog support
+	insertScript( assetLocation + "js/apexcharts.min.js" );
 
 	// Insert home page icon for iOS
 	insertStyleSheet( assetLocation + "res/ios-web/icons/icon.png", "apple-touch-icon" );
