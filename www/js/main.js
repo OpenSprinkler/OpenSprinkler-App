@@ -13003,7 +13003,7 @@ function checkCurrLang() {
 }
 
 function getAppURLPath() {
-	return currLocal ? $.mobile.path.parseUrl( $( "head" ).find( "script[src$='main.js']" ).attr( "src" ) ).hrefNoHash.slice( 0, -9 ) : "";
+	return currLocal ? $.mobile.path.parseUrl( $( "head" ).find( "script[src$='main.js']" ).attr( "src" ) ).hrefNoHash.slice( 0, -10 ) : "";
 }
 
 function getUrlVars( url ) {
