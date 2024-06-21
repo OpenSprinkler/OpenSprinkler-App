@@ -72,35 +72,11 @@ function updateSensorShowArea( page ) {
 		var showArea =  page.find( "#os-sensor-show" );
 		var html = "", i, j;
 		for ( i = 0; i < progAdjusts.length; i++ ) {
-			var progAdjust = progAdjusts[ i ];
-			var sensorName = "";
-			for ( j = 0; j < analogSensors.length; j++ ) {
-				if ( analogSensors[ j ].nr === progAdjust.sensor ) {
-					sensorName = analogSensors[ j ].name;
-				}
-			}
-			var progName = "?";
-			if ( progAdjust.prog >= 1 && progAdjust.prog <= controller.programs.pd.length ) {
-				progName = readProgram( controller.programs.pd[ progAdjust.prog - 1 ] ).name;
-			}
-
-			var symbol;
-			var current = progAdjust.current;
-			if (current === undefined || isNaN(current))
-				symbol = "forbidden";
-			else {
-				current = Math.round( current * 100 );
-				if (current <= 20) symbol = "arrow-d";
-				else if (current < 100) symbol = "arrow-d-l";
-				else if (current > 200) symbol = "alert";
-				else if (current >= 180) symbol = "arrow-u";
-				else if (current > 100) symbol = "arrow-u-l";
-				else symbol = "star";
-			}
+			//var progAdjust = progAdjusts[ i ];
 			html += "<div class='ui-body ui-body-a center'>";
-			html += "<h4>"+ sensorName + " - " + progName + ": " + formatValUnit(current, "%");
-			html += "<a class='ui-btn ui-corner-all ui-btn-inline ui-icon-"+symbol+" ui-btn-icon-notext'>status</a></h4>";
-			html += "</div>";
+			//html += "<h4>"+ sensorName + " - " + progName;
+			html += "<div id='mainpageChart-"+i+"'></div>";
+			html += "</h4></div>";
 		}
 
 		for ( i = 0; i < analogSensors.length; i++ ) {
@@ -115,6 +91,106 @@ function updateSensorShowArea( page ) {
 			showArea.removeChild( showArea.firstChild );
 		}
 		showArea.html( html );
+
+		for ( i = 0; i < progAdjusts.length; i++ ) {
+			var progAdjust = progAdjusts[ i ];
+			var current = Math.round(progAdjust.current*100);
+
+			var progName = "?";
+			if ( progAdjust.prog >= 1 && progAdjust.prog <= controller.programs.pd.length ) {
+				progName = readProgram( controller.programs.pd[ progAdjust.prog - 1 ] ).name;
+			}
+
+			var sensorName = "";
+			for ( j = 0; j < analogSensors.length; j++ ) {
+				if ( analogSensors[ j ].nr === progAdjust.sensor ) {
+					sensorName = analogSensors[ j ].name;
+				}
+			}
+
+			//current = 80; //testvalue!
+			var color = ["#87D4F9"];
+			if (current > 100)
+				color = ["#FF8C00"];
+			if (current > 150)
+				color = ["#CD5C5C"];
+
+			var min = Math.min(progAdjust.factor1, progAdjust.factor2) * 100;
+			var max = Math.max(progAdjust.factor1, progAdjust.factor2) * 100;
+			if (current < min) current = min;
+			if (current > max) current = max;
+			var currentAdj = (current - min) / (max - min) * 100;
+
+			var options = {
+				chart: {
+				  height: 180,
+				  type: "radialBar",
+				  animations: {
+				  	enabled: false,
+				  	dynamicAnimation: {
+				  		enabled: false
+				  	}
+				  }
+				},
+
+				series: [currentAdj],
+				colors: ["#20E647"],
+				plotOptions: {
+				  radialBar: {
+					startAngle: -135,
+            		endAngle: 135,
+					//hollow: {
+					//  margin: 15,
+					//  size: "70%"
+					//},
+					track: {
+						dropShadow: {
+						  enabled: true,
+						  top: 2,
+						  left: 0,
+						  blur: 4,
+						  opacity: 0.15
+						}
+					  },
+					dataLabels: {
+					  showOn: "always",
+					  name: {
+						offsetY: -10,
+						show: true,
+						color: "#888",
+						fontSize: "13px"
+					  },
+					  value: {
+						color: "#111",
+						fontSize: "30px",
+						show: true,
+						formatter: function (val) {
+							return current + "%";
+						}
+					  }
+					}
+				  }
+				},
+
+				fill: {
+					type: "gradient",
+					gradient: {
+					  shade: "dark",
+					  type: "vertical",
+					  gradientToColors: color,
+					  stops: [0,100]
+					}
+				  },
+				stroke: {
+				  lineCap: "round",
+				},
+				labels: [sensorName+" - "+progName]
+			  };
+
+			  var chart = new ApexCharts(document.querySelector("#mainpageChart-"+i), options);
+
+			  chart.render();
+		}
 	}
 }
 
@@ -1123,7 +1199,7 @@ function showAnalogSensorConfig() {
 						showerror(_("Error calling rest service: ")+" "+result);
 					else
 						progAdjusts[ row ] = progAdjustOut;
-					updateSensorContent();
+					updateProgramAdjustments( updateSensorContent );
 				} );
 			}, updateSensorContent );
 		} );
@@ -1151,7 +1227,7 @@ function showAnalogSensorConfig() {
 						showerror(_("Error calling rest service: ")+" "+result);
 					else
 						progAdjusts.push( progAdjustOut );
-					updateSensorContent();
+					updateProgramAdjustments( updateSensorContent );
 				} );
 			}, updateSensorContent );
 		} );
@@ -1451,6 +1527,7 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr, lvl ) {
 			if (line.length >= 3 && Number(line[0]) === nr ) {
 				let date = Number(line[1]);
 				let value = Number(line[2]);
+				if (value === undefined || date === undefined) continue;
 				if (unitid != 3 && value > 100) continue;
 				if (unitid == 1 && value < 0) continue;
 				if (lvl == 0) //day values
