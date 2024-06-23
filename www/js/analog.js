@@ -90,7 +90,7 @@ function updateSensorShowArea( page ) {
 			var sensor = analogSensors[ i ];
 			if ( sensor.show ) {
 				html += "<div id='sensor-show-" + sensor.nr + "' class='ui-body ui-body-a center'>";
-				html += "<label>" + sensor.name + ": " + formatVal( sensor.data, sensor.unit) + "</label>";
+				html += "<label>" + sensor.name + ": " + formatValUnit( sensor.data, getUnit(sensor)) + "</label>";
 				html += "</div>";
 			}
 		}
@@ -452,7 +452,8 @@ function showAdjustmentsEditor( progAdjust, row, callback, callbackCancel ) {
 
 		$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
 
-		var list = "<div data-role='popup' data-theme='a' id='progAdjustEditor'>" +
+		var list = 
+			"<div data-role='popup' data-theme='a' id='progAdjustEditor'>" +
 			"<div data-role='header' data-theme='b'>" +
 			"<h1>" + ( progAdjust.nr > 0 ? _( "Edit Program Adjustment" ) : _( "New Program Adjustment" ) ) + "</h1>" +
 			"</div>" +
@@ -1884,4 +1885,21 @@ function formatValUnit( val, unit ) {
 		return "";
 	return (+( Math.round( val + "e+2" )  + "e-2" )) + unit;
 
+}
+
+function getUnit( sensor ) {
+	var unitid = sensor.unitid;
+	switch ( unitid ) {
+		case 1: return "%";
+		case 2: return String.fromCharCode( 176 ) + "C";
+		case 3: return String.fromCharCode( 176 ) + "F";
+		case 4: return "V";
+		case 5: return "%";
+		case 6: return "in";
+		case 7: return "mm";
+		case 8: return "mph";
+		case 9: return "kmh";
+		case 10: return "%";
+		default: return sensor.unit;
+	}
 }
