@@ -71,19 +71,26 @@ function updateSensorShowArea( page ) {
 	if ( analogSensorAvail ) {
 		var showArea =  page.find( "#os-sensor-show" );
 		var html = "", i, j;
+		html += "<div class='ui-body ui-body-a center'><table style='margin: 0px auto;'>";
+		var cols = Math.round(window.innerWidth / 300);
+
 		for ( i = 0; i < progAdjusts.length; i++ ) {
-			//var progAdjust = progAdjusts[ i ];
-			html += "<div class='ui-body ui-body-a center'>";
-			//html += "<h4>"+ sensorName + " - " + progName;
-			html += "<div id='mainpageChart-"+i+"'></div>";
-			html += "</h4></div>";
+			if (i % cols == 0) {
+				if (i > 0)
+					html += "</tr>";
+				html += "<tr>";
+			}
+			html += "<td id='mainpageChart-"+i+"'/>";
 		}
+		if (i > 0)
+			html += "</tr>";
+		html += "</table></div>";
 
 		for ( i = 0; i < analogSensors.length; i++ ) {
 			var sensor = analogSensors[ i ];
 			if ( sensor.show ) {
 				html += "<div id='sensor-show-" + sensor.nr + "' class='ui-body ui-body-a center'>";
-				html += "<label>" + sensor.name + ": " + formatVal( sensor.data ) + sensor.unit + "</label>";
+				html += "<label>" + sensor.name + ": " + formatVal( sensor.data, sensor.unit) + "</label>";
 				html += "</div>";
 			}
 		}
@@ -119,7 +126,6 @@ function updateSensorShowArea( page ) {
 			var max = Math.max(progAdjust.factor1, progAdjust.factor2) * 100;
 			if (current < min) current = min;
 			if (current > max) current = max;
-			var currentAdj = (current - min) / (max - min) * 100;
 
 			var options = {
 				chart: {
@@ -133,7 +139,7 @@ function updateSensorShowArea( page ) {
 				  }
 				},
 
-				series: [currentAdj],
+				series: [current],
 				colors: ["#20E647"],
 				plotOptions: {
 				  radialBar: {
@@ -157,15 +163,15 @@ function updateSensorShowArea( page ) {
 					  name: {
 						offsetY: -10,
 						show: true,
-						color: "#888",
+						color: "#222",
 						fontSize: "13px"
 					  },
 					  value: {
 						color: "#111",
 						fontSize: "30px",
 						show: true,
-						formatter: function (val) {
-							return current + "%";
+						formatter: function(val) {
+							return formatValUnit(val, "%");
 						}
 					  }
 					}
@@ -176,7 +182,7 @@ function updateSensorShowArea( page ) {
 					type: "gradient",
 					gradient: {
 					  shade: "dark",
-					  type: "vertical",
+					  type: "horizontal",
 					  gradientToColors: color,
 					  stops: [0,100]
 					}
@@ -184,7 +190,7 @@ function updateSensorShowArea( page ) {
 				stroke: {
 				  lineCap: "round",
 				},
-				labels: [sensorName+" - "+progName]
+				labels: [progName+" ("+sensorName+")"]
 			  };
 
 			  var chart = new ApexCharts(document.querySelector("#mainpageChart-"+i), options);
@@ -380,7 +386,8 @@ function importConfigSensors( data, restore_type, callback ) {
 			}
 		}
 
-		analogSensors.expandItem.add("sensors");
+		//analogSensors.expandItem.add("sensors");
+		analogSensors.expandItem.clear();
 		analogSensors.expandItem.add("progadjust");
 		updateProgramAdjustments( function( ) {
 			updateAnalogSensor( function( ) {
@@ -1076,6 +1083,7 @@ function showAnalogSensorConfig() {
 
 			var sensor = analogSensors[ row ];
 
+			analogSensors.expandItem.clear();
 			analogSensors.expandItem.add("sensors");
 			showSensorEditor( sensor, row, function( sensorOut ) {
 				sensorOut.nativedata = sensor.nativedata;
@@ -1157,6 +1165,7 @@ function showAnalogSensorConfig() {
 						showerror(_("Error calling rest service: ")+" "+result);
 					else {
 						analogSensors.push( sensorOut );
+						analogSensors.expandItem.clear();
 						analogSensors.expandItem.add("sensors");
 					}
 					updateSensorContent();
@@ -1166,6 +1175,7 @@ function showAnalogSensorConfig() {
 
 		// Refresh sensor data:
 		list.find( ".refresh-sensor" ).on( "click", function( ) {
+			analogSensors.expandItem.clear();
 			analogSensors.expandItem.add("sensors");
 			updateProgramAdjustments( function( ) {
 				updateAnalogSensor( function( ) {
@@ -1181,6 +1191,7 @@ function showAnalogSensorConfig() {
 
 			var progAdjust = progAdjusts[ row ];
 
+			analogSensors.expandItem.clear();
 			analogSensors.expandItem.add("progadjust");
 			showAdjustmentsEditor( progAdjust, row, function( progAdjustOut ) {
 
@@ -1210,6 +1221,7 @@ function showAnalogSensorConfig() {
 				type: 1
 			};
 
+			analogSensors.expandItem.clear();
 			analogSensors.expandItem.add("progadjust");
 			showAdjustmentsEditor( progAdjust, -1, function( progAdjustOut ) {
 				return sendToOS( "/sb?pw=&nr=" + progAdjustOut.nr +
@@ -1234,6 +1246,7 @@ function showAnalogSensorConfig() {
 
 		// Clear sensor log
 		list.find( ".clear_sensor_logs" ).on( "click", function() {
+			analogSensors.expandItem.clear();
 			analogSensors.expandItem.add("sensorlog");
 			areYouSure( _( "Are you sure you want to clear the sensor log?" ), "", function() {
 				return sendToOS( "/sn?pw=&", "json" ).done( function( result ) {
@@ -1244,6 +1257,7 @@ function showAnalogSensorConfig() {
 		} );
 
 		list.find( ".download-log" ).on( "click", function() {
+			analogSensors.expandItem.clear();
 			analogSensors.expandItem.add("sensorlog");
 			var link = document.createElement( "a" );
 			link.style.display = "none";
@@ -1260,30 +1274,35 @@ function showAnalogSensorConfig() {
 		} );
 
 		list.find( ".show-log" ).on( "click", function() {
+			analogSensors.expandItem.clear();
 			analogSensors.expandItem.add("sensorlog");
 			changePage( "#analogsensorchart" );
 			return false;
 		} );
 
 		list.find( ".backup-sensors" ).on( "click", function() {
+			analogSensors.expandItem.clear();
             analogSensors.expandItem.add("backup");
             getExportMethodSensors(1);
             return false;
 		} );
 
 		list.find( ".restore-sensors" ).on( "click", function() {
+			analogSensors.expandItem.clear();
 			analogSensors.expandItem.add("backup");
 			getImportMethodSensors(1, updateSensorContent);
 			return false;
 		} );
 
 		list.find( ".backup-adjustments" ).on( "click", function() {
+			analogSensors.expandItem.clear();
             analogSensors.expandItem.add("backup");
             getExportMethodSensors(2);
             return false;
 		} );
 
 		list.find( ".restore-adjustments" ).on( "click", function() {
+			analogSensors.expandItem.clear();
 			analogSensors.expandItem.add("backup");
 			getImportMethodSensors(2, updateSensorContent);
 			return false;
