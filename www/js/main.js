@@ -5351,9 +5351,18 @@ var showHome = ( function() {
 							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='remote-address' required='true' type='text' pattern='^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$' value='" + data.ip + "'>" +
 							"<div class='ui-bar-a ui-bar'>" + _( "Remote Port" ) + ":</div>" +
 							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='remote-port' required='true' type='number' placeholder='80' min='0' max='65535' value='" + data.port + "'>" +
-							"<div class='ui-bar-a ui-bar'>" + _( "Remote Station (index)" ) + ":</div>" +
+							"<div class='ui-bar-a ui-bar'>" + _( "Remote Station" ) + ":</div>" +
 							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='remote-station' required='true' type='number' min='1' max='200' placeholder='1' value='" + ( data.station + 1 ) + "'>"
 						).enhanceWithin();
+					} else if ( value === 6 ) {
+						data = parseRemoteStationData( ( type === value ) ? data : "OT123456789012345678901234567890,00" );
+						opts.append(
+							"<div class='ui-bar-a ui-bar'>" + _( "Remote OTC Token" ) + ":</div>" +
+							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='remote-otc' required='true' type='text' pattern='^OT[a-fA-F0-9]{30}$' value='" + data.otc + "'>" +
+							"<div class='ui-bar-a ui-bar'>" + _( "Remote Station" ) + ":</div>" +
+							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='remote-station' required='true' type='number' min='1' max='200' placeholder='1' value='" + ( data.station + 1 ) + "'>"
+						).enhanceWithin();
+						
 					} else if ( value === 3 ) {
 
 						// Extended special station model to support GPIO stations
@@ -5395,8 +5404,8 @@ var showHome = ( function() {
 								 "</select>";
 
 						opts.append( sel ).enhanceWithin();
-					} else if ( value === 4 ) {
-						data = ( type === value ) ? data.split( "," ) : [ "server", "80", "On", "Off" ];
+					} else if ( value === 4 || value === 5 ) {
+						data = ( type === value ) ? data.split( "," ) : (value === 4? [ "server", "80", "On", "Off" ] : [ "server", "443", "On", "Off" ]);
 
 						opts.append(
 							"<div class='ui-bar-a ui-bar'>" + _( "Server Name" ) + ":</div>" +
@@ -5439,18 +5448,24 @@ var showHome = ( function() {
 
 					if ( hs === 1 ) {
 						button.data( "specialData", select.find( "#rf-code" ).val() );
-					} else if ( hs === 2 ) {
-						var ip = select.find( "#remote-address" ).val().split( "." ),
-							port = parseInt( select.find( "#remote-port" ).val() ) || 80,
-							station = ( select.find( "#remote-station" ).val() || 1 ) - 1,
-							hex = "";
-
-						for ( var i = 0; i < 4; i++ ) {
-							hex += pad( parseInt( ip[ i ] ).toString( 16 ) );
+					} else if ( hs === 2 || hs === 6) {
+						var ip, port, otc, station, hex = "";
+						station = ( select.find( "#remote-station" ).val() || 1 ) - 1;
+						if ( hs === 2) {
+							ip = select.find( "#remote-address" ).val().split( "." );
+							port = parseInt( select.find( "#remote-port" ).val() ) || 80;
+							for ( var i = 0; i < 4; i++ ) {
+								hex += pad( parseInt( ip[ i ] ).toString( 16 ) );
+							}
+							hex += ( port < 256 ? "00" : "" ) + pad( port.toString( 16 ) );
+							hex += pad( station.toString( 16 ) );
+						} else {
+							otc = select.find( "#remote-otc" ).val();
+							console.log(otc);
+							hex += otc;
+							hex += ","
+							hex += pad( station.toString( 16 ) );
 						}
-
-						hex += ( port < 256 ? "00" : "" ) + pad( port.toString( 16 ) );
-						hex += pad( station.toString( 16 ) );
 
 						if ( checkPassed !== true ) {
 							$.mobile.loading( "show" );
@@ -5517,7 +5532,7 @@ var showHome = ( function() {
 						var sd = pad( select.find( "#gpio-pin" ).val() || "05" );
 						sd += select.find( "#active-state" ).val() || "1";
 						button.data( "specialData", sd );
-					} else if ( hs === 4 ) {
+					} else if ( hs === 4 || hs === 5 ) {
 						var sdata = select.find( "#http-server" ).val();
 						sdata += "," + select.find( "#http-port" ).val();
 						sdata += "," + select.find( "#http-on" ).val();
@@ -5646,13 +5661,15 @@ var showHome = ( function() {
 						"<select data-mini='true' id='hs'"  + ( Station.isSpecial( sid ) ? " class='ui-disabled'" : "" ) + ">" +
 							"<option data-hs='0' value='0'" + ( Station.isSpecial( sid ) ? "" : "selected" ) + ">" + _( "Standard" ) + "</option>" +
 							"<option data-hs='1' value='1'>" + _( "RF" ) + "</option>" +
-							"<option data-hs='2' value='2'>" + _( "Remote" ) + "</option>" +
+							"<option data-hs='2' value='2'>" + _( "Remote IP station" ) + "</option>" +
 							"<option data-hs='3' value='3'" + (
 								checkOSVersion( 217 ) && (
 									( typeof controller.settings.gpio !== "undefined" && controller.settings.gpio.length > 0 ) || getHWVersion() === "OSPi" || getHWVersion() === "2.3"
 								) ? ">" : " disabled>"
 							) + _( "GPIO" ) + "</option>" +
 							"<option data-hs='4' value='4'" + ( checkOSVersion( 217 ) ? ">" : " disabled>" ) + _( "HTTP" ) + "</option>" +
+							"<option data-hs='5' value='5'" + ( checkOSVersion( 2206 ) ? ">" : " disabled>" ) + _( "HTTPS" ) + "</option>" +
+							"<option data-hs='6' value='6'" + ( checkOSVersion( 2206 ) ? ">" : " disabled>" ) + _( "Remote OTC station" ) + "</option>" +
 						"</select>" +
 						"<div id='specialOpts'></div>";
 			}
@@ -6430,22 +6447,31 @@ function showGuidedSetup() {
 
 }
 
+function isValidOTC( token ) {
+	return /^OT[a-f0-9]{30}$/i.test(token);
+}
+
 function parseRemoteStationData( hex ) {
-	hex = hex.split( "" );
+	let fields = hex.split( "," );
+	let result = {};
+	if (fields.length === 2 && isValidOTC(fields[ 0 ])) {
+		result.otc = fields[ 0 ];
+		result.station = parseInt( fields[1], 16 );
+	} else {
+		hex = hex.split( "" );
 
-	var ip = [],
-		value,
-		result = {};
+		var ip = [], value;
 
-	for ( var i = 0; i < 8; i++ ) {
-		value = parseInt( hex[ i ] + hex[ i + 1 ], 16 ) || 0;
-		ip.push( value );
-		i++;
+		for ( var i = 0; i < 8; i++ ) {
+			value = parseInt( hex[ i ] + hex[ i + 1 ], 16 ) || 0;
+			ip.push( value );
+			i++;
+		}
+
+		result.ip = ip.join( "." );
+		result.port = parseInt( hex[ 8 ] + hex[ 9 ] + hex[ 10 ] + hex[ 11 ], 16 );
+		result.station = parseInt( hex[ 12 ] + hex[ 13 ], 16 );
 	}
-
-	result.ip = ip.join( "." );
-	result.port = parseInt( hex[ 8 ] + hex[ 9 ] + hex[ 10 ] + hex[ 11 ], 16 );
-	result.station = parseInt( hex[ 12 ] + hex[ 13 ], 16 );
 
 	return result;
 }
@@ -6454,7 +6480,7 @@ function verifyRemoteStation( data, callback ) {
 	data = parseRemoteStationData( data );
 
 	$.ajax( {
-		url: "http://" + data.ip + ":" + data.port + "/jo?pw=" + encodeURIComponent( currPass ),
+		url: (data.otc ? ( "https://cloud.openthings.io/forward/v1/" + data.otc ) : ( "http://" + data.ip + ":" + data.port ) ) + "/jo?pw=" + encodeURIComponent( currPass ),
 		type: "GET",
 		dataType: "json"
 	} ).then(
@@ -6477,9 +6503,16 @@ function verifyRemoteStation( data, callback ) {
 
 function convertRemoteToExtender( data ) {
 	data = parseRemoteStationData( data );
-
+	let comm;
+	if ( data.otc ) {
+		comm = "https://cloud.openthings.io/forward/v1/" + data.otc;
+	} else {
+		comm = "http://" + data.ip + ":" + data.port;
+	}
+	comm += "/cv?re=1&pw=" + encodeURIComponent( currPass );
+	
 	$.ajax( {
-		url: "http://" + data.ip + ":" + data.port + "/cv?re=1&pw=" + encodeURIComponent( currPass ),
+		url: comm,
 		type: "GET",
 		dataType: "json"
 	} );
