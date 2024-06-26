@@ -108,7 +108,7 @@ var isAndroid = /Android|\bSilk\b/.test( navigator.userAgent ),
 		"hp0":12, "hp1":13, "ar":14, "ext":15, "seq":16, "sdt":17, "mas":18, "mton":19, "mtof":20, "urs":21, "rso":22,
 		"wl":23, "den":24, "ipas":25, "devid":26, "con":27, "lit":28, "dim":29, "bst":30, "uwt":31, "ntp1":32, "ntp2":33,
 		"ntp3":34, "ntp4":35, "lg":36, "mas2":37, "mton2":38, "mtof2":39, "fpr0":41, "fpr1":42, "re":43, "dns1": 44,
-		"dns2":45, "dns3":46, "dns4":47, "sar":48, "ife":49, "sn1t":50, "sn1o":51, "sn2t":52, "sn2o":53, "sn1on":54,
+		"dns2":45, "dns3":46, "dns4":47, "sar":48, "nfe":49, "sn1t":50, "sn1o":51, "sn2t":52, "sn2o":53, "sn1on":54,
 		"sn1of":55, "sn2on":56, "sn2of":57, "subn1":58, "subn2":59, "subn3":60, "subn4":61
 	},
 
@@ -3828,6 +3828,11 @@ function showOptions( expandItem ) {
 							return true;
 						}
 						break;
+					case "email":
+						if ( escapeJSON( controller.settings.email ) === data ) {
+							return true;
+						}
+						break;
 					case "otc":
 						if ( escapeJSON( controller.settings.otc ) === data ) {
 							return true;
@@ -4289,6 +4294,20 @@ function showOptions( expandItem ) {
 					"</div>";
 		}
 
+		if ( typeof controller.settings.email !== "undefined" ) {
+			list += "<div class='ui-field-contain'>" +
+						"<label for='email'>" + _( "Email Notifs" ) +
+							"<button style='display:inline-block;' data-helptext='" +
+								_( "OpenSprinkler can send notifications to a specified email address using a given email and smtp server." ) +
+								"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'>" +
+							"</button>" +
+						"</label>" +
+						"<button data-mini='true' id='email' value='" + escapeJSON( controller.settings.email ) + "'>" +
+							_( "Tap to Configure" ) +
+						"</button>" +
+					"</div>";
+		}
+
 		if ( typeof controller.settings.ifkey !== "undefined" ) {
 			list += "<div class='ui-field-contain'><label for='ifkey'>" + _( "IFTTT Key" ) +
 				"<button data-helptext='" +
@@ -4297,17 +4316,17 @@ function showOptions( expandItem ) {
 			"</label><input autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' data-mini='true' type='text' id='ifkey' value='" + controller.settings.ifkey + "'>" +
 			"</div>";
 
-			list += "<div class='ui-field-contain'><label for='o49'>" + _( "IFTTT Events" ) +
+			list += "<div class='ui-field-contain'><label for='o49'>" + _( "Events Select" ) +
 					"<button data-helptext='" +
-						_( "Select which events to send to IFTTT for use in recipes." ) +
+						_( "Select which events to send to IFTTT and email for use in recipes." ) +
 						"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
-				"</label><button data-mini='true' id='o49' value='" + controller.options.ife + "'>" + _( "Configure Events" ) + "</button></div>";
+				"</label><button data-mini='true' id='o49' value='" + controller.options.nfe + "'>" + _( "Configure Events" ) + "</button></div>";
 		}
 
 		if ( typeof controller.settings.dname !== "undefined" ) {
 			list += "<div class='ui-field-contain'><label for='dname'>" + _( "Device Name" ) +
 				"<button data-helptext='" +
-					_( "Device name is attached to all IFTTT notifications to help distinguish multiple devices" ) +
+					_( "Device name is attached to all IFTTT and email notifications to help distinguish multiple devices" ) +
 					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
 			"</label><input autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' data-mini='true' type='text' id='dname' value=\"" + controller.settings.dname + "\">" +
 			"</div>";
@@ -4891,10 +4910,10 @@ function showOptions( expandItem ) {
 			run: _( "Station Run" ),
 			sensor2: _( "Sensor 2 Update" ),
 			rain: _( "Rain Delay Update" )
-		}, button = this, curr = parseInt( button.value ), inputs = "", a = 0, ife = 0;
+		}, button = this, curr = parseInt( button.value ), inputs = "", a = 0, nfe = 0;
 
 		$.each( events, function( i, val ) {
-			inputs += "<label for='ifttt-" + i + "'><input class='needsclick' data-iconpos='right' id='ifttt-" + i + "' type='checkbox' " +
+			inputs += "<label for='notif-" + i + "'><input class='needsclick' data-iconpos='right' id='notif-" + i + "' type='checkbox' " +
 				( getBitFromByte( curr, a ) ? "checked='checked'" : "" ) + ">" + val +
 			"</label>";
 			a++;
@@ -4903,7 +4922,7 @@ function showOptions( expandItem ) {
 		var popup = $(
 			"<div data-role='popup' data-theme='a'>" +
 				"<div data-role='controlgroup' data-mini='true' class='tight'>" +
-					"<div class='ui-bar ui-bar-a'>" + _( "Select IFTTT Events" ) + "</div>" +
+					"<div class='ui-bar ui-bar-a'>" + _( "Select Notification Events" ) + "</div>" +
 						inputs +
 					"<input data-wrapper-class='attrib-submit' class='submit' data-theme='b' type='submit' value='" + _( "Submit" ) + "' />" +
 				"</div>" +
@@ -4912,14 +4931,14 @@ function showOptions( expandItem ) {
 		popup.find( ".submit" ).on( "click", function() {
 			a = 0;
 			$.each( events, function( i ) {
-				ife |= popup.find( "#ifttt-" + i ).is( ":checked" ) << a;
+				nfe |= popup.find( "#notif-" + i ).is( ":checked" ) << a;
 				a++;
 			} );
 			popup.popup( "close" );
-			if ( curr === ife ) {
+			if ( curr === nfe ) {
 				return;
 			} else {
-				button.value = ife;
+				button.value = nfe;
 				header.eq( 2 ).prop( "disabled", false );
 				page.find( ".submit" ).addClass( "hasChanges" );
 			}
@@ -5015,6 +5034,103 @@ function showOptions( expandItem ) {
 
 		openPopup( popup, { positionTo: "window" } );
     } );
+
+	page.find( '#email' ).on( "click", function() {
+		var button = this, curr = button.value,
+			options = $.extend( {}, {
+				en: 0,
+				host: "",
+				port: 465,
+				user: "",
+				pass: "",
+				recipient: ""
+			}, unescapeJSON( curr ) );
+
+		$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
+
+		var popup = $( "<div data-role='popup' data-theme='a' id='emailSettings'>" +
+				"<div data-role='header' data-theme='b'>" +
+					"<h1>" + _( "Email Settings" ) + "</h1>" +
+				"</div>" +
+				"<div class='ui-content'>" +
+					"<label for='enable'>" + _( "Enable" ) + "</label>" +
+					"<input class='needsclick email_enable' data-mini='true' data-iconpos='right' id='enable' type='checkbox' " +
+						( options.en ? "checked='checked'" : "" ) + ">" +
+					"<div class='ui-body'>" +
+						"<div class='ui-grid-a' style='display:table;'>" +
+							"<div class='ui-block-a' style='width:40%'>" +
+								"<label for='server' style='padding-top:10px'>" + _( "SMTP Server" ) + "</label>" +
+							"</div>" +
+							"<div class='ui-block-b' style='width:60%'>" +
+								"<input class='email-input' type='text' id='server' data-mini='true' maxlength='32' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
+									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + _( "smtp server" ) + "' value='" + options.host + "' required />" +
+							"</div>" +
+							"<div class='ui-block-a' style='width:40%'>" +
+								"<label for='port' style='padding-top:10px'>" + _( "Port" ) + "</label>" +
+							"</div>" +
+							"<div class='ui-block-b' style='width:60%'>" +
+								"<input class='email-input' type='number' id='port' data-mini='true' pattern='[0-9]*' min='0' max='65535'" +
+									( options.en ? "" : "disabled='disabled'" ) + " placeholder='465' value='" + options.port + "' required />" +
+							"</div>" +
+							"<div class='ui-block-a' style='width:40%'>" +
+								"<label for='username' style='padding-top:10px'>" + _( "Sender Email" ) + "</label>" +
+							"</div>" +
+							"<div class='ui-block-b' style='width:60%'>" +
+								"<input class='email-input' type='text' id='username' data-mini='true' maxlength='50' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
+									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + _( "sender" ) + "' value='" + options.user + "' required />" +
+							"</div>" +
+							"<div class='ui-block-a' style='width:40%'>" +
+								"<label for='password' style='padding-top:10px'>" + _( "App Password" ) + "</label>" +
+							"</div>" +
+							"<div class='ui-block-b' style='width:60%'>" +
+								"<input class='email-input' type='password' id='password' data-mini='true' maxlength='32' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
+									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + _( "app password" ) + "' value='" + options.pass + "' required />" +
+							"</div>" +
+							"<div class='ui-block-a' style='width:40%'>" +
+								"<label for='recipient' style='padding-top:10px'>" + _( "Recipient Email" ) + "</label>" +
+							"</div>" +
+							"<div class='ui-block-b' style='width:60%'>" +
+								"<input class='email-input' type='text' id='recipient' data-mini='true' maxlength='32' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
+									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + _( "recipient" ) + "' value='" + options.recipient + "' required />" +
+							"</div>" +
+						"</div>" +
+					"</div>" +
+					"<button class='submit' data-theme='b'>" + _( "Submit" ) + "</button>" +
+				"</div>" +
+			"</div>" );
+
+		popup.find( "#enable" ).on( "change", function() {
+			if ( this.checked ) {
+				popup.find( ".email-input" ).textinput( "enable" );
+			} else {
+				popup.find( ".email-input" ).textinput( "disable" );
+			}
+		} );
+
+		popup.find( ".submit" ).on( "click", function() {
+			var options = {
+				en: ( popup.find( "#enable" ).prop( "checked" ) ? 1 : 0 ),
+				host: popup.find( "#server" ).val(),
+				port: parseInt( popup.find( "#port" ).val() ),
+				user: popup.find( "#username" ).val(),
+				pass: popup.find( "#password" ).val(),
+				recipient: popup.find( "#recipient" ).val()
+			};
+
+			popup.popup( "close" );
+			if ( curr === escapeJSON( options ) ) {
+				return;
+			} else {
+				button.value = escapeJSON( options );
+				header.eq( 2 ).prop( "disabled", false );
+				page.find( ".submit" ).addClass( "hasChanges" );
+			}
+		} );
+
+		popup.css( "max-width", "380px" );
+
+		openPopup( popup, { positionTo: "window" } );
+	} );
 
 	page.find( "#otc" ).on( "click", function() {
 		var button = this, curr = button.value,
@@ -10122,6 +10238,11 @@ function importConfig( data ) {
 		// Import mqtt options, if available
 		if ( typeof data.settings.mqtt === "object" && checkOSVersion( 2191 ) ) {
 			co += "&mqtt=" + escapeJSON( data.settings.mqtt );
+			}
+
+		//Import email options, if available
+		if ( typeof data.settings.email === "object" && checkOSVersion( 2191 ) ) {
+			co += "&email=" + escapeJSON( data.settings.email );
 			}
 
 		if ( typeof data.settings.otc === "object" && checkOSVersion( 2191 ) ) {
