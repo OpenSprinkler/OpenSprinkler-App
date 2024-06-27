@@ -13,3 +13,4 @@ cp build.json platforms/android/build.json
 
 cordova build browser --release
 chown stefan:www platforms/* -R
+./scripts/appGMK2.sh
