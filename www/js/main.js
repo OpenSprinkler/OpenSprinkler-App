@@ -108,7 +108,7 @@ var isAndroid = /Android|\bSilk\b/.test( navigator.userAgent ),
 		"hp0":12, "hp1":13, "ar":14, "ext":15, "seq":16, "sdt":17, "mas":18, "mton":19, "mtof":20, "urs":21, "rso":22,
 		"wl":23, "den":24, "ipas":25, "devid":26, "con":27, "lit":28, "dim":29, "bst":30, "uwt":31, "ntp1":32, "ntp2":33,
 		"ntp3":34, "ntp4":35, "lg":36, "mas2":37, "mton2":38, "mtof2":39, "fpr0":41, "fpr1":42, "re":43, "dns1": 44,
-		"dns2":45, "dns3":46, "dns4":47, "sar":48, "nfe":49, "sn1t":50, "sn1o":51, "sn2t":52, "sn2o":53, "sn1on":54,
+		"dns2":45, "dns3":46, "dns4":47, "sar":48, "ife":49, "sn1t":50, "sn1o":51, "sn2t":52, "sn2o":53, "sn1on":54,
 		"sn1of":55, "sn2on":56, "sn2of":57, "subn1":58, "subn2":59, "subn3":60, "subn4":61
 	},
 
@@ -4320,7 +4320,7 @@ function showOptions( expandItem ) {
 					"<button data-helptext='" +
 						_( "Select which events to send to IFTTT and email for use in recipes." ) +
 						"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
-				"</label><button data-mini='true' id='o49' value='" + controller.options.nfe + "'>" + _( "Configure Events" ) + "</button></div>";
+				"</label><button data-mini='true' id='o49' value='" + controller.options.ife + "'>" + _( "Configure Events" ) + "</button></div>";
 		}
 
 		if ( typeof controller.settings.dname !== "undefined" ) {
@@ -4910,7 +4910,7 @@ function showOptions( expandItem ) {
 			run: _( "Station Run" ),
 			sensor2: _( "Sensor 2 Update" ),
 			rain: _( "Rain Delay Update" )
-		}, button = this, curr = parseInt( button.value ), inputs = "", a = 0, nfe = 0;
+		}, button = this, curr = parseInt( button.value ), inputs = "", a = 0, ife = 0;
 
 		$.each( events, function( i, val ) {
 			inputs += "<label for='notif-" + i + "'><input class='needsclick' data-iconpos='right' id='notif-" + i + "' type='checkbox' " +
@@ -4931,14 +4931,14 @@ function showOptions( expandItem ) {
 		popup.find( ".submit" ).on( "click", function() {
 			a = 0;
 			$.each( events, function( i ) {
-				nfe |= popup.find( "#notif-" + i ).is( ":checked" ) << a;
+				ife |= popup.find( "#notif-" + i ).is( ":checked" ) << a;
 				a++;
 			} );
 			popup.popup( "close" );
-			if ( curr === nfe ) {
+			if ( curr === ife ) {
 				return;
 			} else {
-				button.value = nfe;
+				button.value = ife;
 				header.eq( 2 ).prop( "disabled", false );
 				page.find( ".submit" ).addClass( "hasChanges" );
 			}
