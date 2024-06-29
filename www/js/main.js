@@ -4309,16 +4309,16 @@ function showOptions( expandItem ) {
 		}
 
 		if ( typeof controller.settings.ifkey !== "undefined" ) {
-			list += "<div class='ui-field-contain'><label for='ifkey'>" + _( "IFTTT Key" ) +
+			list += "<div class='ui-field-contain'><label for='ifkey'>" + _( "IFTTT Notifs" ) +
 				"<button data-helptext='" +
 					_( "To enable IFTTT, a Webhooks key is required which can be obtained from https://ifttt.com" ) +
 					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
-			"</label><input autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' data-mini='true' type='text' id='ifkey' value='" + controller.settings.ifkey + "'>" +
+			"</label><input autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' data-mini='true' type='text' id='ifkey' placeholder='IFTTT webhooks key' value='" + controller.settings.ifkey + "'>" +
 			"</div>";
 
-			list += "<div class='ui-field-contain'><label for='o49'>" + _( "Events Select" ) +
+			list += "<div class='ui-field-contain'><label for='o49'>" + _( "Notif Events" ) +
 					"<button data-helptext='" +
-						_( "Select which events to send to IFTTT and email for use in recipes." ) +
+						_( "Select which notification events to send to Email and/or IFTTT." ) +
 						"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
 				"</label><button data-mini='true' id='o49' value='" + controller.options.ife + "'>" + _( "Configure Events" ) + "</button></div>";
 		}
@@ -5039,7 +5039,7 @@ function showOptions( expandItem ) {
 		var button = this, curr = button.value,
 			options = $.extend( {}, {
 				en: 0,
-				host: "",
+				host: "smtp.gmail.com",
 				port: 465,
 				user: "",
 				pass: "",
@@ -5063,7 +5063,7 @@ function showOptions( expandItem ) {
 							"</div>" +
 							"<div class='ui-block-b' style='width:60%'>" +
 								"<input class='email-input' type='text' id='server' data-mini='true' maxlength='32' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
-									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + _( "smtp server" ) + "' value='" + options.host + "' required />" +
+									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + _( "smtp.gmail.com" ) + "' value='" + options.host + "' required />" +
 							"</div>" +
 							"<div class='ui-block-a' style='width:40%'>" +
 								"<label for='port' style='padding-top:10px'>" + _( "Port" ) + "</label>" +
@@ -5077,7 +5077,7 @@ function showOptions( expandItem ) {
 							"</div>" +
 							"<div class='ui-block-b' style='width:60%'>" +
 								"<input class='email-input' type='text' id='username' data-mini='true' maxlength='50' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
-									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + _( "sender" ) + "' value='" + options.user + "' required />" +
+									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + _( "user@gmail.com" ) + "' value='" + options.user + "' required />" +
 							"</div>" +
 							"<div class='ui-block-a' style='width:40%'>" +
 								"<label for='password' style='padding-top:10px'>" + _( "App Password" ) + "</label>" +
@@ -5091,7 +5091,7 @@ function showOptions( expandItem ) {
 							"</div>" +
 							"<div class='ui-block-b' style='width:60%'>" +
 								"<input class='email-input' type='text' id='recipient' data-mini='true' maxlength='32' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
-									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + _( "recipient" ) + "' value='" + options.recipient + "' required />" +
+									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + _( "user@gmail.com" ) + "' value='" + options.recipient + "' required />" +
 							"</div>" +
 						"</div>" +
 					"</div>" +
