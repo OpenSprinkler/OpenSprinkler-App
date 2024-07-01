@@ -1,3 +1,3 @@
 #!/bin/sh
 
-sed -i "s/$GOOGLEMAPSAPIKEY/GOOGLEMAPSAPIKEY/g" www/js/*.js
+sed -i "" "s/$GOOGLEMAPSAPIKEY/GOOGLEMAPSAPIKEY/g" www/js/*.js
