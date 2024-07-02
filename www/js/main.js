@@ -4928,6 +4928,19 @@ function showOptions( expandItem ) {
 		openPopup( popup );
 	} );
 
+	function generateDefaultTopic(){
+		let topic;
+		if(controller.settings.mac){
+			topic = controller.settings.mac;
+			topic.replace(":", "");
+			topic = "os-" + topic;
+		}else{
+			topic = "os-mySprinkler"
+		}
+
+		return topic;
+	}
+
 	page.find( "#mqtt" ).on( "click", function() {
 		var button = this, curr = button.value,
 			options = $.extend( {}, {
@@ -4935,7 +4948,8 @@ function showOptions( expandItem ) {
 				host: "server",
 				port: 1883,
 				user: "",
-				pass: ""
+				pass: "",
+				topic: generateDefaultTopic()
 			}, unescapeJSON( curr ) );
 
 		$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
@@ -4978,6 +4992,13 @@ function showOptions( expandItem ) {
 								"<input class='mqtt-input' type='password' id='password' data-mini='true' maxlength='32' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
 									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + _( "password (optional)" ) + "' value='" + options.pass + "' required />" +
 							"</div>" +
+							"<div class='ui-block-a' style='width:40%'>" +
+								"<label for='output-topic' style='padding-top:10px'>" + _( "Subscribe Topic" ) + "</label>" +
+							"</div>" +
+							"<div class='ui-block-b' style='width:60%'>" +
+								"<input class='mqtt-input' type='text' id='topic' data-mini='true' maxlength='20' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
+									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + _( "subscribe topic" ) + "' value='" + options.topic + "' required />" +
+							"</div>" +
 						"</div>" +
 					"</div>" +
 					"<button class='submit' data-theme='b'>" + _( "Submit" ) + "</button>" +
@@ -4998,7 +5019,8 @@ function showOptions( expandItem ) {
 				host: popup.find( "#server" ).val(),
 				port: parseInt( popup.find( "#port" ).val() ),
 				user: popup.find( "#username" ).val(),
-				pass: popup.find( "#password" ).val()
+				pass: popup.find( "#password" ).val(),
+				topic: popup.find( "#topic" ).val()
 			};
 
 			popup.popup( "close" );
