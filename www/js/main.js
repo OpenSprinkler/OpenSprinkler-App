@@ -4932,7 +4932,7 @@ function showOptions( expandItem ) {
 		let topic;
 		if(controller.settings.mac){
 			topic = controller.settings.mac;
-			topic.replace(":", "");
+			topic = topic.replaceAll(":", "");
 			topic = "os-" + topic;
 		}else{
 			topic = "os-mySprinkler"
@@ -5022,6 +5022,10 @@ function showOptions( expandItem ) {
 				pass: popup.find( "#password" ).val(),
 				topic: popup.find( "#topic" ).val()
 			};
+
+			if(options.topic == ""){
+				options.topic = generateDefaultTopic();
+			}
 
 			popup.popup( "close" );
 			if ( curr === escapeJSON( options ) ) {
