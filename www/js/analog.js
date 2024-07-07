@@ -14,12 +14,18 @@ const USERDEF_SENSOR = 49;
 const USERDEF_UNIT   = 99;
 const SENSOR_MQTT    = 90;
 
-const CURRENT_FW     = "2.3.1(150)";
+const CURRENT_FW     = "2.3.1(165)";
 const CURRENT_FW_ID  = 231;
 const CURRENT_FW_MIN = 150;
 
 const COLORS = ["#F3B415", "#F27036", "#663F59", "#6A6E94", "#4E88B4", "#00A7C6", "#18D8D8", '#A9D794','#46AF78', '#A93F55', '#8C5E58', '#2176FF', '#33A1FD', '#7A918D', '#BAFF29'];
 const COLCOUNT = 15;
+
+//detected Analog Sensor Boards:
+const ASB_BOARD1   = 0x01;
+const ASB_BOARD2   = 0x02;
+const OSPI_PCF8591 = 0x04;
+const OSPI_ADS1115 = 0x08;
 
 function checkAnalogSensorAvail( callback ) {
 	callback = callback || function() {};
@@ -63,6 +69,8 @@ function updateAnalogSensor( callback ) {
 	return sendToOS( "/sl?pw=", "json" ).then( function( data ) {
 		analogSensors = data.sensors;
 		analogSensors.expandItem = new Set(["sensors"]);
+		if (data.hasOwnProperty("detected"))
+			analogSensors.detected = data.detected;
 		callback();
 	} );
 }
@@ -452,7 +460,7 @@ function showAdjustmentsEditor( progAdjust, row, callback, callbackCancel ) {
 
 		$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
 
-		var list = 
+		var list =
 			"<div data-role='popup' data-theme='a' id='progAdjustEditor'>" +
 			"<div data-role='header' data-theme='b'>" +
 			"<h1>" + ( progAdjust.nr > 0 ? _( "Edit Program Adjustment" ) : _( "New Program Adjustment" ) ) + "</h1>" +
@@ -1338,8 +1346,21 @@ function checkFirmwareUpdate() {
 }
 
 function buildSensorConfig( expandItem ) {
+
+	//detected Analog Sensor Boards:
+	var detected_boards = "";
+	if (analogSensors.hasOwnProperty("detected")) {
+		detected_boards = ":";
+		let detected = analogSensors.detected;
+		if (detected & ASB_BOARD1) detected_boards += " ASB BOARD 1";
+		if (detected & ASB_BOARD2) detected_boards += " ASB BOARD 2";
+		if (detected & OSPI_PCF8591) detected_boards += " OSPI PCF8591";
+		if (detected & OSPI_ADS1115) detected_boards += " OSPI 2xADS1115";
+		if (detected == 0) detected_boards += " No Boards detected";
+	}
+
 	var list = "<fieldset data-role='collapsible'" + ( expandItem.has("sensors") ? " data-collapsed='false'" : "" ) + ">" +
-	"<legend>" + _( "Sensors" ) + "</legend>";
+	"<legend>" + _( "Sensors" ) + detected_boards + "</legend>";
 
 	list += "<table id='analog_sensor_table'><tr style='width:100%;vertical-align: top;'>" +
 		checkFirmwareUpdate()+
