@@ -7148,7 +7148,16 @@ var getRunonce = ( function() {
 				resetRunonce();
 				return;
 			} else if ( prog === "t" ) {
-				fillRunonce( Array.apply( null, Array( controller.stations.snames.length ) ).map( function() {return 60;} ) );
+				//test all stations
+				showDurationBox({
+					incrementalUpdate: false,
+					seconds: 60,
+					title: "Set Duration",
+					callback: function( result ) {
+						fillRunonce( Array.apply( null, Array( controller.stations.snames.length ) ).map( function() {return result;} ) );
+					},
+					maximum: 65535
+ 				});
 				return;
 			}
 			if ( typeof rprogs[ prog ] === "undefined" ) {
