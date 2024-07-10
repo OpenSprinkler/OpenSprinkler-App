@@ -4947,6 +4947,19 @@ function showOptions( expandItem ) {
 		openPopup( popup );
 	} );
 
+	function generateDefaultTopic(){
+		let topic;
+		if(controller.settings.mac){
+			topic = controller.settings.mac;
+			topic = topic.replaceAll(":", "");
+			topic = "os-" + topic;
+		}else{
+			topic = "os-mySprinkler"
+		}
+
+		return topic;
+	}
+
 	page.find( "#mqtt" ).on( "click", function() {
 		var button = this, curr = button.value,
 			options = $.extend( {}, {
@@ -4954,11 +4967,13 @@ function showOptions( expandItem ) {
 				host: "server",
 				port: 1883,
 				user: "",
-				pass: ""
+				pass: "",
+				topic: generateDefaultTopic()
 			}, unescapeJSON( curr ) );
 
 		$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
 
+		var largeSOPTSupport = checkOSVersion( 221 );
 		var popup = $( "<div data-role='popup' data-theme='a' id='mqttSettings'>" +
 				"<div data-role='header' data-theme='b'>" +
 					"<h1>" + _( "MQTT Settings" ) + "</h1>" +
@@ -4987,15 +5002,22 @@ function showOptions( expandItem ) {
 								"<label for='username' style='padding-top:10px'>" + _( "Username" ) + "</label>" +
 							"</div>" +
 							"<div class='ui-block-b' style='width:60%'>" +
-								"<input class='mqtt-input' type='text' id='username' data-mini='true' maxlength='32' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
+								"<input class='mqtt-input' type='text' id='username' data-mini='true' maxlength='" + (largeSOPTSupport ? "50" : "32") + "' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
 									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + _( "username (optional)" ) + "' value='" + options.user + "' required />" +
 							"</div>" +
 							"<div class='ui-block-a' style='width:40%'>" +
 								"<label for='password' style='padding-top:10px'>" + _( "Password" ) + "</label>" +
 							"</div>" +
 							"<div class='ui-block-b' style='width:60%'>" +
-								"<input class='mqtt-input' type='password' id='password' data-mini='true' maxlength='32' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
+								"<input class='mqtt-input' type='password' id='password' data-mini='true' maxlength='" + (largeSOPTSupport ? "100" : "32") + "' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
 									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + _( "password (optional)" ) + "' value='" + options.pass + "' required />" +
+							"</div>" +
+							"<div class='ui-block-a' style='width:40%'>" +
+								"<label for='output-topic' style='padding-top:10px'>" + _( "Subscribe Topic" ) + "</label>" +
+							"</div>" +
+							"<div class='ui-block-b' style='width:60%'>" +
+								"<input class='mqtt-input' type='text' id='topic' data-mini='true' maxlength='20' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
+									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + _( "subscribe topic" ) + "' value='" + options.topic + "' required />" +
 							"</div>" +
 						"</div>" +
 					"</div>" +
@@ -5017,8 +5039,13 @@ function showOptions( expandItem ) {
 				host: popup.find( "#server" ).val(),
 				port: parseInt( popup.find( "#port" ).val() ),
 				user: popup.find( "#username" ).val(),
-				pass: popup.find( "#password" ).val()
+				pass: popup.find( "#password" ).val(),
+				topic: popup.find( "#topic" ).val()
 			};
+
+			if(options.topic == ""){
+				options.topic = generateDefaultTopic();
+			}
 
 			popup.popup( "close" );
 			if ( curr === escapeJSON( options ) ) {
@@ -7272,7 +7299,16 @@ var getRunonce = ( function() {
 				resetRunonce();
 				return;
 			} else if ( prog === "t" ) {
-				fillRunonce( Array.apply( null, Array( controller.stations.snames.length ) ).map( function() {return 60;} ) );
+				//test all stations
+				showDurationBox({
+					incrementalUpdate: false,
+					seconds: 60,
+					title: "Set Duration",
+					callback: function( result ) {
+						fillRunonce( Array.apply( null, Array( controller.stations.snames.length ) ).map( function() {return result;} ) );
+					},
+					maximum: 65535
+ 				});
 				return;
 			}
 			if ( typeof rprogs[ prog ] === "undefined" ) {
