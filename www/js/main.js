@@ -5471,7 +5471,7 @@ var showHome = ( function() {
 							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='remote-station' required='true' type='number' min='1' max='200' placeholder='1' value='" + ( data.station + 1 ) + "'>"
 						).enhanceWithin();
 					} else if ( value === 6 ) {
-						data = parseRemoteStationData( ( type === value ) ? data : "OT123456789012345678901234567890,00" );
+						data = parseRemoteStationData( ( type === value ) ? data : "OT000000000000000000000000000000,00" );
 						opts.append(
 							"<div class='ui-bar-a ui-bar'>" + _( "Remote OTC Token" ) + ":</div>" +
 							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='remote-otc' required='true' type='text' pattern='^OT[a-fA-F0-9]{30}$' value='" + data.otc + "'>" +
@@ -5771,6 +5771,7 @@ var showHome = ( function() {
 			}
 
 			// Station tab is initially set to disabled until we have refreshed station data from firmware
+			// Note: HTTPS and Remote OTC stations are supported at the same time with Email notification support
 			if ( Supported.special() ) {
 				select +=
 					"<div class='ui-bar-a ui-bar'>" + _( "Station Type" ) + ":</div>" +
@@ -5784,8 +5785,8 @@ var showHome = ( function() {
 								) ? ">" : " disabled>"
 							) + _( "GPIO" ) + "</option>" +
 							"<option data-hs='4' value='4'" + ( checkOSVersion( 217 ) ? ">" : " disabled>" ) + _( "HTTP" ) + "</option>" +
-							"<option data-hs='5' value='5'" + ( checkOSVersion( 2206 ) ? ">" : " disabled>" ) + _( "HTTPS" ) + "</option>" +
-							"<option data-hs='6' value='6'" + ( checkOSVersion( 2206 ) ? ">" : " disabled>" ) + _( "Remote OTC station" ) + "</option>" +
+							"<option data-hs='5' value='5'" + ( typeof controller.settings.email === "object" ? ">" : " disabled>" ) + _( "HTTPS" ) + "</option>" +
+							"<option data-hs='6' value='6'" + ( typeof controller.settings.email === "object" ? ">" : " disabled>" ) + _( "Remote OTC station" ) + "</option>" +
 						"</select>" +
 						"<div id='specialOpts'></div>";
 			}
