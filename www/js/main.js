@@ -5062,7 +5062,7 @@ function showOptions( expandItem ) {
 								"<label for='server' style='padding-top:10px'>" + _( "SMTP Server" ) + "</label>" +
 							"</div>" +
 							"<div class='ui-block-b' style='width:60%'>" +
-								"<input class='email-input' type='text' id='server' data-mini='true' maxlength='32' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
+								"<input class='email-input' type='text' id='server' data-mini='true' maxlength='64' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
 									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + _( "smtp.gmail.com" ) + "' value='" + options.host + "' required />" +
 							"</div>" +
 							"<div class='ui-block-a' style='width:40%'>" +
@@ -5076,21 +5076,21 @@ function showOptions( expandItem ) {
 								"<label for='username' style='padding-top:10px'>" + _( "Sender Email" ) + "</label>" +
 							"</div>" +
 							"<div class='ui-block-b' style='width:60%'>" +
-								"<input class='email-input' type='text' id='username' data-mini='true' maxlength='50' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
+								"<input class='email-input' type='text' id='username' data-mini='true' maxlength='64' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
 									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + _( "user@gmail.com" ) + "' value='" + options.user + "' required />" +
 							"</div>" +
 							"<div class='ui-block-a' style='width:40%'>" +
 								"<label for='password' style='padding-top:10px'>" + _( "App Password" ) + "</label>" +
 							"</div>" +
 							"<div class='ui-block-b' style='width:60%'>" +
-								"<input class='email-input' type='password' id='password' data-mini='true' maxlength='32' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
+								"<input class='email-input' type='password' id='password' data-mini='true' maxlength='64' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
 									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + _( "app password" ) + "' value='" + options.pass + "' required />" +
 							"</div>" +
 							"<div class='ui-block-a' style='width:40%'>" +
 								"<label for='recipient' style='padding-top:10px'>" + _( "Recipient Email" ) + "</label>" +
 							"</div>" +
 							"<div class='ui-block-b' style='width:60%'>" +
-								"<input class='email-input' type='text' id='recipient' data-mini='true' maxlength='32' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
+								"<input class='email-input' type='text' id='recipient' data-mini='true' maxlength='64' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
 									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + _( "user@gmail.com" ) + "' value='" + options.recipient + "' required />" +
 							"</div>" +
 						"</div>" +
@@ -5478,7 +5478,7 @@ var showHome = ( function() {
 							"<div class='ui-bar-a ui-bar'>" + _( "Remote Station" ) + ":</div>" +
 							"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='remote-station' required='true' type='number' min='1' max='200' placeholder='1' value='" + ( data.station + 1 ) + "'>"
 						).enhanceWithin();
-						
+
 					} else if ( value === 3 ) {
 
 						// Extended special station model to support GPIO stations
@@ -6626,7 +6626,7 @@ function convertRemoteToExtender( data ) {
 		comm = "http://" + data.ip + ":" + data.port;
 	}
 	comm += "/cv?re=1&pw=" + encodeURIComponent( currPass );
-	
+
 	$.ajax( {
 		url: comm,
 		type: "GET",
