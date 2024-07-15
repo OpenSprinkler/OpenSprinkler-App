@@ -28,6 +28,7 @@ var isAndroid = /Android|\bSilk\b/.test( navigator.userAgent ),
 	isTouchCapable = "ontouchstart" in window || "onmsgesturechange" in window,
 	isMetric = ( [ "US", "BM", "PW" ].indexOf( navigator.languages[ 0 ].split( "-" )[ 1 ] ) === -1 ),
 	groupView = false,
+	alphabetView = false,
 
 	storage = {
 		get: function( query, callback ) {
@@ -3841,6 +3842,10 @@ function showOptions( expandItem ) {
 						groupView = $item.is( ":checked" );
 						storage.set( { "groupView": groupView } );
 						return true;
+					case "alphabetView":
+						alphabetView = $item.is( ":checked" );
+						storage.set( { "alphabetView": alphabetView } );
+						return true;
 					case "o12":
 						if ( !isPi ) {
 							opt.o12 = data & 0xff;
@@ -4008,6 +4013,9 @@ function showOptions( expandItem ) {
 		list += "<label for='groupView'><input data-mini='true' id='groupView' type='checkbox' " + ( groupView ? "checked='checked'" : "" ) + ">" +
 		_( "Order Stations by Groups" ) + "</label>";
 	}
+
+	list += "<label for='alphabetView'><input data-mini='true' id='alphabetView' type='checkbox' " + ( alphabetView ? "checked='checked'" : "" ) + ">" +
+	_( "Order Stations by Alphabetical Order" ) + "</label>";
 
 	list += "</fieldset><fieldset data-role='collapsible'" +
 		( typeof expandItem === "string" && expandItem === "master" ? " data-collapsed='false'" : "" ) + ">" +
@@ -5901,7 +5909,7 @@ var showHome = ( function() {
 			/* Sorting order: 	master ->
 								sequential group id ->
 								active status ->
-								station id
+								station id OR alphabetical
 			*/
 
 			var cardA = $( a ), cardB = $( b );
@@ -5909,6 +5917,10 @@ var showHome = ( function() {
 			// Station IDs
 			var sidA = Card.getSID( cardA );
 			var sidB = Card.getSID( cardB );
+
+			// Station names
+			var nameA = Station.getName ( sidA );
+			var nameB = Station.getName ( sidB );
 
 			// Verify if a master station
 			var masA = Station.isMaster( sidA ) > 0 ? 1 : 0;
@@ -5937,7 +5949,12 @@ var showHome = ( function() {
 					} else if ( statusA < statusB ) {
 						return 1;
 					} else {
-						if ( sidA < sidB ) { return -1; } else if ( sidA > sidB ) { return 1; } else { return 0; }
+						if(alphabetView){
+							if ( nameA < nameB ) { return -1; } else if ( nameA > nameB ) { return 1; }
+						}else{
+							if ( sidA < sidB ) { return -1; } else if ( sidA > sidB ) { return 1; }
+						}
+						return 0;
 					}
 				}
 			}
@@ -5945,13 +5962,16 @@ var showHome = ( function() {
 		compareCardsStandardView = function( a, b ) {
 
 			/* Sorting order: 	running status ->
-								station id
+								station id OR alphabetical
 			 */
 
 			var cardA = $( a ), cardB = $( b );
 
 			var sidA = Card.getSID( cardA );
 			var sidB = Card.getSID( cardB );
+
+			var nameA = Station.getName( sidA );
+			var nameB = Station.getName( sidB );
 
 			var statusA = Station.getStatus( sidA );
 			var statusB = Station.getStatus( sidB );
@@ -5961,11 +5981,20 @@ var showHome = ( function() {
 			} else if ( statusA < statusB ) {
 				return 1;
 			} else {
-				if ( sidA < sidB ) {
-					return -1;
-				}
-				if ( sidA > sidB ) {
-					return 1;
+				if(alphabetView){
+					if ( nameA < nameB ) {
+						return -1;
+					}
+					if ( nameA > nameB ) {
+						return 1;
+					}
+				}else{
+					if ( sidA < sidB ) {
+						return -1;
+					}
+					if ( sidA > sidB ) {
+						return 1;
+					}
 				}
 				return 0;
 			}
@@ -12673,6 +12702,17 @@ function loadLocalSettings() {
 				break;
 			case "false":
 				groupView = false;
+				break;
+			default:
+		}
+	} );
+	storage.get( "alphabetView", function( data ) {
+		switch ( data.alphabetView ) {
+			case "true":
+				alphabetView = true;
+				break;
+			case "false":
+				alphabetView = false;
 				break;
 			default:
 		}
