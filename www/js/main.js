@@ -4933,9 +4933,9 @@ function showOptions( expandItem ) {
 		if(controller.settings.mac){
 			topic = controller.settings.mac;
 			topic = topic.replaceAll(":", "");
-			topic = "os-" + topic;
+			topic = "OS-" + topic;
 		}else{
-			topic = "os-mySprinkler"
+			topic = "OS-mySprinkler"
 		}
 
 		return topic;
@@ -4949,7 +4949,8 @@ function showOptions( expandItem ) {
 				port: 1883,
 				user: "",
 				pass: "",
-				topic: generateDefaultTopic()
+				pubT: "opensprinkler",
+				subT: generateDefaultTopic()
 			}, unescapeJSON( curr ) );
 
 		$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
@@ -4994,11 +4995,18 @@ function showOptions( expandItem ) {
 									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + _( "password (optional)" ) + "' value='" + options.pass + "' required />" +
 							"</div>" +
 							"<div class='ui-block-a' style='width:40%'>" +
-								"<label for='output-topic' style='padding-top:10px'>" + _( "Subscribe Topic" ) + "</label>" +
+								"<label for='pubT' style='padding-top:10px'>" + _( "Publish Topic" ) + "</label>" +
 							"</div>" +
 							"<div class='ui-block-b' style='width:60%'>" +
-								"<input class='mqtt-input' type='text' id='topic' data-mini='true' maxlength='20' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
-									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + _( "subscribe topic" ) + "' value='" + options.topic + "' required />" +
+								"<input class='mqtt-input' type='text' id='pubT' data-mini='true' maxlength='20' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
+									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + _( "publish topic" ) + "' value='" + options.pubT + "' required />" +
+							"</div>" +
+							"<div class='ui-block-a' style='width:40%'>" +
+								"<label for='subT' style='padding-top:10px'>" + _( "Subscribe Topic" ) + "</label>" +
+							"</div>" +
+							"<div class='ui-block-b' style='width:60%'>" +
+								"<input class='mqtt-input' type='text' id='subT' data-mini='true' maxlength='20' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
+									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + _( "subscribe topic" ) + "' value='" + options.subT + "' required />" +
 							"</div>" +
 						"</div>" +
 					"</div>" +
@@ -5021,12 +5029,9 @@ function showOptions( expandItem ) {
 				port: parseInt( popup.find( "#port" ).val() ),
 				user: popup.find( "#username" ).val(),
 				pass: popup.find( "#password" ).val(),
-				topic: popup.find( "#topic" ).val()
+				pubT: popup.find( "#pubT" ).val(),
+				subT: popup.find( "#subT" ).val()
 			};
-
-			if(options.topic == ""){
-				options.topic = generateDefaultTopic();
-			}
 
 			popup.popup( "close" );
 			if ( curr === escapeJSON( options ) ) {
