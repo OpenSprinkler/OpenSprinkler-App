@@ -4928,7 +4928,7 @@ function showOptions( expandItem ) {
 		openPopup( popup );
 	} );
 
-	function generateDefaultTopic(){
+	function generateDefaultSubscribeTopic(){
 		let topic;
 		if(controller.settings.mac){
 			topic = controller.settings.mac;
@@ -4949,8 +4949,8 @@ function showOptions( expandItem ) {
 				port: 1883,
 				user: "",
 				pass: "",
-				pubT: "opensprinkler",
-				subT: generateDefaultTopic()
+				pubt: "opensprinkler",
+				subt: generateDefaultSubscribeTopic()
 			}, unescapeJSON( curr ) );
 
 		$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
@@ -4994,20 +4994,22 @@ function showOptions( expandItem ) {
 								"<input class='mqtt-input' type='password' id='password' data-mini='true' maxlength='" + (largeSOPTSupport ? "100" : "32") + "' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
 									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + _( "password (optional)" ) + "' value='" + options.pass + "' required />" +
 							"</div>" +
+							(largeSOPTSupport ? 
 							"<div class='ui-block-a' style='width:40%'>" +
-								"<label for='pubT' style='padding-top:10px'>" + _( "Publish Topic" ) + "</label>" +
+								"<label for='pubt' style='padding-top:10px'>" + _( "Publish Topic" ) + "</label>" +
 							"</div>" +
 							"<div class='ui-block-b' style='width:60%'>" +
-								"<input class='mqtt-input' type='text' id='pubT' data-mini='true' maxlength='20' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
-									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + _( "publish topic" ) + "' value='" + options.pubT + "' required />" +
-							"</div>" +
+								"<input class='mqtt-input' type='text' id='pubt' data-mini='true' maxlength='20' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
+									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + _( "publish topic" ) + "' value='" + options.pubt + "' required />" +
+							"</div>" : "" ) +
+							(largeSOPTSupport ?
 							"<div class='ui-block-a' style='width:40%'>" +
-								"<label for='subT' style='padding-top:10px'>" + _( "Subscribe Topic" ) + "</label>" +
+								"<label for='subt' style='padding-top:10px'>" + _( "Subscribe Topic" ) + "</label>" +
 							"</div>" +
 							"<div class='ui-block-b' style='width:60%'>" +
-								"<input class='mqtt-input' type='text' id='subT' data-mini='true' maxlength='20' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
-									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + _( "subscribe topic" ) + "' value='" + options.subT + "' required />" +
-							"</div>" +
+								"<input class='mqtt-input' type='text' id='subt' data-mini='true' maxlength='20' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
+									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + _( generateDefaultSubscribeTopic() ) + "' value='" + options.subt + "' required />" +
+							"</div>" : "" ) +
 						"</div>" +
 					"</div>" +
 					"<button class='submit' data-theme='b'>" + _( "Submit" ) + "</button>" +
@@ -5029,8 +5031,8 @@ function showOptions( expandItem ) {
 				port: parseInt( popup.find( "#port" ).val() ),
 				user: popup.find( "#username" ).val(),
 				pass: popup.find( "#password" ).val(),
-				pubT: popup.find( "#pubT" ).val(),
-				subT: popup.find( "#subT" ).val()
+				pubt: popup.find( "#pubt" ).val(),
+				subt: popup.find( "#subt" ).val()
 			};
 
 			popup.popup( "close" );
