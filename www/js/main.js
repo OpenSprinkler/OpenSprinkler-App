@@ -3998,6 +3998,7 @@ function showOptions( expandItem ) {
 		"<label for='loc'>" + _( "Location" ) + "</label>" +
 		"<button data-mini='true' id='loc' value='" + ( controller.settings.loc.trim() === "''" ? _( "Not specified" ) : controller.settings.loc ) + "'>" +
 			"<span>" + controller.settings.loc + "</span>" +
+			"<a class='ui-btn btn-no-border ui-btn-icon-notext ui-icon-edit ui-btn-corner-all edit-loc'></a>" +
 			"<a class='ui-btn btn-no-border ui-btn-icon-notext ui-icon-delete ui-btn-corner-all clear-loc'></a>" +
 		"</button></div>";
 
@@ -4490,6 +4491,39 @@ function showOptions( expandItem ) {
 				group.remove();
 			}
 		} );
+
+	page.find( ".edit-loc" ).on( "click", function( e ) {
+		e.stopImmediatePropagation();
+
+		var popup = $( "<div data-role='popup' data-theme='a' id='locEntry'>" +
+			"<div data-role='header' data-theme='b'>" +
+				"<h1>" + _( "Enter GPS Coords" ) + "</h1>" +
+			"</div>" +
+			"<div class='ui-content'>" +
+				"<label id='loc-warning'>" + _( "" ) + "</label>" +
+				"<input class='loc-entry' type='text' id='loc-entry' data-mini='true' maxlength='64' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'"
+								 + " placeholder='" + _( "Enter GPS Coords" ) + "' value='" + ( controller.settings.loc.trim() === "''" ? _( "Not specified" ) : controller.settings.loc ) + "' required />" +
+				"<button class='locSubmit' data-theme='b'>" + _( "Submit" ) + "</button>" +
+			"</div>" +
+		"</div>" );
+
+		popup.find( ".locSubmit" ).on( "click", function() {
+			var input = popup.find( "#loc-entry").val();
+			coords = input.split(",");
+			if(coords.length ==2 && Math.abs(coords[0]) <= 90 && Math.abs(coords[1]) <= 180){
+				page.find( "#loc" ).val(input).text(input);
+				page.find( "#o1" ).selectmenu( "enable" );
+				header.eq( 2 ).prop( "disabled", false );
+				page.find( ".submit" ).addClass( "hasChanges" );
+				popup.popup( "close" );
+			}else{
+				$("#loc-warning").text("Incorrect Coords!!");
+			}
+
+		} );
+
+		openPopup( popup, { positionTo: "window" } );
+	});
 
 	page.find( ".clear-loc" ).on( "click", function( e ) {
 		e.stopImmediatePropagation();
@@ -5013,7 +5047,7 @@ function showOptions( expandItem ) {
 								"<input class='mqtt-input' type='password' id='password' data-mini='true' maxlength='" + (largeSOPTSupport ? "100" : "32") + "' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
 									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + _( "password (optional)" ) + "' value='" + options.pass + "' required />" +
 							"</div>" +
-							(largeSOPTSupport ? 
+							(largeSOPTSupport ?
 							"<div class='ui-block-a' style='width:40%'>" +
 								"<label for='pubt' style='padding-top:10px'>" + _( "Publish Topic" ) + "</label>" +
 							"</div>" +
