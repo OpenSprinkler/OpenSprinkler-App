@@ -4285,7 +4285,7 @@ function showOptions( expandItem ) {
 			list += "<div class='ui-field-contain'>" +
 						"<label for='mqtt'>" + _( "MQTT" ) +
 							"<button style='display:inline-block;' data-helptext='" +
-								_( "OpenSprinkler can send notifications to an MQTT broker at a specified host and port." ) +
+								_( "Send notifications to an MQTT broker and/or receive command message from the broker." ) +
 								"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'>" +
 							"</button>" +
 						"</label>" +
@@ -5003,7 +5003,7 @@ function showOptions( expandItem ) {
 				user: "",
 				pass: "",
 				pubt: "opensprinkler",
-				subt: generateDefaultSubscribeTopic()
+				subt: ""
 			}, unescapeJSON( curr ) );
 
 		$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
@@ -5024,7 +5024,7 @@ function showOptions( expandItem ) {
 							"</div>" +
 							"<div class='ui-block-b' style='width:60%'>" +
 								"<input class='mqtt-input' type='text' id='server' data-mini='true' maxlength='50' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
-									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + _( "broker/server" ) + "' value='" + options.host + "' required />" +
+									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + _( "broker" ) + "' value='" + options.host + "' required />" +
 							"</div>" +
 							"<div class='ui-block-a' style='width:40%'>" +
 								"<label for='port' style='padding-top:10px'>" + _( "Port" ) + "</label>" +
@@ -5052,7 +5052,7 @@ function showOptions( expandItem ) {
 								"<label for='pubt' style='padding-top:10px'>" + _( "Publish Topic" ) + "</label>" +
 							"</div>" +
 							"<div class='ui-block-b' style='width:60%'>" +
-								"<input class='mqtt-input' type='text' id='pubt' data-mini='true' maxlength='20' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
+								"<input class='mqtt-input' type='text' id='pubt' data-mini='true' maxlength='24' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
 									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + _( "publish topic" ) + "' value='" + options.pubt + "' required />" +
 							"</div>" : "" ) +
 							(largeSOPTSupport ?
@@ -5060,14 +5060,25 @@ function showOptions( expandItem ) {
 								"<label for='subt' style='padding-top:10px'>" + _( "Subscribe Topic" ) + "</label>" +
 							"</div>" +
 							"<div class='ui-block-b' style='width:60%'>" +
-								"<input class='mqtt-input' type='text' id='subt' data-mini='true' maxlength='20' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
-									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + _( generateDefaultSubscribeTopic() ) + "' value='" + options.subt + "' required />" +
+								"<input class='mqtt-input' type='text' id='subt' data-mini='true' maxlength='24' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
+									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + _( "subscribe topic" ) + "' value='" + options.subt + "' required />" +
+								"<div data-role='controlgroup' data-mini='true' data-type='horizontal'>" +
+								"<button data-theme='a' id='defaultsubt'>Use Default</button><button data-theme='a' id='clearsubt'>Clear</button>" +
+								"</div>" +
 							"</div>" : "" ) +
 						"</div>" +
 					"</div>" +
 					"<button class='submit' data-theme='b'>" + _( "Submit" ) + "</button>" +
 				"</div>" +
 			"</div>" );
+
+		popup.find( "#defaultsubt" ).on( "click", function() {
+			popup.find( "#subt" ).val(generateDefaultSubscribeTopic());
+		} );
+
+		popup.find( "#clearsubt" ).on( "click", function() {
+			popup.find( "#subt" ).val("");
+		} );
 
 		popup.find( "#enable" ).on( "change", function() {
 			if ( this.checked ) {
