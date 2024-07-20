@@ -1,4 +1,8 @@
 #!/bin/sh
 
 echo "$GOOGLEMAPSAPIKEY"
-sed -i "" "s/GOOGLEMAPSAPIKEY/$GOOGLEMAPSAPIKEY/g" www/js/*.js
+if [[ $OSTYPE == 'darwin'* ]]; then
+	sed -i "" "s/GOOGLEMAPSAPIKEY/$GOOGLEMAPSAPIKEY/g" www/js/*.js
+else
+	sed -i "s/GOOGLEMAPSAPIKEY/$GOOGLEMAPSAPIKEY/g" www/js/*.js
+fi

@@ -22,10 +22,12 @@ const COLORS = ["#F3B415", "#F27036", "#663F59", "#6A6E94", "#4E88B4", "#00A7C6"
 const COLCOUNT = 15;
 
 //detected Analog Sensor Boards:
-const ASB_BOARD1   = 0x01;
-const ASB_BOARD2   = 0x02;
-const OSPI_PCF8591 = 0x04;
-const OSPI_ADS1115 = 0x08;
+const ASB_BOARD1      = 0x01;
+const ASB_BOARD2      = 0x02;
+const OSPI_PCF8591    = 0x04;
+const OSPI_ADS1115    = 0x08;
+const UART_SC16IS752 = 0x10;
+const RS485_TRUEBNER  = 0x20;
 
 function checkAnalogSensorAvail( callback ) {
 	callback = callback || function() {};
@@ -810,6 +812,44 @@ function updateSensorVisibility(popup, type) {
 	}
 }
 
+function saveSensor( popup, sensor, callback ) {
+
+	if ( !sensor.nr ) { //New Sensor - check existing Nr to avoid overwriting
+		var nr = parseInt( popup.find( ".nr" ).val() );
+		for ( var i = 0; i < analogSensors.length; i++ ) {
+			if ( analogSensors[ i ].nr === nr ) {
+				window.alert( _( "Sensor number exists!" ) );
+				return;
+			}
+		}
+	}
+	var sensorOut = {
+		nr:     parseInt( popup.find( ".nr" ).val() ),
+		type:   parseInt( popup.find( "#type" ).val() ),
+		group:  parseInt( popup.find( ".group" ).val() ),
+		name:   popup.find( ".name" ).val(),
+		ip:     intFromBytes( popup.find( ".ip" ).val().split( "." ) ),
+		port:   parseInt( popup.find( ".port" ).val() ),
+		id:     parseInt( popup.find( ".id" ).val() ),
+		ri:     parseInt( popup.find( ".ri" ).val() ),
+		fac:    parseInt( popup.find( ".fac" ).val() ),
+		div:    parseInt( popup.find( ".div" ).val() ),
+		offset: parseInt( popup.find( ".offset" ).val() ),
+		unit:   popup.find( ".unit" ).val(),
+		unitid: popup.find( "#chartunits" ).val(),
+		enable: popup.find( "#enable" ).is( ":checked" ) ? 1 : 0,
+		log:    popup.find( "#log" ).is( ":checked" ) ? 1 : 0,
+		show:   popup.find( "#show" ).is( ":checked" ) ? 1 : 0,
+		topic:  popup.find( ".topic" ).val(),
+		filter: popup.find( ".filter" ).val()
+	};
+
+	callback( sensorOut );
+
+	popup.popup( "close" );
+	return false;
+}
+
 // Analog sensor editor
  function showSensorEditor( sensor, row, callback, callbackCancel ) {
 
@@ -958,7 +998,8 @@ function updateSensorVisibility(popup, type) {
 	popup.find( "#smt100id" ).on( "click", function() {
 		var nr    = parseInt( popup.find( ".nr" ).val() ),
 			newid = parseInt( popup.find( ".id" ).val() );
-		popup.popup( "close" );
+		save_sensor(popup, sensor, callback);
+		//popup.popup( "close" );
 		areYouSure( _( "This function sets the Modbus ID for one SMT100 sensor. Disconnect all other sensors on this Modbus port. Please confirm." ),
 		"new id=" + newid, function() {
 			sendToOS( "/sa?pw=&nr=" + nr + "&id=" + newid ).done( function() {
@@ -995,43 +1036,7 @@ function updateSensorVisibility(popup, type) {
 
 	popup.find("#chartunits").val(sensor.unitid?sensor.unitid:0).change();
 
-	popup.find( ".submit" ).on( "click", function() {
-
-		if ( !sensor.nr ) { //New Sensor - check existing Nr to avoid overwriting
-			var nr = parseInt( popup.find( ".nr" ).val() );
-			for ( var i = 0; i < analogSensors.length; i++ ) {
-				if ( analogSensors[ i ].nr === nr ) {
-					window.alert( _( "Sensor number exists!" ) );
-					return;
-				}
-			}
-		}
-		var sensorOut = {
-			nr:     parseInt( popup.find( ".nr" ).val() ),
-			type:   parseInt( popup.find( "#type" ).val() ),
-			group:  parseInt( popup.find( ".group" ).val() ),
-			name:   popup.find( ".name" ).val(),
-			ip:     intFromBytes( popup.find( ".ip" ).val().split( "." ) ),
-			port:   parseInt( popup.find( ".port" ).val() ),
-			id:     parseInt( popup.find( ".id" ).val() ),
-			ri:     parseInt( popup.find( ".ri" ).val() ),
-			fac:    parseInt( popup.find( ".fac" ).val() ),
-			div:    parseInt( popup.find( ".div" ).val() ),
-			offset: parseInt( popup.find( ".offset" ).val() ),
-			unit:   popup.find( ".unit" ).val(),
-            unitid: popup.find( "#chartunits" ).val(),
-			enable: popup.find( "#enable" ).is( ":checked" ) ? 1 : 0,
-			log:    popup.find( "#log" ).is( ":checked" ) ? 1 : 0,
-			show:   popup.find( "#show" ).is( ":checked" ) ? 1 : 0,
-			topic:  popup.find( ".topic" ).val(),
-			filter: popup.find( ".filter" ).val()
-		};
-
-		callback( sensorOut );
-
-		popup.popup( "close" );
-		return false;
-	} );
+	popup.find( ".submit" ).on( "click", save_sensor(popup, sensor, callback));
 
 	popup.on( "focus", "input[type='number']", function() {
 		this.select();
@@ -1350,13 +1355,17 @@ function buildSensorConfig( expandItem ) {
 	//detected Analog Sensor Boards:
 	var detected_boards = "";
 	if (analogSensors.hasOwnProperty("detected")) {
-		detected_boards = ":";
+		var boards = [];
 		let detected = analogSensors.detected;
-		if (detected & ASB_BOARD1) detected_boards += " ASB BOARD 1";
-		if (detected & ASB_BOARD2) detected_boards += " ASB BOARD 2";
-		if (detected & OSPI_PCF8591) detected_boards += " OSPI PCF8591";
-		if (detected & OSPI_ADS1115) detected_boards += " OSPI 2xADS1115";
-		if (detected == 0) detected_boards += " No Boards detected";
+		if (detected & ASB_BOARD1) boards.push("ASB 1");
+		if (detected & ASB_BOARD2) boards.push("ASB 2");
+		if (detected & OSPI_PCF8591) boards.push("OSPI PCF8591");
+		if (detected & OSPI_ADS1115) boards.push("OSPI 2xADS1115");
+		if (detected & UART_SC16IS752) boards.push("UART-Adapter I2C");
+		if (detected & RS485_TRUEBNER) boards.push("RS485-Adapter Truebner");
+		if (detected == 0) boards.push("No Boards detected");
+		if (detected && boards.length == 0) boards.push("Unknown Adapter");
+		detected_boards = ": "+boards.filter(Boolean).join(", ");
 	}
 
 	var list = "<fieldset data-role='collapsible'" + ( expandItem.has("sensors") ? " data-collapsed='false'" : "" ) + ">" +
@@ -1700,6 +1709,11 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr, lvl ) {
 					minFunc = 0;
 					maxFunc = 100;
 					autoY = false;
+					break;
+				case 11: unit = _("DK");
+					title = _( "DK" ) + " " + titleAdd;
+					unitStr = function( val ) { return formatVal(val); };
+					minFunc = 0;
 					break;
 
 				default: unit = sensor.unit;
