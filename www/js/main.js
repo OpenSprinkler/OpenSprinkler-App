@@ -4509,17 +4509,16 @@ function showOptions( expandItem ) {
 
 		popup.find( ".locSubmit" ).on( "click", function() {
 			var input = popup.find( "#loc-entry").val();
-			coords = input.split(",");
-			if(coords.length ==2 && Math.abs(coords[0]) <= 90 && Math.abs(coords[1]) <= 180){
-				page.find( "#loc" ).val(input).text(input);
-				page.find( "#o1" ).selectmenu( "enable" );
+			const gpsre = /^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/;
+			if(gpsre.test(input)) {
+				page.find( "#loc" ).val( input ).removeClass( "green" ).find( "span" ).text( input );
+				page.find( "#o1" ).selectmenu( "disable" );
 				header.eq( 2 ).prop( "disabled", false );
 				page.find( ".submit" ).addClass( "hasChanges" );
 				popup.popup( "close" );
-			}else{
-				$("#loc-warning").text("Incorrect Coords!!");
+			} else{
+				$("#loc-warning").css({'color':'maroon'}).text("Invalid GPS coords, try again");
 			}
-
 		} );
 
 		openPopup( popup, { positionTo: "window" } );
