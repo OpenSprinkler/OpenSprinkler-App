@@ -466,6 +466,8 @@ function showAdjustmentsEditor( progAdjust, row, callback, callbackCancel ) {
 			"<div data-role='popup' data-theme='a' id='progAdjustEditor'>" +
 			"<div data-role='header' data-theme='b'>" +
 			"<h1>" + ( progAdjust.nr > 0 ? _( "Edit Program Adjustment" ) : _( "New Program Adjustment" ) ) + "</h1>" +
+			"<a href='#' class='ui-btn-right' data-role='button' data-mini='true' id='close' data-icon='back' data-inline='true' >"+
+			_("close") + "</a>" +
 			"</div>" +
 
 			"<div class='ui-content'>" +
@@ -563,6 +565,10 @@ function showAdjustmentsEditor( progAdjust, row, callback, callbackCancel ) {
 
 				input.val( val + dir );
 			};
+
+		popup.find( "#close" ).on( "click", function( ) {
+			popup.popup("close");
+		});
 
 		//Delete a program adjust:
 		popup.find( ".delete-progadjust" ).on( "click", function( ) {
@@ -862,6 +868,8 @@ function saveSensor( popup, sensor, callback ) {
 	var list = "<div data-role='popup' data-theme='a' id='sensorEditor'>" +
 			"<div data-role='header' data-theme='b'>" +
 			"<h1>" + ( sensor.nr > 0 ? _( "Edit Sensor" ) : _( "New Sensor" ) ) + "</h1>" +
+			"<a href='#' class='ui-btn-right' data-role='button' data-mini='true' id='close' data-icon='back' data-inline='true' >"+
+			_("close") + "</a>" +
 			"</div>" +
 			"<div class='ui-content'>" +
 			"<p class='rain-desc center smaller'>" +
@@ -960,6 +968,8 @@ function saveSensor( popup, sensor, callback ) {
 
 			"<label for='log'><input data-mini='true' id='log' type='checkbox' " + ( ( sensor.log === 1 ) ? "checked='checked'" : "" ) + ">" +
 			_( "Enable Data Logging" ) +
+			"<a href='#' data-role='button' data-mini='true' id='download-log' data-icon='action' data-inline='true' style='margin-left: 10px;'>"+
+			_("download log") + "</a>" +
 			"</label>" +
 
 			"<label for='show'><input data-mini='true' id='show' type='checkbox' " + ( ( sensor.show === 1 ) ? "checked='checked'" : "" ) + ">" +
@@ -989,7 +999,11 @@ function saveSensor( popup, sensor, callback ) {
 			input.val( val + dir );
 		};
 
-	popup.find( "#type" ).change(function() {
+		popup.find( "#close" ).on( "click", function() {
+			popup.popup( "close" );
+		});
+
+		popup.find( "#type" ).change(function() {
 		var type = $(this).val();
 		updateSensorVisibility(popup, type);
 	});
@@ -998,8 +1012,7 @@ function saveSensor( popup, sensor, callback ) {
 	popup.find( "#smt100id" ).on( "click", function() {
 		var nr    = parseInt( popup.find( ".nr" ).val() ),
 			newid = parseInt( popup.find( ".id" ).val() );
-		save_sensor(popup, sensor, callback);
-		//popup.popup( "close" );
+		saveSensor(popup, sensor, callback);
 		areYouSure( _( "This function sets the Modbus ID for one SMT100 sensor. Disconnect all other sensors on this Modbus port. Please confirm." ),
 		"new id=" + newid, function() {
 			sendToOS( "/sa?pw=&nr=" + nr + "&id=" + newid ).done( function() {
@@ -1011,6 +1024,23 @@ function saveSensor( popup, sensor, callback ) {
 	popup.find( "#type" ).change( function() {
 		var type = parseInt( popup.find( "#type" ).val() );
 		document.getElementById( "smt100id" ).style.display = isSmt100( type ) ? "block" : "none";
+	} );
+
+	//download log:
+	popup.find( "#download-log" ).on( "click", function() {
+		var link = document.createElement( "a" );
+		link.style.display = "none";
+		link.setAttribute( "download", "sensorlog-"+sensor.name+"-"+ new Date().toLocaleDateString().replace( /\//g, "-" ) + ".csv" );
+
+		//var limit = currToken?"&max=5500":""; //download limit is 140kb, 5500 lines ca 137kb
+		//var dest = "/so?pw=&csv=1"+limit;
+		var dest = "/so?pw=&csv=1&nr="+sensor.nr;
+		dest = dest.replace( "pw=", "pw=" + enc( currPass ) );
+		link.target = "_blank";
+		link.href = currToken ? ("https://cloud.openthings.io/forward/v1/" + currToken + dest) : (currPrefix + currIp + dest);
+		document.body.appendChild( link ); // Required for FF
+		link.click();
+		return false;
 	} );
 
 	//Delete a sensor:
@@ -1036,7 +1066,9 @@ function saveSensor( popup, sensor, callback ) {
 
 	popup.find("#chartunits").val(sensor.unitid?sensor.unitid:0).change();
 
-	popup.find( ".submit" ).on( "click", save_sensor(popup, sensor, callback));
+	popup.find( ".submit" ).on( "click", function() {
+		saveSensor(popup, sensor, callback)
+	});
 
 	popup.on( "focus", "input[type='number']", function() {
 		this.select();
@@ -1277,8 +1309,9 @@ function showAnalogSensorConfig() {
 			link.style.display = "none";
 			link.setAttribute( "download", "sensorlog-" + new Date().toLocaleDateString().replace( /\//g, "-" ) + ".csv" );
 
-			var limit = currToken?"&max=5500":""; //download limit is 140kb, 5500 lines ca 137kb
-			var dest = "/so?pw=&csv=1"+limit;
+			//var limit = currToken?"&max=5500":""; //download limit is 140kb, 5500 lines ca 137kb
+			//var dest = "/so?pw=&csv=1"+limit;
+			var dest = "/so?pw=&csv=1";
 			dest = dest.replace( "pw=", "pw=" + enc( currPass ) );
 			link.target = "_blank";
 			link.href = currToken ? ("https://cloud.openthings.io/forward/v1/" + currToken + dest) : (currPrefix + currIp + dest);
