@@ -4299,7 +4299,7 @@ function showOptions( expandItem ) {
 			list += "<div class='ui-field-contain'>" +
 						"<label for='email'>" + _( "Email Notifications" ) +
 							"<button style='display:inline-block;' data-helptext='" +
-								_( "OpenSprinkler can send notifications to a specified email address using a given email and smtp server." ) +
+								_( "OpenSprinkler can send notifications to a specified email address using a given email and SMTP server." ) +
 								"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'>" +
 							"</button>" +
 						"</label>" +
