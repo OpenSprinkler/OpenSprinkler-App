@@ -727,7 +727,46 @@ function updateAdjustmentChart(popup) {
 				name: "Adjustment",
 				type: "line",
 				data: adj.outval
-			}]
+			}],
+			annotations: {
+				xaxis: [
+					{
+						x: Math.round(sensor.data),
+						strokeDashArray: 8,
+						borderColor: "#00E396",
+						borderWidth: 4,
+						label: {
+							borderColor: "#00E396",
+							textAnchor: "start",
+							position: "left",
+							text: sensor.name,
+							style: {
+								color: "#fff",
+								background: "#00E396"
+							}
+						}
+					}
+				],
+				yaxis: [
+					{
+						y: adjust.min,
+						strokeDashArray: 8,
+						borderColor: "#00E396",
+						borderWidth: 4,
+						label: {
+							borderColor: "#00E396",
+							textAnchor: "start",
+							position: "left",
+							offsetX: 60,
+							text: _( "Min" )+" "+adjust.min+" "+unitStr,
+							style: {
+								color: "#fff",
+								background: "#00E396"
+							}
+						}
+					},
+				]
+			}
 		};
 		let sel = document.querySelector("#adjchart");
 		if (sel) {
