@@ -5154,7 +5154,7 @@ function showOptions( expandItem ) {
 								"<label for='username' style='padding-top:10px'>" + _( "Sender Email" ) + "</label>" +
 							"</div>" +
 							"<div class='ui-block-b' style='width:60%'>" +
-								"<input class='email-input' type='email' id='username' data-mini='true' maxlength='64' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
+								"<input class='email-input' type='text' id='username' data-mini='true' maxlength='64' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
 									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + _( "user@gmail.com" ) + "' value='" + options.user + "' required />" +
 							"</div>" +
 							"<div class='ui-block-a' style='width:40%'>" +
@@ -5168,7 +5168,7 @@ function showOptions( expandItem ) {
 								"<label for='recipient' style='padding-top:10px'>" + _( "Recipient Email" ) + "</label>" +
 							"</div>" +
 							"<div class='ui-block-b' style='width:60%'>" +
-								"<input class='email-input' type='email' id='recipient' data-mini='true' maxlength='64' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
+								"<input class='email-input' type='text' id='recipient' data-mini='true' maxlength='64' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
 									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + _( "user@gmail.com" ) + "' value='" + options.recipient + "' required />" +
 							"</div>" +
 						"</div>" +
