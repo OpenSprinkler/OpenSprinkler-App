@@ -744,11 +744,19 @@ msgid "MQTT"
 msgstr ""
 
 msgid ""
-"OpenSprinkler can send notifications to an MQTT broker at a specified host "
-"and port."
+"Send notifications to an MQTT broker and/or receive command message from the "
+"broker."
 msgstr ""
 
-msgid "IFTTT Key"
+msgid "Email Notifications"
+msgstr ""
+
+msgid ""
+"OpenSprinkler can send notifications to a specified email address using a "
+"given email and smtp server."
+msgstr ""
+
+msgid "IFTTT Notifications"
 msgstr ""
 
 msgid ""
@@ -756,10 +764,10 @@ msgid ""
 "https://ifttt.com"
 msgstr ""
 
-msgid "IFTTT Events"
+msgid "Notification Events"
 msgstr ""
 
-msgid "Select which events to send to IFTTT for use in recipes."
+msgid "Select which notification events to send to Email and/or IFTTT."
 msgstr ""
 
 msgid "Configure Events"
@@ -769,8 +777,8 @@ msgid "Device Name"
 msgstr ""
 
 msgid ""
-"Device name is attached to all IFTTT notifications to help distinguish "
-"multiple devices"
+"Device name is attached to all IFTTT and email notifications to help "
+"distinguish multiple devices"
 msgstr ""
 
 msgid "LCD Screen"
@@ -873,6 +881,12 @@ msgstr ""
 msgid "Reset Wireless Settings"
 msgstr ""
 
+msgid "Enter GPS Coordinates"
+msgstr ""
+
+msgid ""
+msgstr ""
+
 msgid "Are you sure you want to clear the current location?"
 msgstr ""
 
@@ -931,7 +945,7 @@ msgstr ""
 msgid "Rain Delay Update"
 msgstr ""
 
-msgid "Select IFTTT Events"
+msgid "Select Notification Events"
 msgstr ""
 
 msgid "MQTT Settings"
@@ -940,7 +954,7 @@ msgstr ""
 msgid "Broker/Server"
 msgstr ""
 
-msgid "broker/server"
+msgid "broker"
 msgstr ""
 
 msgid "Port"
@@ -956,6 +970,42 @@ msgid "Password"
 msgstr ""
 
 msgid "password (optional)"
+msgstr ""
+
+msgid "Publish Topic"
+msgstr ""
+
+msgid "publish topic"
+msgstr ""
+
+msgid "Subscribe Topic"
+msgstr ""
+
+msgid "subscribe topic"
+msgstr ""
+
+msgid "Email Settings"
+msgstr ""
+
+msgid "SMTP Server"
+msgstr ""
+
+msgid "smtp.gmail.com"
+msgstr ""
+
+msgid "Sender Email"
+msgstr ""
+
+msgid "user@gmail.com"
+msgstr ""
+
+msgid "App Password"
+msgstr ""
+
+msgid "app password"
+msgstr ""
+
+msgid "Recipient Email"
 msgstr ""
 
 msgid "OpenThings Cloud (OTC) Settings"
@@ -1041,7 +1091,10 @@ msgstr ""
 msgid "Remote Port"
 msgstr ""
 
-msgid "Remote Station (index)"
+msgid "Remote Station"
+msgstr ""
+
+msgid "Remote OTC Token"
 msgstr ""
 
 msgid "GPIO Pin"
@@ -1133,13 +1186,19 @@ msgstr ""
 msgid "RF"
 msgstr ""
 
-msgid "Remote"
+msgid "Remote Station (IP)"
 msgstr ""
 
 msgid "GPIO"
 msgstr ""
 
 msgid "HTTP"
+msgstr ""
+
+msgid "HTTPS"
+msgstr ""
+
+msgid "Remote Station (OTC)"
 msgstr ""
 
 msgid "Do you want to stop the selected station?"
@@ -2122,6 +2181,15 @@ msgstr ""
 msgid "ID"
 msgstr ""
 
+msgid "Factor"
+msgstr ""
+
+msgid "Divider"
+msgstr ""
+
+msgid "Unit"
+msgstr ""
+
 msgid "Read Interval (s)"
 msgstr ""
 
@@ -2131,7 +2199,7 @@ msgstr ""
 msgid "Enable Data Logging"
 msgstr ""
 
-msgid "Show on Main Page"
+msgid "Show on Mainpage"
 msgstr ""
 
 msgid ""
@@ -2221,25 +2289,4 @@ msgid "Wind"
 msgstr ""
 
 msgid "Level"
-msgstr ""
-
-msgid "Export Configuration"
-msgstr ""
-
-msgid "Import Configuration"
-msgstr ""
-
-msgid "Help & Support"
-msgstr ""
-
-msgid "Operation"
-msgstr ""
-
-msgid "Reboot OpenSprinkler"
-msgstr ""
-
-msgid "Downgrade UI"
-msgstr ""
-
-msgid "System Diagnostics"
 msgstr ""
