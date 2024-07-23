@@ -4500,7 +4500,7 @@ function showOptions( expandItem ) {
 				"<h1>" + _( "Enter GPS Coordinates" ) + "</h1>" +
 			"</div>" +
 			"<div class='ui-content'>" +
-				"<label id='loc-warning'>" + _( "" ) + "</label>" +
+				"<label id='loc-warning'></label>" +
 				"<input class='loc-entry' type='text' id='loc-entry' data-mini='true' maxlength='64' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
 				" placeholder='" + _( "Enter GPS Coordinates" ) + "' value='" + ( controller.settings.loc.trim() === "''" ? _( "Not specified" ) : controller.settings.loc ) + "' required />" +
 				"<button class='locSubmit' data-theme='b'>" + _( "Submit" ) + "</button>" +
