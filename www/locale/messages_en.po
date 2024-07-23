@@ -753,7 +753,7 @@ msgstr ""
 
 msgid ""
 "OpenSprinkler can send notifications to a specified email address using a "
-"given email and smtp server."
+"given email and SMTP server."
 msgstr ""
 
 msgid "IFTTT Notifications"
