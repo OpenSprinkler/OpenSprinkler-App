@@ -4297,7 +4297,7 @@ function showOptions( expandItem ) {
 
 		if ( typeof controller.settings.email !== "undefined" ) {
 			list += "<div class='ui-field-contain'>" +
-						"<label for='email'>" + _( "Email Notifs" ) +
+						"<label for='email'>" + _( "Email Notifications" ) +
 							"<button style='display:inline-block;' data-helptext='" +
 								_( "OpenSprinkler can send notifications to a specified email address using a given email and smtp server." ) +
 								"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'>" +
@@ -4310,14 +4310,14 @@ function showOptions( expandItem ) {
 		}
 
 		if ( typeof controller.settings.ifkey !== "undefined" ) {
-			list += "<div class='ui-field-contain'><label for='ifkey'>" + _( "IFTTT Notifs" ) +
+			list += "<div class='ui-field-contain'><label for='ifkey'>" + _( "IFTTT Notifications" ) +
 				"<button data-helptext='" +
 					_( "To enable IFTTT, a Webhooks key is required which can be obtained from https://ifttt.com" ) +
 					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
 			"</label><input autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' data-mini='true' type='text' id='ifkey' placeholder='IFTTT webhooks key' value='" + controller.settings.ifkey + "'>" +
 			"</div>";
 
-			list += "<div class='ui-field-contain'><label for='o49'>" + _( "Notif Events" ) +
+			list += "<div class='ui-field-contain'><label for='o49'>" + _( "Notification Events" ) +
 					"<button data-helptext='" +
 						_( "Select which notification events to send to Email and/or IFTTT." ) +
 						"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
@@ -4497,12 +4497,12 @@ function showOptions( expandItem ) {
 
 		var popup = $( "<div data-role='popup' data-theme='a' id='locEntry'>" +
 			"<div data-role='header' data-theme='b'>" +
-				"<h1>" + _( "Enter GPS Coords" ) + "</h1>" +
+				"<h1>" + _( "Enter GPS Coordinates" ) + "</h1>" +
 			"</div>" +
 			"<div class='ui-content'>" +
 				"<label id='loc-warning'>" + _( "" ) + "</label>" +
 				"<input class='loc-entry' type='text' id='loc-entry' data-mini='true' maxlength='64' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'"
-								 + " placeholder='" + _( "Enter GPS Coords" ) + "' value='" + ( controller.settings.loc.trim() === "''" ? _( "Not specified" ) : controller.settings.loc ) + "' required />" +
+								 + " placeholder='" + _( "Enter GPS Coordinates" ) + "' value='" + ( controller.settings.loc.trim() === "''" ? _( "Not specified" ) : controller.settings.loc ) + "' required />" +
 				"<button class='locSubmit' data-theme='b'>" + _( "Submit" ) + "</button>" +
 			"</div>" +
 		"</div>" );
@@ -4517,7 +4517,7 @@ function showOptions( expandItem ) {
 				page.find( ".submit" ).addClass( "hasChanges" );
 				popup.popup( "close" );
 			} else{
-				$("#loc-warning").css({'color':'maroon'}).text("Invalid GPS coords, try again");
+				$("#loc-warning").text("Invalid GPS coordinates, try again");
 			}
 		} );
 
@@ -4982,11 +4982,11 @@ function showOptions( expandItem ) {
 
 	function generateDefaultSubscribeTopic(){
 		let topic;
-		if(controller.settings.mac){
+		if ( controller.settings.mac ) {
 			topic = controller.settings.mac;
 			topic = topic.replaceAll(":", "");
 			topic = "OS-" + topic;
-		}else{
+		} else {
 			topic = "OS-mySprinkler"
 		}
 
@@ -5154,7 +5154,7 @@ function showOptions( expandItem ) {
 								"<label for='username' style='padding-top:10px'>" + _( "Sender Email" ) + "</label>" +
 							"</div>" +
 							"<div class='ui-block-b' style='width:60%'>" +
-								"<input class='email-input' type='text' id='username' data-mini='true' maxlength='64' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
+								"<input class='email-input' type='email' id='username' data-mini='true' maxlength='64' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
 									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + _( "user@gmail.com" ) + "' value='" + options.user + "' required />" +
 							"</div>" +
 							"<div class='ui-block-a' style='width:40%'>" +
@@ -5168,7 +5168,7 @@ function showOptions( expandItem ) {
 								"<label for='recipient' style='padding-top:10px'>" + _( "Recipient Email" ) + "</label>" +
 							"</div>" +
 							"<div class='ui-block-b' style='width:60%'>" +
-								"<input class='email-input' type='text' id='recipient' data-mini='true' maxlength='64' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
+								"<input class='email-input' type='email' id='recipient' data-mini='true' maxlength='64' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
 									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + _( "user@gmail.com" ) + "' value='" + options.recipient + "' required />" +
 							"</div>" +
 						"</div>" +
@@ -5856,7 +5856,7 @@ var showHome = ( function() {
 						"<select data-mini='true' id='hs'"  + ( Station.isSpecial( sid ) ? " class='ui-disabled'" : "" ) + ">" +
 							"<option data-hs='0' value='0'" + ( Station.isSpecial( sid ) ? "" : "selected" ) + ">" + _( "Standard" ) + "</option>" +
 							"<option data-hs='1' value='1'>" + _( "RF" ) + "</option>" +
-							"<option data-hs='2' value='2'>" + _( "Remote IP station" ) + "</option>" +
+							"<option data-hs='2' value='2'>" + _( "Remote Station (IP)" ) + "</option>" +
 							"<option data-hs='3' value='3'" + (
 								checkOSVersion( 217 ) && (
 									( typeof controller.settings.gpio !== "undefined" && controller.settings.gpio.length > 0 ) || getHWVersion() === "OSPi" || getHWVersion() === "2.3"
@@ -5864,7 +5864,7 @@ var showHome = ( function() {
 							) + _( "GPIO" ) + "</option>" +
 							"<option data-hs='4' value='4'" + ( checkOSVersion( 217 ) ? ">" : " disabled>" ) + _( "HTTP" ) + "</option>" +
 							"<option data-hs='5' value='5'" + ( typeof controller.settings.email === "object" ? ">" : " disabled>" ) + _( "HTTPS" ) + "</option>" +
-							"<option data-hs='6' value='6'" + ( typeof controller.settings.email === "object" ? ">" : " disabled>" ) + _( "Remote OTC station" ) + "</option>" +
+							"<option data-hs='6' value='6'" + ( typeof controller.settings.email === "object" ? ">" : " disabled>" ) + _( "Remote Station (OTC)" ) + "</option>" +
 						"</select>" +
 						"<div id='specialOpts'></div>";
 			}
