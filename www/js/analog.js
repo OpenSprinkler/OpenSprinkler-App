@@ -12,9 +12,9 @@
 
 var analogSensors = {},
 	progAdjusts = {};
-const CHARTS = 11;
-const USERDEF_SENSOR = 49;
-const USERDEF_UNIT   = 99;
+var CHARTS = 11;
+var USERDEF_SENSOR = 49;
+var USERDEF_UNIT   = 99;
 
 function checkAnalogSensorAvail() {
 	return controller.options && controller.options.feature === "ASB";
@@ -70,7 +70,7 @@ function updateSensorShowArea( page ) {
 			var sensor = analogSensors[ i ];
 			if ( sensor.show ) {
 				html += "<div id='sensor-show-" + sensor.nr + "' class='ui-body ui-body-a center'>";
-				html += "<label>" + sensor.name + ": " ( +( Math.round( sensor.data + "e+2" )  + "e-2" ) ) + sensor.unit + "</label>";
+				html += "<label>" + sensor.name + ": " + ( Number( Math.round( sensor.data + "e+2" ) + "e-2" ) ) + sensor.unit + "</label>";
 				html += "</div>";
 			}
 		}
@@ -333,8 +333,8 @@ function showSensorEditor( sensor, callback ) {
 			"</label>" +
 			"<input class='id' type='number' min='0' max='65535' value='" + sensor.id + "'>" +
 
-					((sensor.type === USERDEF_SENSOR) ?
-						("<label>" +
+					( ( sensor.type === USERDEF_SENSOR ) ?
+						( "<label>" +
 							_( "Factor" ) +
 						"</label>" +
 						"<input class='fac' type='number' min='-32768' max='32767' value='" + sensor.fac + "'>" +
@@ -348,7 +348,7 @@ function showSensorEditor( sensor, callback ) {
 							_( "Unit" ) +
 						"</label>" +
 						"<input class='unit' type='text'  value='" + sensor.unit + "'>"
-						):"") +
+						) : "" ) +
 
 			"<label>" +
 			_( "Read Interval (s)" ) +
@@ -521,11 +521,11 @@ var showAnalogSensorConfig = ( function() {
 					"&port=" + sensorOut.port +
 					"&id=" + sensorOut.id +
 					"&ri=" + sensorOut.ri +
-					((sensorOut.type === USERDEF_SENSOR) ?
-						("&fac="+sensorOut.fac +
-						"&div="+sensorOut.div +
-						"&unit="+sensorOut.unit
-						):"") +
+					( ( sensorOut.type === USERDEF_SENSOR ) ?
+						( "&fac=" + sensorOut.fac +
+						"&div=" + sensorOut.div +
+						"&unit=" + sensorOut.unit
+						) : "" ) +
 					"&enable=" + sensorOut.enable +
 					"&log=" + sensorOut.log +
 					"&show=" + sensorOut.show
@@ -555,11 +555,11 @@ var showAnalogSensorConfig = ( function() {
 					"&port=" + sensorOut.port +
 					"&id=" + sensorOut.id +
 					"&ri=" + sensorOut.ri +
-				((sensorOut.type === USERDEF_SENSOR) ?
-					("&fac="+sensorOut.fac +
-					"&div="+sensorOut.div +
-					"&unit="+sensorOut.unit
-				):"") +
+				( ( sensorOut.type === USERDEF_SENSOR ) ?
+					( "&fac=" + sensorOut.fac +
+					"&div=" + sensorOut.div +
+					"&unit=" + sensorOut.unit
+				) : "" ) +
 					"&enable=" + sensorOut.enable +
 					"&log=" + sensorOut.log +
 					"&show=" + sensorOut.show
@@ -789,17 +789,20 @@ var showAnalogSensorCharts = ( function() {
 
 	var max = CHARTS;
 	for ( var j = 0; j < analogSensors.length; j++ ) {
-		if (!analogSensors[j].log)
+		if ( !analogSensors[ j ].log ) {
 			continue;
-		var unitid = analogSensors[j].unitid;
-		if (unitid === USERDEF_UNIT) max++;
+		}
+		var unitid = analogSensors[ j ].unitid;
+		if ( unitid === USERDEF_UNIT ) {
+			max++;
+		}
 	}
 
 	var last = "", week = "", month = "";
-	for ( var j = 1; j <= max; j++ ) {
-		last  += "<div id='myChart"+j+"'></div>";
-		week  += "<div id='myChartW"+j+"'></div>";
-		month += "<div id='myChartM"+j+"'></div>";
+	for ( j = 1; j <= max; j++ ) {
+		last  += "<div id='myChart" + j + "'></div>";
+		week  += "<div id='myChartW" + j + "'></div>";
+		month += "<div id='myChartM" + j + "'></div>";
 	}
 
 	var page = $( "<div data-role='page' id='analogsensorchart'>" +
@@ -869,10 +872,10 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr ) {
 		var series = { name: analogSensors[ j ].name, data: logdata };
 
 		// User defined sensor:
-		if (unitid === USERDEF_UNIT) {
+		if ( unitid === USERDEF_UNIT ) {
 			unitid = chart.length;
-			chart.push(undefined);
-		} else if (unitid >= CHARTS) {
+			chart.push( undefined );
+		} else if ( unitid >= CHARTS ) {
 			unitid = 0;
 		}
 

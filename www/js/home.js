@@ -129,8 +129,10 @@
 
 	// Insert jQuery
 	insertScript( assetLocation + "js/jquery.js", function() {
+
 		// Insert libraries
 		insertScript( assetLocation + "js/libs.js", function() {
+
 			// Insert primary application script
 			insertScript( assetLocation + "js/main.js", function() {
 				try {
@@ -153,7 +155,7 @@
 
 			// Insert charting library for analog support
 			insertScript( assetLocation + "js/apexcharts.min.js" );
-		} )
+		} );
 	} );
 
 	// Insert home page icon for iOS

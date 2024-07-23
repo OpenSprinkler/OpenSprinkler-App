@@ -3691,19 +3691,19 @@ function showOptions( expandItem ) {
 		"</div>" ),
 		generateSensorOptions = function( index, sensorType, number ) {
 			return "<div class='ui-field-contain'>" +
-			    "<fieldset data-role='controlgroup' class='ui-mini center sensor-options' data-type='horizontal'>" +
-			        "<legend class='left'>" + _( "Sensor" ) + ( number ? " " + number + " " : " " ) + _( "Type" ) + "</legend>" +
-			        "<input class='noselect' type='radio' name='o" + index + "' id='o" + index + "-none' value='0'" + ( sensorType === 0 ? " checked='checked'" : "" ) + ">" +
-			        "<label for='o" + index + "-none'>" + _( "None" ) + "</label>" +
-			        "<input class='noselect' type='radio' name='o" + index + "' id='o" + index + "-rain' value='1'" + ( sensorType === 1 ? " checked='checked'" : "" ) + ">" +
-			        "<label for='o" + index + "-rain'>" + _( "Rain" ) + "</label>" +
+				"<fieldset data-role='controlgroup' class='ui-mini center sensor-options' data-type='horizontal'>" +
+					"<legend class='left'>" + _( "Sensor" ) + ( number ? " " + number + " " : " " ) + _( "Type" ) + "</legend>" +
+					"<input class='noselect' type='radio' name='o" + index + "' id='o" + index + "-none' value='0'" + ( sensorType === 0 ? " checked='checked'" : "" ) + ">" +
+					"<label for='o" + index + "-none'>" + _( "None" ) + "</label>" +
+					"<input class='noselect' type='radio' name='o" + index + "' id='o" + index + "-rain' value='1'" + ( sensorType === 1 ? " checked='checked'" : "" ) + ">" +
+					"<label for='o" + index + "-rain'>" + _( "Rain" ) + "</label>" +
 					( index === 52 ? "" : "<input class='noselect' type='radio' name='o" + index + "' id='o" + index + "-flow' value='2'" + ( sensorType === 2 ? " checked='checked'" : "" ) + ">" +
-			        	"<label for='o" + index + "-flow'>" + _( "Flow" ) + "</label>" ) +
-			        ( checkOSVersion( 219 ) ? "<input class='noselect' type='radio' name='o" + index + "' id='o" + index + "-soil' value='3'" + ( sensorType === 3 ? " checked='checked'" : "" ) + ">" +
-			        	"<label for='o" + index + "-soil'>" + _( "Soil" ) + "</label>" : "" ) +
-			        ( checkOSVersion( 217 ) ? "<input class='noselect' type='radio' name='o" + index + "' id='o" + index + "-program' value='240'" + ( sensorType === 240 ? " checked='checked'" : "" ) + ">" +
-			        	"<label for='o" + index + "-program'>" + _( "Program Switch" ) + "</label>" : "" ) +
-			    "</fieldset>" +
+						"<label for='o" + index + "-flow'>" + _( "Flow" ) + "</label>" ) +
+					( checkOSVersion( 219 ) ? "<input class='noselect' type='radio' name='o" + index + "' id='o" + index + "-soil' value='3'" + ( sensorType === 3 ? " checked='checked'" : "" ) + ">" +
+						"<label for='o" + index + "-soil'>" + _( "Soil" ) + "</label>" : "" ) +
+					( checkOSVersion( 217 ) ? "<input class='noselect' type='radio' name='o" + index + "' id='o" + index + "-program' value='240'" + ( sensorType === 240 ? " checked='checked'" : "" ) + ">" +
+						"<label for='o" + index + "-program'>" + _( "Program Switch" ) + "</label>" : "" ) +
+				"</fieldset>" +
 			"</div>";
 		},
 		submitOptions = function() {
@@ -4501,28 +4501,28 @@ function showOptions( expandItem ) {
 			"</div>" +
 			"<div class='ui-content'>" +
 				"<label id='loc-warning'>" + _( "" ) + "</label>" +
-				"<input class='loc-entry' type='text' id='loc-entry' data-mini='true' maxlength='64' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'"
-								 + " placeholder='" + _( "Enter GPS Coordinates" ) + "' value='" + ( controller.settings.loc.trim() === "''" ? _( "Not specified" ) : controller.settings.loc ) + "' required />" +
+				"<input class='loc-entry' type='text' id='loc-entry' data-mini='true' maxlength='64' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
+				" placeholder='" + _( "Enter GPS Coordinates" ) + "' value='" + ( controller.settings.loc.trim() === "''" ? _( "Not specified" ) : controller.settings.loc ) + "' required />" +
 				"<button class='locSubmit' data-theme='b'>" + _( "Submit" ) + "</button>" +
 			"</div>" +
 		"</div>" );
 
 		popup.find( ".locSubmit" ).on( "click", function() {
-			var input = popup.find( "#loc-entry").val();
-			const gpsre = /^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/;
-			if(gpsre.test(input)) {
+			var input = popup.find( "#loc-entry" ).val();
+			var gpsre = /^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/;
+			if ( gpsre.test( input ) ) {
 				page.find( "#loc" ).val( input ).removeClass( "green" ).find( "span" ).text( input );
 				page.find( "#o1" ).selectmenu( "disable" );
 				header.eq( 2 ).prop( "disabled", false );
 				page.find( ".submit" ).addClass( "hasChanges" );
 				popup.popup( "close" );
-			} else{
-				$("#loc-warning").text("Invalid GPS coordinates, try again");
+			} else {
+				$( "#loc-warning" ).text( "Invalid GPS coordinates, try again" );
 			}
 		} );
 
 		openPopup( popup, { positionTo: "window" } );
-	});
+	} );
 
 	page.find( ".clear-loc" ).on( "click", function( e ) {
 		e.stopImmediatePropagation();
@@ -4980,14 +4980,14 @@ function showOptions( expandItem ) {
 		openPopup( popup );
 	} );
 
-	function generateDefaultSubscribeTopic(){
-		let topic;
+	function generateDefaultSubscribeTopic() {
+		var topic;
 		if ( controller.settings.mac ) {
 			topic = controller.settings.mac;
-			topic = topic.replaceAll(":", "");
+			topic = topic.replaceAll( ":", "" );
 			topic = "OS-" + topic;
 		} else {
-			topic = "OS-mySprinkler"
+			topic = "OS-mySprinkler";
 		}
 
 		return topic;
@@ -5036,17 +5036,17 @@ function showOptions( expandItem ) {
 								"<label for='username' style='padding-top:10px'>" + _( "Username" ) + "</label>" +
 							"</div>" +
 							"<div class='ui-block-b' style='width:60%'>" +
-								"<input class='mqtt-input' type='text' id='username' data-mini='true' maxlength='" + (largeSOPTSupport ? "50" : "32") + "' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
+								"<input class='mqtt-input' type='text' id='username' data-mini='true' maxlength='" + ( largeSOPTSupport ? "50" : "32" ) + "' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
 									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + _( "username (optional)" ) + "' value='" + options.user + "' required />" +
 							"</div>" +
 							"<div class='ui-block-a' style='width:40%'>" +
 								"<label for='password' style='padding-top:10px'>" + _( "Password" ) + "</label>" +
 							"</div>" +
 							"<div class='ui-block-b' style='width:60%'>" +
-								"<input class='mqtt-input' type='password' id='password' data-mini='true' maxlength='" + (largeSOPTSupport ? "100" : "32") + "' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
+								"<input class='mqtt-input' type='password' id='password' data-mini='true' maxlength='" + ( largeSOPTSupport ? "100" : "32" ) + "' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
 									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + _( "password (optional)" ) + "' value='" + options.pass + "' required />" +
 							"</div>" +
-							(largeSOPTSupport ?
+							( largeSOPTSupport ?
 							"<div class='ui-block-a' style='width:40%'>" +
 								"<label for='pubt' style='padding-top:10px'>" + _( "Publish Topic" ) + "</label>" +
 							"</div>" +
@@ -5054,7 +5054,7 @@ function showOptions( expandItem ) {
 								"<input class='mqtt-input' type='text' id='pubt' data-mini='true' maxlength='24' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
 									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + _( "publish topic" ) + "' value='" + options.pubt + "' required />" +
 							"</div>" : "" ) +
-							(largeSOPTSupport ?
+							( largeSOPTSupport ?
 							"<div class='ui-block-a' style='width:40%'>" +
 								"<label for='subt' style='padding-top:10px'>" + _( "Subscribe Topic" ) + "</label>" +
 							"</div>" +
@@ -5072,11 +5072,11 @@ function showOptions( expandItem ) {
 			"</div>" );
 
 		popup.find( "#defaultsubt" ).on( "click", function() {
-			popup.find( "#subt" ).val(generateDefaultSubscribeTopic());
+			popup.find( "#subt" ).val( generateDefaultSubscribeTopic() );
 		} );
 
 		popup.find( "#clearsubt" ).on( "click", function() {
-			popup.find( "#subt" ).val("");
+			popup.find( "#subt" ).val( "" );
 		} );
 
 		popup.find( "#enable" ).on( "change", function() {
@@ -5113,7 +5113,7 @@ function showOptions( expandItem ) {
 		openPopup( popup, { positionTo: "window" } );
     } );
 
-	page.find( '#email' ).on( "click", function() {
+	page.find( "#email" ).on( "click", function() {
 		var button = this, curr = button.value,
 			options = $.extend( {}, {
 				en: 0,
@@ -5599,7 +5599,7 @@ var showHome = ( function() {
 
 						opts.append( sel ).enhanceWithin();
 					} else if ( value === 4 || value === 5 ) {
-						data = ( type === value ) ? data.split( "," ) : (value === 4? [ "server", "80", "On", "Off" ] : [ "server", "443", "On", "Off" ]);
+						data = ( type === value ) ? data.split( "," ) : ( value === 4 ? [ "server", "80", "On", "Off" ] : [ "server", "443", "On", "Off" ] );
 
 						opts.append(
 							"<div class='ui-bar-a ui-bar'>" + _( "Server Name" ) + ":</div>" +
@@ -5642,10 +5642,10 @@ var showHome = ( function() {
 
 					if ( hs === 1 ) {
 						button.data( "specialData", select.find( "#rf-code" ).val() );
-					} else if ( hs === 2 || hs === 6) {
+					} else if ( hs === 2 || hs === 6 ) {
 						var ip, port, otc, station, hex = "";
 						station = ( select.find( "#remote-station" ).val() || 1 ) - 1;
-						if ( hs === 2) {
+						if ( hs === 2 ) {
 							ip = select.find( "#remote-address" ).val().split( "." );
 							port = parseInt( select.find( "#remote-port" ).val() ) || 80;
 							for ( var i = 0; i < 4; i++ ) {
@@ -5655,9 +5655,8 @@ var showHome = ( function() {
 							hex += pad( station.toString( 16 ) );
 						} else {
 							otc = select.find( "#remote-otc" ).val();
-							console.log(otc);
 							hex += otc;
-							hex += ","
+							hex += ",";
 							hex += pad( station.toString( 16 ) );
 						}
 
@@ -6643,15 +6642,15 @@ function showGuidedSetup() {
 }
 
 function isValidOTC( token ) {
-	return /^OT[a-f0-9]{30}$/i.test(token);
+	return /^OT[a-f0-9]{30}$/i.test( token );
 }
 
 function parseRemoteStationData( hex ) {
-	let fields = hex.split( "," );
-	let result = {};
-	if (fields.length === 2 && isValidOTC(fields[ 0 ])) {
+	var fields = hex.split( "," );
+	var result = {};
+	if ( fields.length === 2 && isValidOTC( fields[ 0 ] ) ) {
 		result.otc = fields[ 0 ];
-		result.station = parseInt( fields[1], 16 );
+		result.station = parseInt( fields[ 1 ], 16 );
 	} else {
 		hex = hex.split( "" );
 
@@ -6675,7 +6674,7 @@ function verifyRemoteStation( data, callback ) {
 	data = parseRemoteStationData( data );
 
 	$.ajax( {
-		url: (data.otc ? ( "https://cloud.openthings.io/forward/v1/" + data.otc ) : ( "http://" + data.ip + ":" + data.port ) ) + "/jo?pw=" + encodeURIComponent( currPass ),
+		url: ( data.otc ? ( "https://cloud.openthings.io/forward/v1/" + data.otc ) : ( "http://" + data.ip + ":" + data.port ) ) + "/jo?pw=" + encodeURIComponent( currPass ),
 		type: "GET",
 		dataType: "json"
 	} ).then(
@@ -6698,7 +6697,7 @@ function verifyRemoteStation( data, callback ) {
 
 function convertRemoteToExtender( data ) {
 	data = parseRemoteStationData( data );
-	let comm;
+	var comm;
 	if ( data.otc ) {
 		comm = "https://cloud.openthings.io/forward/v1/" + data.otc;
 	} else {
@@ -7350,8 +7349,9 @@ var getRunonce = ( function() {
 				resetRunonce();
 				return;
 			} else if ( prog === "t" ) {
-				//test all stations
-				showDurationBox({
+
+				// Test all stations
+				showDurationBox( {
 					incrementalUpdate: false,
 					seconds: 60,
 					title: "Set Duration",
@@ -7359,7 +7359,7 @@ var getRunonce = ( function() {
 						fillRunonce( Array.apply( null, Array( controller.stations.snames.length ) ).map( function() {return result;} ) );
 					},
 					maximum: 65535
- 				});
+				} );
 				return;
 			}
 			if ( typeof rprogs[ prog ] === "undefined" ) {
