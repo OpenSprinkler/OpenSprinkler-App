@@ -42,7 +42,7 @@
             <string>Your camera is used to provide an image for your stations.</string>
         </config-file>
         <config-file target="*-Info.plist" overwrite="true" parent="CFBundleShortVersionString">
-            <string>191005</string>
+            <string>19906</string>
         </config-file>
         <config-file target="*-Info.plist" overwrite="true" parent="LSApplicationCategoryType">
             <string>public.app-category.utilities</string>
