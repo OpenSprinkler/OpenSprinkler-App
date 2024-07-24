@@ -6,48 +6,48 @@
  */
 
 var analogSensors = {},
-    progAdjusts = {},
-    analogSensorAvail = false;
+	progAdjusts = {},
+	analogSensorAvail = false;
 
 const CHARTS = 11;
 const USERDEF_SENSOR = 49;
-const USERDEF_UNIT   = 99;
-const SENSOR_MQTT    = 90;
+const USERDEF_UNIT = 99;
+const SENSOR_MQTT = 90;
 
-const CURRENT_FW     = "2.3.1(165)";
-const CURRENT_FW_ID  = 231;
+const CURRENT_FW = "2.3.1(165)";
+const CURRENT_FW_ID = 231;
 const CURRENT_FW_MIN = 150;
 
-const COLORS = ["#F3B415", "#F27036", "#663F59", "#6A6E94", "#4E88B4", "#00A7C6", "#18D8D8", '#A9D794','#46AF78', '#A93F55', '#8C5E58', '#2176FF', '#33A1FD', '#7A918D', '#BAFF29'];
+const COLORS = ["#F3B415", "#F27036", "#663F59", "#6A6E94", "#4E88B4", "#00A7C6", "#18D8D8", '#A9D794', '#46AF78', '#A93F55', '#8C5E58', '#2176FF', '#33A1FD', '#7A918D', '#BAFF29'];
 const COLCOUNT = 15;
 
 //detected Analog Sensor Boards:
-const ASB_BOARD1      = 0x01;
-const ASB_BOARD2      = 0x02;
-const OSPI_PCF8591    = 0x04;
-const OSPI_ADS1115    = 0x08;
+const ASB_BOARD1 = 0x01;
+const ASB_BOARD2 = 0x02;
+const OSPI_PCF8591 = 0x04;
+const OSPI_ADS1115 = 0x08;
 const UART_SC16IS752 = 0x10;
-const RS485_TRUEBNER  = 0x20;
+const RS485_TRUEBNER = 0x20;
 
-function checkAnalogSensorAvail( callback ) {
-	callback = callback || function() {};
-	return sendToOS( "/sl?pw=", "json" ).then( function( data ) {
-		if ( typeof data === "undefined" || $.isEmptyObject( data ) ) {
+function checkAnalogSensorAvail(callback) {
+	callback = callback || function () { };
+	return sendToOS("/sl?pw=", "json").then(function (data) {
+		if (typeof data === "undefined" || $.isEmptyObject(data)) {
 			analogSensorAvail = false;
 			return;
 		}
 		analogSensorAvail = true;
 		callback();
-	}, function( data ) {
+	}, function (data) {
 		analogSensorAvail = false;
-	} );
+	});
 
 }
 
 function refresh() {
-    setTimeout( function() {
-        location.reload();
-    }, 100 );
+	setTimeout(function () {
+		location.reload();
+	}, 100);
 }
 
 function enc(s) {
@@ -58,70 +58,70 @@ function enc(s) {
 	return s;
 }
 
-function updateProgramAdjustments( callback ) {
-	callback = callback || function() {};
-	return sendToOS( "/se?pw=", "json" ).then( function( data ) {
+function updateProgramAdjustments(callback) {
+	callback = callback || function () { };
+	return sendToOS("/se?pw=", "json").then(function (data) {
 		progAdjusts = data.progAdjust;
 		callback();
-	} );
+	});
 }
 
-function updateAnalogSensor( callback ) {
-	callback = callback || function() {};
-	return sendToOS( "/sl?pw=", "json" ).then( function( data ) {
+function updateAnalogSensor(callback) {
+	callback = callback || function () { };
+	return sendToOS("/sl?pw=", "json").then(function (data) {
 		analogSensors = data.sensors;
 		analogSensors.expandItem = new Set(["sensors"]);
 		if (data.hasOwnProperty("detected"))
 			analogSensors.detected = data.detected;
 		callback();
-	} );
+	});
 }
 
-function updateSensorShowArea( page ) {
-	if ( analogSensorAvail ) {
-		var showArea =  page.find( "#os-sensor-show" );
+function updateSensorShowArea(page) {
+	if (analogSensorAvail) {
+		var showArea = page.find("#os-sensor-show");
 		var html = "", i, j;
 		html += "<div class='ui-body ui-body-a center'><table style='margin: 0px auto;'>";
 		var cols = Math.round(window.innerWidth / 300);
 
-		for ( i = 0; i < progAdjusts.length; i++ ) {
+		for (i = 0; i < progAdjusts.length; i++) {
 			if (i % cols == 0) {
 				if (i > 0)
 					html += "</tr>";
 				html += "<tr>";
 			}
-			html += "<td id='mainpageChart-"+i+"'/>";
+			html += "<td id='mainpageChart-" + i + "'/>";
 		}
 		if (i > 0)
 			html += "</tr>";
 		html += "</table></div>";
 
-		for ( i = 0; i < analogSensors.length; i++ ) {
-			var sensor = analogSensors[ i ];
-			if ( sensor.show ) {
+		for (i = 0; i < analogSensors.length; i++) {
+			var sensor = analogSensors[i];
+			if (sensor.show) {
 				html += "<div id='sensor-show-" + sensor.nr + "' class='ui-body ui-body-a center'>";
-				html += "<label>" + sensor.name + ": " + formatValUnit( sensor.data, getUnit(sensor)) + "</label>";
+				html += "<label>" + sensor.name + ": " + formatValUnit(sensor.data, getUnit(sensor)) + "</label>";
 				html += "</div>";
 			}
 		}
-		while ( showArea.firstChild ) {
-			showArea.removeChild( showArea.firstChild );
+		while (showArea.firstChild) {
+			showArea.removeChild(showArea.firstChild);
 		}
-		showArea.html( html );
+		showArea.html(html);
 
-		for ( i = 0; i < progAdjusts.length; i++ ) {
-			var progAdjust = progAdjusts[ i ];
-			var current = Math.round(progAdjust.current*100);
+		for (i = 0; i < progAdjusts.length; i++) {
+			var progAdjust = progAdjusts[i];
+			var current = Math.round(progAdjust.current * 100);
 
 			var progName = "?";
-			if ( progAdjust.prog >= 1 && progAdjust.prog <= controller.programs.pd.length ) {
-				progName = readProgram( controller.programs.pd[ progAdjust.prog - 1 ] ).name;
+			if (progAdjust.prog >= 1 && progAdjust.prog <= controller.programs.pd.length) {
+				progName = readProgram(controller.programs.pd[progAdjust.prog - 1]).name;
 			}
 
 			var sensorName = "";
-			for ( j = 0; j < analogSensors.length; j++ ) {
-				if ( analogSensors[ j ].nr === progAdjust.sensor ) {
-					sensorName = analogSensors[ j ].name;
+			for (j = 0; j < analogSensors.length; j++) {
+				if (analogSensors[j].nr === progAdjust.sensor) {
+					sensorName = analogSensors[j].name;
 				}
 			}
 
@@ -139,240 +139,239 @@ function updateSensorShowArea( page ) {
 
 			var options = {
 				chart: {
-				  height: 180,
-				  type: "radialBar",
-				  animations: {
-				  	enabled: false,
-				  	dynamicAnimation: {
-				  		enabled: false
-				  	}
-				  }
+					height: 180,
+					type: "radialBar",
+					animations: {
+						enabled: false,
+						dynamicAnimation: {
+							enabled: false
+						}
+					}
 				},
 
 				series: [current],
 				colors: ["#20E647"],
 				plotOptions: {
-				  radialBar: {
-					startAngle: -135,
-            		endAngle: 135,
-					//hollow: {
-					//  margin: 15,
-					//  size: "70%"
-					//},
-					track: {
-						dropShadow: {
-						  enabled: true,
-						  top: 2,
-						  left: 0,
-						  blur: 4,
-						  opacity: 0.15
+					radialBar: {
+						startAngle: -135,
+						endAngle: 135,
+						//hollow: {
+						//  margin: 15,
+						//  size: "70%"
+						//},
+						track: {
+							dropShadow: {
+								enabled: true,
+								top: 2,
+								left: 0,
+								blur: 4,
+								opacity: 0.15
+							}
+						},
+						dataLabels: {
+							showOn: "always",
+							name: {
+								offsetY: -10,
+								show: true,
+								color: "#222",
+								fontSize: "13px"
+							},
+							value: {
+								color: "#111",
+								fontSize: "30px",
+								show: true,
+								formatter: function (val) {
+									return formatValUnit(val, "%");
+								}
+							}
 						}
-					  },
-					dataLabels: {
-					  showOn: "always",
-					  name: {
-						offsetY: -10,
-						show: true,
-						color: "#222",
-						fontSize: "13px"
-					  },
-					  value: {
-						color: "#111",
-						fontSize: "30px",
-						show: true,
-						formatter: function(val) {
-							return formatValUnit(val, "%");
-						}
-					  }
 					}
-				  }
 				},
 
 				fill: {
 					type: "gradient",
 					gradient: {
-					  shade: "dark",
-					  type: "horizontal",
-					  gradientToColors: color,
-					  stops: [0,100]
+						shade: "dark",
+						type: "horizontal",
+						gradientToColors: color,
+						stops: [0, 100]
 					}
-				  },
-				stroke: {
-				  lineCap: "round",
 				},
-				labels: [progName+" ("+sensorName+")"]
-			  };
+				stroke: {
+					lineCap: "round",
+				},
+				labels: [progName + " (" + sensorName + ")"]
+			};
 
-			  var chart = new ApexCharts(document.querySelector("#mainpageChart-"+i), options);
+			var chart = new ApexCharts(document.querySelector("#mainpageChart-" + i), options);
 
-			  chart.render();
+			chart.render();
 		}
 	}
 }
 
-function toByteArray( b ) {
+function toByteArray(b) {
 	var result = [];
 	var n = 4;
-	while ( n-- ) {
-	  result.push( Number( b % 0x100 ) );
-	  b /= 0x100;
+	while (n--) {
+		result.push(Number(b % 0x100));
+		b /= 0x100;
 	}
-	return Uint8Array.from( result );
+	return Uint8Array.from(result);
 }
 
-function intFromBytes( x ) {
+function intFromBytes(x) {
 	try {
-	    var val = 0;
-	    for ( var i = x.length - 1; i >= 0; i-- ) {
+		var val = 0;
+		for (var i = x.length - 1; i >= 0; i--) {
 			val *= 0x100;
-        	val += parseInt( x[ i ] );
-    	}
-    	return val;
-	} catch ( error ) {
+			val += parseInt(x[i]);
+		}
+		return val;
+	} catch (error) {
 		return 0;
 	}
 }
 
 // Restore from Backup - Dialog
-function getImportMethodSensors( restore_type, callback) {
+function getImportMethodSensors(restore_type, callback) {
 
-	let storageName = (restore_type==1)?"backupSensors":(restore_type==2)?"backupAdjustments":"backupAll";
-	let localData = localStorage.getItem( storageName );
+	let storageName = (restore_type == 1) ? "backupSensors" : (restore_type == 2) ? "backupAdjustments" : "backupAll";
+	let localData = localStorage.getItem(storageName);
 
-		callback = callback || function() {};
-		var getPaste = function() {
-			var popup = $(
-				"<div data-role='popup' data-theme='a' id='paste_config'>" +
-				"<p class='ui-bar'>" +
-				"<textarea class='textarea' rows='10' placeholder='" + _( "Paste your backup here" ) + "'></textarea>" +
-				"<button data-mini='true' data-theme='b'>" + _( "Import" ) + "</button>" +
-				"</p>" +
-				"</div>"
-				),
-				width = $.mobile.window.width();
+	callback = callback || function () { };
+	var getPaste = function () {
+		var popup = $(
+			"<div data-role='popup' data-theme='a' id='paste_config'>" +
+			"<p class='ui-bar'>" +
+			"<textarea class='textarea' rows='10' placeholder='" + _("Paste your backup here") + "'></textarea>" +
+			"<button data-mini='true' data-theme='b'>" + _("Import") + "</button>" +
+			"</p>" +
+			"</div>"
+		),
+			width = $.mobile.window.width();
 
-			popup.find( "button" ).on( "click", function() {
-				var data = popup.find( "textarea" ).val();
+		popup.find("button").on("click", function () {
+			var data = popup.find("textarea").val();
 
-				if ( data === "" ) {
-					return;
-				}
+			if (data === "") {
+				return;
+			}
 
-				try {
-					data = JSON.parse( $.trim( data ).replace( /“|”|″/g, "\"" ) );
-					popup.popup( "close" );
-					importConfigSensors( data, restore_type, callback );
-				}catch ( err ) {
-					popup.find( "textarea" ).val( "" );
-					showerror( _( "Unable to read the configuration file. Please check the file and try again." ) );
-				}
-			} );
+			try {
+				data = JSON.parse($.trim(data).replace(/“|”|″/g, "\""));
+				popup.popup("close");
+				importConfigSensors(data, restore_type, callback);
+			} catch (err) {
+				popup.find("textarea").val("");
+				showerror(_("Unable to read the configuration file. Please check the file and try again."));
+			}
+		});
 
-			popup.css( "width", ( width > 600 ? width * 0.4 + "px" : "100%" ) );
-			openPopup( popup );
-			return false;
-		},
+		popup.css("width", (width > 600 ? width * 0.4 + "px" : "100%"));
+		openPopup(popup);
+		return false;
+	},
 		popup = $(
 			"<div data-role='popup' data-theme='a'>" +
-			"<div class='ui-bar ui-bar-a'>" + _( "Select Import Method" ) + "</div>" +
+			"<div class='ui-bar ui-bar-a'>" + _("Select Import Method") + "</div>" +
 			"<div data-role='controlgroup' class='tight'>" +
-			"<button class='hidden fileMethod'>" + _( "File" ) + "</button>" +
-			"<button class='pasteMethod'>" + _( "Email (copy/paste)" ) + "</button>" +
-			"<button class='hidden localMethod'>" + _( "Internal (within app)" ) + "</button>" +
+			"<button class='hidden fileMethod'>" + _("File") + "</button>" +
+			"<button class='pasteMethod'>" + _("Email (copy/paste)") + "</button>" +
+			"<button class='hidden localMethod'>" + _("Internal (within app)") + "</button>" +
 			"</div>" +
-			"</div>" );
+			"</div>");
 
-		if ( isFileCapable ) {
-			popup.find( ".fileMethod" ).removeClass( "hidden" ).on( "click", function() {
-			popup.popup( "close" );
-			var input = $( "<input type='file' id='configInput' data-role='none' style='visibility:hidden;position:absolute;top:-50px;left:-50px'/>" )
-				.on( "change", function() {
-					var config = this.files[ 0 ],
+	if (isFileCapable) {
+		popup.find(".fileMethod").removeClass("hidden").on("click", function () {
+			popup.popup("close");
+			var input = $("<input type='file' id='configInput' data-role='none' style='visibility:hidden;position:absolute;top:-50px;left:-50px'/>")
+				.on("change", function () {
+					var config = this.files[0],
 						reader = new FileReader();
 
-					if ( typeof config !== "object" ) {
+					if (typeof config !== "object") {
 						return;
 					}
 
-					reader.onload = function( e ) {
+					reader.onload = function (e) {
 						try {
-							var obj = JSON.parse( $.trim( e.target.result ) );
-							importConfigSensors( obj, restore_type, callback );
-						}catch ( err ) {
-							showerror( _( "Unable to read the configuration file. Please check the file and try again." ) );
+							var obj = JSON.parse($.trim(e.target.result));
+							importConfigSensors(obj, restore_type, callback);
+						} catch (err) {
+							showerror(_("Unable to read the configuration file. Please check the file and try again."));
 						}
 					};
 
-					reader.readAsText( config );
-				} );
+					reader.readAsText(config);
+				});
 
-			input.appendTo( "#sprinklers-settings" );
+			input.appendTo("#sprinklers-settings");
 			input.click();
 			return false;
-			} );
-		} else {
+		});
+	} else {
 
-			// Handle local storage being unavailable and present paste dialog immediately
-			if ( !localData ) {
-				getPaste();
-				return;
-			}
-		}
-
-		popup.find( ".pasteMethod" ).on( "click", function() {
-			popup.popup( "close" );
+		// Handle local storage being unavailable and present paste dialog immediately
+		if (!localData) {
 			getPaste();
-			return false;
-		} );
-
-		if ( localData ) {
-			popup.find( ".localMethod" ).removeClass( "hidden" ).on( "click", function() {
-				popup.popup( "close" );
-				importConfigSensors( JSON.parse( localData ), restore_type, callback );
-				return false;
-			} );
+			return;
 		}
+	}
 
-		openPopup( popup );
+	popup.find(".pasteMethod").on("click", function () {
+		popup.popup("close");
+		getPaste();
+		return false;
+	});
+
+	if (localData) {
+		popup.find(".localMethod").removeClass("hidden").on("click", function () {
+			popup.popup("close");
+			importConfigSensors(JSON.parse(localData), restore_type, callback);
+			return false;
+		});
+	}
+
+	openPopup(popup);
 }
 
 // Restore from backup - send to OS
-function importConfigSensors( data, restore_type, callback ) {
-	callback = callback || function() {};
+function importConfigSensors(data, restore_type, callback) {
+	callback = callback || function () { };
 	var warning = "";
 
-	if ( typeof data !== "object" || !data.backup ) {
-		showerror( _( "Invalid configuration" ) );
+	if (typeof data !== "object" || !data.backup) {
+		showerror(_("Invalid configuration"));
 		return;
 	}
 
-	areYouSure( _( "Are you sure you want to restore the configuration?" ), warning, function() {
-		$.mobile.loading( "show" );
+	areYouSure(_("Are you sure you want to restore the configuration?"), warning, function () {
+		$.mobile.loading("show");
 
 		if ((restore_type & 1) == 1 && data.hasOwnProperty("sensors")) { //restore Sensor
 			var sensorOut;
-			for (var i = 0; i < data.sensors.length; i++)
-			{
+			for (var i = 0; i < data.sensors.length; i++) {
 				sensorOut = data.sensors[i];
-				sendToOS( "/sc?pw=&nr=" + sensorOut.nr +
+				sendToOS("/sc?pw=&nr=" + sensorOut.nr +
 					"&type=" + sensorOut.type +
 					"&group=" + sensorOut.group +
-					"&name=" + enc( sensorOut.name ) +
+					"&name=" + enc(sensorOut.name) +
 					"&ip=" + sensorOut.ip +
 					"&port=" + sensorOut.port +
 					"&id=" + sensorOut.id +
 					"&ri=" + sensorOut.ri +
 					((sensorOut.type === USERDEF_SENSOR) ?
 						("&fac=" + sensorOut.fac +
-						"&div=" + sensorOut.div +
-						"&offset=" + sensorOut.offset +
-						"&unit="+ enc( sensorOut.unit )
-						):"") +
+							"&div=" + sensorOut.div +
+							"&offset=" + sensorOut.offset +
+							"&unit=" + enc(sensorOut.unit)
+						) : "") +
 					((sensorOut.type === SENSOR_MQTT) ?
-						("&topic=" + enc( sensorOut.topic ) +
-						"&filter=" + enc( sensorOut.filter ) +
-						"&unit=" + enc( sensorOut.unit )
-						):"") +
+						("&topic=" + enc(sensorOut.topic) +
+							"&filter=" + enc(sensorOut.filter) +
+							"&unit=" + enc(sensorOut.unit)
+						) : "") +
 					"&enable=" + sensorOut.enable +
 					"&log=" + sensorOut.log +
 					"&show=" + sensorOut.show,
@@ -384,7 +383,7 @@ function importConfigSensors( data, restore_type, callback ) {
 			var progAdjustOut;
 			for (var i = 0; i < data.progadjust.length; i++) {
 				progAdjustOut = data.progadjust[i];
-				return sendToOS( "/sb?pw=&nr=" + progAdjustOut.nr +
+				return sendToOS("/sb?pw=&nr=" + progAdjustOut.nr +
 					"&type=" + progAdjustOut.type +
 					"&sensor=" + progAdjustOut.sensor +
 					"&prog=" + progAdjustOut.prog +
@@ -399,274 +398,274 @@ function importConfigSensors( data, restore_type, callback ) {
 		//analogSensors.expandItem.add("sensors");
 		analogSensors.expandItem.clear();
 		analogSensors.expandItem.add("progadjust");
-		updateProgramAdjustments( function( ) {
-			updateAnalogSensor( function( ) {
-				$.mobile.loading( "hide" );
-				showerror( _( "Backup restored to your device" ) );
+		updateProgramAdjustments(function () {
+			updateAnalogSensor(function () {
+				$.mobile.loading("hide");
+				showerror(_("Backup restored to your device"));
 				callback();
-			} );
-		} );
+			});
+		});
 
-	} );
+	});
 }
 
 function getExportMethodSensors(backuptype) {
-    let storageName = (backuptype==1)?"backupSensors":(backuptype==2)?"backupAdjustments":"backupAll";
-    let filename = (backuptype==1)?"BackupSensorConfig":(backuptype==2)?"BackupSensorAdjustments":"BackupAll";
+	let storageName = (backuptype == 1) ? "backupSensors" : (backuptype == 2) ? "backupAdjustments" : "backupAll";
+	let filename = (backuptype == 1) ? "BackupSensorConfig" : (backuptype == 2) ? "BackupSensorAdjustments" : "BackupAll";
 
-    sendToOS( "/sx?pw=&backup="+backuptype, "json" ).then( function( data ) {
-        var popup = $(
-                      "<div data-role='popup' data-theme='a'>" +
-                      "<div class='ui-bar ui-bar-a'>" + _( "Select Export Method" ) + "</div>" +
-                      "<div data-role='controlgroup' class='tight'>" +
-                      "<a class='ui-btn hidden fileMethod'>" + _( "File" ) + "</a>" +
-                      "<a class='ui-btn pasteMethod'>" + _( "Email" ) + "</a>" +
-                      "<a class='ui-btn localMethod'>" + _( "Internal (within app)" ) + "</a>" +
-                      "</div>" +
-                      "</div>" ),
-        obj = encodeURIComponent( JSON.stringify( data ) ),
-        subject = "OpenSprinkler Sensor Export on " + dateToString( new Date() );
+	sendToOS("/sx?pw=&backup=" + backuptype, "json").then(function (data) {
+		var popup = $(
+			"<div data-role='popup' data-theme='a'>" +
+			"<div class='ui-bar ui-bar-a'>" + _("Select Export Method") + "</div>" +
+			"<div data-role='controlgroup' class='tight'>" +
+			"<a class='ui-btn hidden fileMethod'>" + _("File") + "</a>" +
+			"<a class='ui-btn pasteMethod'>" + _("Email") + "</a>" +
+			"<a class='ui-btn localMethod'>" + _("Internal (within app)") + "</a>" +
+			"</div>" +
+			"</div>"),
+			obj = encodeURIComponent(JSON.stringify(data)),
+			subject = "OpenSprinkler Sensor Export on " + dateToString(new Date());
 
-        if ( isFileCapable ) {
-            popup.find( ".fileMethod" ).removeClass( "hidden" ).attr( {
-                href: "data:text/json;charset=utf-8," + obj,
-                download: filename+"-" + new Date().toLocaleDateString().replace( /\//g, "-" ) + ".json"
-            } ).on( "click", function() {
-                popup.popup( "close" );
-            } );
-        }
+		if (isFileCapable) {
+			popup.find(".fileMethod").removeClass("hidden").attr({
+				href: "data:text/json;charset=utf-8," + obj,
+				download: filename + "-" + new Date().toLocaleDateString().replace(/\//g, "-") + ".json"
+			}).on("click", function () {
+				popup.popup("close");
+			});
+		}
 
-        var href = "mailto:?subject=" + encodeURIComponent( subject ) + "&body=" + obj;
-        popup.find( ".pasteMethod" ).attr( "href", href ).on( "click", function() {
-            window.open( href, isOSXApp ? "_system" : undefined );
-            popup.popup( "close" );
-        } );
+		var href = "mailto:?subject=" + encodeURIComponent(subject) + "&body=" + obj;
+		popup.find(".pasteMethod").attr("href", href).on("click", function () {
+			window.open(href, isOSXApp ? "_system" : undefined);
+			popup.popup("close");
+		});
 
-        popup.find( ".localMethod" ).on( "click", function() {
-            popup.popup( "close" );
-            localStorage.setItem( storageName, JSON.stringify( data ) );
-	    showerror( _( "Backup saved on this device" ) );
-        } );
+		popup.find(".localMethod").on("click", function () {
+			popup.popup("close");
+			localStorage.setItem(storageName, JSON.stringify(data));
+			showerror(_("Backup saved on this device"));
+		});
 
-        openPopup( popup );
-    });
+		openPopup(popup);
+	});
 }
 
 
 //Program adjustments editor
-function showAdjustmentsEditor( progAdjust, row, callback, callbackCancel ) {
+function showAdjustmentsEditor(progAdjust, row, callback, callbackCancel) {
 
-	sendToOS( "/sh?pw=", "json" ).then( function( data ) {
+	sendToOS("/sh?pw=", "json").then(function (data) {
 		var supportedAdjustmentTypes = data.progTypes;
 		var i;
 
-		$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
+		$(".ui-popup-active").find("[data-role='popup']").popup("close");
 
 		var list =
 			"<div data-role='popup' data-theme='a' id='progAdjustEditor'>" +
 			"<div data-role='header' data-theme='b'>" +
-			"<h1>" + ( progAdjust.nr > 0 ? _( "Edit Program Adjustment" ) : _( "New Program Adjustment" ) ) + "</h1>" +
-			"<a href='#' class='ui-btn-right' data-role='button' data-mini='true' id='close' data-icon='back' data-inline='true' >"+
+			"<h1>" + (progAdjust.nr > 0 ? _("Edit Program Adjustment") : _("New Program Adjustment")) + "</h1>" +
+			"<a href='#' class='ui-btn-right' data-role='button' data-mini='true' id='close' data-icon='back' data-inline='true' >" +
 			_("close") + "</a>" +
 			"</div>" +
 
 			"<div class='ui-content'>" +
 			"<p class='rain-desc center smaller'>" +
-			_( "Notice: If you want to combine multiple sensors, then build a sensor group. " ) +
-			_( "See help documentation for details." ) +
-				"</p>" +
+			_("Notice: If you want to combine multiple sensors, then build a sensor group. ") +
+			_("See help documentation for details.") +
+			"</p>" +
 
 			"<div class='ui-field-contain'>" +
 
-				//Adjustment-Nr:
-				"<label>" +
-					_( "Adjustment-Nr" ) +
-				"</label>" +
-				"<input class='nr' type='number' inputmode='decimal' min='1' max='99999' value='" + progAdjust.nr + ( progAdjust.nr > 0 ? "' disabled='disabled'>" : "'>" ) +
+			//Adjustment-Nr:
+			"<label>" +
+			_("Adjustment-Nr") +
+			"</label>" +
+			"<input class='nr' type='number' inputmode='decimal' min='1' max='99999' value='" + progAdjust.nr + (progAdjust.nr > 0 ? "' disabled='disabled'>" : "'>") +
 
-				//Select Type:
-				"<div class='ui-field-contain'><label for='type' class='select'>" +
-					_( "Type" ) +
-					"</label><select data-mini='true' id='type'>";
+			//Select Type:
+			"<div class='ui-field-contain'><label for='type' class='select'>" +
+			_("Type") +
+			"</label><select data-mini='true' id='type'>";
 
-				for ( i = 0; i < supportedAdjustmentTypes.length; i++ ) {
-					list += "<option " + ( ( progAdjust.type === supportedAdjustmentTypes[ i ].type ) ? "selected" : "" ) +
-					" value='" + supportedAdjustmentTypes[ i ].type + "'>" +
-					supportedAdjustmentTypes[ i ].name + "</option>";
-				}
-				list += "</select></div>" +
+		for (i = 0; i < supportedAdjustmentTypes.length; i++) {
+			list += "<option " + ((progAdjust.type === supportedAdjustmentTypes[i].type) ? "selected" : "") +
+				" value='" + supportedAdjustmentTypes[i].type + "'>" +
+				supportedAdjustmentTypes[i].name + "</option>";
+		}
+		list += "</select></div>" +
 
-				//Select Sensor:
-				"<div class='ui-field-contain'><label for='sensor' class='select'>" +
-					_( "Sensor" ) +
-					"</label><select data-mini='true' id='sensor'>";
+			//Select Sensor:
+			"<div class='ui-field-contain'><label for='sensor' class='select'>" +
+			_("Sensor") +
+			"</label><select data-mini='true' id='sensor'>";
 
-				for ( i = 0; i < analogSensors.length; i++ ) {
-					list += "<option " + ( ( progAdjust.sensor === analogSensors[ i ].nr ) ? "selected" : "" ) +
-					" value='" + analogSensors[ i ].nr + "'>" +
-					analogSensors[ i ].nr + " - " + analogSensors[ i ].name + "</option>";
-				}
-				list += "</select></div>" +
+		for (i = 0; i < analogSensors.length; i++) {
+			list += "<option " + ((progAdjust.sensor === analogSensors[i].nr) ? "selected" : "") +
+				" value='" + analogSensors[i].nr + "'>" +
+				analogSensors[i].nr + " - " + analogSensors[i].name + "</option>";
+		}
+		list += "</select></div>" +
 
-				//Select Program:
-				"<div class='ui-field-contain'><label for='prog' class='select'>" +
-					_( "Program to adjust" ) +
-					"</label><select data-mini='true' id='prog'>";
+			//Select Program:
+			"<div class='ui-field-contain'><label for='prog' class='select'>" +
+			_("Program to adjust") +
+			"</label><select data-mini='true' id='prog'>";
 
-				for ( i = 0; i < controller.programs.pd.length; i++ ) {
-					var progName = readProgram( controller.programs.pd[ i ] ).name;
-					var progNr = i + 1;
+		for (i = 0; i < controller.programs.pd.length; i++) {
+			var progName = readProgram(controller.programs.pd[i]).name;
+			var progNr = i + 1;
 
-					list += "<option " + ( ( progAdjust.prog === progNr ) ? "selected" : "" ) +
-					" value='" + progNr + "'>" +
-					progName + "</option>";
-				}
-				list += "</select></div>" +
+			list += "<option " + ((progAdjust.prog === progNr) ? "selected" : "") +
+				" value='" + progNr + "'>" +
+				progName + "</option>";
+		}
+		list += "</select></div>" +
 
-				"<label>" +
-			_( "Factor 1 in % (adjustment for min)" ) +
-					"</label>" +
-					"<input class='factor1' type='number' inputmode='decimal' value='" + Math.round(progAdjust.factor1*100) + "'>" +
+			"<label>" +
+			_("Factor 1 in % (adjustment for min)") +
+			"</label>" +
+			"<input class='factor1' type='number' inputmode='decimal' value='" + Math.round(progAdjust.factor1 * 100) + "'>" +
 
-				"<label>" +
-			_( "Factor 2 in % (adjustment for max)" ) +
-					"</label>" +
-					"<input class='factor2' type='number' inputmode='decimal' value='" + Math.round(progAdjust.factor2*100) + "'>" +
+			"<label>" +
+			_("Factor 2 in % (adjustment for max)") +
+			"</label>" +
+			"<input class='factor2' type='number' inputmode='decimal' value='" + Math.round(progAdjust.factor2 * 100) + "'>" +
 
-				"<label>" +
-			_( "Min sensor value" ) +
-					"</label>" +
-					"<input class='min' type='number' value='" + progAdjust.min + "'>" +
+			"<label>" +
+			_("Min sensor value") +
+			"</label>" +
+			"<input class='min' type='number' value='" + progAdjust.min + "'>" +
 
-				"<label>" +
-			_( "Max sensor value" ) +
-					"</label>" +
-					"<input class='max' type='number' inputmode='decimal' value='" + progAdjust.max + "'>" +
+			"<label>" +
+			_("Max sensor value") +
+			"</label>" +
+			"<input class='max' type='number' inputmode='decimal' value='" + progAdjust.max + "'>" +
 
-				"</div>" +
-				"<div id='adjchart'></div>"+
-				"<button class='submit' data-theme='b'>" + _( "Submit" ) + "</button>" +
+			"</div>" +
+			"<div id='adjchart'></div>" +
+			"<button class='submit' data-theme='b'>" + _("Submit") + "</button>" +
 
-				((row < 0) ? "" : ("<a data-role='button' class='black delete-progadjust' value='" + progAdjust.nr + "' row='" + row + "' href='#' data-icon='delete'>" +
-				_( "Delete" ) + "</a>")) +
+			((row < 0) ? "" : ("<a data-role='button' class='black delete-progadjust' value='" + progAdjust.nr + "' row='" + row + "' href='#' data-icon='delete'>" +
+				_("Delete") + "</a>")) +
 
-				"</div>" +
+			"</div>" +
 			"</div>";
 
-			let popup = $( list ),
+		let popup = $(list),
 
-			changeValue = function( pos, dir ) {
-				var input = popup.find( ".inputs input" ).eq( pos ),
-					val = parseInt( input.val() );
+			changeValue = function (pos, dir) {
+				var input = popup.find(".inputs input").eq(pos),
+					val = parseInt(input.val());
 
-				if ( ( dir === -1 && val === 0 ) || ( dir === 1 && val === 100 ) ) {
+				if ((dir === -1 && val === 0) || (dir === 1 && val === 100)) {
 					return;
 				}
 
-				input.val( val + dir );
+				input.val(val + dir);
 			};
 
-		popup.find( "#close" ).on( "click", function( ) {
+		popup.find("#close").on("click", function () {
 			popup.popup("close");
 		});
 
 		//Delete a program adjust:
-		popup.find( ".delete-progadjust" ).on( "click", function( ) {
-			var dur = $( this ),
-				value = dur.attr( "value" ),
-				row = dur.attr( "row" );
+		popup.find(".delete-progadjust").on("click", function () {
+			var dur = $(this),
+				value = dur.attr("value"),
+				row = dur.attr("row");
 
-			popup.popup( "close" );
+			popup.popup("close");
 
-			areYouSure( _( "Are you sure you want to delete this program adjustment?" ), value, function() {
-				return sendToOS( "/sb?pw=&nr=" + value + "&type=0", "json" ).done( function( info ) {
+			areYouSure(_("Are you sure you want to delete this program adjustment?"), value, function () {
+				return sendToOS("/sb?pw=&nr=" + value + "&type=0", "json").done(function (info) {
 					var result = info.result;
-					if ( !result || result > 1 )
-						showerror(_("Error calling rest service: ")+" "+result);
+					if (!result || result > 1)
+						showerror(_("Error calling rest service: ") + " " + result);
 					else
-						progAdjusts.splice( row, 1 );
+						progAdjusts.splice(row, 1);
 					callbackCancel();
-				} );
-			} );
-		} );
+				});
+			});
+		});
 
-		let adjFunc = function() {
+		let adjFunc = function () {
 			updateAdjustmentChart(popup);
 		};
-		popup.find( "#sensor" ).change(adjFunc);
-		popup.find( "#type" ).change(adjFunc);
-		popup.find( ".factor1" ).change(adjFunc);
-		popup.find( ".factor2" ).change(adjFunc);
-		popup.find( ".min" ).change(adjFunc);
-		popup.find( ".max" ).change(adjFunc);
+		popup.find("#sensor").change(adjFunc);
+		popup.find("#type").change(adjFunc);
+		popup.find(".factor1").change(adjFunc);
+		popup.find(".factor2").change(adjFunc);
+		popup.find(".min").change(adjFunc);
+		popup.find(".max").change(adjFunc);
 
-		popup.find( ".submit" ).on( "click", function() {
+		popup.find(".submit").on("click", function () {
 
 			var progAdjust = getProgAdjust(popup);
-			callback( progAdjust );
+			callback(progAdjust);
 
-			popup.popup( "close" );
+			popup.popup("close");
 			return false;
-		} );
+		});
 
-		popup.on( "focus", "input[type='number']", function() {
+		popup.on("focus", "input[type='number']", function () {
 			this.select();
-		} ).on( "blur", "input[type='number']", function() {
+		}).on("blur", "input[type='number']", function () {
 
-			var min = parseFloat( this.min ),
-				max = parseFloat( this.max );
+			var min = parseFloat(this.min),
+				max = parseFloat(this.max);
 
-			if ( this.value === "" ) {
+			if (this.value === "") {
 				this.value = "0";
 			}
-			if ( this.value < min || this.value > max ) {
+			if (this.value < min || this.value > max) {
 				this.value = this.value < min ? min : max;
 			}
-		} );
+		});
 
-		holdButton( popup.find( ".incr" ).children(), function( e ) {
-			var pos = $( e.currentTarget ).index();
-			changeValue( pos, 1 );
+		holdButton(popup.find(".incr").children(), function (e) {
+			var pos = $(e.currentTarget).index();
+			changeValue(pos, 1);
 			return false;
-		} );
+		});
 
-		holdButton( popup.find( ".decr" ).children(), function( e ) {
-			var pos = $( e.currentTarget ).index();
-			changeValue( pos, -1 );
+		holdButton(popup.find(".decr").children(), function (e) {
+			var pos = $(e.currentTarget).index();
+			changeValue(pos, -1);
 			return false;
-		} );
+		});
 
-		$( "#progAdjustEditor" ).remove();
+		$("#progAdjustEditor").remove();
 
-		popup.css( "max-width", "580px" );
+		popup.css("max-width", "580px");
 
 		adjFunc();
-		openPopup( popup, { positionTo: "window" } );
-	} );
+		openPopup(popup, { positionTo: "window" });
+	});
 }
 
-const PROG_LINEAR =     	1; //formula see above
-const PROG_DIGITAL_MIN = 	2; //under or equal min : factor1 else factor2
-const PROG_DIGITAL_MAX =	3; //over or equal max  : factor2 else factor1
+const PROG_LINEAR = 1; //formula see above
+const PROG_DIGITAL_MIN = 2; //under or equal min : factor1 else factor2
+const PROG_DIGITAL_MAX = 3; //over or equal max  : factor2 else factor1
 const PROG_DIGITAL_MINMAX = 4; //under min or over max : factor1 else factor2
 
 function getProgAdjust(popup) {
 	return {
-		nr:      parseInt( popup.find( ".nr" ).val() ),
-		type:    parseInt( popup.find( "#type" ).val() ),
-		sensor:  parseInt( popup.find( "#sensor" ).val() ),
-		prog:    parseInt( popup.find( "#prog" ).val() ),
-		factor1: parseFloat( popup.find( ".factor1" ).val() / 100 ),
-		factor2: parseFloat( popup.find( ".factor2" ).val() / 100 ),
-		min: 	 parseFloat( popup.find( ".min" ).val() ),
-		max: 	 parseFloat( popup.find( ".max" ).val() )
+		nr: parseInt(popup.find(".nr").val()),
+		type: parseInt(popup.find("#type").val()),
+		sensor: parseInt(popup.find("#sensor").val()),
+		prog: parseInt(popup.find("#prog").val()),
+		factor1: parseFloat(popup.find(".factor1").val() / 100),
+		factor2: parseFloat(popup.find(".factor2").val() / 100),
+		min: parseFloat(popup.find(".min").val()),
+		max: parseFloat(popup.find(".max").val())
 	};
 }
 
 function updateAdjustmentChart(popup) {
 
 	let p = getProgAdjust(popup);
-	sendToOS("/sd?pw=&type="+p.type+"&sensor="+p.sensor+"&factor1="+p.factor1+"&factor2="+p.factor2+"&min="+p.min+"&max="+p.max, "json").done( function(values) {
+	sendToOS("/sd?pw=&type=" + p.type + "&sensor=" + p.sensor + "&factor1=" + p.factor1 + "&factor2=" + p.factor2 + "&min=" + p.min + "&max=" + p.max, "json").done(function (values) {
 		if (!values || !values.hasOwnProperty("adjustment"))
 			return;
 		let adj = values.adjustment;
@@ -674,12 +673,36 @@ function updateAdjustmentChart(popup) {
 			return;
 
 		var sensor;
-		for ( i = 0; i < analogSensors.length; i++ ) {
-			if (p.sensor == analogSensors[ i ].nr) {
-				sensor = analogSensors[ i ];
+		for (i = 0; i < analogSensors.length; i++) {
+			if (p.sensor == analogSensors[i].nr) {
+				sensor = analogSensors[i];
 				break;
 			}
 		}
+		if (sensor === undefined)
+			return;
+
+		var yaxis;
+		if (adj.hasOwnProperty('adjust'))
+			yaxis = [
+				{
+					y: adj.adjust,
+					strokeDashArray: 8,
+					borderColor: "#00E396",
+					borderWidth: 4,
+					label: {
+						borderColor: "#00E396",
+						textAnchor: "end",
+						position: "right",
+						offsetX: -60,
+						text: formatValUnit(adj.adjust*100, "%"),
+						style: {
+							color: "#fff",
+							background: "#00E396"
+						}
+					}
+				}
+			];
 
 		let options = {
 			chart: {
@@ -701,11 +724,11 @@ function updateAdjustmentChart(popup) {
 			},
 			xaxis: {
 				categories: adj.inval,
-				tickAmount: Math.min(20, Math.min( screen.width / 30, adj.inval.length)),
+				tickAmount: Math.min(20, Math.min(screen.width / 30, adj.inval.length)),
 				labels: {
-					formatter: function(value) {
+					formatter: function (value) {
 						return formatVal(value);
-						},
+					},
 					rotate: 0
 				},
 				title: {
@@ -715,8 +738,8 @@ function updateAdjustmentChart(popup) {
 			yaxis: {
 				forceNiceScale: true,
 				labels: {
-					formatter: function(value) {
-						return formatVal(value*100);
+					formatter: function (value) {
+						return formatVal(value * 100);
 					}
 				},
 				title: {
@@ -747,25 +770,7 @@ function updateAdjustmentChart(popup) {
 						}
 					}
 				],
-				yaxis: [
-					{
-						y: adjust.min,
-						strokeDashArray: 8,
-						borderColor: "#00E396",
-						borderWidth: 4,
-						label: {
-							borderColor: "#00E396",
-							textAnchor: "start",
-							position: "left",
-							offsetX: 60,
-							text: _( "Min" )+" "+adjust.min+" "+unitStr,
-							style: {
-								color: "#fff",
-								background: "#00E396"
-							}
-						}
-					},
-				]
+				yaxis: yaxis
 			}
 		};
 		let sel = document.querySelector("#adjchart");
@@ -778,18 +783,18 @@ function updateAdjustmentChart(popup) {
 	});
 }
 
-function isSmt100( sensorType ) {
-	if ( !sensorType ) {
+function isSmt100(sensorType) {
+	if (!sensorType) {
 		return false;
 	}
 	return sensorType === 1 || sensorType == 2;
 }
 
-function isIPSensor( sensorType ) {
+function isIPSensor(sensorType) {
 	return sensorType <= 2 || sensorType == 100;
 }
 
-function isIDNeeded( sensorType) {
+function isIDNeeded(sensorType) {
 	return sensorType < 90 || sensorType == 100;
 }
 
@@ -857,360 +862,359 @@ function updateSensorVisibility(popup, type) {
 	}
 }
 
-function saveSensor( popup, sensor, callback ) {
+function saveSensor(popup, sensor, callback) {
 
-	if ( !sensor.nr ) { //New Sensor - check existing Nr to avoid overwriting
-		var nr = parseInt( popup.find( ".nr" ).val() );
-		for ( var i = 0; i < analogSensors.length; i++ ) {
-			if ( analogSensors[ i ].nr === nr ) {
-				window.alert( _( "Sensor number exists!" ) );
+	if (!sensor.nr) { //New Sensor - check existing Nr to avoid overwriting
+		var nr = parseInt(popup.find(".nr").val());
+		for (var i = 0; i < analogSensors.length; i++) {
+			if (analogSensors[i].nr === nr) {
+				window.alert(_("Sensor number exists!"));
 				return;
 			}
 		}
 	}
 	var sensorOut = {
-		nr:     parseInt( popup.find( ".nr" ).val() ),
-		type:   parseInt( popup.find( "#type" ).val() ),
-		group:  parseInt( popup.find( ".group" ).val() ),
-		name:   popup.find( ".name" ).val(),
-		ip:     intFromBytes( popup.find( ".ip" ).val().split( "." ) ),
-		port:   parseInt( popup.find( ".port" ).val() ),
-		id:     parseInt( popup.find( ".id" ).val() ),
-		ri:     parseInt( popup.find( ".ri" ).val() ),
-		fac:    parseInt( popup.find( ".fac" ).val() ),
-		div:    parseInt( popup.find( ".div" ).val() ),
-		offset: parseInt( popup.find( ".offset" ).val() ),
-		unit:   popup.find( ".unit" ).val(),
-		unitid: popup.find( "#chartunits" ).val(),
-		enable: popup.find( "#enable" ).is( ":checked" ) ? 1 : 0,
-		log:    popup.find( "#log" ).is( ":checked" ) ? 1 : 0,
-		show:   popup.find( "#show" ).is( ":checked" ) ? 1 : 0,
-		topic:  popup.find( ".topic" ).val(),
-		filter: popup.find( ".filter" ).val()
+		nr: parseInt(popup.find(".nr").val()),
+		type: parseInt(popup.find("#type").val()),
+		group: parseInt(popup.find(".group").val()),
+		name: popup.find(".name").val(),
+		ip: intFromBytes(popup.find(".ip").val().split(".")),
+		port: parseInt(popup.find(".port").val()),
+		id: parseInt(popup.find(".id").val()),
+		ri: parseInt(popup.find(".ri").val()),
+		fac: parseInt(popup.find(".fac").val()),
+		div: parseInt(popup.find(".div").val()),
+		offset: parseInt(popup.find(".offset").val()),
+		unit: popup.find(".unit").val(),
+		unitid: popup.find("#chartunits").val(),
+		enable: popup.find("#enable").is(":checked") ? 1 : 0,
+		log: popup.find("#log").is(":checked") ? 1 : 0,
+		show: popup.find("#show").is(":checked") ? 1 : 0,
+		topic: popup.find(".topic").val(),
+		filter: popup.find(".filter").val()
 	};
 
-	callback( sensorOut );
+	callback(sensorOut);
 
-	popup.popup( "close" );
+	popup.popup("close");
 	return false;
 }
 
 // Analog sensor editor
- function showSensorEditor( sensor, row, callback, callbackCancel ) {
+function showSensorEditor(sensor, row, callback, callbackCancel) {
 
-	sendToOS( "/sf?pw=", "json" ).then( function( data ) {
+	sendToOS("/sf?pw=", "json").then(function (data) {
 		var supportedSensorTypes = data.sensorTypes;
 		var i;
 
-	$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
+		$(".ui-popup-active").find("[data-role='popup']").popup("close");
 
-	var list = "<div data-role='popup' data-theme='a' id='sensorEditor'>" +
+		var list = "<div data-role='popup' data-theme='a' id='sensorEditor'>" +
 			"<div data-role='header' data-theme='b'>" +
-			"<h1>" + ( sensor.nr > 0 ? _( "Edit Sensor" ) : _( "New Sensor" ) ) + "</h1>" +
-			"<a href='#' class='ui-btn-right' data-role='button' data-mini='true' id='close' data-icon='back' data-inline='true' >"+
+			"<h1>" + (sensor.nr > 0 ? _("Edit Sensor") : _("New Sensor")) + "</h1>" +
+			"<a href='#' class='ui-btn-right' data-role='button' data-mini='true' id='close' data-icon='back' data-inline='true' >" +
 			_("close") + "</a>" +
 			"</div>" +
 			"<div class='ui-content'>" +
 			"<p class='rain-desc center smaller'>" +
-			_( "Edit Sensor Configuration. " ) +
-			_( "See help documentation for details." ) +
-			"<br>"+
-			_("Last")+": "+(sensor.last === undefined?"" : dateToString(new Date(sensor.last*1000)))+
+			_("Edit Sensor Configuration. ") +
+			_("See help documentation for details.") +
+			"<br>" +
+			_("Last") + ": " + (sensor.last === undefined ? "" : dateToString(new Date(sensor.last * 1000))) +
 			"</p>" +
 			"<div class='ui-field-contain'>" +
 			"<label>" +
-			_( "Sensor-Nr" ) +
+			_("Sensor-Nr") +
 			"</label>" +
-			"<input class='nr' type='number' inputmode='decimal' min='1' max='99999' value='" + sensor.nr + ( sensor.nr > 0 ? "' disabled='disabled'>" : "'>" ) +
+			"<input class='nr' type='number' inputmode='decimal' min='1' max='99999' value='" + sensor.nr + (sensor.nr > 0 ? "' disabled='disabled'>" : "'>") +
 
 			"<div class='ui-field-contain'><label for='type' class='select'>" +
-			_( "Type" ) +
+			_("Type") +
 			"</label><select data-mini='true' id='type'>";
 
-		for ( i = 0; i < supportedSensorTypes.length; i++ ) {
-			list += "<option " + ( ( sensor.type === supportedSensorTypes[ i ].type ) ? "selected" : "" ) +
-				" value='" + supportedSensorTypes[ i ].type + "'>" +
-				supportedSensorTypes[ i ].name + "</option>";
+		for (i = 0; i < supportedSensorTypes.length; i++) {
+			list += "<option " + ((sensor.type === supportedSensorTypes[i].type) ? "selected" : "") +
+				" value='" + supportedSensorTypes[i].type + "'>" +
+				supportedSensorTypes[i].name + "</option>";
 		}
 		list += "</select></div>";
 
-		list += "<button data-mini='true' class='center-div' id='smt100id'>" + _( "Set SMT100 Modbus ID" ) + "</button>";
+		list += "<button data-mini='true' class='center-div' id='smt100id'>" + _("Set SMT100 Modbus ID") + "</button>";
 
-		list += "<label>" + _( "Group" ) +
+		list += "<label>" + _("Group") +
 			"</label>" +
 			"<input class='group' type='number'  inputmode='decimal' min='0' max='99999' value='" + sensor.group + "'>" +
 
-			"<label>" + _( "Name" ) +
+			"<label>" + _("Name") +
 			"</label>" +
 			"<input class='name' type='text'  value='" + sensor.name + "'>" +
 
-			"<label class='ip_label'>" + _( "IP Address" ) +
+			"<label class='ip_label'>" + _("IP Address") +
 			"</label>" +
-			"<input class='ip' type='text'  value='" + ( sensor.ip ? toByteArray( sensor.ip ).join( "." ) : "" ) + "'>" +
+			"<input class='ip' type='text'  value='" + (sensor.ip ? toByteArray(sensor.ip).join(".") : "") + "'>" +
 
-			"<label class='port_label'>" + 	_( "Port" ) +
+			"<label class='port_label'>" + _("Port") +
 			"</label>" +
 			"<input class='port' type='number' inputmode='decimal' min='0' max='65535' value='" + sensor.port + "'>" +
 
-			"<label class='id_label'>" + _( "ID" ) +
+			"<label class='id_label'>" + _("ID") +
 			"</label>" +
 			"<input class='id' type='number' inputmode='decimal' min='0' max='65535' value='" + sensor.id + "'>" +
 
-			"<label class='fac_label'>" + _( "Factor" ) +
+			"<label class='fac_label'>" + _("Factor") +
 			"</label>" +
 			"<input class='fac' type='number' inputmode='decimal' min='-32768' max='32767' value='" + sensor.fac + "'>" +
 
-			"<label class='div_label'>" + _( "Divider" ) +
+			"<label class='div_label'>" + _("Divider") +
 			"</label>" +
 			"<input class='div' type='number' inputmode='decimal' min='-32768' max='32767' value='" + sensor.div + "'>" +
 
-			"<label class='offset_label'>" + _( "Offset in millivolt" ) +
+			"<label class='offset_label'>" + _("Offset in millivolt") +
 			"</label>" +
 			"<input class='offset' type='number' inputmode='decimal' min='-32768' max='32767' value='" + sensor.offset + "'>" +
 
-			"<label class='chartunit_label'>" + _( "Chart Unit" ) +
+			"<label class='chartunit_label'>" + _("Chart Unit") +
 			"</label>" +
-            "<select data-mini='true' id='chartunits'>" +
-            "<option value='0'>" + _("Default") + "</option>" +
-            "<option value='1'>" + _("Soil Moisture %") + "</option>" +
-            "<option value='2'>" + _("Degree Celcius "+String.fromCharCode( 176 ) + "C") + "</option>" +
-            "<option value='3'>" + _("Degree Fahrenheit "+String.fromCharCode( 176 ) + "F") + "</option>" +
-            "<option value='4'>" + _("Volt V") + "</option>" +
-            "<option value='5'>" + _("Air Humidity %") + "</option>" +
-            "<option value='6'>" + _("Inch in") + "</option>" +
-            "<option value='7'>" + _("Millimeter mm") + "</option>" +
-            "<option value='8'>" + _("MPH") + "</option>" +
-            "<option value='9'>" + _("KM/H") + "</option>" +
-            "<option value='10'>" + _("Level %") + "</option>" +
-            "<option value='99'>" + _("Own Unit") + "</option>" +
-            "</select>" +
+			"<select data-mini='true' id='chartunits'>" +
+			"<option value='0'>" + _("Default") + "</option>" +
+			"<option value='1'>" + _("Soil Moisture %") + "</option>" +
+			"<option value='2'>" + _("Degree Celcius " + String.fromCharCode(176) + "C") + "</option>" +
+			"<option value='3'>" + _("Degree Fahrenheit " + String.fromCharCode(176) + "F") + "</option>" +
+			"<option value='4'>" + _("Volt V") + "</option>" +
+			"<option value='5'>" + _("Air Humidity %") + "</option>" +
+			"<option value='6'>" + _("Inch in") + "</option>" +
+			"<option value='7'>" + _("Millimeter mm") + "</option>" +
+			"<option value='8'>" + _("MPH") + "</option>" +
+			"<option value='9'>" + _("KM/H") + "</option>" +
+			"<option value='10'>" + _("Level %") + "</option>" +
+			"<option value='99'>" + _("Own Unit") + "</option>" +
+			"</select>" +
 
-            "<label class='unit_label'>" + _( "Unit" ) +
-            "</label>" +
-            "<input class='unit' type='text'  value='" + (sensor.unit?sensor.unit:"") + "'>" +
-
-			"<label class='topic_label'>" + _( "MQTT Topic" ) +
+			"<label class='unit_label'>" + _("Unit") +
 			"</label>" +
-			"<input class='topic' type='text'  value='" + (sensor.topic?sensor.topic:"") + "'>" +
+			"<input class='unit' type='text'  value='" + (sensor.unit ? sensor.unit : "") + "'>" +
 
-			"<label class='filter_label'>" + _( "MQTT Filter" ) +
+			"<label class='topic_label'>" + _("MQTT Topic") +
 			"</label>" +
-			"<input class='filter' type='text'  value='" + (sensor.filter?sensor.filter:"") + "'>" +
+			"<input class='topic' type='text'  value='" + (sensor.topic ? sensor.topic : "") + "'>" +
 
-			"<label>" + _( "Read Interval (s)" ) +
+			"<label class='filter_label'>" + _("MQTT Filter") +
+			"</label>" +
+			"<input class='filter' type='text'  value='" + (sensor.filter ? sensor.filter : "") + "'>" +
+
+			"<label>" + _("Read Interval (s)") +
 			"</label>" +
 			"<input class='ri' type='number' inputmode='decimal' min='1' max='999999' value='" + sensor.ri + "'>" +
 
-			"<label for='enable'><input data-mini='true' id='enable' type='checkbox' " + ( ( sensor.enable === 1 ) ? "checked='checked'" : "" ) + ">" +
-			_( "Sensor Enabled" ) +
+			"<label for='enable'><input data-mini='true' id='enable' type='checkbox' " + ((sensor.enable === 1) ? "checked='checked'" : "") + ">" +
+			_("Sensor Enabled") +
 			"</label>" +
 
-			"<label for='log'><input data-mini='true' id='log' type='checkbox' " + ( ( sensor.log === 1 ) ? "checked='checked'" : "" ) + ">" +
-			_( "Enable Data Logging" ) +
-			"<a href='#' data-role='button' data-mini='true' id='download-log' data-icon='action' data-inline='true' style='margin-left: 10px;'>"+
+			"<label for='log'><input data-mini='true' id='log' type='checkbox' " + ((sensor.log === 1) ? "checked='checked'" : "") + ">" +
+			_("Enable Data Logging") +
+			"<a href='#' data-role='button' data-mini='true' id='download-log' data-icon='action' data-inline='true' style='margin-left: 10px;'>" +
 			_("download log") + "</a>" +
 			"</label>" +
 
-			"<label for='show'><input data-mini='true' id='show' type='checkbox' " + ( ( sensor.show === 1 ) ? "checked='checked'" : "" ) + ">" +
-			_( "Show on Mainpage" ) +
+			"<label for='show'><input data-mini='true' id='show' type='checkbox' " + ((sensor.show === 1) ? "checked='checked'" : "") + ">" +
+			_("Show on Mainpage") +
 			"</label>" +
 
 			"</div>" +
 
-			"<button class='submit' data-theme='b'>" + _( "Submit" ) + "</button>" +
+			"<button class='submit' data-theme='b'>" + _("Submit") + "</button>" +
 
 			((row < 0) ? "" : ("<a data-role='button' class='black delete-sensor' value='" + sensor.nr + "' row='" + row + "' href='#' data-icon='delete'>" +
-				_( "Delete" ) + "</a>")) +
+				_("Delete") + "</a>")) +
 
 			"</div>" +
-		"</div>";
+			"</div>";
 
-		var popup = $( list ),
+		var popup = $(list),
 
-		changeValue = function( pos, dir ) {
-			var input = popup.find( ".inputs input" ).eq( pos ),
-				val = parseInt( input.val() );
+			changeValue = function (pos, dir) {
+				var input = popup.find(".inputs input").eq(pos),
+					val = parseInt(input.val());
 
-			if ( ( dir === -1 && val === 0 ) || ( dir === 1 && val === 100 ) ) {
-				return;
-			}
+				if ((dir === -1 && val === 0) || (dir === 1 && val === 100)) {
+					return;
+				}
 
-			input.val( val + dir );
-		};
+				input.val(val + dir);
+			};
 
-		popup.find( "#close" ).on( "click", function() {
-			popup.popup( "close" );
+		popup.find("#close").on("click", function () {
+			popup.popup("close");
 		});
 
-		popup.find( "#type" ).change(function() {
-		var type = $(this).val();
-		updateSensorVisibility(popup, type);
+		popup.find("#type").change(function () {
+			var type = $(this).val();
+			updateSensorVisibility(popup, type);
+		});
+
+		//SMT 100 Toolbox function: SET ID
+		popup.find("#smt100id").on("click", function () {
+			var nr = parseInt(popup.find(".nr").val()),
+				newid = parseInt(popup.find(".id").val());
+			saveSensor(popup, sensor, callback);
+			areYouSure(_("This function sets the Modbus ID for one SMT100 sensor. Disconnect all other sensors on this Modbus port. Please confirm."),
+				"new id=" + newid, function () {
+					sendToOS("/sa?pw=&nr=" + nr + "&id=" + newid).done(function () {
+						window.alert(_("SMT100 id assigned!"));
+						updateAnalogSensor(callbackCancel);
+					});
+				});
+		});
+		popup.find("#type").change(function () {
+			var type = parseInt(popup.find("#type").val());
+			document.getElementById("smt100id").style.display = isSmt100(type) ? "block" : "none";
+		});
+
+		//download log:
+		popup.find("#download-log").on("click", function () {
+			var link = document.createElement("a");
+			link.style.display = "none";
+			link.setAttribute("download", "sensorlog-" + sensor.name + "-" + new Date().toLocaleDateString().replace(/\//g, "-") + ".csv");
+
+			var limit = currToken ? "&max=5500" : ""; //download limit is 140kb, 5500 lines ca 137kb
+			var dest = "/so?pw=&csv=1" + limit;
+			dest = dest.replace("pw=", "pw=" + enc(currPass));
+			link.target = "_blank";
+			link.href = currToken ? ("https://cloud.openthings.io/forward/v1/" + currToken + dest) : (currPrefix + currIp + dest);
+			document.body.appendChild(link); // Required for FF
+			link.click();
+			return false;
+		});
+
+		//Delete a sensor:
+		popup.find(".delete-sensor").on("click", function () {
+
+			var dur = $(this),
+				value = dur.attr("value"),
+				row = dur.attr("row");
+
+			popup.popup("close");
+
+			areYouSure(_("Are you sure you want to delete the sensor?"), value, function () {
+				return sendToOS("/sc?pw=&nr=" + value + "&type=0", "json").done(function (info) {
+					var result = info.result;
+					if (!result || result > 1)
+						showerror(_("Error calling rest service: ") + " " + result);
+					else
+						analogSensors.splice(row, 1);
+					updateAnalogSensor(callbackCancel);
+				});
+			});
+		});
+
+		popup.find("#chartunits").val(sensor.unitid ? sensor.unitid : 0).change();
+
+		popup.find(".submit").on("click", function () {
+			saveSensor(popup, sensor, callback)
+		});
+
+		popup.on("focus", "input[type='number']", function () {
+			this.select();
+		}).on("blur", "input[type='number']", function () {
+
+			var min = parseFloat(this.min),
+				max = parseFloat(this.max);
+
+			if (this.value === "") {
+				this.value = "0";
+			}
+			if (this.value < min || this.value > max) {
+				this.value = this.value < min ? min : max;
+			}
+		});
+
+		holdButton(popup.find(".incr").children(), function (e) {
+			var pos = $(e.currentTarget).index();
+			changeValue(pos, 1);
+			return false;
+		});
+
+		holdButton(popup.find(".decr").children(), function (e) {
+			var pos = $(e.currentTarget).index();
+			changeValue(pos, -1);
+			return false;
+		});
+
+		$("#sensorEditor").remove();
+
+		popup.css("max-width", "580px");
+
+		updateSensorVisibility(popup, sensor.type);
+
+		openPopup(popup, { positionTo: "window" });
 	});
-
-	//SMT 100 Toolbox function: SET ID
-	popup.find( "#smt100id" ).on( "click", function() {
-		var nr    = parseInt( popup.find( ".nr" ).val() ),
-			newid = parseInt( popup.find( ".id" ).val() );
-		saveSensor(popup, sensor, callback);
-		areYouSure( _( "This function sets the Modbus ID for one SMT100 sensor. Disconnect all other sensors on this Modbus port. Please confirm." ),
-		"new id=" + newid, function() {
-			sendToOS( "/sa?pw=&nr=" + nr + "&id=" + newid ).done( function() {
-				window.alert( _( "SMT100 id assigned!" ) );
-				updateAnalogSensor( callbackCancel );
-			} );
-		} );
-	} );
-	popup.find( "#type" ).change( function() {
-		var type = parseInt( popup.find( "#type" ).val() );
-		document.getElementById( "smt100id" ).style.display = isSmt100( type ) ? "block" : "none";
-	} );
-
-	//download log:
-	popup.find( "#download-log" ).on( "click", function() {
-		var link = document.createElement( "a" );
-		link.style.display = "none";
-		link.setAttribute( "download", "sensorlog-"+sensor.name+"-"+ new Date().toLocaleDateString().replace( /\//g, "-" ) + ".csv" );
-
-		//var limit = currToken?"&max=5500":""; //download limit is 140kb, 5500 lines ca 137kb
-		//var dest = "/so?pw=&csv=1"+limit;
-		var dest = "/so?pw=&csv=1&nr="+sensor.nr;
-		dest = dest.replace( "pw=", "pw=" + enc( currPass ) );
-		link.target = "_blank";
-		link.href = currToken ? ("https://cloud.openthings.io/forward/v1/" + currToken + dest) : (currPrefix + currIp + dest);
-		document.body.appendChild( link ); // Required for FF
-		link.click();
-		return false;
-	} );
-
-	//Delete a sensor:
-	popup.find( ".delete-sensor" ).on( "click", function() {
-
-		var dur = $( this ),
-		value = dur.attr( "value" ),
-		row = dur.attr( "row" );
-
-		popup.popup( "close" );
-
-		areYouSure( _( "Are you sure you want to delete the sensor?" ), value, function() {
-			return sendToOS( "/sc?pw=&nr=" + value + "&type=0", "json" ).done( function( info ) {
-				var result = info.result;
-				if ( !result || result > 1 )
-					showerror(_("Error calling rest service: ")+" "+result);
-				else
-					analogSensors.splice( row, 1 );
-				updateAnalogSensor( callbackCancel );
-			} );
-		} );
-	} );
-
-	popup.find("#chartunits").val(sensor.unitid?sensor.unitid:0).change();
-
-	popup.find( ".submit" ).on( "click", function() {
-		saveSensor(popup, sensor, callback)
-	});
-
-	popup.on( "focus", "input[type='number']", function() {
-		this.select();
-	} ).on( "blur", "input[type='number']", function() {
-
-		var min = parseFloat( this.min ),
-			max = parseFloat( this.max );
-
-		if ( this.value === "" ) {
-			this.value = "0";
-		}
-		if ( this.value < min || this.value > max ) {
-			this.value = this.value < min ? min : max;
-		}
-	} );
-
-	holdButton( popup.find( ".incr" ).children(), function( e ) {
-		var pos = $( e.currentTarget ).index();
-		changeValue( pos, 1 );
-		return false;
-	} );
-
-	holdButton( popup.find( ".decr" ).children(), function( e ) {
-		var pos = $( e.currentTarget ).index();
-		changeValue( pos, -1 );
-		return false;
-	} );
-
-	$( "#sensorEditor" ).remove();
-
-	popup.css( "max-width", "580px" );
-
-	updateSensorVisibility(popup, sensor.type);
-
-	openPopup( popup, { positionTo: "window" } );
-} );
 }
 
 // Config Page
 function showAnalogSensorConfig() {
-	var page = $( "<div data-role='page' id='analogsensorconfig'>" +
-			"<div class='ui-content' role='main' id='analogsensorlist'>" +
-			"</div></div>" );
+	var page = $("<div data-role='page' id='analogsensorconfig'>" +
+		"<div class='ui-content' role='main' id='analogsensorlist'>" +
+		"</div></div>");
 
 	page
-		.on( "sensorrefresh", updateSensorContent )
-		.on( "pagehide", function() {
+		.on("sensorrefresh", updateSensorContent)
+		.on("pagehide", function () {
 			page.detach();
-		} );
+		});
 
 	function updateSensorContent() {
-		var list = $( buildSensorConfig( analogSensors.expandItem ) );
+		var list = $(buildSensorConfig(analogSensors.expandItem));
 
 		//Edit a sensor:
-		list.find( ".edit-sensor" ).on( "click", function( ) {
-			var dur = $( this ),
-			row = dur.attr( "row" );
+		list.find(".edit-sensor").on("click", function () {
+			var dur = $(this),
+				row = dur.attr("row");
 
-			var sensor = analogSensors[ row ];
+			var sensor = analogSensors[row];
 
 			analogSensors.expandItem.clear();
 			analogSensors.expandItem.add("sensors");
-			showSensorEditor( sensor, row, function( sensorOut ) {
+			showSensorEditor(sensor, row, function (sensorOut) {
 				sensorOut.nativedata = sensor.nativedata;
 				sensorOut.data = sensor.data;
 				sensorOut.last = sensor.last;
-				return sendToOS( "/sc?pw=&nr=" + sensorOut.nr +
+				return sendToOS("/sc?pw=&nr=" + sensorOut.nr +
 					"&type=" + sensorOut.type +
 					"&group=" + sensorOut.group +
-					"&name=" + enc( sensorOut.name ) +
+					"&name=" + enc(sensorOut.name) +
 					"&ip=" + sensorOut.ip +
 					"&port=" + sensorOut.port +
 					"&id=" + sensorOut.id +
 					"&ri=" + sensorOut.ri +
-                    "&unitid=" + sensorOut.unitid +
+					"&unitid=" + sensorOut.unitid +
 					((sensorOut.type === USERDEF_SENSOR) ?
 						("&fac=" + sensorOut.fac +
-						"&div=" + sensorOut.div +
-						"&offset=" + sensorOut.offset +
-						"&unit="+ enc( sensorOut.unit )
-						):"") +
+							"&div=" + sensorOut.div +
+							"&offset=" + sensorOut.offset +
+							"&unit=" + enc(sensorOut.unit)
+						) : "") +
 					((sensorOut.type === SENSOR_MQTT) ?
-						("&topic=" + enc( sensorOut.topic ) +
-						"&filter=" + enc( sensorOut.filter ) +
-						"&unit=" + enc( sensorOut.unit )
-						):"") +
+						("&topic=" + enc(sensorOut.topic) +
+							"&filter=" + enc(sensorOut.filter) +
+							"&unit=" + enc(sensorOut.unit)
+						) : "") +
 					"&enable=" + sensorOut.enable +
 					"&log=" + sensorOut.log +
 					"&show=" + sensorOut.show,
 					"json"
-				).done( function( info ) {
+				).done(function (info) {
 					var result = info.result;
-					if ( !result || result > 1 )
-						showerror(_("Error calling rest service: ")+" "+result);
+					if (!result || result > 1)
+						showerror(_("Error calling rest service: ") + " " + result);
 					else
-						analogSensors[ row ] = sensorOut;
+						analogSensors[row] = sensorOut;
 					updateSensorContent();
-				} );
-			}, updateSensorContent );
-		} );
+				});
+			}, updateSensorContent);
+		});
 
 		// Add a new analog sensor:
-		list.find( ".add-sensor" ).on( "click", function( ) {
+		list.find(".add-sensor").on("click", function () {
 			var sensor = {
 				name: "new sensor",
 				type: 1,
@@ -1219,68 +1223,68 @@ function showAnalogSensorConfig() {
 				log: 1
 			};
 
-			showSensorEditor( sensor, -1, function( sensorOut ) {
-				return sendToOS( "/sc?pw=&nr=" + sensorOut.nr +
-				"&type=" + sensorOut.type +
-				"&group=" + sensorOut.group +
-				"&name=" + enc( sensorOut.name ) +
-				"&ip=" + sensorOut.ip +
-				"&port=" + sensorOut.port +
-				"&id=" + sensorOut.id +
-				"&ri=" + sensorOut.ri +
-                "&unitid=" + sensorOut.unitid +
-				((sensorOut.type === USERDEF_SENSOR) ?
-					("&fac=" + sensorOut.fac +
-					"&div=" + sensorOut.div +
-					"&offset=" + sensorOut.offset +
-					"&unit=" + enc( sensorOut.unit )
-					):"") +
-				((sensorOut.type === SENSOR_MQTT) ?
-					("&topic=" + enc( sensorOut.topic ) +
-					"&filter=" + enc( sensorOut.filter ) +
-					"&unit=" + enc( sensorOut.unit )
-					):"") +
-				"&enable=" + sensorOut.enable +
-				"&log=" + sensorOut.log +
-				"&show=" + sensorOut.show,
-				"json"
-				).done( function( info ) {
+			showSensorEditor(sensor, -1, function (sensorOut) {
+				return sendToOS("/sc?pw=&nr=" + sensorOut.nr +
+					"&type=" + sensorOut.type +
+					"&group=" + sensorOut.group +
+					"&name=" + enc(sensorOut.name) +
+					"&ip=" + sensorOut.ip +
+					"&port=" + sensorOut.port +
+					"&id=" + sensorOut.id +
+					"&ri=" + sensorOut.ri +
+					"&unitid=" + sensorOut.unitid +
+					((sensorOut.type === USERDEF_SENSOR) ?
+						("&fac=" + sensorOut.fac +
+							"&div=" + sensorOut.div +
+							"&offset=" + sensorOut.offset +
+							"&unit=" + enc(sensorOut.unit)
+						) : "") +
+					((sensorOut.type === SENSOR_MQTT) ?
+						("&topic=" + enc(sensorOut.topic) +
+							"&filter=" + enc(sensorOut.filter) +
+							"&unit=" + enc(sensorOut.unit)
+						) : "") +
+					"&enable=" + sensorOut.enable +
+					"&log=" + sensorOut.log +
+					"&show=" + sensorOut.show,
+					"json"
+				).done(function (info) {
 					var result = info.result;
-					if ( !result || result > 1 )
-						showerror(_("Error calling rest service: ")+" "+result);
+					if (!result || result > 1)
+						showerror(_("Error calling rest service: ") + " " + result);
 					else {
-						analogSensors.push( sensorOut );
+						analogSensors.push(sensorOut);
 						analogSensors.expandItem.clear();
 						analogSensors.expandItem.add("sensors");
 					}
 					updateSensorContent();
-				} );
-			}, updateSensorContent );
-		} );
+				});
+			}, updateSensorContent);
+		});
 
 		// Refresh sensor data:
-		list.find( ".refresh-sensor" ).on( "click", function( ) {
+		list.find(".refresh-sensor").on("click", function () {
 			analogSensors.expandItem.clear();
 			analogSensors.expandItem.add("sensors");
-			updateProgramAdjustments( function( ) {
-				updateAnalogSensor( function( ) {
+			updateProgramAdjustments(function () {
+				updateAnalogSensor(function () {
 					updateSensorContent();
-				} );
-			} );
-		} );
+				});
+			});
+		});
 
 		//Edit a program adjust:
-		list.find( ".edit-progadjust" ).on( "click", function( ) {
-			var dur = $( this ),
-			row = dur.attr( "row" );
+		list.find(".edit-progadjust").on("click", function () {
+			var dur = $(this),
+				row = dur.attr("row");
 
-			var progAdjust = progAdjusts[ row ];
+			var progAdjust = progAdjusts[row];
 
 			analogSensors.expandItem.clear();
 			analogSensors.expandItem.add("progadjust");
-			showAdjustmentsEditor( progAdjust, row, function( progAdjustOut ) {
+			showAdjustmentsEditor(progAdjust, row, function (progAdjustOut) {
 
-				return sendToOS( "/sb?pw=&nr=" + progAdjustOut.nr +
+				return sendToOS("/sb?pw=&nr=" + progAdjustOut.nr +
 					"&type=" + progAdjustOut.type +
 					"&sensor=" + progAdjustOut.sensor +
 					"&prog=" + progAdjustOut.prog +
@@ -1289,27 +1293,27 @@ function showAnalogSensorConfig() {
 					"&min=" + progAdjustOut.min +
 					"&max=" + progAdjustOut.max,
 					"json"
-				).done( function( info ) {
+				).done(function (info) {
 					var result = info.result;
-					if ( !result || result > 1 )
-						showerror(_("Error calling rest service: ")+" "+result);
+					if (!result || result > 1)
+						showerror(_("Error calling rest service: ") + " " + result);
 					else
-						progAdjusts[ row ] = progAdjustOut;
-					updateProgramAdjustments( updateSensorContent );
-				} );
-			}, updateSensorContent );
-		} );
+						progAdjusts[row] = progAdjustOut;
+					updateProgramAdjustments(updateSensorContent);
+				});
+			}, updateSensorContent);
+		});
 
 		//Add a new program adjust:
-		list.find( ".add-progadjust" ).on( "click", function( ) {
+		list.find(".add-progadjust").on("click", function () {
 			var progAdjust = {
 				type: 1
 			};
 
 			analogSensors.expandItem.clear();
 			analogSensors.expandItem.add("progadjust");
-			showAdjustmentsEditor( progAdjust, -1, function( progAdjustOut ) {
-				return sendToOS( "/sb?pw=&nr=" + progAdjustOut.nr +
+			showAdjustmentsEditor(progAdjust, -1, function (progAdjustOut) {
+				return sendToOS("/sb?pw=&nr=" + progAdjustOut.nr +
 					"&type=" + progAdjustOut.type +
 					"&sensor=" + progAdjustOut.sensor +
 					"&prog=" + progAdjustOut.prog +
@@ -1318,111 +1322,110 @@ function showAnalogSensorConfig() {
 					"&min=" + progAdjustOut.min +
 					"&max=" + progAdjustOut.max,
 					"json"
-				).done( function( info ) {
+				).done(function (info) {
 					var result = info.result;
-					if ( !result || result > 1 )
-						showerror(_("Error calling rest service: ")+" "+result);
+					if (!result || result > 1)
+						showerror(_("Error calling rest service: ") + " " + result);
 					else
-						progAdjusts.push( progAdjustOut );
-					updateProgramAdjustments( updateSensorContent );
-				} );
-			}, updateSensorContent );
-		} );
+						progAdjusts.push(progAdjustOut);
+					updateProgramAdjustments(updateSensorContent);
+				});
+			}, updateSensorContent);
+		});
 
 		// Clear sensor log
-		list.find( ".clear_sensor_logs" ).on( "click", function() {
+		list.find(".clear_sensor_logs").on("click", function () {
 			analogSensors.expandItem.clear();
 			analogSensors.expandItem.add("sensorlog");
-			areYouSure( _( "Are you sure you want to clear the sensor log?" ), "", function() {
-				return sendToOS( "/sn?pw=&", "json" ).done( function( result ) {
-					window.alert( _( "Log cleared:" ) + " " + result.deleted + " " + _( "records" ) );
+			areYouSure(_("Are you sure you want to clear the sensor log?"), "", function () {
+				return sendToOS("/sn?pw=&", "json").done(function (result) {
+					window.alert(_("Log cleared:") + " " + result.deleted + " " + _("records"));
 					updateSensorContent();
-				} );
-			} );
-		} );
+				});
+			});
+		});
 
-		list.find( ".download-log" ).on( "click", function() {
+		list.find(".download-log").on("click", function () {
 			analogSensors.expandItem.clear();
 			analogSensors.expandItem.add("sensorlog");
-			var link = document.createElement( "a" );
+			var link = document.createElement("a");
 			link.style.display = "none";
-			link.setAttribute( "download", "sensorlog-" + new Date().toLocaleDateString().replace( /\//g, "-" ) + ".csv" );
+			link.setAttribute("download", "sensorlog-" + new Date().toLocaleDateString().replace(/\//g, "-") + ".csv");
 
-			//var limit = currToken?"&max=5500":""; //download limit is 140kb, 5500 lines ca 137kb
-			//var dest = "/so?pw=&csv=1"+limit;
-			var dest = "/so?pw=&csv=1";
-			dest = dest.replace( "pw=", "pw=" + enc( currPass ) );
+			var limit = currToken ? "&max=5500" : ""; //download limit is 140kb, 5500 lines ca 137kb
+			var dest = "/so?pw=&csv=1" + limit;
+			dest = dest.replace("pw=", "pw=" + enc(currPass));
 			link.target = "_blank";
 			link.href = currToken ? ("https://cloud.openthings.io/forward/v1/" + currToken + dest) : (currPrefix + currIp + dest);
-			document.body.appendChild( link ); // Required for FF
+			document.body.appendChild(link); // Required for FF
 			link.click();
 			return false;
-		} );
+		});
 
-		list.find( ".show-log" ).on( "click", function() {
+		list.find(".show-log").on("click", function () {
 			analogSensors.expandItem.clear();
 			analogSensors.expandItem.add("sensorlog");
-			changePage( "#analogsensorchart" );
+			changePage("#analogsensorchart");
 			return false;
-		} );
+		});
 
-		list.find( ".backup-sensors" ).on( "click", function() {
+		list.find(".backup-sensors").on("click", function () {
 			analogSensors.expandItem.clear();
-            analogSensors.expandItem.add("backup");
-            getExportMethodSensors(1);
-            return false;
-		} );
+			analogSensors.expandItem.add("backup");
+			getExportMethodSensors(1);
+			return false;
+		});
 
-		list.find( ".restore-sensors" ).on( "click", function() {
+		list.find(".restore-sensors").on("click", function () {
 			analogSensors.expandItem.clear();
 			analogSensors.expandItem.add("backup");
 			getImportMethodSensors(1, updateSensorContent);
 			return false;
-		} );
+		});
 
-		list.find( ".backup-adjustments" ).on( "click", function() {
+		list.find(".backup-adjustments").on("click", function () {
 			analogSensors.expandItem.clear();
-            analogSensors.expandItem.add("backup");
-            getExportMethodSensors(2);
-            return false;
-		} );
+			analogSensors.expandItem.add("backup");
+			getExportMethodSensors(2);
+			return false;
+		});
 
-		list.find( ".restore-adjustments" ).on( "click", function() {
+		list.find(".restore-adjustments").on("click", function () {
 			analogSensors.expandItem.clear();
 			analogSensors.expandItem.add("backup");
 			getImportMethodSensors(2, updateSensorContent);
 			return false;
-		} );
+		});
 
-		page.find( "#analogsensorlist" ).html( list ) .enhanceWithin();
+		page.find("#analogsensorlist").html(list).enhanceWithin();
 	}
 
-	changeHeader( {
-		title: _( "Analog Sensor Config" ),
+	changeHeader({
+		title: _("Analog Sensor Config"),
 		leftBtn: {
 			icon: "carat-l",
-			text: _( "Back" ),
+			text: _("Back"),
 			class: "ui-toolbar-back-btn",
 			on: goBack
 		},
 		rightBtn: {
 			icon: "refresh",
-			text: screen.width >= 500 ?_( "Refresh" ) : "",
+			text: screen.width >= 500 ? _("Refresh") : "",
 			on: updateSensorContent
 		}
-	} );
+	});
 
 	updateSensorContent();
 
-	$( "#analogsensorconfig" ).remove();
-	$.mobile.pageContainer.append( page );
+	$("#analogsensorconfig").remove();
+	$.mobile.pageContainer.append(page);
 }
 
 function checkFirmwareUpdate() {
-	return (checkOSVersion(CURRENT_FW_ID) && controller.options.fwm >= CURRENT_FW_MIN)?"" : (_("Please update firmware to ") + CURRENT_FW);
+	return (checkOSVersion(CURRENT_FW_ID) && controller.options.fwm >= CURRENT_FW_MIN) ? "" : (_("Please update firmware to ") + CURRENT_FW);
 }
 
-function buildSensorConfig( expandItem ) {
+function buildSensorConfig(expandItem) {
 
 	//detected Analog Sensor Boards:
 	var detected_boards = "";
@@ -1437,172 +1440,172 @@ function buildSensorConfig( expandItem ) {
 		if (detected & RS485_TRUEBNER) boards.push("RS485-Adapter Truebner");
 		if (detected == 0) boards.push("No Boards detected");
 		if (detected && boards.length == 0) boards.push("Unknown Adapter");
-		detected_boards = ": "+boards.filter(Boolean).join(", ");
+		detected_boards = ": " + boards.filter(Boolean).join(", ");
 	}
 
-	var list = "<fieldset data-role='collapsible'" + ( expandItem.has("sensors") ? " data-collapsed='false'" : "" ) + ">" +
-	"<legend>" + _( "Sensors" ) + detected_boards + "</legend>";
+	var list = "<fieldset data-role='collapsible'" + (expandItem.has("sensors") ? " data-collapsed='false'" : "") + ">" +
+		"<legend>" + _("Sensors") + detected_boards + "</legend>";
 
 	list += "<table id='analog_sensor_table'><tr style='width:100%;vertical-align: top;'>" +
-		checkFirmwareUpdate()+
-		"<tr><th>"+_("Nr")+"</th><th class=\"hidecol\">"+_("Type")+"</th><th class=\"hidecol\">"+_("Group")+"</th><th>"+_("Name")+"</th>"+
-		"<th class=\"hidecol\">"+_("IP")+"</th><th class=\"hidecol\">"+_("Port")+"</th><th class=\"hidecol\">"+_("ID")+"</th>"+
-		"<th class=\"hidecol\">"+_("Read")+"<br>"+_("Interval")+"</th><th>"+_("Data")+"</th><th>"+_("En")+"</th>"+
-		"<th class=\"hidecol\">"+_("Log")+"</th><th class=\"hidecol\">"+_("Show")+"</th><th class=\"hidecol2\">"+_("Last")+"</th></tr>";
+		checkFirmwareUpdate() +
+		"<tr><th>" + _("Nr") + "</th><th class=\"hidecol\">" + _("Type") + "</th><th class=\"hidecol\">" + _("Group") + "</th><th>" + _("Name") + "</th>" +
+		"<th class=\"hidecol\">" + _("IP") + "</th><th class=\"hidecol\">" + _("Port") + "</th><th class=\"hidecol\">" + _("ID") + "</th>" +
+		"<th class=\"hidecol\">" + _("Read") + "<br>" + _("Interval") + "</th><th>" + _("Data") + "</th><th>" + _("En") + "</th>" +
+		"<th class=\"hidecol\">" + _("Log") + "</th><th class=\"hidecol\">" + _("Show") + "</th><th class=\"hidecol2\">" + _("Last") + "</th></tr>";
 
-		var checkpng = "<img src=\""+getAppURLPath() + "img/check-blue.png\">";
+	var checkpng = "<img src=\"" + getAppURLPath() + "img/check-blue.png\">";
 
-		var row = 0;
-		$.each( analogSensors, function( i, item ) {
+	var row = 0;
+	$.each(analogSensors, function (i, item) {
 
-			var $tr = $( "<tr>" ).append(
-				$("<td>"                  ).text(item.nr),
-				$("<td class=\"hidecol\">").text(item.type),
-				$("<td class=\"hidecol\">").text(item.group?item.group:""),
-				"<td><a data-role='button' class='edit-sensor' value='" + item.nr + "' row='" + row + "' href='#' data-mini='true' data-icon='edit'>" +
-				item.name + "</a></td>",
-				$("<td class=\"hidecol\">").text(item.ip?toByteArray(item.ip).join( "." ):""),
-				$("<td class=\"hidecol\">").text(item.port?(":"+item.port):""),
-				$("<td class=\"hidecol\">").text(isNaN(item.id)?"":(item.type < 1000?item.id:"")),
-				$("<td class=\"hidecol\">").text(isNaN(item.ri)?"":item.ri),
-				$("<td>"                  ).text(isNaN(item.data)?"":(formatVal( item.data ) + item.unit) ),
-				"<td>"                  +(item.enable?checkpng:"")+"</td>",
-				"<td class=\"hidecol\">"+(item.log?checkpng:"")+"</td>",
-				"<td class=\"hidecol\">"+(item.show?checkpng:"")+"</td>",
-				$("<td class=\"hidecol2\">").text(item.last === undefined?"" : (item.data_ok?dateToString(new Date(item.last*1000)):""), null, 2)
-			);
-			list += $tr.wrap( "<p>" ).html() + "</tr>";
-			row++;
-		} );
-		list += "</table>";
-		list += "<a data-role='button' class='add-sensor'     href='#' data-mini='true' data-icon='plus'   >" +
-			_( "Add Sensor" ) + "</a>";
-		list += "<a data-role='button' class='refresh-sensor' href='#' data-mini='true' data-icon='refresh'>" +
-			_( "Refresh Sensordata" ) + "</a>";
-		list += "</fieldset>";
+		var $tr = $("<tr>").append(
+			$("<td>").text(item.nr),
+			$("<td class=\"hidecol\">").text(item.type),
+			$("<td class=\"hidecol\">").text(item.group ? item.group : ""),
+			"<td><a data-role='button' class='edit-sensor' value='" + item.nr + "' row='" + row + "' href='#' data-mini='true' data-icon='edit'>" +
+			item.name + "</a></td>",
+			$("<td class=\"hidecol\">").text(item.ip ? toByteArray(item.ip).join(".") : ""),
+			$("<td class=\"hidecol\">").text(item.port ? (":" + item.port) : ""),
+			$("<td class=\"hidecol\">").text(isNaN(item.id) ? "" : (item.type < 1000 ? item.id : "")),
+			$("<td class=\"hidecol\">").text(isNaN(item.ri) ? "" : item.ri),
+			$("<td>").text(isNaN(item.data) ? "" : (formatVal(item.data) + item.unit)),
+			"<td>" + (item.enable ? checkpng : "") + "</td>",
+			"<td class=\"hidecol\">" + (item.log ? checkpng : "") + "</td>",
+			"<td class=\"hidecol\">" + (item.show ? checkpng : "") + "</td>",
+			$("<td class=\"hidecol2\">").text(item.last === undefined ? "" : (item.data_ok ? dateToString(new Date(item.last * 1000)) : ""), null, 2)
+		);
+		list += $tr.wrap("<p>").html() + "</tr>";
+		row++;
+	});
+	list += "</table>";
+	list += "<a data-role='button' class='add-sensor'     href='#' data-mini='true' data-icon='plus'   >" +
+		_("Add Sensor") + "</a>";
+	list += "<a data-role='button' class='refresh-sensor' href='#' data-mini='true' data-icon='refresh'>" +
+		_("Refresh Sensordata") + "</a>";
+	list += "</fieldset>";
 
-		//Program adjustments table:
-		list += "<fieldset data-role='collapsible'" + ( expandItem.has("progadjust") ? " data-collapsed='false'" : "" ) + ">" +
-		"<legend>" + _( "Program Adjustments" ) + "</legend>";
-		list += "<table id='progadjusttable'><tr style='width:100%;vertical-align: top;'>" +
-		"<tr><th>"+_("Nr")+"</th>"+
-		"<th class=\"hidecol\">"+_("Type")+"</th>"+
-		"<th class=\"hidecol2\">"+_("S.Nr")+"</th>"+
-		"<th>"+_("Name")+"</th>"+
-		"<th class=\"hidecol\">Program-Nr</th>"+
-		"<th class=\"hidecol2\">"+_("Program")+"</th>"+
-		"<th class=\"hidecol2\">"+_("Factor 1")+"</th>"+
-		"<th class=\"hidecol2\">"+_("Factor 2")+"</th>"+
-		"<th class=\"hidecol2\">"+_("Min Value")+"</th>"+
-		"<th class=\"hidecol2\">"+_("Max Value")+"</th>"+
-		"<th>"+_("Cur")+"</th></tr>";
+	//Program adjustments table:
+	list += "<fieldset data-role='collapsible'" + (expandItem.has("progadjust") ? " data-collapsed='false'" : "") + ">" +
+		"<legend>" + _("Program Adjustments") + "</legend>";
+	list += "<table id='progadjusttable'><tr style='width:100%;vertical-align: top;'>" +
+		"<tr><th>" + _("Nr") + "</th>" +
+		"<th class=\"hidecol\">" + _("Type") + "</th>" +
+		"<th class=\"hidecol2\">" + _("S.Nr") + "</th>" +
+		"<th>" + _("Name") + "</th>" +
+		"<th class=\"hidecol\">Program-Nr</th>" +
+		"<th class=\"hidecol2\">" + _("Program") + "</th>" +
+		"<th class=\"hidecol2\">" + _("Factor 1") + "</th>" +
+		"<th class=\"hidecol2\">" + _("Factor 2") + "</th>" +
+		"<th class=\"hidecol2\">" + _("Min Value") + "</th>" +
+		"<th class=\"hidecol2\">" + _("Max Value") + "</th>" +
+		"<th>" + _("Cur") + "</th></tr>";
 
 
-		row = 0;
-		$.each( progAdjusts, function( i, item ) {
+	row = 0;
+	$.each(progAdjusts, function (i, item) {
 
-			var sensorName = "";
-			for ( var j = 0; j < analogSensors.length; j++ ) {
-				if ( analogSensors[ j ].nr === item.sensor ) {
-					sensorName = analogSensors[ j ].name;
-				}
+		var sensorName = "";
+		for (var j = 0; j < analogSensors.length; j++) {
+			if (analogSensors[j].nr === item.sensor) {
+				sensorName = analogSensors[j].name;
 			}
-			var progName = "?";
-			if ( item.prog >= 1 && item.prog <= controller.programs.pd.length ) {
-				progName = readProgram( controller.programs.pd[ item.prog - 1 ] ).name;
-			}
-
-			var $tr = $( "<tr>" ).append(
-				$("<td>").text(item.nr),
-				$("<td class=\"hidecol\">").text(item.type),
-				$("<td class=\"hidecol2\">").text(item.sensor),
-				"<td><a data-role='button' class='edit-progadjust' value='" + item.nr + "' row='" + row + "' href='#' data-mini='true' data-icon='edit'>" +
-				sensorName + "</a></td>",
-				$("<td class=\"hidecol\">").text(item.prog),
-				$("<td class=\"hidecol2\">").text(progName),
-				$("<td class=\"hidecol2\">").text(Math.round(item.factor1*100)+"%"),
-				$("<td class=\"hidecol2\">").text(Math.round(item.factor2*100)+"%"),
-				$("<td class=\"hidecol2\">").text(item.min),
-				$("<td class=\"hidecol2\">").text(item.max),
-				$("<td>").text(item.current === undefined?"":(Math.round(item.current*100.0)+"%"))
-			);
-			list += $tr.wrap( "<p>" ).html() + "</tr>";
-			row++;
-		} );
-		list += "</table>";
-		list += "<a data-role='button' class='add-progadjust' href='#' data-mini='true' data-icon='plus'>" + _( "Add program adjustment" ) + "</a>";
-		list += "</fieldset>";
-
-		//Analog sensor logs:
-		list += "<fieldset data-role='collapsible'" + ( expandItem.has("sensorlog") ? " data-collapsed='false'" : "" ) + ">" +
-				"<legend>" + _( "Sensor Log" ) + "</legend>";
-		list += "<a data-role='button' class='red clear_sensor_logs' href='#' data-mini='true' data-icon='alert'>" +
-						_( "Clear Log" ) +
-					"</a>" +
-			"<a data-role='button' data-icon='action' class='download-log' href='#' data-mini='true'>" + _( "Download Log" ) + "</a>" +
-			"<a data-role='button' data-icon='grid' class='show-log' href='#' data-mini='true'>" + _( "Show Log" ) + "</a>" +
-
-			"</div></fieldset>";
-
-		//backup:
-		if (checkOSVersion( 231 )) {
-			list += "<fieldset data-role='collapsible'" + ( expandItem.has("backup") ? " data-collapsed='false'" : "" ) + ">" +
-				"<legend>" + _( "Backup and Restore" ) + "</legend>";
-			list += "<a data-role='button' data-icon='arrow-d-r' class='backup-sensors'  href='#' data-mini='true'>" + _( "Backup Sensor Config" ) + "</a>" +
-				"<a data-role='button' data-icon='back'      class='restore-sensors' href='#' data-mini='true'>" + _( "Restore Sensor Config" ) + "</a>";
-			list += "<a data-role='button' data-icon='arrow-d-r' class='backup-adjustments'  href='#' data-mini='true'>" + _( "Backup Program Adjustments" ) + "</a>" +
-				"<a data-role='button' data-icon='back'      class='restore-adjustments' href='#' data-mini='true'>" + _( "Restore Program Adjustments" ) + "</a>";
-			list += "</div></fieldset>";
 		}
+		var progName = "?";
+		if (item.prog >= 1 && item.prog <= controller.programs.pd.length) {
+			progName = readProgram(controller.programs.pd[item.prog - 1]).name;
+		}
+
+		var $tr = $("<tr>").append(
+			$("<td>").text(item.nr),
+			$("<td class=\"hidecol\">").text(item.type),
+			$("<td class=\"hidecol2\">").text(item.sensor),
+			"<td><a data-role='button' class='edit-progadjust' value='" + item.nr + "' row='" + row + "' href='#' data-mini='true' data-icon='edit'>" +
+			sensorName + "</a></td>",
+			$("<td class=\"hidecol\">").text(item.prog),
+			$("<td class=\"hidecol2\">").text(progName),
+			$("<td class=\"hidecol2\">").text(Math.round(item.factor1 * 100) + "%"),
+			$("<td class=\"hidecol2\">").text(Math.round(item.factor2 * 100) + "%"),
+			$("<td class=\"hidecol2\">").text(item.min),
+			$("<td class=\"hidecol2\">").text(item.max),
+			$("<td>").text(item.current === undefined ? "" : (Math.round(item.current * 100.0) + "%"))
+		);
+		list += $tr.wrap("<p>").html() + "</tr>";
+		row++;
+	});
+	list += "</table>";
+	list += "<a data-role='button' class='add-progadjust' href='#' data-mini='true' data-icon='plus'>" + _("Add program adjustment") + "</a>";
+	list += "</fieldset>";
+
+	//Analog sensor logs:
+	list += "<fieldset data-role='collapsible'" + (expandItem.has("sensorlog") ? " data-collapsed='false'" : "") + ">" +
+		"<legend>" + _("Sensor Log") + "</legend>";
+	list += "<a data-role='button' class='red clear_sensor_logs' href='#' data-mini='true' data-icon='alert'>" +
+		_("Clear Log") +
+		"</a>" +
+		"<a data-role='button' data-icon='action' class='download-log' href='#' data-mini='true'>" + _("Download Log") + "</a>" +
+		"<a data-role='button' data-icon='grid' class='show-log' href='#' data-mini='true'>" + _("Show Log") + "</a>" +
+
+		"</div></fieldset>";
+
+	//backup:
+	if (checkOSVersion(231)) {
+		list += "<fieldset data-role='collapsible'" + (expandItem.has("backup") ? " data-collapsed='false'" : "") + ">" +
+			"<legend>" + _("Backup and Restore") + "</legend>";
+		list += "<a data-role='button' data-icon='arrow-d-r' class='backup-sensors'  href='#' data-mini='true'>" + _("Backup Sensor Config") + "</a>" +
+			"<a data-role='button' data-icon='back'      class='restore-sensors' href='#' data-mini='true'>" + _("Restore Sensor Config") + "</a>";
+		list += "<a data-role='button' data-icon='arrow-d-r' class='backup-adjustments'  href='#' data-mini='true'>" + _("Backup Program Adjustments") + "</a>" +
+			"<a data-role='button' data-icon='back'      class='restore-adjustments' href='#' data-mini='true'>" + _("Restore Program Adjustments") + "</a>";
+		list += "</div></fieldset>";
+	}
 	return list;
 }
 
 // Show Sensor Charts with apexcharts
 function showAnalogSensorCharts() {
 
-		var max = CHARTS;
-		for ( var j = 0; j < analogSensors.length; j++ ) {
-			if (!analogSensors[j].log || !analogSensors[j].enable)
-				continue;
-			var unitid = analogSensors[j].unitid;
-			if (unitid === USERDEF_UNIT) max++;
+	var max = CHARTS;
+	for (var j = 0; j < analogSensors.length; j++) {
+		if (!analogSensors[j].log || !analogSensors[j].enable)
+			continue;
+		var unitid = analogSensors[j].unitid;
+		if (unitid === USERDEF_UNIT) max++;
+	}
+
+	var last = "", week = "", month = "";
+	for (var j = 1; j <= max; j++) {
+		last += "<div id='myChart" + j + "'></div>";
+		week += "<div id='myChartW" + j + "'></div>";
+		month += "<div id='myChartM" + j + "'></div>";
+	}
+
+	var page = $("<div data-role='page' id='analogsensorchart'>" +
+		"<div class='ui-content' role='main' style='width: 95%'>" +
+		last + week + month +
+		"</div></div>");
+
+	changeHeader({
+		title: _("Analog Sensor Log"),
+		leftBtn: {
+			icon: "carat-l",
+			text: _("Back"),
+			class: "ui-toolbar-back-btn",
+			on: goBack
+		},
+		rightBtn: {
+			icon: "refresh",
+			text: screen.width >= 500 ? _("Refresh") : "",
+			on: updateCharts
 		}
+	});
 
-		var last = "", week = "", month = "";
-		for ( var j = 1; j <= max; j++ ) {
-			last  += "<div id='myChart"+j+"'></div>";
-			week  += "<div id='myChartW"+j+"'></div>";
-			month += "<div id='myChartM"+j+"'></div>";
-		}
+	page.one("pagehide", function () {
+		page.detach();
+	});
 
-		var page = $( "<div data-role='page' id='analogsensorchart'>" +
-			"<div class='ui-content' role='main' style='width: 95%'>" +
-			last + week + month +
-			"</div></div>" );
+	$("#analogsensorchart").remove();
+	$.mobile.pageContainer.append(page);
 
-		changeHeader( {
-			title: _( "Analog Sensor Log" ),
-			leftBtn: {
-				icon: "carat-l",
-				text: _( "Back" ),
-				class: "ui-toolbar-back-btn",
-				on: goBack
-			},
-			rightBtn: {
-				icon: "refresh",
-				text: screen.width >= 500 ?_( "Refresh" ) : "",
-				on: updateCharts
-			}
-		} );
-
-		page.one( "pagehide", function() {
-			page.detach();
-		} );
-
-		$( "#analogsensorchart" ).remove();
-		$.mobile.pageContainer.append( page );
-
-		updateCharts();
+	updateCharts();
 }
 
 function updateCharts() {
@@ -1611,28 +1614,28 @@ function updateCharts() {
 		chart3 = new Array(CHARTS),
 		datalimit = false;
 
-	var limit = currToken?"&max=5500":""; //download limit is 140kb, 5500 lines ca 137kb
+	var limit = currToken ? "&max=5500" : ""; //download limit is 140kb, 5500 lines ca 137kb
 
-	$.mobile.loading( "show" );
-	sendToOS("/so?pw=&lasthours=48&csv=2"+limit, "text").then(function (csv1) {
-		buildGraph( "#myChart", chart1, csv1, _( "last 48h" ), "HH:mm", 0 );
+	$.mobile.loading("show");
+	sendToOS("/so?pw=&lasthours=48&csv=2" + limit, "text").then(function (csv1) {
+		buildGraph("#myChart", chart1, csv1, _("last 48h"), "HH:mm", 0);
 
-		sendToOS("/so?pw=&csv=2&log=1"+limit, "text").then(function (csv2) {
-			buildGraph( "#myChartW", chart2, csv2, _( "last weeks" ), "dd.MM.yyyy", 1 );
+		sendToOS("/so?pw=&csv=2&log=1" + limit, "text").then(function (csv2) {
+			buildGraph("#myChartW", chart2, csv2, _("last weeks"), "dd.MM.yyyy", 1);
 
-			sendToOS("/so?pw=&csv=2&log=2"+limit, "text").then(function (csv3) {
-				buildGraph( "#myChartM", chart3, csv3, _( "last months" ), "MM.yyyy", 2 );
-				$.mobile.loading( "hide" );
+			sendToOS("/so?pw=&csv=2&log=2" + limit, "text").then(function (csv3) {
+				buildGraph("#myChartM", chart3, csv3, _("last months"), "MM.yyyy", 2);
+				$.mobile.loading("hide");
 			});
 		});
 	});
 }
 
-function buildGraph( prefix, chart, csv, titleAdd, timestr, lvl ) {
-	var csvlines = csv.split( /(?:\r\n|\n)+/ ).filter( function( el ) { return el.length !== 0; } );
+function buildGraph(prefix, chart, csv, titleAdd, timestr, lvl) {
+	var csvlines = csv.split(/(?:\r\n|\n)+/).filter(function (el) { return el.length !== 0; });
 
 	var legends = [], opacities = [], widths = [], colors = [], coloridx = 0;
-	for ( var j = 0; j < analogSensors.length; j++ ) {
+	for (var j = 0; j < analogSensors.length; j++) {
 		var sensor = analogSensors[j];
 		let color = COLORS[coloridx++ % COLCOUNT];
 		if (!sensor.log || !sensor.enable) {
@@ -1644,39 +1647,39 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr, lvl ) {
 			logmap = new Map(),
 			unitid = sensor.unitid;
 
-		for ( var k = 1; k < csvlines.length; k++ ) {
-			var line = csvlines[ k ].split( ";" );
-			if (line.length >= 3 && Number(line[0]) === nr ) {
+		for (var k = 1; k < csvlines.length; k++) {
+			var line = csvlines[k].split(";");
+			if (line.length >= 3 && Number(line[0]) === nr) {
 				let date = Number(line[1]);
 				let value = Number(line[2]);
 				if (value === undefined || date === undefined) continue;
 				if (unitid != 3 && value > 100) continue;
 				if (unitid == 1 && value < 0) continue;
 				if (lvl == 0) //day values
-					logdata.push( { x: date * 1000, y: value } );
+					logdata.push({ x: date * 1000, y: value });
 				else {
 					var key;
 					var fac;
 					if (lvl == 1) //week values
-						fac = 7*24*60*60;
+						fac = 7 * 24 * 60 * 60;
 					else //month values
-						fac = 30*24*60*60;
+						fac = 30 * 24 * 60 * 60;
 					key = Math.trunc(date / fac) * fac * 1000;
 
 					var minmax = logmap.get(key);
 					if (!minmax)
-						minmax = {min: value, max: value};
+						minmax = { min: value, max: value };
 					else
-						minmax = {min: Math.min(minmax.min, value), max: Math.max(minmax.max, value)};
+						minmax = { min: Math.min(minmax.min, value), max: Math.max(minmax.max, value) };
 					logmap.set(key, minmax);
 				}
 			}
 		}
 
 		if (lvl > 0) {
-			for (let [ key, value ] of logmap) {
-				rngdata.push( { x : key, y : [ value.min, value.max ] } );
-				logdata.push( { x : key, y : ( value.max + value.min ) / 2 } );
+			for (let [key, value] of logmap) {
+				rngdata.push({ x: key, y: [value.min, value.max] });
+				logdata.push({ x: key, y: (value.max + value.min) / 2 });
 			}
 		}
 
@@ -1686,13 +1689,13 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr, lvl ) {
 		let date = new Date();
 		date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
 
-		let value = sensor.data? sensor.data : logdata.slice(-1)[0].y;
-		logdata.push( { x : date, y : sensor.data } );
+		let value = sensor.data ? sensor.data : logdata.slice(-1)[0].y;
+		logdata.push({ x: date, y: sensor.data });
 
 		if (lvl > 0) {
 			let rng = rngdata.slice(-1)[0].y;
-			let diff = ( rng[1] - rng[0] ) / 2;
-			rngdata.push( { x : date, y : [ value - diff, value + diff ] } );
+			let diff = (rng[1] - rng[0]) / 2;
+			rngdata.push({ x: date, y: [value - diff, value + diff] });
 		}
 
 		// User defined sensor:
@@ -1725,84 +1728,84 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr, lvl ) {
 
 		if (!chart[unitid]) {
 			var unit, title, unitStr,
-				minFunc = function( val ) { return Math.floor( val > 0 ? Math.max( 0, val - 4 ) : val - 1 ); },
-				maxFunc = function( val ) { return Math.ceil( val ); },
+				minFunc = function (val) { return Math.floor(val > 0 ? Math.max(0, val - 4) : val - 1); },
+				maxFunc = function (val) { return Math.ceil(val); },
 				autoY = true;
 			switch (unitid) {
 				case 1: unit = _("Soil moisture");
-					title = _( "Soil moisture" ) + " " + titleAdd;
-					unitStr = function( val ) { return formatVal(val) + " %"; };
+					title = _("Soil moisture") + " " + titleAdd;
+					unitStr = function (val) { return formatVal(val) + " %"; };
 					minFunc = 0;
 					maxFunc = 100;
 					break;
 				case 2: unit = _("degree celsius temperature");
-					title = _( "Temperature" ) + " " + titleAdd;
-					unitStr = function( val ) { return formatVal(val) + String.fromCharCode( 176 ) + "C"; };
+					title = _("Temperature") + " " + titleAdd;
+					unitStr = function (val) { return formatVal(val) + String.fromCharCode(176) + "C"; };
 					break;
 				case 3: unit = _("degree fahrenheit temperature");
-					title = _( "Temperature" ) + " " + titleAdd;
-					unitStr = function( val ) { return formatVal(val) + String.fromCharCode( 176 ) + "F"; };
+					title = _("Temperature") + " " + titleAdd;
+					unitStr = function (val) { return formatVal(val) + String.fromCharCode(176) + "F"; };
 					break;
 				case 4: unit = _("Volt");
-					title = _( "Voltage" ) + " " + titleAdd;
-					unitStr = function( val ) { return formatVal(val) + " V"; };
+					title = _("Voltage") + " " + titleAdd;
+					unitStr = function (val) { return formatVal(val) + " V"; };
 					minFunc = 0;
 					maxFunc = 4;
 					autoY = false;
 					break;
 				case 5: unit = _("Humidity");
-					title = _( "Air Humidity" ) + " " + titleAdd;
-					unitStr = function( val ) { return formatVal(val) + " %"; };
+					title = _("Air Humidity") + " " + titleAdd;
+					unitStr = function (val) { return formatVal(val) + " %"; };
 					minFunc = 0;
 					maxFunc = 100;
 					break;
 				case 6: unit = _("Rain");
-					title = _( "Rainfall" ) + " " + titleAdd;
-					unitStr = function( val ) { return formatVal(val) + " in"; };
+					title = _("Rainfall") + " " + titleAdd;
+					unitStr = function (val) { return formatVal(val) + " in"; };
 					break;
 				case 7: unit = _("Rain");
-					title = _( "Rainfall" ) + " " + titleAdd;
-					unitStr = function( val ) { return formatVal(val) + " mm"; };
+					title = _("Rainfall") + " " + titleAdd;
+					unitStr = function (val) { return formatVal(val) + " mm"; };
 					minFunc = 0;
 					break;
 				case 8: unit = _("Wind");
-					title = _( "Wind" ) + " " + titleAdd;
-					unitStr = function( val ) { return formatVal(val) + " mph"; };
+					title = _("Wind") + " " + titleAdd;
+					unitStr = function (val) { return formatVal(val) + " mph"; };
 					minFunc = 0;
 					break;
 				case 9: unit = _("Wind");
-					title = _( "Wind" ) + " " + titleAdd;
-					unitStr = function( val ) { return formatVal(val) + " kmh"; };
+					title = _("Wind") + " " + titleAdd;
+					unitStr = function (val) { return formatVal(val) + " kmh"; };
 					minFunc = 0;
 					break;
 				case 10: unit = _("Level");
-					title = _( "Level" ) + " " + titleAdd;
-					unitStr = function( val ) { return formatVal(val) + " %"; };
+					title = _("Level") + " " + titleAdd;
+					unitStr = function (val) { return formatVal(val) + " %"; };
 					minFunc = 0;
 					maxFunc = 100;
 					autoY = false;
 					break;
 				case 11: unit = _("DK");
-					title = _( "DK" ) + " " + titleAdd;
-					unitStr = function( val ) { return formatVal(val); };
+					title = _("DK") + " " + titleAdd;
+					unitStr = function (val) { return formatVal(val); };
 					minFunc = 0;
 					break;
 
 				default: unit = sensor.unit;
 					title = sensor.name + "~ " + titleAdd;
-					unitStr = function( val ) { return formatVal(val); };
+					unitStr = function (val) { return formatVal(val); };
 			};
 
 			let canExport = !window.hasOwnProperty("cordova");
 			let options = {
 				chart: {
 					type: 'rangeArea',
-	          			animations: {
-	        	    			speed: 500
-          				},
+					animations: {
+						speed: 500
+					},
 					stacked: false,
 					width: '100%',
-					height: (screen.height>screen.width?screen.height:screen.width) / 3,
+					height: (screen.height > screen.width ? screen.height : screen.width) / 3,
 					toolbar: {
 						download: canExport
 					}
@@ -1846,7 +1849,7 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr, lvl ) {
 				xaxis: {
 					type: "datetime",
 					labels: {
-						datetimeUTC : true,
+						datetimeUTC: true,
 						format: timestr
 					}
 				},
@@ -1856,7 +1859,7 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr, lvl ) {
 					forceNiceScale: autoY,
 					labels: {
 						formatter: unitStr
-						},
+					},
 					min: minFunc,
 					max: autoY ? undefined : maxFunc
 				},
@@ -1904,10 +1907,10 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr, lvl ) {
 		sensor.chart.set(prefix, chart[unitid]);
 	}
 
-	for ( var p = 0; p < progAdjusts.length; p++) {
+	for (var p = 0; p < progAdjusts.length; p++) {
 		var adjust = progAdjusts[p];
 		var sensor = adjust.sensor;
-		for ( var j = 0; j < analogSensors.length; j++ ) {
+		for (var j = 0; j < analogSensors.length; j++) {
 			if (analogSensors[j].nr == sensor && analogSensors[j].chart != undefined) {
 				var mchart = analogSensors[j].chart.get(prefix);
 				if (mchart) {
@@ -1931,7 +1934,7 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr, lvl ) {
 										textAnchor: "start",
 										position: "left",
 										offsetX: 60,
-										text: _( "Min" )+" "+adjust.min+" "+unitStr,
+										text: _("Min") + " " + adjust.min + " " + unitStr,
 										style: {
 											color: "#fff",
 											background: "#00E396"
@@ -1948,7 +1951,7 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr, lvl ) {
 										textAnchor: "start",
 										position: "left",
 										offsetX: 60,
-										text: _( "Max" )+" "+adjust.max+" "+unitStr,
+										text: _("Max") + " " + adjust.max + " " + unitStr,
 										style: {
 											color: "#fff",
 											background: "#ffadad"
@@ -1964,9 +1967,9 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr, lvl ) {
 		}
 	}
 
-	for ( var c = 1; c < chart.length; c++ ) {
-		if ( !chart[ c ] ) {
-			var x = document.querySelector( prefix + c );
+	for (var c = 1; c < chart.length; c++) {
+		if (!chart[c]) {
+			var x = document.querySelector(prefix + c);
 			if (x) {
 				x.parentElement.removeChild(x);
 			}
@@ -1978,28 +1981,28 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr, lvl ) {
 * format value output with 2 decimals.
 * Empty string result if value is undefined or invalid
 */
-function formatVal( val ) {
+function formatVal(val) {
 	if (val === undefined || isNaN(val))
 		return "";
-	return (+( Math.round( val + "e+2" )  + "e-2" ));
+	return (+(Math.round(val + "e+2") + "e-2"));
 }
 
 /**
 * format value output. unit is only printed, if value valid
 */
-function formatValUnit( val, unit ) {
+function formatValUnit(val, unit) {
 	if (val === undefined || isNaN(val))
 		return "";
-	return (+( Math.round( val + "e+2" )  + "e-2" )) + unit;
+	return (+(Math.round(val + "e+2") + "e-2")) + unit;
 
 }
 
-function getUnit( sensor ) {
+function getUnit(sensor) {
 	var unitid = sensor.unitid;
-	switch ( unitid ) {
+	switch (unitid) {
 		case 1: return "%";
-		case 2: return String.fromCharCode( 176 ) + "C";
-		case 3: return String.fromCharCode( 176 ) + "F";
+		case 2: return String.fromCharCode(176) + "C";
+		case 3: return String.fromCharCode(176) + "F";
 		case 4: return "V";
 		case 5: return "%";
 		case 6: return "in";
