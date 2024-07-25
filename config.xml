@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget android-versionCode="112" id="com.albahra.sprinklers" version="2.4.0" versionCode="113" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget android-versionCode="113" id="com.albahra.sprinklers" version="2.4.1" versionCode="114" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>OpenSprinkler</name>
     <description>
 	    Designed to allow intuitive control of the OpenSprinkler irrigation controller.
@@ -42,7 +42,7 @@
             <string>Your camera is used to provide an image for your stations.</string>
         </config-file>
         <config-file target="*-Info.plist" overwrite="true" parent="CFBundleShortVersionString">
-            <string>19905</string>
+            <string>19906</string>
         </config-file>
         <config-file target="*-Info.plist" overwrite="true" parent="LSApplicationCategoryType">
             <string>public.app-category.utilities</string>
