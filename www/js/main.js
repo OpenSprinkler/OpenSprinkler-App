@@ -9443,8 +9443,11 @@ function makeProgram21( n, isCopy ) {
 
 	// Group all stations visually
 	list += "<div style='margin-top:10px' class='ui-corner-all'>";
-	list += "<div class='ui-bar ui-bar-a'><h3>" + _( "Stations" ) + "</h3></div>";
+	list += "<div class='ui-bar ui-bar-a'><h3 id='station-head'>" + _( "Stations (Total Program Time: )" ) + "</h3></div>";
 	list += "<div class='ui-body ui-body-a'>";
+	list += "<div class='ui-field-contain duration-input'>" +
+			"<label for='set-all'> </label>" +
+			"<button style='background-color:#fcfcfc' data-mini='true' id='set-all'>Quick Set</button></div>";
 
 	var hideDisabled = $( "#programs" ).hasClass( "show-hidden" ) ? "" : "' style='display:none";
 
@@ -9518,6 +9521,24 @@ function makeProgram21( n, isCopy ) {
 	// Take HTML string and convert to jQuery object
 	page = $( list );
 
+	//function to have live changing total program time
+	function updateProgramTime(){
+		var runtimes = [];
+		page.find( "[id^=station_]" ).each( function() {
+			var dur = $( this );
+			dur = parseInt( dur.val());
+			runtimes.push(dur);
+		} );
+		var runtime = calculateTotalRunningTime( runtimes );
+		var hours = Math.floor(runtime / 3600);
+		var minutes = Math.floor(runtime % 3600 / 60);
+		var seconds = Math.floor(runtime % 3600 % 60);
+		page.find( "#station-head" ).text("Stations (Total Program Time: " + hours + " hours, " + minutes + " minutes, " + seconds + " seconds)");
+
+	}
+
+	updateProgramTime();
+
 	// When controlgroup buttons are toggled change relevant options
 	page.find( "input[name^='rad_days'],input[name^='stype']" ).on( "change", function() {
 		var input = $( this ).val().split( "-" )[ 0 ].split( "_" );
@@ -9581,6 +9602,32 @@ function makeProgram21( n, isCopy ) {
 		} );
 	} );
 
+	// Handle set all button
+	page.find( "#set-all" ).on( "click", function (){
+		showDurationBox( {
+			seconds: 60,
+			title: "Set Duration",
+			incrementalUpdate: false,
+			callback: function( result ) {
+				page.find( "[id^=station_]" ).each( function() {
+					var dur = $( this );
+					if ( dur.text() === "Master"){
+						return;
+					}
+					dur.val( result ).addClass( "green" );
+					dur.text( getDurationText( result ) );
+
+					if ( result === 0 ) {
+						dur.removeClass( "green" );
+					}
+
+				} );
+				updateProgramTime();
+			},
+			maximum: 65535
+		} );
+	} );
+
 	// Handle all station duration inputs
 	page.find( "[id^=station_]" ).on( "click", function() {
 		var dur = $( this ),
@@ -9596,6 +9643,7 @@ function makeProgram21( n, isCopy ) {
 				if ( result === 0 ) {
 					dur.removeClass( "green" );
 				}
+				updateProgramTime();
 			},
 			maximum: 65535,
 			showSun: checkOSVersion( 214 ) ? true : false
