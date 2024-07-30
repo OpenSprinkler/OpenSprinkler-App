@@ -27,6 +27,7 @@ var isAndroid = /Android|\bSilk\b/.test( navigator.userAgent ),
 	isFileCapable = !isiOS && !isAndroid && !isOSXApp && window.FileReader,
 	isTouchCapable = "ontouchstart" in window || "onmsgesturechange" in window,
 	isMetric = ( [ "US", "BM", "PW" ].indexOf( navigator.languages[ 0 ].split( "-" )[ 1 ] ) === -1 ),
+	is24Hour = false,
 	groupView = false,
 	alphabetView = false,
 
@@ -3838,6 +3839,10 @@ function showOptions( expandItem ) {
 						isMetric = $item.is( ":checked" );
 						storage.set( { isMetric: isMetric } );
 						return true;
+					case "is24Hour":
+						is24Hour = $item.is( ":checked" );
+						storage.set( { "is24Hour": is24Hour } );
+						return true;
 					case "groupView":
 						groupView = $item.is( ":checked" );
 						storage.set( { "groupView": groupView } );
@@ -4001,21 +4006,27 @@ function showOptions( expandItem ) {
 			"<a class='ui-btn btn-no-border ui-btn-icon-notext ui-icon-delete ui-btn-corner-all clear-loc'></a>" +
 		"</button></div>";
 
-	if ( typeof controller.options.lg !== "undefined" ) {
-		list += "<label for='o36'><input data-mini='true' id='o36' type='checkbox' " + ( ( controller.options.lg === 1 ) ? "checked='checked'" : "" ) + ">" +
-			_( "Enable Logging" ) + "</label>";
-	}
+	list += "<div data-role='controlgroup' data-type='horizontal' style='text-align:center'>";
+		if ( typeof controller.options.lg !== "undefined" ) {
+			list += "<label for='o36'><input data-mini='true' id='o36' type='checkbox' " + ( ( controller.options.lg === 1 ) ? "checked='checked'" : "" ) + ">" +
+				_( "Enable Logging" ) + "</label>";
+		}
+		list += "<label for='isMetric'><input data-mini='true' id='isMetric' type='checkbox' " + ( isMetric ? "checked='checked'" : "" ) + ">" +
+			_( "Use Metric" ) + "</label>";
 
-	list += "<label for='isMetric'><input data-mini='true' id='isMetric' type='checkbox' " + ( isMetric ? "checked='checked'" : "" ) + ">" +
-		_( "Use Metric" ) + "</label>";
+		list += "<label for='is24Hour'><input data-mini='true' id='is24Hour' type='checkbox' " + ( is24Hour ? "checked='checked'" : "" ) + ">" +
+			_( "Use 24 Hour Time" ) + "</label>";
+	list += "</div>";
 
-	if ( Supported.groups() ) {
-		list += "<label for='groupView'><input data-mini='true' id='groupView' type='checkbox' " + ( groupView ? "checked='checked'" : "" ) + ">" +
-		_( "Order Stations by Groups" ) + "</label>";
-	}
+	list += "<div data-role='controlgroup' data-type='horizontal' style='text-align:center'>";
+		if ( Supported.groups() ) {
+			list += "<label for='groupView'><input data-mini='true' id='groupView' type='checkbox' " + ( groupView ? "checked='checked'" : "" ) + ">" +
+			_( "Split Stations into Groups" ) + "</label>";
+		}
 
-	list += "<label for='alphabetView'><input data-mini='true' id='alphabetView' type='checkbox' " + ( alphabetView ? "checked='checked'" : "" ) + ">" +
-	_( "Order Stations by Alphabetical Order" ) + "</label>";
+		list += "<label for='alphabetView'><input data-mini='true' id='alphabetView' type='checkbox' " + ( alphabetView ? "checked='checked'" : "" ) + ">" +
+		_( "Order Stations by Names" ) + "</label>";
+	list += "</div>";
 
 	list += "</fieldset><fieldset data-role='collapsible'" +
 		( typeof expandItem === "string" && expandItem === "master" ? " data-collapsed='false'" : "" ) + ">" +
@@ -12172,38 +12183,38 @@ function showTimeInput( opt ) {
 			"<div class='ui-content'>" +
 				( opt.helptext ? "<p class='pad-top rain-desc center smaller'>" + opt.helptext + "</p>" : "" ) +
 				"<span>" +
-					"<fieldset class='ui-grid-" + ( isMetric ? "a" : "b" ) + " incr'>" +
+					"<fieldset class='ui-grid-" + ( is24Hour ? "a" : "b" ) + " incr'>" +
 						"<div class='ui-block-a'>" +
 							"<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a>" +
 						"</div>" +
 						"<div class='ui-block-b'>" +
 							"<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a>" +
 						"</div>" +
-						( isMetric ? "" : "<div class='ui-block-c'>" +
+						( is24Hour ? "" : "<div class='ui-block-c'>" +
 							"<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a>" +
 						"</div>" ) +
 					"</fieldset>" +
-					"<div class='ui-grid-" + ( isMetric ? "a" : "b" ) + " inputs'>" +
+					"<div class='ui-grid-" + ( is24Hour ? "a" : "b" ) + " inputs'>" +
 						"<div class='ui-block-a'>" +
 							"<input data-wrapper-class='pad_buttons' class='hour dontPad' type='number' pattern='[0-9]*' value='" +
-								( isMetric ? pad( ( opt.minutes / 60 >> 0 ) % 24 ) + "'>" : ( parseInt( opt.minutes / 60 ) % 12 === 0 ? 12 : parseInt( opt.minutes / 60 ) % 12 ) + "'>" ) +
+								( is24Hour ? pad( ( opt.minutes / 60 >> 0 ) % 24 ) + "'>" : ( parseInt( opt.minutes / 60 ) % 12 === 0 ? 12 : parseInt( opt.minutes / 60 ) % 12 ) + "'>" ) +
 						"</div>" +
 						"<div class='ui-block-b'>" +
 							"<input data-wrapper-class='pad_buttons' class='minute' type='number' pattern='[0-9]*' value='" +
 								pad( opt.minutes % 60 ) + "'>" +
 						"</div>" +
-						( isMetric ? "" : "<div class='ui-block-c'>" +
+						( is24Hour ? "" : "<div class='ui-block-c'>" +
 							"<p class='center period'>" + getPeriod() + "</p>" +
 						"</div>" ) +
 					"</div>" +
-					"<fieldset class='ui-grid-" + ( isMetric ? "a" : "b" ) + " decr'>" +
+					"<fieldset class='ui-grid-" + ( is24Hour ? "a" : "b" ) + " decr'>" +
 						"<div class='ui-block-a'>" +
 							"<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='minus' data-iconpos='bottom'></a>" +
 						"</div>" +
 						"<div class='ui-block-b'>" +
 							"<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='minus' data-iconpos='bottom'></a>" +
 						"</div>" +
-						( isMetric ? "" : "<div class='ui-block-c'>" +
+						( is24Hour ? "" : "<div class='ui-block-c'>" +
 							"<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='minus' data-iconpos='bottom'></a>" +
 						"</div>" ) +
 					"</fieldset>" +
@@ -12236,7 +12247,7 @@ function showTimeInput( opt ) {
 					val = parseInt( input.val() );
 
 				if ( dir === 1 ) {
-					if ( isHour && ( ( isMetric && val >= 24 ) || ( !isMetric && val >= 12 ) ) ) {
+					if ( isHour && ( ( is24Hour && val >= 24 ) || ( !is24Hour && val >= 12 ) ) ) {
 						val = 0;
 					}
 					if ( !isHour && val >= 59 ) {
@@ -12244,7 +12255,7 @@ function showTimeInput( opt ) {
 						var hour = popup.find( ".hour" ),
 							hourFixed = parseInt( hour.val() );
 
-						if ( !isMetric ) {
+						if ( !is24Hour ) {
 							if ( hourFixed === 12 ) {
 								hourFixed = 0;
 							}
@@ -12308,7 +12319,7 @@ function showTimeInput( opt ) {
 			} else {
 				var hour = parseInt( popup.find( ".hour" ).val() );
 
-				if ( !isMetric ) {
+				if ( !is24Hour ) {
 					if ( isPM && hour !== 12 ) {
 						hour = hour + 12;
 					}
@@ -12743,6 +12754,17 @@ function loadLocalSettings() {
 			default:
 		}
 	} );
+	storage.get( "is24Hour", function( data ) {
+		switch ( data.is24Hour ) {
+			case "true":
+				is24Hour = true;
+				break;
+			case "false":
+				is24Hour = false;
+				break;
+			default:
+		}
+	} );
 	storage.get( "groupView", function( data ) {
 		switch ( data.groupView ) {
 			case "true":
@@ -13136,7 +13158,7 @@ function minutesToTime( minutes ) {
 		hour = 12;
 	}
 
-	return isMetric ? ( pad( ( minutes / 60 >> 0 ) % 24 ) + ":" + pad( minutes % 60 ) ) : ( hour + ":" + pad( minutes % 60 ) + " " + period );
+	return is24Hour ? ( pad( ( minutes / 60 >> 0 ) % 24 ) + ":" + pad( minutes % 60 ) ) : ( hour + ":" + pad( minutes % 60 ) + " " + period );
 }
 
 function getBitFromByte( byte, bit ) {
