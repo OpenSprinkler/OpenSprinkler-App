@@ -3486,9 +3486,51 @@ function showRainDelay() {
 
 function showPause() {
 	if ( StationQueue.isPaused() ) {
-		areYouSure( _( "Do you want to resume program operation?" ), "", function() {
-			sendToOS( "/pq?pw=" );
+		var popup = $("<div data-role='popup' data-theme='a' id='changePause'>" +
+						"<div data-role='header' data-theme='b'>" +
+							"<h1>" + _( "Change Pause" ) + "</h1>" +
+						"</div>" +
+						"<div class='ui-content'>" +
+							"<button style='display:inline-block;' data-mini='true' id='extend-pause'>Extend</button>" +
+							"<button style='display:inline-block;' data-mini='true' id='new-pause'>Replace</button>" +
+							"<button style='display:inline-block;' data-mini='true' id='un-pause'>Unpause</button>" +
+						"</div>" +
+					"</div>" );
+
+		popup.find("#extend-pause").on("click", function() {
+			popup.popup( "close" );
+			showDurationBox( {
+				title: "Extend Pause",
+				incrementalUpdate: false,
+				maximum: 65535,
+				callback: function( duration ) {
+					var dur = duration;
+					dur += controller.settings.pt;
+					sendToOS( "/pq?repl=" + dur + "&pw=" );
+				}
+			} );
 		} );
+
+		popup.find("#new-pause").on("click", function() {
+			popup.popup( "close" );
+			showDurationBox( {
+				title: "Pause Station Runs",
+				incrementalUpdate: false,
+				maximum: 65535,
+				callback: function( duration ) {
+					sendToOS( "/pq?repl=" + duration + "&pw=" );
+				}
+			} );
+		} );
+
+		popup.find("#un-pause").on("click", function() {
+			popup.popup( "close" );
+			areYouSure( _( "Do you want to resume program operation?" ), "", function() {
+				sendToOS( "/pq?repl=0&pw=" );
+			} );
+		} );
+
+		openPopup( $( popup ) );
 	} else {
 		showDurationBox( {
 			title: "Pause Station Runs",
@@ -4006,7 +4048,7 @@ function showOptions( expandItem ) {
 			"<a class='ui-btn btn-no-border ui-btn-icon-notext ui-icon-delete ui-btn-corner-all clear-loc'></a>" +
 		"</button></div>";
 
-	list += "<div data-role='controlgroup' data-type='horizontal' style='text-align:center'>";
+	list += "<div class='center' data-role='controlgroup' data-type='horizontal'>";
 		if ( typeof controller.options.lg !== "undefined" ) {
 			list += "<label for='o36'><input data-mini='true' id='o36' type='checkbox' " + ( ( controller.options.lg === 1 ) ? "checked='checked'" : "" ) + ">" +
 				_( "Enable Logging" ) + "</label>";
@@ -5160,7 +5202,7 @@ var showHomeMenu = ( function() {
 				"<li data-role='list-divider'>" + _( "Programs and Settings" ) + "</li>" +
 				"<li><a href='#raindelay'>" + _( "Change Rain Delay" ) + "</a></li>" +
 				( Supported.pausing() ?
-					( StationQueue.isPaused() ? "<li><a href='#globalpause'>" + _( "Resume Station Runs" ) + "</a></li>"
+					( StationQueue.isPaused() ? "<li><a href='#globalpause'>" + _( "Change Pause" ) + "</a></li>"
 						: ( StationQueue.isActive() >= -1 ? "<li><a href='#globalpause'>" + _( "Pause Station Runs" ) + "</a></li>" : "" ) )
 					: "" ) +
 				"<li><a href='#runonce'>" + _( "Run-Once Program" ) + "</a></li>" +
@@ -6273,7 +6315,7 @@ var showHome = ( function() {
 					showDurationBox( {
 						title: name,
 						incrementalUpdate: false,
-						maximum: 65535,
+						maximum: 64800,
 						seconds: sites[ currentSite ].lastRunTime[ sid ] > 0 ? sites[ currentSite ].lastRunTime[ sid ] : 0,
 						helptext: _( "Enter a duration to manually run " ) + name,
 						callback: function( duration ) {
@@ -6651,11 +6693,8 @@ function checkStatus() {
 		line += "</p>";
 
 		changeStatus( controller.settings.pt || 0, "yellow", line, function() {
-			areYouSure( _( "Do you want to resume station operation?" ), "", function() {
-				showLoading( "#footer-running" );
-				sendToOS( "/pq?pw=&dur=0" ).done( function() {
-					setTimeout( refreshStatus, 1000 );
-				} );
+			showPause().done( function() {
+				setTimeout( refreshStatus, 1000 );
 			} );
 		} );
 		return;
@@ -12846,7 +12885,7 @@ function getDurationText( time ) {
 // Convert seconds into (HH:)MM:SS format. HH is only reported if greater than 0.
 function sec2hms( diff ) {
 	var str = "";
-	var hours = Math.max( 0, parseInt( diff / 3600 ) % 24 );
+	var hours = Math.max( 0, parseInt( diff / 3600 ) );
 	var minutes = Math.max( 0, parseInt( diff / 60 ) % 60 );
 	var seconds = diff % 60;
 	if ( hours ) {
