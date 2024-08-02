@@ -3486,13 +3486,22 @@ function showRainDelay() {
 
 function showPause() {
 	if ( StationQueue.isPaused() ) {
+		if(!checkOSVersion( 2211 )){
+			areYouSure( _( "Do you want to resume program operation?" ), "", function() {
+				sendToOS( "/pq?dur=0&pw=" ).done( function() {
+					setTimeout( refreshStatus, 1000 );
+				} );
+			} );
+			return;
+		}
+
 		var popup = $("<div data-role='popup' data-theme='a' id='changePause'>" +
 						"<div data-role='header' data-theme='b'>" +
 							"<h1>" + _( "Change Pause" ) + "</h1>" +
 						"</div>" +
 						"<div class='ui-content'>" +
-							"<button style='display:inline-block;' data-mini='true' id='extend-pause'>Extend</button>" +
-							"<button style='display:inline-block;' data-mini='true' id='new-pause'>Replace</button>" +
+							"<button class='new-pause-function' style='display:inline-block;' data-mini='true' id='extend-pause'>Extend</button>" +
+							"<button class='new-pause-function' style='display:inline-block;' data-mini='true' id='new-pause'>Replace</button>" +
 							"<button style='display:inline-block;' data-mini='true' id='un-pause'>Unpause</button>" +
 						"</div>" +
 					"</div>" );
@@ -3506,7 +3515,9 @@ function showPause() {
 				callback: function( duration ) {
 					var dur = duration;
 					dur += controller.settings.pt;
-					sendToOS( "/pq?repl=" + dur + "&pw=" );
+					sendToOS( "/pq?repl=" + dur + "&pw=" ).done( function() {
+						setTimeout( refreshStatus, 1000 );
+					} );
 				}
 			} );
 		} );
@@ -3518,7 +3529,9 @@ function showPause() {
 				incrementalUpdate: false,
 				maximum: 65535,
 				callback: function( duration ) {
-					sendToOS( "/pq?repl=" + duration + "&pw=" );
+					sendToOS( "/pq?repl=" + duration + "&pw=" ).done( function() {
+						setTimeout( refreshStatus, 1000 );
+					} );
 				}
 			} );
 		} );
@@ -3526,7 +3539,9 @@ function showPause() {
 		popup.find("#un-pause").on("click", function() {
 			popup.popup( "close" );
 			areYouSure( _( "Do you want to resume program operation?" ), "", function() {
-				sendToOS( "/pq?repl=0&pw=" );
+				sendToOS( "/pq?repl=0&pw=" ).done( function() {
+					setTimeout( refreshStatus, 1000 );
+				} );
 			} );
 		} );
 
@@ -6693,9 +6708,7 @@ function checkStatus() {
 		line += "</p>";
 
 		changeStatus( controller.settings.pt || 0, "yellow", line, function() {
-			showPause().done( function() {
-				setTimeout( refreshStatus, 1000 );
-			} );
+			showPause();
 		} );
 		return;
 	}
