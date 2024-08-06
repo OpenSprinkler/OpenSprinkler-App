@@ -27,7 +27,10 @@ const ASB_BOARD2 = 0x02;
 const OSPI_PCF8591 = 0x04;
 const OSPI_ADS1115 = 0x08;
 const UART_SC16IS752 = 0x10;
-const RS485_TRUEBNER = 0x20;
+const RS485_TRUEBNER1 = 0x20;
+const RS485_TRUEBNER2 = 0x40;
+const RS485_TRUEBNER3 = 0x80;
+const RS485_TRUEBNER4 = 0x100;
 
 function checkAnalogSensorAvail(callback) {
 	callback = callback || function () { };
@@ -1437,7 +1440,10 @@ function buildSensorConfig(expandItem) {
 		if (detected & OSPI_PCF8591) boards.push("OSPI PCF8591");
 		if (detected & OSPI_ADS1115) boards.push("OSPI 2xADS1115");
 		if (detected & UART_SC16IS752) boards.push("UART-Adapter I2C");
-		if (detected & RS485_TRUEBNER) boards.push("RS485-Adapter Truebner");
+		if (detected & RS485_TRUEBNER1) boards.push("RS485-Adapter Truebner");
+		if (detected & RS485_TRUEBNER2) boards.push("RS485-Adapter Truebner 2");
+		if (detected & RS485_TRUEBNER3) boards.push("RS485-Adapter Truebner 3");
+		if (detected & RS485_TRUEBNER4) boards.push("RS485-Adapter Truebner 4");
 		if (detected == 0) boards.push("No Boards detected");
 		if (detected && boards.length == 0) boards.push("Unknown Adapter");
 		detected_boards = ": " + boards.filter(Boolean).join(", ");
@@ -1615,23 +1621,24 @@ function updateCharts() {
 		datalimit = false;
 
 	var limit = currToken ? "&max=5500" : ""; //download limit is 140kb, 5500 lines ca 137kb
+	var tzo = getTimezoneOffset() * 60;
 
 	$.mobile.loading("show");
 	sendToOS("/so?pw=&lasthours=48&csv=2" + limit, "text").then(function (csv1) {
-		buildGraph("#myChart", chart1, csv1, _("last 48h"), "HH:mm", 0);
+		buildGraph("#myChart", chart1, csv1, _("last 48h"), "HH:mm", tzo, 0);
 
 		sendToOS("/so?pw=&csv=2&log=1" + limit, "text").then(function (csv2) {
-			buildGraph("#myChartW", chart2, csv2, _("last weeks"), "dd.MM.yyyy", 1);
+			buildGraph("#myChartW", chart2, csv2, _("last weeks"), "dd.MM.yyyy", tzo, 1);
 
 			sendToOS("/so?pw=&csv=2&log=2" + limit, "text").then(function (csv3) {
-				buildGraph("#myChartM", chart3, csv3, _("last months"), "MM.yyyy", 2);
+				buildGraph("#myChartM", chart3, csv3, _("last months"), "MM.yyyy", tzo, 2);
 				$.mobile.loading("hide");
 			});
 		});
 	});
 }
 
-function buildGraph(prefix, chart, csv, titleAdd, timestr, lvl) {
+function buildGraph(prefix, chart, csv, titleAdd, timestr, tzo, lvl) {
 	var csvlines = csv.split(/(?:\r\n|\n)+/).filter(function (el) { return el.length !== 0; });
 
 	var legends = [], opacities = [], widths = [], colors = [], coloridx = 0;
@@ -1656,7 +1663,7 @@ function buildGraph(prefix, chart, csv, titleAdd, timestr, lvl) {
 				if (unitid != 3 && value > 100) continue;
 				if (unitid == 1 && value < 0) continue;
 				if (lvl == 0) //day values
-					logdata.push({ x: date * 1000, y: value });
+					logdata.push({ x: (date - tzo) * 1000, y: value });
 				else {
 					var key;
 					var fac;
@@ -1687,10 +1694,11 @@ function buildGraph(prefix, chart, csv, titleAdd, timestr, lvl) {
 
 		//add current value as forecast data:
 		let date = new Date();
-		date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
+		date.setMinutes(date.getMinutes() - date.getTimezoneOffset() - tzo / 60);
 
 		let value = sensor.data ? sensor.data : logdata.slice(-1)[0].y;
 		logdata.push({ x: date, y: sensor.data });
+		var fkdp = lvl < 2 ? 1 : 0;
 
 		if (lvl > 0) {
 			let rng = rngdata.slice(-1)[0].y;
@@ -1807,8 +1815,12 @@ function buildGraph(prefix, chart, csv, titleAdd, timestr, lvl) {
 					width: '100%',
 					height: (screen.height > screen.width ? screen.height : screen.width) / 3,
 					toolbar: {
-						download: canExport
+						download: canExport,
+						autoSelected: 'zoom'
 					}
+				},
+				forecastDataPoints: {
+					count: fkdp
 				},
 				dataLabels: {
 					enabled: false
@@ -1843,13 +1855,14 @@ function buildGraph(prefix, chart, csv, titleAdd, timestr, lvl) {
 				},
 				tooltip: {
 					x: {
+						datetimeUTC: false,
 						format: timestr
 					}
 				},
 				xaxis: {
 					type: "datetime",
 					labels: {
-						datetimeUTC: true,
+						datetimeUTC: false,
 						format: timestr
 					}
 				},
