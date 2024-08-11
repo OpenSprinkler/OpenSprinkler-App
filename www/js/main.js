@@ -29,7 +29,7 @@ var isAndroid = /Android|\bSilk\b/.test( navigator.userAgent ),
 	isMetric = ( [ "US", "BM", "PW" ].indexOf( navigator.languages[ 0 ].split( "-" )[ 1 ] ) === -1 ),
 	is24Hour = false,
 	groupView = false,
-	alphabetView = false,
+	sortByStationName = false,
 
 	storage = {
 		get: function( query, callback ) {
@@ -3909,9 +3909,9 @@ function showOptions( expandItem ) {
 						groupView = $item.is( ":checked" );
 						storage.set( { "groupView": groupView } );
 						return true;
-					case "alphabetView":
-						alphabetView = $item.is( ":checked" );
-						storage.set( { "alphabetView": alphabetView } );
+					case "sortByStationName":
+						sortByStationName = $item.is( ":checked" );
+						storage.set( { "sortByStationName": sortByStationName } );
 						return true;
 					case "o12":
 						if ( !isPi ) {
@@ -4087,7 +4087,7 @@ function showOptions( expandItem ) {
 			_( "Split Stations into Groups" ) + "</label>";
 		}
 
-		list += "<label for='alphabetView'><input data-mini='true' id='alphabetView' type='checkbox' " + ( alphabetView ? "checked='checked'" : "" ) + ">" +
+		list += "<label for='sortByStationName'><input data-mini='true' id='sortByStationName' type='checkbox' " + ( sortByStationName ? "checked='checked'" : "" ) + ">" +
 		_( "Order Stations by Names" ) + "</label>";
 	list += "</div>";
 
@@ -6228,9 +6228,9 @@ var showHome = ( function() {
 					} else if ( statusA < statusB ) {
 						return 1;
 					} else {
-						if(alphabetView){
+						if ( sortByStationName ) {
 							if ( nameA < nameB ) { return -1; } else if ( nameA > nameB ) { return 1; }
-						}else{
+						} else {
 							if ( sidA < sidB ) { return -1; } else if ( sidA > sidB ) { return 1; }
 						}
 						return 0;
@@ -6260,20 +6260,10 @@ var showHome = ( function() {
 			} else if ( statusA < statusB ) {
 				return 1;
 			} else {
-				if(alphabetView){
-					if ( nameA < nameB ) {
-						return -1;
-					}
-					if ( nameA > nameB ) {
-						return 1;
-					}
-				}else{
-					if ( sidA < sidB ) {
-						return -1;
-					}
-					if ( sidA > sidB ) {
-						return 1;
-					}
+				if ( sortByStationName ) {
+					if ( nameA < nameB ) { return -1; } else if ( nameA > nameB ) { return 1; }
+				} else {
+					if ( sidA < sidB ) { return -1; } else if ( sidA > sidB ) { return 1; }
 				}
 				return 0;
 			}
@@ -13070,13 +13060,13 @@ function loadLocalSettings() {
 			default:
 		}
 	} );
-	storage.get( "alphabetView", function( data ) {
-		switch ( data.alphabetView ) {
+	storage.get( "sortByStationName", function( data ) {
+		switch ( data.sortByStationName ) {
 			case "true":
-				alphabetView = true;
+				sortByStationName = true;
 				break;
 			case "false":
-				alphabetView = false;
+				sortByStationName = false;
 				break;
 			default:
 		}
