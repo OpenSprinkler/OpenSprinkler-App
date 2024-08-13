@@ -29,7 +29,7 @@ var isAndroid = /Android|\bSilk\b/.test( navigator.userAgent ),
 	isMetric = ( [ "US", "BM", "PW" ].indexOf( navigator.languages[ 0 ].split( "-" )[ 1 ] ) === -1 ),
 	is24Hour = false,
 	groupView = false,
-	alphabetView = false,
+	sortByStationName = false,
 
 	storage = {
 		get: function( query, callback ) {
@@ -3509,7 +3509,7 @@ function showPause() {
 		popup.find("#extend-pause").on("click", function() {
 			popup.popup( "close" );
 			showDurationBox( {
-				title: "Extend Pause",
+				title: "Extend Current Pause By",
 				incrementalUpdate: false,
 				maximum: 65535,
 				callback: function( duration ) {
@@ -3525,7 +3525,7 @@ function showPause() {
 		popup.find("#new-pause").on("click", function() {
 			popup.popup( "close" );
 			showDurationBox( {
-				title: "Pause Station Runs",
+				title: "Replace Current Pause By",
 				incrementalUpdate: false,
 				maximum: 65535,
 				callback: function( duration ) {
@@ -3548,7 +3548,7 @@ function showPause() {
 		openPopup( $( popup ) );
 	} else {
 		showDurationBox( {
-			title: "Pause Station Runs",
+			title: "Pause Station Runs For",
 			incrementalUpdate: false,
 			maximum: 65535,
 			callback: function( duration ) {
@@ -3909,9 +3909,9 @@ function showOptions( expandItem ) {
 						groupView = $item.is( ":checked" );
 						storage.set( { "groupView": groupView } );
 						return true;
-					case "alphabetView":
-						alphabetView = $item.is( ":checked" );
-						storage.set( { "alphabetView": alphabetView } );
+					case "sortByStationName":
+						sortByStationName = $item.is( ":checked" );
+						storage.set( { "sortByStationName": sortByStationName } );
 						return true;
 					case "o12":
 						if ( !isPi ) {
@@ -4087,7 +4087,7 @@ function showOptions( expandItem ) {
 			_( "Split Stations into Groups" ) + "</label>";
 		}
 
-		list += "<label for='alphabetView'><input data-mini='true' id='alphabetView' type='checkbox' " + ( alphabetView ? "checked='checked'" : "" ) + ">" +
+		list += "<label for='sortByStationName'><input data-mini='true' id='sortByStationName' type='checkbox' " + ( sortByStationName ? "checked='checked'" : "" ) + ">" +
 		_( "Order Stations by Names" ) + "</label>";
 	list += "</div>";
 
@@ -6228,9 +6228,9 @@ var showHome = ( function() {
 					} else if ( statusA < statusB ) {
 						return 1;
 					} else {
-						if(alphabetView){
+						if ( sortByStationName ) {
 							if ( nameA < nameB ) { return -1; } else if ( nameA > nameB ) { return 1; }
-						}else{
+						} else {
 							if ( sidA < sidB ) { return -1; } else if ( sidA > sidB ) { return 1; }
 						}
 						return 0;
@@ -6260,20 +6260,10 @@ var showHome = ( function() {
 			} else if ( statusA < statusB ) {
 				return 1;
 			} else {
-				if(alphabetView){
-					if ( nameA < nameB ) {
-						return -1;
-					}
-					if ( nameA > nameB ) {
-						return 1;
-					}
-				}else{
-					if ( sidA < sidB ) {
-						return -1;
-					}
-					if ( sidA > sidB ) {
-						return 1;
-					}
+				if ( sortByStationName ) {
+					if ( nameA < nameB ) { return -1; } else if ( nameA > nameB ) { return 1; }
+				} else {
+					if ( sidA < sidB ) { return -1; } else if ( sidA > sidB ) { return 1; }
 				}
 				return 0;
 			}
@@ -9743,7 +9733,7 @@ function makeProgram21( n, isCopy ) {
 
 	// Group all stations visually
 	list += "<div style='margin-top:10px' class='ui-corner-all'>";
-	list += "<div class='ui-bar ui-bar-a'><h3 id='station-head'>" + _( "Stations (Total Program Time: )" ) + "</h3></div>";
+	list += "<div class='ui-bar ui-bar-a'><h3 id='station-head'>" + _( "Stations" ) + "</h3></div>";
 	list += "<div class='ui-body ui-body-a'>";
 	list += "<div class='ui-field-contain duration-input'>" +
 			"<label for='set-all'> </label>" +
@@ -9833,7 +9823,10 @@ function makeProgram21( n, isCopy ) {
 		var hours = Math.floor(runtime / 3600);
 		var minutes = Math.floor(runtime % 3600 / 60);
 		var seconds = Math.floor(runtime % 3600 % 60);
-		page.find( "#station-head" ).text("Stations (Total Program Time: " + hours + " hours, " + minutes + " minutes, " + seconds + " seconds)");
+		var runtime = "" + (hours/10>>0) + (hours%10);
+		runtime += ":" + (minutes/10>>0) + (minutes%10);
+		runtime += ":" + (seconds/10>>0) + (seconds%10);
+		page.find( "#station-head" ).text("Total Program Run Time " + runtime);
 
 	}
 
@@ -12043,7 +12036,7 @@ function showDurationBox( opt ) {
 			title: _( "Duration" ),
 			granularity: 0,
 			preventCompression: false,
-			incrementalUpdate: true,
+			incrementalUpdate: false,
 			showBack: true,
 			showSun: false,
 			minimum: 0,
@@ -12444,7 +12437,7 @@ function showTimeInput( opt ) {
 	var defaults = {
 			minutes: 0,
 			title: _( "Time" ),
-			incrementalUpdate: true,
+			incrementalUpdate: false,
 			showBack: true,
 			showSun: false,
 			callback: function() {}
@@ -13070,13 +13063,13 @@ function loadLocalSettings() {
 			default:
 		}
 	} );
-	storage.get( "alphabetView", function( data ) {
-		switch ( data.alphabetView ) {
+	storage.get( "sortByStationName", function( data ) {
+		switch ( data.sortByStationName ) {
 			case "true":
-				alphabetView = true;
+				sortByStationName = true;
 				break;
 			case "false":
-				alphabetView = false;
+				sortByStationName = false;
 				break;
 			default:
 		}
