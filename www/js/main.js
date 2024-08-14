@@ -3558,6 +3558,37 @@ function showPause() {
 	}
 }
 
+function getWeatherProviders() {
+	return [
+		{ name: "Apple (Default)", id: "Apple", needsKey: false },
+		{ name: "AccuWeather", id: "AW", needsKey: true },
+		{ name: "PirateWeather", id: "PW", needsKey: true },
+		{ name: "Open Weather Map", id: "OWM", needsKey: true },
+		{ name: "OpenMeteo", id: "OpenMeteo", needsKey: false },
+		{ name: "DWD", id: "DWD", needsKey: false },
+		{ name: "WeatherUnderground", id: "WU", needsKey: true }
+	];
+}
+
+function getWeatherProviderById( id ) {
+	if(typeof id === "number"){
+		return getWeatherProviders()[id];
+	}
+
+	let weatherProviders = getWeatherProviders();
+	for(provider of weatherProviders){
+		if(provider.id === id){
+			return provider;
+		}
+	}
+
+	return false;
+}
+
+function getCurrentWeatherProvider() {
+	return getWeatherProviderById(controller.settings.wto.provider);
+}
+
 /** Returns the adjustment method for the corresponding ID, or a list of all methods if no ID is specified. */
 function getAdjustmentMethod( id ) {
     var methods = [
@@ -3600,9 +3631,26 @@ function setRestriction( id, uwt ) {
 	return uwt;
 }
 
-function testAPIKey( key, callback ) {
+function testAPIKey( key, provider, callback ) {
+	let url;
+	if(provider === "AW"){
+		url = "https://dataservice.accuweather.com/locations/v1/cities/geoposition/search?q=42,-75&apikey=" + key;
+	}
+
+	if(provider === "PW"){
+		url = "https://api.pirateweather.net/forecast/" + key + "/42,-75?&exclude=minutely,hourly,daily,alerts";
+	}
+
+	if(provider === "OWM"){
+		url = "https://api.openweathermap.org/data/3.0/onecall?lat=42&lon=-75&exclude=minutely,hourly,daily,alerts&appid=" + key;
+	}
+
+	if(provider === "WU"){
+		url = "https://api.weather.com/v2/pws/observations/current?stationId=KMAHANOV10&format=json&units=m&apiKey=" + key;
+	}
+
 	$.ajax( {
-		url: "https://api.weather.com/v2/pws/observations/current?stationId=KMAHANOV10&format=json&units=m&apiKey=" + key,
+		url: url,
 		cache: true
 	} ).done( function( data ) {
 		if ( data.errors ) {
@@ -3931,6 +3979,11 @@ function showOptions( expandItem ) {
 							data = setRestriction( parseInt( restrict.val() ), data );
 						}
 						break;
+					case "weatherSelect":
+						if ( escapeJSON( controller.settings.wto.provider ) === data ) {
+							return true;
+						}
+						break;
 					case "o18":
 					case "o37":
 						if ( parseInt( data ) > ( parseInt( page.find( "#o15" ).val() ) + 1 ) * 8 ) {
@@ -4197,6 +4250,44 @@ function showOptions( expandItem ) {
 		"<legend>" + _( "Weather and Sensors" ) + "</legend>";
 
 	if ( typeof controller.options.uwt !== "undefined" ) {
+		if ( typeof controller.settings.wsp !== "undefined" ) {
+			list += "<div class='ui-field-contain'><label for='weatherSelect' class='select'>" + _( "Weather Data Provider" ) +
+					"<button data-helptext='" +
+						_( "Select your preferred weather service provider." ) +
+						"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
+				"</label><select data-mini='true' id='weatherSelect'>";
+			for ( i = 0; i < getWeatherProviders().length; i++ ) {
+				var weatherProvider = getWeatherProviders()[ i ];
+
+				list += "<option " + ( ( weatherProvider.id === controller.settings.wto.provider ) ? "selected" : "" ) + " value='" + weatherProvider.id + "'>" + weatherProvider.name + "</option>";
+			}
+			list += "</select></div>";
+		}
+
+		if ( checkOSVersion( 219 ) && typeof controller.options.uwt !== "undefined" && typeof controller.settings.wto === "object" ) {
+			list += "<div class='ui-field-contain" + ( getCurrentWeatherProvider().needsKey ? "" : " hidden" ) + "'><label for='wtkey'>" + _( "Weather API Key" ) +
+				"<button data-helptext='" +
+					_( "Please enter an API key for your selected weather provider." ) +
+					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
+			"</label>" +
+			"<table>" +
+				"<tr style='width:100%;vertical-align: top;'>" +
+					"<td style='width:100%'>" +
+						"<div class='" +
+							( ( controller.settings.wto.key && controller.settings.wto.key !== "" ) ? "green " : "" ) +
+							"ui-input-text controlgroup-textinput ui-btn ui-body-inherit ui-corner-all ui-mini ui-shadow-inset ui-input-has-clear'>" +
+								"<input data-role='none' data-mini='true' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' " +
+									"type='text' id='wtkey' value='" + ( controller.settings.wto.key || "" ) + "'>" +
+								"<a href='#' tabindex='-1' aria-hidden='true' data-helptext='" + _( "An invalid API key has been detected." ) +
+									"' class='hidden help-icon ui-input-clear ui-btn ui-icon-alert ui-btn-icon-notext ui-corner-all'>" +
+								"</a>" +
+						"</div>" +
+					"</td>" +
+					"<td><button class='noselect' data-mini='true' id='verify-api'>" + _( "Verify" ) + "</button></td>" +
+				"</tr>" +
+			"</table></div>";
+		}
+
 		list += "<div class='ui-field-contain'><label for='o31' class='select'>" + _( "Weather Adjustment Method" ) +
 				"<button data-helptext='" +
 					_( "Weather adjustment uses DarkSky data in conjunction with the selected method to adjust the watering percentage." ) +
@@ -4433,30 +4524,6 @@ function showOptions( expandItem ) {
 		( typeof expandItem === "string" && expandItem === "advanced" ? " data-collapsed='false'" : "" ) + ">" +
 		"<legend>" + _( "Advanced" ) + "</legend>";
 
-	if ( checkOSVersion( 219 ) && typeof controller.options.uwt !== "undefined" && typeof controller.settings.wto === "object" ) {
-		list += "<div class='ui-field-contain'><label for='wtkey'>" + _( "Wunderground Key" ).replace( "Wunderground", "Wunder&shy;ground" ) +
-			"<button data-helptext='" +
-				_( "We use DarkSky normally however with a user provided API key the weather source will switch to Weather Underground." ) +
-				"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
-		"</label>" +
-		"<table>" +
-			"<tr style='width:100%;vertical-align: top;'>" +
-				"<td style='width:100%'>" +
-					"<div class='" +
-						( ( controller.settings.wto.key && controller.settings.wto.key !== "" ) ? "green " : "" ) +
-						"ui-input-text controlgroup-textinput ui-btn ui-body-inherit ui-corner-all ui-mini ui-shadow-inset ui-input-has-clear'>" +
-							"<input data-role='none' data-mini='true' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' " +
-								"type='text' id='wtkey' value='" + ( controller.settings.wto.key || "" ) + "'>" +
-							"<a href='#' tabindex='-1' aria-hidden='true' data-helptext='" + _( "An invalid API key has been detected." ) +
-								"' class='hidden help-icon ui-input-clear ui-btn ui-icon-alert ui-btn-icon-notext ui-corner-all'>" +
-							"</a>" +
-					"</div>" +
-				"</td>" +
-				"<td><button class='noselect' data-mini='true' id='verify-api'>" + _( "Verify" ) + "</button></td>" +
-			"</tr>" +
-		"</table></div>";
-	}
-
 	if ( typeof controller.options.hp0 !== "undefined" ) {
 		list += "<div class='ui-field-contain'><label for='o12'>" + _( "HTTP Port (restart required)" ) + "</label>" +
 			"<input data-mini='true' type='number' pattern='[0-9]*' id='o12' value='" + ( controller.options.hp1 * 256 + controller.options.hp0 ) + "'>" +
@@ -4669,7 +4736,7 @@ function showOptions( expandItem ) {
 	page.find( "#wto" ).on( "click", function() {
 		var self = this,
 			options = unescapeJSON( this.value ),
-			retainOptions = { pws: options.pws, key: options.key },
+			retainOptions = { pws: options.pws, key: options.key, provider: options.provider },
 			method = parseInt( page.find( "#o31" ).val() ),
 			finish = function() {
 				self.value = escapeJSON( $.extend( {}, unescapeJSON( self.value ), retainOptions ) );
@@ -4849,11 +4916,12 @@ function showOptions( expandItem ) {
 
 	page.find( "#verify-api" ).on( "click", function() {
 		var key = page.find( "#wtkey" ),
-			button = $( this );
+			button = $( this ),
+			provider = page.find( "#weatherSelect" );
 
 		button.prop( "disabled", true );
 
-		testAPIKey( key.val(), function( result ) {
+		testAPIKey( key.val(), provider.val(), function( result ) {
 			if ( result === true ) {
 				key.parent().find( ".ui-icon-alert" ).hide();
 				key.parent().removeClass( "red" ).addClass( "green" );
@@ -4992,6 +5060,22 @@ function showOptions( expandItem ) {
 			page.find( "#o38,#o39" ).parents( ".ui-field-contain" ).toggle( parseInt( page.find( "#o37" ).val() ) === 0 ? false : true );
 		}
 	} );
+
+	page.find( "#weatherSelect" ).on( "change", function() {
+		//remove status from API key entry to prompt re-verify
+		page.find( "#wtkey" ).siblings( ".help-icon" ).hide();
+		page.find( "#wtkey" ).parent().removeClass( "red green" );
+
+		//make API key input appear if needed
+		page.find( "#wtkey" ).parents( ".ui-field-contain" ).toggleClass( "hidden", !(getWeatherProviderById( this.value ).needsKey));
+
+		//change wto value based on new selection
+		let curr = unescapeJSON(page.find( "#wto" ).val());
+		curr.provider = this.value;
+		page.find( "#wtkey" ).prop( "value", "" );
+		page.find( "#wto" ).prop( "value", escapeJSON(curr));
+
+	} )
 
 	page.find( "#o31" ).on( "change", function() {
 
