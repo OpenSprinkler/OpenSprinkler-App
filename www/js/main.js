@@ -29,7 +29,7 @@ var isAndroid = /Android|\bSilk\b/.test( navigator.userAgent ),
 	isMetric = ( [ "US", "BM", "PW" ].indexOf( navigator.languages[ 0 ].split( "-" )[ 1 ] ) === -1 ),
 	is24Hour = false,
 	groupView = false,
-	alphabetView = false,
+	sortByStationName = false,
 
 	storage = {
 		get: function( query, callback ) {
@@ -3486,13 +3486,22 @@ function showRainDelay() {
 
 function showPause() {
 	if ( StationQueue.isPaused() ) {
+		if(!checkOSVersion( 2211 )){
+			areYouSure( _( "Do you want to resume program operation?" ), "", function() {
+				sendToOS( "/pq?dur=0&pw=" ).done( function() {
+					setTimeout( refreshStatus, 1000 );
+				} );
+			} );
+			return;
+		}
+
 		var popup = $("<div data-role='popup' data-theme='a' id='changePause'>" +
 						"<div data-role='header' data-theme='b'>" +
 							"<h1>" + _( "Change Pause" ) + "</h1>" +
 						"</div>" +
 						"<div class='ui-content'>" +
-							"<button style='display:inline-block;' data-mini='true' id='extend-pause'>Extend</button>" +
-							"<button style='display:inline-block;' data-mini='true' id='new-pause'>Replace</button>" +
+							"<button class='new-pause-function' style='display:inline-block;' data-mini='true' id='extend-pause'>Extend</button>" +
+							"<button class='new-pause-function' style='display:inline-block;' data-mini='true' id='new-pause'>Replace</button>" +
 							"<button style='display:inline-block;' data-mini='true' id='un-pause'>Unpause</button>" +
 						"</div>" +
 					"</div>" );
@@ -3500,13 +3509,15 @@ function showPause() {
 		popup.find("#extend-pause").on("click", function() {
 			popup.popup( "close" );
 			showDurationBox( {
-				title: "Extend Pause",
+				title: "Extend Current Pause By",
 				incrementalUpdate: false,
 				maximum: 65535,
 				callback: function( duration ) {
 					var dur = duration;
 					dur += controller.settings.pt;
-					sendToOS( "/pq?repl=" + dur + "&pw=" );
+					sendToOS( "/pq?repl=" + dur + "&pw=" ).done( function() {
+						setTimeout( refreshStatus, 1000 );
+					} );
 				}
 			} );
 		} );
@@ -3514,11 +3525,13 @@ function showPause() {
 		popup.find("#new-pause").on("click", function() {
 			popup.popup( "close" );
 			showDurationBox( {
-				title: "Pause Station Runs",
+				title: "Replace Current Pause By",
 				incrementalUpdate: false,
 				maximum: 65535,
 				callback: function( duration ) {
-					sendToOS( "/pq?repl=" + duration + "&pw=" );
+					sendToOS( "/pq?repl=" + duration + "&pw=" ).done( function() {
+						setTimeout( refreshStatus, 1000 );
+					} );
 				}
 			} );
 		} );
@@ -3526,14 +3539,16 @@ function showPause() {
 		popup.find("#un-pause").on("click", function() {
 			popup.popup( "close" );
 			areYouSure( _( "Do you want to resume program operation?" ), "", function() {
-				sendToOS( "/pq?repl=0&pw=" );
+				sendToOS( "/pq?repl=0&pw=" ).done( function() {
+					setTimeout( refreshStatus, 1000 );
+				} );
 			} );
 		} );
 
 		openPopup( $( popup ) );
 	} else {
 		showDurationBox( {
-			title: "Pause Station Runs",
+			title: "Pause Station Runs For",
 			incrementalUpdate: false,
 			maximum: 65535,
 			callback: function( duration ) {
@@ -3541,6 +3556,37 @@ function showPause() {
 			}
 		} );
 	}
+}
+
+function getWeatherProviders() {
+	return [
+		{ name: "Apple (Default)", id: "Apple", needsKey: false },
+		{ name: "AccuWeather", id: "AW", needsKey: true },
+		{ name: "PirateWeather", id: "PW", needsKey: true },
+		{ name: "Open Weather Map", id: "OWM", needsKey: true },
+		{ name: "OpenMeteo", id: "OpenMeteo", needsKey: false },
+		{ name: "DWD", id: "DWD", needsKey: false },
+		{ name: "WeatherUnderground", id: "WU", needsKey: true }
+	];
+}
+
+function getWeatherProviderById( id ) {
+	if(typeof id === "number"){
+		return getWeatherProviders()[id];
+	}
+
+	let weatherProviders = getWeatherProviders();
+	for(provider of weatherProviders){
+		if(provider.id === id){
+			return provider;
+		}
+	}
+
+	return false;
+}
+
+function getCurrentWeatherProvider() {
+	return getWeatherProviderById(controller.settings.wto.provider);
 }
 
 /** Returns the adjustment method for the corresponding ID, or a list of all methods if no ID is specified. */
@@ -3585,9 +3631,26 @@ function setRestriction( id, uwt ) {
 	return uwt;
 }
 
-function testAPIKey( key, callback ) {
+function testAPIKey( key, provider, callback ) {
+	let url;
+	if(provider === "AW"){
+		url = "https://dataservice.accuweather.com/locations/v1/cities/geoposition/search?q=42,-75&apikey=" + key;
+	}
+
+	if(provider === "PW"){
+		url = "https://api.pirateweather.net/forecast/" + key + "/42,-75?&exclude=minutely,hourly,daily,alerts";
+	}
+
+	if(provider === "OWM"){
+		url = "https://api.openweathermap.org/data/3.0/onecall?lat=42&lon=-75&exclude=minutely,hourly,daily,alerts&appid=" + key;
+	}
+
+	if(provider === "WU"){
+		url = "https://api.weather.com/v2/pws/observations/current?stationId=KMAHANOV10&format=json&units=m&apiKey=" + key;
+	}
+
 	$.ajax( {
-		url: "https://api.weather.com/v2/pws/observations/current?stationId=KMAHANOV10&format=json&units=m&apiKey=" + key,
+		url: url,
 		cache: true
 	} ).done( function( data ) {
 		if ( data.errors ) {
@@ -3894,9 +3957,9 @@ function showOptions( expandItem ) {
 						groupView = $item.is( ":checked" );
 						storage.set( { "groupView": groupView } );
 						return true;
-					case "alphabetView":
-						alphabetView = $item.is( ":checked" );
-						storage.set( { "alphabetView": alphabetView } );
+					case "sortByStationName":
+						sortByStationName = $item.is( ":checked" );
+						storage.set( { "sortByStationName": sortByStationName } );
 						return true;
 					case "o12":
 						if ( !isPi ) {
@@ -3914,6 +3977,11 @@ function showOptions( expandItem ) {
 						var restrict = page.find( "#weatherRestriction" );
 						if ( restrict.length ) {
 							data = setRestriction( parseInt( restrict.val() ), data );
+						}
+						break;
+					case "weatherSelect":
+						if ( escapeJSON( controller.settings.wto.provider ) === data ) {
+							return true;
 						}
 						break;
 					case "o18":
@@ -4072,7 +4140,7 @@ function showOptions( expandItem ) {
 			_( "Split Stations into Groups" ) + "</label>";
 		}
 
-		list += "<label for='alphabetView'><input data-mini='true' id='alphabetView' type='checkbox' " + ( alphabetView ? "checked='checked'" : "" ) + ">" +
+		list += "<label for='sortByStationName'><input data-mini='true' id='sortByStationName' type='checkbox' " + ( sortByStationName ? "checked='checked'" : "" ) + ">" +
 		_( "Order Stations by Names" ) + "</label>";
 	list += "</div>";
 
@@ -4182,6 +4250,44 @@ function showOptions( expandItem ) {
 		"<legend>" + _( "Weather and Sensors" ) + "</legend>";
 
 	if ( typeof controller.options.uwt !== "undefined" ) {
+		if ( typeof controller.settings.wsp !== "undefined" ) {
+			list += "<div class='ui-field-contain'><label for='weatherSelect' class='select'>" + _( "Weather Data Provider" ) +
+					"<button data-helptext='" +
+						_( "Select your preferred weather service provider." ) +
+						"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
+				"</label><select data-mini='true' id='weatherSelect'>";
+			for ( i = 0; i < getWeatherProviders().length; i++ ) {
+				var weatherProvider = getWeatherProviders()[ i ];
+
+				list += "<option " + ( ( weatherProvider.id === controller.settings.wto.provider ) ? "selected" : "" ) + " value='" + weatherProvider.id + "'>" + weatherProvider.name + "</option>";
+			}
+			list += "</select></div>";
+		}
+
+		if ( checkOSVersion( 219 ) && typeof controller.options.uwt !== "undefined" && typeof controller.settings.wto === "object" ) {
+			list += "<div class='ui-field-contain" + ( getCurrentWeatherProvider().needsKey ? "" : " hidden" ) + "'><label for='wtkey'>" + _( "Weather API Key" ) +
+				"<button data-helptext='" +
+					_( "Please enter an API key for your selected weather provider." ) +
+					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
+			"</label>" +
+			"<table>" +
+				"<tr style='width:100%;vertical-align: top;'>" +
+					"<td style='width:100%'>" +
+						"<div class='" +
+							( ( controller.settings.wto.key && controller.settings.wto.key !== "" ) ? "green " : "" ) +
+							"ui-input-text controlgroup-textinput ui-btn ui-body-inherit ui-corner-all ui-mini ui-shadow-inset ui-input-has-clear'>" +
+								"<input data-role='none' data-mini='true' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' " +
+									"type='text' id='wtkey' value='" + ( controller.settings.wto.key || "" ) + "'>" +
+								"<a href='#' tabindex='-1' aria-hidden='true' data-helptext='" + _( "An invalid API key has been detected." ) +
+									"' class='hidden help-icon ui-input-clear ui-btn ui-icon-alert ui-btn-icon-notext ui-corner-all'>" +
+								"</a>" +
+						"</div>" +
+					"</td>" +
+					"<td><button class='noselect' data-mini='true' id='verify-api'>" + _( "Verify" ) + "</button></td>" +
+				"</tr>" +
+			"</table></div>";
+		}
+
 		list += "<div class='ui-field-contain'><label for='o31' class='select'>" + _( "Weather Adjustment Method" ) +
 				"<button data-helptext='" +
 					_( "Weather adjustment uses DarkSky data in conjunction with the selected method to adjust the watering percentage." ) +
@@ -4418,30 +4524,6 @@ function showOptions( expandItem ) {
 		( typeof expandItem === "string" && expandItem === "advanced" ? " data-collapsed='false'" : "" ) + ">" +
 		"<legend>" + _( "Advanced" ) + "</legend>";
 
-	if ( checkOSVersion( 219 ) && typeof controller.options.uwt !== "undefined" && typeof controller.settings.wto === "object" ) {
-		list += "<div class='ui-field-contain'><label for='wtkey'>" + _( "Wunderground Key" ).replace( "Wunderground", "Wunder&shy;ground" ) +
-			"<button data-helptext='" +
-				_( "We use DarkSky normally however with a user provided API key the weather source will switch to Weather Underground." ) +
-				"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
-		"</label>" +
-		"<table>" +
-			"<tr style='width:100%;vertical-align: top;'>" +
-				"<td style='width:100%'>" +
-					"<div class='" +
-						( ( controller.settings.wto.key && controller.settings.wto.key !== "" ) ? "green " : "" ) +
-						"ui-input-text controlgroup-textinput ui-btn ui-body-inherit ui-corner-all ui-mini ui-shadow-inset ui-input-has-clear'>" +
-							"<input data-role='none' data-mini='true' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' " +
-								"type='text' id='wtkey' value='" + ( controller.settings.wto.key || "" ) + "'>" +
-							"<a href='#' tabindex='-1' aria-hidden='true' data-helptext='" + _( "An invalid API key has been detected." ) +
-								"' class='hidden help-icon ui-input-clear ui-btn ui-icon-alert ui-btn-icon-notext ui-corner-all'>" +
-							"</a>" +
-					"</div>" +
-				"</td>" +
-				"<td><button class='noselect' data-mini='true' id='verify-api'>" + _( "Verify" ) + "</button></td>" +
-			"</tr>" +
-		"</table></div>";
-	}
-
 	if ( typeof controller.options.hp0 !== "undefined" ) {
 		list += "<div class='ui-field-contain'><label for='o12'>" + _( "HTTP Port (restart required)" ) + "</label>" +
 			"<input data-mini='true' type='number' pattern='[0-9]*' id='o12' value='" + ( controller.options.hp1 * 256 + controller.options.hp0 ) + "'>" +
@@ -4654,7 +4736,7 @@ function showOptions( expandItem ) {
 	page.find( "#wto" ).on( "click", function() {
 		var self = this,
 			options = unescapeJSON( this.value ),
-			retainOptions = { pws: options.pws, key: options.key },
+			retainOptions = { pws: options.pws, key: options.key, provider: options.provider },
 			method = parseInt( page.find( "#o31" ).val() ),
 			finish = function() {
 				self.value = escapeJSON( $.extend( {}, unescapeJSON( self.value ), retainOptions ) );
@@ -4834,11 +4916,12 @@ function showOptions( expandItem ) {
 
 	page.find( "#verify-api" ).on( "click", function() {
 		var key = page.find( "#wtkey" ),
-			button = $( this );
+			button = $( this ),
+			provider = page.find( "#weatherSelect" );
 
 		button.prop( "disabled", true );
 
-		testAPIKey( key.val(), function( result ) {
+		testAPIKey( key.val(), provider.val(), function( result ) {
 			if ( result === true ) {
 				key.parent().find( ".ui-icon-alert" ).hide();
 				key.parent().removeClass( "red" ).addClass( "green" );
@@ -4977,6 +5060,22 @@ function showOptions( expandItem ) {
 			page.find( "#o38,#o39" ).parents( ".ui-field-contain" ).toggle( parseInt( page.find( "#o37" ).val() ) === 0 ? false : true );
 		}
 	} );
+
+	page.find( "#weatherSelect" ).on( "change", function() {
+		//remove status from API key entry to prompt re-verify
+		page.find( "#wtkey" ).siblings( ".help-icon" ).hide();
+		page.find( "#wtkey" ).parent().removeClass( "red green" );
+
+		//make API key input appear if needed
+		page.find( "#wtkey" ).parents( ".ui-field-contain" ).toggleClass( "hidden", !(getWeatherProviderById( this.value ).needsKey));
+
+		//change wto value based on new selection
+		let curr = unescapeJSON(page.find( "#wto" ).val());
+		curr.provider = this.value;
+		page.find( "#wtkey" ).prop( "value", "" );
+		page.find( "#wto" ).prop( "value", escapeJSON(curr));
+
+	} )
 
 	page.find( "#o31" ).on( "change", function() {
 
@@ -6213,9 +6312,9 @@ var showHome = ( function() {
 					} else if ( statusA < statusB ) {
 						return 1;
 					} else {
-						if(alphabetView){
+						if ( sortByStationName ) {
 							if ( nameA < nameB ) { return -1; } else if ( nameA > nameB ) { return 1; }
-						}else{
+						} else {
 							if ( sidA < sidB ) { return -1; } else if ( sidA > sidB ) { return 1; }
 						}
 						return 0;
@@ -6245,20 +6344,10 @@ var showHome = ( function() {
 			} else if ( statusA < statusB ) {
 				return 1;
 			} else {
-				if(alphabetView){
-					if ( nameA < nameB ) {
-						return -1;
-					}
-					if ( nameA > nameB ) {
-						return 1;
-					}
-				}else{
-					if ( sidA < sidB ) {
-						return -1;
-					}
-					if ( sidA > sidB ) {
-						return 1;
-					}
+				if ( sortByStationName ) {
+					if ( nameA < nameB ) { return -1; } else if ( nameA > nameB ) { return 1; }
+				} else {
+					if ( sidA < sidB ) { return -1; } else if ( sidA > sidB ) { return 1; }
 				}
 				return 0;
 			}
@@ -6920,9 +7009,7 @@ function checkStatus() {
 		line += "</p>";
 
 		changeStatus( controller.settings.pt || 0, "yellow", line, function() {
-			showPause().done( function() {
-				setTimeout( refreshStatus, 1000 );
-			} );
+			showPause();
 		} );
 		return;
 	}
@@ -9730,7 +9817,7 @@ function makeProgram21( n, isCopy ) {
 
 	// Group all stations visually
 	list += "<div style='margin-top:10px' class='ui-corner-all'>";
-	list += "<div class='ui-bar ui-bar-a'><h3 id='station-head'>" + _( "Stations (Total Program Time: )" ) + "</h3></div>";
+	list += "<div class='ui-bar ui-bar-a'><h3 id='station-head'>" + _( "Stations" ) + "</h3></div>";
 	list += "<div class='ui-body ui-body-a'>";
 	list += "<div class='ui-field-contain duration-input'>" +
 			"<label for='set-all'> </label>" +
@@ -9820,7 +9907,10 @@ function makeProgram21( n, isCopy ) {
 		var hours = Math.floor(runtime / 3600);
 		var minutes = Math.floor(runtime % 3600 / 60);
 		var seconds = Math.floor(runtime % 3600 % 60);
-		page.find( "#station-head" ).text("Stations (Total Program Time: " + hours + " hours, " + minutes + " minutes, " + seconds + " seconds)");
+		var runtime = "" + (hours/10>>0) + (hours%10);
+		runtime += ":" + (minutes/10>>0) + (minutes%10);
+		runtime += ":" + (seconds/10>>0) + (seconds%10);
+		page.find( "#station-head" ).text("Total Program Run Time " + runtime);
 
 	}
 
@@ -12030,7 +12120,7 @@ function showDurationBox( opt ) {
 			title: _( "Duration" ),
 			granularity: 0,
 			preventCompression: false,
-			incrementalUpdate: true,
+			incrementalUpdate: false,
 			showBack: true,
 			showSun: false,
 			minimum: 0,
@@ -12431,7 +12521,7 @@ function showTimeInput( opt ) {
 	var defaults = {
 			minutes: 0,
 			title: _( "Time" ),
-			incrementalUpdate: true,
+			incrementalUpdate: false,
 			showBack: true,
 			showSun: false,
 			callback: function() {}
@@ -13057,13 +13147,13 @@ function loadLocalSettings() {
 			default:
 		}
 	} );
-	storage.get( "alphabetView", function( data ) {
-		switch ( data.alphabetView ) {
+	storage.get( "sortByStationName", function( data ) {
+		switch ( data.sortByStationName ) {
 			case "true":
-				alphabetView = true;
+				sortByStationName = true;
 				break;
 			case "false":
-				alphabetView = false;
+				sortByStationName = false;
 				break;
 			default:
 		}
