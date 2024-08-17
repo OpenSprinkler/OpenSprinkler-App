@@ -6,8 +6,7 @@
  */
 
 var analogSensors = {},
-	progAdjusts = {},
-	analogSensorAvail = false;
+	progAdjusts = {};
 
 const CHARTS = 11;
 const USERDEF_SENSOR = 49;
@@ -32,19 +31,8 @@ const RS485_TRUEBNER2 = 0x40;
 const RS485_TRUEBNER3 = 0x80;
 const RS485_TRUEBNER4 = 0x100;
 
-function checkAnalogSensorAvail(callback) {
-	callback = callback || function () { };
-	return sendToOS("/sl?pw=", "json").then(function (data) {
-		if (typeof data === "undefined" || $.isEmptyObject(data)) {
-			analogSensorAvail = false;
-			return;
-		}
-		analogSensorAvail = true;
-		callback();
-	}, function (data) {
-		analogSensorAvail = false;
-	});
-
+function checkAnalogSensorAvail() {
+	return controller.options && controller.options.feature === "ASB";
 }
 
 function refresh() {
@@ -81,7 +69,7 @@ function updateAnalogSensor(callback) {
 }
 
 function updateSensorShowArea(page) {
-	if (analogSensorAvail) {
+	if (checkAnalogSensorAvail()) {
 		var showArea = page.find("#os-sensor-show");
 		var html = "", i, j;
 		html += "<div class='ui-body ui-body-a center'><table style='margin: 0px auto;'>";
@@ -1166,6 +1154,8 @@ function showAnalogSensorConfig() {
 		});
 
 	function updateSensorContent() {
+		if (!analogSensors.expandItem)
+			analogSensors.expandItem = new Set(["sensors"]);
 		var list = $(buildSensorConfig(analogSensors.expandItem));
 
 		//Edit a sensor:
@@ -1425,7 +1415,9 @@ function showAnalogSensorConfig() {
 }
 
 function checkFirmwareUpdate() {
-	return (checkOSVersion(CURRENT_FW_ID) && controller.options.fwm >= CURRENT_FW_MIN) ? "" : (_("Please update firmware to ") + CURRENT_FW);
+	if (checkOSVersion(CURRENT_FW_ID) && controller.options.fwm >= CURRENT_FW_MIN)
+		return "";
+	return _("Please update firmware to ") + CURRENT_FW;
 }
 
 function buildSensorConfig(expandItem) {
@@ -1452,8 +1444,11 @@ function buildSensorConfig(expandItem) {
 	var list = "<fieldset data-role='collapsible'" + (expandItem.has("sensors") ? " data-collapsed='false'" : "") + ">" +
 		"<legend>" + _("Sensors") + detected_boards + "</legend>";
 
+	var info = checkFirmwareUpdate();
+	if (info === undefined)
+		info = "";
 	list += "<table id='analog_sensor_table'><tr style='width:100%;vertical-align: top;'>" +
-		checkFirmwareUpdate() +
+		info +
 		"<tr><th>" + _("Nr") + "</th><th class=\"hidecol\">" + _("Type") + "</th><th class=\"hidecol\">" + _("Group") + "</th><th>" + _("Name") + "</th>" +
 		"<th class=\"hidecol\">" + _("IP") + "</th><th class=\"hidecol\">" + _("Port") + "</th><th class=\"hidecol\">" + _("ID") + "</th>" +
 		"<th class=\"hidecol\">" + _("Read") + "<br>" + _("Interval") + "</th><th>" + _("Data") + "</th><th>" + _("En") + "</th>" +

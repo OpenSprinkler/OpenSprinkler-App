@@ -55,6 +55,14 @@ a {
     text-decoration:none
 }
 
+.macos #header {
+	top: 36px;
+}
+
+.macos #sprinklers-settings {
+	top: 36px;
+}
+
 /* Station tab rules */
 
 ul.tabs {
@@ -405,7 +413,7 @@ hr.divider {
 
 body, #loadingPage {
     margin:0;
-    background-color:#1C1C1C;
+    background-color:#1C1C1C !important;
     height: 100%
 }
 body, input, select, textarea, button, .ui-btn {
@@ -541,6 +549,15 @@ input[type=number] {
 .help-icon, .inline-icon > .ui-btn {
     display: inline-block;
     vertical-align: middle
+}
+
+.edit-loc {
+	display: inline-block;
+	padding: 0;
+	margin: 0;
+	right: 30px;
+	position: absolute;
+	top: 3px;
 }
 
 .clear-loc {
