@@ -9414,11 +9414,11 @@ function readProgram21( program ) {
 
 	} else if ( type === PROGRAM_TYPE_SINGLERUN ) {
 		//This is a single-run program
-		days = (days0 << 8) + days1;
+		days = [ (days0 << 8) + days1, 0 ];
 
 	} else if ( type === PROGRAM_TYPE_MONTHLY ) {
 		//This is a monthly program
-		days = days0;
+		days = [ days0, days1 ];
 
 	}
 
@@ -9800,7 +9800,7 @@ function makeProgram21( n, isCopy ) {
 			"<label for='days_single-" + id + "'>" + _( "Single Run" ) + "</label>";
 		list += "<input data-mini='true' type='radio' name='rad_days-" + id + "' id='days_month-" + id + "' " +
 			"value='days_month-" + id + "' " + ( ( program.type === PROGRAM_TYPE_MONTHLY ) ? "checked='checked'" : "" ) + ">" +
-			"<label for 'days_month-" + id + "'>" + _( "Monthly" ) + "</label>";
+			"<label for='days_month-" + id + "'>" + _( "Monthly" ) + "</label>";
 	}
 	list += "</fieldset>";
 
@@ -9816,13 +9816,25 @@ function makeProgram21( n, isCopy ) {
 	list += "</select></div></div>";
 
 	// Show interval program options
-	list += "<div " + ( ( program.is_interval ) ? "" : "style='display:none'" ) + " id='input_days_n-" + id + "' class='ui-grid-a'>";
+	list += "<div " + ( ( program.type === PROGRAM_TYPE_INTERVAL ) ? "" : "style='display:none'" ) + " id='input_days_n-" + id + "' class='ui-grid-a'>";
 	list += "<div class='ui-block-a'><label class='center' for='every-" + id + "'>" + _( "Interval (Days)" ) + "</label>" +
 		"<input data-wrapper-class='pad_buttons' data-mini='true' type='number' name='every-" + id + "' pattern='[0-9]*' " +
 			"id='every-" + id + "' value='" + program.days[ 0 ] + "'></div>";
 	list += "<div class='ui-block-b'><label class='center' for='starting-" + id + "'>" + _( "Starting In" ) + "</label>" +
 		"<input data-wrapper-class='pad_buttons' data-mini='true' type='number' name='starting-" + id + "' pattern='[0-9]*' " +
 			"id='starting-" + id + "' value='" + program.days[ 1 ] + "'></div>";
+	list += "</div>";
+
+	// Show singlerun program options
+	list += "<div " + ( ( program.type === PROGRAM_TYPE_SINGLERUN ) ? "" : "style='display:none'" ) + " id='input_days_single-" + id + "'>";
+	list += "<div class='center'><p class='tight'>" + _( "Start Date (mm/dd/yyyy)" ) + "</p>" +
+		"<input type='text' id='singleDate-" + id + "' value='" + epochToDate(program.days[ 0 ]) + "'></div>";
+	list += "</div>";
+
+	// Show monthly program options
+	list += "<div id='input_days_month-" + id + "' " + ( ( program.type === PROGRAM_TYPE_MONTHLY ) ? "" : "style='display:none'" ) + ">";
+	list += "<div class='center'><p class='tight'>" + _( "Day of the Month (Use 0 for the last day)" ) + "</p>" +
+		"<input type='text' id='monthDay-" + id + "' value='" + program.days[ 0 ] + "'></div>";
 	list += "</div>";
 
 	// Show restriction options
@@ -10245,6 +10257,26 @@ function submitProgram21( id, ignoreWarning ) {
 			showerror( _( "Error: Starting in days wrong." ) );
 			return;
 		}
+	} else if ( $( "#days_month-" + id ).is( ":checked" ) ) {
+		j |= ( 2 << 4 );
+		days[ 0 ] = parseInt( $( "#monthDay-" + id ).val(), 10 );
+
+		if ( days[ 0 ] < 0 || days[ 0 ] > 31) {
+			showerror( _("Error: Day of month is out of bounds." ) );
+			return;
+		}
+	} else if ( $( "#days_single-" + id ).is( ":checked" ) ) {
+		j |= ( 1 << 4 );
+
+		var time = dateToEpoch( $( "#singleDate-" + id ).val());
+		console.log(time);
+		if ( time === -1 ){
+			showerror(_( "Error: Start date is input incorrectly." ) );
+			return;
+		}
+
+		days[ 0 ] = (time >> 8) & 0b11111111;
+		days[ 1 ] = time & 0b11111111;
 
 	} else if ( $( "#days_week-" + id ).is( ":checked" ) ) {
 		j |= ( 0 << 4 );
@@ -10733,8 +10765,12 @@ function importConfig( data ) {
 					}
 
 					// Set program type
-					if ( program.is_interval ) {
+					if ( program.type === PROGRAM_TYPE_INTERVAL ) {
 						j |= ( 3 << 4 );
+					} else if( program.type === PROGRAM_TYPE_MONTHLY ){
+						j |= ( 2 << 4 );
+					} else if( program.type === PROGRAM_TYPE_SINGLERUN ){
+						j |= ( 1 << 4 );
 					} else {
 						j |= ( 0 << 4 );
 					}
@@ -14074,6 +14110,7 @@ function mapGIDNameToValue( groupName ) {
 // Miscellaneous
 
 var dateRegex = /[0-9]{1,2}[\/][0-9]{1,2}/g;
+var dateRegexYear = /[0-9]{1,2}[\/][0-9]{1,2}[\/][0-9]{4}/g;
 
 function Program() {}
 
@@ -14102,8 +14139,34 @@ Program.getDateRangeEnd = function( pid ) {
 	return Program.getDateRange( pid )[ 2 ];
 };
 
+function dateToEpoch( dateString ) {
+	//return epoch days from date
+	var dateValues = extractDateFromStringYear( dateString );
+	if ( dateValues === null ) {
+		return -1;
+	}
+
+	dateValues = dateValues[ 0 ].split( "/" );
+
+	var date = new Date(parseInt(dateValues[ 2 ]), parseInt(dateValues[ 0 ]) - 1, parseInt(dateValues[ 1 ]));
+
+	return Math.floor(date.getTime() / (1000 * 86400));
+
+}
+
+function epochToDate( epochTime ) {
+	//return a date string from an epoch time in days
+	var date = new Date(epochTime * (1000 * 86400) );
+
+	return (date.getUTCMonth() + 1) + "/" + date.getUTCDate() + "/" + date.getUTCFullYear();
+}
+
 function extractDateFromString( inputString ) {
 	return inputString.match( dateRegex );
+}
+
+function extractDateFromStringYear ( inputString ) {
+	return inputString.match( dateRegexYear );
 }
 
 function isValidDateFormat( dateString ) {
