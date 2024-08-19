@@ -5816,7 +5816,7 @@ var showHome = ( function() {
 							for ( var i = 0; i < 4; i++ ) {
 								hex += pad( parseInt( ip[ i ] ).toString( 16 ) );
 							}
-							hex += ( port < 256 ? "00" : "" ) + pad( port.toString( 16 ) );
+							hex += pad ( ( port >> 8 ).toString( 16 ) ) + pad( ( port & 0xFF ).toString( 16 ) );
 							hex += pad( station.toString( 16 ) );
 						} else {
 							otc = select.find( "#remote-otc" ).val();
