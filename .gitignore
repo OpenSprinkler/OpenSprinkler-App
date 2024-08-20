@@ -43,3 +43,6 @@ log.txt
 *.sublime-project
 *.sublime-workspace
 npm-debug.log*
+
+# Firebase
+.firebase
