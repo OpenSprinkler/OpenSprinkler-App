@@ -8,7 +8,7 @@
 var analogSensors = {},
 	progAdjusts = {};
 
-const CHARTS = 11;
+const CHARTS = 12;
 const USERDEF_SENSOR = 49;
 const USERDEF_UNIT = 99;
 const SENSOR_MQTT = 90;
@@ -844,7 +844,9 @@ function updateSensorVisibility(popup, type) {
 		popup.find(".filter_label").hide();
 		popup.find(".filter").hide();
 	}
-	if (type == SENSOR_MQTT || type == USERDEF_SENSOR) {
+
+	var unitid = popup.find("#chartunits").val();
+	if (type == SENSOR_MQTT || type == USERDEF_SENSOR || unitid == USERDEF_UNIT) {
 		popup.find(".unit_label").show();
 		popup.find(".unit").show();
 	} else {
@@ -1068,7 +1070,7 @@ function showSensorEditor(sensor, row, callback, callbackCancel) {
 			link.setAttribute("download", "sensorlog-" + sensor.name + "-" + new Date().toLocaleDateString().replace(/\//g, "-") + ".csv");
 
 			var limit = currToken ? "&max=5500" : ""; //download limit is 140kb, 5500 lines ca 137kb
-			var dest = "/so?pw=&csv=1" + limit;
+			var dest = "/so?pw=&csv=1&nr="+ sensor.nr + limit;
 			dest = dest.replace("pw=", "pw=" + enc(currPass));
 			link.target = "_blank";
 			link.href = currToken ? ("https://cloud.openthings.io/forward/v1/" + currToken + dest) : (currPrefix + currIp + dest);
@@ -1180,16 +1182,15 @@ function showAnalogSensorConfig() {
 					"&id=" + sensorOut.id +
 					"&ri=" + sensorOut.ri +
 					"&unitid=" + sensorOut.unitid +
+					"&unit=" + enc(sensorOut.unit) +
 					((sensorOut.type === USERDEF_SENSOR) ?
 						("&fac=" + sensorOut.fac +
 							"&div=" + sensorOut.div +
-							"&offset=" + sensorOut.offset +
-							"&unit=" + enc(sensorOut.unit)
+							"&offset=" + sensorOut.offset
 						) : "") +
 					((sensorOut.type === SENSOR_MQTT) ?
 						("&topic=" + enc(sensorOut.topic) +
-							"&filter=" + enc(sensorOut.filter) +
-							"&unit=" + enc(sensorOut.unit)
+							"&filter=" + enc(sensorOut.filter)
 						) : "") +
 					"&enable=" + sensorOut.enable +
 					"&log=" + sensorOut.log +
@@ -1655,7 +1656,7 @@ function buildGraph(prefix, chart, csv, titleAdd, timestr, tzo, lvl) {
 				let date = Number(line[1]);
 				let value = Number(line[2]);
 				if (value === undefined || date === undefined) continue;
-				if (unitid != 3 && value > 100) continue;
+				if (unitid != 3 && unitid != USERDEF_UNIT && value > 100) continue;
 				if (unitid == 1 && value < 0) continue;
 				if (lvl == 0) //day values
 					logdata.push({ x: (date - tzo) * 1000, y: value });
@@ -1727,7 +1728,7 @@ function buildGraph(prefix, chart, csv, titleAdd, timestr, tzo, lvl) {
 		else
 			colors[unitid].push(color);
 
-		var series = { name: sensor.name, type: "line", data: logdata, color: color };
+		var series = { name: sensor.name, type: (sensor.unitid === USERDEF_UNIT? "area" : "line"), data: logdata, color: color };
 
 		if (!chart[unitid]) {
 			var unit, title, unitStr,
