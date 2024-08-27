@@ -7419,9 +7419,13 @@ var getRunonce = ( function() {
 		},
 		resetRunonce = function() {
 			page.find( "[id^='zone-']" ).val( 0 ).text( "0s" ).removeClass( "green" );
+			page.find( "#uwt-runonce" ).prop( "checked", false ).checkboxradio( "refresh" );
+			page.find( "#interval-runonce" ).val( 0 ).text( dhms2str(0) );
+			page.find( "#repeat-runonce" ).val( 0 ).text( 0 );
 			return false;
 		},
-		fillRunonce = function( data ) {
+		fillRunonce = function( data, repeat, interval, weather ) {
+			resetRunonce();
 			page.find( "[id^='zone-']" ).each( function( a, b ) {
 				if ( Station.isMaster( a ) ) {
 					return;
@@ -7435,8 +7439,20 @@ var getRunonce = ( function() {
 					ele.removeClass( "green" );
 				}
 			} );
+
+			if( checkOSVersion( 2211 ) ){
+				if(typeof repeat === "number"){
+					page.find("#repeat-runonce").val( repeat ).text( repeat );
+				}
+				if(typeof interval === "number"){
+					page.find("#interval-runonce").val( interval * 60 ).text( dhms2str( sec2dhms( interval * 60 ) ) );
+				}
+				if(typeof weather === "number"){
+					page.find("#uwt-runonce").prop( "checked", weather ? true : false).checkboxradio( "refresh" );
+				}
+			}
 		},
-		i, list, quickPick, progs, rprogs, z, program, name;
+		i, list, quickPick, progs, rprogs, repeats, intervals, weathers, z, program, name;
 
 	page.on( "pagehide", function() {
 		page.detach();
@@ -7445,6 +7461,9 @@ var getRunonce = ( function() {
 	function begin() {
 		list = "<p class='center'>" + _( "Zero value excludes the station from the run-once program." ) + "</p>";
 		progs = [];
+		repeats = [];
+		intervals = [];
+		weathers = [];
 		if ( controller.programs.pd.length ) {
 			for ( z = 0; z < controller.programs.pd.length; z++ ) {
 				program = readProgram( controller.programs.pd[ z ] );
@@ -7460,6 +7479,12 @@ var getRunonce = ( function() {
 				}
 
 				progs.push( prog );
+
+				if( checkOSVersion( 2211 ) ){
+					repeats.push( program.repeat );
+					intervals.push( program.interval );
+					weathers.push( program.weather );
+				}
 			}
 		}
 		rprogs = progs;
@@ -7489,7 +7514,24 @@ var getRunonce = ( function() {
 			}
 		} );
 
-		list += "</form><a class='ui-btn ui-corner-all ui-shadow rsubmit' href='#'>" + _( "Submit" ) + "</a>" +
+		list += "</form>";
+
+		if(checkOSVersion(2211)){
+			// Program weather control flag
+			list += "<label for='uwt-runonce'><input data-mini='true' type='checkbox' name='uwt-runonce' id='uwt-runonce'>" + _( "Use Weather Adjustment" ) + "</label>";
+
+			// Show repeating start time options
+			list += "<div id='input_stype_repeat-runonce'>";
+			list += "<div class='ui-grid-a'>";
+			list += "<div class='ui-block-a'><label class='pad_buttons center' for='interval-runonce'>" + _( "Repeat Every" ) + "</label>" +
+				"<button class='pad_buttons' data-mini='true' name='interval-runonce' id='interval-runonce' " +
+					"value='0'>" + dhms2str( 0 ) + "</button></div>";
+			list += "<div class='ui-block-b'><label class='pad_buttons center' for='repeat-runonce'>" + _( "Repeat Count" ) + "</label>" +
+				"<button class='pad_buttons' data-mini='true' name='repeat-runonce' id='repeat-runonce' value='0'>0</button></div>";
+			list += "</div></div>";
+		}
+
+		list += "<a class='ui-btn ui-corner-all ui-shadow rsubmit' href='#'>" + _( "Submit" ) + "</a>" +
 			"<a class='ui-btn ui-btn-b ui-corner-all ui-shadow rreset' href='#'>" + _( "Reset" ) + "</a>";
 
 		page.find( ".ui-content" ).html( list ).enhanceWithin();
@@ -7536,10 +7578,20 @@ var getRunonce = ( function() {
 			if ( typeof rprogs[ prog ] === "undefined" ) {
 				return;
 			}
-			fillRunonce( rprogs[ prog ] );
+			if( checkOSVersion(2211) ){
+				fillRunonce( rprogs[ prog ], repeats[ prog ], intervals[ prog ], weathers[ prog ]);
+			}else{
+				fillRunonce( rprogs[ prog ] );
+			}
 		} );
 
-		page.on( "click", ".rsubmit", submitRunonce ).on( "click", ".rreset", resetRunonce );
+		page.find( ".rsubmit" ).on( "click", function(){
+			submitRunonce();
+		} );
+
+		page.find( ".rreset" ).on( "click", function(){
+			resetRunonce();
+		} );
 
 		page.find( "[id^='zone-']" ).on( "click", function() {
 			var dur = $( this ),
@@ -7564,6 +7616,40 @@ var getRunonce = ( function() {
 			return false;
 		} );
 
+		// Handle interval duration input
+		page.find( "#interval-runonce" ).on( "click", function() {
+			var dur = $( this ),
+				name = page.find( "label[for='" + dur.attr( "id" ) + "']" ).text();
+
+			showDurationBox( {
+				seconds: dur.val(),
+				title: name,
+				callback: function( result ) {
+					dur.val( result );
+					dur.text( dhms2str( sec2dhms( result ) ) );
+				},
+				maximum: 86340,
+				granularity: 1,
+				preventCompression: true
+			} );
+		} );
+
+		// Handle repeat count button
+		page.find( "[id^='repeat-']" ).on( "click", function() {
+			var dur = $( this ),
+				name = page.find( "label[for='" + dur.attr( "id" ) + "']" ).text();
+
+			showSingleDurationInput( {
+				data: dur.val(),
+				title: name,
+				label: _( "Repeat Count" ),
+				callback: function( result ) {
+					dur.val( result ).text( result );
+				},
+				maximum: 1440
+			} );
+		} );
+
 		changeHeader( {
 			title: _( "Run-Once" ),
 			leftBtn: {
@@ -7586,19 +7672,38 @@ var getRunonce = ( function() {
 	return begin;
 } )();
 
-function submitRunonce( runonce ) {
+function submitRunonce( runonce, interval, repeat ) {
+	var weather;
 	if ( !( runonce instanceof Array ) ) {
 		runonce = [];
 		$( "#runonce" ).find( "[id^='zone-']" ).each( function() {
 			runonce.push( parseInt( this.value ) || 0 );
 		} );
 		runonce.push( 0 );
+
+		//no parameters means did not check weather adjustment
+		if(checkOSVersion(2211))
+			weather = $( "#runonce" ).find( "#uwt-runonce" ).prop( "checked" ) ? 1 : 0;
 	}
 
 	var submit = function() {
 			$.mobile.loading( "show" );
 			storage.set( { "runonce":JSON.stringify( runonce ) } );
-			sendToOS( "/cr?pw=&t=" + JSON.stringify( runonce ) ).done( function() {
+			var request;
+			if(checkOSVersion(2211)){
+				if( !(typeof interval === "number" ) ) {
+					interval = $( "#runonce" ).find( "#interval-runonce").val() / 60;
+				}
+				if( !(typeof repeat === "number" ) ) {
+					repeat = $( "#runonce" ).find( "#repeat-runonce").val();
+				}
+
+				request = "/cr?pw=&t=" + JSON.stringify( runonce ) + "&int=" + interval +"&cnt=" + repeat + "&uwt=" + weather;
+			}else{
+				request = "/cr?pw=&t=" + JSON.stringify( runonce );
+			}
+
+			sendToOS( request ).done( function() {
 				$.mobile.loading( "hide" );
 				$.mobile.document.one( "pageshow", function() {
 					showerror( _( "Run-once program has been scheduled" ) );
@@ -9274,10 +9379,19 @@ function expandProgram( program ) {
 		var name = checkOSVersion( 210 ) ? controller.programs.pd[ id ][ 5 ] : "Program " + id;
 
 		areYouSure( _( "Are you sure you want to start " + name + " now?" ), "", function() {
+			var repeat, interval;
+			if( checkOSVersion(2211) ){
+				var program = controller.programs.pd[ id ];
+				var startType = ( ( program[ 0 ] >> 6 ) & 0x01 );
+				if ( startType === 0 ) {
+					repeat = program[ 3 ][ 1 ];
+					interval = program[ 3 ][ 2 ];
+				}
+			}
 			var runonce = [],
 				finish = function() {
 					runonce.push( 0 );
-					submitRunonce( runonce );
+					submitRunonce( runonce, interval, repeat );
 				};
 
 			if ( checkOSVersion( 210 ) ) {
@@ -10269,7 +10383,6 @@ function submitProgram21( id, ignoreWarning ) {
 		j |= ( 1 << 4 );
 
 		var time = dateToEpoch( $( "#singleDate-" + id ).val());
-		console.log(time);
 		if ( time === -1 ){
 			showerror(_( "Error: Start date is input incorrectly." ) );
 			return;
