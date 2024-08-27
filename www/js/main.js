@@ -7368,7 +7368,8 @@ var getRunonce = ( function() {
 			fillRunonce( rprogs[ prog ] );
 		} );
 
-		page.on( "click", ".rsubmit", submitRunonce ).on( "click", ".rreset", resetRunonce );
+		page.find( ".rsubmit" ).on( "click", submitRunonce );
+		page.find( ".rreset" ).on( "click", resetRunonce );
 
 		page.find( "[id^='zone-']" ).on( "click", function() {
 			var dur = $( this ),
