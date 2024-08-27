@@ -7585,13 +7585,8 @@ var getRunonce = ( function() {
 			}
 		} );
 
-		page.find( ".rsubmit" ).on( "click", function(){
-			submitRunonce();
-		} );
-
-		page.find( ".rreset" ).on( "click", function(){
-			resetRunonce();
-		} );
+		page.find( ".rsubmit" ).on( "click", submitRunonce );
+		page.find( ".rreset" ).on( "click", resetRunonce );
 
 		page.find( "[id^='zone-']" ).on( "click", function() {
 			var dur = $( this ),
@@ -7681,26 +7676,25 @@ function submitRunonce( runonce, interval, repeat ) {
 		} );
 		runonce.push( 0 );
 
-		//no parameters means did not check weather adjustment
-		if(checkOSVersion(2211))
+		if(checkOSVersion(2211)){
+			//no parameters means did not check weather adjustment
 			weather = $( "#runonce" ).find( "#uwt-runonce" ).prop( "checked" ) ? 1 : 0;
+			if( !(typeof interval === "number" ) ) {
+				interval = $( "#runonce" ).find( "#interval-runonce").val() / 60;
+			}
+			if( !(typeof repeat === "number" ) ) {
+				repeat = $( "#runonce" ).find( "#repeat-runonce").val();
+			}
+		}
 	}
+
 
 	var submit = function() {
 			$.mobile.loading( "show" );
 			storage.set( { "runonce":JSON.stringify( runonce ) } );
-			var request;
+			var request = "/cr?pw=&t=" + JSON.stringify( runonce );
 			if(checkOSVersion(2211)){
-				if( !(typeof interval === "number" ) ) {
-					interval = $( "#runonce" ).find( "#interval-runonce").val() / 60;
-				}
-				if( !(typeof repeat === "number" ) ) {
-					repeat = $( "#runonce" ).find( "#repeat-runonce").val();
-				}
-
-				request = "/cr?pw=&t=" + JSON.stringify( runonce ) + "&int=" + interval +"&cnt=" + repeat + "&uwt=" + weather;
-			}else{
-				request = "/cr?pw=&t=" + JSON.stringify( runonce );
+				request += "&int=" + interval +"&cnt=" + repeat + "&uwt=" + weather;
 			}
 
 			sendToOS( request ).done( function() {
@@ -7714,12 +7708,23 @@ function submitRunonce( runonce, interval, repeat ) {
 		},
 		isOn = StationQueue.isActive();
 
-	if ( isOn !== -1 ) {
+	if ( interval && interval > 0 && repeat && repeat > 0){
+		areYouSure( _( "This will create a single run program to handle the repeat. Do you want to continue?" ), "", function() {
+			if ( isOn !== -1 ) {
+				areYouSure( _( "Do you want to stop the currently running program?" ), pidname( Station.getPID( isOn ) ), function() {
+					$.mobile.loading( "show" );
+					stopStations( submit );
+				} );
+			} else {
+				submit();
+			}
+		} );
+	}else if ( isOn !== -1 ){
 		areYouSure( _( "Do you want to stop the currently running program?" ), pidname( Station.getPID( isOn ) ), function() {
 			$.mobile.loading( "show" );
 			stopStations( submit );
 		} );
-	} else {
+	}else{
 		submit();
 	}
 }
