@@ -3591,7 +3591,11 @@ function getWeatherProviderById( id ) {
 }
 
 function getCurrentWeatherProvider() {
-	return getWeatherProviderById(controller.settings.wto.provider);
+	var provider = getWeatherProviderById(controller.settings.wto.provider);
+	if(provider)
+		return provider;
+
+	return false;
 }
 
 /** Returns the adjustment method for the corresponding ID, or a list of all methods if no ID is specified. */
@@ -3985,7 +3989,7 @@ function showOptions( expandItem ) {
 						}
 						break;
 					case "weatherSelect":
-						if ( escapeJSON( controller.settings.wto.provider ) === data ) {
+						if ( controller.settings.wto && controller.settings.wto.provider && escapeJSON( controller.settings.wto.provider ) === data ) {
 							return true;
 						}
 						break;
@@ -7750,7 +7754,7 @@ var getPreview = ( function() {
 		placeholder = page.find( "#timeline" ),
 		navi = page.find( "#timeline-navigation" ),
 		previewData, processPrograms, checkMatch, checkMatch183, checkMatch21, checkDayMatch, checkMatch216, runSched, runSched216,
-		timeToText, changeday, render, date, day, now, is21, is211, is216;
+		timeToText, changeday, render, date, day, now, is21, is211, is216, isLastDayofMonth, monthDays;
 
 	page.find( "#preview_date" ).on( "change", function() {
 		date = this.value.split( "-" );
@@ -8319,6 +8323,24 @@ var getPreview = ( function() {
 			if ( ( simday % dn ) !== ( ( devday + drem ) % dn ) ) {
 				return 0;
 			}
+		} else if ( type === 2 ) {
+
+			//Monthly program
+			var day = prog[ 1 ] & 0b11111;
+			if ( day === 0 ){
+				if(!isLastDayofMonth(mt-1, dt)){
+					return 0;
+				}
+			}else if ( dt !== day ){
+				return 0;
+			}
+		} else if ( type === 1 ) {
+
+			//Singlerun program
+			var epochDays = simt / 86400000;
+			if( (prog[ 1 ] << 8) + prog[ 2 ] != epochDays)
+				return 0;
+
 		} else if ( type === 0 ) {
 
 			// Weekly program
@@ -8463,6 +8485,12 @@ var getPreview = ( function() {
 		}
 		return 0;
 	};
+
+	monthDays = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+	isLastDayofMonth = function( month, day ){
+		return day === monthDays[month];
+	}
 
 	changeday = function( dir ) {
 		day.setDate( day.getDate() + dir );
