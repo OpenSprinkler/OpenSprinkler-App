@@ -1246,12 +1246,9 @@ function showAnalogSensorConfig() {
 					var result = info.result;
 					if (!result || result > 1)
 						showerror(_("Error calling rest service: ") + " " + result);
-					else {
-						analogSensors.push(sensorOut);
-						analogSensors.expandItem.clear();
-						analogSensors.expandItem.add("sensors");
-					}
-					updateSensorContent();
+					updateAnalogSensor(function () {
+						updateSensorContent();
+					});
 				});
 			}, updateSensorContent);
 		});
@@ -1619,7 +1616,7 @@ function updateCharts() {
 	var limit = currToken ? "&max=5500" : ""; //download limit is 140kb, 5500 lines ca 137kb
 	var tzo = getTimezoneOffset() * 60;
 
-	$.mobile.loading("show");
+	showLoading( "#myChart1" );
 	sendToOS("/so?pw=&lasthours=48&csv=2" + limit, "text").then(function (csv1) {
 		buildGraph("#myChart", chart1, csv1, _("last 48h"), "HH:mm", tzo, 0);
 
@@ -1628,7 +1625,6 @@ function updateCharts() {
 
 			sendToOS("/so?pw=&csv=2&log=2" + limit, "text").then(function (csv3) {
 				buildGraph("#myChartM", chart3, csv3, _("last months"), "MM.yyyy", tzo, 2);
-				$.mobile.loading("hide");
 			});
 		});
 	});
