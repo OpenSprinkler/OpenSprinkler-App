@@ -3478,6 +3478,8 @@ function debugWU2(status) {
 			popup += "<tr><td>Ping check ok</td><td>" + status.pingok + "</td></tr>";
 		if (status.hasOwnProperty("mqtt"))
 			popup += "<tr><td>MQTT</td><td>" + (status.mqtt?"connected":"disconnected") + "</td></tr>";
+		if (status.hasOwnProperty("influxdb"))
+			popup += "<tr><td>influxdb</td><td>" + (status.influxdb ? "enabled" : "disabled") + "</td></tr>";
 		if (status.hasOwnProperty("ifttt"))
 			popup += "<tr><td>IFTTT</td><td>" + (status.ifttt?"enabled":"disabled") + "</td></tr>";
 		popup +="</table>";
@@ -3867,6 +3869,11 @@ function showOptions( expandItem ) {
 						break;
 					case "mqtt":
 						if ( escapeJSON( controller.settings.mqtt ) === data ) {
+							return true;
+						}
+						break;
+					case "influxdb":
+						if ( escapeJSON( controller.settings.influxdb ) === data ) {
 							return true;
 						}
 						break;
@@ -4337,6 +4344,20 @@ function showOptions( expandItem ) {
 					"</div>";
 		}
 
+		if ( typeof controller.settings.influxdb !== "undefined" ) {
+			list += "<div class='ui-field-contain'>" +
+						"<label for='influxdb'>" + _( "InfluxDB" ) +
+							"<button style='display:inline-block;' data-helptext='" +
+								_( "Send data to a InfluxDB database." ) +
+								"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'>" +
+							"</button>" +
+						"</label>" +
+						"<button data-mini='true' id='influxdb' value='" + escapeJSON( controller.settings.influxdb ) + "'>" +
+							_( "Tap to Configure" ) +
+						"</button>" +
+					"</div>";
+		}
+
 		if ( typeof controller.settings.email !== "undefined" ) {
 			list += "<div class='ui-field-contain'>" +
 						"<label for='email'>" + _( "Email Notifications" ) +
@@ -4359,11 +4380,15 @@ function showOptions( expandItem ) {
 			"</label><input autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' data-mini='true' type='text' id='ifkey' placeholder='IFTTT webhooks key' value='" + controller.settings.ifkey + "'>" +
 			"</div>";
 
+			var ife = controller.options.ife;
+			if ( typeof controller.options.ife2 !== "undefined" ) {
+				ife = ife | controller.options.ife2 << 8;
+			}
 			list += "<div class='ui-field-contain'><label for='o49'>" + _( "Notification Events" ) +
 					"<button data-helptext='" +
 						_( "Select which notification events to send to Email and/or IFTTT." ) +
 						"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
-				"</label><button data-mini='true' id='o49' value='" + controller.options.ife + "'>" + _( "Configure Events" ) + "</button></div>";
+				"</label><button data-mini='true' id='o49' value='" + ife + "'>" + _( "Configure Events" ) + "</button></div>";
 		}
 
 		if ( typeof controller.settings.dname !== "undefined" ) {
@@ -4984,7 +5009,8 @@ function showOptions( expandItem ) {
 			reboot: _( "Controller Reboot" ),
 			run: _( "Station Run" ),
 			sensor2: _( "Sensor 2 Update" ),
-			rain: _( "Rain Delay Update" )
+			rain: _( "Rain Delay Update" ),
+			flow_alert: _("Flow Alert")
 		}, button = this, curr = parseInt( button.value ), inputs = "", a = 0, ife = 0;
 
 		$.each( events, function( i, val ) {
@@ -5138,6 +5164,103 @@ function showOptions( expandItem ) {
 				pass: popup.find( "#password" ).val(),
 				pubt: popup.find( "#pubt" ).val(),
 				subt: popup.find( "#subt" ).val()
+			};
+
+			popup.popup( "close" );
+			if ( curr === escapeJSON( options ) ) {
+				return;
+			} else {
+				button.value = escapeJSON( options );
+				header.eq( 2 ).prop( "disabled", false );
+				page.find( ".submit" ).addClass( "hasChanges" );
+			}
+		} );
+
+		popup.css( "max-width", "380px" );
+
+		openPopup( popup, { positionTo: "window" } );
+    } );
+
+	page.find( "#influxdb" ).on( "click", function() {
+		var button = this, curr = button.value,
+			options = $.extend( {}, {
+				en: 0,
+				url: "server",
+				port: 8086,
+				org: "",
+				bucket: "",
+				token: "token"
+			}, unescapeJSON( curr ) );
+
+		$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
+
+		var popup = $( "<div data-role='popup' data-theme='a' id='influxdbSettings'>" +
+				"<div data-role='header' data-theme='b'>" +
+					"<h1>" + _( "InfluxDB Settings" ) + "</h1>" +
+				"</div>" +
+				"<div class='ui-content'>" +
+					"<label for='enable'>" + _( "Enable" ) + "</label>" +
+					"<input class='needsclick influxdb_enable' data-mini='true' data-iconpos='right' id='enable' type='checkbox' " +
+						( options.en ? "checked='checked'" : "" ) + ">" +
+					"<div class='ui-body'>" +
+						"<div class='ui-grid-a' style='display:table;'>" +
+							"<div class='ui-block-a' style='width:40%'>" +
+								"<label for='url' style='padding-top:10px'>" + _( "URL" ) + "</label>" +
+							"</div>" +
+							"<div class='ui-block-b' style='width:60%'>" +
+								"<input class='influxdb-input' type='text' id='url' data-mini='true' maxlength='200' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
+									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + _( "url" ) + "' value='" + options.url + "' required />" +
+							"</div>" +
+							"<div class='ui-block-a' style='width:40%'>" +
+								"<label for='port' style='padding-top:10px'>" + _( "Port" ) + "</label>" +
+							"</div>" +
+							"<div class='ui-block-b' style='width:60%'>" +
+								"<input class='influxdb-input' type='number' id='port' data-mini='true' pattern='[0-9]*' min='0' max='65535'" +
+									( options.en ? "" : "disabled='disabled'" ) + " placeholder='8086' value='" + options.port + "' required />" +
+							"</div>" +
+							"<div class='ui-block-a' style='width:40%'>" +
+								"<label for='org' style='padding-top:10px'>" + _( "Org" ) + "</label>" +
+							"</div>" +
+							"<div class='ui-block-b' style='width:60%'>" +
+								"<input class='influxdb-input' type='text' id='org' data-mini='true' maxlength='100' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
+									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + _( "Org" ) + "' value='" + options.org + "' required />" +
+							"</div>" +
+							"<div class='ui-block-a' style='width:40%'>" +
+								"<label for='bucket' style='padding-top:10px'>" + _( "Bucket" ) + "</label>" +
+							"</div>" +
+							"<div class='ui-block-b' style='width:60%'>" +
+								"<input class='influxdb-input' type='text' id='bucket' data-mini='true' maxlength='100' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
+									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + _( "Bucket" ) + "' value='" + options.bucket + "' required />" +
+							"</div>" +
+							"<div class='ui-block-a' style='width:40%'>" +
+								"<label for='token' style='padding-top:10px'>" + _( "Token" ) + "</label>" +
+							"</div>" +
+							"<div class='ui-block-b' style='width:60%'>" +
+								"<input class='influxdb-input' type='text' id='token' data-mini='true' maxlength='100' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
+									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + _( "Token" ) + "' value='" + options.token + "' required />" +
+							"</div>" +
+						"</div>" +
+					"</div>" +
+					"<button class='submit' data-theme='b'>" + _( "Submit" ) + "</button>" +
+				"</div>" +
+			"</div>" );
+
+		popup.find( "#enable" ).on( "change", function() {
+			if ( this.checked ) {
+				popup.find( ".influxdb-input" ).textinput( "enable" );
+			} else {
+				popup.find( ".influxdb-input" ).textinput( "disable" );
+			}
+		} );
+
+		popup.find( ".submit" ).on( "click", function() {
+			var options = {
+				en: ( popup.find( "#enable" ).prop( "checked" ) ? 1 : 0 ),
+				url: popup.find( "#url" ).val(),
+				port: parseInt( popup.find( "#port" ).val() ),
+				org: popup.find( "#org" ).val(),
+				bucket: popup.find( "#bucket" ).val(),
+				token: popup.find( "#token" ).val()
 			};
 
 			popup.popup( "close" );
@@ -10401,6 +10524,11 @@ function importConfig( data ) {
 		// Import mqtt options, if available
 		if ( typeof data.settings.mqtt === "object" && checkOSVersion( 2191 ) ) {
 			co += "&mqtt=" + escapeJSON( data.settings.mqtt );
+			}
+
+		// Import influxdb options, if available
+		if ( typeof data.settings.influxdb === "object" && checkOSVersion( 232 ) ) {
+			co += "&influxdb=" + escapeJSON( data.settings.influxdb );
 			}
 
 		//Import email options, if available
