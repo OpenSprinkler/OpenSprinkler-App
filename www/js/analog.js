@@ -1690,7 +1690,7 @@ function buildGraph(prefix, chart, csv, titleAdd, timestr, tzo, lvl) {
 
 		let value = sensor.data ? sensor.data : logdata.slice(-1)[0].y;
 		logdata.push({ x: date, y: sensor.data });
-		var fkdp = lvl < 2 ? 1 : 0;
+		var fkdp = lvl < 1 ? 1 : 0;
 
 		if (lvl > 0) {
 			let rng = rngdata.slice(-1)[0].y;
