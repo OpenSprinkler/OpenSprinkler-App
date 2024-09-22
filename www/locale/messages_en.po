@@ -2384,3 +2384,8 @@ msgstr ""
 msgid "Restore Program Adjustments"
 msgstr ""
 
+msgid "Station on"
+msgstr ""
+
+msgid "Flow Alert"
+msgstr ""

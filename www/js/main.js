@@ -5014,10 +5014,13 @@ function showOptions( expandItem ) {
 			flow_alert: _("Flow Alert")
 		}, button = this, curr = parseInt( button.value ), inputs = "", a = 0, ife = 0;
 
+		let okVersion = checkOSVersion( 232 );
 		$.each( events, function( i, val ) {
-			inputs += "<label for='notif-" + i + "'><input class='needsclick' data-iconpos='right' id='notif-" + i + "' type='checkbox' " +
-				( getBitFromByte( curr, a ) ? "checked='checked'" : "" ) + ">" + val +
-			"</label>";
+			if ( a < 8 || okVersion) {
+				inputs += "<label for='notif-" + i + "'><input class='needsclick' data-iconpos='right' id='notif-" + i + "' type='checkbox' " +
+					( getBitFromByte( curr, a ) ? "checked='checked'" : "" ) + ">" + val +
+				"</label>";
+			}
 			a++;
 		} );
 
