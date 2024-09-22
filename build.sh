@@ -15,7 +15,7 @@ xmlstarlet edit \
 --update '//*[local-name()="preference"][@name="android-minSdkVersion"]/@value' \
 --value "24" \
 --update '//*[local-name()="preference"][@name="android-targetSdkVersion"]/@value' \
---value "33" \
+--value "34" \
 config.xml.sav >config.xml
 
 cordova platform remove android
@@ -33,7 +33,7 @@ xmlstarlet edit \
 --update '//*[local-name()="preference"][@name="android-minSdkVersion"]/@value' \
 --value "29" \
 --update '//*[local-name()="preference"][@name="android-targetSdkVersion"]/@value' \
---value "33" \
+--value "34" \
 config.xml.sav >config.xml
 
 cordova platform remove android

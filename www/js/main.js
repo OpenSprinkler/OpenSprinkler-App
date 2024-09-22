@@ -5010,6 +5010,7 @@ function showOptions( expandItem ) {
 			run: _( "Station Run" ),
 			sensor2: _( "Sensor 2 Update" ),
 			rain: _( "Rain Delay Update" ),
+			station: _("Station on"),
 			flow_alert: _("Flow Alert")
 		}, button = this, curr = parseInt( button.value ), inputs = "", a = 0, ife = 0;
 

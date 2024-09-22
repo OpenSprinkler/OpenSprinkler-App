@@ -4,11 +4,11 @@ rm ./www/js/DEADJOE 2>/dev/null
 rm ./www/locale/*~ 2>/dev/null
 
 ./scripts/appGMK.sh
-#grunt buildFW
-cd www/js
-cat jquery.js libs.js main.js analog.js apexcharts.min.js >app.js
-cd ..
-cd ..
+grunt buildFW
+#cd www/js
+#cat jquery.js libs.js main.js analog.js apexcharts.min.js >app.js
+#cd ..
+#cd ..
 
 cp build.json platforms/android/build.json
 
