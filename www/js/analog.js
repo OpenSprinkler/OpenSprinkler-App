@@ -778,11 +778,11 @@ function isSmt100(sensorType) {
 	if (!sensorType) {
 		return false;
 	}
-	return sensorType === 1 || sensorType == 2;
+	return sensorType === 1 || sensorType == 2 || sensorType == 3;
 }
 
 function isIPSensor(sensorType) {
-	return sensorType <= 2 || sensorType == 100;
+	return sensorType <= 3 || sensorType == 100;
 }
 
 function isIDNeeded(sensorType) {
