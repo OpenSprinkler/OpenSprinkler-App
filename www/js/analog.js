@@ -1644,12 +1644,15 @@ function buildGraph(prefix, chart, csv, titleAdd, timestr, tzo, lvl) {
 			logdata = [],
 			rngdata = [],
 			logmap = new Map(),
-			unitid = sensor.unitid;
+			unitid = sensor.unitid,
+			lastdate = 0;
 
 		for (var k = 1; k < csvlines.length; k++) {
 			var line = csvlines[k].split(";");
 			if (line.length >= 3 && Number(line[0]) === nr) {
 				let date = Number(line[1]);
+				if (date < lastdate) continue;
+				lastdate = date;
 				let value = Number(line[2]);
 				if (value === undefined || date === undefined) continue;
 				if (unitid != 3 && unitid != USERDEF_UNIT && value > 100) continue;
@@ -1689,7 +1692,7 @@ function buildGraph(prefix, chart, csv, titleAdd, timestr, tzo, lvl) {
 		date.setMinutes(date.getMinutes() - date.getTimezoneOffset() - tzo / 60);
 
 		let value = sensor.data ? sensor.data : logdata.slice(-1)[0].y;
-		logdata.push({ x: date, y: sensor.data });
+		logdata.push({ x: date, y: value });
 		var fkdp = lvl < 1 ? 1 : 0;
 
 		if (lvl > 0) {
