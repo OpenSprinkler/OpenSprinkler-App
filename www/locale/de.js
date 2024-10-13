@@ -748,5 +748,12 @@
    "Backup Program Adjustments": "Datensicherung Programmanpassungen",
    "Restore Program Adjustments": "Wiederherstellung Programmanpassungen",
    "Station on": "Bewässerungskreis an",
-   "Flow Alert": "Strömungswarnung"
+   "Flow Alert": "Strömungswarnung",
+   "Email Notifications": "E-Mail Versand",
+   "IFTTT Notifications": "IFTTT Versand",
+   "Notification Events": "Ereignisse Konfigurieren",
+   "download log": "Download Log",
+   "delete log": "Log löschen",
+   "Are you sure you want to delete the log?": "Wirklich die Log-Datei löschen?",
+   "Deleted log values: ": "Gelöschte Log-Werte: "
 }}

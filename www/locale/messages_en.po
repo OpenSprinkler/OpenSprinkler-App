@@ -2389,3 +2389,15 @@ msgstr ""
 
 msgid "Flow Alert"
 msgstr ""
+
+msgid "download log"
+msgstr ""
+
+msgid "delete log"
+msgstr ""
+
+msgid "Are you sure you want to delete the log?"
+msgstr ""
+
+msgid "Deleted log values: "
+msgstr ""

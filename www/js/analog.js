@@ -1,7 +1,7 @@
 /*!
  * Analog Sensor API - GUI for OpenSprinkker App
  * https://github.com/opensprinklershop/
- * (c) 2023 OpenSprinklerShop
+ * (c) 2024 OpenSprinklerShop
  * Released under the MIT License
  */
 
@@ -13,7 +13,7 @@ const USERDEF_SENSOR = 49;
 const USERDEF_UNIT = 99;
 const SENSOR_MQTT = 90;
 
-const CURRENT_FW = "2.3.1(165)";
+const CURRENT_FW = "2.3.2(167)";
 const CURRENT_FW_ID = 231;
 const CURRENT_FW_MIN = 150;
 
@@ -30,6 +30,7 @@ const RS485_TRUEBNER1 = 0x20;
 const RS485_TRUEBNER2 = 0x40;
 const RS485_TRUEBNER3 = 0x80;
 const RS485_TRUEBNER4 = 0x100;
+const OSPI_USB_RS485 = 0x200;
 
 function checkAnalogSensorAvail() {
 	return controller.options && controller.options.feature === "ASB";
@@ -1007,6 +1008,8 @@ function showSensorEditor(sensor, row, callback, callbackCancel) {
 			_("Enable Data Logging") +
 			"<a href='#' data-role='button' data-mini='true' id='download-log' data-icon='action' data-inline='true' style='margin-left: 10px;'>" +
 			_("download log") + "</a>" +
+			"<a href='#' data-role='button' data-mini='true' id='delete-sen-log' value='" + sensor.nr + "' data-icon='delete' data-inline='true' style='margin-left: 10px;'>" +
+			_("delete log") + "</a>" +
 			"</label>" +
 
 			"<label for='show'><input data-mini='true' id='show' type='checkbox' " + ((sensor.show === 1) ? "checked='checked'" : "") + ">" +
@@ -1079,6 +1082,24 @@ function showSensorEditor(sensor, row, callback, callbackCancel) {
 			return false;
 		});
 
+		//delete sensor log:
+		popup.find("#delete-sen-log").on("click", function () {
+			var dur = $(this),
+			value = dur.attr("value");
+
+			saveSensor(popup, sensor, callback);
+			areYouSure(_("Are you sure you want to delete the log?"), value, function () {
+				return sendToOS("/sn?pw=&nr=" + value, "json").done(function (info) {
+					var result = info.deleted;
+					if (!result)
+						showerror(_("Error calling rest service: ") + result);
+					else
+						showerror(_("Deleted log values: ") + result);
+				});
+			});
+			return false;
+		});
+
 		//Delete a sensor:
 		popup.find(".delete-sensor").on("click", function () {
 
@@ -1103,7 +1124,7 @@ function showSensorEditor(sensor, row, callback, callbackCancel) {
 		popup.find("#chartunits").val(sensor.unitid ? sensor.unitid : 0).change();
 
 		popup.find(".submit").on("click", function () {
-			saveSensor(popup, sensor, callback)
+			saveSensor(popup, sensor, callback);
 		});
 
 		popup.on("focus", "input[type='number']", function () {
@@ -1434,6 +1455,7 @@ function buildSensorConfig(expandItem) {
 		if (detected & RS485_TRUEBNER2) boards.push("RS485-Adapter Truebner 2");
 		if (detected & RS485_TRUEBNER3) boards.push("RS485-Adapter Truebner 3");
 		if (detected & RS485_TRUEBNER4) boards.push("RS485-Adapter Truebner 4");
+		if (detected & OSPI_USB_RS485) boards.push("OSPI USB-RS485-Adapter");
 		if (detected == 0) boards.push("No Boards detected");
 		if (detected && boards.length == 0) boards.push("Unknown Adapter");
 		detected_boards = ": " + boards.filter(Boolean).join(", ");
