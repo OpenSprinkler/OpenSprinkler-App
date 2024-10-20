@@ -326,7 +326,7 @@
    "Disabled": "Ausgeschaltet",
    "Water Level": "% Bewässerung",
    "remaining": "Restlaufzeit",
-   "Running": "Bewässerung läuft",
+   "Running": "Gestartet",
    "Scheduled": "Geplant",
    "for": "für",
    "Select the station type using the dropdown selector above and configure the station properties.": "Wählen Sie die Kanalart über das Dropdownmenü und konfigurieren Sie die Einstellungen.",
@@ -755,5 +755,13 @@
    "download log": "Download Log",
    "delete log": "Log löschen",
    "Are you sure you want to delete the log?": "Wirklich die Log-Datei löschen?",
-   "Deleted log values: ": "Gelöschte Log-Werte: "
+   "Deleted log values: ": "Gelöschte Log-Werte: ",
+   "by monitor control": "von Überwachung und Kontrolle",
+   "Monitoring and control": "Überwachung und Kontrolle",
+   "Program to start": "Zu startendes Programm",
+   "Zone to start": "Station wird aktiviert",
+   "Max runtime (s)": "Maximale Laufzeit (s)",
+   "Value for activate": "Aktivierungswert",
+   "Value for deactivate": "Deaktivierungswert",
+   "Edit monitor and control": "Monitor und Kontrolle bearbeiten"
 }}

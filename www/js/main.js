@@ -2,7 +2,7 @@
 /* global StatusBar, networkinterface, links, SunCalc, md5, sjcl */
 /* global showAnalogSensorConfig, checkAnalogSensorAvail, updateAnalogSensor */
 /* global checkOSVersion
-/* global showAnalogSensorCharts, updateProgramAdjustments, updateSensorShowArea */
+/* global showAnalogSensorCharts, updateProgramAdjustments, updateMonitors, updateSensorShowArea */
 
 /* OpenSprinkler App
  * Copyright (C) 2015 - present, Samer Albahra. All rights reserved.
@@ -800,6 +800,7 @@ function newLoad() {
 			if (checkAnalogSensorAvail()) {
 				updateAnalogSensor();
 				updateProgramAdjustments();
+				updateMonitors();
             }
 
 			// Hide change password feature for unsupported devices
@@ -923,7 +924,9 @@ function updateController( callback, fail ) {
 			if (checkAnalogSensorAvail()) {
 				updateAnalogSensor( function() {
 					updateProgramAdjustments( function () {
-						finish();
+						updateMonitors( function() {
+							finish();
+						});
 					});
 				});
             } else {
@@ -2979,7 +2982,7 @@ function updateWeatherBox() {
 function coordsToLocation( lat, lon, callback, fallback ) {
 	fallback = fallback || lat + "," + lon;
 
-	var GoogleMapsApiKey = "GOOGLEMAPSAPIKEY";
+	var GoogleMapsApiKey = "";
 	$.getJSON( "https://mapsgoogleapis.com/maps/api/geocode/json?latlng=" + lat + "," + lon + "&key="+GoogleMapsApiKey+"&result_type=locality|sublocality|administrative_area_level_1|country", function( data ) {
 		if ( data.results.length === 0 ) {
 			callback( fallback );
@@ -9473,6 +9476,8 @@ function pidname( pid ) {
 		pname = _( "Manual program" );
 	} else if ( pid === 254 || pid === 98 ) {
 		pname = _( "Run-once program" );
+	} else if ( pid === 253) {
+		pname = _( "by monitor control" );
 	} else if ( checkOSVersion( 210 ) && pid <= controller.programs.pd.length ) {
 		pname = controller.programs.pd[ pid - 1 ][ 5 ];
 	}
@@ -11707,7 +11712,7 @@ function checkFirmwareUpdate() {
 	if ( checkOSVersion( 200 ) && ( getHWVersion() === "3.0" || isOSPi() ) ) {
 
 		// Github API to get releases for OpenSprinkler firmware
-		$.getJSON( "https://api.github.com/repos/opensprinkler/opensprinkler-firmware/releases" ).done( function( data ) {
+		$.getJSON( "https://api.github.com/repos/opensprinklershop/opensprinkler-firmware/releases" ).done( function( data ) {
 			if ( controller.options.fwv < data[ 0 ].tag_name ) {
 
 				// Grab a local storage variable which defines the firmware version for the last dismissed update
