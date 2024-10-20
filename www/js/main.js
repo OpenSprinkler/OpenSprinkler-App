@@ -9477,7 +9477,7 @@ function pidname( pid ) {
 	} else if ( pid === 254 || pid === 98 ) {
 		pname = _( "Run-once program" );
 	} else if ( pid === 253) {
-		pname = _( "by monitor control" );
+		pname = _( "Monitoring and control" );
 	} else if ( checkOSVersion( 210 ) && pid <= controller.programs.pd.length ) {
 		pname = controller.programs.pd[ pid - 1 ][ 5 ];
 	}

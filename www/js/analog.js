@@ -1902,7 +1902,7 @@ function buildSensorConfig(expandItem) {
 				progName = readProgram(controller.programs.pd[item.prog - 1]).name;
 			}
 			var zoneName = "";
-			if (item.zone > 0 && item.zone >= controller.stations.snames.length) {
+			if (item.zone > 0 && item.zone <= controller.stations.snames.length) {
 				zoneName = controller.stations.snames[item.zone - 1];
 			}
 			var sensorName = "";
