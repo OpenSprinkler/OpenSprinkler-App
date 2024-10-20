@@ -762,5 +762,8 @@
    "Max runtime (s)": "Maximale Laufzeit (s)",
    "Value for activate": "Aktivierungswert",
    "Value for deactivate": "Deaktivierungswert",
-   "Edit monitor and control": "Monitor und Kontrolle bearbeiten"
+   "Edit monitor and control": "Monitor und Kontrolle bearbeiten",
+   "Add monitor": "Neue Überwachung hinzufügen",
+   "Value 1": "Wert 1",
+   "Value 2": "Wert 2"
 }}

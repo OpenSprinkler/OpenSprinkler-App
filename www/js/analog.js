@@ -14,7 +14,7 @@ const USERDEF_SENSOR = 49;
 const USERDEF_UNIT = 99;
 const SENSOR_MQTT = 90;
 
-const CURRENT_FW = "2.3.2(167)";
+const CURRENT_FW = "2.3.3(168)";
 const CURRENT_FW_ID = 231;
 const CURRENT_FW_MIN = 150;
 
@@ -1787,7 +1787,7 @@ function buildSensorConfig(expandItem) {
 	var info = checkFirmwareUpdate();
 	if (info === undefined)
 		info = "";
-	list += "<table id='analog_sensor_table'><tr style='width:100%;vertical-align: top;'>" +
+	list += "<table style='width: 100%;' id='analog_sensor_table'><tr>" +
 		info +
 		"<tr><th>" + _("Nr") + "</th><th class=\"hidecol\">" + _("Type") + "</th><th class=\"hidecol\">" + _("Group") + "</th><th>" + _("Name") + "</th>" +
 		"<th class=\"hidecol\">" + _("IP") + "</th><th class=\"hidecol\">" + _("Port") + "</th><th class=\"hidecol\">" + _("ID") + "</th>" +
@@ -1828,7 +1828,7 @@ function buildSensorConfig(expandItem) {
 	//Program adjustments table:
 	list += "<fieldset data-role='collapsible'" + (expandItem.has("progadjust") ? " data-collapsed='false'" : "") + ">" +
 		"<legend>" + _("Program Adjustments") + "</legend>";
-	list += "<table id='progadjusttable'><tr style='width:100%;vertical-align: top;'>" +
+	list += "<table style='width: 100%;' id='progadjusttable'><tr style='width:100%;vertical-align: top;'>" +
 		"<tr><th>" + _("Nr") + "</th>" +
 		"<th class=\"hidecol\">" + _("Type") + "</th>" +
 		"<th class=\"hidecol2\">" + _("S.Nr") + "</th>" +
@@ -1883,7 +1883,7 @@ function buildSensorConfig(expandItem) {
 	if (checkOSVersion(233) && monitors) {
 		list += "<fieldset data-role='collapsible'" + (expandItem.has("monitors") ? " data-collapsed='false'" : "") + ">" +
 			"<legend>" + _("Monitoring and control") + "</legend>";
-		list += "<table id='monitorstable'><tr style='width:100%;vertical-align: top;'>" +
+		list += "<table style='width: 100%; id='monitorstable'><tr style='width:100%;vertical-align: top;'>" +
 			"<tr><th>" + _("Nr") + "</th>" +
 			"<th class=\"hidecol\">" + _("Type") + "</th>" +
 			"<th class=\"hidecol2\">" + _("S.Nr") + "</th>" +
