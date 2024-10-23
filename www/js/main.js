@@ -2982,7 +2982,7 @@ function updateWeatherBox() {
 function coordsToLocation( lat, lon, callback, fallback ) {
 	fallback = fallback || lat + "," + lon;
 
-	var GoogleMapsApiKey = "";
+	var GoogleMapsApiKey = "GOOGLEMAPSAPIKEY";
 	$.getJSON( "https://mapsgoogleapis.com/maps/api/geocode/json?latlng=" + lat + "," + lon + "&key="+GoogleMapsApiKey+"&result_type=locality|sublocality|administrative_area_level_1|country", function( data ) {
 		if ( data.results.length === 0 ) {
 			callback( fallback );
@@ -5014,7 +5014,10 @@ function showOptions( expandItem ) {
 			sensor2: _( "Sensor 2 Update" ),
 			rain: _( "Rain Delay Update" ),
 			station: _("Station on"),
-			flow_alert: _("Flow Alert")
+			flow_alert: _("Flow Alert"),
+			warning_low: _("Monitoring-warnings level low"),
+			warning_med: _("Monitoring-warnings level medium"),
+			warning_high: _("Monitoring-warnings level high"),
 		}, button = this, curr = parseInt( button.value ), inputs = "", a = 0, ife = 0;
 
 		let okVersion = checkOSVersion( 232 );

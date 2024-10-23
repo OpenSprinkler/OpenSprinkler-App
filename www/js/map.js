@@ -21,7 +21,7 @@
 		document.getElementsByTagName( "head" )[ 0 ].appendChild( a );
 	}
 
-	var GoogleMapsApiKey = "";
+	var GoogleMapsApiKey = "GOOGLEMAPSAPIKEY";
 	getScript( "https://maps.googleapis.com/maps/api/js?key="+GoogleMapsApiKey+"&libraries=places" );
 } )();
 

@@ -103,7 +103,8 @@ function updateSensorShowArea(page) {
 			for (i = 0; i < monitors.length; i++) {
 				var monitor = monitors[i];
 				if (monitor.active) {
-					html += "<div id='monitor-" + monitor.nr + "' class='ui-body ui-body-a center monitor'>";
+					let prio = monitor.hasOwnProperty("prio")?monitor.prio:0;
+					html += "<div id='monitor-" + monitor.nr + "' class='ui-body ui-body-a center monitor"+prio+"'>";
 					html += "<label>" + monitor.name + "</label>";
 					html += "</div>";
 				}
@@ -422,6 +423,7 @@ function importConfigSensors(data, restore_type, callback) {
 					"&value1=" + monitor.value1 +
 					"&value2=" + monitor.value2 +
 					"&maxrun=" + monitor.maxrun +
+					"&prio=" + (monitor.hasOwnProperty("prio")?monitor.prio:0) +
 					"&name=" + enc(monitor.name),
 					"json");
 			}
@@ -840,7 +842,8 @@ function getMonitor(popup) {
 		zone: parseInt(popup.find("#zone").val()),
 		value1: parseFloat(popup.find(".value1").val()),
 		value2: parseFloat(popup.find(".value2").val()),
-		maxrun: parseFloat(popup.find(".maxrun").val())
+		maxrun: parseFloat(popup.find(".maxrun").val()),
+		prio: parseInt(popup.find("#prio").val())
 	};
 }
 
@@ -950,8 +953,19 @@ function showMonitorEditor(monitor, row, callback, callbackCancel) {
 			"<label>" +
 			_("Value for deactivate") +
 			"</label>" +
-			"<input class='value2' type='number' inputmode='decimal' value='" + formatVal(monitor.value2) + "'>" +
+			"<input class='value2' type='number' inputmode='decimal' value='" + formatVal(monitor.value2) + "'>";
 
+		list += "<label>"+_("Priority") + "</label>" +
+			"<select data-mini='true' id='prio'>";
+		const prios = [_("Low"), _("Medium"), _("High")];
+		if (!monitor.prio)
+			monitor.prio = 0;
+		for (i = 0; i < 3; i++) {
+			list += "<option " + (monitor.prio == i ? "selected" : "") + " value='" + i + "'>" + prios[i] + "</option>";
+		}
+		list += "</select>";
+
+		list +=
 			"</div>" +
 			"<button class='submit' data-theme='b'>" + _("Submit") + "</button>" +
 
@@ -1622,6 +1636,7 @@ function showAnalogSensorConfig() {
 						"&value1=" + monitorOut.value1 +
 						"&value2=" + monitorOut.value2 +
 						"&maxrun=" + monitorOut.maxrun +
+						"&prio=" + monitorOut.prio +
 						"&name=" + enc(monitorOut.name),
 						"json"
 					).done(function (info) {
@@ -1652,6 +1667,7 @@ function showAnalogSensorConfig() {
 						"&value1=" + monitorOut.value1 +
 						"&value2=" + monitorOut.value2 +
 						"&maxrun=" + monitorOut.maxrun +
+						"&prio=" + monitorOut.prio +
 						"&name=" + enc(monitorOut.name),
 						"json"
 					).done(function (info) {

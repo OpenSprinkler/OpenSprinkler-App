@@ -2401,3 +2401,12 @@ msgstr ""
 
 msgid "Deleted log values: "
 msgstr ""
+
+msgid "Monitoring-warnings level low"
+msgstr ""
+
+msgid "Monitoring-warnings level medium"
+msgstr ""
+
+msgid "Monitoring-warnings level high"
+msgstr ""

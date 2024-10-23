@@ -765,5 +765,9 @@
    "Edit monitor and control": "Monitor und Kontrolle bearbeiten",
    "Add monitor": "Neue Überwachung hinzufügen",
    "Value 1": "Wert 1",
-   "Value 2": "Wert 2"
-}}
+   "Value 2": "Wert 2",
+   "Monitoring-warnings level low":    "Überwachung Warnstufe niedrig",
+   "Monitoring-warnings level medium": "Überwachung Warnstufe mittel",
+   "Monitoring-warnings level high":   "Überwachung Warnstufe hoch"
+}
+}
