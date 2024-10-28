@@ -3,7 +3,7 @@ rm ./www/js/*~
 rm ./www/js/DEADJOE
 rm ./www/locale/*~
 
-export JAVA_HOME=/usr/lib64/jvm/jre-20-openjdk/
+export JAVA_HOME=/usr/lib64/jvm/jre-21-openjdk/
 
 grunt buildFW
 cp build.json platforms/android/build.json
@@ -13,14 +13,15 @@ cp network_security_config.xml /srv/www/htdocs/ui/platforms/android/app/src/main
 mv config.xml config.xml.sav -f
 xmlstarlet edit \
 --update '//*[local-name()="preference"][@name="android-minSdkVersion"]/@value' \
---value "24" \
+--value "25" \
 --update '//*[local-name()="preference"][@name="android-targetSdkVersion"]/@value' \
 --value "34" \
 config.xml.sav >config.xml
 
 cordova platform remove android
-cordova platform add android@12.0.1
-cordova plugin add cordova-plugin-device
+cordova platform add android
+cordova plugin add https://github.com/katzer/cordova-plugin-local-notifications.git
+cordova plugin add cordova-plugin-inappbrowser
 cordova build --release
 #cordova run android --release
 cordova run android --release -- --packageType=apk
@@ -38,7 +39,8 @@ config.xml.sav >config.xml
 
 cordova platform remove android
 cordova platform add android
-cordova plugin add cordova-plugin-device
+cordova plugin add https://github.com/katzer/cordova-plugin-local-notifications.git
+cordova plugin add cordova-plugin-inappbrowser
 cordova build --release
 cordova run android --release
 cordova run android --release -- --packageType=apk

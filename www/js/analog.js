@@ -7,7 +7,9 @@
 
 var analogSensors = {},
 	progAdjusts = {},
-	monitors = {};
+	monitors = {},
+	monitorAlerts = {};
+
 
 const CHARTS = 12;
 const USERDEF_SENSOR = 49;
@@ -32,6 +34,39 @@ const RS485_TRUEBNER2 = 0x40;
 const RS485_TRUEBNER3 = 0x80;
 const RS485_TRUEBNER4 = 0x100;
 const OSPI_USB_RS485 = 0x200;
+
+function success_callback(scope) {
+}
+
+
+function asb_init() {
+	if (isAndroid) {
+		cordova.plugins.notification.local.createChannel({
+			channelId: 'os_low',
+			channel:   'os_low',
+			channelName:'OpenSprinklerLowNotifications',
+			vibrate: false, // bool (optional), default is false
+			importance: 2, // int (optional) 0 to 4, default is IMPORTANCE_DEFAULT (3)
+			soundUsage: 5 // int (optional), default is USAGE_NOTIFICATION
+			}, success_callback, this);
+		cordova.plugins.notification.local.createChannel({
+			channelId: 'os_med',
+			channel:   'os_med',
+			channelName:'OpenSprinklerMedNotifications',
+			vibrate: false, // bool (optional), default is false
+			importance: 3, // int (optional) 0 to 4, default is IMPORTANCE_DEFAULT (3)
+			soundUsage: 5 // int (optional), default is USAGE_NOTIFICATION
+			}, success_callback, this);
+		cordova.plugins.notification.local.createChannel({
+			channelId: 'os_high',
+			channel:   'os_high',
+			channelName:'OpenSprinklerHighNotifications',
+			vibrate: true, // bool (optional), default is false
+			importance: 4, // int (optional) 0 to 4, default is IMPORTANCE_DEFAULT (3)
+			soundUsage: 5 // int (optional), default is USAGE_NOTIFICATION
+			}, success_callback, this);
+	}
+}
 
 function checkAnalogSensorAvail() {
 	return controller.options && controller.options.feature === "ASB";
@@ -63,6 +98,7 @@ function updateMonitors(callback) {
 	callback = callback || function () { };
 	if (checkOSVersion(233)) {
 		return sendToOS("/ml?pw=", "json").then(function (data) {
+
 			monitors = data.monitors;
 			callback();
 		});
@@ -107,6 +143,31 @@ function updateSensorShowArea(page) {
 					html += "<div id='monitor-" + monitor.nr + "' class='ui-body ui-body-a center monitor"+prio+"'>";
 					html += "<label>" + monitor.name + "</label>";
 					html += "</div>";
+
+					//Show Alert, ask for permission:
+					if (!monitorAlerts[monitor.nr]) {
+						monitorAlerts[monitor.nr] = true;
+						var dname, chan;
+						if ( typeof controller.settings.dname !== "undefined" )
+							dname = controller.settings.dname;
+						else
+						 	dname = "OpenSprinkler";
+
+						if (prio === 0) chan = 'os_low';
+						else if (prio === 1) chan = 'os_med';
+						else chan = 'os_high';
+
+						cordova.plugins.notification.local.schedule({
+							id: monitor.nr,
+							channelId: chan,
+							channel: chan,
+							title: dname,
+							text: monitor.name,
+							});
+					}
+				}
+				else if (monitorAlerts[monitor.nr]) {
+					monitorAlerts[monitor.nr] = false;
 				}
 			}
 		}
@@ -2217,7 +2278,7 @@ function buildGraph(prefix, chart, csv, titleAdd, timestr, tzo, lvl) {
 			let canExport = !window.hasOwnProperty("cordova");
 			let options = {
 				chart: {
-					type: 'rangeArea',
+					type: lvl > 0 ? 'rangeArea' : 'area',
 					animations: {
 						speed: 500
 					},
@@ -2227,6 +2288,9 @@ function buildGraph(prefix, chart, csv, titleAdd, timestr, tzo, lvl) {
 					toolbar: {
 						download: canExport,
 						autoSelected: 'zoom'
+					},
+					dropShadow: {
+						enabled: true
 					}
 				},
 				forecastDataPoints: {
@@ -2238,6 +2302,7 @@ function buildGraph(prefix, chart, csv, titleAdd, timestr, tzo, lvl) {
 				fill: {
 					colors: colors[unitid],
 					opacity: opacities[unitid],
+					type: 'solid'
 				},
 				series: [series],
 				stroke: {
@@ -2303,13 +2368,13 @@ function buildGraph(prefix, chart, csv, titleAdd, timestr, tzo, lvl) {
 			opacities[unitid].push(0.24);
 			widths[unitid].push(0);
 			colors[unitid].push(color);
-			rangeArea = {
+			let rangeArea = {
 				type: 'rangeArea',
 				name: [],
 				color: color,
 				data: rngdata
 			};
-			var otherOptions = {
+			let otherOptions = {
 				fill: {
 					colors: colors[unitid],
 					opacity: opacities[unitid]

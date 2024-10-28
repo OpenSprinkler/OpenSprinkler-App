@@ -1,7 +1,7 @@
 /* global $, ThreeDeeTouch, navigator, FastClick */
 /* global StatusBar, networkinterface, links, SunCalc, md5, sjcl */
 /* global showAnalogSensorConfig, checkAnalogSensorAvail, updateAnalogSensor */
-/* global checkOSVersion
+/* global checkOSVersion, asb_init */
 /* global showAnalogSensorCharts, updateProgramAdjustments, updateMonitors, updateSensorShowArea */
 
 /* OpenSprinkler App
@@ -187,6 +187,8 @@ $( document )
 	} );
 
 	updateDeviceIP();
+
+	asb_init();
 
 	// Check if 3D touch is available and add menu when possible
 	if ( isiOS ) {
@@ -413,6 +415,7 @@ function initApp() {
 				navigator.app.clearCache();
 			} catch ( err ) {}
 		} );
+
 	} else if ( isFireFox ) {
 
 		// Allow cross domain AJAX requests in FireFox OS
