@@ -164,6 +164,8 @@ function updateSensorShowArea(page) {
 							title: dname,
 							text: monitor.name,
 							priority: prio,
+							beep: prio>=2,
+							lockscreen: true
 							});
 					}
 				}
