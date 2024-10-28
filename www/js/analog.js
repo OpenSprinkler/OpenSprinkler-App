@@ -163,6 +163,7 @@ function updateSensorShowArea(page) {
 							channel: chan,
 							title: dname,
 							text: monitor.name,
+							priority: prio,
 							});
 					}
 				}
