@@ -66,6 +66,15 @@ function asb_init() {
 			soundUsage: 5 // int (optional), default is USAGE_NOTIFICATION
 			}, success_callback, this);
 	}
+	if (window.cordova && window.cordova.plugins) {
+		cordova.plugins.backgroundMode.enable();
+		cordova.plugins.backgroundMode.overrideBackButton();
+
+		cordova.plugins.backgroundMode.on('activate',
+			function() { updateTimers(10000); } );
+		cordova.plugins.backgroundMode.on('deactivate',
+			function() { updateTimers(1000); } );
+	}
 }
 
 function checkAnalogSensorAvail() {
@@ -157,7 +166,8 @@ function updateSensorShowArea(page) {
 						else if (prio === 1) chan = 'os_med';
 						else chan = 'os_high';
 
-						cordova.plugins.notification.local.schedule({
+						if (window.cordova && cordova.plugins) 
+							cordova.plugins.notification.local.schedule({
 							id: monitor.nr,
 							channelId: chan,
 							channel: chan,
@@ -166,7 +176,7 @@ function updateSensorShowArea(page) {
 							priority: prio,
 							beep: prio>=2,
 							lockscreen: true
-							});
+						});
 					}
 				}
 				else if (monitorAlerts[monitor.nr]) {
@@ -2278,7 +2288,7 @@ function buildGraph(prefix, chart, csv, titleAdd, timestr, tzo, lvl) {
 					unitStr = function (val) { return formatVal(val); };
 			};
 
-			let canExport = !window.hasOwnProperty("cordova");
+			let canExport = !!window.cordova;
 			let options = {
 				chart: {
 					type: lvl > 0 ? 'rangeArea' : 'area',
