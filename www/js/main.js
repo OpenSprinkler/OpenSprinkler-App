@@ -29,7 +29,7 @@ var isAndroid = /Android|\bSilk\b/.test( navigator.userAgent ),
 	isTouchCapable = "ontouchstart" in window || "onmsgesturechange" in window,
 	isMetric = ( [ "US", "BM", "PW" ].indexOf( navigator.languages[ 0 ].split( "-" )[ 1 ] ) === -1 ),
 	groupView = false,
-	intervalId = 0,
+
 	storage = {
 		get: function( query, callback ) {
 			callback = callback || function() {};
@@ -7190,13 +7190,10 @@ function calculateTotalRunningTime( runTimes ) {
 }
 
 // Handle timer update on the home page and status bar
-function updateTimers(interval) {
+function updateTimers() {
 	var lastCheck = new Date().getTime();
 
-	if (!interval) interval = 1000;
-	if (intervalId)
-		clearInterval(intervalId);
-	intervalId = setInterval( function() {
+	setInterval( function() {
 
 		if ( !isControllerConnected() ) {
 			return false;
@@ -7242,7 +7239,7 @@ function updateTimers(interval) {
 				}
 			}
 		}
-	}, interval );
+	}, 1000 );
 }
 
 function removeStationTimers() {

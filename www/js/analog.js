@@ -8,7 +8,10 @@
 var analogSensors = {},
 	progAdjusts = {},
 	monitors = {},
-	monitorAlerts = {};
+	monitorAlerts = {},
+	expandItem = new Set(["sensors"]);
+
+var timer;
 
 
 const CHARTS = 12;
@@ -35,6 +38,8 @@ const RS485_TRUEBNER3 = 0x80;
 const RS485_TRUEBNER4 = 0x100;
 const OSPI_USB_RS485 = 0x200;
 
+const NOTIFICATION_COLORS = ["#baffc9", "#faf0be", "#ffb3ba"];
+
 function success_callback(scope) {
 }
 
@@ -47,7 +52,7 @@ function asb_init() {
 			channelName:'OpenSprinklerLowNotifications',
 			vibrate: false, // bool (optional), default is false
 			importance: 2, // int (optional) 0 to 4, default is IMPORTANCE_DEFAULT (3)
-			soundUsage: 5 // int (optional), default is USAGE_NOTIFICATION
+			soundUsage: 5, // int (optional), default is USAGE_NOTIFICATION
 			}, success_callback, this);
 		cordova.plugins.notification.local.createChannel({
 			channelId: 'os_med',
@@ -55,7 +60,7 @@ function asb_init() {
 			channelName:'OpenSprinklerMedNotifications',
 			vibrate: false, // bool (optional), default is false
 			importance: 3, // int (optional) 0 to 4, default is IMPORTANCE_DEFAULT (3)
-			soundUsage: 5 // int (optional), default is USAGE_NOTIFICATION
+			soundUsage: 5, // int (optional), default is USAGE_NOTIFICATION
 			}, success_callback, this);
 		cordova.plugins.notification.local.createChannel({
 			channelId: 'os_high',
@@ -63,17 +68,41 @@ function asb_init() {
 			channelName:'OpenSprinklerHighNotifications',
 			vibrate: true, // bool (optional), default is false
 			importance: 4, // int (optional) 0 to 4, default is IMPORTANCE_DEFAULT (3)
-			soundUsage: 5 // int (optional), default is USAGE_NOTIFICATION
+			soundUsage: 5, // int (optional), default is USAGE_NOTIFICATION
 			}, success_callback, this);
 	}
-	if (window.cordova && window.cordova.plugins) {
-		cordova.plugins.backgroundMode.enable();
-		cordova.plugins.backgroundMode.overrideBackButton();
+	if (window.cordova && window.BackgroundFetch) {
+		var BackgroundFetch = window.BackgroundFetch;
+		var fetchCallback = function(taskId) {
+			console.log('[js] BackgroundFetch event received: ', taskId);
+			updateMonitors( function() {
+				BackgroundFetch.finish(taskId);
+			});
+		};
 
-		cordova.plugins.backgroundMode.on('activate',
-			function() { updateTimers(10000); } );
-		cordova.plugins.backgroundMode.on('deactivate',
-			function() { updateTimers(1000); } );
+		var failureCallback = function(taskId) {
+			console.log('- BackgroundFetch failed', error);
+			BackgroundFetch.finish(taskId);
+		};
+
+		BackgroundFetch.configure({
+			minimumFetchInterval: 15,
+			requiredNetworkType: BackgroundFetch.NETWORK_TYPE_ANY
+		}, fetchCallback, failureCallback);
+	}
+	if (window.cordova && cordova.plugins) {
+
+		timer = new window.nativeTimer();
+		timer.onTick = function(tick) {
+			updateMonitors();
+		};
+
+		cordova.plugins.backgroundMode.on('activate', function() {
+			timer.start(1, 60*1000);
+		});
+	 	cordova.plugins.backgroundMode.on('deactivate', function() {
+			timer.stop();
+		});
 	}
 }
 
@@ -103,12 +132,28 @@ function updateProgramAdjustments(callback) {
 	});
 }
 
+function checkBackgroundMode() {
+	if (!window.cordova || !cordova.plugins)
+		return;
+	//Enable background mode only if we have a monitor configured:
+	if (monitors && monitors.length > 0) {
+		if (!cordova.plugins.backgroundMode.isActive() && !cordova.plugins.backgroundMode.isEnabled())
+			cordova.plugins.backgroundMode.setEnabled(true);
+	} else if (cordova.plugins.backgroundMode.isEnabled()) {
+		cordova.plugins.backgroundMode.setEnabled(false);
+	}
+}
+
 function updateMonitors(callback) {
 	callback = callback || function () { };
+
+	checkBackgroundMode();
+
 	if (checkOSVersion(233)) {
 		return sendToOS("/ml?pw=", "json").then(function (data) {
 
 			monitors = data.monitors;
+			checkMonitorAlerts();
 			callback();
 		});
 	} else callback();
@@ -118,11 +163,54 @@ function updateAnalogSensor(callback) {
 	callback = callback || function () { };
 	return sendToOS("/sl?pw=", "json").then(function (data) {
 		analogSensors = data.sensors;
-		analogSensors.expandItem = new Set(["sensors"]);
 		if (data.hasOwnProperty("detected"))
 			analogSensors.detected = data.detected;
 		callback();
 	});
+}
+
+function notification_action_callback(monitor) {
+//	monitorAlerts[monitor.nr] = false;
+}
+
+function checkMonitorAlerts() {
+	if (!window.cordova || !cordova.plugins || !monitors)
+		return;
+
+	for (i = 0; i < monitors.length; i++) {
+		var monitor = monitors[i];
+		if (monitor.active) {
+
+			if (!monitorAlerts[monitor.nr]) {
+				monitorAlerts[monitor.nr] = true;
+				var dname, chan;
+				if ( typeof controller.settings.dname !== "undefined" )
+					dname = controller.settings.dname;
+				else
+				 	dname = "OpenSprinkler";
+				let prio = monitor.hasOwnProperty("prio")?monitor.prio:0;
+
+				if (prio === 0) chan = 'os_low';
+				else if (prio === 1) chan = 'os_med';
+				else chan = 'os_high';
+
+				cordova.plugins.notification.local.schedule({
+					id: monitor.nr,
+					channelId: chan,
+					channel: chan,
+					title: dname,
+					text: monitor.name,
+					priority: prio,
+					beep: prio>=2,
+					lockscreen: true,
+					color: NOTIFICATION_COLORS[prio],
+				}, notification_action_callback, monitor);
+			}
+		}
+		else if (monitorAlerts[monitor.nr]) {
+			monitorAlerts[monitor.nr] = false;
+		}
+	}
 }
 
 function updateSensorShowArea(page) {
@@ -152,35 +240,6 @@ function updateSensorShowArea(page) {
 					html += "<div id='monitor-" + monitor.nr + "' class='ui-body ui-body-a center monitor"+prio+"'>";
 					html += "<label>" + monitor.name + "</label>";
 					html += "</div>";
-
-					//Show Alert, ask for permission:
-					if (!monitorAlerts[monitor.nr]) {
-						monitorAlerts[monitor.nr] = true;
-						var dname, chan;
-						if ( typeof controller.settings.dname !== "undefined" )
-							dname = controller.settings.dname;
-						else
-						 	dname = "OpenSprinkler";
-
-						if (prio === 0) chan = 'os_low';
-						else if (prio === 1) chan = 'os_med';
-						else chan = 'os_high';
-
-						if (window.cordova && cordova.plugins) 
-							cordova.plugins.notification.local.schedule({
-							id: monitor.nr,
-							channelId: chan,
-							channel: chan,
-							title: dname,
-							text: monitor.name,
-							priority: prio,
-							beep: prio>=2,
-							lockscreen: true
-						});
-					}
-				}
-				else if (monitorAlerts[monitor.nr]) {
-					monitorAlerts[monitor.nr] = false;
 				}
 			}
 		}
@@ -503,9 +562,7 @@ function importConfigSensors(data, restore_type, callback) {
 			}
 		}
 
-		//analogSensors.expandItem.add("sensors");
-		analogSensors.expandItem.clear();
-		analogSensors.expandItem.add("progadjust");
+		expandItem.add("progadjust");
 		updateProgramAdjustments(function () {
 			updateMonitors(function () {
 				updateAnalogSensor(function () {
@@ -1517,9 +1574,7 @@ function showAnalogSensorConfig() {
 		});
 
 	function updateSensorContent() {
-		if (!analogSensors.expandItem)
-			analogSensors.expandItem = new Set(["sensors"]);
-		var list = $(buildSensorConfig(analogSensors.expandItem));
+		var list = $(buildSensorConfig());
 
 		//Edit a sensor:
 		list.find(".edit-sensor").on("click", function () {
@@ -1528,8 +1583,7 @@ function showAnalogSensorConfig() {
 
 			var sensor = analogSensors[row];
 
-			analogSensors.expandItem.clear();
-			analogSensors.expandItem.add("sensors");
+			expandItem.add("sensors");
 			showSensorEditor(sensor, row, function (sensorOut) {
 				sensorOut.nativedata = sensor.nativedata;
 				sensorOut.data = sensor.data;
@@ -1616,8 +1670,7 @@ function showAnalogSensorConfig() {
 
 		// Refresh sensor data:
 		list.find(".refresh-sensor").on("click", function () {
-			analogSensors.expandItem.clear();
-			analogSensors.expandItem.add("sensors");
+			expandItem.add("sensors");
 			updateProgramAdjustments(function () {
 				updateMonitors(function () {
 					updateAnalogSensor(function () {
@@ -1634,8 +1687,7 @@ function showAnalogSensorConfig() {
 
 			var progAdjust = progAdjusts[row];
 
-			analogSensors.expandItem.clear();
-			analogSensors.expandItem.add("progadjust");
+			expandItem.add("progadjust");
 			showAdjustmentsEditor(progAdjust, row, function (progAdjustOut) {
 
 				return sendToOS("/sb?pw=&nr=" + progAdjustOut.nr +
@@ -1665,8 +1717,7 @@ function showAnalogSensorConfig() {
 				type: 1
 			};
 
-			analogSensors.expandItem.clear();
-			analogSensors.expandItem.add("progadjust");
+			expandItem.add("progadjust");
 			showAdjustmentsEditor(progAdjust, -1, function (progAdjustOut) {
 				return sendToOS("/sb?pw=&nr=" + progAdjustOut.nr +
 					"&type=" + progAdjustOut.type +
@@ -1698,8 +1749,7 @@ function showAnalogSensorConfig() {
 
 				var monitor = monitors[row];
 
-				analogSensors.expandItem.clear();
-				analogSensors.expandItem.add("monitors");
+				expandItem.add("monitors");
 				showMonitorEditor(monitor, row, function (monitorOut) {
 
 					return sendToOS("/mc?pw=&nr=" + monitorOut.nr +
@@ -1730,8 +1780,7 @@ function showAnalogSensorConfig() {
 					type: 1
 				};
 
-				analogSensors.expandItem.clear();
-				analogSensors.expandItem.add("monitors");
+				expandItem.add("monitors");
 				showMonitorEditor(monitor, -1, function (monitorOut) {
 					return sendToOS("/mc?pw=&nr=" + monitorOut.nr +
 						"&type=" + monitorOut.type +
@@ -1757,8 +1806,7 @@ function showAnalogSensorConfig() {
 		}
 		// Clear sensor log
 		list.find(".clear_sensor_logs").on("click", function () {
-			analogSensors.expandItem.clear();
-			analogSensors.expandItem.add("sensorlog");
+			expandItem.add("sensorlog");
 			areYouSure(_("Are you sure you want to clear the sensor log?"), "", function () {
 				return sendToOS("/sn?pw=&", "json").done(function (result) {
 					window.alert(_("Log cleared:") + " " + result.deleted + " " + _("records"));
@@ -1768,8 +1816,7 @@ function showAnalogSensorConfig() {
 		});
 
 		list.find(".download-log").on("click", function () {
-			analogSensors.expandItem.clear();
-			analogSensors.expandItem.add("sensorlog");
+			expandItem.add("sensorlog");
 			var link = document.createElement("a");
 			link.style.display = "none";
 			link.setAttribute("download", "sensorlog-" + new Date().toLocaleDateString().replace(/\//g, "-") + ".csv");
@@ -1785,36 +1832,31 @@ function showAnalogSensorConfig() {
 		});
 
 		list.find(".show-log").on("click", function () {
-			analogSensors.expandItem.clear();
-			analogSensors.expandItem.add("sensorlog");
+			expandItem.add("sensorlog");
 			changePage("#analogsensorchart");
 			return false;
 		});
 
 		list.find(".backup-sensors").on("click", function () {
-			analogSensors.expandItem.clear();
-			analogSensors.expandItem.add("backup");
+			expandItem.add("backup");
 			getExportMethodSensors(1);
 			return false;
 		});
 
 		list.find(".restore-sensors").on("click", function () {
-			analogSensors.expandItem.clear();
-			analogSensors.expandItem.add("backup");
+			expandItem.add("backup");
 			getImportMethodSensors(1, updateSensorContent);
 			return false;
 		});
 
 		list.find(".backup-adjustments").on("click", function () {
-			analogSensors.expandItem.clear();
-			analogSensors.expandItem.add("backup");
+			expandItem.add("backup");
 			getExportMethodSensors(2);
 			return false;
 		});
 
 		list.find(".restore-adjustments").on("click", function () {
-			analogSensors.expandItem.clear();
-			analogSensors.expandItem.add("backup");
+			expandItem.add("backup");
 			getImportMethodSensors(2, updateSensorContent);
 			return false;
 		});
@@ -1849,7 +1891,7 @@ function checkFirmwareUpdate() {
 	return _("Please update firmware to ") + CURRENT_FW;
 }
 
-function buildSensorConfig(expandItem) {
+function buildSensorConfig() {
 
 	//detected Analog Sensor Boards:
 	var detected_boards = "";
