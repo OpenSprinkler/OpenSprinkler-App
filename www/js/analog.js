@@ -658,7 +658,7 @@ function showAdjustmentsEditor(progAdjust, row, callback, callbackCancel) {
 				list += "<label>" +
 				_("Adjustment-Name") +
 				"</label>" +
-				"<input class='adj-name' type='text' value='" + progAdjust.name + "' >";
+				"<input class='adj-name' type='text' maxlength='29' value='" + progAdjust.name + "' >";
 			}
 
 			//Select Type:
@@ -1014,7 +1014,7 @@ function showMonitorEditor(monitor, row, callback, callbackCancel) {
 			"<label>" +
 			_("Monitor-Name") +
 			"</label>" +
-			"<input class='mon-name' type='text' value='" + monitor.name + "' >" +
+			"<input class='mon-name' type='text' maxlength='29' value='" + monitor.name + "' >" +
 
 			//Select Type:
 			"<div class='ui-field-contain'><label for='type' class='select'>" +
@@ -1338,7 +1338,7 @@ function showSensorEditor(sensor, row, callback, callbackCancel) {
 
 			"<label>" + _("Name") +
 			"</label>" +
-			"<input class='name' type='text'  value='" + sensor.name + "'>" +
+			"<input class='name' type='text' maxlength='29' value='" + sensor.name + "'>" +
 
 			"<label class='ip_label'>" + _("IP Address") +
 			"</label>" +

@@ -768,6 +768,8 @@
    "Value 2": "Wert 2",
    "Monitoring-warnings level low":    "Überwachung Warnstufe niedrig",
    "Monitoring-warnings level medium": "Überwachung Warnstufe mittel",
-   "Monitoring-warnings level high":   "Überwachung Warnstufe hoch"
+   "Monitoring-warnings level high":   "Überwachung Warnstufe hoch",
+   "Flow alert setpoint": "Strömungsüberwachung-Grenzmenge",
+   "Average flow value": "Durchschnittliche Strömungsmenge"
 }
 }

@@ -2410,3 +2410,9 @@ msgstr ""
 
 msgid "Monitoring-warnings level high"
 msgstr ""
+
+msgid "Flow alert setpoint"
+msgstr ""
+
+msgid "Average flow value"
+msgstr ""

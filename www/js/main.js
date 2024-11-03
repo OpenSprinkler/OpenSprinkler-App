@@ -5920,6 +5920,8 @@ var showHome = ( function() {
 					button.data( "sd", select.find( "#sd" ).is( ":checked" ) ? 1 : 0 );
 					button.data( "us", select.find( "#us" ).is( ":checked" ) ? 1 : 0 );
 					name.html( select.find( "#stn-name" ).val() );
+					if (Supported.fas())
+						button.attr( "data-fas", select.find( "#fas").val());
 
 					var seqGroupName = select.find( "span.seqgrp" ).text();
 					button.attr( "data-gid", mapGIDNameToValue( seqGroupName ) );
@@ -6023,6 +6025,17 @@ var showHome = ( function() {
 					"<div class='ui-bar-a ui-bar seq-container'>" + _( "Sequential Group" ) + ":</div>" +
 						"<select id='gid' class='seqgrp' data-mini='true'></select>" +
 						"<div><p id='prohibit-change' class='center hidden' style='color: #ff0033;'>Changing group designation is prohibited while station is running</p></div>";
+
+				//Flow alert setpoint
+				if (Supported.fas()) { // fas = flow alert setpoint
+					var fas = controller.stations.stn_fas[ sid ].toFixed(2) / 100;
+					select += "<div class='ui-bar-a ui-bar'>" +_("Flow alert setpoint") + " (liter/min):</div>" +
+						"<input class='center' id='fas' type='text' inputmode='decimal' min='0' max='640' value='" + fas + "' >";
+						if (controller.stations.stn_favg) {
+							select += "<div class='ui-bar-a ui-bar'>" +_("Average flow value") + " (liter/min):</div>" +
+							"<label class='center'>" + controller.stations.stn_favg[ sid ].toFixed(2) / 100 + "</label>";
+						}
+				}
 			}
 
 			// Station tab is initially set to disabled until we have refreshed station data from firmware
@@ -6162,7 +6175,7 @@ var showHome = ( function() {
 				relay = {},
 				disable = {},
 				names = {},
-				attrib, bid, sid, gid, s;
+				attrib, bid, sid, gid, s, fas;
 
 			for ( bid = 0; bid < controller.settings.nbrd; bid++ ) {
 				if ( Supported.master( MASTER_STATION_1 ) ) {
@@ -6252,6 +6265,10 @@ var showHome = ( function() {
 						if ( Supported.groups() ) {
 							gid = attrib.attr( "data-gid" );
 						}
+
+						if (Supported.fas()) {
+							fas = Math.floor(parseFloat(attrib.attr( "data-fas" )) * 100);
+						}
 					}
 				}
 			}
@@ -6267,7 +6284,8 @@ var showHome = ( function() {
 				( Supported.ignoreSensor( IGNORE_SENSOR_2 ) ? "&" + $.param( sensor2 ) : "" ) +
 				( Supported.actRelay() ? "&" + $.param( relay ) : "" ) +
 				( Supported.disabled() ? "&" + $.param( disable ) : "" ) +
-				( Supported.groups() ? "&g" + id + "=" + gid : "" )
+				( Supported.groups() ? "&g" + id + "=" + gid : "" ) +
+				( Supported.fas() ? "&f" + id + "=" + fas : "")
 			).done( function() {
 				showerror( _( "Stations have been updated" ) );
 				updateController( function() {
@@ -13663,6 +13681,10 @@ Supported.pausing = function() {
 
 Supported.groups = function() {
 	return getNumberProgramStatusOptions() >= 4;
+};
+
+Supported.fas = function() {
+	return controller.stations.stn_fas != undefined;
 };
 
 Supported.dateRange = function() {
