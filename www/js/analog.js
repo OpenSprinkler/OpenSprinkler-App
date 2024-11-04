@@ -98,10 +98,19 @@ function asb_init() {
 		};
 
 		cordova.plugins.backgroundMode.on('activate', function() {
-			timer.start(1, 60*1000);
+			timer.start(1, 30*1000);
 		});
 	 	cordova.plugins.backgroundMode.on('deactivate', function() {
 			timer.stop();
+		});
+
+		cordova.plugins.backgroundMode.setDefaults({
+			title: "OpenSprinklerASB",
+			text: _("OpenSprinkler is running in background mode"),
+			subText: _("active monitor and controlling notifications"),
+			channelName: "BackgroundChannel",
+			allowClose: false,
+			visibility: "public",
 		});
 	}
 }
@@ -174,7 +183,7 @@ function notification_action_callback(monitor) {
 }
 
 function checkMonitorAlerts() {
-	if (!window.cordova || !cordova.plugins || !monitors)
+	if (!window.cordova || !cordova.plugins || !monitors || (!isAndroid && !isiOS))
 		return;
 
 	for (i = 0; i < monitors.length; i++) {

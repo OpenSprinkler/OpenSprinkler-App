@@ -2416,3 +2416,9 @@ msgstr ""
 
 msgid "Average flow value"
 msgstr ""
+
+msgid "OpenSprinkler is running in background mode"
+msgstr ""
+
+msgid "active monitor and controlling notifications"
+msgstr ""
