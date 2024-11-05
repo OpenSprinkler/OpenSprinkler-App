@@ -23,7 +23,7 @@ cp network_security_config.xml /srv/www/htdocs/ui/platforms/android/app/src/main
 #cordova platform add android
 #cordova plugin add https://github.com/katzer/cordova-plugin-local-notifications.git
 #cordova plugin add cordova-plugin-background-fetch
-#cordova plugin add https://github.com/susheelyadav/cordova-plugin-background-mode2.git
+#cordova plugin add https://bitbucket.org/TheBosZ/cordova-plugin-run-in-background
 #cordova plugin add cordova-plugin-inappbrowser
 #cordova plugin add https://github.com/kitolog/cordova-plugin-timer
 #cordova build --release
@@ -45,7 +45,7 @@ cp network_security_config.xml /srv/www/htdocs/ui/platforms/android/app/src/main
 #cordova platform add android
 #cordova plugin add https://github.com/katzer/cordova-plugin-local-notifications.git
 #cordova plugin add cordova-plugin-background-fetch
-#cordova plugin add https://github.com/susheelyadav/cordova-plugin-background-mode2.git
+#cordova plugin add https://bitbucket.org/TheBosZ/cordova-plugin-run-in-background
 #cordova plugin add cordova-plugin-inappbrowser
 #cordova plugin add https://github.com/kitolog/cordova-plugin-timer
 cordova build --release
