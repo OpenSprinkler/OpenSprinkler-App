@@ -8667,7 +8667,7 @@ var getLogs = ( function() {
 				html = showStats( stats ) + "<div data-role='collapsible-set' data-inset='true' data-theme='b' data-collapsed-icon='arrow-d' data-expanded-icon='arrow-u'>",
 				i = 0,
 				group, ct, k;
-
+console.log('test');
 			for ( group in sortedData ) {
 				if ( sortedData.hasOwnProperty( group ) ) {
 					ct = sortedData[ group ].length;
