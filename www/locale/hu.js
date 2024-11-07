@@ -147,7 +147,7 @@
    "Offline": "Offline",
    "Error": "Hiba",
    "Online": "Online",
-   "Unuseable": "Használhatatlan",
+   "Unusable": "Használhatatlan",
    "Poor": "Gyenge",
    "Fair": "Közepes",
    "Good": "Jó",

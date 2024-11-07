@@ -147,7 +147,7 @@
    "Offline": "Offline",
    "Error": "Errore",
    "Online": "Online",
-   "Unuseable": "Inutilizzabile",
+   "Unusable": "Inutilizzabile",
    "Poor": "Scarso",
    "Fair": "Accettabile",
    "Good": "Buono",

@@ -147,7 +147,7 @@
    "Offline": "下线",
    "Error": "错误",
    "Online": "在线",
-   "Unuseable": "极差",
+   "Unusable": "极差",
    "Poor": "差",
    "Fair": "一般",
    "Good": "强",

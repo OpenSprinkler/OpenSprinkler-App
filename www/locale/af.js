@@ -147,7 +147,7 @@
    "Offline": "Vanlyn",
    "Error": "Fout",
    "Online": "Aanlyn",
-   "Unuseable": "Onbruikbaar",
+   "Unusable": "Onbruikbaar",
    "Poor": "Swak",
    "Fair": "Matig",
    "Good": "Goed",

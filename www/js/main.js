@@ -3382,17 +3382,21 @@ function getWeatherStatus( status ) {
 }
 
 function getWiFiRating( rssi ) {
+	var rating = '';
+
 	if ( rssi < -80 ) {
-		return _( "Unuseable" );
+		rating = _( "Unusable" );
 	} else if ( rssi < -70 ) {
-		return _( "Poor" );
+		rating = _( "Poor" );
 	} else if ( rssi < -60 ) {
-		return _( "Fair" );
+		rating = _( "Fair" );
 	} else if ( rssi < -50 ) {
-		return _( "Good" );
+		rating = _( "Good" );
 	} else {
-		return _( "Excellent" );
+		rating = _( "Excellent" );
 	}
+
+	return Math.round(rssi) + "dBm (" + rating + ")";
 }
 
 function debugWU() {

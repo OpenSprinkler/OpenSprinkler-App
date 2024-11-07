@@ -147,7 +147,7 @@
    "Offline": "",
    "Error": "",
    "Online": "",
-   "Unuseable": "",
+   "Unusable": "",
    "Poor": "",
    "Fair": "",
    "Good": "",
