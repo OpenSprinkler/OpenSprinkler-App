@@ -3382,7 +3382,7 @@ function getWeatherStatus( status ) {
 }
 
 function getWiFiRating( rssi ) {
-	var rating = '';
+	var rating = "";
 
 	if ( rssi < -80 ) {
 		rating = _( "Unusable" );
