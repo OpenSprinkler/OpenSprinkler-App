@@ -8400,6 +8400,7 @@ var getLogs = ( function() {
 		waterlog = [],
 		flowlog = [],
 		sortData = function( type, grouping ) {
+
 			var sortedData = [],
 				stats = {
 					totalRuntime: 0,
@@ -8412,10 +8413,12 @@ var getLogs = ( function() {
 				}
 			}
 
+			console.log("*** sortData", {type, grouping, sortedData, data});
+
 			$.each( data, function() {
 				var station = this[ 1 ],
 					duration = parseInt( this[ 2 ] );
-
+				console.log("*** station " + station + " duration " + duration);
 				// Adjust for negative watering time firmware bug
 				if ( duration < 0 ) {
 					duration += 65536;
@@ -8446,6 +8449,8 @@ var getLogs = ( function() {
 					stats.totalCount++;
 				}
 
+
+
 				if ( type === "table" ) {
 					switch ( grouping ) {
 						case "station":
@@ -8453,7 +8458,9 @@ var getLogs = ( function() {
 							break;
 						case "day":
 							var day = Math.floor( date.getTime() / 1000 / 60 / 60 / 24 ),
-								item = [ utc, dhms2str( sec2dhms( duration ) ), station ];
+								item = [ utc, dhms2str( sec2dhms( duration ) ), station, new Date( utc.getTime() + ( duration * 1000 ) ) ];
+
+							// mellodev item: [startDate, runtime, station, endDate]
 
 							if ( typeof sortedData[ day ] !== "object" ) {
 								sortedData[ day ] = [ item ];
@@ -8665,8 +8672,11 @@ var getLogs = ( function() {
 				wlSorted = extraData[ 0 ],
 				flSorted = extraData[ 1 ],
 				stats = extraData[ 2 ],
-				tableHeader = "<table><thead><tr><th data-priority='1'>" + _( "Runtime" ) + "</th>" +
-					"<th data-priority='2'>" + ( grouping === "station" ? _( "Date/Time" ) : _( "Time" ) + "</th><th>" + _( "Station" ) ) + "</th>" +
+				tableHeader = "<table><thead><tr>" +
+					"<th data-priority='1'>" + _( "Start Time" ) + "</th>" +
+					"<th data-priority='2'>" + _( "End Time" ) + "</th>" +
+					"<th data-priority='3'>" + _( "Runtime" ) + "</th>" +
+					"<th data-priority='4'>" + _( "Station" ) + "</th>" +
 					"</tr></thead><tbody>",
 				html = showStats( stats ) + "<div data-role='collapsible-set' data-inset='true' data-theme='b' data-collapsed-icon='arrow-d' data-expanded-icon='arrow-u'>",
 				i = 0,
@@ -8703,11 +8713,16 @@ var getLogs = ( function() {
 					groupArray[ i ] += tableHeader;
 
 					for ( k = 0; k < sortedData[ group ].length; k++ ) {
-						var date = new Date( sortedData[ group ][ k ][ 0 ] );
-						groupArray[ i ] += "<tr><td>" + sortedData[ group ][ k ][ 1 ] + "</td><td>" +
-							( grouping === "station" ? dateToString( date, false ) : pad( date.getHours() ) + ":" +
-								pad( date.getMinutes() ) + ":" + pad( date.getSeconds() ) + "</td><td>" + stations[ sortedData[ group ][ k ][ 2 ] ] ) +
-							"</td></tr>";
+						var formatTime = function(dt) {
+							return grouping === "station" ? dateToString( dt, false ) : pad( dt.getHours() ) + ":" + pad( dt.getMinutes() ) + ":" + pad( dt.getSeconds() );
+						};
+
+						groupArray[ i ] += "<tr>" +
+							"<td>" + formatTime(sortedData[ group ][ k ][ 0 ]) + "</td>" +	// startdate
+							"<td>" + formatTime(sortedData[ group ][ k ][ 3 ]) + "</td>" +	// enddate
+							"<td>" + sortedData[ group ][ k ][ 1 ] + "</td>" +  			// runtime
+							"<td>" + stations[ sortedData[ group ][ k ][ 2 ] ] + "</td>" + 	// station name
+							"</tr>";
 					}
 					groupArray[ i ] += "</tbody></table></div>";
 
@@ -13285,6 +13300,10 @@ function sortByStation( a, b ) {
 	} else {
 		return 0;
 	}
+}
+
+function sortByStartDate( a, b ) {
+	return a.start - b.start;
 }
 
 function minutesToTime( minutes ) {
