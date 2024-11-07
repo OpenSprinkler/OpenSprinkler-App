@@ -8726,10 +8726,10 @@ var getLogs = ( function() {
 
 					for ( k = 0; k < sortedData[ group ].length; k++ ) {
 						groupArray[ i ] += "<tr>" +
-							"<td>" + stations[ sortedData[ group ][ k ][ 2 ] ] + "</td>" + 	// station name
-							"<td>" + sortedData[ group ][ k ][ 1 ] + "</td>" +  			// runtime
-							"<td>" + formatTime(sortedData[ group ][ k ][ 0 ], grouping) + "</td>" +	// startdate
-							"<td>" + formatTime(sortedData[ group ][ k ][ 3 ], grouping) + "</td>" +	// enddate
+							"<td>" + stations[ sortedData[ group ][ k ][ 2 ] ] + "</td>" + // station name
+							"<td>" + sortedData[ group ][ k ][ 1 ] + "</td>" + // runtime
+							"<td>" + formatTime(sortedData[ group ][ k ][ 0 ], grouping) + "</td>" + // startdate
+							"<td>" + formatTime(sortedData[ group ][ k ][ 3 ], grouping) + "</td>" + // enddate
 							"</tr>";
 					}
 					groupArray[ i ] += "</tbody></table></div>";
@@ -8983,7 +8983,7 @@ function resetAllOptions( callback ) {
 			co = transformKeysinString( co );
 		}
 
-		sendToOS( "/co?pw=&" + co ).done( function() {
+		sendToOS( "/co?pw=&" + co ).done( function() {.
 			if ( typeof callback === "function" ) {
 				callback();
 			}
