@@ -8689,8 +8689,8 @@ var getLogs = ( function() {
 				i = 0,
 				group, ct, k;
 
+			// Return HH:MM:SS formatting for dt datetime object.
 			var formatTime = function (dt, g) {
-				// Return HH:MM:SS formatting for dt datetime object.
 				return g === "station" ? dateToString( dt, false ) : pad( dt.getHours() ) + ":" + pad( dt.getMinutes() ) + ":" + pad( dt.getSeconds() );
 			};
 
