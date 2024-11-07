@@ -8680,10 +8680,10 @@ var getLogs = ( function() {
 				flSorted = extraData[ 1 ],
 				stats = extraData[ 2 ],
 				tableHeader = "<table id=\"table-logs\"><thead><tr>" +
-					"<th data-priority='4'>" + _( "Station" ) + "</th>" +
-					"<th data-priority='3'>" + _( "Runtime" ) + "</th>" +
-					"<th data-priority='1'>" + _( "Start Time" ) + "</th>" +
-					"<th data-priority='2'>" + _( "End Time" ) + "</th>" +
+					"<th data-priority='1'>" + _( "Station" ) + "</th>" +
+					"<th data-priority='2'>" + _( "Runtime" ) + "</th>" +
+					"<th data-priority='3'>" + _( "Start Time" ) + "</th>" +
+					"<th data-priority='4'>" + _( "End Time" ) + "</th>" +
 					"</tr></thead><tbody>",
 				html = showStats( stats ) + "<div data-role='collapsible-set' data-inset='true' data-theme='b' data-collapsed-icon='arrow-d' data-expanded-icon='arrow-u'>",
 				i = 0,
