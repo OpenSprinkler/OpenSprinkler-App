@@ -73,9 +73,14 @@
 		"po2json": "^0.4.5",
 		"xcode": "^3.0.1"
 	},
+	"grunt-precommit": {
+		"*.js": [
+			"npx grunt"
+		]
+	},
 	"husky": {
 		"hooks": {
-			"pre-commit": "npx grunt"
+			"pre-commit": "grunt-precommit"
 		}
 	},
 	"cordova": {
