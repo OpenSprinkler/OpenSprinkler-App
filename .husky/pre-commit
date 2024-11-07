@@ -1,0 +1,2 @@
+# Execute these commands prior to allowing a commit.
+npx grunt
