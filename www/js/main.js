@@ -8689,8 +8689,9 @@ var getLogs = ( function() {
 				i = 0,
 				group, ct, k;
 
-			var formatTime = function (dt) {
-				return grouping === "station" ? dateToString( dt, false ) : pad( dt.getHours() ) + ":" + pad( dt.getMinutes() ) + ":" + pad( dt.getSeconds() );
+			var formatTime = function (dt, g) {
+				// Return HH:MM:SS formatting for dt datetime object.
+				return g === "station" ? dateToString( dt, false ) : pad( dt.getHours() ) + ":" + pad( dt.getMinutes() ) + ":" + pad( dt.getSeconds() );
 			};
 
 			for ( group in sortedData ) {
@@ -8727,8 +8728,8 @@ var getLogs = ( function() {
 						groupArray[ i ] += "<tr>" +
 							"<td>" + stations[ sortedData[ group ][ k ][ 2 ] ] + "</td>" + 	// station name
 							"<td>" + sortedData[ group ][ k ][ 1 ] + "</td>" +  			// runtime
-							"<td>" + formatTime(sortedData[ group ][ k ][ 0 ]) + "</td>" +	// startdate
-							"<td>" + formatTime(sortedData[ group ][ k ][ 3 ]) + "</td>" +	// enddate
+							"<td>" + formatTime(sortedData[ group ][ k ][ 0 ], grouping) + "</td>" +	// startdate
+							"<td>" + formatTime(sortedData[ group ][ k ][ 3 ], grouping) + "</td>" +	// enddate
 							"</tr>";
 					}
 					groupArray[ i ] += "</tbody></table></div>";
