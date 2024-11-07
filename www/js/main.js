@@ -8458,8 +8458,6 @@ var getLogs = ( function() {
 					stats.totalCount++;
 				}
 
-
-
 				if ( type === "table" ) {
 					switch ( grouping ) {
 						case "station":
@@ -8469,7 +8467,7 @@ var getLogs = ( function() {
 							var day = Math.floor( date.getTime() / 1000 / 60 / 60 / 24 ),
 								item = [ utc, dhms2str( sec2dhms( duration ) ), station, new Date( utc.getTime() + ( duration * 1000 ) ) ];
 
-							// mellodev item: [startDate, runtime, station, endDate]
+							// item structure: [startDate, runtime, station, endDate]
 
 							if ( typeof sortedData[ day ] !== "object" ) {
 								sortedData[ day ] = [ item ];
