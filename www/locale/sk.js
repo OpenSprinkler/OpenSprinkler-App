@@ -147,7 +147,7 @@
    "Offline": "Offline",
    "Error": "Chyba",
    "Online": "Online",
-   "Unuseable": "Nepoužiteľné",
+   "Unusable": "Nepoužiteľné",
    "Poor": "Slabý",
    "Fair": "Primeraný",
    "Good": "Dobrý",

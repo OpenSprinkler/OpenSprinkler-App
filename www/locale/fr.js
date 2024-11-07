@@ -147,7 +147,7 @@
    "Offline": "Déconnecté",
    "Error": "Erreur",
    "Online": "Connecté",
-   "Unuseable": "Inutilisable",
+   "Unusable": "Inutilisable",
    "Poor": "Faible",
    "Fair": "Moyen",
    "Good": "Bon",
