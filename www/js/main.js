@@ -8983,7 +8983,7 @@ function resetAllOptions( callback ) {
 			co = transformKeysinString( co );
 		}
 
-		sendToOS( "/co?pw=&" + co ).done( function() {.
+		sendToOS( "/co?pw=&" + co ).done( function() {
 			if ( typeof callback === "function" ) {
 				callback();
 			}
