@@ -1,7 +1,3 @@
-#### Summary Description
-
----
-
 #### Changes Proposed
 
 -
