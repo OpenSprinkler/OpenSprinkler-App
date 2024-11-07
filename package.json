@@ -67,7 +67,6 @@
 		"grunt-shell": "^4.0.0",
 		"grunt-text-replace": "^0.4.0",
 		"husky": "^9.1.6",
-		"lint-staged": "^15.2.10",
 		"lcov-result-merger": "^4.1.0",
 		"lodash": "^4.17.19",
 		"mocha": "^10.2.0",
@@ -76,7 +75,7 @@
 	},
 	"husky": {
 		"hooks": {
-			"pre-commit": "lint-staged"
+			"pre-commit": "npx grunt"
 		}
 	},
 	"cordova": {
