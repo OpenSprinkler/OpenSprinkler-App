@@ -13314,10 +13314,6 @@ function sortByStation( a, b ) {
 	}
 }
 
-function sortByStartDate( a, b ) {
-	return a.start - b.start;
-}
-
 function minutesToTime( minutes ) {
 	var period = minutes > 719 ? "PM" : "AM",
 		hour = parseInt( minutes / 60 ) % 12;
