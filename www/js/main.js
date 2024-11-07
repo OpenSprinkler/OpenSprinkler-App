@@ -575,7 +575,7 @@ function initApp() {
 }
 
 // Return Datatables configuration options
-function getDatatablesConfig(options = {}) {
+function getDatatablesConfig(options) {
 	var defaultConfig = {
 		info: false,
 		paging: false,
