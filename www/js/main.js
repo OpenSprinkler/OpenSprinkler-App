@@ -574,6 +574,17 @@ function initApp() {
 	}, 200 );
 }
 
+// Return Datatables configuration options
+function getDatatablesConfig(options = {}) {
+	var defaultConfig = {
+		info: false,
+		paging: false,
+		searching: false,
+	};
+
+	return Object.assign({}, defaultConfig, options);
+}
+
 // Handle main switches for manual mode
 function flipSwitched() {
 	if ( switching ) {
@@ -8413,12 +8424,10 @@ var getLogs = ( function() {
 				}
 			}
 
-			console.log("*** sortData", {type, grouping, sortedData, data});
-
 			$.each( data, function() {
 				var station = this[ 1 ],
 					duration = parseInt( this[ 2 ] );
-				console.log("*** station " + station + " duration " + duration);
+
 				// Adjust for negative watering time firmware bug
 				if ( duration < 0 ) {
 					duration += 65536;
@@ -8672,15 +8681,19 @@ var getLogs = ( function() {
 				wlSorted = extraData[ 0 ],
 				flSorted = extraData[ 1 ],
 				stats = extraData[ 2 ],
-				tableHeader = "<table><thead><tr>" +
+				tableHeader = "<table id=\"table-logs\"><thead><tr>" +
+					"<th data-priority='4'>" + _( "Station" ) + "</th>" +
+					"<th data-priority='3'>" + _( "Runtime" ) + "</th>" +
 					"<th data-priority='1'>" + _( "Start Time" ) + "</th>" +
 					"<th data-priority='2'>" + _( "End Time" ) + "</th>" +
-					"<th data-priority='3'>" + _( "Runtime" ) + "</th>" +
-					"<th data-priority='4'>" + _( "Station" ) + "</th>" +
 					"</tr></thead><tbody>",
 				html = showStats( stats ) + "<div data-role='collapsible-set' data-inset='true' data-theme='b' data-collapsed-icon='arrow-d' data-expanded-icon='arrow-u'>",
 				i = 0,
 				group, ct, k;
+
+			var formatTime = function (dt) {
+				return grouping === "station" ? dateToString( dt, false ) : pad( dt.getHours() ) + ":" + pad( dt.getMinutes() ) + ":" + pad( dt.getSeconds() );
+			};
 
 			for ( group in sortedData ) {
 				if ( sortedData.hasOwnProperty( group ) ) {
@@ -8713,15 +8726,11 @@ var getLogs = ( function() {
 					groupArray[ i ] += tableHeader;
 
 					for ( k = 0; k < sortedData[ group ].length; k++ ) {
-						var formatTime = function(dt) {
-							return grouping === "station" ? dateToString( dt, false ) : pad( dt.getHours() ) + ":" + pad( dt.getMinutes() ) + ":" + pad( dt.getSeconds() );
-						};
-
 						groupArray[ i ] += "<tr>" +
+							"<td>" + stations[ sortedData[ group ][ k ][ 2 ] ] + "</td>" + 	// station name
+							"<td>" + sortedData[ group ][ k ][ 1 ] + "</td>" +  			// runtime
 							"<td>" + formatTime(sortedData[ group ][ k ][ 0 ]) + "</td>" +	// startdate
 							"<td>" + formatTime(sortedData[ group ][ k ][ 3 ]) + "</td>" +	// enddate
-							"<td>" + sortedData[ group ][ k ][ 1 ] + "</td>" +  			// runtime
-							"<td>" + stations[ sortedData[ group ][ k ][ 2 ] ] + "</td>" + 	// station name
 							"</tr>";
 					}
 					groupArray[ i ] += "</tbody></table></div>";
@@ -8736,6 +8745,9 @@ var getLogs = ( function() {
 
 			logOptions.collapsible( "collapse" );
 			logsList.html( html + groupArray.join( "" ) + "</div>" ).enhanceWithin();
+
+			// Initialize datatable
+			$("#table-logs").DataTable(getDatatablesConfig());
 
 			logsList.find( ".delete-day" ).on( "click", function() {
 				var day, date;
