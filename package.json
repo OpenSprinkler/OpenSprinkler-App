@@ -1,46 +1,31 @@
 {
 	"name": "opensprinkler",
-	"author": "Samer Albahra",
-	"license": "AGPL-3.0",
-	"phonegap": {
-		"id": "1371093"
-	},
 	"version": "2.4.1",
 	"description": "Designed to allow intuitive control of the OpenSprinkler irrigation controller.",
-	"main": "index.html",
-	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1",
-		"prepare": "husky"
-	},
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/OpenSprinkler/OpenSprinkler-App.git"
-	},
 	"keywords": [
 		"sprinklers",
 		"opensprinkler",
 		"sprinkler",
 		"water"
 	],
+	"homepage": "https://github.com/OpenSprinkler/OpenSprinkler-App",
 	"bugs": {
 		"url": "https://github.com/OpenSprinkler/OpenSprinkler-App/issues"
 	},
-	"homepage": "https://github.com/OpenSprinkler/OpenSprinkler-App",
-	"window": {
-		"toolbar": false,
-		"width": 942,
-		"height": 512,
-		"title": "OpenSprinkler",
-		"icon": "res/ios-web/icons/icon.png",
-		"resizable": true,
-		"fullscreen": false,
-		"position": "center"
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/OpenSprinkler/OpenSprinkler-App.git"
 	},
-	"webkit": {
-		"page-cache": true
+	"license": "AGPL-3.0",
+	"author": "Samer Albahra",
+	"main": "index.html",
+	"scripts": {
+		"prepare": "husky",
+		"test": "echo \"Error: no test specified\" && exit 1"
 	},
-	"user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.130 Safari/537.36",
-	"no-edit-menu": true,
+	"lint-staged": {
+		"package.json": "sort-package-json"
+	},
 	"devDependencies": {
 		"blanket": "^1.2.1",
 		"chai": "^4.3.7",
@@ -67,11 +52,14 @@
 		"grunt-lib-phantomjs": "^1.1.0",
 		"grunt-shell": "^4.0.0",
 		"grunt-text-replace": "^0.4.0",
+		"http-server": "^14.1.1",
 		"husky": "^9.1.6",
 		"lcov-result-merger": "^4.1.0",
+		"lint-staged": "^15.2.10",
 		"lodash": "^4.17.19",
 		"mocha": "^10.2.0",
 		"po2json": "^0.4.5",
+		"sort-package-json": "^2.10.1",
 		"xcode": "^3.0.1"
 	},
 	"cordova": {
@@ -88,5 +76,23 @@
 			"android",
 			"ios"
 		]
+	},
+	"no-edit-menu": true,
+	"phonegap": {
+		"id": "1371093"
+	},
+	"user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.130 Safari/537.36",
+	"webkit": {
+		"page-cache": true
+	},
+	"window": {
+		"toolbar": false,
+		"width": 942,
+		"height": 512,
+		"title": "OpenSprinkler",
+		"icon": "res/ios-web/icons/icon.png",
+		"resizable": true,
+		"fullscreen": false,
+		"position": "center"
 	}
 }
