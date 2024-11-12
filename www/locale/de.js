@@ -771,7 +771,7 @@
    "Monitoring-warnings level high":   "Überwachung Warnstufe hoch",
    "Flow alert setpoint": "Strömungsüberwachung-Grenzmenge",
    "Average flow value": "Durchschnittliche Strömungsmenge",
-   "OpenSprinkler is running in background mode", "OpenSprinkler läuft im Hintergrundmodus",
-   "active monitor and controlling notifications", "Überwachung und Kontrolle aktiviert"
+   "OpenSprinkler is running in background mode": "OpenSprinkler läuft im Hintergrundmodus",
+   "active monitor and controlling notifications": "Überwachung und Kontrolle aktiviert"
 }
 }

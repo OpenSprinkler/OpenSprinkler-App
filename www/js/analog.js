@@ -75,8 +75,10 @@ function asb_init() {
 		var BackgroundFetch = window.BackgroundFetch;
 		var fetchCallback = function(taskId) {
 			console.log('[js] BackgroundFetch event received: ', taskId);
-			updateMonitors( function() {
-				BackgroundFetch.finish(taskId);
+			updateAnalogSensor( function() {
+				updateMonitors( function() {
+					BackgroundFetch.finish(taskId);
+				});
 			});
 		};
 
@@ -94,7 +96,9 @@ function asb_init() {
 
 		timer = new window.nativeTimer();
 		timer.onTick = function(tick) {
-			updateMonitors();
+			updateAnalogSensor( function() {
+				updateMonitors();
+			});
 		};
 
 		cordova.plugins.backgroundMode.on('activate', function() {
