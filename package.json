@@ -21,6 +21,7 @@
 	"main": "index.html",
 	"scripts": {
 		"prepare": "husky",
+		"start": "npx http-server --port 8080 -c-1 ./www",
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
 	"lint-staged": {

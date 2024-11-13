@@ -52,3 +52,15 @@ Starting with firmware 2.0.3, an option has been added to change the Javascript 
  2. For "Javascript URL" field use the following: https://ui.opensprinkler.com/js
  3. Enter your password in the field and push "Submit"
  4. Your page will reload and you will now see the application
+
+ ---
+
+ #### Development
+Check out this repository locally, then:
+```
+$ npm install
+$ npm start
+```
+Now you can visit http://localhost:8080 to view your server
+
+Please note that during the `git commit` step husky will automatically run grunt to check for syntax and styling errors before the commit will be accepted.
