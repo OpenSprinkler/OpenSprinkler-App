@@ -415,7 +415,6 @@ function initApp() {
 				navigator.app.clearCache();
 			} catch ( err ) {}
 		} );
-
 	} else if ( isFireFox ) {
 
 		// Allow cross domain AJAX requests in FireFox OS
@@ -576,6 +575,17 @@ function initApp() {
 	setTimeout( function() {
 		checkConfigured( true );
 	}, 200 );
+}
+
+// Return Datatables configuration options
+function getDatatablesConfig( options ) {
+	var defaultConfig = {
+		info: false,
+		paging: false,
+		searching: false
+	};
+
+	return Object.assign( {}, defaultConfig, options );
 }
 
 // Handle main switches for manual mode
@@ -3405,17 +3415,21 @@ function getWeatherStatus( status ) {
 }
 
 function getWiFiRating( rssi ) {
+	var rating = "";
+
 	if ( rssi < -80 ) {
-		return _( "Unuseable" );
+		rating = _( "Unusable" );
 	} else if ( rssi < -70 ) {
-		return _( "Poor" );
+		rating = _( "Poor" );
 	} else if ( rssi < -60 ) {
-		return _( "Fair" );
+		rating = _( "Fair" );
 	} else if ( rssi < -50 ) {
-		return _( "Good" );
+		rating = _( "Good" );
 	} else {
-		return _( "Excellent" );
+		rating = _( "Excellent" );
 	}
+
+	return Math.round( rssi ) + "dBm (" + rating + ")";
 }
 
 function format2(value) {
@@ -3424,17 +3438,6 @@ function format2(value) {
 	return ( +( Math.round( value + "e+2" )  + "e-2" ) );
 }
 function debugWU() {
-	if (checkOSVersion(231)) {
-		sendToOS("/du?pw=", "json").then( function( status ) {
-			debugWU2(status);
-		});
-	}
-	else debugWU2();
-
-	return false;
-}
-
-function debugWU2(status) {
 	var popup = "<div data-role='popup' id='debugWU' class='ui-content ui-page-theme-a'>";
 
 	popup += "<div class='debugWUHeading'>System Status</div>" +
@@ -4386,15 +4389,11 @@ function showOptions( expandItem ) {
 			"</label><input autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' data-mini='true' type='text' id='ifkey' placeholder='IFTTT webhooks key' value='" + controller.settings.ifkey + "'>" +
 			"</div>";
 
-			var ife = controller.options.ife;
-			if ( typeof controller.options.ife2 !== "undefined" ) {
-				ife = ife | controller.options.ife2 << 8;
-			}
 			list += "<div class='ui-field-contain'><label for='o49'>" + _( "Notification Events" ) +
 					"<button data-helptext='" +
 						_( "Select which notification events to send to Email and/or IFTTT." ) +
 						"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
-				"</label><button data-mini='true' id='o49' value='" + ife + "'>" + _( "Configure Events" ) + "</button></div>";
+				"</label><button data-mini='true' id='o49' value='" + controller.options.ife + "'>" + _( "Configure Events" ) + "</button></div>";
 		}
 
 		if ( typeof controller.settings.dname !== "undefined" ) {
@@ -5103,7 +5102,7 @@ function showOptions( expandItem ) {
 								"<label for='server' style='padding-top:10px'>" + _( "Broker/Server" ) + "</label>" +
 							"</div>" +
 							"<div class='ui-block-b' style='width:60%'>" +
-								"<input class='mqtt-input' type='text' id='server' data-mini='true' maxlength="+ ( largeSOPTSupport ? '100': '50' ) + " autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
+								"<input class='mqtt-input' type='text' id='server' data-mini='true' maxlength='50' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
 									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + _( "broker" ) + "' value='" + options.host + "' required />" +
 							"</div>" +
 							"<div class='ui-block-a' style='width:40%'>" +
@@ -7564,7 +7563,8 @@ var getRunonce = ( function() {
 			fillRunonce( rprogs[ prog ] );
 		} );
 
-		page.on( "click", ".rsubmit", submitRunonce ).on( "click", ".rreset", resetRunonce );
+		page.find( ".rsubmit" ).on( "click", submitRunonce );
+		page.find( ".rreset" ).on( "click", resetRunonce );
 
 		page.find( "[id^='zone-']" ).on( "click", function() {
 			var dur = $( this ),
@@ -8591,6 +8591,7 @@ var getLogs = ( function() {
 		waterlog = [],
 		flowlog = [],
 		sortData = function( type, grouping ) {
+
 			var sortedData = [],
 				stats = {
 					totalRuntime: 0,
@@ -8644,7 +8645,9 @@ var getLogs = ( function() {
 							break;
 						case "day":
 							var day = Math.floor( date.getTime() / 1000 / 60 / 60 / 24 ),
-								item = [ utc, dhms2str( sec2dhms( duration ) ), station ];
+								item = [ utc, dhms2str( sec2dhms( duration ) ), station, new Date( utc.getTime() + ( duration * 1000 ) ) ];
+
+							// Item structure: [startDate, runtime, station, endDate]
 
 							if ( typeof sortedData[ day ] !== "object" ) {
 								sortedData[ day ] = [ item ];
@@ -8856,12 +8859,20 @@ var getLogs = ( function() {
 				wlSorted = extraData[ 0 ],
 				flSorted = extraData[ 1 ],
 				stats = extraData[ 2 ],
-				tableHeader = "<table><thead><tr><th data-priority='1'>" + _( "Runtime" ) + "</th>" +
-					"<th data-priority='2'>" + ( grouping === "station" ? _( "Date/Time" ) : _( "Time" ) + "</th><th>" + _( "Station" ) ) + "</th>" +
+				tableHeader = "<table id=\"table-logs\"><thead><tr>" +
+					"<th data-priority='1'>" + _( "Station" ) + "</th>" +
+					"<th data-priority='2'>" + _( "Runtime" ) + "</th>" +
+					"<th data-priority='3'>" + _( "Start Time" ) + "</th>" +
+					"<th data-priority='4'>" + _( "End Time" ) + "</th>" +
 					"</tr></thead><tbody>",
 				html = showStats( stats ) + "<div data-role='collapsible-set' data-inset='true' data-theme='b' data-collapsed-icon='arrow-d' data-expanded-icon='arrow-u'>",
 				i = 0,
 				group, ct, k;
+
+			// Return HH:MM:SS formatting for dt datetime object.
+			var formatTime = function( dt, g ) {
+				return g === "station" ? dateToString( dt, false ) : pad( dt.getHours() ) + ":" + pad( dt.getMinutes() ) + ":" + pad( dt.getSeconds() );
+			};
 
 			for ( group in sortedData ) {
 				if ( sortedData.hasOwnProperty( group ) ) {
@@ -8894,11 +8905,12 @@ var getLogs = ( function() {
 					groupArray[ i ] += tableHeader;
 
 					for ( k = 0; k < sortedData[ group ].length; k++ ) {
-						var date = new Date( sortedData[ group ][ k ][ 0 ] );
-						groupArray[ i ] += "<tr><td>" + sortedData[ group ][ k ][ 1 ] + "</td><td>" +
-							( grouping === "station" ? dateToString( date, false ) : pad( date.getHours() ) + ":" +
-								pad( date.getMinutes() ) + ":" + pad( date.getSeconds() ) + "</td><td>" + stations[ sortedData[ group ][ k ][ 2 ] ] ) +
-							"</td></tr>";
+						groupArray[ i ] += "<tr>" +
+							"<td>" + stations[ sortedData[ group ][ k ][ 2 ] ] + "</td>" + // Station name
+							"<td>" + sortedData[ group ][ k ][ 1 ] + "</td>" + // Runtime
+							"<td>" + formatTime( sortedData[ group ][ k ][ 0 ], grouping ) + "</td>" + // Startdate
+							"<td>" + formatTime( sortedData[ group ][ k ][ 3 ], grouping ) + "</td>" + // Enddate
+							"</tr>";
 					}
 					groupArray[ i ] += "</tbody></table></div>";
 
@@ -8912,6 +8924,9 @@ var getLogs = ( function() {
 
 			logOptions.collapsible( "collapse" );
 			logsList.html( html + groupArray.join( "" ) + "</div>" ).enhanceWithin();
+
+			// Initialize datatable
+			$( "#table-logs" ).DataTable( getDatatablesConfig() );
 
 			logsList.find( ".delete-day" ).on( "click", function() {
 				var day, date;
