@@ -4317,7 +4317,7 @@ function showOptions( expandItem ) {
 	}
 
 	if ( typeof controller.settings.ifkey !== "undefined" || typeof controller.settings.mqtt !== "undefined" ||
-		typeof controller.settings.otc !== "undefined" ) {
+		typeof controller.settings.otc !== "undefined" || typeof controller.settings.influxdb !== "undefined" ) {
 		list += "</fieldset><fieldset data-role='collapsible'" +
 			( typeof expandItem === "string" && expandItem === "integrations" ? " data-collapsed='false'" : "" ) + ">" +
 			"<legend>" + _( "Integrations" ) + "</legend>";
@@ -10541,7 +10541,7 @@ function importConfig( data ) {
 
 		// Import Weather Adjustment Options, if available
 		if ( typeof data.settings.wto === "object" && checkOSVersion( 215 ) ) {
-			co += "&wto=" + escapeJSON( data.settings.wto );
+			co += "&wto=" + escapeJSON2( data.settings.wto );
 		}
 
 		// Import IFTTT Key, if available
@@ -10556,21 +10556,21 @@ function importConfig( data ) {
 
 		// Import mqtt options, if available
 		if ( typeof data.settings.mqtt === "object" && checkOSVersion( 2191 ) ) {
-			co += "&mqtt=" + escapeJSON( data.settings.mqtt );
+			co += "&mqtt=" + escapeJSON2( data.settings.mqtt );
 			}
 
 		// Import influxdb options, if available
 		if ( typeof data.settings.influxdb === "object" && checkOSVersion( 232 ) ) {
-			co += "&influxdb=" + escapeJSON( data.settings.influxdb );
+			co += "&influxdb=" + escapeJSON2( data.settings.influxdb );
 			}
 
 		//Import email options, if available
 		if ( typeof data.settings.email === "object" && checkOSVersion( 2191 ) ) {
-			co += "&email=" + escapeJSON( data.settings.email );
+			co += "&email=" + escapeJSON2( data.settings.email );
 			}
 
 		if ( typeof data.settings.otc === "object" && checkOSVersion( 2191 ) ) {
-			co += "&otc=" + escapeJSON( data.settings.otc );
+			co += "&otc=" + escapeJSON2( data.settings.otc );
 		}
 
 		co += "&" + ( isPi ? "o" : "" ) + "loc=" + data.settings.loc;
@@ -13465,6 +13465,10 @@ function getUrlVars( url ) {
 
 function escapeJSON( json ) {
 	return JSON.stringify( json ).replace( /\{|\}/g, "" );
+}
+
+function escapeJSON2( json ) {
+	return JSON.stringify( json ).replace(/#/g, "%23").replace(/=/g, "%3D").replace( /\{|\}/g, "" );
 }
 
 function unescapeJSON( string ) {
