@@ -241,7 +241,7 @@
 				},
 				buildFW: {
 					files: {
-						"www/js/app.js": [ "www/js/jquery.js", "www/js/dataTables-2.1.8.min.js", "www/js/libs.js", "www/js/main.js", "www/js/analog.js",
+						"www/js/app.js": [ "www/js/jquery.js", "www/js/jqm.js", "www/js/dataTables-2.1.8.min.js", "www/js/libs.js", "www/js/main.js", "www/js/analog.js",
 						"www/js/apexcharts.min.js" ]
 					},
 				},
