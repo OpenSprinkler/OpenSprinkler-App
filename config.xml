@@ -131,6 +131,7 @@
     <icon density="hdpi" src="res/android/icons/hdpi.png"/>
     <icon density="xhdpi" src="res/android/icons/xhdpi.png"/>
     <icon density="xxhdpi" src="res/android/icons/xxhdpi.png"/>
+<!--
     <exclude-files pattern="**/analog.*"/>
     <exclude-files pattern="**/chart.umd.js"/>
     <exclude-files pattern="**/chartjs-adapter-date-fns.bundle.min.js"/>
@@ -142,7 +143,7 @@
     <exclude-files pattern="**/jquery.js.sav"/>
     <exclude-files pattern="**/libs.js"/>
     <exclude-files pattern="**/main.*"/>
-    <exclude-files pattern="**/*.js~"/>
+    <exclude-files pattern="**/*.js~"/>-->
   </platform>
   <platform name="windows">
     <preference name="windows-appx-target" value="uap"/>

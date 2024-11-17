@@ -52,6 +52,9 @@ cordova build --release
 cordova run android --release
 cordova run android --release -- --packageType=apk
 
+rm ./platforms/browser/platform_www/plugins/* 2>/dev/null
+rm ./platforms/browser/www/*.js 2>/deb/null
+
 chown stefan:www platforms/* -R
 cp /srv/www/htdocs/ui/platforms/android/app/build/outputs/bundle/release/app-release.aab /data/app-release.aab
 cp /srv/www/htdocs/ui/platforms/android/app/build/outputs/apk/release/app-release.apk /data/app-release.apk

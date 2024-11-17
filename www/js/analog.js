@@ -45,6 +45,8 @@ function success_callback(scope) {
 
 
 function asb_init() {
+	if (!isAndroid && !isiOS) return;
+	
 	if (isAndroid) {
 		cordova.plugins.notification.local.createChannel({
 			channelId: 'os_low',
@@ -71,27 +73,6 @@ function asb_init() {
 			soundUsage: 5, // int (optional), default is USAGE_NOTIFICATION
 			}, success_callback, this);
 	}
-	if (window.cordova && window.BackgroundFetch) {
-		var BackgroundFetch = window.BackgroundFetch;
-		var fetchCallback = function(taskId) {
-			console.log('[js] BackgroundFetch event received: ', taskId);
-			updateAnalogSensor( function() {
-				updateMonitors( function() {
-					BackgroundFetch.finish(taskId);
-				});
-			});
-		};
-
-		var failureCallback = function(taskId) {
-			console.log('- BackgroundFetch failed', error);
-			BackgroundFetch.finish(taskId);
-		};
-
-		BackgroundFetch.configure({
-			minimumFetchInterval: 15,
-			requiredNetworkType: BackgroundFetch.NETWORK_TYPE_ANY
-		}, fetchCallback, failureCallback);
-	}
 	if (window.cordova && cordova.plugins) {
 
 		timer = new window.nativeTimer();
@@ -116,6 +97,27 @@ function asb_init() {
 			allowClose: false,
 			visibility: "public",
 		});
+	}
+	if (window.cordova && window.BackgroundFetch) {
+		var BackgroundFetch = window.BackgroundFetch;
+		var fetchCallback = function(taskId) {
+			console.log('[js] BackgroundFetch event received: ', taskId);
+			updateAnalogSensor( function() {
+				updateMonitors( function() {
+					BackgroundFetch.finish(taskId);
+				});
+			});
+		};
+
+		var failureCallback = function(taskId) {
+			console.log('- BackgroundFetch failed', error);
+			BackgroundFetch.finish(taskId);
+		};
+
+		BackgroundFetch.configure({
+			minimumFetchInterval: 15,
+			requiredNetworkType: BackgroundFetch.NETWORK_TYPE_ANY
+		}, fetchCallback, failureCallback);
 	}
 }
 
@@ -146,8 +148,7 @@ function updateProgramAdjustments(callback) {
 }
 
 function checkBackgroundMode() {
-	if (!window.cordova || !cordova.plugins)
-		return;
+	if (!isAndroid && !isiOS) return;
 	//Enable background mode only if we have a monitor configured:
 	if (monitors && monitors.length > 0) {
 		if (!cordova.plugins.backgroundMode.isActive() && !cordova.plugins.backgroundMode.isEnabled())
@@ -250,7 +251,8 @@ function updateSensorShowArea(page) {
 				var monitor = monitors[i];
 				if (monitor.active) {
 					let prio = monitor.hasOwnProperty("prio")?monitor.prio:0;
-					html += "<div id='monitor-" + monitor.nr + "' class='ui-body ui-body-a center monitor"+prio+"'>";
+					let pcolor = NOTIFICATION_COLORS[prio];
+					html += "<div id='monitor-" + monitor.nr + "' class='ui-body ui-body-a center' style='background-color:"+pcolor+"'>";
 					html += "<label>" + monitor.name + "</label>";
 					html += "</div>";
 				}
