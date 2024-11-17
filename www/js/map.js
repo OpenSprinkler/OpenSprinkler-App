@@ -1,6 +1,5 @@
 /*global google */
 
-
 /* OpenSprinkler App
  * Copyright (C) 2015 - present, Samer Albahra. All rights reserved.
  *
@@ -14,17 +13,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-( function() {
-	function getScript( src ) {
-		var a = document.createElement( "script" );
-		a.src = src;
-		document.getElementsByTagName( "head" )[ 0 ].appendChild( a );
-	}
+// Create the script tag, set the appropriate attributes
+var script = document.createElement( "script" );
+var GoogleMapsApiKey = "GOOGLEMAPSAPIKEY";
+script.src = "https://maps.googleapis.com/maps/api/js?key="+GoogleMapsApiKey+"&libraries=places&callback=initMap";
+script.async = true;
 
-	var GoogleMapsApiKey = "GOOGLEMAPSAPIKEY";
-	getScript( "https://maps.googleapis.com/maps/api/js?key="+GoogleMapsApiKey+"&libraries=places" );
-} )();
-
+// Attach your callback function to the `window` object
+window.initMap = function() {
 var markers = { pws: [], origin: [] },
 	stations = [],
 	priorIdle, map, infoWindow, droppedPin, start, current;
@@ -253,3 +249,7 @@ function getDistance( p1, p2 ) {
 
   return R * c;
 }
+};
+
+// Append the 'script' element to 'head'
+document.head.appendChild( script );
