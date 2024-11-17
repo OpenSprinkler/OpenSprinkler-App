@@ -123,6 +123,7 @@
 	insertStyleSheet( assetLocation + "css/jqm.css" );
 	insertStyleSheet( assetLocation + "css/main.css" );
 	insertStyleSheet( assetLocation + "css/analog.css" );
+	insertStyleSheet( assetLocation + "css/dataTables-2.1.8.dataTables.min.css" );
 
 	// Insert favicon for web page
 	insertStyleSheet( assetLocation + "img/favicon.ico", "shortcut icon" );
@@ -135,25 +136,28 @@
 
 			// Insert primary application script
 			insertScript( assetLocation + "js/main.js", function() {
-		try {
-			localStorage.setItem( "testQuota", "true" );
-			localStorage.removeItem( "testQuota" );
-			init();
-		} catch ( err ) {
-			if ( err.code === 22 ) {
-				document.body.innerHTML = "<div class='spinner'><div class='logo'></div>" +
-					"<span class='feedback'>Local storage is not " +
-					"enabled on your device and is required by the application. " +
-					"You may be in private browsing mode.</span></div>";
-				return;
-			}
-		}
+				try {
+					localStorage.setItem( "testQuota", "true" );
+					localStorage.removeItem( "testQuota" );
+					init();
+				} catch ( err ) {
+					if ( err.code === 22 ) {
+						document.body.innerHTML = "<div class='spinner'><div class='logo'></div>" +
+							"<span class='feedback'>Local storage is not " +
+							"enabled on your device and is required by the application. " +
+							"You may be in private browsing mode.</span></div>";
+							return;
+					}
+				}
 			} );
 
+			//Insert charting library for analog support
+			insertScript( assetLocation + "js/dataTables-2.1.8.min.js" );
+			
 			// Insert analog sensor (if supported)
 			insertScript( assetLocation + "js/analog.js" );
 
-			// Insert charting library for analog support
+			//Insert charting library for analog support
 			insertScript( assetLocation + "js/apexcharts.min.js" );
 		} );
 	} );

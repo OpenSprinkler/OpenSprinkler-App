@@ -26,18 +26,13 @@
   <preference name="FadeSplashScreen" value="false"/>
   <preference name="KeyboardDisplayRequiresUserAction" value="false"/>
   <preference name="loadUrlTimeoutValue" value="700000"/>
-  <exclude-files pattern="**/analog.*"/>
-  <exclude-files pattern="**/chart.umd.js"/>
-  <exclude-files pattern="**/chartjs-adapter-date-fns.bundle.min.js"/>
-  <exclude-files pattern="**/apexcharts.min.js"/>
-  <exclude-files pattern="**/hasher.js"/>
-  <exclude-files pattern="**/jquery.js"/>
-  <exclude-files pattern="**/jquery.js.sav"/>
-  <exclude-files pattern="**/libs.js"/>
-  <exclude-files pattern="**/main.*"/>
+  <exclude-files pattern="**/*.bak"/>
   <exclude-files pattern="**/*.js~"/>
   <hook type="after_compile" src="scripts/appGMK.sh"/>
   <hook type="after_deploy" src="scripts/appGMK2.sh"/>
+  <platform name="browser">
+  <exclude-files pattern="**/app.js"/>
+  </platform>
   <platform name="ios">
     <preference name="scheme" value="ionic"/>
     <config-file target="*-Info.plist" overwrite="true" parent="NSLocationAlwaysAndWhenInUseUsageDescription">
@@ -93,6 +88,18 @@
     <icon height="144" src="res/ios/icons/icon-72@2x.png" width="144"/>
     <icon height="76" src="res/ios/icons/icon-76.png" width="76"/>
     <icon height="152" src="res/ios/icons/icon-76@2x.png" width="152"/>
+    <exclude-files pattern="**/analog.*"/>
+    <exclude-files pattern="**/chart.umd.js"/>
+    <exclude-files pattern="**/chartjs-adapter-date-fns.bundle.min.js"/>
+    <exclude-files pattern="**/apexcharts.min.js"/>
+    <exclude-files pattern="**/dataTables-2.1.8.min.js"/>
+    <exclude-files pattern="**/jqm.js"/>  
+    <exclude-files pattern="**/hasher.js"/>
+    <exclude-files pattern="**/jquery.js"/>
+    <exclude-files pattern="**/jquery.js.sav"/>
+    <exclude-files pattern="**/libs.js"/>
+    <exclude-files pattern="**/main.*"/>
+    <exclude-files pattern="**/*.js~"/>
   </platform>
   <platform name="android">
     <edit-config file="app/src/main/AndroidManifest.xml" mode="merge" target="/manifest/application">
@@ -125,6 +132,18 @@
     <icon density="hdpi" src="res/android/icons/hdpi.png"/>
     <icon density="xhdpi" src="res/android/icons/xhdpi.png"/>
     <icon density="xxhdpi" src="res/android/icons/xxhdpi.png"/>
+    <exclude-files pattern="**/analog.*"/>
+    <exclude-files pattern="**/chart.umd.js"/>
+    <exclude-files pattern="**/chartjs-adapter-date-fns.bundle.min.js"/>
+    <exclude-files pattern="**/apexcharts.min.js"/>
+    <exclude-files pattern="**/dataTables-2.1.8.min.js"/>
+    <exclude-files pattern="**/jqm.js"/>  
+    <exclude-files pattern="**/hasher.js"/>
+    <exclude-files pattern="**/jquery.js"/>
+    <exclude-files pattern="**/jquery.js.sav"/>
+    <exclude-files pattern="**/libs.js"/>
+    <exclude-files pattern="**/main.*"/>
+    <exclude-files pattern="**/*.js~"/>
   </platform>
   <platform name="windows">
     <preference name="windows-appx-target" value="uap"/>
