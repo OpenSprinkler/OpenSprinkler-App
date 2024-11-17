@@ -241,7 +241,7 @@
 				},
 				buildFW: {
 					files: {
-						"www/js/app.js": [ "www/js/jquery.js", "www/js/libs.js", "www/js/main.js", "www/js/analog.js",
+						"www/js/app.js": [ "www/js/jquery.js", "www/js/dataTables-2.1.8.min.js", "www/js/libs.js", "www/js/main.js", "www/js/analog.js",
 						"www/js/apexcharts.min.js" ]
 					},
 				},
@@ -250,7 +250,7 @@
 			cssmin: {
 				combine: {
 					files: {
-						"www/css/app.css": [ "www/css/analog.css", "www/css/jqm.css", "www/css/main.css"  ]
+						"www/css/app.css": [ "www/css/analog.css", "www/css/jqm.css", "www/css/dataTables-2.1.8.dataTables.min.css", "www/css/main.css"  ]
 					},
 				},
 			},
