@@ -575,14 +575,14 @@ function initApp() {
 }
 
 // Return Datatables configuration options
-function getDatatablesConfig(options) {
+function getDatatablesConfig( options ) {
 	var defaultConfig = {
 		info: false,
 		paging: false,
-		searching: false,
+		searching: false
 	};
 
-	return Object.assign({}, defaultConfig, options);
+	return Object.assign( {}, defaultConfig, options );
 }
 
 // Handle main switches for manual mode
@@ -3407,7 +3407,7 @@ function getWiFiRating( rssi ) {
 		rating = _( "Excellent" );
 	}
 
-	return Math.round(rssi) + "dBm (" + rating + ")";
+	return Math.round( rssi ) + "dBm (" + rating + ")";
 }
 
 function debugWU() {
@@ -8467,7 +8467,7 @@ var getLogs = ( function() {
 							var day = Math.floor( date.getTime() / 1000 / 60 / 60 / 24 ),
 								item = [ utc, dhms2str( sec2dhms( duration ) ), station, new Date( utc.getTime() + ( duration * 1000 ) ) ];
 
-							// item structure: [startDate, runtime, station, endDate]
+							// Item structure: [startDate, runtime, station, endDate]
 
 							if ( typeof sortedData[ day ] !== "object" ) {
 								sortedData[ day ] = [ item ];
@@ -8690,7 +8690,7 @@ var getLogs = ( function() {
 				group, ct, k;
 
 			// Return HH:MM:SS formatting for dt datetime object.
-			var formatTime = function (dt, g) {
+			var formatTime = function( dt, g ) {
 				return g === "station" ? dateToString( dt, false ) : pad( dt.getHours() ) + ":" + pad( dt.getMinutes() ) + ":" + pad( dt.getSeconds() );
 			};
 
@@ -8726,10 +8726,10 @@ var getLogs = ( function() {
 
 					for ( k = 0; k < sortedData[ group ].length; k++ ) {
 						groupArray[ i ] += "<tr>" +
-							"<td>" + stations[ sortedData[ group ][ k ][ 2 ] ] + "</td>" + // station name
-							"<td>" + sortedData[ group ][ k ][ 1 ] + "</td>" + // runtime
-							"<td>" + formatTime(sortedData[ group ][ k ][ 0 ], grouping) + "</td>" + // startdate
-							"<td>" + formatTime(sortedData[ group ][ k ][ 3 ], grouping) + "</td>" + // enddate
+							"<td>" + stations[ sortedData[ group ][ k ][ 2 ] ] + "</td>" + // Station name
+							"<td>" + sortedData[ group ][ k ][ 1 ] + "</td>" + // Runtime
+							"<td>" + formatTime( sortedData[ group ][ k ][ 0 ], grouping ) + "</td>" + // Startdate
+							"<td>" + formatTime( sortedData[ group ][ k ][ 3 ], grouping ) + "</td>" + // Enddate
 							"</tr>";
 					}
 					groupArray[ i ] += "</tbody></table></div>";
@@ -8746,7 +8746,7 @@ var getLogs = ( function() {
 			logsList.html( html + groupArray.join( "" ) + "</div>" ).enhanceWithin();
 
 			// Initialize datatable
-			$("#table-logs").DataTable(getDatatablesConfig());
+			$( "#table-logs" ).DataTable( getDatatablesConfig() );
 
 			logsList.find( ".delete-day" ).on( "click", function() {
 				var day, date;
