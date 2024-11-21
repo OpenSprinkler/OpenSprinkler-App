@@ -165,7 +165,7 @@ function flipSwitched() {
 function networkFail() {
 	changeStatus( 0, "red", "<p class='running-text center'>" + OSApp.Language._( "Network Error" ) + "</p>",
 		function() {
-			showLoading( "#weather,#footer-running" );
+			OSApp.UIDom.showLoading( "#weather,#footer-running" );
 			refreshStatus();
 			updateWeather();
 		}
@@ -1286,7 +1286,7 @@ var showSites = ( function() {
 	}
 
 	function begin() {
-		header = changeHeader( {
+		header = OSApp.UIDom.changeHeader( {
 			title: OSApp.Language._( "Manage Sites" ),
 			animate: OSApp.currentSession.isControllerConnected() ? true : false,
 			leftBtn: {
@@ -1803,7 +1803,7 @@ function showEToAdjustmentOptions( button, callback ) {
 		// Backup button contents so it can be restored after the request is completed.
 		var buttonContents = $( ".detect-baseline-eto" ).html();
 
-		showLoading( ".detect-baseline-eto" );
+		OSApp.UIDom.showLoading( ".detect-baseline-eto" );
 
 		$.ajax( {
 			url: OSApp.Weather.WEATHER_SERVER_URL + "/baselineETo?loc=" + encodeURIComponent( OSApp.currentSession.controller.settings.loc ),
@@ -1924,7 +1924,7 @@ function updateWeather() {
 		return;
 	}
 
-	showLoading( "#weather" );
+	OSApp.UIDom.showLoading( "#weather" );
 
 	$.ajax( {
 		url: OSApp.currentSession.weatherServerUrl + "/weatherData?loc=" +
@@ -1987,7 +1987,7 @@ function updateWeatherBox() {
 			var target = $( event.target );
 			if ( target.hasClass( "rain-delay" ) || target.parents( ".rain-delay" ).length ) {
 				areYouSure( OSApp.Language._( "Do you want to turn off rain delay?" ), "", function() {
-					showLoading( "#weather" );
+					OSApp.UIDom.showLoading( "#weather" );
 					OSApp.Firmware.sendToOS( "/cv?pw=&rd=0" ).done( function() {
 						updateController( updateWeather );
 					} );
@@ -2133,7 +2133,7 @@ function showForecast() {
 			"</div>" +
 		"</div>" );
 
-	changeHeader( {
+	OSApp.UIDom.changeHeader( {
 		title: OSApp.Language._( "Forecast" ),
 		leftBtn: {
 			icon: "carat-l",
@@ -2868,7 +2868,7 @@ function showOptions( expandItem ) {
 				page.find( ".submit" ).addClass( "hasChanges" );
 			} );
 		},
-		header = changeHeader( {
+		header = OSApp.UIDom.changeHeader( {
 			title: OSApp.Language._( "Edit Options" ),
 			leftBtn: {
 				icon: "carat-l",
@@ -4869,7 +4869,7 @@ var showHome = ( function() {
 				e.preventDefault();
 				var button = this;
 
-				getPicture( function( image ) {
+				OSApp.UIDom.getPicture( function( image ) {
 					sites[ currentSite ].images[ sid ] = image;
 					OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, OSApp.Network.cloudSaveSites );
 					updateContent();
@@ -4883,7 +4883,7 @@ var showHome = ( function() {
 			var opts = { history: false };
 
 			if ( OSApp.currentDevice.isiOS ) {
-				var pageTop = getPageTop();
+				var pageTop = OSApp.UIDom.getPageTop();
 
 				opts.x = pageTop.x;
 				opts.y = pageTop.y;
@@ -5420,7 +5420,7 @@ var showHome = ( function() {
 					updateContent();
 				} );
 			} else {
-				getPicture( function( image ) {
+				OSApp.UIDom.getPicture( function( image ) {
 					sites[ currentSite ].images[ id ] = image;
 					OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, OSApp.Network.cloudSaveSites );
 					updateContent();
@@ -5432,7 +5432,7 @@ var showHome = ( function() {
 
 		.on( {
 			pagebeforeshow: function() {
-				var header = changeHeader( {
+				var header = OSApp.UIDom.changeHeader( {
 					class: "logo",
 					leftBtn: {
 						icon: "bullets",
@@ -5726,7 +5726,7 @@ function checkStatus() {
 	if ( OSApp.currentSession.controller.options.re === 1 ) {
 		changeStatus( 0, "red", "<p class='running-text center pointer'>" + OSApp.Language._( "Configured as Extender" ) + "</p>", function() {
 			areYouSure( OSApp.Language._( "Do you wish to disable extender mode?" ), "", function() {
-				showLoading( "#footer-running" );
+				OSApp.UIDom.showLoading( "#footer-running" );
 				OSApp.Firmware.sendToOS( "/cv?pw=&re=0" ).done( function() {
 					updateController();
 				} );
@@ -5739,7 +5739,7 @@ function checkStatus() {
 	if ( !OSApp.currentSession.controller.settings.en ) {
 		changeStatus( 0, "red", "<p class='running-text center pointer'>" + OSApp.Language._( "System Disabled" ) + "</p>", function() {
 			areYouSure( OSApp.Language._( "Do you want to re-enable system operation?" ), "", function() {
-				showLoading( "#footer-running" );
+				OSApp.UIDom.showLoading( "#footer-running" );
 				OSApp.Firmware.sendToOS( "/cv?pw=&en=1" ).done( function() {
 					updateController();
 				} );
@@ -5760,7 +5760,7 @@ function checkStatus() {
 
 		changeStatus( OSApp.currentSession.controller.settings.pt || 0, "yellow", line, function() {
 			areYouSure( OSApp.Language._( "Do you want to resume station operation?" ), "", function() {
-				showLoading( "#footer-running" );
+				OSApp.UIDom.showLoading( "#footer-running" );
 				OSApp.Firmware.sendToOS( "/pq?pw=&dur=0" ).done( function() {
 					setTimeout( refreshStatus, 1000 );
 				} );
@@ -5832,7 +5832,7 @@ function checkStatus() {
 			OSApp.Language._( "Rain delay until" ) + " " + OSApp.Dates.dateToString( new Date( OSApp.currentSession.controller.settings.rdst * 1000 ) ) + "</p>",
 			function() {
 				areYouSure( OSApp.Language._( "Do you want to turn off rain delay?" ), "", function() {
-					showLoading( "#footer-running" );
+					OSApp.UIDom.showLoading( "#footer-running" );
 					OSApp.Firmware.sendToOS( "/cv?pw=&rd=0" ).done( function() {
 						refreshStatus( updateWeather );
 					} );
@@ -5862,7 +5862,7 @@ function checkStatus() {
 	if ( OSApp.currentSession.controller.settings.mm === 1 ) {
 		changeStatus( 0, "red", "<p class='running-text center pointer'>" + OSApp.Language._( "Manual mode enabled" ) + "</p>", function() {
 			areYouSure( OSApp.Language._( "Do you want to turn off manual mode?" ), "", function() {
-				showLoading( "#footer-running" );
+				OSApp.UIDom.showLoading( "#footer-running" );
 				OSApp.Firmware.sendToOS( "/cv?pw=&mm=0" ).done( function() {
 					updateController();
 				} );
@@ -5962,7 +5962,7 @@ function updateTimers() {
 			if ( OSApp.uiState.timers.hasOwnProperty( timer ) ) {
 				if ( OSApp.uiState.timers[ timer ].val <= 0 ) {
 					if ( timer === "statusbar" ) {
-						showLoading( "#footer-running" );
+						OSApp.UIDom.showLoading( "#footer-running" );
 						refreshStatus();
 					}
 
@@ -6137,7 +6137,7 @@ var getManual = ( function() {
 		mmlist.find( ".mm_station" ).on( "vclick", toggle );
 		page.find( "#manual-station-list" ).html( mmlist ).enhanceWithin();
 
-		changeHeader( {
+		OSApp.UIDom.changeHeader( {
 			title: OSApp.Language._( "Manual Control" ),
 			leftBtn: {
 				icon: "carat-l",
@@ -6315,7 +6315,7 @@ var getRunonce = ( function() {
 			return false;
 		} );
 
-		changeHeader( {
+		OSApp.UIDom.changeHeader( {
 			title: OSApp.Language._( "Run-Once" ),
 			leftBtn: {
 				icon: "carat-l",
@@ -7244,7 +7244,7 @@ var getPreview = ( function() {
 			page.find( "#preview_date" ).val( date.join( "-" ) );
 		}
 
-		changeHeader( {
+		OSApp.UIDom.changeHeader( {
 			title: OSApp.Language._( "Program Preview" ),
 			leftBtn: {
 				icon: "carat-l",
@@ -7821,7 +7821,7 @@ var getLogs = ( function() {
 			logEnd.val( now.toISOString().slice( 0, 10 ) );
 		}
 
-		changeHeader( {
+		OSApp.UIDom.changeHeader( {
 			title: OSApp.Language._( "Logs" ),
 			leftBtn: {
 				icon: "carat-l",
@@ -7985,7 +7985,7 @@ var getPrograms = ( function() {
 	function begin( pid ) {
 		expandId = pid;
 
-		changeHeader( {
+		OSApp.UIDom.changeHeader( {
 			title: OSApp.Language._( "Programs" ),
 			leftBtn: {
 				icon: "carat-l",
@@ -8765,7 +8765,7 @@ function addProgram( copyID ) {
 			submitProgram( "new" );
 			return false;
 		},
-		header = changeHeader( {
+		header = OSApp.UIDom.changeHeader( {
 			title: OSApp.Language._( "Add Program" ),
 			leftBtn: {
 				icon: "carat-l",
@@ -9073,7 +9073,7 @@ function raindelay( delay ) {
 	$.mobile.loading( "show" );
 	OSApp.Firmware.sendToOS( "/cv?pw=&rd=" + ( delay / 3600 ) ).done( function() {
 		$.mobile.loading( "hide" );
-		showLoading( "#footer-running" );
+		OSApp.UIDom.showLoading( "#footer-running" );
 		refreshStatus( updateWeather );
 		OSApp.Errors.showError( OSApp.Language._( "Rain delay has been successfully set" ) );
 	} );
@@ -9551,7 +9551,7 @@ var showAbout = ( function() {
 			page.detach();
 		} );
 
-		changeHeader( {
+		OSApp.UIDom.changeHeader( {
 			title: OSApp.Language._( "About" ),
 			leftBtn: {
 				icon: "carat-l",
@@ -10619,109 +10619,3 @@ $.fn.focusInput = function() {
 Number.prototype.clamp = function( min, max ) {
 	return Math.min( Math.max( this, min ), max );
 };
-
-// Change persistent header
-function changeHeader( opt ) {
-
-	// Declare function defaults
-	var defaults = {
-			title: "",
-			class: "",
-			animate: true,
-			leftBtn: {
-				icon: "",
-				class: "",
-				text: "",
-				on: function() {}
-			},
-			rightBtn: {
-				icon: "",
-				class: "",
-				text: "",
-				on: function() {}
-			}
-		},
-		header = $( "#header" );
-
-	// Merge defaults with supplied options
-	opt = $.extend( true, {}, defaults, opt );
-
-	// Change default page title to the logo
-	if ( opt.title === "" && opt.class === "" ) {
-		opt.class = "logo";
-	}
-
-	// Generate new header content
-	var newHeader = $( "<button data-icon='" + opt.leftBtn.icon + "' " + ( opt.leftBtn.text === "" ? "data-iconpos='notext' " : "" ) +
-				"class='ui-btn-left " + opt.leftBtn.class + "'>" + opt.leftBtn.text + "</button>" +
-			"<h3 class='" + opt.class + "'>" + opt.title + "</h3>" +
-			"<button data-icon='" + opt.rightBtn.icon + "' " + ( opt.rightBtn.text === "" ? "data-iconpos='notext' " : "" ) +
-				"class='ui-btn-right " + opt.rightBtn.class + "'>" + opt.rightBtn.text + "</button>" ),
-		speed = opt.animate ? "fast" : 0;
-
-	// Fade out the header content, replace it, and update the header
-	header.children().stop().fadeOut( speed, function() {
-		header.html( newHeader ).toolbar( header.hasClass( "ui-header" ) ? "refresh" : null );
-		header.find( ".ui-btn-left" ).on( "click", opt.leftBtn.on );
-		header.find( ".ui-btn-right" ).on( "click", opt.rightBtn.on );
-	} ).fadeIn( speed );
-
-	return newHeader;
-}
-
-function getPageTop() {
-	var theWindow = $.mobile.window;
-
-	return {
-		x: ( theWindow[ 0 ].innerWidth || theWindow.width() ) / 2 + theWindow.scrollLeft(),
-		y: theWindow.scrollTop() + 22.5
-	};
-}
-
-// Show loading indicator within element(s)
-function showLoading( ele ) {
-	ele = ( typeof ele === "string" ) ? $( ele ) : ele;
-	ele.off( "click" ).html( "<p class='ui-icon ui-icon-loading mini-load'></p>" );
-
-	var footer = ele.filter( "#footer-running" );
-	if ( footer.length === 1 ) {
-		footer.find( ".mini-load" ).addClass( "bottom" );
-	}
-}
-
-function getPicture( callback ) {
-	var imageLoader = $( "<input style='display: none' type='file' accept='image/*' />" )
-		.insertAfter( "body" )
-		.on( "change", function( event ) {
-			var reader = new FileReader();
-			reader.onload = function( readerEvent ) {
-				var image = new Image();
-				image.onload = function() {
-					var canvas = document.createElement( "canvas" ),
-						maxSize = 200,
-						width = image.width,
-						height = image.height;
-					if ( width > height ) {
-						if ( width > maxSize ) {
-							height *= maxSize / width;
-							width = maxSize;
-						}
-					} else {
-						if ( height > maxSize ) {
-							width *= maxSize / height;
-							height = maxSize;
-						}
-					}
-					canvas.width = width;
-					canvas.height = height;
-					canvas.getContext( "2d" ).drawImage( image, 0, 0, width, height );
-					var resizedImage = canvas.toDataURL( "image/jpeg", 0.5 ).replace( "data:image/jpeg;base64,", "" );
-					imageLoader.remove();
-					callback( resizedImage );
-				};
-				image.src = readerEvent.target.result;
-			};
-			reader.readAsDataURL( event.target.files[ 0 ] );
-		} );
-	imageLoader.get( 0 ).click();
-}

@@ -1,5 +1,4 @@
 /* global readProgram, areYouSure, _, $ */
-/* global changeHeader */
 /* global ApexCharts */
 /* exported checkAnalogSensorAvail, updateSensorShowArea, showAnalogSensorConfig, showAnalogSensorCharts */
 
@@ -678,7 +677,7 @@ OSApp.Analog.showAnalogSensorConfig = ( function() {
 	}
 
 	function begin() {
-		changeHeader( {
+		OSApp.UIDom.changeHeader( {
 			title: OSApp.Language._( "Analog Sensor Config" ),
 			leftBtn: {
 				icon: "carat-l",
@@ -828,7 +827,7 @@ OSApp.Analog.showAnalogSensorCharts = ( function() {
 			page.detach();
 		} );
 
-		changeHeader( {
+		OSApp.UIDom.changeHeader( {
 			title: OSApp.Language._( "Analog Sensor Log" ),
 			leftBtn: {
 				icon: "carat-l",

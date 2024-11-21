@@ -183,7 +183,7 @@ OSApp.UIDom.launchApp = () => {
 		OSApp.Network.cloudSync();
 
 		// Indicate the weather and device status are being updated
-		showLoading( "#weather,#footer-running" );
+		OSApp.UIDom.showLoading( "#weather,#footer-running" );
 
 		updateController( updateWeather, networkFail );
 	} )
@@ -694,7 +694,7 @@ OSApp.UIDom.goHome = function( firstLoad ) {
 		if ( firstLoad === true ) {
 			opts = {
 				"firstLoad": true,
-				"showLoading": false,
+				"OSApp.UIDom.showLoading": false,
 				"transition": "none"
 			};
 		}
@@ -758,4 +758,111 @@ OSApp.UIDom.checkChanges = function( callback = () => void 0 ) {
 	} else {
 		callback();
 	}
+};
+
+// Change persistent header
+OSApp.UIDom.changeHeader = function( opt ) {
+
+	// Declare function defaults
+	var defaults = {
+			title: "",
+			class: "",
+			animate: true,
+			leftBtn: {
+				icon: "",
+				class: "",
+				text: "",
+				on: function() {}
+			},
+			rightBtn: {
+				icon: "",
+				class: "",
+				text: "",
+				on: function() {}
+			}
+		},
+		header = $( "#header" );
+
+	// Merge defaults with supplied options
+	opt = $.extend( true, {}, defaults, opt );
+
+	// Change default page title to the logo
+	if ( opt.title === "" && opt.class === "" ) {
+		opt.class = "logo";
+	}
+
+	// Generate new header content
+	var newHeader = $( "<button data-icon='" + opt.leftBtn.icon + "' " + ( opt.leftBtn.text === "" ? "data-iconpos='notext' " : "" ) +
+				"class='ui-btn-left " + opt.leftBtn.class + "'>" + opt.leftBtn.text + "</button>" +
+			"<h3 class='" + opt.class + "'>" + opt.title + "</h3>" +
+			"<button data-icon='" + opt.rightBtn.icon + "' " + ( opt.rightBtn.text === "" ? "data-iconpos='notext' " : "" ) +
+				"class='ui-btn-right " + opt.rightBtn.class + "'>" + opt.rightBtn.text + "</button>" ),
+		speed = opt.animate ? "fast" : 0;
+
+	// Fade out the header content, replace it, and update the header
+	header.children().stop().fadeOut( speed, function() {
+		header.html( newHeader ).toolbar( header.hasClass( "ui-header" ) ? "refresh" : null );
+		header.find( ".ui-btn-left" ).on( "click", opt.leftBtn.on );
+		header.find( ".ui-btn-right" ).on( "click", opt.rightBtn.on );
+	} ).fadeIn( speed );
+
+	return newHeader;
+};
+
+OSApp.UIDom.getPageTop = function() {
+	var theWindow = $.mobile.window;
+
+	return {
+		x: ( theWindow[ 0 ].innerWidth || theWindow.width() ) / 2 + theWindow.scrollLeft(),
+		y: theWindow.scrollTop() + 22.5
+	};
+};
+
+// Show loading indicator within element(s)
+OSApp.UIDom.showLoading = function( ele ) {
+	ele = ( typeof ele === "string" ) ? $( ele ) : ele;
+	ele.off( "click" ).html( "<p class='ui-icon ui-icon-loading mini-load'></p>" );
+
+	var footer = ele.filter( "#footer-running" );
+	if ( footer.length === 1 ) {
+		footer.find( ".mini-load" ).addClass( "bottom" );
+	}
+};
+
+OSApp.UIDom.getPicture = function( callback = () => void 0 ) {
+	var imageLoader = $( "<input style='display: none' type='file' accept='image/*' />" )
+		.insertAfter( "body" )
+		.on( "change", function( event ) {
+			var reader = new FileReader();
+			reader.onload = function( readerEvent ) {
+				var image = new Image();
+				image.onload = function() {
+					var canvas = document.createElement( "canvas" ),
+						maxSize = 200,
+						width = image.width,
+						height = image.height;
+					if ( width > height ) {
+						if ( width > maxSize ) {
+							height *= maxSize / width;
+							width = maxSize;
+						}
+					} else {
+						if ( height > maxSize ) {
+							width *= maxSize / height;
+							height = maxSize;
+						}
+					}
+					canvas.width = width;
+					canvas.height = height;
+					canvas.getContext( "2d" ).drawImage( image, 0, 0, width, height );
+					var resizedImage = canvas.toDataURL( "image/jpeg", 0.5 ).replace( "data:image/jpeg;base64,", "" );
+					imageLoader.remove();
+					callback( resizedImage );
+				};
+				image.src = readerEvent.target.result;
+			};
+			reader.readAsDataURL( event.target.files[ 0 ] );
+		} );
+
+	imageLoader.get( 0 ).click();
 };
