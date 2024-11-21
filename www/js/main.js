@@ -1125,7 +1125,7 @@ var showSites = ( function() {
 					return false;
 				} );
 
-				list.find( ".help-icon" ).on( "click", showHelpText );
+				list.find( ".help-icon" ).on( "click", OSApp.UIDom.showHelpText );
 
 				list.find( ".useauth" ).on( "change", function() {
 					var el = $( this );
@@ -2512,7 +2512,7 @@ function resolveOTCStatus( status ) {
 function showRainDelay() {
 	$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
 
-	showDurationBox( {
+	OSApp.UIDom.showDurationBox( {
 		title: OSApp.Language._( "Change Rain Delay" ),
 		callback: raindelay,
 		label: OSApp.Language._( "Duration" ),
@@ -2532,7 +2532,7 @@ function showPause() {
 			OSApp.Firmware.sendToOS( "/pq?pw=" );
 		} );
 	} else {
-		showDurationBox( {
+		OSApp.UIDom.showDurationBox( {
 			title: "Pause Station Runs",
 			incrementalUpdate: false,
 			maximum: 65535,
@@ -3710,7 +3710,7 @@ function showOptions( expandItem ) {
 		} );
 	} );
 
-	page.find( ".help-icon" ).on( "click", showHelpText );
+	page.find( ".help-icon" ).on( "click", OSApp.UIDom.showHelpText );
 
 	page.find( ".duration-field button:not(.help-icon)" ).on( "click", function() {
 		var dur = $( this ),
@@ -3731,7 +3731,7 @@ function showOptions( expandItem ) {
 				}
 			} );
 		} else if ( id === "o19" || id === "o38" ) {
-			showSingleDurationInput( {
+			OSApp.UIDom.showSingleDurationInput( {
 				data: dur.val(),
 				title: name,
 				callback: function( result ) {
@@ -3743,7 +3743,7 @@ function showOptions( expandItem ) {
 				helptext: helptext
 			} );
 		} else if ( id === "o30" ) {
-			showSingleDurationInput( {
+			OSApp.UIDom.showSingleDurationInput( {
 				data: dur.val(),
 				title: name,
 				callback: function( result ) {
@@ -3754,7 +3754,7 @@ function showOptions( expandItem ) {
 				helptext: helptext
 			} );
 		} else if ( id === "o20" || id === "o39" ) {
-			showSingleDurationInput( {
+			OSApp.UIDom.showSingleDurationInput( {
 				data: dur.val(),
 				title: name,
 				callback: function( result ) {
@@ -3766,7 +3766,7 @@ function showOptions( expandItem ) {
 				helptext: helptext
 			} );
 		} else if ( id === "o23" ) {
-			showSingleDurationInput( {
+			OSApp.UIDom.showSingleDurationInput( {
 				data: dur.val(),
 				title: name,
 				callback: function( result ) {
@@ -3793,7 +3793,7 @@ function showOptions( expandItem ) {
 				max = 600;
 			}
 
-			showSingleDurationInput( {
+			OSApp.UIDom.showSingleDurationInput( {
 				data: dur.val(),
 				title: name,
 				label: OSApp.Language._( "Seconds" ),
@@ -3805,7 +3805,7 @@ function showOptions( expandItem ) {
 				minimum: min
 			} );
 		} else if ( id === "o54" || id === "o55" || id === "o56" || id === "o57" ) {
-			showSingleDurationInput( {
+			OSApp.UIDom.showSingleDurationInput( {
 				data: dur.val(),
 				title: name,
 				callback: function( result ) {
@@ -4225,7 +4225,7 @@ function showOptions( expandItem ) {
 		page.find( ".submit" ).addClass( "hasChanges" );
 
 		// Show date time input popup
-		showDateTimeInput( input.val(), function( data ) {
+		OSApp.UIDom.showDateTimeInput( input.val(), function( data ) {
 			input.text( OSApp.Dates.dateToString( data ).slice( 0, -3 ) ).val( Math.round( data.getTime() / 1000 ) );
 		} );
 		return false;
@@ -5362,7 +5362,7 @@ var showHome = ( function() {
 				if ( el.find( "span.nobr" ).length ) {
 					question = OSApp.Language._( "Do you want to unschedule the selected station?" );
 				} else {
-					showDurationBox( {
+					OSApp.UIDom.showDurationBox( {
 						title: name,
 						incrementalUpdate: false,
 						maximum: 65535,
@@ -6101,7 +6101,7 @@ var getManual = ( function() {
 		var dur = $( this ),
 			name = page.find( "label[for='" + dur.attr( "id" ) + "']" ).text();
 
-		showDurationBox( {
+		OSApp.UIDom.showDurationBox( {
 			seconds: dur.val(),
 			title: name,
 			callback: function( result ) {
@@ -6272,7 +6272,7 @@ var getRunonce = ( function() {
 			} else if ( prog === "t" ) {
 
 				// Test all stations
-				showDurationBox( {
+				OSApp.UIDom.showDurationBox( {
 					incrementalUpdate: false,
 					seconds: 60,
 					title: "Set Duration",
@@ -6296,7 +6296,7 @@ var getRunonce = ( function() {
 			var dur = $( this ),
 				name = page.find( "label[for='" + dur.attr( "id" ) + "']" ).text().slice( 0, -1 );
 
-			showDurationBox( {
+			OSApp.UIDom.showDurationBox( {
 				seconds: dur.val(),
 				title: name,
 				callback: function( result ) {
@@ -8419,7 +8419,7 @@ function makeProgram183( n, isCopy ) {
 			isInterval = dur.attr( "id" ).match( "interval" ) ? 1 : 0,
 			name = page.find( "label[for='" + dur.attr( "id" ) + "']" ).text();
 
-		showDurationBox( {
+		OSApp.UIDom.showDurationBox( {
 			seconds: dur.val(),
 			title: name,
 			callback: function( result ) {
@@ -8435,7 +8435,7 @@ function makeProgram183( n, isCopy ) {
 		var time = $( this ),
 			name = page.find( "label[for='" + time.attr( "id" ) + "']" ).text();
 
-		showTimeInput( {
+		OSApp.UIDom.showTimeInput( {
 			minutes: time.val(),
 			title: name,
 			callback: function( result ) {
@@ -8683,7 +8683,7 @@ function makeProgram21( n, isCopy ) {
 		var dur = $( this ),
 			name = page.find( "label[for='" + dur.attr( "id" ) + "']" ).text();
 
-		showDurationBox( {
+		OSApp.UIDom.showDurationBox( {
 			seconds: dur.val(),
 			title: name,
 			callback: function( result ) {
@@ -8699,7 +8699,7 @@ function makeProgram21( n, isCopy ) {
 	page.find( ".timefield" ).on( "click", function() {
 		var time = $( this );
 
-		showTimeInput( {
+		OSApp.UIDom.showTimeInput( {
 			minutes: time.val(),
 			title: OSApp.Language._( "Start Time" ),
 			showSun: OSApp.Firmware.checkOSVersion( 213 ) ? true : false,
@@ -8715,7 +8715,7 @@ function makeProgram21( n, isCopy ) {
 		var dur = $( this ),
 			name = page.find( "label[for='" + dur.attr( "id" ) + "']" ).text();
 
-		showSingleDurationInput( {
+			OSApp.UIDom.showSingleDurationInput( {
 			data: dur.val(),
 			title: name,
 			label: OSApp.Language._( "Repeat Count" ),
@@ -8731,7 +8731,7 @@ function makeProgram21( n, isCopy ) {
 		var dur = $( this ),
 			name = OSApp.currentSession.controller.stations.snames[ dur.attr( "id" ).split( "_" )[ 1 ].split( "-" )[ 0 ] ];
 
-		showDurationBox( {
+		OSApp.UIDom.showDurationBox( {
 			seconds: dur.val(),
 			title: name,
 			callback: function( result ) {
@@ -9883,739 +9883,5 @@ function showIPRequest( opt ) {
 	OSApp.UIDom.openPopup( popup );
 }
 
-function showDurationBox( opt ) {
-	var defaults = {
-			seconds: 0,
-			title: OSApp.Language._( "Duration" ),
-			granularity: 0,
-			preventCompression: false,
-			incrementalUpdate: true,
-			showBack: true,
-			showSun: false,
-			minimum: 0,
-			callback: function() {}
-		},
-		type = 0;
-
-	opt = $.extend( {}, defaults, opt );
-
-	$( "#durationBox" ).popup( "destroy" ).remove();
-
-	opt.seconds = parseInt( opt.seconds );
-
-	if ( opt.seconds === 65535 ) {
-		type = 1;
-		opt.seconds = 0;
-	} else if ( opt.seconds === 65534 ) {
-		type = 2;
-		opt.seconds = 0;
-	}
-
-	if ( OSApp.Firmware.checkOSVersion( 217 ) ) {
-		opt.preventCompression = true;
-	}
-
-	var keys = [ "days", "hours", "minutes", "seconds" ],
-		text = [ OSApp.Language._( "Days" ), OSApp.Language._( "Hours" ), OSApp.Language._( "Minutes" ), OSApp.Language._( "Seconds" ) ],
-		conv = [ 86400, 3600, 60, 1 ],
-		max = [ 0, 23, 59, 59 ],
-		total = 4 - opt.granularity,
-		start = 0,
-		arr = OSApp.Dates.sec2dhms( opt.seconds ),
-		i;
-
-	if ( !opt.preventCompression && ( OSApp.Firmware.checkOSVersion( 210 ) && opt.maximum > 64800 ) ) {
-		opt.maximum = OSApp.Firmware.checkOSVersion( 214 ) ? 57600 : 64800;
-	}
-
-	if ( opt.maximum ) {
-		for ( i = conv.length - 1; i >= 0; i-- ) {
-			if ( opt.maximum < conv[ i ] ) {
-				start = i + 1;
-				total = ( conv.length - start ) - opt.granularity;
-				break;
-			}
-		}
-	}
-
-	var incrbts = "<fieldset class='ui-grid-" + String.fromCharCode( 95 + ( total ) ) + " incr'>",
-		inputs = "<div class='ui-grid-" + String.fromCharCode( 95 + ( total ) ) + " inputs'>",
-		decrbts = "<fieldset class='ui-grid-" + String.fromCharCode( 95 + ( total ) ) + " decr'>",
-		popup = $( "<div data-role='popup' id='durationBox' data-theme='a'>" +
-			"<div data-role='header' data-theme='b'>" +
-				"<h1>" + opt.title + "</h1>" +
-			"</div>" +
-			"<div class='ui-content'>" +
-				( opt.helptext ? "<p class='rain-desc center smaller'>" + opt.helptext + "</p>" : "" ) +
-				"<span>" +
-				"</span>" +
-				( opt.showSun ? "<div class='ui-grid-a useSun'>" +
-					"<div class='ui-block-a'>" +
-						"<button value='65534' class='ui-mini ui-btn rise " + ( type === 2 ? "ui-btn-active" : "" ) + "'>" + OSApp.Language._( "Sunrise to Sunset" ) + "</button>" +
-					"</div>" +
-					"<div class='ui-block-b'>" +
-						"<button value='65535' class='ui-mini ui-btn set " + ( type === 1 ? "ui-btn-active" : "" ) + "'>" + OSApp.Language._( "Sunset to Sunrise" ) + "</button>" +
-					"</div>" +
-				"</div>" : "" ) +
-				( opt.showBack ? "<button class='submit' data-theme='b'>" + OSApp.Language._( "Submit" ) + "</button>" : "" ) +
-			"</div>" +
-		"</div>" ),
-		changeValue = function( pos, dir ) {
-			var input = popup.find( ".inputs input" ).eq( pos ),
-				apos = pos + start,
-				val = parseInt( input.val() );
-
-			if ( input.prop( "disabled" ) ) {
-				return;
-			}
-
-			if ( ( dir === -1 && ( getValue() <= opt.minimum || val <= 0 ) ) || ( dir === 1 && ( getValue() + conv[ apos ] ) > opt.maximum ) ) {
-				return;
-			}
-
-			// Increment next time field on current max
-			if ( ( max[ apos ] !== 0 && pos !== 0 && Math.abs( val ) >= max[ apos ] ) ) {
-				input.val( 0 );
-				input = popup.find( ".inputs input" ).eq( pos - 1 );
-				val = parseInt( input.val() );
-			}
-
-			input.val( val + dir );
-			if ( opt.incrementalUpdate ) {
-				opt.callback( getValue() );
-			}
-
-			if ( !opt.preventCompression && OSApp.Firmware.checkOSVersion( 210 ) ) {
-				var state = ( dir === 1 ) ? true : false;
-
-				if ( dir === 1 ) {
-					if ( getValue() >= 60 ) {
-						toggleInput( "seconds", state );
-					}
-					if ( getValue() >= 10800 ) {
-						toggleInput( "minutes", state );
-					}
-				} else if ( dir === -1 ) {
-					if ( getValue() <= -60 ) {
-						toggleInput( "seconds", !state );
-					} else if ( getValue() <= -10800 ) {
-						toggleInput( "minutes", !state );
-					} else if ( getValue() < 60 ) {
-						toggleInput( "seconds", state );
-					} else if ( getValue() < 10800 ) {
-						toggleInput( "minutes", state );
-					}
-				}
-			}
-		},
-		getValue = function() {
-			var useSun = popup.find( ".useSun" ).find( "button.ui-btn-active" );
-
-			if ( useSun.length === 1 ) {
-				return parseInt( useSun.val() );
-			} else {
-				return OSApp.Dates.dhms2sec( {
-					"days": parseInt( popup.find( ".days" ).val() ) || 0,
-					"hours": parseInt( popup.find( ".hours" ).val() ) || 0,
-					"minutes": parseInt( popup.find( ".minutes" ).val() ) || 0,
-					"seconds": parseInt( popup.find( ".seconds" ).val() ) || 0
-				} );
-			}
-		},
-		toggleInput = function( field, state ) {
-			popup.find( "." + field ).toggleClass( "ui-state-disabled", state ).prop( "disabled", state ).val( function() {
-				if ( state ) {
-					return 0;
-				} else {
-					return this.value;
-				}
-			} ).parent( ".ui-input-text" ).toggleClass( "ui-state-disabled", state );
-		};
-
-	for ( i = start; i < conv.length - opt.granularity; i++ ) {
-		incrbts += "<div " + ( ( total > 1 ) ? "class='ui-block-" + String.fromCharCode( 97 + i - start ) + "'" : "" ) + ">" +
-			"<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a></div>";
-		inputs += "<div " + ( ( total > 1 ) ? "class='ui-block-" + String.fromCharCode( 97 + i - start ) + "'" : "" ) + "><label class='center'>" +
-			OSApp.Language._( text[ i ] ) + "</label><input data-wrapper-class='pad_buttons' class='" + keys[ i ] + "' type='number' pattern='[0-9]*' value='" +
-			arr[ keys[ i ] ] + "'></div>";
-		decrbts += "<div " + ( ( total > 1 ) ? "class='ui-block-" + String.fromCharCode( 97 + i - start ) + "'" : "" ) +
-			"><a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='minus' data-iconpos='bottom'></a></div>";
-	}
-
-	incrbts += "</fieldset>";
-	inputs += "</div>";
-	decrbts += "</fieldset>";
-
-	popup.find( "span" ).prepend( incrbts + inputs + decrbts );
-
-	popup.find( "button.submit" ).on( "click", function() {
-		opt.callback( getValue() );
-		popup.popup( "destroy" ).remove();
-	} );
-
-	if ( !opt.preventCompression && OSApp.Firmware.checkOSVersion( 210 ) ) {
-		if ( opt.seconds <= -60 ) {
-			toggleInput( "seconds", true );
-		}
-
-		if ( opt.seconds <= -10800 ) {
-			toggleInput( "minutes", true );
-		}
-
-		if ( opt.seconds >= 60 ) {
-			toggleInput( "seconds", true );
-		}
-
-		if ( opt.seconds >= 10800 ) {
-			toggleInput( "minutes", true );
-		}
-	}
-
-	popup.on( "focus", "input[type='number']", function() {
-		this.value = "";
-	} ).on( "blur", "input[type='number']", function() {
-		if ( this.value === "" ) {
-			this.value = "0";
-		}
-	} );
-
-	OSApp.UIDom.holdButton( popup.find( ".incr" ).children(), function( e ) {
-		var pos = $( e.currentTarget ).index();
-		changeValue( pos, 1 );
-		return false;
-	} );
-
-	OSApp.UIDom.holdButton( popup.find( ".decr" ).children(), function( e ) {
-		var pos = $( e.currentTarget ).index();
-		changeValue( pos, -1 );
-		return false;
-	} );
-
-	if ( opt.showSun ) {
-		popup.find( ".useSun" ).on( "click", "button", function() {
-			var button = $( this ),
-				contraButton = popup.find( ".useSun" ).find( "button" ).not( button ),
-				timeButtons = popup.find( "span" ).find( ".ui-btn,input" );
-
-			contraButton.removeClass( "ui-btn-active" );
-			if ( button.hasClass( "ui-btn-active" ) ) {
-				button.removeClass( "ui-btn-active" );
-				timeButtons.prop( "disabled", false ).removeClass( "ui-disabled" );
-			} else {
-				button.addClass( "ui-btn-active" );
-				timeButtons.prop( "disabled", true ).addClass( "ui-disabled" );
-			}
-
-			if ( opt.incrementalUpdate ) {
-				opt.callback( getValue() );
-			}
-		} );
-	}
-
-	popup
-	.css( "max-width", "350px" )
-	.one( "popupafteropen", function() {
-		if ( type !== 0 ) {
-			popup.find( "span" ).find( ".ui-btn,input" ).prop( "disabled", true ).addClass( "ui-disabled" );
-		}
-	} )
-	.one( "popupafterclose", function() {
-		if ( opt.incrementalUpdate ) {
-			opt.callback( getValue() );
-		}
-	} );
-
-	OSApp.UIDom.openPopup( popup );
-}
-
-function showSingleDurationInput( opt ) {
-	$( "#singleDuration" ).popup( "destroy" ).remove();
-	var defaults = {
-		data: 0,
-		title: OSApp.Language._( "Duration" ),
-		minimum: 0,
-		label: "",
-		updateOnChange: true,
-		showBack: true,
-		callback: function() {}
-	};
-
-	opt = $.extend( {}, defaults, opt );
-
-	var popup = $( "<div data-role='popup' id='singleDuration' data-theme='a'>" +
-			"<div data-role='header' data-theme='b'>" +
-				"<h1>" + opt.title + "</h1>" +
-			"</div>" +
-			"<div class='ui-content'>" +
-				( opt.helptext ? "<p class='rain-desc center smaller'>" + opt.helptext + "</p>" : "" ) +
-				"<label class='center'>" + opt.label + "</label>" +
-				"<div class='input_with_buttons'>" +
-					"<button class='decr ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border'></button>" +
-					"<input type='number' pattern='[0-9]*' value='" + opt.data + "'>" +
-					"<button class='incr ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border'></button>" +
-				"</div>" +
-				( opt.updateOnChange && !opt.showBack ? "" : "<input type='submit' data-theme='b' value='" + OSApp.Language._( "Submit" ) + "'>" ) +
-			"</div>" +
-		"</div>" ),
-		input = popup.find( "input" ),
-		reply = function( val ) {
-			opt.callback( parseInt( val ).clamp( opt.minimum, opt.maximum ) );
-		},
-		changeValue = function( dir ) {
-			var val = parseInt( input.val() );
-
-			if ( ( dir === -1 && val === opt.minimum ) || ( dir === 1 && val === opt.maximum ) ) {
-				return;
-			}
-
-			input.val( val + dir );
-			if ( opt.updateOnChange ) {
-				reply( val + dir );
-			}
-		};
-
-	OSApp.UIDom.holdButton( popup.find( ".incr" ), function() {
-		changeValue( 1 );
-		return false;
-	} );
-	OSApp.UIDom.holdButton( popup.find( ".decr" ), function() {
-		changeValue( -1 );
-		return false;
-	} );
-
-	popup.find( "input[type='number']" ).on( "focus", function() {
-		this.value = "";
-	} ).on( "blur", function() {
-		if ( this.value === "" ) {
-			this.value = "0";
-		}
-	} );
-
-	popup.find( "input[type='submit']" ).on( "click", function() {
-		reply( input.val() );
-		popup.popup( "destroy" ).remove();
-	} );
-
-	popup
-	.one( "popupafterclose", function() {
-		if ( opt.updateOnChange ) {
-			reply( input.val() );
-		}
-	} );
-
-	OSApp.UIDom.openPopup( popup );
-}
-
-function showDateTimeInput( timestamp, callback ) {
-	$( "#datetimeInput" ).popup( "destroy" ).remove();
-
-	if ( !( timestamp instanceof Date ) ) {
-		timestamp = new Date( timestamp * 1000 );
-		timestamp.setMinutes( timestamp.getMinutes() - timestamp.getTimezoneOffset() );
-	}
-
-	callback = callback || function() {};
-
-	var keys = [ "Month", "Date", "FullYear", "Hours", "Minutes" ],
-		monthNames = [ OSApp.Language._( "Jan" ), OSApp.Language._( "Feb" ), OSApp.Language._( "Mar" ), OSApp.Language._( "Apr" ), OSApp.Language._( "May" ), OSApp.Language._( "Jun" ), OSApp.Language._( "Jul" ),
-			OSApp.Language._( "Aug" ), OSApp.Language._( "Sep" ), OSApp.Language._( "Oct" ), OSApp.Language._( "Nov" ), OSApp.Language._( "Dec" ) ],
-		popup = $( "<div data-role='popup' id='datetimeInput' data-theme='a'>" +
-			"<div data-role='header' data-theme='b'>" +
-				"<h1>" + OSApp.Language._( "Enter Date/Time" ) + "</h1>" +
-			"</div>" +
-			"<div class='ui-content'>" +
-			"</div>" +
-		"</div>" ),
-		changeValue = function( pos, dir ) {
-			timestamp[ "setUTC" + pos ]( timestamp[ "getUTC" + pos ]() + dir );
-			callback( new Date( timestamp.getTime() ) );
-			updateContent();
-		},
-		updateContent = function() {
-			var incrbts = "<fieldset class='ui-grid-d incr'>",
-				inputs = "<div class='ui-grid-d inputs'>",
-				decrbts = "<fieldset class='ui-grid-d decr'>",
-				val, mark, i;
-
-			for ( i = 0; i < 5; i++ ) {
-				val = timestamp[ "getUTC" + keys[ i ] ]();
-				mark = "";
-
-				if ( keys[ i ] === "Month" ) {
-					val = "<p class='center'>" + monthNames[ val ] + "</p>";
-				} else if ( keys[ i ] === "Date" ) {
-					val = "<p class='center'>" + val + ",</p>";
-				} else if ( keys[ i ] === "Hours" ) {
-					val = "<p style='width:90%;display:inline-block' class='center'>" + val + "</p><p style='display:inline-block'>:</p>";
-				} else {
-					val = "<p class='center'>" + val + "</p>";
-				}
-
-				incrbts += "<div class='ui-block-" + String.fromCharCode( 97 + i ) + "'><a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a></div>";
-				inputs += "<div id='" + keys[ i ] + "' class='ui-block-" + String.fromCharCode( 97 + i ) + "'>" + val + "</div>";
-				decrbts += "<div class='ui-block-" + String.fromCharCode( 97 + i ) + "'><a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='minus' data-iconpos='bottom'></a></div>";
-			}
-
-			incrbts += "</fieldset>";
-			inputs += "</div>";
-			decrbts += "</fieldset>";
-
-			popup.find( ".ui-content" ).html( "<span>" + incrbts + inputs + decrbts + "</span>" ).enhanceWithin();
-
-			popup.find( ".incr" ).children().on( "vclick", function() {
-				var pos = $( this ).index();
-				changeValue( popup.find( ".inputs" ).children().eq( pos ).attr( "id" ), 1 );
-				return false;
-			} );
-
-			popup.find( ".decr" ).children().on( "vclick", function() {
-				var pos = $( this ).index();
-				changeValue( popup.find( ".inputs" ).children().eq( pos ).attr( "id" ), -1 );
-				return false;
-			} );
-	};
-
-	updateContent();
-
-	popup
-	.css( "width", "280px" )
-	.one( "popupafterclose", function() {
-		callback( timestamp );
-	} );
-
-	OSApp.UIDom.openPopup( popup );
-}
-
-function showTimeInput( opt ) {
-	var defaults = {
-			minutes: 0,
-			title: OSApp.Language._( "Time" ),
-			incrementalUpdate: true,
-			showBack: true,
-			showSun: false,
-			callback: function() {}
-		};
-
-	opt = $.extend( {}, defaults, opt );
-
-	$( "#timeInput" ).popup( "destroy" ).remove();
-
-	var offset = opt.minutes & 0x7ff,
-		type = 0;
-
-	if ( ( opt.minutes >> 12 ) & 1 ) {
-		offset = -offset;
-	}
-	if ( ( opt.minutes >> 14 ) & 1 ) {
-		type = 1;
-	} else if ( ( opt.minutes >> 13 ) & 1 ) {
-		type = 2;
-	}
-
-	var isPM = ( opt.minutes > 719 ? true : false ),
-		getPeriod = function() {
-			return isPM ? OSApp.Language._( "PM" ) : OSApp.Language._( "AM" );
-		},
-		popup = $( "<div data-role='popup' id='timeInput' data-theme='a'>" +
-			"<div data-role='header' data-theme='b'>" +
-				"<h1>" + opt.title + "</h1>" +
-			"</div>" +
-			"<div class='ui-content'>" +
-				( opt.helptext ? "<p class='pad-top rain-desc center smaller'>" + opt.helptext + "</p>" : "" ) +
-				"<span>" +
-					"<fieldset class='ui-grid-" + ( OSApp.currentDevice.isMetric ? "a" : "b" ) + " incr'>" +
-						"<div class='ui-block-a'>" +
-							"<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a>" +
-						"</div>" +
-						"<div class='ui-block-b'>" +
-							"<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a>" +
-						"</div>" +
-						( OSApp.currentDevice.isMetric ? "" : "<div class='ui-block-c'>" +
-							"<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a>" +
-						"</div>" ) +
-					"</fieldset>" +
-					"<div class='ui-grid-" + ( OSApp.currentDevice.isMetric ? "a" : "b" ) + " inputs'>" +
-						"<div class='ui-block-a'>" +
-							"<input data-wrapper-class='pad_buttons' class='hour dontPad' type='number' pattern='[0-9]*' value='" +
-								( OSApp.currentDevice.isMetric ? OSApp.Utils.pad( ( opt.minutes / 60 >> 0 ) % 24 ) + "'>" : ( parseInt( opt.minutes / 60 ) % 12 === 0 ? 12 : parseInt( opt.minutes / 60 ) % 12 ) + "'>" ) +
-						"</div>" +
-						"<div class='ui-block-b'>" +
-							"<input data-wrapper-class='pad_buttons' class='minute' type='number' pattern='[0-9]*' value='" +
-								OSApp.Utils.pad( opt.minutes % 60 ) + "'>" +
-						"</div>" +
-						( OSApp.currentDevice.isMetric ? "" : "<div class='ui-block-c'>" +
-							"<p class='center period'>" + getPeriod() + "</p>" +
-						"</div>" ) +
-					"</div>" +
-					"<fieldset class='ui-grid-" + ( OSApp.currentDevice.isMetric ? "a" : "b" ) + " decr'>" +
-						"<div class='ui-block-a'>" +
-							"<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='minus' data-iconpos='bottom'></a>" +
-						"</div>" +
-						"<div class='ui-block-b'>" +
-							"<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='minus' data-iconpos='bottom'></a>" +
-						"</div>" +
-						( OSApp.currentDevice.isMetric ? "" : "<div class='ui-block-c'>" +
-							"<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='minus' data-iconpos='bottom'></a>" +
-						"</div>" ) +
-					"</fieldset>" +
-				"</span>" +
-				( opt.showSun ? "<div class='ui-grid-a useSun'>" +
-					"<div class='ui-block-a'>" +
-						"<button class='ui-mini ui-btn rise " + ( type === 1 ? "ui-btn-active" : "" ) + "'>" + OSApp.Language._( "Use Sunrise" ) + "</button>" +
-					"</div>" +
-					"<div class='ui-block-b'>" +
-						"<button class='ui-mini ui-btn set " + ( type === 2 ? "ui-btn-active" : "" ) + "'>" + OSApp.Language._( "Use Sunset" ) + "</button>" +
-					"</div>" +
-				"</div>" +
-				"<div class='offsetInput'" + ( type === 0 ? " style='display: none;'" : "" ) + ">" +
-					"<h5 class='center tight'>" + OSApp.Language._( "Offset (minutes)" ) + "</h5>" +
-					"<div class='input_with_buttons'>" +
-						"<button class='decr ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border'></button>" +
-						"<input class='dontPad' type='number' pattern='[0-9]*' value='" + offset + "'>" +
-						"<button class='incr ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border'></button>" +
-					"</div>" +
-				"</div>" : "" ) +
-				( opt.showBack ? "<button class='submit' data-theme='b'>" + OSApp.Language._( "Submit" ) + "</button>" : "" ) +
-			"</div>" +
-		"</div>" ),
-		changeValue = function( pos, dir ) {
-			if ( pos === 0 || pos === 1 ) {
-				var curr = getValue(),
-					to = curr + ( dir * ( pos === 0 ? 60 : 1 ) ),
-					input = popup.find( ".inputs input" ).eq( pos ),
-					isHour = input.hasClass( "hour" ),
-					val = parseInt( input.val() );
-
-				if ( dir === 1 ) {
-					if ( isHour && ( ( OSApp.currentDevice.isMetric && val >= 24 ) || ( !OSApp.currentDevice.isMetric && val >= 12 ) ) ) {
-						val = 0;
-					}
-					if ( !isHour && val >= 59 ) {
-						val = -1;
-						var hour = popup.find( ".hour" ),
-							hourFixed = parseInt( hour.val() );
-
-						if ( !OSApp.currentDevice.isMetric ) {
-							if ( hourFixed === 12 ) {
-								hourFixed = 0;
-							}
-
-							hour.val( hourFixed + 1 );
-						}
-					}
-				} else if ( isHour && val <= 1 ) {
-					val = 13;
-				} else if ( !isHour && val <= 0 ) {
-					return;
-				}
-
-				if ( ( !isPM && to > 719 ) || ( isPM && to < 721 ) || ( isPM && to > 1439 ) || ( !isPM && dir === -1 && to < 0 ) ) {
-					isPM = !isPM;
-					popup.find( ".period" ).text( getPeriod() );
-				}
-
-				val = isHour ? val + dir : OSApp.Utils.pad( val + dir );
-				input.val( val );
-			} else if ( pos === 2 ) {
-				isPM = !isPM;
-				popup.find( ".period" ).text( getPeriod() );
-			}
-
-			if ( opt.incrementalUpdate ) {
-				opt.callback( getValue() );
-			}
-		},
-		getValue = function() {
-			var useSun = popup.find( ".useSun" ).find( "button.ui-btn-active" );
-
-			if ( useSun.length === 1 ) {
-				var st = 0,
-					offset = parseInt( popup.find( ".offsetInput input" ).val() );
-				if ( useSun.hasClass( "rise" ) ) {
-					if ( offset >= 0 ) {
-						st = offset;
-					} else {
-						st = -offset;
-						st |= ( 1 << 12 );
-					}
-
-					// Set the sunrise bit
-					st |= ( 1 << 14 );
-				} else {
-					if ( offset >= 0 ) {
-						st = offset;
-					} else {
-						st = -offset;
-
-						// Set the sign bit
-						st |= ( 1 << 12 );
-					}
-
-					// Set the sunset bit
-					st |= ( 1 << 13 );
-				}
-
-				return st;
-			} else {
-				var hour = parseInt( popup.find( ".hour" ).val() );
-
-				if ( !OSApp.currentDevice.isMetric ) {
-					if ( isPM && hour !== 12 ) {
-						hour = hour + 12;
-					}
-
-					if ( !isPM && hour === 12 ) {
-						hour = 0;
-					}
-				}
-
-				return ( hour * 60 ) + parseInt( popup.find( ".minute" ).val() );
-			}
-		};
-
-	popup.find( "button.submit" ).on( "click", function() {
-		opt.callback( getValue() );
-		popup.popup( "destroy" ).remove();
-	} );
-
-	popup.on( "focus", "input[type='number']", function( e ) {
-		e.target.value = "";
-	} ).on( "blur", "input[type='number']", function( e ) {
-		var val = parseInt( e.target.value ) || 0;
-		e.target.value = $( e.target ).hasClass( "dontPad" ) ? val : OSApp.Utils.pad( val );
-	} );
-
-	OSApp.UIDom.holdButton( popup.find( ".incr" ).children(), function( e ) {
-		var button = $( e.currentTarget ),
-			pos = button.index();
-
-		if ( button.find( ".ui-disabled" ).length === 0 ) {
-			changeValue( pos, 1 );
-		}
-
-		return false;
-	} );
-
-	OSApp.UIDom.holdButton( popup.find( ".decr" ).children(), function( e ) {
-		var button = $( e.currentTarget ),
-			pos = button.index();
-
-		if ( button.find( ".ui-disabled" ).length === 0 ) {
-			changeValue( pos, -1 );
-		}
-
-		return false;
-	} );
-
-	if ( opt.showSun ) {
-		popup.find( ".useSun" ).on( "click", "button", function() {
-			var button = $( this ),
-				contraButton = popup.find( ".useSun" ).find( "button" ).not( button ),
-				offset = popup.find( ".offsetInput" ),
-				timeButtons = popup.find( "span" ).find( ".ui-btn,input,p" );
-
-			contraButton.removeClass( "ui-btn-active" );
-			if ( button.hasClass( "ui-btn-active" ) ) {
-				button.removeClass( "ui-btn-active" );
-				offset.slideUp();
-
-				timeButtons.prop( "disabled", false ).removeClass( "ui-disabled" );
-			} else {
-				button.addClass( "ui-btn-active" );
-				offset.slideDown();
-
-				timeButtons.prop( "disabled", true ).addClass( "ui-disabled" );
-			}
-
-			if ( opt.incrementalUpdate ) {
-				opt.callback( getValue() );
-			}
-		} );
-
-		var offsetInput = popup.find( ".offsetInput" ).find( "input" ),
-			changeOffset = function( dir ) {
-				var val = parseInt( offsetInput.val() );
-
-				if ( ( dir === -1 && val === -240 ) || ( dir === 1 && val === 240 ) ) {
-					return;
-				}
-
-				offsetInput.val( val + dir );
-
-				if ( opt.incrementalUpdate ) {
-					opt.callback( getValue() );
-				}
-			};
-
-		offsetInput.on( "focus", function() {
-			this.value = "";
-		} ).on( "blur", function() {
-			if ( this.value === "" ) {
-				this.value = "0";
-			} else if ( this.value > 240 ) {
-				this.value = "240";
-			} else if ( this.value < -240 ) {
-				this.value = "-240";
-			}
-		} );
-
-		OSApp.UIDom.holdButton( popup.find( ".offsetInput" ).find( ".incr" ), function() {
-			changeOffset( 1 );
-			return false;
-		} );
-		OSApp.UIDom.holdButton( popup.find( ".offsetInput" ).find( ".decr" ), function() {
-			changeOffset( -1 );
-			return false;
-		} );
-	}
-
-	popup
-	.css( "max-width", "350px" )
-	.one( "popupafteropen", function() {
-		if ( type !== 0 ) {
-			popup.find( "span" ).find( ".ui-btn,input,p" ).prop( "disabled", true ).addClass( "ui-disabled" );
-		}
-	} )
-	.one( "popupafterclose", function() {
-		if ( opt.incrementalUpdate ) {
-			opt.callback( getValue() );
-		}
-	} );
-
-	OSApp.UIDom.openPopup( popup );
-}
-
-function showHelpText( e ) {
-	e.stopImmediatePropagation();
-
-	var button = $( this ),
-		text = button.data( "helptext" ),
-		popup;
-
-	popup = $( "<div data-role='popup' data-theme='a'>" +
-		"<p>" + text + "</p>" +
-	"</div>" );
-
-	OSApp.UIDom.openPopup( popup, { positionTo: button } );
-
-	return false;
-}
-
-$.fn.focusInput = function() {
-	if ( this.get( 0 ).setSelectionRange ) {
-		this.focus();
-		this.get( 0 ).setSelectionRange( 0, this.val().length );
-	} else if ( this.get( 0 ).createTextRange ) {
-		var range = this.get( 0 ).createTextRange();
-		range.collapse( true );
-		range.moveEnd( "character", this.val().length );
-		range.moveStart( "character", 0 );
-		range.select();
-	}
-
-	return this;
-};
-
-Number.prototype.clamp = function( min, max ) {
-	return Math.min( Math.max( this, min ), max );
-};
+// Focus any input
+OSApp.UIDom.focusInput();

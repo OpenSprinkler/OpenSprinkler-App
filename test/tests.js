@@ -352,7 +352,7 @@ describe( "Popup Checks", function() {
 			$( "#singleDuration" ).popup( "close" ).remove();
 		} );
 		assert.doesNotThrow( function() {
-			showSingleDurationInput();
+			OSApp.UIDom.showSingleDurationInput();
 		} );
 	} );
 
