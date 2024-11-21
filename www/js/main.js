@@ -19,6 +19,24 @@
 // Configure module
 var OSApp = OSApp || {};
 
+// TODO: refactor away all direct usage of localstorage in favor of OSApp.Storage
+// TODO: refactor OSApp.isXXXX values to OSApp.Config.isXXX
+// TODO: refactor OSApp.Regex out to separate modules/regex.js file
+// TODO: refactor OSApp.retryCount elsewhere
+// TODO: refactor OSApp.keyIndex elsewhere
+// TODO: refactor OSApp.controller elsewhere
+// TODO: refactor analog.js into a true modules & all references
+// TODO: refactor OSApp.switching elsewhere
+// TODO: refactor OSApp.currentCoordinates elsewhere
+// TODO: refactor OSApp.pageHistoryCount elsewhere
+// TODO: refactor OSApp.goingBack elsewhere
+// TODO: refactor OSApp.dialog elsewhere
+// TODO: refactor OSApp.popupData elsewhere
+// TODO: refactor option constants elsewhere!
+// TODO: refactor ui state elsewhere!
+// TODO: refactor current session settings elsewhere!
+// TODO: refactor Misc settings elsewhere!
+
 // App globals
 OSApp.isAndroid = /Android|\bSilk\b/.test( navigator.userAgent );
 OSApp.isiOS = /iP(ad|hone|od)/.test( navigator.userAgent );
@@ -55,8 +73,8 @@ OSApp.keyIndex = {
 	"sn1of":55, "sn2on":56, "sn2of":57, "subn1":58, "subn2":59, "subn3":60, "subn4":61
 };
 
-// Initialize controller object which will store JSON data
-OSApp.controller = {};
+OSApp.controller = {}; // Initialize controller object which will store JSON data
+OSApp.weather = undefined; // Initialize weather object (current observations and forecast data)
 
 OSApp.switching = false;
 OSApp.currentCoordinates = [ 0, 0 ];
@@ -68,23 +86,6 @@ OSApp.dialog = {
 OSApp.popupData = {
 	"shift": undefined
 };
-
-// TODO: refactor away all direct usage of localstorage in favor of OSApp.Storage
-// TODO: refactor OSApp.isXXXX values to OSApp.Config.isXXX
-// TODO: refactor OSApp.Regex out to separate modules/regex.js file
-// TODO: refactor OSApp.retryCount elsewhere
-// TODO: refactor OSApp.keyIndex elsewhere
-// TODO: refactor OSApp.controller elsewhere
-// TODO: refactor analog.js into a true modules & all references
-// TODO: refactor OSApp.switching elsewhere
-// TODO: refactor OSApp.currentCoordinates elsewhere
-// TODO: refactor OSApp.pageHistoryCount elsewhere
-// TODO: refactor OSApp.goingBack elsewhere
-// TODO: refactor OSApp.dialog elsewhere
-// TODO: refactor OSApp.popupData elsewhere
-// TODO: refactor option constants elsewhere!
-// TODO: refactor ui state elsewhere!
-// TODO: refactor current session settings elsewhere!
 
 // Option constants
 OSApp.MANUAL_STATION_PID = 99;
@@ -114,7 +115,12 @@ OSApp.currAuthPass = undefined;
 OSApp.currLocal = undefined;
 OSApp.currLang = undefined;
 
-var language, deviceip, errorTimeout, weather, openPanel;
+// Misc settings
+OSApp.language = undefined;
+OSApp.deviceip = undefined;
+OSApp.errorTimeout = undefined;
+
+var openPanel;
 
 if ( "serviceWorker" in navigator ) {
 	window.addEventListener( "load", function() {
@@ -1922,7 +1928,7 @@ var showSites = ( function() {
 				icon: "plus",
 				text: _( "Add" ),
 				on: function() {
-					if ( typeof deviceip === "undefined" ) {
+					if ( typeof OSApp.deviceip === "undefined" ) {
 						showAddNew();
 					} else {
 						popup.popup( "open" ).popup( "reposition", {
@@ -2036,7 +2042,7 @@ function findLocalSiteName( sites, callback ) {
 // Automatic device detection functions
 function updateDeviceIP( finishCheck ) {
 	var finish = function( result ) {
-		deviceip = result;
+		OSApp.deviceip = result;
 
 		if ( typeof finishCheck === "function" ) {
 			finishCheck( result );
@@ -2075,7 +2081,7 @@ function startScan( port, type ) {
 		3 - OpenSprinkler Pi (Python) using 1.8.3
 	*/
 
-	var ip = deviceip.split( "." ),
+	var ip = OSApp.deviceip.split( "." ),
 		scanprogress = 1,
 		devicesfound = 0,
 		newlist = "",
@@ -2849,21 +2855,21 @@ function finishWeatherUpdate() {
 function updateWeather() {
 	var now = new Date().getTime();
 
-	if ( weather && weather.providedLocation === OSApp.controller.settings.loc && now - weather.lastUpdated < 60 * 60 * 100 ) {
+	if ( OSApp.weather && OSApp.weather.providedLocation === OSApp.controller.settings.loc && now - OSApp.weather.lastUpdated < 60 * 60 * 100 ) {
 		finishWeatherUpdate();
 		return;
 	} else if ( localStorage.weatherData ) {
 		try {
 			var weatherData = JSON.parse( localStorage.weatherData );
 			if ( weatherData.providedLocation === OSApp.controller.settings.loc && now - weatherData.lastUpdated < 60 * 60 * 100 ) {
-				weather = weatherData;
+				OSApp.weather = weatherData;
 				finishWeatherUpdate();
 				return;
 			}
 		} catch ( err ) {}
 	}
 
-	weather = undefined;
+	OSApp.weather = undefined;
 
 	if ( OSApp.controller.settings.loc === "" ) {
 		hideWeather();
@@ -2886,7 +2892,7 @@ function updateWeather() {
 
 			OSApp.currentCoordinates = data.location;
 
-			weather = data;
+			OSApp.weather = data;
 			data.lastUpdated = new Date().getTime();
 			data.providedLocation = OSApp.controller.settings.loc;
 			localStorage.weatherData = JSON.stringify( data );
@@ -2926,9 +2932,9 @@ function updateWeatherBox() {
 	$( "#weather" )
 		.html(
 			( OSApp.controller.settings.rd ? "<div class='rain-delay red'><span class='icon ui-icon-alert'></span>Rain Delay<span class='time'>" + dateToString( new Date( OSApp.controller.settings.rdst * 1000 ), undefined, true ) + "</span></div>" : "" ) +
-			"<div title='" + weather.description + "' class='wicon'><img src='https://openweathermap.org/img/w/" + weather.icon + ".png'></div>" +
-			"<div class='inline tight'>" + formatTemp( weather.temp ) + "</div><br><div class='inline location tight'>" + _( "Current Weather" ) + "</div>" +
-			( typeof weather.alert === "object" ? "<div><button class='tight help-icon btn-no-border ui-btn ui-icon-alert ui-btn-icon-notext ui-corner-all'></button>" + weather.alert.type + "</div>" : "" ) )
+			"<div title='" + OSApp.weather.description + "' class='wicon'><img src='https://openweathermap.org/img/w/" + OSApp.weather.icon + ".png'></div>" +
+			"<div class='inline tight'>" + formatTemp( OSApp.weather.temp ) + "</div><br><div class='inline location tight'>" + _( "Current Weather" ) + "</div>" +
+			( typeof OSApp.weather.alert === "object" ? "<div><button class='tight help-icon btn-no-border ui-btn ui-icon-alert ui-btn-icon-notext ui-corner-all'></button>" + OSApp.weather.alert.type + "</div>" : "" ) )
 		.off( "click" ).on( "click", function( event ) {
 			var target = $( event.target );
 			if ( target.hasClass( "rain-delay" ) || target.parents( ".rain-delay" ).length ) {
@@ -3075,7 +3081,7 @@ function showForecast() {
 				"<ul data-role='listview' data-inset='true'>" +
 					makeForecast() +
 				"</ul>" +
-				makeAttribution( weather.wp || weather.weatherProvider ) +
+				makeAttribution( OSApp.weather.wp || OSApp.weather.weatherProvider ) +
 			"</div>" +
 		"</div>" );
 
@@ -3107,10 +3113,10 @@ function showForecast() {
 	page.find( ".alert" ).on( "click", function() {
 		openPopup( $( "<div data-role='popup' data-theme='a'>" +
 				"<div data-role='header' data-theme='b'>" +
-					"<h1>" + weather.alert.name + "</h1>" +
+					"<h1>" + OSApp.weather.alert.name + "</h1>" +
 				"</div>" +
 				"<div class='ui-content'>" +
-					"<span style='white-space: pre-wrap'>" + $.trim( weather.alert.message ) + "</span>" +
+					"<span style='white-space: pre-wrap'>" + $.trim( OSApp.weather.alert.message ) + "</span>" +
 				"</div>" +
 			"</div>" ) );
 	} );
@@ -3129,14 +3135,14 @@ function makeForecast() {
 
 	list += "<li data-icon='false' class='center'>" +
 			"<div>" + _( "Now" ) + "</div><br>" +
-			"<div title='" + weather.description + "' class='wicon'><img src='https://openweathermap.org/img/w/" + weather.icon + ".png'></div>" +
-			"<span>" + formatTemp( weather.temp ) + "</span><br>" +
+			"<div title='" + OSApp.weather.description + "' class='wicon'><img src='https://openweathermap.org/img/w/" + OSApp.weather.icon + ".png'></div>" +
+			"<span>" + formatTemp( OSApp.weather.temp ) + "</span><br>" +
 			"<span>" + _( "Sunrise" ) + "</span><span>: " + pad( parseInt( sunrise / 60 ) % 24 ) + ":" + pad( sunrise % 60 ) + "</span> " +
 			"<span>" + _( "Sunset" ) + "</span><span>: " + pad( parseInt( sunset / 60 ) % 24 ) + ":" + pad( sunset % 60 ) + "</span>" +
 		"</li>";
 
-	for ( i = 1; i < weather.forecast.length; i++ ) {
-		date = new Date( weather.forecast[ i ].date * 1000 );
+	for ( i = 1; i < OSApp.weather.forecast.length; i++ ) {
+		date = new Date( OSApp.weather.forecast[ i ].date * 1000 );
 		times = getSunTimes( date );
 
 		sunrise = times[ 0 ];
@@ -3144,10 +3150,10 @@ function makeForecast() {
 
 		list += "<li data-icon='false' class='center'>" +
 				"<div>" + date.toLocaleDateString() + "</div><br>" +
-				"<div title='" + weather.forecast[ i ].description + "' class='wicon'><img src='https://openweathermap.org/img/w/" + weather.forecast[ i ].icon + ".png'></div>" +
+				"<div title='" + OSApp.weather.forecast[ i ].description + "' class='wicon'><img src='https://openweathermap.org/img/w/" + OSApp.weather.forecast[ i ].icon + ".png'></div>" +
 				"<span>" + _( weekdays[ date.getDay() ] ) + "</span><br>" +
-				"<span>" + _( "Low" ) + "</span><span>: " + formatTemp( weather.forecast[ i ].temp_min ) + "  </span>" +
-				"<span>" + _( "High" ) + "</span><span>: " + formatTemp( weather.forecast[ i ].temp_max ) + "</span><br>" +
+				"<span>" + _( "Low" ) + "</span><span>: " + formatTemp( OSApp.weather.forecast[ i ].temp_min ) + "  </span>" +
+				"<span>" + _( "High" ) + "</span><span>: " + formatTemp( OSApp.weather.forecast[ i ].temp_max ) + "</span><br>" +
 				"<span>" + _( "Sunrise" ) + "</span><span>: " + pad( parseInt( sunrise / 60 ) % 24 ) + ":" + pad( sunrise % 60 ) + "</span> " +
 				"<span>" + _( "Sunset" ) + "</span><span>: " + pad( parseInt( sunset / 60 ) % 24 ) + ":" + pad( sunset % 60 ) + "</span>" +
 			"</li>";
@@ -3976,7 +3982,7 @@ function showOptions( expandItem ) {
 		tz = OSApp.controller.options.tz - 48;
 		tz = ( ( tz >= 0 ) ? "+" : "-" ) + pad( ( Math.abs( tz ) / 4 >> 0 ) ) + ":" + ( ( Math.abs( tz ) % 4 ) * 15 / 10 >> 0 ) + ( ( Math.abs( tz ) % 4 ) * 15 % 10 );
 		list += "<div class='ui-field-contain'><label for='o1' class='select'>" + _( "Timezone" ) + "</label>" +
-			"<select " + ( checkOSVersion( 210 ) && typeof weather === "object" ? "disabled='disabled' " : "" ) + "data-mini='true' id='o1'>";
+			"<select " + ( checkOSVersion( 210 ) && typeof OSApp.weather === "object" ? "disabled='disabled' " : "" ) + "data-mini='true' id='o1'>";
 
 		for ( i = 0; i < timezones.length; i++ ) {
 			list += "<option " + ( ( timezones[ i ] === tz ) ? "selected" : "" ) + " value='" + timezones[ i ] + "'>" + timezones[ i ] + "</option>";
@@ -6531,7 +6537,7 @@ var showHome = ( function() {
 		$( "#sprinklers" ).remove();
 		$.mobile.pageContainer.append( page );
 
-		if ( !$.isEmptyObject( weather ) ) {
+		if ( !$.isEmptyObject( OSApp.weather ) ) {
 			updateWeatherBox();
 		}
 	}
@@ -12885,7 +12891,7 @@ function checkChanges( callback ) {
 function showerror( msg, dur ) {
 	dur = dur || 2500;
 
-	clearTimeout( errorTimeout );
+	clearTimeout( OSApp.errorTimeout );
 
 	$.mobile.loading( "show", {
 		text: msg,
@@ -12895,7 +12901,7 @@ function showerror( msg, dur ) {
 	} );
 
 	// Hide after provided delay
-	errorTimeout = setTimeout( function() {$.mobile.loading( "hide" );}, dur );
+	OSApp.errorTimeout = setTimeout( function() {$.mobile.loading( "hide" );}, dur );
 }
 
 function loadLocalSettings() {
@@ -13128,8 +13134,8 @@ function htmlEscape( str ) {
 function _( key ) {
 
 	//Translate item (key) based on currently defined language
-	if ( typeof language === "object" && language.hasOwnProperty( key ) ) {
-		var trans = language[ key ];
+	if ( typeof OSApp.language === "object" && OSApp.language.hasOwnProperty( key ) ) {
+		var trans = OSApp.language[ key ];
 		return trans ? trans : key;
 	} else {
 
@@ -13163,8 +13169,8 @@ function setLang() {
 
 function updateLang( lang ) {
 
-	//Empty out the current language (English is provided as the key)
-	language = {};
+	//Empty out the current OSApp.language (English is provided as the key)
+	OSApp.language = {};
 
 	if ( typeof lang === "undefined" ) {
 		OSApp.Storage.get( "lang", function( data ) {
@@ -13186,7 +13192,7 @@ function updateLang( lang ) {
 	}
 
 	$.getJSON( getAppURLPath() + "locale/" + lang + ".js", function( store ) {
-		language = store.messages;
+		OSApp.language = store.messages;
 		setLang();
 	} ).fail( setLang );
 }
