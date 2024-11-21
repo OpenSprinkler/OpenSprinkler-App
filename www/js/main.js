@@ -2854,7 +2854,7 @@ function showOptions( expandItem ) {
 				}
 			}
 
-			opt = transformKeys( opt );
+			opt = OSApp.Utils.transformKeys( opt );
 			$.mobile.loading( "show" );
 
 			OSApp.Firmware.sendToOS( "/co?pw=&" + $.param( opt ) ).done( function() {
@@ -5107,12 +5107,12 @@ var showHome = ( function() {
 			var thisCard, nextCard, divider, label, idx;
 
 			for ( idx = 0; idx < cardHolder.children().length; idx++ ) {
-				thisCard = CardList.getCardByIndex( cardList, idx );
+				thisCard = OSApp.CardList.getCardByIndex( cardList, idx );
 				OSApp.Cards.setGroupLabel( thisCard, OSApp.Cards.getGIDName( thisCard ) );
 			}
 			for ( idx = 0; idx < cardHolder.children().length - 1; idx++ ) {
-				thisCard = CardList.getCardByIndex( cardList, idx );
-				nextCard = CardList.getCardByIndex( cardList, idx + 1 );
+				thisCard = OSApp.CardList.getCardByIndex( cardList, idx );
+				nextCard = OSApp.CardList.getCardByIndex( cardList, idx + 1 );
 
 				divider = OSApp.Cards.getDivider( thisCard );
 				label = OSApp.Cards.getGroupLabel( thisCard );
@@ -5140,8 +5140,8 @@ var showHome = ( function() {
 		updateStandardView = function( cardHolder, cardList ) {
 			var thisCard, nextCard, divider, label, idx;
 			for ( idx = 0; idx < cardHolder.children().length - 1; idx++ ) {
-				thisCard = CardList.getCardByIndex( cardList, idx );
-				nextCard = CardList.getCardByIndex( cardList, idx + 1 );
+				thisCard = OSApp.CardList.getCardByIndex( cardList, idx );
+				nextCard = OSApp.CardList.getCardByIndex( cardList, idx + 1 );
 
 				divider = OSApp.Cards.getDivider( thisCard );
 				divider.hide(); // Remove all dividers when switching from group view
@@ -5196,7 +5196,7 @@ var showHome = ( function() {
 			page.find( ".sitename" ).text( siteSelect.val() );
 
 			// Remove unused stations
-			CardList.getAllCards( cardList ).filter( function( _, a ) {
+			OSApp.CardList.getAllCards( cardList ).filter( function( _, a ) {
 				return parseInt( $( a ).data( "station" ), 10 ) >= OSApp.currentSession.controller.stations.snames.length;
 			} ).remove();
 
@@ -5208,7 +5208,7 @@ var showHome = ( function() {
 				qPause = OSApp.StationQueue.isPaused(),
 				hasImage = sites[ currentSite ].images[ sid ] ? true : false;
 
-				card = CardList.getCardBySID( cardList, sid );
+				card = OSApp.CardList.getCardBySID( cardList, sid );
 				divider = OSApp.Cards.getDivider( card );
 
 				if ( card.length === 0 ) {
@@ -7886,7 +7886,7 @@ function resetAllOptions( callback ) {
 			}
 			co += "loc=Boston,MA&wto=%22key%22%3A%22%22";
 
-			co = transformKeysinString( co );
+			co = OSApp.Utils.transformKeysinString( co );
 		}
 
 		OSApp.Firmware.sendToOS( "/co?pw=&" + co ).done( function() {
@@ -9382,7 +9382,7 @@ function importConfig( data ) {
 		data.special = data.special || {};
 
 		$.when(
-			OSApp.Firmware.sendToOS( transformKeysinString( co ) ),
+			OSApp.Firmware.sendToOS( OSApp.Utils.transformKeysinString( co ) ),
 			OSApp.Firmware.sendToOS( cs ),
 			OSApp.Firmware.sendToOS( "/dp?pw=&pid=-1" ),
 			$.each( csi, function( i, comm ) {
@@ -11153,53 +11153,3 @@ function dateToString( date, toUTC, shorten ) {
 		}
 	}
 }
-
-// Transform keys to JSON names for 2.1.9+
-function transformKeys( opt ) {
-	if ( OSApp.Firmware.checkOSVersion( 219 ) ) {
-		var renamedOpt = {};
-		Object.keys( opt ).forEach( function( item ) {
-			var name = item.match( /^o(\d+)$/ );
-
-			if ( name && name[ 1 ] ) {
-				renamedOpt[ Object.keys( OSApp.Constants.keyIndex ).find( function( index ) { return OSApp.Constants.keyIndex[ index ] === parseInt( name[ 1 ], 10 ); } ) ] = opt[ item ];
-			} else {
-				renamedOpt[ item ] = opt[ item ];
-			}
-		} );
-
-		return renamedOpt;
-	}
-
-	return opt;
-}
-
-function transformKeysinString( co ) {
-	var opt = {};
-	co.split( "&" ).forEach( function( item ) {
-		item = item.split( "=" );
-		opt[ item[ 0 ] ] = item[ 1 ];
-	} );
-	opt = transformKeys( opt );
-	var arr = [];
-	Object.keys( opt ).forEach( function( key ) { arr.push( key + "=" + opt[ key ] ); } );
-	co = arr.join( "&" );
-	return co;
-}
-
-/* Card helpers: must pass in jquery object $(obj) */
-
-function CardList() {}
-
-CardList.getAllCards = function( cardList ) {
-	return cardList.filter( ".card" );
-};
-
-CardList.getCardBySID = function( cardList, sid ) {
-	return cardList.filter( "[data-station='" + sid + "']" );
-};
-
-// Based on order of cardList content
-CardList.getCardByIndex = function( cardList, idx ) {
-	return $( cardList[ idx ] );
-};
