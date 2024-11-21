@@ -1,6 +1,6 @@
 /* global readProgram, holdButton, openPopup, areYouSure, _, $ */
 /* global changeHeader, goBack */
-/* global getAppURLPath, dateToString, ApexCharts */
+/* global ApexCharts */
 /* exported checkAnalogSensorAvail, updateSensorShowArea, showAnalogSensorConfig, showAnalogSensorCharts */
 
 /*!
@@ -704,7 +704,7 @@ OSApp.Analog.buildSensorConfig = () => {
 		"<th class=\"hidecol\">Read<br>Interval</th><th>Data</th><th>En</th>" +
 		"<th class=\"hidecol\">Log</th><th class=\"hidecol\">Show</th><th class=\"hidecol2\">Last</th></tr>";
 
-	var checkpng = "<img src=\"" + getAppURLPath() + "img/check-black.png\">";
+	var checkpng = "<img src=\"" + OSApp.UIDom.getAppURLPath() + "img/check-black.png\">";
 
 	var row = 0;
 	$.each( OSApp.Analog.analogSensors, function( i, item ) {
@@ -722,7 +722,7 @@ OSApp.Analog.buildSensorConfig = () => {
 			"<td>" + ( item.enable ? checkpng : "" ) + "</td>",
 			"<td class=\"hidecol\">" + ( item.log ? checkpng : "" ) + "</td>",
 			"<td class=\"hidecol\">" + ( item.show ? checkpng : "" ) + "</td>",
-			$( "<td class=\"hidecol2\">" ).text( ( item.data_ok === undefined || item.data_ok ) ? dateToString( new Date( item.last * 1000 ) ) : "Error", null, 2 ),
+			$( "<td class=\"hidecol2\">" ).text( ( item.data_ok === undefined || item.data_ok ) ? OSApp.Dates.dateToString( new Date( item.last * 1000 ) ) : "Error", null, 2 ),
 			"<td><button data-mini='true' class='center-div' id='edit-sensor' value='" + item.nr + "' row='" + row + "'>" + OSApp.Language._( "Edit" ) + "</button></td>",
 			"<td><button data-mini='true' class='center-div' id='delete-sensor' value='" + item.nr + "' row='" + row + "'>" + OSApp.Language._( "Delete" ) + "</button></td>"
 		);

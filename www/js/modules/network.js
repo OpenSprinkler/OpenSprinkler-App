@@ -829,7 +829,7 @@ OSApp.Network.changePassword = ( opt ) => {
 				current = data.current_site,
 				pw = md5( sites[ current ].os_pw );
 
-			if ( !isMD5( sites[ current ].os_pw ) ) {
+			if ( !OSApp.Utils.isMD5( sites[ current ].os_pw ) ) {
 				var urlDest = "/jc?pw=" + pw;
 
 				$.ajax( {

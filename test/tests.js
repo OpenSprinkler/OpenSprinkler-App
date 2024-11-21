@@ -164,16 +164,16 @@ describe( "General Function Checks", function() {
 		assert.equal( 100981, dhms2sec( { days:1, hours:4, minutes:3, seconds:1 } ) );
 	} );
 
-	it( "getDayName(day,type) should return the day of the week and can be of type 'short'", function() {
-		assert.equal( "Sunday", getDayName( new Date( 1410745528126 ) ) );
-		assert.equal( "Thu", getDayName( new Date( 1410445528126 ), "short" ) );
+	it( "OSApp.Dates.getDayName(day,type) should return the day of the week and can be of type 'short'", function() {
+		assert.equal( "Sunday", OSApp.Dates.getDayName( new Date( 1410745528126 ) ) );
+		assert.equal( "Thu", OSApp.Dates.getDayName( new Date( 1410445528126 ), "short" ) );
 	} );
 
-	it( "pad(number) should successfully prepend a 0 to a single digit", function() {
-		assert.equal( "00", pad( 0 ) );
-		assert.equal( "01", pad( 1 ) );
-		assert.equal( "10", pad( 10 ) );
-		assert.equal( "999", pad( 999 ) );
+	it( "OSApp.Utils.pad(number) should successfully prepend a 0 to a single digit", function() {
+		assert.equal( "00", OSApp.Utils.pad( 0 ) );
+		assert.equal( "01", OSApp.Utils.pad( 1 ) );
+		assert.equal( "10", OSApp.Utils.pad( 10 ) );
+		assert.equal( "999", OSApp.Utils.pad( 999 ) );
 	} );
 
 	it( "getCurrentAdjustmentMethodId() should return the adjustment method ID", function() {

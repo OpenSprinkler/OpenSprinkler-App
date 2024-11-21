@@ -1,4 +1,4 @@
-/* global htmlEscape, checkConfigured, $ */
+/* global checkConfigured, $ */
 
 /* OpenSprinkler App
  * Copyright (C) 2015 - present, Samer Albahra. All rights reserved.
@@ -47,7 +47,7 @@ OSApp.Sites.updateSiteList = ( names, current ) => {
 		select = $( "#site-selector" );
 
 	$.each( names, function() {
-		list += "<option " + ( this.toString() === current ? "selected " : "" ) + "value='" + htmlEscape( this ) + "'>" + this + "</option>"; // TODO: mellodev refactor make utils.js or formatters.js
+		list += "<option " + ( this.toString() === current ? "selected " : "" ) + "value='" + OSApp.Utils.htmlEscape( this ) + "'>" + this + "</option>"; // TODO: mellodev refactor make utils.js or formatters.js
 	} );
 
 	$( "#info-list" ).find( "li[data-role='list-divider']" ).text( current );

@@ -635,3 +635,7 @@ OSApp.UIDom.closePanel = ( callback = () => void 0 ) => {
 		callback();
 	}
 };
+
+OSApp.UIDom.getAppURLPath = function() {
+	return OSApp.currentSession.local ? $.mobile.path.parseUrl( $( "head" ).find( "script[src$='main.js']" ).attr( "src" ) ).hrefNoHash.slice( 0, -10 ) : "";
+};

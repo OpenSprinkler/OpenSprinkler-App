@@ -1,4 +1,4 @@
-/* global htmlEscape, checkConfigured, $ */
+/* global checkConfigured, $ */
 
 /* OpenSprinkler App
  * Copyright (C) 2015 - present, Samer Albahra. All rights reserved.
@@ -101,5 +101,119 @@ OSApp.Dates.decodeDate = ( dateValue ) => {
 		return OSApp.Dates.Constants.MIN_DATE;
 	} else {
 		return OSApp.Dates.Constants.MAX_DATE
+	}
+};
+
+OSApp.Dates.getTimezoneOffsetOS = function() {
+	var tz = OSApp.currentSession.controller.options.tz - 48,
+		sign = tz >= 0 ? 1 : -1;
+
+	tz = ( ( Math.abs( tz ) / 4 >> 0 ) * 60 ) + ( ( Math.abs( tz ) % 4 ) * 15 / 10 >> 0 ) + ( ( Math.abs( tz ) % 4 ) * 15 % 10 );
+	return tz * sign;
+};
+
+// Credit Stacktrace
+// https://stackoverflow.com/questions/3177836/how-to-format-time-since-xxx-e-g-4-minutes-ago-similar-to-stack-exchange-site/23259289#23259289
+OSApp.Dates.humaniseDuration = function( base, relative ) {
+	var seconds = Math.floor( ( relative - base ) / 1000 ),
+		isFuture = ( seconds > 0 ) ? true : false,
+		intervalType;
+
+	seconds = Math.abs( seconds );
+	if ( seconds < 10 ) {
+		return OSApp.Language._( "Just Now" );
+	}
+
+	var interval = Math.floor( seconds / 31536000 );
+	if ( interval >= 1 ) {
+		intervalType = ( interval > 1 ) ? OSApp.Language._( "years" ) : OSApp.Language._( "year" );
+	} else {
+		interval = Math.floor( seconds / 2592000 );
+		if ( interval >= 1 ) {
+			intervalType = ( interval > 1 ) ? OSApp.Language._( "months" ) : OSApp.Language._( "month" );
+		} else {
+			interval = Math.floor( seconds / 86400 );
+			if ( interval >= 1 ) {
+				intervalType = ( interval > 1 ) ? OSApp.Language._( "days" ) : OSApp.Language._( "day" );
+			} else {
+				interval = Math.floor( seconds / 3600 );
+				if ( interval >= 1 ) {
+					intervalType = ( interval > 1 ) ? OSApp.Language._( "hours" ) : OSApp.Language._( "hour" );
+				} else {
+					interval = Math.floor( seconds / 60 );
+					if ( interval >= 1 ) {
+						intervalType = ( interval > 1 ) ? OSApp.Language._( "minutes" ) : OSApp.Language._( "minute" );
+					} else {
+						interval = seconds;
+						intervalType = ( interval > 1 ) ? OSApp.Language._( "seconds" ) : OSApp.Language._( "second" );
+					}
+				}
+			}
+		}
+	}
+
+	if ( isFuture ) {
+		return OSApp.Language._( "In" ) + " " + interval + " " + intervalType;
+	} else {
+		return interval + " " + intervalType + " " + OSApp.Language._( "ago" );
+	}
+};
+
+OSApp.Dates.dateToString = function( date, toUTC, shorten ) {
+	var dayNames = [ OSApp.Language._( "Sun" ), OSApp.Language._( "Mon" ), OSApp.Language._( "Tue" ),
+					OSApp.Language._( "Wed" ), OSApp.Language._( "Thu" ), OSApp.Language._( "Fri" ), OSApp.Language._( "Sat" ) ],
+		monthNames = [ OSApp.Language._( "Jan" ), OSApp.Language._( "Feb" ), OSApp.Language._( "Mar" ), OSApp.Language._( "Apr" ), OSApp.Language._( "May" ), OSApp.Language._( "Jun" ),
+					OSApp.Language._( "Jul" ), OSApp.Language._( "Aug" ), OSApp.Language._( "Sep" ), OSApp.Language._( "Oct" ), OSApp.Language._( "Nov" ), OSApp.Language._( "Dec" ) ];
+
+	if ( date.getTime() === 0 ) {
+		return "--";
+	}
+
+	if ( toUTC !== false ) {
+		date.setMinutes( date.getMinutes() + date.getTimezoneOffset() );
+	}
+
+	if ( OSApp.currentSession.lang === "de" ) {
+		return OSApp.Utils.pad( date.getDate() ) + "." + OSApp.Utils.pad( date.getMonth() + 1 ) + "." +
+				date.getFullYear() + " " + OSApp.Utils.pad( date.getHours() ) + ":" +
+				OSApp.Utils.pad( date.getMinutes() ) + ":" + OSApp.Utils.pad( date.getSeconds() );
+	} else {
+		if ( shorten === 1 ) {
+			return monthNames[ date.getMonth() ] + " " + OSApp.Utils.pad( date.getDate() ) + ", " +
+					date.getFullYear() + " " + OSApp.Utils.pad( date.getHours() ) + ":" +
+					OSApp.Utils.pad( date.getMinutes() ) + ":" + OSApp.Utils.pad( date.getSeconds() );
+		} else if ( shorten === 2 ) {
+			return monthNames[ date.getMonth() ] + " " + OSApp.Utils.pad( date.getDate() ) + ", " +
+					OSApp.Utils.pad( date.getHours() ) + ":" + OSApp.Utils.pad( date.getMinutes() ) + ":" +
+					OSApp.Utils.pad( date.getSeconds() );
+		} else {
+			return dayNames[ date.getDay() ] + ", " + OSApp.Utils.pad( date.getDate() ) + " " +
+					monthNames[ date.getMonth() ] + " " + date.getFullYear() + " " +
+					OSApp.Utils.pad( date.getHours() ) + ":" + OSApp.Utils.pad( date.getMinutes() ) + ":" +
+					OSApp.Utils.pad( date.getSeconds() );
+		}
+	}
+};
+
+OSApp.Dates.minutesToTime = function( minutes ) {
+	var period = minutes > 719 ? "PM" : "AM",
+		hour = parseInt( minutes / 60 ) % 12;
+
+	if ( hour === 0 ) {
+		hour = 12;
+	}
+
+	return OSApp.currentDevice.isMetric ? ( OSApp.Utils.pad( ( minutes / 60 >> 0 ) % 24 ) + ":" + OSApp.Utils.pad( minutes % 60 ) ) : ( hour + ":" + OSApp.Utils.pad( minutes % 60 ) + " " + period );
+};
+
+// Return day of the week
+OSApp.Dates.getDayName = function( day, type ) {
+	var ldays = [ OSApp.Language._( "Sunday" ), OSApp.Language._( "Monday" ), OSApp.Language._( "Tuesday" ), OSApp.Language._( "Wednesday" ), OSApp.Language._( "Thursday" ), OSApp.Language._( "Friday" ), OSApp.Language._( "Saturday" ) ],
+		sdays = [ OSApp.Language._( "Sun" ), OSApp.Language._( "Mon" ), OSApp.Language._( "Tue" ), OSApp.Language._( "Wed" ), OSApp.Language._( "Thu" ), OSApp.Language._( "Fri" ), OSApp.Language._( "Sat" ) ];
+
+	if ( type === "short" ) {
+		return sdays[ day.getDay() ];
+	} else {
+		return ldays[ day.getDay() ];
 	}
 };

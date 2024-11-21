@@ -610,7 +610,7 @@ function fixPasswordHash( current ) {
 	OSApp.Storage.get( [ "sites" ], function( data ) {
 		var sites = OSApp.Sites.parseSites( data.sites );
 
-		if ( !isMD5( OSApp.currentSession.pass ) ) {
+		if ( !OSApp.Utils.isMD5( OSApp.currentSession.pass ) ) {
 			var pw = md5( OSApp.currentSession.pass );
 
 			OSApp.Firmware.sendToOS(
@@ -1053,12 +1053,12 @@ var showSites = ( function() {
 					makeStart();
 				}
 
-				sites = sortObj( sites );
+				sites = OSApp.Utils.sortObj( sites );
 
 				$.each( sites, function( a, b ) {
 					siteNames.push( a );
 
-					a = htmlEscape( a );
+					a = OSApp.Utils.htmlEscape( a );
 
 					list += "<fieldset " + ( ( total === 1 ) ? "data-collapsed='false'" : "" ) + " id='site-" + i + "' data-role='collapsible'>" +
 						"<h3>" +
@@ -1207,7 +1207,7 @@ var showSites = ( function() {
 						sites[ site ].os_ip = ip;
 					}
 					if ( pw !== "" && pw !== sites[ site ].os_pw ) {
-						if ( isMD5( sites[ site ].os_pw ) ) {
+						if ( OSApp.Utils.isMD5( sites[ site ].os_pw ) ) {
 							pw = md5( pw );
 						}
 						sites[ site ].os_pw = pw;
@@ -1349,7 +1349,7 @@ function showZimmermanAdjustmentOptions( button, callback ) {
 			bh: 30,
 			bt: 70,
 			br: 0
-		}, unescapeJSON( button.value ) ),
+		}, OSApp.Utils.unescapeJSON( button.value ) ),
 
 		// Enable Zimmerman extension to set weather conditions as baseline for adjustment
 		hasBaseline = OSApp.Firmware.checkOSVersion( 2162 );
@@ -1463,7 +1463,7 @@ function showZimmermanAdjustmentOptions( button, callback ) {
 		}
 
 		if ( button ) {
-			button.value = escapeJSON( options );
+			button.value = OSApp.Utils.escapeJSON( options );
 		}
 
 		callback();
@@ -1512,7 +1512,7 @@ function showAutoRainDelayAdjustmentOptions( button, callback ) {
 
 	var options = $.extend( {}, {
 		d: 24
-	}, unescapeJSON( button.value ) );
+	}, OSApp.Utils.unescapeJSON( button.value ) );
 
 	var popup = $( "<div data-role='popup' data-theme='a' id='adjustmentOptions'>" +
 			"<div data-role='header' data-theme='b'>" +
@@ -1546,7 +1546,7 @@ function showAutoRainDelayAdjustmentOptions( button, callback ) {
 		options = { d: parseInt( popup.find( "#delay_duration" ).val() ) };
 
 		if ( button ) {
-			button.value = escapeJSON( options );
+			button.value = OSApp.Utils.escapeJSON( options );
 		}
 
 		callback();
@@ -1585,7 +1585,7 @@ function showMonthlyAdjustmentOptions( button, callback ) {
 
 	var options = $.extend( {}, {
 		scales: [ 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100 ]
-	}, unescapeJSON( button.value ) );
+	}, OSApp.Utils.unescapeJSON( button.value ) );
 
 	var popup = $( "<div data-role='popup' data-theme='a' id='adjustmentOptions'>" +
 			"<div data-role='header' data-theme='b'>" +
@@ -1686,7 +1686,7 @@ function showMonthlyAdjustmentOptions( button, callback ) {
 		}
 		options = { scales: _scales };
 		if ( button ) {
-			button.value = escapeJSON( options );
+			button.value = OSApp.Utils.escapeJSON( options );
 		}
 
 		callback();
@@ -1739,7 +1739,7 @@ function showEToAdjustmentOptions( button, callback ) {
 			baseETo: 0,
 			elevation: 600
 		},
-		unescapeJSON( button.value )
+		OSApp.Utils.unescapeJSON( button.value )
 	);
 
 	if ( OSApp.currentDevice.isMetric ) {
@@ -1789,7 +1789,7 @@ function showEToAdjustmentOptions( button, callback ) {
 		}
 
 		if ( button ) {
-			button.value = escapeJSON( options );
+			button.value = OSApp.Utils.escapeJSON( options );
 		}
 
 		callback();
@@ -1979,7 +1979,7 @@ function checkURLandUpdateWeather() {
 function updateWeatherBox() {
 	$( "#weather" )
 		.html(
-			( OSApp.currentSession.controller.settings.rd ? "<div class='rain-delay red'><span class='icon ui-icon-alert'></span>Rain Delay<span class='time'>" + dateToString( new Date( OSApp.currentSession.controller.settings.rdst * 1000 ), undefined, true ) + "</span></div>" : "" ) +
+			( OSApp.currentSession.controller.settings.rd ? "<div class='rain-delay red'><span class='icon ui-icon-alert'></span>Rain Delay<span class='time'>" + OSApp.Dates.dateToString( new Date( OSApp.currentSession.controller.settings.rdst * 1000 ), undefined, true ) + "</span></div>" : "" ) +
 			"<div title='" + OSApp.currentSession.weather.description + "' class='wicon'><img src='https://openweathermap.org/img/w/" + OSApp.currentSession.weather.icon + ".png'></div>" +
 			"<div class='inline tight'>" + formatTemp( OSApp.currentSession.weather.temp ) + "</div><br><div class='inline location tight'>" + OSApp.Language._( "Current Weather" ) + "</div>" +
 			( typeof OSApp.currentSession.weather.alert === "object" ? "<div><button class='tight help-icon btn-no-border ui-btn ui-icon-alert ui-btn-icon-notext ui-corner-all'></button>" + OSApp.currentSession.weather.alert.type + "</div>" : "" ) )
@@ -2073,7 +2073,7 @@ function getSunTimes( date ) {
 	var times = SunCalc.getTimes( date, OSApp.currentSession.coordinates[ 0 ], OSApp.currentSession.coordinates[ 1 ] ),
 		sunrise = times.sunrise,
 		sunset = times.sunset,
-		tzOffset = getTimezoneOffset();
+		tzOffset = OSApp.Dates.getTimezoneOffsetOS();
 
 	sunrise.setUTCMinutes( sunrise.getUTCMinutes() + tzOffset );
 	sunset.setUTCMinutes( sunset.getUTCMinutes() + tzOffset );
@@ -2185,8 +2185,8 @@ function makeForecast() {
 			"<div>" + OSApp.Language._( "Now" ) + "</div><br>" +
 			"<div title='" + OSApp.currentSession.weather.description + "' class='wicon'><img src='https://openweathermap.org/img/w/" + OSApp.currentSession.weather.icon + ".png'></div>" +
 			"<span>" + formatTemp( OSApp.currentSession.weather.temp ) + "</span><br>" +
-			"<span>" + OSApp.Language._( "Sunrise" ) + "</span><span>: " + pad( parseInt( sunrise / 60 ) % 24 ) + ":" + pad( sunrise % 60 ) + "</span> " +
-			"<span>" + OSApp.Language._( "Sunset" ) + "</span><span>: " + pad( parseInt( sunset / 60 ) % 24 ) + ":" + pad( sunset % 60 ) + "</span>" +
+			"<span>" + OSApp.Language._( "Sunrise" ) + "</span><span>: " + OSApp.Utils.pad( parseInt( sunrise / 60 ) % 24 ) + ":" + OSApp.Utils.pad( sunrise % 60 ) + "</span> " +
+			"<span>" + OSApp.Language._( "Sunset" ) + "</span><span>: " + OSApp.Utils.pad( parseInt( sunset / 60 ) % 24 ) + ":" + OSApp.Utils.pad( sunset % 60 ) + "</span>" +
 		"</li>";
 
 	for ( i = 1; i < OSApp.currentSession.weather.forecast.length; i++ ) {
@@ -2202,8 +2202,8 @@ function makeForecast() {
 				"<span>" + OSApp.Language._( weekdays[ date.getDay() ] ) + "</span><br>" +
 				"<span>" + OSApp.Language._( "Low" ) + "</span><span>: " + formatTemp( OSApp.currentSession.weather.forecast[ i ].temp_min ) + "  </span>" +
 				"<span>" + OSApp.Language._( "High" ) + "</span><span>: " + formatTemp( OSApp.currentSession.weather.forecast[ i ].temp_max ) + "</span><br>" +
-				"<span>" + OSApp.Language._( "Sunrise" ) + "</span><span>: " + pad( parseInt( sunrise / 60 ) % 24 ) + ":" + pad( sunrise % 60 ) + "</span> " +
-				"<span>" + OSApp.Language._( "Sunset" ) + "</span><span>: " + pad( parseInt( sunset / 60 ) % 24 ) + ":" + pad( sunset % 60 ) + "</span>" +
+				"<span>" + OSApp.Language._( "Sunrise" ) + "</span><span>: " + OSApp.Utils.pad( parseInt( sunrise / 60 ) % 24 ) + ":" + OSApp.Utils.pad( sunrise % 60 ) + "</span> " +
+				"<span>" + OSApp.Language._( "Sunset" ) + "</span><span>: " + OSApp.Utils.pad( parseInt( sunset / 60 ) % 24 ) + ":" + OSApp.Utils.pad( sunset % 60 ) + "</span>" +
 			"</li>";
 	}
 
@@ -2221,7 +2221,7 @@ function overlayMap( callback ) {
 
 	var popup = $( "<div data-role='popup' id='location-list' data-theme='a' style='background-color:rgb(229, 227, 223);'>" +
 			"<a href='#' data-rel='back' class='ui-btn ui-corner-all ui-shadow ui-btn-b ui-icon-delete ui-btn-icon-notext ui-btn-right'>" + OSApp.Language._( "Close" ) + "</a>" +
-				"<iframe style='border:none' src='" + getAppURLPath() + "map.html' width='100%' height='100%' seamless=''></iframe>" +
+				"<iframe style='border:none' src='" + OSApp.UIDom.getAppURLPath() + "map.html' width='100%' height='100%' seamless=''></iframe>" +
 		"</div>" ),
 		getCurrentLocation = function( callback ) {
 			callback = callback || function( result ) {
@@ -2445,7 +2445,7 @@ function debugWU() {
 	popup += "<div class='debugWUHeading'>System Status</div>" +
 			"<table class='debugWUTable'>" +
 				( typeof OSApp.currentSession.controller.settings.lupt === "number" ? "<tr><td>" + OSApp.Language._( "Last Reboot" ) + "</td><td>" +
-					( OSApp.currentSession.controller.settings.lupt < 1000 ? "--" : dateToString( new Date( OSApp.currentSession.controller.settings.lupt * 1000 ), null, 2 ) ) + "</td></tr>" : "" ) +
+					( OSApp.currentSession.controller.settings.lupt < 1000 ? "--" : OSApp.Dates.dateToString( new Date( OSApp.currentSession.controller.settings.lupt * 1000 ), null, 2 ) ) + "</td></tr>" : "" ) +
 				( typeof OSApp.currentSession.controller.settings.lrbtc === "number" ? "<tr><td>" + OSApp.Language._( "Reboot Reason" ) + "</td><td>" + getRebootReason( OSApp.currentSession.controller.settings.lrbtc ) + "</td></tr>" : "" ) +
 				( typeof OSApp.currentSession.controller.settings.RSSI === "number" ? "<tr><td>" + OSApp.Language._( "WiFi Strength" ) + "</td><td>" + getWiFiRating( OSApp.currentSession.controller.settings.RSSI ) + "</td></tr>" : "" ) +
 				( typeof OSApp.currentSession.controller.settings.wterr === "number" ? "<tr><td>" + OSApp.Language._( "Weather Service" ) + "</td><td>" + getWeatherStatus( OSApp.currentSession.controller.settings.wterr ) + "</td></tr>" : "" ) +
@@ -2455,7 +2455,7 @@ function debugWU() {
 				( typeof OSApp.currentSession.controller.options.uwt !== "undefined" ? "<tr><td>" + OSApp.Language._( "Method" ) + "</td><td>" + getAdjustmentMethod( OSApp.currentSession.controller.options.uwt ).name + "</td></tr>" : "" ) +
 				( typeof OSApp.currentSession.controller.options.wl !== "undefined" ? "<tr><td>" + OSApp.Language._( "Watering Level" ) + "</td><td>" + OSApp.currentSession.controller.options.wl + " %</td></tr>" : "" ) +
 				( typeof OSApp.currentSession.controller.settings.lswc === "number" ? "<tr><td>" + OSApp.Language._( "Last Updated" ) + "</td><td>" +
-					( OSApp.currentSession.controller.settings.lswc === 0  ? OSApp.Language._( "Never" ) : humaniseDuration( OSApp.currentSession.controller.settings.devt * 1000, OSApp.currentSession.controller.settings.lswc * 1000 ) ) + "</td></tr>" : "" ) +
+					( OSApp.currentSession.controller.settings.lswc === 0  ? OSApp.Language._( "Never" ) : OSApp.Dates.humaniseDuration( OSApp.currentSession.controller.settings.devt * 1000, OSApp.currentSession.controller.settings.lswc * 1000 ) ) + "</td></tr>" : "" ) +
 			"</table>" +
 			"<div class='debugWUHeading'>Weather Service Details</div>" +
 			"<div class='debugWUScrollable'>" +
@@ -2474,7 +2474,7 @@ function debugWU() {
 			( typeof OSApp.currentSession.controller.settings.wtdata.wind !== "undefined" ? "<tr><td>" + OSApp.Language._( "Mean Wind" ) + "</td><td>" + formatSpeed( OSApp.currentSession.controller.settings.wtdata.wind ) + "</td></tr>" : "" );
 	}
 
-	popup += ( typeof OSApp.currentSession.controller.settings.lwc === "number" ? "<tr><td>" + OSApp.Language._( "Last Request" ) + "</td><td>" + dateToString( new Date( OSApp.currentSession.controller.settings.lwc * 1000 ), null, 2 ) + "</td></tr>" : "" );
+	popup += ( typeof OSApp.currentSession.controller.settings.lwc === "number" ? "<tr><td>" + OSApp.Language._( "Last Request" ) + "</td><td>" + OSApp.Dates.dateToString( new Date( OSApp.currentSession.controller.settings.lwc * 1000 ), null, 2 ) + "</td></tr>" : "" );
 	popup += ( typeof OSApp.currentSession.controller.settings.wterr === "number" ? "<tr><td>" + OSApp.Language._( "Last Response" ) + "</td><td>" + getWeatherError( OSApp.currentSession.controller.settings.wterr ) + "</td></tr>" : "" );
 	popup += "</table></div>";
 
@@ -2738,24 +2738,24 @@ function showOptions( expandItem ) {
 					case "wtkey":
 						return true;
 					case "wto":
-						data = escapeJSON( $.extend( {}, unescapeJSON( data ), { key: page.find( "#wtkey" ).val() } ) );
+						data = OSApp.Utils.escapeJSON( $.extend( {}, OSApp.Utils.unescapeJSON( data ), { key: page.find( "#wtkey" ).val() } ) );
 
-						if ( escapeJSON( OSApp.currentSession.controller.settings.wto ) === data ) {
+						if ( OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.wto ) === data ) {
 							return true;
 						}
 						break;
 					case "mqtt":
-						if ( escapeJSON( OSApp.currentSession.controller.settings.mqtt ) === data ) {
+						if ( OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.mqtt ) === data ) {
 							return true;
 						}
 						break;
 					case "email":
-						if ( escapeJSON( OSApp.currentSession.controller.settings.email ) === data ) {
+						if ( OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.email ) === data ) {
 							return true;
 						}
 						break;
 					case "otc":
-						if ( escapeJSON( OSApp.currentSession.controller.settings.otc ) === data ) {
+						if ( OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.otc ) === data ) {
 							return true;
 						}
 						break;
@@ -2774,7 +2774,7 @@ function showOptions( expandItem ) {
 						}
 						return true;
 					case "o31":
-						if ( parseInt( data ) === 3 && !unescapeJSON( $( "#wto" )[ 0 ].value ).baseETo ) {
+						if ( parseInt( data ) === 3 && !OSApp.Utils.unescapeJSON( $( "#wto" )[ 0 ].value ).baseETo ) {
 							OSApp.Errors.showError( OSApp.Language._( "You must specify a baseline ETo adjustment method option to use the ET adjustment method." ) );
 							invalid = true;
 							return false;
@@ -2895,7 +2895,7 @@ function showOptions( expandItem ) {
 		list += "<div class='ui-field-contain datetime-input'><label for='datetime'>" + OSApp.Language._( "Device Time" ) + "</label>" +
 			"<button " + ( OSApp.currentSession.controller.options.ntp ? "disabled " : "" ) + "data-mini='true' id='datetime' " +
 				"value='" + ( OSApp.currentSession.controller.settings.devt + ( new Date( OSApp.currentSession.controller.settings.devt * 1000 ).getTimezoneOffset() * 60 ) ) + "'>" +
-			dateToString( new Date( OSApp.currentSession.controller.settings.devt * 1000 ) ).slice( 0, -3 ) + "</button></div>";
+			OSApp.Dates.dateToString( new Date( OSApp.currentSession.controller.settings.devt * 1000 ) ).slice( 0, -3 ) + "</button></div>";
 	}
 
 	if ( !OSApp.Firmware.isOSPi() && typeof OSApp.currentSession.controller.options.tz !== "undefined" ) {
@@ -2905,7 +2905,7 @@ function showOptions( expandItem ) {
 			"+09:00", "+09:30", "+10:00", "+10:30", "+11:00", "+11:30", "+12:00", "+12:45", "+13:00", "+13:45", "+14:00" ];
 
 		tz = OSApp.currentSession.controller.options.tz - 48;
-		tz = ( ( tz >= 0 ) ? "+" : "-" ) + pad( ( Math.abs( tz ) / 4 >> 0 ) ) + ":" + ( ( Math.abs( tz ) % 4 ) * 15 / 10 >> 0 ) + ( ( Math.abs( tz ) % 4 ) * 15 % 10 );
+		tz = ( ( tz >= 0 ) ? "+" : "-" ) + OSApp.Utils.pad( ( Math.abs( tz ) / 4 >> 0 ) ) + ":" + ( ( Math.abs( tz ) % 4 ) * 15 / 10 >> 0 ) + ( ( Math.abs( tz ) % 4 ) * 15 % 10 );
 		list += "<div class='ui-field-contain'><label for='o1' class='select'>" + OSApp.Language._( "Timezone" ) + "</label>" +
 			"<select " + ( OSApp.Firmware.checkOSVersion( 210 ) && typeof OSApp.currentSession.weather === "object" ? "disabled='disabled' " : "" ) + "data-mini='true' id='o1'>";
 
@@ -3060,7 +3060,7 @@ function showOptions( expandItem ) {
 
 		if ( typeof OSApp.currentSession.controller.settings.wto === "object" ) {
 			list += "<div class='ui-field-contain" + ( getCurrentAdjustmentMethodId() === 0 ? " hidden" : "" ) + "'><label for='wto'>" + OSApp.Language._( "Adjustment Method Options" ) + "</label>" +
-				"<button data-mini='true' id='wto' value='" + escapeJSON( OSApp.currentSession.controller.settings.wto ) + "'>" +
+				"<button data-mini='true' id='wto' value='" + OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.wto ) + "'>" +
 					OSApp.Language._( "Tap to Configure" ) +
 				"</button></div>";
 		}
@@ -3196,7 +3196,7 @@ function showOptions( expandItem ) {
 								"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'>" +
 							"</button>" +
 						"</label>" +
-						"<button data-mini='true' id='otc' value='" + escapeJSON( OSApp.currentSession.controller.settings.otc ) + "'>" +
+						"<button data-mini='true' id='otc' value='" + OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.otc ) + "'>" +
 							OSApp.Language._( "Tap to Configure" ) +
 						"</button>" +
 					"</div>";
@@ -3210,7 +3210,7 @@ function showOptions( expandItem ) {
 								"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'>" +
 							"</button>" +
 						"</label>" +
-						"<button data-mini='true' id='mqtt' value='" + escapeJSON( OSApp.currentSession.controller.settings.mqtt ) + "'>" +
+						"<button data-mini='true' id='mqtt' value='" + OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.mqtt ) + "'>" +
 							OSApp.Language._( "Tap to Configure" ) +
 						"</button>" +
 					"</div>";
@@ -3224,7 +3224,7 @@ function showOptions( expandItem ) {
 								"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'>" +
 							"</button>" +
 						"</label>" +
-						"<button data-mini='true' id='email' value='" + escapeJSON( OSApp.currentSession.controller.settings.email ) + "'>" +
+						"<button data-mini='true' id='email' value='" + OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.email ) + "'>" +
 							OSApp.Language._( "Tap to Configure" ) +
 						"</button>" +
 					"</div>";
@@ -3496,7 +3496,7 @@ function showOptions( expandItem ) {
 
 					// The value will be undefined if running an older HW version without an SD card.
 					if ( wtoButton && wtoButton.val() !== undefined ) {
-						wtoButton.val( escapeJSON( $.extend( {}, unescapeJSON( wtoButton.val() ), { pws: station || "" } ) ) );
+						wtoButton.val( OSApp.Utils.escapeJSON( $.extend( {}, OSApp.Utils.unescapeJSON( wtoButton.val() ), { pws: station || "" } ) ) );
 					}
 
 					loc.val( selected );
@@ -3513,11 +3513,11 @@ function showOptions( expandItem ) {
 
 	page.find( "#wto" ).on( "click", function() {
 		var self = this,
-			options = unescapeJSON( this.value ),
+			options = OSApp.Utils.unescapeJSON( this.value ),
 			retainOptions = { pws: options.pws, key: options.key },
 			method = parseInt( page.find( "#o31" ).val() ),
 			finish = function() {
-				self.value = escapeJSON( $.extend( {}, unescapeJSON( self.value ), retainOptions ) );
+				self.value = OSApp.Utils.escapeJSON( $.extend( {}, OSApp.Utils.unescapeJSON( self.value ), retainOptions ) );
 				header.eq( 2 ).prop( "disabled", false );
 				page.find( ".submit" ).addClass( "hasChanges" );
 			};
@@ -3868,7 +3868,7 @@ function showOptions( expandItem ) {
 
 		$.each( events, function( i, val ) {
 			inputs += "<label for='notif-" + i + "'><input class='needsclick' data-iconpos='right' id='notif-" + i + "' type='checkbox' " +
-				( getBitFromByte( curr, a ) ? "checked='checked'" : "" ) + ">" + val +
+				( OSApp.Utils.getBitFromByte( curr, a ) ? "checked='checked'" : "" ) + ">" + val +
 			"</label>";
 			a++;
 		} );
@@ -3924,7 +3924,7 @@ function showOptions( expandItem ) {
 				pass: "",
 				pubt: "opensprinkler",
 				subt: ""
-			}, unescapeJSON( curr ) );
+			}, OSApp.Utils.unescapeJSON( curr ) );
 
 		$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
 
@@ -4020,10 +4020,10 @@ function showOptions( expandItem ) {
 			};
 
 			popup.popup( "close" );
-			if ( curr === escapeJSON( options ) ) {
+			if ( curr === OSApp.Utils.escapeJSON( options ) ) {
 				return;
 			} else {
-				button.value = escapeJSON( options );
+				button.value = OSApp.Utils.escapeJSON( options );
 				header.eq( 2 ).prop( "disabled", false );
 				page.find( ".submit" ).addClass( "hasChanges" );
 			}
@@ -4043,7 +4043,7 @@ function showOptions( expandItem ) {
 				user: "",
 				pass: "",
 				recipient: ""
-			}, unescapeJSON( curr ) );
+			}, OSApp.Utils.unescapeJSON( curr ) );
 
 		$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
 
@@ -4117,10 +4117,10 @@ function showOptions( expandItem ) {
 			};
 
 			popup.popup( "close" );
-			if ( curr === escapeJSON( options ) ) {
+			if ( curr === OSApp.Utils.escapeJSON( options ) ) {
 				return;
 			} else {
-				button.value = escapeJSON( options );
+				button.value = OSApp.Utils.escapeJSON( options );
 				header.eq( 2 ).prop( "disabled", false );
 				page.find( ".submit" ).addClass( "hasChanges" );
 			}
@@ -4138,7 +4138,7 @@ function showOptions( expandItem ) {
 				token: "",
 				server: "ws.cloud.openthings.io",
 				port: 80
-			}, unescapeJSON( curr ) );
+			}, OSApp.Utils.unescapeJSON( curr ) );
 
 		$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
 
@@ -4200,10 +4200,10 @@ function showOptions( expandItem ) {
 			};
 
 			popup.popup( "close" );
-			if ( curr === escapeJSON( options ) ) {
+			if ( curr === OSApp.Utils.escapeJSON( options ) ) {
 				return;
 			} else {
-				button.value = escapeJSON( options );
+				button.value = OSApp.Utils.escapeJSON( options );
 				header.eq( 2 ).prop( "disabled", false );
 				page.find( ".submit" ).addClass( "hasChanges" );
 			}
@@ -4226,7 +4226,7 @@ function showOptions( expandItem ) {
 
 		// Show date time input popup
 		showDateTimeInput( input.val(), function( data ) {
-			input.text( dateToString( data ).slice( 0, -3 ) ).val( Math.round( data.getTime() / 1000 ) );
+			input.text( OSApp.Dates.dateToString( data ).slice( 0, -3 ) ).val( Math.round( data.getTime() / 1000 ) );
 		} );
 		return false;
 	} );
@@ -4382,7 +4382,7 @@ var showHome = ( function() {
 
 			cards += "<div class='ui-body ui-body-a center'>";
 
-			cards += "<img src='" + ( hasImage ? "data:image/jpeg;base64," + sites[ currentSite ].images[ sid ] : getAppURLPath() + "img/placeholder.png" ) + "' />";
+			cards += "<img src='" + ( hasImage ? "data:image/jpeg;base64," + sites[ currentSite ].images[ sid ] : OSApp.UIDom.getAppURLPath() + "img/placeholder.png" ) + "' />";
 
 			cards += "<p class='station-name center inline-icon' id='station_" + sid + "'>" + station + "</p>";
 
@@ -4416,7 +4416,7 @@ var showHome = ( function() {
 
 					// Generate status line for station
 					cards += "<p class='rem center'>" + ( isRunning ? OSApp.Language._( "Running" ) + " " + pname : OSApp.Language._( "Scheduled" ) + " " +
-						( OSApp.Stations.getStartTime( sid ) ? OSApp.Language._( "for" ) + " " + dateToString( new Date( OSApp.Stations.getStartTime( sid ) * 1000 ) ) : pname ) );
+						( OSApp.Stations.getStartTime( sid ) ? OSApp.Language._( "for" ) + " " + OSApp.Dates.dateToString( new Date( OSApp.Stations.getStartTime( sid ) * 1000 ) ) : pname ) );
 
 					if ( rem > 0 ) {
 
@@ -4570,15 +4570,15 @@ var showHome = ( function() {
 							ip = select.find( "#remote-address" ).val().split( "." );
 							port = parseInt( select.find( "#remote-port" ).val() ) || 80;
 							for ( var i = 0; i < 4; i++ ) {
-								hex += pad( parseInt( ip[ i ] ).toString( 16 ) );
+								hex += OSApp.Utils.pad( parseInt( ip[ i ] ).toString( 16 ) );
 							}
-							hex += ( port < 256 ? "00" : "" ) + pad( port.toString( 16 ) );
-							hex += pad( station.toString( 16 ) );
+							hex += ( port < 256 ? "00" : "" ) + OSApp.Utils.pad( port.toString( 16 ) );
+							hex += OSApp.Utils.pad( station.toString( 16 ) );
 						} else {
 							otc = select.find( "#remote-otc" ).val();
 							hex += otc;
 							hex += ",";
-							hex += pad( station.toString( 16 ) );
+							hex += OSApp.Utils.pad( station.toString( 16 ) );
 						}
 
 						if ( checkPassed !== true ) {
@@ -4643,7 +4643,7 @@ var showHome = ( function() {
 
 						button.data( "specialData", hex );
 					} else if ( hs === 3 ) {
-						var sd = pad( select.find( "#gpio-pin" ).val() || "05" );
+						var sd = OSApp.Utils.pad( select.find( "#gpio-pin" ).val() || "05" );
 						sd += select.find( "#active-state" ).val() || "1";
 						button.data( "specialData", sd );
 					} else if ( hs === 4 || hs === 5 ) {
@@ -5024,7 +5024,7 @@ var showHome = ( function() {
 			OSApp.uiState.timers.clock = {
 				val: OSApp.currentSession.controller.settings.devt,
 				update: function() {
-					page.find( "#clock-s" ).text( dateToString( new Date( this.val * 1000 ), null, 1 ) );
+					page.find( "#clock-s" ).text( OSApp.Dates.dateToString( new Date( this.val * 1000 ), null, 1 ) );
 				}
 			};
 		},
@@ -5216,7 +5216,7 @@ var showHome = ( function() {
 					addCard( sid );
 					cardHolder.append( cards );
 				} else {
-					card.find( ".ui-body > img" ).attr( "src", ( hasImage ? "data:image/jpeg;base64," + sites[ currentSite ].images[ sid ] : getAppURLPath() + "img/placeholder.png" ) );
+					card.find( ".ui-body > img" ).attr( "src", ( hasImage ? "data:image/jpeg;base64," + sites[ currentSite ].images[ sid ] : OSApp.UIDom.getAppURLPath() + "img/placeholder.png" ) );
 
 					if ( OSApp.Stations.isDisabled( sid ) ) {
 						if ( !page.hasClass( "show-hidden" ) ) {
@@ -5251,7 +5251,7 @@ var showHome = ( function() {
 
 					if ( !OSApp.Stations.isMaster( sid ) && ( isScheduled || isRunning ) ) {
 						line = ( isRunning ? OSApp.Language._( "Running" ) + " " + pname : OSApp.Language._( "Scheduled" ) + " " +
-							( OSApp.Stations.getStartTime( sid ) ? OSApp.Language._( "for" ) + " " + dateToString( new Date( OSApp.Stations.getStartTime( sid ) * 1000 ) ) : pname ) );
+							( OSApp.Stations.getStartTime( sid ) ? OSApp.Language._( "for" ) + " " + OSApp.Dates.dateToString( new Date( OSApp.Stations.getStartTime( sid ) * 1000 ) ) : pname ) );
 						if ( rem > 0 ) {
 
 							// Show the remaining time if it's greater than 0
@@ -5829,7 +5829,7 @@ function checkStatus() {
 	// Handle rain delay enabled
 	if ( OSApp.currentSession.controller.settings.rd ) {
 		changeStatus( 0, "red", "<p class='running-text center pointer'>" +
-			OSApp.Language._( "Rain delay until" ) + " " + dateToString( new Date( OSApp.currentSession.controller.settings.rdst * 1000 ) ) + "</p>",
+			OSApp.Language._( "Rain delay until" ) + " " + OSApp.Dates.dateToString( new Date( OSApp.currentSession.controller.settings.rdst * 1000 ) ) + "</p>",
 			function() {
 				areYouSure( OSApp.Language._( "Do you want to turn off rain delay?" ), "", function() {
 					showLoading( "#footer-running" );
@@ -5880,7 +5880,7 @@ function checkStatus() {
 
 		changeStatus( 0, "transparent", "<p class='running-text smaller center pointer'>" + pname + " " + OSApp.Language._( "last ran station" ) + " " +
 			OSApp.currentSession.controller.stations.snames[ OSApp.currentSession.controller.settings.lrun[ 0 ] ] + " " + OSApp.Language._( "for" ) + " " + ( lrdur / 60 >> 0 ) + "m " + ( lrdur % 60 ) + "s " +
-			OSApp.Language._( "on" ) + " " + dateToString( new Date( ( OSApp.currentSession.controller.settings.lrun[ 3 ] - lrdur ) * 1000 ) ) + "</p>", goHome );
+			OSApp.Language._( "on" ) + " " + OSApp.Dates.dateToString( new Date( ( OSApp.currentSession.controller.settings.lrun[ 3 ] - lrdur ) * 1000 ) ) + "</p>", goHome );
 		return;
 	}
 
@@ -7108,8 +7108,8 @@ var getPreview = ( function() {
 	changeday = function( dir ) {
 		day.setDate( day.getDate() + dir );
 
-		var m = pad( day.getMonth() + 1 ),
-			d = pad( day.getDate() ),
+		var m = OSApp.Utils.pad( day.getMonth() + 1 ),
+			d = OSApp.Utils.pad( day.getDate() ),
 			y = day.getFullYear();
 
 		date = [ y, m, d ];
@@ -7127,7 +7127,7 @@ var getPreview = ( function() {
 			return;
 		}
 
-		previewData.sort( sortByStation );
+		previewData.sort( OSApp.Utils.sortByStation );
 
 		var shortnames = [],
 			max = new Date( date[ 0 ], date[ 1 ] - 1, date[ 2 ], 24 );
@@ -7201,7 +7201,7 @@ var getPreview = ( function() {
 		} );
 
 		page.find( ".timeline-groups-axis" ).children().first().html( "<div class='timeline-axis-text center dayofweek' data-shortname='" +
-			getDayName( day, "short" ) + "'>" + getDayName( day ) + "</div>" );
+			OSApp.Dates.getDayName( day, "short" ) + "'>" + OSApp.Dates.getDayName( day ) + "</div>" );
 
 		if ( OSApp.currentDevice.isAndroid ) {
 			navi.find( ".ui-icon-plus" ).off( "click" ).on( "click", function() {
@@ -7430,7 +7430,7 @@ var getLogs = ( function() {
 			} );
 
 			if ( type === "timeline" ) {
-				sortedData.sort( sortByStation );
+				sortedData.sort( OSApp.Utils.sortByStation );
 			}
 
 			return [ sortedData, stats ];
@@ -7496,7 +7496,7 @@ var getLogs = ( function() {
 
 			updateView();
 
-			exportObj( ".export_logs", data );
+			OSApp.Utils.exportObj( ".export_logs", data );
 
 			$.mobile.loading( "hide" );
 		},
@@ -7597,7 +7597,7 @@ var getLogs = ( function() {
 
 			// Return HH:MM:SS formatting for dt datetime object.
 			var formatTime = function( dt, g ) {
-				return g === "station" ? dateToString( dt, false ) : pad( dt.getHours() ) + ":" + pad( dt.getMinutes() ) + ":" + pad( dt.getSeconds() );
+				return g === "station" ? OSApp.Dates.dateToString( dt, false ) : OSApp.Utils.pad( dt.getHours() ) + ":" + OSApp.Utils.pad( dt.getMinutes() ) + ":" + OSApp.Utils.pad( dt.getSeconds() );
 			};
 
 			for ( group in sortedData ) {
@@ -7611,7 +7611,7 @@ var getLogs = ( function() {
 								group + "'>" + OSApp.Language._( "delete" ) + "</a>" : "" ) +
 							"<div class='ui-btn-up-c ui-btn-corner-all custom-count-pos'>" +
 								ct + " " + ( ( ct === 1 ) ? OSApp.Language._( "run" ) : OSApp.Language._( "runs" ) ) +
-							"</div>" + ( grouping === "station" ? stations[ group ] : dateToString(
+							"</div>" + ( grouping === "station" ? stations[ group ] : OSApp.Dates.dateToString(
 								new Date( group * 1000 * 60 * 60 * 24 )
 							).slice( 0, -9 ) ) +
 						"</h2>";
@@ -7664,7 +7664,7 @@ var getLogs = ( function() {
 					}
 				} );
 
-				date = dateToString( new Date( day * 1000 * 60 * 60 * 24 ) ).slice( 0, -9 );
+				date = OSApp.Dates.dateToString( new Date( day * 1000 * 60 * 60 * 24 ) ).slice( 0, -9 );
 
 				areYouSure( OSApp.Language._( "Are you sure you want to " ) + OSApp.Language._( "delete" ) + " " + date + "?", "", function() {
 					$.mobile.loading( "show" );
@@ -7739,7 +7739,7 @@ var getLogs = ( function() {
 				OSApp.Errors.showError( OSApp.Language._( "The requested time span exceeds the maximum of 1 year and has been adjusted" ), 3500 );
 				var nDate = dates().start;
 				nDate.setFullYear( nDate.getFullYear() + 1 );
-				$( "#log_end" ).val( nDate.getFullYear() + "-" + pad( nDate.getMonth() + 1 ) + "-" + pad( nDate.getDate() ) );
+				$( "#log_end" ).val( nDate.getFullYear() + "-" + OSApp.Utils.pad( nDate.getMonth() + 1 ) + "-" + OSApp.Utils.pad( nDate.getDate() ) );
 				delay = 500;
 			}
 
@@ -8223,7 +8223,7 @@ function readStartTime( time ) {
 	if ( ( time >> 13 ) & 1 ) {
 		type = OSApp.Language._( "Sunset" );
 	} else if ( !( time >> 14 ) & 1 ) {
-		return minutesToTime( time );
+		return OSApp.Dates.minutesToTIme( time );
 	}
 
 	if ( ( time >> 12 ) & 1 ) {
@@ -8371,10 +8371,10 @@ function makeProgram183( n, isCopy ) {
 	list += "<div class='ui-grid-a'>";
 	list += "<div class='ui-block-a'><label class='center' for='start-" + id + "'>" + OSApp.Language._( "Start Time" ) + "</label>" +
 		"<button class='timefield pad_buttons' data-mini='true' id='start-" + id + "' value='" + program.start + "'>" +
-		minutesToTime( program.start ) + "</button></div>";
+		OSApp.Dates.minutesToTIme( program.start ) + "</button></div>";
 	list += "<div class='ui-block-b'><label class='center' for='end-" + id + "'>" + OSApp.Language._( "End Time" ) + "</label>" +
 		"<button class='timefield pad_buttons' data-mini='true' id='end-" + id + "' value='" + program.end + "'>" +
-		minutesToTime( program.end ) + "</button></div>";
+		OSApp.Dates.minutesToTIme( program.end ) + "</button></div>";
 	list += "</div>";
 
 	list += "<div class='ui-grid-a'>";
@@ -8440,7 +8440,7 @@ function makeProgram183( n, isCopy ) {
 			title: name,
 			callback: function( result ) {
 				time.val( result );
-				time.text( minutesToTime( result ) );
+				time.text( OSApp.Dates.minutesToTIme( result ) );
 			}
 		} );
 	} );
@@ -9092,7 +9092,7 @@ function getExportMethod() {
 			"</div>" +
 		"</div>" ),
 		obj = encodeURIComponent( JSON.stringify( OSApp.currentSession.controller ) ),
-		subject = "OpenSprinkler Data Export on " + dateToString( new Date() );
+		subject = "OpenSprinkler Data Export on " + OSApp.Dates.dateToString( new Date() );
 
 	if ( OSApp.currentDevice.isFileCapable ) {
 		popup.find( ".fileMethod" ).removeClass( "hidden" ).attr( {
@@ -9280,7 +9280,7 @@ function importConfig( data ) {
 
 		// Import Weather Adjustment Options, if available
 		if ( typeof data.settings.wto === "object" && OSApp.Firmware.checkOSVersion( 215 ) ) {
-			co += "&wto=" + escapeJSON( data.settings.wto );
+			co += "&wto=" + OSApp.Utils.escapeJSON( data.settings.wto );
 		}
 
 		// Import IFTTT Key, if available
@@ -9295,16 +9295,16 @@ function importConfig( data ) {
 
 		// Import mqtt options, if available
 		if ( typeof data.settings.mqtt === "object" && OSApp.Firmware.checkOSVersion( 2191 ) ) {
-			co += "&mqtt=" + escapeJSON( data.settings.mqtt );
+			co += "&mqtt=" + OSApp.Utils.escapeJSON( data.settings.mqtt );
 			}
 
 		//Import email options, if available
 		if ( typeof data.settings.email === "object" && OSApp.Firmware.checkOSVersion( 2191 ) ) {
-			co += "&email=" + escapeJSON( data.settings.email );
+			co += "&email=" + OSApp.Utils.escapeJSON( data.settings.email );
 			}
 
 		if ( typeof data.settings.otc === "object" && OSApp.Firmware.checkOSVersion( 2191 ) ) {
-			co += "&otc=" + escapeJSON( data.settings.otc );
+			co += "&otc=" + OSApp.Utils.escapeJSON( data.settings.otc );
 		}
 
 		co += "&" + ( isPi ? "o" : "" ) + "loc=" + data.settings.loc;
@@ -10337,11 +10337,11 @@ function showTimeInput( opt ) {
 					"<div class='ui-grid-" + ( OSApp.currentDevice.isMetric ? "a" : "b" ) + " inputs'>" +
 						"<div class='ui-block-a'>" +
 							"<input data-wrapper-class='pad_buttons' class='hour dontPad' type='number' pattern='[0-9]*' value='" +
-								( OSApp.currentDevice.isMetric ? pad( ( opt.minutes / 60 >> 0 ) % 24 ) + "'>" : ( parseInt( opt.minutes / 60 ) % 12 === 0 ? 12 : parseInt( opt.minutes / 60 ) % 12 ) + "'>" ) +
+								( OSApp.currentDevice.isMetric ? OSApp.Utils.pad( ( opt.minutes / 60 >> 0 ) % 24 ) + "'>" : ( parseInt( opt.minutes / 60 ) % 12 === 0 ? 12 : parseInt( opt.minutes / 60 ) % 12 ) + "'>" ) +
 						"</div>" +
 						"<div class='ui-block-b'>" +
 							"<input data-wrapper-class='pad_buttons' class='minute' type='number' pattern='[0-9]*' value='" +
-								pad( opt.minutes % 60 ) + "'>" +
+								OSApp.Utils.pad( opt.minutes % 60 ) + "'>" +
 						"</div>" +
 						( OSApp.currentDevice.isMetric ? "" : "<div class='ui-block-c'>" +
 							"<p class='center period'>" + getPeriod() + "</p>" +
@@ -10414,7 +10414,7 @@ function showTimeInput( opt ) {
 					popup.find( ".period" ).text( getPeriod() );
 				}
 
-				val = isHour ? val + dir : pad( val + dir );
+				val = isHour ? val + dir : OSApp.Utils.pad( val + dir );
 				input.val( val );
 			} else if ( pos === 2 ) {
 				isPM = !isPM;
@@ -10482,7 +10482,7 @@ function showTimeInput( opt ) {
 		e.target.value = "";
 	} ).on( "blur", "input[type='number']", function( e ) {
 		var val = parseInt( e.target.value ) || 0;
-		e.target.value = $( e.target ).hasClass( "dontPad" ) ? val : pad( val );
+		e.target.value = $( e.target ).hasClass( "dontPad" ) ? val : OSApp.Utils.pad( val );
 	} );
 
 	holdButton( popup.find( ".incr" ).children(), function( e ) {
@@ -10901,9 +10901,9 @@ function sec2hms( diff ) {
 	var minutes = Math.max( 0, parseInt( diff / 60 ) % 60 );
 	var seconds = diff % 60;
 	if ( hours ) {
-		str += pad( hours ) + ":";
+		str += OSApp.Utils.pad( hours ) + ":";
 	}
-	return str + pad( minutes ) + ":" + pad( seconds );
+	return str + OSApp.Utils.pad( minutes ) + ":" + OSApp.Utils.pad( seconds );
 }
 
 // Convert seconds into array of days, hours, minutes and seconds.
@@ -10941,215 +10941,4 @@ function dhms2str( arr ) {
 // Convert days, hours, minutes and seconds array into seconds (int).
 function dhms2sec( arr ) {
 	return parseInt( ( arr.days * 86400 ) + ( arr.hours * 3600 ) + ( arr.minutes * 60 ) + arr.seconds );
-}
-
-// Generate export link for JSON data
-function exportObj( ele, obj, subject ) {
-	obj = encodeURIComponent( JSON.stringify( obj ) );
-
-	if ( OSApp.currentDevice.isFileCapable ) {
-		$( ele ).attr( {
-			href: "data:text/json;charset=utf-8," + obj,
-			download: "backup-" + new Date().toLocaleDateString().replace( /\//g, "-" ) + ".json"
-		} );
-	} else {
-		subject = subject || "OpenSprinkler Data Export on " + dateToString( new Date() );
-		var href = "mailto:?subject=" + encodeURIComponent( subject ) + "&body=" + obj;
-		$( ele ).attr( "href", href ).on( "click", function() {
-			window.open( href );
-		} );
-	}
-}
-
-function sortObj( obj, type ) {
-	var tempArray = [];
-
-	for ( var key in obj ) {
-		if ( obj.hasOwnProperty( key ) ) {
-			tempArray.push( key );
-		}
-	}
-
-	if ( typeof type === "function" ) {
-		tempArray.sort( type );
-	} else if ( type === "value" ) {
-		tempArray.sort( function( a, b ) {
-			var x = obj[ a ];
-			var y = obj[ b ];
-			return ( ( x < y ) ? -1 : ( ( x > y ) ? 1 : 0 ) );
-		} );
-	} else {
-		tempArray.sort();
-	}
-
-	var tempObj = {};
-
-	for ( var i = 0; i < tempArray.length; i++ ) {
-		tempObj[ tempArray[ i ] ] = obj[ tempArray[ i ] ];
-	}
-
-	return tempObj;
-}
-
-// Return day of the week
-function getDayName( day, type ) {
-	var ldays = [ OSApp.Language._( "Sunday" ), OSApp.Language._( "Monday" ), OSApp.Language._( "Tuesday" ), OSApp.Language._( "Wednesday" ), OSApp.Language._( "Thursday" ), OSApp.Language._( "Friday" ), OSApp.Language._( "Saturday" ) ],
-		sdays = [ OSApp.Language._( "Sun" ), OSApp.Language._( "Mon" ), OSApp.Language._( "Tue" ), OSApp.Language._( "Wed" ), OSApp.Language._( "Thu" ), OSApp.Language._( "Fri" ), OSApp.Language._( "Sat" ) ];
-
-	if ( type === "short" ) {
-		return sdays[ day.getDay() ];
-	} else {
-		return ldays[ day.getDay() ];
-	}
-}
-
-// Pad a single digit with a leading zero
-function pad( number ) {
-	var r = String( number );
-	if ( r.length === 1 ) {
-		r = "0" + r;
-	}
-	return r;
-}
-
-// Escape characters for HTML support
-function htmlEscape( str ) {
-	return String( str )
-		.replace( /&/g, "&amp;" )
-		.replace( /"/g, "&quot;" )
-		.replace( /'/g, "&#39;" )
-		.replace( /</g, "&lt;" )
-		.replace( />/g, "&gt;" );
-}
-
-function getAppURLPath() {
-	return OSApp.currentSession.local ? $.mobile.path.parseUrl( $( "head" ).find( "script[src$='main.js']" ).attr( "src" ) ).hrefNoHash.slice( 0, -10 ) : "";
-}
-
-function escapeJSON( json ) {
-	return JSON.stringify( json ).replace( /\{|\}/g, "" );
-}
-
-function unescapeJSON( string ) {
-	return JSON.parse( "{" + string + "}" );
-}
-
-function isMD5( pass ) {
-	return /^[a-f0-9]{32}$/i.test( pass );
-}
-
-function sortByStation( a, b ) {
-	if ( a.station < b.station ) {
-		return -1;
-	} else if ( a.station > b.station ) {
-		return 1;
-	} else {
-		return 0;
-	}
-}
-
-function minutesToTime( minutes ) {
-	var period = minutes > 719 ? "PM" : "AM",
-		hour = parseInt( minutes / 60 ) % 12;
-
-	if ( hour === 0 ) {
-		hour = 12;
-	}
-
-	return OSApp.currentDevice.isMetric ? ( pad( ( minutes / 60 >> 0 ) % 24 ) + ":" + pad( minutes % 60 ) ) : ( hour + ":" + pad( minutes % 60 ) + " " + period );
-}
-
-function getBitFromByte( byte, bit ) {
-	return ( byte & ( 1 << bit ) ) !== 0;
-}
-
-function getTimezoneOffset() {
-	var tz = OSApp.currentSession.controller.options.tz - 48,
-		sign = tz >= 0 ? 1 : -1;
-
-	tz = ( ( Math.abs( tz ) / 4 >> 0 ) * 60 ) + ( ( Math.abs( tz ) % 4 ) * 15 / 10 >> 0 ) + ( ( Math.abs( tz ) % 4 ) * 15 % 10 );
-	return tz * sign;
-}
-
-// Credit Stacktrace
-// https://stackoverflow.com/questions/3177836/how-to-format-time-since-xxx-e-g-4-minutes-ago-similar-to-stack-exchange-site/23259289#23259289
-function humaniseDuration( base, relative ) {
-	var seconds = Math.floor( ( relative - base ) / 1000 ),
-		isFuture = ( seconds > 0 ) ? true : false,
-		intervalType;
-
-	seconds = Math.abs( seconds );
-	if ( seconds < 10 ) {
-		return OSApp.Language._( "Just Now" );
-	}
-
-	var interval = Math.floor( seconds / 31536000 );
-	if ( interval >= 1 ) {
-		intervalType = ( interval > 1 ) ? OSApp.Language._( "years" ) : OSApp.Language._( "year" );
-	} else {
-		interval = Math.floor( seconds / 2592000 );
-		if ( interval >= 1 ) {
-			intervalType = ( interval > 1 ) ? OSApp.Language._( "months" ) : OSApp.Language._( "month" );
-		} else {
-			interval = Math.floor( seconds / 86400 );
-			if ( interval >= 1 ) {
-				intervalType = ( interval > 1 ) ? OSApp.Language._( "days" ) : OSApp.Language._( "day" );
-			} else {
-				interval = Math.floor( seconds / 3600 );
-				if ( interval >= 1 ) {
-					intervalType = ( interval > 1 ) ? OSApp.Language._( "hours" ) : OSApp.Language._( "hour" );
-				} else {
-					interval = Math.floor( seconds / 60 );
-					if ( interval >= 1 ) {
-						intervalType = ( interval > 1 ) ? OSApp.Language._( "minutes" ) : OSApp.Language._( "minute" );
-					} else {
-						interval = seconds;
-						intervalType = ( interval > 1 ) ? OSApp.Language._( "seconds" ) : OSApp.Language._( "second" );
-					}
-				}
-			}
-		}
-	}
-
-	if ( isFuture ) {
-		return OSApp.Language._( "In" ) + " " + interval + " " + intervalType;
-	} else {
-		return interval + " " + intervalType + " " + OSApp.Language._( "ago" );
-	}
-}
-
-function dateToString( date, toUTC, shorten ) {
-	var dayNames = [ OSApp.Language._( "Sun" ), OSApp.Language._( "Mon" ), OSApp.Language._( "Tue" ),
-					OSApp.Language._( "Wed" ), OSApp.Language._( "Thu" ), OSApp.Language._( "Fri" ), OSApp.Language._( "Sat" ) ],
-		monthNames = [ OSApp.Language._( "Jan" ), OSApp.Language._( "Feb" ), OSApp.Language._( "Mar" ), OSApp.Language._( "Apr" ), OSApp.Language._( "May" ), OSApp.Language._( "Jun" ),
-					OSApp.Language._( "Jul" ), OSApp.Language._( "Aug" ), OSApp.Language._( "Sep" ), OSApp.Language._( "Oct" ), OSApp.Language._( "Nov" ), OSApp.Language._( "Dec" ) ];
-
-	if ( date.getTime() === 0 ) {
-		return "--";
-	}
-
-	if ( toUTC !== false ) {
-		date.setMinutes( date.getMinutes() + date.getTimezoneOffset() );
-	}
-
-	if ( OSApp.currentSession.lang === "de" ) {
-		return pad( date.getDate() ) + "." + pad( date.getMonth() + 1 ) + "." +
-				date.getFullYear() + " " + pad( date.getHours() ) + ":" +
-				pad( date.getMinutes() ) + ":" + pad( date.getSeconds() );
-	} else {
-		if ( shorten === 1 ) {
-			return monthNames[ date.getMonth() ] + " " + pad( date.getDate() ) + ", " +
-					date.getFullYear() + " " + pad( date.getHours() ) + ":" +
-					pad( date.getMinutes() ) + ":" + pad( date.getSeconds() );
-		} else if ( shorten === 2 ) {
-			return monthNames[ date.getMonth() ] + " " + pad( date.getDate() ) + ", " +
-					pad( date.getHours() ) + ":" + pad( date.getMinutes() ) + ":" +
-					pad( date.getSeconds() );
-		} else {
-			return dayNames[ date.getDay() ] + ", " + pad( date.getDate() ) + " " +
-					monthNames[ date.getMonth() ] + " " + date.getFullYear() + " " +
-					pad( date.getHours() ) + ":" + pad( date.getMinutes() ) + ":" +
-					pad( date.getSeconds() );
-		}
-	}
 }

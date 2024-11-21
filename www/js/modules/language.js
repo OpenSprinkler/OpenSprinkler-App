@@ -76,7 +76,7 @@ OSApp.Language.updateLang = ( lang ) => {
 		return;
 	}
 
-	$.getJSON( getAppURLPath() + "locale/" + lang + ".js", function( store ) {
+	$.getJSON( OSApp.UIDom.getAppURLPath() + "locale/" + lang + ".js", function( store ) {
 		OSApp.uiState.language = store.messages;
 		OSApp.Language.setLang();
 	} ).fail( OSApp.Language.setLang );
