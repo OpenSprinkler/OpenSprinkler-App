@@ -36,6 +36,7 @@ var OSApp = OSApp || {};
 // TODO: refactor ui state elsewhere!
 // TODO: refactor current session settings elsewhere!
 // TODO: refactor Misc settings elsewhere!
+// TODO: refactor OSApp.weather to elsewhere (OSApp.Current.weather?)
 
 // App globals
 OSApp.isAndroid = /Android|\bSilk\b/.test( navigator.userAgent );
@@ -119,8 +120,7 @@ OSApp.currLang = undefined;
 OSApp.language = undefined;
 OSApp.deviceip = undefined;
 OSApp.errorTimeout = undefined;
-
-var openPanel;
+OSApp.openPanel = undefined;
 
 if ( "serviceWorker" in navigator ) {
 	window.addEventListener( "load", function() {
@@ -460,7 +460,7 @@ function initApp() {
 
 		if ( e.target.tagName !== "INPUT" && e.target.tagName !== "TEXTAREA" && page.jqmData( "panel" ) !== "open" && !page.find( ".ui-popup-active" ).length ) {
 			if ( e.type === "swiperight" ) {
-				openPanel();
+				 OSApp.openPanel();
 			} else {
 				showNotifications();
 			}
@@ -3651,7 +3651,7 @@ function bindPanel() {
 		return false;
 	} );
 
-	openPanel = ( function() {
+	 OSApp.openPanel = ( function() {
 		var panel = $( "#sprinklers-settings" ),
 			updateButtons = function() {
 				var operation = ( OSApp.controller && OSApp.controller.settings && OSApp.controller.settings.en && OSApp.controller.settings.en === 1 ) ? _( "Disable" ) : _( "Enable" );
@@ -6512,7 +6512,7 @@ var showHome = ( function() {
 					leftBtn: {
 						icon: "bullets",
 						on: function() {
-							openPanel();
+							 OSApp.openPanel();
 							return false;
 						}
 					},
