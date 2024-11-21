@@ -538,7 +538,7 @@ OSApp.Network.cloudSyncStart = () => {
 
 						// Logout if the current site isn't matched in the cloud sites
 						if ( result === false ) {
-							areYouSure( // TODO: mellodev refactor
+							OSApp.UIDom.areYouSure(
 								OSApp.Language._( "Do you wish to add this location to your cloud synced site list?" ),
 								OSApp.Language._( "This site is not found in the currently synced site list but may be added now." ),
 								function() {

@@ -397,7 +397,7 @@ OSApp.Analog.showSensorEditor = ( sensor, callback ) => {
 			var nr = parseInt( popup.find( ".nr" ).val() ),
 				newid = parseInt( popup.find( ".id" ).val() );
 			popup.popup( "close" );
-			areYouSure( OSApp.Language._( "This function sets the Modbus ID for one SMT100 sensor. Disconnect all other sensors on this Modbus port. Please confirm." ),
+			OSApp.UIDom.areYouSure( OSApp.Language._( "This function sets the Modbus ID for one SMT100 sensor. Disconnect all other sensors on this Modbus port. Please confirm." ),
 				"new id=" + newid, function() {
 					OSApp.Firmware.sendToOS( "/sa?pw=&nr=" + nr + "&id=" + newid ).done( function() {
 						window.alert( OSApp.Language._( "SMT100 id assigned!" ) );
@@ -500,7 +500,7 @@ OSApp.Analog.showAnalogSensorConfig = ( function() {
 				value = dur.attr( "value" ),
 				row = dur.attr( "row" );
 
-			areYouSure( OSApp.Language._( "Are you sure you want to delete the sensor?" ), value, function() {
+			OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to delete the sensor?" ), value, function() {
 				OSApp.Firmware.sendToOS( "/sc?pw=&nr=" + value + "&type=0" ).done( function() {
 					OSApp.Analog.analogSensors.splice( row, 1 );
 					updateSensorContent();
@@ -591,7 +591,7 @@ OSApp.Analog.showAnalogSensorConfig = ( function() {
 				value = dur.attr( "value" ),
 				row = dur.attr( "row" );
 
-			areYouSure( OSApp.Language._( "Are you sure you want to delete this program adjustment?" ), value, function() {
+			OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to delete this program adjustment?" ), value, function() {
 				OSApp.Firmware.sendToOS( "/sb?pw=&nr=" + value + "&type=0" ).done( function() {
 					OSApp.Analog.progAdjusts.splice( row, 1 );
 					updateSensorContent();
@@ -647,7 +647,7 @@ OSApp.Analog.showAnalogSensorConfig = ( function() {
 
 		// Clear sensor log
 		list.find( "#clear-log" ).on( "click", function() {
-			areYouSure( OSApp.Language._( "Are you sure you want to clear the sensor log?" ), "", function() {
+			OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to clear the sensor log?" ), "", function() {
 				OSApp.Firmware.sendToOS( "/sn?pw=&" ).done( function( result ) {
 					window.alert( OSApp.Language._( "Log cleared:" ) + " " + result.deleted + " " + OSApp.Language._( "records" ) );
 					updateSensorContent();

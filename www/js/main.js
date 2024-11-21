@@ -1247,7 +1247,7 @@ var showSites = ( function() {
 
 				list.find( ".deletesite" ).on( "click", function() {
 					var site = siteNames[ $( this ).data( "site" ) ];
-					areYouSure( OSApp.Language._( "Are you sure you want to delete " ) + site + "?", "", function() {
+					OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to delete " ) + site + "?", "", function() {
 						if ( $( "#site-selector" ).val() === site ) {
 							makeStart();
 						}
@@ -1986,7 +1986,7 @@ function updateWeatherBox() {
 		.off( "click" ).on( "click", function( event ) {
 			var target = $( event.target );
 			if ( target.hasClass( "rain-delay" ) || target.parents( ".rain-delay" ).length ) {
-				areYouSure( OSApp.Language._( "Do you want to turn off rain delay?" ), "", function() {
+				OSApp.UIDom.areYouSure( OSApp.Language._( "Do you want to turn off rain delay?" ), "", function() {
 					OSApp.UIDom.showLoading( "#weather" );
 					OSApp.Firmware.sendToOS( "/cv?pw=&rd=0" ).done( function() {
 						updateController( updateWeather );
@@ -2528,7 +2528,7 @@ function showRainDelay() {
 
 function showPause() {
 	if ( OSApp.StationQueue.isPaused() ) {
-		areYouSure( OSApp.Language._( "Do you want to resume program operation?" ), "", function() {
+		OSApp.UIDom.areYouSure( OSApp.Language._( "Do you want to resume program operation?" ), "", function() {
 			OSApp.Firmware.sendToOS( "/pq?pw=" );
 		} );
 	} else {
@@ -3448,7 +3448,7 @@ function showOptions( expandItem ) {
 	page.find( ".clear-loc" ).on( "click", function( e ) {
 		e.stopImmediatePropagation();
 
-		areYouSure( OSApp.Language._( "Are you sure you want to clear the current location?" ), "", function() {
+		OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to clear the current location?" ), "", function() {
 			page.find( "#loc" ).val( "''" ).removeClass( "green" ).find( "span" ).text( OSApp.Language._( "Not specified" ) );
 			page.find( "#o1" ).selectmenu( "enable" );
 			header.eq( 2 ).prop( "disabled", false );
@@ -3609,7 +3609,7 @@ function showOptions( expandItem ) {
 			}
 		}
 
-		areYouSure( OSApp.Language._( "Are you sure you want to reset station attributes?" ), OSApp.Language._( "This will reset all station attributes" ), function() {
+		OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to reset station attributes?" ), OSApp.Language._( "This will reset all station attributes" ), function() {
 			$.mobile.loading( "show" );
 			OSApp.Storage.get( [ "sites", "current_site" ], function( data ) {
 				var sites = OSApp.Sites.parseSites( data.sites );
@@ -3628,7 +3628,7 @@ function showOptions( expandItem ) {
 	} );
 
 	page.find( ".reset-wireless" ).on( "click", function() {
-		areYouSure( OSApp.Language._( "Are you sure you want to reset the wireless settings?" ), OSApp.Language._( "This will delete the stored SSID/password for your wireless network and return the device to access point mode" ), function() {
+		OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to reset the wireless settings?" ), OSApp.Language._( "This will delete the stored SSID/password for your wireless network and return the device to access point mode" ), function() {
 			OSApp.Firmware.sendToOS( "/cv?pw=&ap=1" ).done( function() {
 				$.mobile.document.one( "pageshow", function() {
 					OSApp.Errors.showError( OSApp.Language._( "Wireless settings have been reset. Please follow the OpenSprinkler user manual on restoring connectivity." ) );
@@ -3723,7 +3723,7 @@ function showOptions( expandItem ) {
 		page.find( ".submit" ).addClass( "hasChanges" );
 
 		if ( id === "ip_addr" || id === "gateway" || id === "dns" || id === "ntp_addr" || id === "subnet" ) {
-			showIPRequest( {
+			OSApp.UIDom.showIPRequest( {
 				title: name,
 				ip: dur.val().split( "." ),
 				callback: function( ip ) {
@@ -4295,7 +4295,7 @@ var showHomeMenu = ( function() {
 			popup.popup( "close" );
 
 			if ( href === "#stop-all" ) {
-				stopAllStations();
+				OSApp.Stations.stopAllStations();
 			} else if ( href === "#show-hidden" ) {
 				if ( showHidden ) {
 					$( ".station-hidden" ).hide();
@@ -5388,7 +5388,7 @@ var showHome = ( function() {
 				}
 			}
 
-			areYouSure( question, OSApp.Stations.getName( sid ), function() {
+			OSApp.UIDom.areYouSure( question, OSApp.Stations.getName( sid ), function() {
 
 				var shiftStations = OSApp.uiState.popupData.shift === true ? 1 : 0;
 
@@ -5414,7 +5414,7 @@ var showHome = ( function() {
 				hasImage = image.attr( "src" ).indexOf( "data:image/jpeg;base64" ) === -1 ? false : true;
 
 			if ( hasImage ) {
-				areYouSure( OSApp.Language._( "Do you want to delete the current image?" ), "", function() {
+				OSApp.UIDom.areYouSure( OSApp.Language._( "Do you want to delete the current image?" ), "", function() {
 					delete sites[ currentSite ].images[ id ];
 					OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, OSApp.Network.cloudSaveSites );
 					updateContent();
@@ -5725,7 +5725,7 @@ function checkStatus() {
 	// Handle controller configured as extender
 	if ( OSApp.currentSession.controller.options.re === 1 ) {
 		changeStatus( 0, "red", "<p class='running-text center pointer'>" + OSApp.Language._( "Configured as Extender" ) + "</p>", function() {
-			areYouSure( OSApp.Language._( "Do you wish to disable extender mode?" ), "", function() {
+			OSApp.UIDom.areYouSure( OSApp.Language._( "Do you wish to disable extender mode?" ), "", function() {
 				OSApp.UIDom.showLoading( "#footer-running" );
 				OSApp.Firmware.sendToOS( "/cv?pw=&re=0" ).done( function() {
 					updateController();
@@ -5738,7 +5738,7 @@ function checkStatus() {
 	// Handle operation disabled
 	if ( !OSApp.currentSession.controller.settings.en ) {
 		changeStatus( 0, "red", "<p class='running-text center pointer'>" + OSApp.Language._( "System Disabled" ) + "</p>", function() {
-			areYouSure( OSApp.Language._( "Do you want to re-enable system operation?" ), "", function() {
+			OSApp.UIDom.areYouSure( OSApp.Language._( "Do you want to re-enable system operation?" ), "", function() {
 				OSApp.UIDom.showLoading( "#footer-running" );
 				OSApp.Firmware.sendToOS( "/cv?pw=&en=1" ).done( function() {
 					updateController();
@@ -5759,7 +5759,7 @@ function checkStatus() {
 		line += "</p>";
 
 		changeStatus( OSApp.currentSession.controller.settings.pt || 0, "yellow", line, function() {
-			areYouSure( OSApp.Language._( "Do you want to resume station operation?" ), "", function() {
+			OSApp.UIDom.areYouSure( OSApp.Language._( "Do you want to resume station operation?" ), "", function() {
 				OSApp.UIDom.showLoading( "#footer-running" );
 				OSApp.Firmware.sendToOS( "/pq?pw=&dur=0" ).done( function() {
 					setTimeout( refreshStatus, 1000 );
@@ -5831,7 +5831,7 @@ function checkStatus() {
 		changeStatus( 0, "red", "<p class='running-text center pointer'>" +
 			OSApp.Language._( "Rain delay until" ) + " " + OSApp.Dates.dateToString( new Date( OSApp.currentSession.controller.settings.rdst * 1000 ) ) + "</p>",
 			function() {
-				areYouSure( OSApp.Language._( "Do you want to turn off rain delay?" ), "", function() {
+				OSApp.UIDom.areYouSure( OSApp.Language._( "Do you want to turn off rain delay?" ), "", function() {
 					OSApp.UIDom.showLoading( "#footer-running" );
 					OSApp.Firmware.sendToOS( "/cv?pw=&rd=0" ).done( function() {
 						refreshStatus( updateWeather );
@@ -5861,7 +5861,7 @@ function checkStatus() {
 	// Handle manual mode enabled
 	if ( OSApp.currentSession.controller.settings.mm === 1 ) {
 		changeStatus( 0, "red", "<p class='running-text center pointer'>" + OSApp.Language._( "Manual mode enabled" ) + "</p>", function() {
-			areYouSure( OSApp.Language._( "Do you want to turn off manual mode?" ), "", function() {
+			OSApp.UIDom.areYouSure( OSApp.Language._( "Do you want to turn off manual mode?" ), "", function() {
 				OSApp.UIDom.showLoading( "#footer-running" );
 				OSApp.Firmware.sendToOS( "/cv?pw=&mm=0" ).done( function() {
 					updateController();
@@ -6361,7 +6361,7 @@ function submitRunonce( runonce ) {
 		isOn = OSApp.StationQueue.isActive();
 
 	if ( isOn !== -1 ) {
-		areYouSure( OSApp.Language._( "Do you want to stop the currently running program?" ), pidname( OSApp.Stations.getPID( isOn ) ), function() {
+		OSApp.UIDom.areYouSure( OSApp.Language._( "Do you want to stop the currently running program?" ), pidname( OSApp.Stations.getPID( isOn ) ), function() {
 			$.mobile.loading( "show" );
 			stopStations( submit );
 		} );
@@ -7666,7 +7666,7 @@ var getLogs = ( function() {
 
 				date = OSApp.Dates.dateToString( new Date( day * 1000 * 60 * 60 * 24 ) ).slice( 0, -9 );
 
-				areYouSure( OSApp.Language._( "Are you sure you want to " ) + OSApp.Language._( "delete" ) + " " + date + "?", "", function() {
+				OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to " ) + OSApp.Language._( "delete" ) + " " + date + "?", "", function() {
 					$.mobile.loading( "show" );
 					OSApp.Firmware.sendToOS( "/dl?pw=&day=" + day ).done( function() {
 						requestData();
@@ -7844,7 +7844,7 @@ var getLogs = ( function() {
 } )();
 
 function clearLogs( callback ) {
-	areYouSure( OSApp.Language._( "Are you sure you want to clear ALL your log data?" ), "", function() {
+	OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to clear ALL your log data?" ), "", function() {
 		var url = OSApp.Firmware.isOSPi() ? "/cl?pw=" : "/dl?pw=&day=all";
 		$.mobile.loading( "show" );
 		OSApp.Firmware.sendToOS( url ).done( function() {
@@ -7857,7 +7857,7 @@ function clearLogs( callback ) {
 }
 
 function clearPrograms( callback ) {
-	areYouSure( OSApp.Language._( "Are you sure you want to delete ALL programs?" ), "", function() {
+	OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to delete ALL programs?" ), "", function() {
 		var url = "/dp?pw=&pid=-1";
 		$.mobile.loading( "show" );
 		OSApp.Firmware.sendToOS( url ).done( function() {
@@ -7870,7 +7870,7 @@ function clearPrograms( callback ) {
 }
 
 function resetAllOptions( callback ) {
-	areYouSure( OSApp.Language._( "Are you sure you want to delete all settings and return to the default settings?" ), "", function() {
+	OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to delete all settings and return to the default settings?" ), "", function() {
 		var co;
 
 		if ( OSApp.Firmware.isOSPi() ) {
@@ -7936,7 +7936,7 @@ var getPrograms = ( function() {
 					changed = program.find( ".hasChanges" );
 
 				if ( changed.length ) {
-					areYouSure( OSApp.Language._( "Do you want to save your changes?" ), "", function() {
+					OSApp.UIDom.areYouSure( OSApp.Language._( "Do you want to save your changes?" ), "", function() {
 						changed.removeClass( "hasChanges" ).click();
 						program.collapsible( "collapse" );
 					}, function() {
@@ -8039,7 +8039,7 @@ function expandProgram( program ) {
 	program.find( "[id^='run-']" ).on( "click", function() {
 		var name = OSApp.Firmware.checkOSVersion( 210 ) ? OSApp.currentSession.controller.programs.pd[ id ][ 5 ] : "Program " + id;
 
-		areYouSure( OSApp.Language._( "Are you sure you want to start " + name + " now?" ), "", function() {
+		OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to start " + name + " now?" ), "", function() {
 			var runonce = [],
 				finish = function() {
 					runonce.push( 0 );
@@ -8050,7 +8050,7 @@ function expandProgram( program ) {
 				runonce = OSApp.currentSession.controller.programs.pd[ id ][ 4 ];
 
 				if ( ( OSApp.currentSession.controller.programs.pd[ id ][ 0 ] >> 1 ) & 1 ) {
-					areYouSure( OSApp.Language._( "Do you wish to apply the current watering level?" ), "", function() {
+					OSApp.UIDom.areYouSure( OSApp.Language._( "Do you wish to apply the current watering level?" ), "", function() {
 						for ( var i = runonce.length - 1; i >= 0; i-- ) {
 							runonce[ i ] = parseInt( runonce[ i ] * ( OSApp.currentSession.controller.options.wl / 100 ) );
 						}
@@ -8804,7 +8804,7 @@ function addProgram( copyID ) {
 function deleteProgram( id ) {
 	var program = pidname( parseInt( id ) + 1 );
 
-	areYouSure( OSApp.Language._( "Are you sure you want to delete program" ) + " " + program + "?", "", function() {
+	OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to delete program" ) + " " + program + "?", "", function() {
 		$.mobile.loading( "show" );
 		OSApp.Firmware.sendToOS( "/dp?pw=&pid=" + id ).done( function() {
 			$.mobile.loading( "hide" );
@@ -9031,7 +9031,7 @@ function submitProgram21( id, ignoreWarning ) {
 		var totalruntime = calculateTotalRunningTime( runTimes );
 		var repeatinterval = start[ 2 ] * 60;
 		if ( totalruntime > repeatinterval ) {
-			areYouSure( OSApp.Language._( "Warning: The repeat interval (" + repeatinterval + " sec) is less than the program run time (" + totalruntime + " sec)." ), OSApp.Language._( "Do you want to continue?" ), function() {
+			OSApp.UIDom.areYouSure( OSApp.Language._( "Warning: The repeat interval (" + repeatinterval + " sec) is less than the program run time (" + totalruntime + " sec)." ), OSApp.Language._( "Do you want to continue?" ), function() {
 				submitProgram21( id, true );
 			} );
 			return;
@@ -9040,7 +9040,7 @@ function submitProgram21( id, ignoreWarning ) {
 
 	// If the interval is an even number and a restriction is set, notify user of possible conflict
 	if ( !ignoreWarning && ( ( j >> 4 ) & 0x03 ) === 3 && !( days[ 1 ] & 1 ) && ( ( j >> 2 ) & 0x03 ) > 0 ) {
-		areYouSure( OSApp.Language._( "Warning: The use of odd/even restrictions with the selected interval day may result in the program not running at all." ), OSApp.Language._( "Do you want to continue?" ), function() {
+		OSApp.UIDom.areYouSure( OSApp.Language._( "Warning: The use of odd/even restrictions with the selected interval day may result in the program not running at all." ), OSApp.Language._( "Do you want to continue?" ), function() {
 			submitProgram21( id, true );
 		} );
 		return;
@@ -9231,7 +9231,7 @@ function importConfig( data ) {
 		warning = OSApp.Language._( "Warning: Network changes will be made and the device may no longer be accessible from this address." );
 	}
 
-	areYouSure( OSApp.Language._( "Are you sure you want to restore the configuration?" ), warning, function() {
+	OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to restore the configuration?" ), warning, function() {
 		$.mobile.loading( "show" );
 
 		var cs = "/cs?pw=",
@@ -9695,7 +9695,7 @@ function logout( success ) {
 		success = function() {};
 	}
 
-	areYouSure( OSApp.Language._( "Are you sure you want to logout?" ), "", function() {
+	OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to logout?" ), "", function() {
 		if ( OSApp.currentSession.local ) {
 			OSApp.Storage.remove( [ "sites", "current_site", "lang", "provider", "wapikey", "runonce", "cloudToken" ], function() {
 				location.reload();
@@ -9737,150 +9737,6 @@ function updateLoginButtons() {
 			}
 		}
 	} );
-}
-
-function stopAllStations() {
-
-	if ( !OSApp.currentSession.isControllerConnected() ) {
-		return false;
-	}
-
-	areYouSure( OSApp.Language._( "Are you sure you want to stop all stations?" ), "", function() {
-		$.mobile.loading( "show" );
-		OSApp.Firmware.sendToOS( "/cv?pw=&rsn=1" ).done( function() {
-			$.mobile.loading( "hide" );
-			removeStationTimers();
-			refreshStatus();
-			OSApp.Errors.showError( OSApp.Language._( "All stations have been stopped" ) );
-		} );
-	} );
-}
-
-// Accessory functions for jQuery Mobile
-function areYouSure( text1, text2, success, fail, options ) {
-
-	$( "#sure" ).popup( "destroy" ).remove();
-	success = success || function() {};
-	fail = fail || function() {};
-
-	var showShiftDialog = 0;
-	if ( typeof options === "object" ) {
-		showShiftDialog = ( options.type === OSApp.Constants.dialog.REMOVE_STATION ) &&
-			OSApp.Groups.canShift( options.gid ) && OSApp.Stations.isSequential( options.station );
-	}
-
-	var popup = $(
-		"<div data-role='popup' data-theme='a' id='sure'>" +
-			"<h3 class='sure-1 center'>" + text1 + "</h3>" +
-			"<p class='sure-2 center'>" + text2 + "</p>" +
-			"<a class='sure-do ui-btn ui-btn-b ui-corner-all ui-shadow' href='#'>" + OSApp.Language._( "Yes" ) + "</a>" +
-			"<a class='sure-dont ui-btn ui-corner-all ui-shadow' href='#'>" + OSApp.Language._( "No" ) + "</a>" +
-			( showShiftDialog ? "<label><input id='shift-sta' type='checkbox'>Move up remaining stations in the same sequential group?</label>" : "" ) +
-		"</div>"
-	);
-
-	//Bind buttons
-	popup.find( ".sure-do" ).one( "click.sure", function() {
-		popup.popup( "close" );
-		success();
-		return false;
-	} );
-	popup.find( ".sure-dont" ).one( "click.sure", function() {
-		popup.popup( "close" );
-		fail();
-		return false;
-	} );
-
-	OSApp.UIDom.openPopup( popup );
-}
-
-function showIPRequest( opt ) {
-	var defaults = {
-			title: OSApp.Language._( "Enter IP Address" ),
-			ip: [ 0, 0, 0, 0 ],
-			showBack: true,
-			callback: function() {}
-		};
-
-	opt = $.extend( {}, defaults, opt );
-
-	$( "#ipInput" ).popup( "destroy" ).remove();
-
-	var popup = $( "<div data-role='popup' id='ipInput' data-theme='a'>" +
-			"<div data-role='header' data-theme='b'>" +
-				"<h1>" + opt.title + "</h1>" +
-			"</div>" +
-			"<div class='ui-content'>" +
-				"<span>" +
-					"<fieldset class='ui-grid-c incr'>" +
-						"<div class='ui-block-a'><a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a></div>" +
-						"<div class='ui-block-b'><a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a></div>" +
-						"<div class='ui-block-c'><a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a></div>" +
-						"<div class='ui-block-d'><a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a></div>" +
-					"</fieldset>" +
-					"<div class='ui-grid-c inputs'>" +
-						"<div class='ui-block-a'><input data-wrapper-class='pad_buttons' class='ip_addr' type='number' pattern='[0-9]*' max='255' value='" + opt.ip[ 0 ] + "'></div>" +
-						"<div class='ui-block-b'><input data-wrapper-class='pad_buttons' class='ip_addr' type='number' pattern='[0-9]*' max='255' value='" + opt.ip[ 1 ] + "'></div>" +
-						"<div class='ui-block-c'><input data-wrapper-class='pad_buttons' class='ip_addr' type='number' pattern='[0-9]*' max='255' value='" + opt.ip[ 2 ] + "'></div>" +
-						"<div class='ui-block-d'><input data-wrapper-class='pad_buttons' class='ip_addr' type='number' pattern='[0-9]*' max='255' value='" + opt.ip[ 3 ] + "'></div>" +
-					"</div>" +
-					"<fieldset class='ui-grid-c decr'>" +
-						"<div class='ui-block-a'><a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='minus' data-iconpos='bottom'></a></div>" +
-						"<div class='ui-block-b'><a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='minus' data-iconpos='bottom'></a></div>" +
-						"<div class='ui-block-c'><a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='minus' data-iconpos='bottom'></a></div>" +
-						"<div class='ui-block-d'><a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='minus' data-iconpos='bottom'></a></div>" +
-					"</fieldset>" +
-				"</span>" +
-				( opt.showBack ? "<button class='submit' data-theme='b'>" + OSApp.Language._( "Submit" ) + "</button>" : "" ) +
-			"</div>" +
-		"</div>" ),
-		changeValue = function( pos, dir ) {
-			var input = popup.find( ".inputs input" ).eq( pos ),
-				val = parseInt( input.val() );
-
-			if ( ( dir === -1 && val === 0 ) || ( dir === 1 && val >= 255 ) ) {
-				return;
-			}
-
-			input.val( val + dir );
-			opt.callback( getIP() );
-		},
-		getIP = function() {
-			return $.makeArray( popup.find( ".ip_addr" ).map( function() {return parseInt( $( this ).val() );} ) );
-		};
-
-	popup.find( "button.submit" ).on( "click", function() {
-		opt.callback( getIP() );
-		popup.popup( "destroy" ).remove();
-	} );
-
-	popup.on( "focus", "input[type='number']", function() {
-		this.value = "";
-	} ).on( "blur", "input[type='number']", function() {
-		if ( this.value === "" ) {
-			this.value = "0";
-		}
-	} );
-
-	OSApp.UIDom.holdButton( popup.find( ".incr" ).children(), function( e ) {
-		var pos = $( e.currentTarget ).index();
-		changeValue( pos, 1 );
-		return false;
-	} );
-
-	OSApp.UIDom.holdButton( popup.find( ".decr" ).children(), function( e ) {
-		var pos = $( e.currentTarget ).index();
-		changeValue( pos, -1 );
-		return false;
-	} );
-
-	popup
-	.css( "max-width", "350px" )
-	.one( "popupafterclose", function() {
-		opt.callback( getIP() );
-	} );
-
-	OSApp.UIDom.openPopup( popup );
 }
 
 // Focus any input

@@ -328,7 +328,7 @@ describe( "Popup Checks", function() {
 			$( "#sure .sure-do" ).click();
 		} );
 		assert.doesNotThrow( function() {
-			areYouSure( null, null, done );
+			OSApp.UIDom.areYouSure( null, null, done );
 		} );
 	} );
 
@@ -340,7 +340,7 @@ describe( "Popup Checks", function() {
 			$( "#ipInput" ).popup( "close" ).remove();
 		} );
 		assert.doesNotThrow( function() {
-			showIPRequest();
+			OSApp.UIDom.showIPRequest();
 		} );
 	} );
 

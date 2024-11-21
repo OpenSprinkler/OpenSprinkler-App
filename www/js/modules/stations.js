@@ -119,3 +119,19 @@ OSApp.Stations.isSpecial = function( sid ) {
 OSApp.Stations.isDisabled = function( sid )  {
 	return OSApp.StationAttributes.getDisabled( sid ) > 0;
 };
+
+OSApp.Stations.stopAllStations = function() {
+	if ( !OSApp.currentSession.isControllerConnected() ) {
+		return false;
+	}
+
+	OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to stop all stations?" ), "", function() {
+		$.mobile.loading( "show" );
+		OSApp.Firmware.sendToOS( "/cv?pw=&rsn=1" ).done( function() {
+			$.mobile.loading( "hide" );
+			removeStationTimers(); // TODO: mellodev refactor
+			refreshStatus(); // TODO: mellodev refactor
+			OSApp.Errors.showError( OSApp.Language._( "All stations have been stopped" ) );
+		} );
+	} );
+};

@@ -102,7 +102,7 @@ OSApp.UIDom.launchApp = () => {
 						} else if ( payload.type === "addprogram" ) {
 							OSApp.UIDom.changePage( "#addprogram" );
 						} else if ( payload.type === "stopall" ) {
-							stopAllStations();
+							OSApp.Stations.stopAllStations();
 						}
 					};
 				}
@@ -540,7 +540,7 @@ OSApp.UIDom.bindPanel = () => {
 		var self = $( this ),
 			toValue = ( 1 - OSApp.currentSession.controller.settings.en );
 
-		areYouSure( OSApp.Language._( "Are you sure you want to" ) + " " + operation().toLowerCase() + " " + OSApp.Language._( "operation?" ), "", function() {
+		OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to" ) + " " + operation().toLowerCase() + " " + OSApp.Language._( "operation?" ), "", function() {
 			OSApp.Firmware.sendToOS( "/cv?pw=&en=" + toValue ).done( function() {
 				$.when(
 					updateControllerSettings(),
@@ -556,7 +556,7 @@ OSApp.UIDom.bindPanel = () => {
 	} ).find( "span:first" ).html( operation() ).attr( "data-translate", operation() );
 
 	panel.find( ".reboot-os" ).on( "click", function() {
-		areYouSure( OSApp.Language._( "Are you sure you want to reboot OpenSprinkler?" ), "", function() {
+		OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to reboot OpenSprinkler?" ), "", function() {
 			$.mobile.loading( "show" );
 			OSApp.Firmware.sendToOS( "/cv?pw=&rbt=1" ).done( function() {
 				$.mobile.loading( "hide" );
@@ -569,7 +569,7 @@ OSApp.UIDom.bindPanel = () => {
 	panel.find( ".changePassword > a" ).on( "click", OSApp.Network.changePassword );
 
 	panel.find( "#downgradeui" ).on( "click", function() {
-		areYouSure( OSApp.Language._( "Are you sure you want to downgrade the UI?" ), "", function() {
+		OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to downgrade the UI?" ), "", function() {
 			var url = "http://rayshobby.net/scripts/java/svc" + OSApp.Firmware.getOSVersion();
 
 			OSApp.Firmware.sendToOS( "/cu?jsp=" + encodeURIComponent( url ) + "&pw=" ).done( function() {
@@ -770,7 +770,7 @@ OSApp.UIDom.checkChanges = function( callback = () => void 0 ) {
 		changed = page.find( ".hasChanges" );
 
 	if ( changed.length !== 0 ) {
-		areYouSure( OSApp.Language._( "Do you want to save your changes?" ), "", function() {
+		OSApp.UIDom.areYouSure( OSApp.Language._( "Do you want to save your changes?" ), "", function() {
 			changed.click();
 			if ( !changed.hasClass( "preventBack" ) ) {
 				callback();
@@ -1603,6 +1603,132 @@ OSApp.UIDom.showDurationBox = function( opt ) {
 		if ( opt.incrementalUpdate ) {
 			opt.callback( getValue() );
 		}
+	} );
+
+	OSApp.UIDom.openPopup( popup );
+};
+
+// Accessory functions for jQuery Mobile
+OSApp.UIDom.areYouSure = function( text1, text2, success, fail, options ) {
+	$( "#sure" ).popup( "destroy" ).remove();
+	success = success || function() {};
+	fail = fail || function() {};
+
+	var showShiftDialog = 0;
+	if ( typeof options === "object" ) {
+		showShiftDialog = ( options.type === OSApp.Constants.dialog.REMOVE_STATION ) &&
+			OSApp.Groups.canShift( options.gid ) && OSApp.Stations.isSequential( options.station );
+	}
+
+	var popup = $(
+		"<div data-role='popup' data-theme='a' id='sure'>" +
+			"<h3 class='sure-1 center'>" + text1 + "</h3>" +
+			"<p class='sure-2 center'>" + text2 + "</p>" +
+			"<a class='sure-do ui-btn ui-btn-b ui-corner-all ui-shadow' href='#'>" + OSApp.Language._( "Yes" ) + "</a>" +
+			"<a class='sure-dont ui-btn ui-corner-all ui-shadow' href='#'>" + OSApp.Language._( "No" ) + "</a>" +
+			( showShiftDialog ? "<label><input id='shift-sta' type='checkbox'>Move up remaining stations in the same sequential group?</label>" : "" ) +
+		"</div>"
+	);
+
+	//Bind buttons
+	popup.find( ".sure-do" ).one( "click.sure", function() {
+		popup.popup( "close" );
+		success();
+		return false;
+	} );
+	popup.find( ".sure-dont" ).one( "click.sure", function() {
+		popup.popup( "close" );
+		fail();
+		return false;
+	} );
+
+	OSApp.UIDom.openPopup( popup );
+};
+
+OSApp.UIDom.showIPRequest = function( opt ) {
+	var defaults = {
+			title: OSApp.Language._( "Enter IP Address" ),
+			ip: [ 0, 0, 0, 0 ],
+			showBack: true,
+			callback: function() {}
+		};
+
+	opt = $.extend( {}, defaults, opt );
+
+	$( "#ipInput" ).popup( "destroy" ).remove();
+
+	var popup = $( "<div data-role='popup' id='ipInput' data-theme='a'>" +
+			"<div data-role='header' data-theme='b'>" +
+				"<h1>" + opt.title + "</h1>" +
+			"</div>" +
+			"<div class='ui-content'>" +
+				"<span>" +
+					"<fieldset class='ui-grid-c incr'>" +
+						"<div class='ui-block-a'><a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a></div>" +
+						"<div class='ui-block-b'><a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a></div>" +
+						"<div class='ui-block-c'><a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a></div>" +
+						"<div class='ui-block-d'><a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a></div>" +
+					"</fieldset>" +
+					"<div class='ui-grid-c inputs'>" +
+						"<div class='ui-block-a'><input data-wrapper-class='pad_buttons' class='ip_addr' type='number' pattern='[0-9]*' max='255' value='" + opt.ip[ 0 ] + "'></div>" +
+						"<div class='ui-block-b'><input data-wrapper-class='pad_buttons' class='ip_addr' type='number' pattern='[0-9]*' max='255' value='" + opt.ip[ 1 ] + "'></div>" +
+						"<div class='ui-block-c'><input data-wrapper-class='pad_buttons' class='ip_addr' type='number' pattern='[0-9]*' max='255' value='" + opt.ip[ 2 ] + "'></div>" +
+						"<div class='ui-block-d'><input data-wrapper-class='pad_buttons' class='ip_addr' type='number' pattern='[0-9]*' max='255' value='" + opt.ip[ 3 ] + "'></div>" +
+					"</div>" +
+					"<fieldset class='ui-grid-c decr'>" +
+						"<div class='ui-block-a'><a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='minus' data-iconpos='bottom'></a></div>" +
+						"<div class='ui-block-b'><a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='minus' data-iconpos='bottom'></a></div>" +
+						"<div class='ui-block-c'><a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='minus' data-iconpos='bottom'></a></div>" +
+						"<div class='ui-block-d'><a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='minus' data-iconpos='bottom'></a></div>" +
+					"</fieldset>" +
+				"</span>" +
+				( opt.showBack ? "<button class='submit' data-theme='b'>" + OSApp.Language._( "Submit" ) + "</button>" : "" ) +
+			"</div>" +
+		"</div>" ),
+		changeValue = function( pos, dir ) {
+			var input = popup.find( ".inputs input" ).eq( pos ),
+				val = parseInt( input.val() );
+
+			if ( ( dir === -1 && val === 0 ) || ( dir === 1 && val >= 255 ) ) {
+				return;
+			}
+
+			input.val( val + dir );
+			opt.callback( getIP() );
+		},
+		getIP = function() {
+			return $.makeArray( popup.find( ".ip_addr" ).map( function() {return parseInt( $( this ).val() );} ) );
+		};
+
+	popup.find( "button.submit" ).on( "click", function() {
+		opt.callback( getIP() );
+		popup.popup( "destroy" ).remove();
+	} );
+
+	popup.on( "focus", "input[type='number']", function() {
+		this.value = "";
+	} ).on( "blur", "input[type='number']", function() {
+		if ( this.value === "" ) {
+			this.value = "0";
+		}
+	} );
+
+	OSApp.UIDom.holdButton( popup.find( ".incr" ).children(), function( e ) {
+		var pos = $( e.currentTarget ).index();
+		changeValue( pos, 1 );
+		return false;
+	} );
+
+	OSApp.UIDom.holdButton( popup.find( ".decr" ).children(), function( e ) {
+		var pos = $( e.currentTarget ).index();
+		changeValue( pos, -1 );
+		return false;
+	} );
+
+	popup
+	.css( "max-width", "350px" )
+	.one( "popupafterclose", function() {
+		opt.callback( getIP() );
 	} );
 
 	OSApp.UIDom.openPopup( popup );
