@@ -1,5 +1,5 @@
-/* global sendToOS, controller, readProgram, holdButton, openPopup, areYouSure, _, $ */
-/* global currPass, currToken, currPrefix, currIp, changePage, changeHeader, goBack */
+/* global readProgram, holdButton, openPopup, areYouSure, _, $ */
+/* global changeHeader, goBack */
 /* global getAppURLPath, dateToString, ApexCharts */
 /* exported checkAnalogSensorAvail, updateSensorShowArea, showAnalogSensorConfig, showAnalogSensorCharts */
 
@@ -35,7 +35,7 @@ OSApp.Analog.refresh = () => {
 
 OSApp.Analog.updateProgramAdjustments = ( callback ) => {
 	callback = callback || function() { };
-	return OSApp.Network.sendToOS( "/se?pw=", "json" ).then( function( data ) {
+	return OSApp.Firmware.sendToOS( "/se?pw=", "json" ).then( function( data ) {
 		OSApp.Analog.progAdjusts = data.progAdjust;
 		callback();
 	} );
@@ -43,7 +43,7 @@ OSApp.Analog.updateProgramAdjustments = ( callback ) => {
 
 OSApp.Analog.updateAnalogSensor = ( callback ) => {
 	callback = callback || function() { };
-	return OSApp.Network.sendToOS( "/sl?pw=", "json" ).then( function( data ) {
+	return OSApp.Firmware.sendToOS( "/sl?pw=", "json" ).then( function( data ) {
 		OSApp.Analog.analogSensors = data.sensors;
 		callback();
 	} );
@@ -115,7 +115,7 @@ OSApp.Analog.intFromBytes = ( x ) => {
 //Program adjustments editor
 OSApp.Analog.showAdjustmentsEditor = ( progAdjust, callback ) => {
 
-	OSApp.Network.sendToOS( "/sh?pw=", "json" ).then( function( data ) {
+	OSApp.Firmware.sendToOS( "/sh?pw=", "json" ).then( function( data ) {
 		var supportedAdjustmentTypes = data.progTypes;
 		var i;
 
@@ -266,7 +266,7 @@ OSApp.Analog.showAdjustmentsEditor = ( progAdjust, callback ) => {
 
 		popup.css( "max-width", "580px" );
 
-		openPopup( popup, { positionTo: "window" } );
+		OSApp.UIDom.openPopup( popup, { positionTo: "window" } );
 
 	} );
 };
@@ -281,7 +281,7 @@ OSApp.Analog.isSmt100 = ( sensorType ) => {
 // Analog sensor editor
 OSApp.Analog.showSensorEditor = ( sensor, callback ) => {
 
-	OSApp.Network.sendToOS( "/sf?pw=", "json" ).then( function( data ) {
+	OSApp.Firmware.sendToOS( "/sf?pw=", "json" ).then( function( data ) {
 		var supportedSensorTypes = data.sensorTypes;
 		var i;
 
@@ -400,7 +400,7 @@ OSApp.Analog.showSensorEditor = ( sensor, callback ) => {
 			popup.popup( "close" );
 			areYouSure( OSApp.Language._( "This function sets the Modbus ID for one SMT100 sensor. Disconnect all other sensors on this Modbus port. Please confirm." ),
 				"new id=" + newid, function() {
-					OSApp.Network.sendToOS( "/sa?pw=&nr=" + nr + "&id=" + newid ).done( function() {
+					OSApp.Firmware.sendToOS( "/sa?pw=&nr=" + nr + "&id=" + newid ).done( function() {
 						window.alert( OSApp.Language._( "SMT100 id assigned!" ) );
 						OSApp.Analog.updateAnalogSensor( OSApp.Analog.refresh );
 					} );
@@ -476,7 +476,7 @@ OSApp.Analog.showSensorEditor = ( sensor, callback ) => {
 
 		popup.css( "max-width", "580px" );
 
-		openPopup( popup, { positionTo: "window" } );
+		OSApp.UIDom.openPopup( popup, { positionTo: "window" } );
 	} );
 }
 
@@ -502,7 +502,7 @@ OSApp.Analog.showAnalogSensorConfig = ( function() {
 				row = dur.attr( "row" );
 
 			areYouSure( OSApp.Language._( "Are you sure you want to delete the sensor?" ), value, function() {
-				OSApp.Network.sendToOS( "/sc?pw=&nr=" + value + "&type=0" ).done( function() {
+				OSApp.Firmware.sendToOS( "/sc?pw=&nr=" + value + "&type=0" ).done( function() {
 					OSApp.Analog.analogSensors.splice( row, 1 );
 					updateSensorContent();
 				} );
@@ -520,7 +520,7 @@ OSApp.Analog.showAnalogSensorConfig = ( function() {
 				sensorOut.nativedata = sensor.nativedata;
 				sensorOut.data = sensor.data;
 				sensorOut.last = sensor.last;
-				OSApp.Network.sendToOS( "/sc?pw=&nr=" + sensorOut.nr +
+				OSApp.Firmware.sendToOS( "/sc?pw=&nr=" + sensorOut.nr +
 					"&type=" + sensorOut.type +
 					"&group=" + sensorOut.group +
 					"&name=" + sensorOut.name +
@@ -554,7 +554,7 @@ OSApp.Analog.showAnalogSensorConfig = ( function() {
 			};
 
 			OSApp.Analog.showSensorEditor( sensor, function( sensorOut ) {
-				OSApp.Network.sendToOS( "/sc?pw=&nr=" + sensorOut.nr +
+				OSApp.Firmware.sendToOS( "/sc?pw=&nr=" + sensorOut.nr +
 					"&type=" + sensorOut.type +
 					"&group=" + sensorOut.group +
 					"&name=" + sensorOut.name +
@@ -593,7 +593,7 @@ OSApp.Analog.showAnalogSensorConfig = ( function() {
 				row = dur.attr( "row" );
 
 			areYouSure( OSApp.Language._( "Are you sure you want to delete this program adjustment?" ), value, function() {
-				OSApp.Network.sendToOS( "/sb?pw=&nr=" + value + "&type=0" ).done( function() {
+				OSApp.Firmware.sendToOS( "/sb?pw=&nr=" + value + "&type=0" ).done( function() {
 					OSApp.Analog.progAdjusts.splice( row, 1 );
 					updateSensorContent();
 				} );
@@ -609,7 +609,7 @@ OSApp.Analog.showAnalogSensorConfig = ( function() {
 
 			OSApp.Analog.showAdjustmentsEditor( progAdjust, function( progAdjustOut ) {
 
-				OSApp.Network.sendToOS( "/sb?pw=&nr=" + progAdjustOut.nr +
+				OSApp.Firmware.sendToOS( "/sb?pw=&nr=" + progAdjustOut.nr +
 					"&type=" + progAdjustOut.type +
 					"&sensor=" + progAdjustOut.sensor +
 					"&prog=" + progAdjustOut.prog +
@@ -631,7 +631,7 @@ OSApp.Analog.showAnalogSensorConfig = ( function() {
 			};
 
 			OSApp.Analog.showAdjustmentsEditor( progAdjust, function( progAdjustOut ) {
-				OSApp.Network.sendToOS( "/sb?pw=&nr=" + progAdjustOut.nr +
+				OSApp.Firmware.sendToOS( "/sb?pw=&nr=" + progAdjustOut.nr +
 					"&type=" + progAdjustOut.type +
 					"&sensor=" + progAdjustOut.sensor +
 					"&prog=" + progAdjustOut.prog +
@@ -649,7 +649,7 @@ OSApp.Analog.showAnalogSensorConfig = ( function() {
 		// Clear sensor log
 		list.find( "#clear-log" ).on( "click", function() {
 			areYouSure( OSApp.Language._( "Are you sure you want to clear the sensor log?" ), "", function() {
-				OSApp.Network.sendToOS( "/sn?pw=&" ).done( function( result ) {
+				OSApp.Firmware.sendToOS( "/sn?pw=&" ).done( function( result ) {
 					window.alert( OSApp.Language._( "Log cleared:" ) + " " + result.deleted + " " + OSApp.Language._( "records" ) );
 					updateSensorContent();
 				} );
@@ -670,7 +670,7 @@ OSApp.Analog.showAnalogSensorConfig = ( function() {
 		} );
 
 		list.find( "#show-log" ).on( "click", function() {
-			changePage( "#analogsensorchart" );
+			OSApp.UIDom.changePage( "#analogsensorchart" );
 			return false;
 		} );
 
@@ -841,13 +841,13 @@ OSApp.Analog.showAnalogSensorCharts = ( function() {
 		$( "#analogsensorchart" ).remove();
 		$.mobile.pageContainer.append( page );
 
-		OSApp.Network.sendToOS( "/so?pw=&lasthours=24&csv=2", "text" ).then( function( csv1 ) {
+		OSApp.Firmware.sendToOS( "/so?pw=&lasthours=24&csv=2", "text" ).then( function( csv1 ) {
 			OSApp.Analog.buildGraph( "#myChart", chart1, csv1, OSApp.Language._( "last 24h" ), "HH:mm" );
 
-			OSApp.Network.sendToOS( "/so?pw=&csv=2&log=1", "text" ).then( function( csv2 ) {
+			OSApp.Firmware.sendToOS( "/so?pw=&csv=2&log=1", "text" ).then( function( csv2 ) {
 				OSApp.Analog.buildGraph( "#myChartW", chart2, csv2, OSApp.Language._( "last weeks" ), "dd.MM.yyyy" );
 
-				OSApp.Network.sendToOS( "/so?pw=&csv=2&log=2", "text" ).then( function( csv3 ) {
+				OSApp.Firmware.sendToOS( "/so?pw=&csv=2&log=2", "text" ).then( function( csv3 ) {
 					OSApp.Analog.buildGraph( "#myChartM", chart3, csv3, OSApp.Language._( "last months" ), "MM.yyyy" );
 					$.mobile.loading( "hide" );
 				} );

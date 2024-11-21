@@ -12,9 +12,9 @@
 
 // Configure module
 var OSApp = OSApp || {};
-OSApp.Main = OSApp.Main || {};
+OSApp.UIDom = OSApp.UIDom || {};
 
-OSApp.Main.launchApp = () => {
+OSApp.UIDom.launchApp = () => {
 	if ( "serviceWorker" in navigator ) {
 		window.addEventListener( "load", function() {
 			navigator.serviceWorker.register( "/sw.js" );
@@ -59,7 +59,7 @@ OSApp.Main.launchApp = () => {
 			return false;
 		} );
 
-		updateDeviceIP();
+		OSApp.Network.updateDeviceIP();
 
 		// Check if 3D touch is available and add menu when possible
 		if ( OSApp.currentDevice.isiOS ) {
@@ -90,9 +90,9 @@ OSApp.Main.launchApp = () => {
 
 					ThreeDeeTouch.onHomeIconPressed = function( payload ) {
 						if ( payload.type === "sites" ) {
-							changePage( "#site-control" );
+							OSApp.UIDom.changePage( "#site-control" );
 						} else if ( payload.type === "addprogram" ) {
-							changePage( "#addprogram" );
+							OSApp.UIDom.changePage( "#addprogram" );
 						} else if ( payload.type === "stopall" ) {
 							stopAllStations();
 						}
@@ -154,7 +154,7 @@ OSApp.Main.launchApp = () => {
 		} else if ( hash === "#forecast" ) {
 			showForecast();
 		} else if ( hash === "#loadingPage" ) {
-			checkConfigured( true );
+			OSApp.Sites.checkConfigured( true );
 		} else if ( hash === "#start" ) {
 			showStart();
 		} else if ( hash === "#site-control" ) {
@@ -177,7 +177,7 @@ OSApp.Main.launchApp = () => {
 		}
 
 		// If cloud token is available then sync sites
-		cloudSync();
+		OSApp.Network.cloudSync();
 
 		// Indicate the weather and device status are being updated
 		showLoading( "#weather,#footer-running" );
@@ -223,13 +223,13 @@ OSApp.Main.launchApp = () => {
 		// Fix issues between jQuery Mobile and FastClick
 		fixInputClick( $newpage );
 
-		if ( isControllerConnected() && newpage !== "#site-control" && newpage !== "#start" && newpage !== "#loadingPage" ) {
+		if ( OSApp.currentSession.isControllerConnected() && newpage !== "#site-control" && newpage !== "#start" && newpage !== "#loadingPage" ) {
 
 			// Update the controller status every 5 seconds and the program and station data every 30 seconds
 			var refreshStatusInterval = setInterval( function() { refreshStatus(); }, 5000 ),
 				refreshDataInterval;
 
-			if ( !OSApp.Network.checkOSVersion( 216 ) ) {
+			if ( !OSApp.Firmware.checkOSVersion( 216 ) ) {
 				refreshDataInterval = setInterval( refreshData, 20000 );
 			}
 
@@ -261,11 +261,11 @@ OSApp.Main.launchApp = () => {
 		$( ".ui-page-active" ).children().add( "#sprinklers-settings" ).addClass( "blur-filter" );
 	} )
 	.on( "popupbeforeposition", "#localization", OSApp.Language.checkCurrLang )
-	.one( "pagebeforeshow", "#loadingPage", OSApp.Main.initApp );
+	.one( "pagebeforeshow", "#loadingPage", OSApp.UIDom.initApp );
 
 };
 
-OSApp.Main.initApp = () => {
+OSApp.UIDom.initApp = () => {
 
 	//Update the language on the page using the browser's locale
 	OSApp.Language.updateLang();
@@ -357,7 +357,7 @@ OSApp.Main.initApp = () => {
 			if ( e.type === "swiperight" ) {
 				 OSApp.uiState.openPanel();
 			} else {
-				showNotifications();
+				OSApp.Notifications.showNotifications();
 			}
 		}
 	} );
@@ -411,19 +411,19 @@ OSApp.Main.initApp = () => {
 			}
 		} else if ( ( menuOpen || altDown ) && code === 80 ) { // P
 			e.preventDefault();
-			changePage( "#programs" );
+			OSApp.UIDom.changePage( "#programs" );
 		} else if ( ( menuOpen || altDown ) && code === 79 ) { // O
 			e.preventDefault();
-			changePage( "#os-options" );
+			OSApp.UIDom.changePage( "#os-options" );
 		} else if ( ( menuOpen || altDown ) && code === 86 ) { // V
 			e.preventDefault();
-			changePage( "#preview" );
+			OSApp.UIDom.changePage( "#preview" );
 		} else if ( ( menuOpen || altDown ) && code === 76 ) { // L
 			e.preventDefault();
-			changePage( "#logs" );
+			OSApp.UIDom.changePage( "#logs" );
 		} else if ( ( menuOpen || altDown ) && code === 82 ) { // R
 			e.preventDefault();
-			changePage( "#runonce" );
+			OSApp.UIDom.changePage( "#runonce" );
 		} else if ( ( menuOpen || altDown ) && code === 85 ) { // U
 			e.preventDefault();
 			showPause();
@@ -434,24 +434,24 @@ OSApp.Main.initApp = () => {
 	} );
 
 	// Initialize external panel
-	bindPanel();
+	OSApp.UIDom.bindPanel();
 
 	// Update the IP address of the device running the app
 	if ( !OSApp.currentSession.local  && typeof window.cordova === "undefined" ) {
-		updateDeviceIP();
+		OSApp.Network.updateDeviceIP();
 	}
 
 	// If cloud token is available then sync sites
-	cloudSync();
+	OSApp.Network.cloudSync();
 
 	//On initial load check if a valid site exists for auto connect
 	setTimeout( function() {
-		checkConfigured( true );
+		OSApp.Sites.checkConfigured( true );
 	}, 200 );
 }
 
 // Return Datatables configuration options
-OSApp.Main.getDatatablesConfig = ( options ) => {
+OSApp.UIDom.getDatatablesConfig = ( options ) => {
 	var defaultConfig = {
 		info: false,
 		paging: false,
@@ -459,4 +459,176 @@ OSApp.Main.getDatatablesConfig = ( options ) => {
 	};
 
 	return Object.assign( {}, defaultConfig, options );
+};
+
+// Panel functions
+OSApp.UIDom.bindPanel = () => {
+	var panel = $( "#sprinklers-settings" ),
+		operation = function() {
+			return ( OSApp.currentSession.controller && OSApp.currentSession.controller.settings && OSApp.currentSession.controller.settings.en && OSApp.currentSession.controller.settings.en === 1 ) ? OSApp.Language._( "Disable" ) : OSApp.Language._( "Enable" );
+		};
+
+	panel.enhanceWithin().panel().removeClass( "hidden" ).panel( "option", "classes.modal", "needsclick ui-panel-dismiss" );
+
+	panel.find( "a[href='#site-control']" ).on( "click", function() {
+		OSApp.UIDom.changePage( "#site-control" );
+		return false;
+	} );
+
+	panel.find( "a[href='#about']" ).on( "click", function() {
+		OSApp.UIDom.changePage( "#about" );
+		return false;
+	} );
+
+	panel.find( ".cloud-login" ).on( "click", function() {
+		OSApp.Network.requestCloudAuth();
+		return false;
+	} );
+ 	// TODO: mellodev lots of functions called here that need refactoring to module
+	panel.find( "a[href='#debugWU']" ).on( "click", debugWU );
+
+	panel.find( "a[href='#localization']" ).on( "click", OSApp.Language.languageSelect );
+
+	panel.find( ".export_config" ).on( "click", function() {
+
+		// Check if the controller has special stations which are enabled
+		if ( typeof OSApp.currentSession.controller.stations.stn_spe === "object" && typeof OSApp.currentSession.controller.special !== "object" && !OSApp.currentSession.controller.stations.stn_spe.every( function( e ) { return e === 0; } ) ) {
+
+			// Grab station special data before proceeding
+			updateControllerStationSpecial( getExportMethod );
+		} else {
+			getExportMethod();
+		}
+
+		return false;
+	} );
+
+	panel.find( ".import_config" ).on( "click", function() {
+		OSApp.Storage.get( "backup", function( newdata ) {
+			getImportMethod( newdata.backup );
+		} );
+
+		return false;
+	} );
+
+	panel.find( ".toggleOperation" ).on( "click", function() {
+		var self = $( this ),
+			toValue = ( 1 - OSApp.currentSession.controller.settings.en );
+
+		areYouSure( OSApp.Language._( "Are you sure you want to" ) + " " + operation().toLowerCase() + " " + OSApp.Language._( "operation?" ), "", function() {
+			OSApp.Firmware.sendToOS( "/cv?pw=&en=" + toValue ).done( function() {
+				$.when(
+					updateControllerSettings(),
+					updateControllerStatus()
+				).done( function() {
+					checkStatus();
+					self.find( "span:first" ).html( operation() ).attr( "data-translate", operation() );
+				} );
+			} );
+		} );
+
+		return false;
+	} ).find( "span:first" ).html( operation() ).attr( "data-translate", operation() );
+
+	panel.find( ".reboot-os" ).on( "click", function() {
+		areYouSure( OSApp.Language._( "Are you sure you want to reboot OpenSprinkler?" ), "", function() {
+			$.mobile.loading( "show" );
+			OSApp.Firmware.sendToOS( "/cv?pw=&rbt=1" ).done( function() {
+				$.mobile.loading( "hide" );
+				OSApp.Errors.showError( OSApp.Language._( "OpenSprinkler is rebooting now" ) );
+			} );
+		} );
+		return false;
+	} );
+
+	panel.find( ".changePassword > a" ).on( "click", OSApp.Network.changePassword );
+
+	panel.find( "#downgradeui" ).on( "click", function() {
+		areYouSure( OSApp.Language._( "Are you sure you want to downgrade the UI?" ), "", function() {
+			var url = "http://rayshobby.net/scripts/java/svc" + OSApp.Firmware.getOSVersion();
+
+			OSApp.Firmware.sendToOS( "/cu?jsp=" + encodeURIComponent( url ) + "&pw=" ).done( function() {
+				OSApp.Storage.remove( [ "sites", "current_site", "lang", "provider", "wapikey", "runonce" ] );
+				location.reload();
+			} );
+		} );
+		return false;
+	} );
+
+	panel.find( "#logout" ).on( "click", function() {
+		logout();
+		return false;
+	} );
+
+	 OSApp.uiState.openPanel = ( function() {
+		var panel = $( "#sprinklers-settings" ),
+			updateButtons = function() {
+				var operation = ( OSApp.currentSession.controller && OSApp.currentSession.controller.settings && OSApp.currentSession.controller.settings.en && OSApp.currentSession.controller.settings.en === 1 ) ? OSApp.Language._( "Disable" ) : OSApp.Language._( "Enable" );
+				panel.find( ".toggleOperation span:first" ).html( operation ).attr( "data-translate", operation );
+			};
+
+		$( "html" ).on( "datarefresh",  updateButtons );
+
+		function begin() {
+			var currPage = $( ".ui-page-active" ).attr( "id" );
+
+			if ( currPage === "start" || currPage === "loadingPage" || !OSApp.currentSession.isControllerConnected() || $( ".ui-page-active" ).length !== 1 ) {
+				return;
+			}
+
+			updateButtons();
+			panel.panel( "open" );
+		}
+
+		return begin;
+	} )();
+};
+
+OSApp.UIDom.changePage = ( toPage, opts = {}) => {
+	if ( toPage.indexOf( "#" ) !== 0 ) {
+		toPage = "#" + toPage;
+	}
+
+	// Close the panel before page transition to avoid bug in jQM 1.4+
+	OSApp.UIDom.closePanel( () => {
+		$.mobile.pageContainer.pagecontainer( "change", toPage, opts );
+	} );
+};
+
+OSApp.UIDom.openPopup = ( popup, args ) => {
+	args = $.extend( {}, {
+		history: false,
+		positionTo: "window",
+		overlayTheme: "b"
+	}, args );
+
+	$.mobile.pageContainer.append( popup );
+
+	popup.one( "popupafterclose", function() {
+
+		// Retrieve popup data
+		var updateRemainingStations = $( "#shift-sta" ).is( ":checked" );
+
+		// Save data before view is destroyed
+		if ( updateRemainingStations !== undefined ) {
+			OSApp.uiState.popupData.shift = updateRemainingStations;
+		}
+
+		popup.popup( "destroy" ).remove();
+	} ).popup( args ).enhanceWithin();
+
+	popup.popup( "open" );
+};
+
+OSApp.UIDom.closePanel = ( callback = () => void 0 ) => {
+	var panel = $( ".ui-panel-open" );
+	if ( panel.length > 0 ) {
+		panel.one( "panelclose", function() {
+			callback();
+		} );
+		panel.panel( "close" );
+		return;
+	} else {
+		callback();
+	}
 };

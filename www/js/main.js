@@ -68,7 +68,7 @@ OSApp.currentDevice = {
 	isFireFox: /Firefox/.test( navigator.userAgent ),
 	isOSXApp: window.cordova && window.cordova.platformId === "ios" && navigator.platform === "MacIntel",
 	isTouchCapable: "ontouchstart" in window || "onmsgesturechange" in window,
-	isMetric: ( [ "US", "BM", "PW" ].indexOf( navigator.languages[ 0 ].split( "-" )[ 1 ] ) === -1 )
+	isMetric: ( [ "US", "BM", "PW" ].indexOf( navigator.languages[ 0 ].split( "-" )[ 1 ] ) === -1 ),
 };
 OSApp.currentDevice.isFileCapable = !OSApp.currentDevice.isiOS && !OSApp.currentDevice.isAndroid && !OSApp.currentDevice.isOSXApp && window.FileReader;
 
@@ -109,9 +109,23 @@ OSApp.currentSession = {
 	weather: undefined, // Current weather observations and future forecast data
 	weatherServerUrl: OSApp.Constants.weather.DEFAULT_WEATHER_SERVER_URL
 };
+OSApp.currentSession.isControllerConnected = () => {
+	if ( ( !OSApp.currentSession.ip && !OSApp.currentSession.token ) ||
+		$.isEmptyObject( OSApp.currentSession.controller ) ||
+		$.isEmptyObject( OSApp.currentSession.controller.options ) ||
+		$.isEmptyObject( OSApp.currentSession.controller.programs ) ||
+		$.isEmptyObject( OSApp.currentSession.controller.settings ) ||
+		$.isEmptyObject( OSApp.currentSession.controller.status ) ||
+		$.isEmptyObject( OSApp.currentSession.controller.stations ) ) {
+
+			return false;
+	}
+
+	return true;
+};
 
 /* Setup DOM handlers and launch app*/
-OSApp.Main.launchApp();
+OSApp.UIDom.launchApp();
 
 // Handle main switches for manual mode
 function flipSwitched() {
@@ -127,9 +141,9 @@ function flipSwitched() {
 		defer;
 
 	if ( changedTo ) {
-		defer = OSApp.Network.sendToOS( "/cv?pw=&" + method + "=1" );
+		defer = OSApp.Firmware.sendToOS( "/cv?pw=&" + method + "=1" );
 	} else {
-		defer = OSApp.Network.sendToOS( "/cv?pw=&" + method + "=0" );
+		defer = OSApp.Firmware.sendToOS( "/cv?pw=&" + method + "=0" );
 	}
 
 	$.when( defer ).then( function() {
@@ -181,7 +195,7 @@ function newLoad() {
 		"margin-top": "-4em"
 	} ).find( ".cancel" ).one( "click", function() {
 		$.ajaxq.abort( "default" );
-		changePage( "#site-control", {
+		OSApp.UIDom.changePage( "#site-control", {
 			transition: "none"
 		} );
 	} );
@@ -190,7 +204,7 @@ function newLoad() {
 	OSApp.currentSession.controller = {};
 
 	//Empty notifications
-	clearNotifications();
+	OSApp.Notifications.clearNotifications();
 
 	//Empty timers object
 	OSApp.uiState.timers = {};
@@ -206,7 +220,7 @@ function newLoad() {
 			$.mobile.loading( "hide" );
 			checkURLandUpdateWeather();
 
-			if ( OSApp.Network.checkOSVersion( 210 ) ) {
+			if ( OSApp.Firmware.checkOSVersion( 210 ) ) {
 				weatherAdjust.css( "display", "" );
 			} else {
 				weatherAdjust.hide();
@@ -218,7 +232,7 @@ function newLoad() {
 			}
 
 			// Hide change password feature for unsupported devices
-			if ( OSApp.Network.isOSPi() || OSApp.Network.checkOSVersion( 208 ) ) {
+			if ( OSApp.Firmware.isOSPi() || OSApp.Firmware.checkOSVersion( 208 ) ) {
 				changePassword.css( "display", "" );
 			} else {
 				changePassword.hide();
@@ -233,25 +247,25 @@ function newLoad() {
 			}
 
 			// Check if a firmware update is available
-			checkFirmwareUpdate();
+			OSApp.Firmware.checkFirmwareUpdate();
 
 			// Check for unused expansion boards
 			detectUnusedExpansionBoards();
 
 			// Check if password is plain text (older method) and hash the password, if needed
-			if ( OSApp.Network.checkOSVersion( 213 ) && OSApp.currentSession.controller.options.hwv !== 255 ) {
+			if ( OSApp.Firmware.checkOSVersion( 213 ) && OSApp.currentSession.controller.options.hwv !== 255 ) {
 				fixPasswordHash( name );
 			}
 
 			// Check if the OpenSprinkler can be accessed from the public IP
 			if ( !OSApp.currentSession.local && typeof OSApp.currentSession.controller.settings.eip === "number" ) {
-				checkPublicAccess( OSApp.currentSession.controller.settings.eip );
+				OSApp.Network.checkPublicAccess( OSApp.currentSession.controller.settings.eip );
 			}
 
 			// Check if a cloud token is available and if so show logout button otherwise show login
 			updateLoginButtons();
 
-			if ( OSApp.Network.isOSPi() ) {
+			if ( OSApp.Firmware.isOSPi() ) {
 
 				// Show notification of unified firmware availability
 				showUnifiedFirmwareNotification();
@@ -275,7 +289,7 @@ function newLoad() {
 						showFail();
 					} else {
 						$.mobile.document.one( "pageshow", showFail );
-						changePage( "#site-control", {
+						OSApp.UIDom.changePage( "#site-control", {
 							transition: "none"
 						} );
 					}
@@ -292,7 +306,7 @@ function newLoad() {
 			if ( typeof error === "object" && error.status === 401 ) {
 				$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
 
-				changePassword( {
+				OSApp.Network.changePassword( {
 					fixIncorrect: true,
 					name: name,
 					callback: newLoad,
@@ -316,8 +330,8 @@ function updateController( callback, fail ) {
 		callback();
 	};
 
-	if ( isControllerConnected() && OSApp.Network.checkOSVersion( 216 ) ) {
-		OSApp.Network.sendToOS( "/ja?pw=", "json" ).then( function( data ) {
+	if ( OSApp.currentSession.isControllerConnected() && OSApp.Firmware.checkOSVersion( 216 ) ) {
+		OSApp.Firmware.sendToOS( "/ja?pw=", "json" ).then( function( data ) {
 
 			if ( typeof data === "undefined" || $.isEmptyObject( data ) ) {
 				fail();
@@ -354,7 +368,7 @@ function updateControllerPrograms( callback ) {
 	if ( OSApp.currentSession.fw183 === true ) {
 
 		// If the controller is using firmware 1.8.3, then parse the script tag for variables
-		return OSApp.Network.sendToOS( "/gp?d=0" ).done( function( programs ) {
+		return OSApp.Firmware.sendToOS( "/gp?d=0" ).done( function( programs ) {
 			var vars = programs.match( /(nprogs|nboards|mnp)=[\w|\d|.\"]+/g ),
 				progs = /pd=\[\];(.*);/.exec( programs ),
 				newdata = {}, tmp, prog;
@@ -382,7 +396,7 @@ function updateControllerPrograms( callback ) {
 			callback();
 		} );
 	} else {
-		return OSApp.Network.sendToOS( "/jp?pw=", "json" ).done( function( programs ) {
+		return OSApp.Firmware.sendToOS( "/jp?pw=", "json" ).done( function( programs ) {
 			OSApp.currentSession.controller.programs = programs;
 			callback();
 		} );
@@ -395,7 +409,7 @@ function updateControllerStations( callback ) {
 	if ( OSApp.currentSession.fw183 === true ) {
 
 		// If the controller is using firmware 1.8.3, then parse the script tag for variables
-		return OSApp.Network.sendToOS( "/vs" ).done( function( stations ) {
+		return OSApp.Firmware.sendToOS( "/vs" ).done( function( stations ) {
 			var names = /snames=\[(.*?)\];/.exec( stations ),
 				masop = stations.match( /(?:masop|mo)\s?[=|:]\s?\[(.*?)\]/ );
 
@@ -416,7 +430,7 @@ function updateControllerStations( callback ) {
 			callback();
 		} );
 	} else {
-		return OSApp.Network.sendToOS( "/jn?pw=", "json" ).done( function( stations ) {
+		return OSApp.Firmware.sendToOS( "/jn?pw=", "json" ).done( function( stations ) {
 			OSApp.currentSession.controller.stations = stations;
 			callback();
 		} );
@@ -429,7 +443,7 @@ function updateControllerOptions( callback ) {
 	if ( OSApp.currentSession.fw183 === true ) {
 
 		// If the controller is using firmware 1.8.3, then parse the script tag for variables
-		return OSApp.Network.sendToOS( "/vo" ).done( function( options ) {
+		return OSApp.Firmware.sendToOS( "/vo" ).done( function( options ) {
 			var isOSPi = options.match( /var sd\s*=/ ),
 				vars = {}, tmp, i, o;
 
@@ -460,7 +474,7 @@ function updateControllerOptions( callback ) {
 			callback();
 		} );
 	} else {
-		return OSApp.Network.sendToOS( "/jo?pw=", "json" ).done( function( options ) {
+		return OSApp.Firmware.sendToOS( "/jo?pw=", "json" ).done( function( options ) {
 			OSApp.currentSession.controller.options = options;
 			callback();
 		} );
@@ -473,7 +487,7 @@ function updateControllerStatus( callback ) {
 	if ( OSApp.currentSession.fw183 === true ) {
 
 		// If the controller is using firmware 1.8.3, then parse the script tag for variables
-		return OSApp.Network.sendToOS( "/sn0" ).then(
+		return OSApp.Firmware.sendToOS( "/sn0" ).then(
 			function( status ) {
 				var tmp = status.toString().match( /\d+/ );
 
@@ -486,7 +500,7 @@ function updateControllerStatus( callback ) {
 				OSApp.currentSession.controller.status = [];
 			} );
 	} else {
-		return OSApp.Network.sendToOS( "/js?pw=", "json" ).then(
+		return OSApp.Firmware.sendToOS( "/js?pw=", "json" ).then(
 			function( status ) {
 				OSApp.currentSession.controller.status = status.sn;
 				callback();
@@ -503,7 +517,7 @@ function updateControllerSettings( callback ) {
 	if ( OSApp.currentSession.fw183 === true ) {
 
 		// If the controller is using firmware 1.8.3, then parse the script tag for variables
-		return OSApp.Network.sendToOS( "" ).then(
+		return OSApp.Firmware.sendToOS( "" ).then(
 			function( settings ) {
 				var varsRegex = /(ver|devt|nbrd|tz|en|rd|rs|mm|rdst|urs)\s?[=|:]\s?([\w|\d|.\"]+)/gm,
 					loc = settings.match( /loc\s?[=|:]\s?[\"|'](.*)[\"|']/ ),
@@ -536,7 +550,7 @@ function updateControllerSettings( callback ) {
 				}
 			} );
 	} else {
-		return OSApp.Network.sendToOS( "/jc?pw=" ).then(
+		return OSApp.Firmware.sendToOS( "/jc?pw=" ).then(
 			function( settings ) {
 				if ( typeof settings !== "object" ) {
 					try {
@@ -582,7 +596,7 @@ function updateControllerSettings( callback ) {
 function updateControllerStationSpecial( callback ) {
 	callback = callback || function() {};
 
-	return OSApp.Network.sendToOS( "/je?pw=", "json" ).then(
+	return OSApp.Firmware.sendToOS( "/je?pw=", "json" ).then(
 		function( special ) {
 			OSApp.currentSession.controller.special = special;
 			callback();
@@ -592,81 +606,14 @@ function updateControllerStationSpecial( callback ) {
 		} );
 }
 
-// Multi site functions
-function checkConfigured( firstLoad ) {
-	OSApp.Storage.get( [ "sites", "current_site", "cloudToken" ], function( data ) {
-		var sites = data.sites,
-			current = data.current_site,
-			names;
-
-		sites = parseSites( sites );
-
-		names = Object.keys( sites );
-
-		if ( !names.length ) {
-			if ( firstLoad ) {
-				if ( data.cloudToken === undefined || data.cloudToken === null ) {
-					changePage( "#start", {
-						transition: "none"
-					} );
-				} else {
-					changePage( "#site-control", {
-						transition: "none"
-					} );
-				}
-			}
-			return;
-		}
-
-		if ( current === null || !( current in sites ) ) {
-			$.mobile.loading( "hide" );
-			changePage( "#site-control", {
-				transition: firstLoad ? "none" : undefined
-			} );
-			return;
-		}
-
-		updateSiteList( names, current );
-
-		OSApp.currentSession.token = sites[ current ].os_token;
-
-		OSApp.currentSession.ip = sites[ current ].os_ip;
-		OSApp.currentSession.pass = sites[ current ].os_pw;
-
-		if ( typeof sites[ current ].ssl !== "undefined" && sites[ current ].ssl === "1" ) {
-			OSApp.currentSession.prefix = "https://";
-		} else {
-			OSApp.currentSession.prefix = "http://";
-		}
-
-		if ( typeof sites[ current ].auth_user !== "undefined" &&
-			typeof sites[ current ].auth_pw !== "undefined" ) {
-
-			OSApp.currentSession.auth = true;
-			OSApp.currentSession.authUser = sites[ current ].auth_user;
-			OSApp.currentSession.authPass = sites[ current ].auth_pw;
-		} else {
-			OSApp.currentSession.auth = false;
-		}
-
-		if ( sites[ current ].is183 ) {
-			OSApp.currentSession.fw183 = true;
-		} else {
-			OSApp.currentSession.fw183 = false;
-		}
-
-		newLoad();
-	} );
-}
-
 function fixPasswordHash( current ) {
 	OSApp.Storage.get( [ "sites" ], function( data ) {
-		var sites = parseSites( data.sites );
+		var sites = OSApp.Sites.parseSites( data.sites );
 
 		if ( !isMD5( OSApp.currentSession.pass ) ) {
 			var pw = md5( OSApp.currentSession.pass );
 
-			OSApp.Network.sendToOS(
+			OSApp.Firmware.sendToOS(
 				"/sp?pw=&npw=" + encodeURIComponent( pw ) +
 				"&cpw=" + encodeURIComponent( pw ), "json"
 			).done( function( info ) {
@@ -749,7 +696,7 @@ function submitNewUser( ssl, useAuth ) {
 					"current_site": name
 				}, function() {
 					cloudSaveSites();
-					updateSiteList( Object.keys( sites ), name );
+					OSApp.Sites.updateSiteList( Object.keys( sites ), name );
 					newLoad();
 				} );
 			} else {
@@ -874,7 +821,7 @@ function submitNewUser( ssl, useAuth ) {
 				},
 				success: function( reply ) {
 					OSApp.Storage.get( "sites", function( data ) {
-						var sites = parseSites( data.sites );
+						var sites = OSApp.Sites.parseSites( data.sites );
 						success( reply, sites );
 					} );
 				},
@@ -883,15 +830,11 @@ function submitNewUser( ssl, useAuth ) {
 		},
 		success: function( reply ) {
 			OSApp.Storage.get( "sites", function( data ) {
-				var sites = parseSites( data.sites );
+				var sites = OSApp.Sites.parseSites( data.sites );
 				success( reply, sites );
 			} );
 		}
 	} );
-}
-
-function parseSites( sites ) {
-	return ( sites === undefined || sites === null ) ? {} : JSON.parse( sites );
 }
 
 function showSiteSelect( list ) {
@@ -1064,7 +1007,7 @@ var showSites = ( function() {
 
 	popup.find( "#site-add-scan" ).on( "click", function() {
 		popup.popup( "close" );
-		startScan();
+		OSApp.Network.startScan();
 		return false;
 	} );
 
@@ -1086,11 +1029,11 @@ var showSites = ( function() {
 
 	function updateContent() {
 		OSApp.Storage.get( [ "sites", "current_site", "cloudToken" ], function( data ) {
-			sites = parseSites( data.sites );
+			sites = OSApp.Sites.parseSites( data.sites );
 
 			if ( $.isEmptyObject( sites ) ) {
 				if ( typeof data.cloudToken !== "string" ) {
-					changePage( "#start" );
+					OSApp.UIDom.changePage( "#start" );
 
 					return;
 				} else {
@@ -1106,7 +1049,7 @@ var showSites = ( function() {
 
 				total = Object.keys( sites ).length;
 
-				if ( !isControllerConnected() || !total || !( data.current_site in sites ) ) {
+				if ( !OSApp.currentSession.isControllerConnected() || !total || !( data.current_site in sites ) ) {
 					makeStart();
 				}
 
@@ -1162,7 +1105,7 @@ var showSites = ( function() {
 						"</form>" +
 					"</fieldset>";
 
-					testSite( b, i, function( id, result ) {
+					OSApp.Sites.testSite( b, i, function( id, result ) {
 						page.find( "#site-" + id + " .connectnow" )
 							.removeClass( "yellow" )
 							.addClass( result ? "green" : "red" );
@@ -1217,7 +1160,7 @@ var showSites = ( function() {
 							}
 						} );
 
-						openPopup( popup );
+						OSApp.UIDom.openPopup( popup );
 					} else {
 						el.data( {
 							user: "",
@@ -1277,9 +1220,9 @@ var showSites = ( function() {
 							OSApp.Storage.set( { "current_site":site } );
 							data.current_site = site;
 						}
-						updateSiteList( Object.keys( sites ), data.current_site );
+						OSApp.Sites.updateSiteList( Object.keys( sites ), data.current_site );
 
-						//OSApp.Network.sendToOS( "/cv?pw=&cn=" + data.current_site );
+						//OSApp.Firmware.sendToOS( "/cv?pw=&cn=" + data.current_site );
 					}
 
 					OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
@@ -1291,7 +1234,7 @@ var showSites = ( function() {
 							OSApp.currentSession.pass = pw;
 						}
 						if ( needsReconnect ) {
-							checkConfigured();
+							OSApp.Sites.checkConfigured();
 						}
 					}
 
@@ -1312,13 +1255,13 @@ var showSites = ( function() {
 						delete sites[ site ];
 						OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, function() {
 							cloudSaveSites();
-							updateSiteList( Object.keys( sites ), data.current_site );
+							OSApp.Sites.updateSiteList( Object.keys( sites ), data.current_site );
 							if ( $.isEmptyObject( sites ) ) {
 								OSApp.Storage.get( "cloudToken", function() {
 									if ( data.cloudToken === null || data.cloudToken === undefined ) {
 										OSApp.currentSession.ip = "";
 										OSApp.currentSession.pass = "";
-										changePage( "#start" );
+										OSApp.UIDom.changePage( "#start" );
 										return;
 									}
 								} );
@@ -1345,7 +1288,7 @@ var showSites = ( function() {
 	function begin() {
 		header = changeHeader( {
 			title: OSApp.Language._( "Manage Sites" ),
-			animate: isControllerConnected() ? true : false,
+			animate: OSApp.currentSession.isControllerConnected() ? true : false,
 			leftBtn: {
 				icon: "carat-l",
 				text: OSApp.Language._( "Back" ),
@@ -1386,332 +1329,6 @@ var showSites = ( function() {
 	return begin;
 } )();
 
-function addSyncStatus( token ) {
-	var ele = $( "<div class='ui-bar smaller ui-bar-a ui-corner-all logged-in-alert'>" +
-			"<div class='inline ui-btn ui-icon-recycle btn-no-border ui-btn-icon-notext ui-mini'></div>" +
-			"<div class='inline syncStatus'>" + OSApp.Language._( "Synced with OpenSprinkler.com" ) + " (" + getTokenUser( token ) + ")</div>" +
-			"<div class='inline ui-btn ui-icon-delete btn-no-border ui-btn-icon-notext ui-mini logout'></div>" +
-		"</div>" );
-
-	ele.find( ".logout" ).on( "click", logout );
-	ele.find( ".ui-icon-recycle" ).on( "click", function() {
-		var btn = $( this );
-
-		btn.addClass( "spin" );
-		cloudSync( function() {
-			btn.removeClass( "spin" );
-		} );
-	} );
-	return ele;
-}
-
-function testSite( site, id, callback ) {
-	var urlDest = "/jo?pw=" + encodeURIComponent( site.os_pw ),
-		url = site.os_token ? "https://cloud.openthings.io/forward/v1/" + site.os_token + urlDest : ( site.ssl === "1" ? "https://" : "http://" ) + site.os_ip + urlDest;
-
-	$.ajax( {
-		url: url,
-		type: "GET",
-		dataType: "json",
-		beforeSend: function( xhr ) {
-			if ( typeof site.auth_user !== "undefined" && typeof site.auth_pw !== "undefined" ) {
-				xhr.setRequestHeader( "Authorization", "Basic " + btoa( site.auth_user + ":" + site.auth_pw ) );
-			}
-		}
-	} ).then(
-		function() {
-			callback( id, true );
-		},
-		function() {
-			callback( id, false );
-		}
-	);
-}
-
-// Update the panel list of sites
-function updateSiteList( names, current ) {
-	var list = "",
-		select = $( "#site-selector" );
-
-	$.each( names, function() {
-		list += "<option " + ( this.toString() === current ? "selected " : "" ) + "value='" + htmlEscape( this ) + "'>" + this + "</option>";
-	} );
-
-	$( "#info-list" ).find( "li[data-role='list-divider']" ).text( current );
-
-	select.html( list );
-	if ( select.parent().parent().hasClass( "ui-select" ) ) {
-		select.selectmenu( "refresh" );
-	}
-}
-
-// Change the current site
-function updateSite( newsite ) {
-	OSApp.Storage.get( "sites", function( data ) {
-		var sites = parseSites( data.sites );
-		if ( newsite in sites ) {
-			closePanel( function() {
-				OSApp.Storage.set( { "current_site":newsite }, checkConfigured );
-			} );
-		}
-	} );
-}
-
-function findLocalSiteName( sites, callback ) {
-	for ( var site in sites ) {
-		if ( sites.hasOwnProperty( site ) ) {
-			if ( OSApp.currentSession.ip.indexOf( sites[ site ].os_ip ) !== -1 ) {
-				callback( site );
-				return;
-			}
-		}
-	}
-
-	callback( false );
-}
-
-// Automatic device detection functions
-function updateDeviceIP( finishCheck ) {
-	var finish = function( result ) {
-		OSApp.currentDevice.deviceIp = result;
-
-		if ( typeof finishCheck === "function" ) {
-			finishCheck( result );
-		}
-	},
-	ip;
-
-	try {
-
-		// Request the device's IP address
-		networkinterface.getWiFiIPAddress( function( data ) {
-			ip = data.ip;
-			finish( ip );
-		} );
-	} catch ( err ) {
-		findRouter( function( status, data ) {
-			finish( !status ? undefined : data );
-		} );
-	}
-}
-
-function isLocalIP( ip ) {
-	var chk = parseIntArray( ip.split( "." ) );
-
-	// Check if the IP is on a private network, if not don't enable automatic scanning
-	return ( chk[ 0 ] === 10 || chk[ 0 ] === 127 || ( chk[ 0 ] === 172 && chk[ 1 ] > 17 && chk[ 1 ] < 32 ) || ( chk[ 0 ] === 192 && chk[ 1 ] === 168 ) );
-}
-
-function startScan( port, type ) {
-
-	/*
-		The type represents the OpenSprinkler model as defined below
-		0 - OpenSprinkler using firmware 2.0+
-		1 - OpenSprinkler Pi (Python) using 1.9+
-		2 - OpenSprinkler using firmware 1.8.3
-		3 - OpenSprinkler Pi (Python) using 1.8.3
-	*/
-
-	var ip = OSApp.currentDevice.deviceIp.split( "." ),
-		scanprogress = 1,
-		devicesfound = 0,
-		newlist = "",
-		suffix = "",
-		oldips = [],
-		isCanceled = false,
-		i, url, notfound, found, baseip, checkScanStatus, scanning, dtype, text;
-
-	type = type || 0;
-	port = ( typeof port === "number" ) ? port : 80;
-
-	OSApp.Storage.get( "sites", function( data ) {
-		var oldsites = parseSites( data.sites ),
-			i;
-
-		for ( i in oldsites ) {
-			if ( oldsites.hasOwnProperty( i ) ) {
-				oldips.push( oldsites[ i ].os_ip );
-			}
-		}
-	} );
-
-	notfound = function() {
-		scanprogress++;
-	};
-
-	found = function( reply ) {
-		scanprogress++;
-		var ip = $.mobile.path.parseUrl( this.url ).authority,
-			fwv, tmp;
-
-		if ( $.inArray( ip, oldips ) !== -1 ) {
-			return;
-		}
-
-		if ( this.dataType === "text" ) {
-			tmp = reply.match( /var\s*ver=(\d+)/ );
-			if ( !tmp ) {
-				return;
-			}
-			fwv = tmp[ 1 ];
-		} else {
-			if ( !reply.hasOwnProperty( "fwv" ) ) {
-				return;
-			}
-			fwv = reply.fwv;
-		}
-
-		devicesfound++;
-
-		newlist += "<li><a class='ui-btn ui-btn-icon-right ui-icon-carat-r' href='#' data-ip='" + ip + "'>" + ip +
-				"<p>" + OSApp.Language._( "Firmware" ) + ": " + OSApp.Network.getOSVersion( fwv ) + "</p>" +
-			"</a></li>";
-	};
-
-	// Check if scanning is complete
-	checkScanStatus = function() {
-		if ( isCanceled === true ) {
-			$.mobile.loading( "hide" );
-			clearInterval( scanning );
-			return false;
-		}
-
-		if ( scanprogress === 245 ) {
-			$.mobile.loading( "hide" );
-			clearInterval( scanning );
-			if ( !devicesfound ) {
-				if ( type === 0 ) {
-					startScan( 8080, 1 );
-
-				} else if ( type === 1 ) {
-					startScan( 80, 2 );
-
-				} else if ( type === 2 ) {
-					startScan( 8080, 3 );
-
-				} else {
-					OSApp.Errors.showError( OSApp.Language._( "No new devices were detected on your network" ) );
-				}
-			} else {
-				newlist = $( newlist );
-
-				newlist.find( "a" ).on( "click", function() {
-					addFound( $( this ).data( "ip" ) );
-					return false;
-				} );
-
-				showSiteSelect( newlist );
-			}
-		}
-	};
-
-	ip.pop();
-	baseip = ip.join( "." );
-
-	if ( type === 0 ) {
-		text = OSApp.Language._( "Scanning for OpenSprinkler" );
-	} else if ( type === 1 ) {
-		text = OSApp.Language._( "Scanning for OpenSprinkler Pi" );
-	} else if ( type === 2 ) {
-		text = OSApp.Language._( "Scanning for OpenSprinkler (1.8.3)" );
-	} else if ( type === 3 ) {
-		text = OSApp.Language._( "Scanning for OpenSprinkler Pi (1.8.3)" );
-	}
-
-	$.mobile.loading( "show", {
-		html: "<h1>" + text + "</h1><p class='cancel tight center inline-icon'>" +
-			"<span class='btn-no-border ui-btn ui-icon-delete ui-btn-icon-notext'></span>" + OSApp.Language._( "Cancel" ) + "</p>",
-		textVisible: true,
-		theme: "b"
-	} );
-
-	$( ".ui-loader" ).find( ".cancel" ).one( "click", function() {
-		isCanceled = true;
-	} );
-
-	// Start scan
-	for ( i = 1; i <= 244; i++ ) {
-		ip = baseip + "." + i;
-		if ( type < 2 ) {
-			suffix = "/jo";
-			dtype = "json";
-		} else {
-			dtype = "text";
-		}
-		url = "http://" + ip + ( ( port && port !== 80 ) ? ":" + port : "" ) + suffix;
-		$.ajax( {
-			url: url,
-			type: "GET",
-			dataType: dtype,
-			timeout: 6000,
-			global: false,
-			error: notfound,
-			success: found
-		} );
-	}
-	scanning = setInterval( checkScanStatus, 200 );
-}
-
-function findRouter( callback ) {
-	callback = callback || function() {};
-
-	var routerIPs = [ "192.168.1.1", "10.0.1.1", "192.168.1.220", "192.168.2.1", "10.1.1.1", "192.168.11.1", "192.168.0.1",
-					"192.168.0.30", "192.168.0.50", "192.168.10.1", "192.168.20.1", "192.168.30.1", "192.168.62.1", "192.168.102.1",
-					"192.168.1.254", "192.168.0.227", "10.0.0.138", "192.168.123.254", "192.168.4.1", "10.0.0.2", "10.0.2.1",
-					"10.0.3.1", "10.0.4.1", "10.0.5.1" ],
-		total = routerIPs.length,
-		scanprogress = 0,
-		reply = function( status, ip ) {
-			scanprogress++;
-			if ( status === true ) {
-				routerFound = ip;
-			}
-		},
-		checkScanStatus = function() {
-			if ( scanprogress === total || typeof routerFound === "string" ) {
-				clearInterval( scanning );
-				if ( typeof routerFound === "string" ) {
-					callback( true, routerFound );
-				} else {
-					callback( false );
-				}
-			}
-		},
-		scanning, routerFound, i;
-
-	for ( i = 0; i < total; i++ ) {
-		if ( typeof routerFound !== "string" ) {
-			ping( routerIPs[ i ], reply );
-		}
-	}
-	scanning = setInterval( checkScanStatus, 50 );
-}
-
-function ping( ip, callback ) {
-	callback = callback || function() {};
-
-	if ( !ip || ip === "" ) {
-		callback( false );
-	}
-
-	$.ajax( {
-		url: "http://" + ip,
-		type: "GET",
-		timeout: 6000,
-		global: false
-	} ).then(
-		function() {
-			callback( true, ip );
-		},
-		function( e ) {
-			if ( e.statusText === "timeout" ) {
-				callback( false );
-			} else {
-				callback( true, ip );
-			}
-		}
-	);
-}
 
 // Show popup for new device after populating device IP with selected result
 function addFound( ip ) {
@@ -1735,7 +1352,7 @@ function showZimmermanAdjustmentOptions( button, callback ) {
 		}, unescapeJSON( button.value ) ),
 
 		// Enable Zimmerman extension to set weather conditions as baseline for adjustment
-		hasBaseline = OSApp.Network.checkOSVersion( 2162 );
+		hasBaseline = OSApp.Firmware.checkOSVersion( 2162 );
 
 	// OSPi stores in imperial so convert to metric and adjust to nearest 1/10ths of a degree and mm
 	if ( OSApp.currentDevice.isMetric ) {
@@ -1887,7 +1504,7 @@ function showZimmermanAdjustmentOptions( button, callback ) {
 
 	popup.css( "max-width", "380px" );
 
-	openPopup( popup, { positionTo: "window" } );
+	OSApp.UIDom.openPopup( popup, { positionTo: "window" } );
 }
 
 function showAutoRainDelayAdjustmentOptions( button, callback ) {
@@ -1960,7 +1577,7 @@ function showAutoRainDelayAdjustmentOptions( button, callback ) {
 
 	popup.css( "max-width", "380px" );
 
-	openPopup( popup, { positionTo: "window" } );
+	OSApp.UIDom.openPopup( popup, { positionTo: "window" } );
 }
 
 function showMonthlyAdjustmentOptions( button, callback ) {
@@ -2090,7 +1707,7 @@ function showMonthlyAdjustmentOptions( button, callback ) {
 
 	popup.css( "max-width", "380px" );
 
-	openPopup( popup, { positionTo: "window" } );
+	OSApp.UIDom.openPopup( popup, { positionTo: "window" } );
 }
 
 // Validates a Weather Underground location to verify it contains the data needed for Weather Adjustments
@@ -2240,7 +1857,7 @@ function showEToAdjustmentOptions( button, callback ) {
 
 	popup.css( "max-width", "380px" );
 
-	openPopup( popup, { positionTo: "window" } );
+	OSApp.UIDom.openPopup( popup, { positionTo: "window" } );
 }
 
 function formatTemp( temp ) {
@@ -2371,12 +1988,12 @@ function updateWeatherBox() {
 			if ( target.hasClass( "rain-delay" ) || target.parents( ".rain-delay" ).length ) {
 				areYouSure( OSApp.Language._( "Do you want to turn off rain delay?" ), "", function() {
 					showLoading( "#weather" );
-					OSApp.Network.sendToOS( "/cv?pw=&rd=0" ).done( function() {
+					OSApp.Firmware.sendToOS( "/cv?pw=&rd=0" ).done( function() {
 						updateController( updateWeather );
 					} );
 				} );
 			} else {
-				changePage( "#forecast" );
+				OSApp.UIDom.changePage( "#forecast" );
 			}
 			return false;
 		} )
@@ -2542,7 +2159,7 @@ function showForecast() {
 	} );
 
 	page.find( ".alert" ).on( "click", function() {
-		openPopup( $( "<div data-role='popup' data-theme='a'>" +
+		OSApp.UIDom.openPopup( $( "<div data-role='popup' data-theme='a'>" +
 				"<div data-role='header' data-theme='b'>" +
 					"<h1>" + OSApp.currentSession.weather.alert.name + "</h1>" +
 				"</div>" +
@@ -2725,7 +2342,7 @@ function overlayMap( callback ) {
 		}
 	} );
 
-	openPopup( popup, {
+	OSApp.UIDom.openPopup( popup, {
 		beforeposition: function() {
 			popup.css( {
 				width: window.innerWidth - 36,
@@ -2874,7 +2491,7 @@ function debugWU() {
 	}
 	popup += "</div>";
 
-	openPopup( $( popup ) );
+	OSApp.UIDom.openPopup( $( popup ) );
 
 	return false;
 }
@@ -2912,7 +2529,7 @@ function showRainDelay() {
 function showPause() {
 	if ( StationQueue.isPaused() ) {
 		areYouSure( OSApp.Language._( "Do you want to resume program operation?" ), "", function() {
-			OSApp.Network.sendToOS( "/pq?pw=" );
+			OSApp.Firmware.sendToOS( "/pq?pw=" );
 		} );
 	} else {
 		showDurationBox( {
@@ -2920,7 +2537,7 @@ function showPause() {
 			incrementalUpdate: false,
 			maximum: 65535,
 			callback: function( duration ) {
-				OSApp.Network.sendToOS( "/pq?dur=" + duration + "&pw=" );
+				OSApp.Firmware.sendToOS( "/pq?dur=" + duration + "&pw=" );
 			}
 		} );
 	}
@@ -2983,129 +2600,6 @@ function testAPIKey( key, callback ) {
 	} );
 }
 
-// Panel functions
-function bindPanel() {
-	var panel = $( "#sprinklers-settings" ),
-		operation = function() {
-			return ( OSApp.currentSession.controller && OSApp.currentSession.controller.settings && OSApp.currentSession.controller.settings.en && OSApp.currentSession.controller.settings.en === 1 ) ? OSApp.Language._( "Disable" ) : OSApp.Language._( "Enable" );
-		};
-
-	panel.enhanceWithin().panel().removeClass( "hidden" ).panel( "option", "classes.modal", "needsclick ui-panel-dismiss" );
-
-	panel.find( "a[href='#site-control']" ).on( "click", function() {
-		changePage( "#site-control" );
-		return false;
-	} );
-
-	panel.find( "a[href='#about']" ).on( "click", function() {
-		changePage( "#about" );
-		return false;
-	} );
-
-	panel.find( ".cloud-login" ).on( "click", function() {
-		requestCloudAuth();
-		return false;
-	} );
-
-	panel.find( "a[href='#debugWU']" ).on( "click", debugWU );
-
-	panel.find( "a[href='#localization']" ).on( "click", OSApp.Language.languageSelect );
-
-	panel.find( ".export_config" ).on( "click", function() {
-
-		// Check if the controller has special stations which are enabled
-		if ( typeof OSApp.currentSession.controller.stations.stn_spe === "object" && typeof OSApp.currentSession.controller.special !== "object" && !OSApp.currentSession.controller.stations.stn_spe.every( function( e ) { return e === 0; } ) ) {
-
-			// Grab station special data before proceeding
-			updateControllerStationSpecial( getExportMethod );
-		} else {
-			getExportMethod();
-		}
-
-		return false;
-	} );
-
-	panel.find( ".import_config" ).on( "click", function() {
-		OSApp.Storage.get( "backup", function( newdata ) {
-			getImportMethod( newdata.backup );
-		} );
-
-		return false;
-	} );
-
-	panel.find( ".toggleOperation" ).on( "click", function() {
-		var self = $( this ),
-			toValue = ( 1 - OSApp.currentSession.controller.settings.en );
-
-		areYouSure( OSApp.Language._( "Are you sure you want to" ) + " " + operation().toLowerCase() + " " + OSApp.Language._( "operation?" ), "", function() {
-			OSApp.Network.sendToOS( "/cv?pw=&en=" + toValue ).done( function() {
-				$.when(
-					updateControllerSettings(),
-					updateControllerStatus()
-				).done( function() {
-					checkStatus();
-					self.find( "span:first" ).html( operation() ).attr( "data-translate", operation() );
-				} );
-			} );
-		} );
-
-		return false;
-	} ).find( "span:first" ).html( operation() ).attr( "data-translate", operation() );
-
-	panel.find( ".reboot-os" ).on( "click", function() {
-		areYouSure( OSApp.Language._( "Are you sure you want to reboot OpenSprinkler?" ), "", function() {
-			$.mobile.loading( "show" );
-			OSApp.Network.sendToOS( "/cv?pw=&rbt=1" ).done( function() {
-				$.mobile.loading( "hide" );
-				OSApp.Errors.showError( OSApp.Language._( "OpenSprinkler is rebooting now" ) );
-			} );
-		} );
-		return false;
-	} );
-
-	panel.find( ".changePassword > a" ).on( "click", changePassword );
-
-	panel.find( "#downgradeui" ).on( "click", function() {
-		areYouSure( OSApp.Language._( "Are you sure you want to downgrade the UI?" ), "", function() {
-			var url = "http://rayshobby.net/scripts/java/svc" + OSApp.Network.getOSVersion();
-
-			OSApp.Network.sendToOS( "/cu?jsp=" + encodeURIComponent( url ) + "&pw=" ).done( function() {
-				OSApp.Storage.remove( [ "sites", "current_site", "lang", "provider", "wapikey", "runonce" ] );
-				location.reload();
-			} );
-		} );
-		return false;
-	} );
-
-	panel.find( "#logout" ).on( "click", function() {
-		logout();
-		return false;
-	} );
-
-	 OSApp.uiState.openPanel = ( function() {
-		var panel = $( "#sprinklers-settings" ),
-			updateButtons = function() {
-				var operation = ( OSApp.currentSession.controller && OSApp.currentSession.controller.settings && OSApp.currentSession.controller.settings.en && OSApp.currentSession.controller.settings.en === 1 ) ? OSApp.Language._( "Disable" ) : OSApp.Language._( "Enable" );
-				panel.find( ".toggleOperation span:first" ).html( operation ).attr( "data-translate", operation );
-			};
-
-		$( "html" ).on( "datarefresh",  updateButtons );
-
-		function begin() {
-			var currPage = $( ".ui-page-active" ).attr( "id" );
-
-			if ( currPage === "start" || currPage === "loadingPage" || !isControllerConnected() || $( ".ui-page-active" ).length !== 1 ) {
-				return;
-			}
-
-			updateButtons();
-			panel.panel( "open" );
-		}
-
-		return begin;
-	} )();
-}
-
 // Device setting management functions
 function showOptions( expandItem ) {
 	var list = "",
@@ -3126,9 +2620,9 @@ function showOptions( expandItem ) {
 					"<label for='o" + index + "-rain'>" + OSApp.Language._( "Rain" ) + "</label>" +
 					( index === 52 ? "" : "<input class='noselect' type='radio' name='o" + index + "' id='o" + index + "-flow' value='2'" + ( sensorType === 2 ? " checked='checked'" : "" ) + ">" +
 						"<label for='o" + index + "-flow'>" + OSApp.Language._( "Flow" ) + "</label>" ) +
-					( OSApp.Network.checkOSVersion( 219 ) ? "<input class='noselect' type='radio' name='o" + index + "' id='o" + index + "-soil' value='3'" + ( sensorType === 3 ? " checked='checked'" : "" ) + ">" +
+					( OSApp.Firmware.checkOSVersion( 219 ) ? "<input class='noselect' type='radio' name='o" + index + "' id='o" + index + "-soil' value='3'" + ( sensorType === 3 ? " checked='checked'" : "" ) + ">" +
 						"<label for='o" + index + "-soil'>" + OSApp.Language._( "Soil" ) + "</label>" : "" ) +
-					( OSApp.Network.checkOSVersion( 217 ) ? "<input class='noselect' type='radio' name='o" + index + "' id='o" + index + "-program' value='240'" + ( sensorType === 240 ? " checked='checked'" : "" ) + ">" +
+					( OSApp.Firmware.checkOSVersion( 217 ) ? "<input class='noselect' type='radio' name='o" + index + "' id='o" + index + "-program' value='240'" + ( sensorType === 240 ? " checked='checked'" : "" ) + ">" +
 						"<label for='o" + index + "-program'>" + OSApp.Language._( "Program Switch" ) + "</label>" : "" ) +
 				"</fieldset>" +
 			"</div>";
@@ -3136,7 +2630,7 @@ function showOptions( expandItem ) {
 		submitOptions = function() {
 			var opt = {},
 				invalid = false,
-				isPi = OSApp.Network.isOSPi(),
+				isPi = OSApp.Firmware.isOSPi(),
 				button = header.eq( 2 ),
 				key;
 
@@ -3319,7 +2813,7 @@ function showOptions( expandItem ) {
 					case "o52":
 					case "o53":
 						data = $item.is( ":checked" ) ? 1 : 0;
-						if ( !OSApp.Network.checkOSVersion( 219 ) && !data ) {
+						if ( !OSApp.Firmware.checkOSVersion( 219 ) && !data ) {
 							return true;
 						}
 						break;
@@ -3334,7 +2828,7 @@ function showOptions( expandItem ) {
 				}
 
 				// Because the firmware has a bug regarding spaces, let us replace them out now with a compatible separator
-				if ( OSApp.Network.checkOSVersion( 208 ) === true && id === "loc" ) {
+				if ( OSApp.Firmware.checkOSVersion( 208 ) === true && id === "loc" ) {
 					data = data.replace( /\s/g, "_" );
 				}
 
@@ -3363,7 +2857,7 @@ function showOptions( expandItem ) {
 			opt = transformKeys( opt );
 			$.mobile.loading( "show" );
 
-			OSApp.Network.sendToOS( "/co?pw=&" + $.param( opt ) ).done( function() {
+			OSApp.Firmware.sendToOS( "/co?pw=&" + $.param( opt ) ).done( function() {
 				$.mobile.document.one( "pageshow", function() {
 					OSApp.Errors.showError( OSApp.Language._( "Settings have been saved" ) );
 				} );
@@ -3404,7 +2898,7 @@ function showOptions( expandItem ) {
 			dateToString( new Date( OSApp.currentSession.controller.settings.devt * 1000 ) ).slice( 0, -3 ) + "</button></div>";
 	}
 
-	if ( !OSApp.Network.isOSPi() && typeof OSApp.currentSession.controller.options.tz !== "undefined" ) {
+	if ( !OSApp.Firmware.isOSPi() && typeof OSApp.currentSession.controller.options.tz !== "undefined" ) {
 		timezones = [ "-12:00", "-11:30", "-11:00", "-10:00", "-09:30", "-09:00", "-08:30", "-08:00", "-07:00", "-06:00",
 			"-05:00", "-04:30", "-04:00", "-03:30", "-03:00", "-02:30", "-02:00", "+00:00", "+01:00", "+02:00", "+03:00",
 			"+03:30", "+04:00", "+04:30", "+05:00", "+05:30", "+05:45", "+06:00", "+06:30", "+07:00", "+08:00", "+08:45",
@@ -3413,7 +2907,7 @@ function showOptions( expandItem ) {
 		tz = OSApp.currentSession.controller.options.tz - 48;
 		tz = ( ( tz >= 0 ) ? "+" : "-" ) + pad( ( Math.abs( tz ) / 4 >> 0 ) ) + ":" + ( ( Math.abs( tz ) % 4 ) * 15 / 10 >> 0 ) + ( ( Math.abs( tz ) % 4 ) * 15 % 10 );
 		list += "<div class='ui-field-contain'><label for='o1' class='select'>" + OSApp.Language._( "Timezone" ) + "</label>" +
-			"<select " + ( OSApp.Network.checkOSVersion( 210 ) && typeof OSApp.currentSession.weather === "object" ? "disabled='disabled' " : "" ) + "data-mini='true' id='o1'>";
+			"<select " + ( OSApp.Firmware.checkOSVersion( 210 ) && typeof OSApp.currentSession.weather === "object" ? "disabled='disabled' " : "" ) + "data-mini='true' id='o1'>";
 
 		for ( i = 0; i < timezones.length; i++ ) {
 			list += "<option " + ( ( timezones[ i ] === tz ) ? "selected" : "" ) + " value='" + timezones[ i ] + "'>" + timezones[ i ] + "</option>";
@@ -3455,7 +2949,7 @@ function showOptions( expandItem ) {
 			list += "<option " + ( ( Station.isMaster( i ) === 1 ) ? "selected" : "" ) + " value='" + ( i + 1 ) + "'>" +
 				OSApp.currentSession.controller.stations.snames[ i ] + "</option>";
 
-			if ( !OSApp.Network.checkOSVersion( 214 ) && i === 7 ) {
+			if ( !OSApp.Firmware.checkOSVersion( 214 ) && i === 7 ) {
 				break;
 			}
 		}
@@ -3487,7 +2981,7 @@ function showOptions( expandItem ) {
 			list += "<option " + ( ( Station.isMaster( i ) === 2 ) ? "selected" : "" ) + " value='" + ( i + 1 ) + "'>" + OSApp.currentSession.controller.stations.snames[ i ] +
 				"</option>";
 
-			if ( !OSApp.Network.checkOSVersion( 214 ) && i === 7 ) {
+			if ( !OSApp.Firmware.checkOSVersion( 214 ) && i === 7 ) {
 				break;
 			}
 		}
@@ -3557,7 +3051,7 @@ function showOptions( expandItem ) {
 			var adjustmentMethod = getAdjustmentMethod()[ i ];
 
 			// Skip unsupported adjustment options.
-			if ( adjustmentMethod.minVersion && !OSApp.Network.checkOSVersion( adjustmentMethod.minVersion ) ) {
+			if ( adjustmentMethod.minVersion && !OSApp.Firmware.checkOSVersion( adjustmentMethod.minVersion ) ) {
 				continue;
 			}
 			list += "<option " + ( ( adjustmentMethod.id === getCurrentAdjustmentMethodId() ) ? "selected" : "" ) + " value='" + i + "'>" + adjustmentMethod.name + "</option>";
@@ -3571,7 +3065,7 @@ function showOptions( expandItem ) {
 				"</button></div>";
 		}
 
-		if ( OSApp.Network.checkOSVersion( 214 ) ) {
+		if ( OSApp.Firmware.checkOSVersion( 214 ) ) {
 			list += "<div class='ui-field-contain'><label for='weatherRestriction' class='select'>" + OSApp.Language._( "Weather-Based Restrictions" ) +
 					"<button data-helptext='" + OSApp.Language._( "Prevents watering when the selected restriction is met." ) +
 						"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
@@ -3652,13 +3146,13 @@ function showOptions( expandItem ) {
 			"</label><button data-mini='true' id='o55' value='" + OSApp.currentSession.controller.options.sn1of + "'>" + OSApp.currentSession.controller.options.sn1of + "m</button></div>";
 	}
 
-	if ( OSApp.Network.checkOSVersion( 217 ) ) {
+	if ( OSApp.Firmware.checkOSVersion( 217 ) ) {
 		list += "<label id='prgswitch' class='center smaller" + ( OSApp.currentSession.controller.options.urs === 240 || OSApp.currentSession.controller.options.sn1t === 240 || OSApp.currentSession.controller.options.sn2t === 240 ? "" : " hidden" ) + "'>" +
 			OSApp.Language._( "When using program switch, a switch is connected to the sensor port to trigger Program 1 every time the switch is pressed for at least 1 second." ) +
 		"</label>";
 	}
 
-	if ( typeof OSApp.currentSession.controller.options.sn2t !== "undefined" && OSApp.Network.checkOSVersion( 219 ) ) {
+	if ( typeof OSApp.currentSession.controller.options.sn2t !== "undefined" && OSApp.Firmware.checkOSVersion( 219 ) ) {
 		list += generateSensorOptions( OSApp.Constants.keyIndex.sn2t, OSApp.currentSession.controller.options.sn2t, 2 );
 	}
 
@@ -3784,7 +3278,7 @@ function showOptions( expandItem ) {
 		( typeof expandItem === "string" && expandItem === "advanced" ? " data-collapsed='false'" : "" ) + ">" +
 		"<legend>" + OSApp.Language._( "Advanced" ) + "</legend>";
 
-	if ( OSApp.Network.checkOSVersion( 219 ) && typeof OSApp.currentSession.controller.options.uwt !== "undefined" && typeof OSApp.currentSession.controller.settings.wto === "object" ) {
+	if ( OSApp.Firmware.checkOSVersion( 219 ) && typeof OSApp.currentSession.controller.options.uwt !== "undefined" && typeof OSApp.currentSession.controller.settings.wto === "object" ) {
 		list += "<div class='ui-field-contain'><label for='wtkey'>" + OSApp.Language._( "Wunderground Key" ).replace( "Wunderground", "Wunder&shy;ground" ) +
 			"<button data-helptext='" +
 				OSApp.Language._( "We use DarkSky normally however with a user provided API key the weather source will switch to Weather Underground." ) +
@@ -3829,7 +3323,7 @@ function showOptions( expandItem ) {
 					OSApp.Language._( "Relay pulsing is used for special situations where rapid pulsing is needed in the output with a range from 1 to 2000 milliseconds. A zero value disables the pulsing option." ) +
 					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
 			"</label><button data-mini='true' id='o30' value='" + OSApp.currentSession.controller.options.rlp + "'>" + OSApp.currentSession.controller.options.rlp + "ms</button></div>";
-	} else if ( OSApp.Network.checkOSVersion( 215 ) !== true && typeof OSApp.currentSession.controller.options.bst !== "undefined" ) {
+	} else if ( OSApp.Firmware.checkOSVersion( 215 ) !== true && typeof OSApp.currentSession.controller.options.bst !== "undefined" ) {
 		list += "<div class='ui-field-contain duration-field'>" +
 			"<label for='o30'>" + OSApp.Language._( "Boost Time" ) +
 				"<button data-helptext='" +
@@ -3838,13 +3332,13 @@ function showOptions( expandItem ) {
 			"</label><button data-mini='true' id='o30' value='" + OSApp.currentSession.controller.options.bst + "'>" + OSApp.currentSession.controller.options.bst + "ms</button></div>";
 	}
 
-	if ( typeof OSApp.currentSession.controller.options.ntp !== "undefined" && OSApp.Network.checkOSVersion( 210 ) ) {
+	if ( typeof OSApp.currentSession.controller.options.ntp !== "undefined" && OSApp.Firmware.checkOSVersion( 210 ) ) {
 		var ntpIP = [ OSApp.currentSession.controller.options.ntp1, OSApp.currentSession.controller.options.ntp2, OSApp.currentSession.controller.options.ntp3, OSApp.currentSession.controller.options.ntp4 ].join( "." );
 		list += "<div class='" + ( ( OSApp.currentSession.controller.options.ntp === 1 ) ? "" : "hidden " ) + "ui-field-contain duration-field'><label for='ntp_addr'>" +
 			OSApp.Language._( "NTP IP Address" ) + "</label><button data-mini='true' id='ntp_addr' value='" + ntpIP + "'>" + ntpIP + "</button></div>";
 	}
 
-	if ( typeof OSApp.currentSession.controller.options.dhcp !== "undefined" && OSApp.Network.checkOSVersion( 210 ) ) {
+	if ( typeof OSApp.currentSession.controller.options.dhcp !== "undefined" && OSApp.Firmware.checkOSVersion( 210 ) ) {
 		var ip = [ OSApp.currentSession.controller.options.ip1, OSApp.currentSession.controller.options.ip2, OSApp.currentSession.controller.options.ip3, OSApp.currentSession.controller.options.ip4 ].join( "." ),
 			gw = [ OSApp.currentSession.controller.options.gw1, OSApp.currentSession.controller.options.gw2, OSApp.currentSession.controller.options.gw3, OSApp.currentSession.controller.options.gw4 ].join( "." );
 
@@ -3948,7 +3442,7 @@ function showOptions( expandItem ) {
 			}
 		} );
 
-		openPopup( popup, { positionTo: "window" } );
+		OSApp.UIDom.openPopup( popup, { positionTo: "window" } );
 	} );
 
 	page.find( ".clear-loc" ).on( "click", function( e ) {
@@ -3978,7 +3472,7 @@ function showOptions( expandItem ) {
 					page.find( "#o1" ).selectmenu( "enable" );
 				}
 			} else {
-				if ( OSApp.Network.checkOSVersion( 210 ) ) {
+				if ( OSApp.Firmware.checkOSVersion( 210 ) ) {
 					page.find( "#o1" ).selectmenu( "disable" );
 				}
 
@@ -4118,7 +3612,7 @@ function showOptions( expandItem ) {
 		areYouSure( OSApp.Language._( "Are you sure you want to reset station attributes?" ), OSApp.Language._( "This will reset all station attributes" ), function() {
 			$.mobile.loading( "show" );
 			OSApp.Storage.get( [ "sites", "current_site" ], function( data ) {
-				var sites = parseSites( data.sites );
+				var sites = OSApp.Sites.parseSites( data.sites );
 
 				sites[ data.current_site ].notes = {};
 				sites[ data.current_site ].images = {};
@@ -4126,7 +3620,7 @@ function showOptions( expandItem ) {
 
 				OSApp.Storage.set( { "sites": JSON.stringify( sites ) }, cloudSaveSites );
 			} );
-			OSApp.Network.sendToOS( "/cs?pw=&" + cs ).done( function() {
+			OSApp.Firmware.sendToOS( "/cs?pw=&" + cs ).done( function() {
 				OSApp.Errors.showError( OSApp.Language._( "Stations have been updated" ) );
 				updateController();
 			} );
@@ -4135,7 +3629,7 @@ function showOptions( expandItem ) {
 
 	page.find( ".reset-wireless" ).on( "click", function() {
 		areYouSure( OSApp.Language._( "Are you sure you want to reset the wireless settings?" ), OSApp.Language._( "This will delete the stored SSID/password for your wireless network and return the device to access point mode" ), function() {
-			OSApp.Network.sendToOS( "/cv?pw=&ap=1" ).done( function() {
+			OSApp.Firmware.sendToOS( "/cv?pw=&ap=1" ).done( function() {
 				$.mobile.document.one( "pageshow", function() {
 					OSApp.Errors.showError( OSApp.Language._( "Wireless settings have been reset. Please follow the OpenSprinkler user manual on restoring connectivity." ) );
 				} );
@@ -4244,8 +3738,8 @@ function showOptions( expandItem ) {
 					dur.val( result ).text( result + "s" );
 				},
 				label: OSApp.Language._( "Seconds" ),
-				maximum: OSApp.Network.checkOSVersion( 220 ) ? 600 : 60,
-				minimum: OSApp.Network.checkOSVersion( 220 ) ? -600 : 0,
+				maximum: OSApp.Firmware.checkOSVersion( 220 ) ? 600 : 60,
+				minimum: OSApp.Firmware.checkOSVersion( 220 ) ? -600 : 0,
 				helptext: helptext
 			} );
 		} else if ( id === "o30" ) {
@@ -4267,8 +3761,8 @@ function showOptions( expandItem ) {
 					dur.val( result ).text( result + "s" );
 				},
 				label: OSApp.Language._( "Seconds" ),
-				maximum: OSApp.Network.checkOSVersion( 220 ) ? 600 : 0,
-				minimum: OSApp.Network.checkOSVersion( 220 ) ? -600 : -60,
+				maximum: OSApp.Firmware.checkOSVersion( 220 ) ? 600 : 0,
+				minimum: OSApp.Firmware.checkOSVersion( 220 ) ? -600 : -60,
 				helptext: helptext
 			} );
 		} else if ( id === "o23" ) {
@@ -4285,16 +3779,16 @@ function showOptions( expandItem ) {
 		} else if ( id === "o17" ) {
 			var min = 0;
 
-			if ( OSApp.Network.checkOSVersion( 210 ) ) {
-				max = OSApp.Network.checkOSVersion( 214 ) ? 57600 : 64800;
+			if ( OSApp.Firmware.checkOSVersion( 210 ) ) {
+				max = OSApp.Firmware.checkOSVersion( 214 ) ? 57600 : 64800;
 			}
 
-			if ( OSApp.Network.checkOSVersion( 211 ) ) {
+			if ( OSApp.Firmware.checkOSVersion( 211 ) ) {
 				min = -3540;
 				max = 3540;
 			}
 
-			if ( OSApp.Network.checkOSVersion( 217 ) ) {
+			if ( OSApp.Firmware.checkOSVersion( 217 ) ) {
 				min = -600;
 				max = 600;
 			}
@@ -4404,7 +3898,7 @@ function showOptions( expandItem ) {
 			}
 		} );
 
-		openPopup( popup );
+		OSApp.UIDom.openPopup( popup );
 	} );
 
 	function generateDefaultSubscribeTopic() {
@@ -4434,7 +3928,7 @@ function showOptions( expandItem ) {
 
 		$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
 
-		var largeSOPTSupport = OSApp.Network.checkOSVersion( 221 );
+		var largeSOPTSupport = OSApp.Firmware.checkOSVersion( 221 );
 		var popup = $( "<div data-role='popup' data-theme='a' id='mqttSettings'>" +
 				"<div data-role='header' data-theme='b'>" +
 					"<h1>" + OSApp.Language._( "MQTT Settings" ) + "</h1>" +
@@ -4537,7 +4031,7 @@ function showOptions( expandItem ) {
 
 		popup.css( "max-width", "380px" );
 
-		openPopup( popup, { positionTo: "window" } );
+		OSApp.UIDom.openPopup( popup, { positionTo: "window" } );
     } );
 
 	page.find( "#email" ).on( "click", function() {
@@ -4634,7 +4128,7 @@ function showOptions( expandItem ) {
 
 		popup.css( "max-width", "380px" );
 
-		openPopup( popup, { positionTo: "window" } );
+		OSApp.UIDom.openPopup( popup, { positionTo: "window" } );
 	} );
 
 	page.find( "#otc" ).on( "click", function() {
@@ -4717,7 +4211,7 @@ function showOptions( expandItem ) {
 
 		popup.css( "max-width", "380px" );
 
-		openPopup( popup, { positionTo: "window" } );
+		OSApp.UIDom.openPopup( popup, { positionTo: "window" } );
     } );
 
 	page.find( ".datetime-input" ).on( "click", function() {
@@ -4758,7 +4252,7 @@ var showHomeMenu = ( function() {
 			"<ul data-role='listview' data-inset='true' data-corners='false'>" +
 				"<li data-role='list-divider'>" + OSApp.Language._( "Information" ) + "</li>" +
 				"<li><a href='#preview' class='squeeze'>" + OSApp.Language._( "Preview Programs" ) + "</a></li>" +
-				( OSApp.Network.checkOSVersion( 206 ) || OSApp.Network.checkOSPiVersion( "1.9" ) ? "<li><a href='#logs'>" + OSApp.Language._( "View Logs" ) + "</a></li>" : "" ) +
+				( OSApp.Firmware.checkOSVersion( 206 ) || OSApp.Firmware.checkOSPiVersion( "1.9" ) ? "<li><a href='#logs'>" + OSApp.Language._( "View Logs" ) + "</a></li>" : "" ) +
 				"<li data-role='list-divider'>" + OSApp.Language._( "Programs and Settings" ) + "</li>" +
 				"<li><a href='#raindelay'>" + OSApp.Language._( "Change Rain Delay" ) + "</a></li>" +
 				( Supported.pausing() ?
@@ -4774,7 +4268,7 @@ var showHomeMenu = ( function() {
 					"<li><a href='#analogsensorchart'>" + OSApp.Language._( "Show Sensor Log" ) + "</a></li>"
 				) : "" ) +
 
-				( OSApp.Network.checkOSVersion( 210 ) ? "" : "<li><a href='#manual'>" + OSApp.Language._( "Manual Control" ) + "</a></li>" ) +
+				( OSApp.Firmware.checkOSVersion( 210 ) ? "" : "<li><a href='#manual'>" + OSApp.Language._( "Manual Control" ) + "</a></li>" ) +
 			( id === "sprinklers" || id === "runonce" || id === "programs" || id === "manual" || id === "addprogram" ?
 				"</ul>" +
 				"<div class='ui-grid-a ui-mini tight'>" +
@@ -4816,7 +4310,7 @@ var showHomeMenu = ( function() {
 				showPause();
 			} else {
 				checkChanges( function() {
-					changePage( href );
+					OSApp.UIDom.changePage( href );
 				} );
 			}
 
@@ -4829,7 +4323,7 @@ var showHomeMenu = ( function() {
 			btn.show();
 		} );
 
-		openPopup( popup, { positionTo: btn } );
+		OSApp.UIDom.openPopup( popup, { positionTo: btn } );
 
 		btn.hide();
 	}
@@ -4900,7 +4394,7 @@ var showHome = ( function() {
 
 			if ( Supported.groups() ) {
 				cards += "<span class='btn-no-border ui-btn card-icon station-gid " + ( Station.isMaster( sid ) ? "hidden" : "" ) +
-							"'>" + mapGIDValueToName( Station.getGIDValue( sid ) ) + "</span>";
+							"'>" + OSApp.Groups.mapGIDValueToName( Station.getGIDValue( sid ) ) + "</span>";
 			}
 
 			cards += "<span class='btn-no-border ui-btn " + ( ( Station.isMaster( sid ) ) ? "ui-icon-master" : "ui-icon-gear" ) +
@@ -4995,9 +4489,9 @@ var showHome = ( function() {
 
 						if ( OSApp.currentSession.controller.settings.gpio ) {
 							freePins = OSApp.currentSession.controller.settings.gpio;
-						} else if ( OSApp.Network.getHWVersion() === "OSPi" ) {
+						} else if ( OSApp.Firmware.getHWVersion() === "OSPi" ) {
 							freePins = [ 5, 6, 7, 8, 9, 10, 11, 12, 13, 16, 18, 19, 20, 21, 23, 24, 25, 26 ];
-						} else if ( OSApp.Network.getHWVersion() === "2.3" ) {
+						} else if ( OSApp.Firmware.getHWVersion() === "2.3" ) {
 							freePins = [ 2, 10, 12, 13, 14, 15, 18, 19 ];
 						}
 
@@ -5171,7 +4665,7 @@ var showHome = ( function() {
 					name.html( select.find( "#stn-name" ).val() );
 
 					var seqGroupName = select.find( "span.seqgrp" ).text();
-					button.attr( "data-gid", mapGIDNameToValue( seqGroupName ) );
+					button.attr( "data-gid", OSApp.Groups.mapGIDNameToValue( seqGroupName ) );
 
 					// Update the notes section
 					sites[ currentSite ].notes[ sid ] = select.find( "#stn-notes" ).val();
@@ -5284,11 +4778,11 @@ var showHome = ( function() {
 							"<option data-hs='1' value='1'>" + OSApp.Language._( "RF" ) + "</option>" +
 							"<option data-hs='2' value='2'>" + OSApp.Language._( "Remote Station (IP)" ) + "</option>" +
 							"<option data-hs='3' value='3'" + (
-								OSApp.Network.checkOSVersion( 217 ) && (
-									( typeof OSApp.currentSession.controller.settings.gpio !== "undefined" && OSApp.currentSession.controller.settings.gpio.length > 0 ) || OSApp.Network.getHWVersion() === "OSPi" || OSApp.Network.getHWVersion() === "2.3"
+								OSApp.Firmware.checkOSVersion( 217 ) && (
+									( typeof OSApp.currentSession.controller.settings.gpio !== "undefined" && OSApp.currentSession.controller.settings.gpio.length > 0 ) || OSApp.Firmware.getHWVersion() === "OSPi" || OSApp.Firmware.getHWVersion() === "2.3"
 								) ? ">" : " disabled>"
 							) + OSApp.Language._( "GPIO" ) + "</option>" +
-							"<option data-hs='4' value='4'" + ( OSApp.Network.checkOSVersion( 217 ) ? ">" : " disabled>" ) + OSApp.Language._( "HTTP" ) + "</option>" +
+							"<option data-hs='4' value='4'" + ( OSApp.Firmware.checkOSVersion( 217 ) ? ">" : " disabled>" ) + OSApp.Language._( "HTTP" ) + "</option>" +
 							"<option data-hs='5' value='5'" + ( typeof OSApp.currentSession.controller.settings.email === "object" ? ">" : " disabled>" ) + OSApp.Language._( "HTTPS" ) + "</option>" +
 							"<option data-hs='6' value='6'" + ( typeof OSApp.currentSession.controller.settings.email === "object" ? ">" : " disabled>" ) + OSApp.Language._( "Remote Station (OTC)" ) + "</option>" +
 						"</select>" +
@@ -5322,8 +4816,8 @@ var showHome = ( function() {
 				}
 
 				for ( var i = 0; i <= OSApp.Constants.options.NUM_SEQ_GROUPS; i++ ) {
-					var value = mapIndexToGIDValue( i ),
-						label = mapGIDValueToName( value ),
+					var value = OSApp.Groups.mapIndexToGIDValue( i ),
+						label = OSApp.Groups.mapGIDValueToName( value ),
 						option = $(
 							"<option data-gid='" + value + "' value='" +
 							value + "'>" +  OSApp.Language._( label ) + "</option>"
@@ -5400,7 +4894,7 @@ var showHome = ( function() {
 			select.popup( opts ).popup( "open" );
 		},
 		submitStations = function( id ) {
-			var is208 = ( OSApp.Network.checkOSVersion( 208 ) === true ),
+			var is208 = ( OSApp.Firmware.checkOSVersion( 208 ) === true ),
 				master = {},
 				master2 = {},
 				sequential = {},
@@ -5506,7 +5000,7 @@ var showHome = ( function() {
 			}
 
 			$.mobile.loading( "show" );
-			OSApp.Network.sendToOS( "/cs?pw=&" + $.param( names ) +
+			OSApp.Firmware.sendToOS( "/cs?pw=&" + $.param( names ) +
 				( Supported.master( OSApp.Constants.options.MASTER_STATION_1 ) ? "&" + $.param( master ) : "" ) +
 				( Supported.master( OSApp.Constants.options.MASTER_STATION_2 ) ? "&" + $.param( master2 ) : "" ) +
 				( Supported.sequential() ? "&" + $.param( sequential ) : "" ) +
@@ -5652,7 +5146,7 @@ var showHome = ( function() {
 				divider = Card.getDivider( thisCard );
 				divider.hide(); // Remove all dividers when switching from group view
 
-				Card.setGroupLabel( thisCard, mapGIDValueToName( Station.getGIDValue( Card.getSID( thisCard ) ) ) );
+				Card.setGroupLabel( thisCard, OSApp.Groups.mapGIDValueToName( Station.getGIDValue( Card.getSID( thisCard ) ) ) );
 				label = Card.getGroupLabel( thisCard );
 				if ( typeof label !== "undefined" && Card.isMasterStation( thisCard ) ) {
 					label.addClass( "hidden" );
@@ -5665,7 +5159,7 @@ var showHome = ( function() {
 				}
 			}
 			Card.getDivider( nextCard ).hide();
-			Card.setGroupLabel( nextCard, mapGIDValueToName( Station.getGIDValue( idx ) ) );
+			Card.setGroupLabel( nextCard, OSApp.Groups.mapGIDValueToName( Station.getGIDValue( idx ) ) );
 			label = Card.getGroupLabel( nextCard );
 			if ( typeof label !== "undefined" && Card.isMasterStation( nextCard ) ) {
 				label.addClass( "hidden" );
@@ -5785,7 +5279,7 @@ var showHome = ( function() {
 
 			currentSite = siteSelect.val();
 			OSApp.Storage.get( "sites", function( data ) {
-				sites = parseSites( data.sites );
+				sites = OSApp.Sites.parseSites( data.sites );
 				if ( typeof sites[ currentSite ].images !== "object" || $.isEmptyObject( sites[ currentSite ].images ) ) {
 					sites[ currentSite ].images = {};
 					page.removeClass( "has-images" );
@@ -5809,7 +5303,7 @@ var showHome = ( function() {
 	} );
 
 	function begin( firstLoad ) {
-		if ( !isControllerConnected() ) {
+		if ( !OSApp.currentSession.isControllerConnected() ) {
 			return false;
 		}
 
@@ -5834,7 +5328,7 @@ var showHome = ( function() {
 		page.on( "click", ".station-settings", showAttributes );
 
 		page.on( "click", ".home-info", function() {
-			changePage( "#os-options", {
+			OSApp.UIDom.changePage( "#os-options", {
 				expandItem: "weather"
 			} );
 			return false;
@@ -5843,7 +5337,7 @@ var showHome = ( function() {
 		page.on( "click", ".card", function() {
 
 			// Bind delegate handler to stop specific station (supported on firmware 2.1.0+ on Arduino)
-			if ( !OSApp.Network.checkOSVersion( 210 ) ) {
+			if ( !OSApp.Firmware.checkOSVersion( 210 ) ) {
 				return false;
 			}
 
@@ -5875,7 +5369,7 @@ var showHome = ( function() {
 						seconds: sites[ currentSite ].lastRunTime[ sid ] > 0 ? sites[ currentSite ].lastRunTime[ sid ] : 0,
 						helptext: OSApp.Language._( "Enter a duration to manually run " ) + name,
 						callback: function( duration ) {
-							OSApp.Network.sendToOS( "/cm?sid=" + sid + "&en=1&t=" + duration + "&pw=", "json" ).done( function() {
+							OSApp.Firmware.sendToOS( "/cm?sid=" + sid + "&en=1&t=" + duration + "&pw=", "json" ).done( function() {
 
 								// Update local state until next device refresh occurs
 								Station.setPID( sid, OSApp.Constants.options.MANUAL_STATION_PID );
@@ -5898,7 +5392,7 @@ var showHome = ( function() {
 
 				var shiftStations = OSApp.uiState.popupData.shift === true ? 1 : 0;
 
-				OSApp.Network.sendToOS( "/cm?sid=" + sid + "&ssta=" + shiftStations + "&en=0&pw=" ).done( function() {
+				OSApp.Firmware.sendToOS( "/cm?sid=" + sid + "&ssta=" + shiftStations + "&en=0&pw=" ).done( function() {
 
 					// Update local state until next device refresh occurs
 					Station.setPID( sid, 0 );
@@ -5952,7 +5446,7 @@ var showHome = ( function() {
 						class: "notifications",
 						text: "<span class='notificationCount ui-li-count ui-btn-corner-all'>" + OSApp.uiState.notifications.length + "</span>",
 						on: function() {
-							showNotifications();
+							OSApp.Notifications.showNotifications();
 							return false;
 						}
 					},
@@ -6005,14 +5499,14 @@ var showStart = ( function() {
 			"</ul>" +
 		"</div>" ),
 		checkAutoScan = function() {
-			updateDeviceIP( function( ip ) {
+			OSApp.Network.updateDeviceIP( function( ip ) {
 				if ( ip === undefined ) {
 					resetStartMenu();
 					return;
 				}
 
 				// Check if the IP is on a private network, if not don't enable automatic scanning
-				if ( !isLocalIP( ip ) ) {
+				if ( !OSApp.Network.isLocalIP( ip ) ) {
 					resetStartMenu();
 					return;
 				}
@@ -6030,7 +5524,7 @@ var showStart = ( function() {
 		next = auto.next();
 
 	page.find( "#auto-scan" ).find( "a" ).on( "click", function() {
-		startScan();
+		OSApp.Network.startScan();
 		return false;
 	} );
 
@@ -6039,7 +5533,7 @@ var showStart = ( function() {
 	} );
 
 	page.find( ".cloud-login" ).on( "click", function() {
-		requestCloudAuth();
+		OSApp.Network.requestCloudAuth();
 		return false;
 	} );
 
@@ -6048,7 +5542,7 @@ var showStart = ( function() {
 	} );
 
 	function begin() {
-		if ( isControllerConnected() ) {
+		if ( OSApp.currentSession.isControllerConnected() ) {
 			return false;
 		}
 
@@ -6141,7 +5635,7 @@ function convertRemoteToExtender( data ) {
 
 // Current status related functions
 function refreshStatus( callback ) {
-	if ( !isControllerConnected() ) {
+	if ( !OSApp.currentSession.isControllerConnected() ) {
 		return;
 	}
 
@@ -6154,7 +5648,7 @@ function refreshStatus( callback ) {
 		callback();
 	};
 
-	if ( OSApp.Network.checkOSVersion( 216 ) ) {
+	if ( OSApp.Firmware.checkOSVersion( 216 ) ) {
 		updateController( finish, networkFail );
 	} else {
 		$.when(
@@ -6166,11 +5660,11 @@ function refreshStatus( callback ) {
 }
 
 function refreshData() {
-	if ( !isControllerConnected() ) {
+	if ( !OSApp.currentSession.isControllerConnected() ) {
 		return;
 	}
 
-	if ( OSApp.Network.checkOSVersion( 216 ) ) {
+	if ( OSApp.Firmware.checkOSVersion( 216 ) ) {
 		updateController( null, networkFail );
 	} else {
 		$.when(
@@ -6197,12 +5691,12 @@ function changeStatus( seconds, color, line, onclick ) {
 		};
 	}
 
-	if ( isControllerConnected() && typeof OSApp.currentSession.controller.settings.curr !== "undefined" ) {
+	if ( OSApp.currentSession.isControllerConnected() && typeof OSApp.currentSession.controller.settings.curr !== "undefined" ) {
 		html += OSApp.Language._( "Current" ) + ": " + OSApp.currentSession.controller.settings.curr + " mA ";
 	}
 
 	if (
-		isControllerConnected() &&
+		OSApp.currentSession.isControllerConnected() &&
 		( OSApp.currentSession.controller.options.urs === 2 || OSApp.currentSession.controller.options.sn1t === 2 ) &&
 		typeof OSApp.currentSession.controller.settings.flcrt !== "undefined" &&
 		typeof OSApp.currentSession.controller.settings.flwrt !== "undefined"
@@ -6223,7 +5717,7 @@ function changeStatus( seconds, color, line, onclick ) {
 function checkStatus() {
 	var open, ptotal, sample, pid, pname, line, match, tmp, i;
 
-	if ( !isControllerConnected() ) {
+	if ( !OSApp.currentSession.isControllerConnected() ) {
 		changeStatus( 0, "transparent", "<p class='running-text smaller'></p>" );
 		return;
 	}
@@ -6233,7 +5727,7 @@ function checkStatus() {
 		changeStatus( 0, "red", "<p class='running-text center pointer'>" + OSApp.Language._( "Configured as Extender" ) + "</p>", function() {
 			areYouSure( OSApp.Language._( "Do you wish to disable extender mode?" ), "", function() {
 				showLoading( "#footer-running" );
-				OSApp.Network.sendToOS( "/cv?pw=&re=0" ).done( function() {
+				OSApp.Firmware.sendToOS( "/cv?pw=&re=0" ).done( function() {
 					updateController();
 				} );
 			} );
@@ -6246,7 +5740,7 @@ function checkStatus() {
 		changeStatus( 0, "red", "<p class='running-text center pointer'>" + OSApp.Language._( "System Disabled" ) + "</p>", function() {
 			areYouSure( OSApp.Language._( "Do you want to re-enable system operation?" ), "", function() {
 				showLoading( "#footer-running" );
-				OSApp.Network.sendToOS( "/cv?pw=&en=1" ).done( function() {
+				OSApp.Firmware.sendToOS( "/cv?pw=&en=1" ).done( function() {
 					updateController();
 				} );
 			} );
@@ -6267,7 +5761,7 @@ function checkStatus() {
 		changeStatus( OSApp.currentSession.controller.settings.pt || 0, "yellow", line, function() {
 			areYouSure( OSApp.Language._( "Do you want to resume station operation?" ), "", function() {
 				showLoading( "#footer-running" );
-				OSApp.Network.sendToOS( "/pq?pw=&dur=0" ).done( function() {
+				OSApp.Firmware.sendToOS( "/pq?pw=&dur=0" ).done( function() {
 					setTimeout( refreshStatus, 1000 );
 				} );
 			} );
@@ -6339,7 +5833,7 @@ function checkStatus() {
 			function() {
 				areYouSure( OSApp.Language._( "Do you want to turn off rain delay?" ), "", function() {
 					showLoading( "#footer-running" );
-					OSApp.Network.sendToOS( "/cv?pw=&rd=0" ).done( function() {
+					OSApp.Firmware.sendToOS( "/cv?pw=&rd=0" ).done( function() {
 						refreshStatus( updateWeather );
 					} );
 				} );
@@ -6369,7 +5863,7 @@ function checkStatus() {
 		changeStatus( 0, "red", "<p class='running-text center pointer'>" + OSApp.Language._( "Manual mode enabled" ) + "</p>", function() {
 			areYouSure( OSApp.Language._( "Do you want to turn off manual mode?" ), "", function() {
 				showLoading( "#footer-running" );
-				OSApp.Network.sendToOS( "/cv?pw=&mm=0" ).done( function() {
+				OSApp.Firmware.sendToOS( "/cv?pw=&mm=0" ).done( function() {
 					updateController();
 				} );
 			} );
@@ -6444,7 +5938,7 @@ function updateTimers() {
 
 	setInterval( function() {
 
-		if ( !isControllerConnected() ) {
+		if ( !OSApp.currentSession.isControllerConnected() ) {
 			return false;
 		}
 
@@ -6562,13 +6056,13 @@ var getManual = ( function() {
 			}
 
 			if ( OSApp.currentSession.controller.status[ currPos ] ) {
-				if ( OSApp.Network.checkOSPiVersion( "2.1" ) ) {
+				if ( OSApp.Firmware.checkOSPiVersion( "2.1" ) ) {
 					dest = "/sn?sid=" + sid + "&set_to=0&pw=";
 				} else {
 					dest = "/sn" + sid + "=0";
 				}
 			} else {
-				if ( OSApp.Network.checkOSPiVersion( "2.1" ) ) {
+				if ( OSApp.Firmware.checkOSPiVersion( "2.1" ) ) {
 					dest = "/sn?sid=" + sid + "&set_to=1&set_time=" + dur + "&pw=";
 				} else {
 					dest = "/sn" + sid + "=1&t=" + dur;
@@ -6578,7 +6072,7 @@ var getManual = ( function() {
 			anchor.removeClass( "green" ).addClass( "yellow" );
 			anchor.html( "<p class='ui-icon ui-icon-loading mini-load'></p>" );
 
-			OSApp.Network.sendToOS( dest ).always(
+			OSApp.Firmware.sendToOS( dest ).always(
 				function() {
 
 					// The device usually replies before the station has actually toggled. Delay in order to wait for the station's to toggle.
@@ -6706,7 +6200,7 @@ var getRunonce = ( function() {
 				program = readProgram( OSApp.currentSession.controller.programs.pd[ z ] );
 				var prog = [];
 
-				if ( OSApp.Network.checkOSVersion( 210 ) ) {
+				if ( OSApp.Firmware.checkOSVersion( 210 ) ) {
 					prog = program.stations;
 				} else {
 					var setStations = program.stations.split( "" );
@@ -6724,7 +6218,7 @@ var getRunonce = ( function() {
 			"<option value='t'>" + OSApp.Language._( "Test All Stations" ) + "</option><option value='s' selected='selected'>" + OSApp.Language._( "Quick Programs" ) + "</option>";
 
 		for ( i = 0; i < progs.length; i++ ) {
-			if ( OSApp.Network.checkOSVersion( 210 ) ) {
+			if ( OSApp.Firmware.checkOSVersion( 210 ) ) {
 				name = OSApp.currentSession.controller.programs.pd[ i ][ 5 ];
 			} else {
 				name = OSApp.Language._( "Program" ) + " " + ( i + 1 );
@@ -6815,7 +6309,7 @@ var getRunonce = ( function() {
 					}
 				},
 				maximum: 65535,
-				showSun: OSApp.Network.checkOSVersion( 214 ) ? true : false
+				showSun: OSApp.Firmware.checkOSVersion( 214 ) ? true : false
 			} );
 
 			return false;
@@ -6855,7 +6349,7 @@ function submitRunonce( runonce ) {
 	var submit = function() {
 			$.mobile.loading( "show" );
 			OSApp.Storage.set( { "runonce":JSON.stringify( runonce ) } );
-			OSApp.Network.sendToOS( "/cr?pw=&t=" + JSON.stringify( runonce ) ).done( function() {
+			OSApp.Firmware.sendToOS( "/cr?pw=&t=" + JSON.stringify( runonce ) ).done( function() {
 				$.mobile.loading( "hide" );
 				$.mobile.document.one( "pageshow", function() {
 					OSApp.Errors.showError( OSApp.Language._( "Run-once program has been scheduled" ) );
@@ -7372,7 +6866,7 @@ var getPreview = ( function() {
 			className = "delayed";
 		}
 
-		if ( OSApp.Network.checkOSVersion( 210 ) ) {
+		if ( OSApp.Firmware.checkOSVersion( 210 ) ) {
 			pname = OSApp.currentSession.controller.programs.pd[ pid - 1 ][ 5 ];
 		}
 
@@ -7426,7 +6920,7 @@ var getPreview = ( function() {
 				}
 			}
 		}
-		if ( simminutes < prog[ 3 ] || ( simminutes > prog[ 4 ] || ( OSApp.Network.isOSPi() && simminutes >= prog[ 4 ] ) ) ) {
+		if ( simminutes < prog[ 3 ] || ( simminutes > prog[ 4 ] || ( OSApp.Firmware.isOSPi() && simminutes >= prog[ 4 ] ) ) ) {
 			return 0;
 		}
 		if ( prog[ 5 ] === 0 ) {
@@ -7685,7 +7179,7 @@ var getPreview = ( function() {
 
 			if ( sel.length ) {
 				if ( typeof sel[ 0 ].row !== "undefined" ) {
-					changePage( "#programs", {
+					OSApp.UIDom.changePage( "#programs", {
 						"programToExpand": parseInt( timeline.getItem( sel[ 0 ].row ).pid )
 					} );
 				}
@@ -7739,9 +7233,9 @@ var getPreview = ( function() {
 	};
 
 	function begin() {
-		is21 = OSApp.Network.checkOSVersion( 210 );
-		is211 = OSApp.Network.checkOSVersion( 211 );
-		is216 = OSApp.Network.checkOSVersion( 216 );
+		is21 = OSApp.Firmware.checkOSVersion( 210 );
+		is211 = OSApp.Firmware.checkOSVersion( 211 );
+		is216 = OSApp.Firmware.checkOSVersion( 216 );
 
 		if ( page.find( "#preview_date" ).val() === "" ) {
 			now = new Date( OSApp.currentSession.controller.settings.devt * 1000 );
@@ -7768,7 +7262,7 @@ var getPreview = ( function() {
 } )();
 
 function getStationDuration( duration, date ) {
-	if ( OSApp.Network.checkOSVersion( 214 ) ) {
+	if ( OSApp.Firmware.checkOSVersion( 214 ) ) {
 		var sunTimes = getSunTimes( date );
 
 		if ( duration === 65535 ) {
@@ -8113,7 +7607,7 @@ var getLogs = ( function() {
 						continue;
 					}
 					groupArray[ i ] = "<div data-role='collapsible' data-collapsed='true'><h2>" +
-							( ( OSApp.Network.checkOSVersion( 210 ) && grouping === "day" ) ? "<a class='ui-btn red ui-btn-corner-all delete-day day-" +
+							( ( OSApp.Firmware.checkOSVersion( 210 ) && grouping === "day" ) ? "<a class='ui-btn red ui-btn-corner-all delete-day day-" +
 								group + "'>" + OSApp.Language._( "delete" ) + "</a>" : "" ) +
 							"<div class='ui-btn-up-c ui-btn-corner-all custom-count-pos'>" +
 								ct + " " + ( ( ct === 1 ) ? OSApp.Language._( "run" ) : OSApp.Language._( "runs" ) ) +
@@ -8158,7 +7652,7 @@ var getLogs = ( function() {
 			logsList.html( html + groupArray.join( "" ) + "</div>" ).enhanceWithin();
 
 			// Initialize datatable
-			$( "#table-logs" ).DataTable( OSApp.Main.getDatatablesConfig() );
+			$( "#table-logs" ).DataTable( OSApp.UIDom.getDatatablesConfig() );
 
 			logsList.find( ".delete-day" ).on( "click", function() {
 				var day, date;
@@ -8174,7 +7668,7 @@ var getLogs = ( function() {
 
 				areYouSure( OSApp.Language._( "Are you sure you want to " ) + OSApp.Language._( "delete" ) + " " + date + "?", "", function() {
 					$.mobile.loading( "show" );
-					OSApp.Network.sendToOS( "/dl?pw=&day=" + day ).done( function() {
+					OSApp.Firmware.sendToOS( "/dl?pw=&day=" + day ).done( function() {
 						requestData();
 						OSApp.Errors.showError( date + " " + OSApp.Language._( "deleted" ) );
 					} );
@@ -8252,17 +7746,17 @@ var getLogs = ( function() {
 			var wlDefer = $.Deferred().resolve(),
 				flDefer = $.Deferred().resolve();
 
-			if ( OSApp.Network.checkOSVersion( 211 ) ) {
-				wlDefer = OSApp.Network.sendToOS( "/jl?pw=&type=wl&" + parms(), "json" );
+			if ( OSApp.Firmware.checkOSVersion( 211 ) ) {
+				wlDefer = OSApp.Firmware.sendToOS( "/jl?pw=&type=wl&" + parms(), "json" );
 			}
 
-			if ( OSApp.Network.checkOSVersion( 216 ) ) {
-				flDefer = OSApp.Network.sendToOS( "/jl?pw=&type=fl&" + parms() );
+			if ( OSApp.Firmware.checkOSVersion( 216 ) ) {
+				flDefer = OSApp.Firmware.sendToOS( "/jl?pw=&type=fl&" + parms() );
 			}
 
 			setTimeout( function() {
 				$.when(
-					OSApp.Network.sendToOS( "/jl?pw=&" + parms(), "json" ),
+					OSApp.Firmware.sendToOS( "/jl?pw=&" + parms(), "json" ),
 					wlDefer,
 					flDefer
 				).then( success, fail );
@@ -8312,14 +7806,14 @@ var getLogs = ( function() {
 	page.find( "#log_table" ).prop( "checked", isNarrow );
 
 	function begin() {
-		var additionalMetrics = OSApp.Network.checkOSVersion( 219 ) ? [
+		var additionalMetrics = OSApp.Firmware.checkOSVersion( 219 ) ? [
 			OSApp.currentSession.controller.options.sn1t === 3 ? OSApp.Language._( "Soil Sensor" ) : OSApp.Language._( "Rain Sensor" ),
 			OSApp.currentSession.controller.options.sn2t === 3 ? OSApp.Language._( "Soil Sensor" ) : OSApp.Language._( "Rain Sensor" ),
 			OSApp.Language._( "Rain Delay" )
 		] : [ OSApp.Language._( "Rain Sensor" ), OSApp.Language._( "Rain Delay" ) ];
 
 		stations = $.merge( $.merge( [], OSApp.currentSession.controller.stations.snames ), additionalMetrics );
-		page.find( ".clear_logs" ).toggleClass( "hidden", ( OSApp.Network.isOSPi() || OSApp.Network.checkOSVersion( 210 ) ?  false : true ) );
+		page.find( ".clear_logs" ).toggleClass( "hidden", ( OSApp.Firmware.isOSPi() || OSApp.Firmware.checkOSVersion( 210 ) ?  false : true ) );
 
 		if ( logStart.val() === "" || logEnd.val() === "" ) {
 			var now = new Date( OSApp.currentSession.controller.settings.devt * 1000 );
@@ -8351,9 +7845,9 @@ var getLogs = ( function() {
 
 function clearLogs( callback ) {
 	areYouSure( OSApp.Language._( "Are you sure you want to clear ALL your log data?" ), "", function() {
-		var url = OSApp.Network.isOSPi() ? "/cl?pw=" : "/dl?pw=&day=all";
+		var url = OSApp.Firmware.isOSPi() ? "/cl?pw=" : "/dl?pw=&day=all";
 		$.mobile.loading( "show" );
-		OSApp.Network.sendToOS( url ).done( function() {
+		OSApp.Firmware.sendToOS( url ).done( function() {
 			if ( typeof callback === "function" ) {
 				callback();
 			}
@@ -8366,7 +7860,7 @@ function clearPrograms( callback ) {
 	areYouSure( OSApp.Language._( "Are you sure you want to delete ALL programs?" ), "", function() {
 		var url = "/dp?pw=&pid=-1";
 		$.mobile.loading( "show" );
-		OSApp.Network.sendToOS( url ).done( function() {
+		OSApp.Firmware.sendToOS( url ).done( function() {
 			if ( typeof callback === "function" ) {
 				callback();
 			}
@@ -8379,13 +7873,13 @@ function resetAllOptions( callback ) {
 	areYouSure( OSApp.Language._( "Are you sure you want to delete all settings and return to the default settings?" ), "", function() {
 		var co;
 
-		if ( OSApp.Network.isOSPi() ) {
+		if ( OSApp.Firmware.isOSPi() ) {
 			co = "otz=32&ontp=1&onbrd=0&osdt=0&omas=0&omton=0&omtoff=0&orst=1&owl=100&orlp=0&ouwt=0&olg=1&oloc=Boston,MA";
 		} else {
 			co = "o2=1&o3=1&o12=80&o13=0&o15=0&o17=0&o18=0&o19=0&o20=0&o22=1&o23=100&o26=0&o27=110&o28=100&o29=15&" +
 				"o30=320&o31=0&o36=1&o37=0&o38=0&o39=0&o41=100&o42=0&o43=0&o44=8&o45=8&o46=8&o47=8&" +
 				"o48=0&o49=0&o50=0&o51=1&o52=0&o53=1&o54=0&o55=0&o56=0&o57=0&";
-			if ( OSApp.Network.checkOSVersion( 2199 ) ) {
+			if ( OSApp.Firmware.checkOSVersion( 2199 ) ) {
 				co += "o32=0&o33=0&o34=0&o35=0&"; // For newer firmwares, resets ntp to 0.0.0.0
 			} else {
 				co += "o32=216&o33=239&o34=35&o35=12&"; // Time.google.com
@@ -8395,7 +7889,7 @@ function resetAllOptions( callback ) {
 			co = transformKeysinString( co );
 		}
 
-		OSApp.Network.sendToOS( "/co?pw=&" + co ).done( function() {
+		OSApp.Firmware.sendToOS( "/co?pw=&" + co ).done( function() {
 			if ( typeof callback === "function" ) {
 				callback();
 			}
@@ -8457,14 +7951,14 @@ var getPrograms = ( function() {
 			}
 		} );
 
-		if ( OSApp.Network.checkOSVersion( 210 ) ) {
+		if ( OSApp.Firmware.checkOSVersion( 210 ) ) {
 			list.find( ".move-up" ).removeClass( "hidden" ).on( "click", function() {
 				var group = $( this ).parents( "fieldset" ),
 					pid = parseInt( group.attr( "id" ).split( "-" )[ 1 ] );
 
 				$.mobile.loading( "show" );
 
-				OSApp.Network.sendToOS( "/up?pw=&pid=" + pid ).done( function() {
+				OSApp.Firmware.sendToOS( "/up?pw=&pid=" + pid ).done( function() {
 					updateControllerPrograms( function() {
 						$.mobile.loading( "hide" );
 						page.trigger( "programrefresh" );
@@ -8478,7 +7972,7 @@ var getPrograms = ( function() {
 		list.find( ".program-copy" ).on( "click", function() {
 			var copyID = parseInt( $( this ).parents( "fieldset" ).attr( "id" ).split( "-" )[ 1 ] );
 
-			changePage( "#addprogram", {
+			OSApp.UIDom.changePage( "#addprogram", {
 				copyID: copyID
 			} );
 
@@ -8504,7 +7998,7 @@ var getPrograms = ( function() {
 				text: OSApp.Language._( "Add" ),
 				on: function() {
 					checkChanges( function() {
-						changePage( "#addprogram" );
+						OSApp.UIDom.changePage( "#addprogram" );
 					} );
 				}
 			}
@@ -8543,7 +8037,7 @@ function expandProgram( program ) {
 	} );
 
 	program.find( "[id^='run-']" ).on( "click", function() {
-		var name = OSApp.Network.checkOSVersion( 210 ) ? OSApp.currentSession.controller.programs.pd[ id ][ 5 ] : "Program " + id;
+		var name = OSApp.Firmware.checkOSVersion( 210 ) ? OSApp.currentSession.controller.programs.pd[ id ][ 5 ] : "Program " + id;
 
 		areYouSure( OSApp.Language._( "Are you sure you want to start " + name + " now?" ), "", function() {
 			var runonce = [],
@@ -8552,7 +8046,7 @@ function expandProgram( program ) {
 					submitRunonce( runonce );
 				};
 
-			if ( OSApp.Network.checkOSVersion( 210 ) ) {
+			if ( OSApp.Firmware.checkOSVersion( 210 ) ) {
 				runonce = OSApp.currentSession.controller.programs.pd[ id ][ 4 ];
 
 				if ( ( OSApp.currentSession.controller.programs.pd[ id ][ 0 ] >> 1 ) & 1 ) {
@@ -8584,7 +8078,7 @@ function expandProgram( program ) {
 
 // Translate program array into easier to use data
 function readProgram( program ) {
-	if ( OSApp.Network.checkOSVersion( 210 ) ) {
+	if ( OSApp.Firmware.checkOSVersion( 210 ) ) {
 		return readProgram21( program );
 	} else {
 		return readProgram183( program );
@@ -8747,7 +8241,7 @@ function pidname( pid ) {
 		pname = OSApp.Language._( "Manual program" );
 	} else if ( pid === 254 || pid === 98 ) {
 		pname = OSApp.Language._( "Run-once program" );
-	} else if ( OSApp.Network.checkOSVersion( 210 ) && pid <= OSApp.currentSession.controller.programs.pd.length ) {
+	} else if ( OSApp.Firmware.checkOSVersion( 210 ) && pid <= OSApp.currentSession.controller.programs.pd.length ) {
 		pname = OSApp.currentSession.controller.programs.pd[ pid - 1 ][ 5 ];
 	}
 
@@ -8759,7 +8253,7 @@ function updateProgramHeader() {
 	$( "#programs_list" ).find( "[id^=program-]" ).each( function( a, b ) {
 		var item = $( b ),
 			heading = item.find( ".ui-collapsible-heading-toggle" ),
-			en = OSApp.Network.checkOSVersion( 210 ) ? ( OSApp.currentSession.controller.programs.pd[ a ][ 0 ] ) & 0x01 : OSApp.currentSession.controller.programs.pd[ a ][ 0 ];
+			en = OSApp.Firmware.checkOSVersion( 210 ) ? ( OSApp.currentSession.controller.programs.pd[ a ][ 0 ] ) & 0x01 : OSApp.currentSession.controller.programs.pd[ a ][ 0 ];
 
 		if ( en ) {
 			heading.removeClass( "red" );
@@ -8779,7 +8273,7 @@ function makeAllPrograms() {
 
 	for ( var i = 0; i < OSApp.currentSession.controller.programs.pd.length; i++ ) {
 		name = OSApp.Language._( "Program" ) + " " + ( i + 1 );
-		if ( OSApp.Network.checkOSVersion( 210 ) ) {
+		if ( OSApp.Firmware.checkOSVersion( 210 ) ) {
 			name = OSApp.currentSession.controller.programs.pd[ i ][ 5 ];
 		}
 		list += "<fieldset id='program-" + i + "' data-role='collapsible'><h3><a " + ( i > 0 ? "" : "style='visibility:hidden' " ) +
@@ -8791,7 +8285,7 @@ function makeAllPrograms() {
 }
 
 function makeProgram( n, isCopy ) {
-	if ( OSApp.Network.checkOSVersion( 210 ) ) {
+	if ( OSApp.Firmware.checkOSVersion( 210 ) ) {
 		return makeProgram21( n, isCopy );
 	} else {
 		return makeProgram183( n, isCopy );
@@ -9012,27 +8506,27 @@ function makeProgram21( n, isCopy ) {
 		( ( program.weather ) ? "checked='checked'" : "" ) + " name='uwt-" + id + "' id='uwt-" + id + "'>" + OSApp.Language._( "Use Weather Adjustment" ) + "</label>";
 
 	if ( Supported.dateRange() ) {
-		var from = Program.getDateRangeStart( id ),
-			to = Program.getDateRangeEnd( id );
+		var from = OSApp.Dates.getDateRangeStart( id ),
+			to = OSApp.Dates.getDateRangeEnd( id );
 
 		list += "<label for='use-dr-" + id + "'>" +
 					"<input data-mini='true' type='checkbox' " +
-					( ( Program.isDateRangeEnabled( id ) ) ? "checked='checked'" : "" ) + " name='use-dr-" + id + "' id='use-dr-" + id + "'>" +
+					( ( OSApp.Dates.isDateRangeEnabled( id ) ) ? "checked='checked'" : "" ) + " name='use-dr-" + id + "' id='use-dr-" + id + "'>" +
 					 OSApp.Language._( "Enable Date Range" ) +
 				"</label>";
 
-		list += "<div id='date-range-options-" + id + "'" + ( ( Program.isDateRangeEnabled( id ) ) ? "" : "style='display:none'" ) + ">";
+		list += "<div id='date-range-options-" + id + "'" + ( ( OSApp.Dates.isDateRangeEnabled( id ) ) ? "" : "style='display:none'" ) + ">";
 		list += "<div class='ui-grid-a' style=''>" +
 						"<div class='ui-block-a drfrom'>" +
 							"<label class='center' for='from-dr-" + id + "'>" + OSApp.Language._( "From (mm/dd)" ) + "</label>" +
 							"<div class='dr-input'>" +
-								"<input type='text' placeholder='MM/DD' id='from-dr-" + id + "' value=" + decodeDate( from ) + "></input>" +
+								"<input type='text' placeholder='MM/DD' id='from-dr-" + id + "' value=" + OSApp.Dates.decodeDate( from ) + "></input>" +
 							"</div>" +
 						"</div>" +
 						"<div class='ui-block-b drto'>" +
 							"<label class='center' for='to-dr-" + id + "'>" + OSApp.Language._( "To (mm/dd)" ) + "</label>" +
 							"<div class='dr-input'>" +
-								"<input type='text' placeholder='MM/DD' id='to-dr-" + id + "' value=" + decodeDate( to ) + "></input>" +
+								"<input type='text' placeholder='MM/DD' id='to-dr-" + id + "' value=" + OSApp.Dates.decodeDate( to ) + "></input>" +
 							"</div>" +
 						"</div>" +
 					"</div>" +
@@ -9208,7 +8702,7 @@ function makeProgram21( n, isCopy ) {
 		showTimeInput( {
 			minutes: time.val(),
 			title: OSApp.Language._( "Start Time" ),
-			showSun: OSApp.Network.checkOSVersion( 213 ) ? true : false,
+			showSun: OSApp.Firmware.checkOSVersion( 213 ) ? true : false,
 			callback: function( result ) {
 				time.val( result );
 				time.text( readStartTime( result ) );
@@ -9249,7 +8743,7 @@ function makeProgram21( n, isCopy ) {
 				}
 			},
 			maximum: 65535,
-			showSun: OSApp.Network.checkOSVersion( 214 ) ? true : false
+			showSun: OSApp.Firmware.checkOSVersion( 214 ) ? true : false
 		} );
 	} );
 
@@ -9312,7 +8806,7 @@ function deleteProgram( id ) {
 
 	areYouSure( OSApp.Language._( "Are you sure you want to delete program" ) + " " + program + "?", "", function() {
 		$.mobile.loading( "show" );
-		OSApp.Network.sendToOS( "/dp?pw=&pid=" + id ).done( function() {
+		OSApp.Firmware.sendToOS( "/dp?pw=&pid=" + id ).done( function() {
 			$.mobile.loading( "hide" );
 			updateControllerPrograms( function() {
 				$( "#programs" ).trigger( "programrefresh" );
@@ -9325,7 +8819,7 @@ function deleteProgram( id ) {
 function submitProgram( id ) {
 	$( "#program-" + id ).find( ".hasChanges" ).removeClass( "hasChanges" );
 
-	if ( OSApp.Network.checkOSVersion( 210 ) ) {
+	if ( OSApp.Firmware.checkOSVersion( 210 ) ) {
 		submitProgram21( id );
 	} else {
 		submitProgram183( id );
@@ -9391,7 +8885,7 @@ function submitProgram183( id ) {
 	if ( stationSelected === 0 ) {OSApp.Errors.showError( OSApp.Language._( "Error: You have not selected any stations." ) );return;}
 	$.mobile.loading( "show" );
 	if ( id === "new" ) {
-		OSApp.Network.sendToOS( "/cp?pw=&pid=-1&v=" + program ).done( function() {
+		OSApp.Firmware.sendToOS( "/cp?pw=&pid=-1&v=" + program ).done( function() {
 			$.mobile.loading( "hide" );
 			updateControllerPrograms( function() {
 				$.mobile.document.one( "pageshow", function() {
@@ -9401,7 +8895,7 @@ function submitProgram183( id ) {
 			} );
 		} );
 	} else {
-		OSApp.Network.sendToOS( "/cp?pw=&pid=" + id + "&v=" + program ).done( function() {
+		OSApp.Firmware.sendToOS( "/cp?pw=&pid=" + id + "&v=" + program ).done( function() {
 			$.mobile.loading( "hide" );
 			updateControllerPrograms( function() {
 				updateProgramHeader();
@@ -9419,7 +8913,7 @@ function submitProgram21( id, ignoreWarning ) {
 		en = ( $( "#en-" + id ).is( ":checked" ) ) ? 1 : 0,
 		weather = ( $( "#uwt-" + id ).is( ":checked" ) ) ? 1 : 0,
 		j = 0,
-		minIntervalDays = OSApp.Network.checkOSVersion( 2199 ) ? 1 : 2,
+		minIntervalDays = OSApp.Firmware.checkOSVersion( 2199 ) ? 1 : 2,
 		daysin, i, name, url, daterange;
 
 	// Set enable/disable bit for program
@@ -9516,12 +9010,12 @@ function submitProgram21( id, ignoreWarning ) {
 			from = $( "#from-dr-" + id ).val(),
 			to = $( "#to-dr-" + id ).val();
 
-		var isValidRange = isValidDateRange( from, to );
+		var isValidRange = OSApp.Dates.isValidDateRange( from, to );
 		if ( !isValidRange ) {
 			OSApp.Errors.showError( OSApp.Language._( "Error: date range is malformed" ) );
 			return;
 		} else {
-			daterange = "&endr=" + ( enableDateRange ? 1 : 0 ) + "&from=" + encodeDate( from ) + "&to=" + encodeDate( to );
+			daterange = "&endr=" + ( enableDateRange ? 1 : 0 ) + "&from=" + OSApp.Dates.encodeDate( from ) + "&to=" + OSApp.Dates.encodeDate( to );
 			program[ 0 ] |= ( enableDateRange ? ( 1 << 7 ) : 0 );
 		}
 	}
@@ -9554,7 +9048,7 @@ function submitProgram21( id, ignoreWarning ) {
 
 	$.mobile.loading( "show" );
 	if ( id === "new" ) {
-		OSApp.Network.sendToOS( "/cp?pw=&pid=-1" + url + daterange ).done( function() {
+		OSApp.Firmware.sendToOS( "/cp?pw=&pid=-1" + url + daterange ).done( function() {
 			$.mobile.loading( "hide" );
 			updateControllerPrograms( function() {
 				$.mobile.document.one( "pageshow", function() {
@@ -9564,7 +9058,7 @@ function submitProgram21( id, ignoreWarning ) {
 			} );
 		} );
 	} else {
-		OSApp.Network.sendToOS( "/cp?pw=&pid=" + id + url + daterange ).done( function() {
+		OSApp.Firmware.sendToOS( "/cp?pw=&pid=" + id + url + daterange ).done( function() {
 			$.mobile.loading( "hide" );
 			updateControllerPrograms( function() {
 				updateProgramHeader();
@@ -9577,7 +9071,7 @@ function submitProgram21( id, ignoreWarning ) {
 
 function raindelay( delay ) {
 	$.mobile.loading( "show" );
-	OSApp.Network.sendToOS( "/cv?pw=&rd=" + ( delay / 3600 ) ).done( function() {
+	OSApp.Firmware.sendToOS( "/cv?pw=&rd=" + ( delay / 3600 ) ).done( function() {
 		$.mobile.loading( "hide" );
 		showLoading( "#footer-running" );
 		refreshStatus( updateWeather );
@@ -9622,7 +9116,7 @@ function getExportMethod() {
 		} );
 	} );
 
-	openPopup( popup, { positionTo: $( "#sprinklers-settings" ).find( ".export_config" ) } );
+	OSApp.UIDom.openPopup( popup, { positionTo: $( "#sprinklers-settings" ).find( ".export_config" ) } );
 }
 
 function getImportMethod( localData ) {
@@ -9655,7 +9149,7 @@ function getImportMethod( localData ) {
 			} );
 
 			popup.css( "width", ( width > 600 ? width * 0.4 + "px" : "100%" ) );
-			openPopup( popup );
+			OSApp.UIDom.openPopup( popup );
 			return false;
 		},
 		popup = $(
@@ -9719,7 +9213,7 @@ function getImportMethod( localData ) {
 		} );
 	}
 
-	openPopup( popup, { positionTo: $( "#sprinklers-settings" ).find( ".import_config" ) } );
+	OSApp.UIDom.openPopup( popup, { positionTo: $( "#sprinklers-settings" ).find( ".import_config" ) } );
 }
 
 function importConfig( data ) {
@@ -9730,7 +9224,7 @@ function importConfig( data ) {
 		return;
 	}
 
-	if ( OSApp.Network.checkOSVersion( 210 ) && typeof data.options === "object" &&
+	if ( OSApp.Firmware.checkOSVersion( 210 ) && typeof data.options === "object" &&
 		( data.options.hp0 !== OSApp.currentSession.controller.options.hp0 || data.options.hp1 !== OSApp.currentSession.controller.options.hp1 ) ||
 		( data.options.dhcp !== OSApp.currentSession.controller.options.dhcp ) || ( data.options.devid !== OSApp.currentSession.controller.options.devid ) ) {
 
@@ -9745,7 +9239,7 @@ function importConfig( data ) {
 			cpStart = "/cp?pw=",
 			ncs = Math.ceil( data.stations.snames.length / 16 ),
 			csi = new Array( ncs ).fill( "/cs?pw=" ),
-			isPi = OSApp.Network.isOSPi(),
+			isPi = OSApp.Firmware.isOSPi(),
 			i, k, key, option, station;
 
 		var findKey = function( index ) { return OSApp.Constants.keyIndex[ index ] === key; };
@@ -9757,7 +9251,7 @@ function importConfig( data ) {
 					continue;
 				}
 				if ( key === 3 ) {
-					if ( OSApp.Network.checkOSVersion( 210 ) && OSApp.currentSession.controller.options.dhcp === 1 ) {
+					if ( OSApp.Firmware.checkOSVersion( 210 ) && OSApp.currentSession.controller.options.dhcp === 1 ) {
 						co += "&o3=1";
 					}
 					continue;
@@ -9768,7 +9262,7 @@ function importConfig( data ) {
 						continue;
 					}
 				}
-				if ( OSApp.Network.checkOSVersion( 208 ) === true && typeof data.options[ i ] === "string" ) {
+				if ( OSApp.Firmware.checkOSVersion( 208 ) === true && typeof data.options[ i ] === "string" ) {
 					option = data.options[ i ].replace( /\s/g, "_" );
 				} else {
 					option = data.options[ i ];
@@ -9778,38 +9272,38 @@ function importConfig( data ) {
 		}
 
 		// Handle import from versions prior to 2.1.1 for enable logging flag
-		if ( !isPi && typeof data.options.fwv === "number" && data.options.fwv < 211 && OSApp.Network.checkOSVersion( 211 ) ) {
+		if ( !isPi && typeof data.options.fwv === "number" && data.options.fwv < 211 && OSApp.Firmware.checkOSVersion( 211 ) ) {
 
 			// Enables logging since prior firmwares always had logging enabled
 			co += "&o36=1";
 		}
 
 		// Import Weather Adjustment Options, if available
-		if ( typeof data.settings.wto === "object" && OSApp.Network.checkOSVersion( 215 ) ) {
+		if ( typeof data.settings.wto === "object" && OSApp.Firmware.checkOSVersion( 215 ) ) {
 			co += "&wto=" + escapeJSON( data.settings.wto );
 		}
 
 		// Import IFTTT Key, if available
-		if ( typeof data.settings.ifkey === "string" && OSApp.Network.checkOSVersion( 217 ) ) {
+		if ( typeof data.settings.ifkey === "string" && OSApp.Firmware.checkOSVersion( 217 ) ) {
 			co += "&ifkey=" + data.settings.ifkey;
 		}
 
 		// Import device name, if available
-		if ( typeof data.settings.dname === "string" && OSApp.Network.checkOSVersion( 2191 ) ) {
+		if ( typeof data.settings.dname === "string" && OSApp.Firmware.checkOSVersion( 2191 ) ) {
 			co += "&dname=" + data.settings.dname;
 		}
 
 		// Import mqtt options, if available
-		if ( typeof data.settings.mqtt === "object" && OSApp.Network.checkOSVersion( 2191 ) ) {
+		if ( typeof data.settings.mqtt === "object" && OSApp.Firmware.checkOSVersion( 2191 ) ) {
 			co += "&mqtt=" + escapeJSON( data.settings.mqtt );
 			}
 
 		//Import email options, if available
-		if ( typeof data.settings.email === "object" && OSApp.Network.checkOSVersion( 2191 ) ) {
+		if ( typeof data.settings.email === "object" && OSApp.Firmware.checkOSVersion( 2191 ) ) {
 			co += "&email=" + escapeJSON( data.settings.email );
 			}
 
-		if ( typeof data.settings.otc === "object" && OSApp.Network.checkOSVersion( 2191 ) ) {
+		if ( typeof data.settings.otc === "object" && OSApp.Firmware.checkOSVersion( 2191 ) ) {
 			co += "&otc=" + escapeJSON( data.settings.otc );
 		}
 
@@ -9818,7 +9312,7 @@ function importConfig( data ) {
 		// Due to potentially large number of zones, we split zone names import to maximum 16 per group
 		for ( k = 0; k < ncs; k++ ) {
 			for ( i = k * 16; i < ( k + 1 ) * 16 && i < data.stations.snames.length; i++ ) {
-				if ( OSApp.Network.checkOSVersion( 208 ) === true ) {
+				if ( OSApp.Firmware.checkOSVersion( 208 ) === true ) {
 					station = data.stations.snames[ i ].replace( /\s/g, "_" );
 				} else {
 					station = data.stations.snames[ i ];
@@ -9871,7 +9365,7 @@ function importConfig( data ) {
 			for ( i = 0; i < data.stations.stn_seq.length; i++ ) {
 				cs += "&q" + i + "=" + data.stations.stn_seq[ i ];
 			}
-		} else if ( !isPi && typeof data.options.fwv === "number" && data.options.fwv < 211 && !OSApp.Network.checkOSVersion( 211 ) ) {
+		} else if ( !isPi && typeof data.options.fwv === "number" && data.options.fwv < 211 && !OSApp.Firmware.checkOSVersion( 211 ) ) {
 			var bid;
 			for ( bid = 0; bid < data.settings.nbrd; bid++ ) {
 				cs += "&q" + bid + "=" + ( data.options.seq === 1 ? 255 : 0 );
@@ -9888,11 +9382,11 @@ function importConfig( data ) {
 		data.special = data.special || {};
 
 		$.when(
-			OSApp.Network.sendToOS( transformKeysinString( co ) ),
-			OSApp.Network.sendToOS( cs ),
-			OSApp.Network.sendToOS( "/dp?pw=&pid=-1" ),
+			OSApp.Firmware.sendToOS( transformKeysinString( co ) ),
+			OSApp.Firmware.sendToOS( cs ),
+			OSApp.Firmware.sendToOS( "/dp?pw=&pid=-1" ),
 			$.each( csi, function( i, comm ) {
-				OSApp.Network.sendToOS( comm );
+				OSApp.Firmware.sendToOS( comm );
 			} ),
 			$.each( data.programs.pd, function( i, prog ) {
 				var name = "";
@@ -9904,14 +9398,14 @@ function importConfig( data ) {
 				}
 
 				// Handle data from firmware 2.1+ being imported to a firmware prior to 2.1
-				if ( !isPi && typeof data.options.fwv === "number" && data.options.fwv >= 210 && !OSApp.Network.checkOSVersion( 210 ) ) {
+				if ( !isPi && typeof data.options.fwv === "number" && data.options.fwv >= 210 && !OSApp.Firmware.checkOSVersion( 210 ) ) {
 					OSApp.Errors.showError( OSApp.Language._( "Program data is newer than the device firmware and cannot be imported" ) );
 					return false;
 				}
 
 				// Handle data from firmware 2.1+ being imported to a 2.1+ device
 				// The firmware does not accept program name inside the program array and must be submitted separately
-				if ( !isPi && typeof data.options.fwv === "number" && data.options.fwv >= 210 && OSApp.Network.checkOSVersion( 210 ) ) {
+				if ( !isPi && typeof data.options.fwv === "number" && data.options.fwv >= 210 && OSApp.Firmware.checkOSVersion( 210 ) ) {
 					name = "&name=" + prog[ 5 ];
 
 					// Truncate the program name off the array
@@ -9919,7 +9413,7 @@ function importConfig( data ) {
 				}
 
 				// Handle data from firmware prior to 2.1 being imported to a 2.1+ device
-				if ( !isPi && typeof data.options.fwv === "number" && data.options.fwv < 210 && OSApp.Network.checkOSVersion( 210 ) ) {
+				if ( !isPi && typeof data.options.fwv === "number" && data.options.fwv < 210 && OSApp.Firmware.checkOSVersion( 210 ) ) {
 					var program = readProgram183( prog ),
 						total = ( prog.length - 7 ),
 						allDur = [],
@@ -9971,11 +9465,11 @@ function importConfig( data ) {
 					name = "&name=" + OSApp.Language._( "Program" ) + " " + ( i + 1 );
 				}
 
-				OSApp.Network.sendToOS( cpStart + "&pid=-1&v=" + JSON.stringify( prog ) + name );
+				OSApp.Firmware.sendToOS( cpStart + "&pid=-1&v=" + JSON.stringify( prog ) + name );
 			} ),
 			$.each( data.special, function( sid, info ) {
-				if ( OSApp.Network.checkOSVersion( 216 ) ) {
-					OSApp.Network.sendToOS( "/cs?pw=&sid=" + sid + "&st=" + info.st + "&sd=" + encodeURIComponent( info.sd ) );
+				if ( OSApp.Firmware.checkOSVersion( 216 ) ) {
+					OSApp.Firmware.sendToOS( "/cs?pw=&sid=" + sid + "&st=" + info.st + "&sd=" + encodeURIComponent( info.sd ) );
 				}
 			} )
 		).then(
@@ -10048,10 +9542,10 @@ var showAbout = ( function() {
 
 	function begin() {
 		showHardware = typeof OSApp.currentSession.controller.options.hwv !== "undefined" ? false : true;
-		page.find( ".hardware" ).toggleClass( "hidden", showHardware ).text( OSApp.Network.getHWVersion() + OSApp.Network.getHWType() );
+		page.find( ".hardware" ).toggleClass( "hidden", showHardware ).text( OSApp.Firmware.getHWVersion() + OSApp.Firmware.getHWType() );
 		page.find( ".hardwareLabel" ).toggleClass( "hidden", showHardware );
 
-		page.find( ".firmware" ).text( OSApp.Network.getOSVersion() + OSApp.Network.getOSMinorVersion() + ( OSApp.Analog.checkAnalogSensorAvail() ? " - ASB" : "" ) );
+		page.find( ".firmware" ).text( OSApp.Firmware.getOSVersion() + OSApp.Firmware.getOSMinorVersion() + ( OSApp.Analog.checkAnalogSensorAvail() ? " - ASB" : "" ) );
 
 		page.one( "pagehide", function() {
 			page.detach();
@@ -10078,7 +9572,7 @@ function stopStations( callback ) {
 	$.mobile.loading( "show" );
 
 	// It can take up to a second before stations actually stop
-	OSApp.Network.sendToOS( "/cv?pw=&rsn=1" ).done( function() {
+	OSApp.Firmware.sendToOS( "/cv?pw=&rsn=1" ).done( function() {
 		setTimeout( function() {
 			$.mobile.loading( "hide" );
 			callback();
@@ -10090,478 +9584,13 @@ function flowCountToVolume( count ) {
 	return parseFloat( ( count * ( ( OSApp.currentSession.controller.options.fpr1 << 8 ) + OSApp.currentSession.controller.options.fpr0 ) / 100 ).toFixed( 2 ) );
 }
 
-// Check if password is valid
-function checkPW( pass, callback ) {
-	var urlDest = "/sp?pw=" + encodeURIComponent( pass ) + "&npw=" + encodeURIComponent( pass ) + "&cpw=" + encodeURIComponent( pass );
-
-	$.ajax( {
-		url: OSApp.currentSession.token ? "https://cloud.openthings.io/forward/v1/" + OSApp.currentSession.token + urlDest : OSApp.currentSession.prefix + OSApp.currentSession.ip + urlDest,
-		cache: false,
-		crossDomain: true,
-		type: "GET"
-	} ).then(
-		function( data ) {
-			var result = data.result;
-
-			if ( typeof result === "undefined" || result > 1 ) {
-				callback( false );
-			} else {
-				callback( true );
-			}
-		},
-		function() {
-			callback( false );
-		}
-	);
-}
-
-// Device password management functions
-function changePassword( opt ) {
-	var defaults = {
-			fixIncorrect: false,
-			name: "",
-			callback: function() {},
-			cancel: function() {}
-		};
-
-	opt = $.extend( {}, defaults, opt );
-
-	var isPi = OSApp.Network.isOSPi(),
-		didSubmit = false,
-		popup = $( "<div data-role='popup' class='modal' id='changePassword' data-theme='a' data-overlay-theme='b'>" +
-				"<ul data-role='listview' data-inset='true'>" +
-					( opt.fixIncorrect === true ? "" : "<li data-role='list-divider'>" + OSApp.Language._( "Change Password" ) + "</li>" ) +
-					"<li>" +
-						( opt.fixIncorrect === true ? "<p class='rain-desc red-text bold'>" + OSApp.Language._( "Incorrect password for " ) +
-							opt.name + ". " + OSApp.Language._( "Please re-enter password to try again." ) + "</p>" : "" ) +
-						"<form method='post' novalidate>" +
-							"<label for='npw'>" + ( opt.fixIncorrect === true ? OSApp.Language._( "Password:" ) : OSApp.Language._( "New Password" ) + ":" ) + "</label>" +
-							"<input type='password' name='npw' id='npw' value=''" + ( isPi ? "" : " maxlength='32'" ) + ">" +
-							( opt.fixIncorrect === true ? "" : "<label for='cpw'>" + OSApp.Language._( "Confirm New Password" ) + ":</label>" +
-							"<input type='password' name='cpw' id='cpw' value=''" + ( isPi ? "" : " maxlength='32'" ) + ">" ) +
-							( opt.fixIncorrect === true ? "<label for='save_pw'>" + OSApp.Language._( "Save Password" ) + "</label>" +
-							"<input type='checkbox' data-wrapper-class='save_pw' name='save_pw' id='save_pw' data-mini='true'>" : "" ) +
-							"<input type='submit' value='" + OSApp.Language._( "Submit" ) + "'>" +
-						"</form>" +
-					"</li>" +
-				"</ul>" +
-		"</div>" );
-
-	popup.find( "form" ).on( "submit", function() {
-		var npw = popup.find( "#npw" ).val(),
-			cpw = popup.find( "#cpw" ).val();
-
-		if ( opt.fixIncorrect === true ) {
-			didSubmit = true;
-
-			OSApp.Storage.get( [ "sites" ], function( data ) {
-				var sites = parseSites( data.sites ),
-					success = function( pass ) {
-						OSApp.currentSession.pass = pass;
-						sites[ opt.name ].os_pw = popup.find( "#save_pw" ).is( ":checked" ) ? pass : "";
-						OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
-						popup.popup( "close" );
-						opt.callback();
-					};
-
-				checkPW( md5( npw ), function( result ) {
-					if ( result === true ) {
-						success( md5( npw ) );
-					} else {
-						success( npw );
-					}
-				} );
-			} );
-
-			return false;
-		}
-
-		if ( npw !== cpw ) {
-			OSApp.Errors.showError( OSApp.Language._( "The passwords don't match. Please try again." ) );
-			return false;
-		}
-
-		if ( npw === "" ) {
-			OSApp.Errors.showError( OSApp.Language._( "Password cannot be empty" ) );
-			return false;
-		}
-
-		if ( !isPi && npw.length > 32 ) {
-			OSApp.Errors.showError( OSApp.Language._( "Password cannot be longer than 32 characters" ) );
-		}
-
-		if ( OSApp.Network.checkOSVersion( 213 ) ) {
-			npw = md5( npw );
-			cpw = md5( cpw );
-		}
-
-		$.mobile.loading( "show" );
-		OSApp.Network.sendToOS( "/sp?pw=&npw=" + encodeURIComponent( npw ) + "&cpw=" + encodeURIComponent( cpw ), "json" ).done( function( info ) {
-			var result = info.result;
-
-			if ( !result || result > 1 ) {
-				if ( result === 2 ) {
-					OSApp.Errors.showError( OSApp.Language._( "Please check the current device password is correct then try again" ) );
-				} else {
-					OSApp.Errors.showError( OSApp.Language._( "Unable to change password. Please try again." ) );
-				}
-			} else {
-				OSApp.Storage.get( [ "sites", "current_site" ], function( data ) {
-					var sites = parseSites( data.sites );
-
-					sites[ data.current_site ].os_pw = npw;
-					OSApp.currentSession.pass = npw;
-					OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
-				} );
-				$.mobile.loading( "hide" );
-				popup.popup( "close" );
-				OSApp.Errors.showError( OSApp.Language._( "Password changed successfully" ) );
-			}
-		} );
-
-		return false;
-	} );
-
-	popup.one( "popupafterclose", function() {
-		document.activeElement.blur();
-		popup.remove();
-		if ( opt.fixIncorrect && !didSubmit ) {
-			opt.cancel();
-		}
-	} ).popup().enhanceWithin();
-
-	if ( opt.fixIncorrect ) {
-
-		// Hash password and try again, if it fails then show the password prompt popup
-		OSApp.Storage.get( [ "sites", "current_site" ], function( data ) {
-			var sites = parseSites( data.sites ),
-				current = data.current_site,
-				pw = md5( sites[ current ].os_pw );
-
-			if ( !isMD5( sites[ current ].os_pw ) ) {
-				var urlDest = "/jc?pw=" + pw;
-
-				$.ajax( {
-					url: OSApp.currentSession.token ? "https://cloud.openthings.io/forward/v1/" + OSApp.currentSession.token + urlDest : OSApp.currentSession.prefix + OSApp.currentSession.ip + urlDest,
-					type: "GET",
-					dataType: "json"
-				} ).then(
-					function() {
-						sites[ current ].os_pw = OSApp.currentSession.pass = pw;
-						OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
-						opt.callback();
-					},
-					function() {
-						popup.popup( "open" );
-					}
-				);
-			} else {
-				popup.popup( "open" );
-			}
-		} );
-	} else {
-		popup.popup( "open" );
-	}
-}
-
-function requestCloudAuth( callback ) {
-	callback = callback || function() {};
-
-	var popup = $( "<div data-role='popup' class='modal' id='requestCloudAuth' data-theme='a'>" +
-				"<ul data-role='listview' data-inset='true'>" +
-					"<li data-role='list-divider'>" + OSApp.Language._( "OpenSprinkler.com Login" ) + "</li>" +
-					"<li><p class='rain-desc tight'>" +
-						OSApp.Language._( "Use your OpenSprinkler.com login and password to securely sync sites between all your devices." ) +
-						"<br><br>" +
-						OSApp.Language._( "Don't have an account?" ) + " <a href='https://opensprinkler.com/my-account/' class='iab'>" +
-						OSApp.Language._( "Register here" ) + "</a>" +
-					"</p></li>" +
-					"<li>" +
-						"<form method='post' novalidate>" +
-							"<label for='cloudUser'>" + OSApp.Language._( "Username:" ) + "</label>" +
-							"<input type='text' name='cloudUser' id='cloudUser' autocomplete='off' autocorrect='off' autocapitalize='off' " +
-								"spellcheck='false'>" +
-							"<label for='cloudPass'>" + OSApp.Language._( "Password:" ) + "</label>" +
-							"<input type='password' name='cloudPass' id='cloudPass'>" +
-							"<input type='submit' value='" + OSApp.Language._( "Submit" ) + "'>" +
-						"</form>" +
-					"</li>" +
-				"</ul>" +
-		"</div>" ),
-		didSucceed = false;
-
-	popup.find( "form" ).on( "submit", function() {
-		$.mobile.loading( "show" );
-		cloudLogin( popup.find( "#cloudUser" ).val(), popup.find( "#cloudPass" ).val(), function( result ) {
-			if ( result === false ) {
-				OSApp.Errors.showError( OSApp.Language._( "Invalid username/password combination. Please try again." ) );
-				return;
-			} else {
-				$.mobile.loading( "hide" );
-				didSucceed = true;
-				popup.popup( "close" );
-			}
-		} );
-		return false;
-	} );
-
-	popup.one( "popupafterclose", function() {
-		callback( didSucceed );
-		if ( didSucceed ) {
-			cloudSyncStart();
-		}
-	} );
-
-	openPopup( popup );
-}
-
-function cloudLogin( user, pass, callback ) {
-	callback = callback || function() {};
-
-	$.ajax( {
-		type: "POST",
-		dataType: "json",
-		url: "https://opensprinkler.com/wp-admin/admin-ajax.php",
-		data: {
-			action: "ajaxLogin",
-			username: user,
-			password: pass
-		},
-		success: function( data ) {
-			if ( typeof data.token === "string" ) {
-				OSApp.Storage.set( {
-					"cloudToken": data.token,
-					"cloudDataToken": sjcl.codec.hex.fromBits( sjcl.hash.sha256.hash( pass ) )
-				} );
-			}
-			callback( data.loggedin );
-		},
-		fail: function() {
-			callback( false );
-		}
-	} );
-}
-
-function cloudSaveSites( callback ) {
-	if ( typeof callback !== "function" ) {
-		callback = function() {};
-	}
-
-	OSApp.Storage.get( [ "cloudToken", "cloudDataToken", "sites" ], function( data ) {
-		if ( data.cloudToken === null || data.cloudToken === undefined ) {
-			callback( false );
-			return;
-		}
-
-		$.ajax( {
-			type: "POST",
-			dataType: "json",
-			url: "https://opensprinkler.com/wp-admin/admin-ajax.php",
-			data: {
-				action: "saveSites",
-				token: data.cloudToken,
-				sites: encodeURIComponent( JSON.stringify( sjcl.encrypt( data.cloudDataToken, data.sites ) ) )
-			},
-			success: function( data ) {
-				if ( data.success === false ) {
-					if ( data.message === "BAD_TOKEN" ) {
-						handleExpiredLogin();
-					}
-					callback( false, data.message );
-				} else {
-					OSApp.Storage.set( { "cloudToken":data.token } );
-					callback( data.success );
-				}
-			},
-			fail: function() {
-				callback( false );
-			}
-		} );
-	} );
-}
-
-function cloudGetSites( callback ) {
-	callback = callback || function() {};
-
-	OSApp.Storage.get( [ "cloudToken", "cloudDataToken" ], function( local ) {
-		if ( local.cloudToken === undefined || local.cloudToken === null ) {
-			callback( false );
-			return;
-		}
-
-		if ( local.cloudDataToken === undefined || local.cloudDataToken === null ) {
-			handleInvalidDataToken();
-			callback( false );
-			return;
-		}
-
-		$.ajax( {
-			type: "POST",
-			dataType: "json",
-			url: "https://opensprinkler.com/wp-admin/admin-ajax.php",
-			data: {
-				action: "getSites",
-				token: local.cloudToken
-			},
-			success: function( data ) {
-				if ( data.success === false || data.sites === "" ) {
-					if ( data.message === "BAD_TOKEN" ) {
-						handleExpiredLogin();
-					}
-					callback( false, data.message );
-				} else {
-					OSApp.Storage.set( { "cloudToken":data.token } );
-					var sites;
-
-					try {
-						sites = sjcl.decrypt( local.cloudDataToken, data.sites );
-					} catch ( err ) {
-						if ( err.message === "ccm: tag doesn't match" ) {
-							handleInvalidDataToken();
-						}
-						callback( false );
-					}
-
-					try {
-						callback( JSON.parse( sites ) );
-					} catch ( err ) {
-						callback( false );
-					}
-				}
-			},
-			fail: function() {
-				callback( false );
-			}
-		} );
-	} );
-}
-
-function cloudSyncStart() {
-	cloudGetSites( function( sites ) {
-		var page = $( ".ui-page-active" ).attr( "id" );
-
-		if ( page === "start" ) {
-			if ( Object.keys( sites ).length > 0 ) {
-				OSApp.Storage.set( { "sites":JSON.stringify( sites ) } );
-			}
-			changePage( "#site-control" );
-		} else {
-			updateLoginButtons();
-
-			OSApp.Storage.get( "sites", function( data ) {
-				if ( JSON.stringify( sites ) === data.sites ) {
-					return;
-				}
-
-				data.sites = parseSites( data.sites );
-
-				if ( OSApp.currentSession.local ) {
-					findLocalSiteName( sites, function( result ) {
-
-						// Logout if the current site isn't matched in the cloud sites
-						if ( result === false ) {
-							areYouSure(
-								OSApp.Language._( "Do you wish to add this location to your cloud synced site list?" ),
-								OSApp.Language._( "This site is not found in the currently synced site list but may be added now." ),
-								function() {
-									sites[ OSApp.currentSession.ip ] = data.sites.Local;
-									OSApp.Storage.set( { "sites": JSON.stringify( sites ) }, cloudSaveSites );
-									OSApp.Storage.set( { "current_site": OSApp.currentSession.ip } );
-									updateSiteList( Object.keys( sites ), OSApp.currentSession.ip );
-								},
-								function() {
-									OSApp.Storage.remove( "cloudToken", updateLoginButtons );
-								}
-							 );
-						} else {
-							OSApp.Storage.set( { "sites": JSON.stringify( sites ) }, cloudSaveSites );
-							OSApp.Storage.set( { "current_site": result } );
-							updateSiteList( Object.keys( sites ), result );
-						}
-					} );
-
-					return;
-				}
-
-				if ( Object.keys( sites ).length > 0 ) {
-
-					// Handle how to merge when cloud is populated
-					var popup = $(
-						"<div data-role='popup' data-theme='a' data-overlay-theme='b'>" +
-							"<div class='ui-bar ui-bar-a'>" + OSApp.Language._( "Select Merge Method" ) + "</div>" +
-							"<div data-role='controlgroup' class='tight'>" +
-								"<button class='merge'>" + OSApp.Language._( "Merge" ) + "</button>" +
-								"<button class='replaceLocal'>" + OSApp.Language._( "Replace local with cloud" ) + "</button>" +
-								"<button class='replaceCloud'>" + OSApp.Language._( "Replace cloud with local" ) + "</button>" +
-							"</div>" +
-						"</div>" ),
-						finish = function() {
-							OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
-							popup.popup( "close" );
-
-							if ( page === "site-control" ) {
-								changePage( "#site-control" );
-							}
-						};
-
-					popup.find( ".merge" ).on( "click", function() {
-						sites = $.extend( {}, data.sites, sites );
-						finish();
-					} );
-
-					popup.find( ".replaceLocal" ).on( "click", function() {
-						finish();
-					} );
-
-					popup.find( ".replaceCloud" ).on( "click", function() {
-						sites = data.sites;
-						finish();
-					} );
-
-					popup.one( "popupafterclose", function() {
-						popup.popup( "destroy" ).remove();
-					} ).popup( {
-						history: false,
-						"positionTo": "window"
-					} ).enhanceWithin().popup( "open" );
-				} else {
-					cloudSaveSites();
-				}
-			} );
-		}
-	} );
-}
-
-function cloudSync( callback ) {
-	if ( typeof callback !== "function" ) {
-		callback = function() {};
-	}
-
-	OSApp.Storage.get( [ "cloudToken", "current_site" ], function( local ) {
-		if ( typeof local.cloudToken !== "string" ) {
-			return;
-		}
-
-		cloudGetSites( function( data ) {
-			if ( data !== false ) {
-				OSApp.Storage.set( { "sites":JSON.stringify( data ) }, function() {
-					updateSiteList( Object.keys( data ), local.current_site );
-					callback();
-
-					$( "html" ).trigger( "siterefresh" );
-				} );
-			}
-		} );
-	} );
-}
-
 var corruptionNotificationShown = false;
 function handleCorruptedWeatherOptions( wto ) {
 	if ( corruptionNotificationShown ) {
 		return;
 	}
 
-	addNotification( {
+	OSApp.Notifications.addNotification( {
 		title: OSApp.Language._( "Weather Options have Corrupted" ),
 		desc: OSApp.Language._( "Click here to retrieve the partial weather option data" ),
 		on: function() {
@@ -10586,14 +9615,14 @@ function handleCorruptedWeatherOptions( wto ) {
 				);
 
 			popup.find( ".submit" ).on( "click", function() {
-				removeNotification( button );
+				OSApp.Notifications.removeNotification( button );
 				popup.popup( "close" );
 
 				return false;
 			} );
 
 			popup.find( ".reset-options" ).on( "click", function() {
-				removeNotification( button );
+				OSApp.Notifications.removeNotification( button );
 				popup.popup( "close" );
 				resetAllOptions( function() {
 					OSApp.Errors.showError( OSApp.Language._( "Settings have been saved" ) );
@@ -10602,7 +9631,7 @@ function handleCorruptedWeatherOptions( wto ) {
 				return false;
 			} );
 
-			openPopup( popup );
+			OSApp.UIDom.openPopup( popup );
 			return false;
 		}
 	} );
@@ -10610,78 +9639,6 @@ function handleCorruptedWeatherOptions( wto ) {
 	corruptionNotificationShown = true;
 }
 
-function handleExpiredLogin() {
-	OSApp.Storage.remove( [ "cloudToken" ], updateLoginButtons );
-
-	addNotification( {
-		title: OSApp.Language._( "OpenSprinkler.com Login Expired" ),
-		desc: OSApp.Language._( "Click here to re-login to OpenSprinkler.com" ),
-		on: function() {
-			var button = $( this ).parent();
-
-			requestCloudAuth( function( result ) {
-				removeNotification( button );
-
-				if ( result === true ) {
-					updateLoginButtons();
-					cloudSync();
-				}
-			} );
-
-			return false;
-		}
-	} );
-}
-
-function handleInvalidDataToken() {
-	OSApp.Storage.remove( [ "cloudDataToken" ] );
-
-	addNotification( {
-		title: OSApp.Language._( "Unable to read cloud data" ),
-		desc: OSApp.Language._( "Click here to enter a valid password to decrypt the data" ),
-		on: function() {
-			var button = $( this ).parent(),
-				popup = $(
-					"<div data-role='popup' data-theme='a' class='modal ui-content' id='dataPassword'>" +
-						"<p class='tight rain-desc'>" +
-							OSApp.Language._( "Please enter your OpenSprinkler.com password. If you have recently changed your password, you may need to enter your previous password to decrypt the data." ) +
-						"</p>" +
-						"<form>" +
-							"<input type='password' id='dataPasswordInput' name='dataPasswordInput' placeholder='" + OSApp.Language._( "Password" ) + "' />" +
-							"<input type='submit' data-theme='b' value='" + OSApp.Language._( "Submit" ) + "' />" +
-						"</form>" +
-					"</div>"
-				),
-				didSubmit = false;
-
-			//Bind submit
-			popup.find( "form" ).on( "submit", function() {
-				removeNotification( button );
-				didSubmit = true;
-				OSApp.Storage.set( {
-					"cloudDataToken": sjcl.codec.hex.fromBits( sjcl.hash.sha256.hash( popup.find( "#dataPasswordInput" ).val() ) )
-				}, function() {
-					popup.popup( "close" );
-				} );
-
-				return false;
-			} );
-
-			popup.one( "popupafterclose", function() {
-				if ( didSubmit === true ) {
-					cloudSync();
-				}
-			} );
-
-			openPopup( popup );
-			return false;
-		}
-	} );
-}
-
-function getTokenUser( token ) {
-	return atob( token ).split( "|" )[ 0 ];
-}
 
 function detectUnusedExpansionBoards() {
 	if (
@@ -10690,12 +9647,12 @@ function detectUnusedExpansionBoards() {
 		OSApp.currentSession.controller.options.dexp >= 0 &&
 		OSApp.currentSession.controller.options.ext < OSApp.currentSession.controller.options.dexp
 	) {
-		addNotification( {
+		OSApp.Notifications.addNotification( {
 			title: OSApp.Language._( "Unused Expanders Detected" ),
 			desc: OSApp.Language._( "Click here to enable all connected stations." ),
 			on: function() {
-				removeNotification( $( this ).parent() );
-				changePage( "#os-options", {
+				OSApp.Notifications.removeNotification( $( this ).parent() );
+				OSApp.UIDom.changePage( "#os-options", {
 					expandItem: "station"
 				} );
 				return false;
@@ -10705,7 +9662,7 @@ function detectUnusedExpansionBoards() {
 }
 
 function showUnifiedFirmwareNotification() {
-	if ( !OSApp.Network.isOSPi() ) {
+	if ( !OSApp.Firmware.isOSPi() ) {
 		return;
 	}
 
@@ -10713,7 +9670,7 @@ function showUnifiedFirmwareNotification() {
 		if ( data.ignoreUnifiedFirmware !== "1" ) {
 
 			// Unable to access the device using it's public IP
-			addNotification( {
+			OSApp.Notifications.addNotification( {
 				title: OSApp.Language._( "Unified firmware is now available" ),
 				desc: OSApp.Language._( "Click here for more details" ),
 				on: function() {
@@ -10731,82 +9688,6 @@ function showUnifiedFirmwareNotification() {
 			} );
 		}
 	} );
-}
-
-function intToIP( eip ) {
-	return ( ( eip >> 24 ) & 255 ) + "." + ( ( eip >> 16 ) & 255 ) + "." + ( ( eip >> 8 ) & 255 ) + "." + ( eip & 255 );
-}
-
-function checkPublicAccess( eip ) {
-
-	// Check if the device is accessible from it's public IP
-
-	if ( eip === 0 ) {
-		return;
-	}
-
-	if ( OSApp.currentSession.token ) {
-		return;
-	}
-
-	var ip = intToIP( eip ),
-		port = OSApp.currentSession.ip.match( /.*:(\d+)/ ),
-		fail = function() {
-			OSApp.Storage.get( "ignoreRemoteFailed", function( data ) {
-				if ( data.ignoreRemoteFailed !== "1" ) {
-
-					// Unable to access the device using it's public IP
-					addNotification( {
-						title: OSApp.Language._( "Remote access is not enabled" ),
-						desc: OSApp.Language._( "Click here to troubleshoot remote access issues" ),
-						on: function() {
-							window.open( "https://openthings.freshdesk.com/support/solutions/articles/5000569763",
-								"_blank", "location=" + ( OSApp.currentDevice.isAndroid ? "yes" : "no" ) +
-								",enableViewportScale=yes,toolbarposition=top,closebuttoncaption=" + OSApp.Language._( "Back" )
-							);
-
-							return false;
-						},
-						off: function() {
-							OSApp.Storage.set( { "ignoreRemoteFailed": "1" } );
-							return true;
-						}
-					} );
-				}
-			} );
-		};
-
-	if ( ip === OSApp.currentSession.ip || isLocalIP( ip ) || !isLocalIP( OSApp.currentSession.ip ) ) {
-		return;
-	}
-
-	port = ( port ? parseInt( port[ 1 ] ) : 80 );
-
-	$.ajax( {
-		url: OSApp.currentSession.prefix + ip + ":" + port + "/jo?pw=" + OSApp.currentSession.pass,
-		global: false,
-		dataType: "json",
-		type: "GET"
-	} ).then(
-		function( data ) {
-			if ( typeof data !== "object" || !data.hasOwnProperty( "fwv" ) || data.fwv !== OSApp.currentSession.controller.options.fwv ||
-				( OSApp.Network.checkOSVersion( 214 ) && OSApp.currentSession.controller.options.ip4 !== data.ip4 ) ) {
-					fail();
-					return;
-			}
-
-			// Public IP worked, update device IP to use the public IP instead
-			// OSApp.Storage.get( [ "sites", "current_site" ], function( data ) {
-			// 	var sites = parseSites( data.sites ),
-			// 		current = data.current_site;
-
-			// 	sites[ current ].os_ip = ip + ( port === 80 ? "" : ":" + port );
-
-			// 	OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
-			// } );
-		},
-		fail
-	);
 }
 
 function logout( success ) {
@@ -10848,7 +9729,7 @@ function updateLoginButtons() {
 				page.find( ".logged-in-alert" ).remove();
 			}
 		} else {
-			logout.removeClass( "hidden" ).find( "a" ).text( OSApp.Language._( "Logout" ) + " (" + getTokenUser( data.cloudToken ) + ")" );
+			logout.removeClass( "hidden" ).find( "a" ).text( OSApp.Language._( "Logout" ) + " (" + OSApp.Network.getTokenUser( data.cloudToken ) + ")" );
 			login.addClass( "hidden" );
 
 			if ( page.attr( "id" ) === "site-control" && page.find( ".logged-in-alert" ).length === 0 ) {
@@ -10858,212 +9739,15 @@ function updateLoginButtons() {
 	} );
 }
 
-function addNotification( item ) {
-	OSApp.uiState.notifications.push( item );
-	updateNotificationBadge();
-
-	var panel = $( "#notificationPanel" );
-
-	if ( panel.hasClass( "ui-panel-open" ) ) {
-		panel.find( "ul" ).append( createNotificationItem( item ) ).listview( "refresh" );
-	}
-}
-
-function updateNotificationBadge() {
-	var total = OSApp.uiState.notifications.length,
-		header = $( "#header" );
-
-	if ( total === 0 ) {
-		header.find( ".notifications" ).hide();
-	} else {
-		header.find( ".notifications" ).show();
-		header.find( ".notificationCount" ).text( total );
-	}
-}
-
-function createNotificationItem( item ) {
-	var listItem = $( "<li><a class='primary' href='#'><h2>" + item.title + "</h2>" + ( item.desc ? "<p>" + item.desc + "</p>" : "" ) +
-		"</a><a class='ui-btn ui-btn-icon-notext ui-icon-delete'></a></li>" );
-
-	listItem.find( ".primary" ).on( "click", item.on );
-	listItem.find( ".ui-icon-delete" ).on( "click", function() {
-		removeNotification( $( this ).parent() );
-	} );
-
-	return listItem;
-}
-
-function showNotifications() {
-	if ( OSApp.uiState.notifications.length === 0 ) {
-		return;
-	}
-
-	var panel = $( "#notificationPanel" ),
-		menu = $( "#footer-menu" ),
-		items = [ $( "<li data-role='list-divider'>" + OSApp.Language._( "Notifications" ) +
-			"<button class='ui-btn ui-btn-icon-notext ui-icon-delete btn-no-border clear-all delete'></button></li>" )
-		.on( "click", ".clear-all", function() {
-			var button = $( this );
-
-			if ( button.hasClass( "clear" ) ) {
-				clearNotifications();
-			} else {
-				button.removeClass( "delete ui-btn-icon-notext ui-icon-delete" ).addClass( "clear" ).text( OSApp.Language._( "Clear" ) );
-				setTimeout( function() {
-				$.mobile.document.one( "click", function() {
-						button.removeClass( "clear" ).addClass( "delete ui-btn-icon-notext ui-icon-delete" ).text( "" );
-					} );
-				}, 1 );
-			}
-		} ) ];
-
-	for ( var i = OSApp.uiState.notifications.length - 1; i >= 0; i-- ) {
-		items.push( createNotificationItem( OSApp.uiState.notifications[ i ] ) );
-	}
-
-	panel.find( "ul" ).replaceWith( $( "<ul/>" ).append( items ).listview() );
-	panel.on( "panelbeforeclose", function() {
-		menu.removeClass( "moveLeft" );
-	} );
-	panel.panel().panel( "option", "classes.modal", "needsclick ui-panel-dismiss" );
-	menu.addClass( "moveLeft" );
-	panel.panel( "open" );
-}
-
-function clearNotifications() {
-	var panel = $( "#notificationPanel" );
-	OSApp.uiState.notifications = [];
-	updateNotificationBadge();
-	panel.find( "ul" ).empty();
-	if ( panel.hasClass( "ui-panel-open" ) ) {
-		panel.panel( "close" );
-	}
-}
-
-function removeNotification( button ) {
-	var panel = $( "#notificationPanel" ),
-		off = OSApp.uiState.notifications[ button.index() - 1 ].off;
-
-	if ( typeof off === "function" ) {
-		if ( !off() ) {
-			return;
-		}
-	}
-
-	OSApp.uiState.notifications.remove( button.index() - 1 );
-	button.remove();
-	updateNotificationBadge();
-	if ( OSApp.uiState.notifications.length === 0 && panel.hasClass( "ui-panel-open" ) ) {
-		panel.panel( "close" );
-	}
-}
-
-function checkFirmwareUpdate() {
-
-	// Update checks are only be available for Arduino firmwares
-	if ( OSApp.Network.checkOSVersion( 200 ) && ( OSApp.Network.getHWVersion() === "3.0" || OSApp.Network.isOSPi() ) ) {
-
-		// Github API to get releases for OpenSprinkler firmware
-		$.getJSON( "https://api.github.com/repos/opensprinkler/opensprinkler-firmware/releases" ).done( function( data ) {
-			if ( OSApp.currentSession.controller.options.fwv < data[ 0 ].tag_name ) {
-
-				// Grab a local storage variable which defines the firmware version for the last dismissed update
-				OSApp.Storage.get( "updateDismiss", function( flag ) {
-
-					// If the variable does not exist or is lower than the newest update, show the update notification
-					if ( !flag.updateDismiss || flag.updateDismiss < data[ 0 ].tag_name ) {
-						addNotification( {
-							title: OSApp.Language._( "Firmware update available" ),
-							on: function() {
-
-								// Modify the changelog by parsing markdown of lists to HTML
-								var button = $( this ).parent(),
-									canUpdate = OSApp.currentSession.controller.options.hwv === 30 || OSApp.currentSession.controller.options.hwv > 63 && OSApp.Network.checkOSVersion( 216 ),
-									changelog = data[ 0 ][ "html_url" ],
-									popup = $(
-										"<div data-role='popup' class='modal' data-theme='a'>" +
-											"<h3 class='center' style='margin-bottom:0'>" +
-												OSApp.Language._( "Latest" ) + " " + OSApp.Language._( "Firmware" ) + ": " + data[ 0 ].name +
-											"</h3>" +
-											"<h5 class='center' style='margin:0'>" + OSApp.Language._( "This Controller" ) + ": " + OSApp.Network.getOSVersion() + OSApp.Network.getOSMinorVersion() + "</h5>" +
-											"<a class='iab ui-btn ui-corner-all ui-shadow' style='width:80%;margin:5px auto;' target='_blank' href='" + changelog + "'>" +
-												OSApp.Language._( "View Changelog" ) +
-											"</a>" +
-											"<a class='guide ui-btn ui-corner-all ui-shadow' style='width:80%;margin:5px auto;' href='#'>" +
-												OSApp.Language._( "Update Guide" ) +
-											"</a>" +
-											( canUpdate ? "<a class='update ui-btn ui-corner-all ui-shadow' style='width:80%;margin:5px auto;' href='#'>" +
-												OSApp.Language._( "Update Now" ) +
-											"</a>" : "" ) +
-											"<a class='dismiss ui-btn ui-btn-b ui-corner-all ui-shadow' style='width:80%;margin:5px auto;' href='#'>" +
-												OSApp.Language._( "Dismiss" ) +
-											"</a>" +
-										"</div>"
-									);
-
-								popup.find( ".update" ).on( "click", function() {
-									if ( OSApp.currentSession.controller.options.hwv === 30 ) {
-										$( "<a class='hidden iab' href='" + OSApp.currentSession.prefix + OSApp.currentSession.ip + "/update'></a>" ).appendTo( popup ).click();
-										return;
-									}
-
-									// For OSPi/OSBo with firmware 2.1.6 or newer, trigger the update script from the app
-									OSApp.Network.sendToOS( "/cv?pw=&update=1", "json" ).then(
-										function() {
-											OSApp.Errors.showError( OSApp.Language._( "Update successful" ) );
-											popup.find( ".dismiss" ).click();
-										},
-										function() {
-											$.mobile.loading( "show", {
-												html: "<div class='center'>" + OSApp.Language._( "Update did not complete." ) + "<br>" +
-													"<a class='iab ui-btn' href='https://openthings.freshdesk.com/support/solutions/articles/5000631599-installing-and-updating-the-unified-firmware#upgrade'>" + OSApp.Language._( "Update Guide" ) + "</a></div>",
-												textVisible: true,
-												theme: "b"
-											} );
-											setTimeout( function() { $.mobile.loading( "hide" ); }, 3000 );
-										}
-									);
-								} );
-
-								popup.find( ".guide" ).on( "click", function() {
-
-										var url = OSApp.currentSession.controller.options.hwv > 63 ?
-											"https://openthings.freshdesk.com/support/solutions/articles/5000631599-installing-and-updating-the-unified-firmware#upgrade"
-											: "https://openthings.freshdesk.com/support/solutions/articles/5000381694-opensprinkler-firmware-update-guide";
-
-										// Open the firmware upgrade guide in a child browser
-										$( "<a class='hidden iab' href='" + url + "'></a>" )
-											.appendTo( popup ).click();
-								} );
-
-								popup.find( ".dismiss" ).one( "click", function() {
-
-									// Update the notification dismiss variable with the latest available version
-									OSApp.Storage.set( { updateDismiss:data[ 0 ].tag_name } );
-									popup.popup( "close" );
-									removeNotification( button );
-									return false;
-								} );
-
-								openPopup( popup );
-							}
-						} );
-					}
-				} );
-			}
-		} );
-	}
-}
-
 function stopAllStations() {
 
-	if ( !isControllerConnected() ) {
+	if ( !OSApp.currentSession.isControllerConnected() ) {
 		return false;
 	}
 
 	areYouSure( OSApp.Language._( "Are you sure you want to stop all stations?" ), "", function() {
 		$.mobile.loading( "show" );
-		OSApp.Network.sendToOS( "/cv?pw=&rsn=1" ).done( function() {
+		OSApp.Firmware.sendToOS( "/cv?pw=&rsn=1" ).done( function() {
 			$.mobile.loading( "hide" );
 			removeStationTimers();
 			refreshStatus();
@@ -11107,7 +9791,7 @@ function areYouSure( text1, text2, success, fail, options ) {
 		return false;
 	} );
 
-	openPopup( popup );
+	OSApp.UIDom.openPopup( popup );
 }
 
 function showIPRequest( opt ) {
@@ -11196,7 +9880,7 @@ function showIPRequest( opt ) {
 		opt.callback( getIP() );
 	} );
 
-	openPopup( popup );
+	OSApp.UIDom.openPopup( popup );
 }
 
 function showDurationBox( opt ) {
@@ -11227,7 +9911,7 @@ function showDurationBox( opt ) {
 		opt.seconds = 0;
 	}
 
-	if ( OSApp.Network.checkOSVersion( 217 ) ) {
+	if ( OSApp.Firmware.checkOSVersion( 217 ) ) {
 		opt.preventCompression = true;
 	}
 
@@ -11240,8 +9924,8 @@ function showDurationBox( opt ) {
 		arr = sec2dhms( opt.seconds ),
 		i;
 
-	if ( !opt.preventCompression && ( OSApp.Network.checkOSVersion( 210 ) && opt.maximum > 64800 ) ) {
-		opt.maximum = OSApp.Network.checkOSVersion( 214 ) ? 57600 : 64800;
+	if ( !opt.preventCompression && ( OSApp.Firmware.checkOSVersion( 210 ) && opt.maximum > 64800 ) ) {
+		opt.maximum = OSApp.Firmware.checkOSVersion( 214 ) ? 57600 : 64800;
 	}
 
 	if ( opt.maximum ) {
@@ -11301,7 +9985,7 @@ function showDurationBox( opt ) {
 				opt.callback( getValue() );
 			}
 
-			if ( !opt.preventCompression && OSApp.Network.checkOSVersion( 210 ) ) {
+			if ( !opt.preventCompression && OSApp.Firmware.checkOSVersion( 210 ) ) {
 				var state = ( dir === 1 ) ? true : false;
 
 				if ( dir === 1 ) {
@@ -11369,7 +10053,7 @@ function showDurationBox( opt ) {
 		popup.popup( "destroy" ).remove();
 	} );
 
-	if ( !opt.preventCompression && OSApp.Network.checkOSVersion( 210 ) ) {
+	if ( !opt.preventCompression && OSApp.Firmware.checkOSVersion( 210 ) ) {
 		if ( opt.seconds <= -60 ) {
 			toggleInput( "seconds", true );
 		}
@@ -11441,7 +10125,7 @@ function showDurationBox( opt ) {
 		}
 	} );
 
-	openPopup( popup );
+	OSApp.UIDom.openPopup( popup );
 }
 
 function showSingleDurationInput( opt ) {
@@ -11519,7 +10203,7 @@ function showSingleDurationInput( opt ) {
 		}
 	} );
 
-	openPopup( popup );
+	OSApp.UIDom.openPopup( popup );
 }
 
 function showDateTimeInput( timestamp, callback ) {
@@ -11599,7 +10283,7 @@ function showDateTimeInput( timestamp, callback ) {
 		callback( timestamp );
 	} );
 
-	openPopup( popup );
+	OSApp.UIDom.openPopup( popup );
 }
 
 function showTimeInput( opt ) {
@@ -11898,7 +10582,7 @@ function showTimeInput( opt ) {
 		}
 	} );
 
-	openPopup( popup );
+	OSApp.UIDom.openPopup( popup );
 }
 
 function showHelpText( e ) {
@@ -11912,7 +10596,7 @@ function showHelpText( e ) {
 		"<p>" + text + "</p>" +
 	"</div>" );
 
-	openPopup( popup, { positionTo: button } );
+	OSApp.UIDom.openPopup( popup, { positionTo: button } );
 
 	return false;
 }
@@ -11935,56 +10619,6 @@ $.fn.focusInput = function() {
 Number.prototype.clamp = function( min, max ) {
 	return Math.min( Math.max( this, min ), max );
 };
-
-function changePage( toPage, opts ) {
-	opts = opts || {};
-	if ( toPage.indexOf( "#" ) !== 0 ) {
-		toPage = "#" + toPage;
-	}
-
-	// Close the panel before page transition to avoid bug in jQM 1.4+
-	closePanel( function() {
-		$.mobile.pageContainer.pagecontainer( "change", toPage, opts );
-	} );
-}
-
-function openPopup( popup, args ) {
-	args = $.extend( {}, {
-		history: false,
-		positionTo: "window",
-		overlayTheme: "b"
-	}, args );
-
-	$.mobile.pageContainer.append( popup );
-
-	popup.one( "popupafterclose", function() {
-
-		// Retrieve popup data
-		var updateRemainingStations = $( "#shift-sta" ).is( ":checked" );
-
-		// Save data before view is destroyed
-		if ( updateRemainingStations !== undefined ) {
-			OSApp.uiState.popupData.shift = updateRemainingStations;
-		}
-
-		popup.popup( "destroy" ).remove();
-	} ).popup( args ).enhanceWithin();
-
-	popup.popup( "open" );
-}
-
-function closePanel( callback ) {
-	var panel = $( ".ui-panel-open" );
-	if ( panel.length > 0 ) {
-		panel.one( "panelclose", function() {
-			callback();
-		} );
-		panel.panel( "close" );
-		return;
-	} else {
-		callback();
-	}
-}
 
 // Change persistent header
 function changeHeader( opt ) {
@@ -12114,7 +10748,7 @@ function goHome( firstLoad ) {
 			};
 		}
 
-		changePage( "#sprinklers", opts );
+		OSApp.UIDom.changePage( "#sprinklers", opts );
 	}
 }
 
@@ -12128,7 +10762,7 @@ function goBack() {
 
 	page = page.attr( "id" );
 
-	var managerStart = ( page === "site-control" && !isControllerConnected() ),
+	var managerStart = ( page === "site-control" && !OSApp.currentSession.isControllerConnected() ),
 		popup = $( ".ui-popup-active" );
 
 	if ( popup.length ) {
@@ -12309,21 +10943,6 @@ function dhms2sec( arr ) {
 	return parseInt( ( arr.days * 86400 ) + ( arr.hours * 3600 ) + ( arr.minutes * 60 ) + arr.seconds );
 }
 
-function isControllerConnected() {
-	if ( ( !OSApp.currentSession.ip && !OSApp.currentSession.token ) ||
-		$.isEmptyObject( OSApp.currentSession.controller ) ||
-		$.isEmptyObject( OSApp.currentSession.controller.options ) ||
-		$.isEmptyObject( OSApp.currentSession.controller.programs ) ||
-		$.isEmptyObject( OSApp.currentSession.controller.settings ) ||
-		$.isEmptyObject( OSApp.currentSession.controller.status ) ||
-		$.isEmptyObject( OSApp.currentSession.controller.stations ) ) {
-
-			return false;
-	}
-
-	return true;
-}
-
 // Generate export link for JSON data
 function exportObj( ele, obj, subject ) {
 	obj = encodeURIComponent( JSON.stringify( obj ) );
@@ -12406,8 +11025,6 @@ function htmlEscape( str ) {
 function getAppURLPath() {
 	return OSApp.currentSession.local ? $.mobile.path.parseUrl( $( "head" ).find( "script[src$='main.js']" ).attr( "src" ) ).hrefNoHash.slice( 0, -10 ) : "";
 }
-
-
 
 function escapeJSON( json ) {
 	return JSON.stringify( json ).replace( /\{|\}/g, "" );
@@ -12539,7 +11156,7 @@ function dateToString( date, toUTC, shorten ) {
 
 // Transform keys to JSON names for 2.1.9+
 function transformKeys( opt ) {
-	if ( OSApp.Network.checkOSVersion( 219 ) ) {
+	if ( OSApp.Firmware.checkOSVersion( 219 ) ) {
 		var renamedOpt = {};
 		Object.keys( opt ).forEach( function( item ) {
 			var name = item.match( /^o(\d+)$/ );
@@ -12611,7 +11228,7 @@ Supported.disabled = function() {
 };
 
 Supported.sequential = function() {
-	if ( OSApp.Network.checkOSVersion( 220 ) ) {
+	if ( OSApp.Firmware.checkOSVersion( 220 ) ) {
 		return false;
 	}
 	return ( typeof OSApp.currentSession.controller.stations.stn_seq === "object" ) ? true : false;
@@ -12630,7 +11247,7 @@ Supported.groups = function() {
 };
 
 Supported.dateRange = function() {
-	return OSApp.Network.checkOSVersion( 220 );
+	return OSApp.Firmware.checkOSVersion( 220 );
 };
 
 /* Station accessor methods */
@@ -12883,8 +11500,8 @@ Card.getGIDValue = function( cardObj ) {
 
 Card.getGIDName = function( cardObj ) {
 
-	//Return mapGIDValueToName( Card.getGIDValue( cardObj ) );
-	return mapGIDValueToName( Station.getGIDValue( Card.getSID( cardObj ) ) );
+	//Return OSApp.Groups.mapGIDValueToName( Card.getGIDValue( cardObj ) );
+	return OSApp.Groups.mapGIDValueToName( Station.getGIDValue( Card.getSID( cardObj ) ) );
 };
 
 Card.isMasterStation = function( cardObj ) {
@@ -12931,112 +11548,3 @@ StationQueue.isPaused = function() {
 StationQueue.size = function() {
 	return OSApp.currentSession.controller.settings.nq;
 };
-
-/* Gid conversions */
-
-// Last index value is dedicated to the parallel group
-function mapIndexToGIDValue( index ) {
-	return ( index - OSApp.Constants.options.NUM_SEQ_GROUPS ) ? index : OSApp.Constants.options.PARALLEL_GID_VALUE;
-}
-
-function mapGIDValueToName( value ) {
-	switch ( value ) {
-		case OSApp.Constants.options.PARALLEL_GID_VALUE:
-			return OSApp.Constants.options.PARALLEL_GROUP_NAME;
-		case OSApp.Constants.options.MASTER_GID_VALUE:
-			return OSApp.Constants.options.MASTER_GROUP_NAME;
-		default:
-			return String.fromCharCode( 65 + value );
-	}
-}
-
-function mapGIDNameToValue( groupName ) {
-	switch ( groupName ) {
-		case OSApp.Constants.options.PARALLEL_GROUP_NAME:
-			return OSApp.Constants.options.PARALLEL_GID_VALUE;
-		case OSApp.Constants.options.MASTER_GROUP_NAME:
-			return OSApp.Constants.options.MASTER_GID_VALUE;
-		default:
-			return groupName.charCodeAt( 0 ) - 65;
-	}
-}
-
-// Miscellaneous
-
-var dateRegex = /[0-9]{1,2}[\/][0-9]{1,2}/g;
-
-function Program() {}
-
-Program.getDateRange = function( pid ) {
-	return OSApp.currentSession.controller.programs.pd[ pid ][ 6 ];
-};
-
-Program.isDateRangeEnabled = function( pid ) {
-	if ( pid === "new" ) {
-		return 0;
-	}
-	return Program.getDateRange( pid )[ 0 ];
-};
-
-Program.getDateRangeStart = function( pid ) {
-	if ( pid === "new" ) {
-		return minEncodedDate;
-	}
-	return Program.getDateRange( pid )[ 1 ];
-};
-
-Program.getDateRangeEnd = function( pid ) {
-	if ( pid === "new" ) {
-		return maxEncodedDate;
-	}
-	return Program.getDateRange( pid )[ 2 ];
-};
-
-function extractDateFromString( inputString ) {
-	return inputString.match( dateRegex );
-}
-
-function isValidDateFormat( dateString ) {
-	var dates = extractDateFromString( dateString );
-	return dates !== null;
-}
-
-function isValidDateRange( startDate, endDate ) {
-	return isValidDateFormat( startDate ) && isValidDateFormat( endDate );
-}
-
-function encodeDate( dateString ) {
-	var dateValues = extractDateFromString( dateString );
-	if ( dateValues === null ) {
-		return -1;
-	}
-	var dateToEncode = dateValues[ 0 ].split( "/", 2 );
-
-	var month = parseInt( dateToEncode[ 0 ] ),
-		day = parseInt( dateToEncode[ 1 ] );
-	return ( month << 5 ) + day;
-}
-
-var minEncodedDate = encodeDate( "01/01" ),
-	  maxEncodedDate = encodeDate( "12/31" );
-
-function decodeDate( dateValue ) {
-	var dateString = [],
-		monthValue, dayValue;
-	if ( minEncodedDate <= dateValue && dateValue <= maxEncodedDate ) {
-		monthValue = dateValue >> 5;
-		dayValue = dateValue % 32;
-		dateString.push(
-			monthValue / 10 >> 0,
-			monthValue % 10,
-			"/",
-			dayValue / 10 >> 0,
-			dayValue % 10
-		);
-		return dateString.join( "" );
-	} else if ( dateValue < minEncodedDate ) { // Sanitize
-		return "01/01";
-	} else {
-		return "12/31";
-	}
-}

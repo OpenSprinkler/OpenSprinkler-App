@@ -119,7 +119,7 @@ OSApp.Language.languageSelect = () => {
 		OSApp.Language.updateLang( lang );
 	} );
 
-	openPopup( popup );
+	OSApp.UIDom.openPopup( popup );
 
 	return false;
 };

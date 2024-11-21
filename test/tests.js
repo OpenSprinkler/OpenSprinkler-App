@@ -195,7 +195,7 @@ describe( "Page Navigation Checks", function() {
 		currPrefix = "http://";
 		curr183 = false;
 
-		updateSiteList( [ "Test" ], "Test" );
+		OSApp.Sites.updateSiteList( [ "Test" ], "Test" );
 
 		$.mobile.document.one( "pageshow", "#sprinklers", function() {
 			done();
@@ -209,7 +209,7 @@ describe( "Page Navigation Checks", function() {
 			done();
 		} );
 		assert.doesNotThrow( function() {
-			changePage( "#preview" );
+			OSApp.UIDom.changePage( "#preview" );
 		} );
 	} );
 
@@ -218,7 +218,7 @@ describe( "Page Navigation Checks", function() {
 			done();
 		} );
 		assert.doesNotThrow( function() {
-			changePage( "#logs" );
+			OSApp.UIDom.changePage( "#logs" );
 		} );
 	} );
 
@@ -227,7 +227,7 @@ describe( "Page Navigation Checks", function() {
 			done();
 		} );
 		assert.doesNotThrow( function() {
-			changePage( "#runonce" );
+			OSApp.UIDom.changePage( "#runonce" );
 		} );
 	} );
 
@@ -236,7 +236,7 @@ describe( "Page Navigation Checks", function() {
 			done();
 		} );
 		assert.doesNotThrow( function() {
-			changePage( "#programs" );
+			OSApp.UIDom.changePage( "#programs" );
 		} );
 	} );
 
@@ -245,7 +245,7 @@ describe( "Page Navigation Checks", function() {
 			done();
 		} );
 		assert.doesNotThrow( function() {
-			changePage( "#addprogram" );
+			OSApp.UIDom.changePage( "#addprogram" );
 		} );
 	} );
 
@@ -254,7 +254,7 @@ describe( "Page Navigation Checks", function() {
 			done();
 		} );
 		assert.doesNotThrow( function() {
-			changePage( "#os-options" );
+			OSApp.UIDom.changePage( "#os-options" );
 		} );
 	} );
 
@@ -263,7 +263,7 @@ describe( "Page Navigation Checks", function() {
 			done();
 		} );
 		assert.doesNotThrow( function() {
-			changePage( "#site-control" );
+			OSApp.UIDom.changePage( "#site-control" );
 		} );
 	} );
 
@@ -272,7 +272,7 @@ describe( "Page Navigation Checks", function() {
 			done();
 		} );
 		assert.doesNotThrow( function() {
-			changePage( "#about" );
+			OSApp.UIDom.changePage( "#about" );
 		} );
 	} );
 } );
@@ -381,6 +381,6 @@ describe( "Logout / Clean up", function() {
 			done();
 		} );
 		currIp = "";
-		changePage( "#start" );
+		OSApp.UIDom.changePage( "#start" );
     } );
 } );
