@@ -19,9 +19,11 @@
 // Configure module
 var OSApp = OSApp || {};
 
-// TODO: refactor away all direct usage of localstorage in favor of OSApp.Storage
+// TODO: refactor away all direct usage of localStorage in favor of OSApp.Storage
 // TODO: refactor analog.js into a true modules & update all references
 // TODO: refactor all weather related functions out to modules/weather.js
+// TODO: continue module refactoring
+// TODO: add unit tests for each module
 
 // App Constants
 OSApp.Constants = {
