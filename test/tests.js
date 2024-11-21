@@ -141,27 +141,27 @@ describe( "General Function Checks", function() {
 		assert.deepEqual( [ 9, 394, 29193, -1 ], parseIntArray( [ "9", "394", "29193", "-1" ] ) );
 	} );
 
-	it( "sec2hms(number) should return a string representation of the difference the input represents (seconds)", function() {
-		assert.equal( "23:59:59", sec2hms( 86399 ) );
-		assert.equal( "15:00", sec2hms( 900 ) );
+	it( "OSApp.Dates.sec2hms(number) should return a string representation of the difference the input represents (seconds)", function() {
+		assert.equal( "23:59:59", OSApp.Dates.sec2hms( 86399 ) );
+		assert.equal( "15:00", OSApp.Dates.sec2hms( 900 ) );
 	} );
 
-	it( "sec2dhms(number) should return an object containing days, hours, minutes and seconds from the input (seconds)", function() {
+	it( "OSApp.Dates.sec2dhms(number) should return an object containing days, hours, minutes and seconds from the input (seconds)", function() {
 		assert.deepEqual( {
 			days: 936,
 			hours: 17,
 			minutes: 20,
 			seconds: 9
-		}, sec2dhms( 80932809 ) );
+		}, OSApp.Dates.sec2dhms( 80932809 ) );
 	} );
 
-	it( "dhms2str(object) should convert an object with elements days, hours, minutes and seconds into a string representation", function() {
-		assert.equal( "5d 4h 3m 1s", dhms2str( { days:5, hours:4, minutes:3, seconds:1 } ) );
-		assert.equal( "0s", dhms2str( {} ) );
+	it( "OSApp.Dates.dhms2str(object) should convert an object with elements days, hours, minutes and seconds into a string representation", function() {
+		assert.equal( "5d 4h 3m 1s", OSApp.Dates.dhms2str( { days:5, hours:4, minutes:3, seconds:1 } ) );
+		assert.equal( "0s", OSApp.Dates.dhms2str( {} ) );
 	} );
 
-	it( "dhms2sec(object) should convert an object with elements days, hours, minutes and seconds into a second value", function() {
-		assert.equal( 100981, dhms2sec( { days:1, hours:4, minutes:3, seconds:1 } ) );
+	it( "OSApp.Dates.dhms2sec(object) should convert an object with elements days, hours, minutes and seconds into a second value", function() {
+		assert.equal( 100981, OSApp.Dates.dhms2sec( { days:1, hours:4, minutes:3, seconds:1 } ) );
 	} );
 
 	it( "OSApp.Dates.getDayName(day,type) should return the day of the week and can be of type 'short'", function() {

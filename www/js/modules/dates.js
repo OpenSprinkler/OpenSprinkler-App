@@ -217,3 +217,62 @@ OSApp.Dates.getDayName = function( day, type ) {
 		return ldays[ day.getDay() ];
 	}
 };
+
+OSApp.Dates.getDurationText = function( time ) {
+	if ( time === 65535 ) {
+		return OSApp.Language._( "Sunset to Sunrise" );
+	} else if ( time === 65534 ) {
+		return OSApp.Language._( "Sunrise to Sunset" );
+	} else {
+		return OSApp.Dates.dhms2str( OSApp.Dates.sec2dhms( time ) );
+	}
+}
+
+// Convert seconds into (HH:)MM:SS format. HH is only reported if greater than 0.
+OSApp.Dates.sec2hms = function( diff ) {
+	var str = "";
+	var hours = Math.max( 0, parseInt( diff / 3600 ) % 24 );
+	var minutes = Math.max( 0, parseInt( diff / 60 ) % 60 );
+	var seconds = diff % 60;
+	if ( hours ) {
+		str += OSApp.Utils.pad( hours ) + ":";
+	}
+	return str + OSApp.Utils.pad( minutes ) + ":" + OSApp.Utils.pad( seconds );
+}
+
+// Convert seconds into array of days, hours, minutes and seconds.
+OSApp.Dates.sec2dhms = function( diff ) {
+	var isNegative = ( diff < 0 ) ? -1 : 1;
+	diff = Math.abs( diff );
+	return {
+		"days": Math.max( 0, parseInt( diff / 86400 ) ) * isNegative,
+		"hours": Math.max( 0, parseInt( diff % 86400 / 3600 ) ) * isNegative,
+		"minutes": Math.max( 0, parseInt( ( diff % 86400 ) % 3600 / 60 ) ) * isNegative,
+		"seconds": Math.max( 0, parseInt( ( diff % 86400 ) % 3600 % 60 ) ) * isNegative
+	};
+}
+
+OSApp.Dates.dhms2str = function( arr ) {
+	var str = "";
+	if ( arr.days ) {
+		str += arr.days + OSApp.Language._( "d" ) + " ";
+	}
+	if ( arr.hours ) {
+		str += arr.hours + OSApp.Language._( "h" ) + " ";
+	}
+	if ( arr.minutes ) {
+		str += arr.minutes + OSApp.Language._( "m" ) + " ";
+	}
+	if ( arr.seconds ) {
+		str += arr.seconds + OSApp.Language._( "s" ) + " ";
+	}
+	if ( str === "" ) {
+		str = "0" + OSApp.Language._( "s" );
+	}
+	return str.trim();
+}
+
+// Convert days, hours, minutes and seconds array into seconds (int).
+OSApp.Dates.dhms2sec = function( arr ) {
+	return parseInt( ( arr.days * 86400 ) + ( arr.hours * 3600 ) + ( arr.minutes * 60 ) + arr.seconds );
+}

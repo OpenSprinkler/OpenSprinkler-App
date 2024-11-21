@@ -3024,7 +3024,7 @@ function showOptions( expandItem ) {
 	if ( typeof OSApp.currentSession.controller.options.sdt !== "undefined" ) {
 		list += "<div class='ui-field-contain duration-field'><label for='o17'>" + OSApp.Language._( "Station Delay" ) + "</label>" +
 			"<button data-mini='true' id='o17' value='" + OSApp.currentSession.controller.options.sdt + "'>" +
-				dhms2str( sec2dhms( OSApp.currentSession.controller.options.sdt ) ) +
+				OSApp.Dates.dhms2str( OSApp.Dates.sec2dhms( OSApp.currentSession.controller.options.sdt ) ) +
 			"</button></div>";
 	}
 
@@ -3799,7 +3799,7 @@ function showOptions( expandItem ) {
 				label: OSApp.Language._( "Seconds" ),
 				callback: function( result ) {
 					dur.val( result );
-					dur.text( dhms2str( sec2dhms( result ) ) );
+					dur.text( OSApp.Dates.dhms2str( OSApp.Dates.sec2dhms( result ) ) );
 				},
 				maximum: max,
 				minimum: min
@@ -4356,7 +4356,7 @@ var showHome = ( function() {
 				val: rem,
 				station: station,
 				update: function() {
-					page.find( "#countdown-" + station ).text( "(" + sec2hms( this.val ) + " " + OSApp.Language._( "remaining" ) + ")" );
+					page.find( "#countdown-" + station ).text( "(" + OSApp.Dates.sec2hms( this.val ) + " " + OSApp.Language._( "remaining" ) + ")" );
 				},
 				done: function() {
 					page.find( "#countdown-" + station ).parent( "p" ).empty().siblings( ".station-status" ).removeClass( "on" ).addClass( "off" );
@@ -4421,7 +4421,7 @@ var showHome = ( function() {
 					if ( rem > 0 ) {
 
 						// Show the remaining time if it's greater than 0
-						cards += " <span id=" + ( qPause ? "'pause" : "'countdown-" ) + sid + "' class='nobr'>(" + sec2hms( rem ) + " " + OSApp.Language._( "remaining" ) + ")</span>";
+						cards += " <span id=" + ( qPause ? "'pause" : "'countdown-" ) + sid + "' class='nobr'>(" + OSApp.Dates.sec2hms( rem ) + " " + OSApp.Language._( "remaining" ) + ")</span>";
 					}
 					cards += "</p>";
 				}
@@ -5255,7 +5255,7 @@ var showHome = ( function() {
 						if ( rem > 0 ) {
 
 							// Show the remaining time if it's greater than 0
-							line += " <span id=" + ( qPause ? "'pause" : "'countdown-" ) + sid + "' class='nobr'>(" + sec2hms( rem ) + " " + OSApp.Language._( "remaining" ) + ")</span>";
+							line += " <span id=" + ( qPause ? "'pause" : "'countdown-" ) + sid + "' class='nobr'>(" + OSApp.Dates.sec2hms( rem ) + " " + OSApp.Language._( "remaining" ) + ")</span>";
 							if ( OSApp.currentSession.controller.status[ sid ] ) {
 								addTimer( sid, rem );
 							}
@@ -5686,7 +5686,7 @@ function changeStatus( seconds, color, line, onclick ) {
 			val: seconds,
 			type: "statusbar",
 			update: function() {
-				$( "#countdown" ).text( "(" + sec2hms( this.val ) + " " + OSApp.Language._( "remaining" ) + ")" );
+				$( "#countdown" ).text( "(" + OSApp.Dates.sec2hms( this.val ) + " " + OSApp.Language._( "remaining" ) + ")" );
 			}
 		};
 	}
@@ -5753,7 +5753,7 @@ function checkStatus() {
 		line = "<p class='running-text center pointer'>" + OSApp.Language._( "Stations Currently Paused" );
 
 		if ( OSApp.currentSession.controller.settings.pt ) {
-			line += " <span id='countdown' class='nobr'>(" + sec2hms( OSApp.currentSession.controller.settings.pt ) + " " + OSApp.Language._( "remaining" ) + ")</span>";
+			line += " <span id='countdown' class='nobr'>(" + OSApp.Dates.sec2hms( OSApp.currentSession.controller.settings.pt ) + " " + OSApp.Language._( "remaining" ) + ")</span>";
 		}
 
 		line += "</p>";
@@ -5797,7 +5797,7 @@ function checkStatus() {
 
 		line += pname + " " + OSApp.Language._( "is running on" ) + " " + Object.keys( open ).length + " " + OSApp.Language._( "stations" ) + " ";
 		if ( ptotal > 0 ) {
-			line += "<span id='countdown' class='nobr'>(" + sec2hms( ptotal ) + " " + OSApp.Language._( "remaining" ) + ")</span>";
+			line += "<span id='countdown' class='nobr'>(" + OSApp.Dates.sec2hms( ptotal ) + " " + OSApp.Language._( "remaining" ) + ")</span>";
 		}
 		line += "</div></div>";
 		changeStatus( ptotal, "green", line, goHome );
@@ -5814,7 +5814,7 @@ function checkStatus() {
 			line = "<div><div class='running-icon'></div><div class='running-text pointer'>";
 			line += pname + " " + OSApp.Language._( "is running on station" ) + " <span class='nobr'>" + OSApp.Stations.getName( i ) + "</span> ";
 			if ( OSApp.Stations.getRemainingRuntime( i ) > 0 ) {
-				line += "<span id='countdown' class='nobr'>(" + sec2hms( OSApp.Stations.getRemainingRuntime( i ) ) + " " + OSApp.Language._( "remaining" ) + ")</span>";
+				line += "<span id='countdown' class='nobr'>(" + OSApp.Dates.sec2hms( OSApp.Stations.getRemainingRuntime( i ) ) + " " + OSApp.Language._( "remaining" ) + ")</span>";
 			}
 			line += "</div></div>";
 			break;
@@ -6094,7 +6094,7 @@ var getManual = ( function() {
 			return;
 		}
 		autoOff.val( data.autoOff );
-		autoOff.text( dhms2str( sec2dhms( data.autoOff ) ) );
+		autoOff.text( OSApp.Dates.dhms2str( OSApp.Dates.sec2dhms( data.autoOff ) ) );
 	} );
 
 	autoOff.on( "click", function() {
@@ -6106,7 +6106,7 @@ var getManual = ( function() {
 			title: name,
 			callback: function( result ) {
 				dur.val( result );
-				dur.text( dhms2str( sec2dhms( result ) ) );
+				dur.text( OSApp.Dates.dhms2str( OSApp.Dates.sec2dhms( result ) ) );
 				OSApp.Storage.set( { "autoOff":result } );
 			},
 			maximum: 32768
@@ -6178,7 +6178,7 @@ var getRunonce = ( function() {
 				}
 
 				var ele = $( b );
-				ele.val( data[ a ] ).text( getDurationText( data[ a ] ) );
+				ele.val( data[ a ] ).text( OSApp.Dates.getDurationText( data[ a ] ) );
 				if ( data[ a ] > 0 ) {
 					ele.addClass( "green" );
 				} else {
@@ -6301,7 +6301,7 @@ var getRunonce = ( function() {
 				title: name,
 				callback: function( result ) {
 					dur.val( result );
-					dur.text( getDurationText( result ) );
+					dur.text( OSApp.Dates.getDurationText( result ) );
 					if ( result > 0 ) {
 						dur.addClass( "green" );
 					} else {
@@ -7367,11 +7367,11 @@ var getLogs = ( function() {
 				if ( type === "table" ) {
 					switch ( grouping ) {
 						case "station":
-							sortedData[ station ].push( [ utc, dhms2str( sec2dhms( duration ) ) ] );
+							sortedData[ station ].push( [ utc, OSApp.Dates.dhms2str( OSApp.Dates.sec2dhms( duration ) ) ] );
 							break;
 						case "day":
 							var day = Math.floor( date.getTime() / 1000 / 60 / 60 / 24 ),
-								item = [ utc, dhms2str( sec2dhms( duration ) ), station, new Date( utc.getTime() + ( duration * 1000 ) ) ];
+								item = [ utc, OSApp.Dates.dhms2str( OSApp.Dates.sec2dhms( duration ) ), station, new Date( utc.getTime() + ( duration * 1000 ) ) ];
 
 							// Item structure: [startDate, runtime, station, endDate]
 
@@ -7688,7 +7688,7 @@ var getLogs = ( function() {
 
 			return "<div class='ui-body-a smaller' id='logs_summary'>" +
 						"<div><span class='bold'>" + OSApp.Language._( "Total Station Events" ) + "</span>: " + stats.totalCount + "</div>" +
-						"<div><span class='bold'>" + OSApp.Language._( "Total Runtime" ) + "</span>: " + dhms2str( sec2dhms( stats.totalRuntime ) ) + "</div>" +
+						"<div><span class='bold'>" + OSApp.Language._( "Total Runtime" ) + "</span>: " + OSApp.Dates.dhms2str( OSApp.Dates.sec2dhms( stats.totalRuntime ) ) + "</div>" +
 						( hasWater ?
 							"<div><span class='bold'>" +  OSApp.Language._( "Average" ) + " " + OSApp.Language._( "Water Level" ) + "</span>: <span class='" +
 									( stats.avgWaterLevel !== 100 ? ( stats.avgWaterLevel < 100 ? "green-text" : "red-text" ) : "" ) +
@@ -8230,7 +8230,7 @@ function readStartTime( time ) {
 		offset = -offset;
 	}
 
-	return type + ( offset !== 0 ? ( offset > 0 ? "+" : "" ) + dhms2str( sec2dhms( offset * 60 ) ) : "" );
+	return type + ( offset !== 0 ? ( offset > 0 ? "+" : "" ) + OSApp.Dates.dhms2str( OSApp.Dates.sec2dhms( offset * 60 ) ) : "" );
 }
 
 // Translate program ID to it's name
@@ -8380,10 +8380,10 @@ function makeProgram183( n, isCopy ) {
 	list += "<div class='ui-grid-a'>";
 	list += "<div class='ui-block-a'><label class='pad_buttons center' for='duration-" + id + "'>" + OSApp.Language._( "Station Duration" ) + "</label>" +
 		"<button class='pad_buttons' data-mini='true' name='duration-" + id + "' id='duration-" + id + "' value='" + program.duration + "'>" +
-		dhms2str( sec2dhms( program.duration ) ) + "</button></div>";
+		OSApp.Dates.dhms2str( OSApp.Dates.sec2dhms( program.duration ) ) + "</button></div>";
 	list += "<div class='ui-block-b'><label class='pad_buttons center' for='interval-" + id + "'>" + OSApp.Language._( "Program Interval" ) + "</label>" +
 		"<button class='pad_buttons' data-mini='true' name='interval-" + id + "' id='interval-" + id + "' value='" + program.interval * 60 + "'>" +
-		dhms2str( sec2dhms( program.interval * 60 ) ) + "</button></div>";
+		OSApp.Dates.dhms2str( OSApp.Dates.sec2dhms( program.interval * 60 ) ) + "</button></div>";
 	list += "</div>";
 
 	if ( isCopy === true || n === "new" ) {
@@ -8424,7 +8424,7 @@ function makeProgram183( n, isCopy ) {
 			title: name,
 			callback: function( result ) {
 				dur.val( result );
-				dur.text( dhms2str( sec2dhms( result ) ) );
+				dur.text( OSApp.Dates.dhms2str( OSApp.Dates.sec2dhms( result ) ) );
 			},
 			maximum: isInterval ? 86340 : 65535,
 			granularity: isInterval
@@ -8605,7 +8605,7 @@ function makeProgram21( n, isCopy ) {
 			list += "<div class='ui-field-contain duration-input" + ( OSApp.Stations.isDisabled( j ) ? " station-hidden" + hideDisabled : "" ) + "'>" +
 				"<label for='station_" + j + "-" + id + "'>" + OSApp.currentSession.controller.stations.snames[ j ] + ":</label>" +
 				"<button " + ( time > 0 ? "class='green' " : "" ) + "data-mini='true' name='station_" + j + "-" + id + "' " +
-					"id='station_" + j + "-" + id + "' value='" + time + "'>" + getDurationText( time ) + "</button></div>";
+					"id='station_" + j + "-" + id + "' value='" + time + "'>" + OSApp.Dates.getDurationText( time ) + "</button></div>";
 		}
 	}
 
@@ -8632,7 +8632,7 @@ function makeProgram21( n, isCopy ) {
 	list += "<div class='ui-grid-a'>";
 	list += "<div class='ui-block-a'><label class='pad_buttons center' for='interval-" + id + "'>" + OSApp.Language._( "Repeat Every" ) + "</label>" +
 		"<button class='pad_buttons' data-mini='true' name='interval-" + id + "' id='interval-" + id + "' " +
-			"value='" + program.interval * 60 + "'>" + dhms2str( sec2dhms( program.interval * 60 ) ) + "</button></div>";
+			"value='" + program.interval * 60 + "'>" + OSApp.Dates.dhms2str( OSApp.Dates.sec2dhms( program.interval * 60 ) ) + "</button></div>";
 	list += "<div class='ui-block-b'><label class='pad_buttons center' for='repeat-" + id + "'>" + OSApp.Language._( "Repeat Count" ) + "</label>" +
 		"<button class='pad_buttons' data-mini='true' name='repeat-" + id + "' id='repeat-" + id + "' value='" + program.repeat + "'>" +
 			program.repeat + "</button></div>";
@@ -8688,7 +8688,7 @@ function makeProgram21( n, isCopy ) {
 			title: name,
 			callback: function( result ) {
 				dur.val( result );
-				dur.text( dhms2str( sec2dhms( result ) ) );
+				dur.text( OSApp.Dates.dhms2str( OSApp.Dates.sec2dhms( result ) ) );
 			},
 			maximum: 86340,
 			granularity: 1,
@@ -8736,7 +8736,7 @@ function makeProgram21( n, isCopy ) {
 			title: name,
 			callback: function( result ) {
 				dur.val( result ).addClass( "green" );
-				dur.text( getDurationText( result ) );
+				dur.text( OSApp.Dates.getDurationText( result ) );
 
 				if ( result === 0 ) {
 					dur.removeClass( "green" );
@@ -9921,7 +9921,7 @@ function showDurationBox( opt ) {
 		max = [ 0, 23, 59, 59 ],
 		total = 4 - opt.granularity,
 		start = 0,
-		arr = sec2dhms( opt.seconds ),
+		arr = OSApp.Dates.sec2dhms( opt.seconds ),
 		i;
 
 	if ( !opt.preventCompression && ( OSApp.Firmware.checkOSVersion( 210 ) && opt.maximum > 64800 ) ) {
@@ -10014,7 +10014,7 @@ function showDurationBox( opt ) {
 			if ( useSun.length === 1 ) {
 				return parseInt( useSun.val() );
 			} else {
-				return dhms2sec( {
+				return OSApp.Dates.dhms2sec( {
 					"days": parseInt( popup.find( ".days" ).val() ) || 0,
 					"hours": parseInt( popup.find( ".hours" ).val() ) || 0,
 					"minutes": parseInt( popup.find( ".minutes" ).val() ) || 0,
@@ -10882,63 +10882,4 @@ function insertStyle( style ) {
 function parseIntArray( arr ) {
 	for ( var i = 0; i < arr.length; i++ ) {arr[ i ] = +arr[ i ];}
 	return arr;
-}
-
-function getDurationText( time ) {
-	if ( time === 65535 ) {
-		return OSApp.Language._( "Sunset to Sunrise" );
-	} else if ( time === 65534 ) {
-		return OSApp.Language._( "Sunrise to Sunset" );
-	} else {
-		return dhms2str( sec2dhms( time ) );
-	}
-}
-
-// Convert seconds into (HH:)MM:SS format. HH is only reported if greater than 0.
-function sec2hms( diff ) {
-	var str = "";
-	var hours = Math.max( 0, parseInt( diff / 3600 ) % 24 );
-	var minutes = Math.max( 0, parseInt( diff / 60 ) % 60 );
-	var seconds = diff % 60;
-	if ( hours ) {
-		str += OSApp.Utils.pad( hours ) + ":";
-	}
-	return str + OSApp.Utils.pad( minutes ) + ":" + OSApp.Utils.pad( seconds );
-}
-
-// Convert seconds into array of days, hours, minutes and seconds.
-function sec2dhms( diff ) {
-	var isNegative = ( diff < 0 ) ? -1 : 1;
-	diff = Math.abs( diff );
-	return {
-		"days": Math.max( 0, parseInt( diff / 86400 ) ) * isNegative,
-		"hours": Math.max( 0, parseInt( diff % 86400 / 3600 ) ) * isNegative,
-		"minutes": Math.max( 0, parseInt( ( diff % 86400 ) % 3600 / 60 ) ) * isNegative,
-		"seconds": Math.max( 0, parseInt( ( diff % 86400 ) % 3600 % 60 ) ) * isNegative
-	};
-}
-
-function dhms2str( arr ) {
-	var str = "";
-	if ( arr.days ) {
-		str += arr.days + OSApp.Language._( "d" ) + " ";
-	}
-	if ( arr.hours ) {
-		str += arr.hours + OSApp.Language._( "h" ) + " ";
-	}
-	if ( arr.minutes ) {
-		str += arr.minutes + OSApp.Language._( "m" ) + " ";
-	}
-	if ( arr.seconds ) {
-		str += arr.seconds + OSApp.Language._( "s" ) + " ";
-	}
-	if ( str === "" ) {
-		str = "0" + OSApp.Language._( "s" );
-	}
-	return str.trim();
-}
-
-// Convert days, hours, minutes and seconds array into seconds (int).
-function dhms2sec( arr ) {
-	return parseInt( ( arr.days * 86400 ) + ( arr.hours * 3600 ) + ( arr.minutes * 60 ) + arr.seconds );
 }
