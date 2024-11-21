@@ -1,5 +1,5 @@
 /* global readProgram, areYouSure, _, $ */
-/* global changeHeader, goBack */
+/* global changeHeader */
 /* global ApexCharts */
 /* exported checkAnalogSensorAvail, updateSensorShowArea, showAnalogSensorConfig, showAnalogSensorCharts */
 
@@ -684,7 +684,7 @@ OSApp.Analog.showAnalogSensorConfig = ( function() {
 				icon: "carat-l",
 				text: OSApp.Language._( "Back" ),
 				class: "ui-toolbar-back-btn",
-				on: goBack
+				on: OSApp.UIDom.goBack
 			}
 		} );
 
@@ -834,7 +834,7 @@ OSApp.Analog.showAnalogSensorCharts = ( function() {
 				icon: "carat-l",
 				text: OSApp.Language._( "Back" ),
 				class: "ui-toolbar-back-btn",
-				on: goBack
+				on: OSApp.UIDom.goBack
 			}
 		} );
 

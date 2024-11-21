@@ -274,7 +274,7 @@ function newLoad() {
 			if ( OSApp.currentSession.controller.options.firstRun ) {
 				showGuidedSetup();
 			} else {
-				goHome( true );
+				OSApp.UIDom.goHome( true );
 			}
 		},
 		function( error ) {
@@ -623,7 +623,7 @@ function fixPasswordHash( current ) {
 					return false;
 				} else {
 					sites[ current ].os_pw = OSApp.currentSession.pass = pw;
-					OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
+					OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, OSApp.Network.cloudSaveSites );
 				}
 			} );
 		}
@@ -695,7 +695,7 @@ function submitNewUser( ssl, useAuth ) {
 					"sites": JSON.stringify( sites ),
 					"current_site": name
 				}, function() {
-					cloudSaveSites();
+					OSApp.Network.cloudSaveSites();
 					OSApp.Sites.updateSiteList( Object.keys( sites ), name );
 					newLoad();
 				} );
@@ -1225,7 +1225,7 @@ var showSites = ( function() {
 						//OSApp.Firmware.sendToOS( "/cv?pw=&cn=" + data.current_site );
 					}
 
-					OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
+					OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, OSApp.Network.cloudSaveSites );
 
 					OSApp.Errors.showError( OSApp.Language._( "Site updated successfully" ) );
 
@@ -1254,7 +1254,7 @@ var showSites = ( function() {
 
 						delete sites[ site ];
 						OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, function() {
-							cloudSaveSites();
+							OSApp.Network.cloudSaveSites();
 							OSApp.Sites.updateSiteList( Object.keys( sites ), data.current_site );
 							if ( $.isEmptyObject( sites ) ) {
 								OSApp.Storage.get( "cloudToken", function() {
@@ -1295,7 +1295,7 @@ var showSites = ( function() {
 				class: "ui-toolbar-back-btn",
 				on: function() {
 					page.find( ".hasChanges" ).addClass( "preventUpdate" );
-					checkChangesBeforeBack();
+					OSApp.UIDom.checkChangesBeforeBack();
 				}
 			},
 			rightBtn: {
@@ -2139,7 +2139,7 @@ function showForecast() {
 			icon: "carat-l",
 			text: OSApp.Language._( "Back" ),
 			class: "ui-toolbar-back-btn",
-			on: goBack
+			on: OSApp.UIDom.goBack
 		},
 		rightBtn: {
 			icon: "refresh",
@@ -2861,7 +2861,7 @@ function showOptions( expandItem ) {
 				$.mobile.document.one( "pageshow", function() {
 					OSApp.Errors.showError( OSApp.Language._( "Settings have been saved" ) );
 				} );
-				goBack();
+				OSApp.UIDom.goBack();
 				updateController( updateWeather );
 			} ).fail( function() {
 				button.prop( "disabled", false );
@@ -2874,7 +2874,7 @@ function showOptions( expandItem ) {
 				icon: "carat-l",
 				text: OSApp.Language._( "Back" ),
 				class: "ui-toolbar-back-btn",
-				on: checkChangesBeforeBack
+				on: OSApp.UIDom.checkChangesBeforeBack
 			},
 			rightBtn: {
 				icon: "check",
@@ -3542,7 +3542,7 @@ function showOptions( expandItem ) {
 			$.mobile.document.one( "pageshow", function() {
 				OSApp.Errors.showError( OSApp.Language._( "Settings have been saved" ) );
 			} );
-			goBack();
+			OSApp.UIDom.goBack();
 		} );
 	} );
 
@@ -3618,7 +3618,7 @@ function showOptions( expandItem ) {
 				sites[ data.current_site ].images = {};
 				sites[ data.current_site ].lastRunTime = {};
 
-				OSApp.Storage.set( { "sites": JSON.stringify( sites ) }, cloudSaveSites );
+				OSApp.Storage.set( { "sites": JSON.stringify( sites ) }, OSApp.Network.cloudSaveSites );
 			} );
 			OSApp.Firmware.sendToOS( "/cs?pw=&" + cs ).done( function() {
 				OSApp.Errors.showError( OSApp.Language._( "Stations have been updated" ) );
@@ -3633,7 +3633,7 @@ function showOptions( expandItem ) {
 				$.mobile.document.one( "pageshow", function() {
 					OSApp.Errors.showError( OSApp.Language._( "Wireless settings have been reset. Please follow the OpenSprinkler user manual on restoring connectivity." ) );
 				} );
-				goBack();
+				OSApp.UIDom.goBack();
 			} );
 		} );
 	} );
@@ -4309,7 +4309,7 @@ var showHomeMenu = ( function() {
 			} else if ( href === "#globalpause" ) {
 				showPause();
 			} else {
-				checkChanges( function() {
+				OSApp.UIDom.checkChanges( function() {
 					OSApp.UIDom.changePage( href );
 				} );
 			}
@@ -4669,7 +4669,7 @@ var showHome = ( function() {
 
 					// Update the notes section
 					sites[ currentSite ].notes[ sid ] = select.find( "#stn-notes" ).val();
-					OSApp.Storage.set( { "sites": JSON.stringify( sites ) }, cloudSaveSites );
+					OSApp.Storage.set( { "sites": JSON.stringify( sites ) }, OSApp.Network.cloudSaveSites );
 
 					submitStations( sid );
 					select.popup( "destroy" ).remove();
@@ -4871,7 +4871,7 @@ var showHome = ( function() {
 
 				getPicture( function( image ) {
 					sites[ currentSite ].images[ sid ] = image;
-					OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
+					OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, OSApp.Network.cloudSaveSites );
 					updateContent();
 
 					button.innerHTML =  OSApp.Language._( "Change" ) + " " + OSApp.Language._( "Image" );
@@ -5380,7 +5380,7 @@ var showHome = ( function() {
 
 								// Save run time for this station
 								sites[ currentSite ].lastRunTime[ sid ] = duration;
-								OSApp.Storage.set( { "sites": JSON.stringify( sites ) }, cloudSaveSites );
+								OSApp.Storage.set( { "sites": JSON.stringify( sites ) }, OSApp.Network.cloudSaveSites );
 							} );
 						}
 					} );
@@ -5416,13 +5416,13 @@ var showHome = ( function() {
 			if ( hasImage ) {
 				areYouSure( OSApp.Language._( "Do you want to delete the current image?" ), "", function() {
 					delete sites[ currentSite ].images[ id ];
-					OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
+					OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, OSApp.Network.cloudSaveSites );
 					updateContent();
 				} );
 			} else {
 				getPicture( function( image ) {
 					sites[ currentSite ].images[ id ] = image;
-					OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
+					OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, OSApp.Network.cloudSaveSites );
 					updateContent();
 				} );
 			}
@@ -5800,7 +5800,7 @@ function checkStatus() {
 			line += "<span id='countdown' class='nobr'>(" + OSApp.Dates.sec2hms( ptotal ) + " " + OSApp.Language._( "remaining" ) + ")</span>";
 		}
 		line += "</div></div>";
-		changeStatus( ptotal, "green", line, goHome );
+		changeStatus( ptotal, "green", line, OSApp.UIDom.goHome );
 		return;
 	}
 
@@ -5822,7 +5822,7 @@ function checkStatus() {
 	}
 
 	if ( match ) {
-		changeStatus( OSApp.Stations.getRemainingRuntime( i ), "green", line, goHome );
+		changeStatus( OSApp.Stations.getRemainingRuntime( i ), "green", line, OSApp.UIDom.goHome );
 		return;
 	}
 
@@ -5880,11 +5880,11 @@ function checkStatus() {
 
 		changeStatus( 0, "transparent", "<p class='running-text smaller center pointer'>" + pname + " " + OSApp.Language._( "last ran station" ) + " " +
 			OSApp.currentSession.controller.stations.snames[ OSApp.currentSession.controller.settings.lrun[ 0 ] ] + " " + OSApp.Language._( "for" ) + " " + ( lrdur / 60 >> 0 ) + "m " + ( lrdur % 60 ) + "s " +
-			OSApp.Language._( "on" ) + " " + OSApp.Dates.dateToString( new Date( ( OSApp.currentSession.controller.settings.lrun[ 3 ] - lrdur ) * 1000 ) ) + "</p>", goHome );
+			OSApp.Language._( "on" ) + " " + OSApp.Dates.dateToString( new Date( ( OSApp.currentSession.controller.settings.lrun[ 3 ] - lrdur ) * 1000 ) ) + "</p>", OSApp.UIDom.goHome );
 		return;
 	}
 
-	changeStatus( 0, "transparent", "<p class='running-text smaller center pointer'>" + OSApp.Language._( "System Idle" ) + "</p>", goHome );
+	changeStatus( 0, "transparent", "<p class='running-text smaller center pointer'>" + OSApp.Language._( "System Idle" ) + "</p>", OSApp.UIDom.goHome );
 }
 
 function calculateTotalRunningTime( runTimes ) {
@@ -6143,7 +6143,7 @@ var getManual = ( function() {
 				icon: "carat-l",
 				text: OSApp.Language._( "Back" ),
 				class: "ui-toolbar-back-btn",
-				on: goBack
+				on: OSApp.UIDom.goBack
 			}
 		} );
 
@@ -6321,7 +6321,7 @@ var getRunonce = ( function() {
 				icon: "carat-l",
 				text: OSApp.Language._( "Back" ),
 				class: "ui-toolbar-back-btn",
-				on: goBack
+				on: OSApp.UIDom.goBack
 			},
 			rightBtn: {
 				icon: "check",
@@ -6355,7 +6355,7 @@ function submitRunonce( runonce ) {
 					OSApp.Errors.showError( OSApp.Language._( "Run-once program has been scheduled" ) );
 				} );
 				refreshStatus();
-				goBack();
+				OSApp.UIDom.goBack();
 			} );
 		},
 		isOn = OSApp.StationQueue.isActive();
@@ -7250,7 +7250,7 @@ var getPreview = ( function() {
 				icon: "carat-l",
 				text: OSApp.Language._( "Back" ),
 				class: "ui-toolbar-back-btn",
-				on: goBack
+				on: OSApp.UIDom.goBack
 			}
 		} );
 
@@ -7827,7 +7827,7 @@ var getLogs = ( function() {
 				icon: "carat-l",
 				text: OSApp.Language._( "Back" ),
 				class: "ui-toolbar-back-btn",
-				on: goBack
+				on: OSApp.UIDom.goBack
 			},
 			rightBtn: {
 				icon: "refresh",
@@ -7991,13 +7991,13 @@ var getPrograms = ( function() {
 				icon: "carat-l",
 				text: OSApp.Language._( "Back" ),
 				class: "ui-toolbar-back-btn",
-				on: checkChangesBeforeBack
+				on: OSApp.UIDom.checkChangesBeforeBack
 			},
 			rightBtn: {
 				icon: "plus",
 				text: OSApp.Language._( "Add" ),
 				on: function() {
-					checkChanges( function() {
+					OSApp.UIDom.checkChanges( function() {
 						OSApp.UIDom.changePage( "#addprogram" );
 					} );
 				}
@@ -8223,7 +8223,7 @@ function readStartTime( time ) {
 	if ( ( time >> 13 ) & 1 ) {
 		type = OSApp.Language._( "Sunset" );
 	} else if ( !( time >> 14 ) & 1 ) {
-		return OSApp.Dates.minutesToTIme( time );
+		return OSApp.Dates.minutesToTime( time );
 	}
 
 	if ( ( time >> 12 ) & 1 ) {
@@ -8371,10 +8371,10 @@ function makeProgram183( n, isCopy ) {
 	list += "<div class='ui-grid-a'>";
 	list += "<div class='ui-block-a'><label class='center' for='start-" + id + "'>" + OSApp.Language._( "Start Time" ) + "</label>" +
 		"<button class='timefield pad_buttons' data-mini='true' id='start-" + id + "' value='" + program.start + "'>" +
-		OSApp.Dates.minutesToTIme( program.start ) + "</button></div>";
+		OSApp.Dates.minutesToTime( program.start ) + "</button></div>";
 	list += "<div class='ui-block-b'><label class='center' for='end-" + id + "'>" + OSApp.Language._( "End Time" ) + "</label>" +
 		"<button class='timefield pad_buttons' data-mini='true' id='end-" + id + "' value='" + program.end + "'>" +
-		OSApp.Dates.minutesToTIme( program.end ) + "</button></div>";
+		OSApp.Dates.minutesToTime( program.end ) + "</button></div>";
 	list += "</div>";
 
 	list += "<div class='ui-grid-a'>";
@@ -8440,7 +8440,7 @@ function makeProgram183( n, isCopy ) {
 			title: name,
 			callback: function( result ) {
 				time.val( result );
-				time.text( OSApp.Dates.minutesToTIme( result ) );
+				time.text( OSApp.Dates.minutesToTime( result ) );
 			}
 		} );
 	} );
@@ -8771,7 +8771,7 @@ function addProgram( copyID ) {
 				icon: "carat-l",
 				text: OSApp.Language._( "Back" ),
 				class: "ui-toolbar-back-btn",
-				on: checkChangesBeforeBack
+				on: OSApp.UIDom.checkChangesBeforeBack
 			},
 			rightBtn: {
 				icon: "check",
@@ -8891,7 +8891,7 @@ function submitProgram183( id ) {
 				$.mobile.document.one( "pageshow", function() {
 					OSApp.Errors.showError( OSApp.Language._( "Program added successfully" ) );
 				} );
-				goBack();
+				OSApp.UIDom.goBack();
 			} );
 		} );
 	} else {
@@ -9054,7 +9054,7 @@ function submitProgram21( id, ignoreWarning ) {
 				$.mobile.document.one( "pageshow", function() {
 					OSApp.Errors.showError( OSApp.Language._( "Program added successfully" ) );
 				} );
-				goBack();
+				OSApp.UIDom.goBack();
 			} );
 		} );
 	} else {
@@ -9480,7 +9480,7 @@ function importConfig( data ) {
 							$.mobile.loading( "hide" );
 							OSApp.Errors.showError( OSApp.Language._( "Backup restored to your device" ) );
 							updateWeather();
-							goHome( true );
+							OSApp.UIDom.goHome( true );
 						},
 						function() {
 							$.mobile.loading( "hide" );
@@ -9557,7 +9557,7 @@ var showAbout = ( function() {
 				icon: "carat-l",
 				text: OSApp.Language._( "Back" ),
 				class: "ui-toolbar-back-btn",
-				on: goBack
+				on: OSApp.UIDom.goBack
 			}
 		} );
 
@@ -10724,118 +10724,4 @@ function getPicture( callback ) {
 			reader.readAsDataURL( event.target.files[ 0 ] );
 		} );
 	imageLoader.get( 0 ).click();
-}
-
-function goHome( firstLoad ) {
-
-	// Transition to home page after successful load
-	if ( $( ".ui-page-active" ).attr( "id" ) !== "sprinklers" ) {
-		$.mobile.document.one( "pageshow", function() {
-
-			// Allow future transitions to properly animate
-			delete $.mobile.navigate.history.getActive().transition;
-		} );
-
-		var opts = {
-			"reverse": true
-		};
-
-		if ( firstLoad === true ) {
-			opts = {
-				"firstLoad": true,
-				"showLoading": false,
-				"transition": "none"
-			};
-		}
-
-		OSApp.UIDom.changePage( "#sprinklers", opts );
-	}
-}
-
-function goBack() {
-	var page = $( ".ui-page-active" );
-
-	// Prevent back navigation during active page transition
-	if ( page.length !== 1 ) {
-		return;
-	}
-
-	page = page.attr( "id" );
-
-	var managerStart = ( page === "site-control" && !OSApp.currentSession.isControllerConnected() ),
-		popup = $( ".ui-popup-active" );
-
-	if ( popup.length ) {
-		popup.find( "[data-role='popup']" ).popup( "close" );
-		return;
-	}
-
-	if ( page === "sprinklers" || page === "start" || managerStart ) {
-		try {
-			navigator.app.exitApp();
-		} catch ( err ) {}
-	} else {
-		if ( OSApp.uiState.pageHistoryCount > 0 ) {
-			OSApp.uiState.pageHistoryCount--;
-		}
-
-		if ( OSApp.uiState.pageHistoryCount === 0 ) {
-			navigator.app.exitApp();
-		} else {
-			OSApp.uiState.goingBack = true;
-			$.mobile.back();
-		}
-	}
-}
-
-function checkChangesBeforeBack() {
-	checkChanges( goBack );
-}
-
-function checkChanges( callback ) {
-	var page = $( ".ui-page-active" ),
-		changed = page.find( ".hasChanges" );
-
-	callback = callback || function() {};
-
-	if ( changed.length !== 0 ) {
-		areYouSure( OSApp.Language._( "Do you want to save your changes?" ), "", function() {
-			changed.click();
-			if ( !changed.hasClass( "preventBack" ) ) {
-				callback();
-			}
-		}, callback );
-		return false;
-	} else {
-		callback();
-	}
-}
-
-function loadLocalSettings() {
-	OSApp.Storage.get( "isMetric", function( data ) {
-
-		// We are using a switch because the boolean gets stored as a string
-		// and we don't want to impact the in-memory value of `isMetric` when
-		// no value in local storage exists.
-		switch ( data.isMetric ) {
-			case "true":
-				OSApp.currentDevice.isMetric = true;
-				break;
-			case "false":
-				OSApp.currentDevice.isMetric = false;
-				break;
-			default:
-		}
-	} );
-	OSApp.Storage.get( "groupView", function( data ) {
-		switch ( data.groupView ) {
-			case "true":
-				OSApp.uiState.groupView = true;
-				break;
-			case "false":
-				OSApp.uiState.groupView = false;
-				break;
-			default:
-		}
-	} );
 }

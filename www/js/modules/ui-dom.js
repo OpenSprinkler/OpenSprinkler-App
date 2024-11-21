@@ -58,7 +58,7 @@ OSApp.UIDom.launchApp = () => {
 
 		// For Android devices catch the back button and redirect it
 		$.mobile.document.on( "backbutton", function() {
-			checkChangesBeforeBack();
+			OSApp.UIDom.checkChangesBeforeBack();
 			return false;
 		} );
 
@@ -107,7 +107,7 @@ OSApp.UIDom.launchApp = () => {
 	.one( "mobileinit", function() {
 		$.support.cors = true;
 		$.mobile.allowCrossDomainPages = true;
-		loadLocalSettings();
+		OSApp.Storage.loadLocalSettings();
 	} )
 	.on( "pagebeforechange", function( e, data ) {
 		var page = data.toPage,
@@ -641,7 +641,7 @@ OSApp.UIDom.getAppURLPath = function() {
 };
 
 // Accessory functions
-OSApp.UIDom.OSApp.UIDom.fixInputClick = function( page ) {
+OSApp.UIDom.fixInputClick = function( page ) {
 
 	// Handle Fast Click quirks
 	if ( !FastClick.notNeeded( document.body ) ) {
@@ -654,10 +654,10 @@ OSApp.UIDom.OSApp.UIDom.fixInputClick = function( page ) {
 			}, 100 );
 		} );
 	}
-}
+};
 
 // Bind buttons to allow push and hold effects
-OSApp.UIDom.OSApp.UIDom.holdButton = function( target, callback ) {
+OSApp.UIDom.holdButton = function( target, callback ) {
 	var intervalId;
 
 	target.on( OSApp.currentDevice.isTouchCapable ? "tap" : "click", callback ).on( "taphold", function( e ) {
@@ -669,11 +669,93 @@ OSApp.UIDom.OSApp.UIDom.holdButton = function( target, callback ) {
 	} ).on( "touchmove", function( e ) {
 		e.preventDefault();
 	} );
-}
+};
 
 // Insert style string into the DOM
 OSApp.UIDom.insertStyle = function( style ) {
 	var a = document.createElement( "style" );
 	a.innerHTML = style;
 	document.head.appendChild( a );
+};
+
+// Transition to home page after successful load
+OSApp.UIDom.goHome = function( firstLoad ) {
+	if ( $( ".ui-page-active" ).attr( "id" ) !== "sprinklers" ) {
+		$.mobile.document.one( "pageshow", function() {
+
+			// Allow future transitions to properly animate
+			delete $.mobile.navigate.history.getActive().transition;
+		} );
+
+		var opts = {
+			"reverse": true
+		};
+
+		if ( firstLoad === true ) {
+			opts = {
+				"firstLoad": true,
+				"showLoading": false,
+				"transition": "none"
+			};
+		}
+
+		OSApp.UIDom.changePage( "#sprinklers", opts );
+	}
 }
+
+// Prevent back navigation during active page transition
+OSApp.UIDom.goBack = function() {
+	var page = $( ".ui-page-active" );
+
+	if ( page.length !== 1 ) {
+		return;
+	}
+
+	page = page.attr( "id" );
+
+	var managerStart = ( page === "site-control" && !OSApp.currentSession.isControllerConnected() ),
+		popup = $( ".ui-popup-active" );
+
+	if ( popup.length ) {
+		popup.find( "[data-role='popup']" ).popup( "close" );
+		return;
+	}
+
+	if ( page === "sprinklers" || page === "start" || managerStart ) {
+		try {
+			navigator.app.exitApp();
+		} catch ( err ) {}
+	} else {
+		if ( OSApp.uiState.pageHistoryCount > 0 ) {
+			OSApp.uiState.pageHistoryCount--;
+		}
+
+		if ( OSApp.uiState.pageHistoryCount === 0 ) {
+			navigator.app.exitApp();
+		} else {
+			OSApp.uiState.goingBack = true;
+			$.mobile.back();
+		}
+	}
+};
+
+OSApp.UIDom.checkChangesBeforeBack = function() {
+	OSApp.UIDom.checkChanges( OSApp.UIDom.goBack );
+};
+
+OSApp.UIDom.checkChanges = function( callback = () => void 0 ) {
+	var page = $( ".ui-page-active" ),
+		changed = page.find( ".hasChanges" );
+
+	if ( changed.length !== 0 ) {
+		areYouSure( OSApp.Language._( "Do you want to save your changes?" ), "", function() {
+			changed.click();
+			if ( !changed.hasClass( "preventBack" ) ) {
+				callback();
+			}
+		}, callback );
+		return false;
+	} else {
+		callback();
+	}
+};

@@ -61,3 +61,32 @@ OSApp.Storage.remove = ( query, callback = () => void 0) => {
 
 	callback( true );
 };
+
+OSApp.Storage.loadLocalSettings = function() {
+	OSApp.Storage.get( "isMetric", function( data ) {
+
+		// We are using a switch because the boolean gets stored as a string
+		// and we don't want to impact the in-memory value of `isMetric` when
+		// no value in local storage exists.
+		switch ( data.isMetric ) {
+			case "true":
+				OSApp.currentDevice.isMetric = true;
+				break;
+			case "false":
+				OSApp.currentDevice.isMetric = false;
+				break;
+			default:
+		}
+	} );
+	OSApp.Storage.get( "groupView", function( data ) {
+		switch ( data.groupView ) {
+			case "true":
+				OSApp.uiState.groupView = true;
+				break;
+			case "false":
+				OSApp.uiState.groupView = false;
+				break;
+			default:
+		}
+	} );
+};
