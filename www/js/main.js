@@ -29,38 +29,44 @@ OSApp.isTouchCapable = "ontouchstart" in window || "onmsgesturechange" in window
 OSApp.isMetric = ( [ "US", "BM", "PW" ].indexOf( navigator.languages[ 0 ].split( "-" )[ 1 ] ) === -1 );
 OSApp.groupView = false;
 
-// TODO: refactor away all direct usage of localstorage in favor of OSApp.Storage
-
 // Define general regex patterns
-var regex = {
-		gps: /^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/
-	},
+OSApp.Regex = {
+	gps: /^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/
+};
 
-	// Define the status bar color(s) and use a darker color for Android
-	statusBarPrimary = OSApp.isAndroid ? "#121212" : "#1D1D1D",
-	statusBarOverlay = OSApp.isAndroid ? "#151515" : "#202020",
+// App theme settings
+OSApp.Theme = {
+	statusBarPrimary: OSApp.isAndroid ? "#121212" : "#1D1D1D",
+	statusBarOverlay: OSApp.isAndroid ? "#151515" : "#202020"
+};
 
-	// Define the amount of times the app will retry an HTTP request before marking it failed
-	retryCount = 2,
+// Define the amount of times the app will retry an HTTP request before marking it failed
+OSApp.retryCount = 2;
 
-	// Initialize controller array which will store JSON data
-	controller = {},
+// Define the mapping between options and JSON keys
+OSApp.keyIndex = {
+	"tz":1, "ntp":2, "dhcp":3, "ip1":4, "ip2":5, "ip3":6, "ip4":7, "gw1":8, "gw2":9, "gw3":10, "gw4":11,
+	"hp0":12, "hp1":13, "ar":14, "ext":15, "seq":16, "sdt":17, "mas":18, "mton":19, "mtof":20, "urs":21, "rso":22,
+	"wl":23, "den":24, "ipas":25, "devid":26, "con":27, "lit":28, "dim":29, "bst":30, "uwt":31, "ntp1":32, "ntp2":33,
+	"ntp3":34, "ntp4":35, "lg":36, "mas2":37, "mton2":38, "mtof2":39, "fpr0":41, "fpr1":42, "re":43, "dns1": 44,
+	"dns2":45, "dns3":46, "dns4":47, "sar":48, "ife":49, "sn1t":50, "sn1o":51, "sn2t":52, "sn2o":53, "sn1on":54,
+	"sn1of":55, "sn2on":56, "sn2of":57, "subn1":58, "subn2":59, "subn3":60, "subn4":61
+};
+
+// TODO: refactor away all direct usage of localstorage in favor of OSApp.Storage
+// TODO: refactor OSApp.isXXXX values to OSApp.Config.isXXX
+// TODO: refactor OSApp.Regex out to separate modules/regex.js file
+// TODO: refactor OSApp.retryCount elsewhere
+// TODO: refactor OSApp.keyIndex elsewhere
+
+// Define the status bar color(s) and use a darker color for Android
+var controller = {}, // Initialize controller array which will store JSON data
 	switching = false,
 	currentCoordinates = [ 0, 0 ],
 
 	// Initialize variables to keep track of current page count
 	pageHistoryCount = -1,
 	goingBack = false,
-
-	// Define the mapping between options and JSON keys
-	keyIndex = {
-		"tz":1, "ntp":2, "dhcp":3, "ip1":4, "ip2":5, "ip3":6, "ip4":7, "gw1":8, "gw2":9, "gw3":10, "gw4":11,
-		"hp0":12, "hp1":13, "ar":14, "ext":15, "seq":16, "sdt":17, "mas":18, "mton":19, "mtof":20, "urs":21, "rso":22,
-		"wl":23, "den":24, "ipas":25, "devid":26, "con":27, "lit":28, "dim":29, "bst":30, "uwt":31, "ntp1":32, "ntp2":33,
-		"ntp3":34, "ntp4":35, "lg":36, "mas2":37, "mton2":38, "mtof2":39, "fpr0":41, "fpr1":42, "re":43, "dns1": 44,
-		"dns2":45, "dns3":46, "dns4":47, "sar":48, "ife":49, "sn1t":50, "sn1o":51, "sn2t":52, "sn2o":53, "sn1on":54,
-		"sn1of":55, "sn2on":56, "sn2of":57, "subn1":58, "subn2":59, "subn3":60, "subn4":61
-	},
 
 	dialog = {
 		REMOVE_STATION: 1
@@ -112,7 +118,7 @@ $( document )
 		//Change the status bar to match the headers
 		StatusBar.overlaysWebView( false );
 		StatusBar.styleLightContent();
-		StatusBar.backgroundColorByHexString( statusBarPrimary );
+		StatusBar.backgroundColorByHexString( OSApp.Theme.statusBarPrimary );
 
 		$.mobile.window.on( "statusTap", function() {
 			$( "body, html" ).animate( {
@@ -319,7 +325,7 @@ $( document )
 	// When a popup opens that has an overlay, update the status bar background color to match
 	if ( $( ".ui-overlay-b:not(.ui-screen-hidden)" ).length ) {
 		try {
-			StatusBar.backgroundColorByHexString( statusBarOverlay );
+			StatusBar.backgroundColorByHexString( OSApp.Theme.statusBarOverlay );
 		} catch ( err ) {}
 	}
 } )
@@ -329,7 +335,7 @@ $( document )
 
 	// When a popup is closed, change the header back to the default color
 	try {
-		StatusBar.backgroundColorByHexString( statusBarPrimary );
+		StatusBar.backgroundColorByHexString( OSApp.Theme.statusBarPrimary );
 	} catch ( err ) {}
 } )
 .on( "popupbeforeposition", function() {
@@ -389,7 +395,7 @@ function initApp() {
 		var button = $( this );
 		window.open( this.href, target, "location=" + ( OSApp.isAndroid ? "yes" : "no" ) +
 			",enableViewportScale=" + ( button.hasClass( "iabNoScale" ) ? "no" : "yes" ) +
-			",toolbar=yes,toolbarposition=top,toolbarcolor=" + statusBarPrimary +
+			",toolbar=yes,toolbarposition=top,toolbarcolor=" + OSApp.Theme.statusBarPrimary +
 			",closebuttoncaption=" +
 				( button.hasClass( "iabNoScale" ) ? _( "Back" ) : _( "Done" ) )
 		);
@@ -589,7 +595,7 @@ function sendToOS( dest, type ) {
 			data: usePOST ? getUrlVars( dest ) : null,
 			dataType: type,
 			shouldRetry: function( xhr, current ) {
-				if ( xhr.status === 0 && xhr.statusText === "abort" || retryCount < current ) {
+				if ( xhr.status === 0 && xhr.statusText === "abort" || OSApp.retryCount < current ) {
 					$.ajaxq.abort( queue );
 					return false;
 				}
@@ -988,7 +994,7 @@ function updateControllerOptions( callback ) {
 				for ( i = 0; i < tmp.length - 1; i = i + 4 ) {
 					o = +tmp[ i + 3 ];
 					if ( $.inArray( o, valid ) !== -1 ) {
-						vars[ keyIndex[ o ] ] = +tmp[ i + 2 ];
+						vars[ OSApp.keyIndex[ o ] ] = +tmp[ i + 2 ];
 					}
 				}
 				vars.fwv = 183;
@@ -1096,7 +1102,7 @@ function updateControllerSettings( callback ) {
 				}
 
 				// Update the current coordinates if the user's location is using them
-				if ( settings.loc.match( regex.gps ) ) {
+				if ( settings.loc.match( OSApp.Regex.gps ) ) {
 					var location = settings.loc.split( "," );
 					currentCoordinates = [ parseFloat( location[ 0 ] ), parseFloat( location[ 1 ] ) ];
 				}
@@ -3218,8 +3224,8 @@ function overlayMap( callback ) {
 		iframe = popup.find( "iframe" ),
 		locInput = $( "#loc" ).val(),
 		current = {
-			lat: locInput.match( regex.gps ) ? locInput.split( "," )[ 0 ] : currentCoordinates[ 0 ],
-			lon: locInput.match( regex.gps ) ? locInput.split( "," )[ 1 ] : currentCoordinates[ 1 ]
+			lat: locInput.match( OSApp.Regex.gps ) ? locInput.split( "," )[ 0 ] : currentCoordinates[ 0 ],
+			lon: locInput.match( OSApp.Regex.gps ) ? locInput.split( "," )[ 1 ] : currentCoordinates[ 1 ]
 		},
 		dataSent = false;
 
@@ -3866,7 +3872,7 @@ function showOptions( expandItem ) {
 						id = "o" + id;
 					} else {
 						key = /\d+/.exec( id );
-						id = "o" + Object.keys( keyIndex ).find( function( index ) { return keyIndex[ index ] === key; } );
+						id = "o" + Object.keys( OSApp.keyIndex ).find( function( index ) { return OSApp.keyIndex[ index ] === key; } );
 					}
 				}
 
@@ -4134,8 +4140,8 @@ function showOptions( expandItem ) {
 
 	if ( typeof controller.options.urs !== "undefined" || typeof controller.options.sn1t !== "undefined" ) {
 		if ( typeof controller.options.fpr0 !== "undefined" ) {
-			list += typeof controller.options.urs !== "undefined" ? generateSensorOptions( keyIndex.urs, controller.options.urs ) :
-					( typeof controller.options.sn1t !== "undefined" ? generateSensorOptions( keyIndex.sn1t, controller.options.sn1t, 1 ) : "" );
+			list += typeof controller.options.urs !== "undefined" ? generateSensorOptions( OSApp.keyIndex.urs, controller.options.urs ) :
+					( typeof controller.options.sn1t !== "undefined" ? generateSensorOptions( OSApp.keyIndex.sn1t, controller.options.sn1t, 1 ) : "" );
 		} else {
 			list += "<label for='o21'>" +
 				"<input data-mini='true' id='o21' type='checkbox' " + ( ( controller.options.urs === 1 ) ? "checked='checked'" : "" ) + ">" +
@@ -4196,7 +4202,7 @@ function showOptions( expandItem ) {
 	}
 
 	if ( typeof controller.options.sn2t !== "undefined" && checkOSVersion( 219 ) ) {
-		list += generateSensorOptions( keyIndex.sn2t, controller.options.sn2t, 2 );
+		list += generateSensorOptions( OSApp.keyIndex.sn2t, controller.options.sn2t, 2 );
 	}
 
 	if ( typeof controller.options.sn2o !== "undefined" ) {
@@ -10285,11 +10291,11 @@ function importConfig( data ) {
 			isPi = isOSPi(),
 			i, k, key, option, station;
 
-		var findKey = function( index ) { return keyIndex[ index ] === key; };
+		var findKey = function( index ) { return OSApp.keyIndex[ index ] === key; };
 
 		for ( i in data.options ) {
-			if ( data.options.hasOwnProperty( i ) && keyIndex.hasOwnProperty( i ) ) {
-				key = keyIndex[ i ];
+			if ( data.options.hasOwnProperty( i ) && OSApp.keyIndex.hasOwnProperty( i ) ) {
+				key = OSApp.keyIndex[ i ];
 				if ( $.inArray( key, [ 2, 14, 16, 21, 22, 25, 36 ] ) !== -1 && data.options[ i ] === 0 ) {
 					continue;
 				}
@@ -10300,7 +10306,7 @@ function importConfig( data ) {
 					continue;
 				}
 				if ( isPi ) {
-					key = Object.keys( keyIndex ).find( findKey );
+					key = Object.keys( OSApp.keyIndex ).find( findKey );
 					if ( key === undefined ) {
 						continue;
 					}
@@ -13376,7 +13382,7 @@ function transformKeys( opt ) {
 			var name = item.match( /^o(\d+)$/ );
 
 			if ( name && name[ 1 ] ) {
-				renamedOpt[ Object.keys( keyIndex ).find( function( index ) { return keyIndex[ index ] === parseInt( name[ 1 ], 10 ); } ) ] = opt[ item ];
+				renamedOpt[ Object.keys( OSApp.keyIndex ).find( function( index ) { return OSApp.keyIndex[ index ] === parseInt( name[ 1 ], 10 ); } ) ] = opt[ item ];
 			} else {
 				renamedOpt[ item ] = opt[ item ];
 			}
