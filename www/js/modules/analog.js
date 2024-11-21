@@ -13,50 +13,54 @@
 // Configure module
 var OSApp = OSApp || {};
 
-var analogSensors = {},
-	progAdjusts = {};
-var CHARTS = 11;
-var USERDEF_SENSOR = 49;
-var USERDEF_UNIT   = 99;
+OSApp.Analog = {
+	analogSensors: {},
+	progAdjusts: {},
+	Constants: {
+		CHARTS: 11,
+		USERDEF_SENSOR: 49,
+		USERDEF_UNIT: 99,
+	}
+};
 
-function checkAnalogSensorAvail() {
+OSApp.Analog.checkAnalogSensorAvail = () => {
 	return OSApp.currentSession.controller.options && OSApp.currentSession.controller.options.feature === "ASB";
-}
+};
 
-function refresh() {
+OSApp.Analog.refresh = () => {
 	setTimeout( function() {
 		location.reload();
 	}, 100 );
-}
+};
 
-function updateProgramAdjustments( callback ) {
+OSApp.Analog.updateProgramAdjustments = ( callback ) => {
 	callback = callback || function() { };
 	return sendToOS( "/se?pw=", "json" ).then( function( data ) {
-		progAdjusts = data.progAdjust;
+		OSApp.Analog.progAdjusts = data.progAdjust;
 		callback();
 	} );
 }
 
-function updateAnalogSensor( callback ) {
+OSApp.Analog.updateAnalogSensor = ( callback ) => {
 	callback = callback || function() { };
 	return sendToOS( "/sl?pw=", "json" ).then( function( data ) {
-		analogSensors = data.sensors;
+		OSApp.Analog.analogSensors = data.sensors;
 		callback();
 	} );
-}
+};
 
-function updateSensorShowArea( page ) {
+OSApp.Analog.updateSensorShowArea = ( page ) => {
 	var showArea = page.find( "#os-sensor-show" ),
 		html = "";
 
-	if ( checkAnalogSensorAvail() ) {
+	if ( OSApp.Analog.checkAnalogSensorAvail() ) {
 		var i, j;
-		for ( i = 0; i < progAdjusts.length; i++ ) {
-			var progAdjust = progAdjusts[ i ];
+		for ( i = 0; i < OSApp.Analog.progAdjusts.length; i++ ) {
+			var progAdjust = OSApp.Analog.progAdjusts[ i ];
 			var sensorName = "";
-			for ( j = 0; j < analogSensors.length; j++ ) {
-				if ( analogSensors[ j ].nr === progAdjust.sensor ) {
-					sensorName = analogSensors[ j ].name;
+			for ( j = 0; j < OSApp.Analog.analogSensors.length; j++ ) {
+				if ( OSApp.Analog.analogSensors[ j ].nr === progAdjust.sensor ) {
+					sensorName = OSApp.Analog.analogSensors[ j ].name;
 				}
 			}
 			var progName = "?";
@@ -69,8 +73,8 @@ function updateSensorShowArea( page ) {
 			html += "</div>";
 		}
 
-		for ( i = 0; i < analogSensors.length; i++ ) {
-			var sensor = analogSensors[ i ];
+		for ( i = 0; i < OSApp.Analog.analogSensors.length; i++ ) {
+			var sensor = OSApp.Analog.analogSensors[ i ];
 			if ( sensor.show ) {
 				html += "<div id='sensor-show-" + sensor.nr + "' class='ui-body ui-body-a center'>";
 				html += "<label>" + sensor.name + ": " + ( Number( Math.round( sensor.data + "e+2" ) + "e-2" ) ) + sensor.unit + "</label>";
@@ -83,9 +87,9 @@ function updateSensorShowArea( page ) {
 		showArea.removeChild( showArea.firstChild );
 	}
 	showArea.html( html );
-}
+};
 
-function toByteArray( b ) {
+OSApp.Analog.toByteArray = ( b ) => {
 	var result = [];
 	var n = 4;
 	while ( n-- ) {
@@ -93,9 +97,9 @@ function toByteArray( b ) {
 		b /= 0x100;
 	}
 	return Uint8Array.from( result );
-}
+};
 
-function intFromBytes( x ) {
+OSApp.Analog.intFromBytes = ( x ) => {
 	try {
 		var val = 0;
 		for ( var i = x.length - 1; i >= 0; i-- ) {
@@ -106,10 +110,10 @@ function intFromBytes( x ) {
 	} catch ( error ) {
 		return 0;
 	}
-}
+};
 
 //Program adjustments editor
-function showAdjustmentsEditor( progAdjust, callback ) {
+OSApp.Analog.showAdjustmentsEditor = ( progAdjust, callback ) => {
 
 	sendToOS( "/sh?pw=", "json" ).then( function( data ) {
 		var supportedAdjustmentTypes = data.progTypes;
@@ -153,10 +157,10 @@ function showAdjustmentsEditor( progAdjust, callback ) {
 			_( "Sensor" ) +
 			"</label><select data-mini='true' id='sensor'>";
 
-		for ( i = 0; i < analogSensors.length; i++ ) {
-			list += "<option " + ( ( progAdjust.sensor === analogSensors[ i ].nr ) ? "selected" : "" ) +
-				" value='" + analogSensors[ i ].nr + "'>" +
-				analogSensors[ i ].nr + " - " + analogSensors[ i ].name + "</option>";
+		for ( i = 0; i < OSApp.Analog.analogSensors.length; i++ ) {
+			list += "<option " + ( ( progAdjust.sensor === OSApp.Analog.analogSensors[ i ].nr ) ? "selected" : "" ) +
+				" value='" + OSApp.Analog.analogSensors[ i ].nr + "'>" +
+				OSApp.Analog.analogSensors[ i ].nr + " - " + OSApp.Analog.analogSensors[ i ].name + "</option>";
 		}
 		list += "</select></div>" +
 
@@ -265,17 +269,17 @@ function showAdjustmentsEditor( progAdjust, callback ) {
 		openPopup( popup, { positionTo: "window" } );
 
 	} );
-}
+};
 
-function isSmt100( sensorType ) {
+OSApp.Analog.isSmt100 = ( sensorType ) => {
 	if ( !sensorType ) {
 		return false;
 	}
 	return sensorType === 1 || sensorType === 2;
-}
+};
 
 // Analog sensor editor
-function showSensorEditor( sensor, callback ) {
+OSApp.Analog.showSensorEditor = ( sensor, callback ) => {
 
 	sendToOS( "/sf?pw=", "json" ).then( function( data ) {
 		var supportedSensorTypes = data.sensorTypes;
@@ -309,7 +313,7 @@ function showSensorEditor( sensor, callback ) {
 		}
 		list += "</select></div>";
 
-		list += "<button data-mini='true' class='center-div' id='smt100id' style='display:" + ( isSmt100( sensor.type ) ? "block" : "none" ) + "'>" + _( "Set SMT100 Modbus ID" ) + "</button>";
+		list += "<button data-mini='true' class='center-div' id='smt100id' style='display:" + ( OSApp.Analog.isSmt100( sensor.type ) ? "block" : "none" ) + "'>" + _( "Set SMT100 Modbus ID" ) + "</button>";
 
 		list += "<label>" +
 			_( "Group" ) +
@@ -324,7 +328,7 @@ function showSensorEditor( sensor, callback ) {
 			"<label>" +
 			_( "IP Address" ) +
 			"</label>" +
-			"<input class='ip' type='text'  value='" + ( sensor.ip ? toByteArray( sensor.ip ).join( "." ) : "" ) + "'>" +
+			"<input class='ip' type='text'  value='" + ( sensor.ip ? OSApp.Analog.toByteArray( sensor.ip ).join( "." ) : "" ) + "'>" +
 
 			"<label>" +
 			_( "Port" ) +
@@ -336,7 +340,7 @@ function showSensorEditor( sensor, callback ) {
 			"</label>" +
 			"<input class='id' type='number' min='0' max='65535' value='" + sensor.id + "'>" +
 
-					( ( sensor.type === USERDEF_SENSOR ) ?
+					( ( sensor.type === OSApp.Analog.Constants.USERDEF_SENSOR ) ?
 						( "<label>" +
 							_( "Factor" ) +
 						"</label>" +
@@ -398,21 +402,21 @@ function showSensorEditor( sensor, callback ) {
 				"new id=" + newid, function() {
 					sendToOS( "/sa?pw=&nr=" + nr + "&id=" + newid ).done( function() {
 						window.alert( _( "SMT100 id assigned!" ) );
-						updateAnalogSensor( refresh );
+						OSApp.Analog.updateAnalogSensor( OSApp.Analog.refresh );
 					} );
 				} );
 		} );
 		popup.find( "#type" ).change( function() {
 			var type = parseInt( popup.find( "#type" ).val() );
-			document.getElementById( "smt100id" ).style.display = isSmt100( type ) ? "block" : "none";
+			document.getElementById( "smt100id" ).style.display = OSApp.Analog.isSmt100( type ) ? "block" : "none";
 		} );
 
 		popup.find( ".submit" ).on( "click", function() {
 
 			if ( !sensor.nr ) { //New Sensor - check existing Nr to avoid overwriting
 				var nr = parseInt( popup.find( ".nr" ).val() );
-				for ( var i = 0; i < analogSensors.length; i++ ) {
-					if ( analogSensors[ i ].nr === nr ) {
+				for ( var i = 0; i < OSApp.Analog.analogSensors.length; i++ ) {
+					if ( OSApp.Analog.analogSensors[ i ].nr === nr ) {
 						window.alert( _( "Sensor number exists!" ) );
 						return;
 					}
@@ -423,7 +427,7 @@ function showSensorEditor( sensor, callback ) {
 				type: parseInt( popup.find( "#type" ).val() ),
 				group: parseInt( popup.find( ".group" ).val() ),
 				name: popup.find( ".name" ).val(),
-				ip: intFromBytes( popup.find( ".ip" ).val().split( "." ) ),
+				ip: OSApp.Analog.intFromBytes( popup.find( ".ip" ).val().split( "." ) ),
 				port: parseInt( popup.find( ".port" ).val() ),
 				id: parseInt( popup.find( ".id" ).val() ),
 				ri: parseInt( popup.find( ".ri" ).val() ),
@@ -477,7 +481,7 @@ function showSensorEditor( sensor, callback ) {
 }
 
 // Config Page
-var showAnalogSensorConfig = ( function() {
+OSApp.Analog.showAnalogSensorConfig = ( function() {
 	var page = $( "<div data-role='page' id='analogsensorconfig'>" +
 		"<div class='ui-content' role='main' id='analogsensorlist'>" +
 		"</div></div>" );
@@ -489,7 +493,7 @@ var showAnalogSensorConfig = ( function() {
 		} );
 
 	function updateSensorContent() {
-		var list = $( buildSensorConfig() );
+		var list = $( OSApp.Analog.buildSensorConfig() );
 
 		//Delete a sensor:
 		list.find( "#delete-sensor" ).on( "click", function() {
@@ -499,7 +503,7 @@ var showAnalogSensorConfig = ( function() {
 
 			areYouSure( _( "Are you sure you want to delete the sensor?" ), value, function() {
 				sendToOS( "/sc?pw=&nr=" + value + "&type=0" ).done( function() {
-					analogSensors.splice( row, 1 );
+					OSApp.Analog.analogSensors.splice( row, 1 );
 					updateSensorContent();
 				} );
 			} );
@@ -510,9 +514,9 @@ var showAnalogSensorConfig = ( function() {
 			var dur = $( this ),
 				row = dur.attr( "row" );
 
-			var sensor = analogSensors[ row ];
+			var sensor = OSApp.Analog.analogSensors[ row ];
 
-			showSensorEditor( sensor, function( sensorOut ) {
+			OSApp.Analog.showSensorEditor( sensor, function( sensorOut ) {
 				sensorOut.nativedata = sensor.nativedata;
 				sensorOut.data = sensor.data;
 				sensorOut.last = sensor.last;
@@ -524,7 +528,7 @@ var showAnalogSensorConfig = ( function() {
 					"&port=" + sensorOut.port +
 					"&id=" + sensorOut.id +
 					"&ri=" + sensorOut.ri +
-					( ( sensorOut.type === USERDEF_SENSOR ) ?
+					( ( sensorOut.type === OSApp.Analog.Constants.USERDEF_SENSOR ) ?
 						( "&fac=" + sensorOut.fac +
 						"&div=" + sensorOut.div +
 						"&unit=" + sensorOut.unit
@@ -533,7 +537,7 @@ var showAnalogSensorConfig = ( function() {
 					"&log=" + sensorOut.log +
 					"&show=" + sensorOut.show
 				).done( function() {
-					analogSensors[ row ] = sensorOut;
+					OSApp.Analog.analogSensors[ row ] = sensorOut;
 					updateSensorContent();
 				} );
 			} );
@@ -549,7 +553,7 @@ var showAnalogSensorConfig = ( function() {
 				log: 1
 			};
 
-			showSensorEditor( sensor, function( sensorOut ) {
+			OSApp.Analog.showSensorEditor( sensor, function( sensorOut ) {
 				sendToOS( "/sc?pw=&nr=" + sensorOut.nr +
 					"&type=" + sensorOut.type +
 					"&group=" + sensorOut.group +
@@ -558,7 +562,7 @@ var showAnalogSensorConfig = ( function() {
 					"&port=" + sensorOut.port +
 					"&id=" + sensorOut.id +
 					"&ri=" + sensorOut.ri +
-				( ( sensorOut.type === USERDEF_SENSOR ) ?
+				( ( sensorOut.type === OSApp.Analog.Constants.USERDEF_SENSOR ) ?
 					( "&fac=" + sensorOut.fac +
 					"&div=" + sensorOut.div +
 					"&unit=" + sensorOut.unit
@@ -567,7 +571,7 @@ var showAnalogSensorConfig = ( function() {
 					"&log=" + sensorOut.log +
 					"&show=" + sensorOut.show
 				).done( function() {
-					analogSensors.push( sensorOut );
+					OSApp.Analog.analogSensors.push( sensorOut );
 					updateSensorContent();
 				} );
 			} );
@@ -575,8 +579,8 @@ var showAnalogSensorConfig = ( function() {
 
 		// Refresh sensor data:
 		list.find( "#refresh-sensor" ).on( "click", function() {
-			updateProgramAdjustments( function() {
-				updateAnalogSensor( function() {
+			OSApp.Analog.updateProgramAdjustments( function() {
+				OSApp.Analog.updateAnalogSensor( function() {
 					updateSensorContent();
 				} );
 			} );
@@ -590,7 +594,7 @@ var showAnalogSensorConfig = ( function() {
 
 			areYouSure( _( "Are you sure you want to delete this program adjustment?" ), value, function() {
 				sendToOS( "/sb?pw=&nr=" + value + "&type=0" ).done( function() {
-					progAdjusts.splice( row, 1 );
+					OSApp.Analog.progAdjusts.splice( row, 1 );
 					updateSensorContent();
 				} );
 			} );
@@ -601,9 +605,9 @@ var showAnalogSensorConfig = ( function() {
 			var dur = $( this ),
 				row = dur.attr( "row" );
 
-			var progAdjust = progAdjusts[ row ];
+			var progAdjust = OSApp.Analog.progAdjusts[ row ];
 
-			showAdjustmentsEditor( progAdjust, function( progAdjustOut ) {
+			OSApp.Analog.showAdjustmentsEditor( progAdjust, function( progAdjustOut ) {
 
 				sendToOS( "/sb?pw=&nr=" + progAdjustOut.nr +
 					"&type=" + progAdjustOut.type +
@@ -614,7 +618,7 @@ var showAnalogSensorConfig = ( function() {
 					"&min=" + progAdjustOut.min +
 					"&max=" + progAdjustOut.max
 				).done( function() {
-					progAdjusts[ row ] = progAdjustOut;
+					OSApp.Analog.progAdjusts[ row ] = progAdjustOut;
 					updateSensorContent();
 				} );
 			} );
@@ -626,7 +630,7 @@ var showAnalogSensorConfig = ( function() {
 				type: 1
 			};
 
-			showAdjustmentsEditor( progAdjust, function( progAdjustOut ) {
+			OSApp.Analog.showAdjustmentsEditor( progAdjust, function( progAdjustOut ) {
 				sendToOS( "/sb?pw=&nr=" + progAdjustOut.nr +
 					"&type=" + progAdjustOut.type +
 					"&sensor=" + progAdjustOut.sensor +
@@ -636,7 +640,7 @@ var showAnalogSensorConfig = ( function() {
 					"&min=" + progAdjustOut.min +
 					"&max=" + progAdjustOut.max
 				).done( function() {
-					progAdjusts.push( progAdjustOut );
+					OSApp.Analog.progAdjusts.push( progAdjustOut );
 					updateSensorContent();
 				} );
 			} );
@@ -693,7 +697,7 @@ var showAnalogSensorConfig = ( function() {
 	return begin;
 } )();
 
-function buildSensorConfig() {
+OSApp.Analog.buildSensorConfig = () => {
 	var list = "<table id='analog_sensor_table'><tr style='width:100%;vertical-align: top;'>" +
 		"<tr><th>Nr</th><th class=\"hidecol\">Type</th><th class=\"hidecol\">Group</th><th>Name</th>" +
 		"<th class=\"hidecol\">IP</th><th class=\"hidecol\">Port</th><th class=\"hidecol\">ID</th>" +
@@ -703,14 +707,14 @@ function buildSensorConfig() {
 	var checkpng = "<img src=\"" + getAppURLPath() + "img/check-black.png\">";
 
 	var row = 0;
-	$.each( analogSensors, function( i, item ) {
+	$.each( OSApp.Analog.analogSensors, function( i, item ) {
 
 		var $tr = $( "<tr>" ).append(
 			$( "<td>" ).text( item.nr ),
 			$( "<td class=\"hidecol\">" ).text( item.type ),
 			$( "<td class=\"hidecol\">" ).text( item.group ? item.group : "" ),
 			$( "<td>" ).text( item.name ),
-			$( "<td class=\"hidecol\">" ).text( item.ip ? toByteArray( item.ip ).join( "." ) : "" ),
+			$( "<td class=\"hidecol\">" ).text( item.ip ? OSApp.Analog.toByteArray( item.ip ).join( "." ) : "" ),
 			$( "<td class=\"hidecol\">" ).text( item.port ? item.port : "" ),
 			$( "<td class=\"hidecol\">" ).text( item.type < 1000 ? item.id : "" ),
 			$( "<td class=\"hidecol\">" ).text( item.ri ),
@@ -744,12 +748,12 @@ function buildSensorConfig() {
 		"<th>Current</th></tr>";
 
 	row = 0;
-	$.each( progAdjusts, function( i, item ) {
+	$.each( OSApp.Analog.progAdjusts, function( i, item ) {
 
 		var sensorName = "";
-		for ( var j = 0; j < analogSensors.length; j++ ) {
-			if ( analogSensors[ j ].nr === item.sensor ) {
-				sensorName = analogSensors[ j ].name;
+		for ( var j = 0; j < OSApp.Analog.analogSensors.length; j++ ) {
+			if ( OSApp.Analog.analogSensors[ j ].nr === item.sensor ) {
+				sensorName = OSApp.Analog.analogSensors[ j ].name;
 			}
 		}
 		var progName = "?";
@@ -785,18 +789,18 @@ function buildSensorConfig() {
 		"<th><a href='#analogsensorchart'><button data-mini='true' class='center-div' id='show-log'>" + _( "Show Log" ) + "</button></a></th>" +
 		"</tr></table>";
 	return list;
-}
+};
 
 // Show Sensor Charts with apexcharts
-var showAnalogSensorCharts = ( function() {
+OSApp.Analog.showAnalogSensorCharts = ( function() {
 
-	var max = CHARTS;
-	for ( var j = 0; j < analogSensors.length; j++ ) {
-		if ( !analogSensors[ j ].log ) {
+	var max = OSApp.Analog.Constants.CHARTS;
+	for ( var j = 0; j < OSApp.Analog.analogSensors.length; j++ ) {
+		if ( !OSApp.Analog.analogSensors[ j ].log ) {
 			continue;
 		}
-		var unitid = analogSensors[ j ].unitid;
-		if ( unitid === USERDEF_UNIT ) {
+		var unitid = OSApp.Analog.analogSensors[ j ].unitid;
+		if ( unitid === OSApp.Analog.Constants.USERDEF_UNIT ) {
 			max++;
 		}
 	}
@@ -816,9 +820,9 @@ var showAnalogSensorCharts = ( function() {
 	function begin() {
 		$.mobile.loading( "show" );
 
-		var chart1 = new Array( CHARTS ),
-			chart2 = new Array( CHARTS ),
-			chart3 = new Array( CHARTS );
+		var chart1 = new Array( OSApp.Analog.Constants.CHARTS ),
+			chart2 = new Array( OSApp.Analog.Constants.CHARTS ),
+			chart3 = new Array( OSApp.Analog.Constants.CHARTS );
 
 		page.one( "pagehide", function() {
 			page.detach();
@@ -838,13 +842,13 @@ var showAnalogSensorCharts = ( function() {
 		$.mobile.pageContainer.append( page );
 
 		sendToOS( "/so?pw=&lasthours=24&csv=2", "text" ).then( function( csv1 ) {
-			buildGraph( "#myChart", chart1, csv1, _( "last 24h" ), "HH:mm" );
+			OSApp.Analog.buildGraph( "#myChart", chart1, csv1, _( "last 24h" ), "HH:mm" );
 
 			sendToOS( "/so?pw=&csv=2&log=1", "text" ).then( function( csv2 ) {
-				buildGraph( "#myChartW", chart2, csv2, _( "last weeks" ), "dd.MM.yyyy" );
+				OSApp.Analog.buildGraph( "#myChartW", chart2, csv2, _( "last weeks" ), "dd.MM.yyyy" );
 
 				sendToOS( "/so?pw=&csv=2&log=2", "text" ).then( function( csv3 ) {
-					buildGraph( "#myChartM", chart3, csv3, _( "last months" ), "MM.yyyy" );
+					OSApp.Analog.buildGraph( "#myChartM", chart3, csv3, _( "last months" ), "MM.yyyy" );
 					$.mobile.loading( "hide" );
 				} );
 			} );
@@ -854,17 +858,17 @@ var showAnalogSensorCharts = ( function() {
 	return begin;
 } )();
 
-function buildGraph( prefix, chart, csv, titleAdd, timestr ) {
+OSApp.Analog.buildGraph = ( prefix, chart, csv, titleAdd, timestr ) => {
 	var csvlines = csv.split( /(?:\r\n|\n)+/ ).filter( function( el ) { return el.length !== 0; } );
 
-	for ( var j = 0; j < analogSensors.length; j++ ) {
-		if ( !analogSensors[ j ].log ) {
+	for ( var j = 0; j < OSApp.Analog.analogSensors.length; j++ ) {
+		if ( !OSApp.Analog.analogSensors[ j ].log ) {
 			continue;
 		}
 
-		var nr = analogSensors[ j ].nr,
+		var nr = OSApp.Analog.analogSensors[ j ].nr,
 			logdata = [],
-			unitid = analogSensors[ j ].unitid;
+			unitid = OSApp.Analog.analogSensors[ j ].unitid;
 
 		for ( var k = 1; k < csvlines.length; k++ ) {
 			var line = csvlines[ k ].split( ";" );
@@ -872,13 +876,13 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr ) {
 				logdata.push( { x: Number( line[ 1 ] ) * 1000, y: Number( line[ 2 ] ) } );
 			}
 		}
-		var series = { name: analogSensors[ j ].name, data: logdata };
+		var series = { name: OSApp.Analog.analogSensors[ j ].name, data: logdata };
 
 		// User defined sensor:
-		if ( unitid === USERDEF_UNIT ) {
+		if ( unitid === OSApp.Analog.Constants.USERDEF_UNIT ) {
 			unitid = chart.length;
 			chart.push( undefined );
-		} else if ( unitid >= CHARTS ) {
+		} else if ( unitid >= OSApp.Analog.Constants.CHARTS ) {
 			unitid = 0;
 		}
 
@@ -1010,7 +1014,7 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr ) {
 		}
 	}
 
-	for ( var c = 1; c < CHARTS; c++ ) {
+	for ( var c = 1; c < OSApp.Analog.Constants.CHARTS; c++ ) {
 		if ( !chart[ c ] ) {
 			var x = document.querySelector( prefix + c );
 			if ( x ) {
@@ -1018,4 +1022,4 @@ function buildGraph( prefix, chart, csv, titleAdd, timestr ) {
 			}
 		}
 	}
-}
+};

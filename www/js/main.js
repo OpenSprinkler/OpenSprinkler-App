@@ -1,7 +1,5 @@
 /* global $, ThreeDeeTouch, navigator, FastClick */
 /* global StatusBar, networkinterface, links, SunCalc, md5, sjcl */
-/* global showAnalogSensorConfig, checkAnalogSensorAvail, updateAnalogSensor */
-/* global showAnalogSensorCharts, updateProgramAdjustments, updateSensorShowArea */
 
 /* OpenSprinkler App
  * Copyright (C) 2015 - present, Samer Albahra. All rights reserved.
@@ -20,10 +18,10 @@
 var OSApp = OSApp || {};
 
 // TODO: refactor away all direct usage of localStorage in favor of OSApp.Storage
-// TODO: refactor analog.js into a true modules & update all references
 // TODO: refactor all weather related functions out to modules/weather.js
 // TODO: continue module refactoring
 // TODO: add unit tests for each module
+// TODO: sendToOS needs refactoring/promoting to OSApp.xx
 
 // App Constants
 OSApp.Constants = {
@@ -239,10 +237,10 @@ $( document )
 		getRunonce();
 	} else if ( hash === "#os-options" ) {
 		showOptions( data.options.expandItem );
-	} else if ( checkAnalogSensorAvail() && hash === "#analogsensorconfig" ) {
-		showAnalogSensorConfig();
-	} else if ( checkAnalogSensorAvail() && hash === "#analogsensorchart" ) {
-		showAnalogSensorCharts();
+	} else if ( OSApp.Analog.checkAnalogSensorAvail() && hash === "#analogsensorconfig" ) {
+		OSApp.Analog.showAnalogSensorConfig();
+	} else if ( OSApp.Analog.checkAnalogSensorAvail() && hash === "#analogsensorchart" ) {
+		OSApp.Analog.showAnalogSensorCharts();
 	} else if ( hash === "#preview" ) {
 		getPreview();
 	} else if ( hash === "#logs" ) {
@@ -770,9 +768,9 @@ function newLoad() {
 				weatherAdjust.hide();
 			}
 
-			if ( checkAnalogSensorAvail() ) {
-				updateAnalogSensor();
-				updateProgramAdjustments();
+			if ( OSApp.Analog.checkAnalogSensorAvail() ) {
+				OSApp.Analog.updateAnalogSensor();
+				OSApp.Analog.updateProgramAdjustments();
 			}
 
 			// Hide change password feature for unsupported devices
@@ -5327,7 +5325,7 @@ var showHomeMenu = ( function() {
 				"<li><a href='#programs'>" + _( "Edit Programs" ) + "</a></li>" +
 				"<li><a href='#os-options'>" + _( "Edit Options" ) + "</a></li>" +
 
-				( checkAnalogSensorAvail() ? (
+				( OSApp.Analog.checkAnalogSensorAvail() ? (
 					"<li><a href='#analogsensorconfig'>" + _( "Analog Sensor Config" ) + "</a></li>" +
 					"<li><a href='#analogsensorchart'>" + _( "Show Sensor Log" ) + "</a></li>"
 				) : "" ) +
@@ -6254,7 +6252,7 @@ var showHome = ( function() {
 
 			updateClock();
 			updateSites();
-			updateSensorShowArea( page );
+			OSApp.Analog.updateSensorShowArea( page );
 
 			page.find( ".waterlevel" ).text( OSApp.currentSession.controller.options.wl );
 			page.find( ".sitename" ).text( siteSelect.val() );
@@ -6386,7 +6384,7 @@ var showHome = ( function() {
 		page.find( ".sitename" ).toggleClass( "hidden", OSApp.currentSession.local ? true : false ).text( siteSelect.val() );
 		page.find( ".waterlevel" ).text( OSApp.currentSession.controller.options.wl );
 
-		updateSensorShowArea( page );
+		OSApp.Analog.updateSensorShowArea( page );
 		updateClock();
 
 		page.on( "click", ".station-settings", showAttributes );
@@ -10609,7 +10607,7 @@ var showAbout = ( function() {
 		page.find( ".hardware" ).toggleClass( "hidden", showHardware ).text( getHWVersion() + getHWType() );
 		page.find( ".hardwareLabel" ).toggleClass( "hidden", showHardware );
 
-		page.find( ".firmware" ).text( getOSVersion() + getOSMinorVersion() + ( checkAnalogSensorAvail() ? " - ASB" : "" ) );
+		page.find( ".firmware" ).text( getOSVersion() + getOSMinorVersion() + ( OSApp.Analog.checkAnalogSensorAvail() ? " - ASB" : "" ) );
 
 		page.one( "pagehide", function() {
 			page.detach();
