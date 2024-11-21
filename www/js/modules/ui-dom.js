@@ -1,13 +1,16 @@
-/* global sendToOS, controller, readProgram, holdButton, openPopup, areYouSure, _, $ */
-/* global currPass, currToken, currPrefix, currIp, changePage, changeHeader, goBack */
-/* global getAppURLPath, dateToString, ApexCharts */
-/* exported checkAnalogSensorAvail, updateSensorShowArea, showAnalogSensorConfig, showAnalogSensorCharts */
+/* global $ */
 
-/*!
- * Analog Sensor API - GUI for OpenSprinkler App
- * https://github.com/opensprinklershop/
- * (c) 2023 OpenSprinklerShop
- * Released under the MIT License
+/* OpenSprinkler App
+ * Copyright (C) 2015 - present, Samer Albahra. All rights reserved.
+ *
+ * This file is part of the OpenSprinkler project <http://opensprinkler.com>.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License version 3 as
+ * published by the Free Software Foundation.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 // Configure module

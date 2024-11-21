@@ -2527,7 +2527,7 @@ function showRainDelay() {
 }
 
 function showPause() {
-	if ( StationQueue.isPaused() ) {
+	if ( OSApp.StationQueue.isPaused() ) {
 		areYouSure( OSApp.Language._( "Do you want to resume program operation?" ), "", function() {
 			OSApp.Firmware.sendToOS( "/pq?pw=" );
 		} );
@@ -2931,7 +2931,7 @@ function showOptions( expandItem ) {
 	list += "<label for='isMetric'><input data-mini='true' id='isMetric' type='checkbox' " + ( OSApp.currentDevice.isMetric ? "checked='checked'" : "" ) + ">" +
 		OSApp.Language._( "Use Metric" ) + "</label>";
 
-	if ( Supported.groups() ) {
+	if ( OSApp.Supported.groups() ) {
 		list += "<label for='groupView'><input data-mini='true' id='groupView' type='checkbox' " + ( OSApp.uiState.groupView ? "checked='checked'" : "" ) + ">" +
 		OSApp.Language._( "Order Stations by Groups" ) + "</label>";
 	}
@@ -2946,7 +2946,7 @@ function showOptions( expandItem ) {
 			"</label><select data-mini='true' id='o18'><option value='0'>" + OSApp.Language._( "None" ) + "</option>";
 
 		for ( i = 0; i < OSApp.currentSession.controller.stations.snames.length; i++ ) {
-			list += "<option " + ( ( Station.isMaster( i ) === 1 ) ? "selected" : "" ) + " value='" + ( i + 1 ) + "'>" +
+			list += "<option " + ( ( OSApp.Stations.isMaster( i ) === 1 ) ? "selected" : "" ) + " value='" + ( i + 1 ) + "'>" +
 				OSApp.currentSession.controller.stations.snames[ i ] + "</option>";
 
 			if ( !OSApp.Firmware.checkOSVersion( 214 ) && i === 7 ) {
@@ -2978,7 +2978,7 @@ function showOptions( expandItem ) {
 			"</label><select data-mini='true' id='o37'><option value='0'>" + OSApp.Language._( "None" ) + "</option>";
 
 		for ( i = 0; i < OSApp.currentSession.controller.stations.snames.length; i++ ) {
-			list += "<option " + ( ( Station.isMaster( i ) === 2 ) ? "selected" : "" ) + " value='" + ( i + 1 ) + "'>" + OSApp.currentSession.controller.stations.snames[ i ] +
+			list += "<option " + ( ( OSApp.Stations.isMaster( i ) === 2 ) ? "selected" : "" ) + " value='" + ( i + 1 ) + "'>" + OSApp.currentSession.controller.stations.snames[ i ] +
 				"</option>";
 
 			if ( !OSApp.Firmware.checkOSVersion( 214 ) && i === 7 ) {
@@ -3549,7 +3549,7 @@ function showOptions( expandItem ) {
 	page.find( ".reset-stations" ).on( "click", function() {
 		var cs = "", i;
 
-		if ( Supported.groups() ) {
+		if ( OSApp.Supported.groups() ) {
 			for ( i = 0; i < OSApp.currentSession.controller.stations.snames.length; i++ ) {
 				cs += "g" + i + "=0&";
 			}
@@ -4255,9 +4255,9 @@ var showHomeMenu = ( function() {
 				( OSApp.Firmware.checkOSVersion( 206 ) || OSApp.Firmware.checkOSPiVersion( "1.9" ) ? "<li><a href='#logs'>" + OSApp.Language._( "View Logs" ) + "</a></li>" : "" ) +
 				"<li data-role='list-divider'>" + OSApp.Language._( "Programs and Settings" ) + "</li>" +
 				"<li><a href='#raindelay'>" + OSApp.Language._( "Change Rain Delay" ) + "</a></li>" +
-				( Supported.pausing() ?
-					( StationQueue.isPaused() ? "<li><a href='#globalpause'>" + OSApp.Language._( "Resume Station Runs" ) + "</a></li>"
-						: ( StationQueue.isActive() >= -1 ? "<li><a href='#globalpause'>" + OSApp.Language._( "Pause Station Runs" ) + "</a></li>" : "" ) )
+				( OSApp.Supported.pausing() ?
+					( OSApp.StationQueue.isPaused() ? "<li><a href='#globalpause'>" + OSApp.Language._( "Resume Station Runs" ) + "</a></li>"
+						: ( OSApp.StationQueue.isActive() >= -1 ? "<li><a href='#globalpause'>" + OSApp.Language._( "Pause Station Runs" ) + "</a></li>" : "" ) )
 					: "" ) +
 				"<li><a href='#runonce'>" + OSApp.Language._( "Run-Once Program" ) + "</a></li>" +
 				"<li><a href='#programs'>" + OSApp.Language._( "Edit Programs" ) + "</a></li>" +
@@ -4364,21 +4364,21 @@ var showHome = ( function() {
 			};
 		},
 		addCard = function( sid ) {
-			var station = Station.getName( sid ),
-				isScheduled = Station.getPID( sid ) > 0,
-				isRunning = Station.isRunning( sid ),
-				pname = isScheduled ? pidname( Station.getPID( sid ) ) : "",
-				rem = Station.getRemainingRuntime( sid ),
-				qPause = Supported.pausing() && StationQueue.isPaused(),
+			var station = OSApp.Stations.getName( sid ),
+				isScheduled = OSApp.Stations.getPID( sid ) > 0,
+				isRunning = OSApp.Stations.isRunning( sid ),
+				pname = isScheduled ? pidname( OSApp.Stations.getPID( sid ) ) : "",
+				rem = OSApp.Stations.getRemainingRuntime( sid ),
+				qPause = OSApp.Supported.pausing() && OSApp.StationQueue.isPaused(),
 				hasImage = sites[ currentSite ].images[ sid ] ? true : false;
 
-			if ( Station.getStatus( sid ) && rem > 0 ) {
+			if ( OSApp.Stations.getStatus( sid ) && rem > 0 ) {
 				addTimer( sid, rem );
 			}
 
 			// Group card settings visually
 			cards += "<div data-station='" + sid + "' class='ui-corner-all card" +
-				( Station.isDisabled( sid ) ? " station-hidden' style='display:none" : "" ) + "'>";
+				( OSApp.Stations.isDisabled( sid ) ? " station-hidden' style='display:none" : "" ) + "'>";
 
 			cards += "<div class='ui-body ui-body-a center'>";
 
@@ -4390,33 +4390,33 @@ var showHome = ( function() {
 				( isRunning ? "on" : ( isScheduled ? "wait" : "off" ) ) + "'></span>";
 
 			cards += "<span class='btn-no-border ui-btn ui-btn-icon-notext ui-icon-wifi card-icon special-station " +
-				( Station.isSpecial( sid ) ? "" : "hidden" ) + "'></span>";
+				( OSApp.Stations.isSpecial( sid ) ? "" : "hidden" ) + "'></span>";
 
-			if ( Supported.groups() ) {
-				cards += "<span class='btn-no-border ui-btn card-icon station-gid " + ( Station.isMaster( sid ) ? "hidden" : "" ) +
-							"'>" + OSApp.Groups.mapGIDValueToName( Station.getGIDValue( sid ) ) + "</span>";
+			if ( OSApp.Supported.groups() ) {
+				cards += "<span class='btn-no-border ui-btn card-icon station-gid " + ( OSApp.Stations.isMaster( sid ) ? "hidden" : "" ) +
+							"'>" + OSApp.Groups.mapGIDValueToName( OSApp.Stations.getGIDValue( sid ) ) + "</span>";
 			}
 
-			cards += "<span class='btn-no-border ui-btn " + ( ( Station.isMaster( sid ) ) ? "ui-icon-master" : "ui-icon-gear" ) +
+			cards += "<span class='btn-no-border ui-btn " + ( ( OSApp.Stations.isMaster( sid ) ) ? "ui-icon-master" : "ui-icon-gear" ) +
 				" card-icon ui-btn-icon-notext station-settings' data-station='" + sid + "' id='attrib-" + sid + "' " +
-				( Supported.master( OSApp.Constants.options.MASTER_STATION_1 ) ? ( "data-um='" + ( StationAttribute.getMasterOperation( sid, OSApp.Constants.options.MASTER_STATION_1 ) ) + "' " ) : "" ) +
-				( Supported.master( OSApp.Constants.options.MASTER_STATION_2 ) ? ( "data-um2='" + ( StationAttribute.getMasterOperation( sid, OSApp.Constants.options.MASTER_STATION_2 ) ) + "' " ) : "" ) +
-				( Supported.ignoreRain() ? ( "data-ir='" + ( StationAttribute.getIgnoreRain( sid ) ) + "' " ) : "" ) +
-				( Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_1 ) ? ( "data-sn1='" + ( StationAttribute.getIgnoreSensor( sid, OSApp.Constants.options.IGNORE_SENSOR_1 ) ) + "' " ) : "" ) +
-				( Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_2 ) ? ( "data-sn2='" + ( StationAttribute.getIgnoreSensor( sid, OSApp.Constants.options.IGNORE_SENSOR_2 ) ) + "' " ) : "" ) +
-				( Supported.actRelay() ? ( "data-ar='" + ( StationAttribute.getActRelay( sid ) ) + "' " ) : "" ) +
-				( Supported.disabled() ? ( "data-sd='" + ( StationAttribute.getDisabled( sid ) ) + "' " ) : "" ) +
-				( Supported.sequential() ? ( "data-us='" + ( StationAttribute.getSequential( sid ) ) + "' " ) : "" ) +
-				( Supported.special() ? ( "data-hs='" + ( StationAttribute.getSpecial( sid ) ) + "' " ) : "" ) +
-				( Supported.groups() ? ( "data-gid='" + Station.getGIDValue( sid ) + "' " ) : "" ) +
+				( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_1 ) ? ( "data-um='" + ( OSApp.StationAttributes.getMasterOperation( sid, OSApp.Constants.options.MASTER_STATION_1 ) ) + "' " ) : "" ) +
+				( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_2 ) ? ( "data-um2='" + ( OSApp.StationAttributes.getMasterOperation( sid, OSApp.Constants.options.MASTER_STATION_2 ) ) + "' " ) : "" ) +
+				( OSApp.Supported.ignoreRain() ? ( "data-ir='" + ( OSApp.StationAttributes.getIgnoreRain( sid ) ) + "' " ) : "" ) +
+				( OSApp.Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_1 ) ? ( "data-sn1='" + ( OSApp.StationAttributes.getIgnoreSensor( sid, OSApp.Constants.options.IGNORE_SENSOR_1 ) ) + "' " ) : "" ) +
+				( OSApp.Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_2 ) ? ( "data-sn2='" + ( OSApp.StationAttributes.getIgnoreSensor( sid, OSApp.Constants.options.IGNORE_SENSOR_2 ) ) + "' " ) : "" ) +
+				( OSApp.Supported.actRelay() ? ( "data-ar='" + ( OSApp.StationAttributes.getActRelay( sid ) ) + "' " ) : "" ) +
+				( OSApp.Supported.disabled() ? ( "data-sd='" + ( OSApp.StationAttributes.getDisabled( sid ) ) + "' " ) : "" ) +
+				( OSApp.Supported.sequential() ? ( "data-us='" + ( OSApp.StationAttributes.getSequential( sid ) ) + "' " ) : "" ) +
+				( OSApp.Supported.special() ? ( "data-hs='" + ( OSApp.StationAttributes.getSpecial( sid ) ) + "' " ) : "" ) +
+				( OSApp.Supported.groups() ? ( "data-gid='" + OSApp.Stations.getGIDValue( sid ) + "' " ) : "" ) +
 				"></span>";
 
-			if ( !Station.isMaster( sid ) ) {
+			if ( !OSApp.Stations.isMaster( sid ) ) {
 				if ( isScheduled || isRunning ) {
 
 					// Generate status line for station
 					cards += "<p class='rem center'>" + ( isRunning ? OSApp.Language._( "Running" ) + " " + pname : OSApp.Language._( "Scheduled" ) + " " +
-						( Station.getStartTime( sid ) ? OSApp.Language._( "for" ) + " " + dateToString( new Date( Station.getStartTime( sid ) * 1000 ) ) : pname ) );
+						( OSApp.Stations.getStartTime( sid ) ? OSApp.Language._( "for" ) + " " + dateToString( new Date( OSApp.Stations.getStartTime( sid ) * 1000 ) ) : pname ) );
 
 					if ( rem > 0 ) {
 
@@ -4429,7 +4429,7 @@ var showHome = ( function() {
 
 			// Add sequential group divider and close current card group
 			cards += "</div><hr style='display:none' class='content-divider'" +
-				( Supported.groups() ? "divider-gid=" + Station.getGIDValue( sid ) : "" ) + "></div>";
+				( OSApp.Supported.groups() ? "divider-gid=" + OSApp.Stations.getGIDValue( sid ) : "" ) + "></div>";
 
 		},
 		showAttributes = function() {
@@ -4682,7 +4682,7 @@ var showHome = ( function() {
 			}
 
 			// Setup two tabs for station configuration (Basic / Advanced) when applicable
-			if ( Supported.special() ) {
+			if ( OSApp.Supported.special() ) {
 				select += "<ul class='tabs'>" +
 								"<li class='current' data-tab='tab-basic'>" + OSApp.Language._( "Basic" ) + "</li>" +
 								"<li data-tab='tab-advanced'>" + OSApp.Language._( "Advanced" ) + "</li>" +
@@ -4700,50 +4700,50 @@ var showHome = ( function() {
 					( typeof sites[ currentSite ].images[ sid ] !== "string" ? OSApp.Language._( "Add" ) : OSApp.Language._( "Change" ) ) + " " + OSApp.Language._( "Image" ) +
 				"</button>";
 
-			if ( !Station.isMaster( sid ) ) {
-				if ( Supported.master( OSApp.Constants.options.MASTER_STATION_1 ) ) {
+			if ( !OSApp.Stations.isMaster( sid ) ) {
+				if ( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_1 ) ) {
 					select += "<label for='um'><input class='needsclick' data-iconpos='right' id='um' type='checkbox' " +
 							( ( button.data( "um" ) === 1 ) ? "checked='checked'" : "" ) + ">" + OSApp.Language._( "Use Master" ) + " " +
-								( Supported.master( OSApp.Constants.options.MASTER_STATION_2 ) ? "1" : "" ) + "</label>";
+								( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_2 ) ? "1" : "" ) + "</label>";
 				}
 
-				if ( Supported.master( OSApp.Constants.options.MASTER_STATION_2 ) ) {
+				if ( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_2 ) ) {
 					select += "<label for='um2'><input class='needsclick' data-iconpos='right' id='um2' type='checkbox' " +
 							( ( button.data( "um2" ) === 1 ) ? "checked='checked'" : "" ) + ">" + OSApp.Language._( "Use Master" ) + " 2" +
 						"</label>";
 				}
 
-				if ( Supported.ignoreRain() ) {
+				if ( OSApp.Supported.ignoreRain() ) {
 					select += "<label for='ir'><input class='needsclick' data-iconpos='right' id='ir' type='checkbox' " +
 							( ( button.data( "ir" ) === 1 ) ? "checked='checked'" : "" ) + ">" + OSApp.Language._( "Ignore Rain" ) +
 						"</label>";
 				}
 
-				if ( Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_1 ) ) {
+				if ( OSApp.Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_1 ) ) {
 					select += "<label for='sn1'><input class='needsclick' data-iconpos='right' id='sn1' type='checkbox' " +
 							( ( button.data( "sn1" ) === 1 ) ? "checked='checked'" : "" ) + ">" + OSApp.Language._( "Ignore Sensor 1" ) +
 						"</label>";
 				}
 
-				if ( Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_2 ) ) {
+				if ( OSApp.Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_2 ) ) {
 					select += "<label for='sn2'><input class='needsclick' data-iconpos='right' id='sn2' type='checkbox' " +
 							( ( button.data( "sn2" ) === 1 ) ? "checked='checked'" : "" ) + ">" + OSApp.Language._( "Ignore Sensor 2" ) +
 						"</label>";
 				}
 
-				if ( Supported.actRelay() ) {
+				if ( OSApp.Supported.actRelay() ) {
 					select += "<label for='ar'><input class='needsclick' data-iconpos='right' id='ar' type='checkbox' " +
 							( ( button.data( "ar" ) === 1 ) ? "checked='checked'" : "" ) + ">" + OSApp.Language._( "Activate Relay" ) +
 						"</label>";
 				}
 
-				if ( Supported.disabled() ) {
+				if ( OSApp.Supported.disabled() ) {
 					select += "<label for='sd'><input class='needsclick' data-iconpos='right' id='sd' type='checkbox' " +
 							( ( button.data( "sd" ) === 1 ) ? "checked='checked'" : "" ) + ">" + OSApp.Language._( "Disable" ) +
 						"</label>";
 				}
 
-				if ( Supported.sequential() && !Supported.groups() ) {
+				if ( OSApp.Supported.sequential() && !OSApp.Supported.groups() ) {
 					select += "<label for='us'><input class='needsclick' data-iconpos='right' id='us' type='checkbox' " +
 							( ( button.data( "us" ) === 1 ) ? "checked='checked'" : "" ) + ">" + OSApp.Language._( "Sequential" ) +
 						"</label>";
@@ -4761,7 +4761,7 @@ var showHome = ( function() {
 			select += "<div id='tab-advanced' class='tab-content'>";
 
 			// Create sequential group selection menu
-			if ( Supported.groups() && !Station.isMaster( sid ) ) {
+			if ( OSApp.Supported.groups() && !OSApp.Stations.isMaster( sid ) ) {
 				select +=
 					"<div class='ui-bar-a ui-bar seq-container'>" + OSApp.Language._( "Sequential Group" ) + ":</div>" +
 						"<select id='gid' class='seqgrp' data-mini='true'></select>" +
@@ -4770,11 +4770,11 @@ var showHome = ( function() {
 
 			// Station tab is initially set to disabled until we have refreshed station data from firmware
 			// Note: HTTPS and Remote OTC stations are supported at the same time with Email notification support
-			if ( Supported.special() ) {
+			if ( OSApp.Supported.special() ) {
 				select +=
 					"<div class='ui-bar-a ui-bar'>" + OSApp.Language._( "Station Type" ) + ":</div>" +
-						"<select data-mini='true' id='hs'"  + ( Station.isSpecial( sid ) ? " class='ui-disabled'" : "" ) + ">" +
-							"<option data-hs='0' value='0'" + ( Station.isSpecial( sid ) ? "" : "selected" ) + ">" + OSApp.Language._( "Standard" ) + "</option>" +
+						"<select data-mini='true' id='hs'"  + ( OSApp.Stations.isSpecial( sid ) ? " class='ui-disabled'" : "" ) + ">" +
+							"<option data-hs='0' value='0'" + ( OSApp.Stations.isSpecial( sid ) ? "" : "selected" ) + ">" + OSApp.Language._( "Standard" ) + "</option>" +
 							"<option data-hs='1' value='1'>" + OSApp.Language._( "RF" ) + "</option>" +
 							"<option data-hs='2' value='2'>" + OSApp.Language._( "Remote Station (IP)" ) + "</option>" +
 							"<option data-hs='3' value='3'" + (
@@ -4800,12 +4800,12 @@ var showHome = ( function() {
 			} );
 
 			// Populate sequential group selection menu
-			if ( Supported.groups() ) {
+			if ( OSApp.Supported.groups() ) {
 				var seqGroupSelect = select.find( "select.seqgrp" ),
 					seqGroupLabel = select.find( "span.seqgrp" ),
-					stationGID = Station.getGIDValue( sid );
+					stationGID = OSApp.Stations.getGIDValue( sid );
 
-				var isRunning = Station.isRunning( sid ),
+				var isRunning = OSApp.Stations.isRunning( sid ),
 					prohibitChange = select.find( "p#prohibit-change" );
 				if ( isRunning ) {
 					seqGroupSelect.addClass( "ui-state-disabled" );
@@ -4852,7 +4852,7 @@ var showHome = ( function() {
 			} );
 
 			// Refresh station data from firmware and update the Advanced tab to reflect special station type
-			if ( Station.isSpecial( sid ) ) {
+			if ( OSApp.Stations.isSpecial( sid ) ) {
 				updateControllerStationSpecial( function() {
 					select.find( "#hs" )
 						.removeClass( "ui-disabled" )
@@ -4908,31 +4908,31 @@ var showHome = ( function() {
 				attrib, bid, sid, gid, s;
 
 			for ( bid = 0; bid < OSApp.currentSession.controller.settings.nbrd; bid++ ) {
-				if ( Supported.master( OSApp.Constants.options.MASTER_STATION_1 ) ) {
+				if ( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_1 ) ) {
 					master[ "m" + bid ] = 0;
 				}
-				if ( Supported.master( OSApp.Constants.options.MASTER_STATION_2 ) ) {
+				if ( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_2 ) ) {
 					master2[ "n" + bid ] = 0;
 				}
-				if ( Supported.sequential() ) {
+				if ( OSApp.Supported.sequential() ) {
 					sequential[ "q" + bid ] = 0;
 				}
-				if ( Supported.special() ) {
+				if ( OSApp.Supported.special() ) {
 					special[ "p" + bid ] = 0;
 				}
-				if ( Supported.ignoreRain() ) {
+				if ( OSApp.Supported.ignoreRain() ) {
 					rain[ "i" + bid ] = 0;
 				}
-				if ( Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_1 ) ) {
+				if ( OSApp.Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_1 ) ) {
 					sensor1[ "j" + bid ] = 0;
 				}
-				if ( Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_2 ) ) {
+				if ( OSApp.Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_2 ) ) {
 					sensor2[ "k" + bid ] = 0;
 				}
-				if ( Supported.actRelay() ) {
+				if ( OSApp.Supported.actRelay() ) {
 					relay[ "a" + bid ] = 0;
 				}
-				if ( Supported.disabled() ) {
+				if ( OSApp.Supported.disabled() ) {
 					disable[ "d" + bid ] = 0;
 				}
 
@@ -4940,39 +4940,39 @@ var showHome = ( function() {
 					sid = bid * 8 + s;
 					attrib = page.find( "#attrib-" + sid );
 
-					if ( Supported.master( OSApp.Constants.options.MASTER_STATION_1 ) ) {
+					if ( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_1 ) ) {
 						master[ "m" + bid ] = ( master[ "m" + bid ] ) + ( attrib.data( "um" ) << s );
 					}
 
-					if ( Supported.master( OSApp.Constants.options.MASTER_STATION_2 ) ) {
+					if ( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_2 ) ) {
 						master2[ "n" + bid ] = ( master2[ "n" + bid ] ) + ( attrib.data( "um2" ) << s );
 					}
 
-					if ( Supported.sequential() ) {
+					if ( OSApp.Supported.sequential() ) {
 						sequential[ "q" + bid ] = ( sequential[ "q" + bid ] ) + ( attrib.data( "us" ) << s );
 					}
 
-					if ( Supported.special() ) {
+					if ( OSApp.Supported.special() ) {
 						special[ "p" + bid ] = ( special[ "p" + bid ] ) + ( ( attrib.data( "hs" ) ? 1 : 0 ) << s );
 					}
 
-					if ( Supported.ignoreRain() ) {
+					if ( OSApp.Supported.ignoreRain() ) {
 						rain[ "i" + bid ] = ( rain[ "i" + bid ] ) + ( attrib.data( "ir" ) << s );
 					}
 
-					if ( Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_1 ) ) {
+					if ( OSApp.Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_1 ) ) {
 						sensor1[ "j" + bid ] = ( sensor1[ "j" + bid ] ) + ( attrib.data( "sn1" ) << s );
 					}
 
-					if ( Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_2 ) ) {
+					if ( OSApp.Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_2 ) ) {
 						sensor2[ "k" + bid ] = ( sensor2[ "k" + bid ] ) + ( attrib.data( "sn2" ) << s );
 					}
 
-					if ( Supported.actRelay() ) {
+					if ( OSApp.Supported.actRelay() ) {
 						relay[ "a" + bid ] = ( relay[ "a" + bid ] ) + ( attrib.data( "ar" ) << s );
 					}
 
-					if ( Supported.disabled() ) {
+					if ( OSApp.Supported.disabled() ) {
 						disable[ "d" + bid ] = ( disable[ "d" + bid ] ) + ( attrib.data( "sd" ) << s );
 					}
 
@@ -4986,13 +4986,13 @@ var showHome = ( function() {
 							names[ "s" + sid ] = page.find( "#station_" + sid ).text();
 						}
 
-						if ( Supported.special() && attrib.data( "hs" ) ) {
+						if ( OSApp.Supported.special() && attrib.data( "hs" ) ) {
 							special.st = attrib.data( "hs" );
 							special.sd = attrib.data( "specialData" );
 							special.sid = id;
 						}
 
-						if ( Supported.groups() ) {
+						if ( OSApp.Supported.groups() ) {
 							gid = attrib.attr( "data-gid" );
 						}
 					}
@@ -5001,16 +5001,16 @@ var showHome = ( function() {
 
 			$.mobile.loading( "show" );
 			OSApp.Firmware.sendToOS( "/cs?pw=&" + $.param( names ) +
-				( Supported.master( OSApp.Constants.options.MASTER_STATION_1 ) ? "&" + $.param( master ) : "" ) +
-				( Supported.master( OSApp.Constants.options.MASTER_STATION_2 ) ? "&" + $.param( master2 ) : "" ) +
-				( Supported.sequential() ? "&" + $.param( sequential ) : "" ) +
-				( Supported.special() ? "&" + $.param( special ) : "" ) +
-				( Supported.ignoreRain() ? "&" + $.param( rain ) : "" ) +
-				( Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_1 ) ? "&" + $.param( sensor1 ) : "" ) +
-				( Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_2 ) ? "&" + $.param( sensor2 ) : "" ) +
-				( Supported.actRelay() ? "&" + $.param( relay ) : "" ) +
-				( Supported.disabled() ? "&" + $.param( disable ) : "" ) +
-				( Supported.groups() ? "&g" + id + "=" + gid : "" )
+				( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_1 ) ? "&" + $.param( master ) : "" ) +
+				( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_2 ) ? "&" + $.param( master2 ) : "" ) +
+				( OSApp.Supported.sequential() ? "&" + $.param( sequential ) : "" ) +
+				( OSApp.Supported.special() ? "&" + $.param( special ) : "" ) +
+				( OSApp.Supported.ignoreRain() ? "&" + $.param( rain ) : "" ) +
+				( OSApp.Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_1 ) ? "&" + $.param( sensor1 ) : "" ) +
+				( OSApp.Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_2 ) ? "&" + $.param( sensor2 ) : "" ) +
+				( OSApp.Supported.actRelay() ? "&" + $.param( relay ) : "" ) +
+				( OSApp.Supported.disabled() ? "&" + $.param( disable ) : "" ) +
+				( OSApp.Supported.groups() ? "&g" + id + "=" + gid : "" )
 			).done( function() {
 				OSApp.Errors.showError( OSApp.Language._( "Stations have been updated" ) );
 				updateController( function() {
@@ -5039,12 +5039,12 @@ var showHome = ( function() {
 			var cardA = $( a ), cardB = $( b );
 
 			// Station IDs
-			var sidA = Card.getSID( cardA );
-			var sidB = Card.getSID( cardB );
+			var sidA = OSApp.Cards.getSID( cardA );
+			var sidB = OSApp.Cards.getSID( cardB );
 
 			// Verify if a master station
-			var masA = Station.isMaster( sidA ) > 0 ? 1 : 0;
-			var masB = Station.isMaster( sidB ) > 0 ? 1 : 0;
+			var masA = OSApp.Stations.isMaster( sidA ) > 0 ? 1 : 0;
+			var masB = OSApp.Stations.isMaster( sidB ) > 0 ? 1 : 0;
 
 			if ( masA > masB ) {
 				return -1;
@@ -5052,8 +5052,8 @@ var showHome = ( function() {
 				return 1;
 			} else { // If both or neither master check group id
 
-				var gidA = Station.getGIDValue( Card.getSID( cardA ) );
-				var gidB = Station.getGIDValue( Card.getSID( cardB ) );
+				var gidA = OSApp.Stations.getGIDValue( OSApp.Cards.getSID( cardA ) );
+				var gidB = OSApp.Stations.getGIDValue( OSApp.Cards.getSID( cardB ) );
 
 				if ( gidA < gidB ) {
 					return -1;
@@ -5061,8 +5061,8 @@ var showHome = ( function() {
 					return 1;
 				} else { // If same group shift running stations up
 
-					var statusA = Station.getStatus( sidA );
-					var statusB = Station.getStatus( sidB );
+					var statusA = OSApp.Stations.getStatus( sidA );
+					var statusB = OSApp.Stations.getStatus( sidB );
 
 					if ( statusA > statusB ) {
 						return -1;
@@ -5082,11 +5082,11 @@ var showHome = ( function() {
 
 			var cardA = $( a ), cardB = $( b );
 
-			var sidA = Card.getSID( cardA );
-			var sidB = Card.getSID( cardB );
+			var sidA = OSApp.Cards.getSID( cardA );
+			var sidB = OSApp.Cards.getSID( cardB );
 
-			var statusA = Station.getStatus( sidA );
-			var statusB = Station.getStatus( sidB );
+			var statusA = OSApp.Stations.getStatus( sidA );
+			var statusB = OSApp.Stations.getStatus( sidB );
 
 			if ( statusA > statusB ) {
 				return -1;
@@ -5108,18 +5108,18 @@ var showHome = ( function() {
 
 			for ( idx = 0; idx < cardHolder.children().length; idx++ ) {
 				thisCard = CardList.getCardByIndex( cardList, idx );
-				Card.setGroupLabel( thisCard, Card.getGIDName( thisCard ) );
+				OSApp.Cards.setGroupLabel( thisCard, OSApp.Cards.getGIDName( thisCard ) );
 			}
 			for ( idx = 0; idx < cardHolder.children().length - 1; idx++ ) {
 				thisCard = CardList.getCardByIndex( cardList, idx );
 				nextCard = CardList.getCardByIndex( cardList, idx + 1 );
 
-				divider = Card.getDivider( thisCard );
-				label = Card.getGroupLabel( thisCard );
+				divider = OSApp.Cards.getDivider( thisCard );
+				label = OSApp.Cards.getGroupLabel( thisCard );
 
 				// Display master separately
-				if ( Card.isMasterStation( thisCard ) ) {
-					if ( !Card.isMasterStation( nextCard ) ) {
+				if ( OSApp.Cards.isMasterStation( thisCard ) ) {
+					if ( !OSApp.Cards.isMasterStation( nextCard ) ) {
 						divider.show();
 					} else {
 						divider.hide();
@@ -5128,14 +5128,14 @@ var showHome = ( function() {
 					continue;
 				}
 
-				if ( Station.getGIDValue( Card.getSID( thisCard ) ) !== Station.getGIDValue( Card.getSID( nextCard ) ) ) {
+				if ( OSApp.Stations.getGIDValue( OSApp.Cards.getSID( thisCard ) ) !== OSApp.Stations.getGIDValue( OSApp.Cards.getSID( nextCard ) ) ) {
 					divider.show();
 				} else {
 					divider.hide();
 				}
 			}
-			Card.getDivider( nextCard ).show(); // Last group divider
-			Card.setGroupLabel( nextCard, Card.getGIDName( nextCard ) );
+			OSApp.Cards.getDivider( nextCard ).show(); // Last group divider
+			OSApp.Cards.setGroupLabel( nextCard, OSApp.Cards.getGIDName( nextCard ) );
 		},
 		updateStandardView = function( cardHolder, cardList ) {
 			var thisCard, nextCard, divider, label, idx;
@@ -5143,25 +5143,25 @@ var showHome = ( function() {
 				thisCard = CardList.getCardByIndex( cardList, idx );
 				nextCard = CardList.getCardByIndex( cardList, idx + 1 );
 
-				divider = Card.getDivider( thisCard );
+				divider = OSApp.Cards.getDivider( thisCard );
 				divider.hide(); // Remove all dividers when switching from group view
 
-				Card.setGroupLabel( thisCard, OSApp.Groups.mapGIDValueToName( Station.getGIDValue( Card.getSID( thisCard ) ) ) );
-				label = Card.getGroupLabel( thisCard );
-				if ( typeof label !== "undefined" && Card.isMasterStation( thisCard ) ) {
+				OSApp.Cards.setGroupLabel( thisCard, OSApp.Groups.mapGIDValueToName( OSApp.Stations.getGIDValue( OSApp.Cards.getSID( thisCard ) ) ) );
+				label = OSApp.Cards.getGroupLabel( thisCard );
+				if ( typeof label !== "undefined" && OSApp.Cards.isMasterStation( thisCard ) ) {
 					label.addClass( "hidden" );
 				}
 
 				//  Display divider between active and non-active stations
-				if ( Station.isRunning( Card.getSID( thisCard ) ) &&
-						!Station.isRunning( Card.getSID( nextCard ) ) ) {
+				if ( OSApp.Stations.isRunning( OSApp.Cards.getSID( thisCard ) ) &&
+						!OSApp.Stations.isRunning( OSApp.Cards.getSID( nextCard ) ) ) {
 							divider.show();
 				}
 			}
-			Card.getDivider( nextCard ).hide();
-			Card.setGroupLabel( nextCard, OSApp.Groups.mapGIDValueToName( Station.getGIDValue( idx ) ) );
-			label = Card.getGroupLabel( nextCard );
-			if ( typeof label !== "undefined" && Card.isMasterStation( nextCard ) ) {
+			OSApp.Cards.getDivider( nextCard ).hide();
+			OSApp.Cards.setGroupLabel( nextCard, OSApp.Groups.mapGIDValueToName( OSApp.Stations.getGIDValue( idx ) ) );
+			label = OSApp.Cards.getGroupLabel( nextCard );
+			if ( typeof label !== "undefined" && OSApp.Cards.isMasterStation( nextCard ) ) {
 				label.addClass( "hidden" );
 			}
 		},
@@ -5173,7 +5173,7 @@ var showHome = ( function() {
 			// Sort stations
 			cardList.sort( compareCards ).detach().appendTo( cardHolder );
 
-			if ( Supported.groups() && OSApp.uiState.groupView ) {
+			if ( OSApp.Supported.groups() && OSApp.uiState.groupView ) {
 				updateGroupView( cardHolder, cardList );
 			} else {
 				updateStandardView( cardHolder, cardList );
@@ -5201,15 +5201,15 @@ var showHome = ( function() {
 			} ).remove();
 
 			for ( var sid = 0; sid < OSApp.currentSession.controller.stations.snames.length; sid++ ) {
-				isScheduled = Station.getPID( sid ) > 0;
-				isRunning = Station.getStatus( sid ) > 0;
-				pname = isScheduled ? pidname( Station.getPID( sid ) ) : "";
-				rem = Station.getRemainingRuntime( sid ),
-				qPause = StationQueue.isPaused(),
+				isScheduled = OSApp.Stations.getPID( sid ) > 0;
+				isRunning = OSApp.Stations.getStatus( sid ) > 0;
+				pname = isScheduled ? pidname( OSApp.Stations.getPID( sid ) ) : "";
+				rem = OSApp.Stations.getRemainingRuntime( sid ),
+				qPause = OSApp.StationQueue.isPaused(),
 				hasImage = sites[ currentSite ].images[ sid ] ? true : false;
 
 				card = CardList.getCardBySID( cardList, sid );
-				divider = Card.getDivider( card );
+				divider = OSApp.Cards.getDivider( card );
 
 				if ( card.length === 0 ) {
 					cards = "";
@@ -5218,7 +5218,7 @@ var showHome = ( function() {
 				} else {
 					card.find( ".ui-body > img" ).attr( "src", ( hasImage ? "data:image/jpeg;base64," + sites[ currentSite ].images[ sid ] : getAppURLPath() + "img/placeholder.png" ) );
 
-					if ( Station.isDisabled( sid ) ) {
+					if ( OSApp.Stations.isDisabled( sid ) ) {
 						if ( !page.hasClass( "show-hidden" ) ) {
 							card.hide();
 						}
@@ -5228,30 +5228,30 @@ var showHome = ( function() {
 					}
 
 					card.find( "#station_" + sid ).text( OSApp.currentSession.controller.stations.snames[ sid ] );
-					card.find( ".special-station" ).removeClass( "hidden" ).addClass( Station.isSpecial( sid ) ? "" : "hidden" );
+					card.find( ".special-station" ).removeClass( "hidden" ).addClass( OSApp.Stations.isSpecial( sid ) ? "" : "hidden" );
 					card.find( ".station-status" ).removeClass( "on off wait" ).addClass( isRunning ? "on" : ( isScheduled ? "wait" : "off" ) );
-					if ( Station.isMaster( sid ) ) {
+					if ( OSApp.Stations.isMaster( sid ) ) {
 						card.find( ".station-settings" ).removeClass( "ui-icon-gear" ).addClass( "ui-icon-master" );
 					} else {
 						card.find( ".station-settings" ).removeClass( "ui-icon-master" ).addClass( "ui-icon-gear" );
 					}
 
 					card.find( ".station-settings" ).data( {
-						um: Supported.master( OSApp.Constants.options.MASTER_STATION_1 ) ? StationAttribute.getMasterOperation( sid, OSApp.Constants.options.MASTER_STATION_1 ) : undefined,
-						um2: Supported.master( OSApp.Constants.options.MASTER_STATION_2 ) ? StationAttribute.getMasterOperation( sid, OSApp.Constants.options.MASTER_STATION_2 ) : undefined,
-						ir: Supported.ignoreRain() ? StationAttribute.getIgnoreRain( sid ) : undefined,
-						sn1: Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_1 ) ? StationAttribute.getIgnoreSensor( sid, OSApp.Constants.options.IGNORE_SENSOR_1 ) : undefined,
-						sn2: Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_2 ) ? StationAttribute.getIgnoreSensor( sid, OSApp.Constants.options.IGNORE_SENSOR_2 ) : undefined,
-						ar: Supported.actRelay() ? StationAttribute.getActRelay( sid ) : undefined,
-						sd: Supported.disabled() ? StationAttribute.getDisabled( sid ) : undefined,
-						us: Supported.sequential() ? StationAttribute.getSequential( sid ) : undefined,
-						hs: Supported.special() ? StationAttribute.getSpecial( sid ) : undefined,
-						gid: Supported.groups() ? Station.getGIDValue( sid ) : undefined
+						um: OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_1 ) ? OSApp.StationAttributes.getMasterOperation( sid, OSApp.Constants.options.MASTER_STATION_1 ) : undefined,
+						um2: OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_2 ) ? OSApp.StationAttributes.getMasterOperation( sid, OSApp.Constants.options.MASTER_STATION_2 ) : undefined,
+						ir: OSApp.Supported.ignoreRain() ? OSApp.StationAttributes.getIgnoreRain( sid ) : undefined,
+						sn1: OSApp.Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_1 ) ? OSApp.StationAttributes.getIgnoreSensor( sid, OSApp.Constants.options.IGNORE_SENSOR_1 ) : undefined,
+						sn2: OSApp.Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_2 ) ? OSApp.StationAttributes.getIgnoreSensor( sid, OSApp.Constants.options.IGNORE_SENSOR_2 ) : undefined,
+						ar: OSApp.Supported.actRelay() ? OSApp.StationAttributes.getActRelay( sid ) : undefined,
+						sd: OSApp.Supported.disabled() ? OSApp.StationAttributes.getDisabled( sid ) : undefined,
+						us: OSApp.Supported.sequential() ? OSApp.StationAttributes.getSequential( sid ) : undefined,
+						hs: OSApp.Supported.special() ? OSApp.StationAttributes.getSpecial( sid ) : undefined,
+						gid: OSApp.Supported.groups() ? OSApp.Stations.getGIDValue( sid ) : undefined
 					} );
 
-					if ( !Station.isMaster( sid ) && ( isScheduled || isRunning ) ) {
+					if ( !OSApp.Stations.isMaster( sid ) && ( isScheduled || isRunning ) ) {
 						line = ( isRunning ? OSApp.Language._( "Running" ) + " " + pname : OSApp.Language._( "Scheduled" ) + " " +
-							( Station.getStartTime( sid ) ? OSApp.Language._( "for" ) + " " + dateToString( new Date( Station.getStartTime( sid ) * 1000 ) ) : pname ) );
+							( OSApp.Stations.getStartTime( sid ) ? OSApp.Language._( "for" ) + " " + dateToString( new Date( OSApp.Stations.getStartTime( sid ) * 1000 ) ) : pname ) );
 						if ( rem > 0 ) {
 
 							// Show the remaining time if it's greater than 0
@@ -5342,13 +5342,13 @@ var showHome = ( function() {
 			}
 
 			var el = $( this ),
-				sid = Card.getSID( el ),
-				stationGID = Card.getGIDValue( el ),
-				currentStatus = Station.getStatus( sid ),
-				name = Station.getName( sid ),
+				sid = OSApp.Cards.getSID( el ),
+				stationGID = OSApp.Cards.getGIDValue( el ),
+				currentStatus = OSApp.Stations.getStatus( sid ),
+				name = OSApp.Stations.getName( sid ),
 				question, dialogOptions = {};
 
-			if ( Station.isMaster( sid ) ) {
+			if ( OSApp.Stations.isMaster( sid ) ) {
 				return false;
 			}
 
@@ -5372,8 +5372,8 @@ var showHome = ( function() {
 							OSApp.Firmware.sendToOS( "/cm?sid=" + sid + "&en=1&t=" + duration + "&pw=", "json" ).done( function() {
 
 								// Update local state until next device refresh occurs
-								Station.setPID( sid, OSApp.Constants.options.MANUAL_STATION_PID );
-								Station.setRemainingRuntime( sid, duration );
+								OSApp.Stations.setPID( sid, OSApp.Constants.options.MANUAL_STATION_PID );
+								OSApp.Stations.setRemainingRuntime( sid, duration );
 
 								refreshStatus();
 								OSApp.Errors.showError( OSApp.Language._( "Station has been queued" ) );
@@ -5388,16 +5388,16 @@ var showHome = ( function() {
 				}
 			}
 
-			areYouSure( question, Station.getName( sid ), function() {
+			areYouSure( question, OSApp.Stations.getName( sid ), function() {
 
 				var shiftStations = OSApp.uiState.popupData.shift === true ? 1 : 0;
 
 				OSApp.Firmware.sendToOS( "/cm?sid=" + sid + "&ssta=" + shiftStations + "&en=0&pw=" ).done( function() {
 
 					// Update local state until next device refresh occurs
-					Station.setPID( sid, 0 );
-					Station.setRemainingRuntime( sid, 0 );
-					Station.setStatus( sid, 0 );
+					OSApp.Stations.setPID( sid, 0 );
+					OSApp.Stations.setRemainingRuntime( sid, 0 );
+					OSApp.Stations.setStatus( sid, 0 );
 
 					// Remove any timer associated with the station
 					delete OSApp.uiState.timers[ "station-" + sid ];
@@ -5772,7 +5772,7 @@ function checkStatus() {
 	// Handle open stations
 	open = {};
 	for ( i = 0; i < OSApp.currentSession.controller.status.length; i++ ) {
-		if ( OSApp.currentSession.controller.status[ i ] && !Station.isMaster( i ) ) {
+		if ( OSApp.currentSession.controller.status[ i ] && !OSApp.Stations.isMaster( i ) ) {
 			open[ i ] = OSApp.currentSession.controller.status[ i ];
 		}
 	}
@@ -5783,7 +5783,7 @@ function checkStatus() {
 
 		for ( i in open ) {
 			if ( open.hasOwnProperty( i ) ) {
-				tmp = Station.getRemainingRuntime( i );
+				tmp = OSApp.Stations.getRemainingRuntime( i );
 				if ( tmp > ptotal ) {
 					ptotal = tmp;
 				}
@@ -5791,7 +5791,7 @@ function checkStatus() {
 		}
 
 		sample = Object.keys( open )[ 0 ];
-		pid    = Station.getPID( sample );
+		pid    = OSApp.Stations.getPID( sample );
 		pname  = pidname( pid );
 		line   = "<div><div class='running-icon'></div><div class='running-text pointer'>";
 
@@ -5807,14 +5807,14 @@ function checkStatus() {
 	// Handle a single station open
 	match = false;
 	for ( i = 0; i < OSApp.currentSession.controller.stations.snames.length; i++ ) {
-		if ( OSApp.currentSession.controller.settings.ps[ i ] && Station.getPID( i ) && Station.getStatus( i ) && !Station.isMaster( i ) ) {
+		if ( OSApp.currentSession.controller.settings.ps[ i ] && OSApp.Stations.getPID( i ) && OSApp.Stations.getStatus( i ) && !OSApp.Stations.isMaster( i ) ) {
 			match = true;
-			pid = Station.getPID( i );
+			pid = OSApp.Stations.getPID( i );
 			pname = pidname( pid );
 			line = "<div><div class='running-icon'></div><div class='running-text pointer'>";
-			line += pname + " " + OSApp.Language._( "is running on station" ) + " <span class='nobr'>" + Station.getName( i ) + "</span> ";
-			if ( Station.getRemainingRuntime( i ) > 0 ) {
-				line += "<span id='countdown' class='nobr'>(" + sec2hms( Station.getRemainingRuntime( i ) ) + " " + OSApp.Language._( "remaining" ) + ")</span>";
+			line += pname + " " + OSApp.Language._( "is running on station" ) + " <span class='nobr'>" + OSApp.Stations.getName( i ) + "</span> ";
+			if ( OSApp.Stations.getRemainingRuntime( i ) > 0 ) {
+				line += "<span id='countdown' class='nobr'>(" + sec2hms( OSApp.Stations.getRemainingRuntime( i ) ) + " " + OSApp.Language._( "remaining" ) + ")</span>";
 			}
 			line += "</div></div>";
 			break;
@@ -5822,7 +5822,7 @@ function checkStatus() {
 	}
 
 	if ( match ) {
-		changeStatus( Station.getRemainingRuntime( i ), "green", line, goHome );
+		changeStatus( OSApp.Stations.getRemainingRuntime( i ), "green", line, goHome );
 		return;
 	}
 
@@ -5890,13 +5890,13 @@ function checkStatus() {
 function calculateTotalRunningTime( runTimes ) {
 	var sdt = OSApp.currentSession.controller.options.sdt,
 		sequential, parallel;
-	if ( Supported.groups() ) {
+	if ( OSApp.Supported.groups() ) {
 		sequential = new Array( OSApp.Constants.options.NUM_SEQ_GROUPS ).fill( 0 );
 		parallel = 0;
 		var sequentialMax = 0;
 		$.each( OSApp.currentSession.controller.stations.snames, function( i ) {
 			var run = runTimes[ i ];
-			var gid = Station.getGIDValue( i );
+			var gid = OSApp.Stations.getGIDValue( i );
 			if ( run > 0 ) {
 				if ( gid !== OSApp.Constants.options.PARALLEL_GID_VALUE ) {
 					sequential[ gid ] += ( run + sdt );
@@ -5918,7 +5918,7 @@ function calculateTotalRunningTime( runTimes ) {
 		$.each( OSApp.currentSession.controller.stations.snames, function( i ) {
 			var run = runTimes[ i ];
 			if ( run > 0 ) {
-				if ( Station.isSequential( i ) ) {
+				if ( OSApp.Stations.isSequential( i ) ) {
 					sequential += ( run + sdt );
 				} else {
 					if ( run > parallel ) {
@@ -6123,12 +6123,12 @@ var getManual = ( function() {
 		page.find( "#mmm" ).prop( "checked", OSApp.currentSession.controller.settings.mm ? true : false );
 
 		$.each( OSApp.currentSession.controller.stations.snames, function( i, station ) {
-			if ( Station.isMaster( i ) ) {
+			if ( OSApp.Stations.isMaster( i ) ) {
 				list += "<li data-icon='false' class='center" + ( ( OSApp.currentSession.controller.status[ i ] ) ? " green" : "" ) +
-					( Station.isDisabled( i ) ? " station-hidden' style='display:none" : "" ) + "'>" + station + " (" + OSApp.Language._( "Master" ) + ")</li>";
+					( OSApp.Stations.isDisabled( i ) ? " station-hidden' style='display:none" : "" ) + "'>" + station + " (" + OSApp.Language._( "Master" ) + ")</li>";
 			} else {
 				list += "<li data-icon='false'><a class='mm_station center" + ( ( OSApp.currentSession.controller.status[ i ] ) ? " green" : "" ) +
-					( Station.isDisabled( i ) ? " station-hidden' style='display:none" : "" ) + "'>" + station + "</a></li>";
+					( OSApp.Stations.isDisabled( i ) ? " station-hidden' style='display:none" : "" ) + "'>" + station + "</a></li>";
 			}
 		} );
 
@@ -6173,7 +6173,7 @@ var getRunonce = ( function() {
 		},
 		fillRunonce = function( data ) {
 			page.find( "[id^='zone-']" ).each( function( a, b ) {
-				if ( Station.isMaster( a ) ) {
+				if ( OSApp.Stations.isMaster( a ) ) {
 					return;
 				}
 
@@ -6228,12 +6228,12 @@ var getRunonce = ( function() {
 		quickPick += "</select>";
 		list += quickPick + "<form>";
 		$.each( OSApp.currentSession.controller.stations.snames, function( i, station ) {
-			if ( Station.isMaster( i ) ) {
-				list += "<div class='ui-field-contain duration-input" + ( Station.isDisabled( i ) ? " station-hidden' style='display:none" : "" ) + "'>" +
+			if ( OSApp.Stations.isMaster( i ) ) {
+				list += "<div class='ui-field-contain duration-input" + ( OSApp.Stations.isDisabled( i ) ? " station-hidden' style='display:none" : "" ) + "'>" +
 					"<label for='zone-" + i + "'>" + station + ":</label>" +
 					"<button disabled='true' data-mini='true' name='zone-" + i + "' id='zone-" + i + "' value='0'>Master</button></div>";
 			} else {
-				list += "<div class='ui-field-contain duration-input" + ( Station.isDisabled( i ) ? " station-hidden' style='display:none" : "" ) + "'>" +
+				list += "<div class='ui-field-contain duration-input" + ( OSApp.Stations.isDisabled( i ) ? " station-hidden' style='display:none" : "" ) + "'>" +
 					"<label for='zone-" + i + "'>" + station + ":</label>" +
 					"<button data-mini='true' name='zone-" + i + "' id='zone-" + i + "' value='0'>0s</button></div>";
 			}
@@ -6358,10 +6358,10 @@ function submitRunonce( runonce ) {
 				goBack();
 			} );
 		},
-		isOn = StationQueue.isActive();
+		isOn = OSApp.StationQueue.isActive();
 
 	if ( isOn !== -1 ) {
-		areYouSure( OSApp.Language._( "Do you want to stop the currently running program?" ), pidname( Station.getPID( isOn ) ), function() {
+		areYouSure( OSApp.Language._( "Do you want to stop the currently running program?" ), pidname( OSApp.Stations.getPID( isOn ) ), function() {
 			$.mobile.loading( "show" );
 			stopStations( submit );
 		} );
@@ -6460,7 +6460,7 @@ var getPreview = ( function() {
 						s = sid % 8;
 
 						// Skip master station
-						if ( Station.isMaster( sid ) ) {
+						if ( OSApp.Stations.isMaster( sid ) ) {
 							continue;
 						}
 
@@ -6740,7 +6740,7 @@ var getPreview = ( function() {
 					useMas1 = OSApp.currentSession.controller.stations.masop[ sid >> 3 ] & ( 1 << ( sid % 8 ) ),
 					useMas2 = mas2 ? OSApp.currentSession.controller.stations.masop2[ sid >> 3 ] & ( 1 << ( sid % 8 ) ) : false;
 
-				if ( !Station.isMaster( sid ) ) {
+				if ( !OSApp.Stations.isMaster( sid ) ) {
 					if ( OSApp.currentSession.controller.options.mas > 0 && useMas1 ) {
 						previewData.push( {
 							"start": ( q.st + OSApp.currentSession.controller.options.mton ),
@@ -6781,7 +6781,7 @@ var getPreview = ( function() {
 						useMas1 = OSApp.currentSession.controller.stations.masop[ sid >> 3 ] & ( 1 << ( sid % 8 ) ),
 						useMas2 = mas2 ? OSApp.currentSession.controller.stations.masop2[ sid >> 3 ] & ( 1 << ( sid % 8 ) ) : false;
 
-					if ( !Station.isMaster( sid ) ) {
+					if ( !OSApp.Stations.isMaster( sid ) ) {
 						if ( OSApp.currentSession.controller.options.mas > 0 && useMas1 ) {
 							previewData.push( {
 								"start": ( startArray[ sid ] + OSApp.currentSession.controller.options.mton ),
@@ -6815,7 +6815,7 @@ var getPreview = ( function() {
 				}
 			  } else {
 				if ( OSApp.currentSession.controller.options.seq === 1 ) {
-					if ( Station.isMaster( sid ) && ( OSApp.currentSession.controller.stations.masop[ sid >> 3 ] & ( 1 << ( sid % 8 ) ) ) ) {
+					if ( OSApp.Stations.isMaster( sid ) && ( OSApp.currentSession.controller.stations.masop[ sid >> 3 ] & ( 1 << ( sid % 8 ) ) ) ) {
 						previewData.push( {
 							"start": ( startArray[ sid ] + OSApp.currentSession.controller.options.mton ),
 							"end": ( endArray[ sid ] + OSApp.currentSession.controller.options.mtof ),
@@ -6830,7 +6830,7 @@ var getPreview = ( function() {
 					endtime = endArray[ sid ];
 				} else {
 					timeToText( sid, simseconds, programArray[ sid ], endArray[ sid ], simt );
-					if ( Station.isMaster( sid ) && ( OSApp.currentSession.controller.stations.masop[ sid >> 3 ] & ( 1 << ( sid % 8 ) ) ) ) {
+					if ( OSApp.Stations.isMaster( sid ) && ( OSApp.currentSession.controller.stations.masop[ sid >> 3 ] & ( 1 << ( sid % 8 ) ) ) ) {
 						endtime = ( endtime > endArray[ sid ] ) ? endtime : endArray[ sid ];
 					}
 				}
@@ -7356,7 +7356,7 @@ var getLogs = ( function() {
 						return;
 					}
 				} else if ( typeof station === "number" ) {
-					if ( station > stations.length - 2 || Station.isMaster( station ) ) {
+					if ( station > stations.length - 2 || OSApp.Stations.isMaster( station ) ) {
 						return;
 					}
 
@@ -8357,7 +8357,7 @@ function makeProgram183( n, isCopy ) {
 
 	for ( j = 0; j < OSApp.currentSession.controller.stations.snames.length; j++ ) {
 		list += "<label for='station_" + j + "-" + id + "'><input " +
-			( Station.isDisabled( j ) ? "data-wrapper-class='station-hidden hidden' " : "" ) +
+			( OSApp.Stations.isDisabled( j ) ? "data-wrapper-class='station-hidden hidden' " : "" ) +
 			"data-mini='true' type='checkbox' " + ( ( ( typeof setStations !== "undefined" ) && setStations[ j ] ) ? "checked='checked'" : "" ) +
 			" name='station_" + j + "-" + id + "' id='station_" + j + "-" + id + "'>" + OSApp.currentSession.controller.stations.snames[ j ] + "</label>";
 	}
@@ -8505,7 +8505,7 @@ function makeProgram21( n, isCopy ) {
 	list += "<label for='uwt-" + id + "'><input data-mini='true' type='checkbox' " +
 		( ( program.weather ) ? "checked='checked'" : "" ) + " name='uwt-" + id + "' id='uwt-" + id + "'>" + OSApp.Language._( "Use Weather Adjustment" ) + "</label>";
 
-	if ( Supported.dateRange() ) {
+	if ( OSApp.Supported.dateRange() ) {
 		var from = OSApp.Dates.getDateRangeStart( id ),
 			to = OSApp.Dates.getDateRangeEnd( id );
 
@@ -8595,14 +8595,14 @@ function makeProgram21( n, isCopy ) {
 
 	// Show station duration inputs
 	for ( j = 0; j < OSApp.currentSession.controller.stations.snames.length; j++ ) {
-		if ( Station.isMaster( j ) ) {
-			list += "<div class='ui-field-contain duration-input" + ( Station.isDisabled( j ) ? " station-hidden" + hideDisabled : "" ) + "'>" +
+		if ( OSApp.Stations.isMaster( j ) ) {
+			list += "<div class='ui-field-contain duration-input" + ( OSApp.Stations.isDisabled( j ) ? " station-hidden" + hideDisabled : "" ) + "'>" +
 				"<label for='station_" + j + "-" + id + "'>" + OSApp.currentSession.controller.stations.snames[ j ] + ":</label>" +
 				"<button disabled='true' data-mini='true' name='station_" + j + "-" + id + "' id='station_" + j + "-" + id + "' value='0'>" +
 				OSApp.Language._( "Master" ) + "</button></div>";
 		} else {
 			time = program.stations[ j ] || 0;
-			list += "<div class='ui-field-contain duration-input" + ( Station.isDisabled( j ) ? " station-hidden" + hideDisabled : "" ) + "'>" +
+			list += "<div class='ui-field-contain duration-input" + ( OSApp.Stations.isDisabled( j ) ? " station-hidden" + hideDisabled : "" ) + "'>" +
 				"<label for='station_" + j + "-" + id + "'>" + OSApp.currentSession.controller.stations.snames[ j ] + ":</label>" +
 				"<button " + ( time > 0 ? "class='green' " : "" ) + "data-mini='true' name='station_" + j + "-" + id + "' " +
 					"id='station_" + j + "-" + id + "' value='" + time + "'>" + getDurationText( time ) + "</button></div>";
@@ -8672,7 +8672,7 @@ function makeProgram21( n, isCopy ) {
 	} );
 
 	// Display date range options when checkbox enabled
-	if ( Supported.dateRange() ) {
+	if ( OSApp.Supported.dateRange() ) {
 		page.find( "#use-dr-" + id ).on( "click", function() {
 			page.find( "#date-range-options-" + id ).toggle();
 		} );
@@ -9005,7 +9005,7 @@ function submitProgram21( id, ignoreWarning ) {
 	daterange = "";
 
 	// Set date range parameters
-	if ( Supported.dateRange() ) {
+	if ( OSApp.Supported.dateRange() ) {
 		var enableDateRange = $( "#use-dr-" + id ).is( ":checked" ),
 			from = $( "#from-dr-" + id ).val(),
 			to = $( "#to-dr-" + id ).val();
@@ -9766,7 +9766,7 @@ function areYouSure( text1, text2, success, fail, options ) {
 	var showShiftDialog = 0;
 	if ( typeof options === "object" ) {
 		showShiftDialog = ( options.type === OSApp.Constants.dialog.REMOVE_STATION ) &&
-			Groups.canShift( options.gid ) && Station.isSequential( options.station );
+			OSApp.Groups.canShift( options.gid ) && OSApp.Stations.isSequential( options.station );
 	}
 
 	var popup = $(
@@ -11187,269 +11187,6 @@ function transformKeysinString( co ) {
 	return co;
 }
 
-/* Compatibility methods, verify that necessary data is
- * sent from the controller to the UI without explicitly
- * checking for OS version. */
-
-function Supported() {}
-
-Supported.master = function( masid ) {
-	switch ( masid ) {
-		case OSApp.Constants.options.MASTER_STATION_1:
-			return OSApp.currentSession.controller.options.mas ? true : false;
-		case OSApp.Constants.options.MASTER_STATION_2:
-			return OSApp.currentSession.controller.options.mas2 ? true : false;
-		default:
-			return false;
-	}
-};
-
-Supported.ignoreRain = function() {
-	return ( typeof OSApp.currentSession.controller.stations.ignore_rain === "object" ) ? true : false;
-};
-
-Supported.ignoreSensor = function( sensorID ) {
-	switch ( sensorID ) {
-		case OSApp.Constants.options.IGNORE_SENSOR_1:
-			return ( typeof OSApp.currentSession.controller.stations.ignore_sn1 === "object" ) ? true : false;
-		case OSApp.Constants.options.IGNORE_SENSOR_2:
-			return ( typeof OSApp.currentSession.controller.stations.ignore_sn2 === "object" ) ? true : false;
-		default:
-			return false;
-	}
-};
-
-Supported.actRelay = function() {
-	return ( typeof OSApp.currentSession.controller.stations.act_relay === "object" ) ? true : false;
-};
-
-Supported.disabled = function() {
-	return ( typeof OSApp.currentSession.controller.stations.stn_dis === "object" ) ? true : false;
-};
-
-Supported.sequential = function() {
-	if ( OSApp.Firmware.checkOSVersion( 220 ) ) {
-		return false;
-	}
-	return ( typeof OSApp.currentSession.controller.stations.stn_seq === "object" ) ? true : false;
-};
-
-Supported.special = function() {
-	return ( typeof OSApp.currentSession.controller.stations.stn_spe === "object" ) ? true : false;
-};
-
-Supported.pausing = function() {
-	return OSApp.currentSession.controller.settings.pq !== undefined;
-};
-
-Supported.groups = function() {
-	return getNumberProgramStatusOptions() >= 4;
-};
-
-Supported.dateRange = function() {
-	return OSApp.Firmware.checkOSVersion( 220 );
-};
-
-/* Station accessor methods */
-
-function Station() {}
-
-var ProgramStatusOptions = {
-	PID: 0,
-	REM: 1,
-	START: 2,
-	GID: 3
-};
-
-function getNumberProgramStatusOptions() {
-	if ( OSApp.currentSession.controller.settings.ps.length <= 0 ) {
-		return undefined;
-	}
-	return OSApp.currentSession.controller.settings.ps[ 0 ].length;
-}
-
-Station.getName = function( sid ) {
-	return OSApp.currentSession.controller.stations.snames[ sid ];
-};
-
-Station.setName = function( sid, value ) {
-	OSApp.currentSession.controller.settings.snames[ sid ] = value;
-};
-
-Station.getPID = function( sid ) {
-	return OSApp.currentSession.controller.settings.ps[ sid ][ ProgramStatusOptions.PID ];
-};
-
-Station.setPID = function( sid, value ) {
-	OSApp.currentSession.controller.settings.ps[ sid ][ ProgramStatusOptions.PID ] = value;
-};
-
-Station.getRemainingRuntime = function( sid ) {
-	return OSApp.currentSession.controller.settings.ps[ sid ][ ProgramStatusOptions.REM ];
-};
-
-Station.setRemainingRuntime = function( sid, value ) {
-	OSApp.currentSession.controller.settings.ps[ sid ][ ProgramStatusOptions.REM ] = value;
-};
-
-Station.getStartTime = function( sid ) {
-	return OSApp.currentSession.controller.settings.ps[ sid ][ ProgramStatusOptions.START ];
-};
-
-Station.setStartTime = function( sid, value ) {
-	OSApp.currentSession.controller.settings.ps[ sid ][ ProgramStatusOptions.START ] = value;
-};
-
-Station.getGIDValue = function( sid ) {
-	if ( !Supported.groups() ) {
-		return undefined;
-	}
-	return OSApp.currentSession.controller.settings.ps[ sid ][ ProgramStatusOptions.GID ];
-};
-
-Station.setGIDValue = function( sid, value ) {
-	if ( !Supported.groups() ) {
-		return;
-	}
-	OSApp.currentSession.controller.settings.ps[ sid ][ ProgramStatusOptions.GID ] = value;
-};
-
-Station.getStatus = function( sid ) {
-	return OSApp.currentSession.controller.status[ sid ];
-};
-
-Station.setStatus = function( sid, value ) {
-	OSApp.currentSession.controller.status[ sid ] = value;
-};
-
-Station.isRunning = function( sid ) {
-	return Station.getStatus( sid ) > 0;
-};
-
-Station.isMaster = function( sid ) {
-	var m1 = typeof OSApp.currentSession.controller.options.mas === "number" ? OSApp.currentSession.controller.options.mas : 0,
-		m2 = typeof OSApp.currentSession.controller.options.mas2 === "number" ? OSApp.currentSession.controller.options.mas2 : 0;
-
-	sid++;
-
-	if ( m1 === sid ) {
-		return 1;
-	} else if ( m2 === sid ) {
-		return 2;
-	} else {
-		return 0;
-	}
-};
-
-Station.isSequential = function( sid ) {
-	return StationAttribute.getSequential( sid ) > 0;
-};
-
-Station.isSpecial = function( sid ) {
-	return StationAttribute.getSpecial( sid ) > 0;
-};
-
-Station.isDisabled = function( sid )  {
-	return StationAttribute.getDisabled( sid ) > 0;
-};
-
-function StationAttribute() {}
-
-// Determines if a station is bound to the master (masid)
-StationAttribute.getMasterOperation = function( sid, masid ) {
-	var bid = ( sid / 8 ) >> 0,
-		sourceMasterAttribute;
-
-	if ( !Supported.master( masid ) ) { return 0; }
-
-	switch ( masid ) {
-		case OSApp.Constants.options.MASTER_STATION_1:
-			sourceMasterAttribute = OSApp.currentSession.controller.stations.masop;
-			break;
-		case OSApp.Constants.options.MASTER_STATION_2:
-			sourceMasterAttribute = OSApp.currentSession.controller.stations.masop2;
-			break;
-		default:
-			return 0;
-	}
-
-	var boardMasterAttribute = sourceMasterAttribute[ bid ],
-		boardStationID = 1 << ( sid % 8 );
-
-	return ( boardMasterAttribute & boardStationID ) ? 1 : 0;
-};
-
-StationAttribute.getIgnoreRain = function( sid ) {
-	if ( !Supported.ignoreRain() ) { return 0; }
-	var bid = ( sid / 8 ) >> 0,
-		boardIgnoreRainAttribute = OSApp.currentSession.controller.stations.ignore_rain[ bid ],
-		boardStationID = 1 << ( sid % 8 );
-
-	return ( boardIgnoreRainAttribute & boardStationID ) ? 1 : 0;
-};
-
-StationAttribute.getIgnoreSensor = function( sid, sensorID ) {
-	var bid = ( sid / 8 ) >> 0,
-		sourceIgnoreSensorAttribute;
-
-	if ( !Supported.ignoreSensor( sensorID ) ) { return 0; }
-
-	switch ( sensorID ) {
-		case OSApp.Constants.options.IGNORE_SENSOR_1:
-			sourceIgnoreSensorAttribute = OSApp.currentSession.controller.stations.ignore_sn1;
-			break;
-		case OSApp.Constants.options.IGNORE_SENSOR_2:
-			sourceIgnoreSensorAttribute = OSApp.currentSession.controller.stations.ignore_sn2;
-			break;
-		default:
-			return 0;
-	}
-
-	var boardIgnoreSensorAttribute = sourceIgnoreSensorAttribute[ bid ],
-		boardStationID = 1 << ( sid % 8 );
-
-	return ( boardIgnoreSensorAttribute & boardStationID ) ? 1 : 0;
-};
-
-StationAttribute.getActRelay = function( sid ) {
-	if ( !Supported.actRelay() ) { return 0; }
-	var bid = ( sid / 8 ) >> 0,
-		boardActRelayAttribute = OSApp.currentSession.controller.stations.act_relay[ bid ],
-		boardStationID = 1 << ( sid % 8 );
-
-	return ( boardActRelayAttribute & boardStationID ) ? 1 : 0;
-};
-
-StationAttribute.getDisabled = function( sid ) {
-	if ( !Supported.disabled() ) { return 0; }
-	var bid = ( sid / 8 ) >> 0,
-		boardDisabledAttribute = OSApp.currentSession.controller.stations.stn_dis[ bid ],
-		boardStationID = 1 << ( sid % 8 );
-
-	return ( boardDisabledAttribute & boardStationID ) ? 1 : 0;
-};
-
-StationAttribute.getSequential = function( sid ) {
-	if ( Supported.groups() ) {
-		return Station.getGIDValue !== OSApp.Constants.options.PARALLEL_GID_VALUE ? 1 : 0;
-	}
-	if ( !Supported.sequential() ) { return 0; }
-	var bid = ( sid / 8 ) >> 0,
-		boardSequentialAttribute = OSApp.currentSession.controller.stations.stn_seq[ bid ],
-		boardStationID = 1 << ( sid % 8 );
-
-	return ( boardSequentialAttribute & boardStationID ) ? 1 : 0;
-};
-
-StationAttribute.getSpecial = function( sid ) {
-	if ( !Supported.special() ) { return 0; }
-	var bid = ( sid / 8 ) >> 0,
-		boardSpecialAttribute = OSApp.currentSession.controller.stations.stn_spe[ bid ],
-		boardStationID = 1 << ( sid % 8 );
-
-	return ( boardSpecialAttribute & boardStationID ) ? 1 : 0;
-};
-
 /* Card helpers: must pass in jquery object $(obj) */
 
 function CardList() {}
@@ -11465,86 +11202,4 @@ CardList.getCardBySID = function( cardList, sid ) {
 // Based on order of cardList content
 CardList.getCardByIndex = function( cardList, idx ) {
 	return $( cardList[ idx ] );
-};
-
-function Card() {}
-
-Card.getSID = function( cardObj ) {
-	return cardObj.data( "station" );
-};
-
-Card.getDivider = function( cardObj ) {
-	return cardObj.find( ".content-divider" );
-};
-
-Card.getGroupLabel = function( cardObj ) {
-	if ( !Supported.groups() ) {
-		return undefined;
-	}
-	return cardObj.find( ".station-gid" );
-};
-
-Card.setGroupLabel = function( cardObj, value ) {
-	if ( !Supported.groups() ) { return; }
-	var groupLabel = Card.getGroupLabel( cardObj );
-	groupLabel.removeClass( "hidden" );
-	groupLabel.text( value );
-};
-
-Card.getGIDValue = function( cardObj ) {
-	if ( !Supported.groups() ) { return 0; }
-	var cardButtons = $( cardObj.children()[ 0 ] ).children().filter( "span" ),
-		cardAttributes = $( cardButtons[ cardButtons.length - 1 ] );
-	return parseInt( cardAttributes.attr( "data-gid" ) );
-};
-
-Card.getGIDName = function( cardObj ) {
-
-	//Return OSApp.Groups.mapGIDValueToName( Card.getGIDValue( cardObj ) );
-	return OSApp.Groups.mapGIDValueToName( Station.getGIDValue( Card.getSID( cardObj ) ) );
-};
-
-Card.isMasterStation = function( cardObj ) {
-	return Station.isMaster( Card.getSID( cardObj ) );
-};
-
-function Groups() {}
-
-// Determines the number of station that are on or scheduled (active)
-Groups.numActiveStations = function( gid ) {
-	var activeCards = $( ".station-status.on, .station-status.wait" ).parents( ".card" );
-	var numMatchingCards = 0;
-
-	$.each( activeCards, function( index ) {
-		var activeCard = $( activeCards[ index ] );
-		if ( Card.getGIDValue( activeCard ) === gid && !Card.isMasterStation( activeCard ) ) {
-			numMatchingCards++;
-		}
-	} );
-
-	return numMatchingCards;
-};
-
-// If more than 1 stations (includes the one to be turned off) are active
-Groups.canShift = function( gid ) {
-	return Groups.numActiveStations( gid ) > 1;
-};
-
-function StationQueue() {}
-
-StationQueue.isActive = function() {
-	for ( var i = 0; i < OSApp.currentSession.controller.status.length; i++ ) {
-		if ( Station.getStatus( i ) > 0 && Station.getPID( i ) > 0 ) {
-			return i;
-		}
-	}
-	return -1;
-};
-
-StationQueue.isPaused = function() {
-	return OSApp.currentSession.controller.settings.pq;
-};
-
-StationQueue.size = function() {
-	return OSApp.currentSession.controller.settings.nq;
 };
