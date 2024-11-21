@@ -20,79 +20,16 @@
 var OSApp = OSApp || {};
 
 // TODO: refactor away all direct usage of localstorage in favor of OSApp.Storage
-// TODO: refactor OSApp.currentDevice.isXXXX values to OSApp.Config.isXXX
-// TODO: refactor OSApp.Constants.regex out to separate modules/regex.js file
-// TODO: refactor OSApp.retryCount elsewhere
-// TODO: refactor OSApp.controller elsewhere
-// TODO: refactor analog.js into a true modules & all references
-// TODO: refactor OSApp.switching elsewhere
-// TODO: refactor OSApp.currentCoordinates elsewhere
-// TODO: refactor OSApp.pageHistoryCount elsewhere
-// TODO: refactor OSApp.goingBack elsewhere
-// TODO: refactor OSApp.popupData elsewhere
-// TODO: refactor ui state elsewhere!
-// TODO: refactor Misc settings elsewhere!
-// TODO: refactor OSApp.weather to elsewhere (OSApp.Current.weather?)
+// TODO: refactor analog.js into a true modules & update all references
+// TODO: refactor all weather related functions out to modules/weather.js
 
-// Current session/site settings
-OSApp.currentSession = {
-	auth: undefined,
-	authPass: undefined,
-	authUser: undefined,
-	fw183: undefined,
-	ip: undefined,
-	lang: undefined,
-	local: undefined,
-	pass: undefined,
-	prefix: undefined,
-	token: undefined
-};
-
-// Current device capabilities
-OSApp.currentDevice = {
-	isAndroid: /Android|\bSilk\b/.test( navigator.userAgent ),
-	isiOS: /iP(ad|hone|od)/.test( navigator.userAgent ),
-	isFireFox: /Firefox/.test( navigator.userAgent ),
-	isOSXApp: window.cordova && window.cordova.platformId === "ios" && navigator.platform === "MacIntel",
-	isTouchCapable: "ontouchstart" in window || "onmsgesturechange" in window,
-	isMetric: ( [ "US", "BM", "PW" ].indexOf( navigator.languages[ 0 ].split( "-" )[ 1 ] ) === -1 )
-};
-OSApp.currentDevice.isFileCapable = !OSApp.currentDevice.isiOS && !OSApp.currentDevice.isAndroid && !OSApp.currentDevice.isOSXApp && window.FileReader;
-
-// App theme settings
-OSApp.theme = { // Define the status bar color(s) and use a darker color for Android
-	statusBarPrimary: OSApp.currentDevice.isAndroid ? "#121212" : "#1D1D1D",
-	statusBarOverlay: OSApp.currentDevice.isAndroid ? "#151515" : "#202020"
-};
-
-// Define the amount of times the app will retry an HTTP request before marking it failed
-OSApp.retryCount = 2;
-
-OSApp.controller = {}; // Initialize controller object which will store JSON data
-OSApp.weather = undefined; // Initialize weather object (current observations and forecast data)
-OSApp.groupView = false;
-OSApp.switching = false;
-OSApp.currentCoordinates = [ 0, 0 ];
-OSApp.pageHistoryCount = -1; // Initialize variables to keep track of current page count
-OSApp.goingBack = false;
-OSApp.popupData = {
-	"shift": undefined
-};
-
-// UI State
-OSApp.notifications = []; // Array to hold all notifications currently displayed within the app
-OSApp.timers = {};
-
-// Misc settings
-OSApp.language = undefined;
-OSApp.deviceip = undefined;
-OSApp.errorTimeout = undefined;
-OSApp.openPanel = undefined;
-
-// Constants
+// App Constants
 OSApp.Constants = {
 	dialog: { // Dialog constants
 		REMOVE_STATION: 1
+	},
+	http: {
+		RETRY_COUNT: 2, // Define the amount of times the app will retry an HTTP request before marking it failed
 	},
 	keyIndex: { // Define the mapping between options and JSON keys
 		"tz":1, "ntp":2, "dhcp":3, "ip1":4, "ip2":5, "ip3":6, "ip4":7, "gw1":8, "gw2":9, "gw3":10, "gw4":11,
@@ -115,8 +52,61 @@ OSApp.Constants = {
 		PARALLEL_GROUP_NAME: "P",
 	},
 	regex: { // Define general regex patterns
-		gps: /^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/
+		GPS: /^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/
+	},
+	weather: {
+		DEFAULT_WEATHER_SERVER_URL: "https://weather.opensprinkler.com"
 	}
+};
+
+// Current device capabilities
+OSApp.currentDevice = {
+	deviceIp: undefined,
+	isAndroid: /Android|\bSilk\b/.test( navigator.userAgent ),
+	isiOS: /iP(ad|hone|od)/.test( navigator.userAgent ),
+	isFireFox: /Firefox/.test( navigator.userAgent ),
+	isOSXApp: window.cordova && window.cordova.platformId === "ios" && navigator.platform === "MacIntel",
+	isTouchCapable: "ontouchstart" in window || "onmsgesturechange" in window,
+	isMetric: ( [ "US", "BM", "PW" ].indexOf( navigator.languages[ 0 ].split( "-" )[ 1 ] ) === -1 )
+};
+OSApp.currentDevice.isFileCapable = !OSApp.currentDevice.isiOS && !OSApp.currentDevice.isAndroid && !OSApp.currentDevice.isOSXApp && window.FileReader;
+
+// UI state
+OSApp.uiState = {
+	errorTimeout: undefined,
+	goingBack: false,
+	groupView: false,
+	language: undefined,
+	notifications: [], // Array to hold all notifications currently displayed within the app
+	openPanel: undefined,
+	pageHistoryCount: -1, // Initialize variables to keep track of current page count
+	popupData: {
+		"shift": undefined
+	},
+	switching: false,
+	theme: { // Define the status bar color(s) and use a darker color for Android
+		statusBarPrimary: OSApp.currentDevice.isAndroid ? "#121212" : "#1D1D1D",
+		statusBarOverlay: OSApp.currentDevice.isAndroid ? "#151515" : "#202020"
+	},
+	timers: {},
+};
+
+// Current session/site settings
+OSApp.currentSession = {
+	auth: undefined,
+	authPass: undefined,
+	authUser: undefined,
+	controller: {},
+	coordinates: [ 0, 0 ],
+	fw183: undefined,
+	ip: undefined,
+	lang: undefined,
+	local: undefined,
+	pass: undefined,
+	prefix: undefined,
+	token: undefined,
+	weather: undefined, // Current weather observations and future forecast data
+	weatherServerUrl: OSApp.Constants.weather.DEFAULT_WEATHER_SERVER_URL
 };
 
 if ( "serviceWorker" in navigator ) {
@@ -141,7 +131,7 @@ $( document )
 		//Change the status bar to match the headers
 		StatusBar.overlaysWebView( false );
 		StatusBar.styleLightContent();
-		StatusBar.backgroundColorByHexString( OSApp.theme.statusBarPrimary );
+		StatusBar.backgroundColorByHexString( OSApp.uiState.theme.statusBarPrimary );
 
 		$.mobile.window.on( "statusTap", function() {
 			$( "body, html" ).animate( {
@@ -318,10 +308,10 @@ $( document )
 	var newpage = "#" + e.target.id,
 		$newpage = $( newpage );
 
-	if ( OSApp.goingBack ) {
-		OSApp.goingBack = false;
+	if ( OSApp.uiState.goingBack ) {
+		OSApp.uiState.goingBack = false;
 	} else {
-		OSApp.pageHistoryCount++;
+		OSApp.uiState.pageHistoryCount++;
 	}
 
 	// Fix issues between jQuery Mobile and FastClick
@@ -348,7 +338,7 @@ $( document )
 	// When a popup opens that has an overlay, update the status bar background color to match
 	if ( $( ".ui-overlay-b:not(.ui-screen-hidden)" ).length ) {
 		try {
-			StatusBar.backgroundColorByHexString( OSApp.theme.statusBarOverlay );
+			StatusBar.backgroundColorByHexString( OSApp.uiState.theme.statusBarOverlay );
 		} catch ( err ) {}
 	}
 } )
@@ -358,7 +348,7 @@ $( document )
 
 	// When a popup is closed, change the header back to the default color
 	try {
-		StatusBar.backgroundColorByHexString( OSApp.theme.statusBarPrimary );
+		StatusBar.backgroundColorByHexString( OSApp.uiState.theme.statusBarPrimary );
 	} catch ( err ) {}
 } )
 .on( "popupbeforeposition", function() {
@@ -418,7 +408,7 @@ function initApp() {
 		var button = $( this );
 		window.open( this.href, target, "location=" + ( OSApp.currentDevice.isAndroid ? "yes" : "no" ) +
 			",enableViewportScale=" + ( button.hasClass( "iabNoScale" ) ? "no" : "yes" ) +
-			",toolbar=yes,toolbarposition=top,toolbarcolor=" + OSApp.theme.statusBarPrimary +
+			",toolbar=yes,toolbarposition=top,toolbarcolor=" + OSApp.uiState.theme.statusBarPrimary +
 			",closebuttoncaption=" +
 				( button.hasClass( "iabNoScale" ) ? _( "Back" ) : _( "Done" ) )
 		);
@@ -457,7 +447,7 @@ function initApp() {
 
 		if ( e.target.tagName !== "INPUT" && e.target.tagName !== "TEXTAREA" && page.jqmData( "panel" ) !== "open" && !page.find( ".ui-popup-active" ).length ) {
 			if ( e.type === "swiperight" ) {
-				 OSApp.openPanel();
+				 OSApp.uiState.openPanel();
 			} else {
 				showNotifications();
 			}
@@ -565,7 +555,7 @@ function getDatatablesConfig( options ) {
 
 // Handle main switches for manual mode
 function flipSwitched() {
-	if ( OSApp.switching ) {
+	if ( OSApp.uiState.switching ) {
 		return;
 	}
 
@@ -590,9 +580,9 @@ function flipSwitched() {
 		checkStatus();
 	},
 	function() {
-		OSApp.switching = true;
+		OSApp.uiState.switching = true;
 		setTimeout( function() {
-			OSApp.switching = false;
+			OSApp.uiState.switching = false;
 		}, 200 );
 		flip.prop( "checked", !changedTo ).flipswitch( "refresh" );
 	} );
@@ -618,7 +608,7 @@ function sendToOS( dest, type ) {
 			data: usePOST ? getUrlVars( dest ) : null,
 			dataType: type,
 			shouldRetry: function( xhr, current ) {
-				if ( xhr.status === 0 && xhr.statusText === "abort" || OSApp.retryCount < current ) {
+				if ( xhr.status === 0 && xhr.statusText === "abort" || OSApp.Constants.http.RETRY_COUNT < current ) {
 					$.ajaxq.abort( queue );
 					return false;
 				}
@@ -753,15 +743,15 @@ function newLoad() {
 	} );
 
 	//Empty object which will store device data
-	OSApp.controller = {};
+	OSApp.currentSession.controller = {};
 
 	//Empty notifications
 	clearNotifications();
 
 	//Empty timers object
-	OSApp.timers = {};
+	OSApp.uiState.timers = {};
 
-	//Clear the current queued AJAX requests (used for previous OSApp.controller connection)
+	//Clear the current queued AJAX requests (used for previous OSApp.currentSession.controller connection)
 	$.ajaxq.abort( "default" );
 
 	updateController(
@@ -805,13 +795,13 @@ function newLoad() {
 			detectUnusedExpansionBoards();
 
 			// Check if password is plain text (older method) and hash the password, if needed
-			if ( checkOSVersion( 213 ) && OSApp.controller.options.hwv !== 255 ) {
+			if ( checkOSVersion( 213 ) && OSApp.currentSession.controller.options.hwv !== 255 ) {
 				fixPasswordHash( name );
 			}
 
 			// Check if the OpenSprinkler can be accessed from the public IP
-			if ( !OSApp.currentSession.local && typeof OSApp.controller.settings.eip === "number" ) {
-				checkPublicAccess( OSApp.controller.settings.eip );
+			if ( !OSApp.currentSession.local && typeof OSApp.currentSession.controller.settings.eip === "number" ) {
+				checkPublicAccess( OSApp.currentSession.controller.settings.eip );
 			}
 
 			// Check if a cloud token is available and if so show logout button otherwise show login
@@ -823,7 +813,7 @@ function newLoad() {
 				showUnifiedFirmwareNotification();
 			}
 
-			if ( OSApp.controller.options.firstRun ) {
+			if ( OSApp.currentSession.controller.options.firstRun ) {
 				showGuidedSetup();
 			} else {
 				goHome( true );
@@ -831,7 +821,7 @@ function newLoad() {
 		},
 		function( error ) {
 			$.ajaxq.abort( "default" );
-			OSApp.controller = {};
+			OSApp.currentSession.controller = {};
 
 			$.mobile.loading( "hide" );
 
@@ -891,15 +881,15 @@ function updateController( callback, fail ) {
 			}
 
 			// The /ja call does not contain special station data, so let's cache it
-			var special = OSApp.controller.special;
+			var special = OSApp.currentSession.controller.special;
 
-			OSApp.controller = data;
+			OSApp.currentSession.controller = data;
 
 			// Restore the station cache to the object
-			OSApp.controller.special = special;
+			OSApp.currentSession.controller.special = special;
 
 			// Fix the station status array
-			OSApp.controller.status = OSApp.controller.status.sn;
+			OSApp.currentSession.controller.status = OSApp.currentSession.controller.status.sn;
 
 			finish();
 		}, fail );
@@ -944,12 +934,12 @@ function updateControllerPrograms( callback ) {
 				}
 			}
 
-			OSApp.controller.programs = newdata;
+			OSApp.currentSession.controller.programs = newdata;
 			callback();
 		} );
 	} else {
 		return sendToOS( "/jp?pw=", "json" ).done( function( programs ) {
-			OSApp.controller.programs = programs;
+			OSApp.currentSession.controller.programs = programs;
 			callback();
 		} );
 	}
@@ -974,7 +964,7 @@ function updateControllerStations( callback ) {
 
 			masop = parseIntArray( masop[ 1 ].split( "," ) );
 
-			OSApp.controller.stations = {
+			OSApp.currentSession.controller.stations = {
 				"snames": names,
 				"masop": masop,
 				"maxlen": names.length
@@ -983,7 +973,7 @@ function updateControllerStations( callback ) {
 		} );
 	} else {
 		return sendToOS( "/jn?pw=", "json" ).done( function( stations ) {
-			OSApp.controller.stations = stations;
+			OSApp.currentSession.controller.stations = stations;
 			callback();
 		} );
 	}
@@ -1022,12 +1012,12 @@ function updateControllerOptions( callback ) {
 				}
 				vars.fwv = 183;
 			}
-			OSApp.controller.options = vars;
+			OSApp.currentSession.controller.options = vars;
 			callback();
 		} );
 	} else {
 		return sendToOS( "/jo?pw=", "json" ).done( function( options ) {
-			OSApp.controller.options = options;
+			OSApp.currentSession.controller.options = options;
 			callback();
 		} );
 	}
@@ -1045,20 +1035,20 @@ function updateControllerStatus( callback ) {
 
 				tmp = parseIntArray( tmp[ 0 ].split( "" ) );
 
-				OSApp.controller.status = tmp;
+				OSApp.currentSession.controller.status = tmp;
 				callback();
 			},
 			function() {
-				OSApp.controller.status = [];
+				OSApp.currentSession.controller.status = [];
 			} );
 	} else {
 		return sendToOS( "/js?pw=", "json" ).then(
 			function( status ) {
-				OSApp.controller.status = status.sn;
+				OSApp.currentSession.controller.status = status.sn;
 				callback();
 			},
 			function() {
-				OSApp.controller.status = [];
+				OSApp.currentSession.controller.status = [];
 			} );
 	}
 }
@@ -1090,15 +1080,15 @@ function updateControllerSettings( callback ) {
 				vars.ps = ps;
 				vars.lrun = parseIntArray( lrun[ 1 ].split( "," ) );
 
-				OSApp.controller.settings = vars;
+				OSApp.currentSession.controller.settings = vars;
 			},
 			function() {
-				if ( OSApp.controller.settings && OSApp.controller.stations ) {
+				if ( OSApp.currentSession.controller.settings && OSApp.currentSession.controller.stations ) {
 					var ps = [], i;
-					for ( i = 0; i < OSApp.controller.stations.maxlen; i++ ) {
+					for ( i = 0; i < OSApp.currentSession.controller.stations.maxlen; i++ ) {
 						ps.push( [ 0, 0 ] );
 					}
-					OSApp.controller.settings.ps = ps;
+					OSApp.currentSession.controller.settings.ps = ps;
 				}
 			} );
 	} else {
@@ -1125,21 +1115,21 @@ function updateControllerSettings( callback ) {
 				}
 
 				// Update the current coordinates if the user's location is using them
-				if ( settings.loc.match( OSApp.Constants.regex.gps ) ) {
+				if ( settings.loc.match( OSApp.Constants.regex.GPS ) ) {
 					var location = settings.loc.split( "," );
-					OSApp.currentCoordinates = [ parseFloat( location[ 0 ] ), parseFloat( location[ 1 ] ) ];
+					OSApp.currentSession.coordinates = [ parseFloat( location[ 0 ] ), parseFloat( location[ 1 ] ) ];
 				}
 
-				OSApp.controller.settings = settings;
+				OSApp.currentSession.controller.settings = settings;
 				callback();
 			},
 			function() {
-				if ( OSApp.controller.settings && OSApp.controller.stations ) {
+				if ( OSApp.currentSession.controller.settings && OSApp.currentSession.controller.stations ) {
 					var ps = [], i;
-					for ( i = 0; i < OSApp.controller.stations.maxlen; i++ ) {
+					for ( i = 0; i < OSApp.currentSession.controller.stations.maxlen; i++ ) {
 						ps.push( [ 0, 0 ] );
 					}
-					OSApp.controller.settings.ps = ps;
+					OSApp.currentSession.controller.settings.ps = ps;
 				}
 			} );
 	}
@@ -1150,11 +1140,11 @@ function updateControllerStationSpecial( callback ) {
 
 	return sendToOS( "/je?pw=", "json" ).then(
 		function( special ) {
-			OSApp.controller.special = special;
+			OSApp.currentSession.controller.special = special;
 			callback();
 		},
 		function() {
-			OSApp.controller.special = {};
+			OSApp.currentSession.controller.special = {};
 		} );
 }
 
@@ -1925,7 +1915,7 @@ var showSites = ( function() {
 				icon: "plus",
 				text: _( "Add" ),
 				on: function() {
-					if ( typeof OSApp.deviceip === "undefined" ) {
+					if ( typeof OSApp.currentDevice.deviceIp === "undefined" ) {
 						showAddNew();
 					} else {
 						popup.popup( "open" ).popup( "reposition", {
@@ -2039,7 +2029,7 @@ function findLocalSiteName( sites, callback ) {
 // Automatic device detection functions
 function updateDeviceIP( finishCheck ) {
 	var finish = function( result ) {
-		OSApp.deviceip = result;
+		OSApp.currentDevice.deviceIp = result;
 
 		if ( typeof finishCheck === "function" ) {
 			finishCheck( result );
@@ -2078,7 +2068,7 @@ function startScan( port, type ) {
 		3 - OpenSprinkler Pi (Python) using 1.8.3
 	*/
 
-	var ip = OSApp.deviceip.split( "." ),
+	var ip = OSApp.currentDevice.deviceIp.split( "." ),
 		scanprogress = 1,
 		devicesfound = 0,
 		newlist = "",
@@ -2661,12 +2651,12 @@ function showMonthlyAdjustmentOptions( button, callback ) {
 
 // Validates a Weather Underground location to verify it contains the data needed for Weather Adjustments
 function validateWULocation( location, callback ) {
-	if ( !OSApp.controller.settings.wto || typeof OSApp.controller.settings.wto.key !== "string" || OSApp.controller.settings.wto.key === "" ) {
+	if ( !OSApp.currentSession.controller.settings.wto || typeof OSApp.currentSession.controller.settings.wto.key !== "string" || OSApp.currentSession.controller.settings.wto.key === "" ) {
 		callback( false );
 	}
 
 	$.ajax( {
-		url: "https://api.weather.com/v2/pws/observations/hourly/7day?stationId=" + location + "&format=json&units=e&apiKey=" + OSApp.controller.settings.wto.key,
+		url: "https://api.weather.com/v2/pws/observations/hourly/7day?stationId=" + location + "&format=json&units=e&apiKey=" + OSApp.currentSession.controller.settings.wto.key,
 		cache: true
 	} ).done( function( data ) {
 		if ( !data || data.errors ) {
@@ -2755,7 +2745,7 @@ function showEToAdjustmentOptions( button, callback ) {
 		showLoading( ".detect-baseline-eto" );
 
 		$.ajax( {
-			url: OSApp.Weather.WEATHER_SERVER_URL + "/baselineETo?loc=" + encodeURIComponent( OSApp.controller.settings.loc ),
+			url: OSApp.Weather.WEATHER_SERVER_URL + "/baselineETo?loc=" + encodeURIComponent( OSApp.currentSession.controller.settings.loc ),
 			contentType: "application/json; charset=utf-8",
 			success: function( data ) {
 
@@ -2852,23 +2842,23 @@ function finishWeatherUpdate() {
 function updateWeather() {
 	var now = new Date().getTime();
 
-	if ( OSApp.weather && OSApp.weather.providedLocation === OSApp.controller.settings.loc && now - OSApp.weather.lastUpdated < 60 * 60 * 100 ) {
+	if ( OSApp.currentSession.weather && OSApp.currentSession.weather.providedLocation === OSApp.currentSession.controller.settings.loc && now - OSApp.currentSession.weather.lastUpdated < 60 * 60 * 100 ) {
 		finishWeatherUpdate();
 		return;
 	} else if ( localStorage.weatherData ) {
 		try {
 			var weatherData = JSON.parse( localStorage.weatherData );
-			if ( weatherData.providedLocation === OSApp.controller.settings.loc && now - weatherData.lastUpdated < 60 * 60 * 100 ) {
-				OSApp.weather = weatherData;
+			if ( weatherData.providedLocation === OSApp.currentSession.controller.settings.loc && now - weatherData.lastUpdated < 60 * 60 * 100 ) {
+				OSApp.currentSession.weather = weatherData;
 				finishWeatherUpdate();
 				return;
 			}
 		} catch ( err ) {}
 	}
 
-	OSApp.weather = undefined;
+	OSApp.currentSession.weather = undefined;
 
-	if ( OSApp.controller.settings.loc === "" ) {
+	if ( OSApp.currentSession.controller.settings.loc === "" ) {
 		hideWeather();
 		return;
 	}
@@ -2877,7 +2867,7 @@ function updateWeather() {
 
 	$.ajax( {
 		url: OSApp.Weather.WEATHER_SERVER_URL + "/weatherData?loc=" +
-			encodeURIComponent( OSApp.controller.settings.loc ),
+			encodeURIComponent( OSApp.currentSession.controller.settings.loc ),
 		contentType: "application/json; charset=utf-8",
 		success: function( data ) {
 
@@ -2887,11 +2877,11 @@ function updateWeather() {
 				return;
 			}
 
-			OSApp.currentCoordinates = data.location;
+			OSApp.currentSession.coordinates = data.location;
 
-			OSApp.weather = data;
+			OSApp.currentSession.weather = data;
 			data.lastUpdated = new Date().getTime();
-			data.providedLocation = OSApp.controller.settings.loc;
+			data.providedLocation = OSApp.currentSession.controller.settings.loc;
 			localStorage.weatherData = JSON.stringify( data );
 			finishWeatherUpdate();
 		}
@@ -2901,21 +2891,21 @@ function updateWeather() {
 function checkURLandUpdateWeather() {
 	var finish = function( wsp ) {
 		if ( wsp ) {
-			OSApp.Weather.WEATHER_SERVER_URL = OSApp.currentSession.prefix + wsp;
+			OSApp.currentSession.weatherServerUrl = OSApp.currentSession.prefix + wsp;
 		} else {
-			OSApp.Weather.WEATHER_SERVER_URL = OSApp.Weather.DEFAULT_WEATHER_SERVER_URL;
+			OSApp.currentSession.weatherServerUrl = OSApp.Constants.weather.DEFAULT_WEATHER_SERVER_URL;
 		}
 
 		updateWeather();
 	};
 
-	if ( OSApp.controller.settings.wsp ) {
-		if ( OSApp.controller.settings.wsp === "weather.opensprinkler.com" ) {
+	if ( OSApp.currentSession.controller.settings.wsp ) {
+		if ( OSApp.currentSession.controller.settings.wsp === "weather.opensprinkler.com" ) {
 			finish();
 			return;
 		}
 
-		finish( OSApp.controller.settings.wsp );
+		finish( OSApp.currentSession.controller.settings.wsp );
 		return;
 	}
 
@@ -2928,10 +2918,10 @@ function checkURLandUpdateWeather() {
 function updateWeatherBox() {
 	$( "#weather" )
 		.html(
-			( OSApp.controller.settings.rd ? "<div class='rain-delay red'><span class='icon ui-icon-alert'></span>Rain Delay<span class='time'>" + dateToString( new Date( OSApp.controller.settings.rdst * 1000 ), undefined, true ) + "</span></div>" : "" ) +
-			"<div title='" + OSApp.weather.description + "' class='wicon'><img src='https://openweathermap.org/img/w/" + OSApp.weather.icon + ".png'></div>" +
-			"<div class='inline tight'>" + formatTemp( OSApp.weather.temp ) + "</div><br><div class='inline location tight'>" + _( "Current Weather" ) + "</div>" +
-			( typeof OSApp.weather.alert === "object" ? "<div><button class='tight help-icon btn-no-border ui-btn ui-icon-alert ui-btn-icon-notext ui-corner-all'></button>" + OSApp.weather.alert.type + "</div>" : "" ) )
+			( OSApp.currentSession.controller.settings.rd ? "<div class='rain-delay red'><span class='icon ui-icon-alert'></span>Rain Delay<span class='time'>" + dateToString( new Date( OSApp.currentSession.controller.settings.rdst * 1000 ), undefined, true ) + "</span></div>" : "" ) +
+			"<div title='" + OSApp.currentSession.weather.description + "' class='wicon'><img src='https://openweathermap.org/img/w/" + OSApp.currentSession.weather.icon + ".png'></div>" +
+			"<div class='inline tight'>" + formatTemp( OSApp.currentSession.weather.temp ) + "</div><br><div class='inline location tight'>" + _( "Current Weather" ) + "</div>" +
+			( typeof OSApp.currentSession.weather.alert === "object" ? "<div><button class='tight help-icon btn-no-border ui-btn ui-icon-alert ui-btn-icon-notext ui-corner-all'></button>" + OSApp.currentSession.weather.alert.type + "</div>" : "" ) )
 		.off( "click" ).on( "click", function( event ) {
 			var target = $( event.target );
 			if ( target.hasClass( "rain-delay" ) || target.parents( ".rain-delay" ).length ) {
@@ -3017,9 +3007,9 @@ function coordsToLocation( lat, lon, callback, fallback ) {
 }
 
 function getSunTimes( date ) {
-	date = date || new Date( OSApp.controller.settings.devt * 1000 );
+	date = date || new Date( OSApp.currentSession.controller.settings.devt * 1000 );
 
-	var times = SunCalc.getTimes( date, OSApp.currentCoordinates[ 0 ], OSApp.currentCoordinates[ 1 ] ),
+	var times = SunCalc.getTimes( date, OSApp.currentSession.coordinates[ 0 ], OSApp.currentSession.coordinates[ 1 ] ),
 		sunrise = times.sunrise,
 		sunset = times.sunset,
 		tzOffset = getTimezoneOffset();
@@ -3078,7 +3068,7 @@ function showForecast() {
 				"<ul data-role='listview' data-inset='true'>" +
 					makeForecast() +
 				"</ul>" +
-				makeAttribution( OSApp.weather.wp || OSApp.weather.weatherProvider ) +
+				makeAttribution( OSApp.currentSession.weather.wp || OSApp.currentSession.weather.weatherProvider ) +
 			"</div>" +
 		"</div>" );
 
@@ -3110,10 +3100,10 @@ function showForecast() {
 	page.find( ".alert" ).on( "click", function() {
 		openPopup( $( "<div data-role='popup' data-theme='a'>" +
 				"<div data-role='header' data-theme='b'>" +
-					"<h1>" + OSApp.weather.alert.name + "</h1>" +
+					"<h1>" + OSApp.currentSession.weather.alert.name + "</h1>" +
 				"</div>" +
 				"<div class='ui-content'>" +
-					"<span style='white-space: pre-wrap'>" + $.trim( OSApp.weather.alert.message ) + "</span>" +
+					"<span style='white-space: pre-wrap'>" + $.trim( OSApp.currentSession.weather.alert.message ) + "</span>" +
 				"</div>" +
 			"</div>" ) );
 	} );
@@ -3124,22 +3114,22 @@ function showForecast() {
 
 function makeForecast() {
 	var list = "",
-		sunrise = OSApp.controller.settings.sunrise ? OSApp.controller.settings.sunrise : getSunTimes()[ 0 ],
-		sunset = OSApp.controller.settings.sunset ? OSApp.controller.settings.sunset : getSunTimes()[ 1 ],
+		sunrise = OSApp.currentSession.controller.settings.sunrise ? OSApp.currentSession.controller.settings.sunrise : getSunTimes()[ 0 ],
+		sunset = OSApp.currentSession.controller.settings.sunset ? OSApp.currentSession.controller.settings.sunset : getSunTimes()[ 1 ],
 		i, date, times;
 
 	var weekdays = [ "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" ];
 
 	list += "<li data-icon='false' class='center'>" +
 			"<div>" + _( "Now" ) + "</div><br>" +
-			"<div title='" + OSApp.weather.description + "' class='wicon'><img src='https://openweathermap.org/img/w/" + OSApp.weather.icon + ".png'></div>" +
-			"<span>" + formatTemp( OSApp.weather.temp ) + "</span><br>" +
+			"<div title='" + OSApp.currentSession.weather.description + "' class='wicon'><img src='https://openweathermap.org/img/w/" + OSApp.currentSession.weather.icon + ".png'></div>" +
+			"<span>" + formatTemp( OSApp.currentSession.weather.temp ) + "</span><br>" +
 			"<span>" + _( "Sunrise" ) + "</span><span>: " + pad( parseInt( sunrise / 60 ) % 24 ) + ":" + pad( sunrise % 60 ) + "</span> " +
 			"<span>" + _( "Sunset" ) + "</span><span>: " + pad( parseInt( sunset / 60 ) % 24 ) + ":" + pad( sunset % 60 ) + "</span>" +
 		"</li>";
 
-	for ( i = 1; i < OSApp.weather.forecast.length; i++ ) {
-		date = new Date( OSApp.weather.forecast[ i ].date * 1000 );
+	for ( i = 1; i < OSApp.currentSession.weather.forecast.length; i++ ) {
+		date = new Date( OSApp.currentSession.weather.forecast[ i ].date * 1000 );
 		times = getSunTimes( date );
 
 		sunrise = times[ 0 ];
@@ -3147,10 +3137,10 @@ function makeForecast() {
 
 		list += "<li data-icon='false' class='center'>" +
 				"<div>" + date.toLocaleDateString() + "</div><br>" +
-				"<div title='" + OSApp.weather.forecast[ i ].description + "' class='wicon'><img src='https://openweathermap.org/img/w/" + OSApp.weather.forecast[ i ].icon + ".png'></div>" +
+				"<div title='" + OSApp.currentSession.weather.forecast[ i ].description + "' class='wicon'><img src='https://openweathermap.org/img/w/" + OSApp.currentSession.weather.forecast[ i ].icon + ".png'></div>" +
 				"<span>" + _( weekdays[ date.getDay() ] ) + "</span><br>" +
-				"<span>" + _( "Low" ) + "</span><span>: " + formatTemp( OSApp.weather.forecast[ i ].temp_min ) + "  </span>" +
-				"<span>" + _( "High" ) + "</span><span>: " + formatTemp( OSApp.weather.forecast[ i ].temp_max ) + "</span><br>" +
+				"<span>" + _( "Low" ) + "</span><span>: " + formatTemp( OSApp.currentSession.weather.forecast[ i ].temp_min ) + "  </span>" +
+				"<span>" + _( "High" ) + "</span><span>: " + formatTemp( OSApp.currentSession.weather.forecast[ i ].temp_max ) + "</span><br>" +
 				"<span>" + _( "Sunrise" ) + "</span><span>: " + pad( parseInt( sunrise / 60 ) % 24 ) + ":" + pad( sunrise % 60 ) + "</span> " +
 				"<span>" + _( "Sunset" ) + "</span><span>: " + pad( parseInt( sunset / 60 ) % 24 ) + ":" + pad( sunset % 60 ) + "</span>" +
 			"</li>";
@@ -3247,8 +3237,8 @@ function overlayMap( callback ) {
 		iframe = popup.find( "iframe" ),
 		locInput = $( "#loc" ).val(),
 		current = {
-			lat: locInput.match( OSApp.Constants.regex.gps ) ? locInput.split( "," )[ 0 ] : OSApp.currentCoordinates[ 0 ],
-			lon: locInput.match( OSApp.Constants.regex.gps ) ? locInput.split( "," )[ 1 ] : OSApp.currentCoordinates[ 1 ]
+			lat: locInput.match( OSApp.Constants.regex.GPS ) ? locInput.split( "," )[ 0 ] : OSApp.currentSession.coordinates[ 0 ],
+			lon: locInput.match( OSApp.Constants.regex.GPS ) ? locInput.split( "," )[ 1 ] : OSApp.currentSession.coordinates[ 1 ]
 		},
 		dataSent = false;
 
@@ -3393,50 +3383,50 @@ function debugWU() {
 
 	popup += "<div class='debugWUHeading'>System Status</div>" +
 			"<table class='debugWUTable'>" +
-				( typeof OSApp.controller.settings.lupt === "number" ? "<tr><td>" + _( "Last Reboot" ) + "</td><td>" +
-					( OSApp.controller.settings.lupt < 1000 ? "--" : dateToString( new Date( OSApp.controller.settings.lupt * 1000 ), null, 2 ) ) + "</td></tr>" : "" ) +
-				( typeof OSApp.controller.settings.lrbtc === "number" ? "<tr><td>" + _( "Reboot Reason" ) + "</td><td>" + getRebootReason( OSApp.controller.settings.lrbtc ) + "</td></tr>" : "" ) +
-				( typeof OSApp.controller.settings.RSSI === "number" ? "<tr><td>" + _( "WiFi Strength" ) + "</td><td>" + getWiFiRating( OSApp.controller.settings.RSSI ) + "</td></tr>" : "" ) +
-				( typeof OSApp.controller.settings.wterr === "number" ? "<tr><td>" + _( "Weather Service" ) + "</td><td>" + getWeatherStatus( OSApp.controller.settings.wterr ) + "</td></tr>" : "" ) +
+				( typeof OSApp.currentSession.controller.settings.lupt === "number" ? "<tr><td>" + _( "Last Reboot" ) + "</td><td>" +
+					( OSApp.currentSession.controller.settings.lupt < 1000 ? "--" : dateToString( new Date( OSApp.currentSession.controller.settings.lupt * 1000 ), null, 2 ) ) + "</td></tr>" : "" ) +
+				( typeof OSApp.currentSession.controller.settings.lrbtc === "number" ? "<tr><td>" + _( "Reboot Reason" ) + "</td><td>" + getRebootReason( OSApp.currentSession.controller.settings.lrbtc ) + "</td></tr>" : "" ) +
+				( typeof OSApp.currentSession.controller.settings.RSSI === "number" ? "<tr><td>" + _( "WiFi Strength" ) + "</td><td>" + getWiFiRating( OSApp.currentSession.controller.settings.RSSI ) + "</td></tr>" : "" ) +
+				( typeof OSApp.currentSession.controller.settings.wterr === "number" ? "<tr><td>" + _( "Weather Service" ) + "</td><td>" + getWeatherStatus( OSApp.currentSession.controller.settings.wterr ) + "</td></tr>" : "" ) +
 			"</table>" +
 			"<div class='debugWUHeading'>Watering Level</div>" +
 			"<table class='debugWUTable'>" +
-				( typeof OSApp.controller.options.uwt !== "undefined" ? "<tr><td>" + _( "Method" ) + "</td><td>" + getAdjustmentMethod( OSApp.controller.options.uwt ).name + "</td></tr>" : "" ) +
-				( typeof OSApp.controller.options.wl !== "undefined" ? "<tr><td>" + _( "Watering Level" ) + "</td><td>" + OSApp.controller.options.wl + " %</td></tr>" : "" ) +
-				( typeof OSApp.controller.settings.lswc === "number" ? "<tr><td>" + _( "Last Updated" ) + "</td><td>" +
-					( OSApp.controller.settings.lswc === 0  ? _( "Never" ) : humaniseDuration( OSApp.controller.settings.devt * 1000, OSApp.controller.settings.lswc * 1000 ) ) + "</td></tr>" : "" ) +
+				( typeof OSApp.currentSession.controller.options.uwt !== "undefined" ? "<tr><td>" + _( "Method" ) + "</td><td>" + getAdjustmentMethod( OSApp.currentSession.controller.options.uwt ).name + "</td></tr>" : "" ) +
+				( typeof OSApp.currentSession.controller.options.wl !== "undefined" ? "<tr><td>" + _( "Watering Level" ) + "</td><td>" + OSApp.currentSession.controller.options.wl + " %</td></tr>" : "" ) +
+				( typeof OSApp.currentSession.controller.settings.lswc === "number" ? "<tr><td>" + _( "Last Updated" ) + "</td><td>" +
+					( OSApp.currentSession.controller.settings.lswc === 0  ? _( "Never" ) : humaniseDuration( OSApp.currentSession.controller.settings.devt * 1000, OSApp.currentSession.controller.settings.lswc * 1000 ) ) + "</td></tr>" : "" ) +
 			"</table>" +
 			"<div class='debugWUHeading'>Weather Service Details</div>" +
 			"<div class='debugWUScrollable'>" +
 			"<table class='debugWUTable'>";
 
-	if ( typeof OSApp.controller.settings.wtdata === "object" && Object.keys( OSApp.controller.settings.wtdata ).length > 0 ) {
-		popup += ( typeof OSApp.controller.settings.wtdata.h !== "undefined" ? "<tr><td>" + _( "Mean Humidity" ) + "</td><td>" + formatHumidity( OSApp.controller.settings.wtdata.h ) + "</td></tr>" : "" ) +
-			( typeof OSApp.controller.settings.wtdata.t !== "undefined" ? "<tr><td>" + _( "Mean Temp" ) + "</td><td>" + formatTemp( OSApp.controller.settings.wtdata.t ) + "</td></tr>" : "" ) +
-			( typeof OSApp.controller.settings.wtdata.p !== "undefined" ? "<tr><td>" + _( "Total Rain" ) + "</td><td>" + formatPrecip( OSApp.controller.settings.wtdata.p ) + "</td></tr>" : "" ) +
-			( typeof OSApp.controller.settings.wtdata.eto !== "undefined" ? "<tr><td>" + _( "ETo" ) + "</td><td>" + formatPrecip( OSApp.controller.settings.wtdata.eto ) + "</td></tr>" : "" ) +
-			( typeof OSApp.controller.settings.wtdata.radiation !== "undefined" ? "<tr><td>" + _( "Mean Radiation" ) + "</td><td>" + OSApp.controller.settings.wtdata.radiation + " kWh/m2</td></tr>" : "" ) +
-			( typeof OSApp.controller.settings.wtdata.minT !== "undefined" ? "<tr><td>" + _( "Min Temp" ) + "</td><td>" + formatTemp( OSApp.controller.settings.wtdata.minT ) + "</td></tr>" : "" ) +
-			( typeof OSApp.controller.settings.wtdata.maxT !== "undefined" ? "<tr><td>" + _( "Max Temp" ) + "</td><td>" + formatTemp( OSApp.controller.settings.wtdata.maxT ) + "</td></tr>" : "" ) +
-			( typeof OSApp.controller.settings.wtdata.minH !== "undefined" ? "<tr><td>" + _( "Min Humidity" ) + "</td><td>" + formatHumidity( OSApp.controller.settings.wtdata.minH ) + "</td></tr>" : "" ) +
-			( typeof OSApp.controller.settings.wtdata.maxH !== "undefined" ? "<tr><td>" + _( "Max Humidity" ) + "</td><td>" + formatHumidity( OSApp.controller.settings.wtdata.maxH ) + "</td></tr>" : "" ) +
-			( typeof OSApp.controller.settings.wtdata.wind !== "undefined" ? "<tr><td>" + _( "Mean Wind" ) + "</td><td>" + formatSpeed( OSApp.controller.settings.wtdata.wind ) + "</td></tr>" : "" );
+	if ( typeof OSApp.currentSession.controller.settings.wtdata === "object" && Object.keys( OSApp.currentSession.controller.settings.wtdata ).length > 0 ) {
+		popup += ( typeof OSApp.currentSession.controller.settings.wtdata.h !== "undefined" ? "<tr><td>" + _( "Mean Humidity" ) + "</td><td>" + formatHumidity( OSApp.currentSession.controller.settings.wtdata.h ) + "</td></tr>" : "" ) +
+			( typeof OSApp.currentSession.controller.settings.wtdata.t !== "undefined" ? "<tr><td>" + _( "Mean Temp" ) + "</td><td>" + formatTemp( OSApp.currentSession.controller.settings.wtdata.t ) + "</td></tr>" : "" ) +
+			( typeof OSApp.currentSession.controller.settings.wtdata.p !== "undefined" ? "<tr><td>" + _( "Total Rain" ) + "</td><td>" + formatPrecip( OSApp.currentSession.controller.settings.wtdata.p ) + "</td></tr>" : "" ) +
+			( typeof OSApp.currentSession.controller.settings.wtdata.eto !== "undefined" ? "<tr><td>" + _( "ETo" ) + "</td><td>" + formatPrecip( OSApp.currentSession.controller.settings.wtdata.eto ) + "</td></tr>" : "" ) +
+			( typeof OSApp.currentSession.controller.settings.wtdata.radiation !== "undefined" ? "<tr><td>" + _( "Mean Radiation" ) + "</td><td>" + OSApp.currentSession.controller.settings.wtdata.radiation + " kWh/m2</td></tr>" : "" ) +
+			( typeof OSApp.currentSession.controller.settings.wtdata.minT !== "undefined" ? "<tr><td>" + _( "Min Temp" ) + "</td><td>" + formatTemp( OSApp.currentSession.controller.settings.wtdata.minT ) + "</td></tr>" : "" ) +
+			( typeof OSApp.currentSession.controller.settings.wtdata.maxT !== "undefined" ? "<tr><td>" + _( "Max Temp" ) + "</td><td>" + formatTemp( OSApp.currentSession.controller.settings.wtdata.maxT ) + "</td></tr>" : "" ) +
+			( typeof OSApp.currentSession.controller.settings.wtdata.minH !== "undefined" ? "<tr><td>" + _( "Min Humidity" ) + "</td><td>" + formatHumidity( OSApp.currentSession.controller.settings.wtdata.minH ) + "</td></tr>" : "" ) +
+			( typeof OSApp.currentSession.controller.settings.wtdata.maxH !== "undefined" ? "<tr><td>" + _( "Max Humidity" ) + "</td><td>" + formatHumidity( OSApp.currentSession.controller.settings.wtdata.maxH ) + "</td></tr>" : "" ) +
+			( typeof OSApp.currentSession.controller.settings.wtdata.wind !== "undefined" ? "<tr><td>" + _( "Mean Wind" ) + "</td><td>" + formatSpeed( OSApp.currentSession.controller.settings.wtdata.wind ) + "</td></tr>" : "" );
 	}
 
-	popup += ( typeof OSApp.controller.settings.lwc === "number" ? "<tr><td>" + _( "Last Request" ) + "</td><td>" + dateToString( new Date( OSApp.controller.settings.lwc * 1000 ), null, 2 ) + "</td></tr>" : "" );
-	popup += ( typeof OSApp.controller.settings.wterr === "number" ? "<tr><td>" + _( "Last Response" ) + "</td><td>" + getWeatherError( OSApp.controller.settings.wterr ) + "</td></tr>" : "" );
+	popup += ( typeof OSApp.currentSession.controller.settings.lwc === "number" ? "<tr><td>" + _( "Last Request" ) + "</td><td>" + dateToString( new Date( OSApp.currentSession.controller.settings.lwc * 1000 ), null, 2 ) + "</td></tr>" : "" );
+	popup += ( typeof OSApp.currentSession.controller.settings.wterr === "number" ? "<tr><td>" + _( "Last Response" ) + "</td><td>" + getWeatherError( OSApp.currentSession.controller.settings.wterr ) + "</td></tr>" : "" );
 	popup += "</table></div>";
 
-	if ( typeof OSApp.controller.settings.otcs === "number" ) {
+	if ( typeof OSApp.currentSession.controller.settings.otcs === "number" ) {
 		popup += "<div class='debugWUHeading'>Integrations</div>" +
 			"<table class='debugWUTable'>" +
-			"<tr><td>OpenThings Cloud</td><td>" + resolveOTCStatus( OSApp.controller.settings.otcs ) + "</td></tr>" +
+			"<tr><td>OpenThings Cloud</td><td>" + resolveOTCStatus( OSApp.currentSession.controller.settings.otcs ) + "</td></tr>" +
 		"</table>";
 	}
 
-	if ( OSApp.controller.settings.wtdata && ( typeof OSApp.controller.settings.wtdata.wp === "string" || typeof OSApp.controller.settings.wtdata.weatherProvider === "string" ) ) {
+	if ( OSApp.currentSession.controller.settings.wtdata && ( typeof OSApp.currentSession.controller.settings.wtdata.wp === "string" || typeof OSApp.currentSession.controller.settings.wtdata.weatherProvider === "string" ) ) {
 		popup += "<hr>";
-		popup += makeAttribution( OSApp.controller.settings.wtdata.wp || OSApp.controller.settings.wtdata.weatherProvider );
+		popup += makeAttribution( OSApp.currentSession.controller.settings.wtdata.wp || OSApp.currentSession.controller.settings.wtdata.weatherProvider );
 	}
 	popup += "</div>";
 
@@ -3510,7 +3500,7 @@ function getAdjustmentMethod( id ) {
 }
 
 function getCurrentAdjustmentMethodId() {
-	return OSApp.controller.options.uwt & ~( 1 << 7 );
+	return OSApp.currentSession.controller.options.uwt & ~( 1 << 7 );
 }
 
 function getRestriction( id ) {
@@ -3519,13 +3509,13 @@ function getRestriction( id ) {
 				name: _( "None" )
 			},
 			{
-				isCurrent: ( ( OSApp.controller.options.uwt >> 7 ) & 1 ) ? true : false,
+				isCurrent: ( ( OSApp.currentSession.controller.options.uwt >> 7 ) & 1 ) ? true : false,
 				name: _( "California Restriction" )
 			} ][ id ];
 }
 
 function setRestriction( id, uwt ) {
-	uwt = uwt || OSApp.controller.options.uwt & ~( 1 << 7 );
+	uwt = uwt || OSApp.currentSession.controller.options.uwt & ~( 1 << 7 );
 
 	if ( id === 1 ) {
 		uwt |= ( 1 << 7 );
@@ -3553,7 +3543,7 @@ function testAPIKey( key, callback ) {
 function bindPanel() {
 	var panel = $( "#sprinklers-settings" ),
 		operation = function() {
-			return ( OSApp.controller && OSApp.controller.settings && OSApp.controller.settings.en && OSApp.controller.settings.en === 1 ) ? _( "Disable" ) : _( "Enable" );
+			return ( OSApp.currentSession.controller && OSApp.currentSession.controller.settings && OSApp.currentSession.controller.settings.en && OSApp.currentSession.controller.settings.en === 1 ) ? _( "Disable" ) : _( "Enable" );
 		};
 
 	panel.enhanceWithin().panel().removeClass( "hidden" ).panel( "option", "classes.modal", "needsclick ui-panel-dismiss" );
@@ -3580,7 +3570,7 @@ function bindPanel() {
 	panel.find( ".export_config" ).on( "click", function() {
 
 		// Check if the controller has special stations which are enabled
-		if ( typeof OSApp.controller.stations.stn_spe === "object" && typeof OSApp.controller.special !== "object" && !OSApp.controller.stations.stn_spe.every( function( e ) { return e === 0; } ) ) {
+		if ( typeof OSApp.currentSession.controller.stations.stn_spe === "object" && typeof OSApp.currentSession.controller.special !== "object" && !OSApp.currentSession.controller.stations.stn_spe.every( function( e ) { return e === 0; } ) ) {
 
 			// Grab station special data before proceeding
 			updateControllerStationSpecial( getExportMethod );
@@ -3601,7 +3591,7 @@ function bindPanel() {
 
 	panel.find( ".toggleOperation" ).on( "click", function() {
 		var self = $( this ),
-			toValue = ( 1 - OSApp.controller.settings.en );
+			toValue = ( 1 - OSApp.currentSession.controller.settings.en );
 
 		areYouSure( _( "Are you sure you want to" ) + " " + operation().toLowerCase() + " " + _( "operation?" ), "", function() {
 			sendToOS( "/cv?pw=&en=" + toValue ).done( function() {
@@ -3648,10 +3638,10 @@ function bindPanel() {
 		return false;
 	} );
 
-	 OSApp.openPanel = ( function() {
+	 OSApp.uiState.openPanel = ( function() {
 		var panel = $( "#sprinklers-settings" ),
 			updateButtons = function() {
-				var operation = ( OSApp.controller && OSApp.controller.settings && OSApp.controller.settings.en && OSApp.controller.settings.en === 1 ) ? _( "Disable" ) : _( "Enable" );
+				var operation = ( OSApp.currentSession.controller && OSApp.currentSession.controller.settings && OSApp.currentSession.controller.settings.en && OSApp.currentSession.controller.settings.en === 1 ) ? _( "Disable" ) : _( "Enable" );
 				panel.find( ".toggleOperation span:first" ).html( operation ).attr( "data-translate", operation );
 			};
 
@@ -3812,22 +3802,22 @@ function showOptions( expandItem ) {
 					case "wto":
 						data = escapeJSON( $.extend( {}, unescapeJSON( data ), { key: page.find( "#wtkey" ).val() } ) );
 
-						if ( escapeJSON( OSApp.controller.settings.wto ) === data ) {
+						if ( escapeJSON( OSApp.currentSession.controller.settings.wto ) === data ) {
 							return true;
 						}
 						break;
 					case "mqtt":
-						if ( escapeJSON( OSApp.controller.settings.mqtt ) === data ) {
+						if ( escapeJSON( OSApp.currentSession.controller.settings.mqtt ) === data ) {
 							return true;
 						}
 						break;
 					case "email":
-						if ( escapeJSON( OSApp.controller.settings.email ) === data ) {
+						if ( escapeJSON( OSApp.currentSession.controller.settings.email ) === data ) {
 							return true;
 						}
 						break;
 					case "otc":
-						if ( escapeJSON( OSApp.controller.settings.otc ) === data ) {
+						if ( escapeJSON( OSApp.currentSession.controller.settings.otc ) === data ) {
 							return true;
 						}
 						break;
@@ -3836,8 +3826,8 @@ function showOptions( expandItem ) {
 						OSApp.Storage.set( { isMetric: OSApp.currentDevice.isMetric } );
 						return true;
 					case "groupView":
-						OSApp.groupView = $item.is( ":checked" );
-						OSApp.Storage.set( { "groupView": OSApp.groupView } );
+						OSApp.uiState.groupView = $item.is( ":checked" );
+						OSApp.Storage.set( { "groupView": OSApp.uiState.groupView } );
 						return true;
 					case "o12":
 						if ( !isPi ) {
@@ -3912,15 +3902,15 @@ function showOptions( expandItem ) {
 				page.find( ".submit" ).addClass( "hasChanges" );
 				return;
 			}
-			if ( typeof OSApp.controller.options.fpr0 !== "undefined" ) {
-				if ( typeof OSApp.controller.options.urs !== "undefined" ) {
+			if ( typeof OSApp.currentSession.controller.options.fpr0 !== "undefined" ) {
+				if ( typeof OSApp.currentSession.controller.options.urs !== "undefined" ) {
 					opt.o21 = page.find( "input[name='o21'][type='radio']:checked" ).val();
 				} else {
-					if ( typeof OSApp.controller.options.sn1t !== "undefined" ) {
+					if ( typeof OSApp.currentSession.controller.options.sn1t !== "undefined" ) {
 						opt.o50 = page.find( "input[name='o50'][type='radio']:checked" ).val();
 					}
 
-					if ( typeof OSApp.controller.options.sn2t !== "undefined" ) {
+					if ( typeof OSApp.currentSession.controller.options.sn2t !== "undefined" ) {
 						opt.o52 = page.find( "input[name='o52'][type='radio']:checked" ).val();
 					}
 				}
@@ -3963,23 +3953,23 @@ function showOptions( expandItem ) {
 	list = "<fieldset data-role='collapsible'" + ( typeof expandItem !== "string" || expandItem === "system" ? " data-collapsed='false'" : "" ) + ">" +
 		"<legend>" + _( "System" ) + "</legend>";
 
-	if ( typeof OSApp.controller.options.ntp !== "undefined" ) {
+	if ( typeof OSApp.currentSession.controller.options.ntp !== "undefined" ) {
 		list += "<div class='ui-field-contain datetime-input'><label for='datetime'>" + _( "Device Time" ) + "</label>" +
-			"<button " + ( OSApp.controller.options.ntp ? "disabled " : "" ) + "data-mini='true' id='datetime' " +
-				"value='" + ( OSApp.controller.settings.devt + ( new Date( OSApp.controller.settings.devt * 1000 ).getTimezoneOffset() * 60 ) ) + "'>" +
-			dateToString( new Date( OSApp.controller.settings.devt * 1000 ) ).slice( 0, -3 ) + "</button></div>";
+			"<button " + ( OSApp.currentSession.controller.options.ntp ? "disabled " : "" ) + "data-mini='true' id='datetime' " +
+				"value='" + ( OSApp.currentSession.controller.settings.devt + ( new Date( OSApp.currentSession.controller.settings.devt * 1000 ).getTimezoneOffset() * 60 ) ) + "'>" +
+			dateToString( new Date( OSApp.currentSession.controller.settings.devt * 1000 ) ).slice( 0, -3 ) + "</button></div>";
 	}
 
-	if ( !isOSPi() && typeof OSApp.controller.options.tz !== "undefined" ) {
+	if ( !isOSPi() && typeof OSApp.currentSession.controller.options.tz !== "undefined" ) {
 		timezones = [ "-12:00", "-11:30", "-11:00", "-10:00", "-09:30", "-09:00", "-08:30", "-08:00", "-07:00", "-06:00",
 			"-05:00", "-04:30", "-04:00", "-03:30", "-03:00", "-02:30", "-02:00", "+00:00", "+01:00", "+02:00", "+03:00",
 			"+03:30", "+04:00", "+04:30", "+05:00", "+05:30", "+05:45", "+06:00", "+06:30", "+07:00", "+08:00", "+08:45",
 			"+09:00", "+09:30", "+10:00", "+10:30", "+11:00", "+11:30", "+12:00", "+12:45", "+13:00", "+13:45", "+14:00" ];
 
-		tz = OSApp.controller.options.tz - 48;
+		tz = OSApp.currentSession.controller.options.tz - 48;
 		tz = ( ( tz >= 0 ) ? "+" : "-" ) + pad( ( Math.abs( tz ) / 4 >> 0 ) ) + ":" + ( ( Math.abs( tz ) % 4 ) * 15 / 10 >> 0 ) + ( ( Math.abs( tz ) % 4 ) * 15 % 10 );
 		list += "<div class='ui-field-contain'><label for='o1' class='select'>" + _( "Timezone" ) + "</label>" +
-			"<select " + ( checkOSVersion( 210 ) && typeof OSApp.weather === "object" ? "disabled='disabled' " : "" ) + "data-mini='true' id='o1'>";
+			"<select " + ( checkOSVersion( 210 ) && typeof OSApp.currentSession.weather === "object" ? "disabled='disabled' " : "" ) + "data-mini='true' id='o1'>";
 
 		for ( i = 0; i < timezones.length; i++ ) {
 			list += "<option " + ( ( timezones[ i ] === tz ) ? "selected" : "" ) + " value='" + timezones[ i ] + "'>" + timezones[ i ] + "</option>";
@@ -3989,14 +3979,14 @@ function showOptions( expandItem ) {
 
 	list += "<div class='ui-field-contain'>" +
 		"<label for='loc'>" + _( "Location" ) + "</label>" +
-		"<button data-mini='true' id='loc' value='" + ( OSApp.controller.settings.loc.trim() === "''" ? _( "Not specified" ) : OSApp.controller.settings.loc ) + "'>" +
-			"<span>" + OSApp.controller.settings.loc + "</span>" +
+		"<button data-mini='true' id='loc' value='" + ( OSApp.currentSession.controller.settings.loc.trim() === "''" ? _( "Not specified" ) : OSApp.currentSession.controller.settings.loc ) + "'>" +
+			"<span>" + OSApp.currentSession.controller.settings.loc + "</span>" +
 			"<a class='ui-btn btn-no-border ui-btn-icon-notext ui-icon-edit ui-btn-corner-all edit-loc'></a>" +
 			"<a class='ui-btn btn-no-border ui-btn-icon-notext ui-icon-delete ui-btn-corner-all clear-loc'></a>" +
 		"</button></div>";
 
-	if ( typeof OSApp.controller.options.lg !== "undefined" ) {
-		list += "<label for='o36'><input data-mini='true' id='o36' type='checkbox' " + ( ( OSApp.controller.options.lg === 1 ) ? "checked='checked'" : "" ) + ">" +
+	if ( typeof OSApp.currentSession.controller.options.lg !== "undefined" ) {
+		list += "<label for='o36'><input data-mini='true' id='o36' type='checkbox' " + ( ( OSApp.currentSession.controller.options.lg === 1 ) ? "checked='checked'" : "" ) + ">" +
 			_( "Enable Logging" ) + "</label>";
 	}
 
@@ -4004,7 +3994,7 @@ function showOptions( expandItem ) {
 		_( "Use Metric" ) + "</label>";
 
 	if ( Supported.groups() ) {
-		list += "<label for='groupView'><input data-mini='true' id='groupView' type='checkbox' " + ( OSApp.groupView ? "checked='checked'" : "" ) + ">" +
+		list += "<label for='groupView'><input data-mini='true' id='groupView' type='checkbox' " + ( OSApp.uiState.groupView ? "checked='checked'" : "" ) + ">" +
 		_( "Order Stations by Groups" ) + "</label>";
 	}
 
@@ -4012,14 +4002,14 @@ function showOptions( expandItem ) {
 		( typeof expandItem === "string" && expandItem === "master" ? " data-collapsed='false'" : "" ) + ">" +
 		"<legend>" + _( "Configure Master" ) + "</legend>";
 
-	if ( typeof OSApp.controller.options.mas !== "undefined" ) {
+	if ( typeof OSApp.currentSession.controller.options.mas !== "undefined" ) {
 		list += "<div class='ui-field-contain ui-field-no-border'><label for='o18' class='select'>" +
-				_( "Master Station" ) + " " + ( typeof OSApp.controller.options.mas2 !== "undefined" ? "1" : "" ) +
+				_( "Master Station" ) + " " + ( typeof OSApp.currentSession.controller.options.mas2 !== "undefined" ? "1" : "" ) +
 			"</label><select data-mini='true' id='o18'><option value='0'>" + _( "None" ) + "</option>";
 
-		for ( i = 0; i < OSApp.controller.stations.snames.length; i++ ) {
+		for ( i = 0; i < OSApp.currentSession.controller.stations.snames.length; i++ ) {
 			list += "<option " + ( ( Station.isMaster( i ) === 1 ) ? "selected" : "" ) + " value='" + ( i + 1 ) + "'>" +
-				OSApp.controller.stations.snames[ i ] + "</option>";
+				OSApp.currentSession.controller.stations.snames[ i ] + "</option>";
 
 			if ( !checkOSVersion( 214 ) && i === 7 ) {
 				break;
@@ -4027,30 +4017,30 @@ function showOptions( expandItem ) {
 		}
 		list += "</select></div>";
 
-		if ( typeof OSApp.controller.options.mton !== "undefined" ) {
-			list += "<div " + ( OSApp.controller.options.mas === 0 ? "style='display:none' " : "" ) +
+		if ( typeof OSApp.currentSession.controller.options.mton !== "undefined" ) {
+			list += "<div " + ( OSApp.currentSession.controller.options.mas === 0 ? "style='display:none' " : "" ) +
 				"class='ui-field-no-border ui-field-contain duration-field'><label for='o19'>" +
 					_( "Master On Adjustment" ) +
-				"</label><button data-mini='true' id='o19' value='" + OSApp.controller.options.mton + "'>" + OSApp.controller.options.mton + "s</button></div>";
+				"</label><button data-mini='true' id='o19' value='" + OSApp.currentSession.controller.options.mton + "'>" + OSApp.currentSession.controller.options.mton + "s</button></div>";
 		}
 
-		if ( typeof OSApp.controller.options.mtof !== "undefined" ) {
-			list += "<div " + ( OSApp.controller.options.mas === 0 ? "style='display:none' " : "" ) +
+		if ( typeof OSApp.currentSession.controller.options.mtof !== "undefined" ) {
+			list += "<div " + ( OSApp.currentSession.controller.options.mas === 0 ? "style='display:none' " : "" ) +
 				"class='ui-field-no-border ui-field-contain duration-field'><label for='o20'>" +
 					_( "Master Off Adjustment" ) +
-				"</label><button data-mini='true' id='o20' value='" + OSApp.controller.options.mtof + "'>" + OSApp.controller.options.mtof + "s</button></div>";
+				"</label><button data-mini='true' id='o20' value='" + OSApp.currentSession.controller.options.mtof + "'>" + OSApp.currentSession.controller.options.mtof + "s</button></div>";
 		}
 	}
 
-	if ( typeof OSApp.controller.options.mas2 !== "undefined" ) {
+	if ( typeof OSApp.currentSession.controller.options.mas2 !== "undefined" ) {
 		list += "<hr style='width:95%' class='content-divider'>";
 
 		list += "<div class='ui-field-contain ui-field-no-border'><label for='o37' class='select'>" +
 				_( "Master Station" ) + " 2" +
 			"</label><select data-mini='true' id='o37'><option value='0'>" + _( "None" ) + "</option>";
 
-		for ( i = 0; i < OSApp.controller.stations.snames.length; i++ ) {
-			list += "<option " + ( ( Station.isMaster( i ) === 2 ) ? "selected" : "" ) + " value='" + ( i + 1 ) + "'>" + OSApp.controller.stations.snames[ i ] +
+		for ( i = 0; i < OSApp.currentSession.controller.stations.snames.length; i++ ) {
+			list += "<option " + ( ( Station.isMaster( i ) === 2 ) ? "selected" : "" ) + " value='" + ( i + 1 ) + "'>" + OSApp.currentSession.controller.stations.snames[ i ] +
 				"</option>";
 
 			if ( !checkOSVersion( 214 ) && i === 7 ) {
@@ -4060,18 +4050,18 @@ function showOptions( expandItem ) {
 
 		list += "</select></div>";
 
-		if ( typeof OSApp.controller.options.mton2 !== "undefined" ) {
-			list += "<div " + ( OSApp.controller.options.mas2 === 0 ? "style='display:none' " : "" ) +
+		if ( typeof OSApp.currentSession.controller.options.mton2 !== "undefined" ) {
+			list += "<div " + ( OSApp.currentSession.controller.options.mas2 === 0 ? "style='display:none' " : "" ) +
 				"class='ui-field-no-border ui-field-contain duration-field'><label for='o38'>" +
 					_( "Master On Adjustment" ) +
-				"</label><button data-mini='true' id='o38' value='" + OSApp.controller.options.mton2 + "'>" + OSApp.controller.options.mton2 + "s</button></div>";
+				"</label><button data-mini='true' id='o38' value='" + OSApp.currentSession.controller.options.mton2 + "'>" + OSApp.currentSession.controller.options.mton2 + "s</button></div>";
 		}
 
-		if ( typeof OSApp.controller.options.mtof2 !== "undefined" ) {
-			list += "<div " + ( OSApp.controller.options.mas2 === 0 ? "style='display:none' " : "" ) +
+		if ( typeof OSApp.currentSession.controller.options.mtof2 !== "undefined" ) {
+			list += "<div " + ( OSApp.currentSession.controller.options.mas2 === 0 ? "style='display:none' " : "" ) +
 				"class='ui-field-no-border ui-field-contain duration-field'><label for='o39'>" +
 					_( "Master Off Adjustment" ) +
-				"</label><button data-mini='true' id='o39' value='" + OSApp.controller.options.mtof2 + "'>" + OSApp.controller.options.mtof2 + "s</button></div>";
+				"</label><button data-mini='true' id='o39' value='" + OSApp.currentSession.controller.options.mtof2 + "'>" + OSApp.currentSession.controller.options.mtof2 + "s</button></div>";
 		}
 	}
 
@@ -4079,33 +4069,33 @@ function showOptions( expandItem ) {
 		( typeof expandItem === "string" && expandItem === "station" ? " data-collapsed='false'" : "" ) + "><legend>" +
 		_( "Station Handling" ) + "</legend>";
 
-	if ( typeof OSApp.controller.options.ext !== "undefined" ) {
+	if ( typeof OSApp.currentSession.controller.options.ext !== "undefined" ) {
 		list += "<div class='ui-field-contain'><label for='o15' class='select'>" +
 			_( "Number of Stations" ) +
-			( typeof OSApp.controller.options.dexp === "number" && OSApp.controller.options.dexp < 255 && OSApp.controller.options.dexp >= 0 ? " <span class='nobr'>(" +
-				( OSApp.controller.options.dexp * 8 + 8 ) + " " + _( "available" ) + ")</span>" : "" ) +
+			( typeof OSApp.currentSession.controller.options.dexp === "number" && OSApp.currentSession.controller.options.dexp < 255 && OSApp.currentSession.controller.options.dexp >= 0 ? " <span class='nobr'>(" +
+				( OSApp.currentSession.controller.options.dexp * 8 + 8 ) + " " + _( "available" ) + ")</span>" : "" ) +
 			"</label><select data-mini='true' id='o15'>";
 
-		for ( i = 0; i <= ( OSApp.controller.options.mexp || 5 ); i++ ) {
-			list += "<option " + ( ( OSApp.controller.options.ext === i ) ? "selected" : "" ) + " value='" + i + "'>" + ( i * 8 + 8 ) + " " + _( "stations" ) +
+		for ( i = 0; i <= ( OSApp.currentSession.controller.options.mexp || 5 ); i++ ) {
+			list += "<option " + ( ( OSApp.currentSession.controller.options.ext === i ) ? "selected" : "" ) + " value='" + i + "'>" + ( i * 8 + 8 ) + " " + _( "stations" ) +
 				"</option>";
 		}
 		list += "</select></div>";
 	}
 
-	if ( typeof OSApp.controller.options.sdt !== "undefined" ) {
+	if ( typeof OSApp.currentSession.controller.options.sdt !== "undefined" ) {
 		list += "<div class='ui-field-contain duration-field'><label for='o17'>" + _( "Station Delay" ) + "</label>" +
-			"<button data-mini='true' id='o17' value='" + OSApp.controller.options.sdt + "'>" +
-				dhms2str( sec2dhms( OSApp.controller.options.sdt ) ) +
+			"<button data-mini='true' id='o17' value='" + OSApp.currentSession.controller.options.sdt + "'>" +
+				dhms2str( sec2dhms( OSApp.currentSession.controller.options.sdt ) ) +
 			"</button></div>";
 	}
 
 	list += "<label for='showDisabled'><input data-mini='true' class='noselect' id='showDisabled' type='checkbox' " + ( ( localStorage.showDisabled === "true" ) ? "checked='checked'" : "" ) + ">" +
 	_( "Show Disabled" ) + " " + _( "(Changes Auto-Saved)" ) + "</label>";
 
-	if ( typeof OSApp.controller.options.seq !== "undefined" ) {
+	if ( typeof OSApp.currentSession.controller.options.seq !== "undefined" ) {
 		list += "<label for='o16'><input data-mini='true' id='o16' type='checkbox' " +
-				( ( OSApp.controller.options.seq === 1 ) ? "checked='checked'" : "" ) + ">" +
+				( ( OSApp.currentSession.controller.options.seq === 1 ) ? "checked='checked'" : "" ) + ">" +
 			_( "Sequential" ) + "</label>";
 	}
 
@@ -4113,7 +4103,7 @@ function showOptions( expandItem ) {
 		( typeof expandItem === "string" && expandItem === "weather" ? " data-collapsed='false'" : "" ) + ">" +
 		"<legend>" + _( "Weather and Sensors" ) + "</legend>";
 
-	if ( typeof OSApp.controller.options.uwt !== "undefined" ) {
+	if ( typeof OSApp.currentSession.controller.options.uwt !== "undefined" ) {
 		list += "<div class='ui-field-contain'><label for='o31' class='select'>" + _( "Weather Adjustment Method" ) +
 				"<button data-helptext='" +
 					_( "Weather adjustment uses DarkSky data in conjunction with the selected method to adjust the watering percentage." ) +
@@ -4130,9 +4120,9 @@ function showOptions( expandItem ) {
 		}
 		list += "</select></div>";
 
-		if ( typeof OSApp.controller.settings.wto === "object" ) {
+		if ( typeof OSApp.currentSession.controller.settings.wto === "object" ) {
 			list += "<div class='ui-field-contain" + ( getCurrentAdjustmentMethodId() === 0 ? " hidden" : "" ) + "'><label for='wto'>" + _( "Adjustment Method Options" ) + "</label>" +
-				"<button data-mini='true' id='wto' value='" + escapeJSON( OSApp.controller.settings.wto ) + "'>" +
+				"<button data-mini='true' id='wto' value='" + escapeJSON( OSApp.currentSession.controller.settings.wto ) + "'>" +
 					_( "Tap to Configure" ) +
 				"</button></div>";
 		}
@@ -4152,46 +4142,46 @@ function showOptions( expandItem ) {
 		}
 	}
 
-	if ( typeof OSApp.controller.options.wl !== "undefined" ) {
+	if ( typeof OSApp.currentSession.controller.options.wl !== "undefined" ) {
 		list += "<div class='ui-field-contain duration-field'><label for='o23'>" + _( "% Watering" ) +
 				"<button data-helptext='" +
 					_( "The watering percentage scales station run times by the set value." ) +
 					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
-			"</label><button " + ( ( OSApp.controller.options.uwt && getCurrentAdjustmentMethodId() > 0 ) ? "disabled='disabled' " : "" ) +
-				"data-mini='true' id='o23' value='" + OSApp.controller.options.wl + "'>" + OSApp.controller.options.wl + "%</button></div>";
+			"</label><button " + ( ( OSApp.currentSession.controller.options.uwt && getCurrentAdjustmentMethodId() > 0 ) ? "disabled='disabled' " : "" ) +
+				"data-mini='true' id='o23' value='" + OSApp.currentSession.controller.options.wl + "'>" + OSApp.currentSession.controller.options.wl + "%</button></div>";
 	}
 
-	if ( typeof OSApp.controller.options.urs !== "undefined" || typeof OSApp.controller.options.sn1t !== "undefined" ) {
-		if ( typeof OSApp.controller.options.fpr0 !== "undefined" ) {
-			list += typeof OSApp.controller.options.urs !== "undefined" ? generateSensorOptions( OSApp.Constants.keyIndex.urs, OSApp.controller.options.urs ) :
-					( typeof OSApp.controller.options.sn1t !== "undefined" ? generateSensorOptions( OSApp.Constants.keyIndex.sn1t, OSApp.controller.options.sn1t, 1 ) : "" );
+	if ( typeof OSApp.currentSession.controller.options.urs !== "undefined" || typeof OSApp.currentSession.controller.options.sn1t !== "undefined" ) {
+		if ( typeof OSApp.currentSession.controller.options.fpr0 !== "undefined" ) {
+			list += typeof OSApp.currentSession.controller.options.urs !== "undefined" ? generateSensorOptions( OSApp.Constants.keyIndex.urs, OSApp.currentSession.controller.options.urs ) :
+					( typeof OSApp.currentSession.controller.options.sn1t !== "undefined" ? generateSensorOptions( OSApp.Constants.keyIndex.sn1t, OSApp.currentSession.controller.options.sn1t, 1 ) : "" );
 		} else {
 			list += "<label for='o21'>" +
-				"<input data-mini='true' id='o21' type='checkbox' " + ( ( OSApp.controller.options.urs === 1 ) ? "checked='checked'" : "" ) + ">" +
+				"<input data-mini='true' id='o21' type='checkbox' " + ( ( OSApp.currentSession.controller.options.urs === 1 ) ? "checked='checked'" : "" ) + ">" +
 				_( "Use Rain Sensor" ) + "</label>";
 		}
 	}
 
-	if ( typeof OSApp.controller.options.rso !== "undefined" ) {
-		list += "<label for='o22'><input " + ( OSApp.controller.options.urs === 1 || OSApp.controller.options.urs === 240 ? "" : "data-wrapper-class='hidden' " ) +
-			"data-mini='true' id='o22' type='checkbox' " + ( ( OSApp.controller.options.rso === 1 ) ? "checked='checked'" : "" ) + ">" +
+	if ( typeof OSApp.currentSession.controller.options.rso !== "undefined" ) {
+		list += "<label for='o22'><input " + ( OSApp.currentSession.controller.options.urs === 1 || OSApp.currentSession.controller.options.urs === 240 ? "" : "data-wrapper-class='hidden' " ) +
+			"data-mini='true' id='o22' type='checkbox' " + ( ( OSApp.currentSession.controller.options.rso === 1 ) ? "checked='checked'" : "" ) + ">" +
 			_( "Normally Open" ) + "</label>";
 	}
 
-	if ( typeof OSApp.controller.options.sn1o !== "undefined" ) {
-		list += "<label for='o51'><input " + ( OSApp.controller.options.sn1t === 1 || OSApp.controller.options.sn1t === 3 || OSApp.controller.options.sn1t === 240 ? "" : "data-wrapper-class='hidden' " ) +
-			"data-mini='true' id='o51' type='checkbox' " + ( ( OSApp.controller.options.sn1o === 1 ) ? "checked='checked'" : "" ) + ">" +
+	if ( typeof OSApp.currentSession.controller.options.sn1o !== "undefined" ) {
+		list += "<label for='o51'><input " + ( OSApp.currentSession.controller.options.sn1t === 1 || OSApp.currentSession.controller.options.sn1t === 3 || OSApp.currentSession.controller.options.sn1t === 240 ? "" : "data-wrapper-class='hidden' " ) +
+			"data-mini='true' id='o51' type='checkbox' " + ( ( OSApp.currentSession.controller.options.sn1o === 1 ) ? "checked='checked'" : "" ) + ">" +
 			_( "Normally Open" ) + "</label>";
 	}
 
-	if ( typeof OSApp.controller.options.fpr0 !== "undefined" ) {
-		list += "<div class='ui-field-contain" + ( OSApp.controller.options.urs === 2 || OSApp.controller.options.sn1t === 2 ? "" : " hidden" ) + "'>" +
+	if ( typeof OSApp.currentSession.controller.options.fpr0 !== "undefined" ) {
+		list += "<div class='ui-field-contain" + ( OSApp.currentSession.controller.options.urs === 2 || OSApp.currentSession.controller.options.sn1t === 2 ? "" : " hidden" ) + "'>" +
 			"<label for='o41'>" + _( "Flow Pulse Rate" ) + "</label>" +
 			"<table>" +
 				"<tr style='width:100%;vertical-align: top;'>" +
 					"<td style='width:100%'>" +
 						"<div class='ui-input-text controlgroup-textinput ui-btn ui-body-inherit ui-corner-all ui-mini ui-shadow-inset ui-input-has-clear'>" +
-							"<input data-role='none' data-mini='true' type='number' pattern='^[-+]?[0-9]*\.?[0-9]*$' id='o41' value='" + ( ( OSApp.controller.options.fpr1 * 256 + OSApp.controller.options.fpr0 ) / 100 ) + "'>" +
+							"<input data-role='none' data-mini='true' type='number' pattern='^[-+]?[0-9]*\.?[0-9]*$' id='o41' value='" + ( ( OSApp.currentSession.controller.options.fpr1 * 256 + OSApp.currentSession.controller.options.fpr0 ) / 100 ) + "'>" +
 						"</div>" +
 					"</td>" +
 					"<td class='tight-select'>" +
@@ -4204,63 +4194,63 @@ function showOptions( expandItem ) {
 			"</table></div>";
 	}
 
-	if ( typeof OSApp.controller.options.sn1on !== "undefined" ) {
-		list += "<div class='" + ( OSApp.controller.options.sn1t === 1 || OSApp.controller.options.sn1t === 3 ? "" : "hidden " ) +
+	if ( typeof OSApp.currentSession.controller.options.sn1on !== "undefined" ) {
+		list += "<div class='" + ( OSApp.currentSession.controller.options.sn1t === 1 || OSApp.currentSession.controller.options.sn1t === 3 ? "" : "hidden " ) +
 			"ui-field-no-border ui-field-contain duration-field'><label for='o54'>" +
 				_( "Sensor 1 Delayed On Time" ) +
-			"</label><button data-mini='true' id='o54' value='" + OSApp.controller.options.sn1on + "'>" + OSApp.controller.options.sn1on + "m</button></div>";
+			"</label><button data-mini='true' id='o54' value='" + OSApp.currentSession.controller.options.sn1on + "'>" + OSApp.currentSession.controller.options.sn1on + "m</button></div>";
 	}
 
-	if ( typeof OSApp.controller.options.sn1of !== "undefined" ) {
-		list += "<div class='" + ( OSApp.controller.options.sn1t === 1 || OSApp.controller.options.sn1t === 3 ? "" : "hidden " ) +
+	if ( typeof OSApp.currentSession.controller.options.sn1of !== "undefined" ) {
+		list += "<div class='" + ( OSApp.currentSession.controller.options.sn1t === 1 || OSApp.currentSession.controller.options.sn1t === 3 ? "" : "hidden " ) +
 			"ui-field-no-border ui-field-contain duration-field'><label for='o55'>" +
 				_( "Sensor 1 Delayed Off Time" ) +
-			"</label><button data-mini='true' id='o55' value='" + OSApp.controller.options.sn1of + "'>" + OSApp.controller.options.sn1of + "m</button></div>";
+			"</label><button data-mini='true' id='o55' value='" + OSApp.currentSession.controller.options.sn1of + "'>" + OSApp.currentSession.controller.options.sn1of + "m</button></div>";
 	}
 
 	if ( checkOSVersion( 217 ) ) {
-		list += "<label id='prgswitch' class='center smaller" + ( OSApp.controller.options.urs === 240 || OSApp.controller.options.sn1t === 240 || OSApp.controller.options.sn2t === 240 ? "" : " hidden" ) + "'>" +
+		list += "<label id='prgswitch' class='center smaller" + ( OSApp.currentSession.controller.options.urs === 240 || OSApp.currentSession.controller.options.sn1t === 240 || OSApp.currentSession.controller.options.sn2t === 240 ? "" : " hidden" ) + "'>" +
 			_( "When using program switch, a switch is connected to the sensor port to trigger Program 1 every time the switch is pressed for at least 1 second." ) +
 		"</label>";
 	}
 
-	if ( typeof OSApp.controller.options.sn2t !== "undefined" && checkOSVersion( 219 ) ) {
-		list += generateSensorOptions( OSApp.Constants.keyIndex.sn2t, OSApp.controller.options.sn2t, 2 );
+	if ( typeof OSApp.currentSession.controller.options.sn2t !== "undefined" && checkOSVersion( 219 ) ) {
+		list += generateSensorOptions( OSApp.Constants.keyIndex.sn2t, OSApp.currentSession.controller.options.sn2t, 2 );
 	}
 
-	if ( typeof OSApp.controller.options.sn2o !== "undefined" ) {
-		list += "<label for='o53'><input " + ( OSApp.controller.options.sn2t === 1 || OSApp.controller.options.sn2t === 3 || OSApp.controller.options.sn2t === 240 ? "" : "data-wrapper-class='hidden' " ) +
-			"data-mini='true' id='o53' type='checkbox' " + ( ( OSApp.controller.options.sn2o === 1 ) ? "checked='checked'" : "" ) + ">" +
+	if ( typeof OSApp.currentSession.controller.options.sn2o !== "undefined" ) {
+		list += "<label for='o53'><input " + ( OSApp.currentSession.controller.options.sn2t === 1 || OSApp.currentSession.controller.options.sn2t === 3 || OSApp.currentSession.controller.options.sn2t === 240 ? "" : "data-wrapper-class='hidden' " ) +
+			"data-mini='true' id='o53' type='checkbox' " + ( ( OSApp.currentSession.controller.options.sn2o === 1 ) ? "checked='checked'" : "" ) + ">" +
 			_( "Normally Open" ) + "</label>";
 	}
 
-	if ( typeof OSApp.controller.options.sn2on !== "undefined" ) {
-		list += "<div class='" + ( OSApp.controller.options.sn2t === 1 || OSApp.controller.options.sn2t === 3 ? "" : "hidden " ) +
+	if ( typeof OSApp.currentSession.controller.options.sn2on !== "undefined" ) {
+		list += "<div class='" + ( OSApp.currentSession.controller.options.sn2t === 1 || OSApp.currentSession.controller.options.sn2t === 3 ? "" : "hidden " ) +
 			"ui-field-no-border ui-field-contain duration-field'><label for='o56'>" +
 				_( "Sensor 2 Delayed On Time" ) +
-			"</label><button data-mini='true' id='o56' value='" + OSApp.controller.options.sn2on + "'>" + OSApp.controller.options.sn2on + "m</button></div>";
+			"</label><button data-mini='true' id='o56' value='" + OSApp.currentSession.controller.options.sn2on + "'>" + OSApp.currentSession.controller.options.sn2on + "m</button></div>";
 	}
 
-	if ( typeof OSApp.controller.options.sn2of !== "undefined" ) {
-		list += "<div class='" + ( OSApp.controller.options.sn2t === 1 || OSApp.controller.options.sn2t === 3 ? "" : "hidden " ) +
+	if ( typeof OSApp.currentSession.controller.options.sn2of !== "undefined" ) {
+		list += "<div class='" + ( OSApp.currentSession.controller.options.sn2t === 1 || OSApp.currentSession.controller.options.sn2t === 3 ? "" : "hidden " ) +
 			"ui-field-no-border ui-field-contain duration-field'><label for='o57'>" +
 				_( "Sensor 2 Delayed Off Time" ) +
-			"</label><button data-mini='true' id='o57' value='" + OSApp.controller.options.sn2of + "'>" + OSApp.controller.options.sn2of + "m</button></div>";
+			"</label><button data-mini='true' id='o57' value='" + OSApp.currentSession.controller.options.sn2of + "'>" + OSApp.currentSession.controller.options.sn2of + "m</button></div>";
 	}
 
-	if ( typeof OSApp.controller.options.sn2t !== "undefined" ) {
-		list += "<label id='prgswitch-2' class='center smaller" + ( OSApp.controller.options.urs === 240 || OSApp.controller.options.sn1t === 240 || OSApp.controller.options.sn2t === 240 ? "" : " hidden" ) + "'>" +
+	if ( typeof OSApp.currentSession.controller.options.sn2t !== "undefined" ) {
+		list += "<label id='prgswitch-2' class='center smaller" + ( OSApp.currentSession.controller.options.urs === 240 || OSApp.currentSession.controller.options.sn1t === 240 || OSApp.currentSession.controller.options.sn2t === 240 ? "" : " hidden" ) + "'>" +
 			_( "When using program switch, a switch is connected to the sensor port to trigger Program 2 every time the switch is pressed for at least 1 second." ) +
 		"</label>";
 	}
 
-	if ( typeof OSApp.controller.settings.ifkey !== "undefined" || typeof OSApp.controller.settings.mqtt !== "undefined" ||
-		typeof OSApp.controller.settings.otc !== "undefined" ) {
+	if ( typeof OSApp.currentSession.controller.settings.ifkey !== "undefined" || typeof OSApp.currentSession.controller.settings.mqtt !== "undefined" ||
+		typeof OSApp.currentSession.controller.settings.otc !== "undefined" ) {
 		list += "</fieldset><fieldset data-role='collapsible'" +
 			( typeof expandItem === "string" && expandItem === "integrations" ? " data-collapsed='false'" : "" ) + ">" +
 			"<legend>" + _( "Integrations" ) + "</legend>";
 
-		if ( typeof OSApp.controller.settings.otc !== "undefined" ) {
+		if ( typeof OSApp.currentSession.controller.settings.otc !== "undefined" ) {
 			list += "<div class='ui-field-contain'>" +
 						"<label for='otc'>" + _( "OTC" ) +
 							"<button style='display:inline-block;' data-helptext='" +
@@ -4268,13 +4258,13 @@ function showOptions( expandItem ) {
 								"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'>" +
 							"</button>" +
 						"</label>" +
-						"<button data-mini='true' id='otc' value='" + escapeJSON( OSApp.controller.settings.otc ) + "'>" +
+						"<button data-mini='true' id='otc' value='" + escapeJSON( OSApp.currentSession.controller.settings.otc ) + "'>" +
 							_( "Tap to Configure" ) +
 						"</button>" +
 					"</div>";
 		}
 
-		if ( typeof OSApp.controller.settings.mqtt !== "undefined" ) {
+		if ( typeof OSApp.currentSession.controller.settings.mqtt !== "undefined" ) {
 			list += "<div class='ui-field-contain'>" +
 						"<label for='mqtt'>" + _( "MQTT" ) +
 							"<button style='display:inline-block;' data-helptext='" +
@@ -4282,13 +4272,13 @@ function showOptions( expandItem ) {
 								"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'>" +
 							"</button>" +
 						"</label>" +
-						"<button data-mini='true' id='mqtt' value='" + escapeJSON( OSApp.controller.settings.mqtt ) + "'>" +
+						"<button data-mini='true' id='mqtt' value='" + escapeJSON( OSApp.currentSession.controller.settings.mqtt ) + "'>" +
 							_( "Tap to Configure" ) +
 						"</button>" +
 					"</div>";
 		}
 
-		if ( typeof OSApp.controller.settings.email !== "undefined" ) {
+		if ( typeof OSApp.currentSession.controller.settings.email !== "undefined" ) {
 			list += "<div class='ui-field-contain'>" +
 						"<label for='email'>" + _( "Email Notifications" ) +
 							"<button style='display:inline-block;' data-helptext='" +
@@ -4296,33 +4286,33 @@ function showOptions( expandItem ) {
 								"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'>" +
 							"</button>" +
 						"</label>" +
-						"<button data-mini='true' id='email' value='" + escapeJSON( OSApp.controller.settings.email ) + "'>" +
+						"<button data-mini='true' id='email' value='" + escapeJSON( OSApp.currentSession.controller.settings.email ) + "'>" +
 							_( "Tap to Configure" ) +
 						"</button>" +
 					"</div>";
 		}
 
-		if ( typeof OSApp.controller.settings.ifkey !== "undefined" ) {
+		if ( typeof OSApp.currentSession.controller.settings.ifkey !== "undefined" ) {
 			list += "<div class='ui-field-contain'><label for='ifkey'>" + _( "IFTTT Notifications" ) +
 				"<button data-helptext='" +
 					_( "To enable IFTTT, a Webhooks key is required which can be obtained from https://ifttt.com" ) +
 					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
-			"</label><input autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' data-mini='true' type='text' id='ifkey' placeholder='IFTTT webhooks key' value='" + OSApp.controller.settings.ifkey + "'>" +
+			"</label><input autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' data-mini='true' type='text' id='ifkey' placeholder='IFTTT webhooks key' value='" + OSApp.currentSession.controller.settings.ifkey + "'>" +
 			"</div>";
 
 			list += "<div class='ui-field-contain'><label for='o49'>" + _( "Notification Events" ) +
 					"<button data-helptext='" +
 						_( "Select which notification events to send to Email and/or IFTTT." ) +
 						"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
-				"</label><button data-mini='true' id='o49' value='" + OSApp.controller.options.ife + "'>" + _( "Configure Events" ) + "</button></div>";
+				"</label><button data-mini='true' id='o49' value='" + OSApp.currentSession.controller.options.ife + "'>" + _( "Configure Events" ) + "</button></div>";
 		}
 
-		if ( typeof OSApp.controller.settings.dname !== "undefined" ) {
+		if ( typeof OSApp.currentSession.controller.settings.dname !== "undefined" ) {
 			list += "<div class='ui-field-contain'><label for='dname'>" + _( "Device Name" ) +
 				"<button data-helptext='" +
 					_( "Device name is attached to all IFTTT and email notifications to help distinguish multiple devices" ) +
 					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
-			"</label><input autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' data-mini='true' type='text' id='dname' value=\"" + OSApp.controller.settings.dname + "\">" +
+			"</label><input autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' data-mini='true' type='text' id='dname' value=\"" + OSApp.currentSession.controller.settings.dname + "\">" +
 			"</div>";
 		}
 	}
@@ -4331,26 +4321,26 @@ function showOptions( expandItem ) {
 		( typeof expandItem === "string" && expandItem === "lcd" ? " data-collapsed='false'" : "" ) + ">" +
 		"<legend>" + _( "LCD Screen" ) + "</legend>";
 
-	if ( typeof OSApp.controller.options.con !== "undefined" ) {
+	if ( typeof OSApp.currentSession.controller.options.con !== "undefined" ) {
 		list += "<div class='ui-field-contain'><label for='o27'>" + _( "Contrast" ) + "</label>" +
-			"<input type='range' id='o27' min='0' max='255' step='10' data-highlight='true' value='" + ( OSApp.controller.options.con ) + "'></div>";
+			"<input type='range' id='o27' min='0' max='255' step='10' data-highlight='true' value='" + ( OSApp.currentSession.controller.options.con ) + "'></div>";
 	}
 
-	if ( typeof OSApp.controller.options.lit !== "undefined" ) {
+	if ( typeof OSApp.currentSession.controller.options.lit !== "undefined" ) {
 		list += "<div class='ui-field-contain'><label for='o28'>" + _( "Brightness" ) + "</label>" +
-			"<input type='range' id='o28' min='0' max='255' step='10' data-highlight='true' value='" + ( OSApp.controller.options.lit ) + "'></div>";
+			"<input type='range' id='o28' min='0' max='255' step='10' data-highlight='true' value='" + ( OSApp.currentSession.controller.options.lit ) + "'></div>";
 	}
 
-	if ( typeof OSApp.controller.options.dim !== "undefined" ) {
+	if ( typeof OSApp.currentSession.controller.options.dim !== "undefined" ) {
 		list += "<div class='ui-field-contain'><label for='o29'>" + _( "Idle Brightness" ) + "</label>" +
-		"<input type='range' id='o29' min='0' max='255' step='10' data-highlight='true' value='" + ( OSApp.controller.options.dim ) + "'></div>";
+		"<input type='range' id='o29' min='0' max='255' step='10' data-highlight='true' value='" + ( OSApp.currentSession.controller.options.dim ) + "'></div>";
 	}
 
 	list += "</fieldset><fieldset data-role='collapsible' data-theme='b'" +
 		( typeof expandItem === "string" && expandItem === "advanced" ? " data-collapsed='false'" : "" ) + ">" +
 		"<legend>" + _( "Advanced" ) + "</legend>";
 
-	if ( checkOSVersion( 219 ) && typeof OSApp.controller.options.uwt !== "undefined" && typeof OSApp.controller.settings.wto === "object" ) {
+	if ( checkOSVersion( 219 ) && typeof OSApp.currentSession.controller.options.uwt !== "undefined" && typeof OSApp.currentSession.controller.settings.wto === "object" ) {
 		list += "<div class='ui-field-contain'><label for='wtkey'>" + _( "Wunderground Key" ).replace( "Wunderground", "Wunder&shy;ground" ) +
 			"<button data-helptext='" +
 				_( "We use DarkSky normally however with a user provided API key the weather source will switch to Weather Underground." ) +
@@ -4360,10 +4350,10 @@ function showOptions( expandItem ) {
 			"<tr style='width:100%;vertical-align: top;'>" +
 				"<td style='width:100%'>" +
 					"<div class='" +
-						( ( OSApp.controller.settings.wto.key && OSApp.controller.settings.wto.key !== "" ) ? "green " : "" ) +
+						( ( OSApp.currentSession.controller.settings.wto.key && OSApp.currentSession.controller.settings.wto.key !== "" ) ? "green " : "" ) +
 						"ui-input-text controlgroup-textinput ui-btn ui-body-inherit ui-corner-all ui-mini ui-shadow-inset ui-input-has-clear'>" +
 							"<input data-role='none' data-mini='true' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' " +
-								"type='text' id='wtkey' value='" + ( OSApp.controller.settings.wto.key || "" ) + "'>" +
+								"type='text' id='wtkey' value='" + ( OSApp.currentSession.controller.settings.wto.key || "" ) + "'>" +
 							"<a href='#' tabindex='-1' aria-hidden='true' data-helptext='" + _( "An invalid API key has been detected." ) +
 								"' class='hidden help-icon ui-input-clear ui-btn ui-icon-alert ui-btn-icon-notext ui-corner-all'>" +
 							"</a>" +
@@ -4374,84 +4364,84 @@ function showOptions( expandItem ) {
 		"</table></div>";
 	}
 
-	if ( typeof OSApp.controller.options.hp0 !== "undefined" ) {
+	if ( typeof OSApp.currentSession.controller.options.hp0 !== "undefined" ) {
 		list += "<div class='ui-field-contain'><label for='o12'>" + _( "HTTP Port (restart required)" ) + "</label>" +
-			"<input data-mini='true' type='number' pattern='[0-9]*' id='o12' value='" + ( OSApp.controller.options.hp1 * 256 + OSApp.controller.options.hp0 ) + "'>" +
+			"<input data-mini='true' type='number' pattern='[0-9]*' id='o12' value='" + ( OSApp.currentSession.controller.options.hp1 * 256 + OSApp.currentSession.controller.options.hp0 ) + "'>" +
 			"</div>";
 	}
 
-	if ( typeof OSApp.controller.options.devid !== "undefined" ) {
+	if ( typeof OSApp.currentSession.controller.options.devid !== "undefined" ) {
 		list += "<div class='ui-field-contain'><label for='o26'>" + _( "Device ID (restart required)" ) +
 			"<button data-helptext='" +
 				_( "Device ID modifies the last byte of the MAC address." ) +
 			"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label>" +
-			"<input data-mini='true' type='number' pattern='[0-9]*' max='255' id='o26' value='" + OSApp.controller.options.devid + "'></div>";
+			"<input data-mini='true' type='number' pattern='[0-9]*' max='255' id='o26' value='" + OSApp.currentSession.controller.options.devid + "'></div>";
 	}
 
-	if ( typeof OSApp.controller.options.rlp !== "undefined" ) {
+	if ( typeof OSApp.currentSession.controller.options.rlp !== "undefined" ) {
 		list += "<div class='ui-field-contain duration-field'>" +
 			"<label for='o30'>" + _( "Relay Pulse" ) +
 				"<button data-helptext='" +
 					_( "Relay pulsing is used for special situations where rapid pulsing is needed in the output with a range from 1 to 2000 milliseconds. A zero value disables the pulsing option." ) +
 					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
-			"</label><button data-mini='true' id='o30' value='" + OSApp.controller.options.rlp + "'>" + OSApp.controller.options.rlp + "ms</button></div>";
-	} else if ( checkOSVersion( 215 ) !== true && typeof OSApp.controller.options.bst !== "undefined" ) {
+			"</label><button data-mini='true' id='o30' value='" + OSApp.currentSession.controller.options.rlp + "'>" + OSApp.currentSession.controller.options.rlp + "ms</button></div>";
+	} else if ( checkOSVersion( 215 ) !== true && typeof OSApp.currentSession.controller.options.bst !== "undefined" ) {
 		list += "<div class='ui-field-contain duration-field'>" +
 			"<label for='o30'>" + _( "Boost Time" ) +
 				"<button data-helptext='" +
 					_( "Boost time changes how long the boost converter is activated with a range from 0 to 1000 milliseconds." ) +
 					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
-			"</label><button data-mini='true' id='o30' value='" + OSApp.controller.options.bst + "'>" + OSApp.controller.options.bst + "ms</button></div>";
+			"</label><button data-mini='true' id='o30' value='" + OSApp.currentSession.controller.options.bst + "'>" + OSApp.currentSession.controller.options.bst + "ms</button></div>";
 	}
 
-	if ( typeof OSApp.controller.options.ntp !== "undefined" && checkOSVersion( 210 ) ) {
-		var ntpIP = [ OSApp.controller.options.ntp1, OSApp.controller.options.ntp2, OSApp.controller.options.ntp3, OSApp.controller.options.ntp4 ].join( "." );
-		list += "<div class='" + ( ( OSApp.controller.options.ntp === 1 ) ? "" : "hidden " ) + "ui-field-contain duration-field'><label for='ntp_addr'>" +
+	if ( typeof OSApp.currentSession.controller.options.ntp !== "undefined" && checkOSVersion( 210 ) ) {
+		var ntpIP = [ OSApp.currentSession.controller.options.ntp1, OSApp.currentSession.controller.options.ntp2, OSApp.currentSession.controller.options.ntp3, OSApp.currentSession.controller.options.ntp4 ].join( "." );
+		list += "<div class='" + ( ( OSApp.currentSession.controller.options.ntp === 1 ) ? "" : "hidden " ) + "ui-field-contain duration-field'><label for='ntp_addr'>" +
 			_( "NTP IP Address" ) + "</label><button data-mini='true' id='ntp_addr' value='" + ntpIP + "'>" + ntpIP + "</button></div>";
 	}
 
-	if ( typeof OSApp.controller.options.dhcp !== "undefined" && checkOSVersion( 210 ) ) {
-		var ip = [ OSApp.controller.options.ip1, OSApp.controller.options.ip2, OSApp.controller.options.ip3, OSApp.controller.options.ip4 ].join( "." ),
-			gw = [ OSApp.controller.options.gw1, OSApp.controller.options.gw2, OSApp.controller.options.gw3, OSApp.controller.options.gw4 ].join( "." );
+	if ( typeof OSApp.currentSession.controller.options.dhcp !== "undefined" && checkOSVersion( 210 ) ) {
+		var ip = [ OSApp.currentSession.controller.options.ip1, OSApp.currentSession.controller.options.ip2, OSApp.currentSession.controller.options.ip3, OSApp.currentSession.controller.options.ip4 ].join( "." ),
+			gw = [ OSApp.currentSession.controller.options.gw1, OSApp.currentSession.controller.options.gw2, OSApp.currentSession.controller.options.gw3, OSApp.currentSession.controller.options.gw4 ].join( "." );
 
-		list += "<div class='" + ( ( OSApp.controller.options.dhcp === 1 ) ? "hidden " : "" ) + "ui-field-contain duration-field'><label for='ip_addr'>" +
+		list += "<div class='" + ( ( OSApp.currentSession.controller.options.dhcp === 1 ) ? "hidden " : "" ) + "ui-field-contain duration-field'><label for='ip_addr'>" +
 			_( "IP Address" ) + "</label><button data-mini='true' id='ip_addr' value='" + ip + "'>" + ip + "</button></div>";
-		list += "<div class='" + ( ( OSApp.controller.options.dhcp === 1 ) ? "hidden " : "" ) + "ui-field-contain duration-field'><label for='gateway'>" +
+		list += "<div class='" + ( ( OSApp.currentSession.controller.options.dhcp === 1 ) ? "hidden " : "" ) + "ui-field-contain duration-field'><label for='gateway'>" +
 			_( "Gateway Address" ) + "</label><button data-mini='true' id='gateway' value='" + gw + "'>" + gw + "</button></div>";
 
-		if ( typeof OSApp.controller.options.subn1 !== "undefined" ) {
-			var subnet = [ OSApp.controller.options.subn1, OSApp.controller.options.subn2, OSApp.controller.options.subn3, OSApp.controller.options.subn4 ].join( "." );
-			list += "<div class='" + ( ( OSApp.controller.options.dhcp === 1 ) ? "hidden " : "" ) + "ui-field-contain duration-field'><label for='subnet'>" +
+		if ( typeof OSApp.currentSession.controller.options.subn1 !== "undefined" ) {
+			var subnet = [ OSApp.currentSession.controller.options.subn1, OSApp.currentSession.controller.options.subn2, OSApp.currentSession.controller.options.subn3, OSApp.currentSession.controller.options.subn4 ].join( "." );
+			list += "<div class='" + ( ( OSApp.currentSession.controller.options.dhcp === 1 ) ? "hidden " : "" ) + "ui-field-contain duration-field'><label for='subnet'>" +
 				_( "Subnet Mask" ) + "</label><button data-mini='true' id='subnet' value='" + subnet + "'>" + subnet + "</button></div>";
 		}
 
-		if ( typeof OSApp.controller.options.dns1 !== "undefined" ) {
-			var dns = [ OSApp.controller.options.dns1, OSApp.controller.options.dns2, OSApp.controller.options.dns3, OSApp.controller.options.dns4 ].join( "." );
-			list += "<div class='" + ( ( OSApp.controller.options.dhcp === 1 ) ? "hidden " : "" ) + "ui-field-contain duration-field'><label for='dns'>" +
+		if ( typeof OSApp.currentSession.controller.options.dns1 !== "undefined" ) {
+			var dns = [ OSApp.currentSession.controller.options.dns1, OSApp.currentSession.controller.options.dns2, OSApp.currentSession.controller.options.dns3, OSApp.currentSession.controller.options.dns4 ].join( "." );
+			list += "<div class='" + ( ( OSApp.currentSession.controller.options.dhcp === 1 ) ? "hidden " : "" ) + "ui-field-contain duration-field'><label for='dns'>" +
 				_( "DNS Address" ) + "</label><button data-mini='true' id='dns' value='" + dns + "'>" + dns + "</button></div>";
 		}
 
-		list += "<label for='o3'><input data-mini='true' id='o3' type='checkbox' " + ( ( OSApp.controller.options.dhcp === 1 ) ? "checked='checked'" : "" ) + ">" +
+		list += "<label for='o3'><input data-mini='true' id='o3' type='checkbox' " + ( ( OSApp.currentSession.controller.options.dhcp === 1 ) ? "checked='checked'" : "" ) + ">" +
 			_( "Use DHCP (restart required)" ) + "</label>";
 	}
 
-	if ( typeof OSApp.controller.options.ntp !== "undefined" ) {
-		list += "<label for='o2'><input data-mini='true' id='o2' type='checkbox' " + ( ( OSApp.controller.options.ntp === 1 ) ? "checked='checked'" : "" ) + ">" +
+	if ( typeof OSApp.currentSession.controller.options.ntp !== "undefined" ) {
+		list += "<label for='o2'><input data-mini='true' id='o2' type='checkbox' " + ( ( OSApp.currentSession.controller.options.ntp === 1 ) ? "checked='checked'" : "" ) + ">" +
 			_( "NTP Sync" ) + "</label>";
 	}
 
-	if ( typeof OSApp.controller.options.ar !== "undefined" ) {
-		list += "<label for='o14'><input data-mini='true' id='o14' type='checkbox' " + ( ( OSApp.controller.options.ar === 1 ) ? "checked='checked'" : "" ) + ">" +
+	if ( typeof OSApp.currentSession.controller.options.ar !== "undefined" ) {
+		list += "<label for='o14'><input data-mini='true' id='o14' type='checkbox' " + ( ( OSApp.currentSession.controller.options.ar === 1 ) ? "checked='checked'" : "" ) + ">" +
 			_( "Auto Reconnect" ) + "</label>";
 	}
 
-	if ( typeof OSApp.controller.options.ipas !== "undefined" ) {
-		list += "<label for='o25'><input data-mini='true' id='o25' type='checkbox' " + ( ( OSApp.controller.options.ipas === 1 ) ? "checked='checked'" : "" ) + ">" +
+	if ( typeof OSApp.currentSession.controller.options.ipas !== "undefined" ) {
+		list += "<label for='o25'><input data-mini='true' id='o25' type='checkbox' " + ( ( OSApp.currentSession.controller.options.ipas === 1 ) ? "checked='checked'" : "" ) + ">" +
 			_( "Ignore Password" ) + "</label>";
 	}
 
-	if ( typeof OSApp.controller.options.sar !== "undefined" ) {
-		list += "<label for='o48'><input data-mini='true' id='o48' type='checkbox' " + ( ( OSApp.controller.options.sar === 1 ) ? "checked='checked'" : "" ) + ">" +
+	if ( typeof OSApp.currentSession.controller.options.sar !== "undefined" ) {
+		list += "<label for='o48'><input data-mini='true' id='o48' type='checkbox' " + ( ( OSApp.currentSession.controller.options.sar === 1 ) ? "checked='checked'" : "" ) + ">" +
 			_( "Special Station Auto-Refresh" ) + "</label>";
 	}
 
@@ -4464,7 +4454,7 @@ function showOptions( expandItem ) {
 	list += "<button data-mini='true' class='center-div reset-programs'>" + _( "Delete All Programs" ) + "</button>";
 	list += "<button data-mini='true' class='center-div reset-stations'>" + _( "Reset Station Attributes" ) + "</button>";
 
-	if ( OSApp.controller.options.hwv >= 30 && OSApp.controller.options.hwv < 40 ) {
+	if ( OSApp.currentSession.controller.options.hwv >= 30 && OSApp.currentSession.controller.options.hwv < 40 ) {
 		list += "<hr class='divider'><button data-mini='true' class='center-div reset-wireless'>" + _( "Reset Wireless Settings" ) + "</button>";
 	}
 
@@ -4495,7 +4485,7 @@ function showOptions( expandItem ) {
 			"<div class='ui-content'>" +
 				"<label id='loc-warning'></label>" +
 				"<input class='loc-entry' type='text' id='loc-entry' data-mini='true' maxlength='64' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
-				" placeholder='" + _( "Enter GPS Coordinates" ) + "' value='" + ( OSApp.controller.settings.loc.trim() === "''" ? _( "Not specified" ) : OSApp.controller.settings.loc ) + "' required />" +
+				" placeholder='" + _( "Enter GPS Coordinates" ) + "' value='" + ( OSApp.currentSession.controller.settings.loc.trim() === "''" ? _( "Not specified" ) : OSApp.currentSession.controller.settings.loc ) + "' required />" +
 				"<button class='locSubmit' data-theme='b'>" + _( "Submit" ) + "</button>" +
 			"</div>" +
 		"</div>" );
@@ -4622,61 +4612,61 @@ function showOptions( expandItem ) {
 		var cs = "", i;
 
 		if ( Supported.groups() ) {
-			for ( i = 0; i < OSApp.controller.stations.snames.length; i++ ) {
+			for ( i = 0; i < OSApp.currentSession.controller.stations.snames.length; i++ ) {
 				cs += "g" + i + "=0&";
 			}
 		}
 
-		if ( typeof OSApp.controller.options.mas !== "undefined" ) {
-			for ( i = 0; i < OSApp.controller.settings.nbrd; i++ ) {
+		if ( typeof OSApp.currentSession.controller.options.mas !== "undefined" ) {
+			for ( i = 0; i < OSApp.currentSession.controller.settings.nbrd; i++ ) {
 				cs += "m" + i + "=255&";
 			}
 		}
 
-		if ( typeof OSApp.controller.options.mas2 !== "undefined" ) {
-			for ( i = 0; i < OSApp.controller.settings.nbrd; i++ ) {
+		if ( typeof OSApp.currentSession.controller.options.mas2 !== "undefined" ) {
+			for ( i = 0; i < OSApp.currentSession.controller.settings.nbrd; i++ ) {
 				cs += "n" + i + "=0&";
 			}
 		}
 
-		if ( typeof OSApp.controller.stations.ignore_rain === "object" ) {
-			for ( i = 0; i < OSApp.controller.settings.nbrd; i++ ) {
+		if ( typeof OSApp.currentSession.controller.stations.ignore_rain === "object" ) {
+			for ( i = 0; i < OSApp.currentSession.controller.settings.nbrd; i++ ) {
 				cs += "i" + i + "=0&";
 			}
 		}
 
-		if ( typeof OSApp.controller.stations.ignore_sn1 === "object" ) {
-			for ( i = 0; i < OSApp.controller.settings.nbrd; i++ ) {
+		if ( typeof OSApp.currentSession.controller.stations.ignore_sn1 === "object" ) {
+			for ( i = 0; i < OSApp.currentSession.controller.settings.nbrd; i++ ) {
 				cs += "j" + i + "=0&";
 			}
 		}
 
-		if ( typeof OSApp.controller.stations.ignore_sn2 === "object" ) {
-			for ( i = 0; i < OSApp.controller.settings.nbrd; i++ ) {
+		if ( typeof OSApp.currentSession.controller.stations.ignore_sn2 === "object" ) {
+			for ( i = 0; i < OSApp.currentSession.controller.settings.nbrd; i++ ) {
 				cs += "k" + i + "=0&";
 			}
 		}
 
-		if ( typeof OSApp.controller.stations.act_relay === "object" ) {
-			for ( i = 0; i < OSApp.controller.settings.nbrd; i++ ) {
+		if ( typeof OSApp.currentSession.controller.stations.act_relay === "object" ) {
+			for ( i = 0; i < OSApp.currentSession.controller.settings.nbrd; i++ ) {
 				cs += "a" + i + "=0&";
 			}
 		}
 
-		if ( typeof OSApp.controller.stations.stn_dis === "object" ) {
-			for ( i = 0; i < OSApp.controller.settings.nbrd; i++ ) {
+		if ( typeof OSApp.currentSession.controller.stations.stn_dis === "object" ) {
+			for ( i = 0; i < OSApp.currentSession.controller.settings.nbrd; i++ ) {
 				cs += "d" + i + "=0&";
 			}
 		}
 
-		if ( typeof OSApp.controller.stations.stn_seq === "object" ) {
-			for ( i = 0; i < OSApp.controller.settings.nbrd; i++ ) {
+		if ( typeof OSApp.currentSession.controller.stations.stn_seq === "object" ) {
+			for ( i = 0; i < OSApp.currentSession.controller.settings.nbrd; i++ ) {
 				cs += "q" + i + "=255&";
 			}
 		}
 
-		if ( typeof OSApp.controller.stations.stn_spe === "object" ) {
-			for ( i = 0; i < OSApp.controller.settings.nbrd; i++ ) {
+		if ( typeof OSApp.currentSession.controller.stations.stn_spe === "object" ) {
+			for ( i = 0; i < OSApp.currentSession.controller.settings.nbrd; i++ ) {
 				cs += "p" + i + "=0&";
 			}
 		}
@@ -4905,7 +4895,7 @@ function showOptions( expandItem ) {
 
 	page.find( "#o18,#o37" ).on( "change", function() {
 		page.find( "#o19,#o20" ).parents( ".ui-field-contain" ).toggle( parseInt( page.find( "#o18" ).val() ) === 0 ? false : true );
-		if ( typeof OSApp.controller.options.mas2 !== "undefined" ) {
+		if ( typeof OSApp.currentSession.controller.options.mas2 !== "undefined" ) {
 			page.find( "#o38,#o39" ).parents( ".ui-field-contain" ).toggle( parseInt( page.find( "#o37" ).val() ) === 0 ? false : true );
 		}
 	} );
@@ -4975,8 +4965,8 @@ function showOptions( expandItem ) {
 
 	function generateDefaultSubscribeTopic() {
 		var topic;
-		if ( OSApp.controller.settings.mac ) {
-			topic = OSApp.controller.settings.mac;
+		if ( OSApp.currentSession.controller.settings.mac ) {
+			topic = OSApp.currentSession.controller.settings.mac;
 			topic = topic.replaceAll( ":", "" );
 			topic = "OS-" + topic;
 		} else {
@@ -5424,7 +5414,7 @@ var showHome = ( function() {
 			"</div>" +
 		"</div>" ),
 		addTimer = function( station, rem ) {
-			OSApp.timers[ "station-" + station ] = {
+			OSApp.uiState.timers[ "station-" + station ] = {
 				val: rem,
 				station: station,
 				update: function() {
@@ -5512,8 +5502,8 @@ var showHome = ( function() {
 				name = button.siblings( "[id='station_" + sid + "']" ),
 				showSpecialOptions = function( value ) {
 					var opts = select.find( "#specialOpts" ),
-						data = OSApp.controller.special && OSApp.controller.special.hasOwnProperty( sid ) ? OSApp.controller.special[ sid ].sd : "",
-						type  = OSApp.controller.special && OSApp.controller.special.hasOwnProperty( sid ) ? OSApp.controller.special[ sid ].st : 0;
+						data = OSApp.currentSession.controller.special && OSApp.currentSession.controller.special.hasOwnProperty( sid ) ? OSApp.currentSession.controller.special[ sid ].sd : "",
+						type  = OSApp.currentSession.controller.special && OSApp.currentSession.controller.special.hasOwnProperty( sid ) ? OSApp.currentSession.controller.special[ sid ].st : 0;
 
 					opts.empty();
 
@@ -5559,8 +5549,8 @@ var showHome = ( function() {
 						// Restrict selection to GPIO pins available on the RPi R2.
 						var gpioPin = 5, activeState = 1, freePins = [ ], sel;
 
-						if ( OSApp.controller.settings.gpio ) {
-							freePins = OSApp.controller.settings.gpio;
+						if ( OSApp.currentSession.controller.settings.gpio ) {
+							freePins = OSApp.currentSession.controller.settings.gpio;
 						} else if ( getHWVersion() === "OSPi" ) {
 							freePins = [ 5, 6, 7, 8, 9, 10, 11, 12, 13, 16, 18, 19, 20, 21, 23, 24, 25, 26 ];
 						} else if ( getHWVersion() === "2.3" ) {
@@ -5668,7 +5658,7 @@ var showHome = ( function() {
 								} else if ( result === -2 ) {
 
 									// Likely an invalid password since the firmware version is present but no other data
-									text = _( "Password on remote controller does not match the password on this OSApp.controller." );
+									text = _( "Password on remote controller does not match the password on this OSApp.currentSession.controller." );
 								} else if ( result === -3 ) {
 
 									// Remote controller is not configured as an extender
@@ -5851,12 +5841,12 @@ var showHome = ( function() {
 							"<option data-hs='2' value='2'>" + _( "Remote Station (IP)" ) + "</option>" +
 							"<option data-hs='3' value='3'" + (
 								checkOSVersion( 217 ) && (
-									( typeof OSApp.controller.settings.gpio !== "undefined" && OSApp.controller.settings.gpio.length > 0 ) || getHWVersion() === "OSPi" || getHWVersion() === "2.3"
+									( typeof OSApp.currentSession.controller.settings.gpio !== "undefined" && OSApp.currentSession.controller.settings.gpio.length > 0 ) || getHWVersion() === "OSPi" || getHWVersion() === "2.3"
 								) ? ">" : " disabled>"
 							) + _( "GPIO" ) + "</option>" +
 							"<option data-hs='4' value='4'" + ( checkOSVersion( 217 ) ? ">" : " disabled>" ) + _( "HTTP" ) + "</option>" +
-							"<option data-hs='5' value='5'" + ( typeof OSApp.controller.settings.email === "object" ? ">" : " disabled>" ) + _( "HTTPS" ) + "</option>" +
-							"<option data-hs='6' value='6'" + ( typeof OSApp.controller.settings.email === "object" ? ">" : " disabled>" ) + _( "Remote Station (OTC)" ) + "</option>" +
+							"<option data-hs='5' value='5'" + ( typeof OSApp.currentSession.controller.settings.email === "object" ? ">" : " disabled>" ) + _( "HTTPS" ) + "</option>" +
+							"<option data-hs='6' value='6'" + ( typeof OSApp.currentSession.controller.settings.email === "object" ? ">" : " disabled>" ) + _( "Remote Station (OTC)" ) + "</option>" +
 						"</select>" +
 						"<div id='specialOpts'></div>";
 			}
@@ -5928,7 +5918,7 @@ var showHome = ( function() {
 				updateControllerStationSpecial( function() {
 					select.find( "#hs" )
 						.removeClass( "ui-disabled" )
-						.find( "option[data-hs='" + OSApp.controller.special[ sid ].st + "']" ).prop( "selected", true );
+						.find( "option[data-hs='" + OSApp.currentSession.controller.special[ sid ].st + "']" ).prop( "selected", true );
 					select.find( "#hs" ).change();
 				} );
 			} else {
@@ -5979,7 +5969,7 @@ var showHome = ( function() {
 				names = {},
 				attrib, bid, sid, gid, s;
 
-			for ( bid = 0; bid < OSApp.controller.settings.nbrd; bid++ ) {
+			for ( bid = 0; bid < OSApp.currentSession.controller.settings.nbrd; bid++ ) {
 				if ( Supported.master( OSApp.Constants.options.MASTER_STATION_1 ) ) {
 					master[ "m" + bid ] = 0;
 				}
@@ -6093,8 +6083,8 @@ var showHome = ( function() {
 		updateClock = function() {
 
 			// Update the current time
-			OSApp.timers.clock = {
-				val: OSApp.controller.settings.devt,
+			OSApp.uiState.timers.clock = {
+				val: OSApp.currentSession.controller.settings.devt,
 				update: function() {
 					page.find( "#clock-s" ).text( dateToString( new Date( this.val * 1000 ), null, 1 ) );
 				}
@@ -6240,12 +6230,12 @@ var showHome = ( function() {
 		reorderCards = function() {
 			var cardHolder = page.find( "#os-stations-list" ),
 				cardList = cardHolder.children(),
-				compareCards = OSApp.groupView ? compareCardsGroupView : compareCardsStandardView;
+				compareCards = OSApp.uiState.groupView ? compareCardsGroupView : compareCardsStandardView;
 
 			// Sort stations
 			cardList.sort( compareCards ).detach().appendTo( cardHolder );
 
-			if ( Supported.groups() && OSApp.groupView ) {
+			if ( Supported.groups() && OSApp.uiState.groupView ) {
 				updateGroupView( cardHolder, cardList );
 			} else {
 				updateStandardView( cardHolder, cardList );
@@ -6264,15 +6254,15 @@ var showHome = ( function() {
 			updateSites();
 			updateSensorShowArea( page );
 
-			page.find( ".waterlevel" ).text( OSApp.controller.options.wl );
+			page.find( ".waterlevel" ).text( OSApp.currentSession.controller.options.wl );
 			page.find( ".sitename" ).text( siteSelect.val() );
 
 			// Remove unused stations
 			CardList.getAllCards( cardList ).filter( function( _, a ) {
-				return parseInt( $( a ).data( "station" ), 10 ) >= OSApp.controller.stations.snames.length;
+				return parseInt( $( a ).data( "station" ), 10 ) >= OSApp.currentSession.controller.stations.snames.length;
 			} ).remove();
 
-			for ( var sid = 0; sid < OSApp.controller.stations.snames.length; sid++ ) {
+			for ( var sid = 0; sid < OSApp.currentSession.controller.stations.snames.length; sid++ ) {
 				isScheduled = Station.getPID( sid ) > 0;
 				isRunning = Station.getStatus( sid ) > 0;
 				pname = isScheduled ? pidname( Station.getPID( sid ) ) : "";
@@ -6299,7 +6289,7 @@ var showHome = ( function() {
 						card.show().removeClass( "station-hidden" );
 					}
 
-					card.find( "#station_" + sid ).text( OSApp.controller.stations.snames[ sid ] );
+					card.find( "#station_" + sid ).text( OSApp.currentSession.controller.stations.snames[ sid ] );
 					card.find( ".special-station" ).removeClass( "hidden" ).addClass( Station.isSpecial( sid ) ? "" : "hidden" );
 					card.find( ".station-status" ).removeClass( "on off wait" ).addClass( isRunning ? "on" : ( isScheduled ? "wait" : "off" ) );
 					if ( Station.isMaster( sid ) ) {
@@ -6328,7 +6318,7 @@ var showHome = ( function() {
 
 							// Show the remaining time if it's greater than 0
 							line += " <span id=" + ( qPause ? "'pause" : "'countdown-" ) + sid + "' class='nobr'>(" + sec2hms( rem ) + " " + _( "remaining" ) + ")</span>";
-							if ( OSApp.controller.status[ sid ] ) {
+							if ( OSApp.currentSession.controller.status[ sid ] ) {
 								addTimer( sid, rem );
 							}
 						}
@@ -6383,7 +6373,7 @@ var showHome = ( function() {
 		siteSelect = $( "#site-selector" );
 
 		updateSites( function() {
-			for ( i = 0; i < OSApp.controller.stations.snames.length; i++ ) {
+			for ( i = 0; i < OSApp.currentSession.controller.stations.snames.length; i++ ) {
 				addCard( i );
 			}
 
@@ -6392,7 +6382,7 @@ var showHome = ( function() {
 		} );
 
 		page.find( ".sitename" ).toggleClass( "hidden", OSApp.currentSession.local ? true : false ).text( siteSelect.val() );
-		page.find( ".waterlevel" ).text( OSApp.controller.options.wl );
+		page.find( ".waterlevel" ).text( OSApp.currentSession.controller.options.wl );
 
 		updateSensorShowArea( page );
 		updateClock();
@@ -6462,7 +6452,7 @@ var showHome = ( function() {
 
 			areYouSure( question, Station.getName( sid ), function() {
 
-				var shiftStations = OSApp.popupData.shift === true ? 1 : 0;
+				var shiftStations = OSApp.uiState.popupData.shift === true ? 1 : 0;
 
 				sendToOS( "/cm?sid=" + sid + "&ssta=" + shiftStations + "&en=0&pw=" ).done( function() {
 
@@ -6472,7 +6462,7 @@ var showHome = ( function() {
 					Station.setStatus( sid, 0 );
 
 					// Remove any timer associated with the station
-					delete OSApp.timers[ "station-" + sid ];
+					delete OSApp.uiState.timers[ "station-" + sid ];
 
 					refreshStatus();
 					showerror( _( "Station has been stopped" ) );
@@ -6509,14 +6499,14 @@ var showHome = ( function() {
 					leftBtn: {
 						icon: "bullets",
 						on: function() {
-							 OSApp.openPanel();
+							 OSApp.uiState.openPanel();
 							return false;
 						}
 					},
 					rightBtn: {
 						icon: "bell",
 						class: "notifications",
-						text: "<span class='notificationCount ui-li-count ui-btn-corner-all'>" + OSApp.notifications.length + "</span>",
+						text: "<span class='notificationCount ui-li-count ui-btn-corner-all'>" + OSApp.uiState.notifications.length + "</span>",
 						on: function() {
 							showNotifications();
 							return false;
@@ -6525,7 +6515,7 @@ var showHome = ( function() {
 					animate: ( firstLoad ? false : true )
 				} );
 
-				if ( OSApp.notifications.length === 0 ) {
+				if ( OSApp.uiState.notifications.length === 0 ) {
 					$( header[ 2 ] ).hide();
 				}
 			}
@@ -6534,7 +6524,7 @@ var showHome = ( function() {
 		$( "#sprinklers" ).remove();
 		$.mobile.pageContainer.append( page );
 
-		if ( !$.isEmptyObject( OSApp.weather ) ) {
+		if ( !$.isEmptyObject( OSApp.currentSession.weather ) ) {
 			updateWeatherBox();
 		}
 	}
@@ -6754,7 +6744,7 @@ function changeStatus( seconds, color, line, onclick ) {
 	onclick = onclick || function() {};
 
 	if ( seconds > 1 ) {
-		OSApp.timers.statusbar = {
+		OSApp.uiState.timers.statusbar = {
 			val: seconds,
 			type: "statusbar",
 			update: function() {
@@ -6763,17 +6753,17 @@ function changeStatus( seconds, color, line, onclick ) {
 		};
 	}
 
-	if ( isControllerConnected() && typeof OSApp.controller.settings.curr !== "undefined" ) {
-		html += _( "Current" ) + ": " + OSApp.controller.settings.curr + " mA ";
+	if ( isControllerConnected() && typeof OSApp.currentSession.controller.settings.curr !== "undefined" ) {
+		html += _( "Current" ) + ": " + OSApp.currentSession.controller.settings.curr + " mA ";
 	}
 
 	if (
 		isControllerConnected() &&
-		( OSApp.controller.options.urs === 2 || OSApp.controller.options.sn1t === 2 ) &&
-		typeof OSApp.controller.settings.flcrt !== "undefined" &&
-		typeof OSApp.controller.settings.flwrt !== "undefined"
+		( OSApp.currentSession.controller.options.urs === 2 || OSApp.currentSession.controller.options.sn1t === 2 ) &&
+		typeof OSApp.currentSession.controller.settings.flcrt !== "undefined" &&
+		typeof OSApp.currentSession.controller.settings.flwrt !== "undefined"
 	) {
-		html += "<span style='padding-left:5px'>" + _( "Flow" ) + ": " + ( flowCountToVolume( OSApp.controller.settings.flcrt ) / ( OSApp.controller.settings.flwrt / 60 ) ).toFixed( 2 ) + " L/min</span>";
+		html += "<span style='padding-left:5px'>" + _( "Flow" ) + ": " + ( flowCountToVolume( OSApp.currentSession.controller.settings.flcrt ) / ( OSApp.currentSession.controller.settings.flwrt / 60 ) ).toFixed( 2 ) + " L/min</span>";
 	}
 
 	if ( html !== "" ) {
@@ -6795,7 +6785,7 @@ function checkStatus() {
 	}
 
 	// Handle controller configured as extender
-	if ( OSApp.controller.options.re === 1 ) {
+	if ( OSApp.currentSession.controller.options.re === 1 ) {
 		changeStatus( 0, "red", "<p class='running-text center pointer'>" + _( "Configured as Extender" ) + "</p>", function() {
 			areYouSure( _( "Do you wish to disable extender mode?" ), "", function() {
 				showLoading( "#footer-running" );
@@ -6808,7 +6798,7 @@ function checkStatus() {
 	}
 
 	// Handle operation disabled
-	if ( !OSApp.controller.settings.en ) {
+	if ( !OSApp.currentSession.controller.settings.en ) {
 		changeStatus( 0, "red", "<p class='running-text center pointer'>" + _( "System Disabled" ) + "</p>", function() {
 			areYouSure( _( "Do you want to re-enable system operation?" ), "", function() {
 				showLoading( "#footer-running" );
@@ -6821,16 +6811,16 @@ function checkStatus() {
 	}
 
 	// Handle queue paused
-	if ( OSApp.controller.settings.pq ) {
+	if ( OSApp.currentSession.controller.settings.pq ) {
 		line = "<p class='running-text center pointer'>" + _( "Stations Currently Paused" );
 
-		if ( OSApp.controller.settings.pt ) {
-			line += " <span id='countdown' class='nobr'>(" + sec2hms( OSApp.controller.settings.pt ) + " " + _( "remaining" ) + ")</span>";
+		if ( OSApp.currentSession.controller.settings.pt ) {
+			line += " <span id='countdown' class='nobr'>(" + sec2hms( OSApp.currentSession.controller.settings.pt ) + " " + _( "remaining" ) + ")</span>";
 		}
 
 		line += "</p>";
 
-		changeStatus( OSApp.controller.settings.pt || 0, "yellow", line, function() {
+		changeStatus( OSApp.currentSession.controller.settings.pt || 0, "yellow", line, function() {
 			areYouSure( _( "Do you want to resume station operation?" ), "", function() {
 				showLoading( "#footer-running" );
 				sendToOS( "/pq?pw=&dur=0" ).done( function() {
@@ -6843,9 +6833,9 @@ function checkStatus() {
 
 	// Handle open stations
 	open = {};
-	for ( i = 0; i < OSApp.controller.status.length; i++ ) {
-		if ( OSApp.controller.status[ i ] && !Station.isMaster( i ) ) {
-			open[ i ] = OSApp.controller.status[ i ];
+	for ( i = 0; i < OSApp.currentSession.controller.status.length; i++ ) {
+		if ( OSApp.currentSession.controller.status[ i ] && !Station.isMaster( i ) ) {
+			open[ i ] = OSApp.currentSession.controller.status[ i ];
 		}
 	}
 
@@ -6878,8 +6868,8 @@ function checkStatus() {
 
 	// Handle a single station open
 	match = false;
-	for ( i = 0; i < OSApp.controller.stations.snames.length; i++ ) {
-		if ( OSApp.controller.settings.ps[ i ] && Station.getPID( i ) && Station.getStatus( i ) && !Station.isMaster( i ) ) {
+	for ( i = 0; i < OSApp.currentSession.controller.stations.snames.length; i++ ) {
+		if ( OSApp.currentSession.controller.settings.ps[ i ] && Station.getPID( i ) && Station.getStatus( i ) && !Station.isMaster( i ) ) {
 			match = true;
 			pid = Station.getPID( i );
 			pname = pidname( pid );
@@ -6899,9 +6889,9 @@ function checkStatus() {
 	}
 
 	// Handle rain delay enabled
-	if ( OSApp.controller.settings.rd ) {
+	if ( OSApp.currentSession.controller.settings.rd ) {
 		changeStatus( 0, "red", "<p class='running-text center pointer'>" +
-			_( "Rain delay until" ) + " " + dateToString( new Date( OSApp.controller.settings.rdst * 1000 ) ) + "</p>",
+			_( "Rain delay until" ) + " " + dateToString( new Date( OSApp.currentSession.controller.settings.rdst * 1000 ) ) + "</p>",
 			function() {
 				areYouSure( _( "Do you want to turn off rain delay?" ), "", function() {
 					showLoading( "#footer-running" );
@@ -6915,23 +6905,23 @@ function checkStatus() {
 	}
 
 	// Handle rain sensor triggered
-	if ( OSApp.controller.options.urs === 1 && OSApp.controller.settings.rs === 1 ) {
+	if ( OSApp.currentSession.controller.options.urs === 1 && OSApp.currentSession.controller.settings.rs === 1 ) {
 		changeStatus( 0, "red", "<p class='running-text center'>" + _( "Rain detected" ) + "</p>" );
 		return;
 	}
 
-	if ( OSApp.controller.settings.sn1 === 1 ) {
-		changeStatus( 0, "red", "<p class='running-text center'>Sensor 1 (" + ( OSApp.controller.options.sn1t === 3 ? _( "Soil" ) : _( "Rain" ) ) + _( ") Activated" ) + "</p>" );
+	if ( OSApp.currentSession.controller.settings.sn1 === 1 ) {
+		changeStatus( 0, "red", "<p class='running-text center'>Sensor 1 (" + ( OSApp.currentSession.controller.options.sn1t === 3 ? _( "Soil" ) : _( "Rain" ) ) + _( ") Activated" ) + "</p>" );
 		return;
 	}
 
-	if ( OSApp.controller.settings.sn2 === 1 ) {
-		changeStatus( 0, "red", "<p class='running-text center'>Sensor 2 (" + ( OSApp.controller.options.sn2t === 3 ? _( "Soil" ) : _( "Rain" ) ) + _( ") Activated" ) + "</p>" );
+	if ( OSApp.currentSession.controller.settings.sn2 === 1 ) {
+		changeStatus( 0, "red", "<p class='running-text center'>Sensor 2 (" + ( OSApp.currentSession.controller.options.sn2t === 3 ? _( "Soil" ) : _( "Rain" ) ) + _( ") Activated" ) + "</p>" );
 		return;
 	}
 
 	// Handle manual mode enabled
-	if ( OSApp.controller.settings.mm === 1 ) {
+	if ( OSApp.currentSession.controller.settings.mm === 1 ) {
 		changeStatus( 0, "red", "<p class='running-text center pointer'>" + _( "Manual mode enabled" ) + "</p>", function() {
 			areYouSure( _( "Do you want to turn off manual mode?" ), "", function() {
 				showLoading( "#footer-running" );
@@ -6943,16 +6933,16 @@ function checkStatus() {
 		return;
 	}
 
-	var lrdur = OSApp.controller.settings.lrun[ 2 ];
+	var lrdur = OSApp.currentSession.controller.settings.lrun[ 2 ];
 
 	// If last run duration is given, add it to the footer
 	if ( lrdur !== 0 ) {
-		var lrpid = OSApp.controller.settings.lrun[ 1 ];
+		var lrpid = OSApp.currentSession.controller.settings.lrun[ 1 ];
 		pname = pidname( lrpid );
 
 		changeStatus( 0, "transparent", "<p class='running-text smaller center pointer'>" + pname + " " + _( "last ran station" ) + " " +
-			OSApp.controller.stations.snames[ OSApp.controller.settings.lrun[ 0 ] ] + " " + _( "for" ) + " " + ( lrdur / 60 >> 0 ) + "m " + ( lrdur % 60 ) + "s " +
-			_( "on" ) + " " + dateToString( new Date( ( OSApp.controller.settings.lrun[ 3 ] - lrdur ) * 1000 ) ) + "</p>", goHome );
+			OSApp.currentSession.controller.stations.snames[ OSApp.currentSession.controller.settings.lrun[ 0 ] ] + " " + _( "for" ) + " " + ( lrdur / 60 >> 0 ) + "m " + ( lrdur % 60 ) + "s " +
+			_( "on" ) + " " + dateToString( new Date( ( OSApp.currentSession.controller.settings.lrun[ 3 ] - lrdur ) * 1000 ) ) + "</p>", goHome );
 		return;
 	}
 
@@ -6960,13 +6950,13 @@ function checkStatus() {
 }
 
 function calculateTotalRunningTime( runTimes ) {
-	var sdt = OSApp.controller.options.sdt,
+	var sdt = OSApp.currentSession.controller.options.sdt,
 		sequential, parallel;
 	if ( Supported.groups() ) {
 		sequential = new Array( OSApp.Constants.options.NUM_SEQ_GROUPS ).fill( 0 );
 		parallel = 0;
 		var sequentialMax = 0;
-		$.each( OSApp.controller.stations.snames, function( i ) {
+		$.each( OSApp.currentSession.controller.stations.snames, function( i ) {
 			var run = runTimes[ i ];
 			var gid = Station.getGIDValue( i );
 			if ( run > 0 ) {
@@ -6987,7 +6977,7 @@ function calculateTotalRunningTime( runTimes ) {
 	} else {
 		sequential = 0;
 		parallel = 0;
-		$.each( OSApp.controller.stations.snames, function( i ) {
+		$.each( OSApp.currentSession.controller.stations.snames, function( i ) {
 			var run = runTimes[ i ];
 			if ( run > 0 ) {
 				if ( Station.isSequential( i ) ) {
@@ -7026,30 +7016,30 @@ function updateTimers() {
 		lastCheck = now;
 
 		// If no timers are defined then exit
-		if ( $.isEmptyObject( OSApp.timers ) ) {
+		if ( $.isEmptyObject( OSApp.uiState.timers ) ) {
 			return;
 		}
 
-		for ( var timer in OSApp.timers ) {
-			if ( OSApp.timers.hasOwnProperty( timer ) ) {
-				if ( OSApp.timers[ timer ].val <= 0 ) {
+		for ( var timer in OSApp.uiState.timers ) {
+			if ( OSApp.uiState.timers.hasOwnProperty( timer ) ) {
+				if ( OSApp.uiState.timers[ timer ].val <= 0 ) {
 					if ( timer === "statusbar" ) {
 						showLoading( "#footer-running" );
 						refreshStatus();
 					}
 
-					if ( typeof OSApp.timers[ timer ].done === "function" ) {
-						OSApp.timers[ timer ].done();
+					if ( typeof OSApp.uiState.timers[ timer ].done === "function" ) {
+						OSApp.uiState.timers[ timer ].done();
 					}
 
-					delete OSApp.timers[ timer ];
+					delete OSApp.uiState.timers[ timer ];
 				} else {
 					if ( timer === "clock" ) {
-						++OSApp.timers[ timer ].val;
-						OSApp.timers[ timer ].update();
-					} else if ( timer === "statusbar" || typeof OSApp.timers[ timer ].station === "number" ) {
-						--OSApp.timers[ timer ].val;
-						OSApp.timers[ timer ].update();
+						++OSApp.uiState.timers[ timer ].val;
+						OSApp.uiState.timers[ timer ].update();
+					} else if ( timer === "statusbar" || typeof OSApp.uiState.timers[ timer ].station === "number" ) {
+						--OSApp.uiState.timers[ timer ].val;
+						OSApp.uiState.timers[ timer ].update();
 					}
 				}
 			}
@@ -7058,10 +7048,10 @@ function updateTimers() {
 }
 
 function removeStationTimers() {
-	for ( var timer in OSApp.timers ) {
-		if ( OSApp.timers.hasOwnProperty( timer ) ) {
+	for ( var timer in OSApp.uiState.timers ) {
+		if ( OSApp.uiState.timers.hasOwnProperty( timer ) ) {
 			if ( timer !== "clock" ) {
-				delete OSApp.timers[ timer ];
+				delete OSApp.uiState.timers[ timer ];
 			}
 		}
 	}
@@ -7094,17 +7084,17 @@ var getManual = ( function() {
 			updateControllerStatus().done( function() {
 				var item = listitems.eq( currPos ).find( "a" );
 
-				if ( OSApp.controller.options.mas ) {
-					if ( OSApp.controller.status[ OSApp.controller.options.mas - 1 ] ) {
-						listitems.eq( OSApp.controller.options.mas - 1 ).addClass( "green" );
+				if ( OSApp.currentSession.controller.options.mas ) {
+					if ( OSApp.currentSession.controller.status[ OSApp.currentSession.controller.options.mas - 1 ] ) {
+						listitems.eq( OSApp.currentSession.controller.options.mas - 1 ).addClass( "green" );
 					} else {
-						listitems.eq( OSApp.controller.options.mas - 1 ).removeClass( "green" );
+						listitems.eq( OSApp.currentSession.controller.options.mas - 1 ).removeClass( "green" );
 					}
 				}
 
-				item.text( OSApp.controller.stations.snames[ currPos ] );
+				item.text( OSApp.currentSession.controller.stations.snames[ currPos ] );
 
-				if ( OSApp.controller.status[ currPos ] ) {
+				if ( OSApp.currentSession.controller.status[ currPos ] ) {
 					item.removeClass( "yellow" ).addClass( "green" );
 				} else {
 					item.removeClass( "green yellow" );
@@ -7112,7 +7102,7 @@ var getManual = ( function() {
 			} );
 		},
 		toggle = function() {
-			if ( !OSApp.controller.settings.mm ) {
+			if ( !OSApp.currentSession.controller.settings.mm ) {
 				showerror( _( "Manual mode is not enabled. Please enable manual mode then try again." ) );
 				return false;
 			}
@@ -7127,7 +7117,7 @@ var getManual = ( function() {
 				return false;
 			}
 
-			if ( OSApp.controller.status[ currPos ] ) {
+			if ( OSApp.currentSession.controller.status[ currPos ] ) {
 				if ( checkOSPiVersion( "2.1" ) ) {
 					dest = "/sn?sid=" + sid + "&set_to=0&pw=";
 				} else {
@@ -7192,14 +7182,14 @@ var getManual = ( function() {
 	function begin() {
 		var list = "<li data-role='list-divider' data-theme='a'>" + _( "Sprinkler Stations" ) + "</li>";
 
-		page.find( "#mmm" ).prop( "checked", OSApp.controller.settings.mm ? true : false );
+		page.find( "#mmm" ).prop( "checked", OSApp.currentSession.controller.settings.mm ? true : false );
 
-		$.each( OSApp.controller.stations.snames, function( i, station ) {
+		$.each( OSApp.currentSession.controller.stations.snames, function( i, station ) {
 			if ( Station.isMaster( i ) ) {
-				list += "<li data-icon='false' class='center" + ( ( OSApp.controller.status[ i ] ) ? " green" : "" ) +
+				list += "<li data-icon='false' class='center" + ( ( OSApp.currentSession.controller.status[ i ] ) ? " green" : "" ) +
 					( Station.isDisabled( i ) ? " station-hidden' style='display:none" : "" ) + "'>" + station + " (" + _( "Master" ) + ")</li>";
 			} else {
-				list += "<li data-icon='false'><a class='mm_station center" + ( ( OSApp.controller.status[ i ] ) ? " green" : "" ) +
+				list += "<li data-icon='false'><a class='mm_station center" + ( ( OSApp.currentSession.controller.status[ i ] ) ? " green" : "" ) +
 					( Station.isDisabled( i ) ? " station-hidden' style='display:none" : "" ) + "'>" + station + "</a></li>";
 			}
 		} );
@@ -7267,16 +7257,16 @@ var getRunonce = ( function() {
 	function begin() {
 		list = "<p class='center'>" + _( "Zero value excludes the station from the run-once program." ) + "</p>";
 		progs = [];
-		if ( OSApp.controller.programs.pd.length ) {
-			for ( z = 0; z < OSApp.controller.programs.pd.length; z++ ) {
-				program = readProgram( OSApp.controller.programs.pd[ z ] );
+		if ( OSApp.currentSession.controller.programs.pd.length ) {
+			for ( z = 0; z < OSApp.currentSession.controller.programs.pd.length; z++ ) {
+				program = readProgram( OSApp.currentSession.controller.programs.pd[ z ] );
 				var prog = [];
 
 				if ( checkOSVersion( 210 ) ) {
 					prog = program.stations;
 				} else {
 					var setStations = program.stations.split( "" );
-					for ( i = 0; i < OSApp.controller.stations.snames.length; i++ ) {
+					for ( i = 0; i < OSApp.currentSession.controller.stations.snames.length; i++ ) {
 						prog.push( ( parseInt( setStations[ i ] ) ) ? program.duration : 0 );
 					}
 				}
@@ -7291,7 +7281,7 @@ var getRunonce = ( function() {
 
 		for ( i = 0; i < progs.length; i++ ) {
 			if ( checkOSVersion( 210 ) ) {
-				name = OSApp.controller.programs.pd[ i ][ 5 ];
+				name = OSApp.currentSession.controller.programs.pd[ i ][ 5 ];
 			} else {
 				name = _( "Program" ) + " " + ( i + 1 );
 			}
@@ -7299,7 +7289,7 @@ var getRunonce = ( function() {
 		}
 		quickPick += "</select>";
 		list += quickPick + "<form>";
-		$.each( OSApp.controller.stations.snames, function( i, station ) {
+		$.each( OSApp.currentSession.controller.stations.snames, function( i, station ) {
 			if ( Station.isMaster( i ) ) {
 				list += "<div class='ui-field-contain duration-input" + ( Station.isDisabled( i ) ? " station-hidden' style='display:none" : "" ) + "'>" +
 					"<label for='zone-" + i + "'>" + station + ":</label>" +
@@ -7316,15 +7306,15 @@ var getRunonce = ( function() {
 
 		page.find( ".ui-content" ).html( list ).enhanceWithin();
 
-		if ( typeof OSApp.controller.settings.rodur === "object" ) {
+		if ( typeof OSApp.currentSession.controller.settings.rodur === "object" ) {
 			var total = 0;
 
-			for ( i = 0; i < OSApp.controller.settings.rodur.length; i++ ) {
-				total += OSApp.controller.settings.rodur[ i ];
+			for ( i = 0; i < OSApp.currentSession.controller.settings.rodur.length; i++ ) {
+				total += OSApp.currentSession.controller.settings.rodur[ i ];
 			}
 
 			if ( total !== 0 ) {
-				updateLastRun( OSApp.controller.settings.rodur );
+				updateLastRun( OSApp.currentSession.controller.settings.rodur );
 			}
 		} else {
 			OSApp.Storage.get( "runonce", function( data ) {
@@ -7349,7 +7339,7 @@ var getRunonce = ( function() {
 					seconds: 60,
 					title: "Set Duration",
 					callback: function( result ) {
-						fillRunonce( Array.apply( null, Array( OSApp.controller.stations.snames.length ) ).map( function() {return result;} ) );
+						fillRunonce( Array.apply( null, Array( OSApp.currentSession.controller.stations.snames.length ) ).map( function() {return result;} ) );
 					},
 					maximum: 65535
 				} );
@@ -7492,11 +7482,11 @@ var getPreview = ( function() {
 
 	processPrograms = function( month, day, year ) {
 		previewData = [];
-		var devday = Math.floor( OSApp.controller.settings.devt / ( 60 * 60 * 24 ) ),
+		var devday = Math.floor( OSApp.currentSession.controller.settings.devt / ( 60 * 60 * 24 ) ),
 			simminutes = 0,
 			simt = Date.UTC( year, month - 1, day, 0, 0, 0, 0 ),
 			simday = ( simt / 1000 / 3600 / 24 ) >> 0,
-			nstations = OSApp.controller.settings.nbrd * 8,
+			nstations = OSApp.currentSession.controller.settings.nbrd * 8,
 			startArray = new Array( nstations ),
 			programArray = new Array( nstations ),
 			endArray = new Array( nstations ),
@@ -7524,8 +7514,8 @@ var getPreview = ( function() {
 		do {
 			busy = 0;
 			matchFound = 0;
-			for ( var pid = 0; pid < OSApp.controller.programs.pd.length; pid++ ) {
-				prog = OSApp.controller.programs.pd[ pid ];
+			for ( var pid = 0; pid < OSApp.currentSession.controller.programs.pd.length; pid++ ) {
+				prog = OSApp.currentSession.controller.programs.pd[ pid ];
 				if ( checkMatch( prog, simminutes, simt, simday, devday ) ) {
 					for ( sid = 0; sid < nstations; sid++ ) {
 						bid = sid >> 3;
@@ -7539,7 +7529,7 @@ var getPreview = ( function() {
 						if ( is21 ) {
 
 							// Skip disabled stations
-							if ( OSApp.controller.stations.stn_dis[ bid ] & ( 1 << s ) ) {
+							if ( OSApp.currentSession.controller.stations.stn_dis[ bid ] & ( 1 << s ) ) {
 								continue;
 							}
 
@@ -7550,8 +7540,8 @@ var getPreview = ( function() {
 								// Use weather scaling bit on
 								// * if options.uwt >0: using an automatic adjustment method, only applies to today
 								// * if options.uwt==0: using fixed manual adjustment, does not depend on tday
-								if ( prog[ 0 ] & 0x02 && ( ( OSApp.controller.options.uwt > 0 && simday === devday ) || OSApp.controller.options.uwt === 0 ) ) {
-									waterTime = getStationDuration( prog[ 4 ][ sid ], simt ) * OSApp.controller.options.wl / 100 >> 0;
+								if ( prog[ 0 ] & 0x02 && ( ( OSApp.currentSession.controller.options.uwt > 0 && simday === devday ) || OSApp.currentSession.controller.options.uwt === 0 ) ) {
+									waterTime = getStationDuration( prog[ 4 ][ sid ], simt ) * OSApp.currentSession.controller.options.wl / 100 >> 0;
 								} else {
 									waterTime = getStationDuration( prog[ 4 ][ sid ], simt );
 								}
@@ -7567,7 +7557,7 @@ var getPreview = ( function() {
 												dur: waterTime,
 												sid: sid,
 												pid: pid + 1,
-												gid: OSApp.controller.stations.stn_grp ? OSApp.controller.stations.stn_grp[ sid ] : -1,
+												gid: OSApp.currentSession.controller.stations.stn_grp ? OSApp.currentSession.controller.stations.stn_grp[ sid ] : -1,
 												pl: 1
 											} );
 										}
@@ -7580,7 +7570,7 @@ var getPreview = ( function() {
 							}
 						} else { // If !is21
 							if ( prog[ 7 + bid ] & ( 1 << s ) ) {
-								endArray[ sid ] = prog[ 6 ] * OSApp.controller.options.wl / 100 >> 0;
+								endArray[ sid ] = prog[ 6 ] * OSApp.currentSession.controller.options.wl / 100 >> 0;
 								programArray[ sid ] = pid + 1;
 								matchFound = 1;
 							}
@@ -7595,13 +7585,13 @@ var getPreview = ( function() {
 
 				if ( is211 ) {
 					if ( lastSeqStopTime > acctime ) {
-						seqAcctime = lastSeqStopTime + OSApp.controller.options.sdt;
+						seqAcctime = lastSeqStopTime + OSApp.currentSession.controller.options.sdt;
 					}
 
 					for ( d = 0; d < OSApp.Constants.options.NUM_SEQ_GROUPS; d++ ) {
 						seqAcctimes[ d ] = acctime;
 						if ( lastSeqStopTimes[ d ] > acctime ) {
-							seqAcctimes[ d ] = lastSeqStopTimes[ d ] + OSApp.controller.options.sdt;
+							seqAcctimes[ d ] = lastSeqStopTimes[ d ] + OSApp.currentSession.controller.options.sdt;
 						}
 					}
 
@@ -7619,10 +7609,10 @@ var getPreview = ( function() {
 							bid2 = sid >> 3;
 							s2 = sid & 0x07;
 							if ( q.gid === -1 ) { // Group id is not available
-								if ( OSApp.controller.stations.stn_seq[ bid2 ] & ( 1 << s2 ) ) {
+								if ( OSApp.currentSession.controller.stations.stn_seq[ bid2 ] & ( 1 << s2 ) ) {
 									q.st = seqAcctime;
 									seqAcctime += q.dur;
-									seqAcctime += OSApp.controller.options.sdt;
+									seqAcctime += OSApp.currentSession.controller.options.sdt;
 								} else {
 									q.st = acctime;
 									acctime++;
@@ -7631,7 +7621,7 @@ var getPreview = ( function() {
 								if ( q.gid !== OSApp.Constants.options.PARALLEL_GID_VALUE ) { // This is a sequential station
 									q.st = seqAcctimes[ q.gid ];
 									seqAcctimes[ q.gid ] += q.dur;
-									seqAcctimes[ q.gid ] += OSApp.controller.options.sdt;
+									seqAcctimes[ q.gid ] += OSApp.currentSession.controller.options.sdt;
 								} else { // This is a parallel station
 									q.st = acctime;
 									acctime++;
@@ -7647,9 +7637,9 @@ var getPreview = ( function() {
 							if ( endArray[ sid ] === 0 || startArray[ sid ] >= 0 ) {
 								continue;
 							}
-							if ( OSApp.controller.stations.stn_seq[ bid2 ] & ( 1 << s2 ) ) {
+							if ( OSApp.currentSession.controller.stations.stn_seq[ bid2 ] & ( 1 << s2 ) ) {
 								startArray[ sid ] = seqAcctime;seqAcctime += endArray[ sid ];
-								endArray[ sid ] = seqAcctime;seqAcctime += OSApp.controller.options.sdt;
+								endArray[ sid ] = seqAcctime;seqAcctime += OSApp.currentSession.controller.options.sdt;
 								plArray[ sid ] = 1;
 							} else {
 								startArray[ sid ] = acctime;
@@ -7660,22 +7650,22 @@ var getPreview = ( function() {
 						}
 					}
 				} else { // !is21
-					if ( is21 && OSApp.controller.options.seq ) {
+					if ( is21 && OSApp.currentSession.controller.options.seq ) {
 						if ( lastStopTime > acctime ) {
-							acctime = lastStopTime + OSApp.controller.options.sdt;
+							acctime = lastStopTime + OSApp.currentSession.controller.options.sdt;
 						}
 					}
-					if ( OSApp.controller.options.seq ) {
-						for ( sid = 0; sid < OSApp.controller.settings.nbrd * 8; sid++ ) {
+					if ( OSApp.currentSession.controller.options.seq ) {
+						for ( sid = 0; sid < OSApp.currentSession.controller.settings.nbrd * 8; sid++ ) {
 							if ( endArray[ sid ] === 0 || programArray[ sid ] === 0 ) {
 								continue;
 							}
 							startArray[ sid ] = acctime;acctime += endArray[ sid ];
-							endArray[ sid ] = acctime;acctime += OSApp.controller.options.sdt;
+							endArray[ sid ] = acctime;acctime += OSApp.currentSession.controller.options.sdt;
 							busy = 1;
 						}
 					} else {
-						for ( sid = 0; sid < OSApp.controller.settings.nbrd * 8; sid++ ) {
+						for ( sid = 0; sid < OSApp.currentSession.controller.settings.nbrd * 8; sid++ ) {
 							if ( endArray[ sid ] === 0 || programArray[ sid ] === 0 ) {
 								continue;
 							}
@@ -7706,7 +7696,7 @@ var getPreview = ( function() {
 				simminutes++;
 
 				// Go through stations and remove jobs that have been done
-				for ( sid = 0; sid < OSApp.controller.settings.nbrd * 8; sid++ ) {
+				for ( sid = 0; sid < OSApp.currentSession.controller.settings.nbrd * 8; sid++ ) {
 					sqi = qidArray[ sid ];
 					if ( sqi === 255 ) {
 						continue;
@@ -7742,7 +7732,7 @@ var getPreview = ( function() {
 					s2 = sid & 0x07;
 					var sst = q.st + q.dur;
 					if ( q.gid === -1 ) { // Group id is not available
-						if ( OSApp.controller.stations.stn_seq[ bid2 ] & ( 1 << s2 ) ) {
+						if ( OSApp.currentSession.controller.stations.stn_seq[ bid2 ] & ( 1 << s2 ) ) {
 							if ( sst > lastSeqStopTime ) {
 								lastSeqStopTime = sst;
 							}
@@ -7762,7 +7752,7 @@ var getPreview = ( function() {
 					if ( is211 ) {
 						lastSeqStopTime = runSched( simminutes * 60, startArray, programArray, endArray, plArray, simt );
 						simminutes++;
-						for ( sid = 0; sid < OSApp.controller.settings.nbrd * 8; sid++ ) {
+						for ( sid = 0; sid < OSApp.currentSession.controller.settings.nbrd * 8; sid++ ) {
 							if ( programArray[ sid ] > 0 && simminutes * 60 >= endArray[ sid ] ) {
 								startArray[ sid ] = -1;programArray[ sid ] = 0;endArray[ sid ] = 0;plArray[ sid ] = 0;
 							}
@@ -7770,24 +7760,24 @@ var getPreview = ( function() {
 					} else if ( is21 ) {
 						lastStopTime = runSched( simminutes * 60, startArray, programArray, endArray, plArray, simt );
 						simminutes++;
-						for ( sid = 0; sid < OSApp.controller.settings.nbrd * 8; sid++ ) {
+						for ( sid = 0; sid < OSApp.currentSession.controller.settings.nbrd * 8; sid++ ) {
 							startArray[ sid ] = -1;programArray[ sid ] = 0;endArray[ sid ] = 0;
 						}
 					} else {
 						var endminutes = runSched( simminutes * 60, startArray, programArray, endArray, plArray, simt ) / 60 >> 0;
-						if ( OSApp.controller.options.seq && simminutes !== endminutes ) {
+						if ( OSApp.currentSession.controller.options.seq && simminutes !== endminutes ) {
 							simminutes = endminutes;
 						} else {
 							simminutes++;
 						}
-						for ( sid = 0; sid < OSApp.controller.settings.nbrd * 8; sid++ ) {
+						for ( sid = 0; sid < OSApp.currentSession.controller.settings.nbrd * 8; sid++ ) {
 							startArray[ sid ] = -1;programArray[ sid ] = 0;endArray[ sid ] = 0;
 						}
 					}
 				} else {
 					simminutes++;
 					if ( is211 ) {
-					  for ( sid = 0; sid < OSApp.controller.settings.nbrd * 8; sid++ ) {
+					  for ( sid = 0; sid < OSApp.currentSession.controller.settings.nbrd * 8; sid++ ) {
 						  if ( programArray[ sid ] > 0 && simminutes * 60 >= endArray[ sid ] ) {
 							  startArray[ sid ] = -1;programArray[ sid ] = 0;endArray[ sid ] = 0;plArray[ sid ] = 0;
 						  }
@@ -7799,7 +7789,7 @@ var getPreview = ( function() {
 	};
 
 	runSched216 = function( simseconds, rtQueue, qidArray, simt ) {
-		for ( var sid = 0; sid < OSApp.controller.settings.nbrd * 8; sid++ ) {
+		for ( var sid = 0; sid < OSApp.currentSession.controller.settings.nbrd * 8; sid++ ) {
 			var sqi = qidArray[ sid ];
 			if ( sqi === 255 ) {
 				continue;
@@ -7808,15 +7798,15 @@ var getPreview = ( function() {
 			if ( q.pl ) {
 
 				// If this one hasn't been plotted
-				var mas2 = typeof OSApp.controller.options.mas2 !== "undefined" ? true : false,
-					useMas1 = OSApp.controller.stations.masop[ sid >> 3 ] & ( 1 << ( sid % 8 ) ),
-					useMas2 = mas2 ? OSApp.controller.stations.masop2[ sid >> 3 ] & ( 1 << ( sid % 8 ) ) : false;
+				var mas2 = typeof OSApp.currentSession.controller.options.mas2 !== "undefined" ? true : false,
+					useMas1 = OSApp.currentSession.controller.stations.masop[ sid >> 3 ] & ( 1 << ( sid % 8 ) ),
+					useMas2 = mas2 ? OSApp.currentSession.controller.stations.masop2[ sid >> 3 ] & ( 1 << ( sid % 8 ) ) : false;
 
 				if ( !Station.isMaster( sid ) ) {
-					if ( OSApp.controller.options.mas > 0 && useMas1 ) {
+					if ( OSApp.currentSession.controller.options.mas > 0 && useMas1 ) {
 						previewData.push( {
-							"start": ( q.st + OSApp.controller.options.mton ),
-							"end": ( q.st + q.dur + OSApp.controller.options.mtof ),
+							"start": ( q.st + OSApp.currentSession.controller.options.mton ),
+							"end": ( q.st + q.dur + OSApp.currentSession.controller.options.mtof ),
 							"content":"",
 							"className":"master",
 							"shortname":"M" + ( mas2 ? "1" : "" ),
@@ -7825,10 +7815,10 @@ var getPreview = ( function() {
 						} );
 					}
 
-					if ( mas2 && OSApp.controller.options.mas2 > 0 && useMas2 ) {
+					if ( mas2 && OSApp.currentSession.controller.options.mas2 > 0 && useMas2 ) {
 						previewData.push( {
-							"start": ( q.st + OSApp.controller.options.mton2 ),
-							"end": ( q.st + q.dur + OSApp.controller.options.mtof2 ),
+							"start": ( q.st + OSApp.currentSession.controller.options.mton2 ),
+							"end": ( q.st + q.dur + OSApp.currentSession.controller.options.mtof2 ),
 							"content":"",
 							"className":"master",
 							"shortname":"M2",
@@ -7845,19 +7835,19 @@ var getPreview = ( function() {
 
 	runSched = function( simseconds, startArray, programArray, endArray, plArray, simt ) {
 		var endtime = simseconds;
-		for ( var sid = 0; sid < OSApp.controller.settings.nbrd * 8; sid++ ) {
+		for ( var sid = 0; sid < OSApp.currentSession.controller.settings.nbrd * 8; sid++ ) {
 			if ( programArray[ sid ] ) {
 			  if ( is211 ) {
 				if ( plArray[ sid ] ) {
-					var mas2 = typeof OSApp.controller.options.mas2 !== "undefined" ? true : false,
-						useMas1 = OSApp.controller.stations.masop[ sid >> 3 ] & ( 1 << ( sid % 8 ) ),
-						useMas2 = mas2 ? OSApp.controller.stations.masop2[ sid >> 3 ] & ( 1 << ( sid % 8 ) ) : false;
+					var mas2 = typeof OSApp.currentSession.controller.options.mas2 !== "undefined" ? true : false,
+						useMas1 = OSApp.currentSession.controller.stations.masop[ sid >> 3 ] & ( 1 << ( sid % 8 ) ),
+						useMas2 = mas2 ? OSApp.currentSession.controller.stations.masop2[ sid >> 3 ] & ( 1 << ( sid % 8 ) ) : false;
 
 					if ( !Station.isMaster( sid ) ) {
-						if ( OSApp.controller.options.mas > 0 && useMas1 ) {
+						if ( OSApp.currentSession.controller.options.mas > 0 && useMas1 ) {
 							previewData.push( {
-								"start": ( startArray[ sid ] + OSApp.controller.options.mton ),
-								"end": ( endArray[ sid ] + OSApp.controller.options.mtof ),
+								"start": ( startArray[ sid ] + OSApp.currentSession.controller.options.mton ),
+								"end": ( endArray[ sid ] + OSApp.currentSession.controller.options.mtof ),
 								"content":"",
 								"className":"master",
 								"shortname":"M" + ( mas2 ? "1" : "" ),
@@ -7866,10 +7856,10 @@ var getPreview = ( function() {
 							} );
 						}
 
-						if ( mas2 && OSApp.controller.options.mas2 > 0 && useMas2 ) {
+						if ( mas2 && OSApp.currentSession.controller.options.mas2 > 0 && useMas2 ) {
 							previewData.push( {
-								"start": ( startArray[ sid ] + OSApp.controller.options.mton2 ),
-								"end": ( endArray[ sid ] + OSApp.controller.options.mtof2 ),
+								"start": ( startArray[ sid ] + OSApp.currentSession.controller.options.mton2 ),
+								"end": ( endArray[ sid ] + OSApp.currentSession.controller.options.mtof2 ),
 								"content":"",
 								"className":"master",
 								"shortname":"M2",
@@ -7881,16 +7871,16 @@ var getPreview = ( function() {
 
 					timeToText( sid, startArray[ sid ], programArray[ sid ], endArray[ sid ], simt );
 					plArray[ sid ] = 0;
-					if ( OSApp.controller.stations.stn_seq[ sid >> 3 ] & ( 1 << ( sid & 0x07 ) ) ) {
+					if ( OSApp.currentSession.controller.stations.stn_seq[ sid >> 3 ] & ( 1 << ( sid & 0x07 ) ) ) {
 					  endtime = ( endtime > endArray[ sid ] ) ? endtime : endArray[ sid ];
 					}
 				}
 			  } else {
-				if ( OSApp.controller.options.seq === 1 ) {
-					if ( Station.isMaster( sid ) && ( OSApp.controller.stations.masop[ sid >> 3 ] & ( 1 << ( sid % 8 ) ) ) ) {
+				if ( OSApp.currentSession.controller.options.seq === 1 ) {
+					if ( Station.isMaster( sid ) && ( OSApp.currentSession.controller.stations.masop[ sid >> 3 ] & ( 1 << ( sid % 8 ) ) ) ) {
 						previewData.push( {
-							"start": ( startArray[ sid ] + OSApp.controller.options.mton ),
-							"end": ( endArray[ sid ] + OSApp.controller.options.mtof ),
+							"start": ( startArray[ sid ] + OSApp.currentSession.controller.options.mton ),
+							"end": ( endArray[ sid ] + OSApp.currentSession.controller.options.mtof ),
 							"content":"",
 							"className":"master",
 							"shortname":"M",
@@ -7902,7 +7892,7 @@ var getPreview = ( function() {
 					endtime = endArray[ sid ];
 				} else {
 					timeToText( sid, simseconds, programArray[ sid ], endArray[ sid ], simt );
-					if ( Station.isMaster( sid ) && ( OSApp.controller.stations.masop[ sid >> 3 ] & ( 1 << ( sid % 8 ) ) ) ) {
+					if ( Station.isMaster( sid ) && ( OSApp.currentSession.controller.stations.masop[ sid >> 3 ] & ( 1 << ( sid % 8 ) ) ) ) {
 						endtime = ( endtime > endArray[ sid ] ) ? endtime : endArray[ sid ];
 					}
 				}
@@ -7910,7 +7900,7 @@ var getPreview = ( function() {
 			}
 		}
 		if ( !is211 ) {
-		  if ( OSApp.controller.options.seq === 0 && OSApp.controller.options.mas > 0 ) {
+		  if ( OSApp.currentSession.controller.options.seq === 0 && OSApp.currentSession.controller.options.mas > 0 ) {
 			  previewData.push( {
 				  "start": simseconds,
 				  "end": endtime,
@@ -7929,17 +7919,17 @@ var getPreview = ( function() {
 		var className = "program-" + ( ( pid + 3 ) % 4 ),
 			pname = "P" + pid;
 
-		if ( ( ( OSApp.controller.settings.rd !== 0 ) &&
-			( simt + start + ( OSApp.controller.options.tz - 48 ) * 900 <= OSApp.controller.settings.rdst * 1000 ) ||
-			OSApp.controller.options.urs === 1 && OSApp.controller.settings.rs === 1 ) &&
-			( typeof OSApp.controller.stations.ignore_rain === "object" &&
-				( OSApp.controller.stations.ignore_rain[ ( sid / 8 ) >> 0 ] & ( 1 << ( sid % 8 ) ) ) === 0 ) ) {
+		if ( ( ( OSApp.currentSession.controller.settings.rd !== 0 ) &&
+			( simt + start + ( OSApp.currentSession.controller.options.tz - 48 ) * 900 <= OSApp.currentSession.controller.settings.rdst * 1000 ) ||
+			OSApp.currentSession.controller.options.urs === 1 && OSApp.currentSession.controller.settings.rs === 1 ) &&
+			( typeof OSApp.currentSession.controller.stations.ignore_rain === "object" &&
+				( OSApp.currentSession.controller.stations.ignore_rain[ ( sid / 8 ) >> 0 ] & ( 1 << ( sid % 8 ) ) ) === 0 ) ) {
 
 			className = "delayed";
 		}
 
 		if ( checkOSVersion( 210 ) ) {
-			pname = OSApp.controller.programs.pd[ pid - 1 ][ 5 ];
+			pname = OSApp.currentSession.controller.programs.pd[ pid - 1 ][ 5 ];
 		}
 
 		previewData.push( {
@@ -7949,7 +7939,7 @@ var getPreview = ( function() {
 			"content":pname,
 			"pid": pid - 1,
 			"shortname":"S" + ( sid + 1 ),
-			"group": OSApp.controller.stations.snames[ sid ],
+			"group": OSApp.currentSession.controller.stations.snames[ sid ],
 			"station": sid
 		} );
 	};
@@ -8310,7 +8300,7 @@ var getPreview = ( function() {
 		is216 = checkOSVersion( 216 );
 
 		if ( page.find( "#preview_date" ).val() === "" ) {
-			now = new Date( OSApp.controller.settings.devt * 1000 );
+			now = new Date( OSApp.currentSession.controller.settings.devt * 1000 );
 			date = now.toISOString().slice( 0, 10 ).split( "-" );
 			day = new Date( date[ 0 ], date[ 1 ] - 1, date[ 2 ] );
 			page.find( "#preview_date" ).val( date.join( "-" ) );
@@ -8471,12 +8461,12 @@ var getLogs = ( function() {
 						shortname = _( "RD" );
 					} else if ( this[ 1 ] === "s1" ) {
 						className = "delayed";
-						name = OSApp.controller.options.sn1t === 3 ? _( "Soil Sensor" ) : _( "Rain Sensor" );
+						name = OSApp.currentSession.controller.options.sn1t === 3 ? _( "Soil Sensor" ) : _( "Rain Sensor" );
 						group = name;
 						shortname = _( "SEN1" );
 					} else if ( this[ 1 ] === "s2" ) {
 						className = "delayed";
-						name = OSApp.controller.options.sn2t === 3 ? _( "Soil Sensor" ) : _( "Rain Sensor" );
+						name = OSApp.currentSession.controller.options.sn2t === 3 ? _( "Soil Sensor" ) : _( "Rain Sensor" );
 						group = name;
 						shortname = _( "SEN2" );
 					} else if ( pid === 0 ) {
@@ -8484,7 +8474,7 @@ var getLogs = ( function() {
 					} else {
 						className = "program-" + ( ( pid + 3 ) % 4 );
 						name = pidname( pid );
-						group = OSApp.controller.stations.snames[ station ];
+						group = OSApp.currentSession.controller.stations.snames[ station ];
 						shortname = "S" + ( station + 1 );
 					}
 
@@ -8879,16 +8869,16 @@ var getLogs = ( function() {
 
 	function begin() {
 		var additionalMetrics = checkOSVersion( 219 ) ? [
-			OSApp.controller.options.sn1t === 3 ? _( "Soil Sensor" ) : _( "Rain Sensor" ),
-			OSApp.controller.options.sn2t === 3 ? _( "Soil Sensor" ) : _( "Rain Sensor" ),
+			OSApp.currentSession.controller.options.sn1t === 3 ? _( "Soil Sensor" ) : _( "Rain Sensor" ),
+			OSApp.currentSession.controller.options.sn2t === 3 ? _( "Soil Sensor" ) : _( "Rain Sensor" ),
 			_( "Rain Delay" )
 		] : [ _( "Rain Sensor" ), _( "Rain Delay" ) ];
 
-		stations = $.merge( $.merge( [], OSApp.controller.stations.snames ), additionalMetrics );
+		stations = $.merge( $.merge( [], OSApp.currentSession.controller.stations.snames ), additionalMetrics );
 		page.find( ".clear_logs" ).toggleClass( "hidden", ( isOSPi() || checkOSVersion( 210 ) ?  false : true ) );
 
 		if ( logStart.val() === "" || logEnd.val() === "" ) {
-			var now = new Date( OSApp.controller.settings.devt * 1000 );
+			var now = new Date( OSApp.currentSession.controller.settings.devt * 1000 );
 			logStart.val( new Date( now.getTime() - 604800000 ).toISOString().slice( 0, 10 ) );
 			logEnd.val( now.toISOString().slice( 0, 10 ) );
 		}
@@ -8986,7 +8976,7 @@ var getPrograms = ( function() {
 	.on( "pagebeforeshow", function() {
 		updateProgramHeader();
 
-		if ( typeof expandId !== "number" && OSApp.controller.programs.pd.length === 1 ) {
+		if ( typeof expandId !== "number" && OSApp.currentSession.controller.programs.pd.length === 1 ) {
 			expandId = 0;
 		}
 
@@ -9109,7 +9099,7 @@ function expandProgram( program ) {
 	} );
 
 	program.find( "[id^='run-']" ).on( "click", function() {
-		var name = checkOSVersion( 210 ) ? OSApp.controller.programs.pd[ id ][ 5 ] : "Program " + id;
+		var name = checkOSVersion( 210 ) ? OSApp.currentSession.controller.programs.pd[ id ][ 5 ] : "Program " + id;
 
 		areYouSure( _( "Are you sure you want to start " + name + " now?" ), "", function() {
 			var runonce = [],
@@ -9119,12 +9109,12 @@ function expandProgram( program ) {
 				};
 
 			if ( checkOSVersion( 210 ) ) {
-				runonce = OSApp.controller.programs.pd[ id ][ 4 ];
+				runonce = OSApp.currentSession.controller.programs.pd[ id ][ 4 ];
 
-				if ( ( OSApp.controller.programs.pd[ id ][ 0 ] >> 1 ) & 1 ) {
+				if ( ( OSApp.currentSession.controller.programs.pd[ id ][ 0 ] >> 1 ) & 1 ) {
 					areYouSure( _( "Do you wish to apply the current watering level?" ), "", function() {
 						for ( var i = runonce.length - 1; i >= 0; i-- ) {
-							runonce[ i ] = parseInt( runonce[ i ] * ( OSApp.controller.options.wl / 100 ) );
+							runonce[ i ] = parseInt( runonce[ i ] * ( OSApp.currentSession.controller.options.wl / 100 ) );
 						}
 						finish();
 					}, finish );
@@ -9168,7 +9158,7 @@ function readProgram183( program ) {
 		newdata = {};
 
 	newdata.en = program[ 0 ];
-	for ( var n = 0; n < OSApp.controller.programs.nboards; n++ ) {
+	for ( var n = 0; n < OSApp.currentSession.controller.programs.nboards; n++ ) {
 		var bits = program[ 7 + n ];
 		for ( var s = 0; s < 8; s++ ) {
 			stations += ( bits & ( 1 << s ) ) ? "1" : "0";
@@ -9313,8 +9303,8 @@ function pidname( pid ) {
 		pname = _( "Manual program" );
 	} else if ( pid === 254 || pid === 98 ) {
 		pname = _( "Run-once program" );
-	} else if ( checkOSVersion( 210 ) && pid <= OSApp.controller.programs.pd.length ) {
-		pname = OSApp.controller.programs.pd[ pid - 1 ][ 5 ];
+	} else if ( checkOSVersion( 210 ) && pid <= OSApp.currentSession.controller.programs.pd.length ) {
+		pname = OSApp.currentSession.controller.programs.pd[ pid - 1 ][ 5 ];
 	}
 
 	return pname;
@@ -9325,7 +9315,7 @@ function updateProgramHeader() {
 	$( "#programs_list" ).find( "[id^=program-]" ).each( function( a, b ) {
 		var item = $( b ),
 			heading = item.find( ".ui-collapsible-heading-toggle" ),
-			en = checkOSVersion( 210 ) ? ( OSApp.controller.programs.pd[ a ][ 0 ] ) & 0x01 : OSApp.controller.programs.pd[ a ][ 0 ];
+			en = checkOSVersion( 210 ) ? ( OSApp.currentSession.controller.programs.pd[ a ][ 0 ] ) & 0x01 : OSApp.currentSession.controller.programs.pd[ a ][ 0 ];
 
 		if ( en ) {
 			heading.removeClass( "red" );
@@ -9337,16 +9327,16 @@ function updateProgramHeader() {
 
 //Make the list of all programs
 function makeAllPrograms() {
-	if ( OSApp.controller.programs.pd.length === 0 ) {
+	if ( OSApp.currentSession.controller.programs.pd.length === 0 ) {
 		return "<p class='center'>" + _( "You have no programs currently added. Tap the Add button on the top right corner to get started." ) + "</p>";
 	}
 	var list = "<p class='center'>" + _( "Click any program below to expand/edit. Be sure to save changes." ) + "</p><div data-role='collapsible-set'>",
 		name;
 
-	for ( var i = 0; i < OSApp.controller.programs.pd.length; i++ ) {
+	for ( var i = 0; i < OSApp.currentSession.controller.programs.pd.length; i++ ) {
 		name = _( "Program" ) + " " + ( i + 1 );
 		if ( checkOSVersion( 210 ) ) {
-			name = OSApp.controller.programs.pd[ i ][ 5 ];
+			name = OSApp.currentSession.controller.programs.pd[ i ][ 5 ];
 		}
 		list += "<fieldset id='program-" + i + "' data-role='collapsible'><h3><a " + ( i > 0 ? "" : "style='visibility:hidden' " ) +
 				"class='hidden ui-btn ui-btn-icon-notext ui-icon-arrow-u ui-btn-corner-all move-up'></a><a class='ui-btn ui-btn-corner-all program-copy'>" +
@@ -9373,7 +9363,7 @@ function makeProgram183( n, isCopy ) {
 	if ( n === "new" ) {
 		program = { "en":0, "weather":0, "is_interval":0, "is_even":0, "is_odd":0, "duration":0, "interval":0, "start":0, "end":0, "days":[ 0, 0 ] };
 	} else {
-		program = readProgram( OSApp.controller.programs.pd[ n ] );
+		program = readProgram( OSApp.currentSession.controller.programs.pd[ n ] );
 	}
 
 	if ( typeof program.days === "string" ) {
@@ -9427,11 +9417,11 @@ function makeProgram183( n, isCopy ) {
 
 	list += "<fieldset data-role='controlgroup'><legend>" + _( "Stations:" ) + "</legend>";
 
-	for ( j = 0; j < OSApp.controller.stations.snames.length; j++ ) {
+	for ( j = 0; j < OSApp.currentSession.controller.stations.snames.length; j++ ) {
 		list += "<label for='station_" + j + "-" + id + "'><input " +
 			( Station.isDisabled( j ) ? "data-wrapper-class='station-hidden hidden' " : "" ) +
 			"data-mini='true' type='checkbox' " + ( ( ( typeof setStations !== "undefined" ) && setStations[ j ] ) ? "checked='checked'" : "" ) +
-			" name='station_" + j + "-" + id + "' id='station_" + j + "-" + id + "'>" + OSApp.controller.stations.snames[ j ] + "</label>";
+			" name='station_" + j + "-" + id + "' id='station_" + j + "-" + id + "'>" + OSApp.currentSession.controller.stations.snames[ j ] + "</label>";
 	}
 
 	list += "</fieldset>";
@@ -9541,7 +9531,7 @@ function makeProgram21( n, isCopy ) {
 	if ( n === "new" ) {
 		program = { "name":"", "en":0, "weather":0, "is_interval":0, "is_even":0, "is_odd":0, "interval":0, "start":0, "days":[ 0, 0 ], "repeat":0, "stations":[] };
 	} else {
-		program = readProgram( OSApp.controller.programs.pd[ n ] );
+		program = readProgram( OSApp.currentSession.controller.programs.pd[ n ] );
 	}
 
 	if ( typeof program.days === "string" ) {
@@ -9566,8 +9556,8 @@ function makeProgram21( n, isCopy ) {
 
 	// Progran name
 	list += "<label for='name-" + id + "'>" + _( "Program Name" ) + "</label>" +
-		"<input data-mini='true' type='text' name='name-" + id + "' id='name-" + id + "' maxlength='" + OSApp.controller.programs.pnsize + "' " +
-		"placeholder='" + _( "Program" ) + " " + ( OSApp.controller.programs.pd.length + 1 ) + "' value=\"" + program.name + "\">";
+		"<input data-mini='true' type='text' name='name-" + id + "' id='name-" + id + "' maxlength='" + OSApp.currentSession.controller.programs.pnsize + "' " +
+		"placeholder='" + _( "Program" ) + " " + ( OSApp.currentSession.controller.programs.pd.length + 1 ) + "' value=\"" + program.name + "\">";
 
 	// Program enable/disable flag
 	list += "<label for='en-" + id + "'><input data-mini='true' type='checkbox' " +
@@ -9666,16 +9656,16 @@ function makeProgram21( n, isCopy ) {
 	var hideDisabled = $( "#programs" ).hasClass( "show-hidden" ) ? "" : "' style='display:none";
 
 	// Show station duration inputs
-	for ( j = 0; j < OSApp.controller.stations.snames.length; j++ ) {
+	for ( j = 0; j < OSApp.currentSession.controller.stations.snames.length; j++ ) {
 		if ( Station.isMaster( j ) ) {
 			list += "<div class='ui-field-contain duration-input" + ( Station.isDisabled( j ) ? " station-hidden" + hideDisabled : "" ) + "'>" +
-				"<label for='station_" + j + "-" + id + "'>" + OSApp.controller.stations.snames[ j ] + ":</label>" +
+				"<label for='station_" + j + "-" + id + "'>" + OSApp.currentSession.controller.stations.snames[ j ] + ":</label>" +
 				"<button disabled='true' data-mini='true' name='station_" + j + "-" + id + "' id='station_" + j + "-" + id + "' value='0'>" +
 				_( "Master" ) + "</button></div>";
 		} else {
 			time = program.stations[ j ] || 0;
 			list += "<div class='ui-field-contain duration-input" + ( Station.isDisabled( j ) ? " station-hidden" + hideDisabled : "" ) + "'>" +
-				"<label for='station_" + j + "-" + id + "'>" + OSApp.controller.stations.snames[ j ] + ":</label>" +
+				"<label for='station_" + j + "-" + id + "'>" + OSApp.currentSession.controller.stations.snames[ j ] + ":</label>" +
 				"<button " + ( time > 0 ? "class='green' " : "" ) + "data-mini='true' name='station_" + j + "-" + id + "' " +
 					"id='station_" + j + "-" + id + "' value='" + time + "'>" + getDurationText( time ) + "</button></div>";
 		}
@@ -9801,7 +9791,7 @@ function makeProgram21( n, isCopy ) {
 	// Handle all station duration inputs
 	page.find( "[id^=station_]" ).on( "click", function() {
 		var dur = $( this ),
-			name = OSApp.controller.stations.snames[ dur.attr( "id" ).split( "_" )[ 1 ].split( "-" )[ 0 ] ];
+			name = OSApp.currentSession.controller.stations.snames[ dur.attr( "id" ).split( "_" )[ 1 ].split( "-" )[ 0 ] ];
 
 		showDurationBox( {
 			seconds: dur.val(),
@@ -10163,7 +10153,7 @@ function getExportMethod() {
 				"<a class='ui-btn localMethod'>" + _( "Internal (within app)" ) + "</a>" +
 			"</div>" +
 		"</div>" ),
-		obj = encodeURIComponent( JSON.stringify( OSApp.controller ) ),
+		obj = encodeURIComponent( JSON.stringify( OSApp.currentSession.controller ) ),
 		subject = "OpenSprinkler Data Export on " + dateToString( new Date() );
 
 	if ( OSApp.currentDevice.isFileCapable ) {
@@ -10183,7 +10173,7 @@ function getExportMethod() {
 
 	popup.find( ".localMethod" ).on( "click", function() {
 		popup.popup( "close" );
-		OSApp.Storage.set( { "backup":JSON.stringify( OSApp.controller ) }, function() {
+		OSApp.Storage.set( { "backup":JSON.stringify( OSApp.currentSession.controller ) }, function() {
 			showerror( _( "Backup saved on this device" ) );
 		} );
 	} );
@@ -10297,8 +10287,8 @@ function importConfig( data ) {
 	}
 
 	if ( checkOSVersion( 210 ) && typeof data.options === "object" &&
-		( data.options.hp0 !== OSApp.controller.options.hp0 || data.options.hp1 !== OSApp.controller.options.hp1 ) ||
-		( data.options.dhcp !== OSApp.controller.options.dhcp ) || ( data.options.devid !== OSApp.controller.options.devid ) ) {
+		( data.options.hp0 !== OSApp.currentSession.controller.options.hp0 || data.options.hp1 !== OSApp.currentSession.controller.options.hp1 ) ||
+		( data.options.dhcp !== OSApp.currentSession.controller.options.dhcp ) || ( data.options.devid !== OSApp.currentSession.controller.options.devid ) ) {
 
 		warning = _( "Warning: Network changes will be made and the device may no longer be accessible from this address." );
 	}
@@ -10323,7 +10313,7 @@ function importConfig( data ) {
 					continue;
 				}
 				if ( key === 3 ) {
-					if ( checkOSVersion( 210 ) && OSApp.controller.options.dhcp === 1 ) {
+					if ( checkOSVersion( 210 ) && OSApp.currentSession.controller.options.dhcp === 1 ) {
 						co += "&o3=1";
 					}
 					continue;
@@ -10613,7 +10603,7 @@ var showAbout = ( function() {
 		showHardware;
 
 	function begin() {
-		showHardware = typeof OSApp.controller.options.hwv !== "undefined" ? false : true;
+		showHardware = typeof OSApp.currentSession.controller.options.hwv !== "undefined" ? false : true;
 		page.find( ".hardware" ).toggleClass( "hidden", showHardware ).text( getHWVersion() + getHWType() );
 		page.find( ".hardwareLabel" ).toggleClass( "hidden", showHardware );
 
@@ -10653,15 +10643,15 @@ function stopStations( callback ) {
 }
 
 function flowCountToVolume( count ) {
-	return parseFloat( ( count * ( ( OSApp.controller.options.fpr1 << 8 ) + OSApp.controller.options.fpr0 ) / 100 ).toFixed( 2 ) );
+	return parseFloat( ( count * ( ( OSApp.currentSession.controller.options.fpr1 << 8 ) + OSApp.currentSession.controller.options.fpr0 ) / 100 ).toFixed( 2 ) );
 }
 
 // OpenSprinkler feature detection functions
 function isOSPi() {
-	if ( OSApp.controller &&
-		typeof OSApp.controller.options === "object" &&
-		typeof OSApp.controller.options.fwv === "string" &&
-		OSApp.controller.options.fwv.search( /ospi/i ) !== -1 ) {
+	if ( OSApp.currentSession.controller &&
+		typeof OSApp.currentSession.controller.options === "object" &&
+		typeof OSApp.currentSession.controller.options.fwv === "string" &&
+		OSApp.currentSession.controller.options.fwv.search( /ospi/i ) !== -1 ) {
 
 		return true;
 	}
@@ -11263,10 +11253,10 @@ function getTokenUser( token ) {
 
 function detectUnusedExpansionBoards() {
 	if (
-		typeof OSApp.controller.options.dexp === "number" &&
-		OSApp.controller.options.dexp < 255 &&
-		OSApp.controller.options.dexp >= 0 &&
-		OSApp.controller.options.ext < OSApp.controller.options.dexp
+		typeof OSApp.currentSession.controller.options.dexp === "number" &&
+		OSApp.currentSession.controller.options.dexp < 255 &&
+		OSApp.currentSession.controller.options.dexp >= 0 &&
+		OSApp.currentSession.controller.options.ext < OSApp.currentSession.controller.options.dexp
 	) {
 		addNotification( {
 			title: _( "Unused Expanders Detected" ),
@@ -11367,8 +11357,8 @@ function checkPublicAccess( eip ) {
 		type: "GET"
 	} ).then(
 		function( data ) {
-			if ( typeof data !== "object" || !data.hasOwnProperty( "fwv" ) || data.fwv !== OSApp.controller.options.fwv ||
-				( checkOSVersion( 214 ) && OSApp.controller.options.ip4 !== data.ip4 ) ) {
+			if ( typeof data !== "object" || !data.hasOwnProperty( "fwv" ) || data.fwv !== OSApp.currentSession.controller.options.fwv ||
+				( checkOSVersion( 214 ) && OSApp.currentSession.controller.options.ip4 !== data.ip4 ) ) {
 					fail();
 					return;
 			}
@@ -11437,7 +11427,7 @@ function updateLoginButtons() {
 }
 
 function addNotification( item ) {
-	OSApp.notifications.push( item );
+	OSApp.uiState.notifications.push( item );
 	updateNotificationBadge();
 
 	var panel = $( "#notificationPanel" );
@@ -11448,7 +11438,7 @@ function addNotification( item ) {
 }
 
 function updateNotificationBadge() {
-	var total = OSApp.notifications.length,
+	var total = OSApp.uiState.notifications.length,
 		header = $( "#header" );
 
 	if ( total === 0 ) {
@@ -11472,7 +11462,7 @@ function createNotificationItem( item ) {
 }
 
 function showNotifications() {
-	if ( OSApp.notifications.length === 0 ) {
+	if ( OSApp.uiState.notifications.length === 0 ) {
 		return;
 	}
 
@@ -11495,8 +11485,8 @@ function showNotifications() {
 			}
 		} ) ];
 
-	for ( var i = OSApp.notifications.length - 1; i >= 0; i-- ) {
-		items.push( createNotificationItem( OSApp.notifications[ i ] ) );
+	for ( var i = OSApp.uiState.notifications.length - 1; i >= 0; i-- ) {
+		items.push( createNotificationItem( OSApp.uiState.notifications[ i ] ) );
 	}
 
 	panel.find( "ul" ).replaceWith( $( "<ul/>" ).append( items ).listview() );
@@ -11510,7 +11500,7 @@ function showNotifications() {
 
 function clearNotifications() {
 	var panel = $( "#notificationPanel" );
-	OSApp.notifications = [];
+	OSApp.uiState.notifications = [];
 	updateNotificationBadge();
 	panel.find( "ul" ).empty();
 	if ( panel.hasClass( "ui-panel-open" ) ) {
@@ -11520,7 +11510,7 @@ function clearNotifications() {
 
 function removeNotification( button ) {
 	var panel = $( "#notificationPanel" ),
-		off = OSApp.notifications[ button.index() - 1 ].off;
+		off = OSApp.uiState.notifications[ button.index() - 1 ].off;
 
 	if ( typeof off === "function" ) {
 		if ( !off() ) {
@@ -11528,10 +11518,10 @@ function removeNotification( button ) {
 		}
 	}
 
-	OSApp.notifications.remove( button.index() - 1 );
+	OSApp.uiState.notifications.remove( button.index() - 1 );
 	button.remove();
 	updateNotificationBadge();
-	if ( OSApp.notifications.length === 0 && panel.hasClass( "ui-panel-open" ) ) {
+	if ( OSApp.uiState.notifications.length === 0 && panel.hasClass( "ui-panel-open" ) ) {
 		panel.panel( "close" );
 	}
 }
@@ -11543,7 +11533,7 @@ function checkFirmwareUpdate() {
 
 		// Github API to get releases for OpenSprinkler firmware
 		$.getJSON( "https://api.github.com/repos/opensprinkler/opensprinkler-firmware/releases" ).done( function( data ) {
-			if ( OSApp.controller.options.fwv < data[ 0 ].tag_name ) {
+			if ( OSApp.currentSession.controller.options.fwv < data[ 0 ].tag_name ) {
 
 				// Grab a local storage variable which defines the firmware version for the last dismissed update
 				OSApp.Storage.get( "updateDismiss", function( flag ) {
@@ -11556,7 +11546,7 @@ function checkFirmwareUpdate() {
 
 								// Modify the changelog by parsing markdown of lists to HTML
 								var button = $( this ).parent(),
-									canUpdate = OSApp.controller.options.hwv === 30 || OSApp.controller.options.hwv > 63 && checkOSVersion( 216 ),
+									canUpdate = OSApp.currentSession.controller.options.hwv === 30 || OSApp.currentSession.controller.options.hwv > 63 && checkOSVersion( 216 ),
 									changelog = data[ 0 ][ "html_url" ],
 									popup = $(
 										"<div data-role='popup' class='modal' data-theme='a'>" +
@@ -11580,7 +11570,7 @@ function checkFirmwareUpdate() {
 									);
 
 								popup.find( ".update" ).on( "click", function() {
-									if ( OSApp.controller.options.hwv === 30 ) {
+									if ( OSApp.currentSession.controller.options.hwv === 30 ) {
 										$( "<a class='hidden iab' href='" + OSApp.currentSession.prefix + OSApp.currentSession.ip + "/update'></a>" ).appendTo( popup ).click();
 										return;
 									}
@@ -11605,7 +11595,7 @@ function checkFirmwareUpdate() {
 
 								popup.find( ".guide" ).on( "click", function() {
 
-										var url = OSApp.controller.options.hwv > 63 ?
+										var url = OSApp.currentSession.controller.options.hwv > 63 ?
 											"https://openthings.freshdesk.com/support/solutions/articles/5000631599-installing-and-updating-the-unified-firmware#upgrade"
 											: "https://openthings.freshdesk.com/support/solutions/articles/5000381694-opensprinkler-firmware-update-guide";
 
@@ -11654,7 +11644,7 @@ function checkOSPiVersion( check ) {
 	var ver;
 
 	if ( isOSPi() ) {
-		ver = OSApp.controller.options.fwv.split( "-" )[ 0 ];
+		ver = OSApp.currentSession.controller.options.fwv.split( "-" )[ 0 ];
 		if ( ver !== check ) {
 			ver = ver.split( "." );
 			check = check.split( "." );
@@ -11668,14 +11658,14 @@ function checkOSPiVersion( check ) {
 }
 
 function checkOSVersion( check ) {
-	var version = OSApp.controller.options.fwv;
+	var version = OSApp.currentSession.controller.options.fwv;
 
 	// If check is 4 digits then we need to include the minor version number as well
 	if ( check >= 1000 ) {
-		if ( isNaN( OSApp.controller.options.fwm ) ) {
+		if ( isNaN( OSApp.currentSession.controller.options.fwm ) ) {
 			return false;
 		} else {
-			version = version * 10 + OSApp.controller.options.fwm;
+			version = version * 10 + OSApp.currentSession.controller.options.fwm;
 		}
 	}
 
@@ -11720,8 +11710,8 @@ function versionCompare( ver, check ) {
 }
 
 function getOSVersion( fwv ) {
-	if ( !fwv && typeof OSApp.controller.options === "object" ) {
-		fwv = OSApp.controller.options.fwv;
+	if ( !fwv && typeof OSApp.currentSession.controller.options === "object" ) {
+		fwv = OSApp.currentSession.controller.options.fwv;
 	}
 	if ( typeof fwv === "string" && fwv.search( /ospi/i ) !== -1 ) {
 		return fwv;
@@ -11731,16 +11721,16 @@ function getOSVersion( fwv ) {
 }
 
 function getOSMinorVersion() {
-	if ( !isOSPi() && typeof OSApp.controller.options === "object" && typeof OSApp.controller.options.fwm === "number" && OSApp.controller.options.fwm > 0 ) {
-		return " (" + OSApp.controller.options.fwm + ")";
+	if ( !isOSPi() && typeof OSApp.currentSession.controller.options === "object" && typeof OSApp.currentSession.controller.options.fwm === "number" && OSApp.currentSession.controller.options.fwm > 0 ) {
+		return " (" + OSApp.currentSession.controller.options.fwm + ")";
 	}
 	return "";
 }
 
 function getHWVersion( hwv ) {
 	if ( !hwv ) {
-		if ( typeof OSApp.controller.options === "object" && typeof OSApp.controller.options.hwv !== "undefined" ) {
-			hwv = OSApp.controller.options.hwv;
+		if ( typeof OSApp.currentSession.controller.options === "object" && typeof OSApp.currentSession.controller.options.hwv !== "undefined" ) {
+			hwv = OSApp.currentSession.controller.options.hwv;
 		} else {
 			return false;
 		}
@@ -11764,15 +11754,15 @@ function getHWVersion( hwv ) {
 }
 
 function getHWType() {
-	if ( isOSPi() || typeof OSApp.controller.options.hwt !== "number" || OSApp.controller.options.hwt === 0 ) {
+	if ( isOSPi() || typeof OSApp.currentSession.controller.options.hwt !== "number" || OSApp.currentSession.controller.options.hwt === 0 ) {
 		return "";
 	}
 
-	if ( OSApp.controller.options.hwt === 172 ) {
+	if ( OSApp.currentSession.controller.options.hwt === 172 ) {
 		return " - AC";
-	} else if ( OSApp.controller.options.hwt === 220 ) {
+	} else if ( OSApp.currentSession.controller.options.hwt === 220 ) {
 		return " - DC";
-	} else if ( OSApp.controller.options.hwt === 26 ) {
+	} else if ( OSApp.currentSession.controller.options.hwt === 26 ) {
 		return " - Latching";
 	} else {
 		return "";
@@ -12671,7 +12661,7 @@ function openPopup( popup, args ) {
 
 		// Save data before view is destroyed
 		if ( updateRemainingStations !== undefined ) {
-			OSApp.popupData.shift = updateRemainingStations;
+			OSApp.uiState.popupData.shift = updateRemainingStations;
 		}
 
 		popup.popup( "destroy" ).remove();
@@ -12848,14 +12838,14 @@ function goBack() {
 			navigator.app.exitApp();
 		} catch ( err ) {}
 	} else {
-		if ( OSApp.pageHistoryCount > 0 ) {
-			OSApp.pageHistoryCount--;
+		if ( OSApp.uiState.pageHistoryCount > 0 ) {
+			OSApp.uiState.pageHistoryCount--;
 		}
 
-		if ( OSApp.pageHistoryCount === 0 ) {
+		if ( OSApp.uiState.pageHistoryCount === 0 ) {
 			navigator.app.exitApp();
 		} else {
-			OSApp.goingBack = true;
+			OSApp.uiState.goingBack = true;
 			$.mobile.back();
 		}
 	}
@@ -12888,7 +12878,7 @@ function checkChanges( callback ) {
 function showerror( msg, dur ) {
 	dur = dur || 2500;
 
-	clearTimeout( OSApp.errorTimeout );
+	clearTimeout( OSApp.uiState.errorTimeout );
 
 	$.mobile.loading( "show", {
 		text: msg,
@@ -12898,7 +12888,7 @@ function showerror( msg, dur ) {
 	} );
 
 	// Hide after provided delay
-	OSApp.errorTimeout = setTimeout( function() {$.mobile.loading( "hide" );}, dur );
+	OSApp.uiState.errorTimeout = setTimeout( function() {$.mobile.loading( "hide" );}, dur );
 }
 
 function loadLocalSettings() {
@@ -12920,10 +12910,10 @@ function loadLocalSettings() {
 	OSApp.Storage.get( "groupView", function( data ) {
 		switch ( data.groupView ) {
 			case "true":
-				OSApp.groupView = true;
+				OSApp.uiState.groupView = true;
 				break;
 			case "false":
-				OSApp.groupView = false;
+				OSApp.uiState.groupView = false;
 				break;
 			default:
 		}
@@ -13035,12 +13025,12 @@ function dhms2sec( arr ) {
 
 function isControllerConnected() {
 	if ( ( !OSApp.currentSession.ip && !OSApp.currentSession.token ) ||
-		$.isEmptyObject( OSApp.controller ) ||
-		$.isEmptyObject( OSApp.controller.options ) ||
-		$.isEmptyObject( OSApp.controller.programs ) ||
-		$.isEmptyObject( OSApp.controller.settings ) ||
-		$.isEmptyObject( OSApp.controller.status ) ||
-		$.isEmptyObject( OSApp.controller.stations ) ) {
+		$.isEmptyObject( OSApp.currentSession.controller ) ||
+		$.isEmptyObject( OSApp.currentSession.controller.options ) ||
+		$.isEmptyObject( OSApp.currentSession.controller.programs ) ||
+		$.isEmptyObject( OSApp.currentSession.controller.settings ) ||
+		$.isEmptyObject( OSApp.currentSession.controller.status ) ||
+		$.isEmptyObject( OSApp.currentSession.controller.stations ) ) {
 
 			return false;
 	}
@@ -13131,8 +13121,8 @@ function htmlEscape( str ) {
 function _( key ) {
 
 	//Translate item (key) based on currently defined language
-	if ( typeof OSApp.language === "object" && OSApp.language.hasOwnProperty( key ) ) {
-		var trans = OSApp.language[ key ];
+	if ( typeof OSApp.uiState.language === "object" && OSApp.uiState.language.hasOwnProperty( key ) ) {
+		var trans = OSApp.uiState.language[ key ];
 		return trans ? trans : key;
 	} else {
 
@@ -13166,8 +13156,8 @@ function setLang() {
 
 function updateLang( lang ) {
 
-	//Empty out the current OSApp.language (English is provided as the key)
-	OSApp.language = {};
+	//Empty out the current OSApp.uiState.language (English is provided as the key)
+	OSApp.uiState.language = {};
 
 	if ( typeof lang === "undefined" ) {
 		OSApp.Storage.get( "lang", function( data ) {
@@ -13189,7 +13179,7 @@ function updateLang( lang ) {
 	}
 
 	$.getJSON( getAppURLPath() + "locale/" + lang + ".js", function( store ) {
-		OSApp.language = store.messages;
+		OSApp.uiState.language = store.messages;
 		setLang();
 	} ).fail( setLang );
 }
@@ -13307,7 +13297,7 @@ function getBitFromByte( byte, bit ) {
 }
 
 function getTimezoneOffset() {
-	var tz = OSApp.controller.options.tz - 48,
+	var tz = OSApp.currentSession.controller.options.tz - 48,
 		sign = tz >= 0 ? 1 : -1;
 
 	tz = ( ( Math.abs( tz ) / 4 >> 0 ) * 60 ) + ( ( Math.abs( tz ) % 4 ) * 15 / 10 >> 0 ) + ( ( Math.abs( tz ) % 4 ) * 15 % 10 );
@@ -13439,50 +13429,50 @@ function Supported() {}
 Supported.master = function( masid ) {
 	switch ( masid ) {
 		case OSApp.Constants.options.MASTER_STATION_1:
-			return OSApp.controller.options.mas ? true : false;
+			return OSApp.currentSession.controller.options.mas ? true : false;
 		case OSApp.Constants.options.MASTER_STATION_2:
-			return OSApp.controller.options.mas2 ? true : false;
+			return OSApp.currentSession.controller.options.mas2 ? true : false;
 		default:
 			return false;
 	}
 };
 
 Supported.ignoreRain = function() {
-	return ( typeof OSApp.controller.stations.ignore_rain === "object" ) ? true : false;
+	return ( typeof OSApp.currentSession.controller.stations.ignore_rain === "object" ) ? true : false;
 };
 
 Supported.ignoreSensor = function( sensorID ) {
 	switch ( sensorID ) {
 		case OSApp.Constants.options.IGNORE_SENSOR_1:
-			return ( typeof OSApp.controller.stations.ignore_sn1 === "object" ) ? true : false;
+			return ( typeof OSApp.currentSession.controller.stations.ignore_sn1 === "object" ) ? true : false;
 		case OSApp.Constants.options.IGNORE_SENSOR_2:
-			return ( typeof OSApp.controller.stations.ignore_sn2 === "object" ) ? true : false;
+			return ( typeof OSApp.currentSession.controller.stations.ignore_sn2 === "object" ) ? true : false;
 		default:
 			return false;
 	}
 };
 
 Supported.actRelay = function() {
-	return ( typeof OSApp.controller.stations.act_relay === "object" ) ? true : false;
+	return ( typeof OSApp.currentSession.controller.stations.act_relay === "object" ) ? true : false;
 };
 
 Supported.disabled = function() {
-	return ( typeof OSApp.controller.stations.stn_dis === "object" ) ? true : false;
+	return ( typeof OSApp.currentSession.controller.stations.stn_dis === "object" ) ? true : false;
 };
 
 Supported.sequential = function() {
 	if ( checkOSVersion( 220 ) ) {
 		return false;
 	}
-	return ( typeof OSApp.controller.stations.stn_seq === "object" ) ? true : false;
+	return ( typeof OSApp.currentSession.controller.stations.stn_seq === "object" ) ? true : false;
 };
 
 Supported.special = function() {
-	return ( typeof OSApp.controller.stations.stn_spe === "object" ) ? true : false;
+	return ( typeof OSApp.currentSession.controller.stations.stn_spe === "object" ) ? true : false;
 };
 
 Supported.pausing = function() {
-	return OSApp.controller.settings.pq !== undefined;
+	return OSApp.currentSession.controller.settings.pq !== undefined;
 };
 
 Supported.groups = function() {
@@ -13505,64 +13495,64 @@ var ProgramStatusOptions = {
 };
 
 function getNumberProgramStatusOptions() {
-	if ( OSApp.controller.settings.ps.length <= 0 ) {
+	if ( OSApp.currentSession.controller.settings.ps.length <= 0 ) {
 		return undefined;
 	}
-	return OSApp.controller.settings.ps[ 0 ].length;
+	return OSApp.currentSession.controller.settings.ps[ 0 ].length;
 }
 
 Station.getName = function( sid ) {
-	return OSApp.controller.stations.snames[ sid ];
+	return OSApp.currentSession.controller.stations.snames[ sid ];
 };
 
 Station.setName = function( sid, value ) {
-	OSApp.controller.settings.snames[ sid ] = value;
+	OSApp.currentSession.controller.settings.snames[ sid ] = value;
 };
 
 Station.getPID = function( sid ) {
-	return OSApp.controller.settings.ps[ sid ][ ProgramStatusOptions.PID ];
+	return OSApp.currentSession.controller.settings.ps[ sid ][ ProgramStatusOptions.PID ];
 };
 
 Station.setPID = function( sid, value ) {
-	OSApp.controller.settings.ps[ sid ][ ProgramStatusOptions.PID ] = value;
+	OSApp.currentSession.controller.settings.ps[ sid ][ ProgramStatusOptions.PID ] = value;
 };
 
 Station.getRemainingRuntime = function( sid ) {
-	return OSApp.controller.settings.ps[ sid ][ ProgramStatusOptions.REM ];
+	return OSApp.currentSession.controller.settings.ps[ sid ][ ProgramStatusOptions.REM ];
 };
 
 Station.setRemainingRuntime = function( sid, value ) {
-	OSApp.controller.settings.ps[ sid ][ ProgramStatusOptions.REM ] = value;
+	OSApp.currentSession.controller.settings.ps[ sid ][ ProgramStatusOptions.REM ] = value;
 };
 
 Station.getStartTime = function( sid ) {
-	return OSApp.controller.settings.ps[ sid ][ ProgramStatusOptions.START ];
+	return OSApp.currentSession.controller.settings.ps[ sid ][ ProgramStatusOptions.START ];
 };
 
 Station.setStartTime = function( sid, value ) {
-	OSApp.controller.settings.ps[ sid ][ ProgramStatusOptions.START ] = value;
+	OSApp.currentSession.controller.settings.ps[ sid ][ ProgramStatusOptions.START ] = value;
 };
 
 Station.getGIDValue = function( sid ) {
 	if ( !Supported.groups() ) {
 		return undefined;
 	}
-	return OSApp.controller.settings.ps[ sid ][ ProgramStatusOptions.GID ];
+	return OSApp.currentSession.controller.settings.ps[ sid ][ ProgramStatusOptions.GID ];
 };
 
 Station.setGIDValue = function( sid, value ) {
 	if ( !Supported.groups() ) {
 		return;
 	}
-	OSApp.controller.settings.ps[ sid ][ ProgramStatusOptions.GID ] = value;
+	OSApp.currentSession.controller.settings.ps[ sid ][ ProgramStatusOptions.GID ] = value;
 };
 
 Station.getStatus = function( sid ) {
-	return OSApp.controller.status[ sid ];
+	return OSApp.currentSession.controller.status[ sid ];
 };
 
 Station.setStatus = function( sid, value ) {
-	OSApp.controller.status[ sid ] = value;
+	OSApp.currentSession.controller.status[ sid ] = value;
 };
 
 Station.isRunning = function( sid ) {
@@ -13570,8 +13560,8 @@ Station.isRunning = function( sid ) {
 };
 
 Station.isMaster = function( sid ) {
-	var m1 = typeof OSApp.controller.options.mas === "number" ? OSApp.controller.options.mas : 0,
-		m2 = typeof OSApp.controller.options.mas2 === "number" ? OSApp.controller.options.mas2 : 0;
+	var m1 = typeof OSApp.currentSession.controller.options.mas === "number" ? OSApp.currentSession.controller.options.mas : 0,
+		m2 = typeof OSApp.currentSession.controller.options.mas2 === "number" ? OSApp.currentSession.controller.options.mas2 : 0;
 
 	sid++;
 
@@ -13607,10 +13597,10 @@ StationAttribute.getMasterOperation = function( sid, masid ) {
 
 	switch ( masid ) {
 		case OSApp.Constants.options.MASTER_STATION_1:
-			sourceMasterAttribute = OSApp.controller.stations.masop;
+			sourceMasterAttribute = OSApp.currentSession.controller.stations.masop;
 			break;
 		case OSApp.Constants.options.MASTER_STATION_2:
-			sourceMasterAttribute = OSApp.controller.stations.masop2;
+			sourceMasterAttribute = OSApp.currentSession.controller.stations.masop2;
 			break;
 		default:
 			return 0;
@@ -13625,7 +13615,7 @@ StationAttribute.getMasterOperation = function( sid, masid ) {
 StationAttribute.getIgnoreRain = function( sid ) {
 	if ( !Supported.ignoreRain() ) { return 0; }
 	var bid = ( sid / 8 ) >> 0,
-		boardIgnoreRainAttribute = OSApp.controller.stations.ignore_rain[ bid ],
+		boardIgnoreRainAttribute = OSApp.currentSession.controller.stations.ignore_rain[ bid ],
 		boardStationID = 1 << ( sid % 8 );
 
 	return ( boardIgnoreRainAttribute & boardStationID ) ? 1 : 0;
@@ -13639,10 +13629,10 @@ StationAttribute.getIgnoreSensor = function( sid, sensorID ) {
 
 	switch ( sensorID ) {
 		case OSApp.Constants.options.IGNORE_SENSOR_1:
-			sourceIgnoreSensorAttribute = OSApp.controller.stations.ignore_sn1;
+			sourceIgnoreSensorAttribute = OSApp.currentSession.controller.stations.ignore_sn1;
 			break;
 		case OSApp.Constants.options.IGNORE_SENSOR_2:
-			sourceIgnoreSensorAttribute = OSApp.controller.stations.ignore_sn2;
+			sourceIgnoreSensorAttribute = OSApp.currentSession.controller.stations.ignore_sn2;
 			break;
 		default:
 			return 0;
@@ -13657,7 +13647,7 @@ StationAttribute.getIgnoreSensor = function( sid, sensorID ) {
 StationAttribute.getActRelay = function( sid ) {
 	if ( !Supported.actRelay() ) { return 0; }
 	var bid = ( sid / 8 ) >> 0,
-		boardActRelayAttribute = OSApp.controller.stations.act_relay[ bid ],
+		boardActRelayAttribute = OSApp.currentSession.controller.stations.act_relay[ bid ],
 		boardStationID = 1 << ( sid % 8 );
 
 	return ( boardActRelayAttribute & boardStationID ) ? 1 : 0;
@@ -13666,7 +13656,7 @@ StationAttribute.getActRelay = function( sid ) {
 StationAttribute.getDisabled = function( sid ) {
 	if ( !Supported.disabled() ) { return 0; }
 	var bid = ( sid / 8 ) >> 0,
-		boardDisabledAttribute = OSApp.controller.stations.stn_dis[ bid ],
+		boardDisabledAttribute = OSApp.currentSession.controller.stations.stn_dis[ bid ],
 		boardStationID = 1 << ( sid % 8 );
 
 	return ( boardDisabledAttribute & boardStationID ) ? 1 : 0;
@@ -13678,7 +13668,7 @@ StationAttribute.getSequential = function( sid ) {
 	}
 	if ( !Supported.sequential() ) { return 0; }
 	var bid = ( sid / 8 ) >> 0,
-		boardSequentialAttribute = OSApp.controller.stations.stn_seq[ bid ],
+		boardSequentialAttribute = OSApp.currentSession.controller.stations.stn_seq[ bid ],
 		boardStationID = 1 << ( sid % 8 );
 
 	return ( boardSequentialAttribute & boardStationID ) ? 1 : 0;
@@ -13687,7 +13677,7 @@ StationAttribute.getSequential = function( sid ) {
 StationAttribute.getSpecial = function( sid ) {
 	if ( !Supported.special() ) { return 0; }
 	var bid = ( sid / 8 ) >> 0,
-		boardSpecialAttribute = OSApp.controller.stations.stn_spe[ bid ],
+		boardSpecialAttribute = OSApp.currentSession.controller.stations.stn_spe[ bid ],
 		boardStationID = 1 << ( sid % 8 );
 
 	return ( boardSpecialAttribute & boardStationID ) ? 1 : 0;
@@ -13776,7 +13766,7 @@ Groups.canShift = function( gid ) {
 function StationQueue() {}
 
 StationQueue.isActive = function() {
-	for ( var i = 0; i < OSApp.controller.status.length; i++ ) {
+	for ( var i = 0; i < OSApp.currentSession.controller.status.length; i++ ) {
 		if ( Station.getStatus( i ) > 0 && Station.getPID( i ) > 0 ) {
 			return i;
 		}
@@ -13785,11 +13775,11 @@ StationQueue.isActive = function() {
 };
 
 StationQueue.isPaused = function() {
-	return OSApp.controller.settings.pq;
+	return OSApp.currentSession.controller.settings.pq;
 };
 
 StationQueue.size = function() {
-	return OSApp.controller.settings.nq;
+	return OSApp.currentSession.controller.settings.nq;
 };
 
 /* Gid conversions */
@@ -13828,7 +13818,7 @@ var dateRegex = /[0-9]{1,2}[\/][0-9]{1,2}/g;
 function Program() {}
 
 Program.getDateRange = function( pid ) {
-	return OSApp.controller.programs.pd[ pid ][ 6 ];
+	return OSApp.currentSession.controller.programs.pd[ pid ][ 6 ];
 };
 
 Program.isDateRangeEnabled = function( pid ) {

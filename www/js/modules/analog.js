@@ -20,7 +20,7 @@ var USERDEF_SENSOR = 49;
 var USERDEF_UNIT   = 99;
 
 function checkAnalogSensorAvail() {
-	return OSApp.controller.options && OSApp.controller.options.feature === "ASB";
+	return OSApp.currentSession.controller.options && OSApp.currentSession.controller.options.feature === "ASB";
 }
 
 function refresh() {
@@ -60,8 +60,8 @@ function updateSensorShowArea( page ) {
 				}
 			}
 			var progName = "?";
-			if ( progAdjust.prog >= 1 && progAdjust.prog <= OSApp.controller.programs.pd.length ) {
-				progName = readProgram( OSApp.controller.programs.pd[ progAdjust.prog - 1 ] ).name;
+			if ( progAdjust.prog >= 1 && progAdjust.prog <= OSApp.currentSession.controller.programs.pd.length ) {
+				progName = readProgram( OSApp.currentSession.controller.programs.pd[ progAdjust.prog - 1 ] ).name;
 			}
 
 			html += "<div id='progAdjust-show-" + progAdjust.nr + "' class='ui-body ui-body-a center'>";
@@ -165,8 +165,8 @@ function showAdjustmentsEditor( progAdjust, callback ) {
 			_( "Program to adjust" ) +
 			"</label><select data-mini='true' id='prog'>";
 
-		for ( i = 0; i < OSApp.controller.programs.pd.length; i++ ) {
-			var progName = readProgram( OSApp.controller.programs.pd[ i ] ).name;
+		for ( i = 0; i < OSApp.currentSession.controller.programs.pd.length; i++ ) {
+			var progName = readProgram( OSApp.currentSession.controller.programs.pd[ i ] ).name;
 			var progNr = i + 1;
 
 			list += "<option " + ( ( progAdjust.prog === progNr ) ? "selected" : "" ) +
@@ -753,8 +753,8 @@ function buildSensorConfig() {
 			}
 		}
 		var progName = "?";
-		if ( item.prog >= 1 && item.prog <= OSApp.controller.programs.pd.length ) {
-			progName = readProgram( OSApp.controller.programs.pd[ item.prog - 1 ] ).name;
+		if ( item.prog >= 1 && item.prog <= OSApp.currentSession.controller.programs.pd.length ) {
+			progName = readProgram( OSApp.currentSession.controller.programs.pd[ item.prog - 1 ] ).name;
 		}
 
 		var $tr = $( "<tr>" ).append(

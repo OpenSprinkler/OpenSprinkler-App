@@ -15,8 +15,4 @@
 var OSApp = OSApp || {};
 OSApp.Weather = OSApp.Weather || {};
 
-// Constants
-OSApp.Weather.DEFAULT_WEATHER_SERVER_URL = "https://weather.opensprinkler.com";
-OSApp.Weather.WEATHER_SERVER_URL = OSApp.Weather.DEFAULT_WEATHER_SERVER_URL;
-
-// Functions
+// TODO: refactor weather related functions here
