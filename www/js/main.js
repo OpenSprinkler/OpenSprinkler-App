@@ -16,8 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-var DEFAULT_WEATHER_SERVER_URL = "https://weather.opensprinkler.com";
-var WEATHER_SERVER_URL = DEFAULT_WEATHER_SERVER_URL;
+var OSApp = OSApp || {};
 
 // Initialize global variables
 var isAndroid = /Android|\bSilk\b/.test( navigator.userAgent ),
@@ -2777,7 +2776,7 @@ function showEToAdjustmentOptions( button, callback ) {
 		showLoading( ".detect-baseline-eto" );
 
 		$.ajax( {
-			url: WEATHER_SERVER_URL + "/baselineETo?loc=" + encodeURIComponent( controller.settings.loc ),
+			url: OSApp.Weather.WEATHER_SERVER_URL + "/baselineETo?loc=" + encodeURIComponent( controller.settings.loc ),
 			contentType: "application/json; charset=utf-8",
 			success: function( data ) {
 
@@ -2898,7 +2897,7 @@ function updateWeather() {
 	showLoading( "#weather" );
 
 	$.ajax( {
-		url: WEATHER_SERVER_URL + "/weatherData?loc=" +
+		url: OSApp.Weather.WEATHER_SERVER_URL + "/weatherData?loc=" +
 			encodeURIComponent( controller.settings.loc ),
 		contentType: "application/json; charset=utf-8",
 		success: function( data ) {
@@ -2923,9 +2922,9 @@ function updateWeather() {
 function checkURLandUpdateWeather() {
 	var finish = function( wsp ) {
 		if ( wsp ) {
-			WEATHER_SERVER_URL = currPrefix + wsp;
+			OSApp.Weather.WEATHER_SERVER_URL = currPrefix + wsp;
 		} else {
-			WEATHER_SERVER_URL = DEFAULT_WEATHER_SERVER_URL;
+			OSApp.Weather.WEATHER_SERVER_URL = OSApp.Weather.DEFAULT_WEATHER_SERVER_URL;
 		}
 
 		updateWeather();
