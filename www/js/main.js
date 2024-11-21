@@ -60,6 +60,14 @@ OSApp.controller = {};
 
 OSApp.switching = false;
 OSApp.currentCoordinates = [ 0, 0 ];
+OSApp.pageHistoryCount = -1; // Initialize variables to keep track of current page count
+OSApp.goingBack = false;
+OSApp.dialog = {
+	REMOVE_STATION: 1
+};
+OSApp.popupData = {
+	"shift": undefined
+};
 
 // TODO: refactor away all direct usage of localstorage in favor of OSApp.Storage
 // TODO: refactor OSApp.isXXXX values to OSApp.Config.isXXX
@@ -70,27 +78,20 @@ OSApp.currentCoordinates = [ 0, 0 ];
 // TODO: refactor analog.js into a true modules & all references
 // TODO: refactor OSApp.switching elsewhere
 // TODO: refactor OSApp.currentCoordinates elsewhere
+// TODO: refactor OSApp.pageHistoryCount elsewhere
+// TODO: refactor OSApp.goingBack elsewhere
+// TODO: refactor OSApp.dialog elsewhere
+// TODO: refactor OSApp.popupData elsewhere
+// TODO: refactor option constants elsewhere!
 
-var pageHistoryCount = -1, // Initialize variables to keep track of current page count
-	goingBack = false,
+// Option constants
+OSApp.MANUAL_STATION_PID = 99;
+OSApp.MASTER_STATION_1 = 1;
+OSApp.MASTER_STATION_2 = 2;
+OSApp.IGNORE_SENSOR_1 = 1;
+OSApp.IGNORE_SENSOR_2 = 2;
 
-	dialog = {
-		REMOVE_STATION: 1
-	},
-
-	popupData = {
-		"shift": undefined
-	},
-
-	// Option constants
-	MANUAL_STATION_PID = 99,
-	MASTER_STATION_1 = 1,
-	MASTER_STATION_2 = 2,
-
-	IGNORE_SENSOR_1 = 1,
-	IGNORE_SENSOR_2 = 2,
-
-	NUM_SEQ_GROUPS = 4,
+var NUM_SEQ_GROUPS = 4,
 	PARALLEL_GROUP_NAME = "P",
 	PARALLEL_GID_VALUE = 255,
 	MASTER_GROUP_NAME = "M",
@@ -301,10 +302,10 @@ $( document )
 	var newpage = "#" + e.target.id,
 		$newpage = $( newpage );
 
-	if ( goingBack ) {
-		goingBack = false;
+	if ( OSApp.goingBack ) {
+		OSApp.goingBack = false;
 	} else {
-		pageHistoryCount++;
+		OSApp.pageHistoryCount++;
 	}
 
 	// Fix issues between jQuery Mobile and FastClick
@@ -5454,11 +5455,11 @@ var showHome = ( function() {
 
 			cards += "<span class='btn-no-border ui-btn " + ( ( Station.isMaster( sid ) ) ? "ui-icon-master" : "ui-icon-gear" ) +
 				" card-icon ui-btn-icon-notext station-settings' data-station='" + sid + "' id='attrib-" + sid + "' " +
-				( Supported.master( MASTER_STATION_1 ) ? ( "data-um='" + ( StationAttribute.getMasterOperation( sid, MASTER_STATION_1 ) ) + "' " ) : "" ) +
-				( Supported.master( MASTER_STATION_2 ) ? ( "data-um2='" + ( StationAttribute.getMasterOperation( sid, MASTER_STATION_2 ) ) + "' " ) : "" ) +
+				( Supported.master( OSApp.MASTER_STATION_1 ) ? ( "data-um='" + ( StationAttribute.getMasterOperation( sid, OSApp.MASTER_STATION_1 ) ) + "' " ) : "" ) +
+				( Supported.master( OSApp.MASTER_STATION_2 ) ? ( "data-um2='" + ( StationAttribute.getMasterOperation( sid, OSApp.MASTER_STATION_2 ) ) + "' " ) : "" ) +
 				( Supported.ignoreRain() ? ( "data-ir='" + ( StationAttribute.getIgnoreRain( sid ) ) + "' " ) : "" ) +
-				( Supported.ignoreSensor( IGNORE_SENSOR_1 ) ? ( "data-sn1='" + ( StationAttribute.getIgnoreSensor( sid, IGNORE_SENSOR_1 ) ) + "' " ) : "" ) +
-				( Supported.ignoreSensor( IGNORE_SENSOR_2 ) ? ( "data-sn2='" + ( StationAttribute.getIgnoreSensor( sid, IGNORE_SENSOR_2 ) ) + "' " ) : "" ) +
+				( Supported.ignoreSensor( OSApp.IGNORE_SENSOR_1 ) ? ( "data-sn1='" + ( StationAttribute.getIgnoreSensor( sid, OSApp.IGNORE_SENSOR_1 ) ) + "' " ) : "" ) +
+				( Supported.ignoreSensor( OSApp.IGNORE_SENSOR_2 ) ? ( "data-sn2='" + ( StationAttribute.getIgnoreSensor( sid, OSApp.IGNORE_SENSOR_2 ) ) + "' " ) : "" ) +
 				( Supported.actRelay() ? ( "data-ar='" + ( StationAttribute.getActRelay( sid ) ) + "' " ) : "" ) +
 				( Supported.disabled() ? ( "data-sd='" + ( StationAttribute.getDisabled( sid ) ) + "' " ) : "" ) +
 				( Supported.sequential() ? ( "data-us='" + ( StationAttribute.getSequential( sid ) ) + "' " ) : "" ) +
@@ -5756,13 +5757,13 @@ var showHome = ( function() {
 				"</button>";
 
 			if ( !Station.isMaster( sid ) ) {
-				if ( Supported.master( MASTER_STATION_1 ) ) {
+				if ( Supported.master( OSApp.MASTER_STATION_1 ) ) {
 					select += "<label for='um'><input class='needsclick' data-iconpos='right' id='um' type='checkbox' " +
 							( ( button.data( "um" ) === 1 ) ? "checked='checked'" : "" ) + ">" + _( "Use Master" ) + " " +
-								( Supported.master( MASTER_STATION_2 ) ? "1" : "" ) + "</label>";
+								( Supported.master( OSApp.MASTER_STATION_2 ) ? "1" : "" ) + "</label>";
 				}
 
-				if ( Supported.master( MASTER_STATION_2 ) ) {
+				if ( Supported.master( OSApp.MASTER_STATION_2 ) ) {
 					select += "<label for='um2'><input class='needsclick' data-iconpos='right' id='um2' type='checkbox' " +
 							( ( button.data( "um2" ) === 1 ) ? "checked='checked'" : "" ) + ">" + _( "Use Master" ) + " 2" +
 						"</label>";
@@ -5774,13 +5775,13 @@ var showHome = ( function() {
 						"</label>";
 				}
 
-				if ( Supported.ignoreSensor( IGNORE_SENSOR_1 ) ) {
+				if ( Supported.ignoreSensor( OSApp.IGNORE_SENSOR_1 ) ) {
 					select += "<label for='sn1'><input class='needsclick' data-iconpos='right' id='sn1' type='checkbox' " +
 							( ( button.data( "sn1" ) === 1 ) ? "checked='checked'" : "" ) + ">" + _( "Ignore Sensor 1" ) +
 						"</label>";
 				}
 
-				if ( Supported.ignoreSensor( IGNORE_SENSOR_2 ) ) {
+				if ( Supported.ignoreSensor( OSApp.IGNORE_SENSOR_2 ) ) {
 					select += "<label for='sn2'><input class='needsclick' data-iconpos='right' id='sn2' type='checkbox' " +
 							( ( button.data( "sn2" ) === 1 ) ? "checked='checked'" : "" ) + ">" + _( "Ignore Sensor 2" ) +
 						"</label>";
@@ -5963,10 +5964,10 @@ var showHome = ( function() {
 				attrib, bid, sid, gid, s;
 
 			for ( bid = 0; bid < OSApp.controller.settings.nbrd; bid++ ) {
-				if ( Supported.master( MASTER_STATION_1 ) ) {
+				if ( Supported.master( OSApp.MASTER_STATION_1 ) ) {
 					master[ "m" + bid ] = 0;
 				}
-				if ( Supported.master( MASTER_STATION_2 ) ) {
+				if ( Supported.master( OSApp.MASTER_STATION_2 ) ) {
 					master2[ "n" + bid ] = 0;
 				}
 				if ( Supported.sequential() ) {
@@ -5978,10 +5979,10 @@ var showHome = ( function() {
 				if ( Supported.ignoreRain() ) {
 					rain[ "i" + bid ] = 0;
 				}
-				if ( Supported.ignoreSensor( IGNORE_SENSOR_1 ) ) {
+				if ( Supported.ignoreSensor( OSApp.IGNORE_SENSOR_1 ) ) {
 					sensor1[ "j" + bid ] = 0;
 				}
-				if ( Supported.ignoreSensor( IGNORE_SENSOR_2 ) ) {
+				if ( Supported.ignoreSensor( OSApp.IGNORE_SENSOR_2 ) ) {
 					sensor2[ "k" + bid ] = 0;
 				}
 				if ( Supported.actRelay() ) {
@@ -5995,11 +5996,11 @@ var showHome = ( function() {
 					sid = bid * 8 + s;
 					attrib = page.find( "#attrib-" + sid );
 
-					if ( Supported.master( MASTER_STATION_1 ) ) {
+					if ( Supported.master( OSApp.MASTER_STATION_1 ) ) {
 						master[ "m" + bid ] = ( master[ "m" + bid ] ) + ( attrib.data( "um" ) << s );
 					}
 
-					if ( Supported.master( MASTER_STATION_2 ) ) {
+					if ( Supported.master( OSApp.MASTER_STATION_2 ) ) {
 						master2[ "n" + bid ] = ( master2[ "n" + bid ] ) + ( attrib.data( "um2" ) << s );
 					}
 
@@ -6015,11 +6016,11 @@ var showHome = ( function() {
 						rain[ "i" + bid ] = ( rain[ "i" + bid ] ) + ( attrib.data( "ir" ) << s );
 					}
 
-					if ( Supported.ignoreSensor( IGNORE_SENSOR_1 ) ) {
+					if ( Supported.ignoreSensor( OSApp.IGNORE_SENSOR_1 ) ) {
 						sensor1[ "j" + bid ] = ( sensor1[ "j" + bid ] ) + ( attrib.data( "sn1" ) << s );
 					}
 
-					if ( Supported.ignoreSensor( IGNORE_SENSOR_2 ) ) {
+					if ( Supported.ignoreSensor( OSApp.IGNORE_SENSOR_2 ) ) {
 						sensor2[ "k" + bid ] = ( sensor2[ "k" + bid ] ) + ( attrib.data( "sn2" ) << s );
 					}
 
@@ -6056,13 +6057,13 @@ var showHome = ( function() {
 
 			$.mobile.loading( "show" );
 			sendToOS( "/cs?pw=&" + $.param( names ) +
-				( Supported.master( MASTER_STATION_1 ) ? "&" + $.param( master ) : "" ) +
-				( Supported.master( MASTER_STATION_2 ) ? "&" + $.param( master2 ) : "" ) +
+				( Supported.master( OSApp.MASTER_STATION_1 ) ? "&" + $.param( master ) : "" ) +
+				( Supported.master( OSApp.MASTER_STATION_2 ) ? "&" + $.param( master2 ) : "" ) +
 				( Supported.sequential() ? "&" + $.param( sequential ) : "" ) +
 				( Supported.special() ? "&" + $.param( special ) : "" ) +
 				( Supported.ignoreRain() ? "&" + $.param( rain ) : "" ) +
-				( Supported.ignoreSensor( IGNORE_SENSOR_1 ) ? "&" + $.param( sensor1 ) : "" ) +
-				( Supported.ignoreSensor( IGNORE_SENSOR_2 ) ? "&" + $.param( sensor2 ) : "" ) +
+				( Supported.ignoreSensor( OSApp.IGNORE_SENSOR_1 ) ? "&" + $.param( sensor1 ) : "" ) +
+				( Supported.ignoreSensor( OSApp.IGNORE_SENSOR_2 ) ? "&" + $.param( sensor2 ) : "" ) +
 				( Supported.actRelay() ? "&" + $.param( relay ) : "" ) +
 				( Supported.disabled() ? "&" + $.param( disable ) : "" ) +
 				( Supported.groups() ? "&g" + id + "=" + gid : "" )
@@ -6292,11 +6293,11 @@ var showHome = ( function() {
 					}
 
 					card.find( ".station-settings" ).data( {
-						um: Supported.master( MASTER_STATION_1 ) ? StationAttribute.getMasterOperation( sid, MASTER_STATION_1 ) : undefined,
-						um2: Supported.master( MASTER_STATION_2 ) ? StationAttribute.getMasterOperation( sid, MASTER_STATION_2 ) : undefined,
+						um: Supported.master( OSApp.MASTER_STATION_1 ) ? StationAttribute.getMasterOperation( sid, OSApp.MASTER_STATION_1 ) : undefined,
+						um2: Supported.master( OSApp.MASTER_STATION_2 ) ? StationAttribute.getMasterOperation( sid, OSApp.MASTER_STATION_2 ) : undefined,
 						ir: Supported.ignoreRain() ? StationAttribute.getIgnoreRain( sid ) : undefined,
-						sn1: Supported.ignoreSensor( IGNORE_SENSOR_1 ) ? StationAttribute.getIgnoreSensor( sid, IGNORE_SENSOR_1 ) : undefined,
-						sn2: Supported.ignoreSensor( IGNORE_SENSOR_2 ) ? StationAttribute.getIgnoreSensor( sid, IGNORE_SENSOR_2 ) : undefined,
+						sn1: Supported.ignoreSensor( OSApp.IGNORE_SENSOR_1 ) ? StationAttribute.getIgnoreSensor( sid, OSApp.IGNORE_SENSOR_1 ) : undefined,
+						sn2: Supported.ignoreSensor( OSApp.IGNORE_SENSOR_2 ) ? StationAttribute.getIgnoreSensor( sid, OSApp.IGNORE_SENSOR_2 ) : undefined,
 						ar: Supported.actRelay() ? StationAttribute.getActRelay( sid ) : undefined,
 						sd: Supported.disabled() ? StationAttribute.getDisabled( sid ) : undefined,
 						us: Supported.sequential() ? StationAttribute.getSequential( sid ) : undefined,
@@ -6407,7 +6408,7 @@ var showHome = ( function() {
 				return false;
 			}
 
-			dialogOptions.type = dialog.REMOVE_STATION;
+			dialogOptions.type = OSApp.dialog.REMOVE_STATION;
 			dialogOptions.station = sid;
 			dialogOptions.gid = stationGID;
 
@@ -6427,7 +6428,7 @@ var showHome = ( function() {
 							sendToOS( "/cm?sid=" + sid + "&en=1&t=" + duration + "&pw=", "json" ).done( function() {
 
 								// Update local state until next device refresh occurs
-								Station.setPID( sid, MANUAL_STATION_PID );
+								Station.setPID( sid, OSApp.MANUAL_STATION_PID );
 								Station.setRemainingRuntime( sid, duration );
 
 								refreshStatus();
@@ -6445,7 +6446,7 @@ var showHome = ( function() {
 
 			areYouSure( question, Station.getName( sid ), function() {
 
-				var shiftStations = popupData.shift === true ? 1 : 0;
+				var shiftStations = OSApp.popupData.shift === true ? 1 : 0;
 
 				sendToOS( "/cm?sid=" + sid + "&ssta=" + shiftStations + "&en=0&pw=" ).done( function() {
 
@@ -11771,7 +11772,7 @@ function areYouSure( text1, text2, success, fail, options ) {
 
 	var showShiftDialog = 0;
 	if ( typeof options === "object" ) {
-		showShiftDialog = ( options.type === dialog.REMOVE_STATION ) &&
+		showShiftDialog = ( options.type === OSApp.dialog.REMOVE_STATION ) &&
 			Groups.canShift( options.gid ) && Station.isSequential( options.station );
 	}
 
@@ -12654,7 +12655,7 @@ function openPopup( popup, args ) {
 
 		// Save data before view is destroyed
 		if ( updateRemainingStations !== undefined ) {
-			popupData.shift = updateRemainingStations;
+			OSApp.popupData.shift = updateRemainingStations;
 		}
 
 		popup.popup( "destroy" ).remove();
@@ -12831,14 +12832,14 @@ function goBack() {
 			navigator.app.exitApp();
 		} catch ( err ) {}
 	} else {
-		if ( pageHistoryCount > 0 ) {
-			pageHistoryCount--;
+		if ( OSApp.pageHistoryCount > 0 ) {
+			OSApp.pageHistoryCount--;
 		}
 
-		if ( pageHistoryCount === 0 ) {
+		if ( OSApp.pageHistoryCount === 0 ) {
 			navigator.app.exitApp();
 		} else {
-			goingBack = true;
+			OSApp.goingBack = true;
 			$.mobile.back();
 		}
 	}
@@ -13421,9 +13422,9 @@ function Supported() {}
 
 Supported.master = function( masid ) {
 	switch ( masid ) {
-		case MASTER_STATION_1:
+		case OSApp.MASTER_STATION_1:
 			return OSApp.controller.options.mas ? true : false;
-		case MASTER_STATION_2:
+		case OSApp.MASTER_STATION_2:
 			return OSApp.controller.options.mas2 ? true : false;
 		default:
 			return false;
@@ -13436,9 +13437,9 @@ Supported.ignoreRain = function() {
 
 Supported.ignoreSensor = function( sensorID ) {
 	switch ( sensorID ) {
-		case IGNORE_SENSOR_1:
+		case OSApp.IGNORE_SENSOR_1:
 			return ( typeof OSApp.controller.stations.ignore_sn1 === "object" ) ? true : false;
-		case IGNORE_SENSOR_2:
+		case OSApp.IGNORE_SENSOR_2:
 			return ( typeof OSApp.controller.stations.ignore_sn2 === "object" ) ? true : false;
 		default:
 			return false;
@@ -13589,10 +13590,10 @@ StationAttribute.getMasterOperation = function( sid, masid ) {
 	if ( !Supported.master( masid ) ) { return 0; }
 
 	switch ( masid ) {
-		case MASTER_STATION_1:
+		case OSApp.MASTER_STATION_1:
 			sourceMasterAttribute = OSApp.controller.stations.masop;
 			break;
-		case MASTER_STATION_2:
+		case OSApp.MASTER_STATION_2:
 			sourceMasterAttribute = OSApp.controller.stations.masop2;
 			break;
 		default:
@@ -13621,10 +13622,10 @@ StationAttribute.getIgnoreSensor = function( sid, sensorID ) {
 	if ( !Supported.ignoreSensor( sensorID ) ) { return 0; }
 
 	switch ( sensorID ) {
-		case IGNORE_SENSOR_1:
+		case OSApp.IGNORE_SENSOR_1:
 			sourceIgnoreSensorAttribute = OSApp.controller.stations.ignore_sn1;
 			break;
-		case IGNORE_SENSOR_2:
+		case OSApp.IGNORE_SENSOR_2:
 			sourceIgnoreSensorAttribute = OSApp.controller.stations.ignore_sn2;
 			break;
 		default:
