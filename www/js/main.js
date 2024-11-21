@@ -21,7 +21,7 @@ var OSApp = OSApp || {};
 
 // TODO: refactor away all direct usage of localstorage in favor of OSApp.Storage
 // TODO: refactor OSApp.isXXXX values to OSApp.Config.isXXX
-// TODO: refactor OSApp.Regex out to separate modules/regex.js file
+// TODO: refactor OSApp.regex out to separate modules/regex.js file
 // TODO: refactor OSApp.retryCount elsewhere
 // TODO: refactor OSApp.keyIndex elsewhere
 // TODO: refactor OSApp.controller elsewhere
@@ -49,7 +49,7 @@ OSApp.isMetric = ( [ "US", "BM", "PW" ].indexOf( navigator.languages[ 0 ].split(
 OSApp.groupView = false;
 
 // Current session settings
-OSApp.CurrentSession = {
+OSApp.currentSession = {
 	auth: undefined,
 	authPass: undefined,
 	authUser: undefined,
@@ -63,12 +63,12 @@ OSApp.CurrentSession = {
 };
 
 // Define general regex patterns
-OSApp.Regex = {
+OSApp.regex = {
 	gps: /^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/
 };
 
 // App theme settings
-OSApp.Theme = {
+OSApp.theme = {
 
 	// Define the status bar color(s) and use a darker color for Android
 	statusBarPrimary: OSApp.isAndroid ? "#121212" : "#1D1D1D",
@@ -103,16 +103,20 @@ OSApp.popupData = {
 };
 
 // Option constants
-OSApp.MANUAL_STATION_PID = 99;
-OSApp.MASTER_STATION_1 = 1;
-OSApp.MASTER_STATION_2 = 2;
-OSApp.IGNORE_SENSOR_1 = 1;
-OSApp.IGNORE_SENSOR_2 = 2;
-OSApp.NUM_SEQ_GROUPS = 4;
-OSApp.PARALLEL_GROUP_NAME = "P";
-OSApp.PARALLEL_GID_VALUE = 255;
-OSApp.MASTER_GROUP_NAME = "M";
-OSApp.MASTER_GID_VALUE = 254;
+OSApp.Constants = {
+	Options: {
+		IGNORE_SENSOR_1: 1,
+		IGNORE_SENSOR_2: 2,
+		MANUAL_STATION_PID: 99,
+		MASTER_GID_VALUE: 254,
+		MASTER_GROUP_NAME: "M",
+		MASTER_STATION_1: 1,
+		MASTER_STATION_2: 2,
+		NUM_SEQ_GROUPS: 4,
+		PARALLEL_GID_VALUE: 255,
+		PARALLEL_GROUP_NAME: "P",
+	}
+};
 
 // UI State
 OSApp.notifications = []; // Array to hold all notifications currently displayed within the app
@@ -146,7 +150,7 @@ $( document )
 		//Change the status bar to match the headers
 		StatusBar.overlaysWebView( false );
 		StatusBar.styleLightContent();
-		StatusBar.backgroundColorByHexString( OSApp.Theme.statusBarPrimary );
+		StatusBar.backgroundColorByHexString( OSApp.theme.statusBarPrimary );
 
 		$.mobile.window.on( "statusTap", function() {
 			$( "body, html" ).animate( {
@@ -281,7 +285,7 @@ $( document )
 .on( "resume", function() {
 
 	// If we don't have a current device IP set, there is nothing else to update
-	if ( OSApp.CurrentSession.ip === undefined ) {
+	if ( OSApp.currentSession.ip === undefined ) {
 		return;
 	}
 
@@ -353,7 +357,7 @@ $( document )
 	// When a popup opens that has an overlay, update the status bar background color to match
 	if ( $( ".ui-overlay-b:not(.ui-screen-hidden)" ).length ) {
 		try {
-			StatusBar.backgroundColorByHexString( OSApp.Theme.statusBarOverlay );
+			StatusBar.backgroundColorByHexString( OSApp.theme.statusBarOverlay );
 		} catch ( err ) {}
 	}
 } )
@@ -363,7 +367,7 @@ $( document )
 
 	// When a popup is closed, change the header back to the default color
 	try {
-		StatusBar.backgroundColorByHexString( OSApp.Theme.statusBarPrimary );
+		StatusBar.backgroundColorByHexString( OSApp.theme.statusBarPrimary );
 	} catch ( err ) {}
 } )
 .on( "popupbeforeposition", function() {
@@ -378,7 +382,7 @@ function initApp() {
 	updateLang();
 
 	//Set AJAX timeout
-	if ( !OSApp.CurrentSession.local ) {
+	if ( !OSApp.currentSession.local ) {
 		$.ajaxSetup( {
 			timeout: 10000
 		} );
@@ -423,7 +427,7 @@ function initApp() {
 		var button = $( this );
 		window.open( this.href, target, "location=" + ( OSApp.isAndroid ? "yes" : "no" ) +
 			",enableViewportScale=" + ( button.hasClass( "iabNoScale" ) ? "no" : "yes" ) +
-			",toolbar=yes,toolbarposition=top,toolbarcolor=" + OSApp.Theme.statusBarPrimary +
+			",toolbar=yes,toolbarposition=top,toolbarcolor=" + OSApp.theme.statusBarPrimary +
 			",closebuttoncaption=" +
 				( button.hasClass( "iabNoScale" ) ? _( "Back" ) : _( "Done" ) )
 		);
@@ -544,7 +548,7 @@ function initApp() {
 	bindPanel();
 
 	// Update the IP address of the device running the app
-	if ( !OSApp.CurrentSession.local  && typeof window.cordova === "undefined" ) {
+	if ( !OSApp.currentSession.local  && typeof window.cordova === "undefined" ) {
 		updateDeviceIP();
 	}
 
@@ -607,7 +611,7 @@ function flipSwitched() {
 function sendToOS( dest, type ) {
 
 	// Inject password into the request
-	dest = dest.replace( "pw=", "pw=" + encodeURIComponent( OSApp.CurrentSession.pass ) );
+	dest = dest.replace( "pw=", "pw=" + encodeURIComponent( OSApp.currentSession.pass ) );
 	type = type || "text";
 
 	// Designate AJAX queue based on command type
@@ -618,7 +622,7 @@ function sendToOS( dest, type ) {
 		usePOST = ( isChange && checkOSVersion( 300 ) ),
 		urlDest = usePOST ? dest.split( "?" )[ 0 ] : dest,
 		obj = {
-			url: OSApp.CurrentSession.token ? "https://cloud.openthings.io/forward/v1/" + OSApp.CurrentSession.token + urlDest : OSApp.CurrentSession.prefix + OSApp.CurrentSession.ip + urlDest,
+			url: OSApp.currentSession.token ? "https://cloud.openthings.io/forward/v1/" + OSApp.currentSession.token + urlDest : OSApp.currentSession.prefix + OSApp.currentSession.ip + urlDest,
 			type: usePOST ? "POST" : "GET",
 			data: usePOST ? getUrlVars( dest ) : null,
 			dataType: type,
@@ -632,17 +636,17 @@ function sendToOS( dest, type ) {
 		},
 		defer;
 
-	if ( OSApp.CurrentSession.auth ) {
+	if ( OSApp.currentSession.auth ) {
 		$.extend( obj, {
 			beforeSend: function( xhr ) {
 				xhr.setRequestHeader(
-					"Authorization", "Basic " + btoa( OSApp.CurrentSession.authUser + ":" + OSApp.CurrentSession.authPass )
+					"Authorization", "Basic " + btoa( OSApp.currentSession.authUser + ":" + OSApp.currentSession.authPass )
 				);
 			}
 		} );
 	}
 
-	if ( OSApp.CurrentSession.fw183 ) {
+	if ( OSApp.currentSession.fw183 ) {
 
 		// Firmware 1.8.3 has a bug handling the time stamp in the GET request
 		$.extend( obj, {
@@ -742,7 +746,7 @@ function newLoad() {
 			"</p>";
 
 	$.mobile.loading( "show", {
-		html: OSApp.CurrentSession.local ? "<h1>" + _( "Loading" ) + "</h1>" : loading,
+		html: OSApp.currentSession.local ? "<h1>" + _( "Loading" ) + "</h1>" : loading,
 		textVisible: true,
 		theme: "b"
 	} );
@@ -796,7 +800,7 @@ function newLoad() {
 			}
 
 			// Show site name instead of default Information bar
-			if ( !OSApp.CurrentSession.local ) {
+			if ( !OSApp.currentSession.local ) {
 				$( "#info-list" ).find( "li[data-role='list-divider']" ).text( name );
 				document.title = "OpenSprinkler - " + name;
 			} else {
@@ -815,7 +819,7 @@ function newLoad() {
 			}
 
 			// Check if the OpenSprinkler can be accessed from the public IP
-			if ( !OSApp.CurrentSession.local && typeof OSApp.controller.settings.eip === "number" ) {
+			if ( !OSApp.currentSession.local && typeof OSApp.controller.settings.eip === "number" ) {
 				checkPublicAccess( OSApp.controller.settings.eip );
 			}
 
@@ -841,7 +845,7 @@ function newLoad() {
 			$.mobile.loading( "hide" );
 
 			var fail = function() {
-				if ( !OSApp.CurrentSession.local ) {
+				if ( !OSApp.currentSession.local ) {
 					if ( $( ".ui-page-active" ).attr( "id" ) === "site-control" ) {
 						showFail();
 					} else {
@@ -922,7 +926,7 @@ function updateController( callback, fail ) {
 function updateControllerPrograms( callback ) {
 	callback = callback || function() {};
 
-	if ( OSApp.CurrentSession.fw183 === true ) {
+	if ( OSApp.currentSession.fw183 === true ) {
 
 		// If the controller is using firmware 1.8.3, then parse the script tag for variables
 		return sendToOS( "/gp?d=0" ).done( function( programs ) {
@@ -963,7 +967,7 @@ function updateControllerPrograms( callback ) {
 function updateControllerStations( callback ) {
 	callback = callback || function() {};
 
-	if ( OSApp.CurrentSession.fw183 === true ) {
+	if ( OSApp.currentSession.fw183 === true ) {
 
 		// If the controller is using firmware 1.8.3, then parse the script tag for variables
 		return sendToOS( "/vs" ).done( function( stations ) {
@@ -997,7 +1001,7 @@ function updateControllerStations( callback ) {
 function updateControllerOptions( callback ) {
 	callback = callback || function() {};
 
-	if ( OSApp.CurrentSession.fw183 === true ) {
+	if ( OSApp.currentSession.fw183 === true ) {
 
 		// If the controller is using firmware 1.8.3, then parse the script tag for variables
 		return sendToOS( "/vo" ).done( function( options ) {
@@ -1041,7 +1045,7 @@ function updateControllerOptions( callback ) {
 function updateControllerStatus( callback ) {
 	callback = callback || function() {};
 
-	if ( OSApp.CurrentSession.fw183 === true ) {
+	if ( OSApp.currentSession.fw183 === true ) {
 
 		// If the controller is using firmware 1.8.3, then parse the script tag for variables
 		return sendToOS( "/sn0" ).then(
@@ -1071,7 +1075,7 @@ function updateControllerStatus( callback ) {
 function updateControllerSettings( callback ) {
 	callback = callback || function() {};
 
-	if ( OSApp.CurrentSession.fw183 === true ) {
+	if ( OSApp.currentSession.fw183 === true ) {
 
 		// If the controller is using firmware 1.8.3, then parse the script tag for variables
 		return sendToOS( "" ).then(
@@ -1130,7 +1134,7 @@ function updateControllerSettings( callback ) {
 				}
 
 				// Update the current coordinates if the user's location is using them
-				if ( settings.loc.match( OSApp.Regex.gps ) ) {
+				if ( settings.loc.match( OSApp.regex.gps ) ) {
 					var location = settings.loc.split( "," );
 					OSApp.currentCoordinates = [ parseFloat( location[ 0 ] ), parseFloat( location[ 1 ] ) ];
 				}
@@ -1199,31 +1203,31 @@ function checkConfigured( firstLoad ) {
 
 		updateSiteList( names, current );
 
-		OSApp.CurrentSession.token = sites[ current ].os_token;
+		OSApp.currentSession.token = sites[ current ].os_token;
 
-		OSApp.CurrentSession.ip = sites[ current ].os_ip;
-		OSApp.CurrentSession.pass = sites[ current ].os_pw;
+		OSApp.currentSession.ip = sites[ current ].os_ip;
+		OSApp.currentSession.pass = sites[ current ].os_pw;
 
 		if ( typeof sites[ current ].ssl !== "undefined" && sites[ current ].ssl === "1" ) {
-			OSApp.CurrentSession.prefix = "https://";
+			OSApp.currentSession.prefix = "https://";
 		} else {
-			OSApp.CurrentSession.prefix = "http://";
+			OSApp.currentSession.prefix = "http://";
 		}
 
 		if ( typeof sites[ current ].auth_user !== "undefined" &&
 			typeof sites[ current ].auth_pw !== "undefined" ) {
 
-			OSApp.CurrentSession.auth = true;
-			OSApp.CurrentSession.authUser = sites[ current ].auth_user;
-			OSApp.CurrentSession.authPass = sites[ current ].auth_pw;
+			OSApp.currentSession.auth = true;
+			OSApp.currentSession.authUser = sites[ current ].auth_user;
+			OSApp.currentSession.authPass = sites[ current ].auth_pw;
 		} else {
-			OSApp.CurrentSession.auth = false;
+			OSApp.currentSession.auth = false;
 		}
 
 		if ( sites[ current ].is183 ) {
-			OSApp.CurrentSession.fw183 = true;
+			OSApp.currentSession.fw183 = true;
 		} else {
-			OSApp.CurrentSession.fw183 = false;
+			OSApp.currentSession.fw183 = false;
 		}
 
 		newLoad();
@@ -1234,8 +1238,8 @@ function fixPasswordHash( current ) {
 	OSApp.Storage.get( [ "sites" ], function( data ) {
 		var sites = parseSites( data.sites );
 
-		if ( !isMD5( OSApp.CurrentSession.pass ) ) {
-			var pw = md5( OSApp.CurrentSession.pass );
+		if ( !isMD5( OSApp.currentSession.pass ) ) {
+			var pw = md5( OSApp.currentSession.pass );
 
 			sendToOS(
 				"/sp?pw=&npw=" + encodeURIComponent( pw ) +
@@ -1246,7 +1250,7 @@ function fixPasswordHash( current ) {
 				if ( !result || result > 1 ) {
 					return false;
 				} else {
-					sites[ current ].os_pw = OSApp.CurrentSession.pass = pw;
+					sites[ current ].os_pw = OSApp.currentSession.pass = pw;
 					OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
 				}
 			} );
@@ -1280,8 +1284,8 @@ function submitNewUser( ssl, useAuth ) {
 				}
 
 				sites[ name ] = {};
-				sites[ name ].os_token = OSApp.CurrentSession.token = token;
-				sites[ name ].os_ip = OSApp.CurrentSession.ip = ip;
+				sites[ name ].os_token = OSApp.currentSession.token = token;
+				sites[ name ].os_ip = OSApp.currentSession.ip = ip;
 
 				if ( typeof data.fwv === "number" && data.fwv >= 213 ) {
 					if ( typeof data.wl === "number" ) {
@@ -1290,28 +1294,28 @@ function submitNewUser( ssl, useAuth ) {
 				}
 
 				sites[ name ].os_pw = savePW ? pw : "";
-				OSApp.CurrentSession.pass = pw;
+				OSApp.currentSession.pass = pw;
 
 				if ( ssl ) {
 					sites[ name ].ssl = "1";
-					OSApp.CurrentSession.prefix = "https://";
+					OSApp.currentSession.prefix = "https://";
 				} else {
-					OSApp.CurrentSession.prefix = "http://";
+					OSApp.currentSession.prefix = "http://";
 				}
 
 				if ( useAuth ) {
 					sites[ name ].auth_user = $( "#os_auth_user" ).val();
 					sites[ name ].auth_pw = $( "#os_auth_pw" ).val();
-					OSApp.CurrentSession.auth = true;
-					OSApp.CurrentSession.authUser = sites[ name ].auth_user;
-					OSApp.CurrentSession.authPass = sites[ name ].auth_pw;
+					OSApp.currentSession.auth = true;
+					OSApp.currentSession.authUser = sites[ name ].auth_user;
+					OSApp.currentSession.authPass = sites[ name ].auth_pw;
 				} else {
-					OSApp.CurrentSession.auth = false;
+					OSApp.currentSession.auth = false;
 				}
 
 				if ( is183 === true ) {
 					sites[ name ].is183 = "1";
-					OSApp.CurrentSession.fw183 = true;
+					OSApp.currentSession.fw183 = true;
 				}
 
 				$( "#os_name,#os_ip,#os_pw,#os_auth_user,#os_auth_pw,#os_token" ).val( "" );
@@ -1859,7 +1863,7 @@ var showSites = ( function() {
 
 					if ( site === data.current_site ) {
 						if ( pw !== "" ) {
-							OSApp.CurrentSession.pass = pw;
+							OSApp.currentSession.pass = pw;
 						}
 						if ( needsReconnect ) {
 							checkConfigured();
@@ -1887,8 +1891,8 @@ var showSites = ( function() {
 							if ( $.isEmptyObject( sites ) ) {
 								OSApp.Storage.get( "cloudToken", function() {
 									if ( data.cloudToken === null || data.cloudToken === undefined ) {
-										OSApp.CurrentSession.ip = "";
-										OSApp.CurrentSession.pass = "";
+										OSApp.currentSession.ip = "";
+										OSApp.currentSession.pass = "";
 										changePage( "#start" );
 										return;
 									}
@@ -2031,7 +2035,7 @@ function updateSite( newsite ) {
 function findLocalSiteName( sites, callback ) {
 	for ( var site in sites ) {
 		if ( sites.hasOwnProperty( site ) ) {
-			if ( OSApp.CurrentSession.ip.indexOf( sites[ site ].os_ip ) !== -1 ) {
+			if ( OSApp.currentSession.ip.indexOf( sites[ site ].os_ip ) !== -1 ) {
 				callback( site );
 				return;
 			}
@@ -2906,7 +2910,7 @@ function updateWeather() {
 function checkURLandUpdateWeather() {
 	var finish = function( wsp ) {
 		if ( wsp ) {
-			OSApp.Weather.WEATHER_SERVER_URL = OSApp.CurrentSession.prefix + wsp;
+			OSApp.Weather.WEATHER_SERVER_URL = OSApp.currentSession.prefix + wsp;
 		} else {
 			OSApp.Weather.WEATHER_SERVER_URL = OSApp.Weather.DEFAULT_WEATHER_SERVER_URL;
 		}
@@ -2924,7 +2928,7 @@ function checkURLandUpdateWeather() {
 		return;
 	}
 
-	return $.get( OSApp.CurrentSession.prefix + OSApp.CurrentSession.ip + "/su" ).then( function( reply ) {
+	return $.get( OSApp.currentSession.prefix + OSApp.currentSession.ip + "/su" ).then( function( reply ) {
 		var wsp = reply.match( /value="([\w|:|/|.]+)" name=wsp/ );
 		finish( wsp ? wsp[ 1 ] : undefined );
 	} );
@@ -3252,8 +3256,8 @@ function overlayMap( callback ) {
 		iframe = popup.find( "iframe" ),
 		locInput = $( "#loc" ).val(),
 		current = {
-			lat: locInput.match( OSApp.Regex.gps ) ? locInput.split( "," )[ 0 ] : OSApp.currentCoordinates[ 0 ],
-			lon: locInput.match( OSApp.Regex.gps ) ? locInput.split( "," )[ 1 ] : OSApp.currentCoordinates[ 1 ]
+			lat: locInput.match( OSApp.regex.gps ) ? locInput.split( "," )[ 0 ] : OSApp.currentCoordinates[ 0 ],
+			lon: locInput.match( OSApp.regex.gps ) ? locInput.split( "," )[ 1 ] : OSApp.currentCoordinates[ 1 ]
 		},
 		dataSent = false;
 
@@ -5476,11 +5480,11 @@ var showHome = ( function() {
 
 			cards += "<span class='btn-no-border ui-btn " + ( ( Station.isMaster( sid ) ) ? "ui-icon-master" : "ui-icon-gear" ) +
 				" card-icon ui-btn-icon-notext station-settings' data-station='" + sid + "' id='attrib-" + sid + "' " +
-				( Supported.master( OSApp.MASTER_STATION_1 ) ? ( "data-um='" + ( StationAttribute.getMasterOperation( sid, OSApp.MASTER_STATION_1 ) ) + "' " ) : "" ) +
-				( Supported.master( OSApp.MASTER_STATION_2 ) ? ( "data-um2='" + ( StationAttribute.getMasterOperation( sid, OSApp.MASTER_STATION_2 ) ) + "' " ) : "" ) +
+				( Supported.master( OSApp.Constants.Options.MASTER_STATION_1 ) ? ( "data-um='" + ( StationAttribute.getMasterOperation( sid, OSApp.Constants.Options.MASTER_STATION_1 ) ) + "' " ) : "" ) +
+				( Supported.master( OSApp.Constants.Options.MASTER_STATION_2 ) ? ( "data-um2='" + ( StationAttribute.getMasterOperation( sid, OSApp.Constants.Options.MASTER_STATION_2 ) ) + "' " ) : "" ) +
 				( Supported.ignoreRain() ? ( "data-ir='" + ( StationAttribute.getIgnoreRain( sid ) ) + "' " ) : "" ) +
-				( Supported.ignoreSensor( OSApp.IGNORE_SENSOR_1 ) ? ( "data-sn1='" + ( StationAttribute.getIgnoreSensor( sid, OSApp.IGNORE_SENSOR_1 ) ) + "' " ) : "" ) +
-				( Supported.ignoreSensor( OSApp.IGNORE_SENSOR_2 ) ? ( "data-sn2='" + ( StationAttribute.getIgnoreSensor( sid, OSApp.IGNORE_SENSOR_2 ) ) + "' " ) : "" ) +
+				( Supported.ignoreSensor( OSApp.Constants.Options.IGNORE_SENSOR_1 ) ? ( "data-sn1='" + ( StationAttribute.getIgnoreSensor( sid, OSApp.Constants.Options.IGNORE_SENSOR_1 ) ) + "' " ) : "" ) +
+				( Supported.ignoreSensor( OSApp.Constants.Options.IGNORE_SENSOR_2 ) ? ( "data-sn2='" + ( StationAttribute.getIgnoreSensor( sid, OSApp.Constants.Options.IGNORE_SENSOR_2 ) ) + "' " ) : "" ) +
 				( Supported.actRelay() ? ( "data-ar='" + ( StationAttribute.getActRelay( sid ) ) + "' " ) : "" ) +
 				( Supported.disabled() ? ( "data-sd='" + ( StationAttribute.getDisabled( sid ) ) + "' " ) : "" ) +
 				( Supported.sequential() ? ( "data-us='" + ( StationAttribute.getSequential( sid ) ) + "' " ) : "" ) +
@@ -5778,13 +5782,13 @@ var showHome = ( function() {
 				"</button>";
 
 			if ( !Station.isMaster( sid ) ) {
-				if ( Supported.master( OSApp.MASTER_STATION_1 ) ) {
+				if ( Supported.master( OSApp.Constants.Options.MASTER_STATION_1 ) ) {
 					select += "<label for='um'><input class='needsclick' data-iconpos='right' id='um' type='checkbox' " +
 							( ( button.data( "um" ) === 1 ) ? "checked='checked'" : "" ) + ">" + _( "Use Master" ) + " " +
-								( Supported.master( OSApp.MASTER_STATION_2 ) ? "1" : "" ) + "</label>";
+								( Supported.master( OSApp.Constants.Options.MASTER_STATION_2 ) ? "1" : "" ) + "</label>";
 				}
 
-				if ( Supported.master( OSApp.MASTER_STATION_2 ) ) {
+				if ( Supported.master( OSApp.Constants.Options.MASTER_STATION_2 ) ) {
 					select += "<label for='um2'><input class='needsclick' data-iconpos='right' id='um2' type='checkbox' " +
 							( ( button.data( "um2" ) === 1 ) ? "checked='checked'" : "" ) + ">" + _( "Use Master" ) + " 2" +
 						"</label>";
@@ -5796,13 +5800,13 @@ var showHome = ( function() {
 						"</label>";
 				}
 
-				if ( Supported.ignoreSensor( OSApp.IGNORE_SENSOR_1 ) ) {
+				if ( Supported.ignoreSensor( OSApp.Constants.Options.IGNORE_SENSOR_1 ) ) {
 					select += "<label for='sn1'><input class='needsclick' data-iconpos='right' id='sn1' type='checkbox' " +
 							( ( button.data( "sn1" ) === 1 ) ? "checked='checked'" : "" ) + ">" + _( "Ignore Sensor 1" ) +
 						"</label>";
 				}
 
-				if ( Supported.ignoreSensor( OSApp.IGNORE_SENSOR_2 ) ) {
+				if ( Supported.ignoreSensor( OSApp.Constants.Options.IGNORE_SENSOR_2 ) ) {
 					select += "<label for='sn2'><input class='needsclick' data-iconpos='right' id='sn2' type='checkbox' " +
 							( ( button.data( "sn2" ) === 1 ) ? "checked='checked'" : "" ) + ">" + _( "Ignore Sensor 2" ) +
 						"</label>";
@@ -5892,7 +5896,7 @@ var showHome = ( function() {
 					prohibitChange.addClass( "hidden" );
 				}
 
-				for ( var i = 0; i <= OSApp.NUM_SEQ_GROUPS; i++ ) {
+				for ( var i = 0; i <= OSApp.Constants.Options.NUM_SEQ_GROUPS; i++ ) {
 					var value = mapIndexToGIDValue( i ),
 						label = mapGIDValueToName( value ),
 						option = $(
@@ -5985,10 +5989,10 @@ var showHome = ( function() {
 				attrib, bid, sid, gid, s;
 
 			for ( bid = 0; bid < OSApp.controller.settings.nbrd; bid++ ) {
-				if ( Supported.master( OSApp.MASTER_STATION_1 ) ) {
+				if ( Supported.master( OSApp.Constants.Options.MASTER_STATION_1 ) ) {
 					master[ "m" + bid ] = 0;
 				}
-				if ( Supported.master( OSApp.MASTER_STATION_2 ) ) {
+				if ( Supported.master( OSApp.Constants.Options.MASTER_STATION_2 ) ) {
 					master2[ "n" + bid ] = 0;
 				}
 				if ( Supported.sequential() ) {
@@ -6000,10 +6004,10 @@ var showHome = ( function() {
 				if ( Supported.ignoreRain() ) {
 					rain[ "i" + bid ] = 0;
 				}
-				if ( Supported.ignoreSensor( OSApp.IGNORE_SENSOR_1 ) ) {
+				if ( Supported.ignoreSensor( OSApp.Constants.Options.IGNORE_SENSOR_1 ) ) {
 					sensor1[ "j" + bid ] = 0;
 				}
-				if ( Supported.ignoreSensor( OSApp.IGNORE_SENSOR_2 ) ) {
+				if ( Supported.ignoreSensor( OSApp.Constants.Options.IGNORE_SENSOR_2 ) ) {
 					sensor2[ "k" + bid ] = 0;
 				}
 				if ( Supported.actRelay() ) {
@@ -6017,11 +6021,11 @@ var showHome = ( function() {
 					sid = bid * 8 + s;
 					attrib = page.find( "#attrib-" + sid );
 
-					if ( Supported.master( OSApp.MASTER_STATION_1 ) ) {
+					if ( Supported.master( OSApp.Constants.Options.MASTER_STATION_1 ) ) {
 						master[ "m" + bid ] = ( master[ "m" + bid ] ) + ( attrib.data( "um" ) << s );
 					}
 
-					if ( Supported.master( OSApp.MASTER_STATION_2 ) ) {
+					if ( Supported.master( OSApp.Constants.Options.MASTER_STATION_2 ) ) {
 						master2[ "n" + bid ] = ( master2[ "n" + bid ] ) + ( attrib.data( "um2" ) << s );
 					}
 
@@ -6037,11 +6041,11 @@ var showHome = ( function() {
 						rain[ "i" + bid ] = ( rain[ "i" + bid ] ) + ( attrib.data( "ir" ) << s );
 					}
 
-					if ( Supported.ignoreSensor( OSApp.IGNORE_SENSOR_1 ) ) {
+					if ( Supported.ignoreSensor( OSApp.Constants.Options.IGNORE_SENSOR_1 ) ) {
 						sensor1[ "j" + bid ] = ( sensor1[ "j" + bid ] ) + ( attrib.data( "sn1" ) << s );
 					}
 
-					if ( Supported.ignoreSensor( OSApp.IGNORE_SENSOR_2 ) ) {
+					if ( Supported.ignoreSensor( OSApp.Constants.Options.IGNORE_SENSOR_2 ) ) {
 						sensor2[ "k" + bid ] = ( sensor2[ "k" + bid ] ) + ( attrib.data( "sn2" ) << s );
 					}
 
@@ -6078,13 +6082,13 @@ var showHome = ( function() {
 
 			$.mobile.loading( "show" );
 			sendToOS( "/cs?pw=&" + $.param( names ) +
-				( Supported.master( OSApp.MASTER_STATION_1 ) ? "&" + $.param( master ) : "" ) +
-				( Supported.master( OSApp.MASTER_STATION_2 ) ? "&" + $.param( master2 ) : "" ) +
+				( Supported.master( OSApp.Constants.Options.MASTER_STATION_1 ) ? "&" + $.param( master ) : "" ) +
+				( Supported.master( OSApp.Constants.Options.MASTER_STATION_2 ) ? "&" + $.param( master2 ) : "" ) +
 				( Supported.sequential() ? "&" + $.param( sequential ) : "" ) +
 				( Supported.special() ? "&" + $.param( special ) : "" ) +
 				( Supported.ignoreRain() ? "&" + $.param( rain ) : "" ) +
-				( Supported.ignoreSensor( OSApp.IGNORE_SENSOR_1 ) ? "&" + $.param( sensor1 ) : "" ) +
-				( Supported.ignoreSensor( OSApp.IGNORE_SENSOR_2 ) ? "&" + $.param( sensor2 ) : "" ) +
+				( Supported.ignoreSensor( OSApp.Constants.Options.IGNORE_SENSOR_1 ) ? "&" + $.param( sensor1 ) : "" ) +
+				( Supported.ignoreSensor( OSApp.Constants.Options.IGNORE_SENSOR_2 ) ? "&" + $.param( sensor2 ) : "" ) +
 				( Supported.actRelay() ? "&" + $.param( relay ) : "" ) +
 				( Supported.disabled() ? "&" + $.param( disable ) : "" ) +
 				( Supported.groups() ? "&g" + id + "=" + gid : "" )
@@ -6314,11 +6318,11 @@ var showHome = ( function() {
 					}
 
 					card.find( ".station-settings" ).data( {
-						um: Supported.master( OSApp.MASTER_STATION_1 ) ? StationAttribute.getMasterOperation( sid, OSApp.MASTER_STATION_1 ) : undefined,
-						um2: Supported.master( OSApp.MASTER_STATION_2 ) ? StationAttribute.getMasterOperation( sid, OSApp.MASTER_STATION_2 ) : undefined,
+						um: Supported.master( OSApp.Constants.Options.MASTER_STATION_1 ) ? StationAttribute.getMasterOperation( sid, OSApp.Constants.Options.MASTER_STATION_1 ) : undefined,
+						um2: Supported.master( OSApp.Constants.Options.MASTER_STATION_2 ) ? StationAttribute.getMasterOperation( sid, OSApp.Constants.Options.MASTER_STATION_2 ) : undefined,
 						ir: Supported.ignoreRain() ? StationAttribute.getIgnoreRain( sid ) : undefined,
-						sn1: Supported.ignoreSensor( OSApp.IGNORE_SENSOR_1 ) ? StationAttribute.getIgnoreSensor( sid, OSApp.IGNORE_SENSOR_1 ) : undefined,
-						sn2: Supported.ignoreSensor( OSApp.IGNORE_SENSOR_2 ) ? StationAttribute.getIgnoreSensor( sid, OSApp.IGNORE_SENSOR_2 ) : undefined,
+						sn1: Supported.ignoreSensor( OSApp.Constants.Options.IGNORE_SENSOR_1 ) ? StationAttribute.getIgnoreSensor( sid, OSApp.Constants.Options.IGNORE_SENSOR_1 ) : undefined,
+						sn2: Supported.ignoreSensor( OSApp.Constants.Options.IGNORE_SENSOR_2 ) ? StationAttribute.getIgnoreSensor( sid, OSApp.Constants.Options.IGNORE_SENSOR_2 ) : undefined,
 						ar: Supported.actRelay() ? StationAttribute.getActRelay( sid ) : undefined,
 						sd: Supported.disabled() ? StationAttribute.getDisabled( sid ) : undefined,
 						us: Supported.sequential() ? StationAttribute.getSequential( sid ) : undefined,
@@ -6396,7 +6400,7 @@ var showHome = ( function() {
 			reorderCards();
 		} );
 
-		page.find( ".sitename" ).toggleClass( "hidden", OSApp.CurrentSession.local ? true : false ).text( siteSelect.val() );
+		page.find( ".sitename" ).toggleClass( "hidden", OSApp.currentSession.local ? true : false ).text( siteSelect.val() );
 		page.find( ".waterlevel" ).text( OSApp.controller.options.wl );
 
 		updateSensorShowArea( page );
@@ -6449,7 +6453,7 @@ var showHome = ( function() {
 							sendToOS( "/cm?sid=" + sid + "&en=1&t=" + duration + "&pw=", "json" ).done( function() {
 
 								// Update local state until next device refresh occurs
-								Station.setPID( sid, OSApp.MANUAL_STATION_PID );
+								Station.setPID( sid, OSApp.Constants.Options.MANUAL_STATION_PID );
 								Station.setRemainingRuntime( sid, duration );
 
 								refreshStatus();
@@ -6672,7 +6676,7 @@ function verifyRemoteStation( data, callback ) {
 	data = parseRemoteStationData( data );
 
 	$.ajax( {
-		url: ( data.otc ? ( "https://cloud.openthings.io/forward/v1/" + data.otc ) : ( "http://" + data.ip + ":" + data.port ) ) + "/jo?pw=" + encodeURIComponent( OSApp.CurrentSession.pass ),
+		url: ( data.otc ? ( "https://cloud.openthings.io/forward/v1/" + data.otc ) : ( "http://" + data.ip + ":" + data.port ) ) + "/jo?pw=" + encodeURIComponent( OSApp.currentSession.pass ),
 		type: "GET",
 		dataType: "json"
 	} ).then(
@@ -6701,7 +6705,7 @@ function convertRemoteToExtender( data ) {
 	} else {
 		comm = "http://" + data.ip + ":" + data.port;
 	}
-	comm += "/cv?re=1&pw=" + encodeURIComponent( OSApp.CurrentSession.pass );
+	comm += "/cv?re=1&pw=" + encodeURIComponent( OSApp.currentSession.pass );
 
 	$.ajax( {
 		url: comm,
@@ -6968,14 +6972,14 @@ function calculateTotalRunningTime( runTimes ) {
 	var sdt = OSApp.controller.options.sdt,
 		sequential, parallel;
 	if ( Supported.groups() ) {
-		sequential = new Array( OSApp.NUM_SEQ_GROUPS ).fill( 0 );
+		sequential = new Array( OSApp.Constants.Options.NUM_SEQ_GROUPS ).fill( 0 );
 		parallel = 0;
 		var sequentialMax = 0;
 		$.each( OSApp.controller.stations.snames, function( i ) {
 			var run = runTimes[ i ];
 			var gid = Station.getGIDValue( i );
 			if ( run > 0 ) {
-				if ( gid !== OSApp.PARALLEL_GID_VALUE ) {
+				if ( gid !== OSApp.Constants.Options.PARALLEL_GID_VALUE ) {
 					sequential[ gid ] += ( run + sdt );
 				} else {
 					if ( run > parallel ) {
@@ -6984,7 +6988,7 @@ function calculateTotalRunningTime( runTimes ) {
 				}
 			}
 		} );
-		for ( var d = 0; d < OSApp.NUM_SEQ_GROUPS; d++ )	{
+		for ( var d = 0; d < OSApp.Constants.Options.NUM_SEQ_GROUPS; d++ )	{
 			if ( sequential[ d ] > sdt ) { sequential[ d ] -= sdt; }
 			if ( sequential[ d ] > sequentialMax ) { sequentialMax = sequential[ d ]; }
 		}
@@ -7514,7 +7518,7 @@ var getPreview = ( function() {
 			qidArray = new Array( nstations ),
 			lastStopTime = 0,
 			lastSeqStopTime = 0,
-			lastSeqStopTimes = new Array( OSApp.NUM_SEQ_GROUPS ), // Use this array if seq group is available
+			lastSeqStopTimes = new Array( OSApp.Constants.Options.NUM_SEQ_GROUPS ), // Use this array if seq group is available
 			busy, matchFound, prog, sid, qid, d, q, sqi, bid, bid2, s, s2;
 
 		for ( sid = 0; sid < nstations; sid++ ) {
@@ -7524,7 +7528,7 @@ var getPreview = ( function() {
 			plArray[ sid ] = 0;
 			qidArray[ sid ] = 0xFF;
 		}
-		for ( d = 0; d < OSApp.NUM_SEQ_GROUPS; d++ ) { lastSeqStopTimes[ d ] = 0; }
+		for ( d = 0; d < OSApp.Constants.Options.NUM_SEQ_GROUPS; d++ ) { lastSeqStopTimes[ d ] = 0; }
 
 		do {
 			busy = 0;
@@ -7596,14 +7600,14 @@ var getPreview = ( function() {
 			if ( matchFound ) {
 				var acctime = simminutes * 60,
 					seqAcctime = acctime,
-					seqAcctimes = new Array( OSApp.NUM_SEQ_GROUPS );
+					seqAcctimes = new Array( OSApp.Constants.Options.NUM_SEQ_GROUPS );
 
 				if ( is211 ) {
 					if ( lastSeqStopTime > acctime ) {
 						seqAcctime = lastSeqStopTime + OSApp.controller.options.sdt;
 					}
 
-					for ( d = 0; d < OSApp.NUM_SEQ_GROUPS; d++ ) {
+					for ( d = 0; d < OSApp.Constants.Options.NUM_SEQ_GROUPS; d++ ) {
 						seqAcctimes[ d ] = acctime;
 						if ( lastSeqStopTimes[ d ] > acctime ) {
 							seqAcctimes[ d ] = lastSeqStopTimes[ d ] + OSApp.controller.options.sdt;
@@ -7633,7 +7637,7 @@ var getPreview = ( function() {
 									acctime++;
 								}
 							} else { // Group id is available
-								if ( q.gid !== OSApp.PARALLEL_GID_VALUE ) { // This is a sequential station
+								if ( q.gid !== OSApp.Constants.Options.PARALLEL_GID_VALUE ) { // This is a sequential station
 									q.st = seqAcctimes[ q.gid ];
 									seqAcctimes[ q.gid ] += q.dur;
 									seqAcctimes[ q.gid ] += OSApp.controller.options.sdt;
@@ -7739,7 +7743,7 @@ var getPreview = ( function() {
 
 				// Lastly, calculate lastSeqStopTime
 				lastSeqStopTime = 0;
-				for ( d = 0; d < OSApp.NUM_SEQ_GROUPS; d++ ) { lastSeqStopTime[ d ] = 0; }
+				for ( d = 0; d < OSApp.Constants.Options.NUM_SEQ_GROUPS; d++ ) { lastSeqStopTime[ d ] = 0; }
 				for ( qid = 0; qid < rtQueue.length; qid++ ) {
 					q = rtQueue[ qid ];
 					sid = q.sid;
@@ -7753,7 +7757,7 @@ var getPreview = ( function() {
 							}
 						}
 					} else { // Group id is available
-						if ( q.gid !== OSApp.PARALLEL_GID_VALUE ) {
+						if ( q.gid !== OSApp.Constants.Options.PARALLEL_GID_VALUE ) {
 							if ( sst > lastSeqStopTimes[ q.gid ] ) {
 								lastSeqStopTimes[ q.gid ] = sst;
 							}
@@ -10678,7 +10682,7 @@ function checkPW( pass, callback ) {
 	var urlDest = "/sp?pw=" + encodeURIComponent( pass ) + "&npw=" + encodeURIComponent( pass ) + "&cpw=" + encodeURIComponent( pass );
 
 	$.ajax( {
-		url: OSApp.CurrentSession.token ? "https://cloud.openthings.io/forward/v1/" + OSApp.CurrentSession.token + urlDest : OSApp.CurrentSession.prefix + OSApp.CurrentSession.ip + urlDest,
+		url: OSApp.currentSession.token ? "https://cloud.openthings.io/forward/v1/" + OSApp.currentSession.token + urlDest : OSApp.currentSession.prefix + OSApp.currentSession.ip + urlDest,
 		cache: false,
 		crossDomain: true,
 		type: "GET"
@@ -10740,7 +10744,7 @@ function changePassword( opt ) {
 			OSApp.Storage.get( [ "sites" ], function( data ) {
 				var sites = parseSites( data.sites ),
 					success = function( pass ) {
-						OSApp.CurrentSession.pass = pass;
+						OSApp.currentSession.pass = pass;
 						sites[ opt.name ].os_pw = popup.find( "#save_pw" ).is( ":checked" ) ? pass : "";
 						OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
 						popup.popup( "close" );
@@ -10793,7 +10797,7 @@ function changePassword( opt ) {
 					var sites = parseSites( data.sites );
 
 					sites[ data.current_site ].os_pw = npw;
-					OSApp.CurrentSession.pass = npw;
+					OSApp.currentSession.pass = npw;
 					OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
 				} );
 				$.mobile.loading( "hide" );
@@ -10825,12 +10829,12 @@ function changePassword( opt ) {
 				var urlDest = "/jc?pw=" + pw;
 
 				$.ajax( {
-					url: OSApp.CurrentSession.token ? "https://cloud.openthings.io/forward/v1/" + OSApp.CurrentSession.token + urlDest : OSApp.CurrentSession.prefix + OSApp.CurrentSession.ip + urlDest,
+					url: OSApp.currentSession.token ? "https://cloud.openthings.io/forward/v1/" + OSApp.currentSession.token + urlDest : OSApp.currentSession.prefix + OSApp.currentSession.ip + urlDest,
 					type: "GET",
 					dataType: "json"
 				} ).then(
 					function() {
-						sites[ current ].os_pw = OSApp.CurrentSession.pass = pw;
+						sites[ current ].os_pw = OSApp.currentSession.pass = pw;
 						OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
 						opt.callback();
 					},
@@ -11038,7 +11042,7 @@ function cloudSyncStart() {
 
 				data.sites = parseSites( data.sites );
 
-				if ( OSApp.CurrentSession.local ) {
+				if ( OSApp.currentSession.local ) {
 					findLocalSiteName( sites, function( result ) {
 
 						// Logout if the current site isn't matched in the cloud sites
@@ -11047,10 +11051,10 @@ function cloudSyncStart() {
 								_( "Do you wish to add this location to your cloud synced site list?" ),
 								_( "This site is not found in the currently synced site list but may be added now." ),
 								function() {
-									sites[ OSApp.CurrentSession.ip ] = data.sites.Local;
+									sites[ OSApp.currentSession.ip ] = data.sites.Local;
 									OSApp.Storage.set( { "sites": JSON.stringify( sites ) }, cloudSaveSites );
-									OSApp.Storage.set( { "current_site": OSApp.CurrentSession.ip } );
-									updateSiteList( Object.keys( sites ), OSApp.CurrentSession.ip );
+									OSApp.Storage.set( { "current_site": OSApp.currentSession.ip } );
+									updateSiteList( Object.keys( sites ), OSApp.currentSession.ip );
 								},
 								function() {
 									OSApp.Storage.remove( "cloudToken", updateLoginButtons );
@@ -11328,12 +11332,12 @@ function checkPublicAccess( eip ) {
 		return;
 	}
 
-	if ( OSApp.CurrentSession.token ) {
+	if ( OSApp.currentSession.token ) {
 		return;
 	}
 
 	var ip = intToIP( eip ),
-		port = OSApp.CurrentSession.ip.match( /.*:(\d+)/ ),
+		port = OSApp.currentSession.ip.match( /.*:(\d+)/ ),
 		fail = function() {
 			OSApp.Storage.get( "ignoreRemoteFailed", function( data ) {
 				if ( data.ignoreRemoteFailed !== "1" ) {
@@ -11359,14 +11363,14 @@ function checkPublicAccess( eip ) {
 			} );
 		};
 
-	if ( ip === OSApp.CurrentSession.ip || isLocalIP( ip ) || !isLocalIP( OSApp.CurrentSession.ip ) ) {
+	if ( ip === OSApp.currentSession.ip || isLocalIP( ip ) || !isLocalIP( OSApp.currentSession.ip ) ) {
 		return;
 	}
 
 	port = ( port ? parseInt( port[ 1 ] ) : 80 );
 
 	$.ajax( {
-		url: OSApp.CurrentSession.prefix + ip + ":" + port + "/jo?pw=" + OSApp.CurrentSession.pass,
+		url: OSApp.currentSession.prefix + ip + ":" + port + "/jo?pw=" + OSApp.currentSession.pass,
 		global: false,
 		dataType: "json",
 		type: "GET"
@@ -11398,7 +11402,7 @@ function logout( success ) {
 	}
 
 	areYouSure( _( "Are you sure you want to logout?" ), "", function() {
-		if ( OSApp.CurrentSession.local ) {
+		if ( OSApp.currentSession.local ) {
 			OSApp.Storage.remove( [ "sites", "current_site", "lang", "provider", "wapikey", "runonce", "cloudToken" ], function() {
 				location.reload();
 			} );
@@ -11421,7 +11425,7 @@ function updateLoginButtons() {
 		if ( data.cloudToken === null || data.cloudToken === undefined ) {
 			login.removeClass( "hidden" );
 
-			if ( !OSApp.CurrentSession.local ) {
+			if ( !OSApp.currentSession.local ) {
 				logout.addClass( "hidden" );
 			}
 
@@ -11586,7 +11590,7 @@ function checkFirmwareUpdate() {
 
 								popup.find( ".update" ).on( "click", function() {
 									if ( OSApp.controller.options.hwv === 30 ) {
-										$( "<a class='hidden iab' href='" + OSApp.CurrentSession.prefix + OSApp.CurrentSession.ip + "/update'></a>" ).appendTo( popup ).click();
+										$( "<a class='hidden iab' href='" + OSApp.currentSession.prefix + OSApp.currentSession.ip + "/update'></a>" ).appendTo( popup ).click();
 										return;
 									}
 
@@ -13039,7 +13043,7 @@ function dhms2sec( arr ) {
 }
 
 function isControllerConnected() {
-	if ( ( !OSApp.CurrentSession.ip && !OSApp.CurrentSession.token ) ||
+	if ( ( !OSApp.currentSession.ip && !OSApp.currentSession.token ) ||
 		$.isEmptyObject( OSApp.controller ) ||
 		$.isEmptyObject( OSApp.controller.options ) ||
 		$.isEmptyObject( OSApp.controller.programs ) ||
@@ -13186,7 +13190,7 @@ function updateLang( lang ) {
 	}
 
 	OSApp.Storage.set( { "lang":lang } );
-	OSApp.CurrentSession.lang = lang;
+	OSApp.currentSession.lang = lang;
 
 	if ( lang === "en" ) {
 		setLang();
@@ -13259,7 +13263,7 @@ function checkCurrLang() {
 }
 
 function getAppURLPath() {
-	return OSApp.CurrentSession.local ? $.mobile.path.parseUrl( $( "head" ).find( "script[src$='main.js']" ).attr( "src" ) ).hrefNoHash.slice( 0, -10 ) : "";
+	return OSApp.currentSession.local ? $.mobile.path.parseUrl( $( "head" ).find( "script[src$='main.js']" ).attr( "src" ) ).hrefNoHash.slice( 0, -10 ) : "";
 }
 
 function getUrlVars( url ) {
@@ -13380,7 +13384,7 @@ function dateToString( date, toUTC, shorten ) {
 		date.setMinutes( date.getMinutes() + date.getTimezoneOffset() );
 	}
 
-	if ( OSApp.CurrentSession.lang === "de" ) {
+	if ( OSApp.currentSession.lang === "de" ) {
 		return pad( date.getDate() ) + "." + pad( date.getMonth() + 1 ) + "." +
 				date.getFullYear() + " " + pad( date.getHours() ) + ":" +
 				pad( date.getMinutes() ) + ":" + pad( date.getSeconds() );
@@ -13443,9 +13447,9 @@ function Supported() {}
 
 Supported.master = function( masid ) {
 	switch ( masid ) {
-		case OSApp.MASTER_STATION_1:
+		case OSApp.Constants.Options.MASTER_STATION_1:
 			return OSApp.controller.options.mas ? true : false;
-		case OSApp.MASTER_STATION_2:
+		case OSApp.Constants.Options.MASTER_STATION_2:
 			return OSApp.controller.options.mas2 ? true : false;
 		default:
 			return false;
@@ -13458,9 +13462,9 @@ Supported.ignoreRain = function() {
 
 Supported.ignoreSensor = function( sensorID ) {
 	switch ( sensorID ) {
-		case OSApp.IGNORE_SENSOR_1:
+		case OSApp.Constants.Options.IGNORE_SENSOR_1:
 			return ( typeof OSApp.controller.stations.ignore_sn1 === "object" ) ? true : false;
-		case OSApp.IGNORE_SENSOR_2:
+		case OSApp.Constants.Options.IGNORE_SENSOR_2:
 			return ( typeof OSApp.controller.stations.ignore_sn2 === "object" ) ? true : false;
 		default:
 			return false;
@@ -13611,10 +13615,10 @@ StationAttribute.getMasterOperation = function( sid, masid ) {
 	if ( !Supported.master( masid ) ) { return 0; }
 
 	switch ( masid ) {
-		case OSApp.MASTER_STATION_1:
+		case OSApp.Constants.Options.MASTER_STATION_1:
 			sourceMasterAttribute = OSApp.controller.stations.masop;
 			break;
-		case OSApp.MASTER_STATION_2:
+		case OSApp.Constants.Options.MASTER_STATION_2:
 			sourceMasterAttribute = OSApp.controller.stations.masop2;
 			break;
 		default:
@@ -13643,10 +13647,10 @@ StationAttribute.getIgnoreSensor = function( sid, sensorID ) {
 	if ( !Supported.ignoreSensor( sensorID ) ) { return 0; }
 
 	switch ( sensorID ) {
-		case OSApp.IGNORE_SENSOR_1:
+		case OSApp.Constants.Options.IGNORE_SENSOR_1:
 			sourceIgnoreSensorAttribute = OSApp.controller.stations.ignore_sn1;
 			break;
-		case OSApp.IGNORE_SENSOR_2:
+		case OSApp.Constants.Options.IGNORE_SENSOR_2:
 			sourceIgnoreSensorAttribute = OSApp.controller.stations.ignore_sn2;
 			break;
 		default:
@@ -13679,7 +13683,7 @@ StationAttribute.getDisabled = function( sid ) {
 
 StationAttribute.getSequential = function( sid ) {
 	if ( Supported.groups() ) {
-		return Station.getGIDValue !== OSApp.PARALLEL_GID_VALUE ? 1 : 0;
+		return Station.getGIDValue !== OSApp.Constants.Options.PARALLEL_GID_VALUE ? 1 : 0;
 	}
 	if ( !Supported.sequential() ) { return 0; }
 	var bid = ( sid / 8 ) >> 0,
@@ -13801,15 +13805,15 @@ StationQueue.size = function() {
 
 // Last index value is dedicated to the parallel group
 function mapIndexToGIDValue( index ) {
-	return ( index - OSApp.NUM_SEQ_GROUPS ) ? index : OSApp.PARALLEL_GID_VALUE;
+	return ( index - OSApp.Constants.Options.NUM_SEQ_GROUPS ) ? index : OSApp.Constants.Options.PARALLEL_GID_VALUE;
 }
 
 function mapGIDValueToName( value ) {
 	switch ( value ) {
-		case OSApp.PARALLEL_GID_VALUE:
-			return OSApp.PARALLEL_GROUP_NAME;
-		case OSApp.MASTER_GID_VALUE:
-			return OSApp.MASTER_GROUP_NAME;
+		case OSApp.Constants.Options.PARALLEL_GID_VALUE:
+			return OSApp.Constants.Options.PARALLEL_GROUP_NAME;
+		case OSApp.Constants.Options.MASTER_GID_VALUE:
+			return OSApp.Constants.Options.MASTER_GROUP_NAME;
 		default:
 			return String.fromCharCode( 65 + value );
 	}
@@ -13817,10 +13821,10 @@ function mapGIDValueToName( value ) {
 
 function mapGIDNameToValue( groupName ) {
 	switch ( groupName ) {
-		case OSApp.PARALLEL_GROUP_NAME:
-			return OSApp.PARALLEL_GID_VALUE;
-		case OSApp.MASTER_GROUP_NAME:
-			return OSApp.MASTER_GID_VALUE;
+		case OSApp.Constants.Options.PARALLEL_GROUP_NAME:
+			return OSApp.Constants.Options.PARALLEL_GID_VALUE;
+		case OSApp.Constants.Options.MASTER_GROUP_NAME:
+			return OSApp.Constants.Options.MASTER_GID_VALUE;
 		default:
 			return groupName.charCodeAt( 0 ) - 65;
 	}
