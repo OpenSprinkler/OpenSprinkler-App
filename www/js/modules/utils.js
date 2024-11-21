@@ -147,3 +147,11 @@ OSApp.Utils.parseIntArray = function( arr ) {
 	for ( var i = 0; i < arr.length; i++ ) {arr[ i ] = +arr[ i ];}
 	return arr;
 };
+
+OSApp.Utils.isValidOTC = function( token ) {
+	return /^OT[a-f0-9]{30}$/i.test( token );
+};
+
+OSApp.Utils.flowCountToVolume = function( count ) {
+	return parseFloat( ( count * ( ( OSApp.currentSession.controller.options.fpr1 << 8 ) + OSApp.currentSession.controller.options.fpr0 ) / 100 ).toFixed( 2 ) );
+}

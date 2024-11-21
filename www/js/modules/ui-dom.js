@@ -1,4 +1,4 @@
-/* global $ */
+/* global $, ThreeDeeTouch, FastClick, StatusBar */
 
 /* OpenSprinkler App
  * Copyright (C) 2015 - present, Samer Albahra. All rights reserved.
@@ -32,6 +32,1941 @@ OSApp.UIDom.launchApp = () => {
 	if ( OSApp.currentDevice.isOSXApp ) {
 		document.documentElement.classList.add( "macos" );
 	}
+
+	// FIXME: This needs to be rewritten and refactored out so it works properly (mellodev)
+	var showSites = ( function() {
+		var page = $( "<div data-role='page' id='site-control'>" +
+				"<div class='ui-content'>" +
+				"</div>" +
+			"</div>" ),
+			makeStart = function() {
+				var finish = function() {
+					header.eq( 0 ).hide();
+					$( "#header" ).show();
+					$( "#footer, #footer-menu" ).hide();
+				};
+
+				if ( page.hasClass( "ui-page-active" ) ) {
+					finish();
+				} else {
+					page.one( "pagebeforeshow", function( e ) {
+						e.stopImmediatePropagation();
+						finish();
+					} );
+				}
+
+				page.on( "swiperight swipeleft", function( e ) {
+					e.stopImmediatePropagation();
+				} );
+
+				document.title = "OpenSprinkler";
+			},
+			popup = $( "<div data-role='popup' id='addsite' data-theme='b'>" +
+				"<ul data-role='listview'>" +
+					"<li data-icon='false'>" +
+						"<a href='#' id='site-add-scan'>" + OSApp.Language._( "Scan For Device" ) + "</a>" +
+					"</li>" +
+					"<li data-icon='false'>" +
+						"<a href='#' id='site-add-manual'>" + OSApp.Language._( "Manually Add Device" ) + "</a>" +
+					"</li>" +
+				"</ul>" +
+			"</div>" ),
+			sites, header, total;
+
+		popup.find( "#site-add-scan" ).on( "click", function() {
+			popup.popup( "close" );
+			OSApp.Network.startScan();
+			return false;
+		} );
+
+		popup.find( "#site-add-manual" ).on( "click", function() {
+			OSApp.Sites.showAddNew( false, true );
+			return false;
+		} );
+
+		page.on( "pagehide", function() {
+			popup.popup( "destroy" ).detach();
+			page.detach();
+		} );
+
+		$( "html" ).on( "siterefresh", function() {
+			if ( page.hasClass( "ui-page-active" ) ) {
+				updateContent();
+			}
+		} );
+
+		function updateContent() {
+			OSApp.Storage.get( [ "sites", "current_site", "cloudToken" ], function( data ) {
+				sites = OSApp.Sites.parseSites( data.sites );
+
+				if ( $.isEmptyObject( sites ) ) {
+					if ( typeof data.cloudToken !== "string" ) {
+						OSApp.UIDom.changePage( "#start" );
+
+						return;
+					} else {
+						makeStart();
+						page.find( ".ui-content" ).html( "<p class='center'>" +
+							OSApp.Language._( "Please add a site by tapping the 'Add' button in the top right corner." ) +
+						"</p>" );
+					}
+				} else {
+					var list = "<div data-role='collapsible-set'>",
+						siteNames = [],
+						i = 0;
+
+					total = Object.keys( sites ).length;
+
+					if ( !OSApp.currentSession.isControllerConnected() || !total || !( data.current_site in sites ) ) {
+						makeStart();
+					}
+
+					sites = OSApp.Utils.sortObj( sites );
+
+					$.each( sites, function( a, b ) {
+						siteNames.push( a );
+
+						a = OSApp.Utils.htmlEscape( a );
+
+						list += "<fieldset " + ( ( total === 1 ) ? "data-collapsed='false'" : "" ) + " id='site-" + i + "' data-role='collapsible'>" +
+							"<h3>" +
+								"<a class='ui-btn ui-btn-corner-all connectnow yellow' data-site='" + i + "' href='#'>" +
+									OSApp.Language._( "connect" ) +
+								"</a>" +
+							a + "</h3>" +
+							"<form data-site='" + i + "' novalidate>" +
+								"<div class='ui-field-contain'>" +
+									"<label for='cnm-" + i + "'>" + OSApp.Language._( "Change Name" ) + "</label><input id='cnm-" + i + "' type='text' value='" + a + "'>" +
+								"</div>" +
+								( b.os_token ? "" : "<div class='ui-field-contain'>" +
+									"<label for='cip-" + i + "'>" + OSApp.Language._( "Change IP" ) + "</label><input id='cip-" + i + "' type='url' value='" + b.os_ip +
+										"' autocomplete='off' autocorrect='off' autocapitalize='off' pattern='' spellcheck='false'>" +
+								"</div>" ) +
+								( b.os_token ? "<div class='ui-field-contain'>" +
+									"<label for='ctoken-" + i + "'>" + OSApp.Language._( "Change Token" ) + "</label><input id='ctoken-" + i + "' type='text' value='" + b.os_token +
+										"' autocomplete='off' autocorrect='off' autocapitalize='off' pattern='' spellcheck='false'>" +
+								"</div>" : "" ) +
+								"<div class='ui-field-contain'>" +
+									"<label for='cpw-" + i + "'>" + OSApp.Language._( "Change Password" ) + "</label><input id='cpw-" + i + "' type='password'>" +
+								"</div>" +
+								( b.os_token ? "" : "<fieldset data-mini='true' data-role='collapsible'>" +
+									"<h3>" +
+										"<span style='line-height:23px'>" + OSApp.Language._( "Advanced" ) + "</span>" +
+										"<button data-helptext='" +
+											OSApp.Language._( "These options are only for an OpenSprinkler behind a proxy capable of SSL and/or Basic Authentication." ) +
+											"' class='collapsible-button-right help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
+									"</h3>" +
+									"<label for='usessl-" + i + "'>" +
+										"<input data-mini='true' type='checkbox' id='usessl-" + i + "' name='usessl-" + i + "'" +
+											( typeof b.ssl !== "undefined" && b.ssl === "1" ? " checked='checked'" : "" ) + ">" +
+										OSApp.Language._( "Use SSL" ) +
+									"</label>" +
+									"<label for='useauth-" + i + "'>" +
+										"<input class='useauth' data-user='" + b.auth_user + "' data-pw='" + b.auth_pw +
+											"' data-mini='true' type='checkbox' id='useauth-" + i + "' name='useauth-" + i + "'" +
+											( typeof b.auth_user !== "undefined" && typeof b.auth_pw !== "undefined" ? " checked='checked'" : "" ) + ">" +
+										OSApp.Language._( "Use Auth" ) +
+									"</label>" +
+								"</fieldset>" ) +
+								"<input class='submit' type='submit' value='" + OSApp.Language._( "Save Changes to" ) + " " + a + "'>" +
+								"<a data-role='button' class='deletesite' data-site='" + i + "' href='#' data-theme='b'>" + OSApp.Language._( "Delete" ) + " " + a + "</a>" +
+							"</form>" +
+						"</fieldset>";
+
+						OSApp.Sites.testSite( b, i, function( id, result ) {
+							page.find( "#site-" + id + " .connectnow" )
+								.removeClass( "yellow" )
+								.addClass( result ? "green" : "red" );
+						} );
+
+						i++;
+					} );
+
+					list = $( list + "</div>" );
+
+					list.find( "form" ).one( "change input", function() {
+						$( this ).find( ".submit" ).addClass( "hasChanges" );
+					} );
+
+					list.find( ".connectnow" ).on( "click", function() {
+						OSApp.Sites.updateSite( siteNames[ $( this ).data( "site" ) ] );
+						return false;
+					} );
+
+					list.find( ".help-icon" ).on( "click", OSApp.UIDom.showHelpText );
+
+					list.find( ".useauth" ).on( "change", function() {
+						var el = $( this );
+
+						if ( el.is( ":checked" ) ) {
+							var popup = $( "<div data-role='popup' data-theme='a'>" +
+								"<form method='post' class='ui-content' novalidate>" +
+									"<label for='auth_user'>" + OSApp.Language._( "Username:" ) + "</label>" +
+									"<input autocomplete='off' autocorrect='off' autocapitalize='off' " +
+										"spellcheck='false' type='text' name='auth_user' id='auth_user'>" +
+									"<label for='auth_pw'>" + OSApp.Language._( "Password:" ) + "</label>" +
+									"<input type='password' name='auth_pw' id='auth_pw'>" +
+									"<input type='submit' class='submit' value='" + OSApp.Language._( "Submit" ) + "'>" +
+								"</form>" +
+								"</div>" ).enhanceWithin(),
+								didSubmit = false;
+
+							popup.find( ".submit" ).on( "click", function() {
+								el.data( {
+									user: popup.find( "#auth_user" ).val(),
+									pw: popup.find( "#auth_pw" ).val()
+								} );
+
+								didSubmit = true;
+								popup.popup( "close" );
+								return false;
+							} );
+
+							popup.one( "popupafterclose", function() {
+								if ( !didSubmit ) {
+									el.attr( "checked", false ).checkboxradio( "refresh" );
+								}
+							} );
+
+							OSApp.UIDom.openPopup( popup );
+						} else {
+							el.data( {
+								user: "",
+								pw: ""
+							} );
+						}
+					} );
+
+					list.find( "form" ).on( "submit", function() {
+						var form = $( this ),
+							id = form.data( "site" ),
+							site = siteNames[ id ],
+							ip = list.find( "#cip-" + id ).val(),
+							pw = list.find( "#cpw-" + id ).val(),
+							nm = list.find( "#cnm-" + id ).val(),
+							useauth = list.find( "#useauth-" + id ).is( ":checked" ),
+							usessl = list.find( "#usessl-" + id ).is( ":checked" ) ? "1" : undefined,
+							authUser = list.find( "#useauth-" + id ).data( "user" ),
+							authPass = list.find( "#useauth-" + id ).data( "pw" ),
+							needsReconnect = ( ip !== "" && ip !== sites[ site ].os_ip ) ||
+												usessl !== sites[ site ].ssl ||
+												authUser !== sites[ site ].auth_user ||
+												authPass !== sites[ site ].auth_pw,
+							isCurrent = ( site === data.current_site ),
+							rename = ( nm !== "" && nm !== site );
+
+						form.find( ".submit" ).removeClass( "hasChanges" );
+
+						if ( useauth ) {
+							sites[ site ].auth_user = authUser;
+							sites[ site ].auth_pw = authPass;
+						} else {
+							delete sites[ site ].auth_user;
+							delete sites[ site ].auth_pw;
+						}
+
+						if ( usessl === "1" ) {
+							sites[ site ].ssl = usessl;
+						} else {
+							delete sites[ site ].ssl;
+						}
+
+						if ( ip !== "" && ip !== sites[ site ].os_ip ) {
+							sites[ site ].os_ip = ip;
+						}
+						if ( pw !== "" && pw !== sites[ site ].os_pw ) {
+							if ( OSApp.Utils.isMD5( sites[ site ].os_pw ) ) {
+								pw = md5( pw );
+							}
+							sites[ site ].os_pw = pw;
+						}
+						if ( rename ) {
+							sites[ nm ] = sites[ site ];
+							delete sites[ site ];
+							site = nm;
+							if ( isCurrent ) {
+								OSApp.Storage.set( { "current_site":site } );
+								data.current_site = site;
+							}
+							OSApp.Sites.updateSiteList( Object.keys( sites ), data.current_site );
+
+							//OSApp.Firmware.sendToOS( "/cv?pw=&cn=" + data.current_site );
+						}
+
+						OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, OSApp.Network.cloudSaveSites );
+
+						OSApp.Errors.showError( OSApp.Language._( "Site updated successfully" ) );
+
+						if ( site === data.current_site ) {
+							if ( pw !== "" ) {
+								OSApp.currentSession.pass = pw;
+							}
+							if ( needsReconnect ) {
+								OSApp.Sites.checkConfigured();
+							}
+						}
+
+						if ( rename && !form.find( ".submit" ).hasClass( "preventUpdate" ) ) {
+							updateContent();
+						}
+
+						return false;
+					} );
+
+					list.find( ".deletesite" ).on( "click", function() {
+						var site = siteNames[ $( this ).data( "site" ) ];
+						OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to delete " ) + site + "?", "", function() {
+							if ( $( "#site-selector" ).val() === site ) {
+								makeStart();
+							}
+
+							delete sites[ site ];
+							OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, function() {
+								OSApp.Network.cloudSaveSites();
+								OSApp.Sites.updateSiteList( Object.keys( sites ), data.current_site );
+								if ( $.isEmptyObject( sites ) ) {
+									OSApp.Storage.get( "cloudToken", function() {
+										if ( data.cloudToken === null || data.cloudToken === undefined ) {
+											OSApp.currentSession.ip = "";
+											OSApp.currentSession.pass = "";
+											OSApp.UIDom.changePage( "#start" );
+											return;
+										}
+									} );
+								} else {
+									updateContent();
+									OSApp.Errors.showError( OSApp.Language._( "Site deleted successfully" ) );
+								}
+								return false;
+							} );
+						} );
+						return false;
+					} );
+
+					page.find( ".ui-content" ).html( list.enhanceWithin() );
+				}
+
+				if ( typeof data.cloudToken === "string" ) {
+					page.find( ".ui-content" ).prepend( OSApp.Network.addSyncStatus( data.cloudToken ) );
+
+				}
+			} );
+		}
+
+		function begin() {
+			header = OSApp.UIDom.changeHeader( {
+				title: OSApp.Language._( "Manage Sites" ),
+				animate: OSApp.currentSession.isControllerConnected() ? true : false,
+				leftBtn: {
+					icon: "carat-l",
+					text: OSApp.Language._( "Back" ),
+					class: "ui-toolbar-back-btn",
+					on: function() {
+						page.find( ".hasChanges" ).addClass( "preventUpdate" );
+						OSApp.UIDom.checkChangesBeforeBack();
+					}
+				},
+				rightBtn: {
+					icon: "plus",
+					text: OSApp.Language._( "Add" ),
+					on: function() {
+						if ( typeof OSApp.currentDevice.deviceIp === "undefined" ) {
+							OSApp.Sites.showAddNew();
+						} else {
+							popup.popup( "open" ).popup( "reposition", {
+								positionTo: header.eq( 2 )
+							} );
+						}
+					}
+				}
+			} );
+
+			updateContent();
+
+			$.mobile.pageContainer.append( popup );
+
+			popup.popup( {
+				history: false,
+				positionTo: header.eq( 2 )
+			} ).enhanceWithin();
+
+			$( "#site-control" ).remove();
+			$.mobile.pageContainer.append( page );
+		}
+
+		return begin;
+	} )();
+
+	// FIXME: This needs to be rewritten and refactored out so it works properly (mellodev)
+	var showHome = ( function() {
+		var page = $( "<div data-role='page' id='sprinklers'>" +
+				"<div class='ui-panel-wrapper'>" +
+					"<div class='ui-content' role='main'>" +
+						"<div class='ui-grid-a ui-body ui-corner-all info-card noweather'>" +
+							"<div class='ui-block-a'>" +
+								"<div id='weather' class='pointer'></div>" +
+							"</div>" +
+							"<div class='ui-block-b center home-info pointer'>" +
+								"<div class='sitename bold'></div>" +
+								"<div id='clock-s' class='nobr'></div>" +
+								OSApp.Language._( "Water Level" ) + ": <span class='waterlevel'></span>%" +
+							"</div>" +
+						"</div>" +
+						"<div id='os-stations-list' class='card-group center'></div>" +
+
+						"<div id='os-sensor-show' class='card-group center'></div>" +
+					"</div>" +
+				"</div>" +
+			"</div>" ),
+			addTimer = function( station, rem ) {
+				OSApp.uiState.timers[ "station-" + station ] = {
+					val: rem,
+					station: station,
+					update: function() {
+						page.find( "#countdown-" + station ).text( "(" + OSApp.Dates.sec2hms( this.val ) + " " + OSApp.Language._( "remaining" ) + ")" );
+					},
+					done: function() {
+						page.find( "#countdown-" + station ).parent( "p" ).empty().siblings( ".station-status" ).removeClass( "on" ).addClass( "off" );
+					}
+				};
+			},
+			addCard = function( sid ) {
+				var station = OSApp.Stations.getName( sid ),
+					isScheduled = OSApp.Stations.getPID( sid ) > 0,
+					isRunning = OSApp.Stations.isRunning( sid ),
+					pname = isScheduled ? pidname( OSApp.Stations.getPID( sid ) ) : "",
+					rem = OSApp.Stations.getRemainingRuntime( sid ),
+					qPause = OSApp.Supported.pausing() && OSApp.StationQueue.isPaused(),
+					hasImage = sites[ currentSite ].images[ sid ] ? true : false;
+
+				if ( OSApp.Stations.getStatus( sid ) && rem > 0 ) {
+					addTimer( sid, rem );
+				}
+
+				// Group card settings visually
+				cards += "<div data-station='" + sid + "' class='ui-corner-all card" +
+					( OSApp.Stations.isDisabled( sid ) ? " station-hidden' style='display:none" : "" ) + "'>";
+
+				cards += "<div class='ui-body ui-body-a center'>";
+
+				cards += "<img src='" + ( hasImage ? "data:image/jpeg;base64," + sites[ currentSite ].images[ sid ] : OSApp.UIDom.getAppURLPath() + "img/placeholder.png" ) + "' />";
+
+				cards += "<p class='station-name center inline-icon' id='station_" + sid + "'>" + station + "</p>";
+
+				cards += "<span class='btn-no-border ui-btn ui-btn-icon-notext ui-corner-all card-icon station-status " +
+					( isRunning ? "on" : ( isScheduled ? "wait" : "off" ) ) + "'></span>";
+
+				cards += "<span class='btn-no-border ui-btn ui-btn-icon-notext ui-icon-wifi card-icon special-station " +
+					( OSApp.Stations.isSpecial( sid ) ? "" : "hidden" ) + "'></span>";
+
+				if ( OSApp.Supported.groups() ) {
+					cards += "<span class='btn-no-border ui-btn card-icon station-gid " + ( OSApp.Stations.isMaster( sid ) ? "hidden" : "" ) +
+								"'>" + OSApp.Groups.mapGIDValueToName( OSApp.Stations.getGIDValue( sid ) ) + "</span>";
+				}
+
+				cards += "<span class='btn-no-border ui-btn " + ( ( OSApp.Stations.isMaster( sid ) ) ? "ui-icon-master" : "ui-icon-gear" ) +
+					" card-icon ui-btn-icon-notext station-settings' data-station='" + sid + "' id='attrib-" + sid + "' " +
+					( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_1 ) ? ( "data-um='" + ( OSApp.StationAttributes.getMasterOperation( sid, OSApp.Constants.options.MASTER_STATION_1 ) ) + "' " ) : "" ) +
+					( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_2 ) ? ( "data-um2='" + ( OSApp.StationAttributes.getMasterOperation( sid, OSApp.Constants.options.MASTER_STATION_2 ) ) + "' " ) : "" ) +
+					( OSApp.Supported.ignoreRain() ? ( "data-ir='" + ( OSApp.StationAttributes.getIgnoreRain( sid ) ) + "' " ) : "" ) +
+					( OSApp.Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_1 ) ? ( "data-sn1='" + ( OSApp.StationAttributes.getIgnoreSensor( sid, OSApp.Constants.options.IGNORE_SENSOR_1 ) ) + "' " ) : "" ) +
+					( OSApp.Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_2 ) ? ( "data-sn2='" + ( OSApp.StationAttributes.getIgnoreSensor( sid, OSApp.Constants.options.IGNORE_SENSOR_2 ) ) + "' " ) : "" ) +
+					( OSApp.Supported.actRelay() ? ( "data-ar='" + ( OSApp.StationAttributes.getActRelay( sid ) ) + "' " ) : "" ) +
+					( OSApp.Supported.disabled() ? ( "data-sd='" + ( OSApp.StationAttributes.getDisabled( sid ) ) + "' " ) : "" ) +
+					( OSApp.Supported.sequential() ? ( "data-us='" + ( OSApp.StationAttributes.getSequential( sid ) ) + "' " ) : "" ) +
+					( OSApp.Supported.special() ? ( "data-hs='" + ( OSApp.StationAttributes.getSpecial( sid ) ) + "' " ) : "" ) +
+					( OSApp.Supported.groups() ? ( "data-gid='" + OSApp.Stations.getGIDValue( sid ) + "' " ) : "" ) +
+					"></span>";
+
+				if ( !OSApp.Stations.isMaster( sid ) ) {
+					if ( isScheduled || isRunning ) {
+
+						// Generate status line for station
+						cards += "<p class='rem center'>" + ( isRunning ? OSApp.Language._( "Running" ) + " " + pname : OSApp.Language._( "Scheduled" ) + " " +
+							( OSApp.Stations.getStartTime( sid ) ? OSApp.Language._( "for" ) + " " + OSApp.Dates.dateToString( new Date( OSApp.Stations.getStartTime( sid ) * 1000 ) ) : pname ) );
+
+						if ( rem > 0 ) {
+
+							// Show the remaining time if it's greater than 0
+							cards += " <span id=" + ( qPause ? "'pause" : "'countdown-" ) + sid + "' class='nobr'>(" + OSApp.Dates.sec2hms( rem ) + " " + OSApp.Language._( "remaining" ) + ")</span>";
+						}
+						cards += "</p>";
+					}
+				}
+
+				// Add sequential group divider and close current card group
+				cards += "</div><hr style='display:none' class='content-divider'" +
+					( OSApp.Supported.groups() ? "divider-gid=" + OSApp.Stations.getGIDValue( sid ) : "" ) + "></div>";
+
+			},
+			showAttributes = function() {
+				$( "#stn_attrib" ).popup( "destroy" ).remove();
+
+				var button = $( this ),
+					sid = button.data( "station" ),
+					name = button.siblings( "[id='station_" + sid + "']" ),
+					showSpecialOptions = function( value ) {
+						var opts = select.find( "#specialOpts" ),
+							data = OSApp.currentSession.controller.special && OSApp.currentSession.controller.special.hasOwnProperty( sid ) ? OSApp.currentSession.controller.special[ sid ].sd : "",
+							type  = OSApp.currentSession.controller.special && OSApp.currentSession.controller.special.hasOwnProperty( sid ) ? OSApp.currentSession.controller.special[ sid ].st : 0;
+
+						opts.empty();
+
+						if ( value === 0 ) {
+							opts.append(
+								"<p class='special-desc center small'>" +
+									OSApp.Language._( "Select the station type using the dropdown selector above and configure the station properties." ) +
+								"</p>"
+							).enhanceWithin();
+						} else if ( value === 1 ) {
+							data = ( type === value ) ? data : "0000000000000000";
+
+							opts.append(
+								"<div class='ui-bar-a ui-bar'>" + OSApp.Language._( "RF Code" ) + ":</div>" +
+								"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='rf-code' required='true' type='text' value='" + data + "'>"
+							).enhanceWithin();
+						} else if ( value === 2 ) {
+							data = OSApp.Stations.parseRemoteStationData( ( type === value ) ? data : "00000000005000" );
+
+							opts.append(
+								"<div class='ui-bar-a ui-bar'>" + OSApp.Language._( "Remote Address" ) + ":</div>" +
+								"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='remote-address' required='true' type='text' pattern='^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$' value='" + data.ip + "'>" +
+								"<div class='ui-bar-a ui-bar'>" + OSApp.Language._( "Remote Port" ) + ":</div>" +
+								"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='remote-port' required='true' type='number' placeholder='80' min='0' max='65535' value='" + data.port + "'>" +
+								"<div class='ui-bar-a ui-bar'>" + OSApp.Language._( "Remote Station" ) + ":</div>" +
+								"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='remote-station' required='true' type='number' min='1' max='200' placeholder='1' value='" + ( data.station + 1 ) + "'>"
+							).enhanceWithin();
+						} else if ( value === 6 ) {
+							data = OSApp.Stations.parseRemoteStationData( ( type === value ) ? data : "OT000000000000000000000000000000,00" );
+							opts.append(
+								"<div class='ui-bar-a ui-bar'>" + OSApp.Language._( "Remote OTC Token" ) + ":</div>" +
+								"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='remote-otc' required='true' type='text' pattern='^OT[a-fA-F0-9]{30}$' value='" + data.otc + "'>" +
+								"<div class='ui-bar-a ui-bar'>" + OSApp.Language._( "Remote Station" ) + ":</div>" +
+								"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='remote-station' required='true' type='number' min='1' max='200' placeholder='1' value='" + ( data.station + 1 ) + "'>"
+							).enhanceWithin();
+
+						} else if ( value === 3 ) {
+
+							// Extended special station model to support GPIO stations
+							// Special data for GPIO Station is three bytes of ascii decimal (not hex)
+							// First two bytes are zero padded GPIO pin number (default GPIO05)
+							// Third byte is either 0 or 1 for active low (GND) or high (+5V) relays (default 1 for HIGH)
+							// Restrict selection to GPIO pins available on the RPi R2.
+							var gpioPin = 5, activeState = 1, freePins = [ ], sel;
+
+							if ( OSApp.currentSession.controller.settings.gpio ) {
+								freePins = OSApp.currentSession.controller.settings.gpio;
+							} else if ( OSApp.Firmware.getHWVersion() === "OSPi" ) {
+								freePins = [ 5, 6, 7, 8, 9, 10, 11, 12, 13, 16, 18, 19, 20, 21, 23, 24, 25, 26 ];
+							} else if ( OSApp.Firmware.getHWVersion() === "2.3" ) {
+								freePins = [ 2, 10, 12, 13, 14, 15, 18, 19 ];
+							}
+
+							if ( type === value ) {
+								data = data.split( "" );
+								gpioPin = parseInt( data[ 0 ] + data[ 1 ] );
+								activeState = parseInt( data[ 2 ] );
+							}
+
+							if ( freePins.length ) {
+								sel = "<div class='ui-bar-a ui-bar'>" + OSApp.Language._( "GPIO Pin" ) + ":</div>" +
+								"<select class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='gpio-pin'>";
+								for ( var i = 0; i < freePins.length; i++ ) {
+									sel += "<option value='" + freePins[ i ] + "' " + ( freePins[ i ] === gpioPin ? "selected='selected'" : "" ) + ">" + freePins[ i ];
+								}
+								sel += "</select>";
+							} else {
+								sel = "";
+							}
+
+							sel += "<div class='ui-bar-a ui-bar'>" + OSApp.Language._( "Active State" ) + ":</div>" +
+									 "<select class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='active-state'>" +
+										"<option value='1' " + ( activeState === 1 ? "selected='selected'" : "" ) + ">" + OSApp.Language._( "HIGH" ) +
+										"<option value='0' " + ( activeState === 0 ? "selected='selected'" : "" ) + ">" + OSApp.Language._( "LOW" ) +
+									 "</select>";
+
+							opts.append( sel ).enhanceWithin();
+						} else if ( value === 4 || value === 5 ) {
+							data = ( type === value ) ? data.split( "," ) : ( value === 4 ? [ "server", "80", "On", "Off" ] : [ "server", "443", "On", "Off" ] );
+
+							opts.append(
+								"<div class='ui-bar-a ui-bar'>" + OSApp.Language._( "Server Name" ) + ":</div>" +
+								"<input class='center  validate-length' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='http-server' required='true' type='text' value='" + data[ 0 ] + "'>" +
+								"<div class='ui-bar-a ui-bar'>" + OSApp.Language._( "Server Port" ) + ":</div>" +
+								"<input class='center  validate-length' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='http-port' required='true' type='number' min='0' max='65535' value='" + parseInt( data[ 1 ] ) + "'>" +
+								"<div class='ui-bar-a ui-bar'>" + OSApp.Language._( "On Command" ) + ":</div>" +
+								"<input class='center validate-length' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='http-on' required='true' type='text' value='" + data[ 2 ] + "'>" +
+								"<div class='ui-bar-a ui-bar'>" + OSApp.Language._( "Off Command" ) + ":</div>" +
+								"<input class='center validate-length' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='http-off' required='true' type='text' value='" + data[ 3 ] + "'>" +
+								"<div class='center smaller' id='character-tracking' style='color:#999;'>" +
+									"<p>" +	OSApp.Language._( "Note: There is a limit on the number of character used to configure this station type." ) + "</p>" +
+									"<span>" + OSApp.Language._( "Characters remaining" ) + ": </span><span id='character-count'>placeholder</span>" +
+								"</div>"
+							).enhanceWithin();
+
+							validateLength();
+							$( ".validate-length" ).on( "input", validateLength );
+						}
+					},
+					validateLength = function() {
+						var maxSDChars = 240,		// Maximum size of special data when uri encoded. Needs to be less than sizeof(SpecialStationData) i.e. 247 bytes
+							sd = select.find( "#http-server" ).val() + "," + select.find( "#http-port" ).val() + "," +
+								 select.find( "#http-on" ).val() + "," + select.find( "#http-off" ).val(),
+							sdLen = encodeURIComponent( sd ).length;
+
+						select.find( "#character-count" ).text( maxSDChars - sdLen );
+
+						if ( sdLen > maxSDChars ) {
+							select.find( ".attrib-submit" ).addClass( "ui-disabled" );
+							select.find( "#character-tracking" ).addClass( "red-text bold" );
+						} else {
+							select.find( ".attrib-submit" ).removeClass( "ui-disabled" );
+							select.find( "#character-tracking" ).removeClass( "red-text bold" );
+						}
+					},
+					saveChanges = function( checkPassed ) {
+						var hs = parseInt( select.find( "#hs" ).val() );
+						button.data( "hs", hs );
+
+						if ( hs === 1 ) {
+							button.data( "specialData", select.find( "#rf-code" ).val() );
+						} else if ( hs === 2 || hs === 6 ) {
+							var ip, port, otc, station, hex = "";
+							station = ( select.find( "#remote-station" ).val() || 1 ) - 1;
+							if ( hs === 2 ) {
+								ip = select.find( "#remote-address" ).val().split( "." );
+								port = parseInt( select.find( "#remote-port" ).val() ) || 80;
+								for ( var i = 0; i < 4; i++ ) {
+									hex += OSApp.Utils.pad( parseInt( ip[ i ] ).toString( 16 ) );
+								}
+								hex += ( port < 256 ? "00" : "" ) + OSApp.Utils.pad( port.toString( 16 ) );
+								hex += OSApp.Utils.pad( station.toString( 16 ) );
+							} else {
+								otc = select.find( "#remote-otc" ).val();
+								hex += otc;
+								hex += ",";
+								hex += OSApp.Utils.pad( station.toString( 16 ) );
+							}
+
+							if ( checkPassed !== true ) {
+								$.mobile.loading( "show" );
+								select.find( ".attrib-submit" ).addClass( "ui-disabled" );
+
+								verifyRemoteStation( hex, function( result ) {
+									var text;
+
+									if ( result === true ) {
+										saveChanges( true );
+										return;
+									} else if ( result === false || result === -1 ) {
+										text = OSApp.Language._( "Unable to reach the remote station." );
+									} else if ( result === -2 ) {
+
+										// Likely an invalid password since the firmware version is present but no other data
+										text = OSApp.Language._( "Password on remote controller does not match the password on this OSApp.currentSession.controller." );
+									} else if ( result === -3 ) {
+
+										// Remote controller is not configured as an extender
+										text = OSApp.Language._( "Remote controller is not configured as an extender. Would you like to do this now?" );
+									}
+
+									select.one( "popupafterclose", function() {
+										$.mobile.loading( "hide" );
+										loader.css( "opacity", "" );
+									} );
+
+									$.mobile.loading( "show", {
+										html: "<h1>" + text + "</h1>" +
+											"<button class='ui-btn cancel'>" + OSApp.Language._( "Cancel" ) + "</button>" +
+											"<button class='ui-btn continue'>" + OSApp.Language._( "Continue" ) + "</button>",
+										textVisible: true,
+										theme: "b"
+									} );
+
+									var loader = $( ".ui-loader" );
+
+									loader.css( "opacity", ".96" );
+
+									loader.find( ".cancel" ).one( "click", function() {
+										$.mobile.loading( "hide" );
+										loader.css( "opacity", "" );
+									} );
+
+									loader.find( ".continue" ).one( "click", function() {
+										$.mobile.loading( "hide" );
+										loader.css( "opacity", "" );
+
+										if ( result === -3 ) {
+											convertRemoteToExtender( hex );
+										}
+
+										saveChanges( true );
+									} );
+
+									select.find( ".attrib-submit" ).removeClass( "ui-disabled" );
+								} );
+								return;
+							}
+
+							button.data( "specialData", hex );
+						} else if ( hs === 3 ) {
+							var sd = OSApp.Utils.pad( select.find( "#gpio-pin" ).val() || "05" );
+							sd += select.find( "#active-state" ).val() || "1";
+							button.data( "specialData", sd );
+						} else if ( hs === 4 || hs === 5 ) {
+							var sdata = select.find( "#http-server" ).val();
+							sdata += "," + select.find( "#http-port" ).val();
+							sdata += "," + select.find( "#http-on" ).val();
+							sdata += "," + select.find( "#http-off" ).val();
+							button.data( "specialData", sdata );
+						}
+
+						button.data( "um", select.find( "#um" ).is( ":checked" ) ? 1 : 0 );
+						button.data( "um2", select.find( "#um2" ).is( ":checked" ) ? 1 : 0 );
+						button.data( "ir", select.find( "#ir" ).is( ":checked" ) ? 1 : 0 );
+						button.data( "sn1", select.find( "#sn1" ).is( ":checked" ) ? 1 : 0 );
+						button.data( "sn2", select.find( "#sn2" ).is( ":checked" ) ? 1 : 0 );
+						button.data( "ar", select.find( "#ar" ).is( ":checked" ) ? 1 : 0 );
+						button.data( "sd", select.find( "#sd" ).is( ":checked" ) ? 1 : 0 );
+						button.data( "us", select.find( "#us" ).is( ":checked" ) ? 1 : 0 );
+						name.html( select.find( "#stn-name" ).val() );
+
+						var seqGroupName = select.find( "span.seqgrp" ).text();
+						button.attr( "data-gid", OSApp.Groups.mapGIDNameToValue( seqGroupName ) );
+
+						// Update the notes section
+						sites[ currentSite ].notes[ sid ] = select.find( "#stn-notes" ).val();
+						OSApp.Storage.set( { "sites": JSON.stringify( sites ) }, OSApp.Network.cloudSaveSites );
+
+						submitStations( sid );
+						select.popup( "destroy" ).remove();
+					},
+					select = "<div data-overlay-theme='b' data-role='popup' data-theme='a' id='stn_attrib'>" +
+						"<fieldset style='margin:0' data-mini='true' data-corners='false' data-role='controlgroup'><form><div id='station-tabs'>";
+
+				if ( typeof sid !== "number" ) {
+					return false;
+				}
+
+				// Setup two tabs for station configuration (Basic / Advanced) when applicable
+				if ( OSApp.Supported.special() ) {
+					select += "<ul class='tabs'>" +
+									"<li class='current' data-tab='tab-basic'>" + OSApp.Language._( "Basic" ) + "</li>" +
+									"<li data-tab='tab-advanced'>" + OSApp.Language._( "Advanced" ) + "</li>" +
+								"</ul>";
+				}
+
+				// Start of Basic Tab settings
+				select += "<div id='tab-basic' class='tab-content current'>";
+
+				select += "<div class='ui-bar-a ui-bar'>" + OSApp.Language._( "Station Name" ) + ":</div>" +
+					"<input class='bold center' data-corners='false' data-wrapper-class='tight stn-name ui-btn' id='stn-name' type='text' value=\"" +
+						name.text() + "\">";
+
+				select += "<button class='changeBackground'>" +
+						( typeof sites[ currentSite ].images[ sid ] !== "string" ? OSApp.Language._( "Add" ) : OSApp.Language._( "Change" ) ) + " " + OSApp.Language._( "Image" ) +
+					"</button>";
+
+				if ( !OSApp.Stations.isMaster( sid ) ) {
+					if ( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_1 ) ) {
+						select += "<label for='um'><input class='needsclick' data-iconpos='right' id='um' type='checkbox' " +
+								( ( button.data( "um" ) === 1 ) ? "checked='checked'" : "" ) + ">" + OSApp.Language._( "Use Master" ) + " " +
+									( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_2 ) ? "1" : "" ) + "</label>";
+					}
+
+					if ( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_2 ) ) {
+						select += "<label for='um2'><input class='needsclick' data-iconpos='right' id='um2' type='checkbox' " +
+								( ( button.data( "um2" ) === 1 ) ? "checked='checked'" : "" ) + ">" + OSApp.Language._( "Use Master" ) + " 2" +
+							"</label>";
+					}
+
+					if ( OSApp.Supported.ignoreRain() ) {
+						select += "<label for='ir'><input class='needsclick' data-iconpos='right' id='ir' type='checkbox' " +
+								( ( button.data( "ir" ) === 1 ) ? "checked='checked'" : "" ) + ">" + OSApp.Language._( "Ignore Rain" ) +
+							"</label>";
+					}
+
+					if ( OSApp.Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_1 ) ) {
+						select += "<label for='sn1'><input class='needsclick' data-iconpos='right' id='sn1' type='checkbox' " +
+								( ( button.data( "sn1" ) === 1 ) ? "checked='checked'" : "" ) + ">" + OSApp.Language._( "Ignore Sensor 1" ) +
+							"</label>";
+					}
+
+					if ( OSApp.Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_2 ) ) {
+						select += "<label for='sn2'><input class='needsclick' data-iconpos='right' id='sn2' type='checkbox' " +
+								( ( button.data( "sn2" ) === 1 ) ? "checked='checked'" : "" ) + ">" + OSApp.Language._( "Ignore Sensor 2" ) +
+							"</label>";
+					}
+
+					if ( OSApp.Supported.actRelay() ) {
+						select += "<label for='ar'><input class='needsclick' data-iconpos='right' id='ar' type='checkbox' " +
+								( ( button.data( "ar" ) === 1 ) ? "checked='checked'" : "" ) + ">" + OSApp.Language._( "Activate Relay" ) +
+							"</label>";
+					}
+
+					if ( OSApp.Supported.disabled() ) {
+						select += "<label for='sd'><input class='needsclick' data-iconpos='right' id='sd' type='checkbox' " +
+								( ( button.data( "sd" ) === 1 ) ? "checked='checked'" : "" ) + ">" + OSApp.Language._( "Disable" ) +
+							"</label>";
+					}
+
+					if ( OSApp.Supported.sequential() && !OSApp.Supported.groups() ) {
+						select += "<label for='us'><input class='needsclick' data-iconpos='right' id='us' type='checkbox' " +
+								( ( button.data( "us" ) === 1 ) ? "checked='checked'" : "" ) + ">" + OSApp.Language._( "Sequential" ) +
+							"</label>";
+					}
+				}
+
+				select += "<div class='ui-bar-a ui-bar'>" + OSApp.Language._( "Station Notes" ) + ":</div>" +
+					"<textarea data-corners='false' class='tight stn-notes' id='stn-notes'>" +
+						( sites[ currentSite ].notes[ sid ] ? sites[ currentSite ].notes[ sid ] : "" ) +
+					"</textarea>";
+
+				select += "</div>";
+
+				// Start of Advanced Tab settings.
+				select += "<div id='tab-advanced' class='tab-content'>";
+
+				// Create sequential group selection menu
+				if ( OSApp.Supported.groups() && !OSApp.Stations.isMaster( sid ) ) {
+					select +=
+						"<div class='ui-bar-a ui-bar seq-container'>" + OSApp.Language._( "Sequential Group" ) + ":</div>" +
+							"<select id='gid' class='seqgrp' data-mini='true'></select>" +
+							"<div><p id='prohibit-change' class='center hidden' style='color: #ff0033;'>Changing group designation is prohibited while station is running</p></div>";
+				}
+
+				// Station tab is initially set to disabled until we have refreshed station data from firmware
+				// Note: HTTPS and Remote OTC stations are supported at the same time with Email notification support
+				if ( OSApp.Supported.special() ) {
+					select +=
+						"<div class='ui-bar-a ui-bar'>" + OSApp.Language._( "Station Type" ) + ":</div>" +
+							"<select data-mini='true' id='hs'"  + ( OSApp.Stations.isSpecial( sid ) ? " class='ui-disabled'" : "" ) + ">" +
+								"<option data-hs='0' value='0'" + ( OSApp.Stations.isSpecial( sid ) ? "" : "selected" ) + ">" + OSApp.Language._( "Standard" ) + "</option>" +
+								"<option data-hs='1' value='1'>" + OSApp.Language._( "RF" ) + "</option>" +
+								"<option data-hs='2' value='2'>" + OSApp.Language._( "Remote Station (IP)" ) + "</option>" +
+								"<option data-hs='3' value='3'" + (
+									OSApp.Firmware.checkOSVersion( 217 ) && (
+										( typeof OSApp.currentSession.controller.settings.gpio !== "undefined" && OSApp.currentSession.controller.settings.gpio.length > 0 ) || OSApp.Firmware.getHWVersion() === "OSPi" || OSApp.Firmware.getHWVersion() === "2.3"
+									) ? ">" : " disabled>"
+								) + OSApp.Language._( "GPIO" ) + "</option>" +
+								"<option data-hs='4' value='4'" + ( OSApp.Firmware.checkOSVersion( 217 ) ? ">" : " disabled>" ) + OSApp.Language._( "HTTP" ) + "</option>" +
+								"<option data-hs='5' value='5'" + ( typeof OSApp.currentSession.controller.settings.email === "object" ? ">" : " disabled>" ) + OSApp.Language._( "HTTPS" ) + "</option>" +
+								"<option data-hs='6' value='6'" + ( typeof OSApp.currentSession.controller.settings.email === "object" ? ">" : " disabled>" ) + OSApp.Language._( "Remote Station (OTC)" ) + "</option>" +
+							"</select>" +
+							"<div id='specialOpts'></div>";
+				}
+
+				select += "</div>";
+
+				// Common Submit button
+				select += "<input data-wrapper-class='attrib-submit' data-theme='b' type='submit' value='" + OSApp.Language._( "Submit" ) + "' /></form></fieldset></div>";
+
+				select = $( select ).enhanceWithin().on( "submit", "form", function() {
+					saveChanges( sid );
+					return false;
+				} );
+
+				// Populate sequential group selection menu
+				if ( OSApp.Supported.groups() ) {
+					var seqGroupSelect = select.find( "select.seqgrp" ),
+						seqGroupLabel = select.find( "span.seqgrp" ),
+						stationGID = OSApp.Stations.getGIDValue( sid );
+
+					var isRunning = OSApp.Stations.isRunning( sid ),
+						prohibitChange = select.find( "p#prohibit-change" );
+					if ( isRunning ) {
+						seqGroupSelect.addClass( "ui-state-disabled" );
+						prohibitChange.removeClass( "hidden" );
+					} else {
+						seqGroupSelect.removeClass( "ui-state-disabled" );
+						prohibitChange.addClass( "hidden" );
+					}
+
+					for ( var i = 0; i <= OSApp.Constants.options.NUM_SEQ_GROUPS; i++ ) {
+						var value = OSApp.Groups.mapIndexToGIDValue( i ),
+							label = OSApp.Groups.mapGIDValueToName( value ),
+							option = $(
+								"<option data-gid='" + value + "' value='" +
+								value + "'>" +  OSApp.Language._( label ) + "</option>"
+							);
+
+						if ( value === stationGID ) {
+							option.prop( "selected", true );
+							seqGroupLabel.text( label );
+						} else {
+							option.prop( "selected", false  );
+						}
+						seqGroupSelect.append( option );
+					}
+				}
+
+				// Display the selected tab when clicked
+				select.find( "ul.tabs li" ).click( function() {
+					var tabId = $( this ).attr( "data-tab" );
+
+					$( "ul.tabs li" ).removeClass( "current" );
+					$( ".tab-content" ).removeClass( "current" );
+
+					$( this ).addClass( "current" );
+					$( "#" + tabId ).addClass( "current" );
+				} );
+
+				// Update Advanced tab whenever a new special station type is selected
+				select.find( "#hs" ).on( "change", function() {
+					var value = parseInt( $( this ).val() );
+					showSpecialOptions( value );
+					return false;
+				} );
+
+				// Refresh station data from firmware and update the Advanced tab to reflect special station type
+				if ( OSApp.Stations.isSpecial( sid ) ) {
+					OSApp.Sites.updateControllerStationSpecial( function() {
+						select.find( "#hs" )
+							.removeClass( "ui-disabled" )
+							.find( "option[data-hs='" + OSApp.currentSession.controller.special[ sid ].st + "']" ).prop( "selected", true );
+						select.find( "#hs" ).change();
+					} );
+				} else {
+					select.find( "#hs" ).removeClass( "ui-disabled" );
+					select.find( "option[data-hs='0']" ).prop( "selected", true );
+					select.find( "#hs" ).change();
+				}
+
+				select.find( ".changeBackground" ).on( "click", function( e ) {
+					e.preventDefault();
+					var button = this;
+
+					OSApp.UIDom.getPicture( function( image ) {
+						sites[ currentSite ].images[ sid ] = image;
+						OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, OSApp.Network.cloudSaveSites );
+						updateContent();
+
+						button.innerHTML =  OSApp.Language._( "Change" ) + " " + OSApp.Language._( "Image" );
+					} );
+				} );
+
+				$.mobile.pageContainer.append( select );
+
+				var opts = { history: false };
+
+				if ( OSApp.currentDevice.isiOS ) {
+					var pageTop = OSApp.UIDom.getPageTop();
+
+					opts.x = pageTop.x;
+					opts.y = pageTop.y;
+				} else {
+					opts.positionTo = "window";
+				}
+
+				select.popup( opts ).popup( "open" );
+			},
+			submitStations = function( id ) {
+				var is208 = ( OSApp.Firmware.checkOSVersion( 208 ) === true ),
+					master = {},
+					master2 = {},
+					sequential = {},
+					special = {},
+					rain = {},
+					sensor1 = {},
+					sensor2 = {},
+					relay = {},
+					disable = {},
+					names = {},
+					attrib, bid, sid, gid, s;
+
+				for ( bid = 0; bid < OSApp.currentSession.controller.settings.nbrd; bid++ ) {
+					if ( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_1 ) ) {
+						master[ "m" + bid ] = 0;
+					}
+					if ( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_2 ) ) {
+						master2[ "n" + bid ] = 0;
+					}
+					if ( OSApp.Supported.sequential() ) {
+						sequential[ "q" + bid ] = 0;
+					}
+					if ( OSApp.Supported.special() ) {
+						special[ "p" + bid ] = 0;
+					}
+					if ( OSApp.Supported.ignoreRain() ) {
+						rain[ "i" + bid ] = 0;
+					}
+					if ( OSApp.Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_1 ) ) {
+						sensor1[ "j" + bid ] = 0;
+					}
+					if ( OSApp.Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_2 ) ) {
+						sensor2[ "k" + bid ] = 0;
+					}
+					if ( OSApp.Supported.actRelay() ) {
+						relay[ "a" + bid ] = 0;
+					}
+					if ( OSApp.Supported.disabled() ) {
+						disable[ "d" + bid ] = 0;
+					}
+
+					for ( s = 0; s < 8; s++ ) {
+						sid = bid * 8 + s;
+						attrib = page.find( "#attrib-" + sid );
+
+						if ( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_1 ) ) {
+							master[ "m" + bid ] = ( master[ "m" + bid ] ) + ( attrib.data( "um" ) << s );
+						}
+
+						if ( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_2 ) ) {
+							master2[ "n" + bid ] = ( master2[ "n" + bid ] ) + ( attrib.data( "um2" ) << s );
+						}
+
+						if ( OSApp.Supported.sequential() ) {
+							sequential[ "q" + bid ] = ( sequential[ "q" + bid ] ) + ( attrib.data( "us" ) << s );
+						}
+
+						if ( OSApp.Supported.special() ) {
+							special[ "p" + bid ] = ( special[ "p" + bid ] ) + ( ( attrib.data( "hs" ) ? 1 : 0 ) << s );
+						}
+
+						if ( OSApp.Supported.ignoreRain() ) {
+							rain[ "i" + bid ] = ( rain[ "i" + bid ] ) + ( attrib.data( "ir" ) << s );
+						}
+
+						if ( OSApp.Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_1 ) ) {
+							sensor1[ "j" + bid ] = ( sensor1[ "j" + bid ] ) + ( attrib.data( "sn1" ) << s );
+						}
+
+						if ( OSApp.Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_2 ) ) {
+							sensor2[ "k" + bid ] = ( sensor2[ "k" + bid ] ) + ( attrib.data( "sn2" ) << s );
+						}
+
+						if ( OSApp.Supported.actRelay() ) {
+							relay[ "a" + bid ] = ( relay[ "a" + bid ] ) + ( attrib.data( "ar" ) << s );
+						}
+
+						if ( OSApp.Supported.disabled() ) {
+							disable[ "d" + bid ] = ( disable[ "d" + bid ] ) + ( attrib.data( "sd" ) << s );
+						}
+
+						// Only send the name of the station being updated
+						if ( sid === id ) {
+
+							// Because the firmware has a bug regarding spaces, let us replace them out now with a compatible separator
+							if ( is208 ) {
+								names[ "s" + sid ] = page.find( "#station_" + sid ).text().replace( /\s/g, "_" );
+							} else {
+								names[ "s" + sid ] = page.find( "#station_" + sid ).text();
+							}
+
+							if ( OSApp.Supported.special() && attrib.data( "hs" ) ) {
+								special.st = attrib.data( "hs" );
+								special.sd = attrib.data( "specialData" );
+								special.sid = id;
+							}
+
+							if ( OSApp.Supported.groups() ) {
+								gid = attrib.attr( "data-gid" );
+							}
+						}
+					}
+				}
+
+				$.mobile.loading( "show" );
+				OSApp.Firmware.sendToOS( "/cs?pw=&" + $.param( names ) +
+					( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_1 ) ? "&" + $.param( master ) : "" ) +
+					( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_2 ) ? "&" + $.param( master2 ) : "" ) +
+					( OSApp.Supported.sequential() ? "&" + $.param( sequential ) : "" ) +
+					( OSApp.Supported.special() ? "&" + $.param( special ) : "" ) +
+					( OSApp.Supported.ignoreRain() ? "&" + $.param( rain ) : "" ) +
+					( OSApp.Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_1 ) ? "&" + $.param( sensor1 ) : "" ) +
+					( OSApp.Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_2 ) ? "&" + $.param( sensor2 ) : "" ) +
+					( OSApp.Supported.actRelay() ? "&" + $.param( relay ) : "" ) +
+					( OSApp.Supported.disabled() ? "&" + $.param( disable ) : "" ) +
+					( OSApp.Supported.groups() ? "&g" + id + "=" + gid : "" )
+				).done( function() {
+					OSApp.Errors.showError( OSApp.Language._( "Stations have been updated" ) );
+					OSApp.Sites.updateController( function() {
+						$( "html" ).trigger( "datarefresh" );
+					} );
+				} );
+			},
+			updateClock = function() {
+
+				// Update the current time
+				OSApp.uiState.timers.clock = {
+					val: OSApp.currentSession.controller.settings.devt,
+					update: function() {
+						page.find( "#clock-s" ).text( OSApp.Dates.dateToString( new Date( this.val * 1000 ), null, 1 ) );
+					}
+				};
+			},
+			compareCardsGroupView = function( a, b ) {
+
+				/* Sorting order: 	master ->
+									sequential group id ->
+									active status ->
+									station id
+				*/
+
+				var cardA = $( a ), cardB = $( b );
+
+				// Station IDs
+				var sidA = OSApp.Cards.getSID( cardA );
+				var sidB = OSApp.Cards.getSID( cardB );
+
+				// Verify if a master station
+				var masA = OSApp.Stations.isMaster( sidA ) > 0 ? 1 : 0;
+				var masB = OSApp.Stations.isMaster( sidB ) > 0 ? 1 : 0;
+
+				if ( masA > masB ) {
+					return -1;
+				} else if ( masA < masB ) {
+					return 1;
+				} else { // If both or neither master check group id
+
+					var gidA = OSApp.Stations.getGIDValue( OSApp.Cards.getSID( cardA ) );
+					var gidB = OSApp.Stations.getGIDValue( OSApp.Cards.getSID( cardB ) );
+
+					if ( gidA < gidB ) {
+						return -1;
+					} else if ( gidA > gidB ) {
+						return 1;
+					} else { // If same group shift running stations up
+
+						var statusA = OSApp.Stations.getStatus( sidA );
+						var statusB = OSApp.Stations.getStatus( sidB );
+
+						if ( statusA > statusB ) {
+							return -1;
+						} else if ( statusA < statusB ) {
+							return 1;
+						} else {
+							if ( sidA < sidB ) { return -1; } else if ( sidA > sidB ) { return 1; } else { return 0; }
+						}
+					}
+				}
+			},
+			compareCardsStandardView = function( a, b ) {
+
+				/* Sorting order: 	running status ->
+									station id
+				 */
+
+				var cardA = $( a ), cardB = $( b );
+
+				var sidA = OSApp.Cards.getSID( cardA );
+				var sidB = OSApp.Cards.getSID( cardB );
+
+				var statusA = OSApp.Stations.getStatus( sidA );
+				var statusB = OSApp.Stations.getStatus( sidB );
+
+				if ( statusA > statusB ) {
+					return -1;
+				} else if ( statusA < statusB ) {
+					return 1;
+				} else {
+					if ( sidA < sidB ) {
+						return -1;
+					}
+					if ( sidA > sidB ) {
+						return 1;
+					}
+					return 0;
+				}
+			},
+
+			updateGroupView = function( cardHolder, cardList ) {
+				var thisCard, nextCard, divider, label, idx;
+
+				for ( idx = 0; idx < cardHolder.children().length; idx++ ) {
+					thisCard = OSApp.CardList.getCardByIndex( cardList, idx );
+					OSApp.Cards.setGroupLabel( thisCard, OSApp.Cards.getGIDName( thisCard ) );
+				}
+				for ( idx = 0; idx < cardHolder.children().length - 1; idx++ ) {
+					thisCard = OSApp.CardList.getCardByIndex( cardList, idx );
+					nextCard = OSApp.CardList.getCardByIndex( cardList, idx + 1 );
+
+					divider = OSApp.Cards.getDivider( thisCard );
+					label = OSApp.Cards.getGroupLabel( thisCard );
+
+					// Display master separately
+					if ( OSApp.Cards.isMasterStation( thisCard ) ) {
+						if ( !OSApp.Cards.isMasterStation( nextCard ) ) {
+							divider.show();
+						} else {
+							divider.hide();
+						}
+						label.addClass( "hidden" );
+						continue;
+					}
+
+					if ( OSApp.Stations.getGIDValue( OSApp.Cards.getSID( thisCard ) ) !== OSApp.Stations.getGIDValue( OSApp.Cards.getSID( nextCard ) ) ) {
+						divider.show();
+					} else {
+						divider.hide();
+					}
+				}
+				OSApp.Cards.getDivider( nextCard ).show(); // Last group divider
+				OSApp.Cards.setGroupLabel( nextCard, OSApp.Cards.getGIDName( nextCard ) );
+			},
+			updateStandardView = function( cardHolder, cardList ) {
+				var thisCard, nextCard, divider, label, idx;
+				for ( idx = 0; idx < cardHolder.children().length - 1; idx++ ) {
+					thisCard = OSApp.CardList.getCardByIndex( cardList, idx );
+					nextCard = OSApp.CardList.getCardByIndex( cardList, idx + 1 );
+
+					divider = OSApp.Cards.getDivider( thisCard );
+					divider.hide(); // Remove all dividers when switching from group view
+
+					OSApp.Cards.setGroupLabel( thisCard, OSApp.Groups.mapGIDValueToName( OSApp.Stations.getGIDValue( OSApp.Cards.getSID( thisCard ) ) ) );
+					label = OSApp.Cards.getGroupLabel( thisCard );
+					if ( typeof label !== "undefined" && OSApp.Cards.isMasterStation( thisCard ) ) {
+						label.addClass( "hidden" );
+					}
+
+					//  Display divider between active and non-active stations
+					if ( OSApp.Stations.isRunning( OSApp.Cards.getSID( thisCard ) ) &&
+							!OSApp.Stations.isRunning( OSApp.Cards.getSID( nextCard ) ) ) {
+								divider.show();
+					}
+				}
+				OSApp.Cards.getDivider( nextCard ).hide();
+				OSApp.Cards.setGroupLabel( nextCard, OSApp.Groups.mapGIDValueToName( OSApp.Stations.getGIDValue( idx ) ) );
+				label = OSApp.Cards.getGroupLabel( nextCard );
+				if ( typeof label !== "undefined" && OSApp.Cards.isMasterStation( nextCard ) ) {
+					label.addClass( "hidden" );
+				}
+			},
+			reorderCards = function() {
+				var cardHolder = page.find( "#os-stations-list" ),
+					cardList = cardHolder.children(),
+					compareCards = OSApp.uiState.groupView ? compareCardsGroupView : compareCardsStandardView;
+
+				// Sort stations
+				cardList.sort( compareCards ).detach().appendTo( cardHolder );
+
+				if ( OSApp.Supported.groups() && OSApp.uiState.groupView ) {
+					updateGroupView( cardHolder, cardList );
+				} else {
+					updateStandardView( cardHolder, cardList );
+				}
+			},
+			updateContent = function() {
+				var cardHolder = page.find( "#os-stations-list" ),
+					cardList = cardHolder.children(),
+					isScheduled, isRunning, pname, rem, qPause, card, line, hasImage, divider;
+
+				if ( !page.hasClass( "ui-page-active" ) ) {
+					return;
+				}
+
+				updateClock();
+				updateSites();
+				OSApp.Analog.updateSensorShowArea( page );
+
+				page.find( ".waterlevel" ).text( OSApp.currentSession.controller.options.wl );
+				page.find( ".sitename" ).text( siteSelect.val() );
+
+				// Remove unused stations
+				OSApp.CardList.getAllCards( cardList ).filter( function( _, a ) {
+					return parseInt( $( a ).data( "station" ), 10 ) >= OSApp.currentSession.controller.stations.snames.length;
+				} ).remove();
+
+				for ( var sid = 0; sid < OSApp.currentSession.controller.stations.snames.length; sid++ ) {
+					isScheduled = OSApp.Stations.getPID( sid ) > 0;
+					isRunning = OSApp.Stations.getStatus( sid ) > 0;
+					pname = isScheduled ? pidname( OSApp.Stations.getPID( sid ) ) : "";
+					rem = OSApp.Stations.getRemainingRuntime( sid ),
+					qPause = OSApp.StationQueue.isPaused(),
+					hasImage = sites[ currentSite ].images[ sid ] ? true : false;
+
+					card = OSApp.CardList.getCardBySID( cardList, sid );
+					divider = OSApp.Cards.getDivider( card );
+
+					if ( card.length === 0 ) {
+						cards = "";
+						addCard( sid );
+						cardHolder.append( cards );
+					} else {
+						card.find( ".ui-body > img" ).attr( "src", ( hasImage ? "data:image/jpeg;base64," + sites[ currentSite ].images[ sid ] : OSApp.UIDom.getAppURLPath() + "img/placeholder.png" ) );
+
+						if ( OSApp.Stations.isDisabled( sid ) ) {
+							if ( !page.hasClass( "show-hidden" ) ) {
+								card.hide();
+							}
+							card.addClass( "station-hidden" );
+						} else {
+							card.show().removeClass( "station-hidden" );
+						}
+
+						card.find( "#station_" + sid ).text( OSApp.currentSession.controller.stations.snames[ sid ] );
+						card.find( ".special-station" ).removeClass( "hidden" ).addClass( OSApp.Stations.isSpecial( sid ) ? "" : "hidden" );
+						card.find( ".station-status" ).removeClass( "on off wait" ).addClass( isRunning ? "on" : ( isScheduled ? "wait" : "off" ) );
+						if ( OSApp.Stations.isMaster( sid ) ) {
+							card.find( ".station-settings" ).removeClass( "ui-icon-gear" ).addClass( "ui-icon-master" );
+						} else {
+							card.find( ".station-settings" ).removeClass( "ui-icon-master" ).addClass( "ui-icon-gear" );
+						}
+
+						card.find( ".station-settings" ).data( {
+							um: OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_1 ) ? OSApp.StationAttributes.getMasterOperation( sid, OSApp.Constants.options.MASTER_STATION_1 ) : undefined,
+							um2: OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_2 ) ? OSApp.StationAttributes.getMasterOperation( sid, OSApp.Constants.options.MASTER_STATION_2 ) : undefined,
+							ir: OSApp.Supported.ignoreRain() ? OSApp.StationAttributes.getIgnoreRain( sid ) : undefined,
+							sn1: OSApp.Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_1 ) ? OSApp.StationAttributes.getIgnoreSensor( sid, OSApp.Constants.options.IGNORE_SENSOR_1 ) : undefined,
+							sn2: OSApp.Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_2 ) ? OSApp.StationAttributes.getIgnoreSensor( sid, OSApp.Constants.options.IGNORE_SENSOR_2 ) : undefined,
+							ar: OSApp.Supported.actRelay() ? OSApp.StationAttributes.getActRelay( sid ) : undefined,
+							sd: OSApp.Supported.disabled() ? OSApp.StationAttributes.getDisabled( sid ) : undefined,
+							us: OSApp.Supported.sequential() ? OSApp.StationAttributes.getSequential( sid ) : undefined,
+							hs: OSApp.Supported.special() ? OSApp.StationAttributes.getSpecial( sid ) : undefined,
+							gid: OSApp.Supported.groups() ? OSApp.Stations.getGIDValue( sid ) : undefined
+						} );
+
+						if ( !OSApp.Stations.isMaster( sid ) && ( isScheduled || isRunning ) ) {
+							line = ( isRunning ? OSApp.Language._( "Running" ) + " " + pname : OSApp.Language._( "Scheduled" ) + " " +
+								( OSApp.Stations.getStartTime( sid ) ? OSApp.Language._( "for" ) + " " + OSApp.Dates.dateToString( new Date( OSApp.Stations.getStartTime( sid ) * 1000 ) ) : pname ) );
+							if ( rem > 0 ) {
+
+								// Show the remaining time if it's greater than 0
+								line += " <span id=" + ( qPause ? "'pause" : "'countdown-" ) + sid + "' class='nobr'>(" + OSApp.Dates.sec2hms( rem ) + " " + OSApp.Language._( "remaining" ) + ")</span>";
+								if ( OSApp.currentSession.controller.status[ sid ] ) {
+									addTimer( sid, rem );
+								}
+							}
+							if ( card.find( ".rem" ).length === 0 ) {
+								card.find( ".ui-body" ).append( "<p class='rem center'>" + line + "</p>" );
+							} else {
+								card.find( ".rem" ).html( line );
+							}
+						} else {
+							card.find( ".rem" ).remove();
+						}
+
+					}
+				}
+
+				reorderCards();
+			},
+			updateSites = function( callback ) {
+				callback = callback || function() {};
+
+				currentSite = siteSelect.val();
+				OSApp.Storage.get( "sites", function( data ) {
+					sites = OSApp.Sites.parseSites( data.sites );
+					if ( typeof sites[ currentSite ].images !== "object" || $.isEmptyObject( sites[ currentSite ].images ) ) {
+						sites[ currentSite ].images = {};
+						page.removeClass( "has-images" );
+					} else {
+						page.addClass( "has-images" );
+					}
+					if ( typeof sites[ currentSite ].notes !== "object" ) {
+						sites[ currentSite ].notes = {};
+					}
+					if ( typeof sites[ currentSite ].lastRunTime !== "object" ) {
+						sites[ currentSite ].lastRunTime = {};
+					}
+
+					callback();
+				} );
+			},
+			cards, siteSelect, currentSite, i, sites;
+
+		page.one( "pageshow", function() {
+			$( "html" ).on( "datarefresh", updateContent );
+		} );
+
+		function begin( firstLoad ) {
+			if ( !OSApp.currentSession.isControllerConnected() ) {
+				return false;
+			}
+
+			cards = "";
+			siteSelect = $( "#site-selector" );
+
+			updateSites( function() {
+				for ( i = 0; i < OSApp.currentSession.controller.stations.snames.length; i++ ) {
+					addCard( i );
+				}
+
+				page.find( "#os-stations-list" ).html( cards );
+				reorderCards();
+			} );
+
+			page.find( ".sitename" ).toggleClass( "hidden", OSApp.currentSession.local ? true : false ).text( siteSelect.val() );
+			page.find( ".waterlevel" ).text( OSApp.currentSession.controller.options.wl );
+
+			OSApp.Analog.updateSensorShowArea( page );
+			updateClock();
+
+			page.on( "click", ".station-settings", showAttributes );
+
+			page.on( "click", ".home-info", function() {
+				OSApp.UIDom.changePage( "#os-options", {
+					expandItem: "weather"
+				} );
+				return false;
+			} );
+
+			page.on( "click", ".card", function() {
+
+				// Bind delegate handler to stop specific station (supported on firmware 2.1.0+ on Arduino)
+				if ( !OSApp.Firmware.checkOSVersion( 210 ) ) {
+					return false;
+				}
+
+				var el = $( this ),
+					sid = OSApp.Cards.getSID( el ),
+					stationGID = OSApp.Cards.getGIDValue( el ),
+					currentStatus = OSApp.Stations.getStatus( sid ),
+					name = OSApp.Stations.getName( sid ),
+					question, dialogOptions = {};
+
+				if ( OSApp.Stations.isMaster( sid ) ) {
+					return false;
+				}
+
+				dialogOptions.type = OSApp.Constants.dialog.REMOVE_STATION;
+				dialogOptions.station = sid;
+				dialogOptions.gid = stationGID;
+
+				if ( currentStatus ) {
+					question = OSApp.Language._( "Do you want to stop the selected station?" );
+				} else {
+					if ( el.find( "span.nobr" ).length ) {
+						question = OSApp.Language._( "Do you want to unschedule the selected station?" );
+					} else {
+						OSApp.UIDom.showDurationBox( {
+							title: name,
+							incrementalUpdate: false,
+							maximum: 65535,
+							seconds: sites[ currentSite ].lastRunTime[ sid ] > 0 ? sites[ currentSite ].lastRunTime[ sid ] : 0,
+							helptext: OSApp.Language._( "Enter a duration to manually run " ) + name,
+							callback: function( duration ) {
+								OSApp.Firmware.sendToOS( "/cm?sid=" + sid + "&en=1&t=" + duration + "&pw=", "json" ).done( function() {
+
+									// Update local state until next device refresh occurs
+									OSApp.Stations.setPID( sid, OSApp.Constants.options.MANUAL_STATION_PID );
+									OSApp.Stations.setRemainingRuntime( sid, duration );
+
+									OSApp.Status.refreshStatus();
+									OSApp.Errors.showError( OSApp.Language._( "Station has been queued" ) );
+
+									// Save run time for this station
+									sites[ currentSite ].lastRunTime[ sid ] = duration;
+									OSApp.Storage.set( { "sites": JSON.stringify( sites ) }, OSApp.Network.cloudSaveSites );
+								} );
+							}
+						} );
+						return;
+					}
+				}
+
+				OSApp.UIDom.areYouSure( question, OSApp.Stations.getName( sid ), function() {
+
+					var shiftStations = OSApp.uiState.popupData.shift === true ? 1 : 0;
+
+					OSApp.Firmware.sendToOS( "/cm?sid=" + sid + "&ssta=" + shiftStations + "&en=0&pw=" ).done( function() {
+
+						// Update local state until next device refresh occurs
+						OSApp.Stations.setPID( sid, 0 );
+						OSApp.Stations.setRemainingRuntime( sid, 0 );
+						OSApp.Stations.setStatus( sid, 0 );
+
+						// Remove any timer associated with the station
+						delete OSApp.uiState.timers[ "station-" + sid ];
+
+						OSApp.Status.refreshStatus();
+						OSApp.Errors.showError( OSApp.Language._( "Station has been stopped" ) );
+					} );
+				}, null, dialogOptions );
+			} )
+
+			.on( "click", "img", function() {
+				var image = $( this ),
+					id = image.parents( ".card" ).data( "station" ),
+					hasImage = image.attr( "src" ).indexOf( "data:image/jpeg;base64" ) === -1 ? false : true;
+
+				if ( hasImage ) {
+					OSApp.UIDom.areYouSure( OSApp.Language._( "Do you want to delete the current image?" ), "", function() {
+						delete sites[ currentSite ].images[ id ];
+						OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, OSApp.Network.cloudSaveSites );
+						updateContent();
+					} );
+				} else {
+					OSApp.UIDom.getPicture( function( image ) {
+						sites[ currentSite ].images[ id ] = image;
+						OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, OSApp.Network.cloudSaveSites );
+						updateContent();
+					} );
+				}
+
+				return false;
+			} )
+
+			.on( {
+				pagebeforeshow: function() {
+					var header = OSApp.UIDom.changeHeader( {
+						class: "logo",
+						leftBtn: {
+							icon: "bullets",
+							on: function() {
+								 OSApp.uiState.openPanel();
+								return false;
+							}
+						},
+						rightBtn: {
+							icon: "bell",
+							class: "notifications",
+							text: "<span class='notificationCount ui-li-count ui-btn-corner-all'>" + OSApp.uiState.notifications.length + "</span>",
+							on: function() {
+								OSApp.Notifications.showNotifications();
+								return false;
+							}
+						},
+						animate: ( firstLoad ? false : true )
+					} );
+
+					if ( OSApp.uiState.notifications.length === 0 ) {
+						$( header[ 2 ] ).hide();
+					}
+				}
+			} );
+
+			$( "#sprinklers" ).remove();
+			$.mobile.pageContainer.append( page );
+
+			if ( !$.isEmptyObject( OSApp.currentSession.weather ) ) {
+				OSApp.Weather.updateWeatherBox();
+			}
+		}
+
+		return begin;
+	} )();
+
+	// FIXME: This needs to be rewritten and refactored out so it works properly (mellodev)
+	var showStart = ( function() {
+		var page = $( "<div data-role='page' id='start'>" +
+				"<ul data-role='none' id='welcome_list' class='ui-listview ui-listview-inset ui-corner-all'>" +
+					"<li><div class='logo' id='welcome_logo'></div></li>" +
+					"<li class='ui-li-static ui-body-inherit ui-first-child ui-last-child ui-li-separate'>" +
+						"<p class='rain-desc'>" +
+							OSApp.Language._( "Welcome to the OpenSprinkler application. This app only works with the OpenSprinkler controller which must be installed and setup on your home network." ) +
+						"</p>" +
+						"<a class='iab iabNoScale ui-btn ui-mini center' target='_blank' href='https://opensprinkler.com/product/opensprinkler/'>" +
+							OSApp.Language._( "Purchase OpenSprinkler" ) +
+						"</a>" +
+					"</li>" +
+					"<li class='ui-first-child ui-last-child'>" +
+						"<a href='#' class='ui-btn center cloud-login'>" + OSApp.Language._( "OpenSprinkler.com Login" ) + "</a>" +
+					"</li>" +
+					"<hr class='content-divider'>" +
+					"<li id='auto-scan' class='ui-first-child'>" +
+						"<a href='#' class='ui-btn ui-btn-icon-right ui-icon-carat-r'>" +
+							OSApp.Language._( "Scan For Device" ) +
+						"</a>" +
+					"</li>" +
+					"<li class='ui-first-child ui-last-child'>" +
+						"<a class='ui-btn ui-btn-icon-right ui-icon-carat-r' data-rel='popup' href='#addnew'>" +
+							 OSApp.Language._( "Add Controller" ) +
+						"</a>" +
+					"</li>" +
+				"</ul>" +
+			"</div>" ),
+			checkAutoScan = function() {
+				OSApp.Network.updateDeviceIP( function( ip ) {
+					if ( ip === undefined ) {
+						resetStartMenu();
+						return;
+					}
+
+					// Check if the IP is on a private network, if not don't enable automatic scanning
+					if ( !OSApp.Network.isLocalIP( ip ) ) {
+						resetStartMenu();
+						return;
+					}
+
+					//Change main menu items to reflect ability to automatically scan
+					next.removeClass( "ui-first-child" ).find( "a.ui-btn" ).text( OSApp.Language._( "Manually Add Device" ) );
+					auto.show();
+				} );
+			},
+			resetStartMenu = function() {
+				next.addClass( "ui-first-child" ).find( "a.ui-btn" ).text( OSApp.Language._( "Add Controller" ) );
+				auto.hide();
+			},
+			auto = page.find( "#auto-scan" ),
+			next = auto.next();
+
+		page.find( "#auto-scan" ).find( "a" ).on( "click", function() {
+			OSApp.Network.startScan();
+			return false;
+		} );
+
+		page.find( "a[href='#addnew']" ).on( "click", function() {
+			OSApp.Sites.showAddNew();
+		} );
+
+		page.find( ".cloud-login" ).on( "click", function() {
+			OSApp.Network.requestCloudAuth();
+			return false;
+		} );
+
+		page.on( "pagehide", function() {
+			page.detach();
+		} );
+
+		function begin() {
+			if ( OSApp.currentSession.isControllerConnected() ) {
+				return false;
+			}
+
+			$( "#start" ).remove();
+
+			$.mobile.pageContainer.append( page );
+
+			checkAutoScan();
+		}
+
+		return begin;
+	} )();
+
+	// Manual control functions
+	// FIXME: This needs to be rewritten and refactored out so it works properly (mellodev)
+	var getManual = ( function() {
+		var page = $( "<div data-role='page' id='manual'>" +
+					"<div class='ui-content' role='main'>" +
+						"<p class='center'>" + OSApp.Language._( "With manual mode turned on, tap a station to toggle it." ) + "</p>" +
+						"<fieldset data-role='collapsible' data-collapsed='false' data-mini='true'>" +
+							"<legend>" + OSApp.Language._( "Options" ) + "</legend>" +
+							"<div class='ui-field-contain'>" +
+								"<label for='mmm'><b>" + OSApp.Language._( "Manual Mode" ) + "</b></label>" +
+								"<input type='checkbox' data-on-text='On' data-off-text='Off' data-role='flipswitch' name='mmm' id='mmm'>" +
+							"</div>" +
+							"<p class='rain-desc smaller center' style='padding-top:5px'>" +
+								OSApp.Language._( "Station timer prevents a station from running indefinitely and will automatically turn it off after the set duration (or when toggled off)" ) +
+							"</p>" +
+							"<div class='ui-field-contain duration-input'>" +
+								"<label for='auto-off'><b>" + OSApp.Language._( "Station Timer" ) + "</b></label>" +
+								"<button data-mini='true' name='auto-off' id='auto-off' value='3600'>1h</button>" +
+							"</div>" +
+						"</fieldset>" +
+						"<div id='manual-station-list'>" +
+						"</div>" +
+					"</div>" +
+				"</div>" ),
+			checkToggle = function( currPos ) {
+				OSApp.Sites.updateControllerStatus().done( function() {
+					var item = listitems.eq( currPos ).find( "a" );
+
+					if ( OSApp.currentSession.controller.options.mas ) {
+						if ( OSApp.currentSession.controller.status[ OSApp.currentSession.controller.options.mas - 1 ] ) {
+							listitems.eq( OSApp.currentSession.controller.options.mas - 1 ).addClass( "green" );
+						} else {
+							listitems.eq( OSApp.currentSession.controller.options.mas - 1 ).removeClass( "green" );
+						}
+					}
+
+					item.text( OSApp.currentSession.controller.stations.snames[ currPos ] );
+
+					if ( OSApp.currentSession.controller.status[ currPos ] ) {
+						item.removeClass( "yellow" ).addClass( "green" );
+					} else {
+						item.removeClass( "green yellow" );
+					}
+				} );
+			},
+			toggle = function() {
+				if ( !OSApp.currentSession.controller.settings.mm ) {
+					OSApp.Errors.showError( OSApp.Language._( "Manual mode is not enabled. Please enable manual mode then try again." ) );
+					return false;
+				}
+
+				var anchor = $( this ),
+					item = anchor.closest( "li" ),
+					currPos = listitems.index( item ),
+					sid = currPos + 1,
+					dur = autoOff.val();
+
+				if ( anchor.hasClass( "yellow" ) ) {
+					return false;
+				}
+
+				if ( OSApp.currentSession.controller.status[ currPos ] ) {
+					if ( OSApp.Firmware.checkOSPiVersion( "2.1" ) ) {
+						dest = "/sn?sid=" + sid + "&set_to=0&pw=";
+					} else {
+						dest = "/sn" + sid + "=0";
+					}
+				} else {
+					if ( OSApp.Firmware.checkOSPiVersion( "2.1" ) ) {
+						dest = "/sn?sid=" + sid + "&set_to=1&set_time=" + dur + "&pw=";
+					} else {
+						dest = "/sn" + sid + "=1&t=" + dur;
+					}
+				}
+
+				anchor.removeClass( "green" ).addClass( "yellow" );
+				anchor.html( "<p class='ui-icon ui-icon-loading mini-load'></p>" );
+
+				OSApp.Firmware.sendToOS( dest ).always(
+					function() {
+
+						// The device usually replies before the station has actually toggled. Delay in order to wait for the station's to toggle.
+						setTimeout( checkToggle, 1000, currPos );
+					}
+				);
+
+				return false;
+			},
+			autoOff = page.find( "#auto-off" ),
+			dest, mmlist, listitems;
+
+		page.on( "pagehide", function() {
+			page.detach();
+		} );
+
+		OSApp.Storage.get( "autoOff", function( data ) {
+			if ( !data.autoOff ) {
+				return;
+			}
+			autoOff.val( data.autoOff );
+			autoOff.text( OSApp.Dates.dhms2str( OSApp.Dates.sec2dhms( data.autoOff ) ) );
+		} );
+
+		autoOff.on( "click", function() {
+			var dur = $( this ),
+				name = page.find( "label[for='" + dur.attr( "id" ) + "']" ).text();
+
+			OSApp.UIDom.showDurationBox( {
+				seconds: dur.val(),
+				title: name,
+				callback: function( result ) {
+					dur.val( result );
+					dur.text( OSApp.Dates.dhms2str( OSApp.Dates.sec2dhms( result ) ) );
+					OSApp.Storage.set( { "autoOff":result } );
+				},
+				maximum: 32768
+			} );
+
+			return false;
+		} );
+
+		page.find( "#mmm" ).on( "change", OSApp.UIDom.flipSwitched );
+
+		function begin() {
+			var list = "<li data-role='list-divider' data-theme='a'>" + OSApp.Language._( "Sprinkler Stations" ) + "</li>";
+
+			page.find( "#mmm" ).prop( "checked", OSApp.currentSession.controller.settings.mm ? true : false );
+
+			$.each( OSApp.currentSession.controller.stations.snames, function( i, station ) {
+				if ( OSApp.Stations.isMaster( i ) ) {
+					list += "<li data-icon='false' class='center" + ( ( OSApp.currentSession.controller.status[ i ] ) ? " green" : "" ) +
+						( OSApp.Stations.isDisabled( i ) ? " station-hidden' style='display:none" : "" ) + "'>" + station + " (" + OSApp.Language._( "Master" ) + ")</li>";
+				} else {
+					list += "<li data-icon='false'><a class='mm_station center" + ( ( OSApp.currentSession.controller.status[ i ] ) ? " green" : "" ) +
+						( OSApp.Stations.isDisabled( i ) ? " station-hidden' style='display:none" : "" ) + "'>" + station + "</a></li>";
+				}
+			} );
+
+			mmlist = $( "<ul data-role='listview' data-inset='true' id='mm_list'>" + list + "</ul>" );
+			listitems = mmlist.children( "li" ).slice( 1 );
+			mmlist.find( ".mm_station" ).on( "vclick", toggle );
+			page.find( "#manual-station-list" ).html( mmlist ).enhanceWithin();
+
+			OSApp.UIDom.changeHeader( {
+				title: OSApp.Language._( "Manual Control" ),
+				leftBtn: {
+					icon: "carat-l",
+					text: OSApp.Language._( "Back" ),
+					class: "ui-toolbar-back-btn",
+					on: OSApp.UIDom.goBack
+				}
+			} );
+
+			$( "#manual" ).remove();
+			$.mobile.pageContainer.append( page );
+		}
+
+		return begin;
+	} )();
+
+	// Runonce functions
+	// FIXME: This needs to be rewritten and refactored out so it works properly (mellodev)
+	var getRunonce = ( function() {
+
+		var page = $( "<div data-role='page' id='runonce'>" +
+				"<div class='ui-content' role='main' id='runonce_list'>" +
+				"</div>" +
+			"</div>" ),
+			updateLastRun = function( data ) {
+				rprogs.l = data;
+				$( "<option value='l' selected='selected'>" + OSApp.Language._( "Last Used Program" ) + "</option>" )
+					.insertAfter( page.find( "#rprog" ).find( "option[value='t']" ) );
+				fillRunonce( data );
+			},
+			resetRunonce = function() {
+				page.find( "[id^='zone-']" ).val( 0 ).text( "0s" ).removeClass( "green" );
+				return false;
+			},
+			fillRunonce = function( data ) {
+				page.find( "[id^='zone-']" ).each( function( a, b ) {
+					if ( OSApp.Stations.isMaster( a ) ) {
+						return;
+					}
+
+					var ele = $( b );
+					ele.val( data[ a ] ).text( OSApp.Dates.getDurationText( data[ a ] ) );
+					if ( data[ a ] > 0 ) {
+						ele.addClass( "green" );
+					} else {
+						ele.removeClass( "green" );
+					}
+				} );
+			},
+			i, list, quickPick, progs, rprogs, z, program, name;
+
+		page.on( "pagehide", function() {
+			page.detach();
+		} );
+
+		function begin() {
+			list = "<p class='center'>" + OSApp.Language._( "Zero value excludes the station from the run-once program." ) + "</p>";
+			progs = [];
+			if ( OSApp.currentSession.controller.programs.pd.length ) {
+				for ( z = 0; z < OSApp.currentSession.controller.programs.pd.length; z++ ) {
+					program = readProgram( OSApp.currentSession.controller.programs.pd[ z ] );
+					var prog = [];
+
+					if ( OSApp.Firmware.checkOSVersion( 210 ) ) {
+						prog = program.stations;
+					} else {
+						var setStations = program.stations.split( "" );
+						for ( i = 0; i < OSApp.currentSession.controller.stations.snames.length; i++ ) {
+							prog.push( ( parseInt( setStations[ i ] ) ) ? program.duration : 0 );
+						}
+					}
+
+					progs.push( prog );
+				}
+			}
+			rprogs = progs;
+
+			quickPick = "<select data-mini='true' name='rprog' id='rprog'>" +
+				"<option value='t'>" + OSApp.Language._( "Test All Stations" ) + "</option><option value='s' selected='selected'>" + OSApp.Language._( "Quick Programs" ) + "</option>";
+
+			for ( i = 0; i < progs.length; i++ ) {
+				if ( OSApp.Firmware.checkOSVersion( 210 ) ) {
+					name = OSApp.currentSession.controller.programs.pd[ i ][ 5 ];
+				} else {
+					name = OSApp.Language._( "Program" ) + " " + ( i + 1 );
+				}
+				quickPick += "<option value='" + i + "'>" + name + "</option>";
+			}
+			quickPick += "</select>";
+			list += quickPick + "<form>";
+			$.each( OSApp.currentSession.controller.stations.snames, function( i, station ) {
+				if ( OSApp.Stations.isMaster( i ) ) {
+					list += "<div class='ui-field-contain duration-input" + ( OSApp.Stations.isDisabled( i ) ? " station-hidden' style='display:none" : "" ) + "'>" +
+						"<label for='zone-" + i + "'>" + station + ":</label>" +
+						"<button disabled='true' data-mini='true' name='zone-" + i + "' id='zone-" + i + "' value='0'>Master</button></div>";
+				} else {
+					list += "<div class='ui-field-contain duration-input" + ( OSApp.Stations.isDisabled( i ) ? " station-hidden' style='display:none" : "" ) + "'>" +
+						"<label for='zone-" + i + "'>" + station + ":</label>" +
+						"<button data-mini='true' name='zone-" + i + "' id='zone-" + i + "' value='0'>0s</button></div>";
+				}
+			} );
+
+			list += "</form><a class='ui-btn ui-corner-all ui-shadow rsubmit' href='#'>" + OSApp.Language._( "Submit" ) + "</a>" +
+				"<a class='ui-btn ui-btn-b ui-corner-all ui-shadow rreset' href='#'>" + OSApp.Language._( "Reset" ) + "</a>";
+
+			page.find( ".ui-content" ).html( list ).enhanceWithin();
+
+			if ( typeof OSApp.currentSession.controller.settings.rodur === "object" ) {
+				var total = 0;
+
+				for ( i = 0; i < OSApp.currentSession.controller.settings.rodur.length; i++ ) {
+					total += OSApp.currentSession.controller.settings.rodur[ i ];
+				}
+
+				if ( total !== 0 ) {
+					updateLastRun( OSApp.currentSession.controller.settings.rodur );
+				}
+			} else {
+				OSApp.Storage.get( "runonce", function( data ) {
+					data = data.runonce;
+					if ( data ) {
+						data = JSON.parse( data );
+						updateLastRun( data );
+					}
+				} );
+			}
+
+			page.find( "#rprog" ).on( "change", function() {
+				var prog = $( this ).val();
+				if ( prog === "s" ) {
+					resetRunonce();
+					return;
+				} else if ( prog === "t" ) {
+
+					// Test all stations
+					OSApp.UIDom.showDurationBox( {
+						incrementalUpdate: false,
+						seconds: 60,
+						title: "Set Duration",
+						callback: function( result ) {
+							fillRunonce( Array.apply( null, Array( OSApp.currentSession.controller.stations.snames.length ) ).map( function() {return result;} ) );
+						},
+						maximum: 65535
+					} );
+					return;
+				}
+				if ( typeof rprogs[ prog ] === "undefined" ) {
+					return;
+				}
+				fillRunonce( rprogs[ prog ] );
+			} );
+
+			page.find( ".rsubmit" ).on( "click", OSApp.Stations.submitRunonce );
+			page.find( ".rreset" ).on( "click", resetRunonce );
+
+			page.find( "[id^='zone-']" ).on( "click", function() {
+				var dur = $( this ),
+					name = page.find( "label[for='" + dur.attr( "id" ) + "']" ).text().slice( 0, -1 );
+
+				OSApp.UIDom.showDurationBox( {
+					seconds: dur.val(),
+					title: name,
+					callback: function( result ) {
+						dur.val( result );
+						dur.text( OSApp.Dates.getDurationText( result ) );
+						if ( result > 0 ) {
+							dur.addClass( "green" );
+						} else {
+							dur.removeClass( "green" );
+						}
+					},
+					maximum: 65535,
+					showSun: OSApp.Firmware.checkOSVersion( 214 ) ? true : false
+				} );
+
+				return false;
+			} );
+
+			OSApp.UIDom.changeHeader( {
+				title: OSApp.Language._( "Run-Once" ),
+				leftBtn: {
+					icon: "carat-l",
+					text: OSApp.Language._( "Back" ),
+					class: "ui-toolbar-back-btn",
+					on: OSApp.UIDom.goBack
+				},
+				rightBtn: {
+					icon: "check",
+					text: OSApp.Language._( "Submit" ),
+					on: OSApp.Stations.submitRunonce
+				}
+			} );
+
+			$( "#runonce" ).remove();
+			$.mobile.pageContainer.append( page );
+		}
+
+		return begin;
+	} )();
 
 	$( document )
 	.one( "deviceready", function() {
@@ -150,7 +2085,7 @@ OSApp.UIDom.launchApp = () => {
 		} else if ( hash === "#runonce" ) {
 			getRunonce();
 		} else if ( hash === "#os-options" ) {
-			showOptions( data.options.expandItem );
+			OSApp.Options.showOptions( data.options.expandItem );
 		} else if ( OSApp.Analog.checkAnalogSensorAvail() && hash === "#analogsensorconfig" ) {
 			OSApp.Analog.showAnalogSensorConfig();
 		} else if ( OSApp.Analog.checkAnalogSensorAvail() && hash === "#analogsensorchart" ) {
@@ -160,7 +2095,7 @@ OSApp.UIDom.launchApp = () => {
 		} else if ( hash === "#logs" ) {
 			getLogs();
 		} else if ( hash === "#forecast" ) {
-			showForecast();
+			OSApp.Weather.showForecast();
 		} else if ( hash === "#loadingPage" ) {
 			OSApp.Sites.checkConfigured( true );
 		} else if ( hash === "#start" ) {
@@ -171,7 +2106,7 @@ OSApp.UIDom.launchApp = () => {
 			if ( $( hash ).length === 0 ) {
 				showHome( data.options.firstLoad );
 			} else {
-				$( hash ).one( "pageshow", function() { refreshStatus(); } );
+				$( hash ).one( "pageshow", function() { OSApp.Status.refreshStatus(); } );
 			}
 		}
 	} )
@@ -190,7 +2125,7 @@ OSApp.UIDom.launchApp = () => {
 		// Indicate the weather and device status are being updated
 		OSApp.UIDom.showLoading( "#weather,#footer-running" );
 
-		updateController( updateWeather, networkFail );
+		OSApp.Sites.updateController( OSApp.Weather.updateWeather, OSApp.Network.networkFail );
 	} )
 	.on( "pause", function() {
 
@@ -234,11 +2169,11 @@ OSApp.UIDom.launchApp = () => {
 		if ( OSApp.currentSession.isControllerConnected() && newpage !== "#site-control" && newpage !== "#start" && newpage !== "#loadingPage" ) {
 
 			// Update the controller status every 5 seconds and the program and station data every 30 seconds
-			var refreshStatusInterval = setInterval( function() { refreshStatus(); }, 5000 ),
+			var refreshStatusInterval = setInterval( function() { OSApp.Status.refreshStatus(); }, 5000 ), // FIXME: refactor this 5000 interval out to Constants or config/settings
 				refreshDataInterval;
 
 			if ( !OSApp.Firmware.checkOSVersion( 216 ) ) {
-				refreshDataInterval = setInterval( refreshData, 20000 );
+				refreshDataInterval = setInterval( OSApp.Sites.refreshData, 20000 ); // FIXME: move the 20000 interval to Constants (or config/settings)
 			}
 
 			$newpage.one( "pagehide", function() {
@@ -370,6 +2305,97 @@ OSApp.UIDom.initAppData = () => {
 		}
 	} );
 
+	// FIXME: This needs to be rewritten and refactored out to OSApp.Sites.showSites so it works properly (mellodev)
+	var showHomeMenu = ( function() {
+		var page, id, showHidden, popup;
+
+		function makeMenu() {
+			page = $( ".ui-page-active" );
+			id = page.attr( "id" );
+			showHidden = page.hasClass( "show-hidden" );
+			popup = $( "<div data-role='popup' data-theme='a' id='mainMenu'>" +
+				"<ul data-role='listview' data-inset='true' data-corners='false'>" +
+					"<li data-role='list-divider'>" + OSApp.Language._( "Information" ) + "</li>" +
+					"<li><a href='#preview' class='squeeze'>" + OSApp.Language._( "Preview Programs" ) + "</a></li>" +
+					( OSApp.Firmware.checkOSVersion( 206 ) || OSApp.Firmware.checkOSPiVersion( "1.9" ) ? "<li><a href='#logs'>" + OSApp.Language._( "View Logs" ) + "</a></li>" : "" ) +
+					"<li data-role='list-divider'>" + OSApp.Language._( "Programs and Settings" ) + "</li>" +
+					"<li><a href='#raindelay'>" + OSApp.Language._( "Change Rain Delay" ) + "</a></li>" +
+					( OSApp.Supported.pausing() ?
+						( OSApp.StationQueue.isPaused() ? "<li><a href='#globalpause'>" + OSApp.Language._( "Resume Station Runs" ) + "</a></li>"
+							: ( OSApp.StationQueue.isActive() >= -1 ? "<li><a href='#globalpause'>" + OSApp.Language._( "Pause Station Runs" ) + "</a></li>" : "" ) )
+						: "" ) +
+					"<li><a href='#runonce'>" + OSApp.Language._( "Run-Once Program" ) + "</a></li>" +
+					"<li><a href='#programs'>" + OSApp.Language._( "Edit Programs" ) + "</a></li>" +
+					"<li><a href='#os-options'>" + OSApp.Language._( "Edit Options" ) + "</a></li>" +
+
+					( OSApp.Analog.checkAnalogSensorAvail() ? (
+						"<li><a href='#analogsensorconfig'>" + OSApp.Language._( "Analog Sensor Config" ) + "</a></li>" +
+						"<li><a href='#analogsensorchart'>" + OSApp.Language._( "Show Sensor Log" ) + "</a></li>"
+					) : "" ) +
+
+					( OSApp.Firmware.checkOSVersion( 210 ) ? "" : "<li><a href='#manual'>" + OSApp.Language._( "Manual Control" ) + "</a></li>" ) +
+				( id === "sprinklers" || id === "runonce" || id === "programs" || id === "manual" || id === "addprogram" ?
+					"</ul>" +
+					"<div class='ui-grid-a ui-mini tight'>" +
+						"<div class='ui-block-a'><a class='ui-btn tight' href='#show-hidden'>" +
+							( showHidden ? OSApp.Language._( "Hide" ) : OSApp.Language._( "Show" ) ) + " " + OSApp.Language._( "Disabled" ) +
+						"</a></div>" +
+						"<div class='ui-block-b'><a class='ui-btn red tight' href='#stop-all'>" + OSApp.Language._( "Stop All Stations" ) + "</a></div>" +
+					"</div>"
+					: "<li><a class='ui-btn red' href='#stop-all'>" + OSApp.Language._( "Stop All Stations" ) + "</a></li></ul>" ) +
+			"</div>" );
+		}
+
+		function begin( btn ) {
+			btn = btn instanceof $ ? btn : $( btn );
+
+			$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
+
+			makeMenu();
+
+			popup.on( "click", "a", function() {
+				var clicked = $( this ),
+					href = clicked.attr( "href" );
+
+				popup.popup( "close" );
+
+				if ( href === "#stop-all" ) {
+					OSApp.Stations.stopAllStations();
+				} else if ( href === "#show-hidden" ) {
+					if ( showHidden ) {
+						$( ".station-hidden" ).hide();
+						page.removeClass( "show-hidden" );
+					} else {
+						$( ".station-hidden" ).show();
+						page.addClass( "show-hidden" );
+					}
+				} else if ( href === "#raindelay" ) {
+					OSApp.Weather.showRainDelay();
+				} else if ( href === "#globalpause" ) {
+					OSApp.UIDom.showPause();
+				} else {
+					OSApp.UIDom.checkChanges( function() {
+						OSApp.UIDom.changePage( href );
+					} );
+				}
+
+				return false;
+			} );
+
+			$( "#mainMenu" ).remove();
+
+			popup.one( "popupafterclose", function() {
+				btn.show();
+			} );
+
+			OSApp.UIDom.openPopup( popup, { positionTo: btn } );
+
+			btn.hide();
+		}
+
+		return begin;
+	} )();
+
 	// Extend collapsible widget with event before change
 	$.widget( "mobile.collapsible", $.mobile.collapsible, {
 		_handleExpandCollapse: function( isCollapse ) {
@@ -381,7 +2407,7 @@ OSApp.UIDom.initAppData = () => {
 
 	//Update site based on selector
 	$( "#site-selector" ).on( "change", function() {
-		updateSite( $( this ).val() );
+		OSApp.Sites.updateSite( $( this ).val() );
 	} );
 
 	// Bind footer menu button
@@ -396,7 +2422,7 @@ OSApp.UIDom.initAppData = () => {
 	FastClick.attach( document.body );
 
 	// Start interval loop which will update timers/clocks
-	updateTimers();
+	OSApp.UIDom.updateTimers();
 
 	// Handle keybinds
 	$.mobile.document.on( "keydown", function( e ) {
@@ -434,10 +2460,10 @@ OSApp.UIDom.initAppData = () => {
 			OSApp.UIDom.changePage( "#runonce" );
 		} else if ( ( menuOpen || altDown ) && code === 85 ) { // U
 			e.preventDefault();
-			showPause();
+			OSApp.UIDom.showPause();
 		} else if ( ( menuOpen || altDown ) && code === 68 ) { // D
 			e.preventDefault();
-			showRainDelay();
+			OSApp.Weather.showRainDelay();
 		}
 	} );
 
@@ -509,8 +2535,8 @@ OSApp.UIDom.bindPanel = () => {
 		OSApp.Network.requestCloudAuth();
 		return false;
 	} );
- 	// TODO: mellodev lots of functions called here that need refactoring to module
-	panel.find( "a[href='#debugWU']" ).on( "click", debugWU );
+
+	panel.find( "a[href='#debugWU']" ).on( "click", OSApp.SystemDiagnostics.showDiagnostics );
 
 	panel.find( "a[href='#localization']" ).on( "click", OSApp.Language.languageSelect );
 
@@ -520,7 +2546,7 @@ OSApp.UIDom.bindPanel = () => {
 		if ( typeof OSApp.currentSession.controller.stations.stn_spe === "object" && typeof OSApp.currentSession.controller.special !== "object" && !OSApp.currentSession.controller.stations.stn_spe.every( function( e ) { return e === 0; } ) ) {
 
 			// Grab station special data before proceeding
-			updateControllerStationSpecial( getExportMethod );
+			OSApp.Sites.updateControllerStationSpecial( getExportMethod );
 		} else {
 			getExportMethod();
 		}
@@ -543,10 +2569,10 @@ OSApp.UIDom.bindPanel = () => {
 		OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to" ) + " " + operation().toLowerCase() + " " + OSApp.Language._( "operation?" ), "", function() {
 			OSApp.Firmware.sendToOS( "/cv?pw=&en=" + toValue ).done( function() {
 				$.when(
-					updateControllerSettings(),
-					updateControllerStatus()
+					OSApp.Sites.updateControllerSettings(),
+					OSApp.Sites.updateControllerStatus()
 				).done( function() {
-					checkStatus();
+					OSApp.Status.checkStatus();
 					self.find( "span:first" ).html( operation() ).attr( "data-translate", operation() );
 				} );
 			} );
@@ -1733,3 +3759,108 @@ OSApp.UIDom.showIPRequest = function( opt ) {
 
 	OSApp.UIDom.openPopup( popup );
 };
+
+OSApp.UIDom.showPause = function() {
+	if ( OSApp.StationQueue.isPaused() ) {
+		OSApp.UIDom.areYouSure( OSApp.Language._( "Do you want to resume program operation?" ), "", function() {
+			OSApp.Firmware.sendToOS( "/pq?pw=" );
+		} );
+	} else {
+		OSApp.UIDom.showDurationBox( {
+			title: "Pause Station Runs",
+			incrementalUpdate: false,
+			maximum: 65535,
+			callback: function( duration ) {
+				OSApp.Firmware.sendToOS( "/pq?dur=" + duration + "&pw=" );
+			}
+		} );
+	}
+};
+
+// Handle timer update on the home page and status bar
+OSApp.UIDom.updateTimers = function() {
+	var lastCheck = new Date().getTime();
+
+	setInterval( function() {
+
+		if ( !OSApp.currentSession.isControllerConnected() ) {
+			return false;
+		}
+
+		// Handle time drift
+		var now = new Date().getTime(),
+			diff = now - lastCheck;
+
+		if ( diff > 2000 ) {
+			OSApp.Status.checkStatus();
+			OSApp.Status.refreshStatus();
+		}
+
+		lastCheck = now;
+
+		// If no timers are defined then exit
+		if ( $.isEmptyObject( OSApp.uiState.timers ) ) {
+			return;
+		}
+
+		for ( var timer in OSApp.uiState.timers ) {
+			if ( OSApp.uiState.timers.hasOwnProperty( timer ) ) {
+				if ( OSApp.uiState.timers[ timer ].val <= 0 ) {
+					if ( timer === "statusbar" ) {
+						OSApp.UIDom.showLoading( "#footer-running" );
+						OSApp.Status.refreshStatus();
+					}
+
+					if ( typeof OSApp.uiState.timers[ timer ].done === "function" ) {
+						OSApp.uiState.timers[ timer ].done();
+					}
+
+					delete OSApp.uiState.timers[ timer ];
+				} else {
+					if ( timer === "clock" ) {
+						++OSApp.uiState.timers[ timer ].val;
+						OSApp.uiState.timers[ timer ].update();
+					} else if ( timer === "statusbar" || typeof OSApp.uiState.timers[ timer ].station === "number" ) {
+						--OSApp.uiState.timers[ timer ].val;
+						OSApp.uiState.timers[ timer ].update();
+					}
+				}
+			}
+		}
+	}, 1000 ); // FIXME: refactor the 1000 value out to Constants or settings/config
+};
+
+// Handle main switches for manual mode
+OSApp.UIDom.flipSwitched = function() {
+	if ( OSApp.uiState.switching ) {
+		return;
+	}
+
+	//Find out what the switch was changed to
+	var flip = $( this ),
+		id = flip.attr( "id" ),
+		changedTo = flip.is( ":checked" ),
+		method = ( id === "mmm" ) ? "mm" : id,
+		defer;
+
+	if ( changedTo ) {
+		defer = OSApp.Firmware.sendToOS( "/cv?pw=&" + method + "=1" );
+	} else {
+		defer = OSApp.Firmware.sendToOS( "/cv?pw=&" + method + "=0" );
+	}
+
+	$.when( defer ).then( function() {
+		OSApp.Status.refreshStatus();
+		if ( id === "mmm" ) {
+			$( "#mm_list .green" ).removeClass( "green" );
+		}
+		OSApp.Status.checkStatus();
+	},
+	function() {
+		OSApp.uiState.switching = true;
+		setTimeout( function() {
+			OSApp.uiState.switching = false;
+		}, 200 );
+		flip.prop( "checked", !changedTo ).flipswitch( "refresh" );
+	} );
+}

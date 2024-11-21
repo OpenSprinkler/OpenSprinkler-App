@@ -43,7 +43,8 @@ OSApp.Storage.set = ( query, callback = () => void 0) => {
 		}
 	}
 
-	callback( true );
+	// callback( true ); mellodev this causes other functions that require a callback func arg to fail
+	callback();
 };
 
 OSApp.Storage.remove = ( query, callback = () => void 0) => {
@@ -59,7 +60,8 @@ OSApp.Storage.remove = ( query, callback = () => void 0) => {
 		}
 	}
 
-	callback( true );
+	// callback( true ); mellodev this causes other functions that require a callback func arg to fail
+	callback();
 };
 
 OSApp.Storage.loadLocalSettings = function() {

@@ -15,6 +15,26 @@
 var OSApp = OSApp || {};
 OSApp.Firmware = OSApp.Firmware || {};
 
+OSApp.Firmware.Constants = {
+	// Ensure error codes align with reboot causes in Firmware defines.h
+	// Do NOT use Language._ to translate these here during definition. Do it when rendering!
+	// FIXME: all enums should follow the pattern of an array with objects with id/name. Example: [{id: -4, name: "Empty Response"}]
+	rebootReasons: {
+		0: "None",
+		1: "Factory Reset",
+		2: "Reset Button",
+		3: "WiFi Change",
+		4: "Web Request",
+		5: "Web Request",
+		6: "WiFi Configure",
+		7: "Firmware Update",
+		8: "Weather Failure",
+		9: "Network Failure",
+		10: "Clock Update",
+		99: "Power On"
+	}
+};
+
 // Wrapper function to communicate with OpenSprinkler
 OSApp.Firmware.sendToOS = ( dest, type ) => {
 
@@ -379,4 +399,64 @@ OSApp.Firmware.checkFirmwareUpdate = () => {
 			}
 		} );
 	}
+};
+
+OSApp.Firmware.detectUnusedExpansionBoards = function() {
+	if (
+		typeof OSApp.currentSession.controller.options.dexp === "number" &&
+		OSApp.currentSession.controller.options.dexp < 255 &&
+		OSApp.currentSession.controller.options.dexp >= 0 &&
+		OSApp.currentSession.controller.options.ext < OSApp.currentSession.controller.options.dexp
+	) {
+		OSApp.Notifications.addNotification( {
+			title: OSApp.Language._( "Unused Expanders Detected" ),
+			desc: OSApp.Language._( "Click here to enable all connected stations." ),
+			on: function() {
+				OSApp.Notifications.removeNotification( $( this ).parent() );
+				OSApp.UIDom.changePage( "#os-options", {
+					expandItem: "station"
+				} );
+				return false;
+			}
+		} );
+	}
+};
+
+OSApp.Firmware.showUnifiedFirmwareNotification = function() {
+	if ( !OSApp.Firmware.isOSPi() ) {
+		return;
+	}
+
+	OSApp.Storage.get( "ignoreUnifiedFirmware", function( data ) {
+		if ( data.ignoreUnifiedFirmware !== "1" ) {
+
+			// Unable to access the device using it's public IP
+			OSApp.Notifications.addNotification( {
+				title: OSApp.Language._( "Unified firmware is now available" ),
+				desc: OSApp.Language._( "Click here for more details" ),
+				on: function() {
+					window.open( "https://openthings.freshdesk.com/support/solutions/articles/5000631599",
+						"_blank", "location=" + ( OSApp.currentDevice.isAndroid ? "yes" : "no" ) +
+						",enableViewportScale=yes,toolbarposition=top,closebuttoncaption=" + OSApp.Language._( "Back" )
+					);
+
+					return false;
+				},
+				off: function() {
+					OSApp.Storage.set( { "ignoreUnifiedFirmware": "1" } );
+					return true;
+				}
+			} );
+		}
+	} );
+};
+
+OSApp.Firmware.getRebootReason = function( reason ) {
+	var result = OSApp.Language._( "Unrecognised" ) + " (" + reason + ")";
+
+	if ( reason in OSApp.Firmware.Constants.rebootReasons ) {
+		result = OSApp.Language._(OSApp.Firmware.Constants.rebootReasons[ reason ]);
+	}
+
+	return result;
 };

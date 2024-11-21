@@ -143,11 +143,11 @@ OSApp.Network.startScan = ( port, type ) => {
 				newlist = $( newlist );
 
 				newlist.find( "a" ).on( "click", function() {
-					addFound( $( this ).data( "ip" ) );
+					OSApp.Sites.addFound( $( this ).data( "ip" ) );
 					return false;
 				} );
 
-				showSiteSelect( newlist ); // TODO mellodev refactor showSiteSelect elsewhere. modules/sites.js?
+				OSApp.Sites.showSiteSelect( newlist );
 			}
 		}
 	};
@@ -424,7 +424,7 @@ OSApp.Network.cloudLogin = ( user, pass, callback = () => void 0 ) => {
 	} );
 };
 
-OSApp.Network.cloudSaveSites = ( callback = function() {} ) => {
+OSApp.Network.cloudSaveSites = ( callback = () => void 0 ) => {
 	OSApp.Storage.get( [ "cloudToken", "cloudDataToken", "sites" ], function( data ) {
 		if ( data.cloudToken === null || data.cloudToken === undefined ) {
 			callback( false );
@@ -876,6 +876,34 @@ OSApp.Network.checkPW = ( pass, callback = () => void 0) => {
 		},
 		function() {
 			callback( false );
+		}
+	);
+};
+
+OSApp.Network.getWiFiRating = function( rssi ) {
+	var rating = "";
+
+	if ( rssi < -80 ) {
+		rating = OSApp.Language._( "Unusable" );
+	} else if ( rssi < -70 ) {
+		rating = OSApp.Language._( "Poor" );
+	} else if ( rssi < -60 ) {
+		rating = OSApp.Language._( "Fair" );
+	} else if ( rssi < -50 ) {
+		rating = OSApp.Language._( "Good" );
+	} else {
+		rating = OSApp.Language._( "Excellent" );
+	}
+
+	return Math.round( rssi ) + "dBm (" + rating + ")";
+};
+
+OSApp.Network.networkFail = function() {
+	changeStatus( 0, "red", "<p class='running-text center'>" + OSApp.Language._( "Network Error" ) + "</p>",
+		function() {
+			OSApp.UIDom.showLoading( "#weather,#footer-running" );
+			OSApp.Status.refreshStatus();
+			OSApp.Weather.updateWeather();
 		}
 	);
 };

@@ -129,9 +129,131 @@ OSApp.Stations.stopAllStations = function() {
 		$.mobile.loading( "show" );
 		OSApp.Firmware.sendToOS( "/cv?pw=&rsn=1" ).done( function() {
 			$.mobile.loading( "hide" );
-			removeStationTimers(); // TODO: mellodev refactor
-			refreshStatus(); // TODO: mellodev refactor
+			OSApp.Stations.removeStationTimers();
+			OSApp.Status.refreshStatus();
 			OSApp.Errors.showError( OSApp.Language._( "All stations have been stopped" ) );
 		} );
 	} );
+};
+
+OSApp.Stations.removeStationTimers = function() {
+	for ( var timer in OSApp.uiState.timers ) {
+		if ( OSApp.uiState.timers.hasOwnProperty( timer ) ) {
+			if ( timer !== "clock" ) {
+				delete OSApp.uiState.timers[ timer ];
+			}
+		}
+	}
+};
+
+OSApp.Stations.stopStations = function( callback = () => void 0 ) {
+	$.mobile.loading( "show" );
+
+	// It can take up to a second before stations actually stop
+	OSApp.Firmware.sendToOS( "/cv?pw=&rsn=1" ).done( function() {
+		setTimeout( function() {
+			$.mobile.loading( "hide" );
+			callback();
+		}, 1000 );
+	} );
+};
+
+OSApp.Stations.parseRemoteStationData = function( hex ) {
+	var fields = hex.split( "," );
+	var result = {};
+	if ( fields.length === 2 && OSApp.Utils.isValidOTC( fields[ 0 ] ) ) {
+		result.otc = fields[ 0 ];
+		result.station = parseInt( fields[ 1 ], 16 );
+	} else {
+		hex = hex.split( "" );
+
+		var ip = [], value;
+
+		for ( var i = 0; i < 8; i++ ) {
+			value = parseInt( hex[ i ] + hex[ i + 1 ], 16 ) || 0;
+			ip.push( value );
+			i++;
+		}
+
+		result.ip = ip.join( "." );
+		result.port = parseInt( hex[ 8 ] + hex[ 9 ] + hex[ 10 ] + hex[ 11 ], 16 );
+		result.station = parseInt( hex[ 12 ] + hex[ 13 ], 16 );
+	}
+
+	return result;
+};
+
+OSApp.Stations.verifyRemoteStation = function( data, callback = () => void 0 ) {
+	data = OSApp.Stations.parseRemoteStationData( data );
+
+	$.ajax( {
+		url: ( data.otc ? ( "https://cloud.openthings.io/forward/v1/" + data.otc ) : ( "http://" + data.ip + ":" + data.port ) ) + "/jo?pw=" + encodeURIComponent( OSApp.currentSession.pass ),
+		type: "GET",
+		dataType: "json"
+	} ).then(
+		function( result ) {
+			if ( typeof result !== "object" || !result.hasOwnProperty( "fwv" ) ) {
+				callback( -1 );
+			} else if ( Object.keys( result ).length === 1 ) {
+				callback( -2 );
+			} else if ( !result.hasOwnProperty( "re" ) || result.re === 0 ) {
+				callback( -3 );
+			} else {
+				callback( true );
+			}
+		},
+		function() {
+			callback( false );
+		}
+	);
+};
+
+OSApp.Stations.convertRemoteToExtender = function( data ) {
+	data = OSApp.Stations.parseRemoteStationData( data );
+	var comm;
+	if ( data.otc ) {
+		comm = "https://cloud.openthings.io/forward/v1/" + data.otc;
+	} else {
+		comm = "http://" + data.ip + ":" + data.port;
+	}
+	comm += "/cv?re=1&pw=" + encodeURIComponent( OSApp.currentSession.pass );
+
+	$.ajax( {
+		url: comm,
+		type: "GET",
+		dataType: "json"
+	} );
+};
+
+OSApp.Stations.submitRunonce = function( runonce ) {
+	if ( !( runonce instanceof Array ) ) {
+		runonce = [];
+		$( "#runonce" ).find( "[id^='zone-']" ).each( function() {
+			runonce.push( parseInt( this.value ) || 0 );
+		} );
+		runonce.push( 0 );
+	}
+
+	var submit = function() {
+			$.mobile.loading( "show" );
+			OSApp.Storage.set( { "runonce":JSON.stringify( runonce ) } );
+			OSApp.Firmware.sendToOS( "/cr?pw=&t=" + JSON.stringify( runonce ) ).done( function() {
+				$.mobile.loading( "hide" );
+				$.mobile.document.one( "pageshow", function() {
+					OSApp.Errors.showError( OSApp.Language._( "Run-once program has been scheduled" ) );
+				} );
+				OSApp.Status.refreshStatus();
+				OSApp.UIDom.goBack();
+			} );
+		},
+		isOn = OSApp.StationQueue.isActive();
+
+	if ( isOn !== -1 ) {
+		OSApp.UIDom.areYouSure( OSApp.Language._( "Do you want to stop the currently running program?" ), pidname( OSApp.Stations.getPID( isOn ) ), function() {
+			$.mobile.loading( "show" );
+			OSApp.Stations.stopStations( submit );
+		} );
+	} else {
+		submit();
+	}
 };
