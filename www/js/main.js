@@ -20,35 +20,21 @@
 var OSApp = OSApp || {};
 
 // TODO: refactor away all direct usage of localstorage in favor of OSApp.Storage
-// TODO: refactor OSApp.isXXXX values to OSApp.Config.isXXX
-// TODO: refactor OSApp.regex out to separate modules/regex.js file
+// TODO: refactor OSApp.currentDevice.isXXXX values to OSApp.Config.isXXX
+// TODO: refactor OSApp.Constants.regex out to separate modules/regex.js file
 // TODO: refactor OSApp.retryCount elsewhere
-// TODO: refactor OSApp.keyIndex elsewhere
 // TODO: refactor OSApp.controller elsewhere
 // TODO: refactor analog.js into a true modules & all references
 // TODO: refactor OSApp.switching elsewhere
 // TODO: refactor OSApp.currentCoordinates elsewhere
 // TODO: refactor OSApp.pageHistoryCount elsewhere
 // TODO: refactor OSApp.goingBack elsewhere
-// TODO: refactor OSApp.dialog elsewhere
 // TODO: refactor OSApp.popupData elsewhere
-// TODO: refactor option constants elsewhere!
 // TODO: refactor ui state elsewhere!
-// TODO: refactor current session settings elsewhere!
 // TODO: refactor Misc settings elsewhere!
 // TODO: refactor OSApp.weather to elsewhere (OSApp.Current.weather?)
 
-// App globals
-OSApp.isAndroid = /Android|\bSilk\b/.test( navigator.userAgent );
-OSApp.isiOS = /iP(ad|hone|od)/.test( navigator.userAgent );
-OSApp.isFireFox = /Firefox/.test( navigator.userAgent );
-OSApp.isOSXApp = window.cordova && window.cordova.platformId === "ios" && navigator.platform === "MacIntel";
-OSApp.isFileCapable = !OSApp.isiOS && !OSApp.isAndroid && !OSApp.isOSXApp && window.FileReader;
-OSApp.isTouchCapable = "ontouchstart" in window || "onmsgesturechange" in window;
-OSApp.isMetric = ( [ "US", "BM", "PW" ].indexOf( navigator.languages[ 0 ].split( "-" )[ 1 ] ) === -1 );
-OSApp.groupView = false;
-
-// Current session settings
+// Current session/site settings
 OSApp.currentSession = {
 	auth: undefined,
 	authPass: undefined,
@@ -62,60 +48,35 @@ OSApp.currentSession = {
 	token: undefined
 };
 
-// Define general regex patterns
-OSApp.regex = {
-	gps: /^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/
+// Current device capabilities
+OSApp.currentDevice = {
+	isAndroid: /Android|\bSilk\b/.test( navigator.userAgent ),
+	isiOS: /iP(ad|hone|od)/.test( navigator.userAgent ),
+	isFireFox: /Firefox/.test( navigator.userAgent ),
+	isOSXApp: window.cordova && window.cordova.platformId === "ios" && navigator.platform === "MacIntel",
+	isTouchCapable: "ontouchstart" in window || "onmsgesturechange" in window,
+	isMetric: ( [ "US", "BM", "PW" ].indexOf( navigator.languages[ 0 ].split( "-" )[ 1 ] ) === -1 )
 };
+OSApp.currentDevice.isFileCapable = !OSApp.currentDevice.isiOS && !OSApp.currentDevice.isAndroid && !OSApp.currentDevice.isOSXApp && window.FileReader;
 
 // App theme settings
-OSApp.theme = {
-
-	// Define the status bar color(s) and use a darker color for Android
-	statusBarPrimary: OSApp.isAndroid ? "#121212" : "#1D1D1D",
-	statusBarOverlay: OSApp.isAndroid ? "#151515" : "#202020"
+OSApp.theme = { // Define the status bar color(s) and use a darker color for Android
+	statusBarPrimary: OSApp.currentDevice.isAndroid ? "#121212" : "#1D1D1D",
+	statusBarOverlay: OSApp.currentDevice.isAndroid ? "#151515" : "#202020"
 };
 
 // Define the amount of times the app will retry an HTTP request before marking it failed
 OSApp.retryCount = 2;
 
-// Define the mapping between options and JSON keys
-OSApp.keyIndex = {
-	"tz":1, "ntp":2, "dhcp":3, "ip1":4, "ip2":5, "ip3":6, "ip4":7, "gw1":8, "gw2":9, "gw3":10, "gw4":11,
-	"hp0":12, "hp1":13, "ar":14, "ext":15, "seq":16, "sdt":17, "mas":18, "mton":19, "mtof":20, "urs":21, "rso":22,
-	"wl":23, "den":24, "ipas":25, "devid":26, "con":27, "lit":28, "dim":29, "bst":30, "uwt":31, "ntp1":32, "ntp2":33,
-	"ntp3":34, "ntp4":35, "lg":36, "mas2":37, "mton2":38, "mtof2":39, "fpr0":41, "fpr1":42, "re":43, "dns1": 44,
-	"dns2":45, "dns3":46, "dns4":47, "sar":48, "ife":49, "sn1t":50, "sn1o":51, "sn2t":52, "sn2o":53, "sn1on":54,
-	"sn1of":55, "sn2on":56, "sn2of":57, "subn1":58, "subn2":59, "subn3":60, "subn4":61
-};
-
 OSApp.controller = {}; // Initialize controller object which will store JSON data
 OSApp.weather = undefined; // Initialize weather object (current observations and forecast data)
-
+OSApp.groupView = false;
 OSApp.switching = false;
 OSApp.currentCoordinates = [ 0, 0 ];
 OSApp.pageHistoryCount = -1; // Initialize variables to keep track of current page count
 OSApp.goingBack = false;
-OSApp.dialog = {
-	REMOVE_STATION: 1
-};
 OSApp.popupData = {
 	"shift": undefined
-};
-
-// Option constants
-OSApp.Constants = {
-	Options: {
-		IGNORE_SENSOR_1: 1,
-		IGNORE_SENSOR_2: 2,
-		MANUAL_STATION_PID: 99,
-		MASTER_GID_VALUE: 254,
-		MASTER_GROUP_NAME: "M",
-		MASTER_STATION_1: 1,
-		MASTER_STATION_2: 2,
-		NUM_SEQ_GROUPS: 4,
-		PARALLEL_GID_VALUE: 255,
-		PARALLEL_GROUP_NAME: "P",
-	}
 };
 
 // UI State
@@ -128,13 +89,43 @@ OSApp.deviceip = undefined;
 OSApp.errorTimeout = undefined;
 OSApp.openPanel = undefined;
 
+// Constants
+OSApp.Constants = {
+	dialog: { // Dialog constants
+		REMOVE_STATION: 1
+	},
+	keyIndex: { // Define the mapping between options and JSON keys
+		"tz":1, "ntp":2, "dhcp":3, "ip1":4, "ip2":5, "ip3":6, "ip4":7, "gw1":8, "gw2":9, "gw3":10, "gw4":11,
+		"hp0":12, "hp1":13, "ar":14, "ext":15, "seq":16, "sdt":17, "mas":18, "mton":19, "mtof":20, "urs":21, "rso":22,
+		"wl":23, "den":24, "ipas":25, "devid":26, "con":27, "lit":28, "dim":29, "bst":30, "uwt":31, "ntp1":32, "ntp2":33,
+		"ntp3":34, "ntp4":35, "lg":36, "mas2":37, "mton2":38, "mtof2":39, "fpr0":41, "fpr1":42, "re":43, "dns1": 44,
+		"dns2":45, "dns3":46, "dns4":47, "sar":48, "ife":49, "sn1t":50, "sn1o":51, "sn2t":52, "sn2o":53, "sn1on":54,
+		"sn1of":55, "sn2on":56, "sn2of":57, "subn1":58, "subn2":59, "subn3":60, "subn4":61
+	},
+	options: { // Option constants
+		IGNORE_SENSOR_1: 1,
+		IGNORE_SENSOR_2: 2,
+		MANUAL_STATION_PID: 99,
+		MASTER_GID_VALUE: 254,
+		MASTER_GROUP_NAME: "M",
+		MASTER_STATION_1: 1,
+		MASTER_STATION_2: 2,
+		NUM_SEQ_GROUPS: 4,
+		PARALLEL_GID_VALUE: 255,
+		PARALLEL_GROUP_NAME: "P",
+	},
+	regex: { // Define general regex patterns
+		gps: /^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/
+	}
+};
+
 if ( "serviceWorker" in navigator ) {
 	window.addEventListener( "load", function() {
 		navigator.serviceWorker.register( "/sw.js" );
 	} );
 }
 
-if ( OSApp.isOSXApp ) {
+if ( OSApp.currentDevice.isOSXApp ) {
 	document.documentElement.classList.add( "macos" );
 }
 
@@ -175,7 +166,7 @@ $( document )
 	updateDeviceIP();
 
 	// Check if 3D touch is available and add menu when possible
-	if ( OSApp.isiOS ) {
+	if ( OSApp.currentDevice.isiOS ) {
 		ThreeDeeTouch.isAvailable( function( available ) {
 			if ( available ) {
 
@@ -389,7 +380,7 @@ function initApp() {
 	}
 
 	// Prevent caching of AJAX requests on Android and Windows Phone devices
-	if ( OSApp.isAndroid ) {
+	if ( OSApp.currentDevice.isAndroid ) {
 
 		// Hide the back button for Android (all devices have back button)
 		insertStyle( ".ui-toolbar-back-btn{display:none!important}" );
@@ -399,7 +390,7 @@ function initApp() {
 				navigator.app.clearCache();
 			} catch ( err ) {}
 		} );
-	} else if ( OSApp.isFireFox ) {
+	} else if ( OSApp.currentDevice.isFireFox ) {
 
 		// Allow cross domain AJAX requests in FireFox OS
 		$.ajaxSetup( {
@@ -416,16 +407,16 @@ function initApp() {
 	}
 
 	//After jQuery mobile is loaded set initial configuration
-	$.mobile.defaultPageTransition = OSApp.isAndroid ? "fade" : "slide";
+	$.mobile.defaultPageTransition = OSApp.currentDevice.isAndroid ? "fade" : "slide";
 	$.mobile.hoverDelay = 0;
 	$.mobile.activeBtnClass = "activeButton";
 
 	// Handle In-App browser requests (marked with iab class)
 	$.mobile.document.on( "click", ".iab", function() {
-		var target = OSApp.isOSXApp ? "_system" : "_blank";
+		var target = OSApp.currentDevice.isOSXApp ? "_system" : "_blank";
 
 		var button = $( this );
-		window.open( this.href, target, "location=" + ( OSApp.isAndroid ? "yes" : "no" ) +
+		window.open( this.href, target, "location=" + ( OSApp.currentDevice.isAndroid ? "yes" : "no" ) +
 			",enableViewportScale=" + ( button.hasClass( "iabNoScale" ) ? "no" : "yes" ) +
 			",toolbar=yes,toolbarposition=top,toolbarcolor=" + OSApp.theme.statusBarPrimary +
 			",closebuttoncaption=" +
@@ -1026,7 +1017,7 @@ function updateControllerOptions( callback ) {
 				for ( i = 0; i < tmp.length - 1; i = i + 4 ) {
 					o = +tmp[ i + 3 ];
 					if ( $.inArray( o, valid ) !== -1 ) {
-						vars[ OSApp.keyIndex[ o ] ] = +tmp[ i + 2 ];
+						vars[ OSApp.Constants.keyIndex[ o ] ] = +tmp[ i + 2 ];
 					}
 				}
 				vars.fwv = 183;
@@ -1134,7 +1125,7 @@ function updateControllerSettings( callback ) {
 				}
 
 				// Update the current coordinates if the user's location is using them
-				if ( settings.loc.match( OSApp.regex.gps ) ) {
+				if ( settings.loc.match( OSApp.Constants.regex.gps ) ) {
 					var location = settings.loc.split( "," );
 					OSApp.currentCoordinates = [ parseFloat( location[ 0 ] ), parseFloat( location[ 1 ] ) ];
 				}
@@ -2313,7 +2304,7 @@ function showZimmermanAdjustmentOptions( button, callback ) {
 		hasBaseline = checkOSVersion( 2162 );
 
 	// OSPi stores in imperial so convert to metric and adjust to nearest 1/10ths of a degree and mm
-	if ( OSApp.isMetric ) {
+	if ( OSApp.currentDevice.isMetric ) {
 		options.bt = Math.round( ( ( options.bt - 32 ) * 5 / 9 ) * 10 ) / 10;
 		options.br = Math.round( ( options.br * 25.4 ) * 10 ) / 10;
 	}
@@ -2330,15 +2321,15 @@ function showZimmermanAdjustmentOptions( button, callback ) {
 				"<div class='ui-grid-b'>" +
 					"<div class='ui-block-a'>" +
 						"<label class='center'>" +
-							_( "Temp" ) + ( OSApp.isMetric ? " &#176;C" : " &#176;F" ) +
+							_( "Temp" ) + ( OSApp.currentDevice.isMetric ? " &#176;C" : " &#176;F" ) +
 						"</label>" +
-						"<input data-wrapper-class='pad_buttons' class='bt' type='number' " + ( OSApp.isMetric ? "min='-20' max='50'" : "min='0' max='120'" ) + " value='" + options.bt + ( hasBaseline ? "'>" : "' disabled='disabled'>" ) +
+						"<input data-wrapper-class='pad_buttons' class='bt' type='number' " + ( OSApp.currentDevice.isMetric ? "min='-20' max='50'" : "min='0' max='120'" ) + " value='" + options.bt + ( hasBaseline ? "'>" : "' disabled='disabled'>" ) +
 					"</div>" +
 					"<div class='ui-block-b'>" +
 						"<label class='center'>" +
-							_( "Rain" ) + ( OSApp.isMetric ? " mm" : " \"" ) +
+							_( "Rain" ) + ( OSApp.currentDevice.isMetric ? " mm" : " \"" ) +
 						"</label>" +
-						"<input data-wrapper-class='pad_buttons' class='br' type='number' " + ( OSApp.isMetric ? "min='0' max='25' step='0.1'" : "min='0' max='1' step='0.01'" ) + " value='" + options.br + ( hasBaseline ? "'>" : "' disabled='disabled'>" ) +
+						"<input data-wrapper-class='pad_buttons' class='br' type='number' " + ( OSApp.currentDevice.isMetric ? "min='0' max='25' step='0.1'" : "min='0' max='1' step='0.01'" ) + " value='" + options.br + ( hasBaseline ? "'>" : "' disabled='disabled'>" ) +
 					"</div>" +
 					"<div class='ui-block-c'>" +
 						"<label class='center'>" +
@@ -2414,7 +2405,7 @@ function showZimmermanAdjustmentOptions( button, callback ) {
 			} );
 
 			// OSPi stores in imperial so onvert metric at higher precision so we dont lose accuracy
-			if ( OSApp.isMetric ) {
+			if ( OSApp.currentDevice.isMetric ) {
 				options.bt = Math.round( ( options.bt * 9 / 5 + 32 ) * 100 ) / 100;
 				options.br = Math.round( ( options.br / 25.4 ) * 1000 ) / 1000;
 			}
@@ -2700,7 +2691,7 @@ function showEToAdjustmentOptions( button, callback ) {
 		unescapeJSON( button.value )
 	);
 
-	if ( OSApp.isMetric ) {
+	if ( OSApp.currentDevice.isMetric ) {
 		options.baseETo = Math.round( options.baseETo * 25.4 * 10 ) / 10;
 		options.elevation = Math.round( options.elevation / 3.28 );
 	}
@@ -2717,15 +2708,15 @@ function showEToAdjustmentOptions( button, callback ) {
 				"<div class='ui-grid-a'>" +
 					"<div class='ui-block-a'>" +
 						"<label class='center'>" +
-							_( "Baseline ETo" ) + ( OSApp.isMetric ? " (mm" : "(in" ) + "/day)" +
+							_( "Baseline ETo" ) + ( OSApp.currentDevice.isMetric ? " (mm" : "(in" ) + "/day)" +
 						"</label>" +
-						"<input data-wrapper-class='pad_buttons' class='baseline-ETo' type='number' min='0' " + ( OSApp.isMetric ? "max='25' step='0.1'" : "max='1' step='0.01'" ) + " value='" + options.baseETo + "'>" +
+						"<input data-wrapper-class='pad_buttons' class='baseline-ETo' type='number' min='0' " + ( OSApp.currentDevice.isMetric ? "max='25' step='0.1'" : "max='1' step='0.01'" ) + " value='" + options.baseETo + "'>" +
 					"</div>" +
 					"<div class='ui-block-b'>" +
 						"<label class='center'>" +
-							_( "Elevation" ) + ( OSApp.isMetric ? " (m)" : " (ft)" ) +
+							_( "Elevation" ) + ( OSApp.currentDevice.isMetric ? " (m)" : " (ft)" ) +
 						"</label>" +
-						"<input data-wrapper-class='pad_buttons' class='elevation' type='number' step='1'" + ( OSApp.isMetric ? "min='-400' max='9000'" : "min='-1400' max='30000'" ) + " value='" + options.elevation + "'>" +
+						"<input data-wrapper-class='pad_buttons' class='elevation' type='number' step='1'" + ( OSApp.currentDevice.isMetric ? "min='-400' max='9000'" : "min='-1400' max='30000'" ) + " value='" + options.elevation + "'>" +
 					"</div>" +
 				"</div>" +
 				"<button class='detect-baseline-eto'>" + _( "Detect baseline ETo" ) + "</button>" +
@@ -2741,7 +2732,7 @@ function showEToAdjustmentOptions( button, callback ) {
 		};
 
 		// Convert to imperial before storing.
-		if ( OSApp.isMetric ) {
+		if ( OSApp.currentDevice.isMetric ) {
 			options.baseETo = Math.round( options.baseETo / 25.4 * 100 ) / 100;
 			options.elevation = Math.round( options.elevation * 3.28 );
 		}
@@ -2771,13 +2762,13 @@ function showEToAdjustmentOptions( button, callback ) {
 				var baselineETo = data.eto;
 
 				// Convert to metric if necessary.
-				if ( OSApp.isMetric ) {
+				if ( OSApp.currentDevice.isMetric ) {
 					baselineETo = Math.round( baselineETo * 25.4 * 100 ) / 100;
 				}
 
 				$( ".baseline-ETo" ).val( baselineETo );
 
-				window.alert( "Detected baseline ETo for configured location is " + baselineETo + ( OSApp.isMetric ? "mm" : "in" ) + "/day" );
+				window.alert( "Detected baseline ETo for configured location is " + baselineETo + ( OSApp.currentDevice.isMetric ? "mm" : "in" ) + "/day" );
 			},
 			error: function( xhr, errorType ) {
 
@@ -2819,7 +2810,7 @@ function showEToAdjustmentOptions( button, callback ) {
 }
 
 function formatTemp( temp ) {
-	if ( OSApp.isMetric ) {
+	if ( OSApp.currentDevice.isMetric ) {
 		temp = Math.round( ( temp - 32 ) * ( 5 / 9 ) * 10 ) / 10 + " &#176;C";
 	} else {
 		temp = Math.round( temp * 10 ) / 10 + " &#176;F";
@@ -2828,7 +2819,7 @@ function formatTemp( temp ) {
 }
 
 function formatPrecip( precip ) {
-	if ( OSApp.isMetric ) {
+	if ( OSApp.currentDevice.isMetric ) {
 		precip = Math.round( precip * 25.4 * 10 ) / 10 + " mm";
 	} else {
 		precip = Math.round( precip * 100 ) / 100 + " in";
@@ -2841,7 +2832,7 @@ function formatHumidity( humidity ) {
 }
 
 function formatSpeed( speed ) {
-	if ( OSApp.isMetric ) {
+	if ( OSApp.currentDevice.isMetric ) {
 		speed = Math.round( speed * 1.6 * 10 ) / 10 + " km/h";
 	} else {
 		speed = Math.round( speed * 10 ) / 10 + " mph";
@@ -3256,8 +3247,8 @@ function overlayMap( callback ) {
 		iframe = popup.find( "iframe" ),
 		locInput = $( "#loc" ).val(),
 		current = {
-			lat: locInput.match( OSApp.regex.gps ) ? locInput.split( "," )[ 0 ] : OSApp.currentCoordinates[ 0 ],
-			lon: locInput.match( OSApp.regex.gps ) ? locInput.split( "," )[ 1 ] : OSApp.currentCoordinates[ 1 ]
+			lat: locInput.match( OSApp.Constants.regex.gps ) ? locInput.split( "," )[ 0 ] : OSApp.currentCoordinates[ 0 ],
+			lon: locInput.match( OSApp.Constants.regex.gps ) ? locInput.split( "," )[ 1 ] : OSApp.currentCoordinates[ 1 ]
 		},
 		dataSent = false;
 
@@ -3841,8 +3832,8 @@ function showOptions( expandItem ) {
 						}
 						break;
 					case "isMetric":
-						OSApp.isMetric = $item.is( ":checked" );
-						OSApp.Storage.set( { isMetric: OSApp.isMetric } );
+						OSApp.currentDevice.isMetric = $item.is( ":checked" );
+						OSApp.Storage.set( { isMetric: OSApp.currentDevice.isMetric } );
 						return true;
 					case "groupView":
 						OSApp.groupView = $item.is( ":checked" );
@@ -3904,7 +3895,7 @@ function showOptions( expandItem ) {
 						id = "o" + id;
 					} else {
 						key = /\d+/.exec( id );
-						id = "o" + Object.keys( OSApp.keyIndex ).find( function( index ) { return OSApp.keyIndex[ index ] === key; } );
+						id = "o" + Object.keys( OSApp.Constants.keyIndex ).find( function( index ) { return OSApp.Constants.keyIndex[ index ] === key; } );
 					}
 				}
 
@@ -4009,7 +4000,7 @@ function showOptions( expandItem ) {
 			_( "Enable Logging" ) + "</label>";
 	}
 
-	list += "<label for='isMetric'><input data-mini='true' id='isMetric' type='checkbox' " + ( OSApp.isMetric ? "checked='checked'" : "" ) + ">" +
+	list += "<label for='isMetric'><input data-mini='true' id='isMetric' type='checkbox' " + ( OSApp.currentDevice.isMetric ? "checked='checked'" : "" ) + ">" +
 		_( "Use Metric" ) + "</label>";
 
 	if ( Supported.groups() ) {
@@ -4172,8 +4163,8 @@ function showOptions( expandItem ) {
 
 	if ( typeof OSApp.controller.options.urs !== "undefined" || typeof OSApp.controller.options.sn1t !== "undefined" ) {
 		if ( typeof OSApp.controller.options.fpr0 !== "undefined" ) {
-			list += typeof OSApp.controller.options.urs !== "undefined" ? generateSensorOptions( OSApp.keyIndex.urs, OSApp.controller.options.urs ) :
-					( typeof OSApp.controller.options.sn1t !== "undefined" ? generateSensorOptions( OSApp.keyIndex.sn1t, OSApp.controller.options.sn1t, 1 ) : "" );
+			list += typeof OSApp.controller.options.urs !== "undefined" ? generateSensorOptions( OSApp.Constants.keyIndex.urs, OSApp.controller.options.urs ) :
+					( typeof OSApp.controller.options.sn1t !== "undefined" ? generateSensorOptions( OSApp.Constants.keyIndex.sn1t, OSApp.controller.options.sn1t, 1 ) : "" );
 		} else {
 			list += "<label for='o21'>" +
 				"<input data-mini='true' id='o21' type='checkbox' " + ( ( OSApp.controller.options.urs === 1 ) ? "checked='checked'" : "" ) + ">" +
@@ -4234,7 +4225,7 @@ function showOptions( expandItem ) {
 	}
 
 	if ( typeof OSApp.controller.options.sn2t !== "undefined" && checkOSVersion( 219 ) ) {
-		list += generateSensorOptions( OSApp.keyIndex.sn2t, OSApp.controller.options.sn2t, 2 );
+		list += generateSensorOptions( OSApp.Constants.keyIndex.sn2t, OSApp.controller.options.sn2t, 2 );
 	}
 
 	if ( typeof OSApp.controller.options.sn2o !== "undefined" ) {
@@ -5480,11 +5471,11 @@ var showHome = ( function() {
 
 			cards += "<span class='btn-no-border ui-btn " + ( ( Station.isMaster( sid ) ) ? "ui-icon-master" : "ui-icon-gear" ) +
 				" card-icon ui-btn-icon-notext station-settings' data-station='" + sid + "' id='attrib-" + sid + "' " +
-				( Supported.master( OSApp.Constants.Options.MASTER_STATION_1 ) ? ( "data-um='" + ( StationAttribute.getMasterOperation( sid, OSApp.Constants.Options.MASTER_STATION_1 ) ) + "' " ) : "" ) +
-				( Supported.master( OSApp.Constants.Options.MASTER_STATION_2 ) ? ( "data-um2='" + ( StationAttribute.getMasterOperation( sid, OSApp.Constants.Options.MASTER_STATION_2 ) ) + "' " ) : "" ) +
+				( Supported.master( OSApp.Constants.options.MASTER_STATION_1 ) ? ( "data-um='" + ( StationAttribute.getMasterOperation( sid, OSApp.Constants.options.MASTER_STATION_1 ) ) + "' " ) : "" ) +
+				( Supported.master( OSApp.Constants.options.MASTER_STATION_2 ) ? ( "data-um2='" + ( StationAttribute.getMasterOperation( sid, OSApp.Constants.options.MASTER_STATION_2 ) ) + "' " ) : "" ) +
 				( Supported.ignoreRain() ? ( "data-ir='" + ( StationAttribute.getIgnoreRain( sid ) ) + "' " ) : "" ) +
-				( Supported.ignoreSensor( OSApp.Constants.Options.IGNORE_SENSOR_1 ) ? ( "data-sn1='" + ( StationAttribute.getIgnoreSensor( sid, OSApp.Constants.Options.IGNORE_SENSOR_1 ) ) + "' " ) : "" ) +
-				( Supported.ignoreSensor( OSApp.Constants.Options.IGNORE_SENSOR_2 ) ? ( "data-sn2='" + ( StationAttribute.getIgnoreSensor( sid, OSApp.Constants.Options.IGNORE_SENSOR_2 ) ) + "' " ) : "" ) +
+				( Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_1 ) ? ( "data-sn1='" + ( StationAttribute.getIgnoreSensor( sid, OSApp.Constants.options.IGNORE_SENSOR_1 ) ) + "' " ) : "" ) +
+				( Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_2 ) ? ( "data-sn2='" + ( StationAttribute.getIgnoreSensor( sid, OSApp.Constants.options.IGNORE_SENSOR_2 ) ) + "' " ) : "" ) +
 				( Supported.actRelay() ? ( "data-ar='" + ( StationAttribute.getActRelay( sid ) ) + "' " ) : "" ) +
 				( Supported.disabled() ? ( "data-sd='" + ( StationAttribute.getDisabled( sid ) ) + "' " ) : "" ) +
 				( Supported.sequential() ? ( "data-us='" + ( StationAttribute.getSequential( sid ) ) + "' " ) : "" ) +
@@ -5782,13 +5773,13 @@ var showHome = ( function() {
 				"</button>";
 
 			if ( !Station.isMaster( sid ) ) {
-				if ( Supported.master( OSApp.Constants.Options.MASTER_STATION_1 ) ) {
+				if ( Supported.master( OSApp.Constants.options.MASTER_STATION_1 ) ) {
 					select += "<label for='um'><input class='needsclick' data-iconpos='right' id='um' type='checkbox' " +
 							( ( button.data( "um" ) === 1 ) ? "checked='checked'" : "" ) + ">" + _( "Use Master" ) + " " +
-								( Supported.master( OSApp.Constants.Options.MASTER_STATION_2 ) ? "1" : "" ) + "</label>";
+								( Supported.master( OSApp.Constants.options.MASTER_STATION_2 ) ? "1" : "" ) + "</label>";
 				}
 
-				if ( Supported.master( OSApp.Constants.Options.MASTER_STATION_2 ) ) {
+				if ( Supported.master( OSApp.Constants.options.MASTER_STATION_2 ) ) {
 					select += "<label for='um2'><input class='needsclick' data-iconpos='right' id='um2' type='checkbox' " +
 							( ( button.data( "um2" ) === 1 ) ? "checked='checked'" : "" ) + ">" + _( "Use Master" ) + " 2" +
 						"</label>";
@@ -5800,13 +5791,13 @@ var showHome = ( function() {
 						"</label>";
 				}
 
-				if ( Supported.ignoreSensor( OSApp.Constants.Options.IGNORE_SENSOR_1 ) ) {
+				if ( Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_1 ) ) {
 					select += "<label for='sn1'><input class='needsclick' data-iconpos='right' id='sn1' type='checkbox' " +
 							( ( button.data( "sn1" ) === 1 ) ? "checked='checked'" : "" ) + ">" + _( "Ignore Sensor 1" ) +
 						"</label>";
 				}
 
-				if ( Supported.ignoreSensor( OSApp.Constants.Options.IGNORE_SENSOR_2 ) ) {
+				if ( Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_2 ) ) {
 					select += "<label for='sn2'><input class='needsclick' data-iconpos='right' id='sn2' type='checkbox' " +
 							( ( button.data( "sn2" ) === 1 ) ? "checked='checked'" : "" ) + ">" + _( "Ignore Sensor 2" ) +
 						"</label>";
@@ -5896,7 +5887,7 @@ var showHome = ( function() {
 					prohibitChange.addClass( "hidden" );
 				}
 
-				for ( var i = 0; i <= OSApp.Constants.Options.NUM_SEQ_GROUPS; i++ ) {
+				for ( var i = 0; i <= OSApp.Constants.options.NUM_SEQ_GROUPS; i++ ) {
 					var value = mapIndexToGIDValue( i ),
 						label = mapGIDValueToName( value ),
 						option = $(
@@ -5963,7 +5954,7 @@ var showHome = ( function() {
 
 			var opts = { history: false };
 
-			if ( OSApp.isiOS ) {
+			if ( OSApp.currentDevice.isiOS ) {
 				var pageTop = getPageTop();
 
 				opts.x = pageTop.x;
@@ -5989,10 +5980,10 @@ var showHome = ( function() {
 				attrib, bid, sid, gid, s;
 
 			for ( bid = 0; bid < OSApp.controller.settings.nbrd; bid++ ) {
-				if ( Supported.master( OSApp.Constants.Options.MASTER_STATION_1 ) ) {
+				if ( Supported.master( OSApp.Constants.options.MASTER_STATION_1 ) ) {
 					master[ "m" + bid ] = 0;
 				}
-				if ( Supported.master( OSApp.Constants.Options.MASTER_STATION_2 ) ) {
+				if ( Supported.master( OSApp.Constants.options.MASTER_STATION_2 ) ) {
 					master2[ "n" + bid ] = 0;
 				}
 				if ( Supported.sequential() ) {
@@ -6004,10 +5995,10 @@ var showHome = ( function() {
 				if ( Supported.ignoreRain() ) {
 					rain[ "i" + bid ] = 0;
 				}
-				if ( Supported.ignoreSensor( OSApp.Constants.Options.IGNORE_SENSOR_1 ) ) {
+				if ( Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_1 ) ) {
 					sensor1[ "j" + bid ] = 0;
 				}
-				if ( Supported.ignoreSensor( OSApp.Constants.Options.IGNORE_SENSOR_2 ) ) {
+				if ( Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_2 ) ) {
 					sensor2[ "k" + bid ] = 0;
 				}
 				if ( Supported.actRelay() ) {
@@ -6021,11 +6012,11 @@ var showHome = ( function() {
 					sid = bid * 8 + s;
 					attrib = page.find( "#attrib-" + sid );
 
-					if ( Supported.master( OSApp.Constants.Options.MASTER_STATION_1 ) ) {
+					if ( Supported.master( OSApp.Constants.options.MASTER_STATION_1 ) ) {
 						master[ "m" + bid ] = ( master[ "m" + bid ] ) + ( attrib.data( "um" ) << s );
 					}
 
-					if ( Supported.master( OSApp.Constants.Options.MASTER_STATION_2 ) ) {
+					if ( Supported.master( OSApp.Constants.options.MASTER_STATION_2 ) ) {
 						master2[ "n" + bid ] = ( master2[ "n" + bid ] ) + ( attrib.data( "um2" ) << s );
 					}
 
@@ -6041,11 +6032,11 @@ var showHome = ( function() {
 						rain[ "i" + bid ] = ( rain[ "i" + bid ] ) + ( attrib.data( "ir" ) << s );
 					}
 
-					if ( Supported.ignoreSensor( OSApp.Constants.Options.IGNORE_SENSOR_1 ) ) {
+					if ( Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_1 ) ) {
 						sensor1[ "j" + bid ] = ( sensor1[ "j" + bid ] ) + ( attrib.data( "sn1" ) << s );
 					}
 
-					if ( Supported.ignoreSensor( OSApp.Constants.Options.IGNORE_SENSOR_2 ) ) {
+					if ( Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_2 ) ) {
 						sensor2[ "k" + bid ] = ( sensor2[ "k" + bid ] ) + ( attrib.data( "sn2" ) << s );
 					}
 
@@ -6082,13 +6073,13 @@ var showHome = ( function() {
 
 			$.mobile.loading( "show" );
 			sendToOS( "/cs?pw=&" + $.param( names ) +
-				( Supported.master( OSApp.Constants.Options.MASTER_STATION_1 ) ? "&" + $.param( master ) : "" ) +
-				( Supported.master( OSApp.Constants.Options.MASTER_STATION_2 ) ? "&" + $.param( master2 ) : "" ) +
+				( Supported.master( OSApp.Constants.options.MASTER_STATION_1 ) ? "&" + $.param( master ) : "" ) +
+				( Supported.master( OSApp.Constants.options.MASTER_STATION_2 ) ? "&" + $.param( master2 ) : "" ) +
 				( Supported.sequential() ? "&" + $.param( sequential ) : "" ) +
 				( Supported.special() ? "&" + $.param( special ) : "" ) +
 				( Supported.ignoreRain() ? "&" + $.param( rain ) : "" ) +
-				( Supported.ignoreSensor( OSApp.Constants.Options.IGNORE_SENSOR_1 ) ? "&" + $.param( sensor1 ) : "" ) +
-				( Supported.ignoreSensor( OSApp.Constants.Options.IGNORE_SENSOR_2 ) ? "&" + $.param( sensor2 ) : "" ) +
+				( Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_1 ) ? "&" + $.param( sensor1 ) : "" ) +
+				( Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_2 ) ? "&" + $.param( sensor2 ) : "" ) +
 				( Supported.actRelay() ? "&" + $.param( relay ) : "" ) +
 				( Supported.disabled() ? "&" + $.param( disable ) : "" ) +
 				( Supported.groups() ? "&g" + id + "=" + gid : "" )
@@ -6318,11 +6309,11 @@ var showHome = ( function() {
 					}
 
 					card.find( ".station-settings" ).data( {
-						um: Supported.master( OSApp.Constants.Options.MASTER_STATION_1 ) ? StationAttribute.getMasterOperation( sid, OSApp.Constants.Options.MASTER_STATION_1 ) : undefined,
-						um2: Supported.master( OSApp.Constants.Options.MASTER_STATION_2 ) ? StationAttribute.getMasterOperation( sid, OSApp.Constants.Options.MASTER_STATION_2 ) : undefined,
+						um: Supported.master( OSApp.Constants.options.MASTER_STATION_1 ) ? StationAttribute.getMasterOperation( sid, OSApp.Constants.options.MASTER_STATION_1 ) : undefined,
+						um2: Supported.master( OSApp.Constants.options.MASTER_STATION_2 ) ? StationAttribute.getMasterOperation( sid, OSApp.Constants.options.MASTER_STATION_2 ) : undefined,
 						ir: Supported.ignoreRain() ? StationAttribute.getIgnoreRain( sid ) : undefined,
-						sn1: Supported.ignoreSensor( OSApp.Constants.Options.IGNORE_SENSOR_1 ) ? StationAttribute.getIgnoreSensor( sid, OSApp.Constants.Options.IGNORE_SENSOR_1 ) : undefined,
-						sn2: Supported.ignoreSensor( OSApp.Constants.Options.IGNORE_SENSOR_2 ) ? StationAttribute.getIgnoreSensor( sid, OSApp.Constants.Options.IGNORE_SENSOR_2 ) : undefined,
+						sn1: Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_1 ) ? StationAttribute.getIgnoreSensor( sid, OSApp.Constants.options.IGNORE_SENSOR_1 ) : undefined,
+						sn2: Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_2 ) ? StationAttribute.getIgnoreSensor( sid, OSApp.Constants.options.IGNORE_SENSOR_2 ) : undefined,
 						ar: Supported.actRelay() ? StationAttribute.getActRelay( sid ) : undefined,
 						sd: Supported.disabled() ? StationAttribute.getDisabled( sid ) : undefined,
 						us: Supported.sequential() ? StationAttribute.getSequential( sid ) : undefined,
@@ -6433,7 +6424,7 @@ var showHome = ( function() {
 				return false;
 			}
 
-			dialogOptions.type = OSApp.dialog.REMOVE_STATION;
+			dialogOptions.type = OSApp.Constants.dialog.REMOVE_STATION;
 			dialogOptions.station = sid;
 			dialogOptions.gid = stationGID;
 
@@ -6453,7 +6444,7 @@ var showHome = ( function() {
 							sendToOS( "/cm?sid=" + sid + "&en=1&t=" + duration + "&pw=", "json" ).done( function() {
 
 								// Update local state until next device refresh occurs
-								Station.setPID( sid, OSApp.Constants.Options.MANUAL_STATION_PID );
+								Station.setPID( sid, OSApp.Constants.options.MANUAL_STATION_PID );
 								Station.setRemainingRuntime( sid, duration );
 
 								refreshStatus();
@@ -6972,14 +6963,14 @@ function calculateTotalRunningTime( runTimes ) {
 	var sdt = OSApp.controller.options.sdt,
 		sequential, parallel;
 	if ( Supported.groups() ) {
-		sequential = new Array( OSApp.Constants.Options.NUM_SEQ_GROUPS ).fill( 0 );
+		sequential = new Array( OSApp.Constants.options.NUM_SEQ_GROUPS ).fill( 0 );
 		parallel = 0;
 		var sequentialMax = 0;
 		$.each( OSApp.controller.stations.snames, function( i ) {
 			var run = runTimes[ i ];
 			var gid = Station.getGIDValue( i );
 			if ( run > 0 ) {
-				if ( gid !== OSApp.Constants.Options.PARALLEL_GID_VALUE ) {
+				if ( gid !== OSApp.Constants.options.PARALLEL_GID_VALUE ) {
 					sequential[ gid ] += ( run + sdt );
 				} else {
 					if ( run > parallel ) {
@@ -6988,7 +6979,7 @@ function calculateTotalRunningTime( runTimes ) {
 				}
 			}
 		} );
-		for ( var d = 0; d < OSApp.Constants.Options.NUM_SEQ_GROUPS; d++ )	{
+		for ( var d = 0; d < OSApp.Constants.options.NUM_SEQ_GROUPS; d++ )	{
 			if ( sequential[ d ] > sdt ) { sequential[ d ] -= sdt; }
 			if ( sequential[ d ] > sequentialMax ) { sequentialMax = sequential[ d ]; }
 		}
@@ -7518,7 +7509,7 @@ var getPreview = ( function() {
 			qidArray = new Array( nstations ),
 			lastStopTime = 0,
 			lastSeqStopTime = 0,
-			lastSeqStopTimes = new Array( OSApp.Constants.Options.NUM_SEQ_GROUPS ), // Use this array if seq group is available
+			lastSeqStopTimes = new Array( OSApp.Constants.options.NUM_SEQ_GROUPS ), // Use this array if seq group is available
 			busy, matchFound, prog, sid, qid, d, q, sqi, bid, bid2, s, s2;
 
 		for ( sid = 0; sid < nstations; sid++ ) {
@@ -7528,7 +7519,7 @@ var getPreview = ( function() {
 			plArray[ sid ] = 0;
 			qidArray[ sid ] = 0xFF;
 		}
-		for ( d = 0; d < OSApp.Constants.Options.NUM_SEQ_GROUPS; d++ ) { lastSeqStopTimes[ d ] = 0; }
+		for ( d = 0; d < OSApp.Constants.options.NUM_SEQ_GROUPS; d++ ) { lastSeqStopTimes[ d ] = 0; }
 
 		do {
 			busy = 0;
@@ -7600,14 +7591,14 @@ var getPreview = ( function() {
 			if ( matchFound ) {
 				var acctime = simminutes * 60,
 					seqAcctime = acctime,
-					seqAcctimes = new Array( OSApp.Constants.Options.NUM_SEQ_GROUPS );
+					seqAcctimes = new Array( OSApp.Constants.options.NUM_SEQ_GROUPS );
 
 				if ( is211 ) {
 					if ( lastSeqStopTime > acctime ) {
 						seqAcctime = lastSeqStopTime + OSApp.controller.options.sdt;
 					}
 
-					for ( d = 0; d < OSApp.Constants.Options.NUM_SEQ_GROUPS; d++ ) {
+					for ( d = 0; d < OSApp.Constants.options.NUM_SEQ_GROUPS; d++ ) {
 						seqAcctimes[ d ] = acctime;
 						if ( lastSeqStopTimes[ d ] > acctime ) {
 							seqAcctimes[ d ] = lastSeqStopTimes[ d ] + OSApp.controller.options.sdt;
@@ -7637,7 +7628,7 @@ var getPreview = ( function() {
 									acctime++;
 								}
 							} else { // Group id is available
-								if ( q.gid !== OSApp.Constants.Options.PARALLEL_GID_VALUE ) { // This is a sequential station
+								if ( q.gid !== OSApp.Constants.options.PARALLEL_GID_VALUE ) { // This is a sequential station
 									q.st = seqAcctimes[ q.gid ];
 									seqAcctimes[ q.gid ] += q.dur;
 									seqAcctimes[ q.gid ] += OSApp.controller.options.sdt;
@@ -7743,7 +7734,7 @@ var getPreview = ( function() {
 
 				// Lastly, calculate lastSeqStopTime
 				lastSeqStopTime = 0;
-				for ( d = 0; d < OSApp.Constants.Options.NUM_SEQ_GROUPS; d++ ) { lastSeqStopTime[ d ] = 0; }
+				for ( d = 0; d < OSApp.Constants.options.NUM_SEQ_GROUPS; d++ ) { lastSeqStopTime[ d ] = 0; }
 				for ( qid = 0; qid < rtQueue.length; qid++ ) {
 					q = rtQueue[ qid ];
 					sid = q.sid;
@@ -7757,7 +7748,7 @@ var getPreview = ( function() {
 							}
 						}
 					} else { // Group id is available
-						if ( q.gid !== OSApp.Constants.Options.PARALLEL_GID_VALUE ) {
+						if ( q.gid !== OSApp.Constants.options.PARALLEL_GID_VALUE ) {
 							if ( sst > lastSeqStopTimes[ q.gid ] ) {
 								lastSeqStopTimes[ q.gid ] = sst;
 							}
@@ -8284,7 +8275,7 @@ var getPreview = ( function() {
 		page.find( ".timeline-groups-axis" ).children().first().html( "<div class='timeline-axis-text center dayofweek' data-shortname='" +
 			getDayName( day, "short" ) + "'>" + getDayName( day ) + "</div>" );
 
-		if ( OSApp.isAndroid ) {
+		if ( OSApp.currentDevice.isAndroid ) {
 			navi.find( ".ui-icon-plus" ).off( "click" ).on( "click", function() {
 				timeline.zoom( 0.4 );
 				return false;
@@ -8855,7 +8846,7 @@ var getLogs = ( function() {
 	} );
 
 	//Automatically update the log viewer when changing the date range
-	if ( OSApp.isiOS ) {
+	if ( OSApp.currentDevice.isiOS ) {
 		logStart.add( logEnd ).on( "blur", function() {
 			if ( page.hasClass( "ui-page-active" ) ) {
 				requestData();
@@ -10175,7 +10166,7 @@ function getExportMethod() {
 		obj = encodeURIComponent( JSON.stringify( OSApp.controller ) ),
 		subject = "OpenSprinkler Data Export on " + dateToString( new Date() );
 
-	if ( OSApp.isFileCapable ) {
+	if ( OSApp.currentDevice.isFileCapable ) {
 		popup.find( ".fileMethod" ).removeClass( "hidden" ).attr( {
 			href: "data:text/json;charset=utf-8," + obj,
 			download: "backup-" + new Date().toLocaleDateString().replace( /\//g, "-" ) + ".json"
@@ -10186,7 +10177,7 @@ function getExportMethod() {
 
 	var href = "mailto:?subject=" + encodeURIComponent( subject ) + "&body=" + obj;
 	popup.find( ".pasteMethod" ).attr( "href", href ).on( "click", function() {
-		window.open( href, OSApp.isOSXApp ? "_system" : undefined );
+		window.open( href, OSApp.currentDevice.isOSXApp ? "_system" : undefined );
 		popup.popup( "close" );
 	} );
 
@@ -10243,7 +10234,7 @@ function getImportMethod( localData ) {
 				"</div>" +
 			"</div>" );
 
-	if ( OSApp.isFileCapable ) {
+	if ( OSApp.currentDevice.isFileCapable ) {
 		popup.find( ".fileMethod" ).removeClass( "hidden" ).on( "click", function() {
 			popup.popup( "close" );
 			var input = $( "<input type='file' id='configInput' data-role='none' style='visibility:hidden;position:absolute;top:-50px;left:-50px'/>" )
@@ -10323,11 +10314,11 @@ function importConfig( data ) {
 			isPi = isOSPi(),
 			i, k, key, option, station;
 
-		var findKey = function( index ) { return OSApp.keyIndex[ index ] === key; };
+		var findKey = function( index ) { return OSApp.Constants.keyIndex[ index ] === key; };
 
 		for ( i in data.options ) {
-			if ( data.options.hasOwnProperty( i ) && OSApp.keyIndex.hasOwnProperty( i ) ) {
-				key = OSApp.keyIndex[ i ];
+			if ( data.options.hasOwnProperty( i ) && OSApp.Constants.keyIndex.hasOwnProperty( i ) ) {
+				key = OSApp.Constants.keyIndex[ i ];
 				if ( $.inArray( key, [ 2, 14, 16, 21, 22, 25, 36 ] ) !== -1 && data.options[ i ] === 0 ) {
 					continue;
 				}
@@ -10338,7 +10329,7 @@ function importConfig( data ) {
 					continue;
 				}
 				if ( isPi ) {
-					key = Object.keys( OSApp.keyIndex ).find( findKey );
+					key = Object.keys( OSApp.Constants.keyIndex ).find( findKey );
 					if ( key === undefined ) {
 						continue;
 					}
@@ -11305,7 +11296,7 @@ function showUnifiedFirmwareNotification() {
 				desc: _( "Click here for more details" ),
 				on: function() {
 					window.open( "https://openthings.freshdesk.com/support/solutions/articles/5000631599",
-						"_blank", "location=" + ( OSApp.isAndroid ? "yes" : "no" ) +
+						"_blank", "location=" + ( OSApp.currentDevice.isAndroid ? "yes" : "no" ) +
 						",enableViewportScale=yes,toolbarposition=top,closebuttoncaption=" + _( "Back" )
 					);
 
@@ -11348,7 +11339,7 @@ function checkPublicAccess( eip ) {
 						desc: _( "Click here to troubleshoot remote access issues" ),
 						on: function() {
 							window.open( "https://openthings.freshdesk.com/support/solutions/articles/5000569763",
-								"_blank", "location=" + ( OSApp.isAndroid ? "yes" : "no" ) +
+								"_blank", "location=" + ( OSApp.currentDevice.isAndroid ? "yes" : "no" ) +
 								",enableViewportScale=yes,toolbarposition=top,closebuttoncaption=" + _( "Back" )
 							);
 
@@ -11797,7 +11788,7 @@ function areYouSure( text1, text2, success, fail, options ) {
 
 	var showShiftDialog = 0;
 	if ( typeof options === "object" ) {
-		showShiftDialog = ( options.type === OSApp.dialog.REMOVE_STATION ) &&
+		showShiftDialog = ( options.type === OSApp.Constants.dialog.REMOVE_STATION ) &&
 			Groups.canShift( options.gid ) && Station.isSequential( options.station );
 	}
 
@@ -12355,38 +12346,38 @@ function showTimeInput( opt ) {
 			"<div class='ui-content'>" +
 				( opt.helptext ? "<p class='pad-top rain-desc center smaller'>" + opt.helptext + "</p>" : "" ) +
 				"<span>" +
-					"<fieldset class='ui-grid-" + ( OSApp.isMetric ? "a" : "b" ) + " incr'>" +
+					"<fieldset class='ui-grid-" + ( OSApp.currentDevice.isMetric ? "a" : "b" ) + " incr'>" +
 						"<div class='ui-block-a'>" +
 							"<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a>" +
 						"</div>" +
 						"<div class='ui-block-b'>" +
 							"<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a>" +
 						"</div>" +
-						( OSApp.isMetric ? "" : "<div class='ui-block-c'>" +
+						( OSApp.currentDevice.isMetric ? "" : "<div class='ui-block-c'>" +
 							"<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a>" +
 						"</div>" ) +
 					"</fieldset>" +
-					"<div class='ui-grid-" + ( OSApp.isMetric ? "a" : "b" ) + " inputs'>" +
+					"<div class='ui-grid-" + ( OSApp.currentDevice.isMetric ? "a" : "b" ) + " inputs'>" +
 						"<div class='ui-block-a'>" +
 							"<input data-wrapper-class='pad_buttons' class='hour dontPad' type='number' pattern='[0-9]*' value='" +
-								( OSApp.isMetric ? pad( ( opt.minutes / 60 >> 0 ) % 24 ) + "'>" : ( parseInt( opt.minutes / 60 ) % 12 === 0 ? 12 : parseInt( opt.minutes / 60 ) % 12 ) + "'>" ) +
+								( OSApp.currentDevice.isMetric ? pad( ( opt.minutes / 60 >> 0 ) % 24 ) + "'>" : ( parseInt( opt.minutes / 60 ) % 12 === 0 ? 12 : parseInt( opt.minutes / 60 ) % 12 ) + "'>" ) +
 						"</div>" +
 						"<div class='ui-block-b'>" +
 							"<input data-wrapper-class='pad_buttons' class='minute' type='number' pattern='[0-9]*' value='" +
 								pad( opt.minutes % 60 ) + "'>" +
 						"</div>" +
-						( OSApp.isMetric ? "" : "<div class='ui-block-c'>" +
+						( OSApp.currentDevice.isMetric ? "" : "<div class='ui-block-c'>" +
 							"<p class='center period'>" + getPeriod() + "</p>" +
 						"</div>" ) +
 					"</div>" +
-					"<fieldset class='ui-grid-" + ( OSApp.isMetric ? "a" : "b" ) + " decr'>" +
+					"<fieldset class='ui-grid-" + ( OSApp.currentDevice.isMetric ? "a" : "b" ) + " decr'>" +
 						"<div class='ui-block-a'>" +
 							"<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='minus' data-iconpos='bottom'></a>" +
 						"</div>" +
 						"<div class='ui-block-b'>" +
 							"<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='minus' data-iconpos='bottom'></a>" +
 						"</div>" +
-						( OSApp.isMetric ? "" : "<div class='ui-block-c'>" +
+						( OSApp.currentDevice.isMetric ? "" : "<div class='ui-block-c'>" +
 							"<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='minus' data-iconpos='bottom'></a>" +
 						"</div>" ) +
 					"</fieldset>" +
@@ -12419,7 +12410,7 @@ function showTimeInput( opt ) {
 					val = parseInt( input.val() );
 
 				if ( dir === 1 ) {
-					if ( isHour && ( ( OSApp.isMetric && val >= 24 ) || ( !OSApp.isMetric && val >= 12 ) ) ) {
+					if ( isHour && ( ( OSApp.currentDevice.isMetric && val >= 24 ) || ( !OSApp.currentDevice.isMetric && val >= 12 ) ) ) {
 						val = 0;
 					}
 					if ( !isHour && val >= 59 ) {
@@ -12427,7 +12418,7 @@ function showTimeInput( opt ) {
 						var hour = popup.find( ".hour" ),
 							hourFixed = parseInt( hour.val() );
 
-						if ( !OSApp.isMetric ) {
+						if ( !OSApp.currentDevice.isMetric ) {
 							if ( hourFixed === 12 ) {
 								hourFixed = 0;
 							}
@@ -12491,7 +12482,7 @@ function showTimeInput( opt ) {
 			} else {
 				var hour = parseInt( popup.find( ".hour" ).val() );
 
-				if ( !OSApp.isMetric ) {
+				if ( !OSApp.currentDevice.isMetric ) {
 					if ( isPM && hour !== 12 ) {
 						hour = hour + 12;
 					}
@@ -12918,10 +12909,10 @@ function loadLocalSettings() {
 		// no value in local storage exists.
 		switch ( data.isMetric ) {
 			case "true":
-				OSApp.isMetric = true;
+				OSApp.currentDevice.isMetric = true;
 				break;
 			case "false":
-				OSApp.isMetric = false;
+				OSApp.currentDevice.isMetric = false;
 				break;
 			default:
 		}
@@ -12959,7 +12950,7 @@ function fixInputClick( page ) {
 function holdButton( target, callback ) {
 	var intervalId;
 
-	target.on( OSApp.isTouchCapable ? "tap" : "click", callback ).on( "taphold", function( e ) {
+	target.on( OSApp.currentDevice.isTouchCapable ? "tap" : "click", callback ).on( "taphold", function( e ) {
 		intervalId = setInterval( function() {
 			callback( e );
 		}, 100 );
@@ -13061,7 +13052,7 @@ function isControllerConnected() {
 function exportObj( ele, obj, subject ) {
 	obj = encodeURIComponent( JSON.stringify( obj ) );
 
-	if ( OSApp.isFileCapable ) {
+	if ( OSApp.currentDevice.isFileCapable ) {
 		$( ele ).attr( {
 			href: "data:text/json;charset=utf-8," + obj,
 			download: "backup-" + new Date().toLocaleDateString().replace( /\//g, "-" ) + ".json"
@@ -13308,7 +13299,7 @@ function minutesToTime( minutes ) {
 		hour = 12;
 	}
 
-	return OSApp.isMetric ? ( pad( ( minutes / 60 >> 0 ) % 24 ) + ":" + pad( minutes % 60 ) ) : ( hour + ":" + pad( minutes % 60 ) + " " + period );
+	return OSApp.currentDevice.isMetric ? ( pad( ( minutes / 60 >> 0 ) % 24 ) + ":" + pad( minutes % 60 ) ) : ( hour + ":" + pad( minutes % 60 ) + " " + period );
 }
 
 function getBitFromByte( byte, bit ) {
@@ -13414,7 +13405,7 @@ function transformKeys( opt ) {
 			var name = item.match( /^o(\d+)$/ );
 
 			if ( name && name[ 1 ] ) {
-				renamedOpt[ Object.keys( OSApp.keyIndex ).find( function( index ) { return OSApp.keyIndex[ index ] === parseInt( name[ 1 ], 10 ); } ) ] = opt[ item ];
+				renamedOpt[ Object.keys( OSApp.Constants.keyIndex ).find( function( index ) { return OSApp.Constants.keyIndex[ index ] === parseInt( name[ 1 ], 10 ); } ) ] = opt[ item ];
 			} else {
 				renamedOpt[ item ] = opt[ item ];
 			}
@@ -13447,9 +13438,9 @@ function Supported() {}
 
 Supported.master = function( masid ) {
 	switch ( masid ) {
-		case OSApp.Constants.Options.MASTER_STATION_1:
+		case OSApp.Constants.options.MASTER_STATION_1:
 			return OSApp.controller.options.mas ? true : false;
-		case OSApp.Constants.Options.MASTER_STATION_2:
+		case OSApp.Constants.options.MASTER_STATION_2:
 			return OSApp.controller.options.mas2 ? true : false;
 		default:
 			return false;
@@ -13462,9 +13453,9 @@ Supported.ignoreRain = function() {
 
 Supported.ignoreSensor = function( sensorID ) {
 	switch ( sensorID ) {
-		case OSApp.Constants.Options.IGNORE_SENSOR_1:
+		case OSApp.Constants.options.IGNORE_SENSOR_1:
 			return ( typeof OSApp.controller.stations.ignore_sn1 === "object" ) ? true : false;
-		case OSApp.Constants.Options.IGNORE_SENSOR_2:
+		case OSApp.Constants.options.IGNORE_SENSOR_2:
 			return ( typeof OSApp.controller.stations.ignore_sn2 === "object" ) ? true : false;
 		default:
 			return false;
@@ -13615,10 +13606,10 @@ StationAttribute.getMasterOperation = function( sid, masid ) {
 	if ( !Supported.master( masid ) ) { return 0; }
 
 	switch ( masid ) {
-		case OSApp.Constants.Options.MASTER_STATION_1:
+		case OSApp.Constants.options.MASTER_STATION_1:
 			sourceMasterAttribute = OSApp.controller.stations.masop;
 			break;
-		case OSApp.Constants.Options.MASTER_STATION_2:
+		case OSApp.Constants.options.MASTER_STATION_2:
 			sourceMasterAttribute = OSApp.controller.stations.masop2;
 			break;
 		default:
@@ -13647,10 +13638,10 @@ StationAttribute.getIgnoreSensor = function( sid, sensorID ) {
 	if ( !Supported.ignoreSensor( sensorID ) ) { return 0; }
 
 	switch ( sensorID ) {
-		case OSApp.Constants.Options.IGNORE_SENSOR_1:
+		case OSApp.Constants.options.IGNORE_SENSOR_1:
 			sourceIgnoreSensorAttribute = OSApp.controller.stations.ignore_sn1;
 			break;
-		case OSApp.Constants.Options.IGNORE_SENSOR_2:
+		case OSApp.Constants.options.IGNORE_SENSOR_2:
 			sourceIgnoreSensorAttribute = OSApp.controller.stations.ignore_sn2;
 			break;
 		default:
@@ -13683,7 +13674,7 @@ StationAttribute.getDisabled = function( sid ) {
 
 StationAttribute.getSequential = function( sid ) {
 	if ( Supported.groups() ) {
-		return Station.getGIDValue !== OSApp.Constants.Options.PARALLEL_GID_VALUE ? 1 : 0;
+		return Station.getGIDValue !== OSApp.Constants.options.PARALLEL_GID_VALUE ? 1 : 0;
 	}
 	if ( !Supported.sequential() ) { return 0; }
 	var bid = ( sid / 8 ) >> 0,
@@ -13805,15 +13796,15 @@ StationQueue.size = function() {
 
 // Last index value is dedicated to the parallel group
 function mapIndexToGIDValue( index ) {
-	return ( index - OSApp.Constants.Options.NUM_SEQ_GROUPS ) ? index : OSApp.Constants.Options.PARALLEL_GID_VALUE;
+	return ( index - OSApp.Constants.options.NUM_SEQ_GROUPS ) ? index : OSApp.Constants.options.PARALLEL_GID_VALUE;
 }
 
 function mapGIDValueToName( value ) {
 	switch ( value ) {
-		case OSApp.Constants.Options.PARALLEL_GID_VALUE:
-			return OSApp.Constants.Options.PARALLEL_GROUP_NAME;
-		case OSApp.Constants.Options.MASTER_GID_VALUE:
-			return OSApp.Constants.Options.MASTER_GROUP_NAME;
+		case OSApp.Constants.options.PARALLEL_GID_VALUE:
+			return OSApp.Constants.options.PARALLEL_GROUP_NAME;
+		case OSApp.Constants.options.MASTER_GID_VALUE:
+			return OSApp.Constants.options.MASTER_GROUP_NAME;
 		default:
 			return String.fromCharCode( 65 + value );
 	}
@@ -13821,10 +13812,10 @@ function mapGIDValueToName( value ) {
 
 function mapGIDNameToValue( groupName ) {
 	switch ( groupName ) {
-		case OSApp.Constants.Options.PARALLEL_GROUP_NAME:
-			return OSApp.Constants.Options.PARALLEL_GID_VALUE;
-		case OSApp.Constants.Options.MASTER_GROUP_NAME:
-			return OSApp.Constants.Options.MASTER_GID_VALUE;
+		case OSApp.Constants.options.PARALLEL_GROUP_NAME:
+			return OSApp.Constants.options.PARALLEL_GID_VALUE;
+		case OSApp.Constants.options.MASTER_GROUP_NAME:
+			return OSApp.Constants.options.MASTER_GID_VALUE;
 		default:
 			return groupName.charCodeAt( 0 ) - 65;
 	}
