@@ -84,7 +84,7 @@ OSApp.popupData = {
 // TODO: refactor OSApp.popupData elsewhere
 // TODO: refactor option constants elsewhere!
 // TODO: refactor ui state elsewhere!
-// TODO: refactor misc settings elsewhere!
+// TODO: refactor current session settings elsewhere!
 
 // Option constants
 OSApp.MANUAL_STATION_PID = 99;
@@ -102,13 +102,19 @@ OSApp.MASTER_GID_VALUE = 254;
 OSApp.notifications = []; // Array to hold all notifications currently displayed within the app
 OSApp.timers = {};
 
-// Misc settings
+// Current session settings
 OSApp.curr183 = undefined;
 OSApp.currToken = undefined;
 OSApp.currIp = undefined;
+OSApp.currPrefix = undefined;
+OSApp.currAuth = undefined;
+OSApp.currPass = undefined;
+OSApp.currAuthUser = undefined;
+OSApp.currAuthPass = undefined;
+OSApp.currLocal = undefined;
+OSApp.currLang = undefined;
 
-var currPrefix, currAuth, currPass, currAuthUser,
-	currAuthPass, currLocal, currLang, language, deviceip, errorTimeout, weather, openPanel;
+var language, deviceip, errorTimeout, weather, openPanel;
 
 if ( "serviceWorker" in navigator ) {
 	window.addEventListener( "load", function() {
@@ -364,7 +370,7 @@ function initApp() {
 	updateLang();
 
 	//Set AJAX timeout
-	if ( !currLocal ) {
+	if ( !OSApp.currLocal ) {
 		$.ajaxSetup( {
 			timeout: 10000
 		} );
@@ -530,7 +536,7 @@ function initApp() {
 	bindPanel();
 
 	// Update the IP address of the device running the app
-	if ( !currLocal  && typeof window.cordova === "undefined" ) {
+	if ( !OSApp.currLocal  && typeof window.cordova === "undefined" ) {
 		updateDeviceIP();
 	}
 
@@ -593,7 +599,7 @@ function flipSwitched() {
 function sendToOS( dest, type ) {
 
 	// Inject password into the request
-	dest = dest.replace( "pw=", "pw=" + encodeURIComponent( currPass ) );
+	dest = dest.replace( "pw=", "pw=" + encodeURIComponent( OSApp.currPass ) );
 	type = type || "text";
 
 	// Designate AJAX queue based on command type
@@ -604,7 +610,7 @@ function sendToOS( dest, type ) {
 		usePOST = ( isChange && checkOSVersion( 300 ) ),
 		urlDest = usePOST ? dest.split( "?" )[ 0 ] : dest,
 		obj = {
-			url: OSApp.currToken ? "https://cloud.openthings.io/forward/v1/" + OSApp.currToken + urlDest : currPrefix + OSApp.currIp + urlDest,
+			url: OSApp.currToken ? "https://cloud.openthings.io/forward/v1/" + OSApp.currToken + urlDest : OSApp.currPrefix + OSApp.currIp + urlDest,
 			type: usePOST ? "POST" : "GET",
 			data: usePOST ? getUrlVars( dest ) : null,
 			dataType: type,
@@ -618,11 +624,11 @@ function sendToOS( dest, type ) {
 		},
 		defer;
 
-	if ( currAuth ) {
+	if ( OSApp.currAuth ) {
 		$.extend( obj, {
 			beforeSend: function( xhr ) {
 				xhr.setRequestHeader(
-					"Authorization", "Basic " + btoa( currAuthUser + ":" + currAuthPass )
+					"Authorization", "Basic " + btoa( OSApp.currAuthUser + ":" + OSApp.currAuthPass )
 				);
 			}
 		} );
@@ -728,7 +734,7 @@ function newLoad() {
 			"</p>";
 
 	$.mobile.loading( "show", {
-		html: currLocal ? "<h1>" + _( "Loading" ) + "</h1>" : loading,
+		html: OSApp.currLocal ? "<h1>" + _( "Loading" ) + "</h1>" : loading,
 		textVisible: true,
 		theme: "b"
 	} );
@@ -782,7 +788,7 @@ function newLoad() {
 			}
 
 			// Show site name instead of default Information bar
-			if ( !currLocal ) {
+			if ( !OSApp.currLocal ) {
 				$( "#info-list" ).find( "li[data-role='list-divider']" ).text( name );
 				document.title = "OpenSprinkler - " + name;
 			} else {
@@ -801,7 +807,7 @@ function newLoad() {
 			}
 
 			// Check if the OpenSprinkler can be accessed from the public IP
-			if ( !currLocal && typeof OSApp.controller.settings.eip === "number" ) {
+			if ( !OSApp.currLocal && typeof OSApp.controller.settings.eip === "number" ) {
 				checkPublicAccess( OSApp.controller.settings.eip );
 			}
 
@@ -827,7 +833,7 @@ function newLoad() {
 			$.mobile.loading( "hide" );
 
 			var fail = function() {
-				if ( !currLocal ) {
+				if ( !OSApp.currLocal ) {
 					if ( $( ".ui-page-active" ).attr( "id" ) === "site-control" ) {
 						showFail();
 					} else {
@@ -1188,22 +1194,22 @@ function checkConfigured( firstLoad ) {
 		OSApp.currToken = sites[ current ].os_token;
 
 		OSApp.currIp = sites[ current ].os_ip;
-		currPass = sites[ current ].os_pw;
+		OSApp.currPass = sites[ current ].os_pw;
 
 		if ( typeof sites[ current ].ssl !== "undefined" && sites[ current ].ssl === "1" ) {
-			currPrefix = "https://";
+			OSApp.currPrefix = "https://";
 		} else {
-			currPrefix = "http://";
+			OSApp.currPrefix = "http://";
 		}
 
 		if ( typeof sites[ current ].auth_user !== "undefined" &&
 			typeof sites[ current ].auth_pw !== "undefined" ) {
 
-			currAuth = true;
-			currAuthUser = sites[ current ].auth_user;
-			currAuthPass = sites[ current ].auth_pw;
+			OSApp.currAuth = true;
+			OSApp.currAuthUser = sites[ current ].auth_user;
+			OSApp.currAuthPass = sites[ current ].auth_pw;
 		} else {
-			currAuth = false;
+			OSApp.currAuth = false;
 		}
 
 		if ( sites[ current ].is183 ) {
@@ -1220,8 +1226,8 @@ function fixPasswordHash( current ) {
 	OSApp.Storage.get( [ "sites" ], function( data ) {
 		var sites = parseSites( data.sites );
 
-		if ( !isMD5( currPass ) ) {
-			var pw = md5( currPass );
+		if ( !isMD5( OSApp.currPass ) ) {
+			var pw = md5( OSApp.currPass );
 
 			sendToOS(
 				"/sp?pw=&npw=" + encodeURIComponent( pw ) +
@@ -1232,7 +1238,7 @@ function fixPasswordHash( current ) {
 				if ( !result || result > 1 ) {
 					return false;
 				} else {
-					sites[ current ].os_pw = currPass = pw;
+					sites[ current ].os_pw = OSApp.currPass = pw;
 					OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
 				}
 			} );
@@ -1276,23 +1282,23 @@ function submitNewUser( ssl, useAuth ) {
 				}
 
 				sites[ name ].os_pw = savePW ? pw : "";
-				currPass = pw;
+				OSApp.currPass = pw;
 
 				if ( ssl ) {
 					sites[ name ].ssl = "1";
-					currPrefix = "https://";
+					OSApp.currPrefix = "https://";
 				} else {
-					currPrefix = "http://";
+					OSApp.currPrefix = "http://";
 				}
 
 				if ( useAuth ) {
 					sites[ name ].auth_user = $( "#os_auth_user" ).val();
 					sites[ name ].auth_pw = $( "#os_auth_pw" ).val();
-					currAuth = true;
-					currAuthUser = sites[ name ].auth_user;
-					currAuthPass = sites[ name ].auth_pw;
+					OSApp.currAuth = true;
+					OSApp.currAuthUser = sites[ name ].auth_user;
+					OSApp.currAuthPass = sites[ name ].auth_pw;
 				} else {
-					currAuth = false;
+					OSApp.currAuth = false;
 				}
 
 				if ( is183 === true ) {
@@ -1845,7 +1851,7 @@ var showSites = ( function() {
 
 					if ( site === data.current_site ) {
 						if ( pw !== "" ) {
-							currPass = pw;
+							OSApp.currPass = pw;
 						}
 						if ( needsReconnect ) {
 							checkConfigured();
@@ -1874,7 +1880,7 @@ var showSites = ( function() {
 								OSApp.Storage.get( "cloudToken", function() {
 									if ( data.cloudToken === null || data.cloudToken === undefined ) {
 										OSApp.currIp = "";
-										currPass = "";
+										OSApp.currPass = "";
 										changePage( "#start" );
 										return;
 									}
@@ -2892,7 +2898,7 @@ function updateWeather() {
 function checkURLandUpdateWeather() {
 	var finish = function( wsp ) {
 		if ( wsp ) {
-			OSApp.Weather.WEATHER_SERVER_URL = currPrefix + wsp;
+			OSApp.Weather.WEATHER_SERVER_URL = OSApp.currPrefix + wsp;
 		} else {
 			OSApp.Weather.WEATHER_SERVER_URL = OSApp.Weather.DEFAULT_WEATHER_SERVER_URL;
 		}
@@ -2910,7 +2916,7 @@ function checkURLandUpdateWeather() {
 		return;
 	}
 
-	return $.get( currPrefix + OSApp.currIp + "/su" ).then( function( reply ) {
+	return $.get( OSApp.currPrefix + OSApp.currIp + "/su" ).then( function( reply ) {
 		var wsp = reply.match( /value="([\w|:|/|.]+)" name=wsp/ );
 		finish( wsp ? wsp[ 1 ] : undefined );
 	} );
@@ -6382,7 +6388,7 @@ var showHome = ( function() {
 			reorderCards();
 		} );
 
-		page.find( ".sitename" ).toggleClass( "hidden", currLocal ? true : false ).text( siteSelect.val() );
+		page.find( ".sitename" ).toggleClass( "hidden", OSApp.currLocal ? true : false ).text( siteSelect.val() );
 		page.find( ".waterlevel" ).text( OSApp.controller.options.wl );
 
 		updateSensorShowArea( page );
@@ -6658,7 +6664,7 @@ function verifyRemoteStation( data, callback ) {
 	data = parseRemoteStationData( data );
 
 	$.ajax( {
-		url: ( data.otc ? ( "https://cloud.openthings.io/forward/v1/" + data.otc ) : ( "http://" + data.ip + ":" + data.port ) ) + "/jo?pw=" + encodeURIComponent( currPass ),
+		url: ( data.otc ? ( "https://cloud.openthings.io/forward/v1/" + data.otc ) : ( "http://" + data.ip + ":" + data.port ) ) + "/jo?pw=" + encodeURIComponent( OSApp.currPass ),
 		type: "GET",
 		dataType: "json"
 	} ).then(
@@ -6687,7 +6693,7 @@ function convertRemoteToExtender( data ) {
 	} else {
 		comm = "http://" + data.ip + ":" + data.port;
 	}
-	comm += "/cv?re=1&pw=" + encodeURIComponent( currPass );
+	comm += "/cv?re=1&pw=" + encodeURIComponent( OSApp.currPass );
 
 	$.ajax( {
 		url: comm,
@@ -10664,7 +10670,7 @@ function checkPW( pass, callback ) {
 	var urlDest = "/sp?pw=" + encodeURIComponent( pass ) + "&npw=" + encodeURIComponent( pass ) + "&cpw=" + encodeURIComponent( pass );
 
 	$.ajax( {
-		url: OSApp.currToken ? "https://cloud.openthings.io/forward/v1/" + OSApp.currToken + urlDest : currPrefix + OSApp.currIp + urlDest,
+		url: OSApp.currToken ? "https://cloud.openthings.io/forward/v1/" + OSApp.currToken + urlDest : OSApp.currPrefix + OSApp.currIp + urlDest,
 		cache: false,
 		crossDomain: true,
 		type: "GET"
@@ -10726,7 +10732,7 @@ function changePassword( opt ) {
 			OSApp.Storage.get( [ "sites" ], function( data ) {
 				var sites = parseSites( data.sites ),
 					success = function( pass ) {
-						currPass = pass;
+						OSApp.currPass = pass;
 						sites[ opt.name ].os_pw = popup.find( "#save_pw" ).is( ":checked" ) ? pass : "";
 						OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
 						popup.popup( "close" );
@@ -10779,7 +10785,7 @@ function changePassword( opt ) {
 					var sites = parseSites( data.sites );
 
 					sites[ data.current_site ].os_pw = npw;
-					currPass = npw;
+					OSApp.currPass = npw;
 					OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
 				} );
 				$.mobile.loading( "hide" );
@@ -10811,12 +10817,12 @@ function changePassword( opt ) {
 				var urlDest = "/jc?pw=" + pw;
 
 				$.ajax( {
-					url: OSApp.currToken ? "https://cloud.openthings.io/forward/v1/" + OSApp.currToken + urlDest : currPrefix + OSApp.currIp + urlDest,
+					url: OSApp.currToken ? "https://cloud.openthings.io/forward/v1/" + OSApp.currToken + urlDest : OSApp.currPrefix + OSApp.currIp + urlDest,
 					type: "GET",
 					dataType: "json"
 				} ).then(
 					function() {
-						sites[ current ].os_pw = currPass = pw;
+						sites[ current ].os_pw = OSApp.currPass = pw;
 						OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
 						opt.callback();
 					},
@@ -11024,7 +11030,7 @@ function cloudSyncStart() {
 
 				data.sites = parseSites( data.sites );
 
-				if ( currLocal ) {
+				if ( OSApp.currLocal ) {
 					findLocalSiteName( sites, function( result ) {
 
 						// Logout if the current site isn't matched in the cloud sites
@@ -11352,7 +11358,7 @@ function checkPublicAccess( eip ) {
 	port = ( port ? parseInt( port[ 1 ] ) : 80 );
 
 	$.ajax( {
-		url: currPrefix + ip + ":" + port + "/jo?pw=" + currPass,
+		url: OSApp.currPrefix + ip + ":" + port + "/jo?pw=" + OSApp.currPass,
 		global: false,
 		dataType: "json",
 		type: "GET"
@@ -11384,7 +11390,7 @@ function logout( success ) {
 	}
 
 	areYouSure( _( "Are you sure you want to logout?" ), "", function() {
-		if ( currLocal ) {
+		if ( OSApp.currLocal ) {
 			OSApp.Storage.remove( [ "sites", "current_site", "lang", "provider", "wapikey", "runonce", "cloudToken" ], function() {
 				location.reload();
 			} );
@@ -11407,7 +11413,7 @@ function updateLoginButtons() {
 		if ( data.cloudToken === null || data.cloudToken === undefined ) {
 			login.removeClass( "hidden" );
 
-			if ( !currLocal ) {
+			if ( !OSApp.currLocal ) {
 				logout.addClass( "hidden" );
 			}
 
@@ -11572,7 +11578,7 @@ function checkFirmwareUpdate() {
 
 								popup.find( ".update" ).on( "click", function() {
 									if ( OSApp.controller.options.hwv === 30 ) {
-										$( "<a class='hidden iab' href='" + currPrefix + OSApp.currIp + "/update'></a>" ).appendTo( popup ).click();
+										$( "<a class='hidden iab' href='" + OSApp.currPrefix + OSApp.currIp + "/update'></a>" ).appendTo( popup ).click();
 										return;
 									}
 
@@ -13172,7 +13178,7 @@ function updateLang( lang ) {
 	}
 
 	OSApp.Storage.set( { "lang":lang } );
-	currLang = lang;
+	OSApp.currLang = lang;
 
 	if ( lang === "en" ) {
 		setLang();
@@ -13245,7 +13251,7 @@ function checkCurrLang() {
 }
 
 function getAppURLPath() {
-	return currLocal ? $.mobile.path.parseUrl( $( "head" ).find( "script[src$='main.js']" ).attr( "src" ) ).hrefNoHash.slice( 0, -10 ) : "";
+	return OSApp.currLocal ? $.mobile.path.parseUrl( $( "head" ).find( "script[src$='main.js']" ).attr( "src" ) ).hrefNoHash.slice( 0, -10 ) : "";
 }
 
 function getUrlVars( url ) {
@@ -13366,7 +13372,7 @@ function dateToString( date, toUTC, shorten ) {
 		date.setMinutes( date.getMinutes() + date.getTimezoneOffset() );
 	}
 
-	if ( currLang === "de" ) {
+	if ( OSApp.currLang === "de" ) {
 		return pad( date.getDate() ) + "." + pad( date.getMonth() + 1 ) + "." +
 				date.getFullYear() + " " + pad( date.getHours() ) + ":" +
 				pad( date.getMinutes() ) + ":" + pad( date.getSeconds() );
