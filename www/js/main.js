@@ -388,7 +388,7 @@ function updateControllerPrograms( callback ) {
 					prog = progs[ i ].split( "=" );
 					prog = prog[ 1 ].replace( "[", "" );
 					prog = prog.replace( "]", "" );
-					newdata.pd[ i ] = parseIntArray( prog.split( "," ) );
+					newdata.pd[ i ] = OSApp.Utils.parseIntArray( prog.split( "," ) );
 				}
 			}
 
@@ -420,7 +420,7 @@ function updateControllerStations( callback ) {
 				names[ i ] = names[ i ].replace( /'/g, "" );
 			}
 
-			masop = parseIntArray( masop[ 1 ].split( "," ) );
+			masop = OSApp.Utils.parseIntArray( masop[ 1 ].split( "," ) );
 
 			OSApp.currentSession.controller.stations = {
 				"snames": names,
@@ -491,7 +491,7 @@ function updateControllerStatus( callback ) {
 			function( status ) {
 				var tmp = status.toString().match( /\d+/ );
 
-				tmp = parseIntArray( tmp[ 0 ].split( "" ) );
+				tmp = OSApp.Utils.parseIntArray( tmp[ 0 ].split( "" ) );
 
 				OSApp.currentSession.controller.status = tmp;
 				callback();
@@ -527,7 +527,7 @@ function updateControllerSettings( callback ) {
 
 				ps = ps[ 1 ].split( "],[" );
 				for ( i = ps.length - 1; i >= 0; i-- ) {
-					ps[ i ] = parseIntArray( ps[ i ].replace( /\[|\]/g, "" ).split( "," ) );
+					ps[ i ] = OSApp.Utils.parseIntArray( ps[ i ].replace( /\[|\]/g, "" ).split( "," ) );
 				}
 
 				while ( ( tmp = varsRegex.exec( settings ) ) !== null ) {
@@ -536,7 +536,7 @@ function updateControllerSettings( callback ) {
 
 				vars.loc = loc[ 1 ];
 				vars.ps = ps;
-				vars.lrun = parseIntArray( lrun[ 1 ].split( "," ) );
+				vars.lrun = OSApp.Utils.parseIntArray( lrun[ 1 ].split( "," ) );
 
 				OSApp.currentSession.controller.settings = vars;
 			},
@@ -940,7 +940,7 @@ function showAddNew( autoIP, closeOld ) {
 		addnew.popup( "open" );
 	}
 
-	fixInputClick( addnew );
+	OSApp.UIDom.fixInputClick( addnew );
 
 	addnew.find( ".ui-collapsible-heading-toggle" ).on( "click", function() {
 		var open = $( this ).parents( ".ui-collapsible" ).hasClass( "ui-collapsible-collapsed" ),
@@ -1488,13 +1488,13 @@ function showZimmermanAdjustmentOptions( button, callback ) {
 		}
 	} );
 
-	holdButton( popup.find( ".incr" ).children(), function( e ) {
+	OSApp.UIDom.holdButton( popup.find( ".incr" ).children(), function( e ) {
 		var pos = $( e.currentTarget ).index();
 		changeValue( pos, 1 );
 		return false;
 	} );
 
-	holdButton( popup.find( ".decr" ).children(), function( e ) {
+	OSApp.UIDom.holdButton( popup.find( ".decr" ).children(), function( e ) {
 		var pos = $( e.currentTarget ).index();
 		changeValue( pos, -1 );
 		return false;
@@ -1563,12 +1563,12 @@ function showAutoRainDelayAdjustmentOptions( button, callback ) {
 		}
 	} );
 
-	holdButton( popup.find( ".incr" ), function() {
+	OSApp.UIDom.holdButton( popup.find( ".incr" ), function() {
 		changeValue( 1 );
 		return false;
 	} );
 
-	holdButton( popup.find( ".decr" ), function() {
+	OSApp.UIDom.holdButton( popup.find( ".decr" ), function() {
 		changeValue( -1 );
 		return false;
 	} );
@@ -6400,11 +6400,11 @@ var getPreview = ( function() {
 	} );
 
 	page.one( "pagebeforeshow", function() {
-		holdButton( page.find( ".preview-plus" ), function() {
+		OSApp.UIDom.holdButton( page.find( ".preview-plus" ), function() {
 			changeday( 1 );
 		} );
 
-		holdButton( page.find( ".preview-minus" ), function() {
+		OSApp.UIDom.holdButton( page.find( ".preview-minus" ), function() {
 			changeday( -1 );
 		} );
 	} );
@@ -7677,7 +7677,7 @@ var getLogs = ( function() {
 				return false;
 			} );
 
-			fixInputClick( logsList );
+			OSApp.UIDom.fixInputClick( logsList );
 		},
 		showStats = function( stats ) {
 			if ( stats.totalCount === 0 || stats.totalRuntime === 0 ) {
@@ -8455,7 +8455,7 @@ function makeProgram183( n, isCopy ) {
 		return false;
 	} );
 
-	fixInputClick( page );
+	OSApp.UIDom.fixInputClick( page );
 
 	return page;
 }
@@ -8747,7 +8747,7 @@ function makeProgram21( n, isCopy ) {
 		} );
 	} );
 
-	fixInputClick( page );
+	OSApp.UIDom.fixInputClick( page );
 
 	return page;
 }
@@ -8837,7 +8837,7 @@ function submitProgram183( id ) {
 
 	if ( $( "#days_week-" + id ).is( ":checked" ) ) {
 		daysin = $( "#d-" + id ).val();
-		daysin = ( daysin === null ) ? [] : parseIntArray( daysin );
+		daysin = ( daysin === null ) ? [] : OSApp.Utils.parseIntArray( daysin );
 		for ( i = 0; i < 7; i++ ) {if ( $.inArray( i, daysin ) !== -1 ) {days[ 0 ] |= ( 1 << i ); }}
 		if ( days[ 0 ] === 0 ) {
 			OSApp.Errors.showError( OSApp.Language._( "Error: You have not selected any days of the week." ) );
@@ -8949,7 +8949,7 @@ function submitProgram21( id, ignoreWarning ) {
 	} else if ( $( "#days_week-" + id ).is( ":checked" ) ) {
 		j |= ( 0 << 4 );
 		daysin = $( "#d-" + id ).val();
-		daysin = ( daysin === null ) ? [] : parseIntArray( daysin );
+		daysin = ( daysin === null ) ? [] : OSApp.Utils.parseIntArray( daysin );
 		for ( i = 0; i < 7; i++ ) {
 			if ( $.inArray( i, daysin ) !== -1 ) {
 				days[ 0 ] |= ( 1 << i );
@@ -9862,13 +9862,13 @@ function showIPRequest( opt ) {
 		}
 	} );
 
-	holdButton( popup.find( ".incr" ).children(), function( e ) {
+	OSApp.UIDom.holdButton( popup.find( ".incr" ).children(), function( e ) {
 		var pos = $( e.currentTarget ).index();
 		changeValue( pos, 1 );
 		return false;
 	} );
 
-	holdButton( popup.find( ".decr" ).children(), function( e ) {
+	OSApp.UIDom.holdButton( popup.find( ".decr" ).children(), function( e ) {
 		var pos = $( e.currentTarget ).index();
 		changeValue( pos, -1 );
 		return false;
@@ -10079,13 +10079,13 @@ function showDurationBox( opt ) {
 		}
 	} );
 
-	holdButton( popup.find( ".incr" ).children(), function( e ) {
+	OSApp.UIDom.holdButton( popup.find( ".incr" ).children(), function( e ) {
 		var pos = $( e.currentTarget ).index();
 		changeValue( pos, 1 );
 		return false;
 	} );
 
-	holdButton( popup.find( ".decr" ).children(), function( e ) {
+	OSApp.UIDom.holdButton( popup.find( ".decr" ).children(), function( e ) {
 		var pos = $( e.currentTarget ).index();
 		changeValue( pos, -1 );
 		return false;
@@ -10174,11 +10174,11 @@ function showSingleDurationInput( opt ) {
 			}
 		};
 
-	holdButton( popup.find( ".incr" ), function() {
+	OSApp.UIDom.holdButton( popup.find( ".incr" ), function() {
 		changeValue( 1 );
 		return false;
 	} );
-	holdButton( popup.find( ".decr" ), function() {
+	OSApp.UIDom.holdButton( popup.find( ".decr" ), function() {
 		changeValue( -1 );
 		return false;
 	} );
@@ -10485,7 +10485,7 @@ function showTimeInput( opt ) {
 		e.target.value = $( e.target ).hasClass( "dontPad" ) ? val : OSApp.Utils.pad( val );
 	} );
 
-	holdButton( popup.find( ".incr" ).children(), function( e ) {
+	OSApp.UIDom.holdButton( popup.find( ".incr" ).children(), function( e ) {
 		var button = $( e.currentTarget ),
 			pos = button.index();
 
@@ -10496,7 +10496,7 @@ function showTimeInput( opt ) {
 		return false;
 	} );
 
-	holdButton( popup.find( ".decr" ).children(), function( e ) {
+	OSApp.UIDom.holdButton( popup.find( ".decr" ).children(), function( e ) {
 		var button = $( e.currentTarget ),
 			pos = button.index();
 
@@ -10559,11 +10559,11 @@ function showTimeInput( opt ) {
 			}
 		} );
 
-		holdButton( popup.find( ".offsetInput" ).find( ".incr" ), function() {
+		OSApp.UIDom.holdButton( popup.find( ".offsetInput" ).find( ".incr" ), function() {
 			changeOffset( 1 );
 			return false;
 		} );
-		holdButton( popup.find( ".offsetInput" ).find( ".decr" ), function() {
+		OSApp.UIDom.holdButton( popup.find( ".offsetInput" ).find( ".decr" ), function() {
 			changeOffset( -1 );
 			return false;
 		} );
@@ -10838,48 +10838,4 @@ function loadLocalSettings() {
 			default:
 		}
 	} );
-}
-
-// Accessory functions
-function fixInputClick( page ) {
-
-	// Handle Fast Click quirks
-	if ( !FastClick.notNeeded( document.body ) ) {
-		page.find( "input[type='checkbox']:not([data-role='flipswitch']),.ui-select > .ui-btn" ).addClass( "needsclick" );
-		page.find( ".ui-collapsible-heading-toggle" ).on( "click", function() {
-			var heading = $( this );
-
-			setTimeout( function() {
-				heading.removeClass( "ui-btn-active" );
-			}, 100 );
-		} );
-	}
-}
-
-// Bind buttons to allow push and hold effects
-function holdButton( target, callback ) {
-	var intervalId;
-
-	target.on( OSApp.currentDevice.isTouchCapable ? "tap" : "click", callback ).on( "taphold", function( e ) {
-		intervalId = setInterval( function() {
-			callback( e );
-		}, 100 );
-	} ).on( "vmouseup vmouseout vmousecancel touchend", function() {
-		clearInterval( intervalId );
-	} ).on( "touchmove", function( e ) {
-		e.preventDefault();
-	} );
-}
-
-// Insert style string into the DOM
-function insertStyle( style ) {
-	var a = document.createElement( "style" );
-	a.innerHTML = style;
-	document.head.appendChild( a );
-}
-
-// Convert all elements in array to integer
-function parseIntArray( arr ) {
-	for ( var i = 0; i < arr.length; i++ ) {arr[ i ] = +arr[ i ];}
-	return arr;
 }

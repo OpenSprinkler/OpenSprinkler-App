@@ -137,8 +137,8 @@ describe( "OpenSprinkler Firmware Version Functions", function() {
 } );
 
 describe( "General Function Checks", function() {
-	it( "parseIntArray(array) should convert all members into integers", function() {
-		assert.deepEqual( [ 9, 394, 29193, -1 ], parseIntArray( [ "9", "394", "29193", "-1" ] ) );
+	it( "OSApp.Utils.parseIntArray(array) should convert all members into integers", function() {
+		assert.deepEqual( [ 9, 394, 29193, -1 ], OSApp.Utils.parseIntArray( [ "9", "394", "29193", "-1" ] ) );
 	} );
 
 	it( "OSApp.Dates.sec2hms(number) should return a string representation of the difference the input represents (seconds)", function() {

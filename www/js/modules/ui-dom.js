@@ -224,7 +224,7 @@ OSApp.UIDom.launchApp = () => {
 		}
 
 		// Fix issues between jQuery Mobile and FastClick
-		fixInputClick( $newpage );
+		OSApp.UIDom.fixInputClick( $newpage );
 
 		if ( OSApp.currentSession.isControllerConnected() && newpage !== "#site-control" && newpage !== "#start" && newpage !== "#loadingPage" ) {
 
@@ -639,3 +639,41 @@ OSApp.UIDom.closePanel = ( callback = () => void 0 ) => {
 OSApp.UIDom.getAppURLPath = function() {
 	return OSApp.currentSession.local ? $.mobile.path.parseUrl( $( "head" ).find( "script[src$='main.js']" ).attr( "src" ) ).hrefNoHash.slice( 0, -10 ) : "";
 };
+
+// Accessory functions
+OSApp.UIDom.OSApp.UIDom.fixInputClick = function( page ) {
+
+	// Handle Fast Click quirks
+	if ( !FastClick.notNeeded( document.body ) ) {
+		page.find( "input[type='checkbox']:not([data-role='flipswitch']),.ui-select > .ui-btn" ).addClass( "needsclick" );
+		page.find( ".ui-collapsible-heading-toggle" ).on( "click", function() {
+			var heading = $( this );
+
+			setTimeout( function() {
+				heading.removeClass( "ui-btn-active" );
+			}, 100 );
+		} );
+	}
+}
+
+// Bind buttons to allow push and hold effects
+OSApp.UIDom.OSApp.UIDom.holdButton = function( target, callback ) {
+	var intervalId;
+
+	target.on( OSApp.currentDevice.isTouchCapable ? "tap" : "click", callback ).on( "taphold", function( e ) {
+		intervalId = setInterval( function() {
+			callback( e );
+		}, 100 );
+	} ).on( "vmouseup vmouseout vmousecancel touchend", function() {
+		clearInterval( intervalId );
+	} ).on( "touchmove", function( e ) {
+		e.preventDefault();
+	} );
+}
+
+// Insert style string into the DOM
+OSApp.UIDom.insertStyle = function( style ) {
+	var a = document.createElement( "style" );
+	a.innerHTML = style;
+	document.head.appendChild( a );
+}

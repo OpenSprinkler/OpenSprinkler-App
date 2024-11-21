@@ -1,4 +1,4 @@
-/* global readProgram, holdButton, openPopup, areYouSure, _, $ */
+/* global readProgram, areYouSure, _, $ */
 /* global changeHeader, goBack */
 /* global ApexCharts */
 /* exported checkAnalogSensorAvail, updateSensorShowArea, showAnalogSensorConfig, showAnalogSensorCharts */
@@ -250,13 +250,13 @@ OSApp.Analog.showAdjustmentsEditor = ( progAdjust, callback ) => {
 			}
 		} );
 
-		holdButton( popup.find( ".incr" ).children(), function( e ) {
+		OSApp.UIDom.holdButton( popup.find( ".incr" ).children(), function( e ) {
 			var pos = $( e.currentTarget ).index();
 			changeValue( pos, 1 );
 			return false;
 		} );
 
-		holdButton( popup.find( ".decr" ).children(), function( e ) {
+		OSApp.UIDom.holdButton( popup.find( ".decr" ).children(), function( e ) {
 			var pos = $( e.currentTarget ).index();
 			changeValue( pos, -1 );
 			return false;
@@ -460,13 +460,13 @@ OSApp.Analog.showSensorEditor = ( sensor, callback ) => {
 			}
 		} );
 
-		holdButton( popup.find( ".incr" ).children(), function( e ) {
+		OSApp.UIDom.holdButton( popup.find( ".incr" ).children(), function( e ) {
 			var pos = $( e.currentTarget ).index();
 			changeValue( pos, 1 );
 			return false;
 		} );
 
-		holdButton( popup.find( ".decr" ).children(), function( e ) {
+		OSApp.UIDom.holdButton( popup.find( ".decr" ).children(), function( e ) {
 			var pos = $( e.currentTarget ).index();
 			changeValue( pos, -1 );
 			return false;

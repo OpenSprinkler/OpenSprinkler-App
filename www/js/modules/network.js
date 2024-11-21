@@ -43,7 +43,7 @@ OSApp.Network.updateDeviceIP = ( finishCheck ) => {
 };
 
 OSApp.Network.isLocalIP = ( ip ) => {
-	var chk = parseIntArray( ip.split( "." ) );
+	var chk = OSApp.Utils.parseIntArray( ip.split( "." ) );
 
 	// Check if the IP is on a private network, if not don't enable automatic scanning
 	return ( chk[ 0 ] === 10 || chk[ 0 ] === 127 || ( chk[ 0 ] === 172 && chk[ 1 ] > 17 && chk[ 1 ] < 32 ) || ( chk[ 0 ] === 192 && chk[ 1 ] === 168 ) );
