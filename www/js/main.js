@@ -104,8 +104,10 @@ OSApp.timers = {};
 
 // Misc settings
 OSApp.curr183 = undefined;
+OSApp.currToken = undefined;
+OSApp.currIp = undefined;
 
-var currToken, currIp, currPrefix, currAuth, currPass, currAuthUser,
+var currPrefix, currAuth, currPass, currAuthUser,
 	currAuthPass, currLocal, currLang, language, deviceip, errorTimeout, weather, openPanel;
 
 if ( "serviceWorker" in navigator ) {
@@ -265,7 +267,7 @@ $( document )
 .on( "resume", function() {
 
 	// If we don't have a current device IP set, there is nothing else to update
-	if ( currIp === undefined ) {
+	if ( OSApp.currIp === undefined ) {
 		return;
 	}
 
@@ -602,7 +604,7 @@ function sendToOS( dest, type ) {
 		usePOST = ( isChange && checkOSVersion( 300 ) ),
 		urlDest = usePOST ? dest.split( "?" )[ 0 ] : dest,
 		obj = {
-			url: currToken ? "https://cloud.openthings.io/forward/v1/" + currToken + urlDest : currPrefix + currIp + urlDest,
+			url: OSApp.currToken ? "https://cloud.openthings.io/forward/v1/" + OSApp.currToken + urlDest : currPrefix + OSApp.currIp + urlDest,
 			type: usePOST ? "POST" : "GET",
 			data: usePOST ? getUrlVars( dest ) : null,
 			dataType: type,
@@ -1183,9 +1185,9 @@ function checkConfigured( firstLoad ) {
 
 		updateSiteList( names, current );
 
-		currToken = sites[ current ].os_token;
+		OSApp.currToken = sites[ current ].os_token;
 
-		currIp = sites[ current ].os_ip;
+		OSApp.currIp = sites[ current ].os_ip;
 		currPass = sites[ current ].os_pw;
 
 		if ( typeof sites[ current ].ssl !== "undefined" && sites[ current ].ssl === "1" ) {
@@ -1264,8 +1266,8 @@ function submitNewUser( ssl, useAuth ) {
 				}
 
 				sites[ name ] = {};
-				sites[ name ].os_token = currToken = token;
-				sites[ name ].os_ip = currIp = ip;
+				sites[ name ].os_token = OSApp.currToken = token;
+				sites[ name ].os_ip = OSApp.currIp = ip;
 
 				if ( typeof data.fwv === "number" && data.fwv >= 213 ) {
 					if ( typeof data.wl === "number" ) {
@@ -1871,7 +1873,7 @@ var showSites = ( function() {
 							if ( $.isEmptyObject( sites ) ) {
 								OSApp.Storage.get( "cloudToken", function() {
 									if ( data.cloudToken === null || data.cloudToken === undefined ) {
-										currIp = "";
+										OSApp.currIp = "";
 										currPass = "";
 										changePage( "#start" );
 										return;
@@ -2015,7 +2017,7 @@ function updateSite( newsite ) {
 function findLocalSiteName( sites, callback ) {
 	for ( var site in sites ) {
 		if ( sites.hasOwnProperty( site ) ) {
-			if ( currIp.indexOf( sites[ site ].os_ip ) !== -1 ) {
+			if ( OSApp.currIp.indexOf( sites[ site ].os_ip ) !== -1 ) {
 				callback( site );
 				return;
 			}
@@ -2908,7 +2910,7 @@ function checkURLandUpdateWeather() {
 		return;
 	}
 
-	return $.get( currPrefix + currIp + "/su" ).then( function( reply ) {
+	return $.get( currPrefix + OSApp.currIp + "/su" ).then( function( reply ) {
 		var wsp = reply.match( /value="([\w|:|/|.]+)" name=wsp/ );
 		finish( wsp ? wsp[ 1 ] : undefined );
 	} );
@@ -10662,7 +10664,7 @@ function checkPW( pass, callback ) {
 	var urlDest = "/sp?pw=" + encodeURIComponent( pass ) + "&npw=" + encodeURIComponent( pass ) + "&cpw=" + encodeURIComponent( pass );
 
 	$.ajax( {
-		url: currToken ? "https://cloud.openthings.io/forward/v1/" + currToken + urlDest : currPrefix + currIp + urlDest,
+		url: OSApp.currToken ? "https://cloud.openthings.io/forward/v1/" + OSApp.currToken + urlDest : currPrefix + OSApp.currIp + urlDest,
 		cache: false,
 		crossDomain: true,
 		type: "GET"
@@ -10809,7 +10811,7 @@ function changePassword( opt ) {
 				var urlDest = "/jc?pw=" + pw;
 
 				$.ajax( {
-					url: currToken ? "https://cloud.openthings.io/forward/v1/" + currToken + urlDest : currPrefix + currIp + urlDest,
+					url: OSApp.currToken ? "https://cloud.openthings.io/forward/v1/" + OSApp.currToken + urlDest : currPrefix + OSApp.currIp + urlDest,
 					type: "GET",
 					dataType: "json"
 				} ).then(
@@ -11031,10 +11033,10 @@ function cloudSyncStart() {
 								_( "Do you wish to add this location to your cloud synced site list?" ),
 								_( "This site is not found in the currently synced site list but may be added now." ),
 								function() {
-									sites[ currIp ] = data.sites.Local;
+									sites[ OSApp.currIp ] = data.sites.Local;
 									OSApp.Storage.set( { "sites": JSON.stringify( sites ) }, cloudSaveSites );
-									OSApp.Storage.set( { "current_site": currIp } );
-									updateSiteList( Object.keys( sites ), currIp );
+									OSApp.Storage.set( { "current_site": OSApp.currIp } );
+									updateSiteList( Object.keys( sites ), OSApp.currIp );
 								},
 								function() {
 									OSApp.Storage.remove( "cloudToken", updateLoginButtons );
@@ -11312,12 +11314,12 @@ function checkPublicAccess( eip ) {
 		return;
 	}
 
-	if ( currToken ) {
+	if ( OSApp.currToken ) {
 		return;
 	}
 
 	var ip = intToIP( eip ),
-		port = currIp.match( /.*:(\d+)/ ),
+		port = OSApp.currIp.match( /.*:(\d+)/ ),
 		fail = function() {
 			OSApp.Storage.get( "ignoreRemoteFailed", function( data ) {
 				if ( data.ignoreRemoteFailed !== "1" ) {
@@ -11343,7 +11345,7 @@ function checkPublicAccess( eip ) {
 			} );
 		};
 
-	if ( ip === currIp || isLocalIP( ip ) || !isLocalIP( currIp ) ) {
+	if ( ip === OSApp.currIp || isLocalIP( ip ) || !isLocalIP( OSApp.currIp ) ) {
 		return;
 	}
 
@@ -11570,7 +11572,7 @@ function checkFirmwareUpdate() {
 
 								popup.find( ".update" ).on( "click", function() {
 									if ( OSApp.controller.options.hwv === 30 ) {
-										$( "<a class='hidden iab' href='" + currPrefix + currIp + "/update'></a>" ).appendTo( popup ).click();
+										$( "<a class='hidden iab' href='" + currPrefix + OSApp.currIp + "/update'></a>" ).appendTo( popup ).click();
 										return;
 									}
 
@@ -13023,7 +13025,7 @@ function dhms2sec( arr ) {
 }
 
 function isControllerConnected() {
-	if ( ( !currIp && !currToken ) ||
+	if ( ( !OSApp.currIp && !OSApp.currToken ) ||
 		$.isEmptyObject( OSApp.controller ) ||
 		$.isEmptyObject( OSApp.controller.options ) ||
 		$.isEmptyObject( OSApp.controller.programs ) ||
