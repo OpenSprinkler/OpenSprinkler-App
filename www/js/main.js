@@ -48,6 +48,20 @@ OSApp.isTouchCapable = "ontouchstart" in window || "onmsgesturechange" in window
 OSApp.isMetric = ( [ "US", "BM", "PW" ].indexOf( navigator.languages[ 0 ].split( "-" )[ 1 ] ) === -1 );
 OSApp.groupView = false;
 
+// Current session settings
+OSApp.Session = {
+	auth: undefined,
+	authPass: undefined,
+	authUser: undefined,
+	fw183: undefined,
+	ip: undefined,
+	lang: undefined,
+	local: undefined,
+	pass: undefined,
+	prefix: undefined,
+	token: undefined,
+};
+
 // Define general regex patterns
 OSApp.Regex = {
 	gps: /^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/
@@ -103,18 +117,6 @@ OSApp.MASTER_GID_VALUE = 254;
 // UI State
 OSApp.notifications = []; // Array to hold all notifications currently displayed within the app
 OSApp.timers = {};
-
-// Current session settings
-OSApp.curr183 = undefined;
-OSApp.currToken = undefined;
-OSApp.currIp = undefined;
-OSApp.currPrefix = undefined;
-OSApp.currAuth = undefined;
-OSApp.currPass = undefined;
-OSApp.currAuthUser = undefined;
-OSApp.currAuthPass = undefined;
-OSApp.currLocal = undefined;
-OSApp.currLang = undefined;
 
 // Misc settings
 OSApp.language = undefined;
@@ -279,7 +281,7 @@ $( document )
 .on( "resume", function() {
 
 	// If we don't have a current device IP set, there is nothing else to update
-	if ( OSApp.currIp === undefined ) {
+	if ( OSApp.Session.ip === undefined ) {
 		return;
 	}
 
@@ -376,7 +378,7 @@ function initApp() {
 	updateLang();
 
 	//Set AJAX timeout
-	if ( !OSApp.currLocal ) {
+	if ( !OSApp.Session.local ) {
 		$.ajaxSetup( {
 			timeout: 10000
 		} );
@@ -542,7 +544,7 @@ function initApp() {
 	bindPanel();
 
 	// Update the IP address of the device running the app
-	if ( !OSApp.currLocal  && typeof window.cordova === "undefined" ) {
+	if ( !OSApp.Session.local  && typeof window.cordova === "undefined" ) {
 		updateDeviceIP();
 	}
 
@@ -605,7 +607,7 @@ function flipSwitched() {
 function sendToOS( dest, type ) {
 
 	// Inject password into the request
-	dest = dest.replace( "pw=", "pw=" + encodeURIComponent( OSApp.currPass ) );
+	dest = dest.replace( "pw=", "pw=" + encodeURIComponent( OSApp.Session.pass ) );
 	type = type || "text";
 
 	// Designate AJAX queue based on command type
@@ -616,7 +618,7 @@ function sendToOS( dest, type ) {
 		usePOST = ( isChange && checkOSVersion( 300 ) ),
 		urlDest = usePOST ? dest.split( "?" )[ 0 ] : dest,
 		obj = {
-			url: OSApp.currToken ? "https://cloud.openthings.io/forward/v1/" + OSApp.currToken + urlDest : OSApp.currPrefix + OSApp.currIp + urlDest,
+			url: OSApp.Session.token ? "https://cloud.openthings.io/forward/v1/" + OSApp.Session.token + urlDest : OSApp.Session.prefix + OSApp.Session.ip + urlDest,
 			type: usePOST ? "POST" : "GET",
 			data: usePOST ? getUrlVars( dest ) : null,
 			dataType: type,
@@ -630,17 +632,17 @@ function sendToOS( dest, type ) {
 		},
 		defer;
 
-	if ( OSApp.currAuth ) {
+	if ( OSApp.Session.auth ) {
 		$.extend( obj, {
 			beforeSend: function( xhr ) {
 				xhr.setRequestHeader(
-					"Authorization", "Basic " + btoa( OSApp.currAuthUser + ":" + OSApp.currAuthPass )
+					"Authorization", "Basic " + btoa( OSApp.Session.authUser + ":" + OSApp.Session.authPass )
 				);
 			}
 		} );
 	}
 
-	if ( OSApp.curr183 ) {
+	if ( OSApp.Session.fw183 ) {
 
 		// Firmware 1.8.3 has a bug handling the time stamp in the GET request
 		$.extend( obj, {
@@ -740,7 +742,7 @@ function newLoad() {
 			"</p>";
 
 	$.mobile.loading( "show", {
-		html: OSApp.currLocal ? "<h1>" + _( "Loading" ) + "</h1>" : loading,
+		html: OSApp.Session.local ? "<h1>" + _( "Loading" ) + "</h1>" : loading,
 		textVisible: true,
 		theme: "b"
 	} );
@@ -794,7 +796,7 @@ function newLoad() {
 			}
 
 			// Show site name instead of default Information bar
-			if ( !OSApp.currLocal ) {
+			if ( !OSApp.Session.local ) {
 				$( "#info-list" ).find( "li[data-role='list-divider']" ).text( name );
 				document.title = "OpenSprinkler - " + name;
 			} else {
@@ -813,7 +815,7 @@ function newLoad() {
 			}
 
 			// Check if the OpenSprinkler can be accessed from the public IP
-			if ( !OSApp.currLocal && typeof OSApp.controller.settings.eip === "number" ) {
+			if ( !OSApp.Session.local && typeof OSApp.controller.settings.eip === "number" ) {
 				checkPublicAccess( OSApp.controller.settings.eip );
 			}
 
@@ -839,7 +841,7 @@ function newLoad() {
 			$.mobile.loading( "hide" );
 
 			var fail = function() {
-				if ( !OSApp.currLocal ) {
+				if ( !OSApp.Session.local ) {
 					if ( $( ".ui-page-active" ).attr( "id" ) === "site-control" ) {
 						showFail();
 					} else {
@@ -920,7 +922,7 @@ function updateController( callback, fail ) {
 function updateControllerPrograms( callback ) {
 	callback = callback || function() {};
 
-	if ( OSApp.curr183 === true ) {
+	if ( OSApp.Session.fw183 === true ) {
 
 		// If the controller is using firmware 1.8.3, then parse the script tag for variables
 		return sendToOS( "/gp?d=0" ).done( function( programs ) {
@@ -961,7 +963,7 @@ function updateControllerPrograms( callback ) {
 function updateControllerStations( callback ) {
 	callback = callback || function() {};
 
-	if ( OSApp.curr183 === true ) {
+	if ( OSApp.Session.fw183 === true ) {
 
 		// If the controller is using firmware 1.8.3, then parse the script tag for variables
 		return sendToOS( "/vs" ).done( function( stations ) {
@@ -995,7 +997,7 @@ function updateControllerStations( callback ) {
 function updateControllerOptions( callback ) {
 	callback = callback || function() {};
 
-	if ( OSApp.curr183 === true ) {
+	if ( OSApp.Session.fw183 === true ) {
 
 		// If the controller is using firmware 1.8.3, then parse the script tag for variables
 		return sendToOS( "/vo" ).done( function( options ) {
@@ -1039,7 +1041,7 @@ function updateControllerOptions( callback ) {
 function updateControllerStatus( callback ) {
 	callback = callback || function() {};
 
-	if ( OSApp.curr183 === true ) {
+	if ( OSApp.Session.fw183 === true ) {
 
 		// If the controller is using firmware 1.8.3, then parse the script tag for variables
 		return sendToOS( "/sn0" ).then(
@@ -1069,7 +1071,7 @@ function updateControllerStatus( callback ) {
 function updateControllerSettings( callback ) {
 	callback = callback || function() {};
 
-	if ( OSApp.curr183 === true ) {
+	if ( OSApp.Session.fw183 === true ) {
 
 		// If the controller is using firmware 1.8.3, then parse the script tag for variables
 		return sendToOS( "" ).then(
@@ -1197,31 +1199,31 @@ function checkConfigured( firstLoad ) {
 
 		updateSiteList( names, current );
 
-		OSApp.currToken = sites[ current ].os_token;
+		OSApp.Session.token = sites[ current ].os_token;
 
-		OSApp.currIp = sites[ current ].os_ip;
-		OSApp.currPass = sites[ current ].os_pw;
+		OSApp.Session.ip = sites[ current ].os_ip;
+		OSApp.Session.pass = sites[ current ].os_pw;
 
 		if ( typeof sites[ current ].ssl !== "undefined" && sites[ current ].ssl === "1" ) {
-			OSApp.currPrefix = "https://";
+			OSApp.Session.prefix = "https://";
 		} else {
-			OSApp.currPrefix = "http://";
+			OSApp.Session.prefix = "http://";
 		}
 
 		if ( typeof sites[ current ].auth_user !== "undefined" &&
 			typeof sites[ current ].auth_pw !== "undefined" ) {
 
-			OSApp.currAuth = true;
-			OSApp.currAuthUser = sites[ current ].auth_user;
-			OSApp.currAuthPass = sites[ current ].auth_pw;
+			OSApp.Session.auth = true;
+			OSApp.Session.authUser = sites[ current ].auth_user;
+			OSApp.Session.authPass = sites[ current ].auth_pw;
 		} else {
-			OSApp.currAuth = false;
+			OSApp.Session.auth = false;
 		}
 
 		if ( sites[ current ].is183 ) {
-			OSApp.curr183 = true;
+			OSApp.Session.fw183 = true;
 		} else {
-			OSApp.curr183 = false;
+			OSApp.Session.fw183 = false;
 		}
 
 		newLoad();
@@ -1232,8 +1234,8 @@ function fixPasswordHash( current ) {
 	OSApp.Storage.get( [ "sites" ], function( data ) {
 		var sites = parseSites( data.sites );
 
-		if ( !isMD5( OSApp.currPass ) ) {
-			var pw = md5( OSApp.currPass );
+		if ( !isMD5( OSApp.Session.pass ) ) {
+			var pw = md5( OSApp.Session.pass );
 
 			sendToOS(
 				"/sp?pw=&npw=" + encodeURIComponent( pw ) +
@@ -1244,7 +1246,7 @@ function fixPasswordHash( current ) {
 				if ( !result || result > 1 ) {
 					return false;
 				} else {
-					sites[ current ].os_pw = OSApp.currPass = pw;
+					sites[ current ].os_pw = OSApp.Session.pass = pw;
 					OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
 				}
 			} );
@@ -1278,8 +1280,8 @@ function submitNewUser( ssl, useAuth ) {
 				}
 
 				sites[ name ] = {};
-				sites[ name ].os_token = OSApp.currToken = token;
-				sites[ name ].os_ip = OSApp.currIp = ip;
+				sites[ name ].os_token = OSApp.Session.token = token;
+				sites[ name ].os_ip = OSApp.Session.ip = ip;
 
 				if ( typeof data.fwv === "number" && data.fwv >= 213 ) {
 					if ( typeof data.wl === "number" ) {
@@ -1288,28 +1290,28 @@ function submitNewUser( ssl, useAuth ) {
 				}
 
 				sites[ name ].os_pw = savePW ? pw : "";
-				OSApp.currPass = pw;
+				OSApp.Session.pass = pw;
 
 				if ( ssl ) {
 					sites[ name ].ssl = "1";
-					OSApp.currPrefix = "https://";
+					OSApp.Session.prefix = "https://";
 				} else {
-					OSApp.currPrefix = "http://";
+					OSApp.Session.prefix = "http://";
 				}
 
 				if ( useAuth ) {
 					sites[ name ].auth_user = $( "#os_auth_user" ).val();
 					sites[ name ].auth_pw = $( "#os_auth_pw" ).val();
-					OSApp.currAuth = true;
-					OSApp.currAuthUser = sites[ name ].auth_user;
-					OSApp.currAuthPass = sites[ name ].auth_pw;
+					OSApp.Session.auth = true;
+					OSApp.Session.authUser = sites[ name ].auth_user;
+					OSApp.Session.authPass = sites[ name ].auth_pw;
 				} else {
-					OSApp.currAuth = false;
+					OSApp.Session.auth = false;
 				}
 
 				if ( is183 === true ) {
 					sites[ name ].is183 = "1";
-					OSApp.curr183 = true;
+					OSApp.Session.fw183 = true;
 				}
 
 				$( "#os_name,#os_ip,#os_pw,#os_auth_user,#os_auth_pw,#os_token" ).val( "" );
@@ -1857,7 +1859,7 @@ var showSites = ( function() {
 
 					if ( site === data.current_site ) {
 						if ( pw !== "" ) {
-							OSApp.currPass = pw;
+							OSApp.Session.pass = pw;
 						}
 						if ( needsReconnect ) {
 							checkConfigured();
@@ -1885,8 +1887,8 @@ var showSites = ( function() {
 							if ( $.isEmptyObject( sites ) ) {
 								OSApp.Storage.get( "cloudToken", function() {
 									if ( data.cloudToken === null || data.cloudToken === undefined ) {
-										OSApp.currIp = "";
-										OSApp.currPass = "";
+										OSApp.Session.ip = "";
+										OSApp.Session.pass = "";
 										changePage( "#start" );
 										return;
 									}
@@ -2029,7 +2031,7 @@ function updateSite( newsite ) {
 function findLocalSiteName( sites, callback ) {
 	for ( var site in sites ) {
 		if ( sites.hasOwnProperty( site ) ) {
-			if ( OSApp.currIp.indexOf( sites[ site ].os_ip ) !== -1 ) {
+			if ( OSApp.Session.ip.indexOf( sites[ site ].os_ip ) !== -1 ) {
 				callback( site );
 				return;
 			}
@@ -2904,7 +2906,7 @@ function updateWeather() {
 function checkURLandUpdateWeather() {
 	var finish = function( wsp ) {
 		if ( wsp ) {
-			OSApp.Weather.WEATHER_SERVER_URL = OSApp.currPrefix + wsp;
+			OSApp.Weather.WEATHER_SERVER_URL = OSApp.Session.prefix + wsp;
 		} else {
 			OSApp.Weather.WEATHER_SERVER_URL = OSApp.Weather.DEFAULT_WEATHER_SERVER_URL;
 		}
@@ -2922,7 +2924,7 @@ function checkURLandUpdateWeather() {
 		return;
 	}
 
-	return $.get( OSApp.currPrefix + OSApp.currIp + "/su" ).then( function( reply ) {
+	return $.get( OSApp.Session.prefix + OSApp.Session.ip + "/su" ).then( function( reply ) {
 		var wsp = reply.match( /value="([\w|:|/|.]+)" name=wsp/ );
 		finish( wsp ? wsp[ 1 ] : undefined );
 	} );
@@ -6394,7 +6396,7 @@ var showHome = ( function() {
 			reorderCards();
 		} );
 
-		page.find( ".sitename" ).toggleClass( "hidden", OSApp.currLocal ? true : false ).text( siteSelect.val() );
+		page.find( ".sitename" ).toggleClass( "hidden", OSApp.Session.local ? true : false ).text( siteSelect.val() );
 		page.find( ".waterlevel" ).text( OSApp.controller.options.wl );
 
 		updateSensorShowArea( page );
@@ -6670,7 +6672,7 @@ function verifyRemoteStation( data, callback ) {
 	data = parseRemoteStationData( data );
 
 	$.ajax( {
-		url: ( data.otc ? ( "https://cloud.openthings.io/forward/v1/" + data.otc ) : ( "http://" + data.ip + ":" + data.port ) ) + "/jo?pw=" + encodeURIComponent( OSApp.currPass ),
+		url: ( data.otc ? ( "https://cloud.openthings.io/forward/v1/" + data.otc ) : ( "http://" + data.ip + ":" + data.port ) ) + "/jo?pw=" + encodeURIComponent( OSApp.Session.pass ),
 		type: "GET",
 		dataType: "json"
 	} ).then(
@@ -6699,7 +6701,7 @@ function convertRemoteToExtender( data ) {
 	} else {
 		comm = "http://" + data.ip + ":" + data.port;
 	}
-	comm += "/cv?re=1&pw=" + encodeURIComponent( OSApp.currPass );
+	comm += "/cv?re=1&pw=" + encodeURIComponent( OSApp.Session.pass );
 
 	$.ajax( {
 		url: comm,
@@ -10676,7 +10678,7 @@ function checkPW( pass, callback ) {
 	var urlDest = "/sp?pw=" + encodeURIComponent( pass ) + "&npw=" + encodeURIComponent( pass ) + "&cpw=" + encodeURIComponent( pass );
 
 	$.ajax( {
-		url: OSApp.currToken ? "https://cloud.openthings.io/forward/v1/" + OSApp.currToken + urlDest : OSApp.currPrefix + OSApp.currIp + urlDest,
+		url: OSApp.Session.token ? "https://cloud.openthings.io/forward/v1/" + OSApp.Session.token + urlDest : OSApp.Session.prefix + OSApp.Session.ip + urlDest,
 		cache: false,
 		crossDomain: true,
 		type: "GET"
@@ -10738,7 +10740,7 @@ function changePassword( opt ) {
 			OSApp.Storage.get( [ "sites" ], function( data ) {
 				var sites = parseSites( data.sites ),
 					success = function( pass ) {
-						OSApp.currPass = pass;
+						OSApp.Session.pass = pass;
 						sites[ opt.name ].os_pw = popup.find( "#save_pw" ).is( ":checked" ) ? pass : "";
 						OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
 						popup.popup( "close" );
@@ -10791,7 +10793,7 @@ function changePassword( opt ) {
 					var sites = parseSites( data.sites );
 
 					sites[ data.current_site ].os_pw = npw;
-					OSApp.currPass = npw;
+					OSApp.Session.pass = npw;
 					OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
 				} );
 				$.mobile.loading( "hide" );
@@ -10823,12 +10825,12 @@ function changePassword( opt ) {
 				var urlDest = "/jc?pw=" + pw;
 
 				$.ajax( {
-					url: OSApp.currToken ? "https://cloud.openthings.io/forward/v1/" + OSApp.currToken + urlDest : OSApp.currPrefix + OSApp.currIp + urlDest,
+					url: OSApp.Session.token ? "https://cloud.openthings.io/forward/v1/" + OSApp.Session.token + urlDest : OSApp.Session.prefix + OSApp.Session.ip + urlDest,
 					type: "GET",
 					dataType: "json"
 				} ).then(
 					function() {
-						sites[ current ].os_pw = OSApp.currPass = pw;
+						sites[ current ].os_pw = OSApp.Session.pass = pw;
 						OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
 						opt.callback();
 					},
@@ -11036,7 +11038,7 @@ function cloudSyncStart() {
 
 				data.sites = parseSites( data.sites );
 
-				if ( OSApp.currLocal ) {
+				if ( OSApp.Session.local ) {
 					findLocalSiteName( sites, function( result ) {
 
 						// Logout if the current site isn't matched in the cloud sites
@@ -11045,10 +11047,10 @@ function cloudSyncStart() {
 								_( "Do you wish to add this location to your cloud synced site list?" ),
 								_( "This site is not found in the currently synced site list but may be added now." ),
 								function() {
-									sites[ OSApp.currIp ] = data.sites.Local;
+									sites[ OSApp.Session.ip ] = data.sites.Local;
 									OSApp.Storage.set( { "sites": JSON.stringify( sites ) }, cloudSaveSites );
-									OSApp.Storage.set( { "current_site": OSApp.currIp } );
-									updateSiteList( Object.keys( sites ), OSApp.currIp );
+									OSApp.Storage.set( { "current_site": OSApp.Session.ip } );
+									updateSiteList( Object.keys( sites ), OSApp.Session.ip );
 								},
 								function() {
 									OSApp.Storage.remove( "cloudToken", updateLoginButtons );
@@ -11326,12 +11328,12 @@ function checkPublicAccess( eip ) {
 		return;
 	}
 
-	if ( OSApp.currToken ) {
+	if ( OSApp.Session.token ) {
 		return;
 	}
 
 	var ip = intToIP( eip ),
-		port = OSApp.currIp.match( /.*:(\d+)/ ),
+		port = OSApp.Session.ip.match( /.*:(\d+)/ ),
 		fail = function() {
 			OSApp.Storage.get( "ignoreRemoteFailed", function( data ) {
 				if ( data.ignoreRemoteFailed !== "1" ) {
@@ -11357,14 +11359,14 @@ function checkPublicAccess( eip ) {
 			} );
 		};
 
-	if ( ip === OSApp.currIp || isLocalIP( ip ) || !isLocalIP( OSApp.currIp ) ) {
+	if ( ip === OSApp.Session.ip || isLocalIP( ip ) || !isLocalIP( OSApp.Session.ip ) ) {
 		return;
 	}
 
 	port = ( port ? parseInt( port[ 1 ] ) : 80 );
 
 	$.ajax( {
-		url: OSApp.currPrefix + ip + ":" + port + "/jo?pw=" + OSApp.currPass,
+		url: OSApp.Session.prefix + ip + ":" + port + "/jo?pw=" + OSApp.Session.pass,
 		global: false,
 		dataType: "json",
 		type: "GET"
@@ -11396,7 +11398,7 @@ function logout( success ) {
 	}
 
 	areYouSure( _( "Are you sure you want to logout?" ), "", function() {
-		if ( OSApp.currLocal ) {
+		if ( OSApp.Session.local ) {
 			OSApp.Storage.remove( [ "sites", "current_site", "lang", "provider", "wapikey", "runonce", "cloudToken" ], function() {
 				location.reload();
 			} );
@@ -11419,7 +11421,7 @@ function updateLoginButtons() {
 		if ( data.cloudToken === null || data.cloudToken === undefined ) {
 			login.removeClass( "hidden" );
 
-			if ( !OSApp.currLocal ) {
+			if ( !OSApp.Session.local ) {
 				logout.addClass( "hidden" );
 			}
 
@@ -11584,7 +11586,7 @@ function checkFirmwareUpdate() {
 
 								popup.find( ".update" ).on( "click", function() {
 									if ( OSApp.controller.options.hwv === 30 ) {
-										$( "<a class='hidden iab' href='" + OSApp.currPrefix + OSApp.currIp + "/update'></a>" ).appendTo( popup ).click();
+										$( "<a class='hidden iab' href='" + OSApp.Session.prefix + OSApp.Session.ip + "/update'></a>" ).appendTo( popup ).click();
 										return;
 									}
 
@@ -13037,7 +13039,7 @@ function dhms2sec( arr ) {
 }
 
 function isControllerConnected() {
-	if ( ( !OSApp.currIp && !OSApp.currToken ) ||
+	if ( ( !OSApp.Session.ip && !OSApp.Session.token ) ||
 		$.isEmptyObject( OSApp.controller ) ||
 		$.isEmptyObject( OSApp.controller.options ) ||
 		$.isEmptyObject( OSApp.controller.programs ) ||
@@ -13184,7 +13186,7 @@ function updateLang( lang ) {
 	}
 
 	OSApp.Storage.set( { "lang":lang } );
-	OSApp.currLang = lang;
+	OSApp.Session.lang = lang;
 
 	if ( lang === "en" ) {
 		setLang();
@@ -13257,7 +13259,7 @@ function checkCurrLang() {
 }
 
 function getAppURLPath() {
-	return OSApp.currLocal ? $.mobile.path.parseUrl( $( "head" ).find( "script[src$='main.js']" ).attr( "src" ) ).hrefNoHash.slice( 0, -10 ) : "";
+	return OSApp.Session.local ? $.mobile.path.parseUrl( $( "head" ).find( "script[src$='main.js']" ).attr( "src" ) ).hrefNoHash.slice( 0, -10 ) : "";
 }
 
 function getUrlVars( url ) {
@@ -13378,7 +13380,7 @@ function dateToString( date, toUTC, shorten ) {
 		date.setMinutes( date.getMinutes() + date.getTimezoneOffset() );
 	}
 
-	if ( OSApp.currLang === "de" ) {
+	if ( OSApp.Session.lang === "de" ) {
 		return pad( date.getDate() ) + "." + pad( date.getMonth() + 1 ) + "." +
 				date.getFullYear() + " " + pad( date.getHours() ) + ":" +
 				pad( date.getMinutes() ) + ":" + pad( date.getSeconds() );
