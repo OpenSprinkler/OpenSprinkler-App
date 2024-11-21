@@ -53,7 +53,7 @@ OSApp.Groups.numActiveStations = function( gid ) {
 
 	$.each( activeCards, function( index ) {
 		var activeCard = $( activeCards[ index ] );
-		if ( Card.getGIDValue( activeCard ) === gid && !Card.isMasterStation( activeCard ) ) {
+		if ( OSApp.Cards.getGIDValue( activeCard ) === gid && !OSApp.Cards.isMasterStation( activeCard ) ) {
 			numMatchingCards++;
 		}
 	} );

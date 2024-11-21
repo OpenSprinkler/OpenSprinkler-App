@@ -424,7 +424,7 @@ OSApp.Network.cloudLogin = ( user, pass, callback = () => void 0 ) => {
 	} );
 };
 
-OSApp.Network.cloudSaveSites = ( callback = () => void 0 ) => {
+OSApp.Network.cloudSaveSites = ( callback = function() {} ) => {
 	OSApp.Storage.get( [ "cloudToken", "cloudDataToken", "sites" ], function( data ) {
 		if ( data.cloudToken === null || data.cloudToken === undefined ) {
 			callback( false );
