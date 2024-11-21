@@ -29,61 +29,10 @@ OSApp.isTouchCapable = "ontouchstart" in window || "onmsgesturechange" in window
 OSApp.isMetric = ( [ "US", "BM", "PW" ].indexOf( navigator.languages[ 0 ].split( "-" )[ 1 ] ) === -1 );
 OSApp.groupView = false;
 
-// Initialize global variables
-var storage = {
-		get: function( query, callback ) {
-			callback = callback || function() {};
+// TODO: refactor away all direct usage of localstorage in favor of OSApp.Storage
 
-			var data = {},
-				i;
-
-			if ( typeof query === "string" ) {
-				query = [ query ];
-			}
-
-			for ( i in query ) {
-				if ( query.hasOwnProperty( i ) ) {
-					data[ query[ i ] ] = localStorage.getItem( query[ i ] );
-				}
-			}
-
-			callback( data );
-		},
-		set: function( query, callback ) {
-			callback = callback || function() {};
-
-			var i;
-			if ( typeof query === "object" ) {
-				for ( i in query ) {
-					if ( query.hasOwnProperty( i ) ) {
-						localStorage.setItem( i, query[ i ] );
-					}
-				}
-			}
-
-			callback( true );
-		},
-		remove: function( query, callback ) {
-			callback = callback || function() {};
-
-			var i;
-
-			if ( typeof query === "string" ) {
-				query = [ query ];
-			}
-
-			for ( i in query ) {
-				if ( query.hasOwnProperty( i ) ) {
-					localStorage.removeItem( query[ i ] );
-				}
-			}
-
-			callback( true );
-		}
-	},
-
-	// Define general regex patterns
-	regex = {
+// Define general regex patterns
+var regex = {
 		gps: /^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/
 	},
 
@@ -328,7 +277,7 @@ $( document )
 		$( "#header,#footer,#footer-menu" ).show();
 	}
 
-	storage.get( "showDisabled", function( data ) {
+	OSApp.Storage.get( "showDisabled", function( data ) {
 		if ( data.showDisabled && data.showDisabled === "true" ) {
 			$( newpage ).addClass( "show-hidden" ).find( ".station-hidden" ).show();
 		} else {
@@ -868,7 +817,7 @@ function newLoad() {
 						} );
 					}
 				} else {
-					storage.remove( [ "sites" ], function() {
+					OSApp.Storage.remove( [ "sites" ], function() {
 						window.location.reload();
 					} );
 				}
@@ -1182,7 +1131,7 @@ function updateControllerStationSpecial( callback ) {
 
 // Multi site functions
 function checkConfigured( firstLoad ) {
-	storage.get( [ "sites", "current_site", "cloudToken" ], function( data ) {
+	OSApp.Storage.get( [ "sites", "current_site", "cloudToken" ], function( data ) {
 		var sites = data.sites,
 			current = data.current_site,
 			names;
@@ -1248,7 +1197,7 @@ function checkConfigured( firstLoad ) {
 }
 
 function fixPasswordHash( current ) {
-	storage.get( [ "sites" ], function( data ) {
+	OSApp.Storage.get( [ "sites" ], function( data ) {
 		var sites = parseSites( data.sites );
 
 		if ( !isMD5( currPass ) ) {
@@ -1264,7 +1213,7 @@ function fixPasswordHash( current ) {
 					return false;
 				} else {
 					sites[ current ].os_pw = currPass = pw;
-					storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
+					OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
 				}
 			} );
 		}
@@ -1332,7 +1281,7 @@ function submitNewUser( ssl, useAuth ) {
 				}
 
 				$( "#os_name,#os_ip,#os_pw,#os_auth_user,#os_auth_pw,#os_token" ).val( "" );
-				storage.set( {
+				OSApp.Storage.set( {
 					"sites": JSON.stringify( sites ),
 					"current_site": name
 				}, function() {
@@ -1461,7 +1410,7 @@ function submitNewUser( ssl, useAuth ) {
 					}
 				},
 				success: function( reply ) {
-					storage.get( "sites", function( data ) {
+					OSApp.Storage.get( "sites", function( data ) {
 						var sites = parseSites( data.sites );
 						success( reply, sites );
 					} );
@@ -1470,7 +1419,7 @@ function submitNewUser( ssl, useAuth ) {
 			} );
 		},
 		success: function( reply ) {
-			storage.get( "sites", function( data ) {
+			OSApp.Storage.get( "sites", function( data ) {
 				var sites = parseSites( data.sites );
 				success( reply, sites );
 			} );
@@ -1673,7 +1622,7 @@ var showSites = ( function() {
 	} );
 
 	function updateContent() {
-		storage.get( [ "sites", "current_site", "cloudToken" ], function( data ) {
+		OSApp.Storage.get( [ "sites", "current_site", "cloudToken" ], function( data ) {
 			sites = parseSites( data.sites );
 
 			if ( $.isEmptyObject( sites ) ) {
@@ -1862,7 +1811,7 @@ var showSites = ( function() {
 						delete sites[ site ];
 						site = nm;
 						if ( isCurrent ) {
-							storage.set( { "current_site":site } );
+							OSApp.Storage.set( { "current_site":site } );
 							data.current_site = site;
 						}
 						updateSiteList( Object.keys( sites ), data.current_site );
@@ -1870,7 +1819,7 @@ var showSites = ( function() {
 						//SendToOS( "/cv?pw=&cn=" + data.current_site );
 					}
 
-					storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
+					OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
 
 					showerror( _( "Site updated successfully" ) );
 
@@ -1898,11 +1847,11 @@ var showSites = ( function() {
 						}
 
 						delete sites[ site ];
-						storage.set( { "sites":JSON.stringify( sites ) }, function() {
+						OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, function() {
 							cloudSaveSites();
 							updateSiteList( Object.keys( sites ), data.current_site );
 							if ( $.isEmptyObject( sites ) ) {
-								storage.get( "cloudToken", function() {
+								OSApp.Storage.get( "cloudToken", function() {
 									if ( data.cloudToken === null || data.cloudToken === undefined ) {
 										currIp = "";
 										currPass = "";
@@ -2035,11 +1984,11 @@ function updateSiteList( names, current ) {
 
 // Change the current site
 function updateSite( newsite ) {
-	storage.get( "sites", function( data ) {
+	OSApp.Storage.get( "sites", function( data ) {
 		var sites = parseSites( data.sites );
 		if ( newsite in sites ) {
 			closePanel( function() {
-				storage.set( { "current_site":newsite }, checkConfigured );
+				OSApp.Storage.set( { "current_site":newsite }, checkConfigured );
 			} );
 		}
 	} );
@@ -2112,7 +2061,7 @@ function startScan( port, type ) {
 	type = type || 0;
 	port = ( typeof port === "number" ) ? port : 80;
 
-	storage.get( "sites", function( data ) {
+	OSApp.Storage.get( "sites", function( data ) {
 		var oldsites = parseSites( data.sites ),
 			i;
 
@@ -3614,7 +3563,7 @@ function bindPanel() {
 	} );
 
 	panel.find( ".import_config" ).on( "click", function() {
-		storage.get( "backup", function( newdata ) {
+		OSApp.Storage.get( "backup", function( newdata ) {
 			getImportMethod( newdata.backup );
 		} );
 
@@ -3658,7 +3607,7 @@ function bindPanel() {
 			var url = "http://rayshobby.net/scripts/java/svc" + getOSVersion();
 
 			sendToOS( "/cu?jsp=" + encodeURIComponent( url ) + "&pw=" ).done( function() {
-				storage.remove( [ "sites", "current_site", "lang", "provider", "wapikey", "runonce" ] );
+				OSApp.Storage.remove( [ "sites", "current_site", "lang", "provider", "wapikey", "runonce" ] );
 				location.reload();
 			} );
 		} );
@@ -3855,11 +3804,11 @@ function showOptions( expandItem ) {
 						break;
 					case "isMetric":
 						OSApp.isMetric = $item.is( ":checked" );
-						storage.set( { isMetric: OSApp.isMetric } );
+						OSApp.Storage.set( { isMetric: OSApp.isMetric } );
 						return true;
 					case "groupView":
 						OSApp.groupView = $item.is( ":checked" );
-						storage.set( { "groupView": OSApp.groupView } );
+						OSApp.Storage.set( { "groupView": OSApp.groupView } );
 						return true;
 					case "o12":
 						if ( !isPi ) {
@@ -4551,7 +4500,7 @@ function showOptions( expandItem ) {
 	} );
 
 	page.find( "#showDisabled" ).on( "change", function() {
-		storage.set( { showDisabled: this.checked } );
+		OSApp.Storage.set( { showDisabled: this.checked } );
 		return false;
 	} );
 
@@ -4705,14 +4654,14 @@ function showOptions( expandItem ) {
 
 		areYouSure( _( "Are you sure you want to reset station attributes?" ), _( "This will reset all station attributes" ), function() {
 			$.mobile.loading( "show" );
-			storage.get( [ "sites", "current_site" ], function( data ) {
+			OSApp.Storage.get( [ "sites", "current_site" ], function( data ) {
 				var sites = parseSites( data.sites );
 
 				sites[ data.current_site ].notes = {};
 				sites[ data.current_site ].images = {};
 				sites[ data.current_site ].lastRunTime = {};
 
-				storage.set( { "sites": JSON.stringify( sites ) }, cloudSaveSites );
+				OSApp.Storage.set( { "sites": JSON.stringify( sites ) }, cloudSaveSites );
 			} );
 			sendToOS( "/cs?pw=&" + cs ).done( function() {
 				showerror( _( "Stations have been updated" ) );
@@ -5763,7 +5712,7 @@ var showHome = ( function() {
 
 					// Update the notes section
 					sites[ currentSite ].notes[ sid ] = select.find( "#stn-notes" ).val();
-					storage.set( { "sites": JSON.stringify( sites ) }, cloudSaveSites );
+					OSApp.Storage.set( { "sites": JSON.stringify( sites ) }, cloudSaveSites );
 
 					submitStations( sid );
 					select.popup( "destroy" ).remove();
@@ -5965,7 +5914,7 @@ var showHome = ( function() {
 
 				getPicture( function( image ) {
 					sites[ currentSite ].images[ sid ] = image;
-					storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
+					OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
 					updateContent();
 
 					button.innerHTML =  _( "Change" ) + " " + _( "Image" );
@@ -6372,7 +6321,7 @@ var showHome = ( function() {
 			callback = callback || function() {};
 
 			currentSite = siteSelect.val();
-			storage.get( "sites", function( data ) {
+			OSApp.Storage.get( "sites", function( data ) {
 				sites = parseSites( data.sites );
 				if ( typeof sites[ currentSite ].images !== "object" || $.isEmptyObject( sites[ currentSite ].images ) ) {
 					sites[ currentSite ].images = {};
@@ -6474,7 +6423,7 @@ var showHome = ( function() {
 
 								// Save run time for this station
 								sites[ currentSite ].lastRunTime[ sid ] = duration;
-								storage.set( { "sites": JSON.stringify( sites ) }, cloudSaveSites );
+								OSApp.Storage.set( { "sites": JSON.stringify( sites ) }, cloudSaveSites );
 							} );
 						}
 					} );
@@ -6510,13 +6459,13 @@ var showHome = ( function() {
 			if ( hasImage ) {
 				areYouSure( _( "Do you want to delete the current image?" ), "", function() {
 					delete sites[ currentSite ].images[ id ];
-					storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
+					OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
 					updateContent();
 				} );
 			} else {
 				getPicture( function( image ) {
 					sites[ currentSite ].images[ id ] = image;
-					storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
+					OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
 					updateContent();
 				} );
 			}
@@ -7183,7 +7132,7 @@ var getManual = ( function() {
 		page.detach();
 	} );
 
-	storage.get( "autoOff", function( data ) {
+	OSApp.Storage.get( "autoOff", function( data ) {
 		if ( !data.autoOff ) {
 			return;
 		}
@@ -7201,7 +7150,7 @@ var getManual = ( function() {
 			callback: function( result ) {
 				dur.val( result );
 				dur.text( dhms2str( sec2dhms( result ) ) );
-				storage.set( { "autoOff":result } );
+				OSApp.Storage.set( { "autoOff":result } );
 			},
 			maximum: 32768
 		} );
@@ -7349,7 +7298,7 @@ var getRunonce = ( function() {
 				updateLastRun( controller.settings.rodur );
 			}
 		} else {
-			storage.get( "runonce", function( data ) {
+			OSApp.Storage.get( "runonce", function( data ) {
 				data = data.runonce;
 				if ( data ) {
 					data = JSON.parse( data );
@@ -7442,7 +7391,7 @@ function submitRunonce( runonce ) {
 
 	var submit = function() {
 			$.mobile.loading( "show" );
-			storage.set( { "runonce":JSON.stringify( runonce ) } );
+			OSApp.Storage.set( { "runonce":JSON.stringify( runonce ) } );
 			sendToOS( "/cr?pw=&t=" + JSON.stringify( runonce ) ).done( function() {
 				$.mobile.loading( "hide" );
 				$.mobile.document.one( "pageshow", function() {
@@ -10205,7 +10154,7 @@ function getExportMethod() {
 
 	popup.find( ".localMethod" ).on( "click", function() {
 		popup.popup( "close" );
-		storage.set( { "backup":JSON.stringify( controller ) }, function() {
+		OSApp.Storage.set( { "backup":JSON.stringify( controller ) }, function() {
 			showerror( _( "Backup saved on this device" ) );
 		} );
 	} );
@@ -10754,12 +10703,12 @@ function changePassword( opt ) {
 		if ( opt.fixIncorrect === true ) {
 			didSubmit = true;
 
-			storage.get( [ "sites" ], function( data ) {
+			OSApp.Storage.get( [ "sites" ], function( data ) {
 				var sites = parseSites( data.sites ),
 					success = function( pass ) {
 						currPass = pass;
 						sites[ opt.name ].os_pw = popup.find( "#save_pw" ).is( ":checked" ) ? pass : "";
-						storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
+						OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
 						popup.popup( "close" );
 						opt.callback();
 					};
@@ -10806,12 +10755,12 @@ function changePassword( opt ) {
 					showerror( _( "Unable to change password. Please try again." ) );
 				}
 			} else {
-				storage.get( [ "sites", "current_site" ], function( data ) {
+				OSApp.Storage.get( [ "sites", "current_site" ], function( data ) {
 					var sites = parseSites( data.sites );
 
 					sites[ data.current_site ].os_pw = npw;
 					currPass = npw;
-					storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
+					OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
 				} );
 				$.mobile.loading( "hide" );
 				popup.popup( "close" );
@@ -10833,7 +10782,7 @@ function changePassword( opt ) {
 	if ( opt.fixIncorrect ) {
 
 		// Hash password and try again, if it fails then show the password prompt popup
-		storage.get( [ "sites", "current_site" ], function( data ) {
+		OSApp.Storage.get( [ "sites", "current_site" ], function( data ) {
 			var sites = parseSites( data.sites ),
 				current = data.current_site,
 				pw = md5( sites[ current ].os_pw );
@@ -10848,7 +10797,7 @@ function changePassword( opt ) {
 				} ).then(
 					function() {
 						sites[ current ].os_pw = currPass = pw;
-						storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
+						OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
 						opt.callback();
 					},
 					function() {
@@ -10929,7 +10878,7 @@ function cloudLogin( user, pass, callback ) {
 		},
 		success: function( data ) {
 			if ( typeof data.token === "string" ) {
-				storage.set( {
+				OSApp.Storage.set( {
 					"cloudToken": data.token,
 					"cloudDataToken": sjcl.codec.hex.fromBits( sjcl.hash.sha256.hash( pass ) )
 				} );
@@ -10947,7 +10896,7 @@ function cloudSaveSites( callback ) {
 		callback = function() {};
 	}
 
-	storage.get( [ "cloudToken", "cloudDataToken", "sites" ], function( data ) {
+	OSApp.Storage.get( [ "cloudToken", "cloudDataToken", "sites" ], function( data ) {
 		if ( data.cloudToken === null || data.cloudToken === undefined ) {
 			callback( false );
 			return;
@@ -10969,7 +10918,7 @@ function cloudSaveSites( callback ) {
 					}
 					callback( false, data.message );
 				} else {
-					storage.set( { "cloudToken":data.token } );
+					OSApp.Storage.set( { "cloudToken":data.token } );
 					callback( data.success );
 				}
 			},
@@ -10983,7 +10932,7 @@ function cloudSaveSites( callback ) {
 function cloudGetSites( callback ) {
 	callback = callback || function() {};
 
-	storage.get( [ "cloudToken", "cloudDataToken" ], function( local ) {
+	OSApp.Storage.get( [ "cloudToken", "cloudDataToken" ], function( local ) {
 		if ( local.cloudToken === undefined || local.cloudToken === null ) {
 			callback( false );
 			return;
@@ -11010,7 +10959,7 @@ function cloudGetSites( callback ) {
 					}
 					callback( false, data.message );
 				} else {
-					storage.set( { "cloudToken":data.token } );
+					OSApp.Storage.set( { "cloudToken":data.token } );
 					var sites;
 
 					try {
@@ -11042,13 +10991,13 @@ function cloudSyncStart() {
 
 		if ( page === "start" ) {
 			if ( Object.keys( sites ).length > 0 ) {
-				storage.set( { "sites":JSON.stringify( sites ) } );
+				OSApp.Storage.set( { "sites":JSON.stringify( sites ) } );
 			}
 			changePage( "#site-control" );
 		} else {
 			updateLoginButtons();
 
-			storage.get( "sites", function( data ) {
+			OSApp.Storage.get( "sites", function( data ) {
 				if ( JSON.stringify( sites ) === data.sites ) {
 					return;
 				}
@@ -11065,17 +11014,17 @@ function cloudSyncStart() {
 								_( "This site is not found in the currently synced site list but may be added now." ),
 								function() {
 									sites[ currIp ] = data.sites.Local;
-									storage.set( { "sites": JSON.stringify( sites ) }, cloudSaveSites );
-									storage.set( { "current_site": currIp } );
+									OSApp.Storage.set( { "sites": JSON.stringify( sites ) }, cloudSaveSites );
+									OSApp.Storage.set( { "current_site": currIp } );
 									updateSiteList( Object.keys( sites ), currIp );
 								},
 								function() {
-									storage.remove( "cloudToken", updateLoginButtons );
+									OSApp.Storage.remove( "cloudToken", updateLoginButtons );
 								}
 							 );
 						} else {
-							storage.set( { "sites": JSON.stringify( sites ) }, cloudSaveSites );
-							storage.set( { "current_site": result } );
+							OSApp.Storage.set( { "sites": JSON.stringify( sites ) }, cloudSaveSites );
+							OSApp.Storage.set( { "current_site": result } );
 							updateSiteList( Object.keys( sites ), result );
 						}
 					} );
@@ -11096,7 +11045,7 @@ function cloudSyncStart() {
 							"</div>" +
 						"</div>" ),
 						finish = function() {
-							storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
+							OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
 							popup.popup( "close" );
 
 							if ( page === "site-control" ) {
@@ -11137,14 +11086,14 @@ function cloudSync( callback ) {
 		callback = function() {};
 	}
 
-	storage.get( [ "cloudToken", "current_site" ], function( local ) {
+	OSApp.Storage.get( [ "cloudToken", "current_site" ], function( local ) {
 		if ( typeof local.cloudToken !== "string" ) {
 			return;
 		}
 
 		cloudGetSites( function( data ) {
 			if ( data !== false ) {
-				storage.set( { "sites":JSON.stringify( data ) }, function() {
+				OSApp.Storage.set( { "sites":JSON.stringify( data ) }, function() {
 					updateSiteList( Object.keys( data ), local.current_site );
 					callback();
 
@@ -11211,7 +11160,7 @@ function handleCorruptedWeatherOptions( wto ) {
 }
 
 function handleExpiredLogin() {
-	storage.remove( [ "cloudToken" ], updateLoginButtons );
+	OSApp.Storage.remove( [ "cloudToken" ], updateLoginButtons );
 
 	addNotification( {
 		title: _( "OpenSprinkler.com Login Expired" ),
@@ -11234,7 +11183,7 @@ function handleExpiredLogin() {
 }
 
 function handleInvalidDataToken() {
-	storage.remove( [ "cloudDataToken" ] );
+	OSApp.Storage.remove( [ "cloudDataToken" ] );
 
 	addNotification( {
 		title: _( "Unable to read cloud data" ),
@@ -11258,7 +11207,7 @@ function handleInvalidDataToken() {
 			popup.find( "form" ).on( "submit", function() {
 				removeNotification( button );
 				didSubmit = true;
-				storage.set( {
+				OSApp.Storage.set( {
 					"cloudDataToken": sjcl.codec.hex.fromBits( sjcl.hash.sha256.hash( popup.find( "#dataPasswordInput" ).val() ) )
 				}, function() {
 					popup.popup( "close" );
@@ -11309,7 +11258,7 @@ function showUnifiedFirmwareNotification() {
 		return;
 	}
 
-	storage.get( "ignoreUnifiedFirmware", function( data ) {
+	OSApp.Storage.get( "ignoreUnifiedFirmware", function( data ) {
 		if ( data.ignoreUnifiedFirmware !== "1" ) {
 
 			// Unable to access the device using it's public IP
@@ -11325,7 +11274,7 @@ function showUnifiedFirmwareNotification() {
 					return false;
 				},
 				off: function() {
-					storage.set( { "ignoreUnifiedFirmware": "1" } );
+					OSApp.Storage.set( { "ignoreUnifiedFirmware": "1" } );
 					return true;
 				}
 			} );
@@ -11352,7 +11301,7 @@ function checkPublicAccess( eip ) {
 	var ip = intToIP( eip ),
 		port = currIp.match( /.*:(\d+)/ ),
 		fail = function() {
-			storage.get( "ignoreRemoteFailed", function( data ) {
+			OSApp.Storage.get( "ignoreRemoteFailed", function( data ) {
 				if ( data.ignoreRemoteFailed !== "1" ) {
 
 					// Unable to access the device using it's public IP
@@ -11368,7 +11317,7 @@ function checkPublicAccess( eip ) {
 							return false;
 						},
 						off: function() {
-							storage.set( { "ignoreRemoteFailed": "1" } );
+							OSApp.Storage.set( { "ignoreRemoteFailed": "1" } );
 							return true;
 						}
 					} );
@@ -11396,13 +11345,13 @@ function checkPublicAccess( eip ) {
 			}
 
 			// Public IP worked, update device IP to use the public IP instead
-			// storage.get( [ "sites", "current_site" ], function( data ) {
+			// OSApp.Storage.get( [ "sites", "current_site" ], function( data ) {
 			// 	var sites = parseSites( data.sites ),
 			// 		current = data.current_site;
 
 			// 	sites[ current ].os_ip = ip + ( port === 80 ? "" : ":" + port );
 
-			// 	storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
+			// 	OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
 			// } );
 		},
 		fail
@@ -11416,11 +11365,11 @@ function logout( success ) {
 
 	areYouSure( _( "Are you sure you want to logout?" ), "", function() {
 		if ( currLocal ) {
-			storage.remove( [ "sites", "current_site", "lang", "provider", "wapikey", "runonce", "cloudToken" ], function() {
+			OSApp.Storage.remove( [ "sites", "current_site", "lang", "provider", "wapikey", "runonce", "cloudToken" ], function() {
 				location.reload();
 			} );
 		} else {
-			storage.remove( [ "cloudToken" ], function() {
+			OSApp.Storage.remove( [ "cloudToken" ], function() {
 				updateLoginButtons();
 				success();
 			} );
@@ -11431,7 +11380,7 @@ function logout( success ) {
 function updateLoginButtons() {
 	var page = $( ".ui-page-active" );
 
-	storage.get( "cloudToken", function( data ) {
+	OSApp.Storage.get( "cloudToken", function( data ) {
 		var login = $( ".login-button" ),
 			logout = $( ".logout-button" );
 
@@ -11568,7 +11517,7 @@ function checkFirmwareUpdate() {
 			if ( controller.options.fwv < data[ 0 ].tag_name ) {
 
 				// Grab a local storage variable which defines the firmware version for the last dismissed update
-				storage.get( "updateDismiss", function( flag ) {
+				OSApp.Storage.get( "updateDismiss", function( flag ) {
 
 					// If the variable does not exist or is lower than the newest update, show the update notification
 					if ( !flag.updateDismiss || flag.updateDismiss < data[ 0 ].tag_name ) {
@@ -11639,7 +11588,7 @@ function checkFirmwareUpdate() {
 								popup.find( ".dismiss" ).one( "click", function() {
 
 									// Update the notification dismiss variable with the latest available version
-									storage.set( { updateDismiss:data[ 0 ].tag_name } );
+									OSApp.Storage.set( { updateDismiss:data[ 0 ].tag_name } );
 									popup.popup( "close" );
 									removeNotification( button );
 									return false;
@@ -12924,7 +12873,7 @@ function showerror( msg, dur ) {
 }
 
 function loadLocalSettings() {
-	storage.get( "isMetric", function( data ) {
+	OSApp.Storage.get( "isMetric", function( data ) {
 
 		// We are using a switch because the boolean gets stored as a string
 		// and we don't want to impact the in-memory value of `isMetric` when
@@ -12939,7 +12888,7 @@ function loadLocalSettings() {
 			default:
 		}
 	} );
-	storage.get( "groupView", function( data ) {
+	OSApp.Storage.get( "groupView", function( data ) {
 		switch ( data.groupView ) {
 			case "true":
 				OSApp.groupView = true;
@@ -13192,7 +13141,7 @@ function updateLang( lang ) {
 	language = {};
 
 	if ( typeof lang === "undefined" ) {
-		storage.get( "lang", function( data ) {
+		OSApp.Storage.get( "lang", function( data ) {
 
 			//Identify the current browser's locale
 			var locale = data.lang || navigator.language || navigator.browserLanguage || navigator.systemLanguage || navigator.userLanguage || "en";
@@ -13202,7 +13151,7 @@ function updateLang( lang ) {
 		return;
 	}
 
-	storage.set( { "lang":lang } );
+	OSApp.Storage.set( { "lang":lang } );
 	currLang = lang;
 
 	if ( lang === "en" ) {
@@ -13259,7 +13208,7 @@ function languageSelect() {
 }
 
 function checkCurrLang() {
-	storage.get( "lang", function( data ) {
+	OSApp.Storage.get( "lang", function( data ) {
 		var popup = $( "#localization" );
 
 		popup.find( "a" ).each( function() {
