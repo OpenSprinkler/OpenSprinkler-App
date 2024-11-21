@@ -35,7 +35,7 @@ OSApp.Analog.refresh = () => {
 
 OSApp.Analog.updateProgramAdjustments = ( callback ) => {
 	callback = callback || function() { };
-	return sendToOS( "/se?pw=", "json" ).then( function( data ) {
+	return OSApp.Network.sendToOS( "/se?pw=", "json" ).then( function( data ) {
 		OSApp.Analog.progAdjusts = data.progAdjust;
 		callback();
 	} );
@@ -43,7 +43,7 @@ OSApp.Analog.updateProgramAdjustments = ( callback ) => {
 
 OSApp.Analog.updateAnalogSensor = ( callback ) => {
 	callback = callback || function() { };
-	return sendToOS( "/sl?pw=", "json" ).then( function( data ) {
+	return OSApp.Network.sendToOS( "/sl?pw=", "json" ).then( function( data ) {
 		OSApp.Analog.analogSensors = data.sensors;
 		callback();
 	} );
@@ -115,7 +115,7 @@ OSApp.Analog.intFromBytes = ( x ) => {
 //Program adjustments editor
 OSApp.Analog.showAdjustmentsEditor = ( progAdjust, callback ) => {
 
-	sendToOS( "/sh?pw=", "json" ).then( function( data ) {
+	OSApp.Network.sendToOS( "/sh?pw=", "json" ).then( function( data ) {
 		var supportedAdjustmentTypes = data.progTypes;
 		var i;
 
@@ -123,26 +123,26 @@ OSApp.Analog.showAdjustmentsEditor = ( progAdjust, callback ) => {
 
 		var list = "<div data-role='popup' data-theme='a' id='progAdjustEditor'>" +
 			"<div data-role='header' data-theme='b'>" +
-			"<h1>" + ( progAdjust.nr > 0 ? _( "Edit Program Adjustment" ) : _( "New Program Adjustment" ) ) + "</h1>" +
+			"<h1>" + ( progAdjust.nr > 0 ? OSApp.Language._( "Edit Program Adjustment" ) : OSApp.Language._( "New Program Adjustment" ) ) + "</h1>" +
 			"</div>" +
 
 			"<div class='ui-content'>" +
 			"<p class='rain-desc center smaller'>" +
-			_( "Notice: If you want to combine multiple sensors, then build a sensor group. " ) +
-			_( "See help documentation for details." ) +
+			OSApp.Language._( "Notice: If you want to combine multiple sensors, then build a sensor group. " ) +
+			OSApp.Language._( "See help documentation for details." ) +
 			"</p>" +
 
 			"<div class='ui-field-contain'>" +
 
 			//Adjustment-Nr:
 			"<label>" +
-			_( "Adjustment-Nr" ) +
+			OSApp.Language._( "Adjustment-Nr" ) +
 			"</label>" +
 			"<input class='nr' type='number' min='1' max='99999' value='" + progAdjust.nr + ( progAdjust.nr > 0 ? "' disabled='disabled'>" : "'>" ) +
 
 			//Select Type:
 			"<div class='ui-field-contain'><label for='type' class='select'>" +
-			_( "Type" ) +
+			OSApp.Language._( "Type" ) +
 			"</label><select data-mini='true' id='type'>";
 
 		for ( i = 0; i < supportedAdjustmentTypes.length; i++ ) {
@@ -154,7 +154,7 @@ OSApp.Analog.showAdjustmentsEditor = ( progAdjust, callback ) => {
 
 			//Select Sensor:
 			"<div class='ui-field-contain'><label for='sensor' class='select'>" +
-			_( "Sensor" ) +
+			OSApp.Language._( "Sensor" ) +
 			"</label><select data-mini='true' id='sensor'>";
 
 		for ( i = 0; i < OSApp.Analog.analogSensors.length; i++ ) {
@@ -166,7 +166,7 @@ OSApp.Analog.showAdjustmentsEditor = ( progAdjust, callback ) => {
 
 			//Select Program:
 			"<div class='ui-field-contain'><label for='prog' class='select'>" +
-			_( "Program to adjust" ) +
+			OSApp.Language._( "Program to adjust" ) +
 			"</label><select data-mini='true' id='prog'>";
 
 		for ( i = 0; i < OSApp.currentSession.controller.programs.pd.length; i++ ) {
@@ -180,27 +180,27 @@ OSApp.Analog.showAdjustmentsEditor = ( progAdjust, callback ) => {
 		list += "</select></div>" +
 
 			"<label>" +
-			_( "Factor 1 (adjustment for min)" ) +
+			OSApp.Language._( "Factor 1 (adjustment for min)" ) +
 			"</label>" +
 			"<input class='factor1' type='number' value='" + progAdjust.factor1 + "'>" +
 
 			"<label>" +
-			_( "Factor 2 (adjustment for max)" ) +
+			OSApp.Language._( "Factor 2 (adjustment for max)" ) +
 			"</label>" +
 			"<input class='factor2' type='number' value='" + progAdjust.factor2 + "'>" +
 
 			"<label>" +
-			_( "Min sensor value" ) +
+			OSApp.Language._( "Min sensor value" ) +
 			"</label>" +
 			"<input class='min' type='number' value='" + progAdjust.min + "'>" +
 
 			"<label>" +
-			_( "Max sensor value" ) +
+			OSApp.Language._( "Max sensor value" ) +
 			"</label>" +
 			"<input class='max' type='number' value='" + progAdjust.max + "'>" +
 
 			"</div>" +
-			"<button class='submit' data-theme='b'>" + _( "Submit" ) + "</button>" +
+			"<button class='submit' data-theme='b'>" + OSApp.Language._( "Submit" ) + "</button>" +
 			"</div>" +
 			"</div>";
 
@@ -281,7 +281,7 @@ OSApp.Analog.isSmt100 = ( sensorType ) => {
 // Analog sensor editor
 OSApp.Analog.showSensorEditor = ( sensor, callback ) => {
 
-	sendToOS( "/sf?pw=", "json" ).then( function( data ) {
+	OSApp.Network.sendToOS( "/sf?pw=", "json" ).then( function( data ) {
 		var supportedSensorTypes = data.sensorTypes;
 		var i;
 
@@ -289,21 +289,21 @@ OSApp.Analog.showSensorEditor = ( sensor, callback ) => {
 
 		var list = "<div data-role='popup' data-theme='a' id='sensorEditor'>" +
 			"<div data-role='header' data-theme='b'>" +
-			"<h1>" + ( sensor.nr > 0 ? _( "Edit Sensor" ) : _( "New Sensor" ) ) + "</h1>" +
+			"<h1>" + ( sensor.nr > 0 ? OSApp.Language._( "Edit Sensor" ) : OSApp.Language._( "New Sensor" ) ) + "</h1>" +
 			"</div>" +
 			"<div class='ui-content'>" +
 			"<p class='rain-desc center smaller'>" +
-			_( "Edit Sensor Configuration. " ) +
-			_( "See help documentation for details." ) +
+			OSApp.Language._( "Edit Sensor Configuration. " ) +
+			OSApp.Language._( "See help documentation for details." ) +
 			"</p>" +
 			"<div class='ui-field-contain'>" +
 			"<label>" +
-			_( "Sensor-Nr" ) +
+			OSApp.Language._( "Sensor-Nr" ) +
 			"</label>" +
 			"<input class='nr' type='number' min='1' max='99999' value='" + sensor.nr + ( sensor.nr > 0 ? "' disabled='disabled'>" : "'>" ) +
 
 			"<div class='ui-field-contain'><label for='type' class='select'>" +
-			_( "Type" ) +
+			OSApp.Language._( "Type" ) +
 			"</label><select data-mini='true' id='type'>";
 
 		for ( i = 0; i < supportedSensorTypes.length; i++ ) {
@@ -313,70 +313,70 @@ OSApp.Analog.showSensorEditor = ( sensor, callback ) => {
 		}
 		list += "</select></div>";
 
-		list += "<button data-mini='true' class='center-div' id='smt100id' style='display:" + ( OSApp.Analog.isSmt100( sensor.type ) ? "block" : "none" ) + "'>" + _( "Set SMT100 Modbus ID" ) + "</button>";
+		list += "<button data-mini='true' class='center-div' id='smt100id' style='display:" + ( OSApp.Analog.isSmt100( sensor.type ) ? "block" : "none" ) + "'>" + OSApp.Language._( "Set SMT100 Modbus ID" ) + "</button>";
 
 		list += "<label>" +
-			_( "Group" ) +
+			OSApp.Language._( "Group" ) +
 			"</label>" +
 			"<input class='group' type='number'  min='0' max='99999' value='" + sensor.group + "'>" +
 
 			"<label>" +
-			_( "Name" ) +
+			OSApp.Language._( "Name" ) +
 			"</label>" +
 			"<input class='name' type='text'  value='" + sensor.name + "'>" +
 
 			"<label>" +
-			_( "IP Address" ) +
+			OSApp.Language._( "IP Address" ) +
 			"</label>" +
 			"<input class='ip' type='text'  value='" + ( sensor.ip ? OSApp.Analog.toByteArray( sensor.ip ).join( "." ) : "" ) + "'>" +
 
 			"<label>" +
-			_( "Port" ) +
+			OSApp.Language._( "Port" ) +
 			"</label>" +
 			"<input class='port' type='number' min='0' max='65535' value='" + sensor.port + "'>" +
 
 			"<label>" +
-			_( "ID" ) +
+			OSApp.Language._( "ID" ) +
 			"</label>" +
 			"<input class='id' type='number' min='0' max='65535' value='" + sensor.id + "'>" +
 
 					( ( sensor.type === OSApp.Analog.Constants.USERDEF_SENSOR ) ?
 						( "<label>" +
-							_( "Factor" ) +
+							OSApp.Language._( "Factor" ) +
 						"</label>" +
 						"<input class='fac' type='number' min='-32768' max='32767' value='" + sensor.fac + "'>" +
 
 						"<label>" +
-							_( "Divider" ) +
+							OSApp.Language._( "Divider" ) +
 						"</label>" +
 						"<input class='div' type='number' min='-32768' max='32767' value='" + sensor.div + "'>" +
 
 						"<label>" +
-							_( "Unit" ) +
+							OSApp.Language._( "Unit" ) +
 						"</label>" +
 						"<input class='unit' type='text'  value='" + sensor.unit + "'>"
 						) : "" ) +
 
 			"<label>" +
-			_( "Read Interval (s)" ) +
+			OSApp.Language._( "Read Interval (s)" ) +
 			"</label>" +
 			"<input class='ri' type='number' min='1' max='999999' value='" + sensor.ri + "'>" +
 
 			"<label for='enable'><input data-mini='true' id='enable' type='checkbox' " + ( ( sensor.enable === 1 ) ? "checked='checked'" : "" ) + ">" +
-			_( "Sensor Enabled" ) +
+			OSApp.Language._( "Sensor Enabled" ) +
 			"</label>" +
 
 			"<label for='log'><input data-mini='true' id='log' type='checkbox' " + ( ( sensor.log === 1 ) ? "checked='checked'" : "" ) + ">" +
-			_( "Enable Data Logging" ) +
+			OSApp.Language._( "Enable Data Logging" ) +
 			"</label>" +
 
 			"<label for='show'><input data-mini='true' id='show' type='checkbox' " + ( ( sensor.show === 1 ) ? "checked='checked'" : "" ) + ">" +
-			_( "Show on Mainpage" ) +
+			OSApp.Language._( "Show on Mainpage" ) +
 			"</label>" +
 
 			"</div>" +
 
-			"<button class='submit' data-theme='b'>" + _( "Submit" ) + "</button>" +
+			"<button class='submit' data-theme='b'>" + OSApp.Language._( "Submit" ) + "</button>" +
 			"</div>" +
 		"</div>";
 
@@ -398,10 +398,10 @@ OSApp.Analog.showSensorEditor = ( sensor, callback ) => {
 			var nr = parseInt( popup.find( ".nr" ).val() ),
 				newid = parseInt( popup.find( ".id" ).val() );
 			popup.popup( "close" );
-			areYouSure( _( "This function sets the Modbus ID for one SMT100 sensor. Disconnect all other sensors on this Modbus port. Please confirm." ),
+			areYouSure( OSApp.Language._( "This function sets the Modbus ID for one SMT100 sensor. Disconnect all other sensors on this Modbus port. Please confirm." ),
 				"new id=" + newid, function() {
-					sendToOS( "/sa?pw=&nr=" + nr + "&id=" + newid ).done( function() {
-						window.alert( _( "SMT100 id assigned!" ) );
+					OSApp.Network.sendToOS( "/sa?pw=&nr=" + nr + "&id=" + newid ).done( function() {
+						window.alert( OSApp.Language._( "SMT100 id assigned!" ) );
 						OSApp.Analog.updateAnalogSensor( OSApp.Analog.refresh );
 					} );
 				} );
@@ -417,7 +417,7 @@ OSApp.Analog.showSensorEditor = ( sensor, callback ) => {
 				var nr = parseInt( popup.find( ".nr" ).val() );
 				for ( var i = 0; i < OSApp.Analog.analogSensors.length; i++ ) {
 					if ( OSApp.Analog.analogSensors[ i ].nr === nr ) {
-						window.alert( _( "Sensor number exists!" ) );
+						window.alert( OSApp.Language._( "Sensor number exists!" ) );
 						return;
 					}
 				}
@@ -501,8 +501,8 @@ OSApp.Analog.showAnalogSensorConfig = ( function() {
 				value = dur.attr( "value" ),
 				row = dur.attr( "row" );
 
-			areYouSure( _( "Are you sure you want to delete the sensor?" ), value, function() {
-				sendToOS( "/sc?pw=&nr=" + value + "&type=0" ).done( function() {
+			areYouSure( OSApp.Language._( "Are you sure you want to delete the sensor?" ), value, function() {
+				OSApp.Network.sendToOS( "/sc?pw=&nr=" + value + "&type=0" ).done( function() {
 					OSApp.Analog.analogSensors.splice( row, 1 );
 					updateSensorContent();
 				} );
@@ -520,7 +520,7 @@ OSApp.Analog.showAnalogSensorConfig = ( function() {
 				sensorOut.nativedata = sensor.nativedata;
 				sensorOut.data = sensor.data;
 				sensorOut.last = sensor.last;
-				sendToOS( "/sc?pw=&nr=" + sensorOut.nr +
+				OSApp.Network.sendToOS( "/sc?pw=&nr=" + sensorOut.nr +
 					"&type=" + sensorOut.type +
 					"&group=" + sensorOut.group +
 					"&name=" + sensorOut.name +
@@ -554,7 +554,7 @@ OSApp.Analog.showAnalogSensorConfig = ( function() {
 			};
 
 			OSApp.Analog.showSensorEditor( sensor, function( sensorOut ) {
-				sendToOS( "/sc?pw=&nr=" + sensorOut.nr +
+				OSApp.Network.sendToOS( "/sc?pw=&nr=" + sensorOut.nr +
 					"&type=" + sensorOut.type +
 					"&group=" + sensorOut.group +
 					"&name=" + sensorOut.name +
@@ -592,8 +592,8 @@ OSApp.Analog.showAnalogSensorConfig = ( function() {
 				value = dur.attr( "value" ),
 				row = dur.attr( "row" );
 
-			areYouSure( _( "Are you sure you want to delete this program adjustment?" ), value, function() {
-				sendToOS( "/sb?pw=&nr=" + value + "&type=0" ).done( function() {
+			areYouSure( OSApp.Language._( "Are you sure you want to delete this program adjustment?" ), value, function() {
+				OSApp.Network.sendToOS( "/sb?pw=&nr=" + value + "&type=0" ).done( function() {
 					OSApp.Analog.progAdjusts.splice( row, 1 );
 					updateSensorContent();
 				} );
@@ -609,7 +609,7 @@ OSApp.Analog.showAnalogSensorConfig = ( function() {
 
 			OSApp.Analog.showAdjustmentsEditor( progAdjust, function( progAdjustOut ) {
 
-				sendToOS( "/sb?pw=&nr=" + progAdjustOut.nr +
+				OSApp.Network.sendToOS( "/sb?pw=&nr=" + progAdjustOut.nr +
 					"&type=" + progAdjustOut.type +
 					"&sensor=" + progAdjustOut.sensor +
 					"&prog=" + progAdjustOut.prog +
@@ -631,7 +631,7 @@ OSApp.Analog.showAnalogSensorConfig = ( function() {
 			};
 
 			OSApp.Analog.showAdjustmentsEditor( progAdjust, function( progAdjustOut ) {
-				sendToOS( "/sb?pw=&nr=" + progAdjustOut.nr +
+				OSApp.Network.sendToOS( "/sb?pw=&nr=" + progAdjustOut.nr +
 					"&type=" + progAdjustOut.type +
 					"&sensor=" + progAdjustOut.sensor +
 					"&prog=" + progAdjustOut.prog +
@@ -648,9 +648,9 @@ OSApp.Analog.showAnalogSensorConfig = ( function() {
 
 		// Clear sensor log
 		list.find( "#clear-log" ).on( "click", function() {
-			areYouSure( _( "Are you sure you want to clear the sensor log?" ), "", function() {
-				sendToOS( "/sn?pw=&" ).done( function( result ) {
-					window.alert( _( "Log cleared:" ) + " " + result.deleted + " " + _( "records" ) );
+			areYouSure( OSApp.Language._( "Are you sure you want to clear the sensor log?" ), "", function() {
+				OSApp.Network.sendToOS( "/sn?pw=&" ).done( function( result ) {
+					window.alert( OSApp.Language._( "Log cleared:" ) + " " + result.deleted + " " + OSApp.Language._( "records" ) );
 					updateSensorContent();
 				} );
 			} );
@@ -679,10 +679,10 @@ OSApp.Analog.showAnalogSensorConfig = ( function() {
 
 	function begin() {
 		changeHeader( {
-			title: _( "Analog Sensor Config" ),
+			title: OSApp.Language._( "Analog Sensor Config" ),
 			leftBtn: {
 				icon: "carat-l",
-				text: _( "Back" ),
+				text: OSApp.Language._( "Back" ),
 				class: "ui-toolbar-back-btn",
 				on: goBack
 			}
@@ -723,15 +723,15 @@ OSApp.Analog.buildSensorConfig = () => {
 			"<td class=\"hidecol\">" + ( item.log ? checkpng : "" ) + "</td>",
 			"<td class=\"hidecol\">" + ( item.show ? checkpng : "" ) + "</td>",
 			$( "<td class=\"hidecol2\">" ).text( ( item.data_ok === undefined || item.data_ok ) ? dateToString( new Date( item.last * 1000 ) ) : "Error", null, 2 ),
-			"<td><button data-mini='true' class='center-div' id='edit-sensor' value='" + item.nr + "' row='" + row + "'>" + _( "Edit" ) + "</button></td>",
-			"<td><button data-mini='true' class='center-div' id='delete-sensor' value='" + item.nr + "' row='" + row + "'>" + _( "Delete" ) + "</button></td>"
+			"<td><button data-mini='true' class='center-div' id='edit-sensor' value='" + item.nr + "' row='" + row + "'>" + OSApp.Language._( "Edit" ) + "</button></td>",
+			"<td><button data-mini='true' class='center-div' id='delete-sensor' value='" + item.nr + "' row='" + row + "'>" + OSApp.Language._( "Delete" ) + "</button></td>"
 		);
 		list += $tr.wrap( "<p>" ).html() + "</tr>";
 		row++;
 	} );
 	list += "</table>";
-	list += "<p><button data-mini='true' class='center-div' id='add-sensor' value='1'>" + _( "Add Sensor" ) + "</button></p>";
-	list += "<p><button data-mini='true' class='center-div' id='refresh-sensor' value='2'>" + _( "Refresh Sensor data" ) + "</button></p>";
+	list += "<p><button data-mini='true' class='center-div' id='add-sensor' value='1'>" + OSApp.Language._( "Add Sensor" ) + "</button></p>";
+	list += "<p><button data-mini='true' class='center-div' id='refresh-sensor' value='2'>" + OSApp.Language._( "Refresh Sensor data" ) + "</button></p>";
 
 	//Program adjustments table:
 	list += "<table id='progadjusttable'><tr style='width:100%;vertical-align: top;'>" +
@@ -773,20 +773,20 @@ OSApp.Analog.buildSensorConfig = () => {
 			$( "<td class=\"hidecol2\">" ).text( item.min ),
 			$( "<td class=\"hidecol2\">" ).text( item.max ),
 			$( "<td>" ).text( Math.round( item.current * 100.0 ) + "%" ),
-			"<td><button data-mini='true' class='center-div' id='edit-progadjust' value='" + item.nr + "' row='" + row + "'>" + _( "Edit" ) + "</button></td>",
-			"<td><button data-mini='true' class='center-div' id='delete-progadjust' value='" + item.nr + "' row='" + row + "'>" + _( "Delete" ) + "</button></td>"
+			"<td><button data-mini='true' class='center-div' id='edit-progadjust' value='" + item.nr + "' row='" + row + "'>" + OSApp.Language._( "Edit" ) + "</button></td>",
+			"<td><button data-mini='true' class='center-div' id='delete-progadjust' value='" + item.nr + "' row='" + row + "'>" + OSApp.Language._( "Delete" ) + "</button></td>"
 		);
 		list += $tr.wrap( "<p>" ).html() + "</tr>";
 		row++;
 	} );
 	list += "</table>";
-	list += "<p><button data-mini='true' class='center-div' id='add-progadjust' value='3'>" + _( "Add program adjustment" ) + "</button></p>";
+	list += "<p><button data-mini='true' class='center-div' id='add-progadjust' value='3'>" + OSApp.Language._( "Add program adjustment" ) + "</button></p>";
 
 	//Analog sensor logs:
 	list += "<table id='logfunctions'><tr style='width:100%;vertical-align: top;'><tr>" +
-		"<th><button data-mini='true' class='center-div' id='clear-log'>" + _( "Clear Log" ) + "</button></th>" +
-		"<th><button data-mini='true' class='center-div' id='download-log'>" + _( "Download Log" ) + "</button></th>" +
-		"<th><a href='#analogsensorchart'><button data-mini='true' class='center-div' id='show-log'>" + _( "Show Log" ) + "</button></a></th>" +
+		"<th><button data-mini='true' class='center-div' id='clear-log'>" + OSApp.Language._( "Clear Log" ) + "</button></th>" +
+		"<th><button data-mini='true' class='center-div' id='download-log'>" + OSApp.Language._( "Download Log" ) + "</button></th>" +
+		"<th><a href='#analogsensorchart'><button data-mini='true' class='center-div' id='show-log'>" + OSApp.Language._( "Show Log" ) + "</button></a></th>" +
 		"</tr></table>";
 	return list;
 };
@@ -829,10 +829,10 @@ OSApp.Analog.showAnalogSensorCharts = ( function() {
 		} );
 
 		changeHeader( {
-			title: _( "Analog Sensor Log" ),
+			title: OSApp.Language._( "Analog Sensor Log" ),
 			leftBtn: {
 				icon: "carat-l",
-				text: _( "Back" ),
+				text: OSApp.Language._( "Back" ),
 				class: "ui-toolbar-back-btn",
 				on: goBack
 			}
@@ -841,14 +841,14 @@ OSApp.Analog.showAnalogSensorCharts = ( function() {
 		$( "#analogsensorchart" ).remove();
 		$.mobile.pageContainer.append( page );
 
-		sendToOS( "/so?pw=&lasthours=24&csv=2", "text" ).then( function( csv1 ) {
-			OSApp.Analog.buildGraph( "#myChart", chart1, csv1, _( "last 24h" ), "HH:mm" );
+		OSApp.Network.sendToOS( "/so?pw=&lasthours=24&csv=2", "text" ).then( function( csv1 ) {
+			OSApp.Analog.buildGraph( "#myChart", chart1, csv1, OSApp.Language._( "last 24h" ), "HH:mm" );
 
-			sendToOS( "/so?pw=&csv=2&log=1", "text" ).then( function( csv2 ) {
-				OSApp.Analog.buildGraph( "#myChartW", chart2, csv2, _( "last weeks" ), "dd.MM.yyyy" );
+			OSApp.Network.sendToOS( "/so?pw=&csv=2&log=1", "text" ).then( function( csv2 ) {
+				OSApp.Analog.buildGraph( "#myChartW", chart2, csv2, OSApp.Language._( "last weeks" ), "dd.MM.yyyy" );
 
-				sendToOS( "/so?pw=&csv=2&log=2", "text" ).then( function( csv3 ) {
-					OSApp.Analog.buildGraph( "#myChartM", chart3, csv3, _( "last months" ), "MM.yyyy" );
+				OSApp.Network.sendToOS( "/so?pw=&csv=2&log=2", "text" ).then( function( csv3 ) {
+					OSApp.Analog.buildGraph( "#myChartM", chart3, csv3, OSApp.Language._( "last months" ), "MM.yyyy" );
 					$.mobile.loading( "hide" );
 				} );
 			} );
@@ -892,54 +892,54 @@ OSApp.Analog.buildGraph = ( prefix, chart, csv, titleAdd, timestr ) => {
 				maxFunc = function( val ) { return Math.ceil( val ); },
 				autoY = true;
 			switch ( unitid ) {
-				case 1: unit = _( "Soil moisture" );
-					title = _( "Soil moisture" ) + " " + titleAdd;
+				case 1: unit = OSApp.Language._( "Soil moisture" );
+					title = OSApp.Language._( "Soil moisture" ) + " " + titleAdd;
 					unitStr = function( val ) { return +( Math.round( val + "e+2" )  + "e-2" ) + " %"; };
 					minFunc = 0;
 					maxFunc = 100;
 					break;
-				case 2: unit = _( "degree celsius temperature" );
-					title = _( "Temperature" ) + " " + titleAdd;
+				case 2: unit = OSApp.Language._( "degree celsius temperature" );
+					title = OSApp.Language._( "Temperature" ) + " " + titleAdd;
 					unitStr = function( val ) { return +( Math.round( val + "e+2" )  + "e-2" ) + String.fromCharCode( 176 ) + "C"; };
 					break;
-				case 3: unit = _( "degree fahrenheit temperature" );
-					title = _( "Temperature" ) + " " + titleAdd;
+				case 3: unit = OSApp.Language._( "degree fahrenheit temperature" );
+					title = OSApp.Language._( "Temperature" ) + " " + titleAdd;
 					unitStr = function( val ) { return +( Math.round( val + "e+2" )  + "e-2" ) + String.fromCharCode( 176 ) + "F"; };
 					break;
-				case 4: unit = _( "Volt" );
-					title = _( "Voltage" ) + " " + titleAdd;
+				case 4: unit = OSApp.Language._( "Volt" );
+					title = OSApp.Language._( "Voltage" ) + " " + titleAdd;
 					unitStr = function( val ) { return +( Math.round( val + "e+2" )  + "e-2" ) + " V"; };
 					minFunc = 0;
 					maxFunc = 4;
 					autoY = false;
 					break;
-				case 5: unit = _( "Humidity" );
-					title = _( "Air Humidity" ) + " " + titleAdd;
+				case 5: unit = OSApp.Language._( "Humidity" );
+					title = OSApp.Language._( "Air Humidity" ) + " " + titleAdd;
 					unitStr = function( val ) { return +( Math.round( val + "e+2" )  + "e-2" ) + " %"; };
 					minFunc = 0;
 					maxFunc = 100;
 					break;
-				case 6: unit = _( "Rain" );
-					title = _( "Rainfall" ) + " " + titleAdd;
+				case 6: unit = OSApp.Language._( "Rain" );
+					title = OSApp.Language._( "Rainfall" ) + " " + titleAdd;
 					unitStr = function( val ) { return +( Math.round( val + "e+2" )  + "e-2" ) + " in"; };
 					break;
-				case 7: unit = _( "Rain" );
-					title = _( "Rainfall" ) + " " + titleAdd;
+				case 7: unit = OSApp.Language._( "Rain" );
+					title = OSApp.Language._( "Rainfall" ) + " " + titleAdd;
 					unitStr = function( val ) { return +( Math.round( val + "e+2" )  + "e-2" ) + " mm"; };
 					minFunc = 0;
 					break;
-				case 8: unit = _( "Wind" );
-					title = _( "Wind" ) + " " + titleAdd;
+				case 8: unit = OSApp.Language._( "Wind" );
+					title = OSApp.Language._( "Wind" ) + " " + titleAdd;
 					unitStr = function( val ) { return +( Math.round( val + "e+2" )  + "e-2" ) + " mph"; };
 					minFunc = 0;
 					break;
-				case 9: unit = _( "Wind" );
-					title = _( "Wind" ) + " " + titleAdd;
+				case 9: unit = OSApp.Language._( "Wind" );
+					title = OSApp.Language._( "Wind" ) + " " + titleAdd;
 					unitStr = function( val ) { return +( Math.round( val + "e+2" )  + "e-2" ) + " kmh"; };
 					minFunc = 0;
 					break;
-				case 10: unit = _( "Level" );
-					title = _( "Level" ) + " " + titleAdd;
+				case 10: unit = OSApp.Language._( "Level" );
+					title = OSApp.Language._( "Level" ) + " " + titleAdd;
 					unitStr = function( val ) { return +( Math.round( val + "e+2" )  + "e-2" ) + " %"; };
 					minFunc = 0;
 					maxFunc = 100;

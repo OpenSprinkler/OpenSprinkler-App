@@ -75,7 +75,7 @@ describe( "OpenSprinkler Firmware Version Functions", function() {
 			};
 		} );
 		it( "isOPSi() should identify if the device is an OSPi", function() {
-			assert.equal( false, isOSPi() );
+			assert.equal( false, isOSPi() ); // TODO mellodev tests need to be updated to use new OSApp.XXX namespace
 		} );
 		it( "versionCompare(device,compare) should check the given firmware (device) against the compare firmware where the input is an array", function() {
 			assert.strictEqual( false, versionCompare( [ 1 ], [ 1, 5 ] ) );
