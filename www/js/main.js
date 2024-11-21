@@ -16,19 +16,21 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+// Configure module
 var OSApp = OSApp || {};
 
-// Initialize global variables
-var isAndroid = /Android|\bSilk\b/.test( navigator.userAgent ),
-	isiOS = /iP(ad|hone|od)/.test( navigator.userAgent ),
-	isFireFox = /Firefox/.test( navigator.userAgent ),
-	isOSXApp = window.cordova && window.cordova.platformId === "ios" && navigator.platform === "MacIntel",
-	isFileCapable = !isiOS && !isAndroid && !isOSXApp && window.FileReader,
-	isTouchCapable = "ontouchstart" in window || "onmsgesturechange" in window,
-	isMetric = ( [ "US", "BM", "PW" ].indexOf( navigator.languages[ 0 ].split( "-" )[ 1 ] ) === -1 ),
-	groupView = false,
+// App globals
+OSApp.isAndroid = /Android|\bSilk\b/.test( navigator.userAgent );
+OSApp.isiOS = /iP(ad|hone|od)/.test( navigator.userAgent );
+OSApp.isFireFox = /Firefox/.test( navigator.userAgent );
+OSApp.isOSXApp = window.cordova && window.cordova.platformId === "ios" && navigator.platform === "MacIntel";
+OSApp.isFileCapable = !OSApp.isiOS && !OSApp.isAndroid && !OSApp.isOSXApp && window.FileReader;
+OSApp.isTouchCapable = "ontouchstart" in window || "onmsgesturechange" in window;
+OSApp.isMetric = ( [ "US", "BM", "PW" ].indexOf( navigator.languages[ 0 ].split( "-" )[ 1 ] ) === -1 );
+OSApp.groupView = false;
 
-	storage = {
+// Initialize global variables
+var storage = {
 		get: function( query, callback ) {
 			callback = callback || function() {};
 
@@ -86,8 +88,8 @@ var isAndroid = /Android|\bSilk\b/.test( navigator.userAgent ),
 	},
 
 	// Define the status bar color(s) and use a darker color for Android
-	statusBarPrimary = isAndroid ? "#121212" : "#1D1D1D",
-	statusBarOverlay = isAndroid ? "#151515" : "#202020",
+	statusBarPrimary = OSApp.isAndroid ? "#121212" : "#1D1D1D",
+	statusBarOverlay = OSApp.isAndroid ? "#151515" : "#202020",
 
 	// Define the amount of times the app will retry an HTTP request before marking it failed
 	retryCount = 2,
@@ -120,7 +122,6 @@ var isAndroid = /Android|\bSilk\b/.test( navigator.userAgent ),
 	},
 
 	// Option constants
-
 	MANUAL_STATION_PID = 99,
 	MASTER_STATION_1 = 1,
 	MASTER_STATION_2 = 2,
@@ -146,7 +147,7 @@ if ( "serviceWorker" in navigator ) {
 	} );
 }
 
-if ( isOSXApp ) {
+if ( OSApp.isOSXApp ) {
 	document.documentElement.classList.add( "macos" );
 }
 
@@ -187,7 +188,7 @@ $( document )
 	updateDeviceIP();
 
 	// Check if 3D touch is available and add menu when possible
-	if ( isiOS ) {
+	if ( OSApp.isiOS ) {
 		ThreeDeeTouch.isAvailable( function( available ) {
 			if ( available ) {
 
@@ -401,7 +402,7 @@ function initApp() {
 	}
 
 	// Prevent caching of AJAX requests on Android and Windows Phone devices
-	if ( isAndroid ) {
+	if ( OSApp.isAndroid ) {
 
 		// Hide the back button for Android (all devices have back button)
 		insertStyle( ".ui-toolbar-back-btn{display:none!important}" );
@@ -411,7 +412,7 @@ function initApp() {
 				navigator.app.clearCache();
 			} catch ( err ) {}
 		} );
-	} else if ( isFireFox ) {
+	} else if ( OSApp.isFireFox ) {
 
 		// Allow cross domain AJAX requests in FireFox OS
 		$.ajaxSetup( {
@@ -428,16 +429,16 @@ function initApp() {
 	}
 
 	//After jQuery mobile is loaded set initial configuration
-	$.mobile.defaultPageTransition = isAndroid ? "fade" : "slide";
+	$.mobile.defaultPageTransition = OSApp.isAndroid ? "fade" : "slide";
 	$.mobile.hoverDelay = 0;
 	$.mobile.activeBtnClass = "activeButton";
 
 	// Handle In-App browser requests (marked with iab class)
 	$.mobile.document.on( "click", ".iab", function() {
-		var target = isOSXApp ? "_system" : "_blank";
+		var target = OSApp.isOSXApp ? "_system" : "_blank";
 
 		var button = $( this );
-		window.open( this.href, target, "location=" + ( isAndroid ? "yes" : "no" ) +
+		window.open( this.href, target, "location=" + ( OSApp.isAndroid ? "yes" : "no" ) +
 			",enableViewportScale=" + ( button.hasClass( "iabNoScale" ) ? "no" : "yes" ) +
 			",toolbar=yes,toolbarposition=top,toolbarcolor=" + statusBarPrimary +
 			",closebuttoncaption=" +
@@ -2325,7 +2326,7 @@ function showZimmermanAdjustmentOptions( button, callback ) {
 		hasBaseline = checkOSVersion( 2162 );
 
 	// OSPi stores in imperial so convert to metric and adjust to nearest 1/10ths of a degree and mm
-	if ( isMetric ) {
+	if ( OSApp.isMetric ) {
 		options.bt = Math.round( ( ( options.bt - 32 ) * 5 / 9 ) * 10 ) / 10;
 		options.br = Math.round( ( options.br * 25.4 ) * 10 ) / 10;
 	}
@@ -2342,15 +2343,15 @@ function showZimmermanAdjustmentOptions( button, callback ) {
 				"<div class='ui-grid-b'>" +
 					"<div class='ui-block-a'>" +
 						"<label class='center'>" +
-							_( "Temp" ) + ( isMetric ? " &#176;C" : " &#176;F" ) +
+							_( "Temp" ) + ( OSApp.isMetric ? " &#176;C" : " &#176;F" ) +
 						"</label>" +
-						"<input data-wrapper-class='pad_buttons' class='bt' type='number' " + ( isMetric ? "min='-20' max='50'" : "min='0' max='120'" ) + " value='" + options.bt + ( hasBaseline ? "'>" : "' disabled='disabled'>" ) +
+						"<input data-wrapper-class='pad_buttons' class='bt' type='number' " + ( OSApp.isMetric ? "min='-20' max='50'" : "min='0' max='120'" ) + " value='" + options.bt + ( hasBaseline ? "'>" : "' disabled='disabled'>" ) +
 					"</div>" +
 					"<div class='ui-block-b'>" +
 						"<label class='center'>" +
-							_( "Rain" ) + ( isMetric ? " mm" : " \"" ) +
+							_( "Rain" ) + ( OSApp.isMetric ? " mm" : " \"" ) +
 						"</label>" +
-						"<input data-wrapper-class='pad_buttons' class='br' type='number' " + ( isMetric ? "min='0' max='25' step='0.1'" : "min='0' max='1' step='0.01'" ) + " value='" + options.br + ( hasBaseline ? "'>" : "' disabled='disabled'>" ) +
+						"<input data-wrapper-class='pad_buttons' class='br' type='number' " + ( OSApp.isMetric ? "min='0' max='25' step='0.1'" : "min='0' max='1' step='0.01'" ) + " value='" + options.br + ( hasBaseline ? "'>" : "' disabled='disabled'>" ) +
 					"</div>" +
 					"<div class='ui-block-c'>" +
 						"<label class='center'>" +
@@ -2426,7 +2427,7 @@ function showZimmermanAdjustmentOptions( button, callback ) {
 			} );
 
 			// OSPi stores in imperial so onvert metric at higher precision so we dont lose accuracy
-			if ( isMetric ) {
+			if ( OSApp.isMetric ) {
 				options.bt = Math.round( ( options.bt * 9 / 5 + 32 ) * 100 ) / 100;
 				options.br = Math.round( ( options.br / 25.4 ) * 1000 ) / 1000;
 			}
@@ -2712,7 +2713,7 @@ function showEToAdjustmentOptions( button, callback ) {
 		unescapeJSON( button.value )
 	);
 
-	if ( isMetric ) {
+	if ( OSApp.isMetric ) {
 		options.baseETo = Math.round( options.baseETo * 25.4 * 10 ) / 10;
 		options.elevation = Math.round( options.elevation / 3.28 );
 	}
@@ -2729,15 +2730,15 @@ function showEToAdjustmentOptions( button, callback ) {
 				"<div class='ui-grid-a'>" +
 					"<div class='ui-block-a'>" +
 						"<label class='center'>" +
-							_( "Baseline ETo" ) + ( isMetric ? " (mm" : "(in" ) + "/day)" +
+							_( "Baseline ETo" ) + ( OSApp.isMetric ? " (mm" : "(in" ) + "/day)" +
 						"</label>" +
-						"<input data-wrapper-class='pad_buttons' class='baseline-ETo' type='number' min='0' " + ( isMetric ? "max='25' step='0.1'" : "max='1' step='0.01'" ) + " value='" + options.baseETo + "'>" +
+						"<input data-wrapper-class='pad_buttons' class='baseline-ETo' type='number' min='0' " + ( OSApp.isMetric ? "max='25' step='0.1'" : "max='1' step='0.01'" ) + " value='" + options.baseETo + "'>" +
 					"</div>" +
 					"<div class='ui-block-b'>" +
 						"<label class='center'>" +
-							_( "Elevation" ) + ( isMetric ? " (m)" : " (ft)" ) +
+							_( "Elevation" ) + ( OSApp.isMetric ? " (m)" : " (ft)" ) +
 						"</label>" +
-						"<input data-wrapper-class='pad_buttons' class='elevation' type='number' step='1'" + ( isMetric ? "min='-400' max='9000'" : "min='-1400' max='30000'" ) + " value='" + options.elevation + "'>" +
+						"<input data-wrapper-class='pad_buttons' class='elevation' type='number' step='1'" + ( OSApp.isMetric ? "min='-400' max='9000'" : "min='-1400' max='30000'" ) + " value='" + options.elevation + "'>" +
 					"</div>" +
 				"</div>" +
 				"<button class='detect-baseline-eto'>" + _( "Detect baseline ETo" ) + "</button>" +
@@ -2753,7 +2754,7 @@ function showEToAdjustmentOptions( button, callback ) {
 		};
 
 		// Convert to imperial before storing.
-		if ( isMetric ) {
+		if ( OSApp.isMetric ) {
 			options.baseETo = Math.round( options.baseETo / 25.4 * 100 ) / 100;
 			options.elevation = Math.round( options.elevation * 3.28 );
 		}
@@ -2783,13 +2784,13 @@ function showEToAdjustmentOptions( button, callback ) {
 				var baselineETo = data.eto;
 
 				// Convert to metric if necessary.
-				if ( isMetric ) {
+				if ( OSApp.isMetric ) {
 					baselineETo = Math.round( baselineETo * 25.4 * 100 ) / 100;
 				}
 
 				$( ".baseline-ETo" ).val( baselineETo );
 
-				window.alert( "Detected baseline ETo for configured location is " + baselineETo + ( isMetric ? "mm" : "in" ) + "/day" );
+				window.alert( "Detected baseline ETo for configured location is " + baselineETo + ( OSApp.isMetric ? "mm" : "in" ) + "/day" );
 			},
 			error: function( xhr, errorType ) {
 
@@ -2831,7 +2832,7 @@ function showEToAdjustmentOptions( button, callback ) {
 }
 
 function formatTemp( temp ) {
-	if ( isMetric ) {
+	if ( OSApp.isMetric ) {
 		temp = Math.round( ( temp - 32 ) * ( 5 / 9 ) * 10 ) / 10 + " &#176;C";
 	} else {
 		temp = Math.round( temp * 10 ) / 10 + " &#176;F";
@@ -2840,7 +2841,7 @@ function formatTemp( temp ) {
 }
 
 function formatPrecip( precip ) {
-	if ( isMetric ) {
+	if ( OSApp.isMetric ) {
 		precip = Math.round( precip * 25.4 * 10 ) / 10 + " mm";
 	} else {
 		precip = Math.round( precip * 100 ) / 100 + " in";
@@ -2853,7 +2854,7 @@ function formatHumidity( humidity ) {
 }
 
 function formatSpeed( speed ) {
-	if ( isMetric ) {
+	if ( OSApp.isMetric ) {
 		speed = Math.round( speed * 1.6 * 10 ) / 10 + " km/h";
 	} else {
 		speed = Math.round( speed * 10 ) / 10 + " mph";
@@ -3853,12 +3854,12 @@ function showOptions( expandItem ) {
 						}
 						break;
 					case "isMetric":
-						isMetric = $item.is( ":checked" );
-						storage.set( { isMetric: isMetric } );
+						OSApp.isMetric = $item.is( ":checked" );
+						storage.set( { isMetric: OSApp.isMetric } );
 						return true;
 					case "groupView":
-						groupView = $item.is( ":checked" );
-						storage.set( { "groupView": groupView } );
+						OSApp.groupView = $item.is( ":checked" );
+						storage.set( { "groupView": OSApp.groupView } );
 						return true;
 					case "o12":
 						if ( !isPi ) {
@@ -4021,11 +4022,11 @@ function showOptions( expandItem ) {
 			_( "Enable Logging" ) + "</label>";
 	}
 
-	list += "<label for='isMetric'><input data-mini='true' id='isMetric' type='checkbox' " + ( isMetric ? "checked='checked'" : "" ) + ">" +
+	list += "<label for='isMetric'><input data-mini='true' id='isMetric' type='checkbox' " + ( OSApp.isMetric ? "checked='checked'" : "" ) + ">" +
 		_( "Use Metric" ) + "</label>";
 
 	if ( Supported.groups() ) {
-		list += "<label for='groupView'><input data-mini='true' id='groupView' type='checkbox' " + ( groupView ? "checked='checked'" : "" ) + ">" +
+		list += "<label for='groupView'><input data-mini='true' id='groupView' type='checkbox' " + ( OSApp.groupView ? "checked='checked'" : "" ) + ">" +
 		_( "Order Stations by Groups" ) + "</label>";
 	}
 
@@ -5975,7 +5976,7 @@ var showHome = ( function() {
 
 			var opts = { history: false };
 
-			if ( isiOS ) {
+			if ( OSApp.isiOS ) {
 				var pageTop = getPageTop();
 
 				opts.x = pageTop.x;
@@ -6261,12 +6262,12 @@ var showHome = ( function() {
 		reorderCards = function() {
 			var cardHolder = page.find( "#os-stations-list" ),
 				cardList = cardHolder.children(),
-				compareCards = groupView ? compareCardsGroupView : compareCardsStandardView;
+				compareCards = OSApp.groupView ? compareCardsGroupView : compareCardsStandardView;
 
 			// Sort stations
 			cardList.sort( compareCards ).detach().appendTo( cardHolder );
 
-			if ( Supported.groups() && groupView ) {
+			if ( Supported.groups() && OSApp.groupView ) {
 				updateGroupView( cardHolder, cardList );
 			} else {
 				updateStandardView( cardHolder, cardList );
@@ -8296,7 +8297,7 @@ var getPreview = ( function() {
 		page.find( ".timeline-groups-axis" ).children().first().html( "<div class='timeline-axis-text center dayofweek' data-shortname='" +
 			getDayName( day, "short" ) + "'>" + getDayName( day ) + "</div>" );
 
-		if ( isAndroid ) {
+		if ( OSApp.isAndroid ) {
 			navi.find( ".ui-icon-plus" ).off( "click" ).on( "click", function() {
 				timeline.zoom( 0.4 );
 				return false;
@@ -8867,7 +8868,7 @@ var getLogs = ( function() {
 	} );
 
 	//Automatically update the log viewer when changing the date range
-	if ( isiOS ) {
+	if ( OSApp.isiOS ) {
 		logStart.add( logEnd ).on( "blur", function() {
 			if ( page.hasClass( "ui-page-active" ) ) {
 				requestData();
@@ -10187,7 +10188,7 @@ function getExportMethod() {
 		obj = encodeURIComponent( JSON.stringify( controller ) ),
 		subject = "OpenSprinkler Data Export on " + dateToString( new Date() );
 
-	if ( isFileCapable ) {
+	if ( OSApp.isFileCapable ) {
 		popup.find( ".fileMethod" ).removeClass( "hidden" ).attr( {
 			href: "data:text/json;charset=utf-8," + obj,
 			download: "backup-" + new Date().toLocaleDateString().replace( /\//g, "-" ) + ".json"
@@ -10198,7 +10199,7 @@ function getExportMethod() {
 
 	var href = "mailto:?subject=" + encodeURIComponent( subject ) + "&body=" + obj;
 	popup.find( ".pasteMethod" ).attr( "href", href ).on( "click", function() {
-		window.open( href, isOSXApp ? "_system" : undefined );
+		window.open( href, OSApp.isOSXApp ? "_system" : undefined );
 		popup.popup( "close" );
 	} );
 
@@ -10255,7 +10256,7 @@ function getImportMethod( localData ) {
 				"</div>" +
 			"</div>" );
 
-	if ( isFileCapable ) {
+	if ( OSApp.isFileCapable ) {
 		popup.find( ".fileMethod" ).removeClass( "hidden" ).on( "click", function() {
 			popup.popup( "close" );
 			var input = $( "<input type='file' id='configInput' data-role='none' style='visibility:hidden;position:absolute;top:-50px;left:-50px'/>" )
@@ -11317,7 +11318,7 @@ function showUnifiedFirmwareNotification() {
 				desc: _( "Click here for more details" ),
 				on: function() {
 					window.open( "https://openthings.freshdesk.com/support/solutions/articles/5000631599",
-						"_blank", "location=" + ( isAndroid ? "yes" : "no" ) +
+						"_blank", "location=" + ( OSApp.isAndroid ? "yes" : "no" ) +
 						",enableViewportScale=yes,toolbarposition=top,closebuttoncaption=" + _( "Back" )
 					);
 
@@ -11360,7 +11361,7 @@ function checkPublicAccess( eip ) {
 						desc: _( "Click here to troubleshoot remote access issues" ),
 						on: function() {
 							window.open( "https://openthings.freshdesk.com/support/solutions/articles/5000569763",
-								"_blank", "location=" + ( isAndroid ? "yes" : "no" ) +
+								"_blank", "location=" + ( OSApp.isAndroid ? "yes" : "no" ) +
 								",enableViewportScale=yes,toolbarposition=top,closebuttoncaption=" + _( "Back" )
 							);
 
@@ -12367,38 +12368,38 @@ function showTimeInput( opt ) {
 			"<div class='ui-content'>" +
 				( opt.helptext ? "<p class='pad-top rain-desc center smaller'>" + opt.helptext + "</p>" : "" ) +
 				"<span>" +
-					"<fieldset class='ui-grid-" + ( isMetric ? "a" : "b" ) + " incr'>" +
+					"<fieldset class='ui-grid-" + ( OSApp.isMetric ? "a" : "b" ) + " incr'>" +
 						"<div class='ui-block-a'>" +
 							"<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a>" +
 						"</div>" +
 						"<div class='ui-block-b'>" +
 							"<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a>" +
 						"</div>" +
-						( isMetric ? "" : "<div class='ui-block-c'>" +
+						( OSApp.isMetric ? "" : "<div class='ui-block-c'>" +
 							"<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a>" +
 						"</div>" ) +
 					"</fieldset>" +
-					"<div class='ui-grid-" + ( isMetric ? "a" : "b" ) + " inputs'>" +
+					"<div class='ui-grid-" + ( OSApp.isMetric ? "a" : "b" ) + " inputs'>" +
 						"<div class='ui-block-a'>" +
 							"<input data-wrapper-class='pad_buttons' class='hour dontPad' type='number' pattern='[0-9]*' value='" +
-								( isMetric ? pad( ( opt.minutes / 60 >> 0 ) % 24 ) + "'>" : ( parseInt( opt.minutes / 60 ) % 12 === 0 ? 12 : parseInt( opt.minutes / 60 ) % 12 ) + "'>" ) +
+								( OSApp.isMetric ? pad( ( opt.minutes / 60 >> 0 ) % 24 ) + "'>" : ( parseInt( opt.minutes / 60 ) % 12 === 0 ? 12 : parseInt( opt.minutes / 60 ) % 12 ) + "'>" ) +
 						"</div>" +
 						"<div class='ui-block-b'>" +
 							"<input data-wrapper-class='pad_buttons' class='minute' type='number' pattern='[0-9]*' value='" +
 								pad( opt.minutes % 60 ) + "'>" +
 						"</div>" +
-						( isMetric ? "" : "<div class='ui-block-c'>" +
+						( OSApp.isMetric ? "" : "<div class='ui-block-c'>" +
 							"<p class='center period'>" + getPeriod() + "</p>" +
 						"</div>" ) +
 					"</div>" +
-					"<fieldset class='ui-grid-" + ( isMetric ? "a" : "b" ) + " decr'>" +
+					"<fieldset class='ui-grid-" + ( OSApp.isMetric ? "a" : "b" ) + " decr'>" +
 						"<div class='ui-block-a'>" +
 							"<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='minus' data-iconpos='bottom'></a>" +
 						"</div>" +
 						"<div class='ui-block-b'>" +
 							"<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='minus' data-iconpos='bottom'></a>" +
 						"</div>" +
-						( isMetric ? "" : "<div class='ui-block-c'>" +
+						( OSApp.isMetric ? "" : "<div class='ui-block-c'>" +
 							"<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='minus' data-iconpos='bottom'></a>" +
 						"</div>" ) +
 					"</fieldset>" +
@@ -12431,7 +12432,7 @@ function showTimeInput( opt ) {
 					val = parseInt( input.val() );
 
 				if ( dir === 1 ) {
-					if ( isHour && ( ( isMetric && val >= 24 ) || ( !isMetric && val >= 12 ) ) ) {
+					if ( isHour && ( ( OSApp.isMetric && val >= 24 ) || ( !OSApp.isMetric && val >= 12 ) ) ) {
 						val = 0;
 					}
 					if ( !isHour && val >= 59 ) {
@@ -12439,7 +12440,7 @@ function showTimeInput( opt ) {
 						var hour = popup.find( ".hour" ),
 							hourFixed = parseInt( hour.val() );
 
-						if ( !isMetric ) {
+						if ( !OSApp.isMetric ) {
 							if ( hourFixed === 12 ) {
 								hourFixed = 0;
 							}
@@ -12503,7 +12504,7 @@ function showTimeInput( opt ) {
 			} else {
 				var hour = parseInt( popup.find( ".hour" ).val() );
 
-				if ( !isMetric ) {
+				if ( !OSApp.isMetric ) {
 					if ( isPM && hour !== 12 ) {
 						hour = hour + 12;
 					}
@@ -12930,10 +12931,10 @@ function loadLocalSettings() {
 		// no value in local storage exists.
 		switch ( data.isMetric ) {
 			case "true":
-				isMetric = true;
+				OSApp.isMetric = true;
 				break;
 			case "false":
-				isMetric = false;
+				OSApp.isMetric = false;
 				break;
 			default:
 		}
@@ -12941,10 +12942,10 @@ function loadLocalSettings() {
 	storage.get( "groupView", function( data ) {
 		switch ( data.groupView ) {
 			case "true":
-				groupView = true;
+				OSApp.groupView = true;
 				break;
 			case "false":
-				groupView = false;
+				OSApp.groupView = false;
 				break;
 			default:
 		}
@@ -12971,7 +12972,7 @@ function fixInputClick( page ) {
 function holdButton( target, callback ) {
 	var intervalId;
 
-	target.on( isTouchCapable ? "tap" : "click", callback ).on( "taphold", function( e ) {
+	target.on( OSApp.isTouchCapable ? "tap" : "click", callback ).on( "taphold", function( e ) {
 		intervalId = setInterval( function() {
 			callback( e );
 		}, 100 );
@@ -13073,7 +13074,7 @@ function isControllerConnected() {
 function exportObj( ele, obj, subject ) {
 	obj = encodeURIComponent( JSON.stringify( obj ) );
 
-	if ( isFileCapable ) {
+	if ( OSApp.isFileCapable ) {
 		$( ele ).attr( {
 			href: "data:text/json;charset=utf-8," + obj,
 			download: "backup-" + new Date().toLocaleDateString().replace( /\//g, "-" ) + ".json"
@@ -13320,7 +13321,7 @@ function minutesToTime( minutes ) {
 		hour = 12;
 	}
 
-	return isMetric ? ( pad( ( minutes / 60 >> 0 ) % 24 ) + ":" + pad( minutes % 60 ) ) : ( hour + ":" + pad( minutes % 60 ) + " " + period );
+	return OSApp.isMetric ? ( pad( ( minutes / 60 >> 0 ) % 24 ) + ":" + pad( minutes % 60 ) ) : ( hour + ":" + pad( minutes % 60 ) + " " + period );
 }
 
 function getBitFromByte( byte, bit ) {
