@@ -91,7 +91,7 @@ OSApp.uiState = {
 	timers: {},
 };
 
-// Current session/site settings
+// Current session and site values
 OSApp.currentSession = {
 	auth: undefined,
 	authPass: undefined,
@@ -2866,7 +2866,7 @@ function updateWeather() {
 	showLoading( "#weather" );
 
 	$.ajax( {
-		url: OSApp.Weather.WEATHER_SERVER_URL + "/weatherData?loc=" +
+		url: OSApp.currentSession.weatherServerUrl + "/weatherData?loc=" +
 			encodeURIComponent( OSApp.currentSession.controller.settings.loc ),
 		contentType: "application/json; charset=utf-8",
 		success: function( data ) {
