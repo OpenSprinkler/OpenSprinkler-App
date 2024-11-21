@@ -83,6 +83,8 @@ OSApp.popupData = {
 // TODO: refactor OSApp.dialog elsewhere
 // TODO: refactor OSApp.popupData elsewhere
 // TODO: refactor option constants elsewhere!
+// TODO: refactor ui state elsewhere!
+// TODO: refactor misc settings elsewhere!
 
 // Option constants
 OSApp.MANUAL_STATION_PID = 99;
@@ -90,17 +92,20 @@ OSApp.MASTER_STATION_1 = 1;
 OSApp.MASTER_STATION_2 = 2;
 OSApp.IGNORE_SENSOR_1 = 1;
 OSApp.IGNORE_SENSOR_2 = 2;
+OSApp.NUM_SEQ_GROUPS = 4;
+OSApp.PARALLEL_GROUP_NAME = "P";
+OSApp.PARALLEL_GID_VALUE = 255;
+OSApp.MASTER_GROUP_NAME = "M";
+OSApp.MASTER_GID_VALUE = 254;
 
-var NUM_SEQ_GROUPS = 4,
-	PARALLEL_GROUP_NAME = "P",
-	PARALLEL_GID_VALUE = 255,
-	MASTER_GROUP_NAME = "M",
-	MASTER_GID_VALUE = 254,
+// UI State
+OSApp.notifications = []; // Array to hold all notifications currently displayed within the app
+OSApp.timers = {};
 
-	// Array to hold all notifications currently displayed within the app
-	notifications = [],
-	timers = {},
-	curr183, currToken, currIp, currPrefix, currAuth, currPass, currAuthUser,
+// Misc settings
+OSApp.curr183 = undefined;
+
+var currToken, currIp, currPrefix, currAuth, currPass, currAuthUser,
 	currAuthPass, currLocal, currLang, language, deviceip, errorTimeout, weather, openPanel;
 
 if ( "serviceWorker" in navigator ) {
@@ -621,7 +626,7 @@ function sendToOS( dest, type ) {
 		} );
 	}
 
-	if ( curr183 ) {
+	if ( OSApp.curr183 ) {
 
 		// Firmware 1.8.3 has a bug handling the time stamp in the GET request
 		$.extend( obj, {
@@ -743,7 +748,7 @@ function newLoad() {
 	clearNotifications();
 
 	//Empty timers object
-	timers = {};
+	OSApp.timers = {};
 
 	//Clear the current queued AJAX requests (used for previous OSApp.controller connection)
 	$.ajaxq.abort( "default" );
@@ -901,7 +906,7 @@ function updateController( callback, fail ) {
 function updateControllerPrograms( callback ) {
 	callback = callback || function() {};
 
-	if ( curr183 === true ) {
+	if ( OSApp.curr183 === true ) {
 
 		// If the controller is using firmware 1.8.3, then parse the script tag for variables
 		return sendToOS( "/gp?d=0" ).done( function( programs ) {
@@ -942,7 +947,7 @@ function updateControllerPrograms( callback ) {
 function updateControllerStations( callback ) {
 	callback = callback || function() {};
 
-	if ( curr183 === true ) {
+	if ( OSApp.curr183 === true ) {
 
 		// If the controller is using firmware 1.8.3, then parse the script tag for variables
 		return sendToOS( "/vs" ).done( function( stations ) {
@@ -976,7 +981,7 @@ function updateControllerStations( callback ) {
 function updateControllerOptions( callback ) {
 	callback = callback || function() {};
 
-	if ( curr183 === true ) {
+	if ( OSApp.curr183 === true ) {
 
 		// If the controller is using firmware 1.8.3, then parse the script tag for variables
 		return sendToOS( "/vo" ).done( function( options ) {
@@ -1020,7 +1025,7 @@ function updateControllerOptions( callback ) {
 function updateControllerStatus( callback ) {
 	callback = callback || function() {};
 
-	if ( curr183 === true ) {
+	if ( OSApp.curr183 === true ) {
 
 		// If the controller is using firmware 1.8.3, then parse the script tag for variables
 		return sendToOS( "/sn0" ).then(
@@ -1050,7 +1055,7 @@ function updateControllerStatus( callback ) {
 function updateControllerSettings( callback ) {
 	callback = callback || function() {};
 
-	if ( curr183 === true ) {
+	if ( OSApp.curr183 === true ) {
 
 		// If the controller is using firmware 1.8.3, then parse the script tag for variables
 		return sendToOS( "" ).then(
@@ -1200,9 +1205,9 @@ function checkConfigured( firstLoad ) {
 		}
 
 		if ( sites[ current ].is183 ) {
-			curr183 = true;
+			OSApp.curr183 = true;
 		} else {
-			curr183 = false;
+			OSApp.curr183 = false;
 		}
 
 		newLoad();
@@ -1290,7 +1295,7 @@ function submitNewUser( ssl, useAuth ) {
 
 				if ( is183 === true ) {
 					sites[ name ].is183 = "1";
-					curr183 = true;
+					OSApp.curr183 = true;
 				}
 
 				$( "#os_name,#os_ip,#os_pw,#os_auth_user,#os_auth_pw,#os_token" ).val( "" );
@@ -5408,7 +5413,7 @@ var showHome = ( function() {
 			"</div>" +
 		"</div>" ),
 		addTimer = function( station, rem ) {
-			timers[ "station-" + station ] = {
+			OSApp.timers[ "station-" + station ] = {
 				val: rem,
 				station: station,
 				update: function() {
@@ -5871,7 +5876,7 @@ var showHome = ( function() {
 					prohibitChange.addClass( "hidden" );
 				}
 
-				for ( var i = 0; i <= NUM_SEQ_GROUPS; i++ ) {
+				for ( var i = 0; i <= OSApp.NUM_SEQ_GROUPS; i++ ) {
 					var value = mapIndexToGIDValue( i ),
 						label = mapGIDValueToName( value ),
 						option = $(
@@ -6077,7 +6082,7 @@ var showHome = ( function() {
 		updateClock = function() {
 
 			// Update the current time
-			timers.clock = {
+			OSApp.timers.clock = {
 				val: OSApp.controller.settings.devt,
 				update: function() {
 					page.find( "#clock-s" ).text( dateToString( new Date( this.val * 1000 ), null, 1 ) );
@@ -6456,7 +6461,7 @@ var showHome = ( function() {
 					Station.setStatus( sid, 0 );
 
 					// Remove any timer associated with the station
-					delete timers[ "station-" + sid ];
+					delete OSApp.timers[ "station-" + sid ];
 
 					refreshStatus();
 					showerror( _( "Station has been stopped" ) );
@@ -6500,7 +6505,7 @@ var showHome = ( function() {
 					rightBtn: {
 						icon: "bell",
 						class: "notifications",
-						text: "<span class='notificationCount ui-li-count ui-btn-corner-all'>" + notifications.length + "</span>",
+						text: "<span class='notificationCount ui-li-count ui-btn-corner-all'>" + OSApp.notifications.length + "</span>",
 						on: function() {
 							showNotifications();
 							return false;
@@ -6509,7 +6514,7 @@ var showHome = ( function() {
 					animate: ( firstLoad ? false : true )
 				} );
 
-				if ( notifications.length === 0 ) {
+				if ( OSApp.notifications.length === 0 ) {
 					$( header[ 2 ] ).hide();
 				}
 			}
@@ -6738,7 +6743,7 @@ function changeStatus( seconds, color, line, onclick ) {
 	onclick = onclick || function() {};
 
 	if ( seconds > 1 ) {
-		timers.statusbar = {
+		OSApp.timers.statusbar = {
 			val: seconds,
 			type: "statusbar",
 			update: function() {
@@ -6947,14 +6952,14 @@ function calculateTotalRunningTime( runTimes ) {
 	var sdt = OSApp.controller.options.sdt,
 		sequential, parallel;
 	if ( Supported.groups() ) {
-		sequential = new Array( NUM_SEQ_GROUPS ).fill( 0 );
+		sequential = new Array( OSApp.NUM_SEQ_GROUPS ).fill( 0 );
 		parallel = 0;
 		var sequentialMax = 0;
 		$.each( OSApp.controller.stations.snames, function( i ) {
 			var run = runTimes[ i ];
 			var gid = Station.getGIDValue( i );
 			if ( run > 0 ) {
-				if ( gid !== PARALLEL_GID_VALUE ) {
+				if ( gid !== OSApp.PARALLEL_GID_VALUE ) {
 					sequential[ gid ] += ( run + sdt );
 				} else {
 					if ( run > parallel ) {
@@ -6963,7 +6968,7 @@ function calculateTotalRunningTime( runTimes ) {
 				}
 			}
 		} );
-		for ( var d = 0; d < NUM_SEQ_GROUPS; d++ )	{
+		for ( var d = 0; d < OSApp.NUM_SEQ_GROUPS; d++ )	{
 			if ( sequential[ d ] > sdt ) { sequential[ d ] -= sdt; }
 			if ( sequential[ d ] > sequentialMax ) { sequentialMax = sequential[ d ]; }
 		}
@@ -7010,30 +7015,30 @@ function updateTimers() {
 		lastCheck = now;
 
 		// If no timers are defined then exit
-		if ( $.isEmptyObject( timers ) ) {
+		if ( $.isEmptyObject( OSApp.timers ) ) {
 			return;
 		}
 
-		for ( var timer in timers ) {
-			if ( timers.hasOwnProperty( timer ) ) {
-				if ( timers[ timer ].val <= 0 ) {
+		for ( var timer in OSApp.timers ) {
+			if ( OSApp.timers.hasOwnProperty( timer ) ) {
+				if ( OSApp.timers[ timer ].val <= 0 ) {
 					if ( timer === "statusbar" ) {
 						showLoading( "#footer-running" );
 						refreshStatus();
 					}
 
-					if ( typeof timers[ timer ].done === "function" ) {
-						timers[ timer ].done();
+					if ( typeof OSApp.timers[ timer ].done === "function" ) {
+						OSApp.timers[ timer ].done();
 					}
 
-					delete timers[ timer ];
+					delete OSApp.timers[ timer ];
 				} else {
 					if ( timer === "clock" ) {
-						++timers[ timer ].val;
-						timers[ timer ].update();
-					} else if ( timer === "statusbar" || typeof timers[ timer ].station === "number" ) {
-						--timers[ timer ].val;
-						timers[ timer ].update();
+						++OSApp.timers[ timer ].val;
+						OSApp.timers[ timer ].update();
+					} else if ( timer === "statusbar" || typeof OSApp.timers[ timer ].station === "number" ) {
+						--OSApp.timers[ timer ].val;
+						OSApp.timers[ timer ].update();
 					}
 				}
 			}
@@ -7042,10 +7047,10 @@ function updateTimers() {
 }
 
 function removeStationTimers() {
-	for ( var timer in timers ) {
-		if ( timers.hasOwnProperty( timer ) ) {
+	for ( var timer in OSApp.timers ) {
+		if ( OSApp.timers.hasOwnProperty( timer ) ) {
 			if ( timer !== "clock" ) {
-				delete timers[ timer ];
+				delete OSApp.timers[ timer ];
 			}
 		}
 	}
@@ -7493,7 +7498,7 @@ var getPreview = ( function() {
 			qidArray = new Array( nstations ),
 			lastStopTime = 0,
 			lastSeqStopTime = 0,
-			lastSeqStopTimes = new Array( NUM_SEQ_GROUPS ), // Use this array if seq group is available
+			lastSeqStopTimes = new Array( OSApp.NUM_SEQ_GROUPS ), // Use this array if seq group is available
 			busy, matchFound, prog, sid, qid, d, q, sqi, bid, bid2, s, s2;
 
 		for ( sid = 0; sid < nstations; sid++ ) {
@@ -7503,7 +7508,7 @@ var getPreview = ( function() {
 			plArray[ sid ] = 0;
 			qidArray[ sid ] = 0xFF;
 		}
-		for ( d = 0; d < NUM_SEQ_GROUPS; d++ ) { lastSeqStopTimes[ d ] = 0; }
+		for ( d = 0; d < OSApp.NUM_SEQ_GROUPS; d++ ) { lastSeqStopTimes[ d ] = 0; }
 
 		do {
 			busy = 0;
@@ -7575,14 +7580,14 @@ var getPreview = ( function() {
 			if ( matchFound ) {
 				var acctime = simminutes * 60,
 					seqAcctime = acctime,
-					seqAcctimes = new Array( NUM_SEQ_GROUPS );
+					seqAcctimes = new Array( OSApp.NUM_SEQ_GROUPS );
 
 				if ( is211 ) {
 					if ( lastSeqStopTime > acctime ) {
 						seqAcctime = lastSeqStopTime + OSApp.controller.options.sdt;
 					}
 
-					for ( d = 0; d < NUM_SEQ_GROUPS; d++ ) {
+					for ( d = 0; d < OSApp.NUM_SEQ_GROUPS; d++ ) {
 						seqAcctimes[ d ] = acctime;
 						if ( lastSeqStopTimes[ d ] > acctime ) {
 							seqAcctimes[ d ] = lastSeqStopTimes[ d ] + OSApp.controller.options.sdt;
@@ -7612,7 +7617,7 @@ var getPreview = ( function() {
 									acctime++;
 								}
 							} else { // Group id is available
-								if ( q.gid !== PARALLEL_GID_VALUE ) { // This is a sequential station
+								if ( q.gid !== OSApp.PARALLEL_GID_VALUE ) { // This is a sequential station
 									q.st = seqAcctimes[ q.gid ];
 									seqAcctimes[ q.gid ] += q.dur;
 									seqAcctimes[ q.gid ] += OSApp.controller.options.sdt;
@@ -7718,7 +7723,7 @@ var getPreview = ( function() {
 
 				// Lastly, calculate lastSeqStopTime
 				lastSeqStopTime = 0;
-				for ( d = 0; d < NUM_SEQ_GROUPS; d++ ) { lastSeqStopTime[ d ] = 0; }
+				for ( d = 0; d < OSApp.NUM_SEQ_GROUPS; d++ ) { lastSeqStopTime[ d ] = 0; }
 				for ( qid = 0; qid < rtQueue.length; qid++ ) {
 					q = rtQueue[ qid ];
 					sid = q.sid;
@@ -7732,7 +7737,7 @@ var getPreview = ( function() {
 							}
 						}
 					} else { // Group id is available
-						if ( q.gid !== PARALLEL_GID_VALUE ) {
+						if ( q.gid !== OSApp.PARALLEL_GID_VALUE ) {
 							if ( sst > lastSeqStopTimes[ q.gid ] ) {
 								lastSeqStopTimes[ q.gid ] = sst;
 							}
@@ -11421,7 +11426,7 @@ function updateLoginButtons() {
 }
 
 function addNotification( item ) {
-	notifications.push( item );
+	OSApp.notifications.push( item );
 	updateNotificationBadge();
 
 	var panel = $( "#notificationPanel" );
@@ -11432,7 +11437,7 @@ function addNotification( item ) {
 }
 
 function updateNotificationBadge() {
-	var total = notifications.length,
+	var total = OSApp.notifications.length,
 		header = $( "#header" );
 
 	if ( total === 0 ) {
@@ -11456,7 +11461,7 @@ function createNotificationItem( item ) {
 }
 
 function showNotifications() {
-	if ( notifications.length === 0 ) {
+	if ( OSApp.notifications.length === 0 ) {
 		return;
 	}
 
@@ -11479,8 +11484,8 @@ function showNotifications() {
 			}
 		} ) ];
 
-	for ( var i = notifications.length - 1; i >= 0; i-- ) {
-		items.push( createNotificationItem( notifications[ i ] ) );
+	for ( var i = OSApp.notifications.length - 1; i >= 0; i-- ) {
+		items.push( createNotificationItem( OSApp.notifications[ i ] ) );
 	}
 
 	panel.find( "ul" ).replaceWith( $( "<ul/>" ).append( items ).listview() );
@@ -11494,7 +11499,7 @@ function showNotifications() {
 
 function clearNotifications() {
 	var panel = $( "#notificationPanel" );
-	notifications = [];
+	OSApp.notifications = [];
 	updateNotificationBadge();
 	panel.find( "ul" ).empty();
 	if ( panel.hasClass( "ui-panel-open" ) ) {
@@ -11504,7 +11509,7 @@ function clearNotifications() {
 
 function removeNotification( button ) {
 	var panel = $( "#notificationPanel" ),
-		off = notifications[ button.index() - 1 ].off;
+		off = OSApp.notifications[ button.index() - 1 ].off;
 
 	if ( typeof off === "function" ) {
 		if ( !off() ) {
@@ -11512,10 +11517,10 @@ function removeNotification( button ) {
 		}
 	}
 
-	notifications.remove( button.index() - 1 );
+	OSApp.notifications.remove( button.index() - 1 );
 	button.remove();
 	updateNotificationBadge();
-	if ( notifications.length === 0 && panel.hasClass( "ui-panel-open" ) ) {
+	if ( OSApp.notifications.length === 0 && panel.hasClass( "ui-panel-open" ) ) {
 		panel.panel( "close" );
 	}
 }
@@ -13658,7 +13663,7 @@ StationAttribute.getDisabled = function( sid ) {
 
 StationAttribute.getSequential = function( sid ) {
 	if ( Supported.groups() ) {
-		return Station.getGIDValue !== PARALLEL_GID_VALUE ? 1 : 0;
+		return Station.getGIDValue !== OSApp.PARALLEL_GID_VALUE ? 1 : 0;
 	}
 	if ( !Supported.sequential() ) { return 0; }
 	var bid = ( sid / 8 ) >> 0,
@@ -13780,15 +13785,15 @@ StationQueue.size = function() {
 
 // Last index value is dedicated to the parallel group
 function mapIndexToGIDValue( index ) {
-	return ( index - NUM_SEQ_GROUPS ) ? index : PARALLEL_GID_VALUE;
+	return ( index - OSApp.NUM_SEQ_GROUPS ) ? index : OSApp.PARALLEL_GID_VALUE;
 }
 
 function mapGIDValueToName( value ) {
 	switch ( value ) {
-		case PARALLEL_GID_VALUE:
-			return PARALLEL_GROUP_NAME;
-		case MASTER_GID_VALUE:
-			return MASTER_GROUP_NAME;
+		case OSApp.PARALLEL_GID_VALUE:
+			return OSApp.PARALLEL_GROUP_NAME;
+		case OSApp.MASTER_GID_VALUE:
+			return OSApp.MASTER_GROUP_NAME;
 		default:
 			return String.fromCharCode( 65 + value );
 	}
@@ -13796,10 +13801,10 @@ function mapGIDValueToName( value ) {
 
 function mapGIDNameToValue( groupName ) {
 	switch ( groupName ) {
-		case PARALLEL_GROUP_NAME:
-			return PARALLEL_GID_VALUE;
-		case MASTER_GROUP_NAME:
-			return MASTER_GID_VALUE;
+		case OSApp.PARALLEL_GROUP_NAME:
+			return OSApp.PARALLEL_GID_VALUE;
+		case OSApp.MASTER_GROUP_NAME:
+			return OSApp.MASTER_GID_VALUE;
 		default:
 			return groupName.charCodeAt( 0 ) - 65;
 	}
