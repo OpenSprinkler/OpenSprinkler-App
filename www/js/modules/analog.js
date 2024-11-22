@@ -104,7 +104,7 @@ OSApp.Analog.intFromBytes = function( x ) {
 			val += parseInt( x[ i ] );
 		}
 		return val;
-	} catch () {
+	} catch {
 		return 0;
 	}
 };
