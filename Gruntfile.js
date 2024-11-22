@@ -55,14 +55,14 @@
 			secrets: secrets,
 
 			jshint: {
-				main: [ "www/js/**/*.js", "!www/js/vendor/**/*.js" ], // Ignore the vendor folder
+				main: [ "www/js/**/*.js" ],
 				options: {
 					jshintrc: true
 				}
 			},
 
 			jscs: {
-				main: [ "www/js/main.js"],
+				main: [ "www/js/**/*.js" ],
 				options: {
 					config: true,
 					fix: true,
