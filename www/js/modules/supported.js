@@ -1,5 +1,3 @@
-/* global $ */
-
 /* OpenSprinkler App
  * Copyright (C) 2015 - present, Samer Albahra. All rights reserved.
  *

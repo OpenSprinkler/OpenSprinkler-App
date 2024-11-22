@@ -1,3 +1,5 @@
+/* global $ */
+
 /* OpenSprinkler App
  * Copyright (C) 2015 - present, Samer Albahra. All rights reserved.
  *
@@ -36,7 +38,7 @@ OSApp.Firmware.Constants = {
 };
 
 // Wrapper function to communicate with OpenSprinkler
-OSApp.Firmware.sendToOS = ( dest, type ) => {
+OSApp.Firmware.sendToOS = function( dest, type ) {
 
 	// Inject password into the request
 	dest = dest.replace( "pw=", "pw=" + encodeURIComponent( OSApp.currentSession.pass ) );
@@ -152,7 +154,7 @@ OSApp.Firmware.sendToOS = ( dest, type ) => {
 };
 
 // OpenSprinkler feature detection functions
-OSApp.Firmware.checkOSVersion = ( check ) => {
+OSApp.Firmware.checkOSVersion = function( check ) {
 	var version = OSApp.currentSession.controller.options.fwv;
 
 	// If check is 4 digits then we need to include the minor version number as well
@@ -175,7 +177,7 @@ OSApp.Firmware.checkOSVersion = ( check ) => {
 	}
 };
 
-OSApp.Firmware.isOSPi = () => {
+OSApp.Firmware.isOSPi = function() {
 	if ( OSApp.currentSession.controller &&
 		typeof OSApp.currentSession.controller.options === "object" &&
 		typeof OSApp.currentSession.controller.options.fwv === "string" &&
@@ -186,7 +188,7 @@ OSApp.Firmware.isOSPi = () => {
 	return false;
 };
 
-OSApp.Firmware.versionCompare = ( ver, check ) => {
+OSApp.Firmware.versionCompare = function( ver, check ) {
 
 	// Returns false when check < ver and 1 when check > ver
 
@@ -215,7 +217,7 @@ OSApp.Firmware.versionCompare = ( ver, check ) => {
 	return result;
 };
 
-OSApp.Firmware.getUrlVars = ( url ) => {
+OSApp.Firmware.getUrlVars = function( url ) {
 	var hash,
 		json = {},
 		hashes = url.slice( url.indexOf( "?" ) + 1 ).split( "&" );
@@ -227,7 +229,7 @@ OSApp.Firmware.getUrlVars = ( url ) => {
 	return json;
 };
 
-OSApp.Firmware.checkOSPiVersion = ( check ) => {
+OSApp.Firmware.checkOSPiVersion = function( check ) {
 	var ver;
 
 	if ( OSApp.Firmware.isOSPi() ) {
@@ -242,9 +244,9 @@ OSApp.Firmware.checkOSPiVersion = ( check ) => {
 	} else {
 		return false;
 	}
-}
+};
 
-OSApp.Firmware.getOSVersion = ( fwv ) => {
+OSApp.Firmware.getOSVersion = function( fwv ) {
 	if ( !fwv && typeof OSApp.currentSession.controller.options === "object" ) {
 		fwv = OSApp.currentSession.controller.options.fwv;
 	}
@@ -255,14 +257,14 @@ OSApp.Firmware.getOSVersion = ( fwv ) => {
 	}
 };
 
-OSApp.Firmware.getOSMinorVersion = () => {
+OSApp.Firmware.getOSMinorVersion = function() {
 	if ( !OSApp.Firmware.isOSPi() && typeof OSApp.currentSession.controller.options === "object" && typeof OSApp.currentSession.controller.options.fwm === "number" && OSApp.currentSession.controller.options.fwm > 0 ) {
 		return " (" + OSApp.currentSession.controller.options.fwm + ")";
 	}
 	return "";
 };
 
-OSApp.Firmware.getHWVersion = ( hwv ) => {
+OSApp.Firmware.getHWVersion = function( hwv ) {
 	if ( !hwv ) {
 		if ( typeof OSApp.currentSession.controller.options === "object" && typeof OSApp.currentSession.controller.options.hwv !== "undefined" ) {
 			hwv = OSApp.currentSession.controller.options.hwv;
@@ -288,7 +290,7 @@ OSApp.Firmware.getHWVersion = ( hwv ) => {
 	}
 };
 
-OSApp.Firmware.getHWType = () => {
+OSApp.Firmware.getHWType = function() {
 	if ( OSApp.Firmware.isOSPi() || typeof OSApp.currentSession.controller.options.hwt !== "number" || OSApp.currentSession.controller.options.hwt === 0 ) {
 		return "";
 	}
@@ -302,9 +304,9 @@ OSApp.Firmware.getHWType = () => {
 	} else {
 		return "";
 	}
-}
+};
 
-OSApp.Firmware.checkFirmwareUpdate = () => {
+OSApp.Firmware.checkFirmwareUpdate = function() {
 
 	// Update checks are only be available for Arduino firmwares
 	if ( OSApp.Firmware.checkOSVersion( 200 ) && ( OSApp.Firmware.getHWVersion() === "3.0" || OSApp.Firmware.isOSPi() ) ) {

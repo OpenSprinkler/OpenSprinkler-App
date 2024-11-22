@@ -18,7 +18,8 @@ var OSApp = OSApp || {};
 OSApp.Sites = OSApp.Sites || {};
 
 
-OSApp.Sites.testSite = ( site, id, callback = () => void 0 ) => {
+OSApp.Sites.testSite = function( site, id, callback) {
+	callback = callback || function(){};
 	var urlDest = "/jo?pw=" + encodeURIComponent( site.os_pw ),
 		url = site.os_token ? "https://cloud.openthings.io/forward/v1/" + site.os_token + urlDest : ( site.ssl === "1" ? "https://" : "http://" ) + site.os_ip + urlDest;
 
@@ -42,7 +43,7 @@ OSApp.Sites.testSite = ( site, id, callback = () => void 0 ) => {
 };
 
 // Update the panel list of sites
-OSApp.Sites.updateSiteList = ( names, current ) => {
+OSApp.Sites.updateSiteList = function( names, current ) {
 	var list = "",
 		select = $( "#site-selector" );
 
@@ -58,7 +59,8 @@ OSApp.Sites.updateSiteList = ( names, current ) => {
 	}
 };
 
-OSApp.Sites.findLocalSiteName = ( sites, callback = () => void 0) => {
+OSApp.Sites.findLocalSiteName = function( sites, callback ) {
+	callback = callback || function(){};
 	for ( var site in sites ) {
 		if ( sites.hasOwnProperty( site ) ) {
 			if ( OSApp.currentSession.ip.indexOf( sites[ site ].os_ip ) !== -1 ) {
@@ -72,7 +74,7 @@ OSApp.Sites.findLocalSiteName = ( sites, callback = () => void 0) => {
 };
 
 // Multi site functions
-OSApp.Sites.checkConfigured = ( firstLoad ) => {
+OSApp.Sites.checkConfigured = function( firstLoad ) {
 	OSApp.Storage.get( [ "sites", "current_site", "cloudToken" ], function( data ) {
 		var sites = data.sites,
 			current = data.current_site,
@@ -138,7 +140,7 @@ OSApp.Sites.checkConfigured = ( firstLoad ) => {
 	} );
 };
 
-OSApp.Sites.parseSites = ( sites ) => {
+OSApp.Sites.parseSites = function( sites ) {
 	return ( sites === undefined || sites === null ) ? {} : JSON.parse( sites );
 };
 
@@ -627,7 +629,9 @@ OSApp.Sites.newLoad = function() {
 };
 
 // Update controller information
-OSApp.Sites.updateController = function( callback = () => void 0, fail = () => void 0 ) {
+OSApp.Sites.updateController = function( callback, fail) {
+	callback = callback || function(){};
+	fail = fail || function(){};
 	var finish = function() {
 		$( "html" ).trigger( "datarefresh" );
 		OSApp.Status.checkStatus();
@@ -666,7 +670,8 @@ OSApp.Sites.updateController = function( callback = () => void 0, fail = () => v
 	}
 };
 
-OSApp.Sites.updateControllerPrograms = function( callback = () => void 0 ) {
+OSApp.Sites.updateControllerPrograms = function( callback ) {
+	callback = callback || function(){};
 	if ( OSApp.currentSession.fw183 === true ) {
 
 		// If the controller is using firmware 1.8.3, then parse the script tag for variables
@@ -705,7 +710,8 @@ OSApp.Sites.updateControllerPrograms = function( callback = () => void 0 ) {
 	}
 };
 
-OSApp.Sites.updateControllerStations = function( callback = () => void 0 ) {
+OSApp.Sites.updateControllerStations = function( callback ) {
+	callback = callback || function(){};
 	if ( OSApp.currentSession.fw183 === true ) {
 
 		// If the controller is using firmware 1.8.3, then parse the script tag for variables
@@ -737,7 +743,8 @@ OSApp.Sites.updateControllerStations = function( callback = () => void 0 ) {
 	}
 };
 
-OSApp.Sites.updateControllerOptions = function( callback = () => void 0) {
+OSApp.Sites.updateControllerOptions = function( callback ) {
+	callback = callback || function(){};
 	if ( OSApp.currentSession.fw183 === true ) {
 
 		// If the controller is using firmware 1.8.3, then parse the script tag for variables
@@ -779,7 +786,8 @@ OSApp.Sites.updateControllerOptions = function( callback = () => void 0) {
 	}
 };
 
-OSApp.Sites.updateControllerStatus = function( callback = () => void 0 ) {
+OSApp.Sites.updateControllerStatus = function( callback ) {
+	callback = callback || function(){};
 	if ( OSApp.currentSession.fw183 === true ) {
 
 		// If the controller is using firmware 1.8.3, then parse the script tag for variables
@@ -807,7 +815,8 @@ OSApp.Sites.updateControllerStatus = function( callback = () => void 0 ) {
 	}
 };
 
-OSApp.Sites.updateControllerSettings = function( callback = () => void 0 ) {
+OSApp.Sites.updateControllerSettings = function( callback ) {
+	callback = callback || function(){};
 	if ( OSApp.currentSession.fw183 === true ) {
 
 		// If the controller is using firmware 1.8.3, then parse the script tag for variables
@@ -941,7 +950,7 @@ OSApp.Sites.handleCorruptedWeatherOptions = function( wto ) {
 	OSApp.uiState.handleCorruptedWeatherOptions = true;
 };
 
-OSApp.Sites.updateControllerStationSpecial = function( callback = () => void 0 ) {
+OSApp.Sites.updateControllerStationSpecial = function( callback ) {
 	callback = callback || function() {};
 
 	return OSApp.Firmware.sendToOS( "/je?pw=", "json" ).then(
@@ -955,7 +964,7 @@ OSApp.Sites.updateControllerStationSpecial = function( callback = () => void 0 )
 };
 
 // Change the current site (needs to be defined AFTER OSApp.Sites.checkConfigured!)
-OSApp.Sites.updateSite = ( newsite ) => {
+OSApp.Sites.updateSite = function( newsite ) {
 	OSApp.Storage.get( "sites", function( data ) {
 		var sites = OSApp.Sites.parseSites( data.sites );
 		if ( newsite in sites ) {
@@ -964,7 +973,7 @@ OSApp.Sites.updateSite = ( newsite ) => {
 			} );
 		}
 	} );
-}
+};
 
 OSApp.Sites.fixPasswordHash = function( current ) {
 	OSApp.Storage.get( [ "sites" ], function( data ) {

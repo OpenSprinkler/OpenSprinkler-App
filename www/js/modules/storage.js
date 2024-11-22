@@ -16,7 +16,8 @@ var OSApp = OSApp || {};
 OSApp.Storage = OSApp.Storage || {};
 
 // Functions
-OSApp.Storage.get = ( query, callback = () => void 0) => {
+OSApp.Storage.get = function( query, callback ) {
+	callback = callback || function(){};
 	var data = {},
 		i;
 
@@ -33,7 +34,8 @@ OSApp.Storage.get = ( query, callback = () => void 0) => {
 	callback( data );
 };
 
-OSApp.Storage.set = ( query, callback = () => void 0) => {
+OSApp.Storage.set = function( query, callback ) {
+	callback = callback || function(){};
 	var i;
 	if ( typeof query === "object" ) {
 		for ( i in query ) {
@@ -47,7 +49,8 @@ OSApp.Storage.set = ( query, callback = () => void 0) => {
 	callback();
 };
 
-OSApp.Storage.remove = ( query, callback = () => void 0) => {
+OSApp.Storage.remove = function( query, callback ) {
+	callback = callback || function(){};
 	var i;
 
 	if ( typeof query === "string" ) {

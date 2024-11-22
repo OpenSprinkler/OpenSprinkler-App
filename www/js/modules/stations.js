@@ -146,7 +146,8 @@ OSApp.Stations.removeStationTimers = function() {
 	}
 };
 
-OSApp.Stations.stopStations = function( callback = () => void 0 ) {
+OSApp.Stations.stopStations = function( callback ) {
+	callback = callback || function(){};
 	$.mobile.loading( "show" );
 
 	// It can take up to a second before stations actually stop
@@ -183,7 +184,8 @@ OSApp.Stations.parseRemoteStationData = function( hex ) {
 	return result;
 };
 
-OSApp.Stations.verifyRemoteStation = function( data, callback = () => void 0 ) {
+OSApp.Stations.verifyRemoteStation = function( data, callback ) {
+	callback = callback || function(){};
 	data = OSApp.Stations.parseRemoteStationData( data );
 
 	$.ajax( {

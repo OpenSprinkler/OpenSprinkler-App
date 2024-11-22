@@ -1,4 +1,4 @@
-/* global $, ThreeDeeTouch, FastClick, StatusBar, links */
+/* global $, ThreeDeeTouch, FastClick, StatusBar, links, md5 */
 
 /* OpenSprinkler App
  * Copyright (C) 2015 - present, Samer Albahra. All rights reserved.
@@ -20,7 +20,7 @@ OSApp.UIDom = OSApp.UIDom || {};
 // FIXME: this file needs refactoring attention!
 
 // App entry point
-OSApp.UIDom.launchApp = () => {
+OSApp.UIDom.launchApp = function() {
 	Number.prototype.clamp = function( min, max ) {
 		return Math.min( Math.max( this, min ), max );
 	};
@@ -654,7 +654,7 @@ OSApp.UIDom.launchApp = () => {
 								$.mobile.loading( "show" );
 								select.find( ".attrib-submit" ).addClass( "ui-disabled" );
 
-								verifyRemoteStation( hex, function( result ) {
+								OSApp.Stations.verifyRemoteStation( hex, function( result ) {
 									var text;
 
 									if ( result === true ) {
@@ -699,7 +699,7 @@ OSApp.UIDom.launchApp = () => {
 										loader.css( "opacity", "" );
 
 										if ( result === -3 ) {
-											convertRemoteToExtender( hex );
+											OSApp.Stations.convertRemoteToExtender( hex );
 										}
 
 										saveChanges( true );
@@ -3728,7 +3728,7 @@ OSApp.UIDom.launchApp = () => {
 		if ( hash === "#programs" ) {
 			getPrograms( data.options.programToExpand );
 		} else if ( hash === "#addprogram" ) {
-			addProgram( data.options.copyID );
+			OSApp.Programs.addProgram( data.options.copyID );
 		} else if ( hash === "#manual" ) {
 			getManual();
 		} else if ( hash === "#about" ) {
@@ -3859,7 +3859,7 @@ OSApp.UIDom.launchApp = () => {
 
 };
 
-OSApp.UIDom.initAppData = () => {
+OSApp.UIDom.initAppData = function() {
 
 	//Update the language on the page using the browser's locale
 	OSApp.Language.updateLang();
@@ -3875,7 +3875,7 @@ OSApp.UIDom.initAppData = () => {
 	if ( OSApp.currentDevice.isAndroid ) {
 
 		// Hide the back button for Android (all devices have back button)
-		insertStyle( ".ui-toolbar-back-btn{display:none!important}" );
+		OSApp.UIDom.insertStyle( ".ui-toolbar-back-btn{display:none!important}" );
 
 		$( this ).ajaxStart( function() {
 			try {
@@ -4133,7 +4133,7 @@ OSApp.UIDom.initAppData = () => {
 	setTimeout( function() {
 		OSApp.Sites.checkConfigured( true );
 	}, 200 );
-}
+};
 
 OSApp.UIDom.focusInput = function() {
 	$.fn.focusInput = function() {
@@ -4153,7 +4153,7 @@ OSApp.UIDom.focusInput = function() {
 };
 
 // Return Datatables configuration options
-OSApp.UIDom.getDatatablesConfig = ( options ) => {
+OSApp.UIDom.getDatatablesConfig = function( options ) {
 	var defaultConfig = {
 		info: false,
 		paging: false,
@@ -4164,7 +4164,7 @@ OSApp.UIDom.getDatatablesConfig = ( options ) => {
 };
 
 // Panel functions
-OSApp.UIDom.bindPanel = () => {
+OSApp.UIDom.bindPanel = function() {
 	var panel = $( "#sprinklers-settings" ),
 		operation = function() {
 			return ( OSApp.currentSession.controller && OSApp.currentSession.controller.settings && OSApp.currentSession.controller.settings.en && OSApp.currentSession.controller.settings.en === 1 ) ? OSApp.Language._( "Disable" ) : OSApp.Language._( "Enable" );
@@ -4286,18 +4286,19 @@ OSApp.UIDom.bindPanel = () => {
 	} )();
 };
 
-OSApp.UIDom.changePage = ( toPage, opts = {}) => {
+OSApp.UIDom.changePage = function( toPage, opts) {
+	opts = opts || {};
 	if ( toPage.indexOf( "#" ) !== 0 ) {
 		toPage = "#" + toPage;
 	}
 
 	// Close the panel before page transition to avoid bug in jQM 1.4+
-	OSApp.UIDom.closePanel( () => {
+	OSApp.UIDom.closePanel( function() {
 		$.mobile.pageContainer.pagecontainer( "change", toPage, opts );
 	} );
 };
 
-OSApp.UIDom.openPopup = ( popup, args ) => {
+OSApp.UIDom.openPopup = function( popup, args ) {
 	args = $.extend( {}, {
 		history: false,
 		positionTo: "window",
@@ -4322,7 +4323,8 @@ OSApp.UIDom.openPopup = ( popup, args ) => {
 	popup.popup( "open" );
 };
 
-OSApp.UIDom.closePanel = ( callback = () => void 0 ) => {
+OSApp.UIDom.closePanel = function( callback ) {
+	callback = callback || function(){};
 	var panel = $( ".ui-panel-open" );
 	if ( panel.length > 0 ) {
 		panel.one( "panelclose", function() {
@@ -4400,7 +4402,7 @@ OSApp.UIDom.goHome = function( firstLoad ) {
 
 		OSApp.UIDom.changePage( "#sprinklers", opts );
 	}
-}
+};
 
 // Prevent back navigation during active page transition
 OSApp.UIDom.goBack = function() {
@@ -4442,7 +4444,8 @@ OSApp.UIDom.checkChangesBeforeBack = function() {
 	OSApp.UIDom.checkChanges( OSApp.UIDom.goBack );
 };
 
-OSApp.UIDom.checkChanges = function( callback = () => void 0 ) {
+OSApp.UIDom.checkChanges = function( callback ) {
+	callback = callback || function(){};
 	var page = $( ".ui-page-active" ),
 		changed = page.find( ".hasChanges" );
 
@@ -4528,7 +4531,8 @@ OSApp.UIDom.showLoading = function( ele ) {
 	}
 };
 
-OSApp.UIDom.getPicture = function( callback = () => void 0 ) {
+OSApp.UIDom.getPicture = function( callback ) {
+	callback = callback || function(){};
 	var imageLoader = $( "<input style='display: none' type='file' accept='image/*' />" )
 		.insertAfter( "body" )
 		.on( "change", function( event ) {
@@ -5514,9 +5518,10 @@ OSApp.UIDom.flipSwitched = function() {
 		}, 200 );
 		flip.prop( "checked", !changedTo ).flipswitch( "refresh" );
 	} );
-}
+};
 
-OSApp.UIDom.clearPrograms = function( callback = () => void 0 ) {
+OSApp.UIDom.clearPrograms = function( callback ) {
+	callback = callback || function(){};
 	OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to delete ALL programs?" ), "", function() {
 		var url = "/dp?pw=&pid=-1";
 		$.mobile.loading( "show" );
@@ -5529,7 +5534,8 @@ OSApp.UIDom.clearPrograms = function( callback = () => void 0 ) {
 	} );
 };
 
-OSApp.UIDom.resetAllOptions = function( callback = () => void 0 ) {
+OSApp.UIDom.resetAllOptions = function( callback ) {
+	callback = callback || function(){};
 	OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to delete all settings and return to the default settings?" ), "", function() {
 		var co;
 

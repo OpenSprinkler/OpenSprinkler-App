@@ -1,3 +1,5 @@
+/* global $ */
+
 /* OpenSprinkler App
  * Copyright (C) 2015 - present, Samer Albahra. All rights reserved.
  *
@@ -41,7 +43,7 @@ OSApp.Utils.transformKeysinString = function( co ) {
 		item = item.split( "=" );
 		opt[ item[ 0 ] ] = item[ 1 ];
 	} );
-	opt = transformKeys( opt );
+	opt = OSApp.Utils.transformKeys( opt );
 	var arr = [];
 	Object.keys( opt ).forEach( function( key ) { arr.push( key + "=" + opt[ key ] ); } );
 	co = arr.join( "&" );
@@ -154,4 +156,4 @@ OSApp.Utils.isValidOTC = function( token ) {
 
 OSApp.Utils.flowCountToVolume = function( count ) {
 	return parseFloat( ( count * ( ( OSApp.currentSession.controller.options.fpr1 << 8 ) + OSApp.currentSession.controller.options.fpr0 ) / 100 ).toFixed( 2 ) );
-}
+};

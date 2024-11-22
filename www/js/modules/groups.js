@@ -20,11 +20,11 @@ OSApp.Groups = OSApp.Groups || {};
 /* Gid conversions */
 
 // Last index value is dedicated to the parallel group
-OSApp.Groups.mapIndexToGIDValue = ( index ) => {
+OSApp.Groups.mapIndexToGIDValue = function( index ) {
 	return ( index - OSApp.Constants.options.NUM_SEQ_GROUPS ) ? index : OSApp.Constants.options.PARALLEL_GID_VALUE;
 };
 
-OSApp.Groups.mapGIDValueToName = ( value ) => {
+OSApp.Groups.mapGIDValueToName = function( value ) {
 	switch ( value ) {
 		case OSApp.Constants.options.PARALLEL_GID_VALUE:
 			return OSApp.Constants.options.PARALLEL_GROUP_NAME;
@@ -35,7 +35,7 @@ OSApp.Groups.mapGIDValueToName = ( value ) => {
 	}
 };
 
-OSApp.Groups.mapGIDNameToValue = ( groupName ) => {
+OSApp.Groups.mapGIDNameToValue = function( groupName ) {
 	switch ( groupName ) {
 		case OSApp.Constants.options.PARALLEL_GROUP_NAME:
 			return OSApp.Constants.options.PARALLEL_GID_VALUE;

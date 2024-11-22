@@ -1,4 +1,4 @@
-/* global SunCalc */
+/* global SunCalc, $ */
 
 /* OpenSprinkler App
  * Copyright (C) 2015 - present, Samer Albahra. All rights reserved.
@@ -61,7 +61,8 @@ OSApp.Weather.Constants = {
 };
 
 // Weather functions
-OSApp.Weather.showZimmermanAdjustmentOptions = function( button, callback = () => void 0 ) {
+OSApp.Weather.showZimmermanAdjustmentOptions = function( button, callback ) {
+	callback = callback || function(){};
 	$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
 
 	// Sensitivity and baseline values for Humidity, Temp and Rainfall for Zimmerman adjustment
@@ -230,7 +231,8 @@ OSApp.Weather.showZimmermanAdjustmentOptions = function( button, callback = () =
 	OSApp.UIDom.openPopup( popup, { positionTo: "window" } );
 };
 
-OSApp.Weather.showAutoRainDelayAdjustmentOptions = function( button, callback = () => void 0) {
+OSApp.Weather.showAutoRainDelayAdjustmentOptions = function( button, callback ) {
+	callback = callback || function(){};
 	$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
 
 	var options = $.extend( {}, {
@@ -301,9 +303,10 @@ OSApp.Weather.showAutoRainDelayAdjustmentOptions = function( button, callback = 
 	popup.css( "max-width", "380px" );
 
 	OSApp.UIDom.openPopup( popup, { positionTo: "window" } );
-}
+};
 
-OSApp.Weather.showMonthlyAdjustmentOptions = function( button, callback = () => void 0) {
+OSApp.Weather.showMonthlyAdjustmentOptions = function( button, callback ) {
+	callback = callback || function(){};
 	$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
 
 	var options = $.extend( {}, {
@@ -431,7 +434,7 @@ OSApp.Weather.showMonthlyAdjustmentOptions = function( button, callback = () => 
 	popup.css( "max-width", "380px" );
 
 	OSApp.UIDom.openPopup( popup, { positionTo: "window" } );
-}
+};
 
 OSApp.Weather.formatTemp = function( temp ) {
 	if ( OSApp.currentDevice.isMetric ) {
@@ -465,7 +468,8 @@ OSApp.Weather.formatSpeed = function( speed ) {
 };
 
 // Validates a Weather Underground location to verify it contains the data needed for Weather Adjustments
-OSApp.Weather.validateWULocation = function( location, callback = () => void 0 ) {
+OSApp.Weather.validateWULocation = function( location, callback ) {
+	callback = callback || function(){};
 	if ( !OSApp.currentSession.controller.settings.wto || typeof OSApp.currentSession.controller.settings.wto.key !== "string" || OSApp.currentSession.controller.settings.wto.key === "" ) {
 		callback( false );
 	}
@@ -485,7 +489,8 @@ OSApp.Weather.validateWULocation = function( location, callback = () => void 0 )
 	} );
 };
 
-OSApp.Weather.showEToAdjustmentOptions = function( button, callback = () => void 0 ) {
+OSApp.Weather.showEToAdjustmentOptions = function( button, callback ) {
+	callback = callback || function(){};
 	$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
 
 	// Elevation and baseline ETo for ETo adjustment.
@@ -883,7 +888,8 @@ OSApp.Weather.showRainDelay = function() {
 	} );
 };
 
-OSApp.Weather.testWUAPIKey = function( key, callback = () => void 0 ) {
+OSApp.Weather.testWUAPIKey = function( key, callback ) {
+	callback = callback || function(){};
 	$.ajax( {
 		url: "https://api.weather.com/v2/pws/observations/current?stationId=KMAHANOV10&format=json&units=m&apiKey=" + key,
 		cache: true

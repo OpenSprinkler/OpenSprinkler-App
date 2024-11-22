@@ -1660,7 +1660,8 @@ OSApp.Options.showOptions = function( expandItem ) {
 	$.mobile.pageContainer.append( page );
 };
 
-OSApp.Options.coordsToLocation = function( lat, lon, callback = () => void 0, fallback) {
+OSApp.Options.coordsToLocation = function( lat, lon, callback, fallback) {
+	callback = callback || function(){};
 	fallback = fallback || lat + "," + lon;
 
 	$.getJSON( "https://maps.googleapis.com/maps/api/geocode/json?latlng=" + lat + "," + lon + "&key=AIzaSyDaT_HTZwFojXmvYIhwWudK00vFXzMmOKc&result_type=locality|sublocality|administrative_area_level_1|country", function( data ) {
@@ -1727,14 +1728,12 @@ OSApp.Options.coordsToLocation = function( lat, lon, callback = () => void 0, fa
 	} );
 };
 
-OSApp.Options.overlayMap = function( callback = () => void 0 ) {
-
+OSApp.Options.overlayMap = function( callback ) {
+	callback = callback || function(){};
 	// Looks up the location and shows a list possible matches for selection
 	// Returns the selection to the callback
 	$( "#location-list" ).popup( "destroy" ).remove();
 	$.mobile.loading( "show" );
-
-	callback = callback || function() {};
 
 	var popup = $( "<div data-role='popup' id='location-list' data-theme='a' style='background-color:rgb(229, 227, 223);'>" +
 			"<a href='#' data-rel='back' class='ui-btn ui-corner-all ui-shadow ui-btn-b ui-icon-delete ui-btn-icon-notext ui-btn-right'>" + OSApp.Language._( "Close" ) + "</a>" +
@@ -1871,4 +1870,4 @@ OSApp.Options.overlayMap = function( callback = () => void 0 ) {
 	} );
 
 	updateMapStations( current.lat, current.lon );
-}
+};

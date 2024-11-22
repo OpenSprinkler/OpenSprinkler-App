@@ -1,4 +1,4 @@
-/* global $, ThreeDeeTouch, FastClick, StatusBar */
+/* global $ */
 
 /* OpenSprinkler App
  * Copyright (C) 2015 - present, Samer Albahra. All rights reserved.
@@ -18,12 +18,12 @@ var OSApp = OSApp || {};
 OSApp.Status = OSApp.Status || {};
 
 // Current status related functions
-OSApp.Status.refreshStatus = function( callback = () => void 0) {
+OSApp.Status.refreshStatus = function( callback ) {
+	callback = callback || function(){};
 	if ( !OSApp.currentSession.isControllerConnected() ) {
 		return;
 	}
 
-	callback = callback || function() {};
 	var finish = function() {
 
 		// Notify the page container that the data has refreshed
@@ -44,7 +44,8 @@ OSApp.Status.refreshStatus = function( callback = () => void 0) {
 };
 
 // Actually change the status bar
-OSApp.Status.changeStatus = function( seconds, color, line, onclick = () => void 0 ) {
+OSApp.Status.changeStatus = function( seconds, color, line, onclick ) {
+	onclick = onclick || function(){};
 	var footer = $( "#footer-running" ),
 		html = "";
 

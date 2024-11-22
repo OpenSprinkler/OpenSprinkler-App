@@ -17,7 +17,8 @@
 var OSApp = OSApp || {};
 OSApp.Logs = OSApp.Logs || {};
 
-OSApp.Logs.clearLogs = function( callback = () => void 0 ) {
+OSApp.Logs.clearLogs = function( callback ) {
+	callback = callback || function(){};
 	OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to clear ALL your log data?" ), "", function() {
 		var url = OSApp.Firmware.isOSPi() ? "/cl?pw=" : "/dl?pw=&day=all";
 		$.mobile.loading( "show" );

@@ -20,25 +20,25 @@ OSApp.Analog = {
 	}
 };
 
-OSApp.Analog.checkAnalogSensorAvail = () => {
+OSApp.Analog.checkAnalogSensorAvail = function(){
 	return OSApp.currentSession.controller.options && OSApp.currentSession.controller.options.feature === "ASB";
 };
 
-OSApp.Analog.refresh = () => {
+OSApp.Analog.refresh = function() {
 	setTimeout( function() {
 		location.reload();
 	}, 100 );
 };
 
-OSApp.Analog.updateProgramAdjustments = ( callback ) => {
+OSApp.Analog.updateProgramAdjustments = function( callback ) {
 	callback = callback || function() { };
 	return OSApp.Firmware.sendToOS( "/se?pw=", "json" ).then( function( data ) {
 		OSApp.Analog.progAdjusts = data.progAdjust;
 		callback();
 	} );
-}
+};
 
-OSApp.Analog.updateAnalogSensor = ( callback ) => {
+OSApp.Analog.updateAnalogSensor = function( callback ) {
 	callback = callback || function() { };
 	return OSApp.Firmware.sendToOS( "/sl?pw=", "json" ).then( function( data ) {
 		OSApp.Analog.analogSensors = data.sensors;
@@ -46,7 +46,7 @@ OSApp.Analog.updateAnalogSensor = ( callback ) => {
 	} );
 };
 
-OSApp.Analog.updateSensorShowArea = ( page ) => {
+OSApp.Analog.updateSensorShowArea = function( page ) {
 	var showArea = page.find( "#os-sensor-show" ),
 		html = "";
 
@@ -86,7 +86,7 @@ OSApp.Analog.updateSensorShowArea = ( page ) => {
 	showArea.html( html );
 };
 
-OSApp.Analog.toByteArray = ( b ) => {
+OSApp.Analog.toByteArray = function( b ) {
 	var result = [];
 	var n = 4;
 	while ( n-- ) {
@@ -96,7 +96,7 @@ OSApp.Analog.toByteArray = ( b ) => {
 	return Uint8Array.from( result );
 };
 
-OSApp.Analog.intFromBytes = ( x ) => {
+OSApp.Analog.intFromBytes = function( x ) {
 	try {
 		var val = 0;
 		for ( var i = x.length - 1; i >= 0; i-- ) {
@@ -110,7 +110,7 @@ OSApp.Analog.intFromBytes = ( x ) => {
 };
 
 //Program adjustments editor
-OSApp.Analog.showAdjustmentsEditor = ( progAdjust, callback ) => {
+OSApp.Analog.showAdjustmentsEditor = function( progAdjust, callback ) {
 
 	OSApp.Firmware.sendToOS( "/sh?pw=", "json" ).then( function( data ) {
 		var supportedAdjustmentTypes = data.progTypes;
@@ -268,7 +268,7 @@ OSApp.Analog.showAdjustmentsEditor = ( progAdjust, callback ) => {
 	} );
 };
 
-OSApp.Analog.isSmt100 = ( sensorType ) => {
+OSApp.Analog.isSmt100 = function( sensorType ) {
 	if ( !sensorType ) {
 		return false;
 	}
@@ -276,7 +276,7 @@ OSApp.Analog.isSmt100 = ( sensorType ) => {
 };
 
 // Analog sensor editor
-OSApp.Analog.showSensorEditor = ( sensor, callback ) => {
+OSApp.Analog.showSensorEditor = function( sensor, callback ) {
 
 	OSApp.Firmware.sendToOS( "/sf?pw=", "json" ).then( function( data ) {
 		var supportedSensorTypes = data.sensorTypes;
@@ -475,7 +475,7 @@ OSApp.Analog.showSensorEditor = ( sensor, callback ) => {
 
 		OSApp.UIDom.openPopup( popup, { positionTo: "window" } );
 	} );
-}
+};
 
 // Config Page
 OSApp.Analog.showAnalogSensorConfig = ( function() {
@@ -659,9 +659,9 @@ OSApp.Analog.showAnalogSensorConfig = ( function() {
 			link.setAttribute( "download", "sensorlog-" + new Date().toLocaleDateString().replace( /\//g, "-" ) + ".csv" );
 
 			var dest = "/so?pw=&csv=1";
-			dest = dest.replace( "pw=", "pw=" + encodeURIComponent( currPass ) );
+			dest = dest.replace( "pw=", "pw=" + encodeURIComponent( OSApp.currentSession.pass ) );
 			link.target = "_blank";
-			link.href = currToken ? "https://cloud.openthings.io/forward/v1/" + currToken + dest : currPrefix + currIp + dest;
+			link.href = OSApp.currentSession.token ? "https://cloud.openthings.io/forward/v1/" + OSApp.currentSession.token + dest : OSApp.currentSession.prefix + OSApp.currentSession.ip + dest;
 			document.body.appendChild( link ); // Required for FF
 			link.click();
 		} );
@@ -694,7 +694,7 @@ OSApp.Analog.showAnalogSensorConfig = ( function() {
 	return begin;
 } )();
 
-OSApp.Analog.buildSensorConfig = () => {
+OSApp.Analog.buildSensorConfig = function() {
 	var list = "<table id='analog_sensor_table'><tr style='width:100%;vertical-align: top;'>" +
 		"<tr><th>Nr</th><th class=\"hidecol\">Type</th><th class=\"hidecol\">Group</th><th>Name</th>" +
 		"<th class=\"hidecol\">IP</th><th class=\"hidecol\">Port</th><th class=\"hidecol\">ID</th>" +
@@ -855,7 +855,7 @@ OSApp.Analog.showAnalogSensorCharts = ( function() {
 	return begin;
 } )();
 
-OSApp.Analog.buildGraph = ( prefix, chart, csv, titleAdd, timestr ) => {
+OSApp.Analog.buildGraph = function( prefix, chart, csv, titleAdd, timestr ) {
 	var csvlines = csv.split( /(?:\r\n|\n)+/ ).filter( function( el ) { return el.length !== 0; } );
 
 	for ( var j = 0; j < OSApp.Analog.analogSensors.length; j++ ) {

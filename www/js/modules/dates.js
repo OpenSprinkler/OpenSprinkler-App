@@ -1,5 +1,3 @@
-/* global $ */
-
 /* OpenSprinkler App
  * Copyright (C) 2015 - present, Samer Albahra. All rights reserved.
  *
@@ -18,18 +16,18 @@ var OSApp = OSApp || {};
 OSApp.Dates = OSApp.Dates || {};
 
 OSApp.Dates.Constants = {
-	MIN_DATE: '01/01',
-	MAX_DATE: '12/31',
+	MIN_DATE: "01/01",
+	MAX_DATE: "12/31",
 	DATE_REGEX: /[0-9]{1,2}[\/][0-9]{1,2}/g,
 };
 
 // TODO: mellodev some of this should refactor out to programs.js?
 
-OSApp.Dates.getDateRange = ( pid ) => {
+OSApp.Dates.getDateRange = function( pid ) {
 	return OSApp.currentSession.controller.programs.pd[ pid ][ 6 ];
 };
 
-OSApp.Dates.isDateRangeEnabled = ( pid ) => {
+OSApp.Dates.isDateRangeEnabled = function( pid ) {
 	if ( pid === "new" ) {
 		return 0;
 	}
@@ -37,15 +35,15 @@ OSApp.Dates.isDateRangeEnabled = ( pid ) => {
 	return OSApp.Dates.getDateRange( pid )[ 0 ];
 };
 
-OSApp.Dates.getDateRangeStart = ( pid ) => {
+OSApp.Dates.getDateRangeStart = function( pid ) {
 	if ( pid === "new" ) {
-		return minEncodedDate;
+		return OSApp.Dates.Constants.minEncodedDate;
 	}
 
 	return OSApp.Dates.getDateRange( pid )[ 1 ];
 };
 
-OSApp.Dates.getDateRangeEnd = ( pid ) => {
+OSApp.Dates.getDateRangeEnd = function( pid ) {
 	if ( pid === "new" ) {
 		return OSApp.Dates.Constants.maxEncodedDate; //
 	}
@@ -53,21 +51,21 @@ OSApp.Dates.getDateRangeEnd = ( pid ) => {
 	return OSApp.Dates.getDateRange( pid )[ 2 ];
 };
 
-OSApp.Dates.extractDateFromString = ( inputString ) => {
+OSApp.Dates.extractDateFromString = function( inputString ) {
 	return inputString.match( OSApp.Dates.Constants.DATE_REGEX );
 };
 
-OSApp.Dates.isValidDateFormat = ( dateString ) => {
+OSApp.Dates.isValidDateFormat = function( dateString ) {
 	var dates = OSApp.Dates.extractDateFromString( dateString );
 
 	return dates !== null;
-;}
+};
 
-OSApp.Dates.isValidDateRange = ( startDate, endDate ) => {
+OSApp.Dates.isValidDateRange = function( startDate, endDate ) {
 	return OSApp.Dates.isValidDateFormat( startDate ) && OSApp.Dates.isValidDateFormat( endDate );
-}
+};
 
-OSApp.Dates.encodeDate = ( dateString ) => {
+OSApp.Dates.encodeDate = function( dateString ) {
 	var dateValues = OSApp.Dates.extractDateFromString( dateString );
 	if ( dateValues === null ) {
 		return -1;
@@ -83,7 +81,7 @@ OSApp.Dates.encodeDate = ( dateString ) => {
 OSApp.Dates.Constants.minEncodedDate = OSApp.Dates.encodeDate( OSApp.Dates.Constants.MIN_DATE );
 OSApp.Dates.Constants.maxEncodedDate = OSApp.Dates.encodeDate( OSApp.Dates.Constants.MAX_DATE );
 
-OSApp.Dates.decodeDate = ( dateValue ) => {
+OSApp.Dates.decodeDate = function( dateValue ) {
 	var dateString = [],
 		monthValue, dayValue;
 	if ( OSApp.Dates.Constants.minEncodedDate <= dateValue && dateValue <= OSApp.Dates.Constants.maxEncodedDate ) {
@@ -100,7 +98,7 @@ OSApp.Dates.decodeDate = ( dateValue ) => {
 	} else if ( dateValue < OSApp.Dates.Constants.minEncodedDate ) { // Sanitize
 		return OSApp.Dates.Constants.MIN_DATE;
 	} else {
-		return OSApp.Dates.Constants.MAX_DATE
+		return OSApp.Dates.Constants.MAX_DATE;
 	}
 };
 
@@ -226,7 +224,7 @@ OSApp.Dates.getDurationText = function( time ) {
 	} else {
 		return OSApp.Dates.dhms2str( OSApp.Dates.sec2dhms( time ) );
 	}
-}
+};
 
 // Convert seconds into (HH:)MM:SS format. HH is only reported if greater than 0.
 OSApp.Dates.sec2hms = function( diff ) {
@@ -238,7 +236,7 @@ OSApp.Dates.sec2hms = function( diff ) {
 		str += OSApp.Utils.pad( hours ) + ":";
 	}
 	return str + OSApp.Utils.pad( minutes ) + ":" + OSApp.Utils.pad( seconds );
-}
+};
 
 // Convert seconds into array of days, hours, minutes and seconds.
 OSApp.Dates.sec2dhms = function( diff ) {
@@ -250,7 +248,7 @@ OSApp.Dates.sec2dhms = function( diff ) {
 		"minutes": Math.max( 0, parseInt( ( diff % 86400 ) % 3600 / 60 ) ) * isNegative,
 		"seconds": Math.max( 0, parseInt( ( diff % 86400 ) % 3600 % 60 ) ) * isNegative
 	};
-}
+};
 
 OSApp.Dates.dhms2str = function( arr ) {
 	var str = "";
@@ -270,9 +268,9 @@ OSApp.Dates.dhms2str = function( arr ) {
 		str = "0" + OSApp.Language._( "s" );
 	}
 	return str.trim();
-}
+};
 
 // Convert days, hours, minutes and seconds array into seconds (int).
 OSApp.Dates.dhms2sec = function( arr ) {
 	return parseInt( ( arr.days * 86400 ) + ( arr.hours * 3600 ) + ( arr.minutes * 60 ) + arr.seconds );
-}
+};

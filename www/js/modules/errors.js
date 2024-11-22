@@ -1,3 +1,5 @@
+/* global $ */
+
 /* OpenSprinkler App
  * Copyright (C) 2015 - present, Samer Albahra. All rights reserved.
  *
@@ -16,7 +18,7 @@ var OSApp = OSApp || {};
 OSApp.Errors = OSApp.Errors || {};
 
 // Show error message box
-OSApp.Errors.showError = ( msg, dur ) => {
+OSApp.Errors.showError = function( msg, dur ) {
 	dur = dur || 2500;
 
 	clearTimeout( OSApp.uiState.errorTimeout );

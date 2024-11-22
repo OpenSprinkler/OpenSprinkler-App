@@ -1,4 +1,4 @@
-/* global networkinterface, sjcl, md5 */
+/* global $, networkinterface, sjcl, md5 */
 
 /* OpenSprinkler App
  * Copyright (C) 2015 - present, Samer Albahra. All rights reserved.
@@ -18,7 +18,7 @@ var OSApp = OSApp || {};
 OSApp.Network = OSApp.Network || {};
 
 // Automatic device detection functions
-OSApp.Network.updateDeviceIP = ( finishCheck ) => {
+OSApp.Network.updateDeviceIP = function( finishCheck ) {
 	var finish = function( result ) {
 		OSApp.currentDevice.deviceIp = result;
 
@@ -42,14 +42,14 @@ OSApp.Network.updateDeviceIP = ( finishCheck ) => {
 	}
 };
 
-OSApp.Network.isLocalIP = ( ip ) => {
+OSApp.Network.isLocalIP = function( ip ) {
 	var chk = OSApp.Utils.parseIntArray( ip.split( "." ) );
 
 	// Check if the IP is on a private network, if not don't enable automatic scanning
 	return ( chk[ 0 ] === 10 || chk[ 0 ] === 127 || ( chk[ 0 ] === 172 && chk[ 1 ] > 17 && chk[ 1 ] < 32 ) || ( chk[ 0 ] === 192 && chk[ 1 ] === 168 ) );
 };
 
-OSApp.Network.startScan = ( port, type ) => {
+OSApp.Network.startScan = function( port, type ) {
 
 	/*
 		The type represents the OpenSprinkler model as defined below
@@ -128,13 +128,13 @@ OSApp.Network.startScan = ( port, type ) => {
 			clearInterval( scanning );
 			if ( !devicesfound ) {
 				if ( type === 0 ) {
-					startScan( 8080, 1 );
+					OSApp.Network.startScan( 8080, 1 );
 
 				} else if ( type === 1 ) {
-					startScan( 80, 2 );
+					OSApp.Network.startScan( 80, 2 );
 
 				} else if ( type === 2 ) {
-					startScan( 8080, 3 );
+					OSApp.Network.startScan( 8080, 3 );
 
 				} else {
 					OSApp.Errors.showError( OSApp.Language._( "No new devices were detected on your network" ) );
@@ -199,7 +199,7 @@ OSApp.Network.startScan = ( port, type ) => {
 	scanning = setInterval( checkScanStatus, 200 );
 };
 
-OSApp.Network.findRouter = ( callback ) => {
+OSApp.Network.findRouter = function( callback ) {
 	callback = callback || function() {};
 
 	var routerIPs = [ "192.168.1.1", "10.0.1.1", "192.168.1.220", "192.168.2.1", "10.1.1.1", "192.168.11.1", "192.168.0.1",
@@ -235,7 +235,9 @@ OSApp.Network.findRouter = ( callback ) => {
 	scanning = setInterval( checkScanStatus, 50 );
 };
 
-OSApp.Network.ping = ( ip, callback = () => void 0) => {
+OSApp.Network.ping = function( ip, callback ) {
+	callback = callback || function(){};
+
 	if ( !ip || ip === "" ) {
 		callback( false );
 	}
@@ -259,7 +261,7 @@ OSApp.Network.ping = ( ip, callback = () => void 0) => {
 	);
 };
 
-OSApp.Network.checkPublicAccess = ( eip = 0 ) => {
+OSApp.Network.checkPublicAccess = function( eip ) {
 
 	// Check if the device is accessible from it's public IP
 
@@ -331,14 +333,14 @@ OSApp.Network.checkPublicAccess = ( eip = 0 ) => {
 	);
 };
 
-OSApp.Network.addSyncStatus = ( token ) => {
+OSApp.Network.addSyncStatus = function( token ) {
 	var ele = $( "<div class='ui-bar smaller ui-bar-a ui-corner-all logged-in-alert'>" +
 			"<div class='inline ui-btn ui-icon-recycle btn-no-border ui-btn-icon-notext ui-mini'></div>" +
 			"<div class='inline syncStatus'>" + OSApp.Language._( "Synced with OpenSprinkler.com" ) + " (" + OSApp.Network.getTokenUser( token ) + ")</div>" +
 			"<div class='inline ui-btn ui-icon-delete btn-no-border ui-btn-icon-notext ui-mini logout'></div>" +
 		"</div>" );
 
-	ele.find( ".logout" ).on( "click", logout );
+	ele.find( ".logout" ).on( "click", OSApp.Network.logout );
 	ele.find( ".ui-icon-recycle" ).on( "click", function() {
 		var btn = $( this );
 
@@ -350,7 +352,9 @@ OSApp.Network.addSyncStatus = ( token ) => {
 	return ele;
 };
 
-OSApp.Network.requestCloudAuth = ( callback = () => void 0 ) => {
+OSApp.Network.requestCloudAuth = function( callback ) {
+	callback = callback || function(){};
+
 	var popup = $( "<div data-role='popup' class='modal' id='requestCloudAuth' data-theme='a'>" +
 				"<ul data-role='listview' data-inset='true'>" +
 					"<li data-role='list-divider'>" + OSApp.Language._( "OpenSprinkler.com Login" ) + "</li>" +
@@ -399,7 +403,9 @@ OSApp.Network.requestCloudAuth = ( callback = () => void 0 ) => {
 	OSApp.UIDom.openPopup( popup );
 };
 
-OSApp.Network.cloudLogin = ( user, pass, callback = () => void 0 ) => {
+OSApp.Network.cloudLogin = function( user, pass, callback ) {
+	callback = callback || function(){};
+
 	$.ajax( {
 		type: "POST",
 		dataType: "json",
@@ -424,7 +430,9 @@ OSApp.Network.cloudLogin = ( user, pass, callback = () => void 0 ) => {
 	} );
 };
 
-OSApp.Network.cloudSaveSites = ( callback = () => void 0 ) => {
+OSApp.Network.cloudSaveSites = function( callback ) {
+	callback = callback || function(){};
+
 	OSApp.Storage.get( [ "cloudToken", "cloudDataToken", "sites" ], function( data ) {
 		if ( data.cloudToken === null || data.cloudToken === undefined ) {
 			callback( false );
@@ -458,7 +466,7 @@ OSApp.Network.cloudSaveSites = ( callback = () => void 0 ) => {
 	} );
 };
 
-function cloudGetSites( callback ) {
+OSApp.Network.cloudGetSites = function( callback ) {
 	callback = callback || function() {};
 
 	OSApp.Storage.get( [ "cloudToken", "cloudDataToken" ], function( local ) {
@@ -484,7 +492,7 @@ function cloudGetSites( callback ) {
 			success: function( data ) {
 				if ( data.success === false || data.sites === "" ) {
 					if ( data.message === "BAD_TOKEN" ) {
-						handleExpiredLogin();
+						OSApp.Network.handleExpiredLogin();
 					}
 					callback( false, data.message );
 				} else {
@@ -514,7 +522,7 @@ function cloudGetSites( callback ) {
 	} );
 };
 
-OSApp.Network.cloudSyncStart = () => {
+OSApp.Network.cloudSyncStart = function() {
 	OSApp.Network.cloudGetSites( function( sites ) {
 		var page = $( ".ui-page-active" ).attr( "id" );
 
@@ -610,13 +618,15 @@ OSApp.Network.cloudSyncStart = () => {
 	} );
 };
 
-OSApp.Network.cloudSync = ( callback = () => void 0 ) => {
+OSApp.Network.cloudSync = function( callback ) {
+	callback = callback || function(){};
+
 	OSApp.Storage.get( [ "cloudToken", "current_site" ], function( local ) {
 		if ( typeof local.cloudToken !== "string" ) {
 			return;
 		}
 
-		cloudGetSites( function( data ) {
+		OSApp.Network.cloudGetSites( function( data ) {
 			if ( data !== false ) {
 				OSApp.Storage.set( { "sites":JSON.stringify( data ) }, function() {
 					OSApp.Sites.updateSiteList( Object.keys( data ), local.current_site );
@@ -629,11 +639,11 @@ OSApp.Network.cloudSync = ( callback = () => void 0 ) => {
 	} );
 };
 
-OSApp.Network.getTokenUser = ( token ) => {
+OSApp.Network.getTokenUser = function( token ) {
 	return atob( token ).split( "|" )[ 0 ];
 };
 
-OSApp.Network.handleExpiredLogin = () => {
+OSApp.Network.handleExpiredLogin = function() {
 	OSApp.Storage.remove( [ "cloudToken" ], OSApp.UIDom.updateLoginButtons );
 
 	OSApp.Notifications.addNotification( {
@@ -654,9 +664,9 @@ OSApp.Network.handleExpiredLogin = () => {
 			return false;
 		}
 	} );
-}
+};
 
-OSApp.Network.handleInvalidDataToken = () => {
+OSApp.Network.handleInvalidDataToken = function () {
 	OSApp.Storage.remove( [ "cloudDataToken" ] );
 
 	OSApp.Notifications.addNotification( {
@@ -702,17 +712,17 @@ OSApp.Network.handleInvalidDataToken = () => {
 	} );
 };
 
-OSApp.Network.intToIP = ( eip ) => {
+OSApp.Network.intToIP = function( eip ) {
 	return ( ( eip >> 24 ) & 255 ) + "." + ( ( eip >> 16 ) & 255 ) + "." + ( ( eip >> 8 ) & 255 ) + "." + ( eip & 255 );
 };
 
 // Device password management functions
-OSApp.Network.changePassword = ( opt ) => {
+OSApp.Network.changePassword = function( opt ) {
 	var defaults = {
 			fixIncorrect: false,
 			name: "",
-			callback: () => void 0,
-			cancel: () => void 0
+			callback: function(){},
+			cancel: function(){},
 		};
 
 	opt = $.extend( {}, defaults, opt );
@@ -750,7 +760,7 @@ OSApp.Network.changePassword = ( opt ) => {
 					success = function( pass ) {
 						OSApp.currentSession.pass = pass;
 						sites[ opt.name ].os_pw = popup.find( "#save_pw" ).is( ":checked" ) ? pass : "";
-						OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
+						OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, OSApp.Network.cloudSaveSites );
 						popup.popup( "close" );
 						opt.callback();
 					};
@@ -802,7 +812,7 @@ OSApp.Network.changePassword = ( opt ) => {
 
 					sites[ data.current_site ].os_pw = npw;
 					OSApp.currentSession.pass = npw;
-					OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
+					OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, OSApp.Network.cloudSaveSites );
 				} );
 				$.mobile.loading( "hide" );
 				popup.popup( "close" );
@@ -839,7 +849,7 @@ OSApp.Network.changePassword = ( opt ) => {
 				} ).then(
 					function() {
 						sites[ current ].os_pw = OSApp.currentSession.pass = pw;
-						OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, cloudSaveSites );
+						OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, OSApp.Network.cloudSaveSites );
 						opt.callback();
 					},
 					function() {
@@ -856,7 +866,9 @@ OSApp.Network.changePassword = ( opt ) => {
 };
 
 // Check if password is valid
-OSApp.Network.checkPW = ( pass, callback = () => void 0) => {
+OSApp.Network.checkPW = function( pass, callback ) {
+	callback = callback || function(){};
+
 	var urlDest = "/sp?pw=" + encodeURIComponent( pass ) + "&npw=" + encodeURIComponent( pass ) + "&cpw=" + encodeURIComponent( pass );
 
 	$.ajax( {
@@ -899,7 +911,7 @@ OSApp.Network.getWiFiRating = function( rssi ) {
 };
 
 OSApp.Network.networkFail = function() {
-	changeStatus( 0, "red", "<p class='running-text center'>" + OSApp.Language._( "Network Error" ) + "</p>",
+	OSApp.Status.changeStatus( 0, "red", "<p class='running-text center'>" + OSApp.Language._( "Network Error" ) + "</p>",
 		function() {
 			OSApp.UIDom.showLoading( "#weather,#footer-running" );
 			OSApp.Status.refreshStatus();

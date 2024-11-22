@@ -55,14 +55,14 @@
 			secrets: secrets,
 
 			jshint: {
-				main: [ "www/js/main.js", "www/js/map.js", "Gruntfile.js", "www/js/hasher.js", "www/js/home.js", "test/tests.js", "www/js/analog.js" ],
+				main: [ "www/js/**/*.js", "!www/js/vendor/**/*.js" ], // Ignore the vendor folder
 				options: {
 					jshintrc: true
 				}
 			},
 
 			jscs: {
-				main: [ "www/js/main.js", "www/js/map.js", "Gruntfile.js", "www/js/hasher.js", "www/js/home.js", "test/tests.js", "www/js/analog.js" ],
+				main: [ "www/js/**/*.js", "!www/js/vendor/**/*.js" ], // Updated pattern
 				options: {
 					config: true,
 					fix: true

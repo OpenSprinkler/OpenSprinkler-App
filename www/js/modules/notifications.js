@@ -1,3 +1,5 @@
+/* global $ */
+
 /* OpenSprinkler App
  * Copyright (C) 2015 - present, Samer Albahra. All rights reserved.
  *
@@ -15,7 +17,7 @@
 var OSApp = OSApp || {};
 OSApp.Notifications = OSApp.Notifications || {};
 
-OSApp.Notifications.addNotification = ( item ) => {
+OSApp.Notifications.addNotification = function( item ) {
 	OSApp.uiState.notifications.push( item );
 	OSApp.Notifications.updateNotificationBadge();
 
@@ -26,7 +28,7 @@ OSApp.Notifications.addNotification = ( item ) => {
 	}
 };
 
-OSApp.Notifications.updateNotificationBadge = () => {
+OSApp.Notifications.updateNotificationBadge = function() {
 	var total = OSApp.uiState.notifications.length,
 		header = $( "#header" );
 
@@ -38,7 +40,7 @@ OSApp.Notifications.updateNotificationBadge = () => {
 	}
 };
 
-OSApp.Notifications.createNotificationItem = ( item ) => {
+OSApp.Notifications.createNotificationItem = function( item ) {
 	var listItem = $( "<li><a class='primary' href='#'><h2>" + item.title + "</h2>" + ( item.desc ? "<p>" + item.desc + "</p>" : "" ) +
 		"</a><a class='ui-btn ui-btn-icon-notext ui-icon-delete'></a></li>" );
 
@@ -50,7 +52,7 @@ OSApp.Notifications.createNotificationItem = ( item ) => {
 	return listItem;
 };
 
-OSApp.Notifications.showNotifications = () => {
+OSApp.Notifications.showNotifications = function() {
 	if ( OSApp.uiState.notifications.length === 0 ) {
 		return;
 	}
@@ -87,7 +89,7 @@ OSApp.Notifications.showNotifications = () => {
 	panel.panel( "open" );
 };
 
-OSApp.Notifications.clearNotifications = () => {
+OSApp.Notifications.clearNotifications = function() {
 	var panel = $( "#notificationPanel" );
 
 	OSApp.uiState.notifications = [];
@@ -99,7 +101,7 @@ OSApp.Notifications.clearNotifications = () => {
 	}
 };
 
-OSApp.Notifications.removeNotification = ( button ) => {
+OSApp.Notifications.removeNotification = function( button ) {
 	var panel = $( "#notificationPanel" ),
 		off = OSApp.uiState.notifications[ button.index() - 1 ].off;
 

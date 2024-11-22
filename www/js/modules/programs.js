@@ -1,4 +1,4 @@
-/* global networkinterface, sjcl, md5 */
+/* global $ */
 
 /* OpenSprinkler App
  * Copyright (C) 2015 - present, Samer Albahra. All rights reserved.

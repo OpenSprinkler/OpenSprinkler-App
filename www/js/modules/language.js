@@ -1,3 +1,5 @@
+/* global $ */
+
 /* OpenSprinkler App
  * Copyright (C) 2015 - present, Samer Albahra. All rights reserved.
  *
@@ -16,7 +18,7 @@ var OSApp = OSApp || {};
 OSApp.Language = OSApp.Language || {};
 
 //Localization functions
-OSApp.Language._ = ( key ) => {
+OSApp.Language._ = function( key ) {
 
 	//Translate item (key) based on currently defined language
 	if ( typeof OSApp.uiState.language === "object" && OSApp.uiState.language.hasOwnProperty( key ) ) {
@@ -29,7 +31,7 @@ OSApp.Language._ = ( key ) => {
 	}
 };
 
-OSApp.Language.setLang = () => {
+OSApp.Language.setLang = function() {
 
 	//Update all static elements to the current language
 	$( "[data-translate]" ).text( function() {
@@ -50,9 +52,9 @@ OSApp.Language.setLang = () => {
 	$( ".ui-toolbar-back-btn" ).text( OSApp.Language._( "Back" ) );
 
 	OSApp.Language.checkCurrLang();
-}
+};
 
-OSApp.Language.updateLang = ( lang ) => {
+OSApp.Language.updateLang = function( lang ) {
 
 	//Empty out the current OSApp.uiState.language (English is provided as the key)
 	OSApp.uiState.language = {};
@@ -82,7 +84,7 @@ OSApp.Language.updateLang = ( lang ) => {
 	} ).fail( OSApp.Language.setLang );
 };
 
-OSApp.Language.languageSelect = () => {
+OSApp.Language.languageSelect = function() {
 	$( "#localization" ).popup( "destroy" ).remove();
 
 	/*
@@ -124,7 +126,7 @@ OSApp.Language.languageSelect = () => {
 	return false;
 };
 
-OSApp.Language.checkCurrLang = () => {
+OSApp.Language.checkCurrLang = function() {
 	OSApp.Storage.get( "lang", function( data ) {
 		var popup = $( "#localization" );
 
