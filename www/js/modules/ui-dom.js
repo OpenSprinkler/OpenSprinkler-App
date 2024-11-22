@@ -1830,7 +1830,7 @@ OSApp.UIDom.launchApp = () => {
 			progs = [];
 			if ( OSApp.currentSession.controller.programs.pd.length ) {
 				for ( z = 0; z < OSApp.currentSession.controller.programs.pd.length; z++ ) {
-					program = readProgram( OSApp.currentSession.controller.programs.pd[ z ] );
+					program = OSApp.Programs.readProgram( OSApp.currentSession.controller.programs.pd[ z ] );
 					var prog = [];
 
 					if ( OSApp.Firmware.checkOSVersion( 210 ) ) {
