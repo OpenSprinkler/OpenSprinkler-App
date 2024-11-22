@@ -570,7 +570,7 @@ OSApp.Sites.newLoad = function() {
 			}
 
 			// Check if a cloud token is available and if so show logout button otherwise show login
-			updateLoginButtons();
+			OSApp.UIDom.updateLoginButtons();
 
 			if ( OSApp.Firmware.isOSPi() ) {
 
@@ -926,7 +926,7 @@ OSApp.Sites.handleCorruptedWeatherOptions = function( wto ) {
 			popup.find( ".reset-options" ).on( "click", function() {
 				OSApp.Notifications.removeNotification( button );
 				popup.popup( "close" );
-				resetAllOptions( function() {
+				OSApp.UIDom.resetAllOptions( function() {
 					OSApp.Errors.showError( OSApp.Language._( "Settings have been saved" ) );
 				} );
 

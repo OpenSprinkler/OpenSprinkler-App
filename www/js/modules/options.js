@@ -952,12 +952,12 @@ OSApp.Options.showOptions = function( expandItem ) {
 		}
 	} );
 
-	page.find( ".reset-log" ).on( "click", clearLogs );
+	page.find( ".reset-log" ).on( "click", OSApp.Logs.clearLogs );
 
-	page.find( ".reset-programs" ).on( "click", clearPrograms );
+	page.find( ".reset-programs" ).on( "click", OSApp.UIDom.clearPrograms );
 
 	page.find( ".reset-options" ).on( "click", function() {
-		resetAllOptions( function() {
+		OSApp.UIDom.resetAllOptions( function() {
 			$.mobile.document.one( "pageshow", function() {
 				OSApp.Errors.showError( OSApp.Language._( "Settings have been saved" ) );
 			} );

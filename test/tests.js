@@ -278,6 +278,7 @@ describe( "Page Navigation Checks", function() {
 } );
 
 describe( "Popup Checks", function() {
+
 	// 20241121 commented by mellodev (refactor how showHomeMenu works)
 	// it( "Show main menu popup", function( done ) {
 	// 	$.mobile.document.one( "popupafteropen", "#mainMenu", function() {

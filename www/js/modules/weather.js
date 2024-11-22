@@ -712,7 +712,7 @@ OSApp.Weather.updateWeatherBox = function() {
 				OSApp.UIDom.areYouSure( OSApp.Language._( "Do you want to turn off rain delay?" ), "", function() {
 					OSApp.UIDom.showLoading( "#weather" );
 					OSApp.Firmware.sendToOS( "/cv?pw=&rd=0" ).done( function() {
-						OSApp.Sites.updateController( updateWeather );
+						OSApp.Sites.updateController( OSApp.Weather.updateWeather );
 					} );
 				} );
 			} else {
@@ -871,7 +871,7 @@ OSApp.Weather.showRainDelay = function() {
 
 	OSApp.UIDom.showDurationBox( {
 		title: OSApp.Language._( "Change Rain Delay" ),
-		callback: raindelay,
+		callback: OSApp.Weather.setRainDelay,
 		label: OSApp.Language._( "Duration" ),
 		maximum: 31536000,
 		granularity: 2,
@@ -956,4 +956,20 @@ OSApp.Weather.setRestriction = function( id, uwt ) {
 	}
 
 	return uwt;
+};
+
+OSApp.Weather.setRainDelay = function( delay ) {
+	if (parseInt(delay) <= 0) {
+		return;
+	}
+
+	$.mobile.loading( "show" );
+	OSApp.Firmware.sendToOS( "/cv?pw=&rd=" + ( delay / 3600 ) ).done( function() {
+		$.mobile.loading( "hide" );
+		OSApp.UIDom.showLoading( "#footer-running" );
+		OSApp.Status.refreshStatus( OSApp.Weather.updateWeather );
+		OSApp.Errors.showError( OSApp.Language._( "Rain delay has been successfully set" ) );
+	} );
+
+	return false;
 };

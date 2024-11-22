@@ -1,6 +1,4 @@
-/* global readProgram, areYouSure, _, $ */
-/* global ApexCharts */
-/* exported checkAnalogSensorAvail, updateSensorShowArea, showAnalogSensorConfig, showAnalogSensorCharts */
+/* global $, ApexCharts */
 
 /*!
  * Analog Sensor API - GUI for OpenSprinkler App
@@ -64,7 +62,7 @@ OSApp.Analog.updateSensorShowArea = ( page ) => {
 			}
 			var progName = "?";
 			if ( progAdjust.prog >= 1 && progAdjust.prog <= OSApp.currentSession.controller.programs.pd.length ) {
-				progName = readProgram( OSApp.currentSession.controller.programs.pd[ progAdjust.prog - 1 ] ).name;
+				progName = OSApp.Programs.readProgram( OSApp.currentSession.controller.programs.pd[ progAdjust.prog - 1 ] ).name;
 			}
 
 			html += "<div id='progAdjust-show-" + progAdjust.nr + "' class='ui-body ui-body-a center'>";
@@ -169,7 +167,7 @@ OSApp.Analog.showAdjustmentsEditor = ( progAdjust, callback ) => {
 			"</label><select data-mini='true' id='prog'>";
 
 		for ( i = 0; i < OSApp.currentSession.controller.programs.pd.length; i++ ) {
-			var progName = readProgram( OSApp.currentSession.controller.programs.pd[ i ] ).name;
+			var progName = OSApp.Programs.readProgram( OSApp.currentSession.controller.programs.pd[ i ] ).name;
 			var progNr = i + 1;
 
 			list += "<option " + ( ( progAdjust.prog === progNr ) ? "selected" : "" ) +
@@ -757,7 +755,7 @@ OSApp.Analog.buildSensorConfig = () => {
 		}
 		var progName = "?";
 		if ( item.prog >= 1 && item.prog <= OSApp.currentSession.controller.programs.pd.length ) {
-			progName = readProgram( OSApp.currentSession.controller.programs.pd[ item.prog - 1 ] ).name;
+			progName = OSApp.Programs.readProgram( OSApp.currentSession.controller.programs.pd[ item.prog - 1 ] ).name;
 		}
 
 		var $tr = $( "<tr>" ).append(

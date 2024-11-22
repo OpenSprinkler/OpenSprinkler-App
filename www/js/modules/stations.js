@@ -249,11 +249,25 @@ OSApp.Stations.submitRunonce = function( runonce ) {
 		isOn = OSApp.StationQueue.isActive();
 
 	if ( isOn !== -1 ) {
-		OSApp.UIDom.areYouSure( OSApp.Language._( "Do you want to stop the currently running program?" ), pidname( OSApp.Stations.getPID( isOn ) ), function() {
+		OSApp.UIDom.areYouSure( OSApp.Language._( "Do you want to stop the currently running program?" ), OSApp.Programs.pidToName( OSApp.Stations.getPID( isOn ) ), function() {
 			$.mobile.loading( "show" );
 			OSApp.Stations.stopStations( submit );
 		} );
 	} else {
 		submit();
 	}
+};
+
+OSApp.Stations.getStationDuration = function( duration, date ) {
+	if ( OSApp.Firmware.checkOSVersion( 214 ) ) {
+		var sunTimes = OSApp.Weather.getSunTimes( date );
+
+		if ( duration === 65535 ) {
+			duration = ( ( sunTimes[ 0 ] + 1440 ) - sunTimes[ 1 ] ) * 60;
+		} else if ( duration === 65534 ) {
+			duration = ( sunTimes[ 1 ] - sunTimes[ 0 ] ) * 60;
+		}
+	}
+
+	return duration;
 };

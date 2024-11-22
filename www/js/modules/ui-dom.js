@@ -1,4 +1,4 @@
-/* global $, ThreeDeeTouch, FastClick, StatusBar */
+/* global $, ThreeDeeTouch, FastClick, StatusBar, links */
 
 /* OpenSprinkler App
  * Copyright (C) 2015 - present, Samer Albahra. All rights reserved.
@@ -16,6 +16,8 @@
 // Configure module
 var OSApp = OSApp || {};
 OSApp.UIDom = OSApp.UIDom || {};
+
+// FIXME: this file needs refactoring attention!
 
 // App entry point
 OSApp.UIDom.launchApp = () => {
@@ -434,7 +436,7 @@ OSApp.UIDom.launchApp = () => {
 				var station = OSApp.Stations.getName( sid ),
 					isScheduled = OSApp.Stations.getPID( sid ) > 0,
 					isRunning = OSApp.Stations.isRunning( sid ),
-					pname = isScheduled ? pidname( OSApp.Stations.getPID( sid ) ) : "",
+					pname = isScheduled ? OSApp.Programs.pidToName( OSApp.Stations.getPID( sid ) ) : "",
 					rem = OSApp.Stations.getRemainingRuntime( sid ),
 					qPause = OSApp.Supported.pausing() && OSApp.StationQueue.isPaused(),
 					hasImage = sites[ currentSite ].images[ sid ] ? true : false;
@@ -1270,7 +1272,7 @@ OSApp.UIDom.launchApp = () => {
 				for ( var sid = 0; sid < OSApp.currentSession.controller.stations.snames.length; sid++ ) {
 					isScheduled = OSApp.Stations.getPID( sid ) > 0;
 					isRunning = OSApp.Stations.getStatus( sid ) > 0;
-					pname = isScheduled ? pidname( OSApp.Stations.getPID( sid ) ) : "";
+					pname = isScheduled ? OSApp.Programs.pidToName( OSApp.Stations.getPID( sid ) ) : "";
 					rem = OSApp.Stations.getRemainingRuntime( sid ),
 					qPause = OSApp.StationQueue.isPaused(),
 					hasImage = sites[ currentSite ].images[ sid ] ? true : false;
@@ -1968,6 +1970,1655 @@ OSApp.UIDom.launchApp = () => {
 		return begin;
 	} )();
 
+	// Preview functions
+	// FIXME: This needs to be rewritten and refactored out so it works properly (mellodev)
+	var getPreview = ( function() {
+		var page = $( "<div data-role='page' id='preview'>" +
+				"<div class='ui-content' role='main'>" +
+					"<div id='preview_header' class='input_with_buttons'>" +
+						"<button class='preview-minus ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border'></button>" +
+						"<input class='center' type='date' name='preview_date' id='preview_date'>" +
+						"<button class='preview-plus ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border'></button>" +
+					"</div>" +
+					"<div id='timeline'></div>" +
+					"<div data-role='controlgroup' data-type='horizontal' id='timeline-navigation'>" +
+						"<a class='ui-btn ui-corner-all ui-icon-plus ui-btn-icon-notext btn-no-border' title='" + OSApp.Language._( "Zoom in" ) + "'></a>" +
+						"<a class='ui-btn ui-corner-all ui-icon-minus ui-btn-icon-notext btn-no-border' title='" + OSApp.Language._( "Zoom out" ) + "'></a>" +
+						"<a class='ui-btn ui-corner-all ui-icon-carat-l ui-btn-icon-notext btn-no-border' title='" + OSApp.Language._( "Move left" ) + "'></a>" +
+						"<a class='ui-btn ui-corner-all ui-icon-carat-r ui-btn-icon-notext btn-no-border' title='" + OSApp.Language._( "Move right" ) + "'></a>" +
+					"</div>" +
+				"</div>" +
+			"</div>" ),
+			placeholder = page.find( "#timeline" ),
+			navi = page.find( "#timeline-navigation" ),
+			previewData, processPrograms, checkMatch, checkMatch183, checkMatch21, checkDayMatch, checkMatch216, runSched, runSched216,
+			timeToText, changeday, render, date, day, now, is21, is211, is216;
+
+		page.find( "#preview_date" ).on( "change", function() {
+			date = this.value.split( "-" );
+			day = new Date( date[ 0 ], date[ 1 ] - 1, date[ 2 ] );
+			render();
+		} );
+
+		page.one( "pagebeforeshow", function() {
+			OSApp.UIDom.holdButton( page.find( ".preview-plus" ), function() {
+				changeday( 1 );
+			} );
+
+			OSApp.UIDom.holdButton( page.find( ".preview-minus" ), function() {
+				changeday( -1 );
+			} );
+		} );
+
+		page.on( {
+			pagehide: function() {
+				page.detach();
+			},
+			pageshow: function() {
+				render();
+			}
+		} );
+
+		processPrograms = function( month, day, year ) {
+			previewData = [];
+			var devday = Math.floor( OSApp.currentSession.controller.settings.devt / ( 60 * 60 * 24 ) ),
+				simminutes = 0,
+				simt = Date.UTC( year, month - 1, day, 0, 0, 0, 0 ),
+				simday = ( simt / 1000 / 3600 / 24 ) >> 0,
+				nstations = OSApp.currentSession.controller.settings.nbrd * 8,
+				startArray = new Array( nstations ),
+				programArray = new Array( nstations ),
+				endArray = new Array( nstations ),
+				plArray = new Array( nstations ),
+
+				// Runtime queue for FW 2.1.6+
+				rtQueue = [],
+
+				// Station qid for FW 2.1.6+
+				qidArray = new Array( nstations ),
+				lastStopTime = 0,
+				lastSeqStopTime = 0,
+				lastSeqStopTimes = new Array( OSApp.Constants.options.NUM_SEQ_GROUPS ), // Use this array if seq group is available
+				busy, matchFound, prog, sid, qid, d, q, sqi, bid, bid2, s, s2;
+
+			for ( sid = 0; sid < nstations; sid++ ) {
+				startArray[ sid ] = -1;
+				programArray[ sid ] = 0;
+				endArray[ sid ] = 0;
+				plArray[ sid ] = 0;
+				qidArray[ sid ] = 0xFF;
+			}
+			for ( d = 0; d < OSApp.Constants.options.NUM_SEQ_GROUPS; d++ ) { lastSeqStopTimes[ d ] = 0; }
+
+			do {
+				busy = 0;
+				matchFound = 0;
+				for ( var pid = 0; pid < OSApp.currentSession.controller.programs.pd.length; pid++ ) {
+					prog = OSApp.currentSession.controller.programs.pd[ pid ];
+					if ( checkMatch( prog, simminutes, simt, simday, devday ) ) {
+						for ( sid = 0; sid < nstations; sid++ ) {
+							bid = sid >> 3;
+							s = sid % 8;
+
+							// Skip master station
+							if ( OSApp.Stations.isMaster( sid ) ) {
+								continue;
+							}
+
+							if ( is21 ) {
+
+								// Skip disabled stations
+								if ( OSApp.currentSession.controller.stations.stn_dis[ bid ] & ( 1 << s ) ) {
+									continue;
+								}
+
+								// Skip if water time is zero, or station is already scheduled
+								if ( prog[ 4 ][ sid ] && endArray[ sid ] === 0 ) {
+									var waterTime = 0;
+
+									// Use weather scaling bit on
+									// * if options.uwt >0: using an automatic adjustment method, only applies to today
+									// * if options.uwt==0: using fixed manual adjustment, does not depend on tday
+									if ( prog[ 0 ] & 0x02 && ( ( OSApp.currentSession.controller.options.uwt > 0 && simday === devday ) || OSApp.currentSession.controller.options.uwt === 0 ) ) {
+										waterTime = OSApp.Stations.getStationDuration( prog[ 4 ][ sid ], simt ) * OSApp.currentSession.controller.options.wl / 100 >> 0;
+									} else {
+										waterTime = OSApp.Stations.getStationDuration( prog[ 4 ][ sid ], simt );
+									}
+
+									// After weather scaling, we maybe getting 0 water time
+									if ( waterTime > 0 ) {
+										if ( is216 ) {
+											if ( rtQueue.length < nstations ) {
+
+												// Check if there is space in the queue (queue is as large as number of stations)
+												rtQueue.push( {
+													st: -1,
+													dur: waterTime,
+													sid: sid,
+													pid: pid + 1,
+													gid: OSApp.currentSession.controller.stations.stn_grp ? OSApp.currentSession.controller.stations.stn_grp[ sid ] : -1,
+													pl: 1
+												} );
+											}
+										} else {
+											endArray[ sid ] = waterTime;
+											programArray[ sid ] = pid + 1;
+										}
+										matchFound = 1;
+									}
+								}
+							} else { // If !is21
+								if ( prog[ 7 + bid ] & ( 1 << s ) ) {
+									endArray[ sid ] = prog[ 6 ] * OSApp.currentSession.controller.options.wl / 100 >> 0;
+									programArray[ sid ] = pid + 1;
+									matchFound = 1;
+								}
+							}
+						}
+				}
+				}
+				if ( matchFound ) {
+					var acctime = simminutes * 60,
+						seqAcctime = acctime,
+						seqAcctimes = new Array( OSApp.Constants.options.NUM_SEQ_GROUPS );
+
+					if ( is211 ) {
+						if ( lastSeqStopTime > acctime ) {
+							seqAcctime = lastSeqStopTime + OSApp.currentSession.controller.options.sdt;
+						}
+
+						for ( d = 0; d < OSApp.Constants.options.NUM_SEQ_GROUPS; d++ ) {
+							seqAcctimes[ d ] = acctime;
+							if ( lastSeqStopTimes[ d ] > acctime ) {
+								seqAcctimes[ d ] = lastSeqStopTimes[ d ] + OSApp.currentSession.controller.options.sdt;
+							}
+						}
+
+						if ( is216 ) {
+
+							// Schedule all stations
+							for ( qid = 0; qid < rtQueue.length; qid++ ) {
+								q = rtQueue[ qid ];
+
+								// Check if already scheduled or water time is zero
+								if ( q.st >= 0 || q.dur === 0 ) {
+									continue;
+								}
+								sid = q.sid;
+								bid2 = sid >> 3;
+								s2 = sid & 0x07;
+								if ( q.gid === -1 ) { // Group id is not available
+									if ( OSApp.currentSession.controller.stations.stn_seq[ bid2 ] & ( 1 << s2 ) ) {
+										q.st = seqAcctime;
+										seqAcctime += q.dur;
+										seqAcctime += OSApp.currentSession.controller.options.sdt;
+									} else {
+										q.st = acctime;
+										acctime++;
+									}
+								} else { // Group id is available
+									if ( q.gid !== OSApp.Constants.options.PARALLEL_GID_VALUE ) { // This is a sequential station
+										q.st = seqAcctimes[ q.gid ];
+										seqAcctimes[ q.gid ] += q.dur;
+										seqAcctimes[ q.gid ] += OSApp.currentSession.controller.options.sdt;
+									} else { // This is a parallel station
+										q.st = acctime;
+										acctime++;
+									}
+
+								}
+								busy = 1;
+							}
+						} else { // !is216
+							for ( sid = 0; sid < nstations; sid++ ) {
+								bid2 = sid >> 3;
+								s2 = sid & 0x07;
+								if ( endArray[ sid ] === 0 || startArray[ sid ] >= 0 ) {
+									continue;
+								}
+								if ( OSApp.currentSession.controller.stations.stn_seq[ bid2 ] & ( 1 << s2 ) ) {
+									startArray[ sid ] = seqAcctime;seqAcctime += endArray[ sid ];
+									endArray[ sid ] = seqAcctime;seqAcctime += OSApp.currentSession.controller.options.sdt;
+									plArray[ sid ] = 1;
+								} else {
+									startArray[ sid ] = acctime;
+									endArray[ sid ] = acctime + endArray[ sid ];
+									plArray[ sid ] = 1;
+								}
+								busy = 1;
+							}
+						}
+					} else { // !is21
+						if ( is21 && OSApp.currentSession.controller.options.seq ) {
+							if ( lastStopTime > acctime ) {
+								acctime = lastStopTime + OSApp.currentSession.controller.options.sdt;
+							}
+						}
+						if ( OSApp.currentSession.controller.options.seq ) {
+							for ( sid = 0; sid < OSApp.currentSession.controller.settings.nbrd * 8; sid++ ) {
+								if ( endArray[ sid ] === 0 || programArray[ sid ] === 0 ) {
+									continue;
+								}
+								startArray[ sid ] = acctime;acctime += endArray[ sid ];
+								endArray[ sid ] = acctime;acctime += OSApp.currentSession.controller.options.sdt;
+								busy = 1;
+							}
+						} else {
+							for ( sid = 0; sid < OSApp.currentSession.controller.settings.nbrd * 8; sid++ ) {
+								if ( endArray[ sid ] === 0 || programArray[ sid ] === 0 ) {
+									continue;
+								}
+								startArray[ sid ] = acctime;
+								endArray[ sid ] = acctime + endArray[ sid ];
+								busy = 1;
+							}
+						}
+					} // End of !is21
+				}
+				if ( is216 ) {
+
+					// Go through queue and assign queue elements to stations
+					for ( qid = 0; qid < rtQueue.length; qid++ ) {
+						q = rtQueue[ qid ];
+						sid = q.sid;
+						sqi = qidArray[ sid ];
+						if ( sqi < 255 && rtQueue[ sqi ].st < q.st ) {
+							continue;
+						}
+						qidArray[ sid ] = qid;
+					}
+
+					// Next, go through stations and calculate the schedules
+					runSched216( simminutes * 60, rtQueue, qidArray, simt );
+
+					// Progress 1 minute
+					simminutes++;
+
+					// Go through stations and remove jobs that have been done
+					for ( sid = 0; sid < OSApp.currentSession.controller.settings.nbrd * 8; sid++ ) {
+						sqi = qidArray[ sid ];
+						if ( sqi === 255 ) {
+							continue;
+						}
+						q = rtQueue[ sqi ];
+						if ( q.st >= 0 && simminutes * 60 >= q.st + q.dur ) {
+
+							// Remove element at index sqi
+							var nqueue = rtQueue.length;
+
+							if ( sqi < nqueue - 1 ) {
+
+								// Copy last element to overwrite
+								rtQueue[ sqi ] = rtQueue[ nqueue - 1 ];
+
+								// Fix queue index if necessary
+								if ( qidArray[ rtQueue[ sqi ].sid ] === nqueue - 1 ) {
+									qidArray[ rtQueue[ sqi ].sid ] = sqi;
+								}
+							}
+							rtQueue.pop();
+							qidArray[ sid ] = 0xFF;
+						}
+					}
+
+					// Lastly, calculate lastSeqStopTime
+					lastSeqStopTime = 0;
+					for ( d = 0; d < OSApp.Constants.options.NUM_SEQ_GROUPS; d++ ) { lastSeqStopTime[ d ] = 0; }
+					for ( qid = 0; qid < rtQueue.length; qid++ ) {
+						q = rtQueue[ qid ];
+						sid = q.sid;
+						bid2 = sid >> 3;
+						s2 = sid & 0x07;
+						var sst = q.st + q.dur;
+						if ( q.gid === -1 ) { // Group id is not available
+							if ( OSApp.currentSession.controller.stations.stn_seq[ bid2 ] & ( 1 << s2 ) ) {
+								if ( sst > lastSeqStopTime ) {
+									lastSeqStopTime = sst;
+								}
+							}
+						} else { // Group id is available
+							if ( q.gid !== OSApp.Constants.options.PARALLEL_GID_VALUE ) {
+								if ( sst > lastSeqStopTimes[ q.gid ] ) {
+									lastSeqStopTimes[ q.gid ] = sst;
+								}
+							}
+						}
+					}
+				} else { // If !is216
+
+					// Handle firmwares prior to 2.1.6
+					if ( busy ) {
+						if ( is211 ) {
+							lastSeqStopTime = runSched( simminutes * 60, startArray, programArray, endArray, plArray, simt );
+							simminutes++;
+							for ( sid = 0; sid < OSApp.currentSession.controller.settings.nbrd * 8; sid++ ) {
+								if ( programArray[ sid ] > 0 && simminutes * 60 >= endArray[ sid ] ) {
+									startArray[ sid ] = -1;programArray[ sid ] = 0;endArray[ sid ] = 0;plArray[ sid ] = 0;
+								}
+							}
+						} else if ( is21 ) {
+							lastStopTime = runSched( simminutes * 60, startArray, programArray, endArray, plArray, simt );
+							simminutes++;
+							for ( sid = 0; sid < OSApp.currentSession.controller.settings.nbrd * 8; sid++ ) {
+								startArray[ sid ] = -1;programArray[ sid ] = 0;endArray[ sid ] = 0;
+							}
+						} else {
+							var endminutes = runSched( simminutes * 60, startArray, programArray, endArray, plArray, simt ) / 60 >> 0;
+							if ( OSApp.currentSession.controller.options.seq && simminutes !== endminutes ) {
+								simminutes = endminutes;
+							} else {
+								simminutes++;
+							}
+							for ( sid = 0; sid < OSApp.currentSession.controller.settings.nbrd * 8; sid++ ) {
+								startArray[ sid ] = -1;programArray[ sid ] = 0;endArray[ sid ] = 0;
+							}
+						}
+					} else {
+						simminutes++;
+						if ( is211 ) {
+						for ( sid = 0; sid < OSApp.currentSession.controller.settings.nbrd * 8; sid++ ) {
+							if ( programArray[ sid ] > 0 && simminutes * 60 >= endArray[ sid ] ) {
+								startArray[ sid ] = -1;programArray[ sid ] = 0;endArray[ sid ] = 0;plArray[ sid ] = 0;
+							}
+						}
+						}
+					}
+				}
+			} while ( simminutes < 24 * 60 );
+		};
+
+		runSched216 = function( simseconds, rtQueue, qidArray, simt ) {
+			for ( var sid = 0; sid < OSApp.currentSession.controller.settings.nbrd * 8; sid++ ) {
+				var sqi = qidArray[ sid ];
+				if ( sqi === 255 ) {
+					continue;
+				}
+				var q = rtQueue[ sqi ];
+				if ( q.pl ) {
+
+					// If this one hasn't been plotted
+					var mas2 = typeof OSApp.currentSession.controller.options.mas2 !== "undefined" ? true : false,
+						useMas1 = OSApp.currentSession.controller.stations.masop[ sid >> 3 ] & ( 1 << ( sid % 8 ) ),
+						useMas2 = mas2 ? OSApp.currentSession.controller.stations.masop2[ sid >> 3 ] & ( 1 << ( sid % 8 ) ) : false;
+
+					if ( !OSApp.Stations.isMaster( sid ) ) {
+						if ( OSApp.currentSession.controller.options.mas > 0 && useMas1 ) {
+							previewData.push( {
+								"start": ( q.st + OSApp.currentSession.controller.options.mton ),
+								"end": ( q.st + q.dur + OSApp.currentSession.controller.options.mtof ),
+								"content":"",
+								"className":"master",
+								"shortname":"M" + ( mas2 ? "1" : "" ),
+								"group":"Master",
+								"station": sid
+							} );
+						}
+
+						if ( mas2 && OSApp.currentSession.controller.options.mas2 > 0 && useMas2 ) {
+							previewData.push( {
+								"start": ( q.st + OSApp.currentSession.controller.options.mton2 ),
+								"end": ( q.st + q.dur + OSApp.currentSession.controller.options.mtof2 ),
+								"content":"",
+								"className":"master",
+								"shortname":"M2",
+								"group":"Master 2",
+								"station": sid
+							} );
+						}
+					}
+					timeToText( sid, q.st, q.pid, q.st + q.dur, simt );
+					q.pl = 0;
+				}
+			}
+		};
+
+		runSched = function( simseconds, startArray, programArray, endArray, plArray, simt ) {
+			var endtime = simseconds;
+			for ( var sid = 0; sid < OSApp.currentSession.controller.settings.nbrd * 8; sid++ ) {
+				if ( programArray[ sid ] ) {
+				if ( is211 ) {
+					if ( plArray[ sid ] ) {
+						var mas2 = typeof OSApp.currentSession.controller.options.mas2 !== "undefined" ? true : false,
+							useMas1 = OSApp.currentSession.controller.stations.masop[ sid >> 3 ] & ( 1 << ( sid % 8 ) ),
+							useMas2 = mas2 ? OSApp.currentSession.controller.stations.masop2[ sid >> 3 ] & ( 1 << ( sid % 8 ) ) : false;
+
+						if ( !OSApp.Stations.isMaster( sid ) ) {
+							if ( OSApp.currentSession.controller.options.mas > 0 && useMas1 ) {
+								previewData.push( {
+									"start": ( startArray[ sid ] + OSApp.currentSession.controller.options.mton ),
+									"end": ( endArray[ sid ] + OSApp.currentSession.controller.options.mtof ),
+									"content":"",
+									"className":"master",
+									"shortname":"M" + ( mas2 ? "1" : "" ),
+									"group":"Master",
+									"station": sid
+								} );
+							}
+
+							if ( mas2 && OSApp.currentSession.controller.options.mas2 > 0 && useMas2 ) {
+								previewData.push( {
+									"start": ( startArray[ sid ] + OSApp.currentSession.controller.options.mton2 ),
+									"end": ( endArray[ sid ] + OSApp.currentSession.controller.options.mtof2 ),
+									"content":"",
+									"className":"master",
+									"shortname":"M2",
+									"group":"Master 2",
+									"station": sid
+								} );
+							}
+						}
+
+						timeToText( sid, startArray[ sid ], programArray[ sid ], endArray[ sid ], simt );
+						plArray[ sid ] = 0;
+						if ( OSApp.currentSession.controller.stations.stn_seq[ sid >> 3 ] & ( 1 << ( sid & 0x07 ) ) ) {
+						endtime = ( endtime > endArray[ sid ] ) ? endtime : endArray[ sid ];
+						}
+					}
+				} else {
+					if ( OSApp.currentSession.controller.options.seq === 1 ) {
+						if ( OSApp.Stations.isMaster( sid ) && ( OSApp.currentSession.controller.stations.masop[ sid >> 3 ] & ( 1 << ( sid % 8 ) ) ) ) {
+							previewData.push( {
+								"start": ( startArray[ sid ] + OSApp.currentSession.controller.options.mton ),
+								"end": ( endArray[ sid ] + OSApp.currentSession.controller.options.mtof ),
+								"content":"",
+								"className":"master",
+								"shortname":"M",
+								"group":"Master",
+								"station": sid
+							} );
+						}
+						timeToText( sid, startArray[ sid ], programArray[ sid ], endArray[ sid ], simt );
+						endtime = endArray[ sid ];
+					} else {
+						timeToText( sid, simseconds, programArray[ sid ], endArray[ sid ], simt );
+						if ( OSApp.Stations.isMaster( sid ) && ( OSApp.currentSession.controller.stations.masop[ sid >> 3 ] & ( 1 << ( sid % 8 ) ) ) ) {
+							endtime = ( endtime > endArray[ sid ] ) ? endtime : endArray[ sid ];
+						}
+					}
+				}
+				}
+			}
+			if ( !is211 ) {
+			if ( OSApp.currentSession.controller.options.seq === 0 && OSApp.currentSession.controller.options.mas > 0 ) {
+				previewData.push( {
+					"start": simseconds,
+					"end": endtime,
+					"content":"",
+					"className":"master",
+					"shortname":"M",
+					"group":"Master",
+					"station": sid
+				} );
+			}
+			}
+			return endtime;
+		};
+
+		timeToText = function( sid, start, pid, end, simt ) {
+			var className = "program-" + ( ( pid + 3 ) % 4 ),
+				pname = "P" + pid;
+
+			if ( ( ( OSApp.currentSession.controller.settings.rd !== 0 ) &&
+				( simt + start + ( OSApp.currentSession.controller.options.tz - 48 ) * 900 <= OSApp.currentSession.controller.settings.rdst * 1000 ) ||
+				OSApp.currentSession.controller.options.urs === 1 && OSApp.currentSession.controller.settings.rs === 1 ) &&
+				( typeof OSApp.currentSession.controller.stations.ignore_rain === "object" &&
+					( OSApp.currentSession.controller.stations.ignore_rain[ ( sid / 8 ) >> 0 ] & ( 1 << ( sid % 8 ) ) ) === 0 ) ) {
+
+				className = "delayed";
+			}
+
+			if ( OSApp.Firmware.checkOSVersion( 210 ) ) {
+				pname = OSApp.currentSession.controller.programs.pd[ pid - 1 ][ 5 ];
+			}
+
+			previewData.push( {
+				"start": start,
+				"end": end,
+				"className":className,
+				"content":pname,
+				"pid": pid - 1,
+				"shortname":"S" + ( sid + 1 ),
+				"group": OSApp.currentSession.controller.stations.snames[ sid ],
+				"station": sid
+			} );
+		};
+
+		checkMatch = function( prog, simminutes, simt, simday, devday ) {
+			if ( is216 ) {
+				return checkMatch216( prog, simminutes, simt, simday, devday );
+			} else if ( is21 ) {
+				return checkMatch21( prog, simminutes, simt, simday, devday );
+			} else {
+				return checkMatch183( prog, simminutes, simt, simday, devday );
+			}
+		};
+
+		checkMatch183 = function( prog, simminutes, simt, simday, devday ) {
+			if ( prog[ 0 ] === 0 ) {
+				return 0;
+			}
+			if ( ( prog[ 1 ] & 0x80 ) && ( prog[ 2 ] > 1 ) ) {
+				var dn = prog[ 2 ],
+					drem = prog[ 1 ] & 0x7f;
+				if ( ( simday % dn ) !== ( ( devday + drem ) % dn ) ) {
+					return 0;
+				}
+			} else {
+				var date = new Date( simt );
+				var wd = ( date.getUTCDay() + 6 ) % 7;
+				if ( ( prog[ 1 ] & ( 1 << wd ) ) === 0 ) {
+					return 0;
+				}
+				var dt = date.getUTCDate();
+				if ( ( prog[ 1 ] & 0x80 ) && ( prog[ 2 ] === 0 ) ) {
+					if ( ( dt % 2 ) !== 0 ) {
+						return 0;
+					}
+				}
+				if ( ( prog[ 1 ] & 0x80 ) && ( prog[ 2 ] === 1 ) ) {
+					if ( dt === 31 || ( dt === 29 && date.getUTCMonth() === 1 ) || ( dt % 2 ) !== 1 ) {
+						return 0;
+					}
+				}
+			}
+			if ( simminutes < prog[ 3 ] || ( simminutes > prog[ 4 ] || ( OSApp.Firmware.isOSPi() && simminutes >= prog[ 4 ] ) ) ) {
+				return 0;
+			}
+			if ( prog[ 5 ] === 0 ) {
+				return 0;
+			}
+			if ( ( ( simminutes - prog[ 3 ] ) / prog[ 5 ] >> 0 ) * prog[ 5 ] === ( simminutes - prog[ 3 ] ) ) {
+				return 1;
+			}
+			return 0;
+		};
+
+		checkDayMatch = function( prog, simt, simday, devday ) {
+			var oddeven = ( prog[ 0 ] >> 2 ) & 0x03,
+				type = ( prog[ 0 ] >> 4 ) & 0x03,
+				date = new Date( simt );
+
+			var dt = date.getUTCDate();
+			var mt = date.getUTCMonth() + 1;
+			var dr = prog[ 6 ];
+			if ( typeof dr === "object" ) { // Daterange is available
+				if ( dr[ 0 ] ) { // Check date range if enabled
+					var currdate = ( mt << 5 ) + dt;
+					if ( dr[ 1 ] <= dr[ 2 ] ) {
+						if ( currdate < dr[ 1 ] || currdate > dr[ 2 ] ) { return 0; }
+					} else {
+						if ( currdate > dr[ 2 ] && currdate < dr[ 1 ] ) { return 0; }
+					}
+				}
+			}
+
+			if ( type === 3 ) {
+
+				// Interval program
+				var dn = prog[ 2 ],
+					drem = prog[ 1 ];
+
+				if ( ( simday % dn ) !== ( ( devday + drem ) % dn ) ) {
+					return 0;
+				}
+			} else if ( type === 0 ) {
+
+				// Weekly program
+				var wd = ( date.getUTCDay() + 6 ) % 7;
+				if ( ( prog[ 1 ] & ( 1 << wd ) ) === 0 ) {
+					return 0;
+				}
+			} else {
+				return 0;
+			}
+
+			// Odd/Even restriction handling
+
+			if ( oddeven === 2 ) {
+				if ( ( dt % 2 ) !== 0 ) {
+					return 0;
+				}
+			} else if ( oddeven === 1 ) {
+				if ( dt === 31 || ( dt === 29 && date.getUTCMonth() === 1 ) || ( dt % 2 ) !== 1 ) {
+					return 0;
+				}
+			}
+			return 1;
+		};
+
+		checkMatch21 = function( prog, simminutes, simt, simday, devday ) {
+			var en = prog[ 0 ] & 0x01,
+				sttype = ( prog[ 0 ] >> 6 ) & 0x01,
+				date = new Date( simt );
+
+			if ( en === 0 ) {
+				return 0;
+			}
+
+			if ( !checkDayMatch( prog, simt, simday, devday ) ) {
+			return 0;
+			}
+
+			// Start time matching
+			if ( sttype === 0 ) {
+
+				// Repeating program
+				var start = OSApp.Programs.getStartTime( prog[ 3 ][ 0 ], date ),
+					repeat = prog[ 3 ][ 1 ],
+					cycle = prog[ 3 ][ 2 ];
+
+				if ( simminutes < start ) {
+					return 0;
+				}
+
+				if ( repeat === 0 ) {
+
+					// Single run program
+					return ( simminutes === start ) ? 1 : 0;
+				}
+
+				if ( cycle === 0 ) {
+
+					// If this is a multi-run, cycle time must be > 0
+					return 0;
+				}
+
+				var c = Math.round( ( simminutes - start ) / cycle );
+				if ( ( c * cycle === ( simminutes - start ) ) && ( c <= repeat ) ) {
+					return 1;
+				}
+			} else {
+
+				// Set start time program
+				var sttimes = prog[ 3 ];
+				for ( var i = 0; i < 4; i++ ) {
+
+					if ( simminutes === OSApp.Programs.getStartTime( sttimes[ i ], date ) ) {
+						return 1;
+					}
+				}
+			}
+			return 0;
+		};
+
+		checkMatch216 = function( prog, simminutes, simt, simday, devday ) {
+			var en = prog[ 0 ] & 0x01,
+				sttype = ( prog[ 0 ] >> 6 ) & 0x01,
+				date = new Date( simt );
+
+			if ( en === 0 ) {
+				return 0;
+			}
+
+			var start = OSApp.Programs.getStartTime( prog[ 3 ][ 0 ], date ),
+				repeat = prog[ 3 ][ 1 ],
+				cycle = prog[ 3 ][ 2 ],
+				c;
+
+			// Check if simday matches the program start days
+			if ( checkDayMatch( prog, simt, simday, devday ) ) {
+
+				// Match the start time
+				if ( sttype === 0 ) {
+
+					// Repeating program
+					if ( simminutes === start ) {
+						return 1;
+					}
+
+					if ( simminutes > start && cycle ) {
+						c = Math.round( ( simminutes - start ) / cycle );
+						if ( ( c * cycle === ( simminutes - start ) ) && ( c <= repeat ) ) {
+							return 1;
+						}
+					}
+
+				} else {
+
+					// Set start time program
+					var sttimes = prog[ 3 ];
+					for ( var i = 0; i < 4; i++ ) {
+
+						if ( simminutes === OSApp.Programs.getStartTime( sttimes[ i ], date ) ) {
+							return 1;
+						}
+					}
+					return 0;
+				}
+			}
+
+			// To proceed, the program has to be repeating type,
+			// and interval and repeat must be non-zero
+			if ( sttype || !cycle ) {
+				return 0;
+			}
+
+			// Check if the previous day is a program start day
+			if ( checkDayMatch( prog, simt - 86400000, simday - 1, devday ) ) {
+
+				// If so, check if a repeating program
+				// has start times that fall on today
+				c = Math.round( ( simminutes - start + 1440 ) / cycle );
+				if ( ( c * cycle === ( simminutes - start + 1440 ) ) && ( c <= repeat ) ) {
+					return 1;
+				}
+			}
+			return 0;
+		};
+
+		changeday = function( dir ) {
+			day.setDate( day.getDate() + dir );
+
+			var m = OSApp.Utils.pad( day.getMonth() + 1 ),
+				d = OSApp.Utils.pad( day.getDate() ),
+				y = day.getFullYear();
+
+			date = [ y, m, d ];
+			page.find( "#preview_date" ).val( date.join( "-" ) );
+			render();
+		};
+
+		render = function() {
+			processPrograms( date[ 1 ], date[ 2 ], date[ 0 ] );
+
+			navi.hide();
+
+			if ( !previewData.length ) {
+				page.find( "#timeline" ).html( "<p align='center'>" + OSApp.Language._( "No stations set to run on this day." ) + "</p>" );
+				return;
+			}
+
+			previewData.sort( OSApp.Utils.sortByStation );
+
+			var shortnames = [],
+				max = new Date( date[ 0 ], date[ 1 ] - 1, date[ 2 ], 24 );
+
+			$.each( previewData, function() {
+				var total = this.start + this.end;
+
+				this.start = new Date( date[ 0 ], date[ 1 ] - 1, date[ 2 ], 0, 0, this.start );
+				if ( total > 86400 ) {
+					var extraDays = Math.floor( this.end / 86400 );
+
+					this.end = new Date( date[ 0 ], date[ 1 ] - 1, parseInt( date[ 2 ] ) + extraDays, 0, 0, this.end % 86400 );
+					max = max > this.end ? max : this.end;
+
+				} else {
+					this.end = new Date( date[ 0 ], date[ 1 ] - 1, date[ 2 ], 0, 0, this.end );
+				}
+				shortnames[ this.group ] = this.shortname;
+			} );
+
+			var options = {
+				"width":  "100%",
+				"editable": false,
+				"axisOnTop": true,
+				"eventMargin": 10,
+				"eventMarginAxis": 0,
+				"min": new Date( date[ 0 ], date[ 1 ] - 1, date[ 2 ], 0 ),
+				"max": max,
+				"selectable": true,
+				"showMajorLabels": false,
+				"zoomMax": 1000 * 60 * 60 * 24,
+				"zoomMin": 1000 * 60 * 60,
+				"groupsChangeable": false,
+				"showNavigation": false,
+				"groupsOrder": "none",
+				"groupMinHeight": 20
+			},
+			resize = function() {
+				timeline.redraw();
+			},
+			timeline = new links.Timeline( placeholder[ 0 ], options ),
+			currentTime = new Date( now );
+
+			currentTime.setMinutes( currentTime.getMinutes() + currentTime.getTimezoneOffset() );
+
+			timeline.setCurrentTime( currentTime );
+			links.events.addListener( timeline, "select", function() {
+				var sel = timeline.getSelection();
+
+				if ( sel.length ) {
+					if ( typeof sel[ 0 ].row !== "undefined" ) {
+						OSApp.UIDom.changePage( "#programs", {
+							"programToExpand": parseInt( timeline.getItem( sel[ 0 ].row ).pid )
+						} );
+					}
+				}
+			} );
+
+			$.mobile.window.on( "resize", resize );
+
+			page.one( "pagehide", function() {
+				$.mobile.window.off( "resize", resize );
+			} );
+
+			timeline.draw( previewData );
+
+			page.find( ".timeline-groups-text" ).each( function() {
+				var stn = $( this );
+				var name = shortnames[ stn.text() ];
+				stn.attr( "data-shortname", name );
+			} );
+
+			page.find( ".timeline-groups-axis" ).children().first().html( "<div class='timeline-axis-text center dayofweek' data-shortname='" +
+				OSApp.Dates.getDayName( day, "short" ) + "'>" + OSApp.Dates.getDayName( day ) + "</div>" );
+
+			if ( OSApp.currentDevice.isAndroid ) {
+				navi.find( ".ui-icon-plus" ).off( "click" ).on( "click", function() {
+					timeline.zoom( 0.4 );
+					return false;
+				} );
+				navi.find( ".ui-icon-minus" ).off( "click" ).on( "click", function() {
+					timeline.zoom( -0.4 );
+					return false;
+				} );
+				navi.find( ".ui-icon-carat-l" ).off( "click" ).on( "click", function() {
+					timeline.move( -0.2 );
+					return false;
+				} );
+				navi.find( ".ui-icon-carat-r" ).off( "click" ).on( "click", function() {
+					timeline.move( 0.2 );
+					return false;
+				} );
+
+				navi.show();
+			} else {
+				navi.hide();
+			}
+
+			placeholder.on( "swiperight swipeleft", function( e ) {
+				e.stopImmediatePropagation();
+			} );
+
+		};
+
+		function begin() {
+			is21 = OSApp.Firmware.checkOSVersion( 210 );
+			is211 = OSApp.Firmware.checkOSVersion( 211 );
+			is216 = OSApp.Firmware.checkOSVersion( 216 );
+
+			if ( page.find( "#preview_date" ).val() === "" ) {
+				now = new Date( OSApp.currentSession.controller.settings.devt * 1000 );
+				date = now.toISOString().slice( 0, 10 ).split( "-" );
+				day = new Date( date[ 0 ], date[ 1 ] - 1, date[ 2 ] );
+				page.find( "#preview_date" ).val( date.join( "-" ) );
+			}
+
+			OSApp.UIDom.changeHeader( {
+				title: OSApp.Language._( "Program Preview" ),
+				leftBtn: {
+					icon: "carat-l",
+					text: OSApp.Language._( "Back" ),
+					class: "ui-toolbar-back-btn",
+					on: OSApp.UIDom.goBack
+				}
+			} );
+
+			$( "#preview" ).remove();
+			$.mobile.pageContainer.append( page );
+		}
+
+		return begin;
+	} )();
+
+	// Logging functions
+	// FIXME: This needs to be rewritten and refactored out so it works properly (mellodev)
+	var getLogs = ( function() {
+		var page = $( "<div data-role='page' id='logs'>" +
+				"<div class='ui-content' role='main'>" +
+					"<fieldset data-role='controlgroup' data-type='horizontal' data-mini='true' class='log_type'>" +
+						"<input data-mini='true' type='radio' name='log_type' id='log_timeline' value='timeline'>" +
+						"<label for='log_timeline'>" + OSApp.Language._( "Timeline" ) + "</label>" +
+						"<input data-mini='true' type='radio' name='log_type' id='log_table' value='table'>" +
+						"<label for='log_table'>" + OSApp.Language._( "Table" ) + "</label>" +
+					"</fieldset>" +
+					"<fieldset data-role='collapsible' data-mini='true' id='log_options' class='center'>" +
+						"<legend>" + OSApp.Language._( "Options" ) + "</legend>" +
+						"<fieldset data-role='controlgroup' data-type='horizontal' id='table_sort'>" +
+						"<p class='tight'>" + OSApp.Language._( "Grouping:" ) + "</p>" +
+						"<input data-mini='true' type='radio' name='table-group' id='table-sort-day' value='day' checked='checked'>" +
+						"<label for='table-sort-day'>" + OSApp.Language._( "Day" ) + "</label>" +
+						"<input data-mini='true' type='radio' name='table-group' id='table-sort-station' value='station'>" +
+						"<label for='table-sort-station'>" + OSApp.Language._( "Station" ) + "</label>" +
+						"</fieldset>" +
+						"<div class='ui-field-contain'>" +
+							"<label for='log_start'>" + OSApp.Language._( "Start:" ) + "</label>" +
+							"<input data-mini='true' type='date' id='log_start'>" +
+							"<label for='log_end'>" + OSApp.Language._( "End:" ) + "</label>" +
+							"<input data-mini='true' type='date' id='log_end'>" +
+						"</div>" +
+						"<a data-role='button' data-icon='action' class='export_logs' href='#' data-mini='true'>" + OSApp.Language._( "Export" ) + "</a>" +
+						"<a data-role='button' class='red clear_logs' href='#' data-mini='true' data-icon='alert'>" +
+							OSApp.Language._( "Clear Logs" ) +
+						"</a>" +
+					"</fieldset>" +
+					"<div id='logs_list' class='center'>" +
+					"</div>" +
+				"</div>" +
+			"</div>" ),
+			logsList = page.find( "#logs_list" ),
+			tableSort = page.find( "#table_sort" ),
+			logOptions = page.find( "#log_options" ),
+			data = [],
+			waterlog = [],
+			flowlog = [],
+			sortData = function( type, grouping ) {
+
+				var sortedData = [],
+					stats = {
+						totalRuntime: 0,
+						totalCount: 0
+					};
+
+				if ( type === "table" && grouping === "station" ) {
+					for ( i = 0; i < stations.length; i++ ) {
+						sortedData[ i ] = [];
+					}
+				}
+
+				$.each( data, function() {
+					var station = this[ 1 ],
+						duration = parseInt( this[ 2 ] );
+
+					// Adjust for negative watering time firmware bug
+					if ( duration < 0 ) {
+						duration += 65536;
+					}
+
+					var date = new Date( parseInt( this[ 3 ] * 1000 ) - ( duration * 1000 ) ),
+						utc = new Date( date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(),  date.getUTCHours(),
+							date.getUTCMinutes(), date.getUTCSeconds() );
+
+					if ( typeof station === "string" ) {
+						if ( station === "rd" ) {
+							station = stations.length - 1;
+						} else if ( station === "s1" ) {
+							station = stations.length - 3;
+						} else if ( station === "s2" ) {
+							station = stations.length - 2;
+						} else if ( station === "rs" ) {
+							station = stations.length - 2;
+						} else {
+							return;
+						}
+					} else if ( typeof station === "number" ) {
+						if ( station > stations.length - 2 || OSApp.Stations.isMaster( station ) ) {
+							return;
+						}
+
+						stats.totalRuntime += duration;
+						stats.totalCount++;
+					}
+
+					if ( type === "table" ) {
+						switch ( grouping ) {
+							case "station":
+								sortedData[ station ].push( [ utc, OSApp.Dates.dhms2str( OSApp.Dates.sec2dhms( duration ) ) ] );
+								break;
+							case "day":
+								var day = Math.floor( date.getTime() / 1000 / 60 / 60 / 24 ),
+									item = [ utc, OSApp.Dates.dhms2str( OSApp.Dates.sec2dhms( duration ) ), station, new Date( utc.getTime() + ( duration * 1000 ) ) ];
+
+								// Item structure: [startDate, runtime, station, endDate]
+
+								if ( typeof sortedData[ day ] !== "object" ) {
+									sortedData[ day ] = [ item ];
+								} else {
+									sortedData[ day ].push( item );
+								}
+
+								break;
+						}
+					} else if ( type === "timeline" ) {
+						var pid = parseInt( this[ 0 ] ),
+							className, name, group, shortname;
+
+						if ( this[ 1 ] === "rs" ) {
+							className = "delayed";
+							name = OSApp.Language._( "Rain Sensor" );
+							group = name;
+							shortname = OSApp.Language._( "RS" );
+						} else if ( this[ 1 ] === "rd" ) {
+							className = "delayed";
+							name = OSApp.Language._( "Rain Delay" );
+							group = name;
+							shortname = OSApp.Language._( "RD" );
+						} else if ( this[ 1 ] === "s1" ) {
+							className = "delayed";
+							name = OSApp.currentSession.controller.options.sn1t === 3 ? OSApp.Language._( "Soil Sensor" ) : OSApp.Language._( "Rain Sensor" );
+							group = name;
+							shortname = OSApp.Language._( "SEN1" );
+						} else if ( this[ 1 ] === "s2" ) {
+							className = "delayed";
+							name = OSApp.currentSession.controller.options.sn2t === 3 ? OSApp.Language._( "Soil Sensor" ) : OSApp.Language._( "Rain Sensor" );
+							group = name;
+							shortname = OSApp.Language._( "SEN2" );
+						} else if ( pid === 0 ) {
+							return;
+						} else {
+							className = "program-" + ( ( pid + 3 ) % 4 );
+							name = OSApp.Programs.pidToName( pid );
+							group = OSApp.currentSession.controller.stations.snames[ station ];
+							shortname = "S" + ( station + 1 );
+						}
+
+						sortedData.push( {
+							"start": utc,
+							"end": new Date( utc.getTime() + ( duration * 1000 ) ),
+							"className": className,
+							"content": name,
+							"pid": pid - 1,
+							"shortname": shortname,
+							"group": group,
+							"station": station
+						} );
+					}
+				} );
+
+				if ( type === "timeline" ) {
+					sortedData.sort( OSApp.Utils.sortByStation );
+				}
+
+				return [ sortedData, stats ];
+			},
+			sortExtraData = function( stats, type ) {
+				var wlSorted = [],
+					flSorted = [];
+
+				if ( waterlog.length ) {
+					stats.avgWaterLevel = 0;
+					$.each( waterlog, function() {
+						wlSorted[ Math.floor( this[ 3 ] / 60 / 60 / 24 ) ] = this[ 2 ];
+						stats.avgWaterLevel += this[ 2 ];
+					} );
+					stats.avgWaterLevel = parseFloat( ( stats.avgWaterLevel / waterlog.length ).toFixed( 2 ) );
+				}
+
+				if ( flowlog.length ) {
+					stats.totalVolume = 0;
+					$.each( flowlog, function() {
+						var volume = OSApp.Utils.flowCountToVolume( this[ 0 ] );
+
+						if ( type === "timeline" ) {
+							var date = new Date( parseInt( this[ 3 ] * 1000 ) ),
+								utc = new Date( date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(),  date.getUTCHours(),
+									date.getUTCMinutes(), date.getUTCSeconds() );
+
+							flSorted.push( {
+								"start": new Date( utc.getTime() - parseInt( this[ 2 ] * 1000 ) ),
+								"end": utc,
+								"className": "",
+								"content": volume + " L",
+								"shortname": OSApp.Language._( "FS" ),
+								"group": OSApp.Language._( "Flow Sensor" )
+							} );
+						} else {
+							var day = Math.floor( this[ 3 ] / 60 / 60 / 24 );
+
+							flSorted[ day ] = flSorted[ day ] ? flSorted[ day ] + volume : volume;
+						}
+						stats.totalVolume += volume;
+					} );
+				}
+
+				return [ wlSorted, flSorted, stats ];
+			},
+			success = function( items, wl, fl ) {
+				if ( typeof items !== "object" || items.length < 1 || ( items.result && items.result === 32 ) ) {
+					$.mobile.loading( "hide" );
+					resetLogsPage();
+					return;
+				}
+
+				try {
+					flowlog = JSON.parse( flowlog.replace( /,\s*inf/g, "" ) );
+				} catch ( err ) {
+					flowlog = [];
+				}
+
+				data = items;
+				waterlog = $.isEmptyObject( wl ) ? [] : wl;
+				flowlog = $.isEmptyObject( fl ) ? [] : fl;
+
+				updateView();
+
+				OSApp.Utils.exportObj( ".export_logs", data );
+
+				$.mobile.loading( "hide" );
+			},
+			updateView = function() {
+				if ( page.find( "#log_table" ).prop( "checked" ) ) {
+					prepTable();
+				} else if ( page.find( "#log_timeline" ).prop( "checked" ) ) {
+					prepTimeline();
+				}
+			},
+			prepTimeline = function() {
+				if ( data.length < 1 ) {
+					resetLogsPage();
+					return;
+				}
+
+				tableSort.hide();
+				logsList.show();
+
+				logOptions.collapsible( "collapse" );
+
+				var sortedData = sortData( "timeline" ),
+					extraData = sortExtraData( sortedData[ 1 ], "timeline" ),
+					fullData = sortedData[ 0 ].concat( extraData[ 1 ] ),
+					stats = extraData[ 2 ],
+					options = {
+						"width":  "100%",
+						"editable": false,
+						"axisOnTop": true,
+						"eventMargin": 10,
+						"eventMarginAxis": 0,
+						"min": dates().start,
+						"max": new Date( dates().end.getTime() + 86340000 ),
+						"selectable": false,
+						"showMajorLabels": false,
+						"groupsChangeable": false,
+						"showNavigation": false,
+						"groupsOrder": "none",
+						"groupMinHeight": 20,
+						"zoomMin": 1000 * 60
+					},
+					resize = function() {
+						timeline.redraw();
+					},
+					reset = function() {
+						$.mobile.window.off( "resize", resize );
+					},
+					shortnames = [];
+
+				logsList.on( "swiperight swipeleft", function( e ) {
+					e.stopImmediatePropagation();
+				} );
+
+				$.each( fullData, function() {
+					shortnames[ this.group ] = this.shortname;
+				} );
+
+				var timeline = new links.Timeline( logsList.get( 0 ), options );
+
+				$.mobile.window.on( "resize", resize );
+				page.one( "pagehide", reset );
+				page.find( "input:radio[name='log_type']" ).one( "change", reset );
+
+				timeline.draw( fullData );
+
+				logsList.find( ".timeline-groups-text" ).each( function() {
+					this.setAttribute( "data-shortname", shortnames[ this.textContent ] );
+				} );
+
+				logsList.prepend( showStats( stats ) );
+			},
+			prepTable = function() {
+				if ( data.length < 1 ) {
+					resetLogsPage();
+					return;
+				}
+
+				tableSort.show();
+				logsList.show();
+
+				var grouping = page.find( "input:radio[name='table-group']:checked" ).val(),
+					rawData = sortData( "table", grouping ),
+					sortedData = rawData[ 0 ],
+					extraData = sortExtraData( rawData [ 1 ] ),
+					groupArray = [],
+					wlSorted = extraData[ 0 ],
+					flSorted = extraData[ 1 ],
+					stats = extraData[ 2 ],
+					tableHeader = "<table id=\"table-logs\"><thead><tr>" +
+						"<th data-priority='1'>" + OSApp.Language._( "Station" ) + "</th>" +
+						"<th data-priority='2'>" + OSApp.Language._( "Runtime" ) + "</th>" +
+						"<th data-priority='3'>" + OSApp.Language._( "Start Time" ) + "</th>" +
+						"<th data-priority='4'>" + OSApp.Language._( "End Time" ) + "</th>" +
+						"</tr></thead><tbody>",
+					html = showStats( stats ) + "<div data-role='collapsible-set' data-inset='true' data-theme='b' data-collapsed-icon='arrow-d' data-expanded-icon='arrow-u'>",
+					i = 0,
+					group, ct, k;
+
+				// Return HH:MM:SS formatting for dt datetime object.
+				var formatTime = function( dt, g ) {
+					return g === "station" ? OSApp.Dates.dateToString( dt, false ) : OSApp.Utils.pad( dt.getHours() ) + ":" + OSApp.Utils.pad( dt.getMinutes() ) + ":" + OSApp.Utils.pad( dt.getSeconds() );
+				};
+
+				for ( group in sortedData ) {
+					if ( sortedData.hasOwnProperty( group ) ) {
+						ct = sortedData[ group ].length;
+						if ( ct === 0 ) {
+							continue;
+						}
+						groupArray[ i ] = "<div data-role='collapsible' data-collapsed='true'><h2>" +
+								( ( OSApp.Firmware.checkOSVersion( 210 ) && grouping === "day" ) ? "<a class='ui-btn red ui-btn-corner-all delete-day day-" +
+									group + "'>" + OSApp.Language._( "delete" ) + "</a>" : "" ) +
+								"<div class='ui-btn-up-c ui-btn-corner-all custom-count-pos'>" +
+									ct + " " + ( ( ct === 1 ) ? OSApp.Language._( "run" ) : OSApp.Language._( "runs" ) ) +
+								"</div>" + ( grouping === "station" ? stations[ group ] : OSApp.Dates.dateToString(
+									new Date( group * 1000 * 60 * 60 * 24 )
+								).slice( 0, -9 ) ) +
+							"</h2>";
+
+						if ( wlSorted[ group ] ) {
+							groupArray[ i ] += "<span style='border:none' class='" +
+								( wlSorted[ group ] !== 100 ? ( wlSorted[ group ] < 100 ? "green " : "red " ) : "" ) +
+								"ui-body ui-body-a'>" + OSApp.Language._( "Average" ) + " " + OSApp.Language._( "Water Level" ) + ": " + wlSorted[ group ] + "%</span>";
+						}
+
+						if ( flSorted[ group ] ) {
+							groupArray[ i ] += "<span style='border:none' class='ui-body ui-body-a'>" +
+								OSApp.Language._( "Total Water Used" ) + ": " + flSorted[ group ] + " L" +
+								"</span>";
+						}
+
+						groupArray[ i ] += tableHeader;
+
+						for ( k = 0; k < sortedData[ group ].length; k++ ) {
+							groupArray[ i ] += "<tr>" +
+								"<td>" + stations[ sortedData[ group ][ k ][ 2 ] ] + "</td>" + // Station name
+								"<td>" + sortedData[ group ][ k ][ 1 ] + "</td>" + // Runtime
+								"<td>" + formatTime( sortedData[ group ][ k ][ 0 ], grouping ) + "</td>" + // Startdate
+								"<td>" + formatTime( sortedData[ group ][ k ][ 3 ], grouping ) + "</td>" + // Enddate
+								"</tr>";
+						}
+						groupArray[ i ] += "</tbody></table></div>";
+
+						i++;
+					}
+				}
+
+				if ( grouping === "day" ) {
+					groupArray.reverse();
+				}
+
+				logOptions.collapsible( "collapse" );
+				logsList.html( html + groupArray.join( "" ) + "</div>" ).enhanceWithin();
+
+				// Initialize datatable
+				$( "#table-logs" ).DataTable( OSApp.UIDom.getDatatablesConfig() );
+
+				logsList.find( ".delete-day" ).on( "click", function() {
+					var day, date;
+
+					$.each( this.className.split( " " ), function() {
+						if ( this.indexOf( "day-" ) === 0 ) {
+							day = this.split( "day-" )[ 1 ];
+							return false;
+						}
+					} );
+
+					date = OSApp.Dates.dateToString( new Date( day * 1000 * 60 * 60 * 24 ) ).slice( 0, -9 );
+
+					OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to " ) + OSApp.Language._( "delete" ) + " " + date + "?", "", function() {
+						$.mobile.loading( "show" );
+						OSApp.Firmware.sendToOS( "/dl?pw=&day=" + day ).done( function() {
+							requestData();
+							OSApp.Errors.showError( date + " " + OSApp.Language._( "deleted" ) );
+						} );
+					} );
+
+					return false;
+				} );
+
+				OSApp.UIDom.fixInputClick( logsList );
+			},
+			showStats = function( stats ) {
+				if ( stats.totalCount === 0 || stats.totalRuntime === 0 ) {
+					return "";
+				}
+
+				var hasWater = typeof stats.avgWaterLevel !== "undefined";
+
+				return "<div class='ui-body-a smaller' id='logs_summary'>" +
+							"<div><span class='bold'>" + OSApp.Language._( "Total Station Events" ) + "</span>: " + stats.totalCount + "</div>" +
+							"<div><span class='bold'>" + OSApp.Language._( "Total Runtime" ) + "</span>: " + OSApp.Dates.dhms2str( OSApp.Dates.sec2dhms( stats.totalRuntime ) ) + "</div>" +
+							( hasWater ?
+								"<div><span class='bold'>" +  OSApp.Language._( "Average" ) + " " + OSApp.Language._( "Water Level" ) + "</span>: <span class='" +
+										( stats.avgWaterLevel !== 100 ? ( stats.avgWaterLevel < 100 ? "green-text" : "red-text" ) : "" ) +
+									"'>" + stats.avgWaterLevel + "%</span></div>" : ""
+							) +
+							( typeof stats.totalVolume !== "undefined" && stats.totalVolume > 0 ? "<div><span class='bold'>" + OSApp.Language._( "Total Water Used" ) + "</span>: " + stats.totalVolume + " L" +
+								( hasWater && stats.avgWaterLevel < 100 ? " (<span class='green-text'>" + ( stats.totalVolume - ( stats.totalVolume * ( stats.avgWaterLevel / 100 ) ) ).toFixed( 2 ) + "L saved</span>)" : "" ) +
+							"</div>" : "" ) +
+						"</div>";
+			},
+			resetLogsPage = function() {
+				data = [];
+				logOptions.collapsible( "expand" );
+				tableSort.hide();
+				logsList.show().html( OSApp.Language._( "No entries found in the selected date range" ) );
+			},
+			fail = function() {
+				$.mobile.loading( "hide" );
+
+				tableSort.empty().hide();
+				logsList.show().html( OSApp.Language._( "Error retrieving log data. Please refresh to try again." ) );
+			},
+			dates = function() {
+				var sDate = logStart.val().split( "-" ),
+					eDate = logEnd.val().split( "-" );
+				return {
+					start: new Date( sDate[ 0 ], sDate[ 1 ] - 1, sDate[ 2 ] ),
+					end: new Date( eDate[ 0 ], eDate[ 1 ] - 1, eDate[ 2 ] )
+				};
+			},
+			parms = function() {
+				return "start=" + ( dates().start.getTime() / 1000 ) + "&end=" + ( ( dates().end.getTime() / 1000 ) + 86340 );
+			},
+			requestData = function() {
+				var endtime = dates().end.getTime() / 1000,
+					starttime = dates().start.getTime() / 1000;
+
+				if ( endtime < starttime ) {
+					resetLogsPage();
+					OSApp.Errors.showError( OSApp.Language._( "Start time cannot be greater than end time" ) );
+					return;
+				}
+
+				var delay = 0;
+				$.mobile.loading( "show" );
+
+				if ( ( endtime - starttime ) > 31540000 ) {
+					OSApp.Errors.showError( OSApp.Language._( "The requested time span exceeds the maximum of 1 year and has been adjusted" ), 3500 );
+					var nDate = dates().start;
+					nDate.setFullYear( nDate.getFullYear() + 1 );
+					$( "#log_end" ).val( nDate.getFullYear() + "-" + OSApp.Utils.pad( nDate.getMonth() + 1 ) + "-" + OSApp.Utils.pad( nDate.getDate() ) );
+					delay = 500;
+				}
+
+				var wlDefer = $.Deferred().resolve(),
+					flDefer = $.Deferred().resolve();
+
+				if ( OSApp.Firmware.checkOSVersion( 211 ) ) {
+					wlDefer = OSApp.Firmware.sendToOS( "/jl?pw=&type=wl&" + parms(), "json" );
+				}
+
+				if ( OSApp.Firmware.checkOSVersion( 216 ) ) {
+					flDefer = OSApp.Firmware.sendToOS( "/jl?pw=&type=fl&" + parms() );
+				}
+
+				setTimeout( function() {
+					$.when(
+						OSApp.Firmware.sendToOS( "/jl?pw=&" + parms(), "json" ),
+						wlDefer,
+						flDefer
+					).then( success, fail );
+				}, delay );
+			},
+			isNarrow = window.innerWidth < 640 ? true : false,
+			logStart = page.find( "#log_start" ),
+			logEnd = page.find( "#log_end" ),
+			stations, logtimeout, i;
+
+		// Bind clear logs button
+		page.find( ".clear_logs" ).on( "click", function() {
+			OSApp.Logs.clearLogs( requestData );
+			return false;
+		} );
+
+		//Automatically update the log viewer when changing the date range
+		if ( OSApp.currentDevice.isiOS ) {
+			logStart.add( logEnd ).on( "blur", function() {
+				if ( page.hasClass( "ui-page-active" ) ) {
+					requestData();
+				}
+			} );
+		} else {
+			logStart.add( logEnd ).change( function() {
+				clearTimeout( logtimeout );
+				logtimeout = setTimeout( requestData, 1000 );
+			} );
+		}
+
+		//Automatically update log viewer when switching table sort
+		tableSort.find( "input[name='table-group']" ).change( function() {
+			prepTable();
+		} );
+
+		//Bind view change buttons
+		page.find( "input:radio[name='log_type']" ).change( updateView );
+
+		page.on( {
+			pagehide: function() {
+				page.detach();
+			},
+			pageshow: requestData
+		} );
+
+		page.find( "#log_timeline" ).prop( "checked", !isNarrow );
+		page.find( "#log_table" ).prop( "checked", isNarrow );
+
+		function begin() {
+			var additionalMetrics = OSApp.Firmware.checkOSVersion( 219 ) ? [
+				OSApp.currentSession.controller.options.sn1t === 3 ? OSApp.Language._( "Soil Sensor" ) : OSApp.Language._( "Rain Sensor" ),
+				OSApp.currentSession.controller.options.sn2t === 3 ? OSApp.Language._( "Soil Sensor" ) : OSApp.Language._( "Rain Sensor" ),
+				OSApp.Language._( "Rain Delay" )
+			] : [ OSApp.Language._( "Rain Sensor" ), OSApp.Language._( "Rain Delay" ) ];
+
+			stations = $.merge( $.merge( [], OSApp.currentSession.controller.stations.snames ), additionalMetrics );
+			page.find( ".clear_logs" ).toggleClass( "hidden", ( OSApp.Firmware.isOSPi() || OSApp.Firmware.checkOSVersion( 210 ) ?  false : true ) );
+
+			if ( logStart.val() === "" || logEnd.val() === "" ) {
+				var now = new Date( OSApp.currentSession.controller.settings.devt * 1000 );
+				logStart.val( new Date( now.getTime() - 604800000 ).toISOString().slice( 0, 10 ) );
+				logEnd.val( now.toISOString().slice( 0, 10 ) );
+			}
+
+			OSApp.UIDom.changeHeader( {
+				title: OSApp.Language._( "Logs" ),
+				leftBtn: {
+					icon: "carat-l",
+					text: OSApp.Language._( "Back" ),
+					class: "ui-toolbar-back-btn",
+					on: OSApp.UIDom.goBack
+				},
+				rightBtn: {
+					icon: "refresh",
+					text: OSApp.Language._( "Refresh" ),
+					on: requestData
+				}
+			} );
+
+			$( "#logs" ).remove();
+			$.mobile.pageContainer.append( page );
+		}
+
+		return begin;
+	} )();
+
+	// Program management functions
+	// FIXME: This needs to be rewritten and refactored out so it works properly (mellodev)
+	var getPrograms = ( function() {
+		var page = $( "<div data-role='page' id='programs'>" +
+				"<div class='ui-content' role='main' id='programs_list'>" +
+				"</div>" +
+			"</div>" ),
+			expandId;
+
+		page
+		.on( "programrefresh", updateContent )
+		.on( "pagehide", function() {
+			page.detach();
+		} )
+		.on( "pagebeforeshow", function() {
+			OSApp.Programs.updateProgramHeader();
+
+			if ( typeof expandId !== "number" && OSApp.currentSession.controller.programs.pd.length === 1 ) {
+				expandId = 0;
+			}
+
+			if ( typeof expandId === "number" ) {
+				page.find( "fieldset[data-collapsed='false']" ).collapsible( "collapse" );
+				$( "#program-" + expandId ).collapsible( "expand" );
+			}
+		} );
+
+		function updateContent() {
+			var list = $( OSApp.Programs.makeAllPrograms() );
+
+			list.find( "[id^=program-]" ).on( {
+				collapsiblecollapse: function() {
+					$( this ).find( ".ui-collapsible-content" ).empty();
+				},
+				collapsiblebeforecollapse: function( e ) {
+					var program = $( this ),
+						changed = program.find( ".hasChanges" );
+
+					if ( changed.length ) {
+						OSApp.UIDom.areYouSure( OSApp.Language._( "Do you want to save your changes?" ), "", function() {
+							changed.removeClass( "hasChanges" ).click();
+							program.collapsible( "collapse" );
+						}, function() {
+							changed.removeClass( "hasChanges" );
+							program.collapsible( "collapse" );
+						} );
+						e.preventDefault();
+					}
+				},
+				collapsibleexpand: function() {
+					OSApp.Programs.expandProgram( $( this ) );
+				}
+			} );
+
+			if ( OSApp.Firmware.checkOSVersion( 210 ) ) {
+				list.find( ".move-up" ).removeClass( "hidden" ).on( "click", function() {
+					var group = $( this ).parents( "fieldset" ),
+						pid = parseInt( group.attr( "id" ).split( "-" )[ 1 ] );
+
+					$.mobile.loading( "show" );
+
+					OSApp.Firmware.sendToOS( "/up?pw=&pid=" + pid ).done( function() {
+						OSApp.Sites.updateControllerPrograms( function() {
+							$.mobile.loading( "hide" );
+							page.trigger( "programrefresh" );
+						} );
+					} );
+
+					return false;
+				} );
+			}
+
+			list.find( ".program-copy" ).on( "click", function() {
+				var copyID = parseInt( $( this ).parents( "fieldset" ).attr( "id" ).split( "-" )[ 1 ] );
+
+				OSApp.UIDom.changePage( "#addprogram", {
+					copyID: copyID
+				} );
+
+				return false;
+			} );
+
+			page.find( "#programs_list" ).html( list.enhanceWithin() );
+		}
+
+		function begin( pid ) {
+			expandId = pid;
+
+			OSApp.UIDom.changeHeader( {
+				title: OSApp.Language._( "Programs" ),
+				leftBtn: {
+					icon: "carat-l",
+					text: OSApp.Language._( "Back" ),
+					class: "ui-toolbar-back-btn",
+					on: OSApp.UIDom.checkChangesBeforeBack
+				},
+				rightBtn: {
+					icon: "plus",
+					text: OSApp.Language._( "Add" ),
+					on: function() {
+						OSApp.UIDom.checkChanges( function() {
+							OSApp.UIDom.changePage( "#addprogram" );
+						} );
+					}
+				}
+
+			} );
+
+			updateContent();
+
+			$( "#programs" ).remove();
+			$.mobile.pageContainer.append( page );
+		}
+
+		return begin;
+	} )();
+
+	// About page
+	// FIXME: This needs to be rewritten and refactored out so it works properly (mellodev)
+	var showAbout = ( function() {
+
+		var page = $( "<div data-role='page' id='about'>" +
+				"<div class='ui-content' role='main'>" +
+					"<ul data-role='listview' data-inset='true'>" +
+						"<li>" +
+							"<p>" + OSApp.Language._( "User manual for OpenSprinkler is available at" ) +
+								" <a class='iab' target='_blank' href='https://openthings.freshdesk.com/support/solutions/folders/5000147083'>" +
+									"https://support.openthings.io" +
+								"</a>" +
+							"</p>" +
+						"</li>" +
+					"</ul>" +
+					"<ul data-role='listview' data-inset='true'>" +
+						"<li>" +
+							"<p>" + OSApp.Language._( "This is open source software: source code and changelog for this application can be found at" ) + " " +
+								"<a class='iab squeeze' target='_blank' href='https://github.com/OpenSprinkler/OpenSprinkler-App/'>" +
+									"https://github.com/OpenSprinkler/OpenSprinkler-App/" +
+								"</a>" +
+							"</p>" +
+							"<p>" + OSApp.Language._( "Language localization is crowdsourced using Transifex available at" ) + " " +
+								"<a class='iab squeeze' target='_blank' href='https://www.transifex.com/albahra/opensprinkler/'>" +
+									"https://www.transifex.com/albahra/opensprinkler/" +
+								"</a>" +
+							"</p>" +
+							"<p>" + OSApp.Language._( "Open source attributions" ) + ": " +
+								"<a class='iab iabNoScale squeeze' target='_blank' " +
+									"href='https://github.com/OpenSprinkler/OpenSprinkler-App/wiki/List-of-Integrated-Libraries'>" +
+										"https://github.com/OpenSprinkler/OpenSprinkler-App/wiki/List-of-Integrated-Libraries" +
+								"</a>" +
+							"</p>" +
+						"</li>" +
+					"</ul>" +
+					"<p class='smaller'>" +
+						OSApp.Language._( "App Version" ) + ": 2.4.1" +
+						"<br>" + OSApp.Language._( "Firmware" ) + ": <span class='firmware'></span>" +
+						"<br><span class='hardwareLabel'>" + OSApp.Language._( "Hardware Version" ) + ":</span> <span class='hardware'></span>" +
+					"</p>" +
+				"</div>" +
+			"</div>" ),
+			showHardware;
+
+		function begin() {
+			showHardware = typeof OSApp.currentSession.controller.options.hwv !== "undefined" ? false : true;
+			page.find( ".hardware" ).toggleClass( "hidden", showHardware ).text( OSApp.Firmware.getHWVersion() + OSApp.Firmware.getHWType() );
+			page.find( ".hardwareLabel" ).toggleClass( "hidden", showHardware );
+
+			page.find( ".firmware" ).text( OSApp.Firmware.getOSVersion() + OSApp.Firmware.getOSMinorVersion() + ( OSApp.Analog.checkAnalogSensorAvail() ? " - ASB" : "" ) );
+
+			page.one( "pagehide", function() {
+				page.detach();
+			} );
+
+			OSApp.UIDom.changeHeader( {
+				title: OSApp.Language._( "About" ),
+				leftBtn: {
+					icon: "carat-l",
+					text: OSApp.Language._( "Back" ),
+					class: "ui-toolbar-back-btn",
+					on: OSApp.UIDom.goBack
+				}
+			} );
+
+			$( "#about" ).remove();
+			$.mobile.pageContainer.append( page );
+		}
+
+		return begin;
+	} )();
+
 	$( document )
 	.one( "deviceready", function() {
 		/** Replace window.open with InAppBrowser if available */
@@ -2546,9 +4197,9 @@ OSApp.UIDom.bindPanel = () => {
 		if ( typeof OSApp.currentSession.controller.stations.stn_spe === "object" && typeof OSApp.currentSession.controller.special !== "object" && !OSApp.currentSession.controller.stations.stn_spe.every( function( e ) { return e === 0; } ) ) {
 
 			// Grab station special data before proceeding
-			OSApp.Sites.updateControllerStationSpecial( getExportMethod );
+			OSApp.Sites.updateControllerStationSpecial( OSApp.ImportExport.getExportMethod );
 		} else {
-			getExportMethod();
+			OSApp.ImportExport.getExportMethod();
 		}
 
 		return false;
@@ -2556,7 +4207,7 @@ OSApp.UIDom.bindPanel = () => {
 
 	panel.find( ".import_config" ).on( "click", function() {
 		OSApp.Storage.get( "backup", function( newdata ) {
-			getImportMethod( newdata.backup );
+			OSApp.ImportExport.getImportMethod( newdata.backup );
 		} );
 
 		return false;
@@ -2607,7 +4258,7 @@ OSApp.UIDom.bindPanel = () => {
 	} );
 
 	panel.find( "#logout" ).on( "click", function() {
-		logout();
+		OSApp.Network.logout();
 		return false;
 	} );
 
@@ -3864,3 +5515,75 @@ OSApp.UIDom.flipSwitched = function() {
 		flip.prop( "checked", !changedTo ).flipswitch( "refresh" );
 	} );
 }
+
+OSApp.UIDom.clearPrograms = function( callback = () => void 0 ) {
+	OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to delete ALL programs?" ), "", function() {
+		var url = "/dp?pw=&pid=-1";
+		$.mobile.loading( "show" );
+		OSApp.Firmware.sendToOS( url ).done( function() {
+			if ( typeof callback === "function" ) {
+				callback();
+			}
+			OSApp.Errors.showError( OSApp.Language._( "Programs have been deleted" ) );
+		} );
+	} );
+};
+
+OSApp.UIDom.resetAllOptions = function( callback = () => void 0 ) {
+	OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to delete all settings and return to the default settings?" ), "", function() {
+		var co;
+
+		if ( OSApp.Firmware.isOSPi() ) {
+			co = "otz=32&ontp=1&onbrd=0&osdt=0&omas=0&omton=0&omtoff=0&orst=1&owl=100&orlp=0&ouwt=0&olg=1&oloc=Boston,MA";
+		} else {
+			co = "o2=1&o3=1&o12=80&o13=0&o15=0&o17=0&o18=0&o19=0&o20=0&o22=1&o23=100&o26=0&o27=110&o28=100&o29=15&" +
+				"o30=320&o31=0&o36=1&o37=0&o38=0&o39=0&o41=100&o42=0&o43=0&o44=8&o45=8&o46=8&o47=8&" +
+				"o48=0&o49=0&o50=0&o51=1&o52=0&o53=1&o54=0&o55=0&o56=0&o57=0&";
+			if ( OSApp.Firmware.checkOSVersion( 2199 ) ) {
+				co += "o32=0&o33=0&o34=0&o35=0&"; // For newer firmwares, resets ntp to 0.0.0.0
+			} else {
+				co += "o32=216&o33=239&o34=35&o35=12&"; // Time.google.com
+			}
+			co += "loc=Boston,MA&wto=%22key%22%3A%22%22";
+
+			co = OSApp.Utils.transformKeysinString( co );
+		}
+
+		OSApp.Firmware.sendToOS( "/co?pw=&" + co ).done( function() {
+			if ( typeof callback === "function" ) {
+				callback();
+			}
+			OSApp.Sites.updateController( OSApp.Weather.updateWeather );
+		} );
+	} );
+};
+
+OSApp.UIDom.updateLoginButtons = function() {
+	var page = $( ".ui-page-active" );
+
+	OSApp.Storage.get( "cloudToken", function( data ) {
+		var login = $( ".login-button" ),
+			logout = $( ".logout-button" );
+
+		if ( data.cloudToken === null || data.cloudToken === undefined ) {
+			login.removeClass( "hidden" );
+
+			if ( !OSApp.currentSession.local ) {
+				logout.addClass( "hidden" );
+			}
+
+			logout.find( "a" ).text( OSApp.Language._( "Logout" ) );
+
+			if ( page.attr( "id" ) === "site-control" ) {
+				page.find( ".logged-in-alert" ).remove();
+			}
+		} else {
+			logout.removeClass( "hidden" ).find( "a" ).text( OSApp.Language._( "Logout" ) + " (" + OSApp.Network.getTokenUser( data.cloudToken ) + ")" );
+			login.addClass( "hidden" );
+
+			if ( page.attr( "id" ) === "site-control" && page.find( ".logged-in-alert" ).length === 0 ) {
+				page.find( ".ui-content" ).prepend( OSApp.Network.addSyncStatus( data.cloudToken ) );
+			}
+		}
+	} );
+};

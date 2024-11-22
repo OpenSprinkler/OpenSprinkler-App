@@ -159,7 +159,7 @@ OSApp.Status.checkStatus = function() {
 
 		sample = Object.keys( open )[ 0 ];
 		pid    = OSApp.Stations.getPID( sample );
-		pname  = pidname( pid );
+		pname  = OSApp.Programs.pidToName( pid );
 		line   = "<div><div class='running-icon'></div><div class='running-text pointer'>";
 
 		line += pname + " " + OSApp.Language._( "is running on" ) + " " + Object.keys( open ).length + " " + OSApp.Language._( "stations" ) + " ";
@@ -177,7 +177,7 @@ OSApp.Status.checkStatus = function() {
 		if ( OSApp.currentSession.controller.settings.ps[ i ] && OSApp.Stations.getPID( i ) && OSApp.Stations.getStatus( i ) && !OSApp.Stations.isMaster( i ) ) {
 			match = true;
 			pid = OSApp.Stations.getPID( i );
-			pname = pidname( pid ); // TODO: mellodev refactor
+			pname = OSApp.Programs.pidToName( pid ); // TODO: mellodev refactor
 			line = "<div><div class='running-icon'></div><div class='running-text pointer'>";
 			line += pname + " " + OSApp.Language._( "is running on station" ) + " <span class='nobr'>" + OSApp.Stations.getName( i ) + "</span> ";
 			if ( OSApp.Stations.getRemainingRuntime( i ) > 0 ) {
@@ -243,7 +243,7 @@ OSApp.Status.checkStatus = function() {
 	// If last run duration is given, add it to the footer
 	if ( lrdur !== 0 ) {
 		var lrpid = OSApp.currentSession.controller.settings.lrun[ 1 ];
-		pname = pidname( lrpid );
+		pname = OSApp.Programs.pidToName( lrpid );
 
 		OSApp.Status.changeStatus( 0, "transparent", "<p class='running-text smaller center pointer'>" + pname + " " + OSApp.Language._( "last ran station" ) + " " +
 			OSApp.currentSession.controller.stations.snames[ OSApp.currentSession.controller.settings.lrun[ 0 ] ] + " " + OSApp.Language._( "for" ) + " " + ( lrdur / 60 >> 0 ) + "m " + ( lrdur % 60 ) + "s " +

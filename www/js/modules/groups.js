@@ -65,3 +65,49 @@ OSApp.Groups.numActiveStations = function( gid ) {
 OSApp.Groups.canShift = function( gid ) {
 	return OSApp.Groups.numActiveStations( gid ) > 1;
 };
+
+// tbh, not sure if this belongs here in groups.js (mellodev)
+OSApp.Groups.calculateTotalRunningTime = function( runTimes ) {
+	var sdt = OSApp.currentSession.controller.options.sdt,
+		sequential, parallel;
+	if ( OSApp.Supported.groups() ) {
+		sequential = new Array( OSApp.Constants.options.NUM_SEQ_GROUPS ).fill( 0 );
+		parallel = 0;
+		var sequentialMax = 0;
+		$.each( OSApp.currentSession.controller.stations.snames, function( i ) {
+			var run = runTimes[ i ];
+			var gid = OSApp.Stations.getGIDValue( i );
+			if ( run > 0 ) {
+				if ( gid !== OSApp.Constants.options.PARALLEL_GID_VALUE ) {
+					sequential[ gid ] += ( run + sdt );
+				} else {
+					if ( run > parallel ) {
+						parallel = run;
+					}
+				}
+			}
+		} );
+		for ( var d = 0; d < OSApp.Constants.options.NUM_SEQ_GROUPS; d++ )	{
+			if ( sequential[ d ] > sdt ) { sequential[ d ] -= sdt; }
+			if ( sequential[ d ] > sequentialMax ) { sequentialMax = sequential[ d ]; }
+		}
+		return Math.max( sequentialMax, parallel );
+	} else {
+		sequential = 0;
+		parallel = 0;
+		$.each( OSApp.currentSession.controller.stations.snames, function( i ) {
+			var run = runTimes[ i ];
+			if ( run > 0 ) {
+				if ( OSApp.Stations.isSequential( i ) ) {
+					sequential += ( run + sdt );
+				} else {
+					if ( run > parallel ) {
+						parallel = run;
+					}
+				}
+			}
+		} );
+		if ( sequential > sdt ) { sequential -= sdt; } // Discount the last sdt
+		return Math.max( sequential, parallel );
+	}
+};

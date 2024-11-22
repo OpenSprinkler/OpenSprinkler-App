@@ -524,7 +524,7 @@ OSApp.Network.cloudSyncStart = () => {
 			}
 			OSApp.UIDom.changePage( "#site-control" );
 		} else {
-			updateLoginButtons(); // TODO: mellodev refactor
+			OSApp.UIDom.updateLoginButtons();
 
 			OSApp.Storage.get( "sites", function( data ) {
 				if ( JSON.stringify( sites ) === data.sites ) {
@@ -548,7 +548,7 @@ OSApp.Network.cloudSyncStart = () => {
 									OSApp.Sites.updateSiteList( Object.keys( sites ), OSApp.currentSession.ip );
 								},
 								function() {
-									OSApp.Storage.remove( "cloudToken", updateLoginButtons );
+									OSApp.Storage.remove( "cloudToken", OSApp.UIDom.updateLoginButtons );
 								}
 							 );
 						} else {
@@ -634,7 +634,7 @@ OSApp.Network.getTokenUser = ( token ) => {
 };
 
 OSApp.Network.handleExpiredLogin = () => {
-	OSApp.Storage.remove( [ "cloudToken" ], updateLoginButtons ); // TODO: mellodev refactor
+	OSApp.Storage.remove( [ "cloudToken" ], OSApp.UIDom.updateLoginButtons );
 
 	OSApp.Notifications.addNotification( {
 		title: OSApp.Language._( "OpenSprinkler.com Login Expired" ),
@@ -646,7 +646,7 @@ OSApp.Network.handleExpiredLogin = () => {
 				OSApp.Notifications.removeNotification( button );
 
 				if ( result === true ) {
-					updateLoginButtons(); // TODO: mellodev refactor
+					OSApp.UIDom.updateLoginButtons();
 					OSApp.Network.cloudSync();
 				}
 			} );
@@ -906,4 +906,23 @@ OSApp.Network.networkFail = function() {
 			OSApp.Weather.updateWeather();
 		}
 	);
+};
+
+OSApp.Network.logout = function( success ) {
+	if ( typeof success !== "function" ) {
+		success = function() {};
+	}
+
+	OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to logout?" ), "", function() {
+		if ( OSApp.currentSession.local ) {
+			OSApp.Storage.remove( [ "sites", "current_site", "lang", "provider", "wapikey", "runonce", "cloudToken" ], function() {
+				location.reload();
+			} );
+		} else {
+			OSApp.Storage.remove( [ "cloudToken" ], function() {
+				OSApp.UIDom.updateLoginButtons();
+				success();
+			} );
+		}
+	} );
 };
