@@ -643,6 +643,7 @@ OSApp.Weather.updateWeather = function() {
 				OSApp.Weather.finishWeatherUpdate();
 				return;
 			}
+			//eslint-disable-next-line
 		} catch ( err ) {}
 	}
 

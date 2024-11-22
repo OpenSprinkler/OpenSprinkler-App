@@ -35,6 +35,7 @@ OSApp.Network.updateDeviceIP = function( finishCheck ) {
 			ip = data.ip;
 			finish( ip );
 		} );
+		//eslint-disable-next-line no-unused-vars
 	} catch ( err ) {
 		OSApp.Network.findRouter( function( status, data ) {
 			finish( !status ? undefined : data );
@@ -510,6 +511,7 @@ OSApp.Network.cloudGetSites = function( callback ) {
 
 					try {
 						callback( JSON.parse( sites ) );
+						//eslint-disable-next-line no-unused-vars
 					} catch ( err ) {
 						callback( false );
 					}

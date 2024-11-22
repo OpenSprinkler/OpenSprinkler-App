@@ -79,6 +79,7 @@ OSApp.ImportExport.getImportMethod = function( localData ) {
 					data = JSON.parse( $.trim( data ).replace( /“|”|″/g, "\"" ) );
 					popup.popup( "close" );
 					OSApp.ImportExport.importConfig( data );
+					//eslint-disable-next-line no-unused-vars
 				}catch ( err ) {
 					popup.find( "textarea" ).val( "" );
 					OSApp.Errors.showError( OSApp.Language._( "Unable to read the configuration file. Please check the file and try again." ) );
@@ -115,6 +116,7 @@ OSApp.ImportExport.getImportMethod = function( localData ) {
 						try {
 							var obj = JSON.parse( $.trim( e.target.result ) );
 							OSApp.ImportExport.importConfig( obj );
+							//eslint-disable-next-line no-unused-vars
 						}catch ( err ) {
 							OSApp.Errors.showError( OSApp.Language._( "Unable to read the configuration file. Please check the file and try again." ) );
 						}

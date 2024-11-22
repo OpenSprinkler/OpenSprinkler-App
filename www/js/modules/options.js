@@ -1784,6 +1784,7 @@ OSApp.Options.overlayMap = function( callback ) {
 				}, function() {
 					exit( false );
 				}, { timeout: 10000 } );
+				//eslint-disable-next-line no-unused-vars
 			} catch ( err ) { exit( false ); }
 		},
 		updateMapStations = function( latitude, longitude ) {

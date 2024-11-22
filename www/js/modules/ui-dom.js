@@ -1251,7 +1251,7 @@ OSApp.UIDom.launchApp = function() {
 			updateContent = function() {
 				var cardHolder = page.find( "#os-stations-list" ),
 					cardList = cardHolder.children(),
-					isScheduled, isRunning, pname, rem, qPause, card, line, hasImage, divider;
+					isScheduled, isRunning, pname, rem, qPause, card, line, hasImage;
 
 				if ( !page.hasClass( "ui-page-active" ) ) {
 					return;
@@ -1278,7 +1278,6 @@ OSApp.UIDom.launchApp = function() {
 					hasImage = sites[ currentSite ].images[ sid ] ? true : false;
 
 					card = OSApp.CardList.getCardBySID( cardList, sid );
-					divider = OSApp.Cards.getDivider( card );
 
 					if ( card.length === 0 ) {
 						cards = "";
@@ -3073,6 +3072,7 @@ OSApp.UIDom.launchApp = function() {
 
 				try {
 					flowlog = JSON.parse( flowlog.replace( /,\s*inf/g, "" ) );
+					//eslint-disable-next-line no-unused-vars
 				} catch ( err ) {
 					flowlog = [];
 				}
@@ -3638,12 +3638,14 @@ OSApp.UIDom.launchApp = function() {
 					scrollTop: 0
 				}, 700 );
 			} );
+			//eslint-disable-next-line
 		} catch ( err ) {}
 
 		// Hide the splash screen
 		setTimeout( function() {
 			try {
 				navigator.splashscreen.hide();
+				//eslint-disable-next-line
 			} catch ( err ) {}
 		}, 500 );
 
@@ -3839,6 +3841,7 @@ OSApp.UIDom.launchApp = function() {
 		if ( $( ".ui-overlay-b:not(.ui-screen-hidden)" ).length ) {
 			try {
 				StatusBar.backgroundColorByHexString( OSApp.uiState.theme.statusBarOverlay );
+				//eslint-disable-next-line
 			} catch ( err ) {}
 		}
 	} )
@@ -3849,6 +3852,7 @@ OSApp.UIDom.launchApp = function() {
 		// When a popup is closed, change the header back to the default color
 		try {
 			StatusBar.backgroundColorByHexString( OSApp.uiState.theme.statusBarPrimary );
+			//eslint-disable-next-line
 		} catch ( err ) {}
 	} )
 	.on( "popupbeforeposition", function() {
@@ -3880,6 +3884,7 @@ OSApp.UIDom.initAppData = function() {
 		$( this ).ajaxStart( function() {
 			try {
 				navigator.app.clearCache();
+				//eslint-disable-next-line
 			} catch ( err ) {}
 		} );
 	} else if ( OSApp.currentDevice.isFireFox ) {
@@ -4425,6 +4430,7 @@ OSApp.UIDom.goBack = function() {
 	if ( page === "sprinklers" || page === "start" || managerStart ) {
 		try {
 			navigator.app.exitApp();
+			//eslint-disable-next-line
 		} catch ( err ) {}
 	} else {
 		if ( OSApp.uiState.pageHistoryCount > 0 ) {
@@ -4915,11 +4921,10 @@ OSApp.UIDom.showDateTimeInput = function( timestamp, callback ) {
 			var incrbts = "<fieldset class='ui-grid-d incr'>",
 				inputs = "<div class='ui-grid-d inputs'>",
 				decrbts = "<fieldset class='ui-grid-d decr'>",
-				val, mark, i;
+				val, i;
 
 			for ( i = 0; i < 5; i++ ) {
 				val = timestamp[ "getUTC" + keys[ i ] ]();
-				mark = "";
 
 				if ( keys[ i ] === "Month" ) {
 					val = "<p class='center'>" + monthNames[ val ] + "</p>";

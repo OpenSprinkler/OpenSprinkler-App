@@ -1,3 +1,4 @@
+/* eslint-disable */
 import globals from "globals";
 import pluginJs from "@eslint/js";
 
@@ -12,6 +13,7 @@ export default [
 	  },
 	  rules: {
 		  "no-useless-escape": "warn",
+		  "no-prototype-builtins": "warn",
 	  },
   },
   {
