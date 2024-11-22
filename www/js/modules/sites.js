@@ -47,7 +47,7 @@ OSApp.Sites.updateSiteList = ( names, current ) => {
 		select = $( "#site-selector" );
 
 	$.each( names, function() {
-		list += "<option " + ( this.toString() === current ? "selected " : "" ) + "value='" + OSApp.Utils.htmlEscape( this ) + "'>" + this + "</option>"; // TODO: mellodev refactor make utils.js or formatters.js
+		list += "<option " + ( this.toString() === current ? "selected " : "" ) + "value='" + OSApp.Utils.htmlEscape( this ) + "'>" + this + "</option>";
 	} );
 
 	$( "#info-list" ).find( "li[data-role='list-divider']" ).text( current );
@@ -855,7 +855,7 @@ OSApp.Sites.updateControllerSettings = function( callback = () => void 0 ) {
 						settings = settings.replace( matchWTO, "" );
 						try {
 							settings = JSON.parse( settings );
-							handleCorruptedWeatherOptions( wto ); // TODO: mellodev refactor
+							OSApp.Sites.handleCorruptedWeatherOptions( wto );
 						} catch ( e ) {
 							return false;
 						}

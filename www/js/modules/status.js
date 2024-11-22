@@ -177,7 +177,7 @@ OSApp.Status.checkStatus = function() {
 		if ( OSApp.currentSession.controller.settings.ps[ i ] && OSApp.Stations.getPID( i ) && OSApp.Stations.getStatus( i ) && !OSApp.Stations.isMaster( i ) ) {
 			match = true;
 			pid = OSApp.Stations.getPID( i );
-			pname = OSApp.Programs.pidToName( pid ); // TODO: mellodev refactor
+			pname = OSApp.Programs.pidToName( pid );
 			line = "<div><div class='running-icon'></div><div class='running-text pointer'>";
 			line += pname + " " + OSApp.Language._( "is running on station" ) + " <span class='nobr'>" + OSApp.Stations.getName( i ) + "</span> ";
 			if ( OSApp.Stations.getRemainingRuntime( i ) > 0 ) {
