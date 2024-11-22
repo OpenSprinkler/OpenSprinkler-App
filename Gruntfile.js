@@ -14,14 +14,13 @@
 	module.exports = function( grunt ) {
 
 		// Load node-modules;
-		grunt.loadNpmTasks( "grunt-contrib-jshint" );
 		grunt.loadNpmTasks( "grunt-text-replace" );
 		grunt.loadNpmTasks( "grunt-shell" );
 		grunt.loadNpmTasks( "grunt-contrib-compress" );
 		grunt.loadNpmTasks( "grunt-contrib-csslint" );
 		grunt.loadNpmTasks( "grunt-contrib-clean" );
-		grunt.loadNpmTasks( "grunt-jscs" );
 		grunt.loadNpmTasks( "grunt-blanket-mocha" );
+		grunt.loadNpmTasks( "grunt-eslint" );
 
 		var bumpVersion = function( version ) {
 				var join = ".",
@@ -54,19 +53,8 @@
 			pkg: grunt.file.readJSON( "package.json" ),
 			secrets: secrets,
 
-			jshint: {
-				main: [ "www/js/**/*.js", "Gruntfile.js", "test/tests.js" ],
-				options: {
-					jshintrc: true
-				}
-			},
-
-			jscs: {
-				main: [ "www/js/**/*.js", "Gruntfile.js", "test/tests.js" ],
-				options: {
-					config: true,
-					fix: true
-				}
+			eslint: {
+				target: ["www/js/**/*.js"]
 			},
 
 			csslint: {
@@ -218,7 +206,7 @@
 		} );
 
 		// Default task(s).
-		grunt.registerTask( "default", [ "jshint", "jscs" ] );
+		grunt.registerTask( "default", [ "eslint" ] );
 		grunt.registerTask( "test", [ "default", "blanket_mocha" ] );
 		grunt.registerTask( "updateLang", [ "shell:updateLang" ] );
 		grunt.registerTask( "pushEng", [ "shell:pushEng" ] );
