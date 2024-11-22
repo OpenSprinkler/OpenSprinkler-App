@@ -244,7 +244,7 @@ OSApp.Programs.makeProgram183 = function( n, isCopy ) {
 	if ( n === "new" ) {
 		program = { "en":0, "weather":0, "is_interval":0, "is_even":0, "is_odd":0, "duration":0, "interval":0, "start":0, "end":0, "days":[ 0, 0 ] };
 	} else {
-		program = readProgram( OSApp.currentSession.controller.programs.pd[ n ] );
+		program = OSApp.Programs.readProgram( OSApp.currentSession.controller.programs.pd[ n ] );
 	}
 
 	if ( typeof program.days === "string" ) {
@@ -413,7 +413,7 @@ OSApp.Programs.makeProgram21 = function( n, isCopy ) {
 	if ( n === "new" ) {
 		program = { "name":"", "en":0, "weather":0, "is_interval":0, "is_even":0, "is_odd":0, "interval":0, "start":0, "days":[ 0, 0 ], "repeat":0, "stations":[] };
 	} else {
-		program = readProgram( OSApp.currentSession.controller.programs.pd[ n ] );
+		program = OSApp.Programs.readProgram( OSApp.currentSession.controller.programs.pd[ n ] );
 	}
 
 	if ( typeof program.days === "string" ) {
