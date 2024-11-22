@@ -78,12 +78,12 @@ OSApp.SystemDiagnostics.showDiagnostics = function() {
 OSApp.SystemDiagnostics.resolveOTCStatus = function( status ) {
 	switch ( status ) {
 		case 0:
-			return OSApp.Language._("Not Enabled");
+			return OSApp.Language._( "Not Enabled" );
 		case 1:
-			return OSApp.Language._("Connecting...");
+			return OSApp.Language._( "Connecting..." );
 		case 2:
-			return "<font class='debugWUError'>" + OSApp.Language._("Disconnected") + "</font>";
+			return "<font class='debugWUError'>" + OSApp.Language._( "Disconnected" ) + "</font>";
 		case 3:
-			return "<font class='debugWUOK'>" + OSApp.Language._("Connected") + "</font>";
+			return "<font class='debugWUOK'>" + OSApp.Language._( "Connected" ) + "</font>";
 	}
 };

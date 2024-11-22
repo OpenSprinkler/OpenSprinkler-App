@@ -566,7 +566,8 @@ OSApp.Options.showOptions = function( expandItem ) {
 	}
 
 	if ( OSApp.Firmware.checkOSVersion( 217 ) ) {
-		list += "<label id='prgswitch' class='center smaller" + ( OSApp.currentSession.controller.options.urs === 240 || OSApp.currentSession.controller.options.sn1t === 240 || OSApp.currentSession.controller.options.sn2t === 240 ? "" : " hidden" ) + "'>" +
+		list += "<label id='prgswitch' class='center smaller" + ( OSApp.currentSession.controller.options.urs === 240 ||
+			OSApp.currentSession.controller.options.sn1t === 240 || OSApp.currentSession.controller.options.sn2t === 240 ? "" : " hidden" ) + "'>" +
 			OSApp.Language._( "When using program switch, a switch is connected to the sensor port to trigger Program 1 every time the switch is pressed for at least 1 second." ) +
 		"</label>";
 	}
@@ -576,7 +577,8 @@ OSApp.Options.showOptions = function( expandItem ) {
 	}
 
 	if ( typeof OSApp.currentSession.controller.options.sn2o !== "undefined" ) {
-		list += "<label for='o53'><input " + ( OSApp.currentSession.controller.options.sn2t === 1 || OSApp.currentSession.controller.options.sn2t === 3 || OSApp.currentSession.controller.options.sn2t === 240 ? "" : "data-wrapper-class='hidden' " ) +
+		list += "<label for='o53'><input " + ( OSApp.currentSession.controller.options.sn2t === 1 || OSApp.currentSession.controller.options.sn2t === 3 ||
+			OSApp.currentSession.controller.options.sn2t === 240 ? "" : "data-wrapper-class='hidden' " ) +
 			"data-mini='true' id='o53' type='checkbox' " + ( ( OSApp.currentSession.controller.options.sn2o === 1 ) ? "checked='checked'" : "" ) + ">" +
 			OSApp.Language._( "Normally Open" ) + "</label>";
 	}
@@ -596,7 +598,8 @@ OSApp.Options.showOptions = function( expandItem ) {
 	}
 
 	if ( typeof OSApp.currentSession.controller.options.sn2t !== "undefined" ) {
-		list += "<label id='prgswitch-2' class='center smaller" + ( OSApp.currentSession.controller.options.urs === 240 || OSApp.currentSession.controller.options.sn1t === 240 || OSApp.currentSession.controller.options.sn2t === 240 ? "" : " hidden" ) + "'>" +
+		list += "<label id='prgswitch-2' class='center smaller" + ( OSApp.currentSession.controller.options.urs === 240 || OSApp.currentSession.controller.options.sn1t === 240 ||
+			OSApp.currentSession.controller.options.sn2t === 240 ? "" : " hidden" ) + "'>" +
 			OSApp.Language._( "When using program switch, a switch is connected to the sensor port to trigger Program 2 every time the switch is pressed for at least 1 second." ) +
 		"</label>";
 	}
@@ -842,7 +845,8 @@ OSApp.Options.showOptions = function( expandItem ) {
 			"<div class='ui-content'>" +
 				"<label id='loc-warning'></label>" +
 				"<input class='loc-entry' type='text' id='loc-entry' data-mini='true' maxlength='64' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
-				" placeholder='" + OSApp.Language._( "Enter GPS Coordinates" ) + "' value='" + ( OSApp.currentSession.controller.settings.loc.trim() === "''" ? OSApp.Language._( "Not specified" ) : OSApp.currentSession.controller.settings.loc ) + "' required />" +
+				" placeholder='" + OSApp.Language._( "Enter GPS Coordinates" ) +
+				"' value='" + ( OSApp.currentSession.controller.settings.loc.trim() === "''" ? OSApp.Language._( "Not specified" ) : OSApp.currentSession.controller.settings.loc ) + "' required />" +
 				"<button class='locSubmit' data-theme='b'>" + OSApp.Language._( "Submit" ) + "</button>" +
 			"</div>" +
 		"</div>" );
@@ -1047,7 +1051,8 @@ OSApp.Options.showOptions = function( expandItem ) {
 	} );
 
 	page.find( ".reset-wireless" ).on( "click", function() {
-		OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to reset the wireless settings?" ), OSApp.Language._( "This will delete the stored SSID/password for your wireless network and return the device to access point mode" ), function() {
+		OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to reset the wireless settings?" ),
+			OSApp.Language._( "This will delete the stored SSID/password for your wireless network and return the device to access point mode" ), function() {
 			OSApp.Firmware.sendToOS( "/cv?pw=&ap=1" ).done( function() {
 				$.mobile.document.one( "pageshow", function() {
 					OSApp.Errors.showError( OSApp.Language._( "Wireless settings have been reset. Please follow the OpenSprinkler user manual on restoring connectivity." ) );
@@ -1730,6 +1735,7 @@ OSApp.Options.coordsToLocation = function( lat, lon, callback, fallback ) {
 
 OSApp.Options.overlayMap = function( callback ) {
 	callback = callback || function() {};
+
 	// Looks up the location and shows a list possible matches for selection
 	// Returns the selection to the callback
 	$( "#location-list" ).popup( "destroy" ).remove();

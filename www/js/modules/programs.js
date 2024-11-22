@@ -235,6 +235,7 @@ OSApp.Programs.makeProgram = function( n, isCopy ) {
 };
 
 OSApp.Programs.makeProgram183 = function( n, isCopy ) {
+
 	// FIXME: see if we can refactor week array out to Constants
 	var week = [ OSApp.Language._( "Monday" ), OSApp.Language._( "Tuesday" ), OSApp.Language._( "Wednesday" ), OSApp.Language._( "Thursday" ), OSApp.Language._( "Friday" ), OSApp.Language._( "Saturday" ), OSApp.Language._( "Sunday" ) ],
 		list = "",
@@ -404,6 +405,7 @@ OSApp.Programs.makeProgram183 = function( n, isCopy ) {
 };
 
 OSApp.Programs.makeProgram21 = function( n, isCopy ) {
+
 	// FIXME: see if we can refactor week array out to Constants
 	var week = [ OSApp.Language._( "Monday" ), OSApp.Language._( "Tuesday" ), OSApp.Language._( "Wednesday" ), OSApp.Language._( "Thursday" ), OSApp.Language._( "Friday" ), OSApp.Language._( "Saturday" ), OSApp.Language._( "Sunday" ) ],
 		list = "",

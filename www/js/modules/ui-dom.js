@@ -4286,7 +4286,7 @@ OSApp.UIDom.bindPanel = function() {
 	} )();
 };
 
-OSApp.UIDom.changePage = function( toPage, opts) {
+OSApp.UIDom.changePage = function( toPage, opts ) {
 	opts = opts || {};
 	if ( toPage.indexOf( "#" ) !== 0 ) {
 		toPage = "#" + toPage;
@@ -4324,7 +4324,7 @@ OSApp.UIDom.openPopup = function( popup, args ) {
 };
 
 OSApp.UIDom.closePanel = function( callback ) {
-	callback = callback || function(){};
+	callback = callback || function() {};
 	var panel = $( ".ui-panel-open" );
 	if ( panel.length > 0 ) {
 		panel.one( "panelclose", function() {
@@ -4445,7 +4445,7 @@ OSApp.UIDom.checkChangesBeforeBack = function() {
 };
 
 OSApp.UIDom.checkChanges = function( callback ) {
-	callback = callback || function(){};
+	callback = callback || function() {};
 	var page = $( ".ui-page-active" ),
 		changed = page.find( ".hasChanges" );
 
@@ -4532,7 +4532,7 @@ OSApp.UIDom.showLoading = function( ele ) {
 };
 
 OSApp.UIDom.getPicture = function( callback ) {
-	callback = callback || function(){};
+	callback = callback || function() {};
 	var imageLoader = $( "<input style='display: none' type='file' accept='image/*' />" )
 		.insertAfter( "body" )
 		.on( "change", function( event ) {
@@ -5521,7 +5521,7 @@ OSApp.UIDom.flipSwitched = function() {
 };
 
 OSApp.UIDom.clearPrograms = function( callback ) {
-	callback = callback || function(){};
+	callback = callback || function() {};
 	OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to delete ALL programs?" ), "", function() {
 		var url = "/dp?pw=&pid=-1";
 		$.mobile.loading( "show" );
@@ -5535,7 +5535,7 @@ OSApp.UIDom.clearPrograms = function( callback ) {
 };
 
 OSApp.UIDom.resetAllOptions = function( callback ) {
-	callback = callback || function(){};
+	callback = callback || function() {};
 	OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to delete all settings and return to the default settings?" ), "", function() {
 		var co;
 

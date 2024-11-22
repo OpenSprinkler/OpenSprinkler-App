@@ -87,6 +87,7 @@ OSApp.Utils.pad = function( number ) {
 
 // Escape characters for HTML support
 OSApp.Utils.htmlEscape = function( str ) {
+
 	// FIXME: this is not an extensive list and should be rewritten to use native DOM js htmlEncode. see https://www.w3docs.com/snippets/javascript/how-to-html-encode-a-string.html
 	return String( str )
 		.replace( /&/g, "&amp;" )

@@ -18,6 +18,7 @@ var OSApp = OSApp || {};
 OSApp.Weather = OSApp.Weather || {};
 
 OSApp.Weather.Constants = {
+
 	// Do NOT use Language._ to translate these here during definition. Do it when rendering!
 	adjustmentMethods: [
         { name: "Manual", id: 0 },
@@ -62,7 +63,7 @@ OSApp.Weather.Constants = {
 
 // Weather functions
 OSApp.Weather.showZimmermanAdjustmentOptions = function( button, callback ) {
-	callback = callback || function(){};
+	callback = callback || function() {};
 	$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
 
 	// Sensitivity and baseline values for Humidity, Temp and Rainfall for Zimmerman adjustment
@@ -232,7 +233,7 @@ OSApp.Weather.showZimmermanAdjustmentOptions = function( button, callback ) {
 };
 
 OSApp.Weather.showAutoRainDelayAdjustmentOptions = function( button, callback ) {
-	callback = callback || function(){};
+	callback = callback || function() {};
 	$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
 
 	var options = $.extend( {}, {
@@ -306,7 +307,7 @@ OSApp.Weather.showAutoRainDelayAdjustmentOptions = function( button, callback ) 
 };
 
 OSApp.Weather.showMonthlyAdjustmentOptions = function( button, callback ) {
-	callback = callback || function(){};
+	callback = callback || function() {};
 	$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
 
 	var options = $.extend( {}, {
@@ -469,7 +470,7 @@ OSApp.Weather.formatSpeed = function( speed ) {
 
 // Validates a Weather Underground location to verify it contains the data needed for Weather Adjustments
 OSApp.Weather.validateWULocation = function( location, callback ) {
-	callback = callback || function(){};
+	callback = callback || function() {};
 	if ( !OSApp.currentSession.controller.settings.wto || typeof OSApp.currentSession.controller.settings.wto.key !== "string" || OSApp.currentSession.controller.settings.wto.key === "" ) {
 		callback( false );
 	}
@@ -490,7 +491,7 @@ OSApp.Weather.validateWULocation = function( location, callback ) {
 };
 
 OSApp.Weather.showEToAdjustmentOptions = function( button, callback ) {
-	callback = callback || function(){};
+	callback = callback || function() {};
 	$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
 
 	// Elevation and baseline ETo for ETo adjustment.
@@ -889,7 +890,7 @@ OSApp.Weather.showRainDelay = function() {
 };
 
 OSApp.Weather.testWUAPIKey = function( key, callback ) {
-	callback = callback || function(){};
+	callback = callback || function() {};
 	$.ajax( {
 		url: "https://api.weather.com/v2/pws/observations/current?stationId=KMAHANOV10&format=json&units=m&apiKey=" + key,
 		cache: true
@@ -929,11 +930,12 @@ OSApp.Weather.getWeatherStatus = function( status ) {
 /** Returns the adjustment method for the corresponding ID, or a list of all methods if no ID is specified. */
 OSApp.Weather.getAdjustmentMethod = function( id ) {
     if ( id === undefined ) {
+
 		// FIXME: this is awkward. Refactor callers to use the Weather.Constants.adjustmentMethods array directly so they can apply localization
         return OSApp.Weather.Constants.adjustmentMethods;
     }
 
-	return OSApp.Language._(OSApp.Weather.Constants.adjustmentMethods[ id & ~( 1 << 7 ) ]);
+	return OSApp.Language._( OSApp.Weather.Constants.adjustmentMethods[ id & ~( 1 << 7 ) ] );
 };
 
 // TODO: does getAdjustmentMethod duplicate this logic? if so please refactor one or the other.
@@ -942,6 +944,7 @@ OSApp.Weather.getCurrentAdjustmentMethodId = function() {
 };
 
 OSApp.Weather.getRestriction = function( id ) {
+
 	// TODO: refactor these values to Weather.Constants.xxx
 	return [ {
 				isCurrent: 0,
@@ -954,6 +957,7 @@ OSApp.Weather.getRestriction = function( id ) {
 };
 
 OSApp.Weather.setRestriction = function( id, uwt ) {
+
 	// TODO: refactor this to use Weather.Constants.xxx (see getRestriction)
 	uwt = uwt || OSApp.currentSession.controller.options.uwt & ~( 1 << 7 );
 
@@ -965,7 +969,7 @@ OSApp.Weather.setRestriction = function( id, uwt ) {
 };
 
 OSApp.Weather.setRainDelay = function( delay ) {
-	if (parseInt(delay) <= 0) {
+	if ( parseInt( delay ) <= 0 ) {
 		return;
 	}
 
