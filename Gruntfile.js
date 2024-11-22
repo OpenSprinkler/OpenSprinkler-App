@@ -65,7 +65,7 @@
 				main: [ "www/js/**/*.js", "Gruntfile.js", "test/tests.js" ],
 				options: {
 					config: true,
-					fix: true,
+					fix: true
 				}
 			},
 
