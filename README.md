@@ -135,5 +135,6 @@ This project uses Grunt to automate various development tasks. Here are some of 
 
 *   **`grunt shell:startDemo`**: Starts a demo instance of the OpenSprinkler app.
 *   **`grunt shell:stopDemo`**: Stops the demo instance.
-*   **`grunt bump`**: Bumps the version number in various files (source code, Cordova config, and package.json).
+*   **`grunt bump`**: Bumps the version number in various files (source code, Cordova config, and package.json) and push commit
+*   **`grunt bump-version`**: Bumps the version number in various files (source code, Cordova config, and package.json). Does not commit or push!
 

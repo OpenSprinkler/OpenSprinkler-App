@@ -160,8 +160,8 @@
 				},
 				pushBump: {
 					command: [
-						"git add www/js/main.js config.xml package.json",
-						"git commit -m 'Base: Increment version number'",
+						"git add www/ config.xml package.json",
+						"git commit -m 'chore(vers): Increment version number'",
 						"git push"
 					].join( "&&" )
 				}
@@ -169,7 +169,7 @@
 
 			replace: {
 				about: {
-					src: [ "www/js/main.js" ],
+					src: [ "www/js/modules/ui-dom.js" ],
 					overwrite: true,
 					replacements: [ {
 						from: /_\( "App Version" \) \+ ": ([\d|\.]+)"/g,
@@ -226,4 +226,5 @@
 		grunt.registerTask( "pushBetaFW", [ "compress:makeFW", "shell:updateBetaUI", "clean:pushFW" ] );
 		grunt.registerTask( "build", [ "default", "shell:symres", "pushFW", "clean:symres" ] );
 		grunt.registerTask( "bump", [ "default", "replace:about", "replace:cordova", "replace:manifests", "shell:pushBump" ] );
+		grunt.registerTask( "bump-version", [ "default", "replace:about", "replace:cordova", "replace:manifests" ] );
 	};
