@@ -55,14 +55,14 @@
 			secrets: secrets,
 
 			jshint: {
-				main: [ "www/js/**/*.js" ],
+				main: [ "www/js/**/*.js", "Gruntfile.js", "test/tests.js" ],
 				options: {
 					jshintrc: true
 				}
 			},
 
 			jscs: {
-				main: [ "www/js/**/*.js" ],
+				main: [ "www/js/**/*.js", "Gruntfile.js", "test/tests.js" ],
 				options: {
 					config: true,
 					fix: true,
