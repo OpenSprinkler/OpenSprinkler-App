@@ -3583,7 +3583,7 @@ OSApp.UIDom.launchApp = () => {
 						"</li>" +
 					"</ul>" +
 					"<p class='smaller'>" +
-						OSApp.Language._( "App Version" ) + ": 2.4.1" +
+						OSApp.Language._( "App Version" ) + ": 2.4.2" + // FIXME: This needs to be pulled from package.json automatcally (or replaced during build/deploy!!) mellodev
 						"<br>" + OSApp.Language._( "Firmware" ) + ": <span class='firmware'></span>" +
 						"<br><span class='hardwareLabel'>" + OSApp.Language._( "Hardware Version" ) + ":</span> <span class='hardware'></span>" +
 					"</p>" +

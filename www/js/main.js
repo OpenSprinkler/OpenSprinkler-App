@@ -18,6 +18,7 @@ var OSApp = OSApp || {};
 
 // TODO: refactor away all direct usage of localStorage in favor of OSApp.Storage
 // TODO: add unit tests for each module
+// TODO: move vendor js (jquery, jqm, datatables, etc) to /js/vendor
 
 /* ************** TODO: remove this, it is temporary ***************/
 window.onerror = function( m, s, l, c, e ) {
