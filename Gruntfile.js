@@ -62,10 +62,10 @@
 			},
 
 			jscs: {
-				main: [ "www/js/**/*.js", "!www/js/vendor/**/*.js" ], // Updated pattern
+				main: [ "www/js/main.js"],
 				options: {
 					config: true,
-					fix: true
+					fix: true,
 				}
 			},
 

@@ -17,9 +17,8 @@
 var OSApp = OSApp || {};
 OSApp.Sites = OSApp.Sites || {};
 
-
-OSApp.Sites.testSite = function( site, id, callback) {
-	callback = callback || function(){};
+OSApp.Sites.testSite = function( site, id, callback ) {
+	callback = callback || function() {};
 	var urlDest = "/jo?pw=" + encodeURIComponent( site.os_pw ),
 		url = site.os_token ? "https://cloud.openthings.io/forward/v1/" + site.os_token + urlDest : ( site.ssl === "1" ? "https://" : "http://" ) + site.os_ip + urlDest;
 
@@ -60,7 +59,7 @@ OSApp.Sites.updateSiteList = function( names, current ) {
 };
 
 OSApp.Sites.findLocalSiteName = function( sites, callback ) {
-	callback = callback || function(){};
+	callback = callback || function() {};
 	for ( var site in sites ) {
 		if ( sites.hasOwnProperty( site ) ) {
 			if ( OSApp.currentSession.ip.indexOf( sites[ site ].os_ip ) !== -1 ) {
@@ -170,7 +169,7 @@ OSApp.Sites.showSiteSelect = function( list ) {
 	} ).enhanceWithin().popup( "open" );
 };
 
-OSApp.Sites.showAddNew = function ( autoIP, closeOld ) {
+OSApp.Sites.showAddNew = function( autoIP, closeOld ) {
 	$( "#addnew" ).popup( "destroy" ).remove();
 
 	var isAuto = ( autoIP ) ? true : false,
@@ -629,9 +628,9 @@ OSApp.Sites.newLoad = function() {
 };
 
 // Update controller information
-OSApp.Sites.updateController = function( callback, fail) {
-	callback = callback || function(){};
-	fail = fail || function(){};
+OSApp.Sites.updateController = function( callback, fail ) {
+	callback = callback || function() {};
+	fail = fail || function() {};
 	var finish = function() {
 		$( "html" ).trigger( "datarefresh" );
 		OSApp.Status.checkStatus();
@@ -671,7 +670,7 @@ OSApp.Sites.updateController = function( callback, fail) {
 };
 
 OSApp.Sites.updateControllerPrograms = function( callback ) {
-	callback = callback || function(){};
+	callback = callback || function() {};
 	if ( OSApp.currentSession.fw183 === true ) {
 
 		// If the controller is using firmware 1.8.3, then parse the script tag for variables
@@ -711,7 +710,7 @@ OSApp.Sites.updateControllerPrograms = function( callback ) {
 };
 
 OSApp.Sites.updateControllerStations = function( callback ) {
-	callback = callback || function(){};
+	callback = callback || function() {};
 	if ( OSApp.currentSession.fw183 === true ) {
 
 		// If the controller is using firmware 1.8.3, then parse the script tag for variables
@@ -744,7 +743,7 @@ OSApp.Sites.updateControllerStations = function( callback ) {
 };
 
 OSApp.Sites.updateControllerOptions = function( callback ) {
-	callback = callback || function(){};
+	callback = callback || function() {};
 	if ( OSApp.currentSession.fw183 === true ) {
 
 		// If the controller is using firmware 1.8.3, then parse the script tag for variables
@@ -787,7 +786,7 @@ OSApp.Sites.updateControllerOptions = function( callback ) {
 };
 
 OSApp.Sites.updateControllerStatus = function( callback ) {
-	callback = callback || function(){};
+	callback = callback || function() {};
 	if ( OSApp.currentSession.fw183 === true ) {
 
 		// If the controller is using firmware 1.8.3, then parse the script tag for variables
@@ -816,7 +815,7 @@ OSApp.Sites.updateControllerStatus = function( callback ) {
 };
 
 OSApp.Sites.updateControllerSettings = function( callback ) {
-	callback = callback || function(){};
+	callback = callback || function() {};
 	if ( OSApp.currentSession.fw183 === true ) {
 
 		// If the controller is using firmware 1.8.3, then parse the script tag for variables
@@ -1019,7 +1018,7 @@ OSApp.Sites.refreshData = function() {
 	}
 
 	if ( OSApp.Firmware.checkOSVersion( 216 ) ) {
-		OSApp.Sites.updateController( function(){}, OSApp.Network.networkFail );
+		OSApp.Sites.updateController( function() {}, OSApp.Network.networkFail );
 	} else {
 		$.when(
 			OSApp.Sites.updateControllerPrograms(),

@@ -19,7 +19,7 @@ OSApp.Status = OSApp.Status || {};
 
 // Current status related functions
 OSApp.Status.refreshStatus = function( callback ) {
-	callback = callback || function(){};
+	callback = callback || function() {};
 	if ( !OSApp.currentSession.isControllerConnected() ) {
 		return;
 	}
@@ -45,7 +45,7 @@ OSApp.Status.refreshStatus = function( callback ) {
 
 // Actually change the status bar
 OSApp.Status.changeStatus = function( seconds, color, line, onclick ) {
-	onclick = onclick || function(){};
+	onclick = onclick || function() {};
 	var footer = $( "#footer-running" ),
 		html = "";
 

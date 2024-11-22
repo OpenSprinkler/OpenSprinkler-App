@@ -1660,8 +1660,8 @@ OSApp.Options.showOptions = function( expandItem ) {
 	$.mobile.pageContainer.append( page );
 };
 
-OSApp.Options.coordsToLocation = function( lat, lon, callback, fallback) {
-	callback = callback || function(){};
+OSApp.Options.coordsToLocation = function( lat, lon, callback, fallback ) {
+	callback = callback || function() {};
 	fallback = fallback || lat + "," + lon;
 
 	$.getJSON( "https://maps.googleapis.com/maps/api/geocode/json?latlng=" + lat + "," + lon + "&key=AIzaSyDaT_HTZwFojXmvYIhwWudK00vFXzMmOKc&result_type=locality|sublocality|administrative_area_level_1|country", function( data ) {
@@ -1729,7 +1729,7 @@ OSApp.Options.coordsToLocation = function( lat, lon, callback, fallback) {
 };
 
 OSApp.Options.overlayMap = function( callback ) {
-	callback = callback || function(){};
+	callback = callback || function() {};
 	// Looks up the location and shows a list possible matches for selection
 	// Returns the selection to the callback
 	$( "#location-list" ).popup( "destroy" ).remove();

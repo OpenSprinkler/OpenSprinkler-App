@@ -18,7 +18,7 @@ OSApp.Dates = OSApp.Dates || {};
 OSApp.Dates.Constants = {
 	MIN_DATE: "01/01",
 	MAX_DATE: "12/31",
-	DATE_REGEX: /[0-9]{1,2}[\/][0-9]{1,2}/g,
+	DATE_REGEX: /[0-9]{1,2}[\/][0-9]{1,2}/g
 };
 
 // TODO: mellodev some of this should refactor out to programs.js?

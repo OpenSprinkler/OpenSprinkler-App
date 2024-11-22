@@ -17,7 +17,7 @@ OSApp.Storage = OSApp.Storage || {};
 
 // Functions
 OSApp.Storage.get = function( query, callback ) {
-	callback = callback || function(){};
+	callback = callback || function() {};
 	var data = {},
 		i;
 
@@ -35,7 +35,7 @@ OSApp.Storage.get = function( query, callback ) {
 };
 
 OSApp.Storage.set = function( query, callback ) {
-	callback = callback || function(){};
+	callback = callback || function() {};
 	var i;
 	if ( typeof query === "object" ) {
 		for ( i in query ) {
@@ -45,12 +45,12 @@ OSApp.Storage.set = function( query, callback ) {
 		}
 	}
 
-	// callback( true ); mellodev this causes other functions that require a callback func arg to fail
+	// Callback( true ); mellodev this causes other functions that require a callback func arg to fail
 	callback();
 };
 
 OSApp.Storage.remove = function( query, callback ) {
-	callback = callback || function(){};
+	callback = callback || function() {};
 	var i;
 
 	if ( typeof query === "string" ) {
@@ -63,7 +63,7 @@ OSApp.Storage.remove = function( query, callback ) {
 		}
 	}
 
-	// callback( true ); mellodev this causes other functions that require a callback func arg to fail
+	// Callback( true ); mellodev this causes other functions that require a callback func arg to fail
 	callback();
 };
 

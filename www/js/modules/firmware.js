@@ -457,7 +457,7 @@ OSApp.Firmware.getRebootReason = function( reason ) {
 	var result = OSApp.Language._( "Unrecognised" ) + " (" + reason + ")";
 
 	if ( reason in OSApp.Firmware.Constants.rebootReasons ) {
-		result = OSApp.Language._(OSApp.Firmware.Constants.rebootReasons[ reason ]);
+		result = OSApp.Language._( OSApp.Firmware.Constants.rebootReasons[ reason ] );
 	}
 
 	return result;

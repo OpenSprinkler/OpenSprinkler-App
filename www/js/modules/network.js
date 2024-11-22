@@ -236,7 +236,7 @@ OSApp.Network.findRouter = function( callback ) {
 };
 
 OSApp.Network.ping = function( ip, callback ) {
-	callback = callback || function(){};
+	callback = callback || function() {};
 
 	if ( !ip || ip === "" ) {
 		callback( false );
@@ -353,7 +353,7 @@ OSApp.Network.addSyncStatus = function( token ) {
 };
 
 OSApp.Network.requestCloudAuth = function( callback ) {
-	callback = callback || function(){};
+	callback = callback || function() {};
 
 	var popup = $( "<div data-role='popup' class='modal' id='requestCloudAuth' data-theme='a'>" +
 				"<ul data-role='listview' data-inset='true'>" +
@@ -404,7 +404,7 @@ OSApp.Network.requestCloudAuth = function( callback ) {
 };
 
 OSApp.Network.cloudLogin = function( user, pass, callback ) {
-	callback = callback || function(){};
+	callback = callback || function() {};
 
 	$.ajax( {
 		type: "POST",
@@ -431,7 +431,7 @@ OSApp.Network.cloudLogin = function( user, pass, callback ) {
 };
 
 OSApp.Network.cloudSaveSites = function( callback ) {
-	callback = callback || function(){};
+	callback = callback || function() {};
 
 	OSApp.Storage.get( [ "cloudToken", "cloudDataToken", "sites" ], function( data ) {
 		if ( data.cloudToken === null || data.cloudToken === undefined ) {
@@ -619,7 +619,7 @@ OSApp.Network.cloudSyncStart = function() {
 };
 
 OSApp.Network.cloudSync = function( callback ) {
-	callback = callback || function(){};
+	callback = callback || function() {};
 
 	OSApp.Storage.get( [ "cloudToken", "current_site" ], function( local ) {
 		if ( typeof local.cloudToken !== "string" ) {
@@ -666,7 +666,7 @@ OSApp.Network.handleExpiredLogin = function() {
 	} );
 };
 
-OSApp.Network.handleInvalidDataToken = function () {
+OSApp.Network.handleInvalidDataToken = function() {
 	OSApp.Storage.remove( [ "cloudDataToken" ] );
 
 	OSApp.Notifications.addNotification( {
@@ -721,8 +721,8 @@ OSApp.Network.changePassword = function( opt ) {
 	var defaults = {
 			fixIncorrect: false,
 			name: "",
-			callback: function(){},
-			cancel: function(){},
+			callback: function() {},
+			cancel: function() {}
 		};
 
 	opt = $.extend( {}, defaults, opt );
@@ -867,7 +867,7 @@ OSApp.Network.changePassword = function( opt ) {
 
 // Check if password is valid
 OSApp.Network.checkPW = function( pass, callback ) {
-	callback = callback || function(){};
+	callback = callback || function() {};
 
 	var urlDest = "/sp?pw=" + encodeURIComponent( pass ) + "&npw=" + encodeURIComponent( pass ) + "&cpw=" + encodeURIComponent( pass );
 

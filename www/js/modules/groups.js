@@ -66,7 +66,7 @@ OSApp.Groups.canShift = function( gid ) {
 	return OSApp.Groups.numActiveStations( gid ) > 1;
 };
 
-// tbh, not sure if this belongs here in groups.js (mellodev)
+// Tbh, not sure if this belongs here in groups.js (mellodev)
 OSApp.Groups.calculateTotalRunningTime = function( runTimes ) {
 	var sdt = OSApp.currentSession.controller.options.sdt,
 		sequential, parallel;

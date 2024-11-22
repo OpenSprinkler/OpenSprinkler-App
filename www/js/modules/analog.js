@@ -16,11 +16,11 @@ OSApp.Analog = {
 	Constants: {
 		CHARTS: 11,
 		USERDEF_SENSOR: 49,
-		USERDEF_UNIT: 99,
+		USERDEF_UNIT: 99
 	}
 };
 
-OSApp.Analog.checkAnalogSensorAvail = function(){
+OSApp.Analog.checkAnalogSensorAvail = function() {
 	return OSApp.currentSession.controller.options && OSApp.currentSession.controller.options.feature === "ASB";
 };
 
