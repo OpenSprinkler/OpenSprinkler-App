@@ -17,16 +17,12 @@
 var OSApp = OSApp || {};
 
 // TODO: refactor away all direct usage of localStorage in favor of OSApp.Storage
-// TODO: refactor all weather related functions out to modules/weather.js
-// TODO: continue module refactoring
 // TODO: add unit tests for each module
-// TODO: debug request to undefined host when on manage sites page and click on bogus test site
-// TODO: refactor openpopup to general ui module
 
-// TODO: remove this, it is temporary!
+/* ************** TODO: remove this, it is temporary ***************/
 window.onerror = function( m, s, l, c, e ) {
 	console.error( "*** Uncaught Exception", e );
-	alert( "*** Uncaught exception: " + e );
+	alert( "*** Uncaught exception! " + e );
 	return false;
 };
 
