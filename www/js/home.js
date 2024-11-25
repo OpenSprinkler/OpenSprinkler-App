@@ -78,7 +78,6 @@
 
 	// Insert script into the DOM
 	function insertScript( src, callback ) {
-
 		// Create callback if one is not provided
 		callback = callback || function() {};
 
@@ -142,54 +141,50 @@
 			insertScript( assetLocation + "vendor-js/dataTables-2.1.8.min.js" );
 
 			// Insert modules
-			[
-				"/js/modules/analog.js",
-				"/js/modules/card-list.js",
-				"/js/modules/cards.js",
-				"/js/modules/dates.js",
-				"/js/modules/errors.js",
-				"/js/modules/firmware.js",
-				"/js/modules/groups.js",
-				"/js/modules/import-export.js",
-				"/js/modules/language.js",
-				"/js/modules/logs.js",
-				"/js/modules/network.js",
-				"/js/modules/notifications.js",
-				"/js/modules/options.js",
-				"/js/modules/preview.js",
-				"/js/modules/programs.js",
-				"/js/modules/sites.js",
-				"/js/modules/station-attributes.js",
-				"/js/modules/station-queue.js",
-				"/js/modules/stations.js",
-				"/js/modules/status.js",
-				"/js/modules/storage.js",
-				"/js/modules/supported.js",
-				"/js/modules/system-diagnostics.js",
-				"/js/modules/ui-dom.js",
-				"/js/modules/utils.js",
-				"/js/modules/weather.js",
-			].map(function( f ) {
-				// Add script tag, stripping the preceding / from path
-				insertScript( assetLocation + f.substring(1) );
+			insertScript( assetLocation + "/js/modules/analog.js");
+			insertScript( assetLocation + "/js/modules/card-list.js");
+			insertScript( assetLocation + "/js/modules/cards.js");
+			insertScript( assetLocation + "/js/modules/dates.js");
+			insertScript( assetLocation + "/js/modules/errors.js");
+			insertScript( assetLocation + "/js/modules/firmware.js");
+			insertScript( assetLocation + "/js/modules/groups.js");
+			insertScript( assetLocation + "/js/modules/import-export.js");
+			insertScript( assetLocation + "/js/modules/language.js");
+			insertScript( assetLocation + "/js/modules/logs.js");
+			insertScript( assetLocation + "/js/modules/network.js");
+			insertScript( assetLocation + "/js/modules/notifications.js");
+			insertScript( assetLocation + "/js/modules/options.js");
+			insertScript( assetLocation + "/js/modules/preview.js");
+			insertScript( assetLocation + "/js/modules/programs.js");
+			insertScript( assetLocation + "/js/modules/sites.js");
+			insertScript( assetLocation + "/js/modules/station-attributes.js");
+			insertScript( assetLocation + "/js/modules/station-queue.js");
+			insertScript( assetLocation + "/js/modules/stations.js");
+			insertScript( assetLocation + "/js/modules/status.js");
+			insertScript( assetLocation + "/js/modules/storage.js");
+			insertScript( assetLocation + "/js/modules/supported.js");
+			insertScript( assetLocation + "/js/modules/system-diagnostics.js");
+			insertScript( assetLocation + "/js/modules/ui-dom.js");
+			insertScript( assetLocation + "/js/modules/utils.js");
+			insertScript( assetLocation + "/js/modules/weather.js", function() {
+				// Insert primary application script last
+				insertScript( assetLocation + "js/main.js", function() {
+					try {
+						localStorage.setItem( "testQuota", "true" );
+						localStorage.removeItem( "testQuota" );
+						init();
+					} catch ( err ) {
+						if ( err.code === 22 ) {
+							document.body.innerHTML = "<div class='spinner'><div class='logo'></div>" +
+								"<span class='feedback'>Local storage is not " +
+								"enabled on your device and is required by the application. " +
+								"You may be in private browsing mode.</span></div>";
+							return;
+						}
+					}
+				} );
 			});
 
-			// Insert primary application script last
-			insertScript( assetLocation + "js/main.js", function() {
-				try {
-					localStorage.setItem( "testQuota", "true" );
-					localStorage.removeItem( "testQuota" );
-					init();
-				} catch ( err ) {
-					if ( err.code === 22 ) {
-						document.body.innerHTML = "<div class='spinner'><div class='logo'></div>" +
-							"<span class='feedback'>Local storage is not " +
-							"enabled on your device and is required by the application. " +
-							"You may be in private browsing mode.</span></div>";
-						return;
-					}
-				}
-			} );
 		} );
 	} );
 
