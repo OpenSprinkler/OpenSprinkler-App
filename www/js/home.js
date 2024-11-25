@@ -13,6 +13,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+// FIXME: this file should likely be auto generated during build/deploy so that it stays in sync with repo structure
+
 ( function( document ) {
 	var assetLocation = getAssetLocation(),
 		isReady = false;
@@ -128,12 +130,51 @@
 	insertStyleSheet( assetLocation + "img/favicon.ico", "shortcut icon" );
 
 	// Insert jQuery
-	insertScript( assetLocation + "js/jquery.js", function() {
+	insertScript( assetLocation + "vendor-js/jquery.js", function() {
 
 		// Insert libraries
-		insertScript( assetLocation + "js/libs.js", function() {
+		insertScript( assetLocation + "vendor-js/libs.js", function() {
 
-			// Insert primary application script
+			// Insert charting library for analog support
+			insertScript( assetLocation + "vendor-js/apexcharts.min.js" );
+
+			// Insert datatables grid library
+			insertScript( assetLocation + "vendor-js/dataTables-2.1.8.min.js" );
+
+			// Insert modules
+			[
+				"/js/modules/analog.js",
+				"/js/modules/card-list.js",
+				"/js/modules/cards.js",
+				"/js/modules/dates.js",
+				"/js/modules/errors.js",
+				"/js/modules/firmware.js",
+				"/js/modules/groups.js",
+				"/js/modules/import-export.js",
+				"/js/modules/language.js",
+				"/js/modules/logs.js",
+				"/js/modules/network.js",
+				"/js/modules/notifications.js",
+				"/js/modules/options.js",
+				"/js/modules/preview.js",
+				"/js/modules/programs.js",
+				"/js/modules/sites.js",
+				"/js/modules/station-attributes.js",
+				"/js/modules/station-queue.js",
+				"/js/modules/stations.js",
+				"/js/modules/status.js",
+				"/js/modules/storage.js",
+				"/js/modules/supported.js",
+				"/js/modules/system-diagnostics.js",
+				"/js/modules/ui-dom.js",
+				"/js/modules/utils.js",
+				"/js/modules/weather.js",
+			].map(function( f ) {
+				// Add script tag, stripping the preceding / from path
+				insertScript( assetLocation + f.substring(1) );
+			});
+
+			// Insert primary application script last
 			insertScript( assetLocation + "js/main.js", function() {
 				try {
 					localStorage.setItem( "testQuota", "true" );
@@ -149,12 +190,6 @@
 					}
 				}
 			} );
-
-			// Insert analog sensor (if supported)
-			insertScript( assetLocation + "js/analog.js" );
-
-			// Insert charting library for analog support
-			insertScript( assetLocation + "js/apexcharts.min.js" );
 		} );
 	} );
 
@@ -198,7 +233,7 @@
 
 						// Load jQuery Mobile
 						$.ajax( {
-							url: assetLocation + "js/jqm.js",
+							url: assetLocation + "vendor-js/jqm.js",
 							dataType: "script",
 							cache: true
 						} );
