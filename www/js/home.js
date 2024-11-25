@@ -13,6 +13,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+// FIXME: this file should likely be auto generated during build/deploy so that it stays in sync with repo structure
+
 ( function( document ) {
 	var assetLocation = getAssetLocation(),
 		isReady = false;
@@ -76,7 +78,6 @@
 
 	// Insert script into the DOM
 	function insertScript( src, callback ) {
-
 		// Create callback if one is not provided
 		callback = callback || function() {};
 
@@ -128,33 +129,62 @@
 	insertStyleSheet( assetLocation + "img/favicon.ico", "shortcut icon" );
 
 	// Insert jQuery
-	insertScript( assetLocation + "js/jquery.js", function() {
+	insertScript( assetLocation + "vendor-js/jquery.js", function() {
 
 		// Insert libraries
-		insertScript( assetLocation + "js/libs.js", function() {
-
-			// Insert primary application script
-			insertScript( assetLocation + "js/main.js", function() {
-				try {
-					localStorage.setItem( "testQuota", "true" );
-					localStorage.removeItem( "testQuota" );
-					init();
-				} catch ( err ) {
-					if ( err.code === 22 ) {
-						document.body.innerHTML = "<div class='spinner'><div class='logo'></div>" +
-							"<span class='feedback'>Local storage is not " +
-							"enabled on your device and is required by the application. " +
-							"You may be in private browsing mode.</span></div>";
-						return;
-					}
-				}
-			} );
-
-			// Insert analog sensor (if supported)
-			insertScript( assetLocation + "js/analog.js" );
+		insertScript( assetLocation + "vendor-js/libs.js", function() {
 
 			// Insert charting library for analog support
-			insertScript( assetLocation + "js/apexcharts.min.js" );
+			insertScript( assetLocation + "vendor-js/apexcharts.min.js" );
+
+			// Insert datatables grid library
+			insertScript( assetLocation + "vendor-js/dataTables-2.1.8.min.js" );
+
+			// Insert modules
+			insertScript( assetLocation + "/js/modules/analog.js");
+			insertScript( assetLocation + "/js/modules/card-list.js");
+			insertScript( assetLocation + "/js/modules/cards.js");
+			insertScript( assetLocation + "/js/modules/dates.js");
+			insertScript( assetLocation + "/js/modules/errors.js");
+			insertScript( assetLocation + "/js/modules/firmware.js");
+			insertScript( assetLocation + "/js/modules/groups.js");
+			insertScript( assetLocation + "/js/modules/import-export.js");
+			insertScript( assetLocation + "/js/modules/language.js");
+			insertScript( assetLocation + "/js/modules/logs.js");
+			insertScript( assetLocation + "/js/modules/network.js");
+			insertScript( assetLocation + "/js/modules/notifications.js");
+			insertScript( assetLocation + "/js/modules/options.js");
+			insertScript( assetLocation + "/js/modules/preview.js");
+			insertScript( assetLocation + "/js/modules/programs.js");
+			insertScript( assetLocation + "/js/modules/sites.js");
+			insertScript( assetLocation + "/js/modules/station-attributes.js");
+			insertScript( assetLocation + "/js/modules/station-queue.js");
+			insertScript( assetLocation + "/js/modules/stations.js");
+			insertScript( assetLocation + "/js/modules/status.js");
+			insertScript( assetLocation + "/js/modules/storage.js");
+			insertScript( assetLocation + "/js/modules/supported.js");
+			insertScript( assetLocation + "/js/modules/system-diagnostics.js");
+			insertScript( assetLocation + "/js/modules/ui-dom.js");
+			insertScript( assetLocation + "/js/modules/utils.js");
+			insertScript( assetLocation + "/js/modules/weather.js", function() {
+				// Insert primary application script last
+				insertScript( assetLocation + "js/main.js", function() {
+					try {
+						localStorage.setItem( "testQuota", "true" );
+						localStorage.removeItem( "testQuota" );
+						init();
+					} catch ( err ) {
+						if ( err.code === 22 ) {
+							document.body.innerHTML = "<div class='spinner'><div class='logo'></div>" +
+								"<span class='feedback'>Local storage is not " +
+								"enabled on your device and is required by the application. " +
+								"You may be in private browsing mode.</span></div>";
+							return;
+						}
+					}
+				} );
+			});
+
 		} );
 	} );
 
@@ -198,7 +228,7 @@
 
 						// Load jQuery Mobile
 						$.ajax( {
-							url: assetLocation + "js/jqm.js",
+							url: assetLocation + "vendor-js/jqm.js",
 							dataType: "script",
 							cache: true
 						} );
