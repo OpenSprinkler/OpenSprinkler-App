@@ -282,7 +282,7 @@
 
 			loader.on( "submit", function() {
 				var pw = $( "#os_pw" ).val(),
-					checkPW = function( pass, callback ) {
+					homeCheckPW = function( pass, callback ) {
 						$.ajax( {
 							url: document.URL.match( /(https?:\/\/.*)\/.*?/ )[ 1 ] + "/sp?pw=" + encodeURIComponent( pass ) + "&npw=" + encodeURIComponent( pass ) + "&cpw=" + encodeURIComponent( pass ),
 							cache: false,
@@ -304,7 +304,7 @@
 						);
 					},
 					checkClear = function() {
-						checkPW( pw, function( clearResult ) {
+						homeCheckPW( pw, function( clearResult ) {
 							if ( clearResult === true ) {
 								savePassword( pw );
 							} else {
@@ -321,7 +321,7 @@
 				$.support.cors = true;
 
 				if ( ver >= 213 ) {
-					checkPW( md5( pw ), function( result ) {
+					homeCheckPW( md5( pw ), function( result ) {
 						if ( result === true ) {
 							savePassword( md5( pw ), true );
 						} else {
