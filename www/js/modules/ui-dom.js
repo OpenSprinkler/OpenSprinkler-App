@@ -3172,7 +3172,7 @@ OSApp.UIDom.launchApp = function() {
 					wlSorted = extraData[ 0 ],
 					flSorted = extraData[ 1 ],
 					stats = extraData[ 2 ],
-					tableHeader = "<table id=\"table-logs\"><thead><tr>" +
+					tableHeader = "<table class=\"table-logs-datatables\"><thead><tr>" +
 						"<th data-priority='1'>" + OSApp.Language._( "Station" ) + "</th>" +
 						"<th data-priority='2'>" + OSApp.Language._( "Runtime" ) + "</th>" +
 						"<th data-priority='3'>" + OSApp.Language._( "Start Time" ) + "</th>" +
@@ -3238,8 +3238,8 @@ OSApp.UIDom.launchApp = function() {
 				logOptions.collapsible( "collapse" );
 				logsList.html( html + groupArray.join( "" ) + "</div>" ).enhanceWithin();
 
-				// Initialize datatable
-				$( "#table-logs" ).DataTable( OSApp.UIDom.getDatatablesConfig() );
+				// Initialize datatables.net on all tables with class table-logs-datatables
+				$( ".table-logs-datatables" ).DataTable( OSApp.UIDom.getDatatablesConfig() );
 
 				logsList.find( ".delete-day" ).on( "click", function() {
 					var day, date;
@@ -3583,7 +3583,7 @@ OSApp.UIDom.launchApp = function() {
 						"</li>" +
 					"</ul>" +
 					"<p class='smaller'>" +
-						OSApp.Language._( "App Version" ) + ": 2.4.5" + // FIXME: This needs to be pulled from package.json automatcally (or replaced during build/deploy!!) mellodev
+						OSApp.Language._( "App Version" ) + ": 2.4.6" + // FIXME: This needs to be pulled from package.json automatcally (or replaced during build/deploy!!) mellodev
 						"<br>" + OSApp.Language._( "Firmware" ) + ": <span class='firmware'></span>" +
 						"<br><span class='hardwareLabel'>" + OSApp.Language._( "Hardware Version" ) + ":</span> <span class='hardware'></span>" +
 					"</p>" +
