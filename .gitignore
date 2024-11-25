@@ -4,6 +4,9 @@
 # NPM package location
 node_modules/
 
+# Build output
+build/
+
 # Cordova folders
 platforms/
 plugins/
