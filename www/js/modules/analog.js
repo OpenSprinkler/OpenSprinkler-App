@@ -104,7 +104,8 @@ OSApp.Analog.intFromBytes = function( x ) {
 			val += parseInt( x[ i ] );
 		}
 		return val;
-	} catch ( error ) {
+		//eslint-disable-next-line no-unused-vars
+	} catch ( e ) {
 		return 0;
 	}
 };

@@ -857,6 +857,7 @@ OSApp.Sites.updateControllerSettings = function( callback ) {
 				if ( typeof settings !== "object" ) {
 					try {
 						settings = JSON.parse( settings );
+						//eslint-disable-next-line no-unused-vars
 					} catch ( err ) {
 						var matchWTO = /,"wto":\{.*?\}/;
 						var wto = settings.match( matchWTO );
@@ -864,6 +865,7 @@ OSApp.Sites.updateControllerSettings = function( callback ) {
 						try {
 							settings = JSON.parse( settings );
 							OSApp.Sites.handleCorruptedWeatherOptions( wto );
+							//eslint-disable-next-line no-unused-vars
 						} catch ( e ) {
 							return false;
 						}

@@ -115,8 +115,7 @@ This project uses Grunt to automate various development tasks. Here are some of 
 
 **Code Quality and Testing**
 
-*   **`grunt jshint`**: Checks JavaScript code for potential errors and style issues.
-*   **`grunt jscs`**: Enforces consistent code style using JavaScript Code Style rules.
+*   **`grunt eslint`**: Checks JavaScript code for potential errors and style issues.
 *   **`grunt csslint`**: Analyzes CSS code for potential errors and style issues.
 *   **`grunt blanket_mocha`**: Runs tests using Mocha and Blanket.js to generate code coverage reports.
 

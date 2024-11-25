@@ -93,7 +93,7 @@ OSApp.Firmware.sendToOS = function( dest, type ) {
 			if ( typeof data === "string" ) {
 				try {
 					data = $.parseJSON( data );
-				} catch ( e ) {
+				} catch {
 					return data;
 				}
 			}
