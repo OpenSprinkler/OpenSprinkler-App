@@ -1,6 +1,6 @@
 {
 	"name": "opensprinkler",
-	"version": "2.4.3",
+	"version": "2.4.4",
 	"description": "Designed to allow intuitive control of the OpenSprinkler irrigation controller.",
 	"keywords": [
 		"sprinklers",
@@ -22,7 +22,7 @@
 	"scripts": {
 		"lint": "eslint ./www/js/**",
 		"prepare": "husky",
-		"start": "npx http-server --port 8080 -c-1 ./www",
+		"start": "npx http-server --port 8080 --cors '*' -c-1 ./www",
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
 	"lint-staged": {
