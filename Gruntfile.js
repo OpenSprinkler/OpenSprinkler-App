@@ -213,7 +213,6 @@ module.exports = function( grunt ) {
 			} ]
 		}
 	},
-
 		clean: {
 			pushFW: [ "build/firmware/*", "build/app.zip" ],
 			symres: [ "www/res" ]
