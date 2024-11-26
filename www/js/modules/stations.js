@@ -138,7 +138,7 @@ OSApp.Stations.stopAllStations = function() {
 
 OSApp.Stations.removeStationTimers = function() {
 	for ( var timer in OSApp.uiState.timers ) {
-		if ( OSApp.uiState.timers.hasOwnProperty( timer ) ) {
+		if ( Object.prototype.hasOwnProperty.call(OSApp.uiState.timers,  timer ) ) {
 			if ( timer !== "clock" ) {
 				delete OSApp.uiState.timers[ timer ];
 			}
@@ -194,11 +194,11 @@ OSApp.Stations.verifyRemoteStation = function( data, callback ) {
 		dataType: "json"
 	} ).then(
 		function( result ) {
-			if ( typeof result !== "object" || !result.hasOwnProperty( "fwv" ) ) {
+			if ( typeof result !== "object" || !Object.prototype.hasOwnProperty.call(result,  "fwv" ) ) {
 				callback( -1 );
 			} else if ( Object.keys( result ).length === 1 ) {
 				callback( -2 );
-			} else if ( !result.hasOwnProperty( "re" ) || result.re === 0 ) {
+			} else if ( !Object.prototype.hasOwnProperty.call(result,  "re" ) || result.re === 0 ) {
 				callback( -3 );
 			} else {
 				callback( true );

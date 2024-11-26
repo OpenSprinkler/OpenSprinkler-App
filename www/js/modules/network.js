@@ -77,7 +77,7 @@ OSApp.Network.startScan = function( port, type ) {
 			i;
 
 		for ( i in oldsites ) {
-			if ( oldsites.hasOwnProperty( i ) ) {
+			if ( Object.prototype.hasOwnProperty.call(oldsites,  i ) ) {
 				oldips.push( oldsites[ i ].os_ip );
 			}
 		}
@@ -103,7 +103,7 @@ OSApp.Network.startScan = function( port, type ) {
 			}
 			fwv = tmp[ 1 ];
 		} else {
-			if ( !reply.hasOwnProperty( "fwv" ) ) {
+			if ( !Object.prototype.hasOwnProperty.call(reply,  "fwv" ) ) {
 				return;
 			}
 			fwv = reply.fwv;
@@ -314,7 +314,7 @@ OSApp.Network.checkPublicAccess = function( eip ) {
 		type: "GET"
 	} ).then(
 		function( data ) {
-			if ( typeof data !== "object" || !data.hasOwnProperty( "fwv" ) || data.fwv !== OSApp.currentSession.controller.options.fwv ||
+			if ( typeof data !== "object" || !Object.prototype.hasOwnProperty.call(data,  "fwv" ) || data.fwv !== OSApp.currentSession.controller.options.fwv ||
 				( OSApp.Firmware.checkOSVersion( 214 ) && OSApp.currentSession.controller.options.ip4 !== data.ip4 ) ) {
 					fail();
 					return;

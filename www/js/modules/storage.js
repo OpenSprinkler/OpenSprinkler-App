@@ -26,7 +26,7 @@ OSApp.Storage.get = function( query, callback ) {
 	}
 
 	for ( i in query ) {
-		if ( query.hasOwnProperty( i ) ) {
+		if ( Object.prototype.hasOwnProperty.call(query,  i ) ) {
 			data[ query[ i ] ] = localStorage.getItem( query[ i ] );
 		}
 	}
@@ -39,7 +39,7 @@ OSApp.Storage.set = function( query, callback ) {
 	var i;
 	if ( typeof query === "object" ) {
 		for ( i in query ) {
-			if ( query.hasOwnProperty( i ) ) {
+			if ( Object.prototype.hasOwnProperty.call(query,  i ) ) {
 				localStorage.setItem( i, query[ i ] );
 			}
 		}
@@ -58,7 +58,7 @@ OSApp.Storage.remove = function( query, callback ) {
 	}
 
 	for ( i in query ) {
-		if ( query.hasOwnProperty( i ) ) {
+		if ( Object.prototype.hasOwnProperty.call(query,  i ) ) {
 			localStorage.removeItem( query[ i ] );
 		}
 	}

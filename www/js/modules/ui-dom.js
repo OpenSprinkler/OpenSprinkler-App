@@ -509,8 +509,8 @@ OSApp.UIDom.launchApp = function() {
 					name = button.siblings( "[id='station_" + sid + "']" ),
 					showSpecialOptions = function( value ) {
 						var opts = select.find( "#specialOpts" ),
-							data = OSApp.currentSession.controller.special && OSApp.currentSession.controller.special.hasOwnProperty( sid ) ? OSApp.currentSession.controller.special[ sid ].sd : "",
-							type  = OSApp.currentSession.controller.special && OSApp.currentSession.controller.special.hasOwnProperty( sid ) ? OSApp.currentSession.controller.special[ sid ].st : 0;
+							data = OSApp.currentSession.controller.special && Object.prototype.hasOwnProperty.call(OSApp.currentSession.controller.special,  sid ) ? OSApp.currentSession.controller.special[ sid ].sd : "",
+							type  = OSApp.currentSession.controller.special && Object.prototype.hasOwnProperty.call(OSApp.currentSession.controller.special,  sid ) ? OSApp.currentSession.controller.special[ sid ].st : 0;
 
 						opts.empty();
 
@@ -532,7 +532,7 @@ OSApp.UIDom.launchApp = function() {
 
 							opts.append(
 								"<div class='ui-bar-a ui-bar'>" + OSApp.Language._( "Remote Address" ) + ":</div>" +
-								"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='remote-address' required='true' type='text' pattern='^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$' value='" + data.ip + "'>" +
+								"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='remote-address' required='true' type='text' pattern='^(?:[0-9]{1,3}.){3}[0-9]{1,3}$' value='" + data.ip + "'>" +
 								"<div class='ui-bar-a ui-bar'>" + OSApp.Language._( "Remote Port" ) + ":</div>" +
 								"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='remote-port' required='true' type='number' placeholder='80' min='0' max='65535' value='" + data.port + "'>" +
 								"<div class='ui-bar-a ui-bar'>" + OSApp.Language._( "Remote Station" ) + ":</div>" +
@@ -3188,7 +3188,7 @@ OSApp.UIDom.launchApp = function() {
 				};
 
 				for ( group in sortedData ) {
-					if ( sortedData.hasOwnProperty( group ) ) {
+					if ( Object.prototype.hasOwnProperty.call(sortedData,  group ) ) {
 						ct = sortedData[ group ].length;
 						if ( ct === 0 ) {
 							continue;
@@ -5464,7 +5464,7 @@ OSApp.UIDom.updateTimers = function() {
 		}
 
 		for ( var timer in OSApp.uiState.timers ) {
-			if ( OSApp.uiState.timers.hasOwnProperty( timer ) ) {
+			if ( Object.prototype.hasOwnProperty.call(OSApp.uiState.timers,  timer ) ) {
 				if ( OSApp.uiState.timers[ timer ].val <= 0 ) {
 					if ( timer === "statusbar" ) {
 						OSApp.UIDom.showLoading( "#footer-running" );
