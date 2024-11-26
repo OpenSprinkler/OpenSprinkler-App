@@ -1,6 +1,6 @@
 {
 	"name": "opensprinkler",
-	"version": "2.4.7",
+	"version": "2.4.8",
 	"description": "Designed to allow intuitive control of the OpenSprinkler irrigation controller.",
 	"keywords": [
 		"sprinklers",
@@ -66,6 +66,7 @@
 		"sort-package-json": "^2.10.1",
 		"xcode": "^3.0.1"
 	},
+	"packageManager": "pnpm@9.10.0",
 	"cordova": {
 		"plugins": {
 			"cordova-plugin-3dtouch": {},
