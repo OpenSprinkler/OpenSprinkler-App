@@ -229,6 +229,6 @@ module.exports = function( grunt ) {
 	grunt.registerTask( "pushFW", [ "compress:makeFW", "shell:updateUI", "clean:pushFW" ] );
 	grunt.registerTask( "pushBetaFW", [ "compress:makeFW", "shell:updateBetaUI", "clean:pushFW" ] );
 	grunt.registerTask( "build", [ "default", "shell:symres", "pushFW", "clean:symres" ] );
-	grunt.registerTask( "bump", [ "default", "replace:about", "replace:cordova", "replace:manifests", "shell:pushBump" ] );
-	grunt.registerTask( "bump-version", [ "default", "replace:about", "replace:cordova", "replace:manifests" ] );
+	grunt.registerTask( "bump", [ "default", "replace:about", "replace:cordova", "replace:manifests", "replace:sw", "shell:pushBump" ] );
+	grunt.registerTask( "bump-version", [ "default", "replace:about", "replace:cordova", "replace:manifests", "replace:sw" ] );
 };
