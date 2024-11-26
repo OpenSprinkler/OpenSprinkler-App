@@ -1,6 +1,6 @@
 {
 	"name": "opensprinkler",
-	"version": "2.4.6",
+	"version": "2.4.7",
 	"description": "Designed to allow intuitive control of the OpenSprinkler irrigation controller.",
 	"keywords": [
 		"sprinklers",
