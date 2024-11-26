@@ -115,8 +115,7 @@ This project uses Grunt to automate various development tasks. Here are some of 
 
 **Code Quality and Testing**
 
-*   **`grunt jshint`**: Checks JavaScript code for potential errors and style issues.
-*   **`grunt jscs`**: Enforces consistent code style using JavaScript Code Style rules.
+*   **`grunt eslint`**: Checks JavaScript code for potential errors and style issues.
 *   **`grunt csslint`**: Analyzes CSS code for potential errors and style issues.
 *   **`grunt blanket_mocha`**: Runs tests using Mocha and Blanket.js to generate code coverage reports.
 
@@ -135,5 +134,6 @@ This project uses Grunt to automate various development tasks. Here are some of 
 
 *   **`grunt shell:startDemo`**: Starts a demo instance of the OpenSprinkler app.
 *   **`grunt shell:stopDemo`**: Stops the demo instance.
-*   **`grunt bump`**: Bumps the version number in various files (source code, Cordova config, and package.json).
+*   **`grunt bump`**: Bumps the version number in various files (source code, Cordova config, and package.json) and push commit
+*   **`grunt bump-version`**: Bumps the version number in various files (source code, Cordova config, and package.json). Does not commit or push!
 

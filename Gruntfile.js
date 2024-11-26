@@ -14,14 +14,13 @@
 	module.exports = function( grunt ) {
 
 		// Load node-modules;
-		grunt.loadNpmTasks( "grunt-contrib-jshint" );
 		grunt.loadNpmTasks( "grunt-text-replace" );
 		grunt.loadNpmTasks( "grunt-shell" );
 		grunt.loadNpmTasks( "grunt-contrib-compress" );
 		grunt.loadNpmTasks( "grunt-contrib-csslint" );
 		grunt.loadNpmTasks( "grunt-contrib-clean" );
-		grunt.loadNpmTasks( "grunt-jscs" );
 		grunt.loadNpmTasks( "grunt-blanket-mocha" );
+		grunt.loadNpmTasks( "grunt-eslint" );
 
 		var bumpVersion = function( version ) {
 				var join = ".",
@@ -54,19 +53,8 @@
 			pkg: grunt.file.readJSON( "package.json" ),
 			secrets: secrets,
 
-			jshint: {
-				main: [ "www/js/main.js", "www/js/map.js", "Gruntfile.js", "www/js/hasher.js", "www/js/home.js", "test/tests.js", "www/js/analog.js" ],
-				options: {
-					jshintrc: true
-				}
-			},
-
-			jscs: {
-				main: [ "www/js/main.js", "www/js/map.js", "Gruntfile.js", "www/js/hasher.js", "www/js/home.js", "test/tests.js", "www/js/analog.js" ],
-				options: {
-					config: true,
-					fix: true
-				}
+			eslint: {
+				target: ["www/js/**/*.js"]
 			},
 
 			csslint: {
@@ -98,7 +86,7 @@
 						archive: "build/firmware/UI.zip"
 					},
 					files: [ {
-						src: [ "css/**", "js/**", "img/**", "locale/*.js", "*.html", "manifest.json", "sw.js" ],
+						src: [ "css/**", "js/**", "vendor-js/**", "img/**", "locale/*.js", "*.html", "manifest.json", "sw.js" ],
 						cwd: "www/",
 						expand: true
 					}, {
@@ -160,8 +148,8 @@
 				},
 				pushBump: {
 					command: [
-						"git add www/js/main.js config.xml package.json",
-						"git commit -m 'Base: Increment version number'",
+						"git add www/ config.xml package.json",
+						"git commit -m 'chore(vers): Increment version number'",
 						"git push"
 					].join( "&&" )
 				}
@@ -169,7 +157,7 @@
 
 			replace: {
 				about: {
-					src: [ "www/js/main.js" ],
+					src: [ "www/js/modules/ui-dom.js" ],
 					overwrite: true,
 					replacements: [ {
 						from: /_\( "App Version" \) \+ ": ([\d|\.]+)"/g,
@@ -218,7 +206,7 @@
 		} );
 
 		// Default task(s).
-		grunt.registerTask( "default", [ "jshint", "jscs" ] );
+		grunt.registerTask( "default", [ "eslint" ] );
 		grunt.registerTask( "test", [ "default", "blanket_mocha" ] );
 		grunt.registerTask( "updateLang", [ "shell:updateLang" ] );
 		grunt.registerTask( "pushEng", [ "shell:pushEng" ] );
@@ -226,4 +214,5 @@
 		grunt.registerTask( "pushBetaFW", [ "compress:makeFW", "shell:updateBetaUI", "clean:pushFW" ] );
 		grunt.registerTask( "build", [ "default", "shell:symres", "pushFW", "clean:symres" ] );
 		grunt.registerTask( "bump", [ "default", "replace:about", "replace:cordova", "replace:manifests", "shell:pushBump" ] );
+		grunt.registerTask( "bump-version", [ "default", "replace:about", "replace:cordova", "replace:manifests" ] );
 	};

@@ -13,6 +13,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+// FIXME: this file should likely be auto generated during build/deploy so that it stays in sync with repo structure
+
 ( function( document ) {
 	var assetLocation = getAssetLocation(),
 		isReady = false;
@@ -76,7 +78,6 @@
 
 	// Insert script into the DOM
 	function insertScript( src, callback ) {
-
 		// Create callback if one is not provided
 		callback = callback || function() {};
 
@@ -128,33 +129,62 @@
 	insertStyleSheet( assetLocation + "img/favicon.ico", "shortcut icon" );
 
 	// Insert jQuery
-	insertScript( assetLocation + "js/jquery.js", function() {
+	insertScript( assetLocation + "vendor-js/jquery.js", function() {
 
 		// Insert libraries
-		insertScript( assetLocation + "js/libs.js", function() {
-
-			// Insert primary application script
-			insertScript( assetLocation + "js/main.js", function() {
-				try {
-					localStorage.setItem( "testQuota", "true" );
-					localStorage.removeItem( "testQuota" );
-					init();
-				} catch ( err ) {
-					if ( err.code === 22 ) {
-						document.body.innerHTML = "<div class='spinner'><div class='logo'></div>" +
-							"<span class='feedback'>Local storage is not " +
-							"enabled on your device and is required by the application. " +
-							"You may be in private browsing mode.</span></div>";
-						return;
-					}
-				}
-			} );
-
-			// Insert analog sensor (if supported)
-			insertScript( assetLocation + "js/analog.js" );
+		insertScript( assetLocation + "vendor-js/libs.js", function() {
 
 			// Insert charting library for analog support
-			insertScript( assetLocation + "js/apexcharts.min.js" );
+			insertScript( assetLocation + "vendor-js/apexcharts.min.js" );
+
+			// Insert datatables grid library
+			insertScript( assetLocation + "vendor-js/dataTables-2.1.8.min.js" );
+
+			// Insert modules
+			insertScript( assetLocation + "/js/modules/analog.js");
+			insertScript( assetLocation + "/js/modules/card-list.js");
+			insertScript( assetLocation + "/js/modules/cards.js");
+			insertScript( assetLocation + "/js/modules/dates.js");
+			insertScript( assetLocation + "/js/modules/errors.js");
+			insertScript( assetLocation + "/js/modules/firmware.js");
+			insertScript( assetLocation + "/js/modules/groups.js");
+			insertScript( assetLocation + "/js/modules/import-export.js");
+			insertScript( assetLocation + "/js/modules/language.js");
+			insertScript( assetLocation + "/js/modules/logs.js");
+			insertScript( assetLocation + "/js/modules/network.js");
+			insertScript( assetLocation + "/js/modules/notifications.js");
+			insertScript( assetLocation + "/js/modules/options.js");
+			insertScript( assetLocation + "/js/modules/preview.js");
+			insertScript( assetLocation + "/js/modules/programs.js");
+			insertScript( assetLocation + "/js/modules/sites.js");
+			insertScript( assetLocation + "/js/modules/station-attributes.js");
+			insertScript( assetLocation + "/js/modules/station-queue.js");
+			insertScript( assetLocation + "/js/modules/stations.js");
+			insertScript( assetLocation + "/js/modules/status.js");
+			insertScript( assetLocation + "/js/modules/storage.js");
+			insertScript( assetLocation + "/js/modules/supported.js");
+			insertScript( assetLocation + "/js/modules/system-diagnostics.js");
+			insertScript( assetLocation + "/js/modules/ui-dom.js");
+			insertScript( assetLocation + "/js/modules/utils.js");
+			insertScript( assetLocation + "/js/modules/weather.js", function() {
+				// Insert primary application script last
+				insertScript( assetLocation + "js/main.js", function() {
+					try {
+						localStorage.setItem( "testQuota", "true" );
+						localStorage.removeItem( "testQuota" );
+						init();
+					} catch ( err ) {
+						if ( err.code === 22 ) {
+							document.body.innerHTML = "<div class='spinner'><div class='logo'></div>" +
+								"<span class='feedback'>Local storage is not " +
+								"enabled on your device and is required by the application. " +
+								"You may be in private browsing mode.</span></div>";
+							return;
+						}
+					}
+				} );
+			});
+
 		} );
 	} );
 
@@ -198,7 +228,7 @@
 
 						// Load jQuery Mobile
 						$.ajax( {
-							url: assetLocation + "js/jqm.js",
+							url: assetLocation + "vendor-js/jqm.js",
 							dataType: "script",
 							cache: true
 						} );
@@ -252,11 +282,8 @@
 		 * Licensed MIT (/blob/master/LICENSE.txt)
 		 */
 
-		//jscs:disable maximumLineLength
-
+		// eslint-disable-next-line
 		( function() {if ( $.support.cors || !$.ajaxTransport || !window.XDomainRequest ) {return;}var b = /^https?:\/\//i;var c = /^get|post$/i;var a = new RegExp( "^" + location.protocol, "i" );$.ajaxTransport( "* text html xml json", function( e, g ) {if ( !e.crossDomain || !e.async || !c.test( e.type ) || !b.test( e.url ) || !a.test( e.url ) ) {return;}var d = null;return { send:function( k, i ) {var h = "";var j = ( g.dataType || "" ).toLowerCase();d = new XDomainRequest();if ( /^\d+$/.test( g.timeout ) ) {d.timeout = g.timeout;}d.ontimeout = function() {i( 500, "timeout" );};d.onload = function() {var q = "Content-Length: " + d.responseText.length + "\r\nContent-Type: " + d.contentType;var l = { code:200, message:"success" };var n = { text:d.responseText };try {if ( j === "html" || /text\/html/i.test( d.contentType ) ) {n.html = d.responseText;}else {if ( j === "json" || ( j !== "text" && /\/json/i.test( d.contentType ) ) ) {try {n.json = $.parseJSON( d.responseText );}catch ( p ) {l.code = 500;l.message = "parseerror";}}else {if ( j === "xml" || ( j !== "text" && /\/xml/i.test( d.contentType ) ) ) {var o = new ActiveXObject( "Microsoft.XMLDOM" );o.async = false;try {o.loadXML( d.responseText );}catch ( p ) {o = undefined;}if ( !o || !o.documentElement || o.getElementsByTagName( "parsererror" ).length ) {l.code = 500;l.message = "parseerror";throw"Invalid XML: " + d.responseText;}n.xml = o;}}}}catch ( m ) {throw m;}finally {i( l.code, l.message, n, q );}};d.onprogress = function() {};d.onerror = function() {i( 500, "error", { text:d.responseText } );};if ( g.data ) {h = ( $.type( g.data ) === "string" ) ? g.data : $.param( g.data );}d.open( e.type, e.url );d.send( h );}, abort:function() {if ( d ) {d.abort();}} };} );}() );
-
-		//jscs:enable maximumLineLength
 
 		if ( sites ) {
 
@@ -282,7 +309,7 @@
 
 			loader.on( "submit", function() {
 				var pw = $( "#os_pw" ).val(),
-					checkPW = function( pass, callback ) {
+					homeCheckPW = function( pass, callback ) {
 						$.ajax( {
 							url: document.URL.match( /(https?:\/\/.*)\/.*?/ )[ 1 ] + "/sp?pw=" + encodeURIComponent( pass ) + "&npw=" + encodeURIComponent( pass ) + "&cpw=" + encodeURIComponent( pass ),
 							cache: false,
@@ -304,7 +331,7 @@
 						);
 					},
 					checkClear = function() {
-						checkPW( pw, function( clearResult ) {
+						homeCheckPW( pw, function( clearResult ) {
 							if ( clearResult === true ) {
 								savePassword( pw );
 							} else {
@@ -321,7 +348,7 @@
 				$.support.cors = true;
 
 				if ( ver >= 213 ) {
-					checkPW( md5( pw ), function( result ) {
+					homeCheckPW( md5( pw ), function( result ) {
 						if ( result === true ) {
 							savePassword( md5( pw ), true );
 						} else {

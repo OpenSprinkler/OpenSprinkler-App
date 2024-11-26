@@ -1,6 +1,6 @@
 {
 	"name": "opensprinkler",
-	"version": "2.4.2",
+	"version": "2.4.6",
 	"description": "Designed to allow intuitive control of the OpenSprinkler irrigation controller.",
 	"keywords": [
 		"sprinklers",
@@ -20,14 +20,16 @@
 	"author": "Samer Albahra",
 	"main": "index.html",
 	"scripts": {
+		"lint": "eslint ./www/js/**",
 		"prepare": "husky",
-		"start": "npx http-server --port 8080 -c-1 ./www",
+		"start": "npx http-server --port 8080 --cors '*' -c-1 ./www",
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
 	"lint-staged": {
 		"package.json": "sort-package-json"
 	},
 	"devDependencies": {
+		"@eslint/js": "^9.15.0",
 		"blanket": "^1.2.1",
 		"chai": "^4.3.7",
 		"codecov.io": "^0.1.6",
@@ -43,13 +45,14 @@
 		"cordova-plugin-statusbar": "^3.0.0",
 		"cordova-plugin-transport-security": "^0.1.2",
 		"coveralls": "^3.1.1",
+		"eslint": "^9.15.0",
+		"globals": "^15.12.0",
 		"grunt": "^1.6.1",
 		"grunt-blanket-mocha": "^1.0.0",
 		"grunt-contrib-clean": "^2.0.1",
 		"grunt-contrib-compress": "^2.0.0",
 		"grunt-contrib-csslint": "^2.0.0",
-		"grunt-contrib-jshint": "^3.2.0",
-		"grunt-jscs": "^3.0.1",
+		"grunt-eslint": "^25.0.0",
 		"grunt-lib-phantomjs": "^1.1.0",
 		"grunt-shell": "^4.0.0",
 		"grunt-text-replace": "^0.4.0",
