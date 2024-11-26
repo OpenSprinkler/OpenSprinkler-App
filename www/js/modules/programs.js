@@ -881,7 +881,7 @@ OSApp.Programs.submitProgram21 = function( id, ignoreWarning ) {
 		days[ 1 ] = parseInt( $( "#every-" + id ).val(), 10 );
 
 		if ( !( days[ 1 ] >= minIntervalDays && days[ 1 ] <= 128 ) ) {
-			OSApp.Errors.showError( OSApp.Language._( "Error: Interval days must be between " + minIntervalDays + " and 128." ) );
+			OSApp.Errors.showError( OSApp.Language._( "Error: Interval days must be between") + " " + minIntervalDays + " " + OSApp.Language._( "and 128." ) );
 			return;
 		}
 
@@ -977,7 +977,7 @@ OSApp.Programs.submitProgram21 = function( id, ignoreWarning ) {
 		var totalruntime = OSApp.Groups.calculateTotalRunningTime( runTimes );
 		var repeatinterval = start[ 2 ] * 60;
 		if ( totalruntime > repeatinterval ) {
-			OSApp.UIDom.areYouSure( OSApp.Language._( "Warning: The repeat interval (" + repeatinterval + " sec) is less than the program run time (" + totalruntime + " sec)." ), OSApp.Language._( "Do you want to continue?" ), function() {
+			OSApp.UIDom.areYouSure( OSApp.Language._( "Warning: The repeat interval" ) + " (" + repeatinterval + " " + OSApp.Language._( "sec" ) + ") " + OSApp.Language._( "is less than the program run time" ) + " ( " + totalruntime + " " + OSApp.Language._( "sec" ) +").", OSApp.Language._( "Do you want to continue?" ), function() {
 				OSApp.Programs.submitProgram21( id, true );
 			} );
 			return;
@@ -1040,7 +1040,7 @@ OSApp.Programs.expandProgram = function( program ) {
 	program.find( "[id^='run-']" ).on( "click", function() {
 		var name = OSApp.Firmware.checkOSVersion( 210 ) ? OSApp.currentSession.controller.programs.pd[ id ][ 5 ] : "Program " + id;
 
-		OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to start " + name + " now?" ), "", function() {
+		OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to start" ) + " " + name + " " + OSApp.Language._( "now?" ), "", function() {
 			var runonce = [],
 				finish = function() {
 					runonce.push( 0 );
