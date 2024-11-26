@@ -16,7 +16,6 @@ project.xcworkspace/
 xcuserdata/
 
 # Coverage data
-.coveralls.yml
 coverage
 
 # VS Code
