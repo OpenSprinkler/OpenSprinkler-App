@@ -100,11 +100,11 @@ Please ensure your code adheres to the existing coding style and includes tests 
 
 ## Local Development
 
-Fork this repository then:
+Fork this repository then [install pnpm](https://pnpm.io/installation). Next, install the dependencies and start the dev web serverwith:
 
 ```bash
-$ npm install
-$ npm start
+$ pnpm install
+$ pnpm start
 ```
 
 From here you can open your browser to `http://localhost:8080` and begin your development.
