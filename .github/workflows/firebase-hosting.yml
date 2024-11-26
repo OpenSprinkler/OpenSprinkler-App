@@ -43,3 +43,4 @@ jobs:
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_OPENSPRINKLER_UI }}
           projectId: opensprinkler-ui
           target: opensprinkler-betaui
+          channelId:
