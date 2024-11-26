@@ -1,80 +1,80 @@
 {
   "hosting": [
-    {
-      "site": "opensprinkler-ui",
-      "public": "build/firmware",
-      "ignore": [
-        "firebase.json",
-        "**/.*",
-        "**/node_modules/**"
-      ],
-      "headers": [
-        {
-          "source": "**/*",
-          "headers": [
-            {
-              "key": "Access-Control-Allow-Origin",
-              "value": "*"
-            }
-          ]
-        },
-        {
-          "source": "**/*.@(jpg|jpeg|gif|png|svg|webp)",
-          "headers": [
-            {
-              "key": "Cache-Control",
-              "value": "public, max-age=3600, s-maxage=31536000"
-            }
-          ]
-        },
-        {
-          "source": "**/*.@(js|css)",
-          "headers": [
-            {
-              "key": "Cache-Control",
-              "value": "public, max-age=3600, s-maxage=31536000"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "site": "opensprinkler-betaui",
-      "public": "build/firmware",
-      "ignore": [
-        "firebase.json",
-        "**/.*",
-        "**/node_modules/**"
-      ],
-      "headers": [
-        {
-          "source": "**/*",
-          "headers": [
-            {
-              "key": "Access-Control-Allow-Origin",
-              "value": "*"
-            }
-          ]
-        },
-        {
-          "source": "**/*.@(jpg|jpeg|gif|png|svg|webp)",
-          "headers": [
-            {
-              "key": "Cache-Control",
-              "value": "public, max-age=3600, s-maxage=31536000"
-            }
-          ]
-        },
-        {
-          "source": "**/*.@(js|css)",
-          "headers": [
-            {
-              "key": "Cache-Control",
-              "value": "public, max-age=3600, s-maxage=31536000"
-            }
-          ]
-        }
-      ]
-    }
+	{
+	  "site": "opensprinkler-ui",
+	  "public": "build/firmware",
+	  "ignore": [
+		"firebase.json",
+		"**/.*",
+		"**/node_modules/**"
+	  ],
+	  "headers": [
+		{
+		  "source": "**/*",
+		  "headers": [
+			{
+			  "key": "Access-Control-Allow-Origin",
+			  "value": "*"
+			}
+		  ]
+		},
+		{
+		  "source": "**/*.@(jpg|jpeg|gif|png|svg|webp)",
+		  "headers": [
+			{
+			  "key": "Cache-Control",
+			  "value": "public, max-age=3600, s-maxage=31536000"
+			}
+		  ]
+		},
+		{
+		  "source": "**/*.@(js|css)",
+		  "headers": [
+			{
+			  "key": "Cache-Control",
+			  "value": "public, max-age=3600, s-maxage=31536000"
+			}
+		  ]
+		}
+	  ]
+	},
+	{
+	  "site": "opensprinkler-betaui",
+	  "public": "build/firmware",
+	  "ignore": [
+		"firebase.json",
+		"**/.*",
+		"**/node_modules/**"
+	  ],
+	  "headers": [
+		{
+		  "source": "**/*",
+		  "headers": [
+			{
+			  "key": "Access-Control-Allow-Origin",
+			  "value": "*"
+			}
+		  ]
+		},
+		{
+		  "source": "**/*.@(jpg|jpeg|gif|png|svg|webp)",
+		  "headers": [
+			{
+			  "key": "Cache-Control",
+			  "value": "public, max-age=3600, s-maxage=31536000"
+			}
+		  ]
+		},
+		{
+		  "source": "**/*.@(js|css)",
+		  "headers": [
+			{
+			  "key": "Cache-Control",
+			  "value": "public, max-age=3600, s-maxage=31536000"
+			}
+		  ]
+		}
+	  ]
+	}
   ]
 }
