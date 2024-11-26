@@ -100,7 +100,7 @@ Please ensure your code adheres to the existing coding style and includes tests 
 
 ## Local Development
 
-Fork this repository then [install pnpm](https://pnpm.io/installation). Next, install the dependencies and start the dev web serverwith:
+Fork this repository then [install pnpm](https://pnpm.io/installation). Next, install the dependencies and start the dev web server with:
 
 ```bash
 $ pnpm install
