@@ -96,6 +96,9 @@
 			},
 
 			shell: {
+				unzipFW: {
+					command: "cd build/firmware && unzip UI.zip"
+				},
 				updateUI: {
 					command: [
 						"cd build/firmware",
@@ -210,6 +213,7 @@
 		grunt.registerTask( "test", [ "default", "blanket_mocha" ] );
 		grunt.registerTask( "updateLang", [ "shell:updateLang" ] );
 		grunt.registerTask( "pushEng", [ "shell:pushEng" ] );
+		grunt.registerTask( "prepareFW", [ "compress:makeFW", "shell:unzipFW" ] );
 		grunt.registerTask( "pushFW", [ "compress:makeFW", "shell:updateUI", "clean:pushFW" ] );
 		grunt.registerTask( "pushBetaFW", [ "compress:makeFW", "shell:updateBetaUI", "clean:pushFW" ] );
 		grunt.registerTask( "build", [ "default", "shell:symres", "pushFW", "clean:symres" ] );
