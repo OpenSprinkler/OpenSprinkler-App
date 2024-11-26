@@ -5,6 +5,17 @@ on:
     branches:
       - master
   pull_request:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Choose an environment to deploy'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - beta
+          - prod
 
 permissions:
   checks: write
@@ -42,5 +53,10 @@ jobs:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_OPENSPRINKLER_UI }}
           projectId: opensprinkler-ui
-          target: opensprinkler-devui
+          target: ${{
+            github.event_name == 'workflow_dispatch' && (
+              github.event.inputs.environment == 'prod' && 'opensprinkler-ui' ||
+              github.event.inputs.environment == 'beta' && 'opensprinkler-betaui' ||
+              'opensprinkler-devui'
+            ) || 'opensprinkler-devui' }}
           channelId: ${{ github.event_name == 'push' && 'live' || '' }}
