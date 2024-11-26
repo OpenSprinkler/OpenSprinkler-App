@@ -52,7 +52,7 @@ jobs:
 
       - name: Update ui-dom.js version
         run: |
-          sed -i.bak "s|_\\( \"App Version\" \\) \\+ \": [0-9\.]*\"|_\\( \"App Version\" \\) \\+ \": ${{ steps.gitversion.outputs.semVer }}\"|" www/js/modules/ui-dom.js
+          sed -Ei.bak "s|_\\( \"App Version\" \\) + \": [0-9.]*\"|_\\( \"App Version\" \\) + \": ${{ steps.gitversion.outputs.semVer }}\"|" www/js/modules/ui-dom.js
 
       - name: Update config.xml versions
         run: |
