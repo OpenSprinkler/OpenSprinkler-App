@@ -23,7 +23,7 @@
 		"lint": "eslint ./www/js/**",
 		"prepare": "husky",
 		"start": "npx http-server --port 8080 --cors '*' -c-1 ./www",
-		"test": "echo \"Error: no test specified\" && exit 1"
+		"test": "npx karma start --browsers ChromeHeadless test/karma.conf.js"
 	},
 	"lint-staged": {
 		"package.json": "sort-package-json"
