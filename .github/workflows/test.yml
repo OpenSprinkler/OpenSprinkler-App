@@ -11,17 +11,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-    - name: Use Node.js 18.x
-      uses: actions/setup-node@v3
-      with:
-        node-version: 18.x
+      - name: Cache Dependencies
+        id: cache_npm
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-
 
-    - name: Install dependencies
-      run: |
-        npm install
+      - name: Install dependencies
+        if: steps.cache_npm.outputs.cache-hit != 'true'
+        run: npm install
 
-    - name: Run test steps
-      run: |
-        grunt
+      - name: Run test steps
+        run: |
+          grunt
+          npm run test
