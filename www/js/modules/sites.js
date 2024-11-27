@@ -970,7 +970,7 @@ OSApp.Sites.updateSite = function( newsite ) {
 		var sites = OSApp.Sites.parseSites( data.sites );
 		if ( newsite in sites ) {
 			OSApp.UIDom.closePanel( function() {
-				OSApp.Storage.set( { "current_site":newsite }, OSApp.Sites.checkConfigured );
+				OSApp.Storage.set( { "current_site":newsite }, () => OSApp.Sites.checkConfigured() );
 			} );
 		}
 	} );
@@ -993,7 +993,7 @@ OSApp.Sites.fixPasswordHash = function( current ) {
 					return false;
 				} else {
 					sites[ current ].os_pw = OSApp.currentSession.pass = pw;
-					OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, OSApp.Network.cloudSaveSites );
+					OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, () => OSApp.Network.cloudSaveSites() );
 				}
 			} );
 		}

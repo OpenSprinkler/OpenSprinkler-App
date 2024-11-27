@@ -287,7 +287,7 @@ OSApp.UIDom.launchApp = function() {
 							delete sites[ site ];
 							site = nm;
 							if ( isCurrent ) {
-								OSApp.Storage.set( { "current_site":site } );
+								OSApp.Storage.set( { "current_site": site } );
 								data.current_site = site;
 							}
 							OSApp.Sites.updateSiteList( Object.keys( sites ), data.current_site );
@@ -295,7 +295,7 @@ OSApp.UIDom.launchApp = function() {
 							//OSApp.Firmware.sendToOS( "/cv?pw=&cn=" + data.current_site );
 						}
 
-						OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, OSApp.Network.cloudSaveSites );
+						OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, () => OSApp.Network.cloudSaveSites() );
 
 						OSApp.Errors.showError( OSApp.Language._( "Site updated successfully" ) );
 
@@ -323,7 +323,7 @@ OSApp.UIDom.launchApp = function() {
 							}
 
 							delete sites[ site ];
-							OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, function() {
+							OSApp.Storage.set( { "sites": JSON.stringify( sites ) }, function() {
 								OSApp.Network.cloudSaveSites();
 								OSApp.Sites.updateSiteList( Object.keys( sites ), data.current_site );
 								if ( $.isEmptyObject( sites ) ) {
@@ -738,7 +738,7 @@ OSApp.UIDom.launchApp = function() {
 
 						// Update the notes section
 						sites[ currentSite ].notes[ sid ] = select.find( "#stn-notes" ).val();
-						OSApp.Storage.set( { "sites": JSON.stringify( sites ) }, OSApp.Network.cloudSaveSites );
+						OSApp.Storage.set( { "sites": JSON.stringify( sites ) }, () => OSApp.Network.cloudSaveSites() );
 
 						submitStations( sid );
 						select.popup( "destroy" ).remove();
@@ -940,7 +940,7 @@ OSApp.UIDom.launchApp = function() {
 
 					OSApp.UIDom.getPicture( function( image ) {
 						sites[ currentSite ].images[ sid ] = image;
-						OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, OSApp.Network.cloudSaveSites );
+						OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, () => OSApp.Network.cloudSaveSites() );
 						updateContent();
 
 						button.innerHTML =  OSApp.Language._( "Change" ) + " " + OSApp.Language._( "Image" );
@@ -1448,7 +1448,7 @@ OSApp.UIDom.launchApp = function() {
 
 									// Save run time for this station
 									sites[ currentSite ].lastRunTime[ sid ] = duration;
-									OSApp.Storage.set( { "sites": JSON.stringify( sites ) }, OSApp.Network.cloudSaveSites );
+									OSApp.Storage.set( { "sites": JSON.stringify( sites ) }, () => OSApp.Network.cloudSaveSites() );
 								} );
 							}
 						} );
@@ -1484,13 +1484,13 @@ OSApp.UIDom.launchApp = function() {
 				if ( hasImage ) {
 					OSApp.UIDom.areYouSure( OSApp.Language._( "Do you want to delete the current image?" ), "", function() {
 						delete sites[ currentSite ].images[ id ];
-						OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, OSApp.Network.cloudSaveSites );
+						OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, () => OSApp.Network.cloudSaveSites() );
 						updateContent();
 					} );
 				} else {
 					OSApp.UIDom.getPicture( function( image ) {
 						sites[ currentSite ].images[ id ] = image;
-						OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, OSApp.Network.cloudSaveSites );
+						OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, () => OSApp.Network.cloudSaveSites() );
 						updateContent();
 					} );
 				}
@@ -1738,7 +1738,7 @@ OSApp.UIDom.launchApp = function() {
 				callback: function( result ) {
 					dur.val( result );
 					dur.text( OSApp.Dates.dhms2str( OSApp.Dates.sec2dhms( result ) ) );
-					OSApp.Storage.set( { "autoOff":result } );
+					OSApp.Storage.set( { "autoOff": result } );
 				},
 				maximum: 32768
 			} );

@@ -1041,7 +1041,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 				sites[ data.current_site ].images = {};
 				sites[ data.current_site ].lastRunTime = {};
 
-				OSApp.Storage.set( { "sites": JSON.stringify( sites ) }, OSApp.Network.cloudSaveSites );
+				OSApp.Storage.set( { "sites": JSON.stringify( sites ) }, () => OSApp.Network.cloudSaveSites() );
 			} );
 			OSApp.Firmware.sendToOS( "/cs?pw=&" + cs ).done( function() {
 				OSApp.Errors.showError( OSApp.Language._( "Stations have been updated" ) );

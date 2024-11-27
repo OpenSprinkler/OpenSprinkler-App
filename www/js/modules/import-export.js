@@ -48,7 +48,7 @@ OSApp.ImportExport.getExportMethod = function() {
 
 	popup.find( ".localMethod" ).on( "click", function() {
 		popup.popup( "close" );
-		OSApp.Storage.set( { "backup":JSON.stringify( OSApp.currentSession.controller ) }, function() {
+		OSApp.Storage.set( { "backup": JSON.stringify( OSApp.currentSession.controller ) }, function() {
 			OSApp.Errors.showError( OSApp.Language._( "Backup saved on this device" ) );
 		} );
 	} );

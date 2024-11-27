@@ -238,7 +238,7 @@ OSApp.Stations.submitRunonce = function( runonce ) {
 
 	var submit = function() {
 			$.mobile.loading( "show" );
-			OSApp.Storage.set( { "runonce":JSON.stringify( runonce ) } );
+			OSApp.Storage.set( { "runonce": JSON.stringify( runonce ) } );
 			OSApp.Firmware.sendToOS( "/cr?pw=&t=" + JSON.stringify( runonce ) ).done( function() {
 				$.mobile.loading( "hide" );
 				$.mobile.document.one( "pageshow", function() {

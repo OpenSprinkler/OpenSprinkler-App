@@ -327,7 +327,7 @@ OSApp.Network.checkPublicAccess = function( eip ) {
 
 			// 	sites[ current ].os_ip = ip + ( port === 80 ? "" : ":" + port );
 
-			// 	OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, OSApp.Network.cloudSaveSites );
+			// 	OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, () => OSApp.Network.cloudSaveSites() );
 			// } );
 		},
 		fail
@@ -553,16 +553,16 @@ OSApp.Network.cloudSyncStart = function() {
 								OSApp.Language._( "This site is not found in the currently synced site list but may be added now." ),
 								function() {
 									sites[ OSApp.currentSession.ip ] = data.sites.Local;
-									OSApp.Storage.set( { "sites": JSON.stringify( sites ) }, OSApp.Network.cloudSaveSites );
+									OSApp.Storage.set( { "sites": JSON.stringify( sites ) }, () => OSApp.Network.cloudSaveSites() );
 									OSApp.Storage.set( { "current_site": OSApp.currentSession.ip } );
 									OSApp.Sites.updateSiteList( Object.keys( sites ), OSApp.currentSession.ip );
 								},
 								function() {
-									OSApp.Storage.remove( "cloudToken", OSApp.UIDom.updateLoginButtons );
+									OSApp.Storage.remove( "cloudToken", () => OSApp.UIDom.updateLoginButtons() );
 								}
 							 );
 						} else {
-							OSApp.Storage.set( { "sites": JSON.stringify( sites ) }, OSApp.Network.cloudSaveSites );
+							OSApp.Storage.set( { "sites": JSON.stringify( sites ) }, () => OSApp.Network.cloudSaveSites() );
 							OSApp.Storage.set( { "current_site": result } );
 							OSApp.Sites.updateSiteList( Object.keys( sites ), result );
 						}
@@ -584,7 +584,7 @@ OSApp.Network.cloudSyncStart = function() {
 							"</div>" +
 						"</div>" ),
 						finish = function() {
-							OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, OSApp.Network.cloudSaveSites );
+							OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, () => OSApp.Network.cloudSaveSites() );
 							popup.popup( "close" );
 
 							if ( page === "site-control" ) {
@@ -646,7 +646,7 @@ OSApp.Network.getTokenUser = function( token ) {
 };
 
 OSApp.Network.handleExpiredLogin = function() {
-	OSApp.Storage.remove( [ "cloudToken" ], OSApp.UIDom.updateLoginButtons );
+	OSApp.Storage.remove( [ "cloudToken" ], () => OSApp.UIDom.updateLoginButtons() );
 
 	OSApp.Notifications.addNotification( {
 		title: OSApp.Language._( "OpenSprinkler.com Login Expired" ),
@@ -762,7 +762,7 @@ OSApp.Network.changePassword = function( opt ) {
 					success = function( pass ) {
 						OSApp.currentSession.pass = pass;
 						sites[ opt.name ].os_pw = popup.find( "#save_pw" ).is( ":checked" ) ? pass : "";
-						OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, OSApp.Network.cloudSaveSites );
+						OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, () => OSApp.Network.cloudSaveSites() );
 						popup.popup( "close" );
 						opt.callback();
 					};
@@ -814,7 +814,7 @@ OSApp.Network.changePassword = function( opt ) {
 
 					sites[ data.current_site ].os_pw = npw;
 					OSApp.currentSession.pass = npw;
-					OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, OSApp.Network.cloudSaveSites );
+					OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, () => OSApp.Network.cloudSaveSites() );
 				} );
 				$.mobile.loading( "hide" );
 				popup.popup( "close" );
@@ -851,7 +851,7 @@ OSApp.Network.changePassword = function( opt ) {
 				} ).then(
 					function() {
 						sites[ current ].os_pw = OSApp.currentSession.pass = pw;
-						OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, OSApp.Network.cloudSaveSites );
+						OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, () => OSApp.Network.cloudSaveSites() );
 						opt.callback();
 					},
 					function() {

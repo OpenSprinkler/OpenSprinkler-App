@@ -37,16 +37,13 @@ OSApp.Storage.get = function( query, callback ) {
 OSApp.Storage.set = function( query, callback ) {
 	callback = callback || function() {};
 	var i;
-	if ( typeof query === "object" ) {
-		for ( i in query ) {
-			if ( Object.prototype.hasOwnProperty.call(query,  i ) ) {
-				localStorage.setItem( i, query[ i ] );
-			}
+	for ( i in query ) {
+		if ( Object.prototype.hasOwnProperty.call(query,  i ) ) {
+			localStorage.setItem( i, query[ i ] );
 		}
 	}
 
-	// Callback( true ); mellodev this causes other functions that require a callback func arg to fail
-	callback();
+	callback( true );
 };
 
 OSApp.Storage.remove = function( query, callback ) {
@@ -63,8 +60,7 @@ OSApp.Storage.remove = function( query, callback ) {
 		}
 	}
 
-	// Callback( true ); mellodev this causes other functions that require a callback func arg to fail
-	callback();
+	callback( true );
 };
 
 OSApp.Storage.loadLocalSettings = function() {

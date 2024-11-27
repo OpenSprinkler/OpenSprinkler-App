@@ -70,7 +70,7 @@ OSApp.Language.updateLang = function( lang ) {
 		return;
 	}
 
-	OSApp.Storage.set( { "lang":lang } );
+	OSApp.Storage.set( { "lang": lang } );
 	OSApp.currentSession.lang = lang;
 
 	if ( lang === "en" ) {
