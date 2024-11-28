@@ -287,7 +287,7 @@ OSApp.UIDom.launchApp = function() {
 							delete sites[ site ];
 							site = nm;
 							if ( isCurrent ) {
-								OSApp.Storage.set( { "current_site":site } );
+								OSApp.Storage.set( { "current_site": site } );
 								data.current_site = site;
 							}
 							OSApp.Sites.updateSiteList( Object.keys( sites ), data.current_site );
@@ -295,7 +295,7 @@ OSApp.UIDom.launchApp = function() {
 							//OSApp.Firmware.sendToOS( "/cv?pw=&cn=" + data.current_site );
 						}
 
-						OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, OSApp.Network.cloudSaveSites );
+						OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, () => OSApp.Network.cloudSaveSites() );
 
 						OSApp.Errors.showError( OSApp.Language._( "Site updated successfully" ) );
 
@@ -323,7 +323,7 @@ OSApp.UIDom.launchApp = function() {
 							}
 
 							delete sites[ site ];
-							OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, function() {
+							OSApp.Storage.set( { "sites": JSON.stringify( sites ) }, function() {
 								OSApp.Network.cloudSaveSites();
 								OSApp.Sites.updateSiteList( Object.keys( sites ), data.current_site );
 								if ( $.isEmptyObject( sites ) ) {
@@ -509,8 +509,8 @@ OSApp.UIDom.launchApp = function() {
 					name = button.siblings( "[id='station_" + sid + "']" ),
 					showSpecialOptions = function( value ) {
 						var opts = select.find( "#specialOpts" ),
-							data = OSApp.currentSession.controller.special && OSApp.currentSession.controller.special.hasOwnProperty( sid ) ? OSApp.currentSession.controller.special[ sid ].sd : "",
-							type  = OSApp.currentSession.controller.special && OSApp.currentSession.controller.special.hasOwnProperty( sid ) ? OSApp.currentSession.controller.special[ sid ].st : 0;
+							data = OSApp.currentSession.controller.special && Object.prototype.hasOwnProperty.call(OSApp.currentSession.controller.special,  sid ) ? OSApp.currentSession.controller.special[ sid ].sd : "",
+							type  = OSApp.currentSession.controller.special && Object.prototype.hasOwnProperty.call(OSApp.currentSession.controller.special,  sid ) ? OSApp.currentSession.controller.special[ sid ].st : 0;
 
 						opts.empty();
 
@@ -532,7 +532,7 @@ OSApp.UIDom.launchApp = function() {
 
 							opts.append(
 								"<div class='ui-bar-a ui-bar'>" + OSApp.Language._( "Remote Address" ) + ":</div>" +
-								"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='remote-address' required='true' type='text' pattern='^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$' value='" + data.ip + "'>" +
+								"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='remote-address' required='true' type='text' pattern='^(?:[0-9]{1,3}.){3}[0-9]{1,3}$' value='" + data.ip + "'>" +
 								"<div class='ui-bar-a ui-bar'>" + OSApp.Language._( "Remote Port" ) + ":</div>" +
 								"<input class='center' data-corners='false' data-wrapper-class='tight ui-btn stn-name' id='remote-port' required='true' type='number' placeholder='80' min='0' max='65535' value='" + data.port + "'>" +
 								"<div class='ui-bar-a ui-bar'>" + OSApp.Language._( "Remote Station" ) + ":</div>" +
@@ -738,7 +738,7 @@ OSApp.UIDom.launchApp = function() {
 
 						// Update the notes section
 						sites[ currentSite ].notes[ sid ] = select.find( "#stn-notes" ).val();
-						OSApp.Storage.set( { "sites": JSON.stringify( sites ) }, OSApp.Network.cloudSaveSites );
+						OSApp.Storage.set( { "sites": JSON.stringify( sites ) }, () => OSApp.Network.cloudSaveSites() );
 
 						submitStations( sid );
 						select.popup( "destroy" ).remove();
@@ -940,7 +940,7 @@ OSApp.UIDom.launchApp = function() {
 
 					OSApp.UIDom.getPicture( function( image ) {
 						sites[ currentSite ].images[ sid ] = image;
-						OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, OSApp.Network.cloudSaveSites );
+						OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, () => OSApp.Network.cloudSaveSites() );
 						updateContent();
 
 						button.innerHTML =  OSApp.Language._( "Change" ) + " " + OSApp.Language._( "Image" );
@@ -1448,7 +1448,7 @@ OSApp.UIDom.launchApp = function() {
 
 									// Save run time for this station
 									sites[ currentSite ].lastRunTime[ sid ] = duration;
-									OSApp.Storage.set( { "sites": JSON.stringify( sites ) }, OSApp.Network.cloudSaveSites );
+									OSApp.Storage.set( { "sites": JSON.stringify( sites ) }, () => OSApp.Network.cloudSaveSites() );
 								} );
 							}
 						} );
@@ -1484,13 +1484,13 @@ OSApp.UIDom.launchApp = function() {
 				if ( hasImage ) {
 					OSApp.UIDom.areYouSure( OSApp.Language._( "Do you want to delete the current image?" ), "", function() {
 						delete sites[ currentSite ].images[ id ];
-						OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, OSApp.Network.cloudSaveSites );
+						OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, () => OSApp.Network.cloudSaveSites() );
 						updateContent();
 					} );
 				} else {
 					OSApp.UIDom.getPicture( function( image ) {
 						sites[ currentSite ].images[ id ] = image;
-						OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, OSApp.Network.cloudSaveSites );
+						OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, () => OSApp.Network.cloudSaveSites() );
 						updateContent();
 					} );
 				}
@@ -1738,7 +1738,7 @@ OSApp.UIDom.launchApp = function() {
 				callback: function( result ) {
 					dur.val( result );
 					dur.text( OSApp.Dates.dhms2str( OSApp.Dates.sec2dhms( result ) ) );
-					OSApp.Storage.set( { "autoOff":result } );
+					OSApp.Storage.set( { "autoOff": result } );
 				},
 				maximum: 32768
 			} );
@@ -3188,7 +3188,7 @@ OSApp.UIDom.launchApp = function() {
 				};
 
 				for ( group in sortedData ) {
-					if ( sortedData.hasOwnProperty( group ) ) {
+					if ( Object.prototype.hasOwnProperty.call(sortedData,  group ) ) {
 						ct = sortedData[ group ].length;
 						if ( ct === 0 ) {
 							continue;
@@ -3863,6 +3863,97 @@ OSApp.UIDom.launchApp = function() {
 
 };
 
+// FIXME: This needs to be rewritten and refactored out to OSApp.Sites.showSites so it works properly (mellodev)
+OSApp.UIDom.showHomeMenu = ( function() {
+	var page, id, showHidden, popup;
+
+	function makeMenu() {
+		page = $( ".ui-page-active" );
+		id = page.attr( "id" );
+		showHidden = page.hasClass( "show-hidden" );
+		popup = $( "<div data-role='popup' data-theme='a' id='mainMenu'>" +
+			"<ul data-role='listview' data-inset='true' data-corners='false'>" +
+				"<li data-role='list-divider'>" + OSApp.Language._( "Information" ) + "</li>" +
+				"<li><a href='#preview' class='squeeze'>" + OSApp.Language._( "Preview Programs" ) + "</a></li>" +
+				( OSApp.Firmware.checkOSVersion( 206 ) || OSApp.Firmware.checkOSPiVersion( "1.9" ) ? "<li><a href='#logs'>" + OSApp.Language._( "View Logs" ) + "</a></li>" : "" ) +
+				"<li data-role='list-divider'>" + OSApp.Language._( "Programs and Settings" ) + "</li>" +
+				"<li><a href='#raindelay'>" + OSApp.Language._( "Change Rain Delay" ) + "</a></li>" +
+				( OSApp.Supported.pausing() ?
+					( OSApp.StationQueue.isPaused() ? "<li><a href='#globalpause'>" + OSApp.Language._( "Resume Station Runs" ) + "</a></li>"
+						: ( OSApp.StationQueue.isActive() >= -1 ? "<li><a href='#globalpause'>" + OSApp.Language._( "Pause Station Runs" ) + "</a></li>" : "" ) )
+					: "" ) +
+				"<li><a href='#runonce'>" + OSApp.Language._( "Run-Once Program" ) + "</a></li>" +
+				"<li><a href='#programs'>" + OSApp.Language._( "Edit Programs" ) + "</a></li>" +
+				"<li><a href='#os-options'>" + OSApp.Language._( "Edit Options" ) + "</a></li>" +
+
+				( OSApp.Analog.checkAnalogSensorAvail() ? (
+					"<li><a href='#analogsensorconfig'>" + OSApp.Language._( "Analog Sensor Config" ) + "</a></li>" +
+					"<li><a href='#analogsensorchart'>" + OSApp.Language._( "Show Sensor Log" ) + "</a></li>"
+				) : "" ) +
+
+				( OSApp.Firmware.checkOSVersion( 210 ) ? "" : "<li><a href='#manual'>" + OSApp.Language._( "Manual Control" ) + "</a></li>" ) +
+			( id === "sprinklers" || id === "runonce" || id === "programs" || id === "manual" || id === "addprogram" ?
+				"</ul>" +
+				"<div class='ui-grid-a ui-mini tight'>" +
+					"<div class='ui-block-a'><a class='ui-btn tight' href='#show-hidden'>" +
+						( showHidden ? OSApp.Language._( "Hide" ) : OSApp.Language._( "Show" ) ) + " " + OSApp.Language._( "Disabled" ) +
+					"</a></div>" +
+					"<div class='ui-block-b'><a class='ui-btn red tight' href='#stop-all'>" + OSApp.Language._( "Stop All Stations" ) + "</a></div>" +
+				"</div>"
+				: "<li><a class='ui-btn red' href='#stop-all'>" + OSApp.Language._( "Stop All Stations" ) + "</a></li></ul>" ) +
+		"</div>" );
+	}
+
+	function begin( btn ) {
+		btn = btn instanceof $ ? btn : $( btn );
+
+		$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
+
+		makeMenu();
+
+		popup.on( "click", "a", function() {
+			var clicked = $( this ),
+				href = clicked.attr( "href" );
+
+			popup.popup( "close" );
+
+			if ( href === "#stop-all" ) {
+				OSApp.Stations.stopAllStations();
+			} else if ( href === "#show-hidden" ) {
+				if ( showHidden ) {
+					$( ".station-hidden" ).hide();
+					page.removeClass( "show-hidden" );
+				} else {
+					$( ".station-hidden" ).show();
+					page.addClass( "show-hidden" );
+				}
+			} else if ( href === "#raindelay" ) {
+				OSApp.Weather.showRainDelay();
+			} else if ( href === "#globalpause" ) {
+				OSApp.UIDom.showPause();
+			} else {
+				OSApp.UIDom.checkChanges( function() {
+					OSApp.UIDom.changePage( href );
+				} );
+			}
+
+			return false;
+		} );
+
+		$( "#mainMenu" ).remove();
+
+		popup.one( "popupafterclose", function() {
+			btn.show();
+		} );
+
+		OSApp.UIDom.openPopup( popup, { positionTo: btn } );
+
+		btn.hide();
+	}
+
+	return begin;
+} )();
+
 OSApp.UIDom.initAppData = function() {
 
 	//Update the language on the page using the browser's locale
@@ -3961,97 +4052,6 @@ OSApp.UIDom.initAppData = function() {
 		}
 	} );
 
-	// FIXME: This needs to be rewritten and refactored out to OSApp.Sites.showSites so it works properly (mellodev)
-	var showHomeMenu = ( function() {
-		var page, id, showHidden, popup;
-
-		function makeMenu() {
-			page = $( ".ui-page-active" );
-			id = page.attr( "id" );
-			showHidden = page.hasClass( "show-hidden" );
-			popup = $( "<div data-role='popup' data-theme='a' id='mainMenu'>" +
-				"<ul data-role='listview' data-inset='true' data-corners='false'>" +
-					"<li data-role='list-divider'>" + OSApp.Language._( "Information" ) + "</li>" +
-					"<li><a href='#preview' class='squeeze'>" + OSApp.Language._( "Preview Programs" ) + "</a></li>" +
-					( OSApp.Firmware.checkOSVersion( 206 ) || OSApp.Firmware.checkOSPiVersion( "1.9" ) ? "<li><a href='#logs'>" + OSApp.Language._( "View Logs" ) + "</a></li>" : "" ) +
-					"<li data-role='list-divider'>" + OSApp.Language._( "Programs and Settings" ) + "</li>" +
-					"<li><a href='#raindelay'>" + OSApp.Language._( "Change Rain Delay" ) + "</a></li>" +
-					( OSApp.Supported.pausing() ?
-						( OSApp.StationQueue.isPaused() ? "<li><a href='#globalpause'>" + OSApp.Language._( "Resume Station Runs" ) + "</a></li>"
-							: ( OSApp.StationQueue.isActive() >= -1 ? "<li><a href='#globalpause'>" + OSApp.Language._( "Pause Station Runs" ) + "</a></li>" : "" ) )
-						: "" ) +
-					"<li><a href='#runonce'>" + OSApp.Language._( "Run-Once Program" ) + "</a></li>" +
-					"<li><a href='#programs'>" + OSApp.Language._( "Edit Programs" ) + "</a></li>" +
-					"<li><a href='#os-options'>" + OSApp.Language._( "Edit Options" ) + "</a></li>" +
-
-					( OSApp.Analog.checkAnalogSensorAvail() ? (
-						"<li><a href='#analogsensorconfig'>" + OSApp.Language._( "Analog Sensor Config" ) + "</a></li>" +
-						"<li><a href='#analogsensorchart'>" + OSApp.Language._( "Show Sensor Log" ) + "</a></li>"
-					) : "" ) +
-
-					( OSApp.Firmware.checkOSVersion( 210 ) ? "" : "<li><a href='#manual'>" + OSApp.Language._( "Manual Control" ) + "</a></li>" ) +
-				( id === "sprinklers" || id === "runonce" || id === "programs" || id === "manual" || id === "addprogram" ?
-					"</ul>" +
-					"<div class='ui-grid-a ui-mini tight'>" +
-						"<div class='ui-block-a'><a class='ui-btn tight' href='#show-hidden'>" +
-							( showHidden ? OSApp.Language._( "Hide" ) : OSApp.Language._( "Show" ) ) + " " + OSApp.Language._( "Disabled" ) +
-						"</a></div>" +
-						"<div class='ui-block-b'><a class='ui-btn red tight' href='#stop-all'>" + OSApp.Language._( "Stop All Stations" ) + "</a></div>" +
-					"</div>"
-					: "<li><a class='ui-btn red' href='#stop-all'>" + OSApp.Language._( "Stop All Stations" ) + "</a></li></ul>" ) +
-			"</div>" );
-		}
-
-		function begin( btn ) {
-			btn = btn instanceof $ ? btn : $( btn );
-
-			$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
-
-			makeMenu();
-
-			popup.on( "click", "a", function() {
-				var clicked = $( this ),
-					href = clicked.attr( "href" );
-
-				popup.popup( "close" );
-
-				if ( href === "#stop-all" ) {
-					OSApp.Stations.stopAllStations();
-				} else if ( href === "#show-hidden" ) {
-					if ( showHidden ) {
-						$( ".station-hidden" ).hide();
-						page.removeClass( "show-hidden" );
-					} else {
-						$( ".station-hidden" ).show();
-						page.addClass( "show-hidden" );
-					}
-				} else if ( href === "#raindelay" ) {
-					OSApp.Weather.showRainDelay();
-				} else if ( href === "#globalpause" ) {
-					OSApp.UIDom.showPause();
-				} else {
-					OSApp.UIDom.checkChanges( function() {
-						OSApp.UIDom.changePage( href );
-					} );
-				}
-
-				return false;
-			} );
-
-			$( "#mainMenu" ).remove();
-
-			popup.one( "popupafterclose", function() {
-				btn.show();
-			} );
-
-			OSApp.UIDom.openPopup( popup, { positionTo: btn } );
-
-			btn.hide();
-		}
-
-		return begin;
-	} )();
-
 	// Extend collapsible widget with event before change
 	$.widget( "mobile.collapsible", $.mobile.collapsible, {
 		_handleExpandCollapse: function( isCollapse ) {
@@ -4068,7 +4068,7 @@ OSApp.UIDom.initAppData = function() {
 
 	// Bind footer menu button
 	$( "#footer-menu" ).on( "click", function() {
-		showHomeMenu( this );
+		OSApp.UIDom.showHomeMenu( this );
 	} );
 
 	// Initialize the app header
@@ -4097,7 +4097,7 @@ OSApp.UIDom.initAppData = function() {
 			if ( menu.length > 0 ) {
 				$( "#mainMenu" ).popup( "close" );
 			} else {
-				showHomeMenu();
+				OSApp.UIDom.showHomeMenu();
 			}
 		} else if ( ( menuOpen || altDown ) && code === 80 ) { // P
 			e.preventDefault();
@@ -5464,7 +5464,7 @@ OSApp.UIDom.updateTimers = function() {
 		}
 
 		for ( var timer in OSApp.uiState.timers ) {
-			if ( OSApp.uiState.timers.hasOwnProperty( timer ) ) {
+			if ( Object.prototype.hasOwnProperty.call(OSApp.uiState.timers,  timer ) ) {
 				if ( OSApp.uiState.timers[ timer ].val <= 0 ) {
 					if ( timer === "statusbar" ) {
 						OSApp.UIDom.showLoading( "#footer-running" );

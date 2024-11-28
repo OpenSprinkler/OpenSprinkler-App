@@ -117,23 +117,12 @@ This project uses Grunt to automate various development tasks. Here are some of 
 
 *   **`grunt eslint`**: Checks JavaScript code for potential errors and style issues.
 *   **`grunt csslint`**: Analyzes CSS code for potential errors and style issues.
-*   **`grunt blanket_mocha`**: Runs tests using Mocha and Blanket.js to generate code coverage reports.
 
 **Building and Deployment**
 
 *   **`grunt compress:makeFW`**: Creates a ZIP archive of the application files for firmware updates.
-*   **`grunt shell:updateUI`**: Updates the UI on the OpenSprinkler device by transferring the ZIP archive.
-*   **`grunt shell:updateBetaUI`**: Updates the UI on a beta OpenSprinkler device.
 
 **Localization**
 
 *   **`grunt shell:pushEng`**: Extracts English strings for translation, pushes them to Transifex, and updates the English PO file.
 *   **`grunt shell:updateLang`**: Pulls translations from Transifex and updates the language files.
-
-**Other**
-
-*   **`grunt shell:startDemo`**: Starts a demo instance of the OpenSprinkler app.
-*   **`grunt shell:stopDemo`**: Stops the demo instance.
-*   **`grunt bump`**: Bumps the version number in various files (source code, Cordova config, and package.json) and push commit
-*   **`grunt bump-version`**: Bumps the version number in various files (source code, Cordova config, and package.json). Does not commit or push!
-

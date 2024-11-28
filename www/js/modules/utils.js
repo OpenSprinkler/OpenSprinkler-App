@@ -119,7 +119,7 @@ OSApp.Utils.sortObj = function( obj, type ) {
 	var tempArray = [];
 
 	for ( var key in obj ) {
-		if ( obj.hasOwnProperty( key ) ) {
+		if ( Object.prototype.hasOwnProperty.call(obj,  key ) ) {
 			tempArray.push( key );
 		}
 	}

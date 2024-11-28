@@ -61,7 +61,7 @@ OSApp.Sites.updateSiteList = function( names, current ) {
 OSApp.Sites.findLocalSiteName = function( sites, callback ) {
 	callback = callback || function() {};
 	for ( var site in sites ) {
-		if ( sites.hasOwnProperty( site ) ) {
+		if ( Object.prototype.hasOwnProperty.call(sites,  site ) ) {
 			if ( OSApp.currentSession.ip.indexOf( sites[ site ].os_ip ) !== -1 ) {
 				callback( site );
 				return;
@@ -675,7 +675,7 @@ OSApp.Sites.updateControllerPrograms = function( callback ) {
 
 		// If the controller is using firmware 1.8.3, then parse the script tag for variables
 		return OSApp.Firmware.sendToOS( "/gp?d=0" ).done( function( programs ) {
-			var vars = programs.match( /(nprogs|nboards|mnp)=[\w|\d|.\"]+/g ),
+			var vars = programs.match( /(nprogs|nboards|mnp)=[\w|\d|."]+/g ),
 				progs = /pd=\[\];(.*);/.exec( programs ),
 				newdata = {}, tmp, prog;
 
@@ -752,7 +752,7 @@ OSApp.Sites.updateControllerOptions = function( callback ) {
 				vars = {}, tmp, i, o;
 
 			if ( isOSPi ) {
-				var varsRegex = /(tz|htp|htp2|nbrd|seq|sdt|mas|mton|mtoff|urs|rst|wl|ipas)\s?[=|:]\s?([\w|\d|.\"]+)/gm,
+				var varsRegex = /(tz|htp|htp2|nbrd|seq|sdt|mas|mton|mtoff|urs|rst|wl|ipas)\s?[=|:]\s?([\w|\d|."]+)/gm,
 					name;
 
 				while ( ( tmp = varsRegex.exec( options ) ) !== null ) {
@@ -821,8 +821,8 @@ OSApp.Sites.updateControllerSettings = function( callback ) {
 		// If the controller is using firmware 1.8.3, then parse the script tag for variables
 		return OSApp.Firmware.sendToOS( "" ).then(
 			function( settings ) {
-				var varsRegex = /(ver|devt|nbrd|tz|en|rd|rs|mm|rdst|urs)\s?[=|:]\s?([\w|\d|.\"]+)/gm,
-					loc = settings.match( /loc\s?[=|:]\s?[\"|'](.*)[\"|']/ ),
+				var varsRegex = /(ver|devt|nbrd|tz|en|rd|rs|mm|rdst|urs)\s?[=|:]\s?([\w|\d|."]+)/gm,
+					loc = settings.match( /loc\s?[=|:]\s?["|'](.*)["|']/ ),
 					lrun = settings.match( /lrun=\[(.*)\]/ ),
 					ps = settings.match( /ps=\[(.*)\];/ ),
 					vars = {}, tmp, i;
@@ -970,7 +970,7 @@ OSApp.Sites.updateSite = function( newsite ) {
 		var sites = OSApp.Sites.parseSites( data.sites );
 		if ( newsite in sites ) {
 			OSApp.UIDom.closePanel( function() {
-				OSApp.Storage.set( { "current_site":newsite }, OSApp.Sites.checkConfigured );
+				OSApp.Storage.set( { "current_site":newsite }, () => OSApp.Sites.checkConfigured() );
 			} );
 		}
 	} );
@@ -993,7 +993,7 @@ OSApp.Sites.fixPasswordHash = function( current ) {
 					return false;
 				} else {
 					sites[ current ].os_pw = OSApp.currentSession.pass = pw;
-					OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, OSApp.Network.cloudSaveSites );
+					OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, () => OSApp.Network.cloudSaveSites() );
 				}
 			} );
 		}

@@ -150,7 +150,7 @@ OSApp.Status.checkStatus = function() {
 		ptotal = 0;
 
 		for ( i in open ) {
-			if ( open.hasOwnProperty( i ) ) {
+			if ( Object.prototype.hasOwnProperty.call(open,  i ) ) {
 				tmp = OSApp.Stations.getRemainingRuntime( i );
 				if ( tmp > ptotal ) {
 					ptotal = tmp;

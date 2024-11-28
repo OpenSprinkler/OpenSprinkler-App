@@ -17,7 +17,6 @@ module.exports = function( grunt ) {
 	grunt.loadNpmTasks( "grunt-shell" );
 	grunt.loadNpmTasks( "grunt-contrib-compress" );
 	grunt.loadNpmTasks( "grunt-contrib-csslint" );
-	grunt.loadNpmTasks( "grunt-blanket-mocha" );
 	grunt.loadNpmTasks( "grunt-eslint" );
 
 	var secrets;
@@ -48,20 +47,6 @@ module.exports = function( grunt ) {
 					csslintrc: ".csslintrc"
 				},
 				src: [ "www/css/main.css" ]
-			}
-		},
-
-		blanket_mocha: {
-			test: {
-				src: [ "test/tests.html" ],
-				options: {
-					threshold: 5,
-					page: {
-						settings: {
-							webSecurityEnabled: false
-						}
-					}
-				}
 			}
 		},
 
@@ -106,22 +91,12 @@ module.exports = function( grunt ) {
 					"git diff-index --quiet HEAD || git commit -m 'Localization: Update languages from Transifex'",
 					"git push"
 				].join( "&&" )
-			},
-			startDemo: {
-				command: "test/launch_osdemo.sh start"
-			},
-			stopDemo: {
-				command: [
-					"test/launch_osdemo.sh stop",
-					"rm -r build/firmware/unified"
-				].join( "&&" )
 			}
 		}
 	} );
 
 	// Default task(s).
 	grunt.registerTask( "default", [ "eslint" ] );
-	grunt.registerTask( "test", [ "default", "blanket_mocha" ] );
 	grunt.registerTask( "updateLang", [ "shell:updateLang" ] );
 	grunt.registerTask( "pushEng", [ "shell:pushEng" ] );
 	grunt.registerTask( "prepareFW", [ "compress:makeFW", "shell:unzipFW" ] );

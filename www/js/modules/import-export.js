@@ -48,7 +48,7 @@ OSApp.ImportExport.getExportMethod = function() {
 
 	popup.find( ".localMethod" ).on( "click", function() {
 		popup.popup( "close" );
-		OSApp.Storage.set( { "backup":JSON.stringify( OSApp.currentSession.controller ) }, function() {
+		OSApp.Storage.set( { "backup": JSON.stringify( OSApp.currentSession.controller ) }, function() {
 			OSApp.Errors.showError( OSApp.Language._( "Backup saved on this device" ) );
 		} );
 	} );
@@ -184,7 +184,7 @@ OSApp.ImportExport.importConfig = function( data ) {
 		var findKey = function( index ) { return OSApp.Constants.keyIndex[ index ] === key; };
 
 		for ( i in data.options ) {
-			if ( data.options.hasOwnProperty( i ) && OSApp.Constants.keyIndex.hasOwnProperty( i ) ) {
+			if ( Object.prototype.hasOwnProperty.call(data.options,  i ) && Object.prototype.hasOwnProperty.call(OSApp.Constants.keyIndex,  i ) ) {
 				key = OSApp.Constants.keyIndex[ i ];
 				if ( $.inArray( key, [ 2, 14, 16, 21, 22, 25, 36 ] ) !== -1 && data.options[ i ] === 0 ) {
 					continue;

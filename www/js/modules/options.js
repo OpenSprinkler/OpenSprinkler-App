@@ -538,7 +538,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 				"<tr style='width:100%;vertical-align: top;'>" +
 					"<td style='width:100%'>" +
 						"<div class='ui-input-text controlgroup-textinput ui-btn ui-body-inherit ui-corner-all ui-mini ui-shadow-inset ui-input-has-clear'>" +
-							"<input data-role='none' data-mini='true' type='number' pattern='^[-+]?[0-9]*\.?[0-9]*$' id='o41' value='" + ( ( OSApp.currentSession.controller.options.fpr1 * 256 + OSApp.currentSession.controller.options.fpr0 ) / 100 ) + "'>" +
+							"<input data-role='none' data-mini='true' type='number' pattern='^[-+]?[0-9]*.?[0-9]*$' id='o41' value='" + ( ( OSApp.currentSession.controller.options.fpr1 * 256 + OSApp.currentSession.controller.options.fpr0 ) / 100 ) + "'>" +
 						"</div>" +
 					"</td>" +
 					"<td class='tight-select'>" +
@@ -1041,7 +1041,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 				sites[ data.current_site ].images = {};
 				sites[ data.current_site ].lastRunTime = {};
 
-				OSApp.Storage.set( { "sites": JSON.stringify( sites ) }, OSApp.Network.cloudSaveSites );
+				OSApp.Storage.set( { "sites": JSON.stringify( sites ) }, () => OSApp.Network.cloudSaveSites() );
 			} );
 			OSApp.Firmware.sendToOS( "/cs?pw=&" + cs ).done( function() {
 				OSApp.Errors.showError( OSApp.Language._( "Stations have been updated" ) );
@@ -1681,7 +1681,7 @@ OSApp.Options.coordsToLocation = function( lat, lon, callback, fallback ) {
 		var hasEnd = false;
 
 		for ( var item in data ) {
-			if ( data.hasOwnProperty( item ) ) {
+			if ( Object.prototype.hasOwnProperty.call(data,  item ) ) {
 				if ( $.inArray( "locality", data[ item ].types ) > -1 ||
 					 $.inArray( "sublocality", data[ item ].types ) > -1 ||
 					 $.inArray( "postal_code", data[ item ].types ) > -1 ||
@@ -1705,7 +1705,7 @@ OSApp.Options.coordsToLocation = function( lat, lon, callback, fallback ) {
 		hasEnd = false;
 
 		for ( item in data ) {
-			if ( data.hasOwnProperty( item ) && !hasEnd ) {
+			if ( Object.prototype.hasOwnProperty.call(data,  item ) && !hasEnd ) {
 				if ( location === "" && $.inArray( "locality", data[ item ].types ) > -1 ) {
 					location = data[ item ].long_name + ", " + location;
 				}

@@ -21,7 +21,7 @@ OSApp.Language = OSApp.Language || {};
 OSApp.Language._ = function( key ) {
 
 	//Translate item (key) based on currently defined language
-	if ( typeof OSApp.uiState.language === "object" && OSApp.uiState.language.hasOwnProperty( key ) ) {
+	if ( typeof OSApp.uiState.language === "object" && Object.prototype.hasOwnProperty.call(OSApp.uiState.language,  key ) ) {
 		var trans = OSApp.uiState.language[ key ];
 		return trans ? trans : key;
 	} else {
@@ -70,7 +70,7 @@ OSApp.Language.updateLang = function( lang ) {
 		return;
 	}
 
-	OSApp.Storage.set( { "lang":lang } );
+	OSApp.Storage.set( { "lang": lang } );
 	OSApp.currentSession.lang = lang;
 
 	if ( lang === "en" ) {
