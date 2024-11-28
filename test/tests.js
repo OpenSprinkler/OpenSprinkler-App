@@ -163,8 +163,8 @@ describe("General Function Checks", function () {
 	});
 
 	it("OSApp.Dates.getDayName(day,type) should return the day of the week and can be of type 'short'", function () {
-		assert.equal("Sunday", OSApp.Dates.getDayName(new Date(1410745528126)));
-		assert.equal("Thu", OSApp.Dates.getDayName(new Date(1410445528126), "short"));
+		assert.equal("Monday", OSApp.Dates.getDayName(new Date(Date.UTC(2014, 8, 15, 12, 45, 28))));
+		assert.equal("Thu", OSApp.Dates.getDayName(new Date(Date.UTC(2014, 8, 11, 12, 45, 28)), "short"));
 	});
 
 	it("OSApp.Utils.pad(number) should successfully prepend a 0 to a single digit", function () {
