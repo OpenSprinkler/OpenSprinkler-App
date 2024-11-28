@@ -3863,6 +3863,97 @@ OSApp.UIDom.launchApp = function() {
 
 };
 
+// FIXME: This needs to be rewritten and refactored out to OSApp.Sites.showSites so it works properly (mellodev)
+OSApp.UIDom.showHomeMenu = ( function() {
+	var page, id, showHidden, popup;
+
+	function makeMenu() {
+		page = $( ".ui-page-active" );
+		id = page.attr( "id" );
+		showHidden = page.hasClass( "show-hidden" );
+		popup = $( "<div data-role='popup' data-theme='a' id='mainMenu'>" +
+			"<ul data-role='listview' data-inset='true' data-corners='false'>" +
+				"<li data-role='list-divider'>" + OSApp.Language._( "Information" ) + "</li>" +
+				"<li><a href='#preview' class='squeeze'>" + OSApp.Language._( "Preview Programs" ) + "</a></li>" +
+				( OSApp.Firmware.checkOSVersion( 206 ) || OSApp.Firmware.checkOSPiVersion( "1.9" ) ? "<li><a href='#logs'>" + OSApp.Language._( "View Logs" ) + "</a></li>" : "" ) +
+				"<li data-role='list-divider'>" + OSApp.Language._( "Programs and Settings" ) + "</li>" +
+				"<li><a href='#raindelay'>" + OSApp.Language._( "Change Rain Delay" ) + "</a></li>" +
+				( OSApp.Supported.pausing() ?
+					( OSApp.StationQueue.isPaused() ? "<li><a href='#globalpause'>" + OSApp.Language._( "Resume Station Runs" ) + "</a></li>"
+						: ( OSApp.StationQueue.isActive() >= -1 ? "<li><a href='#globalpause'>" + OSApp.Language._( "Pause Station Runs" ) + "</a></li>" : "" ) )
+					: "" ) +
+				"<li><a href='#runonce'>" + OSApp.Language._( "Run-Once Program" ) + "</a></li>" +
+				"<li><a href='#programs'>" + OSApp.Language._( "Edit Programs" ) + "</a></li>" +
+				"<li><a href='#os-options'>" + OSApp.Language._( "Edit Options" ) + "</a></li>" +
+
+				( OSApp.Analog.checkAnalogSensorAvail() ? (
+					"<li><a href='#analogsensorconfig'>" + OSApp.Language._( "Analog Sensor Config" ) + "</a></li>" +
+					"<li><a href='#analogsensorchart'>" + OSApp.Language._( "Show Sensor Log" ) + "</a></li>"
+				) : "" ) +
+
+				( OSApp.Firmware.checkOSVersion( 210 ) ? "" : "<li><a href='#manual'>" + OSApp.Language._( "Manual Control" ) + "</a></li>" ) +
+			( id === "sprinklers" || id === "runonce" || id === "programs" || id === "manual" || id === "addprogram" ?
+				"</ul>" +
+				"<div class='ui-grid-a ui-mini tight'>" +
+					"<div class='ui-block-a'><a class='ui-btn tight' href='#show-hidden'>" +
+						( showHidden ? OSApp.Language._( "Hide" ) : OSApp.Language._( "Show" ) ) + " " + OSApp.Language._( "Disabled" ) +
+					"</a></div>" +
+					"<div class='ui-block-b'><a class='ui-btn red tight' href='#stop-all'>" + OSApp.Language._( "Stop All Stations" ) + "</a></div>" +
+				"</div>"
+				: "<li><a class='ui-btn red' href='#stop-all'>" + OSApp.Language._( "Stop All Stations" ) + "</a></li></ul>" ) +
+		"</div>" );
+	}
+
+	function begin( btn ) {
+		btn = btn instanceof $ ? btn : $( btn );
+
+		$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
+
+		makeMenu();
+
+		popup.on( "click", "a", function() {
+			var clicked = $( this ),
+				href = clicked.attr( "href" );
+
+			popup.popup( "close" );
+
+			if ( href === "#stop-all" ) {
+				OSApp.Stations.stopAllStations();
+			} else if ( href === "#show-hidden" ) {
+				if ( showHidden ) {
+					$( ".station-hidden" ).hide();
+					page.removeClass( "show-hidden" );
+				} else {
+					$( ".station-hidden" ).show();
+					page.addClass( "show-hidden" );
+				}
+			} else if ( href === "#raindelay" ) {
+				OSApp.Weather.showRainDelay();
+			} else if ( href === "#globalpause" ) {
+				OSApp.UIDom.showPause();
+			} else {
+				OSApp.UIDom.checkChanges( function() {
+					OSApp.UIDom.changePage( href );
+				} );
+			}
+
+			return false;
+		} );
+
+		$( "#mainMenu" ).remove();
+
+		popup.one( "popupafterclose", function() {
+			btn.show();
+		} );
+
+		OSApp.UIDom.openPopup( popup, { positionTo: btn } );
+
+		btn.hide();
+	}
+
+	return begin;
+} )();
+
 OSApp.UIDom.initAppData = function() {
 
 	//Update the language on the page using the browser's locale
@@ -3961,97 +4052,6 @@ OSApp.UIDom.initAppData = function() {
 		}
 	} );
 
-	// FIXME: This needs to be rewritten and refactored out to OSApp.Sites.showSites so it works properly (mellodev)
-	var showHomeMenu = ( function() {
-		var page, id, showHidden, popup;
-
-		function makeMenu() {
-			page = $( ".ui-page-active" );
-			id = page.attr( "id" );
-			showHidden = page.hasClass( "show-hidden" );
-			popup = $( "<div data-role='popup' data-theme='a' id='mainMenu'>" +
-				"<ul data-role='listview' data-inset='true' data-corners='false'>" +
-					"<li data-role='list-divider'>" + OSApp.Language._( "Information" ) + "</li>" +
-					"<li><a href='#preview' class='squeeze'>" + OSApp.Language._( "Preview Programs" ) + "</a></li>" +
-					( OSApp.Firmware.checkOSVersion( 206 ) || OSApp.Firmware.checkOSPiVersion( "1.9" ) ? "<li><a href='#logs'>" + OSApp.Language._( "View Logs" ) + "</a></li>" : "" ) +
-					"<li data-role='list-divider'>" + OSApp.Language._( "Programs and Settings" ) + "</li>" +
-					"<li><a href='#raindelay'>" + OSApp.Language._( "Change Rain Delay" ) + "</a></li>" +
-					( OSApp.Supported.pausing() ?
-						( OSApp.StationQueue.isPaused() ? "<li><a href='#globalpause'>" + OSApp.Language._( "Resume Station Runs" ) + "</a></li>"
-							: ( OSApp.StationQueue.isActive() >= -1 ? "<li><a href='#globalpause'>" + OSApp.Language._( "Pause Station Runs" ) + "</a></li>" : "" ) )
-						: "" ) +
-					"<li><a href='#runonce'>" + OSApp.Language._( "Run-Once Program" ) + "</a></li>" +
-					"<li><a href='#programs'>" + OSApp.Language._( "Edit Programs" ) + "</a></li>" +
-					"<li><a href='#os-options'>" + OSApp.Language._( "Edit Options" ) + "</a></li>" +
-
-					( OSApp.Analog.checkAnalogSensorAvail() ? (
-						"<li><a href='#analogsensorconfig'>" + OSApp.Language._( "Analog Sensor Config" ) + "</a></li>" +
-						"<li><a href='#analogsensorchart'>" + OSApp.Language._( "Show Sensor Log" ) + "</a></li>"
-					) : "" ) +
-
-					( OSApp.Firmware.checkOSVersion( 210 ) ? "" : "<li><a href='#manual'>" + OSApp.Language._( "Manual Control" ) + "</a></li>" ) +
-				( id === "sprinklers" || id === "runonce" || id === "programs" || id === "manual" || id === "addprogram" ?
-					"</ul>" +
-					"<div class='ui-grid-a ui-mini tight'>" +
-						"<div class='ui-block-a'><a class='ui-btn tight' href='#show-hidden'>" +
-							( showHidden ? OSApp.Language._( "Hide" ) : OSApp.Language._( "Show" ) ) + " " + OSApp.Language._( "Disabled" ) +
-						"</a></div>" +
-						"<div class='ui-block-b'><a class='ui-btn red tight' href='#stop-all'>" + OSApp.Language._( "Stop All Stations" ) + "</a></div>" +
-					"</div>"
-					: "<li><a class='ui-btn red' href='#stop-all'>" + OSApp.Language._( "Stop All Stations" ) + "</a></li></ul>" ) +
-			"</div>" );
-		}
-
-		function begin( btn ) {
-			btn = btn instanceof $ ? btn : $( btn );
-
-			$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
-
-			makeMenu();
-
-			popup.on( "click", "a", function() {
-				var clicked = $( this ),
-					href = clicked.attr( "href" );
-
-				popup.popup( "close" );
-
-				if ( href === "#stop-all" ) {
-					OSApp.Stations.stopAllStations();
-				} else if ( href === "#show-hidden" ) {
-					if ( showHidden ) {
-						$( ".station-hidden" ).hide();
-						page.removeClass( "show-hidden" );
-					} else {
-						$( ".station-hidden" ).show();
-						page.addClass( "show-hidden" );
-					}
-				} else if ( href === "#raindelay" ) {
-					OSApp.Weather.showRainDelay();
-				} else if ( href === "#globalpause" ) {
-					OSApp.UIDom.showPause();
-				} else {
-					OSApp.UIDom.checkChanges( function() {
-						OSApp.UIDom.changePage( href );
-					} );
-				}
-
-				return false;
-			} );
-
-			$( "#mainMenu" ).remove();
-
-			popup.one( "popupafterclose", function() {
-				btn.show();
-			} );
-
-			OSApp.UIDom.openPopup( popup, { positionTo: btn } );
-
-			btn.hide();
-		}
-
-		return begin;
-	} )();
-
 	// Extend collapsible widget with event before change
 	$.widget( "mobile.collapsible", $.mobile.collapsible, {
 		_handleExpandCollapse: function( isCollapse ) {
@@ -4068,7 +4068,7 @@ OSApp.UIDom.initAppData = function() {
 
 	// Bind footer menu button
 	$( "#footer-menu" ).on( "click", function() {
-		showHomeMenu( this );
+		OSApp.UIDom.showHomeMenu( this );
 	} );
 
 	// Initialize the app header
@@ -4097,7 +4097,7 @@ OSApp.UIDom.initAppData = function() {
 			if ( menu.length > 0 ) {
 				$( "#mainMenu" ).popup( "close" );
 			} else {
-				showHomeMenu();
+				OSApp.UIDom.showHomeMenu();
 			}
 		} else if ( ( menuOpen || altDown ) && code === 80 ) { // P
 			e.preventDefault();

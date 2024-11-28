@@ -279,27 +279,26 @@ describe("Page Navigation Checks", function () {
 
 describe("Popup Checks", function () {
 
-	// 20241121 commented by mellodev (refactor how showHomeMenu works)
-	// it( "Show main menu popup", function( done ) {
-	// 	$.mobile.document.one( "popupafteropen", "#mainMenu", function() {
-	// 		done();
-	// 	} );
-	// 	assert.doesNotThrow( function() {
-	// 		OSApp.UIDom.showHomeMenu();
-	// 	} );
-	// } );
+	it( "Show main menu popup", function( done ) {
+		$.mobile.document.one( "popupafteropen", "#mainMenu", function() {
+			done();
+		} );
+		assert.doesNotThrow( function() {
+			OSApp.UIDom.showHomeMenu();
+		} );
+	} );
 
-	// it( "Show change rain delay popup", function( done ) {
-	// 	$.mobile.document.one( "popupafteropen", "#durationBox", function() {
-	// 		$.mobile.document.one( "popupafterclose", "#durationBox", function() {
-	// 			done();
-	// 		} );
-	// 		$( "#durationBox" ).popup( "close" ).remove();
-	// 	} );
-	// 	assert.doesNotThrow( function() {
-	// 		$( "#mainMenu" ).find( "a[href='#raindelay']" ).trigger( "click" );
-	// 	} );
-	// } );
+	it( "Show change rain delay popup", function( done ) {
+		$.mobile.document.one( "popupafteropen", "#durationBox", function() {
+			$.mobile.document.one( "popupafterclose", "#durationBox", function() {
+				done();
+			} );
+			$( "#durationBox" ).popup( "close" ).remove();
+		} );
+		assert.doesNotThrow( function() {
+			$( "#mainMenu" ).find( "a[href='#raindelay']" ).trigger( "click" );
+		} );
+	} );
 
 	it("Show add new site popup", function (done) {
 		$.mobile.document.one("popupafteropen", "#addnew", function () {
