@@ -1,8 +1,8 @@
-
-<img align="left" height="150" src="http://albahra.com/opensprinkler/icon-new.png">
-
 # OpenSprinkler App
-[![GitHub version](https://img.shields.io/github/package-json/v/opensprinkler/opensprinkler-app.svg)](http://github.com/OpenSprinkler/OpenSprinkler-App)
+
+<img align="left" height="150" style="padding:10px" src="http://albahra.com/opensprinkler/icon-new.png">
+
+[![GitHub version](https://img.shields.io/github/v/release/OpenSprinkler/OpenSprinkler-App)](http://github.com/OpenSprinkler/OpenSprinkler-App)
 [![License](https://img.shields.io/github/license/OpenSprinkler/OpenSprinkler-App)](LICENSE)
 
 [Official Site][official] | [Support][help] | [Changelog][changelog]
@@ -11,12 +11,10 @@
 
 A mobile interface for the OpenSprinkler irrigation device. This app provides manual control, program management, run-once programs, device status viewing, rain delay adjustment, and OpenSprinkler settings changes.
 
-
 [official]: https://opensprinkler.com
 [help]: http://support.opensprinkler.com
 [changelog]: https://github.com/OpenSprinkler/OpenSprinkler-App/releases
 [salbahra]: http://albahra.com
-
 
 ## Features
 
@@ -26,7 +24,6 @@ A mobile interface for the OpenSprinkler irrigation device. This app provides ma
 * **Device Status:** Monitor the status of your OpenSprinkler device in real-time.
 * **Rain Delay:** Adjust the rain delay to avoid overwatering during rainy periods.
 * **Settings:** Customize OpenSprinkler settings directly from the app.
-
 
 ## Getting Started
 
@@ -43,9 +40,9 @@ A mobile interface for the OpenSprinkler irrigation device. This app provides ma
 
 **Instructions:**
 
-1.  Download and install the OpenSprinkler app on your device.
-2.  Connect your mobile device to the same network as your OpenSprinkler device.
-3.  Launch the app and follow the on-screen instructions to connect to your OpenSprinkler.
+1. Download and install the OpenSprinkler app on your device.
+2. Connect your mobile device to the same network as your OpenSprinkler device.
+3. Launch the app and follow the on-screen instructions to connect to your OpenSprinkler.
 
 <br>
 
@@ -58,7 +55,6 @@ A mobile interface for the OpenSprinkler irrigation device. This app provides ma
   <a href="https://albahra.com/opensprinkler/img/runonce.png"><img src="https://albahra.com/opensprinkler/img/runonce.png" width="150" alt="Screenshot of the OpenSprinkler app run once screen"/></a>
 </p>
 <br>
-
 
 ## Unified Firmware
 
@@ -75,26 +71,25 @@ Starting with firmware 2.0.3, an option has been added to change the Javascript 
 
 If you encounter any issues, please check the following resources:
 
-*   **[Support Forum](https://opensprinkler.com/forums/forum/opensprinkler-mobile-app/)**: Search for existing solutions or ask for help.
-*   **[GitHub Issues](https://github.com/OpenSprinkler/OpenSprinkler-App/issues)**: Check for known issues or report a new one.
+* **[Support Forum](https://opensprinkler.com/forums/forum/opensprinkler-mobile-app/)**: Search for existing solutions or ask for help.
+* **[GitHub Issues](https://github.com/OpenSprinkler/OpenSprinkler-App/issues)**: Check for known issues or report a new one.
 
 Before reporting an issue, please provide the following information:
 
-*   **App version:**
-*   **OpenSprinkler firmware version:**
-*   **Device type:** (e.g., iPhone, Android, etc.)
-*   **Steps to reproduce the issue:**
-*   **Screenshots or error messages:** (if applicable)
-
+* **App version:**
+* **OpenSprinkler firmware version:**
+* **Device type:** (e.g., iPhone, Android, etc.)
+* **Steps to reproduce the issue:**
+* **Screenshots or error messages:** (if applicable)
 
 ## Contributing
 
 We welcome contributions to the OpenSprinkler app! If you'd like to contribute, please follow these guidelines:
 
-*   **Fork the repository:** Create your own copy of the repository.
-*   **Create a branch:**  Make a new branch for your feature or bug fix.
-*   **Make your changes:** Implement your changes with clear commit messages.
-*   **Submit a pull request:** Open a pull request to the main repository. Please be sure to include either a short demo video or screenshots to show your change.
+* **Fork the repository:** Create your own copy of the repository.
+* **Create a branch:**  Make a new branch for your feature or bug fix.
+* **Make your changes:** Implement your changes with clear commit messages.
+* **Submit a pull request:** Open a pull request to the main repository. Please be sure to include either a short demo video or screenshots to show your change.
 
 Please ensure your code adheres to the existing coding style and includes tests for any new functionality. Please note that during the `git commit` step, husky will automatically run grunt to check for syntax and styling errors before the commit will be accepted.
 
@@ -103,8 +98,8 @@ Please ensure your code adheres to the existing coding style and includes tests 
 Fork this repository then:
 
 ```bash
-$ npm install
-$ npm start
+npm install
+npm start
 ```
 
 From here you can open your browser to `http://localhost:8080` and begin your development.
@@ -113,16 +108,16 @@ From here you can open your browser to `http://localhost:8080` and begin your de
 
 This project uses Grunt to automate various development tasks. Here are some of the key Grunt tasks available:
 
-**Code Quality and Testing**
+#### Code Quality and Testing
 
-*   **`grunt eslint`**: Checks JavaScript code for potential errors and style issues.
-*   **`grunt csslint`**: Analyzes CSS code for potential errors and style issues.
+* **`grunt eslint`**: Checks JavaScript code for potential errors and style issues.
+* **`grunt csslint`**: Analyzes CSS code for potential errors and style issues.
 
-**Building and Deployment**
+#### Building and Deployment
 
-*   **`grunt compress:makeFW`**: Creates a ZIP archive of the application files for firmware updates.
+* **`grunt compress:makeFW`**: Creates a ZIP archive of the application files for firmware updates.
 
-**Localization**
+#### Localization
 
-*   **`grunt shell:pushEng`**: Extracts English strings for translation, pushes them to Transifex, and updates the English PO file.
-*   **`grunt shell:updateLang`**: Pulls translations from Transifex and updates the language files.
+* **`grunt shell:pushEng`**: Extracts English strings for translation, pushes them to Transifex, and updates the English PO file.
+* **`grunt shell:updateLang`**: Pulls translations from Transifex and updates the language files.
