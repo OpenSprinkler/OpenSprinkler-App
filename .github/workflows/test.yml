@@ -31,5 +31,4 @@ jobs:
       - name: Run test steps
         run: |
           grunt
-          ./test/launch_osdemo.sh start
           npm run test

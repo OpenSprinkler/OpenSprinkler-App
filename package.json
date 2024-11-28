@@ -57,6 +57,7 @@
 		"lint-staged": "^15.2.10",
 		"mocha": "^10.8.2",
 		"po2json": "^0.4.5",
+		"sinon": "^19.0.2",
 		"sort-package-json": "^2.10.1"
 	},
 	"cordova": {
