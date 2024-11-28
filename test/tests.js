@@ -22,7 +22,7 @@ describe("Initial Definition Check", function () {
 				"testkey": "helloworld",
 				"sites": JSON.stringify({
 					"Test": {
-						"os_ip": "demo.opensprinkler.com",
+						"os_ip": "127.0.0.1:8080",
 						"os_pw": "opendoor"
 					}
 				}),
@@ -188,7 +188,7 @@ describe("General Function Checks", function () {
 
 describe("Page Navigation Checks", function () {
 	before(function () {
-		OSApp.currentSession.ip = "demo.opensprinkler.com";
+		OSApp.currentSession.ip = "127.0.0.1:8080";
 		OSApp.currentSession.pass = "opendoor";
 		OSApp.currentSession.prefix = "https://";
 		OSApp.currentSession.fw183 = false;

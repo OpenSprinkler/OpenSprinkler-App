@@ -91,15 +91,6 @@ module.exports = function( grunt ) {
 					"git diff-index --quiet HEAD || git commit -m 'Localization: Update languages from Transifex'",
 					"git push"
 				].join( "&&" )
-			},
-			startDemo: {
-				command: "test/launch_osdemo.sh start"
-			},
-			stopDemo: {
-				command: [
-					"test/launch_osdemo.sh stop",
-					"rm -r build/firmware/unified"
-				].join( "&&" )
 			}
 		}
 	} );
