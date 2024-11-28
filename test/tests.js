@@ -187,94 +187,94 @@ describe("General Function Checks", function () {
 });
 
 describe("Page Navigation Checks", function () {
-	// before(function () {
-	// 	OSApp.currentSession.ip = "demo.opensprinkler.com";
-	// 	OSApp.currentSession.pass = "opendoor";
-	// 	OSApp.currentSession.prefix = "https://";
-	// 	OSApp.currentSession.fw183 = false;
+	before(function () {
+		OSApp.currentSession.ip = "demo.opensprinkler.com";
+		OSApp.currentSession.pass = "opendoor";
+		OSApp.currentSession.prefix = "https://";
+		OSApp.currentSession.fw183 = false;
 
-	// 	OSApp.Sites.updateSiteList(["Test"], "Test");
-	// });
+		OSApp.Sites.updateSiteList(["Test"], "Test");
+	});
 
-	// it("Start jQuery Mobile Page Initialization", function (done) {
-	// 	$.mobile.document.one("pageshow", "#sprinklers", function () {
-	// 		done();
-	// 	});
+	it("Start jQuery Mobile Page Initialization", function (done) {
+		$.mobile.document.one("pageshow", "#sprinklers", function () {
+			done();
+		});
 
-	// 	OSApp.Sites.newLoad();
-	// });
+		OSApp.Sites.newLoad();
+	});
 
-	// it( "Change page to program preview", function( done ) {
-	// 	$.mobile.document.one( "pageshow", "#preview", function() {
-	// 		done();
-	// 	} );
-	// 	assert.doesNotThrow( function() {
-	// 		OSApp.UIDom.changePage( "#preview" );
-	// 	} );
-	// } );
+	it( "Change page to program preview", function( done ) {
+		$.mobile.document.one( "pageshow", "#preview", function() {
+			done();
+		} );
+		assert.doesNotThrow( function() {
+			OSApp.UIDom.changePage( "#preview" );
+		} );
+	} );
 
-	// it( "Change to logs page", function( done ) {
-	// 	$.mobile.document.one( "pageshow", "#logs", function() {
-	// 		done();
-	// 	} );
-	// 	assert.doesNotThrow( function() {
-	// 		OSApp.UIDom.changePage( "#logs" );
-	// 	} );
-	// } );
+	it( "Change to logs page", function( done ) {
+		$.mobile.document.one( "pageshow", "#logs", function() {
+			done();
+		} );
+		assert.doesNotThrow( function() {
+			OSApp.UIDom.changePage( "#logs" );
+		} );
+	} );
 
-	// it( "Change to runonce page", function( done ) {
-	// 	$.mobile.document.one( "pageshow", "#runonce", function() {
-	// 		done();
-	// 	} );
-	// 	assert.doesNotThrow( function() {
-	// 		OSApp.UIDom.changePage( "#runonce" );
-	// 	} );
-	// } );
+	it( "Change to runonce page", function( done ) {
+		$.mobile.document.one( "pageshow", "#runonce", function() {
+			done();
+		} );
+		assert.doesNotThrow( function() {
+			OSApp.UIDom.changePage( "#runonce" );
+		} );
+	} );
 
-	// it( "Change to edit programs page", function( done ) {
-	// 	$.mobile.document.one( "pageshow", "#programs", function() {
-	// 		done();
-	// 	} );
-	// 	assert.doesNotThrow( function() {
-	// 		OSApp.UIDom.changePage( "#programs" );
-	// 	} );
-	// } );
+	it( "Change to edit programs page", function( done ) {
+		$.mobile.document.one( "pageshow", "#programs", function() {
+			done();
+		} );
+		assert.doesNotThrow( function() {
+			OSApp.UIDom.changePage( "#programs" );
+		} );
+	} );
 
-	// it( "Change to add new program page", function( done ) {
-	// 	$.mobile.document.one( "pageshow", "#addprogram", function() {
-	// 		done();
-	// 	} );
-	// 	assert.doesNotThrow( function() {
-	// 		OSApp.UIDom.changePage( "#addprogram" );
-	// 	} );
-	// } );
+	it( "Change to add new program page", function( done ) {
+		$.mobile.document.one( "pageshow", "#addprogram", function() {
+			done();
+		} );
+		assert.doesNotThrow( function() {
+			OSApp.UIDom.changePage( "#addprogram" );
+		} );
+	} );
 
-	// it( "Change to options page", function( done ) {
-	// 	$.mobile.document.one( "pageshow", "#os-options", function() {
-	// 		done();
-	// 	} );
-	// 	assert.doesNotThrow( function() {
-	// 		OSApp.UIDom.changePage( "#os-options" );
-	// 	} );
-	// } );
+	it( "Change to options page", function( done ) {
+		$.mobile.document.one( "pageshow", "#os-options", function() {
+			done();
+		} );
+		assert.doesNotThrow( function() {
+			OSApp.UIDom.changePage( "#os-options" );
+		} );
+	} );
 
-	// it( "Change to site manager page", function( done ) {
-	// 	$.mobile.document.one( "pageshow", "#site-control", function() {
-	// 		done();
-	// 	} );
-	// 	assert.doesNotThrow( function() {
-	// 		OSApp.UIDom.changePage( "#site-control" );
-	// 	} );
-	// } );
+	it( "Change to site manager page", function( done ) {
+		$.mobile.document.one( "pageshow", "#site-control", function() {
+			done();
+		} );
+		assert.doesNotThrow( function() {
+			OSApp.UIDom.changePage( "#site-control" );
+		} );
+	} );
 
-	// it( "Change to about page", function( done ) {
-	// 	$.mobile.document.one( "pageshow", "#about", function() {
-	// 		done();
-	// 	} );
-	// 	assert.doesNotThrow( function() {
-	// 		OSApp.UIDom.changePage( "#about" );
-	// 	} );
-	// } );
+	it( "Change to about page", function( done ) {
+		$.mobile.document.one( "pageshow", "#about", function() {
+			done();
+		} );
+		assert.doesNotThrow( function() {
+			OSApp.UIDom.changePage( "#about" );
+		} );
+	} );
 });
 
 describe("Popup Checks", function () {
@@ -382,7 +382,7 @@ describe("Logout / Clean up", function () {
 		$.mobile.document.one("pageshow", "#start", function () {
 			done();
 		});
-		OSApp.currentSession.currIp = "";
+		OSApp.currentSession.ip = "";
 		OSApp.UIDom.changePage("#start");
 	});
 });
