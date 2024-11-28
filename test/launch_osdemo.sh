@@ -1,5 +1,6 @@
 #!/bin/bash
 
+mkdir -p build/firmware
 cd build/firmware
 
 if [ $1 == "start" ]; then
