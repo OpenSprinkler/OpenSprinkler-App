@@ -190,7 +190,7 @@ describe("Page Navigation Checks", function () {
 	before(function () {
 		OSApp.currentSession.ip = "127.0.0.1:8080";
 		OSApp.currentSession.pass = "opendoor";
-		OSApp.currentSession.prefix = "https://";
+		OSApp.currentSession.prefix = "http://";
 		OSApp.currentSession.fw183 = false;
 
 		OSApp.Sites.updateSiteList(["Test"], "Test");
