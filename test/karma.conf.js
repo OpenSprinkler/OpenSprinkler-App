@@ -22,7 +22,7 @@ module.exports = function (config) {
 			{ pattern: 'www/js/modules/**/*.js', included: true, watched: false },
 			{ pattern: 'www/js/main.js', included: true, watched: false },
 			'node_modules/sinon/pkg/sinon.js',
-			// Prepare the test framework/server
+			// Prepare the test environment server
 			'test/prepare_tests.js',
 			// Load all tests
 			'test/tests/**/*.js',
