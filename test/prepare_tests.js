@@ -17,7 +17,6 @@ before(function () {
 });
 
 before(function() {
-	console.log("*** tests.js before()");
 	server = sinon.fakeServer.create();
 	server.autoRespond = true;
 
