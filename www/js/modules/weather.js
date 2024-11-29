@@ -941,7 +941,7 @@ OSApp.Weather.getAdjustmentMethod = function( id ) {
 
 // TODO: does getAdjustmentMethod duplicate this logic? if so please refactor one or the other.
 OSApp.Weather.getCurrentAdjustmentMethodId = function() {
-	return OSApp.currentSession.controller.options.uwt & ~( 1 << 7 );
+	return OSApp.currentSession?.controller?.options?.uwt & ~( 1 << 7 );
 };
 
 OSApp.Weather.getRestriction = function( id ) {

@@ -72,3 +72,18 @@ after(function() {
     }
 });
 
+describe("Logout / Clean up", function () {
+	it("Remove all variables", function (done) {
+		OSApp.Storage.remove(["sites", "current_site", "lang", "runonce"], function () {
+			done();
+		});
+	});
+
+	it("Go to start page", function (done) {
+		$.mobile.document.one("pageshow", "#start", function () {
+			done();
+		});
+		OSApp.currentSession.ip = "";
+		OSApp.UIDom.changePage("#start");
+	});
+});
