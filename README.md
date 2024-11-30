@@ -121,3 +121,10 @@ This project uses Grunt to automate various development tasks. Here are some of 
 
 * **`grunt shell:pushEng`**: Extracts English strings for translation, pushes them to Transifex, and updates the English PO file.
 * **`grunt shell:updateLang`**: Pulls translations from Transifex and updates the language files.
+
+#### Unit Tests
+
+This project uses `Karma` as the test runner utilizing a headless Chrome browser (be sure that Chrome is installed on
+your workstation).
+
+* **`npm test`**: Executes entire test suite located under `/test`/

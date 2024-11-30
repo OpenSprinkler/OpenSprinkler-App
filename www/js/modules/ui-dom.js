@@ -401,6 +401,7 @@ OSApp.UIDom.launchApp = function() {
 
 	// FIXME: This needs to be rewritten and refactored out so it works properly (mellodev)
 	var showHome = ( function() {
+		var cards, siteSelect, currentSite, i, sites;
 		var page = $( "<div data-role='page' id='sprinklers'>" +
 				"<div class='ui-panel-wrapper'>" +
 					"<div class='ui-content' role='main'>" +
@@ -1348,23 +1349,28 @@ OSApp.UIDom.launchApp = function() {
 				currentSite = siteSelect.val();
 				OSApp.Storage.get( "sites", function( data ) {
 					sites = OSApp.Sites.parseSites( data.sites );
-					if ( typeof sites[ currentSite ].images !== "object" || $.isEmptyObject( sites[ currentSite ].images ) ) {
+					// Prevent errors during test: page navigation checks
+					if ( !sites || $.isEmptyObject(sites) || !currentSite ) {
+						return;
+					}
+
+					if ( typeof sites[ currentSite ]?.images !== "object" || $.isEmptyObject( sites[ currentSite ].images ) ) {
 						sites[ currentSite ].images = {};
 						page.removeClass( "has-images" );
 					} else {
 						page.addClass( "has-images" );
 					}
-					if ( typeof sites[ currentSite ].notes !== "object" ) {
+					if ( typeof sites[ currentSite ]?.notes !== "object" ) {
 						sites[ currentSite ].notes = {};
 					}
-					if ( typeof sites[ currentSite ].lastRunTime !== "object" ) {
+					if ( typeof sites[ currentSite ]?.lastRunTime !== "object" ) {
 						sites[ currentSite ].lastRunTime = {};
 					}
 
 					callback();
 				} );
-			},
-			cards, siteSelect, currentSite, i, sites;
+			};
+
 
 		page.one( "pageshow", function() {
 			$( "html" ).on( "datarefresh", updateContent );
