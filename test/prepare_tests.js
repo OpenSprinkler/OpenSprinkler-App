@@ -28,6 +28,7 @@ before(function() {
 		var pathname = urlObj.pathname;
 		var params = new URLSearchParams(urlObj.search);
 
+		console.log("*** prepare_tests.server.respondWith pathname: " + pathname);
 		if (pathname === '/jp') {
 			request.respond(200, { "Content-Type": "application/json" },
 				'{"nprogs":0,"nboards":1,"mnp":40,"mnst":4,"pnsize":32,"pd":[]}'
