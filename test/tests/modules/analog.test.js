@@ -15,13 +15,12 @@
 
 describe.only("OSApp.Analog", function () {
 	beforeEach(function () {
-		OSApp.currentSession = {
+		OSApp.currentSession = Object.assign({}, OSApp.currentSession, {
 			controller: {
 				options: { feature: "ASB" },
 				programs: { pd: [{ name: "Program 1" }, { name: "Program 2" }] }
 			},
-			pass: "test_pass"
-		};
+		});
 		OSApp.Analog.analogSensors = [
 			{ nr: 1, name: "Sensor 1", data: 25.5, unit: "°C", show: true, last: 1678886400, data_ok: true },
 			{ nr: 2, name: "Sensor 2", data: 60.3, unit: "%", show: false, last: 1678886400, data_ok: false }
@@ -30,47 +29,6 @@ describe.only("OSApp.Analog", function () {
 			{ nr: 1, type: 1, sensor: 1, prog: 1, current: 0.8, factor1: 1.2, factor2: 0.8, min: 10, max: 40 },
 			{ nr: 2, type: 2, sensor: 2, prog: 2, current: 0.5, factor1: 1.5, factor2: 0.5, min: 20, max: 80 }
 		];
-		// Use Sinon to mock OSApp.Firmware.sendToOS
-		// sinon.stub(OSApp.Firmware, "sendToOS")
-		// 	.withArgs("/sh?pw=", "json")
-		// 	.returns(Promise.resolve({
-		// 		progTypes: [
-		// 			{ type: 1, name: "Type 1" },
-		// 			{ type: 2, name: "Type 2" }
-		// 		]
-		// 	}));
-
-		// OSApp.Firmware = {
-		// 	sendToOS: function(url, type) {
-		// 		return new Promise(function(resolve) {
-		// 			if (url === "/sh?pw=") {
-		// 				resolve({ progTypes: [{ type: 1, name: "Type 1" }, { type: 2, name: "Type 2" }] });
-		// 			} else if (url === "/sf?pw=") {
-		// 				resolve({ sensorTypes: [{ type: 1, name: "Type 1" }, { type: 2, name: "Type 2" }] });
-		// 			} else {
-		// 				resolve({}); // Resolve with an empty object for other URLs
-		// 			}
-		// 		});
-		// 	}
-		// };
-			// sendToOS: function (url, type) {
-			// 	console.log("*** fake sendtoos url: " + url);
-			// 	return new Promise(function (resolve) {
-			// 		console.log("*** fake sendtoos resolver", {resolve});
-			// 		if (url === "/se?pw=") {
-			// 			resolve({ progAdjust: OSApp.Analog.progAdjusts });
-			// 		} else if (url === "/sl?pw=") {
-			// 			resolve({ sensors: OSApp.Analog.analogSensors });
-			// 		} else if (url === "/sh?pw=") {
-			// 			resolve({ progTypes: [{ type: 1, name: "Type 1" }, { type: 2, name: "Type 2" }] });
-			// 		} else if (url === "/sf?pw=") {
-			// 			resolve({ sensorTypes: [{ type: 1, name: "Type 1" }, { type: 2, name: "Type 2" }] });
-			// 		} else {
-			// 			resolve({});
-			// 		}
-			// 	});
-			// }
-		// };
 		OSApp.UIDom = {
 			getAppURLPath: function () { return "http://localhost/app/"; },
 			areYouSure: function (message, value, callback) { callback(); },
@@ -86,77 +44,7 @@ describe.only("OSApp.Analog", function () {
 				return { name: program.name };
 			}
 		};
-		// $ = function (html) {
-		// 	var obj = {
-		// 		html: function () { return this; },
-		// 		enhanceWithin: function () { return this; },
-		// 		find: function (selector) {
-		// 			if (selector === "#os-sensor-show") {
-		// 				return {
-		// 					html: function () { return this; },
-		// 					removeChild: function () { return this; }
-		// 				};
-		// 			}
-		// 			return this;
-		// 		},
-		// 		on: function () { return this; },
-		// 		append: function () { return this; },
-		// 		popup: function () { return this; },
-		// 		css: function () { return this; },
-		// 		remove: function () { return this; },
-		// 		click: function () { return this; },
-		// 		one: function () { return this; },
-		// 		detach: function () { return this; },
-		// 		children: function () { return this; },
-		// 		eq: function () { return this; },
-		// 		val: function () { return "1"; },
-		// 		attr: function () { return "1"; },
-		// 		index: function () { return 1; },
-		// 		is: function () { return true; },
-		// 		text: function (text) {
-		// 			if (text === undefined) {
-		// 				return "test";
-		// 			} else {
-		// 				this.textValue = text;
-		// 				return this;
-		// 			}
-		// 		},
-		// 		wrap: function () { return this; },
-		// 		change: function () { return this; }
-		// 	};
-		// 	return obj;
-		// };
-		// ApexCharts = function () {
-		// 	return {
-		// 		render: function () { },
-		// 		appendSeries: function () { }
-		// 	};
-		// };
-		// $.mobile = {
-		// 	loading: function () { },
-		// 	pageContainer: {
-		// 		append: function () { }
-		// 	}
-		// };
-		// window.alert = function () { };
-		// document.createElement = function () {
-		// 	return {
-		// 		style: {},
-		// 		setAttribute: function () { },
-		// 		click: function () { }
-		// 	};
-		// };
-		// document.body = {
-		// 	appendChild: function () { }
-		// };
-		// document.querySelector = function () {
-		// 	return {};
-		// };
 	});
-	// afterEach(function () {
-	// 	// Restore the original function after each test
-	// 	OSApp.Firmware.sendToOS.restore();
-	// });
 	describe("checkAnalogSensorAvail", function () {
 		it("should return true if currentSession.controller.options.feature is 'ASB'", function () {
 			assert.isTrue(OSApp.Analog.checkAnalogSensorAvail());
@@ -219,7 +107,9 @@ describe.only("OSApp.Analog", function () {
 	describe.only("showAdjustmentsEditor", function () {
 		it("should open a popup with program adjustment editor", function (done) {
 			var progAdjust = { nr: 1, type: 1, sensor: 1, prog: 1, factor1: 1.2, factor2: 0.8, min: 10, max: 40 };
+			console.log("*** before showAdjustmentsEditor");
 			OSApp.Analog.showAdjustmentsEditor(progAdjust, function (progAdjustOut) {
+				console.log("*** callback");
 				assert.deepEqual(progAdjustOut, { nr: 1, type: 1, sensor: 1, prog: 1, factor1: 1.2, factor2: 0.8, min: 10, max: 40 });
 				done();
 			});
