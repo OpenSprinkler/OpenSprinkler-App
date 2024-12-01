@@ -440,7 +440,7 @@
    "runs": "Gelaufen",
    "Average": "Durchschnitt",
    "Total Water Used": "Gesamtwasserverbrauch",
-   "Are you sure you want to ": "Sind Sie sicher, dass Sie",
+   "Are you sure you want to ": "Sind Sie sicher, dass Sie ",
    "deleted": "gelöscht",
    "Total Station Events": "Gesamtzahl Ereignisse Bewässerungskreis",
    "Total Runtime": "Gesamtlaufzeit",
@@ -456,7 +456,8 @@
    "Are you sure you want to delete all settings and return to the default settings?": "Sind Sie sicher, dass Sie alle Einstellungen löschen und auf die Werkseinstellungen zurücksetzen wollen?",
    "Do you want to save your changes?": "Wollen Sie Ihre Änderungen übernehmen?",
    "Programs": "Programme",
-   "Are you sure you want to start ": "Sind Sie sicher, dass Sie starten wollen ",
+   "now?": "?",
+   "Are you sure you want to start": "Sind Sie sicher, dass Sie starten wollen: ",
    "Do you wish to apply the current watering level?": "Wollen Sie das aktuelle Bewässerungsniveau zuweisen?",
    "Manual program": "Manuelle Steuerung",
    "Run-once program": "Adhoc-Programm",
@@ -772,6 +773,7 @@
    "Flow alert setpoint": "Strömungsüberwachung-Grenzmenge",
    "Average flow value": "Durchschnittliche Strömungsmenge",
    "OpenSprinkler is running in background mode": "OpenSprinkler läuft im Hintergrundmodus",
-   "active monitor and controlling notifications": "Überwachung und Kontrolle aktiviert"
+   "active monitor and controlling notifications": "Überwachung und Kontrolle aktiviert",
+   "Program started successfully": "Program erfolgreich gestartet"
 }
 }

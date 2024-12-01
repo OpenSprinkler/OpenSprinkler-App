@@ -153,9 +153,12 @@
 
 			//Insert charting library for analog support
 			insertScript( assetLocation + "js/dataTables-2.1.8.min.js" );
-			
+
 			// Insert analog sensor (if supported)
 			insertScript( assetLocation + "js/analog.js" );
+
+			// Insert analog sensor (if supported)
+			insertScript( assetLocation + "js/programview.js" );
 
 			//Insert charting library for analog support
 			insertScript( assetLocation + "js/apexcharts.min.js" );

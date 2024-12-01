@@ -558,7 +558,13 @@ msgstr ""
 msgid "Enable"
 msgstr ""
 
+msgid "now?"
+msgstr ""
+
 msgid "Are you sure you want to"
+msgstr ""
+
+msgid "Are you sure you want to start"
 msgstr ""
 
 msgid "operation?"
@@ -2421,4 +2427,7 @@ msgid "OpenSprinkler is running in background mode"
 msgstr ""
 
 msgid "active monitor and controlling notifications"
+msgstr ""
+
+msgid "Program started successfully"
 msgstr ""

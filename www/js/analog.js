@@ -46,7 +46,7 @@ function success_callback(scope) {
 
 function asb_init() {
 	if (!isAndroid && !isiOS) return;
-	
+
 	if (isAndroid) {
 		cordova.plugins.notification.local.createChannel({
 			channelId: 'os_low',
@@ -149,6 +149,7 @@ function updateProgramAdjustments(callback) {
 
 function checkBackgroundMode() {
 	if (!isAndroid && !isiOS) return;
+	if (!window.cordova) return;
 	//Enable background mode only if we have a monitor configured:
 	if (monitors && monitors.length > 0) {
 		if (!cordova.plugins.backgroundMode.isActive() && !cordova.plugins.backgroundMode.isEnabled())
@@ -227,6 +228,8 @@ function checkMonitorAlerts() {
 	}
 }
 
+var lastSensorHtml ="";
+
 function updateSensorShowArea(page) {
 	if (checkAnalogSensorAvail()) {
 		var showArea = page.find("#os-sensor-show");
@@ -267,26 +270,29 @@ function updateSensorShowArea(page) {
 				html += "</div>";
 			}
 		}
-		while (showArea.firstChild) {
-			showArea.removeChild(showArea.firstChild);
-		}
-		showArea.html(html);
+
+		var progAdjustDisp = new Array(progAdjusts.length);
 
 		for (i = 0; i < progAdjusts.length; i++) {
 			var progAdjust = progAdjusts[i];
+			var disp = {};
 			var current = Math.round(progAdjust.current * 100);
 
-			var progName = "?";
-			if (progAdjust.prog >= 1 && progAdjust.prog <= controller.programs.pd.length) {
-				progName = readProgram(controller.programs.pd[progAdjust.prog - 1]).name;
-			}
-
-			var sensorName = "";
-			for (j = 0; j < analogSensors.length; j++) {
-				if (analogSensors[j].nr === progAdjust.sensor) {
-					sensorName = analogSensors[j].name;
+			if (!progAdjust.name || progAdjust.name === "") {
+				var progName = "?";
+				if (progAdjust.prog >= 1 && progAdjust.prog <= controller.programs.pd.length) {
+					progName = readProgram(controller.programs.pd[progAdjust.prog - 1]).name;
 				}
-			}
+
+				var sensorName = "";
+				for (j = 0; j < analogSensors.length; j++) {
+					if (analogSensors[j].nr === progAdjust.sensor) {
+						sensorName = analogSensors[j].name;
+					}
+				}
+				disp.label = disp.progName + " (" + disp.sensorName + ")"
+			} else
+				disp.label = progAdjust.name;
 
 			//current = 80; //testvalue!
 			var color = ["#87D4F9"];
@@ -294,81 +300,116 @@ function updateSensorShowArea(page) {
 				color = ["#FF8C00"];
 			if (current > 150)
 				color = ["#CD5C5C"];
+			disp.color = color;
 
 			var min = Math.min(progAdjust.factor1, progAdjust.factor2) * 100;
 			var max = Math.max(progAdjust.factor1, progAdjust.factor2) * 100;
 			if (current < min) current = min;
 			if (current > max) current = max;
+			disp.current = current;
+			progAdjustDisp[i] = disp;
+		}
 
-			var options = {
-				chart: {
-					height: 180,
-					type: "radialBar",
-					animations: {
-						enabled: false,
-						dynamicAnimation: {
-							enabled: false
-						}
-					}
-				},
+		if (lastSensorHtml != html) {
+			lastSensorHtml = html;
+			while (showArea.firstChild) {
+				showArea.removeChild(showArea.firstChild);
+			}
+			showArea.html(html);
 
-				series: [current],
-				colors: ["#20E647"],
-				plotOptions: {
-					radialBar: {
-						startAngle: -135,
-						endAngle: 135,
-						//hollow: {
-						//  margin: 15,
-						//  size: "70%"
-						//},
-						track: {
-							dropShadow: {
-								enabled: true,
-								top: 2,
-								left: 0,
-								blur: 4,
-								opacity: 0.15
+			for (i = 0; i < progAdjustDisp.length; i++) {
+				var disp = progAdjustDisp[i];
+				if (!disp) continue;
+				var options = {
+					chart: {
+						height: 180,
+						parentHeightOffset: 0,
+						type: "radialBar",
+						animations: {
+							enabled: true,
+							dynamicAnimation: {
+								enabled: true
 							}
-						},
-						dataLabels: {
-							showOn: "always",
-							name: {
-								offsetY: -10,
-								show: true,
-								color: "#222",
-								fontSize: "13px"
+						}
+					},
+					series: [disp.current],
+					colors: ["#20E647"],
+					plotOptions: {
+						radialBar: {
+							startAngle: -135,
+							endAngle: 135,
+							hollow: {
+								margin: 0,
+								size: '70%',
+								background: '#fff',
+								position: 'front',
+								dropShadow: {
+									enabled: true,
+									top: 3,
+									left: 0,
+									blur: 4,
+									opacity: 0.5
+								},
 							},
-							value: {
-								color: "#111",
-								fontSize: "30px",
-								show: true,
-								formatter: function (val) {
-									return formatValUnit(val, "%");
+							track: {
+								background: '#fff',
+								  strokeWidth: '67%',
+								  margin: 0, // margin is in pixels
+								dropShadow: {
+									enabled: true,
+									top: -3,
+									left: 0,
+									blur: 4,
+									opacity: 0.7
+								}
+							},
+							dataLabels: {
+								showOn: "always",
+								name: {
+									offsetY: -10,
+									show: true,
+									color: "#222",
+									fontSize: "13px"
+								},
+								value: {
+									color: "#111",
+									fontSize: "30px",
+									show: true,
+									formatter: function (val) {
+										return formatValUnit(val, "%");
+									}
 								}
 							}
 						}
-					}
-				},
+					},
 
-				fill: {
-					type: "gradient",
-					gradient: {
-						shade: "dark",
-						type: "horizontal",
-						gradientToColors: color,
-						stops: [0, 100]
-					}
-				},
-				stroke: {
-					lineCap: "round",
-				},
-				labels: [progName + " (" + sensorName + ")"]
-			};
+					fill: {
+						type: "gradient",
+						gradient: {
+							shade: "dark",
+							type: "horizontal",
+							gradientToColors: disp.color,
+							stops: [0, 100]
+						}
+					},
+					stroke: {
+						lineCap: "round",
+					},
+					labels: [disp.label]
+				};
 
-			var chart = new ApexCharts(document.querySelector("#mainpageChart-" + i), options);
-
-			chart.render();
+				var chart = new ApexCharts(document.querySelector("#mainpageChart-" + i), options);
+				chart.render();
+				disp.chart = chart;
+			}
+		} else {
+			for (i = 0; i < progAdjustDisp.length; i++) {
+				var disp = progAdjustDisp[i];
+				if (disp && disp.chart) {
+					disp.chart.updateSeries([disp.current]);
+					disp.chart.updateOptions({labels: [disp.label]});
+				}
+			}
 		}
 	}
 }
