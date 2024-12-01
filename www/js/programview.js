@@ -18,8 +18,10 @@ function updateProgramShowArea( page ){
 
 	if (lastProgramRun == -2) {
 		lastProgramRun = localStorage.getItem("lastProgramRun");
-		if (lastProgramRun === undefined || lastProgramRun == -2)
+		if (lastProgramRun === undefined || lastProgramRun == -2) {
 			lastProgramRun == -1;
+			reset = true;
+		}
 	}
 
 	var i, j, reset = false, sr = 0,
