@@ -112,9 +112,8 @@ OSApp.Analog.intFromBytes = function( x ) {
 
 //Program adjustments editor
 OSApp.Analog.showAdjustmentsEditor = function( progAdjust, callback ) {
-	console.log("*** entering showAdjustmentsEditor");
-	OSApp.Firmware.sendToOS( "/sh?pw=", "json" ).then( function( data ) {
-		console.log("*** OSApp.Analog.showAdjustmentsEditor sendtoos response", data);
+
+	return OSApp.Firmware.sendToOS( "/sh?pw=", "json" ).then( function( data ) {
 		var supportedAdjustmentTypes = data.progTypes;
 		var i;
 

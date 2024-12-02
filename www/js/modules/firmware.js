@@ -40,6 +40,7 @@ OSApp.Firmware.Constants = {
 
 // Wrapper function to communicate with OpenSprinkler
 OSApp.Firmware.sendToOS = function( dest, type ) {
+	console.log("*** OSApp.Firmware.sendToOS dest: " + dest + " (type: " + type + ")");
 	// Inject password into the request
 	dest = dest.replace( "pw=", "pw=" + encodeURIComponent( OSApp.currentSession.pass ) );
 	type = type || "text";
