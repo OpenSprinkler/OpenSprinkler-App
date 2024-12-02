@@ -28,7 +28,6 @@ before(function() {
 		var pathname = urlObj.pathname;
 		var params = new URLSearchParams(urlObj.search);
 
-		console.log("*** prepare_tests.server.respondWith pathname: " + pathname);
 		if (pathname === '/jp') {
 			request.respond(200, { "Content-Type": "application/json" },
 				'{"nprogs":0,"nboards":1,"mnp":40,"mnst":4,"pnsize":32,"pd":[]}'
@@ -64,6 +63,25 @@ before(function() {
 		} else {
 			request.respond(404, { "Content-Type": "application/json" }, '{"error": "Not Found"}');
 		}
+	});
+});
+
+before(function () {
+	OSApp.currentSession.ip = "demo.opensprinkler.com";
+	OSApp.currentSession.pass = "opendoor";
+	OSApp.currentSession.prefix = "https://";
+	OSApp.currentSession.fw183 = false;
+
+	OSApp.Sites.updateSiteList(["Test"], "Test");
+});
+
+describe("Page Initialization Checks", function () {
+	it("Start jQuery Mobile Page Initialization", function (done) {
+		$.mobile.document.one("pageshow", "#sprinklers", function () {
+			done();
+		});
+
+		OSApp.Sites.newLoad();
 	});
 });
 
