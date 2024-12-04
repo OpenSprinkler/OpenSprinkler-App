@@ -10703,6 +10703,20 @@ function importConfig( data ) {
 			}
 		}
 
+		//Restore station groups:
+		if ( typeof data.stations.stn_grp === "object" ) {
+			for ( i = 0; i < data.stations.stn_grp.length; i++ ) {
+				cs += "&g" + i + "=" + data.stations.stn_grp[ i ];
+			}
+		}
+
+		//Restore flow alert setpoint value
+		if ( typeof data.stations.stn_fas === "object" ) {
+			for ( i = 0; i < data.stations.stn_fas.length; i++ ) {
+				cs += "&f" + i + "=" + data.stations.stn_fas[ i ];
+			}
+		}
+
 		// Normalize station special data object
 		data.special = data.special || {};
 
