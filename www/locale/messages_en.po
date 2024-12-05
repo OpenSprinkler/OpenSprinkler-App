@@ -2431,3 +2431,19 @@ msgstr ""
 
 msgid "Program started successfully"
 msgstr ""
+
+msgid "Mainpage display"
+msgstr ""
+
+msgid "Hide all"
+msgstr ""
+
+msgid "Show Zones"
+msgstr ""
+
+msgid "Show Programs"
+msgstr ""
+
+msgid "Show all"
+msgstr ""
+

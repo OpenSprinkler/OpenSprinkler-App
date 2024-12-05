@@ -58,14 +58,14 @@
 			secrets: secrets,
 
 			jshint: {
-				main: [ "www/js/main.js", "www/js/analog.js", "www/js/map.js", "Gruntfile.js", "www/js/hasher.js", "www/js/home.js", "test/tests.js" ],
+				main: [ "www/js/main.js", "www/js/programview.js", "www/js/analog.js", "www/js/map.js", "Gruntfile.js", "www/js/hasher.js", "www/js/home.js", "test/tests.js" ],
 				options: {
 					jshintrc: true
 				}
 			},
 
 			jscs: {
-				main: [ "www/js/main.js", "www/js/analog.js", "www/js/map.js", "Gruntfile.js", "www/js/hasher.js", "www/js/home.js", "test/tests.js" ],
+				main: [ "www/js/main.js", "www/js/programview.js", "www/js/analog.js", "www/js/map.js", "Gruntfile.js", "www/js/hasher.js", "www/js/home.js", "test/tests.js" ],
 				options: {
 					config: true,
 					fix: true
@@ -242,6 +242,7 @@
 				buildFW: {
 					files: {
 						"www/js/app.js": [ "www/js/jquery.js", "www/js/jqm.js", "www/js/dataTables-2.1.8.min.js", "www/js/libs.js", "www/js/main.js", "www/js/analog.js",
+						"www/js/programview.js",
 						"www/js/apexcharts.min.js" ]
 					},
 				},

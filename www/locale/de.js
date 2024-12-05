@@ -774,6 +774,12 @@
    "Average flow value": "Durchschnittliche Strömungsmenge",
    "OpenSprinkler is running in background mode": "OpenSprinkler läuft im Hintergrundmodus",
    "active monitor and controlling notifications": "Überwachung und Kontrolle aktiviert",
-   "Program started successfully": "Program erfolgreich gestartet"
+   "Program started successfully": "Program erfolgreich gestartet",
+   "Mainpage display": "Hauptseite zeigt",
+   "Hide all": "Alle ausblenden",
+   "Show Zones": "Zonen anzeigen",
+   "Show Programs": "Programme anzeigen",
+   "Show all": "Alles anzeigen"
+
 }
 }

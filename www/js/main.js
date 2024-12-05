@@ -6456,11 +6456,13 @@ var showHome = ( function() {
 							divider.show();
 				}
 			}
-			Card.getDivider( nextCard ).hide();
-			Card.setGroupLabel( nextCard, mapGIDValueToName( Station.getGIDValue( idx ) ) );
-			label = Card.getGroupLabel( nextCard );
-			if ( typeof label !== "undefined" && Card.isMasterStation( nextCard ) ) {
-				label.addClass( "hidden" );
+			if ( nextCard ) {
+				Card.getDivider( nextCard ).hide();
+				Card.setGroupLabel( nextCard, mapGIDValueToName( Station.getGIDValue( idx ) ) );
+				label = Card.getGroupLabel( nextCard );
+				if ( typeof label !== "undefined" && Card.isMasterStation( nextCard ) ) {
+					label.addClass( "hidden" );
+				}
 			}
 		},
 		reorderCards = function() {
@@ -6497,15 +6499,12 @@ var showHome = ( function() {
 			var displayOption = SHOW_ZONES;
 			if (localStorage.hasOwnProperty('displayOption'))
 				displayOption = localStorage.displayOption;
-			if (displayOption & SHOW_PROGRAMS)
-				updateProgramShowArea( page );
-
-			if (!(displayOption & SHOW_ZONES))
-				return;
+			updateProgramShowArea( page, displayOption & SHOW_PROGRAMS );
 
 			// Remove unused stations
 			CardList.getAllCards( cardList ).filter( function( _, a ) {
-				return parseInt( $( a ).data( "station" ), 10 ) >= controller.stations.snames.length;
+				return parseInt( $( a ).data( "station" ), 10 ) >= controller.stations.snames.length
+					|| !(displayOption & SHOW_ZONES);
 			} ).remove();
 
 			for ( var sid = 0; sid < controller.stations.snames.length; sid++ ) {
@@ -6579,7 +6578,6 @@ var showHome = ( function() {
 
 				}
 			}
-
 			reorderCards();
 		},
 		updateSites = function( callback ) {
@@ -6621,15 +6619,13 @@ var showHome = ( function() {
 		var displayOption = SHOW_ZONES;
 		if (localStorage.hasOwnProperty('displayOption'))
 			displayOption = localStorage.displayOption;
-		if (displayOption & SHOW_PROGRAMS)
-			updateProgramShowArea( page );
-
-		if (!(displayOption & SHOW_ZONES))
-			return;
+		updateProgramShowArea( page, displayOption & SHOW_PROGRAMS );
 
 		updateSites( function() {
 			for ( i = 0; i < controller.stations.snames.length; i++ ) {
-				addCard( i );
+				if (displayOption & SHOW_ZONES) {
+					addCard( i );
+				}
 			}
 
 			page.find( "#os-stations-list" ).html( cards );

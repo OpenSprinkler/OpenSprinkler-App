@@ -11,10 +11,14 @@ var lastProgramRun = -2;
 var clickedOn = -1;
 var clickedMove = 0;
 var scrollY = 0;
+var showing = false;
 
-function updateProgramShowArea( page ){
+function updateProgramShowArea( page, visible ) {
 	if (!checkOSVersion( 210 ))
 		return;
+
+	var i, j, reset = false, sr = 0,
+		width = window.screen.width < 400? 150 : 200;
 
 	if (lastProgramRun == -2) {
 		lastProgramRun = localStorage.getItem("lastProgramRun");
@@ -24,12 +28,20 @@ function updateProgramShowArea( page ){
 		}
 	}
 
-	var i, j, reset = false, sr = 0,
-		width = window.screen.width < 400? 150 : 200;
-
 	if (controller.programs.pd.length != programCharts.length) {
 		programCharts.length = controller.programs.pd.length;
 		reset = true;
+	}
+
+	if (visible != showing) {
+		showing = visible;
+		reset = true;
+	}
+
+	if (!visible)
+	{
+		page.find("#os-program-show").html("");
+		return;
 	}
 
 	var html = "<div class='ui-body ui-body-a center'><table border=1 frame=void rules=rows style='margin: 0px auto;'>";
@@ -45,13 +57,17 @@ function updateProgramShowArea( page ){
 			//html += "<p>"+(prog.en?"enabled":"")+" "+(prog.weather?"weather":"");
 
 			// Show station duration inputs
-			var timeSum = 0;
+			var timeSum = 0, timeSums = [];
 			var remaining = 0;
 			for ( j = 0; j < controller.stations.snames.length; j++ ) {
 				if ( !Station.isMaster( j ) ) {
 					time = prog.stations[ j ] || 0;
 					if (time > 0) {
-						timeSum += time;
+						let gid = controller.stations.stn_grp ? controller.stations.stn_grp[ j ] : 0;
+						if (!timeSums[ gid ])
+							timeSums[ gid ] = time;
+						else
+							timeSums[ gid ] += time;
 
 						var stationIsRunning = Station.isRunning(j);
 						if (stationIsRunning)
@@ -61,7 +77,7 @@ function updateProgramShowArea( page ){
 							"ui-shadow ui-btn-inline ui-btn ui-corner-all ui-btn-b ui-mini' id='progStation-"+i+"-"+j+"' value='"+i+"_"+j+"'>" +
 							controller.stations.snames[ j ]+" ["+getDurationText( time )+"]</button>";
 
-						pid = Station.getPID( j ) - 1;
+						let pid = Station.getPID( j ) - 1;
 						if (pid == i || (pid == 253 && i == lastProgramRun)) {
 							//pname  = pidname( pid );
 
@@ -75,6 +91,9 @@ function updateProgramShowArea( page ){
 						}
 					}
 				}
+			}
+			for (let t of timeSums) {
+				if (t > timeSum) timeSum = t;
 			}
 			html += "</td></tr>";
 		}
