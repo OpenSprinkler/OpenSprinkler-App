@@ -15,7 +15,7 @@
 
 describe('OSApp.Notifications', function () {
 	describe.skip('addNotification', function () {
-		// Skipped due test not properly mocking DOM for jquery - mellodev
+		// Skipped due test not properly mocking DOM for jquery
 		var originalNotifications, originalUpdateNotificationBadge;
 
 		beforeEach(function () {
@@ -76,7 +76,7 @@ describe('OSApp.Notifications', function () {
 	});
 
 	describe.skip('updateNotificationBadge', function () {
-		// Skipped due test not properly mocking DOM for jquery - mellodev
+		// Skipped due test not properly mocking DOM for jquery
 		var originalNotifications, original$;
 
 		beforeEach(function () {

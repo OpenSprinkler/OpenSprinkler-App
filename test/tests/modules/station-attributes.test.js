@@ -15,7 +15,7 @@
 
 describe.skip('OSApp.StationAttributes', function () {
 	describe.skip('getMasterOperation', function () {
-		// Skipped due test functioning properly - mellodev
+		// Skipped due test functioning properly
 		var originalSupported, originalCurrentSession;
 
 		beforeEach(function () {
@@ -72,7 +72,7 @@ describe.skip('OSApp.StationAttributes', function () {
 	});
 
 	describe.skip('getIgnoreRain', function () {
-		// Skipped due test functioning properly - mellodev
+		// Skipped due test functioning properly
 		var originalSupported, originalCurrentSession;
 
 		beforeEach(function () {

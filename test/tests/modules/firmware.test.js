@@ -120,7 +120,7 @@ describe('OSApp.Firmware', function () {
 	});
 
 	describe('versionCompare', function () {
-		// FIXME: sometimes versionCompare returns an integer, other times it returns a boolean! (mellodev)
+		// FIXME: sometimes versionCompare returns an integer, other times it returns a boolean!
 		it('should compare versions (equal)', function () {
 			var result = OSApp.Firmware.versionCompare('3.0.0'.split('.'), '3.0.0'.split('.'));
 			assert.equal(result, 0);

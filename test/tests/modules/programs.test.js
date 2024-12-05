@@ -37,7 +37,7 @@ describe('OSApp.Programs', function () {
 		});
 
 		it.skip('should call readProgram183 if firmware version is lower than 2.1', function () {
-			// Skipped due test polluting OSApp object and breaking tests outside this suite - mellodev
+			// Skipped due test polluting OSApp object and breaking tests outside this suite
 			OSApp.Firmware.checkOSVersion = function (version) {
 				return version < 210;
 			};

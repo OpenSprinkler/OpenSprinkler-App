@@ -59,7 +59,7 @@ describe('OSApp.Language', function () {
 
 
 	describe.skip('updateLang', function() {
-		// Skipped due test not properly mocking DOM for jquery - mellodev
+		// Skipped due test not properly mocking DOM for jquery
 		var originalStorageSet, originalGetJSON;
 
 		beforeEach(function() {

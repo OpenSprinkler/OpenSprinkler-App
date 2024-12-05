@@ -77,7 +77,7 @@ describe('OSApp.Sites', function () {
 		});
 
 		it.skip('should call networkFail on failure', function () {
-			// Skipped due test not properly setting networkFailCalled - mellodev
+			// Skipped due test not properly setting networkFailCalled
 			OSApp.currentSession.isControllerConnected = function () { return true; };
 			OSApp.Firmware.checkOSVersion = function (version) { return version < 216; };
 			var networkFailCalled = false;
