@@ -11,14 +11,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* global OSApp, assert, beforeEach, afterEach, describe, it */
+/* global OSApp, assert, beforeEach, afterEach, describe, it, $ */
 
 describe( "OSApp.Status", function() {
 
-	var originalCurrentSession;
+	var originalCurrentSession, originalStations, originalPrograms, originalLanguage, originalDates, originalUtils;
 
 	beforeEach( function() {
 		originalCurrentSession = OSApp.currentSession;
+		originalStations = OSApp.Stations; // Store original OSApp.Stations
+		originalPrograms = OSApp.Programs; // Store original OSApp.Programs
+		originalLanguage = OSApp.Language; // Store original OSApp.Language
+		originalDates = OSApp.Dates;     // Store original OSApp.Dates
+		originalUtils = OSApp.Utils;     // Store original OSApp.Utils
 		OSApp.currentSession = {
 			isControllerConnected: function() { return true; },
 			controller: {
@@ -91,6 +96,11 @@ describe( "OSApp.Status", function() {
 
 	afterEach( function() {
 		OSApp.currentSession = originalCurrentSession;
+		OSApp.Stations = originalStations;
+		OSApp.Programs = originalPrograms;
+		OSApp.Language = originalLanguage;
+		OSApp.Dates = originalDates;
+		OSApp.Utils = originalUtils;
 		$( "#footer-running" ).off( "click" );
 	} );
 
