@@ -58,6 +58,7 @@ cacheFiles = cacheFiles.concat([
 	"/js/modules/ui-dom.js",
 	"/js/modules/utils.js",
 	"/js/modules/weather.js",
+	"/js/modules/welcome.js",
 ]);
 
 // Vendor Javascript
