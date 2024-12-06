@@ -474,7 +474,7 @@ OSApp.Programs.displayPageRunOnce = function() {
 	return begin();
 }
 
-OSApp.Programs.displayPagePreview = function() {
+OSApp.Programs.displayPagePreviewPrograms = function() {
 	// Preview functions
 	var page = $( "<div data-role='page' id='preview'>" +
 			"<div class='ui-content' role='main'>" +
