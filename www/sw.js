@@ -28,8 +28,10 @@ cacheFiles = cacheFiles.concat([
 	"/js/map.js",
 ]);
 
+// FIXME: this module list needs to be dynamic so newly added modules are automatically inserted!
 // App modules javascript
 cacheFiles = cacheFiles.concat([
+	"/js/modules/about.js",
 	"/js/modules/analog.js",
 	"/js/modules/card-list.js",
 	"/js/modules/cards.js",
