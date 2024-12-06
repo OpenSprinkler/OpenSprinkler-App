@@ -707,6 +707,11 @@ OSApp.Weather.checkURLandUpdateWeather = function() {
 };
 
 OSApp.Weather.updateWeatherBox = function() {
+	if (!OSApp.currentSession.controller.settings) {
+		// Exit early if we don't have controller settings
+		return;
+	}
+
 	$( "#weather" )
 		.html(
 			( OSApp.currentSession.controller.settings.rd ? "<div class='rain-delay red'><span class='icon ui-icon-alert'></span>Rain Delay<span class='time'>" + OSApp.Dates.dateToString( new Date( OSApp.currentSession.controller.settings.rdst * 1000 ), undefined, true ) + "</span></div>" : "" ) +

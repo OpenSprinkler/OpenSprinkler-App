@@ -17,6 +17,42 @@
 var OSApp = OSApp || {};
 OSApp.Language = OSApp.Language || {};
 
+OSApp.Language.Constants = {
+	languageCodes: {
+		af: "Afrikaans",
+		am: "Amharic",
+		bg: "Bulgarian",
+		zh: "Chinese",
+		hr: "Croatian",
+		cs: "Czech",
+		nl: "Dutch",
+		en: "English",
+		et: "Estonian",
+		pes: "Farsi",
+		fr: "French",
+		de: "German",
+		el: "Greek",
+		he: "Hebrew",
+		hu: "Hungarian",
+		is: "Icelandic",
+		it: "Italian",
+		lv: "Latvian",
+		mn: "Mongolian",
+		no: "Norwegian",
+		pl: "Polish",
+		pt: "Portuguese",
+		ru: "Russian",
+		sk: "Slovak",
+		sl: "Slovenian",
+		es: "Spanish",
+		ta: "Tamil",
+		th: "Thai",
+		tr: "Turkish",
+		sv: "Swedish",
+		ro: "Romanian"
+	}
+}
+
 //Localization functions
 OSApp.Language._ = function( key ) {
 
@@ -54,6 +90,11 @@ OSApp.Language.setLang = function() {
 	OSApp.Language.checkCurrLang();
 };
 
+OSApp.Language.updateUIElements = function() {
+	// FIXME: Some elements need to be manually re-rendered to apply language changes. Can this be handled through an event? page reload?
+	OSApp.Weather.updateWeatherBox();
+};
+
 OSApp.Language.updateLang = function( lang ) {
 
 	//Empty out the current OSApp.uiState.language (English is provided as the key)
@@ -89,24 +130,13 @@ OSApp.Language.languageSelect = function() {
 
 	/*
 		Commented list of languages used by the string parser to identify strings for translation
-
-		{af: OSApp.Language._("Afrikaans"), am: OSApp.Language._("Amharic"), zh: OSApp.Language._("Chinese"), hr: OSApp.Language._("Croatian"), cs: OSApp.Language._("Czech"), et: OSApp.Language._("Estonian")
-		nl: OSApp.Language._("Dutch"), en: OSApp.Language._("English"), pes: OSApp.Language._("Farsi"), fr: OSApp.Language._("French"), de: OSApp.Language._("German"), bg: OSApp.Language._("Bulgarian"),
-		el: OSApp.Language._("Greek"), he: OSApp.Language._("Hebrew"), hu: OSApp.Language._("Hungarian"), is: OSApp.Language._("Icelandic"), it: OSApp.Language._("Italian"), lv: OSApp.Language._("Latvian"),
-		mn: OSApp.Language._("Mongolian"), no: OSApp.Language._("Norwegian"), pl: OSApp.Language._("Polish"), pt: OSApp.Language._("Portuguese"), ru: OSApp.Language._("Russian"), ta: OSApp.Language._("Tamil"),
-		sk: OSApp.Language._("Slovak"), sl: OSApp.Language._("Slovenian"), es: OSApp.Language._("Spanish"), th: OSApp.Language._("Thai"), tr: OSApp.Language._("Turkish"), sv: OSApp.Language._("Swedish"), ro: OSApp.Language._("Romanian")}
 	*/
 
 	var popup = "<div data-role='popup' data-theme='a' id='localization' data-corners='false'>" +
 				"<ul data-inset='true' data-role='listview' id='lang' data-corners='false'>" +
-				"<li data-role='list-divider' data-theme='b' class='center' data-translate='Localization'>" + OSApp.Language._( "Localization" ) + "</li>",
+				"<li data-role='list-divider' data-theme='b' class='center' data-translate='Localization'>" + OSApp.Language._( "Localization" ) + "</li>";
 
-		codes = { af: "Afrikaans", am: "Amharic", bg: "Bulgarian", zh: "Chinese", hr: "Croatian", cs: "Czech", nl: "Dutch",
-				en: "English", et: "Estonian", pes: "Farsi", fr: "French", de: "German", el: "Greek", he: "Hebrew", hu: "Hungarian",
-				is: "Icelandic", it: "Italian", lv: "Latvian", mn: "Mongolian", no: "Norwegian", pl: "Polish", pt: "Portuguese",
-				ru: "Russian", sk: "Slovak", sl: "Slovenian", es: "Spanish", ta: "Tamil", th: "Thai", tr: "Turkish", sv: "Swedish", ro: "Romanian" };
-
-	$.each( codes, function( key, name ) {
+	$.each( OSApp.Language.Constants.languageCodes, function( key, name ) {
 		popup += "<li><a href='#' data-lang-code='" + key + "'><span data-translate='" + name + "'>" + OSApp.Language._( name ) + "</span> (" + key.toUpperCase() + ")</a></li>";
 	} );
 
@@ -140,5 +170,7 @@ OSApp.Language.checkCurrLang = function() {
 		} );
 
 		popup.find( "li.ui-last-child" ).removeClass( "ui-last-child" );
+
+		OSApp.Language.updateUIElements();
 	} );
 };
