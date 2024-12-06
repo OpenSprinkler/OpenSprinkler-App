@@ -93,6 +93,7 @@ OSApp.Language.setLang = function() {
 OSApp.Language.updateUIElements = function() {
 	// FIXME: Some elements need to be manually re-rendered to apply language changes. Can this be handled through an event? page reload?
 	OSApp.Weather.updateWeatherBox();
+	OSApp.Dashboard.updateWaterLevel();
 };
 
 OSApp.Language.updateLang = function( lang ) {

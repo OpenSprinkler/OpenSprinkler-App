@@ -30,7 +30,9 @@ OSApp.Dashboard.displayPage = function() {
 			"<div class='ui-block-b center home-info pointer'>" +
 			"<div class='sitename bold'></div>" +
 			"<div id='clock-s' class='nobr'></div>" +
+			"<div id='water-level'>" +
 			OSApp.Language._( "Water Level" ) + ": <span class='waterlevel'></span>%" +
+			"</div>" +
 			"</div>" +
 			"</div>" +
 			"<div id='os-stations-list' class='card-group center'></div>" +
@@ -878,9 +880,9 @@ OSApp.Dashboard.displayPage = function() {
 
 			updateClock();
 			updateSites();
+			OSApp.Dashboard.updateWaterLevel();
 			OSApp.Analog.updateSensorShowArea( page );
 
-			page.find( ".waterlevel" ).text( OSApp.currentSession.controller.options.wl );
 			page.find( ".sitename" ).text( siteSelect.val() );
 
 			// Remove unused stations
@@ -1160,4 +1162,12 @@ OSApp.Dashboard.displayPage = function() {
 	}
 
 	return begin();
+};
+
+OSApp.Dashboard.updateWaterLevel = function() {
+	// Update the water level displayed on the dashboard
+	if (!OSApp.currentSession.controller.options) {
+		return;
+	}
+	$( "#water-level" ).html(OSApp.Language._( "Water Level" ) + ": <span class='waterlevel'>" + OSApp.currentSession.controller.options.wl + "</span>%");
 };
