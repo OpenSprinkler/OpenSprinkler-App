@@ -707,8 +707,8 @@ OSApp.Weather.checkURLandUpdateWeather = function() {
 };
 
 OSApp.Weather.updateWeatherBox = function() {
-	if (!OSApp.currentSession.controller.settings) {
-		// Exit early if we don't have controller settings
+	if (!OSApp.currentSession.weather || !OSApp.currentSession.controller.settings) {
+		// Exit early if we don't have weather data or controller settings
 		return;
 	}
 
