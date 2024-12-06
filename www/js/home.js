@@ -140,8 +140,10 @@
 			// Insert datatables grid library
 			insertScript( assetLocation + "vendor-js/dataTables-2.1.8.min.js" );
 
-			// Insert modules
+			// FIXME: this needs to be dynamic, so newly added modules are automatically inserted!
+			//  Insert modules
 			insertScript( assetLocation + "/js/modules/analog.js");
+			insertScript( assetLocation + "/js/modules/about.js");
 			insertScript( assetLocation + "/js/modules/card-list.js");
 			insertScript( assetLocation + "/js/modules/cards.js");
 			insertScript( assetLocation + "/js/modules/dates.js");

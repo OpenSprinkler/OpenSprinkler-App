@@ -2822,7 +2822,7 @@ OSApp.UIDom.launchApp = function() {
 		} else if ( hash === "#manual" ) {
 			OSApp.Programs.displayPageManual();
 		} else if ( hash === "#about" ) {
-			showAbout();
+			OSApp.About.displayPage();
 		} else if ( hash === "#runonce" ) {
 			getRunonce();
 		} else if ( hash === "#os-options" ) {
