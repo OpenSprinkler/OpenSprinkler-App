@@ -146,6 +146,7 @@
 			insertScript( assetLocation + "/js/modules/analog.js");
 			insertScript( assetLocation + "/js/modules/card-list.js");
 			insertScript( assetLocation + "/js/modules/cards.js");
+			insertScript( assetLocation + "/js/modules/dashboard.js");
 			insertScript( assetLocation + "/js/modules/dates.js");
 			insertScript( assetLocation + "/js/modules/errors.js");
 			insertScript( assetLocation + "/js/modules/firmware.js");

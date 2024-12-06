@@ -35,6 +35,7 @@ cacheFiles = cacheFiles.concat([
 	"/js/modules/analog.js",
 	"/js/modules/card-list.js",
 	"/js/modules/cards.js",
+	"/js/modules/dashboard.js",
 	"/js/modules/dates.js",
 	"/js/modules/errors.js",
 	"/js/modules/firmware.js",
