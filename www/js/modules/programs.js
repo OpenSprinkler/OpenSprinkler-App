@@ -133,6 +133,165 @@ OSApp.Programs.displayPage = function() {
 	return begin();
 };
 
+OSApp.Programs.displayPageManual = function() {
+	// Manual control functions
+	var page = $( "<div data-role='page' id='manual'>" +
+			"<div class='ui-content' role='main'>" +
+			"<p class='center'>" + OSApp.Language._( "With manual mode turned on, tap a station to toggle it." ) + "</p>" +
+			"<fieldset data-role='collapsible' data-collapsed='false' data-mini='true'>" +
+			"<legend>" + OSApp.Language._( "Options" ) + "</legend>" +
+			"<div class='ui-field-contain'>" +
+			"<label for='mmm'><b>" + OSApp.Language._( "Manual Mode" ) + "</b></label>" +
+			"<input type='checkbox' data-on-text='On' data-off-text='Off' data-role='flipswitch' name='mmm' id='mmm'>" +
+			"</div>" +
+			"<p class='rain-desc smaller center' style='padding-top:5px'>" +
+			OSApp.Language._( "Station timer prevents a station from running indefinitely and will automatically turn it off after the set duration (or when toggled off)" ) +
+			"</p>" +
+			"<div class='ui-field-contain duration-input'>" +
+			"<label for='auto-off'><b>" + OSApp.Language._( "Station Timer" ) + "</b></label>" +
+			"<button data-mini='true' name='auto-off' id='auto-off' value='3600'>1h</button>" +
+			"</div>" +
+			"</fieldset>" +
+			"<div id='manual-station-list'>" +
+			"</div>" +
+			"</div>" +
+			"</div>" ),
+		checkToggle = function( currPos ) {
+			OSApp.Sites.updateControllerStatus().done( function() {
+				var item = listitems.eq( currPos ).find( "a" );
+
+				if ( OSApp.currentSession.controller.options.mas ) {
+					if ( OSApp.currentSession.controller.status[ OSApp.currentSession.controller.options.mas - 1 ] ) {
+						listitems.eq( OSApp.currentSession.controller.options.mas - 1 ).addClass( "green" );
+					} else {
+						listitems.eq( OSApp.currentSession.controller.options.mas - 1 ).removeClass( "green" );
+					}
+				}
+
+				item.text( OSApp.currentSession.controller.stations.snames[ currPos ] );
+
+				if ( OSApp.currentSession.controller.status[ currPos ] ) {
+					item.removeClass( "yellow" ).addClass( "green" );
+				} else {
+					item.removeClass( "green yellow" );
+				}
+			} );
+		},
+		toggle = function() {
+			if ( !OSApp.currentSession.controller.settings.mm ) {
+				OSApp.Errors.showError( OSApp.Language._( "Manual mode is not enabled. Please enable manual mode then try again." ) );
+				return false;
+			}
+
+			var anchor = $( this ),
+				item = anchor.closest( "li" ),
+				currPos = listitems.index( item ),
+				sid = currPos + 1,
+				dur = autoOff.val();
+
+			if ( anchor.hasClass( "yellow" ) ) {
+				return false;
+			}
+
+			if ( OSApp.currentSession.controller.status[ currPos ] ) {
+				if ( OSApp.Firmware.checkOSPiVersion( "2.1" ) ) {
+					dest = "/sn?sid=" + sid + "&set_to=0&pw=";
+				} else {
+					dest = "/sn" + sid + "=0";
+				}
+			} else {
+				if ( OSApp.Firmware.checkOSPiVersion( "2.1" ) ) {
+					dest = "/sn?sid=" + sid + "&set_to=1&set_time=" + dur + "&pw=";
+				} else {
+					dest = "/sn" + sid + "=1&t=" + dur;
+				}
+			}
+
+			anchor.removeClass( "green" ).addClass( "yellow" );
+			anchor.html( "<p class='ui-icon ui-icon-loading mini-load'></p>" );
+
+			OSApp.Firmware.sendToOS( dest ).always(
+				function() {
+
+					// The device usually replies before the station has actually toggled. Delay in order to wait for the station's to toggle.
+					setTimeout( checkToggle, 1000, currPos );
+				}
+			);
+
+			return false;
+		},
+		autoOff = page.find( "#auto-off" ),
+		dest, mmlist, listitems;
+
+	page.on( "pagehide", function() {
+		page.detach();
+	} );
+
+	OSApp.Storage.get( "autoOff", function( data ) {
+		if ( !data.autoOff ) {
+			return;
+		}
+		autoOff.val( data.autoOff );
+		autoOff.text( OSApp.Dates.dhms2str( OSApp.Dates.sec2dhms( data.autoOff ) ) );
+	} );
+
+	autoOff.on( "click", function() {
+		var dur = $( this ),
+			name = page.find( "label[for='" + dur.attr( "id" ) + "']" ).text();
+
+		OSApp.UIDom.showDurationBox( {
+			seconds: dur.val(),
+			title: name,
+			callback: function( result ) {
+				dur.val( result );
+				dur.text( OSApp.Dates.dhms2str( OSApp.Dates.sec2dhms( result ) ) );
+				OSApp.Storage.set( { "autoOff": result } );
+			},
+			maximum: 32768
+		} );
+
+		return false;
+	} );
+
+	page.find( "#mmm" ).on( "change", OSApp.UIDom.flipSwitched );
+
+	function begin() {
+		var list = "<li data-role='list-divider' data-theme='a'>" + OSApp.Language._( "Sprinkler Stations" ) + "</li>";
+
+		page.find( "#mmm" ).prop( "checked", OSApp.currentSession.controller.settings.mm ? true : false );
+
+		$.each( OSApp.currentSession.controller.stations.snames, function( i, station ) {
+			if ( OSApp.Stations.isMaster( i ) ) {
+				list += "<li data-icon='false' class='center" + ( ( OSApp.currentSession.controller.status[ i ] ) ? " green" : "" ) +
+					( OSApp.Stations.isDisabled( i ) ? " station-hidden' style='display:none" : "" ) + "'>" + station + " (" + OSApp.Language._( "Master" ) + ")</li>";
+			} else {
+				list += "<li data-icon='false'><a class='mm_station center" + ( ( OSApp.currentSession.controller.status[ i ] ) ? " green" : "" ) +
+					( OSApp.Stations.isDisabled( i ) ? " station-hidden' style='display:none" : "" ) + "'>" + station + "</a></li>";
+			}
+		} );
+
+		mmlist = $( "<ul data-role='listview' data-inset='true' id='mm_list'>" + list + "</ul>" );
+		listitems = mmlist.children( "li" ).slice( 1 );
+		mmlist.find( ".mm_station" ).on( "vclick", toggle );
+		page.find( "#manual-station-list" ).html( mmlist ).enhanceWithin();
+
+		OSApp.UIDom.changeHeader( {
+			title: OSApp.Language._( "Manual Control" ),
+			leftBtn: {
+				icon: "carat-l",
+				text: OSApp.Language._( "Back" ),
+				class: "ui-toolbar-back-btn",
+				on: OSApp.UIDom.goBack
+			}
+		} );
+
+		$( "#manual" ).remove();
+		$.mobile.pageContainer.append( page );
+	}
+
+	return begin();
+};
+
 // Translate program array into easier to use data
 OSApp.Programs.readProgram = function( program ) {
 	if ( OSApp.Firmware.checkOSVersion( 210 ) ) {
