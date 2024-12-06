@@ -17,6 +17,122 @@
 var OSApp = OSApp || {};
 OSApp.Programs = OSApp.Programs || {};
 
+OSApp.Programs.displayPage = function() {
+	// Program management functions
+	var page = $( "<div data-role='page' id='programs'>" +
+			"<div class='ui-content' role='main' id='programs_list'>" +
+			"</div>" +
+			"</div>" ),
+		expandId;
+
+	page
+		.on( "programrefresh", updateContent )
+		.on( "pagehide", function() {
+			page.detach();
+		} )
+		.on( "pagebeforeshow", function() {
+			OSApp.Programs.updateProgramHeader();
+
+			if ( typeof expandId !== "number" && OSApp.currentSession.controller.programs.pd.length === 1 ) {
+				expandId = 0;
+			}
+
+			if ( typeof expandId === "number" ) {
+				page.find( "fieldset[data-collapsed='false']" ).collapsible( "collapse" );
+				$( "#program-" + expandId ).collapsible( "expand" );
+			}
+		} );
+
+	function updateContent() {
+		var list = $( OSApp.Programs.makeAllPrograms() );
+
+		list.find( "[id^=program-]" ).on( {
+			collapsiblecollapse: function() {
+				$( this ).find( ".ui-collapsible-content" ).empty();
+			},
+			collapsiblebeforecollapse: function( e ) {
+				var program = $( this ),
+					changed = program.find( ".hasChanges" );
+
+				if ( changed.length ) {
+					OSApp.UIDom.areYouSure( OSApp.Language._( "Do you want to save your changes?" ), "", function() {
+						changed.removeClass( "hasChanges" ).click();
+						program.collapsible( "collapse" );
+					}, function() {
+						changed.removeClass( "hasChanges" );
+						program.collapsible( "collapse" );
+					} );
+					e.preventDefault();
+				}
+			},
+			collapsibleexpand: function() {
+				OSApp.Programs.expandProgram( $( this ) );
+			}
+		} );
+
+		if ( OSApp.Firmware.checkOSVersion( 210 ) ) {
+			list.find( ".move-up" ).removeClass( "hidden" ).on( "click", function() {
+				var group = $( this ).parents( "fieldset" ),
+					pid = parseInt( group.attr( "id" ).split( "-" )[ 1 ] );
+
+				$.mobile.loading( "show" );
+
+				OSApp.Firmware.sendToOS( "/up?pw=&pid=" + pid ).done( function() {
+					OSApp.Sites.updateControllerPrograms( function() {
+						$.mobile.loading( "hide" );
+						page.trigger( "programrefresh" );
+					} );
+				} );
+
+				return false;
+			} );
+		}
+
+		list.find( ".program-copy" ).on( "click", function() {
+			var copyID = parseInt( $( this ).parents( "fieldset" ).attr( "id" ).split( "-" )[ 1 ] );
+
+			OSApp.UIDom.changePage( "#addprogram", {
+				copyID: copyID
+			} );
+
+			return false;
+		} );
+
+		page.find( "#programs_list" ).html( list.enhanceWithin() );
+	}
+
+	function begin( pid ) {
+		expandId = pid;
+
+		OSApp.UIDom.changeHeader( {
+			title: OSApp.Language._( "Programs" ),
+			leftBtn: {
+				icon: "carat-l",
+				text: OSApp.Language._( "Back" ),
+				class: "ui-toolbar-back-btn",
+				on: OSApp.UIDom.checkChangesBeforeBack
+			},
+			rightBtn: {
+				icon: "plus",
+				text: OSApp.Language._( "Add" ),
+				on: function() {
+					OSApp.UIDom.checkChanges( function() {
+						OSApp.UIDom.changePage( "#addprogram" );
+					} );
+				}
+			}
+
+		} );
+
+		updateContent();
+
+		$( "#programs" ).remove();
+		$.mobile.pageContainer.append( page );
+	}
+
+	return begin();
+};
+
 // Translate program array into easier to use data
 OSApp.Programs.readProgram = function( program ) {
 	if ( OSApp.Firmware.checkOSVersion( 210 ) ) {
