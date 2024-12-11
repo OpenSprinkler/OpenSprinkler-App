@@ -340,7 +340,7 @@ function updateSensorShowArea(page) {
 							endAngle: 135,
 							hollow: {
 								margin: 0,
-								size: '70%',
+								size: '60%',
 								background: '#fff',
 								position: 'front',
 								dropShadow: {

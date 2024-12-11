@@ -6,19 +6,18 @@
  */
 
 var programCharts = [];
-var stationsRunning = 0;
 var lastProgramRun = -2;
 var clickedOn = -1;
 var clickedMove = 0;
 var scrollY = 0;
 var showing = false;
+var lastWidth = 0;
 
 function updateProgramShowArea( page, visible ) {
 	if (!checkOSVersion( 210 ))
 		return;
 
-	var i, j, reset = false, sr = 0,
-		width = window.screen.width < 400? 150 : 200;
+	var i, j, reset = false, sr = 0, width;
 
 	if (lastProgramRun == -2) {
 		lastProgramRun = localStorage.getItem("lastProgramRun");
@@ -26,6 +25,12 @@ function updateProgramShowArea( page, visible ) {
 			lastProgramRun == -1;
 			reset = true;
 		}
+	}
+
+	width = window.screen.width < 400? 150 : 200;
+	if (width != lastWidth) {
+		lastWidth = width;
+		reset = true;
 	}
 
 	if (controller.programs.pd.length != programCharts.length) {
@@ -132,8 +137,8 @@ function updateProgramShowArea( page, visible ) {
 			programChart.name = name;
 			programChart.updated++;
 		}
-		if (stationsRunning != sr) {
-			stationsRunning = sr;
+		if (programChart.stationsRunning != sr) {
+			programChart.stationsRunning = sr;
 			reset = true;
 		}
 		if (reset) {
@@ -269,7 +274,7 @@ function updateProgramShowArea( page, visible ) {
 					radialBar: {
 						hollow: {
 							margin: 0,
-              				size: '70%',
+              				size: '60%',
               				background: '#fff',
 							position: 'front',
 							dropShadow: {
