@@ -2447,3 +2447,54 @@ msgstr ""
 msgid "Show all"
 msgstr ""
 
+msgid "Source"
+msgstr ""
+
+msgid "Min"
+msgstr ""
+
+msgid "Max"
+msgstr ""
+
+msgid "SN 1/2"
+msgstr ""
+
+msgid "AND"
+msgstr ""
+
+msgid "OR"
+msgstr ""
+
+msgid "XOR"
+msgstr ""
+
+msgid "NOT"
+msgstr ""
+
+msgid "unselected"
+msgstr ""
+
+msgid "Priority"
+msgstr ""
+
+msgid "inverse"
+msgstr ""
+
+msgid "close"
+msgstr ""
+
+msgid "No Adjustment"
+msgstr ""
+
+msgid "Linear scaling",
+msgstr ""
+
+msgid "Digital under min",
+msgstr ""
+
+msgid "Digital over max",
+msgstr ""
+
+msgid "Digital under min or over max","
+msgstr ""
+

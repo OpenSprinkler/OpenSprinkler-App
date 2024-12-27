@@ -40,6 +40,15 @@ const OSPI_USB_RS485 = 0x200;
 
 const NOTIFICATION_COLORS = ["#baffc9", "#faf0be", "#ffb3ba"];
 
+const MONITOR_DELETE   = 0;
+const MONITOR_MIN      = 1;
+const MONITOR_MAX      = 2;
+const MONITOR_SENSOR12 = 3; //Digital OS Sensors
+const MONITOR_AND      = 10;
+const MONITOR_OR       = 11;
+const MONITOR_XOR      = 12;
+const MONITOR_NOT      = 13;
+
 function success_callback(scope) {
 }
 
@@ -557,29 +566,7 @@ function importConfigSensors(data, restore_type, callback) {
 			var sensorOut;
 			for (var i = 0; i < data.sensors.length; i++) {
 				sensorOut = data.sensors[i];
-				sendToOS("/sc?pw=&nr=" + sensorOut.nr +
-					"&type=" + sensorOut.type +
-					"&group=" + sensorOut.group +
-					"&name=" + enc(sensorOut.name) +
-					"&ip=" + sensorOut.ip +
-					"&port=" + sensorOut.port +
-					"&id=" + sensorOut.id +
-					"&ri=" + sensorOut.ri +
-					((sensorOut.type === USERDEF_SENSOR) ?
-						("&fac=" + sensorOut.fac +
-							"&div=" + sensorOut.div +
-							"&offset=" + sensorOut.offset +
-							"&unit=" + enc(sensorOut.unit)
-						) : "") +
-					((sensorOut.type === SENSOR_MQTT) ?
-						("&topic=" + enc(sensorOut.topic) +
-							"&filter=" + enc(sensorOut.filter) +
-							"&unit=" + enc(sensorOut.unit)
-						) : "") +
-					"&enable=" + sensorOut.enable +
-					"&log=" + sensorOut.log +
-					"&show=" + sensorOut.show,
-					"json");
+				sendToOsObj("/sc?pw=", sensorOut);
 			}
 		}
 
@@ -587,34 +574,15 @@ function importConfigSensors(data, restore_type, callback) {
 			var progAdjustOut;
 			for (var i = 0; i < data.progadjust.length; i++) {
 				progAdjustOut = data.progadjust[i];
-				return sendToOS("/sb?pw=&nr=" + progAdjustOut.nr +
-					"&type=" + progAdjustOut.type +
-					"&sensor=" + progAdjustOut.sensor +
-					"&prog=" + progAdjustOut.prog +
-					"&factor1=" + progAdjustOut.factor1 +
-					"&factor2=" + progAdjustOut.factor2 +
-					"&min=" + progAdjustOut.min +
-					"&max=" + progAdjustOut.max +
-					"&name=" + enc(progAdjustOut.name),
-					"json");
+				sendToOsObj("/sb?pw?=", progAdjustOut);
 			}
 		}
 
 		if ((restore_type & 4) == 4 && data.hasOwnProperty("monitors")) { //restore monitors
-			var monitors;
+			var monitor;
 			for (var i = 0; i < data.monitors.length; i++) {
 				monitor = data.monitors[i];
-				return sendToOS("/mc?pw=&nr=" + monitor.nr +
-					"&type=" + monitor.type +
-					"&sensor=" + monitor.sensor +
-					"&prog=" + monitor.prog +
-					"&zone=" + monitor.zone +
-					"&value1=" + monitor.value1 +
-					"&value2=" + monitor.value2 +
-					"&maxrun=" + monitor.maxrun +
-					"&prio=" + (monitor.hasOwnProperty("prio")?monitor.prio:0) +
-					"&name=" + enc(monitor.name),
-					"json");
+				sendToOsObj("/mc?pw=", monitor);
 			}
 		}
 
@@ -632,6 +600,19 @@ function importConfigSensors(data, restore_type, callback) {
 
 	});
 }
+
+function sendToOsObj(params, obj) {
+	for (var key in obj) {
+		if (obj.hasOwnProperty(key)) {
+			var value = obj[key];
+			if (key == "name" || key == "unit" || key == "topic" || key == "filter")
+				value = enc(value);
+			params += "&"+key+"="+value;
+		}
+	}
+	return sendToOS(params, "json");
+}
+
 
 function getExportMethodSensors(backuptype) {
 	let storageName = (backuptype == 1) ? "backupSensors" : (backuptype == 2) ? "backupAdjustments" : "backupAll";
@@ -725,7 +706,7 @@ function showAdjustmentsEditor(progAdjust, row, callback, callbackCancel) {
 		for (i = 0; i < supportedAdjustmentTypes.length; i++) {
 			list += "<option " + ((progAdjust.type === supportedAdjustmentTypes[i].type) ? "selected" : "") +
 				" value='" + supportedAdjustmentTypes[i].type + "'>" +
-				supportedAdjustmentTypes[i].name + "</option>";
+				_(supportedAdjustmentTypes[i].name) + "</option>";
 		}
 		list += "</select></div>" +
 
@@ -901,7 +882,7 @@ function getProgAdjust(popup) {
 function updateAdjustmentChart(popup) {
 
 	let p = getProgAdjust(popup);
-	sendToOS("/sd?pw=&type=" + p.type + "&sensor=" + p.sensor + "&factor1=" + p.factor1 + "&factor2=" + p.factor2 + "&min=" + p.min + "&max=" + p.max, "json").done(function (values) {
+	sendToOsObj("/sd?pw=", p).done(function (values) {
 		if (!values || !values.hasOwnProperty("adjustment"))
 			return;
 		let adj = values.adjustment;
@@ -1019,21 +1000,86 @@ function updateAdjustmentChart(popup) {
 	});
 }
 
-function getMonitor(popup) {
-	return {
-		nr: parseInt(popup.find(".nr").val()),
-		name: popup.find(".mon-name").val(),
-		type: parseInt(popup.find("#type").val()),
-		sensor: parseInt(popup.find("#sensor").val()),
-		prog: parseInt(popup.find("#prog").val()),
-		zone: parseInt(popup.find("#zone").val()),
-		value1: parseFloat(popup.find(".value1").val()),
-		value2: parseFloat(popup.find(".value2").val()),
-		maxrun: parseFloat(popup.find(".maxrun").val()),
-		prio: parseInt(popup.find("#prio").val())
-	};
+function addToObjectChk(popup, fieldId, obj) {
+	let field = popup.find(fieldId);
+	if (field) {
+		let property = fieldId.substring(1);
+		obj[property] = field.is(":checked") ? 1 : 0;
+	}
 }
 
+function addToObjectInt(popup, fieldId, obj) {
+	let field = popup.find(fieldId);
+	if (field) {
+		let property = fieldId.substring(1);
+		obj[property] = parseInt(field.val());
+	}
+}
+
+function addToObjectFlt(popup, fieldId, obj) {
+	let field = popup.find(fieldId);
+	if (field) {
+		let property = fieldId.substring(1);
+		obj[property] = parseFloat(field.val());
+	}
+}
+
+function addToObjectStr(popup, fieldId, obj) {
+	let field = popup.find(fieldId);
+	if (field) {
+		let property = fieldId.substring(1);
+		obj[property] = field.val();
+	}
+}
+
+
+function getMonitor(popup) {
+	var result = {};
+	addToObjectInt(popup, "#nr", result);
+	addToObjectStr(popup, "#name", result);
+	addToObjectInt(popup, "#type", result);
+	addToObjectInt(popup, "#sensor", result);
+	addToObjectInt(popup, "#prog", result);
+	addToObjectInt(popup, "#zone", result);
+	addToObjectFlt(popup, "#maxrun", result);
+	addToObjectInt(popup, "#prio", result);
+
+	//Min+Max
+	addToObjectFlt(popup, "#value1", result);
+	addToObjectFlt(popup, "#value2", result);
+	//Sensor12
+	addToObjectInt(popup, "#sensor12", result);
+	addToObjectChk(popup, "#invers", result);
+	//AND+OR+XOR
+	addToObjectInt(popup, "#monitor1", result);
+	addToObjectInt(popup, "#monitor2", result);
+	addToObjectInt(popup, "#monitor3", result);
+	addToObjectInt(popup, "#monitor4", result);
+	addToObjectChk(popup, "#invers1", result);
+	addToObjectChk(popup, "#invers2", result);
+	addToObjectChk(popup, "#invers3", result);
+	addToObjectChk(popup, "#invers4", result);
+	//NOT
+	addToObjectInt(popup, "#monitor", result);
+	return result;
+}
+
+function monitorSelection(id, sel, ignore) {
+	var list = "<select data-mini='true' id='"+id+"'>";
+
+	list += "<option " + (!sel ? "selected" : "") +
+	" value=''>" + _("unselected") + "</option>";
+
+	for (i = 0; i < monitors.length; i++) {
+		let monitor = monitors[i];
+		if (monitor.nr === ignore) continue;
+		list += "<option " + ((monitor.nr === sel) ? "selected" : "") +
+			" value='" +monitor.nr + "'>" +
+			monitor.name + "</option>";
+	}
+	list += "</select>";
+	return list;
+}
 
 //Monitor editor
 function showMonitorEditor(monitor, row, callback, callbackCancel) {
@@ -1061,33 +1107,33 @@ function showMonitorEditor(monitor, row, callback, callbackCancel) {
 			"<div class='ui-field-contain'>" +
 
 			//Monitor-Nr:
-			"<label>" +
+			"<label for='id'>" +
 			_("Monitor-Nr") +
+			"<input id='nr' type='number' inputmode='decimal' min='1' max='99999' value='" + monitor.nr + (monitor.nr > 0 ? "' disabled='disabled'>" : "'>") +
 			"</label>" +
-			"<input class='nr' type='number' inputmode='decimal' min='1' max='99999' value='" + monitor.nr + (monitor.nr > 0 ? "' disabled='disabled'>" : "'>") +
 
 			//Monitor-Name:
-			"<label>" +
+			"<label for='name'>" +
 			_("Monitor-Name") +
+			"<input id='name' type='text' maxlength='29' value='" + monitor.name + "' >" +
 			"</label>" +
-			"<input class='mon-name' type='text' maxlength='29' value='" + monitor.name + "' >" +
 
 			//Select Type:
-			"<div class='ui-field-contain'><label for='type' class='select'>" +
+			"<label for='type' class='select'>" +
 			_("Type") +
 			"</label><select data-mini='true' id='type'>";
 
 		for (i = 0; i < supportedMonitorTypes.length; i++) {
 			list += "<option " + ((monitor.type === supportedMonitorTypes[i].type) ? "selected" : "") +
 				" value='" + supportedMonitorTypes[i].type + "'>" +
-				supportedMonitorTypes[i].name + "</option>";
+				_(supportedMonitorTypes[i].name) + "</option>";
 		}
-		list += "</select></div>" +
+		list += "</select>" +
 
 			//Select Sensor:
-			"<div class='ui-field-contain'><label for='sensor' class='select'>" +
+			"<div id='sel_sensor'><label for='sensor' class='select'>" +
 			_("Sensor") +
-			"</label><select data-mini='true' id='sensor'>";
+			"</label><select data-mini='true'>";
 
 		for (i = 0; i < analogSensors.length; i++) {
 			list += "<option " + ((monitor.sensor === analogSensors[i].nr) ? "selected" : "") +
@@ -1097,7 +1143,7 @@ function showMonitorEditor(monitor, row, callback, callbackCancel) {
 		list += "</select></div>" +
 
 			//Select Program:
-			"<div class='ui-field-contain'><label for='prog' class='select'>" +
+			"<label for='prog' class='select'>" +
 			_("Program to start") +
 			"</label><select data-mini='true' id='prog'>" +
 			"<option " + (monitor.prog == 0? "selected" : "") + " value='0'>" + _("Disabled") + "</option>";
@@ -1110,10 +1156,10 @@ function showMonitorEditor(monitor, row, callback, callbackCancel) {
 				" value='" + progNr + "'>" +
 				progName + "</option>";
 		}
-		list += "</select></div>" +
+		list += "</select>" +
 
 			//Select Zone:
-			"<div class='ui-field-contain'><label for='zone' class='select'>" +
+			"<label for='zone' class='select'>" +
 			_("Zone to start") +
 			"</label><select data-mini='true' id='zone'>" +
 			"<option " + (monitor.zone == 0? "selected" : "") + " value='0'>" + _("Disabled") + "</option>";
@@ -1125,35 +1171,64 @@ function showMonitorEditor(monitor, row, callback, callbackCancel) {
 			}
 		}
 
-		list += "</select></div>" +
+		//maxrun
+		list += "</select>" +
+			"<label for='maxrun'>" + _("Max runtime (s)") +
+			"</label><input id='maxrun' type='number' inputmode='decimal' min='1' max='99999' value='" + monitor.maxrun + "'>" +
 
-			"<label>" +
-			_("Max runtime (s)") +
-			"</label>" +
-			"<input class='maxrun' type='number' inputmode='decimal' min='1' max='99999' value='" + monitor.maxrun + "'>" +
-
-			"<label>" +
-			_("Value for activate") +
-			"</label>" +
-			"<input class='value1' type='number' inputmode='decimal' value='" + formatVal(monitor.value1) + "'>" +
-
-			"<label>" +
-			_("Value for deactivate") +
-			"</label>" +
-			"<input class='value2' type='number' inputmode='decimal' value='" + formatVal(monitor.value2) + "'>";
-
-		list += "<label>"+_("Priority") + "</label>" +
-			"<select data-mini='true' id='prio'>";
+		//Priority
+			"<label>"+_("Priority") +
+			"</label><select data-mini='true' id='prio'>";
 		const prios = [_("Low"), _("Medium"), _("High")];
 		if (!monitor.prio)
 			monitor.prio = 0;
 		for (i = 0; i < 3; i++) {
 			list += "<option " + (monitor.prio == i ? "selected" : "") + " value='" + i + "'>" + prios[i] + "</option>";
 		}
-		list += "</select>";
+		list += "</select></div>" +
 
-		list +=
+			//typ = MIN+MAX
+			"<div id='type_minmax'>"+
+			"<label for='value1'>" +
+			_("Value for activate") +
+			"</label><input id='value1' type='number' inputmode='decimal' value='" + formatVal(monitor.value1) + "'>" +
+
+			"<label for='value2'>" +
+			_("Value for deactivate") +
+			"</label><input id='value2' type='number' inputmode='decimal' value='" + formatVal(monitor.value2) + "'>" +
 			"</div>" +
+
+			//typ = SENSOR12
+			"<div id='type_sensor12'>"+
+			"<label for='sensor12'>" +
+			_("Digital Sensor Port") +
+			"</label>" +
+			"<select data-mini='true' id='sensor12'>" +
+			"<option " + (monitor.sensor12 <= 1? "selected" : "") + " value='1'>" + _("Sensor 1") + "</option>" +
+			"<option " + (monitor.sensor12 >= 2? "selected" : "") + " value='2'>" + _("Sensor 2") + "</option>" +
+			"</select>"+
+			"<label for='invers'>" +
+			"<input data-mini='true' id='invers' type='checkbox' " + (monitor.invers ? "checked='checked'" : "") + ">" + _("inverse") + "</input>" +
+			"</label></div>" +
+
+			//typ == ANDORXOR
+			"<div id='type_andorxor'>"+
+			"<label for='monitor1'>"+_("Monitor 1")+"</label>"+monitorSelection("monitor1", monitor.monitor1, monitor.nr)+
+			"<label for='invers1'><input data-mini='true' id='invers1' type='checkbox' " + (monitor.invers1 ? "checked='checked'" : "") + ">" + _("inverse") + "</input></label>" +
+			"<label for='monitor2'>"+_("Monitor 2")+"</label>"+monitorSelection("monitor2", monitor.monitor2, monitor.nr)+
+			"<label for='invers2'><input data-mini='true' id='invers2' type='checkbox' " + (monitor.invers2 ? "checked='checked'" : "") + ">" + _("inverse") + "</input></label>" +
+			"<label for='monitor3'>"+_("Monitor 3")+"</label>"+monitorSelection("monitor3", monitor.monitor3, monitor.nr)+
+			"<label for='invers3'><input data-mini='true' id='invers3' type='checkbox' " + (monitor.invers3 ? "checked='checked'" : "") + ">" + _("inverse") + "</input></label>" +
+			"<label for='monitor4'>"+_("Monitor 4")+"</label>"+monitorSelection("monitor4", monitor.monitor4, monitor.nr)+
+			"<label for='invers4'><input data-mini='true' id='invers4' type='checkbox' " + (monitor.invers4 ? "checked='checked'" : "") + ">" + _("inverse") + "</input></label>" +
+			"</div>" +
+
+			//typ == NOT
+			"<div id='type_not'>"+
+			"<label for='monitor'>"+_("Monitor")+"</label>"+monitorSelection("monitor", monitor.monitor, monitor.nr)+
+			"</div>"+
+
+			//END
 			"<button class='submit' data-theme='b'>" + _("Submit") + "</button>" +
 
 			((row < 0) ? "" : ("<a data-role='button' class='black delete-monitor' value='" + monitor.nr + "' row='" + row + "' href='#' data-icon='delete'>" +
@@ -1220,12 +1295,45 @@ function showMonitorEditor(monitor, row, callback, callbackCancel) {
 			return false;
 		});
 
+		popup.find("#type").change(function () {
+			var type = parseInt($(this).val());
+			updateMonitorEditorType(popup, type);
+		});
+
 		$("#monitorEditor").remove();
 
 		popup.css("max-width", "580px");
 
 		openPopup(popup, { positionTo: "window" });
+
+		updateMonitorEditorType(popup, monitor.type);
 	});
+}
+
+function updateMonitorEditorType(popup, type) {
+	popup.find("#type_minmax").hide();
+	popup.find("#type_sensor12").hide();
+	popup.find("#type_andorxor").hide();
+	popup.find("#type_not").hide();
+	popup.find("#sel_sensor").hide();
+	switch(type) {
+		case MONITOR_MIN:
+		case MONITOR_MAX:
+			popup.find("#sel_sensor").show();
+			popup.find("#type_minmax").show();
+			break;
+		case MONITOR_SENSOR12:
+			popup.find("#type_sensor12").show();
+			break;
+		case MONITOR_AND:
+		case MONITOR_OR:
+		case MONITOR_XOR:
+			popup.find("#type_andorxor").show();
+			break;
+		case MONITOR_NOT:
+			popup.find("#type_not").show();
+			break;
+	}
 }
 
 function isSmt100(sensorType) {
@@ -1644,30 +1752,7 @@ function showAnalogSensorConfig() {
 				sensorOut.nativedata = sensor.nativedata;
 				sensorOut.data = sensor.data;
 				sensorOut.last = sensor.last;
-				return sendToOS("/sc?pw=&nr=" + sensorOut.nr +
-					"&type=" + sensorOut.type +
-					"&group=" + sensorOut.group +
-					"&name=" + enc(sensorOut.name) +
-					"&ip=" + sensorOut.ip +
-					"&port=" + sensorOut.port +
-					"&id=" + sensorOut.id +
-					"&ri=" + sensorOut.ri +
-					"&unitid=" + sensorOut.unitid +
-					"&unit=" + enc(sensorOut.unit) +
-					((sensorOut.type === USERDEF_SENSOR) ?
-						("&fac=" + sensorOut.fac +
-							"&div=" + sensorOut.div +
-							"&offset=" + sensorOut.offset
-						) : "") +
-					((sensorOut.type === SENSOR_MQTT) ?
-						("&topic=" + enc(sensorOut.topic) +
-							"&filter=" + enc(sensorOut.filter)
-						) : "") +
-					"&enable=" + sensorOut.enable +
-					"&log=" + sensorOut.log +
-					"&show=" + sensorOut.show,
-					"json"
-				).done(function (info) {
+				return sendToOsObj("/sc?pw=", sensorOut).done(function (info) {
 					var result = info.result;
 					if (!result || result > 1)
 						showerror(_("Error calling rest service: ") + " " + result);
@@ -1689,31 +1774,7 @@ function showAnalogSensorConfig() {
 			};
 
 			showSensorEditor(sensor, -1, function (sensorOut) {
-				return sendToOS("/sc?pw=&nr=" + sensorOut.nr +
-					"&type=" + sensorOut.type +
-					"&group=" + sensorOut.group +
-					"&name=" + enc(sensorOut.name) +
-					"&ip=" + sensorOut.ip +
-					"&port=" + sensorOut.port +
-					"&id=" + sensorOut.id +
-					"&ri=" + sensorOut.ri +
-					"&unitid=" + sensorOut.unitid +
-					((sensorOut.type === USERDEF_SENSOR) ?
-						("&fac=" + sensorOut.fac +
-							"&div=" + sensorOut.div +
-							"&offset=" + sensorOut.offset +
-							"&unit=" + enc(sensorOut.unit)
-						) : "") +
-					((sensorOut.type === SENSOR_MQTT) ?
-						("&topic=" + enc(sensorOut.topic) +
-							"&filter=" + enc(sensorOut.filter) +
-							"&unit=" + enc(sensorOut.unit)
-						) : "") +
-					"&enable=" + sensorOut.enable +
-					"&log=" + sensorOut.log +
-					"&show=" + sensorOut.show,
-					"json"
-				).done(function (info) {
+				return sendToOsObj("/sc?pw=", sensorOut).done(function (info) {
 					var result = info.result;
 					if (!result || result > 1)
 						showerror(_("Error calling rest service: ") + " " + result);
@@ -1746,17 +1807,7 @@ function showAnalogSensorConfig() {
 			expandItem.add("progadjust");
 			showAdjustmentsEditor(progAdjust, row, function (progAdjustOut) {
 
-				return sendToOS("/sb?pw=&nr=" + progAdjustOut.nr +
-					"&type=" + progAdjustOut.type +
-					"&sensor=" + progAdjustOut.sensor +
-					"&prog=" + progAdjustOut.prog +
-					"&factor1=" + progAdjustOut.factor1 +
-					"&factor2=" + progAdjustOut.factor2 +
-					"&min=" + progAdjustOut.min +
-					"&max=" + progAdjustOut.max +
-					"&name=" + enc(progAdjustOut.name),
-					"json"
-				).done(function (info) {
+				return sendToOsObj("/sb?pw=", progAdjustOut).done(function (info) {
 					var result = info.result;
 					if (!result || result > 1)
 						showerror(_("Error calling rest service: ") + " " + result);
@@ -1775,17 +1826,7 @@ function showAnalogSensorConfig() {
 
 			expandItem.add("progadjust");
 			showAdjustmentsEditor(progAdjust, -1, function (progAdjustOut) {
-				return sendToOS("/sb?pw=&nr=" + progAdjustOut.nr +
-					"&type=" + progAdjustOut.type +
-					"&sensor=" + progAdjustOut.sensor +
-					"&prog=" + progAdjustOut.prog +
-					"&factor1=" + progAdjustOut.factor1 +
-					"&factor2=" + progAdjustOut.factor2 +
-					"&min=" + progAdjustOut.min +
-					"&max=" + progAdjustOut.max +
-					"&name=" + enc(progAdjustOut.name),
-					"json"
-				).done(function (info) {
+				return sendToOsObj("/sb?pw=", progAdjustOut).done(function (info) {
 					var result = info.result;
 					if (!result || result > 1)
 						showerror(_("Error calling rest service: ") + " " + result);
@@ -1808,18 +1849,7 @@ function showAnalogSensorConfig() {
 				expandItem.add("monitors");
 				showMonitorEditor(monitor, row, function (monitorOut) {
 
-					return sendToOS("/mc?pw=&nr=" + monitorOut.nr +
-						"&type=" + monitorOut.type +
-						"&sensor=" + monitorOut.sensor +
-						"&prog=" + monitorOut.prog +
-						"&zone=" + monitorOut.zone +
-						"&value1=" + monitorOut.value1 +
-						"&value2=" + monitorOut.value2 +
-						"&maxrun=" + monitorOut.maxrun +
-						"&prio=" + monitorOut.prio +
-						"&name=" + enc(monitorOut.name),
-						"json"
-					).done(function (info) {
+					return sendToOsObj("/mc?pw=", monitorOut).done(function (info) {
 						var result = info.result;
 						if (!result || result > 1)
 							showerror(_("Error calling rest service: ") + " " + result);
@@ -1838,18 +1868,7 @@ function showAnalogSensorConfig() {
 
 				expandItem.add("monitors");
 				showMonitorEditor(monitor, -1, function (monitorOut) {
-					return sendToOS("/mc?pw=&nr=" + monitorOut.nr +
-						"&type=" + monitorOut.type +
-						"&sensor=" + monitorOut.sensor +
-						"&prog=" + monitorOut.prog +
-						"&zone=" + monitorOut.zone +
-						"&value1=" + monitorOut.value1 +
-						"&value2=" + monitorOut.value2 +
-						"&maxrun=" + monitorOut.maxrun +
-						"&prio=" + monitorOut.prio +
-						"&name=" + enc(monitorOut.name),
-						"json"
-					).done(function (info) {
+					return sendToOsObj("/mc?pw=", monitorOut).done(function (info) {
 						var result = info.result;
 						if (!result || result > 1)
 							showerror(_("Error calling rest service: ") + " " + result);
@@ -1893,6 +1912,18 @@ function showAnalogSensorConfig() {
 			return false;
 		});
 
+		list.find(".backup-all").on("click", function () {
+			expandItem.add("backup");
+			getExportMethodSensors(1+2+4);
+			return false;
+		});
+
+		list.find(".restore-all").on("click", function () {
+			expandItem.add("backup");
+			getImportMethodSensors(1+2+4, updateSensorContent);
+			return false;
+		});
+
 		list.find(".backup-sensors").on("click", function () {
 			expandItem.add("backup");
 			getExportMethodSensors(1);
@@ -1914,6 +1945,18 @@ function showAnalogSensorConfig() {
 		list.find(".restore-adjustments").on("click", function () {
 			expandItem.add("backup");
 			getImportMethodSensors(2, updateSensorContent);
+			return false;
+		});
+
+		list.find(".backup-monitors").on("click", function () {
+			expandItem.add("backup");
+			getExportMethodSensors(4);
+			return false;
+		});
+
+		list.find(".restore-monitors").on("click", function () {
+			expandItem.add("backup");
+			getImportMethodSensors(4, updateMonitors);
 			return false;
 		});
 
@@ -2075,7 +2118,7 @@ function buildSensorConfig() {
 			"<tr><th>" + _("Nr") + "</th>" +
 			"<th class=\"hidecol\">" + _("Type") + "</th>" +
 			"<th class=\"hidecol2\">" + _("S.Nr") + "</th>" +
-			"<th class=\"hidecol2\">" + _("Sensor") + "</th>" +
+			"<th class=\"hidecol2\">" + _("Source") + "</th>" +
 			"<th>" + _("Name") + "</th>" +
 			"<th class=\"hidecol2\">" + _("Program") + "</th>" +
 			"<th class=\"hidecol2\">" + _("Zone") + "</th>" +
@@ -2093,19 +2136,51 @@ function buildSensorConfig() {
 			if (item.zone > 0 && item.zone <= controller.stations.snames.length) {
 				zoneName = controller.stations.snames[item.zone - 1];
 			}
-			var sensorName = "";
+			var source = "";
 			var unit = "";
-			for (var j = 0; j < analogSensors.length; j++) {
-				if (analogSensors[j].nr === item.sensor) {
-					sensorName = analogSensors[j].name;
-					unit = analogSensors[j].unit;
+			var sensorNr = "";
+			switch(item.type) {
+				case MONITOR_MIN:
+				case MONITOR_MAX: {
+					for (var j = 0; j < analogSensors.length; j++) {
+						if (analogSensors[j].nr === item.sensor) {
+							source = analogSensors[j].name;
+							unit = analogSensors[j].unit;
+						}
+					}
+					sensorNr = item.sensor;
+					break;
+				}
+				case MONITOR_SENSOR12: {
+					if (item.sensor12 == 1)
+						source = controller.options.sn1t === 3 ? _( "Soil" ) : _( "Rain" );
+					else if (item.sensor12 == 2)
+						source = controller.options.sn2t === 3 ? _( "Soil" ) : _( "Rain" );
+					else
+						source = "??";
+					if (item.invers) source = _("NOT") + " " + source;
+					break;
+				}
+				case MONITOR_AND:
+				case MONITOR_OR:
+				case MONITOR_XOR: {
+					source = combineWithSep(" " + getMonitorLogical(item.type) + " ",
+						getMonitorSourceName(item.invers1, item.monitor1),
+						getMonitorSourceName(item.invers2, item.monitor2),
+						getMonitorSourceName(item.invers3, item.monitor3),
+						getMonitorSourceName(item.invers4, item.monitor4));
+					break;
+				}
+				case MONITOR_NOT: {
+					source = getMonitorLogical(item.type)+" "+getMonitorName(item.monitor);
+					break;
 				}
 			}
 			var $tr = $("<tr>").append(
 				$("<td>").text(item.nr),
 				$("<td class=\"hidecol\">").text(item.type),
-				$("<td class=\"hidecol2\">").text(item.sensor),
-				$("<td class=\"hidecol2\">").text(sensorName),
+				$("<td class=\"hidecol2\">").text(sensorNr),
+				$("<td class=\"hidecol2\">").text(source),
 				"<td><a data-role='button' class='edit-monitor' value='" + item.nr + "' row='" + row + "' href='#' data-mini='true' data-icon='edit'>" +
 				item.name + "</a></td>",
 				$("<td class=\"hidecol2\">").text(progName),
@@ -2137,13 +2212,61 @@ function buildSensorConfig() {
 	if (checkOSVersion(231)) {
 		list += "<fieldset data-role='collapsible'" + (expandItem.has("backup") ? " data-collapsed='false'" : "") + ">" +
 			"<legend>" + _("Backup and Restore") + "</legend>";
+		list += "<a data-role='button' data-icon='arrow-d-r' class='backup-all'  href='#' data-mini='true'>" + _("Backup Config") + "</a>" +
+			"<a data-role='button' data-icon='back'      class='restore-all' href='#' data-mini='true'>" + _("Restore Config") + "</a>";
 		list += "<a data-role='button' data-icon='arrow-d-r' class='backup-sensors'  href='#' data-mini='true'>" + _("Backup Sensor Config") + "</a>" +
 			"<a data-role='button' data-icon='back'      class='restore-sensors' href='#' data-mini='true'>" + _("Restore Sensor Config") + "</a>";
 		list += "<a data-role='button' data-icon='arrow-d-r' class='backup-adjustments'  href='#' data-mini='true'>" + _("Backup Program Adjustments") + "</a>" +
 			"<a data-role='button' data-icon='back'      class='restore-adjustments' href='#' data-mini='true'>" + _("Restore Program Adjustments") + "</a>";
-		list += "</div></fieldset>";
+		if (checkOSVersion(233)) {
+			list += "<a data-role='button' data-icon='arrow-d-r' class='backup-monitors'  href='#' data-mini='true'>" + _("Backup Monitors") + "</a>" +
+				"<a data-role='button' data-icon='back'      class='restore-monitors' href='#' data-mini='true'>" + _("Restore Monitors") + "</a>";
+			list += "</div></fieldset>";
+		}
 	}
 	return list;
+}
+
+/*
+	Combines all parameters to a string. First parameter is the separator
+*/
+function combineWithSep(sep, ...args) {
+	if (!args.length) return "";
+	var result = "";
+	for (var i = 0; i < args.length; i++) {
+		let arg = args[i];
+		if (!arg) continue;
+		if (result.length > 0) result += sep;
+		result += arg;
+	}
+	return result;
+}
+
+function getMonitorLogical(type) {
+	switch(type) {
+		case MONITOR_MIN: return _("Min");
+		case MONITOR_MAX: return _("Max");
+		case MONITOR_SENSOR12: return _("SN 1/2");
+		case MONITOR_AND: return _("AND");
+		case MONITOR_OR: return _("OR");
+		case MONITOR_XOR: return _("XOR");
+		case MONITOR_NOT: return _("NOT");
+		default: return "??";
+	}
+}
+
+function getMonitorSourceName(invers, monitorNr) {
+	if (!monitorNr) return "";
+	return (invers? (_("NOT") + " ") : "")+ getMonitorName(monitorNr);
+}
+
+function getMonitorName(monitorNr) {
+	for (var i = 0; i < monitors.length; i++) {
+		let monitor = monitors[i];
+		if (monitor.nr === monitorNr)
+			return monitor.name;
+	}
+	return "";
 }
 
 // Show Sensor Charts with apexcharts

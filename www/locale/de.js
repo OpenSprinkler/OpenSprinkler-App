@@ -779,7 +779,24 @@
    "Hide all": "Alle ausblenden",
    "Show Zones": "Zonen anzeigen",
    "Show Programs": "Programme anzeigen",
-   "Show all": "Alles anzeigen"
+   "Show all": "Alles anzeigen",
+   "Source": "Datenquelle",
+   "Min": "Mindestwert",
+   "Max": "Höchstwert",
+   "SN 1/2": "SN 1/2",
+   "AND": "UND",
+   "OR": "ODER",
+   "XOR": "EXCLUSIV-ODER",
+   "NOT": "NICHT",
+   "unselected": "nichts ausgewählt",
+   "Priority": "Priorität",
+   "inverse": "Invers",
+   "close": "Schließen",
+   "No Adjustment": "Keine Anpassung",
+   "Linear scaling": "Lineare Skalierung",
+   "Digital under min": "Digital unter Minimum",
+   "Digital over max": "Digital über Maximum",
+   "Digital under min or over max": "Digital unter Minimum oder über Maximum"
 
 }
 }
