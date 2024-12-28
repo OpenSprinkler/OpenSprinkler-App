@@ -1133,7 +1133,7 @@ function showMonitorEditor(monitor, row, callback, callbackCancel) {
 			//Select Sensor:
 			"<div id='sel_sensor'><label for='sensor' class='select'>" +
 			_("Sensor") +
-			"</label><select data-mini='true'>";
+			"</label><select data-mini='true' id='sensor'>";
 
 		for (i = 0; i < analogSensors.length; i++) {
 			list += "<option " + ((monitor.sensor === analogSensors[i].nr) ? "selected" : "") +
