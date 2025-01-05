@@ -796,7 +796,9 @@
    "Linear scaling": "Lineare Skalierung",
    "Digital under min": "Digital unter Minimum",
    "Digital over max": "Digital über Maximum",
-   "Digital under min or over max": "Digital unter Minimum oder über Maximum"
-
+   "Digital under min or over max": "Digital unter Minimum oder über Maximum",
+   "REMOTE": "Extern",
+   "activated": "aktiviert"
+   
 }
 }

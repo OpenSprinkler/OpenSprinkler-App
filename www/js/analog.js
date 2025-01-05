@@ -48,6 +48,8 @@ const MONITOR_AND      = 10;
 const MONITOR_OR       = 11;
 const MONITOR_XOR      = 12;
 const MONITOR_NOT      = 13;
+const MONITOR_REMOTE   = 100;
+
 
 function success_callback(scope) {
 }
@@ -669,9 +671,8 @@ function showAdjustmentsEditor(progAdjust, row, callback, callbackCancel) {
 		var list =
 			"<div data-role='popup' data-theme='a' id='progAdjustEditor'>" +
 			"<div data-role='header' data-theme='b'>" +
+			"<a href='#' data-rel='back' data-role='button' data-theme='a' data-icon='delete' data-iconpos='notext' class='ui-btn-right'>"+_("close")+"</a>"+
 			"<h1>" + (progAdjust.nr > 0 ? _("Edit Program Adjustment") : _("New Program Adjustment")) + "</h1>" +
-			"<a href='#' class='ui-btn-right' data-role='button' data-mini='true' id='close' data-icon='back' data-inline='true' >" +
-			_("close") + "</a>" +
 			"</div>" +
 
 			"<div class='ui-content'>" +
@@ -780,10 +781,6 @@ function showAdjustmentsEditor(progAdjust, row, callback, callbackCancel) {
 				input.val(val + dir);
 			};
 
-		popup.find("#close").on("click", function () {
-			popup.popup("close");
-		});
-
 		//Delete a program adjust:
 		popup.find(".delete-progadjust").on("click", function () {
 			var dur = $(this),
@@ -856,7 +853,7 @@ function showAdjustmentsEditor(progAdjust, row, callback, callbackCancel) {
 		popup.css("max-width", "580px");
 
 		adjFunc();
-		openPopup(popup, { positionTo: "window" });
+		openPopup(popup, { positionTo: "origin" });
 	});
 }
 
@@ -1000,11 +997,18 @@ function updateAdjustmentChart(popup) {
 	});
 }
 
+function requiredCheck(field, obj, property) {
+	if (obj['missingValue']) return;
+	if (field.is(":visible") && field.prop("required") && !obj[property])
+		obj['missingValue'] = field;
+}
+
 function addToObjectChk(popup, fieldId, obj) {
 	let field = popup.find(fieldId);
 	if (field) {
 		let property = fieldId.substring(1);
 		obj[property] = field.is(":checked") ? 1 : 0;
+		requiredCheck(field, obj, property);
 	}
 }
 
@@ -1013,6 +1017,7 @@ function addToObjectInt(popup, fieldId, obj) {
 	if (field) {
 		let property = fieldId.substring(1);
 		obj[property] = parseInt(field.val());
+		requiredCheck(field, obj, property);
 	}
 }
 
@@ -1021,6 +1026,7 @@ function addToObjectFlt(popup, fieldId, obj) {
 	if (field) {
 		let property = fieldId.substring(1);
 		obj[property] = parseFloat(field.val());
+		requiredCheck(field, obj, property);
 	}
 }
 
@@ -1029,9 +1035,19 @@ function addToObjectStr(popup, fieldId, obj) {
 	if (field) {
 		let property = fieldId.substring(1);
 		obj[property] = field.val();
+		requiredCheck(field, obj, property);
 	}
 }
 
+function addToObjectIPs(popup, fieldId, obj) {
+	let field = popup.find(fieldId);
+	if (field) {
+		let property = fieldId.substring(1);
+		var ipstr = field.val();
+		obj[property] = ipstr?ipstr.split("."):0;
+		requiredCheck(field, obj, property);
+	}
+}
 
 function getMonitor(popup) {
 	var result = {};
@@ -1061,6 +1077,10 @@ function getMonitor(popup) {
 	addToObjectChk(popup, "#invers4", result);
 	//NOT
 	addToObjectInt(popup, "#monitor", result);
+	//REMOTE
+	result[ip] = intFromBytes(popup.find("#ip").val().split("."));
+	result[port] = parseInt(popup.find("#port").val());
+
 	return result;
 }
 
@@ -1091,11 +1111,10 @@ function showMonitorEditor(monitor, row, callback, callbackCancel) {
 		$(".ui-popup-active").find("[data-role='popup']").popup("close");
 
 		var list =
-			"<div data-role='popup' data-theme='a' id='monitorEditor'>" +
+			"<div data-role='popup' data-theme='a' id='monitorEditor' style='max-width:580px;'>" +
 			"<div data-role='header' data-theme='b'>" +
+			"<a href='#' data-rel='back' data-role='button' data-theme='a' data-icon='delete' data-iconpos='notext' class='ui-btn-right'>"+_("close")+"</a>"+
 			"<h1>" + (monitor.nr > 0 ? _("Edit monitor and control") : _("New Monitor")) + "</h1>" +
-			"<a href='#' class='ui-btn-right' data-role='button' data-mini='true' id='close' data-icon='back' data-inline='true' >" +
-			_("close") + "</a>" +
 			"</div>" +
 
 			"<div class='ui-content'>" +
@@ -1109,19 +1128,19 @@ function showMonitorEditor(monitor, row, callback, callbackCancel) {
 			//Monitor-Nr:
 			"<label for='id'>" +
 			_("Monitor-Nr") +
-			"<input id='nr' type='number' inputmode='decimal' min='1' max='99999' value='" + monitor.nr + (monitor.nr > 0 ? "' disabled='disabled'>" : "'>") +
+			"<input id='nr' type='number' inputmode='decimal' min='1' max='99999' required value='" + monitor.nr + (monitor.nr > 0 ? "' disabled='disabled'>" : "'>") +
 			"</label>" +
 
 			//Monitor-Name:
 			"<label for='name'>" +
 			_("Monitor-Name") +
-			"<input id='name' type='text' maxlength='29' value='" + monitor.name + "' >" +
+			"<input id='name' type='text' maxlength='29' value='" + monitor.name + "' required>" +
 			"</label>" +
 
 			//Select Type:
 			"<label for='type' class='select'>" +
 			_("Type") +
-			"</label><select data-mini='true' id='type'>";
+			"</label><select data-mini='true' id='type' required>";
 
 		for (i = 0; i < supportedMonitorTypes.length; i++) {
 			list += "<option " + ((monitor.type === supportedMonitorTypes[i].type) ? "selected" : "") +
@@ -1228,6 +1247,16 @@ function showMonitorEditor(monitor, row, callback, callbackCancel) {
 			"<label for='monitor'>"+_("Monitor")+"</label>"+monitorSelection("monitor", monitor.monitor, monitor.nr)+
 			"</div>"+
 
+			//typ == REMOTE
+			"<div id='type_remote'>"+
+			"<label for='rmonitor'>"+_("Remote Monitor nr")+"</label>"+
+			"<input id='rmonitor' type='number' inputmode='decimal' min='1' max='99999' value='" + monitor.rmonitor + "'>" +
+			"<label for='ip'>"+_("IP")+"</label>"+
+			"<input id='ip' type='text'  value='" + (monitor.ip ? toByteArray(monitor.ip).join(".") : "") + "'>" +
+			"<label for='port'>"+_("Port")+"</label>"+
+			"<input id='port' type='number' inputmode='decimal' min='1' max='99999' value='" + monitor.port + "'>" +
+			"</div>"+
+
 			//END
 			"<button class='submit' data-theme='b'>" + _("Submit") + "</button>" +
 
@@ -1249,10 +1278,6 @@ function showMonitorEditor(monitor, row, callback, callbackCancel) {
 
 				input.val(val + dir);
 			};
-
-		popup.find("#close").on("click", function () {
-			popup.popup("close");
-		});
 
 		//Delete a program adjust:
 		popup.find(".delete-monitor").on("click", function () {
@@ -1277,9 +1302,13 @@ function showMonitorEditor(monitor, row, callback, callbackCancel) {
 		popup.find(".submit").on("click", function () {
 
 			var monitor = getMonitor(popup);
-			callback(monitor);
-
-			popup.popup("close");
+			if (monitor.missingValue) {
+				alert(_('Please fill the required fields'));
+				monitor.missingValue.focus();
+			} else {
+				callback(monitor);
+				popup.popup("close");
+			}
 			return false;
 		});
 
@@ -1302,11 +1331,9 @@ function showMonitorEditor(monitor, row, callback, callbackCancel) {
 
 		$("#monitorEditor").remove();
 
-		popup.css("max-width", "580px");
-
-		openPopup(popup, { positionTo: "window" });
-
 		updateMonitorEditorType(popup, monitor.type);
+
+		openPopup(popup, { positionTo: "origin" });
 	});
 }
 
@@ -1315,6 +1342,7 @@ function updateMonitorEditorType(popup, type) {
 	popup.find("#type_sensor12").hide();
 	popup.find("#type_andorxor").hide();
 	popup.find("#type_not").hide();
+	popup.find("#type_remote").hide();
 	popup.find("#sel_sensor").hide();
 	switch(type) {
 		case MONITOR_MIN:
@@ -1333,7 +1361,10 @@ function updateMonitorEditorType(popup, type) {
 		case MONITOR_NOT:
 			popup.find("#type_not").show();
 			break;
-	}
+		case MONITOR_REMOTE:
+			popup.find("#type_remote").show();
+			break;
+		}
 }
 
 function isSmt100(sensorType) {
@@ -1407,7 +1438,7 @@ function updateSensorVisibility(popup, type) {
 		popup.find(".filter").hide();
 	}
 
-	var unitid = popup.find("#chartunits").val();
+	var unitid = popup.find("#unitid").val();
 	if (type == SENSOR_MQTT || type == USERDEF_SENSOR || unitid == USERDEF_UNIT) {
 		popup.find(".unit_label").show();
 		popup.find(".unit").show();
@@ -1428,30 +1459,33 @@ function saveSensor(popup, sensor, callback) {
 			}
 		}
 	}
-	var sensorOut = {
-		nr: parseInt(popup.find(".nr").val()),
-		type: parseInt(popup.find("#type").val()),
-		group: parseInt(popup.find(".group").val()),
-		name: popup.find(".name").val(),
-		ip: intFromBytes(popup.find(".ip").val().split(".")),
-		port: parseInt(popup.find(".port").val()),
-		id: parseInt(popup.find(".id").val()),
-		ri: parseInt(popup.find(".ri").val()),
-		fac: parseInt(popup.find(".fac").val()),
-		div: parseInt(popup.find(".div").val()),
-		offset: parseInt(popup.find(".offset").val()),
-		unit: popup.find(".unit").val(),
-		unitid: popup.find("#chartunits").val(),
-		enable: popup.find("#enable").is(":checked") ? 1 : 0,
-		log: popup.find("#log").is(":checked") ? 1 : 0,
-		show: popup.find("#show").is(":checked") ? 1 : 0,
-		topic: popup.find(".topic").val(),
-		filter: popup.find(".filter").val()
-	};
+	var sensorOut = {};
+	addToObjectInt(popup, ".nr", sensorOut);
+	addToObjectInt(popup, "#type", sensorOut);
+	addToObjectInt(popup, ".group", sensorOut);
+	addToObjectStr(popup, ".name", sensorOut);
+	addToObjectIPs(popup, ".ip", sensorOut);
+	addToObjectInt(popup, ".port", sensorOut);
+	addToObjectInt(popup, ".id", sensorOut);
+	addToObjectInt(popup, ".ri", sensorOut);
+	addToObjectInt(popup, ".fac", sensorOut);
+	addToObjectInt(popup, ".div", sensorOut);
+	addToObjectInt(popup, ".offset", sensorOut);
+	addToObjectStr(popup, ".unit", sensorOut);
+	addToObjectInt(popup, "#unitid", sensorOut);
+	addToObjectChk(popup, "#enable", sensorOut);
+	addToObjectChk(popup, "#log", sensorOut);
+	addToObjectChk(popup, "#show", sensorOut);
+	addToObjectStr(popup, ".topic", sensorOut);
+	addToObjectStr(popup, ".filter", sensorOut);
 
-	callback(sensorOut);
-
-	popup.popup("close");
+	if (sensorOut.missingValue) {
+		alert(_('Please fill the required fields'));
+		sensorOut.missingValue.focus();
+	} else {
+		callback(sensorOut);
+		popup.popup("close");
+	}
 	return false;
 }
 
@@ -1466,9 +1500,8 @@ function showSensorEditor(sensor, row, callback, callbackCancel) {
 
 		var list = "<div data-role='popup' data-theme='a' id='sensorEditor'>" +
 			"<div data-role='header' data-theme='b'>" +
+			"<a href='#' data-rel='back' data-role='button' data-theme='a' data-icon='delete' data-iconpos='notext' class='ui-btn-right'>"+_("close")+"</a>"+
 			"<h1>" + (sensor.nr > 0 ? _("Edit Sensor") : _("New Sensor")) + "</h1>" +
-			"<a href='#' class='ui-btn-right' data-role='button' data-mini='true' id='close' data-icon='back' data-inline='true' >" +
-			_("close") + "</a>" +
 			"</div>" +
 			"<div class='ui-content'>" +
 			"<p class='rain-desc center smaller'>" +
@@ -1481,11 +1514,11 @@ function showSensorEditor(sensor, row, callback, callbackCancel) {
 			"<label>" +
 			_("Sensor-Nr") +
 			"</label>" +
-			"<input class='nr' type='number' inputmode='decimal' min='1' max='99999' value='" + sensor.nr + (sensor.nr > 0 ? "' disabled='disabled'>" : "'>") +
+			"<input class='nr' type='number' inputmode='decimal' min='1' max='99999' required value='" + sensor.nr + (sensor.nr > 0 ? "' disabled='disabled'>" : "'>") +
 
 			"<div class='ui-field-contain'><label for='type' class='select'>" +
 			_("Type") +
-			"</label><select data-mini='true' id='type'>";
+			"</label><select data-mini='true' id='type' required>";
 
 		for (i = 0; i < supportedSensorTypes.length; i++) {
 			list += "<option " + ((sensor.type === supportedSensorTypes[i].type) ? "selected" : "") +
@@ -1502,7 +1535,7 @@ function showSensorEditor(sensor, row, callback, callbackCancel) {
 
 			"<label>" + _("Name") +
 			"</label>" +
-			"<input class='name' type='text' maxlength='29' value='" + sensor.name + "'>" +
+			"<input class='name' type='text' maxlength='29' value='" + sensor.name + "' required>" +
 
 			"<label class='ip_label'>" + _("IP Address") +
 			"</label>" +
@@ -1530,7 +1563,7 @@ function showSensorEditor(sensor, row, callback, callbackCancel) {
 
 			"<label class='chartunit_label'>" + _("Chart Unit") +
 			"</label>" +
-			"<select data-mini='true' id='chartunits'>" +
+			"<select data-mini='true' id='unitid'>" +
 			"<option value='0'>" + _("Default") + "</option>" +
 			"<option value='1'>" + _("Soil Moisture %") + "</option>" +
 			"<option value='2'>" + _("Degree Celcius " + String.fromCharCode(176) + "C") + "</option>" +
@@ -1599,10 +1632,6 @@ function showSensorEditor(sensor, row, callback, callbackCancel) {
 
 				input.val(val + dir);
 			};
-
-		popup.find("#close").on("click", function () {
-			popup.popup("close");
-		});
 
 		popup.find("#type").change(function () {
 			var type = $(this).val();
@@ -1682,7 +1711,7 @@ function showSensorEditor(sensor, row, callback, callbackCancel) {
 			});
 		});
 
-		popup.find("#chartunits").val(sensor.unitid ? sensor.unitid : 0).change();
+		popup.find("#unitid").val(sensor.unitid ? sensor.unitid : 0).change();
 
 		popup.find(".submit").on("click", function () {
 			saveSensor(popup, sensor, callback);
@@ -1721,7 +1750,7 @@ function showSensorEditor(sensor, row, callback, callbackCancel) {
 
 		updateSensorVisibility(popup, sensor.type);
 
-		openPopup(popup, { positionTo: "window" });
+		openPopup(popup, { positionTo: "origin" });
 	});
 }
 
@@ -2175,6 +2204,10 @@ function buildSensorConfig() {
 					source = getMonitorLogical(item.type)+" "+getMonitorName(item.monitor);
 					break;
 				}
+				case MONITOR_REMOTE: {
+					source = getMonitorLogical(item.type)+" "+getMonitorName(item.monitor);
+					break;
+				}
 			}
 			var $tr = $("<tr>").append(
 				$("<td>").text(item.nr),
@@ -2251,6 +2284,7 @@ function getMonitorLogical(type) {
 		case MONITOR_OR: return _("OR");
 		case MONITOR_XOR: return _("XOR");
 		case MONITOR_NOT: return _("NOT");
+		case MONITOR_REMOTE: return _("REMOTE");
 		default: return "??";
 	}
 }

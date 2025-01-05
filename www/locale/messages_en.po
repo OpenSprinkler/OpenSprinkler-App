@@ -2486,15 +2486,20 @@ msgstr ""
 msgid "No Adjustment"
 msgstr ""
 
-msgid "Linear scaling",
+msgid "Linear scaling"
 msgstr ""
 
-msgid "Digital under min",
+msgid "Digital under min"
 msgstr ""
 
-msgid "Digital over max",
+msgid "Digital over max"
 msgstr ""
 
-msgid "Digital under min or over max","
+msgid "Digital under min or over max"
 msgstr ""
 
+msgid "REMOTE"
+msgstr ""
+
+msgid "activated"
+msgstr ""
