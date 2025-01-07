@@ -19,38 +19,40 @@ OSApp.Logs = OSApp.Logs || {};
 
 OSApp.Logs.displayPage = function() {
 	// Build the log page and add it to DOM
-	var page = $( "<div data-role='page' id='logs'>" +
-			"<div class='ui-content' role='main'>" +
-			"<fieldset data-role='controlgroup' data-type='horizontal' data-mini='true' class='log_type'>" +
-			"<input data-mini='true' type='radio' name='log_type' id='log_timeline' value='timeline'>" +
-			"<label for='log_timeline'>" + OSApp.Language._( "Timeline" ) + "</label>" +
-			"<input data-mini='true' type='radio' name='log_type' id='log_table' value='table'>" +
-			"<label for='log_table'>" + OSApp.Language._( "Table" ) + "</label>" +
-			"</fieldset>" +
-			"<fieldset data-role='collapsible' data-mini='true' id='log_options' class='center'>" +
-			"<legend>" + OSApp.Language._( "Options" ) + "</legend>" +
-			"<fieldset data-role='controlgroup' data-type='horizontal' id='table_sort'>" +
-			"<p class='tight'>" + OSApp.Language._( "Grouping:" ) + "</p>" +
-			"<input data-mini='true' type='radio' name='table-group' id='table-sort-day' value='day' checked='checked'>" +
-			"<label for='table-sort-day'>" + OSApp.Language._( "Day" ) + "</label>" +
-			"<input data-mini='true' type='radio' name='table-group' id='table-sort-station' value='station'>" +
-			"<label for='table-sort-station'>" + OSApp.Language._( "Station" ) + "</label>" +
-			"</fieldset>" +
-			"<div class='ui-field-contain'>" +
-			"<label for='log_start'>" + OSApp.Language._( "Start:" ) + "</label>" +
-			"<input data-mini='true' type='date' id='log_start'>" +
-			"<label for='log_end'>" + OSApp.Language._( "End:" ) + "</label>" +
-			"<input data-mini='true' type='date' id='log_end'>" +
-			"</div>" +
-			"<a data-role='button' data-icon='action' class='export_logs' href='#' data-mini='true'>" + OSApp.Language._( "Export" ) + "</a>" +
-			"<a data-role='button' class='red clear_logs' href='#' data-mini='true' data-icon='alert'>" +
-			OSApp.Language._( "Clear Logs" ) +
-			"</a>" +
-			"</fieldset>" +
-			"<div id='logs_list' class='center'>" +
-			"</div>" +
-			"</div>" +
-			"</div>" );
+	var page = $(`
+		<div data-role="page" id="logs">
+			<div class="ui-content" role="main">
+				<fieldset data-role="controlgroup" data-type="horizontal" data-mini="true" class="log_type">
+					<input data-mini="true" type="radio" name="log_type" id="log_timeline" value="timeline">
+					<label for="log_timeline">${OSApp.Language._("Timeline")}</label>
+					<input data-mini="true" type="radio" name="log_type" id="log_table" value="table">
+					<label for="log_table">${OSApp.Language._("Table")}</label>
+				</fieldset>
+				<fieldset data-role="collapsible" data-mini="true" id="log_options" class="center">
+					<legend>${OSApp.Language._("Options")}</legend>
+					<fieldset data-role="controlgroup" data-type="horizontal" id="table_sort">
+						<p class="tight">${OSApp.Language._("Grouping:")}</p>
+						<input data-mini="true" type="radio" name="table-group" id="table-sort-day" value="day" checked="checked">
+						<label for="table-sort-day">${OSApp.Language._("Day")}</label>
+						<input data-mini="true" type="radio" name="table-group" id="table-sort-station" value="station">
+						<label for="table-sort-station">${OSApp.Language._("Station")}</label>
+					</fieldset>
+					<div class="ui-field-contain">
+						<label for="log_start">${OSApp.Language._("Start:")}</label>
+						<input data-mini="true" type="date" id="log_start">
+						<label for="log_end">${OSApp.Language._("End:")}</label>
+						<input data-mini="true" type="date" id="log_end">
+					</div>
+					<a data-role="button" data-icon="action" class="export_logs" href="#" data-mini="true">${OSApp.Language._("Export")}</a>
+					<a data-role="button" class="red clear_logs" href="#" data-mini="true" data-icon="alert">
+						${OSApp.Language._("Clear Logs")}
+					</a>
+				</fieldset>
+				<div id="logs_list" class="center">
+				</div>
+			</div>
+		</div>
+	`);
 
 	var logsList = page.find( "#logs_list" ),
 		tableSort = page.find( "#table_sort" ),

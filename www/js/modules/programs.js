@@ -19,10 +19,12 @@ OSApp.Programs = OSApp.Programs || {};
 
 OSApp.Programs.displayPage = function() {
 	// Program management functions
-	var page = $( "<div data-role='page' id='programs'>" +
-			"<div class='ui-content' role='main' id='programs_list'>" +
-			"</div>" +
-			"</div>" ),
+	var page = $(`
+		<div data-role="page" id="programs">
+			<div class="ui-content" role="main" id="programs_list">
+			</div>
+		</div>
+	`),
 		expandId;
 
 	page
@@ -476,22 +478,24 @@ OSApp.Programs.displayPageRunOnce = function() {
 
 OSApp.Programs.displayPagePreviewPrograms = function() {
 	// Preview functions
-	var page = $( "<div data-role='page' id='preview'>" +
-			"<div class='ui-content' role='main'>" +
-			"<div id='preview_header' class='input_with_buttons'>" +
-			"<button class='preview-minus ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border'></button>" +
-			"<input class='center' type='date' name='preview_date' id='preview_date'>" +
-			"<button class='preview-plus ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border'></button>" +
-			"</div>" +
-			"<div id='timeline'></div>" +
-			"<div data-role='controlgroup' data-type='horizontal' id='timeline-navigation'>" +
-			"<a class='ui-btn ui-corner-all ui-icon-plus ui-btn-icon-notext btn-no-border' title='" + OSApp.Language._( "Zoom in" ) + "'></a>" +
-			"<a class='ui-btn ui-corner-all ui-icon-minus ui-btn-icon-notext btn-no-border' title='" + OSApp.Language._( "Zoom out" ) + "'></a>" +
-			"<a class='ui-btn ui-corner-all ui-icon-carat-l ui-btn-icon-notext btn-no-border' title='" + OSApp.Language._( "Move left" ) + "'></a>" +
-			"<a class='ui-btn ui-corner-all ui-icon-carat-r ui-btn-icon-notext btn-no-border' title='" + OSApp.Language._( "Move right" ) + "'></a>" +
-			"</div>" +
-			"</div>" +
-			"</div>" ),
+	var page = $(`
+		<div data-role="page" id="preview">
+			<div class="ui-content" role="main">
+				<div id="preview_header" class="input_with_buttons">
+					<button class="preview-minus ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border"></button>
+					<input class="center" type="date" name="preview_date" id="preview_date">
+					<button class="preview-plus ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border"></button>
+				</div>
+				<div id="timeline"></div>
+				<div data-role="controlgroup" data-type="horizontal" id="timeline-navigation">
+					<a class="ui-btn ui-corner-all ui-icon-plus ui-btn-icon-notext btn-no-border" title="${OSApp.Language._("Zoom in")}"></a>
+					<a class="ui-btn ui-corner-all ui-icon-minus ui-btn-icon-notext btn-no-border" title="${OSApp.Language._("Zoom out")}"></a>
+					<a class="ui-btn ui-corner-all ui-icon-carat-l ui-btn-icon-notext btn-no-border" title="${OSApp.Language._("Move left")}"></a>
+					<a class="ui-btn ui-corner-all ui-icon-carat-r ui-btn-icon-notext btn-no-border" title="${OSApp.Language._("Move right")}"></a>
+				</div>
+			</div>
+		</div>
+	`),
 		placeholder = page.find( "#timeline" ),
 		navi = page.find( "#timeline-navigation" ),
 		previewData, processPrograms, checkMatch, checkMatch183, checkMatch21, checkDayMatch, checkMatch216, runSched, runSched216,

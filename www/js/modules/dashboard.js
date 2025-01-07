@@ -20,27 +20,28 @@ OSApp.Dashboard = OSApp.Dashboard || {};
 OSApp.Dashboard.displayPage = function() {
 	// Display the home dasbhoard main view
 	var cards, siteSelect, currentSite, i, sites;
-	var page = $( "<div data-role='page' id='sprinklers'>" +
-			"<div class='ui-panel-wrapper'>" +
-			"<div class='ui-content' role='main'>" +
-			"<div class='ui-grid-a ui-body ui-corner-all info-card noweather'>" +
-			"<div class='ui-block-a'>" +
-			"<div id='weather' class='pointer'></div>" +
-			"</div>" +
-			"<div class='ui-block-b center home-info pointer'>" +
-			"<div class='sitename bold'></div>" +
-			"<div id='clock-s' class='nobr'></div>" +
-			"<div id='water-level'>" +
-			OSApp.Language._( "Water Level" ) + ": <span class='waterlevel'></span>%" +
-			"</div>" +
-			"</div>" +
-			"</div>" +
-			"<div id='os-stations-list' class='card-group center'></div>" +
-
-			"<div id='os-sensor-show' class='card-group center'></div>" +
-			"</div>" +
-			"</div>" +
-			"</div>" ),
+	var page = $(`
+		<div data-role="page" id="sprinklers">
+			<div class="ui-panel-wrapper">
+				<div class="ui-content" role="main">
+					<div class="ui-grid-a ui-body ui-corner-all info-card noweather">
+						<div class="ui-block-a">
+							<div id="weather" class="pointer"></div>
+						</div>
+						<div class="ui-block-b center home-info pointer">
+							<div class="sitename bold"></div>
+							<div id="clock-s" class="nobr"></div>
+							<div id="water-level">
+								${OSApp.Language._("Water Level")}: <span class="waterlevel"></span>%
+							</div>
+						</div>
+					</div>
+					<div id="os-stations-list" class="card-group center"></div>
+					<div id="os-sensor-show" class="card-group center"></div>
+				</div>
+			</div>
+		</div>
+	`),
 		addTimer = function( station, rem ) {
 			OSApp.uiState.timers[ "station-" + station ] = {
 				val: rem,
