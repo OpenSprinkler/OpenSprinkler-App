@@ -59,7 +59,6 @@
     "cordova-plugin-geolocation": "^5.0.0",
     "cordova-plugin-inappbrowser": "^6.0.0",
     "cordova-plugin-local-notification": "github:katzer/cordova-plugin-local-notifications",
-    "cordova-plugin-local-notifications": "^1.0.0",
     "cordova-plugin-networkinterface": "^2.2.0",
     "cordova-plugin-statusbar": "^4.0.0",
     "cordova-plugin-timer": "github:kitolog/cordova-plugin-timer",
@@ -89,18 +88,18 @@
     "plugins": {
       "cordova-plugin-inappbrowser": {},
       "cordova-plugin-device": {},
-      "cordova-plugin-local-notification": {},
-      "cordova-plugin-background-fetch": {},
       "cordova-plugin-timer": {},
-      "cordova-plugin-background-mode": {},
       "cordova-plugin-3dtouch": {},
       "cordova-plugin-geolocation": {
         "GPS_REQUIRED": "true"
       },
-      "cordova-plugin-networkinterface": {},
       "cordova-plugin-statusbar": {},
       "cordova-plugin-transport-security": {},
-      "cordova-plugin-exclude-files": {}
+      "cordova-plugin-exclude-files": {},
+      "cordova-plugin-local-notification": {},
+      "cordova-plugin-background-fetch": {},
+      "cordova-plugin-background-mode": {},
+      "cordova-plugin-networkinterface": {}
     },
     "platforms": [
       "android",

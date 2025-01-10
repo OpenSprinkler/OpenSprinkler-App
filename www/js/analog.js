@@ -69,6 +69,8 @@ const SENSOR_OSPI_ANALOG              = 50; // Old OSPi analog input - voltage m
 const SENSOR_OSPI_ANALOG_P            = 51; // Old OSPi analog input - percent 0..3.3V to 0...100%
 const SENSOR_OSPI_ANALOG_SMT50_MOIS   = 52; // Old OSPi analog input - SMT50 VWC [%] = (U * 50) : 3
 const SENSOR_OSPI_ANALOG_SMT50_TEMP   = 53; // Old OSPi analog input - SMT50 T [°C] = (U – 0,5) * 100
+const SENSOR_OSPI_INTERNAL_TEMP       = 54; // Internal OSPI Temperature
+
 const SENSOR_MQTT                     = 90; // subscribe to a MQTT server and query a value
 
 const SENSOR_REMOTE                   = 100; // Remote sensor of an remote opensprinkler
@@ -1409,11 +1411,11 @@ function isSmt100(sensorType) {
 }
 
 function isIPSensor(sensorType) {
-	return isSmt100(sensorType) || sensorType == 100;
+	return isSmt100(sensorType) || sensorType == SENSOR_REMOTE;
 }
 
 function isIDNeeded(sensorType) {
-	return sensorType < 90 || sensorType == 100;
+	return sensorType < SENSOR_OSPI_INTERNAL_TEMP || sensorType == SENSOR_REMOTE;
 }
 
 //show and hide sensor editor fields
