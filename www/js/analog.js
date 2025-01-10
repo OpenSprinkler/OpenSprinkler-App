@@ -15,11 +15,9 @@ var timer;
 
 
 const CHARTS = 12;
-const USERDEF_SENSOR = 49;
 const USERDEF_UNIT = 99;
-const SENSOR_MQTT = 90;
 
-const CURRENT_FW = "2.3.3(168)";
+const CURRENT_FW = "2.3.3(172)";
 const CURRENT_FW_ID = 231;
 const CURRENT_FW_MIN = 150;
 
@@ -50,6 +48,42 @@ const MONITOR_XOR      = 12;
 const MONITOR_NOT      = 13;
 const MONITOR_REMOTE   = 100;
 
+//SENSOR TYPES:
+const SENSOR_NONE                     = 0;  // None or deleted sensor
+const SENSOR_SMT100_MOIS              = 1;  // Truebner SMT100 RS485, moisture mode
+const SENSOR_SMT100_TEMP              = 2;  // Truebner SMT100 RS485, temperature mode
+const SENSOR_SMT100_PMTY              = 3;  // Truebner SMT100 RS485, permittivity mode
+const SENSOR_TH100_MOIS               = 4;  // Truebner TH100 RS485,  humidity mode
+const SENSOR_TH100_TEMP               = 5;  // Truebner TH100 RS485,  temperature mode
+const SENSOR_ANALOG_EXTENSION_BOARD   = 10; // New OpenSprinkler analog extension board x8 - voltage mode 0..4V
+const SENSOR_ANALOG_EXTENSION_BOARD_P = 11; // New OpenSprinkler analog extension board x8 - percent 0..3.3V to 0..100%
+const SENSOR_SMT50_MOIS               = 15; // New OpenSprinkler analog extension board x8 - SMT50 VWC [%] = (U * 50) : 3
+const SENSOR_SMT50_TEMP               = 16; // New OpenSprinkler analog extension board x8 - SMT50 T [°C] = (U – 0,5) * 100
+const SENSOR_SMT100_ANALOG_MOIS       = 17; // New OpenSprinkler analog extension board x8 - SMT100 VWC [%] = (U * 100) : 3
+const SENSOR_SMT100_ANALOG_TEMP       = 18; // New OpenSprinkler analog extension board x8 - SMT50 T [°C] = (U * 100) : 3 - 40
+const SENSOR_VH400                    = 30; // New OpenSprinkler analog extension board x8 - Vegetronix VH400
+const SENSOR_THERM200                 = 31; // New OpenSprinkler analog extension board x8 - Vegetronix THERM200
+const SENSOR_AQUAPLUMB                = 32; // New OpenSprinkler analog extension board x8 - Vegetronix Aquaplumb
+const SENSOR_USERDEF                  = 49; // New OpenSprinkler analog extension board x8 - User defined sensor
+const SENSOR_OSPI_ANALOG              = 50; // Old OSPi analog input - voltage mode 0..3.3V
+const SENSOR_OSPI_ANALOG_P            = 51; // Old OSPi analog input - percent 0..3.3V to 0...100%
+const SENSOR_OSPI_ANALOG_SMT50_MOIS   = 52; // Old OSPi analog input - SMT50 VWC [%] = (U * 50) : 3
+const SENSOR_OSPI_ANALOG_SMT50_TEMP   = 53; // Old OSPi analog input - SMT50 T [°C] = (U – 0,5) * 100
+const SENSOR_MQTT                     = 90; // subscribe to a MQTT server and query a value
+
+const SENSOR_REMOTE                   = 100; // Remote sensor of an remote opensprinkler
+const SENSOR_WEATHER_TEMP_F           = 101; // Weather service - temperature (Fahrenheit)
+const SENSOR_WEATHER_TEMP_C           = 102; // Weather service - temperature (Celcius)
+const SENSOR_WEATHER_HUM              = 103; // Weather service - humidity (%)
+const SENSOR_WEATHER_PRECIP_IN        = 105; // Weather service - precip (inch)
+const SENSOR_WEATHER_PRECIP_MM        = 106; // Weather service - precip (mm)
+const SENSOR_WEATHER_WIND_MPH         = 107; // Weather service - wind (mph)
+const SENSOR_WEATHER_WIND_KMH         = 108; // Weather service - wind (kmh)
+
+const SENSOR_GROUP_MIN                = 1000;  // Sensor group with min value
+const SENSOR_GROUP_MAX                = 1001;  // Sensor group with max value
+const SENSOR_GROUP_AVG                = 1002;  // Sensor group with avg value
+const SENSOR_GROUP_SUM                = 1003;  // Sensor group with sum value
 
 function success_callback(scope) {
 }
@@ -1371,11 +1405,11 @@ function isSmt100(sensorType) {
 	if (!sensorType) {
 		return false;
 	}
-	return sensorType === 1 || sensorType == 2 || sensorType == 3;
+	return sensorType >= SENSOR_SMT100_MOIS && sensorType <= SENSOR_TH100_TEMP;
 }
 
 function isIPSensor(sensorType) {
-	return sensorType <= 3 || sensorType == 100;
+	return isSmt100(sensorType) || sensorType == 100;
 }
 
 function isIDNeeded(sensorType) {
@@ -1407,7 +1441,7 @@ function updateSensorVisibility(popup, type) {
 	} else {
 		popup.find("#smt100id").hide();
 	}
-	if (type == USERDEF_SENSOR) {
+	if (type == SENSOR_USERDEF) {
 		popup.find(".fac_label").show();
 		popup.find(".fac").show();
 		popup.find(".div_label").show();
@@ -1439,7 +1473,7 @@ function updateSensorVisibility(popup, type) {
 	}
 
 	var unitid = popup.find("#unitid").val();
-	if (type == SENSOR_MQTT || type == USERDEF_SENSOR || unitid == USERDEF_UNIT) {
+	if (type == SENSOR_MQTT || type == SENSOR_USERDEF || unitid == USERDEF_UNIT) {
 		popup.find(".unit_label").show();
 		popup.find(".unit").show();
 	} else {
