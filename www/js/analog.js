@@ -912,9 +912,20 @@ function getProgAdjust(popup) {
 	};
 }
 
+function getProgAdjustForCalc(popup) {
+	return {
+		type: parseInt(popup.find("#type").val()),
+		sensor: parseInt(popup.find("#sensor").val()),
+		factor1: parseFloat(popup.find(".factor1").val() / 100),
+		factor2: parseFloat(popup.find(".factor2").val() / 100),
+		min: parseFloat(popup.find(".min").val()),
+		max: parseFloat(popup.find(".max").val())
+	};
+}
+
 function updateAdjustmentChart(popup) {
 
-	let p = getProgAdjust(popup);
+	let p = getProgAdjustForCalc(popup);
 	sendToOsObj("/sd?pw=", p).done(function (values) {
 		if (!values || !values.hasOwnProperty("adjustment"))
 			return;
