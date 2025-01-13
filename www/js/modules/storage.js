@@ -90,4 +90,15 @@ OSApp.Storage.loadLocalSettings = function() {
 			default:
 		}
 	} );
+	OSApp.Storage.get( "alphabetView", function( data ) {
+		switch ( data.alphabetView ) {
+			case "true":
+				OSApp.uiState.alphabetView = true;
+				break;
+			case "false":
+				OSApp.uiState.alphabetView = false;
+				break;
+			default:
+		}
+	} );
 };

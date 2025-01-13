@@ -186,6 +186,10 @@ OSApp.Options.showOptions = function( expandItem ) {
 						OSApp.uiState.groupView = $item.is( ":checked" );
 						OSApp.Storage.set( { "groupView": OSApp.uiState.groupView } );
 						return true;
+					case "alphabetView":
+						OSApp.uiState.alphabetView = $item.is( ":checked" );
+						OSApp.Storage.set( { "alphabetView": OSApp.uiState.alphabetView } );
+						return true;
 					case "o12":
 						if ( !isPi ) {
 							opt.o12 = data & 0xff;
@@ -354,6 +358,9 @@ OSApp.Options.showOptions = function( expandItem ) {
 		list += "<label for='groupView'><input data-mini='true' id='groupView' type='checkbox' " + ( OSApp.uiState.groupView ? "checked='checked'" : "" ) + ">" +
 		OSApp.Language._( "Order Stations by Groups" ) + "</label>";
 	}
+
+	list += "<label for='alphabetView'><input data-mini='true' id='alphabetView' type='checkbox' " + ( OSApp.uiState.alphabetView ? "checked='checked'" : "" ) + ">" +
+	OSApp.Language._( "Order Stations by Alphabetical Order" ) + "</label>";
 
 	list += "</fieldset><fieldset data-role='collapsible'" +
 		( typeof expandItem === "string" && expandItem === "master" ? " data-collapsed='false'" : "" ) + ">" +

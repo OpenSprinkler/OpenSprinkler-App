@@ -80,6 +80,7 @@ OSApp.uiState = {
 	errorTimeout: undefined,
 	goingBack: false,
 	groupView: false,
+	alphabetView: false,
 	language: undefined,
 	notifications: [], // Array to hold all notifications currently displayed within the app
 	openPanel: undefined,
