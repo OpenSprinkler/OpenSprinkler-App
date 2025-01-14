@@ -53,7 +53,11 @@ OSApp.Constants = {
 		MASTER_STATION_2: 2,
 		NUM_SEQ_GROUPS: 4,
 		PARALLEL_GID_VALUE: 255,
-		PARALLEL_GROUP_NAME: "P"
+		PARALLEL_GROUP_NAME: "P",
+		PROGRAM_TYPE_WEEKLY: 0,
+		PROGRAM_TYPE_SINGLERUN: 1,
+		PROGRAM_TYPE_MONTHLY: 2,
+		PROGRAM_TYPE_INTERVAL: 3,
 	},
 	regex: { // Define general regex patterns
 		GPS: /^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/

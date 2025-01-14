@@ -85,3 +85,7 @@ OSApp.Supported.verifyWeatherAPIKey = function() {
 			typeof OSApp.currentSession.controller.options.uwt !== "undefined" &&
 			typeof OSApp.currentSession.controller.settings.wto === "object";
 }
+
+OSApp.Supported.singleRunAndMonthly = function() {
+	return OSApp.Firmware.checkOSVersion( 2211 );
+};

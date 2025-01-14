@@ -372,8 +372,12 @@ OSApp.ImportExport.importConfig = function( data ) {
 					}
 
 					// Set program type
-					if ( program.is_interval ) {
+					if ( program.type === OSApp.Constants.options.PROGRAM_TYPE_INTERVAL ) {
 						j |= ( 3 << 4 );
+					} else if ( program.type === OSApp.Constants.options.PROGRAM_TYPE_MONTHLY ) {
+						j |= ( 2 << 4 );
+					} else if ( program.type === OSApp.Constants.options.PROGRAM_TYPE_SINGLERUN ) {
+						j |= ( 1 << 4 );
 					} else {
 						j |= ( 0 << 4 );
 					}
