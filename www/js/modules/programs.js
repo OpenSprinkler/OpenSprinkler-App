@@ -1474,11 +1474,11 @@ OSApp.Programs.readProgram21 = function( program ) {
 	} else if ( type === OSApp.Constants.options.PROGRAM_TYPE_SINGLERUN ) {
 
 		//This is a single run program
-		days = (days0 << 8) + days1;
+		days = [ (days0 << 8) + days1, 0 ];
 	} else if ( type === OSApp.Constants.options.PROGRAM_TYPE_MONTHLY ) {
 
 		//This is a monthly program
-		days = days0;
+		days = [ days0, days1 ];
 	}
 
 	newdata.days = days;
@@ -1861,10 +1861,10 @@ OSApp.Programs.makeProgram21 = function( n, isCopy ) {
 	if( OSApp.Supported.singleRunAndMonthly() ){
 		list += "<input data-mini='true' type='radio' name='rad_days-" + id + "' id='days_single-" + id + "' " +
 			"value='days_single-" + id + "' " + ( ( program.type === OSApp.Constants.options.PROGRAM_TYPE_SINGLERUN ) ? "checked='checked'" : "" ) + ">" +
-			"<label for='days_single-" + id + "'>" + _( "Single Run" ) + "</label>";
+			"<label for='days_single-" + id + "'>" + OSApp.Language._( "Single Run" ) + "</label>";
 		list += "<input data-mini='true' type='radio' name='rad_days-" + id + "' id='days_month-" + id + "' " +
 			"value='days_month-" + id + "' " + ( ( program.type === OSApp.Constants.options.PROGRAM_TYPE_MONTHLY ) ? "checked='checked'" : "" ) + ">" +
-			"<label for 'days_month-" + id + "'>" + _( "Monthly" ) + "</label>";
+			"<label for='days_month-" + id + "'>" + OSApp.Language._( "Monthly" ) + "</label>";
 	}
 	list += "</fieldset>";
 
@@ -1887,6 +1887,18 @@ OSApp.Programs.makeProgram21 = function( n, isCopy ) {
 	list += "<div class='ui-block-b'><label class='center' for='starting-" + id + "'>" + OSApp.Language._( "Starting In" ) + "</label>" +
 		"<input data-wrapper-class='pad_buttons' data-mini='true' type='number' name='starting-" + id + "' pattern='[0-9]*' " +
 			"id='starting-" + id + "' value='" + program.days[ 1 ] + "'></div>";
+	list += "</div>";
+
+	// Show singlerun program options
+	list += "<div " + ( ( program.type === OSApp.Constants.options.PROGRAM_TYPE_SINGLERUN ) ? "" : "style='display:none'" ) + " id='input_days_single-" + id + "'>";
+	list += "<div class='center'><p class='tight'>" + OSApp.Language._( "Start Date (mm/dd/yyyy)" ) + "</p>" +
+		"<input type='text' id='singleDate-" + id + "' value='" + OSApp.Dates.epochToDate(program.days[ 0 ]) + "'></div>";
+	list += "</div>";
+
+	// Show monthly program options
+	list += "<div id='input_days_month-" + id + "' " + ( ( program.type === OSApp.Constants.options.PROGRAM_TYPE_MONTHLY ) ? "" : "style='display:none'" ) + ">";
+	list += "<div class='center'><p class='tight'>" + OSApp.Language._( "Day of the Month (Use 0 for the last day)" ) + "</p>" +
+		"<input type='text' id='monthDay-" + id + "' value='" + program.days[ 0 ] + "'></div>";
 	list += "</div>";
 
 	// Show restriction options
@@ -2306,6 +2318,24 @@ OSApp.Programs.submitProgram21 = function( id, ignoreWarning ) {
 			OSApp.Errors.showError( OSApp.Language._( "Error: Starting in days wrong." ) );
 			return;
 		}
+
+	} else if ( $( "#days_month-" + id ).is( ":checked" ) ) {
+		j |= ( 2 << 4 );
+		days[ 0 ] = parseInt( $( "#monthDay-" + id ).val(), 10 );
+		if ( days[ 0 ] < 0 || days[ 0 ] > 31) {
+			OSApp.Errors.showerror( OSApp.Language._("Error: Day of month is out of bounds." ) );
+			return;
+		}
+
+	} else if ( $( "#days_single-" + id ).is( ":checked" ) ) {
+		j |= ( 1 << 4 );
+		var time = OSApp.Dates.dateToEpoch( $( "#singleDate-" + id ).val());
+		if ( time === -1 ){
+			OSApp.Errors.showerror( OSApp.Language._( "Error: Start date is input incorrectly." ) );
+			return;
+		}
+		days[ 0 ] = (time >> 8) & 0b11111111;
+		days[ 1 ] = time & 0b11111111;
 
 	} else if ( $( "#days_week-" + id ).is( ":checked" ) ) {
 		j |= ( 0 << 4 );

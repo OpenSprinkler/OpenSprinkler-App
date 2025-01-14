@@ -18,7 +18,8 @@ OSApp.Dates = OSApp.Dates || {};
 OSApp.Dates.Constants = {
 	MIN_DATE: "01/01",
 	MAX_DATE: "12/31",
-	DATE_REGEX: /[0-9]{1,2}[/][0-9]{1,2}/g
+	DATE_REGEX: /[0-9]{1,2}[/][0-9]{1,2}/g,
+	DATE_REGEX_YEAR: /[0-9]{1,2}[\/][0-9]{1,2}[\/][0-9]{4}/g
 };
 
 // TODO: mellodev some of this should refactor out to programs.js?
@@ -53,6 +54,10 @@ OSApp.Dates.getDateRangeEnd = function( pid ) {
 
 OSApp.Dates.extractDateFromString = function( inputString ) {
 	return inputString.match( OSApp.Dates.Constants.DATE_REGEX );
+};
+
+OSApp.Dates.extractDateFromStringYear = function( inputString ) {
+	return inputString.match( OSApp.Dates.Constants.DATE_REGEX_YEAR );
 };
 
 OSApp.Dates.isValidDateFormat = function( dateString ) {
@@ -273,4 +278,24 @@ OSApp.Dates.dhms2str = function( arr ) {
 // Convert days, hours, minutes and seconds array into seconds (int).
 OSApp.Dates.dhms2sec = function( arr ) {
 	return parseInt( ( arr.days * 86400 ) + ( arr.hours * 3600 ) + ( arr.minutes * 60 ) + arr.seconds );
+};
+
+OSApp.Dates.dateToEpoch = function( dateString ) {
+	//return epoch days from date
+	var dateValues = OSApp.Dates.extractDateFromStringYear( dateString );
+	if ( dateValues === null ) {
+		return -1;
+	}
+
+	dateValues = dateValues[ 0 ].split( "/" );
+	var date = new Date(parseInt(dateValues[ 2 ]), parseInt(dateValues[ 0 ]) - 1, parseInt(dateValues[ 1 ]));
+
+	return Math.floor(date.getTime() / (1000 * 86400));
+};
+
+OSApp.Dates.epochToDate = function( epochTime ) {
+	//return a date string from an epoch time in days
+	var date = new Date(epochTime * (1000 * 86400) );
+
+	return (date.getUTCMonth() + 1) + "/" + date.getUTCDate() + "/" + date.getUTCFullYear();
 };
