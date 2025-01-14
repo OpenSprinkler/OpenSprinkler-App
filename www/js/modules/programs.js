@@ -1885,7 +1885,7 @@ OSApp.Programs.makeProgram21 = function( n, isCopy ) {
 
 	// Group all stations visually
 	list += "<div style='margin-top:10px' class='ui-corner-all'>";
-	list += "<div class='ui-bar ui-bar-a'><h3 id='station-head'>" + OSApp.Language._( "Stations (Total Program Time: )" ) + "</h3></div>";
+	list += "<div class='ui-bar ui-bar-a'><h3 id='station-head'>" + OSApp.Language._( "Stations" ) + "</h3></div>";
 	list += "<div class='ui-body ui-body-a'>";
 	list += "<div class='ui-field-contain duration-input'>" +
 			"<label for='set-all'> </label>" +
@@ -1975,7 +1975,10 @@ OSApp.Programs.makeProgram21 = function( n, isCopy ) {
 		var hours = Math.floor(runtime / 3600);
 		var minutes = Math.floor(runtime % 3600 / 60);
 		var seconds = Math.floor(runtime % 3600 % 60);
-		page.find( "#station-head" ).text("Stations (Total Program Time: " + hours + " hours, " + minutes + " minutes, " + seconds + " seconds)");
+		var runtime = "" + (hours/10>>0) + (hours%10);
+		runtime += ":" + (minutes/10>>0) + (minutes%10);
+		runtime += ":" + (seconds/10>>0) + (seconds%10);
+		page.find( "#station-head" ).text("Stations (Total Program Run Time: " + runtime + ")");
 	}
 
 	updateProgramTime();

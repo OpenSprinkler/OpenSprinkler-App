@@ -1013,7 +1013,7 @@ OSApp.UIDom.showTimeInput = function( opt ) {
 	var defaults = {
 			minutes: 0,
 			title: OSApp.Language._( "Time" ),
-			incrementalUpdate: true,
+			incrementalUpdate: false,
 			showBack: true,
 			showSun: false,
 			callback: function() {}
@@ -1471,7 +1471,7 @@ OSApp.UIDom.showDurationBox = function( opt ) {
 			title: OSApp.Language._( "Duration" ),
 			granularity: 0,
 			preventCompression: false,
-			incrementalUpdate: true,
+			incrementalUpdate: false,
 			showBack: true,
 			showSun: false,
 			minimum: 0,
@@ -1861,7 +1861,7 @@ OSApp.UIDom.showPause = function() {
 		popup.find("#extend-pause").on("click", function() {
 			popup.popup( "close" );
 			OSApp.UIDom.showDurationBox( {
-				title: "Extend Pause",
+				title: "Extend Current Pause By",
 				incrementalUpdate: false,
 				maximum: 65535,
 				callback: function( duration ) {
@@ -1877,7 +1877,7 @@ OSApp.UIDom.showPause = function() {
 		popup.find("#new-pause").on("click", function() {
 			popup.popup( "close" );
 			OSApp.UIDom.showDurationBox( {
-				title: "Pause Station Runs",
+				title: "Replace Current Pause By",
 				incrementalUpdate: false,
 				maximum: 65535,
 				callback: function( duration ) {
@@ -1900,7 +1900,7 @@ OSApp.UIDom.showPause = function() {
 		OSApp.UIDom.openPopup( $( popup ) );
 	} else {
 		OSApp.UIDom.showDurationBox( {
-			title: "Pause Station Runs",
+			title: "Pause Station Runs For",
 			incrementalUpdate: false,
 			maximum: 65535,
 			callback: function( duration ) {
