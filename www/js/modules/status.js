@@ -127,13 +127,11 @@ OSApp.Status.checkStatus = function() {
 		line += "</p>";
 
 		OSApp.Status.changeStatus( OSApp.currentSession.controller.settings.pt || 0, "yellow", line, function() {
-			OSApp.UIDom.areYouSure( OSApp.Language._( "Do you want to resume station operation?" ), "", function() {
-				OSApp.UIDom.showLoading( "#footer-running" );
-				OSApp.Firmware.sendToOS( "/pq?pw=&dur=0" ).done( function() {
-					setTimeout( OSApp.Status.refreshStatus, 1000 ); // FIXME: refactor this 1000 value out to Constants or config/settings
-				} );
+			OSApp.UIDom.showPause().done( function() {
+				setTimeout( OSApp.Status.refreshStatus, 1000 ); // FIXME: refactor this 1000 value out to Constants or config/settings
 			} );
 		} );
+
 		return;
 	}
 

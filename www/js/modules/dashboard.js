@@ -1081,7 +1081,7 @@ OSApp.Dashboard.displayPage = function() {
 					OSApp.UIDom.showDurationBox( {
 						title: name,
 						incrementalUpdate: false,
-						maximum: 65535,
+						maximum: 64800,
 						seconds: sites[ currentSite ].lastRunTime[ sid ] > 0 ? sites[ currentSite ].lastRunTime[ sid ] : 0,
 						helptext: OSApp.Language._( "Enter a duration to manually run " ) + name,
 						callback: function( duration ) {

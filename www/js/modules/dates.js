@@ -229,7 +229,7 @@ OSApp.Dates.getDurationText = function( time ) {
 // Convert seconds into (HH:)MM:SS format. HH is only reported if greater than 0.
 OSApp.Dates.sec2hms = function( diff ) {
 	var str = "";
-	var hours = Math.max( 0, parseInt( diff / 3600 ) % 24 );
+	var hours = Math.max( 0, parseInt( diff / 3600 ) );
 	var minutes = Math.max( 0, parseInt( diff / 60 ) % 60 );
 	var seconds = diff % 60;
 	if ( hours ) {

@@ -295,7 +295,7 @@ OSApp.UIDom.showHomeMenu = ( function() {
 				"<li data-role='list-divider'>" + OSApp.Language._( "Programs and Settings" ) + "</li>" +
 				"<li><a href='#raindelay'>" + OSApp.Language._( "Change Rain Delay" ) + "</a></li>" +
 				( OSApp.Supported.pausing() ?
-					( OSApp.StationQueue.isPaused() ? "<li><a href='#globalpause'>" + OSApp.Language._( "Resume Station Runs" ) + "</a></li>"
+					( OSApp.StationQueue.isPaused() ? "<li><a href='#globalpause'>" + OSApp.Language._( "Change Pause" ) + "</a></li>"
 						: ( OSApp.StationQueue.isActive() >= -1 ? "<li><a href='#globalpause'>" + OSApp.Language._( "Pause Station Runs" ) + "</a></li>" : "" ) )
 					: "" ) +
 				"<li><a href='#runonce'>" + OSApp.Language._( "Run-Once Program" ) + "</a></li>" +
@@ -1838,9 +1838,51 @@ OSApp.UIDom.showIPRequest = function( opt ) {
 
 OSApp.UIDom.showPause = function() {
 	if ( OSApp.StationQueue.isPaused() ) {
-		OSApp.UIDom.areYouSure( OSApp.Language._( "Do you want to resume program operation?" ), "", function() {
-			OSApp.Firmware.sendToOS( "/pq?pw=" );
+		var popup = $("<div data-role='popup' data-theme='a' id='changePause'>" +
+			"<div data-role='header' data-theme='b'>" +
+				"<h1>" + OSApp.Language._( "Change Pause" ) + "</h1>" +
+			"</div>" +
+			"<div class='ui-content'>" +
+				"<button style='display:inline-block;' data-mini='true' id='extend-pause'>Extend</button>" +
+				"<button style='display:inline-block;' data-mini='true' id='new-pause'>Replace</button>" +
+				"<button style='display:inline-block;' data-mini='true' id='un-pause'>Unpause</button>" +
+			"</div>" +
+		"</div>" );
+
+		popup.find("#extend-pause").on("click", function() {
+			popup.popup( "close" );
+			OSApp.UIDom.showDurationBox( {
+				title: "Extend Pause",
+				incrementalUpdate: false,
+				maximum: 65535,
+				callback: function( duration ) {
+					var dur = duration;
+					dur += OSApp.currentSession.controller.settings.pt;
+					OSApp.Firmware.sendToOS( "/pq?repl=" + dur + "&pw=" );
+				}
+			} );
 		} );
+
+		popup.find("#new-pause").on("click", function() {
+			popup.popup( "close" );
+			OSApp.UIDom.showDurationBox( {
+				title: "Pause Station Runs",
+				incrementalUpdate: false,
+				maximum: 65535,
+				callback: function( duration ) {
+					OSApp.Firmware.sendToOS( "/pq?repl=" + duration + "&pw=" );
+				}
+			} );
+		} );
+
+		popup.find("#un-pause").on("click", function() {
+			popup.popup( "close" );
+			OSApp.UIDom.areYouSure( OSApp.Language._( "Do you want to resume program operation?" ), "", function() {
+				OSApp.Firmware.sendToOS( "/pq?repl=0&pw=" );
+			} );
+		} );
+
+		OSApp.UIDom.openPopup( $( popup ) );
 	} else {
 		OSApp.UIDom.showDurationBox( {
 			title: "Pause Station Runs",
