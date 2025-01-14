@@ -182,6 +182,10 @@ OSApp.Options.showOptions = function( expandItem ) {
 						OSApp.currentDevice.isMetric = $item.is( ":checked" );
 						OSApp.Storage.set( { isMetric: OSApp.currentDevice.isMetric } );
 						return true;
+					case "is24Hour":
+						OSApp.uiState.is24Hour = $item.is( ":checked" );
+						OSApp.Storage.set( { "is24Hour": OSApp.uiState.is24Hour } );
+						return true;
 					case "groupView":
 						OSApp.uiState.groupView = $item.is( ":checked" );
 						OSApp.Storage.set( { "groupView": OSApp.uiState.groupView } );
@@ -346,21 +350,28 @@ OSApp.Options.showOptions = function( expandItem ) {
 			"<a class='ui-btn btn-no-border ui-btn-icon-notext ui-icon-delete ui-btn-corner-all clear-loc'></a>" +
 		"</button></div>";
 
-	if ( typeof OSApp.currentSession.controller.options.lg !== "undefined" ) {
-		list += "<label for='o36'><input data-mini='true' id='o36' type='checkbox' " + ( ( OSApp.currentSession.controller.options.lg === 1 ) ? "checked='checked'" : "" ) + ">" +
-			OSApp.Language._( "Enable Logging" ) + "</label>";
-	}
+	list += "<div class='center' data-role='controlgroup' data-type='horizontal'>";
+		if ( typeof OSApp.currentSession.controller.options.lg !== "undefined" ) {
+			list += "<label for='o36'><input data-mini='true' id='o36' type='checkbox' " + ( ( OSApp.currentSession.controller.options.lg === 1 ) ? "checked='checked'" : "" ) + ">" +
+				OSApp.Language._( "Enable Logging" ) + "</label>";
+		}
 
-	list += "<label for='isMetric'><input data-mini='true' id='isMetric' type='checkbox' " + ( OSApp.currentDevice.isMetric ? "checked='checked'" : "" ) + ">" +
-		OSApp.Language._( "Use Metric" ) + "</label>";
+		list += "<label for='isMetric'><input data-mini='true' id='isMetric' type='checkbox' " + ( OSApp.currentDevice.isMetric ? "checked='checked'" : "" ) + ">" +
+			OSApp.Language._( "Use Metric" ) + "</label>";
 
-	if ( OSApp.Supported.groups() ) {
-		list += "<label for='groupView'><input data-mini='true' id='groupView' type='checkbox' " + ( OSApp.uiState.groupView ? "checked='checked'" : "" ) + ">" +
-		OSApp.Language._( "Order Stations by Groups" ) + "</label>";
-	}
+		list += "<label for='is24Hour'><input data-mini='true' id='is24Hour' type='checkbox' " + ( OSApp.uiState.is24Hour ? "checked='checked'" : "" ) + ">" +
+			OSApp.Language._( "Use 24 Hour Time" ) + "</label>";
+	list += "</div>";
 
-	list += "<label for='alphabetView'><input data-mini='true' id='alphabetView' type='checkbox' " + ( OSApp.uiState.alphabetView ? "checked='checked'" : "" ) + ">" +
-	OSApp.Language._( "Order Stations by Alphabetical Order" ) + "</label>";
+	list += "<div data-role='controlgroup' data-type='horizontal' style='text-align:center'>";
+		if ( OSApp.Supported.groups() ) {
+			list += "<label for='groupView'><input data-mini='true' id='groupView' type='checkbox' " + ( OSApp.uiState.groupView ? "checked='checked'" : "" ) + ">" +
+			OSApp.Language._( "Order Stations by Groups" ) + "</label>";
+		}
+
+		list += "<label for='alphabetView'><input data-mini='true' id='alphabetView' type='checkbox' " + ( OSApp.uiState.alphabetView ? "checked='checked'" : "" ) + ">" +
+		OSApp.Language._( "Order Stations by Alphabetical Order" ) + "</label>";
+	list += "</div>";
 
 	list += "</fieldset><fieldset data-role='collapsible'" +
 		( typeof expandItem === "string" && expandItem === "master" ? " data-collapsed='false'" : "" ) + ">" +

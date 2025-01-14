@@ -201,7 +201,7 @@ OSApp.Dates.minutesToTime = function( minutes ) {
 		hour = 12;
 	}
 
-	return OSApp.currentDevice.isMetric ? ( OSApp.Utils.pad( ( minutes / 60 >> 0 ) % 24 ) + ":" + OSApp.Utils.pad( minutes % 60 ) ) : ( hour + ":" + OSApp.Utils.pad( minutes % 60 ) + " " + period );
+	return OSApp.uiState.is24Hour ? ( OSApp.Utils.pad( ( minutes / 60 >> 0 ) % 24 ) + ":" + OSApp.Utils.pad( minutes % 60 ) ) : ( hour + ":" + OSApp.Utils.pad( minutes % 60 ) + " " + period );
 };
 
 // Return day of the week

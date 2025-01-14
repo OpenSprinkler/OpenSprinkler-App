@@ -79,6 +79,17 @@ OSApp.Storage.loadLocalSettings = function() {
 			default:
 		}
 	} );
+	OSApp.Storage.get( "is24Hour", function( data ) {
+		switch ( data.is24Hour ) {
+			case "true":
+				OSApp.uiState.is24Hour = true;
+				break;
+			case "false":
+				OSApp.uiState.is24Hour = false;
+				break;
+			default:
+		}
+	} );
 	OSApp.Storage.get( "groupView", function( data ) {
 		switch ( data.groupView ) {
 			case "true":

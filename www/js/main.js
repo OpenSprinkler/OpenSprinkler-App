@@ -79,6 +79,7 @@ OSApp.currentDevice.isFileCapable = !OSApp.currentDevice.isiOS && !OSApp.current
 OSApp.uiState = {
 	errorTimeout: undefined,
 	goingBack: false,
+	is24Hour: false,
 	groupView: false,
 	alphabetView: false,
 	language: undefined,

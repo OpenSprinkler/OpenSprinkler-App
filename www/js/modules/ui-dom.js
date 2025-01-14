@@ -1046,38 +1046,38 @@ OSApp.UIDom.showTimeInput = function( opt ) {
 			"<div class='ui-content'>" +
 				( opt.helptext ? "<p class='pad-top rain-desc center smaller'>" + opt.helptext + "</p>" : "" ) +
 				"<span>" +
-					"<fieldset class='ui-grid-" + ( OSApp.currentDevice.isMetric ? "a" : "b" ) + " incr'>" +
+					"<fieldset class='ui-grid-" + ( OSApp.uiState.is24Hour ? "a" : "b" ) + " incr'>" +
 						"<div class='ui-block-a'>" +
 							"<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a>" +
 						"</div>" +
 						"<div class='ui-block-b'>" +
 							"<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a>" +
 						"</div>" +
-						( OSApp.currentDevice.isMetric ? "" : "<div class='ui-block-c'>" +
+						( OSApp.uiState.is24Hour ? "" : "<div class='ui-block-c'>" +
 							"<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a>" +
 						"</div>" ) +
 					"</fieldset>" +
-					"<div class='ui-grid-" + ( OSApp.currentDevice.isMetric ? "a" : "b" ) + " inputs'>" +
+					"<div class='ui-grid-" + ( OSApp.uiState.is24Hour ? "a" : "b" ) + " inputs'>" +
 						"<div class='ui-block-a'>" +
 							"<input data-wrapper-class='pad_buttons' class='hour dontPad' type='number' pattern='[0-9]*' value='" +
-								( OSApp.currentDevice.isMetric ? OSApp.Utils.pad( ( opt.minutes / 60 >> 0 ) % 24 ) + "'>" : ( parseInt( opt.minutes / 60 ) % 12 === 0 ? 12 : parseInt( opt.minutes / 60 ) % 12 ) + "'>" ) +
+								( OSApp.uiState.is24Hour ? OSApp.Utils.pad( ( opt.minutes / 60 >> 0 ) % 24 ) + "'>" : ( parseInt( opt.minutes / 60 ) % 12 === 0 ? 12 : parseInt( opt.minutes / 60 ) % 12 ) + "'>" ) +
 						"</div>" +
 						"<div class='ui-block-b'>" +
 							"<input data-wrapper-class='pad_buttons' class='minute' type='number' pattern='[0-9]*' value='" +
 								OSApp.Utils.pad( opt.minutes % 60 ) + "'>" +
 						"</div>" +
-						( OSApp.currentDevice.isMetric ? "" : "<div class='ui-block-c'>" +
+						( OSApp.uiState.is24Hour ? "" : "<div class='ui-block-c'>" +
 							"<p class='center period'>" + getPeriod() + "</p>" +
 						"</div>" ) +
 					"</div>" +
-					"<fieldset class='ui-grid-" + ( OSApp.currentDevice.isMetric ? "a" : "b" ) + " decr'>" +
+					"<fieldset class='ui-grid-" + ( OSApp.uiState.is24Hour ? "a" : "b" ) + " decr'>" +
 						"<div class='ui-block-a'>" +
 							"<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='minus' data-iconpos='bottom'></a>" +
 						"</div>" +
 						"<div class='ui-block-b'>" +
 							"<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='minus' data-iconpos='bottom'></a>" +
 						"</div>" +
-						( OSApp.currentDevice.isMetric ? "" : "<div class='ui-block-c'>" +
+						( OSApp.uiState.is24Hour ? "" : "<div class='ui-block-c'>" +
 							"<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='minus' data-iconpos='bottom'></a>" +
 						"</div>" ) +
 					"</fieldset>" +
@@ -1110,7 +1110,7 @@ OSApp.UIDom.showTimeInput = function( opt ) {
 					val = parseInt( input.val() );
 
 				if ( dir === 1 ) {
-					if ( isHour && ( ( OSApp.currentDevice.isMetric && val >= 24 ) || ( !OSApp.currentDevice.isMetric && val >= 12 ) ) ) {
+					if ( isHour && ( ( OSApp.uiState.is24Hour && val >= 24 ) || ( !OSApp.uiState.is24Hour && val >= 12 ) ) ) {
 						val = 0;
 					}
 					if ( !isHour && val >= 59 ) {
@@ -1118,7 +1118,7 @@ OSApp.UIDom.showTimeInput = function( opt ) {
 						var hour = popup.find( ".hour" ),
 							hourFixed = parseInt( hour.val() );
 
-						if ( !OSApp.currentDevice.isMetric ) {
+						if ( !OSApp.uiState.is24Hour ) {
 							if ( hourFixed === 12 ) {
 								hourFixed = 0;
 							}
@@ -1182,7 +1182,7 @@ OSApp.UIDom.showTimeInput = function( opt ) {
 			} else {
 				var hour = parseInt( popup.find( ".hour" ).val() );
 
-				if ( !OSApp.currentDevice.isMetric ) {
+				if ( !OSApp.uiState.is24Hour ) {
 					if ( isPM && hour !== 12 ) {
 						hour = hour + 12;
 					}
