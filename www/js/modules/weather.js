@@ -741,7 +741,7 @@ OSApp.Weather.showForecast = function() {
 				"<ul data-role='listview' data-inset='true'>" +
 					OSApp.Weather.makeForecast() +
 				"</ul>" +
-				OSApp.Weather.makeAttribution( OSApp.currentSession.weather.wp || OSApp.currentSession.weather.weatherProvider ) +
+				OSApp.Weather.makeAttribution( OSApp.currentSession.controller.settings.wto.provider || OSApp.currentSession.weather.wp || OSApp.currentSession.weather.weatherProvider ) +
 			"</div>" +
 		"</div>" );
 
@@ -848,6 +848,13 @@ OSApp.Weather.makeAttribution = function( provider ) {
 		case "WU":
 			attrib += "<a href='https://wunderground.com/' target='_blank'>" + OSApp.Language._( "Powered by Weather Underground" ) + "</a>";
 			break;
+		case "PirateWeather":
+		case "PW":
+			attrib += "<a href='https://pirateweather.net/' target='_blank'>" + OSApp.Language._("Powered by PirateWeather" ) + "</a";
+			break;
+		case "AccuWeather":
+		case "AW":
+			attrib += "<a href='https://www.accuweather.com/' target='_blank'>" + OSApp.Language._("Powered by AccuWeather" ) + "</a";
 		case "local":
 			attrib += OSApp.Language._( "Powered by your Local PWS" );
 			break;
@@ -895,10 +902,61 @@ OSApp.Weather.showRainDelay = function() {
 	} );
 };
 
-OSApp.Weather.testWUAPIKey = function( key, callback ) {
+OSApp.Weather.getWeatherProviders = function() {
+	return [
+		{ name: "Apple (Default)", id: "Apple", needsKey: false },
+		{ name: "AccuWeather", id: "AW", needsKey: true },
+		{ name: "PirateWeather", id: "PW", needsKey: true },
+		{ name: "Open Weather Map", id: "OWM", needsKey: true },
+		{ name: "OpenMeteo", id: "OpenMeteo", needsKey: false },
+		{ name: "DWD", id: "DWD", needsKey: false },
+		{ name: "WeatherUnderground", id: "WU", needsKey: true }
+	];
+};
+
+OSApp.Weather.getWeatherProviderById = function( id ) {
+	if(typeof id === "number"){
+		return OSApp.Weather.getWeatherProviders()[id];
+	}
+	let weatherProviders = OSApp.Weather.getWeatherProviders();
+	for(provider of weatherProviders){
+		if(provider.id === id){
+			return provider;
+		}
+	}
+	return false;
+};
+
+OSApp.Weather.getCurrentWeatherProvider = function() {
+	const provider = OSApp.Weather.getWeatherProviderById(OSApp.currentSession.controller.settings.wto.provider);
+	if(provider)
+		return provider
+
+	return false;
+};
+
+OSApp.Weather.testAPIKey = function( key, provider, callback ) {
 	callback = callback || function() {};
+
+	let url;
+	if(provider === "AW"){
+		url = "https://dataservice.accuweather.com/locations/v1/cities/geoposition/search?q=42,-75&apikey=" + key;
+	}
+
+	if(provider === "PW"){
+		url = "https://api.pirateweather.net/forecast/" + key + "/42,-75?&exclude=minutely,hourly,daily,alerts";
+	}
+
+	if(provider === "OWM"){
+		url = "https://api.openweathermap.org/data/3.0/onecall?lat=42&lon=-75&exclude=minutely,hourly,daily,alerts&appid=" + key;
+	}
+
+	if(provider === "WU"){
+		url = "https://api.weather.com/v2/pws/observations/current?stationId=KMAHANOV10&format=json&units=m&apiKey=" + key;
+	}
+
 	$.ajax( {
-		url: "https://api.weather.com/v2/pws/observations/current?stationId=KMAHANOV10&format=json&units=m&apiKey=" + key,
+		url: url,
 		cache: true
 	} ).done( function( data ) {
 		if ( data.errors ) {

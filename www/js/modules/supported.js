@@ -79,3 +79,9 @@ OSApp.Supported.dateRange = function() {
 OSApp.Supported.changePause = function() {
 	return OSApp.Firmware.checkOSVersion( 2211 );
 };
+
+OSApp.Supported.verifyWeatherAPIKey = function() {
+	return OSApp.Firmware.checkOSVersion( 219 ) &&
+			typeof OSApp.currentSession.controller.options.uwt !== "undefined" &&
+			typeof OSApp.currentSession.controller.settings.wto === "object";
+}
