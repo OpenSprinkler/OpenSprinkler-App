@@ -1838,13 +1838,22 @@ OSApp.UIDom.showIPRequest = function( opt ) {
 
 OSApp.UIDom.showPause = function() {
 	if ( OSApp.StationQueue.isPaused() ) {
+		if( !OSApp.Supported.changePause() ){
+			OSApp.UIDom.areYouSure( OSApp.Language._( "Do you want to resume program operation?" ), "", function() {
+				OSApp.Firmware.sendToOS( "/pq?dur=0&pw=" ).done( function() {
+					setTimeout( refreshStatus, 1000 );
+				} );
+			} );
+			return;
+		}
+
 		var popup = $("<div data-role='popup' data-theme='a' id='changePause'>" +
 			"<div data-role='header' data-theme='b'>" +
 				"<h1>" + OSApp.Language._( "Change Pause" ) + "</h1>" +
 			"</div>" +
 			"<div class='ui-content'>" +
-				"<button style='display:inline-block;' data-mini='true' id='extend-pause'>Extend</button>" +
-				"<button style='display:inline-block;' data-mini='true' id='new-pause'>Replace</button>" +
+				"<button class='new-pause-function' style='display:inline-block;' data-mini='true' id='extend-pause'>Extend</button>" +
+				"<button class='new-pause-function' style='display:inline-block;' data-mini='true' id='new-pause'>Replace</button>" +
 				"<button style='display:inline-block;' data-mini='true' id='un-pause'>Unpause</button>" +
 			"</div>" +
 		"</div>" );
@@ -1858,7 +1867,9 @@ OSApp.UIDom.showPause = function() {
 				callback: function( duration ) {
 					var dur = duration;
 					dur += OSApp.currentSession.controller.settings.pt;
-					OSApp.Firmware.sendToOS( "/pq?repl=" + dur + "&pw=" );
+					OSApp.Firmware.sendToOS( "/pq?repl=" + dur + "&pw=" ).done( function() {
+						setTimeout( OSApp.Status.refreshStatus, 1000 ); // FIXME: refactor this 1000 value out to Constants or config/settings
+					} );
 				}
 			} );
 		} );
@@ -1870,7 +1881,9 @@ OSApp.UIDom.showPause = function() {
 				incrementalUpdate: false,
 				maximum: 65535,
 				callback: function( duration ) {
-					OSApp.Firmware.sendToOS( "/pq?repl=" + duration + "&pw=" );
+					OSApp.Firmware.sendToOS( "/pq?repl=" + duration + "&pw=" ).done( function() {
+						setTimeout( OSApp.Status.refreshStatus, 1000 );
+					} );
 				}
 			} );
 		} );
@@ -1878,7 +1891,9 @@ OSApp.UIDom.showPause = function() {
 		popup.find("#un-pause").on("click", function() {
 			popup.popup( "close" );
 			OSApp.UIDom.areYouSure( OSApp.Language._( "Do you want to resume program operation?" ), "", function() {
-				OSApp.Firmware.sendToOS( "/pq?repl=0&pw=" );
+				OSApp.Firmware.sendToOS( "/pq?repl=0&pw=" ).done( function(){
+					setTimeout( OSApp.Status.refreshStatus, 1000 );
+				} );
 			} );
 		} );
 

@@ -75,3 +75,7 @@ OSApp.Supported.groups = function() {
 OSApp.Supported.dateRange = function() {
 	return OSApp.Firmware.checkOSVersion( 220 );
 };
+
+OSApp.Supported.changePause = function() {
+	return OSApp.Firmware.checkOSVersion( 2211 );
+};
