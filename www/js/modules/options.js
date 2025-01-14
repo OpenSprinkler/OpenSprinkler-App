@@ -190,9 +190,9 @@ OSApp.Options.showOptions = function( expandItem ) {
 						OSApp.uiState.groupView = $item.is( ":checked" );
 						OSApp.Storage.set( { "groupView": OSApp.uiState.groupView } );
 						return true;
-					case "alphabetView":
-						OSApp.uiState.alphabetView = $item.is( ":checked" );
-						OSApp.Storage.set( { "alphabetView": OSApp.uiState.alphabetView } );
+					case "sortByStationName":
+						OSApp.uiState.sortByStationName = $item.is( ":checked" );
+						OSApp.Storage.set( { "sortByStationName": OSApp.uiState.sortByStationName } );
 						return true;
 					case "o12":
 						if ( !isPi ) {
@@ -369,8 +369,8 @@ OSApp.Options.showOptions = function( expandItem ) {
 			OSApp.Language._( "Order Stations by Groups" ) + "</label>";
 		}
 
-		list += "<label for='alphabetView'><input data-mini='true' id='alphabetView' type='checkbox' " + ( OSApp.uiState.alphabetView ? "checked='checked'" : "" ) + ">" +
-		OSApp.Language._( "Order Stations by Alphabetical Order" ) + "</label>";
+		list += "<label for='sortByStationName'><input data-mini='true' id='sortByStationName' type='checkbox' " + ( OSApp.uiState.sortByStationName ? "checked='checked'" : "" ) + ">" +
+		OSApp.Language._( "Order Stations by Name" ) + "</label>";
 	list += "</div>";
 
 	list += "</fieldset><fieldset data-role='collapsible'" +

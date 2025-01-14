@@ -764,7 +764,7 @@ OSApp.Dashboard.displayPage = function() {
 					} else if ( statusA < statusB ) {
 						return 1;
 					} else {
-						if( OSApp.uiState.alphabetView ) {
+						if( OSApp.uiState.sortByStationName ) {
 							if ( nameA < nameB ) { return -1; } else if ( nameA > nameB ) { return 1; } else { return 0; }
 						}else{
 							if ( sidA < sidB ) { return -1; } else if ( sidA > sidB ) { return 1; } else { return 0; }
@@ -795,7 +795,7 @@ OSApp.Dashboard.displayPage = function() {
 			} else if ( statusA < statusB ) {
 				return 1;
 			} else {
-				if ( OSApp.uiState.alphabetView){
+				if ( OSApp.uiState.sortByStationName){
 					if ( nameA < nameB ) {
 						return -1;
 					} else if ( nameA > nameB ) {

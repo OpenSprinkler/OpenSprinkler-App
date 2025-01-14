@@ -81,7 +81,7 @@ OSApp.uiState = {
 	goingBack: false,
 	is24Hour: false,
 	groupView: false,
-	alphabetView: false,
+	sortByStationName: false,
 	language: undefined,
 	notifications: [], // Array to hold all notifications currently displayed within the app
 	openPanel: undefined,

@@ -101,13 +101,13 @@ OSApp.Storage.loadLocalSettings = function() {
 			default:
 		}
 	} );
-	OSApp.Storage.get( "alphabetView", function( data ) {
-		switch ( data.alphabetView ) {
+	OSApp.Storage.get( "sortByStationName", function( data ) {
+		switch ( data.sortByStationName ) {
 			case "true":
-				OSApp.uiState.alphabetView = true;
+				OSApp.uiState.sortByStationName = true;
 				break;
 			case "false":
-				OSApp.uiState.alphabetView = false;
+				OSApp.uiState.sortByStationName = false;
 				break;
 			default:
 		}
