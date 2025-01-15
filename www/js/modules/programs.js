@@ -308,9 +308,13 @@ OSApp.Programs.displayPageRunOnce = function() {
 		},
 		resetRunonce = function() {
 			page.find( "[id^='zone-']" ).val( 0 ).text( "0s" ).removeClass( "green" );
+			page.find( "#uwt-runonce" ).prop( "checked", false ).checkboxradio( "refresh" );
+			page.find( "#interval-runonce" ).val( 0 ).text( OSApp.Dates.dhms2str(0) );
+			page.find( "#repeat-runonce" ).val( 0 ).text( 0 );
 			return false;
 		},
-		fillRunonce = function( data ) {
+		fillRunonce = function( data, repeat, interval, weather ) {
+			resetRunonce();
 			page.find( "[id^='zone-']" ).each( function( a, b ) {
 				if ( OSApp.Stations.isMaster( a ) ) {
 					return;
@@ -324,8 +328,20 @@ OSApp.Programs.displayPageRunOnce = function() {
 					ele.removeClass( "green" );
 				}
 			} );
+
+			if( OSApp.Supported.repeatedRunonce() ){
+				if(typeof repeat === "number"){
+					page.find("#repeat-runonce").val( repeat ).text( repeat );
+				}
+				if(typeof interval === "number"){
+					page.find("#interval-runonce").val( interval * 60 ).text( OSApp.Dates.dhms2str( OSApp.Dates.sec2dhms( interval * 60 ) ) );
+				}
+				if(typeof weather === "number"){
+					page.find("#uwt-runonce").prop( "checked", weather ? true : false).checkboxradio( "refresh" );
+				}
+			}
 		},
-		i, list, quickPick, progs, rprogs, z, program, name;
+		i, list, quickPick, progs, rprogs, repeats, intervals, weathers, z, program, name;
 
 	page.on( "pagehide", function() {
 		page.detach();
@@ -334,6 +350,9 @@ OSApp.Programs.displayPageRunOnce = function() {
 	function begin() {
 		list = "<p class='center'>" + OSApp.Language._( "Zero value excludes the station from the run-once program." ) + "</p>";
 		progs = [];
+		repeats = [];
+		intervals = [];
+		weathers = [];
 		if ( OSApp.currentSession.controller.programs.pd.length ) {
 			for ( z = 0; z < OSApp.currentSession.controller.programs.pd.length; z++ ) {
 				program = OSApp.Programs.readProgram( OSApp.currentSession.controller.programs.pd[ z ] );
@@ -349,6 +368,12 @@ OSApp.Programs.displayPageRunOnce = function() {
 				}
 
 				progs.push( prog );
+
+				if ( OSApp.Supported.repeatedRunonce() ){
+					repeats.push( program.repeat );
+					intervals.push( program.interval );
+					weathers.push ( program.weather );
+				}
 			}
 		}
 		rprogs = progs;
@@ -378,7 +403,24 @@ OSApp.Programs.displayPageRunOnce = function() {
 			}
 		} );
 
-		list += "</form><a class='ui-btn ui-corner-all ui-shadow rsubmit' href='#'>" + OSApp.Language._( "Submit" ) + "</a>" +
+		list += "</form>";
+
+		if( OSApp.Supported.repeatedRunonce() ){
+			// Program weather control flag
+			list += "<label for='uwt-runonce'><input data-mini='true' type='checkbox' name='uwt-runonce' id='uwt-runonce'>" + OSApp.Language._( "Use Weather Adjustment" ) + "</label>";
+
+			// Show repeating start time options
+			list += "<div id='input_stype_repeat-runonce'>";
+			list += "<div class='ui-grid-a'>";
+			list += "<div class='ui-block-a'><label class='pad_buttons center' for='interval-runonce'>" + OSApp.Language._( "Repeat Every" ) + "</label>" +
+				"<button class='pad_buttons' data-mini='true' name='interval-runonce' id='interval-runonce' " +
+					"value='0'>" + OSApp.Dates.dhms2str( 0 ) + "</button></div>";
+			list += "<div class='ui-block-b'><label class='pad_buttons center' for='repeat-runonce'>" + OSApp.Language._( "Repeat Count" ) + "</label>" +
+				"<button class='pad_buttons' data-mini='true' name='repeat-runonce' id='repeat-runonce' value='0'>0</button></div>";
+			list += "</div></div>";
+		}
+
+		list += "<a class='ui-btn ui-corner-all ui-shadow rsubmit' href='#'>" + OSApp.Language._( "Submit" ) + "</a>" +
 			"<a class='ui-btn ui-btn-b ui-corner-all ui-shadow rreset' href='#'>" + OSApp.Language._( "Reset" ) + "</a>";
 
 		page.find( ".ui-content" ).html( list ).enhanceWithin();
@@ -425,7 +467,12 @@ OSApp.Programs.displayPageRunOnce = function() {
 			if ( typeof rprogs[ prog ] === "undefined" ) {
 				return;
 			}
-			fillRunonce( rprogs[ prog ] );
+
+			if ( OSApp.Supported.repeatedRunonce() ) {
+				fillRunonce( rprogs[ prog ], repeats [ prog ], intervals[ prog ], weathers[ prog ]);
+			} else {
+				fillRunonce( rprogs[ prog ] );
+			}
 		} );
 
 		page.find( ".rsubmit" ).on( "click", OSApp.Stations.submitRunonce );
@@ -452,6 +499,38 @@ OSApp.Programs.displayPageRunOnce = function() {
 			} );
 
 			return false;
+		} );
+
+		// Handle interval duration input
+		page.find( "#interval-runonce" ).on( "click", function() {
+			var dur = $( this ),
+				name = page.find( "label[for='" + dur.attr( "id" ) + "']" ).text();
+			OSApp.UIDom.showDurationBox( {
+				seconds: dur.val(),
+				title: name,
+				callback: function( result ) {
+					dur.val( result );
+					dur.text( OSApp.Dates.dhms2str( OSApp.Dates.sec2dhms( result ) ) );
+				},
+				maximum: 86340,
+				granularity: 1,
+				preventCompression: true
+			} );
+		} );
+
+		// Handle repeat count button
+		page.find( "[id^='repeat-']" ).on( "click", function() {
+			var dur = $( this ),
+				name = page.find( "label[for='" + dur.attr( "id" ) + "']" ).text();
+			OSApp.UIDom.showSingleDurationInput( {
+				data: dur.val(),
+				title: name,
+				label: OSApp.Language._( "Repeat Count" ),
+				callback: function( result ) {
+					dur.val( result ).text( result );
+				},
+				maximum: 1440
+			} );
 		} );
 
 		OSApp.UIDom.changeHeader( {
@@ -2486,10 +2565,19 @@ OSApp.Programs.expandProgram = function( program ) {
 		var name = OSApp.Firmware.checkOSVersion( 210 ) ? OSApp.currentSession.controller.programs.pd[ id ][ 5 ] : "Program " + id;
 
 		OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to start" ) + " " + name + " " + OSApp.Language._( "now?" ), "", function() {
+			let repeat, interval;
+			if( OSApp.Supported.repeatedRunonce() ) {
+				const program = OSApp.currentSession.controller.programs.pd[ id ];
+				const startType = ( ( program[ 0 ] >> 6 ) & 0x01 );
+				if( startType === 0 ){
+					repeat = program[ 3 ][ 1 ];
+					interval = program[ 3 ][ 2 ];
+				}
+			}
 			var runonce = [],
 				finish = function() {
 					runonce.push( 0 );
-					OSApp.Stations.submitRunonce( runonce );
+					OSApp.Stations.submitRunonce( runonce, interval, repeat );
 				};
 
 			if ( OSApp.Firmware.checkOSVersion( 210 ) ) {

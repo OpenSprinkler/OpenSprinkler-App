@@ -89,3 +89,7 @@ OSApp.Supported.verifyWeatherAPIKey = function() {
 OSApp.Supported.singleRunAndMonthly = function() {
 	return OSApp.Firmware.checkOSVersion( 2211 );
 };
+
+OSApp.Supported.repeatedRunonce = function() {
+	return OSApp.Firmware.checkOSVersion( 2211 );
+};

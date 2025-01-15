@@ -227,19 +227,36 @@ OSApp.Stations.convertRemoteToExtender = function( data ) {
 	} );
 };
 
-OSApp.Stations.submitRunonce = function( runonce ) {
+OSApp.Stations.submitRunonce = function( runonce, interval, repeat ) {
+	let weather;
 	if ( !( runonce instanceof Array ) ) {
 		runonce = [];
 		$( "#runonce" ).find( "[id^='zone-']" ).each( function() {
 			runonce.push( parseInt( this.value ) || 0 );
 		} );
 		runonce.push( 0 );
+
+		if( OSApp.Supported.repeatedRunonce() )
+			weather = $( "#runonce" ).find( "#uwt-runonce" ).prop( "checked" ) ? 1 : 0;
 	}
 
 	var submit = function() {
 			$.mobile.loading( "show" );
 			OSApp.Storage.set( { "runonce": JSON.stringify( runonce ) } );
-			OSApp.Firmware.sendToOS( "/cr?pw=&t=" + JSON.stringify( runonce ) ).done( function() {
+			let request;
+			if ( OSApp.Supported.repeatedRunonce() ) {
+				if ( !(typeof interval === "number" ) ) {
+					interval = $( "#runonce" ).find( "#interval-runonce" ).val() / 60;
+				}
+				if ( !(typeof repeat === "number" ) ) {
+					repeat = $( "#runonce" ).find( "#repeat-runonce" ).val();
+				}
+
+				request = "/cr?pw=&t=" + JSON.stringify( runonce ) + "&int=" + interval + "&cnt=" + repeat + "&uwt=" + weather;
+			} else {
+				request = "/cr?pw=&t=" + JSON.stringify( runonce );
+			}
+			OSApp.Firmware.sendToOS( request ).done( function() {
 				$.mobile.loading( "hide" );
 				$.mobile.document.one( "pageshow", function() {
 					OSApp.Errors.showError( OSApp.Language._( "Run-once program has been scheduled" ) );
