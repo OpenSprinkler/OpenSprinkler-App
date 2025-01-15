@@ -299,3 +299,9 @@ OSApp.Dates.epochToDate = function( epochTime ) {
 
 	return (date.getUTCMonth() + 1) + "/" + date.getUTCDate() + "/" + date.getUTCFullYear();
 };
+
+OSApp.Dates.monthDays = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+OSApp.Dates.isLastDayOfMonth = function( month, day ) {
+	return day === OSApp.Dates.monthDays[month];
+}

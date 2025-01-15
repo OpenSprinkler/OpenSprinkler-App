@@ -1147,7 +1147,25 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 			if ( ( simday % dn ) !== ( ( devday + drem ) % dn ) ) {
 				return 0;
 			}
-		} else if ( type === 0 ) {
+		} else if ( type === 2 ) {
+
+			// Monthly program
+			const day = prog[ 1 ] & 0b11111;
+			if ( day === 0 ){
+				if(!OSApp.Dates.isLastDayOfMonth(mt-1, dt)){
+					return 0;
+				}
+			} else if ( dt !== day ) {
+				return 0;
+			}
+		} else if ( type === 1 ) {
+
+			// Singlerun program
+			const epochDays = simt / 86400000;
+			if( (prog[1] << 8) + prog[2] != epochDays)
+				return 0;
+
+		}else if ( type === 0 ) {
 
 			// Weekly program
 			var wd = ( date.getUTCDay() + 6 ) % 7;
