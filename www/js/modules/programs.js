@@ -1126,6 +1126,7 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 
 		var dt = date.getUTCDate();
 		var mt = date.getUTCMonth() + 1;
+		var yr = date.getUTCFullYear();
 		var dr = prog[ 6 ];
 		if ( typeof dr === "object" ) { // Daterange is available
 			if ( dr[ 0 ] ) { // Check date range if enabled
@@ -1152,7 +1153,7 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 			// Monthly program
 			const day = prog[ 1 ] & 0b11111;
 			if ( day === 0 ){
-				if(!OSApp.Dates.isLastDayOfMonth(mt-1, dt)){
+				if(!OSApp.Dates.isLastDayOfMonth(mt-1, yr, dt)){
 					return 0;
 				}
 			} else if ( dt !== day ) {
