@@ -903,24 +903,12 @@ OSApp.Weather.showRainDelay = function() {
 	} );
 };
 
-OSApp.Weather.getWeatherProviders = function() {
-	return [
-		{ name: "Apple (Default)", id: "Apple", needsKey: false },
-		{ name: "AccuWeather", id: "AW", needsKey: true },
-		{ name: "PirateWeather", id: "PW", needsKey: true },
-		{ name: "Open Weather Map", id: "OWM", needsKey: true },
-		{ name: "OpenMeteo", id: "OpenMeteo", needsKey: false },
-		{ name: "DWD", id: "DWD", needsKey: false },
-		{ name: "WeatherUnderground", id: "WU", needsKey: true }
-	];
-};
-
 OSApp.Weather.getWeatherProviderById = function( id ) {
+	const providers = OSApp.Constants.weather.PROVIDERS;
 	if(typeof id === "number"){
-		return OSApp.Weather.getWeatherProviders()[id];
+		return providers[id];
 	}
-	let weatherProviders = OSApp.Weather.getWeatherProviders();
-	for(let provider of weatherProviders){
+	for(let provider of providers){
 		if(provider.id === id){
 			return provider;
 		}
@@ -940,20 +928,20 @@ OSApp.Weather.testAPIKey = function( key, provider, callback ) {
 	callback = callback || function() {};
 
 	let url;
-	if(provider === "AW"){
-		url = "https://dataservice.accuweather.com/locations/v1/cities/geoposition/search?q=42,-75&apikey=" + key;
-	}
 
-	if(provider === "PW"){
-		url = "https://api.pirateweather.net/forecast/" + key + "/42,-75?&exclude=minutely,hourly,daily,alerts";
-	}
-
-	if(provider === "OWM"){
-		url = "https://api.openweathermap.org/data/3.0/onecall?lat=42&lon=-75&exclude=minutely,hourly,daily,alerts&appid=" + key;
-	}
-
-	if(provider === "WU"){
-		url = "https://api.weather.com/v2/pws/observations/current?stationId=KMAHANOV10&format=json&units=m&apiKey=" + key;
+	switch(provider) {
+		case "AW":
+			url = "https://dataservice.accuweather.com/locations/v1/cities/geoposition/search?q=42,-75&apikey=" + key;
+			break;
+		case "PW":
+			url = "https://api.pirateweather.net/forecast/" + key + "/42,-75?&exclude=minutely,hourly,daily,alerts";
+			break;
+		case "OWM":
+			url = "https://api.openweathermap.org/data/3.0/onecall?lat=42&lon=-75&exclude=minutely,hourly,daily,alerts&appid=" + key;
+			break;
+		case "WU":
+			url = "https://api.weather.com/v2/pws/observations/current?stationId=KMAHANOV10&format=json&units=m&apiKey=" + key;
+			break;
 	}
 
 	$.ajax( {

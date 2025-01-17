@@ -490,8 +490,8 @@ OSApp.Options.showOptions = function( expandItem ) {
 						OSApp.Language._( "Select your preferred weather service provider." ) +
 						"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
 				"</label><select data-mini='true' id='weatherSelect'>";
-			for ( i = 0; i < OSApp.Weather.getWeatherProviders().length; i++ ) {
-				var weatherProvider = OSApp.Weather.getWeatherProviders()[ i ];
+			for ( i = 0; i < OSApp.Constants.weather.PROVIDERS.length; i++ ) {
+				var weatherProvider = OSApp.Weather.getWeatherProviderById( i );
 				list += "<option " + ( ( weatherProvider.id === OSApp.currentSession.controller.settings.wto.provider ) ? "selected" : "" ) + " value='" + weatherProvider.id + "'>" + weatherProvider.name + "</option>";
 			}
 			list += "</select></div>";
