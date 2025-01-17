@@ -838,12 +838,12 @@ OSApp.Weather.makeAttribution = function( provider ) {
 			attrib += "<a href='https://openweathermap.org/' target='_blank'>" + OSApp.Language._( "Powered by OpenWeather" ) + "</a>";
 			break;
 		case "DWD":
-				attrib += "<a href='https://brightsky.dev/' target='_blank'>" + OSApp.Language._( "Powered by Bright Sky+DWD" ) + "</a>";
-				break;
+			attrib += "<a href='https://brightsky.dev/' target='_blank'>" + OSApp.Language._( "Powered by Bright Sky+DWD" ) + "</a>";
+			break;
 		case "OpenMeteo":
 		case "OM":
-				attrib += "<a href='https://open-meteo.com/' target='_blank'>" + OSApp.Language._( "Powered by Open Meteo" ) + "</a>";
-				break;
+			attrib += "<a href='https://open-meteo.com/' target='_blank'>" + OSApp.Language._( "Powered by Open Meteo" ) + "</a>";
+			break;
 		case "WUnderground":
 		case "WU":
 			attrib += "<a href='https://wunderground.com/' target='_blank'>" + OSApp.Language._( "Powered by Weather Underground" ) + "</a>";
@@ -855,6 +855,7 @@ OSApp.Weather.makeAttribution = function( provider ) {
 		case "AccuWeather":
 		case "AW":
 			attrib += "<a href='https://www.accuweather.com/' target='_blank'>" + OSApp.Language._("Powered by AccuWeather" ) + "</a";
+			break;
 		case "local":
 			attrib += OSApp.Language._( "Powered by your Local PWS" );
 			break;
@@ -919,7 +920,7 @@ OSApp.Weather.getWeatherProviderById = function( id ) {
 		return OSApp.Weather.getWeatherProviders()[id];
 	}
 	let weatherProviders = OSApp.Weather.getWeatherProviders();
-	for(provider of weatherProviders){
+	for(let provider of weatherProviders){
 		if(provider.id === id){
 			return provider;
 		}

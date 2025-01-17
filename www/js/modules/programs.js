@@ -2100,10 +2100,10 @@ OSApp.Programs.makeProgram21 = function( n, isCopy ) {
 		var hours = Math.floor(runtime / 3600);
 		var minutes = Math.floor(runtime % 3600 / 60);
 		var seconds = Math.floor(runtime % 3600 % 60);
-		var runtime = "" + (hours/10>>0) + (hours%10);
-		runtime += ":" + (minutes/10>>0) + (minutes%10);
-		runtime += ":" + (seconds/10>>0) + (seconds%10);
-		page.find( "#station-head" ).text("Stations (Total Program Run Time: " + runtime + ")");
+		var displayRuntime = "" + (hours/10>>0) + (hours%10);
+		displayRuntime += ":" + (minutes/10>>0) + (minutes%10);
+		displayRuntime += ":" + (seconds/10>>0) + (seconds%10);
+		page.find( "#station-head" ).text("Stations (Total Program Run Time: " + displayRuntime + ")");
 	}
 
 	updateProgramTime();

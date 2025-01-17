@@ -1841,7 +1841,7 @@ OSApp.UIDom.showPause = function() {
 		if( !OSApp.Supported.changePause() ){
 			OSApp.UIDom.areYouSure( OSApp.Language._( "Do you want to resume program operation?" ), "", function() {
 				OSApp.Firmware.sendToOS( "/pq?dur=0&pw=" ).done( function() {
-					setTimeout( refreshStatus, 1000 );
+					setTimeout( OSApp.Status.refreshStatus, 1000 );
 				} );
 			} );
 			return;
