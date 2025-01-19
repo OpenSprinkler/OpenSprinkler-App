@@ -798,7 +798,8 @@
    "Digital over max": "Digital über Maximum",
    "Digital under min or over max": "Digital unter Minimum oder über Maximum",
    "REMOTE": "Extern",
-   "activated": "aktiviert"
+   "activated": "aktiviert",
+   "Select Notification Events": "Ereignisse konfigurieren"
    
 }
 }

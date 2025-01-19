@@ -278,9 +278,12 @@ $( document )
 	} else if ( hash === "#os-options" ) {
 		showOptions( data.options.expandItem );
 	} else if ( checkAnalogSensorAvail() && hash === "#analogsensorconfig" ) {
-                showAnalogSensorConfig();
+        showAnalogSensorConfig();
 	} else if ( checkAnalogSensorAvail() && hash === "#analogsensorchart" ) {
-                showAnalogSensorCharts();
+        showAnalogSensorCharts();
+	} else if ( checkAnalogSensorAvail() && hash.startsWith("#analogsensorchart_")) {
+		let nr = parseInt(hash.substr(hash.indexOf("_", 2) + 1) );
+        showAnalogSensorCharts(nr);
 	} else if ( hash === "#preview" ) {
 		getPreview();
 	} else if ( hash === "#logs" ) {
@@ -3443,71 +3446,74 @@ function format2(value) {
 	return ( +( Math.round( value + "e+2" )  + "e-2" ) );
 }
 function debugWU() {
-	var popup = "<div data-role='popup' id='debugWU' class='ui-content ui-page-theme-a'>";
+	sendToOS("/du?pw=", "json").then( function( status ) {
+		var popup = "<div data-role='popup' id='debugWU' class='ui-content ui-page-theme-a'>";
 
-	popup += "<div class='debugWUHeading'>System Status</div>" +
-			"<table class='debugWUTable'>" +
-				( typeof controller.settings.lupt === "number" ? "<tr><td>" + _( "Last Reboot" ) + "</td><td>" +
-					( controller.settings.lupt < 1000 ? "--" : dateToString( new Date( controller.settings.lupt * 1000 ), null, 2 ) ) + "</td></tr>" : "" ) +
-				( typeof controller.settings.lrbtc === "number" ? "<tr><td>" + _( "Reboot Reason" ) + "</td><td>" + getRebootReason( controller.settings.lrbtc ) + "</td></tr>" : "" ) +
-				( typeof controller.settings.RSSI === "number" ? "<tr><td>" + _( "WiFi Strength" ) + "</td><td>" + getWiFiRating( controller.settings.RSSI ) + "</td></tr>" : "" ) +
-				( typeof controller.settings.wterr === "number" ? "<tr><td>" + _( "Weather Service" ) + "</td><td>" + getWeatherStatus( controller.settings.wterr ) + "</td></tr>" : "" ) +
-			"</table>" +
-			"<div class='debugWUHeading'>Watering Level</div>" +
-			"<table class='debugWUTable'>" +
-				( typeof controller.options.uwt !== "undefined" ? "<tr><td>" + _( "Method" ) + "</td><td>" + getAdjustmentMethod( controller.options.uwt ).name + "</td></tr>" : "" ) +
-				( typeof controller.options.wl !== "undefined" ? "<tr><td>" + _( "Watering Level" ) + "</td><td>" + controller.options.wl + " %</td></tr>" : "" ) +
-				( typeof controller.settings.lswc === "number" ? "<tr><td>" + _( "Last Updated" ) + "</td><td>" +
-					( controller.settings.lswc === 0  ? _( "Never" ) : humaniseDuration( controller.settings.devt * 1000, controller.settings.lswc * 1000 ) ) + "</td></tr>" : "" ) +
-			"</table>" +
-			"<div class='debugWUHeading'>Weather Service Details</div>" +
-			"<div class='debugWUScrollable'>" +
-			"<table class='debugWUTable'>";
+		popup += "<div class='debugWUHeading'>System Status</div>" +
+				"<table class='debugWUTable'>" +
+					( typeof controller.settings.lupt === "number" ? "<tr><td>" + _( "Last Reboot" ) + "</td><td>" +
+						( controller.settings.lupt < 1000 ? "--" : dateToString( new Date( controller.settings.lupt * 1000 ), null, 2 ) ) + "</td></tr>" : "" ) +
+					( typeof controller.settings.lrbtc === "number" ? "<tr><td>" + _( "Reboot Reason" ) + "</td><td>" + getRebootReason( controller.settings.lrbtc ) + "</td></tr>" : "" ) +
+					( typeof controller.settings.RSSI === "number" ? "<tr><td>" + _( "WiFi Strength" ) + "</td><td>" + getWiFiRating( controller.settings.RSSI ) + "</td></tr>" : "" ) +
+					( typeof controller.settings.wterr === "number" ? "<tr><td>" + _( "Weather Service" ) + "</td><td>" + getWeatherStatus( controller.settings.wterr ) + "</td></tr>" : "" ) +
+				"</table>" +
+				"<div class='debugWUHeading'>Watering Level</div>" +
+				"<table class='debugWUTable'>" +
+					( typeof controller.options.uwt !== "undefined" ? "<tr><td>" + _( "Method" ) + "</td><td>" + getAdjustmentMethod( controller.options.uwt ).name + "</td></tr>" : "" ) +
+					( typeof controller.options.wl !== "undefined" ? "<tr><td>" + _( "Watering Level" ) + "</td><td>" + controller.options.wl + " %</td></tr>" : "" ) +
+					( typeof controller.settings.lswc === "number" ? "<tr><td>" + _( "Last Updated" ) + "</td><td>" +
+						( controller.settings.lswc === 0  ? _( "Never" ) : humaniseDuration( controller.settings.devt * 1000, controller.settings.lswc * 1000 ) ) + "</td></tr>" : "" ) +
+				"</table>" +
+				"<div class='debugWUHeading'>Weather Service Details</div>" +
+				"<div class='debugWUScrollable'>" +
+				"<table class='debugWUTable'>";
 
-	if ( typeof controller.settings.wtdata === "object" && Object.keys( controller.settings.wtdata ).length > 0 ) {
-		popup += ( typeof controller.settings.wtdata.h !== "undefined" ? "<tr><td>" + _( "Mean Humidity" ) + "</td><td>" + formatHumidity( controller.settings.wtdata.h ) + "</td></tr>" : "" ) +
-			( typeof controller.settings.wtdata.t !== "undefined" ? "<tr><td>" + _( "Mean Temp" ) + "</td><td>" + formatTemp( controller.settings.wtdata.t ) + "</td></tr>" : "" ) +
-			( typeof controller.settings.wtdata.p !== "undefined" ? "<tr><td>" + _( "Total Rain" ) + "</td><td>" + formatPrecip( controller.settings.wtdata.p ) + "</td></tr>" : "" ) +
-			( typeof controller.settings.wtdata.eto !== "undefined" ? "<tr><td>" + _( "ETo" ) + "</td><td>" + formatPrecip( controller.settings.wtdata.eto ) + "</td></tr>" : "" ) +
-			( typeof controller.settings.wtdata.radiation !== "undefined" ? "<tr><td>" + _( "Mean Radiation" ) + "</td><td>" + controller.settings.wtdata.radiation + " kWh/m2</td></tr>" : "" ) +
-			( typeof controller.settings.wtdata.minT !== "undefined" ? "<tr><td>" + _( "Min Temp" ) + "</td><td>" + formatTemp( controller.settings.wtdata.minT ) + "</td></tr>" : "" ) +
-			( typeof controller.settings.wtdata.maxT !== "undefined" ? "<tr><td>" + _( "Max Temp" ) + "</td><td>" + formatTemp( controller.settings.wtdata.maxT ) + "</td></tr>" : "" ) +
-			( typeof controller.settings.wtdata.minH !== "undefined" ? "<tr><td>" + _( "Min Humidity" ) + "</td><td>" + formatHumidity( controller.settings.wtdata.minH ) + "</td></tr>" : "" ) +
-			( typeof controller.settings.wtdata.maxH !== "undefined" ? "<tr><td>" + _( "Max Humidity" ) + "</td><td>" + formatHumidity( controller.settings.wtdata.maxH ) + "</td></tr>" : "" ) +
-			( typeof controller.settings.wtdata.wind !== "undefined" ? "<tr><td>" + _( "Mean Wind" ) + "</td><td>" + formatSpeed( controller.settings.wtdata.wind ) + "</td></tr>" : "" );
-	}
+		if ( typeof controller.settings.wtdata === "object" && Object.keys( controller.settings.wtdata ).length > 0 ) {
+			popup += ( typeof controller.settings.wtdata.h !== "undefined" ? "<tr><td>" + _( "Mean Humidity" ) + "</td><td>" + formatHumidity( controller.settings.wtdata.h ) + "</td></tr>" : "" ) +
+				( typeof controller.settings.wtdata.t !== "undefined" ? "<tr><td>" + _( "Mean Temp" ) + "</td><td>" + formatTemp( controller.settings.wtdata.t ) + "</td></tr>" : "" ) +
+				( typeof controller.settings.wtdata.p !== "undefined" ? "<tr><td>" + _( "Total Rain" ) + "</td><td>" + formatPrecip( controller.settings.wtdata.p ) + "</td></tr>" : "" ) +
+				( typeof controller.settings.wtdata.eto !== "undefined" ? "<tr><td>" + _( "ETo" ) + "</td><td>" + formatPrecip( controller.settings.wtdata.eto ) + "</td></tr>" : "" ) +
+				( typeof controller.settings.wtdata.radiation !== "undefined" ? "<tr><td>" + _( "Mean Radiation" ) + "</td><td>" + controller.settings.wtdata.radiation + " kWh/m2</td></tr>" : "" ) +
+				( typeof controller.settings.wtdata.minT !== "undefined" ? "<tr><td>" + _( "Min Temp" ) + "</td><td>" + formatTemp( controller.settings.wtdata.minT ) + "</td></tr>" : "" ) +
+				( typeof controller.settings.wtdata.maxT !== "undefined" ? "<tr><td>" + _( "Max Temp" ) + "</td><td>" + formatTemp( controller.settings.wtdata.maxT ) + "</td></tr>" : "" ) +
+				( typeof controller.settings.wtdata.minH !== "undefined" ? "<tr><td>" + _( "Min Humidity" ) + "</td><td>" + formatHumidity( controller.settings.wtdata.minH ) + "</td></tr>" : "" ) +
+				( typeof controller.settings.wtdata.maxH !== "undefined" ? "<tr><td>" + _( "Max Humidity" ) + "</td><td>" + formatHumidity( controller.settings.wtdata.maxH ) + "</td></tr>" : "" ) +
+				( typeof controller.settings.wtdata.wind !== "undefined" ? "<tr><td>" + _( "Mean Wind" ) + "</td><td>" + formatSpeed( controller.settings.wtdata.wind ) + "</td></tr>" : "" );
+		}
 
-	popup += ( typeof controller.settings.lwc === "number" ? "<tr><td>" + _( "Last Request" ) + "</td><td>" + dateToString( new Date( controller.settings.lwc * 1000 ), null, 2 ) + "</td></tr>" : "" );
-	popup += ( typeof controller.settings.wterr === "number" ? "<tr><td>" + _( "Last Response" ) + "</td><td>" + getWeatherError( controller.settings.wterr ) + "</td></tr>" : "" );
-	popup += "</table></div>";
+		popup += ( typeof controller.settings.lwc === "number" ? "<tr><td>" + _( "Last Request" ) + "</td><td>" + dateToString( new Date( controller.settings.lwc * 1000 ), null, 2 ) + "</td></tr>" : "" );
+		popup += ( typeof controller.settings.wterr === "number" ? "<tr><td>" + _( "Last Response" ) + "</td><td>" + getWeatherError( controller.settings.wterr ) + "</td></tr>" : "" );
+		popup += "</table></div>";
 
-	if ( typeof controller.settings.otcs === "number" || (status && status.hasOwnProperty("status")) ) {
-		popup += "<div class='debugWUHeading'>Integrations</div>" +
-			"<table class='debugWUTable'>";
-		if (typeof controller.settings.otcs === "number")
-			popup += "<tr><td>OpenThings Cloud</td><td>" + resolveOTCStatus( controller.settings.otcs ) + "</td></tr>";
-		if (status.hasOwnProperty("freeBytes"))
-			popup += "<tr><td>Free Bytes</td><td>" + format2(status.freeBytes/1024) + " KB</td></tr>";
-		if (status.hasOwnProperty("pingok"))
-			popup += "<tr><td>Ping check ok</td><td>" + status.pingok + "</td></tr>";
-		if (status.hasOwnProperty("mqtt"))
-			popup += "<tr><td>MQTT</td><td>" + (status.mqtt?"connected":"disconnected") + "</td></tr>";
-		if (status.hasOwnProperty("influxdb"))
-			popup += "<tr><td>influxdb</td><td>" + (status.influxdb ? "enabled" : "disabled") + "</td></tr>";
-		if (status.hasOwnProperty("ifttt"))
-			popup += "<tr><td>IFTTT</td><td>" + (status.ifttt?"enabled":"disabled") + "</td></tr>";
-		popup +="</table>";
-	}
+		if ( typeof controller.settings.otcs === "number" || (status && status.hasOwnProperty("status")) ) {
+			popup += "<div class='debugWUHeading'>Integrations</div>" +
+				"<table class='debugWUTable'>";
+			if (typeof controller.settings.otcs === "number")
+				popup += "<tr><td>OpenThings Cloud</td><td>" + resolveOTCStatus( controller.settings.otcs ) + "</td></tr>";
+			if (status.hasOwnProperty("freeBytes"))
+				popup += "<tr><td>Free Bytes</td><td>" + format2(status.freeBytes/1024) + " KB</td></tr>";
+			if (status.hasOwnProperty("pingok"))
+				popup += "<tr><td>Ping check ok</td><td>" + status.pingok + "</td></tr>";
+			if (status.hasOwnProperty("mqtt"))
+				popup += "<tr><td>MQTT</td><td>" + (status.mqtt?"connected":"disconnected") + "</td></tr>";
+			if (status.hasOwnProperty("influxdb"))
+				popup += "<tr><td>influxdb</td><td>" + (status.influxdb ? "enabled" : "disabled") + "</td></tr>";
+			if (status.hasOwnProperty("ifttt"))
+				popup += "<tr><td>IFTTT</td><td>" + (status.ifttt?"enabled":"disabled") + "</td></tr>";
+			popup +="</table>";
+		}
 
-	if ( controller.settings.wtdata && ( typeof controller.settings.wtdata.wp === "string" || typeof controller.settings.wtdata.weatherProvider === "string" ) ) {
-		popup += "<hr>";
-		popup += makeAttribution( controller.settings.wtdata.wp || controller.settings.wtdata.weatherProvider );
-	}
-	popup += "</div>";
+		if ( controller.settings.wtdata && ( typeof controller.settings.wtdata.wp === "string" || typeof controller.settings.wtdata.weatherProvider === "string" ) ) {
+			popup += "<hr>";
+			popup += makeAttribution( controller.settings.wtdata.wp || controller.settings.wtdata.weatherProvider );
+		}
+		popup += "</div>";
 
-	openPopup( $( popup ) );
+		openPopup( $( popup ) );
 
-	return false;
+		return false;
+	});
+return false;
 }
 
 function resolveOTCStatus( status ) {
@@ -4409,11 +4415,15 @@ function showOptions( expandItem ) {
 			"</label><input autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' data-mini='true' type='text' id='ifkey' placeholder='IFTTT webhooks key' value='" + controller.settings.ifkey + "'>" +
 			"</div>";
 
+			var ife = controller.options.ife;
+			if ( controller.options.hasOwnProperty("ife2") )
+				ife = ife | controller.options.ife2 << 8;
+
 			list += "<div class='ui-field-contain'><label for='o49'>" + _( "Notification Events" ) +
 					"<button data-helptext='" +
 						_( "Select which notification events to send to Email and/or IFTTT." ) +
 						"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
-				"</label><button data-mini='true' id='o49' value='" + controller.options.ife + "'>" + _( "Configure Events" ) + "</button></div>";
+				"</label><button data-mini='true' id='o49' value='" + ife + "'>" + _( "Configure Events" ) + "</button></div>";
 		}
 
 		if ( typeof controller.settings.dname !== "undefined" ) {

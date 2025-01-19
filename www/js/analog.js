@@ -1647,9 +1647,11 @@ function showSensorEditor(sensor, row, callback, callbackCancel) {
 
 			"<label for='log'><input data-mini='true' id='log' type='checkbox' " + ((sensor.log === 1) ? "checked='checked'" : "") + ">" +
 			_("Enable Data Logging") +
-			"<a href='#' data-role='button' data-mini='true' id='download-log' data-icon='action' data-inline='true' style='margin-left: 10px;'>" +
+			//"<a href='#' data-role='button' data-mini='true' id='display-log' value='"+sensor.nr+"' data-icon='action' data-inline='true' style='margin-left: 9px;'>" +
+			//_("display log") + "</a>" +
+			"<a href='#' data-role='button' data-mini='true' id='download-log' data-icon='action' data-inline='true' style='margin-left: 9px;'>" +
 			_("download log") + "</a>" +
-			"<a href='#' data-role='button' data-mini='true' id='delete-sen-log' value='" + sensor.nr + "' data-icon='delete' data-inline='true' style='margin-left: 10px;'>" +
+			"<a href='#' data-role='button' data-mini='true' id='delete-sen-log' value='" + sensor.nr + "' data-icon='delete' data-inline='true' style='margin-left: 9px;'>" +
 			_("delete log") + "</a>" +
 			"</label>" +
 
@@ -1701,6 +1703,16 @@ function showSensorEditor(sensor, row, callback, callbackCancel) {
 		popup.find("#type").change(function () {
 			var type = parseInt(popup.find("#type").val());
 			document.getElementById("smt100id").style.display = isSmt100(type) ? "block" : "none";
+		});
+
+		//download log:
+		popup.find("#display-log").on("click", function () {
+			var dur = $(this),
+				value = dur.attr("value");
+			popup.popup("close");
+
+			changePage("#analogsensorchart_"+value);
+			return false;
 		});
 
 		//download log:
@@ -2351,7 +2363,7 @@ function getMonitorName(monitorNr) {
 }
 
 // Show Sensor Charts with apexcharts
-function showAnalogSensorCharts() {
+function showAnalogSensorCharts(limit2sensor) {
 
 	var max = CHARTS;
 	for (var j = 0; j < analogSensors.length; j++) {
@@ -2384,7 +2396,7 @@ function showAnalogSensorCharts() {
 		rightBtn: {
 			icon: "refresh",
 			text: screen.width >= 500 ? _("Refresh") : "",
-			on: updateCharts
+			on: updateCharts(limit2sensor)
 		}
 	});
 
@@ -2395,10 +2407,10 @@ function showAnalogSensorCharts() {
 	$("#analogsensorchart").remove();
 	$.mobile.pageContainer.append(page);
 
-	updateCharts();
+	updateCharts(limit2sensor);
 }
 
-function updateCharts() {
+function updateCharts(limit2sensor) {
 	var chart1 = new Array(CHARTS),
 		chart2 = new Array(CHARTS),
 		chart3 = new Array(CHARTS),
@@ -2406,6 +2418,8 @@ function updateCharts() {
 
 	var limit = currToken ? "&max=5500" : ""; //download limit is 140kb, 5500 lines ca 137kb
 	var tzo = getTimezoneOffset() * 60;
+	if (limit2sensor)
+		limit += "&nr="+limit2sensor;
 
 	showLoading( "#myChart1" );
 	sendToOS("/so?pw=&lasthours=48&csv=2" + limit, "text").then(function (csv1) {
