@@ -295,7 +295,7 @@ OSApp.UIDom.showHomeMenu = ( function() {
 				"<li data-role='list-divider'>" + OSApp.Language._( "Programs and Settings" ) + "</li>" +
 				"<li><a href='#raindelay'>" + OSApp.Language._( "Change Rain Delay" ) + "</a></li>" +
 				( OSApp.Supported.pausing() ?
-					( OSApp.StationQueue.isPaused() ? "<li><a href='#globalpause'>" + OSApp.Language._( "Resume Station Runs" ) + "</a></li>"
+					( OSApp.StationQueue.isPaused() ? "<li><a href='#globalpause'>" + OSApp.Language._( "Change Pause" ) + "</a></li>"
 						: ( OSApp.StationQueue.isActive() >= -1 ? "<li><a href='#globalpause'>" + OSApp.Language._( "Pause Station Runs" ) + "</a></li>" : "" ) )
 					: "" ) +
 				"<li><a href='#runonce'>" + OSApp.Language._( "Run-Once Program" ) + "</a></li>" +
@@ -1013,7 +1013,7 @@ OSApp.UIDom.showTimeInput = function( opt ) {
 	var defaults = {
 			minutes: 0,
 			title: OSApp.Language._( "Time" ),
-			incrementalUpdate: true,
+			incrementalUpdate: false,
 			showBack: true,
 			showSun: false,
 			callback: function() {}
@@ -1046,38 +1046,38 @@ OSApp.UIDom.showTimeInput = function( opt ) {
 			"<div class='ui-content'>" +
 				( opt.helptext ? "<p class='pad-top rain-desc center smaller'>" + opt.helptext + "</p>" : "" ) +
 				"<span>" +
-					"<fieldset class='ui-grid-" + ( OSApp.currentDevice.isMetric ? "a" : "b" ) + " incr'>" +
+					"<fieldset class='ui-grid-" + ( OSApp.uiState.is24Hour ? "a" : "b" ) + " incr'>" +
 						"<div class='ui-block-a'>" +
 							"<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a>" +
 						"</div>" +
 						"<div class='ui-block-b'>" +
 							"<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a>" +
 						"</div>" +
-						( OSApp.currentDevice.isMetric ? "" : "<div class='ui-block-c'>" +
+						( OSApp.uiState.is24Hour ? "" : "<div class='ui-block-c'>" +
 							"<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='plus' data-iconpos='bottom'></a>" +
 						"</div>" ) +
 					"</fieldset>" +
-					"<div class='ui-grid-" + ( OSApp.currentDevice.isMetric ? "a" : "b" ) + " inputs'>" +
+					"<div class='ui-grid-" + ( OSApp.uiState.is24Hour ? "a" : "b" ) + " inputs'>" +
 						"<div class='ui-block-a'>" +
 							"<input data-wrapper-class='pad_buttons' class='hour dontPad' type='number' pattern='[0-9]*' value='" +
-								( OSApp.currentDevice.isMetric ? OSApp.Utils.pad( ( opt.minutes / 60 >> 0 ) % 24 ) + "'>" : ( parseInt( opt.minutes / 60 ) % 12 === 0 ? 12 : parseInt( opt.minutes / 60 ) % 12 ) + "'>" ) +
+								( OSApp.uiState.is24Hour ? OSApp.Utils.pad( ( opt.minutes / 60 >> 0 ) % 24 ) + "'>" : ( parseInt( opt.minutes / 60 ) % 12 === 0 ? 12 : parseInt( opt.minutes / 60 ) % 12 ) + "'>" ) +
 						"</div>" +
 						"<div class='ui-block-b'>" +
 							"<input data-wrapper-class='pad_buttons' class='minute' type='number' pattern='[0-9]*' value='" +
 								OSApp.Utils.pad( opt.minutes % 60 ) + "'>" +
 						"</div>" +
-						( OSApp.currentDevice.isMetric ? "" : "<div class='ui-block-c'>" +
+						( OSApp.uiState.is24Hour ? "" : "<div class='ui-block-c'>" +
 							"<p class='center period'>" + getPeriod() + "</p>" +
 						"</div>" ) +
 					"</div>" +
-					"<fieldset class='ui-grid-" + ( OSApp.currentDevice.isMetric ? "a" : "b" ) + " decr'>" +
+					"<fieldset class='ui-grid-" + ( OSApp.uiState.is24Hour ? "a" : "b" ) + " decr'>" +
 						"<div class='ui-block-a'>" +
 							"<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='minus' data-iconpos='bottom'></a>" +
 						"</div>" +
 						"<div class='ui-block-b'>" +
 							"<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='minus' data-iconpos='bottom'></a>" +
 						"</div>" +
-						( OSApp.currentDevice.isMetric ? "" : "<div class='ui-block-c'>" +
+						( OSApp.uiState.is24Hour ? "" : "<div class='ui-block-c'>" +
 							"<a href='#' data-role='button' data-mini='true' data-corners='true' data-icon='minus' data-iconpos='bottom'></a>" +
 						"</div>" ) +
 					"</fieldset>" +
@@ -1110,7 +1110,7 @@ OSApp.UIDom.showTimeInput = function( opt ) {
 					val = parseInt( input.val() );
 
 				if ( dir === 1 ) {
-					if ( isHour && ( ( OSApp.currentDevice.isMetric && val >= 24 ) || ( !OSApp.currentDevice.isMetric && val >= 12 ) ) ) {
+					if ( isHour && ( ( OSApp.uiState.is24Hour && val >= 24 ) || ( !OSApp.uiState.is24Hour && val >= 12 ) ) ) {
 						val = 0;
 					}
 					if ( !isHour && val >= 59 ) {
@@ -1118,7 +1118,7 @@ OSApp.UIDom.showTimeInput = function( opt ) {
 						var hour = popup.find( ".hour" ),
 							hourFixed = parseInt( hour.val() );
 
-						if ( !OSApp.currentDevice.isMetric ) {
+						if ( !OSApp.uiState.is24Hour ) {
 							if ( hourFixed === 12 ) {
 								hourFixed = 0;
 							}
@@ -1182,7 +1182,7 @@ OSApp.UIDom.showTimeInput = function( opt ) {
 			} else {
 				var hour = parseInt( popup.find( ".hour" ).val() );
 
-				if ( !OSApp.currentDevice.isMetric ) {
+				if ( !OSApp.uiState.is24Hour ) {
 					if ( isPM && hour !== 12 ) {
 						hour = hour + 12;
 					}
@@ -1471,7 +1471,7 @@ OSApp.UIDom.showDurationBox = function( opt ) {
 			title: OSApp.Language._( "Duration" ),
 			granularity: 0,
 			preventCompression: false,
-			incrementalUpdate: true,
+			incrementalUpdate: false,
 			showBack: true,
 			showSun: false,
 			minimum: 0,
@@ -1838,12 +1838,69 @@ OSApp.UIDom.showIPRequest = function( opt ) {
 
 OSApp.UIDom.showPause = function() {
 	if ( OSApp.StationQueue.isPaused() ) {
-		OSApp.UIDom.areYouSure( OSApp.Language._( "Do you want to resume program operation?" ), "", function() {
-			OSApp.Firmware.sendToOS( "/pq?pw=" );
+		if( !OSApp.Supported.changePause() ){
+			OSApp.UIDom.areYouSure( OSApp.Language._( "Do you want to resume program operation?" ), "", function() {
+				OSApp.Firmware.sendToOS( "/pq?dur=0&pw=" ).done( function() {
+					setTimeout( OSApp.Status.refreshStatus, 1000 );
+				} );
+			} );
+			return;
+		}
+
+		var popup = $("<div data-role='popup' data-theme='a' id='changePause'>" +
+			"<div data-role='header' data-theme='b'>" +
+				"<h1>" + OSApp.Language._( "Change Pause" ) + "</h1>" +
+			"</div>" +
+			"<div class='ui-content'>" +
+				"<button class='new-pause-function' style='display:inline-block;' data-mini='true' id='extend-pause'>Extend</button>" +
+				"<button class='new-pause-function' style='display:inline-block;' data-mini='true' id='new-pause'>Replace</button>" +
+				"<button style='display:inline-block;' data-mini='true' id='un-pause'>Unpause</button>" +
+			"</div>" +
+		"</div>" );
+
+		popup.find("#extend-pause").on("click", function() {
+			popup.popup( "close" );
+			OSApp.UIDom.showDurationBox( {
+				title: "Extend Current Pause By",
+				incrementalUpdate: false,
+				maximum: 65535,
+				callback: function( duration ) {
+					var dur = duration;
+					dur += OSApp.currentSession.controller.settings.pt;
+					OSApp.Firmware.sendToOS( "/pq?repl=" + dur + "&pw=" ).done( function() {
+						setTimeout( OSApp.Status.refreshStatus, 1000 ); // FIXME: refactor this 1000 value out to Constants or config/settings
+					} );
+				}
+			} );
 		} );
+
+		popup.find("#new-pause").on("click", function() {
+			popup.popup( "close" );
+			OSApp.UIDom.showDurationBox( {
+				title: "Replace Current Pause By",
+				incrementalUpdate: false,
+				maximum: 65535,
+				callback: function( duration ) {
+					OSApp.Firmware.sendToOS( "/pq?repl=" + duration + "&pw=" ).done( function() {
+						setTimeout( OSApp.Status.refreshStatus, 1000 );
+					} );
+				}
+			} );
+		} );
+
+		popup.find("#un-pause").on("click", function() {
+			popup.popup( "close" );
+			OSApp.UIDom.areYouSure( OSApp.Language._( "Do you want to resume program operation?" ), "", function() {
+				OSApp.Firmware.sendToOS( "/pq?repl=0&pw=" ).done( function(){
+					setTimeout( OSApp.Status.refreshStatus, 1000 );
+				} );
+			} );
+		} );
+
+		OSApp.UIDom.openPopup( $( popup ) );
 	} else {
 		OSApp.UIDom.showDurationBox( {
-			title: "Pause Station Runs",
+			title: "Pause Station Runs For",
 			incrementalUpdate: false,
 			maximum: 65535,
 			callback: function( duration ) {

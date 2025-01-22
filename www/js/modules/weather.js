@@ -741,7 +741,7 @@ OSApp.Weather.showForecast = function() {
 				"<ul data-role='listview' data-inset='true'>" +
 					OSApp.Weather.makeForecast() +
 				"</ul>" +
-				OSApp.Weather.makeAttribution( OSApp.currentSession.weather.wp || OSApp.currentSession.weather.weatherProvider ) +
+				OSApp.Weather.makeAttribution( OSApp.currentSession.controller.settings.wto.provider || OSApp.currentSession.weather.wp || OSApp.currentSession.weather.weatherProvider ) +
 			"</div>" +
 		"</div>" );
 
@@ -838,15 +838,23 @@ OSApp.Weather.makeAttribution = function( provider ) {
 			attrib += "<a href='https://openweathermap.org/' target='_blank'>" + OSApp.Language._( "Powered by OpenWeather" ) + "</a>";
 			break;
 		case "DWD":
-				attrib += "<a href='https://brightsky.dev/' target='_blank'>" + OSApp.Language._( "Powered by Bright Sky+DWD" ) + "</a>";
-				break;
+			attrib += "<a href='https://brightsky.dev/' target='_blank'>" + OSApp.Language._( "Powered by Bright Sky+DWD" ) + "</a>";
+			break;
 		case "OpenMeteo":
 		case "OM":
-				attrib += "<a href='https://open-meteo.com/' target='_blank'>" + OSApp.Language._( "Powered by Open Meteo" ) + "</a>";
-				break;
+			attrib += "<a href='https://open-meteo.com/' target='_blank'>" + OSApp.Language._( "Powered by Open Meteo" ) + "</a>";
+			break;
 		case "WUnderground":
 		case "WU":
 			attrib += "<a href='https://wunderground.com/' target='_blank'>" + OSApp.Language._( "Powered by Weather Underground" ) + "</a>";
+			break;
+		case "PirateWeather":
+		case "PW":
+			attrib += "<a href='https://pirateweather.net/' target='_blank'>" + OSApp.Language._("Powered by PirateWeather" ) + "</a";
+			break;
+		case "AccuWeather":
+		case "AW":
+			attrib += "<a href='https://www.accuweather.com/' target='_blank'>" + OSApp.Language._("Powered by AccuWeather" ) + "</a";
 			break;
 		case "local":
 			attrib += OSApp.Language._( "Powered by your Local PWS" );
@@ -895,10 +903,49 @@ OSApp.Weather.showRainDelay = function() {
 	} );
 };
 
-OSApp.Weather.testWUAPIKey = function( key, callback ) {
+OSApp.Weather.getWeatherProviderById = function( id ) {
+	const providers = OSApp.Constants.weather.PROVIDERS;
+	if(typeof id === "number"){
+		return providers[id];
+	}
+	for(let provider of providers){
+		if(provider.id === id){
+			return provider;
+		}
+	}
+	return false;
+};
+
+OSApp.Weather.getCurrentWeatherProvider = function() {
+	const provider = OSApp.Weather.getWeatherProviderById(OSApp.currentSession.controller.settings.wto.provider);
+	if(provider)
+		return provider
+
+	return false;
+};
+
+OSApp.Weather.testAPIKey = function( key, provider, callback ) {
 	callback = callback || function() {};
+
+	let url;
+
+	switch(provider) {
+		case "AW":
+			url = "https://dataservice.accuweather.com/locations/v1/cities/geoposition/search?q=42,-75&apikey=" + key;
+			break;
+		case "PW":
+			url = "https://api.pirateweather.net/forecast/" + key + "/42,-75?&exclude=minutely,hourly,daily,alerts";
+			break;
+		case "OWM":
+			url = "https://api.openweathermap.org/data/3.0/onecall?lat=42&lon=-75&exclude=minutely,hourly,daily,alerts&appid=" + key;
+			break;
+		case "WU":
+			url = "https://api.weather.com/v2/pws/observations/current?stationId=KMAHANOV10&format=json&units=m&apiKey=" + key;
+			break;
+	}
+
 	$.ajax( {
-		url: "https://api.weather.com/v2/pws/observations/current?stationId=KMAHANOV10&format=json&units=m&apiKey=" + key,
+		url: url,
 		cache: true
 	} ).done( function( data ) {
 		if ( data.errors ) {

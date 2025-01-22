@@ -53,13 +53,26 @@ OSApp.Constants = {
 		MASTER_STATION_2: 2,
 		NUM_SEQ_GROUPS: 4,
 		PARALLEL_GID_VALUE: 255,
-		PARALLEL_GROUP_NAME: "P"
+		PARALLEL_GROUP_NAME: "P",
+		PROGRAM_TYPE_WEEKLY: 0,
+		PROGRAM_TYPE_SINGLERUN: 1,
+		PROGRAM_TYPE_MONTHLY: 2,
+		PROGRAM_TYPE_INTERVAL: 3,
 	},
 	regex: { // Define general regex patterns
 		GPS: /^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/
 	},
 	weather: {
-		DEFAULT_WEATHER_SERVER_URL: "https://weather.opensprinkler.com"
+		DEFAULT_WEATHER_SERVER_URL: "https://weather.opensprinkler.com",
+		PROVIDERS: [
+			{ name: "Apple (Default)", id: "Apple", needsKey: false },
+			{ name: "AccuWeather", id: "AW", needsKey: true },
+			{ name: "PirateWeather", id: "PW", needsKey: true },
+			{ name: "Open Weather Map", id: "OWM", needsKey: true },
+			{ name: "OpenMeteo", id: "OpenMeteo", needsKey: false },
+			{ name: "DWD", id: "DWD", needsKey: false },
+			{ name: "WeatherUnderground", id: "WU", needsKey: true }
+		]
 	}
 };
 
@@ -79,7 +92,9 @@ OSApp.currentDevice.isFileCapable = !OSApp.currentDevice.isiOS && !OSApp.current
 OSApp.uiState = {
 	errorTimeout: undefined,
 	goingBack: false,
+	is24Hour: false,
 	groupView: false,
+	sortByStationName: false,
 	language: undefined,
 	notifications: [], // Array to hold all notifications currently displayed within the app
 	openPanel: undefined,

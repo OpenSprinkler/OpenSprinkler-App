@@ -18,7 +18,8 @@ OSApp.Dates = OSApp.Dates || {};
 OSApp.Dates.Constants = {
 	MIN_DATE: "01/01",
 	MAX_DATE: "12/31",
-	DATE_REGEX: /[0-9]{1,2}[/][0-9]{1,2}/g
+	DATE_REGEX: /[0-9]{1,2}[/][0-9]{1,2}/g,
+	DATE_REGEX_YEAR: /[0-9]{1,2}[/][0-9]{1,2}[/][0-9]{4}/g
 };
 
 // TODO: mellodev some of this should refactor out to programs.js?
@@ -53,6 +54,10 @@ OSApp.Dates.getDateRangeEnd = function( pid ) {
 
 OSApp.Dates.extractDateFromString = function( inputString ) {
 	return inputString.match( OSApp.Dates.Constants.DATE_REGEX );
+};
+
+OSApp.Dates.extractDateFromStringYear = function( inputString ) {
+	return inputString.match( OSApp.Dates.Constants.DATE_REGEX_YEAR );
 };
 
 OSApp.Dates.isValidDateFormat = function( dateString ) {
@@ -201,7 +206,7 @@ OSApp.Dates.minutesToTime = function( minutes ) {
 		hour = 12;
 	}
 
-	return OSApp.currentDevice.isMetric ? ( OSApp.Utils.pad( ( minutes / 60 >> 0 ) % 24 ) + ":" + OSApp.Utils.pad( minutes % 60 ) ) : ( hour + ":" + OSApp.Utils.pad( minutes % 60 ) + " " + period );
+	return OSApp.uiState.is24Hour ? ( OSApp.Utils.pad( ( minutes / 60 >> 0 ) % 24 ) + ":" + OSApp.Utils.pad( minutes % 60 ) ) : ( hour + ":" + OSApp.Utils.pad( minutes % 60 ) + " " + period );
 };
 
 // Return day of the week
@@ -229,7 +234,7 @@ OSApp.Dates.getDurationText = function( time ) {
 // Convert seconds into (HH:)MM:SS format. HH is only reported if greater than 0.
 OSApp.Dates.sec2hms = function( diff ) {
 	var str = "";
-	var hours = Math.max( 0, parseInt( diff / 3600 ) % 24 );
+	var hours = Math.max( 0, parseInt( diff / 3600 ) );
 	var minutes = Math.max( 0, parseInt( diff / 60 ) % 60 );
 	var seconds = diff % 60;
 	if ( hours ) {
@@ -273,4 +278,29 @@ OSApp.Dates.dhms2str = function( arr ) {
 // Convert days, hours, minutes and seconds array into seconds (int).
 OSApp.Dates.dhms2sec = function( arr ) {
 	return parseInt( ( arr.days * 86400 ) + ( arr.hours * 3600 ) + ( arr.minutes * 60 ) + arr.seconds );
+};
+
+OSApp.Dates.dateToEpoch = function( dateString ) {
+	//return epoch days from date
+	var dateValues = OSApp.Dates.extractDateFromStringYear( dateString );
+	if ( dateValues === null ) {
+		return -1;
+	}
+
+	dateValues = dateValues[ 0 ].split( "/" );
+	var date = new Date(parseInt(dateValues[ 2 ]), parseInt(dateValues[ 0 ]) - 1, parseInt(dateValues[ 1 ]));
+
+	return Math.floor(date.getTime() / (1000 * 86400));
+};
+
+OSApp.Dates.epochToDate = function( epochTime ) {
+	//return a date string from an epoch time in days
+	var date = new Date(epochTime * (1000 * 86400) );
+
+	return (date.getUTCMonth() + 1) + "/" + date.getUTCDate() + "/" + date.getUTCFullYear();
+};
+
+OSApp.Dates.isLastDayOfMonth = function( month, year, day ) {
+	// Create a new Date object, setting the day to 0 (the last day of the previous month)
+	return new Date(year, month + 1, 0).getDate() === day;
 };

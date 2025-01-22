@@ -308,9 +308,13 @@ OSApp.Programs.displayPageRunOnce = function() {
 		},
 		resetRunonce = function() {
 			page.find( "[id^='zone-']" ).val( 0 ).text( "0s" ).removeClass( "green" );
+			page.find( "#uwt-runonce" ).prop( "checked", false ).checkboxradio( "refresh" );
+			page.find( "#interval-runonce" ).val( 0 ).text( OSApp.Dates.dhms2str(0) );
+			page.find( "#repeat-runonce" ).val( 0 ).text( 0 );
 			return false;
 		},
-		fillRunonce = function( data ) {
+		fillRunonce = function( data, repeat, interval, weather ) {
+			resetRunonce();
 			page.find( "[id^='zone-']" ).each( function( a, b ) {
 				if ( OSApp.Stations.isMaster( a ) ) {
 					return;
@@ -324,8 +328,20 @@ OSApp.Programs.displayPageRunOnce = function() {
 					ele.removeClass( "green" );
 				}
 			} );
+
+			if( OSApp.Supported.repeatedRunonce() ){
+				if(typeof repeat === "number"){
+					page.find("#repeat-runonce").val( repeat ).text( repeat );
+				}
+				if(typeof interval === "number"){
+					page.find("#interval-runonce").val( interval * 60 ).text( OSApp.Dates.dhms2str( OSApp.Dates.sec2dhms( interval * 60 ) ) );
+				}
+				if(typeof weather === "number"){
+					page.find("#uwt-runonce").prop( "checked", weather ? true : false).checkboxradio( "refresh" );
+				}
+			}
 		},
-		i, list, quickPick, progs, rprogs, z, program, name;
+		i, list, quickPick, progs, rprogs, repeats, intervals, weathers, z, program, name;
 
 	page.on( "pagehide", function() {
 		page.detach();
@@ -334,6 +350,9 @@ OSApp.Programs.displayPageRunOnce = function() {
 	function begin() {
 		list = "<p class='center'>" + OSApp.Language._( "Zero value excludes the station from the run-once program." ) + "</p>";
 		progs = [];
+		repeats = [];
+		intervals = [];
+		weathers = [];
 		if ( OSApp.currentSession.controller.programs.pd.length ) {
 			for ( z = 0; z < OSApp.currentSession.controller.programs.pd.length; z++ ) {
 				program = OSApp.Programs.readProgram( OSApp.currentSession.controller.programs.pd[ z ] );
@@ -349,6 +368,12 @@ OSApp.Programs.displayPageRunOnce = function() {
 				}
 
 				progs.push( prog );
+
+				if ( OSApp.Supported.repeatedRunonce() ){
+					repeats.push( program.repeat );
+					intervals.push( program.interval );
+					weathers.push ( program.weather );
+				}
 			}
 		}
 		rprogs = progs;
@@ -378,7 +403,24 @@ OSApp.Programs.displayPageRunOnce = function() {
 			}
 		} );
 
-		list += "</form><a class='ui-btn ui-corner-all ui-shadow rsubmit' href='#'>" + OSApp.Language._( "Submit" ) + "</a>" +
+		list += "</form>";
+
+		if( OSApp.Supported.repeatedRunonce() ){
+			// Program weather control flag
+			list += "<label for='uwt-runonce'><input data-mini='true' type='checkbox' name='uwt-runonce' id='uwt-runonce'>" + OSApp.Language._( "Use Weather Adjustment" ) + "</label>";
+
+			// Show repeating start time options
+			list += "<div id='input_stype_repeat-runonce'>";
+			list += "<div class='ui-grid-a'>";
+			list += "<div class='ui-block-a'><label class='pad_buttons center' for='interval-runonce'>" + OSApp.Language._( "Repeat Every" ) + "</label>" +
+				"<button class='pad_buttons' data-mini='true' name='interval-runonce' id='interval-runonce' " +
+					"value='0'>" + OSApp.Dates.dhms2str( 0 ) + "</button></div>";
+			list += "<div class='ui-block-b'><label class='pad_buttons center' for='repeat-runonce'>" + OSApp.Language._( "Repeat Count" ) + "</label>" +
+				"<button class='pad_buttons' data-mini='true' name='repeat-runonce' id='repeat-runonce' value='0'>0</button></div>";
+			list += "</div></div>";
+		}
+
+		list += "<a class='ui-btn ui-corner-all ui-shadow rsubmit' href='#'>" + OSApp.Language._( "Submit" ) + "</a>" +
 			"<a class='ui-btn ui-btn-b ui-corner-all ui-shadow rreset' href='#'>" + OSApp.Language._( "Reset" ) + "</a>";
 
 		page.find( ".ui-content" ).html( list ).enhanceWithin();
@@ -425,7 +467,12 @@ OSApp.Programs.displayPageRunOnce = function() {
 			if ( typeof rprogs[ prog ] === "undefined" ) {
 				return;
 			}
-			fillRunonce( rprogs[ prog ] );
+
+			if ( OSApp.Supported.repeatedRunonce() ) {
+				fillRunonce( rprogs[ prog ], repeats [ prog ], intervals[ prog ], weathers[ prog ]);
+			} else {
+				fillRunonce( rprogs[ prog ] );
+			}
 		} );
 
 		page.find( ".rsubmit" ).on( "click", OSApp.Stations.submitRunonce );
@@ -452,6 +499,38 @@ OSApp.Programs.displayPageRunOnce = function() {
 			} );
 
 			return false;
+		} );
+
+		// Handle interval duration input
+		page.find( "#interval-runonce" ).on( "click", function() {
+			var dur = $( this ),
+				name = page.find( "label[for='" + dur.attr( "id" ) + "']" ).text();
+			OSApp.UIDom.showDurationBox( {
+				seconds: dur.val(),
+				title: name,
+				callback: function( result ) {
+					dur.val( result );
+					dur.text( OSApp.Dates.dhms2str( OSApp.Dates.sec2dhms( result ) ) );
+				},
+				maximum: 86340,
+				granularity: 1,
+				preventCompression: true
+			} );
+		} );
+
+		// Handle repeat count button
+		page.find( "[id^='repeat-']" ).on( "click", function() {
+			var dur = $( this ),
+				name = page.find( "label[for='" + dur.attr( "id" ) + "']" ).text();
+			OSApp.UIDom.showSingleDurationInput( {
+				data: dur.val(),
+				title: name,
+				label: OSApp.Language._( "Repeat Count" ),
+				callback: function( result ) {
+					dur.val( result ).text( result );
+				},
+				maximum: 1440
+			} );
 		} );
 
 		OSApp.UIDom.changeHeader( {
@@ -1047,6 +1126,7 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 
 		var dt = date.getUTCDate();
 		var mt = date.getUTCMonth() + 1;
+		var yr = date.getUTCFullYear();
 		var dr = prog[ 6 ];
 		if ( typeof dr === "object" ) { // Daterange is available
 			if ( dr[ 0 ] ) { // Check date range if enabled
@@ -1068,7 +1148,25 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 			if ( ( simday % dn ) !== ( ( devday + drem ) % dn ) ) {
 				return 0;
 			}
-		} else if ( type === 0 ) {
+		} else if ( type === 2 ) {
+
+			// Monthly program
+			const day = prog[ 1 ] & 0b11111;
+			if ( day === 0 ){
+				if(!OSApp.Dates.isLastDayOfMonth(mt-1, yr, dt)){
+					return 0;
+				}
+			} else if ( dt !== day ) {
+				return 0;
+			}
+		} else if ( type === 1 ) {
+
+			// Singlerun program
+			const epochDays = simt / 86400000;
+			if( (prog[1] << 8) + prog[2] != epochDays)
+				return 0;
+
+		}else if ( type === 0 ) {
 
 			// Weekly program
 			var wd = ( date.getUTCDay() + 6 ) % 7;
@@ -1423,7 +1521,7 @@ OSApp.Programs.readProgram183 = function( program ) {
 	newdata.days = days;
 	newdata.is_even = even;
 	newdata.is_odd = odd;
-	newdata.is_interval = interval;
+	newdata.type = interval ? OSApp.Constants.options.PROGRAM_TYPE_INTERVAL : OSApp.Constants.options.PROGRAM_TYPE_WEEKLY;
 
 	return newdata;
 };
@@ -1445,9 +1543,9 @@ OSApp.Programs.readProgram21 = function( program ) {
 	newdata.weather = ( program[ 0 ] >> 1 ) & 1;
 	newdata.is_even = ( restrict === 2 ) ? true : false;
 	newdata.is_odd = ( restrict === 1 ) ? true : false;
-	newdata.is_interval = ( type === 3 ) ? true : false;
 	newdata.stations = program[ 4 ];
 	newdata.name = program[ 5 ];
+	newdata.type = type;
 
 	if ( startType === 0 ) {
 		newdata.start = program[ 3 ][ 0 ];
@@ -1457,11 +1555,11 @@ OSApp.Programs.readProgram21 = function( program ) {
 		newdata.start = program[ 3 ];
 	}
 
-	if ( type === 3 ) {
+	if ( type === OSApp.Constants.options.PROGRAM_TYPE_INTERVAL ) {
 
 		//This is an interval program
 		days = [ days1, days0 ];
-	} else if ( type === 0 ) {
+	} else if ( type === OSApp.Constants.options.PROGRAM_TYPE_WEEKLY ) {
 
 		//This is a weekly program
 		for ( var d = 0; d < 7; d++ ) {
@@ -1471,6 +1569,14 @@ OSApp.Programs.readProgram21 = function( program ) {
 				days += "0";
 			}
 		}
+	} else if ( type === OSApp.Constants.options.PROGRAM_TYPE_SINGLERUN ) {
+
+		//This is a single run program
+		days = [ (days0 << 8) + days1, 0 ];
+	} else if ( type === OSApp.Constants.options.PROGRAM_TYPE_MONTHLY ) {
+
+		//This is a monthly program
+		days = [ days0, days1 ];
 	}
 
 	newdata.days = days;
@@ -1594,7 +1700,7 @@ OSApp.Programs.makeProgram183 = function( n, isCopy ) {
 		days, i, j, setStations, program, page;
 
 	if ( n === "new" ) {
-		program = { "en":0, "weather":0, "is_interval":0, "is_even":0, "is_odd":0, "duration":0, "interval":0, "start":0, "end":0, "days":[ 0, 0 ] };
+		program = { "en":0, "weather":0, "type":0, "is_even":0, "is_odd":0, "duration":0, "interval":0, "start":0, "end":0, "days":[ 0, 0 ] };
 	} else {
 		program = OSApp.Programs.readProgram( OSApp.currentSession.controller.programs.pd[ n ] );
 	}
@@ -1616,12 +1722,12 @@ OSApp.Programs.makeProgram183 = function( n, isCopy ) {
 	list += "<label for='en-" + id + "'><input data-mini='true' type='checkbox' " + ( ( program.en || n === "new" ) ? "checked='checked'" : "" ) + " name='en-" + id + "' id='en-" + id + "'>" + OSApp.Language._( "Enabled" ) + "</label>";
 	list += "<fieldset data-role='controlgroup' data-type='horizontal' class='center'>";
 	list += "<input data-mini='true' type='radio' name='rad_days-" + id + "' id='days_week-" + id + "' " +
-			"value='days_week-" + id + "' " + ( ( program.is_interval ) ? "" : "checked='checked'" ) + ">" +
+			"value='days_week-" + id + "' " + ( ( program.type === OSApp.Constants.options.PROGRAM_TYPE_INTERVAL ) ? "" : "checked='checked'" ) + ">" +
 		"<label for='days_week-" + id + "'>" + OSApp.Language._( "Weekly" ) + "</label>";
 	list += "<input data-mini='true' type='radio' name='rad_days-" + id + "' id='days_n-" + id + "' " +
-			"value='days_n-" + id + "' " + ( ( program.is_interval ) ? "checked='checked'" : "" ) + ">" +
+			"value='days_n-" + id + "' " + ( ( program.type === OSApp.Constants.options.PROGRAM_TYPE_INTERVAL ) ? "checked='checked'" : "" ) + ">" +
 		"<label for='days_n-" + id + "'>" + OSApp.Language._( "Interval" ) + "</label>";
-	list += "</fieldset><div id='input_days_week-" + id + "' " + ( ( program.is_interval ) ? "style='display:none'" : "" ) + ">";
+	list += "</fieldset><div id='input_days_week-" + id + "' " + ( ( program.type === OSApp.Constants.options.PROGRAM_TYPE_INTERVAL ) ? "style='display:none'" : "" ) + ">";
 
 	list += "<div class='center'><p class='tight'>" + OSApp.Language._( "Restrictions" ) + "</p>" +
 		"<select data-inline='true' data-iconpos='left' data-mini='true' id='days_rst-" + id + "'>";
@@ -1635,11 +1741,11 @@ OSApp.Programs.makeProgram183 = function( n, isCopy ) {
 			"multiple='multiple' data-native-menu='false' id='d-" + id + "'><option>" + OSApp.Language._( "Choose day(s)" ) + "</option>";
 
 	for ( j = 0; j < week.length; j++ ) {
-		list += "<option " + ( ( !program.is_interval && days[ j ] ) ? "selected='selected'" : "" ) + " value='" + j + "'>" + week[ j ] + "</option>";
+		list += "<option " + ( ( (program.type !== OSApp.Constants.options.PROGRAM_TYPE_INTERVAL) && days[ j ] ) ? "selected='selected'" : "" ) + " value='" + j + "'>" + week[ j ] + "</option>";
 	}
 	list += "</select></div></div>";
 
-	list += "<div " + ( ( program.is_interval ) ? "" : "style='display:none'" ) + " id='input_days_n-" + id + "' class='ui-grid-a'>";
+	list += "<div " + ( ( program.type === OSApp.Constants.options.PROGRAM_TYPE_INTERVAL ) ? "" : "style='display:none'" ) + " id='input_days_n-" + id + "' class='ui-grid-a'>";
 	list += "<div class='ui-block-a'><label class='center' for='every-" + id + "'>" + OSApp.Language._( "Interval (Days)" ) + "</label>" +
 		"<input data-wrapper-class='pad_buttons' data-mini='true' type='number' name='every-" + id + "' pattern='[0-9]*' id='every-" + id + "' " +
 			"value='" + program.days[ 0 ] + "'></div>";
@@ -1764,7 +1870,7 @@ OSApp.Programs.makeProgram21 = function( n, isCopy ) {
 		days, i, j, program, page, times, time, unchecked;
 
 	if ( n === "new" ) {
-		program = { "name":"", "en":0, "weather":0, "is_interval":0, "is_even":0, "is_odd":0, "interval":0, "start":0, "days":[ 0, 0 ], "repeat":0, "stations":[] };
+		program = { "name":"", "en":0, "weather":0, "type":0, "is_even":0, "is_odd":0, "interval":0, "start":0, "days":[ 0, 0 ], "repeat":0, "stations":[] };
 	} else {
 		program = OSApp.Programs.readProgram( OSApp.currentSession.controller.programs.pd[ n ] );
 	}
@@ -1842,35 +1948,55 @@ OSApp.Programs.makeProgram21 = function( n, isCopy ) {
 	list += "<div class='ui-bar ui-bar-a'><h3>" + OSApp.Language._( "Program Type" ) + "</h3></div>";
 	list += "<div class='ui-body ui-body-a'>";
 
-	// Controlgroup to handle program type (weekly/interval)
+	// Controlgroup to handle program type (weekly/interval/singlerun/monthly)
 	list += "<fieldset data-role='controlgroup' data-type='horizontal' class='center'>";
 	list += "<input data-mini='true' type='radio' name='rad_days-" + id + "' id='days_week-" + id + "' " +
-		"value='days_week-" + id + "' " + ( ( program.is_interval ) ? "" : "checked='checked'" ) + ">" +
+		"value='days_week-" + id + "' " + ( ( program.type === OSApp.Constants.options.PROGRAM_TYPE_WEEKLY ) ? "checked='checked'" : "" ) + ">" +
 		"<label for='days_week-" + id + "'>" + OSApp.Language._( "Weekly" ) + "</label>";
 	list += "<input data-mini='true' type='radio' name='rad_days-" + id + "' id='days_n-" + id + "' " +
-		"value='days_n-" + id + "' " + ( ( program.is_interval ) ? "checked='checked'" : "" ) + ">" +
+		"value='days_n-" + id + "' " + ( ( program.type === OSApp.Constants.options.PROGRAM_TYPE_INTERVAL ) ? "checked='checked'" : "" ) + ">" +
 		"<label for='days_n-" + id + "'>" + OSApp.Language._( "Interval" ) + "</label>";
+	if( OSApp.Supported.singleRunAndMonthly() ){
+		list += "<input data-mini='true' type='radio' name='rad_days-" + id + "' id='days_single-" + id + "' " +
+			"value='days_single-" + id + "' " + ( ( program.type === OSApp.Constants.options.PROGRAM_TYPE_SINGLERUN ) ? "checked='checked'" : "" ) + ">" +
+			"<label for='days_single-" + id + "'>" + OSApp.Language._( "Single Run" ) + "</label>";
+		list += "<input data-mini='true' type='radio' name='rad_days-" + id + "' id='days_month-" + id + "' " +
+			"value='days_month-" + id + "' " + ( ( program.type === OSApp.Constants.options.PROGRAM_TYPE_MONTHLY ) ? "checked='checked'" : "" ) + ">" +
+			"<label for='days_month-" + id + "'>" + OSApp.Language._( "Monthly" ) + "</label>";
+	}
 	list += "</fieldset>";
 
 	// Show weekly program options
-	list += "<div id='input_days_week-" + id + "' " + ( ( program.is_interval ) ? "style='display:none'" : "" ) + ">";
+	list += "<div id='input_days_week-" + id + "' " + ( ( program.type === OSApp.Constants.options.PROGRAM_TYPE_WEEKLY ) ? "" : "style='display:none'" ) + ">";
 	list += "<div class='center'><p class='tight'>" + OSApp.Language._( "Days of the Week" ) + "</p>" +
 		"<select " + ( $.mobile.window.width() > 560 ? "data-inline='true' " : "" ) + "data-iconpos='left' data-mini='true' " +
 			"multiple='multiple' data-native-menu='false' id='d-" + id + "'>" +
 		"<option>" + OSApp.Language._( "Choose day(s)" ) + "</option>";
 	for ( j = 0; j < week.length; j++ ) {
-		list += "<option " + ( ( !program.is_interval && days[ j ] ) ? "selected='selected'" : "" ) + " value='" + j + "'>" + week[ j ] + "</option>";
+		list += "<option " + ( ( program.type === OSApp.Constants.options.PROGRAM_TYPE_WEEKLY && days[ j ] ) ? "selected='selected'" : "" ) + " value='" + j + "'>" + week[ j ] + "</option>";
 	}
 	list += "</select></div></div>";
 
 	// Show interval program options
-	list += "<div " + ( ( program.is_interval ) ? "" : "style='display:none'" ) + " id='input_days_n-" + id + "' class='ui-grid-a'>";
+	list += "<div " + ( ( program.type === OSApp.Constants.options.PROGRAM_TYPE_INTERVAL ) ? "" : "style='display:none'" ) + " id='input_days_n-" + id + "' class='ui-grid-a'>";
 	list += "<div class='ui-block-a'><label class='center' for='every-" + id + "'>" + OSApp.Language._( "Interval (Days)" ) + "</label>" +
 		"<input data-wrapper-class='pad_buttons' data-mini='true' type='number' name='every-" + id + "' pattern='[0-9]*' " +
 			"id='every-" + id + "' value='" + program.days[ 0 ] + "'></div>";
 	list += "<div class='ui-block-b'><label class='center' for='starting-" + id + "'>" + OSApp.Language._( "Starting In" ) + "</label>" +
 		"<input data-wrapper-class='pad_buttons' data-mini='true' type='number' name='starting-" + id + "' pattern='[0-9]*' " +
 			"id='starting-" + id + "' value='" + program.days[ 1 ] + "'></div>";
+	list += "</div>";
+
+	// Show singlerun program options
+	list += "<div " + ( ( program.type === OSApp.Constants.options.PROGRAM_TYPE_SINGLERUN ) ? "" : "style='display:none'" ) + " id='input_days_single-" + id + "'>";
+	list += "<div class='center'><p class='tight'>" + OSApp.Language._( "Start Date (mm/dd/yyyy)" ) + "</p>" +
+		"<input type='text' id='singleDate-" + id + "' value='" + OSApp.Dates.epochToDate(program.days[ 0 ]) + "'></div>";
+	list += "</div>";
+
+	// Show monthly program options
+	list += "<div id='input_days_month-" + id + "' " + ( ( program.type === OSApp.Constants.options.PROGRAM_TYPE_MONTHLY ) ? "" : "style='display:none'" ) + ">";
+	list += "<div class='center'><p class='tight'>" + OSApp.Language._( "Day of the Month (Use 0 for the last day)" ) + "</p>" +
+		"<input type='text' id='monthDay-" + id + "' value='" + program.days[ 0 ] + "'></div>";
 	list += "</div>";
 
 	// Show restriction options
@@ -1885,8 +2011,11 @@ OSApp.Programs.makeProgram21 = function( n, isCopy ) {
 
 	// Group all stations visually
 	list += "<div style='margin-top:10px' class='ui-corner-all'>";
-	list += "<div class='ui-bar ui-bar-a'><h3>" + OSApp.Language._( "Stations" ) + "</h3></div>";
+	list += "<div class='ui-bar ui-bar-a'><h3 id='station-head'>" + OSApp.Language._( "Stations" ) + "</h3></div>";
 	list += "<div class='ui-body ui-body-a'>";
+	list += "<div class='ui-field-contain duration-input'>" +
+			"<label for='set-all'> </label>" +
+			"<button style='background-color:#fcfcfc' data-mini='true' id='set-all'>Quick Set</button></div>";
 
 	var hideDisabled = $( "#programs" ).hasClass( "show-hidden" ) ? "" : "' style='display:none";
 
@@ -1960,6 +2089,26 @@ OSApp.Programs.makeProgram21 = function( n, isCopy ) {
 	// Take HTML string and convert to jQuery object
 	page = $( list );
 
+	// Function to have live changing program time
+	function updateProgramTime(){
+		var runtimes = [];
+		page.find( "[id^=station_]" ).each( function() {
+			var dur = $( this );
+			dur = parseInt( dur.val());
+			runtimes.push(dur);
+		} );
+		var runtime = OSApp.Groups.calculateTotalRunningTime( runtimes );
+		var hours = Math.floor(runtime / 3600);
+		var minutes = Math.floor(runtime % 3600 / 60);
+		var seconds = Math.floor(runtime % 3600 % 60);
+		var displayRuntime = "" + (hours/10>>0) + (hours%10);
+		displayRuntime += ":" + (minutes/10>>0) + (minutes%10);
+		displayRuntime += ":" + (seconds/10>>0) + (seconds%10);
+		page.find( "#station-head" ).text("Stations (Total Program Run Time: " + displayRuntime + ")");
+	}
+
+	updateProgramTime();
+
 	// When controlgroup buttons are toggled change relevant options
 	page.find( "input[name^='rad_days'],input[name^='stype']" ).on( "change", function() {
 		var input = $( this ).val().split( "-" )[ 0 ].split( "_" );
@@ -2023,6 +2172,30 @@ OSApp.Programs.makeProgram21 = function( n, isCopy ) {
 		} );
 	} );
 
+	// Handle set all button
+	page.find( "#set-all" ).on( "click", function (){
+		OSApp.UIDom.showDurationBox( {
+			seconds: 60,
+			title: "Set Duration",
+			incrementalUpdate: false,
+			callback: function( result ) {
+				page.find( "[id^=station_]" ).each( function() {
+					var dur = $( this );
+					if ( dur.text() === "Master"){
+						return;
+					}
+					dur.val( result ).addClass( "green" );
+					dur.text( OSApp.Dates.getDurationText( result ) );
+					if ( result === 0 ) {
+						dur.removeClass( "green" );
+					}
+				} );
+				updateProgramTime();
+			},
+			maximum: 65535
+		} );
+	} );
+
 	// Handle all station duration inputs
 	page.find( "[id^=station_]" ).on( "click", function() {
 		var dur = $( this ),
@@ -2038,6 +2211,7 @@ OSApp.Programs.makeProgram21 = function( n, isCopy ) {
 				if ( result === 0 ) {
 					dur.removeClass( "green" );
 				}
+				updateProgramTime();
 			},
 			maximum: 65535,
 			showSun: OSApp.Firmware.checkOSVersion( 214 ) ? true : false
@@ -2243,6 +2417,24 @@ OSApp.Programs.submitProgram21 = function( id, ignoreWarning ) {
 			return;
 		}
 
+	} else if ( $( "#days_month-" + id ).is( ":checked" ) ) {
+		j |= ( 2 << 4 );
+		days[ 0 ] = parseInt( $( "#monthDay-" + id ).val(), 10 );
+		if ( days[ 0 ] < 0 || days[ 0 ] > 31) {
+			OSApp.Errors.showerror( OSApp.Language._("Error: Day of month is out of bounds." ) );
+			return;
+		}
+
+	} else if ( $( "#days_single-" + id ).is( ":checked" ) ) {
+		j |= ( 1 << 4 );
+		var time = OSApp.Dates.dateToEpoch( $( "#singleDate-" + id ).val());
+		if ( time === -1 ){
+			OSApp.Errors.showerror( OSApp.Language._( "Error: Start date is input incorrectly." ) );
+			return;
+		}
+		days[ 0 ] = (time >> 8) & 0b11111111;
+		days[ 1 ] = time & 0b11111111;
+
 	} else if ( $( "#days_week-" + id ).is( ":checked" ) ) {
 		j |= ( 0 << 4 );
 		daysin = $( "#d-" + id ).val();
@@ -2392,10 +2584,19 @@ OSApp.Programs.expandProgram = function( program ) {
 		var name = OSApp.Firmware.checkOSVersion( 210 ) ? OSApp.currentSession.controller.programs.pd[ id ][ 5 ] : "Program " + id;
 
 		OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to start" ) + " " + name + " " + OSApp.Language._( "now?" ), "", function() {
+			let repeat, interval;
+			if( OSApp.Supported.repeatedRunonce() ) {
+				const program = OSApp.currentSession.controller.programs.pd[ id ];
+				const startType = ( ( program[ 0 ] >> 6 ) & 0x01 );
+				if( startType === 0 ){
+					repeat = program[ 3 ][ 1 ];
+					interval = program[ 3 ][ 2 ];
+				}
+			}
 			var runonce = [],
 				finish = function() {
 					runonce.push( 0 );
-					OSApp.Stations.submitRunonce( runonce );
+					OSApp.Stations.submitRunonce( runonce, interval, repeat );
 				};
 
 			if ( OSApp.Firmware.checkOSVersion( 210 ) ) {

@@ -182,9 +182,17 @@ OSApp.Options.showOptions = function( expandItem ) {
 						OSApp.currentDevice.isMetric = $item.is( ":checked" );
 						OSApp.Storage.set( { isMetric: OSApp.currentDevice.isMetric } );
 						return true;
+					case "is24Hour":
+						OSApp.uiState.is24Hour = $item.is( ":checked" );
+						OSApp.Storage.set( { "is24Hour": OSApp.uiState.is24Hour } );
+						return true;
 					case "groupView":
 						OSApp.uiState.groupView = $item.is( ":checked" );
 						OSApp.Storage.set( { "groupView": OSApp.uiState.groupView } );
+						return true;
+					case "sortByStationName":
+						OSApp.uiState.sortByStationName = $item.is( ":checked" );
+						OSApp.Storage.set( { "sortByStationName": OSApp.uiState.sortByStationName } );
 						return true;
 					case "o12":
 						if ( !isPi ) {
@@ -202,6 +210,11 @@ OSApp.Options.showOptions = function( expandItem ) {
 						var restrict = page.find( "#weatherRestriction" );
 						if ( restrict.length ) {
 							data = OSApp.Weather.setRestriction( parseInt( restrict.val() ), data );
+						}
+						break;
+					case "weatherSelect":
+						if ( OSApp.currentSession.controller.settings.wto && OSApp.currentSession.controller.settings.wto.provider && OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.wto.provider ) === data ) {
+							return true;
 						}
 						break;
 					case "o18":
@@ -342,18 +355,28 @@ OSApp.Options.showOptions = function( expandItem ) {
 			"<a class='ui-btn btn-no-border ui-btn-icon-notext ui-icon-delete ui-btn-corner-all clear-loc'></a>" +
 		"</button></div>";
 
-	if ( typeof OSApp.currentSession.controller.options.lg !== "undefined" ) {
-		list += "<label for='o36'><input data-mini='true' id='o36' type='checkbox' " + ( ( OSApp.currentSession.controller.options.lg === 1 ) ? "checked='checked'" : "" ) + ">" +
-			OSApp.Language._( "Enable Logging" ) + "</label>";
-	}
+	list += "<div class='center' data-role='controlgroup' data-type='horizontal'>";
+		if ( typeof OSApp.currentSession.controller.options.lg !== "undefined" ) {
+			list += "<label for='o36'><input data-mini='true' id='o36' type='checkbox' " + ( ( OSApp.currentSession.controller.options.lg === 1 ) ? "checked='checked'" : "" ) + ">" +
+				OSApp.Language._( "Enable Logging" ) + "</label>";
+		}
 
-	list += "<label for='isMetric'><input data-mini='true' id='isMetric' type='checkbox' " + ( OSApp.currentDevice.isMetric ? "checked='checked'" : "" ) + ">" +
-		OSApp.Language._( "Use Metric" ) + "</label>";
+		list += "<label for='isMetric'><input data-mini='true' id='isMetric' type='checkbox' " + ( OSApp.currentDevice.isMetric ? "checked='checked'" : "" ) + ">" +
+			OSApp.Language._( "Use Metric" ) + "</label>";
 
-	if ( OSApp.Supported.groups() ) {
-		list += "<label for='groupView'><input data-mini='true' id='groupView' type='checkbox' " + ( OSApp.uiState.groupView ? "checked='checked'" : "" ) + ">" +
-		OSApp.Language._( "Order Stations by Groups" ) + "</label>";
-	}
+		list += "<label for='is24Hour'><input data-mini='true' id='is24Hour' type='checkbox' " + ( OSApp.uiState.is24Hour ? "checked='checked'" : "" ) + ">" +
+			OSApp.Language._( "Use 24 Hour Time" ) + "</label>";
+	list += "</div>";
+
+	list += "<div data-role='controlgroup' data-type='horizontal' style='text-align:center'>";
+		if ( OSApp.Supported.groups() ) {
+			list += "<label for='groupView'><input data-mini='true' id='groupView' type='checkbox' " + ( OSApp.uiState.groupView ? "checked='checked'" : "" ) + ">" +
+			OSApp.Language._( "Order Stations by Groups" ) + "</label>";
+		}
+
+		list += "<label for='sortByStationName'><input data-mini='true' id='sortByStationName' type='checkbox' " + ( OSApp.uiState.sortByStationName ? "checked='checked'" : "" ) + ">" +
+		OSApp.Language._( "Order Stations by Name" ) + "</label>";
+	list += "</div>";
 
 	list += "</fieldset><fieldset data-role='collapsible'" +
 		( typeof expandItem === "string" && expandItem === "master" ? " data-collapsed='false'" : "" ) + ">" +
@@ -461,6 +484,43 @@ OSApp.Options.showOptions = function( expandItem ) {
 		"<legend>" + OSApp.Language._( "Weather and Sensors" ) + "</legend>";
 
 	if ( typeof OSApp.currentSession.controller.options.uwt !== "undefined" ) {
+		if ( typeof OSApp.currentSession.controller.settings.wsp !== "undefined" ) {
+			list += "<div class='ui-field-contain'><label for='weatherSelect' class='select'>" + OSApp.Language._( "Weather Data Provider" ) +
+					"<button data-helptext='" +
+						OSApp.Language._( "Select your preferred weather service provider." ) +
+						"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
+				"</label><select data-mini='true' id='weatherSelect'>";
+			for ( i = 0; i < OSApp.Constants.weather.PROVIDERS.length; i++ ) {
+				var weatherProvider = OSApp.Weather.getWeatherProviderById( i );
+				list += "<option " + ( ( weatherProvider.id === OSApp.currentSession.controller.settings.wto.provider ) ? "selected" : "" ) + " value='" + weatherProvider.id + "'>" + weatherProvider.name + "</option>";
+			}
+			list += "</select></div>";
+		}
+
+		if ( OSApp.Supported.verifyWeatherAPIKey() ) {
+			list += "<div class='ui-field-contain" + ( OSApp.Weather.getCurrentWeatherProvider().needsKey ? "" : " hidden" ) + "'><label for='wtkey'>" + OSApp.Language._( "Weather API Key" ) +
+				"<button data-helptext='" +
+				OSApp.Language._( "Please enter an API key for your selected weather provider." ) +
+					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
+			"</label>" +
+			"<table>" +
+				"<tr style='width:100%;vertical-align: top;'>" +
+					"<td style='width:100%'>" +
+						"<div class='" +
+							( ( OSApp.currentSession.controller.settings.wto.key && OSApp.currentSession.controller.settings.wto.key !== "" ) ? "green " : "" ) +
+							"ui-input-text controlgroup-textinput ui-btn ui-body-inherit ui-corner-all ui-mini ui-shadow-inset ui-input-has-clear'>" +
+								"<input data-role='none' data-mini='true' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' " +
+									"type='text' id='wtkey' value='" + ( OSApp.currentSession.controller.settings.wto.key || "" ) + "'>" +
+								"<a href='#' tabindex='-1' aria-hidden='true' data-helptext='" + OSApp.Language._( "An invalid API key has been detected." ) +
+									"' class='hidden help-icon ui-input-clear ui-btn ui-icon-alert ui-btn-icon-notext ui-corner-all'>" +
+								"</a>" +
+						"</div>" +
+					"</td>" +
+					"<td><button class='noselect' data-mini='true' id='verify-api'>" + OSApp.Language._( "Verify" ) + "</button></td>" +
+				"</tr>" +
+			"</table></div>";
+		}
+
 		list += "<div class='ui-field-contain'><label for='o31' class='select'>" + OSApp.Language._( "Weather Adjustment Method" ) +
 				"<button data-helptext='" +
 					OSApp.Language._( "Weather adjustment uses DarkSky data in conjunction with the selected method to adjust the watering percentage." ) +
@@ -700,30 +760,6 @@ OSApp.Options.showOptions = function( expandItem ) {
 		( typeof expandItem === "string" && expandItem === "advanced" ? " data-collapsed='false'" : "" ) + ">" +
 		"<legend>" + OSApp.Language._( "Advanced" ) + "</legend>";
 
-	if ( OSApp.Firmware.checkOSVersion( 219 ) && typeof OSApp.currentSession.controller.options.uwt !== "undefined" && typeof OSApp.currentSession.controller.settings.wto === "object" ) {
-		list += "<div class='ui-field-contain'><label for='wtkey'>" + OSApp.Language._( "Wunderground Key" ).replace( "Wunderground", "Wunder&shy;ground" ) +
-			"<button data-helptext='" +
-				OSApp.Language._( "We use DarkSky normally however with a user provided API key the weather source will switch to Weather Underground." ) +
-				"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
-		"</label>" +
-		"<table>" +
-			"<tr style='width:100%;vertical-align: top;'>" +
-				"<td style='width:100%'>" +
-					"<div class='" +
-						( ( OSApp.currentSession.controller.settings.wto.key && OSApp.currentSession.controller.settings.wto.key !== "" ) ? "green " : "" ) +
-						"ui-input-text controlgroup-textinput ui-btn ui-body-inherit ui-corner-all ui-mini ui-shadow-inset ui-input-has-clear'>" +
-							"<input data-role='none' data-mini='true' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' " +
-								"type='text' id='wtkey' value='" + ( OSApp.currentSession.controller.settings.wto.key || "" ) + "'>" +
-							"<a href='#' tabindex='-1' aria-hidden='true' data-helptext='" + OSApp.Language._( "An invalid API key has been detected." ) +
-								"' class='hidden help-icon ui-input-clear ui-btn ui-icon-alert ui-btn-icon-notext ui-corner-all'>" +
-							"</a>" +
-					"</div>" +
-				"</td>" +
-				"<td><button class='noselect' data-mini='true' id='verify-api'>" + OSApp.Language._( "Verify" ) + "</button></td>" +
-			"</tr>" +
-		"</table></div>";
-	}
-
 	if ( typeof OSApp.currentSession.controller.options.hp0 !== "undefined" ) {
 		list += "<div class='ui-field-contain'><label for='o12'>" + OSApp.Language._( "HTTP Port (restart required)" ) + "</label>" +
 			"<input data-mini='true' type='number' pattern='[0-9]*' id='o12' value='" + ( OSApp.currentSession.controller.options.hp1 * 256 + OSApp.currentSession.controller.options.hp0 ) + "'>" +
@@ -937,7 +973,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 	page.find( "#wto" ).on( "click", function() {
 		var self = this,
 			options = OSApp.Utils.unescapeJSON( this.value ),
-			retainOptions = { pws: options.pws, key: options.key },
+			retainOptions = { pws: options.pws, key: options.key, provider: options.provider },
 			method = parseInt( page.find( "#o31" ).val() ),
 			finish = function() {
 				self.value = OSApp.Utils.escapeJSON( $.extend( {}, OSApp.Utils.unescapeJSON( self.value ), retainOptions ) );
@@ -1118,11 +1154,12 @@ OSApp.Options.showOptions = function( expandItem ) {
 
 	page.find( "#verify-api" ).on( "click", function() {
 		var key = page.find( "#wtkey" ),
-			button = $( this );
+			button = $( this ),
+			provider = page.find( "#weatherSelect" );
 
 		button.prop( "disabled", true );
 
-		OSApp.Weather.testWUAPIKey( key.val(), function( result ) {
+		OSApp.Weather.testAPIKey( key.val(), provider.val(), function( result ) {
 			if ( result === true ) {
 				key.parent().find( ".ui-icon-alert" ).hide();
 				key.parent().removeClass( "red" ).addClass( "green" );
@@ -1133,6 +1170,19 @@ OSApp.Options.showOptions = function( expandItem ) {
 			button.prop( "disabled", false );
 		} );
 	} );
+
+	page.find( "#weatherSelect" ).on( "change", function() {
+		//remove status from API key entry to prompt re-verify
+		page.find( "#wtkey" ).siblings( ".help-icon" ).hide();
+		page.find( "#wtkey" ).parent().removeClass( "red green" );
+		//make API key input appear if needed
+		page.find( "#wtkey" ).parents( ".ui-field-contain" ).toggleClass( "hidden", !(OSApp.Weather.getWeatherProviderById( this.value ).needsKey));
+		//change wto value based on new selection
+		let curr = OSApp.Utils.unescapeJSON(page.find( "#wto" ).val());
+		curr.provider = this.value;
+		page.find( "#wtkey" ).prop( "value", "" );
+		page.find( "#wto" ).prop( "value", OSApp.Utils.escapeJSON(curr));
+	} )
 
 	page.find( ".help-icon" ).on( "click", OSApp.UIDom.showHelpText );
 

@@ -227,19 +227,36 @@ OSApp.Stations.convertRemoteToExtender = function( data ) {
 	} );
 };
 
-OSApp.Stations.submitRunonce = function( runonce ) {
+OSApp.Stations.submitRunonce = function( runonce, interval, repeat ) {
+	let weather;
 	if ( !( runonce instanceof Array ) ) {
 		runonce = [];
 		$( "#runonce" ).find( "[id^='zone-']" ).each( function() {
 			runonce.push( parseInt( this.value ) || 0 );
 		} );
 		runonce.push( 0 );
+
+		if( OSApp.Supported.repeatedRunonce() ){
+			//Set up all parameters if needed
+			weather = $( "#runonce" ).find( "#uwt-runonce" ).prop( "checked" ) ? 1 : 0;
+
+			if( !(typeof interval === "number" ) ) {
+				interval = $( "#runonce" ).find( "#interval-runonce").val() / 60;
+			}
+			if( !(typeof repeat === "number" ) ) {
+				repeat = $( "#runonce" ).find( "#repeat-runonce").val();
+			}
+		}
 	}
 
 	var submit = function() {
 			$.mobile.loading( "show" );
 			OSApp.Storage.set( { "runonce": JSON.stringify( runonce ) } );
-			OSApp.Firmware.sendToOS( "/cr?pw=&t=" + JSON.stringify( runonce ) ).done( function() {
+			let request = "/cr?pw=&t=" + JSON.stringify( runonce );
+			if ( OSApp.Supported.repeatedRunonce() ) {
+				request += "&int=" + interval + "&cnt=" + repeat + "&uwt=" + weather;
+			}
+			OSApp.Firmware.sendToOS( request ).done( function() {
 				$.mobile.loading( "hide" );
 				$.mobile.document.one( "pageshow", function() {
 					OSApp.Errors.showError( OSApp.Language._( "Run-once program has been scheduled" ) );
@@ -250,7 +267,18 @@ OSApp.Stations.submitRunonce = function( runonce ) {
 		},
 		isOn = OSApp.StationQueue.isActive();
 
-	if ( isOn !== -1 ) {
+	if ( interval && interval > 0 && repeat && repeat > 0 ) {
+		OSApp.UIDom.areYouSure(OSApp.Language._( "This will create a single run program to handle the repeat. Do you want to continue?" ), "", function(){
+			if ( isOn !== -1){
+				OSApp.UIDom.areYouSure( OSApp.Language._( "Do you want to stop the currently running program?" ), OSApp.Programs.pidToName( OSApp.Stations.getPID( isOn ) ), function() {
+					$.mobile.loading( "show" );
+					OSApp.Stations.stopStations( submit );
+				} );
+			} else {
+				submit();
+			}
+		})
+	} else if ( isOn !== -1 ) {
 		OSApp.UIDom.areYouSure( OSApp.Language._( "Do you want to stop the currently running program?" ), OSApp.Programs.pidToName( OSApp.Stations.getPID( isOn ) ), function() {
 			$.mobile.loading( "show" );
 			OSApp.Stations.stopStations( submit );

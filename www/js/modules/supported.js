@@ -75,3 +75,21 @@ OSApp.Supported.groups = function() {
 OSApp.Supported.dateRange = function() {
 	return OSApp.Firmware.checkOSVersion( 220 );
 };
+
+OSApp.Supported.changePause = function() {
+	return OSApp.Firmware.checkOSVersion( 2211 );
+};
+
+OSApp.Supported.verifyWeatherAPIKey = function() {
+	return OSApp.Firmware.checkOSVersion( 219 ) &&
+			typeof OSApp.currentSession.controller.options.uwt !== "undefined" &&
+			typeof OSApp.currentSession.controller.settings.wto === "object";
+}
+
+OSApp.Supported.singleRunAndMonthly = function() {
+	return OSApp.Firmware.checkOSVersion( 2211 );
+};
+
+OSApp.Supported.repeatedRunonce = function() {
+	return OSApp.Firmware.checkOSVersion( 2211 );
+};

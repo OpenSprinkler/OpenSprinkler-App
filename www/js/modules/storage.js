@@ -79,6 +79,17 @@ OSApp.Storage.loadLocalSettings = function() {
 			default:
 		}
 	} );
+	OSApp.Storage.get( "is24Hour", function( data ) {
+		switch ( data.is24Hour ) {
+			case "true":
+				OSApp.uiState.is24Hour = true;
+				break;
+			case "false":
+				OSApp.uiState.is24Hour = false;
+				break;
+			default:
+		}
+	} );
 	OSApp.Storage.get( "groupView", function( data ) {
 		switch ( data.groupView ) {
 			case "true":
@@ -86,6 +97,17 @@ OSApp.Storage.loadLocalSettings = function() {
 				break;
 			case "false":
 				OSApp.uiState.groupView = false;
+				break;
+			default:
+		}
+	} );
+	OSApp.Storage.get( "sortByStationName", function( data ) {
+		switch ( data.sortByStationName ) {
+			case "true":
+				OSApp.uiState.sortByStationName = true;
+				break;
+			case "false":
+				OSApp.uiState.sortByStationName = false;
 				break;
 			default:
 		}

@@ -724,7 +724,7 @@ OSApp.Dashboard.displayPage = function() {
 			/* Sorting order: 	master ->
 								sequential group id ->
 								active status ->
-								station id
+								station id OR alphabetical
 			*/
 
 			var cardA = $( a ), cardB = $( b );
@@ -732,6 +732,10 @@ OSApp.Dashboard.displayPage = function() {
 			// Station IDs
 			var sidA = OSApp.Cards.getSID( cardA );
 			var sidB = OSApp.Cards.getSID( cardB );
+
+			// Station Names
+			var nameA = OSApp.Stations.getName( sidA );
+			var nameB = OSApp.Stations.getName( sidB );
 
 			// Verify if a master station
 			var masA = OSApp.Stations.isMaster( sidA ) > 0 ? 1 : 0;
@@ -760,7 +764,11 @@ OSApp.Dashboard.displayPage = function() {
 					} else if ( statusA < statusB ) {
 						return 1;
 					} else {
-						if ( sidA < sidB ) { return -1; } else if ( sidA > sidB ) { return 1; } else { return 0; }
+						if( OSApp.uiState.sortByStationName ) {
+							if ( nameA < nameB ) { return -1; } else if ( nameA > nameB ) { return 1; } else { return 0; }
+						}else{
+							if ( sidA < sidB ) { return -1; } else if ( sidA > sidB ) { return 1; } else { return 0; }
+						}
 					}
 				}
 			}
@@ -768,13 +776,16 @@ OSApp.Dashboard.displayPage = function() {
 		compareCardsStandardView = function( a, b ) {
 
 			/* Sorting order: 	running status ->
-								station id
+								station id OR alphabetical
 			 */
 
 			var cardA = $( a ), cardB = $( b );
 
 			var sidA = OSApp.Cards.getSID( cardA );
 			var sidB = OSApp.Cards.getSID( cardB );
+
+			var nameA = OSApp.Stations.getName( sidA );
+			var nameB = OSApp.Stations.getName( sidB );
 
 			var statusA = OSApp.Stations.getStatus( sidA );
 			var statusB = OSApp.Stations.getStatus( sidB );
@@ -784,13 +795,23 @@ OSApp.Dashboard.displayPage = function() {
 			} else if ( statusA < statusB ) {
 				return 1;
 			} else {
-				if ( sidA < sidB ) {
-					return -1;
+				if ( OSApp.uiState.sortByStationName){
+					if ( nameA < nameB ) {
+						return -1;
+					} else if ( nameA > nameB ) {
+						return 1;
+					} else {
+						return 0;
+					}
+				} else {
+					if ( sidA < sidB ) {
+						return -1;
+					}
+					if ( sidA > sidB ) {
+						return 1;
+					}
+					return 0;
 				}
-				if ( sidA > sidB ) {
-					return 1;
-				}
-				return 0;
 			}
 		},
 
@@ -1060,7 +1081,7 @@ OSApp.Dashboard.displayPage = function() {
 					OSApp.UIDom.showDurationBox( {
 						title: name,
 						incrementalUpdate: false,
-						maximum: 65535,
+						maximum: 64800,
 						seconds: sites[ currentSite ].lastRunTime[ sid ] > 0 ? sites[ currentSite ].lastRunTime[ sid ] : 0,
 						helptext: OSApp.Language._( "Enter a duration to manually run " ) + name,
 						callback: function( duration ) {
