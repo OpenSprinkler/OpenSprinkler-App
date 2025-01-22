@@ -653,8 +653,8 @@ function sendToOsObj(params, obj) {
 
 
 function getExportMethodSensors(backuptype) {
-	let storageName = (backuptype == 1) ? "backupSensors" : (backuptype == 2) ? "backupAdjustments" : "backupAll";
-	let filename = (backuptype == 1) ? "BackupSensorConfig" : (backuptype == 2) ? "BackupSensorAdjustments" : "BackupAll";
+	let storageName = (backuptype == 1) ? "backupSensors" : (backuptype == 2) ? "backupAdjustments" : (backuptype == 4) ? "backupMonitor" : "backupAll";
+	let filename = (backuptype == 1) ? "BackupSensorConfig" : (backuptype == 2) ? "BackupSensorAdjustments" : (backuptype == 4) ? "BackupMonitorConfig" : "BackupAllConfig";
 
 	sendToOS("/sx?pw=&backup=" + backuptype, "json").then(function (data) {
 		var popup = $(

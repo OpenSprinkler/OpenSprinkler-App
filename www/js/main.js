@@ -10751,7 +10751,7 @@ function importConfig( data ) {
 				// Handle data from firmware 2.1+ being imported to a 2.1+ device
 				// The firmware does not accept program name inside the program array and must be submitted separately
 				if ( !isPi && typeof data.options.fwv === "number" && data.options.fwv >= 210 && checkOSVersion( 210 ) ) {
-					name = "&name=" + prog[ 5 ];
+					name = "&name=" + encodeURIComponent( prog[ 5 ] );
 
 					// Truncate the program name off the array
 					prog = prog.slice( 0, 5 );
