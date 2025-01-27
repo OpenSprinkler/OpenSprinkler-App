@@ -799,7 +799,10 @@
    "Digital under min or over max": "Digital unter Minimum oder über Maximum",
    "REMOTE": "Extern",
    "activated": "aktiviert",
-   "Select Notification Events": "Ereignisse konfigurieren"
+   "Select Notification Events": "Ereignisse konfigurieren",
+   "New Monitor": "Neuer Monitor",
+   "SET SN 1/2": "Wert für SN 1/2",
+   "Set Digital Sensor Port": "Für Digitaler Sensor Port"
    
 }
 }

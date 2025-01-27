@@ -2503,3 +2503,12 @@ msgstr ""
 
 msgid "activated"
 msgstr ""
+
+msgid "New Monitor"
+msgstr ""
+
+msgid "SET SN 1/2"
+msgstr ""
+
+msgid "Set Digital Sensor Port"
+msgstr ""

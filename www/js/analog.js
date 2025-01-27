@@ -42,6 +42,7 @@ const MONITOR_DELETE   = 0;
 const MONITOR_MIN      = 1;
 const MONITOR_MAX      = 2;
 const MONITOR_SENSOR12 = 3; //Digital OS Sensors
+const MONITOR_SET_SENSOR12 = 4; //Set Digital OS Sensors
 const MONITOR_AND      = 10;
 const MONITOR_OR       = 11;
 const MONITOR_XOR      = 12;
@@ -1277,6 +1278,18 @@ function showMonitorEditor(monitor, row, callback, callbackCancel) {
 			"<input data-mini='true' id='invers' type='checkbox' " + (monitor.invers ? "checked='checked'" : "") + ">" + _("inverse") + "</input>" +
 			"</label></div>" +
 
+			//typ = SET_SENSOR12
+			"<div id='type_set_sensor12'>"+
+			"<label for='sensor12'>" +
+			_("Set Digital Sensor Port") +
+			"</label>" +
+			"<select data-mini='true' id='sensor12'>" +
+			"<option " + (monitor.sensor12 <= 1? "selected" : "") + " value='1'>" + _("Sensor 1") + "</option>" +
+			"<option " + (monitor.sensor12 >= 2? "selected" : "") + " value='2'>" + _("Sensor 2") + "</option>" +
+			"</select>"+
+			"<label for='monitor'>"+_("Monitor")+"</label>"+monitorSelection("monitor", monitor.monitor, monitor.nr)+
+			"</label></div>" +
+
 			//typ == ANDORXOR
 			"<div id='type_andorxor'>"+
 			"<label for='monitor1'>"+_("Monitor 1")+"</label>"+monitorSelection("monitor1", monitor.monitor1, monitor.nr)+
@@ -1399,6 +1412,9 @@ function updateMonitorEditorType(popup, type) {
 			break;
 		case MONITOR_SENSOR12:
 			popup.find("#type_sensor12").show();
+			break;
+		case MONITOR_SET_SENSOR12:
+			popup.find("#type_set_sensor12").show();
 			break;
 		case MONITOR_AND:
 		case MONITOR_OR:
@@ -2249,6 +2265,11 @@ function buildSensorConfig() {
 					if (item.invers) source = _("NOT") + " " + source;
 					break;
 				}
+				case MONITOR_SET_SENSOR12: {
+					source = getMonitorName(item.monitor);
+					break;
+				}
+
 				case MONITOR_AND:
 				case MONITOR_OR:
 				case MONITOR_XOR: {
@@ -2339,6 +2360,7 @@ function getMonitorLogical(type) {
 		case MONITOR_MIN: return _("Min");
 		case MONITOR_MAX: return _("Max");
 		case MONITOR_SENSOR12: return _("SN 1/2");
+		case MONITOR_SET_SENSOR12: return _("SET SN 1/2");
 		case MONITOR_AND: return _("AND");
 		case MONITOR_OR: return _("OR");
 		case MONITOR_XOR: return _("XOR");
