@@ -14,23 +14,6 @@
  */
 
 describe("Page Navigation Checks", function () {
-	before(function () {
-		OSApp.currentSession.ip = "demo.opensprinkler.com";
-		OSApp.currentSession.pass = "opendoor";
-		OSApp.currentSession.prefix = "https://";
-		OSApp.currentSession.fw183 = false;
-
-		OSApp.Sites.updateSiteList(["Test"], "Test");
-	});
-
-	it("Start jQuery Mobile Page Initialization", function (done) {
-		$.mobile.document.one("pageshow", "#sprinklers", function () {
-			done();
-		});
-
-		OSApp.Sites.newLoad();
-	});
-
 	it( "Change page to program preview", function( done ) {
 		$.mobile.document.one( "pageshow", "#preview", function() {
 			done();
