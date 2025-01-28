@@ -1182,7 +1182,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 		curr.provider = this.value;
 		page.find( "#wtkey" ).prop( "value", "" );
 		page.find( "#wto" ).prop( "value", OSApp.Utils.escapeJSON(curr));
-	} )
+	} );
 
 	page.find( ".help-icon" ).on( "click", OSApp.UIDom.showHelpText );
 

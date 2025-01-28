@@ -656,9 +656,12 @@ OSApp.Weather.updateWeather = function() {
 
 	OSApp.UIDom.showLoading( "#weather" );
 
+	const provider = OSApp.currentSession.controller.settings.wto.provider;
+	const key = OSApp.currentSession.controller.settings.wto.key;
+
 	$.ajax( {
 		url: OSApp.currentSession.weatherServerUrl + "/weatherData?loc=" +
-			encodeURIComponent( OSApp.currentSession.controller.settings.loc ),
+			encodeURIComponent( OSApp.currentSession.controller.settings.loc ) + '&wto="key":"' + key + '","provider":"' + provider + '"',
 		contentType: "application/json; charset=utf-8",
 		success: function( data ) {
 
