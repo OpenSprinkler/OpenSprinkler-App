@@ -83,6 +83,7 @@ OSApp.Programs.displayPage = function() {
 					OSApp.Sites.updateControllerPrograms( function() {
 						$.mobile.loading( "hide" );
 						page.trigger( "programrefresh" );
+						OSApp.Programs.updateProgramHeader();
 					} );
 				} );
 
