@@ -656,9 +656,25 @@ OSApp.Weather.updateWeather = function() {
 
 	OSApp.UIDom.showLoading( "#weather" );
 
+	const provider = OSApp.currentSession.controller.settings.wto.provider;
+	const key = OSApp.currentSession.controller.settings.wto.key;
+	const pws = OSApp.currentSession.controller.settings.wto.pws;
+
+	let url = OSApp.currentSession.weatherServerUrl + "/weatherData?loc=" +
+	encodeURIComponent( OSApp.currentSession.controller.settings.loc );
+
+	if ( provider ){
+		url += '&wto="provider":"' + provider + '"';
+		if ( key ){
+			url += ',"key":"' + key + '"';
+			if ( provider === "WU" ){
+				url += ',"pws":"' + pws + '"';
+			}
+		}
+	}
+
 	$.ajax( {
-		url: OSApp.currentSession.weatherServerUrl + "/weatherData?loc=" +
-			encodeURIComponent( OSApp.currentSession.controller.settings.loc ),
+		url: url,
 		contentType: "application/json; charset=utf-8",
 		success: function( data ) {
 
