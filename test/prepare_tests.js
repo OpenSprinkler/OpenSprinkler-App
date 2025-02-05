@@ -66,6 +66,25 @@ before(function() {
 	});
 });
 
+before(function () {
+	OSApp.currentSession.ip = "demo.opensprinkler.com";
+	OSApp.currentSession.pass = "opendoor";
+	OSApp.currentSession.prefix = "https://";
+	OSApp.currentSession.fw183 = false;
+
+	OSApp.Sites.updateSiteList(["Test"], "Test");
+});
+
+describe("Page Initialization Checks", function () {
+	it("Start jQuery Mobile Page Initialization", function (done) {
+		$.mobile.document.one("pageshow", "#sprinklers", function () {
+			done();
+		});
+
+		OSApp.Sites.newLoad();
+	});
+});
+
 after(function() {
 	if (server) {
 		server.restore();
