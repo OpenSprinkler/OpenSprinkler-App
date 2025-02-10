@@ -781,13 +781,29 @@ OSApp.Options.showOptions = function( expandItem ) {
 					OSApp.Language._( "Relay pulsing is used for special situations where rapid pulsing is needed in the output with a range from 1 to 2000 milliseconds. A zero value disables the pulsing option." ) +
 					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
 			"</label><button data-mini='true' id='o30' value='" + OSApp.currentSession.controller.options.rlp + "'>" + OSApp.currentSession.controller.options.rlp + "ms</button></div>";
-	} else if ( OSApp.Firmware.checkOSVersion( 215 ) !== true && typeof OSApp.currentSession.controller.options.bst !== "undefined" ) {
+	} else if ( OSApp.Firmware.checkOSVersion( 215 ) && typeof OSApp.currentSession.controller.options.bst !== "undefined" ) {
 		list += "<div class='ui-field-contain duration-field'>" +
 			"<label for='o30'>" + OSApp.Language._( "Boost Time" ) +
 				"<button data-helptext='" +
 					OSApp.Language._( "Boost time changes how long the boost converter is activated with a range from 0 to 1000 milliseconds." ) +
 					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
 			"</label><button data-mini='true' id='o30' value='" + OSApp.currentSession.controller.options.bst + "'>" + OSApp.currentSession.controller.options.bst + "ms</button></div>";
+	}
+
+	if ( OSApp.Firmware.checkOSVersion( 220 ) && typeof OSApp.currentSession.controller.options.laton !== "undefined" ) {
+		list += "<div class='ui-field-contain'><label for='laton'>" + OSApp.Language._( "Latch On Voltage" ) + 
+			"<button data-helptext='" +
+				OSApp.Language._( "Maximum is 24V. Set to 0 for default." ) +
+			"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label>" +
+			"<input type='range' id='laton' min='0' max='24' step='1' data-highlight='true' value='" + ( OSApp.currentSession.controller.options.laton ) + "'></div>";
+	}
+
+	if ( OSApp.Firmware.checkOSVersion( 220 ) && typeof OSApp.currentSession.controller.options.latof !== "undefined" ) {
+		list += "<div class='ui-field-contain'><label for='latof'>" + OSApp.Language._( "Latch Off Voltage" ) + 
+			"<button data-helptext='" +
+				OSApp.Language._( "Maximum is 24V. Set to 0 for default." ) +
+			"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label>" +
+			"<input type='range' id='latof' min='0' max='24' step='1' data-highlight='true' value='" + ( OSApp.currentSession.controller.options.latof ) + "'></div>";
 	}
 
 	if ( typeof OSApp.currentSession.controller.options.ntp !== "undefined" && OSApp.Firmware.checkOSVersion( 210 ) ) {
