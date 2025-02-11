@@ -606,6 +606,64 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 		}
 	} );
 
+	gen_station_runorder = function(runcount, nstations, prog) {
+		let order = new Array( nstations );
+		for ( let i = 0; i < nstations; i++ ) {
+			order[ i ] = i;	// initialize
+		}
+		if ( !OSApp.Firmware.checkOSVersion( 2211 ) ) { // only firmware 2.2.1(1) supports runorder
+			return order;
+		}
+		let pname = prog[ 5 ]; // program name
+		let len = pname.length;
+		if ( len >= 2 && pname[ len - 2 ] === '>' ) {
+			let anno = pname[ len - 1 ];
+			switch ( anno ) {
+				case 'I':
+				case 'a':
+				case 'A':
+					{
+						if ( anno === 'I' || ( anno === 'a' && runcount % 2 == 0 ) || ( anno === 'A' && runcount % 2 == 1 ) ) {
+							for ( let i = 0; i < nstations; i++ ) { 
+								order[ i ] = nstations - 1 - i;
+							}
+						}
+					}
+					break;
+
+				case 'n':
+				case 'N':
+				case 't':
+				case 'T':
+					{
+						let snames = OSApp.currentSession.controller.stations.snames;
+						if ( anno === 'n' || ( anno === 't' && runcount % 2 == 1 ) || ( anno === 'T' && runcount % 2 == 0 ) ) {
+							order = snames.map((name, index) => ({ name, index })) // Store names with their original indices
+							.sort((a, b) => a.name.localeCompare(b.name)) // Sort by name (ascending)
+							.map(item => item.index); // Extract the indices
+						} else { 
+							order = snames.map((name, index) => ({ name, index })) // Store names with their original indices
+							.sort((a, b) => b.name.localeCompare(a.name)) // Sort by name (descending)
+							.map(item => item.index); // Extract the indices
+						}
+					}
+					break;
+
+				case 'r':
+				case 'R':
+					{
+						order = Array.from({ length: nstations }, (_, i) => i);
+						for (let i = order.length - 1; i > 0; i--) {
+							let j = Math.floor(Math.random() * (i + 1)); // Random index from 0 to i
+							[order[i], order[j]] = [order[j], order[i]]; // Swap elements
+						}
+					}
+					break;
+			}
+		}
+		return order;
+	};
+
 	processPrograms = function( month, day, year ) {
 		previewData = [];
 		var devday = Math.floor( OSApp.currentSession.controller.settings.devt / ( 60 * 60 * 24 ) ),
@@ -642,8 +700,12 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 			matchFound = 0;
 			for ( var pid = 0; pid < OSApp.currentSession.controller.programs.pd.length; pid++ ) {
 				prog = OSApp.currentSession.controller.programs.pd[ pid ];
-				if ( checkMatch( prog, simminutes, simt, simday, devday ) ) {
-					for ( sid = 0; sid < nstations; sid++ ) {
+				let runcount = checkMatch( prog, simminutes, simt, simday, devday );
+				if ( runcount > 0 ) {
+					// TODO: handle station orders
+					let station_order = gen_station_runorder(runcount, nstations, prog);
+					for ( let oi = 0; oi < nstations; oi++ ) {
+						let sid = station_order[oi];
 						bid = sid >> 3;
 						s = sid % 8;
 
@@ -1269,13 +1331,13 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 
 				// Repeating program
 				if ( simminutes === start ) {
-					return 1;
+					return 1; // this is the first run
 				}
 
 				if ( simminutes > start && cycle ) {
 					c = Math.round( ( simminutes - start ) / cycle );
 					if ( ( c * cycle === ( simminutes - start ) ) && ( c <= repeat ) ) {
-						return 1;
+						return (c+1); // return run count
 					}
 				}
 
@@ -1286,7 +1348,7 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 				for ( var i = 0; i < 4; i++ ) {
 
 					if ( simminutes === OSApp.Programs.getStartTime( sttimes[ i ], date ) ) {
-						return 1;
+						return (i+1);  // return matches index + 1
 					}
 				}
 				return 0;
@@ -1306,7 +1368,7 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 			// has start times that fall on today
 			c = Math.round( ( simminutes - start + 1440 ) / cycle );
 			if ( ( c * cycle === ( simminutes - start + 1440 ) ) && ( c <= repeat ) ) {
-				return 1;
+				return (c+1); // return run count
 			}
 		}
 		return 0;
