@@ -606,7 +606,7 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 		}
 	} );
 
-	gen_station_runorder = function(runcount, nstations, prog) {
+	function gen_station_runorder( runcount, nstations, prog ) {
 		let order = new Array( nstations );
 		for ( let i = 0; i < nstations; i++ ) {
 			order[ i ] = i;	// initialize
@@ -662,7 +662,7 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 			}
 		}
 		return order;
-	};
+	}
 
 	processPrograms = function( month, day, year ) {
 		previewData = [];
