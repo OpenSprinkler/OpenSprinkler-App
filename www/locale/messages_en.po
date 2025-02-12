@@ -2512,3 +2512,16 @@ msgstr ""
 
 msgid "Set Digital Sensor Port"
 msgstr ""
+
+msgid "Backup Config"
+msgstr ""
+
+msgid "Restore Config"
+msgstr ""
+
+msgid "Backup Monitors"
+msgstr ""
+
+msgid "Restore Monitors"
+msgstr ""
+

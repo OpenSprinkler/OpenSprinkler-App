@@ -802,7 +802,11 @@
    "Select Notification Events": "Ereignisse konfigurieren",
    "New Monitor": "Neuer Monitor",
    "SET SN 1/2": "Wert für SN 1/2",
-   "Set Digital Sensor Port": "Für Digitaler Sensor Port"
-   
+   "Set Digital Sensor Port": "Für Digitaler Sensor Port",
+   "Backup Config": "Sicherung komplett",
+   "Restore Config": "Wiederherstellung komplett",
+   "Backup Monitors": "Überwachung und Kontrolle sichern",
+   "Restore Monitors": "Überwachung und Kontrolle wiederherstellen"
+
 }
 }

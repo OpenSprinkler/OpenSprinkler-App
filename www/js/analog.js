@@ -1638,6 +1638,9 @@ function showSensorEditor(sensor, row, callback, callbackCancel) {
 			"<option value='8'>" + _("MPH") + "</option>" +
 			"<option value='9'>" + _("KM/H") + "</option>" +
 			"<option value='10'>" + _("Level %") + "</option>" +
+			"<option value='11'>" + _("DK") + "</option>" +
+			"<option value='12'>" + _("Lumen (lm)") + "</option>" +
+			"<option value='13'>" + _("LUX (lx)") + "</option>" +
 			"<option value='99'>" + _("Own Unit") + "</option>" +
 			"</select>" +
 
@@ -2078,7 +2081,7 @@ function showAnalogSensorConfig() {
 		rightBtn: {
 			icon: "refresh",
 			text: screen.width >= 500 ? _("Refresh") : "",
-			on: updateSensorContent
+			on: function() {updateSensorContent()}
 		}
 	});
 
@@ -2396,7 +2399,7 @@ function showAnalogSensorCharts(limit2sensor) {
 	}
 
 	var last = "", week = "", month = "";
-	for (var j = 1; j <= max; j++) {
+	for (var j = 0; j <= max; j++) {
 		last += "<div id='myChart" + j + "'></div>";
 		week += "<div id='myChartW" + j + "'></div>";
 		month += "<div id='myChartM" + j + "'></div>";
@@ -2418,7 +2421,8 @@ function showAnalogSensorCharts(limit2sensor) {
 		rightBtn: {
 			icon: "refresh",
 			text: screen.width >= 500 ? _("Refresh") : "",
-			on: updateCharts(limit2sensor)
+			class: "refresh-sensorlog",
+			on: function() {updateCharts(limit2sensor);}
 		}
 	});
 
@@ -2443,13 +2447,15 @@ function updateCharts(limit2sensor) {
 	if (limit2sensor)
 		limit += "&nr="+limit2sensor;
 
-	showLoading( "#myChart1" );
+	showLoading( "#myChart0" );
 	sendToOS("/so?pw=&lasthours=48&csv=2" + limit, "text").then(function (csv1) {
 		buildGraph("#myChart", chart1, csv1, _("last 48h"), "HH:mm", tzo, 0);
 
+		showLoading( "#myChartW0" );
 		sendToOS("/so?pw=&csv=2&log=1" + limit, "text").then(function (csv2) {
 			buildGraph("#myChartW", chart2, csv2, _("last weeks"), "dd.MM.yyyy", tzo, 1);
 
+			showLoading( "#myChartM0" );
 			sendToOS("/so?pw=&csv=2&log=2" + limit, "text").then(function (csv3) {
 				buildGraph("#myChartM", chart3, csv3, _("last months"), "MM.yyyy", tzo, 2);
 			});
@@ -2461,6 +2467,9 @@ function buildGraph(prefix, chart, csv, titleAdd, timestr, tzo, lvl) {
 	var csvlines = csv.split(/(?:\r\n|\n)+/).filter(function (el) { return el.length !== 0; });
 
 	var legends = [], opacities = [], widths = [], colors = [], coloridx = 0;
+	let canExport = !!window.cordova;
+	let combine = false; //lvl==0;
+	let AllOptions = [];
 	for (var j = 0; j < analogSensors.length; j++) {
 		var sensor = analogSensors[j];
 		let color = COLORS[coloridx++ % COLCOUNT];
@@ -2556,7 +2565,7 @@ function buildGraph(prefix, chart, csv, titleAdd, timestr, tzo, lvl) {
 
 		var series = { name: sensor.name, type: (sensor.unitid === USERDEF_UNIT? "area" : "line"), data: logdata, color: color };
 
-		if (!chart[unitid]) {
+		if (!AllOptions[unitid]) {
 			var unit, title, unitStr,
 				minFunc = function (val) { return Math.floor(val > 0 ? Math.max(0, val - 4) : val - 1); },
 				maxFunc = function (val) { return Math.ceil(val); },
@@ -2620,13 +2629,23 @@ function buildGraph(prefix, chart, csv, titleAdd, timestr, tzo, lvl) {
 					unitStr = function (val) { return formatVal(val); };
 					minFunc = 0;
 					break;
+				case 12: unit = _("lm");
+					title = _("Lumen") + " " + titleAdd;
+					unitStr = function (val) { return formatVal(val); };
+					minFunc = 0;
+					break;
+				case 13: unit = _("lx");
+					title = _("LUX") + " " + titleAdd;
+					unitStr = function (val) { return formatVal(val); };
+					minFunc = 0;
+					break;
+
 
 				default: unit = sensor.unit;
 					title = sensor.name + "~ " + titleAdd;
 					unitStr = function (val) { return formatVal(val); };
 			};
 
-			let canExport = !!window.cordova;
 			let options = {
 				chart: {
 					type: lvl > 0 ? 'rangeArea' : 'area',
@@ -2708,11 +2727,9 @@ function buildGraph(prefix, chart, csv, titleAdd, timestr, tzo, lvl) {
 				},
 				title: { text: title }
 			};
-
-			chart[unitid] = new ApexCharts(document.querySelector(prefix + unitid), options);
-			chart[unitid].render();
+			AllOptions[unitid] = options;
 		} else {
-			chart[unitid].appendSeries(series);
+			AllOptions[unitid].series = AllOptions[unitid].series.concat(series);
 		}
 
 		if (lvl > 0) {
@@ -2737,84 +2754,172 @@ function buildGraph(prefix, chart, csv, titleAdd, timestr, tzo, lvl) {
 					dashArray: 0
 				}
 			};
-			chart[unitid].appendSeries(rangeArea);
-			chart[unitid].updateOptions(otherOptions);
+			AllOptions[unitid].series = AllOptions[unitid].series.concat(rangeArea);
+			AllOptions[unitid] = Object.assign(AllOptions[unitid], otherOptions);
 		}
-
-		if (!sensor.chart)
-			sensor.chart = new Map();
-		sensor.chart.set(prefix, chart[unitid]);
 	}
 
 	for (var p = 0; p < progAdjusts.length; p++) {
 		var adjust = progAdjusts[p];
 		var sensor = adjust.sensor;
 		for (var j = 0; j < analogSensors.length; j++) {
-			if (analogSensors[j].nr == sensor && analogSensors[j].chart != undefined) {
-				var mchart = analogSensors[j].chart.get(prefix);
-				if (mchart) {
-					var unitStr = analogSensors[j].unit;
+			if (analogSensors[j].nr == sensor && AllOptions[analogSensors[j].unitid]) {
+				let unitid = analogSensors[j].unitid;
+				let unitStr = analogSensors[j].unit;
 
-					//var progName = "";
-					//if ( adjust.prog >= 1 && adjust.prog <= controller.programs.pd.length ) {
-					//	progName = readProgram( controller.programs.pd[ adjust.prog - 1 ] ).name;
-					//}
+				//var progName = "";
+				//if ( adjust.prog >= 1 && adjust.prog <= controller.programs.pd.length ) {
+				//	progName = readProgram( controller.programs.pd[ adjust.prog - 1 ] ).name;
+				//}
 
-					var options = {
-						annotations: {
-							yaxis: [
-								{
-									y: adjust.min,
-									strokeDashArray: 8,
+				var options = {
+					annotations: {
+						yaxis: [
+							{
+								y: adjust.min,
+								strokeDashArray: 8,
+								borderColor: "#00E396",
+								borderWidth: 4,
+								label: {
 									borderColor: "#00E396",
-									borderWidth: 4,
-									label: {
-										borderColor: "#00E396",
-										textAnchor: "start",
-										position: "left",
-										offsetX: 60,
-										text: _("Min") + " " + adjust.min + " " + unitStr,
-										style: {
-											color: "#fff",
-											background: "#00E396"
-										}
-									}
-								},
-								{
-									y: adjust.max,
-									strokeDashArray: 8,
-									borderColor: "#ffadad",
-									borderWidth: 4,
-									label: {
-										borderColor: "#ffadad",
-										textAnchor: "start",
-										position: "left",
-										offsetX: 60,
-										text: _("Max") + " " + adjust.max + " " + unitStr,
-										style: {
-											color: "#fff",
-											background: "#ffadad"
-										}
+									textAnchor: "start",
+									position: "left",
+									offsetX: 60,
+									text: _("Min") + " " + adjust.min + " " + unitStr,
+									style: {
+										color: "#fff",
+										background: "#00E396"
 									}
 								}
-							]
-						}
-					};
-					mchart.updateOptions(options);
-				}
+							},
+							{
+								y: adjust.max,
+								strokeDashArray: 8,
+								borderColor: "#ffadad",
+								borderWidth: 4,
+								label: {
+									borderColor: "#ffadad",
+									textAnchor: "start",
+									position: "left",
+									offsetX: 60,
+									text: _("Max") + " " + adjust.max + " " + unitStr,
+									style: {
+										color: "#fff",
+										background: "#ffadad"
+									}
+								}
+							}
+						]
+					}
+				};
+				AllOptions[unitid] = Object.assign(AllOptions[unitid], options);
 			}
 		}
 	}
 
-	for (var c = 1; c < chart.length; c++) {
-		if (!chart[c]) {
-			var x = document.querySelector(prefix + c);
-			if (x) {
-				x.parentElement.removeChild(x);
-			}
+	if (combine && AllOptions[1] && AllOptions[2]) {
+
+		let series = AllOptions[1].series.concat(AllOptions[2].series);
+		let yaxis = [AllOptions[1].yaxis, AllOptions[2].yaxis];
+		yaxis[1].opposite = true;
+		let annotations = [];
+		if (AllOptions[1].annotations)
+			annotations = annotations.concat(AllOptions[1].annotations.yaxis);
+		if (AllOptions[2].annotations)
+			annotations = annotations.concat(AllOptions[2].annotations.yaxis);
+
+		let options = {
+			chart: {
+				type: 'area',
+				animations: {
+					speed: 500
+				},
+				stacked: false,
+				width: '100%',
+				height: (screen.height > screen.width ? screen.height : screen.width) / 3,
+				toolbar: {
+					download: canExport,
+					autoSelected: 'zoom'
+				},
+				dropShadow: {
+					enabled: true
+				}
+			},
+			forecastDataPoints: {
+				count: 1
+			},
+			dataLabels: {
+				enabled: false
+			},
+			fill: {
+				colors: colors[1],
+				opacity: opacities[1],
+				type: 'solid'
+			},
+			stroke: {
+				curve: "smooth",
+				colors: colors[1],
+				width: widths[1],
+				dashArray: 0
+			},
+			grid: {
+				xaxis: {
+					lines: {
+						show: true
+					}
+				},
+				yaxis: {
+					lines: {
+						show: true
+					}
+				}
+			},
+			plotOptions: {
+				bar: {
+					columnWidth: "20%"
+				}
+			},
+			tooltip: {
+				x: {
+					datetimeUTC: false,
+					format: timestr
+				}
+			},
+			xaxis: {
+				type: "datetime",
+				labels: {
+					datetimeUTC: false,
+					format: timestr
+				}
+			},
+			legend: {
+				showForSingleSeries: true,
+				fontSize: "10px"
+			},
+
+			series: series,
+			yaxis: yaxis,
+			title: { text: AllOptions[1].title.text + "/" + AllOptions[2].title.text },
+			annotations: {
+				yaxis: annotations
+			},
+		};
+		AllOptions[1] = options;
+		AllOptions[2] = null;
+	}
+
+	for (var c = 0; c < chart.length; c++) {
+		var x = document.querySelector(prefix + c);
+		if (x) x.replaceChildren();
+		let options = AllOptions[c];
+		if (options) {
+			chart[c] = new ApexCharts(document.querySelector(prefix + c), options);
+			chart[c].render();
 		}
 	}
 }
+
+function isNumber(n) { return !isNaN(parseFloat(n)) && !isNaN(n - 0) }
 
 /**
 * format value output with 2 decimals.
@@ -2849,6 +2954,9 @@ function getUnit(sensor) {
 		case 8: return "mph";
 		case 9: return "kmh";
 		case 10: return "%";
+		case 11: return "DK";
+		case 12: return "lm";
+		case 13: return "lx";
 		default: return sensor.unit;
 	}
 }

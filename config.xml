@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<widget xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cordova.apache.org/ns/1.0" android-versionCode="162" id="de.opensprinklershop.sprinklers" version="2.3.162" versionCode="162">
+<widget xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cordova.apache.org/ns/1.0" android-versionCode="163" id="de.opensprinklershop.sprinklers" version="2.3.163" versionCode="163">
   <!-- Don't forget to modify web/index.html !!! -->
   <name>OpenSprinklerASB</name>
   <description>
