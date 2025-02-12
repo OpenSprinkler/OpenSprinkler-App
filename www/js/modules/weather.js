@@ -567,7 +567,7 @@ OSApp.Weather.showEToAdjustmentOptions = function( button, callback ) {
 		OSApp.UIDom.showLoading( ".detect-baseline-eto" );
 
 		$.ajax( {
-			url: OSApp.Weather.WEATHER_SERVER_URL + "/baselineETo?loc=" + encodeURIComponent( OSApp.currentSession.controller.settings.loc ),
+			url: OSApp.currentSession.weatherServerUrl + "/baselineETo?loc=" + encodeURIComponent( OSApp.currentSession.controller.settings.loc ),
 			contentType: "application/json; charset=utf-8",
 			success: function( data ) {
 
