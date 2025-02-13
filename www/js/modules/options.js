@@ -200,6 +200,10 @@ OSApp.Options.showOptions = function( expandItem ) {
 							opt.o13 = ( data >> 8 ) & 0xff;
 						}
 						return true;
+					case "o49":
+						opt.o49 = data & 0xff;
+						opt.o64 = ( data >> 8 ) & 0xff;
+						return true;
 					case "o31":
 						if ( parseInt( data ) === 3 && !OSApp.Utils.unescapeJSON( $( "#wto" )[ 0 ].value ).baseETo ) {
 							OSApp.Errors.showError( OSApp.Language._( "You must specify a baseline ETo adjustment method option to use the ET adjustment method." ) );
@@ -720,11 +724,13 @@ OSApp.Options.showOptions = function( expandItem ) {
 			"</label><input autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' data-mini='true' type='text' id='ifkey' placeholder='IFTTT webhooks key' value='" + OSApp.currentSession.controller.settings.ifkey + "'>" +
 			"</div>";
 
+			let ife2 = OSApp.currentSession.controller.options.ife2;
+			let ifev = ( ife2 !== "undefined" ? ife2 * 256 : 0 ) + OSApp.currentSession.controller.options.ife;
 			list += "<div class='ui-field-contain'><label for='o49'>" + OSApp.Language._( "Notification Events" ) +
 					"<button data-helptext='" +
 						OSApp.Language._( "Select which notification events to send to Email and/or IFTTT." ) +
 						"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
-				"</label><button data-mini='true' id='o49' value='" + OSApp.currentSession.controller.options.ife + "'>" + OSApp.Language._( "Configure Events" ) + "</button></div>";
+				"</label><button data-mini='true' id='o49' value='" + ifev + "'>" + OSApp.Language._( "Configure Events" ) + "</button></div>";
 		}
 
 		if ( typeof OSApp.currentSession.controller.settings.dname !== "undefined" ) {
@@ -791,7 +797,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 	}
 
 	if ( OSApp.Firmware.checkOSVersion( 220 ) && typeof OSApp.currentSession.controller.options.laton !== "undefined" ) {
-		list += "<div class='ui-field-contain'><label for='laton'>" + OSApp.Language._( "Latch On Voltage" ) + 
+		list += "<div class='ui-field-contain'><label for='laton'>" + OSApp.Language._( "Latch On Voltage" ) +
 			"<button data-helptext='" +
 				OSApp.Language._( "Maximum is 24V. Set to 0 for default." ) +
 			"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label>" +
@@ -799,7 +805,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 	}
 
 	if ( OSApp.Firmware.checkOSVersion( 220 ) && typeof OSApp.currentSession.controller.options.latof !== "undefined" ) {
-		list += "<div class='ui-field-contain'><label for='latof'>" + OSApp.Language._( "Latch Off Voltage" ) + 
+		list += "<div class='ui-field-contain'><label for='latof'>" + OSApp.Language._( "Latch Off Voltage" ) +
 			"<button data-helptext='" +
 				OSApp.Language._( "Maximum is 24V. Set to 0 for default." ) +
 			"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label>" +
@@ -1351,9 +1357,11 @@ OSApp.Options.showOptions = function( expandItem ) {
 			flow: OSApp.Language._( "Flow Sensor Update" ),
 			weather: OSApp.Language._( "Weather Adjustment Update" ),
 			reboot: OSApp.Language._( "Controller Reboot" ),
-			run: OSApp.Language._( "Station Run" ),
+			run: OSApp.Language._( "Station Finish" ),
 			sensor2: OSApp.Language._( "Sensor 2 Update" ),
-			rain: OSApp.Language._( "Rain Delay Update" )
+			rain: OSApp.Language._( "Rain Delay Update" ),
+			station: OSApp.Language._( "Station Start" ),
+			flow_alert: OSApp.Language._( "Flow Alert" ),
 		}, button = this, curr = parseInt( button.value ), inputs = "", a = 0, ife = 0;
 
 		$.each( events, function( i, val ) {
