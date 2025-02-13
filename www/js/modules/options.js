@@ -488,6 +488,29 @@ OSApp.Options.showOptions = function( expandItem ) {
 		"<legend>" + OSApp.Language._( "Weather and Sensors" ) + "</legend>";
 
 	if ( typeof OSApp.currentSession.controller.options.uwt !== "undefined" ) {
+		list += "<div class='ui-field-contain'><label for='o31' class='select'>" + OSApp.Language._( "Weather Adjustment Method" ) +
+				"<button data-helptext='" +
+					OSApp.Language._( "Weather adjustment uses DarkSky data in conjunction with the selected method to adjust the watering percentage." ) +
+					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
+			"</label><select data-mini='true' id='o31'>";
+		for ( i = 0; i < OSApp.Weather.getAdjustmentMethod().length; i++ ) {
+			var adjustmentMethod = OSApp.Weather.getAdjustmentMethod()[ i ];
+
+			// Skip unsupported adjustment options.
+			if ( adjustmentMethod.minVersion && !OSApp.Firmware.checkOSVersion( adjustmentMethod.minVersion ) ) {
+				continue;
+			}
+			list += "<option " + ( ( adjustmentMethod.id === OSApp.Weather.getCurrentAdjustmentMethodId() ) ? "selected" : "" ) + " value='" + i + "'>" + adjustmentMethod.name + "</option>";
+		}
+		list += "</select></div>";
+
+		if ( typeof OSApp.currentSession.controller.settings.wto === "object" ) {
+			list += "<div class='ui-field-contain" + ( OSApp.Weather.getCurrentAdjustmentMethodId() === 0 ? " hidden" : "" ) + "'><label for='wto'>" + OSApp.Language._( "Adjustment Method Options" ) + "</label>" +
+				"<button data-mini='true' id='wto' value='" + OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.wto ) + "'>" +
+					OSApp.Language._( "Tap to Configure" ) +
+				"</button></div>";
+		}
+
 		if ( typeof OSApp.currentSession.controller.settings.wsp !== "undefined" ) {
 			list += "<div class='ui-field-contain'><label for='weatherSelect' class='select'>" + OSApp.Language._( "Weather Data Provider" ) +
 					"<button data-helptext='" +
@@ -510,11 +533,9 @@ OSApp.Options.showOptions = function( expandItem ) {
 			"<table>" +
 				"<tr style='width:100%;vertical-align: top;'>" +
 					"<td style='width:100%'>" +
-						"<div class='" +
-							( ( OSApp.currentSession.controller.settings.wto.key && OSApp.currentSession.controller.settings.wto.key !== "" ) ? "green " : "" ) +
-							"ui-input-text controlgroup-textinput ui-btn ui-body-inherit ui-corner-all ui-mini ui-shadow-inset ui-input-has-clear'>" +
+						"<div class='ui-input-text controlgroup-textinput ui-btn ui-body-inherit ui-corner-all ui-mini ui-shadow-inset ui-input-has-clear'>" +
 								"<input data-role='none' data-mini='true' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' " +
-									"type='text' id='wtkey' value='" + ( OSApp.currentSession.controller.settings.wto.key || "" ) + "'>" +
+									"type='text' id='wtkey' placeholder='(A valid API key is required)' value='" + ( OSApp.currentSession.controller.settings.wto.key || "" ) + "'>" +
 								"<a href='#' tabindex='-1' aria-hidden='true' data-helptext='" + OSApp.Language._( "An invalid API key has been detected." ) +
 									"' class='hidden help-icon ui-input-clear ui-btn ui-icon-alert ui-btn-icon-notext ui-corner-all'>" +
 								"</a>" +
@@ -523,29 +544,6 @@ OSApp.Options.showOptions = function( expandItem ) {
 					"<td><button class='noselect' data-mini='true' id='verify-api'>" + OSApp.Language._( "Verify" ) + "</button></td>" +
 				"</tr>" +
 			"</table></div>";
-		}
-
-		list += "<div class='ui-field-contain'><label for='o31' class='select'>" + OSApp.Language._( "Weather Adjustment Method" ) +
-				"<button data-helptext='" +
-					OSApp.Language._( "Weather adjustment uses DarkSky data in conjunction with the selected method to adjust the watering percentage." ) +
-					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
-			"</label><select data-mini='true' id='o31'>";
-		for ( i = 0; i < OSApp.Weather.getAdjustmentMethod().length; i++ ) {
-			var adjustmentMethod = OSApp.Weather.getAdjustmentMethod()[ i ];
-
-			// Skip unsupported adjustment options.
-			if ( adjustmentMethod.minVersion && !OSApp.Firmware.checkOSVersion( adjustmentMethod.minVersion ) ) {
-				continue;
-			}
-			list += "<option " + ( ( adjustmentMethod.id === OSApp.Weather.getCurrentAdjustmentMethodId() ) ? "selected" : "" ) + " value='" + i + "'>" + adjustmentMethod.name + "</option>";
-		}
-		list += "</select></div>";
-
-		if ( typeof OSApp.currentSession.controller.settings.wto === "object" ) {
-			list += "<div class='ui-field-contain" + ( OSApp.Weather.getCurrentAdjustmentMethodId() === 0 ? " hidden" : "" ) + "'><label for='wto'>" + OSApp.Language._( "Adjustment Method Options" ) + "</label>" +
-				"<button data-mini='true' id='wto' value='" + OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.wto ) + "'>" +
-					OSApp.Language._( "Tap to Configure" ) +
-				"</button></div>";
 		}
 
 		if ( OSApp.Firmware.checkOSVersion( 214 ) ) {
