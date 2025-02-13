@@ -533,9 +533,11 @@ OSApp.Options.showOptions = function( expandItem ) {
 			"<table>" +
 				"<tr style='width:100%;vertical-align: top;'>" +
 					"<td style='width:100%'>" +
-						"<div class='ui-input-text controlgroup-textinput ui-btn ui-body-inherit ui-corner-all ui-mini ui-shadow-inset ui-input-has-clear'>" +
+						"<div class='" +
+							( ( OSApp.currentSession.controller.settings.wto.key && OSApp.currentSession.controller.settings.wto.key !== "" ) ? "" : "red " ) +
+							"ui-input-text controlgroup-textinput ui-btn ui-body-inherit ui-corner-all ui-mini ui-shadow-inset ui-input-has-clear'>" +
 								"<input data-role='none' data-mini='true' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' " +
-									"type='text' id='wtkey' placeholder='(A valid API key is required)' value='" + ( OSApp.currentSession.controller.settings.wto.key || "" ) + "'>" +
+									"type='text' id='wtkey' value='" + ( OSApp.currentSession.controller.settings.wto.key || "" ) + "'>" +
 								"<a href='#' tabindex='-1' aria-hidden='true' data-helptext='" + OSApp.Language._( "An invalid API key has been detected." ) +
 									"' class='hidden help-icon ui-input-clear ui-btn ui-icon-alert ui-btn-icon-notext ui-corner-all'>" +
 								"</a>" +
@@ -1201,6 +1203,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 		let curr = OSApp.Utils.unescapeJSON(page.find( "#wto" ).val());
 		curr.provider = this.value;
 		page.find( "#wtkey" ).prop( "value", "" );
+		page.find( "#wtkey" ).parent().addClass( "red" );
 		page.find( "#wto" ).prop( "value", OSApp.Utils.escapeJSON(curr));
 	} );
 
@@ -1346,6 +1349,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 		// Hide the invalid key status after change
 		page.find( "#wtkey" ).siblings( ".help-icon" ).hide();
 		page.find( "#wtkey" ).parent().removeClass( "red green" );
+		if( page.find( "#wtkey" ).prop( "value" ) === "" ) page.find( "#wtkey" ).parent().addClass( "red" );
 	} );
 
 	page.find( "#o49" ).on( "click", function() {
