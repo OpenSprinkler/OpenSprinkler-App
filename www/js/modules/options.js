@@ -500,7 +500,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 			if ( adjustmentMethod.minVersion && !OSApp.Firmware.checkOSVersion( adjustmentMethod.minVersion ) ) {
 				continue;
 			}
-			list += "<option " + ( ( adjustmentMethod.id === OSApp.Weather.getCurrentAdjustmentMethodId() ) ? "selected" : "" ) + " value='" + i + "'>" + adjustmentMethod.name + "</option>";
+			list += "<option " + ( ( adjustmentMethod.id === OSApp.Weather.getCurrentAdjustmentMethodId() ) ? "selected" : "" ) + " value='" + i + "'>" + OSApp.Language._(adjustmentMethod.name) + "</option>";
 		}
 		list += "</select></div>";
 
