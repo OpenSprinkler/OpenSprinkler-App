@@ -1039,7 +1039,7 @@ OSApp.Weather.setRestriction = function( id, uwt ) {
 };
 
 OSApp.Weather.setRainDelay = function( delay ) {
-	if ( parseInt( delay ) <= 0 ) {
+	if ( parseInt( delay ) < 0 ) {
 		return;
 	}
 
