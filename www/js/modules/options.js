@@ -1366,10 +1366,11 @@ OSApp.Options.showOptions = function( expandItem ) {
 			flow_alert: OSApp.Language._( "Flow Alert" ),
 		}, button = this, curr = parseInt( button.value ), inputs = "", a = 0, ife = 0;
 
+		let no_ife2 = typeof OSApp.currentSession.controller.options.ife2 === "undefined";
 		$.each( events, function( i, val ) {
 			inputs += "<label for='notif-" + i + "'><input class='needsclick' data-iconpos='right' id='notif-" + i + "' type='checkbox' " +
-				( OSApp.Utils.getBitFromByte( curr, a ) ? "checked='checked'" : "" ) + ">" + val +
-			"</label>";
+				( OSApp.Utils.getBitFromByte( curr, a ) ? "checked='checked'" : "" ) + ( no_ife2 && a >= 8 ? " disabled" : "" ) + ">" + val +
+			"</label>"
 			a++;
 		} );
 
