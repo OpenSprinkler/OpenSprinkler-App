@@ -725,7 +725,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 			"</div>";
 
 			let ife2 = OSApp.currentSession.controller.options.ife2;
-			let ifev = ( ife2 !== "undefined" ? ife2 * 256 : 0 ) + OSApp.currentSession.controller.options.ife;
+			let ifev = ( ( typeof ife2 !== "undefined" ) ? ife2 * 256 : 0 ) + OSApp.currentSession.controller.options.ife;
 			list += "<div class='ui-field-contain'><label for='o49'>" + OSApp.Language._( "Notification Events" ) +
 					"<button data-helptext='" +
 						OSApp.Language._( "Select notification events. Applicable to all of MQTT, Email, and IFTTT. <b>NOTE</b>: enabling too many events or notification methods may cause delays, missed responses, or skipped short watering events." ) +
