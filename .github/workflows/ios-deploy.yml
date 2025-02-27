@@ -132,7 +132,7 @@ jobs:
                     -exportPath "$PWD/build/export" \
                     -exportOptionsPlist $EXPORT_PLIST_PATH
 
-            - name: decode API key
+            - name: Decode API key
               env:
                   API_KEY_BASE64: ${{ secrets.IOS_APPSTORE_API_PRIVATE_KEY }}
               run: |
