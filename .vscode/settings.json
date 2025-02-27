@@ -4,9 +4,7 @@
     "files.exclude": {
         ".git": true,
         "node_modules": true,
-        "package-lock.json": true,
-        "platforms": true,
-        "plugins": true
+        "package-lock.json": true
     },
     "search.exclude": {
         ".git": true,
