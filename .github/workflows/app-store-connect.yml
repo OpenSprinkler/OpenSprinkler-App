@@ -155,6 +155,20 @@ jobs:
           echo "New CFBundleShortVersionString: $(/usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" "$PLIST_PATH")"
           echo "New CFBundleVersion: $(/usr/libexec/PlistBuddy -c "Print :CFBundleVersion" "$PLIST_PATH")"
 
+      - name: Create macOS App Sandbox Entitlements file
+        run: |
+          cat > ${{ runner.temp }}/macos_app_sandbox.entitlements << EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" \
+          "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+              <key>com.apple.security.app-sandbox</key>
+              <true/>
+          </dict>
+          </plist>
+          EOF
+
       - name: Export .app for macOS
         env:
           MAC_EXPORT_PLIST: ${{ secrets.MACOS_EXPORT_PRODUCTION }}
@@ -165,6 +179,7 @@ jobs:
             PROVISIONING_PROFILE=${{ steps.profile.outputs.muuid }} \
             DEVELOPMENT_TEAM="${{ secrets.IOS_TEAM_ID }}" \
             CODE_SIGN_STYLE="Manual" \
+            CODE_SIGN_ENTITLEMENTS="${{ runner.temp }}/macos_app_sandbox.entitlements" \
             -destination "platform=macOS,variant=Mac Catalyst" \
             -workspace "OpenSprinkler.xcworkspace" \
             -scheme "OpenSprinkler" \
