@@ -1,0 +1,117 @@
+name: iOS Build & Deploy
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+permissions:
+  checks: write
+  contents: read
+  pull-requests: write
+
+jobs:
+  build_ios:
+    runs-on: macos-latest
+    if: ${{github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository)}}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install GitVersion
+        uses: gittools/actions/gitversion/setup@v3.0.0
+        with:
+          versionSpec: '5.x'
+
+      - name: Determine Version via GitVersion
+        id: gitversion
+        uses: gittools/actions/gitversion/execute@v3.0.0
+        with:
+          useConfigFile: false
+
+      - name: Update package.json version
+        run: |
+          sed -i.bak "s|\"version\": \"[0-9\.]*\"|\"version\": \"${{ steps.gitversion.outputs.semVer }}\"|" package.json
+
+      - name: Update sw.js version
+        run: |
+          sed -i.bak "s|OpenSprinkler-v[0-9\.]*|OpenSprinkler-v${{ steps.gitversion.outputs.semVer }}|" www/sw.js
+
+      - name: Update ui-dom.js version
+        run: |
+          sed -E -i.bak "s|(_\( \"App Version\" \) \+ \": )[^\"]*\"|\1${{ steps.gitversion.outputs.semVer }}\"|" www/js/modules/ui-dom.js
+
+      - name: Update config.xml versions
+        run: |
+          # Update version attribute
+          sed -i.bak "s|version=\"[0-9\.]*\"|version=\"${{ steps.gitversion.outputs.semVer }}\"|" config.xml
+          # Calculate versionCode
+          major=${{ steps.gitversion.outputs.major }}
+          minor=${{ steps.gitversion.outputs.minor }}
+          patch=${{ steps.gitversion.outputs.patch }}
+          version_code=$((major * 10000 + minor * 100 + patch))
+          # Update versionCode attribute
+          sed -i.bak "s|versionCode=\"[0-9]*\"|versionCode=\"$version_code\"|" config.xml
+          # Update <string> element
+          sed -i.bak "s|<string>[0-9\.]*</string>|<string>${{ steps.gitversion.outputs.semVer }}</string>|" config.xml
+
+      - name: Cache Node Modules
+        id: cache_npm
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-
+
+      - name: Install Dependencies
+        if: steps.cache_npm.outputs.cache-hit != 'true'
+        run: npm install
+
+      - name: Install Cordova CLI
+        run: npm install -g cordova
+
+      - name: Prepare and Build iOS
+        run: |
+          cordova platform add ios
+          cordova build ios --release
+
+      - name: Export .ipa
+        run: |
+          cd platforms/ios
+          xcodebuild \
+            -workspace "OpenSprinkler.xcworkspace" \
+            -scheme "OpenSprinkler" \
+            -sdk iphoneos \
+            -configuration Release \
+            -archivePath "$PWD/build/OpenSprinkler.xcarchive" archive
+
+          xcodebuild \
+            -exportArchive \
+            -archivePath "$PWD/build/OpenSprinkler.xcarchive" \
+            -exportPath "$PWD/build/export" \
+            -exportOptionsPlist "exportOptions.plist"
+
+      - name: Upload to TestFlight
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: apple-actions/testflight@v1
+        with:
+          api-key-id: ${{ secrets.APP_STORE_API_KEY_ID }}
+          issuer-id: ${{ secrets.APP_STORE_API_KEY_ISSUER_ID }}
+          api-key: ${{ secrets.APP_STORE_API_KEY }}
+          app-path: platforms/ios/build/export/OpenSprinkler.ipa
+          what's-new: "Automated build from PR"
+          distribution-groups: "Internal Testers"
+
+      - name: Upload to App Store
+        if: ${{ github.ref == 'refs/heads/master' }}
+        uses: apple-actions/app-store-upload@v1
+        with:
+          api-key-id: ${{ secrets.APP_STORE_API_KEY_ID }}
+          issuer-id: ${{ secrets.APP_STORE_API_KEY_ISSUER_ID }}
+          api-key: ${{ secrets.APP_STORE_API_KEY }}
+          app-path: platforms/ios/build/export/OpenSprinkler.ipa
+          submit-for-review: true
+          release-type: MANUAL
