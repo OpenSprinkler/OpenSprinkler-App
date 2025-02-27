@@ -87,7 +87,7 @@ jobs:
                   # Update versionCode attribute
                   sed -i.bak "s|versionCode=\"[0-9]*\"|versionCode=\"$version_code\"|" config.xml
                   # Update <string> element
-                  sed -i.bak "s|<string>[0-9\.]*</string>|<string>${{ steps.gitversion.outputs.majorMinorPatch }}</string>|" config.xml
+                  sed -i.bak "s|<string>[0-9\.]*</string>|<string>$version_code</string>|" config.xml
 
             - name: Cache Node Modules
               id: cache_npm
