@@ -1,117 +1,141 @@
 name: iOS Build & Deploy
 
 on:
-  push:
-    branches:
-      - master
-  pull_request:
+    push:
+        branches:
+            - master
+    pull_request:
 
 permissions:
-  checks: write
-  contents: read
-  pull-requests: write
+    checks: write
+    contents: read
+    pull-requests: write
 
 jobs:
-  build_ios:
-    runs-on: macos-latest
-    if: ${{github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository)}}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+    build_ios:
+        runs-on: macos-latest
+        if: ${{github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository)}}
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
 
-      - name: Install GitVersion
-        uses: gittools/actions/gitversion/setup@v3.0.0
-        with:
-          versionSpec: '5.x'
+            - name: Install the Apple certificate and provisioning profile
+              id: profile
+              env:
+                  BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
+                  P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
+                  BUILD_PROVISION_PROFILE_BASE64: ${{ secrets.BUILD_PROVISION_PROFILE_BASE64 }}
+              run: |
+                  # create variables
+                  CERTIFICATE_PATH=${{ runner.temp }}/build_certificate.p12
+                  PP_PATH=${{ runner.temp }}/build_pp.mobileprovision
+                  KEYCHAIN_PATH=${{ runner.temp }}/app-signing.keychain-db
 
-      - name: Determine Version via GitVersion
-        id: gitversion
-        uses: gittools/actions/gitversion/execute@v3.0.0
-        with:
-          useConfigFile: false
+                  # import certificate and provisioning profile from secrets
+                  echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
+                  echo -n "$BUILD_PROVISION_PROFILE_BASE64" | base64 --decode -o $PP_PATH
+                  uuid=`grep UUID -A1 -a $PP_PATH | grep -io "[-A-F0-9]\{36\}"`
+                  echo "uuid=$uuid" >> $GITHUB_OUTPUT
 
-      - name: Update package.json version
-        run: |
-          sed -i.bak "s|\"version\": \"[0-9\.]*\"|\"version\": \"${{ steps.gitversion.outputs.semVer }}\"|" package.json
+                  # create temporary keychain
+                  security create-keychain -p "KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+                  security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+                  security unlock-keychain -p "KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
 
-      - name: Update sw.js version
-        run: |
-          sed -i.bak "s|OpenSprinkler-v[0-9\.]*|OpenSprinkler-v${{ steps.gitversion.outputs.semVer }}|" www/sw.js
+                  # import certificate to keychain
+                  security import $CERTIFICATE_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+                  security set-key-partition-list -S apple-tool:,apple: -k "KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+                  security list-keychain -d user -s $KEYCHAIN_PATH
 
-      - name: Update ui-dom.js version
-        run: |
-          sed -E -i.bak "s|(_\( \"App Version\" \) \+ \": )[^\"]*\"|\1${{ steps.gitversion.outputs.semVer }}\"|" www/js/modules/ui-dom.js
+                  # apply provisioning profile
+                  mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+                  cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
 
-      - name: Update config.xml versions
-        run: |
-          # Update version attribute
-          sed -i.bak "s|version=\"[0-9\.]*\"|version=\"${{ steps.gitversion.outputs.semVer }}\"|" config.xml
-          # Calculate versionCode
-          major=${{ steps.gitversion.outputs.major }}
-          minor=${{ steps.gitversion.outputs.minor }}
-          patch=${{ steps.gitversion.outputs.patch }}
-          version_code=$((major * 10000 + minor * 100 + patch))
-          # Update versionCode attribute
-          sed -i.bak "s|versionCode=\"[0-9]*\"|versionCode=\"$version_code\"|" config.xml
-          # Update <string> element
-          sed -i.bak "s|<string>[0-9\.]*</string>|<string>${{ steps.gitversion.outputs.semVer }}</string>|" config.xml
+            - name: Install GitVersion
+              uses: gittools/actions/gitversion/setup@v3.0.0
+              with:
+                  versionSpec: "5.x"
 
-      - name: Cache Node Modules
-        id: cache_npm
-        uses: actions/cache@v4
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-npm-
+            - name: Determine Version via GitVersion
+              id: gitversion
+              uses: gittools/actions/gitversion/execute@v3.0.0
+              with:
+                  useConfigFile: false
 
-      - name: Install Dependencies
-        if: steps.cache_npm.outputs.cache-hit != 'true'
-        run: npm install
+            - name: Update package.json version
+              run: |
+                  sed -i.bak "s|\"version\": \"[0-9\.]*\"|\"version\": \"${{ steps.gitversion.outputs.semVer }}\"|" package.json
 
-      - name: Install Cordova CLI
-        run: npm install -g cordova
+            - name: Update sw.js version
+              run: |
+                  sed -i.bak "s|OpenSprinkler-v[0-9\.]*|OpenSprinkler-v${{ steps.gitversion.outputs.semVer }}|" www/sw.js
 
-      - name: Prepare and Build iOS
-        run: |
-          cordova platform add ios
-          cordova build ios --release
+            - name: Update ui-dom.js version
+              run: |
+                  sed -E -i.bak "s|(_\( \"App Version\" \) \+ \": )[^\"]*\"|\1${{ steps.gitversion.outputs.semVer }}\"|" www/js/modules/ui-dom.js
 
-      - name: Export .ipa
-        run: |
-          cd platforms/ios
-          xcodebuild \
-            -workspace "OpenSprinkler.xcworkspace" \
-            -scheme "OpenSprinkler" \
-            -sdk iphoneos \
-            -configuration Release \
-            -archivePath "$PWD/build/OpenSprinkler.xcarchive" archive
+            - name: Update config.xml versions
+              run: |
+                  # Update version attribute
+                  sed -i.bak "s|version=\"[0-9\.]*\"|version=\"${{ steps.gitversion.outputs.semVer }}\"|" config.xml
+                  # Calculate versionCode
+                  major=${{ steps.gitversion.outputs.major }}
+                  minor=${{ steps.gitversion.outputs.minor }}
+                  patch=${{ steps.gitversion.outputs.patch }}
+                  version_code=$((major * 10000 + minor * 100 + patch))
+                  # Update versionCode attribute
+                  sed -i.bak "s|versionCode=\"[0-9]*\"|versionCode=\"$version_code\"|" config.xml
+                  # Update <string> element
+                  sed -i.bak "s|<string>[0-9\.]*</string>|<string>${{ steps.gitversion.outputs.semVer }}</string>|" config.xml
 
-          xcodebuild \
-            -exportArchive \
-            -archivePath "$PWD/build/OpenSprinkler.xcarchive" \
-            -exportPath "$PWD/build/export" \
-            -exportOptionsPlist "exportOptions.plist"
+            - name: Cache Node Modules
+              id: cache_npm
+              uses: actions/cache@v4
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
+                  restore-keys: |
+                      ${{ runner.os }}-npm-
 
-      - name: Upload to TestFlight
-        if: ${{ github.event_name == 'pull_request' }}
-        uses: apple-actions/testflight@v1
-        with:
-          api-key-id: ${{ secrets.APP_STORE_API_KEY_ID }}
-          issuer-id: ${{ secrets.APP_STORE_API_KEY_ISSUER_ID }}
-          api-key: ${{ secrets.APP_STORE_API_KEY }}
-          app-path: platforms/ios/build/export/OpenSprinkler.ipa
-          what's-new: "Automated build from PR"
-          distribution-groups: "Internal Testers"
+            - name: Install Dependencies
+              if: steps.cache_npm.outputs.cache-hit != 'true'
+              run: npm install
 
-      - name: Upload to App Store
-        if: ${{ github.ref == 'refs/heads/master' }}
-        uses: apple-actions/app-store-upload@v1
-        with:
-          api-key-id: ${{ secrets.APP_STORE_API_KEY_ID }}
-          issuer-id: ${{ secrets.APP_STORE_API_KEY_ISSUER_ID }}
-          api-key: ${{ secrets.APP_STORE_API_KEY }}
-          app-path: platforms/ios/build/export/OpenSprinkler.ipa
-          submit-for-review: true
-          release-type: MANUAL
+            - name: Prepare and Build iOS
+              run: |
+                  npx cordova platform add ios
+
+            - name: Export .ipa
+              env:
+                  EXPORT_PLIST: ${{ secrets.IOS_EXPORT_PRODUCTION }}
+              run: |
+                  cd platforms/ios
+                  EXPORT_PLIST_PATH=${{ runner.temp }}/ExportOptions.plist
+                  echo -n "$EXPORT_PLIST" | base64 --decode --output $EXPORT_PLIST_PATH
+                  xcodebuild \
+                    PROVISIONING_PROFILE=${{ steps.profile.outputs.uuid }} \
+                    -workspace "OpenSprinkler.xcworkspace" \
+                    -scheme "OpenSprinkler" \
+                    -sdk iphoneos \
+                    -arch arm64 \
+                    -configuration Release \
+                    -archivePath "$PWD/build/OpenSprinkler.xcarchive" archive
+
+                  xcodebuild \
+                    -exportArchive \
+                    -archivePath "$PWD/build/OpenSprinkler.xcarchive" \
+                    -exportPath "$PWD/build/export" \
+                    -exportOptionsPlist $EXPORT_PLIST_PATH
+
+            - name: decode API key
+              env:
+                  API_KEY_BASE64: ${{ secrets.IOS_APPSTORE_API_PRIVATE_KEY }}
+              run: |
+                  mkdir -p ~/private_keys
+                  echo -n "$API_KEY_BASE64" | base64 --decode --output ~/private_keys/AuthKey_${{ secrets.IOS_APPSTORE_API_KEY_ID }}.p8
+
+            - name: Upload to TestFlight
+              run: |
+                  xcrun altool --validate-app -f ${{ runner.temp }}/export/OpenSprinkler.ipa -t ios --apiKey ${{ secrets.IOS_APPSTORE_API_KEY_ID }} --apiIssuer ${{ secrets.IOS_APPSTORE_ISSUER_ID }}
+                  xcrun altool --upload-app -f ${{ runner.temp }}/export/OpenSprinkler.ipa -t ios --apiKey ${{ secrets.IOS_APPSTORE_API_KEY_ID }} --apiIssuer ${{ secrets.IOS_APPSTORE_ISSUER_ID }}
