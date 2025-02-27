@@ -110,7 +110,7 @@ jobs:
         run: |
           npx cordova platform add ios
 
-      - name: Export .ipa
+      - name: Export .ipa for iOS
         env:
           EXPORT_PLIST: ${{ secrets.IOS_EXPORT_PRODUCTION }}
         run: |
@@ -136,6 +136,31 @@ jobs:
             -exportPath "${{ runner.temp }}/export" \
             -exportOptionsPlist $EXPORT_PLIST_PATH
 
+      - name: Export .app for macOS
+        env:
+          MAC_EXPORT_PLIST: ${{ secrets.MACOS_EXPORT_PRODUCTION }}
+        run: |
+          cd platforms/ios
+
+          xcodebuild \
+            PROVISIONING_PROFILE=${{ steps.profile.outputs.muuid }} \
+            DEVELOPMENT_TEAM="${{ secrets.IOS_TEAM_ID }}" \
+            CODE_SIGN_STYLE="Manual" \
+            -destination "platform=macOS,variant=Mac Catalyst" \
+            -workspace "OpenSprinkler.xcworkspace" \
+            -scheme "OpenSprinkler" \
+            -configuration Release \
+            -archivePath "$PWD/build/OpenSprinkler.xcarchive" archive
+
+          MAC_EXPORT_PLIST_PATH=${{ runner.temp }}/ExportOptionsMac.plist
+          echo -n "$MAC_EXPORT_PLIST" | base64 --decode --output $MAC_EXPORT_PLIST_PATH
+
+          xcodebuild \
+            -exportArchive \
+            -archivePath "$PWD/build/OpenSprinkler.xcarchive" \
+            -exportPath "${{ runner.temp }}/mac_export" \
+            -exportOptionsPlist $MAC_EXPORT_PLIST_PATH
+
       - name: Decode API key
         env:
           API_KEY_BASE64: ${{ secrets.IOS_APPSTORE_API_PRIVATE_KEY }}
@@ -143,7 +168,12 @@ jobs:
           mkdir -p ~/private_keys
           echo -n "$API_KEY_BASE64" | base64 --decode --output ~/private_keys/AuthKey_${{ secrets.IOS_APPSTORE_API_KEY_ID }}.p8
 
-      - name: Upload to TestFlight
+      - name: Upload iOS to TestFlight
         run: |
           xcrun altool --validate-app -f ${{ runner.temp }}/export/OpenSprinkler.ipa -t ios --apiKey ${{ secrets.IOS_APPSTORE_API_KEY_ID }} --apiIssuer ${{ secrets.IOS_APPSTORE_ISSUER_ID }}
           xcrun altool --upload-app -f ${{ runner.temp }}/export/OpenSprinkler.ipa -t ios --apiKey ${{ secrets.IOS_APPSTORE_API_KEY_ID }} --apiIssuer ${{ secrets.IOS_APPSTORE_ISSUER_ID }}
+
+      - name: Upload macOS to TestFlight
+        run: |
+          xcrun altool --validate-app -f ${{ runner.temp }}/mac_export/OpenSprinkler.pkg -t osx --apiKey ${{ secrets.IOS_APPSTORE_API_KEY_ID }} --apiIssuer ${{ secrets.IOS_APPSTORE_ISSUER_ID }}
+          xcrun altool --upload-app -f ${{ runner.temp }}/mac_export/OpenSprinkler.pkg -t osx --apiKey ${{ secrets.IOS_APPSTORE_API_KEY_ID }} --apiIssuer ${{ secrets.IOS_APPSTORE_ISSUER_ID }}
