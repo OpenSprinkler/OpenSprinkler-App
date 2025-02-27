@@ -111,16 +111,17 @@ jobs:
                   EXPORT_PLIST: ${{ secrets.IOS_EXPORT_PRODUCTION }}
               run: |
                   cd platforms/ios
-                  EXPORT_PLIST_PATH=${{ runner.temp }}/ExportOptions.plist
-                  echo -n "$EXPORT_PLIST" | base64 --decode --output $EXPORT_PLIST_PATH
+
                   xcodebuild \
-                    PROVISIONING_PROFILE=${{ steps.profile.outputs.uuid }} \
                     -workspace "OpenSprinkler.xcworkspace" \
                     -scheme "OpenSprinkler" \
                     -sdk iphoneos \
                     -arch arm64 \
                     -configuration Release \
                     -archivePath "$PWD/build/OpenSprinkler.xcarchive" archive
+
+                  EXPORT_PLIST_PATH=${{ runner.temp }}/ExportOptions.plist
+                  echo -n "$EXPORT_PLIST" | base64 --decode --output $EXPORT_PLIST_PATH
 
                   xcodebuild \
                     -exportArchive \
