@@ -136,6 +136,25 @@ jobs:
             -exportPath "${{ runner.temp }}/export" \
             -exportOptionsPlist $EXPORT_PLIST_PATH
 
+      - name: Swap CFBundleShortVersionString and CFBundleVersion for macOS build
+        run: |
+          PLIST_PATH="platforms/ios/OpenSprinkler/OpenSprinkler-Info.plist"
+
+          # Read current values
+          SHORT_VERSION=$(/usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" "$PLIST_PATH")
+          BUNDLE_VERSION=$(/usr/libexec/PlistBuddy -c "Print :CFBundleVersion" "$PLIST_PATH")
+
+          echo "Current CFBundleShortVersionString: $SHORT_VERSION"
+          echo "Current CFBundleVersion: $BUNDLE_VERSION"
+
+          # Swap them
+          /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $BUNDLE_VERSION" "$PLIST_PATH"
+          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $SHORT_VERSION" "$PLIST_PATH"
+
+          echo "Swapped them!"
+          echo "New CFBundleShortVersionString: $(/usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" "$PLIST_PATH")"
+          echo "New CFBundleVersion: $(/usr/libexec/PlistBuddy -c "Print :CFBundleVersion" "$PLIST_PATH")"
+
       - name: Export .app for macOS
         env:
           MAC_EXPORT_PLIST: ${{ secrets.MACOS_EXPORT_PRODUCTION }}
