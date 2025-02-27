@@ -129,7 +129,7 @@ jobs:
                   xcodebuild \
                     -exportArchive \
                     -archivePath "$PWD/build/OpenSprinkler.xcarchive" \
-                    -exportPath "$PWD/build/export" \
+                    -exportPath "${{ runner.temp }}/export" \
                     -exportOptionsPlist $EXPORT_PLIST_PATH
 
             - name: Decode API key
