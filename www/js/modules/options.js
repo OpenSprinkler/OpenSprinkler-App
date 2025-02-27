@@ -200,6 +200,10 @@ OSApp.Options.showOptions = function( expandItem ) {
 							opt.o13 = ( data >> 8 ) & 0xff;
 						}
 						return true;
+					case "o49":
+						opt.o49 = data & 0xff;
+						opt.o64 = ( data >> 8 ) & 0xff;
+						return true;
 					case "o31":
 						if ( parseInt( data ) === 3 && !OSApp.Utils.unescapeJSON( $( "#wto" )[ 0 ].value ).baseETo ) {
 							OSApp.Errors.showError( OSApp.Language._( "You must specify a baseline ETo adjustment method option to use the ET adjustment method." ) );
@@ -484,6 +488,29 @@ OSApp.Options.showOptions = function( expandItem ) {
 		"<legend>" + OSApp.Language._( "Weather and Sensors" ) + "</legend>";
 
 	if ( typeof OSApp.currentSession.controller.options.uwt !== "undefined" ) {
+		list += "<div class='ui-field-contain'><label for='o31' class='select'>" + OSApp.Language._( "Weather Adjustment Method" ) +
+				"<button data-helptext='" +
+					OSApp.Language._( "Weather adjustment uses DarkSky data in conjunction with the selected method to adjust the watering percentage." ) +
+					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
+			"</label><select data-mini='true' id='o31'>";
+		for ( i = 0; i < OSApp.Weather.getAdjustmentMethod().length; i++ ) {
+			var adjustmentMethod = OSApp.Weather.getAdjustmentMethod()[ i ];
+
+			// Skip unsupported adjustment options.
+			if ( adjustmentMethod.minVersion && !OSApp.Firmware.checkOSVersion( adjustmentMethod.minVersion ) ) {
+				continue;
+			}
+			list += "<option " + ( ( adjustmentMethod.id === OSApp.Weather.getCurrentAdjustmentMethodId() ) ? "selected" : "" ) + " value='" + i + "'>" + OSApp.Language._(adjustmentMethod.name) + "</option>";
+		}
+		list += "</select></div>";
+
+		if ( typeof OSApp.currentSession.controller.settings.wto === "object" ) {
+			list += "<div class='ui-field-contain" + ( OSApp.Weather.getCurrentAdjustmentMethodId() === 0 ? " hidden" : "" ) + "'><label for='wto'>" + OSApp.Language._( "Adjustment Method Options" ) + "</label>" +
+				"<button data-mini='true' id='wto' value='" + OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.wto ) + "'>" +
+					OSApp.Language._( "Tap to Configure" ) +
+				"</button></div>";
+		}
+
 		if ( typeof OSApp.currentSession.controller.settings.wsp !== "undefined" ) {
 			list += "<div class='ui-field-contain'><label for='weatherSelect' class='select'>" + OSApp.Language._( "Weather Data Provider" ) +
 					"<button data-helptext='" +
@@ -507,7 +534,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 				"<tr style='width:100%;vertical-align: top;'>" +
 					"<td style='width:100%'>" +
 						"<div class='" +
-							( ( OSApp.currentSession.controller.settings.wto.key && OSApp.currentSession.controller.settings.wto.key !== "" ) ? "green " : "" ) +
+							( ( OSApp.currentSession.controller.settings.wto.key && OSApp.currentSession.controller.settings.wto.key !== "" ) ? "" : "red " ) +
 							"ui-input-text controlgroup-textinput ui-btn ui-body-inherit ui-corner-all ui-mini ui-shadow-inset ui-input-has-clear'>" +
 								"<input data-role='none' data-mini='true' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' " +
 									"type='text' id='wtkey' value='" + ( OSApp.currentSession.controller.settings.wto.key || "" ) + "'>" +
@@ -519,29 +546,6 @@ OSApp.Options.showOptions = function( expandItem ) {
 					"<td><button class='noselect' data-mini='true' id='verify-api'>" + OSApp.Language._( "Verify" ) + "</button></td>" +
 				"</tr>" +
 			"</table></div>";
-		}
-
-		list += "<div class='ui-field-contain'><label for='o31' class='select'>" + OSApp.Language._( "Weather Adjustment Method" ) +
-				"<button data-helptext='" +
-					OSApp.Language._( "Weather adjustment uses DarkSky data in conjunction with the selected method to adjust the watering percentage." ) +
-					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
-			"</label><select data-mini='true' id='o31'>";
-		for ( i = 0; i < OSApp.Weather.getAdjustmentMethod().length; i++ ) {
-			var adjustmentMethod = OSApp.Weather.getAdjustmentMethod()[ i ];
-
-			// Skip unsupported adjustment options.
-			if ( adjustmentMethod.minVersion && !OSApp.Firmware.checkOSVersion( adjustmentMethod.minVersion ) ) {
-				continue;
-			}
-			list += "<option " + ( ( adjustmentMethod.id === OSApp.Weather.getCurrentAdjustmentMethodId() ) ? "selected" : "" ) + " value='" + i + "'>" + adjustmentMethod.name + "</option>";
-		}
-		list += "</select></div>";
-
-		if ( typeof OSApp.currentSession.controller.settings.wto === "object" ) {
-			list += "<div class='ui-field-contain" + ( OSApp.Weather.getCurrentAdjustmentMethodId() === 0 ? " hidden" : "" ) + "'><label for='wto'>" + OSApp.Language._( "Adjustment Method Options" ) + "</label>" +
-				"<button data-mini='true' id='wto' value='" + OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.wto ) + "'>" +
-					OSApp.Language._( "Tap to Configure" ) +
-				"</button></div>";
 		}
 
 		if ( OSApp.Firmware.checkOSVersion( 214 ) ) {
@@ -720,11 +724,13 @@ OSApp.Options.showOptions = function( expandItem ) {
 			"</label><input autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' data-mini='true' type='text' id='ifkey' placeholder='IFTTT webhooks key' value='" + OSApp.currentSession.controller.settings.ifkey + "'>" +
 			"</div>";
 
+			let ife2 = OSApp.currentSession.controller.options.ife2;
+			let ifev = ( ( typeof ife2 !== "undefined" ) ? ife2 * 256 : 0 ) + OSApp.currentSession.controller.options.ife;
 			list += "<div class='ui-field-contain'><label for='o49'>" + OSApp.Language._( "Notification Events" ) +
 					"<button data-helptext='" +
-						OSApp.Language._( "Select which notification events to send to Email and/or IFTTT." ) +
+						OSApp.Language._( "Select notification events. Applicable to all of MQTT, Email, and IFTTT. <b>NOTE</b>: enabling too many events or notification methods may cause delays, missed responses, or skipped short watering events." ) +
 						"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
-				"</label><button data-mini='true' id='o49' value='" + OSApp.currentSession.controller.options.ife + "'>" + OSApp.Language._( "Configure Events" ) + "</button></div>";
+				"</label><button data-mini='true' id='o49' value='" + ifev + "'>" + OSApp.Language._( "Configure Events" ) + "</button></div>";
 		}
 
 		if ( typeof OSApp.currentSession.controller.settings.dname !== "undefined" ) {
@@ -791,7 +797,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 	}
 
 	if ( OSApp.Firmware.checkOSVersion( 220 ) && typeof OSApp.currentSession.controller.options.laton !== "undefined" ) {
-		list += "<div class='ui-field-contain'><label for='laton'>" + OSApp.Language._( "Latch On Voltage" ) + 
+		list += "<div class='ui-field-contain'><label for='laton'>" + OSApp.Language._( "Latch On Voltage" ) +
 			"<button data-helptext='" +
 				OSApp.Language._( "Maximum is 24V. Set to 0 for default." ) +
 			"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label>" +
@@ -799,7 +805,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 	}
 
 	if ( OSApp.Firmware.checkOSVersion( 220 ) && typeof OSApp.currentSession.controller.options.latof !== "undefined" ) {
-		list += "<div class='ui-field-contain'><label for='latof'>" + OSApp.Language._( "Latch Off Voltage" ) + 
+		list += "<div class='ui-field-contain'><label for='latof'>" + OSApp.Language._( "Latch Off Voltage" ) +
 			"<button data-helptext='" +
 				OSApp.Language._( "Maximum is 24V. Set to 0 for default." ) +
 			"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label>" +
@@ -1197,6 +1203,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 		let curr = OSApp.Utils.unescapeJSON(page.find( "#wto" ).val());
 		curr.provider = this.value;
 		page.find( "#wtkey" ).prop( "value", "" );
+		page.find( "#wtkey" ).parent().addClass( "red" );
 		page.find( "#wto" ).prop( "value", OSApp.Utils.escapeJSON(curr));
 	} );
 
@@ -1342,6 +1349,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 		// Hide the invalid key status after change
 		page.find( "#wtkey" ).siblings( ".help-icon" ).hide();
 		page.find( "#wtkey" ).parent().removeClass( "red green" );
+		if( page.find( "#wtkey" ).prop( "value" ) === "" ) page.find( "#wtkey" ).parent().addClass( "red" );
 	} );
 
 	page.find( "#o49" ).on( "click", function() {
@@ -1351,15 +1359,18 @@ OSApp.Options.showOptions = function( expandItem ) {
 			flow: OSApp.Language._( "Flow Sensor Update" ),
 			weather: OSApp.Language._( "Weather Adjustment Update" ),
 			reboot: OSApp.Language._( "Controller Reboot" ),
-			run: OSApp.Language._( "Station Run" ),
+			run: OSApp.Language._( "Station Finish" ),
 			sensor2: OSApp.Language._( "Sensor 2 Update" ),
-			rain: OSApp.Language._( "Rain Delay Update" )
+			rain: OSApp.Language._( "Rain Delay Update" ),
+			station: OSApp.Language._( "Station Start" ),
+			flow_alert: OSApp.Language._( "Flow Alert" ),
 		}, button = this, curr = parseInt( button.value ), inputs = "", a = 0, ife = 0;
 
+		let no_ife2 = typeof OSApp.currentSession.controller.options.ife2 === "undefined";
 		$.each( events, function( i, val ) {
 			inputs += "<label for='notif-" + i + "'><input class='needsclick' data-iconpos='right' id='notif-" + i + "' type='checkbox' " +
-				( OSApp.Utils.getBitFromByte( curr, a ) ? "checked='checked'" : "" ) + ">" + val +
-			"</label>";
+				( OSApp.Utils.getBitFromByte( curr, a ) ? "checked='checked'" : "" ) + ( no_ife2 && a >= 8 ? " disabled" : "" ) + ">" + val +
+			"</label>"
 			a++;
 		} );
 
