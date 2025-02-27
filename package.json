@@ -33,6 +33,7 @@
 		"chai": "^4.5.0",
 		"cordova": "^12.0.0",
 		"cordova-android": "^12.0.0",
+		"cordova-custom-config": "^5.1.1",
 		"cordova-ios": "^7.0.0",
 		"cordova-osx": "^7.0.0",
 		"cordova-plugin-3dtouch": "^1.3.8",
@@ -67,7 +68,8 @@
 			"cordova-plugin-networkinterface": {},
 			"cordova-plugin-statusbar": {},
 			"cordova-plugin-transport-security": {},
-			"cordova-plugin-inappbrowser": {}
+			"cordova-plugin-inappbrowser": {},
+			"cordova-custom-config": {}
 		},
 		"platforms": [
 			"android",
