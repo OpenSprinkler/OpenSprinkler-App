@@ -113,6 +113,7 @@ jobs:
                   cd platforms/ios
 
                   xcodebuild \
+                    PROVISIONING_PROFILE=${{ steps.profile.outputs.uuid }} \
                     DEVELOPMENT_TEAM="${{ secrets.IOS_TEAM_ID }}" \
                     -workspace "OpenSprinkler.xcworkspace" \
                     -scheme "OpenSprinkler" \
