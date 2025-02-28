@@ -1,0 +1,92 @@
+name: Android Build & Deploy
+
+on:
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: read
+
+jobs:
+  build_android:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Gradle 8.9
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.9"
+
+      - name: Decode Keystore
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          echo -n "$ANDROID_KEYSTORE_BASE64" | base64 --decode > ${{ runner.temp }}/keystore.jks
+
+      - name: Install GitVersion
+        uses: gittools/actions/gitversion/setup@v3.0.0
+        with:
+          versionSpec: "5.x"
+
+      - name: Determine Version via GitVersion
+        id: gitversion
+        uses: gittools/actions/gitversion/execute@v3.0.0
+        with:
+          useConfigFile: false
+
+      - name: Update package.json Version
+        run: |
+          sed -i.bak "s|\"version\": \"[0-9\.]*\"|\"version\": \"${{ steps.gitversion.outputs.semVer }}\"|" package.json
+
+      - name: Update sw.js Version
+        run: |
+          sed -i.bak "s|OpenSprinkler-v[0-9\.]*|OpenSprinkler-v${{ steps.gitversion.outputs.semVer }}|" www/sw.js
+
+      - name: Update ui-dom.js Version
+        run: |
+          sed -E -i.bak "s|(_\( \"App Version\" \) \+ \": )[^\"]*\"|\1${{ steps.gitversion.outputs.semVer }}\"|" www/js/modules/ui-dom.js
+
+      - name: Update config.xml Versions
+        run: |
+          # Update version attribute (version name)
+          sed -i.bak "s|version=\"[0-9\.]*\"|version=\"${{ steps.gitversion.outputs.majorMinorPatch }}\"|" config.xml
+          # Calculate android-versionCode
+          major=${{ steps.gitversion.outputs.major }}
+          minor=${{ steps.gitversion.outputs.minor }}
+          patch=${{ steps.gitversion.outputs.patch }}
+          version_code=$((major * 10000 + minor * 100 + patch))
+          # Update android-versionCode attribute
+          sed -i.bak "s|android-versionCode=\"[0-9]*\"|android-versionCode=\"$version_code\"|" config.xml
+
+      - name: Cache Node Modules
+        id: cache_npm
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-
+
+      - name: Install Dependencies
+        if: steps.cache_npm.outputs.cache-hit != 'true'
+        run: npm install
+
+      - name: Add Android Platform
+        run: npx cordova platform add android
+
+      - name: Build Android Release AAB
+        run: |
+          npx cordova build android --release -- --keystore=${{ runner.temp }}/keystore.jks --storePassword=${{ secrets.ANDROID_KEYSTORE_PASSWORD }} --alias=release --password=${{ secrets.ANDROID_KEY_PASSWORD }} --packageType=bundle
+
+      - name: Upload to Google Play Internal Testing
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: com.albahra.sprinklers
+          releaseFiles: platforms/android/app/build/outputs/bundle/release/app-release.aab
+          track: internal

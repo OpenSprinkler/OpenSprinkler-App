@@ -6,9 +6,7 @@ on:
       - master
 
 permissions:
-  checks: write
   contents: read
-  pull-requests: write
 
 jobs:
   build_ios:
