@@ -36,6 +36,7 @@ module.exports = function( grunt ) {
 	grunt.initConfig( {
 		pkg: grunt.file.readJSON( "package.json" ),
 		secrets: secrets,
+		jsFiles: grunt.file.expand("www/js/**/*.js").join(" "),
 
 		eslint: {
 			target: ["www/js/**/*.js"]
@@ -71,7 +72,7 @@ module.exports = function( grunt ) {
 			},
 			pushEng: {
 				command: [
-					"xgettext --keyword=_ --output=- www/js/main.js www/js/analog.js --omit-header --force-po --from-code=UTF-8 --language='Python' | sed '/^\#/d' > .msgjs",
+					"xgettext --keyword=OSApp.Language._ --output=- <%= jsFiles %> --omit-header --force-po --from-code=UTF-8 --language='Python' | sed '/^\#/d' > .msgjs",
 					"sed -E 's/data-translate=\"([^\"]*)\"/_\(\"\\1\"\)/g' www/index.html > temp.html && xgettext --keyword=_ --output=- --language='Python' --omit-header --force-po temp.html | sed '/^#/d' > .msghtml && rm temp.html",
 					"msgcat .msgjs .msghtml > www/locale/messages_en.po",
 					"rm .msgjs .msghtml",

@@ -1,216 +1,464 @@
-msgid "Manage Sites"
-msgstr ""
-
-msgid "Add Program"
-msgstr ""
-
-msgid "Stop All Stations"
-msgstr ""
-
-msgid "Back"
-msgstr ""
-
-msgid "Done"
-msgstr ""
-
-msgid "Check device password and try again."
-msgstr ""
-
-msgid "The selected station is already running or is scheduled to run."
-msgstr ""
-
-msgid "Please check input and try again."
-msgstr ""
-
-msgid "Connection timed-out. Please try again."
-msgstr ""
-
-msgid "Network Error"
-msgstr ""
-
-msgid "Connecting to"
-msgstr ""
-
-msgid "Loading"
-msgstr ""
-
-msgid "Information"
-msgstr ""
-
-msgid "Unable to connect to"
-msgstr ""
-
-msgid "Check IP/Port and try again."
-msgstr ""
-
-msgid "Authorization Required"
-msgstr ""
-
-msgid "Username:"
-msgstr ""
-
-msgid "Password:"
-msgstr ""
-
-msgid "Submit"
-msgstr ""
-
-msgid "An IP address or token is required to continue."
-msgstr ""
-
-msgid "OpenThings Token must be 32 characters long."
-msgstr ""
-
-msgid "Select Site"
-msgstr ""
-
-msgid "New Device"
+msgid "User manual for OpenSprinkler is available at"
 msgstr ""
 
 msgid ""
-"Note: The name is used to identify the OpenSprinkler within the app. "
-"OpenSprinkler IP can be either an IP or hostname. You can also specify a "
-"port by using IP:Port"
+"This is open source software: source code and changelog for this application "
+"can be found at"
 msgstr ""
 
-msgid "Open Sprinkler Name:"
+msgid "Language localization is crowdsourced using Transifex available at"
 msgstr ""
 
-msgid "Connection Type"
+msgid "Open source attributions"
 msgstr ""
 
-msgid "Direct"
-msgstr ""
-
-msgid "OpenThings Cloud"
-msgstr ""
-
-msgid "Open Sprinkler IP:"
-msgstr ""
-
-msgid "OpenThings Token"
-msgstr ""
-
-msgid "Open Sprinkler Password:"
-msgstr ""
-
-msgid "Save Password"
-msgstr ""
-
-msgid "Advanced"
-msgstr ""
-
-msgid "Use SSL"
-msgstr ""
-
-msgid "Use Auth"
-msgstr ""
-
-msgid "Scan For Device"
-msgstr ""
-
-msgid "Manually Add Device"
-msgstr ""
-
-msgid "Please add a site by tapping the 'Add' button in the top right corner."
-msgstr ""
-
-msgid "connect"
-msgstr ""
-
-msgid "Change Name"
-msgstr ""
-
-msgid "Change IP"
-msgstr ""
-
-msgid "Change Token"
-msgstr ""
-
-msgid "Change Password"
-msgstr ""
-
-msgid ""
-"These options are only for an OpenSprinkler behind a proxy capable of SSL "
-"and/or Basic Authentication."
-msgstr ""
-
-msgid "Save Changes to"
-msgstr ""
-
-msgid "Delete"
-msgstr ""
-
-msgid "Site updated successfully"
-msgstr ""
-
-msgid "Are you sure you want to delete "
-msgstr ""
-
-msgid "Site deleted successfully"
-msgstr ""
-
-msgid "Add"
-msgstr ""
-
-msgid "Synced with OpenSprinkler.com"
+msgid "App Version"
 msgstr ""
 
 msgid "Firmware"
 msgstr ""
 
-msgid "No new devices were detected on your network"
+msgid "Hardware Version"
 msgstr ""
 
-msgid "Scanning for OpenSprinkler"
+msgid "About"
 msgstr ""
 
-msgid "Scanning for OpenSprinkler Pi"
+msgid "Back"
 msgstr ""
 
-msgid "Scanning for OpenSprinkler (1.8.3)"
+msgid "Edit Program Adjustment"
 msgstr ""
 
-msgid "Scanning for OpenSprinkler Pi (1.8.3)"
-msgstr ""
-
-msgid "Cancel"
-msgstr ""
-
-msgid "Weather Adjustment Options"
-msgstr ""
-
-msgid "Set the baseline weather conditions for your location. "
+msgid "New Program Adjustment"
 msgstr ""
 
 msgid ""
-"The Zimmerman method will adjust the watering duration based on differences "
-"from this reference point."
+"Notice: If you want to combine multiple sensors, then build a sensor group. "
 msgstr ""
 
-msgid "Temp"
+msgid "See help documentation for details."
 msgstr ""
 
-msgid "Rain"
+msgid "Adjustment-Nr"
+msgstr ""
+
+msgid "Type"
+msgstr ""
+
+msgid "Sensor"
+msgstr ""
+
+msgid "Program to adjust"
+msgstr ""
+
+msgid "Factor 1 (adjustment for min)"
+msgstr ""
+
+msgid "Factor 2 (adjustment for max)"
+msgstr ""
+
+msgid "Min sensor value"
+msgstr ""
+
+msgid "Max sensor value"
+msgstr ""
+
+msgid "Submit"
+msgstr ""
+
+msgid "Edit Sensor"
+msgstr ""
+
+msgid "New Sensor"
+msgstr ""
+
+msgid "Edit Sensor Configuration. "
+msgstr ""
+
+msgid "Sensor-Nr"
+msgstr ""
+
+msgid "Set SMT100 Modbus ID"
+msgstr ""
+
+msgid "Group"
+msgstr ""
+
+msgid "Name"
+msgstr ""
+
+msgid "IP Address"
+msgstr ""
+
+msgid "Port"
+msgstr ""
+
+msgid "ID"
+msgstr ""
+
+msgid "Factor"
+msgstr ""
+
+msgid "Divider"
+msgstr ""
+
+msgid "Unit"
+msgstr ""
+
+msgid "Read Interval (s)"
+msgstr ""
+
+msgid "Sensor Enabled"
+msgstr ""
+
+msgid "Enable Data Logging"
+msgstr ""
+
+msgid "Show on Mainpage"
+msgstr ""
+
+msgid ""
+"This function sets the Modbus ID for one SMT100 sensor. Disconnect all other "
+"sensors on this Modbus port. Please confirm."
+msgstr ""
+
+msgid "SMT100 id assigned!"
+msgstr ""
+
+msgid "Sensor number exists!"
+msgstr ""
+
+msgid "Are you sure you want to delete the sensor?"
+msgstr ""
+
+msgid "Are you sure you want to delete this program adjustment?"
+msgstr ""
+
+msgid "Are you sure you want to clear the sensor log?"
+msgstr ""
+
+msgid "Log cleared:"
+msgstr ""
+
+msgid "records"
+msgstr ""
+
+msgid "Analog Sensor Config"
+msgstr ""
+
+msgid "Edit"
+msgstr ""
+
+msgid "Delete"
+msgstr ""
+
+msgid "Add Sensor"
+msgstr ""
+
+msgid "Refresh Sensor data"
+msgstr ""
+
+msgid "Add program adjustment"
+msgstr ""
+
+msgid "Clear Log"
+msgstr ""
+
+msgid "Download Log"
+msgstr ""
+
+msgid "Show Log"
+msgstr ""
+
+msgid "Analog Sensor Log"
+msgstr ""
+
+msgid "last 24h"
+msgstr ""
+
+msgid "last weeks"
+msgstr ""
+
+msgid "last months"
+msgstr ""
+
+msgid "Soil moisture"
+msgstr ""
+
+msgid "degree celsius temperature"
+msgstr ""
+
+msgid "Temperature"
+msgstr ""
+
+msgid "degree fahrenheit temperature"
+msgstr ""
+
+msgid "Volt"
+msgstr ""
+
+msgid "Voltage"
 msgstr ""
 
 msgid "Humidity"
 msgstr ""
 
-msgid ""
-"Set the sensitivity of the watering adjustment to changes in each of the "
-"above weather conditions."
+msgid "Air Humidity"
+msgstr ""
+
+msgid "Rain"
+msgstr ""
+
+msgid "Rainfall"
+msgstr ""
+
+msgid "Wind"
+msgstr ""
+
+msgid "Level"
+msgstr ""
+
+msgid "Water Level"
+msgstr ""
+
+msgid "remaining"
+msgstr ""
+
+msgid "Running"
+msgstr ""
+
+msgid "Scheduled"
+msgstr ""
+
+msgid "for"
 msgstr ""
 
 msgid ""
-"If the weather reports any condition suggesting rain, a rain delay is "
-"automatically issued using the below set delay duration."
+"Select the station type using the dropdown selector above and configure the "
+"station properties."
 msgstr ""
 
-msgid "Delay Duration (hours)"
+msgid "RF Code"
 msgstr ""
 
-msgid "Input Monthly Watering Percentage Values"
+msgid "Remote Address"
+msgstr ""
+
+msgid "Remote Port"
+msgstr ""
+
+msgid "Remote Station"
+msgstr ""
+
+msgid "Remote OTC Token"
+msgstr ""
+
+msgid "GPIO Pin"
+msgstr ""
+
+msgid "Active State"
+msgstr ""
+
+msgid "HIGH"
+msgstr ""
+
+msgid "LOW"
+msgstr ""
+
+msgid "Server Name"
+msgstr ""
+
+msgid "Server Port"
+msgstr ""
+
+msgid "On Command"
+msgstr ""
+
+msgid "Off Command"
+msgstr ""
+
+msgid ""
+"Note: There is a limit on the number of character used to configure this "
+"station type."
+msgstr ""
+
+msgid "Characters remaining"
+msgstr ""
+
+msgid "Unable to reach the remote station."
+msgstr ""
+
+msgid ""
+"Password on remote controller does not match the password on this "
+"OSApp.currentSession.controller."
+msgstr ""
+
+msgid ""
+"Remote controller is not configured as an extender. Would you like to do "
+"this now?"
+msgstr ""
+
+msgid "Cancel"
+msgstr ""
+
+msgid "Continue"
+msgstr ""
+
+msgid "Basic"
+msgstr ""
+
+msgid "Advanced"
+msgstr ""
+
+msgid "Station Name"
+msgstr ""
+
+msgid "Add"
+msgstr ""
+
+msgid "Change"
+msgstr ""
+
+msgid "Image"
+msgstr ""
+
+msgid "Use Master"
+msgstr ""
+
+msgid "Ignore Rain"
+msgstr ""
+
+msgid "Ignore Sensor 1"
+msgstr ""
+
+msgid "Ignore Sensor 2"
+msgstr ""
+
+msgid "Activate Relay"
+msgstr ""
+
+msgid "Disable"
+msgstr ""
+
+msgid "Sequential"
+msgstr ""
+
+msgid "Station Notes"
+msgstr ""
+
+msgid "Sequential Group"
+msgstr ""
+
+msgid "Station Type"
+msgstr ""
+
+msgid "Standard"
+msgstr ""
+
+msgid "RF"
+msgstr ""
+
+msgid "Remote Station (IP)"
+msgstr ""
+
+msgid "GPIO"
+msgstr ""
+
+msgid "HTTP"
+msgstr ""
+
+msgid "HTTPS"
+msgstr ""
+
+msgid "Remote Station (OTC)"
+msgstr ""
+
+msgid "Stations have been updated"
+msgstr ""
+
+msgid "Do you want to stop the selected station?"
+msgstr ""
+
+msgid "Do you want to unschedule the selected station?"
+msgstr ""
+
+msgid "Enter a duration to manually run "
+msgstr ""
+
+msgid "Station has been queued"
+msgstr ""
+
+msgid "Station has been stopped"
+msgstr ""
+
+msgid "Do you want to delete the current image?"
+msgstr ""
+
+msgid "Just Now"
+msgstr ""
+
+msgid "years"
+msgstr ""
+
+msgid "year"
+msgstr ""
+
+msgid "months"
+msgstr ""
+
+msgid "month"
+msgstr ""
+
+msgid "days"
+msgstr ""
+
+msgid "day"
+msgstr ""
+
+msgid "hours"
+msgstr ""
+
+msgid "hour"
+msgstr ""
+
+msgid "minutes"
+msgstr ""
+
+msgid "minute"
+msgstr ""
+
+msgid "seconds"
+msgstr ""
+
+msgid "second"
+msgstr ""
+
+msgid "In"
+msgstr ""
+
+msgid "ago"
+msgstr ""
+
+msgid "Sun"
+msgstr ""
+
+msgid "Mon"
+msgstr ""
+
+msgid "Tue"
+msgstr ""
+
+msgid "Wed"
+msgstr ""
+
+msgid "Thu"
+msgstr ""
+
+msgid "Fri"
+msgstr ""
+
+msgid "Sat"
 msgstr ""
 
 msgid "Jan"
@@ -249,209 +497,396 @@ msgstr ""
 msgid "Dec"
 msgstr ""
 
-msgid ""
-"Set the baseline potential evapotranspiration (ETo) and elevation for your "
-"location. "
+msgid "Sunday"
 msgstr ""
 
-msgid ""
-"The ETo adjustment method will adjust the watering duration based on the "
-"difference between the baseline ETo and the current ETo."
+msgid "Monday"
 msgstr ""
 
-msgid "Baseline ETo"
+msgid "Tuesday"
 msgstr ""
 
-msgid "Elevation"
+msgid "Wednesday"
 msgstr ""
 
-msgid "Detect baseline ETo"
+msgid "Thursday"
 msgstr ""
 
-msgid "Current Weather"
+msgid "Friday"
 msgstr ""
 
-msgid "Do you want to turn off rain delay?"
+msgid "Saturday"
 msgstr ""
 
-msgid "Powered by Apple"
+msgid "Sunset to Sunrise"
 msgstr ""
 
-msgid "Powered by Dark Sky"
+msgid "Sunrise to Sunset"
 msgstr ""
 
-msgid "Powered by OpenWeather"
+msgid "d"
 msgstr ""
 
-msgid "Powered by Bright Sky+DWD"
+msgid "h"
 msgstr ""
 
-msgid "Powered by Open Meteo"
+msgid "m"
 msgstr ""
 
-msgid "Powered by Weather Underground"
+msgid "s"
 msgstr ""
 
-msgid "Powered by your Local PWS"
+msgid "Check device password and try again."
 msgstr ""
 
-msgid "Using manual watering"
+msgid "The selected station is already running or is scheduled to run."
 msgstr ""
 
-msgid "Unrecognised weather provider"
+msgid "Please check input and try again."
 msgstr ""
 
-msgid "Forecast"
+msgid "Connection timed-out. Please try again."
 msgstr ""
 
-msgid "Refresh"
+msgid "Firmware update available"
 msgstr ""
 
-msgid "Now"
+msgid "Latest"
 msgstr ""
 
-msgid "Sunrise"
+msgid "This Controller"
 msgstr ""
 
-msgid "Sunset"
+msgid "View Changelog"
 msgstr ""
 
-msgid "Low"
+msgid "Update Guide"
 msgstr ""
 
-msgid "High"
+msgid "Update Now"
 msgstr ""
 
-msgid "Close"
+msgid "Dismiss"
 msgstr ""
 
-msgid "Unable to retrieve your current location"
+msgid "Update successful"
 msgstr ""
 
-msgid "Attempting to retrieve your current location"
+msgid "Update did not complete."
 msgstr ""
 
-msgid "None"
+msgid "Unused Expanders Detected"
 msgstr ""
 
-msgid "Factory Reset"
+msgid "Click here to enable all connected stations."
 msgstr ""
 
-msgid "Reset Button"
+msgid "Unified firmware is now available"
 msgstr ""
 
-msgid "WiFi Change"
-msgstr ""
-
-msgid "Web Request"
-msgstr ""
-
-msgid "WiFi Configure"
-msgstr ""
-
-msgid "Firmware Update"
-msgstr ""
-
-msgid "Weather Failure"
-msgstr ""
-
-msgid "Network Failure"
-msgstr ""
-
-msgid "Clock Update"
-msgstr ""
-
-msgid "Power On"
-msgstr ""
-
-msgid "Empty Response"
-msgstr ""
-
-msgid "Timed Out"
-msgstr ""
-
-msgid "Connection Failed"
-msgstr ""
-
-msgid "No Response"
-msgstr ""
-
-msgid "Success"
-msgstr ""
-
-msgid "Weather Data Error"
-msgstr ""
-
-msgid "Building Weather History"
-msgstr ""
-
-msgid "Weather Provider Response Incomplete"
-msgstr ""
-
-msgid "Weather Provider Request Failed"
-msgstr ""
-
-msgid "Location Error"
-msgstr ""
-
-msgid "Location Request Error"
-msgstr ""
-
-msgid "Location Not Found"
-msgstr ""
-
-msgid "Invalid Location Format"
-msgstr ""
-
-msgid "PWS Error"
-msgstr ""
-
-msgid "Invalid WUnderground PWS"
-msgstr ""
-
-msgid "Invalid WUnderground Key"
-msgstr ""
-
-msgid "WUnderground Authentication Error"
-msgstr ""
-
-msgid "Unsupported WUnderground Method"
-msgstr ""
-
-msgid "No WUnderground PWS Provided"
-msgstr ""
-
-msgid "Adjustment Method Error"
-msgstr ""
-
-msgid "Unsupported Adjustment Method"
-msgstr ""
-
-msgid "No Adjustment Method Provided"
-msgstr ""
-
-msgid "Adjustment Options Error"
-msgstr ""
-
-msgid "Corrupt Adjustment Options"
-msgstr ""
-
-msgid "Missing Adjustment Option"
-msgstr ""
-
-msgid "Unexpected Error"
+msgid "Click here for more details"
 msgstr ""
 
 msgid "Unrecognised"
 msgstr ""
 
-msgid "Offline"
+msgid "Select Export Method"
 msgstr ""
 
-msgid "Error"
+msgid "File"
 msgstr ""
 
-msgid "Online"
+msgid "Email"
+msgstr ""
+
+msgid "Internal (within app)"
+msgstr ""
+
+msgid "Backup saved on this device"
+msgstr ""
+
+msgid "Paste your backup here"
+msgstr ""
+
+msgid "Import"
+msgstr ""
+
+msgid ""
+"Unable to read the configuration file. Please check the file and try again."
+msgstr ""
+
+msgid "Select Import Method"
+msgstr ""
+
+msgid "Email (copy/paste)"
+msgstr ""
+
+msgid "Invalid configuration"
+msgstr ""
+
+msgid ""
+"Warning: Network changes will be made and the device may no longer be "
+"accessible from this address."
+msgstr ""
+
+msgid "Are you sure you want to restore the configuration?"
+msgstr ""
+
+msgid "Program data is newer than the device firmware and cannot be imported"
+msgstr ""
+
+msgid "Program"
+msgstr ""
+
+msgid "Backup restored to your device"
+msgstr ""
+
+msgid "Unable to import configuration."
+msgstr ""
+
+msgid "Localization"
+msgstr ""
+
+msgid "Timeline"
+msgstr ""
+
+msgid "Table"
+msgstr ""
+
+msgid "Options"
+msgstr ""
+
+msgid "Grouping:"
+msgstr ""
+
+msgid "Day"
+msgstr ""
+
+msgid "Station"
+msgstr ""
+
+msgid "Start:"
+msgstr ""
+
+msgid "End:"
+msgstr ""
+
+msgid "Export"
+msgstr ""
+
+msgid "Clear Logs"
+msgstr ""
+
+msgid "Rain Sensor"
+msgstr ""
+
+msgid "RS"
+msgstr ""
+
+msgid "Rain Delay"
+msgstr ""
+
+msgid "RD"
+msgstr ""
+
+msgid "Soil Sensor"
+msgstr ""
+
+msgid "SEN1"
+msgstr ""
+
+msgid "SEN2"
+msgstr ""
+
+msgid "FS"
+msgstr ""
+
+msgid "Flow Sensor"
+msgstr ""
+
+msgid "Runtime"
+msgstr ""
+
+msgid "Start Time"
+msgstr ""
+
+msgid "End Time"
+msgstr ""
+
+msgid "delete"
+msgstr ""
+
+msgid "run"
+msgstr ""
+
+msgid "runs"
+msgstr ""
+
+msgid "Average"
+msgstr ""
+
+msgid "Total Water Used"
+msgstr ""
+
+msgid "Are you sure you want to "
+msgstr ""
+
+msgid "deleted"
+msgstr ""
+
+msgid "Total Station Events"
+msgstr ""
+
+msgid "Total Runtime"
+msgstr ""
+
+msgid "No entries found in the selected date range"
+msgstr ""
+
+msgid "Error retrieving log data. Please refresh to try again."
+msgstr ""
+
+msgid "Start time cannot be greater than end time"
+msgstr ""
+
+msgid ""
+"The requested time span exceeds the maximum of 1 year and has been adjusted"
+msgstr ""
+
+msgid "Logs"
+msgstr ""
+
+msgid "Refresh"
+msgstr ""
+
+msgid "Are you sure you want to clear ALL your log data?"
+msgstr ""
+
+msgid "Logs have been cleared"
+msgstr ""
+
+msgid "No new devices were detected on your network"
+msgstr ""
+
+msgid "Scanning for OpenSprinkler"
+msgstr ""
+
+msgid "Scanning for OpenSprinkler Pi"
+msgstr ""
+
+msgid "Scanning for OpenSprinkler (1.8.3)"
+msgstr ""
+
+msgid "Scanning for OpenSprinkler Pi (1.8.3)"
+msgstr ""
+
+msgid "Remote access is not enabled"
+msgstr ""
+
+msgid "Click here to troubleshoot remote access issues"
+msgstr ""
+
+msgid "Synced with OpenSprinkler.com"
+msgstr ""
+
+msgid "OpenSprinkler.com Login"
+msgstr ""
+
+msgid ""
+"Use your OpenSprinkler.com login and password to securely sync sites between "
+"all your devices."
+msgstr ""
+
+msgid "Don't have an account?"
+msgstr ""
+
+msgid "Register here"
+msgstr ""
+
+msgid "Username:"
+msgstr ""
+
+msgid "Password:"
+msgstr ""
+
+msgid "Invalid username/password combination. Please try again."
+msgstr ""
+
+msgid "Do you wish to add this location to your cloud synced site list?"
+msgstr ""
+
+msgid ""
+"This site is not found in the currently synced site list but may be added "
+"now."
+msgstr ""
+
+msgid "Select Merge Method"
+msgstr ""
+
+msgid "Merge"
+msgstr ""
+
+msgid "Replace local with cloud"
+msgstr ""
+
+msgid "Replace cloud with local"
+msgstr ""
+
+msgid "OpenSprinkler.com Login Expired"
+msgstr ""
+
+msgid "Click here to re-login to OpenSprinkler.com"
+msgstr ""
+
+msgid "Unable to read cloud data"
+msgstr ""
+
+msgid "Click here to enter a valid password to decrypt the data"
+msgstr ""
+
+msgid ""
+"Please enter your OpenSprinkler.com password. If you have recently changed "
+"your password, you may need to enter your previous password to decrypt the "
+"data."
+msgstr ""
+
+msgid "Password"
+msgstr ""
+
+msgid "Change Password"
+msgstr ""
+
+msgid "Incorrect password for "
+msgstr ""
+
+msgid "Please re-enter password to try again."
+msgstr ""
+
+msgid "New Password"
+msgstr ""
+
+msgid "Confirm New Password"
+msgstr ""
+
+msgid "Save Password"
+msgstr ""
+
+msgid "The passwords don't match. Please try again."
+msgstr ""
+
+msgid "Password cannot be empty"
+msgstr ""
+
+msgid "Password cannot be longer than 32 characters"
+msgstr ""
+
+msgid "Please check the current device password is correct then try again"
+msgstr ""
+
+msgid "Unable to change password. Please try again."
+msgstr ""
+
+msgid "Password changed successfully"
 msgstr ""
 
 msgid "Unusable"
@@ -469,114 +904,19 @@ msgstr ""
 msgid "Excellent"
 msgstr ""
 
-msgid "Last Reboot"
+msgid "Network Error"
 msgstr ""
 
-msgid "Reboot Reason"
+msgid "Are you sure you want to logout?"
 msgstr ""
 
-msgid "WiFi Strength"
+msgid "Notifications"
 msgstr ""
 
-msgid "Weather Service"
+msgid "Clear"
 msgstr ""
 
-msgid "Method"
-msgstr ""
-
-msgid "Watering Level"
-msgstr ""
-
-msgid "Last Updated"
-msgstr ""
-
-msgid "Never"
-msgstr ""
-
-msgid "Mean Humidity"
-msgstr ""
-
-msgid "Mean Temp"
-msgstr ""
-
-msgid "Total Rain"
-msgstr ""
-
-msgid "ETo"
-msgstr ""
-
-msgid "Mean Radiation"
-msgstr ""
-
-msgid "Min Temp"
-msgstr ""
-
-msgid "Max Temp"
-msgstr ""
-
-msgid "Min Humidity"
-msgstr ""
-
-msgid "Max Humidity"
-msgstr ""
-
-msgid "Mean Wind"
-msgstr ""
-
-msgid "Last Request"
-msgstr ""
-
-msgid "Last Response"
-msgstr ""
-
-msgid "Change Rain Delay"
-msgstr ""
-
-msgid "Duration"
-msgstr ""
-
-msgid ""
-"Enable manual rain delay by entering a value into the input below. To turn "
-"off a currently enabled rain delay use a value of 0."
-msgstr ""
-
-msgid "Do you want to resume program operation?"
-msgstr ""
-
-msgid "Manual"
-msgstr ""
-
-msgid "Auto Rain Delay"
-msgstr ""
-
-msgid "California Restriction"
-msgstr ""
-
-msgid "Disable"
-msgstr ""
-
-msgid "Enable"
-msgstr ""
-
-msgid "Are you sure you want to"
-msgstr ""
-
-msgid "operation?"
-msgstr ""
-
-msgid "Are you sure you want to reboot OpenSprinkler?"
-msgstr ""
-
-msgid "OpenSprinkler is rebooting now"
-msgstr ""
-
-msgid "Are you sure you want to downgrade the UI?"
-msgstr ""
-
-msgid "Sensor"
-msgstr ""
-
-msgid "Type"
+msgid "None"
 msgstr ""
 
 msgid "Flow"
@@ -632,7 +972,13 @@ msgstr ""
 msgid "Use Metric"
 msgstr ""
 
+msgid "Use 24 Hour Time"
+msgstr ""
+
 msgid "Order Stations by Groups"
+msgstr ""
+
+msgid "Order Stations by Name"
 msgstr ""
 
 msgid "Configure Master"
@@ -668,9 +1014,6 @@ msgstr ""
 msgid "(Changes Auto-Saved)"
 msgstr ""
 
-msgid "Sequential"
-msgstr ""
-
 msgid "Weather and Sensors"
 msgstr ""
 
@@ -678,14 +1021,32 @@ msgid "Weather Adjustment Method"
 msgstr ""
 
 msgid ""
-"Weather adjustment uses DarkSky data in conjunction with the selected method "
-"to adjust the watering percentage."
+"Weather adjustment retrieves data from the chosen provider and applies the "
+"selected method to determine the watering percentage."
 msgstr ""
 
 msgid "Adjustment Method Options"
 msgstr ""
 
 msgid "Tap to Configure"
+msgstr ""
+
+msgid "Weather Data Provider"
+msgstr ""
+
+msgid "Select your preferred weather service provider."
+msgstr ""
+
+msgid "Weather API Key"
+msgstr ""
+
+msgid "Please enter an API key for your selected weather provider."
+msgstr ""
+
+msgid "An invalid API key has been detected."
+msgstr ""
+
+msgid "Verify"
 msgstr ""
 
 msgid "Weather-Based Restrictions"
@@ -767,7 +1128,10 @@ msgstr ""
 msgid "Notification Events"
 msgstr ""
 
-msgid "Select which notification events to send to Email and/or IFTTT."
+msgid ""
+"Select notification events. Applicable to all of MQTT, Email, and IFTTT. "
+"<b>NOTE</b>: enabling too many events or notification methods may cause "
+"delays, missed responses, or skipped short watering events."
 msgstr ""
 
 msgid "Configure Events"
@@ -791,20 +1155,6 @@ msgid "Brightness"
 msgstr ""
 
 msgid "Idle Brightness"
-msgstr ""
-
-msgid "Wunderground Key"
-msgstr ""
-
-msgid ""
-"We use DarkSky normally however with a user provided API key the weather "
-"source will switch to Weather Underground."
-msgstr ""
-
-msgid "An invalid API key has been detected."
-msgstr ""
-
-msgid "Verify"
 msgstr ""
 
 msgid "HTTP Port (restart required)"
@@ -833,10 +1183,16 @@ msgid ""
 "from 0 to 1000 milliseconds."
 msgstr ""
 
-msgid "NTP IP Address"
+msgid "Latch On Voltage"
 msgstr ""
 
-msgid "IP Address"
+msgid "Maximum is 24V. Set to 0 for default."
+msgstr ""
+
+msgid "Latch Off Voltage"
+msgstr ""
+
+msgid "NTP IP Address"
 msgstr ""
 
 msgid "Gateway Address"
@@ -893,9 +1249,6 @@ msgstr ""
 msgid "This will reset all station attributes"
 msgstr ""
 
-msgid "Stations have been updated"
-msgstr ""
-
 msgid "Are you sure you want to reset the wireless settings?"
 msgstr ""
 
@@ -933,7 +1286,7 @@ msgstr ""
 msgid "Controller Reboot"
 msgstr ""
 
-msgid "Station Run"
+msgid "Station Finish"
 msgstr ""
 
 msgid "Sensor 2 Update"
@@ -942,10 +1295,19 @@ msgstr ""
 msgid "Rain Delay Update"
 msgstr ""
 
+msgid "Station Start"
+msgstr ""
+
+msgid "Flow Alert"
+msgstr ""
+
 msgid "Select Notification Events"
 msgstr ""
 
 msgid "MQTT Settings"
+msgstr ""
+
+msgid "Enable"
 msgstr ""
 
 msgid "Broker/Server"
@@ -954,16 +1316,10 @@ msgstr ""
 msgid "broker"
 msgstr ""
 
-msgid "Port"
-msgstr ""
-
 msgid "Username"
 msgstr ""
 
 msgid "username (optional)"
-msgstr ""
-
-msgid "Password"
 msgstr ""
 
 msgid "password (optional)"
@@ -1020,272 +1376,25 @@ msgstr ""
 msgid "server"
 msgstr ""
 
-msgid "Preview Programs"
+msgid "OpenThings Token must be 32 characters long."
 msgstr ""
 
-msgid "View Logs"
+msgid "Close"
 msgstr ""
 
-msgid "Programs and Settings"
+msgid "Unable to retrieve your current location"
 msgstr ""
 
-msgid "Resume Station Runs"
+msgid "Attempting to retrieve your current location"
 msgstr ""
 
-msgid "Pause Station Runs"
+msgid "Do you want to save your changes?"
 msgstr ""
 
-msgid "Run-Once Program"
-msgstr ""
-
-msgid "Edit Programs"
-msgstr ""
-
-msgid "Analog Sensor Config"
-msgstr ""
-
-msgid "Show Sensor Log"
-msgstr ""
-
-msgid "Manual Control"
-msgstr ""
-
-msgid "Hide"
-msgstr ""
-
-msgid "Show"
-msgstr ""
-
-msgid "Disabled"
-msgstr ""
-
-msgid "Water Level"
-msgstr ""
-
-msgid "remaining"
-msgstr ""
-
-msgid "Running"
-msgstr ""
-
-msgid "Scheduled"
-msgstr ""
-
-msgid "for"
-msgstr ""
-
-msgid ""
-"Select the station type using the dropdown selector above and configure the "
-"station properties."
-msgstr ""
-
-msgid "RF Code"
-msgstr ""
-
-msgid "Remote Address"
-msgstr ""
-
-msgid "Remote Port"
-msgstr ""
-
-msgid "Remote Station"
-msgstr ""
-
-msgid "Remote OTC Token"
-msgstr ""
-
-msgid "GPIO Pin"
-msgstr ""
-
-msgid "Active State"
-msgstr ""
-
-msgid "HIGH"
-msgstr ""
-
-msgid "LOW"
-msgstr ""
-
-msgid "Server Name"
-msgstr ""
-
-msgid "Server Port"
-msgstr ""
-
-msgid "On Command"
-msgstr ""
-
-msgid "Off Command"
-msgstr ""
-
-msgid ""
-"Note: There is a limit on the number of character used to configure this "
-"station type."
-msgstr ""
-
-msgid "Characters remaining"
-msgstr ""
-
-msgid "Unable to reach the remote station."
-msgstr ""
-
-msgid ""
-"Password on remote controller does not match the password on this controller."
-msgstr ""
-
-msgid ""
-"Remote controller is not configured as an extender. Would you like to do "
-"this now?"
-msgstr ""
-
-msgid "Continue"
-msgstr ""
-
-msgid "Basic"
-msgstr ""
-
-msgid "Station Name"
-msgstr ""
-
-msgid "Change"
-msgstr ""
-
-msgid "Image"
-msgstr ""
-
-msgid "Use Master"
-msgstr ""
-
-msgid "Ignore Rain"
-msgstr ""
-
-msgid "Ignore Sensor 1"
-msgstr ""
-
-msgid "Ignore Sensor 2"
-msgstr ""
-
-msgid "Activate Relay"
-msgstr ""
-
-msgid "Station Notes"
-msgstr ""
-
-msgid "Sequential Group"
-msgstr ""
-
-msgid "Station Type"
-msgstr ""
-
-msgid "Standard"
-msgstr ""
-
-msgid "RF"
-msgstr ""
-
-msgid "Remote Station (IP)"
-msgstr ""
-
-msgid "GPIO"
-msgstr ""
-
-msgid "HTTP"
-msgstr ""
-
-msgid "HTTPS"
-msgstr ""
-
-msgid "Remote Station (OTC)"
-msgstr ""
-
-msgid "Do you want to stop the selected station?"
-msgstr ""
-
-msgid "Do you want to unschedule the selected station?"
-msgstr ""
-
-msgid "Enter a duration to manually run "
-msgstr ""
-
-msgid "Station has been queued"
-msgstr ""
-
-msgid "Station has been stopped"
-msgstr ""
-
-msgid "Do you want to delete the current image?"
-msgstr ""
-
-msgid ""
-"Welcome to the OpenSprinkler application. This app only works with the "
-"OpenSprinkler controller which must be installed and setup on your home "
-"network."
-msgstr ""
-
-msgid "Purchase OpenSprinkler"
-msgstr ""
-
-msgid "OpenSprinkler.com Login"
-msgstr ""
-
-msgid "Add Controller"
-msgstr ""
-
-msgid "Current"
-msgstr ""
-
-msgid "Configured as Extender"
-msgstr ""
-
-msgid "Do you wish to disable extender mode?"
-msgstr ""
-
-msgid "System Disabled"
-msgstr ""
-
-msgid "Do you want to re-enable system operation?"
-msgstr ""
-
-msgid "Stations Currently Paused"
-msgstr ""
-
-msgid "Do you want to resume station operation?"
-msgstr ""
-
-msgid "is running on"
-msgstr ""
-
-msgid "is running on station"
-msgstr ""
-
-msgid "Rain delay until"
-msgstr ""
-
-msgid "Rain detected"
-msgstr ""
-
-msgid ") Activated"
-msgstr ""
-
-msgid "Manual mode enabled"
-msgstr ""
-
-msgid "Do you want to turn off manual mode?"
-msgstr ""
-
-msgid "last ran station"
-msgstr ""
-
-msgid "on"
-msgstr ""
-
-msgid "System Idle"
+msgid "Programs"
 msgstr ""
 
 msgid "With manual mode turned on, tap a station to toggle it."
-msgstr ""
-
-msgid "Options"
 msgstr ""
 
 msgid "Manual Mode"
@@ -1308,6 +1417,9 @@ msgstr ""
 msgid "Master"
 msgstr ""
 
+msgid "Manual Control"
+msgstr ""
+
 msgid "Last Used Program"
 msgstr ""
 
@@ -1320,28 +1432,16 @@ msgstr ""
 msgid "Quick Programs"
 msgstr ""
 
-msgid "Program"
+msgid "Use Weather Adjustment"
+msgstr ""
+
+msgid "Repeat Every"
+msgstr ""
+
+msgid "Repeat Count"
 msgstr ""
 
 msgid "Run-Once"
-msgstr ""
-
-msgid "Run-once program has been scheduled"
-msgstr ""
-
-msgid "Do you want to stop the currently running program?"
-msgstr ""
-
-msgid "Zoom in"
-msgstr ""
-
-msgid "Zoom out"
-msgstr ""
-
-msgid "Move left"
-msgstr ""
-
-msgid "Move right"
 msgstr ""
 
 msgid "No stations set to run on this day."
@@ -1350,139 +1450,10 @@ msgstr ""
 msgid "Program Preview"
 msgstr ""
 
-msgid "Timeline"
+msgid "Sunrise"
 msgstr ""
 
-msgid "Table"
-msgstr ""
-
-msgid "Grouping:"
-msgstr ""
-
-msgid "Day"
-msgstr ""
-
-msgid "Station"
-msgstr ""
-
-msgid "Start:"
-msgstr ""
-
-msgid "End:"
-msgstr ""
-
-msgid "Export"
-msgstr ""
-
-msgid "Clear Logs"
-msgstr ""
-
-msgid "Rain Sensor"
-msgstr ""
-
-msgid "RS"
-msgstr ""
-
-msgid "Rain Delay"
-msgstr ""
-
-msgid "RD"
-msgstr ""
-
-msgid "Soil Sensor"
-msgstr ""
-
-msgid "SEN1"
-msgstr ""
-
-msgid "SEN2"
-msgstr ""
-
-msgid "FS"
-msgstr ""
-
-msgid "Flow Sensor"
-msgstr ""
-
-msgid "Runtime"
-msgstr ""
-
-msgid "Date/Time"
-msgstr ""
-
-msgid "Time"
-msgstr ""
-
-msgid "delete"
-msgstr ""
-
-msgid "run"
-msgstr ""
-
-msgid "runs"
-msgstr ""
-
-msgid "Average"
-msgstr ""
-
-msgid "Total Water Used"
-msgstr ""
-
-msgid "Are you sure you want to "
-msgstr ""
-
-msgid "deleted"
-msgstr ""
-
-msgid "Total Station Events"
-msgstr ""
-
-msgid "Total Runtime"
-msgstr ""
-
-msgid "No entries found in the selected date range"
-msgstr ""
-
-msgid "Error retrieving log data. Please refresh to try again."
-msgstr ""
-
-msgid "Start time cannot be greater than end time"
-msgstr ""
-
-msgid ""
-"The requested time span exceeds the maximum of 1 year and has been adjusted"
-msgstr ""
-
-msgid "Logs"
-msgstr ""
-
-msgid "Are you sure you want to clear ALL your log data?"
-msgstr ""
-
-msgid "Logs have been cleared"
-msgstr ""
-
-msgid "Are you sure you want to delete ALL programs?"
-msgstr ""
-
-msgid "Programs have been deleted"
-msgstr ""
-
-msgid ""
-"Are you sure you want to delete all settings and return to the default "
-"settings?"
-msgstr ""
-
-msgid "Do you want to save your changes?"
-msgstr ""
-
-msgid "Programs"
-msgstr ""
-
-msgid "Are you sure you want to start "
-msgstr ""
-
-msgid "Do you wish to apply the current watering level?"
+msgid "Sunset"
 msgstr ""
 
 msgid "Manual program"
@@ -1500,27 +1471,6 @@ msgid "Click any program below to expand/edit. Be sure to save changes."
 msgstr ""
 
 msgid "copy"
-msgstr ""
-
-msgid "Monday"
-msgstr ""
-
-msgid "Tuesday"
-msgstr ""
-
-msgid "Wednesday"
-msgstr ""
-
-msgid "Thursday"
-msgstr ""
-
-msgid "Friday"
-msgstr ""
-
-msgid "Saturday"
-msgstr ""
-
-msgid "Sunday"
 msgstr ""
 
 msgid "Enabled"
@@ -1562,12 +1512,6 @@ msgstr ""
 msgid "Uncheck All"
 msgstr ""
 
-msgid "Start Time"
-msgstr ""
-
-msgid "End Time"
-msgstr ""
-
 msgid "Station Duration"
 msgstr ""
 
@@ -1592,9 +1536,6 @@ msgstr ""
 msgid "Program Name"
 msgstr ""
 
-msgid "Use Weather Adjustment"
-msgstr ""
-
 msgid "Enable Date Range"
 msgstr ""
 
@@ -1605,6 +1546,18 @@ msgid "To (mm/dd)"
 msgstr ""
 
 msgid "Program Type"
+msgstr ""
+
+msgid "Single Run"
+msgstr ""
+
+msgid "Monthly"
+msgstr ""
+
+msgid "Start Date (mm/dd/yyyy)"
+msgstr ""
+
+msgid "Day of the Month (Use 0 for the last day)"
 msgstr ""
 
 msgid "Stations"
@@ -1619,13 +1572,13 @@ msgstr ""
 msgid "Fixed"
 msgstr ""
 
-msgid "Repeat Every"
-msgstr ""
-
-msgid "Repeat Count"
+msgid "Save Changes to"
 msgstr ""
 
 msgid "Run"
+msgstr ""
+
+msgid "Add Program"
 msgstr ""
 
 msgid "Are you sure you want to delete program"
@@ -1652,13 +1605,28 @@ msgstr ""
 msgid "Program has been updated"
 msgstr ""
 
-msgid "Error: Interval days must be between "
+msgid "Error: Interval days must be between"
+msgstr ""
+
+msgid "and 128."
+msgstr ""
+
+msgid "Error: Day of month is out of bounds."
+msgstr ""
+
+msgid "Error: Start date is input incorrectly."
 msgstr ""
 
 msgid "Error: date range is malformed"
 msgstr ""
 
-msgid "Warning: The repeat interval ("
+msgid "Warning: The repeat interval"
+msgstr ""
+
+msgid "sec"
+msgstr ""
+
+msgid "is less than the program run time"
 msgstr ""
 
 msgid "Do you want to continue?"
@@ -1669,145 +1637,111 @@ msgid ""
 "result in the program not running at all."
 msgstr ""
 
-msgid "Rain delay has been successfully set"
+msgid "Are you sure you want to start"
 msgstr ""
 
-msgid "Select Export Method"
+msgid "now?"
 msgstr ""
 
-msgid "File"
+msgid "Do you wish to apply the current watering level?"
 msgstr ""
 
-msgid "Email"
+msgid "Scan For Device"
 msgstr ""
 
-msgid "Internal (within app)"
+msgid "Manually Add Device"
 msgstr ""
 
-msgid "Backup saved on this device"
+msgid "Please add a site by tapping the 'Add' button in the top right corner."
 msgstr ""
 
-msgid "Paste your backup here"
+msgid "connect"
 msgstr ""
 
-msgid "Import"
+msgid "Change Name"
 msgstr ""
 
-msgid ""
-"Unable to read the configuration file. Please check the file and try again."
+msgid "Change IP"
 msgstr ""
 
-msgid "Select Import Method"
-msgstr ""
-
-msgid "Email (copy/paste)"
-msgstr ""
-
-msgid "Invalid configuration"
+msgid "Change Token"
 msgstr ""
 
 msgid ""
-"Warning: Network changes will be made and the device may no longer be "
-"accessible from this address."
+"These options are only for an OpenSprinkler behind a proxy capable of SSL "
+"and/or Basic Authentication."
 msgstr ""
 
-msgid "Are you sure you want to restore the configuration?"
+msgid "Use SSL"
 msgstr ""
 
-msgid "Program data is newer than the device firmware and cannot be imported"
+msgid "Use Auth"
 msgstr ""
 
-msgid "Backup restored to your device"
+msgid "Site updated successfully"
 msgstr ""
 
-msgid "Unable to import configuration."
+msgid "Are you sure you want to delete "
 msgstr ""
 
-msgid "User manual for OpenSprinkler is available at"
+msgid "Site deleted successfully"
 msgstr ""
 
-msgid ""
-"This is open source software: source code and changelog for this application "
-"can be found at"
+msgid "Manage Sites"
 msgstr ""
 
-msgid "Language localization is crowdsourced using Transifex available at"
+msgid "Select Site"
 msgstr ""
 
-msgid "Open source attributions"
-msgstr ""
-
-msgid "App Version"
-msgstr ""
-
-msgid "Hardware Version"
-msgstr ""
-
-msgid "About"
-msgstr ""
-
-msgid "Incorrect password for "
-msgstr ""
-
-msgid "Please re-enter password to try again."
-msgstr ""
-
-msgid "New Password"
-msgstr ""
-
-msgid "Confirm New Password"
-msgstr ""
-
-msgid "The passwords don't match. Please try again."
-msgstr ""
-
-msgid "Password cannot be empty"
-msgstr ""
-
-msgid "Password cannot be longer than 32 characters"
-msgstr ""
-
-msgid "Please check the current device password is correct then try again"
-msgstr ""
-
-msgid "Unable to change password. Please try again."
-msgstr ""
-
-msgid "Password changed successfully"
+msgid "New Device"
 msgstr ""
 
 msgid ""
-"Use your OpenSprinkler.com login and password to securely sync sites between "
-"all your devices."
+"Note: The name is used to identify the OpenSprinkler within the app. "
+"OpenSprinkler IP can be either an IP or hostname. You can also specify a "
+"port by using IP:Port"
 msgstr ""
 
-msgid "Don't have an account?"
+msgid "Open Sprinkler Name:"
 msgstr ""
 
-msgid "Register here"
+msgid "Connection Type"
 msgstr ""
 
-msgid "Invalid username/password combination. Please try again."
+msgid "Direct"
 msgstr ""
 
-msgid "Do you wish to add this location to your cloud synced site list?"
+msgid "OpenThings Cloud"
 msgstr ""
 
-msgid ""
-"This site is not found in the currently synced site list but may be added "
-"now."
+msgid "Open Sprinkler IP:"
 msgstr ""
 
-msgid "Select Merge Method"
+msgid "OpenThings Token"
 msgstr ""
 
-msgid "Merge"
+msgid "Open Sprinkler Password:"
 msgstr ""
 
-msgid "Replace local with cloud"
+msgid "Check IP/Port and try again."
 msgstr ""
 
-msgid "Replace cloud with local"
+msgid "Authorization Required"
+msgstr ""
+
+msgid "An IP address or token is required to continue."
+msgstr ""
+
+msgid "Connecting to"
+msgstr ""
+
+msgid "Loading"
+msgstr ""
+
+msgid "Information"
+msgstr ""
+
+msgid "Unable to connect to"
 msgstr ""
 
 msgid "Weather Options have Corrupted"
@@ -1829,109 +1763,204 @@ msgid ""
 "restoration."
 msgstr ""
 
-msgid "Dismiss"
-msgstr ""
-
-msgid "OpenSprinkler.com Login Expired"
-msgstr ""
-
-msgid "Click here to re-login to OpenSprinkler.com"
-msgstr ""
-
-msgid "Unable to read cloud data"
-msgstr ""
-
-msgid "Click here to enter a valid password to decrypt the data"
-msgstr ""
-
-msgid ""
-"Please enter your OpenSprinkler.com password. If you have recently changed "
-"your password, you may need to enter your previous password to decrypt the "
-"data."
-msgstr ""
-
-msgid "Unused Expanders Detected"
-msgstr ""
-
-msgid "Click here to enable all connected stations."
-msgstr ""
-
-msgid "Unified firmware is now available"
-msgstr ""
-
-msgid "Click here for more details"
-msgstr ""
-
-msgid "Remote access is not enabled"
-msgstr ""
-
-msgid "Click here to troubleshoot remote access issues"
-msgstr ""
-
-msgid "Are you sure you want to logout?"
-msgstr ""
-
-msgid "Logout"
-msgstr ""
-
-msgid "Notifications"
-msgstr ""
-
-msgid "Clear"
-msgstr ""
-
-msgid "Firmware update available"
-msgstr ""
-
-msgid "Latest"
-msgstr ""
-
-msgid "This Controller"
-msgstr ""
-
-msgid "View Changelog"
-msgstr ""
-
-msgid "Update Guide"
-msgstr ""
-
-msgid "Update Now"
-msgstr ""
-
-msgid "Update successful"
-msgstr ""
-
-msgid "Update did not complete."
-msgstr ""
-
 msgid "Are you sure you want to stop all stations?"
 msgstr ""
 
 msgid "All stations have been stopped"
 msgstr ""
 
-msgid "Yes"
+msgid "Run-once program has been scheduled"
 msgstr ""
 
-msgid "No"
+msgid ""
+"This will create a single run program to handle the repeat. Do you want to "
+"continue?"
 msgstr ""
 
-msgid "Enter IP Address"
+msgid "Do you want to stop the currently running program?"
 msgstr ""
 
-msgid "Days"
+msgid "Current"
 msgstr ""
 
-msgid "Hours"
+msgid "Configured as Extender"
 msgstr ""
 
-msgid "Sunrise to Sunset"
+msgid "Do you wish to disable extender mode?"
 msgstr ""
 
-msgid "Sunset to Sunrise"
+msgid "System Disabled"
 msgstr ""
 
-msgid "Enter Date/Time"
+msgid "Do you want to re-enable system operation?"
+msgstr ""
+
+msgid "Stations Currently Paused"
+msgstr ""
+
+msgid "is running on"
+msgstr ""
+
+msgid "is running on station"
+msgstr ""
+
+msgid "Rain delay until"
+msgstr ""
+
+msgid "Do you want to turn off rain delay?"
+msgstr ""
+
+msgid "Rain detected"
+msgstr ""
+
+msgid ") Activated"
+msgstr ""
+
+msgid "Manual mode enabled"
+msgstr ""
+
+msgid "Do you want to turn off manual mode?"
+msgstr ""
+
+msgid "last ran station"
+msgstr ""
+
+msgid "on"
+msgstr ""
+
+msgid "System Idle"
+msgstr ""
+
+msgid "Last Reboot"
+msgstr ""
+
+msgid "Reboot Reason"
+msgstr ""
+
+msgid "WiFi Strength"
+msgstr ""
+
+msgid "Weather Service"
+msgstr ""
+
+msgid "Method"
+msgstr ""
+
+msgid "Watering Level"
+msgstr ""
+
+msgid "Last Updated"
+msgstr ""
+
+msgid "Never"
+msgstr ""
+
+msgid "Mean Humidity"
+msgstr ""
+
+msgid "Mean Temp"
+msgstr ""
+
+msgid "Total Rain"
+msgstr ""
+
+msgid "ETo"
+msgstr ""
+
+msgid "Mean Radiation"
+msgstr ""
+
+msgid "Min Temp"
+msgstr ""
+
+msgid "Max Temp"
+msgstr ""
+
+msgid "Min Humidity"
+msgstr ""
+
+msgid "Max Humidity"
+msgstr ""
+
+msgid "Mean Wind"
+msgstr ""
+
+msgid "Last Request"
+msgstr ""
+
+msgid "Last Response"
+msgstr ""
+
+msgid "Not Enabled"
+msgstr ""
+
+msgid "Connecting..."
+msgstr ""
+
+msgid "Disconnected"
+msgstr ""
+
+msgid "Connected"
+msgstr ""
+
+msgid "Stop All Stations"
+msgstr ""
+
+msgid "Preview Programs"
+msgstr ""
+
+msgid "View Logs"
+msgstr ""
+
+msgid "Programs and Settings"
+msgstr ""
+
+msgid "Change Rain Delay"
+msgstr ""
+
+msgid "Change Pause"
+msgstr ""
+
+msgid "Pause Station Runs"
+msgstr ""
+
+msgid "Run-Once Program"
+msgstr ""
+
+msgid "Edit Programs"
+msgstr ""
+
+msgid "Show Sensor Log"
+msgstr ""
+
+msgid "Hide"
+msgstr ""
+
+msgid "Show"
+msgstr ""
+
+msgid "Disabled"
+msgstr ""
+
+msgid "Done"
+msgstr ""
+
+msgid "Are you sure you want to"
+msgstr ""
+
+msgid "operation?"
+msgstr ""
+
+msgid "Are you sure you want to reboot OpenSprinkler?"
+msgstr ""
+
+msgid "OpenSprinkler is rebooting now"
+msgstr ""
+
+msgid "Are you sure you want to downgrade the UI?"
+msgstr ""
+
+msgid "Time"
 msgstr ""
 
 msgid "PM"
@@ -1949,343 +1978,171 @@ msgstr ""
 msgid "Offset (minutes)"
 msgstr ""
 
-msgid "d"
+msgid "Enter Date/Time"
 msgstr ""
 
-msgid "h"
+msgid "Duration"
 msgstr ""
 
-msgid "m"
+msgid "Days"
 msgstr ""
 
-msgid "s"
+msgid "Hours"
 msgstr ""
 
-msgid "Sun"
+msgid "Yes"
 msgstr ""
 
-msgid "Mon"
+msgid "No"
 msgstr ""
 
-msgid "Tue"
+msgid "Enter IP Address"
 msgstr ""
 
-msgid "Wed"
+msgid "Do you want to resume program operation?"
 msgstr ""
 
-msgid "Thu"
+msgid "Are you sure you want to delete ALL programs?"
 msgstr ""
 
-msgid "Fri"
-msgstr ""
-
-msgid "Sat"
-msgstr ""
-
-msgid "Afrikaans"
-msgstr ""
-
-msgid "Amharic"
-msgstr ""
-
-msgid "Chinese"
-msgstr ""
-
-msgid "Croatian"
-msgstr ""
-
-msgid "Czech"
-msgstr ""
-
-msgid "Estonian"
-msgstr ""
-
-msgid "Dutch"
-msgstr ""
-
-msgid "English"
-msgstr ""
-
-msgid "Farsi"
-msgstr ""
-
-msgid "French"
-msgstr ""
-
-msgid "German"
-msgstr ""
-
-msgid "Bulgarian"
-msgstr ""
-
-msgid "Greek"
-msgstr ""
-
-msgid "Hebrew"
-msgstr ""
-
-msgid "Hungarian"
-msgstr ""
-
-msgid "Icelandic"
-msgstr ""
-
-msgid "Italian"
-msgstr ""
-
-msgid "Latvian"
-msgstr ""
-
-msgid "Mongolian"
-msgstr ""
-
-msgid "Norwegian"
-msgstr ""
-
-msgid "Polish"
-msgstr ""
-
-msgid "Portuguese"
-msgstr ""
-
-msgid "Russian"
-msgstr ""
-
-msgid "Tamil"
-msgstr ""
-
-msgid "Slovak"
-msgstr ""
-
-msgid "Slovenian"
-msgstr ""
-
-msgid "Spanish"
-msgstr ""
-
-msgid "Thai"
-msgstr ""
-
-msgid "Turkish"
-msgstr ""
-
-msgid "Swedish"
-msgstr ""
-
-msgid "Romanian"
-msgstr ""
-
-msgid "Localization"
-msgstr ""
-
-msgid "Just Now"
-msgstr ""
-
-msgid "years"
-msgstr ""
-
-msgid "year"
-msgstr ""
-
-msgid "months"
-msgstr ""
-
-msgid "month"
-msgstr ""
-
-msgid "days"
-msgstr ""
-
-msgid "day"
-msgstr ""
-
-msgid "hours"
-msgstr ""
-
-msgid "hour"
-msgstr ""
-
-msgid "minutes"
-msgstr ""
-
-msgid "minute"
-msgstr ""
-
-msgid "seconds"
-msgstr ""
-
-msgid "second"
-msgstr ""
-
-msgid "In"
-msgstr ""
-
-msgid "ago"
-msgstr ""
-
-msgid "Edit Program Adjustment"
-msgstr ""
-
-msgid "New Program Adjustment"
+msgid "Programs have been deleted"
 msgstr ""
 
 msgid ""
-"Notice: If you want to combine multiple sensors, then build a sensor group. "
+"Are you sure you want to delete all settings and return to the default "
+"settings?"
 msgstr ""
 
-msgid "See help documentation for details."
+msgid "Logout"
 msgstr ""
 
-msgid "Adjustment-Nr"
+msgid "Weather Adjustment Options"
 msgstr ""
 
-msgid "Program to adjust"
-msgstr ""
-
-msgid "Factor 1 (adjustment for min)"
-msgstr ""
-
-msgid "Factor 2 (adjustment for max)"
-msgstr ""
-
-msgid "Min sensor value"
-msgstr ""
-
-msgid "Max sensor value"
-msgstr ""
-
-msgid "Edit Sensor"
-msgstr ""
-
-msgid "New Sensor"
-msgstr ""
-
-msgid "Edit Sensor Configuration. "
-msgstr ""
-
-msgid "Sensor-Nr"
-msgstr ""
-
-msgid "Set SMT100 Modbus ID"
-msgstr ""
-
-msgid "Group"
-msgstr ""
-
-msgid "Name"
-msgstr ""
-
-msgid "ID"
-msgstr ""
-
-msgid "Factor"
-msgstr ""
-
-msgid "Divider"
-msgstr ""
-
-msgid "Unit"
-msgstr ""
-
-msgid "Read Interval (s)"
-msgstr ""
-
-msgid "Sensor Enabled"
-msgstr ""
-
-msgid "Enable Data Logging"
-msgstr ""
-
-msgid "Show on Mainpage"
+msgid "Set the baseline weather conditions for your location. "
 msgstr ""
 
 msgid ""
-"This function sets the Modbus ID for one SMT100 sensor. Disconnect all other "
-"sensors on this Modbus port. Please confirm."
+"The Zimmerman method will adjust the watering duration based on differences "
+"from this reference point."
 msgstr ""
 
-msgid "SMT100 id assigned!"
+msgid "Temp"
 msgstr ""
 
-msgid "Sensor number exists!"
+msgid ""
+"Set the sensitivity of the watering adjustment to changes in each of the "
+"above weather conditions."
 msgstr ""
 
-msgid "Are you sure you want to delete the sensor?"
+msgid ""
+"If the weather reports any condition suggesting rain, a rain delay is "
+"automatically issued using the below set delay duration."
 msgstr ""
 
-msgid "Are you sure you want to delete this program adjustment?"
+msgid "Delay Duration (hours)"
 msgstr ""
 
-msgid "Are you sure you want to clear the sensor log?"
+msgid "Input Monthly Watering Percentage Values"
 msgstr ""
 
-msgid "Log cleared:"
+msgid ""
+"Set the baseline potential evapotranspiration (ETo) and elevation for your "
+"location. "
 msgstr ""
 
-msgid "records"
+msgid ""
+"The ETo adjustment method will adjust the watering duration based on the "
+"difference between the baseline ETo and the current ETo."
 msgstr ""
 
-msgid "Edit"
+msgid "Baseline ETo"
 msgstr ""
 
-msgid "Add Sensor"
+msgid "Elevation"
 msgstr ""
 
-msgid "Refresh Sensor data"
+msgid "Detect baseline ETo"
 msgstr ""
 
-msgid "Add program adjustment"
+msgid "Current Weather"
 msgstr ""
 
-msgid "Clear Log"
+msgid "Forecast"
 msgstr ""
 
-msgid "Download Log"
+msgid "Now"
 msgstr ""
 
-msgid "Show Log"
+msgid "Low"
 msgstr ""
 
-msgid "Analog Sensor Log"
+msgid "High"
 msgstr ""
 
-msgid "last 24h"
+msgid "Powered by Apple"
 msgstr ""
 
-msgid "last weeks"
+msgid "Powered by Dark Sky"
 msgstr ""
 
-msgid "last months"
+msgid "Powered by OpenWeather"
 msgstr ""
 
-msgid "Soil moisture"
+msgid "Powered by Bright Sky+DWD"
 msgstr ""
 
-msgid "degree celsius temperature"
+msgid "Powered by Open Meteo"
 msgstr ""
 
-msgid "Temperature"
+msgid "Powered by Weather Underground"
 msgstr ""
 
-msgid "degree fahrenheit temperature"
+msgid "Powered by PirateWeather"
 msgstr ""
 
-msgid "Volt"
+msgid "Powered by AccuWeather"
 msgstr ""
 
-msgid "Voltage"
+msgid "Powered by your Local PWS"
 msgstr ""
 
-msgid "Air Humidity"
+msgid "Using manual watering"
 msgstr ""
 
-msgid "Rainfall"
+msgid "Unrecognised weather provider"
 msgstr ""
 
-msgid "Wind"
+msgid ""
+"Enable manual rain delay by entering a value into the input below. To turn "
+"off a currently enabled rain delay use a value of 0."
 msgstr ""
 
-msgid "Level"
+msgid "Offline"
+msgstr ""
+
+msgid "Error"
+msgstr ""
+
+msgid "Online"
+msgstr ""
+
+msgid "California Restriction"
+msgstr ""
+
+msgid "Rain delay has been successfully set"
+msgstr ""
+
+msgid ""
+"Welcome to the OpenSprinkler application. This app only works with the "
+"OpenSprinkler controller which must be installed and setup on your home "
+"network."
+msgstr ""
+
+msgid "Purchase OpenSprinkler"
+msgstr ""
+
+msgid "Add Controller"
 msgstr ""
 
 msgid "Export Configuration"
