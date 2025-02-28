@@ -2,11 +2,11 @@
 <widget android-versionCode="119" id="com.albahra.sprinklers" version="0.0.0" versionCode="0" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>OpenSprinkler</name>
     <description>
-	    Designed to allow intuitive control of the OpenSprinkler irrigation controller.
-	</description>
+        Designed to allow intuitive control of the OpenSprinkler irrigation controller.
+    </description>
     <author email="salbahra@gmail.com" href="https://opensprinkler.com/">
-	    Samer Albahra
-	</author>
+        Samer Albahra
+    </author>
     <content src="index.html" />
     <access origin="*" />
     <allow-intent href="*" />
@@ -25,7 +25,9 @@
     <preference name="KeyboardDisplayRequiresUserAction" value="false" />
     <preference name="loadUrlTimeoutValue" value="700000" />
     <platform name="ios">
-		<preference name="scheme" value="ionic" />
+        <custom-preference name="ios-XCBuildConfiguration-PRODUCT_BUNDLE_IDENTIFIER[sdk=macosx*]" value="com.albahra.Sprinklers.osx" buildType="release" />
+        <preference name="deployment-target" value="12.0" />
+        <preference name="scheme" value="ionic" />
         <config-file target="*-Info.plist" overwrite="true" parent="NSLocationAlwaysAndWhenInUseUsageDescription">
             <string>Your current location will be used to configure OpenSprinkler.</string>
         </config-file>
@@ -41,9 +43,9 @@
         <config-file target="*-Info.plist" overwrite="true" parent="NSCameraUsageDescription">
             <string>Your camera is used to provide an image for your stations.</string>
         </config-file>
-        <config-file target="*-Info.plist" overwrite="true" parent="CFBundleShortVersionString">
+        <edit-config target="CFBundleShortVersionString" file="*-Info.plist" mode="overwrite">
             <string>0</string>
-        </config-file>
+        </edit-config>
         <config-file target="*-Info.plist" overwrite="true" parent="LSApplicationCategoryType">
             <string>public.app-category.utilities</string>
         </config-file>
@@ -92,12 +94,12 @@
                 <action android:name="android.intent.action.GET_CONTENT" />
             </intent>
         </config-file>
-		<preference name="Scheme" value="http" />
+        <preference name="Scheme" value="http" />
         <preference name="android-minSdkVersion" value="24" />
         <preference name="android-targetSdkVersion" value="34" />
         <preference name="android-theme" value="@android:style/Theme.Holo.Light.NoActionBar" />
-		<preference name="AndroidWindowSplashScreenAnimatedIcon" value="res/android/screens/splash.png" />
-		<preference name="AndroidWindowSplashScreenBackground" value="#1c1c1c" />
+        <preference name="AndroidWindowSplashScreenAnimatedIcon" value="res/android/screens/splash.png" />
+        <preference name="AndroidWindowSplashScreenBackground" value="#1c1c1c" />
         <icon density="ldpi" src="res/android/icons/ldpi.png" />
         <icon density="mdpi" src="res/android/icons/mdpi.png" />
         <icon density="hdpi" src="res/android/icons/hdpi.png" />
