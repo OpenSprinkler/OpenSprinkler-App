@@ -43,9 +43,9 @@
         <config-file target="*-Info.plist" parent="NSCameraUsageDescription">
             <string>Your camera is used to provide an image for your stations.</string>
         </config-file>
-		<config-file target="*-Info.plist" parent="ITSAppUsesNonExemptEncryption">
-			<false/>
-		</config-file>
+        <config-file target="*-Info.plist" parent="ITSAppUsesNonExemptEncryption">
+            <false/>
+        </config-file>
         <edit-config target="CFBundleShortVersionString" file="*-Info.plist" mode="overwrite">
             <string>0</string>
         </edit-config>
