@@ -490,7 +490,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 	if ( typeof OSApp.currentSession.controller.options.uwt !== "undefined" ) {
 		list += "<div class='ui-field-contain'><label for='o31' class='select'>" + OSApp.Language._( "Weather Adjustment Method" ) +
 				"<button data-helptext='" +
-					OSApp.Language._( "Weather adjustment uses DarkSky data in conjunction with the selected method to adjust the watering percentage." ) +
+					OSApp.Language._( "Weather adjustment retrieves data from the chosen provider and applies the selected method to determine the watering percentage." ) +
 					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
 			"</label><select data-mini='true' id='o31'>";
 		for ( i = 0; i < OSApp.Weather.getAdjustmentMethod().length; i++ ) {
