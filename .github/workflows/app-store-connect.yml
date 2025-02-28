@@ -75,7 +75,7 @@ jobs:
 
       - name: Update about.js version
         run: |
-          sed -E -i.bak "s|(\\${OSApp.Language._\\(\"App Version\"\\)}:\\s*)[^<]+|\\1${{ steps.gitversion.outputs.semVer }}|" www/js/modules/about.js
+          sed -E -i.bak "s|(\\\$\{OSApp\\.Language\\._\\(\\\"App Version\\\"\\)\\}: )\\d+\\.\\d+\\.\\d+|\1${{ steps.gitversion.outputs.semVer }}|" www/js/modules/about.js
 
       - name: Update config.xml versions
         run: |
