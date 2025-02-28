@@ -96,4 +96,4 @@ jobs:
               github.event.inputs.environment == 'beta' && 'opensprinkler-betaui' ||
               'opensprinkler-devui'
             ) || 'opensprinkler-devui' }}
-          channelId: ${{ github.event_name == 'push' && 'live' || '' }}
+          channelId: ${{ (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && 'live' || '' }}
