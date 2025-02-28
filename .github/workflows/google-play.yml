@@ -81,7 +81,7 @@ jobs:
 
       - name: Build Android Release AAB
         run: |
-          npx cordova build android --release -- --keystore=${{ runner.temp }}/keystore.jks --storePassword=${{ secrets.ANDROID_KEYSTORE_PASSWORD }} --alias=${{ secrets.ANDROID_KEY_ALIAS }} --password=${{ secrets.ANDROID_KEY_PASSWORD }} --packageType=bundle
+          npx cordova build android --release -- --keystore=${{ runner.temp }}/keystore.jks --storePassword=${{ secrets.ANDROID_KEYSTORE_PASSWORD }} --alias=release --password=${{ secrets.ANDROID_KEY_PASSWORD }} --packageType=bundle
 
       - name: Upload to Google Play Internal Testing
         uses: r0adkll/upload-google-play@v1
