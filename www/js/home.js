@@ -13,7 +13,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// FIXME: this file should likely be auto generated during build/deploy so that it stays in sync with repo structure
+// Disables site selection menu
+window.currLocal = true;
 
 ( function( document ) {
 	var assetLocation = getAssetLocation(),
@@ -364,9 +365,6 @@
 
 				// Grab the pages from index.html (body content)
 				var pages = data.match( /<body>([.\s\S]*)<\/body>/ )[ 1 ];
-
-				// Disables site selection menu
-				window.currLocal = true;
 
 				// Show the body when jQM attempts first page transition
 				$( document ).one( "mobileinit", function() {
