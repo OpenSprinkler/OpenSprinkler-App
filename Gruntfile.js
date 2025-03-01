@@ -62,6 +62,11 @@ module.exports = function( grunt ) {
 					expand: true
 				}, {
 					src: "res/ios-web/**"
+				}, {
+					expand: true,
+					src: "build/modules.json",
+					flatten: true,
+					dest: "/"
 				} ]
 			}
 		},
@@ -96,9 +101,14 @@ module.exports = function( grunt ) {
 		}
 	} );
 
+	grunt.registerTask( "generateScriptsJson", function() {
+		const scripts = grunt.file.expand({ cwd: "www/js/modules" }, "*.js");
+		grunt.file.write("build/modules.json", JSON.stringify(scripts, null, 2));
+	} );
+
 	// Default task(s).
 	grunt.registerTask( "default", [ "eslint" ] );
 	grunt.registerTask( "updateLang", [ "shell:updateLang" ] );
 	grunt.registerTask( "pushEng", [ "shell:pushEng" ] );
-	grunt.registerTask( "prepareFW", [ "compress:makeFW", "shell:unzipFW" ] );
+	grunt.registerTask( "prepareFW", [ "generateScriptsJson", "compress:makeFW", "shell:unzipFW" ] );
 };
