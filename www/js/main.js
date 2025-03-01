@@ -121,7 +121,7 @@ OSApp.currentSession = {
 	fw183: undefined,
 	ip: undefined,
 	lang: undefined,
-	local: undefined,
+	local: window.currLocal,
 	pass: undefined,
 	prefix: undefined,
 	token: undefined,
