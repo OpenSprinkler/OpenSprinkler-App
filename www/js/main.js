@@ -20,11 +20,10 @@ var OSApp = OSApp || {};
 // TODO: add unit tests for each module
 // TODO: move vendor js (jquery, jqm, datatables, etc) to /js/vendor
 
-/* ************** TODO: remove this, it is temporary ***************/
 window.onerror = function( m, s, l, c, e ) {
+	// Catch any uncaught exceptions and write them to console
 	console.error( "*** Uncaught Exception", e );
-	alert( "*** Uncaught exception! " + e );
-	return false;
+	return true;
 };
 
 // App Constants
