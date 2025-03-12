@@ -111,7 +111,8 @@ OSApp.Logs.displayPage = function() {
 				if ( type === "table" ) {
 					switch ( grouping ) {
 						case "station":
-							sortedData[ station ].push( [ utc, OSApp.Dates.dhms2str( OSApp.Dates.sec2dhms( duration ) ) ] );
+							var stationItem = [ utc, OSApp.Dates.dhms2str( OSApp.Dates.sec2dhms( duration ) ), station, new Date( utc.getTime() + ( duration * 1000 ) ) ];
+							sortedData[ station ].push( stationItem );
 							break;
 						case "day":
 							var day = Math.floor( date.getTime() / 1000 / 60 / 60 / 24 ),
@@ -376,11 +377,29 @@ OSApp.Logs.displayPage = function() {
 					groupArray[ i ] += tableHeader;
 
 					for ( k = 0; k < sortedData[ group ].length; k++ ) {
+						var stationName, runTime, startTime, endTime;
+						switch ( grouping ) {
+							case 'station':
+								stationName = stations[ group ];
+								runTime = sortedData[ group ][ k ][ 1 ];
+								startTime = formatTime( sortedData[ group ][ k ][ 0 ], grouping ) ;
+								endTime = formatTime( sortedData[ group ][ k ][ 3 ], grouping ); // this is undefined
+								break;
+
+							case 'day':
+							default:
+								stationName = stations[ sortedData[ group ][ k ][ 2 ] ];
+								runTime = sortedData[ group ][ k ][ 1 ];
+								startTime = formatTime( sortedData[ group ][ k ][ 0 ], grouping ) ;
+								endTime = formatTime( sortedData[ group ][ k ][ 3 ], grouping );
+								break;
+						}
+
 						groupArray[ i ] += "<tr>" +
-							"<td>" + stations[ sortedData[ group ][ k ][ 2 ] ] + "</td>" + // Station name
-							"<td>" + sortedData[ group ][ k ][ 1 ] + "</td>" + // Runtime
-							"<td>" + formatTime( sortedData[ group ][ k ][ 0 ], grouping ) + "</td>" + // Startdate
-							"<td>" + formatTime( sortedData[ group ][ k ][ 3 ], grouping ) + "</td>" + // Enddate
+							"<td>" + stationName + "</td>" + // Station name
+							"<td>" + runTime + "</td>" + // Runtime
+							"<td>" + startTime + "</td>" + // Startdate
+							"<td>" + endTime + "</td>" + // Enddate
 							"</tr>";
 					}
 					groupArray[ i ] += "</tbody></table></div>";

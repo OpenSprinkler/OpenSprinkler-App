@@ -163,6 +163,10 @@ OSApp.Dates.humaniseDuration = function( base, relative ) {
 };
 
 OSApp.Dates.dateToString = function( date, toUTC, shorten ) {
+	if (!date) {
+		return '--';
+	}
+
 	var dayNames = [ OSApp.Language._( "Sun" ), OSApp.Language._( "Mon" ), OSApp.Language._( "Tue" ),
 					OSApp.Language._( "Wed" ), OSApp.Language._( "Thu" ), OSApp.Language._( "Fri" ), OSApp.Language._( "Sat" ) ],
 		monthNames = [ OSApp.Language._( "Jan" ), OSApp.Language._( "Feb" ), OSApp.Language._( "Mar" ), OSApp.Language._( "Apr" ), OSApp.Language._( "May" ), OSApp.Language._( "Jun" ),
