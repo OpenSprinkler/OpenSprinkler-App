@@ -377,23 +377,10 @@ OSApp.Logs.displayPage = function() {
 					groupArray[ i ] += tableHeader;
 
 					for ( k = 0; k < sortedData[ group ].length; k++ ) {
-						var stationName, runTime, startTime, endTime;
-						switch ( grouping ) {
-							case 'station':
-								stationName = stations[ group ];
-								runTime = sortedData[ group ][ k ][ 1 ];
-								startTime = formatTime( sortedData[ group ][ k ][ 0 ], grouping ) ;
-								endTime = formatTime( sortedData[ group ][ k ][ 3 ], grouping ); // this is undefined
-								break;
-
-							case 'day':
-							default:
-								stationName = stations[ sortedData[ group ][ k ][ 2 ] ];
-								runTime = sortedData[ group ][ k ][ 1 ];
-								startTime = formatTime( sortedData[ group ][ k ][ 0 ], grouping ) ;
-								endTime = formatTime( sortedData[ group ][ k ][ 3 ], grouping );
-								break;
-						}
+						var stationName = ( grouping === 'station' ) ? stations[ group ] : stations[ sortedData[ group ][ k ][ 2 ] ];
+						var runTime = sortedData[ group ][ k ][ 1 ];
+						var startTime = formatTime( sortedData[ group ][ k ][ 0 ], grouping ) ;
+						var endTime = formatTime( sortedData[ group ][ k ][ 3 ], grouping );
 
 						groupArray[ i ] += "<tr>" +
 							"<td>" + stationName + "</td>" + // Station name
