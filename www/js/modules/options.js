@@ -795,6 +795,15 @@ OSApp.Options.showOptions = function( expandItem ) {
 					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
 			"</label><button data-mini='true' id='o30' value='" + OSApp.currentSession.controller.options.bst + "'>" + OSApp.currentSession.controller.options.bst + "ms</button></div>";
 	}
+	
+	if ( OSApp.Firmware.checkOSVersion( 222 ) && typeof OSApp.currentSession.controller.options.imin !== "undefined" ) {
+		list += "<div class='ui-field-contain duration-field'>" +
+			"<label for='imin'>" + OSApp.Language._( "Minimum Current Threshold" ) +
+				"<button data-helptext='" +
+					OSApp.Language._( "Minimum current threshold is the value that is used to trigger a station low current fault notification with a range from 0 to 1000 milliampere." ) +
+					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
+			"</label><button data-mini='true' id='imin' value='" + OSApp.currentSession.controller.options.imin + "'>" + OSApp.currentSession.controller.options.imin + "mA</button></div>";
+	}
 
 	if ( OSApp.Firmware.checkOSVersion( 220 ) && typeof OSApp.currentSession.controller.options.laton !== "undefined" ) {
 		list += "<div class='ui-field-contain'><label for='laton'>" + OSApp.Language._( "Latch On Voltage" ) +
@@ -1313,6 +1322,17 @@ OSApp.Options.showOptions = function( expandItem ) {
 				minimum: 0,
 				helptext: helptext
 			} );
+		} else if ( id === "imin" ) {
+			OSApp.UIDom.showSingleDurationInput( {
+				data: dur.val(),
+				title: name,
+				callback: function( result ) {
+					dur.val( result ).text( result + "mA" );
+				},
+				label: OSApp.Language._( "Milliamperes" ),
+				maximum: 1000,
+				helptext: helptext
+			} );
 		}
 
 		return false;
@@ -1364,6 +1384,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 			rain: OSApp.Language._( "Rain Delay Update" ),
 			station: OSApp.Language._( "Station Start" ),
 			flow_alert: OSApp.Language._( "Flow Alert" ),
+			curr_alert: OSApp.Language._( "Current Sensor Alert" ),
 		}, button = this, curr = parseInt( button.value ), inputs = "", a = 0, ife = 0;
 
 		let no_ife2 = typeof OSApp.currentSession.controller.options.ife2 === "undefined";
