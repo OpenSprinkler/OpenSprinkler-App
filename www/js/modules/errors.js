@@ -33,3 +33,83 @@ OSApp.Errors.showError = function( msg, dur ) {
 	// Hide after provided delay
 	OSApp.uiState.errorTimeout = setTimeout( function() {$.mobile.loading( "hide" );}, dur );
 };
+
+OSApp.Errors.showErrorModal = function(message, source, lineno, colno, error) {
+	// Create and display a modal with error information
+	const modal = document.createElement('div');
+	modal.innerHTML = `
+	  <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border: 1px solid #ccc; z-index: 1000;">
+		<h2>${OSApp.Language._('An error occurred')}:</h2>
+		<p>${OSApp.Language._('Message')}: ${message}</p>
+		<p>${OSApp.Language._('File')}: ${source}:${lineno}:${colno}</p>
+		<p style="text-align: right">
+			<button id="ignoreButton">${OSApp.Language._('Ignore')}</button>
+			<button id="createIssueButton">${OSApp.Language._('Report Error')}</button>
+		</p>
+	  </div>
+	`;
+	document.body.appendChild(modal);
+
+	const createIssueButton = document.getElementById('createIssueButton');
+	createIssueButton.addEventListener('click', () => {
+		OSApp.Errors.createGitHubIssue(message, source, lineno, colno, error);
+		document.body.removeChild(modal)
+	});
+
+	const ignoreButton = document.getElementById('ignoreButton');
+	ignoreButton.addEventListener('click', () => {
+		document.body.removeChild(modal)
+	});
+};
+
+OSApp.Errors.formatDeviceInfo = function(deviceInfo) {
+	var markdownString = '';
+
+	for (var key in deviceInfo) {
+	  if (deviceInfo.hasOwnProperty(key)) {
+		var value = deviceInfo[key];
+		if (typeof value === 'boolean') {
+			value = value ? 'Yes' : 'No';
+		}
+
+		if (typeof value !== 'function') {
+			markdownString += `- **${key}**: ${value}\n`;
+		}
+	  }
+	}
+
+	return markdownString;
+};
+
+OSApp.Errors.createGitHubIssue = function(message, source, lineno, colno, error) {
+	const title = `JavaScript Error: ${message.substring(0, 200)}`;
+	const body = `
+## Error Details
+
+**Message:** ${message}
+**File:** ${source}:${lineno}:${colno}
+**Stack Trace:**\n\`\`\`\n${error ? error.stack : 'No stack trace available'}\n\`\`\`
+
+## User Information
+
+- **User Agent:** ${navigator.userAgent}
+- **Platform:** ${navigator.platform}
+- **Language:** ${navigator.language}
+- **App Version:** ${OSApp.uiState.appVersion}
+- **Firmware Version:** ${OSApp.Firmware.getOSVersion()}
+
+## Device Information
+${OSApp.Errors.formatDeviceInfo(OSApp.currentDevice)}
+
+## Steps to reproduce (if known):
+
+*(Please describe how to reproduce the error. Screenshots or a video are much appreciated!)*
+	`;
+
+	const encodedTitle = encodeURIComponent(title);
+	const encodedBody = encodeURIComponent(body);
+
+	const issueUrl = `https://github.com/OpenSprinkler/OpenSprinkler-App/issues/new?title=${encodedTitle}&body=${encodedBody}`;
+
+	window.open(issueUrl, '_blank'); // Open in a new tab
+};

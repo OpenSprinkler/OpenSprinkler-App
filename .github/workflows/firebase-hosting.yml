@@ -8,9 +8,9 @@ on:
   workflow_dispatch:
     inputs:
       environment:
-        description: 'Choose an environment to deploy'
+        description: "Choose an environment to deploy"
         required: true
-        default: 'dev'
+        default: "dev"
         type: choice
         options:
           - dev
@@ -34,7 +34,7 @@ jobs:
       - name: Install GitVersion
         uses: gittools/actions/gitversion/setup@v3.0.0
         with:
-          versionSpec: '5.x'
+          versionSpec: "5.x"
 
       - name: Run GitVersion
         id: gitversion
@@ -50,9 +50,9 @@ jobs:
         run: |
           sed -i.bak "s|OpenSprinkler-v[0-9\.]*|OpenSprinkler-v${{ steps.gitversion.outputs.semVer }}|" www/sw.js
 
-      - name: Update about.js version
+      - name: Update main.js App Version
         run: |
-          sed -E -i.bak 's|(\$\{OSApp\.Language\._\("App Version"\)\}: )0\.0\.0|\1${{ steps.gitversion.outputs.semVer }}|' www/js/modules/about.js
+          sed -i.bak "s|appVersion: '[0-9\.]*'|appVersion: '${{ steps.gitversion.outputs.semVer }}'|" www/main.js
 
       - name: Update config.xml versions
         run: |
@@ -92,8 +92,8 @@ jobs:
           projectId: opensprinkler-ui
           target: ${{
             github.event_name == 'workflow_dispatch' && (
-              github.event.inputs.environment == 'prod' && 'opensprinkler-ui' ||
-              github.event.inputs.environment == 'beta' && 'opensprinkler-betaui' ||
-              'opensprinkler-devui'
+            github.event.inputs.environment == 'prod' && 'opensprinkler-ui' ||
+            github.event.inputs.environment == 'beta' && 'opensprinkler-betaui' ||
+            'opensprinkler-devui'
             ) || 'opensprinkler-devui' }}
           channelId: ${{ (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && 'live' || '' }}
