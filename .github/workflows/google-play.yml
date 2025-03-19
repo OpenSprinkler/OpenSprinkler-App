@@ -47,6 +47,10 @@ jobs:
         run: |
           sed -i.bak "s|OpenSprinkler-v[0-9\.]*|OpenSprinkler-v${{ steps.gitversion.outputs.semVer }}|" www/sw.js
 
+      - name: Update main.js App Version
+        run: |
+          sed -i.bak "s|appVersion: '[0-9\.]*'|appVersion: '${{ steps.gitversion.outputs.semVer }}'|" www/main.js
+
       - name: Update about.js version
         run: |
           sed -E -i.bak 's|(\$\{OSApp\.Language\._\("App Version"\)\}: )0\.0\.0|\1${{ steps.gitversion.outputs.semVer }}|' www/js/modules/about.js

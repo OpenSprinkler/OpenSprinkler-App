@@ -91,6 +91,7 @@ OSApp.currentDevice.isFileCapable = !OSApp.currentDevice.isiOS && !OSApp.current
 
 // UI state
 OSApp.uiState = {
+	appVersion: '0.0.0', // This is replaced at runtime by Gruntfile.js
 	errorTimeout: undefined,
 	goingBack: false,
 	is24Hour: false,

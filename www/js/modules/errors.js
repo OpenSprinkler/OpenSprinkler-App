@@ -76,7 +76,7 @@ OSApp.Errors.createGitHubIssue = function(message, source, lineno, colno, error)
 	**User Agent:** ${navigator.userAgent}
 	**Platform:** ${navigator.platform}
 	**Language:** ${navigator.language}
-	**App Version:** TODO!
+	**App Version:** ${OSApp.uiState.appVersion}
 	**Firmware Version:** ${OSApp.Firmware.getOSVersion()}
 
 	## Steps to reproduce (if known):
