@@ -62,26 +62,48 @@ OSApp.Errors.showErrorModal = function(message, source, lineno, colno, error) {
 	});
 };
 
+OSApp.Errors.formatDeviceInfo = function(deviceInfo) {
+	var markdownString = '';
+
+	for (var key in deviceInfo) {
+	  if (deviceInfo.hasOwnProperty(key)) {
+		var value = deviceInfo[key];
+		if (typeof value === 'boolean') {
+			value = value ? 'Yes' : 'No';
+		}
+
+		if (typeof value !== 'function') {
+			markdownString += `- **${key}**: ${value}\n`;
+		}
+	  }
+	}
+
+	return markdownString;
+};
+
 OSApp.Errors.createGitHubIssue = function(message, source, lineno, colno, error) {
-	const title = `JavaScript Error: ${message.substring(0, 50)}`; // Shorten the title
+	const title = `JavaScript Error: ${message.substring(0, 200)}`;
 	const body = `
-	## Error Details
+## Error Details
 
-	**Message:** ${message}
-	**File:** ${source}:${lineno}:${colno}
-	**Stack Trace:**\n\`\`\`\n${error ? error.stack : 'No stack trace available'}\n\`\`\`
+**Message:** ${message}
+**File:** ${source}:${lineno}:${colno}
+**Stack Trace:**\n\`\`\`\n${error ? error.stack : 'No stack trace available'}\n\`\`\`
 
-	## User Information
+## User Information
 
-	**User Agent:** ${navigator.userAgent}
-	**Platform:** ${navigator.platform}
-	**Language:** ${navigator.language}
-	**App Version:** ${OSApp.uiState.appVersion}
-	**Firmware Version:** ${OSApp.Firmware.getOSVersion()}
+- **User Agent:** ${navigator.userAgent}
+- **Platform:** ${navigator.platform}
+- **Language:** ${navigator.language}
+- **App Version:** ${OSApp.uiState.appVersion}
+- **Firmware Version:** ${OSApp.Firmware.getOSVersion()}
 
-	## Steps to reproduce (if known):
+## Device Information
+${OSApp.Errors.formatDeviceInfo(OSApp.currentDevice)}
 
-	*(Please describe how to reproduce the error)*
+## Steps to reproduce (if known):
+
+*(Please describe how to reproduce the error. Screenshots or a video are much appreciated!)*
 	`;
 
 	const encodedTitle = encodeURIComponent(title);

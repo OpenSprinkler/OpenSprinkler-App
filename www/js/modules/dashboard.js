@@ -23,7 +23,6 @@ OSApp.Dashboard.displayPage = function() {
 	var page = $(`
 		<div data-role="page" id="sprinklers">
 			<div class="ui-panel-wrapper">
-				<button id="throw_error" onClick="OSApp.Utils.does_not_exist('1234'); return false;">Throw error</button>
 				<div class="ui-content" role="main">
 					<div class="ui-grid-a ui-body ui-corner-all info-card noweather">
 						<div class="ui-block-a">
