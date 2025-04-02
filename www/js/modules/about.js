@@ -56,7 +56,7 @@ OSApp.About.displayPage = function() {
 					</li>
 				</ul>
 				<p class="smaller">
-					${OSApp.Language._("App Version")}: 0.0.0
+					${OSApp.Language._("App Version")}: ${OSApp.uiState.appVersion}
 					<br>
 					${OSApp.Language._("Firmware")}: <span class="firmware"></span>
 					<br>
