@@ -49,7 +49,7 @@ jobs:
 
       - name: Update main.js App Version
         run: |
-          sed -i.bak "s|appVersion: '[0-9\.]*'|appVersion: '${{ steps.gitversion.outputs.semVer }}'|" www/main.js
+          sed -i.bak "s|appVersion: '[0-9\.]*'|appVersion: '${{ steps.gitversion.outputs.semVer }}'|" www/js/main.js
 
       - name: Update config.xml Versions
         run: |
