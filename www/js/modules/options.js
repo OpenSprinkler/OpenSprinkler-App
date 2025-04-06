@@ -504,14 +504,14 @@ OSApp.Options.showOptions = function( expandItem ) {
 		}
 		list += "</select></div>";
 
-		if ( typeof OSApp.currentSession.controller.settings.wto === "object" ) {
+		if ( typeof OSApp.currentSession.controller?.settings?.wto === "object" ) {
 			list += "<div class='ui-field-contain" + ( OSApp.Weather.getCurrentAdjustmentMethodId() === 0 ? " hidden" : "" ) + "'><label for='wto'>" + OSApp.Language._( "Adjustment Method Options" ) + "</label>" +
 				"<button data-mini='true' id='wto' value='" + OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.wto ) + "'>" +
 					OSApp.Language._( "Tap to Configure" ) +
 				"</button></div>";
 		}
 
-		if ( typeof OSApp.currentSession.controller.settings.wsp !== "undefined" ) {
+		if ( typeof OSApp.currentSession.controller?.settings?.wsp !== "undefined" ) {
 			list += "<div class='ui-field-contain'><label for='weatherSelect' class='select'>" + OSApp.Language._( "Weather Data Provider" ) +
 					"<button data-helptext='" +
 						OSApp.Language._( "Select your preferred weather service provider." ) +
@@ -795,7 +795,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
 			"</label><button data-mini='true' id='o30' value='" + OSApp.currentSession.controller.options.bst + "'>" + OSApp.currentSession.controller.options.bst + "ms</button></div>";
 	}
-	
+
 	if ( OSApp.Firmware.checkOSVersion( 222 ) && typeof OSApp.currentSession.controller.options.imin !== "undefined" ) {
 		list += "<div class='ui-field-contain duration-field'>" +
 			"<label for='imin'>" + OSApp.Language._( "Minimum Current Threshold" ) +
