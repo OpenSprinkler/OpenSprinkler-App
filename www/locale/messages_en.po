@@ -2165,3 +2165,208 @@ msgstr ""
 
 msgid "System Diagnostics"
 msgstr ""
+
+msgid "Sensors"
+msgstr ""
+
+msgid "Program Adjustments"
+msgstr ""
+
+msgid "Sensor Log"
+msgstr ""
+
+msgid "Refresh Sensordata"
+msgstr ""
+
+msgid "Error calling rest service: "
+msgstr ""
+
+msgid "Incomplete parameters! Please check that all necessary input fields are filled in!"
+msgstr ""
+
+msgid "Last"
+msgstr ""
+
+msgid "Cur"
+msgstr ""
+
+msgid "Min Value"
+msgstr ""
+
+msgid "Max Value"
+msgstr ""
+
+msgid "Factor 1"
+msgstr ""
+
+msgid "Factor 2"
+msgstr ""
+
+msgid "Show"
+msgstr ""
+
+msgid "En"
+msgstr ""
+
+msgid "Data"
+msgstr ""
+
+msgid "Read"
+msgstr ""
+
+msgid "Interval"
+msgstr ""
+
+msgid "Type"
+msgstr ""
+
+msgid "Backup and Restore"
+msgstr ""
+
+msgid "Backup Sensor Config"
+msgstr ""
+
+msgid "Restore Sensor Config"
+msgstr ""
+
+msgid "Backup Program Adjustments"
+msgstr ""
+
+msgid "Restore Program Adjustments"
+msgstr ""
+
+msgid "Station on"
+msgstr ""
+
+msgid "Flow Alert"
+msgstr ""
+
+msgid "download log"
+msgstr ""
+
+msgid "delete log"
+msgstr ""
+
+msgid "Are you sure you want to delete the log?"
+msgstr ""
+
+msgid "Deleted log values: "
+msgstr ""
+
+msgid "Monitoring-warnings level low"
+msgstr ""
+
+msgid "Monitoring-warnings level medium"
+msgstr ""
+
+msgid "Monitoring-warnings level high"
+msgstr ""
+
+msgid "Flow alert setpoint"
+msgstr ""
+
+msgid "Average flow value"
+msgstr ""
+
+msgid "OpenSprinkler is running in background mode"
+msgstr ""
+
+msgid "active monitor and controlling notifications"
+msgstr ""
+
+msgid "Program started successfully"
+msgstr ""
+
+msgid "Mainpage display"
+msgstr ""
+
+msgid "Hide all"
+msgstr ""
+
+msgid "Show Zones"
+msgstr ""
+
+msgid "Show Programs"
+msgstr ""
+
+msgid "Show all"
+msgstr ""
+
+msgid "Source"
+msgstr ""
+
+msgid "Min"
+msgstr ""
+
+msgid "Max"
+msgstr ""
+
+msgid "SN 1/2"
+msgstr ""
+
+msgid "AND"
+msgstr ""
+
+msgid "OR"
+msgstr ""
+
+msgid "XOR"
+msgstr ""
+
+msgid "NOT"
+msgstr ""
+
+msgid "unselected"
+msgstr ""
+
+msgid "Priority"
+msgstr ""
+
+msgid "inverse"
+msgstr ""
+
+msgid "close"
+msgstr ""
+
+msgid "No Adjustment"
+msgstr ""
+
+msgid "Linear scaling"
+msgstr ""
+
+msgid "Digital under min"
+msgstr ""
+
+msgid "Digital over max"
+msgstr ""
+
+msgid "Digital under min or over max"
+msgstr ""
+
+msgid "REMOTE"
+msgstr ""
+
+msgid "activated"
+msgstr ""
+
+msgid "New Monitor"
+msgstr ""
+
+msgid "SET SN 1/2"
+msgstr ""
+
+msgid "Set Digital Sensor Port"
+msgstr ""
+
+msgid "Backup Config"
+msgstr ""
+
+msgid "Restore Config"
+msgstr ""
+
+msgid "Backup Monitors"
+msgstr ""
+
+msgid "Restore Monitors"
+msgstr ""
+

@@ -219,7 +219,7 @@ OSApp.ImportExport.importConfig = function( data ) {
 
 		// Import Weather Adjustment Options, if available
 		if ( typeof data.settings.wto === "object" && OSApp.Firmware.checkOSVersion( 215 ) ) {
-			co += "&wto=" + OSApp.Utils.escapeJSON( data.settings.wto );
+			co += "&wto=" + OSApp.Utils.escapeJSON2( data.settings.wto );
 		}
 
 		// Import IFTTT Key, if available
@@ -234,16 +234,21 @@ OSApp.ImportExport.importConfig = function( data ) {
 
 		// Import mqtt options, if available
 		if ( typeof data.settings.mqtt === "object" && OSApp.Firmware.checkOSVersion( 2191 ) ) {
-			co += "&mqtt=" + OSApp.Utils.escapeJSON( data.settings.mqtt );
+			co += "&mqtt=" + OSApp.Utils.escapeJSON2( data.settings.mqtt );
+			}
+
+		// Import influxdb options, if available
+		if ( typeof data.settings.influxdb === "object" && OSApp.Firmware.checkOSVersion( 232 ) ) {
+			co += "&influxdb=" + OSApp.Utils.escapeJSON2( data.settings.influxdb );
 			}
 
 		//Import email options, if available
 		if ( typeof data.settings.email === "object" && OSApp.Firmware.checkOSVersion( 2191 ) ) {
-			co += "&email=" + OSApp.Utils.escapeJSON( data.settings.email );
+			co += "&email=" + OSApp.Utils.escapeJSON2( data.settings.email );
 			}
 
 		if ( typeof data.settings.otc === "object" && OSApp.Firmware.checkOSVersion( 2191 ) ) {
-			co += "&otc=" + OSApp.Utils.escapeJSON( data.settings.otc );
+			co += "&otc=" + OSApp.Utils.escapeJSON2( data.settings.otc );
 		}
 
 		co += "&" + ( isPi ? "o" : "" ) + "loc=" + data.settings.loc;
@@ -317,6 +322,20 @@ OSApp.ImportExport.importConfig = function( data ) {
 			}
 		}
 
+		//Restore station groups:
+		if ( typeof data.stations.stn_grp === "object" ) {
+			for ( i = 0; i < data.stations.stn_grp.length; i++ ) {
+				cs += "&g" + i + "=" + data.stations.stn_grp[ i ];
+			}
+		}
+
+		//Restore flow alert setpoint value
+		if ( typeof data.stations.stn_fas === "object" ) {
+			for ( i = 0; i < data.stations.stn_fas.length; i++ ) {
+				cs += "&f" + i + "=" + data.stations.stn_fas[ i ];
+			}
+		}
+
 		// Normalize station special data object
 		data.special = data.special || {};
 
@@ -345,7 +364,7 @@ OSApp.ImportExport.importConfig = function( data ) {
 				// Handle data from firmware 2.1+ being imported to a 2.1+ device
 				// The firmware does not accept program name inside the program array and must be submitted separately
 				if ( !isPi && typeof data.options.fwv === "number" && data.options.fwv >= 210 && OSApp.Firmware.checkOSVersion( 210 ) ) {
-					name = "&name=" + prog[ 5 ];
+					name = "&name=" + encodeURIComponent( prog[ 5 ] );
 
 					// Truncate the program name off the array
 					prog = prog.slice( 0, 5 );

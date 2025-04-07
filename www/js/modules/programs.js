@@ -624,7 +624,7 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 				case 'A':
 					{
 						if ( anno === 'I' || ( anno === 'a' && runcount % 2 == 0 ) || ( anno === 'A' && runcount % 2 == 1 ) ) {
-							for ( let i = 0; i < nstations; i++ ) { 
+							for ( let i = 0; i < nstations; i++ ) {
 								order[ i ] = nstations - 1 - i;
 							}
 						}
@@ -641,7 +641,7 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 							order = snames.map((name, index) => ({ name, index })) // Store names with their original indices
 							.sort((a, b) => a.name.localeCompare(b.name)) // Sort by name (ascending)
 							.map(item => item.index); // Extract the indices
-						} else { 
+						} else {
 							order = snames.map((name, index) => ({ name, index })) // Store names with their original indices
 							.sort((a, b) => b.name.localeCompare(a.name)) // Sort by name (descending)
 							.map(item => item.index); // Extract the indices
@@ -1703,6 +1703,8 @@ OSApp.Programs.pidToName = function( pid ) {
 		pname = OSApp.Language._( "Manual program" );
 	} else if ( pid === 254 || pid === 98 ) {
 		pname = OSApp.Language._( "Run-once program" );
+	} else if ( pid === 253) {
+		pname = OSApp.Language._( "Monitoring and control" );
 	} else if ( OSApp.Firmware.checkOSVersion( 210 ) && pid <= OSApp.currentSession.controller.programs.pd.length ) {
 		pname = OSApp.currentSession.controller.programs.pd[ pid - 1 ][ 5 ];
 	}
@@ -2484,7 +2486,7 @@ OSApp.Programs.submitProgram21 = function( id, ignoreWarning ) {
 		j |= ( 2 << 4 );
 		days[ 0 ] = parseInt( $( "#monthDay-" + id ).val(), 10 );
 		if ( days[ 0 ] < 0 || days[ 0 ] > 31) {
-			OSApp.Errors.showerror( OSApp.Language._("Error: Day of month is out of bounds." ) );
+			OSApp.Errors.showError( OSApp.Language._("Error: Day of month is out of bounds." ) );
 			return;
 		}
 
@@ -2492,7 +2494,7 @@ OSApp.Programs.submitProgram21 = function( id, ignoreWarning ) {
 		j |= ( 1 << 4 );
 		var time = OSApp.Dates.dateToEpoch( $( "#singleDate-" + id ).val());
 		if ( time === -1 ){
-			OSApp.Errors.showerror( OSApp.Language._( "Error: Start date is input incorrectly." ) );
+			OSApp.Errors.showError( OSApp.Language._( "Error: Start date is input incorrectly." ) );
 			return;
 		}
 		days[ 0 ] = (time >> 8) & 0b11111111;
