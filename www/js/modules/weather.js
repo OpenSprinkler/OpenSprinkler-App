@@ -707,13 +707,13 @@ OSApp.Weather.checkURLandUpdateWeather = function() {
 		OSApp.Weather.updateWeather();
 	};
 
-	if ( OSApp.currentSession.controller.settings.wsp ) {
+	if ( OSApp.currentSession.controller?.settings?.wsp ) {
 		if ( OSApp.currentSession.controller.settings.wsp === "weather.opensprinkler.com" ) {
 			finish();
 			return;
 		}
 
-		finish( OSApp.currentSession.controller.settings.wsp );
+		finish( OSApp.currentSession.controller?.settings?.wsp );
 		return;
 	}
 
