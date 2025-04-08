@@ -103,7 +103,7 @@ OSApp.Analog = {
 	}
 };
 
-OSApp.Analog.success_callback = function(_scope) {
+OSApp.Analog.success_callback = function() {
 };
 
 
@@ -139,7 +139,7 @@ OSApp.Analog.asb_init = function() {
 	if (window.cordova && window.cordova.plugins) {
 
 		OSApp.Analog.timer = new window.nativeTimer();
-		OSApp.Analog.timer.onTick = function(_tick) {
+		OSApp.Analog.timer.onTick = function() {
 			OSApp.Analog.updateAnalogSensor( function() {
 				OSApp.Analog.updateMonitors();
 			});
@@ -241,13 +241,13 @@ OSApp.Analog.updateAnalogSensor = function( callback ) {
 	callback = callback || function() { };
 	return OSApp.Firmware.sendToOS( "/sl?pw=", "json" ).then( function( data ) {
 		OSApp.Analog.analogSensors = data.sensors;
-		if (data.hasOwnProperty("detected"))
+		if (Object.prototype.hasOwnProperty.call(data, "detected"))
 			OSApp.Analog.analogSensors.detected = data.detected;
 		callback();
 	} );
 };
 
-OSApp.Analog.notification_action_callback = function(_monitor) {
+OSApp.Analog.notification_action_callback = function() {
 	//	monitorAlerts[monitor.nr] = false;
 };
 
@@ -266,7 +266,7 @@ OSApp.Analog.checkMonitorAlerts = function() {
 					dname = OSApp.currentSession.controller.settings.dname;
 				else
 				 	dname = "OpenSprinkler";
-				let prio = monitor.hasOwnProperty("prio")?monitor.prio:0;
+				let prio = Object.prototype.hasOwnProperty.call(monitor, "prio")?monitor.prio:0;
 
 				if (prio === 0) chan = 'os_low';
 				else if (prio === 1) chan = 'os_med';
@@ -314,7 +314,7 @@ OSApp.Analog.updateSensorShowArea = function( page ) {
 			for (i = 0; i < OSApp.Analog.monitors.length; i++) {
 				var monitor = OSApp.Analog.monitors[i];
 				if (monitor.active) {
-					let prio = monitor.hasOwnProperty("prio")?monitor.prio:0;
+					let prio = Object.prototype.hasOwnProperty.call(monitor, "prio")?monitor.prio:0;
 					let pcolor = OSApp.Analog.Constants.NOTIFICATION_COLORS[prio];
 					html += "<div id='monitor-" + monitor.nr + "' class='ui-body ui-body-a center' style='background-color:"+pcolor+"'>";
 					html += "<label>" + monitor.name + "</label>";
@@ -351,7 +351,7 @@ OSApp.Analog.updateSensorShowArea = function( page ) {
 						sensorName = OSApp.Analog.analogSensors[j].name;
 					}
 				}
-				disp.label = disp.progName + " (" + disp.sensorName + ")"
+				disp.label = progName + " (" + sensorName + ")"
 			} else
 				disp.label = progAdjust.name;
 
@@ -528,7 +528,7 @@ OSApp.Analog.getImportMethodSensors = function(restore_type, callback) {
 				data = JSON.parse($.trim(data).replace(/“|”|″/g, "\""));
 				popup.popup("close");
 				OSApp.Analog.importConfigSensors(data, restore_type, callback);
-			} catch (err) {
+			} catch {
 				popup.find("textarea").val("");
 				OSApp.Errors.showError(OSApp.Language._("Unable to read the configuration file. Please check the file and try again."));
 			}
@@ -565,7 +565,7 @@ OSApp.Analog.getImportMethodSensors = function(restore_type, callback) {
 							var obj = JSON.parse($.trim(e.target.result));
 							OSApp.Analog.importConfigSensors(obj, restore_type, callback);
 						} catch (err) {
-							OSApp.Errors.showError(OSApp.Language._("Unable to read the configuration file. Please check the file and try again."));
+							OSApp.Errors.showError(OSApp.Language._("Unable to read the configuration file. Please check the file and try again.", err));
 						}
 					};
 
@@ -615,7 +615,7 @@ OSApp.Analog.importConfigSensors = function(data, restore_type, callback) {
 	OSApp.UIDom.areYouSure(OSApp.Language._("Are you sure you want to restore the configuration?"), warning, function () {
 		$.mobile.loading("show");
 
-		if ((restore_type & 1) == 1 && data.hasOwnProperty("sensors")) { //restore Sensor
+		if ((restore_type & 1) == 1 && Object.prototype.hasOwnProperty.call(data, "sensors")) { //restore Sensor
 			var sensorOut;
 			for (let i = 0; i < data.sensors.length; i++) {
 				sensorOut = data.sensors[i];
@@ -623,7 +623,7 @@ OSApp.Analog.importConfigSensors = function(data, restore_type, callback) {
 			}
 		}
 
-		if ((restore_type & 2) == 2 && data.hasOwnProperty("progadjust")) { //restore program adjustments
+		if ((restore_type & 2) == 2 && Object.prototype.hasOwnProperty.call(data, "progadjust")) { //restore program adjustments
 			var progAdjustOut;
 			for (let i = 0; i < data.progadjust.length; i++) {
 				progAdjustOut = data.progadjust[i];
@@ -631,7 +631,7 @@ OSApp.Analog.importConfigSensors = function(data, restore_type, callback) {
 			}
 		}
 
-		if ((restore_type & 4) == 4 && data.hasOwnProperty("monitors")) { //restore monitors
+		if ((restore_type & 4) == 4 && Object.prototype.hasOwnProperty.call(data, "monitors")) { //restore monitors
 			var monitor;
 			for (var i = 0; i < data.monitors.length; i++) {
 				monitor = data.monitors[i];
@@ -656,7 +656,7 @@ OSApp.Analog.importConfigSensors = function(data, restore_type, callback) {
 
 OSApp.Analog.sendToOsObj = function(params, obj) {
 	for (var key in obj) {
-		if (obj.hasOwnProperty(key)) {
+		if (Object.prototype.hasOwnProperty.call(obj, key)) {
 			var value = obj[key];
 			if (key == "name" || key == "unit" || key == "topic" || key == "filter")
 				value = OSApp.Analog.enc(value);
@@ -742,7 +742,7 @@ OSApp.Analog.showAdjustmentsEditor = function( progAdjust, row, callback, callba
 
 			//Adjustment-Name:
 			if (OSApp.Firmware.checkOSVersion(233)) {
-				if (!progAdjust.hasOwnProperty("name"))
+				if (!Object.prototype.hasOwnProperty.call(progAdjust, "name"))
 					progAdjust.name = "";
 				list += "<label>" +
 				OSApp.Language._("Adjustment-Name") +
@@ -937,10 +937,10 @@ OSApp.Analog.updateAdjustmentChart = function(popup) {
 
 	let p = OSApp.Analog.getProgAdjustForCalc(popup);
 	OSApp.Analog.sendToOsObj("/sd?pw=", p).done(function (values) {
-		if (!values || !values.hasOwnProperty("adjustment"))
+		if (!values || !Object.prototype.hasOwnProperty.call(values, "adjustment"))
 			return;
 		let adj = values.adjustment;
-		if (!adj.hasOwnProperty("inval"))
+		if (!Object.prototype.hasOwnProperty.call(adj, "inval"))
 			return;
 
 		var sensor;
@@ -954,7 +954,7 @@ OSApp.Analog.updateAdjustmentChart = function(popup) {
 			return;
 
 		var yaxis;
-		if (adj.hasOwnProperty('adjust'))
+		if (Object.prototype.hasOwnProperty.call(adj, 'adjust'))
 			yaxis = [
 				{
 					y: adj.adjust,
@@ -2159,7 +2159,7 @@ OSApp.Analog.buildSensorConfig = function() {
 
 	//detected Analog Sensor Boards:
 	var detected_boards = "";
-	if (OSApp.Analog.analogSensors.hasOwnProperty("detected")) {
+	if (Object.prototype.hasOwnProperty.call(OSApp.Analog.analogSensors, "detected")) {
 		var boards = [];
 		let detected = OSApp.Analog.analogSensors.detected;
 		if (detected & OSApp.Analog.Constants.ASB_BOARD1) boards.push("ASB 1");
@@ -2450,7 +2450,7 @@ OSApp.Analog.getMonitorName = function(monitorNr) {
 OSApp.Analog.showAnalogSensorCharts = function(limit2sensor) {
 
 	var max = OSApp.Analog.Constants.CHARTS;
-	for (var j = 0; j < OSApp.Analog.analogSensors.length; j++) {
+	for (let j = 0; j < OSApp.Analog.analogSensors.length; j++) {
 		if (!OSApp.Analog.analogSensors[j].log || !OSApp.Analog.analogSensors[j].enable)
 			continue;
 		var unitid = OSApp.Analog.analogSensors[j].unitid;
@@ -2458,7 +2458,7 @@ OSApp.Analog.showAnalogSensorCharts = function(limit2sensor) {
 	}
 
 	var last = "", week = "", month = "";
-	for (var j = 0; j <= max; j++) {
+	for (let j = 0; j <= max; j++) {
 		last += "<div id='myChart" + j + "'></div>";
 		week += "<div id='myChartW" + j + "'></div>";
 		month += "<div id='myChartM" + j + "'></div>";
