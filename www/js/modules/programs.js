@@ -17,15 +17,14 @@
 var OSApp = OSApp || {};
 OSApp.Programs = OSApp.Programs || {};
 
-OSApp.Programs.displayPage = function() {
+OSApp.Programs.displayPage = function(programId) {
 	// Program management functions
 	var page = $(`
 		<div data-role="page" id="programs">
 			<div class="ui-content" role="main" id="programs_list">
 			</div>
 		</div>
-	`),
-		expandId;
+	`);
 
 	page
 		.on( "programrefresh", updateContent )
@@ -36,12 +35,13 @@ OSApp.Programs.displayPage = function() {
 			OSApp.Programs.updateProgramHeader();
 
 			if ( typeof expandId !== "number" && OSApp.currentSession.controller.programs.pd.length === 1 ) {
-				expandId = 0;
+				console.log('*** programs.displayPage reset expandId to zero');
+				programId = 0;
 			}
 
-			if ( typeof expandId === "number" ) {
+			if ( typeof programId === "number" ) {
 				page.find( "fieldset[data-collapsed='false']" ).collapsible( "collapse" );
-				$( "#program-" + expandId ).collapsible( "expand" );
+				$( "#program-" + programId ).collapsible( "expand" );
 			}
 		} );
 
@@ -104,9 +104,7 @@ OSApp.Programs.displayPage = function() {
 		page.find( "#programs_list" ).html( list.enhanceWithin() );
 	}
 
-	function begin( pid ) {
-		expandId = pid;
-
+	function begin() {
 		OSApp.UIDom.changeHeader( {
 			title: OSApp.Language._( "Programs" ),
 			leftBtn: {
@@ -624,7 +622,7 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 				case 'A':
 					{
 						if ( anno === 'I' || ( anno === 'a' && runcount % 2 == 0 ) || ( anno === 'A' && runcount % 2 == 1 ) ) {
-							for ( let i = 0; i < nstations; i++ ) { 
+							for ( let i = 0; i < nstations; i++ ) {
 								order[ i ] = nstations - 1 - i;
 							}
 						}
@@ -641,7 +639,7 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 							order = snames.map((name, index) => ({ name, index })) // Store names with their original indices
 							.sort((a, b) => a.name.localeCompare(b.name)) // Sort by name (ascending)
 							.map(item => item.index); // Extract the indices
-						} else { 
+						} else {
 							order = snames.map((name, index) => ({ name, index })) // Store names with their original indices
 							.sort((a, b) => b.name.localeCompare(a.name)) // Sort by name (descending)
 							.map(item => item.index); // Extract the indices
