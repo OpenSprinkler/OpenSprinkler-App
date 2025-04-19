@@ -626,6 +626,18 @@ input[type=number] {
 }
 
 /* Program editor rules */
+.program-disabled {
+	display: none;
+}
+.show-hidden .program-disabled {
+	display: block;
+}
+.disabled-programs-note {
+	display: block;
+}
+.show-hidden .disabled-programs-note {
+	display: none;
+}
 .move-up {
     border: none !important;
     float: right;
