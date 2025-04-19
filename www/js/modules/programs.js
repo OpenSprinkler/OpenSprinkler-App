@@ -17,15 +17,14 @@
 var OSApp = OSApp || {};
 OSApp.Programs = OSApp.Programs || {};
 
-OSApp.Programs.displayPage = function() {
+OSApp.Programs.displayPage = function(programId) {
 	// Program management functions
 	var page = $(`
 		<div data-role="page" id="programs">
 			<div class="ui-content" role="main" id="programs_list">
 			</div>
 		</div>
-	`),
-		expandId;
+	`);
 
 	page
 		.on( "programrefresh", updateContent )
@@ -36,12 +35,13 @@ OSApp.Programs.displayPage = function() {
 			OSApp.Programs.updateProgramHeader();
 
 			if ( typeof expandId !== "number" && OSApp.currentSession.controller.programs.pd.length === 1 ) {
-				expandId = 0;
+				console.log('*** programs.displayPage reset expandId to zero');
+				programId = 0;
 			}
 
-			if ( typeof expandId === "number" ) {
+			if ( typeof programId === "number" ) {
 				page.find( "fieldset[data-collapsed='false']" ).collapsible( "collapse" );
-				$( "#program-" + expandId ).collapsible( "expand" );
+				$( "#program-" + programId ).collapsible( "expand" );
 			}
 		} );
 
@@ -104,9 +104,7 @@ OSApp.Programs.displayPage = function() {
 		page.find( "#programs_list" ).html( list.enhanceWithin() );
 	}
 
-	function begin( pid ) {
-		expandId = pid;
-
+	function begin() {
 		OSApp.UIDom.changeHeader( {
 			title: OSApp.Language._( "Programs" ),
 			leftBtn: {
