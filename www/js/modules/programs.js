@@ -1665,7 +1665,7 @@ OSApp.Programs.updateProgramHeader = function() {
 	} );
 };
 
-// Make the list of all programs, respecting the options.showHidden setting to toggle disabled program display
+// Make the list of all programs, respecting the "hide disabled" option/waffle setting to toggle visibility of disabled programs
 OSApp.Programs.makeAllPrograms = function() {
 	if ( OSApp.currentSession.controller.programs.pd.length === 0 ) {
 		return "<p class='center'>" + OSApp.Language._( "You have no programs currently added. Tap the Add button on the top right corner to get started." ) + "</p>";
@@ -1682,19 +1682,19 @@ OSApp.Programs.makeAllPrograms = function() {
 		if ( program.en === 0) {
 			numDisabledPrograms++;
 		}
-		console.log("*** makeAllPrograms " + name + " enabled: " + program.en, {program})
 
-		list += "<fieldset id='program-" + i + "' data-role='collapsible'>" + // mellodev class='" + ( program.en === 0 ? "program-disabled " : "" ) + "'>" +
-			"<h3>" +
-			"<a " + ( i > 0 ? "" : "style='visibility:hidden' " ) + "class='hidden ui-btn ui-btn-icon-notext ui-icon-arrow-u ui-btn-corner-all move-up'></a>" +
-			"<a class='ui-btn ui-btn-corner-all program-copy'>" + OSApp.Language._( "copy" ) + "</a>" +
-			"<span class='program-name'>" + name + "</span>" +
-			"</h3>" +
-			"</fieldset>";
+		list += `
+			<fieldset id='program-${i}' data-role='collapsible'>
+				<h3>
+					<a ${( i > 0 ? "" : "style='visibility:hidden' " )} class='hidden ui-btn ui-btn-icon-notext ui-icon-arrow-u ui-btn-corner-all move-up'></a>
+					<a class='ui-btn ui-btn-corner-all program-copy'>${OSApp.Language._( "copy" )}</a>
+					<span class='program-name'>${name}</span>
+				</h3>
+			</fieldset>`;
 	}
 
 	if ( numDisabledPrograms ) {
-		list += "<p class='center disabled-programs-note'>" + numDisabledPrograms + " disabled program(s) hidden. Tap 'Show Disabled' in the footer menu to view</p>";
+		list += "<p class='center disabled-programs-note'>" + numDisabledPrograms + " " + OSApp.Language._( "disabled program(s) hidden. Tap 'Show Disabled' in the footer menu to view" ) + "</p>";
 	}
 
 	return list + "</div>";
@@ -2308,15 +2308,13 @@ OSApp.Programs.submitProgram = function( id ) {
 	$( "#program-" + id ).find( ".hasChanges" ).removeClass( "hasChanges" );
 
 	if ( OSApp.Firmware.checkOSVersion( 210 ) ) {
-		console.log('*** submitProgram');
 		OSApp.Programs.submitProgram21( id );
 	} else {
 		OSApp.Programs.submitProgram183( id );
 	}
 
-	console.log('*** submitProgram calling updateControllerPrograms');
+	// Reload the programs from the controller then redraw the programs list
 	OSApp.Sites.updateControllerPrograms( function() {
-		console.log('*** submitProgram calling trigger programrefresh');
 		$( "#programs" ).trigger( "programrefresh" );
 	} );
 };
@@ -2576,17 +2574,9 @@ OSApp.Programs.submitProgram21 = function( id, ignoreWarning ) {
 			OSApp.Sites.updateControllerPrograms( function() {
 				OSApp.Programs.updateProgramHeader();
 				$( "#program-" + id ).find( ".program-name" ).text( name );
-				// mellodev set the disabled class to update ui need to
-				console.log('*** called cp endpoint');
-				// if ( program.en ) {
-				// 	$( "#program-" + id ).removeClass( "program-disabled" );
-				// } else {
-				// 	$( "#program-" + id ).addClass( "program-disabled" );
-				// }
-			} );
 			OSApp.Errors.showError( OSApp.Language._( "Program has been updated" ) );
 		} );
-	}
+	} );
 };
 
 OSApp.Programs.expandProgram = function( program ) {
@@ -2660,4 +2650,6 @@ OSApp.Programs.expandProgram = function( program ) {
 		} );
 		return false;
 	} );
+}
 };
+

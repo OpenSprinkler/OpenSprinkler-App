@@ -1066,7 +1066,6 @@ OSApp.Sites.updateControllerPrograms = function( callback ) {
 		} );
 	} else {
 		return OSApp.Firmware.sendToOS( "/jp?pw=", "json" ).done( function( programs ) {
-			console.log('*** sites.js updateControllerPrograms', {old: OSApp.currentSession.controller.programs, new: programs});
 			OSApp.currentSession.controller.programs = programs;
 			callback();
 		} );
