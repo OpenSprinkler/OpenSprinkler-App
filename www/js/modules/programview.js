@@ -181,7 +181,7 @@ OSApp.ProgramView.updateProgramShowArea = function( page, visible ) {
 									OSApp.Stations.setStatus( sid, 0 );
 									// Remove any timer associated with the station
 									delete OSApp.uiState.timers[ "station-" + sid ];
-									OSApp.ProgramView.refreshStatus();
+									OSApp.Status.refreshStatus();
 									OSApp.Errors.showError( OSApp.Language._( "Station has been stopped" ) );
 								});
 							});
@@ -193,7 +193,7 @@ OSApp.ProgramView.updateProgramShowArea = function( page, visible ) {
 								OSApp.Stations.setPID( sid, pid );
 								OSApp.Stations.setRemainingRuntime( sid, duration );
 
-								OSApp.ProgramView.refreshStatus();
+								OSApp.Status.refreshStatus();
 								OSApp.Errors.showError( OSApp.Language._( "Station has been queued" ) );
 							} );
 						}
@@ -266,14 +266,14 @@ OSApp.ProgramView.updateProgramShowArea = function( page, visible ) {
 											localStorage.setItem("lastProgramRun", OSApp.ProgramView.lastProgramRun);
 											OSApp.Firmware.sendToOS( "/mp?pw=&pid="+pid+"&uwt=1");
 											OSApp.Errors.showError( OSApp.Language._( "Program started successfully" ) );
-											OSApp.ProgramView.refreshStatus();
+											OSApp.Status.refreshStatus();
 
 										}, function() {
 											OSApp.ProgramView.lastProgramRun = pid;
 											localStorage.setItem("lastProgramRun", OSApp.ProgramView.lastProgramRun);
 											OSApp.Firmware.sendToOS( "/mp?pw=&pid="+pid+"&uwt=0");
 											OSApp.Errors.showError( OSApp.Language._( "Program started successfully" ) );
-											OSApp.ProgramView.refreshStatus();
+											OSApp.Status.refreshStatus();
 										});
 									});
 								}

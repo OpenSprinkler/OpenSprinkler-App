@@ -21,7 +21,7 @@ OSApp.Analog = {
 	lastSensorHtml : "",
 
 	Constants: {
-		CHARTS: 12,
+		CHARTS: 14,
 		USERDEF_UNIT: 99,
 
 		CURRENT_FW : "2.3.3(172)",
@@ -2510,15 +2510,15 @@ OSApp.Analog.updateCharts = function(limit2sensor) {
 		limit += "&nr="+limit2sensor;
 
 	OSApp.UIDom.showLoading( "#myChart0" );
-	OSApp.Firmware.sendToOS("/so?pw=&lasthours=48&csv=2" + limit, "text").then(function (csv1) {
+	OSApp.Firmware.sendToOS("/so?pw=&lasthours=48&csv=2" + limit, "text", 90000).then(function (csv1) {
 		OSApp.Analog.buildGraph("#myChart", chart1, csv1, OSApp.Language._("last 48h"), "HH:mm", tzo, 0);
 
 		OSApp.UIDom.showLoading( "#myChartW0" );
-		OSApp.Firmware.sendToOS("/so?pw=&csv=2&log=1" + limit, "text").then(function (csv2) {
+		OSApp.Firmware.sendToOS("/so?pw=&csv=2&log=1" + limit, "text", 90000).then(function (csv2) {
 			OSApp.Analog.buildGraph("#myChartW", chart2, csv2, OSApp.Language._("last weeks"), "dd.MM.yyyy", tzo, 1);
 
 			OSApp.UIDom.showLoading( "#myChartM0" );
-			OSApp.Firmware.sendToOS("/so?pw=&csv=2&log=2" + limit, "text").then(function (csv3) {
+			OSApp.Firmware.sendToOS("/so?pw=&csv=2&log=2" + limit, "text", 90000).then(function (csv3) {
 				OSApp.Analog.buildGraph("#myChartM", chart3, csv3, OSApp.Language._("last months"), "MM.yyyy", tzo, 2);
 			});
 		});
