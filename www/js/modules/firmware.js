@@ -156,6 +156,10 @@ OSApp.Firmware.sendToOS = function( dest, type ) {
 
 // OpenSprinkler feature detection functions
 OSApp.Firmware.checkOSVersion = function( check ) {
+	// Return early if we are missing controller object
+	if ( $.isEmptyObject( OSApp.currentSession.controller ) ) {
+		return false;
+	}
 	var version = OSApp.currentSession.controller.options.fwv;
 
 	// If check is 4 digits then we need to include the minor version number as well
