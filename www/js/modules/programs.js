@@ -1657,30 +1657,46 @@ OSApp.Programs.updateProgramHeader = function() {
 
 		if ( en ) {
 			heading.removeClass( "red" );
+			heading.removeClass( "program-disabled" );
 		} else {
 			heading.addClass( "red" );
+			heading.addClass( "program-disabled" );
 		}
 	} );
 };
 
-//Make the list of all programs
+// Make the list of all programs, respecting the options.showHidden setting to toggle disabled program display
 OSApp.Programs.makeAllPrograms = function() {
 	if ( OSApp.currentSession.controller.programs.pd.length === 0 ) {
 		return "<p class='center'>" + OSApp.Language._( "You have no programs currently added. Tap the Add button on the top right corner to get started." ) + "</p>";
 	}
-	var list = "<p class='center'>" + OSApp.Language._( "Click any program below to expand/edit. Be sure to save changes." ) + "</p><div data-role='collapsible-set'>",
-		name;
+
+	var list = "<p class='center'>" + OSApp.Language._( "Click any program below to expand/edit. Be sure to save changes." ) + "</p><div data-role='collapsible-set'>";
+
+
+	var numDisabledPrograms = 0;
 
 	for ( var i = 0; i < OSApp.currentSession.controller.programs.pd.length; i++ ) {
-		name = OSApp.Language._( "Program" ) + " " + ( i + 1 );
-		if ( OSApp.Firmware.checkOSVersion( 210 ) ) {
-			name = OSApp.currentSession.controller.programs.pd[ i ][ 5 ];
+		var program = OSApp.Programs.readProgram( OSApp.currentSession.controller.programs.pd[ i ] );
+		var name = program.name || OSApp.Language._( "Program" ) + " " + ( i + 1 );
+		if ( program.en === 0) {
+			numDisabledPrograms++;
 		}
-		list += "<fieldset id='program-" + i + "' data-role='collapsible'><h3><a " + ( i > 0 ? "" : "style='visibility:hidden' " ) +
-				"class='hidden ui-btn ui-btn-icon-notext ui-icon-arrow-u ui-btn-corner-all move-up'></a><a class='ui-btn ui-btn-corner-all program-copy'>" +
-			OSApp.Language._( "copy" ) + "</a><span class='program-name'>" + name + "</span></h3>";
-		list += "</fieldset>";
+		console.log("*** makeAllPrograms " + name + " enabled: " + program.en, {program})
+
+		list += "<fieldset id='program-" + i + "' data-role='collapsible'>" + // mellodev class='" + ( program.en === 0 ? "program-disabled " : "" ) + "'>" +
+			"<h3>" +
+			"<a " + ( i > 0 ? "" : "style='visibility:hidden' " ) + "class='hidden ui-btn ui-btn-icon-notext ui-icon-arrow-u ui-btn-corner-all move-up'></a>" +
+			"<a class='ui-btn ui-btn-corner-all program-copy'>" + OSApp.Language._( "copy" ) + "</a>" +
+			"<span class='program-name'>" + name + "</span>" +
+			"</h3>" +
+			"</fieldset>";
 	}
+
+	if ( numDisabledPrograms ) {
+		list += "<p class='center disabled-programs-note'>" + numDisabledPrograms + " disabled program(s) hidden. Tap 'Show Disabled' in the footer menu to view</p>";
+	}
+
 	return list + "</div>";
 };
 
@@ -1896,7 +1912,7 @@ OSApp.Programs.makeProgram21 = function( n, isCopy ) {
 	list += "<div class='ui-bar ui-bar-a'><h3>" + OSApp.Language._( "Basic Settings" ) + "</h3></div>";
 	list += "<div class='ui-body ui-body-a center'>";
 
-	// Progran name
+	// Program name
 	list += "<label for='name-" + id + "'>" + OSApp.Language._( "Program Name" ) + "</label>" +
 		"<input data-mini='true' type='text' name='name-" + id + "' id='name-" + id + "' maxlength='" + OSApp.currentSession.controller.programs.pnsize + "' " +
 		"placeholder='" + OSApp.Language._( "Program" ) + " " + ( OSApp.currentSession.controller.programs.pd.length + 1 ) + "' value=\"" + program.name + "\">";
@@ -2292,10 +2308,17 @@ OSApp.Programs.submitProgram = function( id ) {
 	$( "#program-" + id ).find( ".hasChanges" ).removeClass( "hasChanges" );
 
 	if ( OSApp.Firmware.checkOSVersion( 210 ) ) {
+		console.log('*** submitProgram');
 		OSApp.Programs.submitProgram21( id );
 	} else {
 		OSApp.Programs.submitProgram183( id );
 	}
+
+	console.log('*** submitProgram calling updateControllerPrograms');
+	OSApp.Sites.updateControllerPrograms( function() {
+		console.log('*** submitProgram calling trigger programrefresh');
+		$( "#programs" ).trigger( "programrefresh" );
+	} );
 };
 
 OSApp.Programs.submitProgram183 = function( id ) {
@@ -2553,6 +2576,13 @@ OSApp.Programs.submitProgram21 = function( id, ignoreWarning ) {
 			OSApp.Sites.updateControllerPrograms( function() {
 				OSApp.Programs.updateProgramHeader();
 				$( "#program-" + id ).find( ".program-name" ).text( name );
+				// mellodev set the disabled class to update ui need to
+				console.log('*** called cp endpoint');
+				// if ( program.en ) {
+				// 	$( "#program-" + id ).removeClass( "program-disabled" );
+				// } else {
+				// 	$( "#program-" + id ).addClass( "program-disabled" );
+				// }
 			} );
 			OSApp.Errors.showError( OSApp.Language._( "Program has been updated" ) );
 		} );
@@ -2573,6 +2603,8 @@ OSApp.Programs.expandProgram = function( program ) {
 
 	program.find( "[id^='submit-']" ).on( "click", function() {
 		OSApp.Programs.submitProgram( id );
+		// mellodev need to do things after we save
+		$( "#program-" + id ).collapsible( "collapse" );
 		return false;
 	} );
 
