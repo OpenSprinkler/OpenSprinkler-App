@@ -35,7 +35,6 @@ OSApp.Programs.displayPage = function(programId) {
 			OSApp.Programs.updateProgramHeader();
 
 			if ( typeof expandId !== "number" && OSApp.currentSession.controller.programs.pd.length === 1 ) {
-				console.log('*** programs.displayPage reset expandId to zero');
 				programId = 0;
 			}
 
