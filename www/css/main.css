@@ -948,10 +948,14 @@ div.running-text{
 }
 #timeline-navigation {
     text-align:center;
-    display:none
+    display: none;
 }
 .timeline-event-content a {
-    text-decoration:none
+    text-decoration: none;
+}
+.timeline-event-content {
+	cursor: pointer;
+	font-size: 12px;
 }
 .timeline-frame {
     border: 1px solid #5D99C3;
