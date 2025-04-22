@@ -39,6 +39,24 @@ OSApp.Analog = {
 			HIGH: 'os_high'
 		},
 
+		UNITS: {
+			DEFAULT: {ID: 0, NAME: 'Default'},
+			SOIL_MOISTURE_PCT: {ID: 1, NAME: 'Soil Moisture %'},
+			DEGREE_CELCIUS: {ID: 2, NAME: `Degree Celcius ${String.fromCharCode(176)}C`},
+			DEGREE_FARENHEIT: {ID: 3, NAME: `Degree Fahrenheit ${String.fromCharCode(176)}F`},
+			VOLT_V: {ID: 4, NAME: 'Volt V'},
+			AIR_HUMIDITY_PCT: {ID: 5, NAME: 'Air Humidity %'},
+			INCH_IN: {ID: 6, NAME: 'Inch in'},
+			MILLIMETER_MM: {ID: 7, NAME: 'Millimeter mm'},
+			MPH: {ID: 8, NAME: 'MPH'},
+			KMH: {ID: 9, NAME: 'KM/H'},
+			LEVEL_PCT: {ID: 10, NAME: 'Level %'},
+			DK: {ID: 11, NAME: 'DK'},
+			LUMEN_LM: {ID: 12, NAME: 'Lumen (lm)'},
+			LUX_LX: {ID: 13, NAME: 'Lux (lx)'},
+			OWN_UNIT: {ID: 99, NAME: 'Own Unit'},
+		},
+
 		//detected Analog Sensor Boards:
 		ASB_BOARD1 : 0x01,
 		ASB_BOARD2 : 0x02,
@@ -1645,7 +1663,7 @@ OSApp.Analog.showSensorEditor = function(sensor, row, callback, callbackCancel) 
 			"</p>" +
 			"<div class='ui-field-contain'>" +
 			"<label>" +
-			OSApp.Language._("Sensor-Nr") +
+			OSApp.Language._("Sensor Nr") +
 			"</label>" +
 			"<input class='nr' type='number' inputmode='decimal' min='1' max='99999' required value='" + sensor.nr + (sensor.nr > 0 ? "' disabled='disabled'>" : "'>") +
 
@@ -1696,23 +1714,16 @@ OSApp.Analog.showSensorEditor = function(sensor, row, callback, callbackCancel) 
 
 			"<label class='chartunit_label'>" + OSApp.Language._("Chart Unit") +
 			"</label>" +
-			"<select data-mini='true' id='unitid'>" +
-			"<option value='0'>" + OSApp.Language._("Default") + "</option>" +
-			"<option value='1'>" + OSApp.Language._("Soil Moisture %") + "</option>" +
-			"<option value='2'>" + OSApp.Language._("Degree Celcius " + String.fromCharCode(176) + "C") + "</option>" +
-			"<option value='3'>" + OSApp.Language._("Degree Fahrenheit " + String.fromCharCode(176) + "F") + "</option>" +
-			"<option value='4'>" + OSApp.Language._("Volt V") + "</option>" +
-			"<option value='5'>" + OSApp.Language._("Air Humidity %") + "</option>" +
-			"<option value='6'>" + OSApp.Language._("Inch in") + "</option>" +
-			"<option value='7'>" + OSApp.Language._("Millimeter mm") + "</option>" +
-			"<option value='8'>" + OSApp.Language._("MPH") + "</option>" +
-			"<option value='9'>" + OSApp.Language._("KM/H") + "</option>" +
-			"<option value='10'>" + OSApp.Language._("Level %") + "</option>" +
-			"<option value='11'>" + OSApp.Language._("DK") + "</option>" +
-			"<option value='12'>" + OSApp.Language._("Lumen (lm)") + "</option>" +
-			"<option value='13'>" + OSApp.Language._("LUX (lx)") + "</option>" +
-			"<option value='99'>" + OSApp.Language._("Own Unit") + "</option>" +
-			"</select>" +
+			"<select data-mini='true' id='unitid'>";
+
+			for (const key in OSApp.Analog.Constants.UNITS) {
+				if (OSApp.Analog.Constants.UNITS.hasOwnProperty(key)) {
+					const unit = OSApp.Analog.Constants.UNITS[key];
+					list += `<option value="${unit.ID}">${unit.NAME}</option>`;
+				}
+			}
+
+			list += "</select>" +
 
 			"<label class='unit_label'>" + OSApp.Language._("Unit") +
 			"</label>" +
@@ -2647,70 +2658,70 @@ OSApp.Analog.buildGraph = function(prefix, chart, csv, titleAdd, timestr, tzo, l
 				maxFunc = function (val) { return Math.ceil(val); },
 				autoY = true;
 			switch (unitid) {
-				case 1: unit = OSApp.Language._("Soil moisture");
+				case OSApp.Analog.Constants.UNITS.SOIL_MOISTURE_PCT.ID: unit = OSApp.Language._("Soil moisture");
 					title = OSApp.Language._("Soil moisture") + " " + titleAdd;
 					unitStr = function (val) { return OSApp.Analog.formatVal(val) + " %"; };
 					minFunc = 0;
 					maxFunc = 100;
 					break;
-				case 2: unit = OSApp.Language._("degree celsius temperature");
+				case OSApp.Analog.Constants.UNITS.DEGREE_CELCIUS.ID: unit = OSApp.Language._("Degree celsius temperature");
 					title = OSApp.Language._("Temperature") + " " + titleAdd;
 					unitStr = function (val) { return OSApp.Analog.formatVal(val) + String.fromCharCode(176) + "C"; };
 					break;
-				case 3: unit = OSApp.Language._("degree fahrenheit temperature");
+				case OSApp.Analog.Constants.UNITS.DEGREE_FARENHEIT.ID: unit = OSApp.Language._("Degree fahrenheit temperature");
 					title = OSApp.Language._("Temperature") + " " + titleAdd;
 					unitStr = function (val) { return OSApp.Analog.formatVal(val) + String.fromCharCode(176) + "F"; };
 					break;
-				case 4: unit = OSApp.Language._("Volt");
+				case OSApp.Analog.Constants.UNITS.VOLT_V.ID: unit = OSApp.Language._("Volt");
 					title = OSApp.Language._("Voltage") + " " + titleAdd;
 					unitStr = function (val) { return OSApp.Analog.formatVal(val) + " V"; };
 					minFunc = 0;
 					maxFunc = 4;
 					autoY = false;
 					break;
-				case 5: unit = OSApp.Language._("Humidity");
+				case OSApp.Analog.Constants.UNITS.AIR_HUMIDITY_PCT.ID: unit = OSApp.Language._("Humidity");
 					title = OSApp.Language._("Air Humidity") + " " + titleAdd;
 					unitStr = function (val) { return OSApp.Analog.formatVal(val) + " %"; };
 					minFunc = 0;
 					maxFunc = 100;
 					break;
-				case 6: unit = OSApp.Language._("Rain");
+				case OSApp.Analog.Constants.UNITS.INCH_IN.ID: unit = OSApp.Language._("Rain");
 					title = OSApp.Language._("Rainfall") + " " + titleAdd;
 					unitStr = function (val) { return OSApp.Analog.formatVal(val) + " in"; };
 					break;
-				case 7: unit = OSApp.Language._("Rain");
+				case OSApp.Analog.Constants.UNITS.MILLIMETER_MM.ID: unit = OSApp.Language._("Rain");
 					title = OSApp.Language._("Rainfall") + " " + titleAdd;
 					unitStr = function (val) { return OSApp.Analog.formatVal(val) + " mm"; };
 					minFunc = 0;
 					break;
-				case 8: unit = OSApp.Language._("Wind");
+				case OSApp.Analog.Constants.UNITS.MPH.ID: unit = OSApp.Language._("Wind");
 					title = OSApp.Language._("Wind") + " " + titleAdd;
 					unitStr = function (val) { return OSApp.Analog.formatVal(val) + " mph"; };
 					minFunc = 0;
 					break;
-				case 9: unit = OSApp.Language._("Wind");
+				case OSApp.Analog.Constants.UNITS.KMH.ID: unit = OSApp.Language._("Wind");
 					title = OSApp.Language._("Wind") + " " + titleAdd;
 					unitStr = function (val) { return OSApp.Analog.formatVal(val) + " kmh"; };
 					minFunc = 0;
 					break;
-				case 10: unit = OSApp.Language._("Level");
+				case OSApp.Analog.Constants.UNITS.LEVEL_PCT.ID: unit = OSApp.Language._("Level");
 					title = OSApp.Language._("Level") + " " + titleAdd;
 					unitStr = function (val) { return OSApp.Analog.formatVal(val) + " %"; };
 					minFunc = 0;
 					maxFunc = 100;
 					autoY = false;
 					break;
-				case 11: unit = OSApp.Language._("DK");
+				case OSApp.Analog.Constants.UNITS.DK.ID: unit = OSApp.Language._("DK");
 					title = OSApp.Language._("DK") + " " + titleAdd;
 					unitStr = function (val) { return OSApp.Analog.formatVal(val); };
 					minFunc = 0;
 					break;
-				case 12: unit = OSApp.Language._("lm");
+				case OSApp.Analog.Constants.UNITS.LUMEN_LM.ID: unit = OSApp.Language._("lm");
 					title = OSApp.Language._("Lumen") + " " + titleAdd;
 					unitStr = function (val) { return OSApp.Analog.formatVal(val); };
 					minFunc = 0;
 					break;
-				case 13: unit = OSApp.Language._("lx");
+				case OSApp.Analog.Constants.UNITS.LUX_LX.ID: unit = OSApp.Language._("lx");
 					title = OSApp.Language._("LUX") + " " + titleAdd;
 					unitStr = function (val) { return OSApp.Analog.formatVal(val); };
 					minFunc = 0;
