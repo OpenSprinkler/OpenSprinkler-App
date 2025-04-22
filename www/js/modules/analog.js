@@ -370,7 +370,6 @@ OSApp.Analog.updateSensorShowArea = function( page ) {
 			} else
 				disp.label = progAdjust.name;
 
-			//current = 80; //testvalue!
 			var color = ["#87D4F9"];
 			if (current > 100)
 				color = ["#FF8C00"];
@@ -697,7 +696,7 @@ OSApp.Analog.getExportMethodSensors = function(backuptype) {
 			"</div>" +
 			"</div>"),
 			obj = encodeURIComponent(JSON.stringify(data)),
-			subject = "OpenSprinkler Sensor Export on " + OSApp.Dates.dateToString(new Date());
+			subject = OSApp.Language._("OpenSprinkler Sensor Export on") + " " + OSApp.Dates.dateToString(new Date());
 
 		if (OSApp.currentDevice.isFileCapable) {
 			popup.find(".fileMethod").removeClass("hidden").attr({
@@ -760,7 +759,7 @@ OSApp.Analog.showAdjustmentsEditor = function( progAdjust, row, callback, callba
 				if (!Object.prototype.hasOwnProperty.call(progAdjust, "name"))
 					progAdjust.name = "";
 				list += "<label>" +
-				OSApp.Language._("Adjustment-Name") +
+				OSApp.Language._("Adjustment Name") +
 				"</label>" +
 				"<input class='adj-name' type='text' maxlength='29' value='" + progAdjust.name + "' >";
 			}
