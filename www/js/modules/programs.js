@@ -17,15 +17,14 @@
 var OSApp = OSApp || {};
 OSApp.Programs = OSApp.Programs || {};
 
-OSApp.Programs.displayPage = function() {
+OSApp.Programs.displayPage = function(programId) {
 	// Program management functions
 	var page = $(`
 		<div data-role="page" id="programs">
 			<div class="ui-content" role="main" id="programs_list">
 			</div>
 		</div>
-	`),
-		expandId;
+	`);
 
 	page
 		.on( "programrefresh", updateContent )
@@ -36,12 +35,12 @@ OSApp.Programs.displayPage = function() {
 			OSApp.Programs.updateProgramHeader();
 
 			if ( typeof expandId !== "number" && OSApp.currentSession.controller.programs.pd.length === 1 ) {
-				expandId = 0;
+				programId = 0;
 			}
 
-			if ( typeof expandId === "number" ) {
+			if ( typeof programId === "number" ) {
 				page.find( "fieldset[data-collapsed='false']" ).collapsible( "collapse" );
-				$( "#program-" + expandId ).collapsible( "expand" );
+				$( "#program-" + programId ).collapsible( "expand" );
 			}
 		} );
 
@@ -104,9 +103,7 @@ OSApp.Programs.displayPage = function() {
 		page.find( "#programs_list" ).html( list.enhanceWithin() );
 	}
 
-	function begin( pid ) {
-		expandId = pid;
-
+	function begin() {
 		OSApp.UIDom.changeHeader( {
 			title: OSApp.Language._( "Programs" ),
 			leftBtn: {
@@ -1643,6 +1640,7 @@ OSApp.Programs.readProgram21 = function( program ) {
 	}
 
 	newdata.days = days;
+
 	return newdata;
 };
 
@@ -1712,7 +1710,7 @@ OSApp.Programs.pidToName = function( pid ) {
 	return pname;
 };
 
-// Check each program and change the background color to red if disabled
+// Check each program and change the background color to red if disabled. Also apply program-disabled class for program hiding feature
 OSApp.Programs.updateProgramHeader = function() {
 	$( "#programs_list" ).find( "[id^=program-]" ).each( function( a, b ) {
 		var item = $( b ),
@@ -1721,30 +1719,50 @@ OSApp.Programs.updateProgramHeader = function() {
 
 		if ( en ) {
 			heading.removeClass( "red" );
+			heading.removeClass( "program-disabled" );
 		} else {
 			heading.addClass( "red" );
+			heading.addClass( "program-disabled" );
 		}
 	} );
 };
 
-//Make the list of all programs
+// Make the list of all programs, respecting the "hide disabled" option/waffle setting to toggle visibility of disabled programs
 OSApp.Programs.makeAllPrograms = function() {
 	if ( OSApp.currentSession.controller.programs.pd.length === 0 ) {
 		return "<p class='center'>" + OSApp.Language._( "You have no programs currently added. Tap the Add button on the top right corner to get started." ) + "</p>";
 	}
-	var list = "<p class='center'>" + OSApp.Language._( "Click any program below to expand/edit. Be sure to save changes." ) + "</p><div data-role='collapsible-set'>",
-		name;
+
+	var list = "<p class='center'>" + OSApp.Language._( "Click any program below to expand/edit. Be sure to save changes." ) + "</p><div data-role='collapsible-set'>";
+
+	var numDisabledPrograms = 0;
 
 	for ( var i = 0; i < OSApp.currentSession.controller.programs.pd.length; i++ ) {
-		name = OSApp.Language._( "Program" ) + " " + ( i + 1 );
-		if ( OSApp.Firmware.checkOSVersion( 210 ) ) {
-			name = OSApp.currentSession.controller.programs.pd[ i ][ 5 ];
+		var program = OSApp.Programs.readProgram( OSApp.currentSession.controller.programs.pd[ i ] );
+		var name = program.name || OSApp.Language._( "Program" ) + " " + ( i + 1 );
+
+		if ( program.en === 0) {
+			numDisabledPrograms++;
 		}
-		list += "<fieldset id='program-" + i + "' data-role='collapsible'><h3><a " + ( i > 0 ? "" : "style='visibility:hidden' " ) +
-				"class='hidden ui-btn ui-btn-icon-notext ui-icon-arrow-u ui-btn-corner-all move-up'></a><a class='ui-btn ui-btn-corner-all program-copy'>" +
-			OSApp.Language._( "copy" ) + "</a><span class='program-name'>" + name + "</span></h3>";
-		list += "</fieldset>";
+
+		list += `
+			<fieldset id='program-${i}' data-role='collapsible'>
+				<h3>
+					<a ${( i > 0 ? "" : "style='visibility:hidden' " )} class='hidden ui-btn ui-btn-icon-notext ui-icon-arrow-u ui-btn-corner-all move-up'></a>
+					<a class='ui-btn ui-btn-corner-all program-copy'>${OSApp.Language._( "copy" )}</a>
+					<span class='program-name'>${name}</span>
+				</h3>
+			</fieldset>`;
 	}
+
+	if ( numDisabledPrograms ) {
+		var pluralProgram = 'program';
+		if ( numDisabledPrograms > 1 ) {
+			pluralProgram = 'programs';
+		}
+		list += "<p class='center disabled-programs-note'>" + numDisabledPrograms + " " + OSApp.Language._( `disabled ${pluralProgram} hidden. Tap 'Show Disabled' in the footer menu to view` ) + "</p>";
+	}
+
 	return list + "</div>";
 };
 
@@ -1960,7 +1978,7 @@ OSApp.Programs.makeProgram21 = function( n, isCopy ) {
 	list += "<div class='ui-bar ui-bar-a'><h3>" + OSApp.Language._( "Basic Settings" ) + "</h3></div>";
 	list += "<div class='ui-body ui-body-a center'>";
 
-	// Progran name
+	// Program name
 	list += "<label for='name-" + id + "'>" + OSApp.Language._( "Program Name" ) + "</label>" +
 		"<input data-mini='true' type='text' name='name-" + id + "' id='name-" + id + "' maxlength='" + OSApp.currentSession.controller.programs.pnsize + "' " +
 		"placeholder='" + OSApp.Language._( "Program" ) + " " + ( OSApp.currentSession.controller.programs.pd.length + 1 ) + "' value=\"" + program.name + "\">";
@@ -2434,6 +2452,7 @@ OSApp.Programs.submitProgram183 = function( id ) {
 		OSApp.Firmware.sendToOS( "/cp?pw=&pid=" + id + "&v=" + program ).done( function() {
 			$.mobile.loading( "hide" );
 			OSApp.Sites.updateControllerPrograms( function() {
+				$( "#programs" ).trigger( "programrefresh" );
 				OSApp.Programs.updateProgramHeader();
 			} );
 			OSApp.Errors.showError( OSApp.Language._( "Program has been updated" ) );
@@ -2615,6 +2634,7 @@ OSApp.Programs.submitProgram21 = function( id, ignoreWarning ) {
 		OSApp.Firmware.sendToOS( "/cp?pw=&pid=" + id + url + daterange ).done( function() {
 			$.mobile.loading( "hide" );
 			OSApp.Sites.updateControllerPrograms( function() {
+				$( "#programs" ).trigger( "programrefresh" );
 				OSApp.Programs.updateProgramHeader();
 				$( "#program-" + id ).find( ".program-name" ).text( name );
 			} );

@@ -1035,6 +1035,7 @@ OSApp.Sites.updateController = function( callback, fail ) {
 
 OSApp.Sites.updateControllerPrograms = function( callback ) {
 	callback = callback || function() {};
+
 	if ( OSApp.currentSession.fw183 === true ) {
 
 		// If the controller is using firmware 1.8.3, then parse the script tag for variables

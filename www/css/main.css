@@ -626,6 +626,18 @@ input[type=number] {
 }
 
 /* Program editor rules */
+.program-disabled {
+	display: none;
+}
+.show-hidden .program-disabled {
+	display: block;
+}
+.disabled-programs-note {
+	display: block;
+}
+.show-hidden .disabled-programs-note {
+	display: none;
+}
 .move-up {
     border: none !important;
     float: right;
@@ -936,10 +948,14 @@ div.running-text{
 }
 #timeline-navigation {
     text-align:center;
-    display:none
+    display: none;
 }
 .timeline-event-content a {
-    text-decoration:none
+    text-decoration: none;
+}
+.timeline-event-content {
+	cursor: pointer;
+	font-size: 12px;
 }
 .timeline-frame {
     border: 1px solid #5D99C3;
