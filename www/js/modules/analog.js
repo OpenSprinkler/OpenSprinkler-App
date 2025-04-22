@@ -736,7 +736,7 @@ OSApp.Analog.showAdjustmentsEditor = function( progAdjust, row, callback, callba
 		var list =
 			"<div data-role='popup' data-theme='a' id='progAdjustEditor'>" +
 			"<div data-role='header' data-theme='b'>" +
-			"<a href='#' data-rel='back' data-role='button' data-theme='a' data-icon='delete' data-iconpos='notext' class='ui-btn-right'>"+OSApp.Language._("close")+"</a>"+
+			"<a href='#' data-rel='back' data-role='button' data-theme='a' data-icon='delete' data-iconpos='notext' class='ui-btn-right'>"+OSApp.Language._("Close")+"</a>"+
 			"<h1>" + (progAdjust.nr > 0 ? OSApp.Language._("Edit Program Adjustment") : OSApp.Language._("New Program Adjustment")) + "</h1>" +
 			"</div>" +
 
@@ -1032,7 +1032,7 @@ OSApp.Analog.updateAdjustmentChart = function(popup) {
 				}
 			},
 			series: [{
-				name: "Adjustment",
+				name: OSApp.Language._("Adjustment"),
 				type: "line",
 				data: adj.outval
 			}],
@@ -1214,7 +1214,7 @@ OSApp.Analog.showMonitorEditor = function(monitor, row, callback, callbackCancel
 		var list =
 			"<div data-role='popup' data-theme='a' id='monitorEditor' style='max-width:580px;'>" +
 			"<div data-role='header' data-theme='b'>" +
-			"<a href='#' data-rel='back' data-role='button' data-theme='a' data-icon='delete' data-iconpos='notext' class='ui-btn-right'>"+OSApp.Language._("close")+"</a>"+
+			"<a href='#' data-rel='back' data-role='button' data-theme='a' data-icon='delete' data-iconpos='notext' class='ui-btn-right'>"+OSApp.Language._("Close")+"</a>"+
 			"<h1>" + (monitor.nr > 0 ? OSApp.Language._("Edit monitor and control") : OSApp.Language._("New Monitor")) + "</h1>" +
 			"</div>" +
 
@@ -1328,7 +1328,7 @@ OSApp.Analog.showMonitorEditor = function(monitor, row, callback, callbackCancel
 			"<option " + (monitor.sensor12 >= 2? "selected" : "") + " value='2'>" + OSApp.Language._("Sensor 2") + "</option>" +
 			"</select>"+
 			"<label for='invers'>" +
-			"<input data-mini='true' id='invers' type='checkbox' " + (monitor.invers ? "checked='checked'" : "") + ">" + OSApp.Language._("inverse") + "</input>" +
+			"<input data-mini='true' id='invers' type='checkbox' " + (monitor.invers ? "checked='checked'" : "") + ">" + OSApp.Language._("Inverse") + "</input>" +
 			"</label></div>" +
 
 			//typ = SET_SENSOR12
@@ -1346,13 +1346,13 @@ OSApp.Analog.showMonitorEditor = function(monitor, row, callback, callbackCancel
 			//typ == ANDORXOR
 			"<div id='type_andorxor'>"+
 			"<label for='monitor1'>"+OSApp.Language._("Monitor 1")+"</label>"+OSApp.Analog.monitorSelection("monitor1", monitor.monitor1, monitor.nr)+
-			"<label for='invers1'><input data-mini='true' id='invers1' type='checkbox' " + (monitor.invers1 ? "checked='checked'" : "") + ">" + OSApp.Language._("inverse") + "</input></label>" +
+			"<label for='invers1'><input data-mini='true' id='invers1' type='checkbox' " + (monitor.invers1 ? "checked='checked'" : "") + ">" + OSApp.Language._("Inverse") + "</input></label>" +
 			"<label for='monitor2'>"+OSApp.Language._("Monitor 2")+"</label>"+OSApp.Analog.monitorSelection("monitor2", monitor.monitor2, monitor.nr)+
-			"<label for='invers2'><input data-mini='true' id='invers2' type='checkbox' " + (monitor.invers2 ? "checked='checked'" : "") + ">" + OSApp.Language._("inverse") + "</input></label>" +
+			"<label for='invers2'><input data-mini='true' id='invers2' type='checkbox' " + (monitor.invers2 ? "checked='checked'" : "") + ">" + OSApp.Language._("Inverse") + "</input></label>" +
 			"<label for='monitor3'>"+OSApp.Language._("Monitor 3")+"</label>"+OSApp.Analog.monitorSelection("monitor3", monitor.monitor3, monitor.nr)+
-			"<label for='invers3'><input data-mini='true' id='invers3' type='checkbox' " + (monitor.invers3 ? "checked='checked'" : "") + ">" + OSApp.Language._("inverse") + "</input></label>" +
+			"<label for='invers3'><input data-mini='true' id='invers3' type='checkbox' " + (monitor.invers3 ? "checked='checked'" : "") + ">" + OSApp.Language._("Inverse") + "</input></label>" +
 			"<label for='monitor4'>"+OSApp.Language._("Monitor 4")+"</label>"+OSApp.Analog.monitorSelection("monitor4", monitor.monitor4, monitor.nr)+
-			"<label for='invers4'><input data-mini='true' id='invers4' type='checkbox' " + (monitor.invers4 ? "checked='checked'" : "") + ">" + OSApp.Language._("inverse") + "</input></label>" +
+			"<label for='invers4'><input data-mini='true' id='invers4' type='checkbox' " + (monitor.invers4 ? "checked='checked'" : "") + ">" + OSApp.Language._("Inverse") + "</input></label>" +
 			"</div>" +
 
 			//typ == NOT
@@ -1633,7 +1633,7 @@ OSApp.Analog.showSensorEditor = function(sensor, row, callback, callbackCancel) 
 
 		var list = "<div data-role='popup' data-theme='a' id='sensorEditor'>" +
 			"<div data-role='header' data-theme='b'>" +
-			"<a href='#' data-rel='back' data-role='button' data-theme='a' data-icon='delete' data-iconpos='notext' class='ui-btn-right'>"+OSApp.Language._("close")+"</a>"+
+			"<a href='#' data-rel='back' data-role='button' data-theme='a' data-icon='delete' data-iconpos='notext' class='ui-btn-right'>"+OSApp.Language._("Close")+"</a>"+
 			"<h1>" + (sensor.nr > 0 ? OSApp.Language._("Edit Sensor") : OSApp.Language._("New Sensor")) + "</h1>" +
 			"</div>" +
 			"<div class='ui-content'>" +
