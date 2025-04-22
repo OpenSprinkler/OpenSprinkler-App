@@ -1750,9 +1750,9 @@ OSApp.Analog.showSensorEditor = function(sensor, row, callback, callbackCancel) 
 			//"<a href='#' data-role='button' data-mini='true' id='display-log' value='"+sensor.nr+"' data-icon='action' data-inline='true' style='margin-left: 9px;'>" +
 			//OSApp.Language._("display log") + "</a>" +
 			"<a href='#' data-role='button' data-mini='true' id='download-log' data-icon='action' data-inline='true' style='margin-left: 9px;'>" +
-			OSApp.Language._("download log") + "</a>" +
+			OSApp.Language._("Download Log") + "</a>" +
 			"<a href='#' data-role='button' data-mini='true' id='delete-sen-log' value='" + sensor.nr + "' data-icon='delete' data-inline='true' style='margin-left: 9px;'>" +
-			OSApp.Language._("delete log") + "</a>" +
+			OSApp.Language._("Delete Log") + "</a>" +
 			"</label>" +
 
 			"<label for='show'><input data-mini='true' id='show' type='checkbox' " + ((sensor.show === 1) ? "checked='checked'" : "") + ">" +
@@ -1795,7 +1795,7 @@ OSApp.Analog.showSensorEditor = function(sensor, row, callback, callbackCancel) 
 			OSApp.UIDom.areYouSure(OSApp.Language._("This function sets the Modbus ID for one SMT100 sensor. Disconnect all other sensors on this Modbus port. Please confirm."),
 				"new id=" + newid, function () {
 					OSApp.Firmware.sendToOS("/sa?pw=&nr=" + nr + "&id=" + newid).done(function () {
-						window.alert(OSApp.Language._("SMT100 id assigned!"));
+						OSApp.Errors.showError(OSApp.Language._("SMT100 id assigned!"));
 						OSApp.Analog.updateAnalogSensor(callbackCancel);
 					});
 				});
@@ -2074,7 +2074,7 @@ OSApp.Analog.showAnalogSensorConfig = function() {
 			OSApp.Analog.expandItem.add("sensorlog");
 			OSApp.UIDom.areYouSure(OSApp.Language._("Are you sure you want to clear the sensor log?"), "", function () {
 				return OSApp.Firmware.sendToOS("/sn?pw=&", "json").done(function (result) {
-					window.alert(OSApp.Language._("Log cleared:") + " " + result.deleted + " " + OSApp.Language._("records"));
+					OSApp.Errors.showError(OSApp.Language._("Log cleared:") + " " + result.deleted + " " + OSApp.Language._("records"));
 					updateSensorContent();
 				});
 			});
