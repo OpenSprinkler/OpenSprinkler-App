@@ -323,7 +323,7 @@ OSApp.ProgramView.updateProgramShowArea = function( page, visible ) {
 								fontSize: "30px",
 								show: true,
 								formatter: function (val) {
-									return typeof(val) === 'string'? val : OSApp.Analog.formatValUnit(val, "%");
+									return typeof(val) === 'string'? val : OSApp.Utils.formatValUnit(val, "%");
 								}
 							}
 						}

@@ -177,3 +177,25 @@ OSApp.Utils.combineWithSep = function(sep, ...args) {
 	}
 	return result;
 };
+
+/* returns true if arg is a number */
+OSApp.Utils.isNumber = function(n) { return !isNaN(parseFloat(n)) && !isNaN(n - 0) };
+
+/**
+* format value output with 2 decimals.
+* Empty string result if value is undefined or invalid
+*/
+OSApp.Utils.formatVal = function(val) {
+	if (val === undefined || isNaN(val))
+		return "";
+	return (+(Math.round(val + "e+2") + "e-2"));
+};
+
+/**
+* format value output. unit is only printed, if value valid
+*/
+OSApp.Utils.formatValUnit = function(val, unit) {
+	if (val === undefined || isNaN(val))
+		return "";
+	return (+(Math.round(val + "e+2") + "e-2")) + unit;
+};
