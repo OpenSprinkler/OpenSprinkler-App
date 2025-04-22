@@ -162,3 +162,18 @@ OSApp.Utils.isValidOTC = function( token ) {
 OSApp.Utils.flowCountToVolume = function( count ) {
 	return parseFloat( ( count * ( ( OSApp.currentSession.controller.options.fpr1 << 8 ) + OSApp.currentSession.controller.options.fpr0 ) / 100 ).toFixed( 2 ) );
 };
+
+/*
+	Combines all parameters to a string. First parameter is the separator
+*/
+OSApp.Utils.combineWithSep = function(sep, ...args) {
+	if (!args.length) return "";
+	var result = "";
+	for (var i = 0; i < args.length; i++) {
+		let arg = args[i];
+		if (!arg) continue;
+		if (result.length > 0) result += sep;
+		result += arg;
+	}
+	return result;
+};

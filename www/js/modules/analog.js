@@ -2206,7 +2206,7 @@ OSApp.Analog.showAnalogSensorConfig = function() {
 OSApp.Analog.checkFirmwareUpdate = function() {
 	if (OSApp.Firmware.checkOSVersion(OSApp.Analog.Constants.MIN_REQ_FW_ID) && OSApp.currentSession.controller.options.fwm >= OSApp.Analog.Constants.MIN_REQ_FW_MIN)
 		return "";
-	return OSApp.Language._("Please update firmware to ") + OSApp.Analog.Constants.MIN_REQ_FW_VERSION;
+	return OSApp.Language._("Please update to firmware version ") + OSApp.Analog.Constants.MIN_REQ_FW_VERSION + " " + OSApp.Language._("or later");
 };
 
 OSApp.Analog.buildSensorConfig = function() {
@@ -2226,8 +2226,8 @@ OSApp.Analog.buildSensorConfig = function() {
 		if (detected & OSApp.Analog.Constants.RS485_TRUEBNER3) boards.push("RS485-Adapter Truebner 3");
 		if (detected & OSApp.Analog.Constants.RS485_TRUEBNER4) boards.push("RS485-Adapter Truebner 4");
 		if (detected & OSApp.Analog.Constants.OSPI_USB_RS485) boards.push("OSPI USB-RS485-Adapter");
-		if (detected == 0) boards.push("No Boards detected");
-		if (detected && boards.length == 0) boards.push("Unknown Adapter");
+		if (detected == 0) boards.push(OSApp.Language._("No Boards detected"));
+		if (detected && boards.length == 0) boards.push(OSApp.Language._("Unknown Adapter"));
 		detected_boards = ": " + boards.filter(Boolean).join(", ");
 	}
 
@@ -2257,7 +2257,7 @@ OSApp.Analog.buildSensorConfig = function() {
 			item.name + "</a></td>",
 			$("<td class=\"hidecol\">").text(item.ip ? OSApp.Analog.toByteArray(item.ip).join(".") : ""),
 			$("<td class=\"hidecol\">").text(item.port ? (":" + item.port) : ""),
-			$("<td class=\"hidecol\">").text(isNaN(item.id) ? "" : (item.type < 1000 ? item.id : "")),
+			$("<td class=\"hidecol\">").text(isNaN(item.id) ? "" : (item.type < OSApp.Analog.Constants.SENSOR_GROUP_MIN ? item.id : "")),
 			$("<td class=\"hidecol\">").text(isNaN(item.ri) ? "" : item.ri),
 			$("<td>").text(isNaN(item.data) ? "" : (OSApp.Analog.formatVal(item.data) + item.unit)),
 			"<td>" + (item.enable ? checkpng : "") + "</td>",
@@ -2272,7 +2272,7 @@ OSApp.Analog.buildSensorConfig = function() {
 	list += "<a data-role='button' class='add-sensor'     href='#' data-mini='true' data-icon='plus'   >" +
 		OSApp.Language._("Add Sensor") + "</a>";
 	list += "<a data-role='button' class='refresh-sensor' href='#' data-mini='true' data-icon='refresh'>" +
-		OSApp.Language._("Refresh Sensordata") + "</a>";
+		OSApp.Language._(" data") + "</a>";
 	list += "</fieldset>";
 
 	//Program adjustments table:
@@ -2388,7 +2388,7 @@ OSApp.Analog.buildSensorConfig = function() {
 				case OSApp.Analog.Constants.MONITOR_AND:
 				case OSApp.Analog.Constants.MONITOR_OR:
 				case OSApp.Analog.Constants.MONITOR_XOR: {
-					source = OSApp.Analog.combineWithSep(" " + OSApp.Analog.getMonitorLogical(item.type) + " ",
+					source = OSApp.Utils.combineWithSep(" " + OSApp.Analog.getMonitorLogical(item.type) + " ",
 						OSApp.Analog.getMonitorSourceName(item.invers1, item.monitor1),
 						OSApp.Analog.getMonitorSourceName(item.invers2, item.monitor2),
 						OSApp.Analog.getMonitorSourceName(item.invers3, item.monitor3),
@@ -2453,21 +2453,6 @@ OSApp.Analog.buildSensorConfig = function() {
 		}
 	}
 	return list;
-};
-
-/*
-	Combines all parameters to a string. First parameter is the separator
-*/
-OSApp.Analog.combineWithSep = function(sep, ...args) {
-	if (!args.length) return "";
-	var result = "";
-	for (var i = 0; i < args.length; i++) {
-		let arg = args[i];
-		if (!arg) continue;
-		if (result.length > 0) result += sep;
-		result += arg;
-	}
-	return result;
 };
 
 OSApp.Analog.getMonitorLogical = function(type) {
