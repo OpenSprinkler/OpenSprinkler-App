@@ -25,12 +25,19 @@ OSApp.Analog = {
 		USERDEF_UNIT: 99,
 
 		// Firmware version(s) required for analog sensor support
-		MIN_REQ_FW_VERSION : "2.3.3(172)", // Suggested upgrade for users with insufficient fw
+		MIN_REQ_FW_VERSION : "2.3.3(172)", // Suggested upgrade for users with insufficient fw (see checkFirmwareUpdate)
 		MIN_REQ_FW_ID : 231,
 		MIN_REQ_FW_MIN : 150,
 
 		COLORS : ["#F3B415", "#F27036", "#663F59", "#6A6E94", "#4E88B4", "#00A7C6", "#18D8D8", '#A9D794', '#46AF78', '#A93F55', '#8C5E58', '#2176FF', '#33A1FD', '#7A918D', '#BAFF29'],
 		COLCOUNT : 15,
+
+		// channel ids for cordova notifications
+		CHANNELS: {
+			LOW: 'os_low',
+			MEDIUM: 'os_med',
+			HIGH: 'os_high'
+		},
 
 		//detected Analog Sensor Boards:
 		ASB_BOARD1 : 0x01,
@@ -113,24 +120,24 @@ OSApp.Analog.asb_init = function() {
 
 	if (OSApp.currentDevice.isAndroid) {
 		window.cordova.plugins.notification.local.createChannel({
-			channelId: 'os_low',
-			channel:   'os_low',
+			channelId: OSApp.Analog.Constants.CHANNELS.LOW,
+			channel:   OSApp.Analog.Constants.CHANNELS.LOW,
 			channelName:'OpenSprinklerLowNotifications',
 			vibrate: false, // bool (optional), default is false
 			importance: 2, // int (optional) 0 to 4, default is IMPORTANCE_DEFAULT (3)
 			soundUsage: 5, // int (optional), default is USAGE_NOTIFICATION
 			}, OSApp.Analog.success_callback, this);
 		window.cordova.plugins.notification.local.createChannel({
-			channelId: 'os_med',
-			channel:   'os_med',
+			channelId: OSApp.Analog.Constants.CHANNELS.MEDIUM,
+			channel:   OSApp.Analog.Constants.CHANNELS.MEDIUM,
 			channelName:'OpenSprinklerMedNotifications',
 			vibrate: false, // bool (optional), default is false
 			importance: 3, // int (optional) 0 to 4, default is IMPORTANCE_DEFAULT (3)
 			soundUsage: 5, // int (optional), default is USAGE_NOTIFICATION
 			}, OSApp.Analog.success_callback, this);
 		window.cordova.plugins.notification.local.createChannel({
-			channelId: 'os_high',
-			channel:   'os_high',
+			channelId: OSApp.Analog.Constants.CHANNELS.HIGH,
+			channel:   OSApp.Analog.Constants.CHANNELS.HIGH,
 			channelName:'OpenSprinklerHighNotifications',
 			vibrate: true, // bool (optional), default is false
 			importance: 4, // int (optional) 0 to 4, default is IMPORTANCE_DEFAULT (3)
@@ -269,9 +276,16 @@ OSApp.Analog.checkMonitorAlerts = function() {
 				 	dname = "OpenSprinkler";
 				let prio = Object.prototype.hasOwnProperty.call(monitor, "prio")?monitor.prio:0;
 
-				if (prio === 0) chan = 'os_low';
-				else if (prio === 1) chan = 'os_med';
-				else chan = 'os_high';
+				switch (prio) {
+					case 0:
+						chan = OSApp.Analog.Constants.CHANNELS.LOW;
+						break;
+					case 1:
+						chan = OSApp.Analog.Constants.CHANNELS.MEDIUM;
+						break;
+					default:
+						chan = OSApp.Analog.Constants.CHANNELS.HIGH;
+				}
 
 				window.cordova.plugins.notification.local.schedule({
 					id: monitor.nr,
