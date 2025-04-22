@@ -24,9 +24,10 @@ OSApp.Analog = {
 		CHARTS: 14,
 		USERDEF_UNIT: 99,
 
-		CURRENT_FW : "2.3.3(172)",
-		CURRENT_FW_ID : 231,
-		CURRENT_FW_MIN : 150,
+		// Firmware version(s) required for analog sensor support
+		MIN_REQ_FW_VERSION : "2.3.3(172)", // Suggested upgrade for users with insufficient fw
+		MIN_REQ_FW_ID : 231,
+		MIN_REQ_FW_MIN : 150,
 
 		COLORS : ["#F3B415", "#F27036", "#663F59", "#6A6E94", "#4E88B4", "#00A7C6", "#18D8D8", '#A9D794', '#46AF78', '#A93F55', '#8C5E58', '#2176FF', '#33A1FD', '#7A918D', '#BAFF29'],
 		COLCOUNT : 15,
@@ -2150,9 +2151,9 @@ OSApp.Analog.showAnalogSensorConfig = function() {
 };
 
 OSApp.Analog.checkFirmwareUpdate = function() {
-	if (OSApp.Firmware.checkOSVersion(OSApp.Analog.Constants.CURRENT_FW_ID) && OSApp.currentSession.controller.options.fwm >= OSApp.Analog.Constants.CURRENT_FW_MIN)
+	if (OSApp.Firmware.checkOSVersion(OSApp.Analog.Constants.MIN_REQ_FW_ID) && OSApp.currentSession.controller.options.fwm >= OSApp.Analog.Constants.MIN_REQ_FW_MIN)
 		return "";
-	return OSApp.Language._("Please update firmware to ") + OSApp.Analog.Constants.CURRENT_FW;
+	return OSApp.Language._("Please update firmware to ") + OSApp.Analog.Constants.MIN_REQ_FW_VERSION;
 };
 
 OSApp.Analog.buildSensorConfig = function() {
