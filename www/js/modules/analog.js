@@ -39,6 +39,7 @@ OSApp.Analog = {
 			HIGH: 'os_high'
 		},
 
+		// units used for sensor config, chart titles, etc
 		UNITS: {
 			DEFAULT: {ID: 0, NAME: 'Default'},
 			SOIL_MOISTURE_PCT: {ID: 1, NAME: 'Soil Moisture %'},
@@ -55,6 +56,14 @@ OSApp.Analog = {
 			LUMEN_LM: {ID: 12, NAME: 'Lumen (lm)'},
 			LUX_LX: {ID: 13, NAME: 'Lux (lx)'},
 			OWN_UNIT: {ID: 99, NAME: 'Own Unit'},
+		},
+
+		// backup related items for import/export functionality
+		BACKUPS: {
+			SENSORS: {ID: 1, STORAGE_NAME: 'backupSensors', FILENAME: 'BackupSensorConfig'},
+			ADJUSTMENTS: {ID: 2, STORAGE_NAME: 'backupAdjustments', FILENAME: 'BackupSensorAdjustments'},
+			MONITOR: {ID: 4, STORAGE_NAME: 'backupMonitor', FILENAME: 'BackupMonitorConfig'},
+			ALL: {ID: 7, STORAGE_NAME: 'backupAll', FILENAME: 'BackupAllConfig'},
 		},
 
 		//detected Analog Sensor Boards:
@@ -698,10 +707,30 @@ OSApp.Analog.sendToOsObj = function(params, obj) {
 	return OSApp.Firmware.sendToOS(params, "json");
 };
 
-
 OSApp.Analog.getExportMethodSensors = function(backuptype) {
-	let storageName = (backuptype == 1) ? "backupSensors" : (backuptype == 2) ? "backupAdjustments" : (backuptype == 4) ? "backupMonitor" : "backupAll";
-	let filename = (backuptype == 1) ? "BackupSensorConfig" : (backuptype == 2) ? "BackupSensorAdjustments" : (backuptype == 4) ? "BackupMonitorConfig" : "BackupAllConfig";
+	let storageName, filename;
+	switch (backuptype) {
+		case OSApp.Analog.Constants.BACKUPS.SENSORS.ID:
+			storageName = OSApp.Analog.Constants.BACKUPS.SENSORS.STORAGE_NAME;
+			filename = OSApp.Analog.Constants.BACKUPS.SENSORS.FILENAME;
+			break;
+
+		case OSApp.Analog.Constants.BACKUPS.ADJUSTMENTS.ID:
+			storageName = OSApp.Analog.Constants.BACKUPS.ADJUSTMENTS.STORAGE_NAME;
+			filename = OSApp.Analog.Constants.BACKUPS.ADJUSTMENTS.FILENAME;
+			break;
+
+		case OSApp.Analog.Constants.BACKUPS.MONITOR.ID:
+			storageName = OSApp.Analog.Constants.BACKUPS.MONITOR.STORAGE_NAME;
+			filename = OSApp.Analog.Constants.BACKUPS.MONITOR.FILENAME;
+			break;
+
+		case OSApp.Analog.Constants.BACKUPS.ALL.ID:
+		default:
+			storageName = OSApp.Analog.Constants.BACKUPS.ALL.STORAGE_NAME;
+			filename = OSApp.Analog.Constants.BACKUPS.ALL.FILENAME;
+			break;
+	}
 
 	OSApp.Firmware.sendToOS("/sx?pw=&backup=" + backuptype, "json").then(function (data) {
 		var popup = $(
@@ -2104,49 +2133,49 @@ OSApp.Analog.showAnalogSensorConfig = function() {
 
 		list.find(".backup-all").on("click", function () {
 			OSApp.Analog.expandItem.add("backup");
-			OSApp.Analog.getExportMethodSensors(1+2+4);
+			OSApp.Analog.getExportMethodSensors(OSApp.Analog.Constants.BACKUPS.ALL.ID);
 			return false;
 		});
 
 		list.find(".restore-all").on("click", function () {
 			OSApp.Analog.expandItem.add("backup");
-			OSApp.Analog.getImportMethodSensors(1+2+4, updateSensorContent);
+			OSApp.Analog.getImportMethodSensors(OSApp.Analog.Constants.BACKUPS.ALL.ID, updateSensorContent);
 			return false;
 		});
 
 		list.find(".backup-sensors").on("click", function () {
 			OSApp.Analog.expandItem.add("backup");
-			OSApp.Analog.getExportMethodSensors(1);
+			OSApp.Analog.getExportMethodSensors(OSApp.Analog.Constants.BACKUPS.SENSORS.ID);
 			return false;
 		});
 
 		list.find(".restore-sensors").on("click", function () {
 			OSApp.Analog.expandItem.add("backup");
-			OSApp.Analog.getImportMethodSensors(1, updateSensorContent);
+			OSApp.Analog.getImportMethodSensors(OSApp.Analog.Constants.BACKUPS.SENSORS.ID, updateSensorContent);
 			return false;
 		});
 
 		list.find(".backup-adjustments").on("click", function () {
 			OSApp.Analog.expandItem.add("backup");
-			OSApp.Analog.getExportMethodSensors(2);
+			OSApp.Analog.getExportMethodSensors(OSApp.Analog.Constants.BACKUPS.ADJUSTMENTS.ID);
 			return false;
 		});
 
 		list.find(".restore-adjustments").on("click", function () {
 			OSApp.Analog.expandItem.add("backup");
-			OSApp.Analog.getImportMethodSensors(2, updateSensorContent);
+			OSApp.Analog.getImportMethodSensors(OSApp.Analog.Constants.BACKUPS.ADJUSTMENTS.ID, updateSensorContent);
 			return false;
 		});
 
 		list.find(".backup-monitors").on("click", function () {
 			OSApp.Analog.expandItem.add("backup");
-			OSApp.Analog.getExportMethodSensors(4);
+			OSApp.Analog.getExportMethodSensors(OSApp.Analog.Constants.BACKUPS.MONITOR.ID);
 			return false;
 		});
 
 		list.find(".restore-monitors").on("click", function () {
 			OSApp.Analog.expandItem.add("backup");
-			OSApp.Analog.getImportMethodSensors(4, OSApp.Analog.updateMonitors);
+			OSApp.Analog.getImportMethodSensors(OSApp.Analog.Constants.BACKUPS.MONITOR.ID, OSApp.Analog.updateMonitors);
 			return false;
 		});
 
