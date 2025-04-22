@@ -1743,16 +1743,8 @@ OSApp.Analog.showSensorEditor = function(sensor, row, callback, callbackCancel) 
 
 			"<label class='chartunit_label'>" + OSApp.Language._("Chart Unit") +
 			"</label>" +
-			"<select data-mini='true' id='unitid'>";
 
-			for (const key in OSApp.Analog.Constants.UNITS) {
-				if (OSApp.Analog.Constants.UNITS.hasOwnProperty(key)) {
-					const unit = OSApp.Analog.Constants.UNITS[key];
-					list += `<option value="${unit.ID}">${unit.NAME}</option>`;
-				}
-			}
-
-			list += "</select>" +
+			`<select data-mini='true' id='unitid'>${OSApp.Utils.buildOptionsForObj(OSApp.Analog.Constants.UNITS)}</select>` +
 
 			"<label class='unit_label'>" + OSApp.Language._("Unit") +
 			"</label>" +

@@ -199,3 +199,25 @@ OSApp.Utils.formatValUnit = function(val, unit) {
 		return "";
 	return (+(Math.round(val + "e+2") + "e-2")) + unit;
 };
+
+/**
+* returns string of select options htmlfor all items in constant definition
+* note: uses String based comparison to determine current selected option!
+* example constantDefObj:
+{
+	CA: {ID: 0, NAME: 'California'},
+	AZ: {ID: 1, NAME: 'Arizona'}
+}
+*/
+OSApp.Utils.buildOptionsForObj = function(constantDefObj, selectedValue, valueField = 'ID', nameField = 'NAME') {
+	let result = '';
+	for (const key in constantDefObj) {
+		if (constantDefObj.hasOwnProperty(key)) {
+			const item = constantDefObj[key];
+
+			result += `<option value="${item[valueField]}" ${selectedValue && String(selectedValue) === String(item[valueField]) ? 'selected="selected"' : ''}>${OSApp.Language._(item[nameField])}</option>`;
+		}
+	}
+
+	return result;
+}

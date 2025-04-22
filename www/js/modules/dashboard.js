@@ -464,10 +464,10 @@ OSApp.Dashboard.displayPage = function() {
 				//Flow alert setpoint
 				if (OSApp.Supported.fas()) { // fas = flow alert setpoint
 					var fas = OSApp.currentSession.controller.stations.stn_fas[ sid ].toFixed(2) / 100;
-					select += "<div class='ui-bar-a ui-bar'>" + OSApp.Language._("Flow alert setpoint") + " (liter/min):</div>" +
+					select += "<div class='ui-bar-a ui-bar'>" + OSApp.Language._("Flow alert setpoint") + " (" + OSApp.Language._("liter/min") + "):</div>" +
 						"<input class='center' id='fas' type='text' inputmode='decimal' min='0' max='640' value='" + fas + "' >";
 						if (OSApp.currentSession.controller.stations.stn_favg) {
-							select += "<div class='ui-bar-a ui-bar'>" + OSApp.Language._("Average flow value") + " (liter/min):</div>" +
+							select += "<div class='ui-bar-a ui-bar'>" + OSApp.Language._("Average flow value") + " (" + OSApp.Language._("liter/min") + "):</div>" +
 							"<label class='center'>" + OSApp.currentSession.controller.stations.stn_favg[ sid ].toFixed(2) / 100 + "</label>";
 						}
 				}

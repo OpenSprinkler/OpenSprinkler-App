@@ -39,7 +39,7 @@ OSApp.Firmware.Constants = {
 };
 
 // Wrapper function to communicate with OpenSprinkler
-OSApp.Firmware.sendToOS = function( dest, type, timeout ) {
+OSApp.Firmware.sendToOS = function( dest, type, timeout = 30000) {
 
 	// Inject password into the request
 	dest = dest.replace( "pw=", "pw=" + encodeURIComponent( OSApp.currentSession.pass ) );

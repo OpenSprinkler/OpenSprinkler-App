@@ -17,6 +17,15 @@
 var OSApp = OSApp || {};
 OSApp.Options = OSApp.Options || {};
 
+OSApp.Options.Constants = {
+	DASHBOARD_MODE: {
+		HIDE_ALL: {ID: 0, NAME: 'Hide All'},
+		SHOW_ZONES: {ID: 1, NAME: 'Show Zones'},
+		SHOW_PROGRAMS: {ID: 2, NAME: 'Show Programs'},
+		SHOW_ALL: {ID: 3, NAME: 'Show All'},
+	}
+};
+
 // FIXME: please, please, please refactor me!
 // Device setting management functions
 OSApp.Options.showOptions = function( expandItem ) {
@@ -395,12 +404,10 @@ OSApp.Options.showOptions = function( expandItem ) {
 	sel[displayOption] = " selected='selected'";
 	list += "<div class='ui-field-contain'>"+
 		"<label for='displayOption'>"+OSApp.Language._( "Mainpage display" )+"</label>" +
-		"<select name='displayOption' id='displayOption' data-mini='true'>"+
-		"<option value='0'"+sel[0]+">"+OSApp.Language._( "Hide all")+"</option>"+
-		"<option value='1'"+sel[1]+">"+OSApp.Language._( "Show Zones")+"</option>"+
-		"<option value='2'"+sel[2]+">"+OSApp.Language._( "Show Programs")+"</option>"+
-		"<option value='3'"+sel[3]+">"+OSApp.Language._( "Show all")+"</option>"+
-		"</select></div>";
+		`<select name='displayOption' id='displayOption' data-mini='true'>
+			${OSApp.Utils.buildOptionsForObj(OSApp.Options.Constants.DASHBOARD_MODE, displayOption)}
+		</select>` +
+		"</div>";
 
 	list += "</fieldset><fieldset data-role='collapsible'" +
 		( typeof expandItem === "string" && expandItem === "master" ? " data-collapsed='false'" : "" ) + ">" +
@@ -1423,9 +1430,9 @@ OSApp.Options.showOptions = function( expandItem ) {
 			station: OSApp.Language._( "Station Start" ),
 			flow_alert: OSApp.Language._( "Flow Alert" ),
 			//curr_alert: OSApp.Language._( "Current Sensor Alert" ),
-			warning_low: OSApp.Language._("Monitoring-warnings level low"),
-			warning_med: OSApp.Language._("Monitoring-warnings level medium"),
-			warning_high: OSApp.Language._("Monitoring-warnings level high"),
+			warning_low: OSApp.Language._("Monitoring warning level: Low"),
+			warning_med: OSApp.Language._("Monitoring warning level: Medium"),
+			warning_high: OSApp.Language._("Monitoring warning level: High"),
 		}, button = this, curr = parseInt( button.value ), inputs = "", a = 0, ife = 0;
 
 		let no_ife2 = typeof OSApp.currentSession.controller.options.ife2 === "undefined";
