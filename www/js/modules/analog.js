@@ -185,7 +185,7 @@ OSApp.Analog.asb_init = function() {
 };
 
 OSApp.Analog.checkAnalogSensorAvail = function() {
-	return OSApp.currentSession.controller.options && OSApp.currentSession.controller.options.feature.includes("ASB");
+	return OSApp.currentSession.controller.options && OSApp.currentSession.controller.options.feature?.includes("ASB");
 };
 
 OSApp.Analog.refresh = function() {

@@ -168,7 +168,7 @@ OSApp.ProgramView.updateProgramShowArea = function( page, visible ) {
 		for (i = 0; i < OSApp.currentSession.controller.programs.pd.length; i++) {
 			for ( j = 0; j < OSApp.currentSession.controller.stations.snames.length; j++ ) {
 				if ( !OSApp.Stations.isMaster( j ) ) {
-					page.find("#progStation-"+i+"-"+j).on( "click", function(_ev) {
+					page.find("#progStation-"+i+"-"+j).on( "click", function() {
 						let value = $( this )[0].value.split("_");
 						let pid = Number(value[0]);
 						let sid = Number(value[1]);
