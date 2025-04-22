@@ -41,21 +41,21 @@ OSApp.Analog = {
 
 		// units used for sensor config, chart titles, etc
 		UNITS: {
-			DEFAULT: {ID: 0, NAME: 'Default', UNIT: ''},
-			SOIL_MOISTURE_PCT: {ID: 1, NAME: 'Soil Moisture %', UNIT: '%'},
-			DEGREE_CELCIUS: {ID: 2, NAME: `Degree Celcius ${String.fromCharCode(176)}C`, UNIT: String.fromCharCode(176) + 'C'},
-			DEGREE_FARENHEIT: {ID: 3, NAME: `Degree Fahrenheit ${String.fromCharCode(176)}F`, UNIT: String.fromCharCode(176) + 'F'},
-			VOLT_V: {ID: 4, NAME: 'Volt V', UNIT: 'V'},
-			AIR_HUMIDITY_PCT: {ID: 5, NAME: 'Air Humidity %', UNIT: '%'},
-			INCH_IN: {ID: 6, NAME: 'Inch in', UNIT: 'in'},
-			MILLIMETER_MM: {ID: 7, NAME: 'Millimeter mm', UNIT: 'mm'},
-			MPH: {ID: 8, NAME: 'MPH', UNIT: 'mph'},
-			KMH: {ID: 9, NAME: 'KM/H', UNIT: 'kmh'},
-			LEVEL_PCT: {ID: 10, NAME: 'Level %', UNIT: '%'},
-			DK: {ID: 11, NAME: 'DK', UNIT: 'DK'},
-			LUMEN_LM: {ID: 12, NAME: 'Lumen (lm)', UNIT: 'lm'},
-			LUX_LX: {ID: 13, NAME: 'Lux (lx)', UNIT: 'lx'},
-			OWN_UNIT: {ID: 99, NAME: 'Own Unit', UNIT: ''},
+			DEFAULT: {ID: 0, NAME: 'Default', UNIT: '', GRAPH_TITLE: 'Default'},
+			SOIL_MOISTURE_PCT: {ID: 1, NAME: 'Soil Moisture %', UNIT: '%', GRAPH_TITLE: 'Soil Moisture'},
+			DEGREE_CELCIUS: {ID: 2, NAME: `Degree Celcius ${String.fromCharCode(176)}C`, UNIT: String.fromCharCode(176) + 'C', GRAPH_TITLE: 'Temperature'},
+			DEGREE_FARENHEIT: {ID: 3, NAME: `Degree Fahrenheit ${String.fromCharCode(176)}F`, UNIT: String.fromCharCode(176) + 'F', GRAPH_TITLE: 'Temperature'},
+			VOLT_V: {ID: 4, NAME: 'Volt V', UNIT: 'V', GRAPH_TITLE: 'Voltage'},
+			AIR_HUMIDITY_PCT: {ID: 5, NAME: 'Air Humidity %', UNIT: '%', GRAPH_TITLE: 'Air Humidity'},
+			INCH_IN: {ID: 6, NAME: 'Inch in', UNIT: 'in', GRAPH_TITLE: 'Rainfall'},
+			MILLIMETER_MM: {ID: 7, NAME: 'Millimeter mm', UNIT: 'mm', GRAPH_TITLE: 'Rainfall'},
+			MPH: {ID: 8, NAME: 'MPH', UNIT: 'mph', GRAPH_TITLE: 'Wind'},
+			KMH: {ID: 9, NAME: 'KM/H', UNIT: 'kmh', GRAPH_TITLE: 'Wind'},
+			LEVEL_PCT: {ID: 10, NAME: 'Level %', UNIT: '%', GRAPH_TITLE: 'Level'},
+			DK: {ID: 11, NAME: 'DK', UNIT: 'DK', GRAPH_TITLE: 'DK'},
+			LUMEN_LM: {ID: 12, NAME: 'Lumen (lm)', UNIT: 'lm', GRAPH_TITLE: 'LUmen'},
+			LUX_LX: {ID: 13, NAME: 'Lux (lx)', UNIT: 'lx', GRAPH_TITLE: 'Lux'},
+			OWN_UNIT: {ID: 99, NAME: 'Own Unit', UNIT: '', GRAPH_TITLE: ''},
 		},
 
 		// backup related items for import/export functionality
@@ -2671,76 +2671,67 @@ OSApp.Analog.buildGraph = function(prefix, chart, csv, titleAdd, timestr, tzo, l
 				minFunc = function (val) { return Math.floor(val > 0 ? Math.max(0, val - 4) : val - 1); },
 				maxFunc = function (val) { return Math.ceil(val); },
 				autoY = true;
+
+			var unitDef = OSApp.Analog.getUnitDefById(unitid);
+			title = OSApp.Language._(unitDef.GRAPH_TITLE) + " " + titleAdd;
+			unitStr = function (val) { return OSApp.Utils.formatVal(val) + " " + unitDef.UNIT; };
+
 			switch (unitid) {
-				case OSApp.Analog.Constants.UNITS.SOIL_MOISTURE_PCT.ID: unit = OSApp.Language._("Soil moisture");
-					title = OSApp.Language._("Soil moisture") + " " + titleAdd;
-					unitStr = function (val) { return OSApp.Utils.formatVal(val) + " " + OSApp.Analog.Constants.UNITS.SOIL_MOISTURE_PCT.UNIT; };
+				case OSApp.Analog.Constants.UNITS.SOIL_MOISTURE_PCT.ID:
+					unit = OSApp.Language._("Soil Moisture");
 					minFunc = 0;
 					maxFunc = 100;
 					break;
-				case OSApp.Analog.Constants.UNITS.DEGREE_CELCIUS.ID: unit = OSApp.Language._("Degree Celsius Temperature");
-					title = OSApp.Language._("Temperature") + " " + titleAdd;
-					unitStr = function (val) { return OSApp.Utils.formatVal(val) + " " + OSApp.Analog.Constants.UNITS.DEGREE_CELCIUS.UNIT; };
+				case OSApp.Analog.Constants.UNITS.DEGREE_CELCIUS.ID:
+					unit = OSApp.Language._("Degree Celsius Temperature");
 					break;
-				case OSApp.Analog.Constants.UNITS.DEGREE_FARENHEIT.ID: unit = OSApp.Language._("Degree Fahrenheit Temperature");
-					title = OSApp.Language._("Temperature") + " " + titleAdd;
-					unitStr = function (val) { return OSApp.Utils.formatVal(val) + " " + OSApp.Analog.Constants.UNITS.DEGREE_FARENHEIT.UNIT; };
+				case OSApp.Analog.Constants.UNITS.DEGREE_FARENHEIT.ID:
+					unit = OSApp.Language._("Degree Fahrenheit Temperature");
 					break;
-				case OSApp.Analog.Constants.UNITS.VOLT_V.ID: unit = OSApp.Language._("Volt");
-					title = OSApp.Language._("Voltage") + " " + titleAdd;
-					unitStr = function (val) { return OSApp.Utils.formatVal(val) + " " + OSApp.Analog.Constants.UNITS.VOLT_V.UNIT; };
+				case OSApp.Analog.Constants.UNITS.VOLT_V.ID:
+					unit = OSApp.Language._("Volt");
 					minFunc = 0;
 					maxFunc = 4;
 					autoY = false;
 					break;
-				case OSApp.Analog.Constants.UNITS.AIR_HUMIDITY_PCT.ID: unit = OSApp.Language._("Humidity");
-					title = OSApp.Language._("Air Humidity") + " " + titleAdd;
-					unitStr = function (val) { return OSApp.Utils.formatVal(val) + " " + OSApp.Analog.Constants.UNITS.AIR_HUMIDITY_PCT.UNIT; };
+				case OSApp.Analog.Constants.UNITS.AIR_HUMIDITY_PCT.ID:
+					unit = OSApp.Language._("Humidity");
 					minFunc = 0;
 					maxFunc = 100;
 					break;
-				case OSApp.Analog.Constants.UNITS.INCH_IN.ID: unit = OSApp.Language._("Rain");
-					title = OSApp.Language._("Rainfall") + " " + titleAdd;
-					unitStr = function (val) { return OSApp.Utils.formatVal(val) + " " + OSApp.Analog.Constants.UNITS.INCH_IN.UNIT; };
+				case OSApp.Analog.Constants.UNITS.INCH_IN.ID:
+					unit = OSApp.Language._("Rain");
 					break;
-				case OSApp.Analog.Constants.UNITS.MILLIMETER_MM.ID: unit = OSApp.Language._("Rain");
-					title = OSApp.Language._("Rainfall") + " " + titleAdd;
-					unitStr = function (val) { return OSApp.Utils.formatVal(val) + " " + OSApp.Analog.Constants.UNITS.MILLIMETER_MM.UNIT; };
+				case OSApp.Analog.Constants.UNITS.MILLIMETER_MM.ID:
+					unit = OSApp.Language._("Rain");
 					minFunc = 0;
 					break;
-				case OSApp.Analog.Constants.UNITS.MPH.ID: unit = OSApp.Language._("Wind");
-					title = OSApp.Language._("Wind") + " " + titleAdd;
-					unitStr = function (val) { return OSApp.Utils.formatVal(val) + " " + OSApp.Analog.Constants.UNITS.MPH.UNIT; };
+				case OSApp.Analog.Constants.UNITS.MPH.ID:
+					unit = OSApp.Language._("Wind");
 					minFunc = 0;
 					break;
-				case OSApp.Analog.Constants.UNITS.KMH.ID: unit = OSApp.Language._("Wind");
-					title = OSApp.Language._("Wind") + " " + titleAdd;
-					unitStr = function (val) { return OSApp.Utils.formatVal(val) + " " + OSApp.Analog.Constants.UNITS.KMH.UNIT; };
+				case OSApp.Analog.Constants.UNITS.KMH.ID:
+					unit = OSApp.Language._("Wind");
 					minFunc = 0;
 					break;
-				case OSApp.Analog.Constants.UNITS.LEVEL_PCT.ID: unit = OSApp.Language._("Level");
-					title = OSApp.Language._("Level") + " " + titleAdd;
-					unitStr = function (val) { return OSApp.Utils.formatVal(val) + " " + OSApp.Analog.Constants.UNITS.LEVEL_PCT.UNIT; };
+				case OSApp.Analog.Constants.UNITS.LEVEL_PCT.ID:
+					unit = OSApp.Language._("Level");
 					minFunc = 0;
 					maxFunc = 100;
 					autoY = false;
 					break;
-				case OSApp.Analog.Constants.UNITS.DK.ID: unit = OSApp.Language._("DK");
-					title = OSApp.Language._("DK") + " " + titleAdd;
-					unitStr = function (val) { return OSApp.Utils.formatVal(val) + " " + OSApp.Analog.Constants.UNITS.DK.UNIT; };
+				case OSApp.Analog.Constants.UNITS.DK.ID:
+					unit = OSApp.Language._("DK");
 					minFunc = 0;
 					break;
-				case OSApp.Analog.Constants.UNITS.LUMEN_LM.ID: unit = OSApp.Language._("lm");
-					title = OSApp.Language._("Lumen") + " " + titleAdd;
-					unitStr = function (val) { return OSApp.Utils.formatVal(val) + " " + OSApp.Analog.Constants.UNITS.LUMEN_LM.UNIT; };
+				case OSApp.Analog.Constants.UNITS.LUMEN_LM.ID:
+					unit = OSApp.Language._("lm");
 					minFunc = 0;
 					break;
-				case OSApp.Analog.Constants.UNITS.LUX_LX.ID: unit = OSApp.Language._("lx");
-					title = OSApp.Language._("LUX") + " " + titleAdd;
-					unitStr = function (val) { return OSApp.Utils.formatVal(val) + " " + OSApp.Analog.Constants.UNITS.LUX_LX.UNIT; };
+				case OSApp.Analog.Constants.UNITS.LUX_LX.ID:
+					unit = OSApp.Language._("lx");
 					minFunc = 0;
 					break;
-
 
 				default: unit = sensor.unit;
 					title = sensor.name + "~ " + titleAdd;
@@ -3030,4 +3021,16 @@ OSApp.Analog.getUnit = function(sensor) {
     }
 
 	return sensor.unit;
+};
+
+/* Returns the specified Constants.UNITS.XXX definition based on unit id*/
+OSApp.Analog.getUnitDefById = function(unitId) {
+	for (const key in OSApp.Analog.Constants.UNITS) {
+        if (OSApp.Analog.Constants.UNITS.hasOwnProperty(key) && OSApp.Analog.Constants.UNITS[key].ID === unitId) {
+            return OSApp.Analog.Constants.UNITS[key];
+        }
+    }
+
+	// if there are no matching UNIT definitions, return DEFAULT
+	return OSApp.Analog.Constants.UNITS.DEFAULT;
 };
