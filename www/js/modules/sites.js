@@ -900,6 +900,7 @@ OSApp.Sites.newLoad = function() {
 			if ( OSApp.Analog.checkAnalogSensorAvail() ) {
 				OSApp.Analog.updateAnalogSensor();
 				OSApp.Analog.updateProgramAdjustments();
+				OSApp.Analog.updateMonitors();
 			}
 
 			// Hide change password feature for unsupported devices
