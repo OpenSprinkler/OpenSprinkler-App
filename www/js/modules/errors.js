@@ -113,3 +113,38 @@ ${OSApp.Errors.formatDeviceInfo(OSApp.currentDevice)}
 
 	window.open(issueUrl, '_blank'); // Open in a new tab
 };
+
+OSApp.Errors.showCorruptedJsonModal = function(badJson, currentSession) {
+	// Create and display a modal prompting user to update firmware
+	let cs = OSApp.Language._('Unknown');
+	OSApp.Storage.get("current_site", function(x) {
+		cs = x?.current_site || OSApp.Language._('Unknown');
+	});
+	console.log("*** showCorruptedJsonModal", {badJson, currentSession, currentSite: cs});
+
+	const modal = document.createElement('div');
+	modal.innerHTML = `
+	  <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border: 1px solid #ccc; z-index: 1000;">
+		<h2>${OSApp.Language._('Error: Corrupted Response')}</h2>
+		<p>${OSApp.Language._('Uh oh! It looks like your OpenSprinkler controller sent some scrambled data, and that caused the app to stumble. This often happens when the controller\'s firmware is out of date.')}</p>
+		<p><b>${OSApp.Language._('Site Name')}</b>: ${cs}</p>
+		<p>${OSApp.Language._('To get things running smoothly again, we strongly recommend updating your OpenSprinkler firmware. Tap the Guide button below for more information')}</p>
+		<p><b>${OSApp.Language._('Important Note: Updating the firmware will erase your current settings. Use the Recovery Tool to save them beforehand!')}</b></p>
+		<p style="text-align: right;margin: 0 -18px;">
+			<button id="recoveryButton">${OSApp.Language._('Recovery Tool')}</button>
+			<button id="instructionsButton">${OSApp.Language._('Update Guide')}</button>
+		</p>
+	  </div>
+	`;
+	document.body.appendChild(modal);
+
+	const recoveryButton = document.getElementById('recoveryButton');
+	recoveryButton.addEventListener('click', () => {
+		window.open('https://raysfiles.com/os/TestOSLogWithCSV.html', "_blank");
+	});
+
+	const instructionsButton = document.getElementById('instructionsButton');
+	instructionsButton.addEventListener('click', () => {
+		window.open('https://openthings.freshdesk.com/support/solutions/articles/5000381694-opensprinkler-firmware-update-guide-summary-', "_blank");
+	});
+};

@@ -631,6 +631,11 @@ OSApp.Weather.finishWeatherUpdate = function() {
 };
 
 OSApp.Weather.updateWeather = function() {
+	if ( !OSApp.Utils.isSessionValid() ) {
+		console.log("*** updateWeather aborted due to invalid session");
+		return;
+	}
+
 	var now = new Date().getTime();
 
 	if ( OSApp.currentSession.weather && OSApp.currentSession.weather.providedLocation === OSApp.currentSession.controller.settings.loc && now - OSApp.currentSession.weather.lastUpdated < 60 * 60 * 100 ) {
