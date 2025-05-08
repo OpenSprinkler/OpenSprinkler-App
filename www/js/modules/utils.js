@@ -221,3 +221,10 @@ OSApp.Utils.buildOptionsForObj = function(constantDefObj, selectedValue, valueFi
 
 	return result;
 }
+
+/*
+Returns true when currentSession.controller.settings is populated
+*/
+OSApp.Utils.isSessionValid = function() {
+	return !$.isEmptyObject(OSApp.currentSession?.controller?.settings || {});
+}
