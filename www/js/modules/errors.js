@@ -125,14 +125,13 @@ OSApp.Errors.showCorruptedJsonModal = function(badJson, currentSession) {
 	const modal = document.createElement('div');
 	modal.innerHTML = `
 	  <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border: 1px solid #ccc; z-index: 1000;">
-		<h2>${OSApp.Language._('Error: Corrupted Response')}</h2>
-		<p>${OSApp.Language._('Uh oh! It looks like your OpenSprinkler controller sent some scrambled data, and that caused the app to stumble. This often happens when the controller\'s firmware is out of date.')}</p>
+		<h2>${OSApp.Language._('Corrupted Response')}</h2>
+		<p>${OSApp.Language._('The OpenSprinkler controller sent unexpected data, likely due to outdated firmware.')}</p>
 		<p><b>${OSApp.Language._('Site Name')}</b>: ${cs}</p>
-		<p>${OSApp.Language._('To get things running smoothly again, we strongly recommend updating your OpenSprinkler firmware. Tap the Guide button below for more information')}</p>
-		<p><b>${OSApp.Language._('Important Note: Updating the firmware will erase your current settings. Use the Recovery Tool to save them beforehand!')}</b></p>
-		<p style="text-align: right;margin: 0 -18px;">
-			<button id="recoveryButton">${OSApp.Language._('Recovery Tool')}</button>
-			<button id="instructionsButton">${OSApp.Language._('Update Guide')}</button>
+		<p>${OSApp.Language._('To fix this, please update your firmware. Remember to use the "CSV Tool" to save your current settings beforehand!')}</p>
+		<p style="text-align: right">
+			<button id="recoveryButton">${OSApp.Language._('CSV Tool')}</button>
+			<button id="instructionsButton">${OSApp.Language._('Help')}</button>
 		</p>
 	  </div>
 	`;
