@@ -54,6 +54,10 @@ OSApp.Utils.escapeJSON = function( json ) {
 	return JSON.stringify( json ).replace( /\{|\}/g, "" );
 };
 
+OSApp.Utils.escapeJSON2 = function( json ) {
+	return JSON.stringify( json ).replace(/#/g, "%23").replace(/=/g, "%3D").replace( /\{|\}/g, "" );
+};
+
 OSApp.Utils.unescapeJSON = function( string ) {
 	return JSON.parse( "{" + string + "}" );
 };
