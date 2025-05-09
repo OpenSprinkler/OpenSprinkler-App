@@ -929,7 +929,7 @@ OSApp.Sites.newLoad = function() {
 			}
 
 			// Check if the OpenSprinkler can be accessed from the public IP
-			if ( !OSApp.currentSession.local && typeof OSApp.currentSession.controller.settings.eip === "number" ) {
+			if ( !OSApp.currentSession.local && typeof OSApp.currentSession.controller?.settings?.eip === "number" ) {
 				OSApp.Network.checkPublicAccess( OSApp.currentSession.controller.settings.eip );
 			}
 
@@ -1231,6 +1231,8 @@ OSApp.Sites.updateControllerSettings = function( callback ) {
 							OSApp.Sites.handleCorruptedWeatherOptions( wto );
 							//eslint-disable-next-line no-unused-vars
 						} catch ( e ) {
+							// Corrupted JSON returned. Display error modal with fw update links
+							OSApp.Errors.showCorruptedJsonModal( settings, OSApp.currentSession );
 							return false;
 						}
 					}
