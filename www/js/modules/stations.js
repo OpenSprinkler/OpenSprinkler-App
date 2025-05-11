@@ -40,7 +40,6 @@ OSApp.Stations.getName = function( sid ) {
 	if (!OSApp.currentSession.controller?.stations?.snames || OSApp.currentSession.controller?.stations?.snames.length < sid)
 	{
 		return result;
-
 	}
 
 	result = OSApp.currentSession.controller.stations.snames[ sid ];

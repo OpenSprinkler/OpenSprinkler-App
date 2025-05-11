@@ -996,7 +996,7 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 							"className":"master",
 							"shortname":"M" + ( mas2 ? "1" : "" ),
 							"group":"Master",
-							"station": sid,
+							"station": sid
 						} );
 					}
 
@@ -1008,7 +1008,7 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 							"className":"master",
 							"shortname":"M2",
 							"group":"Master 2",
-							"station": sid,
+							"station": sid
 						} );
 					}
 				}
@@ -1037,7 +1037,7 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 									"className":"master",
 									"shortname":"M" + ( mas2 ? "1" : "" ),
 									"group":"Master",
-									"station": sid,
+									"station": sid
 								} );
 							}
 
@@ -1049,7 +1049,7 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 									"className":"master",
 									"shortname":"M2",
 									"group":"Master 2",
-									"station": sid,
+									"station": sid
 								} );
 							}
 						}
@@ -1070,7 +1070,7 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 								"className":"master",
 								"shortname":"M",
 								"group":"Master",
-								"station": sid,
+								"station": sid
 							} );
 						}
 						timeToText( sid, startArray[ sid ], programArray[ sid ], endArray[ sid ], simt );
@@ -1093,7 +1093,7 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 					"className":"master",
 					"shortname":"M",
 					"group":"Master",
-					"station": sid,
+					"station": sid
 				} );
 			}
 		}
@@ -1125,7 +1125,7 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 			"pid": pid - 1,
 			"shortname":"S" + ( sid + 1 ),
 			"group": OSApp.Stations.getName(sid),
-			"station": sid,
+			"station": sid
 		} );
 	};
 
