@@ -36,7 +36,22 @@ OSApp.Stations.getNumberProgramStatusOptions = function() {
 };
 
 OSApp.Stations.getName = function( sid ) {
-	return OSApp.currentSession.controller.stations.snames[ sid ];
+	var result = sid;
+	if (!OSApp.currentSession.controller?.stations?.snames || OSApp.currentSession.controller?.stations?.snames.length < sid)
+	{
+		return result;
+
+	}
+
+	result = OSApp.currentSession.controller.stations.snames[ sid ];
+
+	OSApp.Storage.get( "showStationNum", function( data ) {
+		if ( data.showStationNum && data.showStationNum === "true" ) {
+			result += ` (S${sid + 1})`;
+		}
+	});
+
+	return result;
 };
 
 OSApp.Stations.setName = function( sid, value ) {

@@ -393,7 +393,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 
 		for ( i = 0; i < OSApp.currentSession.controller.stations.snames.length; i++ ) {
 			list += "<option " + ( ( OSApp.Stations.isMaster( i ) === 1 ) ? "selected" : "" ) + " value='" + ( i + 1 ) + "'>" +
-				OSApp.currentSession.controller.stations.snames[ i ] + "</option>";
+				OSApp.Stations.getName( i ) + "</option>";
 
 			if ( !OSApp.Firmware.checkOSVersion( 214 ) && i === 7 ) {
 				break;
@@ -424,7 +424,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 			"</label><select data-mini='true' id='o37'><option value='0'>" + OSApp.Language._( "None" ) + "</option>";
 
 		for ( i = 0; i < OSApp.currentSession.controller.stations.snames.length; i++ ) {
-			list += "<option " + ( ( OSApp.Stations.isMaster( i ) === 2 ) ? "selected" : "" ) + " value='" + ( i + 1 ) + "'>" + OSApp.currentSession.controller.stations.snames[ i ] +
+			list += "<option " + ( ( OSApp.Stations.isMaster( i ) === 2 ) ? "selected" : "" ) + " value='" + ( i + 1 ) + "'>" + OSApp.Stations.getName(i) +
 				"</option>";
 
 			if ( !OSApp.Firmware.checkOSVersion( 214 ) && i === 7 ) {
@@ -482,6 +482,9 @@ OSApp.Options.showOptions = function( expandItem ) {
 				( ( OSApp.currentSession.controller.options.seq === 1 ) ? "checked='checked'" : "" ) + ">" +
 			OSApp.Language._( "Sequential" ) + "</label>";
 	}
+
+	list += "<label for='showStationNum'><input data-mini='true' class='noselect' id='showStationNum' type='checkbox' " + ( ( localStorage.showStationNum === "true" ) ? "checked='checked'" : "" ) + ">" +
+	OSApp.Language._( "Show Station Number" ) + " " + OSApp.Language._( "(Changes Auto-Saved)" ) + "</label>";
 
 	list += "</fieldset><fieldset data-role='collapsible'" +
 		( typeof expandItem === "string" && expandItem === "weather" ? " data-collapsed='false'" : "" ) + ">" +
@@ -948,6 +951,11 @@ OSApp.Options.showOptions = function( expandItem ) {
 
 	page.find( "#showDisabled" ).on( "change", function() {
 		OSApp.Storage.set( { showDisabled: this.checked } );
+		return false;
+	} );
+
+	page.find( "#showStationNum" ).on( "change", function() {
+		OSApp.Storage.set( { showStationNum: this.checked } );
 		return false;
 	} );
 
