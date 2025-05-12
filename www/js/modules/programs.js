@@ -389,14 +389,14 @@ OSApp.Programs.displayPageRunOnce = function() {
 		}
 		quickPick += "</select>";
 		list += quickPick + "<form>";
-		$.each( OSApp.currentSession.controller.stations.snames, function( i, station ) {
+		$.each( OSApp.currentSession.controller.stations.snames, function( i ) {
 			if ( OSApp.Stations.isMaster( i ) ) {
 				list += "<div class='ui-field-contain duration-input" + ( OSApp.Stations.isDisabled( i ) ? " station-hidden' style='display:none" : "" ) + "'>" +
-					"<label for='zone-" + i + "'>" + station + ":</label>" +
+					"<label for='zone-" + i + "'>" + OSApp.Stations.getName(i) + ":</label>" +
 					"<button disabled='true' data-mini='true' name='zone-" + i + "' id='zone-" + i + "' value='0'>Master</button></div>";
 			} else {
 				list += "<div class='ui-field-contain duration-input" + ( OSApp.Stations.isDisabled( i ) ? " station-hidden' style='display:none" : "" ) + "'>" +
-					"<label for='zone-" + i + "'>" + station + ":</label>" +
+					"<label for='zone-" + i + "'>" + OSApp.Stations.getName(i) + ":</label>" +
 					"<button data-mini='true' name='zone-" + i + "' id='zone-" + i + "' value='0'>0s</button></div>";
 			}
 		} );
