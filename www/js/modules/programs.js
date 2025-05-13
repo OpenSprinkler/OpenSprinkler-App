@@ -168,7 +168,7 @@ OSApp.Programs.displayPageManual = function() {
 					}
 				}
 
-				item.text( OSApp.currentSession.controller.stations.snames[ currPos ] );
+				item.text( OSApp.Stations.getName(currPos) );
 
 				if ( OSApp.currentSession.controller.status[ currPos ] ) {
 					item.removeClass( "yellow" ).addClass( "green" );
@@ -389,14 +389,14 @@ OSApp.Programs.displayPageRunOnce = function() {
 		}
 		quickPick += "</select>";
 		list += quickPick + "<form>";
-		$.each( OSApp.currentSession.controller.stations.snames, function( i, station ) {
+		$.each( OSApp.currentSession.controller.stations.snames, function( i ) {
 			if ( OSApp.Stations.isMaster( i ) ) {
 				list += "<div class='ui-field-contain duration-input" + ( OSApp.Stations.isDisabled( i ) ? " station-hidden' style='display:none" : "" ) + "'>" +
-					"<label for='zone-" + i + "'>" + station + ":</label>" +
+					"<label for='zone-" + i + "'>" + OSApp.Stations.getName(i) + ":</label>" +
 					"<button disabled='true' data-mini='true' name='zone-" + i + "' id='zone-" + i + "' value='0'>Master</button></div>";
 			} else {
 				list += "<div class='ui-field-contain duration-input" + ( OSApp.Stations.isDisabled( i ) ? " station-hidden' style='display:none" : "" ) + "'>" +
-					"<label for='zone-" + i + "'>" + station + ":</label>" +
+					"<label for='zone-" + i + "'>" + OSApp.Stations.getName(i) + ":</label>" +
 					"<button data-mini='true' name='zone-" + i + "' id='zone-" + i + "' value='0'>0s</button></div>";
 			}
 		} );
@@ -1124,7 +1124,7 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 			"content":pname,
 			"pid": pid - 1,
 			"shortname":"S" + ( sid + 1 ),
-			"group": OSApp.currentSession.controller.stations.snames[ sid ],
+			"group": OSApp.Stations.getName(sid),
 			"station": sid
 		} );
 	};
@@ -1464,6 +1464,7 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 			var stn = $( this );
 			var name = shortnames[ stn.text() ];
 			stn.attr( "data-shortname", name );
+
 		} );
 
 		page.find( ".timeline-groups-axis" ).children().first().html( "<div class='timeline-axis-text center dayofweek' data-shortname='" +
@@ -1841,7 +1842,7 @@ OSApp.Programs.makeProgram183 = function( n, isCopy ) {
 		list += "<label for='station_" + j + "-" + id + "'><input " +
 			( OSApp.Stations.isDisabled( j ) ? "data-wrapper-class='station-hidden hidden' " : "" ) +
 			"data-mini='true' type='checkbox' " + ( ( ( typeof setStations !== "undefined" ) && setStations[ j ] ) ? "checked='checked'" : "" ) +
-			" name='station_" + j + "-" + id + "' id='station_" + j + "-" + id + "'>" + OSApp.currentSession.controller.stations.snames[ j ] + "</label>";
+			" name='station_" + j + "-" + id + "' id='station_" + j + "-" + id + "'>" + OSApp.Stations.getName(j) + "</label>";
 	}
 
 	list += "</fieldset>";
@@ -2104,13 +2105,13 @@ OSApp.Programs.makeProgram21 = function( n, isCopy ) {
 	for ( j = 0; j < OSApp.currentSession.controller.stations.snames.length; j++ ) {
 		if ( OSApp.Stations.isMaster( j ) ) {
 			list += "<div class='ui-field-contain duration-input" + ( OSApp.Stations.isDisabled( j ) ? " station-hidden" + hideDisabled : "" ) + "'>" +
-				"<label for='station_" + j + "-" + id + "'>" + OSApp.currentSession.controller.stations.snames[ j ] + ":</label>" +
+				"<label for='station_" + j + "-" + id + "'>" + OSApp.Stations.getName(j) + ":</label>" +
 				"<button disabled='true' data-mini='true' name='station_" + j + "-" + id + "' id='station_" + j + "-" + id + "' value='0'>" +
 				OSApp.Language._( "Master" ) + "</button></div>";
 		} else {
 			time = program.stations[ j ] || 0;
 			list += "<div class='ui-field-contain duration-input" + ( OSApp.Stations.isDisabled( j ) ? " station-hidden" + hideDisabled : "" ) + "'>" +
-				"<label for='station_" + j + "-" + id + "'>" + OSApp.currentSession.controller.stations.snames[ j ] + ":</label>" +
+				"<label for='station_" + j + "-" + id + "'>" + OSApp.Stations.getName(j) + ":</label>" +
 				"<button " + ( time > 0 ? "class='green' " : "" ) + "data-mini='true' name='station_" + j + "-" + id + "' " +
 					"id='station_" + j + "-" + id + "' value='" + time + "'>" + OSApp.Dates.getDurationText( time ) + "</button></div>";
 		}
@@ -2280,7 +2281,7 @@ OSApp.Programs.makeProgram21 = function( n, isCopy ) {
 	// Handle all station duration inputs
 	page.find( "[id^=station_]" ).on( "click", function() {
 		var dur = $( this ),
-			name = OSApp.currentSession.controller.stations.snames[ dur.attr( "id" ).split( "_" )[ 1 ].split( "-" )[ 0 ] ];
+			name = OSApp.Stations.getName( dur.attr( "id" ).split( "_" )[ 1 ].split( "-" )[ 0 ] );
 
 		OSApp.UIDom.showDurationBox( {
 			seconds: dur.val(),

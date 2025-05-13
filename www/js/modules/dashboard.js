@@ -55,8 +55,7 @@ OSApp.Dashboard.displayPage = function() {
 			};
 		},
 		addCard = function( sid ) {
-			var station = OSApp.Stations.getName( sid ),
-				isScheduled = OSApp.Stations.getPID( sid ) > 0,
+			var isScheduled = OSApp.Stations.getPID( sid ) > 0,
 				isRunning = OSApp.Stations.isRunning( sid ),
 				pname = isScheduled ? OSApp.Programs.pidToName( OSApp.Stations.getPID( sid ) ) : "",
 				rem = OSApp.Stations.getRemainingRuntime( sid ),
@@ -75,9 +74,9 @@ OSApp.Dashboard.displayPage = function() {
 
 			cards += "<img src='" + ( hasImage ? "data:image/jpeg;base64," + sites[ currentSite ].images[ sid ] : OSApp.UIDom.getAppURLPath() + "img/placeholder.png" ) + "' />";
 
-			cards += "<p class='station-name center inline-icon' id='station_" + sid + "'>" + station + "</p>";
 
-			cards += "<span class='btn-no-border ui-btn ui-btn-icon-notext ui-corner-all card-icon station-status " +
+			cards += "<p class='station-name center inline-icon' id='station_" + sid + "'>" + OSApp.Stations.getName( sid) + "</p>";
+			cards += "<span class='bno-border ui-btn ui-btn-icon-notext ui-corner-all card-icon station-status " +
 				( isRunning ? "on" : ( isScheduled ? "wait" : "off" ) ) + "'></span>";
 
 			cards += "<span class='btn-no-border ui-btn ui-btn-icon-notext ui-icon-wifi card-icon special-station " +
@@ -385,7 +384,7 @@ OSApp.Dashboard.displayPage = function() {
 
 			select += "<div class='ui-bar-a ui-bar'>" + OSApp.Language._( "Station Name" ) + ":</div>" +
 				"<input class='bold center' data-corners='false' data-wrapper-class='tight stn-name ui-btn' id='stn-name' type='text' value=\"" +
-				name.text() + "\">";
+				OSApp.currentSession.controller.stations.snames[sid] + "\">";
 
 			select += "<button class='changeBackground'>" +
 				( typeof sites[ currentSite ].images[ sid ] !== "string" ? OSApp.Language._( "Add" ) : OSApp.Language._( "Change" ) ) + " " + OSApp.Language._( "Image" ) +
@@ -938,7 +937,7 @@ OSApp.Dashboard.displayPage = function() {
 						card.show().removeClass( "station-hidden" );
 					}
 
-					card.find( "#station_" + sid ).text( OSApp.currentSession.controller.stations.snames[ sid ] );
+					card.find( "#station_" + sid ).text( OSApp.Stations.getName( sid) );
 					card.find( ".special-station" ).removeClass( "hidden" ).addClass( OSApp.Stations.isSpecial( sid ) ? "" : "hidden" );
 					card.find( ".station-status" ).removeClass( "on off wait" ).addClass( isRunning ? "on" : ( isScheduled ? "wait" : "off" ) );
 					if ( OSApp.Stations.isMaster( sid ) ) {

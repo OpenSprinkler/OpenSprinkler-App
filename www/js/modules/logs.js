@@ -108,6 +108,8 @@ OSApp.Logs.displayPage = function() {
 					stats.totalCount++;
 				}
 
+
+
 				if ( type === "table" ) {
 					switch ( grouping ) {
 						case "station":
@@ -157,7 +159,7 @@ OSApp.Logs.displayPage = function() {
 					} else {
 						className = "program-" + ( ( pid + 3 ) % 4 );
 						name = OSApp.Programs.pidToName( pid );
-						group = OSApp.currentSession.controller.stations.snames[ station ];
+						group = OSApp.Stations.getName(station);
 						shortname = "S" + ( station + 1 );
 					}
 
@@ -377,7 +379,8 @@ OSApp.Logs.displayPage = function() {
 					groupArray[ i ] += tableHeader;
 
 					for ( k = 0; k < sortedData[ group ].length; k++ ) {
-						var stationName = ( grouping === 'station' ) ? stations[ group ] : stations[ sortedData[ group ][ k ][ 2 ] ];
+						var sid = ( grouping === 'station' ) ? group  : sortedData[group][k][2];
+						var stationName = OSApp.Stations.getName(sid);
 						var runTime = sortedData[ group ][ k ][ 1 ];
 						var startTime = formatTime( sortedData[ group ][ k ][ 0 ], grouping ) ;
 						var endTime = formatTime( sortedData[ group ][ k ][ 3 ], grouping );
