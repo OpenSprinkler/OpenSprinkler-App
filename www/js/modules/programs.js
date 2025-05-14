@@ -1503,7 +1503,7 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 		is211 = OSApp.Firmware.checkOSVersion( 211 );
 		is216 = OSApp.Firmware.checkOSVersion( 216 );
 
-		if ( page.find( "#preview_date" ).val() === "" ) {
+		if ( OSApp.currentSession.controller.settings.devt && page.find( "#preview_date" ).val() === "" ) {
 			now = new Date( OSApp.currentSession.controller.settings.devt * 1000 );
 			date = now.toISOString().slice( 0, 10 ).split( "-" );
 			day = new Date( date[ 0 ], date[ 1 ] - 1, date[ 2 ] );
