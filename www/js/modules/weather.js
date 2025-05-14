@@ -662,6 +662,11 @@ OSApp.Weather.updateWeather = function() {
 
 	OSApp.UIDom.showLoading( "#weather" );
 
+	if ( !OSApp.Firmware.checkOSVersion( 215 ) ) {
+		// controller.settings.wto object is only defined when fw >= 2.1.5
+		return;
+	}
+
 	const provider = OSApp.currentSession.controller.settings.wto.provider;
 	const key = OSApp.currentSession.controller.settings.wto.key;
 	const pws = OSApp.currentSession.controller.settings.wto.pws;
@@ -758,6 +763,11 @@ OSApp.Weather.updateWeatherBox = function() {
 };
 
 OSApp.Weather.showForecast = function() {
+	if ( !OSApp.Firmware.checkOSVersion( 215 )) {
+		// wto requires fw >= 2.1.5
+		return;
+	}
+
 	var page = $( "<div data-role='page' id='forecast'>" +
 			"<div class='ui-content' role='main'>" +
 				"<ul data-role='listview' data-inset='true'>" +

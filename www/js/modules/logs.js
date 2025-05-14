@@ -566,7 +566,7 @@ OSApp.Logs.displayPage = function() {
 			OSApp.Language._( "Rain Delay" )
 		] : [ OSApp.Language._( "Rain Sensor" ), OSApp.Language._( "Rain Delay" ) ];
 
-		stations = $.merge( $.merge( [], OSApp.currentSession.controller.stations.snames ), additionalMetrics );
+		stations = $.merge( $.merge( [], OSApp.currentSession.controller.stations?.snames ), additionalMetrics );
 		page.find( ".clear_logs" ).toggleClass( "hidden", ( OSApp.Firmware.isOSPi() || OSApp.Firmware.checkOSVersion( 210 ) ?  false : true ) );
 
 		if ( logStart.val() === "" || logEnd.val() === "" ) {
