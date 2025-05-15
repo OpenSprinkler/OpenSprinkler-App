@@ -93,3 +93,8 @@ OSApp.Supported.singleRunAndMonthly = function() {
 OSApp.Supported.repeatedRunonce = function() {
 	return OSApp.Firmware.checkOSVersion( 2211 );
 };
+
+/* Flow Alert supported */
+OSApp.Supported.fas = function() {
+	return OSApp.currentSession.controller.stations.stn_fas != undefined;
+};
