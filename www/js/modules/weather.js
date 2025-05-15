@@ -662,14 +662,9 @@ OSApp.Weather.updateWeather = function() {
 
 	OSApp.UIDom.showLoading( "#weather" );
 
-	if ( !OSApp.Firmware.checkOSVersion( 215 ) ) {
-		// controller.settings.wto object is only defined when fw >= 2.1.5
-		return;
-	}
-
-	const provider = OSApp.currentSession.controller.settings.wto.provider;
-	const key = OSApp.currentSession.controller.settings.wto.key;
-	const pws = OSApp.currentSession.controller.settings.wto.pws;
+	const provider = OSApp.currentSession.controller.settings.wto?.provider;
+	const key = OSApp.currentSession.controller.settings.wto?.key;
+	const pws = OSApp.currentSession.controller.settings.wto?.pws;
 
 	let url = OSApp.currentSession.weatherServerUrl + "/weatherData?loc=" +
 	encodeURIComponent( OSApp.currentSession.controller.settings.loc );
