@@ -47,10 +47,16 @@ OSApp.Programs.displayPage = function(programId) {
 	function updateContent() {
 		var list = $( OSApp.Programs.makeAllPrograms() );
 
-		list.find( "[id^=program-]" ).on( {
-			collapsiblecollapse: function() {
-				$( this ).find( ".ui-collapsible-content" ).empty();
-			},
+                list.find( "[id^=program-]" ).on( {
+                        collapsiblecollapse: function() {
+                                var pid = $( this ).attr( "id" ).split( "-" )[ 1 ];
+                                var select = $( "#d-" + pid );
+                                if ( select.length && select.data( "mobile-selectmenu" ) ) {
+                                        select.selectmenu( "destroy" );
+                                }
+                                $( "#d-" + pid + "-listbox" ).remove();
+                                $( this ).find( ".ui-collapsible-content" ).empty();
+                        },
 			collapsiblebeforecollapse: function( e ) {
 				var program = $( this ),
 					changed = program.find( ".hasChanges" );
