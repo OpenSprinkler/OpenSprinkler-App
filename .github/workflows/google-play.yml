@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   build_android:
-    runs-on: macos-15
+    runs-on: macos-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
