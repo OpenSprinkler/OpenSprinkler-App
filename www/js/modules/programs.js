@@ -1774,12 +1774,13 @@ OSApp.Programs.makeProgram = function( n, isCopy ) {
 };
 
 OSApp.Programs.makeProgram183 = function( n, isCopy ) {
-
 	// FIXME: see if we can refactor week array out to Constants
 	var week = [ OSApp.Language._( "Monday" ), OSApp.Language._( "Tuesday" ), OSApp.Language._( "Wednesday" ), OSApp.Language._( "Thursday" ), OSApp.Language._( "Friday" ), OSApp.Language._( "Saturday" ), OSApp.Language._( "Sunday" ) ],
 		list = "",
 		id = isCopy ? "new" : n,
 		days, i, j, setStations, program, page;
+
+	OSApp.uiState.selectDaysInProgramId = `d-${n}-${Date.now()}`;
 
 	if ( n === "new" ) {
 		program = { "en":0, "weather":0, "type":0, "is_even":0, "is_odd":0, "duration":0, "interval":0, "start":0, "end":0, "days":[ 0, 0 ] };
@@ -1820,7 +1821,7 @@ OSApp.Programs.makeProgram183 = function( n, isCopy ) {
 
 	list += "<div class='center'><p class='tight'>" + OSApp.Language._( "Days of the Week" ) + "</p>" +
 		"<select " + ( $.mobile.window.width() > 560 ? "data-inline='true' " : "" ) + "data-iconpos='left' data-mini='true' " +
-			"multiple='multiple' data-native-menu='false' id='d-" + id + "'><option>" + OSApp.Language._( "Choose day(s)" ) + "</option>";
+			"multiple='multiple' data-native-menu='false' id='" + OSApp.uiState.selectDaysInProgramId + "'><option>" + OSApp.Language._( "Choose day(s)" ) + "</option>";
 
 	for ( j = 0; j < week.length; j++ ) {
 		list += "<option " + ( ( (program.type !== OSApp.Constants.options.PROGRAM_TYPE_INTERVAL) && days[ j ] ) ? "selected='selected'" : "" ) + " value='" + j + "'>" + week[ j ] + "</option>";
@@ -1944,12 +1945,13 @@ OSApp.Programs.makeProgram183 = function( n, isCopy ) {
 };
 
 OSApp.Programs.makeProgram21 = function( n, isCopy ) {
-
 	// FIXME: see if we can refactor week array out to Constants
 	var week = [ OSApp.Language._( "Monday" ), OSApp.Language._( "Tuesday" ), OSApp.Language._( "Wednesday" ), OSApp.Language._( "Thursday" ), OSApp.Language._( "Friday" ), OSApp.Language._( "Saturday" ), OSApp.Language._( "Sunday" ) ],
 		list = "",
 		id = isCopy ? "new" : n,
 		days, i, j, program, page, times, time, unchecked;
+
+	OSApp.uiState.selectDaysInProgramId = `d-${n}-${Date.now()}`;
 
 	if ( n === "new" ) {
 		program = { "name":"", "en":0, "weather":0, "type":0, "is_even":0, "is_odd":0, "interval":0, "start":0, "days":[ 0, 0 ], "repeat":0, "stations":[] };
@@ -2050,9 +2052,9 @@ OSApp.Programs.makeProgram21 = function( n, isCopy ) {
 
 	// Show weekly program options
 	list += "<div id='input_days_week-" + id + "' " + ( ( program.type === OSApp.Constants.options.PROGRAM_TYPE_WEEKLY ) ? "" : "style='display:none'" ) + ">";
-	list += "<div class='center'><p class='tight'>" + OSApp.Language._( "Days of the Week" ) + "</p>" +
+	list += "<div class='center'><p class='tight'>" + OSApp.Language._( "Days of the Week" ) + " (" + id + ")" + "</p>" +
 		"<select " + ( $.mobile.window.width() > 560 ? "data-inline='true' " : "" ) + "data-iconpos='left' data-mini='true' " +
-			"multiple='multiple' data-native-menu='false' id='d-" + id + "'>" +
+			"multiple='multiple' data-native-menu='false' id='" + OSApp.uiState.selectDaysInProgramId + "'>" +
 		"<option>" + OSApp.Language._( "Choose day(s)" ) + "</option>";
 	for ( j = 0; j < week.length; j++ ) {
 		list += "<option " + ( ( program.type === OSApp.Constants.options.PROGRAM_TYPE_WEEKLY && days[ j ] ) ? "selected='selected'" : "" ) + " value='" + j + "'>" + week[ j ] + "</option>";
@@ -2389,7 +2391,7 @@ OSApp.Programs.submitProgram183 = function( id ) {
 	program[ 0 ] = en;
 
 	if ( $( "#days_week-" + id ).is( ":checked" ) ) {
-		daysin = $( "#d-" + id ).val();
+		daysin = $( `#${OSApp.uiState.selectDaysInProgramId}` ).val();
 		daysin = ( daysin === null ) ? [] : OSApp.Utils.parseIntArray( daysin );
 		for ( i = 0; i < 7; i++ ) {if ( $.inArray( i, daysin ) !== -1 ) {days[ 0 ] |= ( 1 << i ); }}
 		if ( days[ 0 ] === 0 ) {
@@ -2520,7 +2522,7 @@ OSApp.Programs.submitProgram21 = function( id, ignoreWarning ) {
 
 	} else if ( $( "#days_week-" + id ).is( ":checked" ) ) {
 		j |= ( 0 << 4 );
-		daysin = $( "#d-" + id ).val();
+		daysin = $( `#${OSApp.uiState.selectDaysInProgramId}` ).val();
 		daysin = ( daysin === null ) ? [] : OSApp.Utils.parseIntArray( daysin );
 		for ( i = 0; i < 7; i++ ) {
 			if ( $.inArray( i, daysin ) !== -1 ) {
