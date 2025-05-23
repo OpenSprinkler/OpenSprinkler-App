@@ -134,11 +134,11 @@ OSApp.Stations.isDisabled = function( sid )  {
 	return OSApp.StationAttributes.getDisabled( sid ) > 0;
 };
 
-OSApp.Stations.stopAllStations = function() {
+OSApp.Stations.stopAllStations = function( callback) {
 	if ( !OSApp.currentSession.isControllerConnected() ) {
 		return false;
 	}
-
+	callback = callback || function() {};
 	OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to stop all stations?" ), "", function() {
 		$.mobile.loading( "show" );
 		OSApp.Firmware.sendToOS( "/cv?pw=&rsn=1" ).done( function() {
@@ -146,6 +146,7 @@ OSApp.Stations.stopAllStations = function() {
 			OSApp.Stations.removeStationTimers();
 			OSApp.Status.refreshStatus();
 			OSApp.Errors.showError( OSApp.Language._( "All stations have been stopped" ) );
+			callback();
 		} );
 	} );
 };
