@@ -34,7 +34,7 @@ OSApp.ProgramView.updateProgramShowArea = function( page, visible ) {
 	if (OSApp.ProgramView.lastProgramRun == -2) {
 		OSApp.ProgramView.lastProgramRun = localStorage.getItem("lastProgramRun");
 		if (OSApp.ProgramView.lastProgramRun === undefined || OSApp.ProgramView.lastProgramRun == -2) {
-			OSApp.ProgramView.lastProgramRun == -1;
+			OSApp.ProgramView.lastProgramRun = -1;
 			reset = true;
 		}
 	}
@@ -233,14 +233,14 @@ OSApp.ProgramView.updateProgramShowArea = function( page, visible ) {
 								OSApp.ProgramView.clickedMove = 0;
 							}
 							if (OSApp.ProgramView.clickedOn == opts.config.pid) {
-								OSApp.ProgramView.clickedMove += Math.abs(top-scrollY);
+								OSApp.ProgramView.clickedMove += Math.abs(top - window.scrollY);
 								OSApp.ProgramView.scrollY = top;
 							}
 						},
 						click: function(event, chartContext, opts) {
 							var top = $(document).scrollTop();
 							let pid = opts.config.pid;
-							OSApp.ProgramView.clickedMove += Math.abs(top-scrollY);
+							OSApp.ProgramView.clickedMove += Math.abs(top - window.scrollY);
 							OSApp.ProgramView.scrollY = top;
 							if (OSApp.ProgramView.clickedMove > 10) {
 								OSApp.ProgramView.clickedOn = -1;

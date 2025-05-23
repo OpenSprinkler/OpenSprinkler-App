@@ -932,7 +932,7 @@ OSApp.Dashboard.displayPage = function() {
 			var displayOption = OSApp.ProgramView.Constants.SHOW_ZONES;
 			if (localStorage.hasOwnProperty('displayOption'))
 				displayOption = localStorage.displayOption;
-			OSApp.ProgramView.updateProgramShowArea( page, displayOption & OSApp.ProgramView.Constants.SHOW_PROGRAMS );
+			OSApp.ProgramView.updateProgramShowArea( page, displayOption && OSApp.ProgramView.Constants.SHOW_PROGRAMS );
 
 			// Remove unused stations
 			OSApp.CardList.getAllCards( cardList ).filter( function( _, a ) {
