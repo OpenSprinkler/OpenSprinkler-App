@@ -932,7 +932,9 @@ OSApp.Dashboard.displayPage = function() {
 			var displayOption = OSApp.ProgramView.Constants.SHOW_ZONES;
 			if (localStorage.hasOwnProperty('displayOption'))
 				displayOption = localStorage.displayOption;
-			OSApp.ProgramView.updateProgramShowArea( page, displayOption && OSApp.ProgramView.Constants.SHOW_PROGRAMS );
+			var programViewVisible = ( parseInt(displayOption) === OSApp.Options.Constants.DASHBOARD_MODE.SHOW_ALL.ID || parseInt(displayOption) === OSApp.Options.Constants.DASHBOARD_MODE.SHOW_PROGRAMS.ID );
+			OSApp.ProgramView.updateProgramShowArea( page, programViewVisible );
+
 
 			// Remove unused stations
 			OSApp.CardList.getAllCards( cardList ).filter( function( _, a ) {
@@ -1057,7 +1059,8 @@ OSApp.Dashboard.displayPage = function() {
 		var displayOption = OSApp.ProgramView.Constants.SHOW_ZONES;
 		if (localStorage.hasOwnProperty('displayOption'))
 			displayOption = localStorage.displayOption;
-		OSApp.ProgramView.updateProgramShowArea( page, displayOption & OSApp.ProgramView.Constants.SHOW_PROGRAMS );
+		var programViewVisible = ( parseInt(displayOption) === OSApp.Options.Constants.DASHBOARD_MODE.SHOW_ALL.ID || parseInt(displayOption) === OSApp.Options.Constants.DASHBOARD_MODE.SHOW_PROGRAMS.ID );
+		OSApp.ProgramView.updateProgramShowArea( page, programViewVisible );
 
 		updateSites( function() {
 			for ( i = 0; i < OSApp.currentSession.controller.stations.snames.length; i++ ) {
