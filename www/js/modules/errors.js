@@ -128,9 +128,9 @@ OSApp.Errors.showCorruptedJsonModal = function(badJson, currentSession) {
 		<h2>${OSApp.Language._('Corrupted Response')}</h2>
 		<p>${OSApp.Language._('The OpenSprinkler controller sent unexpected data, likely due to outdated firmware.')}</p>
 		<p><b>${OSApp.Language._('Site Name')}</b>: ${cs}</p>
-		<p>${OSApp.Language._('To fix this, please update your firmware. Remember to use the "CSV Tool" to save your current settings beforehand!')}</p>
+		<p>${OSApp.Language._('To fix this, please update your firmware. Remember to use the "API Tool" to save your current settings beforehand!')}</p>
 		<p style="text-align: right">
-			<button id="recoveryButton">${OSApp.Language._('CSV Tool')}</button>
+			<button id="recoveryButton">${OSApp.Language._('API Tool')}</button>
 			<button id="instructionsButton">${OSApp.Language._('Help')}</button>
 		</p>
 	  </div>
@@ -139,7 +139,7 @@ OSApp.Errors.showCorruptedJsonModal = function(badJson, currentSession) {
 
 	const recoveryButton = document.getElementById('recoveryButton');
 	recoveryButton.addEventListener('click', () => {
-		window.open('https://raysfiles.com/os/TestOSLogWithCSV.html', "_blank");
+		window.open('https://raysfiles.com/os/TestOSAPI220.html', "_blank");
 	});
 
 	const instructionsButton = document.getElementById('instructionsButton');
