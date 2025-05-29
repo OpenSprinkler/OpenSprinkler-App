@@ -95,6 +95,7 @@ OSApp.uiState = {
 	errorTimeout: undefined,
 	goingBack: false,
 	is24Hour: false,
+	ignoreAllErrors: false, // User can ignore all errors, preventing the error modal from appearing
 	groupView: false,
 	sortByStationName: false,
 	language: undefined,
