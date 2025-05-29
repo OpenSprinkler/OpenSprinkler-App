@@ -34,7 +34,13 @@ OSApp.Errors.showError = function( msg, dur ) {
 	OSApp.uiState.errorTimeout = setTimeout( function() {$.mobile.loading( "hide" );}, dur );
 };
 
-OSApp.Errors.showErrorModal = function(message, source, lineno, colno, error) {
+OSApp.Errors.debugThrowException = function() {
+	// Debug method to create an uncaught exception, used for testing the error modal
+	console.log("*** debugThrowException called", {uiState: OSApp.uiState});
+	console.log(OSApp.uiState.this.does.not.exist);
+}
+
+OSApp.Errors.showErrorModal = function(message, source, lineno, colno/*, error*/) {
 	if ( OSApp.uiState.ignoreAllErrors ) {
 		// Return early if the user has previously clicked ignore all for this session
 		return;
@@ -59,18 +65,20 @@ OSApp.Errors.showErrorModal = function(message, source, lineno, colno, error) {
 	`;
 	document.body.appendChild(modal);
 
+	/* Report issue button
 	const createIssueButton = document.getElementById('createIssueButton');
 	createIssueButton.addEventListener('click', () => {
 		OSApp.Errors.createGitHubIssue(message, source, lineno, colno, error);
 		document.body.removeChild(modal)
 	});
+	*/
 
 	const ignoreButton = document.getElementById('ignoreButton');
 	ignoreButton.addEventListener('click', () => {
 		document.body.removeChild(modal)
 	});
 
-	const ignoreAllButton = document.getElementById('ignoreButton');
+	const ignoreAllButton = document.getElementById('ignoreAllButton');
 	ignoreAllButton.addEventListener('click', () => {
 		OSApp.uiState.ignoreAllErrors = true;
 		document.body.removeChild(modal)
