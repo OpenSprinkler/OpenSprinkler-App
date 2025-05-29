@@ -34,12 +34,6 @@ OSApp.Errors.showError = function( msg, dur ) {
 	OSApp.uiState.errorTimeout = setTimeout( function() {$.mobile.loading( "hide" );}, dur );
 };
 
-OSApp.Errors.debugThrowException = function() {
-	// Debug method to create an uncaught exception, used for testing the error modal
-	console.log("*** debugThrowException called", {uiState: OSApp.uiState});
-	console.log(OSApp.uiState.this.does.not.exist);
-}
-
 OSApp.Errors.showErrorModal = function(message, source, lineno, colno/*, error*/) {
 	if ( OSApp.uiState.ignoreAllErrors ) {
 		// Return early if the user has previously clicked ignore all for this session
