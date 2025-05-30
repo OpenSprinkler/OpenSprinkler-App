@@ -43,8 +43,6 @@ OSApp.Errors.showErrorModal = function(message, source, lineno, colno/*, error*/
 	// Create and display a modal with error information
 	const modal = document.createElement('div');
 
-	// Report issue button:
-	// <button id="createIssueButton">${OSApp.Language._('Report Error')}</button>
 
 	modal.innerHTML = `
 	  <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border: 1px solid #ccc; z-index: 1000;">
@@ -58,14 +56,6 @@ OSApp.Errors.showErrorModal = function(message, source, lineno, colno/*, error*/
 	  </div>
 	`;
 	document.body.appendChild(modal);
-
-	/* Report issue button
-	const createIssueButton = document.getElementById('createIssueButton');
-	createIssueButton.addEventListener('click', () => {
-		OSApp.Errors.createGitHubIssue(message, source, lineno, colno, error);
-		document.body.removeChild(modal)
-	});
-	*/
 
 	const ignoreButton = document.getElementById('ignoreButton');
 	ignoreButton.addEventListener('click', () => {
