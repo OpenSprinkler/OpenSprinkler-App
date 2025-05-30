@@ -182,6 +182,8 @@ OSApp.UIDom.launchApp = function() {
 
 	// Handle OS resume event triggered by PhoneGap
 	.on( "resume", function() {
+		// Reload user settings from local storage
+		OSApp.Storage.loadLocalSettings();
 
 		// If we don't have a current device IP set, there is nothing else to update
 		if ( OSApp.currentSession.ip === undefined ) {
