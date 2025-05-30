@@ -21,9 +21,15 @@ OSApp.UIDom = OSApp.UIDom || {};
 
 // App entry point
 OSApp.UIDom.launchApp = function() {
-	Number.prototype.clamp = function( min, max ) {
-		return Math.min( Math.max( this, min ), max );
-	};
+       // Load any stored local settings immediately since the `mobileinit`
+       // event may fire before this script is executed
+       if ( OSApp.Storage && typeof OSApp.Storage.loadLocalSettings === "function" ) {
+               OSApp.Storage.loadLocalSettings();
+       }
+
+       Number.prototype.clamp = function( min, max ) {
+               return Math.min( Math.max( this, min ), max );
+       };
 
 	if ( "serviceWorker" in navigator ) {
 		window.addEventListener( "load", function() {
