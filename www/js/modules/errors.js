@@ -34,9 +34,16 @@ OSApp.Errors.showError = function( msg, dur ) {
 	OSApp.uiState.errorTimeout = setTimeout( function() {$.mobile.loading( "hide" );}, dur );
 };
 
-OSApp.Errors.showErrorModal = function(message, source, lineno, colno, error) {
+OSApp.Errors.showErrorModal = function(message, source, lineno, colno/*, error*/) {
+	if ( OSApp.uiState.ignoreAllErrors ) {
+		// Return early if the user has previously clicked ignore all for this session
+		return;
+	}
+
 	// Create and display a modal with error information
 	const modal = document.createElement('div');
+
+
 	modal.innerHTML = `
 	  <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border: 1px solid #ccc; z-index: 1000;">
 		<h2>${OSApp.Language._('An error occurred')}:</h2>
@@ -44,20 +51,20 @@ OSApp.Errors.showErrorModal = function(message, source, lineno, colno, error) {
 		<p>${OSApp.Language._('File')}: ${source}:${lineno}:${colno}</p>
 		<p style="text-align: right">
 			<button id="ignoreButton">${OSApp.Language._('Ignore')}</button>
-			<button id="createIssueButton">${OSApp.Language._('Report Error')}</button>
+			<button id="ignoreAllButton">${OSApp.Language._('Ignore All')}</button>
 		</p>
 	  </div>
 	`;
 	document.body.appendChild(modal);
 
-	const createIssueButton = document.getElementById('createIssueButton');
-	createIssueButton.addEventListener('click', () => {
-		OSApp.Errors.createGitHubIssue(message, source, lineno, colno, error);
+	const ignoreButton = document.getElementById('ignoreButton');
+	ignoreButton.addEventListener('click', () => {
 		document.body.removeChild(modal)
 	});
 
-	const ignoreButton = document.getElementById('ignoreButton');
-	ignoreButton.addEventListener('click', () => {
+	const ignoreAllButton = document.getElementById('ignoreAllButton');
+	ignoreAllButton.addEventListener('click', () => {
+		OSApp.uiState.ignoreAllErrors = true;
 		document.body.removeChild(modal)
 	});
 };
