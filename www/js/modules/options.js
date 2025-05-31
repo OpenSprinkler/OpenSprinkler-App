@@ -365,21 +365,21 @@ OSApp.Options.showOptions = function( expandItem ) {
 				OSApp.Language._( "Enable Logging" ) + "</label>";
 		}
 
-                list += "<label for='isMetric'><input data-mini='true' class='noselect' id='isMetric' type='checkbox' " + ( OSApp.currentDevice.isMetric ? "checked='checked'" : "" ) + ">" +
-                        OSApp.Language._( "Use Metric" ) + "</label>";
+		list += "<label for='isMetric'><input data-mini='true' id='isMetric' type='checkbox' " + ( OSApp.currentDevice.isMetric ? "checked='checked'" : "" ) + ">" +
+			OSApp.Language._( "Use Metric" ) + "</label>";
 
-                list += "<label for='is24Hour'><input data-mini='true' class='noselect' id='is24Hour' type='checkbox' " + ( OSApp.uiState.is24Hour ? "checked='checked'" : "" ) + ">" +
-                        OSApp.Language._( "Use 24 Hour Time" ) + "</label>";
+		list += "<label for='is24Hour'><input data-mini='true' id='is24Hour' type='checkbox' " + ( OSApp.uiState.is24Hour ? "checked='checked'" : "" ) + ">" +
+			OSApp.Language._( "Use 24 Hour Time" ) + "</label>";
 	list += "</div>";
 
 	list += "<div data-role='controlgroup' data-type='horizontal' style='text-align:center'>";
 		if ( OSApp.Supported.groups() ) {
-                        list += "<label for='groupView'><input data-mini='true' class='noselect' id='groupView' type='checkbox' " + ( OSApp.uiState.groupView ? "checked='checked'" : "" ) + ">" +
-                        OSApp.Language._( "Order Stations by Groups" ) + "</label>";
+			list += "<label for='groupView'><input data-mini='true' id='groupView' type='checkbox' " + ( OSApp.uiState.groupView ? "checked='checked'" : "" ) + ">" +
+			OSApp.Language._( "Order Stations by Groups" ) + "</label>";
 		}
 
-                list += "<label for='sortByStationName'><input data-mini='true' class='noselect' id='sortByStationName' type='checkbox' " + ( OSApp.uiState.sortByStationName ? "checked='checked'" : "" ) + ">" +
-                OSApp.Language._( "Order Stations by Name" ) + "</label>";
+		list += "<label for='sortByStationName'><input data-mini='true' id='sortByStationName' type='checkbox' " + ( OSApp.uiState.sortByStationName ? "checked='checked'" : "" ) + ">" +
+		OSApp.Language._( "Order Stations by Name" ) + "</label>";
 	list += "</div>";
 
 	list += "</fieldset><fieldset data-role='collapsible'" +
@@ -949,39 +949,15 @@ OSApp.Options.showOptions = function( expandItem ) {
 		} );
 	} );
 
-        page.find( "#showDisabled" ).on( "change", function() {
-                OSApp.Storage.set( { showDisabled: this.checked } );
-                return false;
-        } );
+	page.find( "#showDisabled" ).on( "change", function() {
+		OSApp.Storage.set( { showDisabled: this.checked } );
+		return false;
+	} );
 
-        page.find( "#showStationNum" ).on( "change", function() {
-                OSApp.Storage.set( { showStationNum: this.checked } );
-                return false;
-        } );
-
-        page.find( "#isMetric" ).on( "change", function() {
-                OSApp.currentDevice.isMetric = this.checked;
-                OSApp.Storage.set( { isMetric: this.checked } );
-                return false;
-        } );
-
-        page.find( "#is24Hour" ).on( "change", function() {
-                OSApp.uiState.is24Hour = this.checked;
-                OSApp.Storage.set( { is24Hour: this.checked } );
-                return false;
-        } );
-
-        page.find( "#groupView" ).on( "change", function() {
-                OSApp.uiState.groupView = this.checked;
-                OSApp.Storage.set( { groupView: this.checked } );
-                return false;
-        } );
-
-        page.find( "#sortByStationName" ).on( "change", function() {
-                OSApp.uiState.sortByStationName = this.checked;
-                OSApp.Storage.set( { sortByStationName: this.checked } );
-                return false;
-        } );
+	page.find( "#showStationNum" ).on( "change", function() {
+		OSApp.Storage.set( { showStationNum: this.checked } );
+		return false;
+	} );
 
 	page.find( "#loc" ).on( "click", function() {
 		var loc = $( this );

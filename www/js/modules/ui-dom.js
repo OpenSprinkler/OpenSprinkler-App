@@ -340,19 +340,15 @@ OSApp.UIDom.showHomeMenu = ( function() {
 			if ( href === "#stop-all" ) {
 				OSApp.Stations.stopAllStations();
 			} else if ( href === "#show-hidden" ) {
-                                if ( showHidden ) {
-                                        $( ".station-hidden" ).hide();
-                                        $( ".disabled-programs-note" ).show();
-                                        page.removeClass( "show-hidden" );
-                                        OSApp.Storage.set( { showDisabled: false } );
-                                        showHidden = false;
-                                } else {
-                                        $( ".station-hidden" ).show();
-                                        $( ".disabled-programs-note" ).hide();
-                                        page.addClass( "show-hidden" );
-                                        OSApp.Storage.set( { showDisabled: true } );
-                                        showHidden = true;
-                                }
+				if ( showHidden ) {
+					$( ".station-hidden" ).hide();
+					$( ".disabled-programs-note" ).show();
+					page.removeClass( "show-hidden" );
+				} else {
+					$( ".station-hidden" ).show();
+					$( ".disabled-programs-note" ).hide();
+					page.addClass( "show-hidden" );
+				}
 			} else if ( href === "#raindelay" ) {
 				OSApp.Weather.showRainDelay();
 			} else if ( href === "#globalpause" ) {
