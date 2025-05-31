@@ -27,6 +27,11 @@ jobs:
         with:
           useConfigFile: false
 
+      - name: Append version to run name
+        uses: ./.github/actions/set-run-name
+        with:
+          version: ${{ steps.gitversion.outputs.semVer }}
+
       - name: Tag repository
         env:
           TAG: ${{ steps.gitversion.outputs.semVer }}

@@ -42,6 +42,11 @@ jobs:
         with:
           useConfigFile: false
 
+      - name: Append version to run name
+        uses: ./.github/actions/set-run-name
+        with:
+          version: ${{ steps.gitversion.outputs.semVer }}
+
       - name: Update package.json version
         run: |
           sed -i.bak "s|\"version\": \"[0-9\.]*\"|\"version\": \"${{ steps.gitversion.outputs.semVer }}\"|" package.json
