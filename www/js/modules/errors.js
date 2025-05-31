@@ -35,26 +35,6 @@ OSApp.Errors.showError = function( msg, dur ) {
 };
 
 
-OSApp.Errors.formatDeviceInfo = function(deviceInfo) {
-	var markdownString = '';
-
-	for (var key in deviceInfo) {
-	  if (deviceInfo.hasOwnProperty(key)) {
-		var value = deviceInfo[key];
-		if (typeof value === 'boolean') {
-			value = value ? 'Yes' : 'No';
-		}
-
-		if (typeof value !== 'function') {
-			markdownString += `- **${key}**: ${value}\n`;
-		}
-	  }
-	}
-
-	return markdownString;
-};
-
-
 OSApp.Errors.showCorruptedJsonModal = function(badJson, currentSession) {
 	// Create and display a modal prompting user to update firmware
 	let cs = OSApp.Language._('Unknown');
