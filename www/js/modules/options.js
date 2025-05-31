@@ -359,28 +359,43 @@ OSApp.Options.showOptions = function( expandItem ) {
 			"<a class='ui-btn btn-no-border ui-btn-icon-notext ui-icon-delete ui-btn-corner-all clear-loc'></a>" +
 		"</button></div>";
 
-	list += "<div class='center' data-role='controlgroup' data-type='horizontal'>";
-		if ( typeof OSApp.currentSession.controller.options.lg !== "undefined" ) {
-			list += "<label for='o36'><input data-mini='true' id='o36' type='checkbox' " + ( ( OSApp.currentSession.controller.options.lg === 1 ) ? "checked='checked'" : "" ) + ">" +
-				OSApp.Language._( "Enable Logging" ) + "</label>";
-		}
+       list += "<div class='center' data-role='controlgroup' data-type='horizontal'>";
+               if ( typeof OSApp.currentSession.controller.options.lg !== "undefined" ) {
+                       list += "<label for='o36'><input data-mini='true' id='o36' type='checkbox' " + ( ( OSApp.currentSession.controller.options.lg === 1 ) ? "checked='checked'" : "" ) + ">" +
+                               OSApp.Language._( "Enable Logging" ) + "</label>";
+               }
+       list += "</div>";
 
-		list += "<label for='isMetric'><input data-mini='true' id='isMetric' type='checkbox' " + ( OSApp.currentDevice.isMetric ? "checked='checked'" : "" ) + ">" +
-			OSApp.Language._( "Use Metric" ) + "</label>";
+       list += "</fieldset><fieldset data-role='collapsible'" +
+               ( typeof expandItem === "string" && expandItem === "app" ? " data-collapsed='false'" : "" ) + ">" +
+               "<legend>" + OSApp.Language._( "App Settings" ) + "</legend>" +
+               "<p class='small'>" + OSApp.Language._( "These settings are stored locally with the application and do not affect the controller. Changes are saved automatically." ) + "</p>";
 
-		list += "<label for='is24Hour'><input data-mini='true' id='is24Hour' type='checkbox' " + ( OSApp.uiState.is24Hour ? "checked='checked'" : "" ) + ">" +
-			OSApp.Language._( "Use 24 Hour Time" ) + "</label>";
-	list += "</div>";
+       list += "<div class='center' data-role='controlgroup' data-type='horizontal'>";
+               list += "<label for='isMetric'><input data-mini='true' class='noselect' id='isMetric' type='checkbox' " + ( OSApp.currentDevice.isMetric ? "checked='checked'" : "" ) + ">" +
+                       OSApp.Language._( "Use Metric" ) + "</label>";
 
-	list += "<div data-role='controlgroup' data-type='horizontal' style='text-align:center'>";
-		if ( OSApp.Supported.groups() ) {
-			list += "<label for='groupView'><input data-mini='true' id='groupView' type='checkbox' " + ( OSApp.uiState.groupView ? "checked='checked'" : "" ) + ">" +
-			OSApp.Language._( "Order Stations by Groups" ) + "</label>";
-		}
+               list += "<label for='is24Hour'><input data-mini='true' class='noselect' id='is24Hour' type='checkbox' " + ( OSApp.uiState.is24Hour ? "checked='checked'" : "" ) + ">" +
+                       OSApp.Language._( "Use 24 Hour Time" ) + "</label>";
+       list += "</div>";
 
-		list += "<label for='sortByStationName'><input data-mini='true' id='sortByStationName' type='checkbox' " + ( OSApp.uiState.sortByStationName ? "checked='checked'" : "" ) + ">" +
-		OSApp.Language._( "Order Stations by Name" ) + "</label>";
-	list += "</div>";
+       list += "<div data-role='controlgroup' data-type='horizontal' style='text-align:center'>";
+               if ( OSApp.Supported.groups() ) {
+                       list += "<label for='groupView'><input data-mini='true' class='noselect' id='groupView' type='checkbox' " + ( OSApp.uiState.groupView ? "checked='checked'" : "" ) + ">" +
+                       OSApp.Language._( "Order Stations by Groups" ) + "</label>";
+               }
+
+               list += "<label for='sortByStationName'><input data-mini='true' class='noselect' id='sortByStationName' type='checkbox' " + ( OSApp.uiState.sortByStationName ? "checked='checked'" : "" ) + ">" +
+               OSApp.Language._( "Order Stations by Name" ) + "</label>";
+       list += "</div>";
+
+       list += "<div data-role='controlgroup' data-type='horizontal' style='text-align:center'>";
+               list += "<label for='showDisabled'><input data-mini='true' class='noselect' id='showDisabled' type='checkbox' " + ( ( localStorage.showDisabled === "true" ) ? "checked='checked'" : "" ) + ">" +
+                       OSApp.Language._( "Show Disabled" ) + "</label>";
+
+               list += "<label for='showStationNum'><input data-mini='true' class='noselect' id='showStationNum' type='checkbox' " + ( ( localStorage.showStationNum === "true" ) ? "checked='checked'" : "" ) + ">" +
+                       OSApp.Language._( "Show Station Number" ) + "</label>";
+       list += "</div>";
 
 	list += "</fieldset><fieldset data-role='collapsible'" +
 		( typeof expandItem === "string" && expandItem === "master" ? " data-collapsed='false'" : "" ) + ">" +
@@ -467,24 +482,18 @@ OSApp.Options.showOptions = function( expandItem ) {
 		list += "</select></div>";
 	}
 
-	if ( typeof OSApp.currentSession.controller.options.sdt !== "undefined" ) {
-		list += "<div class='ui-field-contain duration-field'><label for='o17'>" + OSApp.Language._( "Station Delay" ) + "</label>" +
-			"<button data-mini='true' id='o17' value='" + OSApp.currentSession.controller.options.sdt + "'>" +
-				OSApp.Dates.dhms2str( OSApp.Dates.sec2dhms( OSApp.currentSession.controller.options.sdt ) ) +
-			"</button></div>";
-	}
+       if ( typeof OSApp.currentSession.controller.options.sdt !== "undefined" ) {
+               list += "<div class='ui-field-contain duration-field'><label for='o17'>" + OSApp.Language._( "Station Delay" ) + "</label>" +
+                       "<button data-mini='true' id='o17' value='" + OSApp.currentSession.controller.options.sdt + "'>" +
+                               OSApp.Dates.dhms2str( OSApp.Dates.sec2dhms( OSApp.currentSession.controller.options.sdt ) ) +
+                       "</button></div>";
+       }
 
-	list += "<label for='showDisabled'><input data-mini='true' class='noselect' id='showDisabled' type='checkbox' " + ( ( localStorage.showDisabled === "true" ) ? "checked='checked'" : "" ) + ">" +
-	OSApp.Language._( "Show Disabled" ) + " " + OSApp.Language._( "(Changes Auto-Saved)" ) + "</label>";
-
-	if ( typeof OSApp.currentSession.controller.options.seq !== "undefined" ) {
-		list += "<label for='o16'><input data-mini='true' id='o16' type='checkbox' " +
-				( ( OSApp.currentSession.controller.options.seq === 1 ) ? "checked='checked'" : "" ) + ">" +
-			OSApp.Language._( "Sequential" ) + "</label>";
-	}
-
-	list += "<label for='showStationNum'><input data-mini='true' class='noselect' id='showStationNum' type='checkbox' " + ( ( localStorage.showStationNum === "true" ) ? "checked='checked'" : "" ) + ">" +
-	OSApp.Language._( "Show Station Number" ) + " " + OSApp.Language._( "(Changes Auto-Saved)" ) + "</label>";
+       if ( typeof OSApp.currentSession.controller.options.seq !== "undefined" ) {
+               list += "<label for='o16'><input data-mini='true' id='o16' type='checkbox' " +
+                               ( ( OSApp.currentSession.controller.options.seq === 1 ) ? "checked='checked'" : "" ) + ">" +
+                       OSApp.Language._( "Sequential" ) + "</label>";
+       }
 
 	list += "</fieldset><fieldset data-role='collapsible'" +
 		( typeof expandItem === "string" && expandItem === "weather" ? " data-collapsed='false'" : "" ) + ">" +
@@ -949,15 +958,39 @@ OSApp.Options.showOptions = function( expandItem ) {
 		} );
 	} );
 
-	page.find( "#showDisabled" ).on( "change", function() {
-		OSApp.Storage.set( { showDisabled: this.checked } );
-		return false;
-	} );
+        page.find( "#showDisabled" ).on( "change", function() {
+                OSApp.Storage.set( { showDisabled: this.checked } );
+                return false;
+        } );
 
-	page.find( "#showStationNum" ).on( "change", function() {
-		OSApp.Storage.set( { showStationNum: this.checked } );
-		return false;
-	} );
+        page.find( "#showStationNum" ).on( "change", function() {
+                OSApp.Storage.set( { showStationNum: this.checked } );
+                return false;
+        } );
+
+        page.find( "#isMetric" ).on( "change", function() {
+                OSApp.currentDevice.isMetric = this.checked;
+                OSApp.Storage.set( { isMetric: this.checked } );
+                return false;
+        } );
+
+        page.find( "#is24Hour" ).on( "change", function() {
+                OSApp.uiState.is24Hour = this.checked;
+                OSApp.Storage.set( { is24Hour: this.checked } );
+                return false;
+        } );
+
+        page.find( "#groupView" ).on( "change", function() {
+                OSApp.uiState.groupView = this.checked;
+                OSApp.Storage.set( { groupView: this.checked } );
+                return false;
+        } );
+
+        page.find( "#sortByStationName" ).on( "change", function() {
+                OSApp.uiState.sortByStationName = this.checked;
+                OSApp.Storage.set( { sortByStationName: this.checked } );
+                return false;
+        } );
 
 	page.find( "#loc" ).on( "click", function() {
 		var loc = $( this );
