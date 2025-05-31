@@ -971,6 +971,7 @@ OSApp.Options.showOptions = function( expandItem ) {
         page.find( "#isMetric" ).on( "change", function() {
                 OSApp.currentDevice.isMetric = this.checked;
                 OSApp.Storage.set( { isMetric: this.checked } );
+                OSApp.Language.updateUIElements();
                 return false;
         } );
 
