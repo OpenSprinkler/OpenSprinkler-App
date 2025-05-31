@@ -20,12 +20,6 @@ var OSApp = OSApp || {};
 // TODO: add unit tests for each module
 // TODO: move vendor js (jquery, jqm, datatables, etc) to /js/vendor
 
-window.onerror = function(message, source, lineno, colno, error) {
-	// Catch any uncaught exceptions. Write them to console, show the user a modal to report the error.
-	console.error( "*** Uncaught Exception", {message, source, lineno, colno, error} );
-	OSApp.Errors.showErrorModal(message, source, lineno, colno, error);
-	return true;
-};
 
 // App Constants
 OSApp.Constants = {
@@ -95,7 +89,6 @@ OSApp.uiState = {
 	errorTimeout: undefined,
 	goingBack: false,
 	is24Hour: false,
-	ignoreAllErrors: false, // User can ignore all errors, preventing the error modal from appearing
 	groupView: false,
 	sortByStationName: false,
 	language: undefined,
