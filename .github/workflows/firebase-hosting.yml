@@ -97,3 +97,20 @@ jobs:
             'opensprinkler-devui'
             ) || 'opensprinkler-devui' }}
           channelId: ${{ (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && 'live' || '' }}
+
+      - name: Purge Cloudflare Cache
+        env:
+          CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
+          CLOUDFLARE_API_KEY: ${{ secrets.CLOUDFLARE_API_KEY }}
+          ENVIRONMENT: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment || 'dev' }}
+        run: |
+          ENV_NAME="${ENVIRONMENT}"
+          if [ "$ENV_NAME" = "prod" ]; then
+            HOST="ui.opensprinkler.com"
+          else
+            HOST="${ENV_NAME}ui.opensprinkler.com"
+          fi
+          curl https://api.cloudflare.com/client/v4/zones/${CF_ZONE_ID}/purge_cache \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${CLOUDFLARE_API_KEY}" \
+            --data "{\"hosts\": [\"${HOST}\"]}"
