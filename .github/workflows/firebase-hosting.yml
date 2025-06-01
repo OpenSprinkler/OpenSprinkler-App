@@ -99,7 +99,6 @@ jobs:
           channelId: ${{ (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && 'live' || '' }}
 
       - name: Purge Cloudflare Cache
-        if: secrets.CF_ZONE_ID != '' && secrets.CLOUDFLARE_API_KEY != ''
         env:
           CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
           CLOUDFLARE_API_KEY: ${{ secrets.CLOUDFLARE_API_KEY }}
