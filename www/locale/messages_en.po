@@ -1667,12 +1667,20 @@ msgstr ""
 msgid "Change IP"
 msgstr ""
 
+msgid "Change URL"
+msgstr ""
+
 msgid "Change Token"
 msgstr ""
 
 msgid ""
 "These options are only for an OpenSprinkler behind a proxy capable of SSL "
 "and/or Basic Authentication."
+msgstr ""
+
+msgid ""
+"These options are only for an OpenSprinkler behind a proxy capable of "
+"Basic Authentication."
 msgstr ""
 
 msgid "Use SSL"
@@ -1705,6 +1713,12 @@ msgid ""
 "port by using IP:Port"
 msgstr ""
 
+msgid ""
+"Note: The name is used to identify the OpenSprinkler within the app. "
+"OpenSprinkler URL should include the protocol (http:// or https://), "
+"hostname/IP, port, and path if needed."
+msgstr ""
+
 msgid "Open Sprinkler Name:"
 msgstr ""
 
@@ -1720,6 +1734,9 @@ msgstr ""
 msgid "Open Sprinkler IP:"
 msgstr ""
 
+msgid "Open Sprinkler URL:"
+msgstr ""
+
 msgid "OpenThings Token"
 msgstr ""
 
@@ -1733,6 +1750,12 @@ msgid "Authorization Required"
 msgstr ""
 
 msgid "An IP address or token is required to continue."
+msgstr ""
+
+msgid "A URL or token is required to continue."
+msgstr ""
+
+msgid "Invalid URL format. Please enter a valid URL like https://example.com"
 msgstr ""
 
 msgid "Connecting to"

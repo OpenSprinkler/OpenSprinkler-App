@@ -17,6 +17,85 @@
 var OSApp = OSApp || {};
 OSApp.Sites = OSApp.Sites || {};
 
+// Helper functions for URL parsing and migration
+OSApp.Sites.parseURL = function( url ) {
+	// Parse a URL and return components
+	if ( !url || typeof url !== "string" ) {
+		return null;
+	}
+	
+	// Add protocol if missing
+	if ( !/^https?:\/\//.test( url ) ) {
+		url = "http://" + url;
+	}
+	
+	try {
+		var parsedUrl = new URL( url );
+		return {
+			protocol: parsedUrl.protocol.replace( ":", "" ),
+			hostname: parsedUrl.hostname,
+			port: parsedUrl.port || ( parsedUrl.protocol === "https:" ? "443" : "80" ),
+			pathname: parsedUrl.pathname || "/",
+			href: parsedUrl.href,
+			hostWithPort: parsedUrl.hostname + ( parsedUrl.port ? ":" + parsedUrl.port : "" )
+		};
+	} catch {
+		// Failed to parse URL
+		return null;
+	}
+};
+
+OSApp.Sites.buildURL = function( protocol, ip, path ) {
+	// Build a URL from components (for migration)
+	protocol = protocol || "http";
+	path = path || "";
+	
+	if ( !ip ) {
+		return "";
+	}
+	
+	// Clean up path
+	if ( path && !path.startsWith( "/" ) ) {
+		path = "/" + path;
+	}
+	
+	return protocol + "://" + ip + path;
+};
+
+OSApp.Sites.migrateToURL = function( site ) {
+	// Migrate old IP+SSL format to URL format
+	if ( site.os_url ) {
+		// Already migrated
+		return site;
+	}
+	
+	if ( site.os_ip ) {
+		var protocol = ( site.ssl === "1" ) ? "https" : "http";
+		site.os_url = OSApp.Sites.buildURL( protocol, site.os_ip );
+		// Keep os_ip for backward compatibility during transition
+	}
+	
+	return site;
+};
+
+OSApp.Sites.extractIPFromURL = function( url ) {
+	// Extract IP/hostname:port from URL for backward compatibility
+	var parsed = OSApp.Sites.parseURL( url );
+	if ( !parsed ) {
+		return "";
+	}
+	
+	var result = parsed.hostname;
+	if ( parsed.port && parsed.port !== "80" && parsed.port !== "443" ) {
+		result += ":" + parsed.port;
+	}
+	if ( parsed.pathname && parsed.pathname !== "/" ) {
+		result += parsed.pathname;
+	}
+	
+	return result;
+};
+
 OSApp.Sites.displayPage = function() {
 	var page = $( "<div data-role='page' id='site-control'>" +
 			"<div class='ui-content'>" +
@@ -122,7 +201,8 @@ OSApp.Sites.displayPage = function() {
 						"<label for='cnm-" + i + "'>" + OSApp.Language._( "Change Name" ) + "</label><input id='cnm-" + i + "' type='text' value='" + a + "'>" +
 						"</div>" +
 						( b.os_token ? "" : "<div class='ui-field-contain'>" +
-							"<label for='cip-" + i + "'>" + OSApp.Language._( "Change IP" ) + "</label><input id='cip-" + i + "' type='url' value='" + b.os_ip +
+							"<label for='curl-" + i + "'>" + OSApp.Language._( "Change URL" ) + "</label><input id='curl-" + i + "' type='url' value='" + 
+							( OSApp.Sites.migrateToURL( b ).os_url || OSApp.Sites.buildURL( b.ssl === "1" ? "https" : "http", b.os_ip ) ) +
 							"' autocomplete='off' autocorrect='off' autocapitalize='off' pattern='' spellcheck='false'>" +
 							"</div>" ) +
 						( b.os_token ? "<div class='ui-field-contain'>" +
@@ -136,14 +216,9 @@ OSApp.Sites.displayPage = function() {
 							"<h3>" +
 							"<span style='line-height:23px'>" + OSApp.Language._( "Advanced" ) + "</span>" +
 							"<button data-helptext='" +
-							OSApp.Language._( "These options are only for an OpenSprinkler behind a proxy capable of SSL and/or Basic Authentication." ) +
+							OSApp.Language._( "These options are only for an OpenSprinkler behind a proxy capable of Basic Authentication." ) +
 							"' class='collapsible-button-right help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
 							"</h3>" +
-							"<label for='usessl-" + i + "'>" +
-							"<input data-mini='true' type='checkbox' id='usessl-" + i + "' name='usessl-" + i + "'" +
-							( typeof b.ssl !== "undefined" && b.ssl === "1" ? " checked='checked'" : "" ) + ">" +
-							OSApp.Language._( "Use SSL" ) +
-							"</label>" +
 							"<label for='useauth-" + i + "'>" +
 							"<input class='useauth' data-user='" + b.auth_user + "' data-pw='" + b.auth_pw +
 							"' data-mini='true' type='checkbox' id='useauth-" + i + "' name='useauth-" + i + "'" +
@@ -224,15 +299,15 @@ OSApp.Sites.displayPage = function() {
 					var form = $( this ),
 						id = form.data( "site" ),
 						site = siteNames[ id ],
-						ip = list.find( "#cip-" + id ).val(),
+						url = list.find( "#curl-" + id ).val(),
 						pw = list.find( "#cpw-" + id ).val(),
 						nm = list.find( "#cnm-" + id ).val(),
 						useauth = list.find( "#useauth-" + id ).is( ":checked" ),
-						usessl = list.find( "#usessl-" + id ).is( ":checked" ) ? "1" : undefined,
 						authUser = list.find( "#useauth-" + id ).data( "user" ),
 						authPass = list.find( "#useauth-" + id ).data( "pw" ),
-						needsReconnect = ( ip !== "" && ip !== sites[ site ].os_ip ) ||
-							usessl !== sites[ site ].ssl ||
+						parsedUrl = url ? OSApp.Sites.parseURL( url ) : null,
+						newIp = parsedUrl ? OSApp.Sites.extractIPFromURL( url ) : "",
+						needsReconnect = ( url !== "" && newIp !== sites[ site ].os_ip ) ||
 							authUser !== sites[ site ].auth_user ||
 							authPass !== sites[ site ].auth_pw,
 						isCurrent = ( site === data.current_site ),
@@ -248,14 +323,13 @@ OSApp.Sites.displayPage = function() {
 						delete sites[ site ].auth_pw;
 					}
 
-					if ( usessl === "1" ) {
-						sites[ site ].ssl = usessl;
-					} else {
+					if ( url !== "" && parsedUrl ) {
+						// Store the new URL format
+						sites[ site ].os_url = url;
+						// Update IP for backward compatibility
+						sites[ site ].os_ip = newIp;
+						// Remove old SSL flag if it exists
 						delete sites[ site ].ssl;
-					}
-
-					if ( ip !== "" && ip !== sites[ site ].os_ip ) {
-						sites[ site ].os_ip = ip;
 					}
 					if ( pw !== "" && pw !== sites[ site ].os_pw ) {
 						if ( OSApp.Utils.isMD5( sites[ site ].os_pw ) ) {
@@ -383,7 +457,17 @@ OSApp.Sites.displayPage = function() {
 OSApp.Sites.testSite = function( site, id, callback ) {
 	callback = callback || function() {};
 	var urlDest = "/jo?pw=" + encodeURIComponent( site.os_pw ),
-		url = site.os_token ? "https://cloud.openthings.io/forward/v1/" + site.os_token + urlDest : ( site.ssl === "1" ? "https://" : "http://" ) + site.os_ip + urlDest;
+		url;
+	
+	if ( site.os_token ) {
+		url = "https://cloud.openthings.io/forward/v1/" + site.os_token + urlDest;
+	} else if ( site.os_url ) {
+		var parsedUrl = OSApp.Sites.parseURL( site.os_url );
+		url = parsedUrl ? parsedUrl.protocol + "://" + parsedUrl.hostWithPort + urlDest : "";
+	} else {
+		// Fallback to old IP+SSL format
+		url = ( site.ssl === "1" ? "https://" : "http://" ) + site.os_ip + urlDest;
+	}
 
 	$.ajax( {
 		url: url,
@@ -471,12 +555,29 @@ OSApp.Sites.checkConfigured = function( firstLoad ) {
 
 		OSApp.Sites.updateSiteList( names, current );
 
+		// Migrate the current site to new URL format if needed
+		var originalSite = JSON.parse( JSON.stringify( sites[ current ] ) );
+		sites[ current ] = OSApp.Sites.migrateToURL( sites[ current ] );
+		
+		// Save migrated site if it was changed
+		if ( JSON.stringify( originalSite ) !== JSON.stringify( sites[ current ] ) ) {
+			OSApp.Storage.set( { "sites": JSON.stringify( sites ) }, () => OSApp.Network.cloudSaveSites() );
+		}
+
 		OSApp.currentSession.token = sites[ current ].os_token;
 
 		OSApp.currentSession.ip = sites[ current ].os_ip;
 		OSApp.currentSession.pass = sites[ current ].os_pw;
 
-		if ( typeof sites[ current ].ssl !== "undefined" && sites[ current ].ssl === "1" ) {
+		// Set protocol prefix from URL if available, otherwise fallback to SSL flag
+		if ( sites[ current ].os_url ) {
+			var parsedUrl = OSApp.Sites.parseURL( sites[ current ].os_url );
+			if ( parsedUrl ) {
+				OSApp.currentSession.prefix = parsedUrl.protocol + "://";
+			} else {
+				OSApp.currentSession.prefix = "http://";
+			}
+		} else if ( typeof sites[ current ].ssl !== "undefined" && sites[ current ].ssl === "1" ) {
 			OSApp.currentSession.prefix = "https://";
 		} else {
 			OSApp.currentSession.prefix = "http://";
@@ -543,7 +644,7 @@ OSApp.Sites.showAddNew = function( autoIP, closeOld ) {
 			"<div class='ui-content' id='addnew-content'>" +
 				"<form method='post' novalidate>" +
 					( isAuto ? "" : "<p class='center smaller'>" +
-						OSApp.Language._( "Note: The name is used to identify the OpenSprinkler within the app. OpenSprinkler IP can be either an IP or hostname. You can also specify a port by using IP:Port" ) +
+						OSApp.Language._( "Note: The name is used to identify the OpenSprinkler within the app. OpenSprinkler URL should include the protocol (http:// or https://), hostname/IP, port, and path if needed." ) +
 					"</p>" ) +
 					"<label for='os_name'>" + OSApp.Language._( "Open Sprinkler Name:" ) + "</label>" +
 					"<input autocorrect='off' spellcheck='false' type='text' name='os_name' " +
@@ -558,11 +659,11 @@ OSApp.Sites.showAddNew = function( autoIP, closeOld ) {
 								"<label for='type-token'>" + OSApp.Language._( "OpenThings Cloud" ) + "</label>" +
 							"</fieldset>" +
 						"</div>" +
-						"<label class='ip-field' for='os_ip'>" + OSApp.Language._( "Open Sprinkler IP:" ) + "</label>" ) +
+						"<label class='ip-field' for='os_url'>" + OSApp.Language._( "Open Sprinkler URL:" ) + "</label>" ) +
 					"<input data-wrapper-class='ip-field' " + ( isAuto ? "data-role='none' style='display:none' " : "" ) +
 						"autocomplete='off' autocorrect='off' autocapitalize='off' " +
-						"spellcheck='false' type='url' pattern='' name='os_ip' id='os_ip' " +
-						"value='" + ( isAuto ? autoIP : "" ) + "' placeholder='home.dyndns.org'>" +
+						"spellcheck='false' type='url' pattern='' name='os_url' id='os_url' " +
+						"value='" + ( isAuto ? "http://" + autoIP : "" ) + "' placeholder='https://home.dyndns.org'>" +
 					"<label class='token-field' for='os_token' style='display: none'>" + OSApp.Language._( "OpenThings Token" ) + ":</label>" +
 					"<input data-wrapper-class='token-field hidden' " +
 						"autocomplete='off' autocorrect='off' autocapitalize='off' " +
@@ -578,8 +679,6 @@ OSApp.Sites.showAddNew = function( autoIP, closeOld ) {
 							"<h4>" + OSApp.Language._( "Advanced" ) + "</h4>" +
 							"<fieldset data-role='controlgroup' data-type='horizontal' " +
 								"data-mini='true' class='center'>" +
-							"<input type='checkbox' name='os_usessl' id='os_usessl'>" +
-							"<label for='os_usessl'>" + OSApp.Language._( "Use SSL" ) + "</label>" +
 							"<input type='checkbox' name='os_useauth' id='os_useauth'>" +
 							"<label for='os_useauth'>" + OSApp.Language._( "Use Auth" ) + "</label>" +
 							"</fieldset>" +
@@ -642,8 +741,9 @@ OSApp.Sites.submitNewSite = function( ssl, useAuth ) {
 	$.mobile.loading( "show" );
 
 	var connectionType = $( ".connection-type input[type='radio']:checked" ).val(),
-		ip = $.mobile.path.parseUrl( $( "#os_ip" ).val() ).hrefNoHash.replace( /https?:\/\//, "" ),
+		url = connectionType === "ip" ? $( "#os_url" ).val() : null,
 		token = connectionType === "token" ? $( "#os_token" ).val() : null,
+		parsedUrl = url ? OSApp.Sites.parseURL( url ) : null,
 		success = function( data, sites ) {
 			$.mobile.loading( "hide" );
 			var is183;
@@ -663,7 +763,18 @@ OSApp.Sites.submitNewSite = function( ssl, useAuth ) {
 
 				sites[ name ] = {};
 				sites[ name ].os_token = OSApp.currentSession.token = token;
-				sites[ name ].os_ip = OSApp.currentSession.ip = ip;
+				
+				if ( url ) {
+					// Store the full URL for new format
+					sites[ name ].os_url = url;
+					// Extract IP for backward compatibility
+					sites[ name ].os_ip = OSApp.currentSession.ip = OSApp.Sites.extractIPFromURL( url );
+					// Set protocol prefix based on URL
+					OSApp.currentSession.prefix = parsedUrl.protocol + "://";
+				} else {
+					// Token-based connection
+					OSApp.currentSession.ip = "";
+				}
 
 				if ( typeof data.fwv === "number" && data.fwv >= 213 ) {
 					if ( typeof data.wl === "number" ) {
@@ -673,13 +784,6 @@ OSApp.Sites.submitNewSite = function( ssl, useAuth ) {
 
 				sites[ name ].os_pw = savePW ? pw : "";
 				OSApp.currentSession.pass = pw;
-
-				if ( ssl ) {
-					sites[ name ].ssl = "1";
-					OSApp.currentSession.prefix = "https://";
-				} else {
-					OSApp.currentSession.prefix = "http://";
-				}
 
 				if ( useAuth ) {
 					sites[ name ].auth_user = $( "#os_auth_user" ).val();
@@ -696,7 +800,7 @@ OSApp.Sites.submitNewSite = function( ssl, useAuth ) {
 					OSApp.currentSession.fw183 = true;
 				}
 
-				$( "#os_name,#os_ip,#os_pw,#os_auth_user,#os_auth_pw,#os_token" ).val( "" );
+				$( "#os_name,#os_url,#os_pw,#os_auth_user,#os_auth_pw,#os_token" ).val( "" );
 				OSApp.Storage.set( {
 					"sites": JSON.stringify( sites ),
 					"current_site": name
@@ -753,11 +857,15 @@ OSApp.Sites.submitNewSite = function( ssl, useAuth ) {
 
 			$( "#addnew-content" ).hide();
 			$( "#addnew" ).append( html ).popup( "reposition", { positionTo:"window" } );
-		},
-		prefix;
+		};
 
-	if ( !ip && !token ) {
-		OSApp.Errors.showError( OSApp.Language._( "An IP address or token is required to continue." ) );
+	if ( !url && !token ) {
+		OSApp.Errors.showError( OSApp.Language._( "A URL or token is required to continue." ) );
+		return;
+	}
+
+	if ( url && !parsedUrl ) {
+		OSApp.Errors.showError( OSApp.Language._( "Invalid URL format. Please enter a valid URL like https://example.com" ) );
 		return;
 	}
 
@@ -771,16 +879,6 @@ OSApp.Sites.submitNewSite = function( ssl, useAuth ) {
 		return;
 	}
 
-	if ( $( "#os_usessl" ).is( ":checked" ) === true ) {
-		ssl = true;
-	}
-
-	if ( ssl ) {
-		prefix = "https://";
-	} else {
-		prefix = "http://";
-	}
-
 	if ( useAuth ) {
 		$( "#addnew-auth" ).hide();
 		$( "#addnew-content" ).show();
@@ -788,11 +886,12 @@ OSApp.Sites.submitNewSite = function( ssl, useAuth ) {
 	}
 
 	var urlDest = "/jo?pw=" + md5( $( "#os_pw" ).val() ),
-		url = token ? "https://cloud.openthings.io/forward/v1/" + token + urlDest : prefix + ip + urlDest;
+		ajaxUrl = token ? "https://cloud.openthings.io/forward/v1/" + token + urlDest : 
+			( parsedUrl ? parsedUrl.protocol + "://" + parsedUrl.hostWithPort + urlDest : "" );
 
 	//Submit form data to the server
 	$.ajax( {
-		url: url,
+		url: ajaxUrl,
 		type: "GET",
 		dataType: "json",
 		timeout: 10000,
@@ -811,7 +910,8 @@ OSApp.Sites.submitNewSite = function( ssl, useAuth ) {
 				return;
 			}
 			$.ajax( {
-				url: token ? "https://cloud.openthings.io/forward/v1/" + token : prefix + ip,
+				url: token ? "https://cloud.openthings.io/forward/v1/" + token : 
+					( parsedUrl ? parsedUrl.protocol + "://" + parsedUrl.hostWithPort : "" ),
 				type: "GET",
 				dataType: "text",
 				timeout: 10000,
