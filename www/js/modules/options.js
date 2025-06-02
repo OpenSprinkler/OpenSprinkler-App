@@ -390,10 +390,10 @@ OSApp.Options.showOptions = function( expandItem ) {
        list += "</div>";
 
        list += "<div data-role='controlgroup' data-type='horizontal' style='text-align:center'>";
-               list += "<label for='showDisabled'><input data-mini='true' class='noselect' id='showDisabled' type='checkbox' " + ( ( localStorage.showDisabled === "true" ) ? "checked='checked'" : "" ) + ">" +
+               list += "<label for='showDisabled'><input data-mini='true' class='noselect' id='showDisabled' type='checkbox' " + ( OSApp.uiState.showDisabled ? "checked='checked'" : "" ) + ">" +
                        OSApp.Language._( "Show Disabled" ) + "</label>";
 
-               list += "<label for='showStationNum'><input data-mini='true' class='noselect' id='showStationNum' type='checkbox' " + ( ( localStorage.showStationNum === "true" ) ? "checked='checked'" : "" ) + ">" +
+               list += "<label for='showStationNum'><input data-mini='true' class='noselect' id='showStationNum' type='checkbox' " + ( OSApp.uiState.showStationNum ? "checked='checked'" : "" ) + ">" +
                        OSApp.Language._( "Show Station Number" ) + "</label>";
        list += "</div>";
 
@@ -959,11 +959,13 @@ OSApp.Options.showOptions = function( expandItem ) {
 	} );
 
         page.find( "#showDisabled" ).on( "change", function() {
+                OSApp.uiState.showDisabled = this.checked;
                 OSApp.Storage.set( { showDisabled: this.checked } );
                 return false;
         } );
 
         page.find( "#showStationNum" ).on( "change", function() {
+                OSApp.uiState.showStationNum = this.checked;
                 OSApp.Storage.set( { showStationNum: this.checked } );
                 return false;
         } );

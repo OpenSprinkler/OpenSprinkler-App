@@ -641,18 +641,28 @@ OSApp.Weather.updateWeather = function() {
 	if ( OSApp.currentSession.weather && OSApp.currentSession.weather.providedLocation === OSApp.currentSession.controller.settings.loc && now - OSApp.currentSession.weather.lastUpdated < 60 * 60 * 100 ) {
 		OSApp.Weather.finishWeatherUpdate();
 		return;
-	} else if ( localStorage.weatherData ) {
-		try {
-			var weatherData = JSON.parse( localStorage.weatherData );
-			if ( weatherData.providedLocation === OSApp.currentSession.controller.settings.loc && now - weatherData.lastUpdated < 60 * 60 * 100 ) {
-				OSApp.currentSession.weather = weatherData;
-				OSApp.Weather.finishWeatherUpdate();
-				return;
+	} else {
+		OSApp.Storage.get( "weatherData", function( data ) {
+			if ( data.weatherData ) {
+				try {
+					var weatherData = JSON.parse( data.weatherData );
+					if ( weatherData.providedLocation === OSApp.currentSession.controller.settings.loc && now - weatherData.lastUpdated < 60 * 60 * 100 ) {
+						OSApp.currentSession.weather = weatherData;
+						OSApp.Weather.finishWeatherUpdate();
+						return;
+					}
+					//eslint-disable-next-line
+				} catch ( err ) {}
 			}
-			//eslint-disable-next-line
-		} catch ( err ) {}
+			
+			// If no cached data or cache is invalid, proceed with weather update
+			OSApp.Weather.performWeatherUpdate();
+		} );
+		return;
 	}
+};
 
+OSApp.Weather.performWeatherUpdate = function() {
 	OSApp.currentSession.weather = undefined;
 
 	if ( OSApp.currentSession.controller.settings.loc === "" ) {
@@ -695,7 +705,7 @@ OSApp.Weather.updateWeather = function() {
 			OSApp.currentSession.weather = data;
 			data.lastUpdated = new Date().getTime();
 			data.providedLocation = OSApp.currentSession.controller.settings.loc;
-			localStorage.weatherData = JSON.stringify( data );
+			OSApp.Storage.set( { weatherData: JSON.stringify( data ) } );
 			OSApp.Weather.finishWeatherUpdate();
 		}
 	} );

@@ -15,6 +15,24 @@
 var OSApp = OSApp || {};
 OSApp.Storage = OSApp.Storage || {};
 
+// Generate a namespace based on the current URL path to avoid conflicts in reverse proxy setups
+OSApp.Storage._getNamespace = function() {
+	// Use the pathname to create a unique namespace for each app instance
+	var pathname = window.location.pathname;
+	// Remove trailing slash and replace slashes with underscores to create a valid key
+	var namespace = pathname.replace(/\/$/, '').replace(/\//g, '_');
+	// If we're at the root, use 'root' as the namespace
+	if (!namespace || namespace === '_') {
+		namespace = 'root';
+	}
+	return 'OSApp' + namespace + '_';
+};
+
+// Helper function to add namespace to a key
+OSApp.Storage._namespacedKey = function( key ) {
+	return OSApp.Storage._getNamespace() + key;
+};
+
 // Functions
 OSApp.Storage.get = function( query, callback ) {
 	callback = callback || function() {};
@@ -27,7 +45,7 @@ OSApp.Storage.get = function( query, callback ) {
 
 	for ( i in query ) {
 		if ( Object.prototype.hasOwnProperty.call(query,  i ) ) {
-			data[ query[ i ] ] = localStorage.getItem( query[ i ] );
+			data[ query[ i ] ] = localStorage.getItem( OSApp.Storage._namespacedKey( query[ i ] ) );
 		}
 	}
 
@@ -39,7 +57,7 @@ OSApp.Storage.set = function( query, callback ) {
 	var i;
 	for ( i in query ) {
 		if ( Object.prototype.hasOwnProperty.call(query,  i ) ) {
-			localStorage.setItem( i, query[ i ] );
+			localStorage.setItem( OSApp.Storage._namespacedKey( i ), query[ i ] );
 		}
 	}
 
@@ -56,7 +74,7 @@ OSApp.Storage.remove = function( query, callback ) {
 
 	for ( i in query ) {
 		if ( Object.prototype.hasOwnProperty.call(query,  i ) ) {
-			localStorage.removeItem( query[ i ] );
+			localStorage.removeItem( OSApp.Storage._namespacedKey( query[ i ] ) );
 		}
 	}
 
@@ -108,6 +126,28 @@ OSApp.Storage.loadLocalSettings = function() {
 				break;
 			case "false":
 				OSApp.uiState.sortByStationName = false;
+				break;
+			default:
+		}
+	} );
+	OSApp.Storage.get( "showDisabled", function( data ) {
+		switch ( data.showDisabled ) {
+			case "true":
+				OSApp.uiState.showDisabled = true;
+				break;
+			case "false":
+				OSApp.uiState.showDisabled = false;
+				break;
+			default:
+		}
+	} );
+	OSApp.Storage.get( "showStationNum", function( data ) {
+		switch ( data.showStationNum ) {
+			case "true":
+				OSApp.uiState.showStationNum = true;
+				break;
+			case "false":
+				OSApp.uiState.showStationNum = false;
 				break;
 			default:
 		}

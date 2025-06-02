@@ -1,4 +1,4 @@
-/*global $, ver, ipas, XDomainRequest, ActiveXObject, md5 */
+/*global $, ver, ipas, XDomainRequest, ActiveXObject, md5, OSApp */
 
 /* OpenSprinkler App
  * Copyright (C) 2015 - present, Samer Albahra. All rights reserved.
@@ -238,8 +238,7 @@ window.currLocal = true;
 				document.title = "Loading...";
 
 				// Inject site information to storage so Application loads current device
-				localStorage.setItem( "sites", JSON.stringify( sites ) );
-				localStorage.setItem( "current_site", currentSite );
+				OSApp.Storage.set( { "sites": JSON.stringify( sites ), "current_site": currentSite } );
 				finishInit();
 			},
 			wrongPassword = function() {
@@ -257,7 +256,6 @@ window.currLocal = true;
 						"<div class='logo'></div><span class='feedback'>Unable to load UI</span>" +
 					"</div>" );
 			},
-			sites = JSON.parse( localStorage.getItem( "sites" ) ),
 			loader;
 
 		// Fix to allow CORS ajax requests to work on IE8 and 9
@@ -271,17 +269,21 @@ window.currLocal = true;
 		// eslint-disable-next-line
 		( function() {if ( $.support.cors || !$.ajaxTransport || !window.XDomainRequest ) {return;}var b = /^https?:\/\//i;var c = /^get|post$/i;var a = new RegExp( "^" + location.protocol, "i" );$.ajaxTransport( "* text html xml json", function( e, g ) {if ( !e.crossDomain || !e.async || !c.test( e.type ) || !b.test( e.url ) || !a.test( e.url ) ) {return;}var d = null;return { send:function( k, i ) {var h = "";var j = ( g.dataType || "" ).toLowerCase();d = new XDomainRequest();if ( /^\d+$/.test( g.timeout ) ) {d.timeout = g.timeout;}d.ontimeout = function() {i( 500, "timeout" );};d.onload = function() {var q = "Content-Length: " + d.responseText.length + "\r\nContent-Type: " + d.contentType;var l = { code:200, message:"success" };var n = { text:d.responseText };try {if ( j === "html" || /text\/html/i.test( d.contentType ) ) {n.html = d.responseText;}else {if ( j === "json" || ( j !== "text" && /\/json/i.test( d.contentType ) ) ) {try {n.json = $.parseJSON( d.responseText );}catch ( p ) {l.code = 500;l.message = "parseerror";}}else {if ( j === "xml" || ( j !== "text" && /\/xml/i.test( d.contentType ) ) ) {var o = new ActiveXObject( "Microsoft.XMLDOM" );o.async = false;try {o.loadXML( d.responseText );}catch ( p ) {o = undefined;}if ( !o || !o.documentElement || o.getElementsByTagName( "parsererror" ).length ) {l.code = 500;l.message = "parseerror";throw"Invalid XML: " + d.responseText;}n.xml = o;}}}}catch ( m ) {throw m;}finally {i( l.code, l.message, n, q );}};d.onprogress = function() {};d.onerror = function() {i( 500, "error", { text:d.responseText } );};if ( g.data ) {h = ( $.type( g.data ) === "string" ) ? g.data : $.param( g.data );}d.open( e.type, e.url );d.send( h );}, abort:function() {if ( d ) {d.abort();}} };} );}() );
 
-		if ( sites ) {
+		// Load existing sites from storage and continue initialization
+		OSApp.Storage.get( "sites", function( data ) {
+			var sites = data.sites ? JSON.parse( data.sites ) : null;
+			
+			if ( sites ) {
 
-			// If device has been logged into before, use available settings
-			loader = $( "<div class='spinner'><h1>Loading</h1></div>" );
-			finishInit();
-		} else if ( ipas === 1 ) {
-			savePassword( "" );
-		} else {
+				// If device has been logged into before, use available settings
+				loader = $( "<div class='spinner'><h1>Loading</h1></div>" );
+				finishInit();
+			} else if ( ipas === 1 ) {
+				savePassword( "" );
+			} else {
 
-			// If this is a new login, prompt for password
-			loader = $(
+				// If this is a new login, prompt for password
+				loader = $(
 				"<div class='spinner'>" +
 					"<div class='logo'></div>" +
 					"<h1>Enter Device Password</h1>" +
@@ -394,5 +396,6 @@ window.currLocal = true;
 			},
 			fail
 		);
+		} ); // End OSApp.Storage.get callback
 	}
 }( document ) );
