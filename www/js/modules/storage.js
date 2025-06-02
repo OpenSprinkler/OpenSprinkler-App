@@ -18,7 +18,7 @@ OSApp.Storage = OSApp.Storage || {};
 // Generate a namespace based on the current URL path to avoid conflicts in reverse proxy setups
 OSApp.Storage._getNamespace = function() {
 	// Use the pathname to create a unique namespace for each app instance
-	var pathname = window.location.pathname;
+	var pathname = OSApp.Storage._getPathname ? OSApp.Storage._getPathname() : window.location.pathname;
 	// Remove trailing slash and replace slashes with underscores to create a valid key
 	var namespace = pathname.replace(/\/$/, '').replace(/\//g, '_');
 	// If we're at the root, use 'root' as the namespace
