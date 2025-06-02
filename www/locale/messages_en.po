@@ -1664,7 +1664,7 @@ msgstr ""
 msgid "Change Name"
 msgstr ""
 
-msgid "Change IP"
+msgid "Change URL"
 msgstr ""
 
 msgid "Change Token"
@@ -1717,7 +1717,7 @@ msgstr ""
 msgid "OpenThings Cloud"
 msgstr ""
 
-msgid "Open Sprinkler IP:"
+msgid "Open Sprinkler URL:"
 msgstr ""
 
 msgid "OpenThings Token"

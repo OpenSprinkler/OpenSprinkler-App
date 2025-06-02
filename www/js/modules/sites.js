@@ -121,10 +121,10 @@ OSApp.Sites.displayPage = function() {
 						"<div class='ui-field-contain'>" +
 						"<label for='cnm-" + i + "'>" + OSApp.Language._( "Change Name" ) + "</label><input id='cnm-" + i + "' type='text' value='" + a + "'>" +
 						"</div>" +
-						( b.os_token ? "" : "<div class='ui-field-contain'>" +
-							"<label for='cip-" + i + "'>" + OSApp.Language._( "Change IP" ) + "</label><input id='cip-" + i + "' type='url' value='" + b.os_ip +
-							"' autocomplete='off' autocorrect='off' autocapitalize='off' pattern='' spellcheck='false'>" +
-							"</div>" ) +
+                                               ( b.os_token ? "" : "<div class='ui-field-contain'>" +
+                                                       "<label for='curl-" + i + "'>" + OSApp.Language._( "Change URL" ) + "</label><input id='curl-" + i + "' type='url' value='" + ( b.os_url || ( ( typeof b.ssl !== 'undefined' && b.ssl === '1' ? 'https://' : 'http://' ) + b.os_ip ) ) +
+                                                       "' autocomplete='off' autocorrect='off' autocapitalize='off' pattern='' spellcheck='false'>" +
+                                                       "</div>" ) +
 						( b.os_token ? "<div class='ui-field-contain'>" +
 							"<label for='ctoken-" + i + "'>" + OSApp.Language._( "Change Token" ) + "</label><input id='ctoken-" + i + "' type='text' value='" + b.os_token +
 							"' autocomplete='off' autocorrect='off' autocapitalize='off' pattern='' spellcheck='false'>" +
@@ -139,12 +139,7 @@ OSApp.Sites.displayPage = function() {
 							OSApp.Language._( "These options are only for an OpenSprinkler behind a proxy capable of SSL and/or Basic Authentication." ) +
 							"' class='collapsible-button-right help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
 							"</h3>" +
-							"<label for='usessl-" + i + "'>" +
-							"<input data-mini='true' type='checkbox' id='usessl-" + i + "' name='usessl-" + i + "'" +
-							( typeof b.ssl !== "undefined" && b.ssl === "1" ? " checked='checked'" : "" ) + ">" +
-							OSApp.Language._( "Use SSL" ) +
-							"</label>" +
-							"<label for='useauth-" + i + "'>" +
+                                                       "<label for='useauth-" + i + "'>" +
 							"<input class='useauth' data-user='" + b.auth_user + "' data-pw='" + b.auth_pw +
 							"' data-mini='true' type='checkbox' id='useauth-" + i + "' name='useauth-" + i + "'" +
 							( typeof b.auth_user !== "undefined" && typeof b.auth_pw !== "undefined" ? " checked='checked'" : "" ) + ">" +
@@ -224,19 +219,19 @@ OSApp.Sites.displayPage = function() {
 					var form = $( this ),
 						id = form.data( "site" ),
 						site = siteNames[ id ],
-						ip = list.find( "#cip-" + id ).val(),
-						pw = list.find( "#cpw-" + id ).val(),
-						nm = list.find( "#cnm-" + id ).val(),
-						useauth = list.find( "#useauth-" + id ).is( ":checked" ),
-						usessl = list.find( "#usessl-" + id ).is( ":checked" ) ? "1" : undefined,
-						authUser = list.find( "#useauth-" + id ).data( "user" ),
-						authPass = list.find( "#useauth-" + id ).data( "pw" ),
-						needsReconnect = ( ip !== "" && ip !== sites[ site ].os_ip ) ||
-							usessl !== sites[ site ].ssl ||
-							authUser !== sites[ site ].auth_user ||
-							authPass !== sites[ site ].auth_pw,
-						isCurrent = ( site === data.current_site ),
-						rename = ( nm !== "" && nm !== site );
+                                               url = list.find( "#curl-" + id ).val(),
+                                               ip = $.mobile.path.parseUrl( url ).hrefNoHash.replace( /https?:\/\//, "" ),
+                                               pw = list.find( "#cpw-" + id ).val(),
+                                               nm = list.find( "#cnm-" + id ).val(),
+                                               useauth = list.find( "#useauth-" + id ).is( ":checked" ),
+                                               usessl = $.mobile.path.parseUrl( url ).protocol === "https:" ? "1" : undefined,
+                                               authUser = list.find( "#useauth-" + id ).data( "user" ),
+                                               authPass = list.find( "#useauth-" + id ).data( "pw" ),
+                                               needsReconnect = ( url !== ( sites[ site ].os_url || ( ( typeof sites[ site ].ssl !== "undefined" && sites[ site ].ssl === "1" ? "https://" : "http://" ) + sites[ site ].os_ip ) ) ) ||
+                                                       authUser !== sites[ site ].auth_user ||
+                                                       authPass !== sites[ site ].auth_pw,
+                                               isCurrent = ( site === data.current_site ),
+                                               rename = ( nm !== "" && nm !== site );
 
 					form.find( ".submit" ).removeClass( "hasChanges" );
 
@@ -248,15 +243,16 @@ OSApp.Sites.displayPage = function() {
 						delete sites[ site ].auth_pw;
 					}
 
-					if ( usessl === "1" ) {
-						sites[ site ].ssl = usessl;
-					} else {
-						delete sites[ site ].ssl;
-					}
+                                        if ( usessl === "1" ) {
+                                                sites[ site ].ssl = usessl;
+                                        } else {
+                                                delete sites[ site ].ssl;
+                                        }
 
-					if ( ip !== "" && ip !== sites[ site ].os_ip ) {
-						sites[ site ].os_ip = ip;
-					}
+                                        if ( ip !== "" && ip !== sites[ site ].os_ip ) {
+                                                sites[ site ].os_ip = ip;
+                                        }
+                                        sites[ site ].os_url = url;
 					if ( pw !== "" && pw !== sites[ site ].os_pw ) {
 						if ( OSApp.Utils.isMD5( sites[ site ].os_pw ) ) {
 							pw = md5( pw );
@@ -503,7 +499,20 @@ OSApp.Sites.checkConfigured = function( firstLoad ) {
 };
 
 OSApp.Sites.parseSites = function( sites ) {
-	return ( sites === undefined || sites === null ) ? {} : JSON.parse( sites );
+       if ( sites === undefined || sites === null ) {
+               return {};
+       }
+
+       sites = JSON.parse( sites );
+
+       $.each( sites, function( name, site ) {
+               if ( typeof site.os_url === "undefined" && typeof site.os_ip !== "undefined" ) {
+                       var protocol = ( typeof site.ssl !== "undefined" && site.ssl === "1" ) ? "https://" : "http://";
+                       site.os_url = protocol + site.os_ip;
+               }
+       } );
+
+       return sites;
 };
 
 OSApp.Sites.showSiteSelect = function( list ) {
@@ -558,11 +567,11 @@ OSApp.Sites.showAddNew = function( autoIP, closeOld ) {
 								"<label for='type-token'>" + OSApp.Language._( "OpenThings Cloud" ) + "</label>" +
 							"</fieldset>" +
 						"</div>" +
-						"<label class='ip-field' for='os_ip'>" + OSApp.Language._( "Open Sprinkler IP:" ) + "</label>" ) +
-					"<input data-wrapper-class='ip-field' " + ( isAuto ? "data-role='none' style='display:none' " : "" ) +
-						"autocomplete='off' autocorrect='off' autocapitalize='off' " +
-						"spellcheck='false' type='url' pattern='' name='os_ip' id='os_ip' " +
-						"value='" + ( isAuto ? autoIP : "" ) + "' placeholder='home.dyndns.org'>" +
+                                               "<label class='ip-field' for='os_url'>" + OSApp.Language._( "Open Sprinkler URL:" ) + "</label>" ) +
+                                       "<input data-wrapper-class='ip-field' " + ( isAuto ? "data-role='none' style='display:none' " : "" ) +
+                                               "autocomplete='off' autocorrect='off' autocapitalize='off' " +
+                                               "spellcheck='false' type='url' pattern='' name='os_url' id='os_url' " +
+                                               "value='" + ( isAuto ? autoIP : "" ) + "' placeholder='https://home.dyndns.org'>" +
 					"<label class='token-field' for='os_token' style='display: none'>" + OSApp.Language._( "OpenThings Token" ) + ":</label>" +
 					"<input data-wrapper-class='token-field hidden' " +
 						"autocomplete='off' autocorrect='off' autocapitalize='off' " +
@@ -578,10 +587,8 @@ OSApp.Sites.showAddNew = function( autoIP, closeOld ) {
 							"<h4>" + OSApp.Language._( "Advanced" ) + "</h4>" +
 							"<fieldset data-role='controlgroup' data-type='horizontal' " +
 								"data-mini='true' class='center'>" +
-							"<input type='checkbox' name='os_usessl' id='os_usessl'>" +
-							"<label for='os_usessl'>" + OSApp.Language._( "Use SSL" ) + "</label>" +
-							"<input type='checkbox' name='os_useauth' id='os_useauth'>" +
-							"<label for='os_useauth'>" + OSApp.Language._( "Use Auth" ) + "</label>" +
+                                                        "<input type='checkbox' name='os_useauth' id='os_useauth'>" +
+                                                        "<label for='os_useauth'>" + OSApp.Language._( "Use Auth" ) + "</label>" +
 							"</fieldset>" +
 						"</div>" ) +
 					"<input type='submit' data-theme='b' value='" + OSApp.Language._( "Submit" ) + "'>" +
@@ -637,13 +644,15 @@ OSApp.Sites.showAddNew = function( autoIP, closeOld ) {
 
 // Add a new site
 // FIXME: rename this
-OSApp.Sites.submitNewSite = function( ssl, useAuth ) {
+OSApp.Sites.submitNewSite = function( forceSSL, useAuth ) {
 	document.activeElement.blur();
 	$.mobile.loading( "show" );
 
-	var connectionType = $( ".connection-type input[type='radio']:checked" ).val(),
-		ip = $.mobile.path.parseUrl( $( "#os_ip" ).val() ).hrefNoHash.replace( /https?:\/\//, "" ),
-		token = connectionType === "token" ? $( "#os_token" ).val() : null,
+       var connectionType = $( ".connection-type input[type='radio']:checked" ).val(),
+               baseUrl = $( "#os_url" ).val(),
+               ip = $.mobile.path.parseUrl( baseUrl ).hrefNoHash.replace( /https?:\/\//, "" ),
+               ssl = $.mobile.path.parseUrl( baseUrl ).protocol === "https:",
+               token = connectionType === "token" ? $( "#os_token" ).val() : null,
 		success = function( data, sites ) {
 			$.mobile.loading( "hide" );
 			var is183;
@@ -661,9 +670,10 @@ OSApp.Sites.submitNewSite = function( ssl, useAuth ) {
 					name = "Site " + ( Object.keys( sites ).length + 1 );
 				}
 
-				sites[ name ] = {};
-				sites[ name ].os_token = OSApp.currentSession.token = token;
-				sites[ name ].os_ip = OSApp.currentSession.ip = ip;
+                               sites[ name ] = {};
+                               sites[ name ].os_token = OSApp.currentSession.token = token;
+                               sites[ name ].os_ip = OSApp.currentSession.ip = ip;
+                               sites[ name ].os_url = baseUrl;
 
 				if ( typeof data.fwv === "number" && data.fwv >= 213 ) {
 					if ( typeof data.wl === "number" ) {
@@ -696,7 +706,7 @@ OSApp.Sites.submitNewSite = function( ssl, useAuth ) {
 					OSApp.currentSession.fw183 = true;
 				}
 
-				$( "#os_name,#os_ip,#os_pw,#os_auth_user,#os_auth_pw,#os_token" ).val( "" );
+                               $( "#os_name,#os_url,#os_pw,#os_auth_user,#os_auth_pw,#os_token" ).val( "" );
 				OSApp.Storage.set( {
 					"sites": JSON.stringify( sites ),
 					"current_site": name
@@ -771,15 +781,11 @@ OSApp.Sites.submitNewSite = function( ssl, useAuth ) {
 		return;
 	}
 
-	if ( $( "#os_usessl" ).is( ":checked" ) === true ) {
-		ssl = true;
-	}
-
-	if ( ssl ) {
-		prefix = "https://";
-	} else {
-		prefix = "http://";
-	}
+       if ( ssl ) {
+               prefix = "https://";
+       } else {
+               prefix = "http://";
+       }
 
 	if ( useAuth ) {
 		$( "#addnew-auth" ).hide();
