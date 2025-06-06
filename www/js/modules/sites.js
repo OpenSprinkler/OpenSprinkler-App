@@ -224,7 +224,7 @@ OSApp.Sites.displayPage = function() {
 					var form = $( this ),
 						id = form.data( "site" ),
 						site = siteNames[ id ],
-						ip = list.find( "#cip-" + id ).val(),
+						ip = list.find( "#cip-" + id ).val().replace(/\/$/, ""),
 						pw = list.find( "#cpw-" + id ).val(),
 						nm = list.find( "#cnm-" + id ).val(),
 						useauth = list.find( "#useauth-" + id ).is( ":checked" ),
@@ -660,7 +660,7 @@ OSApp.Sites.submitNewSite = function( ssl, useAuth ) {
 
        try {
                parsedUrl = new URL( urlStr );
-               ip = parsedUrl.host + parsedUrl.pathname + parsedUrl.search;
+               ip = ( parsedUrl.host + parsedUrl.pathname ).replace( /\/$/, "" ) + parsedUrl.search;
                if ( parsedUrl.protocol === "https:" ) {
                        ssl = true;
                }
