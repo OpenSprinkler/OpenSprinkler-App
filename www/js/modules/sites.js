@@ -558,11 +558,11 @@ OSApp.Sites.showAddNew = function( autoIP, closeOld ) {
 								"<label for='type-token'>" + OSApp.Language._( "OpenThings Cloud" ) + "</label>" +
 							"</fieldset>" +
 						"</div>" +
-						"<label class='ip-field' for='os_ip'>" + OSApp.Language._( "Open Sprinkler IP:" ) + "</label>" ) +
-					"<input data-wrapper-class='ip-field' " + ( isAuto ? "data-role='none' style='display:none' " : "" ) +
-						"autocomplete='off' autocorrect='off' autocapitalize='off' " +
-						"spellcheck='false' type='url' pattern='' name='os_ip' id='os_ip' " +
-						"value='" + ( isAuto ? autoIP : "" ) + "' placeholder='home.dyndns.org'>" +
+                                               "<label class='url-field' for='os_url'>" + OSApp.Language._( "Open Sprinkler URL:" ) + "</label>" ) +
+                                       "<input data-wrapper-class='url-field' " + ( isAuto ? "data-role='none' style='display:none' " : "" ) +
+                                               "autocomplete='off' autocorrect='off' autocapitalize='off' " +
+                                               "spellcheck='false' type='url' pattern='' name='os_url' id='os_url' " +
+                                               "value='" + ( isAuto ? autoIP : "" ) + "' placeholder='https://home.dyndns.org'>" +
 					"<label class='token-field' for='os_token' style='display: none'>" + OSApp.Language._( "OpenThings Token" ) + ":</label>" +
 					"<input data-wrapper-class='token-field hidden' " +
 						"autocomplete='off' autocorrect='off' autocapitalize='off' " +
@@ -641,10 +641,41 @@ OSApp.Sites.submitNewSite = function( ssl, useAuth ) {
 	document.activeElement.blur();
 	$.mobile.loading( "show" );
 
-	var connectionType = $( ".connection-type input[type='radio']:checked" ).val(),
-		ip = $.mobile.path.parseUrl( $( "#os_ip" ).val() ).hrefNoHash.replace( /https?:\/\//, "" ),
-		token = connectionType === "token" ? $( "#os_token" ).val() : null,
-		success = function( data, sites ) {
+       var connectionType = $( ".connection-type input[type='radio']:checked" ).val(),
+               rawUrl = $( "#os_url" ).val().trim(),
+               token = connectionType === "token" ? $( "#os_token" ).val() : null,
+               ip, parsedUrl,
+               urlStr,
+               success,
+               fail,
+               getAuth,
+               getAuthInfo,
+               showAuth,
+               prefix;
+
+       urlStr = rawUrl;
+       if ( urlStr && !/^https?:\/\//i.test( urlStr ) ) {
+               urlStr = "http://" + urlStr;
+       }
+
+       try {
+               parsedUrl = new URL( urlStr );
+               ip = parsedUrl.host + parsedUrl.pathname + parsedUrl.search;
+               if ( parsedUrl.protocol === "https:" ) {
+                       ssl = true;
+               }
+               if ( parsedUrl.username || parsedUrl.password ) {
+                       $( "#os_useauth" ).prop( "checked", true );
+                       $( "#os_auth_user" ).val( parsedUrl.username );
+                       $( "#os_auth_pw" ).val( parsedUrl.password );
+                       useAuth = true;
+               }
+       } catch ( e ) {
+               void e;
+               ip = $.mobile.path.parseUrl( urlStr ).hrefNoHash.replace( /https?:\/\//, "" );
+       }
+
+       success = function( data, sites ) {
 			$.mobile.loading( "hide" );
 			var is183;
 
@@ -696,7 +727,7 @@ OSApp.Sites.submitNewSite = function( ssl, useAuth ) {
 					OSApp.currentSession.fw183 = true;
 				}
 
-				$( "#os_name,#os_ip,#os_pw,#os_auth_user,#os_auth_pw,#os_token" ).val( "" );
+                               $( "#os_name,#os_url,#os_pw,#os_auth_user,#os_auth_pw,#os_token" ).val( "" );
 				OSApp.Storage.set( {
 					"sites": JSON.stringify( sites ),
 					"current_site": name
