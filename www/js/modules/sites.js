@@ -122,7 +122,7 @@ OSApp.Sites.displayPage = function() {
 						"<label for='cnm-" + i + "'>" + OSApp.Language._( "Change Name" ) + "</label><input id='cnm-" + i + "' type='text' value='" + a + "'>" +
 						"</div>" +
 						( b.os_token ? "" : "<div class='ui-field-contain'>" +
-							"<label for='cip-" + i + "'>" + OSApp.Language._( "Change IP" ) + "</label><input id='cip-" + i + "' type='url' value='" + b.os_ip +
+							"<label for='cip-" + i + "'>" + OSApp.Language._( "Change IP" ) + "</label><input id='cip-" + i + "' type='text' inputmode='url' value='" + b.os_ip +
 							"' autocomplete='off' autocorrect='off' autocapitalize='off' pattern='' spellcheck='false'>" +
 							"</div>" ) +
 						( b.os_token ? "<div class='ui-field-contain'>" +
@@ -558,11 +558,11 @@ OSApp.Sites.showAddNew = function( autoIP, closeOld ) {
 								"<label for='type-token'>" + OSApp.Language._( "OpenThings Cloud" ) + "</label>" +
 							"</fieldset>" +
 						"</div>" +
-                                               "<label class='url-field' for='os_url'>" + OSApp.Language._( "Open Sprinkler URL:" ) + "</label>" ) +
-                                       "<input data-wrapper-class='url-field' " + ( isAuto ? "data-role='none' style='display:none' " : "" ) +
-                                               "autocomplete='off' autocorrect='off' autocapitalize='off' " +
-                                               "spellcheck='false' type='url' pattern='' name='os_url' id='os_url' " +
-                                               "value='" + ( isAuto ? autoIP : "" ) + "' placeholder='https://home.dyndns.org'>" +
+						"<label class='url-field' for='os_url'>" + OSApp.Language._( "Open Sprinkler URL:" ) + "</label>" ) +
+						"<input data-wrapper-class='url-field' " + ( isAuto ? "data-role='none' style='display:none' " : "" ) +
+							"autocomplete='off' autocorrect='off' autocapitalize='off' " +
+							"spellcheck='false' type='text' inputmode='url' pattern='' name='os_url' id='os_url' " +
+							"value='" + ( isAuto ? autoIP : "" ) + "' placeholder='https://home.dyndns.org'>" +
 					"<label class='token-field' for='os_token' style='display: none'>" + OSApp.Language._( "OpenThings Token" ) + ":</label>" +
 					"<input data-wrapper-class='token-field hidden' " +
 						"autocomplete='off' autocorrect='off' autocapitalize='off' " +
