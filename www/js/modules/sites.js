@@ -671,7 +671,7 @@ OSApp.Sites.submitNewSite = function( ssl, useAuth ) {
                        useAuth = true;
                }
        } catch ( e ) {
-               void e;
+               console.error("Error parsing URL:", e);
                ip = $.mobile.path.parseUrl( urlStr ).hrefNoHash.replace( /https?:\/\//, "" );
        }
 
