@@ -39,7 +39,7 @@ OSApp.Firmware.Constants = {
 };
 
 // Wrapper function to communicate with OpenSprinkler
-OSApp.Firmware.sendToOS = function( dest, type ) {
+OSApp.Firmware.sendToOS = function( dest, type, timeout = 30000) {
 
 	// Inject password into the request
 	dest = dest.replace( "pw=", "pw=" + encodeURIComponent( OSApp.currentSession.pass ) );
@@ -57,6 +57,7 @@ OSApp.Firmware.sendToOS = function( dest, type ) {
 			type: usePOST ? "POST" : "GET",
 			data: usePOST ? OSApp.Firmware.getUrlVars( dest ) : null,
 			dataType: type,
+			timeout: timeout,
 			shouldRetry: function( xhr, current ) {
 				if ( xhr.status === 0 && xhr.statusText === "abort" || OSApp.Constants.http.RETRY_COUNT < current ) {
 					$.ajaxq.abort( queue );

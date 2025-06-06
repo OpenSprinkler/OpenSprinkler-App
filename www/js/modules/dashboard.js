@@ -36,6 +36,7 @@ OSApp.Dashboard.displayPage = function() {
 							</div>
 						</div>
 					</div>
+					<div id='os-program-show' class='card-group center'></div>
 					<div id="os-stations-list" class="card-group center"></div>
 					<div id="os-sensor-show" class="card-group center"></div>
 				</div>
@@ -353,6 +354,8 @@ OSApp.Dashboard.displayPage = function() {
 					button.data( "sd", select.find( "#sd" ).is( ":checked" ) ? 1 : 0 );
 					button.data( "us", select.find( "#us" ).is( ":checked" ) ? 1 : 0 );
 					name.html( select.find( "#stn-name" ).val() );
+					if (OSApp.Supported.fas())
+						button.attr( "data-fas", select.find( "#fas").val());
 
 					var seqGroupName = select.find( "span.seqgrp" ).text();
 					button.attr( "data-gid", OSApp.Groups.mapGIDNameToValue( seqGroupName ) );
@@ -456,7 +459,18 @@ OSApp.Dashboard.displayPage = function() {
 					"<div class='ui-bar-a ui-bar seq-container'>" + OSApp.Language._( "Sequential Group" ) + ":</div>" +
 					"<select id='gid' class='seqgrp' data-mini='true'></select>" +
 					"<div><p id='prohibit-change' class='center hidden' style='color: #ff0033;'>Changing group designation is prohibited while station is running</p></div>";
-			}
+
+				//Flow alert setpoint
+				if (OSApp.Supported.fas()) { // fas = flow alert setpoint
+					var fas = OSApp.currentSession.controller.stations.stn_fas[ sid ].toFixed(2) / 100;
+					select += "<div class='ui-bar-a ui-bar'>" + OSApp.Language._("Flow alert setpoint") + " (" + OSApp.Language._("liter/min") + "):</div>" +
+						"<input class='center' id='fas' type='text' inputmode='decimal' min='0' max='640' value='" + fas + "' >";
+						if (OSApp.currentSession.controller.stations.stn_favg) {
+							select += "<div class='ui-bar-a ui-bar'>" + OSApp.Language._("Average flow value") + " (" + OSApp.Language._("liter/min") + "):</div>" +
+							"<label class='center'>" + OSApp.currentSession.controller.stations.stn_favg[ sid ].toFixed(2) / 100 + "</label>";
+						}
+				}
+				}
 
 			// Station tab is initially set to disabled until we have refreshed station data from firmware
 			// Note: HTTPS and Remote OTC stations are supported at the same time with Email notification support
@@ -595,7 +609,7 @@ OSApp.Dashboard.displayPage = function() {
 				relay = {},
 				disable = {},
 				names = {},
-				attrib, bid, sid, gid, s;
+				attrib, bid, sid, gid, s, fas;
 
 			for ( bid = 0; bid < OSApp.currentSession.controller.settings.nbrd; bid++ ) {
 				if ( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_1 ) ) {
@@ -685,6 +699,10 @@ OSApp.Dashboard.displayPage = function() {
 						if ( OSApp.Supported.groups() ) {
 							gid = attrib.attr( "data-gid" );
 						}
+
+						if (OSApp.Supported.fas()) {
+							fas = Math.floor(parseFloat(attrib.attr( "data-fas" )) * 100);
+						}
 					}
 				}
 			}
@@ -700,7 +718,8 @@ OSApp.Dashboard.displayPage = function() {
 				( OSApp.Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_2 ) ? "&" + $.param( sensor2 ) : "" ) +
 				( OSApp.Supported.actRelay() ? "&" + $.param( relay ) : "" ) +
 				( OSApp.Supported.disabled() ? "&" + $.param( disable ) : "" ) +
-				( OSApp.Supported.groups() ? "&g" + id + "=" + gid : "" )
+				( OSApp.Supported.groups() ? "&g" + id + "=" + gid : "" ) +
+				( OSApp.Supported.fas() ? "&f" + id + "=" + fas : "")
 			).done( function() {
 				OSApp.Errors.showError( OSApp.Language._( "Stations have been updated" ) );
 				OSApp.Sites.updateController( function() {
@@ -869,11 +888,13 @@ OSApp.Dashboard.displayPage = function() {
 					divider.show();
 				}
 			}
-			OSApp.Cards.getDivider( nextCard ).hide();
-			OSApp.Cards.setGroupLabel( nextCard, OSApp.Groups.mapGIDValueToName( OSApp.Stations.getGIDValue( idx ) ) );
-			label = OSApp.Cards.getGroupLabel( nextCard );
-			if ( typeof label !== "undefined" && OSApp.Cards.isMasterStation( nextCard ) ) {
-				label.addClass( "hidden" );
+			if (nextCard) {
+				OSApp.Cards.getDivider( nextCard ).hide();
+				OSApp.Cards.setGroupLabel( nextCard, OSApp.Groups.mapGIDValueToName( OSApp.Stations.getGIDValue( idx ) ) );
+				label = OSApp.Cards.getGroupLabel( nextCard );
+				if ( typeof label !== "undefined" && OSApp.Cards.isMasterStation( nextCard ) ) {
+					label.addClass( "hidden" );
+				}
 			}
 		},
 		reorderCards = function() {
@@ -906,9 +927,18 @@ OSApp.Dashboard.displayPage = function() {
 
 			page.find( ".sitename" ).text( siteSelect.val() );
 
+			// New view: Show program instead of zones
+			var displayOption = OSApp.ProgramView.Constants.SHOW_ZONES;
+			if (localStorage.hasOwnProperty('displayOption'))
+				displayOption = localStorage.displayOption;
+			var programViewVisible = ( parseInt(displayOption) === OSApp.Options.Constants.DASHBOARD_MODE.SHOW_ALL.ID || parseInt(displayOption) === OSApp.Options.Constants.DASHBOARD_MODE.SHOW_PROGRAMS.ID );
+			OSApp.ProgramView.updateProgramShowArea( page, programViewVisible );
+
+
 			// Remove unused stations
 			OSApp.CardList.getAllCards( cardList ).filter( function( _, a ) {
-				return parseInt( $( a ).data( "station" ), 10 ) >= OSApp.currentSession.controller.stations.snames.length;
+				return parseInt( $( a ).data( "station" ), 10 ) >= OSApp.currentSession.controller.stations.snames.length
+					|| !(displayOption & OSApp.ProgramView.Constants.SHOW_ZONES);
 			} ).remove();
 
 			for ( var sid = 0; sid < OSApp.currentSession.controller.stations.snames.length; sid++ ) {
@@ -1025,9 +1055,17 @@ OSApp.Dashboard.displayPage = function() {
 		cards = "";
 		siteSelect = $( "#site-selector" );
 
+		var displayOption = OSApp.ProgramView.Constants.SHOW_ZONES;
+		if (localStorage.hasOwnProperty('displayOption'))
+			displayOption = localStorage.displayOption;
+		var programViewVisible = ( parseInt(displayOption) === OSApp.Options.Constants.DASHBOARD_MODE.SHOW_ALL.ID || parseInt(displayOption) === OSApp.Options.Constants.DASHBOARD_MODE.SHOW_PROGRAMS.ID );
+		OSApp.ProgramView.updateProgramShowArea( page, programViewVisible );
+
 		updateSites( function() {
 			for ( i = 0; i < OSApp.currentSession.controller.stations.snames.length; i++ ) {
-				addCard( i );
+				if (displayOption & OSApp.ProgramView.Constants.SHOW_ZONES) {
+					addCard( i );
+				}
 			}
 
 			page.find( "#os-stations-list" ).html( cards );

@@ -79,6 +79,8 @@ OSApp.UIDom.launchApp = function() {
 
 		OSApp.Network.updateDeviceIP();
 
+		OSApp.Analog.asb_init();
+
 		// Check if 3D touch is available and add menu when possible
 		if ( OSApp.currentDevice.isiOS ) {
 			ThreeDeeTouch.isAvailable( function( available ) {

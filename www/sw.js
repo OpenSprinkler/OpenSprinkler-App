@@ -47,6 +47,7 @@ cacheFiles = cacheFiles.concat([
 	"/js/modules/notifications.js",
 	"/js/modules/options.js",
 	"/js/modules/preview.js",
+	"/js/modules/program-view.js",
 	"/js/modules/programs.js",
 	"/js/modules/sites.js",
 	"/js/modules/station-attributes.js",

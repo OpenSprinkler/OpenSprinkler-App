@@ -17,6 +17,15 @@
 var OSApp = OSApp || {};
 OSApp.Options = OSApp.Options || {};
 
+OSApp.Options.Constants = {
+	DASHBOARD_MODE: {
+		HIDE_ALL: {ID: 0, NAME: 'Hide All'},
+		SHOW_ZONES: {ID: 1, NAME: 'Show Zones'},
+		SHOW_PROGRAMS: {ID: 2, NAME: 'Show Programs'},
+		SHOW_ALL: {ID: 3, NAME: 'Show All'},
+	}
+};
+
 // FIXME: please, please, please refactor me!
 // Device setting management functions
 OSApp.Options.showOptions = function( expandItem ) {
@@ -165,6 +174,11 @@ OSApp.Options.showOptions = function( expandItem ) {
 						break;
 					case "mqtt":
 						if ( OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.mqtt ) === data ) {
+							return true;
+						}
+						break;
+					case "influxdb":
+						if ( OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.influxdb ) === data ) {
 							return true;
 						}
 						break;
@@ -398,6 +412,19 @@ OSApp.Options.showOptions = function( expandItem ) {
                list += "<label for='showStationNum'><input data-mini='true' class='noselect' id='showStationNum' type='checkbox' " + ( showStationNum ? "checked='checked'" : "" ) + ">" +
                        OSApp.Language._( "Show Station Number" ) + "</label>";
        list += "</div>";
+
+	//Select Zone/Program display options:
+	var displayOption = OSApp.ProgramView.Constants.SHOW_ZONES;
+	if (localStorage.hasOwnProperty('displayOption'))
+		displayOption = localStorage.displayOption;
+	let sel = new Array(4).fill("");
+	sel[displayOption] = " selected='selected'";
+	list += "<div class='ui-field-contain'>"+
+		"<label for='displayOption'>"+OSApp.Language._( "Mainpage display" )+"</label>" +
+		`<select name='displayOption' id='displayOption' data-mini='true'>
+			${OSApp.Utils.buildOptionsForObj(OSApp.Options.Constants.DASHBOARD_MODE, displayOption)}
+		</select>` +
+		"</div>";
 
 	list += "</fieldset><fieldset data-role='collapsible'" +
 		( typeof expandItem === "string" && expandItem === "master" ? " data-collapsed='false'" : "" ) + ">" +
@@ -683,7 +710,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 	}
 
 	if ( typeof OSApp.currentSession.controller.settings.ifkey !== "undefined" || typeof OSApp.currentSession.controller.settings.mqtt !== "undefined" ||
-		typeof OSApp.currentSession.controller.settings.otc !== "undefined" ) {
+		typeof OSApp.currentSession.controller.settings.otc !== "undefined" || typeof OSApp.currentSession.controller.settings.influxdb !== "undefined") {
 		list += "</fieldset><fieldset data-role='collapsible'" +
 			( typeof expandItem === "string" && expandItem === "integrations" ? " data-collapsed='false'" : "" ) + ">" +
 			"<legend>" + OSApp.Language._( "Integrations" ) + "</legend>";
@@ -712,6 +739,20 @@ OSApp.Options.showOptions = function( expandItem ) {
 						"</label>" +
 						"<button data-mini='true' id='mqtt' value='" + OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.mqtt ) + "'>" +
 							OSApp.Language._( "Tap to Configure" ) +
+						"</button>" +
+					"</div>";
+		}
+
+		if ( typeof OSApp.currentSession.controller.settings.influxdb !== "undefined" ) {
+			list += "<div class='ui-field-contain'>" +
+						"<label for='influxdb'>" + OSApp.Language._( "InfluxDB" ) +
+							"<button style='display:inline-block;' data-helptext='" +
+							OSApp.Language._( "Send data to a InfluxDB database." ) +
+								"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'>" +
+							"</button>" +
+						"</label>" +
+						"<button data-mini='true' id='influxdb' value='" + OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.influxdb ) + "'>" +
+						OSApp.Language._( "Tap to Configure" ) +
 						"</button>" +
 					"</div>";
 		}
@@ -1392,6 +1433,10 @@ OSApp.Options.showOptions = function( expandItem ) {
 		page.find( "#ntp_addr" ).parents( ".ui-field-contain" ).toggleClass( "hidden", !ntp );
 	} );
 
+	page.find( "#displayOption").on( "change", function() {
+		localStorage.displayOption = page.find( "#displayOption").val();
+	} );
+
 	page.find( "#o18,#o37" ).on( "change", function() {
 		page.find( "#o19,#o20" ).parents( ".ui-field-contain" ).toggle( parseInt( page.find( "#o18" ).val() ) === 0 ? false : true );
 		if ( typeof OSApp.currentSession.controller.options.mas2 !== "undefined" ) {
@@ -1428,7 +1473,10 @@ OSApp.Options.showOptions = function( expandItem ) {
 			rain: OSApp.Language._( "Rain Delay Update" ),
 			station: OSApp.Language._( "Station Start" ),
 			flow_alert: OSApp.Language._( "Flow Alert" ),
-			curr_alert: OSApp.Language._( "Current Sensor Alert" ),
+			//curr_alert: OSApp.Language._( "Current Sensor Alert" ),
+			warning_low: OSApp.Language._("Monitoring warning level: Low"),
+			warning_med: OSApp.Language._("Monitoring warning level: Medium"),
+			warning_high: OSApp.Language._("Monitoring warning level: High"),
 		}, button = this, curr = parseInt( button.value ), inputs = "", a = 0, ife = 0;
 
 		let no_ife2 = typeof OSApp.currentSession.controller.options.ife2 === "undefined";
@@ -1583,6 +1631,103 @@ OSApp.Options.showOptions = function( expandItem ) {
 				pass: popup.find( "#password" ).val(),
 				pubt: popup.find( "#pubt" ).val(),
 				subt: popup.find( "#subt" ).val()
+			};
+
+			popup.popup( "close" );
+			if ( curr === OSApp.Utils.escapeJSON( options ) ) {
+				return;
+			} else {
+				button.value = OSApp.Utils.escapeJSON( options );
+				header.eq( 2 ).prop( "disabled", false );
+				page.find( ".submit" ).addClass( "hasChanges" );
+			}
+		} );
+
+		popup.css( "max-width", "380px" );
+
+		OSApp.UIDom.openPopup( popup, { positionTo: "window" } );
+    } );
+
+	page.find( "#influxdb" ).on( "click", function() {
+		var button = this, curr = button.value,
+			options = $.extend( {}, {
+				en: 0,
+				url: "server",
+				port: 8086,
+				org: "",
+				bucket: "",
+				token: "token"
+			}, OSApp.Utils.unescapeJSON( curr ) );
+
+		$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
+
+		var popup = $( "<div data-role='popup' data-theme='a' id='influxdbSettings'>" +
+				"<div data-role='header' data-theme='b'>" +
+					"<h1>" + OSApp.Language._( "InfluxDB Settings" ) + "</h1>" +
+				"</div>" +
+				"<div class='ui-content'>" +
+					"<label for='enable'>" + OSApp.Language._( "Enable" ) + "</label>" +
+					"<input class='needsclick influxdb_enable' data-mini='true' data-iconpos='right' id='enable' type='checkbox' " +
+						( options.en ? "checked='checked'" : "" ) + ">" +
+					"<div class='ui-body'>" +
+						"<div class='ui-grid-a' style='display:table;'>" +
+							"<div class='ui-block-a' style='width:40%'>" +
+								"<label for='url' style='padding-top:10px'>" + OSApp.Language._( "URL" ) + "</label>" +
+							"</div>" +
+							"<div class='ui-block-b' style='width:60%'>" +
+								"<input class='influxdb-input' type='text' id='url' data-mini='true' maxlength='200' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
+									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + OSApp.Language._( "url" ) + "' value='" + options.url + "' required />" +
+							"</div>" +
+							"<div class='ui-block-a' style='width:40%'>" +
+								"<label for='port' style='padding-top:10px'>" + OSApp.Language._( "Port" ) + "</label>" +
+							"</div>" +
+							"<div class='ui-block-b' style='width:60%'>" +
+								"<input class='influxdb-input' type='number' id='port' data-mini='true' pattern='[0-9]*' min='0' max='65535'" +
+									( options.en ? "" : "disabled='disabled'" ) + " placeholder='8086' value='" + options.port + "' required />" +
+							"</div>" +
+							"<div class='ui-block-a' style='width:40%'>" +
+								"<label for='org' style='padding-top:10px'>" + OSApp.Language._( "Org" ) + "</label>" +
+							"</div>" +
+							"<div class='ui-block-b' style='width:60%'>" +
+								"<input class='influxdb-input' type='text' id='org' data-mini='true' maxlength='100' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
+									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + OSApp.Language._( "Org" ) + "' value='" + options.org + "' required />" +
+							"</div>" +
+							"<div class='ui-block-a' style='width:40%'>" +
+								"<label for='bucket' style='padding-top:10px'>" + OSApp.Language._( "Bucket" ) + "</label>" +
+							"</div>" +
+							"<div class='ui-block-b' style='width:60%'>" +
+								"<input class='influxdb-input' type='text' id='bucket' data-mini='true' maxlength='100' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
+									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + OSApp.Language._( "Bucket" ) + "' value='" + options.bucket + "' required />" +
+							"</div>" +
+							"<div class='ui-block-a' style='width:40%'>" +
+								"<label for='token' style='padding-top:10px'>" + OSApp.Language._( "Token" ) + "</label>" +
+							"</div>" +
+							"<div class='ui-block-b' style='width:60%'>" +
+								"<input class='influxdb-input' type='text' id='token' data-mini='true' maxlength='100' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
+									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + OSApp.Language._( "Token" ) + "' value='" + options.token + "' required />" +
+							"</div>" +
+						"</div>" +
+					"</div>" +
+					"<button class='submit' data-theme='b'>" + OSApp.Language._( "Submit" ) + "</button>" +
+				"</div>" +
+			"</div>" );
+
+		popup.find( "#enable" ).on( "change", function() {
+			if ( this.checked ) {
+				popup.find( ".influxdb-input" ).textinput( "enable" );
+			} else {
+				popup.find( ".influxdb-input" ).textinput( "disable" );
+			}
+		} );
+
+		popup.find( ".submit" ).on( "click", function() {
+			var options = {
+				en: ( popup.find( "#enable" ).prop( "checked" ) ? 1 : 0 ),
+				url: popup.find( "#url" ).val(),
+				port: parseInt( popup.find( "#port" ).val() ),
+				org: popup.find( "#org" ).val(),
+				bucket: popup.find( "#bucket" ).val(),
+				token: popup.find( "#token" ).val()
 			};
 
 			popup.popup( "close" );

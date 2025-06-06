@@ -54,6 +54,10 @@ OSApp.Utils.escapeJSON = function( json ) {
 	return JSON.stringify( json ).replace( /\{|\}/g, "" );
 };
 
+OSApp.Utils.escapeJSON2 = function( json ) {
+	return JSON.stringify( json ).replace(/#/g, "%23").replace(/=/g, "%3D").replace( /\{|\}/g, "" );
+};
+
 OSApp.Utils.unescapeJSON = function( string ) {
 	return JSON.parse( "{" + string + "}" );
 };
@@ -170,3 +174,62 @@ Returns true when currentSession.controller.settings is populated
 OSApp.Utils.isSessionValid = function() {
 	return !$.isEmptyObject(OSApp.currentSession?.controller?.settings || {});
 };
+
+/*
+	Combines all parameters to a string. First parameter is the separator
+*/
+OSApp.Utils.combineWithSep = function(sep, ...args) {
+	if (!args.length) return "";
+	var result = "";
+	for (var i = 0; i < args.length; i++) {
+		let arg = args[i];
+		if (!arg) continue;
+		if (result.length > 0) result += sep;
+		result += arg;
+	}
+	return result;
+};
+
+/* returns true if arg is a number */
+OSApp.Utils.isNumber = function(n) { return !isNaN(parseFloat(n)) && !isNaN(n - 0) };
+
+/**
+* format value output with 2 decimals.
+* Empty string result if value is undefined or invalid
+*/
+OSApp.Utils.formatVal = function(val) {
+	if (val === undefined || isNaN(val))
+		return "";
+	return (+(Math.round(val + "e+2") + "e-2"));
+};
+
+/**
+* format value output. unit is only printed, if value valid
+*/
+OSApp.Utils.formatValUnit = function(val, unit) {
+	if (val === undefined || isNaN(val))
+		return "";
+	return (+(Math.round(val + "e+2") + "e-2")) + unit;
+};
+
+/**
+* returns string of select options htmlfor all items in constant definition
+* note: uses String based comparison to determine current selected option!
+* example constantDefObj:
+{
+	CA: {ID: 0, NAME: 'California'},
+	AZ: {ID: 1, NAME: 'Arizona'}
+}
+*/
+OSApp.Utils.buildOptionsForObj = function(constantDefObj, selectedValue, valueField = 'ID', nameField = 'NAME') {
+	let result = '';
+	for (const key in constantDefObj) {
+		if (constantDefObj.hasOwnProperty(key)) {
+			const item = constantDefObj[key];
+
+			result += `<option value="${item[valueField]}" ${selectedValue && String(selectedValue) === String(item[valueField]) ? 'selected="selected"' : ''}>${OSApp.Language._(item[nameField])}</option>`;
+		}
+	}
+
+	return result;
+}

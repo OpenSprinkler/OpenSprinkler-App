@@ -19,6 +19,36 @@ OSApp.SystemDiagnostics = OSApp.SystemDiagnostics || {};
 
 // FIXME: please finish the renaming process of debugWU (css, html, etc)
 OSApp.SystemDiagnostics.showDiagnostics = function() {
+	// Only load the du status details for firmware 233+ (introduced with analog sensor updates)
+	var duStatusSection;
+	if (OSApp.Firmware.checkOSVersion(233)) {
+		OSApp.Firmware.sendToOS("/du?pw=", "json").then( function( status ) {
+			if ( typeof OSApp.currentSession.controller.settings.otcs === "number"  || (status && status.hasOwnProperty("status")) ) {
+				duStatusSection = "<div class='debugWUHeading'>" + OSApp.Language._("Integrations") + "</div>" +
+					"<table class='debugWUTable'>";
+				if (typeof OSApp.currentSession.controller.settings.otcs === "number")
+					duStatusSection += "<tr><td>" + OSApp.Language._("OpenThings Cloud") + "</td><td>" + OSApp.SystemDiagnostics.resolveOTCStatus( OSApp.currentSession.controller.settings.otcs ) + "</td></tr>";
+
+				if (status.hasOwnProperty("freeBytes"))
+					duStatusSection += "<tr><td>" + OSApp.Language._("Free Bytes") + "</td><td>" + OSApp.SystemDiagnostics.format2(status.freeBytes/1024) + " " + OSApp.Language._("KB") + "</td></tr>";
+
+				if (status.hasOwnProperty("pingok"))
+					duStatusSection += "<tr><td>" + OSApp.Language._("Ping check OK") + "</td><td>" + status.pingok + "</td></tr>";
+
+				if (status.hasOwnProperty("mqtt"))
+					duStatusSection += "<tr><td>" + OSApp.Language._("MQTT") + "</td><td>" + (status.mqtt ? OSApp.Language._("Connected") : OSApp.Language._("Disconnected")) + "</td></tr>";
+
+				if (status.hasOwnProperty("influxdb"))
+					duStatusSection += "<tr><td>" + OSApp.Language._("InfluxDB") + "</td><td>" + (status.influxdb ? OSApp.Language._("Enabled") : OSApp.Language._("Disabled")) + "</td></tr>";
+
+				if (status.hasOwnProperty("ifttt"))
+					duStatusSection += "<tr><td>" + OSApp.Language._("IFTTT") + "</td><td>" + (status.ifttt ? OSApp.Language._("Enabled") : OSApp.Language._("Disabled")) + "</td></tr>";
+
+				duStatusSection +="</table>";
+			}
+		});
+	}
+
 	var popup = "<div data-role='popup' id='debugWU' class='ui-content ui-page-theme-a'>";
 
 	popup += "<div class='debugWUHeading'>System Status</div>" +
@@ -57,12 +87,7 @@ OSApp.SystemDiagnostics.showDiagnostics = function() {
 	popup += ( typeof OSApp.currentSession.controller.settings.wterr === "number" ? "<tr><td>" + OSApp.Language._( "Last Response" ) + "</td><td>" + OSApp.Weather.getWeatherError( OSApp.currentSession.controller.settings.wterr ) + "</td></tr>" : "" );
 	popup += "</table></div>";
 
-	if ( typeof OSApp.currentSession.controller.settings.otcs === "number" ) {
-		popup += "<div class='debugWUHeading'>Integrations</div>" +
-			"<table class='debugWUTable'>" +
-			"<tr><td>OpenThings Cloud</td><td>" + OSApp.SystemDiagnostics.resolveOTCStatus( OSApp.currentSession.controller.settings.otcs ) + "</td></tr>" +
-		"</table>";
-	}
+	popup += duStatusSection;
 
 	if ( OSApp.currentSession.controller.settings.wtdata && ( typeof OSApp.currentSession.controller.settings.wtdata.wp === "string" || typeof OSApp.currentSession.controller.settings.wtdata.weatherProvider === "string" ) ) {
 		popup += "<hr>";
@@ -73,6 +98,12 @@ OSApp.SystemDiagnostics.showDiagnostics = function() {
 	OSApp.UIDom.openPopup( $( popup ) );
 
 	return false;
+};
+
+OSApp.SystemDiagnostics.format2 = function(value) {
+	if (value === undefined || isNaN(value))
+		return "";
+	return ( +( Math.round( value + "e+2" )  + "e-2" ) );
 };
 
 OSApp.SystemDiagnostics.resolveOTCStatus = function( status ) {
