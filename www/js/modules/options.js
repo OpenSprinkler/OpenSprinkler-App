@@ -696,7 +696,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 								"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'>" +
 							"</button>" +
 						"</label>" +
-						"<button data-mini='true' id='otc' class=" + (OSApp.currentSession.controller.settings.otc.en ? "'green'" : "''") + " value='" + OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.otc ) + "'>" +
+						"<button data-mini='true' id='otc' class=" + (OSApp.currentSession.controller.settings.otc.en ? "'blue'" : "''") + " value='" + OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.otc ) + "'>" +
 							OSApp.Language._( "Tap to Configure" ) +
 						"</button>" +
 					"</div>";
@@ -710,7 +710,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 								"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'>" +
 							"</button>" +
 						"</label>" +
-						"<button data-mini='true' id='mqtt' class=" + (OSApp.currentSession.controller.settings.mqtt.en ? "'green'" : "''") + " value='" + OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.mqtt ) + "'>" +
+						"<button data-mini='true' id='mqtt' class=" + (OSApp.currentSession.controller.settings.mqtt.en ? "'blue'" : "''") + " value='" + OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.mqtt ) + "'>" +
 							OSApp.Language._( "Tap to Configure" ) +
 						"</button>" +
 					"</div>";
@@ -724,7 +724,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 								"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'>" +
 							"</button>" +
 						"</label>" +
-						"<button data-mini='true' id='email' class=" + (OSApp.currentSession.controller.settings.email.en ? "'green'" : "''") + " value='" + OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.email ) + "'>" +
+						"<button data-mini='true' id='email' class=" + (OSApp.currentSession.controller.settings.email.en ? "'blue'" : "''") + " value='" + OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.email ) + "'>" +
 							OSApp.Language._( "Tap to Configure" ) +
 						"</button>" +
 					"</div>";
@@ -744,7 +744,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 					"<button data-helptext='" +
 						OSApp.Language._( "Select notification events. Applicable to all of MQTT, Email, and IFTTT. <b>NOTE</b>: enabling too many events or notification methods may cause delays, missed responses, or skipped short watering events." ) +
 						"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
-				"</label><button data-mini='true' id='o49' value='" + ifev + "'>" + OSApp.Language._( "Configure Events" ) + "</button></div>";
+				"</label><button data-mini='true' id='o49' class=" + (ifev == 0 ?  "''" : "'blue'") + " value='" + ifev + "'>" + OSApp.Language._( "Configure Events" ) + "</button></div>";
 		}
 
 		if ( typeof OSApp.currentSession.controller.settings.dname !== "undefined" ) {
@@ -1455,6 +1455,13 @@ OSApp.Options.showOptions = function( expandItem ) {
 				a++;
 			} );
 			popup.popup( "close" );
+
+			if ( ife > 0 ) {
+				page.find( "#o49" ).addClass( "blue" );
+			} else {
+				page.find( "#o49" ).removeClass( "blue" );
+			}
+
 			if ( curr === ife ) {
 				return;
 			} else {
@@ -1586,9 +1593,9 @@ OSApp.Options.showOptions = function( expandItem ) {
 			};
 
 			if ( options.en ) {
-				page.find( "#mqtt" ).addClass( "green" )
+				page.find( "#mqtt" ).addClass( "blue" )
 			} else {
-				page.find( "#mqtt" ).removeClass( "green" )
+				page.find( "#mqtt" ).removeClass( "blue" )
 			}
 
 			popup.popup( "close" );
@@ -1689,9 +1696,9 @@ OSApp.Options.showOptions = function( expandItem ) {
 			};
 
 			if ( options.en ) {
-				page.find( "#email" ).addClass( "green" )
+				page.find( "#email" ).addClass( "blue" )
 			} else {
-				page.find( "#email" ).removeClass( "green" )
+				page.find( "#email" ).removeClass( "blue" )
 			}
 
 			popup.popup( "close" );
@@ -1778,9 +1785,9 @@ OSApp.Options.showOptions = function( expandItem ) {
 			};
 
 			if ( options.en ) {
-				page.find( "#otc" ).addClass( "green" )
+				page.find( "#otc" ).addClass( "blue" )
 			} else {
-				page.find( "#otc" ).removeClass("green")
+				page.find( "#otc" ).removeClass("blue")
 			}
 
 			popup.popup( "close" );
