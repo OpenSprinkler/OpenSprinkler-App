@@ -696,7 +696,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 								"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'>" +
 							"</button>" +
 						"</label>" +
-						"<button data-mini='true' id='otc' value='" + OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.otc ) + "'>" +
+						"<button data-mini='true' id='otc' class=" + (OSApp.currentSession.controller.settings.otc.en ? "'green'" : "''") + " value='" + OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.otc ) + "'>" +
 							OSApp.Language._( "Tap to Configure" ) +
 						"</button>" +
 					"</div>";
@@ -710,7 +710,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 								"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'>" +
 							"</button>" +
 						"</label>" +
-						"<button data-mini='true' id='mqtt' value='" + OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.mqtt ) + "'>" +
+						"<button data-mini='true' id='mqtt' class=" + (OSApp.currentSession.controller.settings.mqtt.en ? "'green'" : "''") + " value='" + OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.mqtt ) + "'>" +
 							OSApp.Language._( "Tap to Configure" ) +
 						"</button>" +
 					"</div>";
@@ -724,7 +724,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 								"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'>" +
 							"</button>" +
 						"</label>" +
-						"<button data-mini='true' id='email' value='" + OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.email ) + "'>" +
+						"<button data-mini='true' id='email' class=" + (OSApp.currentSession.controller.settings.email.en ? "'green'" : "''") + " value='" + OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.email ) + "'>" +
 							OSApp.Language._( "Tap to Configure" ) +
 						"</button>" +
 					"</div>";
@@ -1585,6 +1585,12 @@ OSApp.Options.showOptions = function( expandItem ) {
 				subt: popup.find( "#subt" ).val()
 			};
 
+			if ( options.en ) {
+				page.find( "#mqtt" ).addClass( "green" )
+			} else {
+				page.find( "#mqtt" ).removeClass( "green" )
+			}
+
 			popup.popup( "close" );
 			if ( curr === OSApp.Utils.escapeJSON( options ) ) {
 				return;
@@ -1682,6 +1688,12 @@ OSApp.Options.showOptions = function( expandItem ) {
 				recipient: popup.find( "#recipient" ).val()
 			};
 
+			if ( options.en ) {
+				page.find( "#email" ).addClass( "green" )
+			} else {
+				page.find( "#email" ).removeClass( "green" )
+			}
+
 			popup.popup( "close" );
 			if ( curr === OSApp.Utils.escapeJSON( options ) ) {
 				return;
@@ -1764,6 +1776,12 @@ OSApp.Options.showOptions = function( expandItem ) {
 				server: popup.find( "#server" ).val(),
 				port: parseInt( popup.find( "#port" ).val() )
 			};
+
+			if ( options.en ) {
+				page.find( "#otc" ).addClass( "green" )
+			} else {
+				page.find( "#otc" ).removeClass("green")
+			}
 
 			popup.popup( "close" );
 			if ( curr === OSApp.Utils.escapeJSON( options ) ) {
