@@ -122,7 +122,7 @@ OSApp.Sites.displayPage = function() {
 						"<label for='cnm-" + i + "'>" + OSApp.Language._( "Change Name" ) + "</label><input id='cnm-" + i + "' type='text' value='" + a + "'>" +
 						"</div>" +
 						( b.os_token ? "" : "<div class='ui-field-contain'>" +
-							"<label for='cip-" + i + "'>" + OSApp.Language._( "Change IP" ) + "</label><input id='cip-" + i + "' type='text' inputmode='url' value='" + b.os_ip +
+							"<label for='cip-" + i + "'>" + OSApp.Language._( "Change IP/URL" ) + "</label><input id='cip-" + i + "' type='text' inputmode='url' value='" + b.os_ip +
 							"' autocomplete='off' autocorrect='off' autocapitalize='off' pattern='' spellcheck='false'>" +
 							"</div>" ) +
 						( b.os_token ? "<div class='ui-field-contain'>" +
@@ -224,7 +224,8 @@ OSApp.Sites.displayPage = function() {
 					var form = $( this ),
 						id = form.data( "site" ),
 						site = siteNames[ id ],
-						ip = list.find( "#cip-" + id ).val().replace(/\/$/, ""),
+						ip = sites[ site ].os_token ? "" : list.find( "#cip-" + id ).val().replace(/\/$/, ""),
+						token = sites[ site ].os_token ? list.find( "#ctoken-" + id ).val() : ""
 						pw = list.find( "#cpw-" + id ).val(),
 						nm = list.find( "#cnm-" + id ).val(),
 						useauth = list.find( "#useauth-" + id ).is( ":checked" ),
@@ -257,6 +258,15 @@ OSApp.Sites.displayPage = function() {
 					if ( ip !== "" && ip !== sites[ site ].os_ip ) {
 						sites[ site ].os_ip = ip;
 					}
+					var tokenInval = false;
+					if ( token !== "" && token !== sites[ site ].os_token ) {
+						if ( token.startsWith("OT") && token.length == 32) {
+							sites[ site ].os_token = token;
+						} else {
+							tokenInval = true;
+							OSApp.Errors.showError( OSApp.Language._( "Invalid new OTC token. Any other changes were made successfully." ) );
+						}
+					}
 					if ( pw !== "" && pw !== sites[ site ].os_pw ) {
 						if ( OSApp.Utils.isMD5( sites[ site ].os_pw ) ) {
 							pw = md5( pw );
@@ -278,7 +288,7 @@ OSApp.Sites.displayPage = function() {
 
 					OSApp.Storage.set( { "sites":JSON.stringify( sites ) }, () => OSApp.Network.cloudSaveSites() );
 
-					OSApp.Errors.showError( OSApp.Language._( "Site updated successfully" ) );
+					if (!tokenInval) OSApp.Errors.showError( OSApp.Language._( "Site updated successfully" ) );
 
 					if ( site === data.current_site ) {
 						if ( pw !== "" ) {
@@ -545,30 +555,16 @@ OSApp.Sites.showAddNew = function( autoIP, closeOld ) {
 					( isAuto ? "" : "<p class='center smaller'>" +
 						OSApp.Language._( "Note: The name is used to identify the OpenSprinkler within the app. OpenSprinkler IP can be either an IP or hostname. You can also specify a port by using IP:Port" ) +
 					"</p>" ) +
-					"<label for='os_name'>" + OSApp.Language._( "Open Sprinkler Name:" ) + "</label>" +
+					"<label for='os_name'>" + OSApp.Language._( "OpenSprinkler Name:" ) + "</label>" +
 					"<input autocorrect='off' spellcheck='false' type='text' name='os_name' " +
 						"id='os_name' placeholder='Home'>" +
 					( isAuto ? "" :
-						"<div class='ui-field-contain'>" +
-							"<fieldset data-role='controlgroup' class='ui-mini center connection-type' data-type='horizontal'>" +
-								"<legend class='left'>" + OSApp.Language._( "Connection Type" ) + ":</legend>" +
-								"<input class='noselect' type='radio' name='connectionType' id='type-direct' value='ip' checked='checked'>" +
-								"<label for='type-direct'>" + OSApp.Language._( "Direct" ) + "</label>" +
-								"<input class='noselect' type='radio' name='connectionType' id='type-token' value='token'>" +
-								"<label for='type-token'>" + OSApp.Language._( "OpenThings Cloud" ) + "</label>" +
-							"</fieldset>" +
-						"</div>" +
-						"<label class='url-field' for='os_url'>" + OSApp.Language._( "Open Sprinkler URL:" ) + "</label>" ) +
+						"<label class='url-field' for='os_url'>" + OSApp.Language._( "OpenSprinkler IP/URL/OTC Token:" ) + "</label>" ) +
 						"<input data-wrapper-class='url-field' " + ( isAuto ? "data-role='none' style='display:none' " : "" ) +
 							"autocomplete='off' autocorrect='off' autocapitalize='off' " +
 							"spellcheck='false' type='text' inputmode='url' pattern='' name='os_url' id='os_url' " +
-							"value='" + ( isAuto ? autoIP : "" ) + "' placeholder='https://home.dyndns.org'>" +
-					"<label class='token-field' for='os_token' style='display: none'>" + OSApp.Language._( "OpenThings Token" ) + ":</label>" +
-					"<input data-wrapper-class='token-field hidden' " +
-						"autocomplete='off' autocorrect='off' autocapitalize='off' " +
-						"spellcheck='false' type='text' pattern='' name='os_token' id='os_token' " +
-						"value='' placeholder='" + OSApp.Language._( "OpenThings Token" ) + "'>" +
-					"<label for='os_pw'>" + OSApp.Language._( "Open Sprinkler Password:" ) + "</label>" +
+							"value='" + ( isAuto ? autoIP : "" ) + "'" +
+					"<label for='os_pw'>" + OSApp.Language._( "OpenSprinkler Device Password:" ) + "</label>" +
 					"<input type='password' name='os_pw' id='os_pw' value=''>" +
 					"<label for='save_pw'>" + OSApp.Language._( "Save Password" ) + "</label>" +
 					"<input type='checkbox' data-wrapper-class='save_pw' name='save_pw' " +
@@ -625,13 +621,6 @@ OSApp.Sites.showAddNew = function( autoIP, closeOld ) {
 		addnew.popup( "reposition", { positionTo:"window" } );
 	} );
 
-	addnew.find( ".connection-type input[type='radio']" ).on( "change", function() {
-		var previous = this.value === "token" ? "ip" : "token";
-		addnew.find( "." + previous + "-field" ).hide();
-		addnew.find( "." + this.value + "-field" ).removeClass( "hidden" ).show();
-		addnew.find( ".advanced-options" ).toggle( this.value === "ip" );
-	} );
-
 	return false;
 };
 
@@ -641,9 +630,10 @@ OSApp.Sites.submitNewSite = function( ssl, useAuth ) {
 	document.activeElement.blur();
 	$.mobile.loading( "show" );
 
-       var connectionType = $( ".connection-type input[type='radio']:checked" ).val(),
-               rawUrl = $( "#os_url" ).val().trim(),
-               token = connectionType === "token" ? $( "#os_token" ).val() : null,
+       var input = $( "#os_url" ).val().trim(),
+			   connectionType = input.startsWith("OT") && input.length == 32 ? "token" : "direct",
+			   rawUrl = connectionType === "direct" ? input : null,
+               token = connectionType === "token" ? input : null,
                ip, parsedUrl,
                urlStr,
                success,
@@ -737,7 +727,7 @@ OSApp.Sites.submitNewSite = function( ssl, useAuth ) {
 					OSApp.Sites.newLoad();
 				} );
 			} else {
-				OSApp.Errors.showError( OSApp.Language._( "Check IP/Port and try again." ) );
+				OSApp.Errors.showError( OSApp.Language._( "Check IP/URL/Port and try again." ) );
 			}
 		},
 		fail = function( x ) {
@@ -747,7 +737,7 @@ OSApp.Sites.submitNewSite = function( ssl, useAuth ) {
 			}
 			if ( ssl ) {
 				$.mobile.loading( "hide" );
-				OSApp.Errors.showError( OSApp.Language._( "Check IP/Port and try again." ) );
+				OSApp.Errors.showError( OSApp.Language._( "Check IP/URL/Port and try again." ) );
 			} else {
 				OSApp.Sites.submitNewSite( true );
 			}
@@ -788,7 +778,7 @@ OSApp.Sites.submitNewSite = function( ssl, useAuth ) {
 		prefix;
 
 	if ( !ip && !token ) {
-		OSApp.Errors.showError( OSApp.Language._( "An IP address or token is required to continue." ) );
+		OSApp.Errors.showError( OSApp.Language._( "An IP address, URL, or token is required to continue." ) );
 		return;
 	}
 
