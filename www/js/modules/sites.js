@@ -554,14 +554,14 @@ OSApp.Sites.showAddNew = function( autoIP, closeOld ) {
 				"<form method='post' novalidate>" +
 					"<label for='os_name'>" + OSApp.Language._( "Device Name:" ) + "</label>" +
 					"<p class='smaller'>" +
-						OSApp.Language._( "(A custom name for this device)" ) +
+						OSApp.Language._( "A custom name for this device" ) +
 					"</p>" +
 					"<input autocorrect='off' spellcheck='false' type='text' name='os_name' " +
 						"id='os_name' placeholder='Home'>" +
 					( isAuto ? "" :
 						"<label class='url-field' for='os_url'>" + OSApp.Language._( "Device Address:" ) + "</label>" +
 					"<p class='smaller'>" +
-						OSApp.Language._( "(May be an IP, URL, or OTC Token)" ) +
+						OSApp.Language._( "May be an IP, URL, or OTC Token" ) +
 					"</p>" ) +
 						"<input data-wrapper-class='url-field' " + ( isAuto ? "data-role='none' style='display:none' " : "" ) +
 							"autocomplete='off' autocorrect='off' autocapitalize='off' " +
