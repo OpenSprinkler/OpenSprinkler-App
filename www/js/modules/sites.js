@@ -548,23 +548,26 @@ OSApp.Sites.showAddNew = function( autoIP, closeOld ) {
 	var isAuto = ( autoIP ) ? true : false,
 		addnew = $( "<div data-role='popup' id='addnew' data-theme='a' data-overlay-theme='b'>" +
 			"<div data-role='header' data-theme='b'>" +
-				"<h1>" + OSApp.Language._( "New Device" ) + "</h1>" +
+				"<h1>" + OSApp.Language._( "New OpenSprinkler Device" ) + "</h1>" +
 			"</div>" +
 			"<div class='ui-content' id='addnew-content'>" +
 				"<form method='post' novalidate>" +
-					( isAuto ? "" : "<p class='center smaller'>" +
-						OSApp.Language._( "Note: The name is used to identify the OpenSprinkler within the app. OpenSprinkler IP can be either an IP or hostname. You can also specify a port by using IP:Port" ) +
-					"</p>" ) +
-					"<label for='os_name'>" + OSApp.Language._( "OpenSprinkler Name:" ) + "</label>" +
+					"<label for='os_name'>" + OSApp.Language._( "Device Name:" ) + "</label>" +
+					"<p class='smaller'>" +
+						OSApp.Language._( "(A custom name for this device)" ) +
+					"</p>" +
 					"<input autocorrect='off' spellcheck='false' type='text' name='os_name' " +
 						"id='os_name' placeholder='Home'>" +
 					( isAuto ? "" :
-						"<label class='url-field' for='os_url'>" + OSApp.Language._( "OpenSprinkler IP/URL/OTC Token:" ) + "</label>" ) +
+						"<label class='url-field' for='os_url'>" + OSApp.Language._( "Device Address:" ) + "</label>" +
+					"<p class='smaller'>" +
+						OSApp.Language._( "(May be an IP, URL, or OTC Token)" ) +
+					"</p>" ) +
 						"<input data-wrapper-class='url-field' " + ( isAuto ? "data-role='none' style='display:none' " : "" ) +
 							"autocomplete='off' autocorrect='off' autocapitalize='off' " +
 							"spellcheck='false' type='text' inputmode='url' pattern='' name='os_url' id='os_url' " +
 							"value='" + ( isAuto ? autoIP : "" ) + "'" +
-					"<label for='os_pw'>" + OSApp.Language._( "OpenSprinkler Device Password:" ) + "</label>" +
+					"<label for='os_pw'>" + OSApp.Language._( "Device Password:" ) + "</label>" +
 					"<input type='password' name='os_pw' id='os_pw' value=''>" +
 					"<label for='save_pw'>" + OSApp.Language._( "Save Password" ) + "</label>" +
 					"<input type='checkbox' data-wrapper-class='save_pw' name='save_pw' " +
