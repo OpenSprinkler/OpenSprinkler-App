@@ -292,7 +292,7 @@ OSApp.Dates.dateToEpoch = function( dateString ) {
 	}
 
 	dateValues = dateValues[ 0 ].split( "/" );
-	var date = new Date(parseInt(dateValues[ 2 ]), parseInt(dateValues[ 0 ]) - 1, parseInt(dateValues[ 1 ]));
+	var date = new Date(Date.UTC(parseInt(dateValues[ 2 ]), parseInt(dateValues[ 0 ]) - 1, parseInt(dateValues[ 1 ])));
 
 	return Math.floor(date.getTime() / (1000 * 86400));
 };
