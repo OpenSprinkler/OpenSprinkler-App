@@ -1428,7 +1428,6 @@ OSApp.Options.showOptions = function( expandItem ) {
 			rain: OSApp.Language._( "Rain Delay Update" ),
 			station: OSApp.Language._( "Station Start" ),
 			flow_alert: OSApp.Language._( "Flow Alert" ),
-			curr_alert: OSApp.Language._( "Current Sensor Alert" ),
 		}, button = this, curr = parseInt( button.value ), inputs = "", a = 0, ife = 0;
 
 		let no_ife2 = typeof OSApp.currentSession.controller.options.ife2 === "undefined";
