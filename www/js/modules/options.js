@@ -221,6 +221,11 @@ OSApp.Options.showOptions = function( expandItem ) {
 							return true;
 						}
 						break;
+					case "hwt":
+						if ( OSApp.currentSession.controller.settings.wto && OSApp.currentSession.controller.settings.wto.hwt && OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.wto.hwt ) === data ) {
+							return true;
+						}
+						break;
 					case "o18":
 					case "o37":
 						if ( parseInt( data ) > ( parseInt( page.find( "#o15" ).val() ) + 1 ) * 8 ) {
@@ -519,6 +524,13 @@ OSApp.Options.showOptions = function( expandItem ) {
 		list += "</select></div>";
 
 		if ( typeof OSApp.currentSession.controller?.settings?.wto === "object" ) {
+			list += "<div class='ui-field-contain" + ( OSApp.Weather.getCurrentAdjustmentMethodId() === 3 ? "" : " hidden" ) + "'><label for='historic'></label>" +
+				"<label for='historic'>" +
+				"<button data-helptext='" +
+					OSApp.Language._( "Uses historical weather data (either the length of the interval in days or the maximum days available) to calculate ETo scaling for interval programs." ) +
+					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
+				"<input data-mini='true' id='hwt' type='checkbox' " + ( ( OSApp.currentSession.controller.settings.wto.hwt === 100 ) ? "checked='checked'" : "" ) + ">" + OSApp.Language._( "Use Historic Weather Data For Interval Programs" ) +
+				"</label></div>";
 			list += "<div class='ui-field-contain" + ( OSApp.Weather.getCurrentAdjustmentMethodId() === 0 ? " hidden" : "" ) + "'><label for='wto'>" + OSApp.Language._( "Adjustment Method Options" ) + "</label>" +
 				"<button data-mini='true' id='wto' value='" + OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.wto ) + "'>" +
 					OSApp.Language._( "Tap to Configure" ) +
@@ -1048,7 +1060,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 	page.find( "#wto" ).on( "click", function() {
 		var self = this,
 			options = OSApp.Utils.unescapeJSON( this.value ),
-			retainOptions = { pws: options.pws, key: options.key, provider: options.provider },
+			retainOptions = { pws: options.pws, key: options.key, provider: options.provider, hwt: options.hwt },
 			method = parseInt( page.find( "#o31" ).val() ),
 			finish = function() {
 				self.value = OSApp.Utils.escapeJSON( $.extend( {}, OSApp.Utils.unescapeJSON( self.value ), retainOptions ) );
@@ -1260,6 +1272,17 @@ OSApp.Options.showOptions = function( expandItem ) {
 		page.find( "#wto" ).prop( "value", OSApp.Utils.escapeJSON(curr));
 	} );
 
+	page.find( "#hwt" ).on( "click", function() {
+		//change wto value based on selected or not
+		const curr = OSApp.Utils.unescapeJSON(page.find( "#wto" ).val());
+		if ( this.checked ){
+			curr.hwt = 100;
+		} else {
+			curr.hwt = 0;
+		}
+		page.find( "#wto" ).prop( "value", OSApp.Utils.escapeJSON(curr));
+	} );
+
 	page.find( ".help-icon" ).on( "click", OSApp.UIDom.showHelpText );
 
 	page.find( ".duration-field button:not(.help-icon)" ).on( "click", function() {
@@ -1406,6 +1429,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 
 		// Switch the state of adjustment options based on the selected method
 		page.find( "#wto" ).click().parents( ".ui-field-contain" ).toggleClass( "hidden", parseInt( this.value ) === 0 ? true : false );
+		page.find( "#hwt" ).click().parents( ".ui-field-contain" ).toggleClass("hidden", parseInt( this.value ) === 3 ? false : true );
 	} );
 
 	page.find( "#wtkey" ).on( "change input", function() {
