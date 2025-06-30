@@ -524,14 +524,15 @@ OSApp.Options.showOptions = function( expandItem ) {
 		list += "</select></div>";
 
 		if ( typeof OSApp.currentSession.controller?.settings?.wto === "object" ) {
-			list += "<div class='ui-field-contain" + ( OSApp.Weather.getCurrentAdjustmentMethodId() === 3 ? "" : " hidden" ) + "'><label for='historic'></label>" +
+			const method = OSApp.Weather.getCurrentAdjustmentMethodId();
+			list += "<div class='ui-field-contain" + ( method === 3 || method === 1 ? "" : " hidden" ) + "'><label for='historic'></label>" +
 				"<label for='historic'>" +
 				"<button data-helptext='" +
-					OSApp.Language._( "Uses historical weather data (either the length of the interval in days or the maximum days available) to calculate ETo scaling for interval programs." ) +
+					OSApp.Language._( "Uses historical weather data (either the length of the interval in days or the maximum days available) to calculate ETo or Zimmerman scaling for interval programs." ) +
 					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
 				"<input data-mini='true' id='hwt' type='checkbox' " + ( ( OSApp.currentSession.controller.settings.wto.hwt === 100 ) ? "checked='checked'" : "" ) + ">" + OSApp.Language._( "Use Historic Weather Data For Interval Programs" ) +
 				"</label></div>";
-			list += "<div class='ui-field-contain" + ( OSApp.Weather.getCurrentAdjustmentMethodId() === 0 ? " hidden" : "" ) + "'><label for='wto'>" + OSApp.Language._( "Adjustment Method Options" ) + "</label>" +
+			list += "<div class='ui-field-contain" + ( method === 0 ? " hidden" : "" ) + "'><label for='wto'>" + OSApp.Language._( "Adjustment Method Options" ) + "</label>" +
 				"<button data-mini='true' id='wto' value='" + OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.wto ) + "'>" +
 					OSApp.Language._( "Tap to Configure" ) +
 				"</button></div>";
@@ -1429,7 +1430,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 
 		// Switch the state of adjustment options based on the selected method
 		page.find( "#wto" ).click().parents( ".ui-field-contain" ).toggleClass( "hidden", parseInt( this.value ) === 0 ? true : false );
-		page.find( "#hwt" ).click().parents( ".ui-field-contain" ).toggleClass("hidden", parseInt( this.value ) === 3 ? false : true );
+		page.find( "#hwt" ).click().parents( ".ui-field-contain" ).toggleClass("hidden", parseInt( this.value ) === 3 || parseInt( this.value ) === 1 ? false : true );
 	} );
 
 	page.find( "#wtkey" ).on( "change input", function() {
