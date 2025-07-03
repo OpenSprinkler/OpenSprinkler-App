@@ -834,7 +834,7 @@ OSApp.Weather.makeForecast = function() {
 		sunset = times[ 1 ];
 
 		list += "<li data-icon='false' class='center'>" +
-				"<div>" + date.toLocaleDateString() + "</div><br>" +
+				"<div>" + date.toLocaleDateString(undefined, {month:"short", day:"numeric", year:"numeric"}) + "</div><br>" +
 				"<div title='" + OSApp.currentSession.weather.forecast[ i ].description + "' class='wicon'><img src='https://openweathermap.org/img/w/" + OSApp.currentSession.weather.forecast[ i ].icon + ".png'></div>" +
 				"<span>" + OSApp.Language._( weekdays[ date.getDay() ] ) + "</span><br>" +
 				"<span>" + OSApp.Language._( "Low" ) + "</span><span>: " + OSApp.Weather.formatTemp( OSApp.currentSession.weather.forecast[ i ].temp_min ) + "  </span>" +
