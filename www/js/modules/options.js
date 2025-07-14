@@ -212,10 +212,18 @@ OSApp.Options.showOptions = function( expandItem ) {
 						}
 
 						var restrict = page.find( "#weatherRestriction" );
-						if ( restrict.length ) {
+						if ( restrict.length && !restrict.cali ) {
 							data = OSApp.Weather.setRestriction( parseInt( restrict.val() ), data );
 						}
 						break;
+					case "weatherRestriction":
+						if ( typeof OSApp.currentSession.controller?.settings?.wto !== "undefined" ){
+							var restrict = page.find( "#weatherRestriction" ).val();
+
+							if ( OSApp.currentSession.controller.settings.wto && OSApp.currentSession.controller.settings.wto.restrictions && OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.wto.restrictions ) === data ) {
+								return true;
+							}
+						}
 					case "weatherSelect":
 						if ( OSApp.currentSession.controller.settings.wto && OSApp.currentSession.controller.settings.wto.provider && OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.wto.provider ) === data ) {
 							return true;
@@ -576,17 +584,27 @@ OSApp.Options.showOptions = function( expandItem ) {
 		}
 
 		if ( OSApp.Firmware.checkOSVersion( 214 ) ) {
-			list += "<div class='ui-field-contain'><label for='weatherRestriction' class='select'>" + OSApp.Language._( "Weather-Based Restrictions" ) +
-					"<button data-helptext='" + OSApp.Language._( "Prevents watering when the selected restriction is met." ) +
+			if ( typeof OSApp.currentSession.controller?.settings?.wto !== "undefined" ) {
+				list += "<div class='ui-field-contain'><label for='weatherRestriction' class='select'>" + OSApp.Language._( "Weather-Based Restrictions" ) +
+					"<button data-helptext='" + OSApp.Language._( "Prevents watering when the selected restrictions are met." ) +
 						"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
-				"</label>" +
-				"<select data-mini='true' class='noselect' id='weatherRestriction'>";
+					"</label>" +
+					"<button data-mini='true' id='weatherRestriction' value='" + ( OSApp.currentSession.controller.settings.wto.restrictions ? OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.wto.restrictions ) : "" ) + "'>" +
+							OSApp.Language._( "Tap to Configure" ) +
+						"</button></div>";
+			} else {
+				list += "<div class='ui-field-contain'><label for='weatherRestriction' class='select'>" + OSApp.Language._( "Weather-Based Restrictions" ) +
+						"<button data-helptext='" + OSApp.Language._( "Prevents watering when the selected restriction is met." ) +
+							"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
+					"</label>" +
+					"<select data-mini='true' class='noselect' id='weatherRestriction'>";
 
-			for ( i = 0; i < 2; i++ ) {
-				var restrict = OSApp.Weather.getRestriction( i );
-				list += "<option " + ( restrict.isCurrent === true ? "selected" : "" ) + " value='" + i + "'>" + restrict.name + "</option>";
+				for ( i = 0; i < 2; i++ ) {
+					var restrict = OSApp.Weather.getRestriction( i );
+					list += "<option " + ( restrict.isCurrent === true ? "selected" : "" ) + " value='" + i + "'>" + restrict.name + "</option>";
+				}
+				list += "</select></div>";
 			}
-			list += "</select></div>";
 		}
 	}
 
@@ -1078,6 +1096,50 @@ OSApp.Options.showOptions = function( expandItem ) {
 		} else if ( method === 4 ) {
 			OSApp.Weather.showMonthlyAdjustmentOptions( this, finish );
 		}
+	} );
+
+	page.find( "#weatherRestriction" ).on( "click", function() {
+		if (typeof OSApp.currentSession.controller?.settings?.wto === "undefined" ){
+			return;
+		}
+		var self = this;
+
+		var popup = $( "<div data-role='popup' data-theme='a' id='adjustmentOptions'>" +
+				"<div data-role='header' data-theme='b'>" +
+					"<h1>" + OSApp.Language._( "Weather Restriction Options" ) + "</h1>" +
+				"</div>" +
+				"<div class='ui-content'>" +
+					"<div class='ui-body'>" +
+						"<label for='cali'>" + OSApp.Language._( "Enable California Restriction" ) + "</label>" +
+						"<input class='restriction-input' data-mini='true' data-inconpos='right' id='cali' type='checkbox' " +
+						( ( OSApp.currentSession.controller.settings.wto.restrictions.cali ) ? "checked='checked'" : "" ) + ">" +
+					"</div>" +
+					"<button class='submit' data-theme='b'>" + OSApp.Language._( "Submit" ) + "</button>" +
+				"</div>" +
+			"</div>" );
+
+		popup.find( ".submit" ).on( "click", function() {
+			var options = {
+				cali: ( popup.find( "#cali" ).prop( "checked" ) ? 1 : 0 )
+			};
+
+			// Change wto based on new values
+			let curr = OSApp.Utils.unescapeJSON(page.find( "#wto" ).val());
+			curr.restrictions = options;
+			page.find( "#wto" ).prop( "value", OSApp.Utils.escapeJSON(curr));
+
+			popup.popup( "close" );
+			if ( curr === OSApp.Utils.escapeJSON( options ) ) {
+				return;
+			} else {
+				self.value = OSApp.Utils.escapeJSON( options );
+				header.eq( 2 ).prop( "disabled", false );
+				page.find( ".submit" ).addClass( "hasChanges" );
+			}
+		} );
+
+		OSApp.UIDom.openPopup( popup );
+
 	} );
 
 	page.find( ".reset-log" ).on( "click", OSApp.Logs.clearLogs );

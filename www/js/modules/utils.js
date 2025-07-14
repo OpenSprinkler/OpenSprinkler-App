@@ -51,7 +51,8 @@ OSApp.Utils.transformKeysinString = function( co ) {
 };
 
 OSApp.Utils.escapeJSON = function( json ) {
-	return JSON.stringify( json ).replace( /\{|\}/g, "" );
+	const j = JSON.stringify( json );
+	return j.substring(1, j.length-1);
 };
 
 OSApp.Utils.unescapeJSON = function( string ) {
