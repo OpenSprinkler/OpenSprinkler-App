@@ -1104,6 +1104,25 @@ OSApp.Options.showOptions = function( expandItem ) {
 		}
 		var self = this;
 
+		// Get all wto variables possible
+		var wto = OSApp.currentSession.controller.settings.wto,
+			rainDays = 0,
+			rainAmt = 0,
+			cali = undefined;
+		if ( wto.restrictions ){
+			if ( wto.restrictions.cali ) {
+				cali = wto.restrictions.cali;
+			} else {
+				cali = false;
+			}
+
+			if ( wto.restrictions.rainDays )
+				rainDays = wto.restrictions.rainDays;
+
+			if ( wto.restrictions.rainAmt )
+				rainAmt = wto.restrictions.rainAmt;
+		}
+
 		var popup = $( "<div data-role='popup' data-theme='a' id='adjustmentOptions'>" +
 				"<div data-role='header' data-theme='b'>" +
 					"<h1>" + OSApp.Language._( "Weather Restriction Options" ) + "</h1>" +
@@ -1112,15 +1131,79 @@ OSApp.Options.showOptions = function( expandItem ) {
 					"<div class='ui-body'>" +
 						"<label for='cali'>" + OSApp.Language._( "Enable California Restriction" ) + "</label>" +
 						"<input class='restriction-input' data-mini='true' data-inconpos='right' id='cali' type='checkbox' " +
-						( ( OSApp.currentSession.controller.settings.wto.restrictions.cali ) ? "checked='checked'" : "" ) + ">" +
+						( ( cali ) ? "checked='checked'" : "" ) + ">" +
+					// TODO: Add inputs for rain restrictions
+					"<label class='center'>" + OSApp.Language._( "Adjust Rain Restriction" )+ "</label>" +
+					"<p class='rain-desc center smaller'>Set the maximum amount of rain across a number of days to allow watering for.</p>" +
+					"<label class='center'>" + OSApp.Language._( "Amount" ) + "</label>" + // TODO: consider units and metric
+					"<div class='input_with_buttons'>" +
+						"<button id='decr1' class='decr ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border'></button>" +
+						"<input id='rainAmt' type='number' pattern='[0-9]*' value='" + rainAmt + "'>" +
+						"<button id='incr1' class='incr ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border'></button>" +
+					"</div>" +
+					"<label class='center'>" + OSApp.Language._( "Days" ) + "</label>" +
+					"<div class='input_with_buttons'>" +
+						"<button id='decr2' class='decr ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border'></button>" +
+						"<input id='rainDays' type='number' pattern='[0-9]*' value='" + rainDays + "'>" +
+						"<button id='incr2' class='incr ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border'></button>" +
+					"</div>" +
+					// TODO: Add inputs for temp restrictions
+						"" +
 					"</div>" +
 					"<button class='submit' data-theme='b'>" + OSApp.Language._( "Submit" ) + "</button>" +
 				"</div>" +
-			"</div>" );
+			"</div>" ),
+			changeValue = function( dir, isAmt ) {
+				var input, maximum;
+				var minimum = 0;
+				if ( isAmt ) {
+					input = popup.find( "#rainAmt" );
+					maximum = 100;
+				} else {
+					input = popup.find( "#rainDays" );
+					maximum = 10;
+				}
+
+				var val = parseInt( input.val() );
+
+				if ( ( dir === -1 && val === minimum ) || ( dir === 1 && val === maximum ) ) {
+					return;
+				}
+
+				input.val( val + dir );
+			};
+
+		OSApp.UIDom.holdButton( popup.find( "#incr1" ), function() {
+			changeValue( 1, true );
+			return false;
+		} );
+		OSApp.UIDom.holdButton( popup.find( "#decr1" ), function() {
+			changeValue( -1, true );
+			return false;
+		} );
+
+		OSApp.UIDom.holdButton( popup.find( "#incr2" ), function() {
+			changeValue( 1, false );
+			return false;
+		} );
+		OSApp.UIDom.holdButton( popup.find( "#decr2" ), function() {
+			changeValue( -1, false );
+			return false;
+		} );
+
+		popup.find( "input[type='number']" ).on( "focus", function() {
+			this.value = "";
+		} ).on( "blur", function() {
+			if ( this.value === "" ) {
+				this.value = "0";
+			}
+		} );
 
 		popup.find( ".submit" ).on( "click", function() {
 			var options = {
-				cali: ( popup.find( "#cali" ).prop( "checked" ) ? 1 : 0 )
+				cali: ( popup.find( "#cali" ).prop( "checked" ) ? 1 : 0 ),
+				rainAmt: parseInt(popup.find( "#rainAmt" ).val()),
+				rainDays: parseInt(popup.find( "#rainDays" ).val())
 			};
 
 			// Change wto based on new values
