@@ -1107,7 +1107,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 		var wto = OSApp.currentSession.controller.settings.wto,
 			rainDays = 0,
 			rainAmt = 0,
-			minTemp = 0,
+			minTemp = -40,
 			cali = undefined;
 		if ( wto.restrictions ){
 			if ( wto.restrictions.cali ) {
@@ -1126,36 +1126,47 @@ OSApp.Options.showOptions = function( expandItem ) {
 				minTemp = wto.restrictions.minTemp;
 		}
 
+		var rainUnit = " in";
+		var tempUnit = " \u00B0F";
+		if ( OSApp.currentDevice.isMetric ) {
+			rainUnit = " mm";
+			tempUnit = " \u00B0C";
+
+			rainAmt = Math.round( rainAmt * 25.4 * 10 ) / 10;
+			minTemp = Math.round( ( ( minTemp - 32 ) * 5 / 9 ) * 10 ) / 10;
+		}
+
 		var popup = $( "<div data-role='popup' data-theme='a' id='adjustmentOptions'>" +
 				"<div data-role='header' data-theme='b'>" +
 					"<h1>" + OSApp.Language._( "Weather Restriction Options" ) + "</h1>" +
 				"</div>" +
 				"<div class='ui-content'>" +
 					"<div class='ui-body'>" +
-						"<label for='cali'>" + OSApp.Language._( "Enable California Restriction" ) + "</label>" +
-						"<input class='restriction-input' data-mini='true' data-inconpos='right' id='cali' type='checkbox' " +
-						( ( cali ) ? "checked='checked'" : "" ) + ">" +
-						"<label class='center' style='font-weight: bold; margin-top: 1.5em'>" + OSApp.Language._( "Rain Restriction" )+ "</label>" +
+						"<label class='center' style='font-weight: bold;'>" + OSApp.Language._( "Rain Restriction" )+ "</label>" +
 						"<label class='center'>" + OSApp.Language._( "Disallow watering if:" ) + "</label>" +
 						"<div class='input_with_buttons'>" +
 							"<button id='decr1' class='decr ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border'></button>" +
-							"<input id='rainAmt' type='text' value='" + rainAmt + " in'>" + // TODO: Add unit conversion for metric
+							"<input id='rainAmt' type='text' value='" + rainAmt + rainUnit + "'>" + // TODO: Add unit conversion for metric
 							"<button id='incr1' class='incr ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border'></button>" +
 						"</div>" +
-						"<label class='center'>" + OSApp.Language._( "of rain is forecasted across:" ) + "</label>" +
+						"<label class='center'>" + OSApp.Language._( "of rain is forecasted in the next:" ) + "</label>" +
 						"<div class='input_with_buttons'>" +
 							"<button id='decr2' class='decr ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border'></button>" +
 							"<input id='rainDays' type='text' value='" + rainDays + " days'>" +
 							"<button id='incr2' class='incr ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border'></button>" +
 						"</div>" +
-						// TODO: Add inputs for temp restrictions
-						"<label class='center' style='font-weight: bold; margin-top: 1.5em'>" + OSApp.Language._( "Temperature Restriction" )+ "</label>" +
-						"<label class='center'>" + OSApp.Language._( "Disallow watering if temperature is below:" ) + "</label>" +
-						"<div class='input_with_buttons'>" +
+						"<label class='center' style='font-weight: bold; margin-top: 1.5em;'>" + OSApp.Language._( "Temperature Restriction" )+ "</label>" +
+						"<label class='center' style='white-space: pre-wrap;'>" + OSApp.Language._("Disallow watering if the current\ntemperature is below:") + "</label>" +
+						"<div class='input_with_buttons' style='margin-bottom: 1.5em;'>" +
 							"<button id='decr3' class='decr ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border'></button>" +
-							"<input id='minTemp' type='text' value='" + minTemp + " &deg;F'>" + // TODO: Add unit conversion for metric
+							"<input id='minTemp' type='text' value='" + minTemp + tempUnit + "'>" + // TODO: Add unit conversion for metric
 							"<button id='incr3' class='incr ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border'></button>" +
+							"<p class='pad-top rain-desc center smaller'>" + OSApp.Language._("Set to -40 \u00B0F/C to disable.") +
+
 						"</div>" +
+						"<label for='cali'>" + OSApp.Language._( "Enable California Restriction" ) + "</label>" +
+						"<input class='restriction-input' data-mini='true' data-inconpos='right' id='cali' type='checkbox' " +
+						( ( cali ) ? "checked='checked'" : "" ) + ">" +
 					"</div>" +
 					"<button class='submit' data-theme='b'>" + OSApp.Language._( "Submit" ) + "</button>" +
 				"</div>" +
@@ -1165,14 +1176,14 @@ OSApp.Options.showOptions = function( expandItem ) {
 			const input = popup.find( "#rainAmt" );
 			const value = parseFloat( input.val().match( /[0-9.]+/g )[0] ) + 0.1;
 			if ( value > 100 ) return;
-			input.val( Math.round( value * 100 ) / 100 + " in");
+			input.val( Math.round( value * 100 ) / 100 + rainUnit);
 			return false;
 		} );
 		OSApp.UIDom.holdButton( popup.find( "#decr1" ), function() {
 			const input = popup.find( "#rainAmt" );
 			const value = parseFloat( input.val().match( /[0-9.]+/g )[0] ) - 0.1;
 			if ( value < 0 ) return;
-			input.val( Math.round( value * 100 ) / 100 + " in");
+			input.val( Math.round( value * 100 ) / 100 + rainUnit);
 			return false;
 		} );
 
@@ -1193,22 +1204,22 @@ OSApp.Options.showOptions = function( expandItem ) {
 
 		OSApp.UIDom.holdButton( popup.find( "#incr3" ), function() {
 			const input = popup.find( "#minTemp" );
-			const value = parseInt( input.val().match( /\d+/g )[0] ) + 1;
+			const value = parseInt( input.val().match( /^-?\d+/g )[0] ) + 1;
 			if ( value > 100 ) return;
-			input.val( value + " \u00B0F");
+			input.val( value + tempUnit);
 			return false;
 		} );
 
 		OSApp.UIDom.holdButton( popup.find( "#decr3" ), function() {
 			const input = popup.find( "#minTemp" );
-			const value = parseInt( input.val().match( /\d+/g )[0] ) - 1;
+			const value = parseInt( input.val().match( /^-?\d+/g )[0] ) - 1;
 			if ( value < -100 ) return;
-			input.val( value + " \u00B0F");
+			input.val( value + tempUnit);
 			return false;
 		} );
 
 		var old;
-		popup.find( "input[type='number']" ).on( "focus", function() {
+		popup.find( "input[type='text']" ).on( "focus", function() {
 			old = this.value;
 			this.value = "";
 		} ).on( "blur", function() {
@@ -1222,8 +1233,13 @@ OSApp.Options.showOptions = function( expandItem ) {
 				cali: ( popup.find( "#cali" ).prop( "checked" ) ? 1 : 0 ),
 				rainAmt: parseFloat(popup.find( "#rainAmt" ).val().match( /[0-9.]+/g )[0]),
 				rainDays: parseInt(popup.find( "#rainDays" ).val().match( /\d+/g )[0]),
-				minTemp: parseInt(popup.find( "#minTemp" ).val().match( /\d+/g )[0])
+				minTemp: parseInt(popup.find( "#minTemp" ).val().match( /^-?\d+/g )[0])
 			};
+
+			if ( OSApp.currentDevice.isMetric ) {
+				options.rainAmt = Math.round( options.rainAmt / 25.4 * 100 ) / 100;
+				options.minTemp = Math.round( ( options.minTemp * 9 / 5 + 32 ) * 100 ) / 100;
+			}
 
 			// Change wto based on new values
 			let curr = OSApp.Utils.unescapeJSON(page.find( "#wto" ).val());
