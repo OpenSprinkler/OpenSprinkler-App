@@ -218,7 +218,6 @@ OSApp.Options.showOptions = function( expandItem ) {
 						break;
 					case "weatherRestriction":
 						if ( typeof OSApp.currentSession.controller?.settings?.wto !== "undefined" ){
-							var restrict = page.find( "#weatherRestriction" ).val();
 
 							if ( OSApp.currentSession.controller.settings.wto && OSApp.currentSession.controller.settings.wto.restrictions && OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.wto.restrictions ) === data ) {
 								return true;
@@ -1079,7 +1078,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 	page.find( "#wto" ).on( "click", function() {
 		var self = this,
 			options = OSApp.Utils.unescapeJSON( this.value ),
-			retainOptions = { pws: options.pws, key: options.key, provider: options.provider, hwt: options.hwt },
+			retainOptions = { pws: options.pws, key: options.key, provider: options.provider, hwt: options.hwt, restrictions: options.restrictions },
 			method = parseInt( page.find( "#o31" ).val() ),
 			finish = function() {
 				self.value = OSApp.Utils.escapeJSON( $.extend( {}, OSApp.Utils.unescapeJSON( self.value ), retainOptions ) );
@@ -1108,6 +1107,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 		var wto = OSApp.currentSession.controller.settings.wto,
 			rainDays = 0,
 			rainAmt = 0,
+			minTemp = 0,
 			cali = undefined;
 		if ( wto.restrictions ){
 			if ( wto.restrictions.cali ) {
@@ -1121,6 +1121,9 @@ OSApp.Options.showOptions = function( expandItem ) {
 
 			if ( wto.restrictions.rainAmt )
 				rainAmt = wto.restrictions.rainAmt;
+
+			if ( wto.restrictions.minTemp )
+				minTemp = wto.restrictions.minTemp;
 		}
 
 		var popup = $( "<div data-role='popup' data-theme='a' id='adjustmentOptions'>" +
@@ -1132,78 +1135,94 @@ OSApp.Options.showOptions = function( expandItem ) {
 						"<label for='cali'>" + OSApp.Language._( "Enable California Restriction" ) + "</label>" +
 						"<input class='restriction-input' data-mini='true' data-inconpos='right' id='cali' type='checkbox' " +
 						( ( cali ) ? "checked='checked'" : "" ) + ">" +
-					// TODO: Add inputs for rain restrictions
-					"<label class='center'>" + OSApp.Language._( "Adjust Rain Restriction" )+ "</label>" +
-					"<p class='rain-desc center smaller'>Set the maximum amount of rain across a number of days to allow watering for.</p>" +
-					"<label class='center'>" + OSApp.Language._( "Amount" ) + "</label>" + // TODO: consider units and metric
-					"<div class='input_with_buttons'>" +
-						"<button id='decr1' class='decr ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border'></button>" +
-						"<input id='rainAmt' type='number' pattern='[0-9]*' value='" + rainAmt + "'>" +
-						"<button id='incr1' class='incr ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border'></button>" +
-					"</div>" +
-					"<label class='center'>" + OSApp.Language._( "Days" ) + "</label>" +
-					"<div class='input_with_buttons'>" +
-						"<button id='decr2' class='decr ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border'></button>" +
-						"<input id='rainDays' type='number' pattern='[0-9]*' value='" + rainDays + "'>" +
-						"<button id='incr2' class='incr ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border'></button>" +
-					"</div>" +
-					// TODO: Add inputs for temp restrictions
-						"" +
+						"<label class='center' style='font-weight: bold; margin-top: 1.5em'>" + OSApp.Language._( "Rain Restriction" )+ "</label>" +
+						"<label class='center'>" + OSApp.Language._( "Disallow watering if:" ) + "</label>" +
+						"<div class='input_with_buttons'>" +
+							"<button id='decr1' class='decr ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border'></button>" +
+							"<input id='rainAmt' type='text' value='" + rainAmt + " in'>" + // TODO: Add unit conversion for metric
+							"<button id='incr1' class='incr ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border'></button>" +
+						"</div>" +
+						"<label class='center'>" + OSApp.Language._( "of rain is forecasted across:" ) + "</label>" +
+						"<div class='input_with_buttons'>" +
+							"<button id='decr2' class='decr ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border'></button>" +
+							"<input id='rainDays' type='text' value='" + rainDays + " days'>" +
+							"<button id='incr2' class='incr ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border'></button>" +
+						"</div>" +
+						// TODO: Add inputs for temp restrictions
+						"<label class='center' style='font-weight: bold; margin-top: 1.5em'>" + OSApp.Language._( "Temperature Restriction" )+ "</label>" +
+						"<label class='center'>" + OSApp.Language._( "Disallow watering if temperature is below:" ) + "</label>" +
+						"<div class='input_with_buttons'>" +
+							"<button id='decr3' class='decr ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border'></button>" +
+							"<input id='minTemp' type='text' value='" + minTemp + " &deg;F'>" + // TODO: Add unit conversion for metric
+							"<button id='incr3' class='incr ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border'></button>" +
+						"</div>" +
 					"</div>" +
 					"<button class='submit' data-theme='b'>" + OSApp.Language._( "Submit" ) + "</button>" +
 				"</div>" +
-			"</div>" ),
-			changeValue = function( dir, isAmt ) {
-				var input, maximum;
-				var minimum = 0;
-				if ( isAmt ) {
-					input = popup.find( "#rainAmt" );
-					maximum = 100;
-				} else {
-					input = popup.find( "#rainDays" );
-					maximum = 10;
-				}
-
-				var val = parseInt( input.val() );
-
-				if ( ( dir === -1 && val === minimum ) || ( dir === 1 && val === maximum ) ) {
-					return;
-				}
-
-				input.val( val + dir );
-			};
+			"</div>" );
 
 		OSApp.UIDom.holdButton( popup.find( "#incr1" ), function() {
-			changeValue( 1, true );
+			const input = popup.find( "#rainAmt" );
+			const value = parseFloat( input.val().match( /[0-9.]+/g )[0] ) + 0.1;
+			if ( value > 100 ) return;
+			input.val( Math.round( value * 100 ) / 100 + " in");
 			return false;
 		} );
 		OSApp.UIDom.holdButton( popup.find( "#decr1" ), function() {
-			changeValue( -1, true );
+			const input = popup.find( "#rainAmt" );
+			const value = parseFloat( input.val().match( /[0-9.]+/g )[0] ) - 0.1;
+			if ( value < 0 ) return;
+			input.val( Math.round( value * 100 ) / 100 + " in");
 			return false;
 		} );
 
 		OSApp.UIDom.holdButton( popup.find( "#incr2" ), function() {
-			changeValue( 1, false );
+			const input = popup.find( "#rainDays" );
+			const value = parseInt( input.val().match( /\d+/g )[0] ) + 1;
+			if ( value > 10 ) return;
+			input.val( value + " days");
 			return false;
 		} );
 		OSApp.UIDom.holdButton( popup.find( "#decr2" ), function() {
-			changeValue( -1, false );
+			const input = popup.find( "#rainDays" );
+			const value = parseInt( input.val().match( /\d+/g )[0] ) - 1;
+			if ( value < 0 ) return;
+			input.val( value + " days");
 			return false;
 		} );
 
+		OSApp.UIDom.holdButton( popup.find( "#incr3" ), function() {
+			const input = popup.find( "#minTemp" );
+			const value = parseInt( input.val().match( /\d+/g )[0] ) + 1;
+			if ( value > 100 ) return;
+			input.val( value + " \u00B0F");
+			return false;
+		} );
+
+		OSApp.UIDom.holdButton( popup.find( "#decr3" ), function() {
+			const input = popup.find( "#minTemp" );
+			const value = parseInt( input.val().match( /\d+/g )[0] ) - 1;
+			if ( value < -100 ) return;
+			input.val( value + " \u00B0F");
+			return false;
+		} );
+
+		var old;
 		popup.find( "input[type='number']" ).on( "focus", function() {
+			old = this.value;
 			this.value = "";
 		} ).on( "blur", function() {
 			if ( this.value === "" ) {
-				this.value = "0";
+				this.value = old;
 			}
 		} );
 
 		popup.find( ".submit" ).on( "click", function() {
 			var options = {
 				cali: ( popup.find( "#cali" ).prop( "checked" ) ? 1 : 0 ),
-				rainAmt: parseInt(popup.find( "#rainAmt" ).val()),
-				rainDays: parseInt(popup.find( "#rainDays" ).val())
+				rainAmt: parseFloat(popup.find( "#rainAmt" ).val().match( /[0-9.]+/g )[0]),
+				rainDays: parseInt(popup.find( "#rainDays" ).val().match( /\d+/g )[0]),
+				minTemp: parseInt(popup.find( "#minTemp" ).val().match( /\d+/g )[0])
 			};
 
 			// Change wto based on new values
