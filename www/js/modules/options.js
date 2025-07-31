@@ -223,6 +223,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 								return true;
 							}
 						}
+						break;
 					case "weatherSelect":
 						if ( OSApp.currentSession.controller.settings.wto && OSApp.currentSession.controller.settings.wto.provider && OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.wto.provider ) === data ) {
 							return true;

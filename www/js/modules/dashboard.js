@@ -870,7 +870,7 @@ OSApp.Dashboard.displayPage = function() {
 				}
 			}
 			OSApp.Cards.getDivider( nextCard ).hide();
-			OSApp.Cards.setGroupLabel( nextCard, OSApp.Groups.mapGIDValueToName( OSApp.Stations.getGIDValue( idx ) ) );
+			OSApp.Cards.setGroupLabel( nextCard, OSApp.Groups.mapGIDValueToName( OSApp.Stations.getGIDValue( OSApp.Cards.getSID( nextCard ) ) ) );
 			label = OSApp.Cards.getGroupLabel( nextCard );
 			if ( typeof label !== "undefined" && OSApp.Cards.isMasterStation( nextCard ) ) {
 				label.addClass( "hidden" );
