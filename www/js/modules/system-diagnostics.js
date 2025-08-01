@@ -23,10 +23,10 @@ OSApp.SystemDiagnostics.showDiagnostics = function() {
 	var scaleRow = undefined;
 	if ( typeof OSApp.currentSession.controller.options.wls !== "undefined" ) {
 		var scales = OSApp.currentSession.controller.options.wls
-		if (scales.length > 4) {
-			scaleRow = scales.slice(0, 4) + "<br>" + scales.slice(4);
+		if (scales.length > 5) {
+			scaleRow = "[" + scales.slice(0, 5).join(", ") + "<br>" + scales.slice(5).join(", ") + "]";
 		} else {
-			scaleRow = scales;
+			scaleRow = "[" + scales.join(", ") + "]";
 		}
 	}
 
