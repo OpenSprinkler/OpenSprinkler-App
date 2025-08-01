@@ -262,7 +262,7 @@ OSApp.Dashboard.displayPage = function() {
 							for ( var i = 0; i < 4; i++ ) {
 								hex += OSApp.Utils.pad( parseInt( ip[ i ] ).toString( 16 ) );
 							}
-							hex += ( port < 256 ? "00" : "" ) + OSApp.Utils.pad( port.toString( 16 ) );
+							hex += OSApp.Utils.pad( (port>>8).toString( 16 ) ) + OSApp.Utils.pad( (port & 0xff).toString( 16 ) );
 							hex += OSApp.Utils.pad( station.toString( 16 ) );
 						} else {
 							otc = select.find( "#remote-otc" ).val();
