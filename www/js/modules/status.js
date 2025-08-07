@@ -92,7 +92,7 @@ OSApp.Status.checkStatus = function() {
 
 	// Handle controller configured as extender
 	if ( OSApp.currentSession.controller.options.re === 1 ) {
-		OSApp.Status.changeStatus( 0, "red", "<p class='running-text center pointer'>" + OSApp.Language._( "Configured as Extender" ) + "</p>", function() {
+		OSApp.Status.changeStatus( 0, "blue", "<p class='running-text center pointer'>" + OSApp.Language._( "Configured as Extender" ) + "</p>", function() {
 			OSApp.UIDom.areYouSure( OSApp.Language._( "Do you wish to disable extender mode?" ), "", function() {
 				OSApp.UIDom.showLoading( "#footer-running" );
 				OSApp.Firmware.sendToOS( "/cv?pw=&re=0" ).done( function() {
@@ -105,7 +105,7 @@ OSApp.Status.checkStatus = function() {
 
 	// Handle operation disabled
 	if ( !OSApp.currentSession.controller.settings.en ) {
-		OSApp.Status.changeStatus( 0, "red", "<p class='running-text center pointer'>" + OSApp.Language._( "System Disabled" ) + "</p>", function() {
+		OSApp.Status.changeStatus( 0, "blue", "<p class='running-text center pointer'>" + OSApp.Language._( "System Disabled" ) + "</p>", function() {
 			OSApp.UIDom.areYouSure( OSApp.Language._( "Do you want to re-enable system operation?" ), "", function() {
 				OSApp.UIDom.showLoading( "#footer-running" );
 				OSApp.Firmware.sendToOS( "/cv?pw=&en=1" ).done( function() {
@@ -190,9 +190,15 @@ OSApp.Status.checkStatus = function() {
 		return;
 	}
 
+	// Show overcurrent fault status
+	if ( OSApp.currentSession.controller.settings.ocs ) {
+		OSApp.Status.changeStatus( 0, "red", "<p class='running-text center'>" + OSApp.Language._( "Overcurrent Fault detected" ) + ( OSApp.currentSession.controller.settings.ocs === 255 ? "" : ( " when opening Station " + OSApp.currentSession.controller.settings.ocs ) ) + "!!</p>" );
+		return;
+	}
+
 	// Handle rain delay enabled
 	if ( OSApp.currentSession.controller.settings.rd ) {
-		OSApp.Status.changeStatus( 0, "red", "<p class='running-text center pointer'>" +
+		OSApp.Status.changeStatus( 0, "blue", "<p class='running-text center pointer'>" +
 			OSApp.Language._( "Rain delay until" ) + " " + OSApp.Dates.dateToString( new Date( OSApp.currentSession.controller.settings.rdst * 1000 ) ) + "</p>",
 			function() {
 				OSApp.UIDom.areYouSure( OSApp.Language._( "Do you want to turn off rain delay?" ), "", function() {
@@ -208,23 +214,23 @@ OSApp.Status.checkStatus = function() {
 
 	// Handle rain sensor triggered
 	if ( OSApp.currentSession.controller.options.urs === 1 && OSApp.currentSession.controller.settings.rs === 1 ) {
-		OSApp.Status.changeStatus( 0, "red", "<p class='running-text center'>" + OSApp.Language._( "Rain detected" ) + "</p>" );
+		OSApp.Status.changeStatus( 0, "blue", "<p class='running-text center'>" + OSApp.Language._( "Rain detected" ) + "</p>" );
 		return;
 	}
 
 	if ( OSApp.currentSession.controller.settings.sn1 === 1 ) {
-		OSApp.Status.changeStatus( 0, "red", "<p class='running-text center'>Sensor 1 (" + ( OSApp.currentSession.controller.options.sn1t === 3 ? OSApp.Language._( "Soil" ) : OSApp.Language._( "Rain" ) ) + OSApp.Language._( ") Activated" ) + "</p>" );
+		OSApp.Status.changeStatus( 0, "blue", "<p class='running-text center'>Sensor 1 (" + ( OSApp.currentSession.controller.options.sn1t === 3 ? OSApp.Language._( "Soil" ) : OSApp.Language._( "Rain" ) ) + OSApp.Language._( ") Activated" ) + "</p>" );
 		return;
 	}
 
 	if ( OSApp.currentSession.controller.settings.sn2 === 1 ) {
-		OSApp.Status.changeStatus( 0, "red", "<p class='running-text center'>Sensor 2 (" + ( OSApp.currentSession.controller.options.sn2t === 3 ? OSApp.Language._( "Soil" ) : OSApp.Language._( "Rain" ) ) + OSApp.Language._( ") Activated" ) + "</p>" );
+		OSApp.Status.changeStatus( 0, "blue", "<p class='running-text center'>Sensor 2 (" + ( OSApp.currentSession.controller.options.sn2t === 3 ? OSApp.Language._( "Soil" ) : OSApp.Language._( "Rain" ) ) + OSApp.Language._( ") Activated" ) + "</p>" );
 		return;
 	}
 
 	// Handle manual mode enabled
 	if ( OSApp.currentSession.controller.settings.mm === 1 ) {
-		OSApp.Status.changeStatus( 0, "red", "<p class='running-text center pointer'>" + OSApp.Language._( "Manual mode enabled" ) + "</p>", function() {
+		OSApp.Status.changeStatus( 0, "blue", "<p class='running-text center pointer'>" + OSApp.Language._( "Manual mode enabled" ) + "</p>", function() {
 			OSApp.UIDom.areYouSure( OSApp.Language._( "Do you want to turn off manual mode?" ), "", function() {
 				OSApp.UIDom.showLoading( "#footer-running" );
 				OSApp.Firmware.sendToOS( "/cv?pw=&mm=0" ).done( function() {
