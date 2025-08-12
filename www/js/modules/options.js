@@ -515,7 +515,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 		"<legend>" + OSApp.Language._( "Weather and Sensors" ) + "</legend>";
 
 	if ( typeof OSApp.currentSession.controller.options.uwt !== "undefined" ) {
-		list += "<div class='ui-field-contain'><label for='o31' class='select'>" + OSApp.Language._( "Weather Adjustment Method" ) +
+		list += "<div class='ui-field-contain'><label for='o31' class='select'>" + OSApp.Language._( "Adjustment Method" ) +
 				"<button data-helptext='" +
 					OSApp.Language._( "Weather adjustment retrieves data from the chosen provider and applies the selected method to determine the watering percentage." ) +
 					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
@@ -536,15 +536,40 @@ OSApp.Options.showOptions = function( expandItem ) {
 			list += "<div class='ui-field-contain" + ( method === 3 || method === 1 ? "" : " hidden" ) + "'><label for='historic'></label>" +
 				"<label for='historic'>" +
 				"<button data-helptext='" +
-					OSApp.Language._( "Uses historical weather data (either the length of the interval in days or the maximum days available) to calculate ETo or Zimmerman scaling for interval programs." ) +
+					OSApp.Language._( "Uses multi-day historical weather data to calculate ETo or Zimmerman watering percentage for programs that run on a regular interval." ) +
 					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
-				"<input data-mini='true' id='hwt' type='checkbox' " + ( ( OSApp.currentSession.controller.settings.wto.hwt === 100 ) ? "checked='checked'" : "" ) + ">" + OSApp.Language._( "Use Historic Weather Data For Interval Programs" ) +
+				"<input data-mini='true' id='hwt' type='checkbox' " + ( ( OSApp.currentSession.controller.settings.wto.hwt === 100 ) ? "checked='checked'" : "" ) + ">" + OSApp.Language._( "Use Multi-day Historic Weather Data For Interval Programs" ) +
 				"</label></div>";
 			list += "<div class='ui-field-contain" + ( method === 0 ? " hidden" : "" ) + "'><label for='wto'>" + OSApp.Language._( "Adjustment Method Options" ) + "</label>" +
 				"<button data-mini='true' id='wto' value='" + OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.wto ) + "'>" +
 					OSApp.Language._( "Tap to Configure" ) +
 				"</button></div>";
 		}
+
+		if ( OSApp.Firmware.checkOSVersion( 214 ) ) {
+			if ( typeof OSApp.currentSession.controller?.settings?.wto !== "undefined" ) {
+				list += "<div class='ui-field-contain'><label for='weatherRestriction' class='select'>" + OSApp.Language._( "Weather Restrictions" ) +
+					"<button data-helptext='" + OSApp.Language._( "Prevents watering when the selected restrictions are met." ) +
+						"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
+					"</label>" +
+					"<button data-mini='true' id='weatherRestriction' value='" + ( OSApp.currentSession.controller.settings.wto.restrictions ? OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.wto.restrictions ) : "" ) + "'>" +
+							OSApp.Language._( "Tap to Configure" ) +
+						"</button></div>";
+			} else {
+				list += "<div class='ui-field-contain'><label for='weatherRestriction' class='select'>" + OSApp.Language._( "Weather Restrictions" ) +
+						"<button data-helptext='" + OSApp.Language._( "Prevents watering when the selected restriction is met." ) +
+							"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
+					"</label>" +
+					"<select data-mini='true' class='noselect' id='weatherRestriction'>";
+
+				for ( i = 0; i < 2; i++ ) {
+					var restrict = OSApp.Weather.getRestriction( i );
+					list += "<option " + ( restrict.isCurrent === true ? "selected" : "" ) + " value='" + i + "'>" + restrict.name + "</option>";
+				}
+				list += "</select></div>";
+			}
+		}
+	}
 
 		if ( typeof OSApp.currentSession.controller?.settings?.wsp !== "undefined" ) {
 			list += "<div class='ui-field-contain'><label for='weatherSelect' class='select'>" + OSApp.Language._( "Weather Data Provider" ) +
@@ -582,31 +607,6 @@ OSApp.Options.showOptions = function( expandItem ) {
 				"</tr>" +
 			"</table></div>";
 		}
-
-		if ( OSApp.Firmware.checkOSVersion( 214 ) ) {
-			if ( typeof OSApp.currentSession.controller?.settings?.wto !== "undefined" ) {
-				list += "<div class='ui-field-contain'><label for='weatherRestriction' class='select'>" + OSApp.Language._( "Weather-Based Restrictions" ) +
-					"<button data-helptext='" + OSApp.Language._( "Prevents watering when the selected restrictions are met." ) +
-						"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
-					"</label>" +
-					"<button data-mini='true' id='weatherRestriction' value='" + ( OSApp.currentSession.controller.settings.wto.restrictions ? OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.wto.restrictions ) : "" ) + "'>" +
-							OSApp.Language._( "Tap to Configure" ) +
-						"</button></div>";
-			} else {
-				list += "<div class='ui-field-contain'><label for='weatherRestriction' class='select'>" + OSApp.Language._( "Weather-Based Restrictions" ) +
-						"<button data-helptext='" + OSApp.Language._( "Prevents watering when the selected restriction is met." ) +
-							"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
-					"</label>" +
-					"<select data-mini='true' class='noselect' id='weatherRestriction'>";
-
-				for ( i = 0; i < 2; i++ ) {
-					var restrict = OSApp.Weather.getRestriction( i );
-					list += "<option " + ( restrict.isCurrent === true ? "selected" : "" ) + " value='" + i + "'>" + restrict.name + "</option>";
-				}
-				list += "</select></div>";
-			}
-		}
-	}
 
 	if ( typeof OSApp.currentSession.controller.options.wl !== "undefined" ) {
 		list += "<div class='ui-field-contain duration-field'><label for='o23'>" + OSApp.Language._( "% Watering" ) +
@@ -1155,16 +1155,15 @@ OSApp.Options.showOptions = function( expandItem ) {
 							"<button id='decr2' class='decr ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border'></button>" +
 							"<input id='rainDays' type='text' value='" + rainDays + " days'>" +
 							"<button id='incr2' class='incr ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border'></button>" +
-						"</div>" +
-						"<label class='center' style='font-weight: bold; margin-top: 1.5em;'>" + OSApp.Language._( "Temperature Restriction" )+ "</label>" +
+						"</div><hr>" +
+						"<label class='center' style='font-weight: bold;'>" + OSApp.Language._( "Temperature Restriction" )+ "</label>" +
 						"<label class='center' style='white-space: pre-wrap;'>" + OSApp.Language._("Disallow watering if the current\ntemperature is below:") + "</label>" +
-						"<div class='input_with_buttons' style='margin-bottom: 1.5em;'>" +
+						"<div class='input_with_buttons'>" +
 							"<button id='decr3' class='decr ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border'></button>" +
 							"<input id='minTemp' type='text' value='" + minTemp + tempUnit + "'>" + // TODO: Add unit conversion for metric
 							"<button id='incr3' class='incr ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border'></button>" +
 							"<p class='pad-top rain-desc center smaller'>" + OSApp.Language._("Set to -40 \u00B0F/C to disable.") +
-
-						"</div>" +
+						"</div><hr>" +
 						"<label for='cali'>" + OSApp.Language._( "Enable California Restriction" ) + "</label>" +
 						"<input class='restriction-input' data-mini='true' data-inconpos='right' id='cali' type='checkbox' " +
 						( ( cali ) ? "checked='checked'" : "" ) + ">" +
