@@ -218,8 +218,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 						break;
 					case "weatherRestriction":
 						if ( typeof OSApp.currentSession.controller?.settings?.wto !== "undefined" ){
-
-							if ( OSApp.currentSession.controller.settings.wto && OSApp.currentSession.controller.settings.wto.restrictions && OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.wto.restrictions ) === data ) {
+							if ( OSApp.currentSession.controller.settings.wto && OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.wto ) === data ) {
 								return true;
 							}
 						}
@@ -589,7 +588,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 					"<button data-helptext='" + OSApp.Language._( "Prevents watering when the selected restrictions are met." ) +
 						"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
 					"</label>" +
-					"<button data-mini='true' id='weatherRestriction' value='" + ( OSApp.currentSession.controller.settings.wto.restrictions ? OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.wto.restrictions ) : "" ) + "'>" +
+					"<button data-mini='true' id='weatherRestriction' value='" + ( OSApp.currentSession.controller.settings.wto ? OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.wto ) : "" ) + "'>" +
 							OSApp.Language._( "Tap to Configure" ) +
 						"</button></div>";
 			} else {
@@ -1079,7 +1078,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 	page.find( "#wto" ).on( "click", function() {
 		var self = this,
 			options = OSApp.Utils.unescapeJSON( this.value ),
-			retainOptions = { pws: options.pws, key: options.key, provider: options.provider, hwt: options.hwt, restrictions: options.restrictions },
+			retainOptions = { pws: options.pws, key: options.key, provider: options.provider, hwt: options.hwt, cali: options.cali, rainAmt: options.rainAmt, rainDays: options.rainDays, minTemp: options.minTemp },
 			method = parseInt( page.find( "#o31" ).val() ),
 			finish = function() {
 				self.value = OSApp.Utils.escapeJSON( $.extend( {}, OSApp.Utils.unescapeJSON( self.value ), retainOptions ) );
@@ -1110,22 +1109,21 @@ OSApp.Options.showOptions = function( expandItem ) {
 			rainAmt = 0,
 			minTemp = -40,
 			cali = undefined;
-		if ( wto.restrictions ){
-			if ( wto.restrictions.cali ) {
-				cali = wto.restrictions.cali;
-			} else {
-				cali = false;
-			}
 
-			if ( wto.restrictions.rainDays )
-				rainDays = wto.restrictions.rainDays;
-
-			if ( wto.restrictions.rainAmt )
-				rainAmt = wto.restrictions.rainAmt;
-
-			if ( wto.restrictions.minTemp )
-				minTemp = wto.restrictions.minTemp;
+		if ( wto.cali ){
+			cali = wto.cali;
+		} else {
+			cali = false;
 		}
+
+		if ( wto.rainDays )
+			rainDays = wto.rainDays;
+
+		if ( wto.rainAmt )
+			rainAmt = wto.rainAmt;
+
+		if ( wto.minTemp )
+			minTemp = wto.minTemp;
 
 		var rainUnit = " in";
 		var tempUnit = " \u00B0F";
@@ -1147,7 +1145,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 						"<label class='center'>" + OSApp.Language._( "Disallow watering if:" ) + "</label>" +
 						"<div class='input_with_buttons'>" +
 							"<button id='decr1' class='decr ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border'></button>" +
-							"<input id='rainAmt' type='text' value='" + rainAmt + rainUnit + "'>" + // TODO: Add unit conversion for metric
+							"<input id='rainAmt' type='text' value='" + rainAmt + rainUnit + "'>" +
 							"<button id='incr1' class='incr ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border'></button>" +
 						"</div>" +
 						"<label class='center'>" + OSApp.Language._( "of rain is forecasted in the next:" ) + "</label>" +
@@ -1160,7 +1158,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 						"<label class='center' style='white-space: pre-wrap;'>" + OSApp.Language._("Disallow watering if the current\ntemperature is below:") + "</label>" +
 						"<div class='input_with_buttons' style='margin-bottom: 1.5em;'>" +
 							"<button id='decr3' class='decr ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border'></button>" +
-							"<input id='minTemp' type='text' value='" + minTemp + tempUnit + "'>" + // TODO: Add unit conversion for metric
+							"<input id='minTemp' type='text' value='" + minTemp + tempUnit + "'>" +
 							"<button id='incr3' class='incr ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border'></button>" +
 							"<p class='pad-top rain-desc center smaller'>" + OSApp.Language._("Set to -40 \u00B0F/C to disable.") +
 
@@ -1237,6 +1235,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 				minTemp: parseInt(popup.find( "#minTemp" ).val().match( /^-?\d+/g )[0])
 			};
 
+			// Do metric conversions
 			if ( OSApp.currentDevice.isMetric ) {
 				options.rainAmt = Math.round( options.rainAmt / 25.4 * 100 ) / 100;
 				options.minTemp = Math.round( ( options.minTemp * 9 / 5 + 32 ) * 100 ) / 100;
@@ -1244,14 +1243,17 @@ OSApp.Options.showOptions = function( expandItem ) {
 
 			// Change wto based on new values
 			let curr = OSApp.Utils.unescapeJSON(page.find( "#wto" ).val());
-			curr.restrictions = options;
+			curr.cali = options.cali;
+			curr.rainAmt = options.rainAmt;
+			curr.rainDays = options.rainDays;
+			curr.minTemp = options.minTemp;
 			page.find( "#wto" ).prop( "value", OSApp.Utils.escapeJSON(curr));
 
 			popup.popup( "close" );
-			if ( curr === OSApp.Utils.escapeJSON( options ) ) {
+			if ( curr === OSApp.Utils.escapeJSON( curr ) ) {
 				return;
 			} else {
-				self.value = OSApp.Utils.escapeJSON( options );
+				self.value = OSApp.Utils.escapeJSON( curr );
 				header.eq( 2 ).prop( "disabled", false );
 				page.find( ".submit" ).addClass( "hasChanges" );
 			}
