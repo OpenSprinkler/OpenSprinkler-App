@@ -885,7 +885,7 @@ OSApp.Weather.makeAttribution = function( provider ) {
 			attrib += OSApp.Language._( "Powered by your Local PWS" );
 			break;
 		case "Manual":
-			attrib += OSApp.Language._( "Using manual watering" );
+			attrib += OSApp.Language._( "Using manual weather adjustment" );
 			break;
 		default:
 			attrib += OSApp.Language._( "Unrecognised weather provider" );
