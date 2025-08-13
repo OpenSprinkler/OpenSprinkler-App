@@ -228,8 +228,8 @@ OSApp.Options.showOptions = function( expandItem ) {
 							return true;
 						}
 						break;
-					case "hwt":
-						if ( OSApp.currentSession.controller.settings.wto && OSApp.currentSession.controller.settings.wto.hwt && OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.wto.hwt ) === data ) {
+					case "mda":
+						if ( OSApp.currentSession.controller.settings.wto && OSApp.currentSession.controller.settings.wto.mda && OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.wto.mda ) === data ) {
 							return true;
 						}
 						break;
@@ -1078,7 +1078,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 	page.find( "#wto" ).on( "click", function() {
 		var self = this,
 			options = OSApp.Utils.unescapeJSON( this.value ),
-			retainOptions = { pws: options.pws, key: options.key, provider: options.provider, hwt: options.hwt, cali: options.cali, rainAmt: options.rainAmt, rainDays: options.rainDays, minTemp: options.minTemp },
+			retainOptions = { pws: options.pws, key: options.key, provider: options.provider, mda: options.mda, cali: options.cali, rainAmt: options.rainAmt, rainDays: options.rainDays, minTemp: options.minTemp },
 			method = parseInt( page.find( "#o31" ).val() ),
 			finish = function() {
 				self.value = OSApp.Utils.escapeJSON( $.extend( {}, OSApp.Utils.unescapeJSON( self.value ), retainOptions ) );
@@ -1436,13 +1436,13 @@ OSApp.Options.showOptions = function( expandItem ) {
 		page.find( "#wto" ).prop( "value", OSApp.Utils.escapeJSON(curr));
 	} );
 
-	page.find( "#hwt" ).on( "click", function() {
+	page.find( "#mda" ).on( "click", function() {
 		//change wto value based on selected or not
 		const curr = OSApp.Utils.unescapeJSON(page.find( "#wto" ).val());
 		if ( this.checked ){
-			curr.hwt = 100;
+			curr.mda = 100;
 		} else {
-			curr.hwt = 0;
+			curr.mda = 0;
 		}
 		page.find( "#wto" ).prop( "value", OSApp.Utils.escapeJSON(curr));
 	} );
@@ -1593,7 +1593,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 
 		// Switch the state of adjustment options based on the selected method
 		page.find( "#wto" ).click().parents( ".ui-field-contain" ).toggleClass( "hidden", parseInt( this.value ) === 0 ? true : false );
-		page.find( "#hwt" ).click().parents( ".ui-field-contain" ).toggleClass("hidden", parseInt( this.value ) === 3 || parseInt( this.value ) === 1 ? false : true );
+		page.find( "#mda" ).click().parents( ".ui-field-contain" ).toggleClass("hidden", parseInt( this.value ) === 3 || parseInt( this.value ) === 1 ? false : true );
 	} );
 
 	page.find( "#wtkey" ).on( "change input", function() {
