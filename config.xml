@@ -87,8 +87,10 @@
     </platform>
     <platform name="android">
         <edit-config file="AndroidManifest.xml" mode="merge" target="/manifest/application">
-            <application android:usesCleartextTraffic="true" />
+            <application android:usesCleartextTraffic="true"
+                android:networkSecurityConfig="@xml/network_security_config" />
         </edit-config>
+        <resource-file src="res/android/network_security_config.xml" target="app/src/main/res/xml/network_security_config.xml" />
         <config-file target="AndroidManifest.xml" parent="queries">
             <intent>
                 <action android:name="android.media.action.IMAGE_CAPTURE" />

@@ -272,6 +272,12 @@ hr.divider {
 .transparent {
     background:transparent;
 }
+.blue {
+	background:#5D99C3!important;
+	color:#FFF!important;
+	font-weight:400;
+	text-shadow:none!important;
+}
 .green {
     background:#16a085!important;
     color:#FFF!important;
