@@ -1138,6 +1138,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 							"<button id='decr2' class='decr ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border'></button>" +
 							"<input id='rainDays' type='text' value='" + options.rainDays + " days'>" +
 							"<button id='incr2' class='incr ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border'></button>" +
+							"<p class='pad-top rain-desc center smaller'>" + OSApp.Language._("Set either to 0 to disable.") +
 						"</div><hr>" +
 						"<label class='center' style='font-weight: bold;'>" + OSApp.Language._( "Temperature Restriction" )+ "</label>" +
 						"<label class='center' style='white-space: pre-wrap;'>" + OSApp.Language._("Disallow watering if the current\ntemperature is below:") + "</label>" +
@@ -1145,7 +1146,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 							"<button id='decr3' class='decr ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border'></button>" +
 							"<input id='minTemp' type='text' value='" + options.minTemp + tempUnit + "'>" +
 							"<button id='incr3' class='incr ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border'></button>" +
-							"<p class='pad-top rain-desc center smaller'>" + OSApp.Language._("Set to -40 \u00B0F/C to disable.") +
+							"<p class='pad-top rain-desc center smaller'>" + OSApp.Language._("Set to -40 (either \u00B0F or \u00B0C) to disable.") +
 						"</div><hr>" +
 						"<label for='cali'>" + OSApp.Language._( "Enable California Restriction" ) + "</label>" +
 						"<input class='restriction-input' data-mini='true' data-inconpos='right' id='cali' type='checkbox' " +
