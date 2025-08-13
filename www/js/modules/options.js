@@ -533,7 +533,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 		if ( typeof OSApp.currentSession.controller?.settings?.wto === "object" ) {
 			const method = OSApp.Weather.getCurrentAdjustmentMethodId();
 			list += "<div class='ui-field-contain" + ( method === 3 || method === 1 ? "" : " hidden" ) + "'><label for='historic'></label>" +
-				"<label for='historic'>" +
+				"<label for='historic' id='mdaLabel'>" +
 				"<button data-helptext='" +
 					OSApp.Language._( "Use multiple days of historical weather data to calculate ETo or Zimmerman watering percentage for programs that run on a regular interval." ) +
 					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
@@ -1593,7 +1593,16 @@ OSApp.Options.showOptions = function( expandItem ) {
 
 		// Switch the state of adjustment options based on the selected method
 		page.find( "#wto" ).click().parents( ".ui-field-contain" ).toggleClass( "hidden", parseInt( this.value ) === 0 ? true : false );
-		page.find( "#mda" ).click().parents( ".ui-field-contain" ).toggleClass("hidden", parseInt( this.value ) === 3 || parseInt( this.value ) === 1 ? false : true );
+		page.find( "#mda" ).parents( ".ui-field-contain" ).toggleClass("hidden", parseInt( this.value ) === 3 || parseInt( this.value ) === 1 ? false : true );
+
+		// Ensure checkbox display is correct\
+		if ( page.find( "#mda" ).is(':checked')) {
+			page.find( "#mdaLabel").removeClass("ui-checkbox-off").addClass("ui-checkbox-on");
+			page.find( "#mda" ).prop("checked", true);
+		} else {
+			page.find( "#mdaLabel").removeClass("ui-checkbox-on").addClass("ui-checkbox-off");
+			page.find( "#mda" ).prop("checked", false);
+		}
 	} );
 
 	page.find( "#wtkey" ).on( "change input", function() {
