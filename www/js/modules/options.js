@@ -535,9 +535,9 @@ OSApp.Options.showOptions = function( expandItem ) {
 			list += "<div class='ui-field-contain" + ( method === 3 || method === 1 ? "" : " hidden" ) + "'><label for='historic'></label>" +
 				"<label for='historic'>" +
 				"<button data-helptext='" +
-					OSApp.Language._( "Uses multi-day historical weather data to calculate ETo or Zimmerman watering percentage for programs that run on a regular interval." ) +
+					OSApp.Language._( "Use multiple days of historical weather data to calculate ETo or Zimmerman watering percentage for programs that run on a regular interval." ) +
 					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
-				"<input data-mini='true' id='hwt' type='checkbox' " + ( ( OSApp.currentSession.controller.settings.wto.hwt === 100 ) ? "checked='checked'" : "" ) + ">" + OSApp.Language._( "Use Multi-day Historic Weather Data For Interval Programs" ) +
+				"<input data-mini='true' id='hwt' type='checkbox' " + ( ( OSApp.currentSession.controller.settings.wto.hwt === 100 ) ? "checked='checked'" : "" ) + ">" + OSApp.Language._( "Adjust Interval Programs Using Multiple Days of Weather Data" ) +
 				"</label></div>";
 			list += "<div class='ui-field-contain" + ( method === 0 ? " hidden" : "" ) + "'><label for='wto'>" + OSApp.Language._( "Adjustment Method Options" ) + "</label>" +
 				"<button data-mini='true' id='wto' value='" + OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.wto ) + "'>" +
@@ -551,7 +551,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 					"<button data-helptext='" + OSApp.Language._( "Prevents watering when the selected restrictions are met." ) +
 						"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
 					"</label>" +
-					"<button data-mini='true' id='weatherRestriction' value='" + ( OSApp.currentSession.controller.settings.wto.restrictions ? OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.wto.restrictions ) : "" ) + "'>" +
+					"<button data-mini='true' id='weatherRestriction' value='" + ( OSApp.currentSession.controller.settings.wto ? OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.wto ) : "" ) + "'>" +
 							OSApp.Language._( "Tap to Configure" ) +
 						"</button></div>";
 			} else {
