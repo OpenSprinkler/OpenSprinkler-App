@@ -539,7 +539,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
 				"<input data-mini='true' id='mda' type='checkbox' " + ( ( OSApp.currentSession.controller.settings.wto.mda === 100 ) ? "checked='checked'" : "" ) + ">" + OSApp.Language._( "Adjust Interval Programs Using Multiple Days of Weather Data" ) +
 				"</label></div>";
-			list += "<div class='ui-field-contain" + ( method === 0 ? " hidden" : "" ) + "'><label for='wto'>" + OSApp.Language._( "Adjustment Method Options" ) + "</label>" +
+			list += "<div class='ui-field-contain'><label for='wto'>" + OSApp.Language._( "Adjustment Method Options" ) + "</label>" +
 				"<button data-mini='true' id='wto' value='" + OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.wto ) + "'>" +
 					OSApp.Language._( "Tap to Configure" ) +
 				"</button></div>";
@@ -607,7 +607,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 			"</table></div>";
 		}
 
-	if ( typeof OSApp.currentSession.controller.options.wl !== "undefined" ) {
+	if ( typeof OSApp.currentSession.controller.settings.wto === "undefined" && typeof OSApp.currentSession.controller.options.wl !== "undefined" ) {
 		list += "<div class='ui-field-contain duration-field'><label for='o23'>" + OSApp.Language._( "% Watering" ) +
 				"<button data-helptext='" +
 					OSApp.Language._( "The watering percentage scales station run times by the set value." ) +
@@ -1086,7 +1086,9 @@ OSApp.Options.showOptions = function( expandItem ) {
 				page.find( ".submit" ).addClass( "hasChanges" );
 			};
 
-		if ( method === 1 ) {
+		if ( method === 0 ) {
+			OSApp.Weather.showManualAdjustmentOptions( this, finish );
+		} else if ( method === 1 ) {
 			OSApp.Weather.showZimmermanAdjustmentOptions( this, finish );
 		} else if ( method === 2 ) {
 			OSApp.Weather.showAutoRainDelayAdjustmentOptions( this, finish );
@@ -1592,10 +1594,11 @@ OSApp.Options.showOptions = function( expandItem ) {
 		// Switch state of water level input based on weather algorithm status
 		page.find( "#o23" ).prop( "disabled", ( parseInt( this.value ) === 0 ? false : true ) );
 
-		// Switch the state of adjustment options based on the selected method
-		page.find( "#wto" ).click().parents( ".ui-field-contain" ).toggleClass( "hidden", parseInt( this.value ) === 0 ? true : false );
-		page.find( "#mda" ).parents( ".ui-field-contain" ).toggleClass("hidden", parseInt( this.value ) === 3 || parseInt( this.value ) === 1 ? false : true );
+		// Pull up the weather options menu
+		page.find( "#wto" ).click();
 
+		// Switch the state of the multi day flag options based on the selected method
+		page.find( "#mda" ).parents( ".ui-field-contain" ).toggleClass("hidden", parseInt( this.value ) === 3 || parseInt( this.value ) === 1 ? false : true );
 		// Ensure checkbox display is correct\
 		if ( page.find( "#mda" ).is(':checked')) {
 			page.find( "#mdaLabel").removeClass("ui-checkbox-off").addClass("ui-checkbox-on");
