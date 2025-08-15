@@ -539,14 +539,14 @@ OSApp.Options.showOptions = function( expandItem ) {
 					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
 				"<input data-mini='true' id='mda' type='checkbox' " + ( ( OSApp.currentSession.controller.settings.wto.mda === 100 ) ? "checked='checked'" : "" ) + ">" + OSApp.Language._( "Adjust Interval Programs Using Multiple Days of Weather Data" ) +
 				"</label></div>";
-			list += "<div class='ui-field-contain'><label for='wto'>" + OSApp.Language._( "Adjustment Method Options" ) + "</label>" +
+			list += "<div class='ui-field-contain" + ( ( !OSApp.Supported.defaultWateringLevel() && method === 0 ) ? " hidden" : "" ) + "'><label for='wto'>" + OSApp.Language._( "Adjustment Method Options" ) + "</label>" +
 				"<button data-mini='true' id='wto' value='" + OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.wto ) + "'>" +
 					OSApp.Language._( "Tap to Configure" ) +
 				"</button></div>";
 		}
 
 		if ( OSApp.Firmware.checkOSVersion( 214 ) ) {
-			if ( typeof OSApp.currentSession.controller?.settings?.wto !== "undefined" ) {
+			if ( OSApp.Supported.restrictions() ) {
 				list += "<div class='ui-field-contain'><label for='weatherRestriction' class='select'>" + OSApp.Language._( "Weather Restrictions" ) +
 					"<button data-helptext='" + OSApp.Language._( "Prevents watering when the selected restrictions are met." ) +
 						"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
@@ -607,7 +607,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 			"</table></div>";
 		}
 
-	if ( typeof OSApp.currentSession.controller.settings.wto === "undefined" && typeof OSApp.currentSession.controller.options.wl !== "undefined" ) {
+	if ( !OSApp.Supported.defaultWateringLevel() && typeof OSApp.currentSession.controller.options.wl !== "undefined" ) {
 		list += "<div class='ui-field-contain duration-field'><label for='o23'>" + OSApp.Language._( "% Watering" ) +
 				"<button data-helptext='" +
 					OSApp.Language._( "The watering percentage scales station run times by the set value." ) +
@@ -1086,7 +1086,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 				page.find( ".submit" ).addClass( "hasChanges" );
 			};
 
-		if ( method === 0 ) {
+		if ( method === 0 && OSApp.Supported.defaultWateringLevel() ) {
 			OSApp.Weather.showManualAdjustmentOptions( this, finish );
 		} else if ( method === 1 ) {
 			OSApp.Weather.showZimmermanAdjustmentOptions( this, finish );
@@ -1100,7 +1100,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 	} );
 
 	page.find( "#weatherRestriction" ).on( "click", function() {
-		if (typeof OSApp.currentSession.controller?.settings?.wto === "undefined" ){
+		if ( !OSApp.Supported.restrictions() ){
 			return;
 		}
 		var self = this,
