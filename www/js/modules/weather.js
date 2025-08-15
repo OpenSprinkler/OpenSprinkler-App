@@ -77,7 +77,7 @@ OSApp.Weather.showManualAdjustmentOptions = function( button, callback ) {
 			"</div>" +
 			"<div class='ui-content'>" +
 				"<p class='rain-desc center smaller'>" +
-					OSApp.Language._( "The default watering level when no watering restrictions are active." ) +
+					OSApp.Language._( "The default watering level when no weather restrictions are active." ) +
 				"</p>" +
 				"<label class='center' for='dwl'>" + OSApp.Language._( "Default Watering Level (%)" ) + "</label>" +
 				"<div class='input_with_buttons'>" +
@@ -331,7 +331,7 @@ OSApp.Weather.showAutoRainDelayAdjustmentOptions = function( button, callback ) 
 					"<button id='incr1' class='incr ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border'></button>" +
 				"</div>" +
 				"<p class='rain-desc center smaller'>" +
-					OSApp.Language._( "The default watering level when no watering restrictions are active." ) +
+					OSApp.Language._( "The default watering level when no weather restrictions are active." ) +
 				"</p>" +
 				"<label class='center' for='delay_duration'>" + OSApp.Language._( "Default Watering Level (%)" ) + "</label>" +
 				"<div class='input_with_buttons'>" +
