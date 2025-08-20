@@ -311,12 +311,12 @@ OSApp.Weather.showAutoRainDelayAdjustmentOptions = function( button, callback ) 
 	callback = callback || function() {};
 	$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
 
-	var options = $.extend( {}, {
-		d: 24,
-		dwl: 100
-	}, OSApp.Utils.unescapeJSON( button.value ) );
+	const defaults = { d: 24 };
+	if ( OSApp.Supported.defaultWateringLevel() ) defaults.dwl = 100;
 
-	var popup = $( "<div data-role='popup' data-theme='a' id='adjustmentOptions'>" +
+	var options = $.extend( {}, defaults, OSApp.Utils.unescapeJSON( button.value ) );
+
+	var content = "<div data-role='popup' data-theme='a' id='adjustmentOptions'>" +
 			"<div data-role='header' data-theme='b'>" +
 				"<h1>" + OSApp.Language._( "Weather Adjustment Options" ) + "</h1>" +
 			"</div>" +
@@ -329,8 +329,10 @@ OSApp.Weather.showAutoRainDelayAdjustmentOptions = function( button, callback ) 
 					"<button id='decr1' class='decr ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border'></button>" +
 					"<input id='delay_duration' type='number' pattern='[0-9]*' value='" + options.d + "'>" +
 					"<button id='incr1' class='incr ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border'></button>" +
-				"</div>" +
-				"<p class='rain-desc center smaller'>" +
+				"</div>";
+
+	if ( OSApp.Supported.defaultWateringLevel() ) {
+		content += "<p class='rain-desc center smaller'>" +
 					OSApp.Language._( "The default watering level when no weather restrictions are active." ) +
 				"</p>" +
 				"<label class='center' for='delay_duration'>" + OSApp.Language._( "Default Watering Level (%)" ) + "</label>" +
@@ -338,10 +340,14 @@ OSApp.Weather.showAutoRainDelayAdjustmentOptions = function( button, callback ) 
 					"<button id='decr2' class='decr ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border'></button>" +
 					"<input id='dwl' type='number' pattern='[0-9]*' value='" + options.dwl + "'>" +
 					"<button id='incr2' class='incr ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border'></button>" +
-				"</div>" +
-				"<button class='submit' data-theme='b'>" + OSApp.Language._( "Submit" ) + "</button>" +
+				"</div>";
+	}
+
+	content += "<button class='submit' data-theme='b'>" + OSApp.Language._( "Submit" ) + "</button>" +
 			"</div>" +
-		"</div>" );
+		"</div>";
+
+	var popup = $( content );
 
 	OSApp.UIDom.holdButton( popup.find( "#incr1" ), function() {
 		const input  = popup.find("#delay_duration"),
@@ -357,25 +363,27 @@ OSApp.Weather.showAutoRainDelayAdjustmentOptions = function( button, callback ) 
 		input.val( value );
 		return false;
 	} );
-	OSApp.UIDom.holdButton( popup.find( "#incr2" ), function() {
-		const input  = popup.find("#dwl"),
-			value = parseInt( input.val() ) + 1;
-		if (value > 200) return;
-		input.val( value );
-		return false;
-	} );
-	OSApp.UIDom.holdButton( popup.find( "#decr2" ), function() {
-		const input  = popup.find("#dwl"),
-			value = parseInt( input.val() ) - 1;
-		if (value < 0) return;
-		input.val( value );
-		return false;
-	} );
+	if ( OSApp.Supported.defaultWateringLevel() ) {
+		OSApp.UIDom.holdButton( popup.find( "#incr2" ), function() {
+			const input  = popup.find("#dwl"),
+				value = parseInt( input.val() ) + 1;
+			if (value > 200) return;
+			input.val( value );
+			return false;
+		} );
+		OSApp.UIDom.holdButton( popup.find( "#decr2" ), function() {
+			const input  = popup.find("#dwl"),
+				value = parseInt( input.val() ) - 1;
+			if (value < 0) return;
+			input.val( value );
+			return false;
+		} );
+	}
 
 	popup.find( ".submit" ).on( "click", function() {
-		options = { d: parseInt( popup.find( "#delay_duration" ).val() ),
-					dwl: parseInt( popup.find( "#dwl" ).val() )
-		 		};
+		options = { d: parseInt( popup.find( "#delay_duration" ).val() ) };
+
+		if ( OSApp.Supported.defaultWateringLevel() ) options.dwl = parseInt( popup.find( "#dwl" ).val() );
 
 		if ( button ) {
 			button.value = OSApp.Utils.escapeJSON( options );
@@ -918,7 +926,9 @@ OSApp.Weather.makeForecast = function() {
 			"<div title='" + OSApp.currentSession.weather.description + "' class='wicon'><img src='https://openweathermap.org/img/w/" + OSApp.currentSession.weather.icon + ".png'></div>" +
 			"<span>" + OSApp.Weather.formatTemp( OSApp.currentSession.weather.temp ) + "</span><br>" +
 			"<span>" + OSApp.Language._( "Sunrise" ) + "</span><span>: " + OSApp.Utils.pad( parseInt( sunrise / 60 ) % 24 ) + ":" + OSApp.Utils.pad( sunrise % 60 ) + "</span> " +
-			"<span>" + OSApp.Language._( "Sunset" ) + "</span><span>: " + OSApp.Utils.pad( parseInt( sunset / 60 ) % 24 ) + ":" + OSApp.Utils.pad( sunset % 60 ) + "</span>" +
+			"<span>" + OSApp.Language._( "Sunset" ) + "</span><span>: " + OSApp.Utils.pad( parseInt( sunset / 60 ) % 24 ) + ":" + OSApp.Utils.pad( sunset % 60 ) + "</span><br>" +
+			"<span>" + OSApp.Language._( "Forecasted Rain" ) + "</span><span>: " + OSApp.Weather.formatPrecip( OSApp.currentSession.weather.precip ) + "</span>"
+
 		"</li>";
 
 	for ( i = 1; i < OSApp.currentSession.weather.forecast.length; i++ ) {
@@ -935,8 +945,11 @@ OSApp.Weather.makeForecast = function() {
 				"<span>" + OSApp.Language._( "Low" ) + "</span><span>: " + OSApp.Weather.formatTemp( OSApp.currentSession.weather.forecast[ i ].temp_min ) + "  </span>" +
 				"<span>" + OSApp.Language._( "High" ) + "</span><span>: " + OSApp.Weather.formatTemp( OSApp.currentSession.weather.forecast[ i ].temp_max ) + "</span><br>" +
 				"<span>" + OSApp.Language._( "Sunrise" ) + "</span><span>: " + OSApp.Utils.pad( parseInt( sunrise / 60 ) % 24 ) + ":" + OSApp.Utils.pad( sunrise % 60 ) + "</span> " +
-				"<span>" + OSApp.Language._( "Sunset" ) + "</span><span>: " + OSApp.Utils.pad( parseInt( sunset / 60 ) % 24 ) + ":" + OSApp.Utils.pad( sunset % 60 ) + "</span>" +
-			"</li>";
+				"<span>" + OSApp.Language._( "Sunset" ) + "</span><span>: " + OSApp.Utils.pad( parseInt( sunset / 60 ) % 24 ) + ":" + OSApp.Utils.pad( sunset % 60 ) + "</span><br>";
+				if ( typeof OSApp.currentSession.weather.forecast[ i ].precip !== "undefined") {
+					list += "<span>" + OSApp.Language._( "Forecasted Rain" ) + "</span><span>: " + OSApp.Weather.formatPrecip( OSApp.currentSession.weather.forecast[ i ].precip ) + "</span>"
+				}
+		list += "</li>";
 	}
 
 	return list;
