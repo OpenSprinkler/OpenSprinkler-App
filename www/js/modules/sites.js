@@ -1051,7 +1051,9 @@ OSApp.Sites.updateController = function( callback, fail ) {
 			OSApp.Sites.updateControllerStations(),
 			OSApp.Sites.updateControllerOptions(),
 			OSApp.Sites.updateControllerStatus(),
-			OSApp.Sites.updateControllerSettings()
+			OSApp.Sites.updateControllerSettings(),
+            OSApp.Sites.updateControllerSensors(),
+			OSApp.Sites.updateControllerSensorAdjustments()
 		).then( finish, fail );
 	}
 };
@@ -1287,6 +1289,34 @@ OSApp.Sites.updateControllerSettings = function( callback ) {
 	}
 };
 
+OSApp.Sites.updateControllerSensors = function( callback ) {
+	callback = callback || function() {};
+
+	if ( OSApp.currentSession.fw183 === true ) {
+        OSApp.currentSession.controller.programs = {};
+        callback();
+	} else {
+		return OSApp.Firmware.sendToOS( "/jsn?pw=", "json" ).done( function( sensors ) {
+			OSApp.currentSession.controller.sensors = sensors;
+			callback();
+		} );
+	}
+};
+
+OSApp.Sites.updateControllerSensorAdjustments = function( callback ) {
+	callback = callback || function() {};
+
+	if ( OSApp.currentSession.fw183 === true ) {
+        OSApp.currentSession.controller.programs = {};
+        callback();
+	} else {
+		return OSApp.Firmware.sendToOS( "/jsa?pw=", "json" ).done( function( adjustments ) {
+			OSApp.currentSession.controller.adjustments = adjustments;
+			callback();
+		} );
+	}
+};
+
 OSApp.Sites.handleCorruptedWeatherOptions = function( wto ) {
 	if ( OSApp.uiState.showWeatherOptionsCorruptedNotification ) {
 		return;
@@ -1414,7 +1444,9 @@ OSApp.Sites.refreshData = function() {
 	} else {
 		$.when(
 			OSApp.Sites.updateControllerPrograms(),
-			OSApp.Sites.updateControllerStations()
+			OSApp.Sites.updateControllerStations(),
+			OSApp.Sites.updateControllerSensors(),
+			OSApp.Sites.updateControllerSensorAdjustments()
 		).fail( OSApp.Network.networkFail );
 	}
 };

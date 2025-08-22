@@ -2024,6 +2024,42 @@ OSApp.Programs.makeProgram21 = function( n, isCopy ) {
 				"</div>";
 	}
 
+    // Sensor adjustments
+    //TODO:
+	if ( OSApp.Supported.sensors() ) {
+		list += "<label for='use-sn-" + id + "'>" +
+					"<input data-mini='true' type='checkbox' " +
+					( ( OSApp.Dates.isDateRangeEnabled( id ) ) ? "checked='checked'" : "" ) + " name='use-sn-" + id + "' id='use-sn-" + id + "'>" +
+					 OSApp.Language._( "Use Sensor Adjustment" ) +
+				"</label>";
+
+		list += "<div id='sensor-options-" + id + "'" + ( ( OSApp.Dates.isDateRangeEnabled( id ) ) ? "" : "style='display:none'" ) + ">";
+        list += "<table>" +
+                "<thead>" +
+                    "<tr>" +
+                    "<th scope='col'>Point #</th>" +
+                    "<th scope='col'>Sensor Value</th>" +
+                    "<th scope='col'>Watering Percentage</th>" +
+                   " </tr>" +
+               "</thead>" +
+                "<tbody>";
+        for (let i = 0; i < 8; i++) {
+            list += "<tr>" +
+                    `<th scope='row'>${i+1}</th>` +
+                    "<td>" +
+                    `<input type="number" name="sensor-value-${i}-${id}" id="sensor-value-${i}-${id}" placeholder="Sensor Value" />` +
+                    "</td>" +
+                    "<td>" +
+                    `<input type="number" name="watering-percentage-${i}-${id}" id="watering-percentage-${i}-${id}" placeholder="Watering %" />` +
+                    "</td>" +
+                    "</tr>";
+        }
+    list += "</tbody>" +
+            "</table>";
+            list += `<canvas id="sensor-chart-${id}" width="400" height="200"></canvas>`;
+		list += "</div>";
+	}
+
 	// Show start time menu
 	list += "<label class='center' for='start_1-" + id + "'>" + OSApp.Language._( "Start Time" ) + "</label><button class='timefield' data-mini='true' id='start_1-" + id +
 		"' value='" + times[ 0 ] + "'>" + OSApp.Programs.readStartTime( times[ 0 ] ) + "</button>";
@@ -2210,6 +2246,72 @@ OSApp.Programs.makeProgram21 = function( n, isCopy ) {
 		page.find( "#use-dr-" + id ).on( "click", function() {
 			page.find( "#date-range-options-" + id ).toggle();
 		} );
+	}
+
+	// Display sensor options when checkbox enabled
+	if ( OSApp.Supported.sensors() ) {
+        page.find( "#use-sn-" + id ).on( "click", function() {
+			page.find( "#sensor-options-" + id ).toggle();
+		} );
+
+        const sensorValues = Array.from({ length: 8 }, () => [NaN, NaN]);
+        const sensorGraph = new Chart(page.find(`#sensor-chart-${id}`)[0], {
+                type: 'line',
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            title: {
+                                display: true,
+                                text: 'Sensor Value'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Watering Percentage'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: false
+                        }
+                    }
+                },
+            });
+
+        sensorGraph.update();
+
+        function updateGraph() {
+            const sortedValues = sensorValues.filter((v) => !isNaN(v[0]) && !isNaN(v[1])).sort((a, b) => a[0] - b[0]);
+
+            sensorGraph.data = {
+                datasets: [
+                    {
+                        label: 'Watering percentage',
+                        data: sortedValues.map(v => ({ x: v[0], y: v[1] })),
+                    }
+                ]
+            };
+
+            sensorGraph.update();
+        }
+
+        for (let i = 0; i < 8; i++) {
+            page.find( `#sensor-value-${i}-${id}` ).on( "change", function() {
+                sensorValues[i][0] = parseFloat($(this).val());
+                updateGraph();
+            } );
+            page.find( `#watering-percentage-${i}-${id}` ).on( "change", function() {
+                sensorValues[i][1] = parseFloat($(this).val());
+                updateGraph();
+            } );
+        }
 	}
 
 	// Handle interval duration input
