@@ -360,7 +360,29 @@ OSApp.Logs.displayPage = function() {
 
 			// Return HH:MM:SS formatting for dt datetime object.
 			var formatTime = function( dt, g ) {
-				return g === "station" ? OSApp.Dates.dateToString( dt, false ) : OSApp.Utils.pad( dt.getHours() ) + ":" + OSApp.Utils.pad( dt.getMinutes() ) + ":" + OSApp.Utils.pad( dt.getSeconds() );
+				if ( g === "station" ) {
+					return OSApp.Dates.dateToString( dt, false );
+				} else {
+					if ( OSApp.uiState.is24Hour ) {
+						return OSApp.Utils.pad( dt.getHours() ) + ":" + OSApp.Utils.pad( dt.getMinutes() ) + ":" + OSApp.Utils.pad( dt.getSeconds() );
+					} else {
+						var period, hour;
+						if ( dt.getHours() > 12 ) {
+							hour = dt.getHours() - 12;
+							period = "PM";
+						} else if ( dt.getHours() === 12 ) {
+							hour = 12;
+							period = "PM";
+						} else {
+							hour = dt.getHours();
+							period = "AM";
+						}
+
+						return hour + ":" + OSApp.Utils.pad( dt.getMinutes() ) + ":" + OSApp.Utils.pad( dt.getSeconds() ) + " " + period;
+
+					}
+
+				}
 			};
 
 			for ( group in sortedData ) {
