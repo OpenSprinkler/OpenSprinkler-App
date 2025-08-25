@@ -840,13 +840,20 @@ OSApp.Options.showOptions = function( expandItem ) {
 			"</label><button data-mini='true' id='o30' value='" + OSApp.currentSession.controller.options.bst + "'>" + OSApp.currentSession.controller.options.bst + "ms</button></div>";
 	}
 
-	if ( OSApp.Firmware.checkOSVersion( 222 ) && typeof OSApp.currentSession.controller.options.imin !== "undefined" ) {
-		list += "<div class='ui-field-contain duration-field'>" +
-			"<label for='imin'>" + OSApp.Language._( "Minimum Current Threshold" ) +
-				"<button data-helptext='" +
-					OSApp.Language._( "Minimum current threshold is the value that is used to trigger a station low current fault notification with a range from 0 to 1000 milliampere." ) +
-					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
-			"</label><button data-mini='true' id='imin' value='" + OSApp.currentSession.controller.options.imin + "'>" + OSApp.currentSession.controller.options.imin + "mA</button></div>";
+	if ( OSApp.Firmware.checkOSVersion( 2213 ) && typeof OSApp.currentSession.controller.options.imin !== "undefined" ) {
+		list += "<div class='ui-field-contain'><label for='imin'>" + OSApp.Language._( "Undercurrent Threshold" ) +
+			"<button data-helptext='" +
+				OSApp.Language._( "If the current draw falls below this threshold when a station runs, a low-current fault notification is triggered. Set to 0 to disable this feature." ) +
+			"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label>" +
+			"<input type='range' id='imin' min='0' max='1000' step='10' data-highlight='true' value='" + ( OSApp.currentSession.controller.options.imin ) + "'></div>";
+	}
+
+	if ( OSApp.Firmware.checkOSVersion( 2213 ) && typeof OSApp.currentSession.controller.options.imax !== "undefined" ) {
+		list += "<div class='ui-field-contain'><label for='imax'>" + OSApp.Language._( "Overcurrent Limit" ) +
+			"<button data-helptext='" +
+				OSApp.Language._( "If the current draw exceeds this threshold when stations are running, an overcurrent fault notification is triggered. Set to 0 to use the system default. Set to maximum (2550) to disable this feature." ) +
+			"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label>" +
+			"<input type='range' id='imax' min='0' max='2550' step='50' data-highlight='true' value='" + ( OSApp.currentSession.controller.options.imax ) + "'></div>";
 	}
 
 	if ( OSApp.Firmware.checkOSVersion( 220 ) && typeof OSApp.currentSession.controller.options.laton !== "undefined" ) {
@@ -1629,6 +1636,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 			rain: OSApp.Language._( "Rain Delay Update" ),
 			station: OSApp.Language._( "Station Start" ),
 			flow_alert: OSApp.Language._( "Flow Alert" ),
+			curr_alert: OSApp.Language._( "Under/Overcurrent Fault" ),
 		}, button = this, curr = parseInt( button.value ), inputs = "", a = 0, ife = 0;
 
 		let no_ife2 = typeof OSApp.currentSession.controller.options.ife2 === "undefined";
