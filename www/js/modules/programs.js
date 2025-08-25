@@ -2289,6 +2289,17 @@ OSApp.Programs.makeProgram21 = function( n, isCopy ) {
 
         function updateGraph() {
             const sortedValues = sensorValues.filter((v) => !isNaN(v[0]) && !isNaN(v[1])).sort((a, b) => a[0] - b[0]);
+            if (sortedValues.length > 0) {
+                const begining = sortedValues[0].map((v) => v);
+                begining[0] -= 10;
+                sortedValues.unshift(begining);
+
+                const end = sortedValues[sortedValues.length-1].map((v) => v);
+                end[0] += 10;
+                sortedValues.push(end);
+            }
+
+            console.log(sortedValues);
 
             sensorGraph.data = {
                 datasets: [
