@@ -1243,3 +1243,10 @@ button[id^="start_1-"] {
 
 
 
+
+input:invalid, .invalid {
+  background-color: #cf9595 !important;
+  color: #eeeeee !important;
+  outline: 2px solid red !important;
+  text-shadow: none !important;
+}

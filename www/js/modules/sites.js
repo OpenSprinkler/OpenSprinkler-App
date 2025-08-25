@@ -1053,6 +1053,7 @@ OSApp.Sites.updateController = function( callback, fail ) {
 			OSApp.Sites.updateControllerStatus(),
 			OSApp.Sites.updateControllerSettings(),
             OSApp.Sites.updateControllerSensors(),
+            OSApp.Sites.updateControllerSensorDescription(),
 			OSApp.Sites.updateControllerSensorAdjustments()
 		).then( finish, fail );
 	}
@@ -1298,6 +1299,20 @@ OSApp.Sites.updateControllerSensors = function( callback ) {
 	} else {
 		return OSApp.Firmware.sendToOS( "/jsn?pw=", "json" ).done( function( sensors ) {
 			OSApp.currentSession.controller.sensors = sensors;
+			callback();
+		} );
+	}
+};
+
+OSApp.Sites.updateControllerSensorDescription = function( callback ) {
+	callback = callback || function() {};
+
+	if ( OSApp.currentSession.fw183 === true ) {
+        OSApp.currentSession.controller.programs = {};
+        callback();
+	} else {
+		return OSApp.Firmware.sendToOS( "/jsd?pw=", "json" ).done( function( desc ) {
+			OSApp.currentSession.controller.sensor_desc = desc;
 			callback();
 		} );
 	}
