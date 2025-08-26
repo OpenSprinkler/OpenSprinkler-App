@@ -305,8 +305,10 @@ OSApp.Logs.displayPage = function() {
 					"selectable": false,
 					"showMajorLabels": false,
 					"groupEditable": false,
-					"zoomMin": 1000 * 60,
-					"format": format
+					"zoomMin": 1000 * 60 * 60,
+					"format": format,
+					"zoomFriction": 1,
+					"preferZoom": true
 				},
 				resize = function() {
 					timeline.redraw();
