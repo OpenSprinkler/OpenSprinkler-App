@@ -87,10 +87,29 @@
 // Configure module
 var OSApp = OSApp || {};
 
-OSApp.Sensors = {
-	analogSensors: {},
-	progAdjusts: {},
-};
+OSApp.Sensors = {};
+
+OSApp.Sensors.makeSensorSelect = function ($select, sid) {
+    $select.append($("<option></option>")
+            .attr("value", "255")
+            .text("No Sensor"));
+
+    if (sid) {
+        $select.append($("<option></option>")
+                .attr("value", "-1")
+                .text("This Sensor"));
+    }
+
+    OSApp.currentSession.controller.sensors.sn.forEach((v) => {
+        if (!sid || v.sid != sid) {
+            const $option = $('<option></option>')
+                .attr("value", v.sid)
+                .text(`${v.name} (ID: ${v.sid})`);
+
+            $select.append($option);
+        }
+    });
+}
 
 OSApp.Sensors.createSensorPage = function (parent, sid, data) {
     const units = data.units.sort((a, b) => a.index - b.index).reduce((/** @type {Units[][]} */ acc, v) => {
@@ -244,29 +263,14 @@ OSApp.Sensors.createSensorPage = function (parent, sid, data) {
         const $select = $('<select></select>').attr("id", id);
         parent.append($select);
 
-        $select.append($("<option></option>")
-                .attr("value", "255")
-                .text("No Sensor"));
-        $select.append($("<option></option>")
-                .attr("value", "-1")
-                .text("This Sensor"));
-
-        OSApp.currentSession.controller.sensors.sn.forEach((v) => {
-            if (v.sid != sid) {
-                const $option = $('<option></option>')
-                    .attr("value", v.sid)
-                    .text(`${v.name} (ID: ${v.sid})`);
-
-                $select.append($option);
-            }
-        });
+        OSApp.Sensors.makeSensorSelect($select, sid);
 
         $select.selectmenu();
 
         return {
             get: () => coerceVal($select.val()),
             set: (val) => {
-                if (val == sid) {
+                if (sid && val == sid) {
                     val = "-1";
                 }
 

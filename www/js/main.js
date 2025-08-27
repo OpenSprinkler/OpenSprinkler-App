@@ -132,8 +132,7 @@ OSApp.currentSession.isControllerConnected = function() {
 		$.isEmptyObject( OSApp.currentSession.controller.settings ) ||
 		$.isEmptyObject( OSApp.currentSession.controller.status ) ||
 		$.isEmptyObject( OSApp.currentSession.controller.stations ) ||
-		$.isEmptyObject( OSApp.currentSession.controller.sensors ) ||
-		$.isEmptyObject( OSApp.currentSession.controller.adjustments ) ) {
+		$.isEmptyObject( OSApp.currentSession.controller.sensors ) ) {
 
 			return false;
 	}

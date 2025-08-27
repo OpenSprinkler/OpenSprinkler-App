@@ -1963,6 +1963,8 @@ OSApp.Programs.makeProgram21 = function( n, isCopy ) {
 		program = OSApp.Programs.readProgram( OSApp.currentSession.controller.programs.pd[ n ] );
 	}
 
+    const adjustment = OSApp.currentSession.controller.programs.adj.find((v) => v.pid == id) || {pid: id, flags: 0, sid: 255, point_count: 0, splits: []};
+
 	if ( typeof program.days === "string" ) {
 		days = program.days.split( "" );
 		for ( i = days.length; i--; ) {
@@ -2029,11 +2031,12 @@ OSApp.Programs.makeProgram21 = function( n, isCopy ) {
 	if ( OSApp.Supported.sensors() ) {
 		list += "<label for='use-sn-" + id + "'>" +
 					"<input data-mini='true' type='checkbox' " +
-					( ( OSApp.Dates.isDateRangeEnabled( id ) ) ? "checked='checked'" : "" ) + " name='use-sn-" + id + "' id='use-sn-" + id + "'>" +
+					( ( (adjustment.flags & 1) == 1 ) ? "checked='checked'" : "" ) + " name='use-sn-" + id + "' id='use-sn-" + id + "'>" +
 					 OSApp.Language._( "Use Sensor Adjustment" ) +
 				"</label>";
 
-		list += "<div id='sensor-options-" + id + "'" + ( ( OSApp.Dates.isDateRangeEnabled( id ) ) ? "" : "style='display:none'" ) + ">";
+		list += "<div id='sensor-options-" + id + "'" + ( ( (adjustment.flags & 1) == 1 ) ? "" : "style='display:none'" ) + ">";
+        list += `<select id='${"sen-adj-sid-" + id}'></select>`
         list += "<table>" +
                 "<thead>" +
                     "<tr>" +
@@ -2047,10 +2050,10 @@ OSApp.Programs.makeProgram21 = function( n, isCopy ) {
             list += "<tr>" +
                     `<th scope='row'>${i+1}</th>` +
                     "<td>" +
-                    `<input type="number" name="sensor-value-${i}-${id}" id="sensor-value-${i}-${id}" placeholder="Sensor Value" />` +
+                    `<input type="number" name="sensor-value-${i}-${id}" id="sensor-value-${i}-${id}" placeholder="Sensor Value" value=${adjustment.splits[i]?.x || ""} />` +
                     "</td>" +
                     "<td>" +
-                    `<input type="number" name="watering-percentage-${i}-${id}" id="watering-percentage-${i}-${id}" placeholder="Watering %" />` +
+                    `<input type="number" name="watering-percentage-${i}-${id}" id="watering-percentage-${i}-${id}" placeholder="Watering %" value=${adjustment.splits[i]?.y || ""} />` +
                     "</td>" +
                     "</tr>";
         }
@@ -2233,6 +2236,9 @@ OSApp.Programs.makeProgram21 = function( n, isCopy ) {
 
 	updateProgramTime();
 
+    OSApp.Sensors.makeSensorSelect(page.find("#sen-adj-sid-" + id), "");
+    page.find("#sen-adj-sid-" + id).val(adjustment.sid);
+
 	// When controlgroup buttons are toggled change relevant options
 	page.find( "input[name^='rad_days'],input[name^='stype']" ).on( "change", function() {
 		var input = $( this ).val().split( "-" )[ 0 ].split( "_" );
@@ -2255,6 +2261,10 @@ OSApp.Programs.makeProgram21 = function( n, isCopy ) {
 		} );
 
         const sensorValues = Array.from({ length: 8 }, () => [NaN, NaN]);
+        adjustment.splits.forEach((v, i) => {
+            sensorValues[i] = [v.x, v.y];
+        });
+
         const sensorGraph = new Chart(page.find(`#sensor-chart-${id}`)[0], {
                 type: 'line',
                 options: {
@@ -2299,8 +2309,6 @@ OSApp.Programs.makeProgram21 = function( n, isCopy ) {
                 sortedValues.push(end);
             }
 
-            console.log(sortedValues);
-
             sensorGraph.data = {
                 datasets: [
                     {
@@ -2312,6 +2320,8 @@ OSApp.Programs.makeProgram21 = function( n, isCopy ) {
 
             sensorGraph.update();
         }
+
+        updateGraph();
 
         for (let i = 0; i < 8; i++) {
             page.find( `#sensor-value-${i}-${id}` ).on( "change", function() {
@@ -2423,6 +2433,27 @@ OSApp.Programs.makeProgram21 = function( n, isCopy ) {
 
 	return page;
 };
+
+OSApp.Programs.getSenAdjURL = function (id) {
+    let flags = 0;
+
+    flags |= $("#use-sn-" + id).is( ":checked" ) ? 1 : 0;
+
+    let ret = `&adj_flags=${flags}&adj_sid=${$("#sen-adj-sid-" + id).val()}&adj_points=`;
+
+    for (let i = 0; i < 8; i++) {
+        const x = parseFloat($( `#sensor-value-${i}-${id}` ).val());
+        const y = parseFloat($( `#watering-percentage-${i}-${id}` ).val());
+
+        if (!Number.isFinite(x) && !Number.isFinite(y)) {
+            continue;
+        }
+
+        ret += `${x},${y};`
+    }
+
+    return ret;
+}
 
 OSApp.Programs.addProgram = function( copyID ) {
 	copyID = ( copyID >= 0 ) ? copyID : "new";
@@ -2712,6 +2743,8 @@ OSApp.Programs.submitProgram21 = function( id, ignoreWarning ) {
 	}
 
 	url = "&v=" + JSON.stringify( program ) + "&name=" + encodeURIComponent( name );
+
+    url += OSApp.Programs.getSenAdjURL(id);
 
 	if ( stationSelected === 0 ) {
 		OSApp.Errors.showError( OSApp.Language._( "Error: You have not selected any stations." ) );
