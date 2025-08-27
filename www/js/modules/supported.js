@@ -98,7 +98,3 @@ OSApp.Supported.restrictions = function() {
 	const wto = typeof OSApp.currentSession.controller?.settings?.wto !== "undefined";
 	return wto && OSApp.Firmware.checkOSVersion( 2213 );
 }
-
-OSApp.Supported.defaultWateringLevel = function() {
-	return OSApp.Firmware.checkOSVersion( 2213 );
-}
