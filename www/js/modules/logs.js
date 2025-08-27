@@ -48,7 +48,7 @@ OSApp.Logs.displayPage = function() {
 						${OSApp.Language._("Clear Logs")}
 					</a>
 				</fieldset>
-				<div id="logs_list" class="center">
+				<div id="logs_list">
 				</div>
 			</div>
 		</div>
@@ -305,8 +305,10 @@ OSApp.Logs.displayPage = function() {
 					"selectable": false,
 					"showMajorLabels": false,
 					"groupEditable": false,
-					"zoomMin": 1000 * 60,
-					"format": format
+					"zoomMin": 1000 * 60 * 60,
+					"format": format,
+					"zoomFriction": 1,
+					"preferZoom": true
 				},
 				resize = function() {
 					timeline.redraw();
@@ -404,7 +406,7 @@ OSApp.Logs.displayPage = function() {
 					if ( wlSorted[ group ] ) {
 						groupArray[ i ] += "<span style='border:none' class='" +
 							( wlSorted[ group ] !== 100 ? ( wlSorted[ group ] < 100 ? "green " : "red " ) : "" ) +
-							"ui-body ui-body-a'>" + OSApp.Language._( "Average" ) + " " + OSApp.Language._( "Water Level" ) + ": " + wlSorted[ group ] + "%</span>";
+							"ui-body ui-body-a center'>" + OSApp.Language._( "Average" ) + " " + OSApp.Language._( "Water Level" ) + ": " + wlSorted[ group ] + "%</span>";
 					}
 
 					if ( flSorted[ group ] ) {
@@ -480,7 +482,7 @@ OSApp.Logs.displayPage = function() {
 
 			var hasWater = typeof stats.avgWaterLevel !== "undefined";
 
-			return "<div class='ui-body-a smaller' id='logs_summary'>" +
+			return "<div class='ui-body-a smaller center' id='logs_summary'>" +
 				"<div><span class='bold'>" + OSApp.Language._( "Total Station Events" ) + "</span>: " + stats.totalCount + "</div>" +
 				"<div><span class='bold'>" + OSApp.Language._( "Total Runtime" ) + "</span>: " + OSApp.Dates.dhms2str( OSApp.Dates.sec2dhms( stats.totalRuntime ) ) + "</div>" +
 				( hasWater ?

@@ -63,80 +63,6 @@ OSApp.Weather.Constants = {
 };
 
 // Weather functions
-OSApp.Weather.showManualAdjustmentOptions = function( button, callback ) {
-	callback = callback || function() {};
-	$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
-
-	var options = $.extend( {}, {
-		dwl: 100
-	}, OSApp.Utils.unescapeJSON( button.value ) );
-
-	var popup = $( "<div data-role='popup' data-theme='a' id='adjustmentOptions'>" +
-			"<div data-role='header' data-theme='b'>" +
-				"<h1>" + OSApp.Language._( "Weather Adjustment Options" ) + "</h1>" +
-			"</div>" +
-			"<div class='ui-content'>" +
-				"<p class='rain-desc center smaller'>" +
-					OSApp.Language._( "The default watering level when no weather restrictions are active." ) +
-				"</p>" +
-				"<label class='center' for='dwl'>" + OSApp.Language._( "Default Watering Level (%)" ) + "</label>" +
-				"<div class='input_with_buttons'>" +
-					"<button class='decr ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border'></button>" +
-					"<input id='dwl' type='number' pattern='[0-9]*' value='" + options.dwl + "'>" +
-					"<button class='incr ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border'></button>" +
-				"</div>" +
-				"<button class='submit' data-theme='b'>" + OSApp.Language._( "Submit" ) + "</button>" +
-			"</div>" +
-		"</div>" ),
-		changeValue = function( dir ) {
-			var input = popup.find( "#dwl" ),
-				val = parseInt( input.val() );
-
-			if ( ( dir === -1 && val === 0 ) || ( dir === 1 && val === 200 ) ) {
-				return;
-			}
-
-			input.val( val + dir );
-		};
-
-	popup.find( ".submit" ).on( "click", function() {
-		options = { dwl: parseInt( popup.find( "#dwl" ).val() ) };
-
-		if ( button ) {
-			button.value = OSApp.Utils.escapeJSON( options );
-		}
-
-		callback();
-
-		popup.popup( "close" );
-		return false;
-	} );
-
-	popup.on( "focus", "input[type='number']", function() {
-		this.value = "";
-	} ).on( "blur", "input[type='number']", function() {
-		if ( this.value === "" || parseInt( this.value ) < 0 ) {
-			this.value = "0";
-		}
-	} );
-
-	OSApp.UIDom.holdButton( popup.find( ".incr" ), function() {
-		changeValue( 1 );
-		return false;
-	} );
-
-	OSApp.UIDom.holdButton( popup.find( ".decr" ), function() {
-		changeValue( -1 );
-		return false;
-	} );
-
-	$( "#adjustmentOptions" ).remove();
-
-	popup.css( "max-width", "380px" );
-
-	OSApp.UIDom.openPopup( popup, { positionTo: "window" } );
-};
-
 OSApp.Weather.showZimmermanAdjustmentOptions = function( button, callback ) {
 	callback = callback || function() {};
 	$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
@@ -311,10 +237,9 @@ OSApp.Weather.showAutoRainDelayAdjustmentOptions = function( button, callback ) 
 	callback = callback || function() {};
 	$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
 
-	const defaults = { d: 24 };
-	if ( OSApp.Supported.defaultWateringLevel() ) defaults.dwl = 100;
-
-	var options = $.extend( {}, defaults, OSApp.Utils.unescapeJSON( button.value ) );
+	var options = $.extend( {}, {
+		d: 24
+	}, OSApp.Utils.unescapeJSON( button.value ) );
 
 	var content = "<div data-role='popup' data-theme='a' id='adjustmentOptions'>" +
 			"<div data-role='header' data-theme='b'>" +
@@ -329,21 +254,8 @@ OSApp.Weather.showAutoRainDelayAdjustmentOptions = function( button, callback ) 
 					"<button id='decr1' class='decr ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border'></button>" +
 					"<input id='delay_duration' type='number' pattern='[0-9]*' value='" + options.d + "'>" +
 					"<button id='incr1' class='incr ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border'></button>" +
-				"</div>";
-
-	if ( OSApp.Supported.defaultWateringLevel() ) {
-		content += "<p class='rain-desc center smaller'>" +
-					OSApp.Language._( "The default watering level when no weather restrictions are active." ) +
-				"</p>" +
-				"<label class='center' for='delay_duration'>" + OSApp.Language._( "Default Watering Level (%)" ) + "</label>" +
-				"<div class='input_with_buttons'>" +
-					"<button id='decr2' class='decr ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border'></button>" +
-					"<input id='dwl' type='number' pattern='[0-9]*' value='" + options.dwl + "'>" +
-					"<button id='incr2' class='incr ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border'></button>" +
-				"</div>";
-	}
-
-	content += "<button class='submit' data-theme='b'>" + OSApp.Language._( "Submit" ) + "</button>" +
+				"</div>" +
+			 "<button class='submit' data-theme='b'>" + OSApp.Language._( "Submit" ) + "</button>" +
 			"</div>" +
 		"</div>";
 
@@ -363,27 +275,9 @@ OSApp.Weather.showAutoRainDelayAdjustmentOptions = function( button, callback ) 
 		input.val( value );
 		return false;
 	} );
-	if ( OSApp.Supported.defaultWateringLevel() ) {
-		OSApp.UIDom.holdButton( popup.find( "#incr2" ), function() {
-			const input  = popup.find("#dwl"),
-				value = parseInt( input.val() ) + 1;
-			if (value > 200) return;
-			input.val( value );
-			return false;
-		} );
-		OSApp.UIDom.holdButton( popup.find( "#decr2" ), function() {
-			const input  = popup.find("#dwl"),
-				value = parseInt( input.val() ) - 1;
-			if (value < 0) return;
-			input.val( value );
-			return false;
-		} );
-	}
 
 	popup.find( ".submit" ).on( "click", function() {
 		options = { d: parseInt( popup.find( "#delay_duration" ).val() ) };
-
-		if ( OSApp.Supported.defaultWateringLevel() ) options.dwl = parseInt( popup.find( "#dwl" ).val() );
 
 		if ( button ) {
 			button.value = OSApp.Utils.escapeJSON( options );
