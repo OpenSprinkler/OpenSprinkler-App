@@ -1225,7 +1225,9 @@ OSApp.Sensors.displayLogs = function (callback) {
                 const $deleteLogs = $('<input type="button" value="Delete Logs">');
                 $controls.append($deleteLogs);
                 $deleteLogs.on("click", () => {
-                    console.log(`/csl?pw=&sid=${key}`);
+                    OSApp.Firmware.sendToOS(`/csl?pw=&sid=${key}`).done((csv) => {
+                        updateContent();
+                    });
                 });
 
                 const $day = $('<input type="button" value="1 Day">');
