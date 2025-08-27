@@ -2439,7 +2439,11 @@ OSApp.Programs.getSenAdjURL = function (id) {
 
     flags |= $("#use-sn-" + id).is( ":checked" ) ? 1 : 0;
 
+    const vals = [];
+
     let ret = `&adj_flags=${flags}&adj_sid=${$("#sen-adj-sid-" + id).val()}&adj_points=`;
+
+    let xSet = new Set();
 
     for (let i = 0; i < 8; i++) {
         const x = parseFloat($( `#sensor-value-${i}-${id}` ).val());
@@ -2449,8 +2453,18 @@ OSApp.Programs.getSenAdjURL = function (id) {
             continue;
         }
 
-        ret += `${x},${y};`
+        if (xSet.has(x)) {
+            throw new Error("Duplicate x values");
+        } else {
+            xSet.add(x);
+        }
+
+        vals.push([x, y]);
     }
+
+    vals.sort((a, b) => a[0] - b[0]).forEach((v) => {
+        ret += `${v[0]},${v[1]};`;
+    });
 
     return ret;
 }
@@ -2744,7 +2758,12 @@ OSApp.Programs.submitProgram21 = function( id, ignoreWarning ) {
 
 	url = "&v=" + JSON.stringify( program ) + "&name=" + encodeURIComponent( name );
 
-    url += OSApp.Programs.getSenAdjURL(id);
+    try {
+        url += OSApp.Programs.getSenAdjURL(id);
+    } catch {
+        OSApp.Errors.showError( OSApp.Language._( "Error: The x values for sensors must be unique." ) );
+		return;
+    }
 
 	if ( stationSelected === 0 ) {
 		OSApp.Errors.showError( OSApp.Language._( "Error: You have not selected any stations." ) );
