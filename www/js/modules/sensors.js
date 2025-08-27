@@ -1044,7 +1044,268 @@ OSApp.Sensors.addSensor = function (callback) {
 
 		updateContent();
 
-		$( "#sensors" ).remove();
+		$( "#add-sensor" ).remove();
+		$.mobile.pageContainer.append( page );
+	}
+
+	return begin();
+}
+
+OSApp.Sensors.displayLogs = function (callback) {
+    const page = $(`<div data-role="page" id="sensor-logs"></div>`);
+	const content = $(`<div class="ui-content" role="main"></div>`);
+    page.append(content);
+
+    function createChart(canvas, sn) {
+    const sensorGraph = new Chart(canvas, {
+                type: 'line',
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: {
+                                displayFormats: {
+                                    quarter: 'MMM YYYY'
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: 'Sensor Value'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: `${OSApp.currentSession.controller.sensor_desc.units[sn.unit].short}`
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: sn.name
+                        },
+                        zoom: {
+                            zoom: {
+                                drag: {
+                                    enabled: true,
+                                },
+                            mode: 'x',
+                            }
+                        }
+                    }
+                },
+            });
+
+        sensorGraph.update();
+
+        return sensorGraph;
+    }
+
+    let download = () => {};
+
+    /**
+     *
+     * @param {JQuery} parent
+     * @param {string} csv
+     * @param {object} sensors
+     */
+    function parseData(parent, csv, sensors) {
+        const lines = csv.split("\n");
+        let obj = lines.reduce((acc, v) => {
+            if (v == "") return acc;
+
+            const parts = v.split(",");
+            const key = parseInt(parts[0], 16);
+
+            if (typeof acc[key] == "undefined") acc[key] = {sensor: sensors.find((v) => v.sid == key), data: []};
+
+            let uint = parseInt(parts[2], 16);
+            let buffer = new ArrayBuffer(4);
+            let view = new DataView(buffer);
+            view.setUint32(0, uint);
+
+            acc[key].data.push({ x: new Date(parseInt(parts[1], 16) * 1000), y: view.getFloat32(0)});
+            return acc;
+        }, {});
+
+        download = () => {
+            let csvContent = "sensor_id,timestamp,value,unit\n";
+
+            for (const key in obj) {
+                let unit = "unknown";
+                if (obj[key].sensor) {
+                    unit = OSApp.currentSession.controller.sensor_desc.units[obj[key].sensor.unit].short;
+                }
+
+                obj[key].data.forEach((v) => {
+                    csvContent += `${key},${v.x.getTime()},${v.y},${unit}\n`;
+                });
+            }
+
+            const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+
+            const link = document.createElement("a");
+            if (link.download !== undefined) {
+                const url = URL.createObjectURL(blob);
+                link.setAttribute("href", url);
+                link.setAttribute("download", "data.csv");
+                link.style.visibility = "hidden";
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        }
+
+        for (const key in obj) {
+            if (obj[key].sensor) {
+                const $canvas = $("<canvas></canvas>");
+                parent.append($canvas);
+                const chart = createChart($canvas[0], obj[key].sensor);
+
+                let chartSince = new Date();
+                chartSince.setDate(chartSince.getDate() - 1);
+
+                const update = function () {
+                    chart.data = {
+                        datasets: [
+                            {
+                                data: obj[key].data.filter(v => v.x >= chartSince),
+                            }
+                        ]
+                    };
+
+                    chart.resetZoom();
+                    chart.update();
+                }
+
+                var $controls = $("<div>", {
+                    "data-role": "controlgroup",
+                    "data-type": "horizontal"
+                });
+
+                const $resetZoom = $('<input type="button" value="Reset Zoom">');
+                $controls.append($resetZoom);
+                $resetZoom.on("click", () => {
+                    chart.resetZoom();
+                });
+
+                const $download = $('<input type="button" value="Download Logs">');
+                $controls.append($download);
+                $download.on("click", () => {
+                    let csvContent = "sensor_id,timestamp,value,unit\n";
+
+                    let unit = "unknown";
+                    if (obj[key].sensor) {
+                        unit = OSApp.currentSession.controller.sensor_desc.units[obj[key].sensor.unit].short;
+                    }
+
+                    obj[key].data.forEach((v) => {
+                        csvContent += `${key},${v.x.getTime()},${v.y},${unit}\n`;
+                    });
+
+                    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+
+                    const link = document.createElement("a");
+                    if (link.download !== undefined) {
+                        const url = URL.createObjectURL(blob);
+                        link.setAttribute("href", url);
+                        link.setAttribute("download", "data.csv");
+                        link.style.visibility = "hidden";
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    }
+                });
+
+                const $deleteLogs = $('<input type="button" value="Delete Logs">');
+                $controls.append($deleteLogs);
+                $deleteLogs.on("click", () => {
+                    console.log(`/csl?pw=&sid=${key}`);
+                });
+
+                const $day = $('<input type="button" value="1 Day">');
+                $controls.append($day);
+                $day.on("click", () => {
+                    chartSince = new Date();
+                    chartSince.setDate(chartSince.getDate() - 1);
+                    update();
+                });
+                const $week = $('<input type="button" value="1 Week">');
+                $controls.append($week);
+                $week.on("click", () => {
+                    chartSince = new Date();
+                    chartSince.setDate(chartSince.getDate() - 7);
+                    update();
+                });
+                const $month = $('<input type="button" value="1 Month">');
+                $controls.append($month);
+                $month.on("click", () => {
+                    chartSince = new Date();
+                    chartSince.setMonth(chartSince.getMonth() - 1);
+                    update();
+                });
+                const $year = $('<input type="button" value="1 Year">');
+                $controls.append($year);
+                $year.on("click", () => {
+                    chartSince = new Date();
+                    chartSince.setFullYear(chartSince.getFullYear() - 1);
+                    update();
+                });
+
+
+                parent.append($controls);
+
+                $controls.controlgroup();
+                $deleteLogs.button();
+                $download.button();
+                $resetZoom.button();
+
+                update();
+            }
+        }
+    }
+
+    function updateContent() {
+        OSApp.Firmware.sendToOS("/lsn?pw=&count=32768").done((csv) => {
+            page.empty();
+            parseData(page, csv, OSApp.currentSession.controller.sensors.sn);
+        })
+    }
+
+    page
+		.on( "programrefresh", updateContent )
+		.on( "pagehide", function() {
+			page.detach();
+		} )
+		.on( "pagebeforeshow", function() {} );
+
+    function begin() {
+		OSApp.UIDom.changeHeader( {
+			title: OSApp.Language._( "Sensor Logs" ),
+			leftBtn: {
+				icon: "carat-l",
+				text: OSApp.Language._( "Back" ),
+				class: "ui-toolbar-back-btn",
+				on: OSApp.UIDom.checkChangesBeforeBack
+			},
+			rightBtn: {
+				icon: "check",
+				text: OSApp.Language._( "Download CSV" ),
+				on: () => {
+                    download()
+                }
+			}
+
+		} );
+
+		updateContent();
+
+		$( "#sensor-logs" ).remove();
 		$.mobile.pageContainer.append( page );
 	}
 

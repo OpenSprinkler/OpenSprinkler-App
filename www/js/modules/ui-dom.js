@@ -187,6 +187,8 @@ OSApp.UIDom.launchApp = function() {
 			OSApp.Sensors.displayPage();
 		} else if ( hash === "#add-sensor" ) {
 			OSApp.Sensors.addSensor();
+		} else if ( hash === "#sensor-logs" ) {
+			OSApp.Sensors.displayLogs();
 		}
 	} )
 
@@ -311,6 +313,7 @@ OSApp.UIDom.showHomeMenu = ( function() {
 				"<li><a href='#runonce'>" + OSApp.Language._( "Run-Once Program" ) + "</a></li>" +
 				"<li><a href='#programs'>" + OSApp.Language._( "Edit Programs" ) + "</a></li>" +
 				"<li><a href='#sensors'>" + OSApp.Language._( "Edit Sensors" ) + "</a></li>" +
+				"<li><a href='#sensor-logs'>" + OSApp.Language._( "Sensors Logs" ) + "</a></li>" +
 				"<li><a href='#os-options'>" + OSApp.Language._( "Edit Options" ) + "</a></li>" +
 
 				( OSApp.Analog.checkAnalogSensorAvail() ? (
