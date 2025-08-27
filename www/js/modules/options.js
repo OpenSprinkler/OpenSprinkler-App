@@ -1251,9 +1251,9 @@ OSApp.Options.showOptions = function( expandItem ) {
 
 			// Adjust blue if restrictions are now active
 			if (options.cali || (options.rainDays > 0 && options.rainAmt > 0) || options.minTemp !== -40) {
-				page.find("weatherRestriction").addClass("blue");
+				page.find("#weatherRestriction").addClass("blue");
 			} else {
-				page.find("weatherRestriction").removeClass("blue");
+				page.find("#weatherRestriction").removeClass("blue");
 			}
 		} );
 
