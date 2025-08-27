@@ -247,7 +247,7 @@ OSApp.Weather.showAutoRainDelayAdjustmentOptions = function( button, callback ) 
 			"</div>" +
 			"<div class='ui-content'>" +
 				"<p class='rain-desc center smaller'>" +
-					OSApp.Language._( "If the weather reports any condition suggesting rain, a rain delay is automatically issued using the below set delay duration." ) +
+					OSApp.Language._( "If the current weather condition reports rain, a rain delay is automatically issued using the duration below." ) +
 				"</p>" +
 				"<label class='center' for='delay_duration'>" + OSApp.Language._( "Delay Duration (hours)" ) + "</label>" +
 				"<div class='input_with_buttons'>" +
@@ -736,7 +736,7 @@ OSApp.Weather.updateWeatherBox = function() {
 
 	$( "#weather" )
 		.html(
-			( OSApp.currentSession.controller.settings.rd ? "<div class='rain-delay blue'><span class='icon ui-icon-alert'></span>Rain Delay<span class='time'>" + OSApp.Dates.dateToString( new Date( OSApp.currentSession.controller.settings.rdst * 1000 ), undefined, true ) + "</span></div>" : "" ) +
+			/*( OSApp.currentSession.controller.settings.rd ? "<div class='rain-delay blue'><span class='icon ui-icon-alert'></span>Rain Delay<span class='time'>" + OSApp.Dates.dateToString( new Date( OSApp.currentSession.controller.settings.rdst * 1000 ), undefined, true ) + "</span></div>" : "" ) +*/
 			"<div title='" + OSApp.currentSession.weather.description + "' class='wicon'><img src='https://openweathermap.org/img/w/" + OSApp.currentSession.weather.icon + ".png'></div>" +
 			"<div class='inline tight'>" + OSApp.Weather.formatTemp( OSApp.currentSession.weather.temp ) + "</div><br><div class='inline location tight'>" + OSApp.Language._( "Current Weather" ) + "</div>" +
 			( typeof OSApp.currentSession.weather.alert === "object" ? "<div><button class='tight help-icon btn-no-border ui-btn ui-icon-alert ui-btn-icon-notext ui-corner-all'></button>" + OSApp.currentSession.weather.alert.type + "</div>" : "" ) )
