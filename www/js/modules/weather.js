@@ -740,8 +740,8 @@ OSApp.Weather.updateWeatherBox = function() {
 			"<div title='" + OSApp.currentSession.weather.description + "' class='wicon'><img src='https://openweathermap.org/img/w/" + OSApp.currentSession.weather.icon + ".png'></div>" +
 			"<div class='inline tight'>" + OSApp.Weather.formatTemp( OSApp.currentSession.weather.temp ) + "</div><br><div class='inline location tight'>" + OSApp.Language._( "Current Weather" ) + "</div>" +
 			( typeof OSApp.currentSession.weather.alert === "object" ? "<div><button class='tight help-icon btn-no-border ui-btn ui-icon-alert ui-btn-icon-notext ui-corner-all'></button>" + OSApp.currentSession.weather.alert.type + "</div>" : "" ) )
-		.off( "click" ).on( "click", function( event ) {
-			var target = $( event.target );
+		.off( "click" ).on( "click", function( ) {
+			/*var target = $( event.target );
 			if ( target.hasClass( "rain-delay" ) || target.parents( ".rain-delay" ).length ) {
 				OSApp.UIDom.areYouSure( OSApp.Language._( "Do you want to turn off rain delay?" ), "", function() {
 					OSApp.UIDom.showLoading( "#weather" );
@@ -749,9 +749,8 @@ OSApp.Weather.updateWeatherBox = function() {
 						OSApp.Sites.updateController( OSApp.Weather.updateWeather );
 					} );
 				} );
-			} else {
-				OSApp.UIDom.changePage( "#forecast" );
-			}
+			} else {*/
+			OSApp.UIDom.changePage( "#forecast" );
 			return false;
 		} )
 		.parents( ".info-card" ).removeClass( "noweather" );
