@@ -1202,5 +1202,9 @@ OSApp.Dashboard.updateRestrictNotice = function() {
 	if ( !OSApp.currentSession.controller.settings ) {
 		return;
 	}
-	$( "#restr-active" ).toggleClass( "hidden", (typeof OSApp.currentSession.controller.settings.wtrestr !== "undefined" && OSApp.currentSession.controller.settings.wtrestr > 0) ? "true" : "false");
+	if (typeof OSApp.currentSession.controller.settings.wtrestr !== "undefined" && OSApp.currentSession.controller.settings.wtrestr > 0){
+		$( "#restr-active" ).removeClass("hidden");
+	} else {
+		$( "#restr-active" ).addClass("hidden");
+	}
 }
