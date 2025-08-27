@@ -1165,6 +1165,9 @@ OSApp.Sensors.displayLogs = function (callback) {
             if (obj[key].sensor) {
                 const $canvas = $("<canvas></canvas>");
                 parent.append($canvas);
+                $canvas.on( "swiperight swipeleft", function( e ) {
+				e.stopImmediatePropagation();
+			} );
                 const chart = createChart($canvas[0], obj[key].sensor);
 
                 let chartSince = new Date();
