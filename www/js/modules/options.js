@@ -547,13 +547,16 @@ OSApp.Options.showOptions = function( expandItem ) {
 
 		if ( OSApp.Firmware.checkOSVersion( 214 ) ) {
 			if ( OSApp.Supported.restrictions() ) {
+				var wto = OSApp.currentSession.controller.settings.wto;
 				list += "<div class='ui-field-contain'><label for='weatherRestriction' class='select'>" + OSApp.Language._( "Weather Restrictions" ) +
 					"<button data-helptext='" + OSApp.Language._( "Prevents watering when the selected restrictions are met." ) +
 						"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
 					"</label>" +
-					"<button data-mini='true' id='weatherRestriction' value='" + ( OSApp.currentSession.controller.settings.wto ? OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.wto ) : "" ) + "'>" +
+					"<button data-mini='true' id='weatherRestriction' " +
+						( ( ( typeof wto.rainDays !== "undefined" && typeof wto.rainAmt !== "undefined" && wto.rainDays > 0 && wto.rainAmt > 0 ) || ( typeof wto.minTemp !== "undefined" && wto.minTemp !== -40 ) || ( typeof wto.cali !== "undefined" && wto.cali ) ) ? "class='blue' " : "" ) +
+						"value='" + (OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.wto )) + "'>" +
 							OSApp.Language._( "Tap to Configure" ) +
-						"</button></div>";
+					"</button></div>";
 			} else {
 				list += "<div class='ui-field-contain'><label for='weatherRestriction' class='select'>" + OSApp.Language._( "Weather Restrictions" ) +
 						"<button data-helptext='" + OSApp.Language._( "Prevents watering when the selected restriction is met." ) +
@@ -1245,6 +1248,9 @@ OSApp.Options.showOptions = function( expandItem ) {
 				header.eq( 2 ).prop( "disabled", false );
 				page.find( ".submit" ).addClass( "hasChanges" );
 			}
+
+			// Adjust blue if restrictions are now active
+			page.find("#weatherRestriction").toggleClass("blue", (options.cali || (options.rainDays > 0 && options.rainAmt > 0) || options.minTemp !== -40) ? "true" : "false")
 		} );
 
 		OSApp.UIDom.openPopup( popup );
