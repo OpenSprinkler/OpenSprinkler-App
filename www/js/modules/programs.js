@@ -557,7 +557,7 @@ OSApp.Programs.displayPageRunOnce = function() {
 	}
 
 	return begin();
-}
+};
 
 OSApp.Programs.displayPagePreviewPrograms = function() {
 	// Preview functions
@@ -724,7 +724,7 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 							else {
 								wl = OSApp.currentSession.controller.options.wl;
 								// if historical data is enabled
-								if (wto?.mda == 100 && progtype == OSApp.Constants.options.PROGRAM_TYPE_INTERVAL && wls?.length > 0) {
+								if (wto?.mda === 100 && progtype == OSApp.Constants.options.PROGRAM_TYPE_INTERVAL && wls?.length > 0) {
 									// Use interval length unless longer than available data
 									if (intervalday-1 < wls.length){
 										wl = wls[intervalday-1];
@@ -1483,14 +1483,14 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 					"hour": "h:mm A",
 					"minute": "h:mm A"
 				}
-			}
+			};
 		} else {
 			format = {
 				"minorLabels": {
 					"hour": "HH:mm",
 					"minute": "HH:mm"
 				}
-			}
+			};
 		}
 
 		var options = {
@@ -1601,7 +1601,7 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 	}
 
 	return begin();
-}
+};
 // Translate program array into easier to use data
 OSApp.Programs.readProgram = function( program ) {
 	if ( OSApp.Firmware.checkOSVersion( 210 ) ) {

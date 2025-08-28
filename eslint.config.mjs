@@ -14,6 +14,7 @@ export default [
 	  rules: {
 		  "no-useless-escape": "warn",
 		  "no-prototype-builtins": "warn",
+			"semi": ["error", "always"], // require semicolons
 	  },
   },
   {

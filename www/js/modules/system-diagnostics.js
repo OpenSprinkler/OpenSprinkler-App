@@ -22,7 +22,7 @@ OSApp.SystemDiagnostics.showDiagnostics = function() {
 	var popup = "<div data-role='popup' id='debugWU' class='ui-content ui-page-theme-a'>";
 	var scaleRow = undefined;
 	if ( typeof OSApp.currentSession.controller.settings.wls !== "undefined" ) {
-		var scales = OSApp.currentSession.controller.settings.wls
+		var scales = OSApp.currentSession.controller.settings.wls;
 		if (scales.length > 5) {
 			scaleRow = "[" + scales.slice(0, 5).join(", ") + "<br>" + scales.slice(5).join(", ") + "]";
 		} else {

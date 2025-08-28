@@ -281,7 +281,7 @@ OSApp.Logs.displayPage = function() {
 						"minute": "h:mm A",
 						"day": "ddd D"
 					}
-				}
+				};
 			} else {
 				format = {
 					"minorLabels": {
@@ -289,7 +289,7 @@ OSApp.Logs.displayPage = function() {
 						"minute": "HH:mm",
 						"day": "ddd D"
 					}
-				}
+				};
 			}
 
 			var sortedData = sortData( "timeline" ),

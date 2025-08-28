@@ -293,7 +293,7 @@ OSApp.Stations.submitRunonce = function( runonce, interval, repeat, annotation )
 		} else {
 			submit();
 		}
-	}
+	};
 
 	if ( interval && interval > 0 && repeat && repeat > 0 ) {
 		OSApp.UIDom.areYouSure(OSApp.Language._( "Repeat requires creating a single-run program. Click Yes to create the program, No to run only once without repeat." ), "", function(){
@@ -302,7 +302,7 @@ OSApp.Stations.submitRunonce = function( runonce, interval, repeat, annotation )
 			interval = 0;
 			repeat = 0;
 			checkIsOnAndSubmit();
-		})
+		});
 	} else {
 		checkIsOnAndSubmit();
 	}

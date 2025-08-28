@@ -815,13 +815,12 @@ OSApp.Weather.makeForecast = function() {
 	var weekdays = [ "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" ];
 
 	list += "<li data-icon='false' class='center'>" +
-			"<div>" + OSApp.Language._( "Now" ) + "</div><br>" +
-			"<div title='" + OSApp.currentSession.weather.description + "' class='wicon'><img src='https://openweathermap.org/img/w/" + OSApp.currentSession.weather.icon + ".png'></div>" +
-			"<span>" + OSApp.Weather.formatTemp( OSApp.currentSession.weather.temp ) + "</span><br>" +
-			"<span>" + OSApp.Language._( "Sunrise" ) + "</span><span>: " + OSApp.Utils.pad( parseInt( sunrise / 60 ) % 24 ) + ":" + OSApp.Utils.pad( sunrise % 60 ) + "</span> " +
-			"<span>" + OSApp.Language._( "Sunset" ) + "</span><span>: " + OSApp.Utils.pad( parseInt( sunset / 60 ) % 24 ) + ":" + OSApp.Utils.pad( sunset % 60 ) + "</span><br>" +
-			"<span>" + OSApp.Language._( "Forecasted Rain" ) + "</span><span>: " + OSApp.Weather.formatPrecip( OSApp.currentSession.weather.precip ) + "</span>"
-
+		"<div>" + OSApp.Language._( "Now" ) + "</div><br>" +
+		"<div title='" + OSApp.currentSession.weather.description + "' class='wicon'><img src='https://openweathermap.org/img/w/" + OSApp.currentSession.weather.icon + ".png'></div>" +
+		"<span>" + OSApp.Weather.formatTemp( OSApp.currentSession.weather.temp ) + "</span><br>" +
+		"<span>" + OSApp.Language._( "Sunrise" ) + "</span><span>: " + OSApp.Utils.pad( parseInt( sunrise / 60 ) % 24 ) + ":" + OSApp.Utils.pad( sunrise % 60 ) + "</span> " +
+		"<span>" + OSApp.Language._( "Sunset" ) + "</span><span>: " + OSApp.Utils.pad( parseInt( sunset / 60 ) % 24 ) + ":" + OSApp.Utils.pad( sunset % 60 ) + "</span><br>" +
+		"<span>" + OSApp.Language._( "Forecasted Rain" ) + "</span><span>: " + OSApp.Weather.formatPrecip( OSApp.currentSession.weather.precip ) + "</span>" +
 		"</li>";
 
 	for ( i = 1; i < OSApp.currentSession.weather.forecast.length; i++ ) {
@@ -840,7 +839,7 @@ OSApp.Weather.makeForecast = function() {
 				"<span>" + OSApp.Language._( "Sunrise" ) + "</span><span>: " + OSApp.Utils.pad( parseInt( sunrise / 60 ) % 24 ) + ":" + OSApp.Utils.pad( sunrise % 60 ) + "</span> " +
 				"<span>" + OSApp.Language._( "Sunset" ) + "</span><span>: " + OSApp.Utils.pad( parseInt( sunset / 60 ) % 24 ) + ":" + OSApp.Utils.pad( sunset % 60 ) + "</span><br>";
 				if ( typeof OSApp.currentSession.weather.forecast[ i ].precip !== "undefined") {
-					list += "<span>" + OSApp.Language._( "Forecasted Rain" ) + "</span><span>: " + OSApp.Weather.formatPrecip( OSApp.currentSession.weather.forecast[ i ].precip ) + "</span>"
+					list += "<span>" + OSApp.Language._( "Forecasted Rain" ) + "</span><span>: " + OSApp.Weather.formatPrecip( OSApp.currentSession.weather.forecast[ i ].precip ) + "</span>";
 				}
 		list += "</li>";
 	}
@@ -945,7 +944,7 @@ OSApp.Weather.getWeatherProviderById = function( id ) {
 OSApp.Weather.getCurrentWeatherProvider = function() {
 	const provider = OSApp.Weather.getWeatherProviderById(OSApp.currentSession.controller.settings.wto.provider);
 	if(provider)
-		return provider
+		return provider;
 
 	return false;
 };

@@ -51,7 +51,7 @@ OSApp.Language.Constants = {
 		sv: "Swedish",
 		ro: "Romanian"
 	}
-}
+};
 
 //Localization functions
 OSApp.Language._ = function( key ) {

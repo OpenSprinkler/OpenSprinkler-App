@@ -1227,7 +1227,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 			options.cali = ( popup.find( "#cali" ).prop( "checked" ) ? 1 : 0 );
 			options.rainAmt = parseFloat(popup.find( "#rainAmt" ).val().match( /[0-9.]+/g )[0]);
 			options.rainDays = parseInt(popup.find( "#rainDays" ).val().match( /\d+/g )[0]);
-			options.minTemp = parseInt(popup.find( "#minTemp" ).val().match( /^-?\d+/g )[0])
+			options.minTemp = parseInt(popup.find( "#minTemp" ).val().match( /^-?\d+/g )[0]);
 
 
 			// Do metric conversions
@@ -1651,7 +1651,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 		$.each( events, function( i, val ) {
 			inputs += "<label for='notif-" + i + "'><input class='needsclick' data-iconpos='right' id='notif-" + i + "' type='checkbox' " +
 				( OSApp.Utils.getBitFromByte( curr, a ) ? "checked='checked'" : "" ) + ( no_ife2 && a >= 8 ? " disabled" : "" ) + ">" + val +
-			"</label>"
+			"</label>";
 			a++;
 		} );
 
@@ -1809,9 +1809,9 @@ OSApp.Options.showOptions = function( expandItem ) {
 			};
 
 			if ( options.en ) {
-				page.find( "#mqtt" ).addClass( "blue" )
+				page.find( "#mqtt" ).addClass( "blue" );
 			} else {
-				page.find( "#mqtt" ).removeClass( "blue" )
+				page.find( "#mqtt" ).removeClass( "blue" );
 			}
 
 			popup.popup( "close" );
@@ -1912,9 +1912,9 @@ OSApp.Options.showOptions = function( expandItem ) {
 			};
 
 			if ( options.en ) {
-				page.find( "#email" ).addClass( "blue" )
+				page.find( "#email" ).addClass( "blue" );
 			} else {
-				page.find( "#email" ).removeClass( "blue" )
+				page.find( "#email" ).removeClass( "blue" );
 			}
 
 			popup.popup( "close" );
@@ -2001,9 +2001,9 @@ OSApp.Options.showOptions = function( expandItem ) {
 			};
 
 			if ( options.en ) {
-				page.find( "#otc" ).addClass( "blue" )
+				page.find( "#otc" ).addClass( "blue" );
 			} else {
-				page.find( "#otc" ).removeClass("blue")
+				page.find( "#otc" ).removeClass("blue");
 			}
 
 			popup.popup( "close" );

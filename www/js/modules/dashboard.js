@@ -1207,4 +1207,4 @@ OSApp.Dashboard.updateRestrictNotice = function() {
 	} else {
 		$( "#restr-active" ).addClass("hidden");
 	}
-}
+};
