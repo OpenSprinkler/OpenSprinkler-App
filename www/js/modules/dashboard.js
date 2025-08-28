@@ -908,7 +908,7 @@ OSApp.Dashboard.displayPage = function() {
 			OSApp.Dashboard.updateRestrictNotice();
 			OSApp.Analog.updateSensorShowArea( page );
 
-			page.find( ".sitename" ).text( siteSelect.val() );
+			page.find( ".sitename" ).text( OSApp.currentSession.local ? OSApp.currentSession.controller.settings?.dname || "" : siteSelect.val() );
 
 			// Remove unused stations
 			OSApp.CardList.getAllCards( cardList ).filter( function( _, a ) {
@@ -1038,7 +1038,8 @@ OSApp.Dashboard.displayPage = function() {
 			reorderCards();
 		} );
 
-		page.find( ".sitename" ).toggleClass( "hidden", OSApp.currentSession.local ? true : false ).text( siteSelect.val() );
+		page.find( ".sitename" ).toggleClass( "hidden", OSApp.currentSession.local ? (OSApp.currentSession.controller.settings?.dname ? false : true) : false );
+		page.find( ".sitename" ).text( OSApp.currentSession.local ? OSApp.currentSession.controller.settings?.dname || "" : siteSelect.val() );
 		page.find( ".waterlevel" ).text( OSApp.currentSession.controller.options.wl );
 
 		OSApp.Analog.updateSensorShowArea( page );
