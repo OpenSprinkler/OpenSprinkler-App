@@ -26,7 +26,7 @@ OSApp.Dashboard.displayPage = function() {
 					'<div class="ui-grid-a ui-body ui-corner-all info-card noweather">' +
 						'<div class="ui-block-a center">' +
 							'<div id="weather" class="pointer"></div>' +
-							'<div id="restr-active" class="pointer settings-weather"' + (( OSApp.currentSession.controller.settings?.wtrestr > 0 ) ? '' : 'class="hidden"') + '>' +
+							'<div id="restr-active" class="pointer settings-weather' + (( OSApp.currentSession.controller.settings?.wtrestr || 0 > 0 ) ? '' : ' hidden') + '">' +
 								'<span class="bold blue-text">' + OSApp.Language._("Weather Restri. Active") + '</span>' +
 							'</div>' +
 						'</div>' +
