@@ -2741,6 +2741,8 @@ OSApp.Programs.expandProgram = function( program ) {
 
 	program.find( "[id^='run-']" ).on( "click", function() {
 		var name = OSApp.Firmware.checkOSVersion( 210 ) ? OSApp.currentSession.controller.programs.pd[ id ][ 5 ] : "Program " + id;
+		var annotation = name.slice(-2);
+		if( ! ( annotation.length === 2 && annotation[0] === '>' ) ) annotation = "";
 
 		OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to start" ) + " " + name + " " + OSApp.Language._( "now?" ), "", function() {
 			let repeat, interval;
@@ -2755,7 +2757,7 @@ OSApp.Programs.expandProgram = function( program ) {
 			var runonce = [],
 				finish = function() {
 					runonce.push( 0 );
-					OSApp.Stations.submitRunonce( runonce, interval, repeat );
+					OSApp.Stations.submitRunonce( runonce, interval, repeat, annotation );
 				};
 
 			if ( OSApp.Firmware.checkOSVersion( 210 ) ) {

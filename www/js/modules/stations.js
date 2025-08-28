@@ -241,7 +241,7 @@ OSApp.Stations.convertRemoteToExtender = function( data ) {
 	} );
 };
 
-OSApp.Stations.submitRunonce = function( runonce, interval, repeat ) {
+OSApp.Stations.submitRunonce = function( runonce, interval, repeat, annotation ) {
 	let weather;
 	if ( !( runonce instanceof Array ) ) {
 		runonce = [];
@@ -264,41 +264,47 @@ OSApp.Stations.submitRunonce = function( runonce, interval, repeat ) {
 	}
 
 	var submit = function() {
-			$.mobile.loading( "show" );
-			OSApp.Storage.set( { "runonce": JSON.stringify( runonce ) } );
-			let request = "/cr?pw=&t=" + JSON.stringify( runonce );
-			if ( OSApp.Supported.repeatedRunonce() ) {
-				request += "&int=" + interval + "&cnt=" + repeat + "&uwt=" + weather;
+		$.mobile.loading( "show" );
+		OSApp.Storage.set( { "runonce": JSON.stringify( runonce ) } );
+		let request = "/cr?pw=&t=" + JSON.stringify( runonce );
+		if ( OSApp.Supported.repeatedRunonce() ) {
+			request += "&int=" + interval + "&cnt=" + repeat + "&uwt=" + weather;
+			if ( annotation?.length > 0 ) {
+				request += "&anno=" + annotation;
 			}
-			OSApp.Firmware.sendToOS( request ).done( function() {
-				$.mobile.loading( "hide" );
-				$.mobile.document.one( "pageshow", function() {
-					OSApp.Errors.showError( OSApp.Language._( "Run-once program has been scheduled" ) );
-				} );
-				OSApp.Status.refreshStatus();
-				OSApp.UIDom.goBack();
+		}
+		OSApp.Firmware.sendToOS( request ).done( function() {
+			$.mobile.loading( "hide" );
+			$.mobile.document.one( "pageshow", function() {
+				OSApp.Errors.showError( OSApp.Language._( "Run-once program has been scheduled" ) );
 			} );
-		},
-		isOn = OSApp.StationQueue.isActive();
+			OSApp.Status.refreshStatus();
+			OSApp.UIDom.goBack();
+		} );
+	},
+	isOn = OSApp.StationQueue.isActive();
+
+	var checkIsOnAndSubmit = function() {
+		if ( isOn !== -1){
+			OSApp.UIDom.areYouSure( OSApp.Language._( "Do you want to stop the currently running program?" ), OSApp.Programs.pidToName( OSApp.Stations.getPID( isOn ) ), function() {
+				$.mobile.loading( "show" );
+				OSApp.Stations.stopStations( submit );
+			} );
+		} else {
+			submit();
+		}
+	}
 
 	if ( interval && interval > 0 && repeat && repeat > 0 ) {
-		OSApp.UIDom.areYouSure(OSApp.Language._( "This will create a single run program to handle the repeat. Do you want to continue?" ), "", function(){
-			if ( isOn !== -1){
-				OSApp.UIDom.areYouSure( OSApp.Language._( "Do you want to stop the currently running program?" ), OSApp.Programs.pidToName( OSApp.Stations.getPID( isOn ) ), function() {
-					$.mobile.loading( "show" );
-					OSApp.Stations.stopStations( submit );
-				} );
-			} else {
-				submit();
-			}
+		OSApp.UIDom.areYouSure(OSApp.Language._( "Repeat requires creating a single-run program. Click Yes to create the program, No to run only once without repeat." ), "", function(){
+			checkIsOnAndSubmit();
+		}, function() {
+			interval = 0;
+			repeat = 0;
+			checkIsOnAndSubmit();
 		})
-	} else if ( isOn !== -1 ) {
-		OSApp.UIDom.areYouSure( OSApp.Language._( "Do you want to stop the currently running program?" ), OSApp.Programs.pidToName( OSApp.Stations.getPID( isOn ) ), function() {
-			$.mobile.loading( "show" );
-			OSApp.Stations.stopStations( submit );
-		} );
 	} else {
-		submit();
+		checkIsOnAndSubmit();
 	}
 };
 
