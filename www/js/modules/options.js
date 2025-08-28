@@ -371,10 +371,11 @@ OSApp.Options.showOptions = function( expandItem ) {
 			"<a class='ui-btn btn-no-border ui-btn-icon-notext ui-icon-delete ui-btn-corner-all clear-loc'></a>" +
 		"</button></div>";
 
-       list += "<div class='center' data-role='controlgroup' data-type='horizontal'>";
+       list += "<div class='center ui-field-contain' data-type='horizontal'>";
                if ( typeof OSApp.currentSession.controller.options.lg !== "undefined" ) {
-                       list += "<label for='o36'><input data-mini='true' id='o36' type='checkbox' " + ( ( OSApp.currentSession.controller.options.lg === 1 ) ? "checked='checked'" : "" ) + ">" +
-                               OSApp.Language._( "Enable Logging" ) + "</label>";
+                       list += "<label></label>" +
+					   "<label for='o36'>" + OSApp.Language._( "Enable Logging" ) + "</label>" +
+					   "<input data-mini='true' id='o36' type='checkbox' " + ( ( OSApp.currentSession.controller.options.lg === 1 ) ? "checked='checked'" : "" ) + ">";
                }
        list += "</div>";
 
