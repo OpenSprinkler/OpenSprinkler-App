@@ -125,6 +125,7 @@ window.currLocal = true;
 	insertStyleSheet( assetLocation + "css/jqm.css" );
 	insertStyleSheet( assetLocation + "css/main.css" );
 	insertStyleSheet( assetLocation + "css/analog.css" );
+	insertStyleSheet( assetLocation + "css/vis-timeline-graph2d.min.css" );
 
 	// Insert favicon for web page
 	insertStyleSheet( assetLocation + "img/favicon.ico", "shortcut icon" );
@@ -140,6 +141,10 @@ window.currLocal = true;
 
 			// Insert datatables grid library
 			insertScript( assetLocation + "vendor-js/dataTables-2.1.8.min.js" );
+
+			// Insert datatables grid library
+			insertScript( assetLocation + "vendor-js/vis-timeline-graph2d.min.js" );
+
 
 			fetch( assetLocation + "modules.json" )
 				.then( response => response.json() )
