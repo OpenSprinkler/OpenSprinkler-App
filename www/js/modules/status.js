@@ -192,7 +192,26 @@ OSApp.Status.checkStatus = function() {
 
 	// Show overcurrent fault status
 	if ( OSApp.currentSession.controller.settings.ocs ) {
-		OSApp.Status.changeStatus( 0, "red", "<p class='running-text center'>" + OSApp.Language._( "Overcurrent Fault detected" ) + ( OSApp.currentSession.controller.settings.ocs === 255 ? "" : ( " when opening Station " + OSApp.currentSession.controller.settings.ocs ) ) + "!!</p>" );
+		OSApp.Status.changeStatus( 0, "red", "<p class='running-text center pointer'>" + OSApp.Language._( "Overcurrent Fault detected" ) +
+			( OSApp.currentSession.controller.settings.ocs === 255 ? "" : ( OSApp.Language._( " when opening Station " ) + OSApp.currentSession.controller.settings.ocs ) ) + "!!</p>",
+			function() {
+				var infoText = OSApp.Language._(
+					"The controller detected one or more zones drawing too much current, exceeding the limit. " +
+					"Please check your wiring and perform a <b>solenoid resistance test</b>. " +
+					"After fixing, reboot the controller to clear the fault message. " +
+					"For more instructions, visit our support site"
+				) + ": <a href='https://support.opensprinkler.com' target='_blank' rel='noopener'>support.opensprinkler.com</a>.";
+				var popup = $(
+					"<div data-role='popup' data-theme='a' class='ocs-popup' id='ocsInfo'>" +
+						"<div class='ui-content ocs-popup-content'>" +
+							"<p class='ocs-text'>" + infoText + "</p>" +
+						"</div>" +
+					"</div>"
+				);
+				// Open the popup dialog
+				OSApp.UIDom.openPopup( popup );
+			}
+		);
 		return;
 	}
 

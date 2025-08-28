@@ -937,6 +937,23 @@ div.running-text{
     white-space: normal !important;
 }
 
+.ocs-popup {
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+}
+
+.ocs-popup .ui-content {
+  padding: 6px 8px;
+}
+
+.ocs-text {
+  max-width: 320px;
+  margin: 0 auto;
+  text-align: left;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
 
 /* Program preview rules */
 .master {
