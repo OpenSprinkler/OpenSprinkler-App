@@ -848,7 +848,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 	if ( OSApp.Firmware.checkOSVersion( 2213 ) && typeof OSApp.currentSession.controller.options.imin !== "undefined" ) {
 		list += "<div class='ui-field-contain'><label for='imin'>" + OSApp.Language._( "Undercurrent Threshold" ) +
 			"<button data-helptext='" +
-				OSApp.Language._( "If the current draw falls below this threshold when a station finishes running, a low-current fault notification is triggered. Set to 0 to disable this feature." ) +
+				OSApp.Language._( "If the current draw (mA) falls below this threshold when a station finishes running, a low-current fault notification is triggered. The recommended value is 100. Set to 0 to disable this feature." ) +
 			"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label>" +
 			"<input type='range' id='imin' min='0' max='1000' step='10' data-highlight='true' value='" + ( OSApp.currentSession.controller.options.imin ) + "'></div>";
 	}
@@ -856,7 +856,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 	if ( OSApp.Firmware.checkOSVersion( 2213 ) && typeof OSApp.currentSession.controller.options.imax !== "undefined" ) {
 		list += "<div class='ui-field-contain'><label for='imax'>" + OSApp.Language._( "Overcurrent Limit" ) +
 			"<button data-helptext='" +
-				OSApp.Language._( "If the current draw exceeds this threshold when stations are running, an overcurrent fault notification is triggered. Set to 0 to use the system default. Set to maximum (2550) to disable this feature." ) +
+				OSApp.Language._( "If the current draw (mA) exceeds this threshold when stations are running, an overcurrent fault notification is triggered. Set to 0 to use the system default. Set to maximum (2550) to disable this feature." ) +
 			"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label>" +
 			"<input type='range' id='imax' min='0' max='2550' step='50' data-highlight='true' value='" + ( OSApp.currentSession.controller.options.imax ) + "'></div>";
 	}
