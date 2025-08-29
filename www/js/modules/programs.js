@@ -557,7 +557,7 @@ OSApp.Programs.displayPageRunOnce = function() {
 	}
 
 	return begin();
-}
+};
 
 OSApp.Programs.displayPagePreviewPrograms = function() {
 	// Preview functions
@@ -707,8 +707,38 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 				prog = OSApp.currentSession.controller.programs.pd[ pid ];
 				let runcount = checkMatch( prog, simminutes, simt, simday, devday );
 				if ( runcount > 0 ) {
-					// TODO: handle station orders
 					let station_order = gen_station_runorder(runcount, nstations, prog);
+
+					// prepare watering level
+					let wl = 100;
+					let uwt = OSApp.currentSession.controller.options.uwt;
+					let consettings = OSApp.currentSession.controller.settings;
+					let wto = consettings.wto;
+					let wls = consettings.wls;
+					let wtrestr = consettings.wtrestr;
+					let progtype = ( ( prog[ 0 ] >> 4 ) & 0x03 );
+					let intervalday = prog[ 2 ];
+					if ( prog[ 0 ] & 0x02 ) { // Program's Use Weather bit is on
+						if ( simday === devday ) { // if previewing today
+							if ( wtrestr > 0 ) wl = 0; // weather restricted active
+							else {
+								wl = OSApp.currentSession.controller.options.wl;
+								// if historical data is enabled
+								if (wto?.mda === 100 && progtype == OSApp.Constants.options.PROGRAM_TYPE_INTERVAL && wls?.length > 0) {
+									// Use interval length unless longer than available data
+									if (intervalday-1 < wls.length){
+										wl = wls[intervalday-1];
+									} else {
+										wl = wls[wls.length-1];
+									}
+								}
+							}
+						} else { // previewing other days
+							// use 100% for Zimmerman or ETo, and today's wl otherwise
+							wl = ( ( uwt == 1 ) || ( uwt == 3 ) ) ? 100 : OSApp.currentSession.controller.options.wl;
+						}
+					}
+
 					for ( let oi = 0; oi < nstations; oi++ ) {
 						let sid = station_order[oi];
 						bid = sid >> 3;
@@ -728,16 +758,7 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 
 							// Skip if water time is zero, or station is already scheduled
 							if ( prog[ 4 ][ sid ] && endArray[ sid ] === 0 ) {
-								var waterTime = 0;
-
-								// Use weather scaling bit on
-								// * if options.uwt >0: using an automatic adjustment method, only applies to today
-								// * if options.uwt==0: using fixed manual adjustment, does not depend on tday
-								if ( prog[ 0 ] & 0x02 && ( ( OSApp.currentSession.controller.options.uwt > 0 && simday === devday ) || OSApp.currentSession.controller.options.uwt === 0 ) ) {
-									waterTime = OSApp.Stations.getStationDuration( prog[ 4 ][ sid ], simt ) * OSApp.currentSession.controller.options.wl / 100 >> 0;
-								} else {
-									waterTime = OSApp.Stations.getStationDuration( prog[ 4 ][ sid ], simt );
-								}
+								let waterTime = OSApp.Stations.getStationDuration( prog[ 4 ][ sid ], simt ) * wl / 100 >> 0;
 
 								// After weather scaling, we maybe getting 0 water time
 								if ( waterTime > 0 ) {
@@ -1462,14 +1483,14 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 					"hour": "h:mm A",
 					"minute": "h:mm A"
 				}
-			}
+			};
 		} else {
 			format = {
 				"minorLabels": {
 					"hour": "HH:mm",
 					"minute": "HH:mm"
 				}
-			}
+			};
 		}
 
 		var options = {
@@ -1580,7 +1601,7 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 	}
 
 	return begin();
-}
+};
 // Translate program array into easier to use data
 OSApp.Programs.readProgram = function( program ) {
 	if ( OSApp.Firmware.checkOSVersion( 210 ) ) {
@@ -2885,6 +2906,8 @@ OSApp.Programs.expandProgram = function( program ) {
 
 	program.find( "[id^='run-']" ).on( "click", function() {
 		var name = OSApp.Firmware.checkOSVersion( 210 ) ? OSApp.currentSession.controller.programs.pd[ id ][ 5 ] : "Program " + id;
+		var annotation = name.slice(-2);
+		if( ! ( annotation.length === 2 && annotation[0] === '>' ) ) annotation = "";
 
 		OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to start" ) + " " + name + " " + OSApp.Language._( "now?" ), "", function() {
 			let repeat, interval;
@@ -2899,7 +2922,7 @@ OSApp.Programs.expandProgram = function( program ) {
 			var runonce = [],
 				finish = function() {
 					runonce.push( 0 );
-					OSApp.Stations.submitRunonce( runonce, interval, repeat );
+					OSApp.Stations.submitRunonce( runonce, interval, repeat, annotation );
 				};
 
 			if ( OSApp.Firmware.checkOSVersion( 210 ) ) {

@@ -21,8 +21,8 @@ OSApp.SystemDiagnostics = OSApp.SystemDiagnostics || {};
 OSApp.SystemDiagnostics.showDiagnostics = function() {
 	var popup = "<div data-role='popup' id='debugWU' class='ui-content ui-page-theme-a'>";
 	var scaleRow = undefined;
-	if ( typeof OSApp.currentSession.controller.options.wls !== "undefined" ) {
-		var scales = OSApp.currentSession.controller.options.wls
+	if ( typeof OSApp.currentSession.controller.settings.wls !== "undefined" ) {
+		var scales = OSApp.currentSession.controller.settings.wls;
 		if (scales.length > 5) {
 			scaleRow = "[" + scales.slice(0, 5).join(", ") + "<br>" + scales.slice(5).join(", ") + "]";
 		} else {
@@ -42,7 +42,8 @@ OSApp.SystemDiagnostics.showDiagnostics = function() {
 			"<table class='debugWUTable'>" +
 				( typeof OSApp.currentSession.controller.options.uwt !== "undefined" ? "<tr><td>" + OSApp.Language._( "Method" ) + "</td><td>" + OSApp.Weather.getAdjustmentMethod( OSApp.currentSession.controller.options.uwt ).name + "</td></tr>" : "" ) +
 				( typeof OSApp.currentSession.controller.options.wl !== "undefined" ? "<tr><td>" + OSApp.Language._( "Watering Level" ) + "</td><td>" + OSApp.currentSession.controller.options.wl + " %</td></tr>" : "" ) +
-				( typeof OSApp.currentSession.controller.options.wls !== "undefined" ? "<tr><td>" + OSApp.Language._( "Multi-Day Levels" ) + "</td><td>" + scaleRow + "</td></tr>" : "" ) +
+				( typeof OSApp.currentSession.controller.settings.wls !== "undefined" ? "<tr><td>" + OSApp.Language._( "Multi-Day Levels" ) + "</td><td>" + scaleRow + "</td></tr>" : "" ) +
+				( typeof OSApp.currentSession.controller.settings.wtrestr !== "undefined" ? "<tr><td>" + OSApp.Language._( "Weather Restri." ) + "</td><td>" + ( OSApp.currentSession.controller.settings.wtrestr > 0 ? "Active" : "Inactive" ) + "</td></tr>" : "") +
 				( typeof OSApp.currentSession.controller.settings.lswc === "number" ? "<tr><td>" + OSApp.Language._( "Last Updated" ) + "</td><td>" +
 					( OSApp.currentSession.controller.settings.lswc === 0  ? OSApp.Language._( "Never" ) : OSApp.Dates.humaniseDuration( OSApp.currentSession.controller.settings.devt * 1000, OSApp.currentSession.controller.settings.lswc * 1000 ) ) + "</td></tr>" : "" ) +
 			"</table>" +

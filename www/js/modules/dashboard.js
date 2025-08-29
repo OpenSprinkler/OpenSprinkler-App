@@ -20,28 +20,31 @@ OSApp.Dashboard = OSApp.Dashboard || {};
 OSApp.Dashboard.displayPage = function() {
 	// Display the home dasbhoard main view
 	var cards, siteSelect, currentSite, i, sites;
-	var page = $(`
-		<div data-role="page" id="sprinklers">
-			<div class="ui-panel-wrapper">
-				<div class="ui-content" role="main">
-					<div class="ui-grid-a ui-body ui-corner-all info-card noweather">
-						<div class="ui-block-a">
-							<div id="weather" class="pointer"></div>
-						</div>
-						<div class="ui-block-b center home-info pointer">
-							<div class="sitename bold"></div>
-							<div id="clock-s" class="nobr"></div>
-							<div id="water-level">
-								${OSApp.Language._("Water Level")}: <span class="waterlevel"></span>%
-							</div>
-						</div>
-					</div>
-					<div id="os-stations-list" class="card-group center"></div>
-					<div id="os-sensor-show" class="card-group center"></div>
-				</div>
-			</div>
-		</div>
-	`),
+	var content = '<div data-role="page" id="sprinklers">' +
+			'<div class="ui-panel-wrapper">' +
+				'<div class="ui-content" role="main">' +
+					'<div class="ui-grid-a ui-body ui-corner-all info-card noweather">' +
+						'<div class="ui-block-a center">' +
+							'<div id="weather" class="pointer"></div>' +
+							'<div id="restr-active" class="pointer settings-weather' + (( OSApp.currentSession.controller.settings?.wtrestr || 0 > 0 ) ? '' : ' hidden') + '">' +
+								'<span class="bold blue-text">' + OSApp.Language._("Weather Restri. Active") + '</span>' +
+							'</div>' +
+						'</div>' +
+						'<div class="ui-block-b center settings-weather home-info pointer">' +
+							'<div class="sitename bold"></div>' +
+							'<div id="clock-s" class="nobr"></div>' +
+							'<div id="water-level">' +
+								OSApp.Language._("Water Level") + ': <span class="waterlevel"></span>%' +
+							'</div>' +
+						'</div>' +
+					'</div>' +
+					'<div id="os-stations-list" class="card-group center"></div>' +
+					'<div id="os-sensor-show" class="card-group center"></div>' +
+				'</div>' +
+			'</div>' +
+		'</div>';
+
+	var page = $(content),
 		addTimer = function( station, rem ) {
 			OSApp.uiState.timers[ "station-" + station ] = {
 				val: rem,
@@ -902,9 +905,10 @@ OSApp.Dashboard.displayPage = function() {
 			updateClock();
 			updateSites();
 			OSApp.Dashboard.updateWaterLevel();
+			OSApp.Dashboard.updateRestrictNotice();
 			OSApp.Analog.updateSensorShowArea( page );
 
-			page.find( ".sitename" ).text( siteSelect.val() );
+			page.find( ".sitename" ).text( OSApp.currentSession.local ? OSApp.currentSession.controller.settings?.dname || "" : siteSelect.val() );
 
 			// Remove unused stations
 			OSApp.CardList.getAllCards( cardList ).filter( function( _, a ) {
@@ -1034,7 +1038,8 @@ OSApp.Dashboard.displayPage = function() {
 			reorderCards();
 		} );
 
-		page.find( ".sitename" ).toggleClass( "hidden", OSApp.currentSession.local ? true : false ).text( siteSelect.val() );
+		page.find( ".sitename" ).toggleClass( "hidden", OSApp.currentSession.local ? (OSApp.currentSession.controller.settings?.dname ? false : true) : false );
+		page.find( ".sitename" ).text( OSApp.currentSession.local ? OSApp.currentSession.controller.settings?.dname || "" : siteSelect.val() );
 		page.find( ".waterlevel" ).text( OSApp.currentSession.controller.options.wl );
 
 		OSApp.Analog.updateSensorShowArea( page );
@@ -1042,7 +1047,7 @@ OSApp.Dashboard.displayPage = function() {
 
 		page.on( "click", ".station-settings", showAttributes );
 
-		page.on( "click", ".home-info", function() {
+		page.on( "click", ".settings-weather", function() {
 			OSApp.UIDom.changePage( "#os-options", {
 				expandItem: "weather"
 			} );
@@ -1187,8 +1192,20 @@ OSApp.Dashboard.displayPage = function() {
 
 OSApp.Dashboard.updateWaterLevel = function() {
 	// Update the water level displayed on the dashboard
-	if (!OSApp.currentSession.controller.options) {
+	if ( !OSApp.currentSession.controller.options ) {
 		return;
 	}
 	$( "#water-level" ).html(OSApp.Language._( "Water Level" ) + ": <span class='waterlevel'>" + OSApp.currentSession.controller.options.wl + "</span>%");
+};
+
+OSApp.Dashboard.updateRestrictNotice = function() {
+	// Swap the restriction notice displayed on the dashboard
+	if ( !OSApp.currentSession.controller.settings ) {
+		return;
+	}
+	if ( OSApp.currentSession.controller.settings?.wtrestr > 0 ) {
+		$( "#restr-active" ).removeClass("hidden");
+	} else {
+		$( "#restr-active" ).addClass("hidden");
+	}
 };

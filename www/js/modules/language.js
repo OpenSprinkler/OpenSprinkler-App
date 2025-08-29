@@ -51,7 +51,7 @@ OSApp.Language.Constants = {
 		sv: "Swedish",
 		ro: "Romanian"
 	}
-}
+};
 
 //Localization functions
 OSApp.Language._ = function( key ) {
@@ -94,6 +94,7 @@ OSApp.Language.updateUIElements = function() {
 	// FIXME: Some elements need to be manually re-rendered to apply language changes. Can this be handled through an event? page reload?
 	OSApp.Weather.updateWeatherBox();
 	OSApp.Dashboard.updateWaterLevel();
+	OSApp.Dashboard.updateRestrictNotice();
 };
 
 OSApp.Language.updateLang = function( lang ) {
