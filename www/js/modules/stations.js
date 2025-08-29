@@ -296,7 +296,7 @@ OSApp.Stations.submitRunonce = function( runonce, interval, repeat, annotation )
 	};
 
 	if ( interval && interval > 0 && repeat && repeat > 0 ) {
-		OSApp.UIDom.areYouSure(OSApp.Language._( "Repeat requires creating a single-run program. Click Yes to create the program, No to run only once without repeat." ), "", function(){
+		OSApp.UIDom.areYouSure(OSApp.Language._( "Create a single-run program for repeat functionality?" ), "", function(){
 			checkIsOnAndSubmit();
 		}, function() {
 			interval = 0;
