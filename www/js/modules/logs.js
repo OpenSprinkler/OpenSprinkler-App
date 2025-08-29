@@ -1,4 +1,4 @@
-/* global $, links */
+/* global $, vis */
 
 /* OpenSprinkler App
  * Copyright (C) 2015 - present, Samer Albahra. All rights reserved.
@@ -58,6 +58,7 @@ OSApp.Logs.displayPage = function() {
 		tableSort = page.find( "#table_sort" ),
 		logOptions = page.find( "#log_options" ),
 		data = [],
+		groups = [],
 		waterlog = [],
 		flowlog = [],
 		sortData = function( type, grouping ) {
@@ -133,35 +134,30 @@ OSApp.Logs.displayPage = function() {
 					}
 				} else if ( type === "timeline" ) {
 					var pid = parseInt( this[ 0 ] ),
-						className, name, group, shortname;
+						className, name, group;
 
 					if ( this[ 1 ] === "rs" ) {
 						className = "delayed";
 						name = OSApp.Language._( "Rain Sensor" );
 						group = name;
-						shortname = OSApp.Language._( "RS" );
 					} else if ( this[ 1 ] === "rd" ) {
 						className = "delayed";
 						name = OSApp.Language._( "Rain Delay" );
 						group = name;
-						shortname = OSApp.Language._( "RD" );
 					} else if ( this[ 1 ] === "s1" ) {
 						className = "delayed";
 						name = OSApp.currentSession.controller.options.sn1t === 3 ? OSApp.Language._( "Soil Sensor" ) : OSApp.Language._( "Rain Sensor" );
 						group = name;
-						shortname = OSApp.Language._( "SEN1" );
 					} else if ( this[ 1 ] === "s2" ) {
 						className = "delayed";
 						name = OSApp.currentSession.controller.options.sn2t === 3 ? OSApp.Language._( "Soil Sensor" ) : OSApp.Language._( "Rain Sensor" );
 						group = name;
-						shortname = OSApp.Language._( "SEN2" );
 					} else if ( pid === 0 ) {
 						return;
 					} else {
 						className = "program-" + ( ( pid + 3 ) % 4 );
 						name = OSApp.Programs.pidToName( pid );
 						group = OSApp.Stations.getName(station);
-						shortname = "S" + ( station + 1 );
 					}
 
 					sortedData.push( {
@@ -170,10 +166,14 @@ OSApp.Logs.displayPage = function() {
 						"className": className,
 						"content": name,
 						"pid": pid - 1,
-						"shortname": shortname,
 						"group": group,
-						"station": station
 					} );
+					if ( !groups.some( elem => elem.id === group ) ) {
+						groups.push( {
+							"id": group,
+							"content": group
+						} );
+					}
 				}
 			} );
 
@@ -211,9 +211,14 @@ OSApp.Logs.displayPage = function() {
 							"end": utc,
 							"className": "",
 							"content": volume + " L",
-							"shortname": OSApp.Language._( "FS" ),
 							"group": OSApp.Language._( "Flow Sensor" )
 						} );
+						if ( !groups.some( elem => elem.id === OSApp.Language._( "Flow Sensor" ) ) ) {
+							groups.push( {
+								"id": OSApp.Language._( "Flow Sensor" ),
+								"content": OSApp.Language._( "Flow Sensor" )
+							} );
+						}
 					} else {
 						var day = Math.floor( this[ 3 ] / 60 / 60 / 24 );
 
@@ -267,6 +272,26 @@ OSApp.Logs.displayPage = function() {
 
 			logOptions.collapsible( "collapse" );
 
+			// Sync time format with 24 hour option
+			var format = {};
+			if ( !OSApp.uiState.is24Hour ) {
+				format = {
+					"minorLabels": {
+						"hour": "h:mm A",
+						"minute": "h:mm A",
+						"day": "ddd D"
+					}
+				}
+			} else {
+				format = {
+					"minorLabels": {
+						"hour": "HH:mm",
+						"minute": "HH:mm",
+						"day": "ddd D"
+					}
+				}
+			}
+
 			var sortedData = sortData( "timeline" ),
 				extraData = sortExtraData( sortedData[ 1 ], "timeline" ),
 				fullData = sortedData[ 0 ].concat( extraData[ 1 ] ),
@@ -274,46 +299,36 @@ OSApp.Logs.displayPage = function() {
 				options = {
 					"width":  "100%",
 					"editable": false,
-					"axisOnTop": true,
-					"eventMargin": 10,
-					"eventMarginAxis": 0,
+					"margin": {"item": 10, "axis": 0},
 					"min": dates().start,
 					"max": new Date( dates().end.getTime() + 86340000 ),
 					"selectable": false,
 					"showMajorLabels": false,
-					"groupsChangeable": false,
-					"showNavigation": false,
-					"groupsOrder": "none",
-					"groupMinHeight": 20,
-					"zoomMin": 1000 * 60
+					"groupEditable": false,
+					"zoomMin": 1000 * 60 * 60,
+					"format": format,
+					"zoomFriction": 1,
+					"preferZoom": true
 				},
 				resize = function() {
 					timeline.redraw();
 				},
 				reset = function() {
 					$.mobile.window.off( "resize", resize );
-				},
-				shortnames = [];
+				};
 
 			logsList.on( "swiperight swipeleft", function( e ) {
 				e.stopImmediatePropagation();
 			} );
 
-			$.each( fullData, function() {
-				shortnames[ this.group ] = this.shortname;
-			} );
+			page.find( "#logs_list" ).empty();
 
-			var timeline = new links.Timeline( logsList.get( 0 ), options );
+			var timeline = new vis.Timeline( logsList.get( 0 ), fullData, options );
+			timeline.setGroups( groups );
 
 			$.mobile.window.on( "resize", resize );
 			page.one( "pagehide", reset );
 			page.find( "input:radio[name='log_type']" ).one( "change", reset );
-
-			timeline.draw( fullData );
-
-			logsList.find( ".timeline-groups-text" ).each( function() {
-				this.setAttribute( "data-shortname", shortnames[ this.textContent ] );
-			} );
 
 			logsList.prepend( showStats( stats ) );
 		},
@@ -347,7 +362,29 @@ OSApp.Logs.displayPage = function() {
 
 			// Return HH:MM:SS formatting for dt datetime object.
 			var formatTime = function( dt, g ) {
-				return g === "station" ? OSApp.Dates.dateToString( dt, false ) : OSApp.Utils.pad( dt.getHours() ) + ":" + OSApp.Utils.pad( dt.getMinutes() ) + ":" + OSApp.Utils.pad( dt.getSeconds() );
+				if ( g === "station" ) {
+					return OSApp.Dates.dateToString( dt, false );
+				} else {
+					if ( OSApp.uiState.is24Hour ) {
+						return OSApp.Utils.pad( dt.getHours() ) + ":" + OSApp.Utils.pad( dt.getMinutes() ) + ":" + OSApp.Utils.pad( dt.getSeconds() );
+					} else {
+						var period, hour;
+						if ( dt.getHours() > 12 ) {
+							hour = dt.getHours() - 12;
+							period = "PM";
+						} else if ( dt.getHours() === 12 ) {
+							hour = 12;
+							period = "PM";
+						} else {
+							hour = dt.getHours();
+							period = "AM";
+						}
+
+						return hour + ":" + OSApp.Utils.pad( dt.getMinutes() ) + ":" + OSApp.Utils.pad( dt.getSeconds() ) + " " + period;
+
+					}
+
+				}
 			};
 
 			for ( group in sortedData ) {

@@ -314,11 +314,23 @@ OSApp.Firmware.getHWType = function() {
 OSApp.Firmware.checkFirmwareUpdate = function() {
 
 	// Update checks are only be available for Arduino firmwares
-	if ( OSApp.Firmware.checkOSVersion( 200 ) && ( OSApp.Firmware.getHWVersion() === "3.0" || OSApp.Firmware.isOSPi() ) ) {
+	if ( OSApp.Firmware.checkOSVersion( 200 ) && ( ( typeof parseFloat(OSApp.Firmware.getHWVersion()) === "number" && parseFloat(OSApp.Firmware.getHWVersion()) >= 3 ) || OSApp.Firmware.isOSPi() ) ) {
 
 		// Github API to get releases for OpenSprinkler firmware
 		$.getJSON( "https://api.github.com/repos/opensprinkler/opensprinkler-firmware/releases" ).done( function( data ) {
-			if ( OSApp.currentSession.controller.options.fwv < data[ 0 ].tag_name ) {
+			// Convert both the controller version and the site version to decimals
+			let controller = OSApp.currentSession.controller.options.fwv;
+			let recent = data[ 0 ].tag_name;
+
+			if ( OSApp.currentSession.controller.options.fwm ) {
+				controller += OSApp.currentSession.controller.options.fwm / 10;
+			}
+
+			if ( typeof recent === "string" && recent.includes("(") ) {
+				recent = parseFloat(recent.replace("(", ".").replace(")", ""));
+			}
+
+			if ( controller < recent ) {
 
 				// Grab a local storage variable which defines the firmware version for the last dismissed update
 				OSApp.Storage.get( "updateDismiss", function( flag ) {

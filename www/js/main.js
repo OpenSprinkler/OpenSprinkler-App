@@ -36,7 +36,7 @@ OSApp.Constants = {
 		"ntp3":34, "ntp4":35, "lg":36, "mas2":37, "mton2":38, "mtof2":39, "fpr0":41, "fpr1":42, "re":43, "dns1": 44,
 		"dns2":45, "dns3":46, "dns4":47, "sar":48, "ife":49, "sn1t":50, "sn1o":51, "sn2t":52, "sn2o":53, "sn1on":54,
 		"sn1of":55, "sn2on":56, "sn2of":57, "subn1":58, "subn2":59, "subn3":60, "subn4":61, "laton":62, "latof":63,
-		"ife2":64, "imin":66
+		"ife2":64, "imin":65, "imax":66
 	},
 	options: { // Option constants
 		IGNORE_SENSOR_1: 1,
