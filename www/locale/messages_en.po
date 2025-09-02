@@ -219,7 +219,7 @@ msgstr ""
 msgid "Level"
 msgstr ""
 
-msgid "Weather Restri. Active"
+msgid "Weather Restriction Active"
 msgstr ""
 
 msgid "Water Level"
@@ -1050,7 +1050,7 @@ msgid ""
 msgstr ""
 
 msgid ""
-"Use multiple days of historical weather data to calculate ETo or Zimmerman "
+"Uses multiple days of historical weather data to calculate ETo or Zimmerman "
 "watering percentage for programs that run on a regular interval."
 msgstr ""
 
