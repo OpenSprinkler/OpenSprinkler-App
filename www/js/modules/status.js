@@ -193,7 +193,7 @@ OSApp.Status.checkStatus = function() {
 	// Show overcurrent fault status
 	if ( OSApp.currentSession.controller.settings.ocs ) {
 		OSApp.Status.changeStatus( 0, "red", "<p class='running-text center pointer'>" + OSApp.Language._( "Overcurrent Fault detected" ) +
-			( OSApp.currentSession.controller.settings.ocs === 255 ? "" : ( OSApp.Language._( " when opening Station " ) + OSApp.currentSession.controller.settings.ocs ) ) + "!!</p>",
+			( OSApp.currentSession.controller.settings.ocs === 255 ? "" : ( OSApp.Language._( " when opening Station " ) + OSApp.currentSession.controller.settings.ocs ) ) + "!</p>",
 			function() {
 				var infoText = OSApp.Language._(
 					"The controller detected one or more zones drawing too much current, exceeding the limit. " +
