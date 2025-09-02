@@ -493,13 +493,17 @@ OSApp.Sites.checkConfigured = function( firstLoad ) {
 		}
 
 		if ( typeof sites[ current ].auth_user !== "undefined" &&
-			typeof sites[ current ].auth_pw !== "undefined" ) {
+			typeof sites[ current ].auth_pw !== "undefined" &&
+			sites[ current ].auth_user !== "" &&
+			sites[ current ].auth_pw !== "" ) {
 
 			OSApp.currentSession.auth = true;
 			OSApp.currentSession.authUser = sites[ current ].auth_user;
 			OSApp.currentSession.authPass = sites[ current ].auth_pw;
 		} else {
 			OSApp.currentSession.auth = false;
+			OSApp.currentSession.authUser = undefined;
+			OSApp.currentSession.authPass = undefined;
 		}
 
 		if ( sites[ current ].is183 ) {

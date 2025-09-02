@@ -67,7 +67,8 @@ OSApp.Firmware.sendToOS = function( dest, type ) {
 		},
 		defer;
 
-	if ( OSApp.currentSession.auth ) {
+	// Check if authentication should be used for this request
+	if ( OSApp.currentSession.auth && OSApp.currentSession.authUser && OSApp.currentSession.authPass ) {
 		$.extend( obj, {
 			beforeSend: function( xhr ) {
 				xhr.setRequestHeader(
