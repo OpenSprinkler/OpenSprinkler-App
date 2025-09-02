@@ -67,16 +67,47 @@ OSApp.Firmware.sendToOS = function( dest, type ) {
 		},
 		defer;
 
-	// Check if authentication should be used for this request
-	if ( OSApp.currentSession.auth && OSApp.currentSession.authUser && OSApp.currentSession.authPass ) {
-		$.extend( obj, {
-			beforeSend: function( xhr ) {
-				xhr.setRequestHeader(
-					"Authorization", "Basic " + btoa( OSApp.currentSession.authUser + ":" + OSApp.currentSession.authPass )
-				);
+	// Ensure authentication headers are added when needed
+	// First check session variables, then fall back to checking storage if needed
+	var addAuthHeader = function( obj ) {
+		if ( OSApp.currentSession.auth && OSApp.currentSession.authUser && OSApp.currentSession.authPass ) {
+			$.extend( obj, {
+				beforeSend: function( xhr ) {
+					xhr.setRequestHeader(
+						"Authorization", "Basic " + btoa( OSApp.currentSession.authUser + ":" + OSApp.currentSession.authPass )
+					);
+				}
+			} );
+		} else if ( !OSApp.currentSession.token ) {
+			// Fallback: If session auth is not set but we're not using token auth,
+			// try to get auth info from current site data
+			try {
+				var currentSite = $( "#site-selector" ).val();
+				if ( currentSite && localStorage.getItem ) {
+					var sites = JSON.parse( localStorage.getItem( "sites" ) || "{}" );
+					if ( sites[ currentSite ] && sites[ currentSite ].auth_user && sites[ currentSite ].auth_pw ) {
+						// Found auth info in storage, use it for this request
+						$.extend( obj, {
+							beforeSend: function( xhr ) {
+								xhr.setRequestHeader(
+									"Authorization", "Basic " + btoa( sites[ currentSite ].auth_user + ":" + sites[ currentSite ].auth_pw )
+								);
+							}
+						} );
+						// Also update session variables for future requests
+						OSApp.currentSession.auth = true;
+						OSApp.currentSession.authUser = sites[ currentSite ].auth_user;
+						OSApp.currentSession.authPass = sites[ currentSite ].auth_pw;
+					}
+				}
+			//eslint-disable-next-line no-unused-vars
+			} catch ( err ) {
+				// Ignore any errors accessing storage
 			}
-		} );
-	}
+		}
+	};
+
+	addAuthHeader( obj );
 
 	if ( OSApp.currentSession.fw183 ) {
 

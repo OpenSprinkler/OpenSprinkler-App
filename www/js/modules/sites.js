@@ -710,13 +710,24 @@ OSApp.Sites.submitNewSite = function( ssl, useAuth ) {
 				}
 
 				if ( useAuth ) {
-					sites[ name ].auth_user = $( "#os_auth_user" ).val();
-					sites[ name ].auth_pw = $( "#os_auth_pw" ).val();
-					OSApp.currentSession.auth = true;
-					OSApp.currentSession.authUser = sites[ name ].auth_user;
-					OSApp.currentSession.authPass = sites[ name ].auth_pw;
+					var authUser = $( "#os_auth_user" ).val();
+					var authPass = $( "#os_auth_pw" ).val();
+					
+					if ( authUser && authPass ) {
+						sites[ name ].auth_user = authUser;
+						sites[ name ].auth_pw = authPass;
+						OSApp.currentSession.auth = true;
+						OSApp.currentSession.authUser = authUser;
+						OSApp.currentSession.authPass = authPass;
+					} else {
+						OSApp.currentSession.auth = false;
+						OSApp.currentSession.authUser = undefined;
+						OSApp.currentSession.authPass = undefined;
+					}
 				} else {
 					OSApp.currentSession.auth = false;
+					OSApp.currentSession.authUser = undefined;
+					OSApp.currentSession.authPass = undefined;
 				}
 
 				if ( is183 === true ) {
