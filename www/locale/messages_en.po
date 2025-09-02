@@ -219,6 +219,9 @@ msgstr ""
 msgid "Level"
 msgstr ""
 
+msgid "Weather Restri. Active"
+msgstr ""
+
 msgid "Water Level"
 msgstr ""
 
@@ -536,6 +539,31 @@ msgstr ""
 msgid "s"
 msgstr ""
 
+msgid "Unknown"
+msgstr ""
+
+msgid "Corrupted Response"
+msgstr ""
+
+msgid ""
+"The OpenSprinkler controller sent unexpected data, likely due to outdated "
+"firmware."
+msgstr ""
+
+msgid "Site Name"
+msgstr ""
+
+msgid ""
+"To fix this, please update your firmware. Remember to use the \"API Tool\" "
+"to save your current settings beforehand!"
+msgstr ""
+
+msgid "API Tool"
+msgstr ""
+
+msgid "Help"
+msgstr ""
+
 msgid "Check device password and try again."
 msgstr ""
 
@@ -680,25 +708,10 @@ msgstr ""
 msgid "Rain Sensor"
 msgstr ""
 
-msgid "RS"
-msgstr ""
-
 msgid "Rain Delay"
 msgstr ""
 
-msgid "RD"
-msgstr ""
-
 msgid "Soil Sensor"
-msgstr ""
-
-msgid "SEN1"
-msgstr ""
-
-msgid "SEN2"
-msgstr ""
-
-msgid "FS"
 msgstr ""
 
 msgid "Flow Sensor"
@@ -711,6 +724,9 @@ msgid "Start Time"
 msgstr ""
 
 msgid "End Time"
+msgstr ""
+
+msgid "Flow Rate"
 msgstr ""
 
 msgid "delete"
@@ -922,9 +938,6 @@ msgstr ""
 msgid "Flow"
 msgstr ""
 
-msgid "Flow Rate"
-msgstr ""
-
 msgid "Soil"
 msgstr ""
 
@@ -972,6 +985,14 @@ msgstr ""
 msgid "Enable Logging"
 msgstr ""
 
+msgid "App Settings"
+msgstr ""
+
+msgid ""
+"These settings are stored locally with the application and do not affect the "
+"controller. Changes are saved automatically."
+msgstr ""
+
 msgid "Use Metric"
 msgstr ""
 
@@ -982,6 +1003,12 @@ msgid "Order Stations by Groups"
 msgstr ""
 
 msgid "Order Stations by Name"
+msgstr ""
+
+msgid "Show Disabled"
+msgstr ""
+
+msgid "Show Station Number"
 msgstr ""
 
 msgid "Configure Master"
@@ -1011,16 +1038,10 @@ msgstr ""
 msgid "Station Delay"
 msgstr ""
 
-msgid "Show Disabled"
-msgstr ""
-
-msgid "(Changes Auto-Saved)"
-msgstr ""
-
 msgid "Weather and Sensors"
 msgstr ""
 
-msgid "Weather Adjustment Method"
+msgid "Adjustment Method"
 msgstr ""
 
 msgid ""
@@ -1028,10 +1049,27 @@ msgid ""
 "selected method to determine the watering percentage."
 msgstr ""
 
+msgid ""
+"Use multiple days of historical weather data to calculate ETo or Zimmerman "
+"watering percentage for programs that run on a regular interval."
+msgstr ""
+
+msgid "Adjust Interval Programs Using Multiple Days of Weather Data"
+msgstr ""
+
 msgid "Adjustment Method Options"
 msgstr ""
 
 msgid "Tap to Configure"
+msgstr ""
+
+msgid "Weather Restrictions"
+msgstr ""
+
+msgid "Prevents watering when the selected restrictions are met."
+msgstr ""
+
+msgid "Prevents watering when the selected restriction is met."
 msgstr ""
 
 msgid "Weather Data Provider"
@@ -1050,12 +1088,6 @@ msgid "An invalid API key has been detected."
 msgstr ""
 
 msgid "Verify"
-msgstr ""
-
-msgid "Weather-Based Restrictions"
-msgstr ""
-
-msgid "Prevents watering when the selected restriction is met."
 msgstr ""
 
 msgid "% Watering"
@@ -1186,6 +1218,24 @@ msgid ""
 "from 0 to 1000 milliseconds."
 msgstr ""
 
+msgid "Undercurrent Threshold"
+msgstr ""
+
+msgid ""
+"If the current draw (mA) falls below this threshold when a station finishes "
+"running, a low-current fault notification is triggered. The recommended "
+"value is 100. Set to 0 to disable this feature."
+msgstr ""
+
+msgid "Overcurrent Limit"
+msgstr ""
+
+msgid ""
+"If the current draw (mA) exceeds this threshold when stations are running, "
+"an overcurrent fault notification is triggered. Set to 0 to use the system "
+"default. Set to maximum (2550) to disable this feature."
+msgstr ""
+
 msgid "Latch On Voltage"
 msgstr ""
 
@@ -1246,6 +1296,35 @@ msgstr ""
 msgid "Are you sure you want to clear the current location?"
 msgstr ""
 
+msgid "Weather Restriction Options"
+msgstr ""
+
+msgid "Rain Restriction"
+msgstr ""
+
+msgid "Disallow watering if:"
+msgstr ""
+
+msgid "of rain is forecasted in the next:"
+msgstr ""
+
+msgid "Set either to 0 to disable."
+msgstr ""
+
+msgid "Temperature Restriction"
+msgstr ""
+
+msgid ""
+"Disallow watering if the current\n"
+"temperature is below:"
+msgstr ""
+
+msgid "Set to -40 (either F or C) to disable."
+msgstr ""
+
+msgid "Enable California Restriction"
+msgstr ""
+
 msgid "Are you sure you want to reset station attributes?"
 msgstr ""
 
@@ -1272,6 +1351,9 @@ msgid "Milliseconds"
 msgstr ""
 
 msgid "Minutes"
+msgstr ""
+
+msgid "Milliamperes"
 msgstr ""
 
 msgid "Program Start"
@@ -1302,6 +1384,9 @@ msgid "Station Start"
 msgstr ""
 
 msgid "Flow Alert"
+msgstr ""
+
+msgid "Under/Overcurrent Fault"
 msgstr ""
 
 msgid "Select Notification Events"
@@ -1664,7 +1749,7 @@ msgstr ""
 msgid "Change Name"
 msgstr ""
 
-msgid "Change IP"
+msgid "Change IP/URL"
 msgstr ""
 
 msgid "Change Token"
@@ -1679,6 +1764,9 @@ msgid "Use SSL"
 msgstr ""
 
 msgid "Use Auth"
+msgstr ""
+
+msgid "Invalid new OTC token. Any other changes were made successfully."
 msgstr ""
 
 msgid "Site updated successfully"
@@ -1696,43 +1784,31 @@ msgstr ""
 msgid "Select Site"
 msgstr ""
 
-msgid "New Device"
+msgid "New OpenSprinkler Device"
 msgstr ""
 
-msgid ""
-"Note: The name is used to identify the OpenSprinkler within the app. "
-"OpenSprinkler IP can be either an IP or hostname. You can also specify a "
-"port by using IP:Port"
+msgid "Device Name:"
 msgstr ""
 
-msgid "Open Sprinkler Name:"
+msgid "A custom name for this device"
 msgstr ""
 
-msgid "Connection Type"
+msgid "Device Address:"
 msgstr ""
 
-msgid "Direct"
+msgid "May be an IP, URL, or OTC Token"
 msgstr ""
 
-msgid "OpenThings Cloud"
+msgid "Device Password:"
 msgstr ""
 
-msgid "Open Sprinkler IP:"
-msgstr ""
-
-msgid "OpenThings Token"
-msgstr ""
-
-msgid "Open Sprinkler Password:"
-msgstr ""
-
-msgid "Check IP/Port and try again."
+msgid "Check IP/URL/Port and try again."
 msgstr ""
 
 msgid "Authorization Required"
 msgstr ""
 
-msgid "An IP address or token is required to continue."
+msgid "An IP address, URL, or token is required to continue."
 msgstr ""
 
 msgid "Connecting to"
@@ -1775,12 +1851,10 @@ msgstr ""
 msgid "Run-once program has been scheduled"
 msgstr ""
 
-msgid ""
-"This will create a single run program to handle the repeat. Do you want to "
-"continue?"
+msgid "Do you want to stop the currently running program?"
 msgstr ""
 
-msgid "Do you want to stop the currently running program?"
+msgid "Create a single-run program for repeat functionality?"
 msgstr ""
 
 msgid "Current"
@@ -1805,6 +1879,19 @@ msgid "is running on"
 msgstr ""
 
 msgid "is running on station"
+msgstr ""
+
+msgid "Overcurrent Fault detected"
+msgstr ""
+
+msgid " when opening Station "
+msgstr ""
+
+msgid ""
+"The controller detected one or more zones drawing too much current, "
+"exceeding the limit. Please check your wiring and perform a <b>solenoid "
+"resistance test</b>. After fixing, reboot the controller to clear the fault "
+"message. For more instructions, visit our support site"
 msgstr ""
 
 msgid "Rain delay until"
@@ -1850,6 +1937,12 @@ msgid "Method"
 msgstr ""
 
 msgid "Watering Level"
+msgstr ""
+
+msgid "Multi-Day Levels"
+msgstr ""
+
+msgid "Weather Restri."
 msgstr ""
 
 msgid "Last Updated"
@@ -2039,8 +2132,8 @@ msgid ""
 msgstr ""
 
 msgid ""
-"If the weather reports any condition suggesting rain, a rain delay is "
-"automatically issued using the below set delay duration."
+"If the current weather condition reports rain, a rain delay is automatically "
+"issued using the duration below."
 msgstr ""
 
 msgid "Delay Duration (hours)"
@@ -2077,6 +2170,9 @@ msgstr ""
 msgid "Now"
 msgstr ""
 
+msgid "Forecasted Rain"
+msgstr ""
+
 msgid "Low"
 msgstr ""
 
@@ -2110,7 +2206,7 @@ msgstr ""
 msgid "Powered by your Local PWS"
 msgstr ""
 
-msgid "Using manual watering"
+msgid "Using manual weather adjustment"
 msgstr ""
 
 msgid "Unrecognised weather provider"
