@@ -84,7 +84,7 @@ OSApp.Supported.verifyWeatherAPIKey = function() {
 	return OSApp.Firmware.checkOSVersion( 219 ) &&
 			typeof OSApp.currentSession.controller.options.uwt !== "undefined" &&
 			typeof OSApp.currentSession.controller.settings.wto === "object";
-}
+};
 
 OSApp.Supported.singleRunAndMonthly = function() {
 	return OSApp.Firmware.checkOSVersion( 2211 );
@@ -92,4 +92,9 @@ OSApp.Supported.singleRunAndMonthly = function() {
 
 OSApp.Supported.repeatedRunonce = function() {
 	return OSApp.Firmware.checkOSVersion( 2211 );
+};
+
+OSApp.Supported.restrictions = function() {
+	const wto = typeof OSApp.currentSession.controller?.settings?.wto !== "undefined";
+	return wto && OSApp.Firmware.checkOSVersion( 2213 );
 };

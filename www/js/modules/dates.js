@@ -180,24 +180,42 @@ OSApp.Dates.dateToString = function( date, toUTC, shorten ) {
 		date.setMinutes( date.getMinutes() + date.getTimezoneOffset() );
 	}
 
+	var period = "";
+	var hours = date.getHours();
+	if ( !OSApp.uiState.is24Hour ) {
+		if ( hours > 12 ) {
+			hours = hours - 12;
+			period = " PM";
+		} else if (hours === 0 ) {
+			hours = 12;
+			period = " AM";
+		} else if ( hours === 12 ) {
+			period = " PM";
+		} else {
+			period = " AM";
+		}
+	} else {
+		hours = OSApp.Utils.pad( hours );
+	}
+
 	if ( OSApp.currentSession.lang === "de" ) {
 		return OSApp.Utils.pad( date.getDate() ) + "." + OSApp.Utils.pad( date.getMonth() + 1 ) + "." +
-				date.getFullYear() + " " + OSApp.Utils.pad( date.getHours() ) + ":" +
-				OSApp.Utils.pad( date.getMinutes() ) + ":" + OSApp.Utils.pad( date.getSeconds() );
+				date.getFullYear() + " " + hours + ":" +
+				OSApp.Utils.pad( date.getMinutes() ) + ":" + OSApp.Utils.pad( date.getSeconds() ) + period;
 	} else {
 		if ( shorten === 1 ) {
 			return monthNames[ date.getMonth() ] + " " + OSApp.Utils.pad( date.getDate() ) + ", " +
-					date.getFullYear() + " " + OSApp.Utils.pad( date.getHours() ) + ":" +
-					OSApp.Utils.pad( date.getMinutes() ) + ":" + OSApp.Utils.pad( date.getSeconds() );
+					date.getFullYear() + " " + hours + ":" +
+					OSApp.Utils.pad( date.getMinutes() ) + ":" + OSApp.Utils.pad( date.getSeconds() ) + period;
 		} else if ( shorten === 2 ) {
 			return monthNames[ date.getMonth() ] + " " + OSApp.Utils.pad( date.getDate() ) + ", " +
-					OSApp.Utils.pad( date.getHours() ) + ":" + OSApp.Utils.pad( date.getMinutes() ) + ":" +
-					OSApp.Utils.pad( date.getSeconds() );
+					hours + ":" + OSApp.Utils.pad( date.getMinutes() ) + ":" +
+					OSApp.Utils.pad( date.getSeconds() ) + period;
 		} else {
 			return dayNames[ date.getDay() ] + ", " + OSApp.Utils.pad( date.getDate() ) + " " +
 					monthNames[ date.getMonth() ] + " " + date.getFullYear() + " " +
-					OSApp.Utils.pad( date.getHours() ) + ":" + OSApp.Utils.pad( date.getMinutes() ) + ":" +
-					OSApp.Utils.pad( date.getSeconds() );
+					hours + ":" + OSApp.Utils.pad( date.getMinutes() ) + ":" +
+					OSApp.Utils.pad( date.getSeconds() ) + period;
 		}
 	}
 };

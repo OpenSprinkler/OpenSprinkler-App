@@ -1,4 +1,4 @@
-/* global $, links */
+/* global $, vis */
 
 /* OpenSprinkler App
  * Copyright (C) 2015 - present, Samer Albahra. All rights reserved.
@@ -557,7 +557,7 @@ OSApp.Programs.displayPageRunOnce = function() {
 	}
 
 	return begin();
-}
+};
 
 OSApp.Programs.displayPagePreviewPrograms = function() {
 	// Preview functions
@@ -581,7 +581,8 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 	`),
 		placeholder = page.find( "#timeline" ),
 		navi = page.find( "#timeline-navigation" ),
-		previewData, processPrograms, checkMatch, checkMatch183, checkMatch21, checkDayMatch, checkMatch216, runSched, runSched216,
+		nextID = 0,
+		previewData, previewGroups, processPrograms, checkMatch, checkMatch183, checkMatch21, checkDayMatch, checkMatch216, runSched, runSched216,
 		timeToText, changeday, render, date, day, now, is21, is211, is216;
 
 	page.find( "#preview_date" ).on( "change", function() {
@@ -669,6 +670,7 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 
 	processPrograms = function( month, day, year ) {
 		previewData = [];
+		previewGroups = [];
 		var devday = Math.floor( OSApp.currentSession.controller.settings.devt / ( 60 * 60 * 24 ) ),
 			simminutes = 0,
 			simt = Date.UTC( year, month - 1, day, 0, 0, 0, 0 ),
@@ -705,8 +707,38 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 				prog = OSApp.currentSession.controller.programs.pd[ pid ];
 				let runcount = checkMatch( prog, simminutes, simt, simday, devday );
 				if ( runcount > 0 ) {
-					// TODO: handle station orders
 					let station_order = gen_station_runorder(runcount, nstations, prog);
+
+					// prepare watering level
+					let wl = 100;
+					let uwt = OSApp.currentSession.controller.options.uwt;
+					let consettings = OSApp.currentSession.controller.settings;
+					let wto = consettings.wto;
+					let wls = consettings.wls;
+					let wtrestr = consettings.wtrestr;
+					let progtype = ( ( prog[ 0 ] >> 4 ) & 0x03 );
+					let intervalday = prog[ 2 ];
+					if ( prog[ 0 ] & 0x02 ) { // Program's Use Weather bit is on
+						if ( simday === devday ) { // if previewing today
+							if ( wtrestr > 0 ) wl = 0; // weather restricted active
+							else {
+								wl = OSApp.currentSession.controller.options.wl;
+								// if historical data is enabled
+								if (wto?.mda === 100 && progtype == OSApp.Constants.options.PROGRAM_TYPE_INTERVAL && wls?.length > 0) {
+									// Use interval length unless longer than available data
+									if (intervalday-1 < wls.length){
+										wl = wls[intervalday-1];
+									} else {
+										wl = wls[wls.length-1];
+									}
+								}
+							}
+						} else { // previewing other days
+							// use 100% for Zimmerman or ETo, and today's wl otherwise
+							wl = ( ( uwt == 1 ) || ( uwt == 3 ) ) ? 100 : OSApp.currentSession.controller.options.wl;
+						}
+					}
+
 					for ( let oi = 0; oi < nstations; oi++ ) {
 						let sid = station_order[oi];
 						bid = sid >> 3;
@@ -726,16 +758,7 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 
 							// Skip if water time is zero, or station is already scheduled
 							if ( prog[ 4 ][ sid ] && endArray[ sid ] === 0 ) {
-								var waterTime = 0;
-
-								// Use weather scaling bit on
-								// * if options.uwt >0: using an automatic adjustment method, only applies to today
-								// * if options.uwt==0: using fixed manual adjustment, does not depend on tday
-								if ( prog[ 0 ] & 0x02 && ( ( OSApp.currentSession.controller.options.uwt > 0 && simday === devday ) || OSApp.currentSession.controller.options.uwt === 0 ) ) {
-									waterTime = OSApp.Stations.getStationDuration( prog[ 4 ][ sid ], simt ) * OSApp.currentSession.controller.options.wl / 100 >> 0;
-								} else {
-									waterTime = OSApp.Stations.getStationDuration( prog[ 4 ][ sid ], simt );
-								}
+								let waterTime = OSApp.Stations.getStationDuration( prog[ 4 ][ sid ], simt ) * wl / 100 >> 0;
 
 								// After weather scaling, we maybe getting 0 water time
 								if ( waterTime > 0 ) {
@@ -1000,10 +1023,15 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 							"end": ( q.st + q.dur + OSApp.currentSession.controller.options.mtof ),
 							"content":"",
 							"className":"master",
-							"shortname":"M" + ( mas2 ? "1" : "" ),
-							"group":"Master",
-							"station": sid
+							"group":"Master"
 						} );
+						if ( !previewGroups.some( group => group.id === "Master" ) ) {
+							previewGroups.push( {
+								"id":"Master",
+								"content":"Master"
+							} );
+						}
+
 					}
 
 					if ( mas2 && OSApp.currentSession.controller.options.mas2 > 0 && useMas2 ) {
@@ -1012,10 +1040,14 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 							"end": ( q.st + q.dur + OSApp.currentSession.controller.options.mtof2 ),
 							"content":"",
 							"className":"master",
-							"shortname":"M2",
 							"group":"Master 2",
-							"station": sid
 						} );
+						if ( !previewGroups.some( group => group.id === "Master 2" ) ) {
+							previewGroups.push( {
+								"id":"Master 2",
+								"content":"Master 2"
+							} );
+						}
 					}
 				}
 				timeToText( sid, q.st, q.pid, q.st + q.dur, simt );
@@ -1041,10 +1073,14 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 									"end": ( endArray[ sid ] + OSApp.currentSession.controller.options.mtof ),
 									"content":"",
 									"className":"master",
-									"shortname":"M" + ( mas2 ? "1" : "" ),
 									"group":"Master",
-									"station": sid
 								} );
+								if ( !previewGroups.some( group => group.id === "Master" ) ) {
+									previewGroups.push( {
+										"id":"Master",
+										"content":"Master"
+									} );
+								}
 							}
 
 							if ( mas2 && OSApp.currentSession.controller.options.mas2 > 0 && useMas2 ) {
@@ -1053,10 +1089,14 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 									"end": ( endArray[ sid ] + OSApp.currentSession.controller.options.mtof2 ),
 									"content":"",
 									"className":"master",
-									"shortname":"M2",
 									"group":"Master 2",
-									"station": sid
 								} );
+								if ( !previewGroups.some( group => group.id === "Master 2" ) ) {
+									previewGroups.push( {
+										"id":"Master 2",
+										"content":"Master 2"
+									} );
+								}
 							}
 						}
 
@@ -1074,10 +1114,14 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 								"end": ( endArray[ sid ] + OSApp.currentSession.controller.options.mtof ),
 								"content":"",
 								"className":"master",
-								"shortname":"M",
 								"group":"Master",
-								"station": sid
 							} );
+							if ( !previewGroups.some( group => group.id === "Master" ) ) {
+								previewGroups.push( {
+									"id":"Master",
+									"content":"Master"
+								} );
+							}
 						}
 						timeToText( sid, startArray[ sid ], programArray[ sid ], endArray[ sid ], simt );
 						endtime = endArray[ sid ];
@@ -1097,10 +1141,14 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 					"end": endtime,
 					"content":"",
 					"className":"master",
-					"shortname":"M",
 					"group":"Master",
-					"station": sid
 				} );
+				if ( !previewGroups.some( group => group.id === "Master" ) ) {
+					previewGroups.push( {
+						"id":"Master",
+						"content":"Master"
+					} );
+				}
 			}
 		}
 		return endtime;
@@ -1126,13 +1174,19 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 		previewData.push( {
 			"start": start,
 			"end": end,
-			"className":className,
+			"className": className,
 			"content":pname,
 			"pid": pid - 1,
-			"shortname":"S" + ( sid + 1 ),
 			"group": OSApp.Stations.getName(sid),
-			"station": sid
+			"id": nextID
 		} );
+		if ( !previewGroups.some( group => group.id === OSApp.Stations.getName(sid) ) ) {
+			previewGroups.push( {
+				"id": OSApp.Stations.getName(sid),
+				"content": OSApp.Stations.getName(sid)
+			} );
+		}
+		nextID++;
 	};
 
 	checkMatch = function( prog, simminutes, simt, simday, devday ) {
@@ -1397,12 +1451,14 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 		if ( !previewData.length ) {
 			page.find( "#timeline" ).html( "<p align='center'>" + OSApp.Language._( "No stations set to run on this day." ) + "</p>" );
 			return;
+		} else {
+			page.find( "#timeline" ).html( "" );
+
 		}
 
 		previewData.sort( OSApp.Utils.sortByStation );
 
-		var shortnames = [],
-			max = new Date( date[ 0 ], date[ 1 ] - 1, date[ 2 ], 24 );
+		var max = new Date( date[ 0 ], date[ 1 ] - 1, date[ 2 ], 24 );
 
 		$.each( previewData, function() {
 			var total = this.start + this.end;
@@ -1417,44 +1473,61 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 			} else {
 				this.end = new Date( date[ 0 ], date[ 1 ] - 1, date[ 2 ], 0, 0, this.end );
 			}
-			shortnames[ this.group ] = this.shortname;
 		} );
+
+		// Sync time format with 24 hour option
+		var format = {};
+		if ( !OSApp.uiState.is24Hour ) {
+			format = {
+				"minorLabels": {
+					"hour": "h:mm A",
+					"minute": "h:mm A"
+				}
+			};
+		} else {
+			format = {
+				"minorLabels": {
+					"hour": "HH:mm",
+					"minute": "HH:mm"
+				}
+			};
+		}
 
 		var options = {
 				"width":  "100%",
 				"editable": false,
-				"axisOnTop": true,
-				"eventMargin": 10,
-				"eventMarginAxis": 0,
+				"margin": {"item": 10, "axis": 0},
 				"min": new Date( date[ 0 ], date[ 1 ] - 1, date[ 2 ], 0 ),
 				"max": max,
 				"selectable": true,
 				"showMajorLabels": false,
 				"zoomMax": 1000 * 60 * 60 * 24,
 				"zoomMin": 1000 * 60 * 60,
-				"groupsChangeable": false,
-				"showNavigation": false,
-				"groupsOrder": "none",
-				"groupMinHeight": 20
+				"groupEditable": false,
+				"format": format
 			},
 			resize = function() {
 				timeline.redraw();
 			},
-			timeline = new links.Timeline( placeholder[ 0 ], options ),
+			timeline = new vis.Timeline( placeholder[ 0 ], previewData, options ),
 			currentTime = new Date( now );
 
 		currentTime.setMinutes( currentTime.getMinutes() + currentTime.getTimezoneOffset() );
 
 		timeline.setCurrentTime( currentTime );
-		links.events.addListener( timeline, "select", function() {
-			var sel = timeline.getSelection();
+		timeline.setGroups( previewGroups );
 
-			if ( sel.length ) {
-				if ( typeof sel[ 0 ].row !== "undefined" ) {
-					OSApp.UIDom.changePage( "#programs", {
-						"programToExpand": parseInt( timeline.getItem( sel[ 0 ].row ).pid )
-					} );
-				}
+		// When block clicked, open that program
+		timeline.on( "select", function( data ) {
+			if ( data.items.length > 0 ) {
+				previewData.forEach( ( item ) => {
+					if ( item.id === data.items[0] ) {
+						OSApp.UIDom.changePage( "#programs", {
+							"programToExpand": item.pid
+						} );
+					}
+				} );
+
 			}
 		} );
 
@@ -1464,33 +1537,29 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 			$.mobile.window.off( "resize", resize );
 		} );
 
-		timeline.draw( previewData );
-
-		page.find( ".timeline-groups-text" ).each( function() {
-			var stn = $( this );
-			var name = shortnames[ stn.text() ];
-			stn.attr( "data-shortname", name );
-
-		} );
-
-		page.find( ".timeline-groups-axis" ).children().first().html( "<div class='timeline-axis-text center dayofweek' data-shortname='" +
-			OSApp.Dates.getDayName( day, "short" ) + "'>" + OSApp.Dates.getDayName( day ) + "</div>" );
-
 		if ( OSApp.currentDevice.isAndroid ) {
 			navi.find( ".ui-icon-plus" ).off( "click" ).on( "click", function() {
-				timeline.zoom( 0.4 );
+				timeline.zoomIn( 0.4 );
 				return false;
 			} );
 			navi.find( ".ui-icon-minus" ).off( "click" ).on( "click", function() {
-				timeline.zoom( -0.4 );
+				timeline.zoomOut( 0.4 );
 				return false;
 			} );
 			navi.find( ".ui-icon-carat-l" ).off( "click" ).on( "click", function() {
-				timeline.move( -0.2 );
+				const times = timeline.getWindow();
+				const difference = times.end - times.start;
+				// Move center to 1/4 of the current visual window
+				times.start.setTime( times.start.getTime() + (difference / 4) );
+				timeline.moveTo( times.start );
 				return false;
 			} );
 			navi.find( ".ui-icon-carat-r" ).off( "click" ).on( "click", function() {
-				timeline.move( 0.2 );
+				const times = timeline.getWindow();
+				const difference = times.end - times.start;
+				// Move center to 3/4 of the current visual window
+				times.end.setTime( times.end.getTime() - (difference / 4) );
+				timeline.moveTo( times.end );
 				return false;
 			} );
 
@@ -1532,7 +1601,7 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 	}
 
 	return begin();
-}
+};
 // Translate program array into easier to use data
 OSApp.Programs.readProgram = function( program ) {
 	if ( OSApp.Firmware.checkOSVersion( 210 ) ) {
@@ -2672,6 +2741,8 @@ OSApp.Programs.expandProgram = function( program ) {
 
 	program.find( "[id^='run-']" ).on( "click", function() {
 		var name = OSApp.Firmware.checkOSVersion( 210 ) ? OSApp.currentSession.controller.programs.pd[ id ][ 5 ] : "Program " + id;
+		var annotation = name.slice(-2);
+		if( ! ( annotation.length === 2 && annotation[0] === '>' ) ) annotation = "";
 
 		OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to start" ) + " " + name + " " + OSApp.Language._( "now?" ), "", function() {
 			let repeat, interval;
@@ -2686,7 +2757,7 @@ OSApp.Programs.expandProgram = function( program ) {
 			var runonce = [],
 				finish = function() {
 					runonce.push( 0 );
-					OSApp.Stations.submitRunonce( runonce, interval, repeat );
+					OSApp.Stations.submitRunonce( runonce, interval, repeat, annotation );
 				};
 
 			if ( OSApp.Firmware.checkOSVersion( 210 ) ) {

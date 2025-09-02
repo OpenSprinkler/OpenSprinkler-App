@@ -212,12 +212,24 @@ OSApp.Options.showOptions = function( expandItem ) {
 						}
 
 						var restrict = page.find( "#weatherRestriction" );
-						if ( restrict.length ) {
+						if ( restrict.length && !restrict.cali ) {
 							data = OSApp.Weather.setRestriction( parseInt( restrict.val() ), data );
+						}
+						break;
+					case "weatherRestriction":
+						if ( typeof OSApp.currentSession.controller?.settings?.wto !== "undefined" ){
+							if ( OSApp.currentSession.controller.settings.wto && OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.wto ) === data ) {
+								return true;
+							}
 						}
 						break;
 					case "weatherSelect":
 						if ( OSApp.currentSession.controller.settings.wto && OSApp.currentSession.controller.settings.wto.provider && OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.wto.provider ) === data ) {
+							return true;
+						}
+						break;
+					case "mda":
+						if ( OSApp.currentSession.controller.settings.wto && OSApp.currentSession.controller.settings.wto.mda && OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.wto.mda ) === data ) {
 							return true;
 						}
 						break;
@@ -359,10 +371,11 @@ OSApp.Options.showOptions = function( expandItem ) {
 			"<a class='ui-btn btn-no-border ui-btn-icon-notext ui-icon-delete ui-btn-corner-all clear-loc'></a>" +
 		"</button></div>";
 
-       list += "<div class='center' data-role='controlgroup' data-type='horizontal'>";
+       list += "<div class='center ui-field-contain' data-type='horizontal'>";
                if ( typeof OSApp.currentSession.controller.options.lg !== "undefined" ) {
-                       list += "<label for='o36'><input data-mini='true' id='o36' type='checkbox' " + ( ( OSApp.currentSession.controller.options.lg === 1 ) ? "checked='checked'" : "" ) + ">" +
-                               OSApp.Language._( "Enable Logging" ) + "</label>";
+                       list += "<label></label>" +
+					   "<label for='o36'>" + OSApp.Language._( "Enable Logging" ) + "</label>" +
+					   "<input data-mini='true' id='o36' type='checkbox' " + ( ( OSApp.currentSession.controller.options.lg === 1 ) ? "checked='checked'" : "" ) + ">";
                }
        list += "</div>";
 
@@ -502,7 +515,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 		"<legend>" + OSApp.Language._( "Weather and Sensors" ) + "</legend>";
 
 	if ( typeof OSApp.currentSession.controller.options.uwt !== "undefined" ) {
-		list += "<div class='ui-field-contain'><label for='o31' class='select'>" + OSApp.Language._( "Weather Adjustment Method" ) +
+		list += "<div class='ui-field-contain'><label for='o31' class='select'>" + OSApp.Language._( "Adjustment Method" ) +
 				"<button data-helptext='" +
 					OSApp.Language._( "Weather adjustment retrieves data from the chosen provider and applies the selected method to determine the watering percentage." ) +
 					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
@@ -519,11 +532,48 @@ OSApp.Options.showOptions = function( expandItem ) {
 		list += "</select></div>";
 
 		if ( typeof OSApp.currentSession.controller?.settings?.wto === "object" ) {
-			list += "<div class='ui-field-contain" + ( OSApp.Weather.getCurrentAdjustmentMethodId() === 0 ? " hidden" : "" ) + "'><label for='wto'>" + OSApp.Language._( "Adjustment Method Options" ) + "</label>" +
+			const method = OSApp.Weather.getCurrentAdjustmentMethodId();
+			if( OSApp.Firmware.checkOSVersion( 2213) ) {
+				list += "<div class='ui-field-contain" + ( method === 3 || method === 1 ? "" : " hidden" ) + "'><label for='historic'></label>" +
+					"<label for='historic' id='mdaLabel'>" +
+					"<button data-helptext='" +
+						OSApp.Language._( "Use multiple days of historical weather data to calculate ETo or Zimmerman watering percentage for programs that run on a regular interval." ) +
+						"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
+					"<input data-mini='true' id='mda' type='checkbox' " + ( ( OSApp.currentSession.controller.settings.wto.mda === 100 ) ? "checked='checked'" : "" ) + ">" + OSApp.Language._( "Adjust Interval Programs Using Multiple Days of Weather Data" ) + "</label></div>";
+			}
+			list += "<div class='ui-field-contain" + ( method === 0  ? " hidden" : "" ) + "'><label for='wto'>" + OSApp.Language._( "Adjustment Method Options" ) + "</label>" +
 				"<button data-mini='true' id='wto' value='" + OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.wto ) + "'>" +
 					OSApp.Language._( "Tap to Configure" ) +
 				"</button></div>";
 		}
+
+		if ( OSApp.Firmware.checkOSVersion( 214 ) ) {
+			if ( OSApp.Supported.restrictions() ) {
+				var wto = OSApp.currentSession.controller.settings.wto;
+				list += "<div class='ui-field-contain'><label for='weatherRestriction' class='select'>" + OSApp.Language._( "Weather Restrictions" ) +
+					"<button data-helptext='" + OSApp.Language._( "Prevents watering when the selected restrictions are met." ) +
+						"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
+					"</label>" +
+					"<button data-mini='true' id='weatherRestriction' " +
+						( ( ( typeof wto.rainDays !== "undefined" && typeof wto.rainAmt !== "undefined" && wto.rainDays > 0 && wto.rainAmt > 0 ) || ( typeof wto.minTemp !== "undefined" && wto.minTemp !== -40 ) || ( typeof wto.cali !== "undefined" && wto.cali ) ) ? "class='blue' " : "" ) +
+						"value='" + (OSApp.Utils.escapeJSON( OSApp.currentSession.controller.settings.wto )) + "'>" +
+							OSApp.Language._( "Tap to Configure" ) +
+					"</button></div>";
+			} else {
+				list += "<div class='ui-field-contain'><label for='weatherRestriction' class='select'>" + OSApp.Language._( "Weather Restrictions" ) +
+						"<button data-helptext='" + OSApp.Language._( "Prevents watering when the selected restriction is met." ) +
+							"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
+					"</label>" +
+					"<select data-mini='true' class='noselect' id='weatherRestriction'>";
+
+				for ( i = 0; i < 2; i++ ) {
+					var restrict = OSApp.Weather.getRestriction( i );
+					list += "<option " + ( restrict.isCurrent === true ? "selected" : "" ) + " value='" + i + "'>" + restrict.name + "</option>";
+				}
+				list += "</select></div>";
+			}
+		}
+	}
 
 		if ( typeof OSApp.currentSession.controller?.settings?.wsp !== "undefined" ) {
 			list += "<div class='ui-field-contain'><label for='weatherSelect' class='select'>" + OSApp.Language._( "Weather Data Provider" ) +
@@ -561,21 +611,6 @@ OSApp.Options.showOptions = function( expandItem ) {
 				"</tr>" +
 			"</table></div>";
 		}
-
-		if ( OSApp.Firmware.checkOSVersion( 214 ) ) {
-			list += "<div class='ui-field-contain'><label for='weatherRestriction' class='select'>" + OSApp.Language._( "Weather-Based Restrictions" ) +
-					"<button data-helptext='" + OSApp.Language._( "Prevents watering when the selected restriction is met." ) +
-						"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
-				"</label>" +
-				"<select data-mini='true' class='noselect' id='weatherRestriction'>";
-
-			for ( i = 0; i < 2; i++ ) {
-				var restrict = OSApp.Weather.getRestriction( i );
-				list += "<option " + ( restrict.isCurrent === true ? "selected" : "" ) + " value='" + i + "'>" + restrict.name + "</option>";
-			}
-			list += "</select></div>";
-		}
-	}
 
 	if ( typeof OSApp.currentSession.controller.options.wl !== "undefined" ) {
 		list += "<div class='ui-field-contain duration-field'><label for='o23'>" + OSApp.Language._( "% Watering" ) +
@@ -810,13 +845,20 @@ OSApp.Options.showOptions = function( expandItem ) {
 			"</label><button data-mini='true' id='o30' value='" + OSApp.currentSession.controller.options.bst + "'>" + OSApp.currentSession.controller.options.bst + "ms</button></div>";
 	}
 
-	if ( OSApp.Firmware.checkOSVersion( 222 ) && typeof OSApp.currentSession.controller.options.imin !== "undefined" ) {
-		list += "<div class='ui-field-contain duration-field'>" +
-			"<label for='imin'>" + OSApp.Language._( "Minimum Current Threshold" ) +
-				"<button data-helptext='" +
-					OSApp.Language._( "Minimum current threshold is the value that is used to trigger a station low current fault notification with a range from 0 to 1000 milliampere." ) +
-					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
-			"</label><button data-mini='true' id='imin' value='" + OSApp.currentSession.controller.options.imin + "'>" + OSApp.currentSession.controller.options.imin + "mA</button></div>";
+	if ( OSApp.Firmware.checkOSVersion( 2213 ) && typeof OSApp.currentSession.controller.options.imin !== "undefined" ) {
+		list += "<div class='ui-field-contain'><label for='imin'>" + OSApp.Language._( "Undercurrent Threshold" ) +
+			"<button data-helptext='" +
+				OSApp.Language._( "If the current draw (mA) falls below this threshold when a station finishes running, a low-current fault notification is triggered. The recommended value is 100. Set to 0 to disable this feature." ) +
+			"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label>" +
+			"<input type='range' id='imin' min='0' max='1000' step='10' data-highlight='true' value='" + ( OSApp.currentSession.controller.options.imin ) + "'></div>";
+	}
+
+	if ( OSApp.Firmware.checkOSVersion( 2213 ) && typeof OSApp.currentSession.controller.options.imax !== "undefined" ) {
+		list += "<div class='ui-field-contain'><label for='imax'>" + OSApp.Language._( "Overcurrent Limit" ) +
+			"<button data-helptext='" +
+				OSApp.Language._( "If the current draw (mA) exceeds this threshold when stations are running, an overcurrent fault notification is triggered. Set to 0 to use the system default. Set to maximum (2550) to disable this feature." ) +
+			"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button></label>" +
+			"<input type='range' id='imax' min='0' max='2550' step='50' data-highlight='true' value='" + ( OSApp.currentSession.controller.options.imax ) + "'></div>";
 	}
 
 	if ( OSApp.Firmware.checkOSVersion( 220 ) && typeof OSApp.currentSession.controller.options.laton !== "undefined" ) {
@@ -1048,7 +1090,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 	page.find( "#wto" ).on( "click", function() {
 		var self = this,
 			options = OSApp.Utils.unescapeJSON( this.value ),
-			retainOptions = { pws: options.pws, key: options.key, provider: options.provider },
+			retainOptions = { pws: options.pws, key: options.key, provider: options.provider, mda: options.mda, cali: options.cali, rainAmt: options.rainAmt, rainDays: options.rainDays, minTemp: options.minTemp },
 			method = parseInt( page.find( "#o31" ).val() ),
 			finish = function() {
 				self.value = OSApp.Utils.escapeJSON( $.extend( {}, OSApp.Utils.unescapeJSON( self.value ), retainOptions ) );
@@ -1065,6 +1107,160 @@ OSApp.Options.showOptions = function( expandItem ) {
 		} else if ( method === 4 ) {
 			OSApp.Weather.showMonthlyAdjustmentOptions( this, finish );
 		}
+	} );
+
+	page.find( "#weatherRestriction" ).on( "click", function() {
+		if ( !OSApp.Supported.restrictions() ){
+			return;
+		}
+		var self = this,
+			options = $.extend( {}, {
+				cali: false,
+				rainDays: 0,
+				rainAmt: 0,
+				minTemp: -40
+			}, OSApp.currentSession.controller.settings.wto,
+			OSApp.Utils.unescapeJSON( self.value ) );
+
+		var rainUnit = " in";
+		var tempUnit = " \u00B0F";
+		if ( OSApp.currentDevice.isMetric ) {
+			rainUnit = " mm";
+			tempUnit = " \u00B0C";
+
+			options.rainAmt = Math.round( options.rainAmt * 25.4 * 10 ) / 10;
+			options.minTemp = Math.round( ( ( options.minTemp - 32 ) * 5 / 9 ) * 10 ) / 10;
+		}
+
+		var popup = $( "<div data-role='popup' data-theme='a' id='adjustmentOptions'>" +
+				"<div data-role='header' data-theme='b'>" +
+					"<h1>" + OSApp.Language._( "Weather Restriction Options" ) + "</h1>" +
+				"</div>" +
+				"<div class='ui-content'>" +
+					"<div class='ui-body'>" +
+						"<label class='center' style='font-weight: bold;'>" + OSApp.Language._( "Rain Restriction" )+ "</label>" +
+						"<label class='center'>" + OSApp.Language._( "Disallow watering if:" ) + "</label>" +
+						"<div class='input_with_buttons'>" +
+							"<button id='decr1' class='decr ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border'></button>" +
+							"<input id='rainAmt' type='text' value='" + options.rainAmt + rainUnit + "'>" +
+							"<button id='incr1' class='incr ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border'></button>" +
+						"</div>" +
+						"<label class='center'>" + OSApp.Language._( "of rain is forecasted in the next:" ) + "</label>" +
+						"<div class='input_with_buttons'>" +
+							"<button id='decr2' class='decr ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border'></button>" +
+							"<input id='rainDays' type='text' value='" + options.rainDays + " days'>" +
+							"<button id='incr2' class='incr ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border'></button>" +
+							"<p class='pad-top rain-desc center smaller'>" + OSApp.Language._("Set either to 0 to disable.") +
+						"</div><hr>" +
+						"<label class='center' style='font-weight: bold;'>" + OSApp.Language._( "Temperature Restriction" )+ "</label>" +
+						"<label class='center' style='white-space: pre-wrap;'>" + OSApp.Language._("Disallow watering if the current\ntemperature is below:") + "</label>" +
+						"<div class='input_with_buttons'>" +
+							"<button id='decr3' class='decr ui-btn ui-btn-icon-notext ui-icon-carat-l btn-no-border'></button>" +
+							"<input id='minTemp' type='text' value='" + options.minTemp + tempUnit + "'>" +
+							"<button id='incr3' class='incr ui-btn ui-btn-icon-notext ui-icon-carat-r btn-no-border'></button>" +
+							"<p class='pad-top rain-desc center smaller'>" + OSApp.Language._("Set to -40 (either \u00B0F or \u00B0C) to disable.") +
+						"</div><hr>" +
+						"<label for='cali'>" + OSApp.Language._( "Enable California Restriction" ) + "</label>" +
+						"<input class='restriction-input' data-mini='true' data-inconpos='right' id='cali' type='checkbox' " +
+						( ( options.cali ) ? "checked='checked'" : "" ) + ">" +
+					"</div>" +
+					"<button class='submit' data-theme='b'>" + OSApp.Language._( "Submit" ) + "</button>" +
+				"</div>" +
+			"</div>" );
+
+		OSApp.UIDom.holdButton( popup.find( "#incr1" ), function() {
+			const input = popup.find( "#rainAmt" );
+			const value = parseFloat( input.val().match( /[0-9.]+/g )[0] ) + 0.1;
+			if ( value > 100 ) return;
+			input.val( Math.round( value * 100 ) / 100 + rainUnit);
+			return false;
+		} );
+		OSApp.UIDom.holdButton( popup.find( "#decr1" ), function() {
+			const input = popup.find( "#rainAmt" );
+			const value = parseFloat( input.val().match( /[0-9.]+/g )[0] ) - 0.1;
+			if ( value < 0 ) return;
+			input.val( Math.round( value * 100 ) / 100 + rainUnit);
+			return false;
+		} );
+
+		OSApp.UIDom.holdButton( popup.find( "#incr2" ), function() {
+			const input = popup.find( "#rainDays" );
+			const value = parseInt( input.val().match( /\d+/g )[0] ) + 1;
+			if ( value > 10 ) return;
+			input.val( value + " days");
+			return false;
+		} );
+		OSApp.UIDom.holdButton( popup.find( "#decr2" ), function() {
+			const input = popup.find( "#rainDays" );
+			const value = parseInt( input.val().match( /\d+/g )[0] ) - 1;
+			if ( value < 0 ) return;
+			input.val( value + " days");
+			return false;
+		} );
+
+		OSApp.UIDom.holdButton( popup.find( "#incr3" ), function() {
+			const input = popup.find( "#minTemp" );
+			const value = parseInt( input.val().match( /^-?\d+/g )[0] ) + 1;
+			if ( value > 100 ) return;
+			input.val( value + tempUnit);
+			return false;
+		} );
+
+		OSApp.UIDom.holdButton( popup.find( "#decr3" ), function() {
+			const input = popup.find( "#minTemp" );
+			const value = parseInt( input.val().match( /^-?\d+/g )[0] ) - 1;
+			if ( value < -100 ) return;
+			input.val( value + tempUnit);
+			return false;
+		} );
+
+		var old;
+		popup.find( "input[type='text']" ).on( "focus", function() {
+			old = this.value;
+			this.value = "";
+		} ).on( "blur", function() {
+			if ( this.value === "" ) {
+				this.value = old;
+			}
+		} );
+
+		popup.find( ".submit" ).on( "click", function() {
+			options.cali = ( popup.find( "#cali" ).prop( "checked" ) ? 1 : 0 );
+			options.rainAmt = parseFloat(popup.find( "#rainAmt" ).val().match( /[0-9.]+/g )[0]);
+			options.rainDays = parseInt(popup.find( "#rainDays" ).val().match( /\d+/g )[0]);
+			options.minTemp = parseInt(popup.find( "#minTemp" ).val().match( /^-?\d+/g )[0]);
+
+
+			// Do metric conversions
+			if ( OSApp.currentDevice.isMetric ) {
+				options.rainAmt = Math.round( options.rainAmt / 25.4 * 100 ) / 100;
+				options.minTemp = Math.round( ( options.minTemp * 9 / 5 + 32 ) * 100 ) / 100;
+			}
+
+			// Change wto based on new values
+			const wto = OSApp.Utils.unescapeJSON(page.find( "#wto" ).val());
+			page.find( "#wto" ).prop( "value", OSApp.Utils.escapeJSON( options ));
+
+			popup.popup( "close" );
+
+			if ( OSApp.Utils.escapeJSON(options) === OSApp.Utils.escapeJSON(wto) ) {
+				return;
+			} else {
+				self.value = OSApp.Utils.escapeJSON( options );
+				header.eq( 2 ).prop( "disabled", false );
+				page.find( ".submit" ).addClass( "hasChanges" );
+			}
+
+			// Adjust blue if restrictions are now active
+			if (options.cali || (options.rainDays > 0 && options.rainAmt > 0) || options.minTemp !== -40) {
+				page.find("#weatherRestriction").addClass("blue");
+			} else {
+				page.find("#weatherRestriction").removeClass("blue");
+			}
+		} );
+
+		OSApp.UIDom.openPopup( popup );
+
 	} );
 
 	page.find( ".reset-log" ).on( "click", OSApp.Logs.clearLogs );
@@ -1260,6 +1456,17 @@ OSApp.Options.showOptions = function( expandItem ) {
 		page.find( "#wto" ).prop( "value", OSApp.Utils.escapeJSON(curr));
 	} );
 
+	page.find( "#mda" ).on( "click", function() {
+		//change wto value based on selected or not
+		const curr = OSApp.Utils.unescapeJSON(page.find( "#wto" ).val());
+		if ( this.checked ){
+			curr.mda = 100;
+		} else {
+			curr.mda = 0;
+		}
+		page.find( "#wto" ).prop( "value", OSApp.Utils.escapeJSON(curr));
+	} );
+
 	page.find( ".help-icon" ).on( "click", OSApp.UIDom.showHelpText );
 
 	page.find( ".duration-field button:not(.help-icon)" ).on( "click", function() {
@@ -1406,6 +1613,16 @@ OSApp.Options.showOptions = function( expandItem ) {
 
 		// Switch the state of adjustment options based on the selected method
 		page.find( "#wto" ).click().parents( ".ui-field-contain" ).toggleClass( "hidden", parseInt( this.value ) === 0 ? true : false );
+		page.find( "#mda" ).parents( ".ui-field-contain" ).toggleClass("hidden", parseInt( this.value ) === 3 || parseInt( this.value ) === 1 ? false : true );
+
+		// Ensure checkbox display is correct
+		if ( page.find( "#mda" ).is(':checked')) {
+			page.find( "#mdaLabel").removeClass("ui-checkbox-off").addClass("ui-checkbox-on");
+			page.find( "#mda" ).prop("checked", true);
+		} else {
+			page.find( "#mdaLabel").removeClass("ui-checkbox-on").addClass("ui-checkbox-off");
+			page.find( "#mda" ).prop("checked", false);
+		}
 	} );
 
 	page.find( "#wtkey" ).on( "change input", function() {
@@ -1428,13 +1645,14 @@ OSApp.Options.showOptions = function( expandItem ) {
 			rain: OSApp.Language._( "Rain Delay Update" ),
 			station: OSApp.Language._( "Station Start" ),
 			flow_alert: OSApp.Language._( "Flow Alert" ),
+			curr_alert: OSApp.Language._( "Under/Overcurrent Fault" ),
 		}, button = this, curr = parseInt( button.value ), inputs = "", a = 0, ife = 0;
 
 		let no_ife2 = typeof OSApp.currentSession.controller.options.ife2 === "undefined";
 		$.each( events, function( i, val ) {
 			inputs += "<label for='notif-" + i + "'><input class='needsclick' data-iconpos='right' id='notif-" + i + "' type='checkbox' " +
 				( OSApp.Utils.getBitFromByte( curr, a ) ? "checked='checked'" : "" ) + ( no_ife2 && a >= 8 ? " disabled" : "" ) + ">" + val +
-			"</label>"
+			"</label>";
 			a++;
 		} );
 
@@ -1592,9 +1810,9 @@ OSApp.Options.showOptions = function( expandItem ) {
 			};
 
 			if ( options.en ) {
-				page.find( "#mqtt" ).addClass( "blue" )
+				page.find( "#mqtt" ).addClass( "blue" );
 			} else {
-				page.find( "#mqtt" ).removeClass( "blue" )
+				page.find( "#mqtt" ).removeClass( "blue" );
 			}
 
 			popup.popup( "close" );
@@ -1695,9 +1913,9 @@ OSApp.Options.showOptions = function( expandItem ) {
 			};
 
 			if ( options.en ) {
-				page.find( "#email" ).addClass( "blue" )
+				page.find( "#email" ).addClass( "blue" );
 			} else {
-				page.find( "#email" ).removeClass( "blue" )
+				page.find( "#email" ).removeClass( "blue" );
 			}
 
 			popup.popup( "close" );
@@ -1784,9 +2002,9 @@ OSApp.Options.showOptions = function( expandItem ) {
 			};
 
 			if ( options.en ) {
-				page.find( "#otc" ).addClass( "blue" )
+				page.find( "#otc" ).addClass( "blue" );
 			} else {
-				page.find( "#otc" ).removeClass("blue")
+				page.find( "#otc" ).removeClass("blue");
 			}
 
 			popup.popup( "close" );
