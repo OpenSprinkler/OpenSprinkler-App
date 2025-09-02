@@ -427,9 +427,9 @@ OSApp.UIDom.initAppData = function() {
 
 	// Handle In-App browser requests (marked with iab class)
 	$.mobile.document.on( "click", ".iab", function() {
-		var target = OSApp.currentDevice.isOSXApp ? "_system" : "_blank";
-
 		var button = $( this );
+		var target = OSApp.currentDevice.isOSXApp || ( OSApp.currentDevice.isiOS && button.hasClass( "iabNoScale" ) ) ? "_system" : "_blank";
+
 		window.open( this.href, target, "location=" + ( OSApp.currentDevice.isAndroid ? "yes" : "no" ) +
 			",enableViewportScale=" + ( button.hasClass( "iabNoScale" ) ? "no" : "yes" ) +
 			",toolbar=yes,toolbarposition=top,toolbarcolor=" + OSApp.uiState.theme.statusBarPrimary +
