@@ -233,6 +233,13 @@ OSApp.Options.showOptions = function( expandItem ) {
 							return true;
 						}
 						break;
+					case "tpdv":
+						var v = parseFloat( data );
+						if ( isNaN( v ) ) {
+								v = 0;
+						}
+						opt.tpdv = Math.round( v * 10 );
+						return true;
 					case "o18":
 					case "o37":
 						if ( parseInt( data ) > ( parseInt( page.find( "#o15" ).val() ) + 1 ) * 8 ) {
@@ -335,7 +342,15 @@ OSApp.Options.showOptions = function( expandItem ) {
 		timezones, tz, i;
 
 	page.find( ".submit" ).on( "click", submitOptions );
-
+	// Snap Target PD Voltage slider to 0 or ≥5.0 V
+	page.on("input change", "#tpdv", function() {
+		let v = parseFloat(this.value);
+		if (v > 0 && v < 5) {
+			// Decide which side to snap to: closer to 0 or 5
+			this.value = (v < 2.5) ? 0 : 5.0;
+			$(this).slider("refresh"); // update the UI
+		}
+	});
 	list = "<fieldset data-role='collapsible'" + ( typeof expandItem !== "string" || expandItem === "system" ? " data-collapsed='false'" : "" ) + ">" +
 		"<legend>" + OSApp.Language._( "System" ) + "</legend>";
 
@@ -844,6 +859,18 @@ OSApp.Options.showOptions = function( expandItem ) {
 					"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
 			"</label><button data-mini='true' id='o30' value='" + OSApp.currentSession.controller.options.bst + "'>" + OSApp.currentSession.controller.options.bst + "ms</button></div>";
 	}
+
+	if ( OSApp.Firmware.checkOSVersion( 2214 ) && typeof OSApp.currentSession.controller.options.tpdv !== "undefined" && typeof OSApp.currentSession.controller.settings.apdv !== "undefined" && OSApp.currentSession.controller.settings.apdv > 0) {
+		list += "<div class='ui-field-contain'><label for='tpdv'>" + OSApp.Language._( "Target PD Voltage" ) +
+			"<button data-helptext='" +
+				OSApp.Language._( "The holding current of your solenoid multiplied by its coil resistance (e.g. 0.25A×30Ω=7.5V). Set to 0 to use system default." ) +
+			"' class='help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext'></button>" +
+			( typeof OSApp.currentSession.controller.settings.apdv !== "undefined" ?
+				"<br><span class='nobr'>(" + OSApp.Language._( "Actual" ) + ": " + ( OSApp.currentSession.controller.settings.apdv / 10 ).toFixed(1) + " V)</span>" :
+				"" ) +
+			"</label>" +
+			"<input type='range' id='tpdv' min='0' max='21' step='0.1' data-highlight='true' value='" + ( OSApp.currentSession.controller.options.tpdv / 10 ) + "'></div>";
+		}
 
 	if ( OSApp.Firmware.checkOSVersion( 2213 ) && typeof OSApp.currentSession.controller.options.imin !== "undefined" ) {
 		list += "<div class='ui-field-contain'><label for='imin'>" + OSApp.Language._( "Undercurrent Threshold" ) +
@@ -1733,7 +1760,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 								"<label for='server' style='padding-top:10px'>" + OSApp.Language._( "Broker/Server" ) + "</label>" +
 							"</div>" +
 							"<div class='ui-block-b' style='width:60%'>" +
-								"<input class='mqtt-input' type='text' id='server' data-mini='true' maxlength='50' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
+								"<input class='mqtt-input' type='text' id='server' data-mini='true' maxlength='64' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'" +
 									( options.en ? "" : "disabled='disabled'" ) + " placeholder='" + OSApp.Language._( "broker" ) + "' value='" + options.host + "' required />" +
 							"</div>" +
 							"<div class='ui-block-a' style='width:40%'>" +
