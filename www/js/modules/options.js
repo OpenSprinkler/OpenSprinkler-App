@@ -202,7 +202,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 						return true;
 					case "o49":
 						opt.o49 = data & 0xff;
-						opt.o64 = ( data >> 8 ) & 0xff;
+						opt.o65 = ( data >> 8 ) & 0xff;
 						return true;
 					case "o31":
 						if ( parseInt( data ) === 3 && !OSApp.Utils.unescapeJSON( $( "#wto" )[ 0 ].value ).baseETo ) {
