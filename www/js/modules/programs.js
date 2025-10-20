@@ -107,6 +107,7 @@ OSApp.Programs.displayPage = function(programId) {
 		} );
 
 		page.find( "#programs_list" ).html( list.enhanceWithin() );
+		OSApp.Programs.updateProgramHeader();
 	}
 
 	function begin() {
