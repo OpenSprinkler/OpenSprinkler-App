@@ -66,6 +66,11 @@ OSApp.Groups.canShift = function( gid ) {
 	return OSApp.Groups.numActiveStations( gid ) > 1;
 };
 
+// If at least 1 station in this group is active
+OSApp.Groups.canPreempt = function( gid ) {
+	return OSApp.Groups.numActiveStations( gid ) > 0;
+};
+
 // Tbh, not sure if this belongs here in groups.js (mellodev)
 OSApp.Groups.calculateTotalRunningTime = function( runTimes ) {
 	var sdt = OSApp.currentSession.controller.options.sdt,

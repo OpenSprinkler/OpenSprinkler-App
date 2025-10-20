@@ -970,8 +970,14 @@ OSApp.Dashboard.displayPage = function() {
 
 							// Show the remaining time if it's greater than 0
 							line += " <span id=" + ( qPause ? "'pause" : "'countdown-" ) + sid + "' class='nobr'>(" + OSApp.Dates.sec2hms( rem ) + " " + OSApp.Language._( "remaining" ) + ")</span>";
-							if ( OSApp.currentSession.controller.status[ sid ] ) {
+
+							if ( isRunning ) {
 								addTimer( sid, rem );
+							} else {
+								// Station is scheduled/paused but not running - remove timer if it exists
+								if ( OSApp.uiState.timers[ "station-" + sid ] ) {
+									delete OSApp.uiState.timers[ "station-" + sid ];
+								}
 							}
 						}
 						if ( card.find( ".rem" ).length === 0 ) {
@@ -1088,8 +1094,10 @@ OSApp.Dashboard.displayPage = function() {
 						maximum: 64800,
 						seconds: sites[ currentSite ].lastRunTime[ sid ] > 0 ? sites[ currentSite ].lastRunTime[ sid ] : 0,
 						helptext: OSApp.Language._( "Enter a duration to manually run " ) + name,
-						callback: function( duration ) {
-							OSApp.Firmware.sendToOS( "/cm?sid=" + sid + "&en=1&t=" + duration + "&pw=", "json" ).done( function() {
+						showPreemptCheckbox: OSApp.Groups.canPreempt( stationGID ),
+						callback: function( duration, preempt ) {
+							var preParam = preempt ? "&pre=1" : "";
+							OSApp.Firmware.sendToOS( "/cm?sid=" + sid + "&en=1&t=" + duration + preParam + "&pw=", "json" ).done( function() {
 
 								// Update local state until next device refresh occurs
 								OSApp.Stations.setPID( sid, OSApp.Constants.options.MANUAL_STATION_PID );
