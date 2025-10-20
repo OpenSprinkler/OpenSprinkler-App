@@ -1486,7 +1486,7 @@ OSApp.UIDom.showDurationBox = function( opt ) {
 			showSun: false,
 			minimum: 0,
 			showPreemptCheckbox: false,
-			preemptLabel: OSApp.Language._( "Run now (preempt zones in this group)" ),
+			preemptLabel: OSApp.Language._( "Run immediately (preempt other zones in this group)" ),
 			callback: function() {}
 		},
 		type = 0;
@@ -1552,7 +1552,7 @@ OSApp.UIDom.showDurationBox = function( opt ) {
 					"</div>" +
 				"</div>" : "" ) +
 				( opt.showPreemptCheckbox ? "<label for='preempt-checkbox' class='center'>" +
-					"<input type='checkbox' id='preempt-checkbox' data-mini='true' checked='checked'>" +
+					"<input type='checkbox' id='preempt-checkbox' checked='checked'>" +
 					opt.preemptLabel +
 				"</label>" : "" ) +
 				( opt.showBack ? "<button class='submit' data-theme='b'>" + OSApp.Language._( "Submit" ) + "</button>" : "" ) +

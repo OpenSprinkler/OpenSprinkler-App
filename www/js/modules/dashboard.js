@@ -1094,7 +1094,7 @@ OSApp.Dashboard.displayPage = function() {
 						maximum: 64800,
 						seconds: sites[ currentSite ].lastRunTime[ sid ] > 0 ? sites[ currentSite ].lastRunTime[ sid ] : 0,
 						helptext: OSApp.Language._( "Enter a duration to manually run " ) + name,
-						showPreemptCheckbox: OSApp.Groups.canPreempt( stationGID ),
+						showPreemptCheckbox: OSApp.Groups.canPreempt( stationGID ) && OSApp.Stations.isSequential( sid ),
 						callback: function( duration, preempt ) {
 							var preParam = preempt ? "&pre=1" : "";
 							OSApp.Firmware.sendToOS( "/cm?sid=" + sid + "&en=1&t=" + duration + preParam + "&pw=", "json" ).done( function() {
