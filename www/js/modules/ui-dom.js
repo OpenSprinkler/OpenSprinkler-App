@@ -302,7 +302,7 @@ OSApp.UIDom.showHomeMenu = ( function() {
 				"<li><a href='#raindelay'>" + OSApp.Language._( "Change Rain Delay" ) + "</a></li>" +
 				( OSApp.Supported.pausing() ?
 					( OSApp.StationQueue.isPaused() ? "<li><a href='#globalpause'>" + OSApp.Language._( "Change Pause" ) + "</a></li>"
-						: ( OSApp.StationQueue.isActive() >= -1 ? "<li><a href='#globalpause'>" + OSApp.Language._( "Pause Station Runs" ) + "</a></li>" : "" ) )
+						: ( "<li><a href='#globalpause'>" + OSApp.Language._( "Pause Station Runs" ) + "</a></li>" ) )
 					: "" ) +
 				"<li><a href='#runonce'>" + OSApp.Language._( "Run-Once Program" ) + "</a></li>" +
 				"<li><a href='#programs'>" + OSApp.Language._( "Edit Programs" ) + "</a></li>" +

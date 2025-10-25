@@ -266,13 +266,21 @@ OSApp.Stations.submitRunonce = function( runonce, interval, repeat, annotation )
 	var submit = function() {
 		$.mobile.loading( "show" );
 		OSApp.Storage.set( { "runonce": JSON.stringify( runonce ) } );
+
 		let request = "/cr?pw=&t=" + JSON.stringify( runonce );
+
 		if ( OSApp.Supported.repeatedRunonce() ) {
 			request += "&int=" + interval + "&cnt=" + repeat + "&uwt=" + weather;
 			if ( annotation?.length > 0 ) {
 				request += "&anno=" + annotation;
 			}
 		}
+		if ( OSApp.Firmware.checkOSVersion ( 2214 ) ) {
+			var preVal = $("input[name='pre-runonce']:checked").val();
+			if (preVal === undefined || preVal === null || preVal === "") { preVal = "2"; }
+			request += "&pre=" + preVal;
+		}
+
 		OSApp.Firmware.sendToOS( request ).done( function() {
 			$.mobile.loading( "hide" );
 			$.mobile.document.one( "pageshow", function() {
@@ -285,7 +293,7 @@ OSApp.Stations.submitRunonce = function( runonce, interval, repeat, annotation )
 	isOn = OSApp.StationQueue.isActive();
 
 	var checkIsOnAndSubmit = function() {
-		if ( isOn !== -1){
+		if ( !OSApp.Firmware.checkOSVersion ( 2214 ) && isOn !== -1){
 			OSApp.UIDom.areYouSure( OSApp.Language._( "Do you want to stop the currently running program?" ), OSApp.Programs.pidToName( OSApp.Stations.getPID( isOn ) ), function() {
 				$.mobile.loading( "show" );
 				OSApp.Stations.stopStations( submit );

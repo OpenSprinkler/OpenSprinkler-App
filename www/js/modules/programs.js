@@ -47,16 +47,16 @@ OSApp.Programs.displayPage = function(programId) {
 	function updateContent() {
 		var list = $( OSApp.Programs.makeAllPrograms() );
 
-                list.find( "[id^=program-]" ).on( {
-                        collapsiblecollapse: function() {
-                                var pid = $( this ).attr( "id" ).split( "-" )[ 1 ];
-                                var select = $( "#d-" + pid );
-                                if ( select.length && select.data( "mobile-selectmenu" ) ) {
-                                        select.selectmenu( "destroy" );
-                                }
-                                $( "#d-" + pid + "-listbox" ).remove();
-                                $( this ).find( ".ui-collapsible-content" ).empty();
-                        },
+		list.find( "[id^=program-]" ).on( {
+			collapsiblecollapse: function() {
+				var pid = $( this ).attr( "id" ).split( "-" )[ 1 ];
+				var select = $( "#d-" + pid );
+				if ( select.length && select.data( "mobile-selectmenu" ) ) {
+					select.selectmenu( "destroy" );
+				}
+				$( "#d-" + pid + "-listbox" ).remove();
+				$( this ).find( ".ui-collapsible-content" ).empty();
+			},
 			collapsiblebeforecollapse: function( e ) {
 				var program = $( this ),
 					changed = program.find( ".hasChanges" );
@@ -416,6 +416,8 @@ OSApp.Programs.displayPageRunOnce = function() {
 
 			// Show repeating start time options
 			list += "<div id='input_stype_repeat-runonce'>";
+			// Show repeating start time options
+			list += "<div id='input_stype_repeat-runonce'>";
 			list += "<div class='ui-grid-a'>";
 			list += "<div class='ui-block-a'><label class='pad_buttons center' for='interval-runonce'>" + OSApp.Language._( "Repeat Every" ) + "</label>" +
 				"<button class='pad_buttons' data-mini='true' name='interval-runonce' id='interval-runonce' " +
@@ -423,6 +425,23 @@ OSApp.Programs.displayPageRunOnce = function() {
 			list += "<div class='ui-block-b'><label class='pad_buttons center' for='repeat-runonce'>" + OSApp.Language._( "Repeat Count" ) + "</label>" +
 				"<button class='pad_buttons' data-mini='true' name='repeat-runonce' id='repeat-runonce' value='0'>0</button></div>";
 			list += "</div></div>";
+			if (OSApp.Firmware.checkOSVersion ( 2214 ) ) {
+				list += "<fieldset data-role='controlgroup' data-mini='true' id='queue-option' style='margin:12px 0 20px 0;'>" +
+						"<legend class='center'><b>" + OSApp.Language._("Scheduling Option") + "</b></legend>" +
+						"<label for='pre-append'>" +
+							"<input type='radio' name='pre-runonce' id='pre-append' value='0'>" +
+							OSApp.Language._("Run After Others (Append)") +
+						"</label>" +
+						"<label for='pre-insert'>" +
+							"<input type='radio' name='pre-runonce' id='pre-insert' value='1'>" +
+							OSApp.Language._("Run Now and Pause Others (Insert to front)") +
+						"</label>" +
+						"<label for='pre-replace'>" +
+							"<input type='radio' name='pre-runonce' id='pre-replace' value='2' checked='checked'>" +
+							OSApp.Language._("Run Now and Cancel Others (Replace)") +
+						"</label>" +
+						"</fieldset>";
+			}
 		}
 
 		list += "<a class='ui-btn ui-corner-all ui-shadow rsubmit' href='#'>" + OSApp.Language._( "Submit" ) + "</a>" +
