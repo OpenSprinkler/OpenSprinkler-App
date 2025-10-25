@@ -404,16 +404,6 @@ OSApp.UIDom.initAppData = function() {
 				//eslint-disable-next-line
 			} catch ( err ) {}
 		} );
-	} else if ( OSApp.currentDevice.isFireFox ) {
-
-		// Allow cross domain AJAX requests in FireFox OS
-		$.ajaxSetup( {
-			xhr: function() {
-				return new window.XMLHttpRequest( {
-					mozSystem: true
-				} );
-			}
-		} );
 	} else {
 		$.ajaxSetup( {
 			"cache": false
