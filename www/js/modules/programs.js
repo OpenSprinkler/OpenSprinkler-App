@@ -425,7 +425,8 @@ OSApp.Programs.displayPageRunOnce = function() {
 			list += "<div class='ui-block-b'><label class='pad_buttons center' for='repeat-runonce'>" + OSApp.Language._( "Repeat Count" ) + "</label>" +
 				"<button class='pad_buttons' data-mini='true' name='repeat-runonce' id='repeat-runonce' value='0'>0</button></div>";
 			list += "</div></div>";
-			if (OSApp.Firmware.checkOSVersion ( 2214 ) ) {
+
+			if ( OSApp.StationQueue.isActive() !== -1 && OSApp.Firmware.checkOSVersion ( 2214 ) ) {
 				list += "<fieldset data-role='controlgroup' data-mini='true' id='queue-option' style='margin:12px 0 20px 0;'>" +
 						"<legend class='center'><b>" + OSApp.Language._("Scheduling Option") + "</b></legend>" +
 						"<label for='pre-append'>" +
