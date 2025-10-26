@@ -241,8 +241,9 @@ OSApp.Stations.convertRemoteToExtender = function( data ) {
 	} );
 };
 
-OSApp.Stations.submitRunonce = function( runonce, interval, repeat, annotation ) {
-	let weather;
+OSApp.Stations.submitRunonce = function( runonce, uwt, interval, repeat, annotation, pre ) {
+	// This block is for the Run-Once Page *only*.
+	// It detects if `runonce` is not an array, meaning it's being called from the page.
 	if ( !( runonce instanceof Array ) ) {
 		runonce = [];
 		$( "#runonce" ).find( "[id^='zone-']" ).each( function() {
@@ -251,14 +252,22 @@ OSApp.Stations.submitRunonce = function( runonce, interval, repeat, annotation )
 		runonce.push( 0 );
 
 		if( OSApp.Supported.repeatedRunonce() ){
-			//Set up all parameters if needed
-			weather = $( "#runonce" ).find( "#uwt-runonce" ).prop( "checked" ) ? 1 : 0;
+			// Set up all parameters if needed
+			if( !(typeof uwt === "number") ) {
+				uwt = $( "#runonce" ).find( "#uwt-runonce" ).prop( "checked" ) ? 1 : 0;
+			}
 
 			if( !(typeof interval === "number" ) ) {
 				interval = $( "#runonce" ).find( "#interval-runonce").val() / 60;
 			}
 			if( !(typeof repeat === "number" ) ) {
 				repeat = $( "#runonce" ).find( "#repeat-runonce").val();
+			}
+		}
+
+		if ( OSApp.Firmware.checkOSVersion ( 2214 ) ) {
+			if ( !(typeof pre === "number" ) ) {
+				pre = $("input[name='pre-runonce']:checked").val();
 			}
 		}
 	}
@@ -270,15 +279,15 @@ OSApp.Stations.submitRunonce = function( runonce, interval, repeat, annotation )
 		let request = "/cr?pw=&t=" + JSON.stringify( runonce );
 
 		if ( OSApp.Supported.repeatedRunonce() ) {
-			request += "&int=" + interval + "&cnt=" + repeat + "&uwt=" + weather;
+			request += "&int=" + interval + "&cnt=" + repeat + "&uwt=" + uwt;
 			if ( annotation?.length > 0 ) {
 				request += "&anno=" + annotation;
 			}
 		}
 		if ( OSApp.Firmware.checkOSVersion ( 2214 ) ) {
-			var preVal = $("input[name='pre-runonce']:checked").val();
-			if (preVal === undefined || preVal === null || preVal === "") { preVal = "2"; }
-			request += "&pre=" + preVal;
+			if ( typeof pre === "number" ) {
+				request += "&pre=" + pre;
+			}
 		}
 
 		OSApp.Firmware.sendToOS( request ).done( function() {
@@ -303,17 +312,7 @@ OSApp.Stations.submitRunonce = function( runonce, interval, repeat, annotation )
 		}
 	};
 
-	if ( interval && interval > 0 && repeat && repeat > 0 ) {
-		OSApp.UIDom.areYouSure(OSApp.Language._( "Create a single-run program for repeat functionality?" ), "", function(){
-			checkIsOnAndSubmit();
-		}, function() {
-			interval = 0;
-			repeat = 0;
-			checkIsOnAndSubmit();
-		});
-	} else {
-		checkIsOnAndSubmit();
-	}
+	checkIsOnAndSubmit();
 };
 
 OSApp.Stations.getStationDuration = function( duration, date ) {
