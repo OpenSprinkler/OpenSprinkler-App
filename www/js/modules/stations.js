@@ -253,20 +253,20 @@ OSApp.Stations.submitRunonce = function( runonce, uwt, interval, repeat, annotat
 
 		if( OSApp.Supported.repeatedRunonce() ){
 			// Set up all parameters if needed
-			if( !(typeof uwt === "number") ) {
+			if( uwt == null ) {
 				uwt = $( "#runonce" ).find( "#uwt-runonce" ).prop( "checked" ) ? 1 : 0;
 			}
 
-			if( !(typeof interval === "number" ) ) {
+			if( interval == null ) {
 				interval = $( "#runonce" ).find( "#interval-runonce").val() / 60;
 			}
-			if( !(typeof repeat === "number" ) ) {
+			if( repeat == null ) {
 				repeat = $( "#runonce" ).find( "#repeat-runonce").val();
 			}
 		}
 
 		if ( OSApp.Firmware.checkOSVersion ( 2214 ) ) {
-			if ( !(typeof pre === "number" ) ) {
+			if ( pre == null ) {
 				pre = $("input[name='pre-runonce']:checked").val();
 			}
 		}
@@ -285,7 +285,7 @@ OSApp.Stations.submitRunonce = function( runonce, uwt, interval, repeat, annotat
 			}
 		}
 		if ( OSApp.Firmware.checkOSVersion ( 2214 ) ) {
-			if ( typeof pre === "number" ) {
+			if ( pre != null ) {
 				request += "&pre=" + pre;
 			}
 		}

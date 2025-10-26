@@ -2872,7 +2872,7 @@ OSApp.Programs.expandProgram = function( program ) {
 			e.preventDefault();
 			$("#run-program-dialog").popup("close");
 
-			var uwt = $("#rp-apply-wl").is(":checked");
+			var uwt = $("#rp-apply-wl").is(":checked") ? 1 : 0;
 			if ( !$("#rp-create-single").is(":checked") || !isRepeatProgram ) {
 				interval = 0;
 				repeat = 0;
@@ -2884,7 +2884,7 @@ OSApp.Programs.expandProgram = function( program ) {
 
 			runonce.push(0); // for legacy firmwares, need an extra element at the end
 
-			if ( !OSApp.Supported.repeatedRunonce() ) { // if the /cr endpoint doesn't support uwt flag, we apply uwt manually here
+			if ( uwt && !OSApp.Supported.repeatedRunonce() ) { // if the /cr endpoint doesn't support uwt flag, we apply uwt manually here
 				var wl = OSApp.currentSession.controller.options.wl || 100;  // fallback to 100% if undefined
 				for (var i = 0; i < runonce.length; i++) {
 					runonce[i] = Math.floor(runonce[i] * wl / 100);
