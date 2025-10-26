@@ -2739,10 +2739,6 @@ OSApp.Programs.submitProgram21 = function( id, ignoreWarning ) {
 };
 
 OSApp.Programs.openRunProgramDialog = function (pid, stationsDurations, uwt, isRepeatProgram) {
-	var $page =
-		($.mobile.pageContainer && $.mobile.pageContainer.pagecontainer("getActivePage")) ||
-		$(".ui-page-active") || $(document.body);
-
 	var $popup = $("#run-program-dialog");
 
 	if (!$popup.length) {
