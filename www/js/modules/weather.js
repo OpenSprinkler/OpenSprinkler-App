@@ -704,11 +704,20 @@ OSApp.Weather.updateWeather = function() {
 OSApp.Weather.checkURLandUpdateWeather = function() {
 	var finish = function( wsp ) {
 		if ( wsp ) {
-			OSApp.currentSession.weatherServerUrl = OSApp.currentSession.prefix + wsp;
+			if ( OSApp.Firmware.checkOSVersion( 2213 ) ) {
+				if ( /^https?:\/\//i.test(wsp) ) { // If a scheme is already present, honor it.
+					OSApp.currentSession.weatherServerUrl = wsp.replace(/\/+$/, "");
+				} else { // Default to HTTPS for custom WSP.to be consistent with firmware
+					OSApp.currentSession.weatherServerUrl = ("https://" + wsp).replace(/\/+$/, "");
+				}
+			} else {
+				OSApp.currentSession.weatherServerUrl = OSApp.currentSession.prefix + wsp;
+			}
 		} else {
 			OSApp.currentSession.weatherServerUrl = OSApp.Constants.weather.DEFAULT_WEATHER_SERVER_URL;
 		}
-
+		console.log(wsp);
+		console.log(OSApp.currentSession.weatherServerUrl);
 		OSApp.Weather.updateWeather();
 	};
 

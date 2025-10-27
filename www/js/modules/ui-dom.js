@@ -1485,8 +1485,8 @@ OSApp.UIDom.showDurationBox = function( opt ) {
 			showBack: true,
 			showSun: false,
 			minimum: 0,
-			showPreemptCheckbox: false,
-			preemptLabel: OSApp.Language._( "Run immediately (preempt other zones in this group)" ),
+			showQOCheckbox: false,
+			qoLabel: OSApp.Language._( "Run immediately (preempt other zones in this group)" ),
 			callback: function() {}
 		},
 		type = 0;
@@ -1551,9 +1551,9 @@ OSApp.UIDom.showDurationBox = function( opt ) {
 						"<button value='65535' class='ui-mini ui-btn set " + ( type === 1 ? "ui-btn-active" : "" ) + "'>" + OSApp.Language._( "Sunset to Sunrise" ) + "</button>" +
 					"</div>" +
 				"</div>" : "" ) +
-				( opt.showPreemptCheckbox ? "<label for='preempt-checkbox' class='center'>" +
-					"<input type='checkbox' id='preempt-checkbox' checked='checked'>" +
-					opt.preemptLabel +
+				( opt.showQOCheckbox ? "<label for='qo-checkbox' class='center'>" +
+					"<input type='checkbox' id='qo-checkbox' checked='checked'>" +
+					opt.qoLabel +
 				"</label>" : "" ) +
 				( opt.showBack ? "<button class='submit' data-theme='b'>" + OSApp.Language._( "Submit" ) + "</button>" : "" ) +
 			"</div>" +
@@ -1580,7 +1580,7 @@ OSApp.UIDom.showDurationBox = function( opt ) {
 
 			input.val( val + dir );
 			if ( opt.incrementalUpdate ) {
-				opt.callback( getValue(), getPreempt() );
+				opt.callback( getValue(), getQueueOption() );
 			}
 
 			if ( !opt.preventCompression && OSApp.Firmware.checkOSVersion( 210 ) ) {
@@ -1620,9 +1620,9 @@ OSApp.UIDom.showDurationBox = function( opt ) {
 				} );
 			}
 		},
-		getPreempt = function() {
-			if ( opt.showPreemptCheckbox ) {
-				return popup.find( "#preempt-checkbox" ).is( ":checked" );
+		getQueueOption = function() {
+			if ( opt.showQOCheckbox ) {
+				return popup.find( "#qo-checkbox" ).is( ":checked" );
 			}
 			return false;
 		},
@@ -1653,7 +1653,7 @@ OSApp.UIDom.showDurationBox = function( opt ) {
 	popup.find( "span" ).prepend( incrbts + inputs + decrbts );
 
 	popup.find( "button.submit" ).on( "click", function() {
-		opt.callback( getValue(), getPreempt() );
+		opt.callback( getValue(), getQueueOption() );
 		popup.popup( "destroy" ).remove();
 	} );
 
@@ -1711,7 +1711,7 @@ OSApp.UIDom.showDurationBox = function( opt ) {
 			}
 
 			if ( opt.incrementalUpdate ) {
-				opt.callback( getValue(), getPreempt() );
+				opt.callback( getValue(), getQueueOption() );
 			}
 		} );
 	}
@@ -1725,7 +1725,7 @@ OSApp.UIDom.showDurationBox = function( opt ) {
 	} )
 	.one( "popupafterclose", function() {
 		if ( opt.incrementalUpdate ) {
-			opt.callback( getValue(), getPreempt() );
+			opt.callback( getValue(), getQueueOption() );
 		}
 	} );
 

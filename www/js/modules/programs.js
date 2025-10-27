@@ -429,16 +429,16 @@ OSApp.Programs.displayPageRunOnce = function() {
 			if ( OSApp.StationQueue.isActive() !== -1 && OSApp.Firmware.checkOSVersion ( 2214 ) ) {
 				list += "<fieldset data-role='controlgroup' data-mini='true' id='queue-option' style='margin:12px 0 20px 0;'>" +
 						"<legend class='center'><b>" + OSApp.Language._("Scheduling Option") + "</b></legend>" +
-						"<label for='pre-append'>" +
-							"<input type='radio' name='pre-runonce' id='pre-append' value='0'>" +
+						"<label for='qo-append'>" +
+							"<input type='radio' name='qo-runonce' id='qo-append' value='0'>" +
 							OSApp.Language._("Run After Others (Append)") +
 						"</label>" +
-						"<label for='pre-insert'>" +
-							"<input type='radio' name='pre-runonce' id='pre-insert' value='1'>" +
+						"<label for='qo-insert'>" +
+							"<input type='radio' name='qo-runonce' id='qo-insert' value='1'>" +
 							OSApp.Language._("Run Now and Pause Others (Insert to front)") +
 						"</label>" +
-						"<label for='pre-replace'>" +
-							"<input type='radio' name='pre-runonce' id='pre-replace' value='2' checked='checked'>" +
+						"<label for='qo-replace'>" +
+							"<input type='radio' name='qo-runonce' id='qo-replace' value='2' checked='checked'>" +
 							OSApp.Language._("Run Now and Cancel Others (Replace)") +
 						"</label>" +
 						"</fieldset>";
@@ -2763,12 +2763,12 @@ OSApp.Programs.openRunProgramDialog = function (pid, stationsDurations, uwt, isR
 						</label>
 					</fieldset>
 
-					<div id="rp-pre-wrap" style="display:none;margin-top:10px;">
-						<fieldset data-role="controlgroup" data-mini="true" id="rp-pre-group">
+					<div id="rp-qo-wrap" style="display:none;margin-top:10px;">
+						<fieldset data-role="controlgroup" data-mini="true" id="rp-qo-group">
 							<legend class="center"><b>${OSApp.Language._("Scheduling Option")}</b></legend>
-							<label for="rp-pre-append"><input type="radio" name="rp-pre" id="rp-pre-append" value="0">${OSApp.Language._("Run After Others")}</label>
-							<label for="rp-pre-insert"><input type="radio" name="rp-pre" id="rp-pre-insert" value="1">${OSApp.Language._("Run Now and Pause Others")}</label>
-							<label for="rp-pre-replace"><input type="radio" name="rp-pre" id="rp-pre-replace" value="2" checked>${OSApp.Language._("Run Now and Cancel Others")}</label>
+							<label for="rp-qo-append"><input type="radio" name="rp-qo" id="rp-qo-append" value="0">${OSApp.Language._("Run After Others")}</label>
+							<label for="rp-qo-insert"><input type="radio" name="rp-qo" id="rp-qo-insert" value="1">${OSApp.Language._("Run Now and Pause Others")}</label>
+							<label for="rp-qo-replace"><input type="radio" name="rp-qo" id="rp-qo-replace" value="2" checked>${OSApp.Language._("Run Now and Cancel Others")}</label>
 						</fieldset>
 					</div>
 
@@ -2796,9 +2796,9 @@ OSApp.Programs.openRunProgramDialog = function (pid, stationsDurations, uwt, isR
 	$("#rp-repeat-wrap").toggle(!!isRepeatProgram);
 
 	// Show/hide scheduling options
-	var supportsPre = OSApp.Firmware.checkOSVersion(2214);
+	var supportsQO = OSApp.Firmware.checkOSVersion(2214);
 	var hasActive = ( OSApp.StationQueue.isActive() !== -1 );
-	$("#rp-pre-wrap").toggle(supportsPre && hasActive);
+	$("#rp-qo-wrap").toggle(supportsQO && hasActive);
 
 	// Rebind buttons
 	$("#rp-cancel").off("click").on("click", function (e) {
@@ -2878,9 +2878,9 @@ OSApp.Programs.expandProgram = function( program ) {
 				repeat = 0;
 			}
 
-			var supportsPre = OSApp.Firmware.checkOSVersion(2214);
+			var supportsQO = OSApp.Firmware.checkOSVersion(2214);
 			var hasActive = ( OSApp.StationQueue.isActive() !== -1 );
-			var pre = (supportsPre && hasActive) ? ($("input[name='rp-pre']:checked").val() || "2") : "2";
+			var qo = (supportsQO && hasActive) ? ($("input[name='rp-qo']:checked").val() || "2") : "2";
 
 			runonce.push(0); // for legacy firmwares, need an extra element at the end
 
@@ -2890,7 +2890,7 @@ OSApp.Programs.expandProgram = function( program ) {
 					runonce[i] = Math.floor(runonce[i] * wl / 100);
 				}
 			}
-			OSApp.Stations.submitRunonce(runonce, uwt, interval, repeat, annotation, pre);
+			OSApp.Stations.submitRunonce(runonce, uwt, interval, repeat, annotation, qo);
 		} );
 	} );
 };
