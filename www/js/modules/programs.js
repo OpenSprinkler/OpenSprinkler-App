@@ -470,6 +470,31 @@ OSApp.Programs.displayPageRunOnce = function() {
 			} );
 		}
 
+		// 1. Add a change listener to save the selected value
+		page.find( "input[name='qo-runonce']" ).on( "change", function() {
+			var selectedValue = $( this ).val();
+			OSApp.Storage.set( { "runOnceQO": selectedValue } );
+		} );
+
+		// 2. Retrieve the saved value and apply it when the page loads
+		OSApp.Storage.get( "runOnceQO", function( data ) {
+			// Check if we have a saved value (it defaults to "2" in the HTML)
+			if ( data.runOnceQO && data.runOnceQO !== "2" ) {
+				var radioButtons = page.find( "input[name='qo-runonce']" );
+
+				radioButtons.filter( "[value='2']" ).prop( "checked", false );
+				radioButtons.filter( "[value='" + data.runOnceQO + "']" ).prop( "checked", true );
+
+				// Refresh the jQuery Mobile radio button widget to show the change
+				try {
+					radioButtons.checkboxradio( "refresh" );
+				} catch (e) {
+					console.warn("Could not refresh qo-runonce radio buttons: ", e);
+				}
+			}
+		} );
+		// ----- END: Add code to cache Run-once Scheduling Option -----
+
 		page.find( "#rprog" ).on( "change", function() {
 			var prog = $( this ).val();
 			if ( prog === "s" ) {
@@ -2782,6 +2807,10 @@ OSApp.Programs.openRunProgramDialog = function (pid, stationsDurations, uwt, isR
 
 		$popup.appendTo($.mobile.pageContainer); // not inside a transformed div
 		$popup.enhanceWithin();
+		$popup.find( "input[name='rp-qo']" ).on( "change", function() {
+			var selectedValue = $( this ).val();
+			OSApp.Storage.set( { "runOnceQO": selectedValue } );
+		} );
 		$popup.popup(); // init
 	}
 
@@ -2805,11 +2834,32 @@ OSApp.Programs.openRunProgramDialog = function (pid, stationsDurations, uwt, isR
 		e.preventDefault();
 		$popup.popup("close");
 	});
+
 	$popup.one("popupafteropen", function () {
 		$(this).popup("reposition", { positionTo: "window" });
 	});
-	// Finally, OPEN — safe because we called .popup() above
-	$popup.popup("open");
+
+	OSApp.Storage.get( "runOnceQO", function( data ) {
+		// Check if we have a saved value (it defaults to "2" in the HTML)
+		if ( data.runOnceQO && data.runOnceQO !== "2" ) {
+			var radioButtons = $popup.find( "input[name='rp-qo']" );
+
+			radioButtons.filter( "[value='2']" ).prop( "checked", false );
+			radioButtons.filter( "[value='" + data.runOnceQO + "']" ).prop( "checked", true );
+
+			// Refresh the widget if it's initialized
+			if ( radioButtons.closest(".ui-checkbox").length || radioButtons.closest(".ui-radio").length ) {
+				try {
+					radioButtons.checkboxradio( "refresh" );
+				} catch(e) {
+					console.warn("Could not refresh rp-qo radio buttons: ", e);
+				}
+			}
+		}
+		// Finally, OPEN — safe because we called .popup() above
+		// This is moved inside the async callback to ensure values are set first
+		$popup.popup("open");
+	} );
 };
 
 OSApp.Programs.expandProgram = function( program ) {
