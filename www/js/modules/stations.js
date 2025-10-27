@@ -241,7 +241,7 @@ OSApp.Stations.convertRemoteToExtender = function( data ) {
 	} );
 };
 
-OSApp.Stations.submitRunonce = function( runonce, uwt, interval, repeat, annotation, pre ) {
+OSApp.Stations.submitRunonce = function( runonce, uwt, interval, repeat, annotation, qo ) {
 	// This block is for the Run-Once Page *only*.
 	// It detects if `runonce` is not an array, meaning it's being called from the page.
 	if ( !( runonce instanceof Array ) ) {
@@ -266,8 +266,8 @@ OSApp.Stations.submitRunonce = function( runonce, uwt, interval, repeat, annotat
 		}
 
 		if ( OSApp.Firmware.checkOSVersion ( 2214 ) ) {
-			if ( pre == null ) {
-				pre = $("input[name='pre-runonce']:checked").val();
+			if ( qo == null ) {
+				qo = $("input[name='qo-runonce']:checked").val();
 			}
 		}
 	}
@@ -285,8 +285,8 @@ OSApp.Stations.submitRunonce = function( runonce, uwt, interval, repeat, annotat
 			}
 		}
 		if ( OSApp.Firmware.checkOSVersion ( 2214 ) ) {
-			if ( pre != null ) {
-				request += "&pre=" + pre;
+			if ( qo != null ) {
+				request += "&qo=" + qo;
 			}
 		}
 

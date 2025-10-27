@@ -198,16 +198,37 @@ OSApp.Status.checkStatus = function() {
 				var infoText = OSApp.Language._(
 					"The controller detected one or more zones drawing too much current, exceeding the limit. " +
 					"Please check your wiring and perform a <b>solenoid resistance test</b>. " +
-					"After fixing, reboot the controller to clear the fault message. " +
+					"After fixing, you can clear the alert here. " +
 					"For more instructions, visit our support site"
 				) + ": <a href='https://support.opensprinkler.com' target='_blank' rel='noopener'>support.opensprinkler.com</a>.";
+
 				var popup = $(
 					"<div data-role='popup' data-theme='a' class='ocs-popup' id='ocsInfo'>" +
 						"<div class='ui-content ocs-popup-content'>" +
 							"<p class='ocs-text'>" + infoText + "</p>" +
+							"<a href='#' id='ocsClearBtn' class='ui-btn ui-btn-b ui-corner-all ui-shadow'>" +
+								OSApp.Language._('Clear this alert') +
+							"</a>" +
 						"</div>" +
 					"</div>"
 				);
+
+				popup.find( "#ocsClearBtn" ).on( "click", function( e ) {
+					e.preventDefault(); // Prevent link navigation
+					// Show loading indicator inside the popup
+					OSApp.UIDom.showLoading( popup.find( ".ui-content" ) );
+					// Send the command to clear the OCS alert
+					OSApp.Firmware.sendToOS( "/cv?pw=&rocs=1" ).done( function() { // Added pw= for compatibility
+						// On success, close the popup and refresh the status
+						popup.popup( "close" );
+						OSApp.Status.refreshStatus();
+					} ).fail( function() {
+						// On failure, just close the popup and let the user try again
+						popup.popup( "close" );
+						OSApp.Network.networkFail(); // Show a network fail error
+					} );
+				} );
+
 				// Open the popup dialog
 				OSApp.UIDom.openPopup( popup );
 			}
