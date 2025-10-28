@@ -2777,7 +2777,7 @@ OSApp.Programs.openRunProgramDialog = function (pid, stationsDurations, uwt, isR
 					<fieldset data-role="controlgroup" data-mini="true">
 						<label>
 							<input type="checkbox" id="rp-apply-wl">
-							${OSApp.Language._("Apply current watering level")}
+							${OSApp.Language._("Apply current watering level")} <span id="rp-apply-wl-percent">
 						</label>
 					</fieldset>
 
@@ -2816,6 +2816,10 @@ OSApp.Programs.openRunProgramDialog = function (pid, stationsDurations, uwt, isR
 
 	// Inherit program setting's uwt flag
 	var apply = !!uwt;
+	var currentWL = OSApp.currentSession.controller.options.wl ?? 100;
+	var percentText = "(" + currentWL + "%)";
+	$popup.find("#rp-apply-wl-percent").text(percentText);
+
 	$("#rp-apply-wl").prop("checked", apply);
 	if ($("#rp-apply-wl").closest(".ui-checkbox").length) {
 		$("#rp-apply-wl").checkboxradio("refresh");
@@ -2935,7 +2939,7 @@ OSApp.Programs.expandProgram = function( program ) {
 			runonce.push(0); // for legacy firmwares, need an extra element at the end
 
 			if ( uwt && !OSApp.Supported.repeatedRunonce() ) { // if the /cr endpoint doesn't support uwt flag, we apply uwt manually here
-				var wl = OSApp.currentSession.controller.options.wl || 100;  // fallback to 100% if undefined
+				var wl = OSApp.currentSession.controller.options.wl ?? 100;  // fallback to 100% if undefined or null
 				for (var i = 0; i < runonce.length; i++) {
 					runonce[i] = Math.floor(runonce[i] * wl / 100);
 				}

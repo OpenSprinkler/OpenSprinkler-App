@@ -302,11 +302,14 @@ OSApp.Stations.submitRunonce = function( runonce, uwt, interval, repeat, annotat
 	isOn = OSApp.StationQueue.isActive();
 
 	var checkIsOnAndSubmit = function() {
-		if ( !OSApp.Firmware.checkOSVersion ( 2214 ) && isOn !== -1){
-			OSApp.UIDom.areYouSure( OSApp.Language._( "Do you want to stop the currently running program?" ), OSApp.Programs.pidToName( OSApp.Stations.getPID( isOn ) ), function() {
-				$.mobile.loading( "show" );
-				OSApp.Stations.stopStations( submit );
-			} );
+		if ( !OSApp.Firmware.checkOSVersion ( 2214 ) && isOn !== -1 ){
+			// Add a short delay to allow the first popup to finish closing
+			setTimeout(function() {
+				OSApp.UIDom.areYouSure( OSApp.Language._( "Do you want to stop the currently running program?" ), OSApp.Programs.pidToName( OSApp.Stations.getPID( isOn ) ), function() {
+					$.mobile.loading( "show" );
+					OSApp.Stations.stopStations( submit );
+				} );
+			}, 100); // 100ms delay is usually enough for the DOM to settle
 		} else {
 			submit();
 		}
