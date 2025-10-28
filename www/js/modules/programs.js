@@ -47,16 +47,16 @@ OSApp.Programs.displayPage = function(programId) {
 	function updateContent() {
 		var list = $( OSApp.Programs.makeAllPrograms() );
 
-                list.find( "[id^=program-]" ).on( {
-                        collapsiblecollapse: function() {
-                                var pid = $( this ).attr( "id" ).split( "-" )[ 1 ];
-                                var select = $( "#d-" + pid );
-                                if ( select.length && select.data( "mobile-selectmenu" ) ) {
-                                        select.selectmenu( "destroy" );
-                                }
-                                $( "#d-" + pid + "-listbox" ).remove();
-                                $( this ).find( ".ui-collapsible-content" ).empty();
-                        },
+		list.find( "[id^=program-]" ).on( {
+			collapsiblecollapse: function() {
+				var pid = $( this ).attr( "id" ).split( "-" )[ 1 ];
+				var select = $( "#d-" + pid );
+				if ( select.length && select.data( "mobile-selectmenu" ) ) {
+					select.selectmenu( "destroy" );
+				}
+				$( "#d-" + pid + "-listbox" ).remove();
+				$( this ).find( ".ui-collapsible-content" ).empty();
+			},
 			collapsiblebeforecollapse: function( e ) {
 				var program = $( this ),
 					changed = program.find( ".hasChanges" );
@@ -107,6 +107,7 @@ OSApp.Programs.displayPage = function(programId) {
 		} );
 
 		page.find( "#programs_list" ).html( list.enhanceWithin() );
+		OSApp.Programs.updateProgramHeader();
 	}
 
 	function begin() {
@@ -415,6 +416,8 @@ OSApp.Programs.displayPageRunOnce = function() {
 
 			// Show repeating start time options
 			list += "<div id='input_stype_repeat-runonce'>";
+			// Show repeating start time options
+			list += "<div id='input_stype_repeat-runonce'>";
 			list += "<div class='ui-grid-a'>";
 			list += "<div class='ui-block-a'><label class='pad_buttons center' for='interval-runonce'>" + OSApp.Language._( "Repeat Every" ) + "</label>" +
 				"<button class='pad_buttons' data-mini='true' name='interval-runonce' id='interval-runonce' " +
@@ -422,6 +425,24 @@ OSApp.Programs.displayPageRunOnce = function() {
 			list += "<div class='ui-block-b'><label class='pad_buttons center' for='repeat-runonce'>" + OSApp.Language._( "Repeat Count" ) + "</label>" +
 				"<button class='pad_buttons' data-mini='true' name='repeat-runonce' id='repeat-runonce' value='0'>0</button></div>";
 			list += "</div></div>";
+
+			if ( OSApp.StationQueue.isActive() !== -1 && OSApp.Firmware.checkOSVersion ( 2214 ) ) {
+				list += "<fieldset data-role='controlgroup' data-mini='true' id='queue-option' style='margin:12px 0 20px 0;'>" +
+						"<legend class='center'><b>" + OSApp.Language._("Scheduling Option") + "</b></legend>" +
+						"<label for='qo-append'>" +
+							"<input type='radio' name='qo-runonce' id='qo-append' value='0'>" +
+							OSApp.Language._("Run After Others (Append)") +
+						"</label>" +
+						"<label for='qo-insert'>" +
+							"<input type='radio' name='qo-runonce' id='qo-insert' value='1'>" +
+							OSApp.Language._("Run Now and Pause Others (Insert to front)") +
+						"</label>" +
+						"<label for='qo-replace'>" +
+							"<input type='radio' name='qo-runonce' id='qo-replace' value='2' checked='checked'>" +
+							OSApp.Language._("Run Now and Cancel Others (Replace)") +
+						"</label>" +
+						"</fieldset>";
+			}
 		}
 
 		list += "<a class='ui-btn ui-corner-all ui-shadow rsubmit' href='#'>" + OSApp.Language._( "Submit" ) + "</a>" +
@@ -448,6 +469,31 @@ OSApp.Programs.displayPageRunOnce = function() {
 				}
 			} );
 		}
+
+		// 1. Add a change listener to save the selected value
+		page.find( "input[name='qo-runonce']" ).on( "change", function() {
+			var selectedValue = $( this ).val();
+			OSApp.Storage.set( { "runOnceQO": selectedValue } );
+		} );
+
+		// 2. Retrieve the saved value and apply it when the page loads
+		OSApp.Storage.get( "runOnceQO", function( data ) {
+			// Check if we have a saved value (it defaults to "2" in the HTML)
+			if ( data.runOnceQO && data.runOnceQO !== "2" ) {
+				var radioButtons = page.find( "input[name='qo-runonce']" );
+
+				radioButtons.filter( "[value='2']" ).prop( "checked", false );
+				radioButtons.filter( "[value='" + data.runOnceQO + "']" ).prop( "checked", true );
+
+				// Refresh the jQuery Mobile radio button widget to show the change
+				try {
+					radioButtons.checkboxradio( "refresh" );
+				} catch (e) {
+					console.warn("Could not refresh qo-runonce radio buttons: ", e);
+				}
+			}
+		} );
+		// ----- END: Add code to cache Run-once Scheduling Option -----
 
 		page.find( "#rprog" ).on( "change", function() {
 			var prog = $( this ).val();
@@ -1857,7 +1903,7 @@ OSApp.Programs.makeProgram183 = function( n, isCopy ) {
 		days, i, j, setStations, program, page;
 
 	if ( n === "new" ) {
-		program = { "en":0, "weather":0, "type":0, "is_even":0, "is_odd":0, "duration":0, "interval":0, "start":0, "end":0, "days":[ 0, 0 ] };
+		program = { "en":0, "weather":0, "type":0, "is_even":0, "is_odd":0, "duration":0, "interval":0, "start":0, "end":0, "days":[ 1, 0 ] };
 	} else {
 		program = OSApp.Programs.readProgram( OSApp.currentSession.controller.programs.pd[ n ] );
 	}
@@ -2027,7 +2073,7 @@ OSApp.Programs.makeProgram21 = function( n, isCopy ) {
 		days, i, j, program, page, times, time, unchecked;
 
 	if ( n === "new" ) {
-		program = { "name":"", "en":0, "weather":0, "type":0, "is_even":0, "is_odd":0, "interval":0, "start":0, "days":[ 0, 0 ], "repeat":0, "stations":[] };
+		program = { "name":"", "en":0, "weather":0, "type":0, "is_even":0, "is_odd":0, "interval":0, "start":0, "days":[ 1, 0 ], "repeat":0, "stations":[] };
 	} else {
 		program = OSApp.Programs.readProgram( OSApp.currentSession.controller.programs.pd[ n ] );
 	}
@@ -2717,6 +2763,109 @@ OSApp.Programs.submitProgram21 = function( id, ignoreWarning ) {
 	}
 };
 
+OSApp.Programs.openRunProgramDialog = function (pid, stationsDurations, uwt, isRepeatProgram) {
+	var $popup = $("#run-program-dialog");
+
+	if (!$popup.length) {
+		$popup = $(`
+			<div data-role="popup" id="run-program-dialog" data-position-to="window" data-tolerance="15,15,15,15"
+					 data-overlay-theme="b" data-theme="a" data-dismissible="false"
+					 style="max-width:480px;">
+				<div class="ui-content">
+					<h3 class="center" style="margin-top:0">${OSApp.Language._("Run this program?")}</h3>
+
+					<fieldset data-role="controlgroup" data-mini="true">
+						<label>
+							<input type="checkbox" id="rp-apply-wl">
+							${OSApp.Language._("Apply current watering level")} <span id="rp-apply-wl-percent">
+						</label>
+					</fieldset>
+
+					<fieldset data-role="controlgroup" data-mini="true" id="rp-repeat-wrap" style="display:none;margin-top:6px;">
+						<label>
+							<input type="checkbox" id="rp-create-single" checked>
+							${OSApp.Language._("Create a single-run program for repeats")}
+						</label>
+					</fieldset>
+
+					<div id="rp-qo-wrap" style="display:none;margin-top:10px;">
+						<fieldset data-role="controlgroup" data-mini="true" id="rp-qo-group">
+							<legend class="center"><b>${OSApp.Language._("Scheduling Option")}</b></legend>
+							<label for="rp-qo-append"><input type="radio" name="rp-qo" id="rp-qo-append" value="0">${OSApp.Language._("Run After Others")}</label>
+							<label for="rp-qo-insert"><input type="radio" name="rp-qo" id="rp-qo-insert" value="1">${OSApp.Language._("Run Now and Pause Others")}</label>
+							<label for="rp-qo-replace"><input type="radio" name="rp-qo" id="rp-qo-replace" value="2" checked>${OSApp.Language._("Run Now and Cancel Others")}</label>
+						</fieldset>
+					</div>
+
+					<div class="ui-grid-a" style="margin-top:12px;">
+						<div class="ui-block-a"><a href="#" class="ui-btn ui-corner-all ui-shadow" id="rp-cancel">${OSApp.Language._("Cancel")}</a></div>
+						<div class="ui-block-b"><a href="#" class="ui-btn ui-btn-b ui-corner-all ui-shadow" id="rp-run">${OSApp.Language._("Run")}</a></div>
+					</div>
+				</div>
+			</div>
+		`);
+
+		$popup.appendTo($.mobile.pageContainer); // not inside a transformed div
+		$popup.enhanceWithin();
+		$popup.find( "input[name='rp-qo']" ).on( "change", function() {
+			var selectedValue = $( this ).val();
+			OSApp.Storage.set( { "runOnceQO": selectedValue } );
+		} );
+		$popup.popup(); // init
+	}
+
+	// Inherit program setting's uwt flag
+	var apply = !!uwt;
+	var currentWL = OSApp.currentSession.controller.options.wl ?? 100;
+	var percentText = "(" + currentWL + "%)";
+	$popup.find("#rp-apply-wl-percent").text(percentText);
+
+	$("#rp-apply-wl").prop("checked", apply);
+	if ($("#rp-apply-wl").closest(".ui-checkbox").length) {
+		$("#rp-apply-wl").checkboxradio("refresh");
+	}
+
+	// Show/hide checkbox for repeating
+	$("#rp-repeat-wrap").toggle(!!isRepeatProgram);
+
+	// Show/hide scheduling options
+	var supportsQO = OSApp.Firmware.checkOSVersion(2214);
+	var hasActive = ( OSApp.StationQueue.isActive() !== -1 );
+	$("#rp-qo-wrap").toggle(supportsQO && hasActive);
+
+	// Rebind buttons
+	$("#rp-cancel").off("click").on("click", function (e) {
+		e.preventDefault();
+		$popup.popup("close");
+	});
+
+	$popup.one("popupafteropen", function () {
+		$(this).popup("reposition", { positionTo: "window" });
+	});
+
+	OSApp.Storage.get( "runOnceQO", function( data ) {
+		// Check if we have a saved value (it defaults to "2" in the HTML)
+		if ( data.runOnceQO && data.runOnceQO !== "2" ) {
+			var radioButtons = $popup.find( "input[name='rp-qo']" );
+
+			radioButtons.filter( "[value='2']" ).prop( "checked", false );
+			radioButtons.filter( "[value='" + data.runOnceQO + "']" ).prop( "checked", true );
+
+			// Refresh the widget if it's initialized
+			if ( radioButtons.closest(".ui-checkbox").length || radioButtons.closest(".ui-radio").length ) {
+				try {
+					radioButtons.checkboxradio( "refresh" );
+				} catch(e) {
+					console.warn("Could not refresh rp-qo radio buttons: ", e);
+				}
+			}
+		}
+		// Finally, OPEN — safe because we called .popup() above
+		// This is moved inside the async callback to ensure values are set first
+		$popup.popup("open");
+	} );
+};
+
 OSApp.Programs.expandProgram = function( program ) {
 	var id = parseInt( program.attr( "id" ).split( "-" )[ 1 ] );
 
@@ -2739,53 +2888,63 @@ OSApp.Programs.expandProgram = function( program ) {
 		return false;
 	} );
 
-	program.find( "[id^='run-']" ).on( "click", function() {
+	program.find( "[id^='run-']" ).on( "click", function(e) {
+		e.stopPropagation();
 		var name = OSApp.Firmware.checkOSVersion( 210 ) ? OSApp.currentSession.controller.programs.pd[ id ][ 5 ] : "Program " + id;
 		var annotation = name.slice(-2);
 		if( ! ( annotation.length === 2 && annotation[0] === '>' ) ) annotation = "";
 
-		OSApp.UIDom.areYouSure( OSApp.Language._( "Are you sure you want to start" ) + " " + name + " " + OSApp.Language._( "now?" ), "", function() {
-			let repeat, interval;
-			if( OSApp.Supported.repeatedRunonce() ) {
-				const program = OSApp.currentSession.controller.programs.pd[ id ];
-				const startType = ( ( program[ 0 ] >> 6 ) & 0x01 );
-				if( startType === 0 ){
-					repeat = program[ 3 ][ 1 ];
-					interval = program[ 3 ][ 2 ];
+		// Build base durations array the same way your existing code does
+		var runonce = [];
+		if (OSApp.Firmware.checkOSVersion(210)) {
+			runonce = OSApp.currentSession.controller.programs.pd[id][4].slice(0); // clone
+		} else {
+			// Legacy: one duration for all selected stations
+			var durr = parseInt($("#duration-" + id).val());
+			var stations = $("[id^='station_'][id$='-" + id + "']");
+			$.each(stations, function () {
+				runonce.push($(this).is(":checked") ? durr : 0);
+			});
+		}
+
+		// detect repeat and interval in the program data
+		var repeat = 0, interval = 0; 
+		if (OSApp.Supported.repeatedRunonce()) {
+			const prog = OSApp.currentSession.controller.programs.pd[id];
+			// startType bit: 0 => "repeating" style start times in current code path
+			const startType = ((prog[0] >> 6) & 0x01);
+			if (startType === 0) {
+				repeat   = prog[3][1];  // repeat count
+				interval = prog[3][2];  // repeat every
+			}
+		}
+
+		var uwtChecked = ( OSApp.currentSession.controller.programs.pd[ id ][ 0 ] >> 1 ) & 1;
+		var isRepeatProgram = ( interval > 0 ) && ( repeat > 0 );
+		OSApp.Programs.openRunProgramDialog( id, runonce, uwtChecked, isRepeatProgram );
+		$(document).one("click.runprog", "#rp-run", function (e) {
+			e.preventDefault();
+			$("#run-program-dialog").popup("close");
+
+			var uwt = $("#rp-apply-wl").is(":checked") ? 1 : 0;
+			if ( !$("#rp-create-single").is(":checked") || !isRepeatProgram ) {
+				interval = 0;
+				repeat = 0;
+			}
+
+			var supportsQO = OSApp.Firmware.checkOSVersion(2214);
+			var hasActive = ( OSApp.StationQueue.isActive() !== -1 );
+			var qo = (supportsQO && hasActive) ? ($("input[name='rp-qo']:checked").val() || "2") : "2";
+
+			runonce.push(0); // for legacy firmwares, need an extra element at the end
+
+			if ( uwt && !OSApp.Supported.repeatedRunonce() ) { // if the /cr endpoint doesn't support uwt flag, we apply uwt manually here
+				var wl = OSApp.currentSession.controller.options.wl ?? 100;  // fallback to 100% if undefined or null
+				for (var i = 0; i < runonce.length; i++) {
+					runonce[i] = Math.floor(runonce[i] * wl / 100);
 				}
 			}
-			var runonce = [],
-				finish = function() {
-					runonce.push( 0 );
-					OSApp.Stations.submitRunonce( runonce, interval, repeat, annotation );
-				};
-
-			if ( OSApp.Firmware.checkOSVersion( 210 ) ) {
-				runonce = OSApp.currentSession.controller.programs.pd[ id ][ 4 ];
-
-				if ( ( OSApp.currentSession.controller.programs.pd[ id ][ 0 ] >> 1 ) & 1 ) {
-					OSApp.UIDom.areYouSure( OSApp.Language._( "Do you wish to apply the current watering level?" ), "", function() {
-						for ( var i = runonce.length - 1; i >= 0; i-- ) {
-							runonce[ i ] = parseInt( runonce[ i ] * ( OSApp.currentSession.controller.options.wl / 100 ) );
-						}
-						finish();
-					}, finish );
-					return false;
-				}
-			} else {
-				var durr = parseInt( $( "#duration-" + id ).val() ),
-					stations = $( "[id^='station_'][id$='-" + id + "']" );
-
-				$.each( stations, function() {
-					if ( $( this ).is( ":checked" ) ) {
-						runonce.push( durr );
-					} else {
-						runonce.push( 0 );
-					}
-				} );
-			}
-			finish();
+			OSApp.Stations.submitRunonce(runonce, uwt, interval, repeat, annotation, qo);
 		} );
-		return false;
 	} );
 };

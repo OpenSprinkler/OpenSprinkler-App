@@ -1150,5 +1150,23 @@ button[id^="start_1-"] {
 	margin-right: 5px;
 }
 
+/*
+  Fix for vertical alignment on desktop/wide screens.
+*/
+@media screen and (min-width: 480px) {
+    /* 1. Turn the container into a flexbox */
+    .ui-field-contain {
+        display: flex;
+        align-items: center;
+    }
 
+    /* 2. Remove the old float property that interferes */
+    .ui-field-contain > label {
+        float: none !important;
+    }
 
+    /* 3. ADDED: Force the sensor fieldset to take full width */
+    .ui-field-contain .sensor-options {
+        width: 100%;
+    }
+}

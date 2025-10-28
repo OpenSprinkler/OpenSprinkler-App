@@ -244,7 +244,7 @@ OSApp.UIDom.launchApp = function() {
 		if ( OSApp.currentSession.isControllerConnected() && newpage !== "#site-control" && newpage !== "#start" && newpage !== "#loadingPage" ) {
 
 			// Update the controller status every 5 seconds and the program and station data every 30 seconds
-			var refreshStatusInterval = setInterval( function() { OSApp.Status.refreshStatus(); }, 5000 ), // FIXME: refactor this 5000 interval out to Constants or config/settings
+			var refreshStatusInterval = setInterval( function() { OSApp.Status.refreshStatus(); }, 4000 ), // FIXME: refactor this 4000 interval out to Constants or config/settings
 				refreshDataInterval;
 
 			if ( !OSApp.Firmware.checkOSVersion( 216 ) ) {
@@ -302,7 +302,7 @@ OSApp.UIDom.showHomeMenu = ( function() {
 				"<li><a href='#raindelay'>" + OSApp.Language._( "Change Rain Delay" ) + "</a></li>" +
 				( OSApp.Supported.pausing() ?
 					( OSApp.StationQueue.isPaused() ? "<li><a href='#globalpause'>" + OSApp.Language._( "Change Pause" ) + "</a></li>"
-						: ( OSApp.StationQueue.isActive() >= -1 ? "<li><a href='#globalpause'>" + OSApp.Language._( "Pause Station Runs" ) + "</a></li>" : "" ) )
+						: ( "<li><a href='#globalpause'>" + OSApp.Language._( "Pause Station Runs" ) + "</a></li>" ) )
 					: "" ) +
 				"<li><a href='#runonce'>" + OSApp.Language._( "Run-Once Program" ) + "</a></li>" +
 				"<li><a href='#programs'>" + OSApp.Language._( "Edit Programs" ) + "</a></li>" +
@@ -1475,6 +1475,8 @@ OSApp.UIDom.showDurationBox = function( opt ) {
 			showBack: true,
 			showSun: false,
 			minimum: 0,
+			showQOCheckbox: false,
+			qoLabel: OSApp.Language._( "Run immediately (preempt other zones in this group)" ),
 			callback: function() {}
 		},
 		type = 0;
@@ -1539,6 +1541,10 @@ OSApp.UIDom.showDurationBox = function( opt ) {
 						"<button value='65535' class='ui-mini ui-btn set " + ( type === 1 ? "ui-btn-active" : "" ) + "'>" + OSApp.Language._( "Sunset to Sunrise" ) + "</button>" +
 					"</div>" +
 				"</div>" : "" ) +
+				( opt.showQOCheckbox ? "<label for='qo-checkbox' class='center'>" +
+					"<input type='checkbox' id='qo-checkbox' checked='checked'>" +
+					opt.qoLabel +
+				"</label>" : "" ) +
 				( opt.showBack ? "<button class='submit' data-theme='b'>" + OSApp.Language._( "Submit" ) + "</button>" : "" ) +
 			"</div>" +
 		"</div>" ),
@@ -1564,7 +1570,7 @@ OSApp.UIDom.showDurationBox = function( opt ) {
 
 			input.val( val + dir );
 			if ( opt.incrementalUpdate ) {
-				opt.callback( getValue() );
+				opt.callback( getValue(), getQueueOption() );
 			}
 
 			if ( !opt.preventCompression && OSApp.Firmware.checkOSVersion( 210 ) ) {
@@ -1604,6 +1610,12 @@ OSApp.UIDom.showDurationBox = function( opt ) {
 				} );
 			}
 		},
+		getQueueOption = function() {
+			if ( opt.showQOCheckbox ) {
+				return popup.find( "#qo-checkbox" ).is( ":checked" );
+			}
+			return false;
+		},
 		toggleInput = function( field, state ) {
 			popup.find( "." + field ).toggleClass( "ui-state-disabled", state ).prop( "disabled", state ).val( function() {
 				if ( state ) {
@@ -1631,7 +1643,7 @@ OSApp.UIDom.showDurationBox = function( opt ) {
 	popup.find( "span" ).prepend( incrbts + inputs + decrbts );
 
 	popup.find( "button.submit" ).on( "click", function() {
-		opt.callback( getValue() );
+		opt.callback( getValue(), getQueueOption() );
 		popup.popup( "destroy" ).remove();
 	} );
 
@@ -1689,7 +1701,7 @@ OSApp.UIDom.showDurationBox = function( opt ) {
 			}
 
 			if ( opt.incrementalUpdate ) {
-				opt.callback( getValue() );
+				opt.callback( getValue(), getQueueOption() );
 			}
 		} );
 	}
@@ -1703,7 +1715,7 @@ OSApp.UIDom.showDurationBox = function( opt ) {
 	} )
 	.one( "popupafterclose", function() {
 		if ( opt.incrementalUpdate ) {
-			opt.callback( getValue() );
+			opt.callback( getValue(), getQueueOption() );
 		}
 	} );
 
