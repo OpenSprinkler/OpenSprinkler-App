@@ -43,8 +43,8 @@ OSApp.About.displayPage = function() {
 						</p>
 						<p>
 							${OSApp.Language._("Language localization is crowdsourced using Transifex available at")}
-							<a class="iab squeeze" target="_blank" href="https://www.transifex.com/albahra/opensprinkler/">
-								https://www.transifex.com/albahra/opensprinkler/
+							<a class="iab squeeze" target="_blank" href="https://app.transifex.com/albahra/opensprinkler/">
+								https://app.transifex.com/albahra/opensprinkler/
 							</a>
 						</p>
 						<p>
