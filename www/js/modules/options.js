@@ -517,33 +517,22 @@ OSApp.Options.showOptions = function( expandItem ) {
 		}
 	}
 
-	// Add fertigation station configuration if supported
-	// Check if fertigation is detected - also check if controller data is available
-	// Try multiple ways to detect support:
-	// 1. Check if fertigation object exists in controller
-	// 2. Check if controller is connected (always show if connected, backend will handle unsupported)
+	// Add fertigation station configuration
+	// Always show if we have controller data - backend will handle unsupported cases
 	var fertigationSupported = false;
 	
-	// First check: if controller is connected and has stations, assume fertigation might be supported
-	if ( OSApp.currentSession && OSApp.currentSession.isControllerConnected && OSApp.currentSession.isControllerConnected() ) {
-		if ( OSApp.currentSession.controller && OSApp.currentSession.controller.stations ) {
-			// Controller is connected - check for fertigation support
-			if ( OSApp.Supported && OSApp.Supported.fertigation ) {
-				try {
-					fertigationSupported = OSApp.Supported.fertigation();
-				} catch ( e ) {
-					console.error( "Error checking fertigation support:", e );
-					// If check fails, assume supported (backend will handle it)
-					fertigationSupported = true;
-				}
-			} else {
-				// Supported module not available, but assume supported if controller connected
-				fertigationSupported = true;
-			}
-		}
+	if ( OSApp.currentSession && OSApp.currentSession.controller && OSApp.currentSession.controller.stations && OSApp.currentSession.controller.stations.snames ) {
+		// We have controller data with stations - show fertigation option
+		fertigationSupported = true;
+		console.log( "Showing fertigation station selector - controller data available" );
+	} else {
+		console.log( "NOT showing fertigation - no controller data:", {
+			hasSession: !!OSApp.currentSession,
+			hasController: !!( OSApp.currentSession && OSApp.currentSession.controller ),
+			hasStations: !!( OSApp.currentSession && OSApp.currentSession.controller && OSApp.currentSession.controller.stations ),
+			hasSnames: !!( OSApp.currentSession && OSApp.currentSession.controller && OSApp.currentSession.controller.stations && OSApp.currentSession.controller.stations.snames )
+		} );
 	}
-	
-	console.log( "Fertigation support check:", fertigationSupported, "Controller fertigation:", OSApp.currentSession && OSApp.currentSession.controller ? OSApp.currentSession.controller.fertigation : "no controller" );
 	
 	if ( fertigationSupported ) {
 		list += "<hr style='width:95%' class='content-divider'>";
