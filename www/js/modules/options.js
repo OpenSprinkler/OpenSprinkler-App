@@ -518,42 +518,42 @@ OSApp.Options.showOptions = function( expandItem ) {
 	}
 
 	// Add fertigation station configuration
-	// Always show if we have controller data - backend will handle unsupported cases
-	var fertigationSupported = false;
+	// TEMPORARY: Always show for testing - remove condition to verify code is executing
+	console.log( "=== FERTIGATION DEBUG ===" );
+	console.log( "Current session:", OSApp.currentSession );
+	console.log( "Controller:", OSApp.currentSession && OSApp.currentSession.controller );
+	console.log( "Stations:", OSApp.currentSession && OSApp.currentSession.controller && OSApp.currentSession.controller.stations );
 	
-	if ( OSApp.currentSession && OSApp.currentSession.controller && OSApp.currentSession.controller.stations && OSApp.currentSession.controller.stations.snames ) {
-		// We have controller data with stations - show fertigation option
-		fertigationSupported = true;
-		console.log( "Showing fertigation station selector - controller data available" );
-	} else {
-		console.log( "NOT showing fertigation - no controller data:", {
-			hasSession: !!OSApp.currentSession,
-			hasController: !!( OSApp.currentSession && OSApp.currentSession.controller ),
-			hasStations: !!( OSApp.currentSession && OSApp.currentSession.controller && OSApp.currentSession.controller.stations ),
-			hasSnames: !!( OSApp.currentSession && OSApp.currentSession.controller && OSApp.currentSession.controller.stations && OSApp.currentSession.controller.stations.snames )
-		} );
+	// Always add fertigation selector for now to test
+	list += "<hr style='width:95%' class='content-divider'>";
+	
+	var currentFertStation = 255; // Default to "not configured"
+	if ( OSApp.currentSession && OSApp.currentSession.controller && OSApp.currentSession.controller.fertigation && OSApp.currentSession.controller.fertigation.fert_station !== undefined ) {
+		currentFertStation = OSApp.currentSession.controller.fertigation.fert_station;
 	}
 	
-	if ( fertigationSupported ) {
-		list += "<hr style='width:95%' class='content-divider'>";
-		
-		var currentFertStation = 255; // Default to "not configured"
-		if ( OSApp.currentSession.controller.fertigation && OSApp.currentSession.controller.fertigation.fert_station !== undefined ) {
-			currentFertStation = OSApp.currentSession.controller.fertigation.fert_station;
-		}
-		
-		list += "<div class='ui-field-contain ui-field-no-border'><label for='fertilizer-station-1' class='select'>" +
-				OSApp.Language._( "Fertigation Station" ) +
-			"</label><select data-mini='true' id='fertilizer-station-1'><option value='255'" + ( currentFertStation === 255 ? " selected" : "" ) + ">" + OSApp.Language._( "None" ) + "</option>";
+	var stationCount = 0;
+	if ( OSApp.currentSession && OSApp.currentSession.controller && OSApp.currentSession.controller.stations && OSApp.currentSession.controller.stations.snames ) {
+		stationCount = OSApp.currentSession.controller.stations.snames.length;
+	}
+	
+	list += "<div class='ui-field-contain ui-field-no-border'><label for='fertilizer-station-1' class='select'>" +
+			OSApp.Language._( "Fertigation Station" ) +
+		"</label><select data-mini='true' id='fertilizer-station-1'><option value='255'" + ( currentFertStation === 255 ? " selected" : "" ) + ">" + OSApp.Language._( "None" ) + "</option>";
 
-		for ( i = 0; i < OSApp.currentSession.controller.stations.snames.length; i++ ) {
+	if ( stationCount > 0 ) {
+		for ( i = 0; i < stationCount; i++ ) {
 			if ( !OSApp.Stations.isMaster( i ) ) { // Don't allow master stations as fertigation stations
+				var stationName = OSApp.Stations.getName( i );
 				list += "<option " + ( currentFertStation === i ? "selected" : "" ) + " value='" + i + "'>" +
-					OSApp.Stations.getName( i ) + "</option>";
+					stationName + "</option>";
 			}
 		}
-		list += "</select></div>";
+	} else {
+		list += "<option value='0'>No stations available</option>";
 	}
+	list += "</select></div>";
+	console.log( "=== FERTIGATION HTML ADDED ===" );
 
 	list += "</fieldset><fieldset data-role='collapsible'" +
 		( typeof expandItem === "string" && expandItem === "station" ? " data-collapsed='false'" : "" ) + "><legend>" +
