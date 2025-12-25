@@ -98,3 +98,8 @@ OSApp.Supported.restrictions = function() {
 	const wto = typeof OSApp.currentSession.controller?.settings?.wto !== "undefined";
 	return wto && OSApp.Firmware.checkOSVersion( 2213 );
 };
+
+OSApp.Supported.fertigation = function() {
+	// Check if fertigation is supported by checking if fert_station exists in controller data
+	return typeof OSApp.currentSession?.controller?.fertigation?.fert_station !== "undefined";
+};

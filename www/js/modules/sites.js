@@ -1034,11 +1034,29 @@ OSApp.Sites.updateController = function( callback, fail ) {
 
 			// The /ja call does not contain special station data, so let's cache it
 			var special = OSApp.currentSession.controller.special;
+			var fertigation = OSApp.currentSession.controller.fertigation;
 
 			OSApp.currentSession.controller = data;
 
 			// Restore the station cache to the object
 			OSApp.currentSession.controller.special = special;
+			
+			// Cache fertigation station from /ja response
+			if ( data.fert_station !== undefined ) {
+				if ( !OSApp.currentSession.controller.fertigation ) {
+					OSApp.currentSession.controller.fertigation = {};
+				}
+				OSApp.currentSession.controller.fertigation.fert_station = data.fert_station;
+			} else if ( fertigation ) {
+				// Restore cached fertigation if not in response
+				OSApp.currentSession.controller.fertigation = fertigation;
+			} else {
+				// Initialize fertigation if not present
+				if ( !OSApp.currentSession.controller.fertigation ) {
+					OSApp.currentSession.controller.fertigation = {};
+				}
+				OSApp.currentSession.controller.fertigation.fert_station = 255; // 255 = not configured
+			}
 
 			// Fix the station status array
 			OSApp.currentSession.controller.status = OSApp.currentSession.controller.status.sn;

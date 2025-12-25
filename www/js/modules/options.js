@@ -312,12 +312,35 @@ OSApp.Options.showOptions = function( expandItem ) {
 			opt = OSApp.Utils.transformKeys( opt );
 			$.mobile.loading( "show" );
 
+			// Handle fertigation station separately if supported
+			var fertStationId = null;
+			if ( OSApp.Supported && OSApp.Supported.fertigation && OSApp.Supported.fertigation() ) {
+				var fertStationSelect = page.find( "#fertilizer-station-1" );
+				if ( fertStationSelect.length ) {
+					fertStationId = parseInt( fertStationSelect.val(), 10 );
+				}
+			}
+
 			OSApp.Firmware.sendToOS( "/co?pw=&" + $.param( opt ) ).done( function() {
-				$.mobile.document.one( "pageshow", function() {
-					OSApp.Errors.showError( OSApp.Language._( "Settings have been saved" ) );
-				} );
-				OSApp.UIDom.goBack();
-				OSApp.Sites.updateController( OSApp.Weather.updateWeather );
+				// Save fertigation station if configured
+				if ( fertStationId !== null ) {
+					OSApp.Stations.setFertilizerStations( fertStationId, function( success ) {
+						if ( !success ) {
+							OSApp.Errors.showError( OSApp.Language._( "Error saving fertigation station" ) );
+						}
+						$.mobile.document.one( "pageshow", function() {
+							OSApp.Errors.showError( OSApp.Language._( "Settings have been saved" ) );
+						} );
+						OSApp.UIDom.goBack();
+						OSApp.Sites.updateController( OSApp.Weather.updateWeather );
+					} );
+				} else {
+					$.mobile.document.one( "pageshow", function() {
+						OSApp.Errors.showError( OSApp.Language._( "Settings have been saved" ) );
+					} );
+					OSApp.UIDom.goBack();
+					OSApp.Sites.updateController( OSApp.Weather.updateWeather );
+				}
 			} ).fail( function() {
 				button.prop( "disabled", false );
 				page.find( ".submit" ).addClass( "hasChanges" );
@@ -492,6 +515,28 @@ OSApp.Options.showOptions = function( expandItem ) {
 					OSApp.Language._( "Master Off Adjustment" ) +
 				"</label><button data-mini='true' id='o39' value='" + OSApp.currentSession.controller.options.mtof2 + "'>" + OSApp.currentSession.controller.options.mtof2 + "s</button></div>";
 		}
+	}
+
+	// Add fertigation station configuration if supported
+	if ( OSApp.Supported && OSApp.Supported.fertigation && OSApp.Supported.fertigation() ) {
+		list += "<hr style='width:95%' class='content-divider'>";
+		
+		var currentFertStation = 255; // Default to "not configured"
+		if ( OSApp.currentSession.controller.fertigation && OSApp.currentSession.controller.fertigation.fert_station !== undefined ) {
+			currentFertStation = OSApp.currentSession.controller.fertigation.fert_station;
+		}
+		
+		list += "<div class='ui-field-contain ui-field-no-border'><label for='fertilizer-station-1' class='select'>" +
+				OSApp.Language._( "Fertigation Station" ) +
+			"</label><select data-mini='true' id='fertilizer-station-1'><option value='255'" + ( currentFertStation === 255 ? " selected" : "" ) + ">" + OSApp.Language._( "None" ) + "</option>";
+
+		for ( i = 0; i < OSApp.currentSession.controller.stations.snames.length; i++ ) {
+			if ( !OSApp.Stations.isMaster( i ) ) { // Don't allow master stations as fertigation stations
+				list += "<option " + ( currentFertStation === i ? "selected" : "" ) + " value='" + i + "'>" +
+					OSApp.Stations.getName( i ) + "</option>";
+			}
+		}
+		list += "</select></div>";
 	}
 
 	list += "</fieldset><fieldset data-role='collapsible'" +

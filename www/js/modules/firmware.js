@@ -46,7 +46,7 @@ OSApp.Firmware.sendToOS = function( dest, type ) {
 	type = type || "text";
 
 	// Designate AJAX queue based on command type
-	var isChange = /\/(?:cv|cs|cr|cp|uwa|dp|co|cl|cu|up|cm)/.exec( dest ),
+	var isChange = /\/(?:cv|cs|cr|cp|uwa|dp|co|cl|cu|up|cm|cf|pf)/.exec( dest ),
 		queue = isChange ? "change" : "default",
 
 		// Use POST when sending data to the controller (requires firmware 2.1.8 or newer)

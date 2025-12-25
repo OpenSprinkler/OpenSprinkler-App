@@ -1293,7 +1293,25 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 		var dt = date.getUTCDate();
 		var mt = date.getUTCMonth() + 1;
 		var yr = date.getUTCFullYear();
-		var dr = prog[ 6 ];
+		
+		// Determine format: if fertigation is supported OR index 5 is an array, use new format
+		var drIndex;
+		var useNewFormat = false;
+		if ( OSApp.Supported && OSApp.Supported.fertigation && OSApp.Supported.fertigation() ) {
+			useNewFormat = true;
+		} else if ( prog[ 5 ] && Array.isArray( prog[ 5 ] ) ) {
+			useNewFormat = true;
+		}
+		
+		if ( useNewFormat ) {
+			// New format: date range at index 7
+			drIndex = 7;
+		} else {
+			// Old format: date range at index 6
+			drIndex = 6;
+		}
+		
+		var dr = prog[ drIndex ];
 		if ( typeof dr === "object" ) { // Daterange is available
 			if ( dr[ 0 ] ) { // Check date range if enabled
 				var currdate = ( mt << 5 ) + dt;
@@ -1726,7 +1744,25 @@ OSApp.Programs.readProgram21 = function( program ) {
 	newdata.is_even = ( restrict === 2 ) ? true : false;
 	newdata.is_odd = ( restrict === 1 ) ? true : false;
 	newdata.stations = program[ 4 ];
-	newdata.name = program[ 5 ];
+	
+	// Determine format: if fertigation is supported OR index 5 is an array, use new format
+	var useNewFormat = false;
+	if ( OSApp.Supported && OSApp.Supported.fertigation && OSApp.Supported.fertigation() ) {
+		useNewFormat = true;
+	} else if ( program[ 5 ] && Array.isArray( program[ 5 ] ) ) {
+		useNewFormat = true;
+	}
+	
+	if ( useNewFormat ) {
+		// New format: fertigation at index 5, name at index 6
+		newdata.fertigation = program[ 5 ] || [];
+		newdata.name = program[ 6 ] || "";
+	} else {
+		// Old format: name at index 5
+		newdata.name = program[ 5 ] || "";
+		newdata.fertigation = [];
+	}
+	
 	newdata.type = type;
 
 	if ( startType === 0 ) {
@@ -1824,7 +1860,24 @@ OSApp.Programs.pidToName = function( pid ) {
 	} else if ( pid === 254 || pid === 98 ) {
 		pname = OSApp.Language._( "Run-once program" );
 	} else if ( OSApp.Firmware.checkOSVersion( 210 ) && pid <= OSApp.currentSession.controller.programs.pd.length ) {
-		pname = OSApp.currentSession.controller.programs.pd[ pid - 1 ][ 5 ];
+		var prog = OSApp.currentSession.controller.programs.pd[ pid - 1 ];
+		if ( prog ) {
+			// Determine format: if fertigation is supported OR index 5 is an array, use new format
+			var useNewFormat = false;
+			if ( OSApp.Supported && OSApp.Supported.fertigation && OSApp.Supported.fertigation() ) {
+				useNewFormat = true;
+			} else if ( prog[ 5 ] && Array.isArray( prog[ 5 ] ) ) {
+				useNewFormat = true;
+			}
+			
+			if ( useNewFormat ) {
+				// New format: name at index 6
+				pname = prog[ 6 ] || pname;
+			} else {
+				// Old format: name at index 5
+				pname = prog[ 5 ] || pname;
+			}
+		}
 	}
 
 	return pname;
@@ -2692,6 +2745,45 @@ OSApp.Programs.submitProgram21 = function( id, ignoreWarning ) {
 	program[ 2 ] = days[ 1 ];
 	program[ 3 ] = start;
 	program[ 4 ] = runTimes;
+	
+	// Add fertigation array at index 5 (empty array if fertigation not supported or not configured)
+	var fertigationArray = [];
+	if ( OSApp.Supported && OSApp.Supported.fertigation && OSApp.Supported.fertigation() ) {
+		// Build fertigation array from UI (if fertigation UI exists)
+		// For now, send empty array - fertigation settings can be configured via /pf endpoint separately
+		// TODO: Add fertigation UI to program form and populate this array
+		var nstations = OSApp.currentSession.controller.stations.nstations || 0;
+		for ( i = 0; i < nstations; i++ ) {
+			// Check if fertigation UI elements exist
+			var fertEnabledEl = $( "#fert-en-" + i + "-" + id );
+			if ( fertEnabledEl.length ) {
+				var fertEnabled = fertEnabledEl.is( ":checked" ) ? 1 : 0;
+				var fertMode = $( "#fert-mode-" + i + "-" + id ).val() || "0";
+				var fertValue = parseInt( $( "#fert-value-" + i + "-" + id ).val() || "0", 10 );
+				
+				// Convert percentage to seconds if in percentage mode
+				if ( fertMode === "1" && fertValue > 0 ) {
+					// Percentage mode: convert to seconds based on station duration
+					var stationDur = runTimes[ i ] || 0;
+					fertValue = Math.round( ( fertValue / 100 ) * stationDur );
+				}
+				
+				fertigationArray.push( {
+					enabled: fertEnabled,
+					mode: parseInt( fertMode, 10 ),
+					value: fertValue
+				} );
+			} else {
+				// No fertigation UI - send disabled entry
+				fertigationArray.push( {
+					enabled: 0,
+					mode: 0,
+					value: 0
+				} );
+			}
+		}
+	}
+	program[ 5 ] = fertigationArray;
 
 	name = $( "#name-" + id ).val();
 

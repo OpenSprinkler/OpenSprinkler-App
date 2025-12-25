@@ -134,6 +134,49 @@ OSApp.Stations.isDisabled = function( sid )  {
 	return OSApp.StationAttributes.getDisabled( sid ) > 0;
 };
 
+OSApp.Stations.isFertigation = function( sid ) {
+	if ( !OSApp.Supported || !OSApp.Supported.fertigation || !OSApp.Supported.fertigation() ) {
+		return false;
+	}
+	var fertStation = OSApp.currentSession.controller.fertigation && OSApp.currentSession.controller.fertigation.fert_station;
+	return ( fertStation !== undefined && fertStation !== 255 && fertStation === sid );
+};
+
+OSApp.Stations.getFertigationStations = function() {
+	if ( !OSApp.Supported || !OSApp.Supported.fertigation || !OSApp.Supported.fertigation() ) {
+		return [];
+	}
+	var fertStation = OSApp.currentSession.controller.fertigation && OSApp.currentSession.controller.fertigation.fert_station;
+	if ( fertStation === undefined || fertStation === 255 ) {
+		return [];
+	}
+	return [ fertStation ];
+};
+
+OSApp.Stations.setFertilizerStations = function( stationId, callback ) {
+	callback = callback || function() {};
+	if ( !OSApp.currentSession.isControllerConnected() ) {
+		callback( false );
+		return;
+	}
+	
+	var url = "/cf?pw=&fs=" + ( stationId === 255 ? "255" : stationId );
+	OSApp.Firmware.sendToOS( url, "json" ).done( function( data ) {
+		if ( data && ( data.result === 1 || data.result === 0 ) ) {
+			// Update cached value
+			if ( !OSApp.currentSession.controller.fertigation ) {
+				OSApp.currentSession.controller.fertigation = {};
+			}
+			OSApp.currentSession.controller.fertigation.fert_station = stationId;
+			callback( true );
+		} else {
+			callback( false );
+		}
+	} ).fail( function() {
+		callback( false );
+	} );
+};
+
 OSApp.Stations.stopAllStations = function() {
 	if ( !OSApp.currentSession.isControllerConnected() ) {
 		return false;
