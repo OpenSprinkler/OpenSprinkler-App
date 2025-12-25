@@ -518,15 +518,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 	}
 
 	// Add fertigation station configuration
-	// TEMPORARY: Always show for testing - remove condition to verify code is executing
-	console.log( "=== FERTIGATION DEBUG ===" );
-	console.log( "Current session:", OSApp.currentSession );
-	console.log( "Controller:", OSApp.currentSession && OSApp.currentSession.controller );
-	console.log( "Stations:", OSApp.currentSession && OSApp.currentSession.controller && OSApp.currentSession.controller.stations );
-	
-	// Always add fertigation selector for now to test
-	list += "<hr style='width:95%' class='content-divider'>";
-	
+	// Always show fertigation selector - backend will handle unsupported cases
 	var currentFertStation = 255; // Default to "not configured"
 	if ( OSApp.currentSession && OSApp.currentSession.controller && OSApp.currentSession.controller.fertigation && OSApp.currentSession.controller.fertigation.fert_station !== undefined ) {
 		currentFertStation = OSApp.currentSession.controller.fertigation.fert_station;
@@ -537,6 +529,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 		stationCount = OSApp.currentSession.controller.stations.snames.length;
 	}
 	
+	list += "<hr style='width:95%' class='content-divider'>";
 	list += "<div class='ui-field-contain ui-field-no-border'><label for='fertilizer-station-1' class='select'>" +
 			OSApp.Language._( "Fertigation Station" ) +
 		"</label><select data-mini='true' id='fertilizer-station-1'><option value='255'" + ( currentFertStation === 255 ? " selected" : "" ) + ">" + OSApp.Language._( "None" ) + "</option>";
@@ -553,7 +546,6 @@ OSApp.Options.showOptions = function( expandItem ) {
 		list += "<option value='0'>No stations available</option>";
 	}
 	list += "</select></div>";
-	console.log( "=== FERTIGATION HTML ADDED ===" );
 
 	list += "</fieldset><fieldset data-role='collapsible'" +
 		( typeof expandItem === "string" && expandItem === "station" ? " data-collapsed='false'" : "" ) + "><legend>" +
