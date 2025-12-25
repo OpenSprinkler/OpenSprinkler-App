@@ -100,6 +100,8 @@ OSApp.Supported.restrictions = function() {
 };
 
 OSApp.Supported.fertigation = function() {
-	// Check if fertigation is supported by checking if fert_station exists in controller data
-	return typeof OSApp.currentSession?.controller?.fertigation?.fert_station !== "undefined";
+	// Check if fertigation is supported by checking if fertigation object exists in controller data
+	// The backend includes fertigation data in /ja response if supported
+	return typeof OSApp.currentSession?.controller?.fertigation !== "undefined" &&
+		   OSApp.currentSession.controller.fertigation !== null;
 };

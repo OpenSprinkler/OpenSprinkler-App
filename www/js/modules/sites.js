@@ -1042,21 +1042,18 @@ OSApp.Sites.updateController = function( callback, fail ) {
 			OSApp.currentSession.controller.special = special;
 			
 			// Cache fertigation station from /ja response
-			if ( data.fert_station !== undefined ) {
-				if ( !OSApp.currentSession.controller.fertigation ) {
-					OSApp.currentSession.controller.fertigation = {};
-				}
-				OSApp.currentSession.controller.fertigation.fert_station = data.fert_station;
+			// The /ja endpoint returns fertigation data in a nested structure: data.fertigation.fert_station
+			if ( data.fertigation && typeof data.fertigation === "object" ) {
+				// Backend supports fertigation - cache the data
+				OSApp.currentSession.controller.fertigation = {
+					fert_station: data.fertigation.fert_station !== undefined ? data.fertigation.fert_station : 255
+				};
 			} else if ( fertigation ) {
-				// Restore cached fertigation if not in response
+				// Restore cached fertigation if not in response (firmware might not support it)
 				OSApp.currentSession.controller.fertigation = fertigation;
-			} else {
-				// Initialize fertigation if not present
-				if ( !OSApp.currentSession.controller.fertigation ) {
-					OSApp.currentSession.controller.fertigation = {};
-				}
-				OSApp.currentSession.controller.fertigation.fert_station = 255; // 255 = not configured
 			}
+			// If fertigation is not in response and not cached, don't initialize it
+			// This means the firmware doesn't support fertigation
 
 			// Fix the station status array
 			OSApp.currentSession.controller.status = OSApp.currentSession.controller.status.sn;
