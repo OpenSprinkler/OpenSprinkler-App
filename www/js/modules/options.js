@@ -523,9 +523,12 @@ OSApp.Options.showOptions = function( expandItem ) {
 	if ( OSApp.Supported && OSApp.Supported.fertigation ) {
 		try {
 			fertigationSupported = OSApp.Supported.fertigation();
+			console.log( "Fertigation support check:", fertigationSupported, "Controller fertigation:", OSApp.currentSession.controller.fertigation );
 		} catch ( e ) {
 			console.error( "Error checking fertigation support:", e );
 		}
+	} else {
+		console.log( "OSApp.Supported.fertigation not available" );
 	}
 	
 	if ( fertigationSupported ) {
