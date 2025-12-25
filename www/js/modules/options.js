@@ -518,7 +518,17 @@ OSApp.Options.showOptions = function( expandItem ) {
 	}
 
 	// Add fertigation station configuration if supported
-	if ( OSApp.Supported && OSApp.Supported.fertigation && OSApp.Supported.fertigation() ) {
+	// Check if fertigation is detected - also check if controller data is available
+	var fertigationSupported = false;
+	if ( OSApp.Supported && OSApp.Supported.fertigation ) {
+		try {
+			fertigationSupported = OSApp.Supported.fertigation();
+		} catch ( e ) {
+			console.error( "Error checking fertigation support:", e );
+		}
+	}
+	
+	if ( fertigationSupported ) {
 		list += "<hr style='width:95%' class='content-divider'>";
 		
 		var currentFertStation = 255; // Default to "not configured"
