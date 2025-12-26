@@ -519,21 +519,14 @@ OSApp.Options.showOptions = function( expandItem ) {
 
 	// Add fertigation station configuration
 	// Always show fertigation selector - backend will handle unsupported cases
-	console.log( "=== BUILDING FERTIGATION SELECTOR ===" );
 	var currentFertStation = 255; // Default to "not configured"
 	if ( OSApp.currentSession && OSApp.currentSession.controller && OSApp.currentSession.controller.fertigation && OSApp.currentSession.controller.fertigation.fert_station !== undefined ) {
 		currentFertStation = OSApp.currentSession.controller.fertigation.fert_station;
-		console.log( "Current fertigation station:", currentFertStation );
-	} else {
-		console.log( "No fertigation data found, using default 255" );
 	}
 	
 	var stationCount = 0;
 	if ( OSApp.currentSession && OSApp.currentSession.controller && OSApp.currentSession.controller.stations && OSApp.currentSession.controller.stations.snames ) {
 		stationCount = OSApp.currentSession.controller.stations.snames.length;
-		console.log( "Station count:", stationCount );
-	} else {
-		console.log( "No stations data available" );
 	}
 	
 	list += "<hr style='width:95%' class='content-divider'>";
@@ -542,7 +535,6 @@ OSApp.Options.showOptions = function( expandItem ) {
 		"</label><select data-mini='true' id='fertilizer-station-1'><option value='255'" + ( currentFertStation === 255 ? " selected" : "" ) + ">" + OSApp.Language._( "None" ) + "</option>";
 
 	if ( stationCount > 0 ) {
-		console.log( "Adding station options, count:", stationCount );
 		for ( i = 0; i < stationCount; i++ ) {
 			if ( !OSApp.Stations.isMaster( i ) ) { // Don't allow master stations as fertigation stations
 				var stationName = OSApp.Stations.getName( i );
@@ -551,11 +543,9 @@ OSApp.Options.showOptions = function( expandItem ) {
 			}
 		}
 	} else {
-		console.log( "No stations available, adding placeholder" );
 		list += "<option value='0'>No stations available</option>";
 	}
 	list += "</select></div>";
-	console.log( "=== FERTIGATION SELECTOR HTML ADDED ===" );
 
 	list += "</fieldset><fieldset data-role='collapsible'" +
 		( typeof expandItem === "string" && expandItem === "station" ? " data-collapsed='false'" : "" ) + "><legend>" +

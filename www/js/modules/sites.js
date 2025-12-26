@@ -1049,17 +1049,14 @@ OSApp.Sites.updateController = function( callback, fail ) {
 				OSApp.currentSession.controller.fertigation = {
 					fert_station: ( data.fertigation.fert_station !== undefined && data.fertigation.fert_station !== null ) ? data.fertigation.fert_station : 255
 				};
-				console.log( "Fertigation data loaded from /ja:", OSApp.currentSession.controller.fertigation );
 			} else if ( fertigation && typeof fertigation === "object" && fertigation !== null ) {
 				// Restore cached fertigation if not in response (firmware might not support it)
 				OSApp.currentSession.controller.fertigation = fertigation;
-				console.log( "Fertigation data restored from cache:", OSApp.currentSession.controller.fertigation );
 			} else {
 				// If fertigation is not in response, the backend doesn't support it
 				// But since the backend code always includes it, this shouldn't happen
 				// Set to undefined to indicate no support
 				OSApp.currentSession.controller.fertigation = undefined;
-				console.log( "Fertigation not found in /ja response - backend may not support it" );
 			}
 
 			// Fix the station status array

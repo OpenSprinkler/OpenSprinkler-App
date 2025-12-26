@@ -142,17 +142,6 @@ OSApp.Stations.isFertigation = function( sid ) {
 	return ( fertStation !== undefined && fertStation !== 255 && fertStation === sid );
 };
 
-OSApp.Stations.getFertigationStations = function() {
-	if ( !OSApp.Supported || !OSApp.Supported.fertigation || !OSApp.Supported.fertigation() ) {
-		return [];
-	}
-	var fertStation = OSApp.currentSession.controller.fertigation && OSApp.currentSession.controller.fertigation.fert_station;
-	if ( fertStation === undefined || fertStation === 255 ) {
-		return [];
-	}
-	return [ fertStation ];
-};
-
 OSApp.Stations.setFertilizerStations = function( stationId, callback ) {
 	callback = callback || function() {};
 	if ( !OSApp.currentSession.isControllerConnected() ) {
@@ -331,6 +320,20 @@ OSApp.Stations.submitRunonce = function( runonce, uwt, interval, repeat, annotat
 			if ( qo != null ) {
 				request += "&qo=" + qo;
 			}
+		}
+
+		// Collect and send fertigation percentages if fertigation is supported
+		if ( OSApp.Supported && OSApp.Supported.fertigation && OSApp.Supported.fertigation() ) {
+			$( "#runonce" ).find( "[id^='fert-']" ).each( function() {
+				var fertButton = $( this ),
+					fertId = fertButton.attr( "id" ),
+					sid = parseInt( fertId.split( "-" )[ 1 ], 10 ),
+					fertPercent = parseInt( fertButton.val() || "0", 10 );
+				
+				if ( !isNaN( sid ) && !isNaN( fertPercent ) && fertPercent > 0 ) {
+					request += "&fd" + sid + "=" + fertPercent;
+				}
+			} );
 		}
 
 		OSApp.Firmware.sendToOS( request ).done( function() {
