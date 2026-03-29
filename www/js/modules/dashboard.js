@@ -86,7 +86,7 @@ OSApp.Dashboard.displayPage = function() {
 				( OSApp.Stations.isSpecial( sid ) ? "" : "hidden" ) + "'></span>";
 
 			if ( OSApp.Supported.groups() ) {
-				cards += "<span class='btn-no-border ui-btn card-icon station-gid " + ( ( OSApp.Stations.isMaster( sid ) || ( OSApp.Supported && OSApp.Supported.fertigation && OSApp.Supported.fertigation() && OSApp.Stations.isFertigation( sid ) ) ) ? "hidden" : "" ) +
+				cards += "<span class='btn-no-border ui-btn card-icon station-gid " + ( ( OSApp.Stations.isMaster( sid ) || ( OSApp.Supported.fertigation() && OSApp.Stations.isFertigation( sid ) ) ) ? "hidden" : "" ) +
 					"'>" + OSApp.Groups.mapGIDValueToName( OSApp.Stations.getGIDValue( sid ) ) + "</span>";
 			}
 
@@ -94,7 +94,7 @@ OSApp.Dashboard.displayPage = function() {
 			var settingsIconClass = "ui-icon-gear";
 			if ( OSApp.Stations.isMaster( sid ) ) {
 				settingsIconClass = "ui-icon-master";
-			} else if ( OSApp.Supported && OSApp.Supported.fertigation && OSApp.Supported.fertigation() && OSApp.Stations.isFertigation( sid ) ) {
+			} else if ( OSApp.Supported.fertigation() && OSApp.Stations.isFertigation( sid ) ) {
 				settingsIconClass = "ui-icon-fertigation";
 			}
 
@@ -113,7 +113,7 @@ OSApp.Dashboard.displayPage = function() {
 				"></span>";
 
 			// Don't show status line for master or fertigation stations
-			var isFertigationStation = OSApp.Supported && OSApp.Supported.fertigation && OSApp.Supported.fertigation() && OSApp.Stations.isFertigation( sid );
+			var isFertigationStation = OSApp.Supported.fertigation() && OSApp.Stations.isFertigation( sid );
 			if ( !OSApp.Stations.isMaster( sid ) && !isFertigationStation ) {
 				if ( isScheduled || isRunning ) {
 
@@ -403,7 +403,7 @@ OSApp.Dashboard.displayPage = function() {
 				( typeof sites[ currentSite ].images[ sid ] !== "string" ? OSApp.Language._( "Add" ) : OSApp.Language._( "Change" ) ) + " " + OSApp.Language._( "Image" ) +
 				"</button>";
 
-			var isFertigationStation = OSApp.Supported && OSApp.Supported.fertigation && OSApp.Supported.fertigation() && OSApp.Stations.isFertigation( sid );
+			var isFertigationStation = OSApp.Supported.fertigation() && OSApp.Stations.isFertigation( sid );
 			if ( !OSApp.Stations.isMaster( sid ) && !isFertigationStation ) {
 				if ( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_1 ) ) {
 					select += "<label for='um'><input class='needsclick' data-iconpos='right' id='um' type='checkbox' " +
@@ -465,7 +465,7 @@ OSApp.Dashboard.displayPage = function() {
 			select += "<div id='tab-advanced' class='tab-content'>";
 
 			// Create sequential group selection menu
-			var isFertigationStation = OSApp.Supported && OSApp.Supported.fertigation && OSApp.Supported.fertigation() && OSApp.Stations.isFertigation( sid );
+			var isFertigationStation = OSApp.Supported.fertigation() && OSApp.Stations.isFertigation( sid );
 			if ( OSApp.Supported.groups() && !OSApp.Stations.isMaster( sid ) && !isFertigationStation ) {
 				select +=
 					"<div class='ui-bar-a ui-bar seq-container'>" + OSApp.Language._( "Sequential Group" ) + ":</div>" +
@@ -959,7 +959,7 @@ OSApp.Dashboard.displayPage = function() {
 					card.find( ".station-status" ).removeClass( "on off wait" ).addClass( isRunning ? "on" : ( isScheduled ? "wait" : "off" ) );
 					
 					// Update settings icon based on station type
-					var isFertigationStation = OSApp.Supported && OSApp.Supported.fertigation && OSApp.Supported.fertigation() && OSApp.Stations.isFertigation( sid );
+					var isFertigationStation = OSApp.Supported.fertigation() && OSApp.Stations.isFertigation( sid );
 					if ( OSApp.Stations.isMaster( sid ) ) {
 						card.find( ".station-settings" ).removeClass( "ui-icon-gear ui-icon-fertigation" ).addClass( "ui-icon-master" );
 					} else if ( isFertigationStation ) {
@@ -981,7 +981,7 @@ OSApp.Dashboard.displayPage = function() {
 						gid: OSApp.Supported.groups() ? OSApp.Stations.getGIDValue( sid ) : undefined
 					} );
 
-					var isFertigationStation = OSApp.Supported && OSApp.Supported.fertigation && OSApp.Supported.fertigation() && OSApp.Stations.isFertigation( sid );
+					var isFertigationStation = OSApp.Supported.fertigation() && OSApp.Stations.isFertigation( sid );
 					if ( !OSApp.Stations.isMaster( sid ) && !isFertigationStation && ( isScheduled || isRunning ) ) {
 						line = ( isRunning ? OSApp.Language._( "Running" ) + " " + pname : OSApp.Language._( "Scheduled" ) + " " +
 							( OSApp.Stations.getStartTime( sid ) ? OSApp.Language._( "for" ) + " " + OSApp.Dates.dateToString( new Date( OSApp.Stations.getStartTime( sid ) * 1000 ) ) : pname ) );
@@ -1093,7 +1093,7 @@ OSApp.Dashboard.displayPage = function() {
 				name = OSApp.Stations.getName( sid ),
 				question, dialogOptions = {};
 
-			var isFertigationStation = OSApp.Supported && OSApp.Supported.fertigation && OSApp.Supported.fertigation() && OSApp.Stations.isFertigation( sid );
+			var isFertigationStation = OSApp.Supported.fertigation() && OSApp.Stations.isFertigation( sid );
 			if ( OSApp.Stations.isMaster( sid ) || isFertigationStation ) {
 				return false;
 			}

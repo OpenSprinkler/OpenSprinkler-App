@@ -135,11 +135,9 @@ OSApp.Stations.isDisabled = function( sid )  {
 };
 
 OSApp.Stations.isFertigation = function( sid ) {
-	if ( !OSApp.Supported || !OSApp.Supported.fertigation || !OSApp.Supported.fertigation() ) {
-		return false;
-	}
-	var fertStation = OSApp.currentSession.controller.fertigation && OSApp.currentSession.controller.fertigation.fert_station;
-	return ( fertStation !== undefined && fertStation !== 255 && fertStation === sid );
+	if ( !OSApp.Supported.fertigation() ) return false;
+	var fertStation = OSApp.currentSession.controller.fertigation.fert_station;
+	return fertStation !== undefined && fertStation !== 255 && fertStation === sid;
 };
 
 OSApp.Stations.setFertilizerStations = function( stationId, callback ) {
@@ -151,7 +149,7 @@ OSApp.Stations.setFertilizerStations = function( stationId, callback ) {
 	
 	var url = "/cf?pw=&fs=" + ( stationId === 255 ? "255" : stationId );
 	OSApp.Firmware.sendToOS( url, "json" ).done( function( data ) {
-		if ( data && ( data.result === 1 || data.result === 0 ) ) {
+		if ( data && data.result === 1 ) {
 			// Update cached value
 			if ( !OSApp.currentSession.controller.fertigation ) {
 				OSApp.currentSession.controller.fertigation = {};
@@ -322,16 +320,19 @@ OSApp.Stations.submitRunonce = function( runonce, uwt, interval, repeat, annotat
 			}
 		}
 
-		// Collect and send fertigation percentages if fertigation is supported
-		if ( OSApp.Supported && OSApp.Supported.fertigation && OSApp.Supported.fertigation() ) {
+		// Collect fertigation values and convert % → seconds before sending.
+		// The server (server_change_runonce) expects fd{sid}=seconds.
+		if ( OSApp.Supported.fertigation() ) {
 			$( "#runonce" ).find( "[id^='fert-']" ).each( function() {
 				var fertButton = $( this ),
 					fertId = fertButton.attr( "id" ),
 					sid = parseInt( fertId.split( "-" )[ 1 ], 10 ),
-					fertPercent = parseInt( fertButton.val() || "0", 10 );
-				
-				if ( !isNaN( sid ) && !isNaN( fertPercent ) && fertPercent > 0 ) {
-					request += "&fd" + sid + "=" + fertPercent;
+					fertPercent = parseInt( fertButton.val() || "0", 10 ),
+					stationDur = runonce[ sid ] || 0,
+					fertSeconds = Math.round( stationDur * fertPercent / 100 );
+
+				if ( !isNaN( sid ) && fertSeconds > 0 ) {
+					request += "&fd" + sid + "=" + fertSeconds;
 				}
 			} );
 		}

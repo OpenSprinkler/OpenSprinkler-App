@@ -396,7 +396,7 @@ OSApp.Programs.displayPageRunOnce = function() {
 		}
 		quickPick += "</select>";
 		list += quickPick + "<form>";
-		var fertigationSupported = OSApp.Supported && OSApp.Supported.fertigation && OSApp.Supported.fertigation();
+		var fertigationSupported = OSApp.Supported.fertigation();
 		$.each( OSApp.currentSession.controller.stations.snames, function( i ) {
 			if ( OSApp.Stations.isMaster( i ) ) {
 				list += "<div class='ui-field-contain duration-input" + ( OSApp.Stations.isDisabled( i ) ? " station-hidden' style='display:none" : "" ) + "'>" +
@@ -1341,7 +1341,7 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 		// Determine format: if fertigation is supported OR index 5 is an array, use new format
 		var drIndex;
 		var useNewFormat = false;
-		if ( OSApp.Supported && OSApp.Supported.fertigation && OSApp.Supported.fertigation() ) {
+		if ( OSApp.Supported.fertigation() ) {
 			useNewFormat = true;
 		} else if ( prog[ 5 ] && Array.isArray( prog[ 5 ] ) ) {
 			useNewFormat = true;
@@ -1791,7 +1791,7 @@ OSApp.Programs.readProgram21 = function( program ) {
 	
 	// Determine format: if fertigation is supported OR index 5 is an array, use new format
 	var useNewFormat = false;
-	if ( OSApp.Supported && OSApp.Supported.fertigation && OSApp.Supported.fertigation() ) {
+	if ( OSApp.Supported.fertigation() ) {
 		useNewFormat = true;
 	} else if ( program[ 5 ] && Array.isArray( program[ 5 ] ) ) {
 		useNewFormat = true;
@@ -1908,7 +1908,7 @@ OSApp.Programs.pidToName = function( pid ) {
 		if ( prog ) {
 			// Determine format: if fertigation is supported OR index 5 is an array, use new format
 			var useNewFormat = false;
-			if ( OSApp.Supported && OSApp.Supported.fertigation && OSApp.Supported.fertigation() ) {
+			if ( OSApp.Supported.fertigation() ) {
 				useNewFormat = true;
 			} else if ( prog[ 5 ] && Array.isArray( prog[ 5 ] ) ) {
 				useNewFormat = true;
@@ -2320,7 +2320,7 @@ OSApp.Programs.makeProgram21 = function( n, isCopy ) {
 	var hideDisabled = $( "#programs" ).hasClass( "show-hidden" ) ? "" : "' style='display:none";
 
 	// Show station duration inputs
-	var fertigationSupported = OSApp.Supported && OSApp.Supported.fertigation && OSApp.Supported.fertigation();
+	var fertigationSupported = OSApp.Supported.fertigation();
 	for ( j = 0; j < OSApp.currentSession.controller.stations.snames.length; j++ ) {
 		if ( OSApp.Stations.isMaster( j ) ) {
 			list += "<div class='ui-field-contain duration-input" + ( OSApp.Stations.isDisabled( j ) ? " station-hidden" + hideDisabled : "" ) + "'>" +
@@ -2855,7 +2855,7 @@ OSApp.Programs.submitProgram21 = function( id, ignoreWarning ) {
 	// Add fertigation array at index 5 (empty array if fertigation not supported or not configured)
 	// Backend expects fertigation array as simple array of durations in seconds
 	var fertigationArray = [];
-	if ( OSApp.Supported && OSApp.Supported.fertigation && OSApp.Supported.fertigation() ) {
+	if ( OSApp.Supported.fertigation() ) {
 		// Build fertigation array from UI
 		var nstations = OSApp.currentSession.controller.stations.snames.length;
 		for ( i = 0; i < nstations; i++ ) {
