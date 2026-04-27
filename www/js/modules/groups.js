@@ -63,7 +63,12 @@ OSApp.Groups.numActiveStations = function( gid ) {
 
 // If more than 1 stations (includes the one to be turned off) are active
 OSApp.Groups.canShift = function( gid ) {
-	return OSApp.Groups.numActiveStations( gid ) > 1;
+	return OSApp.Firmware.checkOSVersion( 220 ) && OSApp.Groups.numActiveStations( gid ) > 1;
+};
+
+// If at least 1 station in this group is active
+OSApp.Groups.canPreempt = function( gid ) {
+	return OSApp.Firmware.checkOSVersion( 2214 ) && ( OSApp.Groups.numActiveStations( gid ) > 0 );
 };
 
 // Tbh, not sure if this belongs here in groups.js (mellodev)

@@ -109,7 +109,7 @@ OSApp.Sensors.makeSensorSelect = function ($select, sid) {
             $select.append($option);
         }
     });
-}
+};
 
 OSApp.Sensors.createSensorPage = function (parent, sid, data) {
     const units = data.units.sort((a, b) => a.index - b.index).reduce((/** @type {Units[][]} */ acc, v) => {
@@ -380,7 +380,7 @@ OSApp.Sensors.createSensorPage = function (parent, sid, data) {
         return {
             get: () => String($input.prop('checked')),
             set: (val) => {
-                $input.prop('checked', val == "true")
+                $input.prop('checked', val == "true");
                 $input.checkboxradio('refresh');
             },
             validate: () => true,
@@ -711,7 +711,7 @@ OSApp.Sensors.createSensorPage = function (parent, sid, data) {
     function createSensorSegment(sensor, i, key, parent) {
         const $ui = $('<div class="ui-corner-all"></div>');
         const $bar = $('<div class="ui-bar ui-bar-a"></div>');
-        $bar.append($("<h3></h3>").text(`${sensor.name} Options`))
+        $bar.append($("<h3></h3>").text(`${sensor.name} Options`));
         const $content = $('<div class="ui-body ui-body-a"></div>');
 
         $ui.append($bar, $content);
@@ -749,9 +749,9 @@ OSApp.Sensors.createSensorPage = function (parent, sid, data) {
             visibility: (value) => {
                 visible = value;
                 if (value) {
-                    $ui.show()
+                    $ui.show();
                 } else {
-                    $ui.hide()
+                    $ui.hide();
                 }
             },
             is_visible: () => visible,
@@ -816,7 +816,7 @@ OSApp.Sensors.createSensorPage = function (parent, sid, data) {
             const bit = Number.parseInt(k);
 
             if (Number.isInteger(bit) && v == "true") {
-                flagOption.update(k, (((flags >> bit) & 1) == 1) ? "true" : "false")
+                flagOption.update(k, (((flags >> bit) & 1) == 1) ? "true" : "false");
             }
         }
     }
@@ -862,7 +862,7 @@ OSApp.Sensors.createSensorPage = function (parent, sid, data) {
             flagOption.reset();
         }
     };
-}
+};
 
 OSApp.Sensors.changeSensor = function (url, isNew) {
     $.mobile.loading( "show" );
@@ -881,7 +881,7 @@ OSApp.Sensors.changeSensor = function (url, isNew) {
         });
     });
 
-}
+};
 
 OSApp.Sensors.deleteSensor = function (sid) {
     $.mobile.loading( "show" );
@@ -892,9 +892,9 @@ OSApp.Sensors.deleteSensor = function (sid) {
             OSApp.Errors.showError( OSApp.Language._( "Sensor deleted successfully" ) );
         });
     });
-}
+};
 
-OSApp.Sensors.displayPage = function (callback) {
+OSApp.Sensors.displayPage = function (_callback) {
     const page = $(`<div data-role="page" id="sensors"></div>`);
 	const content = $(`<div class="ui-content" role="main" id="sensors_list"></div>`);
     page.append(content);
@@ -909,7 +909,7 @@ OSApp.Sensors.displayPage = function (callback) {
     function createSensorCollapse(parent, data, sensorData) {
         const $div = $("<div></div>");
         const $header = $("<h3></h3>");
-        $header.text(`${sensorData["name"]} (ID: ${sensorData["sid"]})`)
+        $header.text(`${sensorData["name"]} (ID: ${sensorData["sid"]})`);
         const $inner = $("<div></div>");
 
         parent.append($div);
@@ -933,7 +933,7 @@ OSApp.Sensors.displayPage = function (callback) {
         $inner.append($delete);
         $delete.button({icon: "delete"});
         $delete.on("click", () => {
-            OSApp.Sensors.deleteSensor(sensorData["sid"])
+            OSApp.Sensors.deleteSensor(sensorData["sid"]);
         });
 
         return page;
@@ -942,7 +942,7 @@ OSApp.Sensors.displayPage = function (callback) {
     function updateContent () {
         page.empty();
         OSApp.currentSession.controller.sensors.sn.forEach((v) => {
-            createSensorCollapse(page, OSApp.currentSession.controller.sensor_desc, v)
+            createSensorCollapse(page, OSApp.currentSession.controller.sensor_desc, v);
         });
     }
 
@@ -981,9 +981,9 @@ OSApp.Sensors.displayPage = function (callback) {
 	}
 
 	return begin();
-}
+};
 
-OSApp.Sensors.addSensor = function (callback) {
+OSApp.Sensors.addSensor = function (_callback) {
     const page = $(`<div data-role="page" id="add-sensor"></div>`);
 	const content = $(`<div class="ui-content" role="main"></div>`);
     page.append(content);
@@ -1013,7 +1013,7 @@ OSApp.Sensors.addSensor = function (callback) {
     function updateContent () {
         page.empty();
 
-        createAddSensor(page, OSApp.currentSession.controller.sensor_desc)
+        createAddSensor(page, OSApp.currentSession.controller.sensor_desc);
     }
 
     page
@@ -1036,7 +1036,7 @@ OSApp.Sensors.addSensor = function (callback) {
 				icon: "check",
 				text: OSApp.Language._( "Submit" ),
 				on: () => {
-                    submit()
+                    submit();
                 }
 			}
 
@@ -1049,9 +1049,9 @@ OSApp.Sensors.addSensor = function (callback) {
 	}
 
 	return begin();
-}
+};
 
-OSApp.Sensors.displayLogs = function (callback) {
+OSApp.Sensors.displayLogs = function (_callback) {
     const page = $(`<div data-role="page" id="sensor-logs"></div>`);
 	const content = $(`<div class="ui-content" role="main"></div>`);
     page.append(content);
@@ -1159,7 +1159,7 @@ OSApp.Sensors.displayLogs = function (callback) {
                 link.click();
                 document.body.removeChild(link);
             }
-        }
+        };
 
         for (const key in obj) {
             if (obj[key].sensor) {
@@ -1184,7 +1184,7 @@ OSApp.Sensors.displayLogs = function (callback) {
 
                     chart.resetZoom();
                     chart.update();
-                }
+                };
 
                 var $controls = $("<div>", {
                     "data-role": "controlgroup",
@@ -1228,7 +1228,7 @@ OSApp.Sensors.displayLogs = function (callback) {
                 const $deleteLogs = $('<input type="button" value="Delete Logs">');
                 $controls.append($deleteLogs);
                 $deleteLogs.on("click", () => {
-                    OSApp.Firmware.sendToOS(`/csl?pw=&sid=${key}`).done((csv) => {
+                    OSApp.Firmware.sendToOS(`/csl?pw=&sid=${key}`).done((_csv) => {
                         updateContent();
                     });
                 });
@@ -1279,7 +1279,7 @@ OSApp.Sensors.displayLogs = function (callback) {
         OSApp.Firmware.sendToOS("/lsn?pw=&count=32768").done((csv) => {
             page.empty();
             parseData(page, csv, OSApp.currentSession.controller.sensors.sn);
-        })
+        });
     }
 
     page
@@ -1302,7 +1302,7 @@ OSApp.Sensors.displayLogs = function (callback) {
 				icon: "check",
 				text: OSApp.Language._( "Download CSV" ),
 				on: () => {
-                    download()
+                    download();
                 }
 			}
 
@@ -1315,4 +1315,4 @@ OSApp.Sensors.displayLogs = function (callback) {
 	}
 
 	return begin();
-}
+};

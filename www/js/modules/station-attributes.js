@@ -91,7 +91,7 @@ OSApp.StationAttributes.getDisabled = function( sid ) {
 
 OSApp.StationAttributes.getSequential = function( sid ) {
 	if ( OSApp.Supported.groups() ) {
-		return OSApp.Stations.getGIDValue !== OSApp.Constants.options.PARALLEL_GID_VALUE ? 1 : 0;
+		return OSApp.Stations.getGIDValue( sid ) !== OSApp.Constants.options.PARALLEL_GID_VALUE ? 1 : 0;
 	}
 	if ( !OSApp.Supported.sequential() ) { return 0; }
 	var bid = ( sid / 8 ) >> 0,

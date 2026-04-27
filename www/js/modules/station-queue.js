@@ -17,7 +17,7 @@ OSApp.StationQueue = OSApp.StationQueue || {};
 
 OSApp.StationQueue.isActive = function() {
 	for ( var i = 0; i < OSApp.currentSession.controller.status.length; i++ ) {
-		if ( OSApp.Stations.getStatus( i ) > 0 && OSApp.Stations.getPID( i ) > 0 ) {
+		if ( OSApp.Stations.getPID( i ) > 0 ) {
 			return i;
 		}
 	}
