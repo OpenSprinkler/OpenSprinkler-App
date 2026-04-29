@@ -71,7 +71,7 @@
 /**
  *
  * @param {JQuery} parent
- * @param {string} sid
+ * @param {string} uuid
  * @param {Data} data
  * @returns {SensorPage}
  */
@@ -89,29 +89,29 @@ var OSApp = OSApp || {};
 
 OSApp.Sensors = {};
 
-OSApp.Sensors.makeSensorSelect = function ($select, sid) {
+OSApp.Sensors.makeSensorSelect = function ($select, uuid) {
     $select.append($("<option></option>")
             .attr("value", "255")
             .text("No Sensor"));
 
-    if (sid) {
+    if (uuid) {
         $select.append($("<option></option>")
                 .attr("value", "-1")
                 .text("This Sensor"));
     }
 
     OSApp.currentSession.controller.sensors.sn.forEach((v) => {
-        if (!sid || v.sid != sid) {
+        if (!uuid || v.uuid != uuid) {
             const $option = $('<option></option>')
-                .attr("value", v.sid)
-                .text(`${v.name} (ID: ${v.sid})`);
+                .attr("value", v.uuid)
+                .text(`${v.name} (UUID: ${v.uuid})`);
 
             $select.append($option);
         }
     });
 };
 
-OSApp.Sensors.createSensorPage = function (parent, sid, data) {
+OSApp.Sensors.createSensorPage = function (parent, uuid, data) {
     const units = data.units.sort((a, b) => a.index - b.index).reduce((/** @type {Units[][]} */ acc, v) => {
         acc[v.group].push({
             name: v.short ? `${v.name} (${v.short})` : v.name,
@@ -187,7 +187,7 @@ OSApp.Sensors.createSensorPage = function (parent, sid, data) {
         const $select = $('<select></select>').attr("id", id);
         parent.append($select);
 
-        data["sensor"].forEach((v, i) => {
+        data["sensors"].forEach((v, i) => {
             let $option = $("<option></option>")
                 .attr("value", i)
                 .text(v.name);
@@ -254,23 +254,23 @@ OSApp.Sensors.createSensorPage = function (parent, sid, data) {
 
     /**
      *
-     * @param {string} sid
+     * @param {string} uuid
      * @param {string} id
      * @param {JQuery} parent
      * @returns {GetterSetter}
      */
-    function createSensorSelect(sid, id, parent) {
+    function createSensorSelect(uuid, id, parent) {
         const $select = $('<select></select>').attr("id", id);
         parent.append($select);
 
-        OSApp.Sensors.makeSensorSelect($select, sid);
+        OSApp.Sensors.makeSensorSelect($select, uuid);
 
         $select.selectmenu();
 
         return {
             get: () => coerceVal($select.val()),
             set: (val) => {
-                if (sid && val == sid) {
+                if (uuid && val == uuid) {
                     val = "-1";
                 }
 
@@ -427,7 +427,7 @@ OSApp.Sensors.createSensorPage = function (parent, sid, data) {
             }
             case "sensor": {
                 parent.append($label);
-                const value = createSensorSelect(sid, id, parent);
+                const value = createSensorSelect(uuid, id, parent);
                 value.set(argument.default);
 
                 return {
@@ -485,6 +485,9 @@ OSApp.Sensors.createSensorPage = function (parent, sid, data) {
             case "string": {
                 parent.append($label);
                 const value = createStringInput(parts[1], id, parent);
+                if (argument._placeholder) {
+                    parent.find(`#${id}`).attr("placeholder", argument._placeholder);
+                }
                 value.set(argument.default);
 
                 return {
@@ -520,6 +523,7 @@ OSApp.Sensors.createSensorPage = function (parent, sid, data) {
                     validate: () => value.validate(),
                 };
             }
+            case "float":
             case "double": {
                 parent.append($label);
                 const value = createDoubleInput(parts[1], id, parent);
@@ -708,20 +712,25 @@ OSApp.Sensors.createSensorPage = function (parent, sid, data) {
      * @param {JQuery} parent
      * @returns {SegmentUpdater}
      */
-    function createSensorSegment(sensor, i, key, parent) {
-        const $ui = $('<div class="ui-corner-all"></div>');
-        const $bar = $('<div class="ui-bar ui-bar-a"></div>');
-        $bar.append($("<h3></h3>").text(`${sensor.name} Options`));
-        const $content = $('<div class="ui-body ui-body-a"></div>');
+    function createSensorSegment(sensor, i, key, parent, inline) {
+        let $content;
+        let $ui = null;
 
-        $ui.append($bar, $content);
-
-
-        parent.append($ui);
+        if (inline) {
+            $content = parent;
+        } else {
+            $ui = $('<div class="ui-corner-all"></div>');
+            const $bar = $('<div class="ui-bar ui-bar-a"></div>');
+            $bar.append($("<h3></h3>").text(`${sensor.name} Options`));
+            $content = $('<div class="ui-body ui-body-a"></div>');
+            $ui.append($bar, $content);
+            parent.append($ui);
+        }
 
         /** @type {Map<string, ParamUpdater>} */
         const values = sensor.args.reduce((acc, v) => {
-            acc.set(v.arg, createInput(v, `sensor-${i}`, key, $content));
+            const $fieldWrap = $('<div class="ui-field-contain"></div>').appendTo($content);
+            acc.set(v.arg, createInput(v, `sensor-${i}`, key, $fieldWrap));
 
             return acc;
         }, new Map());
@@ -748,22 +757,54 @@ OSApp.Sensors.createSensorPage = function (parent, sid, data) {
             update: (key, value) => values.get(key)?.update(value),
             visibility: (value) => {
                 visible = value;
-                if (value) {
-                    $ui.show();
-                } else {
-                    $ui.hide();
+                if ($ui) {
+                    if (value) {
+                        $ui.show();
+                    } else {
+                        $ui.hide();
+                    }
                 }
             },
             is_visible: () => visible,
         };
     }
 
-    const baseOptions = data.base.map((v, i) => createSensorSegment(v, `base-${i}`, sid, parent));
-    sensorOptions = data.sensor.map((v, i) => {
-        let ret = createSensorSegment(v, `sen-${i}`, sid, parent);
+    function createFlagRow(segment, key, rowParent) {
+        const $wrap = $('<div class="ui-field-contain sensor-flags-row"></div>');
+        rowParent.append($wrap);
+        $wrap.append($('<label class="sensor-flags-label"></label>'));
 
-        ret.visibility(i == 0);
-        return ret;
+        const $checkboxes = $('<div class="sensor-flags-checkboxes"></div>');
+        $wrap.append($checkboxes);
+
+        const flagValues = new Map();
+        segment.args.forEach((arg) => {
+            const id = `sensor-flags-${arg.arg}-${key || "new"}`;
+            const $input = $('<input type="checkbox">').attr("id", id).attr("name", id);
+            const $lbl = $('<label></label>').attr("for", id).text(arg.name);
+            $checkboxes.append($input, $lbl);
+            $input.checkboxradio();
+            $input.prop("checked", arg.default === "true" || arg.default === true);
+
+            flagValues.set(arg.arg, {
+                reset: () => { $input.prop("checked", arg.default === "true" || arg.default === true); $input.checkboxradio("refresh"); },
+                add: (params) => { const val = String($input.prop("checked")); params.append(arg.arg, val); return val; },
+                update: (val) => { $input.prop("checked", val === "true" || val === true); $input.checkboxradio("refresh"); },
+                validate: () => true,
+            });
+        });
+
+        return {
+            reset: () => { for (const v of flagValues.values()) v.reset(); },
+            add: (params) => { for (const v of flagValues.values()) v.add(params); return true; },
+            update: (k, value) => flagValues.get(k)?.update(value),
+            validate: () => true,
+        };
+    }
+
+    // Inject placeholder text for the name field on the Add Sensor page
+    data.args.forEach(arg => {
+        if (arg.arg === "name" && !uuid) arg._placeholder = "New Sensor";
     });
 
     /**
@@ -784,7 +825,33 @@ OSApp.Sensors.createSensorPage = function (parent, sid, data) {
         });
     });
 
-    const flagOption = createSensorSegment(flagSegment, "0", sid, parent);
+    // Render name first, then flags, then remaining args — all inline (no section boxes)
+    const nameArgIdx = data.args.findIndex(a => a.arg === "name");
+    let baseOptions;
+    let flagOption;
+
+    if (nameArgIdx !== -1) {
+        const nameOption = createSensorSegment(
+            { name: "", args: [ data.args[nameArgIdx] ] },
+            "base-name", uuid, parent, true
+        );
+        flagOption = createFlagRow(flagSegment, uuid, parent);
+        const remainingArgs = data.args.filter(a => a.arg !== "name");
+        const restOption = remainingArgs.length > 0
+            ? createSensorSegment({ name: "", args: remainingArgs }, "base-rest", uuid, parent, true)
+            : null;
+        baseOptions = restOption ? [ nameOption, restOption ] : [ nameOption ];
+    } else {
+        flagOption = createFlagRow(flagSegment, uuid, parent);
+        baseOptions = [ createSensorSegment({ name: "", args: data.args }, "base-rest", uuid, parent, true) ];
+    }
+
+    sensorOptions = data.sensors.map((v, i) => {
+        let ret = createSensorSegment(v, `sen-${i}`, uuid, parent);
+
+        ret.visibility(i == 0);
+        return ret;
+    });
 
     /**
      *
@@ -828,7 +895,7 @@ OSApp.Sensors.createSensorPage = function (parent, sid, data) {
             if (!sensorOptions.filter((v) => v.is_visible()).every((v) => v.add(params))) return undefined;
             setFlags(params);
             params.append("pw", "");
-            params.append("sid", sid || "-1");
+            params.append("uuid", uuid || "-1");
             return `/csn?${params.toString()}`;
         },
         update: function (data) {
@@ -883,9 +950,9 @@ OSApp.Sensors.changeSensor = function (url, isNew) {
 
 };
 
-OSApp.Sensors.deleteSensor = function (sid) {
+OSApp.Sensors.deleteSensor = function (uuid) {
     $.mobile.loading( "show" );
-    OSApp.Firmware.sendToOS(`/dsn?pw=&sid=${sid}`).done(() => {
+    OSApp.Firmware.sendToOS(`/dsn?pw=&uuid=${uuid}`).done(() => {
         OSApp.Sites.updateControllerSensors(() => {
             $.mobile.loading( "hide" );
             $( "#sensors" ).trigger( "programrefresh" );
@@ -909,14 +976,17 @@ OSApp.Sensors.displayPage = function (_callback) {
     function createSensorCollapse(parent, data, sensorData) {
         const $div = $("<div></div>");
         const $header = $("<h3></h3>");
-        $header.text(`${sensorData["name"]} (ID: ${sensorData["sid"]})`);
+        $header.text(`${sensorData["name"]} (UUID: ${sensorData["uuid"]})`);
         const $inner = $("<div></div>");
 
         parent.append($div);
         $div.append($header, $inner);
         $div.collapsible();
 
-        const page = OSApp.Sensors.createSensorPage($inner, sensorData["sid"], data);
+        const isEnabled = (sensorData["flags"] & 1) !== 0;
+        $div.find(".ui-collapsible-heading-toggle").addClass(isEnabled ? "blue" : "red");
+
+        const page = OSApp.Sensors.createSensorPage($inner, sensorData["uuid"], data);
         page.update(sensorData);
 
         const $update = $('<input type="button">').val("Update Sensor");
@@ -933,17 +1003,30 @@ OSApp.Sensors.displayPage = function (_callback) {
         $inner.append($delete);
         $delete.button({icon: "delete"});
         $delete.on("click", () => {
-            OSApp.Sensors.deleteSensor(sensorData["sid"]);
+            OSApp.Sensors.deleteSensor(sensorData["uuid"]);
         });
 
         return page;
     }
 
     function updateContent () {
-        page.empty();
-        OSApp.currentSession.controller.sensors.sn.forEach((v) => {
-            createSensorCollapse(page, OSApp.currentSession.controller.sensor_desc, v);
-        });
+        const jsdRequest = OSApp.currentSession.controller.sensor_desc
+            ? $.Deferred().resolve(OSApp.currentSession.controller.sensor_desc).promise()
+            : OSApp.Firmware.sendToOS("/jsd?pw=").then((data) => data);
+
+        $.mobile.loading("show");
+        jsdRequest
+            .done((jsdData) => {
+                OSApp.currentSession.controller.sensor_desc = jsdData;
+                content.empty();
+                OSApp.currentSession.controller.sensors.sn.forEach((v) => {
+                    createSensorCollapse(content, jsdData, v);
+                });
+            })
+            .fail(() => {
+                OSApp.Errors.showError(OSApp.Language._("Failed to load sensor descriptions"));
+            })
+            .always(() => { $.mobile.loading("hide"); });
     }
 
     page
@@ -955,7 +1038,7 @@ OSApp.Sensors.displayPage = function (_callback) {
 
     function begin() {
 		OSApp.UIDom.changeHeader( {
-			title: OSApp.Language._( "Sensors" ),
+			title: OSApp.Language._( "Edit Sensors" ),
 			leftBtn: {
 				icon: "carat-l",
 				text: OSApp.Language._( "Back" ),
@@ -997,7 +1080,8 @@ OSApp.Sensors.addSensor = function (_callback) {
      * @returns {SensorPage}
      */
     function createAddSensor(parent, data) {
-        const page = OSApp.Sensors.createSensorPage(parent, "", data);
+        const $card = $('<div class="sensor-add-card"></div>').appendTo(parent);
+        const page = OSApp.Sensors.createSensorPage($card, "", data);
         page.reset();
 
         submit = () => {
@@ -1011,9 +1095,21 @@ OSApp.Sensors.addSensor = function (_callback) {
     }
 
     function updateContent () {
-        page.empty();
+        const jsdRequest = OSApp.currentSession.controller.sensor_desc
+            ? $.Deferred().resolve(OSApp.currentSession.controller.sensor_desc).promise()
+            : OSApp.Firmware.sendToOS("/jsd?pw=").then((data) => data);
 
-        createAddSensor(page, OSApp.currentSession.controller.sensor_desc);
+        $.mobile.loading("show");
+        jsdRequest
+            .done((jsdData) => {
+                OSApp.currentSession.controller.sensor_desc = jsdData;
+                content.empty();
+                createAddSensor(content, jsdData);
+            })
+            .fail(() => {
+                OSApp.Errors.showError(OSApp.Language._("Failed to load sensor descriptions"));
+            })
+            .always(() => { $.mobile.loading("hide"); });
     }
 
     page
@@ -1025,7 +1121,7 @@ OSApp.Sensors.addSensor = function (_callback) {
 
     function begin() {
 		OSApp.UIDom.changeHeader( {
-			title: OSApp.Language._( "Add Sensor" ),
+			title: OSApp.Language._( "Add a Sensor" ),
 			leftBtn: {
 				icon: "carat-l",
 				text: OSApp.Language._( "Back" ),
@@ -1054,30 +1150,71 @@ OSApp.Sensors.addSensor = function (_callback) {
 OSApp.Sensors.displayLogs = function (_callback) {
     const page = $(`<div data-role="page" id="sensor-logs"></div>`);
 	const content = $(`<div class="ui-content" role="main"></div>`);
+    const $cards = $("<div></div>");
+
+    let showCurrentOnly = true;
+    let requestSeq = 0;
+    let activeCharts = [];
+    let cachedData = null;
+    let allCardsRendered = false;
+
+    const $filterDiv = $(`
+        <div class="sensor-log-filter-bar">
+            <div class="sensor-log-filter-toggle">
+                <label for="show-inactive-sensors">${OSApp.Language._("Show Inactive")}</label>
+                <input type="checkbox" name="show-inactive-sensors" id="show-inactive-sensors">
+            </div>
+            <div class="sensor-log-filter-actions">
+                <input type="button" class="sensor-log-download-btn" value="${OSApp.Language._("Download All")}">
+                <input type="button" class="sensor-log-delete-all-btn" value="${OSApp.Language._("Delete All")}">
+            </div>
+        </div>
+    `);
+    content.append($filterDiv);
+    content.append($cards);
     page.append(content);
 
-    function createChart(canvas, sn) {
+    const _dateFmt = new Intl.DateTimeFormat([], { month: 'short', day: 'numeric' });
+    const _timeFmt = new Intl.DateTimeFormat([], { hour: 'numeric', minute: '2-digit' });
+
+    function _dayKey(ts) {
+        const d = new Date(ts);
+        return d.getFullYear() * 10000 + d.getMonth() * 100 + d.getDate();
+    }
+
+    function createChart(canvas, sn, unitLabel) {
     const sensorGraph = new Chart(canvas, {
                 type: 'line',
                 options: {
                     responsive: true,
+                    maintainAspectRatio: false,
                     scales: {
                         x: {
                             type: 'time',
-                            time: {
-                                displayFormats: {
-                                    quarter: 'MMM YYYY'
+                            ticks: {
+                                callback: function(value, index, ticks) {
+                                    const date = new Date(value);
+                                    const isAtMidnight = date.getHours() === 0 && date.getMinutes() === 0 && date.getSeconds() === 0;
+                                    const dateStr = _dateFmt.format(date);
+
+                                    if (isAtMidnight) {
+                                        return dateStr;
+                                    }
+
+                                    const timeStr = _timeFmt.format(date);
+                                    const isNewDay = index === 0 || _dayKey(ticks[index - 1].value) !== _dayKey(value);
+
+                                    return isNewDay ? [dateStr, timeStr] : timeStr;
                                 }
                             },
                             title: {
-                                display: true,
-                                text: 'Sensor Value'
+                                display: false
                             }
                         },
                         y: {
                             title: {
-                                display: true,
-                                text: `${OSApp.currentSession.controller.sensor_desc.units[sn.unit].short}`
+                                display: !!unitLabel,
+                                text: unitLabel
                             }
                         }
                     },
@@ -1087,7 +1224,10 @@ OSApp.Sensors.displayLogs = function (_callback) {
                         },
                         title: {
                             display: true,
-                            text: sn.name
+                            text: sn.name,
+                            font: {
+                                size: 18
+                            }
                         },
                         zoom: {
                             zoom: {
@@ -1111,49 +1251,58 @@ OSApp.Sensors.displayLogs = function (_callback) {
     /**
      *
      * @param {JQuery} parent
-     * @param {string} csv
+     * @param {ArrayBuffer} buf
      * @param {object} sensors
      */
-    function parseData(parent, csv, sensors) {
-        const lines = csv.split("\n");
-        let obj = lines.reduce((acc, v) => {
-            if (v == "") return acc;
+    function parseData(parent, buf, sensors) {
+        const dv = new DataView(buf);
+        let obj = {};
 
-            const parts = v.split(",");
-            const key = parseInt(parts[0], 16);
+        for (let i = 0; i < buf.byteLength; i += 10) {
+            const key = dv.getUint16(i + 8, true);
+            const timestamp = dv.getUint32(i, true);
+            const value = dv.getFloat32(i + 4, true);
 
-            if (typeof acc[key] == "undefined") acc[key] = {sensor: sensors.find((v) => v.sid == key), data: []};
+            if (typeof obj[key] === "undefined") {
+                const sensor = sensors.find((s) => s.uuid == key);
+                obj[key] = { sensor: sensor, data: [] };
+            }
 
-            let uint = parseInt(parts[2], 16);
-            let buffer = new ArrayBuffer(4);
-            let view = new DataView(buffer);
-            view.setUint32(0, uint);
+            obj[key].data.push({ x: new Date(timestamp * 1000), y: value });
+        }
 
-            acc[key].data.push({ x: new Date(parseInt(parts[1], 16) * 1000), y: view.getFloat32(0)});
-            return acc;
-        }, {});
+        const keys = Object.keys(obj).sort((a, b) => {
+            const aActive = !!obj[a].sensor;
+            const bActive = !!obj[b].sensor;
+            if (aActive !== bActive) {
+                return aActive ? -1 : 1;
+            }
+            return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+        });
 
         download = () => {
-            let csvContent = "sensor_id,timestamp,value,unit\n";
+            let csvContent = "sensor_uuid,sensor_name,timestamp,value,unit\n";
 
-            for (const key in obj) {
+            for (const key of keys) {
+                const sensor = obj[key].sensor;
+                const sensorName = sensor ? sensor.name : "unknown";
                 let unit = "unknown";
-                if (obj[key].sensor) {
-                    unit = OSApp.currentSession.controller.sensor_desc.units[obj[key].sensor.unit].short;
+                if (sensor && OSApp.currentSession.controller.sensor_desc) {
+                    unit = OSApp.currentSession.controller.sensor_desc.units[sensor.unit].short;
                 }
 
                 obj[key].data.forEach((v) => {
-                    csvContent += `${key},${v.x.getTime()},${v.y},${unit}\n`;
+                    csvContent += `${key},"${sensorName}",${v.x.getTime()},${v.y},${unit}\n`;
                 });
             }
 
             const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-
             const link = document.createElement("a");
             if (link.download !== undefined) {
+                const today = new Date().toISOString().slice(0, 10);
                 const url = URL.createObjectURL(blob);
                 link.setAttribute("href", url);
-                link.setAttribute("download", "data.csv");
+                link.setAttribute("download", `sensorlog-${today}.csv`);
                 link.style.visibility = "hidden";
                 document.body.appendChild(link);
                 link.click();
@@ -1161,16 +1310,35 @@ OSApp.Sensors.displayLogs = function (_callback) {
             }
         };
 
-        for (const key in obj) {
-            if (obj[key].sensor) {
-                const $canvas = $("<canvas></canvas>");
-                parent.append($canvas);
-                $canvas.on( "swiperight swipeleft", function( e ) {
-				e.stopImmediatePropagation();
-			} );
-                const chart = createChart($canvas[0], obj[key].sensor);
+        for (const key of keys) {
+            if (showCurrentOnly && !obj[key].sensor) {
+                continue;
+            }
 
-                let chartSince = new Date();
+            const $card = $("<div>").addClass("sensor-log-card");
+            if (!obj[key].sensor) {
+                $card.addClass("sensor-log-card-inactive");
+            }
+            parent.append($card);
+
+            const $chartContainer = $("<div>").addClass("sensor-log-chart-container");
+            const $canvas = $("<canvas></canvas>");
+            $chartContainer.append($canvas);
+            $card.append($chartContainer);
+            $canvas.on( "swiperight swipeleft", function( e ) {
+                e.stopImmediatePropagation();
+            } );
+            const activeSensor = obj[key].sensor;
+            const sn = activeSensor
+                ? { ...activeSensor, name: `${activeSensor.name} (UUID: ${activeSensor.uuid})` }
+                : { name: `Unknown (UUID: ${key})`, unit: 0 };
+            const unitLabel = (activeSensor && OSApp.currentSession.controller.sensor_desc)
+                ? OSApp.currentSession.controller.sensor_desc.units[activeSensor.unit].short
+                : "";
+            const chart = createChart($canvas[0], sn, unitLabel);
+            activeCharts.push(chart);
+
+            let chartSince = new Date();
                 chartSince.setDate(chartSince.getDate() - 1);
 
                 const update = function () {
@@ -1191,33 +1359,36 @@ OSApp.Sensors.displayLogs = function (_callback) {
                     "data-type": "horizontal"
                 });
 
-                const $resetZoom = $('<input type="button" value="Reset Zoom">');
+                const $resetZoom = $('<input type="button" value="Reset">');
                 $controls.append($resetZoom);
                 $resetZoom.on("click", () => {
                     chart.resetZoom();
                 });
 
-                const $download = $('<input type="button" value="Download Logs">');
+                const $download = $('<input type="button" value="Download">');
                 $controls.append($download);
                 $download.on("click", () => {
-                    let csvContent = "sensor_id,timestamp,value,unit\n";
-
+                    const sensorName = activeSensor ? activeSensor.name : "unknown";
                     let unit = "unknown";
-                    if (obj[key].sensor) {
-                        unit = OSApp.currentSession.controller.sensor_desc.units[obj[key].sensor.unit].short;
+                    if (activeSensor && OSApp.currentSession.controller.sensor_desc) {
+                        unit = OSApp.currentSession.controller.sensor_desc.units[activeSensor.unit].short;
                     }
 
+                    let csvContent = "sensor_uuid,sensor_name,timestamp,value,unit\n";
                     obj[key].data.forEach((v) => {
-                        csvContent += `${key},${v.x.getTime()},${v.y},${unit}\n`;
+                        csvContent += `${key},"${sensorName}",${v.x.getTime()},${v.y},${unit}\n`;
                     });
 
                     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-
                     const link = document.createElement("a");
                     if (link.download !== undefined) {
+                        const today = new Date().toISOString().slice(0, 10);
+                        const safeName = activeSensor
+                            ? activeSensor.name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "")
+                            : "unknown";
                         const url = URL.createObjectURL(blob);
                         link.setAttribute("href", url);
-                        link.setAttribute("download", "data.csv");
+                        link.setAttribute("download", `${safeName}-uuid-${key}-${today}.csv`);
                         link.style.visibility = "hidden";
                         document.body.appendChild(link);
                         link.click();
@@ -1225,45 +1396,57 @@ OSApp.Sensors.displayLogs = function (_callback) {
                     }
                 });
 
-                const $deleteLogs = $('<input type="button" value="Delete Logs">');
+                const $deleteLogs = $('<input type="button" value="Delete">');
                 $controls.append($deleteLogs);
                 $deleteLogs.on("click", () => {
-                    OSApp.Firmware.sendToOS(`/csl?pw=&sid=${key}`).done((_csv) => {
-                        updateContent();
-                    });
+                    OSApp.UIDom.areYouSure(
+                        OSApp.Language._("Are you sure you want to delete the log for") + " " + sn.name + "?",
+                        "",
+                        () => {
+                            $.mobile.loading("show");
+                            OSApp.Firmware.sendToOS(`/dsl?pw=&uuid=${key}`)
+                                .done(() => {
+                                    updateContent();
+                                })
+                                .fail(() => {
+                                    OSApp.Errors.showError(OSApp.Language._("Delete may have timed out — reloading data."));
+                                    updateContent();
+                                });
+                        }
+                    );
                 });
 
-                const $day = $('<input type="button" value="1 Day">');
+                const $threeHour = $('<input type="button" value="3H">');
+                $controls.append($threeHour);
+                $threeHour.on("click", () => {
+                    chartSince = new Date();
+                    chartSince.setHours(chartSince.getHours() - 3);
+                    update();
+                });
+                const $day = $('<input type="button" value="1D">');
                 $controls.append($day);
                 $day.on("click", () => {
                     chartSince = new Date();
                     chartSince.setDate(chartSince.getDate() - 1);
                     update();
                 });
-                const $week = $('<input type="button" value="1 Week">');
+                const $week = $('<input type="button" value="1W">');
                 $controls.append($week);
                 $week.on("click", () => {
                     chartSince = new Date();
                     chartSince.setDate(chartSince.getDate() - 7);
                     update();
                 });
-                const $month = $('<input type="button" value="1 Month">');
+                const $month = $('<input type="button" value="1M">');
                 $controls.append($month);
                 $month.on("click", () => {
                     chartSince = new Date();
                     chartSince.setMonth(chartSince.getMonth() - 1);
                     update();
                 });
-                const $year = $('<input type="button" value="1 Year">');
-                $controls.append($year);
-                $year.on("click", () => {
-                    chartSince = new Date();
-                    chartSince.setFullYear(chartSince.getFullYear() - 1);
-                    update();
-                });
 
 
-                parent.append($controls);
+                $card.append($controls);
 
                 $controls.controlgroup();
                 $deleteLogs.button();
@@ -1271,15 +1454,52 @@ OSApp.Sensors.displayLogs = function (_callback) {
                 $resetZoom.button();
 
                 update();
-            }
         }
     }
 
+    function applyFilter() {
+        if (!showCurrentOnly && !allCardsRendered && cachedData) {
+            allCardsRendered = true;
+            activeCharts.forEach(c => c.destroy());
+            activeCharts = [];
+            $cards.empty();
+            parseData($cards, cachedData, OSApp.currentSession.controller.sensors.sn);
+        }
+        $cards.find(".sensor-log-card-inactive").toggle(!showCurrentOnly);
+    }
+
+    function renderCards() {
+        if (!cachedData) return;
+        activeCharts.forEach(c => c.destroy());
+        activeCharts = [];
+        $cards.empty();
+        parseData($cards, cachedData, OSApp.currentSession.controller.sensors.sn);
+        allCardsRendered = !showCurrentOnly;
+        applyFilter();
+    }
+
     function updateContent() {
-        OSApp.Firmware.sendToOS("/lsn?pw=&count=32768").done((csv) => {
-            page.empty();
-            parseData(page, csv, OSApp.currentSession.controller.sensors.sn);
-        });
+        const seq = ++requestSeq;
+        $.mobile.loading("show");
+
+        const jslRequest = OSApp.Firmware.sendToOS("/jsl?pw=&fmt=binary&count=max", "arraybuffer");
+        const jsdRequest = OSApp.currentSession.controller.sensor_desc
+            ? $.Deferred().resolve(OSApp.currentSession.controller.sensor_desc).promise()
+            : OSApp.Firmware.sendToOS("/jsd?pw=").then((data) => data);
+
+        $.when(jslRequest, jsdRequest)
+            .done((buf, jsdData) => {
+                if (seq !== requestSeq) return;
+                $.mobile.loading("hide");
+                OSApp.currentSession.controller.sensor_desc = jsdData;
+                cachedData = buf;
+                renderCards();
+            })
+            .fail(() => {
+                if (seq !== requestSeq) return;
+                $.mobile.loading("hide");
+                OSApp.Errors.showError(OSApp.Language._("Failed to load sensor logs"));
+            });
     }
 
     page
@@ -1299,14 +1519,36 @@ OSApp.Sensors.displayLogs = function (_callback) {
 				on: OSApp.UIDom.checkChangesBeforeBack
 			},
 			rightBtn: {
-				icon: "check",
-				text: OSApp.Language._( "Download CSV" ),
-				on: () => {
-                    download();
-                }
+				icon: "refresh",
+				text: OSApp.Language._( "Refresh" ),
+				on: updateContent
 			}
 
 		} );
+
+        $filterDiv.find("input[type='checkbox']").on("change", function() {
+            showCurrentOnly = !this.checked;
+            applyFilter();
+        });
+
+        $filterDiv.find(".sensor-log-download-btn").on("click", () => download()).button()
+            .parent().addClass("sensor-log-download-btn");
+
+        $filterDiv.find(".sensor-log-delete-all-btn").on("click", () => {
+            OSApp.UIDom.areYouSure(
+                OSApp.Language._("Are you sure you want to delete all sensor logs?"),
+                "",
+                () => {
+                    $.mobile.loading("show");
+                    OSApp.Firmware.sendToOS("/dsl?pw=&uuid=-1")
+                        .done(() => { updateContent(); })
+                        .fail(() => {
+                            OSApp.Errors.showError(OSApp.Language._("Delete may have timed out — reloading data."));
+                            updateContent();
+                        });
+                }
+            );
+        }).button().parent().addClass("sensor-log-delete-all-btn");
 
 		updateContent();
 

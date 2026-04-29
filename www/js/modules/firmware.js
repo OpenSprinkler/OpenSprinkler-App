@@ -85,6 +85,19 @@ OSApp.Firmware.sendToOS = function( dest, type ) {
 		} );
 	}
 
+	if ( type === "arraybuffer" ) {
+		const fetchHeaders = {};
+		if ( OSApp.currentSession.auth ) {
+			fetchHeaders[ "Authorization" ] = "Basic " + btoa( OSApp.currentSession.authUser + ":" + OSApp.currentSession.authPass );
+		}
+		defer = $.Deferred();
+		fetch( obj.url, { headers: fetchHeaders } )
+			.then( function( r ) { if ( !r.ok ) { throw { status: r.status }; } return r.arrayBuffer(); } )
+			.then( function( buf ) { defer.resolve( buf ); } )
+			.catch( function( err ) { defer.reject( err ); } );
+		return defer.promise();
+	}
+
 	defer = $.ajaxq( queue, obj ).then(
 		function( data ) {
 

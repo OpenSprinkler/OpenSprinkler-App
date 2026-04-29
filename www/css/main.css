@@ -278,6 +278,9 @@ hr.divider {
 	font-weight:400;
 	text-shadow:none!important;
 }
+.blue.ui-btn {
+	border-color:#5D99C3!important;
+}
 .blue-text {
 	color: #5D99C3!important;
 }
@@ -1177,3 +1180,104 @@ input:invalid, .invalid {
   outline: 2px solid red !important;
   text-shadow: none !important;
 }
+
+#sensors_list,
+#add-sensor .ui-content {
+    max-width: 600px;
+}
+
+.sensor-add-card {
+    background-color: #f9f9f9;
+    border: 1px solid #d8d8d8;
+    border-radius: 6px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+    padding: 12px 14px;
+    margin: 16px 0;
+}
+
+#sensors_list .ui-field-contain > label {
+    padding-right: 14px;
+}
+
+
+.sensor-flags-label {
+    display: none;
+}
+
+.sensor-flags-checkboxes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: center;
+    padding: 6px 0;
+}
+
+@media all and (min-width: 28em) {
+    .sensor-flags-label {
+        display: inline-block;
+        float: left;
+        width: 20%;
+    }
+    .sensor-flags-checkboxes {
+        display: inline-flex;
+        width: 79%;
+    }
+}
+
+.sensor-log-chart-container {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 5 / 2;
+    min-height: 250px;
+    max-height: 450px;
+}
+
+.sensor-log-filter-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0 16px;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 8px;
+}
+
+.sensor-log-filter-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.sensor-log-filter-toggle label {
+    font-weight: bold;
+}
+
+.sensor-log-filter-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.sensor-log-download-btn {
+    background-color: #5D99C3 !important;
+    border-color: #5D99C3 !important;
+    color: #fff !important;
+    text-shadow: 0 1px 0 #059 !important;
+    font-weight: bold !important;
+}
+
+.sensor-log-delete-all-btn {
+    background-color: #444 !important;
+    border-color: #555 !important;
+    color: #fff !important;
+    text-shadow: 0 1px 0 #333 !important;
+    font-weight: bold !important;
+}
+
+.sensor-log-card {
+    background-color: #f2f2f2;
+    border: 1px solid #d8d8d8;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    padding: 12px 14px;
+    margin: 24px 0;
+}
+
