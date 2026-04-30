@@ -77,8 +77,7 @@ OSApp.Supported.dateRange = function() {
 };
 
 OSApp.Supported.sensors = function() {
-    //TODO!
-	return OSApp.Firmware.checkOSVersion( 220 );
+	return !!( OSApp.currentSession.controller && OSApp.currentSession.controller.sensors );
 };
 
 OSApp.Supported.changePause = function() {

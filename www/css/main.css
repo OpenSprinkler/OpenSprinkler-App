@@ -1141,6 +1141,12 @@ div.running-text{
 	bottom: calc(env(safe-area-inset-bottom) + 10%) !important;
 }
 
+.program-section-divider {
+    border: none;
+    border-top: 1px solid #ddd;
+    margin: 16px 0 8px;
+}
+
 /* temporary fix for Start Time input box in edit program menu*/
 button[id^="start_1-"] {
 	margin-left: 0em;
@@ -1275,6 +1281,12 @@ input:invalid, .invalid {
 }
 
 
+.sensor-chart-controls {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 4px;
+}
+
 .sensor-log-chart-container {
     position: relative;
     width: 100%;
@@ -1315,12 +1327,56 @@ input:invalid, .invalid {
     font-weight: bold !important;
 }
 
+.sensor-log-delete-btn {
+    background-color: #444 !important;
+    border-color: #555 !important;
+    color: #fff !important;
+    text-shadow: 0 1px 0 #333 !important;
+}
+
 .sensor-log-delete-all-btn {
     background-color: #444 !important;
     border-color: #555 !important;
     color: #fff !important;
     text-shadow: 0 1px 0 #333 !important;
     font-weight: bold !important;
+}
+
+.sensor-splits-table {
+    table-layout: fixed;
+    margin: 0 auto;
+}
+
+.sensor-splits-table th:nth-child(1),
+.sensor-splits-table td:nth-child(1) {
+    width: 54px;
+    text-align: center;
+}
+
+.sensor-splits-table th:nth-child(2) {
+    width: 150px;
+}
+
+.sensor-splits-table th:nth-child(3) {
+    width: 150px;
+}
+
+.sensor-splits-table th:nth-child(4),
+.sensor-splits-table td:nth-child(4) {
+    width: 40px;
+    text-align: center;
+}
+
+.sensor-splits-table td .ui-input-text {
+    margin: 2px 0;
+}
+
+.split-remove {
+    width: 32px !important;
+    height: 32px !important;
+    min-height: 32px !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
 .sensor-log-card {

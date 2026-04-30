@@ -1108,8 +1108,8 @@ OSApp.Sensors.displayPage = function (_callback) {
                 OSApp.currentSession.controller.sensor_desc = jsdData;
                 content.empty();
                 const count = OSApp.currentSession.controller.sensors.sn.length;
-                content.append("<p class='center'>" + OSApp.Language._("Number of Sensors") + ": " + count + "</p>");
                 content.append("<p class='center'>" + OSApp.Language._("Click below to expand/edit. Be sure to save changes.") + "</p>");
+                content.append("<p class='center'>" + OSApp.Language._("Number of Sensors") + ": " + count + "</p>");
                 OSApp.currentSession.controller.sensors.sn.forEach((v) => {
                     createSensorCollapse(content, jsdData, v);
                 });
@@ -1457,7 +1457,7 @@ OSApp.Sensors.displayLogs = function (_callback) {
                     chart.data = {
                         datasets: [
                             {
-                                data: obj[key].data.filter(v => v.x >= chartSince),
+                                data: chartSince ? obj[key].data.filter(v => v.x >= chartSince) : obj[key].data,
                             }
                         ]
                     };
@@ -1472,13 +1472,11 @@ OSApp.Sensors.displayLogs = function (_callback) {
                 });
 
                 const $resetZoom = $('<input type="button" value="Reset">');
-                $controls.append($resetZoom);
                 $resetZoom.on("click", () => {
                     chart.resetZoom();
                 });
 
                 const $download = $('<input type="button" value="Download">');
-                $controls.append($download);
                 $download.on("click", () => {
                     const sensorName = activeSensor ? activeSensor.name : "unknown";
                     let unit = "unknown";
@@ -1510,7 +1508,6 @@ OSApp.Sensors.displayLogs = function (_callback) {
                 });
 
                 const $deleteLogs = $('<input type="button" value="Delete">');
-                $controls.append($deleteLogs);
                 $deleteLogs.on("click", () => {
                     OSApp.UIDom.areYouSure(
                         OSApp.Language._("Are you sure you want to delete the log for") + " " + sn.name + "?",
@@ -1530,39 +1527,45 @@ OSApp.Sensors.displayLogs = function (_callback) {
                 });
 
                 const $threeHour = $('<input type="button" value="3H">');
-                $controls.append($threeHour);
                 $threeHour.on("click", () => {
                     chartSince = new Date();
                     chartSince.setHours(chartSince.getHours() - 3);
                     update();
                 });
                 const $day = $('<input type="button" value="1D">');
-                $controls.append($day);
                 $day.on("click", () => {
                     chartSince = new Date();
                     chartSince.setDate(chartSince.getDate() - 1);
                     update();
                 });
                 const $week = $('<input type="button" value="1W">');
-                $controls.append($week);
                 $week.on("click", () => {
                     chartSince = new Date();
                     chartSince.setDate(chartSince.getDate() - 7);
                     update();
                 });
                 const $month = $('<input type="button" value="1M">');
-                $controls.append($month);
                 $month.on("click", () => {
                     chartSince = new Date();
                     chartSince.setMonth(chartSince.getMonth() - 1);
                     update();
                 });
 
+                const $all = $('<input type="button">').val(OSApp.Language._("All"));
+                $all.on("click", () => {
+                    chartSince = null;
+                    update();
+                });
 
-                $card.append($controls);
+                $controls.append($threeHour, $day, $week, $month, $all, $resetZoom, $download, $deleteLogs);
+
+                const $controlsWrap = $("<div>").addClass("sensor-chart-controls");
+                $controlsWrap.append($controls);
+                $card.append($controlsWrap);
 
                 $controls.controlgroup();
                 $deleteLogs.button();
+                $deleteLogs.closest( ".ui-btn" ).addClass( "sensor-log-delete-btn" );
                 $download.button();
                 $resetZoom.button();
 

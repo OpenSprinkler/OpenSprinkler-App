@@ -629,7 +629,7 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 		navi = page.find( "#timeline-navigation" ),
 		nextID = 0,
 		previewData, previewGroups, processPrograms, checkMatch, checkMatch183, checkMatch21, checkDayMatch, checkMatch216, runSched, runSched216,
-		timeToText, changeday, render, date, day, now, is21, is211, is216;
+		timeToText, changeday, render, date, day, now, is21, is211, is216, jpaData;
 
 	page.find( "#preview_date" ).on( "change", function() {
 		date = this.value.split( "-" );
@@ -652,7 +652,15 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 			page.detach();
 		},
 		pageshow: function() {
-			render();
+			if ( OSApp.Supported.sensors() ) {
+				OSApp.Firmware.sendToOS( "/jpa?pw=", "json" ).done( function( data ) {
+					jpaData = data.jpa || [];
+				} ).always( function() {
+					render();
+				} );
+			} else {
+				render();
+			}
 		}
 	} );
 
@@ -804,7 +812,8 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 
 							// Skip if water time is zero, or station is already scheduled
 							if ( prog[ 4 ][ sid ] && endArray[ sid ] === 0 ) {
-								let waterTime = OSApp.Stations.getStationDuration( prog[ 4 ][ sid ], simt ) * wl / 100 >> 0;
+								let sa = ( jpaData && jpaData[ pid ] && simday === devday ) ? jpaData[ pid ].sa : 1.0;
+								let waterTime = OSApp.Stations.getStationDuration( prog[ 4 ][ sid ], simt ) * wl / 100 * sa >> 0;
 
 								// After weather scaling, we maybe getting 0 water time
 								if ( waterTime > 0 ) {
@@ -1853,7 +1862,10 @@ OSApp.Programs.makeAllPrograms = function() {
 		return "<p class='center'>" + OSApp.Language._( "You have no programs currently added. Tap the Add button on the top right corner to get started." ) + "</p>";
 	}
 
-	var list = "<p class='center'>" + OSApp.Language._( "Click any program below to expand/edit. Be sure to save changes." ) + "</p><div data-role='collapsible-set'>";
+	var count = OSApp.currentSession.controller.programs.pd.length;
+	var list = "<p class='center'>" + OSApp.Language._( "Click any program below to expand/edit. Be sure to save changes." ) + "</p>" +
+		"<p class='center'>" + OSApp.Language._( "Number of Programs" ) + ": " + count + "</p>" +
+		"<div data-role='collapsible-set'>";
 
 	var numDisabledPrograms = 0;
 
@@ -1933,14 +1945,14 @@ OSApp.Programs.makeProgram183 = function( n, isCopy ) {
 	list += "</fieldset><div id='input_days_week-" + id + "' " + ( ( program.type === OSApp.Constants.options.PROGRAM_TYPE_INTERVAL ) ? "style='display:none'" : "" ) + ">";
 
 	list += "<div class='center'><p class='tight'>" + OSApp.Language._( "Restrictions" ) + "</p>" +
-		"<select data-inline='true' data-iconpos='left' data-mini='true' id='days_rst-" + id + "'>";
+		"<select data-inline='true' data-mini='true' id='days_rst-" + id + "'>";
 	list += "<option value='none' " + ( ( !program.is_even && !program.is_odd ) ? "selected='selected'" : "" ) + ">" + OSApp.Language._( "None" ) + "</option>";
 	list += "<option value='odd' " + ( ( !program.is_even && program.is_odd ) ? "selected='selected'" : "" ) + ">" + OSApp.Language._( "Odd Days Only" ) + "</option>";
 	list += "<option value='even' " + ( ( !program.is_odd && program.is_even ) ? "selected='selected'" : "" ) + ">" + OSApp.Language._( "Even Days Only" ) + "</option>";
 	list += "</select></div>";
 
 	list += "<div class='center'><p class='tight'>" + OSApp.Language._( "Days of the Week" ) + "</p>" +
-		"<select " + ( $.mobile.window.width() > 560 ? "data-inline='true' " : "" ) + "data-iconpos='left' data-mini='true' " +
+		"<select " + ( $.mobile.window.width() > 560 ? "data-inline='true' " : "" ) + "data-mini='true' " +
 			"multiple='multiple' data-native-menu='false' id='d-" + id + "'><option>" + OSApp.Language._( "Choose day(s)" ) + "</option>";
 
 	for ( j = 0; j < week.length; j++ ) {
@@ -2078,7 +2090,8 @@ OSApp.Programs.makeProgram21 = function( n, isCopy ) {
 		program = OSApp.Programs.readProgram( OSApp.currentSession.controller.programs.pd[ n ] );
 	}
 
-    const adjustment = OSApp.currentSession.controller.programs.adj.find((v) => v.pid == id) || {pid: id, flag: 0, sid: 255, point_count: 0, splits: []};
+    const _pd = ( id !== "new" ) ? OSApp.currentSession.controller.programs.pd[ id ] : null;
+    const adjustment = ( _pd && _pd[ 7 ] ) ? _pd[ 7 ] : { flag: 0, uuid: 255, splits: [] };
 
 	if ( typeof program.days === "string" ) {
 		days = program.days.split( "" );
@@ -2109,10 +2122,6 @@ OSApp.Programs.makeProgram21 = function( n, isCopy ) {
 	list += "<label for='en-" + id + "'><input data-mini='true' type='checkbox' " +
 		( ( program.en || n === "new" ) ? "checked='checked'" : "" ) + " name='en-" + id + "' id='en-" + id + "'>" + OSApp.Language._( "Enabled" ) + "</label>";
 
-	// Program weather control flag
-	list += "<label for='uwt-" + id + "'><input data-mini='true' type='checkbox' " +
-		( ( program.weather ) ? "checked='checked'" : "" ) + " name='uwt-" + id + "' id='uwt-" + id + "'>" + OSApp.Language._( "Use Weather Adjustment" ) + "</label>";
-
 	if ( OSApp.Supported.dateRange() ) {
 		var from = OSApp.Dates.getDateRangeStart( id ),
 			to = OSApp.Dates.getDateRangeEnd( id );
@@ -2141,6 +2150,16 @@ OSApp.Programs.makeProgram21 = function( n, isCopy ) {
 				"</div>";
 	}
 
+	// Show start time menu
+	list += "<label class='center' for='start_1-" + id + "'>" + OSApp.Language._( "Start Time" ) + "</label><button class='timefield' data-mini='true' id='start_1-" + id +
+		"' value='" + times[ 0 ] + "'>" + OSApp.Programs.readStartTime( times[ 0 ] ) + "</button>";
+
+	list += "<hr class='program-section-divider'>";
+
+	// Program weather control flag
+	list += "<label for='uwt-" + id + "'><input data-mini='true' type='checkbox' " +
+		( ( program.weather ) ? "checked='checked'" : "" ) + " name='uwt-" + id + "' id='uwt-" + id + "'>" + OSApp.Language._( "Use Weather Adjustment" ) + "</label>";
+
     // Sensor adjustments
     //TODO:
 	if ( OSApp.Supported.sensors() ) {
@@ -2151,36 +2170,32 @@ OSApp.Programs.makeProgram21 = function( n, isCopy ) {
 				"</label>";
 
 		list += "<div id='sensor-options-" + id + "'" + ( ( (adjustment.flag & 1) == 1 ) ? "" : "style='display:none'" ) + ">";
-        list += `<select id='${"sen-adj-sid-" + id}'></select>`;
-        list += "<table>" +
-                "<thead>" +
-                    "<tr>" +
-                    "<th scope='col'>Point #</th>" +
-                    "<th scope='col'>Sensor Value</th>" +
-                    "<th scope='col'>Watering Percentage</th>" +
-                   " </tr>" +
-               "</thead>" +
-                "<tbody>";
-        for (let i = 0; i < 8; i++) {
-            list += "<tr>" +
-                    `<th scope='row'>${i+1}</th>` +
-                    "<td>" +
-                    `<input type="number" name="sensor-value-${i}-${id}" id="sensor-value-${i}-${id}" placeholder="Sensor Value" value=${adjustment.splits[i]?.x || ""} />` +
-                    "</td>" +
-                    "<td>" +
-                    `<input type="number" name="watering-percentage-${i}-${id}" id="watering-percentage-${i}-${id}" placeholder="Watering %" value=${adjustment.splits[i]?.y || ""} />` +
-                    "</td>" +
-                    "</tr>";
-        }
-    list += "</tbody>" +
-            "</table>";
-            list += `<canvas id="sensor-chart-${id}" width="400" height="200"></canvas>`;
+        list += "<div class='ui-field-contain'>" +
+                    "<label for='sen-adj-sid-" + id + "'>" + OSApp.Language._( "Select Sensor" ) + "</label>" +
+                    "<select data-mini='true' id='sen-adj-sid-" + id + "'></select>" +
+                "</div>";
+        list += "<div class='ui-field-contain' id='sen-adj-current-" + id + "' style='display:none'>" +
+                    "<label>" + OSApp.Language._( "Current Value" ) + "</label>" +
+                    "<p class='sensor-current-value-text' id='sen-adj-current-text-" + id + "'></p>" +
+                "</div>";
+        list += "<div id='sensor-splits-wrap-" + id + "'>";
+        list += "<table class='sensor-splits-table'>" +
+                "<thead><tr>" +
+                "<th scope='col'>" + OSApp.Language._( "Point" ) + "</th>" +
+                "<th scope='col'>" + OSApp.Language._( "Sensor Value" ) + "</th>" +
+                "<th scope='col'>" + OSApp.Language._( "Watering %" ) + "</th>" +
+                "<th scope='col'></th>" +
+                "</tr></thead>" +
+                "<tbody id='sensor-splits-body-" + id + "'></tbody>" +
+                "<tfoot><tr>" +
+                "<td colspan='4' style='text-align:right;padding-right:0'><button type='button' id='sensor-add-split-" + id + "' data-mini='true' data-icon='plus' data-inline='true'>" + OSApp.Language._( "Add a Point" ) + "</button></td>" +
+                "</tr></tfoot>" +
+                "</table>";
+        list += `<canvas id="sensor-chart-${id}" width="400" height="200"></canvas>`;
+        list += "</div>";
 		list += "</div>";
 	}
 
-	// Show start time menu
-	list += "<label class='center' for='start_1-" + id + "'>" + OSApp.Language._( "Start Time" ) + "</label><button class='timefield' data-mini='true' id='start_1-" + id +
-		"' value='" + times[ 0 ] + "'>" + OSApp.Programs.readStartTime( times[ 0 ] ) + "</button>";
 
 	// Close basic settings group
 	list += "</div></div></div></div>";
@@ -2211,7 +2226,7 @@ OSApp.Programs.makeProgram21 = function( n, isCopy ) {
 	// Show weekly program options
 	list += "<div id='input_days_week-" + id + "' " + ( ( program.type === OSApp.Constants.options.PROGRAM_TYPE_WEEKLY ) ? "" : "style='display:none'" ) + ">";
 	list += "<div class='center'><p class='tight'>" + OSApp.Language._( "Days of the Week" ) + "</p>" +
-		"<select " + ( $.mobile.window.width() > 560 ? "data-inline='true' " : "" ) + "data-iconpos='left' data-mini='true' " +
+		"<select " + ( $.mobile.window.width() > 560 ? "data-inline='true' " : "" ) + "data-mini='true' " +
 			"multiple='multiple' data-native-menu='false' id='d-" + id + "'>" +
 		"<option>" + OSApp.Language._( "Choose day(s)" ) + "</option>";
 	for ( j = 0; j < week.length; j++ ) {
@@ -2242,7 +2257,7 @@ OSApp.Programs.makeProgram21 = function( n, isCopy ) {
 	list += "</div>";
 
 	// Show restriction options
-	list += "<div class='center'><p class='tight'>" + OSApp.Language._( "Restrictions" ) + "</p><select data-inline='true' data-iconpos='left' data-mini='true' id='days_rst-" + id + "'>";
+	list += "<div class='center'><p class='tight'>" + OSApp.Language._( "Restrictions" ) + "</p><select data-inline='true' data-mini='true' id='days_rst-" + id + "'>";
 	list += "<option value='none' " + ( ( !program.is_even && !program.is_odd ) ? "selected='selected'" : "" ) + ">" + OSApp.Language._( "None" ) + "</option>";
 	list += "<option value='odd' " + ( ( !program.is_even && program.is_odd ) ? "selected='selected'" : "" ) + ">" + OSApp.Language._( "Odd Days Only" ) + "</option>";
 	list += "<option value='even' " + ( ( !program.is_odd && program.is_even ) ? "selected='selected'" : "" ) + ">" + OSApp.Language._( "Even Days Only" ) + "</option>";
@@ -2351,8 +2366,78 @@ OSApp.Programs.makeProgram21 = function( n, isCopy ) {
 
 	updateProgramTime();
 
-    OSApp.Sensors.makeSensorSelect(page.find("#sen-adj-sid-" + id), "");
-    page.find("#sen-adj-sid-" + id).val(adjustment.sid);
+    OSApp.Sensors.makeSensorSelect( page.find( "#sen-adj-sid-" + id ) );
+    page.find( "#sen-adj-sid-" + id ).val( adjustment.uuid );
+
+    var senAdjGraph = null;
+    var currentLineValue = null;
+    var currentLineColor = null;
+
+    var SEN_ADJ_COLOR = {
+        "sensor-value-valid": "#27ae60",
+        "sensor-value-warning": "#e67e22",
+        "sensor-value-clamped": "#5D99C3"
+    };
+
+    function updateSenAdjCurrentValue( uuid ) {
+        var $splitsWrap = page.find( "#sensor-splits-wrap-" + id );
+        var $wrap = page.find( "#sen-adj-current-" + id );
+        var $text = page.find( "#sen-adj-current-text-" + id );
+
+        if ( String( uuid ) === "255" ) {
+            $splitsWrap.hide();
+            $wrap.hide();
+            currentLineValue = null;
+            if ( senAdjGraph ) { senAdjGraph.update(); }
+            return;
+        }
+
+        $splitsWrap.show();
+        if ( senAdjGraph ) { setTimeout( function() { senAdjGraph.resize(); }, 0 ); }
+
+        var sn = OSApp.currentSession.controller.sensors && OSApp.currentSession.controller.sensors.sn;
+        var sensor = sn && sn.find( function( s ) { return String( s.uuid ) === String( uuid ); } );
+
+        if ( !sensor || typeof sensor.value === "undefined" || sensor.value === null ) {
+            $wrap.hide();
+            currentLineValue = null;
+            if ( senAdjGraph ) { senAdjGraph.update(); }
+            return;
+        }
+
+        var desc = OSApp.currentSession.controller.sensor_desc;
+        var unitObj = desc && desc.units && desc.units.find( function( u ) { return u.value === sensor.unit; } );
+        var unitShort = unitObj ? ( unitObj.short || unitObj.name ) : "";
+        var status = sensor.status != null ? sensor.status : 1;
+        var VALID = 1, ERROR = 2, STALE = 4, CLAMPED_HIGH = 8, CLAMPED_LOW = 16;
+        var text, cls;
+
+        if ( !( status & VALID ) ) {
+            text = "—"; cls = "";
+            currentLineValue = null;
+        } else {
+            text = sensor.value + ( unitShort ? " " + unitShort : "" );
+            cls = "sensor-value-valid";
+            if ( ( status & ERROR ) || ( status & STALE ) ) {
+                text += " ⚠"; cls = "sensor-value-warning";
+            } else if ( status & CLAMPED_HIGH ) {
+                text += " ⊤"; cls = "sensor-value-clamped";
+            } else if ( status & CLAMPED_LOW ) {
+                text += " ⊥"; cls = "sensor-value-clamped";
+            }
+            currentLineValue = sensor.value;
+            currentLineColor = SEN_ADJ_COLOR[ cls ] || "#27ae60";
+        }
+
+        $text.text( text ).removeClass( "sensor-value-valid sensor-value-warning sensor-value-clamped" ).addClass( cls );
+        $wrap.show();
+        if ( senAdjGraph ) { senAdjGraph.update(); }
+    }
+
+    page.find( "#sen-adj-sid-" + id ).on( "change", function() {
+        updateSenAdjCurrentValue( $( this ).val() );
+    } );
+    updateSenAdjCurrentValue( adjustment.uuid );
 
 	// When controlgroup buttons are toggled change relevant options
 	page.find( "input[name^='rad_days'],input[name^='stype']" ).on( "change", function() {
@@ -2375,79 +2460,122 @@ OSApp.Programs.makeProgram21 = function( n, isCopy ) {
 			page.find( "#sensor-options-" + id ).toggle();
 		} );
 
-        const sensorValues = Array.from({ length: 8 }, () => [NaN, NaN]);
-        adjustment.splits.forEach((v, i) => {
-            sensorValues[i] = [v.x, v.y];
-        });
+        const splitPoints = adjustment.splits.map( v => ({ x: v.x, y: v.y * 100 }) );
+        const maxSplits = adjustment.maxSplits != null ? adjustment.maxSplits : 8;
+        const $tbody = page.find( `#sensor-splits-body-${id}` );
 
-        const sensorGraph = new Chart(page.find(`#sensor-chart-${id}`)[0], {
-                type: 'line',
-                options: {
-                    responsive: true,
-                    scales: {
-                        x: {
-                            type: 'linear',
-                            title: {
-                                display: true,
-                                text: 'Sensor Value'
-                            }
-                        },
-                        y: {
-                            title: {
-                                display: true,
-                                text: 'Watering Percentage'
-                            }
-                        }
+        const currentValueLinePlugin = {
+            id: "currentValueLine",
+            afterDraw: function( chart ) {
+                if ( currentLineValue === null ) { return; }
+                const xAxis = chart.scales.x;
+                const yAxis = chart.scales.y;
+                if ( !xAxis || !yAxis ) { return; }
+                const xPixel = xAxis.getPixelForValue( currentLineValue );
+                if ( xPixel < xAxis.left || xPixel > xAxis.right ) { return; }
+                const ctx = chart.ctx;
+                ctx.save();
+                ctx.beginPath();
+                ctx.moveTo( xPixel, yAxis.top );
+                ctx.lineTo( xPixel, yAxis.bottom );
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = currentLineColor || "#27ae60";
+                ctx.setLineDash( [ 6, 3 ] );
+                ctx.stroke();
+                ctx.restore();
+            }
+        };
+
+        senAdjGraph = new Chart( page.find( `#sensor-chart-${id}` )[ 0 ], {
+            type: "line",
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        type: "linear",
+                        title: { display: true, text: OSApp.Language._( "Sensor Value" ) }
                     },
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        title: {
-                            display: false
-                        }
+                    y: {
+                        min: 0,
+                        suggestedMax: 200,
+                        title: { display: true, text: OSApp.Language._( "Watering %" ) },
+                        ticks: { callback: function( v ) { return v + "%"; } }
                     }
                 },
-            });
-
-        sensorGraph.update();
+                plugins: {
+                    legend: { display: false },
+                    title: { display: false }
+                }
+            },
+            plugins: [ currentValueLinePlugin ]
+        } );
 
         function updateGraph() {
-            const sortedValues = sensorValues.filter((v) => !isNaN(v[0]) && !isNaN(v[1])).sort((a, b) => a[0] - b[0]);
-            if (sortedValues.length > 0) {
-                const begining = sortedValues[0].map((v) => v);
-                begining[0] -= 10;
-                sortedValues.unshift(begining);
-
-                const end = sortedValues[sortedValues.length-1].map((v) => v);
-                end[0] += 10;
-                sortedValues.push(end);
+            const valid = splitPoints
+                .filter( p => Number.isFinite( p.x ) && Number.isFinite( p.y ) )
+                .sort( ( a, b ) => a.x - b.x );
+            const chartData = valid.slice();
+            if ( chartData.length > 0 ) {
+                chartData.unshift( { x: chartData[ 0 ].x - 10, y: chartData[ 0 ].y } );
+                chartData.push( { x: chartData[ chartData.length - 1 ].x + 10, y: chartData[ chartData.length - 1 ].y } );
             }
-
-            sensorGraph.data = {
-                datasets: [
-                    {
-                        label: 'Watering percentage',
-                        data: sortedValues.map(v => ({ x: v[0], y: v[1] })),
-                    }
-                ]
+            senAdjGraph.data = {
+                datasets: [ { label: OSApp.Language._( "Watering %" ), data: chartData } ]
             };
-
-            sensorGraph.update();
+            senAdjGraph.update();
         }
 
-        updateGraph();
+        function renderSplitRows() {
+            $tbody.empty();
 
-        for (let i = 0; i < 8; i++) {
-            page.find( `#sensor-value-${i}-${id}` ).on( "change", function() {
-                sensorValues[i][0] = parseFloat($(this).val());
-                updateGraph();
+            splitPoints.forEach( function( point, idx ) {
+                const $xInput = $( "<input type='number' class='split-x'>" ).attr( "placeholder", OSApp.Language._( "Sensor Value" ) );
+                const $yInput = $( "<input type='number' class='split-y' min='0'>" ).attr( "placeholder", "%" );
+                const $removeBtn = $( "<a class='ui-btn ui-btn-icon-notext ui-icon-delete ui-btn-corner-all split-remove' tabindex='-1'></a>" );
+
+                if ( Number.isFinite( point.x ) ) { $xInput.val( point.x ); }
+                if ( Number.isFinite( point.y ) ) { $yInput.val( point.y ); }
+
+                $xInput.on( "change", function() {
+                    const val = parseFloat( $( this ).val() );
+                    splitPoints[ idx ].x = Number.isFinite( val ) ? val : NaN;
+                    updateGraph();
+                } );
+
+                $yInput.on( "change", function() {
+                    const val = parseFloat( $( this ).val() );
+                    splitPoints[ idx ].y = Number.isFinite( val ) ? val : NaN;
+                    updateGraph();
+                } );
+
+                $removeBtn.on( "click", function() {
+                    splitPoints.splice( idx, 1 );
+                    renderSplitRows();
+                } );
+
+                $tbody.append(
+                    $( "<tr></tr>" ).append(
+                        $( "<th scope='row'></th>" ).text( idx + 1 ),
+                        $( "<td></td>" ).append( $xInput ),
+                        $( "<td></td>" ).append( $yInput ),
+                        $( "<td></td>" ).append( $removeBtn )
+                    )
+                );
             } );
-            page.find( `#watering-percentage-${i}-${id}` ).on( "change", function() {
-                sensorValues[i][1] = parseFloat($(this).val());
-                updateGraph();
-            } );
+
+            $tbody.enhanceWithin();
+            updateGraph();
         }
+
+        const $addSplitBtn = page.find( `#sensor-add-split-${id}` );
+        $addSplitBtn.on( "click", function() {
+            if ( splitPoints.length >= maxSplits ) { return; }
+            splitPoints.push( { x: NaN, y: NaN } );
+            renderSplitRows();
+            $tbody.find( "tr" ).last().find( ".split-x" ).focus();
+        } );
+
+        renderSplitRows();
 	}
 
 	// Handle interval duration input
@@ -2556,26 +2684,26 @@ OSApp.Programs.getSenAdjURL = function (id) {
 
     const vals = [];
 
-    let ret = `&adj_flag=${flags}&adj_sid=${$("#sen-adj-sid-" + id).val()}&adj_points=`;
+    let ret = `&adj_flag=${flags}&adj_uuid=${$( "#sen-adj-sid-" + id ).val()}&adj_points=`;
 
     let xSet = new Set();
 
-    for (let i = 0; i < 8; i++) {
-        const x = parseFloat($( `#sensor-value-${i}-${id}` ).val());
-        const y = parseFloat($( `#watering-percentage-${i}-${id}` ).val());
+    $( `#sensor-splits-body-${id}` ).find( "tr" ).each( function() {
+        const x = parseFloat( $( this ).find( ".split-x" ).val() );
+        const y = parseFloat( $( this ).find( ".split-y" ).val() );
 
-        if (!Number.isFinite(x) && !Number.isFinite(y)) {
-            continue;
+        if ( !Number.isFinite( x ) && !Number.isFinite( y ) ) {
+            return;
         }
 
-        if (xSet.has(x)) {
-            throw new Error("Duplicate x values");
+        if ( xSet.has( x ) ) {
+            throw new Error( "Duplicate x values" );
         } else {
-            xSet.add(x);
+            xSet.add( x );
         }
 
-        vals.push([x, y]);
-    }
+        vals.push( [ x, y / 100 ] );
+    } );
 
     vals.sort((a, b) => a[0] - b[0]).forEach((v) => {
         ret += `${v[0]},${v[1]};`;

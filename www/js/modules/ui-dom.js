@@ -303,23 +303,19 @@ OSApp.UIDom.showHomeMenu = ( function() {
 			"<ul data-role='listview' data-inset='true' data-corners='false'>" +
 				"<li data-role='list-divider'>" + OSApp.Language._( "Information" ) + "</li>" +
 				"<li><a href='#preview' class='squeeze'>" + OSApp.Language._( "Preview Programs" ) + "</a></li>" +
-				( OSApp.Firmware.checkOSVersion( 206 ) || OSApp.Firmware.checkOSPiVersion( "1.9" ) ? "<li><a href='#logs'>" + OSApp.Language._( "View Logs" ) + "</a></li>" : "" ) +
-				"<li data-role='list-divider'>" + OSApp.Language._( "Programs and Settings" ) + "</li>" +
-				"<li><a href='#raindelay'>" + OSApp.Language._( "Change Rain Delay" ) + "</a></li>" +
+				( OSApp.Firmware.checkOSVersion( 206 ) || OSApp.Firmware.checkOSPiVersion( "1.9" ) ? "<li><a href='#logs'>" + OSApp.Language._( "Sprinkler Logs" ) + "</a></li>" : "" ) +
+				( OSApp.Supported.sensors() ? "<li><a href='#sensor-logs'>" + OSApp.Language._( "Sensor Logs" ) + "</a></li>" : "" ) +
+				"<li data-role='list-divider'>" + OSApp.Language._( "Manual Control" ) + "</li>" +
+				"<li><a href='#runonce'>" + OSApp.Language._( "Run-Once" ) + "</a></li>" +
+				"<li><a href='#raindelay'>" + OSApp.Language._( "Rain Delay" ) + "</a></li>" +
 				( OSApp.Supported.pausing() ?
 					( OSApp.StationQueue.isPaused() ? "<li><a href='#globalpause'>" + OSApp.Language._( "Change Pause" ) + "</a></li>"
-						: ( "<li><a href='#globalpause'>" + OSApp.Language._( "Pause Station Runs" ) + "</a></li>" ) )
+						: "<li><a href='#globalpause'>" + OSApp.Language._( "Pause Runs" ) + "</a></li>" )
 					: "" ) +
-				"<li><a href='#runonce'>" + OSApp.Language._( "Run-Once Program" ) + "</a></li>" +
-				"<li><a href='#programs'>" + OSApp.Language._( "Edit Programs" ) + "</a></li>" +
-				"<li><a href='#sensors'>" + OSApp.Language._( "Edit Sensors" ) + "</a></li>" +
-				"<li><a href='#sensor-logs'>" + OSApp.Language._( "Sensors Logs" ) + "</a></li>" +
+				"<li data-role='list-divider'>" + OSApp.Language._( "Configuration" ) + "</li>" +
 				"<li><a href='#os-options'>" + OSApp.Language._( "Edit Options" ) + "</a></li>" +
-
-				( OSApp.Analog.checkAnalogSensorAvail() ? (
-					"<li><a href='#analogsensorconfig'>" + OSApp.Language._( "Analog Sensor Config" ) + "</a></li>" +
-					"<li><a href='#analogsensorchart'>" + OSApp.Language._( "Show Sensor Log" ) + "</a></li>"
-				) : "" ) +
+				"<li><a href='#programs'>" + OSApp.Language._( "Edit Programs" ) + "</a></li>" +
+				( OSApp.Supported.sensors() ? "<li><a href='#sensors'>" + OSApp.Language._( "Edit Sensors" ) + "</a></li>" : "" ) +
 			( id === "sprinklers" || id === "runonce" || id === "programs" || id === "manual" || id === "addprogram" ?
 				"</ul>" +
 				"<div class='ui-grid-a ui-mini tight'>" +
@@ -544,6 +540,12 @@ OSApp.UIDom.initAppData = function() {
 		} else if ( ( menuOpen || altDown ) && code === 68 ) { // D
 			e.preventDefault();
 			OSApp.Weather.showRainDelay();
+		} else if ( ( menuOpen || altDown ) && code === 83 ) { // S
+			e.preventDefault();
+			OSApp.UIDom.changePage( "#sensors" );
+		} else if ( ( menuOpen || altDown ) && code === 71 ) { // G
+			e.preventDefault();
+			OSApp.UIDom.changePage( "#sensor-logs" );
 		}
 	} );
 
