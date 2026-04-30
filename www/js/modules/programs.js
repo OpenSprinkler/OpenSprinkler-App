@@ -2078,7 +2078,7 @@ OSApp.Programs.makeProgram21 = function( n, isCopy ) {
 		program = OSApp.Programs.readProgram( OSApp.currentSession.controller.programs.pd[ n ] );
 	}
 
-    const adjustment = OSApp.currentSession.controller.programs.adj.find((v) => v.pid == id) || {pid: id, flags: 0, sid: 255, point_count: 0, splits: []};
+    const adjustment = OSApp.currentSession.controller.programs.adj.find((v) => v.pid == id) || {pid: id, flag: 0, sid: 255, point_count: 0, splits: []};
 
 	if ( typeof program.days === "string" ) {
 		days = program.days.split( "" );
@@ -2146,11 +2146,11 @@ OSApp.Programs.makeProgram21 = function( n, isCopy ) {
 	if ( OSApp.Supported.sensors() ) {
 		list += "<label for='use-sn-" + id + "'>" +
 					"<input data-mini='true' type='checkbox' " +
-					( ( (adjustment.flags & 1) == 1 ) ? "checked='checked'" : "" ) + " name='use-sn-" + id + "' id='use-sn-" + id + "'>" +
+					( ( (adjustment.flag & 1) == 1 ) ? "checked='checked'" : "" ) + " name='use-sn-" + id + "' id='use-sn-" + id + "'>" +
 					 OSApp.Language._( "Use Sensor Adjustment" ) +
 				"</label>";
 
-		list += "<div id='sensor-options-" + id + "'" + ( ( (adjustment.flags & 1) == 1 ) ? "" : "style='display:none'" ) + ">";
+		list += "<div id='sensor-options-" + id + "'" + ( ( (adjustment.flag & 1) == 1 ) ? "" : "style='display:none'" ) + ">";
         list += `<select id='${"sen-adj-sid-" + id}'></select>`;
         list += "<table>" +
                 "<thead>" +
@@ -2556,7 +2556,7 @@ OSApp.Programs.getSenAdjURL = function (id) {
 
     const vals = [];
 
-    let ret = `&adj_flags=${flags}&adj_sid=${$("#sen-adj-sid-" + id).val()}&adj_points=`;
+    let ret = `&adj_flag=${flags}&adj_sid=${$("#sen-adj-sid-" + id).val()}&adj_points=`;
 
     let xSet = new Set();
 

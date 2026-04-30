@@ -1206,10 +1206,60 @@ input:invalid, .invalid {
 
 .sensor-flags-checkboxes {
     display: flex;
-    flex-wrap: wrap;
-    gap: 16px;
+    flex-wrap: nowrap;
+    gap: 6px;
     align-items: center;
-    padding: 6px 0;
+    padding: 4px 0;
+}
+
+.sensor-flags-checkboxes .ui-checkbox {
+    margin: 0;
+}
+
+.sensor-flags-checkboxes .ui-checkbox label.ui-btn {
+    padding-top: 0.4em;
+    padding-bottom: 0.4em;
+    font-size: 0.9em;
+    margin: 0;
+    min-height: 0;
+}
+
+.sensor-current-value-text {
+    overflow: hidden;
+    display: block;
+    padding: 0.5em 0;
+    margin: 0;
+    font-size: 1em;
+    color: inherit;
+}
+
+.sensor-value-valid {
+    color: #27ae60;
+}
+
+.sensor-value-warning {
+    color: #e67e22;
+}
+
+.sensor-value-clamped {
+    color: #5D99C3;
+}
+
+.sensor-array-buttons {
+    overflow: hidden;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 4px 0;
+}
+
+.sensor-child-popup {
+    min-width: 280px;
+    overflow: auto;
+}
+
+.sensor-child-popup-title {
+    text-align: center;
 }
 
 @media all and (min-width: 28em) {
@@ -1223,6 +1273,7 @@ input:invalid, .invalid {
         width: 79%;
     }
 }
+
 
 .sensor-log-chart-container {
     position: relative;

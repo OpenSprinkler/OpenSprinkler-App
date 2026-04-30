@@ -1034,11 +1034,17 @@ OSApp.Sites.updateController = function( callback, fail ) {
 
 			// The /ja call does not contain special station data, so let's cache it
 			var special = OSApp.currentSession.controller.special;
+			var sensorDesc = OSApp.currentSession.controller.sensor_desc;
 
 			OSApp.currentSession.controller = data;
 
 			// Restore the station cache to the object
 			OSApp.currentSession.controller.special = special;
+
+			// /jsd is large and not in /ja; preserve the cached copy
+			if ( !OSApp.currentSession.controller.sensor_desc ) {
+				OSApp.currentSession.controller.sensor_desc = sensorDesc;
+			}
 
 			// Fix the station status array
 			OSApp.currentSession.controller.status = OSApp.currentSession.controller.status.sn;

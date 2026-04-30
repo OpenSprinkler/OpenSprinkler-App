@@ -89,25 +89,17 @@ var OSApp = OSApp || {};
 
 OSApp.Sensors = {};
 
-OSApp.Sensors.makeSensorSelect = function ($select, uuid) {
+OSApp.Sensors.makeSensorSelect = function ($select) {
     $select.append($("<option></option>")
             .attr("value", "255")
-            .text("No Sensor"));
-
-    if (uuid) {
-        $select.append($("<option></option>")
-                .attr("value", "-1")
-                .text("This Sensor"));
-    }
+            .text("None (UUID: 0)"));
 
     OSApp.currentSession.controller.sensors.sn.forEach((v) => {
-        if (!uuid || v.uuid != uuid) {
-            const $option = $('<option></option>')
-                .attr("value", v.uuid)
-                .text(`${v.name} (UUID: ${v.uuid})`);
+        const $option = $('<option></option>')
+            .attr("value", v.uuid)
+            .text(`${v.name} (UUID: ${v.uuid})`);
 
-            $select.append($option);
-        }
+        $select.append($option);
     });
 };
 
@@ -263,17 +255,17 @@ OSApp.Sensors.createSensorPage = function (parent, uuid, data) {
         const $select = $('<select></select>').attr("id", id);
         parent.append($select);
 
-        OSApp.Sensors.makeSensorSelect($select, uuid);
+        OSApp.Sensors.makeSensorSelect($select);
 
         $select.selectmenu();
 
         return {
             get: () => coerceVal($select.val()),
             set: (val) => {
-                if (uuid && val == uuid) {
-                    val = "-1";
+                // Firmware uses "0" as the "no sensor" default; map to the "No Sensor" option value
+                if (val == "0") {
+                    val = "255";
                 }
-
                 $select.val(val);
                 $select.selectmenu('refresh');
             },
@@ -567,32 +559,87 @@ OSApp.Sensors.createSensorPage = function (parent, uuid, data) {
                  * @type {Map<string, ParamUpdater>[]}  // an array of numbers
                  */
                 const arrayValues = [];
+                const buttonUpdaters = [];
                 const count = Number.parseInt(parts[1]);
-                parent.append($('<span></span>').text(argument.name));
+                parent.append($label);
+                const $buttonWrapper = $('<div class="sensor-array-buttons"></div>');
+                parent.append($buttonWrapper);
                 if (!isNaN(count)) {
                     for (let index = 0; index < count; index++) {
                         const $button = $('<input type="button">')
-                            .val(index)
+                            .val(index + 1)
                             .attr('id', `popup-btn-${ns}-${index}-${key}`);
 
-                        const $popup = $('<div data-overlay-theme="a" class="ui-page-theme-a"></div>')
-                            .attr('id', `popup-container-${ns}-${index}-${key}`)
-                            .addClass('ui-content');
+                        const $popup = $('<div data-theme="a" class="sensor-child-popup"></div>')
+                            .attr('id', `popup-container-${ns}-${index}-${key}`);
+                        $popup.append(
+                            $('<div class="ui-bar ui-bar-b sensor-child-popup-title"></div>').append(
+                                $('<h3></h3>').text(OSApp.Language._("Configure Child Sensor") + " " + (index + 1))
+                            )
+                        );
+                        const $popupContent = $('<div class="ui-content"></div>');
+                        $popup.append($popupContent);
 
-                        parent.append($button, $popup);
+                        $buttonWrapper.append($button);
+                        parent.parent().append($popup);
 
                         /**
                          * @type {Map<string, ParamUpdater>}  // an array of numbers
                          */
                         const values = new Map();
 
-                        argument.extra.forEach((v, i) => values.set(v.arg, createInput({...v, arg: `${i}`}, `${ns}-${index}`, key, $popup)));
+                        // If a /jsd arg has "indicator":true, its value vs. default drives button color.
+                        // Capture the default after initial set so any internal mapping (e.g. 0→255) is
+                        // already reflected, without hardcoding any field name here.
+                        let indicatorInfo = null;
+
+                        (argument.extra || []).forEach((v, i) => {
+                            const paramUpdater = createInput({...v, arg: `${i}`}, `${ns}-${index}`, key, $popupContent);
+                            values.set(v.arg, paramUpdater);
+                            if (v.indicator) {
+                                indicatorInfo = {
+                                    updater: paramUpdater,
+                                    defaultValue: paramUpdater.add(new URLSearchParams()),
+                                };
+                            }
+                        });
 
                         arrayValues.push(values);
 
+                        const $doneBtn = $('<input type="button" data-theme="b">').val(OSApp.Language._("Submit"));
+                        $popupContent.append($doneBtn);
+                        $doneBtn.button();
+
+                        const updateAppearance = () => {
+                            if (!indicatorInfo) return;
+                            const $btn = $button.closest(".ui-btn");
+                            const current = indicatorInfo.updater.add(new URLSearchParams());
+                            $btn.toggleClass("green", current !== indicatorInfo.defaultValue);
+                        };
+                        buttonUpdaters.push(updateAppearance);
+
                         $popup.popup();
 
+                        $popup.on("popupbeforeposition", (e) => e.stopPropagation());
+
+                        let submitted = false;
+                        let snapshot = null;
+
+                        $doneBtn.on("click", () => {
+                            submitted = true;
+                            $popup.popup("close");
+                        });
+
                         $popup.on("popupafterclose", () => {
+                            if (!submitted && snapshot) {
+                                for (const [key, p] of values.entries()) {
+                                    const snapshotVal = snapshot.get(key);
+                                    if (typeof snapshotVal !== "undefined") {
+                                        p.update(snapshotVal);
+                                    }
+                                }
+                            }
+
                             let ret = true;
                             let empty = true;
                             for (const p of values.values()) {
@@ -606,15 +653,18 @@ OSApp.Sensors.createSensorPage = function (parent, uuid, data) {
                                 }
                             }
 
-                            if (ret || empty) {
-                                $button.removeClass("red");
-                            } else {
-                                $button.addClass("red");
-                            }
+                            const $btn = $button.closest(".ui-btn");
+                            $btn.toggleClass("red", !(ret || empty));
+                            updateAppearance();
                         });
 
                         $button.button();
                         $button.on("click", function() {
+                            submitted = false;
+                            snapshot = new Map();
+                            for (const [key, p] of values.entries()) {
+                                snapshot.set(key, p.add(new URLSearchParams()));
+                            }
                             $popup.popup('open');
                         });
                     }
@@ -627,6 +677,7 @@ OSApp.Sensors.createSensorPage = function (parent, uuid, data) {
                                 v.reset();
                             }
                         });
+                        buttonUpdaters.forEach(fn => fn());
                     },
                     add: (params) => {
                         let res = "";
@@ -674,6 +725,7 @@ OSApp.Sensors.createSensorPage = function (parent, uuid, data) {
                                 values.get(key)?.update(v[key]);
                             }
                         });
+                        buttonUpdaters.forEach(fn => fn());
                     },
                     validate: () => {
                         return arrayValues.every((v) => {
@@ -784,10 +836,10 @@ OSApp.Sensors.createSensorPage = function (parent, uuid, data) {
             const $lbl = $('<label></label>').attr("for", id).text(arg.name);
             $checkboxes.append($input, $lbl);
             $input.checkboxradio();
-            $input.prop("checked", arg.default === "true" || arg.default === true);
+            $input.prop("checked", !!arg.default);
 
             flagValues.set(arg.arg, {
-                reset: () => { $input.prop("checked", arg.default === "true" || arg.default === true); $input.checkboxradio("refresh"); },
+                reset: () => { $input.prop("checked", !!arg.default); $input.checkboxradio("refresh"); },
                 add: (params) => { const val = String($input.prop("checked")); params.append(arg.arg, val); return val; },
                 update: (val) => { $input.prop("checked", val === "true" || val === true); $input.checkboxradio("refresh"); },
                 validate: () => true,
@@ -817,10 +869,10 @@ OSApp.Sensors.createSensorPage = function (parent, uuid, data) {
 
     data.flags.forEach((v, i) => {
         flagSegment.args.push({
-            name: v[0],
+            name: v.name,
             arg: `${i}`,
             type: "flag",
-            default: v[1],
+            default: v.default,
             extra: [],
         });
     });
@@ -869,7 +921,7 @@ OSApp.Sensors.createSensorPage = function (parent, uuid, data) {
             }
         }
 
-        params.set("flags", `${flag}`);
+        params.set("flag", `${flag}`);
     }
 
     /**
@@ -877,15 +929,12 @@ OSApp.Sensors.createSensorPage = function (parent, uuid, data) {
      * @param {number} flags
      */
     function getFlags(flags) {
-        const tempParams = new URLSearchParams();
-        flagOption.add(tempParams);
-        for (const [k, v] of tempParams.entries()) {
-            const bit = Number.parseInt(k);
-
-            if (Number.isInteger(bit) && v == "true") {
-                flagOption.update(k, (((flags >> bit) & 1) == 1) ? "true" : "false");
+        flagSegment.args.forEach((arg) => {
+            const bit = Number.parseInt(arg.arg);
+            if (Number.isInteger(bit)) {
+                flagOption.update(arg.arg, (((flags >> bit) & 1) === 1) ? "true" : "false");
             }
-        }
+        });
     }
 
     return {
@@ -901,7 +950,7 @@ OSApp.Sensors.createSensorPage = function (parent, uuid, data) {
         update: function (data) {
             for (const [key, value] of Object.entries(data)) {
                 switch (key) {
-                    case "flags":
+                    case "flag":
                         getFlags(value);
                         break;
                     case "extra": {
@@ -966,6 +1015,27 @@ OSApp.Sensors.displayPage = function (_callback) {
 	const content = $(`<div class="ui-content" role="main" id="sensors_list"></div>`);
     page.append(content);
 
+    const SENSOR_STATUS = { VALID: 1, ERROR: 2, STALE: 4, CLAMPED_HIGH: 8, CLAMPED_LOW: 16 };
+
+    function sensorValueDisplay( value, unitShort, status ) {
+        if ( !( status & SENSOR_STATUS.VALID ) ) {
+            return { text: "—", cls: "" };
+        }
+        let text = value + ( unitShort ? " " + unitShort : "" );
+        let cls = "sensor-value-valid";
+        if ( ( status & SENSOR_STATUS.ERROR ) || ( status & SENSOR_STATUS.STALE ) ) {
+            text += " ⚠";
+            cls = "sensor-value-warning";
+        } else if ( status & SENSOR_STATUS.CLAMPED_HIGH ) {
+            text += " ⊤";
+            cls = "sensor-value-clamped";
+        } else if ( status & SENSOR_STATUS.CLAMPED_LOW ) {
+            text += " ⊥";
+            cls = "sensor-value-clamped";
+        }
+        return { text: text, cls: cls };
+    }
+
     /**
      *
      * @param {JQuery} parent
@@ -983,13 +1053,30 @@ OSApp.Sensors.displayPage = function (_callback) {
         $div.append($header, $inner);
         $div.collapsible();
 
-        const isEnabled = (sensorData["flags"] & 1) !== 0;
+        const isEnabled = (sensorData["flag"] & 1) !== 0;
         $div.find(".ui-collapsible-heading-toggle").addClass(isEnabled ? "blue" : "red");
+
+        if (typeof sensorData["value"] !== "undefined" && sensorData["value"] !== null) {
+            const unitObj = data.units.find(u => u.value === sensorData["unit"]);
+            const unitShort = unitObj ? (unitObj.short || unitObj.name) : "";
+            const status = sensorData["status"] != null ? sensorData["status"] : 1;
+            const { text: valueText, cls: valueCls } = sensorValueDisplay( sensorData["value"], unitShort, status );
+            const $fieldWrap = $('<div class="ui-field-contain"></div>');
+            $fieldWrap.append($('<label></label>').text(OSApp.Language._("Current Value")));
+            $fieldWrap.append(
+                $('<p class="sensor-current-value-text"></p>')
+                    .text(valueText)
+                    .addClass(valueCls)
+                    .attr("data-sensor-uuid", sensorData["uuid"])
+                    .attr("data-unit", unitShort)
+            );
+            $inner.append($fieldWrap);
+        }
 
         const page = OSApp.Sensors.createSensorPage($inner, sensorData["uuid"], data);
         page.update(sensorData);
 
-        const $update = $('<input type="button">').val("Update Sensor");
+        const $update = $('<input type="button" data-theme="b">').val("Update Sensor");
         $inner.append($update);
         $update.button({icon: "edit"});
         $update.on("click", () => {
@@ -999,9 +1086,10 @@ OSApp.Sensors.displayPage = function (_callback) {
             }
         });
 
-        const $delete = $('<input type="button" class="red">').val("Delete Sensor");
+        const $delete = $('<input type="button">').val(OSApp.Language._("Delete Sensor"));
         $inner.append($delete);
         $delete.button({icon: "delete"});
+        $delete.closest(".ui-btn").addClass("red bold");
         $delete.on("click", () => {
             OSApp.Sensors.deleteSensor(sensorData["uuid"]);
         });
@@ -1012,13 +1100,16 @@ OSApp.Sensors.displayPage = function (_callback) {
     function updateContent () {
         const jsdRequest = OSApp.currentSession.controller.sensor_desc
             ? $.Deferred().resolve(OSApp.currentSession.controller.sensor_desc).promise()
-            : OSApp.Firmware.sendToOS("/jsd?pw=").then((data) => data);
+            : OSApp.Firmware.sendToOS("/jsd?pw=", "json").then((data) => data);
 
         $.mobile.loading("show");
         jsdRequest
             .done((jsdData) => {
                 OSApp.currentSession.controller.sensor_desc = jsdData;
                 content.empty();
+                const count = OSApp.currentSession.controller.sensors.sn.length;
+                content.append("<p class='center'>" + OSApp.Language._("Number of Sensors") + ": " + count + "</p>");
+                content.append("<p class='center'>" + OSApp.Language._("Click below to expand/edit. Be sure to save changes.") + "</p>");
                 OSApp.currentSession.controller.sensors.sn.forEach((v) => {
                     createSensorCollapse(content, jsdData, v);
                 });
@@ -1029,9 +1120,29 @@ OSApp.Sensors.displayPage = function (_callback) {
             .always(() => { $.mobile.loading("hide"); });
     }
 
+    function refreshValues() {
+        const sn = OSApp.currentSession.controller.sensors && OSApp.currentSession.controller.sensors.sn;
+        if ( !sn ) { return; }
+        page.find( "[data-sensor-uuid]" ).each( function() {
+            const $el = $( this );
+            const uuid = $el.attr( "data-sensor-uuid" );
+            const sensor = sn.find( function( s ) { return String( s.uuid ) === uuid; } );
+            if ( !sensor || typeof sensor.value === "undefined" || sensor.value === null ) { return; }
+            const unitShort = $el.attr( "data-unit" ) || "";
+            const status = sensor.status != null ? sensor.status : 1;
+            const { text, cls } = sensorValueDisplay( sensor.value, unitShort, status );
+            $el.text( text )
+               .removeClass( "sensor-value-valid sensor-value-warning sensor-value-clamped" )
+               .addClass( cls );
+        } );
+    }
+
+    $( "html" ).on( "datarefresh", refreshValues );
+
     page
 		.on( "programrefresh", updateContent )
 		.on( "pagehide", function() {
+			$( "html" ).off( "datarefresh", refreshValues );
 			page.detach();
 		} )
 		.on( "pagebeforeshow", function() {} );
@@ -1097,7 +1208,7 @@ OSApp.Sensors.addSensor = function (_callback) {
     function updateContent () {
         const jsdRequest = OSApp.currentSession.controller.sensor_desc
             ? $.Deferred().resolve(OSApp.currentSession.controller.sensor_desc).promise()
-            : OSApp.Firmware.sendToOS("/jsd?pw=").then((data) => data);
+            : OSApp.Firmware.sendToOS("/jsd?pw=", "json").then((data) => data);
 
         $.mobile.loading("show");
         jsdRequest
@@ -1288,7 +1399,8 @@ OSApp.Sensors.displayLogs = function (_callback) {
                 const sensorName = sensor ? sensor.name : "unknown";
                 let unit = "unknown";
                 if (sensor && OSApp.currentSession.controller.sensor_desc) {
-                    unit = OSApp.currentSession.controller.sensor_desc.units[sensor.unit].short;
+                    const unitObj = OSApp.currentSession.controller.sensor_desc.units.find(u => u.value === sensor.unit);
+                    unit = unitObj ? (unitObj.short || unitObj.name) : "unknown";
                 }
 
                 obj[key].data.forEach((v) => {
@@ -1333,7 +1445,7 @@ OSApp.Sensors.displayLogs = function (_callback) {
                 ? { ...activeSensor, name: `${activeSensor.name} (UUID: ${activeSensor.uuid})` }
                 : { name: `Unknown (UUID: ${key})`, unit: 0 };
             const unitLabel = (activeSensor && OSApp.currentSession.controller.sensor_desc)
-                ? OSApp.currentSession.controller.sensor_desc.units[activeSensor.unit].short
+                ? (OSApp.currentSession.controller.sensor_desc.units.find(u => u.value === activeSensor.unit) || {}).short || ""
                 : "";
             const chart = createChart($canvas[0], sn, unitLabel);
             activeCharts.push(chart);
@@ -1371,7 +1483,8 @@ OSApp.Sensors.displayLogs = function (_callback) {
                     const sensorName = activeSensor ? activeSensor.name : "unknown";
                     let unit = "unknown";
                     if (activeSensor && OSApp.currentSession.controller.sensor_desc) {
-                        unit = OSApp.currentSession.controller.sensor_desc.units[activeSensor.unit].short;
+                        const unitObj = OSApp.currentSession.controller.sensor_desc.units.find(u => u.value === activeSensor.unit);
+                        unit = unitObj ? (unitObj.short || unitObj.name) : "unknown";
                     }
 
                     let csvContent = "sensor_uuid,sensor_name,timestamp,value,unit\n";
@@ -1485,7 +1598,7 @@ OSApp.Sensors.displayLogs = function (_callback) {
         const jslRequest = OSApp.Firmware.sendToOS("/jsl?pw=&fmt=binary&count=max", "arraybuffer");
         const jsdRequest = OSApp.currentSession.controller.sensor_desc
             ? $.Deferred().resolve(OSApp.currentSession.controller.sensor_desc).promise()
-            : OSApp.Firmware.sendToOS("/jsd?pw=").then((data) => data);
+            : OSApp.Firmware.sendToOS("/jsd?pw=", "json").then((data) => data);
 
         $.when(jslRequest, jsdRequest)
             .done((buf, jsdData) => {
