@@ -91,8 +91,8 @@ OSApp.Sensors = {};
 
 OSApp.Sensors.makeSensorSelect = function ($select) {
     $select.append($("<option></option>")
-            .attr("value", "255")
-            .text("None (UUID: 0)"));
+            .attr("value", "0")
+            .text("None"));
 
     OSApp.currentSession.controller.sensors.sn.forEach((v) => {
         const $option = $('<option></option>')
@@ -262,10 +262,6 @@ OSApp.Sensors.createSensorPage = function (parent, uuid, data) {
         return {
             get: () => coerceVal($select.val()),
             set: (val) => {
-                // Firmware uses "0" as the "no sensor" default; map to the "No Sensor" option value
-                if (val == "0") {
-                    val = "255";
-                }
                 $select.val(val);
                 $select.selectmenu('refresh');
             },

@@ -123,7 +123,7 @@ OSApp.Sites.displayPage = function() {
 						"</div>" +
 						( b.os_token ? "" : "<div class='ui-field-contain'>" +
 							"<label for='cip-" + i + "'>" + OSApp.Language._( "Change IP/URL" ) + "</label><input id='cip-" + i + "' type='text' inputmode='url' value='" + b.os_ip +
-							"' autocomplete='off' autocorrect='off' autocapitalize='off' pattern='' spellcheck='false'>" +
+							"' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false'>" +
 							"</div>" ) +
 						( b.os_token ? "<div class='ui-field-contain'>" +
 							"<label for='ctoken-" + i + "'>" + OSApp.Language._( "Change Token" ) + "</label><input id='ctoken-" + i + "' type='text' value='" + b.os_token +
@@ -565,7 +565,7 @@ OSApp.Sites.showAddNew = function( autoIP, closeOld ) {
 					"</p>" ) +
 						"<input data-wrapper-class='url-field' " + ( isAuto ? "data-role='none' style='display:none' " : "" ) +
 							"autocomplete='off' autocorrect='off' autocapitalize='off' " +
-							"spellcheck='false' type='text' inputmode='url' pattern='' name='os_url' id='os_url' " +
+							"spellcheck='false' type='text' inputmode='url' name='os_url' id='os_url' " +
 							"value='" + ( isAuto ? autoIP : "" ) + "'" +
 					"<label for='os_pw'>" + OSApp.Language._( "Device Password:" ) + "</label>" +
 					"<input type='password' name='os_pw' id='os_pw' value=''>" +
@@ -1032,19 +1032,9 @@ OSApp.Sites.updateController = function( callback, fail ) {
 				return;
 			}
 
-			// The /ja call does not contain special station data, so let's cache it
-			var special = OSApp.currentSession.controller.special;
-			var sensorDesc = OSApp.currentSession.controller.sensor_desc;
-
-			OSApp.currentSession.controller = data;
-
-			// Restore the station cache to the object
-			OSApp.currentSession.controller.special = special;
-
-			// /jsd is large and not in /ja; preserve the cached copy
-			if ( !OSApp.currentSession.controller.sensor_desc ) {
-				OSApp.currentSession.controller.sensor_desc = sensorDesc;
-			}
+			// Merge /ja data into the existing controller object so that cached fields
+			// from separate endpoints (special, sensor_desc, jpaData) are preserved automatically.
+			$.extend( OSApp.currentSession.controller, data );
 
 			// Fix the station status array
 			OSApp.currentSession.controller.status = OSApp.currentSession.controller.status.sn;
@@ -1058,9 +1048,16 @@ OSApp.Sites.updateController = function( callback, fail ) {
 			OSApp.Sites.updateControllerOptions(),
 			OSApp.Sites.updateControllerStatus(),
 			OSApp.Sites.updateControllerSettings(),
-            OSApp.Sites.updateControllerSensors(),
-            OSApp.Sites.updateControllerSensorDescription(),
-		).then( finish, fail );
+		).then( function() {
+			if ( OSApp.Firmware.checkOSVersion( 2215 ) ) {
+				$.when(
+					OSApp.Sites.updateControllerSensors(),
+					OSApp.Sites.updateControllerSensorDescription(),
+				).then( finish, fail );
+			} else {
+				finish();
+			}
+		}, fail );
 	}
 };
 
@@ -1448,10 +1445,13 @@ OSApp.Sites.refreshData = function() {
 	if ( OSApp.Firmware.checkOSVersion( 216 ) ) {
 		OSApp.Sites.updateController( function() {}, OSApp.Network.networkFail );
 	} else {
-		$.when(
+		var refreshPromises = [
 			OSApp.Sites.updateControllerPrograms(),
 			OSApp.Sites.updateControllerStations(),
-			OSApp.Sites.updateControllerSensors(),
-		).fail( OSApp.Network.networkFail );
+		];
+		if ( OSApp.Firmware.checkOSVersion( 2215 ) ) {
+			refreshPromises.push( OSApp.Sites.updateControllerSensors() );
+		}
+		$.when.apply( $, refreshPromises ).fail( OSApp.Network.networkFail );
 	}
 };

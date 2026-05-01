@@ -250,13 +250,24 @@ OSApp.Stations.submitRunonce = function( runonce, uwt, interval, repeat, annotat
 			runonce.push( parseInt( this.value ) || 0 );
 		} );
 		runonce.push( 0 );
+		var originalRunonce = runonce.slice();
+
+		uwt = 0;
+		var wlMode = $( "#runonce" ).find( "input[name='wl-runonce']:checked" ).val() || "none";
+		var i;
+		if ( wlMode === "custom" ) {
+			var customPct = parseFloat( $( "#runonce" ).find( "#wl-custom-slider" ).val() ) || 100;
+			for ( i = 0; i < runonce.length - 1; i++ ) {
+				runonce[ i ] = Math.floor( runonce[ i ] * customPct / 100 );
+			}
+		} else if ( wlMode === "current" ) {
+			var wlPct = OSApp.currentSession.controller.options.wl ?? 100;
+			for ( i = 0; i < runonce.length - 1; i++ ) {
+				runonce[ i ] = Math.floor( runonce[ i ] * wlPct / 100 );
+			}
+		}
 
 		if( OSApp.Supported.repeatedRunonce() ){
-			// Set up all parameters if needed
-			if( uwt == null ) {
-				uwt = $( "#runonce" ).find( "#uwt-runonce" ).prop( "checked" ) ? 1 : 0;
-			}
-
 			if( interval == null ) {
 				interval = $( "#runonce" ).find( "#interval-runonce").val() / 60;
 			}
@@ -274,7 +285,7 @@ OSApp.Stations.submitRunonce = function( runonce, uwt, interval, repeat, annotat
 
 	var submit = function() {
 		$.mobile.loading( "show" );
-		OSApp.Storage.set( { "runonce": JSON.stringify( runonce ) } );
+		OSApp.Storage.set( { "runonce": JSON.stringify( originalRunonce || runonce ) } );
 
 		let request = "/cr?pw=&t=" + JSON.stringify( runonce );
 
