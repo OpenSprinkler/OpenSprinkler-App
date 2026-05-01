@@ -2161,10 +2161,12 @@ OSApp.Programs.makeProgram21 = function( n, isCopy ) {
     const _pd = ( id !== "new" ) ? OSApp.currentSession.controller.programs.pd[ id ] : null;
     const _rawAdj = ( _pd && _pd[ 7 ] ) || {};
     const adjustment = {
+        flag: _rawAdj.flag ?? 0,
         uuid: _rawAdj.uuid ?? 0,
         splits: Array.isArray( _rawAdj.splits ) ? _rawAdj.splits : [],
         maxSplits: _rawAdj.maxSplits
     };
+    const senAdjEnabled = ( adjustment.flag & 1 ) === 1;
 
 	if ( typeof program.days === "string" ) {
 		days = program.days.split( "" );
@@ -2238,11 +2240,11 @@ OSApp.Programs.makeProgram21 = function( n, isCopy ) {
 	if ( OSApp.Supported.sensors() ) {
 		list += "<label for='use-sn-" + id + "'>" +
 					"<input data-mini='true' type='checkbox' " +
-					( adjustment.uuid !== 0 ? "checked='checked'" : "" ) + " name='use-sn-" + id + "' id='use-sn-" + id + "'>" +
+					( senAdjEnabled ? "checked='checked'" : "" ) + " name='use-sn-" + id + "' id='use-sn-" + id + "'>" +
 					OSApp.Language._( "Use Sensor Adjustment" ) +
 				"</label>";
 
-		list += "<div id='sensor-options-" + id + "'" + ( adjustment.uuid !== 0 ? "" : " style='display:none'" ) + ">";
+		list += "<div id='sensor-options-" + id + "'" + ( senAdjEnabled ? "" : " style='display:none'" ) + ">";
         list += "<div class='ui-field-contain' style='align-items:flex-start'>" +
                     "<label for='sen-adj-sid-" + id + "'>" + OSApp.Language._( "Select Sensor" ) + "</label>" +
                     "<div style='flex:1;min-width:0'>" +
@@ -2759,8 +2761,10 @@ OSApp.Programs.makeProgram21 = function( n, isCopy ) {
 OSApp.Programs.getSenAdjURL = function (id) {
     const vals = [];
 
-    const uuid = $( "#use-sn-" + id ).is( ":checked" ) ? $( "#sen-adj-sid-" + id ).val() : "0";
-    let ret = `&adj_uuid=${uuid}&adj_points=`;
+    const _pd = ( id !== "new" ) ? OSApp.currentSession.controller.programs.pd[ id ] : null;
+    const _existingFlag = ( _pd && _pd[ 7 ] && _pd[ 7 ].flag ) || 0;
+    const flag = $( "#use-sn-" + id ).is( ":checked" ) ? ( _existingFlag | 1 ) : ( _existingFlag & ~1 );
+    const uuid = $( "#sen-adj-sid-" + id ).val() || "0";
 
     $( `#sensor-splits-body-${id}` ).find( "tr" ).each( function() {
         const x = parseFloat( $( this ).find( ".split-x" ).val() );
@@ -2773,11 +2777,14 @@ OSApp.Programs.getSenAdjURL = function (id) {
         vals.push( [ x, y / 100 ] );
     } );
 
-    vals.sort((a, b) => a[0] - b[0]).forEach((v) => {
-        ret += `${v[0]},${v[1]};`;
-    });
+    vals.sort( ( a, b ) => a[ 0 ] - b[ 0 ] );
 
-    return ret;
+    const parts = [ flag, uuid ];
+    vals.forEach( ( v ) => {
+        parts.push( v[ 0 ], v[ 1 ] );
+    } );
+
+    return `&snadj=${parts.join( "," )}`;
 };
 
 OSApp.Programs.addProgram = function( copyID ) {
@@ -3069,7 +3076,9 @@ OSApp.Programs.submitProgram21 = function( id, ignoreWarning ) {
 
 	url = "&v=" + JSON.stringify( program ) + "&name=" + encodeURIComponent( name );
 
-    url += OSApp.Programs.getSenAdjURL(id);
+    if ( OSApp.Supported.sensors() ) {
+        url += OSApp.Programs.getSenAdjURL( id );
+    }
 
 	if ( stationSelected === 0 ) {
 		OSApp.Errors.showError( OSApp.Language._( "Error: You have not selected any stations." ) );
@@ -3125,15 +3134,21 @@ OSApp.Programs.openRunProgramDialog = function (pid, stationsDurations, uwt, isR
 	if (!$popup.length) {
 		$popup = $(`
 			<div data-role="popup" id="run-program-dialog" data-position-to="window" data-tolerance="15,15,15,15"
-					 data-overlay-theme="b" data-theme="a" data-dismissible="false"
-					 style="max-width:480px;">
+					 data-overlay-theme="b" data-theme="a" data-dismissible="false">
 				<div class="ui-content">
 					<h3 class="center" style="margin-top:0">${OSApp.Language._("Run this program?")}</h3>
 
 					<fieldset data-role="controlgroup" data-mini="true">
 						<label>
 							<input type="checkbox" id="rp-apply-wl">
-							${OSApp.Language._("Apply current weather adjustment")} <span id="rp-apply-wl-percent">
+							${OSApp.Language._("Apply Weather Adjustment")} <span id="rp-apply-wl-percent"></span>
+						</label>
+					</fieldset>
+
+				<fieldset data-role="controlgroup" data-mini="true" id="rp-sa-wrap" style="margin-top:6px;">
+						<label>
+							<input type="checkbox" id="rp-apply-sa">
+							${OSApp.Language._("Apply Sensor Adjustment")} <span id="rp-apply-sa-percent"></span>
 						</label>
 					</fieldset>
 
@@ -3170,13 +3185,14 @@ OSApp.Programs.openRunProgramDialog = function (pid, stationsDurations, uwt, isR
 		$popup.popup(); // init
 	}
 
-	// Compute effective watering level % for display
+	// Compute effective watering level and sensor adjustment factors
 	var jpaData = OSApp.currentSession.controller.jpaData;
 	var prog = pid != null ? OSApp.currentSession.controller.programs.pd[ pid ] : null;
-	var effectiveWL;
+	var effectiveWL, wlFactor;
 
 	if ( OSApp.Supported.sensors() && jpaData && pid != null && jpaData[ pid ] ) {
-		effectiveWL = Math.round( jpaData[ pid ].wa * 1000 ) / 10;
+		wlFactor = jpaData[ pid ].wa;
+		effectiveWL = Math.round( wlFactor * 1000 ) / 10;
 	} else if ( prog ) {
 		var wto = OSApp.currentSession.controller.settings.wto;
 		var wls = OSApp.currentSession.controller.settings.wls;
@@ -3189,11 +3205,37 @@ OSApp.Programs.openRunProgramDialog = function (pid, stationsDurations, uwt, isR
 		} else {
 			effectiveWL = OSApp.currentSession.controller.options.wl ?? 100;
 		}
+		wlFactor = effectiveWL / 100;
 	} else {
 		effectiveWL = OSApp.currentSession.controller.options.wl ?? 100;
+		wlFactor = effectiveWL / 100;
 	}
 
 	$popup.find( "#rp-apply-wl-percent" ).text( "(" + effectiveWL + "%)" );
+
+	// Sensor adjustment — only available when jpaData exists and program has sensor adjustment enabled
+	var progAdj = prog && prog[ 7 ];
+	var saFactor = null;
+	if ( OSApp.Supported.sensors() && jpaData && pid != null && jpaData[ pid ] &&
+		 progAdj && ( ( progAdj.flag ?? 0 ) & 1 ) === 1 && ( progAdj.uuid ?? 0 ) !== 0 ) {
+		saFactor = jpaData[ pid ].sa;
+	}
+
+	var $saCheckbox = $popup.find( "#rp-apply-sa" );
+	if ( saFactor !== null ) {
+		$popup.find( "#rp-apply-sa-percent" ).text( "(" + ( Math.round( saFactor * 1000 ) / 10 ) + "%)" );
+		$saCheckbox.prop( { "checked": true, "disabled": false } );
+		if ( $saCheckbox.closest( ".ui-checkbox" ).length ) {
+			$saCheckbox.checkboxradio( "refresh" );
+		}
+		$popup.find( "#rp-sa-wrap" ).show();
+	} else {
+		$popup.find( "#rp-sa-wrap" ).hide();
+	}
+
+	// Store factors so the run handler doesn't need to recompute
+	$popup.data( "wlFactor", wlFactor );
+	$popup.data( "saFactor", saFactor );
 
 	var apply = !!uwt;
 	$("#rp-apply-wl").prop("checked", apply);
@@ -3302,10 +3344,18 @@ OSApp.Programs.expandProgram = function( program ) {
 			e.preventDefault();
 			$("#run-program-dialog").popup("close");
 
-			if ( $("#rp-apply-wl").is(":checked") ) {
-				var wl = OSApp.currentSession.controller.options.wl ?? 100;
-				for ( var i = 0; i < runonce.length; i++ ) {
-					runonce[ i ] = Math.floor( runonce[ i ] * wl / 100 );
+			var $rpPopup = $( "#run-program-dialog" );
+			var i;
+			if ( $( "#rp-apply-wl" ).is( ":checked" ) ) {
+				var wlFactor = $rpPopup.data( "wlFactor" ) ?? 1;
+				for ( i = 0; i < runonce.length; i++ ) {
+					runonce[ i ] = Math.floor( runonce[ i ] * wlFactor );
+				}
+			}
+			var saFactor = $rpPopup.data( "saFactor" );
+			if ( saFactor !== null && $( "#rp-apply-sa" ).is( ":checked" ) ) {
+				for ( i = 0; i < runonce.length; i++ ) {
+					runonce[ i ] = Math.floor( runonce[ i ] * saFactor );
 				}
 			}
 			if ( !$("#rp-create-single").is(":checked") || !isRepeatProgram ) {
@@ -3319,7 +3369,7 @@ OSApp.Programs.expandProgram = function( program ) {
 
 			runonce.push(0); // for legacy firmwares, need an extra element at the end
 
-			OSApp.Stations.submitRunonce(runonce, 0, interval, repeat, annotation, qo);
+			OSApp.Stations.submitRunonce(runonce, interval, repeat, annotation, qo);
 		} );
 	} );
 };

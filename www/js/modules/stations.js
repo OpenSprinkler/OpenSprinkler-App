@@ -241,7 +241,7 @@ OSApp.Stations.convertRemoteToExtender = function( data ) {
 	} );
 };
 
-OSApp.Stations.submitRunonce = function( runonce, uwt, interval, repeat, annotation, qo ) {
+OSApp.Stations.submitRunonce = function( runonce, interval, repeat, annotation, qo ) {
 	// This block is for the Run-Once Page *only*.
 	// It detects if `runonce` is not an array, meaning it's being called from the page.
 	if ( !( runonce instanceof Array ) ) {
@@ -252,7 +252,6 @@ OSApp.Stations.submitRunonce = function( runonce, uwt, interval, repeat, annotat
 		runonce.push( 0 );
 		var originalRunonce = runonce.slice();
 
-		uwt = 0;
 		var wlMode = $( "#runonce" ).find( "input[name='wl-runonce']:checked" ).val() || "none";
 		var i;
 		if ( wlMode === "custom" ) {
@@ -290,7 +289,7 @@ OSApp.Stations.submitRunonce = function( runonce, uwt, interval, repeat, annotat
 		let request = "/cr?pw=&t=" + JSON.stringify( runonce );
 
 		if ( OSApp.Supported.repeatedRunonce() ) {
-			request += "&int=" + interval + "&cnt=" + repeat + "&uwt=" + uwt;
+			request += "&int=" + interval + "&cnt=" + repeat;
 			if ( annotation?.length > 0 ) {
 				request += "&anno=" + annotation;
 			}

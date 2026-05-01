@@ -599,6 +599,16 @@ input[type=number] {
     border-right: none;
 }
 
+#run-program-dialog {
+    width: min(300px, calc(100vw - 30px));
+    box-sizing: border-box;
+}
+
+#run-program-dialog .ui-checkbox .ui-btn,
+#run-program-dialog .ui-radio .ui-btn {
+    white-space: normal;
+}
+
 #verify-api {
     height: 34px;
     width: 80px;
@@ -951,6 +961,7 @@ div.running-text{
   width: 90%;
   text-align: center;
 }
+
 
 .ocs-popup .ui-content {
   padding: 6px 8px;
