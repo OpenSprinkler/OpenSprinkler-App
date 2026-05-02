@@ -383,6 +383,14 @@ OSApp.Sensors.createSensorPage = function (parent, uuid, data) {
      * @param {JQuery} parent
      * @returns {ParamUpdater}
      */
+    function appendHelpIcon($label, hint) {
+        if (!hint) return;
+        const $help = $('<button type="button" class="help-icon btn-no-border ui-btn ui-icon-info ui-btn-icon-notext"></button>')
+            .attr("data-helptext", hint)
+            .on("click", OSApp.UIDom.showHelpText);
+        $label.append(" ", $help);
+    }
+
     function createInput(argument, namespace, key, parent) {
         const parts = argument.type.split("::");
 
@@ -392,6 +400,7 @@ OSApp.Sensors.createSensorPage = function (parent, uuid, data) {
         const $label = $("<label></label>")
             .attr("for", id)
             .text(argument.name);
+        appendHelpIcon($label, argument.hint);
 
         switch (parts[0]) {
             case "enum": {
@@ -830,6 +839,7 @@ OSApp.Sensors.createSensorPage = function (parent, uuid, data) {
             const id = `sensor-flags-${arg.arg}-${key || "new"}`;
             const $input = $('<input type="checkbox">').attr("id", id).attr("name", id);
             const $lbl = $('<label></label>').attr("for", id).text(arg.name);
+            appendHelpIcon($lbl, arg.hint);
             $checkboxes.append($input, $lbl);
             $input.checkboxradio();
             $input.prop("checked", !!arg.default);
