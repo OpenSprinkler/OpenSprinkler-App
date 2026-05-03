@@ -240,14 +240,35 @@ OSApp.Options.showOptions = function( expandItem ) {
 						}
 						opt.tpdv = Math.round( v * 10 );
 						return true;
-					case "o18":
-					case "o37":
-					case "mas3":
-					case "mas4":
-						if ( parseInt( data ) > ( parseInt( page.find( "#o15" ).val() ) + 1 ) * 8 ) {
-							data = 0;
+					case "master1":
+					case "master2":
+					case "master3":
+					case "master4": {
+						var mconf = OSApp.Utils.unescapeJSON( data ) || { mas: 0, mton: 0, mtof: 0 };
+						var maxStation = ( parseInt( page.find( "#o15" ).val() ) + 1 ) * 8;
+						if ( parseInt( mconf.mas ) > maxStation ) { mconf.mas = 0; }
+						// Master 1/2 use legacy o-IDs so transformKeys converts them
+						// to mas/mton/mtof on firmware ≥ 2.1.9; master 3/4 use named
+						// keys directly (firmware-defined, no keyIndex entry).
+						if ( id === "master1" ) {
+							opt.o18 = mconf.mas;
+							opt.o19 = mconf.mton;
+							opt.o20 = mconf.mtof;
+						} else if ( id === "master2" ) {
+							opt.o37 = mconf.mas;
+							opt.o38 = mconf.mton;
+							opt.o39 = mconf.mtof;
+						} else if ( id === "master3" ) {
+							opt.mas3 = mconf.mas;
+							opt.mton3 = mconf.mton;
+							opt.mtof3 = mconf.mtof;
+						} else {
+							opt.mas4 = mconf.mas;
+							opt.mton4 = mconf.mton;
+							opt.mtof4 = mconf.mtof;
 						}
-						break;
+						return true;
+					}
 					case "o41":
 						if ( page.find( "#o41-units" ).val() === "gallon" ) {
 							data = data * 3.78541;
@@ -433,139 +454,31 @@ OSApp.Options.showOptions = function( expandItem ) {
 		( typeof expandItem === "string" && expandItem === "master" ? " data-collapsed='false'" : "" ) + ">" +
 		"<legend>" + OSApp.Language._( "Configure Master" ) + "</legend>";
 
-	var hasAdditionalMasters =
-		typeof OSApp.currentSession.controller.options.mas2 !== "undefined" ||
-		typeof OSApp.currentSession.controller.options.mas3 !== "undefined" ||
-		typeof OSApp.currentSession.controller.options.mas4 !== "undefined";
+	// Each master gets a single button that opens a popup for its zone + on/off
+	// adjustments. Button stores the config as JSON in `value`; the page-level
+	// submit handler unpacks it into the firmware's separate option keys. Blue
+	// when configured (zone != None).
+	var renderMasterButton = function( num, masKey, mtonKey, mtofKey ) {
+		var opts = OSApp.currentSession.controller.options;
+		if ( typeof opts[ masKey ] === "undefined" ) { return ""; }
+		var conf = {
+			mas: opts[ masKey ] || 0,
+			mton: typeof opts[ mtonKey ] === "number" ? opts[ mtonKey ] : 0,
+			mtof: typeof opts[ mtofKey ] === "number" ? opts[ mtofKey ] : 0
+		};
+		return "<div class='ui-field-contain'>" +
+				"<label for='master" + num + "'>" + OSApp.Language._( "Master Station" ) + " " + num + "</label>" +
+				"<button data-mini='true' id='master" + num + "' class=" + ( conf.mas > 0 ? "'blue'" : "''" ) +
+					" value='" + OSApp.Utils.escapeJSON( conf ) + "'>" +
+					OSApp.Language._( "Tap to Configure" ) +
+				"</button>" +
+			"</div>";
+	};
 
-	if ( typeof OSApp.currentSession.controller.options.mas !== "undefined" ) {
-		list += "<div class='ui-field-contain ui-field-no-border'><label for='o18' class='select'>" +
-				OSApp.Language._( "Master Station" ) + " " + ( hasAdditionalMasters ? "1" : "" ) +
-			"</label><select data-mini='true' id='o18'><option value='0'>" + OSApp.Language._( "None" ) + "</option>";
-
-		for ( i = 0; i < OSApp.currentSession.controller.stations.snames.length; i++ ) {
-			list += "<option " + ( ( OSApp.Stations.isMaster( i ) === 1 ) ? "selected" : "" ) + " value='" + ( i + 1 ) + "'>" +
-				OSApp.Stations.getName( i ) + "</option>";
-
-			if ( !OSApp.Firmware.checkOSVersion( 214 ) && i === 7 ) {
-				break;
-			}
-		}
-		list += "</select></div>";
-
-		if ( typeof OSApp.currentSession.controller.options.mton !== "undefined" ) {
-			list += "<div " + ( OSApp.currentSession.controller.options.mas === 0 ? "style='display:none' " : "" ) +
-				"class='ui-field-no-border ui-field-contain duration-field'><label for='o19'>" +
-					OSApp.Language._( "Master On Adjustment" ) +
-				"</label><button data-mini='true' id='o19' value='" + OSApp.currentSession.controller.options.mton + "'>" + OSApp.currentSession.controller.options.mton + "s</button></div>";
-		}
-
-		if ( typeof OSApp.currentSession.controller.options.mtof !== "undefined" ) {
-			list += "<div " + ( OSApp.currentSession.controller.options.mas === 0 ? "style='display:none' " : "" ) +
-				"class='ui-field-no-border ui-field-contain duration-field'><label for='o20'>" +
-					OSApp.Language._( "Master Off Adjustment" ) +
-				"</label><button data-mini='true' id='o20' value='" + OSApp.currentSession.controller.options.mtof + "'>" + OSApp.currentSession.controller.options.mtof + "s</button></div>";
-		}
-	}
-
-	if ( typeof OSApp.currentSession.controller.options.mas2 !== "undefined" ) {
-		list += "<hr style='width:95%' class='content-divider'>";
-
-		list += "<div class='ui-field-contain ui-field-no-border'><label for='o37' class='select'>" +
-				OSApp.Language._( "Master Station" ) + " 2" +
-			"</label><select data-mini='true' id='o37'><option value='0'>" + OSApp.Language._( "None" ) + "</option>";
-
-		for ( i = 0; i < OSApp.currentSession.controller.stations.snames.length; i++ ) {
-			list += "<option " + ( ( OSApp.Stations.isMaster( i ) === 2 ) ? "selected" : "" ) + " value='" + ( i + 1 ) + "'>" + OSApp.Stations.getName(i) +
-				"</option>";
-
-			if ( !OSApp.Firmware.checkOSVersion( 214 ) && i === 7 ) {
-				break;
-			}
-		}
-
-		list += "</select></div>";
-
-		if ( typeof OSApp.currentSession.controller.options.mton2 !== "undefined" ) {
-			list += "<div " + ( OSApp.currentSession.controller.options.mas2 === 0 ? "style='display:none' " : "" ) +
-				"class='ui-field-no-border ui-field-contain duration-field'><label for='o38'>" +
-					OSApp.Language._( "Master On Adjustment" ) +
-				"</label><button data-mini='true' id='o38' value='" + OSApp.currentSession.controller.options.mton2 + "'>" + OSApp.currentSession.controller.options.mton2 + "s</button></div>";
-		}
-
-		if ( typeof OSApp.currentSession.controller.options.mtof2 !== "undefined" ) {
-			list += "<div " + ( OSApp.currentSession.controller.options.mas2 === 0 ? "style='display:none' " : "" ) +
-				"class='ui-field-no-border ui-field-contain duration-field'><label for='o39'>" +
-					OSApp.Language._( "Master Off Adjustment" ) +
-				"</label><button data-mini='true' id='o39' value='" + OSApp.currentSession.controller.options.mtof2 + "'>" + OSApp.currentSession.controller.options.mtof2 + "s</button></div>";
-		}
-	}
-
-	if ( typeof OSApp.currentSession.controller.options.mas3 !== "undefined" ) {
-		list += "<hr style='width:95%' class='content-divider'>";
-
-		list += "<div class='ui-field-contain ui-field-no-border'><label for='mas3' class='select'>" +
-				OSApp.Language._( "Master Station" ) + " 3" +
-			"</label><select data-mini='true' id='mas3'><option value='0'>" + OSApp.Language._( "None" ) + "</option>";
-
-		for ( i = 0; i < OSApp.currentSession.controller.stations.snames.length; i++ ) {
-			list += "<option " + ( ( OSApp.Stations.isMaster( i ) === 3 ) ? "selected" : "" ) + " value='" + ( i + 1 ) + "'>" + OSApp.Stations.getName( i ) +
-				"</option>";
-
-			if ( !OSApp.Firmware.checkOSVersion( 214 ) && i === 7 ) {
-				break;
-			}
-		}
-
-		list += "</select></div>";
-
-		if ( typeof OSApp.currentSession.controller.options.mton3 !== "undefined" ) {
-			list += "<div " + ( OSApp.currentSession.controller.options.mas3 === 0 ? "style='display:none' " : "" ) +
-				"class='ui-field-no-border ui-field-contain duration-field'><label for='mton3'>" +
-					OSApp.Language._( "Master On Adjustment" ) +
-				"</label><button data-mini='true' id='mton3' value='" + OSApp.currentSession.controller.options.mton3 + "'>" + OSApp.currentSession.controller.options.mton3 + "s</button></div>";
-		}
-
-		if ( typeof OSApp.currentSession.controller.options.mtof3 !== "undefined" ) {
-			list += "<div " + ( OSApp.currentSession.controller.options.mas3 === 0 ? "style='display:none' " : "" ) +
-				"class='ui-field-no-border ui-field-contain duration-field'><label for='mtof3'>" +
-					OSApp.Language._( "Master Off Adjustment" ) +
-				"</label><button data-mini='true' id='mtof3' value='" + OSApp.currentSession.controller.options.mtof3 + "'>" + OSApp.currentSession.controller.options.mtof3 + "s</button></div>";
-		}
-	}
-
-	if ( typeof OSApp.currentSession.controller.options.mas4 !== "undefined" ) {
-		list += "<hr style='width:95%' class='content-divider'>";
-
-		list += "<div class='ui-field-contain ui-field-no-border'><label for='mas4' class='select'>" +
-				OSApp.Language._( "Master Station" ) + " 4" +
-			"</label><select data-mini='true' id='mas4'><option value='0'>" + OSApp.Language._( "None" ) + "</option>";
-
-		for ( i = 0; i < OSApp.currentSession.controller.stations.snames.length; i++ ) {
-			list += "<option " + ( ( OSApp.Stations.isMaster( i ) === 4 ) ? "selected" : "" ) + " value='" + ( i + 1 ) + "'>" + OSApp.Stations.getName( i ) +
-				"</option>";
-
-			if ( !OSApp.Firmware.checkOSVersion( 214 ) && i === 7 ) {
-				break;
-			}
-		}
-
-		list += "</select></div>";
-
-		if ( typeof OSApp.currentSession.controller.options.mton4 !== "undefined" ) {
-			list += "<div " + ( OSApp.currentSession.controller.options.mas4 === 0 ? "style='display:none' " : "" ) +
-				"class='ui-field-no-border ui-field-contain duration-field'><label for='mton4'>" +
-					OSApp.Language._( "Master On Adjustment" ) +
-				"</label><button data-mini='true' id='mton4' value='" + OSApp.currentSession.controller.options.mton4 + "'>" + OSApp.currentSession.controller.options.mton4 + "s</button></div>";
-		}
-
-		if ( typeof OSApp.currentSession.controller.options.mtof4 !== "undefined" ) {
-			list += "<div " + ( OSApp.currentSession.controller.options.mas4 === 0 ? "style='display:none' " : "" ) +
-				"class='ui-field-no-border ui-field-contain duration-field'><label for='mtof4'>" +
-					OSApp.Language._( "Master Off Adjustment" ) +
-				"</label><button data-mini='true' id='mtof4' value='" + OSApp.currentSession.controller.options.mtof4 + "'>" + OSApp.currentSession.controller.options.mtof4 + "s</button></div>";
-		}
-	}
+	list += renderMasterButton( 1, "mas", "mton", "mtof" );
+	list += renderMasterButton( 2, "mas2", "mton2", "mtof2" );
+	list += renderMasterButton( 3, "mas3", "mton3", "mtof3" );
+	list += renderMasterButton( 4, "mas4", "mton4", "mtof4" );
 
 	list += "</fieldset><fieldset data-role='collapsible'" +
 		( typeof expandItem === "string" && expandItem === "station" ? " data-collapsed='false'" : "" ) + "><legend>" +
@@ -1599,18 +1512,6 @@ OSApp.Options.showOptions = function( expandItem ) {
 					dur.val( ip.join( "." ) ).text( ip.join( "." ) );
 				}
 			} );
-		} else if ( id === "o19" || id === "o38" || id === "mton3" || id === "mton4" ) {
-			OSApp.UIDom.showSingleDurationInput( {
-				data: dur.val(),
-				title: name,
-				callback: function( result ) {
-					dur.val( result ).text( result + "s" );
-				},
-				label: OSApp.Language._( "Seconds" ),
-				maximum: OSApp.Firmware.checkOSVersion( 220 ) ? 600 : 60,
-				minimum: OSApp.Firmware.checkOSVersion( 220 ) ? -600 : 0,
-				helptext: helptext
-			} );
 		} else if ( id === "o30" ) {
 			OSApp.UIDom.showSingleDurationInput( {
 				data: dur.val(),
@@ -1620,18 +1521,6 @@ OSApp.Options.showOptions = function( expandItem ) {
 				},
 				label: OSApp.Language._( "Milliseconds" ),
 				maximum: 2000,
-				helptext: helptext
-			} );
-		} else if ( id === "o20" || id === "o39" || id === "mtof3" || id === "mtof4" ) {
-			OSApp.UIDom.showSingleDurationInput( {
-				data: dur.val(),
-				title: name,
-				callback: function( result ) {
-					dur.val( result ).text( result + "s" );
-				},
-				label: OSApp.Language._( "Seconds" ),
-				maximum: OSApp.Firmware.checkOSVersion( 220 ) ? 600 : 0,
-				minimum: OSApp.Firmware.checkOSVersion( 220 ) ? -600 : -60,
 				helptext: helptext
 			} );
 		} else if ( id === "o23" ) {
@@ -1709,19 +1598,6 @@ OSApp.Options.showOptions = function( expandItem ) {
 
 		// Switch the NTP IP address field when NTP is used
 		page.find( "#ntp_addr" ).parents( ".ui-field-contain" ).toggleClass( "hidden", !ntp );
-	} );
-
-	page.find( "#o18,#o37,#mas3,#mas4" ).on( "change", function() {
-		page.find( "#o19,#o20" ).parents( ".ui-field-contain" ).toggle( parseInt( page.find( "#o18" ).val() ) === 0 ? false : true );
-		if ( typeof OSApp.currentSession.controller.options.mas2 !== "undefined" ) {
-			page.find( "#o38,#o39" ).parents( ".ui-field-contain" ).toggle( parseInt( page.find( "#o37" ).val() ) === 0 ? false : true );
-		}
-		if ( typeof OSApp.currentSession.controller.options.mas3 !== "undefined" ) {
-			page.find( "#mton3,#mtof3" ).parents( ".ui-field-contain" ).toggle( parseInt( page.find( "#mas3" ).val() ) === 0 ? false : true );
-		}
-		if ( typeof OSApp.currentSession.controller.options.mas4 !== "undefined" ) {
-			page.find( "#mton4,#mtof4" ).parents( ".ui-field-contain" ).toggle( parseInt( page.find( "#mas4" ).val() ) === 0 ? false : true );
-		}
 	} );
 
 	page.find( "#o31" ).on( "change", function() {
@@ -1821,6 +1697,89 @@ OSApp.Options.showOptions = function( expandItem ) {
 
 		return topic;
 	}
+
+	// Build the station options HTML for a master-zone <select>. Pre-selects
+	// `current` (1-based station id; 0 = None).
+	var buildMasterStationOptions = function( current ) {
+		var html = "<option value='0'>" + OSApp.Language._( "None" ) + "</option>";
+		var snames = OSApp.currentSession.controller.stations.snames;
+		for ( var si = 0; si < snames.length; si++ ) {
+			var val = si + 1;
+			html += "<option " + ( current === val ? "selected" : "" ) +
+				" value='" + val + "'>" + OSApp.Stations.getName( si ) + "</option>";
+			if ( !OSApp.Firmware.checkOSVersion( 214 ) && si === 7 ) { break; }
+		}
+		return html;
+	};
+
+	page.find( "#master1, #master2, #master3, #master4" ).on( "click", function() {
+		var button = this, curr = button.value,
+			conf = $.extend( {}, { mas: 0, mton: 0, mtof: 0 }, OSApp.Utils.unescapeJSON( curr ) ),
+			num = button.id.substring( 6 ),
+			is220 = OSApp.Firmware.checkOSVersion( 220 ),
+			onMin = is220 ? -600 : 0, onMax = is220 ? 600 : 60,
+			offMin = is220 ? -600 : -60, offMax = is220 ? 600 : 0;
+
+		$( ".ui-popup-active" ).find( "[data-role='popup']" ).popup( "close" );
+
+		var popup = $( "<div data-role='popup' data-theme='a' id='masterSettings'>" +
+				"<div data-role='header' data-theme='b'>" +
+					"<h1>" + OSApp.Language._( "Master Station" ) + " " + num + "</h1>" +
+				"</div>" +
+				"<div class='ui-content'>" +
+					"<div class='ui-field-contain'>" +
+						"<label for='mas-zone' class='select'>" + OSApp.Language._( "Zone" ) + "</label>" +
+						"<select data-mini='true' id='mas-zone'>" + buildMasterStationOptions( parseInt( conf.mas ) || 0 ) + "</select>" +
+					"</div>" +
+					"<div class='ui-field-contain master-on-off'>" +
+						"<label for='mas-on'>" + OSApp.Language._( "On Adj." ) + " (" + OSApp.Language._( "seconds" ) + ")</label>" +
+						"<input type='number' id='mas-on' data-mini='true' min='" + onMin + "' max='" + onMax + "' step='5' value='" + ( parseInt( conf.mton ) || 0 ) + "'>" +
+					"</div>" +
+					"<div class='ui-field-contain master-on-off'>" +
+						"<label for='mas-off'>" + OSApp.Language._( "Off Adj." ) + " (" + OSApp.Language._( "seconds" ) + ")</label>" +
+						"<input type='number' id='mas-off' data-mini='true' min='" + offMin + "' max='" + offMax + "' step='5' value='" + ( parseInt( conf.mtof ) || 0 ) + "'>" +
+					"</div>" +
+					"<p class='master-on-off master-step-hint'>" + OSApp.Language._( "On/Off adjustments are in 5-second increments." ) + "</p>" +
+					"<button class='submit' data-theme='b'>" + OSApp.Language._( "Submit" ) + "</button>" +
+				"</div>" +
+			"</div>" );
+
+		// Hide on/off adjustments when no zone is selected.
+		var toggleAdjustments = function() {
+			popup.find( ".master-on-off" ).toggle( parseInt( popup.find( "#mas-zone" ).val() ) !== 0 );
+		};
+		popup.find( "#mas-zone" ).on( "change", toggleAdjustments );
+
+		// On/off adjustments must be multiples of 5 seconds. Snap typed values
+		// on blur/change so the user gets immediate feedback.
+		var snapToFive = function( v ) { return Math.round( ( parseInt( v ) || 0 ) / 5 ) * 5; };
+		popup.find( "#mas-on, #mas-off" ).on( "change blur", function() {
+			$( this ).val( snapToFive( $( this ).val() ) );
+		} );
+
+		popup.find( ".submit" ).on( "click", function() {
+			var newConf = {
+				mas: parseInt( popup.find( "#mas-zone" ).val() ) || 0,
+				mton: snapToFive( popup.find( "#mas-on" ).val() ),
+				mtof: snapToFive( popup.find( "#mas-off" ).val() )
+			};
+			if ( newConf.mas > 0 ) {
+				$( button ).addClass( "blue" );
+			} else {
+				$( button ).removeClass( "blue" );
+			}
+			popup.popup( "close" );
+			var encoded = OSApp.Utils.escapeJSON( newConf );
+			if ( curr === encoded ) { return; }
+			button.value = encoded;
+			header.eq( 2 ).prop( "disabled", false );
+			page.find( ".submit" ).addClass( "hasChanges" );
+		} );
+
+		popup.css( { "min-width": "320px", "max-width": "380px" } );
+		OSApp.UIDom.openPopup( popup, { positionTo: "window" } );
+		toggleAdjustments();
+	} );
 
 	page.find( "#mqtt" ).on( "click", function() {
 		var button = this, curr = button.value,
