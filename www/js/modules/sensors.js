@@ -1427,7 +1427,7 @@ OSApp.Sensors.displayPage = function (_callback) {
         $div.collapsible();
 
         const isEnabled = (sensorData["flag"] & 1) !== 0;
-        $div.find(".ui-collapsible-heading-toggle").addClass(isEnabled ? "blue" : "red");
+        if (!isEnabled) $div.find(".ui-collapsible-heading-toggle").addClass("red");
 
         if (typeof sensorData["value"] !== "undefined" && sensorData["value"] !== null) {
             const unitObj = data.units.find(u => u.value === sensorData["unit"]);
@@ -1485,9 +1485,28 @@ OSApp.Sensors.displayPage = function (_callback) {
                 const count = OSApp.currentSession.controller.sensors.sn.length;
                 content.append("<p class='center'>" + OSApp.Language._("Click below to expand/edit. Be sure to save changes.") + "</p>");
                 content.append("<p class='center'>" + OSApp.Language._("Number of Sensors") + ": " + count + "</p>");
+                const $set = $('<div data-role="collapsible-set"></div>');
+                content.append($set);
                 OSApp.currentSession.controller.sensors.sn.forEach((v) => {
-                    createSensorCollapse(content, jsdData, v);
+                    createSensorCollapse($set, jsdData, v);
                 });
+                $set.collapsibleset();
+
+                const $notice = $('<p class="sensor-page-notice"></p>');
+                $notice.append(document.createTextNode(OSApp.Language._(
+                    "Note: this page is for external (e.g. analog) and virtual sensors."
+                ) + " "));
+                // Translators: keep {0} as the placeholder for the link to the
+                // "Weather and Sensors" section.
+                const template = OSApp.Language._("To edit built-in sensors (e.g. rain, flow), open the {0} section under Edit Options.");
+                const [before, after = ""] = template.split("{0}");
+                const $link = $('<a href="#"></a>').text(OSApp.Language._("Weather and Sensors"));
+                $link.on("click", function(e) {
+                    e.preventDefault();
+                    OSApp.UIDom.changePage("#os-options", { expandItem: "weather" });
+                });
+                $notice.append(document.createTextNode(before), $link, document.createTextNode(after));
+                content.append($notice);
             })
             .fail(() => {
                 OSApp.Errors.showError(OSApp.Language._("Failed to load sensor descriptions"));

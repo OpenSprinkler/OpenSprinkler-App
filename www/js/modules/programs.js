@@ -380,7 +380,7 @@ OSApp.Programs.displayPageRunOnce = function() {
 				if ( OSApp.Supported.repeatedRunonce() ){
 					repeats.push( program.repeat );
 					intervals.push( program.interval );
-	
+
 				}
 			}
 		}
@@ -2250,7 +2250,7 @@ OSApp.Programs.makeProgram21 = function( n, isCopy ) {
                     "<div style='flex:1;min-width:0'>" +
                         "<select data-mini='true' id='sen-adj-sid-" + id + "'></select>" +
                         "<div id='sen-adj-current-" + id + "' style='display:none;margin-top:4px;font-size:0.875em'>" +
-                            OSApp.Language._( "Current Value" ) + ": " +
+                            OSApp.Language._( "Current Sensor Value" ) + ": " +
                             "<span class='sensor-current-value-text' id='sen-adj-current-text-" + id + "'></span>" +
                         "</div>" +
                     "</div>" +
@@ -3326,7 +3326,7 @@ OSApp.Programs.expandProgram = function( program ) {
 		}
 
 		// detect repeat and interval in the program data
-		var repeat = 0, interval = 0; 
+		var repeat = 0, interval = 0;
 		if (OSApp.Supported.repeatedRunonce()) {
 			const prog = OSApp.currentSession.controller.programs.pd[id];
 			// startType bit: 0 => "repeating" style start times in current code path

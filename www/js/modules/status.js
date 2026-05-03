@@ -252,19 +252,25 @@ OSApp.Status.checkStatus = function() {
 		return;
 	}
 
+	// Tapping a sensor-active footer opens Edit Options at the Weather and
+	// Sensors section so users can adjust sensor configuration.
+	var openSensorOptions = function() {
+		OSApp.UIDom.changePage( "#os-options", { expandItem: "weather" } );
+	};
+
 	// Handle rain sensor triggered
 	if ( OSApp.currentSession.controller.options.urs === 1 && OSApp.currentSession.controller.settings.rs === 1 ) {
-		OSApp.Status.changeStatus( 0, "blue", "<p class='running-text center'>" + OSApp.Language._( "Rain detected" ) + "</p>" );
+		OSApp.Status.changeStatus( 0, "blue", "<p class='running-text center pointer'>" + OSApp.Language._( "Rain detected" ) + "</p>", openSensorOptions );
 		return;
 	}
 
 	if ( OSApp.currentSession.controller.settings.sn1 === 1 ) {
-		OSApp.Status.changeStatus( 0, "blue", "<p class='running-text center'>Sensor 1 (" + ( OSApp.currentSession.controller.options.sn1t === 3 ? OSApp.Language._( "Soil" ) : OSApp.Language._( "Rain" ) ) + OSApp.Language._( ") Activated" ) + "</p>" );
+		OSApp.Status.changeStatus( 0, "blue", "<p class='running-text center pointer'>Sensor 1 (" + ( OSApp.currentSession.controller.options.sn1t === 3 ? OSApp.Language._( "Soil" ) : OSApp.Language._( "Rain" ) ) + OSApp.Language._( ") Activated" ) + "</p>", openSensorOptions );
 		return;
 	}
 
 	if ( OSApp.currentSession.controller.settings.sn2 === 1 ) {
-		OSApp.Status.changeStatus( 0, "blue", "<p class='running-text center'>Sensor 2 (" + ( OSApp.currentSession.controller.options.sn2t === 3 ? OSApp.Language._( "Soil" ) : OSApp.Language._( "Rain" ) ) + OSApp.Language._( ") Activated" ) + "</p>" );
+		OSApp.Status.changeStatus( 0, "blue", "<p class='running-text center pointer'>Sensor 2 (" + ( OSApp.currentSession.controller.options.sn2t === 3 ? OSApp.Language._( "Soil" ) : OSApp.Language._( "Rain" ) ) + OSApp.Language._( ") Activated" ) + "</p>", openSensorOptions );
 		return;
 	}
 
