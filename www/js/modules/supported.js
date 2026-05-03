@@ -25,6 +25,10 @@ OSApp.Supported.master = function( masid ) {
 			return OSApp.currentSession.controller.options.mas ? true : false;
 		case OSApp.Constants.options.MASTER_STATION_2:
 			return OSApp.currentSession.controller.options.mas2 ? true : false;
+		case OSApp.Constants.options.MASTER_STATION_3:
+			return OSApp.currentSession.controller.options.mas3 ? true : false;
+		case OSApp.Constants.options.MASTER_STATION_4:
+			return OSApp.currentSession.controller.options.mas4 ? true : false;
 		default:
 			return false;
 	}

@@ -94,6 +94,8 @@ OSApp.Dashboard.displayPage = function() {
 				" card-icon ui-btn-icon-notext station-settings' data-station='" + sid + "' id='attrib-" + sid + "' " +
 				( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_1 ) ? ( "data-um='" + ( OSApp.StationAttributes.getMasterOperation( sid, OSApp.Constants.options.MASTER_STATION_1 ) ) + "' " ) : "" ) +
 				( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_2 ) ? ( "data-um2='" + ( OSApp.StationAttributes.getMasterOperation( sid, OSApp.Constants.options.MASTER_STATION_2 ) ) + "' " ) : "" ) +
+				( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_3 ) ? ( "data-um3='" + ( OSApp.StationAttributes.getMasterOperation( sid, OSApp.Constants.options.MASTER_STATION_3 ) ) + "' " ) : "" ) +
+				( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_4 ) ? ( "data-um4='" + ( OSApp.StationAttributes.getMasterOperation( sid, OSApp.Constants.options.MASTER_STATION_4 ) ) + "' " ) : "" ) +
 				( OSApp.Supported.ignoreRain() ? ( "data-ir='" + ( OSApp.StationAttributes.getIgnoreRain( sid ) ) + "' " ) : "" ) +
 				( OSApp.Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_1 ) ? ( "data-sn1='" + ( OSApp.StationAttributes.getIgnoreSensor( sid, OSApp.Constants.options.IGNORE_SENSOR_1 ) ) + "' " ) : "" ) +
 				( OSApp.Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_2 ) ? ( "data-sn2='" + ( OSApp.StationAttributes.getIgnoreSensor( sid, OSApp.Constants.options.IGNORE_SENSOR_2 ) ) + "' " ) : "" ) +
@@ -349,6 +351,8 @@ OSApp.Dashboard.displayPage = function() {
 
 					button.data( "um", select.find( "#um" ).is( ":checked" ) ? 1 : 0 );
 					button.data( "um2", select.find( "#um2" ).is( ":checked" ) ? 1 : 0 );
+					button.data( "um3", select.find( "#um3" ).is( ":checked" ) ? 1 : 0 );
+					button.data( "um4", select.find( "#um4" ).is( ":checked" ) ? 1 : 0 );
 					button.data( "ir", select.find( "#ir" ).is( ":checked" ) ? 1 : 0 );
 					button.data( "sn1", select.find( "#sn1" ).is( ":checked" ) ? 1 : 0 );
 					button.data( "sn2", select.find( "#sn2" ).is( ":checked" ) ? 1 : 0 );
@@ -394,15 +398,32 @@ OSApp.Dashboard.displayPage = function() {
 				"</button>";
 
 			if ( !OSApp.Stations.isMaster( sid ) ) {
+				var hasAdditionalMaster =
+					OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_2 ) ||
+					OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_3 ) ||
+					OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_4 );
+
 				if ( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_1 ) ) {
 					select += "<label for='um'><input class='needsclick' data-iconpos='right' id='um' type='checkbox' " +
 						( ( button.data( "um" ) === 1 ) ? "checked='checked'" : "" ) + ">" + OSApp.Language._( "Use Master" ) + " " +
-						( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_2 ) ? "1" : "" ) + "</label>";
+						( hasAdditionalMaster ? "1" : "" ) + "</label>";
 				}
 
 				if ( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_2 ) ) {
 					select += "<label for='um2'><input class='needsclick' data-iconpos='right' id='um2' type='checkbox' " +
 						( ( button.data( "um2" ) === 1 ) ? "checked='checked'" : "" ) + ">" + OSApp.Language._( "Use Master" ) + " 2" +
+						"</label>";
+				}
+
+				if ( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_3 ) ) {
+					select += "<label for='um3'><input class='needsclick' data-iconpos='right' id='um3' type='checkbox' " +
+						( ( button.data( "um3" ) === 1 ) ? "checked='checked'" : "" ) + ">" + OSApp.Language._( "Use Master" ) + " 3" +
+						"</label>";
+				}
+
+				if ( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_4 ) ) {
+					select += "<label for='um4'><input class='needsclick' data-iconpos='right' id='um4' type='checkbox' " +
+						( ( button.data( "um4" ) === 1 ) ? "checked='checked'" : "" ) + ">" + OSApp.Language._( "Use Master" ) + " 4" +
 						"</label>";
 				}
 
@@ -590,6 +611,8 @@ OSApp.Dashboard.displayPage = function() {
 			var is208 = ( OSApp.Firmware.checkOSVersion( 208 ) === true ),
 				master = {},
 				master2 = {},
+				master3 = {},
+				master4 = {},
 				sequential = {},
 				special = {},
 				rain = {},
@@ -606,6 +629,12 @@ OSApp.Dashboard.displayPage = function() {
 				}
 				if ( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_2 ) ) {
 					master2[ "n" + bid ] = 0;
+				}
+				if ( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_3 ) ) {
+					master3[ "u" + bid ] = 0;
+				}
+				if ( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_4 ) ) {
+					master4[ "v" + bid ] = 0;
 				}
 				if ( OSApp.Supported.sequential() ) {
 					sequential[ "q" + bid ] = 0;
@@ -639,6 +668,14 @@ OSApp.Dashboard.displayPage = function() {
 
 					if ( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_2 ) ) {
 						master2[ "n" + bid ] = ( master2[ "n" + bid ] ) + ( attrib.data( "um2" ) << s );
+					}
+
+					if ( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_3 ) ) {
+						master3[ "u" + bid ] = ( master3[ "u" + bid ] ) + ( attrib.data( "um3" ) << s );
+					}
+
+					if ( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_4 ) ) {
+						master4[ "v" + bid ] = ( master4[ "v" + bid ] ) + ( attrib.data( "um4" ) << s );
 					}
 
 					if ( OSApp.Supported.sequential() ) {
@@ -696,6 +733,8 @@ OSApp.Dashboard.displayPage = function() {
 			OSApp.Firmware.sendToOS( "/cs?pw=&" + $.param( names ) +
 				( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_1 ) ? "&" + $.param( master ) : "" ) +
 				( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_2 ) ? "&" + $.param( master2 ) : "" ) +
+				( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_3 ) ? "&" + $.param( master3 ) : "" ) +
+				( OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_4 ) ? "&" + $.param( master4 ) : "" ) +
 				( OSApp.Supported.sequential() ? "&" + $.param( sequential ) : "" ) +
 				( OSApp.Supported.special() ? "&" + $.param( special ) : "" ) +
 				( OSApp.Supported.ignoreRain() ? "&" + $.param( rain ) : "" ) +
@@ -953,6 +992,8 @@ OSApp.Dashboard.displayPage = function() {
 					card.find( ".station-settings" ).data( {
 						um: OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_1 ) ? OSApp.StationAttributes.getMasterOperation( sid, OSApp.Constants.options.MASTER_STATION_1 ) : undefined,
 						um2: OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_2 ) ? OSApp.StationAttributes.getMasterOperation( sid, OSApp.Constants.options.MASTER_STATION_2 ) : undefined,
+						um3: OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_3 ) ? OSApp.StationAttributes.getMasterOperation( sid, OSApp.Constants.options.MASTER_STATION_3 ) : undefined,
+						um4: OSApp.Supported.master( OSApp.Constants.options.MASTER_STATION_4 ) ? OSApp.StationAttributes.getMasterOperation( sid, OSApp.Constants.options.MASTER_STATION_4 ) : undefined,
 						ir: OSApp.Supported.ignoreRain() ? OSApp.StationAttributes.getIgnoreRain( sid ) : undefined,
 						sn1: OSApp.Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_1 ) ? OSApp.StationAttributes.getIgnoreSensor( sid, OSApp.Constants.options.IGNORE_SENSOR_1 ) : undefined,
 						sn2: OSApp.Supported.ignoreSensor( OSApp.Constants.options.IGNORE_SENSOR_2 ) ? OSApp.StationAttributes.getIgnoreSensor( sid, OSApp.Constants.options.IGNORE_SENSOR_2 ) : undefined,

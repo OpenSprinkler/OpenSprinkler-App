@@ -242,6 +242,8 @@ OSApp.Options.showOptions = function( expandItem ) {
 						return true;
 					case "o18":
 					case "o37":
+					case "mas3":
+					case "mas4":
 						if ( parseInt( data ) > ( parseInt( page.find( "#o15" ).val() ) + 1 ) * 8 ) {
 							data = 0;
 						}
@@ -431,9 +433,14 @@ OSApp.Options.showOptions = function( expandItem ) {
 		( typeof expandItem === "string" && expandItem === "master" ? " data-collapsed='false'" : "" ) + ">" +
 		"<legend>" + OSApp.Language._( "Configure Master" ) + "</legend>";
 
+	var hasAdditionalMasters =
+		typeof OSApp.currentSession.controller.options.mas2 !== "undefined" ||
+		typeof OSApp.currentSession.controller.options.mas3 !== "undefined" ||
+		typeof OSApp.currentSession.controller.options.mas4 !== "undefined";
+
 	if ( typeof OSApp.currentSession.controller.options.mas !== "undefined" ) {
 		list += "<div class='ui-field-contain ui-field-no-border'><label for='o18' class='select'>" +
-				OSApp.Language._( "Master Station" ) + " " + ( typeof OSApp.currentSession.controller.options.mas2 !== "undefined" ? "1" : "" ) +
+				OSApp.Language._( "Master Station" ) + " " + ( hasAdditionalMasters ? "1" : "" ) +
 			"</label><select data-mini='true' id='o18'><option value='0'>" + OSApp.Language._( "None" ) + "</option>";
 
 		for ( i = 0; i < OSApp.currentSession.controller.stations.snames.length; i++ ) {
@@ -491,6 +498,72 @@ OSApp.Options.showOptions = function( expandItem ) {
 				"class='ui-field-no-border ui-field-contain duration-field'><label for='o39'>" +
 					OSApp.Language._( "Master Off Adjustment" ) +
 				"</label><button data-mini='true' id='o39' value='" + OSApp.currentSession.controller.options.mtof2 + "'>" + OSApp.currentSession.controller.options.mtof2 + "s</button></div>";
+		}
+	}
+
+	if ( typeof OSApp.currentSession.controller.options.mas3 !== "undefined" ) {
+		list += "<hr style='width:95%' class='content-divider'>";
+
+		list += "<div class='ui-field-contain ui-field-no-border'><label for='mas3' class='select'>" +
+				OSApp.Language._( "Master Station" ) + " 3" +
+			"</label><select data-mini='true' id='mas3'><option value='0'>" + OSApp.Language._( "None" ) + "</option>";
+
+		for ( i = 0; i < OSApp.currentSession.controller.stations.snames.length; i++ ) {
+			list += "<option " + ( ( OSApp.Stations.isMaster( i ) === 3 ) ? "selected" : "" ) + " value='" + ( i + 1 ) + "'>" + OSApp.Stations.getName( i ) +
+				"</option>";
+
+			if ( !OSApp.Firmware.checkOSVersion( 214 ) && i === 7 ) {
+				break;
+			}
+		}
+
+		list += "</select></div>";
+
+		if ( typeof OSApp.currentSession.controller.options.mton3 !== "undefined" ) {
+			list += "<div " + ( OSApp.currentSession.controller.options.mas3 === 0 ? "style='display:none' " : "" ) +
+				"class='ui-field-no-border ui-field-contain duration-field'><label for='mton3'>" +
+					OSApp.Language._( "Master On Adjustment" ) +
+				"</label><button data-mini='true' id='mton3' value='" + OSApp.currentSession.controller.options.mton3 + "'>" + OSApp.currentSession.controller.options.mton3 + "s</button></div>";
+		}
+
+		if ( typeof OSApp.currentSession.controller.options.mtof3 !== "undefined" ) {
+			list += "<div " + ( OSApp.currentSession.controller.options.mas3 === 0 ? "style='display:none' " : "" ) +
+				"class='ui-field-no-border ui-field-contain duration-field'><label for='mtof3'>" +
+					OSApp.Language._( "Master Off Adjustment" ) +
+				"</label><button data-mini='true' id='mtof3' value='" + OSApp.currentSession.controller.options.mtof3 + "'>" + OSApp.currentSession.controller.options.mtof3 + "s</button></div>";
+		}
+	}
+
+	if ( typeof OSApp.currentSession.controller.options.mas4 !== "undefined" ) {
+		list += "<hr style='width:95%' class='content-divider'>";
+
+		list += "<div class='ui-field-contain ui-field-no-border'><label for='mas4' class='select'>" +
+				OSApp.Language._( "Master Station" ) + " 4" +
+			"</label><select data-mini='true' id='mas4'><option value='0'>" + OSApp.Language._( "None" ) + "</option>";
+
+		for ( i = 0; i < OSApp.currentSession.controller.stations.snames.length; i++ ) {
+			list += "<option " + ( ( OSApp.Stations.isMaster( i ) === 4 ) ? "selected" : "" ) + " value='" + ( i + 1 ) + "'>" + OSApp.Stations.getName( i ) +
+				"</option>";
+
+			if ( !OSApp.Firmware.checkOSVersion( 214 ) && i === 7 ) {
+				break;
+			}
+		}
+
+		list += "</select></div>";
+
+		if ( typeof OSApp.currentSession.controller.options.mton4 !== "undefined" ) {
+			list += "<div " + ( OSApp.currentSession.controller.options.mas4 === 0 ? "style='display:none' " : "" ) +
+				"class='ui-field-no-border ui-field-contain duration-field'><label for='mton4'>" +
+					OSApp.Language._( "Master On Adjustment" ) +
+				"</label><button data-mini='true' id='mton4' value='" + OSApp.currentSession.controller.options.mton4 + "'>" + OSApp.currentSession.controller.options.mton4 + "s</button></div>";
+		}
+
+		if ( typeof OSApp.currentSession.controller.options.mtof4 !== "undefined" ) {
+			list += "<div " + ( OSApp.currentSession.controller.options.mas4 === 0 ? "style='display:none' " : "" ) +
+				"class='ui-field-no-border ui-field-contain duration-field'><label for='mtof4'>" +
+					OSApp.Language._( "Master Off Adjustment" ) +
+				"</label><button data-mini='true' id='mtof4' value='" + OSApp.currentSession.controller.options.mtof4 + "'>" + OSApp.currentSession.controller.options.mtof4 + "s</button></div>";
 		}
 	}
 
@@ -1324,6 +1397,18 @@ OSApp.Options.showOptions = function( expandItem ) {
 			}
 		}
 
+		if ( typeof OSApp.currentSession.controller.options.mas3 !== "undefined" ) {
+			for ( i = 0; i < OSApp.currentSession.controller.settings.nbrd; i++ ) {
+				cs += "u" + i + "=0&";
+			}
+		}
+
+		if ( typeof OSApp.currentSession.controller.options.mas4 !== "undefined" ) {
+			for ( i = 0; i < OSApp.currentSession.controller.settings.nbrd; i++ ) {
+				cs += "v" + i + "=0&";
+			}
+		}
+
 		if ( typeof OSApp.currentSession.controller.stations.ignore_rain === "object" ) {
 			for ( i = 0; i < OSApp.currentSession.controller.settings.nbrd; i++ ) {
 				cs += "i" + i + "=0&";
@@ -1514,7 +1599,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 					dur.val( ip.join( "." ) ).text( ip.join( "." ) );
 				}
 			} );
-		} else if ( id === "o19" || id === "o38" ) {
+		} else if ( id === "o19" || id === "o38" || id === "mton3" || id === "mton4" ) {
 			OSApp.UIDom.showSingleDurationInput( {
 				data: dur.val(),
 				title: name,
@@ -1537,7 +1622,7 @@ OSApp.Options.showOptions = function( expandItem ) {
 				maximum: 2000,
 				helptext: helptext
 			} );
-		} else if ( id === "o20" || id === "o39" ) {
+		} else if ( id === "o20" || id === "o39" || id === "mtof3" || id === "mtof4" ) {
 			OSApp.UIDom.showSingleDurationInput( {
 				data: dur.val(),
 				title: name,
@@ -1626,10 +1711,16 @@ OSApp.Options.showOptions = function( expandItem ) {
 		page.find( "#ntp_addr" ).parents( ".ui-field-contain" ).toggleClass( "hidden", !ntp );
 	} );
 
-	page.find( "#o18,#o37" ).on( "change", function() {
+	page.find( "#o18,#o37,#mas3,#mas4" ).on( "change", function() {
 		page.find( "#o19,#o20" ).parents( ".ui-field-contain" ).toggle( parseInt( page.find( "#o18" ).val() ) === 0 ? false : true );
 		if ( typeof OSApp.currentSession.controller.options.mas2 !== "undefined" ) {
 			page.find( "#o38,#o39" ).parents( ".ui-field-contain" ).toggle( parseInt( page.find( "#o37" ).val() ) === 0 ? false : true );
+		}
+		if ( typeof OSApp.currentSession.controller.options.mas3 !== "undefined" ) {
+			page.find( "#mton3,#mtof3" ).parents( ".ui-field-contain" ).toggle( parseInt( page.find( "#mas3" ).val() ) === 0 ? false : true );
+		}
+		if ( typeof OSApp.currentSession.controller.options.mas4 !== "undefined" ) {
+			page.find( "#mton4,#mtof4" ).parents( ".ui-field-contain" ).toggle( parseInt( page.find( "#mas4" ).val() ) === 0 ? false : true );
 		}
 	} );
 

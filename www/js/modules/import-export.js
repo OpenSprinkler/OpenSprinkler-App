@@ -270,6 +270,18 @@ OSApp.ImportExport.importConfig = function( data ) {
 			}
 		}
 
+		if ( typeof data.stations.masop3 === "object" ) {
+			for ( i = 0; i < data.stations.masop3.length; i++ ) {
+				cs += "&u" + i + "=" + data.stations.masop3[ i ];
+			}
+		}
+
+		if ( typeof data.stations.masop4 === "object" ) {
+			for ( i = 0; i < data.stations.masop4.length; i++ ) {
+				cs += "&v" + i + "=" + data.stations.masop4[ i ];
+			}
+		}
+
 		if ( typeof data.stations.ignore_rain === "object" ) {
 			for ( i = 0; i < data.stations.ignore_rain.length; i++ ) {
 				cs += "&i" + i + "=" + data.stations.ignore_rain[ i ];

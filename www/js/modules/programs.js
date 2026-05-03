@@ -1125,6 +1125,39 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 		} while ( simminutes < 24 * 60 );
 	};
 
+	// Push a preview entry per active master that this station is bound to.
+	// Covers all four masters (mas, mas2, mas3, mas4); silently skips any
+	// that aren't enabled or whose masop bitmap doesn't include sid.
+	var pushMasterPreviews = function( sid, startTs, endTs ) {
+		var masters = [
+			{ num: 1, mas: "mas", mton: "mton", mtof: "mtof", mop: "masop" },
+			{ num: 2, mas: "mas2", mton: "mton2", mtof: "mtof2", mop: "masop2" },
+			{ num: 3, mas: "mas3", mton: "mton3", mtof: "mtof3", mop: "masop3" },
+			{ num: 4, mas: "mas4", mton: "mton4", mtof: "mtof4", mop: "masop4" }
+		];
+		var opts = OSApp.currentSession.controller.options,
+			stations = OSApp.currentSession.controller.stations;
+		masters.forEach( function( m ) {
+			if ( typeof opts[ m.mas ] === "undefined" || opts[ m.mas ] <= 0 ) { return; }
+			var mop = stations[ m.mop ];
+			if ( !mop || !( mop[ sid >> 3 ] & ( 1 << ( sid % 8 ) ) ) ) { return; }
+			var groupName = m.num === 1 ? "Master" : "Master " + m.num;
+			previewData.push( {
+				"start": startTs + opts[ m.mton ],
+				"end": endTs + opts[ m.mtof ],
+				"content": "",
+				"className": "master",
+				"group": groupName
+			} );
+			if ( !previewGroups.some( function( g ) { return g.id === groupName; } ) ) {
+				previewGroups.push( {
+					"id": groupName,
+					"content": groupName
+				} );
+			}
+		} );
+	};
+
 	runSched216 = function( simseconds, rtQueue, qidArray, simt ) {
 		for ( var sid = 0; sid < OSApp.currentSession.controller.settings.nbrd * 8; sid++ ) {
 			var sqi = qidArray[ sid ];
@@ -1135,43 +1168,8 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 			if ( q.pl ) {
 
 				// If this one hasn't been plotted
-				var mas2 = typeof OSApp.currentSession.controller.options.mas2 !== "undefined" ? true : false,
-					useMas1 = OSApp.currentSession.controller.stations.masop[ sid >> 3 ] & ( 1 << ( sid % 8 ) ),
-					useMas2 = mas2 ? OSApp.currentSession.controller.stations.masop2[ sid >> 3 ] & ( 1 << ( sid % 8 ) ) : false;
-
 				if ( !OSApp.Stations.isMaster( sid ) ) {
-					if ( OSApp.currentSession.controller.options.mas > 0 && useMas1 ) {
-						previewData.push( {
-							"start": ( q.st + OSApp.currentSession.controller.options.mton ),
-							"end": ( q.st + q.dur + OSApp.currentSession.controller.options.mtof ),
-							"content":"",
-							"className":"master",
-							"group":"Master"
-						} );
-						if ( !previewGroups.some( group => group.id === "Master" ) ) {
-							previewGroups.push( {
-								"id":"Master",
-								"content":"Master"
-							} );
-						}
-
-					}
-
-					if ( mas2 && OSApp.currentSession.controller.options.mas2 > 0 && useMas2 ) {
-						previewData.push( {
-							"start": ( q.st + OSApp.currentSession.controller.options.mton2 ),
-							"end": ( q.st + q.dur + OSApp.currentSession.controller.options.mtof2 ),
-							"content":"",
-							"className":"master",
-							"group":"Master 2",
-						} );
-						if ( !previewGroups.some( group => group.id === "Master 2" ) ) {
-							previewGroups.push( {
-								"id":"Master 2",
-								"content":"Master 2"
-							} );
-						}
-					}
+					pushMasterPreviews( sid, q.st, q.st + q.dur );
 				}
 				timeToText( sid, q.st, q.pid, q.st + q.dur, simt );
 				q.pl = 0;
@@ -1185,42 +1183,8 @@ OSApp.Programs.displayPagePreviewPrograms = function() {
 			if ( programArray[ sid ] ) {
 				if ( is211 ) {
 					if ( plArray[ sid ] ) {
-						var mas2 = typeof OSApp.currentSession.controller.options.mas2 !== "undefined" ? true : false,
-							useMas1 = OSApp.currentSession.controller.stations.masop[ sid >> 3 ] & ( 1 << ( sid % 8 ) ),
-							useMas2 = mas2 ? OSApp.currentSession.controller.stations.masop2[ sid >> 3 ] & ( 1 << ( sid % 8 ) ) : false;
-
 						if ( !OSApp.Stations.isMaster( sid ) ) {
-							if ( OSApp.currentSession.controller.options.mas > 0 && useMas1 ) {
-								previewData.push( {
-									"start": ( startArray[ sid ] + OSApp.currentSession.controller.options.mton ),
-									"end": ( endArray[ sid ] + OSApp.currentSession.controller.options.mtof ),
-									"content":"",
-									"className":"master",
-									"group":"Master",
-								} );
-								if ( !previewGroups.some( group => group.id === "Master" ) ) {
-									previewGroups.push( {
-										"id":"Master",
-										"content":"Master"
-									} );
-								}
-							}
-
-							if ( mas2 && OSApp.currentSession.controller.options.mas2 > 0 && useMas2 ) {
-								previewData.push( {
-									"start": ( startArray[ sid ] + OSApp.currentSession.controller.options.mton2 ),
-									"end": ( endArray[ sid ] + OSApp.currentSession.controller.options.mtof2 ),
-									"content":"",
-									"className":"master",
-									"group":"Master 2",
-								} );
-								if ( !previewGroups.some( group => group.id === "Master 2" ) ) {
-									previewGroups.push( {
-										"id":"Master 2",
-										"content":"Master 2"
-									} );
-								}
-							}
+							pushMasterPreviews( sid, startArray[ sid ], endArray[ sid ] );
 						}
 
 						timeToText( sid, startArray[ sid ], programArray[ sid ], endArray[ sid ], simt );

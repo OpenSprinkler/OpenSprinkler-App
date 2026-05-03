@@ -29,6 +29,12 @@ OSApp.StationAttributes.getMasterOperation = function( sid, masid ) {
 		case OSApp.Constants.options.MASTER_STATION_2:
 			sourceMasterAttribute = OSApp.currentSession.controller.stations.masop2;
 			break;
+		case OSApp.Constants.options.MASTER_STATION_3:
+			sourceMasterAttribute = OSApp.currentSession.controller.stations.masop3;
+			break;
+		case OSApp.Constants.options.MASTER_STATION_4:
+			sourceMasterAttribute = OSApp.currentSession.controller.stations.masop4;
+			break;
 		default:
 			return 0;
 	}

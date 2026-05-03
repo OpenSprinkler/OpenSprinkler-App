@@ -109,7 +109,9 @@ OSApp.Stations.isRunning = function( sid ) {
 
 OSApp.Stations.isMaster = function( sid ) {
 	var m1 = typeof OSApp.currentSession.controller.options.mas === "number" ? OSApp.currentSession.controller.options.mas : 0,
-		m2 = typeof OSApp.currentSession.controller.options.mas2 === "number" ? OSApp.currentSession.controller.options.mas2 : 0;
+		m2 = typeof OSApp.currentSession.controller.options.mas2 === "number" ? OSApp.currentSession.controller.options.mas2 : 0,
+		m3 = typeof OSApp.currentSession.controller.options.mas3 === "number" ? OSApp.currentSession.controller.options.mas3 : 0,
+		m4 = typeof OSApp.currentSession.controller.options.mas4 === "number" ? OSApp.currentSession.controller.options.mas4 : 0;
 
 	sid++;
 
@@ -117,6 +119,10 @@ OSApp.Stations.isMaster = function( sid ) {
 		return 1;
 	} else if ( m2 === sid ) {
 		return 2;
+	} else if ( m3 === sid ) {
+		return 3;
+	} else if ( m4 === sid ) {
+		return 4;
 	} else {
 		return 0;
 	}
